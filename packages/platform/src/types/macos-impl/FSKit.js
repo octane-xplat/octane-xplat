@@ -14,7 +14,11 @@ export const FSItemAttribute = /* @__PURE__ */ _bind(FW, 'FSItemAttribute')
 export const FSItemDeactivationOptions = /* @__PURE__ */ _bind(FW, 'FSItemDeactivationOptions')
 export const FSItemID = /* @__PURE__ */ _bind(FW, 'FSItemID')
 export const FSItemType = /* @__PURE__ */ _bind(FW, 'FSItemType')
-export const FSKernelCacheCoherencyAction = /* @__PURE__ */ _bind(FW, 'FSKernelCacheCoherencyAction')
+export const FSKernelCacheCoherencyAction = /* @__PURE__ */ _bind(
+	FW,
+	'FSKernelCacheCoherencyAction',
+)
+
 export const FSKernelCacheCoherencyType = /* @__PURE__ */ _bind(FW, 'FSKernelCacheCoherencyType')
 export const FSKitVersionNumber = /* @__PURE__ */ _bind(FW, 'FSKitVersionNumber')
 export const FSKitVersionString = /* @__PURE__ */ _bind(FW, 'FSKitVersionString')

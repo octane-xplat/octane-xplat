@@ -3,7 +3,6 @@ import { Application } from '@nativescript/core'
 import type { AppInfo } from './types'
 import { NSBundle } from '@octane-xplat/platform/ios'
 
-
 function value(value: unknown): string | null {
 	return value === undefined || value === null ? null : String(value)
 }

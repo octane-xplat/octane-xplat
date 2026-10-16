@@ -1,6 +1,10 @@
 import { _bind } from './_rt.js'
 const FW = '/System/Library/Frameworks/PencilKit.framework/PencilKit'
-export const PKAppleDrawingTypeIdentifier = /* @__PURE__ */ _bind(FW, 'PKAppleDrawingTypeIdentifier')
+export const PKAppleDrawingTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'PKAppleDrawingTypeIdentifier',
+)
+
 export const PKContentVersion = /* @__PURE__ */ _bind(FW, 'PKContentVersion')
 export const PKDrawing = /* @__PURE__ */ _bind(FW, 'PKDrawing')
 export const PKEraserTool = /* @__PURE__ */ _bind(FW, 'PKEraserTool')

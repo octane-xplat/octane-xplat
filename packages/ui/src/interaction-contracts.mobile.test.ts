@@ -14,10 +14,20 @@ describe('normalized keyboard attachment', () => {
 	it('copies the key domain and forwards prevention to the original event', () => {
 		const onKeyDown = vi.fn()
 		const event = {
-			key: 'Enter', code: 'Enter', altKey: false, ctrlKey: true,
-			metaKey: false, shiftKey: true, repeat: true, isComposing: false,
-			keyCode: 229, defaultPrevented: false,
-			preventDefault() { this.defaultPrevented = true }, stopPropagation: vi.fn(),
+			key: 'Enter',
+			code: 'Enter',
+			altKey: false,
+			ctrlKey: true,
+			metaKey: false,
+			shiftKey: true,
+			repeat: true,
+			isComposing: false,
+			keyCode: 229,
+			defaultPrevented: false,
+			preventDefault() {
+				this.defaultPrevented = true
+			},
+			stopPropagation: vi.fn(),
 		}
 
 		const result = useWebKeyboard({ onKeyDown })
@@ -25,7 +35,14 @@ describe('normalized keyboard attachment', () => {
 		result.keyboardProps.onKeyDown?.(event)
 		const normalized = onKeyDown.mock.calls[0][0]
 		expect(normalized).not.toBe(event)
-		expect(normalized).toMatchObject({ key: 'Enter', code: 'Enter', ctrlKey: true, repeat: true, isComposing: true })
+		expect(normalized).toMatchObject({
+			key: 'Enter',
+			code: 'Enter',
+			ctrlKey: true,
+			repeat: true,
+			isComposing: true,
+		})
+
 		normalized.preventDefault()
 		expect(normalized.defaultPrevented).toBe(true)
 		normalized.stopPropagation()
@@ -37,7 +54,9 @@ describe('normalized keyboard attachment', () => {
 describe('observable clipboard attempts', () => {
 	it('returns and reports success and write failure on each activation', async () => {
 		vi.mocked(copyText).mockResolvedValueOnce(true).mockResolvedValueOnce(false)
-		const onCopy = vi.fn(), getItems = vi.fn(() => 'hello')
+		const onCopy = vi.fn(),
+			getItems = vi.fn(() => 'hello')
+
 		const result = useClipboard({ getItems, onCopy })
 		expect(await result.clipboardProps.onPress()).toBe(true)
 		expect(await result.copy()).toBe(false)
@@ -47,7 +66,15 @@ describe('observable clipboard attempts', () => {
 
 	it('reports producer failure and rejected writes without losing the outcome', async () => {
 		const onCopy = vi.fn()
-		expect(await useClipboard({ getItems: () => { throw new Error('producer') }, onCopy }).copy()).toBe(false)
+		expect(
+			await useClipboard({
+				getItems: () => {
+					throw new Error('producer')
+				},
+				onCopy,
+			}).copy(),
+		).toBe(false)
+
 		vi.mocked(copyText).mockRejectedValueOnce(new Error('denied'))
 		expect(await useClipboard({ getItems: () => 'hello', onCopy }).copy()).toBe(false)
 		expect(onCopy.mock.calls).toEqual([[false], [false]])

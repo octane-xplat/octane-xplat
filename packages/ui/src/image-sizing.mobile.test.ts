@@ -23,7 +23,9 @@ function mockView(width = 0, height = 0) {
 			return view.measured.h
 		},
 		emit(event: string) {
-			for (const callback of handlers.get(event) ?? []) {callback()}
+			for (const callback of handlers.get(event) ?? []) {
+				callback()
+			}
 		},
 		handlerCount(event: string) {
 			return handlers.get(event)?.size ?? 0

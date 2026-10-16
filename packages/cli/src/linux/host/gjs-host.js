@@ -101,10 +101,7 @@ function serveBundle(webContext) {
 		// round-trip; unlike app routes, this prefix never falls back to
 		// index.html — a missing movie is a real miss.
 		if (request.get_path().startsWith('/-/media/')) {
-			const file = GLib.build_filenamev([
-				mediaDir(),
-				GLib.path_get_basename(request.get_path()),
-			])
+			const file = GLib.build_filenamev([mediaDir(), GLib.path_get_basename(request.get_path())])
 
 			try {
 				const f = Gio.File.new_for_path(file)
@@ -916,7 +913,6 @@ function dispatch(wv, id, service, method, args, protocol = false) {
 				return
 			}
 		}
-
 
 		if (service === 'files') {
 			if (method === 'readText') {

@@ -101,7 +101,11 @@ export function androidDevices({ exec = execText } = {}) {
 }
 
 /** Locate a Chromium executable for browser-driven sessions. */
-export function chromiumExecutable({ env = process.env, exec = execText, host = process.platform } = {}) {
+export function chromiumExecutable({
+	env = process.env,
+	exec = execText,
+	host = process.platform,
+} = {}) {
 	const candidates = []
 	if (env.XPLAT_MCP_CHROMIUM) {
 		candidates.push(env.XPLAT_MCP_CHROMIUM)

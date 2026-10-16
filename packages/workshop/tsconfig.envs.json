@@ -9,24 +9,13 @@
 	},
 	"environments": {
 		"web": {
-			"include": [
-				"src/**/*.ts",
-				"src/**/*.tsrx",
-				"tests/**/*.ts"
-			],
-			"exclude": [
-				"src/**/*.test.*",
-				"src/mobile/**"
-			]
+			"include": ["src/**/*.ts", "src/**/*.tsrx", "tests/**/*.ts"],
+			"exclude": ["src/**/*.test.*", "src/mobile/**"]
 		},
 		"native": {
-			"files": [
-				"src/mobile/index.mobile.ts"
-			],
+			"files": ["src/mobile/index.mobile.ts"],
 			"compilerOptions": {
-				"types": [
-					"@nativescript/types"
-				]
+				"types": ["@nativescript/types"]
 			}
 		}
 	}

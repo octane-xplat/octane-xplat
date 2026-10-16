@@ -3,29 +3,97 @@ const FW = '/System/Library/Frameworks/MetalKit.framework/MetalKit'
 export const MTKMesh = /* @__PURE__ */ _bind(FW, 'MTKMesh')
 export const MTKMeshBuffer = /* @__PURE__ */ _bind(FW, 'MTKMeshBuffer')
 export const MTKMeshBufferAllocator = /* @__PURE__ */ _bind(FW, 'MTKMeshBufferAllocator')
-export const MTKMetalVertexDescriptorFromModelIO = /* @__PURE__ */ _bind(FW, 'MTKMetalVertexDescriptorFromModelIO')
-export const MTKMetalVertexDescriptorFromModelIOWithError = /* @__PURE__ */ _bind(FW, 'MTKMetalVertexDescriptorFromModelIOWithError')
-export const MTKMetalVertexFormatFromModelIO = /* @__PURE__ */ _bind(FW, 'MTKMetalVertexFormatFromModelIO')
+export const MTKMetalVertexDescriptorFromModelIO = /* @__PURE__ */ _bind(
+	FW,
+	'MTKMetalVertexDescriptorFromModelIO',
+)
+
+export const MTKMetalVertexDescriptorFromModelIOWithError = /* @__PURE__ */ _bind(
+	FW,
+	'MTKMetalVertexDescriptorFromModelIOWithError',
+)
+
+export const MTKMetalVertexFormatFromModelIO = /* @__PURE__ */ _bind(
+	FW,
+	'MTKMetalVertexFormatFromModelIO',
+)
+
 export const MTKModelErrorDomain = /* @__PURE__ */ _bind(FW, 'MTKModelErrorDomain')
 export const MTKModelErrorKey = /* @__PURE__ */ _bind(FW, 'MTKModelErrorKey')
-export const MTKModelIOVertexDescriptorFromMetal = /* @__PURE__ */ _bind(FW, 'MTKModelIOVertexDescriptorFromMetal')
-export const MTKModelIOVertexDescriptorFromMetalWithError = /* @__PURE__ */ _bind(FW, 'MTKModelIOVertexDescriptorFromMetalWithError')
-export const MTKModelIOVertexFormatFromMetal = /* @__PURE__ */ _bind(FW, 'MTKModelIOVertexFormatFromMetal')
+export const MTKModelIOVertexDescriptorFromMetal = /* @__PURE__ */ _bind(
+	FW,
+	'MTKModelIOVertexDescriptorFromMetal',
+)
+
+export const MTKModelIOVertexDescriptorFromMetalWithError = /* @__PURE__ */ _bind(
+	FW,
+	'MTKModelIOVertexDescriptorFromMetalWithError',
+)
+
+export const MTKModelIOVertexFormatFromMetal = /* @__PURE__ */ _bind(
+	FW,
+	'MTKModelIOVertexFormatFromMetal',
+)
+
 export const MTKSubmesh = /* @__PURE__ */ _bind(FW, 'MTKSubmesh')
 export const MTKTextureLoader = /* @__PURE__ */ _bind(FW, 'MTKTextureLoader')
-export const MTKTextureLoaderCubeLayoutVertical = /* @__PURE__ */ _bind(FW, 'MTKTextureLoaderCubeLayoutVertical')
+export const MTKTextureLoaderCubeLayoutVertical = /* @__PURE__ */ _bind(
+	FW,
+	'MTKTextureLoaderCubeLayoutVertical',
+)
+
 export const MTKTextureLoaderErrorDomain = /* @__PURE__ */ _bind(FW, 'MTKTextureLoaderErrorDomain')
 export const MTKTextureLoaderErrorKey = /* @__PURE__ */ _bind(FW, 'MTKTextureLoaderErrorKey')
-export const MTKTextureLoaderOptionAllocateMipmaps = /* @__PURE__ */ _bind(FW, 'MTKTextureLoaderOptionAllocateMipmaps')
-export const MTKTextureLoaderOptionCubeLayout = /* @__PURE__ */ _bind(FW, 'MTKTextureLoaderOptionCubeLayout')
-export const MTKTextureLoaderOptionGenerateMipmaps = /* @__PURE__ */ _bind(FW, 'MTKTextureLoaderOptionGenerateMipmaps')
-export const MTKTextureLoaderOptionOrigin = /* @__PURE__ */ _bind(FW, 'MTKTextureLoaderOptionOrigin')
+export const MTKTextureLoaderOptionAllocateMipmaps = /* @__PURE__ */ _bind(
+	FW,
+	'MTKTextureLoaderOptionAllocateMipmaps',
+)
+
+export const MTKTextureLoaderOptionCubeLayout = /* @__PURE__ */ _bind(
+	FW,
+	'MTKTextureLoaderOptionCubeLayout',
+)
+
+export const MTKTextureLoaderOptionGenerateMipmaps = /* @__PURE__ */ _bind(
+	FW,
+	'MTKTextureLoaderOptionGenerateMipmaps',
+)
+
+export const MTKTextureLoaderOptionOrigin = /* @__PURE__ */ _bind(
+	FW,
+	'MTKTextureLoaderOptionOrigin',
+)
+
 export const MTKTextureLoaderOptionSRGB = /* @__PURE__ */ _bind(FW, 'MTKTextureLoaderOptionSRGB')
-export const MTKTextureLoaderOptionTextureCPUCacheMode = /* @__PURE__ */ _bind(FW, 'MTKTextureLoaderOptionTextureCPUCacheMode')
-export const MTKTextureLoaderOptionTextureStorageMode = /* @__PURE__ */ _bind(FW, 'MTKTextureLoaderOptionTextureStorageMode')
-export const MTKTextureLoaderOptionTextureUsage = /* @__PURE__ */ _bind(FW, 'MTKTextureLoaderOptionTextureUsage')
-export const MTKTextureLoaderOriginBottomLeft = /* @__PURE__ */ _bind(FW, 'MTKTextureLoaderOriginBottomLeft')
-export const MTKTextureLoaderOriginFlippedVertically = /* @__PURE__ */ _bind(FW, 'MTKTextureLoaderOriginFlippedVertically')
-export const MTKTextureLoaderOriginTopLeft = /* @__PURE__ */ _bind(FW, 'MTKTextureLoaderOriginTopLeft')
+export const MTKTextureLoaderOptionTextureCPUCacheMode = /* @__PURE__ */ _bind(
+	FW,
+	'MTKTextureLoaderOptionTextureCPUCacheMode',
+)
+
+export const MTKTextureLoaderOptionTextureStorageMode = /* @__PURE__ */ _bind(
+	FW,
+	'MTKTextureLoaderOptionTextureStorageMode',
+)
+
+export const MTKTextureLoaderOptionTextureUsage = /* @__PURE__ */ _bind(
+	FW,
+	'MTKTextureLoaderOptionTextureUsage',
+)
+
+export const MTKTextureLoaderOriginBottomLeft = /* @__PURE__ */ _bind(
+	FW,
+	'MTKTextureLoaderOriginBottomLeft',
+)
+
+export const MTKTextureLoaderOriginFlippedVertically = /* @__PURE__ */ _bind(
+	FW,
+	'MTKTextureLoaderOriginFlippedVertically',
+)
+
+export const MTKTextureLoaderOriginTopLeft = /* @__PURE__ */ _bind(
+	FW,
+	'MTKTextureLoaderOriginTopLeft',
+)
+
 export const MTKView = /* @__PURE__ */ _bind(FW, 'MTKView')
 export const MTKViewDelegate = /* @__PURE__ */ _bind(FW, 'MTKViewDelegate')

@@ -2,104 +2,122 @@
 /// <reference path="./Runtime.d.ts" />
 
 declare class CBGroupIdentity extends CBIdentity {
-  static groupIdentityWithPosixGIDAuthority(gid: number, authority: CBIdentityAuthority): CBGroupIdentity;
+	static groupIdentityWithPosixGIDAuthority(
+		gid: number,
+		authority: CBIdentityAuthority,
+	): CBGroupIdentity
 
-  readonly posixGID: number;
+	readonly posixGID: number
 
-  readonly members: NSArray;
+	readonly members: NSArray
 
-  readonly memberIdentities: NSArray;
+	readonly memberIdentities: NSArray
 }
 
 declare class CBUserIdentity extends CBIdentity implements NSCoding, NSCopying {
-  static userIdentityWithPosixUIDAuthority(uid: number, authority: CBIdentityAuthority): CBUserIdentity;
+	static userIdentityWithPosixUIDAuthority(
+		uid: number,
+		authority: CBIdentityAuthority,
+	): CBUserIdentity
 
-  readonly posixUID: number;
+	readonly posixUID: number
 
-  readonly certificate: interop.Object;
+	readonly certificate: interop.Object
 
-  readonly enabled: boolean;
+	readonly enabled: boolean
 
-  authenticateWithPassword(password: string): boolean;
+	authenticateWithPassword(password: string): boolean
 
-  isEnabled(): boolean;
+	isEnabled(): boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class CBIdentityPicker extends NSObject {
-  title: string;
+	title: string
 
-  allowsMultipleSelection: boolean;
+	allowsMultipleSelection: boolean
 
-  runModal(): number;
+	runModal(): number
 
-  runModalForWindowModalDelegateDidEndSelectorContextInfo(window: NSWindow, delegate: interop.Object | null, didEndSelector: string | null, contextInfo: interop.PointerConvertible): void;
+	runModalForWindowModalDelegateDidEndSelectorContextInfo(
+		window: NSWindow,
+		delegate: interop.Object | null,
+		didEndSelector: string | null,
+		contextInfo: interop.PointerConvertible,
+	): void
 
-  runModalForWindowCompletionHandler(window: NSWindow, completionHandler: (p1: number) => void | null): void;
+	runModalForWindowCompletionHandler(
+		window: NSWindow,
+		completionHandler: (p1: number) => void | null,
+	): void
 
-  readonly identities: NSArray;
+	readonly identities: NSArray
 }
 
 declare class CBIdentity extends NSObject implements NSCoding, NSCopying {
-  static identityWithNameAuthority(name: string, authority: CBIdentityAuthority): CBIdentity;
+	static identityWithNameAuthority(name: string, authority: CBIdentityAuthority): CBIdentity
 
-  static identityWithUniqueIdentifierAuthority(uuid: NSUUID, authority: CBIdentityAuthority): CBIdentity;
+	static identityWithUniqueIdentifierAuthority(
+		uuid: NSUUID,
+		authority: CBIdentityAuthority,
+	): CBIdentity
 
-  static identityWithUUIDStringAuthority(uuid: string, authority: CBIdentityAuthority): CBIdentity;
+	static identityWithUUIDStringAuthority(uuid: string, authority: CBIdentityAuthority): CBIdentity
 
-  static identityWithPersistentReference(data: NSData): CBIdentity;
+	static identityWithPersistentReference(data: NSData): CBIdentity
 
-  static identityWithCSIdentity(csIdentity: interop.Object): CBIdentity;
+	static identityWithCSIdentity(csIdentity: interop.Object): CBIdentity
 
-  readonly authority: CBIdentityAuthority;
+	readonly authority: CBIdentityAuthority
 
-  readonly uniqueIdentifier: NSUUID;
+	readonly uniqueIdentifier: NSUUID
 
-  readonly UUIDString: string;
+	readonly UUIDString: string
 
-  readonly fullName: string;
+	readonly fullName: string
 
-  readonly posixName: string;
+	readonly posixName: string
 
-  readonly aliases: NSArray;
+	readonly aliases: NSArray
 
-  readonly emailAddress: string;
+	readonly emailAddress: string
 
-  readonly image: NSImage;
+	readonly image: NSImage
 
-  readonly persistentReference: NSData;
+	readonly persistentReference: NSData
 
-  readonly hidden: boolean;
+	readonly hidden: boolean
 
-  isMemberOfGroup(group: CBGroupIdentity): boolean;
+	isMemberOfGroup(group: CBGroupIdentity): boolean
 
-  readonly CSIdentity: interop.Object;
+	readonly CSIdentity: interop.Object
 
-  isHidden(): boolean;
+	isHidden(): boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class CBIdentityAuthority extends NSObject {
-  static localIdentityAuthority(): CBIdentityAuthority;
+	static localIdentityAuthority(): CBIdentityAuthority
 
-  static managedIdentityAuthority(): CBIdentityAuthority;
+	static managedIdentityAuthority(): CBIdentityAuthority
 
-  static defaultIdentityAuthority(): CBIdentityAuthority;
+	static defaultIdentityAuthority(): CBIdentityAuthority
 
-  static identityAuthorityWithCSIdentityAuthority(CSIdentityAuthority: interop.Object): CBIdentityAuthority;
+	static identityAuthorityWithCSIdentityAuthority(
+		CSIdentityAuthority: interop.Object,
+	): CBIdentityAuthority
 
-  readonly CSIdentityAuthority: interop.Object;
+	readonly CSIdentityAuthority: interop.Object
 
-  readonly localizedName: string;
+	readonly localizedName: string
 }
-

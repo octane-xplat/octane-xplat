@@ -4,7 +4,10 @@ import { pathToFileURL } from 'node:url'
 
 export function parseJsonLines(text) {
 	const lines = text.trimEnd().split('\n')
-	if (lines.length === 1 && lines[0] === '') {throw new Error('Empty evidence')}
+	if (lines.length === 1 && lines[0] === '') {
+		throw new Error('Empty evidence')
+	}
+
 	return lines.map((line, index) => {
 		let record
 		try {
@@ -24,13 +27,15 @@ export function parseJsonLines(text) {
 // Rosemary's phase payload is the object stored under `kind`; `phase` is
 // the event name. Do not interpret the historical nested schema as flat data.
 function phaseData(records, phase) {
-	return records.filter((record) => record.domain === 'case' && record.phase === phase)
+	return records
+		.filter((record) => record.domain === 'case' && record.phase === phase)
 		.map((record) => record.kind)
 }
 
 export function distribution(samples, boundMs, minimum = 100) {
-	const valid = Array.isArray(samples) && samples.every((value) =>
-		typeof value === 'number' && Number.isFinite(value) && value >= 0)
+	const valid =
+		Array.isArray(samples) &&
+		samples.every((value) => typeof value === 'number' && Number.isFinite(value) && value >= 0)
 
 	const sorted = valid ? [...samples].sort((a, b) => a - b) : []
 	const p95 = sorted.length ? sorted[Math.floor(sorted.length * 0.95)] : null
@@ -62,33 +67,58 @@ export function auditRetainedRun(proof, orchestrator) {
 		idleSignal: distribution(signal.raw, 16),
 		resizeSignal: distribution(resize.labelSamples, 100),
 		resizeTimer: distribution(resize.timerSamples, 200),
-		reorder: distribution(reorder.map((record) => record?.ms), 100),
+		reorder: distribution(
+			reorder.map((record) => record?.ms),
+			100,
+		),
 	}
 
 	for (const [name, result] of Object.entries(distributions)) {
-		if (!result.sufficient) {gaps.push(`${name}: missing, invalid, insufficient or out-of-bound samples`)}
+		if (!result.sufficient) {
+			gaps.push(`${name}: missing, invalid, insufficient or out-of-bound samples`)
+		}
 	}
 
-	if (!Array.isArray(resize.timerSamples) || resize.timerSamples.some((ms) => ms < 40 || ms > 200)) {
+	if (
+		!Array.isArray(resize.timerSamples) ||
+		resize.timerSamples.some((ms) => ms < 40 || ms > 200)
+	) {
 		gaps.push('Resize timers must all remain in the original [40,200] ms interval')
 	}
 
 	// Rounded aggregate arrays cannot establish paired monotonic timings.
 	// Even complete counts here remain an inventory, not new runtime evidence.
 	gaps.push('Retained format has no per-sample monotonic start/end pairs for every distribution')
-	gaps.push('Retained OS injection uses wall-clock timestamps without 100 paired OS-event/callback observations')
+	gaps.push(
+		'Retained OS injection uses wall-clock timestamps without 100 paired OS-event/callback observations',
+	)
+
 	gaps.push('Retained scheduling check is later than the same-turn idle/timer callbacks')
 	gaps.push('Retained source/logs have no explicit stable native identity assertions')
-	gaps.push('Retained lifecycle aggregates do not contain per-cycle controller, subscription and queued-callback baselines')
+	gaps.push(
+		'Retained lifecycle aggregates do not contain per-cycle controller, subscription and queued-callback baselines',
+	)
+
 	gaps.push('Retained selection checks do not cover caret/selection-only user interruption')
-	gaps.push('Retained failure evidence lacks all load/handler/scheduled cause, process-state and bounded-shutdown cases')
+	gaps.push(
+		'Retained failure evidence lacks all load/handler/scheduled cause, process-state and bounded-shutdown cases',
+	)
+
 	const editing = one('editing-controlled')
 	const lifecycle = one('lifecycle')
 	const drain = one('drain')
 	const exit = orchestrator.filter((record) => record.kind === 'app-exited')
-	if (exit.length !== 1 || exit[0].data?.code !== 0) {gaps.push('Missing single successful normal-process exit')}
-	if (editing.text !== 'world' || editing.syntheticChanges !== 0 ||
-		JSON.stringify(editing.selection) !== '[0,5]') {gaps.push('Controlled edit/selection result differs from preserved result')}
+	if (exit.length !== 1 || exit[0].data?.code !== 0) {
+		gaps.push('Missing single successful normal-process exit')
+	}
+
+	if (
+		editing.text !== 'world' ||
+		editing.syntheticChanges !== 0 ||
+		JSON.stringify(editing.selection) !== '[0,5]'
+	) {
+		gaps.push('Controlled edit/selection result differs from preserved result')
+	}
 
 	if (drain.lateCallbacks !== 0 || drain.liveSources !== 0 || drain.nodesAfterUnmount !== 0) {
 		gaps.push('Close drain has missing or nonzero residual counts')
@@ -154,7 +184,7 @@ export const RUN_POLICY = {
 const INPUT_MECHANISM_TIERS = {
 	'qemu-hid': 'a',
 	'qemu-monitor': 'a',
-	'qmp': 'a',
+	qmp: 'a',
 	xtest: 'b',
 	xdotool: 'b',
 	'python-xlib': 'b',
@@ -162,7 +192,10 @@ const INPUT_MECHANISM_TIERS = {
 }
 
 export function inputTier(mechanism) {
-	if (typeof mechanism !== 'string' || mechanism === '') {return null}
+	if (typeof mechanism !== 'string' || mechanism === '') {
+		return null
+	}
+
 	return INPUT_MECHANISM_TIERS[mechanism.split('/')[0]] ?? null
 }
 
@@ -179,10 +212,21 @@ const BLOCKED_REASONS = new Set([
 // A declared run policy must carry every contract bound and may only tighten
 // them (lower latency bounds, higher minimums, narrower timer window).
 export function declaredPolicySatisfies(declared) {
-	if (declared === null || typeof declared !== 'object' || Array.isArray(declared)) {return false}
+	if (declared === null || typeof declared !== 'object' || Array.isArray(declared)) {
+		return false
+	}
+
 	const bounds = declared.boundsMs
 	const timer = declared.resizeTimerMs
-	if (bounds === null || typeof bounds !== 'object' || timer === null || typeof timer !== 'object') {return false}
+	if (
+		bounds === null ||
+		typeof bounds !== 'object' ||
+		timer === null ||
+		typeof timer !== 'object'
+	) {
+		return false
+	}
+
 	const tightened = [
 		bounds.idleSignal <= RUN_POLICY.boundsMs.idleSignal,
 		bounds.resizeSignal <= RUN_POLICY.boundsMs.resizeSignal,
@@ -195,9 +239,11 @@ export function declaredPolicySatisfies(declared) {
 		declared.minMountCycles >= RUN_POLICY.minMountCycles,
 		declared.minDrainMs >= RUN_POLICY.minDrainMs,
 		declared.minResizeOsInputs >= RUN_POLICY.minResizeOsInputs,
-		Number.isFinite(declared.failureShutdownBoundMs) && declared.failureShutdownBoundMs > 0 &&
+		Number.isFinite(declared.failureShutdownBoundMs) &&
+			declared.failureShutdownBoundMs > 0 &&
 			declared.failureShutdownBoundMs <= RUN_POLICY.failureShutdownBoundMs,
-		Number.isFinite(declared.maxRunWallMs) && declared.maxRunWallMs > 0 &&
+		Number.isFinite(declared.maxRunWallMs) &&
+			declared.maxRunWallMs > 0 &&
 			declared.maxRunWallMs <= RUN_POLICY.maxRunWallMs,
 	]
 
@@ -227,19 +273,30 @@ function effectivePolicy(declared) {
 // records whether sample start times are nondecreasing, so a producer cannot
 // reorder or hand-pick measurements after the fact.
 export function pairDurations(pairs, startKey, endKey) {
-	if (!Array.isArray(pairs)) {return { durations: [], valid: false, ordered: false }}
+	if (!Array.isArray(pairs)) {
+		return { durations: [], valid: false, ordered: false }
+	}
+
 	const durations = []
 	let ordered = true
 	let previous = -Infinity
 	for (const pair of pairs) {
 		const start = pair?.[startKey]
 		const end = pair?.[endKey]
-		if (typeof start !== 'number' || typeof end !== 'number' ||
-			!Number.isFinite(start) || !Number.isFinite(end) || end < start) {
+		if (
+			typeof start !== 'number' ||
+			typeof end !== 'number' ||
+			!Number.isFinite(start) ||
+			!Number.isFinite(end) ||
+			end < start
+		) {
 			return { durations: [], valid: false, ordered }
 		}
 
-		if (start < previous) {ordered = false}
+		if (start < previous) {
+			ordered = false
+		}
+
 		previous = start
 		durations.push(end - start)
 	}
@@ -277,8 +334,10 @@ function aggregateGaps(name, payload, durations) {
 	if (payload.raw !== undefined) {
 		const rawSorted = Array.isArray(payload.raw) ? [...payload.raw].sort((a, b) => a - b) : []
 		const measuredSorted = [...durations].sort((a, b) => a - b)
-		if (rawSorted.length !== measuredSorted.length ||
-			rawSorted.some((value, index) => value !== measuredSorted[index])) {
+		if (
+			rawSorted.length !== measuredSorted.length ||
+			rawSorted.some((value, index) => value !== measuredSorted[index])
+		) {
 			gaps.push(`${name}: reported raw samples do not match measured pairs`)
 		}
 	}
@@ -297,8 +356,12 @@ export function assessContractRun(proof, orchestrator) {
 	const checks = {}
 	const one = (phase) => {
 		const records = phaseData(proof, phase)
-		if (records.length !== 1 || records[0] === null ||
-			typeof records[0] !== 'object' || Array.isArray(records[0])) {
+		if (
+			records.length !== 1 ||
+			records[0] === null ||
+			typeof records[0] !== 'object' ||
+			Array.isArray(records[0])
+		) {
 			return null
 		}
 
@@ -307,12 +370,15 @@ export function assessContractRun(proof, orchestrator) {
 
 	const require = (name, ok, gap) => {
 		checks[name] = ok ? 'ok' : 'unmet'
-		if (!ok) {gaps.push(gap)}
+		if (!ok) {
+			gaps.push(gap)
+		}
+
 		return ok
 	}
 
-	const requirePhase = (name) => require(name, one(name) !== null,
-		`Expected exactly one ${name} object record`)
+	const requirePhase = (name) =>
+		require(name, one(name) !== null, `Expected exactly one ${name} object record`)
 
 	const status = one('run-status')
 	if (status?.status === 'blocked') {
@@ -323,19 +389,27 @@ export function assessContractRun(proof, orchestrator) {
 			independentGate: 'not-assessed',
 			blockedReason: reason,
 			checks: { 'run-status': BLOCKED_REASONS.has(reason) ? 'blocked' : 'unmet' },
-			gaps: BLOCKED_REASONS.has(reason) ? [] :
-				['Blocked claims require a missing-resource reason named by the contract'],
+			gaps: BLOCKED_REASONS.has(reason)
+				? []
+				: ['Blocked claims require a missing-resource reason named by the contract'],
 			measured: {},
 		}
 	}
 
-	require('run-status', status?.status === 'complete',
-		'Missing terminal run-status record declaring status "complete"')
+	require('run-status', status?.status ===
+		'complete', 'Missing terminal run-status record declaring status "complete"')
 
 	// No case evidence may be emitted after the terminal marker.
-	const statusIndex = proof.findIndex((record) => record.domain === 'case' && record.phase === 'run-status')
-	if (statusIndex !== -1 &&
-		proof.slice(statusIndex + 1).some((record) => record.domain === 'case' && record.phase !== undefined)) {
+	const statusIndex = proof.findIndex(
+		(record) => record.domain === 'case' && record.phase === 'run-status',
+	)
+
+	if (
+		statusIndex !== -1 &&
+		proof
+			.slice(statusIndex + 1)
+			.some((record) => record.domain === 'case' && record.phase !== undefined)
+	) {
 		checks['run-status'] = 'unmet'
 		gaps.push('run-status must be the terminal case record')
 	}
@@ -343,29 +417,44 @@ export function assessContractRun(proof, orchestrator) {
 	const header = one('contract-header')
 	let policy = null
 	if (requirePhase('contract-header')) {
-		require('contract-header.schema', header.schema === 2,
-			'contract-header must declare schema 2')
+		require('contract-header.schema', header.schema === 2, 'contract-header must declare schema 2')
 
-		for (const field of ['caseId', 'revision', 'octaneVersion', 'octanePatch', 'bundleHash', 'invocation']) {
-			require(`contract-header.${field}`, typeof header[field] === 'string' && header[field] !== '',
-				`contract-header must record ${field}`)
+		for (const field of [
+			'caseId',
+			'revision',
+			'octaneVersion',
+			'octanePatch',
+			'bundleHash',
+			'invocation',
+		]) {
+			require(`contract-header.${field}`, typeof header[field] === 'string' &&
+				header[field] !== '', `contract-header must record ${field}`)
 		}
 
-		require('contract-header.policy', declaredPolicySatisfies(header.policy),
-			'Declared run policy missing or relaxes a contract bound')
+		require('contract-header.policy', declaredPolicySatisfies(
+			header.policy,
+		), 'Declared run policy missing or relaxes a contract bound')
 
-		if (declaredPolicySatisfies(header.policy)) {policy = effectivePolicy(header.policy)}
+		if (declaredPolicySatisfies(header.policy)) {
+			policy = effectivePolicy(header.policy)
+		}
 
 		// The policy must be emitted before any measured distribution so
 		// post-hoc bounds cannot pass as predeclared.
-		const headerIndex = proof.findIndex((record) => record.domain === 'case' && record.phase === 'contract-header')
-		const firstMeasured = Math.min(...MEASURED_PHASES
-			.map((phase) => proof.findIndex((record) => record.domain === 'case' && record.phase === phase))
-			.filter((index) => index !== -1))
+		const headerIndex = proof.findIndex(
+			(record) => record.domain === 'case' && record.phase === 'contract-header',
+		)
+
+		const firstMeasured = Math.min(
+			...MEASURED_PHASES.map((phase) =>
+				proof.findIndex((record) => record.domain === 'case' && record.phase === phase),
+			).filter((index) => index !== -1),
+		)
 
 		require('contract-header.order', headerIndex !== -1 &&
-			(firstMeasured === Infinity || headerIndex < firstMeasured),
-			'contract-header must precede all measured evidence (predeclared bounds)')
+			(firstMeasured === Infinity ||
+				headerIndex <
+					firstMeasured), 'contract-header must precede all measured evidence (predeclared bounds)')
 	}
 
 	if (policy === null) {
@@ -377,53 +466,73 @@ export function assessContractRun(proof, orchestrator) {
 
 	const environment = one('environment')
 	if (requirePhase('environment')) {
-		for (const field of ['os', 'kernel', 'arch', 'gjs', 'gtk', 'glib', 'displayServer', 'session', 'vmIdentity', 'inputTool']) {
-			require(`environment.${field}`, typeof environment[field] === 'string' && environment[field] !== '',
-				`environment must record ${field}`)
+		for (const field of [
+			'os',
+			'kernel',
+			'arch',
+			'gjs',
+			'gtk',
+			'glib',
+			'displayServer',
+			'session',
+			'vmIdentity',
+			'inputTool',
+		]) {
+			require(`environment.${field}`, typeof environment[field] === 'string' &&
+				environment[field] !== '', `environment must record ${field}`)
 		}
 
-		require('environment.display', environment.displayServer === 'x11',
-			'First proof requires an X11 graphical session; Wayland cannot inherit the result')
+		require('environment.display', environment.displayServer ===
+			'x11', 'First proof requires an X11 graphical session; Wayland cannot inherit the result')
 
 		if (environment.session === 'xvfb') {
-			require('environment.contingency', environment.contingencyLabeled === true,
-				'Xvfb contingency sessions must be explicitly labeled')
+			require('environment.contingency', environment.contingencyLabeled ===
+				true, 'Xvfb contingency sessions must be explicitly labeled')
 		}
 	}
 
 	const globals = one('globals')
 	if (requirePhase('globals')) {
-		require('globals.inventory', globals.inventory === 'complete' && Array.isArray(globals.dereferenced),
-			'globals must record an exhaustive dereferenced-global inventory')
+		require('globals.inventory', globals.inventory === 'complete' &&
+			Array.isArray(
+				globals.dereferenced,
+			), 'globals must record an exhaustive dereferenced-global inventory')
 
-		require('globals.unguarded', Array.isArray(globals.unguardedForbidden) && globals.unguardedForbidden.length === 0,
-			'No unguarded DOM/Node/NativeScript-only global may be dereferenced')
+		require('globals.unguarded', Array.isArray(globals.unguardedForbidden) &&
+			globals.unguardedForbidden.length ===
+				0, 'No unguarded DOM/Node/NativeScript-only global may be dereferenced')
 	}
 
-	require('load', one('load')?.result === 'bundle-loaded',
-		'Bundle must load under gjs -m (bundle-loaded)')
+	require('load', one('load')?.result ===
+		'bundle-loaded', 'Bundle must load under gjs -m (bundle-loaded)')
 
 	const mount = one('mount')
 	if (requirePhase('mount')) {
 		const surfaces = mount.surfaces
-		require('mount.surfaces', surfaces !== null && typeof surfaces === 'object' &&
-			surfaces.label === true && surfaces.control === true &&
-			surfaces.editable === true && surfaces.reorderContainer === true,
-			'Mount must cover label, activating control, editable field and reorderable container')
+		require('mount.surfaces', surfaces !== null &&
+			typeof surfaces === 'object' &&
+			surfaces.label === true &&
+			surfaces.control === true &&
+			surfaces.editable === true &&
+			surfaces.reorderContainer ===
+				true, 'Mount must cover label, activating control, editable field and reorderable container')
 
-		require('mount.universal', Number.isFinite(mount.nodes) && mount.nodes >= 1 &&
-			Number.isFinite(mount.widgets) && mount.widgets >= 4,
-			'Mount must report nodes and at least 4 native widgets created via the universal root')
+		require('mount.universal', Number.isFinite(mount.nodes) &&
+			mount.nodes >= 1 &&
+			Number.isFinite(mount.widgets) &&
+			mount.widgets >=
+				4, 'Mount must report nodes and at least 4 native widgets created via the universal root')
 	}
 
 	const ordering = one('ordering')
 	if (requirePhase('ordering')) {
 		require('ordering.invariants', ordering.microtaskBeforeSameTurnCallbacks === true &&
-			ordering.promiseBeforePendingTimer === true && ordering.reorderBeforeNextInput === true,
-			'Ordering invariants: microtask before same-turn idle/timeout, promises before pending timer, reorder before next input')
+			ordering.promiseBeforePendingTimer === true &&
+			ordering.reorderBeforeNextInput ===
+				true, 'Ordering invariants: microtask before same-turn idle/timeout, promises before pending timer, reorder before next input')
 
-		require('ordering.sameTurn', ordering.labelCheckInSameTurnCallback === true,
-			'Label check must run directly inside each same-turn timer/idle callback')
+		require('ordering.sameTurn', ordering.labelCheckInSameTurnCallback ===
+			true, 'Label check must run directly inside each same-turn timer/idle callback')
 	}
 
 	const measured = {}
@@ -431,22 +540,26 @@ export function assessContractRun(proof, orchestrator) {
 		const payload = one(phase)
 		const result = { samples: 0, p95Ms: null, boundMs, sufficient: false }
 		measured[name] = result
-		if (!requirePhase(phase)) {return}
+		if (!requirePhase(phase)) {
+			return
+		}
+
 		const pairs = pairDurations(payload.pairs, pairStart, pairEnd)
 		const stats = summarize(pairs.durations)
 		result.samples = stats.samples
 		result.p95Ms = stats.p95Ms
-		result.sufficient = pairs.valid && pairs.ordered && stats.samples >= policy.minSamples &&
-			stats.p95Ms <= boundMs
+		result.sufficient =
+			pairs.valid && pairs.ordered && stats.samples >= policy.minSamples && stats.p95Ms <= boundMs
 
-		require(`${phase}.clock`, payload.clock === 'monotonic',
-			`${phase} must declare a monotonic clock`)
+		require(`${phase}.clock`, payload.clock ===
+			'monotonic', `${phase} must declare a monotonic clock`)
 
-		require(`${phase}.pairs`, pairs.valid && pairs.ordered,
-			`${phase} requires valid monotonic start/end pairs in collection order`)
+		require(`${phase}.pairs`, pairs.valid &&
+			pairs.ordered, `${phase} requires valid monotonic start/end pairs in collection order`)
 
-		require(`${phase}.sufficient`, pairs.valid && stats.samples >= policy.minSamples && stats.p95Ms <= boundMs,
-			`${phase}: insufficient samples or p95 above the ${boundMs} ms bound`)
+		require(`${phase}.sufficient`, pairs.valid &&
+			stats.samples >= policy.minSamples &&
+			stats.p95Ms <= boundMs, `${phase}: insufficient samples or p95 above the ${boundMs} ms bound`)
 
 		for (const gap of aggregateGaps(phase, payload, pairs.durations)) {
 			checks[`${phase}.integrity`] = 'unmet'
@@ -460,37 +573,54 @@ export function assessContractRun(proof, orchestrator) {
 
 	const inputLatency = one('input-latency')
 	if (inputLatency !== null) {
-		require('input-latency.class', inputLatency.inputClass === 'os' && inputTier(inputLatency.mechanism) !== null,
-			'input-latency requires OS-input-class pairs with an accepted tier A/B mechanism')
+		require('input-latency.class', inputLatency.inputClass === 'os' &&
+			inputTier(inputLatency.mechanism) !==
+				null, 'input-latency requires OS-input-class pairs with an accepted tier A/B mechanism')
 	}
 
 	const reorder = one('reorder')
 	if (reorder !== null) {
-		require('reorder.stacking', reorder.stackingChanged === true && reorder.overlapped === true,
-			'Reorder must change actual stacking including overlapping children')
+		require('reorder.stacking', reorder.stackingChanged === true &&
+			reorder.overlapped ===
+				true, 'Reorder must change actual stacking including overlapping children')
 
-		require('reorder.osHit', reorder.osHitTop === true && reorder.osInputClass === 'os' &&
-			inputTier(reorder.osMechanism) !== null,
-			'An OS-input click must hit the reordered top child')
+		require('reorder.osHit', reorder.osHitTop === true &&
+			reorder.osInputClass === 'os' &&
+			inputTier(reorder.osMechanism) !== null, 'An OS-input click must hit the reordered top child')
 	}
 
 	const resize = one('resize')
-	measured.resizeSignal = { samples: 0, p95Ms: null, boundMs: policy.resizeSignalMs, sufficient: false }
-	measured.resizeTimers = { samples: 0, withinWindow: 0, windowMs: [policy.timerMinMs, policy.timerMaxMs], sufficient: false }
+	measured.resizeSignal = {
+		samples: 0,
+		p95Ms: null,
+		boundMs: policy.resizeSignalMs,
+		sufficient: false,
+	}
+
+	measured.resizeTimers = {
+		samples: 0,
+		withinWindow: 0,
+		windowMs: [policy.timerMinMs, policy.timerMaxMs],
+		sufficient: false,
+	}
+
 	if (requirePhase('resize')) {
 		const pairs = pairDurations(resize.signalPairs, 'startMs', 'endMs')
 		const stats = summarize(pairs.durations)
 		measured.resizeSignal.samples = stats.samples
 		measured.resizeSignal.p95Ms = stats.p95Ms
-		measured.resizeSignal.sufficient = pairs.valid && pairs.ordered &&
-			stats.samples >= policy.minSamples && stats.p95Ms <= policy.resizeSignalMs
+		measured.resizeSignal.sufficient =
+			pairs.valid &&
+			pairs.ordered &&
+			stats.samples >= policy.minSamples &&
+			stats.p95Ms <= policy.resizeSignalMs
 
 		require('resize.clock', resize.clock === 'monotonic', 'resize must declare a monotonic clock')
-		require('resize.signalPairs', pairs.valid && pairs.ordered,
-			'resize requires valid monotonic signal pairs in collection order')
+		require('resize.signalPairs', pairs.valid &&
+			pairs.ordered, 'resize requires valid monotonic signal pairs in collection order')
 
-		require('resize.signalSufficient', measured.resizeSignal.sufficient,
-			`resize signal: insufficient samples or p95 above the ${policy.resizeSignalMs} ms bound`)
+		require('resize.signalSufficient', measured.resizeSignal
+			.sufficient, `resize signal: insufficient samples or p95 above the ${policy.resizeSignalMs} ms bound`)
 
 		for (const gap of aggregateGaps('resize', resize, pairs.durations)) {
 			checks['resize.integrity'] = 'unmet'
@@ -498,70 +628,87 @@ export function assessContractRun(proof, orchestrator) {
 		}
 
 		const timers = resize.timerSamples
-		const timersValid = Array.isArray(timers) && timers.length >= policy.minSamples &&
-			timers.every((ms) => typeof ms === 'number' && Number.isFinite(ms) &&
-				ms >= policy.timerMinMs && ms <= policy.timerMaxMs)
+		const timersValid =
+			Array.isArray(timers) &&
+			timers.length >= policy.minSamples &&
+			timers.every(
+				(ms) =>
+					typeof ms === 'number' &&
+					Number.isFinite(ms) &&
+					ms >= policy.timerMinMs &&
+					ms <= policy.timerMaxMs,
+			)
 
 		measured.resizeTimers.samples = Array.isArray(timers) ? timers.length : 0
-		measured.resizeTimers.withinWindow = Array.isArray(timers) ?
-			timers.filter((ms) => ms >= policy.timerMinMs && ms <= policy.timerMaxMs).length : 0
+		measured.resizeTimers.withinWindow = Array.isArray(timers)
+			? timers.filter((ms) => ms >= policy.timerMinMs && ms <= policy.timerMaxMs).length
+			: 0
 
 		measured.resizeTimers.sufficient = timersValid === true
-		require('resize.timers', timersValid,
-			`resize requires >= ${policy.minSamples} timer samples all within [${policy.timerMinMs},${policy.timerMaxMs}] ms`)
+		require('resize.timers', timersValid, `resize requires >= ${policy.minSamples} timer samples all within [${policy.timerMinMs},${policy.timerMaxMs}] ms`)
 
 		require('resize.starvation', Number.isFinite(resize.inputDuringResize) &&
-			resize.inputDuringResize >= policy.minResizeOsInputs,
-			'OS input must continue during sustained resize (no starvation)')
+			resize.inputDuringResize >=
+				policy.minResizeOsInputs, 'OS input must continue during sustained resize (no starvation)')
 	}
 
 	const identity = one('stable-identity')
 	if (requirePhase('stable-identity')) {
 		require('stable-identity.assertion', identity.preserved === true &&
-			Number.isFinite(identity.updates) && identity.updates >= 1,
-			'Stable native identity must be explicitly asserted across ordinary updates')
+			Number.isFinite(identity.updates) &&
+			identity.updates >=
+				1, 'Stable native identity must be explicitly asserted across ordinary updates')
 	}
 
 	const activation = one('activation')
 	if (requirePhase('activation')) {
-		require('activation.once', activation.callbackCount === 1 && activation.sharedStateChanged === true,
-			'One physical activation must produce exactly one application callback reaching shared state')
+		require('activation.once', activation.callbackCount === 1 &&
+			activation.sharedStateChanged ===
+				true, 'One physical activation must produce exactly one application callback reaching shared state')
 
-		require('activation.osInput', activation.inputClass === 'os' && inputTier(activation.mechanism) !== null,
-			'Activation must be exercised through accepted tier A/B OS input')
+		require('activation.osInput', activation.inputClass === 'os' &&
+			inputTier(activation.mechanism) !==
+				null, 'Activation must be exercised through accepted tier A/B OS input')
 	}
 
 	const replacement = one('callback-replacement')
 	if (requirePhase('callback-replacement')) {
-		require('callback-replacement.latest', replacement.latestOnly === true && replacement.staleCalls === 0,
-			'Callback replacement must invoke the latest handler only with no accumulated observers')
+		require('callback-replacement.latest', replacement.latestOnly === true &&
+			replacement.staleCalls ===
+				0, 'Callback replacement must invoke the latest handler only with no accumulated observers')
 	}
 
 	const editingUser = one('editing-user')
 	if (requirePhase('editing-user')) {
-		require('editing-user.osInput', editingUser.inputClass === 'os' && inputTier(editingUser.mechanism) !== null,
-			'Editing must be exercised through accepted tier A/B OS input')
+		require('editing-user.osInput', editingUser.inputClass === 'os' &&
+			inputTier(editingUser.mechanism) !==
+				null, 'Editing must be exercised through accepted tier A/B OS input')
 
-		require('editing-user.edits', Number.isFinite(editingUser.changes) && editingUser.changes >= 1 &&
-			Number.isFinite(editingUser.submits) && editingUser.submits >= 1,
-			'Real keyboard editing must produce change callbacks and a submit')
+		require('editing-user.edits', Number.isFinite(editingUser.changes) &&
+			editingUser.changes >= 1 &&
+			Number.isFinite(editingUser.submits) &&
+			editingUser.submits >= 1, 'Real keyboard editing must produce change callbacks and a submit')
 	}
 
 	const editingControlled = one('editing-controlled')
 	if (requirePhase('editing-controlled')) {
 		require('editing-controlled.synthetic', typeof editingControlled.text === 'string' &&
-			editingControlled.text !== '' && editingControlled.syntheticChanges === 0,
-			'Controlled writes must produce zero synthetic user-edit callbacks')
+			editingControlled.text !== '' &&
+			editingControlled.syntheticChanges ===
+				0, 'Controlled writes must produce zero synthetic user-edit callbacks')
 
 		require('editing-controlled.selection', Array.isArray(editingControlled.selection) &&
 			editingControlled.selection.length === 2 &&
-			editingControlled.selection.every((value) => Number.isFinite(value)),
-			'Programmatic updates must leave a recorded caret/selection intact')
+			editingControlled.selection.every((value) =>
+				Number.isFinite(value),
+			), 'Programmatic updates must leave a recorded caret/selection intact')
 
 		const interrupt = editingControlled.caretInterruption
-		require('editing-controlled.interruption', interrupt !== null && typeof interrupt === 'object' &&
-			interrupt.covered === true && interrupt.preserved === true,
-			'Selection-only user interruption during the settle window must be covered and preserved')
+		require('editing-controlled.interruption', interrupt !== null &&
+			typeof interrupt === 'object' &&
+			interrupt.covered === true &&
+			interrupt.preserved ===
+				true, 'Selection-only user interruption during the settle window must be covered and preserved')
 	}
 
 	const lifecycle = one('lifecycle')
@@ -569,80 +716,102 @@ export function assessContractRun(proof, orchestrator) {
 	if (requirePhase('lifecycle')) {
 		const baseline = lifecycle.baseline
 		const counters = ['subscriptions', 'controllers', 'scheduledSources', 'queuedCallbacks']
-		const baselineOk = baseline !== null && typeof baseline === 'object' &&
+		const baselineOk =
+			baseline !== null &&
+			typeof baseline === 'object' &&
 			counters.every((counter) => Number.isFinite(baseline[counter]))
 
 		const perCycle = lifecycle.perCycle
 		measured.lifecycle.cycles = Number.isFinite(lifecycle.cycles) ? lifecycle.cycles : 0
-		const perCycleOk = baselineOk && Array.isArray(perCycle) &&
-			perCycle.length === lifecycle.cycles && lifecycle.cycles >= policy.minMountCycles &&
-			perCycle.every((entry) => entry !== null && typeof entry === 'object' &&
-				counters.every((counter) => entry[counter] === baseline[counter]))
+		const perCycleOk =
+			baselineOk &&
+			Array.isArray(perCycle) &&
+			perCycle.length === lifecycle.cycles &&
+			lifecycle.cycles >= policy.minMountCycles &&
+			perCycle.every(
+				(entry) =>
+					entry !== null &&
+					typeof entry === 'object' &&
+					counters.every((counter) => entry[counter] === baseline[counter]),
+			)
 
 		measured.lifecycle.baselineReturned = perCycleOk === true
-		require('lifecycle.cycles', perCycleOk,
-			`>= ${policy.minMountCycles} cycles must each return subscriptions/controllers/sources/callbacks to baseline ±0`)
+		require('lifecycle.cycles', perCycleOk, `>= ${policy.minMountCycles} cycles must each return subscriptions/controllers/sources/callbacks to baseline ±0`)
 
-		require('lifecycle.balanced', lifecycle.connectionsBalanced === true,
-			'Native observation connections must balance at run end')
+		require('lifecycle.balanced', lifecycle.connectionsBalanced ===
+			true, 'Native observation connections must balance at run end')
 	}
 
 	const drain = one('drain')
 	measured.drain = { drainMs: 0, required: policy.minDrainMs, clean: false }
 	if (requirePhase('drain')) {
 		measured.drain.drainMs = Number.isFinite(drain.drainMs) ? drain.drainMs : 0
-		const clean = drain.drainMs >= policy.minDrainMs && drain.lateCallbacks === 0 &&
-			drain.disposedAccesses === 0 && drain.liveSources === 0 && drain.nodesAfterUnmount === 0
+		const clean =
+			drain.drainMs >= policy.minDrainMs &&
+			drain.lateCallbacks === 0 &&
+			drain.disposedAccesses === 0 &&
+			drain.liveSources === 0 &&
+			drain.nodesAfterUnmount === 0
 
 		measured.drain.clean = clean === true
-		require('drain.clean', clean,
-			`Close must drain >= ${policy.minDrainMs} ms with zero late callbacks, disposed accesses, sources and nodes`)
+		require('drain.clean', clean, `Close must drain >= ${policy.minDrainMs} ms with zero late callbacks, disposed accesses, sources and nodes`)
 	}
 
 	const failurePhase = (phase, extra) => {
 		const payload = one(phase)
-		if (!requirePhase(phase)) {return}
-		require(`${phase}.evidence`, payload.observed === true && payload.cause === true &&
-			typeof payload.processState === 'string' && payload.processState !== '' &&
-			payload.boundedShutdown === true,
-			`${phase} requires retained cause, process state and bounded-shutdown assertion`)
+		if (!requirePhase(phase)) {
+			return
+		}
 
-		if (extra) {extra(payload)}
+		require(`${phase}.evidence`, payload.observed === true &&
+			payload.cause === true &&
+			typeof payload.processState === 'string' &&
+			payload.processState !== '' &&
+			payload.boundedShutdown ===
+				true, `${phase} requires retained cause, process state and bounded-shutdown assertion`)
+
+		if (extra) {
+			extra(payload)
+		}
 	}
 
 	failurePhase('failure-load', (payload) => {
-		require('failure-load.ready', payload.reportedReady === false,
-			'A failing load cannot leave a hung or blank process reported as ready')
+		require('failure-load.ready', payload.reportedReady ===
+			false, 'A failing load cannot leave a hung or blank process reported as ready')
 
 		require('failure-load.shutdown', Number.isFinite(payload.shutdownMs) &&
-			payload.shutdownMs >= 0 && payload.shutdownMs <= policy.failureShutdownBoundMs,
-			`A failing load must shut down within the declared ${policy.failureShutdownBoundMs} ms bound`)
+			payload.shutdownMs >= 0 &&
+			payload.shutdownMs <=
+				policy.failureShutdownBoundMs, `A failing load must shut down within the declared ${policy.failureShutdownBoundMs} ms bound`)
 	})
 
 	failurePhase('failure-handler')
 	failurePhase('failure-rejection', (payload) => {
-		require('failure-rejection.stderr', payload.stderrRetained === true,
-			'Promise-rejection failure must retain guest stderr evidence')
+		require('failure-rejection.stderr', payload.stderrRetained ===
+			true, 'Promise-rejection failure must retain guest stderr evidence')
 	})
 
 	// Orchestrator corroboration: every injection uses an accepted mechanism,
 	// click and keyboard actions both occur, and a complete run exits cleanly.
 	const injects = orchestrator.filter((record) => record.kind === 'inject')
 	require('orchestrator.injects', injects.length >= 2 &&
-		injects.every((record) => inputTier(record.data?.mechanism) !== null),
-		'Every orchestrator injection must record an accepted tier A/B mechanism')
+		injects.every(
+			(record) => inputTier(record.data?.mechanism) !== null,
+		), 'Every orchestrator injection must record an accepted tier A/B mechanism')
 
 	const actions = new Set(injects.map((record) => record.data?.action))
-	require('orchestrator.actions', actions.has('click') && (actions.has('type') || actions.has('key')),
-		'OS-input coverage requires at least one click and one keyboard action')
+	require('orchestrator.actions', actions.has('click') &&
+		(actions.has('type') ||
+			actions.has('key')), 'OS-input coverage requires at least one click and one keyboard action')
 
 	const exits = orchestrator.filter((record) => record.kind === 'app-exited')
-	require('orchestrator.exit', exits.length === 1 && exits[0].data?.code === 0,
-		'Missing single successful normal-process exit')
+	require('orchestrator.exit', exits.length === 1 &&
+		exits[0].data?.code === 0, 'Missing single successful normal-process exit')
 
 	require('run-status.wallMs', Number.isFinite(status?.wallMs) &&
-		status.wallMs >= 0 && status.wallMs <= policy.maxRunWallMs,
-		`Run wall time must be recorded and stay within the declared ${policy.maxRunWallMs} ms bound`)
+		status.wallMs >= 0 &&
+		status.wallMs <=
+			policy.maxRunWallMs, `Run wall time must be recorded and stay within the declared ${policy.maxRunWallMs} ms bound`)
 
 	return {
 		schema: 2,
@@ -657,19 +826,25 @@ export function assessContractRun(proof, orchestrator) {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-	const USAGE = 'Usage: node scripts/probe/linux-gtk-evidence.mjs [--retained|--contract] PROOF_JSONL ORCHESTRATOR_JSONL'
+	const USAGE =
+		'Usage: node scripts/probe/linux-gtk-evidence.mjs [--retained|--contract] PROOF_JSONL ORCHESTRATOR_JSONL'
+
 	try {
 		const args = process.argv.slice(2)
 		const flags = args.filter((arg) => arg.startsWith('--'))
 		const paths = args.filter((arg) => !arg.startsWith('--'))
 		const contract = flags.includes('--contract')
-		if (paths.length !== 2 || flags.length > 1 ||
-			!flags.every((flag) => flag === '--contract' || flag === '--retained')) {
+		if (
+			paths.length !== 2 ||
+			flags.length > 1 ||
+			!flags.every((flag) => flag === '--contract' || flag === '--retained')
+		) {
 			throw new Error(USAGE)
 		}
 
-		const [proof, orchestrator] = await Promise.all(paths.map(async (path) =>
-			parseJsonLines(await readFile(path, 'utf8'))))
+		const [proof, orchestrator] = await Promise.all(
+			paths.map(async (path) => parseJsonLines(await readFile(path, 'utf8'))),
+		)
 
 		if (contract) {
 			const result = assessContractRun(proof, orchestrator)

@@ -4,7 +4,11 @@ export const PHContentEditingController = /* @__PURE__ */ _bind(FW, 'PHContentEd
 export const PHLivePhotoView = /* @__PURE__ */ _bind(FW, 'PHLivePhotoView')
 export const PHLivePhotoViewContentMode = /* @__PURE__ */ _bind(FW, 'PHLivePhotoViewContentMode')
 export const PHLivePhotoViewDelegate = /* @__PURE__ */ _bind(FW, 'PHLivePhotoViewDelegate')
-export const PHLivePhotoViewPlaybackStyle = /* @__PURE__ */ _bind(FW, 'PHLivePhotoViewPlaybackStyle')
+export const PHLivePhotoViewPlaybackStyle = /* @__PURE__ */ _bind(
+	FW,
+	'PHLivePhotoViewPlaybackStyle',
+)
+
 export const PHProjectAssetElement = /* @__PURE__ */ _bind(FW, 'PHProjectAssetElement')
 export const PHProjectCategoryBook = /* @__PURE__ */ _bind(FW, 'PHProjectCategoryBook')
 export const PHProjectCategoryCalendar = /* @__PURE__ */ _bind(FW, 'PHProjectCategoryCalendar')
@@ -17,9 +21,17 @@ export const PHProjectCategoryWallDecor = /* @__PURE__ */ _bind(FW, 'PHProjectCa
 export const PHProjectCreationSource = /* @__PURE__ */ _bind(FW, 'PHProjectCreationSource')
 export const PHProjectElement = /* @__PURE__ */ _bind(FW, 'PHProjectElement')
 export const PHProjectExtensionContext = /* @__PURE__ */ _bind(FW, 'PHProjectExtensionContext')
-export const PHProjectExtensionController = /* @__PURE__ */ _bind(FW, 'PHProjectExtensionController')
+export const PHProjectExtensionController = /* @__PURE__ */ _bind(
+	FW,
+	'PHProjectExtensionController',
+)
+
 export const PHProjectInfo = /* @__PURE__ */ _bind(FW, 'PHProjectInfo')
-export const PHProjectJournalEntryElement = /* @__PURE__ */ _bind(FW, 'PHProjectJournalEntryElement')
+export const PHProjectJournalEntryElement = /* @__PURE__ */ _bind(
+	FW,
+	'PHProjectJournalEntryElement',
+)
+
 export const PHProjectMapElement = /* @__PURE__ */ _bind(FW, 'PHProjectMapElement')
 export const PHProjectRegionOfInterest = /* @__PURE__ */ _bind(FW, 'PHProjectRegionOfInterest')
 export const PHProjectSection = /* @__PURE__ */ _bind(FW, 'PHProjectSection')
@@ -28,6 +40,14 @@ export const PHProjectSectionType = /* @__PURE__ */ _bind(FW, 'PHProjectSectionT
 export const PHProjectTextElement = /* @__PURE__ */ _bind(FW, 'PHProjectTextElement')
 export const PHProjectTextElementType = /* @__PURE__ */ _bind(FW, 'PHProjectTextElementType')
 export const PHProjectTypeDescription = /* @__PURE__ */ _bind(FW, 'PHProjectTypeDescription')
-export const PHProjectTypeDescriptionDataSource = /* @__PURE__ */ _bind(FW, 'PHProjectTypeDescriptionDataSource')
-export const PHProjectTypeDescriptionInvalidator = /* @__PURE__ */ _bind(FW, 'PHProjectTypeDescriptionInvalidator')
+export const PHProjectTypeDescriptionDataSource = /* @__PURE__ */ _bind(
+	FW,
+	'PHProjectTypeDescriptionDataSource',
+)
+
+export const PHProjectTypeDescriptionInvalidator = /* @__PURE__ */ _bind(
+	FW,
+	'PHProjectTypeDescriptionInvalidator',
+)
+
 export const PHProjectTypeUndefined = /* @__PURE__ */ _bind(FW, 'PHProjectTypeUndefined')

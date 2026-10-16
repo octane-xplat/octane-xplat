@@ -33,7 +33,12 @@ vi.mock('@octane-xplat/richtext', async () => {
 })
 
 import { TiptapEditor } from './TiptapEditor.tsrx'
-import { hosts, resetFakeRichtext, setDefer, setSupported } from '../tests/fake-richtext.fixture.mobile.tsrx'
+import {
+	hosts,
+	resetFakeRichtext,
+	setDefer,
+	setSupported,
+} from '../tests/fake-richtext.fixture.mobile.tsrx'
 
 const docA = { type: 'doc', html: '<p>alpha</p>' } as unknown as TiptapJSON
 const docB = { type: 'doc', html: '<p>bravo</p>' } as unknown as TiptapJSON
@@ -319,5 +324,4 @@ describe('TiptapEditor native JSON readiness', () => {
 		expect(bridge.waiters).toEqual([])
 		expect(view.handle).toBeNull()
 	})
-
 })

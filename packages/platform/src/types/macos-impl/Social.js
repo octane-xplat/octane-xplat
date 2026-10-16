@@ -1,6 +1,10 @@
 import { _bind } from './_rt.js'
 const FW = '/System/Library/Frameworks/Social.framework/Social'
-export const SLComposeServiceViewController = /* @__PURE__ */ _bind(FW, 'SLComposeServiceViewController')
+export const SLComposeServiceViewController = /* @__PURE__ */ _bind(
+	FW,
+	'SLComposeServiceViewController',
+)
+
 export const SLRequest = /* @__PURE__ */ _bind(FW, 'SLRequest')
 export const SLRequestMethod = /* @__PURE__ */ _bind(FW, 'SLRequestMethod')
 export const SLServiceTypeFacebook = /* @__PURE__ */ _bind(FW, 'SLServiceTypeFacebook')

@@ -1,9 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import {
-	gridTrackListToCss,
-	gridTrackListToSpec,
-	parseGridTrackList,
-} from './grid-tracks'
+import { gridTrackListToCss, gridTrackListToSpec, parseGridTrackList } from './grid-tracks'
 
 import { bindNativeGridPlacement } from './native-grid-placement'
 

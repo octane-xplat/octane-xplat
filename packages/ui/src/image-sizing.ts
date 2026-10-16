@@ -27,63 +27,63 @@
  *  already true). The Image placeholder hooks this to re-apply its bitmap
  *  after the write has nulled `imageSource` (L5, decision #103). */
 export function createSizedImageBinding(options: { afterIssue?: (view: any) => void } = {}) {
-	let view: any = null;
-	let listening = false;
-	let pendingSrc: any;
-	let pendingStretch: string | undefined;
-	let appliedSrc: any;
-	let applied = false;
-	let width = 0;
-	let height = 0;
+	let view: any = null
+	let listening = false
+	let pendingSrc: any
+	let pendingStretch: string | undefined
+	let appliedSrc: any
+	let applied = false
+	let width = 0
+	let height = 0
 
 	const issue = (next: any) => {
 		// `pendingStretch` overrides view.stretch for the decode gates when the
 		// content-rect path draws stretch='fill' under a different semantic fit
 		// ('none' needs the full-resolution source to find the natural size).
-		const downscale = (pendingStretch ?? view.stretch) !== 'none';
-		view.decodeWidth = { value: downscale ? width : 0, unit: 'px' };
-		view.decodeHeight = { value: downscale ? height : 0, unit: 'px' };
-		view.src = next;
-		appliedSrc = next;
-		applied = true;
-		options.afterIssue?.(view);
-	};
+		const downscale = (pendingStretch ?? view.stretch) !== 'none'
+		view.decodeWidth = { value: downscale ? width : 0, unit: 'px' }
+		view.decodeHeight = { value: downscale ? height : 0, unit: 'px' }
+		view.src = next
+		appliedSrc = next
+		applied = true
+		options.afterIssue?.(view)
+	}
 
 	const evaluate = () => {
 		if (!view) {
-			return;
+			return
 		}
 
-		const measuredWidth = view.getMeasuredWidth?.() ?? 0;
-		const measuredHeight = view.getMeasuredHeight?.() ?? 0;
+		const measuredWidth = view.getMeasuredWidth?.() ?? 0
+		const measuredHeight = view.getMeasuredHeight?.() ?? 0
 		// Hold the request until a real layout — writing src sooner decodes
 		// at the default 0 dims (full source resolution).
 		if (measuredWidth <= 0 || measuredHeight <= 0) {
-			return;
+			return
 		}
 
 		if (!applied || pendingSrc !== appliedSrc) {
-			width = measuredWidth;
-			height = measuredHeight;
-			issue(pendingSrc);
-			return;
+			width = measuredWidth
+			height = measuredHeight
+			issue(pendingSrc)
+			return
 		}
 
 		if (measuredWidth === width && measuredHeight === height) {
-			return;
+			return
 		}
 
-		const stretch = pendingStretch ?? view.stretch;
+		const stretch = pendingStretch ?? view.stretch
 		if (stretch === 'fill' || stretch === 'none') {
-			return;
+			return
 		}
 
-		width = measuredWidth;
-		height = measuredHeight;
-		issue(appliedSrc);
-	};
+		width = measuredWidth
+		height = measuredHeight
+		issue(appliedSrc)
+	}
 
-	const onLayout = () => evaluate();
+	const onLayout = () => evaluate()
 
 	return {
 		/** (Re)bind source → view; issues once the view reports a real layout.
@@ -91,27 +91,27 @@ export function createSizedImageBinding(options: { afterIssue?: (view: any) => v
 		 *  gates — see `issue`. */
 		update(next: any, source: any, stretchForDecode?: string): void {
 			if (next !== view) {
-				view?.off?.('layoutChanged', onLayout);
-				view = next;
-				listening = false;
-				applied = false;
-				appliedSrc = undefined;
+				view?.off?.('layoutChanged', onLayout)
+				view = next
+				listening = false
+				applied = false
+				appliedSrc = undefined
 			}
 
-			pendingSrc = source;
-			pendingStretch = stretchForDecode;
+			pendingSrc = source
+			pendingStretch = stretchForDecode
 			if (view && !listening && typeof view.on === 'function') {
-				view.on('layoutChanged', onLayout);
-				listening = true;
+				view.on('layoutChanged', onLayout)
+				listening = true
 			}
 
-			evaluate();
+			evaluate()
 		},
 		dispose(): void {
-			view?.off?.('layoutChanged', onLayout);
-			view = null;
-			listening = false;
-			applied = false;
+			view?.off?.('layoutChanged', onLayout)
+			view = null
+			listening = false
+			applied = false
 		},
-	};
+	}
 }

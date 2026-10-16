@@ -579,7 +579,7 @@ try {
 
 				const sim = process.env.VERIFY_IOS_DEVICE
 					? sims.find((d) => d.udid === process.env.VERIFY_IOS_DEVICE)
-					: sims.find((d) => d.state === 'Booted') ?? sims[0]
+					: (sims.find((d) => d.state === 'Booted') ?? sims[0])
 
 				assert.ok(sim, 'no available iPhone simulator matching VERIFY_IOS_DEVICE')
 

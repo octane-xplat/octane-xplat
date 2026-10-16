@@ -6,11 +6,11 @@ The client contract, payload format, and debugging runbook live in
 
 ## API
 
-| Route | What it does |
-| --- | --- |
-| `GET /healthz` | `200 ok` liveness probe. |
+| Route                                                                                         | What it does                                                                                                                                                                                                                                                    |
+| --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /healthz`                                                                                | `200 ok` liveness probe.                                                                                                                                                                                                                                        |
 | `GET /manifest?platform=ios\|android&channel=stable&nativeVersion=x.y.z&currentVersion=x.y.z` | Resolves the channel pointer to a payload descriptor: `version`, `sha256`, `size`, `minNativeVersion`, `url`. `updateAvailable: false` with `reason: up-to-date` or `min-native-version` when gated. `404 no-release` when the channel/platform has no pointer. |
-| `GET /bundles/<sha256>` (`HEAD` too) | Streams the content-addressed zip payload, `Cache-Control: immutable`. |
+| `GET /bundles/<sha256>` (`HEAD` too)                                                          | Streams the content-addressed zip payload, `Cache-Control: immutable`.                                                                                                                                                                                          |
 
 ## R2 layout
 

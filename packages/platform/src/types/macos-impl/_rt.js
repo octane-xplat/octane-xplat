@@ -201,8 +201,10 @@ for (const fw of [
 	'/System/Library/Frameworks/WidgetKit.framework/WidgetKit',
 	'/System/Library/Frameworks/iTunesLibrary.framework/iTunesLibrary',
 	'/System/Library/Frameworks/vecLib.framework/vecLib',
-	'/System/Library/Frameworks/vmnet.framework/vmnet'
-]) { globalThis.dlopen?.(fw, 2) }
+	'/System/Library/Frameworks/vmnet.framework/vmnet',
+]) {
+	globalThis.dlopen?.(fw, 2)
+}
 
 export const lazyGlobal = (name) => {
 	let self
@@ -243,7 +245,11 @@ export const _g = new Proxy(globalThis, {
 		// Some SDK names materialize through nativescript lazy getters that
 		// throw (or crash) on metadata the host can't resolve — fall back to a
 		// lazy proxy so the export still exists.
-		try { return t[p] ?? lazyGlobal(p) } catch { return lazyGlobal(p) }
+		try {
+			return t[p] ?? lazyGlobal(p)
+		} catch {
+			return lazyGlobal(p)
+		}
 	},
 })
 
@@ -267,5 +273,4 @@ const _crashers = new Set([
 	'unnamed_3081758505577017777',
 ])
 
-export const _bind = (fw, name) =>
-	_crashers.has(name) ? lazyGlobal(name) : _g[name]
+export const _bind = (fw, name) => (_crashers.has(name) ? lazyGlobal(name) : _g[name])

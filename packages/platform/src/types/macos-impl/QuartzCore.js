@@ -38,16 +38,32 @@ export const CATiledLayer = /* @__PURE__ */ _bind(FW, 'CATiledLayer')
 export const CATransaction = /* @__PURE__ */ _bind(FW, 'CATransaction')
 export const CATransform3D = /* @__PURE__ */ _bind(FW, 'CATransform3D')
 export const CATransform3DConcat = /* @__PURE__ */ _bind(FW, 'CATransform3DConcat')
-export const CATransform3DEqualToTransform = /* @__PURE__ */ _bind(FW, 'CATransform3DEqualToTransform')
-export const CATransform3DGetAffineTransform = /* @__PURE__ */ _bind(FW, 'CATransform3DGetAffineTransform')
+export const CATransform3DEqualToTransform = /* @__PURE__ */ _bind(
+	FW,
+	'CATransform3DEqualToTransform',
+)
+
+export const CATransform3DGetAffineTransform = /* @__PURE__ */ _bind(
+	FW,
+	'CATransform3DGetAffineTransform',
+)
+
 export const CATransform3DIdentity = /* @__PURE__ */ _bind(FW, 'CATransform3DIdentity')
 export const CATransform3DInvert = /* @__PURE__ */ _bind(FW, 'CATransform3DInvert')
 export const CATransform3DIsAffine = /* @__PURE__ */ _bind(FW, 'CATransform3DIsAffine')
 export const CATransform3DIsIdentity = /* @__PURE__ */ _bind(FW, 'CATransform3DIsIdentity')
-export const CATransform3DMakeAffineTransform = /* @__PURE__ */ _bind(FW, 'CATransform3DMakeAffineTransform')
+export const CATransform3DMakeAffineTransform = /* @__PURE__ */ _bind(
+	FW,
+	'CATransform3DMakeAffineTransform',
+)
+
 export const CATransform3DMakeRotation = /* @__PURE__ */ _bind(FW, 'CATransform3DMakeRotation')
 export const CATransform3DMakeScale = /* @__PURE__ */ _bind(FW, 'CATransform3DMakeScale')
-export const CATransform3DMakeTranslation = /* @__PURE__ */ _bind(FW, 'CATransform3DMakeTranslation')
+export const CATransform3DMakeTranslation = /* @__PURE__ */ _bind(
+	FW,
+	'CATransform3DMakeTranslation',
+)
+
 export const CATransform3DRotate = /* @__PURE__ */ _bind(FW, 'CATransform3DRotate')
 export const CATransform3DScale = /* @__PURE__ */ _bind(FW, 'CATransform3DScale')
 export const CATransform3DTranslate = /* @__PURE__ */ _bind(FW, 'CATransform3DTranslate')
@@ -65,10 +81,18 @@ export const kCAAnimationDiscrete = /* @__PURE__ */ _bind(FW, 'kCAAnimationDiscr
 export const kCAAnimationLinear = /* @__PURE__ */ _bind(FW, 'kCAAnimationLinear')
 export const kCAAnimationPaced = /* @__PURE__ */ _bind(FW, 'kCAAnimationPaced')
 export const kCAAnimationRotateAuto = /* @__PURE__ */ _bind(FW, 'kCAAnimationRotateAuto')
-export const kCAAnimationRotateAutoReverse = /* @__PURE__ */ _bind(FW, 'kCAAnimationRotateAutoReverse')
+export const kCAAnimationRotateAutoReverse = /* @__PURE__ */ _bind(
+	FW,
+	'kCAAnimationRotateAutoReverse',
+)
+
 export const kCAContentsFormatAutomatic = /* @__PURE__ */ _bind(FW, 'kCAContentsFormatAutomatic')
 export const kCAContentsFormatGray8Uint = /* @__PURE__ */ _bind(FW, 'kCAContentsFormatGray8Uint')
-export const kCAContentsFormatRGBA16Float = /* @__PURE__ */ _bind(FW, 'kCAContentsFormatRGBA16Float')
+export const kCAContentsFormatRGBA16Float = /* @__PURE__ */ _bind(
+	FW,
+	'kCAContentsFormatRGBA16Float',
+)
+
 export const kCAContentsFormatRGBA8Uint = /* @__PURE__ */ _bind(FW, 'kCAContentsFormatRGBA8Uint')
 export const kCACornerCurveCircular = /* @__PURE__ */ _bind(FW, 'kCACornerCurveCircular')
 export const kCACornerCurveContinuous = /* @__PURE__ */ _bind(FW, 'kCACornerCurveContinuous')
@@ -117,23 +141,63 @@ export const kCALineCapSquare = /* @__PURE__ */ _bind(FW, 'kCALineCapSquare')
 export const kCALineJoinBevel = /* @__PURE__ */ _bind(FW, 'kCALineJoinBevel')
 export const kCALineJoinMiter = /* @__PURE__ */ _bind(FW, 'kCALineJoinMiter')
 export const kCALineJoinRound = /* @__PURE__ */ _bind(FW, 'kCALineJoinRound')
-export const kCAMediaTimingFunctionDefault = /* @__PURE__ */ _bind(FW, 'kCAMediaTimingFunctionDefault')
-export const kCAMediaTimingFunctionEaseIn = /* @__PURE__ */ _bind(FW, 'kCAMediaTimingFunctionEaseIn')
-export const kCAMediaTimingFunctionEaseInEaseOut = /* @__PURE__ */ _bind(FW, 'kCAMediaTimingFunctionEaseInEaseOut')
-export const kCAMediaTimingFunctionEaseOut = /* @__PURE__ */ _bind(FW, 'kCAMediaTimingFunctionEaseOut')
-export const kCAMediaTimingFunctionLinear = /* @__PURE__ */ _bind(FW, 'kCAMediaTimingFunctionLinear')
+export const kCAMediaTimingFunctionDefault = /* @__PURE__ */ _bind(
+	FW,
+	'kCAMediaTimingFunctionDefault',
+)
+
+export const kCAMediaTimingFunctionEaseIn = /* @__PURE__ */ _bind(
+	FW,
+	'kCAMediaTimingFunctionEaseIn',
+)
+
+export const kCAMediaTimingFunctionEaseInEaseOut = /* @__PURE__ */ _bind(
+	FW,
+	'kCAMediaTimingFunctionEaseInEaseOut',
+)
+
+export const kCAMediaTimingFunctionEaseOut = /* @__PURE__ */ _bind(
+	FW,
+	'kCAMediaTimingFunctionEaseOut',
+)
+
+export const kCAMediaTimingFunctionLinear = /* @__PURE__ */ _bind(
+	FW,
+	'kCAMediaTimingFunctionLinear',
+)
+
 export const kCAOnOrderIn = /* @__PURE__ */ _bind(FW, 'kCAOnOrderIn')
 export const kCAOnOrderOut = /* @__PURE__ */ _bind(FW, 'kCAOnOrderOut')
 export const kCARendererColorSpace = /* @__PURE__ */ _bind(FW, 'kCARendererColorSpace')
-export const kCARendererMetalCommandQueue = /* @__PURE__ */ _bind(FW, 'kCARendererMetalCommandQueue')
+export const kCARendererMetalCommandQueue = /* @__PURE__ */ _bind(
+	FW,
+	'kCARendererMetalCommandQueue',
+)
+
 export const kCAScrollBoth = /* @__PURE__ */ _bind(FW, 'kCAScrollBoth')
 export const kCAScrollHorizontally = /* @__PURE__ */ _bind(FW, 'kCAScrollHorizontally')
 export const kCAScrollNone = /* @__PURE__ */ _bind(FW, 'kCAScrollNone')
 export const kCAScrollVertically = /* @__PURE__ */ _bind(FW, 'kCAScrollVertically')
-export const kCATransactionAnimationDuration = /* @__PURE__ */ _bind(FW, 'kCATransactionAnimationDuration')
-export const kCATransactionAnimationTimingFunction = /* @__PURE__ */ _bind(FW, 'kCATransactionAnimationTimingFunction')
-export const kCATransactionCompletionBlock = /* @__PURE__ */ _bind(FW, 'kCATransactionCompletionBlock')
-export const kCATransactionDisableActions = /* @__PURE__ */ _bind(FW, 'kCATransactionDisableActions')
+export const kCATransactionAnimationDuration = /* @__PURE__ */ _bind(
+	FW,
+	'kCATransactionAnimationDuration',
+)
+
+export const kCATransactionAnimationTimingFunction = /* @__PURE__ */ _bind(
+	FW,
+	'kCATransactionAnimationTimingFunction',
+)
+
+export const kCATransactionCompletionBlock = /* @__PURE__ */ _bind(
+	FW,
+	'kCATransactionCompletionBlock',
+)
+
+export const kCATransactionDisableActions = /* @__PURE__ */ _bind(
+	FW,
+	'kCATransactionDisableActions',
+)
+
 export const kCATransition = /* @__PURE__ */ _bind(FW, 'kCATransition')
 export const kCATransitionFade = /* @__PURE__ */ _bind(FW, 'kCATransitionFade')
 export const kCATransitionFromBottom = /* @__PURE__ */ _bind(FW, 'kCATransitionFromBottom')

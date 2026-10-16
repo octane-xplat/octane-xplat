@@ -124,7 +124,11 @@ export const TkKeyEvent = /* @__PURE__ */ _bind(FW, 'TkKeyEvent')
 export const TkKeysymToString = /* @__PURE__ */ _bind(FW, 'TkKeysymToString')
 export const TkLineToArea = /* @__PURE__ */ _bind(FW, 'TkLineToArea')
 export const TkLineToPoint = /* @__PURE__ */ _bind(FW, 'TkLineToPoint')
-export const TkMacOSXDefaultStartupScript = /* @__PURE__ */ _bind(FW, 'TkMacOSXDefaultStartupScript')
+export const TkMacOSXDefaultStartupScript = /* @__PURE__ */ _bind(
+	FW,
+	'TkMacOSXDefaultStartupScript',
+)
+
 export const TkMacOSXEmbedHandler = /* @__PURE__ */ _bind(FW, 'TkMacOSXEmbedHandler')
 export const TkMainInfo = /* @__PURE__ */ _bind(FW, 'TkMainInfo')
 export const TkMakeBezierCurve = /* @__PURE__ */ _bind(FW, 'TkMakeBezierCurve')
@@ -193,7 +197,11 @@ export const TkWmInfo = /* @__PURE__ */ _bind(FW, 'TkWmInfo')
 export const TkWmMapWindow = /* @__PURE__ */ _bind(FW, 'TkWmMapWindow')
 export const TkWmNewWindow = /* @__PURE__ */ _bind(FW, 'TkWmNewWindow')
 export const TkWmProtocolEventProc = /* @__PURE__ */ _bind(FW, 'TkWmProtocolEventProc')
-export const TkWmRemoveFromColormapWindows = /* @__PURE__ */ _bind(FW, 'TkWmRemoveFromColormapWindows')
+export const TkWmRemoveFromColormapWindows = /* @__PURE__ */ _bind(
+	FW,
+	'TkWmRemoveFromColormapWindows',
+)
+
 export const TkWmRestackToplevel = /* @__PURE__ */ _bind(FW, 'TkWmRestackToplevel')
 export const TkWmSetClass = /* @__PURE__ */ _bind(FW, 'TkWmSetClass')
 export const TkWmStackorderToplevel = /* @__PURE__ */ _bind(FW, 'TkWmStackorderToplevel')
@@ -340,7 +348,11 @@ export const Ttk_FindElement = /* @__PURE__ */ _bind(FW, 'Ttk_FindElement')
 export const Ttk_FreeLayout = /* @__PURE__ */ _bind(FW, 'Ttk_FreeLayout')
 export const Ttk_FreeResourceCache = /* @__PURE__ */ _bind(FW, 'Ttk_FreeResourceCache')
 export const Ttk_GetBorderFromObj = /* @__PURE__ */ _bind(FW, 'Ttk_GetBorderFromObj')
-export const Ttk_GetButtonDefaultStateFromObj = /* @__PURE__ */ _bind(FW, 'Ttk_GetButtonDefaultStateFromObj')
+export const Ttk_GetButtonDefaultStateFromObj = /* @__PURE__ */ _bind(
+	FW,
+	'Ttk_GetButtonDefaultStateFromObj',
+)
+
 export const Ttk_GetCompoundFromObj = /* @__PURE__ */ _bind(FW, 'Ttk_GetCompoundFromObj')
 export const Ttk_GetCurrentTheme = /* @__PURE__ */ _bind(FW, 'Ttk_GetCurrentTheme')
 export const Ttk_GetDefaultTheme = /* @__PURE__ */ _bind(FW, 'Ttk_GetDefaultTheme')
@@ -354,8 +366,16 @@ export const Ttk_GetTheme = /* @__PURE__ */ _bind(FW, 'Ttk_GetTheme')
 export const Ttk_IdentifyElement = /* @__PURE__ */ _bind(FW, 'Ttk_IdentifyElement')
 export const Ttk_Init = /* @__PURE__ */ _bind(FW, 'Ttk_Init')
 export const Ttk_InvokeEnsemble = /* @__PURE__ */ _bind(FW, 'Ttk_InvokeEnsemble')
-export const Ttk_LayoutNodeInternalPadding = /* @__PURE__ */ _bind(FW, 'Ttk_LayoutNodeInternalPadding')
-export const Ttk_LayoutNodeInternalParcel = /* @__PURE__ */ _bind(FW, 'Ttk_LayoutNodeInternalParcel')
+export const Ttk_LayoutNodeInternalPadding = /* @__PURE__ */ _bind(
+	FW,
+	'Ttk_LayoutNodeInternalPadding',
+)
+
+export const Ttk_LayoutNodeInternalParcel = /* @__PURE__ */ _bind(
+	FW,
+	'Ttk_LayoutNodeInternalParcel',
+)
+
 export const Ttk_LayoutNodeReqSize = /* @__PURE__ */ _bind(FW, 'Ttk_LayoutNodeReqSize')
 export const Ttk_LayoutNode_ = /* @__PURE__ */ _bind(FW, 'Ttk_LayoutNode_')
 export const Ttk_LayoutSize = /* @__PURE__ */ _bind(FW, 'Ttk_LayoutSize')
@@ -546,9 +566,21 @@ export const _XFreeFuncs = /* @__PURE__ */ _bind(FW, '_XFreeFuncs')
 export const _XIC = /* @__PURE__ */ _bind(FW, '_XIC')
 export const _XIM = /* @__PURE__ */ _bind(FW, '_XIM')
 export const _XIMFilter = /* @__PURE__ */ _bind(FW, '_XIMFilter')
-export const _XIMPreeditCaretCallbackStruct = /* @__PURE__ */ _bind(FW, '_XIMPreeditCaretCallbackStruct')
-export const _XIMPreeditDrawCallbackStruct = /* @__PURE__ */ _bind(FW, '_XIMPreeditDrawCallbackStruct')
-export const _XIMStatusDrawCallbackStruct = /* @__PURE__ */ _bind(FW, '_XIMStatusDrawCallbackStruct')
+export const _XIMPreeditCaretCallbackStruct = /* @__PURE__ */ _bind(
+	FW,
+	'_XIMPreeditCaretCallbackStruct',
+)
+
+export const _XIMPreeditDrawCallbackStruct = /* @__PURE__ */ _bind(
+	FW,
+	'_XIMPreeditDrawCallbackStruct',
+)
+
+export const _XIMStatusDrawCallbackStruct = /* @__PURE__ */ _bind(
+	FW,
+	'_XIMStatusDrawCallbackStruct',
+)
+
 export const _XIMText = /* @__PURE__ */ _bind(FW, '_XIMText')
 export const _XImage = /* @__PURE__ */ _bind(FW, '_XImage')
 export const _XInternalAsync = /* @__PURE__ */ _bind(FW, '_XInternalAsync')
@@ -582,12 +614,36 @@ export const tkStateKeyObjType = /* @__PURE__ */ _bind(FW, 'tkStateKeyObjType')
 export const tkTextIndexType = /* @__PURE__ */ _bind(FW, 'tkTextIndexType')
 export const ttkNullElementSpec = /* @__PURE__ */ _bind(FW, 'ttkNullElementSpec')
 export const ttkStubsPtr = /* @__PURE__ */ _bind(FW, 'ttkStubsPtr')
-export const unnamed_10117225375179073326 = /* @__PURE__ */ _bind(FW, 'unnamed_10117225375179073326')
-export const unnamed_11485782119801829208 = /* @__PURE__ */ _bind(FW, 'unnamed_11485782119801829208')
-export const unnamed_12402282187060610322 = /* @__PURE__ */ _bind(FW, 'unnamed_12402282187060610322')
-export const unnamed_13217392612618162696 = /* @__PURE__ */ _bind(FW, 'unnamed_13217392612618162696')
-export const unnamed_16337562390196501752 = /* @__PURE__ */ _bind(FW, 'unnamed_16337562390196501752')
-export const unnamed_17599682455591046079 = /* @__PURE__ */ _bind(FW, 'unnamed_17599682455591046079')
+export const unnamed_10117225375179073326 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_10117225375179073326',
+)
+
+export const unnamed_11485782119801829208 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_11485782119801829208',
+)
+
+export const unnamed_12402282187060610322 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_12402282187060610322',
+)
+
+export const unnamed_13217392612618162696 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_13217392612618162696',
+)
+
+export const unnamed_16337562390196501752 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_16337562390196501752',
+)
+
+export const unnamed_17599682455591046079 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_17599682455591046079',
+)
+
 export const unnamed_3438557735055231788 = /* @__PURE__ */ _bind(FW, 'unnamed_3438557735055231788')
 export const unnamed_6829101999670043274 = /* @__PURE__ */ _bind(FW, 'unnamed_6829101999670043274')
 export const unnamed_7044465383961058737 = /* @__PURE__ */ _bind(FW, 'unnamed_7044465383961058737')

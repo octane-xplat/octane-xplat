@@ -5,7 +5,10 @@ let seq = 0
 function featuresFor(options: OpenWindowOptions): string | undefined {
 	const features: string[] = []
 	if (options.size) {
-		features.push(`width=${Math.round(options.size.width)}`, `height=${Math.round(options.size.height)}`)
+		features.push(
+			`width=${Math.round(options.size.width)}`,
+			`height=${Math.round(options.size.height)}`,
+		)
 	}
 
 	if (options.kind === 'dialog' || options.kind === 'popup') {

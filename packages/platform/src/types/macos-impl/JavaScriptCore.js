@@ -17,7 +17,11 @@ export const JSExport = /* @__PURE__ */ _bind(FW, 'JSExport')
 export const JSGarbageCollect = /* @__PURE__ */ _bind(FW, 'JSGarbageCollect')
 export const JSGlobalContextCopyName = /* @__PURE__ */ _bind(FW, 'JSGlobalContextCopyName')
 export const JSGlobalContextCreate = /* @__PURE__ */ _bind(FW, 'JSGlobalContextCreate')
-export const JSGlobalContextCreateInGroup = /* @__PURE__ */ _bind(FW, 'JSGlobalContextCreateInGroup')
+export const JSGlobalContextCreateInGroup = /* @__PURE__ */ _bind(
+	FW,
+	'JSGlobalContextCreateInGroup',
+)
+
 export const JSGlobalContextRelease = /* @__PURE__ */ _bind(FW, 'JSGlobalContextRelease')
 export const JSGlobalContextRetain = /* @__PURE__ */ _bind(FW, 'JSGlobalContextRetain')
 export const JSGlobalContextSetName = /* @__PURE__ */ _bind(FW, 'JSGlobalContextSetName')
@@ -26,18 +30,42 @@ export const JSObjectCallAsConstructor = /* @__PURE__ */ _bind(FW, 'JSObjectCall
 export const JSObjectCallAsFunction = /* @__PURE__ */ _bind(FW, 'JSObjectCallAsFunction')
 export const JSObjectCopyPropertyNames = /* @__PURE__ */ _bind(FW, 'JSObjectCopyPropertyNames')
 export const JSObjectDeleteProperty = /* @__PURE__ */ _bind(FW, 'JSObjectDeleteProperty')
-export const JSObjectDeletePropertyForKey = /* @__PURE__ */ _bind(FW, 'JSObjectDeletePropertyForKey')
-export const JSObjectGetArrayBufferByteLength = /* @__PURE__ */ _bind(FW, 'JSObjectGetArrayBufferByteLength')
-export const JSObjectGetArrayBufferBytesPtr = /* @__PURE__ */ _bind(FW, 'JSObjectGetArrayBufferBytesPtr')
+export const JSObjectDeletePropertyForKey = /* @__PURE__ */ _bind(
+	FW,
+	'JSObjectDeletePropertyForKey',
+)
+
+export const JSObjectGetArrayBufferByteLength = /* @__PURE__ */ _bind(
+	FW,
+	'JSObjectGetArrayBufferByteLength',
+)
+
+export const JSObjectGetArrayBufferBytesPtr = /* @__PURE__ */ _bind(
+	FW,
+	'JSObjectGetArrayBufferBytesPtr',
+)
+
 export const JSObjectGetPrivate = /* @__PURE__ */ _bind(FW, 'JSObjectGetPrivate')
 export const JSObjectGetProperty = /* @__PURE__ */ _bind(FW, 'JSObjectGetProperty')
 export const JSObjectGetPropertyAtIndex = /* @__PURE__ */ _bind(FW, 'JSObjectGetPropertyAtIndex')
 export const JSObjectGetPropertyForKey = /* @__PURE__ */ _bind(FW, 'JSObjectGetPropertyForKey')
 export const JSObjectGetPrototype = /* @__PURE__ */ _bind(FW, 'JSObjectGetPrototype')
 export const JSObjectGetTypedArrayBuffer = /* @__PURE__ */ _bind(FW, 'JSObjectGetTypedArrayBuffer')
-export const JSObjectGetTypedArrayByteLength = /* @__PURE__ */ _bind(FW, 'JSObjectGetTypedArrayByteLength')
-export const JSObjectGetTypedArrayByteOffset = /* @__PURE__ */ _bind(FW, 'JSObjectGetTypedArrayByteOffset')
-export const JSObjectGetTypedArrayBytesPtr = /* @__PURE__ */ _bind(FW, 'JSObjectGetTypedArrayBytesPtr')
+export const JSObjectGetTypedArrayByteLength = /* @__PURE__ */ _bind(
+	FW,
+	'JSObjectGetTypedArrayByteLength',
+)
+
+export const JSObjectGetTypedArrayByteOffset = /* @__PURE__ */ _bind(
+	FW,
+	'JSObjectGetTypedArrayByteOffset',
+)
+
+export const JSObjectGetTypedArrayBytesPtr = /* @__PURE__ */ _bind(
+	FW,
+	'JSObjectGetTypedArrayBytesPtr',
+)
+
 export const JSObjectGetTypedArrayLength = /* @__PURE__ */ _bind(FW, 'JSObjectGetTypedArrayLength')
 export const JSObjectHasProperty = /* @__PURE__ */ _bind(FW, 'JSObjectHasProperty')
 export const JSObjectHasPropertyForKey = /* @__PURE__ */ _bind(FW, 'JSObjectHasPropertyForKey')
@@ -45,46 +73,106 @@ export const JSObjectIsConstructor = /* @__PURE__ */ _bind(FW, 'JSObjectIsConstr
 export const JSObjectIsFunction = /* @__PURE__ */ _bind(FW, 'JSObjectIsFunction')
 export const JSObjectMake = /* @__PURE__ */ _bind(FW, 'JSObjectMake')
 export const JSObjectMakeArray = /* @__PURE__ */ _bind(FW, 'JSObjectMakeArray')
-export const JSObjectMakeArrayBufferWithBytesNoCopy = /* @__PURE__ */ _bind(FW, 'JSObjectMakeArrayBufferWithBytesNoCopy')
+export const JSObjectMakeArrayBufferWithBytesNoCopy = /* @__PURE__ */ _bind(
+	FW,
+	'JSObjectMakeArrayBufferWithBytesNoCopy',
+)
+
 export const JSObjectMakeConstructor = /* @__PURE__ */ _bind(FW, 'JSObjectMakeConstructor')
 export const JSObjectMakeDate = /* @__PURE__ */ _bind(FW, 'JSObjectMakeDate')
 export const JSObjectMakeDeferredPromise = /* @__PURE__ */ _bind(FW, 'JSObjectMakeDeferredPromise')
 export const JSObjectMakeError = /* @__PURE__ */ _bind(FW, 'JSObjectMakeError')
 export const JSObjectMakeFunction = /* @__PURE__ */ _bind(FW, 'JSObjectMakeFunction')
-export const JSObjectMakeFunctionWithCallback = /* @__PURE__ */ _bind(FW, 'JSObjectMakeFunctionWithCallback')
+export const JSObjectMakeFunctionWithCallback = /* @__PURE__ */ _bind(
+	FW,
+	'JSObjectMakeFunctionWithCallback',
+)
+
 export const JSObjectMakeRegExp = /* @__PURE__ */ _bind(FW, 'JSObjectMakeRegExp')
 export const JSObjectMakeTypedArray = /* @__PURE__ */ _bind(FW, 'JSObjectMakeTypedArray')
-export const JSObjectMakeTypedArrayWithArrayBuffer = /* @__PURE__ */ _bind(FW, 'JSObjectMakeTypedArrayWithArrayBuffer')
-export const JSObjectMakeTypedArrayWithArrayBufferAndOffset = /* @__PURE__ */ _bind(FW, 'JSObjectMakeTypedArrayWithArrayBufferAndOffset')
-export const JSObjectMakeTypedArrayWithBytesNoCopy = /* @__PURE__ */ _bind(FW, 'JSObjectMakeTypedArrayWithBytesNoCopy')
+export const JSObjectMakeTypedArrayWithArrayBuffer = /* @__PURE__ */ _bind(
+	FW,
+	'JSObjectMakeTypedArrayWithArrayBuffer',
+)
+
+export const JSObjectMakeTypedArrayWithArrayBufferAndOffset = /* @__PURE__ */ _bind(
+	FW,
+	'JSObjectMakeTypedArrayWithArrayBufferAndOffset',
+)
+
+export const JSObjectMakeTypedArrayWithBytesNoCopy = /* @__PURE__ */ _bind(
+	FW,
+	'JSObjectMakeTypedArrayWithBytesNoCopy',
+)
+
 export const JSObjectSetPrivate = /* @__PURE__ */ _bind(FW, 'JSObjectSetPrivate')
 export const JSObjectSetProperty = /* @__PURE__ */ _bind(FW, 'JSObjectSetProperty')
 export const JSObjectSetPropertyAtIndex = /* @__PURE__ */ _bind(FW, 'JSObjectSetPropertyAtIndex')
 export const JSObjectSetPropertyForKey = /* @__PURE__ */ _bind(FW, 'JSObjectSetPropertyForKey')
 export const JSObjectSetPrototype = /* @__PURE__ */ _bind(FW, 'JSObjectSetPrototype')
-export const JSPropertyDescriptorConfigurableKey = /* @__PURE__ */ _bind(FW, 'JSPropertyDescriptorConfigurableKey')
-export const JSPropertyDescriptorEnumerableKey = /* @__PURE__ */ _bind(FW, 'JSPropertyDescriptorEnumerableKey')
+export const JSPropertyDescriptorConfigurableKey = /* @__PURE__ */ _bind(
+	FW,
+	'JSPropertyDescriptorConfigurableKey',
+)
+
+export const JSPropertyDescriptorEnumerableKey = /* @__PURE__ */ _bind(
+	FW,
+	'JSPropertyDescriptorEnumerableKey',
+)
+
 export const JSPropertyDescriptorGetKey = /* @__PURE__ */ _bind(FW, 'JSPropertyDescriptorGetKey')
 export const JSPropertyDescriptorSetKey = /* @__PURE__ */ _bind(FW, 'JSPropertyDescriptorSetKey')
-export const JSPropertyDescriptorValueKey = /* @__PURE__ */ _bind(FW, 'JSPropertyDescriptorValueKey')
-export const JSPropertyDescriptorWritableKey = /* @__PURE__ */ _bind(FW, 'JSPropertyDescriptorWritableKey')
-export const JSPropertyNameAccumulatorAddName = /* @__PURE__ */ _bind(FW, 'JSPropertyNameAccumulatorAddName')
+export const JSPropertyDescriptorValueKey = /* @__PURE__ */ _bind(
+	FW,
+	'JSPropertyDescriptorValueKey',
+)
+
+export const JSPropertyDescriptorWritableKey = /* @__PURE__ */ _bind(
+	FW,
+	'JSPropertyDescriptorWritableKey',
+)
+
+export const JSPropertyNameAccumulatorAddName = /* @__PURE__ */ _bind(
+	FW,
+	'JSPropertyNameAccumulatorAddName',
+)
+
 export const JSPropertyNameArrayGetCount = /* @__PURE__ */ _bind(FW, 'JSPropertyNameArrayGetCount')
-export const JSPropertyNameArrayGetNameAtIndex = /* @__PURE__ */ _bind(FW, 'JSPropertyNameArrayGetNameAtIndex')
+export const JSPropertyNameArrayGetNameAtIndex = /* @__PURE__ */ _bind(
+	FW,
+	'JSPropertyNameArrayGetNameAtIndex',
+)
+
 export const JSPropertyNameArrayRelease = /* @__PURE__ */ _bind(FW, 'JSPropertyNameArrayRelease')
 export const JSPropertyNameArrayRetain = /* @__PURE__ */ _bind(FW, 'JSPropertyNameArrayRetain')
 export const JSStaticFunction = /* @__PURE__ */ _bind(FW, 'JSStaticFunction')
 export const JSStaticValue = /* @__PURE__ */ _bind(FW, 'JSStaticValue')
 export const JSStringCopyCFString = /* @__PURE__ */ _bind(FW, 'JSStringCopyCFString')
 export const JSStringCreateWithCFString = /* @__PURE__ */ _bind(FW, 'JSStringCreateWithCFString')
-export const JSStringCreateWithCharacters = /* @__PURE__ */ _bind(FW, 'JSStringCreateWithCharacters')
-export const JSStringCreateWithUTF8CString = /* @__PURE__ */ _bind(FW, 'JSStringCreateWithUTF8CString')
+export const JSStringCreateWithCharacters = /* @__PURE__ */ _bind(
+	FW,
+	'JSStringCreateWithCharacters',
+)
+
+export const JSStringCreateWithUTF8CString = /* @__PURE__ */ _bind(
+	FW,
+	'JSStringCreateWithUTF8CString',
+)
+
 export const JSStringGetCharactersPtr = /* @__PURE__ */ _bind(FW, 'JSStringGetCharactersPtr')
 export const JSStringGetLength = /* @__PURE__ */ _bind(FW, 'JSStringGetLength')
-export const JSStringGetMaximumUTF8CStringSize = /* @__PURE__ */ _bind(FW, 'JSStringGetMaximumUTF8CStringSize')
+export const JSStringGetMaximumUTF8CStringSize = /* @__PURE__ */ _bind(
+	FW,
+	'JSStringGetMaximumUTF8CStringSize',
+)
+
 export const JSStringGetUTF8CString = /* @__PURE__ */ _bind(FW, 'JSStringGetUTF8CString')
 export const JSStringIsEqual = /* @__PURE__ */ _bind(FW, 'JSStringIsEqual')
-export const JSStringIsEqualToUTF8CString = /* @__PURE__ */ _bind(FW, 'JSStringIsEqualToUTF8CString')
+export const JSStringIsEqualToUTF8CString = /* @__PURE__ */ _bind(
+	FW,
+	'JSStringIsEqualToUTF8CString',
+)
+
 export const JSStringRelease = /* @__PURE__ */ _bind(FW, 'JSStringRelease')
 export const JSStringRetain = /* @__PURE__ */ _bind(FW, 'JSStringRetain')
 export const JSType = /* @__PURE__ */ _bind(FW, 'JSType')
@@ -97,7 +185,11 @@ export const JSValueIsArray = /* @__PURE__ */ _bind(FW, 'JSValueIsArray')
 export const JSValueIsBoolean = /* @__PURE__ */ _bind(FW, 'JSValueIsBoolean')
 export const JSValueIsDate = /* @__PURE__ */ _bind(FW, 'JSValueIsDate')
 export const JSValueIsEqual = /* @__PURE__ */ _bind(FW, 'JSValueIsEqual')
-export const JSValueIsInstanceOfConstructor = /* @__PURE__ */ _bind(FW, 'JSValueIsInstanceOfConstructor')
+export const JSValueIsInstanceOfConstructor = /* @__PURE__ */ _bind(
+	FW,
+	'JSValueIsInstanceOfConstructor',
+)
+
 export const JSValueIsNull = /* @__PURE__ */ _bind(FW, 'JSValueIsNull')
 export const JSValueIsNumber = /* @__PURE__ */ _bind(FW, 'JSValueIsNumber')
 export const JSValueIsObject = /* @__PURE__ */ _bind(FW, 'JSValueIsObject')
@@ -123,14 +215,33 @@ export const JSVirtualMachine = /* @__PURE__ */ _bind(FW, 'JSVirtualMachine')
 export const OpaqueJSClass = /* @__PURE__ */ _bind(FW, 'OpaqueJSClass')
 export const OpaqueJSContext = /* @__PURE__ */ _bind(FW, 'OpaqueJSContext')
 export const OpaqueJSContextGroup = /* @__PURE__ */ _bind(FW, 'OpaqueJSContextGroup')
-export const OpaqueJSPropertyNameAccumulator = /* @__PURE__ */ _bind(FW, 'OpaqueJSPropertyNameAccumulator')
+export const OpaqueJSPropertyNameAccumulator = /* @__PURE__ */ _bind(
+	FW,
+	'OpaqueJSPropertyNameAccumulator',
+)
+
 export const OpaqueJSPropertyNameArray = /* @__PURE__ */ _bind(FW, 'OpaqueJSPropertyNameArray')
 export const OpaqueJSString = /* @__PURE__ */ _bind(FW, 'OpaqueJSString')
 export const OpaqueJSValue = /* @__PURE__ */ _bind(FW, 'OpaqueJSValue')
-export const kJSClassAttributeNoAutomaticPrototype = /* @__PURE__ */ _bind(FW, 'kJSClassAttributeNoAutomaticPrototype')
+export const kJSClassAttributeNoAutomaticPrototype = /* @__PURE__ */ _bind(
+	FW,
+	'kJSClassAttributeNoAutomaticPrototype',
+)
+
 export const kJSClassAttributeNone = /* @__PURE__ */ _bind(FW, 'kJSClassAttributeNone')
 export const kJSClassDefinitionEmpty = /* @__PURE__ */ _bind(FW, 'kJSClassDefinitionEmpty')
-export const kJSPropertyAttributeDontDelete = /* @__PURE__ */ _bind(FW, 'kJSPropertyAttributeDontDelete')
-export const kJSPropertyAttributeDontEnum = /* @__PURE__ */ _bind(FW, 'kJSPropertyAttributeDontEnum')
+export const kJSPropertyAttributeDontDelete = /* @__PURE__ */ _bind(
+	FW,
+	'kJSPropertyAttributeDontDelete',
+)
+
+export const kJSPropertyAttributeDontEnum = /* @__PURE__ */ _bind(
+	FW,
+	'kJSPropertyAttributeDontEnum',
+)
+
 export const kJSPropertyAttributeNone = /* @__PURE__ */ _bind(FW, 'kJSPropertyAttributeNone')
-export const kJSPropertyAttributeReadOnly = /* @__PURE__ */ _bind(FW, 'kJSPropertyAttributeReadOnly')
+export const kJSPropertyAttributeReadOnly = /* @__PURE__ */ _bind(
+	FW,
+	'kJSPropertyAttributeReadOnly',
+)

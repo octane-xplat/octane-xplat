@@ -7,4 +7,7 @@ export const LACredentialType = /* @__PURE__ */ _bind(FW, 'LACredentialType')
 export const LAError = /* @__PURE__ */ _bind(FW, 'LAError')
 export const LAErrorDomain = /* @__PURE__ */ _bind(FW, 'LAErrorDomain')
 export const LAPolicy = /* @__PURE__ */ _bind(FW, 'LAPolicy')
-export const LATouchIDAuthenticationMaximumAllowableReuseDuration = /* @__PURE__ */ _bind(FW, 'LATouchIDAuthenticationMaximumAllowableReuseDuration')
+export const LATouchIDAuthenticationMaximumAllowableReuseDuration = /* @__PURE__ */ _bind(
+	FW,
+	'LATouchIDAuthenticationMaximumAllowableReuseDuration',
+)

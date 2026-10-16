@@ -8,10 +8,10 @@ This report compares the exact requested tags, using public source and official 
 
 The requested product is **One**, the React Native/Vite framework at [onestack.dev](https://onestack.dev/), linked to [onejs/one](https://github.com/onejs/one). It is unrelated to the Unity product at onejs.com/Singtaa/OneJS.
 
-| Revision | Resolved commit | Commit timestamp |
-|---|---|---|
-| [v1.27.1 release](https://github.com/onejs/one/releases/tag/v1.27.1) | [`6bb03aaa0106233a5dd3397895422ca67adff81d`](https://github.com/onejs/one/tree/6bb03aaa0106233a5dd3397895422ca67adff81d) | September 14, 2026 |
-| [v2.6.2 release](https://github.com/onejs/one/releases/tag/v2.6.2) | [`f9cc3da0ed64675bd35e552d0d934a59ed9f1527`](https://github.com/onejs/one/tree/f9cc3da0ed64675bd35e552d0d934a59ed9f1527) | October 13, 2026, 01:39 UTC; October 12 in New York |
+| Revision                                                             | Resolved commit                                                                                                          | Commit timestamp                                    |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------- |
+| [v1.27.1 release](https://github.com/onejs/one/releases/tag/v1.27.1) | [`6bb03aaa0106233a5dd3397895422ca67adff81d`](https://github.com/onejs/one/tree/6bb03aaa0106233a5dd3397895422ca67adff81d) | September 14, 2026                                  |
+| [v2.6.2 release](https://github.com/onejs/one/releases/tag/v2.6.2)   | [`f9cc3da0ed64675bd35e552d0d934a59ed9f1527`](https://github.com/onejs/one/tree/f9cc3da0ed64675bd35e552d0d934a59ed9f1527) | October 13, 2026, 01:39 UTC; October 12 in New York |
 
 Both tags resolve directly to commits, and v1.27.1 is an ancestor of v2.6.2. [Exact endpoint comparison](https://github.com/onejs/one/compare/6bb03aaa0106233a5dd3397895422ca67adff81d...f9cc3da0ed64675bd35e552d0d934a59ed9f1527).
 
@@ -19,15 +19,15 @@ Announcement qualification: the [official v2 announcement source at the exact ta
 
 ## Compact comparison
 
-| Area | v1.27.1 | v2.6.2 |
-|---|---|---|
-| Runtime/rendering | React 19.2.3; RN peer ^0.86.0; existing Vite/Rolldown native pipeline | React 19.2.3 retained; RN peer ^0.87.0; Fabric native hosts plus Nitro services |
-| Native UI | RN/community components, separate optional native-tabs integration | `One.iOS`, `One.Android`, `One.UI`; SwiftUI and Compose embedded beside RN |
-| Native source | No new v2 Swift/Kotlin import plugins | Typed `.swift`/`.kt` imports, generated glue, contract hashes and events |
-| State/events | Existing React/RN state model | Native-owned scalar handles shared with UI worklets; revision/event-count acknowledgment |
-| Native setup | Expo integrations; rudimentary non-Expo generator already exists | Typed `native.app` manifest, expanded generation/autolinking; Expo adapter remains |
-| Distribution | Primarily JS framework; native features external | Same `one` package now ships Swift/Kotlin/C++/Nitrogen sources and native pod/module |
-| Platform scope | Web, iOS, Android framework | Same core targets; OS-specific APIs and explicit web limitations, not desktop parity |
+| Area              | v1.27.1                                                               | v2.6.2                                                                                   |
+| ----------------- | --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Runtime/rendering | React 19.2.3; RN peer ^0.86.0; existing Vite/Rolldown native pipeline | React 19.2.3 retained; RN peer ^0.87.0; Fabric native hosts plus Nitro services          |
+| Native UI         | RN/community components, separate optional native-tabs integration    | `One.iOS`, `One.Android`, `One.UI`; SwiftUI and Compose embedded beside RN               |
+| Native source     | No new v2 Swift/Kotlin import plugins                                 | Typed `.swift`/`.kt` imports, generated glue, contract hashes and events                 |
+| State/events      | Existing React/RN state model                                         | Native-owned scalar handles shared with UI worklets; revision/event-count acknowledgment |
+| Native setup      | Expo integrations; rudimentary non-Expo generator already exists      | Typed `native.app` manifest, expanded generation/autolinking; Expo adapter remains       |
+| Distribution      | Primarily JS framework; native features external                      | Same `one` package now ships Swift/Kotlin/C++/Nitrogen sources and native pod/module     |
+| Platform scope    | Web, iOS, Android framework                                           | Same core targets; OS-specific APIs and explicit web limitations, not desktop parity     |
 
 The package metadata and exports establish these dependency/distribution changes: [v1 package][pkg1], [v2 package][pkg2].
 
@@ -41,7 +41,7 @@ A typed import is the new user-facing boundary; this example assumes the app’s
 import { Device } from './native/Showcase/Device.swift'
 
 export async function hashGreeting(): Promise<string> {
-  return Device.sha256('hello')
+	return Device.sha256('hello')
 }
 ```
 
@@ -60,14 +60,14 @@ The announcement’s “100%” access claim includes the escape hatch of writin
 import { One, useNativeState } from 'one'
 
 export function NotificationSetting() {
-  const enabled = useNativeState(false)
-  return (
-    <One.iOS.Toggle
-      label="Notifications"
-      isOn={enabled}
-      onIsOnChange={(next) => enabled.set(next)}
-    />
-  )
+	const enabled = useNativeState(false)
+	return (
+		<One.iOS.Toggle
+			label="Notifications"
+			isOn={enabled}
+			onIsOnChange={(next) => enabled.set(next)}
+		/>
+	)
 }
 ```
 
@@ -101,15 +101,15 @@ The new background computation layer uses a worker on web and a Worklets runtime
 
 ## Breaking changes and migration checks
 
-| Check | Exact source finding |
-|---|---|
-| Dependencies | RN ^0.86 → ^0.87; React unchanged; navigation 7 → pinned 8 alpha peers; gesture-handler ≥2 → ≥3; Worklets ≥0.7 → ≥0.12.2. Read the actual tagged peers, not older beta prose. |
-| Removed package exports | `one/expo-plugin`, `one/react-native-commands`, `one/native-tabs`, `one/stack-toolbar-implementation`. The Expo adapter remains under `vxrn/expo-plugin`; the new One config adapter is `one/react-native-config`. |
-| Native tabs | Replace the removed separate NativeTabs entry with the routed Tabs layer as appropriate; native `href` options now throw. Verify changed native/tab-bar behavior. |
-| Toolbar types/integration | Old implementation registration is gone; root `StackToolbarConfig` and `StackToolbarViewProps` exports disappear. Existing toolbar users need source/type review. |
-| Safe areas | Root safe-area exports now come from One’s implementation; the separate `@vxrn/safe-area` workspace package is absorbed. Similar names do not prove identical provider identity or third-party context behavior. |
-| Router typing | Root no longer re-exports the old `One` router type namespace; `OneRouter` remains. `NavigationRef` changes from augmented RootParamList to ParamListBase. Check consumers of these types. |
-| Native binary | New components/services require a custom native build and New Architecture; Expo Go cannot supply missing code. New source/capabilities and mismatched OTA/native contracts require rebuilds. |
+| Check                     | Exact source finding                                                                                                                                                                                               |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Dependencies              | RN ^0.86 → ^0.87; React unchanged; navigation 7 → pinned 8 alpha peers; gesture-handler ≥2 → ≥3; Worklets ≥0.7 → ≥0.12.2. Read the actual tagged peers, not older beta prose.                                      |
+| Removed package exports   | `one/expo-plugin`, `one/react-native-commands`, `one/native-tabs`, `one/stack-toolbar-implementation`. The Expo adapter remains under `vxrn/expo-plugin`; the new One config adapter is `one/react-native-config`. |
+| Native tabs               | Replace the removed separate NativeTabs entry with the routed Tabs layer as appropriate; native `href` options now throw. Verify changed native/tab-bar behavior.                                                  |
+| Toolbar types/integration | Old implementation registration is gone; root `StackToolbarConfig` and `StackToolbarViewProps` exports disappear. Existing toolbar users need source/type review.                                                  |
+| Safe areas                | Root safe-area exports now come from One’s implementation; the separate `@vxrn/safe-area` workspace package is absorbed. Similar names do not prove identical provider identity or third-party context behavior.   |
+| Router typing             | Root no longer re-exports the old `One` router type namespace; `OneRouter` remains. `NavigationRef` changes from augmented RootParamList to ParamListBase. Check consumers of these types.                         |
+| Native binary             | New components/services require a custom native build and New Architecture; Expo Go cannot supply missing code. New source/capabilities and mismatched OTA/native contracts require rebuilds.                      |
 
 Evidence: [v1 exports/peers][pkg1], [v2 exports/peers][pkg2], [v2 root exports][index], [router interfaces][routertypes], [safe-area source][safearea], [current setup](https://onestack.dev/docs/native-setup).
 
@@ -124,13 +124,13 @@ Evidence: [v1 exports/peers][pkg1], [v2 exports/peers][pkg2], [v2 root exports][
 
 ## Strongest ideas for Octane, with tradeoffs
 
-| Research lead | Why it fits Octane | Tradeoff / decision it informs |
-|---|---|---|
-| Typed native-source imports plus binary contract hashes | Could reduce boilerplate for leaf-owned native extensions and reject mismatched JavaScript/native deployments clearly | Requires parsers, wire contracts, host integration and rebuild tracking; One’s JSON/promise boundary is unsuitable for zero-copy/high-frequency work without a separate path |
-| SDK derivation with semantic overrides and availability metadata | A promising way to expand platform-authentic entry points while preserving real SDK names and explicit availability | Signatures cannot infer ownership, child slots, layout or event meaning; generated name counts must never stand in for parity tests |
-| Revision/event acknowledgments and native-owned state | Useful prior art for controlled inputs, delayed event delivery and gesture/native state synchronization | Does not transfer directly to Octane signals; lifecycle cleanup, scalar limits, concurrency and renderer subscriptions need independent proof |
-| Explicit outer-layout versus native-content ownership | Relevant to NativeScript/AppKit hosting and any future SwiftUI/Compose leaf; measured-axis ownership avoids circular sizing | Two layout engines create timing, intrinsic-size and accessibility obligations; platform-authentic appearance still differs from shared pixel parity |
-| Latest-input background work and stale-result rejection | Useful for search, filtering or other bursty computations across web/native | Native queue is serialized, active computations are not preempted, and worklet restrictions differ from a web worker |
+| Research lead                                                    | Why it fits Octane                                                                                                          | Tradeoff / decision it informs                                                                                                                                               |
+| ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Typed native-source imports plus binary contract hashes          | Could reduce boilerplate for leaf-owned native extensions and reject mismatched JavaScript/native deployments clearly       | Requires parsers, wire contracts, host integration and rebuild tracking; One’s JSON/promise boundary is unsuitable for zero-copy/high-frequency work without a separate path |
+| SDK derivation with semantic overrides and availability metadata | A promising way to expand platform-authentic entry points while preserving real SDK names and explicit availability         | Signatures cannot infer ownership, child slots, layout or event meaning; generated name counts must never stand in for parity tests                                          |
+| Revision/event acknowledgments and native-owned state            | Useful prior art for controlled inputs, delayed event delivery and gesture/native state synchronization                     | Does not transfer directly to Octane signals; lifecycle cleanup, scalar limits, concurrency and renderer subscriptions need independent proof                                |
+| Explicit outer-layout versus native-content ownership            | Relevant to NativeScript/AppKit hosting and any future SwiftUI/Compose leaf; measured-axis ownership avoids circular sizing | Two layout engines create timing, intrinsic-size and accessibility obligations; platform-authentic appearance still differs from shared pixel parity                         |
+| Latest-input background work and stale-result rejection          | Useful for search, filtering or other bursty computations across web/native                                                 | Native queue is serialized, active computations are not preempted, and worklet restrictions differ from a web worker                                                         |
 
 Octane already separates shared normalized UI from OS-authentic subpaths, keeps platform divergence at file boundaries, and assigns native plugin/system costs to leaf packages. One’s monolithic native distribution is therefore a precedent to evaluate, not a packaging model to copy. Octane context came from the project’s repository orientation and implementation invariants; no unrelated code audit or architecture commitment was made.
 

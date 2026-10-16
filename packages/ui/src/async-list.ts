@@ -89,7 +89,8 @@ export interface AsyncListSnapshot<T> {
  * React Aria `useAsyncList`-compatible store — paged `load`, optional client `sort`, filter text, selection, and `reload`/`loadMore`. The reactive read is `useAsyncList`/`useStore`.
  */
 export interface AsyncListData<T>
-	extends ReadableStore<AsyncListSnapshot<T>>,
+	extends
+		ReadableStore<AsyncListSnapshot<T>>,
 		Omit<ListData<T>, 'getSnapshot' | 'subscribe' | 'setFilterText'> {
 	readonly loadingState: LoadingState
 	readonly isLoading: boolean
@@ -124,7 +125,12 @@ export interface AsyncListData<T>
 	abort(): void
 }
 
-const ACTIVE: ReadonlySet<LoadingState> = new Set(['loading', 'loadingMore', 'sorting', 'filtering'])
+const ACTIVE: ReadonlySet<LoadingState> = new Set([
+	'loading',
+	'loadingMore',
+	'sorting',
+	'filtering',
+])
 
 /** The current async operation — a request (abortable via `controller`) or
  *  a pending client sort (result dropped via the ticket check instead). */
@@ -336,7 +342,9 @@ export function createAsyncListData<T, C = string>(
 				// sort's result instead of letting it publish over a newer op.
 				const { mine, completed, finish } = beginOperation('sorting', false)
 				Promise.resolve()
-					.then(() => options.sort!({ items: base.getSnapshot().items, sortDescriptor: descriptor }))
+					.then(() =>
+						options.sort!({ items: base.getSnapshot().items, sortDescriptor: descriptor }),
+					)
 					.then(
 						(result) => {
 							if (mine !== ticket) {

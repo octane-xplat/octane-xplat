@@ -24,8 +24,8 @@ Across the map, preserve precise item/selection/destination types; use coherent 
 
 ## Public contracts
 
-| Concept                                                                       | Target public contract                                                                                                |
-| ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Concept                                                                          | Target public contract                                                                                                |
+| -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | [Accessibility props](../../../packages/ui/src/props.ts#L301)                    | Export shared accessibility types; model names, roles, and role-specific states explicitly.                           |
 | [Conditional root exports](../../../packages/ui/src/index.macos.ts#L249)         | Use one intentional shared value/type surface, with platform-only additions on explicit subpaths.                     |
 | [Package entrypoints and discoverability](../../../packages/ui/package.json#L40) | Root owns general UI; routing, data, Markdown, and chat each own one canonical feature subpath.                       |
@@ -36,8 +36,8 @@ Across the map, preserve precise item/selection/destination types; use coherent 
 
 ## Layout
 
-| Concept                                                                       | Target public contract                                                                                                     |
-| ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Concept                                                                          | Target public contract                                                                                                     |
+| -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | [Absolute](../../../packages/ui/src/props.ts#L234)                               | Keep an explicit absolute-position container; define edges, coordinate units, and stacking behavior together.              |
 | [Center, Section, and AspectRatio](../../../packages/ui/src/props.ts#L6731)      | Keep Center, Section, and AspectRatio as focused presets with explicit geometry/content precedence.                        |
 | [Grid](../../../packages/ui/src/props.ts#L106)                                   | Expose a bounded portable track grammar, consistent child placement, and explicit numbering.                               |
@@ -52,8 +52,8 @@ Across the map, preserve precise item/selection/destination types; use coherent 
 
 ## Actions
 
-| Concept                                                                    | Target public contract                                                                                                   |
-| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Concept                                                                       | Target public contract                                                                                                   |
+| ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | [Button and IconButton](../../../packages/ui/src/props.ts#L2744)              | Keep Button/IconButton; remove competing state/slot/action aliases and expose async failure; require icon-button naming. |
 | [ButtonGroup](../../../packages/ui/src/props.ts#L5491)                        | Keep layout and shared defaults distinct from selection; define child override precedence.                               |
 | [Collapsible and Accordion](../../../packages/ui/src/props.ts#L2784)          | Keep Collapsible and Accordion; distinguish expansion from surface visibility and type single/multiple expansion.        |
@@ -63,8 +63,8 @@ Across the map, preserve precise item/selection/destination types; use coherent 
 
 ## Forms
 
-| Concept                                                                                        | Target public contract                                                                                                       |
-| ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Concept                                                                                           | Target public contract                                                                                                       |
+| ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | [CheckboxInput and Switch](../../../packages/ui/src/props.ts#L1382)                               | Preserve CheckboxInput/Switch; complete checked-state ownership and distinguish mixed appearance from submitted values.      |
 | [Calendar and calendar hooks](../../../packages/ui/src/props.ts#L700)                             | Preserve the single/range union; use one validated calendar-date domain for values, constraints, and changes.                |
 | [RadioList, CheckboxList, and SegmentedControl](../../../packages/ui/src/props.ts#L2852)          | Preserve RadioList/CheckboxList; share single-choice options, defaults, and orientation with SegmentedControl.               |
@@ -84,8 +84,8 @@ Across the map, preserve precise item/selection/destination types; use coherent 
 
 ## Content
 
-| Concept                                                                                           | Target public contract                                                                                                           |
-| ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Concept                                                                                              | Target public contract                                                                                                           |
+| ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | [Avatar, AvatarGroup, and User](../../../packages/ui/src/props.ts#L3076)                             | Keep reference-backed identity display; separate visible fallback and accessible naming, with typed shared sizing/overflow.      |
 | [Badge and Chip](../../../packages/ui/src/props.ts#L3039)                                            | Keep Badge passive; make chip activation, selection, and removal distinct with consistent appearance.                            |
 | [Card](../../../packages/ui/src/props.ts#L3900)                                                      | Keep Card passive with typed variants and reusable header/footer/content anatomy.                                                |
@@ -106,8 +106,8 @@ Across the map, preserve precise item/selection/destination types; use coherent 
 
 ## Collections
 
-| Concept                                                          | Target public contract                                                                                                         |
-| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Concept                                                             | Target public contract                                                                                                         |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
 | [GridList and useGridList](../../../packages/ui/src/props.ts#L6975) | Keep keyed selection and action distinct; constrain modes and content sources; make keyboard capability truthful.              |
 | [Item, List, and ListItem](../../../packages/ui/src/props.ts#L3152) | Choose one reference-backed row anatomy; distinguish standalone content rows from list context without duplicate vocabularies. |
 | [Table](../../../packages/ui/src/props.ts#L3811)                    | Preserve row generics and constrain columns/keys; promise only the tabular interactions actually supported.                    |
@@ -117,8 +117,8 @@ Across the map, preserve precise item/selection/destination types; use coherent 
 
 ## Navigation
 
-| Concept                                                                  | Target public contract                                                                                                                     |
-| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Concept                                                                     | Target public contract                                                                                                                     |
+| --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | [AppShell and MobileNav](../../../packages/ui/src/props.ts#L4852)           | Separate MobileNav options from rendered content; share open-state ownership and hide internal provider coordination.                      |
 | [Breadcrumbs](../../../packages/ui/src/props.ts#L3667)                      | Support typed link destinations and explicit action alternatives; identify the current item.                                               |
 | [CommandPalette](../../../packages/ui/src/props.ts#L3757)                   | Distinguish query, command identity, and activation; share abortable search and observable async failure.                                  |
@@ -137,8 +137,8 @@ Across the map, preserve precise item/selection/destination types; use coherent 
 
 ## Overlays
 
-| Concept                                                                                  | Target public contract                                                                                                                  |
-| ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Concept                                                                                     | Target public contract                                                                                                                  |
+| ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
 | [BottomSheet and its service](../../../packages/ui/src/props.ts#L1954)                      | Share declarative/service options, accessible naming, typed results, and bounded snap points; close an owned instance.                  |
 | [Dialog, AlertDialog, and imperative dialog hooks](../../../packages/ui/src/props.ts#L2071) | Share declarative/imperative options and lifecycle; expose dismissal reasons, title/description associations, and confirmation failure. |
 | [HoverCard, useHoverCard, and Tooltip](../../../packages/ui/src/props.ts#L1646)             | Share trigger/delay/open conventions; preserve noninteractive tooltip versus rich hover-card semantics and touch access.                |
@@ -149,8 +149,8 @@ Across the map, preserve precise item/selection/destination types; use coherent 
 
 ## Media
 
-| Concept                                                                     | Target public contract                                                                                                |
-| --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Concept                                                                        | Target public contract                                                                                                |
+| ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
 | [CameraView on the macOS root](../../../packages/ui/src/index.macos.ts#L249)   | Remove the unsupported macOS root placeholder; camera support belongs to its feature package and capability contract. |
 | [Carousel, Lightbox, and useLightbox](../../../packages/ui/src/props.ts#L2188) | Keep gallery concepts; align item/index selection and open-state contracts with explicit playback/zoom support.       |
 | [Image](../../../packages/ui/src/props.ts#L1284)                               | Type URI/responsive sources and units; distinguish decorative images from named content and bound positioning.        |
@@ -158,8 +158,8 @@ Across the map, preserve precise item/selection/destination types; use coherent 
 
 ## Chat
 
-| Concept                                                                               | Target public contract                                                                                                                |
-| ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Concept                                                                                  | Target public contract                                                                                                                |
+| ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
 | [ChatComposer and composer controls](../../../packages/ui/src/props.ts#L4303)            | Separate draft editing from send/cancel state; specify success clearing, failure retention, and custom-slot context.                  |
 | [Speech recognition and chat dictation](../../../packages/ui/src/props.ts#L4564)         | Keep explicit capability reporting; expose async permission/start failures and isolate host audio integration.                        |
 | [ChatLayout, ChatMessageList, and scroll hooks](../../../packages/ui/src/props.ts#L4099) | Use the shared scroll controller; expose following-latest state, user interruption, and unread-count/reset behavior.                  |
@@ -169,8 +169,8 @@ Across the map, preserve precise item/selection/destination types; use coherent 
 
 ## Styling
 
-| Concept                                                                              | Target public contract                                                                                                               |
-| ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Concept                                                                                 | Target public contract                                                                                                               |
+| --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | [useAnimation, setTranslate, and gesture events](../../../packages/ui/src/props.ts#L11) | Expose typed animated values/properties, coordinate/velocity/time units, and observable sequence completion/cancellation.            |
 | [Icon and icon registration](../../../packages/ui/src/props.ts#L1434)                   | Type registered names and meaningful/decorative accessibility; specify registry scope and late-registration effects.                 |
 | [Selection indicators and their registry](../../../packages/ui/src/props.ts#L7025)      | Keep the typed decorative registry; make hook reads reactive or expose an explicitly nonreactive boot-only contract.                 |
@@ -179,8 +179,8 @@ Across the map, preserve precise item/selection/destination types; use coherent 
 
 ## Data and state
 
-| Concept                                                                    | Target public contract                                                                                                                   |
-| -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Concept                                                                       | Target public contract                                                                                                                   |
+| ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | [useAsyncList](../../../packages/ui/src/async-list.ts#L59)                    | Expose awaitable operations, errors, cancellation/cleanup, pagination readiness, and stale-result/concurrency behavior.                  |
 | [useListData and useTreeData](../../../packages/ui/src/list-data.ts#L12)      | Keep familiar operations with readonly snapshots, shared key/selection types, and explicit initial-only values.                          |
 | [cachedQuery$ and query storage](../../../packages/ui/src/query-cache.ts#L55) | Separate cache versus signal identity and request/account ownership; define invalidation, persistence units/version/scope, and failures. |
@@ -188,16 +188,16 @@ Across the map, preserve precise item/selection/destination types; use coherent 
 
 ## Accessibility
 
-| Concept                                                                | Target public contract                                                                                            |
-| ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Concept                                                                   | Target public contract                                                                                            |
+| ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | [Focus hooks](../../../packages/ui/src/use-focus.tsrx#L1)                 | Provide actual subtree entry/exit semantics and typed modality/events, or expose the supported subset explicitly. |
 | [FocusScope](../../../packages/ui/src/props.ts#L6789)                     | Provide containment/autofocus/restoration where accepted; expose unsupported required behavior before use.        |
 | [VisuallyHidden and useLandmark](../../../packages/ui/src/props.ts#L6771) | Keep visually hidden content accessible; separate landmark semantics from optional region-cycling behavior.       |
 
 ## Utilities
 
-| Concept                                                                        | Target public contract                                                                                                    |
-| ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------- |
+| Concept                                                                           | Target public contract                                                                                                    |
+| --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | [bottomSheetHost on the macOS root](../../../packages/ui/src/index.macos.ts#L389) | Remove accidental macOS root lookup; host lifecycle belongs to explicit NativeScript integration.                         |
 | [copyText and useClipboard](../../../packages/ui/src/use-clipboard.ts#L1)         | Keep text-specific operations with observable read/copy results; richer formats need a separate exact contract.           |
 | [useKeyboard](../../../packages/ui/src/use-keyboard.ts#L1)                        | Expose normalized key/code/modifier/composition events and supported attachments; keep software-keyboard insets separate. |
@@ -206,8 +206,8 @@ Across the map, preserve precise item/selection/destination types; use coherent 
 
 ## iOS
 
-| Concept                                                                    | Target public contract                                                                                                      |
-| -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Concept                                                                       | Target public contract                                                                                                      |
+| ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
 | [iOS controls](../../../packages/ui/src/ios/index.ts#L7)                      | Keep OS widget names; export widget-specific types and honor or narrow every advertised state prop.                         |
 | [iOS Icon selector and modifier](../../../packages/ui/src/ios/icon.ios.ts#L1) | Distinguish icon-selection helpers from the root component; type known modifiers and bound unsafe host writes.              |
 | [LiquidGlass and LiquidGlassContainer](../../../packages/ui/src/props.ts#L94) | Keep the iOS-only effect explicit with capability/fallback and duration units; consolidate effect configuration.            |
@@ -217,8 +217,8 @@ Across the map, preserve precise item/selection/destination types; use coherent 
 
 ## Android
 
-| Concept                                                                                | Target public contract                                                                                                     |
-| -------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Concept                                                                                   | Target public contract                                                                                                     |
+| ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | [Android controls](../../../packages/ui/src/android/index.ts#L7)                          | Keep OS widget names; export widget-specific types and honor or narrow every advertised state prop.                        |
 | [Android Icon selector and modifier](../../../packages/ui/src/android/icon.android.ts#L1) | Distinguish drawable selection from the root component; share typed modifiers while bounding unsafe writes.                |
 | [RecyclerView](../../../packages/ui/src/android/index.ts#L10)                             | Keep RecyclerView with matching props/handle types and shared collection contracts; expose recycling-specific differences. |
@@ -227,20 +227,20 @@ Across the map, preserve precise item/selection/destination types; use coherent 
 
 ## NativeScript integration
 
-| Concept                                                                   | Target public contract                                                                                                    |
-| ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Concept                                                                            | Target public contract                                                                                                    |
+| ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | [NativeScript host integration](../../../packages/ui/src/nativescript/index.ts#L1) | Give NativeScript host integration an explicit home, typed handles, and lifecycle; exclude it from normal app navigation. |
 
 ## Web integration
 
-| Concept                                                               | Target public contract                                                                                             |
-| --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Concept                                                                  | Target public contract                                                                                             |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
 | [Web compatibility entrypoint](../../../packages/ui/src/web/index.ts#L1) | Root owns portable HoverCard/Tooltip; reserve web for actual DOM contracts and deprecate redundant import aliases. |
 
 ## Stylesheets
 
-| Concept                                                            | Target public contract                                                                                              |
-| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| Concept                                                               | Target public contract                                                                                              |
+| --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
 | [Theme stylesheet entrypoints](../../../packages/ui/package.json#L90) | Export exactly the supported tokens/chrome CSS paths in development and publish maps; state inclusion requirements. |
 
 ## Completeness and limits

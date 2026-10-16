@@ -309,7 +309,8 @@ export interface StackSizeProps {
  *  ```
  *  @see HStackProps and VStackProps for the axis-locked presets,
  *  StackItemProps for per-child overrides, AbsoluteProps for overlap. */
-export interface StackProps extends StackPaddingProps, StackSizeProps, AccessibilityProps, TestIDProps {
+export interface StackProps
+	extends StackPaddingProps, StackSizeProps, AccessibilityProps, TestIDProps {
 	className?: ClassName
 	style?: StyleProp
 	children?: Renderable
@@ -555,7 +556,8 @@ export interface AccessibilityProps {
  * ```
  * @see StackProps for flow layout, AccessibilityProps, LayoutChildProps.
  */
-export interface ViewProps extends LayoutChildProps, FlexContainerProps, AccessibilityProps, TestIDProps {
+export interface ViewProps
+	extends LayoutChildProps, FlexContainerProps, AccessibilityProps, TestIDProps {
 	className?: ClassName
 	style?: StyleProp
 	children?: Renderable
@@ -572,7 +574,8 @@ export interface ViewProps extends LayoutChildProps, FlexContainerProps, Accessi
 
 /** The `Row` leaf's contract — the same layout/flex prop set as `View`. `Row` itself is not exported on the public barrel; use `HStack` (or `Stack` with `direction="horizontal"`) for horizontal flow. Exported for wrappers that forward to the leaf.
  */
-export interface RowProps extends LayoutChildProps, FlexContainerProps, AccessibilityProps, TestIDProps {
+export interface RowProps
+	extends LayoutChildProps, FlexContainerProps, AccessibilityProps, TestIDProps {
 	className?: ClassName
 	style?: StyleProp
 	children?: Renderable
@@ -935,7 +938,8 @@ export type ISODateTimeString = `${ISODateString}T${ISOTimeString}`
 
 /** ISO 8601 instant with an explicit UTC marker or numeric offset.
  *  Unlike `ISODateTimeString`, this value identifies one point on the timeline. */
-export type ISOInstantString = `${ISODateString}T${ISOTimeString}${'' | `.${number}`}${'Z' | `${'+' | '-'}${number}${number}:${number}${number}`}`
+export type ISOInstantString =
+	`${ISODateString}T${ISOTimeString}${'' | `.${number}`}${'Z' | `${'+' | '-'}${number}${number}:${number}${number}`}`
 
 /** Weekday index — `0` is Sunday (the `Date.getDay()` ordering). Used by `weekStartsOn` on Calendar and the date inputs.
  */
@@ -1567,11 +1571,13 @@ export interface UseScrollableAreaResult<TElement = HostElement> {
 	 *  into caller props for the viewport element or native scroll view. */
 	getViewportProps<P extends object = {}>(
 		props?: P & Partial<UseScrollableAreaViewportProps<TElement>>,
-	): Omit<P, keyof UseScrollableAreaViewportProps<TElement>> & UseScrollableAreaViewportProps<TElement>
+	): Omit<P, keyof UseScrollableAreaViewportProps<TElement>> &
+		UseScrollableAreaViewportProps<TElement>
 	/** Merges the observed-content marker + ref into the content box props. */
 	getContentProps<P extends object = {}>(
 		props?: P & Partial<UseScrollableAreaContentProps<TElement>>,
-	): Omit<P, keyof UseScrollableAreaContentProps<TElement>> & UseScrollableAreaContentProps<TElement>
+	): Omit<P, keyof UseScrollableAreaContentProps<TElement>> &
+		UseScrollableAreaContentProps<TElement>
 	/** Live per-axis overflow/edge state. */
 	state: ScrollableAreaState
 }
@@ -1584,7 +1590,10 @@ export interface ScrollableAreaHandle {
 	 *  iOS/Android, points on macOS), clamped to the scrollable range.
 	 *  Omitted axes keep their position. `animated` (default false) uses the
 	 *  platform's scroll animation where the leaf provides one. */
-	scrollToOffset(offset: { inline?: number; block?: number }, options?: { animated?: boolean }): void
+	scrollToOffset(
+		offset: { inline?: number; block?: number },
+		options?: { animated?: boolean },
+	): void
 	/** The platform scroll viewport (`HTMLElement` / NS `ScrollView` / AppKit
 	 *  `NSScrollView`) — escape hatch for anything the shared contract does
 	 *  not cover. */
@@ -1608,7 +1617,8 @@ export interface ScrollableAreaHandle {
  * ```
  * @see VirtualListProps for keyed virtualized content, useScrollableArea for the hook form.
  */
-export interface ScrollableAreaProps extends LayoutChildProps, AccessibilityProps, RefreshProps, TestIDProps {
+export interface ScrollableAreaProps
+	extends LayoutChildProps, AccessibilityProps, RefreshProps, TestIDProps {
 	className?: ClassName
 	style?: StyleProp
 	id?: string
@@ -1690,7 +1700,8 @@ export interface VirtualListHandle {
  * ```
  * @see VirtualListHandle for scroll seeks, ListProps for a non-virtualized list.
  */
-export interface VirtualListProps<T = unknown> extends LayoutChildProps, AccessibilityProps, TestIDProps {
+export interface VirtualListProps<T = unknown>
+	extends LayoutChildProps, AccessibilityProps, TestIDProps {
 	className?: ClassName
 	style?: StyleProp
 	id?: string
@@ -1809,7 +1820,7 @@ export type WebViewProps = WebViewBaseProps &
 				 *  file's directory. */
 				src: string
 				html?: never
-			}
+		  }
 		| {
 				/** Inline HTML document — web `srcdoc`; native loads it through
 				 *  the `src` property's data path
@@ -1818,7 +1829,7 @@ export type WebViewProps = WebViewBaseProps &
 				 *  so a srcdoc document can reach the embedding page. */
 				html: string
 				src?: never
-			}
+		  }
 	)
 
 /** A density/size-qualified entry in a multi-resolution `Image.src` array —
@@ -3321,7 +3332,10 @@ export interface DialogHeaderProps {
  *
  * @see useImperativeDialog — `show(children, options)` takes these.
  */
-export type DialogOptions = Omit<DialogProps, 'isOpen' | 'defaultOpen' | 'onOpenChange' | 'children'>
+export type DialogOptions = Omit<
+	DialogProps,
+	'isOpen' | 'defaultOpen' | 'onOpenChange' | 'children'
+>
 
 /** Return of `useImperativeDialog` — `show(children, options)` opens, `hide` closes, `isOpen` reflects state, and `element` is the dialog node to render in the tree.
  */
@@ -3689,9 +3703,7 @@ export type RouteContext = Record<string, unknown>
 
 /** Arguments to a route's `beforeLoad` export — resolved `params` plus the accumulated `context` from upstream guards.
  */
-export interface BeforeLoadArgs<
-	Params extends Record<string, unknown> = Record<string, unknown>,
-> {
+export interface BeforeLoadArgs<Params extends Record<string, unknown> = Record<string, unknown>> {
 	params: Params
 	context: RouteContext
 }
@@ -4193,13 +4205,15 @@ export type AppRouteName = keyof AppRouteParams & string
  *  `params` is that name's record, so invented names and incompatible
  *  params fail at the callsite. Distributes over `Name`, so `RouteFor<P>`
  *  is the union of every destination `P` describes. */
-export type RouteFor<Params, Name extends keyof Params & string = keyof Params & string> =
-	Name extends unknown
-		? Omit<Route, 'name' | 'params'> & {
-				name: Name
-				params: Params[Name]
-			}
-		: never
+export type RouteFor<
+	Params,
+	Name extends keyof Params & string = keyof Params & string,
+> = Name extends unknown
+	? Omit<Route, 'name' | 'params'> & {
+			name: Name
+			params: Params[Name]
+		}
+	: never
 
 /** The typed navigation surface — `pushRoute` and `NavLink`'s `route`
  *  take this shape so invented names and incompatible params fail at the
@@ -4663,7 +4677,14 @@ export interface MenuSubMenuData extends MenuItemData {
 }
 
 /** Public menu data union: each row kind has an explicit discriminant. */
-export type MenuOption = MenuActionData | MenuLinkData | MenuSectionData | MenuSeparatorData | MenuCheckboxData | MenuRadioGroupData | MenuSubMenuData
+export type MenuOption =
+	| MenuActionData
+	| MenuLinkData
+	| MenuSectionData
+	| MenuSeparatorData
+	| MenuCheckboxData
+	| MenuRadioGroupData
+	| MenuSubMenuData
 
 /** @deprecated Use `MenuOption`, whose entry kinds have explicit discriminants. */
 export type MenuItem = MenuOption
@@ -6517,14 +6538,14 @@ export type ChatToolCallItem = ChatToolCallItemBase &
 				/** Display-formatted run time (e.g. `'1.2s'`) shown on the row. */
 				duration?: string
 				errorMessage?: never
-			}
+		  }
 		| { status: 'pending' | 'running'; duration?: never; errorMessage?: never }
 		| {
 				status: 'error'
 				duration?: never
 				/** Failure detail — announced as the row's accessible name. */
 				errorMessage?: string
-			}
+		  }
 	)
 
 /** Tool-call list — one call renders inline; several collapse behind a
@@ -8993,8 +9014,9 @@ export type PowerSearchComponents = Partial<
  * ```
  * @see PowerSearchConfig, PowerSearchFilterFor, PowerSearchComponents.
  */
-export interface PowerSearchProps<C extends PowerSearchConfig = PowerSearchConfig>
-	extends FieldControlProps {
+export interface PowerSearchProps<
+	C extends PowerSearchConfig = PowerSearchConfig,
+> extends FieldControlProps {
 	className?: ClassName
 	style?: StyleProp
 	id?: string
@@ -9112,74 +9134,72 @@ type PowerSearchFieldFilter<D extends FieldDefinition> = D extends {
 	readonly key: infer K extends string
 	readonly type: infer T extends PowerSearchFieldType
 }
-	? (
-			T extends 'string'
+	? (T extends 'string'
+			? {
+					readonly field: K
+					readonly operator:
+						| 'contains'
+						| 'not_contains'
+						| 'starts_with'
+						| 'not_starts_with'
+						| 'ends_with'
+						| 'not_ends_with'
+						| 'is'
+						| 'is_not'
+					readonly value: FilterValueString
+				}
+			: T extends 'number'
 				? {
 						readonly field: K
 						readonly operator:
-							| 'contains'
-							| 'not_contains'
-							| 'starts_with'
-							| 'not_starts_with'
-							| 'ends_with'
-							| 'not_ends_with'
-							| 'is'
-							| 'is_not'
-						readonly value: FilterValueString
+							| 'equals'
+							| 'not_equals'
+							| 'greater_than'
+							| 'less_than'
+							| 'greater_than_or_equal'
+							| 'less_than_or_equal'
+						readonly value: FilterValueFloat | FilterValueInteger
 					}
-				: T extends 'number'
+				: T extends 'boolean'
 					? {
 							readonly field: K
-							readonly operator:
-								| 'equals'
-								| 'not_equals'
-								| 'greater_than'
-								| 'less_than'
-								| 'greater_than_or_equal'
-								| 'less_than_or_equal'
-							readonly value: FilterValueFloat | FilterValueInteger
+							readonly operator: 'is_true' | 'is_false'
+							readonly value: FilterValueEmpty
 						}
-					: T extends 'boolean'
-						? {
-								readonly field: K
-								readonly operator: 'is_true' | 'is_false'
-								readonly value: FilterValueEmpty
-							}
-						: T extends 'date'
-							?
-									| {
-											readonly field: K
-											readonly operator: 'before' | 'after'
-											readonly value: FilterValueDateAbsolute
-									  }
-									| {
-											readonly field: K
-											readonly operator: 'between'
-											readonly value: FilterValueDateRange
-									  }
-							: T extends 'enum'
+					: T extends 'date'
+						?
+								| {
+										readonly field: K
+										readonly operator: 'before' | 'after'
+										readonly value: FilterValueDateAbsolute
+								  }
+								| {
+										readonly field: K
+										readonly operator: 'between'
+										readonly value: FilterValueDateRange
+								  }
+						: T extends 'enum'
+							? {
+									readonly field: K
+									readonly operator: 'is' | 'is_not'
+									readonly value: { readonly type: 'enum'; readonly value: EnumValuesOf<D> }
+								}
+							: T extends 'enum_list'
 								? {
 										readonly field: K
-										readonly operator: 'is' | 'is_not'
-										readonly value: { readonly type: 'enum'; readonly value: EnumValuesOf<D> }
+										readonly operator: 'is_any_of' | 'is_none_of'
+										readonly value: {
+											readonly type: 'enum_list'
+											readonly value: ReadonlyArray<EnumValuesOf<D>>
+										}
 									}
-								: T extends 'enum_list'
+								: T extends 'string_list'
 									? {
 											readonly field: K
 											readonly operator: 'is_any_of' | 'is_none_of'
-											readonly value: {
-												readonly type: 'enum_list'
-												readonly value: ReadonlyArray<EnumValuesOf<D>>
-											}
+											readonly value: FilterValueStringList
 										}
-									: T extends 'string_list'
-										? {
-												readonly field: K
-												readonly operator: 'is_any_of' | 'is_none_of'
-												readonly value: FilterValueStringList
-											}
-										: never
-		) & { readonly isReadOnly?: boolean }
+									: never) & { readonly isReadOnly?: boolean }
 	: never
 
 /** The filter union a schema accepts — pass the `config` from
@@ -9255,15 +9275,16 @@ export interface StyledDef<V extends Record<string, StyledVariant>> {
  *  bypass the store and leave subscribers stale. Arrays become
  *  `readonly T[]`, maps `ReadonlyMap`, sets `ReadonlySet`; other values get
  *  readonly properties. Write through the store's own methods instead. */
-export type StoreSnapshot<T> = T extends ReadonlyMap<infer K, infer V>
-	? ReadonlyMap<K, V>
-	: T extends ReadonlySet<infer V>
-		? ReadonlySet<V>
-		: T extends readonly (infer E)[]
-			? readonly E[]
-			: T extends object
-				? Readonly<T>
-				: T
+export type StoreSnapshot<T> =
+	T extends ReadonlyMap<infer K, infer V>
+		? ReadonlyMap<K, V>
+		: T extends ReadonlySet<infer V>
+			? ReadonlySet<V>
+			: T extends readonly (infer E)[]
+				? readonly E[]
+				: T extends object
+					? Readonly<T>
+					: T
 
 /** Minimal external-store contract `useStore` subscribes to — the same
  *  `subscribe` + `getSnapshot` pair `useSyncExternalStore` expects.
@@ -9314,10 +9335,7 @@ export type NumberInputProps = InputNumberProps
 /** Props accepted by `Selector`. */
 export type SelectorProps = SelectProps
 /** Props accepted by `MultiSelector`. */
-export type MultiSelectorProps = Omit<
-	SelectMultipleProps,
-	'selectionMode'
-> & {
+export type MultiSelectorProps = Omit<SelectMultipleProps, 'selectionMode'> & {
 	selectionMode?: 'multiple'
 }
 
@@ -9720,10 +9738,11 @@ export interface TimestampBaseProps {
  * @see TimestampFormat, TimestampTooltipEntry, TimestampValueUnit. ISO values
  *  must carry a timezone; numeric values require an explicit unit.
  */
-export type TimestampProps = TimestampBaseProps & (
-	| { value: ISOInstantString; valueUnit?: never }
-	| { value: number; valueUnit: TimestampValueUnit }
-)
+export type TimestampProps = TimestampBaseProps &
+	(
+		| { value: ISOInstantString; valueUnit?: never }
+		| { value: number; valueUnit: TimestampValueUnit }
+	)
 
 /** Timer duration text modes: 'elapsed' = "4m 05s" / 'clock' = "4:05". */
 export type TimerFormat = 'elapsed' | 'clock'

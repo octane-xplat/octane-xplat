@@ -38,12 +38,15 @@ test.after(() => {
 })
 
 test('a manifest expands to exactly one combined program', () => {
-	const dir = fixture({
-		environments: {
-			web: { files: ['src/index.ts', 'src/index.web.ts'] },
-			native: { files: ['src/index.ios.ts'] },
+	const dir = fixture(
+		{
+			environments: {
+				web: { files: ['src/index.ts', 'src/index.web.ts'] },
+				native: { files: ['src/index.ios.ts'] },
+			},
 		},
-	}, ['src/index.ts', 'src/index.web.ts', 'src/index.ios.ts'])
+		['src/index.ts', 'src/index.web.ts', 'src/index.ios.ts'],
+	)
 
 	const programs = expand(dir)
 	assert.equal(programs.length, 1)
@@ -68,12 +71,15 @@ test('the program carries the fixed module suffix precedence', () => {
 })
 
 test('all environment files union into the program', () => {
-	const dir = fixture({
-		environments: {
-			web: { files: ['src/index.ts', 'src/index.web.ts'] },
-			native: { files: ['src/index.ios.ts'] },
+	const dir = fixture(
+		{
+			environments: {
+				web: { files: ['src/index.ts', 'src/index.web.ts'] },
+				native: { files: ['src/index.ios.ts'] },
+			},
 		},
-	}, ['src/index.ts', 'src/index.web.ts', 'src/index.ios.ts'])
+		['src/index.ts', 'src/index.web.ts', 'src/index.ios.ts'],
+	)
 
 	const [program] = expand(dir)
 	for (const rel of ['src/index.ts', 'src/index.web.ts', 'src/index.ios.ts']) {
@@ -85,12 +91,15 @@ test('all environment files union into the program', () => {
 })
 
 test('ambient host files precede env files (first-wins global merges)', () => {
-	const dir = fixture({
-		environments: {
-			native: { files: ['src/index.ios.ts'] },
-			macos: { files: ['src/index.macos.ts'] },
+	const dir = fixture(
+		{
+			environments: {
+				native: { files: ['src/index.ios.ts'] },
+				macos: { files: ['src/index.macos.ts'] },
+			},
 		},
-	}, ['src/index.macos.ts', 'src/index.ios.ts'])
+		['src/index.macos.ts', 'src/index.ios.ts'],
+	)
 
 	const [program] = expand(dir)
 	const envFiles = program.files.filter((f) => f.startsWith(dir))
@@ -103,27 +112,33 @@ test('ambient host files precede env files (first-wins global merges)', () => {
 })
 
 test('per-environment compilerOptions are rejected except types', () => {
-	const dir = fixture({
-		environments: {
-			native: {
-				files: ['src/index.ios.ts'],
-				compilerOptions: { moduleSuffixes: ['.ios', ''], types: ['@nativescript/types'] },
+	const dir = fixture(
+		{
+			environments: {
+				native: {
+					files: ['src/index.ios.ts'],
+					compilerOptions: { moduleSuffixes: ['.ios', ''], types: ['@nativescript/types'] },
+				},
 			},
 		},
-	}, ['src/index.ios.ts'])
+		['src/index.ios.ts'],
+	)
 
 	assert.throws(() => expand(dir), /environment "native".*moduleSuffixes.*one program/s)
 })
 
 test('environment types merge into the combined program', () => {
-	const dir = fixture({
-		environments: {
-			native: {
-				files: ['src/index.ios.ts'],
-				compilerOptions: { types: ['@nativescript/types'] },
+	const dir = fixture(
+		{
+			environments: {
+				native: {
+					files: ['src/index.ios.ts'],
+					compilerOptions: { types: ['@nativescript/types'] },
+				},
 			},
 		},
-	}, ['src/index.ios.ts'])
+		['src/index.ios.ts'],
+	)
 
 	const [program] = expand(dir)
 	const config = JSON.parse(readFileSync(program.configPath, 'utf8'))
@@ -131,21 +146,17 @@ test('environment types merge into the combined program', () => {
 })
 
 test('top-level moduleSuffixes must match the fixed order or be omitted', () => {
-	const bad = fixture(
-		{
-			environments: { web: { files: ['src/index.ts'] } },
-			compilerOptions: { moduleSuffixes: ['.web', ''] },
-		},
-	)
+	const bad = fixture({
+		environments: { web: { files: ['src/index.ts'] } },
+		compilerOptions: { moduleSuffixes: ['.web', ''] },
+	})
 
 	assert.throws(() => expand(bad), /moduleSuffixes is fixed/)
 
-	const ok = fixture(
-		{
-			environments: { web: { files: ['src/index.ts'] } },
-			compilerOptions: { moduleSuffixes: [...PLATFORM_MODULE_SUFFIXES] },
-		},
-	)
+	const ok = fixture({
+		environments: { web: { files: ['src/index.ts'] } },
+		compilerOptions: { moduleSuffixes: [...PLATFORM_MODULE_SUFFIXES] },
+	})
 
 	expand(ok)
 })

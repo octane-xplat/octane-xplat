@@ -26,11 +26,11 @@ pnpm probe run research/hosted-engine/hosted.tsrx --target ios --device <UDID> -
 pnpm probe run research/hosted-engine/hosted.tsrx --target android --device <SERIAL> --timeout 90000
 ```
 
-| Target | Device | Result | Run ID |
-| --- | --- | --- | --- |
-| iOS | iPhone 17e simulator, iOS 27.0 (`CF4A9D5B-C905-4EB3-A3CE-EB6BAF30FC4B`) | PASS — 19/19 assertions | `5d19f9fb-6a6a-4724-9a6d-999ac10faaac` (repeat of `2537bd5b-9377-4abf-a4be-09b1d573e220`) |
-| Android | `octane-prime-larkspur` AVD, API 35 arm64 (`emulator-5556`) | PASS — 19/19 assertions | `b6ba0fc5-e81e-45c7-9fcd-50a97c65abe8` |
-| iOS push channel | same simulator | host crash — `doesNotRecognizeSelector` at `WKScriptMessageHandler` dispatch | `bridge-push.tsrx` runs, see below |
+| Target           | Device                                                                  | Result                                                                       | Run ID                                                                                    |
+| ---------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| iOS              | iPhone 17e simulator, iOS 27.0 (`CF4A9D5B-C905-4EB3-A3CE-EB6BAF30FC4B`) | PASS — 19/19 assertions                                                      | `5d19f9fb-6a6a-4724-9a6d-999ac10faaac` (repeat of `2537bd5b-9377-4abf-a4be-09b1d573e220`) |
+| Android          | `octane-prime-larkspur` AVD, API 35 arm64 (`emulator-5556`)             | PASS — 19/19 assertions                                                      | `b6ba0fc5-e81e-45c7-9fcd-50a97c65abe8`                                                    |
+| iOS push channel | same simulator                                                          | host crash — `doesNotRecognizeSelector` at `WKScriptMessageHandler` dispatch | `bridge-push.tsrx` runs, see below                                                        |
 
 Raw runner output: `.agents/docs/parity/evidence/hosted-engine-ios-2026-10-08.json`,
 `.agents/docs/parity/evidence/hosted-engine-android-2026-10-08.json`.

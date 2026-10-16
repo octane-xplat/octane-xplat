@@ -167,11 +167,14 @@ const A = defineStory({ id: 'a', title: 'A', targets: 'all', component: C, args:
 	})
 })
 
-
 describe('metadata integrity', () => {
 	it('rejects computed arrays and unquoted identifiers without evaluation', () => {
 		for (const targets of ["['web'].concat(other)", 'all', '[]', "'web'"]) {
-			const { stories, diagnostics } = scanStoryFile(STORY.replace("targets: 'all'", `targets: ${targets}`), 'invalid.stories.tsrx')
+			const { stories, diagnostics } = scanStoryFile(
+				STORY.replace("targets: 'all'", `targets: ${targets}`),
+				'invalid.stories.tsrx',
+			)
+
 			expect(stories).toHaveLength(0)
 			expect(diagnostics).not.toHaveLength(0)
 		}
@@ -179,7 +182,11 @@ describe('metadata integrity', () => {
 
 	it('does not qualify required capabilities merely from target applicability', () => {
 		const root = mkdtempSync(join(tmpdir(), 'ws-caps-'))
-		writeFileSync(join(root, 'caps.stories.tsrx'), STORY.replace("targets: 'all'", "targets: 'all', capabilities: ['camera']"))
+		writeFileSync(
+			join(root, 'caps.stories.tsrx'),
+			STORY.replace("targets: 'all'", "targets: 'all', capabilities: ['camera']"),
+		)
+
 		const { entries, diagnostics } = discoverStories(root)
 		expect(diagnostics).toEqual([])
 		expect(entries[0].applicable).toBe(false)

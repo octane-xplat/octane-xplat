@@ -8,6 +8,7 @@ const source = await readFile(
 	new URL('../src/list-viewability-observer.ios.ts', import.meta.url),
 	'utf8',
 )
+
 const compiled = ts.transpile(source, {
 	module: ts.ModuleKind.CommonJS,
 	target: ts.ScriptTarget.ES2022,
@@ -62,6 +63,7 @@ test('iOS list viewability observer registers lazily without NativeClass', () =>
 		},
 		rectForRowAtIndexPath: () => ({ origin: { y: 0 }, size: { height: 20 } }),
 	}
+
 	const subscription = context.exports.observeListViewability(
 		{ ios: table },
 		() => ({ items: ['Avery'], update: (rows) => updates.push(rows) }),
@@ -73,7 +75,10 @@ test('iOS list viewability observer registers lazily without NativeClass', () =>
 	const selector = 'observeValueForKeyPath:ofObject:change:context:'
 	assert.equal(typeof registrations[0].methods[selector], 'function')
 	assert.equal(registrations[0].options.exposedMethods[selector].params.length, 4)
-	assert.deepEqual(observed.map(({ key }) => key), ['contentOffset', 'contentSize', 'bounds'])
+	assert.deepEqual(
+		observed.map(({ key }) => key),
+		['contentOffset', 'contentSize', 'bounds'],
+	)
 
 	scheduled.shift()()
 	const observer = observed[0].observer
@@ -84,5 +89,8 @@ test('iOS list viewability observer registers lazily without NativeClass', () =>
 	assert.equal(updates[1][0].visiblePercent, 100)
 
 	subscription.dispose()
-	assert.deepEqual(removed.map(({ key }) => key), ['contentOffset', 'contentSize', 'bounds'])
+	assert.deepEqual(
+		removed.map(({ key }) => key),
+		['contentOffset', 'contentSize', 'bounds'],
+	)
 })

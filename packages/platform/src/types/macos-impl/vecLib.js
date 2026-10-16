@@ -3,61 +3,189 @@ const FW = '/System/Library/Frameworks/vecLib.framework/vecLib'
 export const BNNSActivation = /* @__PURE__ */ _bind(FW, 'BNNSActivation')
 export const BNNSActivationFunction = /* @__PURE__ */ _bind(FW, 'BNNSActivationFunction')
 export const BNNSApplyMultiheadAttention = /* @__PURE__ */ _bind(FW, 'BNNSApplyMultiheadAttention')
-export const BNNSApplyMultiheadAttentionBackward = /* @__PURE__ */ _bind(FW, 'BNNSApplyMultiheadAttentionBackward')
+export const BNNSApplyMultiheadAttentionBackward = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSApplyMultiheadAttentionBackward',
+)
+
 export const BNNSArithmeticBinary = /* @__PURE__ */ _bind(FW, 'BNNSArithmeticBinary')
-export const BNNSArithmeticFilterApplyBackwardBatch = /* @__PURE__ */ _bind(FW, 'BNNSArithmeticFilterApplyBackwardBatch')
-export const BNNSArithmeticFilterApplyBatch = /* @__PURE__ */ _bind(FW, 'BNNSArithmeticFilterApplyBatch')
+export const BNNSArithmeticFilterApplyBackwardBatch = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSArithmeticFilterApplyBackwardBatch',
+)
+
+export const BNNSArithmeticFilterApplyBatch = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSArithmeticFilterApplyBatch',
+)
+
 export const BNNSArithmeticFunction = /* @__PURE__ */ _bind(FW, 'BNNSArithmeticFunction')
 export const BNNSArithmeticTernary = /* @__PURE__ */ _bind(FW, 'BNNSArithmeticTernary')
 export const BNNSArithmeticUnary = /* @__PURE__ */ _bind(FW, 'BNNSArithmeticUnary')
 export const BNNSCompareTensor = /* @__PURE__ */ _bind(FW, 'BNNSCompareTensor')
-export const BNNSComputeLSTMTrainingCacheCapacity = /* @__PURE__ */ _bind(FW, 'BNNSComputeLSTMTrainingCacheCapacity')
-export const BNNSConvolutionLayerParameters = /* @__PURE__ */ _bind(FW, 'BNNSConvolutionLayerParameters')
+export const BNNSComputeLSTMTrainingCacheCapacity = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSComputeLSTMTrainingCacheCapacity',
+)
+
+export const BNNSConvolutionLayerParameters = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSConvolutionLayerParameters',
+)
+
 export const BNNSCopy = /* @__PURE__ */ _bind(FW, 'BNNSCopy')
 export const BNNSDataLayout = /* @__PURE__ */ _bind(FW, 'BNNSDataLayout')
 export const BNNSDataType = /* @__PURE__ */ _bind(FW, 'BNNSDataType')
 export const BNNSDescriptorType = /* @__PURE__ */ _bind(FW, 'BNNSDescriptorType')
-export const BNNSDirectApplyActivationBatch = /* @__PURE__ */ _bind(FW, 'BNNSDirectApplyActivationBatch')
-export const BNNSDirectApplyBroadcastMatMul = /* @__PURE__ */ _bind(FW, 'BNNSDirectApplyBroadcastMatMul')
+export const BNNSDirectApplyActivationBatch = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSDirectApplyActivationBatch',
+)
+
+export const BNNSDirectApplyBroadcastMatMul = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSDirectApplyBroadcastMatMul',
+)
+
 export const BNNSDirectApplyInTopK = /* @__PURE__ */ _bind(FW, 'BNNSDirectApplyInTopK')
-export const BNNSDirectApplyLSTMBatchBackward = /* @__PURE__ */ _bind(FW, 'BNNSDirectApplyLSTMBatchBackward')
-export const BNNSDirectApplyLSTMBatchTrainingCaching = /* @__PURE__ */ _bind(FW, 'BNNSDirectApplyLSTMBatchTrainingCaching')
+export const BNNSDirectApplyLSTMBatchBackward = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSDirectApplyLSTMBatchBackward',
+)
+
+export const BNNSDirectApplyLSTMBatchTrainingCaching = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSDirectApplyLSTMBatchTrainingCaching',
+)
+
 export const BNNSDirectApplyReduction = /* @__PURE__ */ _bind(FW, 'BNNSDirectApplyReduction')
 export const BNNSDirectApplyTopK = /* @__PURE__ */ _bind(FW, 'BNNSDirectApplyTopK')
 export const BNNSFilterApply = /* @__PURE__ */ _bind(FW, 'BNNSFilterApply')
-export const BNNSFilterApplyBackwardBatch = /* @__PURE__ */ _bind(FW, 'BNNSFilterApplyBackwardBatch')
-export const BNNSFilterApplyBackwardTwoInputBatch = /* @__PURE__ */ _bind(FW, 'BNNSFilterApplyBackwardTwoInputBatch')
+export const BNNSFilterApplyBackwardBatch = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSFilterApplyBackwardBatch',
+)
+
+export const BNNSFilterApplyBackwardTwoInputBatch = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSFilterApplyBackwardTwoInputBatch',
+)
+
 export const BNNSFilterApplyBatch = /* @__PURE__ */ _bind(FW, 'BNNSFilterApplyBatch')
 export const BNNSFilterApplyTwoInput = /* @__PURE__ */ _bind(FW, 'BNNSFilterApplyTwoInput')
-export const BNNSFilterApplyTwoInputBatch = /* @__PURE__ */ _bind(FW, 'BNNSFilterApplyTwoInputBatch')
-export const BNNSFilterCreateConvolutionLayer = /* @__PURE__ */ _bind(FW, 'BNNSFilterCreateConvolutionLayer')
-export const BNNSFilterCreateFullyConnectedLayer = /* @__PURE__ */ _bind(FW, 'BNNSFilterCreateFullyConnectedLayer')
+export const BNNSFilterApplyTwoInputBatch = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSFilterApplyTwoInputBatch',
+)
+
+export const BNNSFilterCreateConvolutionLayer = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSFilterCreateConvolutionLayer',
+)
+
+export const BNNSFilterCreateFullyConnectedLayer = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSFilterCreateFullyConnectedLayer',
+)
+
 export const BNNSFilterCreateFusedLayer = /* @__PURE__ */ _bind(FW, 'BNNSFilterCreateFusedLayer')
-export const BNNSFilterCreateLayerActivation = /* @__PURE__ */ _bind(FW, 'BNNSFilterCreateLayerActivation')
-export const BNNSFilterCreateLayerArithmetic = /* @__PURE__ */ _bind(FW, 'BNNSFilterCreateLayerArithmetic')
-export const BNNSFilterCreateLayerBroadcastMatMul = /* @__PURE__ */ _bind(FW, 'BNNSFilterCreateLayerBroadcastMatMul')
-export const BNNSFilterCreateLayerConvolution = /* @__PURE__ */ _bind(FW, 'BNNSFilterCreateLayerConvolution')
-export const BNNSFilterCreateLayerDropout = /* @__PURE__ */ _bind(FW, 'BNNSFilterCreateLayerDropout')
-export const BNNSFilterCreateLayerFullyConnected = /* @__PURE__ */ _bind(FW, 'BNNSFilterCreateLayerFullyConnected')
+export const BNNSFilterCreateLayerActivation = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSFilterCreateLayerActivation',
+)
+
+export const BNNSFilterCreateLayerArithmetic = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSFilterCreateLayerArithmetic',
+)
+
+export const BNNSFilterCreateLayerBroadcastMatMul = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSFilterCreateLayerBroadcastMatMul',
+)
+
+export const BNNSFilterCreateLayerConvolution = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSFilterCreateLayerConvolution',
+)
+
+export const BNNSFilterCreateLayerDropout = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSFilterCreateLayerDropout',
+)
+
+export const BNNSFilterCreateLayerFullyConnected = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSFilterCreateLayerFullyConnected',
+)
+
 export const BNNSFilterCreateLayerGram = /* @__PURE__ */ _bind(FW, 'BNNSFilterCreateLayerGram')
 export const BNNSFilterCreateLayerLoss = /* @__PURE__ */ _bind(FW, 'BNNSFilterCreateLayerLoss')
-export const BNNSFilterCreateLayerMultiheadAttention = /* @__PURE__ */ _bind(FW, 'BNNSFilterCreateLayerMultiheadAttention')
-export const BNNSFilterCreateLayerNormalization = /* @__PURE__ */ _bind(FW, 'BNNSFilterCreateLayerNormalization')
-export const BNNSFilterCreateLayerPadding = /* @__PURE__ */ _bind(FW, 'BNNSFilterCreateLayerPadding')
-export const BNNSFilterCreateLayerPermute = /* @__PURE__ */ _bind(FW, 'BNNSFilterCreateLayerPermute')
-export const BNNSFilterCreateLayerPooling = /* @__PURE__ */ _bind(FW, 'BNNSFilterCreateLayerPooling')
-export const BNNSFilterCreateLayerReduction = /* @__PURE__ */ _bind(FW, 'BNNSFilterCreateLayerReduction')
+export const BNNSFilterCreateLayerMultiheadAttention = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSFilterCreateLayerMultiheadAttention',
+)
+
+export const BNNSFilterCreateLayerNormalization = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSFilterCreateLayerNormalization',
+)
+
+export const BNNSFilterCreateLayerPadding = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSFilterCreateLayerPadding',
+)
+
+export const BNNSFilterCreateLayerPermute = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSFilterCreateLayerPermute',
+)
+
+export const BNNSFilterCreateLayerPooling = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSFilterCreateLayerPooling',
+)
+
+export const BNNSFilterCreateLayerReduction = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSFilterCreateLayerReduction',
+)
+
 export const BNNSFilterCreateLayerResize = /* @__PURE__ */ _bind(FW, 'BNNSFilterCreateLayerResize')
-export const BNNSFilterCreateLayerTensorContraction = /* @__PURE__ */ _bind(FW, 'BNNSFilterCreateLayerTensorContraction')
-export const BNNSFilterCreateLayerTransposedConvolution = /* @__PURE__ */ _bind(FW, 'BNNSFilterCreateLayerTransposedConvolution')
-export const BNNSFilterCreatePoolingLayer = /* @__PURE__ */ _bind(FW, 'BNNSFilterCreatePoolingLayer')
-export const BNNSFilterCreateVectorActivationLayer = /* @__PURE__ */ _bind(FW, 'BNNSFilterCreateVectorActivationLayer')
+export const BNNSFilterCreateLayerTensorContraction = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSFilterCreateLayerTensorContraction',
+)
+
+export const BNNSFilterCreateLayerTransposedConvolution = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSFilterCreateLayerTransposedConvolution',
+)
+
+export const BNNSFilterCreatePoolingLayer = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSFilterCreatePoolingLayer',
+)
+
+export const BNNSFilterCreateVectorActivationLayer = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSFilterCreateVectorActivationLayer',
+)
+
 export const BNNSFilterDestroy = /* @__PURE__ */ _bind(FW, 'BNNSFilterDestroy')
 export const BNNSFilterParameters = /* @__PURE__ */ _bind(FW, 'BNNSFilterParameters')
 export const BNNSFilterType = /* @__PURE__ */ _bind(FW, 'BNNSFilterType')
 export const BNNSFlags = /* @__PURE__ */ _bind(FW, 'BNNSFlags')
-export const BNNSFullyConnectedLayerParameters = /* @__PURE__ */ _bind(FW, 'BNNSFullyConnectedLayerParameters')
-export const BNNSFusedFilterApplyBackwardBatch = /* @__PURE__ */ _bind(FW, 'BNNSFusedFilterApplyBackwardBatch')
+export const BNNSFullyConnectedLayerParameters = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSFullyConnectedLayerParameters',
+)
+
+export const BNNSFusedFilterApplyBackwardBatch = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSFusedFilterApplyBackwardBatch',
+)
+
 export const BNNSFusedFilterApplyBatch = /* @__PURE__ */ _bind(FW, 'BNNSFusedFilterApplyBatch')
 export const BNNSGetPointer = /* @__PURE__ */ _bind(FW, 'BNNSGetPointer')
 export const BNNSImageStackDescriptor = /* @__PURE__ */ _bind(FW, 'BNNSImageStackDescriptor')
@@ -66,53 +194,157 @@ export const BNNSLSTMDataDescriptor = /* @__PURE__ */ _bind(FW, 'BNNSLSTMDataDes
 export const BNNSLSTMGateDescriptor = /* @__PURE__ */ _bind(FW, 'BNNSLSTMGateDescriptor')
 export const BNNSLayerData = /* @__PURE__ */ _bind(FW, 'BNNSLayerData')
 export const BNNSLayerFlags = /* @__PURE__ */ _bind(FW, 'BNNSLayerFlags')
-export const BNNSLayerParametersActivation = /* @__PURE__ */ _bind(FW, 'BNNSLayerParametersActivation')
-export const BNNSLayerParametersArithmetic = /* @__PURE__ */ _bind(FW, 'BNNSLayerParametersArithmetic')
-export const BNNSLayerParametersBroadcastMatMul = /* @__PURE__ */ _bind(FW, 'BNNSLayerParametersBroadcastMatMul')
-export const BNNSLayerParametersConvolution = /* @__PURE__ */ _bind(FW, 'BNNSLayerParametersConvolution')
-export const BNNSLayerParametersCropResize = /* @__PURE__ */ _bind(FW, 'BNNSLayerParametersCropResize')
+export const BNNSLayerParametersActivation = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSLayerParametersActivation',
+)
+
+export const BNNSLayerParametersArithmetic = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSLayerParametersArithmetic',
+)
+
+export const BNNSLayerParametersBroadcastMatMul = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSLayerParametersBroadcastMatMul',
+)
+
+export const BNNSLayerParametersConvolution = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSLayerParametersConvolution',
+)
+
+export const BNNSLayerParametersCropResize = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSLayerParametersCropResize',
+)
+
 export const BNNSLayerParametersDropout = /* @__PURE__ */ _bind(FW, 'BNNSLayerParametersDropout')
-export const BNNSLayerParametersEmbedding = /* @__PURE__ */ _bind(FW, 'BNNSLayerParametersEmbedding')
-export const BNNSLayerParametersFullyConnected = /* @__PURE__ */ _bind(FW, 'BNNSLayerParametersFullyConnected')
+export const BNNSLayerParametersEmbedding = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSLayerParametersEmbedding',
+)
+
+export const BNNSLayerParametersFullyConnected = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSLayerParametersFullyConnected',
+)
+
 export const BNNSLayerParametersGram = /* @__PURE__ */ _bind(FW, 'BNNSLayerParametersGram')
 export const BNNSLayerParametersLSTM = /* @__PURE__ */ _bind(FW, 'BNNSLayerParametersLSTM')
 export const BNNSLayerParametersLossBase = /* @__PURE__ */ _bind(FW, 'BNNSLayerParametersLossBase')
-export const BNNSLayerParametersLossHuber = /* @__PURE__ */ _bind(FW, 'BNNSLayerParametersLossHuber')
-export const BNNSLayerParametersLossSigmoidCrossEntropy = /* @__PURE__ */ _bind(FW, 'BNNSLayerParametersLossSigmoidCrossEntropy')
-export const BNNSLayerParametersLossSoftmaxCrossEntropy = /* @__PURE__ */ _bind(FW, 'BNNSLayerParametersLossSoftmaxCrossEntropy')
+export const BNNSLayerParametersLossHuber = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSLayerParametersLossHuber',
+)
+
+export const BNNSLayerParametersLossSigmoidCrossEntropy = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSLayerParametersLossSigmoidCrossEntropy',
+)
+
+export const BNNSLayerParametersLossSoftmaxCrossEntropy = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSLayerParametersLossSoftmaxCrossEntropy',
+)
+
 export const BNNSLayerParametersLossYolo = /* @__PURE__ */ _bind(FW, 'BNNSLayerParametersLossYolo')
-export const BNNSLayerParametersMultiheadAttention = /* @__PURE__ */ _bind(FW, 'BNNSLayerParametersMultiheadAttention')
-export const BNNSLayerParametersNormalization = /* @__PURE__ */ _bind(FW, 'BNNSLayerParametersNormalization')
+export const BNNSLayerParametersMultiheadAttention = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSLayerParametersMultiheadAttention',
+)
+
+export const BNNSLayerParametersNormalization = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSLayerParametersNormalization',
+)
+
 export const BNNSLayerParametersPadding = /* @__PURE__ */ _bind(FW, 'BNNSLayerParametersPadding')
 export const BNNSLayerParametersPermute = /* @__PURE__ */ _bind(FW, 'BNNSLayerParametersPermute')
 export const BNNSLayerParametersPooling = /* @__PURE__ */ _bind(FW, 'BNNSLayerParametersPooling')
-export const BNNSLayerParametersQuantization = /* @__PURE__ */ _bind(FW, 'BNNSLayerParametersQuantization')
-export const BNNSLayerParametersReduction = /* @__PURE__ */ _bind(FW, 'BNNSLayerParametersReduction')
+export const BNNSLayerParametersQuantization = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSLayerParametersQuantization',
+)
+
+export const BNNSLayerParametersReduction = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSLayerParametersReduction',
+)
+
 export const BNNSLayerParametersResize = /* @__PURE__ */ _bind(FW, 'BNNSLayerParametersResize')
-export const BNNSLayerParametersTensorContraction = /* @__PURE__ */ _bind(FW, 'BNNSLayerParametersTensorContraction')
-export const BNNSLossFilterApplyBackwardBatch = /* @__PURE__ */ _bind(FW, 'BNNSLossFilterApplyBackwardBatch')
+export const BNNSLayerParametersTensorContraction = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSLayerParametersTensorContraction',
+)
+
+export const BNNSLossFilterApplyBackwardBatch = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSLossFilterApplyBackwardBatch',
+)
+
 export const BNNSLossFilterApplyBatch = /* @__PURE__ */ _bind(FW, 'BNNSLossFilterApplyBatch')
 export const BNNSLossFunction = /* @__PURE__ */ _bind(FW, 'BNNSLossFunction')
 export const BNNSLossReductionFunction = /* @__PURE__ */ _bind(FW, 'BNNSLossReductionFunction')
 export const BNNSMHAProjectionParameters = /* @__PURE__ */ _bind(FW, 'BNNSMHAProjectionParameters')
 export const BNNSNDArrayDescriptor = /* @__PURE__ */ _bind(FW, 'BNNSNDArrayDescriptor')
 export const BNNSNDArrayFlags = /* @__PURE__ */ _bind(FW, 'BNNSNDArrayFlags')
-export const BNNSNormalizationFilterApplyBackwardBatch = /* @__PURE__ */ _bind(FW, 'BNNSNormalizationFilterApplyBackwardBatch')
-export const BNNSNormalizationFilterApplyBatch = /* @__PURE__ */ _bind(FW, 'BNNSNormalizationFilterApplyBatch')
+export const BNNSNormalizationFilterApplyBackwardBatch = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSNormalizationFilterApplyBackwardBatch',
+)
+
+export const BNNSNormalizationFilterApplyBatch = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSNormalizationFilterApplyBatch',
+)
+
 export const BNNSOptimizerAdamFields = /* @__PURE__ */ _bind(FW, 'BNNSOptimizerAdamFields')
-export const BNNSOptimizerAdamWithClippingFields = /* @__PURE__ */ _bind(FW, 'BNNSOptimizerAdamWithClippingFields')
+export const BNNSOptimizerAdamWithClippingFields = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSOptimizerAdamWithClippingFields',
+)
+
 export const BNNSOptimizerFunction = /* @__PURE__ */ _bind(FW, 'BNNSOptimizerFunction')
 export const BNNSOptimizerRMSPropFields = /* @__PURE__ */ _bind(FW, 'BNNSOptimizerRMSPropFields')
-export const BNNSOptimizerRMSPropWithClippingFields = /* @__PURE__ */ _bind(FW, 'BNNSOptimizerRMSPropWithClippingFields')
-export const BNNSOptimizerRegularizationFunction = /* @__PURE__ */ _bind(FW, 'BNNSOptimizerRegularizationFunction')
-export const BNNSOptimizerSGDMomentumFields = /* @__PURE__ */ _bind(FW, 'BNNSOptimizerSGDMomentumFields')
-export const BNNSOptimizerSGDMomentumVariant = /* @__PURE__ */ _bind(FW, 'BNNSOptimizerSGDMomentumVariant')
-export const BNNSOptimizerSGDMomentumWithClippingFields = /* @__PURE__ */ _bind(FW, 'BNNSOptimizerSGDMomentumWithClippingFields')
+export const BNNSOptimizerRMSPropWithClippingFields = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSOptimizerRMSPropWithClippingFields',
+)
+
+export const BNNSOptimizerRegularizationFunction = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSOptimizerRegularizationFunction',
+)
+
+export const BNNSOptimizerSGDMomentumFields = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSOptimizerSGDMomentumFields',
+)
+
+export const BNNSOptimizerSGDMomentumVariant = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSOptimizerSGDMomentumVariant',
+)
+
+export const BNNSOptimizerSGDMomentumWithClippingFields = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSOptimizerSGDMomentumWithClippingFields',
+)
+
 export const BNNSOptimizerStep = /* @__PURE__ */ _bind(FW, 'BNNSOptimizerStep')
 export const BNNSPaddingMode = /* @__PURE__ */ _bind(FW, 'BNNSPaddingMode')
-export const BNNSPermuteFilterApplyBackwardBatch = /* @__PURE__ */ _bind(FW, 'BNNSPermuteFilterApplyBackwardBatch')
+export const BNNSPermuteFilterApplyBackwardBatch = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSPermuteFilterApplyBackwardBatch',
+)
+
 export const BNNSPointerSpecifier = /* @__PURE__ */ _bind(FW, 'BNNSPointerSpecifier')
-export const BNNSPoolingFilterApplyBackwardBatch = /* @__PURE__ */ _bind(FW, 'BNNSPoolingFilterApplyBackwardBatch')
+export const BNNSPoolingFilterApplyBackwardBatch = /* @__PURE__ */ _bind(
+	FW,
+	'BNNSPoolingFilterApplyBackwardBatch',
+)
+
 export const BNNSPoolingFilterApplyBatch = /* @__PURE__ */ _bind(FW, 'BNNSPoolingFilterApplyBatch')
 export const BNNSPoolingFunction = /* @__PURE__ */ _bind(FW, 'BNNSPoolingFunction')
 export const BNNSPoolingLayerParameters = /* @__PURE__ */ _bind(FW, 'BNNSPoolingLayerParameters')
@@ -161,25 +393,77 @@ export const SparseKind_t = /* @__PURE__ */ _bind(FW, 'SparseKind_t')
 export const SparseLSMRConvergenceTest_t = /* @__PURE__ */ _bind(FW, 'SparseLSMRConvergenceTest_t')
 export const SparseLSMROptions = /* @__PURE__ */ _bind(FW, 'SparseLSMROptions')
 export const SparseMatrixStructure = /* @__PURE__ */ _bind(FW, 'SparseMatrixStructure')
-export const SparseMatrixStructureComplex = /* @__PURE__ */ _bind(FW, 'SparseMatrixStructureComplex')
+export const SparseMatrixStructureComplex = /* @__PURE__ */ _bind(
+	FW,
+	'SparseMatrixStructureComplex',
+)
+
 export const SparseMatrix_Complex_Double = /* @__PURE__ */ _bind(FW, 'SparseMatrix_Complex_Double')
 export const SparseMatrix_Complex_Float = /* @__PURE__ */ _bind(FW, 'SparseMatrix_Complex_Float')
 export const SparseMatrix_Double = /* @__PURE__ */ _bind(FW, 'SparseMatrix_Double')
 export const SparseMatrix_Float = /* @__PURE__ */ _bind(FW, 'SparseMatrix_Float')
 export const SparseNumericFactorOptions = /* @__PURE__ */ _bind(FW, 'SparseNumericFactorOptions')
-export const SparseOpaqueFactorization_Complex_Double = /* @__PURE__ */ _bind(FW, 'SparseOpaqueFactorization_Complex_Double')
-export const SparseOpaqueFactorization_Complex_Float = /* @__PURE__ */ _bind(FW, 'SparseOpaqueFactorization_Complex_Float')
-export const SparseOpaqueFactorization_Double = /* @__PURE__ */ _bind(FW, 'SparseOpaqueFactorization_Double')
-export const SparseOpaqueFactorization_Float = /* @__PURE__ */ _bind(FW, 'SparseOpaqueFactorization_Float')
-export const SparseOpaquePreconditioner_Complex_Double = /* @__PURE__ */ _bind(FW, 'SparseOpaquePreconditioner_Complex_Double')
-export const SparseOpaquePreconditioner_Complex_Float = /* @__PURE__ */ _bind(FW, 'SparseOpaquePreconditioner_Complex_Float')
-export const SparseOpaquePreconditioner_Double = /* @__PURE__ */ _bind(FW, 'SparseOpaquePreconditioner_Double')
-export const SparseOpaquePreconditioner_Float = /* @__PURE__ */ _bind(FW, 'SparseOpaquePreconditioner_Float')
-export const SparseOpaqueSubfactor_Complex_Double = /* @__PURE__ */ _bind(FW, 'SparseOpaqueSubfactor_Complex_Double')
-export const SparseOpaqueSubfactor_Complex_Float = /* @__PURE__ */ _bind(FW, 'SparseOpaqueSubfactor_Complex_Float')
-export const SparseOpaqueSubfactor_Double = /* @__PURE__ */ _bind(FW, 'SparseOpaqueSubfactor_Double')
+export const SparseOpaqueFactorization_Complex_Double = /* @__PURE__ */ _bind(
+	FW,
+	'SparseOpaqueFactorization_Complex_Double',
+)
+
+export const SparseOpaqueFactorization_Complex_Float = /* @__PURE__ */ _bind(
+	FW,
+	'SparseOpaqueFactorization_Complex_Float',
+)
+
+export const SparseOpaqueFactorization_Double = /* @__PURE__ */ _bind(
+	FW,
+	'SparseOpaqueFactorization_Double',
+)
+
+export const SparseOpaqueFactorization_Float = /* @__PURE__ */ _bind(
+	FW,
+	'SparseOpaqueFactorization_Float',
+)
+
+export const SparseOpaquePreconditioner_Complex_Double = /* @__PURE__ */ _bind(
+	FW,
+	'SparseOpaquePreconditioner_Complex_Double',
+)
+
+export const SparseOpaquePreconditioner_Complex_Float = /* @__PURE__ */ _bind(
+	FW,
+	'SparseOpaquePreconditioner_Complex_Float',
+)
+
+export const SparseOpaquePreconditioner_Double = /* @__PURE__ */ _bind(
+	FW,
+	'SparseOpaquePreconditioner_Double',
+)
+
+export const SparseOpaquePreconditioner_Float = /* @__PURE__ */ _bind(
+	FW,
+	'SparseOpaquePreconditioner_Float',
+)
+
+export const SparseOpaqueSubfactor_Complex_Double = /* @__PURE__ */ _bind(
+	FW,
+	'SparseOpaqueSubfactor_Complex_Double',
+)
+
+export const SparseOpaqueSubfactor_Complex_Float = /* @__PURE__ */ _bind(
+	FW,
+	'SparseOpaqueSubfactor_Complex_Float',
+)
+
+export const SparseOpaqueSubfactor_Double = /* @__PURE__ */ _bind(
+	FW,
+	'SparseOpaqueSubfactor_Double',
+)
+
 export const SparseOpaqueSubfactor_Float = /* @__PURE__ */ _bind(FW, 'SparseOpaqueSubfactor_Float')
-export const SparseOpaqueSymbolicFactorization = /* @__PURE__ */ _bind(FW, 'SparseOpaqueSymbolicFactorization')
+export const SparseOpaqueSymbolicFactorization = /* @__PURE__ */ _bind(
+	FW,
+	'SparseOpaqueSymbolicFactorization',
+)
+
 export const SparseOrder_t = /* @__PURE__ */ _bind(FW, 'SparseOrder_t')
 export const SparsePreconditioner_t = /* @__PURE__ */ _bind(FW, 'SparsePreconditioner_t')
 export const SparseScaling_t = /* @__PURE__ */ _bind(FW, 'SparseScaling_t')
@@ -187,123 +471,447 @@ export const SparseStatus_t = /* @__PURE__ */ _bind(FW, 'SparseStatus_t')
 export const SparseSubfactor_t = /* @__PURE__ */ _bind(FW, 'SparseSubfactor_t')
 export const SparseSymbolicFactorOptions = /* @__PURE__ */ _bind(FW, 'SparseSymbolicFactorOptions')
 export const SparseTriangle_t = /* @__PURE__ */ _bind(FW, 'SparseTriangle_t')
-export const _SparseCGIterate_Complex_Double = /* @__PURE__ */ _bind(FW, '_SparseCGIterate_Complex_Double')
-export const _SparseCGIterate_Complex_Float = /* @__PURE__ */ _bind(FW, '_SparseCGIterate_Complex_Float')
+export const _SparseCGIterate_Complex_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseCGIterate_Complex_Double',
+)
+
+export const _SparseCGIterate_Complex_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseCGIterate_Complex_Float',
+)
+
 export const _SparseCGIterate_Double = /* @__PURE__ */ _bind(FW, '_SparseCGIterate_Double')
 export const _SparseCGIterate_Float = /* @__PURE__ */ _bind(FW, '_SparseCGIterate_Float')
-export const _SparseCGSolve_Complex_Double = /* @__PURE__ */ _bind(FW, '_SparseCGSolve_Complex_Double')
-export const _SparseCGSolve_Complex_Float = /* @__PURE__ */ _bind(FW, '_SparseCGSolve_Complex_Float')
+export const _SparseCGSolve_Complex_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseCGSolve_Complex_Double',
+)
+
+export const _SparseCGSolve_Complex_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseCGSolve_Complex_Float',
+)
+
 export const _SparseCGSolve_Double = /* @__PURE__ */ _bind(FW, '_SparseCGSolve_Double')
 export const _SparseCGSolve_Float = /* @__PURE__ */ _bind(FW, '_SparseCGSolve_Float')
-export const _SparseConvertFromCoordinate_Complex_Double = /* @__PURE__ */ _bind(FW, '_SparseConvertFromCoordinate_Complex_Double')
-export const _SparseConvertFromCoordinate_Complex_Float = /* @__PURE__ */ _bind(FW, '_SparseConvertFromCoordinate_Complex_Float')
-export const _SparseConvertFromCoordinate_Double = /* @__PURE__ */ _bind(FW, '_SparseConvertFromCoordinate_Double')
-export const _SparseConvertFromCoordinate_Float = /* @__PURE__ */ _bind(FW, '_SparseConvertFromCoordinate_Float')
-export const _SparseConvertFromOpaque_Complex_Double = /* @__PURE__ */ _bind(FW, '_SparseConvertFromOpaque_Complex_Double')
-export const _SparseConvertFromOpaque_Complex_Float = /* @__PURE__ */ _bind(FW, '_SparseConvertFromOpaque_Complex_Float')
-export const _SparseConvertFromOpaque_Double = /* @__PURE__ */ _bind(FW, '_SparseConvertFromOpaque_Double')
-export const _SparseConvertFromOpaque_Float = /* @__PURE__ */ _bind(FW, '_SparseConvertFromOpaque_Float')
-export const _SparseCreatePreconditioner_Complex_Double = /* @__PURE__ */ _bind(FW, '_SparseCreatePreconditioner_Complex_Double')
-export const _SparseCreatePreconditioner_Complex_Float = /* @__PURE__ */ _bind(FW, '_SparseCreatePreconditioner_Complex_Float')
-export const _SparseCreatePreconditioner_Double = /* @__PURE__ */ _bind(FW, '_SparseCreatePreconditioner_Double')
-export const _SparseCreatePreconditioner_Float = /* @__PURE__ */ _bind(FW, '_SparseCreatePreconditioner_Float')
-export const _SparseDefaultNumericFactorOptions_Complex_Double = /* @__PURE__ */ _bind(FW, '_SparseDefaultNumericFactorOptions_Complex_Double')
-export const _SparseDefaultNumericFactorOptions_Complex_Float = /* @__PURE__ */ _bind(FW, '_SparseDefaultNumericFactorOptions_Complex_Float')
-export const _SparseDefaultNumericFactorOptions_Double = /* @__PURE__ */ _bind(FW, '_SparseDefaultNumericFactorOptions_Double')
-export const _SparseDefaultNumericFactorOptions_Float = /* @__PURE__ */ _bind(FW, '_SparseDefaultNumericFactorOptions_Float')
-export const _SparseDefaultSymbolicFactorOptions = /* @__PURE__ */ _bind(FW, '_SparseDefaultSymbolicFactorOptions')
-export const _SparseDestroyOpaqueNumeric_Complex_Double = /* @__PURE__ */ _bind(FW, '_SparseDestroyOpaqueNumeric_Complex_Double')
-export const _SparseDestroyOpaqueNumeric_Complex_Float = /* @__PURE__ */ _bind(FW, '_SparseDestroyOpaqueNumeric_Complex_Float')
-export const _SparseDestroyOpaqueNumeric_Double = /* @__PURE__ */ _bind(FW, '_SparseDestroyOpaqueNumeric_Double')
-export const _SparseDestroyOpaqueNumeric_Float = /* @__PURE__ */ _bind(FW, '_SparseDestroyOpaqueNumeric_Float')
-export const _SparseDestroyOpaqueSymbolic = /* @__PURE__ */ _bind(FW, '_SparseDestroyOpaqueSymbolic')
-export const _SparseFactorQR_Complex_Double = /* @__PURE__ */ _bind(FW, '_SparseFactorQR_Complex_Double')
-export const _SparseFactorQR_Complex_Float = /* @__PURE__ */ _bind(FW, '_SparseFactorQR_Complex_Float')
+export const _SparseConvertFromCoordinate_Complex_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseConvertFromCoordinate_Complex_Double',
+)
+
+export const _SparseConvertFromCoordinate_Complex_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseConvertFromCoordinate_Complex_Float',
+)
+
+export const _SparseConvertFromCoordinate_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseConvertFromCoordinate_Double',
+)
+
+export const _SparseConvertFromCoordinate_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseConvertFromCoordinate_Float',
+)
+
+export const _SparseConvertFromOpaque_Complex_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseConvertFromOpaque_Complex_Double',
+)
+
+export const _SparseConvertFromOpaque_Complex_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseConvertFromOpaque_Complex_Float',
+)
+
+export const _SparseConvertFromOpaque_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseConvertFromOpaque_Double',
+)
+
+export const _SparseConvertFromOpaque_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseConvertFromOpaque_Float',
+)
+
+export const _SparseCreatePreconditioner_Complex_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseCreatePreconditioner_Complex_Double',
+)
+
+export const _SparseCreatePreconditioner_Complex_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseCreatePreconditioner_Complex_Float',
+)
+
+export const _SparseCreatePreconditioner_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseCreatePreconditioner_Double',
+)
+
+export const _SparseCreatePreconditioner_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseCreatePreconditioner_Float',
+)
+
+export const _SparseDefaultNumericFactorOptions_Complex_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseDefaultNumericFactorOptions_Complex_Double',
+)
+
+export const _SparseDefaultNumericFactorOptions_Complex_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseDefaultNumericFactorOptions_Complex_Float',
+)
+
+export const _SparseDefaultNumericFactorOptions_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseDefaultNumericFactorOptions_Double',
+)
+
+export const _SparseDefaultNumericFactorOptions_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseDefaultNumericFactorOptions_Float',
+)
+
+export const _SparseDefaultSymbolicFactorOptions = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseDefaultSymbolicFactorOptions',
+)
+
+export const _SparseDestroyOpaqueNumeric_Complex_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseDestroyOpaqueNumeric_Complex_Double',
+)
+
+export const _SparseDestroyOpaqueNumeric_Complex_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseDestroyOpaqueNumeric_Complex_Float',
+)
+
+export const _SparseDestroyOpaqueNumeric_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseDestroyOpaqueNumeric_Double',
+)
+
+export const _SparseDestroyOpaqueNumeric_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseDestroyOpaqueNumeric_Float',
+)
+
+export const _SparseDestroyOpaqueSymbolic = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseDestroyOpaqueSymbolic',
+)
+
+export const _SparseFactorQR_Complex_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseFactorQR_Complex_Double',
+)
+
+export const _SparseFactorQR_Complex_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseFactorQR_Complex_Float',
+)
+
 export const _SparseFactorQR_Double = /* @__PURE__ */ _bind(FW, '_SparseFactorQR_Double')
 export const _SparseFactorQR_Float = /* @__PURE__ */ _bind(FW, '_SparseFactorQR_Float')
-export const _SparseFactorSymmetric_Double = /* @__PURE__ */ _bind(FW, '_SparseFactorSymmetric_Double')
-export const _SparseFactorSymmetric_Float = /* @__PURE__ */ _bind(FW, '_SparseFactorSymmetric_Float')
-export const _SparseGMRESIterate_Complex_Double = /* @__PURE__ */ _bind(FW, '_SparseGMRESIterate_Complex_Double')
-export const _SparseGMRESIterate_Complex_Float = /* @__PURE__ */ _bind(FW, '_SparseGMRESIterate_Complex_Float')
+export const _SparseFactorSymmetric_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseFactorSymmetric_Double',
+)
+
+export const _SparseFactorSymmetric_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseFactorSymmetric_Float',
+)
+
+export const _SparseGMRESIterate_Complex_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseGMRESIterate_Complex_Double',
+)
+
+export const _SparseGMRESIterate_Complex_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseGMRESIterate_Complex_Float',
+)
+
 export const _SparseGMRESIterate_Double = /* @__PURE__ */ _bind(FW, '_SparseGMRESIterate_Double')
 export const _SparseGMRESIterate_Float = /* @__PURE__ */ _bind(FW, '_SparseGMRESIterate_Float')
-export const _SparseGMRESSolve_Complex_Double = /* @__PURE__ */ _bind(FW, '_SparseGMRESSolve_Complex_Double')
-export const _SparseGMRESSolve_Complex_Float = /* @__PURE__ */ _bind(FW, '_SparseGMRESSolve_Complex_Float')
+export const _SparseGMRESSolve_Complex_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseGMRESSolve_Complex_Double',
+)
+
+export const _SparseGMRESSolve_Complex_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseGMRESSolve_Complex_Float',
+)
+
 export const _SparseGMRESSolve_Double = /* @__PURE__ */ _bind(FW, '_SparseGMRESSolve_Double')
 export const _SparseGMRESSolve_Float = /* @__PURE__ */ _bind(FW, '_SparseGMRESSolve_Float')
-export const _SparseGetIterativeStateSize_Complex_Double = /* @__PURE__ */ _bind(FW, '_SparseGetIterativeStateSize_Complex_Double')
-export const _SparseGetIterativeStateSize_Complex_Float = /* @__PURE__ */ _bind(FW, '_SparseGetIterativeStateSize_Complex_Float')
-export const _SparseGetIterativeStateSize_Double = /* @__PURE__ */ _bind(FW, '_SparseGetIterativeStateSize_Double')
-export const _SparseGetIterativeStateSize_Float = /* @__PURE__ */ _bind(FW, '_SparseGetIterativeStateSize_Float')
-export const _SparseGetOptionsFromNumericFactor_Complex_Double = /* @__PURE__ */ _bind(FW, '_SparseGetOptionsFromNumericFactor_Complex_Double')
-export const _SparseGetOptionsFromNumericFactor_Complex_Float = /* @__PURE__ */ _bind(FW, '_SparseGetOptionsFromNumericFactor_Complex_Float')
-export const _SparseGetOptionsFromNumericFactor_Double = /* @__PURE__ */ _bind(FW, '_SparseGetOptionsFromNumericFactor_Double')
-export const _SparseGetOptionsFromNumericFactor_Float = /* @__PURE__ */ _bind(FW, '_SparseGetOptionsFromNumericFactor_Float')
-export const _SparseGetOptionsFromSymbolicFactor = /* @__PURE__ */ _bind(FW, '_SparseGetOptionsFromSymbolicFactor')
-export const _SparseGetWorkspaceRequired_Complex_Double = /* @__PURE__ */ _bind(FW, '_SparseGetWorkspaceRequired_Complex_Double')
-export const _SparseGetWorkspaceRequired_Complex_Float = /* @__PURE__ */ _bind(FW, '_SparseGetWorkspaceRequired_Complex_Float')
-export const _SparseGetWorkspaceRequired_Double = /* @__PURE__ */ _bind(FW, '_SparseGetWorkspaceRequired_Double')
-export const _SparseGetWorkspaceRequired_Float = /* @__PURE__ */ _bind(FW, '_SparseGetWorkspaceRequired_Float')
-export const _SparseIterativeMethodBaseOptions = /* @__PURE__ */ _bind(FW, '_SparseIterativeMethodBaseOptions')
+export const _SparseGetIterativeStateSize_Complex_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseGetIterativeStateSize_Complex_Double',
+)
+
+export const _SparseGetIterativeStateSize_Complex_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseGetIterativeStateSize_Complex_Float',
+)
+
+export const _SparseGetIterativeStateSize_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseGetIterativeStateSize_Double',
+)
+
+export const _SparseGetIterativeStateSize_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseGetIterativeStateSize_Float',
+)
+
+export const _SparseGetOptionsFromNumericFactor_Complex_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseGetOptionsFromNumericFactor_Complex_Double',
+)
+
+export const _SparseGetOptionsFromNumericFactor_Complex_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseGetOptionsFromNumericFactor_Complex_Float',
+)
+
+export const _SparseGetOptionsFromNumericFactor_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseGetOptionsFromNumericFactor_Double',
+)
+
+export const _SparseGetOptionsFromNumericFactor_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseGetOptionsFromNumericFactor_Float',
+)
+
+export const _SparseGetOptionsFromSymbolicFactor = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseGetOptionsFromSymbolicFactor',
+)
+
+export const _SparseGetWorkspaceRequired_Complex_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseGetWorkspaceRequired_Complex_Double',
+)
+
+export const _SparseGetWorkspaceRequired_Complex_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseGetWorkspaceRequired_Complex_Float',
+)
+
+export const _SparseGetWorkspaceRequired_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseGetWorkspaceRequired_Double',
+)
+
+export const _SparseGetWorkspaceRequired_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseGetWorkspaceRequired_Float',
+)
+
+export const _SparseIterativeMethodBaseOptions = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseIterativeMethodBaseOptions',
+)
+
 export const _SparseIterativeMethod_t = /* @__PURE__ */ _bind(FW, '_SparseIterativeMethod_t')
-export const _SparseLSMRIterate_Complex_Double = /* @__PURE__ */ _bind(FW, '_SparseLSMRIterate_Complex_Double')
-export const _SparseLSMRIterate_Complex_Float = /* @__PURE__ */ _bind(FW, '_SparseLSMRIterate_Complex_Float')
+export const _SparseLSMRIterate_Complex_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseLSMRIterate_Complex_Double',
+)
+
+export const _SparseLSMRIterate_Complex_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseLSMRIterate_Complex_Float',
+)
+
 export const _SparseLSMRIterate_Double = /* @__PURE__ */ _bind(FW, '_SparseLSMRIterate_Double')
 export const _SparseLSMRIterate_Float = /* @__PURE__ */ _bind(FW, '_SparseLSMRIterate_Float')
-export const _SparseLSMRSolve_Complex_Double = /* @__PURE__ */ _bind(FW, '_SparseLSMRSolve_Complex_Double')
-export const _SparseLSMRSolve_Complex_Float = /* @__PURE__ */ _bind(FW, '_SparseLSMRSolve_Complex_Float')
+export const _SparseLSMRSolve_Complex_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseLSMRSolve_Complex_Double',
+)
+
+export const _SparseLSMRSolve_Complex_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseLSMRSolve_Complex_Float',
+)
+
 export const _SparseLSMRSolve_Double = /* @__PURE__ */ _bind(FW, '_SparseLSMRSolve_Double')
 export const _SparseLSMRSolve_Float = /* @__PURE__ */ _bind(FW, '_SparseLSMRSolve_Float')
-export const _SparseMultiplySubfactor_Complex_Double = /* @__PURE__ */ _bind(FW, '_SparseMultiplySubfactor_Complex_Double')
-export const _SparseMultiplySubfactor_Complex_Float = /* @__PURE__ */ _bind(FW, '_SparseMultiplySubfactor_Complex_Float')
-export const _SparseMultiplySubfactor_Double = /* @__PURE__ */ _bind(FW, '_SparseMultiplySubfactor_Double')
-export const _SparseMultiplySubfactor_Float = /* @__PURE__ */ _bind(FW, '_SparseMultiplySubfactor_Float')
-export const _SparseNullMatrix_Complex_Double = /* @__PURE__ */ _bind(FW, '_SparseNullMatrix_Complex_Double')
-export const _SparseNullMatrix_Complex_Float = /* @__PURE__ */ _bind(FW, '_SparseNullMatrix_Complex_Float')
+export const _SparseMultiplySubfactor_Complex_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseMultiplySubfactor_Complex_Double',
+)
+
+export const _SparseMultiplySubfactor_Complex_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseMultiplySubfactor_Complex_Float',
+)
+
+export const _SparseMultiplySubfactor_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseMultiplySubfactor_Double',
+)
+
+export const _SparseMultiplySubfactor_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseMultiplySubfactor_Float',
+)
+
+export const _SparseNullMatrix_Complex_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseNullMatrix_Complex_Double',
+)
+
+export const _SparseNullMatrix_Complex_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseNullMatrix_Complex_Float',
+)
+
 export const _SparseNullMatrix_Double = /* @__PURE__ */ _bind(FW, '_SparseNullMatrix_Double')
 export const _SparseNullMatrix_Float = /* @__PURE__ */ _bind(FW, '_SparseNullMatrix_Float')
-export const _SparseNumericFactorQR_Complex_Double = /* @__PURE__ */ _bind(FW, '_SparseNumericFactorQR_Complex_Double')
-export const _SparseNumericFactorQR_Complex_Float = /* @__PURE__ */ _bind(FW, '_SparseNumericFactorQR_Complex_Float')
-export const _SparseNumericFactorQR_Double = /* @__PURE__ */ _bind(FW, '_SparseNumericFactorQR_Double')
-export const _SparseNumericFactorQR_Float = /* @__PURE__ */ _bind(FW, '_SparseNumericFactorQR_Float')
-export const _SparseNumericFactorSymmetric_Double = /* @__PURE__ */ _bind(FW, '_SparseNumericFactorSymmetric_Double')
-export const _SparseNumericFactorSymmetric_Float = /* @__PURE__ */ _bind(FW, '_SparseNumericFactorSymmetric_Float')
-export const _SparseRefactorQR_Complex_Double = /* @__PURE__ */ _bind(FW, '_SparseRefactorQR_Complex_Double')
-export const _SparseRefactorQR_Complex_Float = /* @__PURE__ */ _bind(FW, '_SparseRefactorQR_Complex_Float')
+export const _SparseNumericFactorQR_Complex_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseNumericFactorQR_Complex_Double',
+)
+
+export const _SparseNumericFactorQR_Complex_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseNumericFactorQR_Complex_Float',
+)
+
+export const _SparseNumericFactorQR_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseNumericFactorQR_Double',
+)
+
+export const _SparseNumericFactorQR_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseNumericFactorQR_Float',
+)
+
+export const _SparseNumericFactorSymmetric_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseNumericFactorSymmetric_Double',
+)
+
+export const _SparseNumericFactorSymmetric_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseNumericFactorSymmetric_Float',
+)
+
+export const _SparseRefactorQR_Complex_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseRefactorQR_Complex_Double',
+)
+
+export const _SparseRefactorQR_Complex_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseRefactorQR_Complex_Float',
+)
+
 export const _SparseRefactorQR_Double = /* @__PURE__ */ _bind(FW, '_SparseRefactorQR_Double')
 export const _SparseRefactorQR_Float = /* @__PURE__ */ _bind(FW, '_SparseRefactorQR_Float')
-export const _SparseRefactorSymmetric_Double = /* @__PURE__ */ _bind(FW, '_SparseRefactorSymmetric_Double')
-export const _SparseRefactorSymmetric_Float = /* @__PURE__ */ _bind(FW, '_SparseRefactorSymmetric_Float')
-export const _SparseReleaseOpaquePreconditioner_Complex_Double = /* @__PURE__ */ _bind(FW, '_SparseReleaseOpaquePreconditioner_Complex_Double')
-export const _SparseReleaseOpaquePreconditioner_Complex_Float = /* @__PURE__ */ _bind(FW, '_SparseReleaseOpaquePreconditioner_Complex_Float')
-export const _SparseReleaseOpaquePreconditioner_Double = /* @__PURE__ */ _bind(FW, '_SparseReleaseOpaquePreconditioner_Double')
-export const _SparseReleaseOpaquePreconditioner_Float = /* @__PURE__ */ _bind(FW, '_SparseReleaseOpaquePreconditioner_Float')
-export const _SparseRetainNumeric_Complex_Double = /* @__PURE__ */ _bind(FW, '_SparseRetainNumeric_Complex_Double')
-export const _SparseRetainNumeric_Complex_Float = /* @__PURE__ */ _bind(FW, '_SparseRetainNumeric_Complex_Float')
+export const _SparseRefactorSymmetric_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseRefactorSymmetric_Double',
+)
+
+export const _SparseRefactorSymmetric_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseRefactorSymmetric_Float',
+)
+
+export const _SparseReleaseOpaquePreconditioner_Complex_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseReleaseOpaquePreconditioner_Complex_Double',
+)
+
+export const _SparseReleaseOpaquePreconditioner_Complex_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseReleaseOpaquePreconditioner_Complex_Float',
+)
+
+export const _SparseReleaseOpaquePreconditioner_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseReleaseOpaquePreconditioner_Double',
+)
+
+export const _SparseReleaseOpaquePreconditioner_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseReleaseOpaquePreconditioner_Float',
+)
+
+export const _SparseRetainNumeric_Complex_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseRetainNumeric_Complex_Double',
+)
+
+export const _SparseRetainNumeric_Complex_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseRetainNumeric_Complex_Float',
+)
+
 export const _SparseRetainNumeric_Double = /* @__PURE__ */ _bind(FW, '_SparseRetainNumeric_Double')
 export const _SparseRetainNumeric_Float = /* @__PURE__ */ _bind(FW, '_SparseRetainNumeric_Float')
 export const _SparseRetainSymbolic = /* @__PURE__ */ _bind(FW, '_SparseRetainSymbolic')
-export const _SparseSolveOpaque_Complex_Double = /* @__PURE__ */ _bind(FW, '_SparseSolveOpaque_Complex_Double')
-export const _SparseSolveOpaque_Complex_Float = /* @__PURE__ */ _bind(FW, '_SparseSolveOpaque_Complex_Float')
+export const _SparseSolveOpaque_Complex_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseSolveOpaque_Complex_Double',
+)
+
+export const _SparseSolveOpaque_Complex_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseSolveOpaque_Complex_Float',
+)
+
 export const _SparseSolveOpaque_Double = /* @__PURE__ */ _bind(FW, '_SparseSolveOpaque_Double')
 export const _SparseSolveOpaque_Float = /* @__PURE__ */ _bind(FW, '_SparseSolveOpaque_Float')
-export const _SparseSolveSubfactor_Complex_Double = /* @__PURE__ */ _bind(FW, '_SparseSolveSubfactor_Complex_Double')
-export const _SparseSolveSubfactor_Complex_Float = /* @__PURE__ */ _bind(FW, '_SparseSolveSubfactor_Complex_Float')
-export const _SparseSolveSubfactor_Double = /* @__PURE__ */ _bind(FW, '_SparseSolveSubfactor_Double')
+export const _SparseSolveSubfactor_Complex_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseSolveSubfactor_Complex_Double',
+)
+
+export const _SparseSolveSubfactor_Complex_Float = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseSolveSubfactor_Complex_Float',
+)
+
+export const _SparseSolveSubfactor_Double = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseSolveSubfactor_Double',
+)
+
 export const _SparseSolveSubfactor_Float = /* @__PURE__ */ _bind(FW, '_SparseSolveSubfactor_Float')
 export const _SparseSpMV_Complex_Double = /* @__PURE__ */ _bind(FW, '_SparseSpMV_Complex_Double')
 export const _SparseSpMV_Complex_Float = /* @__PURE__ */ _bind(FW, '_SparseSpMV_Complex_Float')
 export const _SparseSpMV_Double = /* @__PURE__ */ _bind(FW, '_SparseSpMV_Double')
 export const _SparseSpMV_Float = /* @__PURE__ */ _bind(FW, '_SparseSpMV_Float')
 export const _SparseSymbolicFactorQR = /* @__PURE__ */ _bind(FW, '_SparseSymbolicFactorQR')
-export const _SparseSymbolicFactorSymmetric = /* @__PURE__ */ _bind(FW, '_SparseSymbolicFactorSymmetric')
+export const _SparseSymbolicFactorSymmetric = /* @__PURE__ */ _bind(
+	FW,
+	'_SparseSymbolicFactorSymmetric',
+)
+
 export const _SparseTrap = /* @__PURE__ */ _bind(FW, '_SparseTrap')
 export const __CLPK_complex = /* @__PURE__ */ _bind(FW, '__CLPK_complex')
 export const __CLPK_doublecomplex = /* @__PURE__ */ _bind(FW, '__CLPK_doublecomplex')
 export const appleblas_dgeadd = /* @__PURE__ */ _bind(FW, 'appleblas_dgeadd')
 export const appleblas_sgeadd = /* @__PURE__ */ _bind(FW, 'appleblas_sgeadd')
 export const bnns_graph_argument_t = /* @__PURE__ */ _bind(FW, 'bnns_graph_argument_t')
-export const bnns_graph_compile_options_t = /* @__PURE__ */ _bind(FW, 'bnns_graph_compile_options_t')
+export const bnns_graph_compile_options_t = /* @__PURE__ */ _bind(
+	FW,
+	'bnns_graph_compile_options_t',
+)
+
 export const bnns_graph_context_t = /* @__PURE__ */ _bind(FW, 'bnns_graph_context_t')
 export const bnns_graph_shape_t = /* @__PURE__ */ _bind(FW, 'bnns_graph_shape_t')
 export const bnns_graph_t = /* @__PURE__ */ _bind(FW, 'bnns_graph_t')
@@ -1289,16 +1897,32 @@ export const kFFTRadix2 = /* @__PURE__ */ _bind(FW, 'kFFTRadix2')
 export const kFFTRadix3 = /* @__PURE__ */ _bind(FW, 'kFFTRadix3')
 export const kFFTRadix5 = /* @__PURE__ */ _bind(FW, 'kFFTRadix5')
 export const la_add_attributes = /* @__PURE__ */ _bind(FW, 'la_add_attributes')
-export const la_diagonal_matrix_from_vector = /* @__PURE__ */ _bind(FW, 'la_diagonal_matrix_from_vector')
+export const la_diagonal_matrix_from_vector = /* @__PURE__ */ _bind(
+	FW,
+	'la_diagonal_matrix_from_vector',
+)
+
 export const la_difference = /* @__PURE__ */ _bind(FW, 'la_difference')
 export const la_elementwise_product = /* @__PURE__ */ _bind(FW, 'la_elementwise_product')
 export const la_identity_matrix = /* @__PURE__ */ _bind(FW, 'la_identity_matrix')
 export const la_inner_product = /* @__PURE__ */ _bind(FW, 'la_inner_product')
 export const la_matrix_cols = /* @__PURE__ */ _bind(FW, 'la_matrix_cols')
-export const la_matrix_from_double_buffer = /* @__PURE__ */ _bind(FW, 'la_matrix_from_double_buffer')
-export const la_matrix_from_double_buffer_nocopy = /* @__PURE__ */ _bind(FW, 'la_matrix_from_double_buffer_nocopy')
+export const la_matrix_from_double_buffer = /* @__PURE__ */ _bind(
+	FW,
+	'la_matrix_from_double_buffer',
+)
+
+export const la_matrix_from_double_buffer_nocopy = /* @__PURE__ */ _bind(
+	FW,
+	'la_matrix_from_double_buffer_nocopy',
+)
+
 export const la_matrix_from_float_buffer = /* @__PURE__ */ _bind(FW, 'la_matrix_from_float_buffer')
-export const la_matrix_from_float_buffer_nocopy = /* @__PURE__ */ _bind(FW, 'la_matrix_from_float_buffer_nocopy')
+export const la_matrix_from_float_buffer_nocopy = /* @__PURE__ */ _bind(
+	FW,
+	'la_matrix_from_float_buffer_nocopy',
+)
+
 export const la_matrix_from_splat = /* @__PURE__ */ _bind(FW, 'la_matrix_from_splat')
 export const la_matrix_product = /* @__PURE__ */ _bind(FW, 'la_matrix_product')
 export const la_matrix_rows = /* @__PURE__ */ _bind(FW, 'la_matrix_rows')
@@ -1317,13 +1941,25 @@ export const la_scale_with_float = /* @__PURE__ */ _bind(FW, 'la_scale_with_floa
 export const la_solve = /* @__PURE__ */ _bind(FW, 'la_solve')
 export const la_splat_from_double = /* @__PURE__ */ _bind(FW, 'la_splat_from_double')
 export const la_splat_from_float = /* @__PURE__ */ _bind(FW, 'la_splat_from_float')
-export const la_splat_from_matrix_element = /* @__PURE__ */ _bind(FW, 'la_splat_from_matrix_element')
-export const la_splat_from_vector_element = /* @__PURE__ */ _bind(FW, 'la_splat_from_vector_element')
+export const la_splat_from_matrix_element = /* @__PURE__ */ _bind(
+	FW,
+	'la_splat_from_matrix_element',
+)
+
+export const la_splat_from_vector_element = /* @__PURE__ */ _bind(
+	FW,
+	'la_splat_from_vector_element',
+)
+
 export const la_status = /* @__PURE__ */ _bind(FW, 'la_status')
 export const la_sum = /* @__PURE__ */ _bind(FW, 'la_sum')
 export const la_transpose = /* @__PURE__ */ _bind(FW, 'la_transpose')
 export const la_vector_from_matrix_col = /* @__PURE__ */ _bind(FW, 'la_vector_from_matrix_col')
-export const la_vector_from_matrix_diagonal = /* @__PURE__ */ _bind(FW, 'la_vector_from_matrix_diagonal')
+export const la_vector_from_matrix_diagonal = /* @__PURE__ */ _bind(
+	FW,
+	'la_vector_from_matrix_diagonal',
+)
+
 export const la_vector_from_matrix_row = /* @__PURE__ */ _bind(FW, 'la_vector_from_matrix_row')
 export const la_vector_from_splat = /* @__PURE__ */ _bind(FW, 'la_vector_from_splat')
 export const la_vector_length = /* @__PURE__ */ _bind(FW, 'la_vector_length')
@@ -1332,8 +1968,16 @@ export const la_vector_to_double_buffer = /* @__PURE__ */ _bind(FW, 'la_vector_t
 export const la_vector_to_float_buffer = /* @__PURE__ */ _bind(FW, 'la_vector_to_float_buffer')
 export const lsamen_ = /* @__PURE__ */ _bind(FW, 'lsamen_')
 export const quadrature_integrate = /* @__PURE__ */ _bind(FW, 'quadrature_integrate')
-export const quadrature_integrate_function = /* @__PURE__ */ _bind(FW, 'quadrature_integrate_function')
-export const quadrature_integrate_options = /* @__PURE__ */ _bind(FW, 'quadrature_integrate_options')
+export const quadrature_integrate_function = /* @__PURE__ */ _bind(
+	FW,
+	'quadrature_integrate_function',
+)
+
+export const quadrature_integrate_options = /* @__PURE__ */ _bind(
+	FW,
+	'quadrature_integrate_options',
+)
+
 export const quadrature_integrator = /* @__PURE__ */ _bind(FW, 'quadrature_integrator')
 export const quadrature_status = /* @__PURE__ */ _bind(FW, 'quadrature_status')
 export const sasum_ = /* @__PURE__ */ _bind(FW, 'sasum_')
@@ -1601,33 +2245,113 @@ export const sormrq_ = /* @__PURE__ */ _bind(FW, 'sormrq_')
 export const sormrz_ = /* @__PURE__ */ _bind(FW, 'sormrz_')
 export const sormtr_ = /* @__PURE__ */ _bind(FW, 'sormtr_')
 export const sparse_commit = /* @__PURE__ */ _bind(FW, 'sparse_commit')
-export const sparse_elementwise_norm_double = /* @__PURE__ */ _bind(FW, 'sparse_elementwise_norm_double')
-export const sparse_elementwise_norm_float = /* @__PURE__ */ _bind(FW, 'sparse_elementwise_norm_float')
+export const sparse_elementwise_norm_double = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_elementwise_norm_double',
+)
+
+export const sparse_elementwise_norm_float = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_elementwise_norm_float',
+)
+
 export const sparse_extract_block_double = /* @__PURE__ */ _bind(FW, 'sparse_extract_block_double')
 export const sparse_extract_block_float = /* @__PURE__ */ _bind(FW, 'sparse_extract_block_float')
-export const sparse_extract_sparse_column_double = /* @__PURE__ */ _bind(FW, 'sparse_extract_sparse_column_double')
-export const sparse_extract_sparse_column_float = /* @__PURE__ */ _bind(FW, 'sparse_extract_sparse_column_float')
-export const sparse_extract_sparse_row_double = /* @__PURE__ */ _bind(FW, 'sparse_extract_sparse_row_double')
-export const sparse_extract_sparse_row_float = /* @__PURE__ */ _bind(FW, 'sparse_extract_sparse_row_float')
-export const sparse_get_block_dimension_for_col = /* @__PURE__ */ _bind(FW, 'sparse_get_block_dimension_for_col')
-export const sparse_get_block_dimension_for_row = /* @__PURE__ */ _bind(FW, 'sparse_get_block_dimension_for_row')
-export const sparse_get_matrix_nonzero_count = /* @__PURE__ */ _bind(FW, 'sparse_get_matrix_nonzero_count')
-export const sparse_get_matrix_nonzero_count_for_column = /* @__PURE__ */ _bind(FW, 'sparse_get_matrix_nonzero_count_for_column')
-export const sparse_get_matrix_nonzero_count_for_row = /* @__PURE__ */ _bind(FW, 'sparse_get_matrix_nonzero_count_for_row')
-export const sparse_get_matrix_number_of_columns = /* @__PURE__ */ _bind(FW, 'sparse_get_matrix_number_of_columns')
-export const sparse_get_matrix_number_of_rows = /* @__PURE__ */ _bind(FW, 'sparse_get_matrix_number_of_rows')
+export const sparse_extract_sparse_column_double = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_extract_sparse_column_double',
+)
+
+export const sparse_extract_sparse_column_float = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_extract_sparse_column_float',
+)
+
+export const sparse_extract_sparse_row_double = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_extract_sparse_row_double',
+)
+
+export const sparse_extract_sparse_row_float = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_extract_sparse_row_float',
+)
+
+export const sparse_get_block_dimension_for_col = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_get_block_dimension_for_col',
+)
+
+export const sparse_get_block_dimension_for_row = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_get_block_dimension_for_row',
+)
+
+export const sparse_get_matrix_nonzero_count = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_get_matrix_nonzero_count',
+)
+
+export const sparse_get_matrix_nonzero_count_for_column = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_get_matrix_nonzero_count_for_column',
+)
+
+export const sparse_get_matrix_nonzero_count_for_row = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_get_matrix_nonzero_count_for_row',
+)
+
+export const sparse_get_matrix_number_of_columns = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_get_matrix_number_of_columns',
+)
+
+export const sparse_get_matrix_number_of_rows = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_get_matrix_number_of_rows',
+)
+
 export const sparse_get_matrix_property = /* @__PURE__ */ _bind(FW, 'sparse_get_matrix_property')
-export const sparse_get_vector_nonzero_count_double = /* @__PURE__ */ _bind(FW, 'sparse_get_vector_nonzero_count_double')
-export const sparse_get_vector_nonzero_count_float = /* @__PURE__ */ _bind(FW, 'sparse_get_vector_nonzero_count_float')
-export const sparse_inner_product_dense_double = /* @__PURE__ */ _bind(FW, 'sparse_inner_product_dense_double')
-export const sparse_inner_product_dense_float = /* @__PURE__ */ _bind(FW, 'sparse_inner_product_dense_float')
-export const sparse_inner_product_sparse_double = /* @__PURE__ */ _bind(FW, 'sparse_inner_product_sparse_double')
-export const sparse_inner_product_sparse_float = /* @__PURE__ */ _bind(FW, 'sparse_inner_product_sparse_float')
+export const sparse_get_vector_nonzero_count_double = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_get_vector_nonzero_count_double',
+)
+
+export const sparse_get_vector_nonzero_count_float = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_get_vector_nonzero_count_float',
+)
+
+export const sparse_inner_product_dense_double = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_inner_product_dense_double',
+)
+
+export const sparse_inner_product_dense_float = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_inner_product_dense_float',
+)
+
+export const sparse_inner_product_sparse_double = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_inner_product_sparse_double',
+)
+
+export const sparse_inner_product_sparse_float = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_inner_product_sparse_float',
+)
+
 export const sparse_insert_block_double = /* @__PURE__ */ _bind(FW, 'sparse_insert_block_double')
 export const sparse_insert_block_float = /* @__PURE__ */ _bind(FW, 'sparse_insert_block_float')
 export const sparse_insert_col_double = /* @__PURE__ */ _bind(FW, 'sparse_insert_col_double')
 export const sparse_insert_col_float = /* @__PURE__ */ _bind(FW, 'sparse_insert_col_float')
-export const sparse_insert_entries_double = /* @__PURE__ */ _bind(FW, 'sparse_insert_entries_double')
+export const sparse_insert_entries_double = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_insert_entries_double',
+)
+
 export const sparse_insert_entries_float = /* @__PURE__ */ _bind(FW, 'sparse_insert_entries_float')
 export const sparse_insert_entry_double = /* @__PURE__ */ _bind(FW, 'sparse_insert_entry_double')
 export const sparse_insert_entry_float = /* @__PURE__ */ _bind(FW, 'sparse_insert_entry_float')
@@ -1637,29 +2361,85 @@ export const sparse_m_double = /* @__PURE__ */ _bind(FW, 'sparse_m_double')
 export const sparse_m_double_complex = /* @__PURE__ */ _bind(FW, 'sparse_m_double_complex')
 export const sparse_m_float = /* @__PURE__ */ _bind(FW, 'sparse_m_float')
 export const sparse_m_float_complex = /* @__PURE__ */ _bind(FW, 'sparse_m_float_complex')
-export const sparse_matrix_block_create_double = /* @__PURE__ */ _bind(FW, 'sparse_matrix_block_create_double')
-export const sparse_matrix_block_create_float = /* @__PURE__ */ _bind(FW, 'sparse_matrix_block_create_float')
+export const sparse_matrix_block_create_double = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_matrix_block_create_double',
+)
+
+export const sparse_matrix_block_create_float = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_matrix_block_create_float',
+)
+
 export const sparse_matrix_create_double = /* @__PURE__ */ _bind(FW, 'sparse_matrix_create_double')
 export const sparse_matrix_create_float = /* @__PURE__ */ _bind(FW, 'sparse_matrix_create_float')
 export const sparse_matrix_destroy = /* @__PURE__ */ _bind(FW, 'sparse_matrix_destroy')
-export const sparse_matrix_product_dense_double = /* @__PURE__ */ _bind(FW, 'sparse_matrix_product_dense_double')
-export const sparse_matrix_product_dense_float = /* @__PURE__ */ _bind(FW, 'sparse_matrix_product_dense_float')
-export const sparse_matrix_product_sparse_double = /* @__PURE__ */ _bind(FW, 'sparse_matrix_product_sparse_double')
-export const sparse_matrix_product_sparse_float = /* @__PURE__ */ _bind(FW, 'sparse_matrix_product_sparse_float')
+export const sparse_matrix_product_dense_double = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_matrix_product_dense_double',
+)
+
+export const sparse_matrix_product_dense_float = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_matrix_product_dense_float',
+)
+
+export const sparse_matrix_product_sparse_double = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_matrix_product_sparse_double',
+)
+
+export const sparse_matrix_product_sparse_float = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_matrix_product_sparse_float',
+)
+
 export const sparse_matrix_property = /* @__PURE__ */ _bind(FW, 'sparse_matrix_property')
 export const sparse_matrix_trace_double = /* @__PURE__ */ _bind(FW, 'sparse_matrix_trace_double')
 export const sparse_matrix_trace_float = /* @__PURE__ */ _bind(FW, 'sparse_matrix_trace_float')
-export const sparse_matrix_triangular_solve_dense_double = /* @__PURE__ */ _bind(FW, 'sparse_matrix_triangular_solve_dense_double')
-export const sparse_matrix_triangular_solve_dense_float = /* @__PURE__ */ _bind(FW, 'sparse_matrix_triangular_solve_dense_float')
-export const sparse_matrix_variable_block_create_double = /* @__PURE__ */ _bind(FW, 'sparse_matrix_variable_block_create_double')
-export const sparse_matrix_variable_block_create_float = /* @__PURE__ */ _bind(FW, 'sparse_matrix_variable_block_create_float')
-export const sparse_matrix_vector_product_dense_double = /* @__PURE__ */ _bind(FW, 'sparse_matrix_vector_product_dense_double')
-export const sparse_matrix_vector_product_dense_float = /* @__PURE__ */ _bind(FW, 'sparse_matrix_vector_product_dense_float')
+export const sparse_matrix_triangular_solve_dense_double = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_matrix_triangular_solve_dense_double',
+)
+
+export const sparse_matrix_triangular_solve_dense_float = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_matrix_triangular_solve_dense_float',
+)
+
+export const sparse_matrix_variable_block_create_double = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_matrix_variable_block_create_double',
+)
+
+export const sparse_matrix_variable_block_create_float = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_matrix_variable_block_create_float',
+)
+
+export const sparse_matrix_vector_product_dense_double = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_matrix_vector_product_dense_double',
+)
+
+export const sparse_matrix_vector_product_dense_float = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_matrix_vector_product_dense_float',
+)
+
 export const sparse_norm = /* @__PURE__ */ _bind(FW, 'sparse_norm')
 export const sparse_operator_norm_double = /* @__PURE__ */ _bind(FW, 'sparse_operator_norm_double')
 export const sparse_operator_norm_float = /* @__PURE__ */ _bind(FW, 'sparse_operator_norm_float')
-export const sparse_outer_product_dense_double = /* @__PURE__ */ _bind(FW, 'sparse_outer_product_dense_double')
-export const sparse_outer_product_dense_float = /* @__PURE__ */ _bind(FW, 'sparse_outer_product_dense_float')
+export const sparse_outer_product_dense_double = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_outer_product_dense_double',
+)
+
+export const sparse_outer_product_dense_float = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_outer_product_dense_float',
+)
+
 export const sparse_pack_vector_double = /* @__PURE__ */ _bind(FW, 'sparse_pack_vector_double')
 export const sparse_pack_vector_float = /* @__PURE__ */ _bind(FW, 'sparse_pack_vector_float')
 export const sparse_permute_cols_double = /* @__PURE__ */ _bind(FW, 'sparse_permute_cols_double')
@@ -1670,12 +2450,28 @@ export const sparse_set_matrix_property = /* @__PURE__ */ _bind(FW, 'sparse_set_
 export const sparse_status = /* @__PURE__ */ _bind(FW, 'sparse_status')
 export const sparse_unpack_vector_double = /* @__PURE__ */ _bind(FW, 'sparse_unpack_vector_double')
 export const sparse_unpack_vector_float = /* @__PURE__ */ _bind(FW, 'sparse_unpack_vector_float')
-export const sparse_vector_add_with_scale_dense_double = /* @__PURE__ */ _bind(FW, 'sparse_vector_add_with_scale_dense_double')
-export const sparse_vector_add_with_scale_dense_float = /* @__PURE__ */ _bind(FW, 'sparse_vector_add_with_scale_dense_float')
+export const sparse_vector_add_with_scale_dense_double = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_vector_add_with_scale_dense_double',
+)
+
+export const sparse_vector_add_with_scale_dense_float = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_vector_add_with_scale_dense_float',
+)
+
 export const sparse_vector_norm_double = /* @__PURE__ */ _bind(FW, 'sparse_vector_norm_double')
 export const sparse_vector_norm_float = /* @__PURE__ */ _bind(FW, 'sparse_vector_norm_float')
-export const sparse_vector_triangular_solve_dense_double = /* @__PURE__ */ _bind(FW, 'sparse_vector_triangular_solve_dense_double')
-export const sparse_vector_triangular_solve_dense_float = /* @__PURE__ */ _bind(FW, 'sparse_vector_triangular_solve_dense_float')
+export const sparse_vector_triangular_solve_dense_double = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_vector_triangular_solve_dense_double',
+)
+
+export const sparse_vector_triangular_solve_dense_float = /* @__PURE__ */ _bind(
+	FW,
+	'sparse_vector_triangular_solve_dense_float',
+)
+
 export const spbcon_ = /* @__PURE__ */ _bind(FW, 'spbcon_')
 export const spbequ_ = /* @__PURE__ */ _bind(FW, 'spbequ_')
 export const spbrfs_ = /* @__PURE__ */ _bind(FW, 'spbrfs_')
@@ -1831,16 +2627,48 @@ export const strttf_ = /* @__PURE__ */ _bind(FW, 'strttf_')
 export const strttp_ = /* @__PURE__ */ _bind(FW, 'strttp_')
 export const stzrqf_ = /* @__PURE__ */ _bind(FW, 'stzrqf_')
 export const stzrzf_ = /* @__PURE__ */ _bind(FW, 'stzrzf_')
-export const unnamed_12109899221353184244 = /* @__PURE__ */ _bind(FW, 'unnamed_12109899221353184244')
+export const unnamed_12109899221353184244 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_12109899221353184244',
+)
+
 export const unnamed_1221734060665869884 = /* @__PURE__ */ _bind(FW, 'unnamed_1221734060665869884')
-export const unnamed_12325394282143923225 = /* @__PURE__ */ _bind(FW, 'unnamed_12325394282143923225')
-export const unnamed_12528073130655097327 = /* @__PURE__ */ _bind(FW, 'unnamed_12528073130655097327')
-export const unnamed_13479374879015652800 = /* @__PURE__ */ _bind(FW, 'unnamed_13479374879015652800')
-export const unnamed_13993010170999628780 = /* @__PURE__ */ _bind(FW, 'unnamed_13993010170999628780')
+export const unnamed_12325394282143923225 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_12325394282143923225',
+)
+
+export const unnamed_12528073130655097327 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_12528073130655097327',
+)
+
+export const unnamed_13479374879015652800 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_13479374879015652800',
+)
+
+export const unnamed_13993010170999628780 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_13993010170999628780',
+)
+
 export const unnamed_1443625528096699295 = /* @__PURE__ */ _bind(FW, 'unnamed_1443625528096699295')
-export const unnamed_14771438100744447636 = /* @__PURE__ */ _bind(FW, 'unnamed_14771438100744447636')
-export const unnamed_15766140361070675147 = /* @__PURE__ */ _bind(FW, 'unnamed_15766140361070675147')
-export const unnamed_17312754775321614302 = /* @__PURE__ */ _bind(FW, 'unnamed_17312754775321614302')
+export const unnamed_14771438100744447636 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_14771438100744447636',
+)
+
+export const unnamed_15766140361070675147 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_15766140361070675147',
+)
+
+export const unnamed_17312754775321614302 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_17312754775321614302',
+)
+
 export const unnamed_308263955387762765 = /* @__PURE__ */ _bind(FW, 'unnamed_308263955387762765')
 export const unnamed_3495291293456343802 = /* @__PURE__ */ _bind(FW, 'unnamed_3495291293456343802')
 export const unnamed_3603817980117884468 = /* @__PURE__ */ _bind(FW, 'unnamed_3603817980117884468')
@@ -1864,8 +2692,16 @@ export const vDSP_DFT_DestroySetupD = /* @__PURE__ */ _bind(FW, 'vDSP_DFT_Destro
 export const vDSP_DFT_Direction = /* @__PURE__ */ _bind(FW, 'vDSP_DFT_Direction')
 export const vDSP_DFT_Execute = /* @__PURE__ */ _bind(FW, 'vDSP_DFT_Execute')
 export const vDSP_DFT_ExecuteD = /* @__PURE__ */ _bind(FW, 'vDSP_DFT_ExecuteD')
-export const vDSP_DFT_Interleaved_SetupStruct = /* @__PURE__ */ _bind(FW, 'vDSP_DFT_Interleaved_SetupStruct')
-export const vDSP_DFT_Interleaved_SetupStructD = /* @__PURE__ */ _bind(FW, 'vDSP_DFT_Interleaved_SetupStructD')
+export const vDSP_DFT_Interleaved_SetupStruct = /* @__PURE__ */ _bind(
+	FW,
+	'vDSP_DFT_Interleaved_SetupStruct',
+)
+
+export const vDSP_DFT_Interleaved_SetupStructD = /* @__PURE__ */ _bind(
+	FW,
+	'vDSP_DFT_Interleaved_SetupStructD',
+)
+
 export const vDSP_DFT_RealtoComplex = /* @__PURE__ */ _bind(FW, 'vDSP_DFT_RealtoComplex')
 export const vDSP_DFT_SetupStruct = /* @__PURE__ */ _bind(FW, 'vDSP_DFT_SetupStruct')
 export const vDSP_DFT_SetupStructD = /* @__PURE__ */ _bind(FW, 'vDSP_DFT_SetupStructD')
@@ -1899,11 +2735,31 @@ export const vDSP_biquadm_DestroySetup = /* @__PURE__ */ _bind(FW, 'vDSP_biquadm
 export const vDSP_biquadm_DestroySetupD = /* @__PURE__ */ _bind(FW, 'vDSP_biquadm_DestroySetupD')
 export const vDSP_biquadm_ResetState = /* @__PURE__ */ _bind(FW, 'vDSP_biquadm_ResetState')
 export const vDSP_biquadm_ResetStateD = /* @__PURE__ */ _bind(FW, 'vDSP_biquadm_ResetStateD')
-export const vDSP_biquadm_SetActiveFilters = /* @__PURE__ */ _bind(FW, 'vDSP_biquadm_SetActiveFilters')
-export const vDSP_biquadm_SetCoefficientsDouble = /* @__PURE__ */ _bind(FW, 'vDSP_biquadm_SetCoefficientsDouble')
-export const vDSP_biquadm_SetCoefficientsSingle = /* @__PURE__ */ _bind(FW, 'vDSP_biquadm_SetCoefficientsSingle')
-export const vDSP_biquadm_SetTargetsDouble = /* @__PURE__ */ _bind(FW, 'vDSP_biquadm_SetTargetsDouble')
-export const vDSP_biquadm_SetTargetsSingle = /* @__PURE__ */ _bind(FW, 'vDSP_biquadm_SetTargetsSingle')
+export const vDSP_biquadm_SetActiveFilters = /* @__PURE__ */ _bind(
+	FW,
+	'vDSP_biquadm_SetActiveFilters',
+)
+
+export const vDSP_biquadm_SetCoefficientsDouble = /* @__PURE__ */ _bind(
+	FW,
+	'vDSP_biquadm_SetCoefficientsDouble',
+)
+
+export const vDSP_biquadm_SetCoefficientsSingle = /* @__PURE__ */ _bind(
+	FW,
+	'vDSP_biquadm_SetCoefficientsSingle',
+)
+
+export const vDSP_biquadm_SetTargetsDouble = /* @__PURE__ */ _bind(
+	FW,
+	'vDSP_biquadm_SetTargetsDouble',
+)
+
+export const vDSP_biquadm_SetTargetsSingle = /* @__PURE__ */ _bind(
+	FW,
+	'vDSP_biquadm_SetTargetsSingle',
+)
+
 export const vDSP_biquadm_SetupStruct = /* @__PURE__ */ _bind(FW, 'vDSP_biquadm_SetupStruct')
 export const vDSP_biquadm_SetupStructD = /* @__PURE__ */ _bind(FW, 'vDSP_biquadm_SetupStructD')
 export const vDSP_blkman_window = /* @__PURE__ */ _bind(FW, 'vDSP_blkman_window')

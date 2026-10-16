@@ -181,9 +181,7 @@ test('ambiguous workspaces never silently bind; explicit selection wins', () => 
 	assert.equal(json(denied).error.code, 'ambiguous_selection')
 
 	// An explicit --app flag binds for that invocation only.
-	const bound = json(
-		run(['status', '--project', root, '--app', 'app-one', '--json']),
-	)
+	const bound = json(run(['status', '--project', root, '--app', 'app-one', '--json']))
 
 	assert.equal(bound.data.identity.selection.state, 'bound')
 	assert.equal(bound.data.identity.selection.reason, 'explicit')
@@ -203,9 +201,7 @@ test('app select persists a client/workspace preference; clients are isolated', 
 	assert.ok(existsSync(selected.data.preference.path))
 
 	// The preference binds subsequent commands for that client only.
-	const bound = json(
-		run(['status', '--project', root, '--client', 'agent-b', '--json']),
-	)
+	const bound = json(run(['status', '--project', root, '--client', 'agent-b', '--json']))
 
 	assert.equal(bound.data.identity.selection.app.id, 'two')
 	assert.equal(bound.data.identity.selection.reason, 'preference')
@@ -253,12 +249,25 @@ test('missing release snapshots report explicit unavailable, never latest', () =
 	writeFile(root, 'app/vite.config.ts', 'export default {}\n')
 
 	const out = json(
-		run(['docs', 'read', '--package', '@octane-xplat/ui', '--path', 'docs/start/install.md', '--project', root, '--json'], {
-			env: {
-				XPLAT_DOCS_REPO: 'file:///nonexistent/xplat-release',
-				XPLAT_MCP_CACHE: join(root, 'docs-cache'),
+		run(
+			[
+				'docs',
+				'read',
+				'--package',
+				'@octane-xplat/ui',
+				'--path',
+				'docs/start/install.md',
+				'--project',
+				root,
+				'--json',
+			],
+			{
+				env: {
+					XPLAT_DOCS_REPO: 'file:///nonexistent/xplat-release',
+					XPLAT_MCP_CACHE: join(root, 'docs-cache'),
+				},
 			},
-		}),
+		),
 	)
 
 	assert.equal(out.data.status, 'unavailable')
@@ -277,9 +286,7 @@ test('code search/read return current-source refs with provenance', () => {
 	assert.ok(hit, JSON.stringify(search.data.results))
 	assert.equal(hit.freshness.state, 'current')
 
-	const read = json(
-		run(['code', 'read', '--ref', hit.ref, '--project', root, '--json']),
-	)
+	const read = json(run(['code', 'read', '--ref', hit.ref, '--project', root, '--json']))
 
 	assert.match(read.data.content, /marker = 1/)
 })
@@ -295,18 +302,14 @@ test('permissions, capabilities and targets report through the envelope', () => 
 	assert.equal(denied.data.check.granted, false)
 	assert.equal(denied.data.grant.state, 'required')
 
-	const caps = json(
-		run(['capabilities', '--platform', 'web', '--project', root, '--json']),
-	)
+	const caps = json(run(['capabilities', '--platform', 'web', '--project', root, '--json']))
 
 	const rows = caps.data.capabilities[0].capabilities.map((c) => c.capability)
 	for (const id of ['docs', 'code_search', 'target_discovery', 'dev_actions']) {
 		assert.ok(rows.includes(id), `missing ${id}`)
 	}
 
-	const targets = json(
-		run(['targets', '--platform', 'web', '--project', root, '--json']),
-	)
+	const targets = json(run(['targets', '--platform', 'web', '--project', root, '--json']))
 
 	assert.equal(targets.data.platforms[0].targets[0].targetId, 'web')
 })
@@ -465,10 +468,16 @@ test('session start binds an owned session and end releases it', () => {
 	assert.ok(bound)
 	assert.ok(['ready', 'stopped', 'disconnected'].includes(bound.state))
 
-	const status = json(run(['session', 'status', session.sessionId, '--project', root, '--json'], { env }))
+	const status = json(
+		run(['session', 'status', session.sessionId, '--project', root, '--json'], { env }),
+	)
+
 	assert.equal(status.data.session.sessionId, session.sessionId)
 
-	const ended = json(run(['session', 'end', session.sessionId, '--project', root, '--json'], { env }))
+	const ended = json(
+		run(['session', 'end', session.sessionId, '--project', root, '--json'], { env }),
+	)
+
 	assert.equal(ended.data.result.ended, true)
 
 	// A stopped identity is refused — never silently reused.

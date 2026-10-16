@@ -57,7 +57,7 @@ export function createLogBuffer({ limit = 2000 } = {}) {
 			const page = slice.slice(0, readLimit)
 			return {
 				records: page,
-				nextCursor: page.length ? page[page.length - 1].seq : cursor ?? base() - 1,
+				nextCursor: page.length ? page[page.length - 1].seq : (cursor ?? base() - 1),
 				oldestSeq: base(),
 				newestSeq: seq,
 				truncated,

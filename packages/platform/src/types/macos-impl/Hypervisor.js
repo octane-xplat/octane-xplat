@@ -24,28 +24,60 @@ export const hv_sme_z_reg_t = /* @__PURE__ */ _bind(FW, 'hv_sme_z_reg_t')
 export const hv_sys_reg_t = /* @__PURE__ */ _bind(FW, 'hv_sys_reg_t')
 export const hv_tlbi_op_t = /* @__PURE__ */ _bind(FW, 'hv_tlbi_op_t')
 export const hv_vcpu_config_create = /* @__PURE__ */ _bind(FW, 'hv_vcpu_config_create')
-export const hv_vcpu_config_get_ccsidr_el1_sys_reg_values = /* @__PURE__ */ _bind(FW, 'hv_vcpu_config_get_ccsidr_el1_sys_reg_values')
-export const hv_vcpu_config_get_feature_reg = /* @__PURE__ */ _bind(FW, 'hv_vcpu_config_get_feature_reg')
+export const hv_vcpu_config_get_ccsidr_el1_sys_reg_values = /* @__PURE__ */ _bind(
+	FW,
+	'hv_vcpu_config_get_ccsidr_el1_sys_reg_values',
+)
+
+export const hv_vcpu_config_get_feature_reg = /* @__PURE__ */ _bind(
+	FW,
+	'hv_vcpu_config_get_feature_reg',
+)
+
 export const hv_vcpu_create = /* @__PURE__ */ _bind(FW, 'hv_vcpu_create')
 export const hv_vcpu_destroy = /* @__PURE__ */ _bind(FW, 'hv_vcpu_destroy')
 export const hv_vcpu_exit_exception_t = /* @__PURE__ */ _bind(FW, 'hv_vcpu_exit_exception_t')
 export const hv_vcpu_exit_t = /* @__PURE__ */ _bind(FW, 'hv_vcpu_exit_t')
 export const hv_vcpu_get_exec_time = /* @__PURE__ */ _bind(FW, 'hv_vcpu_get_exec_time')
-export const hv_vcpu_get_pending_interrupt = /* @__PURE__ */ _bind(FW, 'hv_vcpu_get_pending_interrupt')
+export const hv_vcpu_get_pending_interrupt = /* @__PURE__ */ _bind(
+	FW,
+	'hv_vcpu_get_pending_interrupt',
+)
+
 export const hv_vcpu_get_reg = /* @__PURE__ */ _bind(FW, 'hv_vcpu_get_reg')
 export const hv_vcpu_get_simd_fp_reg = /* @__PURE__ */ _bind(FW, 'hv_vcpu_get_simd_fp_reg')
 export const hv_vcpu_get_sys_reg = /* @__PURE__ */ _bind(FW, 'hv_vcpu_get_sys_reg')
-export const hv_vcpu_get_trap_debug_exceptions = /* @__PURE__ */ _bind(FW, 'hv_vcpu_get_trap_debug_exceptions')
-export const hv_vcpu_get_trap_debug_reg_accesses = /* @__PURE__ */ _bind(FW, 'hv_vcpu_get_trap_debug_reg_accesses')
+export const hv_vcpu_get_trap_debug_exceptions = /* @__PURE__ */ _bind(
+	FW,
+	'hv_vcpu_get_trap_debug_exceptions',
+)
+
+export const hv_vcpu_get_trap_debug_reg_accesses = /* @__PURE__ */ _bind(
+	FW,
+	'hv_vcpu_get_trap_debug_reg_accesses',
+)
+
 export const hv_vcpu_get_vtimer_mask = /* @__PURE__ */ _bind(FW, 'hv_vcpu_get_vtimer_mask')
 export const hv_vcpu_get_vtimer_offset = /* @__PURE__ */ _bind(FW, 'hv_vcpu_get_vtimer_offset')
 export const hv_vcpu_run = /* @__PURE__ */ _bind(FW, 'hv_vcpu_run')
-export const hv_vcpu_set_pending_interrupt = /* @__PURE__ */ _bind(FW, 'hv_vcpu_set_pending_interrupt')
+export const hv_vcpu_set_pending_interrupt = /* @__PURE__ */ _bind(
+	FW,
+	'hv_vcpu_set_pending_interrupt',
+)
+
 export const hv_vcpu_set_reg = /* @__PURE__ */ _bind(FW, 'hv_vcpu_set_reg')
 export const hv_vcpu_set_simd_fp_reg = /* @__PURE__ */ _bind(FW, 'hv_vcpu_set_simd_fp_reg')
 export const hv_vcpu_set_sys_reg = /* @__PURE__ */ _bind(FW, 'hv_vcpu_set_sys_reg')
-export const hv_vcpu_set_trap_debug_exceptions = /* @__PURE__ */ _bind(FW, 'hv_vcpu_set_trap_debug_exceptions')
-export const hv_vcpu_set_trap_debug_reg_accesses = /* @__PURE__ */ _bind(FW, 'hv_vcpu_set_trap_debug_reg_accesses')
+export const hv_vcpu_set_trap_debug_exceptions = /* @__PURE__ */ _bind(
+	FW,
+	'hv_vcpu_set_trap_debug_exceptions',
+)
+
+export const hv_vcpu_set_trap_debug_reg_accesses = /* @__PURE__ */ _bind(
+	FW,
+	'hv_vcpu_set_trap_debug_reg_accesses',
+)
+
 export const hv_vcpu_set_vtimer_mask = /* @__PURE__ */ _bind(FW, 'hv_vcpu_set_vtimer_mask')
 export const hv_vcpu_set_vtimer_offset = /* @__PURE__ */ _bind(FW, 'hv_vcpu_set_vtimer_offset')
 export const hv_vcpu_sme_state_t = /* @__PURE__ */ _bind(FW, 'hv_vcpu_sme_state_t')

@@ -124,14 +124,7 @@ import { Text } from '@octane-xplat/ui'
 
 export function BadgedRow() {
 	return (
-		<SmoothCorners
-			corners={16}
-			left={12}
-			top={8}
-			flexDirection="row"
-			alignItems="center"
-			gap={8}
-		>
+		<SmoothCorners corners={16} left={12} top={8} flexDirection="row" alignItems="center" gap={8}>
 			<Text>Badge</Text>
 			<Text>Details</Text>
 		</SmoothCorners>

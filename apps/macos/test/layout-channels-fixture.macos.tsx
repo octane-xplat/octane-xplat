@@ -2,7 +2,6 @@
 import { createMacOSRoot, type UniversalComponent } from '@octane-xplat/macos-renderer'
 import { NSWindow } from '@octane-xplat/platform/macos'
 
-
 function Content({ phase = 0 }: { phase?: number }) {
 	const layout =
 		phase === 4
@@ -216,18 +215,10 @@ export async function runLayoutChannelsFixture() {
 			await settle()
 			near(Number(window.contentView.bounds.size.width), width, 'absolute root resize')
 			near(Number(view('abs-row').frame.size.width), width, 'absolute percent row')
-			near(
-				Number(view('abs-nested').frame.size.width),
-				width / 2,
-				'absolute nested percent',
-			)
+			near(Number(view('abs-nested').frame.size.width), width / 2, 'absolute nested percent')
 
 			const tail = view('abs-tail').frame
-			near(
-				Number(tail.origin.x) + Number(tail.size.width),
-				width - 16,
-				'absolute right pin',
-			)
+			near(Number(tail.origin.x) + Number(tail.size.width), width - 16, 'absolute right pin')
 
 			near(Number(tail.origin.y), 12, 'absolute bottom pin')
 		}

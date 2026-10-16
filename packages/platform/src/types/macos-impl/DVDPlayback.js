@@ -18,12 +18,24 @@ export const DVDFormat = /* @__PURE__ */ _bind(FW, 'DVDFormat')
 export const DVDGetAngle = /* @__PURE__ */ _bind(FW, 'DVDGetAngle')
 export const DVDGetAspectRatio = /* @__PURE__ */ _bind(FW, 'DVDGetAspectRatio')
 export const DVDGetAudioLanguageCode = /* @__PURE__ */ _bind(FW, 'DVDGetAudioLanguageCode')
-export const DVDGetAudioLanguageCodeByStream = /* @__PURE__ */ _bind(FW, 'DVDGetAudioLanguageCodeByStream')
+export const DVDGetAudioLanguageCodeByStream = /* @__PURE__ */ _bind(
+	FW,
+	'DVDGetAudioLanguageCodeByStream',
+)
+
 export const DVDGetAudioOutputMode = /* @__PURE__ */ _bind(FW, 'DVDGetAudioOutputMode')
-export const DVDGetAudioOutputModeCapabilities = /* @__PURE__ */ _bind(FW, 'DVDGetAudioOutputModeCapabilities')
+export const DVDGetAudioOutputModeCapabilities = /* @__PURE__ */ _bind(
+	FW,
+	'DVDGetAudioOutputModeCapabilities',
+)
+
 export const DVDGetAudioStream = /* @__PURE__ */ _bind(FW, 'DVDGetAudioStream')
 export const DVDGetAudioStreamFormat = /* @__PURE__ */ _bind(FW, 'DVDGetAudioStreamFormat')
-export const DVDGetAudioStreamFormatByStream = /* @__PURE__ */ _bind(FW, 'DVDGetAudioStreamFormatByStream')
+export const DVDGetAudioStreamFormatByStream = /* @__PURE__ */ _bind(
+	FW,
+	'DVDGetAudioStreamFormatByStream',
+)
+
 export const DVDGetAudioVolume = /* @__PURE__ */ _bind(FW, 'DVDGetAudioVolume')
 export const DVDGetAudioVolumeInfo = /* @__PURE__ */ _bind(FW, 'DVDGetAudioVolumeInfo')
 export const DVDGetBookmark = /* @__PURE__ */ _bind(FW, 'DVDGetBookmark')
@@ -46,12 +58,28 @@ export const DVDGetNumChapters = /* @__PURE__ */ _bind(FW, 'DVDGetNumChapters')
 export const DVDGetNumSubPictureStreams = /* @__PURE__ */ _bind(FW, 'DVDGetNumSubPictureStreams')
 export const DVDGetNumTitles = /* @__PURE__ */ _bind(FW, 'DVDGetNumTitles')
 export const DVDGetSPDIFDataOutDevice = /* @__PURE__ */ _bind(FW, 'DVDGetSPDIFDataOutDevice')
-export const DVDGetSPDIFDataOutDeviceCFName = /* @__PURE__ */ _bind(FW, 'DVDGetSPDIFDataOutDeviceCFName')
-export const DVDGetSPDIFDataOutDeviceCount = /* @__PURE__ */ _bind(FW, 'DVDGetSPDIFDataOutDeviceCount')
+export const DVDGetSPDIFDataOutDeviceCFName = /* @__PURE__ */ _bind(
+	FW,
+	'DVDGetSPDIFDataOutDeviceCFName',
+)
+
+export const DVDGetSPDIFDataOutDeviceCount = /* @__PURE__ */ _bind(
+	FW,
+	'DVDGetSPDIFDataOutDeviceCount',
+)
+
 export const DVDGetScanRate = /* @__PURE__ */ _bind(FW, 'DVDGetScanRate')
 export const DVDGetState = /* @__PURE__ */ _bind(FW, 'DVDGetState')
-export const DVDGetSubPictureLanguageCode = /* @__PURE__ */ _bind(FW, 'DVDGetSubPictureLanguageCode')
-export const DVDGetSubPictureLanguageCodeByStream = /* @__PURE__ */ _bind(FW, 'DVDGetSubPictureLanguageCodeByStream')
+export const DVDGetSubPictureLanguageCode = /* @__PURE__ */ _bind(
+	FW,
+	'DVDGetSubPictureLanguageCode',
+)
+
+export const DVDGetSubPictureLanguageCodeByStream = /* @__PURE__ */ _bind(
+	FW,
+	'DVDGetSubPictureLanguageCodeByStream',
+)
+
 export const DVDGetSubPictureStream = /* @__PURE__ */ _bind(FW, 'DVDGetSubPictureStream')
 export const DVDGetTime = /* @__PURE__ */ _bind(FW, 'DVDGetTime')
 export const DVDGetTimeEventRate = /* @__PURE__ */ _bind(FW, 'DVDGetTimeEventRate')
@@ -74,7 +102,11 @@ export const DVDIsMuted = /* @__PURE__ */ _bind(FW, 'DVDIsMuted')
 export const DVDIsOnMenu = /* @__PURE__ */ _bind(FW, 'DVDIsOnMenu')
 export const DVDIsPaused = /* @__PURE__ */ _bind(FW, 'DVDIsPaused')
 export const DVDIsPlaying = /* @__PURE__ */ _bind(FW, 'DVDIsPlaying')
-export const DVDIsRegisteredEventCallBack = /* @__PURE__ */ _bind(FW, 'DVDIsRegisteredEventCallBack')
+export const DVDIsRegisteredEventCallBack = /* @__PURE__ */ _bind(
+	FW,
+	'DVDIsRegisteredEventCallBack',
+)
+
 export const DVDIsSupportedDisplay = /* @__PURE__ */ _bind(FW, 'DVDIsSupportedDisplay')
 export const DVDIsValidMediaRef = /* @__PURE__ */ _bind(FW, 'DVDIsValidMediaRef')
 export const DVDIsValidMediaURL = /* @__PURE__ */ _bind(FW, 'DVDIsValidMediaURL')
@@ -100,9 +132,21 @@ export const DVDSetAudioOutputMode = /* @__PURE__ */ _bind(FW, 'DVDSetAudioOutpu
 export const DVDSetAudioStream = /* @__PURE__ */ _bind(FW, 'DVDSetAudioStream')
 export const DVDSetAudioVolume = /* @__PURE__ */ _bind(FW, 'DVDSetAudioVolume')
 export const DVDSetChapter = /* @__PURE__ */ _bind(FW, 'DVDSetChapter')
-export const DVDSetDefaultAudioLanguageCode = /* @__PURE__ */ _bind(FW, 'DVDSetDefaultAudioLanguageCode')
-export const DVDSetDefaultMenuLanguageCode = /* @__PURE__ */ _bind(FW, 'DVDSetDefaultMenuLanguageCode')
-export const DVDSetDefaultSubPictureLanguageCode = /* @__PURE__ */ _bind(FW, 'DVDSetDefaultSubPictureLanguageCode')
+export const DVDSetDefaultAudioLanguageCode = /* @__PURE__ */ _bind(
+	FW,
+	'DVDSetDefaultAudioLanguageCode',
+)
+
+export const DVDSetDefaultMenuLanguageCode = /* @__PURE__ */ _bind(
+	FW,
+	'DVDSetDefaultMenuLanguageCode',
+)
+
+export const DVDSetDefaultSubPictureLanguageCode = /* @__PURE__ */ _bind(
+	FW,
+	'DVDSetDefaultSubPictureLanguageCode',
+)
+
 export const DVDSetDriveRegionCode = /* @__PURE__ */ _bind(FW, 'DVDSetDriveRegionCode')
 export const DVDSetFatalErrorCallBack = /* @__PURE__ */ _bind(FW, 'DVDSetFatalErrorCallBack')
 export const DVDSetLastPlayBookmark = /* @__PURE__ */ _bind(FW, 'DVDSetLastPlayBookmark')
@@ -124,38 +168,102 @@ export const DVDUnregisterEventCallBack = /* @__PURE__ */ _bind(FW, 'DVDUnregist
 export const DVDUpdateVideo = /* @__PURE__ */ _bind(FW, 'DVDUpdateVideo')
 export const DVDUserNavigation = /* @__PURE__ */ _bind(FW, 'DVDUserNavigation')
 export const DVDWakeUp = /* @__PURE__ */ _bind(FW, 'DVDWakeUp')
-export const kDVDAudioExtensionCodeDirectorsComment1 = /* @__PURE__ */ _bind(FW, 'kDVDAudioExtensionCodeDirectorsComment1')
-export const kDVDAudioExtensionCodeDirectorsComment2 = /* @__PURE__ */ _bind(FW, 'kDVDAudioExtensionCodeDirectorsComment2')
-export const kDVDAudioExtensionCodeNVisualImpaired = /* @__PURE__ */ _bind(FW, 'kDVDAudioExtensionCodeNVisualImpaired')
-export const kDVDAudioExtensionCodeNormalCaptions = /* @__PURE__ */ _bind(FW, 'kDVDAudioExtensionCodeNormalCaptions')
-export const kDVDAudioExtensionCodeNotSpecified = /* @__PURE__ */ _bind(FW, 'kDVDAudioExtensionCodeNotSpecified')
+export const kDVDAudioExtensionCodeDirectorsComment1 = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDAudioExtensionCodeDirectorsComment1',
+)
+
+export const kDVDAudioExtensionCodeDirectorsComment2 = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDAudioExtensionCodeDirectorsComment2',
+)
+
+export const kDVDAudioExtensionCodeNVisualImpaired = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDAudioExtensionCodeNVisualImpaired',
+)
+
+export const kDVDAudioExtensionCodeNormalCaptions = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDAudioExtensionCodeNormalCaptions',
+)
+
+export const kDVDAudioExtensionCodeNotSpecified = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDAudioExtensionCodeNotSpecified',
+)
+
 export const kDVDAudioModeProLogic = /* @__PURE__ */ _bind(FW, 'kDVDAudioModeProLogic')
 export const kDVDAudioModeSPDIF = /* @__PURE__ */ _bind(FW, 'kDVDAudioModeSPDIF')
 export const kDVDAudioModeUninitialized = /* @__PURE__ */ _bind(FW, 'kDVDAudioModeUninitialized')
 export const kDVDButtonIndexNone = /* @__PURE__ */ _bind(FW, 'kDVDButtonIndexNone')
 export const kDVDErrorAlreadyPlaying = /* @__PURE__ */ _bind(FW, 'kDVDErrorAlreadyPlaying')
 export const kDVDErrorAuthentification = /* @__PURE__ */ _bind(FW, 'kDVDErrorAuthentification')
-export const kDVDErrorDisplayAuthentification = /* @__PURE__ */ _bind(FW, 'kDVDErrorDisplayAuthentification')
+export const kDVDErrorDisplayAuthentification = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDErrorDisplayAuthentification',
+)
+
 export const kDVDErrorDontNeedWakeup = /* @__PURE__ */ _bind(FW, 'kDVDErrorDontNeedWakeup')
 export const kDVDErrorGraphicsDevice = /* @__PURE__ */ _bind(FW, 'kDVDErrorGraphicsDevice')
 export const kDVDErrorInitializingLib = /* @__PURE__ */ _bind(FW, 'kDVDErrorInitializingLib')
-export const kDVDErrorInvalidBookmarkForMedia = /* @__PURE__ */ _bind(FW, 'kDVDErrorInvalidBookmarkForMedia')
-export const kDVDErrorInvalidBookmarkSize = /* @__PURE__ */ _bind(FW, 'kDVDErrorInvalidBookmarkSize')
-export const kDVDErrorInvalidBookmarkVersion = /* @__PURE__ */ _bind(FW, 'kDVDErrorInvalidBookmarkVersion')
+export const kDVDErrorInvalidBookmarkForMedia = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDErrorInvalidBookmarkForMedia',
+)
+
+export const kDVDErrorInvalidBookmarkSize = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDErrorInvalidBookmarkSize',
+)
+
+export const kDVDErrorInvalidBookmarkVersion = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDErrorInvalidBookmarkVersion',
+)
+
 export const kDVDErrorInvalidRegionCode = /* @__PURE__ */ _bind(FW, 'kDVDErrorInvalidRegionCode')
 export const kDVDErrorIsAlreadySleeping = /* @__PURE__ */ _bind(FW, 'kDVDErrorIsAlreadySleeping')
-export const kDVDErrorMismatchedRegionCode = /* @__PURE__ */ _bind(FW, 'kDVDErrorMismatchedRegionCode')
+export const kDVDErrorMismatchedRegionCode = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDErrorMismatchedRegionCode',
+)
+
 export const kDVDErrorMissingDrive = /* @__PURE__ */ _bind(FW, 'kDVDErrorMissingDrive')
-export const kDVDErrorMissingGraphicsDevice = /* @__PURE__ */ _bind(FW, 'kDVDErrorMissingGraphicsDevice')
+export const kDVDErrorMissingGraphicsDevice = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDErrorMissingGraphicsDevice',
+)
+
 export const kDVDErrorNavigation = /* @__PURE__ */ _bind(FW, 'kDVDErrorNavigation')
-export const kDVDErrorNoAudioOutputDevice = /* @__PURE__ */ _bind(FW, 'kDVDErrorNoAudioOutputDevice')
+export const kDVDErrorNoAudioOutputDevice = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDErrorNoAudioOutputDevice',
+)
+
 export const kDVDErrorNoFatalErrCallBack = /* @__PURE__ */ _bind(FW, 'kDVDErrorNoFatalErrCallBack')
 export const kDVDErrorNoMoreRegionSets = /* @__PURE__ */ _bind(FW, 'kDVDErrorNoMoreRegionSets')
-export const kDVDErrorNoValidBookmarkForLastPlay = /* @__PURE__ */ _bind(FW, 'kDVDErrorNoValidBookmarkForLastPlay')
+export const kDVDErrorNoValidBookmarkForLastPlay = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDErrorNoValidBookmarkForLastPlay',
+)
+
 export const kDVDErrorNoValidMedia = /* @__PURE__ */ _bind(FW, 'kDVDErrorNoValidMedia')
-export const kDVDErrorNotAllowedDuringPlayback = /* @__PURE__ */ _bind(FW, 'kDVDErrorNotAllowedDuringPlayback')
-export const kDVDErrorNotSupportedConfiguration = /* @__PURE__ */ _bind(FW, 'kDVDErrorNotSupportedConfiguration')
-export const kDVDErrorNotSupportedFunction = /* @__PURE__ */ _bind(FW, 'kDVDErrorNotSupportedFunction')
+export const kDVDErrorNotAllowedDuringPlayback = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDErrorNotAllowedDuringPlayback',
+)
+
+export const kDVDErrorNotSupportedConfiguration = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDErrorNotSupportedConfiguration',
+)
+
+export const kDVDErrorNotSupportedFunction = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDErrorNotSupportedFunction',
+)
+
 export const kDVDErrorOutOfVideoMemory = /* @__PURE__ */ _bind(FW, 'kDVDErrorOutOfVideoMemory')
 export const kDVDErrorPlaybackOpen = /* @__PURE__ */ _bind(FW, 'kDVDErrorPlaybackOpen')
 export const kDVDErrorRgnMgrInstall = /* @__PURE__ */ _bind(FW, 'kDVDErrorRgnMgrInstall')
@@ -166,7 +274,11 @@ export const kDVDErrorUninitializedLib = /* @__PURE__ */ _bind(FW, 'kDVDErrorUni
 export const kDVDErrorUnknown = /* @__PURE__ */ _bind(FW, 'kDVDErrorUnknown')
 export const kDVDErrorUserActionNoOp = /* @__PURE__ */ _bind(FW, 'kDVDErrorUserActionNoOp')
 export const kDVDErrorWrongParam = /* @__PURE__ */ _bind(FW, 'kDVDErrorWrongParam')
-export const kDVDErrordRegionCodeUninitialized = /* @__PURE__ */ _bind(FW, 'kDVDErrordRegionCodeUninitialized')
+export const kDVDErrordRegionCodeUninitialized = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDErrordRegionCodeUninitialized',
+)
+
 export const kDVDLanguageCodeAbkhazian = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCodeAbkhazian')
 export const kDVDLanguageCodeAfar = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCodeAfar')
 export const kDVDLanguageCodeAfrikaans = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCodeAfrikaans')
@@ -186,7 +298,11 @@ export const kDVDLanguageCodeBislama = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCo
 export const kDVDLanguageCodeBreton = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCodeBreton')
 export const kDVDLanguageCodeBulgarian = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCodeBulgarian')
 export const kDVDLanguageCodeBurmese = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCodeBurmese')
-export const kDVDLanguageCodeByelorussian = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCodeByelorussian')
+export const kDVDLanguageCodeByelorussian = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDLanguageCodeByelorussian',
+)
+
 export const kDVDLanguageCodeCambodian = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCodeCambodian')
 export const kDVDLanguageCodeCatalan = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCodeCatalan')
 export const kDVDLanguageCodeChinese = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCodeChinese')
@@ -258,7 +374,11 @@ export const kDVDLanguageCodePolish = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCod
 export const kDVDLanguageCodePortugese = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCodePortugese')
 export const kDVDLanguageCodePunjabi = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCodePunjabi')
 export const kDVDLanguageCodeQuechua = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCodeQuechua')
-export const kDVDLanguageCodeRhaetoRomance = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCodeRhaetoRomance')
+export const kDVDLanguageCodeRhaetoRomance = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDLanguageCodeRhaetoRomance',
+)
+
 export const kDVDLanguageCodeRomanian = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCodeRomanian')
 export const kDVDLanguageCodeRussian = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCodeRussian')
 export const kDVDLanguageCodeSamoan = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCodeSamoan')
@@ -266,7 +386,11 @@ export const kDVDLanguageCodeSangro = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCod
 export const kDVDLanguageCodeSanskrit = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCodeSanskrit')
 export const kDVDLanguageCodeScotsGaelic = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCodeScotsGaelic')
 export const kDVDLanguageCodeSerbian = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCodeSerbian')
-export const kDVDLanguageCodeSerboCroatian = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCodeSerboCroatian')
+export const kDVDLanguageCodeSerboCroatian = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDLanguageCodeSerboCroatian',
+)
+
 export const kDVDLanguageCodeSesotho = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCodeSesotho')
 export const kDVDLanguageCodeSetswana = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCodeSetswana')
 export const kDVDLanguageCodeShona = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCodeShona')
@@ -294,7 +418,11 @@ export const kDVDLanguageCodeTurkish = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCo
 export const kDVDLanguageCodeTurkmen = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCodeTurkmen')
 export const kDVDLanguageCodeTwi = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCodeTwi')
 export const kDVDLanguageCodeUkranian = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCodeUkranian')
-export const kDVDLanguageCodeUninitialized = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCodeUninitialized')
+export const kDVDLanguageCodeUninitialized = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDLanguageCodeUninitialized',
+)
+
 export const kDVDLanguageCodeUrdu = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCodeUrdu')
 export const kDVDLanguageCodeUzbek = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCodeUzbek')
 export const kDVDLanguageCodeVietnamese = /* @__PURE__ */ _bind(FW, 'kDVDLanguageCodeVietnamese')
@@ -315,23 +443,87 @@ export const kDVDRegionCode6 = /* @__PURE__ */ _bind(FW, 'kDVDRegionCode6')
 export const kDVDRegionCode7 = /* @__PURE__ */ _bind(FW, 'kDVDRegionCode7')
 export const kDVDRegionCode8 = /* @__PURE__ */ _bind(FW, 'kDVDRegionCode8')
 export const kDVDRegionCodeUninitialized = /* @__PURE__ */ _bind(FW, 'kDVDRegionCodeUninitialized')
-export const kDVDSubpictureExtensionCodeCaption4Children = /* @__PURE__ */ _bind(FW, 'kDVDSubpictureExtensionCodeCaption4Children')
-export const kDVDSubpictureExtensionCodeCaptionBiggerSize = /* @__PURE__ */ _bind(FW, 'kDVDSubpictureExtensionCodeCaptionBiggerSize')
-export const kDVDSubpictureExtensionCodeCaptionNormalSize = /* @__PURE__ */ _bind(FW, 'kDVDSubpictureExtensionCodeCaptionNormalSize')
-export const kDVDSubpictureExtensionCodeClosedCaption4Children = /* @__PURE__ */ _bind(FW, 'kDVDSubpictureExtensionCodeClosedCaption4Children')
-export const kDVDSubpictureExtensionCodeClosedCaptionBiggerSize = /* @__PURE__ */ _bind(FW, 'kDVDSubpictureExtensionCodeClosedCaptionBiggerSize')
-export const kDVDSubpictureExtensionCodeClosedCaptionNormalSize = /* @__PURE__ */ _bind(FW, 'kDVDSubpictureExtensionCodeClosedCaptionNormalSize')
-export const kDVDSubpictureExtensionCodeForcedCaption = /* @__PURE__ */ _bind(FW, 'kDVDSubpictureExtensionCodeForcedCaption')
-export const kDVDSubpictureExtensionCodeNotSpecified = /* @__PURE__ */ _bind(FW, 'kDVDSubpictureExtensionCodeNotSpecified')
-export const kDVDSubpictureExtensionDirectorsComment4Children = /* @__PURE__ */ _bind(FW, 'kDVDSubpictureExtensionDirectorsComment4Children')
-export const kDVDSubpictureExtensionDirectorsCommentBiggerSize = /* @__PURE__ */ _bind(FW, 'kDVDSubpictureExtensionDirectorsCommentBiggerSize')
-export const kDVDSubpictureExtensionDirectorsCommentNormalSize = /* @__PURE__ */ _bind(FW, 'kDVDSubpictureExtensionDirectorsCommentNormalSize')
-export const kDVDTimeCodeChapterDurationSeconds = /* @__PURE__ */ _bind(FW, 'kDVDTimeCodeChapterDurationSeconds')
-export const kDVDTimeCodeChapterElapsedSeconds = /* @__PURE__ */ _bind(FW, 'kDVDTimeCodeChapterElapsedSeconds')
-export const kDVDTimeCodeChapterRemainingSeconds = /* @__PURE__ */ _bind(FW, 'kDVDTimeCodeChapterRemainingSeconds')
+export const kDVDSubpictureExtensionCodeCaption4Children = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDSubpictureExtensionCodeCaption4Children',
+)
+
+export const kDVDSubpictureExtensionCodeCaptionBiggerSize = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDSubpictureExtensionCodeCaptionBiggerSize',
+)
+
+export const kDVDSubpictureExtensionCodeCaptionNormalSize = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDSubpictureExtensionCodeCaptionNormalSize',
+)
+
+export const kDVDSubpictureExtensionCodeClosedCaption4Children = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDSubpictureExtensionCodeClosedCaption4Children',
+)
+
+export const kDVDSubpictureExtensionCodeClosedCaptionBiggerSize = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDSubpictureExtensionCodeClosedCaptionBiggerSize',
+)
+
+export const kDVDSubpictureExtensionCodeClosedCaptionNormalSize = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDSubpictureExtensionCodeClosedCaptionNormalSize',
+)
+
+export const kDVDSubpictureExtensionCodeForcedCaption = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDSubpictureExtensionCodeForcedCaption',
+)
+
+export const kDVDSubpictureExtensionCodeNotSpecified = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDSubpictureExtensionCodeNotSpecified',
+)
+
+export const kDVDSubpictureExtensionDirectorsComment4Children = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDSubpictureExtensionDirectorsComment4Children',
+)
+
+export const kDVDSubpictureExtensionDirectorsCommentBiggerSize = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDSubpictureExtensionDirectorsCommentBiggerSize',
+)
+
+export const kDVDSubpictureExtensionDirectorsCommentNormalSize = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDSubpictureExtensionDirectorsCommentNormalSize',
+)
+
+export const kDVDTimeCodeChapterDurationSeconds = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDTimeCodeChapterDurationSeconds',
+)
+
+export const kDVDTimeCodeChapterElapsedSeconds = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDTimeCodeChapterElapsedSeconds',
+)
+
+export const kDVDTimeCodeChapterRemainingSeconds = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDTimeCodeChapterRemainingSeconds',
+)
+
 export const kDVDTimeCodeElapsedSeconds = /* @__PURE__ */ _bind(FW, 'kDVDTimeCodeElapsedSeconds')
-export const kDVDTimeCodeRemainingSeconds = /* @__PURE__ */ _bind(FW, 'kDVDTimeCodeRemainingSeconds')
-export const kDVDTimeCodeTitleDurationSeconds = /* @__PURE__ */ _bind(FW, 'kDVDTimeCodeTitleDurationSeconds')
+export const kDVDTimeCodeRemainingSeconds = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDTimeCodeRemainingSeconds',
+)
+
+export const kDVDTimeCodeTitleDurationSeconds = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDTimeCodeTitleDurationSeconds',
+)
+
 export const kDVDTimeCodeUninitialized = /* @__PURE__ */ _bind(FW, 'kDVDTimeCodeUninitialized')
 export const kDVDUOPAngleChange = /* @__PURE__ */ _bind(FW, 'kDVDUOPAngleChange')
 export const kDVDUOPAudioStreamChange = /* @__PURE__ */ _bind(FW, 'kDVDUOPAudioStreamChange')
@@ -355,7 +547,11 @@ export const kDVDUOPResume = /* @__PURE__ */ _bind(FW, 'kDVDUOPResume')
 export const kDVDUOPScanOff = /* @__PURE__ */ _bind(FW, 'kDVDUOPScanOff')
 export const kDVDUOPStillOff = /* @__PURE__ */ _bind(FW, 'kDVDUOPStillOff')
 export const kDVDUOPStop = /* @__PURE__ */ _bind(FW, 'kDVDUOPStop')
-export const kDVDUOPSubPictureStreamChange = /* @__PURE__ */ _bind(FW, 'kDVDUOPSubPictureStreamChange')
+export const kDVDUOPSubPictureStreamChange = /* @__PURE__ */ _bind(
+	FW,
+	'kDVDUOPSubPictureStreamChange',
+)
+
 export const kDVDUOPTimePTTSearch = /* @__PURE__ */ _bind(FW, 'kDVDUOPTimePTTSearch')
 export const kDVDUOPTimePlaySearch = /* @__PURE__ */ _bind(FW, 'kDVDUOPTimePlaySearch')
 export const kDVDUOPTitlePlay = /* @__PURE__ */ _bind(FW, 'kDVDUOPTitlePlay')

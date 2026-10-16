@@ -167,10 +167,7 @@ const supportsChunkedMovies = (host: CameraHost): Promise<boolean> => {
 			.capabilities()
 			.then((capabilities) => {
 				const methods = (capabilities as { camera?: string[] }).camera ?? []
-				return (
-					methods.includes('writeMovieFileChunk') &&
-					methods.includes('readMovieFileChunk')
-				)
+				return methods.includes('writeMovieFileChunk') && methods.includes('readMovieFileChunk')
 			})
 			.catch(() => false)
 

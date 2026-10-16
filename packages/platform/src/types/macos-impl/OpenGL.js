@@ -27,7 +27,11 @@ export const CGLGetPBuffer = /* @__PURE__ */ _bind(FW, 'CGLGetPBuffer')
 export const CGLGetPBufferRetainCount = /* @__PURE__ */ _bind(FW, 'CGLGetPBufferRetainCount')
 export const CGLGetParameter = /* @__PURE__ */ _bind(FW, 'CGLGetParameter')
 export const CGLGetPixelFormat = /* @__PURE__ */ _bind(FW, 'CGLGetPixelFormat')
-export const CGLGetPixelFormatRetainCount = /* @__PURE__ */ _bind(FW, 'CGLGetPixelFormatRetainCount')
+export const CGLGetPixelFormatRetainCount = /* @__PURE__ */ _bind(
+	FW,
+	'CGLGetPixelFormatRetainCount',
+)
+
 export const CGLGetShareGroup = /* @__PURE__ */ _bind(FW, 'CGLGetShareGroup')
 export const CGLGetVersion = /* @__PURE__ */ _bind(FW, 'CGLGetVersion')
 export const CGLGetVirtualScreen = /* @__PURE__ */ _bind(FW, 'CGLGetVirtualScreen')
@@ -104,7 +108,11 @@ export const glBindBufferRange = /* @__PURE__ */ _bind(FW, 'glBindBufferRange')
 export const glBindBufferRangeEXT = /* @__PURE__ */ _bind(FW, 'glBindBufferRangeEXT')
 export const glBindFragDataLocation = /* @__PURE__ */ _bind(FW, 'glBindFragDataLocation')
 export const glBindFragDataLocationEXT = /* @__PURE__ */ _bind(FW, 'glBindFragDataLocationEXT')
-export const glBindFragDataLocationIndexed = /* @__PURE__ */ _bind(FW, 'glBindFragDataLocationIndexed')
+export const glBindFragDataLocationIndexed = /* @__PURE__ */ _bind(
+	FW,
+	'glBindFragDataLocationIndexed',
+)
+
 export const glBindFramebuffer = /* @__PURE__ */ _bind(FW, 'glBindFramebuffer')
 export const glBindFramebufferEXT = /* @__PURE__ */ _bind(FW, 'glBindFramebufferEXT')
 export const glBindProgramARB = /* @__PURE__ */ _bind(FW, 'glBindProgramARB')
@@ -216,11 +224,23 @@ export const glCompressedTexImage2DARB = /* @__PURE__ */ _bind(FW, 'glCompressed
 export const glCompressedTexImage3D = /* @__PURE__ */ _bind(FW, 'glCompressedTexImage3D')
 export const glCompressedTexImage3DARB = /* @__PURE__ */ _bind(FW, 'glCompressedTexImage3DARB')
 export const glCompressedTexSubImage1D = /* @__PURE__ */ _bind(FW, 'glCompressedTexSubImage1D')
-export const glCompressedTexSubImage1DARB = /* @__PURE__ */ _bind(FW, 'glCompressedTexSubImage1DARB')
+export const glCompressedTexSubImage1DARB = /* @__PURE__ */ _bind(
+	FW,
+	'glCompressedTexSubImage1DARB',
+)
+
 export const glCompressedTexSubImage2D = /* @__PURE__ */ _bind(FW, 'glCompressedTexSubImage2D')
-export const glCompressedTexSubImage2DARB = /* @__PURE__ */ _bind(FW, 'glCompressedTexSubImage2DARB')
+export const glCompressedTexSubImage2DARB = /* @__PURE__ */ _bind(
+	FW,
+	'glCompressedTexSubImage2DARB',
+)
+
 export const glCompressedTexSubImage3D = /* @__PURE__ */ _bind(FW, 'glCompressedTexSubImage3D')
-export const glCompressedTexSubImage3DARB = /* @__PURE__ */ _bind(FW, 'glCompressedTexSubImage3DARB')
+export const glCompressedTexSubImage3DARB = /* @__PURE__ */ _bind(
+	FW,
+	'glCompressedTexSubImage3DARB',
+)
+
 export const glConvolutionFilter1D = /* @__PURE__ */ _bind(FW, 'glConvolutionFilter1D')
 export const glConvolutionFilter2D = /* @__PURE__ */ _bind(FW, 'glConvolutionFilter2D')
 export const glConvolutionParameterf = /* @__PURE__ */ _bind(FW, 'glConvolutionParameterf')
@@ -280,7 +300,11 @@ export const glDisableClientState = /* @__PURE__ */ _bind(FW, 'glDisableClientSt
 export const glDisableIndexedEXT = /* @__PURE__ */ _bind(FW, 'glDisableIndexedEXT')
 export const glDisableVertexAttribAPPLE = /* @__PURE__ */ _bind(FW, 'glDisableVertexAttribAPPLE')
 export const glDisableVertexAttribArray = /* @__PURE__ */ _bind(FW, 'glDisableVertexAttribArray')
-export const glDisableVertexAttribArrayARB = /* @__PURE__ */ _bind(FW, 'glDisableVertexAttribArrayARB')
+export const glDisableVertexAttribArrayARB = /* @__PURE__ */ _bind(
+	FW,
+	'glDisableVertexAttribArrayARB',
+)
+
 export const glDisablei = /* @__PURE__ */ _bind(FW, 'glDisablei')
 export const glDrawArrays = /* @__PURE__ */ _bind(FW, 'glDrawArrays')
 export const glDrawArraysIndirect = /* @__PURE__ */ _bind(FW, 'glDrawArraysIndirect')
@@ -295,14 +319,30 @@ export const glDrawElementsBaseVertex = /* @__PURE__ */ _bind(FW, 'glDrawElement
 export const glDrawElementsIndirect = /* @__PURE__ */ _bind(FW, 'glDrawElementsIndirect')
 export const glDrawElementsInstanced = /* @__PURE__ */ _bind(FW, 'glDrawElementsInstanced')
 export const glDrawElementsInstancedARB = /* @__PURE__ */ _bind(FW, 'glDrawElementsInstancedARB')
-export const glDrawElementsInstancedBaseVertex = /* @__PURE__ */ _bind(FW, 'glDrawElementsInstancedBaseVertex')
+export const glDrawElementsInstancedBaseVertex = /* @__PURE__ */ _bind(
+	FW,
+	'glDrawElementsInstancedBaseVertex',
+)
+
 export const glDrawPixels = /* @__PURE__ */ _bind(FW, 'glDrawPixels')
-export const glDrawRangeElementArrayAPPLE = /* @__PURE__ */ _bind(FW, 'glDrawRangeElementArrayAPPLE')
+export const glDrawRangeElementArrayAPPLE = /* @__PURE__ */ _bind(
+	FW,
+	'glDrawRangeElementArrayAPPLE',
+)
+
 export const glDrawRangeElements = /* @__PURE__ */ _bind(FW, 'glDrawRangeElements')
-export const glDrawRangeElementsBaseVertex = /* @__PURE__ */ _bind(FW, 'glDrawRangeElementsBaseVertex')
+export const glDrawRangeElementsBaseVertex = /* @__PURE__ */ _bind(
+	FW,
+	'glDrawRangeElementsBaseVertex',
+)
+
 export const glDrawRangeElementsEXT = /* @__PURE__ */ _bind(FW, 'glDrawRangeElementsEXT')
 export const glDrawTransformFeedback = /* @__PURE__ */ _bind(FW, 'glDrawTransformFeedback')
-export const glDrawTransformFeedbackStream = /* @__PURE__ */ _bind(FW, 'glDrawTransformFeedbackStream')
+export const glDrawTransformFeedbackStream = /* @__PURE__ */ _bind(
+	FW,
+	'glDrawTransformFeedbackStream',
+)
+
 export const glEdgeFlag = /* @__PURE__ */ _bind(FW, 'glEdgeFlag')
 export const glEdgeFlagPointer = /* @__PURE__ */ _bind(FW, 'glEdgeFlagPointer')
 export const glEdgeFlagv = /* @__PURE__ */ _bind(FW, 'glEdgeFlagv')
@@ -312,7 +352,11 @@ export const glEnableClientState = /* @__PURE__ */ _bind(FW, 'glEnableClientStat
 export const glEnableIndexedEXT = /* @__PURE__ */ _bind(FW, 'glEnableIndexedEXT')
 export const glEnableVertexAttribAPPLE = /* @__PURE__ */ _bind(FW, 'glEnableVertexAttribAPPLE')
 export const glEnableVertexAttribArray = /* @__PURE__ */ _bind(FW, 'glEnableVertexAttribArray')
-export const glEnableVertexAttribArrayARB = /* @__PURE__ */ _bind(FW, 'glEnableVertexAttribArrayARB')
+export const glEnableVertexAttribArrayARB = /* @__PURE__ */ _bind(
+	FW,
+	'glEnableVertexAttribArrayARB',
+)
+
 export const glEnablei = /* @__PURE__ */ _bind(FW, 'glEnablei')
 export const glEnd = /* @__PURE__ */ _bind(FW, 'glEnd')
 export const glEndConditionalRender = /* @__PURE__ */ _bind(FW, 'glEndConditionalRender')
@@ -343,9 +387,17 @@ export const glFinishObjectAPPLE = /* @__PURE__ */ _bind(FW, 'glFinishObjectAPPL
 export const glFinishRenderAPPLE = /* @__PURE__ */ _bind(FW, 'glFinishRenderAPPLE')
 export const glFlush = /* @__PURE__ */ _bind(FW, 'glFlush')
 export const glFlushMappedBufferRange = /* @__PURE__ */ _bind(FW, 'glFlushMappedBufferRange')
-export const glFlushMappedBufferRangeAPPLE = /* @__PURE__ */ _bind(FW, 'glFlushMappedBufferRangeAPPLE')
+export const glFlushMappedBufferRangeAPPLE = /* @__PURE__ */ _bind(
+	FW,
+	'glFlushMappedBufferRangeAPPLE',
+)
+
 export const glFlushRenderAPPLE = /* @__PURE__ */ _bind(FW, 'glFlushRenderAPPLE')
-export const glFlushVertexArrayRangeAPPLE = /* @__PURE__ */ _bind(FW, 'glFlushVertexArrayRangeAPPLE')
+export const glFlushVertexArrayRangeAPPLE = /* @__PURE__ */ _bind(
+	FW,
+	'glFlushVertexArrayRangeAPPLE',
+)
+
 export const glFogCoordPointer = /* @__PURE__ */ _bind(FW, 'glFogCoordPointer')
 export const glFogCoordPointerEXT = /* @__PURE__ */ _bind(FW, 'glFogCoordPointerEXT')
 export const glFogCoordd = /* @__PURE__ */ _bind(FW, 'glFogCoordd')
@@ -361,7 +413,11 @@ export const glFogfv = /* @__PURE__ */ _bind(FW, 'glFogfv')
 export const glFogi = /* @__PURE__ */ _bind(FW, 'glFogi')
 export const glFogiv = /* @__PURE__ */ _bind(FW, 'glFogiv')
 export const glFramebufferRenderbuffer = /* @__PURE__ */ _bind(FW, 'glFramebufferRenderbuffer')
-export const glFramebufferRenderbufferEXT = /* @__PURE__ */ _bind(FW, 'glFramebufferRenderbufferEXT')
+export const glFramebufferRenderbufferEXT = /* @__PURE__ */ _bind(
+	FW,
+	'glFramebufferRenderbufferEXT',
+)
+
 export const glFramebufferTexture = /* @__PURE__ */ _bind(FW, 'glFramebufferTexture')
 export const glFramebufferTexture1D = /* @__PURE__ */ _bind(FW, 'glFramebufferTexture1D')
 export const glFramebufferTexture1DEXT = /* @__PURE__ */ _bind(FW, 'glFramebufferTexture1DEXT')
@@ -372,7 +428,11 @@ export const glFramebufferTexture3DEXT = /* @__PURE__ */ _bind(FW, 'glFramebuffe
 export const glFramebufferTextureEXT = /* @__PURE__ */ _bind(FW, 'glFramebufferTextureEXT')
 export const glFramebufferTextureFaceEXT = /* @__PURE__ */ _bind(FW, 'glFramebufferTextureFaceEXT')
 export const glFramebufferTextureLayer = /* @__PURE__ */ _bind(FW, 'glFramebufferTextureLayer')
-export const glFramebufferTextureLayerEXT = /* @__PURE__ */ _bind(FW, 'glFramebufferTextureLayerEXT')
+export const glFramebufferTextureLayerEXT = /* @__PURE__ */ _bind(
+	FW,
+	'glFramebufferTextureLayerEXT',
+)
+
 export const glFrontFace = /* @__PURE__ */ _bind(FW, 'glFrontFace')
 export const glFrustum = /* @__PURE__ */ _bind(FW, 'glFrustum')
 export const glGenBuffers = /* @__PURE__ */ _bind(FW, 'glGenBuffers')
@@ -397,8 +457,16 @@ export const glGenerateMipmapEXT = /* @__PURE__ */ _bind(FW, 'glGenerateMipmapEX
 export const glGetActiveAttrib = /* @__PURE__ */ _bind(FW, 'glGetActiveAttrib')
 export const glGetActiveAttribARB = /* @__PURE__ */ _bind(FW, 'glGetActiveAttribARB')
 export const glGetActiveSubroutineName = /* @__PURE__ */ _bind(FW, 'glGetActiveSubroutineName')
-export const glGetActiveSubroutineUniformName = /* @__PURE__ */ _bind(FW, 'glGetActiveSubroutineUniformName')
-export const glGetActiveSubroutineUniformiv = /* @__PURE__ */ _bind(FW, 'glGetActiveSubroutineUniformiv')
+export const glGetActiveSubroutineUniformName = /* @__PURE__ */ _bind(
+	FW,
+	'glGetActiveSubroutineUniformName',
+)
+
+export const glGetActiveSubroutineUniformiv = /* @__PURE__ */ _bind(
+	FW,
+	'glGetActiveSubroutineUniformiv',
+)
+
 export const glGetActiveUniform = /* @__PURE__ */ _bind(FW, 'glGetActiveUniform')
 export const glGetActiveUniformARB = /* @__PURE__ */ _bind(FW, 'glGetActiveUniformARB')
 export const glGetActiveUniformBlockName = /* @__PURE__ */ _bind(FW, 'glGetActiveUniformBlockName')
@@ -436,8 +504,16 @@ export const glGetFloatv = /* @__PURE__ */ _bind(FW, 'glGetFloatv')
 export const glGetFragDataIndex = /* @__PURE__ */ _bind(FW, 'glGetFragDataIndex')
 export const glGetFragDataLocation = /* @__PURE__ */ _bind(FW, 'glGetFragDataLocation')
 export const glGetFragDataLocationEXT = /* @__PURE__ */ _bind(FW, 'glGetFragDataLocationEXT')
-export const glGetFramebufferAttachmentParameteriv = /* @__PURE__ */ _bind(FW, 'glGetFramebufferAttachmentParameteriv')
-export const glGetFramebufferAttachmentParameterivEXT = /* @__PURE__ */ _bind(FW, 'glGetFramebufferAttachmentParameterivEXT')
+export const glGetFramebufferAttachmentParameteriv = /* @__PURE__ */ _bind(
+	FW,
+	'glGetFramebufferAttachmentParameteriv',
+)
+
+export const glGetFramebufferAttachmentParameterivEXT = /* @__PURE__ */ _bind(
+	FW,
+	'glGetFramebufferAttachmentParameterivEXT',
+)
+
 export const glGetHandleARB = /* @__PURE__ */ _bind(FW, 'glGetHandleARB')
 export const glGetHistogram = /* @__PURE__ */ _bind(FW, 'glGetHistogram')
 export const glGetHistogramParameterfv = /* @__PURE__ */ _bind(FW, 'glGetHistogramParameterfv')
@@ -472,11 +548,27 @@ export const glGetPixelMapusv = /* @__PURE__ */ _bind(FW, 'glGetPixelMapusv')
 export const glGetPointerv = /* @__PURE__ */ _bind(FW, 'glGetPointerv')
 export const glGetPolygonStipple = /* @__PURE__ */ _bind(FW, 'glGetPolygonStipple')
 export const glGetProgramBinary = /* @__PURE__ */ _bind(FW, 'glGetProgramBinary')
-export const glGetProgramEnvParameterdvARB = /* @__PURE__ */ _bind(FW, 'glGetProgramEnvParameterdvARB')
-export const glGetProgramEnvParameterfvARB = /* @__PURE__ */ _bind(FW, 'glGetProgramEnvParameterfvARB')
+export const glGetProgramEnvParameterdvARB = /* @__PURE__ */ _bind(
+	FW,
+	'glGetProgramEnvParameterdvARB',
+)
+
+export const glGetProgramEnvParameterfvARB = /* @__PURE__ */ _bind(
+	FW,
+	'glGetProgramEnvParameterfvARB',
+)
+
 export const glGetProgramInfoLog = /* @__PURE__ */ _bind(FW, 'glGetProgramInfoLog')
-export const glGetProgramLocalParameterdvARB = /* @__PURE__ */ _bind(FW, 'glGetProgramLocalParameterdvARB')
-export const glGetProgramLocalParameterfvARB = /* @__PURE__ */ _bind(FW, 'glGetProgramLocalParameterfvARB')
+export const glGetProgramLocalParameterdvARB = /* @__PURE__ */ _bind(
+	FW,
+	'glGetProgramLocalParameterdvARB',
+)
+
+export const glGetProgramLocalParameterfvARB = /* @__PURE__ */ _bind(
+	FW,
+	'glGetProgramLocalParameterfvARB',
+)
+
 export const glGetProgramPipelineInfoLog = /* @__PURE__ */ _bind(FW, 'glGetProgramPipelineInfoLog')
 export const glGetProgramPipelineiv = /* @__PURE__ */ _bind(FW, 'glGetProgramPipelineiv')
 export const glGetProgramStageiv = /* @__PURE__ */ _bind(FW, 'glGetProgramStageiv')
@@ -494,8 +586,16 @@ export const glGetQueryObjectuiv = /* @__PURE__ */ _bind(FW, 'glGetQueryObjectui
 export const glGetQueryObjectuivARB = /* @__PURE__ */ _bind(FW, 'glGetQueryObjectuivARB')
 export const glGetQueryiv = /* @__PURE__ */ _bind(FW, 'glGetQueryiv')
 export const glGetQueryivARB = /* @__PURE__ */ _bind(FW, 'glGetQueryivARB')
-export const glGetRenderbufferParameteriv = /* @__PURE__ */ _bind(FW, 'glGetRenderbufferParameteriv')
-export const glGetRenderbufferParameterivEXT = /* @__PURE__ */ _bind(FW, 'glGetRenderbufferParameterivEXT')
+export const glGetRenderbufferParameteriv = /* @__PURE__ */ _bind(
+	FW,
+	'glGetRenderbufferParameteriv',
+)
+
+export const glGetRenderbufferParameterivEXT = /* @__PURE__ */ _bind(
+	FW,
+	'glGetRenderbufferParameterivEXT',
+)
+
 export const glGetSamplerParameterIiv = /* @__PURE__ */ _bind(FW, 'glGetSamplerParameterIiv')
 export const glGetSamplerParameterIuiv = /* @__PURE__ */ _bind(FW, 'glGetSamplerParameterIuiv')
 export const glGetSamplerParameterfv = /* @__PURE__ */ _bind(FW, 'glGetSamplerParameterfv')
@@ -509,7 +609,11 @@ export const glGetShaderiv = /* @__PURE__ */ _bind(FW, 'glGetShaderiv')
 export const glGetString = /* @__PURE__ */ _bind(FW, 'glGetString')
 export const glGetStringi = /* @__PURE__ */ _bind(FW, 'glGetStringi')
 export const glGetSubroutineIndex = /* @__PURE__ */ _bind(FW, 'glGetSubroutineIndex')
-export const glGetSubroutineUniformLocation = /* @__PURE__ */ _bind(FW, 'glGetSubroutineUniformLocation')
+export const glGetSubroutineUniformLocation = /* @__PURE__ */ _bind(
+	FW,
+	'glGetSubroutineUniformLocation',
+)
+
 export const glGetSynciv = /* @__PURE__ */ _bind(FW, 'glGetSynciv')
 export const glGetTexEnvfv = /* @__PURE__ */ _bind(FW, 'glGetTexEnvfv')
 export const glGetTexEnviv = /* @__PURE__ */ _bind(FW, 'glGetTexEnviv')
@@ -523,11 +627,23 @@ export const glGetTexParameterIiv = /* @__PURE__ */ _bind(FW, 'glGetTexParameter
 export const glGetTexParameterIivEXT = /* @__PURE__ */ _bind(FW, 'glGetTexParameterIivEXT')
 export const glGetTexParameterIuiv = /* @__PURE__ */ _bind(FW, 'glGetTexParameterIuiv')
 export const glGetTexParameterIuivEXT = /* @__PURE__ */ _bind(FW, 'glGetTexParameterIuivEXT')
-export const glGetTexParameterPointervAPPLE = /* @__PURE__ */ _bind(FW, 'glGetTexParameterPointervAPPLE')
+export const glGetTexParameterPointervAPPLE = /* @__PURE__ */ _bind(
+	FW,
+	'glGetTexParameterPointervAPPLE',
+)
+
 export const glGetTexParameterfv = /* @__PURE__ */ _bind(FW, 'glGetTexParameterfv')
 export const glGetTexParameteriv = /* @__PURE__ */ _bind(FW, 'glGetTexParameteriv')
-export const glGetTransformFeedbackVarying = /* @__PURE__ */ _bind(FW, 'glGetTransformFeedbackVarying')
-export const glGetTransformFeedbackVaryingEXT = /* @__PURE__ */ _bind(FW, 'glGetTransformFeedbackVaryingEXT')
+export const glGetTransformFeedbackVarying = /* @__PURE__ */ _bind(
+	FW,
+	'glGetTransformFeedbackVarying',
+)
+
+export const glGetTransformFeedbackVaryingEXT = /* @__PURE__ */ _bind(
+	FW,
+	'glGetTransformFeedbackVaryingEXT',
+)
+
 export const glGetUniformBlockIndex = /* @__PURE__ */ _bind(FW, 'glGetUniformBlockIndex')
 export const glGetUniformBufferSizeEXT = /* @__PURE__ */ _bind(FW, 'glGetUniformBufferSizeEXT')
 export const glGetUniformIndices = /* @__PURE__ */ _bind(FW, 'glGetUniformIndices')
@@ -548,7 +664,11 @@ export const glGetVertexAttribIuiv = /* @__PURE__ */ _bind(FW, 'glGetVertexAttri
 export const glGetVertexAttribIuivEXT = /* @__PURE__ */ _bind(FW, 'glGetVertexAttribIuivEXT')
 export const glGetVertexAttribLdv = /* @__PURE__ */ _bind(FW, 'glGetVertexAttribLdv')
 export const glGetVertexAttribPointerv = /* @__PURE__ */ _bind(FW, 'glGetVertexAttribPointerv')
-export const glGetVertexAttribPointervARB = /* @__PURE__ */ _bind(FW, 'glGetVertexAttribPointervARB')
+export const glGetVertexAttribPointervARB = /* @__PURE__ */ _bind(
+	FW,
+	'glGetVertexAttribPointervARB',
+)
+
 export const glGetVertexAttribdv = /* @__PURE__ */ _bind(FW, 'glGetVertexAttribdv')
 export const glGetVertexAttribdvARB = /* @__PURE__ */ _bind(FW, 'glGetVertexAttribdvARB')
 export const glGetVertexAttribfv = /* @__PURE__ */ _bind(FW, 'glGetVertexAttribfv')
@@ -596,7 +716,11 @@ export const glIsTexture = /* @__PURE__ */ _bind(FW, 'glIsTexture')
 export const glIsTransformFeedback = /* @__PURE__ */ _bind(FW, 'glIsTransformFeedback')
 export const glIsVertexArray = /* @__PURE__ */ _bind(FW, 'glIsVertexArray')
 export const glIsVertexArrayAPPLE = /* @__PURE__ */ _bind(FW, 'glIsVertexArrayAPPLE')
-export const glIsVertexAttribEnabledAPPLE = /* @__PURE__ */ _bind(FW, 'glIsVertexAttribEnabledAPPLE')
+export const glIsVertexAttribEnabledAPPLE = /* @__PURE__ */ _bind(
+	FW,
+	'glIsVertexAttribEnabledAPPLE',
+)
+
 export const glLabelObjectEXT = /* @__PURE__ */ _bind(FW, 'glLabelObjectEXT')
 export const glLightModelf = /* @__PURE__ */ _bind(FW, 'glLightModelf')
 export const glLightModelfv = /* @__PURE__ */ _bind(FW, 'glLightModelfv')
@@ -651,11 +775,23 @@ export const glMultTransposeMatrixf = /* @__PURE__ */ _bind(FW, 'glMultTranspose
 export const glMultTransposeMatrixfARB = /* @__PURE__ */ _bind(FW, 'glMultTransposeMatrixfARB')
 export const glMultiDrawArrays = /* @__PURE__ */ _bind(FW, 'glMultiDrawArrays')
 export const glMultiDrawArraysEXT = /* @__PURE__ */ _bind(FW, 'glMultiDrawArraysEXT')
-export const glMultiDrawElementArrayAPPLE = /* @__PURE__ */ _bind(FW, 'glMultiDrawElementArrayAPPLE')
+export const glMultiDrawElementArrayAPPLE = /* @__PURE__ */ _bind(
+	FW,
+	'glMultiDrawElementArrayAPPLE',
+)
+
 export const glMultiDrawElements = /* @__PURE__ */ _bind(FW, 'glMultiDrawElements')
-export const glMultiDrawElementsBaseVertex = /* @__PURE__ */ _bind(FW, 'glMultiDrawElementsBaseVertex')
+export const glMultiDrawElementsBaseVertex = /* @__PURE__ */ _bind(
+	FW,
+	'glMultiDrawElementsBaseVertex',
+)
+
 export const glMultiDrawElementsEXT = /* @__PURE__ */ _bind(FW, 'glMultiDrawElementsEXT')
-export const glMultiDrawRangeElementArrayAPPLE = /* @__PURE__ */ _bind(FW, 'glMultiDrawRangeElementArrayAPPLE')
+export const glMultiDrawRangeElementArrayAPPLE = /* @__PURE__ */ _bind(
+	FW,
+	'glMultiDrawRangeElementArrayAPPLE',
+)
+
 export const glMultiTexCoord1d = /* @__PURE__ */ _bind(FW, 'glMultiTexCoord1d')
 export const glMultiTexCoord1dARB = /* @__PURE__ */ _bind(FW, 'glMultiTexCoord1dARB')
 export const glMultiTexCoord1dv = /* @__PURE__ */ _bind(FW, 'glMultiTexCoord1dv')
@@ -773,12 +909,36 @@ export const glProgramEnvParameter4dARB = /* @__PURE__ */ _bind(FW, 'glProgramEn
 export const glProgramEnvParameter4dvARB = /* @__PURE__ */ _bind(FW, 'glProgramEnvParameter4dvARB')
 export const glProgramEnvParameter4fARB = /* @__PURE__ */ _bind(FW, 'glProgramEnvParameter4fARB')
 export const glProgramEnvParameter4fvARB = /* @__PURE__ */ _bind(FW, 'glProgramEnvParameter4fvARB')
-export const glProgramEnvParameters4fvEXT = /* @__PURE__ */ _bind(FW, 'glProgramEnvParameters4fvEXT')
-export const glProgramLocalParameter4dARB = /* @__PURE__ */ _bind(FW, 'glProgramLocalParameter4dARB')
-export const glProgramLocalParameter4dvARB = /* @__PURE__ */ _bind(FW, 'glProgramLocalParameter4dvARB')
-export const glProgramLocalParameter4fARB = /* @__PURE__ */ _bind(FW, 'glProgramLocalParameter4fARB')
-export const glProgramLocalParameter4fvARB = /* @__PURE__ */ _bind(FW, 'glProgramLocalParameter4fvARB')
-export const glProgramLocalParameters4fvEXT = /* @__PURE__ */ _bind(FW, 'glProgramLocalParameters4fvEXT')
+export const glProgramEnvParameters4fvEXT = /* @__PURE__ */ _bind(
+	FW,
+	'glProgramEnvParameters4fvEXT',
+)
+
+export const glProgramLocalParameter4dARB = /* @__PURE__ */ _bind(
+	FW,
+	'glProgramLocalParameter4dARB',
+)
+
+export const glProgramLocalParameter4dvARB = /* @__PURE__ */ _bind(
+	FW,
+	'glProgramLocalParameter4dvARB',
+)
+
+export const glProgramLocalParameter4fARB = /* @__PURE__ */ _bind(
+	FW,
+	'glProgramLocalParameter4fARB',
+)
+
+export const glProgramLocalParameter4fvARB = /* @__PURE__ */ _bind(
+	FW,
+	'glProgramLocalParameter4fvARB',
+)
+
+export const glProgramLocalParameters4fvEXT = /* @__PURE__ */ _bind(
+	FW,
+	'glProgramLocalParameters4fvEXT',
+)
+
 export const glProgramParameteri = /* @__PURE__ */ _bind(FW, 'glProgramParameteri')
 export const glProgramParameteriEXT = /* @__PURE__ */ _bind(FW, 'glProgramParameteriEXT')
 export const glProgramStringARB = /* @__PURE__ */ _bind(FW, 'glProgramStringARB')
@@ -878,8 +1038,16 @@ export const glReleaseShaderCompiler = /* @__PURE__ */ _bind(FW, 'glReleaseShade
 export const glRenderMode = /* @__PURE__ */ _bind(FW, 'glRenderMode')
 export const glRenderbufferStorage = /* @__PURE__ */ _bind(FW, 'glRenderbufferStorage')
 export const glRenderbufferStorageEXT = /* @__PURE__ */ _bind(FW, 'glRenderbufferStorageEXT')
-export const glRenderbufferStorageMultisample = /* @__PURE__ */ _bind(FW, 'glRenderbufferStorageMultisample')
-export const glRenderbufferStorageMultisampleEXT = /* @__PURE__ */ _bind(FW, 'glRenderbufferStorageMultisampleEXT')
+export const glRenderbufferStorageMultisample = /* @__PURE__ */ _bind(
+	FW,
+	'glRenderbufferStorageMultisample',
+)
+
+export const glRenderbufferStorageMultisampleEXT = /* @__PURE__ */ _bind(
+	FW,
+	'glRenderbufferStorageMultisampleEXT',
+)
+
 export const glResetHistogram = /* @__PURE__ */ _bind(FW, 'glResetHistogram')
 export const glResetMinmax = /* @__PURE__ */ _bind(FW, 'glResetMinmax')
 export const glResumeTransformFeedback = /* @__PURE__ */ _bind(FW, 'glResumeTransformFeedback')
@@ -1018,7 +1186,11 @@ export const glTexSubImage3D = /* @__PURE__ */ _bind(FW, 'glTexSubImage3D')
 export const glTextureBarrierNV = /* @__PURE__ */ _bind(FW, 'glTextureBarrierNV')
 export const glTextureRangeAPPLE = /* @__PURE__ */ _bind(FW, 'glTextureRangeAPPLE')
 export const glTransformFeedbackVaryings = /* @__PURE__ */ _bind(FW, 'glTransformFeedbackVaryings')
-export const glTransformFeedbackVaryingsEXT = /* @__PURE__ */ _bind(FW, 'glTransformFeedbackVaryingsEXT')
+export const glTransformFeedbackVaryingsEXT = /* @__PURE__ */ _bind(
+	FW,
+	'glTransformFeedbackVaryingsEXT',
+)
+
 export const glTranslated = /* @__PURE__ */ _bind(FW, 'glTranslated')
 export const glTranslatef = /* @__PURE__ */ _bind(FW, 'glTranslatef')
 export const glUniform1d = /* @__PURE__ */ _bind(FW, 'glUniform1d')
@@ -1133,7 +1305,11 @@ export const glVertex4i = /* @__PURE__ */ _bind(FW, 'glVertex4i')
 export const glVertex4iv = /* @__PURE__ */ _bind(FW, 'glVertex4iv')
 export const glVertex4s = /* @__PURE__ */ _bind(FW, 'glVertex4s')
 export const glVertex4sv = /* @__PURE__ */ _bind(FW, 'glVertex4sv')
-export const glVertexArrayParameteriAPPLE = /* @__PURE__ */ _bind(FW, 'glVertexArrayParameteriAPPLE')
+export const glVertexArrayParameteriAPPLE = /* @__PURE__ */ _bind(
+	FW,
+	'glVertexArrayParameteriAPPLE',
+)
+
 export const glVertexArrayRangeAPPLE = /* @__PURE__ */ _bind(FW, 'glVertexArrayRangeAPPLE')
 export const glVertexAttrib1d = /* @__PURE__ */ _bind(FW, 'glVertexAttrib1d')
 export const glVertexAttrib1dARB = /* @__PURE__ */ _bind(FW, 'glVertexAttrib1dARB')
@@ -1399,10 +1575,26 @@ export const gluUnProject4 = /* @__PURE__ */ _bind(FW, 'gluUnProject4')
 export const kCGLRendererATIRadeon8500ID = /* @__PURE__ */ _bind(FW, 'kCGLRendererATIRadeon8500ID')
 export const kCGLRendererATIRadeon9700ID = /* @__PURE__ */ _bind(FW, 'kCGLRendererATIRadeon9700ID')
 export const kCGLRendererATIRadeonID = /* @__PURE__ */ _bind(FW, 'kCGLRendererATIRadeonID')
-export const kCGLRendererATIRadeonX1000ID = /* @__PURE__ */ _bind(FW, 'kCGLRendererATIRadeonX1000ID')
-export const kCGLRendererATIRadeonX2000ID = /* @__PURE__ */ _bind(FW, 'kCGLRendererATIRadeonX2000ID')
-export const kCGLRendererATIRadeonX3000ID = /* @__PURE__ */ _bind(FW, 'kCGLRendererATIRadeonX3000ID')
-export const kCGLRendererATIRadeonX4000ID = /* @__PURE__ */ _bind(FW, 'kCGLRendererATIRadeonX4000ID')
+export const kCGLRendererATIRadeonX1000ID = /* @__PURE__ */ _bind(
+	FW,
+	'kCGLRendererATIRadeonX1000ID',
+)
+
+export const kCGLRendererATIRadeonX2000ID = /* @__PURE__ */ _bind(
+	FW,
+	'kCGLRendererATIRadeonX2000ID',
+)
+
+export const kCGLRendererATIRadeonX3000ID = /* @__PURE__ */ _bind(
+	FW,
+	'kCGLRendererATIRadeonX3000ID',
+)
+
+export const kCGLRendererATIRadeonX4000ID = /* @__PURE__ */ _bind(
+	FW,
+	'kCGLRendererATIRadeonX4000ID',
+)
+
 export const kCGLRendererATIRage128ID = /* @__PURE__ */ _bind(FW, 'kCGLRendererATIRage128ID')
 export const kCGLRendererATIRageProID = /* @__PURE__ */ _bind(FW, 'kCGLRendererATIRageProID')
 export const kCGLRendererAppleSWID = /* @__PURE__ */ _bind(FW, 'kCGLRendererAppleSWID')

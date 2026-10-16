@@ -6,7 +6,11 @@ export const MDLAnimatedQuaternionArray = /* @__PURE__ */ _bind(FW, 'MDLAnimated
 export const MDLAnimatedScalar = /* @__PURE__ */ _bind(FW, 'MDLAnimatedScalar')
 export const MDLAnimatedScalarArray = /* @__PURE__ */ _bind(FW, 'MDLAnimatedScalarArray')
 export const MDLAnimatedValue = /* @__PURE__ */ _bind(FW, 'MDLAnimatedValue')
-export const MDLAnimatedValueInterpolation = /* @__PURE__ */ _bind(FW, 'MDLAnimatedValueInterpolation')
+export const MDLAnimatedValueInterpolation = /* @__PURE__ */ _bind(
+	FW,
+	'MDLAnimatedValueInterpolation',
+)
+
 export const MDLAnimatedVector2 = /* @__PURE__ */ _bind(FW, 'MDLAnimatedVector2')
 export const MDLAnimatedVector3 = /* @__PURE__ */ _bind(FW, 'MDLAnimatedVector3')
 export const MDLAnimatedVector3Array = /* @__PURE__ */ _bind(FW, 'MDLAnimatedVector3Array')
@@ -28,18 +32,30 @@ export const MDLIndexBitDepth = /* @__PURE__ */ _bind(FW, 'MDLIndexBitDepth')
 export const MDLJointAnimation = /* @__PURE__ */ _bind(FW, 'MDLJointAnimation')
 export const MDLLight = /* @__PURE__ */ _bind(FW, 'MDLLight')
 export const MDLLightProbe = /* @__PURE__ */ _bind(FW, 'MDLLightProbe')
-export const MDLLightProbeIrradianceDataSource = /* @__PURE__ */ _bind(FW, 'MDLLightProbeIrradianceDataSource')
+export const MDLLightProbeIrradianceDataSource = /* @__PURE__ */ _bind(
+	FW,
+	'MDLLightProbeIrradianceDataSource',
+)
+
 export const MDLLightType = /* @__PURE__ */ _bind(FW, 'MDLLightType')
 export const MDLMaterial = /* @__PURE__ */ _bind(FW, 'MDLMaterial')
 export const MDLMaterialFace = /* @__PURE__ */ _bind(FW, 'MDLMaterialFace')
 export const MDLMaterialMipMapFilterMode = /* @__PURE__ */ _bind(FW, 'MDLMaterialMipMapFilterMode')
 export const MDLMaterialProperty = /* @__PURE__ */ _bind(FW, 'MDLMaterialProperty')
-export const MDLMaterialPropertyConnection = /* @__PURE__ */ _bind(FW, 'MDLMaterialPropertyConnection')
+export const MDLMaterialPropertyConnection = /* @__PURE__ */ _bind(
+	FW,
+	'MDLMaterialPropertyConnection',
+)
+
 export const MDLMaterialPropertyGraph = /* @__PURE__ */ _bind(FW, 'MDLMaterialPropertyGraph')
 export const MDLMaterialPropertyNode = /* @__PURE__ */ _bind(FW, 'MDLMaterialPropertyNode')
 export const MDLMaterialPropertyType = /* @__PURE__ */ _bind(FW, 'MDLMaterialPropertyType')
 export const MDLMaterialSemantic = /* @__PURE__ */ _bind(FW, 'MDLMaterialSemantic')
-export const MDLMaterialTextureFilterMode = /* @__PURE__ */ _bind(FW, 'MDLMaterialTextureFilterMode')
+export const MDLMaterialTextureFilterMode = /* @__PURE__ */ _bind(
+	FW,
+	'MDLMaterialTextureFilterMode',
+)
+
 export const MDLMaterialTextureWrapMode = /* @__PURE__ */ _bind(FW, 'MDLMaterialTextureWrapMode')
 export const MDLMatrix4x4Array = /* @__PURE__ */ _bind(FW, 'MDLMatrix4x4Array')
 export const MDLMesh = /* @__PURE__ */ _bind(FW, 'MDLMesh')
@@ -61,7 +77,11 @@ export const MDLPackedJointAnimation = /* @__PURE__ */ _bind(FW, 'MDLPackedJoint
 export const MDLPathAssetResolver = /* @__PURE__ */ _bind(FW, 'MDLPathAssetResolver')
 export const MDLPhotometricLight = /* @__PURE__ */ _bind(FW, 'MDLPhotometricLight')
 export const MDLPhysicallyPlausibleLight = /* @__PURE__ */ _bind(FW, 'MDLPhysicallyPlausibleLight')
-export const MDLPhysicallyPlausibleScatteringFunction = /* @__PURE__ */ _bind(FW, 'MDLPhysicallyPlausibleScatteringFunction')
+export const MDLPhysicallyPlausibleScatteringFunction = /* @__PURE__ */ _bind(
+	FW,
+	'MDLPhysicallyPlausibleScatteringFunction',
+)
+
 export const MDLProbePlacement = /* @__PURE__ */ _bind(FW, 'MDLProbePlacement')
 export const MDLRelativeAssetResolver = /* @__PURE__ */ _bind(FW, 'MDLRelativeAssetResolver')
 export const MDLScatteringFunction = /* @__PURE__ */ _bind(FW, 'MDLScatteringFunction')
@@ -89,22 +109,58 @@ export const MDLTransformStack = /* @__PURE__ */ _bind(FW, 'MDLTransformStack')
 export const MDLTransformTranslateOp = /* @__PURE__ */ _bind(FW, 'MDLTransformTranslateOp')
 export const MDLURLTexture = /* @__PURE__ */ _bind(FW, 'MDLURLTexture')
 export const MDLVertexAttribute = /* @__PURE__ */ _bind(FW, 'MDLVertexAttribute')
-export const MDLVertexAttributeAnisotropy = /* @__PURE__ */ _bind(FW, 'MDLVertexAttributeAnisotropy')
+export const MDLVertexAttributeAnisotropy = /* @__PURE__ */ _bind(
+	FW,
+	'MDLVertexAttributeAnisotropy',
+)
+
 export const MDLVertexAttributeBinormal = /* @__PURE__ */ _bind(FW, 'MDLVertexAttributeBinormal')
 export const MDLVertexAttributeBitangent = /* @__PURE__ */ _bind(FW, 'MDLVertexAttributeBitangent')
 export const MDLVertexAttributeColor = /* @__PURE__ */ _bind(FW, 'MDLVertexAttributeColor')
 export const MDLVertexAttributeData = /* @__PURE__ */ _bind(FW, 'MDLVertexAttributeData')
-export const MDLVertexAttributeEdgeCrease = /* @__PURE__ */ _bind(FW, 'MDLVertexAttributeEdgeCrease')
-export const MDLVertexAttributeJointIndices = /* @__PURE__ */ _bind(FW, 'MDLVertexAttributeJointIndices')
-export const MDLVertexAttributeJointWeights = /* @__PURE__ */ _bind(FW, 'MDLVertexAttributeJointWeights')
+export const MDLVertexAttributeEdgeCrease = /* @__PURE__ */ _bind(
+	FW,
+	'MDLVertexAttributeEdgeCrease',
+)
+
+export const MDLVertexAttributeJointIndices = /* @__PURE__ */ _bind(
+	FW,
+	'MDLVertexAttributeJointIndices',
+)
+
+export const MDLVertexAttributeJointWeights = /* @__PURE__ */ _bind(
+	FW,
+	'MDLVertexAttributeJointWeights',
+)
+
 export const MDLVertexAttributeNormal = /* @__PURE__ */ _bind(FW, 'MDLVertexAttributeNormal')
-export const MDLVertexAttributeOcclusionValue = /* @__PURE__ */ _bind(FW, 'MDLVertexAttributeOcclusionValue')
+export const MDLVertexAttributeOcclusionValue = /* @__PURE__ */ _bind(
+	FW,
+	'MDLVertexAttributeOcclusionValue',
+)
+
 export const MDLVertexAttributePosition = /* @__PURE__ */ _bind(FW, 'MDLVertexAttributePosition')
-export const MDLVertexAttributeShadingBasisU = /* @__PURE__ */ _bind(FW, 'MDLVertexAttributeShadingBasisU')
-export const MDLVertexAttributeShadingBasisV = /* @__PURE__ */ _bind(FW, 'MDLVertexAttributeShadingBasisV')
-export const MDLVertexAttributeSubdivisionStencil = /* @__PURE__ */ _bind(FW, 'MDLVertexAttributeSubdivisionStencil')
+export const MDLVertexAttributeShadingBasisU = /* @__PURE__ */ _bind(
+	FW,
+	'MDLVertexAttributeShadingBasisU',
+)
+
+export const MDLVertexAttributeShadingBasisV = /* @__PURE__ */ _bind(
+	FW,
+	'MDLVertexAttributeShadingBasisV',
+)
+
+export const MDLVertexAttributeSubdivisionStencil = /* @__PURE__ */ _bind(
+	FW,
+	'MDLVertexAttributeSubdivisionStencil',
+)
+
 export const MDLVertexAttributeTangent = /* @__PURE__ */ _bind(FW, 'MDLVertexAttributeTangent')
-export const MDLVertexAttributeTextureCoordinate = /* @__PURE__ */ _bind(FW, 'MDLVertexAttributeTextureCoordinate')
+export const MDLVertexAttributeTextureCoordinate = /* @__PURE__ */ _bind(
+	FW,
+	'MDLVertexAttributeTextureCoordinate',
+)
+
 export const MDLVertexBufferLayout = /* @__PURE__ */ _bind(FW, 'MDLVertexBufferLayout')
 export const MDLVertexDescriptor = /* @__PURE__ */ _bind(FW, 'MDLVertexDescriptor')
 export const MDLVertexFormat = /* @__PURE__ */ _bind(FW, 'MDLVertexFormat')
@@ -114,5 +170,12 @@ export const kUTType3dObject = /* @__PURE__ */ _bind(FW, 'kUTType3dObject')
 export const kUTTypeAlembic = /* @__PURE__ */ _bind(FW, 'kUTTypeAlembic')
 export const kUTTypePolygon = /* @__PURE__ */ _bind(FW, 'kUTTypePolygon')
 export const kUTTypeStereolithography = /* @__PURE__ */ _bind(FW, 'kUTTypeStereolithography')
-export const kUTTypeUniversalSceneDescription = /* @__PURE__ */ _bind(FW, 'kUTTypeUniversalSceneDescription')
-export const kUTTypeUniversalSceneDescriptionMobile = /* @__PURE__ */ _bind(FW, 'kUTTypeUniversalSceneDescriptionMobile')
+export const kUTTypeUniversalSceneDescription = /* @__PURE__ */ _bind(
+	FW,
+	'kUTTypeUniversalSceneDescription',
+)
+
+export const kUTTypeUniversalSceneDescriptionMobile = /* @__PURE__ */ _bind(
+	FW,
+	'kUTTypeUniversalSceneDescriptionMobile',
+)

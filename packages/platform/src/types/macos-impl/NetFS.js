@@ -1,7 +1,11 @@
 import { _bind } from './_rt.js'
 const FW = '/System/Library/Frameworks/NetFS.framework/NetFS'
 export const NetFSCFStringtoCString = /* @__PURE__ */ _bind(FW, 'NetFSCFStringtoCString')
-export const NetFSCopyURLForRemountingVolume = /* @__PURE__ */ _bind(FW, 'NetFSCopyURLForRemountingVolume')
+export const NetFSCopyURLForRemountingVolume = /* @__PURE__ */ _bind(
+	FW,
+	'NetFSCopyURLForRemountingVolume',
+)
+
 export const NetFSInterface = /* @__PURE__ */ _bind(FW, 'NetFSInterface')
 export const NetFSInterface_AddRef = /* @__PURE__ */ _bind(FW, 'NetFSInterface_AddRef')
 export const NetFSInterface_Release = /* @__PURE__ */ _bind(FW, 'NetFSInterface_Release')

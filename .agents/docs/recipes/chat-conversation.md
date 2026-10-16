@@ -82,7 +82,8 @@ import { useState } from 'octane'
 
 export function DraftExample() {
 	const [draft, setDraft] = useState<ChatComposerDraft>({ text: '', tokens: [] })
-	const save = () => localStorage.setItem('draft', JSON.stringify(serializeChatComposerDraft(draft)))
+	const save = () =>
+		localStorage.setItem('draft', JSON.stringify(serializeChatComposerDraft(draft)))
 	const load = () => {
 		const raw = localStorage.getItem('draft')
 		if (raw) setDraft(deserializeChatComposerDraft(JSON.parse(raw)))

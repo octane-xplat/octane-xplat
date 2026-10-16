@@ -44,10 +44,12 @@ export function openBottomSheetWithOwner(
 	owner: ContentOwner | null,
 	...[Component, params, options = {}]: Parameters<OpenBottomSheet>
 ): BottomSheetHandle {
-	if (owner?.disposed)
+	if (owner?.disposed) {
 		return Object.assign(Promise.reject(new Error('The content outlet has been removed')), {
 			close() {},
 		}) as BottomSheetHandle
+	}
+
 	let closeSheet: ((result?: ModalOpenResult) => void) | undefined
 	const handle = new Promise<ModalOpenResult>((resolve) => {
 		const rl = owner ? currentRootLayoutFor(owner.host) : topRootLayout()
@@ -137,10 +139,15 @@ export function openBottomSheetWithOwner(
 			(options.hasScrim ?? true) ? { shadeCover: { opacity: 0.4, tapToClose: true } } : undefined
 
 		afterContentCommit(root, () => {
-			if (finished) return
+			if (finished) {
+				return
+			}
+
 			rl.open(host, openOptions)
 				.then(() => {
-					if (!finished) detents.enter()
+					if (!finished) {
+						detents.enter()
+					}
 				})
 				.catch((error: unknown) => {
 					console.error('[openBottomSheet] open failed', error)

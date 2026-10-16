@@ -623,6 +623,7 @@ export type {
 	UseKeyboardInsetOptions,
 	UseMeasureOptions,
 } from './props'
+
 /** Loading indicator, exported under Astryx's component name. */
 export { ActivityIndicator as Spinner } from './ActivityIndicator'
 export { Meter } from './Meter'
@@ -638,6 +639,7 @@ export type {
 	IconNameRegistry,
 	IconRegistryProviderProps,
 } from './props'
+
 export type {
 	ActivityIndicatorProps,
 	HeadingProps,
@@ -716,7 +718,6 @@ export { copyText } from './clipboard-write'
 export { refList, mergedRef } from './ref-list'
 export type { FlatRef } from './ref-list'
 
-
 export { BottomSheet, BottomSheetSwitcher } from './BottomSheet'
 export { openBottomSheet, closeBottomSheet } from './bottom-sheet-service'
 export type {
@@ -738,6 +739,7 @@ export {
 	registerIndicators,
 	indicatorScope,
 } from './indicators'
+
 export { useIndicator } from './use-indicator'
 
 export type {

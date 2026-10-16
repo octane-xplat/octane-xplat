@@ -42,10 +42,7 @@ if (!workspaceRoot || !agentDir || !socketPath || !descriptorPath) {
 	process.exit(2)
 }
 
-const IDLE_MS = Math.max(
-	250,
-	Number(process.env.XPLAT_AGENT_HOST_IDLE_MS ?? 120_000) || 120_000,
-)
+const IDLE_MS = Math.max(250, Number(process.env.XPLAT_AGENT_HOST_IDLE_MS ?? 120_000) || 120_000)
 
 const token = randomUUID()
 const startedAt = new Date().toISOString()
@@ -109,9 +106,7 @@ const METHODS = {
 
 	'jobs.cancel': (params) => {
 		const job = context.jobs.cancel(params.jobId)
-		return job
-			? { job }
-			: { error: contractError('not_found', `No job "${params.jobId}".`) }
+		return job ? { job } : { error: contractError('not_found', `No job "${params.jobId}".`) }
 	},
 
 	'inspection.inspect': (params) => context.inspection.inspect(params),
@@ -182,9 +177,7 @@ const bindRequestApp = async (appId) => {
 
 const hasLiveWork = () =>
 	context.sessions.list().some((session) => session.state !== 'stopped') ||
-	context.jobs
-		.list()
-		.some((job) => ['queued', 'running', 'cancelling'].includes(job.state))
+	context.jobs.list().some((job) => ['queued', 'running', 'cancelling'].includes(job.state))
 
 let idleTimer = null
 const armIdle = () => {

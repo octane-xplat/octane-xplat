@@ -8,15 +8,46 @@ import type { CGPoint, CGRect, CGSize, CGVector } from './CoreFoundation'
 
 import type { CIFilter } from './CoreImage'
 
-import type { NSArray, NSAttributedString, NSCoder, NSCopying, NSData, NSDictionary, NSError, NSMutableDictionary, NSSecureCoding, NSSet, NSURL } from './Foundation'
+import type {
+	NSArray,
+	NSAttributedString,
+	NSCoder,
+	NSCopying,
+	NSData,
+	NSDictionary,
+	NSError,
+	NSMutableDictionary,
+	NSSecureCoding,
+	NSSet,
+	NSURL,
+} from './Foundation'
 
-import type { _GLKMatrix2, _GLKMatrix3, _GLKMatrix4, _GLKVector2, _GLKVector3, _GLKVector4 } from './GLKit'
+import type {
+	_GLKMatrix2,
+	_GLKMatrix3,
+	_GLKMatrix4,
+	_GLKVector2,
+	_GLKVector3,
+	_GLKVector4,
+} from './GLKit'
 
 import type { GKEntity, GKNoiseMap, GKSceneRootNodeType } from './GameplayKit'
 
-import type { MTLCommandBuffer, MTLCommandQueue, MTLDevice, MTLRenderCommandEncoder, MTLRenderPassDescriptor } from './Metal'
+import type {
+	MTLCommandBuffer,
+	MTLCommandQueue,
+	MTLDevice,
+	MTLRenderCommandEncoder,
+	MTLRenderPassDescriptor,
+} from './Metal'
 
-import type { NSObjectProtocol, simd_float2x2, simd_float3x3, simd_float4x4, simd_quatf } from './Runtime'
+import type {
+	NSObjectProtocol,
+	simd_float2x2,
+	simd_float3x3,
+	simd_float4x4,
+	simd_quatf,
+} from './Runtime'
 
 import type { SCNNode, SCNScene } from './SceneKit'
 
@@ -30,2187 +61,2767 @@ import { NSObject } from './Runtime'
 
 import { NativeObject } from './objc-runtime'
 
-
-
 export declare const SKRepeatMode: {
-  Clamp: 1,
-  Loop: 2,
-};
+	Clamp: 1
+	Loop: 2
+}
 
 export declare const SKParticleRenderOrder: {
-  OldestLast: 0,
-  OldestFirst: 1,
-  DontCare: 2,
-};
+	OldestLast: 0
+	OldestFirst: 1
+	DontCare: 2
+}
 
 export declare const SKLabelVerticalAlignmentMode: {
-  Baseline: 0,
-  Center: 1,
-  Top: 2,
-  Bottom: 3,
-};
+	Baseline: 0
+	Center: 1
+	Top: 2
+	Bottom: 3
+}
 
 export declare const SKLabelHorizontalAlignmentMode: {
-  Center: 0,
-  Left: 1,
-  Right: 2,
-};
+	Center: 0
+	Left: 1
+	Right: 2
+}
 
 export declare const SKTileSetType: {
-  Grid: 0,
-  Isometric: 1,
-  HexagonalFlat: 2,
-  HexagonalPointy: 3,
-};
+	Grid: 0
+	Isometric: 1
+	HexagonalFlat: 2
+	HexagonalPointy: 3
+}
 
 export declare const SKTileDefinitionRotation: {
-  Rotation0: 0,
-  Rotation90: 1,
-  Rotation180: 2,
-  Rotation270: 3,
-};
+	Rotation0: 0
+	Rotation90: 1
+	Rotation180: 2
+	Rotation270: 3
+}
 
 export declare const SKAttributeType: {
-  None: 0,
-  Float: 1,
-  VectorFloat2: 2,
-  VectorFloat3: 3,
-  VectorFloat4: 4,
-  HalfFloat: 5,
-  VectorHalfFloat2: 6,
-  VectorHalfFloat3: 7,
-  VectorHalfFloat4: 8,
-};
+	None: 0
+	Float: 1
+	VectorFloat2: 2
+	VectorFloat3: 3
+	VectorFloat4: 4
+	HalfFloat: 5
+	VectorHalfFloat2: 6
+	VectorHalfFloat3: 7
+	VectorHalfFloat4: 8
+}
 
 export declare const SKTextureFilteringMode: {
-  Nearest: 0,
-  Linear: 1,
-};
+	Nearest: 0
+	Linear: 1
+}
 
 export declare const SKInterpolationMode: {
-  Linear: 1,
-  Spline: 2,
-  Step: 3,
-};
+	Linear: 1
+	Spline: 2
+	Step: 3
+}
 
 export declare const SKActionTimingMode: {
-  Linear: 0,
-  EaseIn: 1,
-  EaseOut: 2,
-  EaseInEaseOut: 3,
-};
+	Linear: 0
+	EaseIn: 1
+	EaseOut: 2
+	EaseInEaseOut: 3
+}
 
 export declare const SKBlendMode: {
-  Alpha: 0,
-  Add: 1,
-  Subtract: 2,
-  Multiply: 3,
-  MultiplyX2: 4,
-  Screen: 5,
-  Replace: 6,
-  MultiplyAlpha: 7,
-};
+	Alpha: 0
+	Add: 1
+	Subtract: 2
+	Multiply: 3
+	MultiplyX2: 4
+	Screen: 5
+	Replace: 6
+	MultiplyAlpha: 7
+}
 
 export declare const SKUniformType: {
-  None: 0,
-  Float: 1,
-  FloatVector2: 2,
-  FloatVector3: 3,
-  FloatVector4: 4,
-  FloatMatrix2: 5,
-  FloatMatrix3: 6,
-  FloatMatrix4: 7,
-  Texture: 8,
-};
+	None: 0
+	Float: 1
+	FloatVector2: 2
+	FloatVector3: 3
+	FloatVector4: 4
+	FloatMatrix2: 5
+	FloatMatrix3: 6
+	FloatMatrix4: 7
+	Texture: 8
+}
 
 export declare const SKTransitionDirection: {
-  Up: 0,
-  Down: 1,
-  Right: 2,
-  Left: 3,
-};
+	Up: 0
+	Down: 1
+	Right: 2
+	Left: 3
+}
 
 export declare const SKTileAdjacencyMask: {
-  AdjacencyUp: 1,
-  AdjacencyUpperRight: 2,
-  AdjacencyRight: 4,
-  AdjacencyLowerRight: 8,
-  AdjacencyDown: 16,
-  AdjacencyLowerLeft: 32,
-  AdjacencyLeft: 64,
-  AdjacencyUpperLeft: 128,
-  AdjacencyAll: 255,
-  HexFlatAdjacencyUp: 1,
-  HexFlatAdjacencyUpperRight: 2,
-  HexFlatAdjacencyLowerRight: 4,
-  HexFlatAdjacencyDown: 8,
-  HexFlatAdjacencyLowerLeft: 16,
-  HexFlatAdjacencyUpperLeft: 32,
-  HexFlatAdjacencyAll: 63,
-  HexPointyAdjacencyUpperLeft: 1,
-  HexPointyAdjacencyUpperRight: 2,
-  HexPointyAdjacencyRight: 4,
-  HexPointyAdjacencyLowerRight: 8,
-  HexPointyAdjacencyLowerLeft: 16,
-  HexPointyAdjacencyLeft: 32,
-  HexPointyAdjacencyAdd: 63,
-  AdjacencyUpEdge: 124,
-  AdjacencyUpperRightEdge: 112,
-  AdjacencyRightEdge: 241,
-  AdjacencyLowerRightEdge: 193,
-  AdjacencyDownEdge: 199,
-  AdjacencyLowerLeftEdge: 7,
-  AdjacencyLeftEdge: 31,
-  AdjacencyUpperLeftEdge: 28,
-  AdjacencyUpperRightCorner: 223,
-  AdjacencyLowerRightCorner: 127,
-  AdjacencyLowerLeftCorner: 253,
-  AdjacencyUpperLeftCorner: 247,
-};
+	AdjacencyUp: 1
+	AdjacencyUpperRight: 2
+	AdjacencyRight: 4
+	AdjacencyLowerRight: 8
+	AdjacencyDown: 16
+	AdjacencyLowerLeft: 32
+	AdjacencyLeft: 64
+	AdjacencyUpperLeft: 128
+	AdjacencyAll: 255
+	HexFlatAdjacencyUp: 1
+	HexFlatAdjacencyUpperRight: 2
+	HexFlatAdjacencyLowerRight: 4
+	HexFlatAdjacencyDown: 8
+	HexFlatAdjacencyLowerLeft: 16
+	HexFlatAdjacencyUpperLeft: 32
+	HexFlatAdjacencyAll: 63
+	HexPointyAdjacencyUpperLeft: 1
+	HexPointyAdjacencyUpperRight: 2
+	HexPointyAdjacencyRight: 4
+	HexPointyAdjacencyLowerRight: 8
+	HexPointyAdjacencyLowerLeft: 16
+	HexPointyAdjacencyLeft: 32
+	HexPointyAdjacencyAdd: 63
+	AdjacencyUpEdge: 124
+	AdjacencyUpperRightEdge: 112
+	AdjacencyRightEdge: 241
+	AdjacencyLowerRightEdge: 193
+	AdjacencyDownEdge: 199
+	AdjacencyLowerLeftEdge: 7
+	AdjacencyLeftEdge: 31
+	AdjacencyUpperLeftEdge: 28
+	AdjacencyUpperRightCorner: 223
+	AdjacencyLowerRightCorner: 127
+	AdjacencyLowerLeftCorner: 253
+	AdjacencyUpperLeftCorner: 247
+}
 
 export declare const SKSceneScaleMode: {
-  Fill: 0,
-  AspectFill: 1,
-  AspectFit: 2,
-  ResizeFill: 3,
-};
+	Fill: 0
+	AspectFill: 1
+	AspectFit: 2
+	ResizeFill: 3
+}
 
 export declare interface SKPhysicsContactDelegate extends NSObjectProtocol {
-  didBeginContact?(contact: SKPhysicsContact): void;
+	didBeginContact?(contact: SKPhysicsContact): void
 
-  didEndContact?(contact: SKPhysicsContact): void;
+	didEndContact?(contact: SKPhysicsContact): void
 }
 
-export declare class SKPhysicsContactDelegate extends NativeObject implements SKPhysicsContactDelegate {
-}
+export declare class SKPhysicsContactDelegate
+	extends NativeObject
+	implements SKPhysicsContactDelegate {}
 
 export declare interface SKViewDelegate extends NSObjectProtocol {
-  viewShouldRenderAtTime?(view: SKView, time: number): boolean;
+	viewShouldRenderAtTime?(view: SKView, time: number): boolean
 }
 
-export declare class SKViewDelegate extends NativeObject implements SKViewDelegate {
-}
+export declare class SKViewDelegate extends NativeObject implements SKViewDelegate {}
 
 export declare interface SKSceneDelegate extends NSObjectProtocol {
-  updateForScene?(currentTime: number, scene: SKScene): void;
+	updateForScene?(currentTime: number, scene: SKScene): void
 
-  didEvaluateActionsForScene?(scene: SKScene): void;
+	didEvaluateActionsForScene?(scene: SKScene): void
 
-  didSimulatePhysicsForScene?(scene: SKScene): void;
+	didSimulatePhysicsForScene?(scene: SKScene): void
 
-  didApplyConstraintsForScene?(scene: SKScene): void;
+	didApplyConstraintsForScene?(scene: SKScene): void
 
-  didFinishUpdateForScene?(scene: SKScene): void;
+	didFinishUpdateForScene?(scene: SKScene): void
 }
 
-export declare class SKSceneDelegate extends NativeObject implements SKSceneDelegate {
-}
+export declare class SKSceneDelegate extends NativeObject implements SKSceneDelegate {}
 
 export declare interface SKWarpable extends NSObjectProtocol {
-  warpGeometry: SKWarpGeometry;
+	warpGeometry: SKWarpGeometry
 
-  subdivisionLevels: number;
+	subdivisionLevels: number
 }
 
-export declare class SKWarpable extends NativeObject implements SKWarpable {
-}
+export declare class SKWarpable extends NativeObject implements SKWarpable {}
 
 export declare class SKReachConstraints extends NSObject implements NSSecureCoding {
-  lowerAngleLimit: number;
+	lowerAngleLimit: number
 
-  upperAngleLimit: number;
+	upperAngleLimit: number
 
-  initWithLowerAngleLimitUpperAngleLimit(lowerAngleLimit: number, upperAngleLimit: number): this;
+	initWithLowerAngleLimitUpperAngleLimit(lowerAngleLimit: number, upperAngleLimit: number): this
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 export declare class SKLabelNode extends SKNode {
-  static labelNodeWithText<This extends abstract new (...args: any) => any>(this: This, text: string | null): InstanceType<This>;
+	static labelNodeWithText<This extends abstract new (...args: any) => any>(
+		this: This,
+		text: string | null,
+	): InstanceType<This>
 
-  static labelNodeWithAttributedText<This extends abstract new (...args: any) => any>(this: This, attributedText: NSAttributedString | null): InstanceType<This>;
+	static labelNodeWithAttributedText<This extends abstract new (...args: any) => any>(
+		this: This,
+		attributedText: NSAttributedString | null,
+	): InstanceType<This>
 
-  static labelNodeWithFontNamed<This extends abstract new (...args: any) => any>(this: This, fontName: string | null): InstanceType<This>;
+	static labelNodeWithFontNamed<This extends abstract new (...args: any) => any>(
+		this: This,
+		fontName: string | null,
+	): InstanceType<This>
 
-  initWithFontNamed(fontName: string | null): this;
+	initWithFontNamed(fontName: string | null): this
 
-  verticalAlignmentMode: interop.Enum<typeof SKLabelVerticalAlignmentMode>;
+	verticalAlignmentMode: interop.Enum<typeof SKLabelVerticalAlignmentMode>
 
-  horizontalAlignmentMode: interop.Enum<typeof SKLabelHorizontalAlignmentMode>;
+	horizontalAlignmentMode: interop.Enum<typeof SKLabelHorizontalAlignmentMode>
 
-  numberOfLines: number;
+	numberOfLines: number
 
-  lineBreakMode: interop.Enum<typeof NSLineBreakMode>;
+	lineBreakMode: interop.Enum<typeof NSLineBreakMode>
 
-  preferredMaxLayoutWidth: number;
+	preferredMaxLayoutWidth: number
 
-  fontName: string;
+	fontName: string
 
-  text: string;
+	text: string
 
-  attributedText: NSAttributedString;
+	attributedText: NSAttributedString
 
-  fontSize: number;
+	fontSize: number
 
-  fontColor: NSColor;
+	fontColor: NSColor
 
-  colorBlendFactor: number;
+	colorBlendFactor: number
 
-  color: NSColor;
+	color: NSColor
 
-  blendMode: interop.Enum<typeof SKBlendMode>;
+	blendMode: interop.Enum<typeof SKBlendMode>
 }
 
 export declare class SKPhysicsJointSpring extends SKPhysicsJoint {
-  static jointWithBodyABodyBAnchorAAnchorB(bodyA: SKPhysicsBody, bodyB: SKPhysicsBody, anchorA: CGPoint, anchorB: CGPoint): SKPhysicsJointSpring;
+	static jointWithBodyABodyBAnchorAAnchorB(
+		bodyA: SKPhysicsBody,
+		bodyB: SKPhysicsBody,
+		anchorA: CGPoint,
+		anchorB: CGPoint,
+	): SKPhysicsJointSpring
 
-  damping: number;
+	damping: number
 
-  frequency: number;
+	frequency: number
 }
 
 export declare class SKSpriteNode extends SKNode implements SKWarpable {
-  static spriteNodeWithTextureSize<This extends abstract new (...args: any) => any>(this: This, texture: SKTexture | null, size: CGSize): InstanceType<This>;
+	static spriteNodeWithTextureSize<This extends abstract new (...args: any) => any>(
+		this: This,
+		texture: SKTexture | null,
+		size: CGSize,
+	): InstanceType<This>
 
-  static spriteNodeWithTexture<This extends abstract new (...args: any) => any>(this: This, texture: SKTexture | null): InstanceType<This>;
+	static spriteNodeWithTexture<This extends abstract new (...args: any) => any>(
+		this: This,
+		texture: SKTexture | null,
+	): InstanceType<This>
 
-  static spriteNodeWithTextureNormalMap<This extends abstract new (...args: any) => any>(this: This, texture: SKTexture | null, normalMap: SKTexture | null): InstanceType<This>;
+	static spriteNodeWithTextureNormalMap<This extends abstract new (...args: any) => any>(
+		this: This,
+		texture: SKTexture | null,
+		normalMap: SKTexture | null,
+	): InstanceType<This>
 
-  static spriteNodeWithImageNamed<This extends abstract new (...args: any) => any>(this: This, name: string): InstanceType<This>;
+	static spriteNodeWithImageNamed<This extends abstract new (...args: any) => any>(
+		this: This,
+		name: string,
+	): InstanceType<This>
 
-  static spriteNodeWithImageNamedNormalMapped<This extends abstract new (...args: any) => any>(this: This, name: string, generateNormalMap: boolean): InstanceType<This>;
+	static spriteNodeWithImageNamedNormalMapped<This extends abstract new (...args: any) => any>(
+		this: This,
+		name: string,
+		generateNormalMap: boolean,
+	): InstanceType<This>
 
-  static spriteNodeWithColorSize<This extends abstract new (...args: any) => any>(this: This, color: NSColor, size: CGSize): InstanceType<This>;
+	static spriteNodeWithColorSize<This extends abstract new (...args: any) => any>(
+		this: This,
+		color: NSColor,
+		size: CGSize,
+	): InstanceType<This>
 
-  initWithTextureColorSize(texture: SKTexture | null, color: NSColor, size: CGSize): this;
+	initWithTextureColorSize(texture: SKTexture | null, color: NSColor, size: CGSize): this
 
-  initWithTexture(texture: SKTexture | null): this;
+	initWithTexture(texture: SKTexture | null): this
 
-  initWithImageNamed(name: string): this;
+	initWithImageNamed(name: string): this
 
-  initWithColorSize(color: NSColor, size: CGSize): this;
+	initWithColorSize(color: NSColor, size: CGSize): this
 
-  initWithCoder(coder: NSCoder): this;
-  initWithCoder(aDecoder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
+	initWithCoder(aDecoder: NSCoder): this
 
-  texture: SKTexture;
+	texture: SKTexture
 
-  normalTexture: SKTexture;
+	normalTexture: SKTexture
 
-  lightingBitMask: number;
+	lightingBitMask: number
 
-  shadowCastBitMask: number;
+	shadowCastBitMask: number
 
-  shadowedBitMask: number;
+	shadowedBitMask: number
 
-  centerRect: CGRect;
+	centerRect: CGRect
 
-  colorBlendFactor: number;
+	colorBlendFactor: number
 
-  color: NSColor;
+	color: NSColor
 
-  blendMode: interop.Enum<typeof SKBlendMode>;
+	blendMode: interop.Enum<typeof SKBlendMode>
 
-  anchorPoint: CGPoint;
+	anchorPoint: CGPoint
 
-  size: CGSize;
+	size: CGSize
 
-  scaleToSize(size: CGSize): void;
+	scaleToSize(size: CGSize): void
 
-  shader: SKShader;
+	shader: SKShader
 
-  get attributeValues(): NSDictionary;
-  set attributeValues(value: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>);
+	get attributeValues(): NSDictionary
+	set attributeValues(
+		value: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+	)
 
-  valueForAttributeNamed(key: string): SKAttributeValue;
+	valueForAttributeNamed(key: string): SKAttributeValue
 
-  setValueForAttributeNamed(value: SKAttributeValue, key: string): void;
+	setValueForAttributeNamed(value: SKAttributeValue, key: string): void
 
-  warpGeometry: SKWarpGeometry;
+	warpGeometry: SKWarpGeometry
 
-  subdivisionLevels: number;
+	subdivisionLevels: number
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 }
 
 export declare class SKTileDefinition extends NSObject implements NSCopying, NSSecureCoding {
-  static tileDefinitionWithTexture<This extends abstract new (...args: any) => any>(this: This, texture: SKTexture): InstanceType<This>;
+	static tileDefinitionWithTexture<This extends abstract new (...args: any) => any>(
+		this: This,
+		texture: SKTexture,
+	): InstanceType<This>
 
-  static tileDefinitionWithTextureSize<This extends abstract new (...args: any) => any>(this: This, texture: SKTexture, size: CGSize): InstanceType<This>;
+	static tileDefinitionWithTextureSize<This extends abstract new (...args: any) => any>(
+		this: This,
+		texture: SKTexture,
+		size: CGSize,
+	): InstanceType<This>
 
-  static tileDefinitionWithTextureNormalTextureSize<This extends abstract new (...args: any) => any>(this: This, texture: SKTexture, normalTexture: SKTexture, size: CGSize): InstanceType<This>;
+	static tileDefinitionWithTextureNormalTextureSize<
+		This extends abstract new (...args: any) => any,
+	>(this: This, texture: SKTexture, normalTexture: SKTexture, size: CGSize): InstanceType<This>
 
-  static tileDefinitionWithTexturesSizeTimePerFrame<This extends abstract new (...args: any) => any>(this: This, textures: NSArray<interop.Object> | Array<interop.Object>, size: CGSize, timePerFrame: number): InstanceType<This>;
+	static tileDefinitionWithTexturesSizeTimePerFrame<
+		This extends abstract new (...args: any) => any,
+	>(
+		this: This,
+		textures: NSArray<interop.Object> | Array<interop.Object>,
+		size: CGSize,
+		timePerFrame: number,
+	): InstanceType<This>
 
-  static tileDefinitionWithTexturesNormalTexturesSizeTimePerFrame<This extends abstract new (...args: any) => any>(this: This, textures: NSArray<interop.Object> | Array<interop.Object>, normalTextures: NSArray<interop.Object> | Array<interop.Object>, size: CGSize, timePerFrame: number): InstanceType<This>;
+	static tileDefinitionWithTexturesNormalTexturesSizeTimePerFrame<
+		This extends abstract new (...args: any) => any,
+	>(
+		this: This,
+		textures: NSArray<interop.Object> | Array<interop.Object>,
+		normalTextures: NSArray<interop.Object> | Array<interop.Object>,
+		size: CGSize,
+		timePerFrame: number,
+	): InstanceType<This>
 
-  initWithTexture(texture: SKTexture): this;
+	initWithTexture(texture: SKTexture): this
 
-  initWithTextureSize(texture: SKTexture, size: CGSize): this;
+	initWithTextureSize(texture: SKTexture, size: CGSize): this
 
-  initWithTextureNormalTextureSize(texture: SKTexture, normalTexture: SKTexture, size: CGSize): this;
+	initWithTextureNormalTextureSize(texture: SKTexture, normalTexture: SKTexture, size: CGSize): this
 
-  initWithTexturesSizeTimePerFrame(textures: NSArray<interop.Object> | Array<interop.Object>, size: CGSize, timePerFrame: number): this;
+	initWithTexturesSizeTimePerFrame(
+		textures: NSArray<interop.Object> | Array<interop.Object>,
+		size: CGSize,
+		timePerFrame: number,
+	): this
 
-  initWithTexturesNormalTexturesSizeTimePerFrame(textures: NSArray<interop.Object> | Array<interop.Object>, normalTextures: NSArray<interop.Object> | Array<interop.Object>, size: CGSize, timePerFrame: number): this;
+	initWithTexturesNormalTexturesSizeTimePerFrame(
+		textures: NSArray<interop.Object> | Array<interop.Object>,
+		normalTextures: NSArray<interop.Object> | Array<interop.Object>,
+		size: CGSize,
+		timePerFrame: number,
+	): this
 
-  get textures(): NSArray;
-  set textures(value: NSArray<interop.Object> | Array<interop.Object>);
+	get textures(): NSArray
+	set textures(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get normalTextures(): NSArray;
-  set normalTextures(value: NSArray<interop.Object> | Array<interop.Object>);
+	get normalTextures(): NSArray
+	set normalTextures(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  userData: NSMutableDictionary;
+	userData: NSMutableDictionary
 
-  name: string;
+	name: string
 
-  size: CGSize;
+	size: CGSize
 
-  timePerFrame: number;
+	timePerFrame: number
 
-  placementWeight: number;
+	placementWeight: number
 
-  rotation: interop.Enum<typeof SKTileDefinitionRotation>;
+	rotation: interop.Enum<typeof SKTileDefinitionRotation>
 
-  flipVertically: boolean;
+	flipVertically: boolean
 
-  flipHorizontally: boolean;
+	flipHorizontally: boolean
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 export declare class SKAttributeValue extends NSObject implements NSSecureCoding {
-  static valueWithFloat<This extends abstract new (...args: any) => any>(this: This, value: number): InstanceType<This>;
+	static valueWithFloat<This extends abstract new (...args: any) => any>(
+		this: This,
+		value: number,
+	): InstanceType<This>
 
-  static valueWithVectorFloat2<This extends abstract new (...args: any) => any>(this: This, value: unknown /* ext vector */): InstanceType<This>;
+	static valueWithVectorFloat2<This extends abstract new (...args: any) => any>(
+		this: This,
+		value: unknown /* ext vector */,
+	): InstanceType<This>
 
-  static valueWithVectorFloat3<This extends abstract new (...args: any) => any>(this: This, value: unknown /* ext vector */): InstanceType<This>;
+	static valueWithVectorFloat3<This extends abstract new (...args: any) => any>(
+		this: This,
+		value: unknown /* ext vector */,
+	): InstanceType<This>
 
-  static valueWithVectorFloat4<This extends abstract new (...args: any) => any>(this: This, value: unknown /* ext vector */): InstanceType<This>;
+	static valueWithVectorFloat4<This extends abstract new (...args: any) => any>(
+		this: This,
+		value: unknown /* ext vector */,
+	): InstanceType<This>
 
-  init(): this;
+	init(): this
 
-  floatValue: number;
+	floatValue: number
 
-  vectorFloat2Value: unknown /* ext vector */;
+	vectorFloat2Value: unknown /* ext vector */
 
-  vectorFloat3Value: unknown /* ext vector */;
+	vectorFloat3Value: unknown /* ext vector */
 
-  vectorFloat4Value: unknown /* ext vector */;
+	vectorFloat4Value: unknown /* ext vector */
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 export declare class SKEmitterNode extends SKNode {
-  advanceSimulationTime(sec: number): void;
+	advanceSimulationTime(sec: number): void
 
-  resetSimulation(): void;
+	resetSimulation(): void
 
-  particleTexture: SKTexture;
+	particleTexture: SKTexture
 
-  particleBlendMode: interop.Enum<typeof SKBlendMode>;
+	particleBlendMode: interop.Enum<typeof SKBlendMode>
 
-  particleColor: NSColor;
+	particleColor: NSColor
 
-  particleColorRedRange: number;
+	particleColorRedRange: number
 
-  particleColorGreenRange: number;
+	particleColorGreenRange: number
 
-  particleColorBlueRange: number;
+	particleColorBlueRange: number
 
-  particleColorAlphaRange: number;
+	particleColorAlphaRange: number
 
-  particleColorRedSpeed: number;
+	particleColorRedSpeed: number
 
-  particleColorGreenSpeed: number;
+	particleColorGreenSpeed: number
 
-  particleColorBlueSpeed: number;
+	particleColorBlueSpeed: number
 
-  particleColorAlphaSpeed: number;
+	particleColorAlphaSpeed: number
 
-  particleColorSequence: SKKeyframeSequence;
+	particleColorSequence: SKKeyframeSequence
 
-  particleColorBlendFactor: number;
+	particleColorBlendFactor: number
 
-  particleColorBlendFactorRange: number;
+	particleColorBlendFactorRange: number
 
-  particleColorBlendFactorSpeed: number;
+	particleColorBlendFactorSpeed: number
 
-  particleColorBlendFactorSequence: SKKeyframeSequence;
+	particleColorBlendFactorSequence: SKKeyframeSequence
 
-  particlePosition: CGPoint;
+	particlePosition: CGPoint
 
-  particlePositionRange: CGVector;
+	particlePositionRange: CGVector
 
-  particleSpeed: number;
+	particleSpeed: number
 
-  particleSpeedRange: number;
+	particleSpeedRange: number
 
-  emissionAngle: number;
+	emissionAngle: number
 
-  emissionAngleRange: number;
+	emissionAngleRange: number
 
-  xAcceleration: number;
+	xAcceleration: number
 
-  yAcceleration: number;
+	yAcceleration: number
 
-  particleBirthRate: number;
+	particleBirthRate: number
 
-  numParticlesToEmit: number;
+	numParticlesToEmit: number
 
-  particleLifetime: number;
+	particleLifetime: number
 
-  particleLifetimeRange: number;
+	particleLifetimeRange: number
 
-  particleRotation: number;
+	particleRotation: number
 
-  particleRotationRange: number;
+	particleRotationRange: number
 
-  particleRotationSpeed: number;
+	particleRotationSpeed: number
 
-  particleSize: CGSize;
+	particleSize: CGSize
 
-  particleScale: number;
+	particleScale: number
 
-  particleScaleRange: number;
+	particleScaleRange: number
 
-  particleScaleSpeed: number;
+	particleScaleSpeed: number
 
-  particleScaleSequence: SKKeyframeSequence;
+	particleScaleSequence: SKKeyframeSequence
 
-  particleAlpha: number;
+	particleAlpha: number
 
-  particleAlphaRange: number;
+	particleAlphaRange: number
 
-  particleAlphaSpeed: number;
+	particleAlphaSpeed: number
 
-  particleAlphaSequence: SKKeyframeSequence;
+	particleAlphaSequence: SKKeyframeSequence
 
-  particleAction: SKAction;
+	particleAction: SKAction
 
-  fieldBitMask: number;
+	fieldBitMask: number
 
-  targetNode: SKNode;
+	targetNode: SKNode
 
-  shader: SKShader;
+	shader: SKShader
 
-  get attributeValues(): NSDictionary;
-  set attributeValues(value: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>);
+	get attributeValues(): NSDictionary
+	set attributeValues(
+		value: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+	)
 
-  valueForAttributeNamed(key: string): SKAttributeValue;
+	valueForAttributeNamed(key: string): SKAttributeValue
 
-  setValueForAttributeNamed(value: SKAttributeValue, key: string): void;
+	setValueForAttributeNamed(value: SKAttributeValue, key: string): void
 
-  particleZPosition: number;
+	particleZPosition: number
 
-  particleRenderOrder: interop.Enum<typeof SKParticleRenderOrder>;
+	particleRenderOrder: interop.Enum<typeof SKParticleRenderOrder>
 
-  particleZPositionRange: number;
+	particleZPositionRange: number
 
-  particleZPositionSpeed: number;
+	particleZPositionSpeed: number
 }
 
 export declare class SKKeyframeSequence extends NSObject implements NSSecureCoding, NSCopying {
-  initWithKeyframeValuesTimes(values: NSArray<interop.Object> | Array<interop.Object>, times: NSArray<interop.Object> | Array<interop.Object>): this;
+	initWithKeyframeValuesTimes(
+		values: NSArray<interop.Object> | Array<interop.Object>,
+		times: NSArray<interop.Object> | Array<interop.Object>,
+	): this
 
-  initWithCapacity(numItems: number): this;
+	initWithCapacity(numItems: number): this
 
-  initWithCoder(aDecoder: NSCoder): this;
+	initWithCoder(aDecoder: NSCoder): this
 
-  count(): number;
+	count(): number
 
-  addKeyframeValueTime(value: interop.Object, time: number): void;
+	addKeyframeValueTime(value: interop.Object, time: number): void
 
-  removeLastKeyframe(): void;
+	removeLastKeyframe(): void
 
-  removeKeyframeAtIndex(index: number): void;
+	removeKeyframeAtIndex(index: number): void
 
-  setKeyframeValueForIndex(value: interop.Object, index: number): void;
+	setKeyframeValueForIndex(value: interop.Object, index: number): void
 
-  setKeyframeTimeForIndex(time: number, index: number): void;
+	setKeyframeTimeForIndex(time: number, index: number): void
 
-  setKeyframeValueTimeForIndex(value: interop.Object, time: number, index: number): void;
+	setKeyframeValueTimeForIndex(value: interop.Object, time: number, index: number): void
 
-  getKeyframeValueForIndex(index: number): interop.Object;
+	getKeyframeValueForIndex(index: number): interop.Object
 
-  getKeyframeTimeForIndex(index: number): number;
+	getKeyframeTimeForIndex(index: number): number
 
-  sampleAtTime(time: number): interop.Object;
+	sampleAtTime(time: number): interop.Object
 
-  interpolationMode: interop.Enum<typeof SKInterpolationMode>;
+	interpolationMode: interop.Enum<typeof SKInterpolationMode>
 
-  repeatMode: interop.Enum<typeof SKRepeatMode>;
+	repeatMode: interop.Enum<typeof SKRepeatMode>
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 export declare class SKTexture extends NSObject implements NSCopying, NSSecureCoding {
-  static textureWithImageNamed<This extends abstract new (...args: any) => any>(this: This, name: string): InstanceType<This>;
+	static textureWithImageNamed<This extends abstract new (...args: any) => any>(
+		this: This,
+		name: string,
+	): InstanceType<This>
 
-  static textureWithRectInTexture<This extends abstract new (...args: any) => any>(this: This, rect: CGRect, texture: SKTexture): InstanceType<This>;
+	static textureWithRectInTexture<This extends abstract new (...args: any) => any>(
+		this: This,
+		rect: CGRect,
+		texture: SKTexture,
+	): InstanceType<This>
 
-  static textureVectorNoiseWithSmoothnessSize<This extends abstract new (...args: any) => any>(this: This, smoothness: number, size: CGSize): InstanceType<This>;
+	static textureVectorNoiseWithSmoothnessSize<This extends abstract new (...args: any) => any>(
+		this: This,
+		smoothness: number,
+		size: CGSize,
+	): InstanceType<This>
 
-  static textureNoiseWithSmoothnessSizeGrayscale<This extends abstract new (...args: any) => any>(this: This, smoothness: number, size: CGSize, grayscale: boolean): InstanceType<This>;
+	static textureNoiseWithSmoothnessSizeGrayscale<This extends abstract new (...args: any) => any>(
+		this: This,
+		smoothness: number,
+		size: CGSize,
+		grayscale: boolean,
+	): InstanceType<This>
 
-  static textureWithCGImage<This extends abstract new (...args: any) => any>(this: This, image: interop.Object): InstanceType<This>;
+	static textureWithCGImage<This extends abstract new (...args: any) => any>(
+		this: This,
+		image: interop.Object,
+	): InstanceType<This>
 
-  static textureWithImage<This extends abstract new (...args: any) => any>(this: This, image: NSImage): InstanceType<This>;
+	static textureWithImage<This extends abstract new (...args: any) => any>(
+		this: This,
+		image: NSImage,
+	): InstanceType<This>
 
-  static textureWithDataSize<This extends abstract new (...args: any) => any>(this: This, pixelData: NSData, size: CGSize): InstanceType<This>;
+	static textureWithDataSize<This extends abstract new (...args: any) => any>(
+		this: This,
+		pixelData: NSData,
+		size: CGSize,
+	): InstanceType<This>
 
-  static textureWithDataSizeFlipped<This extends abstract new (...args: any) => any>(this: This, pixelData: NSData, size: CGSize, flipped: boolean): InstanceType<This>;
+	static textureWithDataSizeFlipped<This extends abstract new (...args: any) => any>(
+		this: This,
+		pixelData: NSData,
+		size: CGSize,
+		flipped: boolean,
+	): InstanceType<This>
 
-  static textureWithDataSizeRowLengthAlignment<This extends abstract new (...args: any) => any>(this: This, pixelData: NSData, size: CGSize, rowLength: number, alignment: number): InstanceType<This>;
+	static textureWithDataSizeRowLengthAlignment<This extends abstract new (...args: any) => any>(
+		this: This,
+		pixelData: NSData,
+		size: CGSize,
+		rowLength: number,
+		alignment: number,
+	): InstanceType<This>
 
-  textureByApplyingCIFilter(filter: CIFilter): this;
+	textureByApplyingCIFilter(filter: CIFilter): this
 
-  textureByGeneratingNormalMap(): this;
+	textureByGeneratingNormalMap(): this
 
-  textureByGeneratingNormalMapWithSmoothnessContrast(smoothness: number, contrast: number): this;
+	textureByGeneratingNormalMapWithSmoothnessContrast(smoothness: number, contrast: number): this
 
-  textureRect(): CGRect;
+	textureRect(): CGRect
 
-  size(): CGSize;
+	size(): CGSize
 
-  filteringMode: interop.Enum<typeof SKTextureFilteringMode>;
+	filteringMode: interop.Enum<typeof SKTextureFilteringMode>
 
-  usesMipmaps: boolean;
+	usesMipmaps: boolean
 
-  CGImage(): interop.Object;
+	CGImage(): interop.Object
 
-  static preloadTexturesWithCompletionHandler(textures: NSArray<interop.Object> | Array<interop.Object>, completionHandler: () => void): void;
+	static preloadTexturesWithCompletionHandler(
+		textures: NSArray<interop.Object> | Array<interop.Object>,
+		completionHandler: () => void,
+	): void
 
-  preloadWithCompletionHandler(completionHandler: () => void): void;
+	preloadWithCompletionHandler(completionHandler: () => void): void
 
-  static textureWithNoiseMap<This extends abstract new (...args: any) => any>(this: This, noiseMap: GKNoiseMap): InstanceType<This>;
+	static textureWithNoiseMap<This extends abstract new (...args: any) => any>(
+		this: This,
+		noiseMap: GKNoiseMap,
+	): InstanceType<This>
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 export declare class SKPhysicsBody extends NSObject implements NSCopying, NSSecureCoding {
-  static bodyWithCircleOfRadius(r: number): SKPhysicsBody;
+	static bodyWithCircleOfRadius(r: number): SKPhysicsBody
 
-  static bodyWithCircleOfRadiusCenter(r: number, center: CGPoint): SKPhysicsBody;
+	static bodyWithCircleOfRadiusCenter(r: number, center: CGPoint): SKPhysicsBody
 
-  static bodyWithRectangleOfSize(s: CGSize): SKPhysicsBody;
+	static bodyWithRectangleOfSize(s: CGSize): SKPhysicsBody
 
-  static bodyWithRectangleOfSizeCenter(s: CGSize, center: CGPoint): SKPhysicsBody;
+	static bodyWithRectangleOfSizeCenter(s: CGSize, center: CGPoint): SKPhysicsBody
 
-  static bodyWithPolygonFromPath(path: interop.Object): SKPhysicsBody;
+	static bodyWithPolygonFromPath(path: interop.Object): SKPhysicsBody
 
-  static bodyWithEdgeFromPointToPoint(p1: CGPoint, p2: CGPoint): SKPhysicsBody;
+	static bodyWithEdgeFromPointToPoint(p1: CGPoint, p2: CGPoint): SKPhysicsBody
 
-  static bodyWithEdgeChainFromPath(path: interop.Object): SKPhysicsBody;
+	static bodyWithEdgeChainFromPath(path: interop.Object): SKPhysicsBody
 
-  static bodyWithEdgeLoopFromPath(path: interop.Object): SKPhysicsBody;
+	static bodyWithEdgeLoopFromPath(path: interop.Object): SKPhysicsBody
 
-  static bodyWithEdgeLoopFromRect(rect: CGRect): SKPhysicsBody;
+	static bodyWithEdgeLoopFromRect(rect: CGRect): SKPhysicsBody
 
-  static bodyWithTextureSize(texture: SKTexture, size: CGSize): SKPhysicsBody;
+	static bodyWithTextureSize(texture: SKTexture, size: CGSize): SKPhysicsBody
 
-  static bodyWithTextureAlphaThresholdSize(texture: SKTexture, alphaThreshold: number, size: CGSize): SKPhysicsBody;
+	static bodyWithTextureAlphaThresholdSize(
+		texture: SKTexture,
+		alphaThreshold: number,
+		size: CGSize,
+	): SKPhysicsBody
 
-  static bodyWithBodies(bodies: NSArray<interop.Object> | Array<interop.Object>): SKPhysicsBody;
+	static bodyWithBodies(bodies: NSArray<interop.Object> | Array<interop.Object>): SKPhysicsBody
 
-  dynamic: boolean;
+	dynamic: boolean
 
-  usesPreciseCollisionDetection: boolean;
+	usesPreciseCollisionDetection: boolean
 
-  allowsRotation: boolean;
+	allowsRotation: boolean
 
-  pinned: boolean;
+	pinned: boolean
 
-  resting: boolean;
+	resting: boolean
 
-  friction: number;
+	friction: number
 
-  charge: number;
+	charge: number
 
-  restitution: number;
+	restitution: number
 
-  linearDamping: number;
+	linearDamping: number
 
-  angularDamping: number;
+	angularDamping: number
 
-  density: number;
+	density: number
 
-  mass: number;
+	mass: number
 
-  readonly area: number;
+	readonly area: number
 
-  affectedByGravity: boolean;
+	affectedByGravity: boolean
 
-  fieldBitMask: number;
+	fieldBitMask: number
 
-  categoryBitMask: number;
+	categoryBitMask: number
 
-  collisionBitMask: number;
+	collisionBitMask: number
 
-  contactTestBitMask: number;
+	contactTestBitMask: number
 
-  readonly joints: NSArray;
+	readonly joints: NSArray
 
-  readonly node: SKNode;
+	readonly node: SKNode
 
-  velocity: CGVector;
+	velocity: CGVector
 
-  angularVelocity: number;
+	angularVelocity: number
 
-  applyForce(force: CGVector): void;
+	applyForce(force: CGVector): void
 
-  applyForceAtPoint(force: CGVector, point: CGPoint): void;
+	applyForceAtPoint(force: CGVector, point: CGPoint): void
 
-  applyTorque(torque: number): void;
+	applyTorque(torque: number): void
 
-  applyImpulse(impulse: CGVector): void;
+	applyImpulse(impulse: CGVector): void
 
-  applyImpulseAtPoint(impulse: CGVector, point: CGPoint): void;
+	applyImpulseAtPoint(impulse: CGVector, point: CGPoint): void
 
-  applyAngularImpulse(impulse: number): void;
+	applyAngularImpulse(impulse: number): void
 
-  allContactedBodies(): NSArray;
+	allContactedBodies(): NSArray
 
-  isDynamic(): boolean;
+	isDynamic(): boolean
 
-  isResting(): boolean;
+	isResting(): boolean
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 export declare class SKPhysicsJointLimit extends SKPhysicsJoint {
-  maxLength: number;
+	maxLength: number
 
-  static jointWithBodyABodyBAnchorAAnchorB(bodyA: SKPhysicsBody, bodyB: SKPhysicsBody, anchorA: CGPoint, anchorB: CGPoint): SKPhysicsJointLimit;
+	static jointWithBodyABodyBAnchorAAnchorB(
+		bodyA: SKPhysicsBody,
+		bodyB: SKPhysicsBody,
+		anchorA: CGPoint,
+		anchorB: CGPoint,
+	): SKPhysicsJointLimit
 }
 
 export declare class SKPhysicsContact extends NSObject {
-  readonly bodyA: SKPhysicsBody;
+	readonly bodyA: SKPhysicsBody
 
-  readonly bodyB: SKPhysicsBody;
+	readonly bodyB: SKPhysicsBody
 
-  readonly contactPoint: CGPoint;
+	readonly contactPoint: CGPoint
 
-  readonly contactNormal: CGVector;
+	readonly contactNormal: CGVector
 
-  readonly collisionImpulse: number;
+	readonly collisionImpulse: number
 }
 
 export declare class SKPhysicsJointSliding extends SKPhysicsJoint {
-  static jointWithBodyABodyBAnchorAxis(bodyA: SKPhysicsBody, bodyB: SKPhysicsBody, anchor: CGPoint, axis: CGVector): SKPhysicsJointSliding;
+	static jointWithBodyABodyBAnchorAxis(
+		bodyA: SKPhysicsBody,
+		bodyB: SKPhysicsBody,
+		anchor: CGPoint,
+		axis: CGVector,
+	): SKPhysicsJointSliding
 
-  shouldEnableLimits: boolean;
+	shouldEnableLimits: boolean
 
-  lowerDistanceLimit: number;
+	lowerDistanceLimit: number
 
-  upperDistanceLimit: number;
+	upperDistanceLimit: number
 }
 
 export declare class SKPhysicsJointPin extends SKPhysicsJoint {
-  static jointWithBodyABodyBAnchor(bodyA: SKPhysicsBody, bodyB: SKPhysicsBody, anchor: CGPoint): SKPhysicsJointPin;
+	static jointWithBodyABodyBAnchor(
+		bodyA: SKPhysicsBody,
+		bodyB: SKPhysicsBody,
+		anchor: CGPoint,
+	): SKPhysicsJointPin
 
-  shouldEnableLimits: boolean;
+	shouldEnableLimits: boolean
 
-  lowerAngleLimit: number;
+	lowerAngleLimit: number
 
-  upperAngleLimit: number;
+	upperAngleLimit: number
 
-  frictionTorque: number;
+	frictionTorque: number
 
-  rotationSpeed: number;
+	rotationSpeed: number
 }
 
 export declare class SKConstraint extends NSObject implements NSSecureCoding, NSCopying {
-  enabled: boolean;
+	enabled: boolean
 
-  referenceNode: SKNode;
+	referenceNode: SKNode
 
-  static positionX<This extends abstract new (...args: any) => any>(this: This, range: SKRange): InstanceType<This>;
+	static positionX<This extends abstract new (...args: any) => any>(
+		this: This,
+		range: SKRange,
+	): InstanceType<This>
 
-  static positionY<This extends abstract new (...args: any) => any>(this: This, range: SKRange): InstanceType<This>;
+	static positionY<This extends abstract new (...args: any) => any>(
+		this: This,
+		range: SKRange,
+	): InstanceType<This>
 
-  static positionXY<This extends abstract new (...args: any) => any>(this: This, xRange: SKRange, yRange: SKRange): InstanceType<This>;
+	static positionXY<This extends abstract new (...args: any) => any>(
+		this: This,
+		xRange: SKRange,
+		yRange: SKRange,
+	): InstanceType<This>
 
-  static distanceToNode<This extends abstract new (...args: any) => any>(this: This, range: SKRange, node: SKNode): InstanceType<This>;
+	static distanceToNode<This extends abstract new (...args: any) => any>(
+		this: This,
+		range: SKRange,
+		node: SKNode,
+	): InstanceType<This>
 
-  static distanceToPoint<This extends abstract new (...args: any) => any>(this: This, range: SKRange, point: CGPoint): InstanceType<This>;
+	static distanceToPoint<This extends abstract new (...args: any) => any>(
+		this: This,
+		range: SKRange,
+		point: CGPoint,
+	): InstanceType<This>
 
-  static distanceToPointInNode<This extends abstract new (...args: any) => any>(this: This, range: SKRange, point: CGPoint, node: SKNode): InstanceType<This>;
+	static distanceToPointInNode<This extends abstract new (...args: any) => any>(
+		this: This,
+		range: SKRange,
+		point: CGPoint,
+		node: SKNode,
+	): InstanceType<This>
 
-  static zRotation<This extends abstract new (...args: any) => any>(this: This, zRange: SKRange): InstanceType<This>;
+	static zRotation<This extends abstract new (...args: any) => any>(
+		this: This,
+		zRange: SKRange,
+	): InstanceType<This>
 
-  static orientToNodeOffset<This extends abstract new (...args: any) => any>(this: This, node: SKNode, radians: SKRange): InstanceType<This>;
+	static orientToNodeOffset<This extends abstract new (...args: any) => any>(
+		this: This,
+		node: SKNode,
+		radians: SKRange,
+	): InstanceType<This>
 
-  static orientToPointOffset<This extends abstract new (...args: any) => any>(this: This, point: CGPoint, radians: SKRange): InstanceType<This>;
+	static orientToPointOffset<This extends abstract new (...args: any) => any>(
+		this: This,
+		point: CGPoint,
+		radians: SKRange,
+	): InstanceType<This>
 
-  static orientToPointInNodeOffset<This extends abstract new (...args: any) => any>(this: This, point: CGPoint, node: SKNode, radians: SKRange): InstanceType<This>;
+	static orientToPointInNodeOffset<This extends abstract new (...args: any) => any>(
+		this: This,
+		point: CGPoint,
+		node: SKNode,
+		radians: SKRange,
+	): InstanceType<This>
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 export declare class SKMutableTexture extends SKTexture {
-  initWithSize(size: CGSize): this;
+	initWithSize(size: CGSize): this
 
-  static mutableTextureWithSize<This extends abstract new (...args: any) => any>(this: This, size: CGSize): InstanceType<This>;
+	static mutableTextureWithSize<This extends abstract new (...args: any) => any>(
+		this: This,
+		size: CGSize,
+	): InstanceType<This>
 
-  initWithSizePixelFormat(size: CGSize, format: number): this;
+	initWithSizePixelFormat(size: CGSize, format: number): this
 
-  modifyPixelDataWithBlock(block: (p1: interop.PointerConvertible, p2: number) => void): void;
+	modifyPixelDataWithBlock(block: (p1: interop.PointerConvertible, p2: number) => void): void
 }
 
 export declare class SKTileGroup extends NSObject implements NSCopying, NSSecureCoding {
-  static tileGroupWithTileDefinition<This extends abstract new (...args: any) => any>(this: This, tileDefinition: SKTileDefinition): InstanceType<This>;
+	static tileGroupWithTileDefinition<This extends abstract new (...args: any) => any>(
+		this: This,
+		tileDefinition: SKTileDefinition,
+	): InstanceType<This>
 
-  static tileGroupWithRules<This extends abstract new (...args: any) => any>(this: This, rules: NSArray<interop.Object> | Array<interop.Object>): InstanceType<This>;
+	static tileGroupWithRules<This extends abstract new (...args: any) => any>(
+		this: This,
+		rules: NSArray<interop.Object> | Array<interop.Object>,
+	): InstanceType<This>
 
-  static emptyTileGroup<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>;
+	static emptyTileGroup<This extends abstract new (...args: any) => any>(
+		this: This,
+	): InstanceType<This>
 
-  initWithTileDefinition(tileDefinition: SKTileDefinition): this;
+	initWithTileDefinition(tileDefinition: SKTileDefinition): this
 
-  initWithRules(rules: NSArray<interop.Object> | Array<interop.Object>): this;
+	initWithRules(rules: NSArray<interop.Object> | Array<interop.Object>): this
 
-  get rules(): NSArray;
-  set rules(value: NSArray<interop.Object> | Array<interop.Object>);
+	get rules(): NSArray
+	set rules(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  name: string;
+	name: string
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 export declare class SKTileSet extends NSObject implements NSCopying, NSSecureCoding {
-  static tileSetWithTileGroups<This extends abstract new (...args: any) => any>(this: This, tileGroups: NSArray<interop.Object> | Array<interop.Object>): InstanceType<This>;
+	static tileSetWithTileGroups<This extends abstract new (...args: any) => any>(
+		this: This,
+		tileGroups: NSArray<interop.Object> | Array<interop.Object>,
+	): InstanceType<This>
 
-  static tileSetWithTileGroupsTileSetType<This extends abstract new (...args: any) => any>(this: This, tileGroups: NSArray<interop.Object> | Array<interop.Object>, tileSetType: interop.Enum<typeof SKTileSetType>): InstanceType<This>;
+	static tileSetWithTileGroupsTileSetType<This extends abstract new (...args: any) => any>(
+		this: This,
+		tileGroups: NSArray<interop.Object> | Array<interop.Object>,
+		tileSetType: interop.Enum<typeof SKTileSetType>,
+	): InstanceType<This>
 
-  initWithTileGroups(tileGroups: NSArray<interop.Object> | Array<interop.Object>): this;
+	initWithTileGroups(tileGroups: NSArray<interop.Object> | Array<interop.Object>): this
 
-  initWithTileGroupsTileSetType(tileGroups: NSArray<interop.Object> | Array<interop.Object>, tileSetType: interop.Enum<typeof SKTileSetType>): this;
+	initWithTileGroupsTileSetType(
+		tileGroups: NSArray<interop.Object> | Array<interop.Object>,
+		tileSetType: interop.Enum<typeof SKTileSetType>,
+	): this
 
-  static tileSetNamed<This extends abstract new (...args: any) => any>(this: This, name: string): InstanceType<This>;
+	static tileSetNamed<This extends abstract new (...args: any) => any>(
+		this: This,
+		name: string,
+	): InstanceType<This>
 
-  static tileSetFromURL<This extends abstract new (...args: any) => any>(this: This, url: NSURL): InstanceType<This>;
+	static tileSetFromURL<This extends abstract new (...args: any) => any>(
+		this: This,
+		url: NSURL,
+	): InstanceType<This>
 
-  get tileGroups(): NSArray;
-  set tileGroups(value: NSArray<interop.Object> | Array<interop.Object>);
+	get tileGroups(): NSArray
+	set tileGroups(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  name: string;
+	name: string
 
-  type: interop.Enum<typeof SKTileSetType>;
+	type: interop.Enum<typeof SKTileSetType>
 
-  defaultTileGroup: SKTileGroup;
+	defaultTileGroup: SKTileGroup
 
-  defaultTileSize: CGSize;
+	defaultTileSize: CGSize
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 export declare class SKAttribute extends NSObject implements NSSecureCoding {
-  static attributeWithNameType<This extends abstract new (...args: any) => any>(this: This, name: string, type: interop.Enum<typeof SKAttributeType>): InstanceType<This>;
+	static attributeWithNameType<This extends abstract new (...args: any) => any>(
+		this: This,
+		name: string,
+		type: interop.Enum<typeof SKAttributeType>,
+	): InstanceType<This>
 
-  initWithNameType(name: string, type: interop.Enum<typeof SKAttributeType>): this;
+	initWithNameType(name: string, type: interop.Enum<typeof SKAttributeType>): this
 
-  readonly name: string;
+	readonly name: string
 
-  readonly type: interop.Enum<typeof SKAttributeType>;
+	readonly type: interop.Enum<typeof SKAttributeType>
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 export declare class SKView extends NSView implements NSSecureCoding {
-  paused: boolean;
+	paused: boolean
 
-  showsFPS: boolean;
+	showsFPS: boolean
 
-  showsDrawCount: boolean;
+	showsDrawCount: boolean
 
-  showsNodeCount: boolean;
+	showsNodeCount: boolean
 
-  showsQuadCount: boolean;
+	showsQuadCount: boolean
 
-  showsPhysics: boolean;
+	showsPhysics: boolean
 
-  showsFields: boolean;
+	showsFields: boolean
 
-  asynchronous: boolean;
+	asynchronous: boolean
 
-  allowsTransparency: boolean;
+	allowsTransparency: boolean
 
-  ignoresSiblingOrder: boolean;
+	ignoresSiblingOrder: boolean
 
-  shouldCullNonVisibleNodes: boolean;
+	shouldCullNonVisibleNodes: boolean
 
-  preferredFramesPerSecond: number;
+	preferredFramesPerSecond: number
 
-  disableDepthStencilBuffer: boolean;
+	disableDepthStencilBuffer: boolean
 
-  delegate: NSObject;
+	delegate: NSObject
 
-  frameInterval: number;
+	frameInterval: number
 
-  preferredFrameRate: number;
+	preferredFrameRate: number
 
-  presentScene(scene: SKScene | null): void;
+	presentScene(scene: SKScene | null): void
 
-  presentSceneTransition(scene: SKScene, transition: SKTransition): void;
+	presentSceneTransition(scene: SKScene, transition: SKTransition): void
 
-  readonly scene: SKScene;
+	readonly scene: SKScene
 
-  textureFromNode(node: SKNode): SKTexture;
+	textureFromNode(node: SKNode): SKTexture
 
-  textureFromNodeCrop(node: SKNode, crop: CGRect): SKTexture;
+	textureFromNodeCrop(node: SKNode, crop: CGRect): SKTexture
 
-  convertPointToScene(point: CGPoint, scene: SKScene): CGPoint;
+	convertPointToScene(point: CGPoint, scene: SKScene): CGPoint
 
-  convertPointFromScene(point: CGPoint, scene: SKScene): CGPoint;
+	convertPointFromScene(point: CGPoint, scene: SKScene): CGPoint
 
-  isPaused(): boolean;
+	isPaused(): boolean
 
-  isAsynchronous(): boolean;
+	isAsynchronous(): boolean
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 export declare class SKRegion extends NSObject implements NSCopying, NSSecureCoding {
-  readonly path: interop.Object;
+	readonly path: interop.Object
 
-  static infiniteRegion<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>;
+	static infiniteRegion<This extends abstract new (...args: any) => any>(
+		this: This,
+	): InstanceType<This>
 
-  initWithRadius(radius: number): this;
+	initWithRadius(radius: number): this
 
-  initWithSize(size: CGSize): this;
+	initWithSize(size: CGSize): this
 
-  initWithPath(path: interop.Object): this;
+	initWithPath(path: interop.Object): this
 
-  inverseRegion(): this;
+	inverseRegion(): this
 
-  regionByUnionWithRegion(region: SKRegion): this;
+	regionByUnionWithRegion(region: SKRegion): this
 
-  regionByDifferenceFromRegion(region: SKRegion): this;
+	regionByDifferenceFromRegion(region: SKRegion): this
 
-  regionByIntersectionWithRegion(region: SKRegion): this;
+	regionByIntersectionWithRegion(region: SKRegion): this
 
-  containsPoint(point: CGPoint): boolean;
+	containsPoint(point: CGPoint): boolean
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 export declare class SKTransformNode extends SKNode {
-  xRotation: number;
+	xRotation: number
 
-  yRotation: number;
+	yRotation: number
 
-  setEulerAngles(euler: unknown /* ext vector */): void;
+	setEulerAngles(euler: unknown /* ext vector */): void
 
-  eulerAngles(): unknown /* ext vector */;
+	eulerAngles(): unknown /* ext vector */
 
-  setRotationMatrix(rotationMatrix: simd_float3x3): void;
+	setRotationMatrix(rotationMatrix: simd_float3x3): void
 
-  rotationMatrix(): simd_float3x3;
+	rotationMatrix(): simd_float3x3
 
-  setQuaternion(quaternion: simd_quatf): void;
+	setQuaternion(quaternion: simd_quatf): void
 
-  quaternion(): simd_quatf;
+	quaternion(): simd_quatf
 }
 
 export declare class SK3DNode extends SKNode {
-  initWithViewportSize(viewportSize: CGSize): this;
+	initWithViewportSize(viewportSize: CGSize): this
 
-  initWithCoder(coder: NSCoder): this;
-  initWithCoder(aDecoder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
+	initWithCoder(aDecoder: NSCoder): this
 
-  static nodeWithViewportSize<This extends abstract new (...args: any) => any>(this: This, viewportSize: CGSize): InstanceType<This>;
+	static nodeWithViewportSize<This extends abstract new (...args: any) => any>(
+		this: This,
+		viewportSize: CGSize,
+	): InstanceType<This>
 
-  viewportSize: CGSize;
+	viewportSize: CGSize
 
-  scnScene: SCNScene;
+	scnScene: SCNScene
 
-  sceneTime: number;
+	sceneTime: number
 
-  hitTestOptions(point: CGPoint, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null): NSArray;
+	hitTestOptions(
+		point: CGPoint,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+	): NSArray
 
-  projectPoint(point: unknown /* ext vector */): unknown /* ext vector */;
+	projectPoint(point: unknown /* ext vector */): unknown /* ext vector */
 
-  unprojectPoint(point: unknown /* ext vector */): unknown /* ext vector */;
+	unprojectPoint(point: unknown /* ext vector */): unknown /* ext vector */
 
-  playing: boolean;
+	playing: boolean
 
-  loops: boolean;
+	loops: boolean
 
-  pointOfView: SCNNode;
+	pointOfView: SCNNode
 
-  autoenablesDefaultLighting: boolean;
+	autoenablesDefaultLighting: boolean
 
-  isPlaying(): boolean;
+	isPlaying(): boolean
 }
 
 export declare class SKReferenceNode extends SKNode {
-  initWithURL(url: NSURL | null): this;
+	initWithURL(url: NSURL | null): this
 
-  initWithFileNamed(fileName: string | null): this;
+	initWithFileNamed(fileName: string | null): this
 
-  initWithCoder(coder: NSCoder): this;
-  initWithCoder(aDecoder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
+	initWithCoder(aDecoder: NSCoder): this
 
-  static referenceNodeWithFileNamed<This extends abstract new (...args: any) => any>(this: This, fileName: string): InstanceType<This>;
+	static referenceNodeWithFileNamed<This extends abstract new (...args: any) => any>(
+		this: This,
+		fileName: string,
+	): InstanceType<This>
 
-  static referenceNodeWithURL<This extends abstract new (...args: any) => any>(this: This, referenceURL: NSURL): InstanceType<This>;
+	static referenceNodeWithURL<This extends abstract new (...args: any) => any>(
+		this: This,
+		referenceURL: NSURL,
+	): InstanceType<This>
 
-  didLoadReferenceNode(node: SKNode | null): void;
+	didLoadReferenceNode(node: SKNode | null): void
 
-  resolveReferenceNode(): void;
+	resolveReferenceNode(): void
 }
 
 export declare class SKCropNode extends SKNode {
-  maskNode: SKNode;
+	maskNode: SKNode
 }
 
 export declare class SKAudioNode extends SKNode implements NSSecureCoding {
-  initWithAVAudioNode(node: AVAudioNode | null): this;
+	initWithAVAudioNode(node: AVAudioNode | null): this
 
-  initWithCoder(coder: NSCoder): this;
-  initWithCoder(aDecoder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
+	initWithCoder(aDecoder: NSCoder): this
 
-  initWithFileNamed(name: string): this;
+	initWithFileNamed(name: string): this
 
-  initWithURL(url: NSURL): this;
+	initWithURL(url: NSURL): this
 
-  avAudioNode: AVAudioNode;
+	avAudioNode: AVAudioNode
 
-  autoplayLooped: boolean;
+	autoplayLooped: boolean
 
-  positional: boolean;
+	positional: boolean
 
-  isPositional(): boolean;
+	isPositional(): boolean
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 }
 
 export declare class SKVideoNode extends SKNode {
-  static videoNodeWithAVPlayer(player: AVPlayer): SKVideoNode;
+	static videoNodeWithAVPlayer(player: AVPlayer): SKVideoNode
 
-  static videoNodeWithVideoFileNamed(videoFile: string): SKVideoNode;
+	static videoNodeWithVideoFileNamed(videoFile: string): SKVideoNode
 
-  static videoNodeWithFileNamed(videoFile: string): SKVideoNode;
+	static videoNodeWithFileNamed(videoFile: string): SKVideoNode
 
-  static videoNodeWithVideoURL(videoURL: NSURL): SKVideoNode;
+	static videoNodeWithVideoURL(videoURL: NSURL): SKVideoNode
 
-  static videoNodeWithURL(videoURL: NSURL): SKVideoNode;
+	static videoNodeWithURL(videoURL: NSURL): SKVideoNode
 
-  initWithAVPlayer(player: AVPlayer): this;
+	initWithAVPlayer(player: AVPlayer): this
 
-  initWithVideoFileNamed(videoFile: string): this;
+	initWithVideoFileNamed(videoFile: string): this
 
-  initWithFileNamed(videoFile: string): this;
+	initWithFileNamed(videoFile: string): this
 
-  initWithVideoURL(url: NSURL): this;
+	initWithVideoURL(url: NSURL): this
 
-  initWithURL(url: NSURL): this;
+	initWithURL(url: NSURL): this
 
-  initWithCoder(coder: NSCoder): this;
-  initWithCoder(aDecoder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
+	initWithCoder(aDecoder: NSCoder): this
 
-  play(): void;
+	play(): void
 
-  pause(): void;
+	pause(): void
 
-  size: CGSize;
+	size: CGSize
 
-  anchorPoint: CGPoint;
+	anchorPoint: CGPoint
 }
 
 export declare class SKShapeNode extends SKNode {
-  static shapeNodeWithPath<This extends abstract new (...args: any) => any>(this: This, path: interop.Object): InstanceType<This>;
+	static shapeNodeWithPath<This extends abstract new (...args: any) => any>(
+		this: This,
+		path: interop.Object,
+	): InstanceType<This>
 
-  static shapeNodeWithPathCentered<This extends abstract new (...args: any) => any>(this: This, path: interop.Object, centered: boolean): InstanceType<This>;
+	static shapeNodeWithPathCentered<This extends abstract new (...args: any) => any>(
+		this: This,
+		path: interop.Object,
+		centered: boolean,
+	): InstanceType<This>
 
-  static shapeNodeWithRect<This extends abstract new (...args: any) => any>(this: This, rect: CGRect): InstanceType<This>;
+	static shapeNodeWithRect<This extends abstract new (...args: any) => any>(
+		this: This,
+		rect: CGRect,
+	): InstanceType<This>
 
-  static shapeNodeWithRectOfSize<This extends abstract new (...args: any) => any>(this: This, size: CGSize): InstanceType<This>;
+	static shapeNodeWithRectOfSize<This extends abstract new (...args: any) => any>(
+		this: This,
+		size: CGSize,
+	): InstanceType<This>
 
-  static shapeNodeWithRectCornerRadius<This extends abstract new (...args: any) => any>(this: This, rect: CGRect, cornerRadius: number): InstanceType<This>;
+	static shapeNodeWithRectCornerRadius<This extends abstract new (...args: any) => any>(
+		this: This,
+		rect: CGRect,
+		cornerRadius: number,
+	): InstanceType<This>
 
-  static shapeNodeWithRectOfSizeCornerRadius<This extends abstract new (...args: any) => any>(this: This, size: CGSize, cornerRadius: number): InstanceType<This>;
+	static shapeNodeWithRectOfSizeCornerRadius<This extends abstract new (...args: any) => any>(
+		this: This,
+		size: CGSize,
+		cornerRadius: number,
+	): InstanceType<This>
 
-  static shapeNodeWithCircleOfRadius<This extends abstract new (...args: any) => any>(this: This, radius: number): InstanceType<This>;
+	static shapeNodeWithCircleOfRadius<This extends abstract new (...args: any) => any>(
+		this: This,
+		radius: number,
+	): InstanceType<This>
 
-  static shapeNodeWithEllipseInRect<This extends abstract new (...args: any) => any>(this: This, rect: CGRect): InstanceType<This>;
+	static shapeNodeWithEllipseInRect<This extends abstract new (...args: any) => any>(
+		this: This,
+		rect: CGRect,
+	): InstanceType<This>
 
-  static shapeNodeWithEllipseOfSize<This extends abstract new (...args: any) => any>(this: This, size: CGSize): InstanceType<This>;
+	static shapeNodeWithEllipseOfSize<This extends abstract new (...args: any) => any>(
+		this: This,
+		size: CGSize,
+	): InstanceType<This>
 
-  static shapeNodeWithPointsCount<This extends abstract new (...args: any) => any>(this: This, points: interop.PointerConvertible, numPoints: number): InstanceType<This>;
+	static shapeNodeWithPointsCount<This extends abstract new (...args: any) => any>(
+		this: This,
+		points: interop.PointerConvertible,
+		numPoints: number,
+	): InstanceType<This>
 
-  static shapeNodeWithSplinePointsCount<This extends abstract new (...args: any) => any>(this: This, points: interop.PointerConvertible, numPoints: number): InstanceType<This>;
+	static shapeNodeWithSplinePointsCount<This extends abstract new (...args: any) => any>(
+		this: This,
+		points: interop.PointerConvertible,
+		numPoints: number,
+	): InstanceType<This>
 
-  path: interop.Object;
+	path: interop.Object
 
-  strokeColor: NSColor;
+	strokeColor: NSColor
 
-  fillColor: NSColor;
+	fillColor: NSColor
 
-  blendMode: interop.Enum<typeof SKBlendMode>;
+	blendMode: interop.Enum<typeof SKBlendMode>
 
-  antialiased: boolean;
+	antialiased: boolean
 
-  lineWidth: number;
+	lineWidth: number
 
-  glowWidth: number;
+	glowWidth: number
 
-  lineCap: interop.Enum<typeof CGLineCap>;
+	lineCap: interop.Enum<typeof CGLineCap>
 
-  lineJoin: interop.Enum<typeof CGLineJoin>;
+	lineJoin: interop.Enum<typeof CGLineJoin>
 
-  miterLimit: number;
+	miterLimit: number
 
-  readonly lineLength: number;
+	readonly lineLength: number
 
-  fillTexture: SKTexture;
+	fillTexture: SKTexture
 
-  fillShader: SKShader;
+	fillShader: SKShader
 
-  strokeTexture: SKTexture;
+	strokeTexture: SKTexture
 
-  strokeShader: SKShader;
+	strokeShader: SKShader
 
-  get attributeValues(): NSDictionary;
-  set attributeValues(value: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>);
+	get attributeValues(): NSDictionary
+	set attributeValues(
+		value: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+	)
 
-  valueForAttributeNamed(key: string): SKAttributeValue;
+	valueForAttributeNamed(key: string): SKAttributeValue
 
-  setValueForAttributeNamed(value: SKAttributeValue, key: string): void;
+	setValueForAttributeNamed(value: SKAttributeValue, key: string): void
 
-  isAntialiased(): boolean;
+	isAntialiased(): boolean
 }
 
 export declare class SKScene extends SKEffectNode implements GKSceneRootNodeType {
-  initWithSize(size: CGSize): this;
+	initWithSize(size: CGSize): this
 
-  static sceneWithSize<This extends abstract new (...args: any) => any>(this: This, size: CGSize): InstanceType<This>;
+	static sceneWithSize<This extends abstract new (...args: any) => any>(
+		this: This,
+		size: CGSize,
+	): InstanceType<This>
 
-  sceneDidLoad(): void;
+	sceneDidLoad(): void
 
-  size: CGSize;
+	size: CGSize
 
-  scaleMode: interop.Enum<typeof SKSceneScaleMode>;
+	scaleMode: interop.Enum<typeof SKSceneScaleMode>
 
-  camera: SKCameraNode;
+	camera: SKCameraNode
 
-  listener: SKNode;
+	listener: SKNode
 
-  readonly audioEngine: AVAudioEngine;
+	readonly audioEngine: AVAudioEngine
 
-  backgroundColor: NSColor;
+	backgroundColor: NSColor
 
-  delegate: SKSceneDelegate;
+	delegate: SKSceneDelegate
 
-  anchorPoint: CGPoint;
+	anchorPoint: CGPoint
 
-  readonly physicsWorld: SKPhysicsWorld;
+	readonly physicsWorld: SKPhysicsWorld
 
-  readonly view: SKView;
+	readonly view: SKView
 
-  convertPointFromView(point: CGPoint): CGPoint;
+	convertPointFromView(point: CGPoint): CGPoint
 
-  convertPointToView(point: CGPoint): CGPoint;
+	convertPointToView(point: CGPoint): CGPoint
 
-  update(currentTime: number): void;
+	update(currentTime: number): void
 
-  didEvaluateActions(): void;
+	didEvaluateActions(): void
 
-  didSimulatePhysics(): void;
+	didSimulatePhysics(): void
 
-  didApplyConstraints(): void;
+	didApplyConstraints(): void
 
-  didFinishUpdate(): void;
+	didFinishUpdate(): void
 
-  didMoveToView(view: SKView): void;
+	didMoveToView(view: SKView): void
 
-  willMoveFromView(view: SKView): void;
+	willMoveFromView(view: SKView): void
 
-  didChangeSize(oldSize: CGSize): void;
+	didChangeSize(oldSize: CGSize): void
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 }
 
 export declare class SKWarpGeometryGrid extends SKWarpGeometry implements NSSecureCoding {
-  initWithCoder(coder: NSCoder): this;
-  initWithCoder(aDecoder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
+	initWithCoder(aDecoder: NSCoder): this
 
-  static grid<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>;
+	static grid<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>
 
-  static gridWithColumnsRows<This extends abstract new (...args: any) => any>(this: This, cols: number, rows: number): InstanceType<This>;
+	static gridWithColumnsRows<This extends abstract new (...args: any) => any>(
+		this: This,
+		cols: number,
+		rows: number,
+	): InstanceType<This>
 
-  static gridWithColumnsRowsSourcePositionsDestPositions<This extends abstract new (...args: any) => any>(this: This, cols: number, rows: number, sourcePositions: interop.PointerConvertible, destPositions: interop.PointerConvertible): InstanceType<This>;
+	static gridWithColumnsRowsSourcePositionsDestPositions<
+		This extends abstract new (...args: any) => any,
+	>(
+		this: This,
+		cols: number,
+		rows: number,
+		sourcePositions: interop.PointerConvertible,
+		destPositions: interop.PointerConvertible,
+	): InstanceType<This>
 
-  initWithColumnsRowsSourcePositionsDestPositions(cols: number, rows: number, sourcePositions: interop.PointerConvertible, destPositions: interop.PointerConvertible): this;
+	initWithColumnsRowsSourcePositionsDestPositions(
+		cols: number,
+		rows: number,
+		sourcePositions: interop.PointerConvertible,
+		destPositions: interop.PointerConvertible,
+	): this
 
-  readonly numberOfColumns: number;
+	readonly numberOfColumns: number
 
-  readonly numberOfRows: number;
+	readonly numberOfRows: number
 
-  readonly vertexCount: number;
+	readonly vertexCount: number
 
-  sourcePositionAtIndex(index: number): unknown /* ext vector */;
+	sourcePositionAtIndex(index: number): unknown /* ext vector */
 
-  destPositionAtIndex(index: number): unknown /* ext vector */;
+	destPositionAtIndex(index: number): unknown /* ext vector */
 
-  gridByReplacingSourcePositions(sourcePositions: interop.PointerConvertible): this;
+	gridByReplacingSourcePositions(sourcePositions: interop.PointerConvertible): this
 
-  gridByReplacingDestPositions(destPositions: interop.PointerConvertible): this;
+	gridByReplacingDestPositions(destPositions: interop.PointerConvertible): this
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 }
 
 export declare class SKWarpGeometry extends NSObject implements NSCopying, NSSecureCoding {
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 export declare class SKNode extends NSResponder implements NSCopying, NSSecureCoding {
-  init(): this;
+	init(): this
 
-  initWithCoder(coder: NSCoder): this;
-  initWithCoder(aDecoder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
+	initWithCoder(aDecoder: NSCoder): this
 
-  static node<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>;
+	static node<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>
 
-  static nodeWithFileNamed<This extends abstract new (...args: any) => any>(this: This, filename: string): InstanceType<This>;
+	static nodeWithFileNamed<This extends abstract new (...args: any) => any>(
+		this: This,
+		filename: string,
+	): InstanceType<This>
 
-  static nodeWithFileNamedSecurelyWithClassesAndError<This extends abstract new (...args: any) => any>(this: This, filename: string, classes: NSSet, error: interop.PointerConvertible): InstanceType<This>;
+	static nodeWithFileNamedSecurelyWithClassesAndError<
+		This extends abstract new (...args: any) => any,
+	>(
+		this: This,
+		filename: string,
+		classes: NSSet,
+		error: interop.PointerConvertible,
+	): InstanceType<This>
 
-  readonly frame: CGRect;
+	readonly frame: CGRect
 
-  calculateAccumulatedFrame(): CGRect;
+	calculateAccumulatedFrame(): CGRect
 
-  position: CGPoint;
+	position: CGPoint
 
-  zPosition: number;
+	zPosition: number
 
-  zRotation: number;
+	zRotation: number
 
-  xScale: number;
+	xScale: number
 
-  yScale: number;
+	yScale: number
 
-  speed: number;
+	speed: number
 
-  alpha: number;
+	alpha: number
 
-  paused: boolean;
+	paused: boolean
 
-  hidden: boolean;
+	hidden: boolean
 
-  userInteractionEnabled: boolean;
+	userInteractionEnabled: boolean
 
-  readonly parent: SKNode;
+	readonly parent: SKNode
 
-  readonly children: NSArray;
+	readonly children: NSArray
 
-  name: string;
+	name: string
 
-  readonly scene: SKScene;
+	readonly scene: SKScene
 
-  physicsBody: SKPhysicsBody;
+	physicsBody: SKPhysicsBody
 
-  userData: NSMutableDictionary;
+	userData: NSMutableDictionary
 
-  reachConstraints: SKReachConstraints;
+	reachConstraints: SKReachConstraints
 
-  get constraints(): NSArray;
-  set constraints(value: NSArray<interop.Object> | Array<interop.Object>);
+	get constraints(): NSArray
+	set constraints(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get attributeValues(): NSDictionary;
-  set attributeValues(value: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>);
+	get attributeValues(): NSDictionary
+	set attributeValues(
+		value: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+	)
 
-  valueForAttributeNamed(key: string): SKAttributeValue;
+	valueForAttributeNamed(key: string): SKAttributeValue
 
-  setValueForAttributeNamed(value: SKAttributeValue, key: string): void;
+	setValueForAttributeNamed(value: SKAttributeValue, key: string): void
 
-  setScale(scale: number): void;
+	setScale(scale: number): void
 
-  addChild(node: SKNode): void;
+	addChild(node: SKNode): void
 
-  insertChildAtIndex(node: SKNode, index: number): void;
+	insertChildAtIndex(node: SKNode, index: number): void
 
-  removeChildrenInArray(nodes: NSArray<interop.Object> | Array<interop.Object>): void;
+	removeChildrenInArray(nodes: NSArray<interop.Object> | Array<interop.Object>): void
 
-  removeAllChildren(): void;
+	removeAllChildren(): void
 
-  removeFromParent(): void;
+	removeFromParent(): void
 
-  moveToParent(parent: SKNode): void;
+	moveToParent(parent: SKNode): void
 
-  childNodeWithName(name: string): SKNode;
+	childNodeWithName(name: string): SKNode
 
-  enumerateChildNodesWithNameUsingBlock(name: string, block: (p1: SKNode, p2: interop.PointerConvertible) => void): void;
+	enumerateChildNodesWithNameUsingBlock(
+		name: string,
+		block: (p1: SKNode, p2: interop.PointerConvertible) => void,
+	): void
 
-  objectForKeyedSubscript(name: string): NSArray;
+	objectForKeyedSubscript(name: string): NSArray
 
-  inParentHierarchy(parent: SKNode): boolean;
+	inParentHierarchy(parent: SKNode): boolean
 
-  runAction(action: SKAction): void;
+	runAction(action: SKAction): void
 
-  runActionCompletion(action: SKAction, block: () => void): void;
+	runActionCompletion(action: SKAction, block: () => void): void
 
-  runActionWithKey(action: SKAction, key: string): void;
+	runActionWithKey(action: SKAction, key: string): void
 
-  hasActions(): boolean;
+	hasActions(): boolean
 
-  actionForKey(key: string): SKAction;
+	actionForKey(key: string): SKAction
 
-  removeActionForKey(key: string): void;
+	removeActionForKey(key: string): void
 
-  removeAllActions(): void;
+	removeAllActions(): void
 
-  containsPoint(p: CGPoint): boolean;
+	containsPoint(p: CGPoint): boolean
 
-  nodeAtPoint(p: CGPoint): SKNode;
+	nodeAtPoint(p: CGPoint): SKNode
 
-  nodesAtPoint(p: CGPoint): NSArray;
+	nodesAtPoint(p: CGPoint): NSArray
 
-  convertPointFromNode(point: CGPoint, node: SKNode): CGPoint;
+	convertPointFromNode(point: CGPoint, node: SKNode): CGPoint
 
-  convertPointToNode(point: CGPoint, node: SKNode): CGPoint;
+	convertPointToNode(point: CGPoint, node: SKNode): CGPoint
 
-  intersectsNode(node: SKNode): boolean;
+	intersectsNode(node: SKNode): boolean
 
-  isEqualToNode(node: SKNode): boolean;
+	isEqualToNode(node: SKNode): boolean
 
-  isPaused(): boolean;
+	isPaused(): boolean
 
-  isHidden(): boolean;
+	isHidden(): boolean
 
-  isUserInteractionEnabled(): boolean;
+	isUserInteractionEnabled(): boolean
 
-  accessibilityElement: boolean;
+	accessibilityElement: boolean
 
-  accessibilityRole: string;
+	accessibilityRole: string
 
-  accessibilityRoleDescription: string;
+	accessibilityRoleDescription: string
 
-  accessibilitySubrole: string;
+	accessibilitySubrole: string
 
-  accessibilityFrame: CGRect;
+	accessibilityFrame: CGRect
 
-  accessibilityParent: interop.Object;
+	accessibilityParent: interop.Object
 
-  get accessibilityChildren(): NSArray;
-  set accessibilityChildren(value: NSArray<interop.Object> | Array<interop.Object>);
+	get accessibilityChildren(): NSArray
+	set accessibilityChildren(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  accessibilityHelp: string;
+	accessibilityHelp: string
 
-  accessibilityLabel: string;
+	accessibilityLabel: string
 
-  accessibilityEnabled: boolean;
+	accessibilityEnabled: boolean
 
-  accessibilityHitTest(point: CGPoint): interop.Object;
+	accessibilityHitTest(point: CGPoint): interop.Object
 
-  isAccessibilityElement(): boolean;
+	isAccessibilityElement(): boolean
 
-  isAccessibilityEnabled(): boolean;
+	isAccessibilityEnabled(): boolean
 
-  static obstaclesFromSpriteTexturesAccuracy(sprites: NSArray<interop.Object> | Array<interop.Object>, accuracy: number): NSArray;
+	static obstaclesFromSpriteTexturesAccuracy(
+		sprites: NSArray<interop.Object> | Array<interop.Object>,
+		accuracy: number,
+	): NSArray
 
-  static obstaclesFromNodeBounds(nodes: NSArray<interop.Object> | Array<interop.Object>): NSArray;
+	static obstaclesFromNodeBounds(nodes: NSArray<interop.Object> | Array<interop.Object>): NSArray
 
-  static obstaclesFromNodePhysicsBodies(nodes: NSArray<interop.Object> | Array<interop.Object>): NSArray;
+	static obstaclesFromNodePhysicsBodies(
+		nodes: NSArray<interop.Object> | Array<interop.Object>,
+	): NSArray
 
-  entity: GKEntity;
+	entity: GKEntity
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 }
 
 export declare class SKTileMapNode extends SKNode implements NSCopying, NSSecureCoding {
-  static tileMapNodeWithTileSetColumnsRowsTileSize<This extends abstract new (...args: any) => any>(this: This, tileSet: SKTileSet, columns: number, rows: number, tileSize: CGSize): InstanceType<This>;
+	static tileMapNodeWithTileSetColumnsRowsTileSize<This extends abstract new (...args: any) => any>(
+		this: This,
+		tileSet: SKTileSet,
+		columns: number,
+		rows: number,
+		tileSize: CGSize,
+	): InstanceType<This>
 
-  static tileMapNodeWithTileSetColumnsRowsTileSizeFillWithTileGroup<This extends abstract new (...args: any) => any>(this: This, tileSet: SKTileSet, columns: number, rows: number, tileSize: CGSize, tileGroup: SKTileGroup): InstanceType<This>;
+	static tileMapNodeWithTileSetColumnsRowsTileSizeFillWithTileGroup<
+		This extends abstract new (...args: any) => any,
+	>(
+		this: This,
+		tileSet: SKTileSet,
+		columns: number,
+		rows: number,
+		tileSize: CGSize,
+		tileGroup: SKTileGroup,
+	): InstanceType<This>
 
-  static tileMapNodeWithTileSetColumnsRowsTileSizeTileGroupLayout<This extends abstract new (...args: any) => any>(this: This, tileSet: SKTileSet, columns: number, rows: number, tileSize: CGSize, tileGroupLayout: NSArray<interop.Object> | Array<interop.Object>): InstanceType<This>;
+	static tileMapNodeWithTileSetColumnsRowsTileSizeTileGroupLayout<
+		This extends abstract new (...args: any) => any,
+	>(
+		this: This,
+		tileSet: SKTileSet,
+		columns: number,
+		rows: number,
+		tileSize: CGSize,
+		tileGroupLayout: NSArray<interop.Object> | Array<interop.Object>,
+	): InstanceType<This>
 
-  initWithTileSetColumnsRowsTileSize(tileSet: SKTileSet, columns: number, rows: number, tileSize: CGSize): this;
+	initWithTileSetColumnsRowsTileSize(
+		tileSet: SKTileSet,
+		columns: number,
+		rows: number,
+		tileSize: CGSize,
+	): this
 
-  initWithTileSetColumnsRowsTileSizeFillWithTileGroup(tileSet: SKTileSet, columns: number, rows: number, tileSize: CGSize, tileGroup: SKTileGroup): this;
+	initWithTileSetColumnsRowsTileSizeFillWithTileGroup(
+		tileSet: SKTileSet,
+		columns: number,
+		rows: number,
+		tileSize: CGSize,
+		tileGroup: SKTileGroup,
+	): this
 
-  initWithTileSetColumnsRowsTileSizeTileGroupLayout(tileSet: SKTileSet, columns: number, rows: number, tileSize: CGSize, tileGroupLayout: NSArray<interop.Object> | Array<interop.Object>): this;
+	initWithTileSetColumnsRowsTileSizeTileGroupLayout(
+		tileSet: SKTileSet,
+		columns: number,
+		rows: number,
+		tileSize: CGSize,
+		tileGroupLayout: NSArray<interop.Object> | Array<interop.Object>,
+	): this
 
-  numberOfColumns: number;
+	numberOfColumns: number
 
-  numberOfRows: number;
+	numberOfRows: number
 
-  tileSize: CGSize;
+	tileSize: CGSize
 
-  readonly mapSize: CGSize;
+	readonly mapSize: CGSize
 
-  tileSet: SKTileSet;
+	tileSet: SKTileSet
 
-  colorBlendFactor: number;
+	colorBlendFactor: number
 
-  color: NSColor;
+	color: NSColor
 
-  blendMode: interop.Enum<typeof SKBlendMode>;
+	blendMode: interop.Enum<typeof SKBlendMode>
 
-  anchorPoint: CGPoint;
+	anchorPoint: CGPoint
 
-  shader: SKShader;
+	shader: SKShader
 
-  get attributeValues(): NSDictionary;
-  set attributeValues(value: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>);
+	get attributeValues(): NSDictionary
+	set attributeValues(
+		value: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+	)
 
-  valueForAttributeNamed(key: string): SKAttributeValue;
+	valueForAttributeNamed(key: string): SKAttributeValue
 
-  setValueForAttributeNamed(value: SKAttributeValue, key: string): void;
+	setValueForAttributeNamed(value: SKAttributeValue, key: string): void
 
-  lightingBitMask: number;
+	lightingBitMask: number
 
-  enableAutomapping: boolean;
+	enableAutomapping: boolean
 
-  fillWithTileGroup(tileGroup: SKTileGroup | null): void;
+	fillWithTileGroup(tileGroup: SKTileGroup | null): void
 
-  tileDefinitionAtColumnRow(column: number, row: number): SKTileDefinition;
+	tileDefinitionAtColumnRow(column: number, row: number): SKTileDefinition
 
-  tileGroupAtColumnRow(column: number, row: number): SKTileGroup;
+	tileGroupAtColumnRow(column: number, row: number): SKTileGroup
 
-  setTileGroupForColumnRow(tileGroup: SKTileGroup | null, column: number, row: number): void;
+	setTileGroupForColumnRow(tileGroup: SKTileGroup | null, column: number, row: number): void
 
-  setTileGroupAndTileDefinitionForColumnRow(tileGroup: SKTileGroup, tileDefinition: SKTileDefinition, column: number, row: number): void;
+	setTileGroupAndTileDefinitionForColumnRow(
+		tileGroup: SKTileGroup,
+		tileDefinition: SKTileDefinition,
+		column: number,
+		row: number,
+	): void
 
-  tileColumnIndexFromPosition(position: CGPoint): number;
+	tileColumnIndexFromPosition(position: CGPoint): number
 
-  tileRowIndexFromPosition(position: CGPoint): number;
+	tileRowIndexFromPosition(position: CGPoint): number
 
-  centerOfTileAtColumnRow(column: number, row: number): CGPoint;
+	centerOfTileAtColumnRow(column: number, row: number): CGPoint
 
-  static tileMapNodesWithTileSetColumnsRowsTileSizeFromNoiseMapTileTypeNoiseMapThresholds(tileSet: SKTileSet, columns: number, rows: number, tileSize: CGSize, noiseMap: GKNoiseMap, thresholds: NSArray<interop.Object> | Array<interop.Object>): NSArray;
+	static tileMapNodesWithTileSetColumnsRowsTileSizeFromNoiseMapTileTypeNoiseMapThresholds(
+		tileSet: SKTileSet,
+		columns: number,
+		rows: number,
+		tileSize: CGSize,
+		noiseMap: GKNoiseMap,
+		thresholds: NSArray<interop.Object> | Array<interop.Object>,
+	): NSArray
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(aDecoder: NSCoder): this;
-  initWithCoder(coder: NSCoder): this;
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(aDecoder: NSCoder): this
+	initWithCoder(coder: NSCoder): this
+	initWithCoder(coder: NSCoder): this
 }
 
 export declare class SKCameraNode extends SKNode {
-  containsNode(node: SKNode): boolean;
+	containsNode(node: SKNode): boolean
 
-  containedNodeSet(): NSSet;
+	containedNodeSet(): NSSet
 }
 
 export declare class SKPhysicsJointFixed extends SKPhysicsJoint {
-  static jointWithBodyABodyBAnchor(bodyA: SKPhysicsBody, bodyB: SKPhysicsBody, anchor: CGPoint): SKPhysicsJointFixed;
+	static jointWithBodyABodyBAnchor(
+		bodyA: SKPhysicsBody,
+		bodyB: SKPhysicsBody,
+		anchor: CGPoint,
+	): SKPhysicsJointFixed
 }
 
 export declare class SKPhysicsJoint extends NSObject implements NSSecureCoding {
-  bodyA: SKPhysicsBody;
+	bodyA: SKPhysicsBody
 
-  bodyB: SKPhysicsBody;
+	bodyB: SKPhysicsBody
 
-  readonly reactionForce: CGVector;
+	readonly reactionForce: CGVector
 
-  readonly reactionTorque: number;
+	readonly reactionTorque: number
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 export declare class SKRenderer extends NSObject {
-  static rendererWithDevice(device: MTLDevice): SKRenderer;
+	static rendererWithDevice(device: MTLDevice): SKRenderer
 
-  renderWithViewportCommandBufferRenderPassDescriptor(viewport: CGRect, commandBuffer: MTLCommandBuffer, renderPassDescriptor: MTLRenderPassDescriptor): void;
+	renderWithViewportCommandBufferRenderPassDescriptor(
+		viewport: CGRect,
+		commandBuffer: MTLCommandBuffer,
+		renderPassDescriptor: MTLRenderPassDescriptor,
+	): void
 
-  renderWithViewportRenderCommandEncoderRenderPassDescriptorCommandQueue(viewport: CGRect, renderCommandEncoder: MTLRenderCommandEncoder, renderPassDescriptor: MTLRenderPassDescriptor, commandQueue: MTLCommandQueue): void;
+	renderWithViewportRenderCommandEncoderRenderPassDescriptorCommandQueue(
+		viewport: CGRect,
+		renderCommandEncoder: MTLRenderCommandEncoder,
+		renderPassDescriptor: MTLRenderPassDescriptor,
+		commandQueue: MTLCommandQueue,
+	): void
 
-  updateAtTime(currentTime: number): void;
+	updateAtTime(currentTime: number): void
 
-  scene: SKScene;
+	scene: SKScene
 
-  ignoresSiblingOrder: boolean;
+	ignoresSiblingOrder: boolean
 
-  shouldCullNonVisibleNodes: boolean;
+	shouldCullNonVisibleNodes: boolean
 
-  showsDrawCount: boolean;
+	showsDrawCount: boolean
 
-  showsNodeCount: boolean;
+	showsNodeCount: boolean
 
-  showsQuadCount: boolean;
+	showsQuadCount: boolean
 
-  showsPhysics: boolean;
+	showsPhysics: boolean
 
-  showsFields: boolean;
+	showsFields: boolean
 }
 
 export declare class SKAction extends NSObject implements NSCopying, NSSecureCoding {
-  duration: number;
+	duration: number
 
-  timingMode: interop.Enum<typeof SKActionTimingMode>;
+	timingMode: interop.Enum<typeof SKActionTimingMode>
 
-  timingFunction: (p1: number) => number;
+	timingFunction: (p1: number) => number
 
-  speed: number;
+	speed: number
 
-  reversedAction(): SKAction;
+	reversedAction(): SKAction
 
-  static moveByDuration(delta: CGVector, duration: number): SKAction;
+	static moveByDuration(delta: CGVector, duration: number): SKAction
 
-  static moveByXYDuration(deltaX: number, deltaY: number, duration: number): SKAction;
+	static moveByXYDuration(deltaX: number, deltaY: number, duration: number): SKAction
 
-  static moveToDuration(location: CGPoint, duration: number): SKAction;
+	static moveToDuration(location: CGPoint, duration: number): SKAction
 
-  static moveToXDuration(x: number, duration: number): SKAction;
+	static moveToXDuration(x: number, duration: number): SKAction
 
-  static moveToYDuration(y: number, duration: number): SKAction;
+	static moveToYDuration(y: number, duration: number): SKAction
 
-  static rotateByAngleDuration(radians: number, duration: number): SKAction;
+	static rotateByAngleDuration(radians: number, duration: number): SKAction
 
-  static rotateToAngleDuration(radians: number, duration: number): SKAction;
+	static rotateToAngleDuration(radians: number, duration: number): SKAction
 
-  static rotateToAngleDurationShortestUnitArc(radians: number, duration: number, shortestUnitArc: boolean): SKAction;
+	static rotateToAngleDurationShortestUnitArc(
+		radians: number,
+		duration: number,
+		shortestUnitArc: boolean,
+	): SKAction
 
-  static resizeByWidthHeightDuration(width: number, height: number, duration: number): SKAction;
+	static resizeByWidthHeightDuration(width: number, height: number, duration: number): SKAction
 
-  static resizeToWidthHeightDuration(width: number, height: number, duration: number): SKAction;
+	static resizeToWidthHeightDuration(width: number, height: number, duration: number): SKAction
 
-  static resizeToWidthDuration(width: number, duration: number): SKAction;
+	static resizeToWidthDuration(width: number, duration: number): SKAction
 
-  static resizeToHeightDuration(height: number, duration: number): SKAction;
+	static resizeToHeightDuration(height: number, duration: number): SKAction
 
-  static scaleByDuration(scale: number, duration: number): SKAction;
+	static scaleByDuration(scale: number, duration: number): SKAction
 
-  static scaleXByYDuration(xScale: number, yScale: number, duration: number): SKAction;
+	static scaleXByYDuration(xScale: number, yScale: number, duration: number): SKAction
 
-  static scaleToDuration(scale: number, duration: number): SKAction;
+	static scaleToDuration(scale: number, duration: number): SKAction
 
-  static scaleXToYDuration(xScale: number, yScale: number, duration: number): SKAction;
+	static scaleXToYDuration(xScale: number, yScale: number, duration: number): SKAction
 
-  static scaleXToDuration(scale: number, duration: number): SKAction;
+	static scaleXToDuration(scale: number, duration: number): SKAction
 
-  static scaleYToDuration(scale: number, duration: number): SKAction;
+	static scaleYToDuration(scale: number, duration: number): SKAction
 
-  static scaleToSizeDuration(size: CGSize, duration: number): SKAction;
+	static scaleToSizeDuration(size: CGSize, duration: number): SKAction
 
-  static sequence(actions: NSArray<interop.Object> | Array<interop.Object>): SKAction;
+	static sequence(actions: NSArray<interop.Object> | Array<interop.Object>): SKAction
 
-  static group(actions: NSArray<interop.Object> | Array<interop.Object>): SKAction;
+	static group(actions: NSArray<interop.Object> | Array<interop.Object>): SKAction
 
-  static repeatActionCount(action: SKAction, count: number): SKAction;
+	static repeatActionCount(action: SKAction, count: number): SKAction
 
-  static repeatActionForever(action: SKAction): SKAction;
+	static repeatActionForever(action: SKAction): SKAction
 
-  static fadeInWithDuration(duration: number): SKAction;
+	static fadeInWithDuration(duration: number): SKAction
 
-  static fadeOutWithDuration(duration: number): SKAction;
+	static fadeOutWithDuration(duration: number): SKAction
 
-  static fadeAlphaByDuration(factor: number, duration: number): SKAction;
+	static fadeAlphaByDuration(factor: number, duration: number): SKAction
 
-  static fadeAlphaToDuration(alpha: number, duration: number): SKAction;
+	static fadeAlphaToDuration(alpha: number, duration: number): SKAction
 
-  static hide(): SKAction;
+	static hide(): SKAction
 
-  static unhide(): SKAction;
+	static unhide(): SKAction
 
-  static setTexture(texture: SKTexture): SKAction;
+	static setTexture(texture: SKTexture): SKAction
 
-  static setNormalTexture(texture: SKTexture): SKAction;
+	static setNormalTexture(texture: SKTexture): SKAction
 
-  static setTextureResize(texture: SKTexture, resize: boolean): SKAction;
+	static setTextureResize(texture: SKTexture, resize: boolean): SKAction
 
-  static setNormalTextureResize(texture: SKTexture, resize: boolean): SKAction;
+	static setNormalTextureResize(texture: SKTexture, resize: boolean): SKAction
 
-  static animateWithTexturesTimePerFrame(textures: NSArray<interop.Object> | Array<interop.Object>, sec: number): SKAction;
+	static animateWithTexturesTimePerFrame(
+		textures: NSArray<interop.Object> | Array<interop.Object>,
+		sec: number,
+	): SKAction
 
-  static animateWithNormalTexturesTimePerFrame(textures: NSArray<interop.Object> | Array<interop.Object>, sec: number): SKAction;
+	static animateWithNormalTexturesTimePerFrame(
+		textures: NSArray<interop.Object> | Array<interop.Object>,
+		sec: number,
+	): SKAction
 
-  static animateWithTexturesTimePerFrameResizeRestore(textures: NSArray<interop.Object> | Array<interop.Object>, sec: number, resize: boolean, restore: boolean): SKAction;
+	static animateWithTexturesTimePerFrameResizeRestore(
+		textures: NSArray<interop.Object> | Array<interop.Object>,
+		sec: number,
+		resize: boolean,
+		restore: boolean,
+	): SKAction
 
-  static animateWithNormalTexturesTimePerFrameResizeRestore(textures: NSArray<interop.Object> | Array<interop.Object>, sec: number, resize: boolean, restore: boolean): SKAction;
+	static animateWithNormalTexturesTimePerFrameResizeRestore(
+		textures: NSArray<interop.Object> | Array<interop.Object>,
+		sec: number,
+		resize: boolean,
+		restore: boolean,
+	): SKAction
 
-  static playSoundFileNamedWaitForCompletion(soundFile: string, wait: boolean): SKAction;
+	static playSoundFileNamedWaitForCompletion(soundFile: string, wait: boolean): SKAction
 
-  static colorizeWithColorColorBlendFactorDuration(color: NSColor, colorBlendFactor: number, duration: number): SKAction;
+	static colorizeWithColorColorBlendFactorDuration(
+		color: NSColor,
+		colorBlendFactor: number,
+		duration: number,
+	): SKAction
 
-  static colorizeWithColorBlendFactorDuration(colorBlendFactor: number, sec: number): SKAction;
+	static colorizeWithColorBlendFactorDuration(colorBlendFactor: number, sec: number): SKAction
 
-  static falloffToDuration(falloff: number, duration: number): SKAction;
+	static falloffToDuration(falloff: number, duration: number): SKAction
 
-  static falloffByDuration(falloff: number, duration: number): SKAction;
+	static falloffByDuration(falloff: number, duration: number): SKAction
 
-  static followPathDuration(path: interop.Object, duration: number): SKAction;
+	static followPathDuration(path: interop.Object, duration: number): SKAction
 
-  static followPathAsOffsetOrientToPathDuration(path: interop.Object, offset: boolean, orient: boolean, duration: number): SKAction;
+	static followPathAsOffsetOrientToPathDuration(
+		path: interop.Object,
+		offset: boolean,
+		orient: boolean,
+		duration: number,
+	): SKAction
 
-  static followPathSpeed(path: interop.Object, speed: number): SKAction;
+	static followPathSpeed(path: interop.Object, speed: number): SKAction
 
-  static followPathAsOffsetOrientToPathSpeed(path: interop.Object, offset: boolean, orient: boolean, speed: number): SKAction;
+	static followPathAsOffsetOrientToPathSpeed(
+		path: interop.Object,
+		offset: boolean,
+		orient: boolean,
+		speed: number,
+	): SKAction
 
-  static speedByDuration(speed: number, duration: number): SKAction;
+	static speedByDuration(speed: number, duration: number): SKAction
 
-  static speedToDuration(speed: number, duration: number): SKAction;
+	static speedToDuration(speed: number, duration: number): SKAction
 
-  static reachToRootNodeDuration(position: CGPoint, root: SKNode, duration: number): SKAction;
+	static reachToRootNodeDuration(position: CGPoint, root: SKNode, duration: number): SKAction
 
-  static reachToRootNodeVelocity(position: CGPoint, root: SKNode, velocity: number): SKAction;
+	static reachToRootNodeVelocity(position: CGPoint, root: SKNode, velocity: number): SKAction
 
-  static reachToNodeRootNodeDuration(node: SKNode, root: SKNode, sec: number): SKAction;
+	static reachToNodeRootNodeDuration(node: SKNode, root: SKNode, sec: number): SKAction
 
-  static reachToNodeRootNodeVelocity(node: SKNode, root: SKNode, velocity: number): SKAction;
+	static reachToNodeRootNodeVelocity(node: SKNode, root: SKNode, velocity: number): SKAction
 
-  static strengthToDuration(strength: number, duration: number): SKAction;
+	static strengthToDuration(strength: number, duration: number): SKAction
 
-  static strengthByDuration(strength: number, duration: number): SKAction;
+	static strengthByDuration(strength: number, duration: number): SKAction
 
-  static waitForDuration(duration: number): SKAction;
+	static waitForDuration(duration: number): SKAction
 
-  static waitForDurationWithRange(duration: number, durationRange: number): SKAction;
+	static waitForDurationWithRange(duration: number, durationRange: number): SKAction
 
-  static removeFromParent(): SKAction;
+	static removeFromParent(): SKAction
 
-  static performSelectorOnTarget(selector: string, target: interop.Object): SKAction;
+	static performSelectorOnTarget(selector: string, target: interop.Object): SKAction
 
-  static runBlock(block: () => void): SKAction;
+	static runBlock(block: () => void): SKAction
 
-  static runBlockQueue(block: () => void, queue: NSObject): SKAction;
+	static runBlockQueue(block: () => void, queue: NSObject): SKAction
 
-  static runActionOnChildWithName(action: SKAction, name: string): SKAction;
+	static runActionOnChildWithName(action: SKAction, name: string): SKAction
 
-  static customActionWithDurationActionBlock(duration: number, block: (p1: SKNode, p2: number) => void): SKAction;
+	static customActionWithDurationActionBlock(
+		duration: number,
+		block: (p1: SKNode, p2: number) => void,
+	): SKAction
 
-  static actionNamed(name: string): SKAction;
+	static actionNamed(name: string): SKAction
 
-  static actionNamedDuration(name: string, duration: number): SKAction;
+	static actionNamedDuration(name: string, duration: number): SKAction
 
-  static actionNamedFromURL(name: string, url: NSURL): SKAction;
+	static actionNamedFromURL(name: string, url: NSURL): SKAction
 
-  static actionNamedFromURLDuration(name: string, url: NSURL, duration: number): SKAction;
+	static actionNamedFromURLDuration(name: string, url: NSURL, duration: number): SKAction
 
-  static changeChargeToDuration(v: number, duration: number): SKAction;
+	static changeChargeToDuration(v: number, duration: number): SKAction
 
-  static changeChargeByDuration(v: number, duration: number): SKAction;
+	static changeChargeByDuration(v: number, duration: number): SKAction
 
-  static changeMassToDuration(v: number, duration: number): SKAction;
+	static changeMassToDuration(v: number, duration: number): SKAction
 
-  static changeMassByDuration(v: number, duration: number): SKAction;
+	static changeMassByDuration(v: number, duration: number): SKAction
 
-  static applyForceDuration(force: CGVector, duration: number): SKAction;
+	static applyForceDuration(force: CGVector, duration: number): SKAction
 
-  static applyForceAtPointDuration(force: CGVector, point: CGPoint, duration: number): SKAction;
+	static applyForceAtPointDuration(force: CGVector, point: CGPoint, duration: number): SKAction
 
-  static applyTorqueDuration(torque: number, duration: number): SKAction;
+	static applyTorqueDuration(torque: number, duration: number): SKAction
 
-  static applyImpulseDuration(impulse: CGVector, duration: number): SKAction;
+	static applyImpulseDuration(impulse: CGVector, duration: number): SKAction
 
-  static applyImpulseAtPointDuration(impulse: CGVector, point: CGPoint, duration: number): SKAction;
+	static applyImpulseAtPointDuration(impulse: CGVector, point: CGPoint, duration: number): SKAction
 
-  static applyAngularImpulseDuration(impulse: number, duration: number): SKAction;
+	static applyAngularImpulseDuration(impulse: number, duration: number): SKAction
 
-  static play(): SKAction;
+	static play(): SKAction
 
-  static pause(): SKAction;
+	static pause(): SKAction
 
-  static stop(): SKAction;
+	static stop(): SKAction
 
-  static changePlaybackRateToDuration(v: number, duration: number): SKAction;
+	static changePlaybackRateToDuration(v: number, duration: number): SKAction
 
-  static changePlaybackRateByDuration(v: number, duration: number): SKAction;
+	static changePlaybackRateByDuration(v: number, duration: number): SKAction
 
-  static changeVolumeToDuration(v: number, duration: number): SKAction;
+	static changeVolumeToDuration(v: number, duration: number): SKAction
 
-  static changeVolumeByDuration(v: number, duration: number): SKAction;
+	static changeVolumeByDuration(v: number, duration: number): SKAction
 
-  static warpToDuration(warp: SKWarpGeometry, duration: number): SKAction;
+	static warpToDuration(warp: SKWarpGeometry, duration: number): SKAction
 
-  static animateWithWarpsTimes(warps: NSArray<interop.Object> | Array<interop.Object>, times: NSArray<interop.Object> | Array<interop.Object>): SKAction;
+	static animateWithWarpsTimes(
+		warps: NSArray<interop.Object> | Array<interop.Object>,
+		times: NSArray<interop.Object> | Array<interop.Object>,
+	): SKAction
 
-  static animateWithWarpsTimesRestore(warps: NSArray<interop.Object> | Array<interop.Object>, times: NSArray<interop.Object> | Array<interop.Object>, restore: boolean): SKAction;
+	static animateWithWarpsTimesRestore(
+		warps: NSArray<interop.Object> | Array<interop.Object>,
+		times: NSArray<interop.Object> | Array<interop.Object>,
+		restore: boolean,
+	): SKAction
 
-  static stereoPanToDuration(v: number, duration: number): SKAction;
+	static stereoPanToDuration(v: number, duration: number): SKAction
 
-  static stereoPanByDuration(v: number, duration: number): SKAction;
+	static stereoPanByDuration(v: number, duration: number): SKAction
 
-  static changeReverbToDuration(v: number, duration: number): SKAction;
+	static changeReverbToDuration(v: number, duration: number): SKAction
 
-  static changeReverbByDuration(v: number, duration: number): SKAction;
+	static changeReverbByDuration(v: number, duration: number): SKAction
 
-  static changeObstructionToDuration(v: number, duration: number): SKAction;
+	static changeObstructionToDuration(v: number, duration: number): SKAction
 
-  static changeObstructionByDuration(v: number, duration: number): SKAction;
+	static changeObstructionByDuration(v: number, duration: number): SKAction
 
-  static changeOcclusionToDuration(v: number, duration: number): SKAction;
+	static changeOcclusionToDuration(v: number, duration: number): SKAction
 
-  static changeOcclusionByDuration(v: number, duration: number): SKAction;
+	static changeOcclusionByDuration(v: number, duration: number): SKAction
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 export declare class SKLightNode extends SKNode {
-  enabled: boolean;
+	enabled: boolean
 
-  lightColor: NSColor;
+	lightColor: NSColor
 
-  ambientColor: NSColor;
+	ambientColor: NSColor
 
-  shadowColor: NSColor;
+	shadowColor: NSColor
 
-  falloff: number;
+	falloff: number
 
-  categoryBitMask: number;
+	categoryBitMask: number
 
-  isEnabled(): boolean;
+	isEnabled(): boolean
 }
 
 export declare class SKShader extends NSObject implements NSCopying, NSSecureCoding {
-  initWithSource(source: string): this;
+	initWithSource(source: string): this
 
-  initWithSourceUniforms(source: string, uniforms: NSArray<interop.Object> | Array<interop.Object>): this;
+	initWithSourceUniforms(
+		source: string,
+		uniforms: NSArray<interop.Object> | Array<interop.Object>,
+	): this
 
-  static shader<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>;
+	static shader<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>
 
-  static shaderWithSource<This extends abstract new (...args: any) => any>(this: This, source: string): InstanceType<This>;
+	static shaderWithSource<This extends abstract new (...args: any) => any>(
+		this: This,
+		source: string,
+	): InstanceType<This>
 
-  static shaderWithSourceUniforms<This extends abstract new (...args: any) => any>(this: This, source: string, uniforms: NSArray<interop.Object> | Array<interop.Object>): InstanceType<This>;
+	static shaderWithSourceUniforms<This extends abstract new (...args: any) => any>(
+		this: This,
+		source: string,
+		uniforms: NSArray<interop.Object> | Array<interop.Object>,
+	): InstanceType<This>
 
-  static shaderWithFileNamed<This extends abstract new (...args: any) => any>(this: This, name: string): InstanceType<This>;
+	static shaderWithFileNamed<This extends abstract new (...args: any) => any>(
+		this: This,
+		name: string,
+	): InstanceType<This>
 
-  source: string;
+	source: string
 
-  get uniforms(): NSArray;
-  set uniforms(value: NSArray<interop.Object> | Array<interop.Object>);
+	get uniforms(): NSArray
+	set uniforms(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  addUniform(uniform: SKUniform): void;
+	addUniform(uniform: SKUniform): void
 
-  uniformNamed(name: string): SKUniform;
+	uniformNamed(name: string): SKUniform
 
-  removeUniformNamed(name: string): void;
+	removeUniformNamed(name: string): void
 
-  get attributes(): NSArray;
-  set attributes(value: NSArray<interop.Object> | Array<interop.Object>);
+	get attributes(): NSArray
+	set attributes(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 export declare class SKRange extends NSObject implements NSSecureCoding, NSCopying {
-  initWithLowerLimitUpperLimit(lower: number, upper: number): this;
+	initWithLowerLimitUpperLimit(lower: number, upper: number): this
 
-  static rangeWithLowerLimitUpperLimit<This extends abstract new (...args: any) => any>(this: This, lower: number, upper: number): InstanceType<This>;
+	static rangeWithLowerLimitUpperLimit<This extends abstract new (...args: any) => any>(
+		this: This,
+		lower: number,
+		upper: number,
+	): InstanceType<This>
 
-  static rangeWithLowerLimit<This extends abstract new (...args: any) => any>(this: This, lower: number): InstanceType<This>;
+	static rangeWithLowerLimit<This extends abstract new (...args: any) => any>(
+		this: This,
+		lower: number,
+	): InstanceType<This>
 
-  static rangeWithUpperLimit<This extends abstract new (...args: any) => any>(this: This, upper: number): InstanceType<This>;
+	static rangeWithUpperLimit<This extends abstract new (...args: any) => any>(
+		this: This,
+		upper: number,
+	): InstanceType<This>
 
-  static rangeWithConstantValue<This extends abstract new (...args: any) => any>(this: This, value: number): InstanceType<This>;
+	static rangeWithConstantValue<This extends abstract new (...args: any) => any>(
+		this: This,
+		value: number,
+	): InstanceType<This>
 
-  static rangeWithValueVariance<This extends abstract new (...args: any) => any>(this: This, value: number, variance: number): InstanceType<This>;
+	static rangeWithValueVariance<This extends abstract new (...args: any) => any>(
+		this: This,
+		value: number,
+		variance: number,
+	): InstanceType<This>
 
-  static rangeWithNoLimits<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>;
+	static rangeWithNoLimits<This extends abstract new (...args: any) => any>(
+		this: This,
+	): InstanceType<This>
 
-  lowerLimit: number;
+	lowerLimit: number
 
-  upperLimit: number;
+	upperLimit: number
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 export declare class SKEffectNode extends SKNode implements SKWarpable {
-  filter: CIFilter;
+	filter: CIFilter
 
-  shouldCenterFilter: boolean;
+	shouldCenterFilter: boolean
 
-  shouldEnableEffects: boolean;
+	shouldEnableEffects: boolean
 
-  shouldRasterize: boolean;
+	shouldRasterize: boolean
 
-  blendMode: interop.Enum<typeof SKBlendMode>;
+	blendMode: interop.Enum<typeof SKBlendMode>
 
-  shader: SKShader;
+	shader: SKShader
 
-  get attributeValues(): NSDictionary;
-  set attributeValues(value: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>);
+	get attributeValues(): NSDictionary
+	set attributeValues(
+		value: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+	)
 
-  valueForAttributeNamed(key: string): SKAttributeValue;
+	valueForAttributeNamed(key: string): SKAttributeValue
 
-  setValueForAttributeNamed(value: SKAttributeValue, key: string): void;
+	setValueForAttributeNamed(value: SKAttributeValue, key: string): void
 
-  warpGeometry: SKWarpGeometry;
+	warpGeometry: SKWarpGeometry
 
-  subdivisionLevels: number;
+	subdivisionLevels: number
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 }
 
 export declare class SKUniform extends NSObject implements NSCopying, NSSecureCoding {
-  static uniformWithName<This extends abstract new (...args: any) => any>(this: This, name: string): InstanceType<This>;
+	static uniformWithName<This extends abstract new (...args: any) => any>(
+		this: This,
+		name: string,
+	): InstanceType<This>
 
-  static uniformWithNameTexture<This extends abstract new (...args: any) => any>(this: This, name: string, texture: SKTexture | null): InstanceType<This>;
+	static uniformWithNameTexture<This extends abstract new (...args: any) => any>(
+		this: This,
+		name: string,
+		texture: SKTexture | null,
+	): InstanceType<This>
 
-  static uniformWithNameFloat<This extends abstract new (...args: any) => any>(this: This, name: string, value: number): InstanceType<This>;
+	static uniformWithNameFloat<This extends abstract new (...args: any) => any>(
+		this: This,
+		name: string,
+		value: number,
+	): InstanceType<This>
 
-  static uniformWithNameVectorFloat2<This extends abstract new (...args: any) => any>(this: This, name: string, value: unknown /* ext vector */): InstanceType<This>;
+	static uniformWithNameVectorFloat2<This extends abstract new (...args: any) => any>(
+		this: This,
+		name: string,
+		value: unknown /* ext vector */,
+	): InstanceType<This>
 
-  static uniformWithNameVectorFloat3<This extends abstract new (...args: any) => any>(this: This, name: string, value: unknown /* ext vector */): InstanceType<This>;
+	static uniformWithNameVectorFloat3<This extends abstract new (...args: any) => any>(
+		this: This,
+		name: string,
+		value: unknown /* ext vector */,
+	): InstanceType<This>
 
-  static uniformWithNameVectorFloat4<This extends abstract new (...args: any) => any>(this: This, name: string, value: unknown /* ext vector */): InstanceType<This>;
+	static uniformWithNameVectorFloat4<This extends abstract new (...args: any) => any>(
+		this: This,
+		name: string,
+		value: unknown /* ext vector */,
+	): InstanceType<This>
 
-  static uniformWithNameMatrixFloat2x2<This extends abstract new (...args: any) => any>(this: This, name: string, value: simd_float2x2): InstanceType<This>;
+	static uniformWithNameMatrixFloat2x2<This extends abstract new (...args: any) => any>(
+		this: This,
+		name: string,
+		value: simd_float2x2,
+	): InstanceType<This>
 
-  static uniformWithNameMatrixFloat3x3<This extends abstract new (...args: any) => any>(this: This, name: string, value: simd_float3x3): InstanceType<This>;
+	static uniformWithNameMatrixFloat3x3<This extends abstract new (...args: any) => any>(
+		this: This,
+		name: string,
+		value: simd_float3x3,
+	): InstanceType<This>
 
-  static uniformWithNameMatrixFloat4x4<This extends abstract new (...args: any) => any>(this: This, name: string, value: simd_float4x4): InstanceType<This>;
+	static uniformWithNameMatrixFloat4x4<This extends abstract new (...args: any) => any>(
+		this: This,
+		name: string,
+		value: simd_float4x4,
+	): InstanceType<This>
 
-  readonly name: string;
+	readonly name: string
 
-  readonly uniformType: interop.Enum<typeof SKUniformType>;
+	readonly uniformType: interop.Enum<typeof SKUniformType>
 
-  textureValue: SKTexture;
+	textureValue: SKTexture
 
-  floatValue: number;
+	floatValue: number
 
-  vectorFloat2Value: unknown /* ext vector */;
+	vectorFloat2Value: unknown /* ext vector */
 
-  vectorFloat3Value: unknown /* ext vector */;
+	vectorFloat3Value: unknown /* ext vector */
 
-  vectorFloat4Value: unknown /* ext vector */;
+	vectorFloat4Value: unknown /* ext vector */
 
-  matrixFloat2x2Value: simd_float2x2;
+	matrixFloat2x2Value: simd_float2x2
 
-  matrixFloat3x3Value: simd_float3x3;
+	matrixFloat3x3Value: simd_float3x3
 
-  matrixFloat4x4Value: simd_float4x4;
+	matrixFloat4x4Value: simd_float4x4
 
-  initWithName(name: string): this;
+	initWithName(name: string): this
 
-  initWithNameTexture(name: string, texture: SKTexture | null): this;
+	initWithNameTexture(name: string, texture: SKTexture | null): this
 
-  initWithNameFloat(name: string, value: number): this;
+	initWithNameFloat(name: string, value: number): this
 
-  initWithNameVectorFloat2(name: string, value: unknown /* ext vector */): this;
+	initWithNameVectorFloat2(name: string, value: unknown /* ext vector */): this
 
-  initWithNameVectorFloat3(name: string, value: unknown /* ext vector */): this;
+	initWithNameVectorFloat3(name: string, value: unknown /* ext vector */): this
 
-  initWithNameVectorFloat4(name: string, value: unknown /* ext vector */): this;
+	initWithNameVectorFloat4(name: string, value: unknown /* ext vector */): this
 
-  initWithNameMatrixFloat2x2(name: string, value: simd_float2x2): this;
+	initWithNameMatrixFloat2x2(name: string, value: simd_float2x2): this
 
-  initWithNameMatrixFloat3x3(name: string, value: simd_float3x3): this;
+	initWithNameMatrixFloat3x3(name: string, value: simd_float3x3): this
 
-  initWithNameMatrixFloat4x4(name: string, value: simd_float4x4): this;
+	initWithNameMatrixFloat4x4(name: string, value: simd_float4x4): this
 
-  floatVector2Value: _GLKVector2;
+	floatVector2Value: _GLKVector2
 
-  floatVector3Value: _GLKVector3;
+	floatVector3Value: _GLKVector3
 
-  floatVector4Value: _GLKVector4;
+	floatVector4Value: _GLKVector4
 
-  floatMatrix2Value: _GLKMatrix2;
+	floatMatrix2Value: _GLKMatrix2
 
-  floatMatrix3Value: _GLKMatrix3;
+	floatMatrix3Value: _GLKMatrix3
 
-  floatMatrix4Value: _GLKMatrix4;
+	floatMatrix4Value: _GLKMatrix4
 
-  static uniformWithNameFloatVector2<This extends abstract new (...args: any) => any>(this: This, name: string, value: _GLKVector2): InstanceType<This>;
+	static uniformWithNameFloatVector2<This extends abstract new (...args: any) => any>(
+		this: This,
+		name: string,
+		value: _GLKVector2,
+	): InstanceType<This>
 
-  static uniformWithNameFloatVector3<This extends abstract new (...args: any) => any>(this: This, name: string, value: _GLKVector3): InstanceType<This>;
+	static uniformWithNameFloatVector3<This extends abstract new (...args: any) => any>(
+		this: This,
+		name: string,
+		value: _GLKVector3,
+	): InstanceType<This>
 
-  static uniformWithNameFloatVector4<This extends abstract new (...args: any) => any>(this: This, name: string, value: _GLKVector4): InstanceType<This>;
+	static uniformWithNameFloatVector4<This extends abstract new (...args: any) => any>(
+		this: This,
+		name: string,
+		value: _GLKVector4,
+	): InstanceType<This>
 
-  static uniformWithNameFloatMatrix2<This extends abstract new (...args: any) => any>(this: This, name: string, value: _GLKMatrix2): InstanceType<This>;
+	static uniformWithNameFloatMatrix2<This extends abstract new (...args: any) => any>(
+		this: This,
+		name: string,
+		value: _GLKMatrix2,
+	): InstanceType<This>
 
-  static uniformWithNameFloatMatrix3<This extends abstract new (...args: any) => any>(this: This, name: string, value: _GLKMatrix3): InstanceType<This>;
+	static uniformWithNameFloatMatrix3<This extends abstract new (...args: any) => any>(
+		this: This,
+		name: string,
+		value: _GLKMatrix3,
+	): InstanceType<This>
 
-  static uniformWithNameFloatMatrix4<This extends abstract new (...args: any) => any>(this: This, name: string, value: _GLKMatrix4): InstanceType<This>;
+	static uniformWithNameFloatMatrix4<This extends abstract new (...args: any) => any>(
+		this: This,
+		name: string,
+		value: _GLKMatrix4,
+	): InstanceType<This>
 
-  initWithNameFloatVector2(name: string, value: _GLKVector2): this;
+	initWithNameFloatVector2(name: string, value: _GLKVector2): this
 
-  initWithNameFloatVector3(name: string, value: _GLKVector3): this;
+	initWithNameFloatVector3(name: string, value: _GLKVector3): this
 
-  initWithNameFloatVector4(name: string, value: _GLKVector4): this;
+	initWithNameFloatVector4(name: string, value: _GLKVector4): this
 
-  initWithNameFloatMatrix2(name: string, value: _GLKMatrix2): this;
+	initWithNameFloatMatrix2(name: string, value: _GLKMatrix2): this
 
-  initWithNameFloatMatrix3(name: string, value: _GLKMatrix3): this;
+	initWithNameFloatMatrix3(name: string, value: _GLKMatrix3): this
 
-  initWithNameFloatMatrix4(name: string, value: _GLKMatrix4): this;
+	initWithNameFloatMatrix4(name: string, value: _GLKMatrix4): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 export declare class SKTileGroupRule extends NSObject implements NSCopying, NSSecureCoding {
-  static tileGroupRuleWithAdjacencyTileDefinitions<This extends abstract new (...args: any) => any>(this: This, adjacency: interop.Enum<typeof SKTileAdjacencyMask>, tileDefinitions: NSArray<interop.Object> | Array<interop.Object>): InstanceType<This>;
+	static tileGroupRuleWithAdjacencyTileDefinitions<This extends abstract new (...args: any) => any>(
+		this: This,
+		adjacency: interop.Enum<typeof SKTileAdjacencyMask>,
+		tileDefinitions: NSArray<interop.Object> | Array<interop.Object>,
+	): InstanceType<This>
 
-  initWithAdjacencyTileDefinitions(adjacency: interop.Enum<typeof SKTileAdjacencyMask>, tileDefinitions: NSArray<interop.Object> | Array<interop.Object>): this;
+	initWithAdjacencyTileDefinitions(
+		adjacency: interop.Enum<typeof SKTileAdjacencyMask>,
+		tileDefinitions: NSArray<interop.Object> | Array<interop.Object>,
+	): this
 
-  adjacency: interop.Enum<typeof SKTileAdjacencyMask>;
+	adjacency: interop.Enum<typeof SKTileAdjacencyMask>
 
-  get tileDefinitions(): NSArray;
-  set tileDefinitions(value: NSArray<interop.Object> | Array<interop.Object>);
+	get tileDefinitions(): NSArray
+	set tileDefinitions(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  name: string;
+	name: string
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 export declare class SKTextureAtlas extends NSObject implements NSSecureCoding {
-  static atlasNamed<This extends abstract new (...args: any) => any>(this: This, name: string): InstanceType<This>;
+	static atlasNamed<This extends abstract new (...args: any) => any>(
+		this: This,
+		name: string,
+	): InstanceType<This>
 
-  static atlasWithDictionary<This extends abstract new (...args: any) => any>(this: This, properties: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): InstanceType<This>;
+	static atlasWithDictionary<This extends abstract new (...args: any) => any>(
+		this: This,
+		properties:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+	): InstanceType<This>
 
-  textureNamed(name: string): SKTexture;
+	textureNamed(name: string): SKTexture
 
-  static preloadTextureAtlasesWithCompletionHandler(textureAtlases: NSArray<interop.Object> | Array<interop.Object>, completionHandler: () => void): void;
+	static preloadTextureAtlasesWithCompletionHandler(
+		textureAtlases: NSArray<interop.Object> | Array<interop.Object>,
+		completionHandler: () => void,
+	): void
 
-  static preloadTextureAtlasesNamedWithCompletionHandler(atlasNames: NSArray<interop.Object> | Array<interop.Object>, completionHandler: (p1: NSError, p2: NSArray<interop.Object> | Array<interop.Object>) => void | null): void;
+	static preloadTextureAtlasesNamedWithCompletionHandler(
+		atlasNames: NSArray<interop.Object> | Array<interop.Object>,
+		completionHandler: (
+			p1: NSError,
+			p2: NSArray<interop.Object> | Array<interop.Object>,
+		) => void | null,
+	): void
 
-  preloadWithCompletionHandler(completionHandler: () => void): void;
+	preloadWithCompletionHandler(completionHandler: () => void): void
 
-  readonly textureNames: NSArray;
+	readonly textureNames: NSArray
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 export declare class SKPhysicsWorld extends NSObject implements NSSecureCoding {
-  gravity: CGVector;
+	gravity: CGVector
 
-  speed: number;
+	speed: number
 
-  contactDelegate: SKPhysicsContactDelegate;
+	contactDelegate: SKPhysicsContactDelegate
 
-  addJoint(joint: SKPhysicsJoint): void;
+	addJoint(joint: SKPhysicsJoint): void
 
-  removeJoint(joint: SKPhysicsJoint): void;
+	removeJoint(joint: SKPhysicsJoint): void
 
-  removeAllJoints(): void;
+	removeAllJoints(): void
 
-  sampleFieldsAt(position: unknown /* ext vector */): unknown /* ext vector */;
+	sampleFieldsAt(position: unknown /* ext vector */): unknown /* ext vector */
 
-  bodyAtPoint(point: CGPoint): SKPhysicsBody;
+	bodyAtPoint(point: CGPoint): SKPhysicsBody
 
-  bodyInRect(rect: CGRect): SKPhysicsBody;
+	bodyInRect(rect: CGRect): SKPhysicsBody
 
-  bodyAlongRayStartEnd(start: CGPoint, end: CGPoint): SKPhysicsBody;
+	bodyAlongRayStartEnd(start: CGPoint, end: CGPoint): SKPhysicsBody
 
-  enumerateBodiesAtPointUsingBlock(point: CGPoint, block: (p1: SKPhysicsBody, p2: interop.PointerConvertible) => void): void;
+	enumerateBodiesAtPointUsingBlock(
+		point: CGPoint,
+		block: (p1: SKPhysicsBody, p2: interop.PointerConvertible) => void,
+	): void
 
-  enumerateBodiesInRectUsingBlock(rect: CGRect, block: (p1: SKPhysicsBody, p2: interop.PointerConvertible) => void): void;
+	enumerateBodiesInRectUsingBlock(
+		rect: CGRect,
+		block: (p1: SKPhysicsBody, p2: interop.PointerConvertible) => void,
+	): void
 
-  enumerateBodiesAlongRayStartEndUsingBlock(start: CGPoint, end: CGPoint, block: (p1: SKPhysicsBody, p2: CGPoint, p3: CGVector, p4: interop.PointerConvertible) => void): void;
+	enumerateBodiesAlongRayStartEndUsingBlock(
+		start: CGPoint,
+		end: CGPoint,
+		block: (p1: SKPhysicsBody, p2: CGPoint, p3: CGVector, p4: interop.PointerConvertible) => void,
+	): void
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 export declare class SKTransition extends NSObject implements NSCopying {
-  static crossFadeWithDuration(sec: number): SKTransition;
+	static crossFadeWithDuration(sec: number): SKTransition
 
-  static fadeWithDuration(sec: number): SKTransition;
+	static fadeWithDuration(sec: number): SKTransition
 
-  static fadeWithColorDuration(color: NSColor, sec: number): SKTransition;
+	static fadeWithColorDuration(color: NSColor, sec: number): SKTransition
 
-  static flipHorizontalWithDuration(sec: number): SKTransition;
+	static flipHorizontalWithDuration(sec: number): SKTransition
 
-  static flipVerticalWithDuration(sec: number): SKTransition;
+	static flipVerticalWithDuration(sec: number): SKTransition
 
-  static revealWithDirectionDuration(direction: interop.Enum<typeof SKTransitionDirection>, sec: number): SKTransition;
+	static revealWithDirectionDuration(
+		direction: interop.Enum<typeof SKTransitionDirection>,
+		sec: number,
+	): SKTransition
 
-  static moveInWithDirectionDuration(direction: interop.Enum<typeof SKTransitionDirection>, sec: number): SKTransition;
+	static moveInWithDirectionDuration(
+		direction: interop.Enum<typeof SKTransitionDirection>,
+		sec: number,
+	): SKTransition
 
-  static pushWithDirectionDuration(direction: interop.Enum<typeof SKTransitionDirection>, sec: number): SKTransition;
+	static pushWithDirectionDuration(
+		direction: interop.Enum<typeof SKTransitionDirection>,
+		sec: number,
+	): SKTransition
 
-  static doorsOpenHorizontalWithDuration(sec: number): SKTransition;
+	static doorsOpenHorizontalWithDuration(sec: number): SKTransition
 
-  static doorsOpenVerticalWithDuration(sec: number): SKTransition;
+	static doorsOpenVerticalWithDuration(sec: number): SKTransition
 
-  static doorsCloseHorizontalWithDuration(sec: number): SKTransition;
+	static doorsCloseHorizontalWithDuration(sec: number): SKTransition
 
-  static doorsCloseVerticalWithDuration(sec: number): SKTransition;
+	static doorsCloseVerticalWithDuration(sec: number): SKTransition
 
-  static doorwayWithDuration(sec: number): SKTransition;
+	static doorwayWithDuration(sec: number): SKTransition
 
-  static transitionWithCIFilterDuration(filter: CIFilter, sec: number): SKTransition;
+	static transitionWithCIFilterDuration(filter: CIFilter, sec: number): SKTransition
 
-  pausesIncomingScene: boolean;
+	pausesIncomingScene: boolean
 
-  pausesOutgoingScene: boolean;
+	pausesOutgoingScene: boolean
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 export declare class SKFieldNode extends SKNode {
-  region: SKRegion;
+	region: SKRegion
 
-  strength: number;
+	strength: number
 
-  falloff: number;
+	falloff: number
 
-  minimumRadius: number;
+	minimumRadius: number
 
-  enabled: boolean;
+	enabled: boolean
 
-  exclusive: boolean;
+	exclusive: boolean
 
-  categoryBitMask: number;
+	categoryBitMask: number
 
-  direction: unknown /* ext vector */;
+	direction: unknown /* ext vector */
 
-  smoothness: number;
+	smoothness: number
 
-  animationSpeed: number;
+	animationSpeed: number
 
-  texture: SKTexture;
+	texture: SKTexture
 
-  static dragField(): SKFieldNode;
+	static dragField(): SKFieldNode
 
-  static vortexField(): SKFieldNode;
+	static vortexField(): SKFieldNode
 
-  static radialGravityField(): SKFieldNode;
+	static radialGravityField(): SKFieldNode
 
-  static linearGravityFieldWithVector(direction: unknown /* ext vector */): SKFieldNode;
+	static linearGravityFieldWithVector(direction: unknown /* ext vector */): SKFieldNode
 
-  static velocityFieldWithVector(direction: unknown /* ext vector */): SKFieldNode;
+	static velocityFieldWithVector(direction: unknown /* ext vector */): SKFieldNode
 
-  static velocityFieldWithTexture(velocityTexture: SKTexture): SKFieldNode;
+	static velocityFieldWithTexture(velocityTexture: SKTexture): SKFieldNode
 
-  static noiseFieldWithSmoothnessAnimationSpeed(smoothness: number, speed: number): SKFieldNode;
+	static noiseFieldWithSmoothnessAnimationSpeed(smoothness: number, speed: number): SKFieldNode
 
-  static turbulenceFieldWithSmoothnessAnimationSpeed(smoothness: number, speed: number): SKFieldNode;
+	static turbulenceFieldWithSmoothnessAnimationSpeed(smoothness: number, speed: number): SKFieldNode
 
-  static springField(): SKFieldNode;
+	static springField(): SKFieldNode
 
-  static electricField(): SKFieldNode;
+	static electricField(): SKFieldNode
 
-  static magneticField(): SKFieldNode;
+	static magneticField(): SKFieldNode
 
-  static customFieldWithEvaluationBlock(block: (p1: unknown /* ext vector */, p2: unknown /* ext vector */, p3: number, p4: number, p5: number) => unknown /* ext vector */): SKFieldNode;
+	static customFieldWithEvaluationBlock(
+		block: (
+			p1: unknown /* ext vector */,
+			p2: unknown /* ext vector */,
+			p3: number,
+			p4: number,
+			p5: number,
+		) => unknown /* ext vector */,
+	): SKFieldNode
 
-  isEnabled(): boolean;
+	isEnabled(): boolean
 
-  isExclusive(): boolean;
+	isExclusive(): boolean
 }

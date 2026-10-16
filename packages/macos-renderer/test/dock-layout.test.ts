@@ -331,25 +331,48 @@ test('DockLayout geometry observer releases on disposal and ignores late callbac
 	const view = { removeFromSuperview: noop }
 	const observer = {}
 	const node: any = {
-		id: 1, type: 'docklayout', props: {}, children: [], parent: null,
+		id: 1,
+		type: 'docklayout',
+		props: {},
+		children: [],
+		parent: null,
 		container: { children: [] },
 	}
 
 	const api = runInNewContext(
-		['makeDockLayout', 'destroy', 'detach', 'releasePlacementPins'].map(fn).join('\n') + '\n;({makeDockLayout,destroy})',
+		['makeDockLayout', 'destroy', 'detach', 'releasePlacementPins'].map(fn).join('\n') +
+			'\n;({makeDockLayout,destroy})',
 		{
-			DockLayoutView: { alloc: () => ({initWithFrame: () => view}) },
+			DockLayoutView: { alloc: () => ({ initWithFrame: () => view }) },
 			dockLayoutNodesByView: map,
 			NSViewFrameDidChangeNotification: 'frame',
-			NSNotificationCenter: {defaultCenter: {
-				addObserverForNameObjectQueueUsingBlock: (_name: any, _view: any, _queue: any, handler: () => void) => { callback = handler; return observer },
-				removeObserver: (value: any) => released.push(value),
-			}},
-			queueLayoutReconcile: (_container: any, parent: any) => { if (parent) { queued.push(parent) } },
+			NSNotificationCenter: {
+				defaultCenter: {
+					addObserverForNameObjectQueueUsingBlock: (
+						_name: any,
+						_view: any,
+						_queue: any,
+						handler: () => void,
+					) => {
+						callback = handler
+						return observer
+					},
+					removeObserver: (value: any) => released.push(value),
+				},
+			},
+			queueLayoutReconcile: (_container: any, parent: any) => {
+				if (parent) {
+					queued.push(parent)
+				}
+			},
 			layoutView: (value: any) => value.view,
 			arrangedView: (value: any) => value.view,
-			deactivateSizeConstraints: noop, setLayoutAction: noop, syncText: noop,
-			disposePressGestures: noop, panHandlersByView: new WeakMap(), layoutHandlers: new WeakMap(),
+			deactivateSizeConstraints: noop,
+			setLayoutAction: noop,
+			syncText: noop,
+			disposePressGestures: noop,
+			panHandlersByView: new WeakMap(),
+			layoutHandlers: new WeakMap(),
 		},
 	)
 
@@ -365,9 +388,13 @@ test('DockLayout geometry observer releases on disposal and ignores late callbac
 })
 
 test('percentage dimensions use the full parent measure spec even inside padding', () => {
-	const fx = fixture(), a = fx.child(2, {dock:'left',style:{width:'50%'}}), b = fx.child(3)
-	fx.parent.dockInsets = {left:10,right:10,top:10,bottom:10} as any
-	fx.insert(a); fx.insert(b)
-	assert.deepEqual(rect(a), [10,10,100,80])
-	assert.deepEqual(rect(b), [110,10,80,80])
+	const fx = fixture(),
+		a = fx.child(2, { dock: 'left', style: { width: '50%' } }),
+		b = fx.child(3)
+
+	fx.parent.dockInsets = { left: 10, right: 10, top: 10, bottom: 10 } as any
+	fx.insert(a)
+	fx.insert(b)
+	assert.deepEqual(rect(a), [10, 10, 100, 80])
+	assert.deepEqual(rect(b), [110, 10, 80, 80])
 })

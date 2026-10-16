@@ -20,7 +20,13 @@ export function navigate(...args: NavigateArgs) {
 	]
 
 	lastNavStack = opts?.into ?? 'root'
-	pushRoute({ stack: lastNavStack, name, params: params ?? {}, presentation: opts?.presentation } as TypedRoute)
+	pushRoute({
+		stack: lastNavStack,
+		name,
+		params: params ?? {},
+		presentation: opts?.presentation,
+	} as TypedRoute)
+
 	console.log('[probe] nav pushed ' + name + ' into ' + lastNavStack)
 }
 

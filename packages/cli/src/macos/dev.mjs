@@ -18,9 +18,13 @@ export async function runMacOSDev(appRoot = process.cwd(), options = {}) {
 	const readManifest = () => {
 		const manifest = JSON.parse(readFileSync(join(appRoot, 'package.json'), 'utf8'))
 		if (options.target) {
-			manifest.xplat = { ...manifest.xplat, targets: { ...manifest.xplat?.targets,
-				macos: { ...manifest.xplat?.targets?.macos, ...options.target },
-			} }
+			manifest.xplat = {
+				...manifest.xplat,
+				targets: {
+					...manifest.xplat?.targets,
+					macos: { ...manifest.xplat?.targets?.macos, ...options.target },
+				},
+			}
 		}
 
 		return manifest
@@ -192,7 +196,11 @@ export async function runMacOSDev(appRoot = process.cwd(), options = {}) {
 					}
 				} else if (event.code === 'ERROR') {
 					if (options.workshop && host?.stdin.writable) {
-						host.stdin.write('compile-error ' + String(event.error?.message ?? event.error).replace(/[\r\n]/g, ' ') + '\n')
+						host.stdin.write(
+							'compile-error ' +
+								String(event.error?.message ?? event.error).replace(/[\r\n]/g, ' ') +
+								'\n',
+						)
 					}
 
 					console.error('[macos] JS rebuild failed; preserving the running app', event.error)

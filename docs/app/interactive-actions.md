@@ -90,7 +90,14 @@ export function Example() {
 			presentation="adaptive"
 			placement="bottom"
 			alignment="end"
-			items={[{ type: 'action', key: 'duplicate', label: 'Duplicate', onSelect: () => console.log('Duplicated') }]}
+			items={[
+				{
+					type: 'action',
+					key: 'duplicate',
+					label: 'Duplicate',
+					onSelect: () => console.log('Duplicated'),
+				},
+			]}
 		/>
 	)
 }

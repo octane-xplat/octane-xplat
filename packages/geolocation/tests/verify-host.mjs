@@ -5,10 +5,7 @@ import { mkdir, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import {
-	buildMacOSNative,
-	writeNativeBootstrap,
-} from '../../cli/src/macos/native.mjs'
+import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/native.mjs'
 
 import { hostBundle } from '../../cli/src/macos/jsc-host/runtime.mjs'
 const leaf = resolve(dirname(fileURLToPath(import.meta.url)), '..')

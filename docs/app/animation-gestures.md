@@ -737,9 +737,7 @@ the phrase completes, delete speed while shrinking, then the next phrase.
 useEffect(() => {
 	if (reduced || phrases.length === 0) return
 	const full = phrases[index % phrases.length]
-	const delay = !deleting
-		? len < full.length ? typeMs : waitMs
-		: len > 0 ? deleteMs : waitMs
+	const delay = !deleting ? (len < full.length ? typeMs : waitMs) : len > 0 ? deleteMs : waitMs
 	const timer = setTimeout(step, delay)
 	return () => clearTimeout(timer)
 }, [len, deleting, index, reduced])
@@ -782,7 +780,11 @@ on screen.
 const value = useMotionValue(from)
 useMotionValueEvent(value, 'change', (next) => setText(format(next)))
 useEffect(() => {
-	if (reduced) { value.jump(to); setText(format(to)); return }
+	if (reduced) {
+		value.jump(to)
+		setText(format(to))
+		return
+	}
 	value.jump(from)
 	void value.animate(to, { duration: 1.6, ease: 'easeInOut' })
 }, [to, reduced, runId])
@@ -801,7 +803,10 @@ static pose. The showcase calls this helper `useLoopProgress`.
 ```tsx
 const progress = useMotionValue(0)
 useEffect(() => {
-	if (reduced) { progress.jump(0); return }
+	if (reduced) {
+		progress.jump(0)
+		return
+	}
 	if (!playing) return
 	const loop = () => {
 		progress.jump(0)
@@ -810,9 +815,12 @@ useEffect(() => {
 	const held = progress.get() % 1
 	const remaining = 1 - held
 	if (remaining < 0.001) loop()
-	else void progress
-		.animate(1, { duration: period * remaining, ease: 'linear' })
-		.finished.then((result) => { if (result === 'finished') loop() })
+	else
+		void progress
+			.animate(1, { duration: period * remaining, ease: 'linear' })
+			.finished.then((result) => {
+				if (result === 'finished') loop()
+			})
 	return () => progress.stop()
 }, [playing, period, reduced])
 ```
@@ -852,7 +860,7 @@ const y = useTransform(progress, (p) => center - slot / 2 + Math.sin(theta(p)) *
 </Absolute>
 ```
 
-A component that positions each child needs to *enumerate* children. On the
+A component that positions each child needs to _enumerate_ children. On the
 web renderer `props.children` arrives as an opaque slot, so mark the
 component with `descriptorChildren` — the same marker ui's `List` and
 `Carousel` use — then read the array with `Children.toArray`.
@@ -874,7 +882,7 @@ MotionValues as position. `drag` plus numeric `dragConstraints` bounds the
 translate to the board, `dragElastic` resists past the edge, and release
 velocity projects into a bounded spring — under reduced motion the motion
 leaf jumps the release to its target instead. Because a bound `style.x`/`y`
-MotionValue *is* the drag channel, a seed effect can re-scatter chips between
+MotionValue _is_ the drag channel, a seed effect can re-scatter chips between
 gestures, and rendering the grabbed chip last raises it — render order is
 the portable z-index.
 
@@ -953,15 +961,23 @@ are unitless. This imperative API's duration uses **milliseconds**.
 import { Pressable, Text, View, useAnimation } from '@octane-xplat/ui'
 
 export function MovingCard() {
-  const x = useAnimation(0, 'translateX')
-  return <View>
-    <Pressable onPress={async () => {
-      const result = await x.to(80, { duration: 300 })
-      if (result.status === 'finished') console.log('Arrived')
-      if (result.status === 'failed') console.error(result.error)
-    }}><Text>Move</Text></Pressable>
-    <View ref={x.ref}><Text>Card</Text></View>
-  </View>
+	const x = useAnimation(0, 'translateX')
+	return (
+		<View>
+			<Pressable
+				onPress={async () => {
+					const result = await x.to(80, { duration: 300 })
+					if (result.status === 'finished') console.log('Arrived')
+					if (result.status === 'failed') console.error(result.error)
+				}}
+			>
+				<Text>Move</Text>
+			</Pressable>
+			<View ref={x.ref}>
+				<Text>Card</Text>
+			</View>
+		</View>
+	)
 }
 ```
 
@@ -980,10 +996,16 @@ or numbers in typed test fixtures with these supported values.
 import { Text, View } from '@octane-xplat/ui'
 
 export function DragArea() {
-  return <View onPan={(event) => {
-    if (event.state === 'ended') console.log(event.dx, event.dy, event.vx, event.vy)
-    if (event.state === 'cancelled') console.log('Drag cancelled')
-  }}><Text>Drag here</Text></View>
+	return (
+		<View
+			onPan={(event) => {
+				if (event.state === 'ended') console.log(event.dx, event.dy, event.vx, event.vy)
+				if (event.state === 'cancelled') console.log('Drag cancelled')
+			}}
+		>
+			<Text>Drag here</Text>
+		</View>
+	)
 }
 ```
 
@@ -996,6 +1018,6 @@ completion feedback.
 import type { AnimatedValue } from '@octane-xplat/ui'
 
 export function moveWithoutWaiting(value: AnimatedValue): void {
-  void value.to(80, { duration: 300 })
+	void value.to(80, { duration: 300 })
 }
 ```

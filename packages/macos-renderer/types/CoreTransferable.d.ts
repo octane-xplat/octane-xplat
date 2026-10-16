@@ -1,4 +1,3 @@
 /// <reference types="@nativescript/objc-node-api" />
 
-declare const CoreTransferableVersionNumber: number;
-
+declare const CoreTransferableVersionNumber: number

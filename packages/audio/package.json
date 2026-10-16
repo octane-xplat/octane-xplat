@@ -54,6 +54,9 @@
 		"test:macos-runtime": "node tests/packed-consumer.mjs --macos-runtime",
 		"typecheck": "tsc --noEmit --strict --target esnext --module esnext --moduleResolution bundler --skipLibCheck src/audio.macos.ts"
 	},
+	"dependencies": {
+		"@octane-xplat/platform": "workspace:*"
+	},
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.4",
 		"@nativescript/core": "9.1.3",
@@ -93,8 +96,5 @@
 				"CoreMedia"
 			]
 		}
-	},
-	"dependencies": {
-		"@octane-xplat/platform": "workspace:*"
 	}
 }

@@ -13,7 +13,6 @@ import type { AuthSessionImpl, AuthSessionOptions, AuthSessionResult, Capability
 import { android } from '@octane-xplat/platform/android'
 import { NSObject, NSURL, UIApplication, UIWindow, UIWindowScene } from '@octane-xplat/platform/ios'
 
-
 declare const ASWebAuthenticationSession: any
 declare const ASWebAuthenticationSessionErrorCode: any
 declare const ASWebAuthenticationPresentationContextProviding: any

@@ -478,12 +478,16 @@ export function flatTokensToLines(tokens: CodeToken[], code: string): TokenLine[
 
 		for (let index = lineIdx; index < lineStarts.length; index++) {
 			const lineStart = lineStarts[index]
-			if (lineStart >= token.end) break
+			if (lineStart >= token.end) {
+				break
+			}
+
 			const lineEnd = index + 1 < lineStarts.length ? lineStarts[index + 1] - 1 : code.length
 			const start = Math.max(token.start, lineStart)
 			const end = Math.min(token.end, lineEnd)
-			if (start < end)
+			if (start < end) {
 				result[index].push({ type: token.type, start: start - lineStart, end: end - lineStart })
+			}
 		}
 	}
 

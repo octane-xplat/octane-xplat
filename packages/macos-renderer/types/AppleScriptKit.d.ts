@@ -2,6 +2,5 @@
 /// <reference path="./Runtime.d.ts" />
 
 declare class ASKPluginObject extends NSObject {
-  static pluginDidLoad(bundle: NSBundle): void;
+	static pluginDidLoad(bundle: NSBundle): void
 }
-

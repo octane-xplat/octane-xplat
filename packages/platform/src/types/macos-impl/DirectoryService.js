@@ -6,8 +6,16 @@ export const dsAddChildPIDToReference = /* @__PURE__ */ _bind(FW, 'dsAddChildPID
 export const dsAllocAttributeValueEntry = /* @__PURE__ */ _bind(FW, 'dsAllocAttributeValueEntry')
 export const dsAllocStringsFromList = /* @__PURE__ */ _bind(FW, 'dsAllocStringsFromList')
 export const dsAppendAuthBuffer = /* @__PURE__ */ _bind(FW, 'dsAppendAuthBuffer')
-export const dsAppendAuthBufferWithAuthorityAttribute = /* @__PURE__ */ _bind(FW, 'dsAppendAuthBufferWithAuthorityAttribute')
-export const dsAppendAuthBufferWithAuthorityStrings = /* @__PURE__ */ _bind(FW, 'dsAppendAuthBufferWithAuthorityStrings')
+export const dsAppendAuthBufferWithAuthorityAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'dsAppendAuthBufferWithAuthorityAttribute',
+)
+
+export const dsAppendAuthBufferWithAuthorityStrings = /* @__PURE__ */ _bind(
+	FW,
+	'dsAppendAuthBufferWithAuthorityStrings',
+)
+
 export const dsAppendStringToList = /* @__PURE__ */ _bind(FW, 'dsAppendStringToList')
 export const dsAppendStringToListAlloc = /* @__PURE__ */ _bind(FW, 'dsAppendStringToListAlloc')
 export const dsBuildFromPath = /* @__PURE__ */ _bind(FW, 'dsBuildFromPath')
@@ -16,7 +24,11 @@ export const dsBuildListFromNodesAlloc = /* @__PURE__ */ _bind(FW, 'dsBuildListF
 export const dsBuildListFromPathAlloc = /* @__PURE__ */ _bind(FW, 'dsBuildListFromPathAlloc')
 export const dsBuildListFromStrings = /* @__PURE__ */ _bind(FW, 'dsBuildListFromStrings')
 export const dsBuildListFromStringsAlloc = /* @__PURE__ */ _bind(FW, 'dsBuildListFromStringsAlloc')
-export const dsBuildListFromStringsAllocV = /* @__PURE__ */ _bind(FW, 'dsBuildListFromStringsAllocV')
+export const dsBuildListFromStringsAllocV = /* @__PURE__ */ _bind(
+	FW,
+	'dsBuildListFromStringsAllocV',
+)
+
 export const dsCloseAttributeList = /* @__PURE__ */ _bind(FW, 'dsCloseAttributeList')
 export const dsCloseAttributeValueList = /* @__PURE__ */ _bind(FW, 'dsCloseAttributeValueList')
 export const dsCloseDirNode = /* @__PURE__ */ _bind(FW, 'dsCloseDirNode')
@@ -48,15 +60,31 @@ export const dsDataNodeGetLength = /* @__PURE__ */ _bind(FW, 'dsDataNodeGetLengt
 export const dsDataNodeGetSize = /* @__PURE__ */ _bind(FW, 'dsDataNodeGetSize')
 export const dsDataNodeSetLength = /* @__PURE__ */ _bind(FW, 'dsDataNodeSetLength')
 export const dsDeallocAttributeEntry = /* @__PURE__ */ _bind(FW, 'dsDeallocAttributeEntry')
-export const dsDeallocAttributeValueEntry = /* @__PURE__ */ _bind(FW, 'dsDeallocAttributeValueEntry')
+export const dsDeallocAttributeValueEntry = /* @__PURE__ */ _bind(
+	FW,
+	'dsDeallocAttributeValueEntry',
+)
+
 export const dsDeallocRecordEntry = /* @__PURE__ */ _bind(FW, 'dsDeallocRecordEntry')
 export const dsDeleteRecord = /* @__PURE__ */ _bind(FW, 'dsDeleteRecord')
 export const dsDoAttributeValueSearch = /* @__PURE__ */ _bind(FW, 'dsDoAttributeValueSearch')
-export const dsDoAttributeValueSearchWithData = /* @__PURE__ */ _bind(FW, 'dsDoAttributeValueSearchWithData')
+export const dsDoAttributeValueSearchWithData = /* @__PURE__ */ _bind(
+	FW,
+	'dsDoAttributeValueSearchWithData',
+)
+
 export const dsDoDirNodeAuth = /* @__PURE__ */ _bind(FW, 'dsDoDirNodeAuth')
 export const dsDoDirNodeAuthOnRecordType = /* @__PURE__ */ _bind(FW, 'dsDoDirNodeAuthOnRecordType')
-export const dsDoMultipleAttributeValueSearch = /* @__PURE__ */ _bind(FW, 'dsDoMultipleAttributeValueSearch')
-export const dsDoMultipleAttributeValueSearchWithData = /* @__PURE__ */ _bind(FW, 'dsDoMultipleAttributeValueSearchWithData')
+export const dsDoMultipleAttributeValueSearch = /* @__PURE__ */ _bind(
+	FW,
+	'dsDoMultipleAttributeValueSearch',
+)
+
+export const dsDoMultipleAttributeValueSearchWithData = /* @__PURE__ */ _bind(
+	FW,
+	'dsDoMultipleAttributeValueSearchWithData',
+)
+
 export const dsDoPlugInCustomCall = /* @__PURE__ */ _bind(FW, 'dsDoPlugInCustomCall')
 export const dsFillAuthBuffer = /* @__PURE__ */ _bind(FW, 'dsFillAuthBuffer')
 export const dsFindDirNodes = /* @__PURE__ */ _bind(FW, 'dsFindDirNodes')
@@ -75,9 +103,21 @@ export const dsGetNextAttributeEntry = /* @__PURE__ */ _bind(FW, 'dsGetNextAttri
 export const dsGetNextAttributeValue = /* @__PURE__ */ _bind(FW, 'dsGetNextAttributeValue')
 export const dsGetPathFromList = /* @__PURE__ */ _bind(FW, 'dsGetPathFromList')
 export const dsGetRecordAttributeInfo = /* @__PURE__ */ _bind(FW, 'dsGetRecordAttributeInfo')
-export const dsGetRecordAttributeValueByID = /* @__PURE__ */ _bind(FW, 'dsGetRecordAttributeValueByID')
-export const dsGetRecordAttributeValueByIndex = /* @__PURE__ */ _bind(FW, 'dsGetRecordAttributeValueByIndex')
-export const dsGetRecordAttributeValueByValue = /* @__PURE__ */ _bind(FW, 'dsGetRecordAttributeValueByValue')
+export const dsGetRecordAttributeValueByID = /* @__PURE__ */ _bind(
+	FW,
+	'dsGetRecordAttributeValueByID',
+)
+
+export const dsGetRecordAttributeValueByIndex = /* @__PURE__ */ _bind(
+	FW,
+	'dsGetRecordAttributeValueByIndex',
+)
+
+export const dsGetRecordAttributeValueByValue = /* @__PURE__ */ _bind(
+	FW,
+	'dsGetRecordAttributeValueByValue',
+)
+
 export const dsGetRecordEntry = /* @__PURE__ */ _bind(FW, 'dsGetRecordEntry')
 export const dsGetRecordList = /* @__PURE__ */ _bind(FW, 'dsGetRecordList')
 export const dsGetRecordNameFromEntry = /* @__PURE__ */ _bind(FW, 'dsGetRecordNameFromEntry')
@@ -94,7 +134,11 @@ export const dsRegisterCustomThread = /* @__PURE__ */ _bind(FW, 'dsRegisterCusto
 export const dsReleaseContinueData = /* @__PURE__ */ _bind(FW, 'dsReleaseContinueData')
 export const dsRemoveAttribute = /* @__PURE__ */ _bind(FW, 'dsRemoveAttribute')
 export const dsRemoveAttributeValue = /* @__PURE__ */ _bind(FW, 'dsRemoveAttributeValue')
-export const dsServiceInformationAllocate = /* @__PURE__ */ _bind(FW, 'dsServiceInformationAllocate')
+export const dsServiceInformationAllocate = /* @__PURE__ */ _bind(
+	FW,
+	'dsServiceInformationAllocate',
+)
+
 export const dsSetAttributeValue = /* @__PURE__ */ _bind(FW, 'dsSetAttributeValue')
 export const dsSetAttributeValues = /* @__PURE__ */ _bind(FW, 'dsSetAttributeValues')
 export const dsSetRecordName = /* @__PURE__ */ _bind(FW, 'dsSetRecordName')

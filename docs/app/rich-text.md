@@ -172,14 +172,14 @@ export function addLink(editor: TiptapEditorHandle) {
 }
 ```
 
-| Format group | Tiptap web / AppKit | Lexical web / AppKit defaults | Both iOS facades | Both Android facades |
-| --- | --- | --- | --- | --- |
-| Bold, italic, underline, strike, code | Available | Available | Available | Available |
-| Paragraph, heading1–6, quote, bullet/ordered list, code block, horizontal rule | Available | Available | Available | Available |
-| Highlight, subscript, superscript | Unsupported | Available as core text formats | Available | Available |
-| Task list | Unsupported | Available with default list/checklist plugins | Unsupported | Available |
-| alignLeft, alignCenter, alignRight | Unsupported | Available | Unsupported | Available |
-| Link | Use `linkTo` / `removeLink` | Use `linkTo` / `removeLink` | Use `linkTo` / `removeLink` | Use `linkTo` / `removeLink` |
+| Format group                                                                   | Tiptap web / AppKit         | Lexical web / AppKit defaults                 | Both iOS facades            | Both Android facades        |
+| ------------------------------------------------------------------------------ | --------------------------- | --------------------------------------------- | --------------------------- | --------------------------- |
+| Bold, italic, underline, strike, code                                          | Available                   | Available                                     | Available                   | Available                   |
+| Paragraph, heading1–6, quote, bullet/ordered list, code block, horizontal rule | Available                   | Available                                     | Available                   | Available                   |
+| Highlight, subscript, superscript                                              | Unsupported                 | Available as core text formats                | Available                   | Available                   |
+| Task list                                                                      | Unsupported                 | Available with default list/checklist plugins | Unsupported                 | Available                   |
+| alignLeft, alignCenter, alignRight                                             | Unsupported                 | Available                                     | Unsupported                 | Available                   |
+| Link                                                                           | Use `linkTo` / `removeLink` | Use `linkTo` / `removeLink`                   | Use `linkTo` / `removeLink` | Use `linkTo` / `removeLink` |
 
 Custom web schemas or replacement plugins can remove the commands needed by
 these defaults. Native ignores `web` options and retains its fixed conversion
@@ -204,10 +204,15 @@ inside the mounted facade receives the latest requested or edited content.
 import { TiptapEditor } from '@octane-xplat/tiptap'
 
 export function Notes() {
-	return <TiptapEditor
-		value="<p>Ignored while JSON is supplied</p>"
-		json={{ type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'JSON wins' }] }] }}
-	/>
+	return (
+		<TiptapEditor
+			value="<p>Ignored while JSON is supplied</p>"
+			json={{
+				type: 'doc',
+				content: [{ type: 'paragraph', content: [{ type: 'text', text: 'JSON wins' }] }],
+			}}
+		/>
+	)
 }
 ```
 
@@ -218,13 +223,13 @@ and iOS for both packages, see the [editor capability declarations](../../.agent
 The package-level `supported` flag means an editing surface exists on that
 target; it does not qualify each contract row.
 
-| Target | Editing engine | Current boundary |
-| --- | --- | --- |
-| Web | Tiptap mounts Tiptap; Lexical mounts Lexical | Chromium facade smoke covers mount, HTML/JSON, controlled JSON precedence, rejected link apply, focus/blur, and remount. Keyboard, IME, paste, and full history/selection qualification remain separate. |
-| Android | Both facades edit through Aztec; Tiptap and Lexical JSON are conversion layers | ADB input, focus, selection, and keyboard undo have bounded runtime evidence. A separate Aztec run preserves nested HTML wrappers but exposes paragraph flattening and repeated-reopen drift. |
-| iOS | Both facades edit through AztecEditor-iOS and convert JSON through HTML | The editing surface exists. The leaf has bounded simulator handle-call evidence; OS input, IME, paste, and accessibility remain unqualified. |
-| Linux | Web Tiptap/Lexical inside WebKitGTK | Selects the web entry through Linux’s `web` fallback. No Linux runtime was run for this change. |
-| Windows | Unsupported placeholder | Both source facades inherit `supported = false`; packed native output includes the Windows placeholder. No Windows runtime was run. |
+| Target  | Editing engine                                                                 | Current boundary                                                                                                                                                                                         |
+| ------- | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Web     | Tiptap mounts Tiptap; Lexical mounts Lexical                                   | Chromium facade smoke covers mount, HTML/JSON, controlled JSON precedence, rejected link apply, focus/blur, and remount. Keyboard, IME, paste, and full history/selection qualification remain separate. |
+| Android | Both facades edit through Aztec; Tiptap and Lexical JSON are conversion layers | ADB input, focus, selection, and keyboard undo have bounded runtime evidence. A separate Aztec run preserves nested HTML wrappers but exposes paragraph flattening and repeated-reopen drift.            |
+| iOS     | Both facades edit through AztecEditor-iOS and convert JSON through HTML        | The editing surface exists. The leaf has bounded simulator handle-call evidence; OS input, IME, paste, and accessibility remain unqualified.                                                             |
+| Linux   | Web Tiptap/Lexical inside WebKitGTK                                            | Selects the web entry through Linux’s `web` fallback. No Linux runtime was run for this change.                                                                                                          |
+| Windows | Unsupported placeholder                                                        | Both source facades inherit `supported = false`; packed native output includes the Windows placeholder. No Windows runtime was run.                                                                      |
 
 On iOS and Android, custom Tiptap extensions, ProseMirror node views, Lexical nodes,
 Lexical plugins, transforms, and browser views do not run. The facades do not
@@ -249,18 +254,18 @@ declare function saveHtml(html: string): void
 
 ## Baseline verification status
 
-| Baseline row | Android Aztec runtime | Native object-driver fake host |
-| --- | --- | --- |
-| Fresh mount with initial content | Passed on NativeScript `AztecText` | JSON seed and readiness ordering pass |
-| User edits | Passed: ADB keyboard text reached Aztec and emitted `onChange` | Callback path simulated by the fake host; no keyboard input |
-| Controlled replacement | Passed; triggered with probe handler dispatch | Later JSON replacement and duplicate suppression pass |
-| Read-only | Passed native checks: key listener is null and focus is disabled; OS typing suppression was not tested | Not covered |
-| Focus and blur | Focus and `onFocus` passed during ADB keyboard input; blur did not complete before probe timeout | Not covered |
-| Selection | Passed during ADB keyboard input | Not covered |
-| Undo | Passed; Aztec undo removed the keyboard insertion | Fake command is a no-op; not covered |
-| Save and reopen | Not run; the probe timed out during blur before snapshot/remount | Not covered |
-| Events | `onReady`, `onChange`, `onFocus`, and `onSelectionChange` passed; `onBlur` was not observed | Fake `onChange` to `onJSONChange` conversion passes |
-| Disposal | Not run; the probe timed out before unmount | Late bridge completion after unmount is ignored |
+| Baseline row                     | Android Aztec runtime                                                                                  | Native object-driver fake host                              |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------- |
+| Fresh mount with initial content | Passed on NativeScript `AztecText`                                                                     | JSON seed and readiness ordering pass                       |
+| User edits                       | Passed: ADB keyboard text reached Aztec and emitted `onChange`                                         | Callback path simulated by the fake host; no keyboard input |
+| Controlled replacement           | Passed; triggered with probe handler dispatch                                                          | Later JSON replacement and duplicate suppression pass       |
+| Read-only                        | Passed native checks: key listener is null and focus is disabled; OS typing suppression was not tested | Not covered                                                 |
+| Focus and blur                   | Focus and `onFocus` passed during ADB keyboard input; blur did not complete before probe timeout       | Not covered                                                 |
+| Selection                        | Passed during ADB keyboard input                                                                       | Not covered                                                 |
+| Undo                             | Passed; Aztec undo removed the keyboard insertion                                                      | Fake command is a no-op; not covered                        |
+| Save and reopen                  | Not run; the probe timed out during blur before snapshot/remount                                       | Not covered                                                 |
+| Events                           | `onReady`, `onChange`, `onFocus`, and `onSelectionChange` passed; `onBlur` was not observed            | Fake `onChange` to `onJSONChange` conversion passes         |
+| Disposal                         | Not run; the probe timed out before unmount                                                            | Late bridge completion after unmount is ignored             |
 
 The table below records the earlier ordinary-edit probe and fake-host rows;
 it does not include the separate nested-tree run linked above. The fake-host

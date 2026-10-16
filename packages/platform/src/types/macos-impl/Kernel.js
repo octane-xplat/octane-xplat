@@ -1,14 +1,30 @@
 import { _bind } from './_rt.js'
 const FW = '/System/Library/Frameworks/Kernel.framework/Kernel'
 export const AFKEndpointInterface = /* @__PURE__ */ _bind(FW, 'AFKEndpointInterface')
-export const AFKEndpointInterfaceInterface = /* @__PURE__ */ _bind(FW, 'AFKEndpointInterfaceInterface')
-export const AFKEndpointInterfaceMetaClass = /* @__PURE__ */ _bind(FW, 'AFKEndpointInterfaceMetaClass')
+export const AFKEndpointInterfaceInterface = /* @__PURE__ */ _bind(
+	FW,
+	'AFKEndpointInterfaceInterface',
+)
+
+export const AFKEndpointInterfaceMetaClass = /* @__PURE__ */ _bind(
+	FW,
+	'AFKEndpointInterfaceMetaClass',
+)
+
 export const AFKEndpointInterface_Class = /* @__PURE__ */ _bind(FW, 'AFKEndpointInterface_Class')
 export const AFKEndpointInterface_IVars = /* @__PURE__ */ _bind(FW, 'AFKEndpointInterface_IVars')
-export const AFKEndpointInterface_LocalIVars = /* @__PURE__ */ _bind(FW, 'AFKEndpointInterface_LocalIVars')
+export const AFKEndpointInterface_LocalIVars = /* @__PURE__ */ _bind(
+	FW,
+	'AFKEndpointInterface_LocalIVars',
+)
+
 export const AFKHIDTBDevice = /* @__PURE__ */ _bind(FW, 'AFKHIDTBDevice')
 export const AFKTightbeamEndpoint = /* @__PURE__ */ _bind(FW, 'AFKTightbeamEndpoint')
-export const AFKTightbeamTransportInterface = /* @__PURE__ */ _bind(FW, 'AFKTightbeamTransportInterface')
+export const AFKTightbeamTransportInterface = /* @__PURE__ */ _bind(
+	FW,
+	'AFKTightbeamTransportInterface',
+)
+
 export const AFKUserDataPipe = /* @__PURE__ */ _bind(FW, 'AFKUserDataPipe')
 export const AFKUserDataPipeInterface = /* @__PURE__ */ _bind(FW, 'AFKUserDataPipeInterface')
 export const AFKUserDataPipeMetaClass = /* @__PURE__ */ _bind(FW, 'AFKUserDataPipeMetaClass')
@@ -22,11 +38,31 @@ export const AVCCommandHandlerInfo = /* @__PURE__ */ _bind(FW, 'AVCCommandHandle
 export const AVCConnectionRecord = /* @__PURE__ */ _bind(FW, 'AVCConnectionRecord')
 export const AVCSubunitInfo = /* @__PURE__ */ _bind(FW, 'AVCSubunitInfo')
 export const AddFWCycleTimeToFWCycleTime = /* @__PURE__ */ _bind(FW, 'AddFWCycleTimeToFWCycleTime')
-export const AirshipDaleBasebandDeviceTimeMeasurement = /* @__PURE__ */ _bind(FW, 'AirshipDaleBasebandDeviceTimeMeasurement')
-export const AirshipDaleBasebandErrorInfo = /* @__PURE__ */ _bind(FW, 'AirshipDaleBasebandErrorInfo')
-export const AirshipDaleBasebandTraceInfo = /* @__PURE__ */ _bind(FW, 'AirshipDaleBasebandTraceInfo')
-export const AppleBasebandBridgeUserRequest = /* @__PURE__ */ _bind(FW, 'AppleBasebandBridgeUserRequest')
-export const AppleCallbackPowerSourceProvider = /* @__PURE__ */ _bind(FW, 'AppleCallbackPowerSourceProvider')
+export const AirshipDaleBasebandDeviceTimeMeasurement = /* @__PURE__ */ _bind(
+	FW,
+	'AirshipDaleBasebandDeviceTimeMeasurement',
+)
+
+export const AirshipDaleBasebandErrorInfo = /* @__PURE__ */ _bind(
+	FW,
+	'AirshipDaleBasebandErrorInfo',
+)
+
+export const AirshipDaleBasebandTraceInfo = /* @__PURE__ */ _bind(
+	FW,
+	'AirshipDaleBasebandTraceInfo',
+)
+
+export const AppleBasebandBridgeUserRequest = /* @__PURE__ */ _bind(
+	FW,
+	'AppleBasebandBridgeUserRequest',
+)
+
+export const AppleCallbackPowerSourceProvider = /* @__PURE__ */ _bind(
+	FW,
+	'AppleCallbackPowerSourceProvider',
+)
+
 export const AppleMacIO = /* @__PURE__ */ _bind(FW, 'AppleMacIO')
 export const AppleMacIODevice = /* @__PURE__ */ _bind(FW, 'AppleMacIODevice')
 export const AppleNMI = /* @__PURE__ */ _bind(FW, 'AppleNMI')
@@ -36,7 +72,11 @@ export const AppleUSBHostBulkHIDDevice = /* @__PURE__ */ _bind(FW, 'AppleUSBHost
 export const AppleUSBHostController = /* @__PURE__ */ _bind(FW, 'AppleUSBHostController')
 export const AppleUSBHostDeviceIdler = /* @__PURE__ */ _bind(FW, 'AppleUSBHostDeviceIdler')
 export const AppleUSBHostPort = /* @__PURE__ */ _bind(FW, 'AppleUSBHostPort')
-export const AppleUSBHostRequestCompleter = /* @__PURE__ */ _bind(FW, 'AppleUSBHostRequestCompleter')
+export const AppleUSBHostRequestCompleter = /* @__PURE__ */ _bind(
+	FW,
+	'AppleUSBHostRequestCompleter',
+)
+
 export const AppleUSBHostResources = /* @__PURE__ */ _bind(FW, 'AppleUSBHostResources')
 export const AppleUSBRequestPool = /* @__PURE__ */ _bind(FW, 'AppleUSBRequestPool')
 export const Assert = /* @__PURE__ */ _bind(FW, 'Assert')
@@ -49,39 +89,107 @@ export const BPF_MODE_INPUT = /* @__PURE__ */ _bind(FW, 'BPF_MODE_INPUT')
 export const BPF_MODE_INPUT_OUTPUT = /* @__PURE__ */ _bind(FW, 'BPF_MODE_INPUT_OUTPUT')
 export const BPF_MODE_OUTPUT = /* @__PURE__ */ _bind(FW, 'BPF_MODE_OUTPUT')
 export const BillboardAltModeCapability = /* @__PURE__ */ _bind(FW, 'BillboardAltModeCapability')
-export const BillboardAltModeCapabilityCompatibility = /* @__PURE__ */ _bind(FW, 'BillboardAltModeCapabilityCompatibility')
-export const BillboardAltModeCapabilityDescriptor = /* @__PURE__ */ _bind(FW, 'BillboardAltModeCapabilityDescriptor')
-export const BillboardCapabilityDescriptor = /* @__PURE__ */ _bind(FW, 'BillboardCapabilityDescriptor')
+export const BillboardAltModeCapabilityCompatibility = /* @__PURE__ */ _bind(
+	FW,
+	'BillboardAltModeCapabilityCompatibility',
+)
+
+export const BillboardAltModeCapabilityDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'BillboardAltModeCapabilityDescriptor',
+)
+
+export const BillboardCapabilityDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'BillboardCapabilityDescriptor',
+)
+
 export const Boot_Video = /* @__PURE__ */ _bind(FW, 'Boot_Video')
 export const Boot_VideoV1 = /* @__PURE__ */ _bind(FW, 'Boot_VideoV1')
 export const CONSISTENT_DEBUG_MAGIC_VAL = /* @__PURE__ */ _bind(FW, 'CONSISTENT_DEBUG_MAGIC_VAL')
 export const CONSISTENT_DEBUG_PANIC_LEN = /* @__PURE__ */ _bind(FW, 'CONSISTENT_DEBUG_PANIC_LEN')
-export const CONSISTENT_DEBUG_PANIC_SOURCE_SK = /* @__PURE__ */ _bind(FW, 'CONSISTENT_DEBUG_PANIC_SOURCE_SK')
-export const CONSISTENT_DEBUG_PANIC_SOURCE_SPTM = /* @__PURE__ */ _bind(FW, 'CONSISTENT_DEBUG_PANIC_SOURCE_SPTM')
-export const CONSISTENT_DEBUG_PANIC_SOURCE_TXM = /* @__PURE__ */ _bind(FW, 'CONSISTENT_DEBUG_PANIC_SOURCE_TXM')
-export const CONSISTENT_DEBUG_VERSION_VAL = /* @__PURE__ */ _bind(FW, 'CONSISTENT_DEBUG_VERSION_VAL')
+export const CONSISTENT_DEBUG_PANIC_SOURCE_SK = /* @__PURE__ */ _bind(
+	FW,
+	'CONSISTENT_DEBUG_PANIC_SOURCE_SK',
+)
+
+export const CONSISTENT_DEBUG_PANIC_SOURCE_SPTM = /* @__PURE__ */ _bind(
+	FW,
+	'CONSISTENT_DEBUG_PANIC_SOURCE_SPTM',
+)
+
+export const CONSISTENT_DEBUG_PANIC_SOURCE_TXM = /* @__PURE__ */ _bind(
+	FW,
+	'CONSISTENT_DEBUG_PANIC_SOURCE_TXM',
+)
+
+export const CONSISTENT_DEBUG_VERSION_VAL = /* @__PURE__ */ _bind(
+	FW,
+	'CONSISTENT_DEBUG_VERSION_VAL',
+)
+
 export const CSMAGIC_BLOBWRAPPER = /* @__PURE__ */ _bind(FW, 'CSMAGIC_BLOBWRAPPER')
 export const CSMAGIC_CODEDIRECTORY = /* @__PURE__ */ _bind(FW, 'CSMAGIC_CODEDIRECTORY')
 export const CSMAGIC_DETACHED_SIGNATURE = /* @__PURE__ */ _bind(FW, 'CSMAGIC_DETACHED_SIGNATURE')
-export const CSMAGIC_EMBEDDED_DER_ENTITLEMENTS = /* @__PURE__ */ _bind(FW, 'CSMAGIC_EMBEDDED_DER_ENTITLEMENTS')
-export const CSMAGIC_EMBEDDED_ENTITLEMENTS = /* @__PURE__ */ _bind(FW, 'CSMAGIC_EMBEDDED_ENTITLEMENTS')
-export const CSMAGIC_EMBEDDED_LAUNCH_CONSTRAINT = /* @__PURE__ */ _bind(FW, 'CSMAGIC_EMBEDDED_LAUNCH_CONSTRAINT')
+export const CSMAGIC_EMBEDDED_DER_ENTITLEMENTS = /* @__PURE__ */ _bind(
+	FW,
+	'CSMAGIC_EMBEDDED_DER_ENTITLEMENTS',
+)
+
+export const CSMAGIC_EMBEDDED_ENTITLEMENTS = /* @__PURE__ */ _bind(
+	FW,
+	'CSMAGIC_EMBEDDED_ENTITLEMENTS',
+)
+
+export const CSMAGIC_EMBEDDED_LAUNCH_CONSTRAINT = /* @__PURE__ */ _bind(
+	FW,
+	'CSMAGIC_EMBEDDED_LAUNCH_CONSTRAINT',
+)
+
 export const CSMAGIC_EMBEDDED_SIGNATURE = /* @__PURE__ */ _bind(FW, 'CSMAGIC_EMBEDDED_SIGNATURE')
-export const CSMAGIC_EMBEDDED_SIGNATURE_OLD = /* @__PURE__ */ _bind(FW, 'CSMAGIC_EMBEDDED_SIGNATURE_OLD')
+export const CSMAGIC_EMBEDDED_SIGNATURE_OLD = /* @__PURE__ */ _bind(
+	FW,
+	'CSMAGIC_EMBEDDED_SIGNATURE_OLD',
+)
+
 export const CSMAGIC_REQUIREMENT = /* @__PURE__ */ _bind(FW, 'CSMAGIC_REQUIREMENT')
 export const CSMAGIC_REQUIREMENTS = /* @__PURE__ */ _bind(FW, 'CSMAGIC_REQUIREMENTS')
-export const CSSLOT_ALTERNATE_CODEDIRECTORIES = /* @__PURE__ */ _bind(FW, 'CSSLOT_ALTERNATE_CODEDIRECTORIES')
-export const CSSLOT_ALTERNATE_CODEDIRECTORY_LIMIT = /* @__PURE__ */ _bind(FW, 'CSSLOT_ALTERNATE_CODEDIRECTORY_LIMIT')
-export const CSSLOT_ALTERNATE_CODEDIRECTORY_MAX = /* @__PURE__ */ _bind(FW, 'CSSLOT_ALTERNATE_CODEDIRECTORY_MAX')
+export const CSSLOT_ALTERNATE_CODEDIRECTORIES = /* @__PURE__ */ _bind(
+	FW,
+	'CSSLOT_ALTERNATE_CODEDIRECTORIES',
+)
+
+export const CSSLOT_ALTERNATE_CODEDIRECTORY_LIMIT = /* @__PURE__ */ _bind(
+	FW,
+	'CSSLOT_ALTERNATE_CODEDIRECTORY_LIMIT',
+)
+
+export const CSSLOT_ALTERNATE_CODEDIRECTORY_MAX = /* @__PURE__ */ _bind(
+	FW,
+	'CSSLOT_ALTERNATE_CODEDIRECTORY_MAX',
+)
+
 export const CSSLOT_APPLICATION = /* @__PURE__ */ _bind(FW, 'CSSLOT_APPLICATION')
 export const CSSLOT_CODEDIRECTORY = /* @__PURE__ */ _bind(FW, 'CSSLOT_CODEDIRECTORY')
 export const CSSLOT_DER_ENTITLEMENTS = /* @__PURE__ */ _bind(FW, 'CSSLOT_DER_ENTITLEMENTS')
 export const CSSLOT_ENTITLEMENTS = /* @__PURE__ */ _bind(FW, 'CSSLOT_ENTITLEMENTS')
 export const CSSLOT_IDENTIFICATIONSLOT = /* @__PURE__ */ _bind(FW, 'CSSLOT_IDENTIFICATIONSLOT')
 export const CSSLOT_INFOSLOT = /* @__PURE__ */ _bind(FW, 'CSSLOT_INFOSLOT')
-export const CSSLOT_LAUNCH_CONSTRAINT_PARENT = /* @__PURE__ */ _bind(FW, 'CSSLOT_LAUNCH_CONSTRAINT_PARENT')
-export const CSSLOT_LAUNCH_CONSTRAINT_RESPONSIBLE = /* @__PURE__ */ _bind(FW, 'CSSLOT_LAUNCH_CONSTRAINT_RESPONSIBLE')
-export const CSSLOT_LAUNCH_CONSTRAINT_SELF = /* @__PURE__ */ _bind(FW, 'CSSLOT_LAUNCH_CONSTRAINT_SELF')
+export const CSSLOT_LAUNCH_CONSTRAINT_PARENT = /* @__PURE__ */ _bind(
+	FW,
+	'CSSLOT_LAUNCH_CONSTRAINT_PARENT',
+)
+
+export const CSSLOT_LAUNCH_CONSTRAINT_RESPONSIBLE = /* @__PURE__ */ _bind(
+	FW,
+	'CSSLOT_LAUNCH_CONSTRAINT_RESPONSIBLE',
+)
+
+export const CSSLOT_LAUNCH_CONSTRAINT_SELF = /* @__PURE__ */ _bind(
+	FW,
+	'CSSLOT_LAUNCH_CONSTRAINT_SELF',
+)
+
 export const CSSLOT_LIBRARY_CONSTRAINT = /* @__PURE__ */ _bind(FW, 'CSSLOT_LIBRARY_CONSTRAINT')
 export const CSSLOT_REQUIREMENTS = /* @__PURE__ */ _bind(FW, 'CSSLOT_REQUIREMENTS')
 export const CSSLOT_RESOURCEDIR = /* @__PURE__ */ _bind(FW, 'CSSLOT_RESOURCEDIR')
@@ -93,52 +201,156 @@ export const CSTYPE_INDEX_REQUIREMENTS = /* @__PURE__ */ _bind(FW, 'CSTYPE_INDEX
 export const CS_CDHASH_LEN = /* @__PURE__ */ _bind(FW, 'CS_CDHASH_LEN')
 export const CS_HASHTYPE_SHA1 = /* @__PURE__ */ _bind(FW, 'CS_HASHTYPE_SHA1')
 export const CS_HASHTYPE_SHA256 = /* @__PURE__ */ _bind(FW, 'CS_HASHTYPE_SHA256')
-export const CS_HASHTYPE_SHA256_TRUNCATED = /* @__PURE__ */ _bind(FW, 'CS_HASHTYPE_SHA256_TRUNCATED')
+export const CS_HASHTYPE_SHA256_TRUNCATED = /* @__PURE__ */ _bind(
+	FW,
+	'CS_HASHTYPE_SHA256_TRUNCATED',
+)
+
 export const CS_HASHTYPE_SHA384 = /* @__PURE__ */ _bind(FW, 'CS_HASHTYPE_SHA384')
 export const CS_HASH_MAX_SIZE = /* @__PURE__ */ _bind(FW, 'CS_HASH_MAX_SIZE')
 export const CS_HASH_MIN_SIZE = /* @__PURE__ */ _bind(FW, 'CS_HASH_MIN_SIZE')
-export const CS_LINKAGE_APPLICATION_INVALID = /* @__PURE__ */ _bind(FW, 'CS_LINKAGE_APPLICATION_INVALID')
-export const CS_LINKAGE_APPLICATION_OOPJIT = /* @__PURE__ */ _bind(FW, 'CS_LINKAGE_APPLICATION_OOPJIT')
-export const CS_LINKAGE_APPLICATION_OOPJIT_INVALID = /* @__PURE__ */ _bind(FW, 'CS_LINKAGE_APPLICATION_OOPJIT_INVALID')
-export const CS_LINKAGE_APPLICATION_OOPJIT_MLCOMPILER = /* @__PURE__ */ _bind(FW, 'CS_LINKAGE_APPLICATION_OOPJIT_MLCOMPILER')
-export const CS_LINKAGE_APPLICATION_OOPJIT_PREVIEWS = /* @__PURE__ */ _bind(FW, 'CS_LINKAGE_APPLICATION_OOPJIT_PREVIEWS')
-export const CS_LINKAGE_APPLICATION_OOPJIT_TOTAL = /* @__PURE__ */ _bind(FW, 'CS_LINKAGE_APPLICATION_OOPJIT_TOTAL')
-export const CS_LINKAGE_APPLICATION_ROSETTA = /* @__PURE__ */ _bind(FW, 'CS_LINKAGE_APPLICATION_ROSETTA')
-export const CS_LINKAGE_APPLICATION_ROSETTA_AOT = /* @__PURE__ */ _bind(FW, 'CS_LINKAGE_APPLICATION_ROSETTA_AOT')
-export const CS_LINKAGE_APPLICATION_XOJIT = /* @__PURE__ */ _bind(FW, 'CS_LINKAGE_APPLICATION_XOJIT')
-export const CS_LINKAGE_APPLICATION_XOJIT_PREVIEWS = /* @__PURE__ */ _bind(FW, 'CS_LINKAGE_APPLICATION_XOJIT_PREVIEWS')
+export const CS_LINKAGE_APPLICATION_INVALID = /* @__PURE__ */ _bind(
+	FW,
+	'CS_LINKAGE_APPLICATION_INVALID',
+)
+
+export const CS_LINKAGE_APPLICATION_OOPJIT = /* @__PURE__ */ _bind(
+	FW,
+	'CS_LINKAGE_APPLICATION_OOPJIT',
+)
+
+export const CS_LINKAGE_APPLICATION_OOPJIT_INVALID = /* @__PURE__ */ _bind(
+	FW,
+	'CS_LINKAGE_APPLICATION_OOPJIT_INVALID',
+)
+
+export const CS_LINKAGE_APPLICATION_OOPJIT_MLCOMPILER = /* @__PURE__ */ _bind(
+	FW,
+	'CS_LINKAGE_APPLICATION_OOPJIT_MLCOMPILER',
+)
+
+export const CS_LINKAGE_APPLICATION_OOPJIT_PREVIEWS = /* @__PURE__ */ _bind(
+	FW,
+	'CS_LINKAGE_APPLICATION_OOPJIT_PREVIEWS',
+)
+
+export const CS_LINKAGE_APPLICATION_OOPJIT_TOTAL = /* @__PURE__ */ _bind(
+	FW,
+	'CS_LINKAGE_APPLICATION_OOPJIT_TOTAL',
+)
+
+export const CS_LINKAGE_APPLICATION_ROSETTA = /* @__PURE__ */ _bind(
+	FW,
+	'CS_LINKAGE_APPLICATION_ROSETTA',
+)
+
+export const CS_LINKAGE_APPLICATION_ROSETTA_AOT = /* @__PURE__ */ _bind(
+	FW,
+	'CS_LINKAGE_APPLICATION_ROSETTA_AOT',
+)
+
+export const CS_LINKAGE_APPLICATION_XOJIT = /* @__PURE__ */ _bind(
+	FW,
+	'CS_LINKAGE_APPLICATION_XOJIT',
+)
+
+export const CS_LINKAGE_APPLICATION_XOJIT_PREVIEWS = /* @__PURE__ */ _bind(
+	FW,
+	'CS_LINKAGE_APPLICATION_XOJIT_PREVIEWS',
+)
+
 export const CS_SHA1_LEN = /* @__PURE__ */ _bind(FW, 'CS_SHA1_LEN')
 export const CS_SHA256_LEN = /* @__PURE__ */ _bind(FW, 'CS_SHA256_LEN')
 export const CS_SHA256_TRUNCATED_LEN = /* @__PURE__ */ _bind(FW, 'CS_SHA256_TRUNCATED_LEN')
 export const CS_SHA384_LEN = /* @__PURE__ */ _bind(FW, 'CS_SHA384_LEN')
 export const CS_SHA512_LEN = /* @__PURE__ */ _bind(FW, 'CS_SHA512_LEN')
 export const CS_SIGNER_TYPE_LEGACYVPN = /* @__PURE__ */ _bind(FW, 'CS_SIGNER_TYPE_LEGACYVPN')
-export const CS_SIGNER_TYPE_MAC_APP_STORE = /* @__PURE__ */ _bind(FW, 'CS_SIGNER_TYPE_MAC_APP_STORE')
+export const CS_SIGNER_TYPE_MAC_APP_STORE = /* @__PURE__ */ _bind(
+	FW,
+	'CS_SIGNER_TYPE_MAC_APP_STORE',
+)
+
 export const CS_SIGNER_TYPE_OOPJIT = /* @__PURE__ */ _bind(FW, 'CS_SIGNER_TYPE_OOPJIT')
 export const CS_SIGNER_TYPE_UNKNOWN = /* @__PURE__ */ _bind(FW, 'CS_SIGNER_TYPE_UNKNOWN')
 export const CS_SUPPL_SIGNER_TYPE_LOCAL = /* @__PURE__ */ _bind(FW, 'CS_SUPPL_SIGNER_TYPE_LOCAL')
-export const CS_SUPPL_SIGNER_TYPE_TRUSTCACHE = /* @__PURE__ */ _bind(FW, 'CS_SUPPL_SIGNER_TYPE_TRUSTCACHE')
-export const CS_SUPPL_SIGNER_TYPE_UNKNOWN = /* @__PURE__ */ _bind(FW, 'CS_SUPPL_SIGNER_TYPE_UNKNOWN')
+export const CS_SUPPL_SIGNER_TYPE_TRUSTCACHE = /* @__PURE__ */ _bind(
+	FW,
+	'CS_SUPPL_SIGNER_TYPE_TRUSTCACHE',
+)
+
+export const CS_SUPPL_SIGNER_TYPE_UNKNOWN = /* @__PURE__ */ _bind(
+	FW,
+	'CS_SUPPL_SIGNER_TYPE_UNKNOWN',
+)
+
 export const CS_SUPPORTSCODELIMIT64 = /* @__PURE__ */ _bind(FW, 'CS_SUPPORTSCODELIMIT64')
 export const CS_SUPPORTSEXECSEG = /* @__PURE__ */ _bind(FW, 'CS_SUPPORTSEXECSEG')
 export const CS_SUPPORTSLINKAGE = /* @__PURE__ */ _bind(FW, 'CS_SUPPORTSLINKAGE')
 export const CS_SUPPORTSRUNTIME = /* @__PURE__ */ _bind(FW, 'CS_SUPPORTSRUNTIME')
 export const CS_SUPPORTSSCATTER = /* @__PURE__ */ _bind(FW, 'CS_SUPPORTSSCATTER')
 export const CS_SUPPORTSTEAMID = /* @__PURE__ */ _bind(FW, 'CS_SUPPORTSTEAMID')
-export const CS_VALIDATION_CATEGORY_APP_STORE = /* @__PURE__ */ _bind(FW, 'CS_VALIDATION_CATEGORY_APP_STORE')
-export const CS_VALIDATION_CATEGORY_DEVELOPER_ID = /* @__PURE__ */ _bind(FW, 'CS_VALIDATION_CATEGORY_DEVELOPER_ID')
-export const CS_VALIDATION_CATEGORY_DEVELOPMENT = /* @__PURE__ */ _bind(FW, 'CS_VALIDATION_CATEGORY_DEVELOPMENT')
-export const CS_VALIDATION_CATEGORY_ENTERPRISE = /* @__PURE__ */ _bind(FW, 'CS_VALIDATION_CATEGORY_ENTERPRISE')
-export const CS_VALIDATION_CATEGORY_INVALID = /* @__PURE__ */ _bind(FW, 'CS_VALIDATION_CATEGORY_INVALID')
-export const CS_VALIDATION_CATEGORY_LOCAL_SIGNING = /* @__PURE__ */ _bind(FW, 'CS_VALIDATION_CATEGORY_LOCAL_SIGNING')
+export const CS_VALIDATION_CATEGORY_APP_STORE = /* @__PURE__ */ _bind(
+	FW,
+	'CS_VALIDATION_CATEGORY_APP_STORE',
+)
+
+export const CS_VALIDATION_CATEGORY_DEVELOPER_ID = /* @__PURE__ */ _bind(
+	FW,
+	'CS_VALIDATION_CATEGORY_DEVELOPER_ID',
+)
+
+export const CS_VALIDATION_CATEGORY_DEVELOPMENT = /* @__PURE__ */ _bind(
+	FW,
+	'CS_VALIDATION_CATEGORY_DEVELOPMENT',
+)
+
+export const CS_VALIDATION_CATEGORY_ENTERPRISE = /* @__PURE__ */ _bind(
+	FW,
+	'CS_VALIDATION_CATEGORY_ENTERPRISE',
+)
+
+export const CS_VALIDATION_CATEGORY_INVALID = /* @__PURE__ */ _bind(
+	FW,
+	'CS_VALIDATION_CATEGORY_INVALID',
+)
+
+export const CS_VALIDATION_CATEGORY_LOCAL_SIGNING = /* @__PURE__ */ _bind(
+	FW,
+	'CS_VALIDATION_CATEGORY_LOCAL_SIGNING',
+)
+
 export const CS_VALIDATION_CATEGORY_NONE = /* @__PURE__ */ _bind(FW, 'CS_VALIDATION_CATEGORY_NONE')
-export const CS_VALIDATION_CATEGORY_OOPJIT = /* @__PURE__ */ _bind(FW, 'CS_VALIDATION_CATEGORY_OOPJIT')
-export const CS_VALIDATION_CATEGORY_PLATFORM = /* @__PURE__ */ _bind(FW, 'CS_VALIDATION_CATEGORY_PLATFORM')
-export const CS_VALIDATION_CATEGORY_ROSETTA = /* @__PURE__ */ _bind(FW, 'CS_VALIDATION_CATEGORY_ROSETTA')
-export const CS_VALIDATION_CATEGORY_TESTFLIGHT = /* @__PURE__ */ _bind(FW, 'CS_VALIDATION_CATEGORY_TESTFLIGHT')
+export const CS_VALIDATION_CATEGORY_OOPJIT = /* @__PURE__ */ _bind(
+	FW,
+	'CS_VALIDATION_CATEGORY_OOPJIT',
+)
+
+export const CS_VALIDATION_CATEGORY_PLATFORM = /* @__PURE__ */ _bind(
+	FW,
+	'CS_VALIDATION_CATEGORY_PLATFORM',
+)
+
+export const CS_VALIDATION_CATEGORY_ROSETTA = /* @__PURE__ */ _bind(
+	FW,
+	'CS_VALIDATION_CATEGORY_ROSETTA',
+)
+
+export const CS_VALIDATION_CATEGORY_TESTFLIGHT = /* @__PURE__ */ _bind(
+	FW,
+	'CS_VALIDATION_CATEGORY_TESTFLIGHT',
+)
+
 export const ConfigurationDescriptor = /* @__PURE__ */ _bind(FW, 'ConfigurationDescriptor')
-export const ContainerIDCapabilityDescriptor = /* @__PURE__ */ _bind(FW, 'ContainerIDCapabilityDescriptor')
-export const DEBUG_HEADER_CURRENT_VERSION = /* @__PURE__ */ _bind(FW, 'DEBUG_HEADER_CURRENT_VERSION')
+export const ContainerIDCapabilityDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'ContainerIDCapabilityDescriptor',
+)
+
+export const DEBUG_HEADER_CURRENT_VERSION = /* @__PURE__ */ _bind(
+	FW,
+	'DEBUG_HEADER_CURRENT_VERSION',
+)
+
 export const DEBUG_HEADER_ENTRY_SPTM = /* @__PURE__ */ _bind(FW, 'DEBUG_HEADER_ENTRY_SPTM')
 export const DEBUG_HEADER_ENTRY_TXM = /* @__PURE__ */ _bind(FW, 'DEBUG_HEADER_ENTRY_TXM')
 export const DEBUG_HEADER_ENTRY_XNU = /* @__PURE__ */ _bind(FW, 'DEBUG_HEADER_ENTRY_XNU')
@@ -147,24 +359,68 @@ export const DTMemoryMapRange = /* @__PURE__ */ _bind(FW, 'DTMemoryMapRange')
 export const DTSavedScope = /* @__PURE__ */ _bind(FW, 'DTSavedScope')
 export const DYLD_CHAINED_IMPORT = /* @__PURE__ */ _bind(FW, 'DYLD_CHAINED_IMPORT')
 export const DYLD_CHAINED_IMPORT_ADDEND = /* @__PURE__ */ _bind(FW, 'DYLD_CHAINED_IMPORT_ADDEND')
-export const DYLD_CHAINED_IMPORT_ADDEND64 = /* @__PURE__ */ _bind(FW, 'DYLD_CHAINED_IMPORT_ADDEND64')
+export const DYLD_CHAINED_IMPORT_ADDEND64 = /* @__PURE__ */ _bind(
+	FW,
+	'DYLD_CHAINED_IMPORT_ADDEND64',
+)
+
 export const DYLD_CHAINED_PTR_32 = /* @__PURE__ */ _bind(FW, 'DYLD_CHAINED_PTR_32')
 export const DYLD_CHAINED_PTR_32_CACHE = /* @__PURE__ */ _bind(FW, 'DYLD_CHAINED_PTR_32_CACHE')
-export const DYLD_CHAINED_PTR_32_FIRMWARE = /* @__PURE__ */ _bind(FW, 'DYLD_CHAINED_PTR_32_FIRMWARE')
+export const DYLD_CHAINED_PTR_32_FIRMWARE = /* @__PURE__ */ _bind(
+	FW,
+	'DYLD_CHAINED_PTR_32_FIRMWARE',
+)
+
 export const DYLD_CHAINED_PTR_64 = /* @__PURE__ */ _bind(FW, 'DYLD_CHAINED_PTR_64')
-export const DYLD_CHAINED_PTR_64_KERNEL_CACHE = /* @__PURE__ */ _bind(FW, 'DYLD_CHAINED_PTR_64_KERNEL_CACHE')
+export const DYLD_CHAINED_PTR_64_KERNEL_CACHE = /* @__PURE__ */ _bind(
+	FW,
+	'DYLD_CHAINED_PTR_64_KERNEL_CACHE',
+)
+
 export const DYLD_CHAINED_PTR_64_OFFSET = /* @__PURE__ */ _bind(FW, 'DYLD_CHAINED_PTR_64_OFFSET')
 export const DYLD_CHAINED_PTR_ARM64E = /* @__PURE__ */ _bind(FW, 'DYLD_CHAINED_PTR_ARM64E')
-export const DYLD_CHAINED_PTR_ARM64E_FIRMWARE = /* @__PURE__ */ _bind(FW, 'DYLD_CHAINED_PTR_ARM64E_FIRMWARE')
-export const DYLD_CHAINED_PTR_ARM64E_KERNEL = /* @__PURE__ */ _bind(FW, 'DYLD_CHAINED_PTR_ARM64E_KERNEL')
-export const DYLD_CHAINED_PTR_ARM64E_OFFSET = /* @__PURE__ */ _bind(FW, 'DYLD_CHAINED_PTR_ARM64E_OFFSET')
-export const DYLD_CHAINED_PTR_ARM64E_SHARED_CACHE = /* @__PURE__ */ _bind(FW, 'DYLD_CHAINED_PTR_ARM64E_SHARED_CACHE')
-export const DYLD_CHAINED_PTR_ARM64E_USERLAND = /* @__PURE__ */ _bind(FW, 'DYLD_CHAINED_PTR_ARM64E_USERLAND')
-export const DYLD_CHAINED_PTR_ARM64E_USERLAND24 = /* @__PURE__ */ _bind(FW, 'DYLD_CHAINED_PTR_ARM64E_USERLAND24')
+export const DYLD_CHAINED_PTR_ARM64E_FIRMWARE = /* @__PURE__ */ _bind(
+	FW,
+	'DYLD_CHAINED_PTR_ARM64E_FIRMWARE',
+)
+
+export const DYLD_CHAINED_PTR_ARM64E_KERNEL = /* @__PURE__ */ _bind(
+	FW,
+	'DYLD_CHAINED_PTR_ARM64E_KERNEL',
+)
+
+export const DYLD_CHAINED_PTR_ARM64E_OFFSET = /* @__PURE__ */ _bind(
+	FW,
+	'DYLD_CHAINED_PTR_ARM64E_OFFSET',
+)
+
+export const DYLD_CHAINED_PTR_ARM64E_SHARED_CACHE = /* @__PURE__ */ _bind(
+	FW,
+	'DYLD_CHAINED_PTR_ARM64E_SHARED_CACHE',
+)
+
+export const DYLD_CHAINED_PTR_ARM64E_USERLAND = /* @__PURE__ */ _bind(
+	FW,
+	'DYLD_CHAINED_PTR_ARM64E_USERLAND',
+)
+
+export const DYLD_CHAINED_PTR_ARM64E_USERLAND24 = /* @__PURE__ */ _bind(
+	FW,
+	'DYLD_CHAINED_PTR_ARM64E_USERLAND24',
+)
+
 export const DYLD_CHAINED_PTR_START_LAST = /* @__PURE__ */ _bind(FW, 'DYLD_CHAINED_PTR_START_LAST')
-export const DYLD_CHAINED_PTR_START_MULTI = /* @__PURE__ */ _bind(FW, 'DYLD_CHAINED_PTR_START_MULTI')
+export const DYLD_CHAINED_PTR_START_MULTI = /* @__PURE__ */ _bind(
+	FW,
+	'DYLD_CHAINED_PTR_START_MULTI',
+)
+
 export const DYLD_CHAINED_PTR_START_NONE = /* @__PURE__ */ _bind(FW, 'DYLD_CHAINED_PTR_START_NONE')
-export const DYLD_CHAINED_PTR_X86_64_KERNEL_CACHE = /* @__PURE__ */ _bind(FW, 'DYLD_CHAINED_PTR_X86_64_KERNEL_CACHE')
+export const DYLD_CHAINED_PTR_X86_64_KERNEL_CACHE = /* @__PURE__ */ _bind(
+	FW,
+	'DYLD_CHAINED_PTR_X86_64_KERNEL_CACHE',
+)
+
 export const DebugKeyAction = /* @__PURE__ */ _bind(FW, 'DebugKeyAction')
 export const Debugger = /* @__PURE__ */ _bind(FW, 'Debugger')
 export const Descriptor = /* @__PURE__ */ _bind(FW, 'Descriptor')
@@ -196,19 +452,47 @@ export const EXDisplayPipeHealthRecord = /* @__PURE__ */ _bind(FW, 'EXDisplayPip
 export const EXDisplayPipeHealthReport = /* @__PURE__ */ _bind(FW, 'EXDisplayPipeHealthReport')
 export const EXDisplayPipeHealthStats = /* @__PURE__ */ _bind(FW, 'EXDisplayPipeHealthStats')
 export const EXDisplayPipeIndicator = /* @__PURE__ */ _bind(FW, 'EXDisplayPipeIndicator')
-export const EXDisplayPipeIndicatorParams = /* @__PURE__ */ _bind(FW, 'EXDisplayPipeIndicatorParams')
+export const EXDisplayPipeIndicatorParams = /* @__PURE__ */ _bind(
+	FW,
+	'EXDisplayPipeIndicatorParams',
+)
+
 export const EXDisplayPipeSecureTEStatus = /* @__PURE__ */ _bind(FW, 'EXDisplayPipeSecureTEStatus')
 export const EXDisplayPipeStatus = /* @__PURE__ */ _bind(FW, 'EXDisplayPipeStatus')
-export const EXEC_MODE_XNU_DEFAULT_TINDEX = /* @__PURE__ */ _bind(FW, 'EXEC_MODE_XNU_DEFAULT_TINDEX')
-export const EXEC_MODE_XNU_ROZONE_RW_TINDEX = /* @__PURE__ */ _bind(FW, 'EXEC_MODE_XNU_ROZONE_RW_TINDEX')
-export const EXEC_MODE_XNU_USER_DEFAULT_TINDEX = /* @__PURE__ */ _bind(FW, 'EXEC_MODE_XNU_USER_DEFAULT_TINDEX')
-export const EXEC_MODE_XNU_USER_JIT_RW_TINDEX = /* @__PURE__ */ _bind(FW, 'EXEC_MODE_XNU_USER_JIT_RW_TINDEX')
-export const EXEC_MODE_XNU_USER_TPRO_RW_TINDEX = /* @__PURE__ */ _bind(FW, 'EXEC_MODE_XNU_USER_TPRO_RW_TINDEX')
+export const EXEC_MODE_XNU_DEFAULT_TINDEX = /* @__PURE__ */ _bind(
+	FW,
+	'EXEC_MODE_XNU_DEFAULT_TINDEX',
+)
+
+export const EXEC_MODE_XNU_ROZONE_RW_TINDEX = /* @__PURE__ */ _bind(
+	FW,
+	'EXEC_MODE_XNU_ROZONE_RW_TINDEX',
+)
+
+export const EXEC_MODE_XNU_USER_DEFAULT_TINDEX = /* @__PURE__ */ _bind(
+	FW,
+	'EXEC_MODE_XNU_USER_DEFAULT_TINDEX',
+)
+
+export const EXEC_MODE_XNU_USER_JIT_RW_TINDEX = /* @__PURE__ */ _bind(
+	FW,
+	'EXEC_MODE_XNU_USER_JIT_RW_TINDEX',
+)
+
+export const EXEC_MODE_XNU_USER_TPRO_RW_TINDEX = /* @__PURE__ */ _bind(
+	FW,
+	'EXEC_MODE_XNU_USER_TPRO_RW_TINDEX',
+)
+
 export const EfiMemoryRange = /* @__PURE__ */ _bind(FW, 'EfiMemoryRange')
 export const EndpointDescriptor = /* @__PURE__ */ _bind(FW, 'EndpointDescriptor')
 export const EventElementCollection = /* @__PURE__ */ _bind(FW, 'EventElementCollection')
 export const FWComputeCRC16 = /* @__PURE__ */ _bind(FW, 'FWComputeCRC16')
-export const FWMultiIsochReceiveListenerParamsStruct = /* @__PURE__ */ _bind(FW, 'FWMultiIsochReceiveListenerParamsStruct')
+export const FWMultiIsochReceiveListenerParamsStruct = /* @__PURE__ */ _bind(
+	FW,
+	'FWMultiIsochReceiveListenerParamsStruct',
+)
+
 export const FWSBP2LoginResponse = /* @__PURE__ */ _bind(FW, 'FWSBP2LoginResponse')
 export const FWSBP2NotifyParams = /* @__PURE__ */ _bind(FW, 'FWSBP2NotifyParams')
 export const FWSBP2StatusBlock = /* @__PURE__ */ _bind(FW, 'FWSBP2StatusBlock')
@@ -231,9 +515,17 @@ export const HIDGetNextButtonInfo = /* @__PURE__ */ _bind(FW, 'HIDGetNextButtonI
 export const HIDGetNextUsageValueInfo = /* @__PURE__ */ _bind(FW, 'HIDGetNextUsageValueInfo')
 export const HIDGetReportLength = /* @__PURE__ */ _bind(FW, 'HIDGetReportLength')
 export const HIDGetScaledUsageValue = /* @__PURE__ */ _bind(FW, 'HIDGetScaledUsageValue')
-export const HIDGetSpecificButtonCapabilities = /* @__PURE__ */ _bind(FW, 'HIDGetSpecificButtonCapabilities')
+export const HIDGetSpecificButtonCapabilities = /* @__PURE__ */ _bind(
+	FW,
+	'HIDGetSpecificButtonCapabilities',
+)
+
 export const HIDGetSpecificButtonCaps = /* @__PURE__ */ _bind(FW, 'HIDGetSpecificButtonCaps')
-export const HIDGetSpecificValueCapabilities = /* @__PURE__ */ _bind(FW, 'HIDGetSpecificValueCapabilities')
+export const HIDGetSpecificValueCapabilities = /* @__PURE__ */ _bind(
+	FW,
+	'HIDGetSpecificValueCapabilities',
+)
+
 export const HIDGetSpecificValueCaps = /* @__PURE__ */ _bind(FW, 'HIDGetSpecificValueCaps')
 export const HIDGetUsageValue = /* @__PURE__ */ _bind(FW, 'HIDGetUsageValue')
 export const HIDGetUsageValueArray = /* @__PURE__ */ _bind(FW, 'HIDGetUsageValueArray')
@@ -283,7 +575,11 @@ export const IFNET_IPV6_FRAGMENT = /* @__PURE__ */ _bind(FW, 'IFNET_IPV6_FRAGMEN
 export const IFNET_IP_FRAGMENT = /* @__PURE__ */ _bind(FW, 'IFNET_IP_FRAGMENT')
 export const IFNET_LQM_THRESH_ABORT = /* @__PURE__ */ _bind(FW, 'IFNET_LQM_THRESH_ABORT')
 export const IFNET_LQM_THRESH_GOOD = /* @__PURE__ */ _bind(FW, 'IFNET_LQM_THRESH_GOOD')
-export const IFNET_LQM_THRESH_MINIMALLY_VIABLE = /* @__PURE__ */ _bind(FW, 'IFNET_LQM_THRESH_MINIMALLY_VIABLE')
+export const IFNET_LQM_THRESH_MINIMALLY_VIABLE = /* @__PURE__ */ _bind(
+	FW,
+	'IFNET_LQM_THRESH_MINIMALLY_VIABLE',
+)
+
 export const IFNET_LQM_THRESH_OFF = /* @__PURE__ */ _bind(FW, 'IFNET_LQM_THRESH_OFF')
 export const IFNET_LQM_THRESH_POOR = /* @__PURE__ */ _bind(FW, 'IFNET_LQM_THRESH_POOR')
 export const IFNET_LQM_THRESH_UNKNOWN = /* @__PURE__ */ _bind(FW, 'IFNET_LQM_THRESH_UNKNOWN')
@@ -296,15 +592,35 @@ export const IFNET_NPM_THRESH_NEAR = /* @__PURE__ */ _bind(FW, 'IFNET_NPM_THRESH
 export const IFNET_NPM_THRESH_UNKNOWN = /* @__PURE__ */ _bind(FW, 'IFNET_NPM_THRESH_UNKNOWN')
 export const IFNET_RSSI_UNKNOWN = /* @__PURE__ */ _bind(FW, 'IFNET_RSSI_UNKNOWN')
 export const IFNET_RX_CSUM = /* @__PURE__ */ _bind(FW, 'IFNET_RX_CSUM')
-export const IFNET_SCHED_MODEL_DRIVER_MANAGED = /* @__PURE__ */ _bind(FW, 'IFNET_SCHED_MODEL_DRIVER_MANAGED')
+export const IFNET_SCHED_MODEL_DRIVER_MANAGED = /* @__PURE__ */ _bind(
+	FW,
+	'IFNET_SCHED_MODEL_DRIVER_MANAGED',
+)
+
 export const IFNET_SCHED_MODEL_FQ_CODEL = /* @__PURE__ */ _bind(FW, 'IFNET_SCHED_MODEL_FQ_CODEL')
-export const IFNET_SCHED_MODEL_FQ_CODEL_DM = /* @__PURE__ */ _bind(FW, 'IFNET_SCHED_MODEL_FQ_CODEL_DM')
-export const IFNET_SCHED_MODEL_FQ_CODEL_NEW = /* @__PURE__ */ _bind(FW, 'IFNET_SCHED_MODEL_FQ_CODEL_NEW')
-export const IFNET_SCHED_MODEL_FQ_CODEL_NEW_DM = /* @__PURE__ */ _bind(FW, 'IFNET_SCHED_MODEL_FQ_CODEL_NEW_DM')
+export const IFNET_SCHED_MODEL_FQ_CODEL_DM = /* @__PURE__ */ _bind(
+	FW,
+	'IFNET_SCHED_MODEL_FQ_CODEL_DM',
+)
+
+export const IFNET_SCHED_MODEL_FQ_CODEL_NEW = /* @__PURE__ */ _bind(
+	FW,
+	'IFNET_SCHED_MODEL_FQ_CODEL_NEW',
+)
+
+export const IFNET_SCHED_MODEL_FQ_CODEL_NEW_DM = /* @__PURE__ */ _bind(
+	FW,
+	'IFNET_SCHED_MODEL_FQ_CODEL_NEW_DM',
+)
+
 export const IFNET_SCHED_MODEL_NORMAL = /* @__PURE__ */ _bind(FW, 'IFNET_SCHED_MODEL_NORMAL')
 export const IFNET_SW_TIMESTAMP = /* @__PURE__ */ _bind(FW, 'IFNET_SW_TIMESTAMP')
 export const IFNET_THROTTLE_OFF = /* @__PURE__ */ _bind(FW, 'IFNET_THROTTLE_OFF')
-export const IFNET_THROTTLE_OPPORTUNISTIC = /* @__PURE__ */ _bind(FW, 'IFNET_THROTTLE_OPPORTUNISTIC')
+export const IFNET_THROTTLE_OPPORTUNISTIC = /* @__PURE__ */ _bind(
+	FW,
+	'IFNET_THROTTLE_OPPORTUNISTIC',
+)
+
 export const IFNET_TSO_IPV4 = /* @__PURE__ */ _bind(FW, 'IFNET_TSO_IPV4')
 export const IFNET_TSO_IPV6 = /* @__PURE__ */ _bind(FW, 'IFNET_TSO_IPV6')
 export const IFNET_TX_STATUS = /* @__PURE__ */ _bind(FW, 'IFNET_TX_STATUS')
@@ -312,7 +628,11 @@ export const IFNET_VLAN_MTU = /* @__PURE__ */ _bind(FW, 'IFNET_VLAN_MTU')
 export const IFNET_VLAN_TAGGING = /* @__PURE__ */ _bind(FW, 'IFNET_VLAN_TAGGING')
 export const IFNET_WAKE_ON_MAGIC_PACKET = /* @__PURE__ */ _bind(FW, 'IFNET_WAKE_ON_MAGIC_PACKET')
 export const IOACPIAddress = /* @__PURE__ */ _bind(FW, 'IOACPIAddress')
-export const IOACPIAddressSpaceDescriptor = /* @__PURE__ */ _bind(FW, 'IOACPIAddressSpaceDescriptor')
+export const IOACPIAddressSpaceDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'IOACPIAddressSpaceDescriptor',
+)
+
 export const IOACPIPlatformDevice = /* @__PURE__ */ _bind(FW, 'IOACPIPlatformDevice')
 export const IOACPIPlatformExpert = /* @__PURE__ */ _bind(FW, 'IOACPIPlatformExpert')
 export const IOAF_Float32ToInt8 = /* @__PURE__ */ _bind(FW, 'IOAF_Float32ToInt8')
@@ -352,8 +672,16 @@ export const IOAccelerator = /* @__PURE__ */ _bind(FW, 'IOAccelerator')
 export const IOAlignmentToSize = /* @__PURE__ */ _bind(FW, 'IOAlignmentToSize')
 export const IOAudioClientBuffer = /* @__PURE__ */ _bind(FW, 'IOAudioClientBuffer')
 export const IOAudioClientBuffer64 = /* @__PURE__ */ _bind(FW, 'IOAudioClientBuffer64')
-export const IOAudioClientBufferExtendedInfo = /* @__PURE__ */ _bind(FW, 'IOAudioClientBufferExtendedInfo')
-export const IOAudioClientBufferExtendedInfo64 = /* @__PURE__ */ _bind(FW, 'IOAudioClientBufferExtendedInfo64')
+export const IOAudioClientBufferExtendedInfo = /* @__PURE__ */ _bind(
+	FW,
+	'IOAudioClientBufferExtendedInfo',
+)
+
+export const IOAudioClientBufferExtendedInfo64 = /* @__PURE__ */ _bind(
+	FW,
+	'IOAudioClientBufferExtendedInfo64',
+)
+
 export const IOAudioClientBufferSet = /* @__PURE__ */ _bind(FW, 'IOAudioClientBufferSet')
 export const IOAudioControl = /* @__PURE__ */ _bind(FW, 'IOAudioControl')
 export const IOAudioControlUserClient = /* @__PURE__ */ _bind(FW, 'IOAudioControlUserClient')
@@ -368,8 +696,16 @@ export const IOAudioSelectorControl = /* @__PURE__ */ _bind(FW, 'IOAudioSelector
 export const IOAudioStream = /* @__PURE__ */ _bind(FW, 'IOAudioStream')
 export const IOAudioStreamFormatDesc = /* @__PURE__ */ _bind(FW, 'IOAudioStreamFormatDesc')
 export const IOAudioTimeIntervalFilter = /* @__PURE__ */ _bind(FW, 'IOAudioTimeIntervalFilter')
-export const IOAudioTimeIntervalFilterFIR = /* @__PURE__ */ _bind(FW, 'IOAudioTimeIntervalFilterFIR')
-export const IOAudioTimeIntervalFilterIIR = /* @__PURE__ */ _bind(FW, 'IOAudioTimeIntervalFilterIIR')
+export const IOAudioTimeIntervalFilterFIR = /* @__PURE__ */ _bind(
+	FW,
+	'IOAudioTimeIntervalFilterFIR',
+)
+
+export const IOAudioTimeIntervalFilterIIR = /* @__PURE__ */ _bind(
+	FW,
+	'IOAudioTimeIntervalFilterIIR',
+)
+
 export const IOAudioToggleControl = /* @__PURE__ */ _bind(FW, 'IOAudioToggleControl')
 export const IOAudioUserClient = /* @__PURE__ */ _bind(FW, 'IOAudioUserClient')
 export const IOBDBlockStorageDriver = /* @__PURE__ */ _bind(FW, 'IOBDBlockStorageDriver')
@@ -383,29 +719,101 @@ export const IOBluetoothHIDDriver = /* @__PURE__ */ _bind(FW, 'IOBluetoothHIDDri
 export const IOCDBlockStorageDriver = /* @__PURE__ */ _bind(FW, 'IOCDBlockStorageDriver')
 export const IOCatalogue = /* @__PURE__ */ _bind(FW, 'IOCatalogue')
 export const IOCircularDataQueue = /* @__PURE__ */ _bind(FW, 'IOCircularDataQueue')
-export const IOCircularDataQueueCopyCurrent = /* @__PURE__ */ _bind(FW, 'IOCircularDataQueueCopyCurrent')
-export const IOCircularDataQueueCopyLatest = /* @__PURE__ */ _bind(FW, 'IOCircularDataQueueCopyLatest')
-export const IOCircularDataQueueCopyMemoryDescriptor = /* @__PURE__ */ _bind(FW, 'IOCircularDataQueueCopyMemoryDescriptor')
+export const IOCircularDataQueueCopyCurrent = /* @__PURE__ */ _bind(
+	FW,
+	'IOCircularDataQueueCopyCurrent',
+)
+
+export const IOCircularDataQueueCopyLatest = /* @__PURE__ */ _bind(
+	FW,
+	'IOCircularDataQueueCopyLatest',
+)
+
+export const IOCircularDataQueueCopyMemoryDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'IOCircularDataQueueCopyMemoryDescriptor',
+)
+
 export const IOCircularDataQueueCopyNext = /* @__PURE__ */ _bind(FW, 'IOCircularDataQueueCopyNext')
-export const IOCircularDataQueueCopyPrevious = /* @__PURE__ */ _bind(FW, 'IOCircularDataQueueCopyPrevious')
-export const IOCircularDataQueueCreateOptions = /* @__PURE__ */ _bind(FW, 'IOCircularDataQueueCreateOptions')
-export const IOCircularDataQueueCreateWithEntries = /* @__PURE__ */ _bind(FW, 'IOCircularDataQueueCreateWithEntries')
-export const IOCircularDataQueueDescription = /* @__PURE__ */ _bind(FW, 'IOCircularDataQueueDescription')
+export const IOCircularDataQueueCopyPrevious = /* @__PURE__ */ _bind(
+	FW,
+	'IOCircularDataQueueCopyPrevious',
+)
+
+export const IOCircularDataQueueCreateOptions = /* @__PURE__ */ _bind(
+	FW,
+	'IOCircularDataQueueCreateOptions',
+)
+
+export const IOCircularDataQueueCreateWithEntries = /* @__PURE__ */ _bind(
+	FW,
+	'IOCircularDataQueueCreateWithEntries',
+)
+
+export const IOCircularDataQueueDescription = /* @__PURE__ */ _bind(
+	FW,
+	'IOCircularDataQueueDescription',
+)
+
 export const IOCircularDataQueueDestroy = /* @__PURE__ */ _bind(FW, 'IOCircularDataQueueDestroy')
 export const IOCircularDataQueueEnqueue = /* @__PURE__ */ _bind(FW, 'IOCircularDataQueueEnqueue')
-export const IOCircularDataQueueEntryHeader = /* @__PURE__ */ _bind(FW, 'IOCircularDataQueueEntryHeader')
-export const IOCircularDataQueueEntryHeaderInfo = /* @__PURE__ */ _bind(FW, 'IOCircularDataQueueEntryHeaderInfo')
-export const IOCircularDataQueueGetCurrent = /* @__PURE__ */ _bind(FW, 'IOCircularDataQueueGetCurrent')
-export const IOCircularDataQueueGetLatest = /* @__PURE__ */ _bind(FW, 'IOCircularDataQueueGetLatest')
-export const IOCircularDataQueueGetLatestWithBlock = /* @__PURE__ */ _bind(FW, 'IOCircularDataQueueGetLatestWithBlock')
+export const IOCircularDataQueueEntryHeader = /* @__PURE__ */ _bind(
+	FW,
+	'IOCircularDataQueueEntryHeader',
+)
+
+export const IOCircularDataQueueEntryHeaderInfo = /* @__PURE__ */ _bind(
+	FW,
+	'IOCircularDataQueueEntryHeaderInfo',
+)
+
+export const IOCircularDataQueueGetCurrent = /* @__PURE__ */ _bind(
+	FW,
+	'IOCircularDataQueueGetCurrent',
+)
+
+export const IOCircularDataQueueGetLatest = /* @__PURE__ */ _bind(
+	FW,
+	'IOCircularDataQueueGetLatest',
+)
+
+export const IOCircularDataQueueGetLatestWithBlock = /* @__PURE__ */ _bind(
+	FW,
+	'IOCircularDataQueueGetLatestWithBlock',
+)
+
 export const IOCircularDataQueueGetNext = /* @__PURE__ */ _bind(FW, 'IOCircularDataQueueGetNext')
-export const IOCircularDataQueueGetNextWithBlock = /* @__PURE__ */ _bind(FW, 'IOCircularDataQueueGetNextWithBlock')
-export const IOCircularDataQueueGetPrevious = /* @__PURE__ */ _bind(FW, 'IOCircularDataQueueGetPrevious')
-export const IOCircularDataQueueGetPreviousWithBlock = /* @__PURE__ */ _bind(FW, 'IOCircularDataQueueGetPreviousWithBlock')
-export const IOCircularDataQueueIsCurrentDataValid = /* @__PURE__ */ _bind(FW, 'IOCircularDataQueueIsCurrentDataValid')
+export const IOCircularDataQueueGetNextWithBlock = /* @__PURE__ */ _bind(
+	FW,
+	'IOCircularDataQueueGetNextWithBlock',
+)
+
+export const IOCircularDataQueueGetPrevious = /* @__PURE__ */ _bind(
+	FW,
+	'IOCircularDataQueueGetPrevious',
+)
+
+export const IOCircularDataQueueGetPreviousWithBlock = /* @__PURE__ */ _bind(
+	FW,
+	'IOCircularDataQueueGetPreviousWithBlock',
+)
+
+export const IOCircularDataQueueIsCurrentDataValid = /* @__PURE__ */ _bind(
+	FW,
+	'IOCircularDataQueueIsCurrentDataValid',
+)
+
 export const IOCircularDataQueueMemory = /* @__PURE__ */ _bind(FW, 'IOCircularDataQueueMemory')
-export const IOCircularDataQueueMemoryCursor = /* @__PURE__ */ _bind(FW, 'IOCircularDataQueueMemoryCursor')
-export const IOCircularDataQueueSetCursorLatest = /* @__PURE__ */ _bind(FW, 'IOCircularDataQueueSetCursorLatest')
+export const IOCircularDataQueueMemoryCursor = /* @__PURE__ */ _bind(
+	FW,
+	'IOCircularDataQueueMemoryCursor',
+)
+
+export const IOCircularDataQueueSetCursorLatest = /* @__PURE__ */ _bind(
+	FW,
+	'IOCircularDataQueueSetCursorLatest',
+)
+
 export const IOCircularDataQueueState = /* @__PURE__ */ _bind(FW, 'IOCircularDataQueueState')
 export const IOCommand = /* @__PURE__ */ _bind(FW, 'IOCommand')
 export const IOCommandGate = /* @__PURE__ */ _bind(FW, 'IOCommandGate')
@@ -455,20 +863,44 @@ export const IOExtendedLBA = /* @__PURE__ */ _bind(FW, 'IOExtendedLBA')
 export const IOExternalAsyncMethod = /* @__PURE__ */ _bind(FW, 'IOExternalAsyncMethod')
 export const IOExternalMethod = /* @__PURE__ */ _bind(FW, 'IOExternalMethod')
 export const IOExternalMethodArguments = /* @__PURE__ */ _bind(FW, 'IOExternalMethodArguments')
-export const IOExternalMethodArgumentsOpaque = /* @__PURE__ */ _bind(FW, 'IOExternalMethodArgumentsOpaque')
+export const IOExternalMethodArgumentsOpaque = /* @__PURE__ */ _bind(
+	FW,
+	'IOExternalMethodArgumentsOpaque',
+)
+
 export const IOExternalMethodDispatch = /* @__PURE__ */ _bind(FW, 'IOExternalMethodDispatch')
-export const IOExternalMethodDispatch2022 = /* @__PURE__ */ _bind(FW, 'IOExternalMethodDispatch2022')
+export const IOExternalMethodDispatch2022 = /* @__PURE__ */ _bind(
+	FW,
+	'IOExternalMethodDispatch2022',
+)
+
 export const IOExternalTrap = /* @__PURE__ */ _bind(FW, 'IOExternalTrap')
 export const IOFBController = /* @__PURE__ */ _bind(FW, 'IOFBController')
 export const IOFBCursorControlAttribute = /* @__PURE__ */ _bind(FW, 'IOFBCursorControlAttribute')
 export const IOFBCursorControlCallouts = /* @__PURE__ */ _bind(FW, 'IOFBCursorControlCallouts')
 export const IOFWAVCAsyncCommandState = /* @__PURE__ */ _bind(FW, 'IOFWAVCAsyncCommandState')
 export const IOFWAVCPlugTypes = /* @__PURE__ */ _bind(FW, 'IOFWAVCPlugTypes')
-export const IOFWAVCProtocolUserClientAsyncCommandCodes = /* @__PURE__ */ _bind(FW, 'IOFWAVCProtocolUserClientAsyncCommandCodes')
-export const IOFWAVCProtocolUserClientCommandCodes = /* @__PURE__ */ _bind(FW, 'IOFWAVCProtocolUserClientCommandCodes')
+export const IOFWAVCProtocolUserClientAsyncCommandCodes = /* @__PURE__ */ _bind(
+	FW,
+	'IOFWAVCProtocolUserClientAsyncCommandCodes',
+)
+
+export const IOFWAVCProtocolUserClientCommandCodes = /* @__PURE__ */ _bind(
+	FW,
+	'IOFWAVCProtocolUserClientCommandCodes',
+)
+
 export const IOFWAVCSubunitPlugMessages = /* @__PURE__ */ _bind(FW, 'IOFWAVCSubunitPlugMessages')
-export const IOFWAVCUserClientAsyncCommandCodes = /* @__PURE__ */ _bind(FW, 'IOFWAVCUserClientAsyncCommandCodes')
-export const IOFWAVCUserClientCommandCodes = /* @__PURE__ */ _bind(FW, 'IOFWAVCUserClientCommandCodes')
+export const IOFWAVCUserClientAsyncCommandCodes = /* @__PURE__ */ _bind(
+	FW,
+	'IOFWAVCUserClientAsyncCommandCodes',
+)
+
+export const IOFWAVCUserClientCommandCodes = /* @__PURE__ */ _bind(
+	FW,
+	'IOFWAVCUserClientCommandCodes',
+)
+
 export const IOFWAddressSpace = /* @__PURE__ */ _bind(FW, 'IOFWAddressSpace')
 export const IOFWAddressSpaceAux = /* @__PURE__ */ _bind(FW, 'IOFWAddressSpaceAux')
 export const IOFWAsyncCommand = /* @__PURE__ */ _bind(FW, 'IOFWAsyncCommand')
@@ -499,10 +931,22 @@ export const IOFWQEventSource = /* @__PURE__ */ _bind(FW, 'IOFWQEventSource')
 export const IOFWReadCommand = /* @__PURE__ */ _bind(FW, 'IOFWReadCommand')
 export const IOFWReadQuadCommand = /* @__PURE__ */ _bind(FW, 'IOFWReadQuadCommand')
 export const IOFWReceiveDCL = /* @__PURE__ */ _bind(FW, 'IOFWReceiveDCL')
-export const IOFWSBP2UserClientCommandCodes = /* @__PURE__ */ _bind(FW, 'IOFWSBP2UserClientCommandCodes')
+export const IOFWSBP2UserClientCommandCodes = /* @__PURE__ */ _bind(
+	FW,
+	'IOFWSBP2UserClientCommandCodes',
+)
+
 export const IOFWSendDCL = /* @__PURE__ */ _bind(FW, 'IOFWSendDCL')
-export const IOFWSimpleContiguousPhysicalAddressSpace = /* @__PURE__ */ _bind(FW, 'IOFWSimpleContiguousPhysicalAddressSpace')
-export const IOFWSimplePhysicalAddressSpace = /* @__PURE__ */ _bind(FW, 'IOFWSimplePhysicalAddressSpace')
+export const IOFWSimpleContiguousPhysicalAddressSpace = /* @__PURE__ */ _bind(
+	FW,
+	'IOFWSimpleContiguousPhysicalAddressSpace',
+)
+
+export const IOFWSimplePhysicalAddressSpace = /* @__PURE__ */ _bind(
+	FW,
+	'IOFWSimplePhysicalAddressSpace',
+)
+
 export const IOFWSkipCycleDCL = /* @__PURE__ */ _bind(FW, 'IOFWSkipCycleDCL')
 export const IOFWSyncer = /* @__PURE__ */ _bind(FW, 'IOFWSyncer')
 export const IOFWUserObjectExporter = /* @__PURE__ */ _bind(FW, 'IOFWUserObjectExporter')
@@ -521,13 +965,25 @@ export const IOFastPathHIDLEDService = /* @__PURE__ */ _bind(FW, 'IOFastPathHIDL
 export const IOFastPathHIDService = /* @__PURE__ */ _bind(FW, 'IOFastPathHIDService')
 export const IOFastPathService = /* @__PURE__ */ _bind(FW, 'IOFastPathService')
 export const IOFastPathUserClient = /* @__PURE__ */ _bind(FW, 'IOFastPathUserClient')
-export const IOFilterInterruptEventSource = /* @__PURE__ */ _bind(FW, 'IOFilterInterruptEventSource')
+export const IOFilterInterruptEventSource = /* @__PURE__ */ _bind(
+	FW,
+	'IOFilterInterruptEventSource',
+)
+
 export const IOFindNameForValue = /* @__PURE__ */ _bind(FW, 'IOFindNameForValue')
 export const IOFindValueForName = /* @__PURE__ */ _bind(FW, 'IOFindValueForName')
-export const IOFireWireAVCAsynchronousCommand = /* @__PURE__ */ _bind(FW, 'IOFireWireAVCAsynchronousCommand')
+export const IOFireWireAVCAsynchronousCommand = /* @__PURE__ */ _bind(
+	FW,
+	'IOFireWireAVCAsynchronousCommand',
+)
+
 export const IOFireWireAVCCommand = /* @__PURE__ */ _bind(FW, 'IOFireWireAVCCommand')
 export const IOFireWireAVCNub = /* @__PURE__ */ _bind(FW, 'IOFireWireAVCNub')
-export const IOFireWireAVCProtocolUserClient = /* @__PURE__ */ _bind(FW, 'IOFireWireAVCProtocolUserClient')
+export const IOFireWireAVCProtocolUserClient = /* @__PURE__ */ _bind(
+	FW,
+	'IOFireWireAVCProtocolUserClient',
+)
+
 export const IOFireWireAVCSubUnit = /* @__PURE__ */ _bind(FW, 'IOFireWireAVCSubUnit')
 export const IOFireWireAVCTargetSpace = /* @__PURE__ */ _bind(FW, 'IOFireWireAVCTargetSpace')
 export const IOFireWireAVCUnit = /* @__PURE__ */ _bind(FW, 'IOFireWireAVCUnit')
@@ -544,8 +1000,16 @@ export const IOFireWireLib = /* @__PURE__ */ _bind(FW, 'IOFireWireLib')
 export const IOFireWireLink = /* @__PURE__ */ _bind(FW, 'IOFireWireLink')
 export const IOFireWireLocalNode = /* @__PURE__ */ _bind(FW, 'IOFireWireLocalNode')
 export const IOFireWireLocalNodeAux = /* @__PURE__ */ _bind(FW, 'IOFireWireLocalNodeAux')
-export const IOFireWireMultiIsochReceiveListener = /* @__PURE__ */ _bind(FW, 'IOFireWireMultiIsochReceiveListener')
-export const IOFireWireMultiIsochReceivePacket = /* @__PURE__ */ _bind(FW, 'IOFireWireMultiIsochReceivePacket')
+export const IOFireWireMultiIsochReceiveListener = /* @__PURE__ */ _bind(
+	FW,
+	'IOFireWireMultiIsochReceiveListener',
+)
+
+export const IOFireWireMultiIsochReceivePacket = /* @__PURE__ */ _bind(
+	FW,
+	'IOFireWireMultiIsochReceivePacket',
+)
+
 export const IOFireWireNub = /* @__PURE__ */ _bind(FW, 'IOFireWireNub')
 export const IOFireWireNubAux = /* @__PURE__ */ _bind(FW, 'IOFireWireNubAux')
 export const IOFireWirePCRSpace = /* @__PURE__ */ _bind(FW, 'IOFireWirePCRSpace')
@@ -557,14 +1021,22 @@ export const IOFireWireSBP2ManagementORB = /* @__PURE__ */ _bind(FW, 'IOFireWire
 export const IOFireWireSBP2ORB = /* @__PURE__ */ _bind(FW, 'IOFireWireSBP2ORB')
 export const IOFireWireSBP2Target = /* @__PURE__ */ _bind(FW, 'IOFireWireSBP2Target')
 export const IOFireWireSBP2UserClient = /* @__PURE__ */ _bind(FW, 'IOFireWireSBP2UserClient')
-export const IOFireWireSerialBusProtocolTransport = /* @__PURE__ */ _bind(FW, 'IOFireWireSerialBusProtocolTransport')
+export const IOFireWireSerialBusProtocolTransport = /* @__PURE__ */ _bind(
+	FW,
+	'IOFireWireSerialBusProtocolTransport',
+)
+
 export const IOFireWireUnit = /* @__PURE__ */ _bind(FW, 'IOFireWireUnit')
 export const IOFireWireUnitAux = /* @__PURE__ */ _bind(FW, 'IOFireWireUnitAux')
 export const IOFireWireUserClient = /* @__PURE__ */ _bind(FW, 'IOFireWireUserClient')
 export const IOFixedPoint64 = /* @__PURE__ */ _bind(FW, 'IOFixedPoint64')
 export const IOFlushProcessorCache = /* @__PURE__ */ _bind(FW, 'IOFlushProcessorCache')
 export const IOFramebuffer = /* @__PURE__ */ _bind(FW, 'IOFramebuffer')
-export const IOFramebufferNotificationNotify = /* @__PURE__ */ _bind(FW, 'IOFramebufferNotificationNotify')
+export const IOFramebufferNotificationNotify = /* @__PURE__ */ _bind(
+	FW,
+	'IOFramebufferNotificationNotify',
+)
+
 export const IOFramebufferUserClient = /* @__PURE__ */ _bind(FW, 'IOFramebufferUserClient')
 export const IOFree = /* @__PURE__ */ _bind(FW, 'IOFree')
 export const IOFreeAligned = /* @__PURE__ */ _bind(FW, 'IOFreeAligned')
@@ -599,7 +1071,11 @@ export const IOHIDEventServiceInterface = /* @__PURE__ */ _bind(FW, 'IOHIDEventS
 export const IOHIDEventServiceMetaClass = /* @__PURE__ */ _bind(FW, 'IOHIDEventServiceMetaClass')
 export const IOHIDEventService_Class = /* @__PURE__ */ _bind(FW, 'IOHIDEventService_Class')
 export const IOHIDEventService_IVars = /* @__PURE__ */ _bind(FW, 'IOHIDEventService_IVars')
-export const IOHIDEventService_LocalIVars = /* @__PURE__ */ _bind(FW, 'IOHIDEventService_LocalIVars')
+export const IOHIDEventService_LocalIVars = /* @__PURE__ */ _bind(
+	FW,
+	'IOHIDEventService_LocalIVars',
+)
+
 export const IOHIDInterface = /* @__PURE__ */ _bind(FW, 'IOHIDInterface')
 export const IOHIDInterfaceInterface = /* @__PURE__ */ _bind(FW, 'IOHIDInterfaceInterface')
 export const IOHIDInterfaceMetaClass = /* @__PURE__ */ _bind(FW, 'IOHIDInterfaceMetaClass')
@@ -626,9 +1102,17 @@ export const IOHistReportInfo = /* @__PURE__ */ _bind(FW, 'IOHistReportInfo')
 export const IOHistogramReportValues = /* @__PURE__ */ _bind(FW, 'IOHistogramReportValues')
 export const IOHistogramReporter = /* @__PURE__ */ _bind(FW, 'IOHistogramReporter')
 export const IOHistogramSegmentConfig = /* @__PURE__ */ _bind(FW, 'IOHistogramSegmentConfig')
-export const IOInterleavedMemoryDescriptor = /* @__PURE__ */ _bind(FW, 'IOInterleavedMemoryDescriptor')
+export const IOInterleavedMemoryDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'IOInterleavedMemoryDescriptor',
+)
+
 export const IOInterruptAccountingData = /* @__PURE__ */ _bind(FW, 'IOInterruptAccountingData')
-export const IOInterruptAccountingReporter = /* @__PURE__ */ _bind(FW, 'IOInterruptAccountingReporter')
+export const IOInterruptAccountingReporter = /* @__PURE__ */ _bind(
+	FW,
+	'IOInterruptAccountingReporter',
+)
+
 export const IOInterruptController = /* @__PURE__ */ _bind(FW, 'IOInterruptController')
 export const IOInterruptEventSource = /* @__PURE__ */ _bind(FW, 'IOInterruptEventSource')
 export const IOInterruptSourcePrivate = /* @__PURE__ */ _bind(FW, 'IOInterruptSourcePrivate')
@@ -705,7 +1189,11 @@ export const IOPCIDevice_LocalIVars = /* @__PURE__ */ _bind(FW, 'IOPCIDevice_Loc
 export const IOPCIHostBridgeData = /* @__PURE__ */ _bind(FW, 'IOPCIHostBridgeData')
 export const IOPCILinkSpeed = /* @__PURE__ */ _bind(FW, 'IOPCILinkSpeed')
 export const IOPCIMemoryRange = /* @__PURE__ */ _bind(FW, 'IOPCIMemoryRange')
-export const IOPCIMessagedInterruptController = /* @__PURE__ */ _bind(FW, 'IOPCIMessagedInterruptController')
+export const IOPCIMessagedInterruptController = /* @__PURE__ */ _bind(
+	FW,
+	'IOPCIMessagedInterruptController',
+)
+
 export const IOPCIPhysicalAddress = /* @__PURE__ */ _bind(FW, 'IOPCIPhysicalAddress')
 export const IOPCISaveDeviceStateOptions = /* @__PURE__ */ _bind(FW, 'IOPCISaveDeviceStateOptions')
 export const IOPMPowerSource = /* @__PURE__ */ _bind(FW, 'IOPMPowerSource')
@@ -737,7 +1225,11 @@ export const IORecursiveLockGetMachLock = /* @__PURE__ */ _bind(FW, 'IORecursive
 export const IORecursiveLockHaveLock = /* @__PURE__ */ _bind(FW, 'IORecursiveLockHaveLock')
 export const IORecursiveLockLock = /* @__PURE__ */ _bind(FW, 'IORecursiveLockLock')
 export const IORecursiveLockSleep = /* @__PURE__ */ _bind(FW, 'IORecursiveLockSleep')
-export const IORecursiveLockSleepDeadline = /* @__PURE__ */ _bind(FW, 'IORecursiveLockSleepDeadline')
+export const IORecursiveLockSleepDeadline = /* @__PURE__ */ _bind(
+	FW,
+	'IORecursiveLockSleepDeadline',
+)
+
 export const IORecursiveLockTryLock = /* @__PURE__ */ _bind(FW, 'IORecursiveLockTryLock')
 export const IORecursiveLockUnlock = /* @__PURE__ */ _bind(FW, 'IORecursiveLockUnlock')
 export const IORecursiveLockWakeup = /* @__PURE__ */ _bind(FW, 'IORecursiveLockWakeup')
@@ -752,20 +1244,60 @@ export const IOReportElement = /* @__PURE__ */ _bind(FW, 'IOReportElement')
 export const IOReportElementValues = /* @__PURE__ */ _bind(FW, 'IOReportElementValues')
 export const IOReportInterest = /* @__PURE__ */ _bind(FW, 'IOReportInterest')
 export const IOReportInterestList = /* @__PURE__ */ _bind(FW, 'IOReportInterestList')
-export const IOSCSIParallelInterfaceController = /* @__PURE__ */ _bind(FW, 'IOSCSIParallelInterfaceController')
-export const IOSCSIParallelInterfaceDevice = /* @__PURE__ */ _bind(FW, 'IOSCSIParallelInterfaceDevice')
+export const IOSCSIParallelInterfaceController = /* @__PURE__ */ _bind(
+	FW,
+	'IOSCSIParallelInterfaceController',
+)
+
+export const IOSCSIParallelInterfaceDevice = /* @__PURE__ */ _bind(
+	FW,
+	'IOSCSIParallelInterfaceDevice',
+)
+
 export const IOSCSIProtocolServices = /* @__PURE__ */ _bind(FW, 'IOSCSIProtocolServices')
-export const IOServiceNotificationDispatchSource = /* @__PURE__ */ _bind(FW, 'IOServiceNotificationDispatchSource')
-export const IOServiceNotificationDispatchSourceInterface = /* @__PURE__ */ _bind(FW, 'IOServiceNotificationDispatchSourceInterface')
-export const IOServiceNotificationDispatchSource_IVars = /* @__PURE__ */ _bind(FW, 'IOServiceNotificationDispatchSource_IVars')
-export const IOServiceNotificationDispatchSource_LocalIVars = /* @__PURE__ */ _bind(FW, 'IOServiceNotificationDispatchSource_LocalIVars')
+export const IOServiceNotificationDispatchSource = /* @__PURE__ */ _bind(
+	FW,
+	'IOServiceNotificationDispatchSource',
+)
+
+export const IOServiceNotificationDispatchSourceInterface = /* @__PURE__ */ _bind(
+	FW,
+	'IOServiceNotificationDispatchSourceInterface',
+)
+
+export const IOServiceNotificationDispatchSource_IVars = /* @__PURE__ */ _bind(
+	FW,
+	'IOServiceNotificationDispatchSource_IVars',
+)
+
+export const IOServiceNotificationDispatchSource_LocalIVars = /* @__PURE__ */ _bind(
+	FW,
+	'IOServiceNotificationDispatchSource_LocalIVars',
+)
+
 export const IOServiceOrdering = /* @__PURE__ */ _bind(FW, 'IOServiceOrdering')
 export const IOServicePM = /* @__PURE__ */ _bind(FW, 'IOServicePM')
 export const IOServiceStateChangeVars = /* @__PURE__ */ _bind(FW, 'IOServiceStateChangeVars')
-export const IOServiceStateNotificationDispatchSourceInterface = /* @__PURE__ */ _bind(FW, 'IOServiceStateNotificationDispatchSourceInterface')
-export const IOServiceStateNotificationDispatchSource_IVars = /* @__PURE__ */ _bind(FW, 'IOServiceStateNotificationDispatchSource_IVars')
-export const IOServiceStateNotificationDispatchSource_LocalIVars = /* @__PURE__ */ _bind(FW, 'IOServiceStateNotificationDispatchSource_LocalIVars')
-export const IOServiceStateNotificationEventSource = /* @__PURE__ */ _bind(FW, 'IOServiceStateNotificationEventSource')
+export const IOServiceStateNotificationDispatchSourceInterface = /* @__PURE__ */ _bind(
+	FW,
+	'IOServiceStateNotificationDispatchSourceInterface',
+)
+
+export const IOServiceStateNotificationDispatchSource_IVars = /* @__PURE__ */ _bind(
+	FW,
+	'IOServiceStateNotificationDispatchSource_IVars',
+)
+
+export const IOServiceStateNotificationDispatchSource_LocalIVars = /* @__PURE__ */ _bind(
+	FW,
+	'IOServiceStateNotificationDispatchSource_LocalIVars',
+)
+
+export const IOServiceStateNotificationEventSource = /* @__PURE__ */ _bind(
+	FW,
+	'IOServiceStateNotificationEventSource',
+)
+
 export const IOSetProcessorCacheMode = /* @__PURE__ */ _bind(FW, 'IOSetProcessorCacheMode')
 export const IOSharedDataQueue = /* @__PURE__ */ _bind(FW, 'IOSharedDataQueue')
 export const IOSharedInterruptController = /* @__PURE__ */ _bind(FW, 'IOSharedInterruptController')
@@ -792,142 +1324,612 @@ export const IOStreamUserClient = /* @__PURE__ */ _bind(FW, 'IOStreamUserClient'
 export const IOSubMemoryDescriptor = /* @__PURE__ */ _bind(FW, 'IOSubMemoryDescriptor')
 export const IOSyncer = /* @__PURE__ */ _bind(FW, 'IOSyncer')
 export const IOTVector = /* @__PURE__ */ _bind(FW, 'IOTVector')
-export const IOTimeStampIntervalConstantFiltered = /* @__PURE__ */ _bind(FW, 'IOTimeStampIntervalConstantFiltered')
+export const IOTimeStampIntervalConstantFiltered = /* @__PURE__ */ _bind(
+	FW,
+	'IOTimeStampIntervalConstantFiltered',
+)
+
 export const IOTimerEventSource = /* @__PURE__ */ _bind(FW, 'IOTimerEventSource')
 export const IOTrackingCallSiteInfo = /* @__PURE__ */ _bind(FW, 'IOTrackingCallSiteInfo')
 export const IOUSBDevice = /* @__PURE__ */ _bind(FW, 'IOUSBDevice')
-export const IOUSBGetEndpointDescriptorOptions = /* @__PURE__ */ _bind(FW, 'IOUSBGetEndpointDescriptorOptions')
+export const IOUSBGetEndpointDescriptorOptions = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBGetEndpointDescriptorOptions',
+)
+
 export const IOUSBHostBundledCompletion = /* @__PURE__ */ _bind(FW, 'IOUSBHostBundledCompletion')
-export const IOUSBHostCICapabilitiesMessageControlPortCount = /* @__PURE__ */ _bind(FW, 'IOUSBHostCICapabilitiesMessageControlPortCount')
-export const IOUSBHostCICapabilitiesMessageControlPortCountPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCICapabilitiesMessageControlPortCountPhase')
-export const IOUSBHostCICapabilitiesMessageData0CommandTimeoutThreshold = /* @__PURE__ */ _bind(FW, 'IOUSBHostCICapabilitiesMessageData0CommandTimeoutThreshold')
-export const IOUSBHostCICapabilitiesMessageData0CommandTimeoutThresholdPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCICapabilitiesMessageData0CommandTimeoutThresholdPhase')
-export const IOUSBHostCICapabilitiesMessageData0ConnectionLatency = /* @__PURE__ */ _bind(FW, 'IOUSBHostCICapabilitiesMessageData0ConnectionLatency')
-export const IOUSBHostCICapabilitiesMessageData0ConnectionLatencyPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCICapabilitiesMessageData0ConnectionLatencyPhase')
-export const IOUSBHostCICommandMessageControlStatus = /* @__PURE__ */ _bind(FW, 'IOUSBHostCICommandMessageControlStatus')
-export const IOUSBHostCICommandMessageControlStatusPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCICommandMessageControlStatusPhase')
-export const IOUSBHostCICommandMessageData0DeviceAddress = /* @__PURE__ */ _bind(FW, 'IOUSBHostCICommandMessageData0DeviceAddress')
-export const IOUSBHostCICommandMessageData0DeviceAddressPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCICommandMessageData0DeviceAddressPhase')
-export const IOUSBHostCICommandMessageData0EndpointAddress = /* @__PURE__ */ _bind(FW, 'IOUSBHostCICommandMessageData0EndpointAddress')
-export const IOUSBHostCICommandMessageData0EndpointAddressPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCICommandMessageData0EndpointAddressPhase')
-export const IOUSBHostCICommandMessageData0RootPort = /* @__PURE__ */ _bind(FW, 'IOUSBHostCICommandMessageData0RootPort')
-export const IOUSBHostCICommandMessageData0RootPortPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCICommandMessageData0RootPortPhase')
-export const IOUSBHostCICommandMessageData0StreamID = /* @__PURE__ */ _bind(FW, 'IOUSBHostCICommandMessageData0StreamID')
-export const IOUSBHostCICommandMessageData0StreamIDPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCICommandMessageData0StreamIDPhase')
+export const IOUSBHostCICapabilitiesMessageControlPortCount = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCICapabilitiesMessageControlPortCount',
+)
+
+export const IOUSBHostCICapabilitiesMessageControlPortCountPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCICapabilitiesMessageControlPortCountPhase',
+)
+
+export const IOUSBHostCICapabilitiesMessageData0CommandTimeoutThreshold = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCICapabilitiesMessageData0CommandTimeoutThreshold',
+)
+
+export const IOUSBHostCICapabilitiesMessageData0CommandTimeoutThresholdPhase =
+	/* @__PURE__ */ _bind(FW, 'IOUSBHostCICapabilitiesMessageData0CommandTimeoutThresholdPhase')
+
+export const IOUSBHostCICapabilitiesMessageData0ConnectionLatency = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCICapabilitiesMessageData0ConnectionLatency',
+)
+
+export const IOUSBHostCICapabilitiesMessageData0ConnectionLatencyPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCICapabilitiesMessageData0ConnectionLatencyPhase',
+)
+
+export const IOUSBHostCICommandMessageControlStatus = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCICommandMessageControlStatus',
+)
+
+export const IOUSBHostCICommandMessageControlStatusPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCICommandMessageControlStatusPhase',
+)
+
+export const IOUSBHostCICommandMessageData0DeviceAddress = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCICommandMessageData0DeviceAddress',
+)
+
+export const IOUSBHostCICommandMessageData0DeviceAddressPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCICommandMessageData0DeviceAddressPhase',
+)
+
+export const IOUSBHostCICommandMessageData0EndpointAddress = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCICommandMessageData0EndpointAddress',
+)
+
+export const IOUSBHostCICommandMessageData0EndpointAddressPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCICommandMessageData0EndpointAddressPhase',
+)
+
+export const IOUSBHostCICommandMessageData0RootPort = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCICommandMessageData0RootPort',
+)
+
+export const IOUSBHostCICommandMessageData0RootPortPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCICommandMessageData0RootPortPhase',
+)
+
+export const IOUSBHostCICommandMessageData0StreamID = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCICommandMessageData0StreamID',
+)
+
+export const IOUSBHostCICommandMessageData0StreamIDPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCICommandMessageData0StreamIDPhase',
+)
+
 export const IOUSBHostCIControllerState = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIControllerState')
-export const IOUSBHostCIControllerStateToString = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIControllerStateToString')
-export const IOUSBHostCIDeviceCreateCommandData0RootPort = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIDeviceCreateCommandData0RootPort')
-export const IOUSBHostCIDeviceCreateCommandData0RootPortPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIDeviceCreateCommandData0RootPortPhase')
-export const IOUSBHostCIDeviceCreateCommandData0Route = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIDeviceCreateCommandData0Route')
-export const IOUSBHostCIDeviceCreateCommandData0RoutePhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIDeviceCreateCommandData0RoutePhase')
-export const IOUSBHostCIDeviceCreateCommandData1DeviceAddress = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIDeviceCreateCommandData1DeviceAddress')
-export const IOUSBHostCIDeviceCreateCommandData1DeviceAddressPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIDeviceCreateCommandData1DeviceAddressPhase')
+export const IOUSBHostCIControllerStateToString = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIControllerStateToString',
+)
+
+export const IOUSBHostCIDeviceCreateCommandData0RootPort = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIDeviceCreateCommandData0RootPort',
+)
+
+export const IOUSBHostCIDeviceCreateCommandData0RootPortPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIDeviceCreateCommandData0RootPortPhase',
+)
+
+export const IOUSBHostCIDeviceCreateCommandData0Route = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIDeviceCreateCommandData0Route',
+)
+
+export const IOUSBHostCIDeviceCreateCommandData0RoutePhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIDeviceCreateCommandData0RoutePhase',
+)
+
+export const IOUSBHostCIDeviceCreateCommandData1DeviceAddress = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIDeviceCreateCommandData1DeviceAddress',
+)
+
+export const IOUSBHostCIDeviceCreateCommandData1DeviceAddressPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIDeviceCreateCommandData1DeviceAddressPhase',
+)
+
 export const IOUSBHostCIDeviceSpeed = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIDeviceSpeed')
-export const IOUSBHostCIDeviceSpeedToString = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIDeviceSpeedToString')
+export const IOUSBHostCIDeviceSpeedToString = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIDeviceSpeedToString',
+)
+
 export const IOUSBHostCIDeviceState = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIDeviceState')
-export const IOUSBHostCIDeviceStateToString = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIDeviceStateToString')
-export const IOUSBHostCIDeviceUpdateCommandData1DescriptorAddress = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIDeviceUpdateCommandData1DescriptorAddress')
-export const IOUSBHostCIDeviceUpdateCommandData1DescriptorAddressPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIDeviceUpdateCommandData1DescriptorAddressPhase')
-export const IOUSBHostCIDoorbellDeviceAddress = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIDoorbellDeviceAddress')
-export const IOUSBHostCIDoorbellDeviceAddressPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIDoorbellDeviceAddressPhase')
-export const IOUSBHostCIDoorbellEndpointAddress = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIDoorbellEndpointAddress')
-export const IOUSBHostCIDoorbellEndpointAddressPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIDoorbellEndpointAddressPhase')
+export const IOUSBHostCIDeviceStateToString = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIDeviceStateToString',
+)
+
+export const IOUSBHostCIDeviceUpdateCommandData1DescriptorAddress = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIDeviceUpdateCommandData1DescriptorAddress',
+)
+
+export const IOUSBHostCIDeviceUpdateCommandData1DescriptorAddressPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIDeviceUpdateCommandData1DescriptorAddressPhase',
+)
+
+export const IOUSBHostCIDoorbellDeviceAddress = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIDoorbellDeviceAddress',
+)
+
+export const IOUSBHostCIDoorbellDeviceAddressPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIDoorbellDeviceAddressPhase',
+)
+
+export const IOUSBHostCIDoorbellEndpointAddress = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIDoorbellEndpointAddress',
+)
+
+export const IOUSBHostCIDoorbellEndpointAddressPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIDoorbellEndpointAddressPhase',
+)
+
 export const IOUSBHostCIDoorbellStreamID = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIDoorbellStreamID')
-export const IOUSBHostCIDoorbellStreamIDPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIDoorbellStreamIDPhase')
-export const IOUSBHostCIEndpointCreateCommandData1Descriptor = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIEndpointCreateCommandData1Descriptor')
-export const IOUSBHostCIEndpointCreateCommandData1DescriptorPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIEndpointCreateCommandData1DescriptorPhase')
-export const IOUSBHostCIEndpointResetCommandData1ClearState = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIEndpointResetCommandData1ClearState')
-export const IOUSBHostCIEndpointSetNextTransferCommandData1Address = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIEndpointSetNextTransferCommandData1Address')
-export const IOUSBHostCIEndpointSetNextTransferCommandData1AddressPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIEndpointSetNextTransferCommandData1AddressPhase')
+export const IOUSBHostCIDoorbellStreamIDPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIDoorbellStreamIDPhase',
+)
+
+export const IOUSBHostCIEndpointCreateCommandData1Descriptor = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIEndpointCreateCommandData1Descriptor',
+)
+
+export const IOUSBHostCIEndpointCreateCommandData1DescriptorPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIEndpointCreateCommandData1DescriptorPhase',
+)
+
+export const IOUSBHostCIEndpointResetCommandData1ClearState = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIEndpointResetCommandData1ClearState',
+)
+
+export const IOUSBHostCIEndpointSetNextTransferCommandData1Address = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIEndpointSetNextTransferCommandData1Address',
+)
+
+export const IOUSBHostCIEndpointSetNextTransferCommandData1AddressPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIEndpointSetNextTransferCommandData1AddressPhase',
+)
+
 export const IOUSBHostCIEndpointState = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIEndpointState')
-export const IOUSBHostCIEndpointStateToString = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIEndpointStateToString')
-export const IOUSBHostCIEndpointUpdateCommandData1Descriptor = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIEndpointUpdateCommandData1Descriptor')
-export const IOUSBHostCIEndpointUpdateCommandData1DescriptorPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIEndpointUpdateCommandData1DescriptorPhase')
+export const IOUSBHostCIEndpointStateToString = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIEndpointStateToString',
+)
+
+export const IOUSBHostCIEndpointUpdateCommandData1Descriptor = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIEndpointUpdateCommandData1Descriptor',
+)
+
+export const IOUSBHostCIEndpointUpdateCommandData1DescriptorPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIEndpointUpdateCommandData1DescriptorPhase',
+)
+
 export const IOUSBHostCIExceptionType = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIExceptionType')
-export const IOUSBHostCIExceptionTypeToString = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIExceptionTypeToString')
-export const IOUSBHostCIIsochronousTransferControlASAP = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIIsochronousTransferControlASAP')
-export const IOUSBHostCIIsochronousTransferControlFrameNumber = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIIsochronousTransferControlFrameNumber')
-export const IOUSBHostCIIsochronousTransferControlFrameNumberPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIIsochronousTransferControlFrameNumberPhase')
-export const IOUSBHostCIIsochronousTransferData0Length = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIIsochronousTransferData0Length')
-export const IOUSBHostCIIsochronousTransferData0LengthPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIIsochronousTransferData0LengthPhase')
-export const IOUSBHostCIIsochronousTransferData1Buffer = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIIsochronousTransferData1Buffer')
-export const IOUSBHostCIIsochronousTransferData1BufferPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIIsochronousTransferData1BufferPhase')
-export const IOUSBHostCILinkData1TransferStructureAddress = /* @__PURE__ */ _bind(FW, 'IOUSBHostCILinkData1TransferStructureAddress')
-export const IOUSBHostCILinkData1TransferStructureAddressPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCILinkData1TransferStructureAddressPhase')
+export const IOUSBHostCIExceptionTypeToString = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIExceptionTypeToString',
+)
+
+export const IOUSBHostCIIsochronousTransferControlASAP = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIIsochronousTransferControlASAP',
+)
+
+export const IOUSBHostCIIsochronousTransferControlFrameNumber = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIIsochronousTransferControlFrameNumber',
+)
+
+export const IOUSBHostCIIsochronousTransferControlFrameNumberPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIIsochronousTransferControlFrameNumberPhase',
+)
+
+export const IOUSBHostCIIsochronousTransferData0Length = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIIsochronousTransferData0Length',
+)
+
+export const IOUSBHostCIIsochronousTransferData0LengthPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIIsochronousTransferData0LengthPhase',
+)
+
+export const IOUSBHostCIIsochronousTransferData1Buffer = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIIsochronousTransferData1Buffer',
+)
+
+export const IOUSBHostCIIsochronousTransferData1BufferPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIIsochronousTransferData1BufferPhase',
+)
+
+export const IOUSBHostCILinkData1TransferStructureAddress = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCILinkData1TransferStructureAddress',
+)
+
+export const IOUSBHostCILinkData1TransferStructureAddressPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCILinkData1TransferStructureAddressPhase',
+)
+
 export const IOUSBHostCILinkState = /* @__PURE__ */ _bind(FW, 'IOUSBHostCILinkState')
 export const IOUSBHostCILinkStateEnabled = /* @__PURE__ */ _bind(FW, 'IOUSBHostCILinkStateEnabled')
-export const IOUSBHostCILinkStateToString = /* @__PURE__ */ _bind(FW, 'IOUSBHostCILinkStateToString')
+export const IOUSBHostCILinkStateToString = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCILinkStateToString',
+)
+
 export const IOUSBHostCIMessage = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIMessage')
-export const IOUSBHostCIMessageControlNoResponse = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIMessageControlNoResponse')
-export const IOUSBHostCIMessageControlStatus = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIMessageControlStatus')
-export const IOUSBHostCIMessageControlStatusPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIMessageControlStatusPhase')
-export const IOUSBHostCIMessageControlType = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIMessageControlType')
-export const IOUSBHostCIMessageControlTypePhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIMessageControlTypePhase')
-export const IOUSBHostCIMessageControlValid = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIMessageControlValid')
+export const IOUSBHostCIMessageControlNoResponse = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIMessageControlNoResponse',
+)
+
+export const IOUSBHostCIMessageControlStatus = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIMessageControlStatus',
+)
+
+export const IOUSBHostCIMessageControlStatusPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIMessageControlStatusPhase',
+)
+
+export const IOUSBHostCIMessageControlType = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIMessageControlType',
+)
+
+export const IOUSBHostCIMessageControlTypePhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIMessageControlTypePhase',
+)
+
+export const IOUSBHostCIMessageControlValid = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIMessageControlValid',
+)
+
 export const IOUSBHostCIMessageStatus = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIMessageStatus')
-export const IOUSBHostCIMessageStatusFromIOReturn = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIMessageStatusFromIOReturn')
-export const IOUSBHostCIMessageStatusToIOReturn = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIMessageStatusToIOReturn')
-export const IOUSBHostCIMessageStatusToString = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIMessageStatusToString')
+export const IOUSBHostCIMessageStatusFromIOReturn = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIMessageStatusFromIOReturn',
+)
+
+export const IOUSBHostCIMessageStatusToIOReturn = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIMessageStatusToIOReturn',
+)
+
+export const IOUSBHostCIMessageStatusToString = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIMessageStatusToString',
+)
+
 export const IOUSBHostCIMessageType = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIMessageType')
-export const IOUSBHostCIMessageTypeToString = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIMessageTypeToString')
-export const IOUSBHostCINormalTransferData0Length = /* @__PURE__ */ _bind(FW, 'IOUSBHostCINormalTransferData0Length')
-export const IOUSBHostCINormalTransferData0LengthPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCINormalTransferData0LengthPhase')
-export const IOUSBHostCINormalTransferData1Buffer = /* @__PURE__ */ _bind(FW, 'IOUSBHostCINormalTransferData1Buffer')
-export const IOUSBHostCINormalTransferData1BufferPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCINormalTransferData1BufferPhase')
-export const IOUSBHostCIPortCapabilitiesMessageControlConnectorType = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortCapabilitiesMessageControlConnectorType')
-export const IOUSBHostCIPortCapabilitiesMessageControlConnectorTypePhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortCapabilitiesMessageControlConnectorTypePhase')
-export const IOUSBHostCIPortCapabilitiesMessageControlInternalConnector = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortCapabilitiesMessageControlInternalConnector')
-export const IOUSBHostCIPortCapabilitiesMessageControlPortNumber = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortCapabilitiesMessageControlPortNumber')
-export const IOUSBHostCIPortCapabilitiesMessageControlPortNumberPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortCapabilitiesMessageControlPortNumberPhase')
-export const IOUSBHostCIPortCapabilitiesMessageData0MaxPower = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortCapabilitiesMessageData0MaxPower')
-export const IOUSBHostCIPortCapabilitiesMessageData0MaxPowerPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortCapabilitiesMessageData0MaxPowerPhase')
-export const IOUSBHostCIPortEventMessageData0PortNumber = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortEventMessageData0PortNumber')
-export const IOUSBHostCIPortEventMessageData0PortNumberPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortEventMessageData0PortNumberPhase')
+export const IOUSBHostCIMessageTypeToString = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIMessageTypeToString',
+)
+
+export const IOUSBHostCINormalTransferData0Length = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCINormalTransferData0Length',
+)
+
+export const IOUSBHostCINormalTransferData0LengthPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCINormalTransferData0LengthPhase',
+)
+
+export const IOUSBHostCINormalTransferData1Buffer = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCINormalTransferData1Buffer',
+)
+
+export const IOUSBHostCINormalTransferData1BufferPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCINormalTransferData1BufferPhase',
+)
+
+export const IOUSBHostCIPortCapabilitiesMessageControlConnectorType = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIPortCapabilitiesMessageControlConnectorType',
+)
+
+export const IOUSBHostCIPortCapabilitiesMessageControlConnectorTypePhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIPortCapabilitiesMessageControlConnectorTypePhase',
+)
+
+export const IOUSBHostCIPortCapabilitiesMessageControlInternalConnector = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIPortCapabilitiesMessageControlInternalConnector',
+)
+
+export const IOUSBHostCIPortCapabilitiesMessageControlPortNumber = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIPortCapabilitiesMessageControlPortNumber',
+)
+
+export const IOUSBHostCIPortCapabilitiesMessageControlPortNumberPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIPortCapabilitiesMessageControlPortNumberPhase',
+)
+
+export const IOUSBHostCIPortCapabilitiesMessageData0MaxPower = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIPortCapabilitiesMessageData0MaxPower',
+)
+
+export const IOUSBHostCIPortCapabilitiesMessageData0MaxPowerPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIPortCapabilitiesMessageData0MaxPowerPhase',
+)
+
+export const IOUSBHostCIPortEventMessageData0PortNumber = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIPortEventMessageData0PortNumber',
+)
+
+export const IOUSBHostCIPortEventMessageData0PortNumberPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIPortEventMessageData0PortNumberPhase',
+)
+
 export const IOUSBHostCIPortState = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortState')
-export const IOUSBHostCIPortStateToString = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortStateToString')
-export const IOUSBHostCIPortStatusChangeMask = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortStatusChangeMask')
-export const IOUSBHostCIPortStatusCommandData1ChangeMask = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortStatusCommandData1ChangeMask')
-export const IOUSBHostCIPortStatusCommandData1ConnectChange = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortStatusCommandData1ConnectChange')
-export const IOUSBHostCIPortStatusCommandData1Connected = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortStatusCommandData1Connected')
-export const IOUSBHostCIPortStatusCommandData1LinkState = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortStatusCommandData1LinkState')
-export const IOUSBHostCIPortStatusCommandData1LinkStateChange = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortStatusCommandData1LinkStateChange')
-export const IOUSBHostCIPortStatusCommandData1LinkStatePhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortStatusCommandData1LinkStatePhase')
-export const IOUSBHostCIPortStatusCommandData1Overcurrent = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortStatusCommandData1Overcurrent')
-export const IOUSBHostCIPortStatusCommandData1OvercurrentChange = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortStatusCommandData1OvercurrentChange')
-export const IOUSBHostCIPortStatusCommandData1Powered = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortStatusCommandData1Powered')
-export const IOUSBHostCIPortStatusCommandData1Speed = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortStatusCommandData1Speed')
-export const IOUSBHostCIPortStatusCommandData1SpeedPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortStatusCommandData1SpeedPhase')
-export const IOUSBHostCIPortStatusConnectChange = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortStatusConnectChange')
-export const IOUSBHostCIPortStatusConnected = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortStatusConnected')
-export const IOUSBHostCIPortStatusLinkState = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortStatusLinkState')
-export const IOUSBHostCIPortStatusLinkStateChange = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortStatusLinkStateChange')
-export const IOUSBHostCIPortStatusLinkStatePhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortStatusLinkStatePhase')
-export const IOUSBHostCIPortStatusOvercurrent = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortStatusOvercurrent')
-export const IOUSBHostCIPortStatusOvercurrentChange = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortStatusOvercurrentChange')
-export const IOUSBHostCIPortStatusPowered = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortStatusPowered')
+export const IOUSBHostCIPortStateToString = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIPortStateToString',
+)
+
+export const IOUSBHostCIPortStatusChangeMask = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIPortStatusChangeMask',
+)
+
+export const IOUSBHostCIPortStatusCommandData1ChangeMask = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIPortStatusCommandData1ChangeMask',
+)
+
+export const IOUSBHostCIPortStatusCommandData1ConnectChange = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIPortStatusCommandData1ConnectChange',
+)
+
+export const IOUSBHostCIPortStatusCommandData1Connected = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIPortStatusCommandData1Connected',
+)
+
+export const IOUSBHostCIPortStatusCommandData1LinkState = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIPortStatusCommandData1LinkState',
+)
+
+export const IOUSBHostCIPortStatusCommandData1LinkStateChange = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIPortStatusCommandData1LinkStateChange',
+)
+
+export const IOUSBHostCIPortStatusCommandData1LinkStatePhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIPortStatusCommandData1LinkStatePhase',
+)
+
+export const IOUSBHostCIPortStatusCommandData1Overcurrent = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIPortStatusCommandData1Overcurrent',
+)
+
+export const IOUSBHostCIPortStatusCommandData1OvercurrentChange = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIPortStatusCommandData1OvercurrentChange',
+)
+
+export const IOUSBHostCIPortStatusCommandData1Powered = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIPortStatusCommandData1Powered',
+)
+
+export const IOUSBHostCIPortStatusCommandData1Speed = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIPortStatusCommandData1Speed',
+)
+
+export const IOUSBHostCIPortStatusCommandData1SpeedPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIPortStatusCommandData1SpeedPhase',
+)
+
+export const IOUSBHostCIPortStatusConnectChange = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIPortStatusConnectChange',
+)
+
+export const IOUSBHostCIPortStatusConnected = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIPortStatusConnected',
+)
+
+export const IOUSBHostCIPortStatusLinkState = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIPortStatusLinkState',
+)
+
+export const IOUSBHostCIPortStatusLinkStateChange = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIPortStatusLinkStateChange',
+)
+
+export const IOUSBHostCIPortStatusLinkStatePhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIPortStatusLinkStatePhase',
+)
+
+export const IOUSBHostCIPortStatusOvercurrent = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIPortStatusOvercurrent',
+)
+
+export const IOUSBHostCIPortStatusOvercurrentChange = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIPortStatusOvercurrentChange',
+)
+
+export const IOUSBHostCIPortStatusPowered = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIPortStatusPowered',
+)
+
 export const IOUSBHostCIPortStatusSpeed = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortStatusSpeed')
-export const IOUSBHostCIPortStatusSpeedPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortStatusSpeedPhase')
-export const IOUSBHostCISetupTransferData1bRequest = /* @__PURE__ */ _bind(FW, 'IOUSBHostCISetupTransferData1bRequest')
-export const IOUSBHostCISetupTransferData1bRequestPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCISetupTransferData1bRequestPhase')
-export const IOUSBHostCISetupTransferData1bmRequestType = /* @__PURE__ */ _bind(FW, 'IOUSBHostCISetupTransferData1bmRequestType')
-export const IOUSBHostCISetupTransferData1bmRequestTypePhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCISetupTransferData1bmRequestTypePhase')
-export const IOUSBHostCISetupTransferData1wIndex = /* @__PURE__ */ _bind(FW, 'IOUSBHostCISetupTransferData1wIndex')
-export const IOUSBHostCISetupTransferData1wIndexPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCISetupTransferData1wIndexPhase')
-export const IOUSBHostCISetupTransferData1wLength = /* @__PURE__ */ _bind(FW, 'IOUSBHostCISetupTransferData1wLength')
-export const IOUSBHostCISetupTransferData1wLengthPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCISetupTransferData1wLengthPhase')
-export const IOUSBHostCISetupTransferData1wValue = /* @__PURE__ */ _bind(FW, 'IOUSBHostCISetupTransferData1wValue')
-export const IOUSBHostCISetupTransferData1wValuePhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCISetupTransferData1wValuePhase')
-export const IOUSBHostCITransferCompletionMessageControlDeviceAddress = /* @__PURE__ */ _bind(FW, 'IOUSBHostCITransferCompletionMessageControlDeviceAddress')
-export const IOUSBHostCITransferCompletionMessageControlDeviceAddressPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCITransferCompletionMessageControlDeviceAddressPhase')
-export const IOUSBHostCITransferCompletionMessageControlEndpointAddress = /* @__PURE__ */ _bind(FW, 'IOUSBHostCITransferCompletionMessageControlEndpointAddress')
-export const IOUSBHostCITransferCompletionMessageControlEndpointAddressPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCITransferCompletionMessageControlEndpointAddressPhase')
-export const IOUSBHostCITransferCompletionMessageControlStatus = /* @__PURE__ */ _bind(FW, 'IOUSBHostCITransferCompletionMessageControlStatus')
-export const IOUSBHostCITransferCompletionMessageControlStatusPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCITransferCompletionMessageControlStatusPhase')
-export const IOUSBHostCITransferCompletionMessageData0TransferLength = /* @__PURE__ */ _bind(FW, 'IOUSBHostCITransferCompletionMessageData0TransferLength')
-export const IOUSBHostCITransferCompletionMessageData0TransferLengthPhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCITransferCompletionMessageData0TransferLengthPhase')
-export const IOUSBHostCITransferCompletionMessageData1TransferStructure = /* @__PURE__ */ _bind(FW, 'IOUSBHostCITransferCompletionMessageData1TransferStructure')
-export const IOUSBHostCITransferCompletionMessageData1TransferStructurePhase = /* @__PURE__ */ _bind(FW, 'IOUSBHostCITransferCompletionMessageData1TransferStructurePhase')
-export const IOUSBHostCIUserClientVersion = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIUserClientVersion')
+export const IOUSBHostCIPortStatusSpeedPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIPortStatusSpeedPhase',
+)
+
+export const IOUSBHostCISetupTransferData1bRequest = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCISetupTransferData1bRequest',
+)
+
+export const IOUSBHostCISetupTransferData1bRequestPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCISetupTransferData1bRequestPhase',
+)
+
+export const IOUSBHostCISetupTransferData1bmRequestType = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCISetupTransferData1bmRequestType',
+)
+
+export const IOUSBHostCISetupTransferData1bmRequestTypePhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCISetupTransferData1bmRequestTypePhase',
+)
+
+export const IOUSBHostCISetupTransferData1wIndex = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCISetupTransferData1wIndex',
+)
+
+export const IOUSBHostCISetupTransferData1wIndexPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCISetupTransferData1wIndexPhase',
+)
+
+export const IOUSBHostCISetupTransferData1wLength = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCISetupTransferData1wLength',
+)
+
+export const IOUSBHostCISetupTransferData1wLengthPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCISetupTransferData1wLengthPhase',
+)
+
+export const IOUSBHostCISetupTransferData1wValue = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCISetupTransferData1wValue',
+)
+
+export const IOUSBHostCISetupTransferData1wValuePhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCISetupTransferData1wValuePhase',
+)
+
+export const IOUSBHostCITransferCompletionMessageControlDeviceAddress = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCITransferCompletionMessageControlDeviceAddress',
+)
+
+export const IOUSBHostCITransferCompletionMessageControlDeviceAddressPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCITransferCompletionMessageControlDeviceAddressPhase',
+)
+
+export const IOUSBHostCITransferCompletionMessageControlEndpointAddress = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCITransferCompletionMessageControlEndpointAddress',
+)
+
+export const IOUSBHostCITransferCompletionMessageControlEndpointAddressPhase =
+	/* @__PURE__ */ _bind(FW, 'IOUSBHostCITransferCompletionMessageControlEndpointAddressPhase')
+
+export const IOUSBHostCITransferCompletionMessageControlStatus = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCITransferCompletionMessageControlStatus',
+)
+
+export const IOUSBHostCITransferCompletionMessageControlStatusPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCITransferCompletionMessageControlStatusPhase',
+)
+
+export const IOUSBHostCITransferCompletionMessageData0TransferLength = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCITransferCompletionMessageData0TransferLength',
+)
+
+export const IOUSBHostCITransferCompletionMessageData0TransferLengthPhase = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCITransferCompletionMessageData0TransferLengthPhase',
+)
+
+export const IOUSBHostCITransferCompletionMessageData1TransferStructure = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCITransferCompletionMessageData1TransferStructure',
+)
+
+export const IOUSBHostCITransferCompletionMessageData1TransferStructurePhase =
+	/* @__PURE__ */ _bind(FW, 'IOUSBHostCITransferCompletionMessageData1TransferStructurePhase')
+
+export const IOUSBHostCIUserClientVersion = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIUserClientVersion',
+)
+
 export const IOUSBHostCompletion = /* @__PURE__ */ _bind(FW, 'IOUSBHostCompletion')
 export const IOUSBHostDeviceInterface = /* @__PURE__ */ _bind(FW, 'IOUSBHostDeviceInterface')
 export const IOUSBHostDeviceMetaClass = /* @__PURE__ */ _bind(FW, 'IOUSBHostDeviceMetaClass')
@@ -936,19 +1938,51 @@ export const IOUSBHostDevice_IVars = /* @__PURE__ */ _bind(FW, 'IOUSBHostDevice_
 export const IOUSBHostDevice_LocalIVars = /* @__PURE__ */ _bind(FW, 'IOUSBHostDevice_LocalIVars')
 export const IOUSBHostHIDDescriptor = /* @__PURE__ */ _bind(FW, 'IOUSBHostHIDDescriptor')
 export const IOUSBHostHIDDevice = /* @__PURE__ */ _bind(FW, 'IOUSBHostHIDDevice')
-export const IOUSBHostHIDReportDescriptor = /* @__PURE__ */ _bind(FW, 'IOUSBHostHIDReportDescriptor')
-export const IOUSBHostIOSourceClientRecord = /* @__PURE__ */ _bind(FW, 'IOUSBHostIOSourceClientRecord')
-export const IOUSBHostIOSourceClientRecordLink = /* @__PURE__ */ _bind(FW, 'IOUSBHostIOSourceClientRecordLink')
-export const IOUSBHostIOSourceClientRecordList = /* @__PURE__ */ _bind(FW, 'IOUSBHostIOSourceClientRecordList')
+export const IOUSBHostHIDReportDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostHIDReportDescriptor',
+)
+
+export const IOUSBHostIOSourceClientRecord = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostIOSourceClientRecord',
+)
+
+export const IOUSBHostIOSourceClientRecordLink = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostIOSourceClientRecordLink',
+)
+
+export const IOUSBHostIOSourceClientRecordList = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostIOSourceClientRecordList',
+)
+
 export const IOUSBHostInterfaceInterface = /* @__PURE__ */ _bind(FW, 'IOUSBHostInterfaceInterface')
 export const IOUSBHostInterfaceMetaClass = /* @__PURE__ */ _bind(FW, 'IOUSBHostInterfaceMetaClass')
 export const IOUSBHostInterface_Class = /* @__PURE__ */ _bind(FW, 'IOUSBHostInterface_Class')
 export const IOUSBHostInterface_IVars = /* @__PURE__ */ _bind(FW, 'IOUSBHostInterface_IVars')
-export const IOUSBHostInterface_LocalIVars = /* @__PURE__ */ _bind(FW, 'IOUSBHostInterface_LocalIVars')
-export const IOUSBHostIsochronousCompletion = /* @__PURE__ */ _bind(FW, 'IOUSBHostIsochronousCompletion')
+export const IOUSBHostInterface_LocalIVars = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostInterface_LocalIVars',
+)
+
+export const IOUSBHostIsochronousCompletion = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostIsochronousCompletion',
+)
+
 export const IOUSBHostIsochronousFrame = /* @__PURE__ */ _bind(FW, 'IOUSBHostIsochronousFrame')
-export const IOUSBHostIsochronousTransaction = /* @__PURE__ */ _bind(FW, 'IOUSBHostIsochronousTransaction')
-export const IOUSBHostIsochronousTransactionCompletion = /* @__PURE__ */ _bind(FW, 'IOUSBHostIsochronousTransactionCompletion')
+export const IOUSBHostIsochronousTransaction = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostIsochronousTransaction',
+)
+
+export const IOUSBHostIsochronousTransactionCompletion = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostIsochronousTransactionCompletion',
+)
+
 export const IOUSBHostPipeInterface = /* @__PURE__ */ _bind(FW, 'IOUSBHostPipeInterface')
 export const IOUSBHostPipeMetaClass = /* @__PURE__ */ _bind(FW, 'IOUSBHostPipeMetaClass')
 export const IOUSBHostPipe_Class = /* @__PURE__ */ _bind(FW, 'IOUSBHostPipe_Class')
@@ -956,7 +1990,11 @@ export const IOUSBHostPipe_IVars = /* @__PURE__ */ _bind(FW, 'IOUSBHostPipe_IVar
 export const IOUSBHostPipe_LocalIVars = /* @__PURE__ */ _bind(FW, 'IOUSBHostPipe_LocalIVars')
 export const IOUSBInterface = /* @__PURE__ */ _bind(FW, 'IOUSBInterface')
 export const IOUSBIsochronousFrame = /* @__PURE__ */ _bind(FW, 'IOUSBIsochronousFrame')
-export const IOUSBStandardEndpointDescriptors = /* @__PURE__ */ _bind(FW, 'IOUSBStandardEndpointDescriptors')
+export const IOUSBStandardEndpointDescriptors = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBStandardEndpointDescriptors',
+)
+
 export const IOUserClient2022 = /* @__PURE__ */ _bind(FW, 'IOUserClient2022')
 export const IOUserServerCheckInToken = /* @__PURE__ */ _bind(FW, 'IOUserServerCheckInToken')
 export const IOVideoControlDictionary = /* @__PURE__ */ _bind(FW, 'IOVideoControlDictionary')
@@ -964,7 +2002,11 @@ export const IOVideoDevice = /* @__PURE__ */ _bind(FW, 'IOVideoDevice')
 export const IOVideoDeviceUserClientInit = /* @__PURE__ */ _bind(FW, 'IOVideoDeviceUserClientInit')
 export const IOVideoStream = /* @__PURE__ */ _bind(FW, 'IOVideoStream')
 export const IOVideoStreamDictionary = /* @__PURE__ */ _bind(FW, 'IOVideoStreamDictionary')
-export const IOVideoStreamFormatDictionary = /* @__PURE__ */ _bind(FW, 'IOVideoStreamFormatDictionary')
+export const IOVideoStreamFormatDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'IOVideoStreamFormatDictionary',
+)
+
 export const IOWatchDogTimer = /* @__PURE__ */ _bind(FW, 'IOWatchDogTimer')
 export const IOWorkGroup = /* @__PURE__ */ _bind(FW, 'IOWorkGroup')
 export const IOWorkGroupInterface = /* @__PURE__ */ _bind(FW, 'IOWorkGroupInterface')
@@ -972,17 +2014,37 @@ export const IOWorkGroup_IVars = /* @__PURE__ */ _bind(FW, 'IOWorkGroup_IVars')
 export const IOWorkGroup_LocalIVars = /* @__PURE__ */ _bind(FW, 'IOWorkGroup_LocalIVars')
 export const IOWorkLoop = /* @__PURE__ */ _bind(FW, 'IOWorkLoop')
 export const IOWorkQueue = /* @__PURE__ */ _bind(FW, 'IOWorkQueue')
-export const InterfaceAssociationDescriptor = /* @__PURE__ */ _bind(FW, 'InterfaceAssociationDescriptor')
+export const InterfaceAssociationDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'InterfaceAssociationDescriptor',
+)
+
 export const InterfaceDescriptor = /* @__PURE__ */ _bind(FW, 'InterfaceDescriptor')
 export const KUNCExecute = /* @__PURE__ */ _bind(FW, 'KUNCExecute')
 export const KUNCGetNotificationID = /* @__PURE__ */ _bind(FW, 'KUNCGetNotificationID')
-export const KUNCUserNotificationDisplayAlert = /* @__PURE__ */ _bind(FW, 'KUNCUserNotificationDisplayAlert')
-export const KUNCUserNotificationDisplayFromBundle = /* @__PURE__ */ _bind(FW, 'KUNCUserNotificationDisplayFromBundle')
-export const KUNCUserNotificationDisplayNotice = /* @__PURE__ */ _bind(FW, 'KUNCUserNotificationDisplayNotice')
+export const KUNCUserNotificationDisplayAlert = /* @__PURE__ */ _bind(
+	FW,
+	'KUNCUserNotificationDisplayAlert',
+)
+
+export const KUNCUserNotificationDisplayFromBundle = /* @__PURE__ */ _bind(
+	FW,
+	'KUNCUserNotificationDisplayFromBundle',
+)
+
+export const KUNCUserNotificationDisplayNotice = /* @__PURE__ */ _bind(
+	FW,
+	'KUNCUserNotificationDisplayNotice',
+)
+
 export const Key = /* @__PURE__ */ _bind(FW, 'Key')
 export const KeyAttribute = /* @__PURE__ */ _bind(FW, 'KeyAttribute')
 export const KeyValueMask = /* @__PURE__ */ _bind(FW, 'KeyValueMask')
-export const MAX_N_SPTM_CORE_FILE_REGIONS = /* @__PURE__ */ _bind(FW, 'MAX_N_SPTM_CORE_FILE_REGIONS')
+export const MAX_N_SPTM_CORE_FILE_REGIONS = /* @__PURE__ */ _bind(
+	FW,
+	'MAX_N_SPTM_CORE_FILE_REGIONS',
+)
+
 export const MBUF_BCAST = /* @__PURE__ */ _bind(FW, 'MBUF_BCAST')
 export const MBUF_CSUM_DID_DATA = /* @__PURE__ */ _bind(FW, 'MBUF_CSUM_DID_DATA')
 export const MBUF_CSUM_DID_IP = /* @__PURE__ */ _bind(FW, 'MBUF_CSUM_DID_IP')
@@ -1043,48 +2105,216 @@ export const MTF_SONAME = /* @__PURE__ */ _bind(FW, 'MTF_SONAME')
 export const MTF_SOOPTS = /* @__PURE__ */ _bind(FW, 'MTF_SOOPTS')
 export const MTF_TAG = /* @__PURE__ */ _bind(FW, 'MTF_TAG')
 export const NVRAMPartitionType = /* @__PURE__ */ _bind(FW, 'NVRAMPartitionType')
-export const OSAction_AFKUserDataPipe__HandleCommand = /* @__PURE__ */ _bind(FW, 'OSAction_AFKUserDataPipe__HandleCommand')
-export const OSAction_AFKUserDataPipe__HandleCommandInterface = /* @__PURE__ */ _bind(FW, 'OSAction_AFKUserDataPipe__HandleCommandInterface')
-export const OSAction_AFKUserDataPipe__HandleCommandMetaClass = /* @__PURE__ */ _bind(FW, 'OSAction_AFKUserDataPipe__HandleCommandMetaClass')
-export const OSAction_AFKUserDataPipe__HandleCommand_Class = /* @__PURE__ */ _bind(FW, 'OSAction_AFKUserDataPipe__HandleCommand_Class')
-export const OSAction_AFKUserDataPipe__HandleCommand_IVars = /* @__PURE__ */ _bind(FW, 'OSAction_AFKUserDataPipe__HandleCommand_IVars')
-export const OSAction_AFKUserDataPipe__HandleCommand_LocalIVars = /* @__PURE__ */ _bind(FW, 'OSAction_AFKUserDataPipe__HandleCommand_LocalIVars')
-export const OSAction_AFKUserDataPipe__HandleReport = /* @__PURE__ */ _bind(FW, 'OSAction_AFKUserDataPipe__HandleReport')
-export const OSAction_AFKUserDataPipe__HandleReportInterface = /* @__PURE__ */ _bind(FW, 'OSAction_AFKUserDataPipe__HandleReportInterface')
-export const OSAction_AFKUserDataPipe__HandleReportMetaClass = /* @__PURE__ */ _bind(FW, 'OSAction_AFKUserDataPipe__HandleReportMetaClass')
-export const OSAction_AFKUserDataPipe__HandleReport_Class = /* @__PURE__ */ _bind(FW, 'OSAction_AFKUserDataPipe__HandleReport_Class')
-export const OSAction_AFKUserDataPipe__HandleReport_IVars = /* @__PURE__ */ _bind(FW, 'OSAction_AFKUserDataPipe__HandleReport_IVars')
-export const OSAction_AFKUserDataPipe__HandleReport_LocalIVars = /* @__PURE__ */ _bind(FW, 'OSAction_AFKUserDataPipe__HandleReport_LocalIVars')
-export const OSAction_AFKUserDataPipe__HandleResponse = /* @__PURE__ */ _bind(FW, 'OSAction_AFKUserDataPipe__HandleResponse')
-export const OSAction_AFKUserDataPipe__HandleResponseInterface = /* @__PURE__ */ _bind(FW, 'OSAction_AFKUserDataPipe__HandleResponseInterface')
-export const OSAction_AFKUserDataPipe__HandleResponseMetaClass = /* @__PURE__ */ _bind(FW, 'OSAction_AFKUserDataPipe__HandleResponseMetaClass')
-export const OSAction_AFKUserDataPipe__HandleResponse_Class = /* @__PURE__ */ _bind(FW, 'OSAction_AFKUserDataPipe__HandleResponse_Class')
-export const OSAction_AFKUserDataPipe__HandleResponse_IVars = /* @__PURE__ */ _bind(FW, 'OSAction_AFKUserDataPipe__HandleResponse_IVars')
-export const OSAction_AFKUserDataPipe__HandleResponse_LocalIVars = /* @__PURE__ */ _bind(FW, 'OSAction_AFKUserDataPipe__HandleResponse_LocalIVars')
-export const OSAction_IOHIDDevice__CompleteReport = /* @__PURE__ */ _bind(FW, 'OSAction_IOHIDDevice__CompleteReport')
-export const OSAction_IOHIDDevice__CompleteReportInterface = /* @__PURE__ */ _bind(FW, 'OSAction_IOHIDDevice__CompleteReportInterface')
-export const OSAction_IOHIDDevice__CompleteReportMetaClass = /* @__PURE__ */ _bind(FW, 'OSAction_IOHIDDevice__CompleteReportMetaClass')
-export const OSAction_IOHIDDevice__CompleteReport_Class = /* @__PURE__ */ _bind(FW, 'OSAction_IOHIDDevice__CompleteReport_Class')
-export const OSAction_IOHIDDevice__CompleteReport_IVars = /* @__PURE__ */ _bind(FW, 'OSAction_IOHIDDevice__CompleteReport_IVars')
-export const OSAction_IOHIDDevice__CompleteReport_LocalIVars = /* @__PURE__ */ _bind(FW, 'OSAction_IOHIDDevice__CompleteReport_LocalIVars')
-export const OSAction_IOHIDEventService__CopyEvent = /* @__PURE__ */ _bind(FW, 'OSAction_IOHIDEventService__CopyEvent')
-export const OSAction_IOHIDEventService__CopyEventInterface = /* @__PURE__ */ _bind(FW, 'OSAction_IOHIDEventService__CopyEventInterface')
-export const OSAction_IOHIDEventService__CopyEventMetaClass = /* @__PURE__ */ _bind(FW, 'OSAction_IOHIDEventService__CopyEventMetaClass')
-export const OSAction_IOHIDEventService__CopyEvent_Class = /* @__PURE__ */ _bind(FW, 'OSAction_IOHIDEventService__CopyEvent_Class')
-export const OSAction_IOHIDEventService__CopyEvent_IVars = /* @__PURE__ */ _bind(FW, 'OSAction_IOHIDEventService__CopyEvent_IVars')
-export const OSAction_IOHIDEventService__CopyEvent_LocalIVars = /* @__PURE__ */ _bind(FW, 'OSAction_IOHIDEventService__CopyEvent_LocalIVars')
-export const OSAction_IOHIDEventService__SetLED = /* @__PURE__ */ _bind(FW, 'OSAction_IOHIDEventService__SetLED')
-export const OSAction_IOHIDEventService__SetLEDInterface = /* @__PURE__ */ _bind(FW, 'OSAction_IOHIDEventService__SetLEDInterface')
-export const OSAction_IOHIDEventService__SetLEDMetaClass = /* @__PURE__ */ _bind(FW, 'OSAction_IOHIDEventService__SetLEDMetaClass')
-export const OSAction_IOHIDEventService__SetLED_Class = /* @__PURE__ */ _bind(FW, 'OSAction_IOHIDEventService__SetLED_Class')
-export const OSAction_IOHIDEventService__SetLED_IVars = /* @__PURE__ */ _bind(FW, 'OSAction_IOHIDEventService__SetLED_IVars')
-export const OSAction_IOHIDEventService__SetLED_LocalIVars = /* @__PURE__ */ _bind(FW, 'OSAction_IOHIDEventService__SetLED_LocalIVars')
-export const OSAction_IOHIDEventService__SetUserProperties = /* @__PURE__ */ _bind(FW, 'OSAction_IOHIDEventService__SetUserProperties')
-export const OSAction_IOHIDEventService__SetUserPropertiesInterface = /* @__PURE__ */ _bind(FW, 'OSAction_IOHIDEventService__SetUserPropertiesInterface')
-export const OSAction_IOHIDEventService__SetUserPropertiesMetaClass = /* @__PURE__ */ _bind(FW, 'OSAction_IOHIDEventService__SetUserPropertiesMetaClass')
-export const OSAction_IOHIDEventService__SetUserProperties_Class = /* @__PURE__ */ _bind(FW, 'OSAction_IOHIDEventService__SetUserProperties_Class')
-export const OSAction_IOHIDEventService__SetUserProperties_IVars = /* @__PURE__ */ _bind(FW, 'OSAction_IOHIDEventService__SetUserProperties_IVars')
-export const OSAction_IOHIDEventService__SetUserProperties_LocalIVars = /* @__PURE__ */ _bind(FW, 'OSAction_IOHIDEventService__SetUserProperties_LocalIVars')
+export const OSAction_AFKUserDataPipe__HandleCommand = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_AFKUserDataPipe__HandleCommand',
+)
+
+export const OSAction_AFKUserDataPipe__HandleCommandInterface = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_AFKUserDataPipe__HandleCommandInterface',
+)
+
+export const OSAction_AFKUserDataPipe__HandleCommandMetaClass = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_AFKUserDataPipe__HandleCommandMetaClass',
+)
+
+export const OSAction_AFKUserDataPipe__HandleCommand_Class = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_AFKUserDataPipe__HandleCommand_Class',
+)
+
+export const OSAction_AFKUserDataPipe__HandleCommand_IVars = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_AFKUserDataPipe__HandleCommand_IVars',
+)
+
+export const OSAction_AFKUserDataPipe__HandleCommand_LocalIVars = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_AFKUserDataPipe__HandleCommand_LocalIVars',
+)
+
+export const OSAction_AFKUserDataPipe__HandleReport = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_AFKUserDataPipe__HandleReport',
+)
+
+export const OSAction_AFKUserDataPipe__HandleReportInterface = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_AFKUserDataPipe__HandleReportInterface',
+)
+
+export const OSAction_AFKUserDataPipe__HandleReportMetaClass = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_AFKUserDataPipe__HandleReportMetaClass',
+)
+
+export const OSAction_AFKUserDataPipe__HandleReport_Class = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_AFKUserDataPipe__HandleReport_Class',
+)
+
+export const OSAction_AFKUserDataPipe__HandleReport_IVars = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_AFKUserDataPipe__HandleReport_IVars',
+)
+
+export const OSAction_AFKUserDataPipe__HandleReport_LocalIVars = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_AFKUserDataPipe__HandleReport_LocalIVars',
+)
+
+export const OSAction_AFKUserDataPipe__HandleResponse = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_AFKUserDataPipe__HandleResponse',
+)
+
+export const OSAction_AFKUserDataPipe__HandleResponseInterface = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_AFKUserDataPipe__HandleResponseInterface',
+)
+
+export const OSAction_AFKUserDataPipe__HandleResponseMetaClass = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_AFKUserDataPipe__HandleResponseMetaClass',
+)
+
+export const OSAction_AFKUserDataPipe__HandleResponse_Class = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_AFKUserDataPipe__HandleResponse_Class',
+)
+
+export const OSAction_AFKUserDataPipe__HandleResponse_IVars = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_AFKUserDataPipe__HandleResponse_IVars',
+)
+
+export const OSAction_AFKUserDataPipe__HandleResponse_LocalIVars = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_AFKUserDataPipe__HandleResponse_LocalIVars',
+)
+
+export const OSAction_IOHIDDevice__CompleteReport = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_IOHIDDevice__CompleteReport',
+)
+
+export const OSAction_IOHIDDevice__CompleteReportInterface = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_IOHIDDevice__CompleteReportInterface',
+)
+
+export const OSAction_IOHIDDevice__CompleteReportMetaClass = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_IOHIDDevice__CompleteReportMetaClass',
+)
+
+export const OSAction_IOHIDDevice__CompleteReport_Class = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_IOHIDDevice__CompleteReport_Class',
+)
+
+export const OSAction_IOHIDDevice__CompleteReport_IVars = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_IOHIDDevice__CompleteReport_IVars',
+)
+
+export const OSAction_IOHIDDevice__CompleteReport_LocalIVars = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_IOHIDDevice__CompleteReport_LocalIVars',
+)
+
+export const OSAction_IOHIDEventService__CopyEvent = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_IOHIDEventService__CopyEvent',
+)
+
+export const OSAction_IOHIDEventService__CopyEventInterface = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_IOHIDEventService__CopyEventInterface',
+)
+
+export const OSAction_IOHIDEventService__CopyEventMetaClass = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_IOHIDEventService__CopyEventMetaClass',
+)
+
+export const OSAction_IOHIDEventService__CopyEvent_Class = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_IOHIDEventService__CopyEvent_Class',
+)
+
+export const OSAction_IOHIDEventService__CopyEvent_IVars = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_IOHIDEventService__CopyEvent_IVars',
+)
+
+export const OSAction_IOHIDEventService__CopyEvent_LocalIVars = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_IOHIDEventService__CopyEvent_LocalIVars',
+)
+
+export const OSAction_IOHIDEventService__SetLED = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_IOHIDEventService__SetLED',
+)
+
+export const OSAction_IOHIDEventService__SetLEDInterface = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_IOHIDEventService__SetLEDInterface',
+)
+
+export const OSAction_IOHIDEventService__SetLEDMetaClass = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_IOHIDEventService__SetLEDMetaClass',
+)
+
+export const OSAction_IOHIDEventService__SetLED_Class = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_IOHIDEventService__SetLED_Class',
+)
+
+export const OSAction_IOHIDEventService__SetLED_IVars = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_IOHIDEventService__SetLED_IVars',
+)
+
+export const OSAction_IOHIDEventService__SetLED_LocalIVars = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_IOHIDEventService__SetLED_LocalIVars',
+)
+
+export const OSAction_IOHIDEventService__SetUserProperties = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_IOHIDEventService__SetUserProperties',
+)
+
+export const OSAction_IOHIDEventService__SetUserPropertiesInterface = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_IOHIDEventService__SetUserPropertiesInterface',
+)
+
+export const OSAction_IOHIDEventService__SetUserPropertiesMetaClass = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_IOHIDEventService__SetUserPropertiesMetaClass',
+)
+
+export const OSAction_IOHIDEventService__SetUserProperties_Class = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_IOHIDEventService__SetUserProperties_Class',
+)
+
+export const OSAction_IOHIDEventService__SetUserProperties_IVars = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_IOHIDEventService__SetUserProperties_IVars',
+)
+
+export const OSAction_IOHIDEventService__SetUserProperties_LocalIVars = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_IOHIDEventService__SetUserProperties_LocalIVars',
+)
+
 export const OSAddAtomic = /* @__PURE__ */ _bind(FW, 'OSAddAtomic')
 export const OSAddAtomic16 = /* @__PURE__ */ _bind(FW, 'OSAddAtomic16')
 export const OSAddAtomic64 = /* @__PURE__ */ _bind(FW, 'OSAddAtomic64')
@@ -1168,10 +2398,18 @@ export const PESetUTCTimeOfDay = /* @__PURE__ */ _bind(FW, 'PESetUTCTimeOfDay')
 export const PESyncNVRAM = /* @__PURE__ */ _bind(FW, 'PESyncNVRAM')
 export const PEWriteNVRAMBooleanProperty = /* @__PURE__ */ _bind(FW, 'PEWriteNVRAMBooleanProperty')
 export const PEWriteNVRAMProperty = /* @__PURE__ */ _bind(FW, 'PEWriteNVRAMProperty')
-export const PEWriteNVRAMPropertyWithCopy = /* @__PURE__ */ _bind(FW, 'PEWriteNVRAMPropertyWithCopy')
+export const PEWriteNVRAMPropertyWithCopy = /* @__PURE__ */ _bind(
+	FW,
+	'PEWriteNVRAMPropertyWithCopy',
+)
+
 export const PE_halt_restart = /* @__PURE__ */ _bind(FW, 'PE_halt_restart')
 export const PassthruInterruptController = /* @__PURE__ */ _bind(FW, 'PassthruInterruptController')
-export const PlatformCapabilityDescriptor = /* @__PURE__ */ _bind(FW, 'PlatformCapabilityDescriptor')
+export const PlatformCapabilityDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'PlatformCapabilityDescriptor',
+)
+
 export const RAW_header = /* @__PURE__ */ _bind(FW, 'RAW_header')
 export const RGBDirect = /* @__PURE__ */ _bind(FW, 'RGBDirect')
 export const RegistryCStrEntryLookup = /* @__PURE__ */ _bind(FW, 'RegistryCStrEntryLookup')
@@ -1189,8 +2427,16 @@ export const RegistryPropertyGet = /* @__PURE__ */ _bind(FW, 'RegistryPropertyGe
 export const RegistryPropertyGetMod = /* @__PURE__ */ _bind(FW, 'RegistryPropertyGetMod')
 export const RegistryPropertyGetSize = /* @__PURE__ */ _bind(FW, 'RegistryPropertyGetSize')
 export const RegistryPropertyIterate = /* @__PURE__ */ _bind(FW, 'RegistryPropertyIterate')
-export const RegistryPropertyIterateCreate = /* @__PURE__ */ _bind(FW, 'RegistryPropertyIterateCreate')
-export const RegistryPropertyIterateDispose = /* @__PURE__ */ _bind(FW, 'RegistryPropertyIterateDispose')
+export const RegistryPropertyIterateCreate = /* @__PURE__ */ _bind(
+	FW,
+	'RegistryPropertyIterateCreate',
+)
+
+export const RegistryPropertyIterateDispose = /* @__PURE__ */ _bind(
+	FW,
+	'RegistryPropertyIterateDispose',
+)
+
 export const RegistryPropertySet = /* @__PURE__ */ _bind(FW, 'RegistryPropertySet')
 export const RegistryPropertySetMod = /* @__PURE__ */ _bind(FW, 'RegistryPropertySetMod')
 export const RomScan = /* @__PURE__ */ _bind(FW, 'RomScan')
@@ -1205,7 +2451,11 @@ export const SFLT_PROG = /* @__PURE__ */ _bind(FW, 'SFLT_PROG')
 export const SHA1Final = /* @__PURE__ */ _bind(FW, 'SHA1Final')
 export const SHA1Init = /* @__PURE__ */ _bind(FW, 'SHA1Init')
 export const SHA1Update = /* @__PURE__ */ _bind(FW, 'SHA1Update')
-export const SPTM_CORE_FILE_REGION_MAX_NAME_LEN = /* @__PURE__ */ _bind(FW, 'SPTM_CORE_FILE_REGION_MAX_NAME_LEN')
+export const SPTM_CORE_FILE_REGION_MAX_NAME_LEN = /* @__PURE__ */ _bind(
+	FW,
+	'SPTM_CORE_FILE_REGION_MAX_NAME_LEN',
+)
+
 export const SPTM_MAP_CODESIGN_ERROR = /* @__PURE__ */ _bind(FW, 'SPTM_MAP_CODESIGN_ERROR')
 export const SPTM_MAP_FLUSH_PENDING = /* @__PURE__ */ _bind(FW, 'SPTM_MAP_FLUSH_PENDING')
 export const SPTM_MAP_PADDR_CONFLICT = /* @__PURE__ */ _bind(FW, 'SPTM_MAP_PADDR_CONFLICT')
@@ -1227,26 +2477,66 @@ export const SecureDTEntryIsEqual = /* @__PURE__ */ _bind(FW, 'SecureDTEntryIsEq
 export const SecureDTExitEntry = /* @__PURE__ */ _bind(FW, 'SecureDTExitEntry')
 export const SecureDTFindEntry = /* @__PURE__ */ _bind(FW, 'SecureDTFindEntry')
 export const SecureDTFindNodeWithPhandle = /* @__PURE__ */ _bind(FW, 'SecureDTFindNodeWithPhandle')
-export const SecureDTFindNodeWithPropertyEqualToValue = /* @__PURE__ */ _bind(FW, 'SecureDTFindNodeWithPropertyEqualToValue')
-export const SecureDTFindNodeWithStringProperty = /* @__PURE__ */ _bind(FW, 'SecureDTFindNodeWithStringProperty')
+export const SecureDTFindNodeWithPropertyEqualToValue = /* @__PURE__ */ _bind(
+	FW,
+	'SecureDTFindNodeWithPropertyEqualToValue',
+)
+
+export const SecureDTFindNodeWithStringProperty = /* @__PURE__ */ _bind(
+	FW,
+	'SecureDTFindNodeWithStringProperty',
+)
+
 export const SecureDTGetProperty = /* @__PURE__ */ _bind(FW, 'SecureDTGetProperty')
 export const SecureDTGetPropertyRegion = /* @__PURE__ */ _bind(FW, 'SecureDTGetPropertyRegion')
 export const SecureDTInit = /* @__PURE__ */ _bind(FW, 'SecureDTInit')
 export const SecureDTInitEntryIterator = /* @__PURE__ */ _bind(FW, 'SecureDTInitEntryIterator')
-export const SecureDTInitPropertyIterator = /* @__PURE__ */ _bind(FW, 'SecureDTInitPropertyIterator')
+export const SecureDTInitPropertyIterator = /* @__PURE__ */ _bind(
+	FW,
+	'SecureDTInitPropertyIterator',
+)
+
 export const SecureDTIsLockedDown = /* @__PURE__ */ _bind(FW, 'SecureDTIsLockedDown')
 export const SecureDTIterateEntries = /* @__PURE__ */ _bind(FW, 'SecureDTIterateEntries')
 export const SecureDTIterateProperties = /* @__PURE__ */ _bind(FW, 'SecureDTIterateProperties')
 export const SecureDTLookupEntry = /* @__PURE__ */ _bind(FW, 'SecureDTLookupEntry')
-export const SecureDTRestartEntryIteration = /* @__PURE__ */ _bind(FW, 'SecureDTRestartEntryIteration')
-export const SecureDTRestartPropertyIteration = /* @__PURE__ */ _bind(FW, 'SecureDTRestartPropertyIteration')
+export const SecureDTRestartEntryIteration = /* @__PURE__ */ _bind(
+	FW,
+	'SecureDTRestartEntryIteration',
+)
+
+export const SecureDTRestartPropertyIteration = /* @__PURE__ */ _bind(
+	FW,
+	'SecureDTRestartPropertyIteration',
+)
+
 export const StringDescriptor = /* @__PURE__ */ _bind(FW, 'StringDescriptor')
-export const SubtractFWCycleTimeFromFWCycleTime = /* @__PURE__ */ _bind(FW, 'SubtractFWCycleTimeFromFWCycleTime')
-export const SuperSpeedEndpointCompanionDescriptor = /* @__PURE__ */ _bind(FW, 'SuperSpeedEndpointCompanionDescriptor')
+export const SubtractFWCycleTimeFromFWCycleTime = /* @__PURE__ */ _bind(
+	FW,
+	'SubtractFWCycleTimeFromFWCycleTime',
+)
+
+export const SuperSpeedEndpointCompanionDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'SuperSpeedEndpointCompanionDescriptor',
+)
+
 export const SuperSpeedHubDescriptor = /* @__PURE__ */ _bind(FW, 'SuperSpeedHubDescriptor')
-export const SuperSpeedPlusIsochronousEndpointCompanionDescriptor = /* @__PURE__ */ _bind(FW, 'SuperSpeedPlusIsochronousEndpointCompanionDescriptor')
-export const SuperSpeedPlusUSBDeviceCapabilityDescriptor = /* @__PURE__ */ _bind(FW, 'SuperSpeedPlusUSBDeviceCapabilityDescriptor')
-export const SuperSpeedUSBDeviceCapabilityDescriptor = /* @__PURE__ */ _bind(FW, 'SuperSpeedUSBDeviceCapabilityDescriptor')
+export const SuperSpeedPlusIsochronousEndpointCompanionDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'SuperSpeedPlusIsochronousEndpointCompanionDescriptor',
+)
+
+export const SuperSpeedPlusUSBDeviceCapabilityDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'SuperSpeedPlusUSBDeviceCapabilityDescriptor',
+)
+
+export const SuperSpeedUSBDeviceCapabilityDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'SuperSpeedUSBDeviceCapabilityDescriptor',
+)
+
 export const THREAD_CALL_OPTIONS_ONCE = /* @__PURE__ */ _bind(FW, 'THREAD_CALL_OPTIONS_ONCE')
 export const Tcl_Panic = /* @__PURE__ */ _bind(FW, 'Tcl_Panic')
 export const TerminationState = /* @__PURE__ */ _bind(FW, 'TerminationState')
@@ -1254,28 +2544,60 @@ export const TransducerData = /* @__PURE__ */ _bind(FW, 'TransducerData')
 export const U128 = /* @__PURE__ */ _bind(FW, 'U128')
 export const UCInfo = /* @__PURE__ */ _bind(FW, 'UCInfo')
 export const UInt64mult = /* @__PURE__ */ _bind(FW, 'UInt64mult')
-export const USB20ExtensionCapabilityDescriptor = /* @__PURE__ */ _bind(FW, 'USB20ExtensionCapabilityDescriptor')
+export const USB20ExtensionCapabilityDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'USB20ExtensionCapabilityDescriptor',
+)
+
 export const VIOLATION_INVALID_DT_RANGE = /* @__PURE__ */ _bind(FW, 'VIOLATION_INVALID_DT_RANGE')
 export const VIOLATION_INVALID_IO_PADDR = /* @__PURE__ */ _bind(FW, 'VIOLATION_INVALID_IO_PADDR')
-export const VIOLATION_INVALID_RESTRICTED_IO_PADDR = /* @__PURE__ */ _bind(FW, 'VIOLATION_INVALID_RESTRICTED_IO_PADDR')
+export const VIOLATION_INVALID_RESTRICTED_IO_PADDR = /* @__PURE__ */ _bind(
+	FW,
+	'VIOLATION_INVALID_RESTRICTED_IO_PADDR',
+)
+
 export const VSLDisposeInterruptService = /* @__PURE__ */ _bind(FW, 'VSLDisposeInterruptService')
 export const VSLDoInterruptService = /* @__PURE__ */ _bind(FW, 'VSLDoInterruptService')
 export const VSLNewInterruptService = /* @__PURE__ */ _bind(FW, 'VSLNewInterruptService')
-export const VSLPrepareCursorForHardwareCursor = /* @__PURE__ */ _bind(FW, 'VSLPrepareCursorForHardwareCursor')
+export const VSLPrepareCursorForHardwareCursor = /* @__PURE__ */ _bind(
+	FW,
+	'VSLPrepareCursorForHardwareCursor',
+)
+
 export const WKdm_compress_16k = /* @__PURE__ */ _bind(FW, 'WKdm_compress_16k')
 export const WKdm_compress_4k = /* @__PURE__ */ _bind(FW, 'WKdm_compress_4k')
 export const WKdm_decompress_16k = /* @__PURE__ */ _bind(FW, 'WKdm_decompress_16k')
 export const WKdm_decompress_4k = /* @__PURE__ */ _bind(FW, 'WKdm_decompress_4k')
-export const _AVCConnectTargetPlugsInParams = /* @__PURE__ */ _bind(FW, '_AVCConnectTargetPlugsInParams')
-export const _AVCConnectTargetPlugsOutParams = /* @__PURE__ */ _bind(FW, '_AVCConnectTargetPlugsOutParams')
-export const _AVCGetTargetPlugConnectionInParams = /* @__PURE__ */ _bind(FW, '_AVCGetTargetPlugConnectionInParams')
-export const _AVCGetTargetPlugConnectionOutParams = /* @__PURE__ */ _bind(FW, '_AVCGetTargetPlugConnectionOutParams')
+export const _AVCConnectTargetPlugsInParams = /* @__PURE__ */ _bind(
+	FW,
+	'_AVCConnectTargetPlugsInParams',
+)
+
+export const _AVCConnectTargetPlugsOutParams = /* @__PURE__ */ _bind(
+	FW,
+	'_AVCConnectTargetPlugsOutParams',
+)
+
+export const _AVCGetTargetPlugConnectionInParams = /* @__PURE__ */ _bind(
+	FW,
+	'_AVCGetTargetPlugConnectionInParams',
+)
+
+export const _AVCGetTargetPlugConnectionOutParams = /* @__PURE__ */ _bind(
+	FW,
+	'_AVCGetTargetPlugConnectionOutParams',
+)
+
 export const _AVCSubunitPlugRecord = /* @__PURE__ */ _bind(FW, '_AVCSubunitPlugRecord')
 export const _AVCUnitPlugRecord = /* @__PURE__ */ _bind(FW, '_AVCUnitPlugRecord')
 export const _AVCUnitPlugs = /* @__PURE__ */ _bind(FW, '_AVCUnitPlugs')
 export const _IOAudioDevicePowerState = /* @__PURE__ */ _bind(FW, '_IOAudioDevicePowerState')
 export const _IOLock = /* @__PURE__ */ _bind(FW, '_IOLock')
-export const _IOMemoryDescriptorMixedData = /* @__PURE__ */ _bind(FW, '_IOMemoryDescriptorMixedData')
+export const _IOMemoryDescriptorMixedData = /* @__PURE__ */ _bind(
+	FW,
+	'_IOMemoryDescriptorMixedData',
+)
+
 export const _IONDRVLibrariesFinalize = /* @__PURE__ */ _bind(FW, '_IONDRVLibrariesFinalize')
 export const _IONDRVLibrariesInitialize = /* @__PURE__ */ _bind(FW, '_IONDRVLibrariesInitialize')
 export const _IORWLock = /* @__PURE__ */ _bind(FW, '_IORWLock')
@@ -1286,257 +2608,1077 @@ export const _VSLService = /* @__PURE__ */ _bind(FW, '_VSLService')
 export const __BlobIndex = /* @__PURE__ */ _bind(FW, '__BlobIndex')
 export const __CodeDirectory = /* @__PURE__ */ _bind(FW, '__CodeDirectory')
 export const __OSMallocTag__ = /* @__PURE__ */ _bind(FW, '__OSMallocTag__')
-export const __ReplyUnion__arcade_upcall_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__arcade_upcall_subsystem')
-export const __ReplyUnion__audit_triggers_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__audit_triggers_subsystem')
-export const __ReplyUnion__catch_exc_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__catch_exc_subsystem')
-export const __ReplyUnion__catch_mach_exc_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__catch_mach_exc_subsystem')
-export const __ReplyUnion__clock_reply_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__clock_reply_subsystem')
-export const __ReplyUnion__clock_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__clock_subsystem')
-export const __ReplyUnion__coalition_notification_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__coalition_notification_subsystem')
-export const __ReplyUnion__do_notify_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__do_notify_subsystem')
-export const __ReplyUnion__doubleagent_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__doubleagent_subsystem')
-export const __ReplyUnion__fairplay_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__fairplay_subsystem')
-export const __ReplyUnion__gssd_mach_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__gssd_mach_subsystem')
-export const __ReplyUnion__iocompressionstats_notification_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__iocompressionstats_notification_subsystem')
-export const __ReplyUnion__kextd_kernel_request_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__kextd_kernel_request_subsystem')
-export const __ReplyUnion__lockd_mach_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__lockd_mach_subsystem')
-export const __ReplyUnion__mach_vm_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__mach_vm_subsystem')
-export const __ReplyUnion__mach_voucher_attr_control_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__mach_voucher_attr_control_subsystem')
-export const __ReplyUnion__mach_voucher_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__mach_voucher_subsystem')
-export const __ReplyUnion__memory_entry_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__memory_entry_subsystem')
-export const __ReplyUnion__memory_error_notification_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__memory_error_notification_subsystem')
-export const __ReplyUnion__receive_sysdiagnose_notification_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__receive_sysdiagnose_notification_subsystem')
-export const __ReplyUnion__receive_vfs_nspace_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__receive_vfs_nspace_subsystem')
-export const __ReplyUnion__send_ktrace_background_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__send_ktrace_background_subsystem')
-export const __ReplyUnion__send_vfs_nspace_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__send_vfs_nspace_subsystem')
-export const __ReplyUnion__task_access_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__task_access_subsystem')
-export const __ReplyUnion__telemetry_notification_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__telemetry_notification_subsystem')
+export const __ReplyUnion__arcade_upcall_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__arcade_upcall_subsystem',
+)
+
+export const __ReplyUnion__audit_triggers_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__audit_triggers_subsystem',
+)
+
+export const __ReplyUnion__catch_exc_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__catch_exc_subsystem',
+)
+
+export const __ReplyUnion__catch_mach_exc_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__catch_mach_exc_subsystem',
+)
+
+export const __ReplyUnion__clock_reply_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__clock_reply_subsystem',
+)
+
+export const __ReplyUnion__clock_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__clock_subsystem',
+)
+
+export const __ReplyUnion__coalition_notification_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__coalition_notification_subsystem',
+)
+
+export const __ReplyUnion__do_notify_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__do_notify_subsystem',
+)
+
+export const __ReplyUnion__doubleagent_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__doubleagent_subsystem',
+)
+
+export const __ReplyUnion__fairplay_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__fairplay_subsystem',
+)
+
+export const __ReplyUnion__gssd_mach_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__gssd_mach_subsystem',
+)
+
+export const __ReplyUnion__iocompressionstats_notification_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__iocompressionstats_notification_subsystem',
+)
+
+export const __ReplyUnion__kextd_kernel_request_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__kextd_kernel_request_subsystem',
+)
+
+export const __ReplyUnion__lockd_mach_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__lockd_mach_subsystem',
+)
+
+export const __ReplyUnion__mach_vm_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__mach_vm_subsystem',
+)
+
+export const __ReplyUnion__mach_voucher_attr_control_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__mach_voucher_attr_control_subsystem',
+)
+
+export const __ReplyUnion__mach_voucher_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__mach_voucher_subsystem',
+)
+
+export const __ReplyUnion__memory_entry_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__memory_entry_subsystem',
+)
+
+export const __ReplyUnion__memory_error_notification_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__memory_error_notification_subsystem',
+)
+
+export const __ReplyUnion__receive_sysdiagnose_notification_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__receive_sysdiagnose_notification_subsystem',
+)
+
+export const __ReplyUnion__receive_vfs_nspace_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__receive_vfs_nspace_subsystem',
+)
+
+export const __ReplyUnion__send_ktrace_background_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__send_ktrace_background_subsystem',
+)
+
+export const __ReplyUnion__send_vfs_nspace_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__send_vfs_nspace_subsystem',
+)
+
+export const __ReplyUnion__task_access_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__task_access_subsystem',
+)
+
+export const __ReplyUnion__telemetry_notification_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__telemetry_notification_subsystem',
+)
+
 export const __ReplyUnion__upl_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__upl_subsystem')
-export const __Reply___mach_make_memory_entry_t = /* @__PURE__ */ _bind(FW, '__Reply___mach_make_memory_entry_t')
+export const __Reply___mach_make_memory_entry_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply___mach_make_memory_entry_t',
+)
+
 export const __Reply__arcade_upcall_t = /* @__PURE__ */ _bind(FW, '__Reply__arcade_upcall_t')
 export const __Reply__audit_analytics_t = /* @__PURE__ */ _bind(FW, '__Reply__audit_analytics_t')
 export const __Reply__audit_triggers_t = /* @__PURE__ */ _bind(FW, '__Reply__audit_triggers_t')
-export const __Reply__check_task_access_t = /* @__PURE__ */ _bind(FW, '__Reply__check_task_access_t')
-export const __Reply__check_task_access_with_flavor_t = /* @__PURE__ */ _bind(FW, '__Reply__check_task_access_with_flavor_t')
-export const __Reply__clock_alarm_reply_t = /* @__PURE__ */ _bind(FW, '__Reply__clock_alarm_reply_t')
+export const __Reply__check_task_access_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__check_task_access_t',
+)
+
+export const __Reply__check_task_access_with_flavor_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__check_task_access_with_flavor_t',
+)
+
+export const __Reply__clock_alarm_reply_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__clock_alarm_reply_t',
+)
+
 export const __Reply__clock_alarm_t = /* @__PURE__ */ _bind(FW, '__Reply__clock_alarm_t')
-export const __Reply__clock_get_attributes_t = /* @__PURE__ */ _bind(FW, '__Reply__clock_get_attributes_t')
+export const __Reply__clock_get_attributes_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__clock_get_attributes_t',
+)
+
 export const __Reply__clock_get_time_t = /* @__PURE__ */ _bind(FW, '__Reply__clock_get_time_t')
-export const __Reply__coalition_notification_t = /* @__PURE__ */ _bind(FW, '__Reply__coalition_notification_t')
-export const __Reply__doubleagent_allocate_xattr_t = /* @__PURE__ */ _bind(FW, '__Reply__doubleagent_allocate_xattr_t')
-export const __Reply__doubleagent_list_xattrs_t = /* @__PURE__ */ _bind(FW, '__Reply__doubleagent_list_xattrs_t')
-export const __Reply__doubleagent_lookup_xattr_t = /* @__PURE__ */ _bind(FW, '__Reply__doubleagent_lookup_xattr_t')
-export const __Reply__doubleagent_remove_xattr_t = /* @__PURE__ */ _bind(FW, '__Reply__doubleagent_remove_xattr_t')
-export const __Reply__exception_raise_state_identity_t = /* @__PURE__ */ _bind(FW, '__Reply__exception_raise_state_identity_t')
-export const __Reply__exception_raise_state_t = /* @__PURE__ */ _bind(FW, '__Reply__exception_raise_state_t')
+export const __Reply__coalition_notification_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__coalition_notification_t',
+)
+
+export const __Reply__doubleagent_allocate_xattr_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__doubleagent_allocate_xattr_t',
+)
+
+export const __Reply__doubleagent_list_xattrs_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__doubleagent_list_xattrs_t',
+)
+
+export const __Reply__doubleagent_lookup_xattr_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__doubleagent_lookup_xattr_t',
+)
+
+export const __Reply__doubleagent_remove_xattr_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__doubleagent_remove_xattr_t',
+)
+
+export const __Reply__exception_raise_state_identity_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__exception_raise_state_identity_t',
+)
+
+export const __Reply__exception_raise_state_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__exception_raise_state_t',
+)
+
 export const __Reply__exception_raise_t = /* @__PURE__ */ _bind(FW, '__Reply__exception_raise_t')
-export const __Reply__fairplayd_arcade_request_t = /* @__PURE__ */ _bind(FW, '__Reply__fairplayd_arcade_request_t')
-export const __Reply__find_code_signature_t = /* @__PURE__ */ _bind(FW, '__Reply__find_code_signature_t')
-export const __Reply__iocompressionstats_notification_t = /* @__PURE__ */ _bind(FW, '__Reply__iocompressionstats_notification_t')
+export const __Reply__fairplayd_arcade_request_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__fairplayd_arcade_request_t',
+)
+
+export const __Reply__find_code_signature_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__find_code_signature_t',
+)
+
+export const __Reply__iocompressionstats_notification_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__iocompressionstats_notification_t',
+)
+
 export const __Reply__kextd_ping_t = /* @__PURE__ */ _bind(FW, '__Reply__kextd_ping_t')
-export const __Reply__ktrace_background_available_t = /* @__PURE__ */ _bind(FW, '__Reply__ktrace_background_available_t')
-export const __Reply__llc_memory_error_notification_t = /* @__PURE__ */ _bind(FW, '__Reply__llc_memory_error_notification_t')
+export const __Reply__ktrace_background_available_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__ktrace_background_available_t',
+)
+
+export const __Reply__llc_memory_error_notification_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__llc_memory_error_notification_t',
+)
+
 export const __Reply__lockd_ping_t = /* @__PURE__ */ _bind(FW, '__Reply__lockd_ping_t')
 export const __Reply__lockd_request_t = /* @__PURE__ */ _bind(FW, '__Reply__lockd_request_t')
 export const __Reply__lockd_shutdown_t = /* @__PURE__ */ _bind(FW, '__Reply__lockd_shutdown_t')
-export const __Reply__mach_exception_raise_state_identity_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_exception_raise_state_identity_t')
-export const __Reply__mach_exception_raise_state_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_exception_raise_state_t')
-export const __Reply__mach_exception_raise_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_exception_raise_t')
-export const __Reply__mach_gss_accept_sec_context_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_gss_accept_sec_context_t')
-export const __Reply__mach_gss_accept_sec_context_v2_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_gss_accept_sec_context_v2_t')
-export const __Reply__mach_gss_hold_cred_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_gss_hold_cred_t')
-export const __Reply__mach_gss_init_sec_context_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_gss_init_sec_context_t')
-export const __Reply__mach_gss_init_sec_context_v2_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_gss_init_sec_context_v2_t')
-export const __Reply__mach_gss_init_sec_context_v3_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_gss_init_sec_context_v3_t')
-export const __Reply__mach_gss_log_error_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_gss_log_error_t')
+export const __Reply__mach_exception_raise_state_identity_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_exception_raise_state_identity_t',
+)
+
+export const __Reply__mach_exception_raise_state_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_exception_raise_state_t',
+)
+
+export const __Reply__mach_exception_raise_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_exception_raise_t',
+)
+
+export const __Reply__mach_gss_accept_sec_context_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_gss_accept_sec_context_t',
+)
+
+export const __Reply__mach_gss_accept_sec_context_v2_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_gss_accept_sec_context_v2_t',
+)
+
+export const __Reply__mach_gss_hold_cred_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_gss_hold_cred_t',
+)
+
+export const __Reply__mach_gss_init_sec_context_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_gss_init_sec_context_t',
+)
+
+export const __Reply__mach_gss_init_sec_context_v2_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_gss_init_sec_context_v2_t',
+)
+
+export const __Reply__mach_gss_init_sec_context_v3_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_gss_init_sec_context_v3_t',
+)
+
+export const __Reply__mach_gss_log_error_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_gss_log_error_t',
+)
+
 export const __Reply__mach_gss_lookup_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_gss_lookup_t')
-export const __Reply__mach_gss_unhold_cred_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_gss_unhold_cred_t')
-export const __Reply__mach_memory_entry_access_tracking_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_memory_entry_access_tracking_t')
-export const __Reply__mach_memory_entry_get_page_counts_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_memory_entry_get_page_counts_t')
-export const __Reply__mach_memory_entry_ownership_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_memory_entry_ownership_t')
-export const __Reply__mach_memory_entry_purgable_control_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_memory_entry_purgable_control_t')
-export const __Reply__mach_memory_entry_region_info_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_memory_entry_region_info_t')
-export const __Reply__mach_notify_dead_name_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_notify_dead_name_t')
-export const __Reply__mach_notify_no_senders_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_notify_no_senders_t')
-export const __Reply__mach_notify_port_deleted_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_notify_port_deleted_t')
-export const __Reply__mach_notify_port_destroyed_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_notify_port_destroyed_t')
-export const __Reply__mach_notify_send_once_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_notify_send_once_t')
+export const __Reply__mach_gss_unhold_cred_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_gss_unhold_cred_t',
+)
+
+export const __Reply__mach_memory_entry_access_tracking_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_memory_entry_access_tracking_t',
+)
+
+export const __Reply__mach_memory_entry_get_page_counts_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_memory_entry_get_page_counts_t',
+)
+
+export const __Reply__mach_memory_entry_ownership_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_memory_entry_ownership_t',
+)
+
+export const __Reply__mach_memory_entry_purgable_control_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_memory_entry_purgable_control_t',
+)
+
+export const __Reply__mach_memory_entry_region_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_memory_entry_region_info_t',
+)
+
+export const __Reply__mach_notify_dead_name_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_notify_dead_name_t',
+)
+
+export const __Reply__mach_notify_no_senders_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_notify_no_senders_t',
+)
+
+export const __Reply__mach_notify_port_deleted_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_notify_port_deleted_t',
+)
+
+export const __Reply__mach_notify_port_destroyed_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_notify_port_destroyed_t',
+)
+
+export const __Reply__mach_notify_send_once_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_notify_send_once_t',
+)
+
 export const __Reply__mach_vm_allocate_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_vm_allocate_t')
-export const __Reply__mach_vm_behavior_set_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_vm_behavior_set_t')
+export const __Reply__mach_vm_behavior_set_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_vm_behavior_set_t',
+)
+
 export const __Reply__mach_vm_copy_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_vm_copy_t')
-export const __Reply__mach_vm_deallocate_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_vm_deallocate_t')
-export const __Reply__mach_vm_deferred_reclamation_buffer_allocate_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_vm_deferred_reclamation_buffer_allocate_t')
-export const __Reply__mach_vm_deferred_reclamation_buffer_flush_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_vm_deferred_reclamation_buffer_flush_t')
-export const __Reply__mach_vm_deferred_reclamation_buffer_query_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_vm_deferred_reclamation_buffer_query_t')
-export const __Reply__mach_vm_deferred_reclamation_buffer_resize_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_vm_deferred_reclamation_buffer_resize_t')
+export const __Reply__mach_vm_deallocate_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_vm_deallocate_t',
+)
+
+export const __Reply__mach_vm_deferred_reclamation_buffer_allocate_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_vm_deferred_reclamation_buffer_allocate_t',
+)
+
+export const __Reply__mach_vm_deferred_reclamation_buffer_flush_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_vm_deferred_reclamation_buffer_flush_t',
+)
+
+export const __Reply__mach_vm_deferred_reclamation_buffer_query_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_vm_deferred_reclamation_buffer_query_t',
+)
+
+export const __Reply__mach_vm_deferred_reclamation_buffer_resize_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_vm_deferred_reclamation_buffer_resize_t',
+)
+
 export const __Reply__mach_vm_inherit_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_vm_inherit_t')
-export const __Reply__mach_vm_machine_attribute_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_vm_machine_attribute_t')
+export const __Reply__mach_vm_machine_attribute_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_vm_machine_attribute_t',
+)
+
 export const __Reply__mach_vm_map_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_vm_map_t')
 export const __Reply__mach_vm_msync_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_vm_msync_t')
-export const __Reply__mach_vm_page_info_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_vm_page_info_t')
-export const __Reply__mach_vm_page_query_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_vm_page_query_t')
-export const __Reply__mach_vm_page_range_query_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_vm_page_range_query_t')
+export const __Reply__mach_vm_page_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_vm_page_info_t',
+)
+
+export const __Reply__mach_vm_page_query_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_vm_page_query_t',
+)
+
+export const __Reply__mach_vm_page_range_query_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_vm_page_range_query_t',
+)
+
 export const __Reply__mach_vm_protect_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_vm_protect_t')
-export const __Reply__mach_vm_purgable_control_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_vm_purgable_control_t')
-export const __Reply__mach_vm_range_create_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_vm_range_create_t')
-export const __Reply__mach_vm_read_list_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_vm_read_list_t')
-export const __Reply__mach_vm_read_overwrite_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_vm_read_overwrite_t')
+export const __Reply__mach_vm_purgable_control_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_vm_purgable_control_t',
+)
+
+export const __Reply__mach_vm_range_create_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_vm_range_create_t',
+)
+
+export const __Reply__mach_vm_read_list_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_vm_read_list_t',
+)
+
+export const __Reply__mach_vm_read_overwrite_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_vm_read_overwrite_t',
+)
+
 export const __Reply__mach_vm_read_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_vm_read_t')
-export const __Reply__mach_vm_reallocate_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_vm_reallocate_t')
-export const __Reply__mach_vm_region_recurse_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_vm_region_recurse_t')
+export const __Reply__mach_vm_reallocate_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_vm_reallocate_t',
+)
+
+export const __Reply__mach_vm_region_recurse_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_vm_region_recurse_t',
+)
+
 export const __Reply__mach_vm_region_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_vm_region_t')
-export const __Reply__mach_vm_remap_new_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_vm_remap_new_t')
+export const __Reply__mach_vm_remap_new_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_vm_remap_new_t',
+)
+
 export const __Reply__mach_vm_remap_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_vm_remap_t')
-export const __Reply__mach_vm_update_pointers_with_remote_tags_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_vm_update_pointers_with_remote_tags_t')
+export const __Reply__mach_vm_update_pointers_with_remote_tags_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_vm_update_pointers_with_remote_tags_t',
+)
+
 export const __Reply__mach_vm_write_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_vm_write_t')
-export const __Reply__mach_voucher_attr_command_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_voucher_attr_command_t')
-export const __Reply__mach_voucher_attr_control_create_mach_voucher_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_voucher_attr_control_create_mach_voucher_t')
-export const __Reply__mach_voucher_attr_control_get_values_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_voucher_attr_control_get_values_t')
-export const __Reply__mach_voucher_debug_info_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_voucher_debug_info_t')
-export const __Reply__mach_voucher_extract_all_attr_recipes_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_voucher_extract_all_attr_recipes_t')
-export const __Reply__mach_voucher_extract_attr_content_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_voucher_extract_attr_content_t')
-export const __Reply__mach_voucher_extract_attr_recipe_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_voucher_extract_attr_recipe_t')
-export const __Reply__mcc_memory_error_notification_t = /* @__PURE__ */ _bind(FW, '__Reply__mcc_memory_error_notification_t')
-export const __Reply__memory_error_notification_t = /* @__PURE__ */ _bind(FW, '__Reply__memory_error_notification_t')
+export const __Reply__mach_voucher_attr_command_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_voucher_attr_command_t',
+)
+
+export const __Reply__mach_voucher_attr_control_create_mach_voucher_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_voucher_attr_control_create_mach_voucher_t',
+)
+
+export const __Reply__mach_voucher_attr_control_get_values_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_voucher_attr_control_get_values_t',
+)
+
+export const __Reply__mach_voucher_debug_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_voucher_debug_info_t',
+)
+
+export const __Reply__mach_voucher_extract_all_attr_recipes_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_voucher_extract_all_attr_recipes_t',
+)
+
+export const __Reply__mach_voucher_extract_attr_content_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_voucher_extract_attr_content_t',
+)
+
+export const __Reply__mach_voucher_extract_attr_recipe_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_voucher_extract_attr_recipe_t',
+)
+
+export const __Reply__mcc_memory_error_notification_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mcc_memory_error_notification_t',
+)
+
+export const __Reply__memory_error_notification_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__memory_error_notification_t',
+)
+
 export const __Reply__nspace_handle_t = /* @__PURE__ */ _bind(FW, '__Reply__nspace_handle_t')
-export const __Reply__nspace_resolve_cancel_t = /* @__PURE__ */ _bind(FW, '__Reply__nspace_resolve_cancel_t')
-export const __Reply__nspace_resolve_path_t = /* @__PURE__ */ _bind(FW, '__Reply__nspace_resolve_path_t')
-export const __Reply__sysdiagnose_notification_t = /* @__PURE__ */ _bind(FW, '__Reply__sysdiagnose_notification_t')
-export const __Reply__sysdiagnose_notification_with_audit_token_t = /* @__PURE__ */ _bind(FW, '__Reply__sysdiagnose_notification_with_audit_token_t')
-export const __Reply__telemetry_notification_t = /* @__PURE__ */ _bind(FW, '__Reply__telemetry_notification_t')
+export const __Reply__nspace_resolve_cancel_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__nspace_resolve_cancel_t',
+)
+
+export const __Reply__nspace_resolve_path_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__nspace_resolve_path_t',
+)
+
+export const __Reply__sysdiagnose_notification_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__sysdiagnose_notification_t',
+)
+
+export const __Reply__sysdiagnose_notification_with_audit_token_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__sysdiagnose_notification_with_audit_token_t',
+)
+
+export const __Reply__telemetry_notification_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__telemetry_notification_t',
+)
+
 export const __Reply__upl_abort_range_t = /* @__PURE__ */ _bind(FW, '__Reply__upl_abort_range_t')
 export const __Reply__upl_abort_t = /* @__PURE__ */ _bind(FW, '__Reply__upl_abort_t')
 export const __Reply__upl_commit_range_t = /* @__PURE__ */ _bind(FW, '__Reply__upl_commit_range_t')
 export const __Reply__upl_commit_t = /* @__PURE__ */ _bind(FW, '__Reply__upl_commit_t')
 export const __Reply__vfs_resolve_dir_t = /* @__PURE__ */ _bind(FW, '__Reply__vfs_resolve_dir_t')
-export const __Reply__vfs_resolve_dir_with_audit_token_t = /* @__PURE__ */ _bind(FW, '__Reply__vfs_resolve_dir_with_audit_token_t')
+export const __Reply__vfs_resolve_dir_with_audit_token_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__vfs_resolve_dir_with_audit_token_t',
+)
+
 export const __Reply__vfs_resolve_file_t = /* @__PURE__ */ _bind(FW, '__Reply__vfs_resolve_file_t')
-export const __Reply__vfs_resolve_file_with_audit_token_t = /* @__PURE__ */ _bind(FW, '__Reply__vfs_resolve_file_with_audit_token_t')
-export const __Reply__vfs_resolve_reparent_with_audit_token_t = /* @__PURE__ */ _bind(FW, '__Reply__vfs_resolve_reparent_with_audit_token_t')
-export const __RequestUnion__arcade_upcall_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__arcade_upcall_subsystem')
-export const __RequestUnion__audit_triggers_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__audit_triggers_subsystem')
-export const __RequestUnion__catch_exc_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__catch_exc_subsystem')
-export const __RequestUnion__catch_mach_exc_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__catch_mach_exc_subsystem')
-export const __RequestUnion__clock_reply_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__clock_reply_subsystem')
-export const __RequestUnion__clock_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__clock_subsystem')
-export const __RequestUnion__coalition_notification_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__coalition_notification_subsystem')
-export const __RequestUnion__do_notify_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__do_notify_subsystem')
-export const __RequestUnion__doubleagent_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__doubleagent_subsystem')
-export const __RequestUnion__fairplay_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__fairplay_subsystem')
-export const __RequestUnion__gssd_mach_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__gssd_mach_subsystem')
-export const __RequestUnion__iocompressionstats_notification_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__iocompressionstats_notification_subsystem')
-export const __RequestUnion__kextd_kernel_request_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__kextd_kernel_request_subsystem')
-export const __RequestUnion__lockd_mach_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__lockd_mach_subsystem')
-export const __RequestUnion__mach_vm_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__mach_vm_subsystem')
-export const __RequestUnion__mach_voucher_attr_control_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__mach_voucher_attr_control_subsystem')
-export const __RequestUnion__mach_voucher_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__mach_voucher_subsystem')
-export const __RequestUnion__memory_entry_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__memory_entry_subsystem')
-export const __RequestUnion__memory_error_notification_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__memory_error_notification_subsystem')
-export const __RequestUnion__receive_sysdiagnose_notification_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__receive_sysdiagnose_notification_subsystem')
-export const __RequestUnion__receive_vfs_nspace_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__receive_vfs_nspace_subsystem')
-export const __RequestUnion__send_ktrace_background_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__send_ktrace_background_subsystem')
-export const __RequestUnion__send_vfs_nspace_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__send_vfs_nspace_subsystem')
-export const __RequestUnion__task_access_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__task_access_subsystem')
-export const __RequestUnion__telemetry_notification_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__telemetry_notification_subsystem')
-export const __RequestUnion__upl_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__upl_subsystem')
-export const __Request___mach_make_memory_entry_t = /* @__PURE__ */ _bind(FW, '__Request___mach_make_memory_entry_t')
+export const __Reply__vfs_resolve_file_with_audit_token_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__vfs_resolve_file_with_audit_token_t',
+)
+
+export const __Reply__vfs_resolve_reparent_with_audit_token_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__vfs_resolve_reparent_with_audit_token_t',
+)
+
+export const __RequestUnion__arcade_upcall_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__arcade_upcall_subsystem',
+)
+
+export const __RequestUnion__audit_triggers_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__audit_triggers_subsystem',
+)
+
+export const __RequestUnion__catch_exc_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__catch_exc_subsystem',
+)
+
+export const __RequestUnion__catch_mach_exc_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__catch_mach_exc_subsystem',
+)
+
+export const __RequestUnion__clock_reply_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__clock_reply_subsystem',
+)
+
+export const __RequestUnion__clock_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__clock_subsystem',
+)
+
+export const __RequestUnion__coalition_notification_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__coalition_notification_subsystem',
+)
+
+export const __RequestUnion__do_notify_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__do_notify_subsystem',
+)
+
+export const __RequestUnion__doubleagent_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__doubleagent_subsystem',
+)
+
+export const __RequestUnion__fairplay_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__fairplay_subsystem',
+)
+
+export const __RequestUnion__gssd_mach_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__gssd_mach_subsystem',
+)
+
+export const __RequestUnion__iocompressionstats_notification_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__iocompressionstats_notification_subsystem',
+)
+
+export const __RequestUnion__kextd_kernel_request_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__kextd_kernel_request_subsystem',
+)
+
+export const __RequestUnion__lockd_mach_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__lockd_mach_subsystem',
+)
+
+export const __RequestUnion__mach_vm_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__mach_vm_subsystem',
+)
+
+export const __RequestUnion__mach_voucher_attr_control_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__mach_voucher_attr_control_subsystem',
+)
+
+export const __RequestUnion__mach_voucher_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__mach_voucher_subsystem',
+)
+
+export const __RequestUnion__memory_entry_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__memory_entry_subsystem',
+)
+
+export const __RequestUnion__memory_error_notification_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__memory_error_notification_subsystem',
+)
+
+export const __RequestUnion__receive_sysdiagnose_notification_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__receive_sysdiagnose_notification_subsystem',
+)
+
+export const __RequestUnion__receive_vfs_nspace_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__receive_vfs_nspace_subsystem',
+)
+
+export const __RequestUnion__send_ktrace_background_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__send_ktrace_background_subsystem',
+)
+
+export const __RequestUnion__send_vfs_nspace_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__send_vfs_nspace_subsystem',
+)
+
+export const __RequestUnion__task_access_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__task_access_subsystem',
+)
+
+export const __RequestUnion__telemetry_notification_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__telemetry_notification_subsystem',
+)
+
+export const __RequestUnion__upl_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__upl_subsystem',
+)
+
+export const __Request___mach_make_memory_entry_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request___mach_make_memory_entry_t',
+)
+
 export const __Request__arcade_upcall_t = /* @__PURE__ */ _bind(FW, '__Request__arcade_upcall_t')
-export const __Request__audit_analytics_t = /* @__PURE__ */ _bind(FW, '__Request__audit_analytics_t')
+export const __Request__audit_analytics_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__audit_analytics_t',
+)
+
 export const __Request__audit_triggers_t = /* @__PURE__ */ _bind(FW, '__Request__audit_triggers_t')
-export const __Request__check_task_access_t = /* @__PURE__ */ _bind(FW, '__Request__check_task_access_t')
-export const __Request__check_task_access_with_flavor_t = /* @__PURE__ */ _bind(FW, '__Request__check_task_access_with_flavor_t')
-export const __Request__clock_alarm_reply_t = /* @__PURE__ */ _bind(FW, '__Request__clock_alarm_reply_t')
+export const __Request__check_task_access_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__check_task_access_t',
+)
+
+export const __Request__check_task_access_with_flavor_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__check_task_access_with_flavor_t',
+)
+
+export const __Request__clock_alarm_reply_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__clock_alarm_reply_t',
+)
+
 export const __Request__clock_alarm_t = /* @__PURE__ */ _bind(FW, '__Request__clock_alarm_t')
-export const __Request__clock_get_attributes_t = /* @__PURE__ */ _bind(FW, '__Request__clock_get_attributes_t')
+export const __Request__clock_get_attributes_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__clock_get_attributes_t',
+)
+
 export const __Request__clock_get_time_t = /* @__PURE__ */ _bind(FW, '__Request__clock_get_time_t')
-export const __Request__coalition_notification_t = /* @__PURE__ */ _bind(FW, '__Request__coalition_notification_t')
-export const __Request__doubleagent_allocate_xattr_t = /* @__PURE__ */ _bind(FW, '__Request__doubleagent_allocate_xattr_t')
-export const __Request__doubleagent_list_xattrs_t = /* @__PURE__ */ _bind(FW, '__Request__doubleagent_list_xattrs_t')
-export const __Request__doubleagent_lookup_xattr_t = /* @__PURE__ */ _bind(FW, '__Request__doubleagent_lookup_xattr_t')
-export const __Request__doubleagent_remove_xattr_t = /* @__PURE__ */ _bind(FW, '__Request__doubleagent_remove_xattr_t')
-export const __Request__exception_raise_state_identity_t = /* @__PURE__ */ _bind(FW, '__Request__exception_raise_state_identity_t')
-export const __Request__exception_raise_state_t = /* @__PURE__ */ _bind(FW, '__Request__exception_raise_state_t')
-export const __Request__exception_raise_t = /* @__PURE__ */ _bind(FW, '__Request__exception_raise_t')
-export const __Request__fairplayd_arcade_request_t = /* @__PURE__ */ _bind(FW, '__Request__fairplayd_arcade_request_t')
-export const __Request__find_code_signature_t = /* @__PURE__ */ _bind(FW, '__Request__find_code_signature_t')
-export const __Request__iocompressionstats_notification_t = /* @__PURE__ */ _bind(FW, '__Request__iocompressionstats_notification_t')
+export const __Request__coalition_notification_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__coalition_notification_t',
+)
+
+export const __Request__doubleagent_allocate_xattr_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__doubleagent_allocate_xattr_t',
+)
+
+export const __Request__doubleagent_list_xattrs_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__doubleagent_list_xattrs_t',
+)
+
+export const __Request__doubleagent_lookup_xattr_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__doubleagent_lookup_xattr_t',
+)
+
+export const __Request__doubleagent_remove_xattr_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__doubleagent_remove_xattr_t',
+)
+
+export const __Request__exception_raise_state_identity_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__exception_raise_state_identity_t',
+)
+
+export const __Request__exception_raise_state_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__exception_raise_state_t',
+)
+
+export const __Request__exception_raise_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__exception_raise_t',
+)
+
+export const __Request__fairplayd_arcade_request_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__fairplayd_arcade_request_t',
+)
+
+export const __Request__find_code_signature_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__find_code_signature_t',
+)
+
+export const __Request__iocompressionstats_notification_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__iocompressionstats_notification_t',
+)
+
 export const __Request__kextd_ping_t = /* @__PURE__ */ _bind(FW, '__Request__kextd_ping_t')
-export const __Request__ktrace_background_available_t = /* @__PURE__ */ _bind(FW, '__Request__ktrace_background_available_t')
-export const __Request__llc_memory_error_notification_t = /* @__PURE__ */ _bind(FW, '__Request__llc_memory_error_notification_t')
+export const __Request__ktrace_background_available_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__ktrace_background_available_t',
+)
+
+export const __Request__llc_memory_error_notification_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__llc_memory_error_notification_t',
+)
+
 export const __Request__lockd_ping_t = /* @__PURE__ */ _bind(FW, '__Request__lockd_ping_t')
 export const __Request__lockd_request_t = /* @__PURE__ */ _bind(FW, '__Request__lockd_request_t')
 export const __Request__lockd_shutdown_t = /* @__PURE__ */ _bind(FW, '__Request__lockd_shutdown_t')
-export const __Request__mach_exception_raise_state_identity_t = /* @__PURE__ */ _bind(FW, '__Request__mach_exception_raise_state_identity_t')
-export const __Request__mach_exception_raise_state_t = /* @__PURE__ */ _bind(FW, '__Request__mach_exception_raise_state_t')
-export const __Request__mach_exception_raise_t = /* @__PURE__ */ _bind(FW, '__Request__mach_exception_raise_t')
-export const __Request__mach_gss_accept_sec_context_t = /* @__PURE__ */ _bind(FW, '__Request__mach_gss_accept_sec_context_t')
-export const __Request__mach_gss_accept_sec_context_v2_t = /* @__PURE__ */ _bind(FW, '__Request__mach_gss_accept_sec_context_v2_t')
-export const __Request__mach_gss_hold_cred_t = /* @__PURE__ */ _bind(FW, '__Request__mach_gss_hold_cred_t')
-export const __Request__mach_gss_init_sec_context_t = /* @__PURE__ */ _bind(FW, '__Request__mach_gss_init_sec_context_t')
-export const __Request__mach_gss_init_sec_context_v2_t = /* @__PURE__ */ _bind(FW, '__Request__mach_gss_init_sec_context_v2_t')
-export const __Request__mach_gss_init_sec_context_v3_t = /* @__PURE__ */ _bind(FW, '__Request__mach_gss_init_sec_context_v3_t')
-export const __Request__mach_gss_log_error_t = /* @__PURE__ */ _bind(FW, '__Request__mach_gss_log_error_t')
-export const __Request__mach_gss_lookup_t = /* @__PURE__ */ _bind(FW, '__Request__mach_gss_lookup_t')
-export const __Request__mach_gss_unhold_cred_t = /* @__PURE__ */ _bind(FW, '__Request__mach_gss_unhold_cred_t')
-export const __Request__mach_memory_entry_access_tracking_t = /* @__PURE__ */ _bind(FW, '__Request__mach_memory_entry_access_tracking_t')
-export const __Request__mach_memory_entry_get_page_counts_t = /* @__PURE__ */ _bind(FW, '__Request__mach_memory_entry_get_page_counts_t')
-export const __Request__mach_memory_entry_ownership_t = /* @__PURE__ */ _bind(FW, '__Request__mach_memory_entry_ownership_t')
-export const __Request__mach_memory_entry_purgable_control_t = /* @__PURE__ */ _bind(FW, '__Request__mach_memory_entry_purgable_control_t')
-export const __Request__mach_memory_entry_region_info_t = /* @__PURE__ */ _bind(FW, '__Request__mach_memory_entry_region_info_t')
-export const __Request__mach_notify_dead_name_t = /* @__PURE__ */ _bind(FW, '__Request__mach_notify_dead_name_t')
-export const __Request__mach_notify_no_senders_t = /* @__PURE__ */ _bind(FW, '__Request__mach_notify_no_senders_t')
-export const __Request__mach_notify_port_deleted_t = /* @__PURE__ */ _bind(FW, '__Request__mach_notify_port_deleted_t')
-export const __Request__mach_notify_port_destroyed_t = /* @__PURE__ */ _bind(FW, '__Request__mach_notify_port_destroyed_t')
-export const __Request__mach_notify_send_once_t = /* @__PURE__ */ _bind(FW, '__Request__mach_notify_send_once_t')
-export const __Request__mach_vm_allocate_t = /* @__PURE__ */ _bind(FW, '__Request__mach_vm_allocate_t')
-export const __Request__mach_vm_behavior_set_t = /* @__PURE__ */ _bind(FW, '__Request__mach_vm_behavior_set_t')
+export const __Request__mach_exception_raise_state_identity_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_exception_raise_state_identity_t',
+)
+
+export const __Request__mach_exception_raise_state_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_exception_raise_state_t',
+)
+
+export const __Request__mach_exception_raise_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_exception_raise_t',
+)
+
+export const __Request__mach_gss_accept_sec_context_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_gss_accept_sec_context_t',
+)
+
+export const __Request__mach_gss_accept_sec_context_v2_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_gss_accept_sec_context_v2_t',
+)
+
+export const __Request__mach_gss_hold_cred_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_gss_hold_cred_t',
+)
+
+export const __Request__mach_gss_init_sec_context_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_gss_init_sec_context_t',
+)
+
+export const __Request__mach_gss_init_sec_context_v2_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_gss_init_sec_context_v2_t',
+)
+
+export const __Request__mach_gss_init_sec_context_v3_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_gss_init_sec_context_v3_t',
+)
+
+export const __Request__mach_gss_log_error_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_gss_log_error_t',
+)
+
+export const __Request__mach_gss_lookup_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_gss_lookup_t',
+)
+
+export const __Request__mach_gss_unhold_cred_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_gss_unhold_cred_t',
+)
+
+export const __Request__mach_memory_entry_access_tracking_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_memory_entry_access_tracking_t',
+)
+
+export const __Request__mach_memory_entry_get_page_counts_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_memory_entry_get_page_counts_t',
+)
+
+export const __Request__mach_memory_entry_ownership_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_memory_entry_ownership_t',
+)
+
+export const __Request__mach_memory_entry_purgable_control_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_memory_entry_purgable_control_t',
+)
+
+export const __Request__mach_memory_entry_region_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_memory_entry_region_info_t',
+)
+
+export const __Request__mach_notify_dead_name_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_notify_dead_name_t',
+)
+
+export const __Request__mach_notify_no_senders_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_notify_no_senders_t',
+)
+
+export const __Request__mach_notify_port_deleted_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_notify_port_deleted_t',
+)
+
+export const __Request__mach_notify_port_destroyed_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_notify_port_destroyed_t',
+)
+
+export const __Request__mach_notify_send_once_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_notify_send_once_t',
+)
+
+export const __Request__mach_vm_allocate_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_vm_allocate_t',
+)
+
+export const __Request__mach_vm_behavior_set_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_vm_behavior_set_t',
+)
+
 export const __Request__mach_vm_copy_t = /* @__PURE__ */ _bind(FW, '__Request__mach_vm_copy_t')
-export const __Request__mach_vm_deallocate_t = /* @__PURE__ */ _bind(FW, '__Request__mach_vm_deallocate_t')
-export const __Request__mach_vm_deferred_reclamation_buffer_allocate_t = /* @__PURE__ */ _bind(FW, '__Request__mach_vm_deferred_reclamation_buffer_allocate_t')
-export const __Request__mach_vm_deferred_reclamation_buffer_flush_t = /* @__PURE__ */ _bind(FW, '__Request__mach_vm_deferred_reclamation_buffer_flush_t')
-export const __Request__mach_vm_deferred_reclamation_buffer_query_t = /* @__PURE__ */ _bind(FW, '__Request__mach_vm_deferred_reclamation_buffer_query_t')
-export const __Request__mach_vm_deferred_reclamation_buffer_resize_t = /* @__PURE__ */ _bind(FW, '__Request__mach_vm_deferred_reclamation_buffer_resize_t')
-export const __Request__mach_vm_inherit_t = /* @__PURE__ */ _bind(FW, '__Request__mach_vm_inherit_t')
-export const __Request__mach_vm_machine_attribute_t = /* @__PURE__ */ _bind(FW, '__Request__mach_vm_machine_attribute_t')
+export const __Request__mach_vm_deallocate_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_vm_deallocate_t',
+)
+
+export const __Request__mach_vm_deferred_reclamation_buffer_allocate_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_vm_deferred_reclamation_buffer_allocate_t',
+)
+
+export const __Request__mach_vm_deferred_reclamation_buffer_flush_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_vm_deferred_reclamation_buffer_flush_t',
+)
+
+export const __Request__mach_vm_deferred_reclamation_buffer_query_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_vm_deferred_reclamation_buffer_query_t',
+)
+
+export const __Request__mach_vm_deferred_reclamation_buffer_resize_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_vm_deferred_reclamation_buffer_resize_t',
+)
+
+export const __Request__mach_vm_inherit_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_vm_inherit_t',
+)
+
+export const __Request__mach_vm_machine_attribute_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_vm_machine_attribute_t',
+)
+
 export const __Request__mach_vm_map_t = /* @__PURE__ */ _bind(FW, '__Request__mach_vm_map_t')
 export const __Request__mach_vm_msync_t = /* @__PURE__ */ _bind(FW, '__Request__mach_vm_msync_t')
-export const __Request__mach_vm_page_info_t = /* @__PURE__ */ _bind(FW, '__Request__mach_vm_page_info_t')
-export const __Request__mach_vm_page_query_t = /* @__PURE__ */ _bind(FW, '__Request__mach_vm_page_query_t')
-export const __Request__mach_vm_page_range_query_t = /* @__PURE__ */ _bind(FW, '__Request__mach_vm_page_range_query_t')
-export const __Request__mach_vm_protect_t = /* @__PURE__ */ _bind(FW, '__Request__mach_vm_protect_t')
-export const __Request__mach_vm_purgable_control_t = /* @__PURE__ */ _bind(FW, '__Request__mach_vm_purgable_control_t')
-export const __Request__mach_vm_range_create_t = /* @__PURE__ */ _bind(FW, '__Request__mach_vm_range_create_t')
-export const __Request__mach_vm_read_list_t = /* @__PURE__ */ _bind(FW, '__Request__mach_vm_read_list_t')
-export const __Request__mach_vm_read_overwrite_t = /* @__PURE__ */ _bind(FW, '__Request__mach_vm_read_overwrite_t')
+export const __Request__mach_vm_page_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_vm_page_info_t',
+)
+
+export const __Request__mach_vm_page_query_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_vm_page_query_t',
+)
+
+export const __Request__mach_vm_page_range_query_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_vm_page_range_query_t',
+)
+
+export const __Request__mach_vm_protect_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_vm_protect_t',
+)
+
+export const __Request__mach_vm_purgable_control_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_vm_purgable_control_t',
+)
+
+export const __Request__mach_vm_range_create_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_vm_range_create_t',
+)
+
+export const __Request__mach_vm_read_list_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_vm_read_list_t',
+)
+
+export const __Request__mach_vm_read_overwrite_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_vm_read_overwrite_t',
+)
+
 export const __Request__mach_vm_read_t = /* @__PURE__ */ _bind(FW, '__Request__mach_vm_read_t')
-export const __Request__mach_vm_reallocate_t = /* @__PURE__ */ _bind(FW, '__Request__mach_vm_reallocate_t')
-export const __Request__mach_vm_region_recurse_t = /* @__PURE__ */ _bind(FW, '__Request__mach_vm_region_recurse_t')
+export const __Request__mach_vm_reallocate_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_vm_reallocate_t',
+)
+
+export const __Request__mach_vm_region_recurse_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_vm_region_recurse_t',
+)
+
 export const __Request__mach_vm_region_t = /* @__PURE__ */ _bind(FW, '__Request__mach_vm_region_t')
-export const __Request__mach_vm_remap_new_t = /* @__PURE__ */ _bind(FW, '__Request__mach_vm_remap_new_t')
+export const __Request__mach_vm_remap_new_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_vm_remap_new_t',
+)
+
 export const __Request__mach_vm_remap_t = /* @__PURE__ */ _bind(FW, '__Request__mach_vm_remap_t')
-export const __Request__mach_vm_update_pointers_with_remote_tags_t = /* @__PURE__ */ _bind(FW, '__Request__mach_vm_update_pointers_with_remote_tags_t')
+export const __Request__mach_vm_update_pointers_with_remote_tags_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_vm_update_pointers_with_remote_tags_t',
+)
+
 export const __Request__mach_vm_write_t = /* @__PURE__ */ _bind(FW, '__Request__mach_vm_write_t')
-export const __Request__mach_voucher_attr_command_t = /* @__PURE__ */ _bind(FW, '__Request__mach_voucher_attr_command_t')
-export const __Request__mach_voucher_attr_control_create_mach_voucher_t = /* @__PURE__ */ _bind(FW, '__Request__mach_voucher_attr_control_create_mach_voucher_t')
-export const __Request__mach_voucher_attr_control_get_values_t = /* @__PURE__ */ _bind(FW, '__Request__mach_voucher_attr_control_get_values_t')
-export const __Request__mach_voucher_debug_info_t = /* @__PURE__ */ _bind(FW, '__Request__mach_voucher_debug_info_t')
-export const __Request__mach_voucher_extract_all_attr_recipes_t = /* @__PURE__ */ _bind(FW, '__Request__mach_voucher_extract_all_attr_recipes_t')
-export const __Request__mach_voucher_extract_attr_content_t = /* @__PURE__ */ _bind(FW, '__Request__mach_voucher_extract_attr_content_t')
-export const __Request__mach_voucher_extract_attr_recipe_t = /* @__PURE__ */ _bind(FW, '__Request__mach_voucher_extract_attr_recipe_t')
-export const __Request__mcc_memory_error_notification_t = /* @__PURE__ */ _bind(FW, '__Request__mcc_memory_error_notification_t')
-export const __Request__memory_error_notification_t = /* @__PURE__ */ _bind(FW, '__Request__memory_error_notification_t')
+export const __Request__mach_voucher_attr_command_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_voucher_attr_command_t',
+)
+
+export const __Request__mach_voucher_attr_control_create_mach_voucher_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_voucher_attr_control_create_mach_voucher_t',
+)
+
+export const __Request__mach_voucher_attr_control_get_values_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_voucher_attr_control_get_values_t',
+)
+
+export const __Request__mach_voucher_debug_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_voucher_debug_info_t',
+)
+
+export const __Request__mach_voucher_extract_all_attr_recipes_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_voucher_extract_all_attr_recipes_t',
+)
+
+export const __Request__mach_voucher_extract_attr_content_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_voucher_extract_attr_content_t',
+)
+
+export const __Request__mach_voucher_extract_attr_recipe_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_voucher_extract_attr_recipe_t',
+)
+
+export const __Request__mcc_memory_error_notification_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mcc_memory_error_notification_t',
+)
+
+export const __Request__memory_error_notification_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__memory_error_notification_t',
+)
+
 export const __Request__nspace_handle_t = /* @__PURE__ */ _bind(FW, '__Request__nspace_handle_t')
-export const __Request__nspace_resolve_cancel_t = /* @__PURE__ */ _bind(FW, '__Request__nspace_resolve_cancel_t')
-export const __Request__nspace_resolve_path_t = /* @__PURE__ */ _bind(FW, '__Request__nspace_resolve_path_t')
-export const __Request__sysdiagnose_notification_t = /* @__PURE__ */ _bind(FW, '__Request__sysdiagnose_notification_t')
-export const __Request__sysdiagnose_notification_with_audit_token_t = /* @__PURE__ */ _bind(FW, '__Request__sysdiagnose_notification_with_audit_token_t')
-export const __Request__telemetry_notification_t = /* @__PURE__ */ _bind(FW, '__Request__telemetry_notification_t')
+export const __Request__nspace_resolve_cancel_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__nspace_resolve_cancel_t',
+)
+
+export const __Request__nspace_resolve_path_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__nspace_resolve_path_t',
+)
+
+export const __Request__sysdiagnose_notification_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__sysdiagnose_notification_t',
+)
+
+export const __Request__sysdiagnose_notification_with_audit_token_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__sysdiagnose_notification_with_audit_token_t',
+)
+
+export const __Request__telemetry_notification_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__telemetry_notification_t',
+)
+
 export const __Request__upl_abort_t = /* @__PURE__ */ _bind(FW, '__Request__upl_abort_t')
-export const __Request__vfs_resolve_dir_t = /* @__PURE__ */ _bind(FW, '__Request__vfs_resolve_dir_t')
-export const __Request__vfs_resolve_dir_with_audit_token_t = /* @__PURE__ */ _bind(FW, '__Request__vfs_resolve_dir_with_audit_token_t')
-export const __Request__vfs_resolve_file_t = /* @__PURE__ */ _bind(FW, '__Request__vfs_resolve_file_t')
-export const __Request__vfs_resolve_file_with_audit_token_t = /* @__PURE__ */ _bind(FW, '__Request__vfs_resolve_file_with_audit_token_t')
-export const __Request__vfs_resolve_reparent_with_audit_token_t = /* @__PURE__ */ _bind(FW, '__Request__vfs_resolve_reparent_with_audit_token_t')
+export const __Request__vfs_resolve_dir_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__vfs_resolve_dir_t',
+)
+
+export const __Request__vfs_resolve_dir_with_audit_token_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__vfs_resolve_dir_with_audit_token_t',
+)
+
+export const __Request__vfs_resolve_file_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__vfs_resolve_file_t',
+)
+
+export const __Request__vfs_resolve_file_with_audit_token_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__vfs_resolve_file_with_audit_token_t',
+)
+
+export const __Request__vfs_resolve_reparent_with_audit_token_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__vfs_resolve_reparent_with_audit_token_t',
+)
+
 export const __SC_GenericBlob = /* @__PURE__ */ _bind(FW, '__SC_GenericBlob')
 export const __SC_Scatter = /* @__PURE__ */ _bind(FW, '__SC_Scatter')
 export const __SC_SuperBlob = /* @__PURE__ */ _bind(FW, '__SC_SuperBlob')
@@ -1560,7 +3702,11 @@ export const __mac_getfsstat_args = /* @__PURE__ */ _bind(FW, '__mac_getfsstat_a
 export const __mac_mount = /* @__PURE__ */ _bind(FW, '__mac_mount')
 export const __mac_mount_args = /* @__PURE__ */ _bind(FW, '__mac_mount_args')
 export const __mach_bridge_remote_time = /* @__PURE__ */ _bind(FW, '__mach_bridge_remote_time')
-export const __mach_bridge_remote_time_args = /* @__PURE__ */ _bind(FW, '__mach_bridge_remote_time_args')
+export const __mach_bridge_remote_time_args = /* @__PURE__ */ _bind(
+	FW,
+	'__mach_bridge_remote_time_args',
+)
+
 export const __msqid_ds_new = /* @__PURE__ */ _bind(FW, '__msqid_ds_new')
 export const __pthread_canceled = /* @__PURE__ */ _bind(FW, '__pthread_canceled')
 export const __pthread_canceled_args = /* @__PURE__ */ _bind(FW, '__pthread_canceled_args')
@@ -1578,7 +3724,11 @@ export const __semid_ds_new = /* @__PURE__ */ _bind(FW, '__semid_ds_new')
 export const __semwait_signal = /* @__PURE__ */ _bind(FW, '__semwait_signal')
 export const __semwait_signal_args = /* @__PURE__ */ _bind(FW, '__semwait_signal_args')
 export const __semwait_signal_nocancel = /* @__PURE__ */ _bind(FW, '__semwait_signal_nocancel')
-export const __semwait_signal_nocancel_args = /* @__PURE__ */ _bind(FW, '__semwait_signal_nocancel_args')
+export const __semwait_signal_nocancel_args = /* @__PURE__ */ _bind(
+	FW,
+	'__semwait_signal_nocancel_args',
+)
+
 export const __shmid_ds_new = /* @__PURE__ */ _bind(FW, '__shmid_ds_new')
 export const __sigwait = /* @__PURE__ */ _bind(FW, '__sigwait')
 export const __sigwait_args = /* @__PURE__ */ _bind(FW, '__sigwait_args')
@@ -1596,8 +3746,16 @@ export const _dyld_cache_header = /* @__PURE__ */ _bind(FW, '_dyld_cache_header'
 export const _dyld_cache_image_text_info = /* @__PURE__ */ _bind(FW, '_dyld_cache_image_text_info')
 export const _enqueueInternal = /* @__PURE__ */ _bind(FW, '_enqueueInternal')
 export const _evScreen = /* @__PURE__ */ _bind(FW, '_evScreen')
-export const _getCurrentInQueueMemInternal = /* @__PURE__ */ _bind(FW, '_getCurrentInQueueMemInternal')
-export const _getLatestInQueueMemInternal = /* @__PURE__ */ _bind(FW, '_getLatestInQueueMemInternal')
+export const _getCurrentInQueueMemInternal = /* @__PURE__ */ _bind(
+	FW,
+	'_getCurrentInQueueMemInternal',
+)
+
+export const _getLatestInQueueMemInternal = /* @__PURE__ */ _bind(
+	FW,
+	'_getLatestInQueueMemInternal',
+)
+
 export const _getNextInQueueMemInternal = /* @__PURE__ */ _bind(FW, '_getNextInQueueMemInternal')
 export const _getPrevInQueueMemInternal = /* @__PURE__ */ _bind(FW, '_getPrevInQueueMemInternal')
 export const _initCursor = /* @__PURE__ */ _bind(FW, '_initCursor')
@@ -1623,7 +3781,11 @@ export const _unpcb_list_entry = /* @__PURE__ */ _bind(FW, '_unpcb_list_entry')
 export const _vcgetc = /* @__PURE__ */ _bind(FW, '_vcgetc')
 export const abort_with_payload = /* @__PURE__ */ _bind(FW, 'abort_with_payload')
 export const abort_with_payload_args = /* @__PURE__ */ _bind(FW, 'abort_with_payload_args')
-export const absolutetime_to_continuoustime = /* @__PURE__ */ _bind(FW, 'absolutetime_to_continuoustime')
+export const absolutetime_to_continuoustime = /* @__PURE__ */ _bind(
+	FW,
+	'absolutetime_to_continuoustime',
+)
+
 export const absolutetime_to_microtime = /* @__PURE__ */ _bind(FW, 'absolutetime_to_microtime')
 export const absolutetime_to_nanoseconds = /* @__PURE__ */ _bind(FW, 'absolutetime_to_nanoseconds')
 export const access = /* @__PURE__ */ _bind(FW, 'access')
@@ -1632,7 +3794,11 @@ export const access_extended = /* @__PURE__ */ _bind(FW, 'access_extended')
 export const access_extended_args = /* @__PURE__ */ _bind(FW, 'access_extended_args')
 export const acct = /* @__PURE__ */ _bind(FW, 'acct')
 export const acct_args = /* @__PURE__ */ _bind(FW, 'acct_args')
-export const acknowledgeSleepWakeNotification = /* @__PURE__ */ _bind(FW, 'acknowledgeSleepWakeNotification')
+export const acknowledgeSleepWakeNotification = /* @__PURE__ */ _bind(
+	FW,
+	'acknowledgeSleepWakeNotification',
+)
+
 export const act_thread_catt = /* @__PURE__ */ _bind(FW, 'act_thread_catt')
 export const act_thread_cfree = /* @__PURE__ */ _bind(FW, 'act_thread_cfree')
 export const act_thread_csave = /* @__PURE__ */ _bind(FW, 'act_thread_csave')
@@ -1666,166 +3832,646 @@ export const aio_write = /* @__PURE__ */ _bind(FW, 'aio_write')
 export const aio_write_args = /* @__PURE__ */ _bind(FW, 'aio_write_args')
 export const aio_writev = /* @__PURE__ */ _bind(FW, 'aio_writev')
 export const aio_writev_args = /* @__PURE__ */ _bind(FW, 'aio_writev_args')
-export const airship_acipc_auxiliary_context = /* @__PURE__ */ _bind(FW, 'airship_acipc_auxiliary_context')
-export const airship_acipc_auxiliary_context_activate = /* @__PURE__ */ _bind(FW, 'airship_acipc_auxiliary_context_activate')
-export const airship_acipc_auxiliary_context_close = /* @__PURE__ */ _bind(FW, 'airship_acipc_auxiliary_context_close')
-export const airship_acipc_auxiliary_context_create = /* @__PURE__ */ _bind(FW, 'airship_acipc_auxiliary_context_create')
-export const airship_acipc_auxiliary_context_create_state_monitor = /* @__PURE__ */ _bind(FW, 'airship_acipc_auxiliary_context_create_state_monitor')
-export const airship_acipc_auxiliary_context_destroy = /* @__PURE__ */ _bind(FW, 'airship_acipc_auxiliary_context_destroy')
-export const airship_acipc_auxiliary_context_get_cr_index_count = /* @__PURE__ */ _bind(FW, 'airship_acipc_auxiliary_context_get_cr_index_count')
-export const airship_acipc_auxiliary_context_get_offsets = /* @__PURE__ */ _bind(FW, 'airship_acipc_auxiliary_context_get_offsets')
-export const airship_acipc_auxiliary_context_get_peripheral_info_interrupt = /* @__PURE__ */ _bind(FW, 'airship_acipc_auxiliary_context_get_peripheral_info_interrupt')
-export const airship_acipc_auxiliary_context_get_state = /* @__PURE__ */ _bind(FW, 'airship_acipc_auxiliary_context_get_state')
-export const airship_acipc_auxiliary_context_get_tr_index_count = /* @__PURE__ */ _bind(FW, 'airship_acipc_auxiliary_context_get_tr_index_count')
-export const airship_acipc_auxiliary_context_offsets = /* @__PURE__ */ _bind(FW, 'airship_acipc_auxiliary_context_offsets')
-export const airship_acipc_auxiliary_context_open = /* @__PURE__ */ _bind(FW, 'airship_acipc_auxiliary_context_open')
-export const airship_acipc_auxiliary_context_reset = /* @__PURE__ */ _bind(FW, 'airship_acipc_auxiliary_context_reset')
-export const airship_acipc_auxiliary_context_set_backing_memory = /* @__PURE__ */ _bind(FW, 'airship_acipc_auxiliary_context_set_backing_memory')
-export const airship_acipc_auxiliary_context_state = /* @__PURE__ */ _bind(FW, 'airship_acipc_auxiliary_context_state')
-export const airship_acipc_auxiliary_context_state_detail_flag = /* @__PURE__ */ _bind(FW, 'airship_acipc_auxiliary_context_state_detail_flag')
+export const airship_acipc_auxiliary_context = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_auxiliary_context',
+)
+
+export const airship_acipc_auxiliary_context_activate = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_auxiliary_context_activate',
+)
+
+export const airship_acipc_auxiliary_context_close = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_auxiliary_context_close',
+)
+
+export const airship_acipc_auxiliary_context_create = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_auxiliary_context_create',
+)
+
+export const airship_acipc_auxiliary_context_create_state_monitor = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_auxiliary_context_create_state_monitor',
+)
+
+export const airship_acipc_auxiliary_context_destroy = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_auxiliary_context_destroy',
+)
+
+export const airship_acipc_auxiliary_context_get_cr_index_count = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_auxiliary_context_get_cr_index_count',
+)
+
+export const airship_acipc_auxiliary_context_get_offsets = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_auxiliary_context_get_offsets',
+)
+
+export const airship_acipc_auxiliary_context_get_peripheral_info_interrupt = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_auxiliary_context_get_peripheral_info_interrupt',
+)
+
+export const airship_acipc_auxiliary_context_get_state = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_auxiliary_context_get_state',
+)
+
+export const airship_acipc_auxiliary_context_get_tr_index_count = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_auxiliary_context_get_tr_index_count',
+)
+
+export const airship_acipc_auxiliary_context_offsets = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_auxiliary_context_offsets',
+)
+
+export const airship_acipc_auxiliary_context_open = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_auxiliary_context_open',
+)
+
+export const airship_acipc_auxiliary_context_reset = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_auxiliary_context_reset',
+)
+
+export const airship_acipc_auxiliary_context_set_backing_memory = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_auxiliary_context_set_backing_memory',
+)
+
+export const airship_acipc_auxiliary_context_state = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_auxiliary_context_state',
+)
+
+export const airship_acipc_auxiliary_context_state_detail_flag = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_auxiliary_context_state_detail_flag',
+)
+
 export const airship_acipc_boot = /* @__PURE__ */ _bind(FW, 'airship_acipc_boot')
 export const airship_acipc_boot_create = /* @__PURE__ */ _bind(FW, 'airship_acipc_boot_create')
-export const airship_acipc_boot_create_state_monitor = /* @__PURE__ */ _bind(FW, 'airship_acipc_boot_create_state_monitor')
+export const airship_acipc_boot_create_state_monitor = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_boot_create_state_monitor',
+)
+
 export const airship_acipc_boot_destroy = /* @__PURE__ */ _bind(FW, 'airship_acipc_boot_destroy')
-export const airship_acipc_boot_get_image_response = /* @__PURE__ */ _bind(FW, 'airship_acipc_boot_get_image_response')
-export const airship_acipc_boot_get_state = /* @__PURE__ */ _bind(FW, 'airship_acipc_boot_get_state')
-export const airship_acipc_boot_image_response = /* @__PURE__ */ _bind(FW, 'airship_acipc_boot_image_response')
-export const airship_acipc_boot_probe_image_response = /* @__PURE__ */ _bind(FW, 'airship_acipc_boot_probe_image_response')
-export const airship_acipc_boot_read_register = /* @__PURE__ */ _bind(FW, 'airship_acipc_boot_read_register')
+export const airship_acipc_boot_get_image_response = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_boot_get_image_response',
+)
+
+export const airship_acipc_boot_get_state = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_boot_get_state',
+)
+
+export const airship_acipc_boot_image_response = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_boot_image_response',
+)
+
+export const airship_acipc_boot_probe_image_response = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_boot_probe_image_response',
+)
+
+export const airship_acipc_boot_read_register = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_boot_read_register',
+)
+
 export const airship_acipc_boot_reset = /* @__PURE__ */ _bind(FW, 'airship_acipc_boot_reset')
-export const airship_acipc_boot_send_image = /* @__PURE__ */ _bind(FW, 'airship_acipc_boot_send_image')
+export const airship_acipc_boot_send_image = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_boot_send_image',
+)
+
 export const airship_acipc_boot_state = /* @__PURE__ */ _bind(FW, 'airship_acipc_boot_state')
-export const airship_acipc_boot_state_detail_flag = /* @__PURE__ */ _bind(FW, 'airship_acipc_boot_state_detail_flag')
-export const airship_acipc_boot_write_register = /* @__PURE__ */ _bind(FW, 'airship_acipc_boot_write_register')
+export const airship_acipc_boot_state_detail_flag = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_boot_state_detail_flag',
+)
+
+export const airship_acipc_boot_write_register = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_boot_write_register',
+)
+
 export const airship_acipc_cr = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr')
 export const airship_acipc_cr_activate = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_activate')
 export const airship_acipc_cr_close = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_close')
-export const airship_acipc_cr_compute_required_backing_memory_size = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_compute_required_backing_memory_size')
-export const airship_acipc_cr_consume_mirror_elements = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_consume_mirror_elements')
+export const airship_acipc_cr_compute_required_backing_memory_size = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_cr_compute_required_backing_memory_size',
+)
+
+export const airship_acipc_cr_consume_mirror_elements = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_cr_consume_mirror_elements',
+)
+
 export const airship_acipc_cr_create = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_create')
-export const airship_acipc_cr_create_state_monitor = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_create_state_monitor')
-export const airship_acipc_cr_create_sync_monitor = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_create_sync_monitor')
+export const airship_acipc_cr_create_state_monitor = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_cr_create_state_monitor',
+)
+
+export const airship_acipc_cr_create_sync_monitor = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_cr_create_sync_monitor',
+)
+
 export const airship_acipc_cr_destroy = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_destroy')
-export const airship_acipc_cr_get_backing_ring_size = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_get_backing_ring_size')
-export const airship_acipc_cr_get_completion_group = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_get_completion_group')
+export const airship_acipc_cr_get_backing_ring_size = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_cr_get_backing_ring_size',
+)
+
+export const airship_acipc_cr_get_completion_group = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_cr_get_completion_group',
+)
+
 export const airship_acipc_cr_get_crid = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_get_crid')
-export const airship_acipc_cr_get_doorbell = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_get_doorbell')
-export const airship_acipc_cr_get_footer_size = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_get_footer_size')
-export const airship_acipc_cr_get_index_array_vector = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_get_index_array_vector')
-export const airship_acipc_cr_get_interrupt = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_get_interrupt')
-export const airship_acipc_cr_get_mirror_count = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_get_mirror_count')
-export const airship_acipc_cr_get_mirror_element = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_get_mirror_element')
-export const airship_acipc_cr_get_mirror_enabled = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_get_mirror_enabled')
+export const airship_acipc_cr_get_doorbell = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_cr_get_doorbell',
+)
+
+export const airship_acipc_cr_get_footer_size = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_cr_get_footer_size',
+)
+
+export const airship_acipc_cr_get_index_array_vector = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_cr_get_index_array_vector',
+)
+
+export const airship_acipc_cr_get_interrupt = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_cr_get_interrupt',
+)
+
+export const airship_acipc_cr_get_mirror_count = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_cr_get_mirror_count',
+)
+
+export const airship_acipc_cr_get_mirror_element = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_cr_get_mirror_element',
+)
+
+export const airship_acipc_cr_get_mirror_enabled = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_cr_get_mirror_enabled',
+)
+
 export const airship_acipc_cr_get_name = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_get_name')
-export const airship_acipc_cr_get_selector = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_get_selector')
+export const airship_acipc_cr_get_selector = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_cr_get_selector',
+)
+
 export const airship_acipc_cr_get_state = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_get_state')
-export const airship_acipc_cr_mirror_completion_record = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_mirror_completion_record')
-export const airship_acipc_cr_mirror_element = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_mirror_element')
-export const airship_acipc_cr_mirror_element_data = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_mirror_element_data')
-export const airship_acipc_cr_mirror_element_type = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_mirror_element_type')
-export const airship_acipc_cr_mirror_raw_descriptor = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_mirror_raw_descriptor')
+export const airship_acipc_cr_mirror_completion_record = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_cr_mirror_completion_record',
+)
+
+export const airship_acipc_cr_mirror_element = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_cr_mirror_element',
+)
+
+export const airship_acipc_cr_mirror_element_data = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_cr_mirror_element_data',
+)
+
+export const airship_acipc_cr_mirror_element_type = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_cr_mirror_element_type',
+)
+
+export const airship_acipc_cr_mirror_raw_descriptor = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_cr_mirror_raw_descriptor',
+)
+
 export const airship_acipc_cr_open = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_open')
 export const airship_acipc_cr_reset = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_reset')
-export const airship_acipc_cr_set_backing_memory = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_set_backing_memory')
-export const airship_acipc_cr_set_backing_ring_size = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_set_backing_ring_size')
-export const airship_acipc_cr_set_completion_group = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_set_completion_group')
-export const airship_acipc_cr_set_doorbell_moderation = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_set_doorbell_moderation')
-export const airship_acipc_cr_set_external_management = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_set_external_management')
-export const airship_acipc_cr_set_footer_size = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_set_footer_size')
-export const airship_acipc_cr_set_interrupt = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_set_interrupt')
-export const airship_acipc_cr_set_mirror_enabled = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_set_mirror_enabled')
-export const airship_acipc_cr_set_open_clientdata = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_set_open_clientdata')
+export const airship_acipc_cr_set_backing_memory = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_cr_set_backing_memory',
+)
+
+export const airship_acipc_cr_set_backing_ring_size = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_cr_set_backing_ring_size',
+)
+
+export const airship_acipc_cr_set_completion_group = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_cr_set_completion_group',
+)
+
+export const airship_acipc_cr_set_doorbell_moderation = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_cr_set_doorbell_moderation',
+)
+
+export const airship_acipc_cr_set_external_management = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_cr_set_external_management',
+)
+
+export const airship_acipc_cr_set_footer_size = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_cr_set_footer_size',
+)
+
+export const airship_acipc_cr_set_interrupt = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_cr_set_interrupt',
+)
+
+export const airship_acipc_cr_set_mirror_enabled = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_cr_set_mirror_enabled',
+)
+
+export const airship_acipc_cr_set_open_clientdata = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_cr_set_open_clientdata',
+)
+
 export const airship_acipc_cr_sync = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_sync')
-export const airship_acipc_cr_sync_operation = /* @__PURE__ */ _bind(FW, 'airship_acipc_cr_sync_operation')
+export const airship_acipc_cr_sync_operation = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_cr_sync_operation',
+)
+
 export const airship_acipc_doorbell = /* @__PURE__ */ _bind(FW, 'airship_acipc_doorbell')
-export const airship_acipc_doorbell_activate = /* @__PURE__ */ _bind(FW, 'airship_acipc_doorbell_activate')
-export const airship_acipc_doorbell_close = /* @__PURE__ */ _bind(FW, 'airship_acipc_doorbell_close')
-export const airship_acipc_doorbell_create = /* @__PURE__ */ _bind(FW, 'airship_acipc_doorbell_create')
-export const airship_acipc_doorbell_destroy = /* @__PURE__ */ _bind(FW, 'airship_acipc_doorbell_destroy')
-export const airship_acipc_doorbell_get_bank = /* @__PURE__ */ _bind(FW, 'airship_acipc_doorbell_get_bank')
-export const airship_acipc_doorbell_get_offset = /* @__PURE__ */ _bind(FW, 'airship_acipc_doorbell_get_offset')
-export const airship_acipc_doorbell_get_width = /* @__PURE__ */ _bind(FW, 'airship_acipc_doorbell_get_width')
+export const airship_acipc_doorbell_activate = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_doorbell_activate',
+)
+
+export const airship_acipc_doorbell_close = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_doorbell_close',
+)
+
+export const airship_acipc_doorbell_create = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_doorbell_create',
+)
+
+export const airship_acipc_doorbell_destroy = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_doorbell_destroy',
+)
+
+export const airship_acipc_doorbell_get_bank = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_doorbell_get_bank',
+)
+
+export const airship_acipc_doorbell_get_offset = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_doorbell_get_offset',
+)
+
+export const airship_acipc_doorbell_get_width = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_doorbell_get_width',
+)
+
 export const airship_acipc_doorbell_open = /* @__PURE__ */ _bind(FW, 'airship_acipc_doorbell_open')
-export const airship_acipc_doorbell_schedule_update = /* @__PURE__ */ _bind(FW, 'airship_acipc_doorbell_schedule_update')
-export const airship_acipc_doorbell_schedule_update_shared = /* @__PURE__ */ _bind(FW, 'airship_acipc_doorbell_schedule_update_shared')
-export const airship_acipc_doorbell_write = /* @__PURE__ */ _bind(FW, 'airship_acipc_doorbell_write')
-export const airship_acipc_doorbell_write_shared = /* @__PURE__ */ _bind(FW, 'airship_acipc_doorbell_write_shared')
-export const airship_acipc_get_health_status = /* @__PURE__ */ _bind(FW, 'airship_acipc_get_health_status')
-export const airship_acipc_get_ipc_error_description = /* @__PURE__ */ _bind(FW, 'airship_acipc_get_ipc_error_description')
-export const airship_acipc_health_status_flag = /* @__PURE__ */ _bind(FW, 'airship_acipc_health_status_flag')
+export const airship_acipc_doorbell_schedule_update = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_doorbell_schedule_update',
+)
+
+export const airship_acipc_doorbell_schedule_update_shared = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_doorbell_schedule_update_shared',
+)
+
+export const airship_acipc_doorbell_write = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_doorbell_write',
+)
+
+export const airship_acipc_doorbell_write_shared = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_doorbell_write_shared',
+)
+
+export const airship_acipc_get_health_status = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_get_health_status',
+)
+
+export const airship_acipc_get_ipc_error_description = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_get_ipc_error_description',
+)
+
+export const airship_acipc_health_status_flag = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_health_status_flag',
+)
+
 export const airship_acipc_io_result = /* @__PURE__ */ _bind(FW, 'airship_acipc_io_result')
-export const airship_acipc_ipc_error_flag = /* @__PURE__ */ _bind(FW, 'airship_acipc_ipc_error_flag')
+export const airship_acipc_ipc_error_flag = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_ipc_error_flag',
+)
+
 export const airship_acipc_memregion = /* @__PURE__ */ _bind(FW, 'airship_acipc_memregion')
-export const airship_acipc_memregion_activate = /* @__PURE__ */ _bind(FW, 'airship_acipc_memregion_activate')
-export const airship_acipc_memregion_create = /* @__PURE__ */ _bind(FW, 'airship_acipc_memregion_create')
-export const airship_acipc_memregion_create_state_monitor = /* @__PURE__ */ _bind(FW, 'airship_acipc_memregion_create_state_monitor')
-export const airship_acipc_memregion_destroy = /* @__PURE__ */ _bind(FW, 'airship_acipc_memregion_destroy')
-export const airship_acipc_memregion_get_state = /* @__PURE__ */ _bind(FW, 'airship_acipc_memregion_get_state')
+export const airship_acipc_memregion_activate = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_memregion_activate',
+)
+
+export const airship_acipc_memregion_create = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_memregion_create',
+)
+
+export const airship_acipc_memregion_create_state_monitor = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_memregion_create_state_monitor',
+)
+
+export const airship_acipc_memregion_destroy = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_memregion_destroy',
+)
+
+export const airship_acipc_memregion_get_state = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_memregion_get_state',
+)
+
 export const airship_acipc_memregion_map = /* @__PURE__ */ _bind(FW, 'airship_acipc_memregion_map')
-export const airship_acipc_memregion_reset = /* @__PURE__ */ _bind(FW, 'airship_acipc_memregion_reset')
-export const airship_acipc_memregion_set_backing_memory = /* @__PURE__ */ _bind(FW, 'airship_acipc_memregion_set_backing_memory')
-export const airship_acipc_memregion_set_map_clientdata = /* @__PURE__ */ _bind(FW, 'airship_acipc_memregion_set_map_clientdata')
-export const airship_acipc_memregion_state = /* @__PURE__ */ _bind(FW, 'airship_acipc_memregion_state')
-export const airship_acipc_memregion_state_detail_flag = /* @__PURE__ */ _bind(FW, 'airship_acipc_memregion_state_detail_flag')
-export const airship_acipc_memregion_unmap = /* @__PURE__ */ _bind(FW, 'airship_acipc_memregion_unmap')
+export const airship_acipc_memregion_reset = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_memregion_reset',
+)
+
+export const airship_acipc_memregion_set_backing_memory = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_memregion_set_backing_memory',
+)
+
+export const airship_acipc_memregion_set_map_clientdata = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_memregion_set_map_clientdata',
+)
+
+export const airship_acipc_memregion_state = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_memregion_state',
+)
+
+export const airship_acipc_memregion_state_detail_flag = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_memregion_state_detail_flag',
+)
+
+export const airship_acipc_memregion_unmap = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_memregion_unmap',
+)
+
 export const airship_acipc_ring_state = /* @__PURE__ */ _bind(FW, 'airship_acipc_ring_state')
-export const airship_acipc_ring_state_detail_flag = /* @__PURE__ */ _bind(FW, 'airship_acipc_ring_state_detail_flag')
+export const airship_acipc_ring_state_detail_flag = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_ring_state_detail_flag',
+)
+
 export const airship_acipc_tr = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr')
 export const airship_acipc_tr_activate = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_activate')
 export const airship_acipc_tr_close = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_close')
-export const airship_acipc_tr_compute_required_backing_memory_size = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_compute_required_backing_memory_size')
-export const airship_acipc_tr_consume_transfers = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_consume_transfers')
+export const airship_acipc_tr_compute_required_backing_memory_size = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_compute_required_backing_memory_size',
+)
+
+export const airship_acipc_tr_consume_transfers = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_consume_transfers',
+)
+
 export const airship_acipc_tr_create = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_create')
-export const airship_acipc_tr_create_free_space_monitor = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_create_free_space_monitor')
-export const airship_acipc_tr_create_state_monitor = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_create_state_monitor')
-export const airship_acipc_tr_create_sync_monitor = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_create_sync_monitor')
+export const airship_acipc_tr_create_free_space_monitor = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_create_free_space_monitor',
+)
+
+export const airship_acipc_tr_create_state_monitor = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_create_state_monitor',
+)
+
+export const airship_acipc_tr_create_sync_monitor = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_create_sync_monitor',
+)
+
 export const airship_acipc_tr_destroy = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_destroy')
 export const airship_acipc_tr_disconnect = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_disconnect')
-export const airship_acipc_tr_enqueue_option = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_enqueue_option')
-export const airship_acipc_tr_enqueue_transfer = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_enqueue_transfer')
-export const airship_acipc_tr_get_backing_ring_size = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_get_backing_ring_size')
-export const airship_acipc_tr_get_completed_transfer_count = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_get_completed_transfer_count')
-export const airship_acipc_tr_get_completion_footer_size = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_get_completion_footer_size')
-export const airship_acipc_tr_get_completion_group = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_get_completion_group')
-export const airship_acipc_tr_get_completion_ring = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_get_completion_ring')
-export const airship_acipc_tr_get_doorbell = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_get_doorbell')
-export const airship_acipc_tr_get_first_completed_tag = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_get_first_completed_tag')
-export const airship_acipc_tr_get_first_free_tag = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_get_first_free_tag')
-export const airship_acipc_tr_get_free_space = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_get_free_space')
-export const airship_acipc_tr_get_in_place = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_get_in_place')
-export const airship_acipc_tr_get_index_array_vector = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_get_index_array_vector')
-export const airship_acipc_tr_get_interrupt = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_get_interrupt')
+export const airship_acipc_tr_enqueue_option = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_enqueue_option',
+)
+
+export const airship_acipc_tr_enqueue_transfer = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_enqueue_transfer',
+)
+
+export const airship_acipc_tr_get_backing_ring_size = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_get_backing_ring_size',
+)
+
+export const airship_acipc_tr_get_completed_transfer_count = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_get_completed_transfer_count',
+)
+
+export const airship_acipc_tr_get_completion_footer_size = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_get_completion_footer_size',
+)
+
+export const airship_acipc_tr_get_completion_group = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_get_completion_group',
+)
+
+export const airship_acipc_tr_get_completion_ring = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_get_completion_ring',
+)
+
+export const airship_acipc_tr_get_doorbell = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_get_doorbell',
+)
+
+export const airship_acipc_tr_get_first_completed_tag = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_get_first_completed_tag',
+)
+
+export const airship_acipc_tr_get_first_free_tag = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_get_first_free_tag',
+)
+
+export const airship_acipc_tr_get_free_space = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_get_free_space',
+)
+
+export const airship_acipc_tr_get_in_place = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_get_in_place',
+)
+
+export const airship_acipc_tr_get_index_array_vector = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_get_index_array_vector',
+)
+
+export const airship_acipc_tr_get_interrupt = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_get_interrupt',
+)
+
 export const airship_acipc_tr_get_name = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_get_name')
-export const airship_acipc_tr_get_nominal_transfer_size = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_get_nominal_transfer_size')
-export const airship_acipc_tr_get_out_of_order = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_get_out_of_order')
-export const airship_acipc_tr_get_selector = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_get_selector')
+export const airship_acipc_tr_get_nominal_transfer_size = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_get_nominal_transfer_size',
+)
+
+export const airship_acipc_tr_get_out_of_order = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_get_out_of_order',
+)
+
+export const airship_acipc_tr_get_selector = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_get_selector',
+)
+
 export const airship_acipc_tr_get_size = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_get_size')
 export const airship_acipc_tr_get_state = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_get_state')
-export const airship_acipc_tr_get_transfer_completion = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_get_transfer_completion')
-export const airship_acipc_tr_get_transfer_footer_size = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_get_transfer_footer_size')
+export const airship_acipc_tr_get_transfer_completion = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_get_transfer_completion',
+)
+
+export const airship_acipc_tr_get_transfer_footer_size = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_get_transfer_footer_size',
+)
+
 export const airship_acipc_tr_get_trid = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_get_trid')
 export const airship_acipc_tr_mode_t = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_mode_t')
 export const airship_acipc_tr_open = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_open')
 export const airship_acipc_tr_reset = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_reset')
-export const airship_acipc_tr_set_backing_memory = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_set_backing_memory')
-export const airship_acipc_tr_set_backing_ring_size = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_set_backing_ring_size')
-export const airship_acipc_tr_set_completion_footer_size = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_set_completion_footer_size')
-export const airship_acipc_tr_set_completion_group = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_set_completion_group')
-export const airship_acipc_tr_set_completion_ring = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_set_completion_ring')
-export const airship_acipc_tr_set_doorbell_moderation = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_set_doorbell_moderation')
-export const airship_acipc_tr_set_external_management = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_set_external_management')
-export const airship_acipc_tr_set_interrupt = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_set_interrupt')
+export const airship_acipc_tr_set_backing_memory = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_set_backing_memory',
+)
+
+export const airship_acipc_tr_set_backing_ring_size = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_set_backing_ring_size',
+)
+
+export const airship_acipc_tr_set_completion_footer_size = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_set_completion_footer_size',
+)
+
+export const airship_acipc_tr_set_completion_group = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_set_completion_group',
+)
+
+export const airship_acipc_tr_set_completion_ring = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_set_completion_ring',
+)
+
+export const airship_acipc_tr_set_doorbell_moderation = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_set_doorbell_moderation',
+)
+
+export const airship_acipc_tr_set_external_management = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_set_external_management',
+)
+
+export const airship_acipc_tr_set_interrupt = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_set_interrupt',
+)
+
 export const airship_acipc_tr_set_mode = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_set_mode')
-export const airship_acipc_tr_set_open_clientdata = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_set_open_clientdata')
+export const airship_acipc_tr_set_open_clientdata = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_set_open_clientdata',
+)
+
 export const airship_acipc_tr_set_size = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_set_size')
-export const airship_acipc_tr_set_transfer_footer_size = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_set_transfer_footer_size')
+export const airship_acipc_tr_set_transfer_footer_size = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_set_transfer_footer_size',
+)
+
 export const airship_acipc_tr_sync = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_sync')
-export const airship_acipc_tr_sync_operation = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_sync_operation')
-export const airship_acipc_tr_synthesize_reset_completions = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_synthesize_reset_completions')
-export const airship_acipc_tr_transfer_completion = /* @__PURE__ */ _bind(FW, 'airship_acipc_tr_transfer_completion')
+export const airship_acipc_tr_sync_operation = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_sync_operation',
+)
+
+export const airship_acipc_tr_synthesize_reset_completions = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_synthesize_reset_completions',
+)
+
+export const airship_acipc_tr_transfer_completion = /* @__PURE__ */ _bind(
+	FW,
+	'airship_acipc_tr_transfer_completion',
+)
+
 export const airship_buffer = /* @__PURE__ */ _bind(FW, 'airship_buffer')
 export const airship_buffer_create = /* @__PURE__ */ _bind(FW, 'airship_buffer_create')
-export const airship_buffer_create_with_iomd = /* @__PURE__ */ _bind(FW, 'airship_buffer_create_with_iomd')
+export const airship_buffer_create_with_iomd = /* @__PURE__ */ _bind(
+	FW,
+	'airship_buffer_create_with_iomd',
+)
+
 export const airship_buffer_destroy = /* @__PURE__ */ _bind(FW, 'airship_buffer_destroy')
 export const airship_buffer_direction = /* @__PURE__ */ _bind(FW, 'airship_buffer_direction')
 export const airship_buffer_get_addr = /* @__PURE__ */ _bind(FW, 'airship_buffer_get_addr')
@@ -1833,126 +4479,518 @@ export const airship_buffer_get_size = /* @__PURE__ */ _bind(FW, 'airship_buffer
 export const airship_buffer_map = /* @__PURE__ */ _bind(FW, 'airship_buffer_map')
 export const airship_buffer_read = /* @__PURE__ */ _bind(FW, 'airship_buffer_read')
 export const airship_buffer_write = /* @__PURE__ */ _bind(FW, 'airship_buffer_write')
-export const airship_centauri_alpha_cr_pool_create = /* @__PURE__ */ _bind(FW, 'airship_centauri_alpha_cr_pool_create')
-export const airship_centauri_alpha_cr_pool_destroy = /* @__PURE__ */ _bind(FW, 'airship_centauri_alpha_cr_pool_destroy')
-export const airship_centauri_alpha_cr_pool_get_base_id = /* @__PURE__ */ _bind(FW, 'airship_centauri_alpha_cr_pool_get_base_id')
-export const airship_centauri_alpha_cr_pool_get_count = /* @__PURE__ */ _bind(FW, 'airship_centauri_alpha_cr_pool_get_count')
-export const airship_centauri_alpha_cr_pool_is_empty = /* @__PURE__ */ _bind(FW, 'airship_centauri_alpha_cr_pool_is_empty')
-export const airship_centauri_alpha_cr_pool_release = /* @__PURE__ */ _bind(FW, 'airship_centauri_alpha_cr_pool_release')
-export const airship_centauri_alpha_cr_pool_reserve = /* @__PURE__ */ _bind(FW, 'airship_centauri_alpha_cr_pool_reserve')
-export const airship_centauri_alpha_cr_pool_reserve_next = /* @__PURE__ */ _bind(FW, 'airship_centauri_alpha_cr_pool_reserve_next')
-export const airship_centauri_alpha_ring_pool = /* @__PURE__ */ _bind(FW, 'airship_centauri_alpha_ring_pool')
-export const airship_centauri_alpha_tr_pool_create = /* @__PURE__ */ _bind(FW, 'airship_centauri_alpha_tr_pool_create')
-export const airship_centauri_alpha_tr_pool_destroy = /* @__PURE__ */ _bind(FW, 'airship_centauri_alpha_tr_pool_destroy')
-export const airship_centauri_alpha_tr_pool_get_base_id = /* @__PURE__ */ _bind(FW, 'airship_centauri_alpha_tr_pool_get_base_id')
-export const airship_centauri_alpha_tr_pool_get_count = /* @__PURE__ */ _bind(FW, 'airship_centauri_alpha_tr_pool_get_count')
-export const airship_centauri_alpha_tr_pool_is_empty = /* @__PURE__ */ _bind(FW, 'airship_centauri_alpha_tr_pool_is_empty')
-export const airship_centauri_alpha_tr_pool_release = /* @__PURE__ */ _bind(FW, 'airship_centauri_alpha_tr_pool_release')
-export const airship_centauri_alpha_tr_pool_reserve = /* @__PURE__ */ _bind(FW, 'airship_centauri_alpha_tr_pool_reserve')
-export const airship_centauri_alpha_tr_pool_reserve_next = /* @__PURE__ */ _bind(FW, 'airship_centauri_alpha_tr_pool_reserve_next')
+export const airship_centauri_alpha_cr_pool_create = /* @__PURE__ */ _bind(
+	FW,
+	'airship_centauri_alpha_cr_pool_create',
+)
+
+export const airship_centauri_alpha_cr_pool_destroy = /* @__PURE__ */ _bind(
+	FW,
+	'airship_centauri_alpha_cr_pool_destroy',
+)
+
+export const airship_centauri_alpha_cr_pool_get_base_id = /* @__PURE__ */ _bind(
+	FW,
+	'airship_centauri_alpha_cr_pool_get_base_id',
+)
+
+export const airship_centauri_alpha_cr_pool_get_count = /* @__PURE__ */ _bind(
+	FW,
+	'airship_centauri_alpha_cr_pool_get_count',
+)
+
+export const airship_centauri_alpha_cr_pool_is_empty = /* @__PURE__ */ _bind(
+	FW,
+	'airship_centauri_alpha_cr_pool_is_empty',
+)
+
+export const airship_centauri_alpha_cr_pool_release = /* @__PURE__ */ _bind(
+	FW,
+	'airship_centauri_alpha_cr_pool_release',
+)
+
+export const airship_centauri_alpha_cr_pool_reserve = /* @__PURE__ */ _bind(
+	FW,
+	'airship_centauri_alpha_cr_pool_reserve',
+)
+
+export const airship_centauri_alpha_cr_pool_reserve_next = /* @__PURE__ */ _bind(
+	FW,
+	'airship_centauri_alpha_cr_pool_reserve_next',
+)
+
+export const airship_centauri_alpha_ring_pool = /* @__PURE__ */ _bind(
+	FW,
+	'airship_centauri_alpha_ring_pool',
+)
+
+export const airship_centauri_alpha_tr_pool_create = /* @__PURE__ */ _bind(
+	FW,
+	'airship_centauri_alpha_tr_pool_create',
+)
+
+export const airship_centauri_alpha_tr_pool_destroy = /* @__PURE__ */ _bind(
+	FW,
+	'airship_centauri_alpha_tr_pool_destroy',
+)
+
+export const airship_centauri_alpha_tr_pool_get_base_id = /* @__PURE__ */ _bind(
+	FW,
+	'airship_centauri_alpha_tr_pool_get_base_id',
+)
+
+export const airship_centauri_alpha_tr_pool_get_count = /* @__PURE__ */ _bind(
+	FW,
+	'airship_centauri_alpha_tr_pool_get_count',
+)
+
+export const airship_centauri_alpha_tr_pool_is_empty = /* @__PURE__ */ _bind(
+	FW,
+	'airship_centauri_alpha_tr_pool_is_empty',
+)
+
+export const airship_centauri_alpha_tr_pool_release = /* @__PURE__ */ _bind(
+	FW,
+	'airship_centauri_alpha_tr_pool_release',
+)
+
+export const airship_centauri_alpha_tr_pool_reserve = /* @__PURE__ */ _bind(
+	FW,
+	'airship_centauri_alpha_tr_pool_reserve',
+)
+
+export const airship_centauri_alpha_tr_pool_reserve_next = /* @__PURE__ */ _bind(
+	FW,
+	'airship_centauri_alpha_tr_pool_reserve_next',
+)
+
 export const airship_client = /* @__PURE__ */ _bind(FW, 'airship_client')
-export const airship_client_acquire_resource = /* @__PURE__ */ _bind(FW, 'airship_client_acquire_resource')
-export const airship_client_create_direct = /* @__PURE__ */ _bind(FW, 'airship_client_create_direct')
-export const airship_client_create_exec_stage_monitor = /* @__PURE__ */ _bind(FW, 'airship_client_create_exec_stage_monitor')
-export const airship_client_create_resource_monitor = /* @__PURE__ */ _bind(FW, 'airship_client_create_resource_monitor')
+export const airship_client_acquire_resource = /* @__PURE__ */ _bind(
+	FW,
+	'airship_client_acquire_resource',
+)
+
+export const airship_client_create_direct = /* @__PURE__ */ _bind(
+	FW,
+	'airship_client_create_direct',
+)
+
+export const airship_client_create_exec_stage_monitor = /* @__PURE__ */ _bind(
+	FW,
+	'airship_client_create_exec_stage_monitor',
+)
+
+export const airship_client_create_resource_monitor = /* @__PURE__ */ _bind(
+	FW,
+	'airship_client_create_resource_monitor',
+)
+
 export const airship_client_destroy = /* @__PURE__ */ _bind(FW, 'airship_client_destroy')
-export const airship_client_get_exec_stage = /* @__PURE__ */ _bind(FW, 'airship_client_get_exec_stage')
-export const airship_client_release_resource = /* @__PURE__ */ _bind(FW, 'airship_client_release_resource')
-export const airship_daleipc_channel_controller_activate = /* @__PURE__ */ _bind(FW, 'airship_daleipc_channel_controller_activate')
-export const airship_daleipc_channel_controller_consume_transfers = /* @__PURE__ */ _bind(FW, 'airship_daleipc_channel_controller_consume_transfers')
-export const airship_daleipc_channel_controller_create_free_space_monitor = /* @__PURE__ */ _bind(FW, 'airship_daleipc_channel_controller_create_free_space_monitor')
-export const airship_daleipc_channel_controller_create_state_monitor = /* @__PURE__ */ _bind(FW, 'airship_daleipc_channel_controller_create_state_monitor')
-export const airship_daleipc_channel_controller_create_sync_monitor = /* @__PURE__ */ _bind(FW, 'airship_daleipc_channel_controller_create_sync_monitor')
-export const airship_daleipc_channel_controller_destroy = /* @__PURE__ */ _bind(FW, 'airship_daleipc_channel_controller_destroy')
-export const airship_daleipc_channel_controller_enqueue_transfer = /* @__PURE__ */ _bind(FW, 'airship_daleipc_channel_controller_enqueue_transfer')
-export const airship_daleipc_channel_controller_get_channel_size = /* @__PURE__ */ _bind(FW, 'airship_daleipc_channel_controller_get_channel_size')
-export const airship_daleipc_channel_controller_get_completed_transfer_count = /* @__PURE__ */ _bind(FW, 'airship_daleipc_channel_controller_get_completed_transfer_count')
-export const airship_daleipc_channel_controller_get_free_space = /* @__PURE__ */ _bind(FW, 'airship_daleipc_channel_controller_get_free_space')
-export const airship_daleipc_channel_controller_get_mtu_size = /* @__PURE__ */ _bind(FW, 'airship_daleipc_channel_controller_get_mtu_size')
-export const airship_daleipc_channel_controller_get_transfer_completion = /* @__PURE__ */ _bind(FW, 'airship_daleipc_channel_controller_get_transfer_completion')
-export const airship_daleipc_channel_controller_sync = /* @__PURE__ */ _bind(FW, 'airship_daleipc_channel_controller_sync')
-export const airship_daleipc_channel_controller_synthesize_reset_completions = /* @__PURE__ */ _bind(FW, 'airship_daleipc_channel_controller_synthesize_reset_completions')
-export const airship_daleipc_channel_state = /* @__PURE__ */ _bind(FW, 'airship_daleipc_channel_state')
-export const airship_daleipc_channel_sync_operation = /* @__PURE__ */ _bind(FW, 'airship_daleipc_channel_sync_operation')
-export const airship_daleipc_channel_transfer_completion = /* @__PURE__ */ _bind(FW, 'airship_daleipc_channel_transfer_completion')
-export const airship_daleipc_create_channel_controller = /* @__PURE__ */ _bind(FW, 'airship_daleipc_create_channel_controller')
-export const airship_daleipc_create_device_controller = /* @__PURE__ */ _bind(FW, 'airship_daleipc_create_device_controller')
-export const airship_daleipc_create_downlink_controller = /* @__PURE__ */ _bind(FW, 'airship_daleipc_create_downlink_controller')
-export const airship_daleipc_create_network_clock_controller = /* @__PURE__ */ _bind(FW, 'airship_daleipc_create_network_clock_controller')
-export const airship_daleipc_create_uplink_controller = /* @__PURE__ */ _bind(FW, 'airship_daleipc_create_uplink_controller')
-export const airship_daleipc_device_controller_activate = /* @__PURE__ */ _bind(FW, 'airship_daleipc_device_controller_activate')
-export const airship_daleipc_device_controller_destroy = /* @__PURE__ */ _bind(FW, 'airship_daleipc_device_controller_destroy')
-export const airship_daleipc_device_controller_get_device_timings = /* @__PURE__ */ _bind(FW, 'airship_daleipc_device_controller_get_device_timings')
-export const airship_daleipc_downlink_controller_activate = /* @__PURE__ */ _bind(FW, 'airship_daleipc_downlink_controller_activate')
-export const airship_daleipc_downlink_controller_consume_packets = /* @__PURE__ */ _bind(FW, 'airship_daleipc_downlink_controller_consume_packets')
-export const airship_daleipc_downlink_controller_create_sync_monitor = /* @__PURE__ */ _bind(FW, 'airship_daleipc_downlink_controller_create_sync_monitor')
-export const airship_daleipc_downlink_controller_destroy = /* @__PURE__ */ _bind(FW, 'airship_daleipc_downlink_controller_destroy')
-export const airship_daleipc_downlink_controller_enqueue_iosk_packet_buffer = /* @__PURE__ */ _bind(FW, 'airship_daleipc_downlink_controller_enqueue_iosk_packet_buffer')
-export const airship_daleipc_downlink_controller_get_channel_size = /* @__PURE__ */ _bind(FW, 'airship_daleipc_downlink_controller_get_channel_size')
-export const airship_daleipc_downlink_controller_get_completed_packet_count = /* @__PURE__ */ _bind(FW, 'airship_daleipc_downlink_controller_get_completed_packet_count')
-export const airship_daleipc_downlink_controller_get_free_space = /* @__PURE__ */ _bind(FW, 'airship_daleipc_downlink_controller_get_free_space')
-export const airship_daleipc_downlink_controller_get_min_buffer_count = /* @__PURE__ */ _bind(FW, 'airship_daleipc_downlink_controller_get_min_buffer_count')
-export const airship_daleipc_downlink_controller_get_packet_completion = /* @__PURE__ */ _bind(FW, 'airship_daleipc_downlink_controller_get_packet_completion')
-export const airship_daleipc_downlink_controller_sync = /* @__PURE__ */ _bind(FW, 'airship_daleipc_downlink_controller_sync')
-export const airship_daleipc_downlink_controller_synthesize_reset_completions = /* @__PURE__ */ _bind(FW, 'airship_daleipc_downlink_controller_synthesize_reset_completions')
-export const airship_daleipc_downlink_packet_completion = /* @__PURE__ */ _bind(FW, 'airship_daleipc_downlink_packet_completion')
-export const airship_daleipc_get_ipc_error_description = /* @__PURE__ */ _bind(FW, 'airship_daleipc_get_ipc_error_description')
-export const airship_daleipc_ipc_error_flag = /* @__PURE__ */ _bind(FW, 'airship_daleipc_ipc_error_flag')
-export const airship_daleipc_network_clock_controller_activate = /* @__PURE__ */ _bind(FW, 'airship_daleipc_network_clock_controller_activate')
-export const airship_daleipc_network_clock_controller_create_clock_monitor = /* @__PURE__ */ _bind(FW, 'airship_daleipc_network_clock_controller_create_clock_monitor')
-export const airship_daleipc_network_clock_controller_destroy = /* @__PURE__ */ _bind(FW, 'airship_daleipc_network_clock_controller_destroy')
-export const airship_daleipc_network_clock_controller_get_network_clock_updates = /* @__PURE__ */ _bind(FW, 'airship_daleipc_network_clock_controller_get_network_clock_updates')
-export const airship_daleipc_network_clock_controller_reset = /* @__PURE__ */ _bind(FW, 'airship_daleipc_network_clock_controller_reset')
-export const airship_daleipc_uplink_controller_activate = /* @__PURE__ */ _bind(FW, 'airship_daleipc_uplink_controller_activate')
-export const airship_daleipc_uplink_controller_consume_packets = /* @__PURE__ */ _bind(FW, 'airship_daleipc_uplink_controller_consume_packets')
-export const airship_daleipc_uplink_controller_create_sync_monitor = /* @__PURE__ */ _bind(FW, 'airship_daleipc_uplink_controller_create_sync_monitor')
-export const airship_daleipc_uplink_controller_destroy = /* @__PURE__ */ _bind(FW, 'airship_daleipc_uplink_controller_destroy')
-export const airship_daleipc_uplink_controller_enqueue_iosk_packet = /* @__PURE__ */ _bind(FW, 'airship_daleipc_uplink_controller_enqueue_iosk_packet')
-export const airship_daleipc_uplink_controller_get_channel_size = /* @__PURE__ */ _bind(FW, 'airship_daleipc_uplink_controller_get_channel_size')
-export const airship_daleipc_uplink_controller_get_completed_packet_count = /* @__PURE__ */ _bind(FW, 'airship_daleipc_uplink_controller_get_completed_packet_count')
-export const airship_daleipc_uplink_controller_get_free_space = /* @__PURE__ */ _bind(FW, 'airship_daleipc_uplink_controller_get_free_space')
-export const airship_daleipc_uplink_controller_get_packet_completion = /* @__PURE__ */ _bind(FW, 'airship_daleipc_uplink_controller_get_packet_completion')
-export const airship_daleipc_uplink_controller_sync = /* @__PURE__ */ _bind(FW, 'airship_daleipc_uplink_controller_sync')
-export const airship_daleipc_uplink_controller_synthesize_reset_completions = /* @__PURE__ */ _bind(FW, 'airship_daleipc_uplink_controller_synthesize_reset_completions')
-export const airship_daleipc_uplink_packet_completion = /* @__PURE__ */ _bind(FW, 'airship_daleipc_uplink_packet_completion')
+export const airship_client_get_exec_stage = /* @__PURE__ */ _bind(
+	FW,
+	'airship_client_get_exec_stage',
+)
+
+export const airship_client_release_resource = /* @__PURE__ */ _bind(
+	FW,
+	'airship_client_release_resource',
+)
+
+export const airship_daleipc_channel_controller_activate = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_channel_controller_activate',
+)
+
+export const airship_daleipc_channel_controller_consume_transfers = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_channel_controller_consume_transfers',
+)
+
+export const airship_daleipc_channel_controller_create_free_space_monitor = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_channel_controller_create_free_space_monitor',
+)
+
+export const airship_daleipc_channel_controller_create_state_monitor = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_channel_controller_create_state_monitor',
+)
+
+export const airship_daleipc_channel_controller_create_sync_monitor = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_channel_controller_create_sync_monitor',
+)
+
+export const airship_daleipc_channel_controller_destroy = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_channel_controller_destroy',
+)
+
+export const airship_daleipc_channel_controller_enqueue_transfer = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_channel_controller_enqueue_transfer',
+)
+
+export const airship_daleipc_channel_controller_get_channel_size = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_channel_controller_get_channel_size',
+)
+
+export const airship_daleipc_channel_controller_get_completed_transfer_count =
+	/* @__PURE__ */ _bind(FW, 'airship_daleipc_channel_controller_get_completed_transfer_count')
+
+export const airship_daleipc_channel_controller_get_free_space = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_channel_controller_get_free_space',
+)
+
+export const airship_daleipc_channel_controller_get_mtu_size = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_channel_controller_get_mtu_size',
+)
+
+export const airship_daleipc_channel_controller_get_transfer_completion = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_channel_controller_get_transfer_completion',
+)
+
+export const airship_daleipc_channel_controller_sync = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_channel_controller_sync',
+)
+
+export const airship_daleipc_channel_controller_synthesize_reset_completions =
+	/* @__PURE__ */ _bind(FW, 'airship_daleipc_channel_controller_synthesize_reset_completions')
+
+export const airship_daleipc_channel_state = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_channel_state',
+)
+
+export const airship_daleipc_channel_sync_operation = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_channel_sync_operation',
+)
+
+export const airship_daleipc_channel_transfer_completion = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_channel_transfer_completion',
+)
+
+export const airship_daleipc_create_channel_controller = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_create_channel_controller',
+)
+
+export const airship_daleipc_create_device_controller = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_create_device_controller',
+)
+
+export const airship_daleipc_create_downlink_controller = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_create_downlink_controller',
+)
+
+export const airship_daleipc_create_network_clock_controller = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_create_network_clock_controller',
+)
+
+export const airship_daleipc_create_uplink_controller = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_create_uplink_controller',
+)
+
+export const airship_daleipc_device_controller_activate = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_device_controller_activate',
+)
+
+export const airship_daleipc_device_controller_destroy = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_device_controller_destroy',
+)
+
+export const airship_daleipc_device_controller_get_device_timings = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_device_controller_get_device_timings',
+)
+
+export const airship_daleipc_downlink_controller_activate = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_downlink_controller_activate',
+)
+
+export const airship_daleipc_downlink_controller_consume_packets = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_downlink_controller_consume_packets',
+)
+
+export const airship_daleipc_downlink_controller_create_sync_monitor = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_downlink_controller_create_sync_monitor',
+)
+
+export const airship_daleipc_downlink_controller_destroy = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_downlink_controller_destroy',
+)
+
+export const airship_daleipc_downlink_controller_enqueue_iosk_packet_buffer = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_downlink_controller_enqueue_iosk_packet_buffer',
+)
+
+export const airship_daleipc_downlink_controller_get_channel_size = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_downlink_controller_get_channel_size',
+)
+
+export const airship_daleipc_downlink_controller_get_completed_packet_count = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_downlink_controller_get_completed_packet_count',
+)
+
+export const airship_daleipc_downlink_controller_get_free_space = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_downlink_controller_get_free_space',
+)
+
+export const airship_daleipc_downlink_controller_get_min_buffer_count = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_downlink_controller_get_min_buffer_count',
+)
+
+export const airship_daleipc_downlink_controller_get_packet_completion = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_downlink_controller_get_packet_completion',
+)
+
+export const airship_daleipc_downlink_controller_sync = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_downlink_controller_sync',
+)
+
+export const airship_daleipc_downlink_controller_synthesize_reset_completions =
+	/* @__PURE__ */ _bind(FW, 'airship_daleipc_downlink_controller_synthesize_reset_completions')
+
+export const airship_daleipc_downlink_packet_completion = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_downlink_packet_completion',
+)
+
+export const airship_daleipc_get_ipc_error_description = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_get_ipc_error_description',
+)
+
+export const airship_daleipc_ipc_error_flag = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_ipc_error_flag',
+)
+
+export const airship_daleipc_network_clock_controller_activate = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_network_clock_controller_activate',
+)
+
+export const airship_daleipc_network_clock_controller_create_clock_monitor = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_network_clock_controller_create_clock_monitor',
+)
+
+export const airship_daleipc_network_clock_controller_destroy = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_network_clock_controller_destroy',
+)
+
+export const airship_daleipc_network_clock_controller_get_network_clock_updates =
+	/* @__PURE__ */ _bind(FW, 'airship_daleipc_network_clock_controller_get_network_clock_updates')
+
+export const airship_daleipc_network_clock_controller_reset = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_network_clock_controller_reset',
+)
+
+export const airship_daleipc_uplink_controller_activate = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_uplink_controller_activate',
+)
+
+export const airship_daleipc_uplink_controller_consume_packets = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_uplink_controller_consume_packets',
+)
+
+export const airship_daleipc_uplink_controller_create_sync_monitor = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_uplink_controller_create_sync_monitor',
+)
+
+export const airship_daleipc_uplink_controller_destroy = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_uplink_controller_destroy',
+)
+
+export const airship_daleipc_uplink_controller_enqueue_iosk_packet = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_uplink_controller_enqueue_iosk_packet',
+)
+
+export const airship_daleipc_uplink_controller_get_channel_size = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_uplink_controller_get_channel_size',
+)
+
+export const airship_daleipc_uplink_controller_get_completed_packet_count = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_uplink_controller_get_completed_packet_count',
+)
+
+export const airship_daleipc_uplink_controller_get_free_space = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_uplink_controller_get_free_space',
+)
+
+export const airship_daleipc_uplink_controller_get_packet_completion = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_uplink_controller_get_packet_completion',
+)
+
+export const airship_daleipc_uplink_controller_sync = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_uplink_controller_sync',
+)
+
+export const airship_daleipc_uplink_controller_synthesize_reset_completions = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_uplink_controller_synthesize_reset_completions',
+)
+
+export const airship_daleipc_uplink_packet_completion = /* @__PURE__ */ _bind(
+	FW,
+	'airship_daleipc_uplink_packet_completion',
+)
+
 export const airship_device_transport = /* @__PURE__ */ _bind(FW, 'airship_device_transport')
-export const airship_device_transport_create_with_iopcidevice = /* @__PURE__ */ _bind(FW, 'airship_device_transport_create_with_iopcidevice')
-export const airship_device_transport_destroy = /* @__PURE__ */ _bind(FW, 'airship_device_transport_destroy')
-export const airship_device_transport_resume = /* @__PURE__ */ _bind(FW, 'airship_device_transport_resume')
-export const airship_device_transport_suspend = /* @__PURE__ */ _bind(FW, 'airship_device_transport_suspend')
+export const airship_device_transport_create_with_iopcidevice = /* @__PURE__ */ _bind(
+	FW,
+	'airship_device_transport_create_with_iopcidevice',
+)
+
+export const airship_device_transport_destroy = /* @__PURE__ */ _bind(
+	FW,
+	'airship_device_transport_destroy',
+)
+
+export const airship_device_transport_resume = /* @__PURE__ */ _bind(
+	FW,
+	'airship_device_transport_resume',
+)
+
+export const airship_device_transport_suspend = /* @__PURE__ */ _bind(
+	FW,
+	'airship_device_transport_suspend',
+)
+
 export const airship_driver = /* @__PURE__ */ _bind(FW, 'airship_driver')
 export const airship_driver_activate = /* @__PURE__ */ _bind(FW, 'airship_driver_activate')
-export const airship_driver_clear_transport = /* @__PURE__ */ _bind(FW, 'airship_driver_clear_transport')
+export const airship_driver_clear_transport = /* @__PURE__ */ _bind(
+	FW,
+	'airship_driver_clear_transport',
+)
+
 export const airship_driver_create = /* @__PURE__ */ _bind(FW, 'airship_driver_create')
 export const airship_driver_destroy = /* @__PURE__ */ _bind(FW, 'airship_driver_destroy')
 export const airship_driver_enter_reset = /* @__PURE__ */ _bind(FW, 'airship_driver_enter_reset')
 export const airship_driver_error = /* @__PURE__ */ _bind(FW, 'airship_driver_error')
 export const airship_driver_exit_reset = /* @__PURE__ */ _bind(FW, 'airship_driver_exit_reset')
-export const airship_driver_get_error_state = /* @__PURE__ */ _bind(FW, 'airship_driver_get_error_state')
-export const airship_driver_get_exec_stage = /* @__PURE__ */ _bind(FW, 'airship_driver_get_exec_stage')
-export const airship_driver_get_power_state = /* @__PURE__ */ _bind(FW, 'airship_driver_get_power_state')
+export const airship_driver_get_error_state = /* @__PURE__ */ _bind(
+	FW,
+	'airship_driver_get_error_state',
+)
+
+export const airship_driver_get_exec_stage = /* @__PURE__ */ _bind(
+	FW,
+	'airship_driver_get_exec_stage',
+)
+
+export const airship_driver_get_power_state = /* @__PURE__ */ _bind(
+	FW,
+	'airship_driver_get_power_state',
+)
+
 export const airship_driver_power_state = /* @__PURE__ */ _bind(FW, 'airship_driver_power_state')
 export const airship_driver_power_target = /* @__PURE__ */ _bind(FW, 'airship_driver_power_target')
 export const airship_driver_probe_device = /* @__PURE__ */ _bind(FW, 'airship_driver_probe_device')
-export const airship_driver_probe_exec_stage = /* @__PURE__ */ _bind(FW, 'airship_driver_probe_exec_stage')
-export const airship_driver_set_configuration = /* @__PURE__ */ _bind(FW, 'airship_driver_set_configuration')
-export const airship_driver_set_exec_stage_change_handler = /* @__PURE__ */ _bind(FW, 'airship_driver_set_exec_stage_change_handler')
-export const airship_driver_set_ipc_error_handler = /* @__PURE__ */ _bind(FW, 'airship_driver_set_ipc_error_handler')
-export const airship_driver_set_power_state_change_handler = /* @__PURE__ */ _bind(FW, 'airship_driver_set_power_state_change_handler')
-export const airship_driver_set_power_target = /* @__PURE__ */ _bind(FW, 'airship_driver_set_power_target')
+export const airship_driver_probe_exec_stage = /* @__PURE__ */ _bind(
+	FW,
+	'airship_driver_probe_exec_stage',
+)
+
+export const airship_driver_set_configuration = /* @__PURE__ */ _bind(
+	FW,
+	'airship_driver_set_configuration',
+)
+
+export const airship_driver_set_exec_stage_change_handler = /* @__PURE__ */ _bind(
+	FW,
+	'airship_driver_set_exec_stage_change_handler',
+)
+
+export const airship_driver_set_ipc_error_handler = /* @__PURE__ */ _bind(
+	FW,
+	'airship_driver_set_ipc_error_handler',
+)
+
+export const airship_driver_set_power_state_change_handler = /* @__PURE__ */ _bind(
+	FW,
+	'airship_driver_set_power_state_change_handler',
+)
+
+export const airship_driver_set_power_target = /* @__PURE__ */ _bind(
+	FW,
+	'airship_driver_set_power_target',
+)
+
 export const airship_driver_set_queue = /* @__PURE__ */ _bind(FW, 'airship_driver_set_queue')
-export const airship_driver_set_transport = /* @__PURE__ */ _bind(FW, 'airship_driver_set_transport')
-export const airship_driver_user_client_type = /* @__PURE__ */ _bind(FW, 'airship_driver_user_client_type')
-export const airship_get_ipc_error_description = /* @__PURE__ */ _bind(FW, 'airship_get_ipc_error_description')
+export const airship_driver_set_transport = /* @__PURE__ */ _bind(
+	FW,
+	'airship_driver_set_transport',
+)
+
+export const airship_driver_user_client_type = /* @__PURE__ */ _bind(
+	FW,
+	'airship_driver_user_client_type',
+)
+
+export const airship_get_ipc_error_description = /* @__PURE__ */ _bind(
+	FW,
+	'airship_get_ipc_error_description',
+)
+
 export const airship_interrupt = /* @__PURE__ */ _bind(FW, 'airship_interrupt')
 export const airship_interrupt_activate = /* @__PURE__ */ _bind(FW, 'airship_interrupt_activate')
 export const airship_interrupt_cancel = /* @__PURE__ */ _bind(FW, 'airship_interrupt_cancel')
 export const airship_interrupt_create = /* @__PURE__ */ _bind(FW, 'airship_interrupt_create')
 export const airship_interrupt_destroy = /* @__PURE__ */ _bind(FW, 'airship_interrupt_destroy')
-export const airship_interrupt_get_device_vector = /* @__PURE__ */ _bind(FW, 'airship_interrupt_get_device_vector')
+export const airship_interrupt_get_device_vector = /* @__PURE__ */ _bind(
+	FW,
+	'airship_interrupt_get_device_vector',
+)
+
 export const airship_interrupt_resume = /* @__PURE__ */ _bind(FW, 'airship_interrupt_resume')
-export const airship_interrupt_set_cancel_handler = /* @__PURE__ */ _bind(FW, 'airship_interrupt_set_cancel_handler')
-export const airship_interrupt_set_event_handler = /* @__PURE__ */ _bind(FW, 'airship_interrupt_set_event_handler')
+export const airship_interrupt_set_cancel_handler = /* @__PURE__ */ _bind(
+	FW,
+	'airship_interrupt_set_cancel_handler',
+)
+
+export const airship_interrupt_set_event_handler = /* @__PURE__ */ _bind(
+	FW,
+	'airship_interrupt_set_event_handler',
+)
+
 export const airship_interrupt_set_queue = /* @__PURE__ */ _bind(FW, 'airship_interrupt_set_queue')
 export const airship_interrupt_suspend = /* @__PURE__ */ _bind(FW, 'airship_interrupt_suspend')
 export const airship_monitor = /* @__PURE__ */ _bind(FW, 'airship_monitor')
@@ -1961,15 +4999,35 @@ export const airship_monitor_cancel = /* @__PURE__ */ _bind(FW, 'airship_monitor
 export const airship_monitor_comparator = /* @__PURE__ */ _bind(FW, 'airship_monitor_comparator')
 export const airship_monitor_destroy = /* @__PURE__ */ _bind(FW, 'airship_monitor_destroy')
 export const airship_monitor_resume = /* @__PURE__ */ _bind(FW, 'airship_monitor_resume')
-export const airship_monitor_set_cancel_handler = /* @__PURE__ */ _bind(FW, 'airship_monitor_set_cancel_handler')
-export const airship_monitor_set_criterion = /* @__PURE__ */ _bind(FW, 'airship_monitor_set_criterion')
-export const airship_monitor_set_event_handler = /* @__PURE__ */ _bind(FW, 'airship_monitor_set_event_handler')
+export const airship_monitor_set_cancel_handler = /* @__PURE__ */ _bind(
+	FW,
+	'airship_monitor_set_cancel_handler',
+)
+
+export const airship_monitor_set_criterion = /* @__PURE__ */ _bind(
+	FW,
+	'airship_monitor_set_criterion',
+)
+
+export const airship_monitor_set_event_handler = /* @__PURE__ */ _bind(
+	FW,
+	'airship_monitor_set_event_handler',
+)
+
 export const airship_monitor_set_queue = /* @__PURE__ */ _bind(FW, 'airship_monitor_set_queue')
 export const airship_monitor_suspend = /* @__PURE__ */ _bind(FW, 'airship_monitor_suspend')
 export const airship_monitor_timedwait = /* @__PURE__ */ _bind(FW, 'airship_monitor_timedwait')
-export const airship_monitor_timedwait_interruptible = /* @__PURE__ */ _bind(FW, 'airship_monitor_timedwait_interruptible')
+export const airship_monitor_timedwait_interruptible = /* @__PURE__ */ _bind(
+	FW,
+	'airship_monitor_timedwait_interruptible',
+)
+
 export const airship_monitor_wait = /* @__PURE__ */ _bind(FW, 'airship_monitor_wait')
-export const airship_monitor_wait_interruptible = /* @__PURE__ */ _bind(FW, 'airship_monitor_wait_interruptible')
+export const airship_monitor_wait_interruptible = /* @__PURE__ */ _bind(
+	FW,
+	'airship_monitor_wait_interruptible',
+)
+
 export const airship_proxima_platform = /* @__PURE__ */ _bind(FW, 'airship_proxima_platform')
 export const airship_resource_state = /* @__PURE__ */ _bind(FW, 'airship_resource_state')
 export const airship_result = /* @__PURE__ */ _bind(FW, 'airship_result')
@@ -1978,7 +5036,11 @@ export const allocate_debug_state64 = /* @__PURE__ */ _bind(FW, 'allocate_debug_
 export const alreadyRegisteredErr = /* @__PURE__ */ _bind(FW, 'alreadyRegisteredErr')
 export const arcade_upcall = /* @__PURE__ */ _bind(FW, 'arcade_upcall')
 export const arcade_upcall_server = /* @__PURE__ */ _bind(FW, 'arcade_upcall_server')
-export const arcade_upcall_server_routine = /* @__PURE__ */ _bind(FW, 'arcade_upcall_server_routine')
+export const arcade_upcall_server_routine = /* @__PURE__ */ _bind(
+	FW,
+	'arcade_upcall_server_routine',
+)
+
 export const arcade_upcall_subsystem = /* @__PURE__ */ _bind(FW, 'arcade_upcall_subsystem')
 export const arm_cpuid_id_aa64dfr0_el1 = /* @__PURE__ */ _bind(FW, 'arm_cpuid_id_aa64dfr0_el1')
 export const arm_cpuid_id_dfr0 = /* @__PURE__ */ _bind(FW, 'arm_cpuid_id_dfr0')
@@ -1993,12 +5055,24 @@ export const arm_vfpsaved_state = /* @__PURE__ */ _bind(FW, 'arm_vfpsaved_state'
 export const arphdr = /* @__PURE__ */ _bind(FW, 'arphdr')
 export const arpreq = /* @__PURE__ */ _bind(FW, 'arpreq')
 export const arpstat = /* @__PURE__ */ _bind(FW, 'arpstat')
-export const assert_boot_args_size_is_4096 = /* @__PURE__ */ _bind(FW, 'assert_boot_args_size_is_4096')
+export const assert_boot_args_size_is_4096 = /* @__PURE__ */ _bind(
+	FW,
+	'assert_boot_args_size_is_4096',
+)
+
 export const assert_wait = /* @__PURE__ */ _bind(FW, 'assert_wait')
 export const assert_wait_deadline = /* @__PURE__ */ _bind(FW, 'assert_wait_deadline')
-export const assert_wait_deadline_with_leeway = /* @__PURE__ */ _bind(FW, 'assert_wait_deadline_with_leeway')
+export const assert_wait_deadline_with_leeway = /* @__PURE__ */ _bind(
+	FW,
+	'assert_wait_deadline_with_leeway',
+)
+
 export const assert_wait_timeout = /* @__PURE__ */ _bind(FW, 'assert_wait_timeout')
-export const assert_wait_timeout_with_leeway = /* @__PURE__ */ _bind(FW, 'assert_wait_timeout_with_leeway')
+export const assert_wait_timeout_with_leeway = /* @__PURE__ */ _bind(
+	FW,
+	'assert_wait_timeout_with_leeway',
+)
+
 export const ataDeviceType = /* @__PURE__ */ _bind(FW, 'ataDeviceType')
 export const ataEventCode = /* @__PURE__ */ _bind(FW, 'ataEventCode')
 export const ataFlags = /* @__PURE__ */ _bind(FW, 'ataFlags')
@@ -2020,7 +5094,11 @@ export const audit_session_self = /* @__PURE__ */ _bind(FW, 'audit_session_self'
 export const audit_session_self_args = /* @__PURE__ */ _bind(FW, 'audit_session_self_args')
 export const audit_triggers = /* @__PURE__ */ _bind(FW, 'audit_triggers')
 export const audit_triggers_server = /* @__PURE__ */ _bind(FW, 'audit_triggers_server')
-export const audit_triggers_server_routine = /* @__PURE__ */ _bind(FW, 'audit_triggers_server_routine')
+export const audit_triggers_server_routine = /* @__PURE__ */ _bind(
+	FW,
+	'audit_triggers_server_routine',
+)
+
 export const audit_triggers_subsystem = /* @__PURE__ */ _bind(FW, 'audit_triggers_subsystem')
 export const auditctl = /* @__PURE__ */ _bind(FW, 'auditctl')
 export const auditctl_args = /* @__PURE__ */ _bind(FW, 'auditctl_args')
@@ -2092,11 +5170,23 @@ export const call_gate = /* @__PURE__ */ _bind(FW, 'call_gate')
 export const catch_exc_subsystem = /* @__PURE__ */ _bind(FW, 'catch_exc_subsystem')
 export const catch_exception_raise = /* @__PURE__ */ _bind(FW, 'catch_exception_raise')
 export const catch_exception_raise_state = /* @__PURE__ */ _bind(FW, 'catch_exception_raise_state')
-export const catch_exception_raise_state_identity = /* @__PURE__ */ _bind(FW, 'catch_exception_raise_state_identity')
+export const catch_exception_raise_state_identity = /* @__PURE__ */ _bind(
+	FW,
+	'catch_exception_raise_state_identity',
+)
+
 export const catch_mach_exc_subsystem = /* @__PURE__ */ _bind(FW, 'catch_mach_exc_subsystem')
 export const catch_mach_exception_raise = /* @__PURE__ */ _bind(FW, 'catch_mach_exception_raise')
-export const catch_mach_exception_raise_state = /* @__PURE__ */ _bind(FW, 'catch_mach_exception_raise_state')
-export const catch_mach_exception_raise_state_identity = /* @__PURE__ */ _bind(FW, 'catch_mach_exception_raise_state_identity')
+export const catch_mach_exception_raise_state = /* @__PURE__ */ _bind(
+	FW,
+	'catch_mach_exception_raise_state',
+)
+
+export const catch_mach_exception_raise_state_identity = /* @__PURE__ */ _bind(
+	FW,
+	'catch_mach_exception_raise_state_identity',
+)
+
 export const chain_len_stats = /* @__PURE__ */ _bind(FW, 'chain_len_stats')
 export const change_fdguard_np = /* @__PURE__ */ _bind(FW, 'change_fdguard_np')
 export const change_fdguard_np_args = /* @__PURE__ */ _bind(FW, 'change_fdguard_np_args')
@@ -2104,7 +5194,11 @@ export const channelActiveErr = /* @__PURE__ */ _bind(FW, 'channelActiveErr')
 export const channelNotAvailableErr = /* @__PURE__ */ _bind(FW, 'channelNotAvailableErr')
 export const chdir_args = /* @__PURE__ */ _bind(FW, 'chdir_args')
 export const check_task_access = /* @__PURE__ */ _bind(FW, 'check_task_access')
-export const check_task_access_with_flavor = /* @__PURE__ */ _bind(FW, 'check_task_access_with_flavor')
+export const check_task_access_with_flavor = /* @__PURE__ */ _bind(
+	FW,
+	'check_task_access_with_flavor',
+)
+
 export const chflags = /* @__PURE__ */ _bind(FW, 'chflags')
 export const chflags_args = /* @__PURE__ */ _bind(FW, 'chflags_args')
 export const chmod = /* @__PURE__ */ _bind(FW, 'chmod')
@@ -2117,20 +5211,40 @@ export const chroot = /* @__PURE__ */ _bind(FW, 'chroot')
 export const chroot_args = /* @__PURE__ */ _bind(FW, 'chroot_args')
 export const circle_queue_head = /* @__PURE__ */ _bind(FW, 'circle_queue_head')
 export const cl_direct_read_lock = /* @__PURE__ */ _bind(FW, 'cl_direct_read_lock')
-export const clock_absolutetime_interval_to_deadline = /* @__PURE__ */ _bind(FW, 'clock_absolutetime_interval_to_deadline')
+export const clock_absolutetime_interval_to_deadline = /* @__PURE__ */ _bind(
+	FW,
+	'clock_absolutetime_interval_to_deadline',
+)
+
 export const clock_alarm = /* @__PURE__ */ _bind(FW, 'clock_alarm')
 export const clock_alarm_reply = /* @__PURE__ */ _bind(FW, 'clock_alarm_reply')
-export const clock_continuoustime_interval_to_deadline = /* @__PURE__ */ _bind(FW, 'clock_continuoustime_interval_to_deadline')
+export const clock_continuoustime_interval_to_deadline = /* @__PURE__ */ _bind(
+	FW,
+	'clock_continuoustime_interval_to_deadline',
+)
+
 export const clock_delay_until = /* @__PURE__ */ _bind(FW, 'clock_delay_until')
 export const clock_get_attributes = /* @__PURE__ */ _bind(FW, 'clock_get_attributes')
-export const clock_get_calendar_absolute_and_microtime = /* @__PURE__ */ _bind(FW, 'clock_get_calendar_absolute_and_microtime')
-export const clock_get_calendar_microtime = /* @__PURE__ */ _bind(FW, 'clock_get_calendar_microtime')
+export const clock_get_calendar_absolute_and_microtime = /* @__PURE__ */ _bind(
+	FW,
+	'clock_get_calendar_absolute_and_microtime',
+)
+
+export const clock_get_calendar_microtime = /* @__PURE__ */ _bind(
+	FW,
+	'clock_get_calendar_microtime',
+)
+
 export const clock_get_calendar_nanotime = /* @__PURE__ */ _bind(FW, 'clock_get_calendar_nanotime')
 export const clock_get_system_microtime = /* @__PURE__ */ _bind(FW, 'clock_get_system_microtime')
 export const clock_get_system_nanotime = /* @__PURE__ */ _bind(FW, 'clock_get_system_nanotime')
 export const clock_get_time = /* @__PURE__ */ _bind(FW, 'clock_get_time')
 export const clock_get_uptime = /* @__PURE__ */ _bind(FW, 'clock_get_uptime')
-export const clock_interval_to_absolutetime_interval = /* @__PURE__ */ _bind(FW, 'clock_interval_to_absolutetime_interval')
+export const clock_interval_to_absolutetime_interval = /* @__PURE__ */ _bind(
+	FW,
+	'clock_interval_to_absolutetime_interval',
+)
+
 export const clock_interval_to_deadline = /* @__PURE__ */ _bind(FW, 'clock_interval_to_deadline')
 export const clock_reply_server = /* @__PURE__ */ _bind(FW, 'clock_reply_server')
 export const clock_reply_server_routine = /* @__PURE__ */ _bind(FW, 'clock_reply_server_routine')
@@ -2164,9 +5278,21 @@ export const cluster_zero = /* @__PURE__ */ _bind(FW, 'cluster_zero')
 export const clutType = /* @__PURE__ */ _bind(FW, 'clutType')
 export const cninit = /* @__PURE__ */ _bind(FW, 'cninit')
 export const coalition_notification = /* @__PURE__ */ _bind(FW, 'coalition_notification')
-export const coalition_notification_server = /* @__PURE__ */ _bind(FW, 'coalition_notification_server')
-export const coalition_notification_server_routine = /* @__PURE__ */ _bind(FW, 'coalition_notification_server_routine')
-export const coalition_notification_subsystem = /* @__PURE__ */ _bind(FW, 'coalition_notification_subsystem')
+export const coalition_notification_server = /* @__PURE__ */ _bind(
+	FW,
+	'coalition_notification_server',
+)
+
+export const coalition_notification_server_routine = /* @__PURE__ */ _bind(
+	FW,
+	'coalition_notification_server_routine',
+)
+
+export const coalition_notification_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'coalition_notification_subsystem',
+)
+
 export const code_desc = /* @__PURE__ */ _bind(FW, 'code_desc')
 export const componentname = /* @__PURE__ */ _bind(FW, 'componentname')
 export const compress = /* @__PURE__ */ _bind(FW, 'compress')
@@ -2180,7 +5306,11 @@ export const console_init = /* @__PURE__ */ _bind(FW, 'console_init')
 export const console_is_serial = /* @__PURE__ */ _bind(FW, 'console_is_serial')
 export const console_ops = /* @__PURE__ */ _bind(FW, 'console_ops')
 export const console_write_unbuffered = /* @__PURE__ */ _bind(FW, 'console_write_unbuffered')
-export const continuoustime_to_absolutetime = /* @__PURE__ */ _bind(FW, 'continuoustime_to_absolutetime')
+export const continuoustime_to_absolutetime = /* @__PURE__ */ _bind(
+	FW,
+	'continuoustime_to_absolutetime',
+)
+
 export const coproc_status_entry = /* @__PURE__ */ _bind(FW, 'coproc_status_entry')
 export const coprocessor_type_t = /* @__PURE__ */ _bind(FW, 'coprocessor_type_t')
 export const copyCurrentInQueueMem = /* @__PURE__ */ _bind(FW, 'copyCurrentInQueueMem')
@@ -2197,7 +5327,11 @@ export const copystr = /* @__PURE__ */ _bind(FW, 'copystr')
 export const cpc_counter = /* @__PURE__ */ _bind(FW, 'cpc_counter')
 export const cpc_cpu = /* @__PURE__ */ _bind(FW, 'cpc_cpu')
 export const cpc_cycles_instrs = /* @__PURE__ */ _bind(FW, 'cpc_cycles_instrs')
-export const cpc_cycles_instrs_raw_approx_x86_64 = /* @__PURE__ */ _bind(FW, 'cpc_cycles_instrs_raw_approx_x86_64')
+export const cpc_cycles_instrs_raw_approx_x86_64 = /* @__PURE__ */ _bind(
+	FW,
+	'cpc_cycles_instrs_raw_approx_x86_64',
+)
+
 export const cpc_deadlines = /* @__PURE__ */ _bind(FW, 'cpc_deadlines')
 export const cpc_early_init = /* @__PURE__ */ _bind(FW, 'cpc_early_init')
 export const cpc_machine_regs = /* @__PURE__ */ _bind(FW, 'cpc_machine_regs')
@@ -2206,7 +5340,11 @@ export const cpu_broadcast_xcall_simple = /* @__PURE__ */ _bind(FW, 'cpu_broadca
 export const cpu_event = /* @__PURE__ */ _bind(FW, 'cpu_event')
 export const cpu_event_debug_log = /* @__PURE__ */ _bind(FW, 'cpu_event_debug_log')
 export const cpu_event_register_callback = /* @__PURE__ */ _bind(FW, 'cpu_event_register_callback')
-export const cpu_event_unregister_callback = /* @__PURE__ */ _bind(FW, 'cpu_event_unregister_callback')
+export const cpu_event_unregister_callback = /* @__PURE__ */ _bind(
+	FW,
+	'cpu_event_unregister_callback',
+)
+
 export const cpu_immediate_xcall = /* @__PURE__ */ _bind(FW, 'cpu_immediate_xcall')
 export const cpu_xcall = /* @__PURE__ */ _bind(FW, 'cpu_xcall')
 export const cpuid_arch_perf_leaf_t = /* @__PURE__ */ _bind(FW, 'cpuid_arch_perf_leaf_t')
@@ -2222,8 +5360,16 @@ export const cpuid_feature_display = /* @__PURE__ */ _bind(FW, 'cpuid_feature_di
 export const cpuid_features = /* @__PURE__ */ _bind(FW, 'cpuid_features')
 export const cpuid_get_extfeature_names = /* @__PURE__ */ _bind(FW, 'cpuid_get_extfeature_names')
 export const cpuid_get_feature_names = /* @__PURE__ */ _bind(FW, 'cpuid_get_feature_names')
-export const cpuid_get_leaf7_extfeature_names = /* @__PURE__ */ _bind(FW, 'cpuid_get_leaf7_extfeature_names')
-export const cpuid_get_leaf7_feature_names = /* @__PURE__ */ _bind(FW, 'cpuid_get_leaf7_feature_names')
+export const cpuid_get_leaf7_extfeature_names = /* @__PURE__ */ _bind(
+	FW,
+	'cpuid_get_leaf7_extfeature_names',
+)
+
+export const cpuid_get_leaf7_feature_names = /* @__PURE__ */ _bind(
+	FW,
+	'cpuid_get_leaf7_feature_names',
+)
+
 export const cpuid_info = /* @__PURE__ */ _bind(FW, 'cpuid_info')
 export const cpuid_leaf7_extfeatures = /* @__PURE__ */ _bind(FW, 'cpuid_leaf7_extfeatures')
 export const cpuid_leaf7_features = /* @__PURE__ */ _bind(FW, 'cpuid_leaf7_features')
@@ -2233,7 +5379,11 @@ export const cpuid_set_info = /* @__PURE__ */ _bind(FW, 'cpuid_set_info')
 export const cpuid_thermal_leaf_t = /* @__PURE__ */ _bind(FW, 'cpuid_thermal_leaf_t')
 export const cpuid_tsc_leaf_t = /* @__PURE__ */ _bind(FW, 'cpuid_tsc_leaf_t')
 export const cpuid_vmm_family = /* @__PURE__ */ _bind(FW, 'cpuid_vmm_family')
-export const cpuid_vmm_get_applepv_features = /* @__PURE__ */ _bind(FW, 'cpuid_vmm_get_applepv_features')
+export const cpuid_vmm_get_applepv_features = /* @__PURE__ */ _bind(
+	FW,
+	'cpuid_vmm_get_applepv_features',
+)
+
 export const cpuid_vmm_get_kvm_features = /* @__PURE__ */ _bind(FW, 'cpuid_vmm_get_kvm_features')
 export const cpuid_vmm_present = /* @__PURE__ */ _bind(FW, 'cpuid_vmm_present')
 export const cpuid_xsave_leaf_t = /* @__PURE__ */ _bind(FW, 'cpuid_xsave_leaf_t')
@@ -2261,7 +5411,11 @@ export const daleipc_channel_controller = /* @__PURE__ */ _bind(FW, 'daleipc_cha
 export const daleipc_device_controller = /* @__PURE__ */ _bind(FW, 'daleipc_device_controller')
 export const daleipc_downlink_controller = /* @__PURE__ */ _bind(FW, 'daleipc_downlink_controller')
 export const daleipc_exec_stage = /* @__PURE__ */ _bind(FW, 'daleipc_exec_stage')
-export const daleipc_network_clock_controller = /* @__PURE__ */ _bind(FW, 'daleipc_network_clock_controller')
+export const daleipc_network_clock_controller = /* @__PURE__ */ _bind(
+	FW,
+	'daleipc_network_clock_controller',
+)
+
 export const daleipc_uplink_controller = /* @__PURE__ */ _bind(FW, 'daleipc_uplink_controller')
 export const darwin_gpu_role_t = /* @__PURE__ */ _bind(FW, 'darwin_gpu_role_t')
 export const data_desc = /* @__PURE__ */ _bind(FW, 'data_desc')
@@ -2272,7 +5426,11 @@ export const debug_ivars_size = /* @__PURE__ */ _bind(FW, 'debug_ivars_size')
 export const debug_malloc_size = /* @__PURE__ */ _bind(FW, 'debug_malloc_size')
 export const debug_syscall_reject = /* @__PURE__ */ _bind(FW, 'debug_syscall_reject')
 export const debug_syscall_reject_args = /* @__PURE__ */ _bind(FW, 'debug_syscall_reject_args')
-export const debug_syscall_reject_config_args = /* @__PURE__ */ _bind(FW, 'debug_syscall_reject_config_args')
+export const debug_syscall_reject_config_args = /* @__PURE__ */ _bind(
+	FW,
+	'debug_syscall_reject_config_args',
+)
+
 export const debug_trailer = /* @__PURE__ */ _bind(FW, 'debug_trailer')
 export const deflate = /* @__PURE__ */ _bind(FW, 'deflate')
 export const deflateBound = /* @__PURE__ */ _bind(FW, 'deflateBound')
@@ -2293,14 +5451,22 @@ export const devfs_make_node_clone = /* @__PURE__ */ _bind(FW, 'devfs_make_node_
 export const devfs_remove = /* @__PURE__ */ _bind(FW, 'devfs_remove')
 export const directType = /* @__PURE__ */ _bind(FW, 'directType')
 export const disable_iolog_serial_output = /* @__PURE__ */ _bind(FW, 'disable_iolog_serial_output')
-export const disable_kext_printf_serial_output = /* @__PURE__ */ _bind(FW, 'disable_kext_printf_serial_output')
+export const disable_kext_printf_serial_output = /* @__PURE__ */ _bind(
+	FW,
+	'disable_kext_printf_serial_output',
+)
+
 export const disableiopolicy_np = /* @__PURE__ */ _bind(FW, 'disableiopolicy_np')
 export const disconnectedErr = /* @__PURE__ */ _bind(FW, 'disconnectedErr')
 export const disklabel = /* @__PURE__ */ _bind(FW, 'disklabel')
 export const do_mach_notify_dead_name = /* @__PURE__ */ _bind(FW, 'do_mach_notify_dead_name')
 export const do_mach_notify_no_senders = /* @__PURE__ */ _bind(FW, 'do_mach_notify_no_senders')
 export const do_mach_notify_port_deleted = /* @__PURE__ */ _bind(FW, 'do_mach_notify_port_deleted')
-export const do_mach_notify_port_destroyed = /* @__PURE__ */ _bind(FW, 'do_mach_notify_port_destroyed')
+export const do_mach_notify_port_destroyed = /* @__PURE__ */ _bind(
+	FW,
+	'do_mach_notify_port_destroyed',
+)
+
 export const do_mach_notify_send_once = /* @__PURE__ */ _bind(FW, 'do_mach_notify_send_once')
 export const do_notify_subsystem = /* @__PURE__ */ _bind(FW, 'do_notify_subsystem')
 export const dot3ChipSetAMD7990 = /* @__PURE__ */ _bind(FW, 'dot3ChipSetAMD7990')
@@ -2317,8 +5483,16 @@ export const dot3ChipSetIntel82586 = /* @__PURE__ */ _bind(FW, 'dot3ChipSetIntel
 export const dot3ChipSetIntel82596 = /* @__PURE__ */ _bind(FW, 'dot3ChipSetIntel82596')
 export const dot3ChipSetNational8390 = /* @__PURE__ */ _bind(FW, 'dot3ChipSetNational8390')
 export const dot3ChipSetNationalSonic = /* @__PURE__ */ _bind(FW, 'dot3ChipSetNationalSonic')
-export const dot3ChipSetWesternDigital83C690 = /* @__PURE__ */ _bind(FW, 'dot3ChipSetWesternDigital83C690')
-export const dot3ChipSetWesternDigital83C790 = /* @__PURE__ */ _bind(FW, 'dot3ChipSetWesternDigital83C790')
+export const dot3ChipSetWesternDigital83C690 = /* @__PURE__ */ _bind(
+	FW,
+	'dot3ChipSetWesternDigital83C690',
+)
+
+export const dot3ChipSetWesternDigital83C790 = /* @__PURE__ */ _bind(
+	FW,
+	'dot3ChipSetWesternDigital83C790',
+)
+
 export const dot3Vendors = /* @__PURE__ */ _bind(FW, 'dot3Vendors')
 export const doubleagent_allocate_xattr = /* @__PURE__ */ _bind(FW, 'doubleagent_allocate_xattr')
 export const doubleagent_list_xattrs = /* @__PURE__ */ _bind(FW, 'doubleagent_list_xattrs')
@@ -2335,24 +5509,80 @@ export const dup_args = /* @__PURE__ */ _bind(FW, 'dup_args')
 export const dyld_chained_fixups_header = /* @__PURE__ */ _bind(FW, 'dyld_chained_fixups_header')
 export const dyld_chained_import = /* @__PURE__ */ _bind(FW, 'dyld_chained_import')
 export const dyld_chained_import_addend = /* @__PURE__ */ _bind(FW, 'dyld_chained_import_addend')
-export const dyld_chained_import_addend64 = /* @__PURE__ */ _bind(FW, 'dyld_chained_import_addend64')
+export const dyld_chained_import_addend64 = /* @__PURE__ */ _bind(
+	FW,
+	'dyld_chained_import_addend64',
+)
+
 export const dyld_chained_ptr_32_bind = /* @__PURE__ */ _bind(FW, 'dyld_chained_ptr_32_bind')
-export const dyld_chained_ptr_32_cache_rebase = /* @__PURE__ */ _bind(FW, 'dyld_chained_ptr_32_cache_rebase')
-export const dyld_chained_ptr_32_firmware_rebase = /* @__PURE__ */ _bind(FW, 'dyld_chained_ptr_32_firmware_rebase')
+export const dyld_chained_ptr_32_cache_rebase = /* @__PURE__ */ _bind(
+	FW,
+	'dyld_chained_ptr_32_cache_rebase',
+)
+
+export const dyld_chained_ptr_32_firmware_rebase = /* @__PURE__ */ _bind(
+	FW,
+	'dyld_chained_ptr_32_firmware_rebase',
+)
+
 export const dyld_chained_ptr_32_rebase = /* @__PURE__ */ _bind(FW, 'dyld_chained_ptr_32_rebase')
 export const dyld_chained_ptr_64_bind = /* @__PURE__ */ _bind(FW, 'dyld_chained_ptr_64_bind')
-export const dyld_chained_ptr_64_kernel_cache_rebase = /* @__PURE__ */ _bind(FW, 'dyld_chained_ptr_64_kernel_cache_rebase')
+export const dyld_chained_ptr_64_kernel_cache_rebase = /* @__PURE__ */ _bind(
+	FW,
+	'dyld_chained_ptr_64_kernel_cache_rebase',
+)
+
 export const dyld_chained_ptr_64_rebase = /* @__PURE__ */ _bind(FW, 'dyld_chained_ptr_64_rebase')
-export const dyld_chained_ptr_arm64e_auth_bind = /* @__PURE__ */ _bind(FW, 'dyld_chained_ptr_arm64e_auth_bind')
-export const dyld_chained_ptr_arm64e_auth_bind24 = /* @__PURE__ */ _bind(FW, 'dyld_chained_ptr_arm64e_auth_bind24')
-export const dyld_chained_ptr_arm64e_auth_rebase = /* @__PURE__ */ _bind(FW, 'dyld_chained_ptr_arm64e_auth_rebase')
-export const dyld_chained_ptr_arm64e_bind = /* @__PURE__ */ _bind(FW, 'dyld_chained_ptr_arm64e_bind')
-export const dyld_chained_ptr_arm64e_bind24 = /* @__PURE__ */ _bind(FW, 'dyld_chained_ptr_arm64e_bind24')
-export const dyld_chained_ptr_arm64e_rebase = /* @__PURE__ */ _bind(FW, 'dyld_chained_ptr_arm64e_rebase')
-export const dyld_chained_ptr_arm64e_shared_cache_auth_rebase = /* @__PURE__ */ _bind(FW, 'dyld_chained_ptr_arm64e_shared_cache_auth_rebase')
-export const dyld_chained_ptr_arm64e_shared_cache_rebase = /* @__PURE__ */ _bind(FW, 'dyld_chained_ptr_arm64e_shared_cache_rebase')
-export const dyld_chained_starts_in_image = /* @__PURE__ */ _bind(FW, 'dyld_chained_starts_in_image')
-export const dyld_chained_starts_in_segment = /* @__PURE__ */ _bind(FW, 'dyld_chained_starts_in_segment')
+export const dyld_chained_ptr_arm64e_auth_bind = /* @__PURE__ */ _bind(
+	FW,
+	'dyld_chained_ptr_arm64e_auth_bind',
+)
+
+export const dyld_chained_ptr_arm64e_auth_bind24 = /* @__PURE__ */ _bind(
+	FW,
+	'dyld_chained_ptr_arm64e_auth_bind24',
+)
+
+export const dyld_chained_ptr_arm64e_auth_rebase = /* @__PURE__ */ _bind(
+	FW,
+	'dyld_chained_ptr_arm64e_auth_rebase',
+)
+
+export const dyld_chained_ptr_arm64e_bind = /* @__PURE__ */ _bind(
+	FW,
+	'dyld_chained_ptr_arm64e_bind',
+)
+
+export const dyld_chained_ptr_arm64e_bind24 = /* @__PURE__ */ _bind(
+	FW,
+	'dyld_chained_ptr_arm64e_bind24',
+)
+
+export const dyld_chained_ptr_arm64e_rebase = /* @__PURE__ */ _bind(
+	FW,
+	'dyld_chained_ptr_arm64e_rebase',
+)
+
+export const dyld_chained_ptr_arm64e_shared_cache_auth_rebase = /* @__PURE__ */ _bind(
+	FW,
+	'dyld_chained_ptr_arm64e_shared_cache_auth_rebase',
+)
+
+export const dyld_chained_ptr_arm64e_shared_cache_rebase = /* @__PURE__ */ _bind(
+	FW,
+	'dyld_chained_ptr_arm64e_shared_cache_rebase',
+)
+
+export const dyld_chained_starts_in_image = /* @__PURE__ */ _bind(
+	FW,
+	'dyld_chained_starts_in_image',
+)
+
+export const dyld_chained_starts_in_segment = /* @__PURE__ */ _bind(
+	FW,
+	'dyld_chained_starts_in_segment',
+)
+
 export const dyld_chained_starts_offsets = /* @__PURE__ */ _bind(FW, 'dyld_chained_starts_offsets')
 export const ecc_event = /* @__PURE__ */ _bind(FW, 'ecc_event')
 export const ecc_event_t = /* @__PURE__ */ _bind(FW, 'ecc_event_t')
@@ -2436,11 +5666,27 @@ export const execve = /* @__PURE__ */ _bind(FW, 'execve')
 export const execve_args = /* @__PURE__ */ _bind(FW, 'execve_args')
 export const exit = /* @__PURE__ */ _bind(FW, 'exit')
 export const exit_args = /* @__PURE__ */ _bind(FW, 'exit_args')
-export const ext_paniclog_create_options_t = /* @__PURE__ */ _bind(FW, 'ext_paniclog_create_options_t')
+export const ext_paniclog_create_options_t = /* @__PURE__ */ _bind(
+	FW,
+	'ext_paniclog_create_options_t',
+)
+
 export const ext_paniclog_flags_t = /* @__PURE__ */ _bind(FW, 'ext_paniclog_flags_t')
-export const extmod_statistics_incr_task_for_pid = /* @__PURE__ */ _bind(FW, 'extmod_statistics_incr_task_for_pid')
-export const extmod_statistics_incr_thread_create = /* @__PURE__ */ _bind(FW, 'extmod_statistics_incr_thread_create')
-export const extmod_statistics_incr_thread_set_state = /* @__PURE__ */ _bind(FW, 'extmod_statistics_incr_thread_set_state')
+export const extmod_statistics_incr_task_for_pid = /* @__PURE__ */ _bind(
+	FW,
+	'extmod_statistics_incr_task_for_pid',
+)
+
+export const extmod_statistics_incr_thread_create = /* @__PURE__ */ _bind(
+	FW,
+	'extmod_statistics_incr_thread_create',
+)
+
+export const extmod_statistics_incr_thread_set_state = /* @__PURE__ */ _bind(
+	FW,
+	'extmod_statistics_incr_thread_set_state',
+)
+
 export const faccessat = /* @__PURE__ */ _bind(FW, 'faccessat')
 export const faccessat_args = /* @__PURE__ */ _bind(FW, 'faccessat_args')
 export const fairplay_server = /* @__PURE__ */ _bind(FW, 'fairplay_server')
@@ -2495,8 +5741,16 @@ export const find_code_signature = /* @__PURE__ */ _bind(FW, 'find_code_signatur
 export const find_debug_state32 = /* @__PURE__ */ _bind(FW, 'find_debug_state32')
 export const find_debug_state64 = /* @__PURE__ */ _bind(FW, 'find_debug_state64')
 export const find_kern_regs = /* @__PURE__ */ _bind(FW, 'find_kern_regs')
-export const find_or_allocate_debug_state32 = /* @__PURE__ */ _bind(FW, 'find_or_allocate_debug_state32')
-export const find_or_allocate_debug_state64 = /* @__PURE__ */ _bind(FW, 'find_or_allocate_debug_state64')
+export const find_or_allocate_debug_state32 = /* @__PURE__ */ _bind(
+	FW,
+	'find_or_allocate_debug_state32',
+)
+
+export const find_or_allocate_debug_state64 = /* @__PURE__ */ _bind(
+	FW,
+	'find_or_allocate_debug_state64',
+)
+
 export const find_user_regs = /* @__PURE__ */ _bind(FW, 'find_user_regs')
 export const find_user_vfp = /* @__PURE__ */ _bind(FW, 'find_user_vfp')
 export const fixedType = /* @__PURE__ */ _bind(FW, 'fixedType')
@@ -2559,7 +5813,11 @@ export const funmount_args = /* @__PURE__ */ _bind(FW, 'funmount_args')
 export const futimes = /* @__PURE__ */ _bind(FW, 'futimes')
 export const futimes_args = /* @__PURE__ */ _bind(FW, 'futimes_args')
 export const fuword = /* @__PURE__ */ _bind(FW, 'fuword')
-export const gAFKEndpointInterfaceMetaClass = /* @__PURE__ */ _bind(FW, 'gAFKEndpointInterfaceMetaClass')
+export const gAFKEndpointInterfaceMetaClass = /* @__PURE__ */ _bind(
+	FW,
+	'gAFKEndpointInterfaceMetaClass',
+)
+
 export const gAFKUserDataPipeMetaClass = /* @__PURE__ */ _bind(FW, 'gAFKUserDataPipeMetaClass')
 export const gFireWireModel_ID = /* @__PURE__ */ _bind(FW, 'gFireWireModel_ID')
 export const gFireWireNodeID = /* @__PURE__ */ _bind(FW, 'gFireWireNodeID')
@@ -2591,7 +5849,11 @@ export const gIOBSDUnitKey = /* @__PURE__ */ _bind(FW, 'gIOBSDUnitKey')
 export const gIOBusyInterest = /* @__PURE__ */ _bind(FW, 'gIOBusyInterest')
 export const gIOCommandPoolSizeKey = /* @__PURE__ */ _bind(FW, 'gIOCommandPoolSizeKey')
 export const gIOCompatibilityMatchKey = /* @__PURE__ */ _bind(FW, 'gIOCompatibilityMatchKey')
-export const gIOCompatibilityPropertiesKey = /* @__PURE__ */ _bind(FW, 'gIOCompatibilityPropertiesKey')
+export const gIOCompatibilityPropertiesKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIOCompatibilityPropertiesKey',
+)
+
 export const gIOConsoleSecurityInterest = /* @__PURE__ */ _bind(FW, 'gIOConsoleSecurityInterest')
 export const gIODEXTMatchCountKey = /* @__PURE__ */ _bind(FW, 'gIODEXTMatchCountKey')
 export const gIODKDebug = /* @__PURE__ */ _bind(FW, 'gIODKDebug')
@@ -2599,7 +5861,11 @@ export const gIODTAAPLInterruptsKey = /* @__PURE__ */ _bind(FW, 'gIODTAAPLInterr
 export const gIODTAssociatedServiceKey = /* @__PURE__ */ _bind(FW, 'gIODTAssociatedServiceKey')
 export const gIODTBridgeModelKey = /* @__PURE__ */ _bind(FW, 'gIODTBridgeModelKey')
 export const gIODTCompatibleKey = /* @__PURE__ */ _bind(FW, 'gIODTCompatibleKey')
-export const gIODTDefaultInterruptController = /* @__PURE__ */ _bind(FW, 'gIODTDefaultInterruptController')
+export const gIODTDefaultInterruptController = /* @__PURE__ */ _bind(
+	FW,
+	'gIODTDefaultInterruptController',
+)
+
 export const gIODTModelKey = /* @__PURE__ */ _bind(FW, 'gIODTModelKey')
 export const gIODTNWInterruptMappingKey = /* @__PURE__ */ _bind(FW, 'gIODTNWInterruptMappingKey')
 export const gIODTPHandleKey = /* @__PURE__ */ _bind(FW, 'gIODTPHandleKey')
@@ -2608,17 +5874,37 @@ export const gIODTTargetTypeKey = /* @__PURE__ */ _bind(FW, 'gIODTTargetTypeKey'
 export const gIODTTypeKey = /* @__PURE__ */ _bind(FW, 'gIODTTypeKey')
 export const gIODefaultMatchCategoryKey = /* @__PURE__ */ _bind(FW, 'gIODefaultMatchCategoryKey')
 export const gIODeviceMemoryKey = /* @__PURE__ */ _bind(FW, 'gIODeviceMemoryKey')
-export const gIODisplayAmbientLightSensorKey = /* @__PURE__ */ _bind(FW, 'gIODisplayAmbientLightSensorKey')
+export const gIODisplayAmbientLightSensorKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIODisplayAmbientLightSensorKey',
+)
+
 export const gIODisplayAudioBalanceLRKey = /* @__PURE__ */ _bind(FW, 'gIODisplayAudioBalanceLRKey')
 export const gIODisplayAudioBassKey = /* @__PURE__ */ _bind(FW, 'gIODisplayAudioBassKey')
-export const gIODisplayAudioMuteAndScreenBlankKey = /* @__PURE__ */ _bind(FW, 'gIODisplayAudioMuteAndScreenBlankKey')
-export const gIODisplayAudioProcessorModeKey = /* @__PURE__ */ _bind(FW, 'gIODisplayAudioProcessorModeKey')
+export const gIODisplayAudioMuteAndScreenBlankKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIODisplayAudioMuteAndScreenBlankKey',
+)
+
+export const gIODisplayAudioProcessorModeKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIODisplayAudioProcessorModeKey',
+)
+
 export const gIODisplayAudioTrebleKey = /* @__PURE__ */ _bind(FW, 'gIODisplayAudioTrebleKey')
 export const gIODisplayBlueGammaScaleKey = /* @__PURE__ */ _bind(FW, 'gIODisplayBlueGammaScaleKey')
 export const gIODisplayBrightnessFadeKey = /* @__PURE__ */ _bind(FW, 'gIODisplayBrightnessFadeKey')
 export const gIODisplayBrightnessKey = /* @__PURE__ */ _bind(FW, 'gIODisplayBrightnessKey')
-export const gIODisplayBrightnessProbeKey = /* @__PURE__ */ _bind(FW, 'gIODisplayBrightnessProbeKey')
-export const gIODisplayCapabilityStringKey = /* @__PURE__ */ _bind(FW, 'gIODisplayCapabilityStringKey')
+export const gIODisplayBrightnessProbeKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIODisplayBrightnessProbeKey',
+)
+
+export const gIODisplayCapabilityStringKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIODisplayCapabilityStringKey',
+)
+
 export const gIODisplayContrastKey = /* @__PURE__ */ _bind(FW, 'gIODisplayContrastKey')
 export const gIODisplayControllerIDKey = /* @__PURE__ */ _bind(FW, 'gIODisplayControllerIDKey')
 export const gIODisplayFadeStyle = /* @__PURE__ */ _bind(FW, 'gIODisplayFadeStyle')
@@ -2632,47 +5918,127 @@ export const gIODisplayFadeTime3Key = /* @__PURE__ */ _bind(FW, 'gIODisplayFadeT
 export const gIODisplayFirmwareLevelKey = /* @__PURE__ */ _bind(FW, 'gIODisplayFirmwareLevelKey')
 export const gIODisplayGUIDKey = /* @__PURE__ */ _bind(FW, 'gIODisplayGUIDKey')
 export const gIODisplayGammaScaleKey = /* @__PURE__ */ _bind(FW, 'gIODisplayGammaScaleKey')
-export const gIODisplayGreenGammaScaleKey = /* @__PURE__ */ _bind(FW, 'gIODisplayGreenGammaScaleKey')
-export const gIODisplayHorizontalPositionKey = /* @__PURE__ */ _bind(FW, 'gIODisplayHorizontalPositionKey')
+export const gIODisplayGreenGammaScaleKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIODisplayGreenGammaScaleKey',
+)
+
+export const gIODisplayHorizontalPositionKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIODisplayHorizontalPositionKey',
+)
+
 export const gIODisplayHorizontalSizeKey = /* @__PURE__ */ _bind(FW, 'gIODisplayHorizontalSizeKey')
-export const gIODisplayLinearBrightnessKey = /* @__PURE__ */ _bind(FW, 'gIODisplayLinearBrightnessKey')
-export const gIODisplayLinearBrightnessProbeKey = /* @__PURE__ */ _bind(FW, 'gIODisplayLinearBrightnessProbeKey')
+export const gIODisplayLinearBrightnessKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIODisplayLinearBrightnessKey',
+)
+
+export const gIODisplayLinearBrightnessProbeKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIODisplayLinearBrightnessProbeKey',
+)
+
 export const gIODisplayMCCSVersionKey = /* @__PURE__ */ _bind(FW, 'gIODisplayMCCSVersionKey')
-export const gIODisplayManufacturerSpecificKey = /* @__PURE__ */ _bind(FW, 'gIODisplayManufacturerSpecificKey')
+export const gIODisplayManufacturerSpecificKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIODisplayManufacturerSpecificKey',
+)
+
 export const gIODisplayMaxValueKey = /* @__PURE__ */ _bind(FW, 'gIODisplayMaxValueKey')
-export const gIODisplayMicrophoneVolumeKey = /* @__PURE__ */ _bind(FW, 'gIODisplayMicrophoneVolumeKey')
+export const gIODisplayMicrophoneVolumeKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIODisplayMicrophoneVolumeKey',
+)
+
 export const gIODisplayMinValueKey = /* @__PURE__ */ _bind(FW, 'gIODisplayMinValueKey')
 export const gIODisplayOverscanKey = /* @__PURE__ */ _bind(FW, 'gIODisplayOverscanKey')
 export const gIODisplayParallelogramKey = /* @__PURE__ */ _bind(FW, 'gIODisplayParallelogramKey')
-export const gIODisplayParametersCommitKey = /* @__PURE__ */ _bind(FW, 'gIODisplayParametersCommitKey')
-export const gIODisplayParametersDefaultKey = /* @__PURE__ */ _bind(FW, 'gIODisplayParametersDefaultKey')
-export const gIODisplayParametersFlushKey = /* @__PURE__ */ _bind(FW, 'gIODisplayParametersFlushKey')
+export const gIODisplayParametersCommitKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIODisplayParametersCommitKey',
+)
+
+export const gIODisplayParametersDefaultKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIODisplayParametersDefaultKey',
+)
+
+export const gIODisplayParametersFlushKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIODisplayParametersFlushKey',
+)
+
 export const gIODisplayParametersKey = /* @__PURE__ */ _bind(FW, 'gIODisplayParametersKey')
-export const gIODisplayParametersTheatreModeKey = /* @__PURE__ */ _bind(FW, 'gIODisplayParametersTheatreModeKey')
-export const gIODisplayParametersTheatreModeWindowKey = /* @__PURE__ */ _bind(FW, 'gIODisplayParametersTheatreModeWindowKey')
+export const gIODisplayParametersTheatreModeKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIODisplayParametersTheatreModeKey',
+)
+
+export const gIODisplayParametersTheatreModeWindowKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIODisplayParametersTheatreModeWindowKey',
+)
+
 export const gIODisplayPincushionKey = /* @__PURE__ */ _bind(FW, 'gIODisplayPincushionKey')
 export const gIODisplayPowerModeKey = /* @__PURE__ */ _bind(FW, 'gIODisplayPowerModeKey')
 export const gIODisplayPowerStateKey = /* @__PURE__ */ _bind(FW, 'gIODisplayPowerStateKey')
 export const gIODisplayRedGammaScaleKey = /* @__PURE__ */ _bind(FW, 'gIODisplayRedGammaScaleKey')
 export const gIODisplayRotationKey = /* @__PURE__ */ _bind(FW, 'gIODisplayRotationKey')
-export const gIODisplaySelectedColorModeKey = /* @__PURE__ */ _bind(FW, 'gIODisplaySelectedColorModeKey')
+export const gIODisplaySelectedColorModeKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIODisplaySelectedColorModeKey',
+)
+
 export const gIODisplaySpeakerSelectKey = /* @__PURE__ */ _bind(FW, 'gIODisplaySpeakerSelectKey')
 export const gIODisplaySpeakerVolumeKey = /* @__PURE__ */ _bind(FW, 'gIODisplaySpeakerVolumeKey')
 export const gIODisplayTechnologyTypeKey = /* @__PURE__ */ _bind(FW, 'gIODisplayTechnologyTypeKey')
 export const gIODisplayTrapezoidKey = /* @__PURE__ */ _bind(FW, 'gIODisplayTrapezoidKey')
-export const gIODisplayUsableLinearBrightnessKey = /* @__PURE__ */ _bind(FW, 'gIODisplayUsableLinearBrightnessKey')
+export const gIODisplayUsableLinearBrightnessKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIODisplayUsableLinearBrightnessKey',
+)
+
 export const gIODisplayUsageTimeKey = /* @__PURE__ */ _bind(FW, 'gIODisplayUsageTimeKey')
 export const gIODisplayValueKey = /* @__PURE__ */ _bind(FW, 'gIODisplayValueKey')
-export const gIODisplayVerticalPositionKey = /* @__PURE__ */ _bind(FW, 'gIODisplayVerticalPositionKey')
+export const gIODisplayVerticalPositionKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIODisplayVerticalPositionKey',
+)
+
 export const gIODisplayVerticalSizeKey = /* @__PURE__ */ _bind(FW, 'gIODisplayVerticalSizeKey')
 export const gIODisplayVideoBestKey = /* @__PURE__ */ _bind(FW, 'gIODisplayVideoBestKey')
 export const gIODriverKitEntitlementKey = /* @__PURE__ */ _bind(FW, 'gIODriverKitEntitlementKey')
-export const gIODriverKitRequiredEntitlementsKey = /* @__PURE__ */ _bind(FW, 'gIODriverKitRequiredEntitlementsKey')
-export const gIODriverKitTestDriverEntitlementKey = /* @__PURE__ */ _bind(FW, 'gIODriverKitTestDriverEntitlementKey')
-export const gIODriverKitUserClientEntitlementAllowAnyKey = /* @__PURE__ */ _bind(FW, 'gIODriverKitUserClientEntitlementAllowAnyKey')
-export const gIODriverKitUserClientEntitlementAllowThirdPartyUserClientsKey = /* @__PURE__ */ _bind(FW, 'gIODriverKitUserClientEntitlementAllowThirdPartyUserClientsKey')
-export const gIODriverKitUserClientEntitlementCommunicatesWithDriversKey = /* @__PURE__ */ _bind(FW, 'gIODriverKitUserClientEntitlementCommunicatesWithDriversKey')
-export const gIODriverKitUserClientEntitlementsKey = /* @__PURE__ */ _bind(FW, 'gIODriverKitUserClientEntitlementsKey')
+export const gIODriverKitRequiredEntitlementsKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIODriverKitRequiredEntitlementsKey',
+)
+
+export const gIODriverKitTestDriverEntitlementKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIODriverKitTestDriverEntitlementKey',
+)
+
+export const gIODriverKitUserClientEntitlementAllowAnyKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIODriverKitUserClientEntitlementAllowAnyKey',
+)
+
+export const gIODriverKitUserClientEntitlementAllowThirdPartyUserClientsKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIODriverKitUserClientEntitlementAllowThirdPartyUserClientsKey',
+)
+
+export const gIODriverKitUserClientEntitlementCommunicatesWithDriversKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIODriverKitUserClientEntitlementCommunicatesWithDriversKey',
+)
+
+export const gIODriverKitUserClientEntitlementsKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIODriverKitUserClientEntitlementsKey',
+)
+
 export const gIOExclaveAssignedKey = /* @__PURE__ */ _bind(FW, 'gIOExclaveAssignedKey')
 export const gIOFirstMatchNotification = /* @__PURE__ */ _bind(FW, 'gIOFirstMatchNotification')
 export const gIOFirstPublishNotification = /* @__PURE__ */ _bind(FW, 'gIOFirstPublishNotification')
@@ -2701,48 +6067,112 @@ export const gIOParentMatchKey = /* @__PURE__ */ _bind(FW, 'gIOParentMatchKey')
 export const gIOPathKey = /* @__PURE__ */ _bind(FW, 'gIOPathKey')
 export const gIOPathMatchKey = /* @__PURE__ */ _bind(FW, 'gIOPathMatchKey')
 export const gIOPowerPlane = /* @__PURE__ */ _bind(FW, 'gIOPowerPlane')
-export const gIOPriorityPowerStateInterest = /* @__PURE__ */ _bind(FW, 'gIOPriorityPowerStateInterest')
+export const gIOPriorityPowerStateInterest = /* @__PURE__ */ _bind(
+	FW,
+	'gIOPriorityPowerStateInterest',
+)
+
 export const gIOPropertyExistsMatchKey = /* @__PURE__ */ _bind(FW, 'gIOPropertyExistsMatchKey')
 export const gIOPropertyMatchKey = /* @__PURE__ */ _bind(FW, 'gIOPropertyMatchKey')
 export const gIOProviderClassKey = /* @__PURE__ */ _bind(FW, 'gIOProviderClassKey')
 export const gIOPublishNotification = /* @__PURE__ */ _bind(FW, 'gIOPublishNotification')
-export const gIORegistryEntryAllowableSetPropertiesKey = /* @__PURE__ */ _bind(FW, 'gIORegistryEntryAllowableSetPropertiesKey')
-export const gIORegistryEntryDefaultLockingSetPropertiesKey = /* @__PURE__ */ _bind(FW, 'gIORegistryEntryDefaultLockingSetPropertiesKey')
+export const gIORegistryEntryAllowableSetPropertiesKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIORegistryEntryAllowableSetPropertiesKey',
+)
+
+export const gIORegistryEntryDefaultLockingSetPropertiesKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIORegistryEntryDefaultLockingSetPropertiesKey',
+)
+
 export const gIORegistryEntryIDKey = /* @__PURE__ */ _bind(FW, 'gIORegistryEntryIDKey')
-export const gIORegistryEntryPropertyKeysKey = /* @__PURE__ */ _bind(FW, 'gIORegistryEntryPropertyKeysKey')
+export const gIORegistryEntryPropertyKeysKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIORegistryEntryPropertyKeysKey',
+)
+
 export const gIORematchCountKey = /* @__PURE__ */ _bind(FW, 'gIORematchCountKey')
 export const gIORematchPersonalityKey = /* @__PURE__ */ _bind(FW, 'gIORematchPersonalityKey')
 export const gIOResourceIOKitKey = /* @__PURE__ */ _bind(FW, 'gIOResourceIOKitKey')
 export const gIOResourceMatchKey = /* @__PURE__ */ _bind(FW, 'gIOResourceMatchKey')
 export const gIOResourceMatchedKey = /* @__PURE__ */ _bind(FW, 'gIOResourceMatchedKey')
 export const gIOResourcesKey = /* @__PURE__ */ _bind(FW, 'gIOResourcesKey')
-export const gIOServiceDEXTEntitlementsKey = /* @__PURE__ */ _bind(FW, 'gIOServiceDEXTEntitlementsKey')
+export const gIOServiceDEXTEntitlementsKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIOServiceDEXTEntitlementsKey',
+)
+
 export const gIOServiceKey = /* @__PURE__ */ _bind(FW, 'gIOServiceKey')
 export const gIOServicePlane = /* @__PURE__ */ _bind(FW, 'gIOServicePlane')
 export const gIOSupportedPropertiesKey = /* @__PURE__ */ _bind(FW, 'gIOSupportedPropertiesKey')
 export const gIOTerminatedNotification = /* @__PURE__ */ _bind(FW, 'gIOTerminatedNotification')
 export const gIOTrackingLeakScanCallback = /* @__PURE__ */ _bind(FW, 'gIOTrackingLeakScanCallback')
 export const gIOUSBHostDeviceMetaClass = /* @__PURE__ */ _bind(FW, 'gIOUSBHostDeviceMetaClass')
-export const gIOUSBHostInterfaceMetaClass = /* @__PURE__ */ _bind(FW, 'gIOUSBHostInterfaceMetaClass')
+export const gIOUSBHostInterfaceMetaClass = /* @__PURE__ */ _bind(
+	FW,
+	'gIOUSBHostInterfaceMetaClass',
+)
+
 export const gIOUSBHostPipeMetaClass = /* @__PURE__ */ _bind(FW, 'gIOUSBHostPipeMetaClass')
 export const gIOUserClassKey = /* @__PURE__ */ _bind(FW, 'gIOUserClassKey')
 export const gIOUserClassesKey = /* @__PURE__ */ _bind(FW, 'gIOUserClassesKey')
 export const gIOUserClientClassKey = /* @__PURE__ */ _bind(FW, 'gIOUserClientClassKey')
-export const gIOUserClientEntitlementsKey = /* @__PURE__ */ _bind(FW, 'gIOUserClientEntitlementsKey')
+export const gIOUserClientEntitlementsKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIOUserClientEntitlementsKey',
+)
+
 export const gIOUserServerClassKey = /* @__PURE__ */ _bind(FW, 'gIOUserServerClassKey')
 export const gIOUserServerNameKey = /* @__PURE__ */ _bind(FW, 'gIOUserServerNameKey')
-export const gIOUserServerPreserveUserspaceRebootKey = /* @__PURE__ */ _bind(FW, 'gIOUserServerPreserveUserspaceRebootKey')
+export const gIOUserServerPreserveUserspaceRebootKey = /* @__PURE__ */ _bind(
+	FW,
+	'gIOUserServerPreserveUserspaceRebootKey',
+)
+
 export const gIOUserServerTagKey = /* @__PURE__ */ _bind(FW, 'gIOUserServerTagKey')
 export const gIOUserServicePropertiesKey = /* @__PURE__ */ _bind(FW, 'gIOUserServicePropertiesKey')
 export const gIOUserUserClientKey = /* @__PURE__ */ _bind(FW, 'gIOUserUserClientKey')
-export const gIOWillTerminateNotification = /* @__PURE__ */ _bind(FW, 'gIOWillTerminateNotification')
-export const gOSAction_AFKUserDataPipe__HandleCommandMetaClass = /* @__PURE__ */ _bind(FW, 'gOSAction_AFKUserDataPipe__HandleCommandMetaClass')
-export const gOSAction_AFKUserDataPipe__HandleReportMetaClass = /* @__PURE__ */ _bind(FW, 'gOSAction_AFKUserDataPipe__HandleReportMetaClass')
-export const gOSAction_AFKUserDataPipe__HandleResponseMetaClass = /* @__PURE__ */ _bind(FW, 'gOSAction_AFKUserDataPipe__HandleResponseMetaClass')
-export const gOSAction_IOHIDDevice__CompleteReportMetaClass = /* @__PURE__ */ _bind(FW, 'gOSAction_IOHIDDevice__CompleteReportMetaClass')
-export const gOSAction_IOHIDEventService__CopyEventMetaClass = /* @__PURE__ */ _bind(FW, 'gOSAction_IOHIDEventService__CopyEventMetaClass')
-export const gOSAction_IOHIDEventService__SetLEDMetaClass = /* @__PURE__ */ _bind(FW, 'gOSAction_IOHIDEventService__SetLEDMetaClass')
-export const gOSAction_IOHIDEventService__SetUserPropertiesMetaClass = /* @__PURE__ */ _bind(FW, 'gOSAction_IOHIDEventService__SetUserPropertiesMetaClass')
+export const gIOWillTerminateNotification = /* @__PURE__ */ _bind(
+	FW,
+	'gIOWillTerminateNotification',
+)
+
+export const gOSAction_AFKUserDataPipe__HandleCommandMetaClass = /* @__PURE__ */ _bind(
+	FW,
+	'gOSAction_AFKUserDataPipe__HandleCommandMetaClass',
+)
+
+export const gOSAction_AFKUserDataPipe__HandleReportMetaClass = /* @__PURE__ */ _bind(
+	FW,
+	'gOSAction_AFKUserDataPipe__HandleReportMetaClass',
+)
+
+export const gOSAction_AFKUserDataPipe__HandleResponseMetaClass = /* @__PURE__ */ _bind(
+	FW,
+	'gOSAction_AFKUserDataPipe__HandleResponseMetaClass',
+)
+
+export const gOSAction_IOHIDDevice__CompleteReportMetaClass = /* @__PURE__ */ _bind(
+	FW,
+	'gOSAction_IOHIDDevice__CompleteReportMetaClass',
+)
+
+export const gOSAction_IOHIDEventService__CopyEventMetaClass = /* @__PURE__ */ _bind(
+	FW,
+	'gOSAction_IOHIDEventService__CopyEventMetaClass',
+)
+
+export const gOSAction_IOHIDEventService__SetLEDMetaClass = /* @__PURE__ */ _bind(
+	FW,
+	'gOSAction_IOHIDEventService__SetLEDMetaClass',
+)
+
+export const gOSAction_IOHIDEventService__SetUserPropertiesMetaClass = /* @__PURE__ */ _bind(
+	FW,
+	'gOSAction_IOHIDEventService__SetUserPropertiesMetaClass',
+)
+
 export const gdt_entry = /* @__PURE__ */ _bind(FW, 'gdt_entry')
 export const generic_snapshot_flags = /* @__PURE__ */ _bind(FW, 'generic_snapshot_flags')
 export const getCurrentInQueueMem = /* @__PURE__ */ _bind(FW, 'getCurrentInQueueMem')
@@ -2836,7 +6266,11 @@ export const guarded_ftruncate_np_args = /* @__PURE__ */ _bind(FW, 'guarded_ftru
 export const guarded_kqueue_np = /* @__PURE__ */ _bind(FW, 'guarded_kqueue_np')
 export const guarded_kqueue_np_args = /* @__PURE__ */ _bind(FW, 'guarded_kqueue_np_args')
 export const guarded_open_dprotected_np = /* @__PURE__ */ _bind(FW, 'guarded_open_dprotected_np')
-export const guarded_open_dprotected_np_args = /* @__PURE__ */ _bind(FW, 'guarded_open_dprotected_np_args')
+export const guarded_open_dprotected_np_args = /* @__PURE__ */ _bind(
+	FW,
+	'guarded_open_dprotected_np_args',
+)
+
 export const guarded_open_np = /* @__PURE__ */ _bind(FW, 'guarded_open_np')
 export const guarded_open_np_args = /* @__PURE__ */ _bind(FW, 'guarded_open_np_args')
 export const guarded_pwrite_np = /* @__PURE__ */ _bind(FW, 'guarded_pwrite_np')
@@ -2971,7 +6405,11 @@ export const ifnet_attach_protocol = /* @__PURE__ */ _bind(FW, 'ifnet_attach_pro
 export const ifnet_attach_protocol_v2 = /* @__PURE__ */ _bind(FW, 'ifnet_attach_protocol_v2')
 export const ifnet_baudrate = /* @__PURE__ */ _bind(FW, 'ifnet_baudrate')
 export const ifnet_capabilities_enabled = /* @__PURE__ */ _bind(FW, 'ifnet_capabilities_enabled')
-export const ifnet_capabilities_supported = /* @__PURE__ */ _bind(FW, 'ifnet_capabilities_supported')
+export const ifnet_capabilities_supported = /* @__PURE__ */ _bind(
+	FW,
+	'ifnet_capabilities_supported',
+)
+
 export const ifnet_demux_desc = /* @__PURE__ */ _bind(FW, 'ifnet_demux_desc')
 export const ifnet_detach = /* @__PURE__ */ _bind(FW, 'ifnet_detach')
 export const ifnet_detach_protocol = /* @__PURE__ */ _bind(FW, 'ifnet_detach_protocol')
@@ -2982,10 +6420,22 @@ export const ifnet_flags = /* @__PURE__ */ _bind(FW, 'ifnet_flags')
 export const ifnet_free_address_list = /* @__PURE__ */ _bind(FW, 'ifnet_free_address_list')
 export const ifnet_free_multicast_list = /* @__PURE__ */ _bind(FW, 'ifnet_free_multicast_list')
 export const ifnet_get_address_list = /* @__PURE__ */ _bind(FW, 'ifnet_get_address_list')
-export const ifnet_get_address_list_family = /* @__PURE__ */ _bind(FW, 'ifnet_get_address_list_family')
-export const ifnet_get_address_list_with_count = /* @__PURE__ */ _bind(FW, 'ifnet_get_address_list_with_count')
+export const ifnet_get_address_list_family = /* @__PURE__ */ _bind(
+	FW,
+	'ifnet_get_address_list_family',
+)
+
+export const ifnet_get_address_list_with_count = /* @__PURE__ */ _bind(
+	FW,
+	'ifnet_get_address_list_with_count',
+)
+
 export const ifnet_get_link_mib_data = /* @__PURE__ */ _bind(FW, 'ifnet_get_link_mib_data')
-export const ifnet_get_link_mib_data_length = /* @__PURE__ */ _bind(FW, 'ifnet_get_link_mib_data_length')
+export const ifnet_get_link_mib_data_length = /* @__PURE__ */ _bind(
+	FW,
+	'ifnet_get_link_mib_data_length',
+)
+
 export const ifnet_get_multicast_list = /* @__PURE__ */ _bind(FW, 'ifnet_get_multicast_list')
 export const ifnet_get_tso_mtu = /* @__PURE__ */ _bind(FW, 'ifnet_get_tso_mtu')
 export const ifnet_get_wake_flags = /* @__PURE__ */ _bind(FW, 'ifnet_get_wake_flags')
@@ -2999,7 +6449,11 @@ export const ifnet_lastchange = /* @__PURE__ */ _bind(FW, 'ifnet_lastchange')
 export const ifnet_list_free = /* @__PURE__ */ _bind(FW, 'ifnet_list_free')
 export const ifnet_list_get = /* @__PURE__ */ _bind(FW, 'ifnet_list_get')
 export const ifnet_lladdr_copy_bytes = /* @__PURE__ */ _bind(FW, 'ifnet_lladdr_copy_bytes')
-export const ifnet_llbroadcast_copy_bytes = /* @__PURE__ */ _bind(FW, 'ifnet_llbroadcast_copy_bytes')
+export const ifnet_llbroadcast_copy_bytes = /* @__PURE__ */ _bind(
+	FW,
+	'ifnet_llbroadcast_copy_bytes',
+)
+
 export const ifnet_metric = /* @__PURE__ */ _bind(FW, 'ifnet_metric')
 export const ifnet_mtu = /* @__PURE__ */ _bind(FW, 'ifnet_mtu')
 export const ifnet_name = /* @__PURE__ */ _bind(FW, 'ifnet_name')
@@ -3012,8 +6466,16 @@ export const ifnet_remove_multicast = /* @__PURE__ */ _bind(FW, 'ifnet_remove_mu
 export const ifnet_resolve_multicast = /* @__PURE__ */ _bind(FW, 'ifnet_resolve_multicast')
 export const ifnet_set_addrlen = /* @__PURE__ */ _bind(FW, 'ifnet_set_addrlen')
 export const ifnet_set_baudrate = /* @__PURE__ */ _bind(FW, 'ifnet_set_baudrate')
-export const ifnet_set_capabilities_enabled = /* @__PURE__ */ _bind(FW, 'ifnet_set_capabilities_enabled')
-export const ifnet_set_capabilities_supported = /* @__PURE__ */ _bind(FW, 'ifnet_set_capabilities_supported')
+export const ifnet_set_capabilities_enabled = /* @__PURE__ */ _bind(
+	FW,
+	'ifnet_set_capabilities_enabled',
+)
+
+export const ifnet_set_capabilities_supported = /* @__PURE__ */ _bind(
+	FW,
+	'ifnet_set_capabilities_supported',
+)
+
 export const ifnet_set_flags = /* @__PURE__ */ _bind(FW, 'ifnet_set_flags')
 export const ifnet_set_hdrlen = /* @__PURE__ */ _bind(FW, 'ifnet_set_hdrlen')
 export const ifnet_set_link_mib_data = /* @__PURE__ */ _bind(FW, 'ifnet_set_link_mib_data')
@@ -3087,13 +6549,33 @@ export const invalidate_icache = /* @__PURE__ */ _bind(FW, 'invalidate_icache')
 export const invalidate_icache64 = /* @__PURE__ */ _bind(FW, 'invalidate_icache64')
 export const io_rate_update = /* @__PURE__ */ _bind(FW, 'io_rate_update')
 export const io_rate_update_register = /* @__PURE__ */ _bind(FW, 'io_rate_update_register')
-export const iocompressionstats_notification = /* @__PURE__ */ _bind(FW, 'iocompressionstats_notification')
-export const iocompressionstats_notification_server = /* @__PURE__ */ _bind(FW, 'iocompressionstats_notification_server')
-export const iocompressionstats_notification_server_routine = /* @__PURE__ */ _bind(FW, 'iocompressionstats_notification_server_routine')
-export const iocompressionstats_notification_subsystem = /* @__PURE__ */ _bind(FW, 'iocompressionstats_notification_subsystem')
+export const iocompressionstats_notification = /* @__PURE__ */ _bind(
+	FW,
+	'iocompressionstats_notification',
+)
+
+export const iocompressionstats_notification_server = /* @__PURE__ */ _bind(
+	FW,
+	'iocompressionstats_notification_server',
+)
+
+export const iocompressionstats_notification_server_routine = /* @__PURE__ */ _bind(
+	FW,
+	'iocompressionstats_notification_server_routine',
+)
+
+export const iocompressionstats_notification_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'iocompressionstats_notification_subsystem',
+)
+
 export const ioctl = /* @__PURE__ */ _bind(FW, 'ioctl')
 export const ioctl_args = /* @__PURE__ */ _bind(FW, 'ioctl_args')
-export const iokit_iomd_setownership_enabled = /* @__PURE__ */ _bind(FW, 'iokit_iomd_setownership_enabled')
+export const iokit_iomd_setownership_enabled = /* @__PURE__ */ _bind(
+	FW,
+	'iokit_iomd_setownership_enabled',
+)
+
 export const iopolicysys = /* @__PURE__ */ _bind(FW, 'iopolicysys')
 export const iopolicysys_args = /* @__PURE__ */ _bind(FW, 'iopolicysys_args')
 export const ip6_dest = /* @__PURE__ */ _bind(FW, 'ip6_dest')
@@ -3199,56 +6681,254 @@ export const kATAcmdWriteLong = /* @__PURE__ */ _bind(FW, 'kATAcmdWriteLong')
 export const kATAcmdWriteMultiple = /* @__PURE__ */ _bind(FW, 'kATAcmdWriteMultiple')
 export const kATAcmdWriteSame = /* @__PURE__ */ _bind(FW, 'kATAcmdWriteSame')
 export const kATAcmdWriteVerify = /* @__PURE__ */ _bind(FW, 'kATAcmdWriteVerify')
-export const kAirshipDaleBasebandControlErrorMsg = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandControlErrorMsg')
-export const kAirshipDaleBasebandControlInterfaceErrorMsg = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandControlInterfaceErrorMsg')
-export const kAirshipDaleBasebandControlInterfaceUserClientClose = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandControlInterfaceUserClientClose')
-export const kAirshipDaleBasebandControlInterfaceUserClientGetDeviceTimeAsync = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandControlInterfaceUserClientGetDeviceTimeAsync')
-export const kAirshipDaleBasebandControlInterfaceUserClientMax = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandControlInterfaceUserClientMax')
-export const kAirshipDaleBasebandControlInterfaceUserClientOpen = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandControlInterfaceUserClientOpen')
-export const kAirshipDaleBasebandControlInterfaceUserClientRead = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandControlInterfaceUserClientRead')
-export const kAirshipDaleBasebandControlInterfaceUserClientReadAsync = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandControlInterfaceUserClientReadAsync')
-export const kAirshipDaleBasebandControlInterfaceUserClientWrite = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandControlInterfaceUserClientWrite')
-export const kAirshipDaleBasebandControlInterfaceUserClientWriteAsync = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandControlInterfaceUserClientWriteAsync')
-export const kAirshipDaleBasebandControlUserClientClose = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandControlUserClientClose')
-export const kAirshipDaleBasebandControlUserClientMax = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandControlUserClientMax')
-export const kAirshipDaleBasebandControlUserClientOpen = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandControlUserClientOpen')
-export const kAirshipDaleBasebandDevicePowerOnTimedOut = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandDevicePowerOnTimedOut')
-export const kAirshipDaleBasebandErrorCCCIHandshakeError = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandErrorCCCIHandshakeError')
-export const kAirshipDaleBasebandErrorCCCIHandshakeTimeout = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandErrorCCCIHandshakeTimeout')
-export const kAirshipDaleBasebandErrorCCCIInternalError = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandErrorCCCIInternalError')
-export const kAirshipDaleBasebandErrorCCCIInvalidMessage = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandErrorCCCIInvalidMessage')
-export const kAirshipDaleBasebandErrorCreateInterfaceFailure = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandErrorCreateInterfaceFailure')
-export const kAirshipDaleBasebandErrorDARTFailure = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandErrorDARTFailure')
-export const kAirshipDaleBasebandErrorDevicePowerOffTimedOut = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandErrorDevicePowerOffTimedOut')
-export const kAirshipDaleBasebandErrorInvalidBootStage = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandErrorInvalidBootStage')
-export const kAirshipDaleBasebandErrorIpcErrorOccurred = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandErrorIpcErrorOccurred')
-export const kAirshipDaleBasebandErrorIpcPowerOffTimedOut = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandErrorIpcPowerOffTimedOut')
-export const kAirshipDaleBasebandErrorIpcPowerOnTimedOut = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandErrorIpcPowerOnTimedOut')
-export const kAirshipDaleBasebandErrorIpcSetTransportFailed = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandErrorIpcSetTransportFailed')
-export const kAirshipDaleBasebandErrorMax = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandErrorMax')
-export const kAirshipDaleBasebandErrorPCIAER = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandErrorPCIAER')
-export const kAirshipDaleBasebandErrorPCIBadRequest = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandErrorPCIBadRequest')
-export const kAirshipDaleBasebandErrorPCICplTimeout = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandErrorPCICplTimeout')
-export const kAirshipDaleBasebandErrorPCILinkBWNotification = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandErrorPCILinkBWNotification')
-export const kAirshipDaleBasebandErrorPCILinkDown = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandErrorPCILinkDown')
-export const kAirshipDaleBasebandErrorPCILinkResumeFail = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandErrorPCILinkResumeFail')
-export const kAirshipDaleBasebandErrorPortEnableFailure = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandErrorPortEnableFailure')
-export const kAirshipDaleBasebandErrorRxConsumeFailure = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandErrorRxConsumeFailure')
-export const kAirshipDaleBasebandErrorRxEnqueueFailure = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandErrorRxEnqueueFailure')
-export const kAirshipDaleBasebandErrorRxGetCompletionFailure = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandErrorRxGetCompletionFailure')
-export const kAirshipDaleBasebandErrorTxConsumeFailure = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandErrorTxConsumeFailure')
-export const kAirshipDaleBasebandErrorTxEnqueueFailure = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandErrorTxEnqueueFailure')
-export const kAirshipDaleBasebandErrorTxGetCompletionFailure = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandErrorTxGetCompletionFailure')
-export const kAirshipDaleBasebandTraceUserClientClose = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandTraceUserClientClose')
-export const kAirshipDaleBasebandTraceUserClientFlushTraceBuffers = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandTraceUserClientFlushTraceBuffers')
-export const kAirshipDaleBasebandTraceUserClientGetTraceInfo = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandTraceUserClientGetTraceInfo')
-export const kAirshipDaleBasebandTraceUserClientMax = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandTraceUserClientMax')
-export const kAirshipDaleBasebandTraceUserClientOpen = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandTraceUserClientOpen')
-export const kAirshipDaleBasebandTraceUserClientRegisterTraceBuffer = /* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandTraceUserClientRegisterTraceBuffer')
-export const kAppleGPIOUserClientMethodCount = /* @__PURE__ */ _bind(FW, 'kAppleGPIOUserClientMethodCount')
-export const kAppleGPIOUserClientMethodGetGPIOData = /* @__PURE__ */ _bind(FW, 'kAppleGPIOUserClientMethodGetGPIOData')
-export const kAppleGPIOUserClientMethodSetDevice = /* @__PURE__ */ _bind(FW, 'kAppleGPIOUserClientMethodSetDevice')
-export const kAppleGPIOUserClientMethodSetGPIOData = /* @__PURE__ */ _bind(FW, 'kAppleGPIOUserClientMethodSetGPIOData')
+export const kAirshipDaleBasebandControlErrorMsg = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandControlErrorMsg',
+)
+
+export const kAirshipDaleBasebandControlInterfaceErrorMsg = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandControlInterfaceErrorMsg',
+)
+
+export const kAirshipDaleBasebandControlInterfaceUserClientClose = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandControlInterfaceUserClientClose',
+)
+
+export const kAirshipDaleBasebandControlInterfaceUserClientGetDeviceTimeAsync =
+	/* @__PURE__ */ _bind(FW, 'kAirshipDaleBasebandControlInterfaceUserClientGetDeviceTimeAsync')
+
+export const kAirshipDaleBasebandControlInterfaceUserClientMax = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandControlInterfaceUserClientMax',
+)
+
+export const kAirshipDaleBasebandControlInterfaceUserClientOpen = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandControlInterfaceUserClientOpen',
+)
+
+export const kAirshipDaleBasebandControlInterfaceUserClientRead = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandControlInterfaceUserClientRead',
+)
+
+export const kAirshipDaleBasebandControlInterfaceUserClientReadAsync = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandControlInterfaceUserClientReadAsync',
+)
+
+export const kAirshipDaleBasebandControlInterfaceUserClientWrite = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandControlInterfaceUserClientWrite',
+)
+
+export const kAirshipDaleBasebandControlInterfaceUserClientWriteAsync = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandControlInterfaceUserClientWriteAsync',
+)
+
+export const kAirshipDaleBasebandControlUserClientClose = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandControlUserClientClose',
+)
+
+export const kAirshipDaleBasebandControlUserClientMax = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandControlUserClientMax',
+)
+
+export const kAirshipDaleBasebandControlUserClientOpen = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandControlUserClientOpen',
+)
+
+export const kAirshipDaleBasebandDevicePowerOnTimedOut = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandDevicePowerOnTimedOut',
+)
+
+export const kAirshipDaleBasebandErrorCCCIHandshakeError = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandErrorCCCIHandshakeError',
+)
+
+export const kAirshipDaleBasebandErrorCCCIHandshakeTimeout = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandErrorCCCIHandshakeTimeout',
+)
+
+export const kAirshipDaleBasebandErrorCCCIInternalError = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandErrorCCCIInternalError',
+)
+
+export const kAirshipDaleBasebandErrorCCCIInvalidMessage = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandErrorCCCIInvalidMessage',
+)
+
+export const kAirshipDaleBasebandErrorCreateInterfaceFailure = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandErrorCreateInterfaceFailure',
+)
+
+export const kAirshipDaleBasebandErrorDARTFailure = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandErrorDARTFailure',
+)
+
+export const kAirshipDaleBasebandErrorDevicePowerOffTimedOut = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandErrorDevicePowerOffTimedOut',
+)
+
+export const kAirshipDaleBasebandErrorInvalidBootStage = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandErrorInvalidBootStage',
+)
+
+export const kAirshipDaleBasebandErrorIpcErrorOccurred = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandErrorIpcErrorOccurred',
+)
+
+export const kAirshipDaleBasebandErrorIpcPowerOffTimedOut = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandErrorIpcPowerOffTimedOut',
+)
+
+export const kAirshipDaleBasebandErrorIpcPowerOnTimedOut = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandErrorIpcPowerOnTimedOut',
+)
+
+export const kAirshipDaleBasebandErrorIpcSetTransportFailed = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandErrorIpcSetTransportFailed',
+)
+
+export const kAirshipDaleBasebandErrorMax = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandErrorMax',
+)
+
+export const kAirshipDaleBasebandErrorPCIAER = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandErrorPCIAER',
+)
+
+export const kAirshipDaleBasebandErrorPCIBadRequest = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandErrorPCIBadRequest',
+)
+
+export const kAirshipDaleBasebandErrorPCICplTimeout = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandErrorPCICplTimeout',
+)
+
+export const kAirshipDaleBasebandErrorPCILinkBWNotification = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandErrorPCILinkBWNotification',
+)
+
+export const kAirshipDaleBasebandErrorPCILinkDown = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandErrorPCILinkDown',
+)
+
+export const kAirshipDaleBasebandErrorPCILinkResumeFail = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandErrorPCILinkResumeFail',
+)
+
+export const kAirshipDaleBasebandErrorPortEnableFailure = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandErrorPortEnableFailure',
+)
+
+export const kAirshipDaleBasebandErrorRxConsumeFailure = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandErrorRxConsumeFailure',
+)
+
+export const kAirshipDaleBasebandErrorRxEnqueueFailure = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandErrorRxEnqueueFailure',
+)
+
+export const kAirshipDaleBasebandErrorRxGetCompletionFailure = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandErrorRxGetCompletionFailure',
+)
+
+export const kAirshipDaleBasebandErrorTxConsumeFailure = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandErrorTxConsumeFailure',
+)
+
+export const kAirshipDaleBasebandErrorTxEnqueueFailure = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandErrorTxEnqueueFailure',
+)
+
+export const kAirshipDaleBasebandErrorTxGetCompletionFailure = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandErrorTxGetCompletionFailure',
+)
+
+export const kAirshipDaleBasebandTraceUserClientClose = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandTraceUserClientClose',
+)
+
+export const kAirshipDaleBasebandTraceUserClientFlushTraceBuffers = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandTraceUserClientFlushTraceBuffers',
+)
+
+export const kAirshipDaleBasebandTraceUserClientGetTraceInfo = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandTraceUserClientGetTraceInfo',
+)
+
+export const kAirshipDaleBasebandTraceUserClientMax = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandTraceUserClientMax',
+)
+
+export const kAirshipDaleBasebandTraceUserClientOpen = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandTraceUserClientOpen',
+)
+
+export const kAirshipDaleBasebandTraceUserClientRegisterTraceBuffer = /* @__PURE__ */ _bind(
+	FW,
+	'kAirshipDaleBasebandTraceUserClientRegisterTraceBuffer',
+)
+
+export const kAppleGPIOUserClientMethodCount = /* @__PURE__ */ _bind(
+	FW,
+	'kAppleGPIOUserClientMethodCount',
+)
+
+export const kAppleGPIOUserClientMethodGetGPIOData = /* @__PURE__ */ _bind(
+	FW,
+	'kAppleGPIOUserClientMethodGetGPIOData',
+)
+
+export const kAppleGPIOUserClientMethodSetDevice = /* @__PURE__ */ _bind(
+	FW,
+	'kAppleGPIOUserClientMethodSetDevice',
+)
+
+export const kAppleGPIOUserClientMethodSetGPIOData = /* @__PURE__ */ _bind(
+	FW,
+	'kAppleGPIOUserClientMethodSetGPIOData',
+)
+
 export const kBootDriverTypeInvalid = /* @__PURE__ */ _bind(FW, 'kBootDriverTypeInvalid')
 export const kBootDriverTypeKEXT = /* @__PURE__ */ _bind(FW, 'kBootDriverTypeKEXT')
 export const kBootDriverTypeMKEXT = /* @__PURE__ */ _bind(FW, 'kBootDriverTypeMKEXT')
@@ -3263,9 +6943,21 @@ export const kChipSetTypeGossamer = /* @__PURE__ */ _bind(FW, 'kChipSetTypeGossa
 export const kChipSetTypePowerExpress = /* @__PURE__ */ _bind(FW, 'kChipSetTypePowerExpress')
 export const kChipSetTypePowerStar = /* @__PURE__ */ _bind(FW, 'kChipSetTypePowerStar')
 export const kChipSetTypePowerSurge = /* @__PURE__ */ _bind(FW, 'kChipSetTypePowerSurge')
-export const kConfigurationDescriptorAttributeRemoteWakeCapable = /* @__PURE__ */ _bind(FW, 'kConfigurationDescriptorAttributeRemoteWakeCapable')
-export const kConfigurationDescriptorAttributeSelfPowered = /* @__PURE__ */ _bind(FW, 'kConfigurationDescriptorAttributeSelfPowered')
-export const kConnectInterruptServiceType = /* @__PURE__ */ _bind(FW, 'kConnectInterruptServiceType')
+export const kConfigurationDescriptorAttributeRemoteWakeCapable = /* @__PURE__ */ _bind(
+	FW,
+	'kConfigurationDescriptorAttributeRemoteWakeCapable',
+)
+
+export const kConfigurationDescriptorAttributeSelfPowered = /* @__PURE__ */ _bind(
+	FW,
+	'kConfigurationDescriptorAttributeSelfPowered',
+)
+
+export const kConnectInterruptServiceType = /* @__PURE__ */ _bind(
+	FW,
+	'kConnectInterruptServiceType',
+)
+
 export const kDALEIPCBBTimeDomainGNSS = /* @__PURE__ */ _bind(FW, 'kDALEIPCBBTimeDomainGNSS')
 export const kDALEIPCBBTimeDomainNetwork = /* @__PURE__ */ _bind(FW, 'kDALEIPCBBTimeDomainNetwork')
 export const kDTMaxEntryNameLength = /* @__PURE__ */ _bind(FW, 'kDTMaxEntryNameLength')
@@ -3276,33 +6968,89 @@ export const kDataRotate180 = /* @__PURE__ */ _bind(FW, 'kDataRotate180')
 export const kDataRotate270 = /* @__PURE__ */ _bind(FW, 'kDataRotate270')
 export const kDataRotate90 = /* @__PURE__ */ _bind(FW, 'kDataRotate90')
 export const kDefaultProbeRanking = /* @__PURE__ */ _bind(FW, 'kDefaultProbeRanking')
-export const kDeviceFeatureSelectorLTMEnable = /* @__PURE__ */ _bind(FW, 'kDeviceFeatureSelectorLTMEnable')
-export const kDeviceFeatureSelectorRemoteWakeup = /* @__PURE__ */ _bind(FW, 'kDeviceFeatureSelectorRemoteWakeup')
-export const kDeviceFeatureSelectorTestMode = /* @__PURE__ */ _bind(FW, 'kDeviceFeatureSelectorTestMode')
-export const kDeviceFeatureSelectorU1Enable = /* @__PURE__ */ _bind(FW, 'kDeviceFeatureSelectorU1Enable')
-export const kDeviceFeatureSelectorU2Enable = /* @__PURE__ */ _bind(FW, 'kDeviceFeatureSelectorU2Enable')
+export const kDeviceFeatureSelectorLTMEnable = /* @__PURE__ */ _bind(
+	FW,
+	'kDeviceFeatureSelectorLTMEnable',
+)
+
+export const kDeviceFeatureSelectorRemoteWakeup = /* @__PURE__ */ _bind(
+	FW,
+	'kDeviceFeatureSelectorRemoteWakeup',
+)
+
+export const kDeviceFeatureSelectorTestMode = /* @__PURE__ */ _bind(
+	FW,
+	'kDeviceFeatureSelectorTestMode',
+)
+
+export const kDeviceFeatureSelectorU1Enable = /* @__PURE__ */ _bind(
+	FW,
+	'kDeviceFeatureSelectorU1Enable',
+)
+
+export const kDeviceFeatureSelectorU2Enable = /* @__PURE__ */ _bind(
+	FW,
+	'kDeviceFeatureSelectorU2Enable',
+)
+
 export const kDeviceRequestClearFeature = /* @__PURE__ */ _bind(FW, 'kDeviceRequestClearFeature')
 export const kDeviceRequestDirectionIn = /* @__PURE__ */ _bind(FW, 'kDeviceRequestDirectionIn')
 export const kDeviceRequestDirectionMask = /* @__PURE__ */ _bind(FW, 'kDeviceRequestDirectionMask')
 export const kDeviceRequestDirectionOut = /* @__PURE__ */ _bind(FW, 'kDeviceRequestDirectionOut')
-export const kDeviceRequestDirectionPhase = /* @__PURE__ */ _bind(FW, 'kDeviceRequestDirectionPhase')
-export const kDeviceRequestGetConfiguration = /* @__PURE__ */ _bind(FW, 'kDeviceRequestGetConfiguration')
+export const kDeviceRequestDirectionPhase = /* @__PURE__ */ _bind(
+	FW,
+	'kDeviceRequestDirectionPhase',
+)
+
+export const kDeviceRequestGetConfiguration = /* @__PURE__ */ _bind(
+	FW,
+	'kDeviceRequestGetConfiguration',
+)
+
 export const kDeviceRequestGetDescriptor = /* @__PURE__ */ _bind(FW, 'kDeviceRequestGetDescriptor')
 export const kDeviceRequestGetInterface = /* @__PURE__ */ _bind(FW, 'kDeviceRequestGetInterface')
 export const kDeviceRequestGetState = /* @__PURE__ */ _bind(FW, 'kDeviceRequestGetState')
 export const kDeviceRequestGetStatus = /* @__PURE__ */ _bind(FW, 'kDeviceRequestGetStatus')
-export const kDeviceRequestRecipientDevice = /* @__PURE__ */ _bind(FW, 'kDeviceRequestRecipientDevice')
-export const kDeviceRequestRecipientEndpoint = /* @__PURE__ */ _bind(FW, 'kDeviceRequestRecipientEndpoint')
-export const kDeviceRequestRecipientInterface = /* @__PURE__ */ _bind(FW, 'kDeviceRequestRecipientInterface')
+export const kDeviceRequestRecipientDevice = /* @__PURE__ */ _bind(
+	FW,
+	'kDeviceRequestRecipientDevice',
+)
+
+export const kDeviceRequestRecipientEndpoint = /* @__PURE__ */ _bind(
+	FW,
+	'kDeviceRequestRecipientEndpoint',
+)
+
+export const kDeviceRequestRecipientInterface = /* @__PURE__ */ _bind(
+	FW,
+	'kDeviceRequestRecipientInterface',
+)
+
 export const kDeviceRequestRecipientMask = /* @__PURE__ */ _bind(FW, 'kDeviceRequestRecipientMask')
-export const kDeviceRequestRecipientOther = /* @__PURE__ */ _bind(FW, 'kDeviceRequestRecipientOther')
-export const kDeviceRequestRecipientPhase = /* @__PURE__ */ _bind(FW, 'kDeviceRequestRecipientPhase')
+export const kDeviceRequestRecipientOther = /* @__PURE__ */ _bind(
+	FW,
+	'kDeviceRequestRecipientOther',
+)
+
+export const kDeviceRequestRecipientPhase = /* @__PURE__ */ _bind(
+	FW,
+	'kDeviceRequestRecipientPhase',
+)
+
 export const kDeviceRequestSetAddress = /* @__PURE__ */ _bind(FW, 'kDeviceRequestSetAddress')
-export const kDeviceRequestSetConfiguration = /* @__PURE__ */ _bind(FW, 'kDeviceRequestSetConfiguration')
+export const kDeviceRequestSetConfiguration = /* @__PURE__ */ _bind(
+	FW,
+	'kDeviceRequestSetConfiguration',
+)
+
 export const kDeviceRequestSetDescriptor = /* @__PURE__ */ _bind(FW, 'kDeviceRequestSetDescriptor')
 export const kDeviceRequestSetFeature = /* @__PURE__ */ _bind(FW, 'kDeviceRequestSetFeature')
 export const kDeviceRequestSetInterface = /* @__PURE__ */ _bind(FW, 'kDeviceRequestSetInterface')
-export const kDeviceRequestSetIsochronousDelay = /* @__PURE__ */ _bind(FW, 'kDeviceRequestSetIsochronousDelay')
+export const kDeviceRequestSetIsochronousDelay = /* @__PURE__ */ _bind(
+	FW,
+	'kDeviceRequestSetIsochronousDelay',
+)
+
 export const kDeviceRequestSetSel = /* @__PURE__ */ _bind(FW, 'kDeviceRequestSetSel')
 export const kDeviceRequestSize = /* @__PURE__ */ _bind(FW, 'kDeviceRequestSize')
 export const kDeviceRequestSynchFrame = /* @__PURE__ */ _bind(FW, 'kDeviceRequestSynchFrame')
@@ -3312,7 +7060,11 @@ export const kDeviceRequestTypePhase = /* @__PURE__ */ _bind(FW, 'kDeviceRequest
 export const kDeviceRequestTypeStandard = /* @__PURE__ */ _bind(FW, 'kDeviceRequestTypeStandard')
 export const kDeviceRequestTypeVendor = /* @__PURE__ */ _bind(FW, 'kDeviceRequestTypeVendor')
 export const kDeviceStatusLTMEnable = /* @__PURE__ */ _bind(FW, 'kDeviceStatusLTMEnable')
-export const kDeviceStatusRemoteWakeEnable = /* @__PURE__ */ _bind(FW, 'kDeviceStatusRemoteWakeEnable')
+export const kDeviceStatusRemoteWakeEnable = /* @__PURE__ */ _bind(
+	FW,
+	'kDeviceStatusRemoteWakeEnable',
+)
+
 export const kDeviceStatusSelfPowered = /* @__PURE__ */ _bind(FW, 'kDeviceStatusSelfPowered')
 export const kDeviceStatusU1Enable = /* @__PURE__ */ _bind(FW, 'kDeviceStatusU1Enable')
 export const kDeviceStatusU2Enable = /* @__PURE__ */ _bind(FW, 'kDeviceStatusU2Enable')
@@ -3333,51 +7085,199 @@ export const kEfiRuntimeServicesCode = /* @__PURE__ */ _bind(FW, 'kEfiRuntimeSer
 export const kEfiRuntimeServicesData = /* @__PURE__ */ _bind(FW, 'kEfiRuntimeServicesData')
 export const kEfiUnusableMemory = /* @__PURE__ */ _bind(FW, 'kEfiUnusableMemory')
 export const kEnabledInterruptState = /* @__PURE__ */ _bind(FW, 'kEnabledInterruptState')
-export const kEndpointDescriptorDirection = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorDirection')
-export const kEndpointDescriptorDirectionIn = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorDirectionIn')
-export const kEndpointDescriptorDirectionOut = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorDirectionOut')
-export const kEndpointDescriptorDirectionPhase = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorDirectionPhase')
-export const kEndpointDescriptorEndpointAddressReserved = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorEndpointAddressReserved')
+export const kEndpointDescriptorDirection = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorDirection',
+)
+
+export const kEndpointDescriptorDirectionIn = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorDirectionIn',
+)
+
+export const kEndpointDescriptorDirectionOut = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorDirectionOut',
+)
+
+export const kEndpointDescriptorDirectionPhase = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorDirectionPhase',
+)
+
+export const kEndpointDescriptorEndpointAddressReserved = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorEndpointAddressReserved',
+)
+
 export const kEndpointDescriptorNumber = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorNumber')
-export const kEndpointDescriptorPacketSize = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorPacketSize')
-export const kEndpointDescriptorPacketSizeMult = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorPacketSizeMult')
-export const kEndpointDescriptorPacketSizeMultPhase = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorPacketSizeMultPhase')
-export const kEndpointDescriptorPacketSizePhase = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorPacketSizePhase')
+export const kEndpointDescriptorPacketSize = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorPacketSize',
+)
+
+export const kEndpointDescriptorPacketSizeMult = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorPacketSizeMult',
+)
+
+export const kEndpointDescriptorPacketSizeMultPhase = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorPacketSizeMultPhase',
+)
+
+export const kEndpointDescriptorPacketSizePhase = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorPacketSizePhase',
+)
+
 export const kEndpointDescriptorReserved = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorReserved')
-export const kEndpointDescriptorReservedPhase = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorReservedPhase')
-export const kEndpointDescriptorSynchronizationType = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorSynchronizationType')
-export const kEndpointDescriptorSynchronizationTypeAdaptive = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorSynchronizationTypeAdaptive')
-export const kEndpointDescriptorSynchronizationTypeAsynchronous = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorSynchronizationTypeAsynchronous')
-export const kEndpointDescriptorSynchronizationTypeNone = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorSynchronizationTypeNone')
-export const kEndpointDescriptorSynchronizationTypePhase = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorSynchronizationTypePhase')
-export const kEndpointDescriptorSynchronizationTypeSynchronous = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorSynchronizationTypeSynchronous')
-export const kEndpointDescriptorTransferType = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorTransferType')
-export const kEndpointDescriptorTransferTypeBulk = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorTransferTypeBulk')
-export const kEndpointDescriptorTransferTypeControl = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorTransferTypeControl')
-export const kEndpointDescriptorTransferTypeInterrupt = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorTransferTypeInterrupt')
-export const kEndpointDescriptorTransferTypeIsochronous = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorTransferTypeIsochronous')
-export const kEndpointDescriptorTransferTypePhase = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorTransferTypePhase')
-export const kEndpointDescriptorUsageType = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorUsageType')
-export const kEndpointDescriptorUsageTypeInterruptNotification = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorUsageTypeInterruptNotification')
-export const kEndpointDescriptorUsageTypeInterruptPeriodic = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorUsageTypeInterruptPeriodic')
-export const kEndpointDescriptorUsageTypeInterruptReserved1 = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorUsageTypeInterruptReserved1')
-export const kEndpointDescriptorUsageTypeInterruptReserved2 = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorUsageTypeInterruptReserved2')
-export const kEndpointDescriptorUsageTypeIsocData = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorUsageTypeIsocData')
-export const kEndpointDescriptorUsageTypeIsocFeedback = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorUsageTypeIsocFeedback')
-export const kEndpointDescriptorUsageTypeIsocImplicit = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorUsageTypeIsocImplicit')
-export const kEndpointDescriptorUsageTypeIsocReserved = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorUsageTypeIsocReserved')
-export const kEndpointDescriptorUsageTypePhase = /* @__PURE__ */ _bind(FW, 'kEndpointDescriptorUsageTypePhase')
-export const kEndpointFeatureSelectorStall = /* @__PURE__ */ _bind(FW, 'kEndpointFeatureSelectorStall')
+export const kEndpointDescriptorReservedPhase = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorReservedPhase',
+)
+
+export const kEndpointDescriptorSynchronizationType = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorSynchronizationType',
+)
+
+export const kEndpointDescriptorSynchronizationTypeAdaptive = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorSynchronizationTypeAdaptive',
+)
+
+export const kEndpointDescriptorSynchronizationTypeAsynchronous = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorSynchronizationTypeAsynchronous',
+)
+
+export const kEndpointDescriptorSynchronizationTypeNone = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorSynchronizationTypeNone',
+)
+
+export const kEndpointDescriptorSynchronizationTypePhase = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorSynchronizationTypePhase',
+)
+
+export const kEndpointDescriptorSynchronizationTypeSynchronous = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorSynchronizationTypeSynchronous',
+)
+
+export const kEndpointDescriptorTransferType = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorTransferType',
+)
+
+export const kEndpointDescriptorTransferTypeBulk = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorTransferTypeBulk',
+)
+
+export const kEndpointDescriptorTransferTypeControl = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorTransferTypeControl',
+)
+
+export const kEndpointDescriptorTransferTypeInterrupt = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorTransferTypeInterrupt',
+)
+
+export const kEndpointDescriptorTransferTypeIsochronous = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorTransferTypeIsochronous',
+)
+
+export const kEndpointDescriptorTransferTypePhase = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorTransferTypePhase',
+)
+
+export const kEndpointDescriptorUsageType = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorUsageType',
+)
+
+export const kEndpointDescriptorUsageTypeInterruptNotification = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorUsageTypeInterruptNotification',
+)
+
+export const kEndpointDescriptorUsageTypeInterruptPeriodic = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorUsageTypeInterruptPeriodic',
+)
+
+export const kEndpointDescriptorUsageTypeInterruptReserved1 = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorUsageTypeInterruptReserved1',
+)
+
+export const kEndpointDescriptorUsageTypeInterruptReserved2 = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorUsageTypeInterruptReserved2',
+)
+
+export const kEndpointDescriptorUsageTypeIsocData = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorUsageTypeIsocData',
+)
+
+export const kEndpointDescriptorUsageTypeIsocFeedback = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorUsageTypeIsocFeedback',
+)
+
+export const kEndpointDescriptorUsageTypeIsocImplicit = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorUsageTypeIsocImplicit',
+)
+
+export const kEndpointDescriptorUsageTypeIsocReserved = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorUsageTypeIsocReserved',
+)
+
+export const kEndpointDescriptorUsageTypePhase = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointDescriptorUsageTypePhase',
+)
+
+export const kEndpointFeatureSelectorStall = /* @__PURE__ */ _bind(
+	FW,
+	'kEndpointFeatureSelectorStall',
+)
+
 export const kEndpointStatusHalt = /* @__PURE__ */ _bind(FW, 'kEndpointStatusHalt')
 export const kError = /* @__PURE__ */ _bind(FW, 'kError')
 export const kErrorRecoveryInterval = /* @__PURE__ */ _bind(FW, 'kErrorRecoveryInterval')
 export const kExtInt9_NMIIntSource = /* @__PURE__ */ _bind(FW, 'kExtInt9_NMIIntSource')
-export const kFBChangedInterruptServiceType = /* @__PURE__ */ _bind(FW, 'kFBChangedInterruptServiceType')
-export const kFBConnectInterruptServiceType = /* @__PURE__ */ _bind(FW, 'kFBConnectInterruptServiceType')
+export const kFBChangedInterruptServiceType = /* @__PURE__ */ _bind(
+	FW,
+	'kFBChangedInterruptServiceType',
+)
+
+export const kFBConnectInterruptServiceType = /* @__PURE__ */ _bind(
+	FW,
+	'kFBConnectInterruptServiceType',
+)
+
 export const kFBDisplayPowerStateMask = /* @__PURE__ */ _bind(FW, 'kFBDisplayPowerStateMask')
 export const kFBDisplayUsablePowerState = /* @__PURE__ */ _bind(FW, 'kFBDisplayUsablePowerState')
-export const kFBOfflineInterruptServiceType = /* @__PURE__ */ _bind(FW, 'kFBOfflineInterruptServiceType')
-export const kFBOnlineInterruptServiceType = /* @__PURE__ */ _bind(FW, 'kFBOnlineInterruptServiceType')
+export const kFBOfflineInterruptServiceType = /* @__PURE__ */ _bind(
+	FW,
+	'kFBOfflineInterruptServiceType',
+)
+
+export const kFBOnlineInterruptServiceType = /* @__PURE__ */ _bind(
+	FW,
+	'kFBOnlineInterruptServiceType',
+)
+
 export const kFWAVCAsyncPlug0 = /* @__PURE__ */ _bind(FW, 'kFWAVCAsyncPlug0')
 export const kFWAVCAsyncPlug1 = /* @__PURE__ */ _bind(FW, 'kFWAVCAsyncPlug1')
 export const kFWAVCAsyncPlug10 = /* @__PURE__ */ _bind(FW, 'kFWAVCAsyncPlug10')
@@ -3428,10 +7328,26 @@ export const kFWAsynchDataLength = /* @__PURE__ */ _bind(FW, 'kFWAsynchDataLengt
 export const kFWAsynchDataLengthPhase = /* @__PURE__ */ _bind(FW, 'kFWAsynchDataLengthPhase')
 export const kFWAsynchDestinationID = /* @__PURE__ */ _bind(FW, 'kFWAsynchDestinationID')
 export const kFWAsynchDestinationIDPhase = /* @__PURE__ */ _bind(FW, 'kFWAsynchDestinationIDPhase')
-export const kFWAsynchDestinationOffsetHigh = /* @__PURE__ */ _bind(FW, 'kFWAsynchDestinationOffsetHigh')
-export const kFWAsynchDestinationOffsetHighPhase = /* @__PURE__ */ _bind(FW, 'kFWAsynchDestinationOffsetHighPhase')
-export const kFWAsynchDestinationOffsetLow = /* @__PURE__ */ _bind(FW, 'kFWAsynchDestinationOffsetLow')
-export const kFWAsynchDestinationOffsetLowPhase = /* @__PURE__ */ _bind(FW, 'kFWAsynchDestinationOffsetLowPhase')
+export const kFWAsynchDestinationOffsetHigh = /* @__PURE__ */ _bind(
+	FW,
+	'kFWAsynchDestinationOffsetHigh',
+)
+
+export const kFWAsynchDestinationOffsetHighPhase = /* @__PURE__ */ _bind(
+	FW,
+	'kFWAsynchDestinationOffsetHighPhase',
+)
+
+export const kFWAsynchDestinationOffsetLow = /* @__PURE__ */ _bind(
+	FW,
+	'kFWAsynchDestinationOffsetLow',
+)
+
+export const kFWAsynchDestinationOffsetLowPhase = /* @__PURE__ */ _bind(
+	FW,
+	'kFWAsynchDestinationOffsetLowPhase',
+)
+
 export const kFWAsynchExtendedTCode = /* @__PURE__ */ _bind(FW, 'kFWAsynchExtendedTCode')
 export const kFWAsynchExtendedTCodePhase = /* @__PURE__ */ _bind(FW, 'kFWAsynchExtendedTCodePhase')
 export const kFWAsynchNew = /* @__PURE__ */ _bind(FW, 'kFWAsynchNew')
@@ -3456,16 +7372,36 @@ export const kFWExtendedTCodeCompareSwap = /* @__PURE__ */ _bind(FW, 'kFWExtende
 export const kFWExtendedTCodeFetchAdd = /* @__PURE__ */ _bind(FW, 'kFWExtendedTCodeFetchAdd')
 export const kFWExtendedTCodeLittleAdd = /* @__PURE__ */ _bind(FW, 'kFWExtendedTCodeLittleAdd')
 export const kFWExtendedTCodeMaskSwap = /* @__PURE__ */ _bind(FW, 'kFWExtendedTCodeMaskSwap')
-export const kFWExtendedTCodeVendorDependent = /* @__PURE__ */ _bind(FW, 'kFWExtendedTCodeVendorDependent')
+export const kFWExtendedTCodeVendorDependent = /* @__PURE__ */ _bind(
+	FW,
+	'kFWExtendedTCodeVendorDependent',
+)
+
 export const kFWExtendedTCodeWrapAdd = /* @__PURE__ */ _bind(FW, 'kFWExtendedTCodeWrapAdd')
-export const kFWIsochChannelChannelNotAvailable = /* @__PURE__ */ _bind(FW, 'kFWIsochChannelChannelNotAvailable')
-export const kFWIsochChannelNotEnoughBandwidth = /* @__PURE__ */ _bind(FW, 'kFWIsochChannelNotEnoughBandwidth')
-export const kFWIsochChannelUnknownCondition = /* @__PURE__ */ _bind(FW, 'kFWIsochChannelUnknownCondition')
+export const kFWIsochChannelChannelNotAvailable = /* @__PURE__ */ _bind(
+	FW,
+	'kFWIsochChannelChannelNotAvailable',
+)
+
+export const kFWIsochChannelNotEnoughBandwidth = /* @__PURE__ */ _bind(
+	FW,
+	'kFWIsochChannelNotEnoughBandwidth',
+)
+
+export const kFWIsochChannelUnknownCondition = /* @__PURE__ */ _bind(
+	FW,
+	'kFWIsochChannelUnknownCondition',
+)
+
 export const kFWLinkOnPacketID = /* @__PURE__ */ _bind(FW, 'kFWLinkOnPacketID')
 export const kFWPacketTCode = /* @__PURE__ */ _bind(FW, 'kFWPacketTCode')
 export const kFWPacketTCodePhase = /* @__PURE__ */ _bind(FW, 'kFWPacketTCodePhase')
 export const kFWPhyConfigurationGapCnt = /* @__PURE__ */ _bind(FW, 'kFWPhyConfigurationGapCnt')
-export const kFWPhyConfigurationGapCntPhase = /* @__PURE__ */ _bind(FW, 'kFWPhyConfigurationGapCntPhase')
+export const kFWPhyConfigurationGapCntPhase = /* @__PURE__ */ _bind(
+	FW,
+	'kFWPhyConfigurationGapCntPhase',
+)
+
 export const kFWPhyConfigurationR = /* @__PURE__ */ _bind(FW, 'kFWPhyConfigurationR')
 export const kFWPhyConfigurationT = /* @__PURE__ */ _bind(FW, 'kFWPhyConfigurationT')
 export const kFWPhyPacketID = /* @__PURE__ */ _bind(FW, 'kFWPhyPacketID')
@@ -3474,18 +7410,38 @@ export const kFWPhyPacketPhyID = /* @__PURE__ */ _bind(FW, 'kFWPhyPacketPhyID')
 export const kFWPhyPacketPhyIDPhase = /* @__PURE__ */ _bind(FW, 'kFWPhyPacketPhyIDPhase')
 export const kFWSBP2AbortTask = /* @__PURE__ */ _bind(FW, 'kFWSBP2AbortTask')
 export const kFWSBP2AbortTaskSet = /* @__PURE__ */ _bind(FW, 'kFWSBP2AbortTaskSet')
-export const kFWSBP2CommandCheckGeneration = /* @__PURE__ */ _bind(FW, 'kFWSBP2CommandCheckGeneration')
-export const kFWSBP2CommandCompleteNotify = /* @__PURE__ */ _bind(FW, 'kFWSBP2CommandCompleteNotify')
+export const kFWSBP2CommandCheckGeneration = /* @__PURE__ */ _bind(
+	FW,
+	'kFWSBP2CommandCheckGeneration',
+)
+
+export const kFWSBP2CommandCompleteNotify = /* @__PURE__ */ _bind(
+	FW,
+	'kFWSBP2CommandCompleteNotify',
+)
+
 export const kFWSBP2CommandDummyORB = /* @__PURE__ */ _bind(FW, 'kFWSBP2CommandDummyORB')
 export const kFWSBP2CommandFixedSize = /* @__PURE__ */ _bind(FW, 'kFWSBP2CommandFixedSize')
 export const kFWSBP2CommandImmediate = /* @__PURE__ */ _bind(FW, 'kFWSBP2CommandImmediate')
 export const kFWSBP2CommandNormalORB = /* @__PURE__ */ _bind(FW, 'kFWSBP2CommandNormalORB')
 export const kFWSBP2CommandReservedORB = /* @__PURE__ */ _bind(FW, 'kFWSBP2CommandReservedORB')
-export const kFWSBP2CommandTransferDataFromTarget = /* @__PURE__ */ _bind(FW, 'kFWSBP2CommandTransferDataFromTarget')
+export const kFWSBP2CommandTransferDataFromTarget = /* @__PURE__ */ _bind(
+	FW,
+	'kFWSBP2CommandTransferDataFromTarget',
+)
+
 export const kFWSBP2CommandVendorORB = /* @__PURE__ */ _bind(FW, 'kFWSBP2CommandVendorORB')
 export const kFWSBP2CommandVirtualORBs = /* @__PURE__ */ _bind(FW, 'kFWSBP2CommandVirtualORBs')
-export const kFWSBP2ConstraintForceDoubleBuffer = /* @__PURE__ */ _bind(FW, 'kFWSBP2ConstraintForceDoubleBuffer')
-export const kFWSBP2DontSynchronizeMgmtAgent = /* @__PURE__ */ _bind(FW, 'kFWSBP2DontSynchronizeMgmtAgent')
+export const kFWSBP2ConstraintForceDoubleBuffer = /* @__PURE__ */ _bind(
+	FW,
+	'kFWSBP2ConstraintForceDoubleBuffer',
+)
+
+export const kFWSBP2DontSynchronizeMgmtAgent = /* @__PURE__ */ _bind(
+	FW,
+	'kFWSBP2DontSynchronizeMgmtAgent',
+)
+
 export const kFWSBP2ExclusiveLogin = /* @__PURE__ */ _bind(FW, 'kFWSBP2ExclusiveLogin')
 export const kFWSBP2LogicalUnitReset = /* @__PURE__ */ _bind(FW, 'kFWSBP2LogicalUnitReset')
 export const kFWSBP2MaxPageClusterSize = /* @__PURE__ */ _bind(FW, 'kFWSBP2MaxPageClusterSize')
@@ -3542,8 +7498,16 @@ export const kFWSelfIDPacketType = /* @__PURE__ */ _bind(FW, 'kFWSelfIDPacketTyp
 export const kFWSelfIDPhyID = /* @__PURE__ */ _bind(FW, 'kFWSelfIDPhyID')
 export const kFWSelfIDPhyIDPhase = /* @__PURE__ */ _bind(FW, 'kFWSelfIDPhyIDPhase')
 export const kFWSelfIDPortStatusChild = /* @__PURE__ */ _bind(FW, 'kFWSelfIDPortStatusChild')
-export const kFWSelfIDPortStatusNotConnected = /* @__PURE__ */ _bind(FW, 'kFWSelfIDPortStatusNotConnected')
-export const kFWSelfIDPortStatusNotPresent = /* @__PURE__ */ _bind(FW, 'kFWSelfIDPortStatusNotPresent')
+export const kFWSelfIDPortStatusNotConnected = /* @__PURE__ */ _bind(
+	FW,
+	'kFWSelfIDPortStatusNotConnected',
+)
+
+export const kFWSelfIDPortStatusNotPresent = /* @__PURE__ */ _bind(
+	FW,
+	'kFWSelfIDPortStatusNotPresent',
+)
+
 export const kFWSelfIDPortStatusParent = /* @__PURE__ */ _bind(FW, 'kFWSelfIDPortStatusParent')
 export const kFWSelfIDSelfPowered15W = /* @__PURE__ */ _bind(FW, 'kFWSelfIDSelfPowered15W')
 export const kFWSelfIDSelfPowered30W = /* @__PURE__ */ _bind(FW, 'kFWSelfIDSelfPowered30W')
@@ -3561,29 +7525,105 @@ export const kFWTCodeWriteBlock = /* @__PURE__ */ _bind(FW, 'kFWTCodeWriteBlock'
 export const kFWTCodeWriteQuadlet = /* @__PURE__ */ _bind(FW, 'kFWTCodeWriteQuadlet')
 export const kFWTCodeWriteResponse = /* @__PURE__ */ _bind(FW, 'kFWTCodeWriteResponse')
 export const kFirstOrderRanking = /* @__PURE__ */ _bind(FW, 'kFirstOrderRanking')
-export const kFrameBufferDeepSleepSupported = /* @__PURE__ */ _bind(FW, 'kFrameBufferDeepSleepSupported')
+export const kFrameBufferDeepSleepSupported = /* @__PURE__ */ _bind(
+	FW,
+	'kFrameBufferDeepSleepSupported',
+)
+
 export const kFrameInterruptServiceType = /* @__PURE__ */ _bind(FW, 'kFrameInterruptServiceType')
 export const kHBLInterruptServiceType = /* @__PURE__ */ _bind(FW, 'kHBLInterruptServiceType')
-export const kHIDDispatchOptionDeliveryNotificationForce = /* @__PURE__ */ _bind(FW, 'kHIDDispatchOptionDeliveryNotificationForce')
-export const kHIDDispatchOptionDeliveryNotificationSuppress = /* @__PURE__ */ _bind(FW, 'kHIDDispatchOptionDeliveryNotificationSuppress')
-export const kHIDDispatchOptionKeyboardNoRepeat = /* @__PURE__ */ _bind(FW, 'kHIDDispatchOptionKeyboardNoRepeat')
+export const kHIDDispatchOptionDeliveryNotificationForce = /* @__PURE__ */ _bind(
+	FW,
+	'kHIDDispatchOptionDeliveryNotificationForce',
+)
+
+export const kHIDDispatchOptionDeliveryNotificationSuppress = /* @__PURE__ */ _bind(
+	FW,
+	'kHIDDispatchOptionDeliveryNotificationSuppress',
+)
+
+export const kHIDDispatchOptionKeyboardNoRepeat = /* @__PURE__ */ _bind(
+	FW,
+	'kHIDDispatchOptionKeyboardNoRepeat',
+)
+
 export const kHIDDispatchOptionPhaseAny = /* @__PURE__ */ _bind(FW, 'kHIDDispatchOptionPhaseAny')
-export const kHIDDispatchOptionPhaseBegan = /* @__PURE__ */ _bind(FW, 'kHIDDispatchOptionPhaseBegan')
-export const kHIDDispatchOptionPhaseCanceled = /* @__PURE__ */ _bind(FW, 'kHIDDispatchOptionPhaseCanceled')
-export const kHIDDispatchOptionPhaseChanged = /* @__PURE__ */ _bind(FW, 'kHIDDispatchOptionPhaseChanged')
-export const kHIDDispatchOptionPhaseEnded = /* @__PURE__ */ _bind(FW, 'kHIDDispatchOptionPhaseEnded')
-export const kHIDDispatchOptionPhaseMayBegin = /* @__PURE__ */ _bind(FW, 'kHIDDispatchOptionPhaseMayBegin')
-export const kHIDDispatchOptionPointerAbsolutToRelative = /* @__PURE__ */ _bind(FW, 'kHIDDispatchOptionPointerAbsolutToRelative')
-export const kHIDDispatchOptionPointerAffixToScreen = /* @__PURE__ */ _bind(FW, 'kHIDDispatchOptionPointerAffixToScreen')
-export const kHIDDispatchOptionPointerDisplayIntegrated = /* @__PURE__ */ _bind(FW, 'kHIDDispatchOptionPointerDisplayIntegrated')
-export const kHIDDispatchOptionPointerNoAcceleration = /* @__PURE__ */ _bind(FW, 'kHIDDispatchOptionPointerNoAcceleration')
-export const kHIDDispatchOptionScrollMomentumAny = /* @__PURE__ */ _bind(FW, 'kHIDDispatchOptionScrollMomentumAny')
-export const kHIDDispatchOptionScrollMomentumContinue = /* @__PURE__ */ _bind(FW, 'kHIDDispatchOptionScrollMomentumContinue')
-export const kHIDDispatchOptionScrollMomentumEnd = /* @__PURE__ */ _bind(FW, 'kHIDDispatchOptionScrollMomentumEnd')
-export const kHIDDispatchOptionScrollMomentumStart = /* @__PURE__ */ _bind(FW, 'kHIDDispatchOptionScrollMomentumStart')
-export const kHIDDispatchOptionScrollNoAcceleration = /* @__PURE__ */ _bind(FW, 'kHIDDispatchOptionScrollNoAcceleration')
+export const kHIDDispatchOptionPhaseBegan = /* @__PURE__ */ _bind(
+	FW,
+	'kHIDDispatchOptionPhaseBegan',
+)
+
+export const kHIDDispatchOptionPhaseCanceled = /* @__PURE__ */ _bind(
+	FW,
+	'kHIDDispatchOptionPhaseCanceled',
+)
+
+export const kHIDDispatchOptionPhaseChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kHIDDispatchOptionPhaseChanged',
+)
+
+export const kHIDDispatchOptionPhaseEnded = /* @__PURE__ */ _bind(
+	FW,
+	'kHIDDispatchOptionPhaseEnded',
+)
+
+export const kHIDDispatchOptionPhaseMayBegin = /* @__PURE__ */ _bind(
+	FW,
+	'kHIDDispatchOptionPhaseMayBegin',
+)
+
+export const kHIDDispatchOptionPointerAbsolutToRelative = /* @__PURE__ */ _bind(
+	FW,
+	'kHIDDispatchOptionPointerAbsolutToRelative',
+)
+
+export const kHIDDispatchOptionPointerAffixToScreen = /* @__PURE__ */ _bind(
+	FW,
+	'kHIDDispatchOptionPointerAffixToScreen',
+)
+
+export const kHIDDispatchOptionPointerDisplayIntegrated = /* @__PURE__ */ _bind(
+	FW,
+	'kHIDDispatchOptionPointerDisplayIntegrated',
+)
+
+export const kHIDDispatchOptionPointerNoAcceleration = /* @__PURE__ */ _bind(
+	FW,
+	'kHIDDispatchOptionPointerNoAcceleration',
+)
+
+export const kHIDDispatchOptionScrollMomentumAny = /* @__PURE__ */ _bind(
+	FW,
+	'kHIDDispatchOptionScrollMomentumAny',
+)
+
+export const kHIDDispatchOptionScrollMomentumContinue = /* @__PURE__ */ _bind(
+	FW,
+	'kHIDDispatchOptionScrollMomentumContinue',
+)
+
+export const kHIDDispatchOptionScrollMomentumEnd = /* @__PURE__ */ _bind(
+	FW,
+	'kHIDDispatchOptionScrollMomentumEnd',
+)
+
+export const kHIDDispatchOptionScrollMomentumStart = /* @__PURE__ */ _bind(
+	FW,
+	'kHIDDispatchOptionScrollMomentumStart',
+)
+
+export const kHIDDispatchOptionScrollNoAcceleration = /* @__PURE__ */ _bind(
+	FW,
+	'kHIDDispatchOptionScrollNoAcceleration',
+)
+
 export const kHIDFeatureReport = /* @__PURE__ */ _bind(FW, 'kHIDFeatureReport')
-export const kHIDFlag_StrictErrorChecking = /* @__PURE__ */ _bind(FW, 'kHIDFlag_StrictErrorChecking')
+export const kHIDFlag_StrictErrorChecking = /* @__PURE__ */ _bind(
+	FW,
+	'kHIDFlag_StrictErrorChecking',
+)
+
 export const kHIDInputReport = /* @__PURE__ */ _bind(FW, 'kHIDInputReport')
 export const kHIDOutputReport = /* @__PURE__ */ _bind(FW, 'kHIDOutputReport')
 export const kHIDUnknownReport = /* @__PURE__ */ _bind(FW, 'kHIDUnknownReport')
@@ -3594,23 +7634,55 @@ export const kHV_ION_NONE = /* @__PURE__ */ _bind(FW, 'kHV_ION_NONE')
 export const kHubDelayNs = /* @__PURE__ */ _bind(FW, 'kHubDelayNs')
 export const kHubPort2PortExitLatencyNs = /* @__PURE__ */ _bind(FW, 'kHubPort2PortExitLatencyNs')
 export const kID_DRIVE = /* @__PURE__ */ _bind(FW, 'kID_DRIVE')
-export const kIOACPIAddressSpaceIDEmbeddedController = /* @__PURE__ */ _bind(FW, 'kIOACPIAddressSpaceIDEmbeddedController')
-export const kIOACPIAddressSpaceIDPCIConfiguration = /* @__PURE__ */ _bind(FW, 'kIOACPIAddressSpaceIDPCIConfiguration')
+export const kIOACPIAddressSpaceIDEmbeddedController = /* @__PURE__ */ _bind(
+	FW,
+	'kIOACPIAddressSpaceIDEmbeddedController',
+)
+
+export const kIOACPIAddressSpaceIDPCIConfiguration = /* @__PURE__ */ _bind(
+	FW,
+	'kIOACPIAddressSpaceIDPCIConfiguration',
+)
+
 export const kIOACPIAddressSpaceIDSMBus = /* @__PURE__ */ _bind(FW, 'kIOACPIAddressSpaceIDSMBus')
-export const kIOACPIAddressSpaceIDSystemIO = /* @__PURE__ */ _bind(FW, 'kIOACPIAddressSpaceIDSystemIO')
-export const kIOACPIAddressSpaceIDSystemMemory = /* @__PURE__ */ _bind(FW, 'kIOACPIAddressSpaceIDSystemMemory')
+export const kIOACPIAddressSpaceIDSystemIO = /* @__PURE__ */ _bind(
+	FW,
+	'kIOACPIAddressSpaceIDSystemIO',
+)
+
+export const kIOACPIAddressSpaceIDSystemMemory = /* @__PURE__ */ _bind(
+	FW,
+	'kIOACPIAddressSpaceIDSystemMemory',
+)
+
 export const kIOACPIAddressSpaceOpRead = /* @__PURE__ */ _bind(FW, 'kIOACPIAddressSpaceOpRead')
 export const kIOACPIAddressSpaceOpWrite = /* @__PURE__ */ _bind(FW, 'kIOACPIAddressSpaceOpWrite')
 export const kIOACPIBusNumberRange = /* @__PURE__ */ _bind(FW, 'kIOACPIBusNumberRange')
-export const kIOACPIDevicePowerStateCount = /* @__PURE__ */ _bind(FW, 'kIOACPIDevicePowerStateCount')
+export const kIOACPIDevicePowerStateCount = /* @__PURE__ */ _bind(
+	FW,
+	'kIOACPIDevicePowerStateCount',
+)
+
 export const kIOACPIDevicePowerStateD0 = /* @__PURE__ */ _bind(FW, 'kIOACPIDevicePowerStateD0')
 export const kIOACPIDevicePowerStateD1 = /* @__PURE__ */ _bind(FW, 'kIOACPIDevicePowerStateD1')
 export const kIOACPIDevicePowerStateD2 = /* @__PURE__ */ _bind(FW, 'kIOACPIDevicePowerStateD2')
 export const kIOACPIDevicePowerStateD3 = /* @__PURE__ */ _bind(FW, 'kIOACPIDevicePowerStateD3')
 export const kIOACPIFixedEventPMTimer = /* @__PURE__ */ _bind(FW, 'kIOACPIFixedEventPMTimer')
-export const kIOACPIFixedEventPowerButton = /* @__PURE__ */ _bind(FW, 'kIOACPIFixedEventPowerButton')
-export const kIOACPIFixedEventRealTimeClock = /* @__PURE__ */ _bind(FW, 'kIOACPIFixedEventRealTimeClock')
-export const kIOACPIFixedEventSleepButton = /* @__PURE__ */ _bind(FW, 'kIOACPIFixedEventSleepButton')
+export const kIOACPIFixedEventPowerButton = /* @__PURE__ */ _bind(
+	FW,
+	'kIOACPIFixedEventPowerButton',
+)
+
+export const kIOACPIFixedEventRealTimeClock = /* @__PURE__ */ _bind(
+	FW,
+	'kIOACPIFixedEventRealTimeClock',
+)
+
+export const kIOACPIFixedEventSleepButton = /* @__PURE__ */ _bind(
+	FW,
+	'kIOACPIFixedEventSleepButton',
+)
+
 export const kIOACPIIORange = /* @__PURE__ */ _bind(FW, 'kIOACPIIORange')
 export const kIOACPIMemoryRange = /* @__PURE__ */ _bind(FW, 'kIOACPIMemoryRange')
 export const kIOAGP1xDataRate = /* @__PURE__ */ _bind(FW, 'kIOAGP1xDataRate')
@@ -3638,18 +7710,34 @@ export const kIOAGPRequestQueueMask = /* @__PURE__ */ _bind(FW, 'kIOAGPRequestQu
 export const kIOAGPSideBandAddresssing = /* @__PURE__ */ _bind(FW, 'kIOAGPSideBandAddresssing')
 export const kIOAGPStateEnablePending = /* @__PURE__ */ _bind(FW, 'kIOAGPStateEnablePending')
 export const kIOAGPStateEnabled = /* @__PURE__ */ _bind(FW, 'kIOAGPStateEnabled')
-export const kIOBufferDescriptorMemoryFlags = /* @__PURE__ */ _bind(FW, 'kIOBufferDescriptorMemoryFlags')
+export const kIOBufferDescriptorMemoryFlags = /* @__PURE__ */ _bind(
+	FW,
+	'kIOBufferDescriptorMemoryFlags',
+)
+
 export const kIODDCBlockTypeEDID = /* @__PURE__ */ _bind(FW, 'kIODDCBlockTypeEDID')
 export const kIODDCForceRead = /* @__PURE__ */ _bind(FW, 'kIODDCForceRead')
 export const kIODDCHigh = /* @__PURE__ */ _bind(FW, 'kIODDCHigh')
 export const kIODDCLow = /* @__PURE__ */ _bind(FW, 'kIODDCLow')
 export const kIODDCTristate = /* @__PURE__ */ _bind(FW, 'kIODDCTristate')
 export const kIODKDisableCDHashChecking = /* @__PURE__ */ _bind(FW, 'kIODKDisableCDHashChecking')
-export const kIODKDisableCheckInTokenVerification = /* @__PURE__ */ _bind(FW, 'kIODKDisableCheckInTokenVerification')
+export const kIODKDisableCheckInTokenVerification = /* @__PURE__ */ _bind(
+	FW,
+	'kIODKDisableCheckInTokenVerification',
+)
+
 export const kIODKDisableDextLaunch = /* @__PURE__ */ _bind(FW, 'kIODKDisableDextLaunch')
 export const kIODKDisableDextTag = /* @__PURE__ */ _bind(FW, 'kIODKDisableDextTag')
-export const kIODKDisableEntitlementChecking = /* @__PURE__ */ _bind(FW, 'kIODKDisableEntitlementChecking')
-export const kIODKDisableIOPMSystemOffPhase2Allow = /* @__PURE__ */ _bind(FW, 'kIODKDisableIOPMSystemOffPhase2Allow')
+export const kIODKDisableEntitlementChecking = /* @__PURE__ */ _bind(
+	FW,
+	'kIODKDisableEntitlementChecking',
+)
+
+export const kIODKDisableIOPMSystemOffPhase2Allow = /* @__PURE__ */ _bind(
+	FW,
+	'kIODKDisableIOPMSystemOffPhase2Allow',
+)
+
 export const kIODKDisablePM = /* @__PURE__ */ _bind(FW, 'kIODKDisablePM')
 export const kIODKEnable = /* @__PURE__ */ _bind(FW, 'kIODKEnable')
 export const kIODKLogIPC = /* @__PURE__ */ _bind(FW, 'kIODKLogIPC')
@@ -3668,39 +7756,95 @@ export const kIODMAMapOptionNonCoherent = /* @__PURE__ */ _bind(FW, 'kIODMAMapOp
 export const kIODMAMapOptionOnChip = /* @__PURE__ */ _bind(FW, 'kIODMAMapOptionOnChip')
 export const kIODMAMapOptionTypeMask = /* @__PURE__ */ _bind(FW, 'kIODMAMapOptionTypeMask')
 export const kIODMAMapOptionUnmapped = /* @__PURE__ */ _bind(FW, 'kIODMAMapOptionUnmapped')
-export const kIODMAMapPageListFullyOccupied = /* @__PURE__ */ _bind(FW, 'kIODMAMapPageListFullyOccupied')
+export const kIODMAMapPageListFullyOccupied = /* @__PURE__ */ _bind(
+	FW,
+	'kIODMAMapPageListFullyOccupied',
+)
+
 export const kIODMAMapPagingPath = /* @__PURE__ */ _bind(FW, 'kIODMAMapPagingPath')
-export const kIODMAMapPhysicallyContiguous = /* @__PURE__ */ _bind(FW, 'kIODMAMapPhysicallyContiguous')
+export const kIODMAMapPhysicallyContiguous = /* @__PURE__ */ _bind(
+	FW,
+	'kIODMAMapPhysicallyContiguous',
+)
+
 export const kIODMAMapReadAccess = /* @__PURE__ */ _bind(FW, 'kIODMAMapReadAccess')
 export const kIODMAMapWriteAccess = /* @__PURE__ */ _bind(FW, 'kIODMAMapWriteAccess')
 export const kIODTExclusive = /* @__PURE__ */ _bind(FW, 'kIODTExclusive')
 export const kIODTInterruptShared = /* @__PURE__ */ _bind(FW, 'kIODTInterruptShared')
 export const kIODTRecursive = /* @__PURE__ */ _bind(FW, 'kIODTRecursive')
 export const kIODefaultProbeScore = /* @__PURE__ */ _bind(FW, 'kIODefaultProbeScore')
-export const kIODirectionCompleteAndDeactivate = /* @__PURE__ */ _bind(FW, 'kIODirectionCompleteAndDeactivate')
-export const kIODirectionCompleteWithDataValid = /* @__PURE__ */ _bind(FW, 'kIODirectionCompleteWithDataValid')
-export const kIODirectionCompleteWithError = /* @__PURE__ */ _bind(FW, 'kIODirectionCompleteWithError')
+export const kIODirectionCompleteAndDeactivate = /* @__PURE__ */ _bind(
+	FW,
+	'kIODirectionCompleteAndDeactivate',
+)
+
+export const kIODirectionCompleteWithDataValid = /* @__PURE__ */ _bind(
+	FW,
+	'kIODirectionCompleteWithDataValid',
+)
+
+export const kIODirectionCompleteWithError = /* @__PURE__ */ _bind(
+	FW,
+	'kIODirectionCompleteWithError',
+)
+
 export const kIODirectionIn = /* @__PURE__ */ _bind(FW, 'kIODirectionIn')
 export const kIODirectionInOut = /* @__PURE__ */ _bind(FW, 'kIODirectionInOut')
 export const kIODirectionNone = /* @__PURE__ */ _bind(FW, 'kIODirectionNone')
 export const kIODirectionOut = /* @__PURE__ */ _bind(FW, 'kIODirectionOut')
 export const kIODirectionOutIn = /* @__PURE__ */ _bind(FW, 'kIODirectionOutIn')
 export const kIODirectionPrepareNoFault = /* @__PURE__ */ _bind(FW, 'kIODirectionPrepareNoFault')
-export const kIODirectionPrepareNonCoherent = /* @__PURE__ */ _bind(FW, 'kIODirectionPrepareNonCoherent')
-export const kIODirectionPrepareReserved1 = /* @__PURE__ */ _bind(FW, 'kIODirectionPrepareReserved1')
+export const kIODirectionPrepareNonCoherent = /* @__PURE__ */ _bind(
+	FW,
+	'kIODirectionPrepareNonCoherent',
+)
+
+export const kIODirectionPrepareReserved1 = /* @__PURE__ */ _bind(
+	FW,
+	'kIODirectionPrepareReserved1',
+)
+
 export const kIODirectionPrepareShareSK = /* @__PURE__ */ _bind(FW, 'kIODirectionPrepareShareSK')
 export const kIODirectionPrepareToPhys32 = /* @__PURE__ */ _bind(FW, 'kIODirectionPrepareToPhys32')
 export const kIODisplayMaxPowerState = /* @__PURE__ */ _bind(FW, 'kIODisplayMaxPowerState')
 export const kIODisplayNumPowerStates = /* @__PURE__ */ _bind(FW, 'kIODisplayNumPowerStates')
-export const kIOEventLinkAssociateCurrentThread = /* @__PURE__ */ _bind(FW, 'kIOEventLinkAssociateCurrentThread')
+export const kIOEventLinkAssociateCurrentThread = /* @__PURE__ */ _bind(
+	FW,
+	'kIOEventLinkAssociateCurrentThread',
+)
+
 export const kIOEventLinkAssociateOnWait = /* @__PURE__ */ _bind(FW, 'kIOEventLinkAssociateOnWait')
-export const kIOEventLinkClockMachAbsoluteTime = /* @__PURE__ */ _bind(FW, 'kIOEventLinkClockMachAbsoluteTime')
+export const kIOEventLinkClockMachAbsoluteTime = /* @__PURE__ */ _bind(
+	FW,
+	'kIOEventLinkClockMachAbsoluteTime',
+)
+
 export const kIOEventLinkMaxNameLength = /* @__PURE__ */ _bind(FW, 'kIOEventLinkMaxNameLength')
-export const kIOExtensiblePaniclogOptionsNone = /* @__PURE__ */ _bind(FW, 'kIOExtensiblePaniclogOptionsNone')
-export const kIOExtensiblePaniclogOptionsWithBuffer = /* @__PURE__ */ _bind(FW, 'kIOExtensiblePaniclogOptionsWithBuffer')
-export const kIOExternalMethodArgumentsCurrentVersion = /* @__PURE__ */ _bind(FW, 'kIOExternalMethodArgumentsCurrentVersion')
-export const kIOExternalMethodScalarInputCountMax = /* @__PURE__ */ _bind(FW, 'kIOExternalMethodScalarInputCountMax')
-export const kIOExternalMethodScalarOutputCountMax = /* @__PURE__ */ _bind(FW, 'kIOExternalMethodScalarOutputCountMax')
+export const kIOExtensiblePaniclogOptionsNone = /* @__PURE__ */ _bind(
+	FW,
+	'kIOExtensiblePaniclogOptionsNone',
+)
+
+export const kIOExtensiblePaniclogOptionsWithBuffer = /* @__PURE__ */ _bind(
+	FW,
+	'kIOExtensiblePaniclogOptionsWithBuffer',
+)
+
+export const kIOExternalMethodArgumentsCurrentVersion = /* @__PURE__ */ _bind(
+	FW,
+	'kIOExternalMethodArgumentsCurrentVersion',
+)
+
+export const kIOExternalMethodScalarInputCountMax = /* @__PURE__ */ _bind(
+	FW,
+	'kIOExternalMethodScalarInputCountMax',
+)
+
+export const kIOExternalMethodScalarOutputCountMax = /* @__PURE__ */ _bind(
+	FW,
+	'kIOExternalMethodScalarOutputCountMax',
+)
+
 export const kIOFBNotifyCaptureChange = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyCaptureChange')
 export const kIOFBNotifyClamshellChange = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyClamshellChange')
 export const kIOFBNotifyDidChangeSpeed = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyDidChangeSpeed')
@@ -3709,58 +7853,182 @@ export const kIOFBNotifyDidPowerOff = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyDidP
 export const kIOFBNotifyDidPowerOn = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyDidPowerOn')
 export const kIOFBNotifyDidSleep = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyDidSleep')
 export const kIOFBNotifyDidWake = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyDidWake')
-export const kIOFBNotifyDisplayDimsChange = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyDisplayDimsChange')
-export const kIOFBNotifyDisplayModeDidChange = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyDisplayModeDidChange')
-export const kIOFBNotifyDisplayModeWillChange = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyDisplayModeWillChange')
+export const kIOFBNotifyDisplayDimsChange = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFBNotifyDisplayDimsChange',
+)
+
+export const kIOFBNotifyDisplayModeDidChange = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFBNotifyDisplayModeDidChange',
+)
+
+export const kIOFBNotifyDisplayModeWillChange = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFBNotifyDisplayModeWillChange',
+)
+
 export const kIOFBNotifyEvent_All = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyEvent_All')
-export const kIOFBNotifyEvent_CaptureChange = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyEvent_CaptureChange')
-export const kIOFBNotifyEvent_ChangeSpeed = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyEvent_ChangeSpeed')
-export const kIOFBNotifyEvent_ClamshellChange = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyEvent_ClamshellChange')
-export const kIOFBNotifyEvent_DisplayDimsChange = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyEvent_DisplayDimsChange')
-export const kIOFBNotifyEvent_DisplayModeChange = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyEvent_DisplayModeChange')
-export const kIOFBNotifyEvent_HDACodecPowerOnOff = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyEvent_HDACodecPowerOnOff')
+export const kIOFBNotifyEvent_CaptureChange = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFBNotifyEvent_CaptureChange',
+)
+
+export const kIOFBNotifyEvent_ChangeSpeed = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFBNotifyEvent_ChangeSpeed',
+)
+
+export const kIOFBNotifyEvent_ClamshellChange = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFBNotifyEvent_ClamshellChange',
+)
+
+export const kIOFBNotifyEvent_DisplayDimsChange = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFBNotifyEvent_DisplayDimsChange',
+)
+
+export const kIOFBNotifyEvent_DisplayModeChange = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFBNotifyEvent_DisplayModeChange',
+)
+
+export const kIOFBNotifyEvent_HDACodecPowerOnOff = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFBNotifyEvent_HDACodecPowerOnOff',
+)
+
 export const kIOFBNotifyEvent_Last = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyEvent_Last')
 export const kIOFBNotifyEvent_None = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyEvent_None')
 export const kIOFBNotifyEvent_Notify = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyEvent_Notify')
-export const kIOFBNotifyEvent_OnlineChange = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyEvent_OnlineChange')
+export const kIOFBNotifyEvent_OnlineChange = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFBNotifyEvent_OnlineChange',
+)
+
 export const kIOFBNotifyEvent_PowerOnOff = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyEvent_PowerOnOff')
 export const kIOFBNotifyEvent_Probed = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyEvent_Probed')
 export const kIOFBNotifyEvent_SleepWake = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyEvent_SleepWake')
 export const kIOFBNotifyEvent_Terminated = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyEvent_Terminated')
 export const kIOFBNotifyEvent_VRAMReady = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyEvent_VRAMReady')
 export const kIOFBNotifyEvent_WSAADefer = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyEvent_WSAADefer')
-export const kIOFBNotifyGroupID_AppleGraphicsControl = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyGroupID_AppleGraphicsControl')
-export const kIOFBNotifyGroupID_AppleGraphicsDevicePolicy = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyGroupID_AppleGraphicsDevicePolicy')
-export const kIOFBNotifyGroupID_AppleGraphicsDisplayPolicy = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyGroupID_AppleGraphicsDisplayPolicy')
-export const kIOFBNotifyGroupID_AppleGraphicsMGPUPowerControl = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyGroupID_AppleGraphicsMGPUPowerControl')
-export const kIOFBNotifyGroupID_AppleGraphicsMUXControl = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyGroupID_AppleGraphicsMUXControl')
-export const kIOFBNotifyGroupID_AppleGraphicsPowerManagement = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyGroupID_AppleGraphicsPowerManagement')
-export const kIOFBNotifyGroupID_AppleHDAController = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyGroupID_AppleHDAController')
-export const kIOFBNotifyGroupID_AppleIOAccelDisplayPipe = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyGroupID_AppleIOAccelDisplayPipe')
-export const kIOFBNotifyGroupID_AppleMCCSControl = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyGroupID_AppleMCCSControl')
+export const kIOFBNotifyGroupID_AppleGraphicsControl = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFBNotifyGroupID_AppleGraphicsControl',
+)
+
+export const kIOFBNotifyGroupID_AppleGraphicsDevicePolicy = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFBNotifyGroupID_AppleGraphicsDevicePolicy',
+)
+
+export const kIOFBNotifyGroupID_AppleGraphicsDisplayPolicy = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFBNotifyGroupID_AppleGraphicsDisplayPolicy',
+)
+
+export const kIOFBNotifyGroupID_AppleGraphicsMGPUPowerControl = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFBNotifyGroupID_AppleGraphicsMGPUPowerControl',
+)
+
+export const kIOFBNotifyGroupID_AppleGraphicsMUXControl = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFBNotifyGroupID_AppleGraphicsMUXControl',
+)
+
+export const kIOFBNotifyGroupID_AppleGraphicsPowerManagement = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFBNotifyGroupID_AppleGraphicsPowerManagement',
+)
+
+export const kIOFBNotifyGroupID_AppleHDAController = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFBNotifyGroupID_AppleHDAController',
+)
+
+export const kIOFBNotifyGroupID_AppleIOAccelDisplayPipe = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFBNotifyGroupID_AppleIOAccelDisplayPipe',
+)
+
+export const kIOFBNotifyGroupID_AppleMCCSControl = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFBNotifyGroupID_AppleMCCSControl',
+)
+
 export const kIOFBNotifyGroupID_Count = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyGroupID_Count')
-export const kIOFBNotifyGroupID_IODisplay = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyGroupID_IODisplay')
+export const kIOFBNotifyGroupID_IODisplay = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFBNotifyGroupID_IODisplay',
+)
+
 export const kIOFBNotifyGroupID_Legacy = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyGroupID_Legacy')
-export const kIOFBNotifyGroupID_ThirdParty = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyGroupID_ThirdParty')
-export const kIOFBNotifyGroupID_VendorAMD = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyGroupID_VendorAMD')
-export const kIOFBNotifyGroupID_VendorIntel = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyGroupID_VendorIntel')
-export const kIOFBNotifyGroupID_VendorNVIDIA = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyGroupID_VendorNVIDIA')
-export const kIOFBNotifyHDACodecDidPowerOff = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyHDACodecDidPowerOff')
-export const kIOFBNotifyHDACodecDidPowerOn = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyHDACodecDidPowerOn')
-export const kIOFBNotifyHDACodecWillPowerOff = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyHDACodecWillPowerOff')
-export const kIOFBNotifyHDACodecWillPowerOn = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyHDACodecWillPowerOn')
+export const kIOFBNotifyGroupID_ThirdParty = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFBNotifyGroupID_ThirdParty',
+)
+
+export const kIOFBNotifyGroupID_VendorAMD = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFBNotifyGroupID_VendorAMD',
+)
+
+export const kIOFBNotifyGroupID_VendorIntel = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFBNotifyGroupID_VendorIntel',
+)
+
+export const kIOFBNotifyGroupID_VendorNVIDIA = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFBNotifyGroupID_VendorNVIDIA',
+)
+
+export const kIOFBNotifyHDACodecDidPowerOff = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFBNotifyHDACodecDidPowerOff',
+)
+
+export const kIOFBNotifyHDACodecDidPowerOn = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFBNotifyHDACodecDidPowerOn',
+)
+
+export const kIOFBNotifyHDACodecWillPowerOff = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFBNotifyHDACodecWillPowerOff',
+)
+
+export const kIOFBNotifyHDACodecWillPowerOn = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFBNotifyHDACodecWillPowerOn',
+)
+
 export const kIOFBNotifyOnlineChange = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyOnlineChange')
 export const kIOFBNotifyPriority_Max = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyPriority_Max')
 export const kIOFBNotifyPriority_Min = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyPriority_Min')
 export const kIOFBNotifyProbed = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyProbed')
 export const kIOFBNotifyTerminated = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyTerminated')
 export const kIOFBNotifyVRAMReady = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyVRAMReady')
-export const kIOFBNotifyWSAADidEnterDefer = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyWSAADidEnterDefer')
+export const kIOFBNotifyWSAADidEnterDefer = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFBNotifyWSAADidEnterDefer',
+)
+
 export const kIOFBNotifyWSAADidExitDefer = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyWSAADidExitDefer')
 export const kIOFBNotifyWSAAEnterDefer = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyWSAAEnterDefer')
 export const kIOFBNotifyWSAAExitDefer = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyWSAAExitDefer')
-export const kIOFBNotifyWSAAWillEnterDefer = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyWSAAWillEnterDefer')
-export const kIOFBNotifyWSAAWillExitDefer = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyWSAAWillExitDefer')
+export const kIOFBNotifyWSAAWillEnterDefer = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFBNotifyWSAAWillEnterDefer',
+)
+
+export const kIOFBNotifyWSAAWillExitDefer = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFBNotifyWSAAWillExitDefer',
+)
+
 export const kIOFBNotifyWillChangeSpeed = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyWillChangeSpeed')
 export const kIOFBNotifyWillNotify = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyWillNotify')
 export const kIOFBNotifyWillPowerOff = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyWillPowerOff')
@@ -3768,11 +8036,23 @@ export const kIOFBNotifyWillPowerOn = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyWill
 export const kIOFBNotifyWillSleep = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyWillSleep')
 export const kIOFBNotifyWillWake = /* @__PURE__ */ _bind(FW, 'kIOFBNotifyWillWake')
 export const kIOFWAVCAsyncCmdFreed = /* @__PURE__ */ _bind(FW, 'kIOFWAVCAsyncCmdFreed')
-export const kIOFWSBP2DontUsePTPacketLimit = /* @__PURE__ */ _bind(FW, 'kIOFWSBP2DontUsePTPacketLimit')
+export const kIOFWSBP2DontUsePTPacketLimit = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFWSBP2DontUsePTPacketLimit',
+)
+
 export const kIOFWSBP2FailsOnAckBusy = /* @__PURE__ */ _bind(FW, 'kIOFWSBP2FailsOnAckBusy')
-export const kIOFWSBP2FailsOnBusResetsDuringIO = /* @__PURE__ */ _bind(FW, 'kIOFWSBP2FailsOnBusResetsDuringIO')
+export const kIOFWSBP2FailsOnBusResetsDuringIO = /* @__PURE__ */ _bind(
+	FW,
+	'kIOFWSBP2FailsOnBusResetsDuringIO',
+)
+
 export const kIOInterruptTypePCIMessaged = /* @__PURE__ */ _bind(FW, 'kIOInterruptTypePCIMessaged')
-export const kIOInterruptTypePCIMessagedX = /* @__PURE__ */ _bind(FW, 'kIOInterruptTypePCIMessagedX')
+export const kIOInterruptTypePCIMessagedX = /* @__PURE__ */ _bind(
+	FW,
+	'kIOInterruptTypePCIMessagedX',
+)
+
 export const kIOKextSpinDump = /* @__PURE__ */ _bind(FW, 'kIOKextSpinDump')
 export const kIOKitDebugUserOptions = /* @__PURE__ */ _bind(FW, 'kIOKitDebugUserOptions')
 export const kIOKitDiagnosticsClientType = /* @__PURE__ */ _bind(FW, 'kIOKitDiagnosticsClientType')
@@ -3802,11 +8082,19 @@ export const kIOMemoryClearEncrypt = /* @__PURE__ */ _bind(FW, 'kIOMemoryClearEn
 export const kIOMemoryClearEncrypted = /* @__PURE__ */ _bind(FW, 'kIOMemoryClearEncrypted')
 export const kIOMemoryDirectionMask = /* @__PURE__ */ _bind(FW, 'kIOMemoryDirectionMask')
 export const kIOMemoryHostOnly = /* @__PURE__ */ _bind(FW, 'kIOMemoryHostOnly')
-export const kIOMemoryHostPhysicallyContiguous = /* @__PURE__ */ _bind(FW, 'kIOMemoryHostPhysicallyContiguous')
+export const kIOMemoryHostPhysicallyContiguous = /* @__PURE__ */ _bind(
+	FW,
+	'kIOMemoryHostPhysicallyContiguous',
+)
+
 export const kIOMemoryIncoherentIOFlush = /* @__PURE__ */ _bind(FW, 'kIOMemoryIncoherentIOFlush')
 export const kIOMemoryIncoherentIOStore = /* @__PURE__ */ _bind(FW, 'kIOMemoryIncoherentIOStore')
 export const kIOMemoryKernelUserShared = /* @__PURE__ */ _bind(FW, 'kIOMemoryKernelUserShared')
-export const kIOMemoryLedgerFlagNoFootprint = /* @__PURE__ */ _bind(FW, 'kIOMemoryLedgerFlagNoFootprint')
+export const kIOMemoryLedgerFlagNoFootprint = /* @__PURE__ */ _bind(
+	FW,
+	'kIOMemoryLedgerFlagNoFootprint',
+)
+
 export const kIOMemoryLedgerTagDefault = /* @__PURE__ */ _bind(FW, 'kIOMemoryLedgerTagDefault')
 export const kIOMemoryLedgerTagGraphics = /* @__PURE__ */ _bind(FW, 'kIOMemoryLedgerTagGraphics')
 export const kIOMemoryLedgerTagMedia = /* @__PURE__ */ _bind(FW, 'kIOMemoryLedgerTagMedia')
@@ -3815,25 +8103,89 @@ export const kIOMemoryMapCopyOnWrite = /* @__PURE__ */ _bind(FW, 'kIOMemoryMapCo
 export const kIOMemoryMapperNone = /* @__PURE__ */ _bind(FW, 'kIOMemoryMapperNone')
 export const kIOMemoryPageable = /* @__PURE__ */ _bind(FW, 'kIOMemoryPageable')
 export const kIOMemoryPersistent = /* @__PURE__ */ _bind(FW, 'kIOMemoryPersistent')
-export const kIOMemoryPhysicallyContiguous = /* @__PURE__ */ _bind(FW, 'kIOMemoryPhysicallyContiguous')
+export const kIOMemoryPhysicallyContiguous = /* @__PURE__ */ _bind(
+	FW,
+	'kIOMemoryPhysicallyContiguous',
+)
+
 export const kIOMemoryPurgeable = /* @__PURE__ */ _bind(FW, 'kIOMemoryPurgeable')
 export const kIOMemoryPurgeableEmpty = /* @__PURE__ */ _bind(FW, 'kIOMemoryPurgeableEmpty')
-export const kIOMemoryPurgeableFaultOnAccess = /* @__PURE__ */ _bind(FW, 'kIOMemoryPurgeableFaultOnAccess')
-export const kIOMemoryPurgeableKeepCurrent = /* @__PURE__ */ _bind(FW, 'kIOMemoryPurgeableKeepCurrent')
-export const kIOMemoryPurgeableNonVolatile = /* @__PURE__ */ _bind(FW, 'kIOMemoryPurgeableNonVolatile')
+export const kIOMemoryPurgeableFaultOnAccess = /* @__PURE__ */ _bind(
+	FW,
+	'kIOMemoryPurgeableFaultOnAccess',
+)
+
+export const kIOMemoryPurgeableKeepCurrent = /* @__PURE__ */ _bind(
+	FW,
+	'kIOMemoryPurgeableKeepCurrent',
+)
+
+export const kIOMemoryPurgeableNonVolatile = /* @__PURE__ */ _bind(
+	FW,
+	'kIOMemoryPurgeableNonVolatile',
+)
+
 export const kIOMemoryPurgeableVolatile = /* @__PURE__ */ _bind(FW, 'kIOMemoryPurgeableVolatile')
-export const kIOMemoryPurgeableVolatileBehaviorFifo = /* @__PURE__ */ _bind(FW, 'kIOMemoryPurgeableVolatileBehaviorFifo')
-export const kIOMemoryPurgeableVolatileBehaviorLifo = /* @__PURE__ */ _bind(FW, 'kIOMemoryPurgeableVolatileBehaviorLifo')
-export const kIOMemoryPurgeableVolatileGroup0 = /* @__PURE__ */ _bind(FW, 'kIOMemoryPurgeableVolatileGroup0')
-export const kIOMemoryPurgeableVolatileGroup1 = /* @__PURE__ */ _bind(FW, 'kIOMemoryPurgeableVolatileGroup1')
-export const kIOMemoryPurgeableVolatileGroup2 = /* @__PURE__ */ _bind(FW, 'kIOMemoryPurgeableVolatileGroup2')
-export const kIOMemoryPurgeableVolatileGroup3 = /* @__PURE__ */ _bind(FW, 'kIOMemoryPurgeableVolatileGroup3')
-export const kIOMemoryPurgeableVolatileGroup4 = /* @__PURE__ */ _bind(FW, 'kIOMemoryPurgeableVolatileGroup4')
-export const kIOMemoryPurgeableVolatileGroup5 = /* @__PURE__ */ _bind(FW, 'kIOMemoryPurgeableVolatileGroup5')
-export const kIOMemoryPurgeableVolatileGroup6 = /* @__PURE__ */ _bind(FW, 'kIOMemoryPurgeableVolatileGroup6')
-export const kIOMemoryPurgeableVolatileGroup7 = /* @__PURE__ */ _bind(FW, 'kIOMemoryPurgeableVolatileGroup7')
-export const kIOMemoryPurgeableVolatileOrderingNormal = /* @__PURE__ */ _bind(FW, 'kIOMemoryPurgeableVolatileOrderingNormal')
-export const kIOMemoryPurgeableVolatileOrderingObsolete = /* @__PURE__ */ _bind(FW, 'kIOMemoryPurgeableVolatileOrderingObsolete')
+export const kIOMemoryPurgeableVolatileBehaviorFifo = /* @__PURE__ */ _bind(
+	FW,
+	'kIOMemoryPurgeableVolatileBehaviorFifo',
+)
+
+export const kIOMemoryPurgeableVolatileBehaviorLifo = /* @__PURE__ */ _bind(
+	FW,
+	'kIOMemoryPurgeableVolatileBehaviorLifo',
+)
+
+export const kIOMemoryPurgeableVolatileGroup0 = /* @__PURE__ */ _bind(
+	FW,
+	'kIOMemoryPurgeableVolatileGroup0',
+)
+
+export const kIOMemoryPurgeableVolatileGroup1 = /* @__PURE__ */ _bind(
+	FW,
+	'kIOMemoryPurgeableVolatileGroup1',
+)
+
+export const kIOMemoryPurgeableVolatileGroup2 = /* @__PURE__ */ _bind(
+	FW,
+	'kIOMemoryPurgeableVolatileGroup2',
+)
+
+export const kIOMemoryPurgeableVolatileGroup3 = /* @__PURE__ */ _bind(
+	FW,
+	'kIOMemoryPurgeableVolatileGroup3',
+)
+
+export const kIOMemoryPurgeableVolatileGroup4 = /* @__PURE__ */ _bind(
+	FW,
+	'kIOMemoryPurgeableVolatileGroup4',
+)
+
+export const kIOMemoryPurgeableVolatileGroup5 = /* @__PURE__ */ _bind(
+	FW,
+	'kIOMemoryPurgeableVolatileGroup5',
+)
+
+export const kIOMemoryPurgeableVolatileGroup6 = /* @__PURE__ */ _bind(
+	FW,
+	'kIOMemoryPurgeableVolatileGroup6',
+)
+
+export const kIOMemoryPurgeableVolatileGroup7 = /* @__PURE__ */ _bind(
+	FW,
+	'kIOMemoryPurgeableVolatileGroup7',
+)
+
+export const kIOMemoryPurgeableVolatileOrderingNormal = /* @__PURE__ */ _bind(
+	FW,
+	'kIOMemoryPurgeableVolatileOrderingNormal',
+)
+
+export const kIOMemoryPurgeableVolatileOrderingObsolete = /* @__PURE__ */ _bind(
+	FW,
+	'kIOMemoryPurgeableVolatileOrderingObsolete',
+)
+
 export const kIOMemoryRemote = /* @__PURE__ */ _bind(FW, 'kIOMemoryRemote')
 export const kIOMemorySetEncrypted = /* @__PURE__ */ _bind(FW, 'kIOMemorySetEncrypted')
 export const kIOMemorySharingTypeMask = /* @__PURE__ */ _bind(FW, 'kIOMemorySharingTypeMask')
@@ -3859,68 +8211,180 @@ export const kIOOutputStatusMask = /* @__PURE__ */ _bind(FW, 'kIOOutputStatusMas
 export const kIOOutputStatusRetry = /* @__PURE__ */ _bind(FW, 'kIOOutputStatusRetry')
 export const kIOPCI32BitMemorySpace = /* @__PURE__ */ _bind(FW, 'kIOPCI32BitMemorySpace')
 export const kIOPCI64BitMemorySpace = /* @__PURE__ */ _bind(FW, 'kIOPCI64BitMemorySpace')
-export const kIOPCIAERCapCapControlOffset = /* @__PURE__ */ _bind(FW, 'kIOPCIAERCapCapControlOffset')
+export const kIOPCIAERCapCapControlOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIAERCapCapControlOffset',
+)
+
 export const kIOPCIAERCapCapHeaderOffset = /* @__PURE__ */ _bind(FW, 'kIOPCIAERCapCapHeaderOffset')
-export const kIOPCIAERCapCorErrMaskOffset = /* @__PURE__ */ _bind(FW, 'kIOPCIAERCapCorErrMaskOffset')
-export const kIOPCIAERCapCorErrStatusOffset = /* @__PURE__ */ _bind(FW, 'kIOPCIAERCapCorErrStatusOffset')
-export const kIOPCIAERCapErrSourceIDOffset = /* @__PURE__ */ _bind(FW, 'kIOPCIAERCapErrSourceIDOffset')
+export const kIOPCIAERCapCorErrMaskOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIAERCapCorErrMaskOffset',
+)
+
+export const kIOPCIAERCapCorErrStatusOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIAERCapCorErrStatusOffset',
+)
+
+export const kIOPCIAERCapErrSourceIDOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIAERCapErrSourceIDOffset',
+)
+
 export const kIOPCIAERCapHdrLogDW0Offset = /* @__PURE__ */ _bind(FW, 'kIOPCIAERCapHdrLogDW0Offset')
 export const kIOPCIAERCapHdrLogDW1Offset = /* @__PURE__ */ _bind(FW, 'kIOPCIAERCapHdrLogDW1Offset')
 export const kIOPCIAERCapHdrLogDW2Offset = /* @__PURE__ */ _bind(FW, 'kIOPCIAERCapHdrLogDW2Offset')
 export const kIOPCIAERCapHdrLogDW3Offset = /* @__PURE__ */ _bind(FW, 'kIOPCIAERCapHdrLogDW3Offset')
-export const kIOPCIAERCapRootErrCmdOffset = /* @__PURE__ */ _bind(FW, 'kIOPCIAERCapRootErrCmdOffset')
-export const kIOPCIAERCapRootErrStatusOffset = /* @__PURE__ */ _bind(FW, 'kIOPCIAERCapRootErrStatusOffset')
-export const kIOPCIAERCapTLPPrefixLogDW0Offset = /* @__PURE__ */ _bind(FW, 'kIOPCIAERCapTLPPrefixLogDW0Offset')
-export const kIOPCIAERCapTLPPrefixLogDW1Offset = /* @__PURE__ */ _bind(FW, 'kIOPCIAERCapTLPPrefixLogDW1Offset')
-export const kIOPCIAERCapTLPPrefixLogDW2Offset = /* @__PURE__ */ _bind(FW, 'kIOPCIAERCapTLPPrefixLogDW2Offset')
-export const kIOPCIAERCapTLPPrefixLogDW3Offset = /* @__PURE__ */ _bind(FW, 'kIOPCIAERCapTLPPrefixLogDW3Offset')
-export const kIOPCIAERCapUncErrMaskOffset = /* @__PURE__ */ _bind(FW, 'kIOPCIAERCapUncErrMaskOffset')
-export const kIOPCIAERCapUncErrSeverityOffset = /* @__PURE__ */ _bind(FW, 'kIOPCIAERCapUncErrSeverityOffset')
-export const kIOPCIAERCapUncErrStatusOffset = /* @__PURE__ */ _bind(FW, 'kIOPCIAERCapUncErrStatusOffset')
+export const kIOPCIAERCapRootErrCmdOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIAERCapRootErrCmdOffset',
+)
+
+export const kIOPCIAERCapRootErrStatusOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIAERCapRootErrStatusOffset',
+)
+
+export const kIOPCIAERCapTLPPrefixLogDW0Offset = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIAERCapTLPPrefixLogDW0Offset',
+)
+
+export const kIOPCIAERCapTLPPrefixLogDW1Offset = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIAERCapTLPPrefixLogDW1Offset',
+)
+
+export const kIOPCIAERCapTLPPrefixLogDW2Offset = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIAERCapTLPPrefixLogDW2Offset',
+)
+
+export const kIOPCIAERCapTLPPrefixLogDW3Offset = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIAERCapTLPPrefixLogDW3Offset',
+)
+
+export const kIOPCIAERCapUncErrMaskOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIAERCapUncErrMaskOffset',
+)
+
+export const kIOPCIAERCapUncErrSeverityOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIAERCapUncErrSeverityOffset',
+)
+
+export const kIOPCIAERCapUncErrStatusOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIAERCapUncErrStatusOffset',
+)
+
 export const kIOPCIAGP8Capability = /* @__PURE__ */ _bind(FW, 'kIOPCIAGP8Capability')
 export const kIOPCIAGPCapability = /* @__PURE__ */ _bind(FW, 'kIOPCIAGPCapability')
 export const kIOPCIAdapterHotAddPending = /* @__PURE__ */ _bind(FW, 'kIOPCIAdapterHotAddPending')
-export const kIOPCIAdapterHotRemovePending = /* @__PURE__ */ _bind(FW, 'kIOPCIAdapterHotRemovePending')
+export const kIOPCIAdapterHotRemovePending = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIAdapterHotRemovePending',
+)
+
 export const kIOPCIAdapterNotPresent = /* @__PURE__ */ _bind(FW, 'kIOPCIAdapterNotPresent')
-export const kIOPCIAdapterNotPresentPending = /* @__PURE__ */ _bind(FW, 'kIOPCIAdapterNotPresentPending')
+export const kIOPCIAdapterNotPresentPending = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIAdapterNotPresentPending',
+)
+
 export const kIOPCIAdapterPresent = /* @__PURE__ */ _bind(FW, 'kIOPCIAdapterPresent')
 export const kIOPCIAdapterUnused = /* @__PURE__ */ _bind(FW, 'kIOPCIAdapterUnused')
 export const kIOPCICPCIHotswapCapability = /* @__PURE__ */ _bind(FW, 'kIOPCICPCIHotswapCapability')
-export const kIOPCICPCIResourceControlCapability = /* @__PURE__ */ _bind(FW, 'kIOPCICPCIResourceControlCapability')
+export const kIOPCICPCIResourceControlCapability = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCICPCIResourceControlCapability',
+)
+
 export const kIOPCICapabilityIDAF = /* @__PURE__ */ _bind(FW, 'kIOPCICapabilityIDAF')
 export const kIOPCICapabilityIDAGP = /* @__PURE__ */ _bind(FW, 'kIOPCICapabilityIDAGP')
 export const kIOPCICapabilityIDAGP8 = /* @__PURE__ */ _bind(FW, 'kIOPCICapabilityIDAGP8')
-export const kIOPCICapabilityIDCPCIHotswap = /* @__PURE__ */ _bind(FW, 'kIOPCICapabilityIDCPCIHotswap')
-export const kIOPCICapabilityIDCPCIResourceControl = /* @__PURE__ */ _bind(FW, 'kIOPCICapabilityIDCPCIResourceControl')
+export const kIOPCICapabilityIDCPCIHotswap = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCICapabilityIDCPCIHotswap',
+)
+
+export const kIOPCICapabilityIDCPCIResourceControl = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCICapabilityIDCPCIResourceControl',
+)
+
 export const kIOPCICapabilityIDDebugPort = /* @__PURE__ */ _bind(FW, 'kIOPCICapabilityIDDebugPort')
-export const kIOPCICapabilityIDEnhancedAllocation = /* @__PURE__ */ _bind(FW, 'kIOPCICapabilityIDEnhancedAllocation')
+export const kIOPCICapabilityIDEnhancedAllocation = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCICapabilityIDEnhancedAllocation',
+)
+
 export const kIOPCICapabilityIDFPB = /* @__PURE__ */ _bind(FW, 'kIOPCICapabilityIDFPB')
 export const kIOPCICapabilityIDHotplug = /* @__PURE__ */ _bind(FW, 'kIOPCICapabilityIDHotplug')
 export const kIOPCICapabilityIDLDT = /* @__PURE__ */ _bind(FW, 'kIOPCICapabilityIDLDT')
 export const kIOPCICapabilityIDMSI = /* @__PURE__ */ _bind(FW, 'kIOPCICapabilityIDMSI')
 export const kIOPCICapabilityIDMSIX = /* @__PURE__ */ _bind(FW, 'kIOPCICapabilityIDMSIX')
 export const kIOPCICapabilityIDOffset = /* @__PURE__ */ _bind(FW, 'kIOPCICapabilityIDOffset')
-export const kIOPCICapabilityIDPCIExpress = /* @__PURE__ */ _bind(FW, 'kIOPCICapabilityIDPCIExpress')
+export const kIOPCICapabilityIDPCIExpress = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCICapabilityIDPCIExpress',
+)
+
 export const kIOPCICapabilityIDPCIX = /* @__PURE__ */ _bind(FW, 'kIOPCICapabilityIDPCIX')
-export const kIOPCICapabilityIDPowerManagement = /* @__PURE__ */ _bind(FW, 'kIOPCICapabilityIDPowerManagement')
-export const kIOPCICapabilityIDSATAConfiguration = /* @__PURE__ */ _bind(FW, 'kIOPCICapabilityIDSATAConfiguration')
+export const kIOPCICapabilityIDPowerManagement = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCICapabilityIDPowerManagement',
+)
+
+export const kIOPCICapabilityIDSATAConfiguration = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCICapabilityIDSATAConfiguration',
+)
+
 export const kIOPCICapabilityIDSecure = /* @__PURE__ */ _bind(FW, 'kIOPCICapabilityIDSecure')
 export const kIOPCICapabilityIDSlotID = /* @__PURE__ */ _bind(FW, 'kIOPCICapabilityIDSlotID')
-export const kIOPCICapabilityIDVendorSpecific = /* @__PURE__ */ _bind(FW, 'kIOPCICapabilityIDVendorSpecific')
-export const kIOPCICapabilityIDVitalProductData = /* @__PURE__ */ _bind(FW, 'kIOPCICapabilityIDVitalProductData')
-export const kIOPCICommandAddressStepping = /* @__PURE__ */ _bind(FW, 'kIOPCICommandAddressStepping')
+export const kIOPCICapabilityIDVendorSpecific = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCICapabilityIDVendorSpecific',
+)
+
+export const kIOPCICapabilityIDVitalProductData = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCICapabilityIDVitalProductData',
+)
+
+export const kIOPCICommandAddressStepping = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCICommandAddressStepping',
+)
+
 export const kIOPCICommandBusLead = /* @__PURE__ */ _bind(FW, 'kIOPCICommandBusLead')
 export const kIOPCICommandBusMaster = /* @__PURE__ */ _bind(FW, 'kIOPCICommandBusMaster')
 export const kIOPCICommandFastBack2Back = /* @__PURE__ */ _bind(FW, 'kIOPCICommandFastBack2Back')
 export const kIOPCICommandIOSpace = /* @__PURE__ */ _bind(FW, 'kIOPCICommandIOSpace')
-export const kIOPCICommandInterruptDisable = /* @__PURE__ */ _bind(FW, 'kIOPCICommandInterruptDisable')
-export const kIOPCICommandMemWrInvalidate = /* @__PURE__ */ _bind(FW, 'kIOPCICommandMemWrInvalidate')
+export const kIOPCICommandInterruptDisable = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCICommandInterruptDisable',
+)
+
+export const kIOPCICommandMemWrInvalidate = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCICommandMemWrInvalidate',
+)
+
 export const kIOPCICommandMemorySpace = /* @__PURE__ */ _bind(FW, 'kIOPCICommandMemorySpace')
 export const kIOPCICommandPaletteSnoop = /* @__PURE__ */ _bind(FW, 'kIOPCICommandPaletteSnoop')
 export const kIOPCICommandParityError = /* @__PURE__ */ _bind(FW, 'kIOPCICommandParityError')
 export const kIOPCICommandSERR = /* @__PURE__ */ _bind(FW, 'kIOPCICommandSERR')
 export const kIOPCICommandSpecialCycles = /* @__PURE__ */ _bind(FW, 'kIOPCICommandSpecialCycles')
-export const kIOPCIConfigAGPCommandOffset = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigAGPCommandOffset')
+export const kIOPCIConfigAGPCommandOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIConfigAGPCommandOffset',
+)
+
 export const kIOPCIConfigAGPStatusOffset = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigAGPStatusOffset')
 export const kIOPCIConfigBIST = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigBIST')
 export const kIOPCIConfigBaseAddress0 = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigBaseAddress0')
@@ -3935,7 +8399,11 @@ export const kIOPCIConfigCardBusCISPtr = /* @__PURE__ */ _bind(FW, 'kIOPCIConfig
 export const kIOPCIConfigClassCode = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigClassCode')
 export const kIOPCIConfigCommand = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigCommand')
 export const kIOPCIConfigDeviceID = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigDeviceID')
-export const kIOPCIConfigExpansionROMBase = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigExpansionROMBase')
+export const kIOPCIConfigExpansionROMBase = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIConfigExpansionROMBase',
+)
+
 export const kIOPCIConfigHeaderType = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigHeaderType')
 export const kIOPCIConfigInterruptLine = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigInterruptLine')
 export const kIOPCIConfigInterruptPin = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigInterruptPin')
@@ -3947,98 +8415,438 @@ export const kIOPCIConfigShadowPermanent = /* @__PURE__ */ _bind(FW, 'kIOPCIConf
 export const kIOPCIConfigSpace = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigSpace')
 export const kIOPCIConfigStatus = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigStatus')
 export const kIOPCIConfigSubSystemID = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigSubSystemID')
-export const kIOPCIConfigSubSystemVendorID = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigSubSystemVendorID')
+export const kIOPCIConfigSubSystemVendorID = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIConfigSubSystemVendorID',
+)
+
 export const kIOPCIConfigVendorID = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigVendorID')
-export const kIOPCIConfigurationOffsetBIST = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigurationOffsetBIST')
-export const kIOPCIConfigurationOffsetBaseAddress0 = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigurationOffsetBaseAddress0')
-export const kIOPCIConfigurationOffsetBaseAddress1 = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigurationOffsetBaseAddress1')
-export const kIOPCIConfigurationOffsetBaseAddress2 = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigurationOffsetBaseAddress2')
-export const kIOPCIConfigurationOffsetBaseAddress3 = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigurationOffsetBaseAddress3')
-export const kIOPCIConfigurationOffsetBaseAddress4 = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigurationOffsetBaseAddress4')
-export const kIOPCIConfigurationOffsetBaseAddress5 = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigurationOffsetBaseAddress5')
-export const kIOPCIConfigurationOffsetCacheLineSize = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigurationOffsetCacheLineSize')
-export const kIOPCIConfigurationOffsetCapabilitiesPtr = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigurationOffsetCapabilitiesPtr')
-export const kIOPCIConfigurationOffsetCardBusCISPtr = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigurationOffsetCardBusCISPtr')
-export const kIOPCIConfigurationOffsetClassCode = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigurationOffsetClassCode')
-export const kIOPCIConfigurationOffsetCommand = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigurationOffsetCommand')
-export const kIOPCIConfigurationOffsetDeviceID = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigurationOffsetDeviceID')
-export const kIOPCIConfigurationOffsetExpansionROMBase = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigurationOffsetExpansionROMBase')
-export const kIOPCIConfigurationOffsetHeaderType = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigurationOffsetHeaderType')
-export const kIOPCIConfigurationOffsetInterruptLine = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigurationOffsetInterruptLine')
-export const kIOPCIConfigurationOffsetInterruptPin = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigurationOffsetInterruptPin')
-export const kIOPCIConfigurationOffsetLatencyTimer = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigurationOffsetLatencyTimer')
-export const kIOPCIConfigurationOffsetMaximumLatency = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigurationOffsetMaximumLatency')
-export const kIOPCIConfigurationOffsetMinimumGrant = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigurationOffsetMinimumGrant')
-export const kIOPCIConfigurationOffsetRevisionID = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigurationOffsetRevisionID')
-export const kIOPCIConfigurationOffsetStatus = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigurationOffsetStatus')
-export const kIOPCIConfigurationOffsetSubSystemID = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigurationOffsetSubSystemID')
-export const kIOPCIConfigurationOffsetSubSystemVendorID = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigurationOffsetSubSystemVendorID')
-export const kIOPCIConfigurationOffsetVendorID = /* @__PURE__ */ _bind(FW, 'kIOPCIConfigurationOffsetVendorID')
-export const kIOPCICorrectableErrorBitAdvisoryNonFatal = /* @__PURE__ */ _bind(FW, 'kIOPCICorrectableErrorBitAdvisoryNonFatal')
-export const kIOPCICorrectableErrorBitBadDLLP = /* @__PURE__ */ _bind(FW, 'kIOPCICorrectableErrorBitBadDLLP')
-export const kIOPCICorrectableErrorBitBadTLP = /* @__PURE__ */ _bind(FW, 'kIOPCICorrectableErrorBitBadTLP')
-export const kIOPCICorrectableErrorBitCorrectedInternal = /* @__PURE__ */ _bind(FW, 'kIOPCICorrectableErrorBitCorrectedInternal')
-export const kIOPCICorrectableErrorBitHeaderLogOverflow = /* @__PURE__ */ _bind(FW, 'kIOPCICorrectableErrorBitHeaderLogOverflow')
-export const kIOPCICorrectableErrorBitReceiver = /* @__PURE__ */ _bind(FW, 'kIOPCICorrectableErrorBitReceiver')
-export const kIOPCICorrectableErrorBitReplayNumRollover = /* @__PURE__ */ _bind(FW, 'kIOPCICorrectableErrorBitReplayNumRollover')
-export const kIOPCICorrectableErrorBitReplayTimerTimeout = /* @__PURE__ */ _bind(FW, 'kIOPCICorrectableErrorBitReplayTimerTimeout')
+export const kIOPCIConfigurationOffsetBIST = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIConfigurationOffsetBIST',
+)
+
+export const kIOPCIConfigurationOffsetBaseAddress0 = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIConfigurationOffsetBaseAddress0',
+)
+
+export const kIOPCIConfigurationOffsetBaseAddress1 = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIConfigurationOffsetBaseAddress1',
+)
+
+export const kIOPCIConfigurationOffsetBaseAddress2 = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIConfigurationOffsetBaseAddress2',
+)
+
+export const kIOPCIConfigurationOffsetBaseAddress3 = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIConfigurationOffsetBaseAddress3',
+)
+
+export const kIOPCIConfigurationOffsetBaseAddress4 = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIConfigurationOffsetBaseAddress4',
+)
+
+export const kIOPCIConfigurationOffsetBaseAddress5 = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIConfigurationOffsetBaseAddress5',
+)
+
+export const kIOPCIConfigurationOffsetCacheLineSize = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIConfigurationOffsetCacheLineSize',
+)
+
+export const kIOPCIConfigurationOffsetCapabilitiesPtr = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIConfigurationOffsetCapabilitiesPtr',
+)
+
+export const kIOPCIConfigurationOffsetCardBusCISPtr = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIConfigurationOffsetCardBusCISPtr',
+)
+
+export const kIOPCIConfigurationOffsetClassCode = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIConfigurationOffsetClassCode',
+)
+
+export const kIOPCIConfigurationOffsetCommand = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIConfigurationOffsetCommand',
+)
+
+export const kIOPCIConfigurationOffsetDeviceID = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIConfigurationOffsetDeviceID',
+)
+
+export const kIOPCIConfigurationOffsetExpansionROMBase = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIConfigurationOffsetExpansionROMBase',
+)
+
+export const kIOPCIConfigurationOffsetHeaderType = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIConfigurationOffsetHeaderType',
+)
+
+export const kIOPCIConfigurationOffsetInterruptLine = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIConfigurationOffsetInterruptLine',
+)
+
+export const kIOPCIConfigurationOffsetInterruptPin = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIConfigurationOffsetInterruptPin',
+)
+
+export const kIOPCIConfigurationOffsetLatencyTimer = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIConfigurationOffsetLatencyTimer',
+)
+
+export const kIOPCIConfigurationOffsetMaximumLatency = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIConfigurationOffsetMaximumLatency',
+)
+
+export const kIOPCIConfigurationOffsetMinimumGrant = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIConfigurationOffsetMinimumGrant',
+)
+
+export const kIOPCIConfigurationOffsetRevisionID = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIConfigurationOffsetRevisionID',
+)
+
+export const kIOPCIConfigurationOffsetStatus = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIConfigurationOffsetStatus',
+)
+
+export const kIOPCIConfigurationOffsetSubSystemID = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIConfigurationOffsetSubSystemID',
+)
+
+export const kIOPCIConfigurationOffsetSubSystemVendorID = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIConfigurationOffsetSubSystemVendorID',
+)
+
+export const kIOPCIConfigurationOffsetVendorID = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIConfigurationOffsetVendorID',
+)
+
+export const kIOPCICorrectableErrorBitAdvisoryNonFatal = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCICorrectableErrorBitAdvisoryNonFatal',
+)
+
+export const kIOPCICorrectableErrorBitBadDLLP = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCICorrectableErrorBitBadDLLP',
+)
+
+export const kIOPCICorrectableErrorBitBadTLP = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCICorrectableErrorBitBadTLP',
+)
+
+export const kIOPCICorrectableErrorBitCorrectedInternal = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCICorrectableErrorBitCorrectedInternal',
+)
+
+export const kIOPCICorrectableErrorBitHeaderLogOverflow = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCICorrectableErrorBitHeaderLogOverflow',
+)
+
+export const kIOPCICorrectableErrorBitReceiver = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCICorrectableErrorBitReceiver',
+)
+
+export const kIOPCICorrectableErrorBitReplayNumRollover = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCICorrectableErrorBitReplayNumRollover',
+)
+
+export const kIOPCICorrectableErrorBitReplayTimerTimeout = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCICorrectableErrorBitReplayTimerTimeout',
+)
+
 export const kIOPCIDebugPortCapability = /* @__PURE__ */ _bind(FW, 'kIOPCIDebugPortCapability')
 export const kIOPCIDeviceDozeState = /* @__PURE__ */ _bind(FW, 'kIOPCIDeviceDozeState')
 export const kIOPCIDeviceOffState = /* @__PURE__ */ _bind(FW, 'kIOPCIDeviceOffState')
 export const kIOPCIDeviceOnState = /* @__PURE__ */ _bind(FW, 'kIOPCIDeviceOnState')
 export const kIOPCIDevicePausedState = /* @__PURE__ */ _bind(FW, 'kIOPCIDevicePausedState')
 export const kIOPCIDevicePowerStateCount = /* @__PURE__ */ _bind(FW, 'kIOPCIDevicePowerStateCount')
-export const kIOPCIExpressAccessControlServicesCapability = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressAccessControlServicesCapability')
-export const kIOPCIExpressCapabilityIDAMD = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDAMD')
-export const kIOPCIExpressCapabilityIDATS = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDATS')
-export const kIOPCIExpressCapabilityIDAccessControlServices = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDAccessControlServices')
-export const kIOPCIExpressCapabilityIDAlternateProtocol = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDAlternateProtocol')
-export const kIOPCIExpressCapabilityIDAlternativeRoutingID = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDAlternativeRoutingID')
-export const kIOPCIExpressCapabilityIDCAC = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDCAC')
-export const kIOPCIExpressCapabilityIDDPA = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDDPA')
-export const kIOPCIExpressCapabilityIDDPC = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDDPC')
-export const kIOPCIExpressCapabilityIDDVSEC = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDDVSEC')
-export const kIOPCIExpressCapabilityIDDataLinkFeature = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDDataLinkFeature')
-export const kIOPCIExpressCapabilityIDDeviceSerialNumber = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDDeviceSerialNumber')
-export const kIOPCIExpressCapabilityIDErrorReporting = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDErrorReporting')
-export const kIOPCIExpressCapabilityIDFRSQueueing = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDFRSQueueing')
-export const kIOPCIExpressCapabilityIDHierarchyID = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDHierarchyID')
-export const kIOPCIExpressCapabilityIDL1PMSubstates = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDL1PMSubstates')
-export const kIOPCIExpressCapabilityIDLNR = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDLNR')
-export const kIOPCIExpressCapabilityIDLaneMarginingRx = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDLaneMarginingRx')
-export const kIOPCIExpressCapabilityIDLatencyTolerenceReporting = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDLatencyTolerenceReporting')
-export const kIOPCIExpressCapabilityIDMFVC = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDMFVC')
-export const kIOPCIExpressCapabilityIDMPCIe = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDMPCIe')
-export const kIOPCIExpressCapabilityIDMRIOV = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDMRIOV')
-export const kIOPCIExpressCapabilityIDMulticast = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDMulticast')
-export const kIOPCIExpressCapabilityIDNPEM = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDNPEM')
-export const kIOPCIExpressCapabilityIDPASID = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDPASID')
-export const kIOPCIExpressCapabilityIDPL16GTs = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDPL16GTs')
-export const kIOPCIExpressCapabilityIDPL32GTs = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDPL32GTs')
-export const kIOPCIExpressCapabilityIDPMUX = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDPMUX')
-export const kIOPCIExpressCapabilityIDPRI = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDPRI')
-export const kIOPCIExpressCapabilityIDPowerBudget = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDPowerBudget')
-export const kIOPCIExpressCapabilityIDPrecisionTimeManagement = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDPrecisionTimeManagement')
-export const kIOPCIExpressCapabilityIDRCECEndpointAssociation = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDRCECEndpointAssociation')
-export const kIOPCIExpressCapabilityIDRCInternalLinkCtrl = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDRCInternalLinkCtrl')
-export const kIOPCIExpressCapabilityIDRCLinkDeclaration = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDRCLinkDeclaration')
-export const kIOPCIExpressCapabilityIDReadinessTimeReporting = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDReadinessTimeReporting')
-export const kIOPCIExpressCapabilityIDResizableBAR = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDResizableBAR')
-export const kIOPCIExpressCapabilityIDRootComplexRegBlock = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDRootComplexRegBlock')
-export const kIOPCIExpressCapabilityIDSFI = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDSFI')
-export const kIOPCIExpressCapabilityIDSPCIe = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDSPCIe')
-export const kIOPCIExpressCapabilityIDSRIOV = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDSRIOV')
-export const kIOPCIExpressCapabilityIDTPHRequester = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDTPHRequester')
-export const kIOPCIExpressCapabilityIDVC_MFVCPresent = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDVC_MFVCPresent')
-export const kIOPCIExpressCapabilityIDVFResizableBAR = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDVFResizableBAR')
-export const kIOPCIExpressCapabilityIDVSEC = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDVSEC')
-export const kIOPCIExpressCapabilityIDVirtualChannel = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressCapabilityIDVirtualChannel')
-export const kIOPCIExpressDeviceSerialNumberCapability = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressDeviceSerialNumberCapability')
-export const kIOPCIExpressErrorReportingCapability = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressErrorReportingCapability')
-export const kIOPCIExpressL1PMSubstatesCapability = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressL1PMSubstatesCapability')
-export const kIOPCIExpressLatencyTolerenceReportingCapability = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressLatencyTolerenceReportingCapability')
-export const kIOPCIExpressPowerBudgetCapability = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressPowerBudgetCapability')
-export const kIOPCIExpressVirtualChannelCapability = /* @__PURE__ */ _bind(FW, 'kIOPCIExpressVirtualChannelCapability')
+export const kIOPCIExpressAccessControlServicesCapability = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressAccessControlServicesCapability',
+)
+
+export const kIOPCIExpressCapabilityIDAMD = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDAMD',
+)
+
+export const kIOPCIExpressCapabilityIDATS = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDATS',
+)
+
+export const kIOPCIExpressCapabilityIDAccessControlServices = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDAccessControlServices',
+)
+
+export const kIOPCIExpressCapabilityIDAlternateProtocol = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDAlternateProtocol',
+)
+
+export const kIOPCIExpressCapabilityIDAlternativeRoutingID = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDAlternativeRoutingID',
+)
+
+export const kIOPCIExpressCapabilityIDCAC = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDCAC',
+)
+
+export const kIOPCIExpressCapabilityIDDPA = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDDPA',
+)
+
+export const kIOPCIExpressCapabilityIDDPC = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDDPC',
+)
+
+export const kIOPCIExpressCapabilityIDDVSEC = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDDVSEC',
+)
+
+export const kIOPCIExpressCapabilityIDDataLinkFeature = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDDataLinkFeature',
+)
+
+export const kIOPCIExpressCapabilityIDDeviceSerialNumber = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDDeviceSerialNumber',
+)
+
+export const kIOPCIExpressCapabilityIDErrorReporting = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDErrorReporting',
+)
+
+export const kIOPCIExpressCapabilityIDFRSQueueing = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDFRSQueueing',
+)
+
+export const kIOPCIExpressCapabilityIDHierarchyID = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDHierarchyID',
+)
+
+export const kIOPCIExpressCapabilityIDL1PMSubstates = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDL1PMSubstates',
+)
+
+export const kIOPCIExpressCapabilityIDLNR = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDLNR',
+)
+
+export const kIOPCIExpressCapabilityIDLaneMarginingRx = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDLaneMarginingRx',
+)
+
+export const kIOPCIExpressCapabilityIDLatencyTolerenceReporting = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDLatencyTolerenceReporting',
+)
+
+export const kIOPCIExpressCapabilityIDMFVC = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDMFVC',
+)
+
+export const kIOPCIExpressCapabilityIDMPCIe = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDMPCIe',
+)
+
+export const kIOPCIExpressCapabilityIDMRIOV = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDMRIOV',
+)
+
+export const kIOPCIExpressCapabilityIDMulticast = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDMulticast',
+)
+
+export const kIOPCIExpressCapabilityIDNPEM = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDNPEM',
+)
+
+export const kIOPCIExpressCapabilityIDPASID = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDPASID',
+)
+
+export const kIOPCIExpressCapabilityIDPL16GTs = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDPL16GTs',
+)
+
+export const kIOPCIExpressCapabilityIDPL32GTs = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDPL32GTs',
+)
+
+export const kIOPCIExpressCapabilityIDPMUX = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDPMUX',
+)
+
+export const kIOPCIExpressCapabilityIDPRI = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDPRI',
+)
+
+export const kIOPCIExpressCapabilityIDPowerBudget = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDPowerBudget',
+)
+
+export const kIOPCIExpressCapabilityIDPrecisionTimeManagement = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDPrecisionTimeManagement',
+)
+
+export const kIOPCIExpressCapabilityIDRCECEndpointAssociation = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDRCECEndpointAssociation',
+)
+
+export const kIOPCIExpressCapabilityIDRCInternalLinkCtrl = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDRCInternalLinkCtrl',
+)
+
+export const kIOPCIExpressCapabilityIDRCLinkDeclaration = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDRCLinkDeclaration',
+)
+
+export const kIOPCIExpressCapabilityIDReadinessTimeReporting = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDReadinessTimeReporting',
+)
+
+export const kIOPCIExpressCapabilityIDResizableBAR = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDResizableBAR',
+)
+
+export const kIOPCIExpressCapabilityIDRootComplexRegBlock = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDRootComplexRegBlock',
+)
+
+export const kIOPCIExpressCapabilityIDSFI = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDSFI',
+)
+
+export const kIOPCIExpressCapabilityIDSPCIe = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDSPCIe',
+)
+
+export const kIOPCIExpressCapabilityIDSRIOV = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDSRIOV',
+)
+
+export const kIOPCIExpressCapabilityIDTPHRequester = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDTPHRequester',
+)
+
+export const kIOPCIExpressCapabilityIDVC_MFVCPresent = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDVC_MFVCPresent',
+)
+
+export const kIOPCIExpressCapabilityIDVFResizableBAR = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDVFResizableBAR',
+)
+
+export const kIOPCIExpressCapabilityIDVSEC = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDVSEC',
+)
+
+export const kIOPCIExpressCapabilityIDVirtualChannel = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressCapabilityIDVirtualChannel',
+)
+
+export const kIOPCIExpressDeviceSerialNumberCapability = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressDeviceSerialNumberCapability',
+)
+
+export const kIOPCIExpressErrorReportingCapability = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressErrorReportingCapability',
+)
+
+export const kIOPCIExpressL1PMSubstatesCapability = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressL1PMSubstatesCapability',
+)
+
+export const kIOPCIExpressLatencyTolerenceReportingCapability = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressLatencyTolerenceReportingCapability',
+)
+
+export const kIOPCIExpressPowerBudgetCapability = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressPowerBudgetCapability',
+)
+
+export const kIOPCIExpressVirtualChannelCapability = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIExpressVirtualChannelCapability',
+)
+
 export const kIOPCIFPBCapability = /* @__PURE__ */ _bind(FW, 'kIOPCIFPBCapability')
 export const kIOPCIHotplugCapability = /* @__PURE__ */ _bind(FW, 'kIOPCIHotplugCapability')
 export const kIOPCIIOSpace = /* @__PURE__ */ _bind(FW, 'kIOPCIIOSpace')
@@ -4050,7 +8858,11 @@ export const kIOPCIMSIXCapability = /* @__PURE__ */ _bind(FW, 'kIOPCIMSIXCapabil
 export const kIOPCINextCapabilityOffset = /* @__PURE__ */ _bind(FW, 'kIOPCINextCapabilityOffset')
 export const kIOPCIPCIExpressCapability = /* @__PURE__ */ _bind(FW, 'kIOPCIPCIExpressCapability')
 export const kIOPCIPCIXCapability = /* @__PURE__ */ _bind(FW, 'kIOPCIPCIXCapability')
-export const kIOPCIPowerManagementCapability = /* @__PURE__ */ _bind(FW, 'kIOPCIPowerManagementCapability')
+export const kIOPCIPowerManagementCapability = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIPowerManagementCapability',
+)
+
 export const kIOPCIProbeOptionDone = /* @__PURE__ */ _bind(FW, 'kIOPCIProbeOptionDone')
 export const kIOPCIProbeOptionEject = /* @__PURE__ */ _bind(FW, 'kIOPCIProbeOptionEject')
 export const kIOPCIProbeOptionNeedsScan = /* @__PURE__ */ _bind(FW, 'kIOPCIProbeOptionNeedsScan')
@@ -4058,27 +8870,103 @@ export const kIOPCIResourceTypeBusNumber = /* @__PURE__ */ _bind(FW, 'kIOPCIReso
 export const kIOPCIResourceTypeCount = /* @__PURE__ */ _bind(FW, 'kIOPCIResourceTypeCount')
 export const kIOPCIResourceTypeIO = /* @__PURE__ */ _bind(FW, 'kIOPCIResourceTypeIO')
 export const kIOPCIResourceTypeMemory = /* @__PURE__ */ _bind(FW, 'kIOPCIResourceTypeMemory')
-export const kIOPCIResourceTypePrefetchMemory = /* @__PURE__ */ _bind(FW, 'kIOPCIResourceTypePrefetchMemory')
+export const kIOPCIResourceTypePrefetchMemory = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIResourceTypePrefetchMemory',
+)
+
 export const kIOPCISecureCapability = /* @__PURE__ */ _bind(FW, 'kIOPCISecureCapability')
-export const kIOPCISlotCapabilitiesBitAttentionButtonPresent = /* @__PURE__ */ _bind(FW, 'kIOPCISlotCapabilitiesBitAttentionButtonPresent')
-export const kIOPCISlotCapabilitiesBitAttentionIndicatorPresent = /* @__PURE__ */ _bind(FW, 'kIOPCISlotCapabilitiesBitAttentionIndicatorPresent')
-export const kIOPCISlotCapabilitiesBitElectromechanicalInterlockPresent = /* @__PURE__ */ _bind(FW, 'kIOPCISlotCapabilitiesBitElectromechanicalInterlockPresent')
-export const kIOPCISlotCapabilitiesBitHotPlugCapable = /* @__PURE__ */ _bind(FW, 'kIOPCISlotCapabilitiesBitHotPlugCapable')
-export const kIOPCISlotCapabilitiesBitHotPlugSurprise = /* @__PURE__ */ _bind(FW, 'kIOPCISlotCapabilitiesBitHotPlugSurprise')
-export const kIOPCISlotCapabilitiesBitMRLSensorPresent = /* @__PURE__ */ _bind(FW, 'kIOPCISlotCapabilitiesBitMRLSensorPresent')
-export const kIOPCISlotCapabilitiesBitNoCommandCompletedSupport = /* @__PURE__ */ _bind(FW, 'kIOPCISlotCapabilitiesBitNoCommandCompletedSupport')
-export const kIOPCISlotCapabilitiesBitPowerControllerPresent = /* @__PURE__ */ _bind(FW, 'kIOPCISlotCapabilitiesBitPowerControllerPresent')
-export const kIOPCISlotCapabilitiesBitPowerIndicatorPresent = /* @__PURE__ */ _bind(FW, 'kIOPCISlotCapabilitiesBitPowerIndicatorPresent')
+export const kIOPCISlotCapabilitiesBitAttentionButtonPresent = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCISlotCapabilitiesBitAttentionButtonPresent',
+)
+
+export const kIOPCISlotCapabilitiesBitAttentionIndicatorPresent = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCISlotCapabilitiesBitAttentionIndicatorPresent',
+)
+
+export const kIOPCISlotCapabilitiesBitElectromechanicalInterlockPresent = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCISlotCapabilitiesBitElectromechanicalInterlockPresent',
+)
+
+export const kIOPCISlotCapabilitiesBitHotPlugCapable = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCISlotCapabilitiesBitHotPlugCapable',
+)
+
+export const kIOPCISlotCapabilitiesBitHotPlugSurprise = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCISlotCapabilitiesBitHotPlugSurprise',
+)
+
+export const kIOPCISlotCapabilitiesBitMRLSensorPresent = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCISlotCapabilitiesBitMRLSensorPresent',
+)
+
+export const kIOPCISlotCapabilitiesBitNoCommandCompletedSupport = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCISlotCapabilitiesBitNoCommandCompletedSupport',
+)
+
+export const kIOPCISlotCapabilitiesBitPowerControllerPresent = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCISlotCapabilitiesBitPowerControllerPresent',
+)
+
+export const kIOPCISlotCapabilitiesBitPowerIndicatorPresent = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCISlotCapabilitiesBitPowerIndicatorPresent',
+)
+
 export const kIOPCISlotIDCapability = /* @__PURE__ */ _bind(FW, 'kIOPCISlotIDCapability')
-export const kIOPCISlotStatusAttentionButtonPressed = /* @__PURE__ */ _bind(FW, 'kIOPCISlotStatusAttentionButtonPressed')
-export const kIOPCISlotStatusCommandCompleted = /* @__PURE__ */ _bind(FW, 'kIOPCISlotStatusCommandCompleted')
-export const kIOPCISlotStatusDataLinkLayerStateChanged = /* @__PURE__ */ _bind(FW, 'kIOPCISlotStatusDataLinkLayerStateChanged')
-export const kIOPCISlotStatusElectromechanicalInterlockState = /* @__PURE__ */ _bind(FW, 'kIOPCISlotStatusElectromechanicalInterlockState')
-export const kIOPCISlotStatusMRLSensorChanged = /* @__PURE__ */ _bind(FW, 'kIOPCISlotStatusMRLSensorChanged')
-export const kIOPCISlotStatusMRLSensorState = /* @__PURE__ */ _bind(FW, 'kIOPCISlotStatusMRLSensorState')
-export const kIOPCISlotStatusPowerFaultDetected = /* @__PURE__ */ _bind(FW, 'kIOPCISlotStatusPowerFaultDetected')
-export const kIOPCISlotStatusPresenceDetectChanged = /* @__PURE__ */ _bind(FW, 'kIOPCISlotStatusPresenceDetectChanged')
-export const kIOPCISlotStatusPresenceDetectState = /* @__PURE__ */ _bind(FW, 'kIOPCISlotStatusPresenceDetectState')
+export const kIOPCISlotStatusAttentionButtonPressed = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCISlotStatusAttentionButtonPressed',
+)
+
+export const kIOPCISlotStatusCommandCompleted = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCISlotStatusCommandCompleted',
+)
+
+export const kIOPCISlotStatusDataLinkLayerStateChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCISlotStatusDataLinkLayerStateChanged',
+)
+
+export const kIOPCISlotStatusElectromechanicalInterlockState = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCISlotStatusElectromechanicalInterlockState',
+)
+
+export const kIOPCISlotStatusMRLSensorChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCISlotStatusMRLSensorChanged',
+)
+
+export const kIOPCISlotStatusMRLSensorState = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCISlotStatusMRLSensorState',
+)
+
+export const kIOPCISlotStatusPowerFaultDetected = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCISlotStatusPowerFaultDetected',
+)
+
+export const kIOPCISlotStatusPresenceDetectChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCISlotStatusPresenceDetectChanged',
+)
+
+export const kIOPCISlotStatusPresenceDetectState = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCISlotStatusPresenceDetectState',
+)
+
 export const kIOPCIStatusCapabilities = /* @__PURE__ */ _bind(FW, 'kIOPCIStatusCapabilities')
 export const kIOPCIStatusDevSel0 = /* @__PURE__ */ _bind(FW, 'kIOPCIStatusDevSel0')
 export const kIOPCIStatusDevSel1 = /* @__PURE__ */ _bind(FW, 'kIOPCIStatusDevSel1')
@@ -4087,38 +8975,126 @@ export const kIOPCIStatusDevSel3 = /* @__PURE__ */ _bind(FW, 'kIOPCIStatusDevSel
 export const kIOPCIStatusFastBack2Back = /* @__PURE__ */ _bind(FW, 'kIOPCIStatusFastBack2Back')
 export const kIOPCIStatusInterrupt = /* @__PURE__ */ _bind(FW, 'kIOPCIStatusInterrupt')
 export const kIOPCIStatusLeadAbortActive = /* @__PURE__ */ _bind(FW, 'kIOPCIStatusLeadAbortActive')
-export const kIOPCIStatusMasterAbortActive = /* @__PURE__ */ _bind(FW, 'kIOPCIStatusMasterAbortActive')
+export const kIOPCIStatusMasterAbortActive = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIStatusMasterAbortActive',
+)
+
 export const kIOPCIStatusPCI66 = /* @__PURE__ */ _bind(FW, 'kIOPCIStatusPCI66')
 export const kIOPCIStatusParityErrActive = /* @__PURE__ */ _bind(FW, 'kIOPCIStatusParityErrActive')
 export const kIOPCIStatusSERRActive = /* @__PURE__ */ _bind(FW, 'kIOPCIStatusSERRActive')
-export const kIOPCIStatusTargetAbortActive = /* @__PURE__ */ _bind(FW, 'kIOPCIStatusTargetAbortActive')
-export const kIOPCIStatusTargetAbortCapable = /* @__PURE__ */ _bind(FW, 'kIOPCIStatusTargetAbortCapable')
+export const kIOPCIStatusTargetAbortActive = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIStatusTargetAbortActive',
+)
+
+export const kIOPCIStatusTargetAbortCapable = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIStatusTargetAbortCapable',
+)
+
 export const kIOPCIStatusUDF = /* @__PURE__ */ _bind(FW, 'kIOPCIStatusUDF')
-export const kIOPCIUncorrectableErrorBitACSViolation = /* @__PURE__ */ _bind(FW, 'kIOPCIUncorrectableErrorBitACSViolation')
-export const kIOPCIUncorrectableErrorBitAtomicOpEgressBlocked = /* @__PURE__ */ _bind(FW, 'kIOPCIUncorrectableErrorBitAtomicOpEgressBlocked')
-export const kIOPCIUncorrectableErrorBitCompleterAbort = /* @__PURE__ */ _bind(FW, 'kIOPCIUncorrectableErrorBitCompleterAbort')
-export const kIOPCIUncorrectableErrorBitCompletionTimeout = /* @__PURE__ */ _bind(FW, 'kIOPCIUncorrectableErrorBitCompletionTimeout')
-export const kIOPCIUncorrectableErrorBitDataLinkProtocol = /* @__PURE__ */ _bind(FW, 'kIOPCIUncorrectableErrorBitDataLinkProtocol')
-export const kIOPCIUncorrectableErrorBitECRC = /* @__PURE__ */ _bind(FW, 'kIOPCIUncorrectableErrorBitECRC')
-export const kIOPCIUncorrectableErrorBitFlowControlProtocol = /* @__PURE__ */ _bind(FW, 'kIOPCIUncorrectableErrorBitFlowControlProtocol')
-export const kIOPCIUncorrectableErrorBitInternal = /* @__PURE__ */ _bind(FW, 'kIOPCIUncorrectableErrorBitInternal')
-export const kIOPCIUncorrectableErrorBitMCBlockedTLP = /* @__PURE__ */ _bind(FW, 'kIOPCIUncorrectableErrorBitMCBlockedTLP')
-export const kIOPCIUncorrectableErrorBitMalformedTLP = /* @__PURE__ */ _bind(FW, 'kIOPCIUncorrectableErrorBitMalformedTLP')
-export const kIOPCIUncorrectableErrorBitPoisonedTLP = /* @__PURE__ */ _bind(FW, 'kIOPCIUncorrectableErrorBitPoisonedTLP')
-export const kIOPCIUncorrectableErrorBitReceiverOverflow = /* @__PURE__ */ _bind(FW, 'kIOPCIUncorrectableErrorBitReceiverOverflow')
-export const kIOPCIUncorrectableErrorBitSurpriseDown = /* @__PURE__ */ _bind(FW, 'kIOPCIUncorrectableErrorBitSurpriseDown')
-export const kIOPCIUncorrectableErrorBitTLPPrefixBlocked = /* @__PURE__ */ _bind(FW, 'kIOPCIUncorrectableErrorBitTLPPrefixBlocked')
-export const kIOPCIUncorrectableErrorBitUnexpectedCompletion = /* @__PURE__ */ _bind(FW, 'kIOPCIUncorrectableErrorBitUnexpectedCompletion')
-export const kIOPCIUncorrectableErrorBitUnsupportedRequest = /* @__PURE__ */ _bind(FW, 'kIOPCIUncorrectableErrorBitUnsupportedRequest')
-export const kIOPCIVendorSpecificCapability = /* @__PURE__ */ _bind(FW, 'kIOPCIVendorSpecificCapability')
-export const kIOPCIVitalProductDataCapability = /* @__PURE__ */ _bind(FW, 'kIOPCIVitalProductDataCapability')
+export const kIOPCIUncorrectableErrorBitACSViolation = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIUncorrectableErrorBitACSViolation',
+)
+
+export const kIOPCIUncorrectableErrorBitAtomicOpEgressBlocked = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIUncorrectableErrorBitAtomicOpEgressBlocked',
+)
+
+export const kIOPCIUncorrectableErrorBitCompleterAbort = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIUncorrectableErrorBitCompleterAbort',
+)
+
+export const kIOPCIUncorrectableErrorBitCompletionTimeout = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIUncorrectableErrorBitCompletionTimeout',
+)
+
+export const kIOPCIUncorrectableErrorBitDataLinkProtocol = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIUncorrectableErrorBitDataLinkProtocol',
+)
+
+export const kIOPCIUncorrectableErrorBitECRC = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIUncorrectableErrorBitECRC',
+)
+
+export const kIOPCIUncorrectableErrorBitFlowControlProtocol = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIUncorrectableErrorBitFlowControlProtocol',
+)
+
+export const kIOPCIUncorrectableErrorBitInternal = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIUncorrectableErrorBitInternal',
+)
+
+export const kIOPCIUncorrectableErrorBitMCBlockedTLP = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIUncorrectableErrorBitMCBlockedTLP',
+)
+
+export const kIOPCIUncorrectableErrorBitMalformedTLP = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIUncorrectableErrorBitMalformedTLP',
+)
+
+export const kIOPCIUncorrectableErrorBitPoisonedTLP = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIUncorrectableErrorBitPoisonedTLP',
+)
+
+export const kIOPCIUncorrectableErrorBitReceiverOverflow = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIUncorrectableErrorBitReceiverOverflow',
+)
+
+export const kIOPCIUncorrectableErrorBitSurpriseDown = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIUncorrectableErrorBitSurpriseDown',
+)
+
+export const kIOPCIUncorrectableErrorBitTLPPrefixBlocked = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIUncorrectableErrorBitTLPPrefixBlocked',
+)
+
+export const kIOPCIUncorrectableErrorBitUnexpectedCompletion = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIUncorrectableErrorBitUnexpectedCompletion',
+)
+
+export const kIOPCIUncorrectableErrorBitUnsupportedRequest = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIUncorrectableErrorBitUnsupportedRequest',
+)
+
+export const kIOPCIVendorSpecificCapability = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIVendorSpecificCapability',
+)
+
+export const kIOPCIVitalProductDataCapability = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPCIVitalProductDataCapability',
+)
+
 export const kIOPMPowerStateVersion1 = /* @__PURE__ */ _bind(FW, 'kIOPMPowerStateVersion1')
 export const kIOPMPowerStateVersion2 = /* @__PURE__ */ _bind(FW, 'kIOPMPowerStateVersion2')
 export const kIOPMRunModeFullWake = /* @__PURE__ */ _bind(FW, 'kIOPMRunModeFullWake')
 export const kIOPMSupportedOnAC = /* @__PURE__ */ _bind(FW, 'kIOPMSupportedOnAC')
 export const kIOPMSupportedOnBatt = /* @__PURE__ */ _bind(FW, 'kIOPMSupportedOnBatt')
 export const kIOPMSupportedOnUPS = /* @__PURE__ */ _bind(FW, 'kIOPMSupportedOnUPS')
-export const kIOPreparationIDAlwaysPrepared = /* @__PURE__ */ _bind(FW, 'kIOPreparationIDAlwaysPrepared')
+export const kIOPreparationIDAlwaysPrepared = /* @__PURE__ */ _bind(
+	FW,
+	'kIOPreparationIDAlwaysPrepared',
+)
+
 export const kIOPreparationIDUnprepared = /* @__PURE__ */ _bind(FW, 'kIOPreparationIDUnprepared')
 export const kIOPreparationIDUnsupported = /* @__PURE__ */ _bind(FW, 'kIOPreparationIDUnsupported')
 export const kIOReportCopyChannelData = /* @__PURE__ */ _bind(FW, 'kIOReportCopyChannelData')
@@ -4132,16 +9108,28 @@ export const kIOReportGetDimensions = /* @__PURE__ */ _bind(FW, 'kIOReportGetDim
 export const kIOReportInvalidFormat = /* @__PURE__ */ _bind(FW, 'kIOReportInvalidFormat')
 export const kIOReportNotifyHubOnChange = /* @__PURE__ */ _bind(FW, 'kIOReportNotifyHubOnChange')
 export const kIOReportQuantityCPUInstrs = /* @__PURE__ */ _bind(FW, 'kIOReportQuantityCPUInstrs')
-export const kIOReportQuantityCapacitance = /* @__PURE__ */ _bind(FW, 'kIOReportQuantityCapacitance')
+export const kIOReportQuantityCapacitance = /* @__PURE__ */ _bind(
+	FW,
+	'kIOReportQuantityCapacitance',
+)
+
 export const kIOReportQuantityCurrent = /* @__PURE__ */ _bind(FW, 'kIOReportQuantityCurrent')
 export const kIOReportQuantityData = /* @__PURE__ */ _bind(FW, 'kIOReportQuantityData')
 export const kIOReportQuantityEnergy = /* @__PURE__ */ _bind(FW, 'kIOReportQuantityEnergy')
 export const kIOReportQuantityEventCount = /* @__PURE__ */ _bind(FW, 'kIOReportQuantityEventCount')
 export const kIOReportQuantityFrequency = /* @__PURE__ */ _bind(FW, 'kIOReportQuantityFrequency')
 export const kIOReportQuantityInductance = /* @__PURE__ */ _bind(FW, 'kIOReportQuantityInductance')
-export const kIOReportQuantityPacketCount = /* @__PURE__ */ _bind(FW, 'kIOReportQuantityPacketCount')
+export const kIOReportQuantityPacketCount = /* @__PURE__ */ _bind(
+	FW,
+	'kIOReportQuantityPacketCount',
+)
+
 export const kIOReportQuantityPower = /* @__PURE__ */ _bind(FW, 'kIOReportQuantityPower')
-export const kIOReportQuantityTemperature = /* @__PURE__ */ _bind(FW, 'kIOReportQuantityTemperature')
+export const kIOReportQuantityTemperature = /* @__PURE__ */ _bind(
+	FW,
+	'kIOReportQuantityTemperature',
+)
+
 export const kIOReportQuantityTime = /* @__PURE__ */ _bind(FW, 'kIOReportQuantityTime')
 export const kIOReportQuantityUndefined = /* @__PURE__ */ _bind(FW, 'kIOReportQuantityUndefined')
 export const kIOReportQuantityVoltage = /* @__PURE__ */ _bind(FW, 'kIOReportQuantityVoltage')
@@ -4150,46 +9138,126 @@ export const kIOReportTraceOnChange = /* @__PURE__ */ _bind(FW, 'kIOReportTraceO
 export const kIOReturnOutputDropped = /* @__PURE__ */ _bind(FW, 'kIOReturnOutputDropped')
 export const kIOReturnOutputStall = /* @__PURE__ */ _bind(FW, 'kIOReturnOutputStall')
 export const kIOReturnOutputSuccess = /* @__PURE__ */ _bind(FW, 'kIOReturnOutputSuccess')
-export const kIOSerializeEditorOnAllCollections = /* @__PURE__ */ _bind(FW, 'kIOSerializeEditorOnAllCollections')
+export const kIOSerializeEditorOnAllCollections = /* @__PURE__ */ _bind(
+	FW,
+	'kIOSerializeEditorOnAllCollections',
+)
+
 export const kIOSerializeEditorOnArrays = /* @__PURE__ */ _bind(FW, 'kIOSerializeEditorOnArrays')
-export const kIOSerializeEditorOnDictionaries = /* @__PURE__ */ _bind(FW, 'kIOSerializeEditorOnDictionaries')
+export const kIOSerializeEditorOnDictionaries = /* @__PURE__ */ _bind(
+	FW,
+	'kIOSerializeEditorOnDictionaries',
+)
+
 export const kIOSerializeEditorOnSets = /* @__PURE__ */ _bind(FW, 'kIOSerializeEditorOnSets')
 export const kIOSerializeUniqueAll = /* @__PURE__ */ _bind(FW, 'kIOSerializeUniqueAll')
 export const kIOSerializeUniqueDisable = /* @__PURE__ */ _bind(FW, 'kIOSerializeUniqueDisable')
 export const kIOServiceAsynchronous = /* @__PURE__ */ _bind(FW, 'kIOServiceAsynchronous')
-export const kIOServiceDextRequirePowerForMatching = /* @__PURE__ */ _bind(FW, 'kIOServiceDextRequirePowerForMatching')
+export const kIOServiceDextRequirePowerForMatching = /* @__PURE__ */ _bind(
+	FW,
+	'kIOServiceDextRequirePowerForMatching',
+)
+
 export const kIOServiceExclusive = /* @__PURE__ */ _bind(FW, 'kIOServiceExclusive')
-export const kIOServiceFamilyCloseOptions = /* @__PURE__ */ _bind(FW, 'kIOServiceFamilyCloseOptions')
+export const kIOServiceFamilyCloseOptions = /* @__PURE__ */ _bind(
+	FW,
+	'kIOServiceFamilyCloseOptions',
+)
+
 export const kIOServiceFamilyOpenOptions = /* @__PURE__ */ _bind(FW, 'kIOServiceFamilyOpenOptions')
 export const kIOServiceFirstMatchState = /* @__PURE__ */ _bind(FW, 'kIOServiceFirstMatchState')
 export const kIOServiceFirstPublishState = /* @__PURE__ */ _bind(FW, 'kIOServiceFirstPublishState')
 export const kIOServiceInactiveState = /* @__PURE__ */ _bind(FW, 'kIOServiceInactiveState')
 export const kIOServiceMatchedState = /* @__PURE__ */ _bind(FW, 'kIOServiceMatchedState')
-export const kIOServiceNotificationTypeLast = /* @__PURE__ */ _bind(FW, 'kIOServiceNotificationTypeLast')
-export const kIOServiceNotificationTypeMatched = /* @__PURE__ */ _bind(FW, 'kIOServiceNotificationTypeMatched')
-export const kIOServiceNotificationTypeNone = /* @__PURE__ */ _bind(FW, 'kIOServiceNotificationTypeNone')
-export const kIOServiceNotificationTypeTerminated = /* @__PURE__ */ _bind(FW, 'kIOServiceNotificationTypeTerminated')
+export const kIOServiceNotificationTypeLast = /* @__PURE__ */ _bind(
+	FW,
+	'kIOServiceNotificationTypeLast',
+)
+
+export const kIOServiceNotificationTypeMatched = /* @__PURE__ */ _bind(
+	FW,
+	'kIOServiceNotificationTypeMatched',
+)
+
+export const kIOServiceNotificationTypeNone = /* @__PURE__ */ _bind(
+	FW,
+	'kIOServiceNotificationTypeNone',
+)
+
+export const kIOServiceNotificationTypeTerminated = /* @__PURE__ */ _bind(
+	FW,
+	'kIOServiceNotificationTypeTerminated',
+)
+
 export const kIOServiceRegisteredState = /* @__PURE__ */ _bind(FW, 'kIOServiceRegisteredState')
 export const kIOServiceRequired = /* @__PURE__ */ _bind(FW, 'kIOServiceRequired')
-export const kIOServiceReservedMatchState = /* @__PURE__ */ _bind(FW, 'kIOServiceReservedMatchState')
+export const kIOServiceReservedMatchState = /* @__PURE__ */ _bind(
+	FW,
+	'kIOServiceReservedMatchState',
+)
+
 export const kIOServiceSeize = /* @__PURE__ */ _bind(FW, 'kIOServiceSeize')
 export const kIOServiceSynchronous = /* @__PURE__ */ _bind(FW, 'kIOServiceSynchronous')
 export const kIOServiceTerminate = /* @__PURE__ */ _bind(FW, 'kIOServiceTerminate')
-export const kIOServiceTerminateWithRematch = /* @__PURE__ */ _bind(FW, 'kIOServiceTerminateWithRematch')
-export const kIOServiceTerminateWithRematchCurrentDext = /* @__PURE__ */ _bind(FW, 'kIOServiceTerminateWithRematchCurrentDext')
+export const kIOServiceTerminateWithRematch = /* @__PURE__ */ _bind(
+	FW,
+	'kIOServiceTerminateWithRematch',
+)
+
+export const kIOServiceTerminateWithRematchCurrentDext = /* @__PURE__ */ _bind(
+	FW,
+	'kIOServiceTerminateWithRematchCurrentDext',
+)
+
 export const kIOSleepWakeWdogOff = /* @__PURE__ */ _bind(FW, 'kIOSleepWakeWdogOff')
 export const kIOStatistics = /* @__PURE__ */ _bind(FW, 'kIOStatistics')
 export const kIOTimeOptionsContinuous = /* @__PURE__ */ _bind(FW, 'kIOTimeOptionsContinuous')
 export const kIOTimeOptionsWithLeeway = /* @__PURE__ */ _bind(FW, 'kIOTimeOptionsWithLeeway')
-export const kIOTimerEventSourceOptionsAllowReenter = /* @__PURE__ */ _bind(FW, 'kIOTimerEventSourceOptionsAllowReenter')
-export const kIOTimerEventSourceOptionsDefault = /* @__PURE__ */ _bind(FW, 'kIOTimerEventSourceOptionsDefault')
-export const kIOTimerEventSourceOptionsPriorityHigh = /* @__PURE__ */ _bind(FW, 'kIOTimerEventSourceOptionsPriorityHigh')
-export const kIOTimerEventSourceOptionsPriorityKernel = /* @__PURE__ */ _bind(FW, 'kIOTimerEventSourceOptionsPriorityKernel')
-export const kIOTimerEventSourceOptionsPriorityKernelHigh = /* @__PURE__ */ _bind(FW, 'kIOTimerEventSourceOptionsPriorityKernelHigh')
-export const kIOTimerEventSourceOptionsPriorityLow = /* @__PURE__ */ _bind(FW, 'kIOTimerEventSourceOptionsPriorityLow')
-export const kIOTimerEventSourceOptionsPriorityMask = /* @__PURE__ */ _bind(FW, 'kIOTimerEventSourceOptionsPriorityMask')
-export const kIOTimerEventSourceOptionsPriorityUser = /* @__PURE__ */ _bind(FW, 'kIOTimerEventSourceOptionsPriorityUser')
-export const kIOTimerEventSourceOptionsPriorityWorkLoop = /* @__PURE__ */ _bind(FW, 'kIOTimerEventSourceOptionsPriorityWorkLoop')
+export const kIOTimerEventSourceOptionsAllowReenter = /* @__PURE__ */ _bind(
+	FW,
+	'kIOTimerEventSourceOptionsAllowReenter',
+)
+
+export const kIOTimerEventSourceOptionsDefault = /* @__PURE__ */ _bind(
+	FW,
+	'kIOTimerEventSourceOptionsDefault',
+)
+
+export const kIOTimerEventSourceOptionsPriorityHigh = /* @__PURE__ */ _bind(
+	FW,
+	'kIOTimerEventSourceOptionsPriorityHigh',
+)
+
+export const kIOTimerEventSourceOptionsPriorityKernel = /* @__PURE__ */ _bind(
+	FW,
+	'kIOTimerEventSourceOptionsPriorityKernel',
+)
+
+export const kIOTimerEventSourceOptionsPriorityKernelHigh = /* @__PURE__ */ _bind(
+	FW,
+	'kIOTimerEventSourceOptionsPriorityKernelHigh',
+)
+
+export const kIOTimerEventSourceOptionsPriorityLow = /* @__PURE__ */ _bind(
+	FW,
+	'kIOTimerEventSourceOptionsPriorityLow',
+)
+
+export const kIOTimerEventSourceOptionsPriorityMask = /* @__PURE__ */ _bind(
+	FW,
+	'kIOTimerEventSourceOptionsPriorityMask',
+)
+
+export const kIOTimerEventSourceOptionsPriorityUser = /* @__PURE__ */ _bind(
+	FW,
+	'kIOTimerEventSourceOptionsPriorityUser',
+)
+
+export const kIOTimerEventSourceOptionsPriorityWorkLoop = /* @__PURE__ */ _bind(
+	FW,
+	'kIOTimerEventSourceOptionsPriorityWorkLoop',
+)
+
 export const kIOTraceCommandGates = /* @__PURE__ */ _bind(FW, 'kIOTraceCommandGates')
 export const kIOTraceCompatBootArgs = /* @__PURE__ */ _bind(FW, 'kIOTraceCompatBootArgs')
 export const kIOTraceEventSources = /* @__PURE__ */ _bind(FW, 'kIOTraceEventSources')
@@ -4210,7 +9278,11 @@ export const kIOTrackingLeakScanEnd = /* @__PURE__ */ _bind(FW, 'kIOTrackingLeak
 export const kIOTrackingLeakScanStart = /* @__PURE__ */ _bind(FW, 'kIOTrackingLeakScanStart')
 export const kIOTrackingLeaks = /* @__PURE__ */ _bind(FW, 'kIOTrackingLeaks')
 export const kIOTrackingResetTracking = /* @__PURE__ */ _bind(FW, 'kIOTrackingResetTracking')
-export const kIOTrackingSetMinCaptureSize = /* @__PURE__ */ _bind(FW, 'kIOTrackingSetMinCaptureSize')
+export const kIOTrackingSetMinCaptureSize = /* @__PURE__ */ _bind(
+	FW,
+	'kIOTrackingSetMinCaptureSize',
+)
+
 export const kIOTrackingStartCapture = /* @__PURE__ */ _bind(FW, 'kIOTrackingStartCapture')
 export const kIOTrackingStopCapture = /* @__PURE__ */ _bind(FW, 'kIOTrackingStopCapture')
 export const kIOUCForegroundOnly = /* @__PURE__ */ _bind(FW, 'kIOUCForegroundOnly')
@@ -4221,33 +9293,89 @@ export const kIOUCStructIStructO = /* @__PURE__ */ _bind(FW, 'kIOUCStructIStruct
 export const kIOUCTypeMask = /* @__PURE__ */ _bind(FW, 'kIOUCTypeMask')
 export const kIOUCVariableStructureSize = /* @__PURE__ */ _bind(FW, 'kIOUCVariableStructureSize')
 export const kIOUSBHostPipeBundlingMax = /* @__PURE__ */ _bind(FW, 'kIOUSBHostPipeBundlingMax')
-export const kIOUnserializeEditorOnAllCollections = /* @__PURE__ */ _bind(FW, 'kIOUnserializeEditorOnAllCollections')
-export const kIOUnserializeEditorOnArrays = /* @__PURE__ */ _bind(FW, 'kIOUnserializeEditorOnArrays')
-export const kIOUnserializeEditorOnDictionaries = /* @__PURE__ */ _bind(FW, 'kIOUnserializeEditorOnDictionaries')
+export const kIOUnserializeEditorOnAllCollections = /* @__PURE__ */ _bind(
+	FW,
+	'kIOUnserializeEditorOnAllCollections',
+)
+
+export const kIOUnserializeEditorOnArrays = /* @__PURE__ */ _bind(
+	FW,
+	'kIOUnserializeEditorOnArrays',
+)
+
+export const kIOUnserializeEditorOnDictionaries = /* @__PURE__ */ _bind(
+	FW,
+	'kIOUnserializeEditorOnDictionaries',
+)
+
 export const kIOUnserializeEditorOnSets = /* @__PURE__ */ _bind(FW, 'kIOUnserializeEditorOnSets')
 export const kIOUserNotifyMaxMessageSize = /* @__PURE__ */ _bind(FW, 'kIOUserNotifyMaxMessageSize')
 export const kIOUserNotifyOptionCanDrop = /* @__PURE__ */ _bind(FW, 'kIOUserNotifyOptionCanDrop')
 export const kIOVideoDeviceMethodClose = /* @__PURE__ */ _bind(FW, 'kIOVideoDeviceMethodClose')
-export const kIOVideoDeviceMethodCloseStream = /* @__PURE__ */ _bind(FW, 'kIOVideoDeviceMethodCloseStream')
+export const kIOVideoDeviceMethodCloseStream = /* @__PURE__ */ _bind(
+	FW,
+	'kIOVideoDeviceMethodCloseStream',
+)
+
 export const kIOVideoDeviceMethodCount = /* @__PURE__ */ _bind(FW, 'kIOVideoDeviceMethodCount')
 export const kIOVideoDeviceMethodGetMode = /* @__PURE__ */ _bind(FW, 'kIOVideoDeviceMethodGetMode')
 export const kIOVideoDeviceMethodOpen = /* @__PURE__ */ _bind(FW, 'kIOVideoDeviceMethodOpen')
-export const kIOVideoDeviceMethodOpenStream = /* @__PURE__ */ _bind(FW, 'kIOVideoDeviceMethodOpenStream')
-export const kIOVideoDeviceMethodSetControlValue = /* @__PURE__ */ _bind(FW, 'kIOVideoDeviceMethodSetControlValue')
+export const kIOVideoDeviceMethodOpenStream = /* @__PURE__ */ _bind(
+	FW,
+	'kIOVideoDeviceMethodOpenStream',
+)
+
+export const kIOVideoDeviceMethodSetControlValue = /* @__PURE__ */ _bind(
+	FW,
+	'kIOVideoDeviceMethodSetControlValue',
+)
+
 export const kIOVideoDeviceMethodSetMode = /* @__PURE__ */ _bind(FW, 'kIOVideoDeviceMethodSetMode')
-export const kIOVideoDeviceMethodSetStreamFormat = /* @__PURE__ */ _bind(FW, 'kIOVideoDeviceMethodSetStreamFormat')
-export const kIOVideoDeviceMethodStartStream = /* @__PURE__ */ _bind(FW, 'kIOVideoDeviceMethodStartStream')
-export const kIOVideoDeviceMethodStopStream = /* @__PURE__ */ _bind(FW, 'kIOVideoDeviceMethodStopStream')
-export const kIOVideoDeviceMethodSuspendStream = /* @__PURE__ */ _bind(FW, 'kIOVideoDeviceMethodSuspendStream')
+export const kIOVideoDeviceMethodSetStreamFormat = /* @__PURE__ */ _bind(
+	FW,
+	'kIOVideoDeviceMethodSetStreamFormat',
+)
+
+export const kIOVideoDeviceMethodStartStream = /* @__PURE__ */ _bind(
+	FW,
+	'kIOVideoDeviceMethodStartStream',
+)
+
+export const kIOVideoDeviceMethodStopStream = /* @__PURE__ */ _bind(
+	FW,
+	'kIOVideoDeviceMethodStopStream',
+)
+
+export const kIOVideoDeviceMethodSuspendStream = /* @__PURE__ */ _bind(
+	FW,
+	'kIOVideoDeviceMethodSuspendStream',
+)
+
 export const kIOWaitQuietBeforeRoot = /* @__PURE__ */ _bind(FW, 'kIOWaitQuietBeforeRoot')
 export const kIOWaitQuietPanics = /* @__PURE__ */ _bind(FW, 'kIOWaitQuietPanics')
 export const kIOWorkGroupMaxNameLength = /* @__PURE__ */ _bind(FW, 'kIOWorkGroupMaxNameLength')
 export const kIOmemoryLedgerTagNetwork = /* @__PURE__ */ _bind(FW, 'kIOmemoryLedgerTagNetwork')
-export const kInterfaceFeatureSelectorSuspend = /* @__PURE__ */ _bind(FW, 'kInterfaceFeatureSelectorSuspend')
-export const kInterfaceStatusRemoteWakeCapable = /* @__PURE__ */ _bind(FW, 'kInterfaceStatusRemoteWakeCapable')
-export const kInterfaceStatusRemoteWakeEnable = /* @__PURE__ */ _bind(FW, 'kInterfaceStatusRemoteWakeEnable')
+export const kInterfaceFeatureSelectorSuspend = /* @__PURE__ */ _bind(
+	FW,
+	'kInterfaceFeatureSelectorSuspend',
+)
+
+export const kInterfaceStatusRemoteWakeCapable = /* @__PURE__ */ _bind(
+	FW,
+	'kInterfaceStatusRemoteWakeCapable',
+)
+
+export const kInterfaceStatusRemoteWakeEnable = /* @__PURE__ */ _bind(
+	FW,
+	'kInterfaceStatusRemoteWakeEnable',
+)
+
 export const kInterfaceSuspendLowPower = /* @__PURE__ */ _bind(FW, 'kInterfaceSuspendLowPower')
-export const kInterfaceSuspendRemoteWakeEnable = /* @__PURE__ */ _bind(FW, 'kInterfaceSuspendRemoteWakeEnable')
+export const kInterfaceSuspendRemoteWakeEnable = /* @__PURE__ */ _bind(
+	FW,
+	'kInterfaceSuspendRemoteWakeEnable',
+)
+
 export const kInterruptRetries = /* @__PURE__ */ _bind(FW, 'kInterruptRetries')
 export const kIterationDone = /* @__PURE__ */ _bind(FW, 'kIterationDone')
 export const kKUNCAlternateResponse = /* @__PURE__ */ _bind(FW, 'kKUNCAlternateResponse')
@@ -4290,13 +9418,29 @@ export const kPCI2PCIMemoryRange = /* @__PURE__ */ _bind(FW, 'kPCI2PCIMemoryRang
 export const kPCI2PCIOffsetBridgeControl = /* @__PURE__ */ _bind(FW, 'kPCI2PCIOffsetBridgeControl')
 export const kPCI2PCIOffsetIORange = /* @__PURE__ */ _bind(FW, 'kPCI2PCIOffsetIORange')
 export const kPCI2PCIOffsetMemoryRange = /* @__PURE__ */ _bind(FW, 'kPCI2PCIOffsetMemoryRange')
-export const kPCI2PCIOffsetPrefetchMemoryRange = /* @__PURE__ */ _bind(FW, 'kPCI2PCIOffsetPrefetchMemoryRange')
-export const kPCI2PCIOffsetPrefetchUpperBase = /* @__PURE__ */ _bind(FW, 'kPCI2PCIOffsetPrefetchUpperBase')
-export const kPCI2PCIOffsetPrefetchUpperLimit = /* @__PURE__ */ _bind(FW, 'kPCI2PCIOffsetPrefetchUpperLimit')
+export const kPCI2PCIOffsetPrefetchMemoryRange = /* @__PURE__ */ _bind(
+	FW,
+	'kPCI2PCIOffsetPrefetchMemoryRange',
+)
+
+export const kPCI2PCIOffsetPrefetchUpperBase = /* @__PURE__ */ _bind(
+	FW,
+	'kPCI2PCIOffsetPrefetchUpperBase',
+)
+
+export const kPCI2PCIOffsetPrefetchUpperLimit = /* @__PURE__ */ _bind(
+	FW,
+	'kPCI2PCIOffsetPrefetchUpperLimit',
+)
+
 export const kPCI2PCIOffsetPrimaryBus = /* @__PURE__ */ _bind(FW, 'kPCI2PCIOffsetPrimaryBus')
 export const kPCI2PCIOffsetSecondaryBus = /* @__PURE__ */ _bind(FW, 'kPCI2PCIOffsetSecondaryBus')
 export const kPCI2PCIOffsetSecondaryLT = /* @__PURE__ */ _bind(FW, 'kPCI2PCIOffsetSecondaryLT')
-export const kPCI2PCIOffsetSubordinateBus = /* @__PURE__ */ _bind(FW, 'kPCI2PCIOffsetSubordinateBus')
+export const kPCI2PCIOffsetSubordinateBus = /* @__PURE__ */ _bind(
+	FW,
+	'kPCI2PCIOffsetSubordinateBus',
+)
+
 export const kPCI2PCIOffsetUpperIORange = /* @__PURE__ */ _bind(FW, 'kPCI2PCIOffsetUpperIORange')
 export const kPCI2PCIPrefetchMemoryRange = /* @__PURE__ */ _bind(FW, 'kPCI2PCIPrefetchMemoryRange')
 export const kPCI2PCIPrefetchUpperBase = /* @__PURE__ */ _bind(FW, 'kPCI2PCIPrefetchUpperBase')
@@ -4331,14 +9475,26 @@ export const kPEPagingOff = /* @__PURE__ */ _bind(FW, 'kPEPagingOff')
 export const kPEPanicBegin = /* @__PURE__ */ _bind(FW, 'kPEPanicBegin')
 export const kPEPanicDataSend = /* @__PURE__ */ _bind(FW, 'kPEPanicDataSend')
 export const kPEPanicDiagnosticsDone = /* @__PURE__ */ _bind(FW, 'kPEPanicDiagnosticsDone')
-export const kPEPanicDiagnosticsInProgress = /* @__PURE__ */ _bind(FW, 'kPEPanicDiagnosticsInProgress')
+export const kPEPanicDiagnosticsInProgress = /* @__PURE__ */ _bind(
+	FW,
+	'kPEPanicDiagnosticsInProgress',
+)
+
 export const kPEPanicEnd = /* @__PURE__ */ _bind(FW, 'kPEPanicEnd')
 export const kPEPanicRestartCPU = /* @__PURE__ */ _bind(FW, 'kPEPanicRestartCPU')
-export const kPEPanicRestartCPUNoCallouts = /* @__PURE__ */ _bind(FW, 'kPEPanicRestartCPUNoCallouts')
+export const kPEPanicRestartCPUNoCallouts = /* @__PURE__ */ _bind(
+	FW,
+	'kPEPanicRestartCPUNoCallouts',
+)
+
 export const kPEPanicSync = /* @__PURE__ */ _bind(FW, 'kPEPanicSync')
 export const kPERestartCPU = /* @__PURE__ */ _bind(FW, 'kPERestartCPU')
 export const kPEUPSDelayHaltCPU = /* @__PURE__ */ _bind(FW, 'kPEUPSDelayHaltCPU')
-export const kPeripheralDeviceTypeNoMatch = /* @__PURE__ */ _bind(FW, 'kPeripheralDeviceTypeNoMatch')
+export const kPeripheralDeviceTypeNoMatch = /* @__PURE__ */ _bind(
+	FW,
+	'kPeripheralDeviceTypeNoMatch',
+)
+
 export const kPingResponseTimeNs = /* @__PURE__ */ _bind(FW, 'kPingResponseTimeNs')
 export const kRegCStrMaxEntryNameLength = /* @__PURE__ */ _bind(FW, 'kRegCStrMaxEntryNameLength')
 export const kRegEntryNameTerminator = /* @__PURE__ */ _bind(FW, 'kRegEntryNameTerminator')
@@ -4350,21 +9506,49 @@ export const kRegIterRoot = /* @__PURE__ */ _bind(FW, 'kRegIterRoot')
 export const kRegIterSibling = /* @__PURE__ */ _bind(FW, 'kRegIterSibling')
 export const kRegIterSubTrees = /* @__PURE__ */ _bind(FW, 'kRegIterSubTrees')
 export const kRegMaxPropertyNameLength = /* @__PURE__ */ _bind(FW, 'kRegMaxPropertyNameLength')
-export const kRegMaximumPropertyNameLength = /* @__PURE__ */ _bind(FW, 'kRegMaximumPropertyNameLength')
+export const kRegMaximumPropertyNameLength = /* @__PURE__ */ _bind(
+	FW,
+	'kRegMaximumPropertyNameLength',
+)
+
 export const kRegModifierMask = /* @__PURE__ */ _bind(FW, 'kRegModifierMask')
 export const kRegNameSpaceModifierMask = /* @__PURE__ */ _bind(FW, 'kRegNameSpaceModifierMask')
 export const kRegNoModifiers = /* @__PURE__ */ _bind(FW, 'kRegNoModifiers')
 export const kRegPathNameSeparator = /* @__PURE__ */ _bind(FW, 'kRegPathNameSeparator')
 export const kRegPathNameTerminator = /* @__PURE__ */ _bind(FW, 'kRegPathNameTerminator')
 export const kRegPropertyNameTerminator = /* @__PURE__ */ _bind(FW, 'kRegPropertyNameTerminator')
-export const kRegPropertyValueIsSavedToDisk = /* @__PURE__ */ _bind(FW, 'kRegPropertyValueIsSavedToDisk')
-export const kRegPropertyValueIsSavedToNVRAM = /* @__PURE__ */ _bind(FW, 'kRegPropertyValueIsSavedToNVRAM')
+export const kRegPropertyValueIsSavedToDisk = /* @__PURE__ */ _bind(
+	FW,
+	'kRegPropertyValueIsSavedToDisk',
+)
+
+export const kRegPropertyValueIsSavedToNVRAM = /* @__PURE__ */ _bind(
+	FW,
+	'kRegPropertyValueIsSavedToNVRAM',
+)
+
 export const kRegUniversalModifierMask = /* @__PURE__ */ _bind(FW, 'kRegUniversalModifierMask')
-export const kRootDomainSleepNotSupported = /* @__PURE__ */ _bind(FW, 'kRootDomainSleepNotSupported')
+export const kRootDomainSleepNotSupported = /* @__PURE__ */ _bind(
+	FW,
+	'kRootDomainSleepNotSupported',
+)
+
 export const kRootDomainSleepSupported = /* @__PURE__ */ _bind(FW, 'kRootDomainSleepSupported')
-export const kSCSIControllerNotificationBusReset = /* @__PURE__ */ _bind(FW, 'kSCSIControllerNotificationBusReset')
-export const kSCSIParallelTaskControllerIDQueueHead = /* @__PURE__ */ _bind(FW, 'kSCSIParallelTaskControllerIDQueueHead')
-export const kSCSIPort_NotificationStatusChange = /* @__PURE__ */ _bind(FW, 'kSCSIPort_NotificationStatusChange')
+export const kSCSIControllerNotificationBusReset = /* @__PURE__ */ _bind(
+	FW,
+	'kSCSIControllerNotificationBusReset',
+)
+
+export const kSCSIParallelTaskControllerIDQueueHead = /* @__PURE__ */ _bind(
+	FW,
+	'kSCSIParallelTaskControllerIDQueueHead',
+)
+
+export const kSCSIPort_NotificationStatusChange = /* @__PURE__ */ _bind(
+	FW,
+	'kSCSIPort_NotificationStatusChange',
+)
+
 export const kSCSIPort_StatusFailure = /* @__PURE__ */ _bind(FW, 'kSCSIPort_StatusFailure')
 export const kSCSIPort_StatusOffline = /* @__PURE__ */ _bind(FW, 'kSCSIPort_StatusOffline')
 export const kSCSIPort_StatusOnline = /* @__PURE__ */ _bind(FW, 'kSCSIPort_StatusOnline')
@@ -4382,85 +9566,385 @@ export const kState_On = /* @__PURE__ */ _bind(FW, 'kState_On')
 export const kState_On_ModifiersDown = /* @__PURE__ */ _bind(FW, 'kState_On_ModifiersDown')
 export const kState_ShiftActivates_Flag = /* @__PURE__ */ _bind(FW, 'kState_ShiftActivates_Flag')
 export const kSuccess = /* @__PURE__ */ _bind(FW, 'kSuccess')
-export const kSuperSpeedDeviceCapability5Gb = /* @__PURE__ */ _bind(FW, 'kSuperSpeedDeviceCapability5Gb')
-export const kSuperSpeedDeviceCapabilityFullSpeed = /* @__PURE__ */ _bind(FW, 'kSuperSpeedDeviceCapabilityFullSpeed')
-export const kSuperSpeedDeviceCapabilityHighSpeed = /* @__PURE__ */ _bind(FW, 'kSuperSpeedDeviceCapabilityHighSpeed')
-export const kSuperSpeedDeviceCapabilityLTM = /* @__PURE__ */ _bind(FW, 'kSuperSpeedDeviceCapabilityLTM')
-export const kSuperSpeedDeviceCapabilityLowSpeed = /* @__PURE__ */ _bind(FW, 'kSuperSpeedDeviceCapabilityLowSpeed')
-export const kSuperSpeedDeviceCapabilitySupport5Gb = /* @__PURE__ */ _bind(FW, 'kSuperSpeedDeviceCapabilitySupport5Gb')
-export const kSuperSpeedDeviceCapabilitySupportFullSpeed = /* @__PURE__ */ _bind(FW, 'kSuperSpeedDeviceCapabilitySupportFullSpeed')
-export const kSuperSpeedDeviceCapabilitySupportHighSpeed = /* @__PURE__ */ _bind(FW, 'kSuperSpeedDeviceCapabilitySupportHighSpeed')
-export const kSuperSpeedDeviceCapabilitySupportLowSpeed = /* @__PURE__ */ _bind(FW, 'kSuperSpeedDeviceCapabilitySupportLowSpeed')
-export const kSuperSpeedDeviceCapabilityU1DevExitLatMax = /* @__PURE__ */ _bind(FW, 'kSuperSpeedDeviceCapabilityU1DevExitLatMax')
-export const kSuperSpeedDeviceCapabilityU2DevExitLatMax = /* @__PURE__ */ _bind(FW, 'kSuperSpeedDeviceCapabilityU2DevExitLatMax')
-export const kSuperSpeedEndpointCompanionDescriptorBulkMaxStreams = /* @__PURE__ */ _bind(FW, 'kSuperSpeedEndpointCompanionDescriptorBulkMaxStreams')
-export const kSuperSpeedEndpointCompanionDescriptorBulkMaxStreamsPhase = /* @__PURE__ */ _bind(FW, 'kSuperSpeedEndpointCompanionDescriptorBulkMaxStreamsPhase')
-export const kSuperSpeedEndpointCompanionDescriptorBulkReserved = /* @__PURE__ */ _bind(FW, 'kSuperSpeedEndpointCompanionDescriptorBulkReserved')
-export const kSuperSpeedEndpointCompanionDescriptorBulkReservedPhase = /* @__PURE__ */ _bind(FW, 'kSuperSpeedEndpointCompanionDescriptorBulkReservedPhase')
-export const kSuperSpeedEndpointCompanionDescriptorIsocMult = /* @__PURE__ */ _bind(FW, 'kSuperSpeedEndpointCompanionDescriptorIsocMult')
-export const kSuperSpeedEndpointCompanionDescriptorIsocMultPhase = /* @__PURE__ */ _bind(FW, 'kSuperSpeedEndpointCompanionDescriptorIsocMultPhase')
-export const kSuperSpeedEndpointCompanionDescriptorIsocReserved = /* @__PURE__ */ _bind(FW, 'kSuperSpeedEndpointCompanionDescriptorIsocReserved')
-export const kSuperSpeedEndpointCompanionDescriptorIsocReservedPhase = /* @__PURE__ */ _bind(FW, 'kSuperSpeedEndpointCompanionDescriptorIsocReservedPhase')
-export const kSuperSpeedEndpointCompanionDescriptorMaxBurst = /* @__PURE__ */ _bind(FW, 'kSuperSpeedEndpointCompanionDescriptorMaxBurst')
-export const kSuperSpeedEndpointCompanionDescriptorMaxBurstPhase = /* @__PURE__ */ _bind(FW, 'kSuperSpeedEndpointCompanionDescriptorMaxBurstPhase')
-export const kSuperSpeedEndpointCompanionDescriptorSSPIsocCompanion = /* @__PURE__ */ _bind(FW, 'kSuperSpeedEndpointCompanionDescriptorSSPIsocCompanion')
-export const kSuperSpeedHubCharacteristicsCompoundDevice = /* @__PURE__ */ _bind(FW, 'kSuperSpeedHubCharacteristicsCompoundDevice')
-export const kSuperSpeedHubCharacteristicsOverCurrentGlobal = /* @__PURE__ */ _bind(FW, 'kSuperSpeedHubCharacteristicsOverCurrentGlobal')
-export const kSuperSpeedHubCharacteristicsOverCurrentIndividual = /* @__PURE__ */ _bind(FW, 'kSuperSpeedHubCharacteristicsOverCurrentIndividual')
-export const kSuperSpeedHubCharacteristicsOverCurrentMask = /* @__PURE__ */ _bind(FW, 'kSuperSpeedHubCharacteristicsOverCurrentMask')
-export const kSuperSpeedHubCharacteristicsPowerSwitchingGanged = /* @__PURE__ */ _bind(FW, 'kSuperSpeedHubCharacteristicsPowerSwitchingGanged')
-export const kSuperSpeedHubCharacteristicsPowerSwitchingIndividual = /* @__PURE__ */ _bind(FW, 'kSuperSpeedHubCharacteristicsPowerSwitchingIndividual')
-export const kSuperSpeedHubCharacteristicsPowerSwitchingMask = /* @__PURE__ */ _bind(FW, 'kSuperSpeedHubCharacteristicsPowerSwitchingMask')
-export const kSuperSpeedHubCharacteristicsReserved = /* @__PURE__ */ _bind(FW, 'kSuperSpeedHubCharacteristicsReserved')
-export const kSuperSpeedHubDecodeLatencyMax = /* @__PURE__ */ _bind(FW, 'kSuperSpeedHubDecodeLatencyMax')
+export const kSuperSpeedDeviceCapability5Gb = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedDeviceCapability5Gb',
+)
+
+export const kSuperSpeedDeviceCapabilityFullSpeed = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedDeviceCapabilityFullSpeed',
+)
+
+export const kSuperSpeedDeviceCapabilityHighSpeed = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedDeviceCapabilityHighSpeed',
+)
+
+export const kSuperSpeedDeviceCapabilityLTM = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedDeviceCapabilityLTM',
+)
+
+export const kSuperSpeedDeviceCapabilityLowSpeed = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedDeviceCapabilityLowSpeed',
+)
+
+export const kSuperSpeedDeviceCapabilitySupport5Gb = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedDeviceCapabilitySupport5Gb',
+)
+
+export const kSuperSpeedDeviceCapabilitySupportFullSpeed = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedDeviceCapabilitySupportFullSpeed',
+)
+
+export const kSuperSpeedDeviceCapabilitySupportHighSpeed = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedDeviceCapabilitySupportHighSpeed',
+)
+
+export const kSuperSpeedDeviceCapabilitySupportLowSpeed = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedDeviceCapabilitySupportLowSpeed',
+)
+
+export const kSuperSpeedDeviceCapabilityU1DevExitLatMax = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedDeviceCapabilityU1DevExitLatMax',
+)
+
+export const kSuperSpeedDeviceCapabilityU2DevExitLatMax = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedDeviceCapabilityU2DevExitLatMax',
+)
+
+export const kSuperSpeedEndpointCompanionDescriptorBulkMaxStreams = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedEndpointCompanionDescriptorBulkMaxStreams',
+)
+
+export const kSuperSpeedEndpointCompanionDescriptorBulkMaxStreamsPhase = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedEndpointCompanionDescriptorBulkMaxStreamsPhase',
+)
+
+export const kSuperSpeedEndpointCompanionDescriptorBulkReserved = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedEndpointCompanionDescriptorBulkReserved',
+)
+
+export const kSuperSpeedEndpointCompanionDescriptorBulkReservedPhase = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedEndpointCompanionDescriptorBulkReservedPhase',
+)
+
+export const kSuperSpeedEndpointCompanionDescriptorIsocMult = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedEndpointCompanionDescriptorIsocMult',
+)
+
+export const kSuperSpeedEndpointCompanionDescriptorIsocMultPhase = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedEndpointCompanionDescriptorIsocMultPhase',
+)
+
+export const kSuperSpeedEndpointCompanionDescriptorIsocReserved = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedEndpointCompanionDescriptorIsocReserved',
+)
+
+export const kSuperSpeedEndpointCompanionDescriptorIsocReservedPhase = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedEndpointCompanionDescriptorIsocReservedPhase',
+)
+
+export const kSuperSpeedEndpointCompanionDescriptorMaxBurst = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedEndpointCompanionDescriptorMaxBurst',
+)
+
+export const kSuperSpeedEndpointCompanionDescriptorMaxBurstPhase = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedEndpointCompanionDescriptorMaxBurstPhase',
+)
+
+export const kSuperSpeedEndpointCompanionDescriptorSSPIsocCompanion = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedEndpointCompanionDescriptorSSPIsocCompanion',
+)
+
+export const kSuperSpeedHubCharacteristicsCompoundDevice = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedHubCharacteristicsCompoundDevice',
+)
+
+export const kSuperSpeedHubCharacteristicsOverCurrentGlobal = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedHubCharacteristicsOverCurrentGlobal',
+)
+
+export const kSuperSpeedHubCharacteristicsOverCurrentIndividual = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedHubCharacteristicsOverCurrentIndividual',
+)
+
+export const kSuperSpeedHubCharacteristicsOverCurrentMask = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedHubCharacteristicsOverCurrentMask',
+)
+
+export const kSuperSpeedHubCharacteristicsPowerSwitchingGanged = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedHubCharacteristicsPowerSwitchingGanged',
+)
+
+export const kSuperSpeedHubCharacteristicsPowerSwitchingIndividual = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedHubCharacteristicsPowerSwitchingIndividual',
+)
+
+export const kSuperSpeedHubCharacteristicsPowerSwitchingMask = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedHubCharacteristicsPowerSwitchingMask',
+)
+
+export const kSuperSpeedHubCharacteristicsReserved = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedHubCharacteristicsReserved',
+)
+
+export const kSuperSpeedHubDecodeLatencyMax = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedHubDecodeLatencyMax',
+)
+
 export const kSuperSpeedHubDelayMax = /* @__PURE__ */ _bind(FW, 'kSuperSpeedHubDelayMax')
-export const kSuperSpeedPlusDeviceCapabilityMinRxLaneCount = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilityMinRxLaneCount')
-export const kSuperSpeedPlusDeviceCapabilityMinRxLaneCountPhase = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilityMinRxLaneCountPhase')
-export const kSuperSpeedPlusDeviceCapabilityMinTxLaneCount = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilityMinTxLaneCount')
-export const kSuperSpeedPlusDeviceCapabilityMinTxLaneCountPhase = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilityMinTxLaneCountPhase')
-export const kSuperSpeedPlusDeviceCapabilityReserved = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilityReserved')
-export const kSuperSpeedPlusDeviceCapabilityReservedPhase = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilityReservedPhase')
-export const kSuperSpeedPlusDeviceCapabilitySublinkAsymmetric = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilitySublinkAsymmetric')
-export const kSuperSpeedPlusDeviceCapabilitySublinkDirection = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilitySublinkDirection')
-export const kSuperSpeedPlusDeviceCapabilitySublinkDirectionPhase = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilitySublinkDirectionPhase')
-export const kSuperSpeedPlusDeviceCapabilitySublinkDirectionRx = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilitySublinkDirectionRx')
-export const kSuperSpeedPlusDeviceCapabilitySublinkDirectionTx = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilitySublinkDirectionTx')
-export const kSuperSpeedPlusDeviceCapabilitySublinkLSE = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilitySublinkLSE')
-export const kSuperSpeedPlusDeviceCapabilitySublinkLSEBits = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilitySublinkLSEBits')
-export const kSuperSpeedPlusDeviceCapabilitySublinkLSEGbits = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilitySublinkLSEGbits')
-export const kSuperSpeedPlusDeviceCapabilitySublinkLSEKbits = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilitySublinkLSEKbits')
-export const kSuperSpeedPlusDeviceCapabilitySublinkLSEMbits = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilitySublinkLSEMbits')
-export const kSuperSpeedPlusDeviceCapabilitySublinkLSEPhase = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilitySublinkLSEPhase')
-export const kSuperSpeedPlusDeviceCapabilitySublinkMinSpeedId = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilitySublinkMinSpeedId')
-export const kSuperSpeedPlusDeviceCapabilitySublinkMinSpeedIdPhase = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilitySublinkMinSpeedIdPhase')
-export const kSuperSpeedPlusDeviceCapabilitySublinkProtocol = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilitySublinkProtocol')
-export const kSuperSpeedPlusDeviceCapabilitySublinkProtocolPhase = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilitySublinkProtocolPhase')
-export const kSuperSpeedPlusDeviceCapabilitySublinkReserved = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilitySublinkReserved')
-export const kSuperSpeedPlusDeviceCapabilitySublinkReservedPhase = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilitySublinkReservedPhase')
-export const kSuperSpeedPlusDeviceCapabilitySublinkSpeedAttrCount = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilitySublinkSpeedAttrCount')
-export const kSuperSpeedPlusDeviceCapabilitySublinkSpeedAttrCountPhase = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilitySublinkSpeedAttrCountPhase')
-export const kSuperSpeedPlusDeviceCapabilitySublinkSpeedId = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilitySublinkSpeedId')
-export const kSuperSpeedPlusDeviceCapabilitySublinkSpeedIdCount = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilitySublinkSpeedIdCount')
-export const kSuperSpeedPlusDeviceCapabilitySublinkSpeedIdCountPhase = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilitySublinkSpeedIdCountPhase')
-export const kSuperSpeedPlusDeviceCapabilitySublinkSpeedIdPhase = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilitySublinkSpeedIdPhase')
-export const kSuperSpeedPlusDeviceCapabilitySublinkSpeedMantissa = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilitySublinkSpeedMantissa')
-export const kSuperSpeedPlusDeviceCapabilitySublinkSpeedMantissaPhase = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilitySublinkSpeedMantissaPhase')
-export const kSuperSpeedPlusDeviceCapabilitySublinkSymmetric = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilitySublinkSymmetric')
-export const kSuperSpeedPlusDeviceCapabilitySublinkSymmetry = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilitySublinkSymmetry')
-export const kSuperSpeedPlusDeviceCapabilitySublinkSymmetryPhase = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilitySublinkSymmetryPhase')
-export const kSuperSpeedPlusDeviceCapabilitySublinkType = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilitySublinkType')
-export const kSuperSpeedPlusDeviceCapabilitySublinkTypePhase = /* @__PURE__ */ _bind(FW, 'kSuperSpeedPlusDeviceCapabilitySublinkTypePhase')
+export const kSuperSpeedPlusDeviceCapabilityMinRxLaneCount = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilityMinRxLaneCount',
+)
+
+export const kSuperSpeedPlusDeviceCapabilityMinRxLaneCountPhase = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilityMinRxLaneCountPhase',
+)
+
+export const kSuperSpeedPlusDeviceCapabilityMinTxLaneCount = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilityMinTxLaneCount',
+)
+
+export const kSuperSpeedPlusDeviceCapabilityMinTxLaneCountPhase = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilityMinTxLaneCountPhase',
+)
+
+export const kSuperSpeedPlusDeviceCapabilityReserved = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilityReserved',
+)
+
+export const kSuperSpeedPlusDeviceCapabilityReservedPhase = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilityReservedPhase',
+)
+
+export const kSuperSpeedPlusDeviceCapabilitySublinkAsymmetric = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilitySublinkAsymmetric',
+)
+
+export const kSuperSpeedPlusDeviceCapabilitySublinkDirection = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilitySublinkDirection',
+)
+
+export const kSuperSpeedPlusDeviceCapabilitySublinkDirectionPhase = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilitySublinkDirectionPhase',
+)
+
+export const kSuperSpeedPlusDeviceCapabilitySublinkDirectionRx = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilitySublinkDirectionRx',
+)
+
+export const kSuperSpeedPlusDeviceCapabilitySublinkDirectionTx = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilitySublinkDirectionTx',
+)
+
+export const kSuperSpeedPlusDeviceCapabilitySublinkLSE = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilitySublinkLSE',
+)
+
+export const kSuperSpeedPlusDeviceCapabilitySublinkLSEBits = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilitySublinkLSEBits',
+)
+
+export const kSuperSpeedPlusDeviceCapabilitySublinkLSEGbits = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilitySublinkLSEGbits',
+)
+
+export const kSuperSpeedPlusDeviceCapabilitySublinkLSEKbits = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilitySublinkLSEKbits',
+)
+
+export const kSuperSpeedPlusDeviceCapabilitySublinkLSEMbits = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilitySublinkLSEMbits',
+)
+
+export const kSuperSpeedPlusDeviceCapabilitySublinkLSEPhase = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilitySublinkLSEPhase',
+)
+
+export const kSuperSpeedPlusDeviceCapabilitySublinkMinSpeedId = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilitySublinkMinSpeedId',
+)
+
+export const kSuperSpeedPlusDeviceCapabilitySublinkMinSpeedIdPhase = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilitySublinkMinSpeedIdPhase',
+)
+
+export const kSuperSpeedPlusDeviceCapabilitySublinkProtocol = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilitySublinkProtocol',
+)
+
+export const kSuperSpeedPlusDeviceCapabilitySublinkProtocolPhase = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilitySublinkProtocolPhase',
+)
+
+export const kSuperSpeedPlusDeviceCapabilitySublinkReserved = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilitySublinkReserved',
+)
+
+export const kSuperSpeedPlusDeviceCapabilitySublinkReservedPhase = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilitySublinkReservedPhase',
+)
+
+export const kSuperSpeedPlusDeviceCapabilitySublinkSpeedAttrCount = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilitySublinkSpeedAttrCount',
+)
+
+export const kSuperSpeedPlusDeviceCapabilitySublinkSpeedAttrCountPhase = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilitySublinkSpeedAttrCountPhase',
+)
+
+export const kSuperSpeedPlusDeviceCapabilitySublinkSpeedId = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilitySublinkSpeedId',
+)
+
+export const kSuperSpeedPlusDeviceCapabilitySublinkSpeedIdCount = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilitySublinkSpeedIdCount',
+)
+
+export const kSuperSpeedPlusDeviceCapabilitySublinkSpeedIdCountPhase = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilitySublinkSpeedIdCountPhase',
+)
+
+export const kSuperSpeedPlusDeviceCapabilitySublinkSpeedIdPhase = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilitySublinkSpeedIdPhase',
+)
+
+export const kSuperSpeedPlusDeviceCapabilitySublinkSpeedMantissa = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilitySublinkSpeedMantissa',
+)
+
+export const kSuperSpeedPlusDeviceCapabilitySublinkSpeedMantissaPhase = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilitySublinkSpeedMantissaPhase',
+)
+
+export const kSuperSpeedPlusDeviceCapabilitySublinkSymmetric = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilitySublinkSymmetric',
+)
+
+export const kSuperSpeedPlusDeviceCapabilitySublinkSymmetry = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilitySublinkSymmetry',
+)
+
+export const kSuperSpeedPlusDeviceCapabilitySublinkSymmetryPhase = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilitySublinkSymmetryPhase',
+)
+
+export const kSuperSpeedPlusDeviceCapabilitySublinkType = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilitySublinkType',
+)
+
+export const kSuperSpeedPlusDeviceCapabilitySublinkTypePhase = /* @__PURE__ */ _bind(
+	FW,
+	'kSuperSpeedPlusDeviceCapabilitySublinkTypePhase',
+)
+
 export const kTIAsycnhRetryB = /* @__PURE__ */ _bind(FW, 'kTIAsycnhRetryB')
 export const kTenMinutesInSeconds = /* @__PURE__ */ _bind(FW, 'kTenMinutesInSeconds')
 export const kThirdOrderRanking = /* @__PURE__ */ _bind(FW, 'kThirdOrderRanking')
-export const kUSB20ExtensionCapabilityBESL = /* @__PURE__ */ _bind(FW, 'kUSB20ExtensionCapabilityBESL')
-export const kUSB20ExtensionCapabilityBESLD = /* @__PURE__ */ _bind(FW, 'kUSB20ExtensionCapabilityBESLD')
-export const kUSB20ExtensionCapabilityBESLDPhase = /* @__PURE__ */ _bind(FW, 'kUSB20ExtensionCapabilityBESLDPhase')
-export const kUSB20ExtensionCapabilityBESLDValid = /* @__PURE__ */ _bind(FW, 'kUSB20ExtensionCapabilityBESLDValid')
-export const kUSB20ExtensionCapabilityBESLPhase = /* @__PURE__ */ _bind(FW, 'kUSB20ExtensionCapabilityBESLPhase')
-export const kUSB20ExtensionCapabilityBESLSupport = /* @__PURE__ */ _bind(FW, 'kUSB20ExtensionCapabilityBESLSupport')
-export const kUSB20ExtensionCapabilityBESLValid = /* @__PURE__ */ _bind(FW, 'kUSB20ExtensionCapabilityBESLValid')
-export const kUSB20ExtensionCapabilityLPM = /* @__PURE__ */ _bind(FW, 'kUSB20ExtensionCapabilityLPM')
+export const kUSB20ExtensionCapabilityBESL = /* @__PURE__ */ _bind(
+	FW,
+	'kUSB20ExtensionCapabilityBESL',
+)
+
+export const kUSB20ExtensionCapabilityBESLD = /* @__PURE__ */ _bind(
+	FW,
+	'kUSB20ExtensionCapabilityBESLD',
+)
+
+export const kUSB20ExtensionCapabilityBESLDPhase = /* @__PURE__ */ _bind(
+	FW,
+	'kUSB20ExtensionCapabilityBESLDPhase',
+)
+
+export const kUSB20ExtensionCapabilityBESLDValid = /* @__PURE__ */ _bind(
+	FW,
+	'kUSB20ExtensionCapabilityBESLDValid',
+)
+
+export const kUSB20ExtensionCapabilityBESLPhase = /* @__PURE__ */ _bind(
+	FW,
+	'kUSB20ExtensionCapabilityBESLPhase',
+)
+
+export const kUSB20ExtensionCapabilityBESLSupport = /* @__PURE__ */ _bind(
+	FW,
+	'kUSB20ExtensionCapabilityBESLSupport',
+)
+
+export const kUSB20ExtensionCapabilityBESLValid = /* @__PURE__ */ _bind(
+	FW,
+	'kUSB20ExtensionCapabilityBESLValid',
+)
+
+export const kUSB20ExtensionCapabilityLPM = /* @__PURE__ */ _bind(
+	FW,
+	'kUSB20ExtensionCapabilityLPM',
+)
+
 export const kUSB2LPMMaxL1Timeout = /* @__PURE__ */ _bind(FW, 'kUSB2LPMMaxL1Timeout')
 export const kUSB3LPMExtraDeviceEL = /* @__PURE__ */ _bind(FW, 'kUSB3LPMExtraDeviceEL')
 export const kUSB3LPMMaxHostSchDelay = /* @__PURE__ */ _bind(FW, 'kUSB3LPMMaxHostSchDelay')
@@ -4475,23 +9959,75 @@ export const kUSB3LPMU1AcceptOnly = /* @__PURE__ */ _bind(FW, 'kUSB3LPMU1AcceptO
 export const kUSB3LPMU1Disabled = /* @__PURE__ */ _bind(FW, 'kUSB3LPMU1Disabled')
 export const kUSB3LPMU2AcceptOnly = /* @__PURE__ */ _bind(FW, 'kUSB3LPMU2AcceptOnly')
 export const kUSB3LPMU2Disabled = /* @__PURE__ */ _bind(FW, 'kUSB3LPMU2Disabled')
-export const kUSBHostClassRequestCompletionTimeout = /* @__PURE__ */ _bind(FW, 'kUSBHostClassRequestCompletionTimeout')
-export const kUSBHostClassRequestNoDataTimeout = /* @__PURE__ */ _bind(FW, 'kUSBHostClassRequestNoDataTimeout')
-export const kUSBHostDefaultControlCompletionTimeoutMS = /* @__PURE__ */ _bind(FW, 'kUSBHostDefaultControlCompletionTimeoutMS')
-export const kUSBHostDefaultControlNoDataTimeoutMS = /* @__PURE__ */ _bind(FW, 'kUSBHostDefaultControlNoDataTimeoutMS')
+export const kUSBHostClassRequestCompletionTimeout = /* @__PURE__ */ _bind(
+	FW,
+	'kUSBHostClassRequestCompletionTimeout',
+)
+
+export const kUSBHostClassRequestNoDataTimeout = /* @__PURE__ */ _bind(
+	FW,
+	'kUSBHostClassRequestNoDataTimeout',
+)
+
+export const kUSBHostDefaultControlCompletionTimeoutMS = /* @__PURE__ */ _bind(
+	FW,
+	'kUSBHostDefaultControlCompletionTimeoutMS',
+)
+
+export const kUSBHostDefaultControlNoDataTimeoutMS = /* @__PURE__ */ _bind(
+	FW,
+	'kUSBHostDefaultControlNoDataTimeoutMS',
+)
+
 export const kUSBHostHubClass = /* @__PURE__ */ _bind(FW, 'kUSBHostHubClass')
-export const kUSBHostMaxCountFullSpeedIsochronous = /* @__PURE__ */ _bind(FW, 'kUSBHostMaxCountFullSpeedIsochronous')
+export const kUSBHostMaxCountFullSpeedIsochronous = /* @__PURE__ */ _bind(
+	FW,
+	'kUSBHostMaxCountFullSpeedIsochronous',
+)
+
 export const kUSBHostMaxDevices = /* @__PURE__ */ _bind(FW, 'kUSBHostMaxDevices')
 export const kUSBHostMaxPipes = /* @__PURE__ */ _bind(FW, 'kUSBHostMaxPipes')
-export const kUSBHostOpenOptionSelectAlternateSetting = /* @__PURE__ */ _bind(FW, 'kUSBHostOpenOptionSelectAlternateSetting')
-export const kUSBHostOpenOptionUserClientSession = /* @__PURE__ */ _bind(FW, 'kUSBHostOpenOptionUserClientSession')
+export const kUSBHostOpenOptionSelectAlternateSetting = /* @__PURE__ */ _bind(
+	FW,
+	'kUSBHostOpenOptionSelectAlternateSetting',
+)
+
+export const kUSBHostOpenOptionUserClientSession = /* @__PURE__ */ _bind(
+	FW,
+	'kUSBHostOpenOptionUserClientSession',
+)
+
 export const kUSBHostSetAddressTimeout = /* @__PURE__ */ _bind(FW, 'kUSBHostSetAddressTimeout')
-export const kUSBHostStandardRequestCompletionTimeout = /* @__PURE__ */ _bind(FW, 'kUSBHostStandardRequestCompletionTimeout')
-export const kUSBHostStandardRequestNoDataTimeout = /* @__PURE__ */ _bind(FW, 'kUSBHostStandardRequestNoDataTimeout')
-export const kUSBHostStandardRequestSimpleCompletionTimeout = /* @__PURE__ */ _bind(FW, 'kUSBHostStandardRequestSimpleCompletionTimeout')
-export const kUSBHostVendorIDAppleComputer = /* @__PURE__ */ _bind(FW, 'kUSBHostVendorIDAppleComputer')
-export const kUSBHostVendorRequestCompletionTimeout = /* @__PURE__ */ _bind(FW, 'kUSBHostVendorRequestCompletionTimeout')
-export const kUSBHostVendorRequestNoDataTimeout = /* @__PURE__ */ _bind(FW, 'kUSBHostVendorRequestNoDataTimeout')
+export const kUSBHostStandardRequestCompletionTimeout = /* @__PURE__ */ _bind(
+	FW,
+	'kUSBHostStandardRequestCompletionTimeout',
+)
+
+export const kUSBHostStandardRequestNoDataTimeout = /* @__PURE__ */ _bind(
+	FW,
+	'kUSBHostStandardRequestNoDataTimeout',
+)
+
+export const kUSBHostStandardRequestSimpleCompletionTimeout = /* @__PURE__ */ _bind(
+	FW,
+	'kUSBHostStandardRequestSimpleCompletionTimeout',
+)
+
+export const kUSBHostVendorIDAppleComputer = /* @__PURE__ */ _bind(
+	FW,
+	'kUSBHostVendorIDAppleComputer',
+)
+
+export const kUSBHostVendorRequestCompletionTimeout = /* @__PURE__ */ _bind(
+	FW,
+	'kUSBHostVendorRequestCompletionTimeout',
+)
+
+export const kUSBHostVendorRequestNoDataTimeout = /* @__PURE__ */ _bind(
+	FW,
+	'kUSBHostVendorRequestNoDataTimeout',
+)
+
 export const kUSBHostVendorSpecificClass = /* @__PURE__ */ _bind(FW, 'kUSBHostVendorSpecificClass')
 export const kVBLInterruptServiceType = /* @__PURE__ */ _bind(FW, 'kVBLInterruptServiceType')
 export const kVCAcquireImmediate = /* @__PURE__ */ _bind(FW, 'kVCAcquireImmediate')
@@ -4499,18 +10035,38 @@ export const kVCDarkBackground = /* @__PURE__ */ _bind(FW, 'kVCDarkBackground')
 export const kVCDarkReboot = /* @__PURE__ */ _bind(FW, 'kVCDarkReboot')
 export const kVCLightBackground = /* @__PURE__ */ _bind(FW, 'kVCLightBackground')
 export const kVCUsePosition = /* @__PURE__ */ _bind(FW, 'kVCUsePosition')
-export const kVSLClamshellStateGestaltType = /* @__PURE__ */ _bind(FW, 'kVSLClamshellStateGestaltType')
+export const kVSLClamshellStateGestaltType = /* @__PURE__ */ _bind(
+	FW,
+	'kVSLClamshellStateGestaltType',
+)
+
 export const kas_info = /* @__PURE__ */ _bind(FW, 'kas_info')
 export const kas_info_args = /* @__PURE__ */ _bind(FW, 'kas_info_args')
 export const kbufinfo_t = /* @__PURE__ */ _bind(FW, 'kbufinfo_t')
 export const kcd_compression_type_t = /* @__PURE__ */ _bind(FW, 'kcd_compression_type_t')
 export const kcdata_bzero = /* @__PURE__ */ _bind(FW, 'kcdata_bzero')
-export const kcdata_estimate_required_buffer_size = /* @__PURE__ */ _bind(FW, 'kcdata_estimate_required_buffer_size')
+export const kcdata_estimate_required_buffer_size = /* @__PURE__ */ _bind(
+	FW,
+	'kcdata_estimate_required_buffer_size',
+)
+
 export const kcdata_get_memory_addr = /* @__PURE__ */ _bind(FW, 'kcdata_get_memory_addr')
-export const kcdata_get_memory_addr_for_array = /* @__PURE__ */ _bind(FW, 'kcdata_get_memory_addr_for_array')
+export const kcdata_get_memory_addr_for_array = /* @__PURE__ */ _bind(
+	FW,
+	'kcdata_get_memory_addr_for_array',
+)
+
 export const kcdata_memcpy = /* @__PURE__ */ _bind(FW, 'kcdata_memcpy')
-export const kcdata_memory_get_uncompressed_bytes = /* @__PURE__ */ _bind(FW, 'kcdata_memory_get_uncompressed_bytes')
-export const kcdata_memory_get_used_bytes = /* @__PURE__ */ _bind(FW, 'kcdata_memory_get_used_bytes')
+export const kcdata_memory_get_uncompressed_bytes = /* @__PURE__ */ _bind(
+	FW,
+	'kcdata_memory_get_uncompressed_bytes',
+)
+
+export const kcdata_memory_get_used_bytes = /* @__PURE__ */ _bind(
+	FW,
+	'kcdata_memory_get_used_bytes',
+)
+
 export const kd_buf = /* @__PURE__ */ _bind(FW, 'kd_buf')
 export const kd_callback = /* @__PURE__ */ _bind(FW, 'kd_callback')
 export const kd_callback_type = /* @__PURE__ */ _bind(FW, 'kd_callback_type')
@@ -4520,11 +10076,19 @@ export const kd_cpumap_header = /* @__PURE__ */ _bind(FW, 'kd_cpumap_header')
 export const kd_event_matcher = /* @__PURE__ */ _bind(FW, 'kd_event_matcher')
 export const kd_regtype = /* @__PURE__ */ _bind(FW, 'kd_regtype')
 export const kd_threadmap = /* @__PURE__ */ _bind(FW, 'kd_threadmap')
-export const kdb_clock_get_calendar_absolute_and_microtime_locked = /* @__PURE__ */ _bind(FW, 'kdb_clock_get_calendar_absolute_and_microtime_locked')
+export const kdb_clock_get_calendar_absolute_and_microtime_locked = /* @__PURE__ */ _bind(
+	FW,
+	'kdb_clock_get_calendar_absolute_and_microtime_locked',
+)
+
 export const kdebug_commpage_state = /* @__PURE__ */ _bind(FW, 'kdebug_commpage_state')
 export const kdebug_coproc_flags_t = /* @__PURE__ */ _bind(FW, 'kdebug_coproc_flags_t')
 export const kdebug_debugid_enabled = /* @__PURE__ */ _bind(FW, 'kdebug_debugid_enabled')
-export const kdebug_debugid_explicitly_enabled = /* @__PURE__ */ _bind(FW, 'kdebug_debugid_explicitly_enabled')
+export const kdebug_debugid_explicitly_enabled = /* @__PURE__ */ _bind(
+	FW,
+	'kdebug_debugid_explicitly_enabled',
+)
+
 export const kdebug_emit_flags_t = /* @__PURE__ */ _bind(FW, 'kdebug_emit_flags_t')
 export const kdebug_enable = /* @__PURE__ */ _bind(FW, 'kdebug_enable')
 export const kdebug_flags_t = /* @__PURE__ */ _bind(FW, 'kdebug_flags_t')
@@ -4532,8 +10096,16 @@ export const kdebug_live_flags_t = /* @__PURE__ */ _bind(FW, 'kdebug_live_flags_
 export const kdebug_register_coproc = /* @__PURE__ */ _bind(FW, 'kdebug_register_coproc')
 export const kdebug_test_t = /* @__PURE__ */ _bind(FW, 'kdebug_test_t')
 export const kdebug_timestamp = /* @__PURE__ */ _bind(FW, 'kdebug_timestamp')
-export const kdebug_timestamp_from_absolute = /* @__PURE__ */ _bind(FW, 'kdebug_timestamp_from_absolute')
-export const kdebug_timestamp_from_continuous = /* @__PURE__ */ _bind(FW, 'kdebug_timestamp_from_continuous')
+export const kdebug_timestamp_from_absolute = /* @__PURE__ */ _bind(
+	FW,
+	'kdebug_timestamp_from_absolute',
+)
+
+export const kdebug_timestamp_from_continuous = /* @__PURE__ */ _bind(
+	FW,
+	'kdebug_timestamp_from_continuous',
+)
+
 export const kdebug_trace = /* @__PURE__ */ _bind(FW, 'kdebug_trace')
 export const kdebug_trace64 = /* @__PURE__ */ _bind(FW, 'kdebug_trace64')
 export const kdebug_trace64_args = /* @__PURE__ */ _bind(FW, 'kdebug_trace64_args')
@@ -4542,7 +10114,11 @@ export const kdebug_trace_string = /* @__PURE__ */ _bind(FW, 'kdebug_trace_strin
 export const kdebug_trace_string_args = /* @__PURE__ */ _bind(FW, 'kdebug_trace_string_args')
 export const kdebug_typefilter = /* @__PURE__ */ _bind(FW, 'kdebug_typefilter')
 export const kdebug_typefilter_args = /* @__PURE__ */ _bind(FW, 'kdebug_typefilter_args')
-export const kdebug_using_continuous_time = /* @__PURE__ */ _bind(FW, 'kdebug_using_continuous_time')
+export const kdebug_using_continuous_time = /* @__PURE__ */ _bind(
+	FW,
+	'kdebug_using_continuous_time',
+)
+
 export const kdp_event_t = /* @__PURE__ */ _bind(FW, 'kdp_event_t')
 export const kdp_register_callout = /* @__PURE__ */ _bind(FW, 'kdp_register_callout')
 export const kdp_register_send_receive = /* @__PURE__ */ _bind(FW, 'kdp_register_send_receive')
@@ -4550,31 +10126,71 @@ export const kdp_unregister_send_receive = /* @__PURE__ */ _bind(FW, 'kdp_unregi
 export const kern_ctl_reg = /* @__PURE__ */ _bind(FW, 'kern_ctl_reg')
 export const kern_event_msg = /* @__PURE__ */ _bind(FW, 'kern_event_msg')
 export const kern_feature_override = /* @__PURE__ */ _bind(FW, 'kern_feature_override')
-export const kern_port_name_to_work_interval = /* @__PURE__ */ _bind(FW, 'kern_port_name_to_work_interval')
+export const kern_port_name_to_work_interval = /* @__PURE__ */ _bind(
+	FW,
+	'kern_port_name_to_work_interval',
+)
+
 export const kern_work_interval_args = /* @__PURE__ */ _bind(FW, 'kern_work_interval_args')
 export const kern_work_interval_create = /* @__PURE__ */ _bind(FW, 'kern_work_interval_create')
-export const kern_work_interval_create_args = /* @__PURE__ */ _bind(FW, 'kern_work_interval_create_args')
+export const kern_work_interval_create_args = /* @__PURE__ */ _bind(
+	FW,
+	'kern_work_interval_create_args',
+)
+
 export const kern_work_interval_destroy = /* @__PURE__ */ _bind(FW, 'kern_work_interval_destroy')
-export const kern_work_interval_explicit_join = /* @__PURE__ */ _bind(FW, 'kern_work_interval_explicit_join')
-export const kern_work_interval_get_flags_from_port = /* @__PURE__ */ _bind(FW, 'kern_work_interval_get_flags_from_port')
-export const kern_work_interval_get_policy = /* @__PURE__ */ _bind(FW, 'kern_work_interval_get_policy')
+export const kern_work_interval_explicit_join = /* @__PURE__ */ _bind(
+	FW,
+	'kern_work_interval_explicit_join',
+)
+
+export const kern_work_interval_get_flags_from_port = /* @__PURE__ */ _bind(
+	FW,
+	'kern_work_interval_get_flags_from_port',
+)
+
+export const kern_work_interval_get_policy = /* @__PURE__ */ _bind(
+	FW,
+	'kern_work_interval_get_policy',
+)
+
 export const kern_work_interval_join = /* @__PURE__ */ _bind(FW, 'kern_work_interval_join')
 export const kern_work_interval_notify = /* @__PURE__ */ _bind(FW, 'kern_work_interval_notify')
 export const kern_work_interval_release = /* @__PURE__ */ _bind(FW, 'kern_work_interval_release')
 export const kern_work_interval_set_name = /* @__PURE__ */ _bind(FW, 'kern_work_interval_set_name')
-export const kern_work_interval_set_workload_id = /* @__PURE__ */ _bind(FW, 'kern_work_interval_set_workload_id')
-export const kern_work_interval_workload_id_args = /* @__PURE__ */ _bind(FW, 'kern_work_interval_workload_id_args')
+export const kern_work_interval_set_workload_id = /* @__PURE__ */ _bind(
+	FW,
+	'kern_work_interval_set_workload_id',
+)
+
+export const kern_work_interval_workload_id_args = /* @__PURE__ */ _bind(
+	FW,
+	'kern_work_interval_workload_id_args',
+)
+
 export const kernel_debug = /* @__PURE__ */ _bind(FW, 'kernel_debug')
 export const kernel_debug1 = /* @__PURE__ */ _bind(FW, 'kernel_debug1')
 export const kernel_debug_enter = /* @__PURE__ */ _bind(FW, 'kernel_debug_enter')
 export const kernel_debug_filtered = /* @__PURE__ */ _bind(FW, 'kernel_debug_filtered')
 export const kernel_debug_flags = /* @__PURE__ */ _bind(FW, 'kernel_debug_flags')
-export const kernel_debug_register_callback = /* @__PURE__ */ _bind(FW, 'kernel_debug_register_callback')
-export const kernel_mach_msg_send_with_builder = /* @__PURE__ */ _bind(FW, 'kernel_mach_msg_send_with_builder')
+export const kernel_debug_register_callback = /* @__PURE__ */ _bind(
+	FW,
+	'kernel_debug_register_callback',
+)
+
+export const kernel_mach_msg_send_with_builder = /* @__PURE__ */ _bind(
+	FW,
+	'kernel_mach_msg_send_with_builder',
+)
+
 export const kernel_task = /* @__PURE__ */ _bind(FW, 'kernel_task')
 export const kernel_thread_start = /* @__PURE__ */ _bind(FW, 'kernel_thread_start')
 export const kev_dl_issues = /* @__PURE__ */ _bind(FW, 'kev_dl_issues')
-export const kev_dl_link_quality_metric_data = /* @__PURE__ */ _bind(FW, 'kev_dl_link_quality_metric_data')
+export const kev_dl_link_quality_metric_data = /* @__PURE__ */ _bind(
+	FW,
+	'kev_dl_link_quality_metric_data',
+)
+
 export const kev_dl_low_power_mode = /* @__PURE__ */ _bind(FW, 'kev_dl_low_power_mode')
 export const kev_dl_node_absence = /* @__PURE__ */ _bind(FW, 'kev_dl_node_absence')
 export const kev_dl_node_presence = /* @__PURE__ */ _bind(FW, 'kev_dl_node_presence')
@@ -4669,9 +10285,17 @@ export const lck_rw_free = /* @__PURE__ */ _bind(FW, 'lck_rw_free')
 export const lck_rw_init = /* @__PURE__ */ _bind(FW, 'lck_rw_init')
 export const lck_rw_lock = /* @__PURE__ */ _bind(FW, 'lck_rw_lock')
 export const lck_rw_lock_exclusive = /* @__PURE__ */ _bind(FW, 'lck_rw_lock_exclusive')
-export const lck_rw_lock_exclusive_to_shared = /* @__PURE__ */ _bind(FW, 'lck_rw_lock_exclusive_to_shared')
+export const lck_rw_lock_exclusive_to_shared = /* @__PURE__ */ _bind(
+	FW,
+	'lck_rw_lock_exclusive_to_shared',
+)
+
 export const lck_rw_lock_shared = /* @__PURE__ */ _bind(FW, 'lck_rw_lock_shared')
-export const lck_rw_lock_shared_to_exclusive = /* @__PURE__ */ _bind(FW, 'lck_rw_lock_shared_to_exclusive')
+export const lck_rw_lock_shared_to_exclusive = /* @__PURE__ */ _bind(
+	FW,
+	'lck_rw_lock_shared_to_exclusive',
+)
+
 export const lck_rw_sleep = /* @__PURE__ */ _bind(FW, 'lck_rw_sleep')
 export const lck_rw_sleep_deadline = /* @__PURE__ */ _bind(FW, 'lck_rw_sleep_deadline')
 export const lck_rw_try_lock = /* @__PURE__ */ _bind(FW, 'lck_rw_try_lock')
@@ -4717,7 +10341,11 @@ export const listxattr_args = /* @__PURE__ */ _bind(FW, 'listxattr_args')
 export const llc = /* @__PURE__ */ _bind(FW, 'llc')
 export const llc_event_t = /* @__PURE__ */ _bind(FW, 'llc_event_t')
 export const llc_event_version_t = /* @__PURE__ */ _bind(FW, 'llc_event_version_t')
-export const llc_memory_error_notification = /* @__PURE__ */ _bind(FW, 'llc_memory_error_notification')
+export const llc_memory_error_notification = /* @__PURE__ */ _bind(
+	FW,
+	'llc_memory_error_notification',
+)
+
 export const lockd_ans = /* @__PURE__ */ _bind(FW, 'lockd_ans')
 export const lockd_notify = /* @__PURE__ */ _bind(FW, 'lockd_notify')
 export const lockd_ping = /* @__PURE__ */ _bind(FW, 'lockd_ping')
@@ -4775,47 +10403,123 @@ export const mATAWriteFault = /* @__PURE__ */ _bind(FW, 'mATAWriteFault')
 export const mac_roman_to_unicode = /* @__PURE__ */ _bind(FW, 'mac_roman_to_unicode')
 export const mac_roman_to_utf8 = /* @__PURE__ */ _bind(FW, 'mac_roman_to_utf8')
 export const mach_absolutetime_asleep = /* @__PURE__ */ _bind(FW, 'mach_absolutetime_asleep')
-export const mach_absolutetime_last_sleep = /* @__PURE__ */ _bind(FW, 'mach_absolutetime_last_sleep')
+export const mach_absolutetime_last_sleep = /* @__PURE__ */ _bind(
+	FW,
+	'mach_absolutetime_last_sleep',
+)
+
 export const mach_assert_3x = /* @__PURE__ */ _bind(FW, 'mach_assert_3x')
 export const mach_assert_default = /* @__PURE__ */ _bind(FW, 'mach_assert_default')
 export const mach_assert_hdr = /* @__PURE__ */ _bind(FW, 'mach_assert_hdr')
 export const mach_assert_type_t = /* @__PURE__ */ _bind(FW, 'mach_assert_type_t')
-export const mach_bridge_register_regwrite_timestamp_callback = /* @__PURE__ */ _bind(FW, 'mach_bridge_register_regwrite_timestamp_callback')
+export const mach_bridge_register_regwrite_timestamp_callback = /* @__PURE__ */ _bind(
+	FW,
+	'mach_bridge_register_regwrite_timestamp_callback',
+)
+
 export const mach_bridge_remote_time = /* @__PURE__ */ _bind(FW, 'mach_bridge_remote_time')
 export const mach_eventlink_signal = /* @__PURE__ */ _bind(FW, 'mach_eventlink_signal')
 export const mach_eventlink_signal_args = /* @__PURE__ */ _bind(FW, 'mach_eventlink_signal_args')
-export const mach_eventlink_signal_wait_until = /* @__PURE__ */ _bind(FW, 'mach_eventlink_signal_wait_until')
-export const mach_eventlink_signal_wait_until_args = /* @__PURE__ */ _bind(FW, 'mach_eventlink_signal_wait_until_args')
+export const mach_eventlink_signal_wait_until = /* @__PURE__ */ _bind(
+	FW,
+	'mach_eventlink_signal_wait_until',
+)
+
+export const mach_eventlink_signal_wait_until_args = /* @__PURE__ */ _bind(
+	FW,
+	'mach_eventlink_signal_wait_until_args',
+)
+
 export const mach_eventlink_wait_until = /* @__PURE__ */ _bind(FW, 'mach_eventlink_wait_until')
-export const mach_eventlink_wait_until_args = /* @__PURE__ */ _bind(FW, 'mach_eventlink_wait_until_args')
+export const mach_eventlink_wait_until_args = /* @__PURE__ */ _bind(
+	FW,
+	'mach_eventlink_wait_until_args',
+)
+
 export const mach_exc_server = /* @__PURE__ */ _bind(FW, 'mach_exc_server')
 export const mach_exc_server_routine = /* @__PURE__ */ _bind(FW, 'mach_exc_server_routine')
 export const mach_gss_accept_sec_context = /* @__PURE__ */ _bind(FW, 'mach_gss_accept_sec_context')
-export const mach_gss_accept_sec_context_v2 = /* @__PURE__ */ _bind(FW, 'mach_gss_accept_sec_context_v2')
+export const mach_gss_accept_sec_context_v2 = /* @__PURE__ */ _bind(
+	FW,
+	'mach_gss_accept_sec_context_v2',
+)
+
 export const mach_gss_hold_cred = /* @__PURE__ */ _bind(FW, 'mach_gss_hold_cred')
 export const mach_gss_init_sec_context = /* @__PURE__ */ _bind(FW, 'mach_gss_init_sec_context')
-export const mach_gss_init_sec_context_v2 = /* @__PURE__ */ _bind(FW, 'mach_gss_init_sec_context_v2')
-export const mach_gss_init_sec_context_v3 = /* @__PURE__ */ _bind(FW, 'mach_gss_init_sec_context_v3')
+export const mach_gss_init_sec_context_v2 = /* @__PURE__ */ _bind(
+	FW,
+	'mach_gss_init_sec_context_v2',
+)
+
+export const mach_gss_init_sec_context_v3 = /* @__PURE__ */ _bind(
+	FW,
+	'mach_gss_init_sec_context_v3',
+)
+
 export const mach_gss_log_error = /* @__PURE__ */ _bind(FW, 'mach_gss_log_error')
 export const mach_gss_lookup = /* @__PURE__ */ _bind(FW, 'mach_gss_lookup')
 export const mach_gss_unhold_cred = /* @__PURE__ */ _bind(FW, 'mach_gss_unhold_cred')
-export const mach_memory_entry_access_tracking = /* @__PURE__ */ _bind(FW, 'mach_memory_entry_access_tracking')
-export const mach_memory_entry_get_page_counts = /* @__PURE__ */ _bind(FW, 'mach_memory_entry_get_page_counts')
+export const mach_memory_entry_access_tracking = /* @__PURE__ */ _bind(
+	FW,
+	'mach_memory_entry_access_tracking',
+)
+
+export const mach_memory_entry_get_page_counts = /* @__PURE__ */ _bind(
+	FW,
+	'mach_memory_entry_get_page_counts',
+)
+
 export const mach_memory_entry_ownership = /* @__PURE__ */ _bind(FW, 'mach_memory_entry_ownership')
-export const mach_memory_entry_purgable_control = /* @__PURE__ */ _bind(FW, 'mach_memory_entry_purgable_control')
-export const mach_memory_entry_region_info = /* @__PURE__ */ _bind(FW, 'mach_memory_entry_region_info')
-export const mach_msg_destroy_from_kernel_proper = /* @__PURE__ */ _bind(FW, 'mach_msg_destroy_from_kernel_proper')
-export const mach_msg_rpc_from_kernel_proper = /* @__PURE__ */ _bind(FW, 'mach_msg_rpc_from_kernel_proper')
-export const mach_msg_send_from_kernel_proper = /* @__PURE__ */ _bind(FW, 'mach_msg_send_from_kernel_proper')
+export const mach_memory_entry_purgable_control = /* @__PURE__ */ _bind(
+	FW,
+	'mach_memory_entry_purgable_control',
+)
+
+export const mach_memory_entry_region_info = /* @__PURE__ */ _bind(
+	FW,
+	'mach_memory_entry_region_info',
+)
+
+export const mach_msg_destroy_from_kernel_proper = /* @__PURE__ */ _bind(
+	FW,
+	'mach_msg_destroy_from_kernel_proper',
+)
+
+export const mach_msg_rpc_from_kernel_proper = /* @__PURE__ */ _bind(
+	FW,
+	'mach_msg_rpc_from_kernel_proper',
+)
+
+export const mach_msg_send_from_kernel_proper = /* @__PURE__ */ _bind(
+	FW,
+	'mach_msg_send_from_kernel_proper',
+)
+
 export const mach_to_bsd_errno = /* @__PURE__ */ _bind(FW, 'mach_to_bsd_errno')
 export const mach_vm_allocate = /* @__PURE__ */ _bind(FW, 'mach_vm_allocate')
 export const mach_vm_behavior_set = /* @__PURE__ */ _bind(FW, 'mach_vm_behavior_set')
 export const mach_vm_copy = /* @__PURE__ */ _bind(FW, 'mach_vm_copy')
 export const mach_vm_deallocate = /* @__PURE__ */ _bind(FW, 'mach_vm_deallocate')
-export const mach_vm_deferred_reclamation_buffer_allocate = /* @__PURE__ */ _bind(FW, 'mach_vm_deferred_reclamation_buffer_allocate')
-export const mach_vm_deferred_reclamation_buffer_flush = /* @__PURE__ */ _bind(FW, 'mach_vm_deferred_reclamation_buffer_flush')
-export const mach_vm_deferred_reclamation_buffer_query = /* @__PURE__ */ _bind(FW, 'mach_vm_deferred_reclamation_buffer_query')
-export const mach_vm_deferred_reclamation_buffer_resize = /* @__PURE__ */ _bind(FW, 'mach_vm_deferred_reclamation_buffer_resize')
+export const mach_vm_deferred_reclamation_buffer_allocate = /* @__PURE__ */ _bind(
+	FW,
+	'mach_vm_deferred_reclamation_buffer_allocate',
+)
+
+export const mach_vm_deferred_reclamation_buffer_flush = /* @__PURE__ */ _bind(
+	FW,
+	'mach_vm_deferred_reclamation_buffer_flush',
+)
+
+export const mach_vm_deferred_reclamation_buffer_query = /* @__PURE__ */ _bind(
+	FW,
+	'mach_vm_deferred_reclamation_buffer_query',
+)
+
+export const mach_vm_deferred_reclamation_buffer_resize = /* @__PURE__ */ _bind(
+	FW,
+	'mach_vm_deferred_reclamation_buffer_resize',
+)
+
 export const mach_vm_inherit = /* @__PURE__ */ _bind(FW, 'mach_vm_inherit')
 export const mach_vm_machine_attribute = /* @__PURE__ */ _bind(FW, 'mach_vm_machine_attribute')
 export const mach_vm_map = /* @__PURE__ */ _bind(FW, 'mach_vm_map')
@@ -4834,15 +10538,39 @@ export const mach_vm_region = /* @__PURE__ */ _bind(FW, 'mach_vm_region')
 export const mach_vm_region_recurse = /* @__PURE__ */ _bind(FW, 'mach_vm_region_recurse')
 export const mach_vm_remap = /* @__PURE__ */ _bind(FW, 'mach_vm_remap')
 export const mach_vm_remap_new = /* @__PURE__ */ _bind(FW, 'mach_vm_remap_new')
-export const mach_vm_update_pointers_with_remote_tags = /* @__PURE__ */ _bind(FW, 'mach_vm_update_pointers_with_remote_tags')
+export const mach_vm_update_pointers_with_remote_tags = /* @__PURE__ */ _bind(
+	FW,
+	'mach_vm_update_pointers_with_remote_tags',
+)
+
 export const mach_vm_write = /* @__PURE__ */ _bind(FW, 'mach_vm_write')
 export const mach_voucher_attr_command = /* @__PURE__ */ _bind(FW, 'mach_voucher_attr_command')
-export const mach_voucher_attr_control_create_mach_voucher = /* @__PURE__ */ _bind(FW, 'mach_voucher_attr_control_create_mach_voucher')
-export const mach_voucher_attr_control_get_values = /* @__PURE__ */ _bind(FW, 'mach_voucher_attr_control_get_values')
+export const mach_voucher_attr_control_create_mach_voucher = /* @__PURE__ */ _bind(
+	FW,
+	'mach_voucher_attr_control_create_mach_voucher',
+)
+
+export const mach_voucher_attr_control_get_values = /* @__PURE__ */ _bind(
+	FW,
+	'mach_voucher_attr_control_get_values',
+)
+
 export const mach_voucher_debug_info = /* @__PURE__ */ _bind(FW, 'mach_voucher_debug_info')
-export const mach_voucher_extract_all_attr_recipes = /* @__PURE__ */ _bind(FW, 'mach_voucher_extract_all_attr_recipes')
-export const mach_voucher_extract_attr_content = /* @__PURE__ */ _bind(FW, 'mach_voucher_extract_attr_content')
-export const mach_voucher_extract_attr_recipe = /* @__PURE__ */ _bind(FW, 'mach_voucher_extract_attr_recipe')
+export const mach_voucher_extract_all_attr_recipes = /* @__PURE__ */ _bind(
+	FW,
+	'mach_voucher_extract_all_attr_recipes',
+)
+
+export const mach_voucher_extract_attr_content = /* @__PURE__ */ _bind(
+	FW,
+	'mach_voucher_extract_attr_content',
+)
+
+export const mach_voucher_extract_attr_recipe = /* @__PURE__ */ _bind(
+	FW,
+	'mach_voucher_extract_attr_recipe',
+)
+
 export const machine_arm_debug_info = /* @__PURE__ */ _bind(FW, 'machine_arm_debug_info')
 export const machine_arm_mvfp_info = /* @__PURE__ */ _bind(FW, 'machine_arm_mvfp_info')
 export const machine_do_debugid = /* @__PURE__ */ _bind(FW, 'machine_do_debugid')
@@ -4902,7 +10630,11 @@ export const mbuf_getpacket = /* @__PURE__ */ _bind(FW, 'mbuf_getpacket')
 export const mbuf_inbound_modified = /* @__PURE__ */ _bind(FW, 'mbuf_inbound_modified')
 export const mbuf_inet6_cksum = /* @__PURE__ */ _bind(FW, 'mbuf_inet6_cksum')
 export const mbuf_inet_cksum = /* @__PURE__ */ _bind(FW, 'mbuf_inet_cksum')
-export const mbuf_is_traffic_class_privileged = /* @__PURE__ */ _bind(FW, 'mbuf_is_traffic_class_privileged')
+export const mbuf_is_traffic_class_privileged = /* @__PURE__ */ _bind(
+	FW,
+	'mbuf_is_traffic_class_privileged',
+)
+
 export const mbuf_leadingspace = /* @__PURE__ */ _bind(FW, 'mbuf_leadingspace')
 export const mbuf_len = /* @__PURE__ */ _bind(FW, 'mbuf_len')
 export const mbuf_maxlen = /* @__PURE__ */ _bind(FW, 'mbuf_maxlen')
@@ -4945,14 +10677,38 @@ export const mcc_ecc_event_t = /* @__PURE__ */ _bind(FW, 'mcc_ecc_event_t')
 export const mcc_ecc_version_t = /* @__PURE__ */ _bind(FW, 'mcc_ecc_version_t')
 export const mcc_flags_t = /* @__PURE__ */ _bind(FW, 'mcc_flags_t')
 export const mcc_log_memory_error = /* @__PURE__ */ _bind(FW, 'mcc_log_memory_error')
-export const mcc_memory_error_notification = /* @__PURE__ */ _bind(FW, 'mcc_memory_error_notification')
+export const mcc_memory_error_notification = /* @__PURE__ */ _bind(
+	FW,
+	'mcc_memory_error_notification',
+)
+
 export const memchr = /* @__PURE__ */ _bind(FW, 'memchr')
 export const memory_error_notification = /* @__PURE__ */ _bind(FW, 'memory_error_notification')
-export const memory_error_notification_server = /* @__PURE__ */ _bind(FW, 'memory_error_notification_server')
-export const memory_error_notification_server_routine = /* @__PURE__ */ _bind(FW, 'memory_error_notification_server_routine')
-export const memory_error_notification_subsystem = /* @__PURE__ */ _bind(FW, 'memory_error_notification_subsystem')
-export const memorystatus_available_memory = /* @__PURE__ */ _bind(FW, 'memorystatus_available_memory')
-export const memorystatus_available_memory_args = /* @__PURE__ */ _bind(FW, 'memorystatus_available_memory_args')
+export const memory_error_notification_server = /* @__PURE__ */ _bind(
+	FW,
+	'memory_error_notification_server',
+)
+
+export const memory_error_notification_server_routine = /* @__PURE__ */ _bind(
+	FW,
+	'memory_error_notification_server_routine',
+)
+
+export const memory_error_notification_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'memory_error_notification_subsystem',
+)
+
+export const memorystatus_available_memory = /* @__PURE__ */ _bind(
+	FW,
+	'memorystatus_available_memory',
+)
+
+export const memorystatus_available_memory_args = /* @__PURE__ */ _bind(
+	FW,
+	'memorystatus_available_memory_args',
+)
+
 export const micro_snapshot = /* @__PURE__ */ _bind(FW, 'micro_snapshot')
 export const micro_snapshot_flags = /* @__PURE__ */ _bind(FW, 'micro_snapshot_flags')
 export const microstackshot_flags_t = /* @__PURE__ */ _bind(FW, 'microstackshot_flags_t')
@@ -4990,12 +10746,24 @@ export const ml_cpu_info = /* @__PURE__ */ _bind(FW, 'ml_cpu_info')
 export const ml_cpu_init_completed = /* @__PURE__ */ _bind(FW, 'ml_cpu_init_completed')
 export const ml_cpu_signal = /* @__PURE__ */ _bind(FW, 'ml_cpu_signal')
 export const ml_cpu_signal_deferred = /* @__PURE__ */ _bind(FW, 'ml_cpu_signal_deferred')
-export const ml_cpu_signal_deferred_adjust_timer = /* @__PURE__ */ _bind(FW, 'ml_cpu_signal_deferred_adjust_timer')
-export const ml_cpu_signal_deferred_get_timer = /* @__PURE__ */ _bind(FW, 'ml_cpu_signal_deferred_get_timer')
+export const ml_cpu_signal_deferred_adjust_timer = /* @__PURE__ */ _bind(
+	FW,
+	'ml_cpu_signal_deferred_adjust_timer',
+)
+
+export const ml_cpu_signal_deferred_get_timer = /* @__PURE__ */ _bind(
+	FW,
+	'ml_cpu_signal_deferred_get_timer',
+)
+
 export const ml_cpu_signal_retract = /* @__PURE__ */ _bind(FW, 'ml_cpu_signal_retract')
 export const ml_cpu_up = /* @__PURE__ */ _bind(FW, 'ml_cpu_up')
 export const ml_cpu_up_update_counts = /* @__PURE__ */ _bind(FW, 'ml_cpu_up_update_counts')
-export const ml_early_set_interrupts_enabled = /* @__PURE__ */ _bind(FW, 'ml_early_set_interrupts_enabled')
+export const ml_early_set_interrupts_enabled = /* @__PURE__ */ _bind(
+	FW,
+	'ml_early_set_interrupts_enabled',
+)
+
 export const ml_find_next_up_processor = /* @__PURE__ */ _bind(FW, 'ml_find_next_up_processor')
 export const ml_get_abstime_offset = /* @__PURE__ */ _bind(FW, 'ml_get_abstime_offset')
 export const ml_get_boot_cluster_type = /* @__PURE__ */ _bind(FW, 'ml_get_boot_cluster_type')
@@ -5037,10 +10805,18 @@ export const ml_io_write16 = /* @__PURE__ */ _bind(FW, 'ml_io_write16')
 export const ml_io_write32 = /* @__PURE__ */ _bind(FW, 'ml_io_write32')
 export const ml_io_write64 = /* @__PURE__ */ _bind(FW, 'ml_io_write64')
 export const ml_io_write8 = /* @__PURE__ */ _bind(FW, 'ml_io_write8')
-export const ml_lockdown_handler_register = /* @__PURE__ */ _bind(FW, 'ml_lockdown_handler_register')
+export const ml_lockdown_handler_register = /* @__PURE__ */ _bind(
+	FW,
+	'ml_lockdown_handler_register',
+)
+
 export const ml_map_cpu_pio = /* @__PURE__ */ _bind(FW, 'ml_map_cpu_pio')
 export const ml_mcache_flush = /* @__PURE__ */ _bind(FW, 'ml_mcache_flush')
-export const ml_mcache_flush_callback_register = /* @__PURE__ */ _bind(FW, 'ml_mcache_flush_callback_register')
+export const ml_mcache_flush_callback_register = /* @__PURE__ */ _bind(
+	FW,
+	'ml_mcache_flush_callback_register',
+)
+
 export const ml_phys_read = /* @__PURE__ */ _bind(FW, 'ml_phys_read')
 export const ml_phys_read_64 = /* @__PURE__ */ _bind(FW, 'ml_phys_read_64')
 export const ml_phys_read_byte = /* @__PURE__ */ _bind(FW, 'ml_phys_read_byte')
@@ -5074,7 +10850,11 @@ export const ml_stack_remaining = /* @__PURE__ */ _bind(FW, 'ml_stack_remaining'
 export const ml_static_mfree = /* @__PURE__ */ _bind(FW, 'ml_static_mfree')
 export const ml_static_protect = /* @__PURE__ */ _bind(FW, 'ml_static_protect')
 export const ml_static_ptovirt = /* @__PURE__ */ _bind(FW, 'ml_static_ptovirt')
-export const ml_static_verify_page_protections = /* @__PURE__ */ _bind(FW, 'ml_static_verify_page_protections')
+export const ml_static_verify_page_protections = /* @__PURE__ */ _bind(
+	FW,
+	'ml_static_verify_page_protections',
+)
+
 export const ml_static_vtop = /* @__PURE__ */ _bind(FW, 'ml_static_vtop')
 export const ml_thread_is64bit = /* @__PURE__ */ _bind(FW, 'ml_thread_is64bit')
 export const ml_thread_policy = /* @__PURE__ */ _bind(FW, 'ml_thread_policy')
@@ -5124,7 +10904,11 @@ export const nameidata = /* @__PURE__ */ _bind(FW, 'nameidata')
 export const nanoseconds_to_absolutetime = /* @__PURE__ */ _bind(FW, 'nanoseconds_to_absolutetime')
 export const nanoseconds_to_deadline = /* @__PURE__ */ _bind(FW, 'nanoseconds_to_deadline')
 export const nd6_lookup_ipv6 = /* @__PURE__ */ _bind(FW, 'nd6_lookup_ipv6')
-export const nd6_lookup_next_hop_for_dest = /* @__PURE__ */ _bind(FW, 'nd6_lookup_next_hop_for_dest')
+export const nd6_lookup_next_hop_for_dest = /* @__PURE__ */ _bind(
+	FW,
+	'nd6_lookup_next_hop_for_dest',
+)
+
 export const nd_ifinfo = /* @__PURE__ */ _bind(FW, 'nd_ifinfo')
 export const nd_neighbor_advert = /* @__PURE__ */ _bind(FW, 'nd_neighbor_advert')
 export const nd_neighbor_solicit = /* @__PURE__ */ _bind(FW, 'nd_neighbor_solicit')
@@ -5165,7 +10949,11 @@ export const nfs_quadconvert = /* @__PURE__ */ _bind(FW, 'nfs_quadconvert')
 export const nfs_sec = /* @__PURE__ */ _bind(FW, 'nfs_sec')
 export const nfs_specdata = /* @__PURE__ */ _bind(FW, 'nfs_specdata')
 export const nfs_stateid = /* @__PURE__ */ _bind(FW, 'nfs_stateid')
-export const nfs_supported_kerberos_etypes = /* @__PURE__ */ _bind(FW, 'nfs_supported_kerberos_etypes')
+export const nfs_supported_kerberos_etypes = /* @__PURE__ */ _bind(
+	FW,
+	'nfs_supported_kerberos_etypes',
+)
+
 export const nfs_testmapid = /* @__PURE__ */ _bind(FW, 'nfs_testmapid')
 export const nfs_ticks = /* @__PURE__ */ _bind(FW, 'nfs_ticks')
 export const nfs_uquad = /* @__PURE__ */ _bind(FW, 'nfs_uquad')
@@ -5265,8 +11053,16 @@ export const os_fault_with_payload_args = /* @__PURE__ */ _bind(FW, 'os_fault_wi
 export const os_log_coproc_reg_t = /* @__PURE__ */ _bind(FW, 'os_log_coproc_reg_t')
 export const os_log_coprocessor = /* @__PURE__ */ _bind(FW, 'os_log_coprocessor')
 export const os_log_coprocessor_register = /* @__PURE__ */ _bind(FW, 'os_log_coprocessor_register')
-export const os_log_coprocessor_register_with_type = /* @__PURE__ */ _bind(FW, 'os_log_coprocessor_register_with_type')
-export const os_log_coprocessor_with_handle = /* @__PURE__ */ _bind(FW, 'os_log_coprocessor_with_handle')
+export const os_log_coprocessor_register_with_type = /* @__PURE__ */ _bind(
+	FW,
+	'os_log_coprocessor_register_with_type',
+)
+
+export const os_log_coprocessor_with_handle = /* @__PURE__ */ _bind(
+	FW,
+	'os_log_coprocessor_with_handle',
+)
+
 export const os_log_create = /* @__PURE__ */ _bind(FW, 'os_log_create')
 export const os_log_type_enabled = /* @__PURE__ */ _bind(FW, 'os_log_type_enabled')
 export const osbuild_config = /* @__PURE__ */ _bind(FW, 'osbuild_config')
@@ -5284,12 +11080,20 @@ export const pal_hib_decompress_page = /* @__PURE__ */ _bind(FW, 'pal_hib_decomp
 export const pal_hib_init = /* @__PURE__ */ _bind(FW, 'pal_hib_init')
 export const pal_hib_map = /* @__PURE__ */ _bind(FW, 'pal_hib_map')
 export const pal_hib_patchup = /* @__PURE__ */ _bind(FW, 'pal_hib_patchup')
-export const pal_hib_rebuild_pmap_structs = /* @__PURE__ */ _bind(FW, 'pal_hib_rebuild_pmap_structs')
+export const pal_hib_rebuild_pmap_structs = /* @__PURE__ */ _bind(
+	FW,
+	'pal_hib_rebuild_pmap_structs',
+)
+
 export const pal_hib_restore_pal_state = /* @__PURE__ */ _bind(FW, 'pal_hib_restore_pal_state')
 export const pal_hib_restore_stage_t = /* @__PURE__ */ _bind(FW, 'pal_hib_restore_stage_t')
 export const pal_hib_restored_page = /* @__PURE__ */ _bind(FW, 'pal_hib_restored_page')
 export const pal_hib_resume_init = /* @__PURE__ */ _bind(FW, 'pal_hib_resume_init')
-export const pal_hib_teardown_pmap_structs = /* @__PURE__ */ _bind(FW, 'pal_hib_teardown_pmap_structs')
+export const pal_hib_teardown_pmap_structs = /* @__PURE__ */ _bind(
+	FW,
+	'pal_hib_teardown_pmap_structs',
+)
+
 export const pal_hib_write_hook = /* @__PURE__ */ _bind(FW, 'pal_hib_write_hook')
 export const panic_coproc_status_update = /* @__PURE__ */ _bind(FW, 'panic_coproc_status_update')
 export const panic_info_tracker_t = /* @__PURE__ */ _bind(FW, 'panic_info_tracker_t')
@@ -5336,11 +11140,27 @@ export const priority_queue = /* @__PURE__ */ _bind(FW, 'priority_queue')
 export const priority_queue_deadline_max = /* @__PURE__ */ _bind(FW, 'priority_queue_deadline_max')
 export const priority_queue_deadline_min = /* @__PURE__ */ _bind(FW, 'priority_queue_deadline_min')
 export const priority_queue_entry = /* @__PURE__ */ _bind(FW, 'priority_queue_entry')
-export const priority_queue_entry_deadline = /* @__PURE__ */ _bind(FW, 'priority_queue_entry_deadline')
-export const priority_queue_entry_decreased = /* @__PURE__ */ _bind(FW, 'priority_queue_entry_decreased')
-export const priority_queue_entry_increased = /* @__PURE__ */ _bind(FW, 'priority_queue_entry_increased')
+export const priority_queue_entry_deadline = /* @__PURE__ */ _bind(
+	FW,
+	'priority_queue_entry_deadline',
+)
+
+export const priority_queue_entry_decreased = /* @__PURE__ */ _bind(
+	FW,
+	'priority_queue_entry_decreased',
+)
+
+export const priority_queue_entry_increased = /* @__PURE__ */ _bind(
+	FW,
+	'priority_queue_entry_increased',
+)
+
 export const priority_queue_entry_sched = /* @__PURE__ */ _bind(FW, 'priority_queue_entry_sched')
-export const priority_queue_entry_sched_modifier_t = /* @__PURE__ */ _bind(FW, 'priority_queue_entry_sched_modifier_t')
+export const priority_queue_entry_sched_modifier_t = /* @__PURE__ */ _bind(
+	FW,
+	'priority_queue_entry_sched_modifier_t',
+)
+
 export const priority_queue_entry_stable = /* @__PURE__ */ _bind(FW, 'priority_queue_entry_stable')
 export const priority_queue_init = /* @__PURE__ */ _bind(FW, 'priority_queue_init')
 export const priority_queue_insert = /* @__PURE__ */ _bind(FW, 'priority_queue_insert')
@@ -5349,8 +11169,16 @@ export const priority_queue_min = /* @__PURE__ */ _bind(FW, 'priority_queue_min'
 export const priority_queue_remove = /* @__PURE__ */ _bind(FW, 'priority_queue_remove')
 export const priority_queue_sched_max = /* @__PURE__ */ _bind(FW, 'priority_queue_sched_max')
 export const priority_queue_sched_min = /* @__PURE__ */ _bind(FW, 'priority_queue_sched_min')
-export const priority_queue_sched_stable_max = /* @__PURE__ */ _bind(FW, 'priority_queue_sched_stable_max')
-export const priority_queue_sched_stable_min = /* @__PURE__ */ _bind(FW, 'priority_queue_sched_stable_min')
+export const priority_queue_sched_stable_max = /* @__PURE__ */ _bind(
+	FW,
+	'priority_queue_sched_stable_max',
+)
+
+export const priority_queue_sched_stable_min = /* @__PURE__ */ _bind(
+	FW,
+	'priority_queue_sched_stable_min',
+)
+
 export const proc_info = /* @__PURE__ */ _bind(FW, 'proc_info')
 export const proc_info_args = /* @__PURE__ */ _bind(FW, 'proc_info_args')
 export const proc_info_extended_id = /* @__PURE__ */ _bind(FW, 'proc_info_extended_id')
@@ -5405,21 +11233,57 @@ export const readv_nocancel_args = /* @__PURE__ */ _bind(FW, 'readv_nocancel_arg
 export const reboot = /* @__PURE__ */ _bind(FW, 'reboot')
 export const reboot_args = /* @__PURE__ */ _bind(FW, 'reboot_args')
 export const receive_nspace_handle = /* @__PURE__ */ _bind(FW, 'receive_nspace_handle')
-export const receive_nspace_resolve_cancel = /* @__PURE__ */ _bind(FW, 'receive_nspace_resolve_cancel')
+export const receive_nspace_resolve_cancel = /* @__PURE__ */ _bind(
+	FW,
+	'receive_nspace_resolve_cancel',
+)
+
 export const receive_nspace_resolve_path = /* @__PURE__ */ _bind(FW, 'receive_nspace_resolve_path')
-export const receive_sysdiagnose_notification = /* @__PURE__ */ _bind(FW, 'receive_sysdiagnose_notification')
-export const receive_sysdiagnose_notification_subsystem = /* @__PURE__ */ _bind(FW, 'receive_sysdiagnose_notification_subsystem')
-export const receive_sysdiagnose_notification_with_audit_token = /* @__PURE__ */ _bind(FW, 'receive_sysdiagnose_notification_with_audit_token')
-export const receive_vfs_nspace_subsystem = /* @__PURE__ */ _bind(FW, 'receive_vfs_nspace_subsystem')
+export const receive_sysdiagnose_notification = /* @__PURE__ */ _bind(
+	FW,
+	'receive_sysdiagnose_notification',
+)
+
+export const receive_sysdiagnose_notification_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'receive_sysdiagnose_notification_subsystem',
+)
+
+export const receive_sysdiagnose_notification_with_audit_token = /* @__PURE__ */ _bind(
+	FW,
+	'receive_sysdiagnose_notification_with_audit_token',
+)
+
+export const receive_vfs_nspace_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'receive_vfs_nspace_subsystem',
+)
+
 export const receive_vfs_resolve_dir = /* @__PURE__ */ _bind(FW, 'receive_vfs_resolve_dir')
-export const receive_vfs_resolve_dir_with_audit_token = /* @__PURE__ */ _bind(FW, 'receive_vfs_resolve_dir_with_audit_token')
+export const receive_vfs_resolve_dir_with_audit_token = /* @__PURE__ */ _bind(
+	FW,
+	'receive_vfs_resolve_dir_with_audit_token',
+)
+
 export const receive_vfs_resolve_file = /* @__PURE__ */ _bind(FW, 'receive_vfs_resolve_file')
-export const receive_vfs_resolve_file_with_audit_token = /* @__PURE__ */ _bind(FW, 'receive_vfs_resolve_file_with_audit_token')
-export const receive_vfs_resolve_reparent_with_audit_token = /* @__PURE__ */ _bind(FW, 'receive_vfs_resolve_reparent_with_audit_token')
+export const receive_vfs_resolve_file_with_audit_token = /* @__PURE__ */ _bind(
+	FW,
+	'receive_vfs_resolve_file_with_audit_token',
+)
+
+export const receive_vfs_resolve_reparent_with_audit_token = /* @__PURE__ */ _bind(
+	FW,
+	'receive_vfs_resolve_reparent_with_audit_token',
+)
+
 export const record_system_event_args = /* @__PURE__ */ _bind(FW, 'record_system_event_args')
 export const reg_desc = /* @__PURE__ */ _bind(FW, 'reg_desc')
 export const reg_values = /* @__PURE__ */ _bind(FW, 'reg_values')
-export const registerPrioritySleepWakeInterest = /* @__PURE__ */ _bind(FW, 'registerPrioritySleepWakeInterest')
+export const registerPrioritySleepWakeInterest = /* @__PURE__ */ _bind(
+	FW,
+	'registerPrioritySleepWakeInterest',
+)
+
 export const registerSleepWakeInterest = /* @__PURE__ */ _bind(FW, 'registerSleepWakeInterest')
 export const reloc_type_generic = /* @__PURE__ */ _bind(FW, 'reloc_type_generic')
 export const relocation_info = /* @__PURE__ */ _bind(FW, 'relocation_info')
@@ -5470,8 +11334,16 @@ export const sastat = /* @__PURE__ */ _bind(FW, 'sastat')
 export const sbuf = /* @__PURE__ */ _bind(FW, 'sbuf')
 export const scanc = /* @__PURE__ */ _bind(FW, 'scanc')
 export const scattered_relocation_info = /* @__PURE__ */ _bind(FW, 'scattered_relocation_info')
-export const sched_perfcontrol_abandon_preemption_disable_measurement = /* @__PURE__ */ _bind(FW, 'sched_perfcontrol_abandon_preemption_disable_measurement')
-export const sched_perfcontrol_ml_set_interrupts_without_measurement = /* @__PURE__ */ _bind(FW, 'sched_perfcontrol_ml_set_interrupts_without_measurement')
+export const sched_perfcontrol_abandon_preemption_disable_measurement = /* @__PURE__ */ _bind(
+	FW,
+	'sched_perfcontrol_abandon_preemption_disable_measurement',
+)
+
+export const sched_perfcontrol_ml_set_interrupts_without_measurement = /* @__PURE__ */ _bind(
+	FW,
+	'sched_perfcontrol_ml_set_interrupts_without_measurement',
+)
+
 export const scnprintf = /* @__PURE__ */ _bind(FW, 'scnprintf')
 export const searchfs = /* @__PURE__ */ _bind(FW, 'searchfs')
 export const searchfs_args = /* @__PURE__ */ _bind(FW, 'searchfs_args')
@@ -5496,15 +11368,31 @@ export const sem_wait_nocancel = /* @__PURE__ */ _bind(FW, 'sem_wait_nocancel')
 export const sem_wait_nocancel_args = /* @__PURE__ */ _bind(FW, 'sem_wait_nocancel_args')
 export const sembuf = /* @__PURE__ */ _bind(FW, 'sembuf')
 export const semun = /* @__PURE__ */ _bind(FW, 'semun')
-export const send_ktrace_background_available = /* @__PURE__ */ _bind(FW, 'send_ktrace_background_available')
+export const send_ktrace_background_available = /* @__PURE__ */ _bind(
+	FW,
+	'send_ktrace_background_available',
+)
+
 export const send_nspace_handle = /* @__PURE__ */ _bind(FW, 'send_nspace_handle')
 export const send_nspace_resolve_cancel = /* @__PURE__ */ _bind(FW, 'send_nspace_resolve_cancel')
 export const send_nspace_resolve_path = /* @__PURE__ */ _bind(FW, 'send_nspace_resolve_path')
 export const send_vfs_resolve_dir = /* @__PURE__ */ _bind(FW, 'send_vfs_resolve_dir')
-export const send_vfs_resolve_dir_with_audit_token = /* @__PURE__ */ _bind(FW, 'send_vfs_resolve_dir_with_audit_token')
+export const send_vfs_resolve_dir_with_audit_token = /* @__PURE__ */ _bind(
+	FW,
+	'send_vfs_resolve_dir_with_audit_token',
+)
+
 export const send_vfs_resolve_file = /* @__PURE__ */ _bind(FW, 'send_vfs_resolve_file')
-export const send_vfs_resolve_file_with_audit_token = /* @__PURE__ */ _bind(FW, 'send_vfs_resolve_file_with_audit_token')
-export const send_vfs_resolve_reparent_with_audit_token = /* @__PURE__ */ _bind(FW, 'send_vfs_resolve_reparent_with_audit_token')
+export const send_vfs_resolve_file_with_audit_token = /* @__PURE__ */ _bind(
+	FW,
+	'send_vfs_resolve_file_with_audit_token',
+)
+
+export const send_vfs_resolve_reparent_with_audit_token = /* @__PURE__ */ _bind(
+	FW,
+	'send_vfs_resolve_reparent_with_audit_token',
+)
+
 export const separateBusErr = /* @__PURE__ */ _bind(FW, 'separateBusErr')
 export const serial_getc = /* @__PURE__ */ _bind(FW, 'serial_getc')
 export const serial_init = /* @__PURE__ */ _bind(FW, 'serial_init')
@@ -5577,8 +11465,16 @@ export const sgttyb = /* @__PURE__ */ _bind(FW, 'sgttyb')
 export const sha1_ctxt = /* @__PURE__ */ _bind(FW, 'sha1_ctxt')
 export const shared_region_check_np = /* @__PURE__ */ _bind(FW, 'shared_region_check_np')
 export const shared_region_check_np_args = /* @__PURE__ */ _bind(FW, 'shared_region_check_np_args')
-export const shared_region_map_and_slide_2_np = /* @__PURE__ */ _bind(FW, 'shared_region_map_and_slide_2_np')
-export const shared_region_map_and_slide_2_np_args = /* @__PURE__ */ _bind(FW, 'shared_region_map_and_slide_2_np_args')
+export const shared_region_map_and_slide_2_np = /* @__PURE__ */ _bind(
+	FW,
+	'shared_region_map_and_slide_2_np',
+)
+
+export const shared_region_map_and_slide_2_np_args = /* @__PURE__ */ _bind(
+	FW,
+	'shared_region_map_and_slide_2_np_args',
+)
+
 export const shared_region_range_np = /* @__PURE__ */ _bind(FW, 'shared_region_range_np')
 export const shm_open = /* @__PURE__ */ _bind(FW, 'shm_open')
 export const shm_open_args = /* @__PURE__ */ _bind(FW, 'shm_open_args')
@@ -5613,7 +11509,11 @@ export const smrq_tailq_head = /* @__PURE__ */ _bind(FW, 'smrq_tailq_head')
 export const so_nke = /* @__PURE__ */ _bind(FW, 'so_nke')
 export const socd_client_hdr_t = /* @__PURE__ */ _bind(FW, 'socd_client_hdr_t')
 export const socd_client_trace_class_t = /* @__PURE__ */ _bind(FW, 'socd_client_trace_class_t')
-export const socd_client_trace_code_xnu_t = /* @__PURE__ */ _bind(FW, 'socd_client_trace_code_xnu_t')
+export const socd_client_trace_code_xnu_t = /* @__PURE__ */ _bind(
+	FW,
+	'socd_client_trace_code_xnu_t',
+)
+
 export const socd_client_trace_entry_t = /* @__PURE__ */ _bind(FW, 'socd_client_trace_entry_t')
 export const sock_accept = /* @__PURE__ */ _bind(FW, 'sock_accept')
 export const sock_bind = /* @__PURE__ */ _bind(FW, 'sock_bind')
@@ -5687,12 +11587,24 @@ export const sptm_check_sapt_is_writable = /* @__PURE__ */ _bind(FW, 'sptm_check
 export const sptm_client_state = /* @__PURE__ */ _bind(FW, 'sptm_client_state')
 export const sptm_condemn_leaf_table = /* @__PURE__ */ _bind(FW, 'sptm_condemn_leaf_table')
 export const sptm_configure_root = /* @__PURE__ */ _bind(FW, 'sptm_configure_root')
-export const sptm_configure_shared_region = /* @__PURE__ */ _bind(FW, 'sptm_configure_shared_region')
+export const sptm_configure_shared_region = /* @__PURE__ */ _bind(
+	FW,
+	'sptm_configure_shared_region',
+)
+
 export const sptm_consistent_debug = /* @__PURE__ */ _bind(FW, 'sptm_consistent_debug')
-export const sptm_copy_callee_saved_state = /* @__PURE__ */ _bind(FW, 'sptm_copy_callee_saved_state')
+export const sptm_copy_callee_saved_state = /* @__PURE__ */ _bind(
+	FW,
+	'sptm_copy_callee_saved_state',
+)
+
 export const sptm_core_file_region_t = /* @__PURE__ */ _bind(FW, 'sptm_core_file_region_t')
 export const sptm_cpu_id = /* @__PURE__ */ _bind(FW, 'sptm_cpu_id')
-export const sptm_disable_kernel_mode_cpa2 = /* @__PURE__ */ _bind(FW, 'sptm_disable_kernel_mode_cpa2')
+export const sptm_disable_kernel_mode_cpa2 = /* @__PURE__ */ _bind(
+	FW,
+	'sptm_disable_kernel_mode_cpa2',
+)
+
 export const sptm_disjoint_op_t = /* @__PURE__ */ _bind(FW, 'sptm_disjoint_op_t')
 export const sptm_features_available = /* @__PURE__ */ _bind(FW, 'sptm_features_available')
 export const sptm_frame_type_t = /* @__PURE__ */ _bind(FW, 'sptm_frame_type_t')
@@ -5700,7 +11612,11 @@ export const sptm_get_cpu_state = /* @__PURE__ */ _bind(FW, 'sptm_get_cpu_state'
 export const sptm_get_info = /* @__PURE__ */ _bind(FW, 'sptm_get_info')
 export const sptm_get_paddr_type = /* @__PURE__ */ _bind(FW, 'sptm_get_paddr_type')
 export const sptm_get_panicking_cpu_id = /* @__PURE__ */ _bind(FW, 'sptm_get_panicking_cpu_id')
-export const sptm_get_table_mapping_count = /* @__PURE__ */ _bind(FW, 'sptm_get_table_mapping_count')
+export const sptm_get_table_mapping_count = /* @__PURE__ */ _bind(
+	FW,
+	'sptm_get_table_mapping_count',
+)
+
 export const sptm_get_vaddr_type = /* @__PURE__ */ _bind(FW, 'sptm_get_vaddr_type')
 export const sptm_get_version_string = /* @__PURE__ */ _bind(FW, 'sptm_get_version_string')
 export const sptm_guest_dispatch = /* @__PURE__ */ _bind(FW, 'sptm_guest_dispatch')
@@ -5709,16 +11625,28 @@ export const sptm_guest_dispatch_neon_t = /* @__PURE__ */ _bind(FW, 'sptm_guest_
 export const sptm_guest_dispatch_sme_t = /* @__PURE__ */ _bind(FW, 'sptm_guest_dispatch_sme_t')
 export const sptm_guest_dispatch_t = /* @__PURE__ */ _bind(FW, 'sptm_guest_dispatch_t')
 export const sptm_guest_dispatch_vec_t = /* @__PURE__ */ _bind(FW, 'sptm_guest_dispatch_vec_t')
-export const sptm_guest_exception_handoff_t = /* @__PURE__ */ _bind(FW, 'sptm_guest_exception_handoff_t')
+export const sptm_guest_exception_handoff_t = /* @__PURE__ */ _bind(
+	FW,
+	'sptm_guest_exception_handoff_t',
+)
+
 export const sptm_guest_exit = /* @__PURE__ */ _bind(FW, 'sptm_guest_exit')
 export const sptm_guest_stage1_tlb_op = /* @__PURE__ */ _bind(FW, 'sptm_guest_stage1_tlb_op')
 export const sptm_guest_stage1_tlb_op_t = /* @__PURE__ */ _bind(FW, 'sptm_guest_stage1_tlb_op_t')
 export const sptm_guest_stage2_tlb_op = /* @__PURE__ */ _bind(FW, 'sptm_guest_stage2_tlb_op')
 export const sptm_guest_va_to_ipa = /* @__PURE__ */ _bind(FW, 'sptm_guest_va_to_ipa')
 export const sptm_info_t = /* @__PURE__ */ _bind(FW, 'sptm_info_t')
-export const sptm_init_xnu_fixups_complete = /* @__PURE__ */ _bind(FW, 'sptm_init_xnu_fixups_complete')
+export const sptm_init_xnu_fixups_complete = /* @__PURE__ */ _bind(
+	FW,
+	'sptm_init_xnu_fixups_complete',
+)
+
 export const sptm_io_range_t = /* @__PURE__ */ _bind(FW, 'sptm_io_range_t')
-export const sptm_iofilter_protected_write = /* @__PURE__ */ _bind(FW, 'sptm_iofilter_protected_write')
+export const sptm_iofilter_protected_write = /* @__PURE__ */ _bind(
+	FW,
+	'sptm_iofilter_protected_write',
+)
+
 export const sptm_iommu_id_enum_t = /* @__PURE__ */ _bind(FW, 'sptm_iommu_id_enum_t')
 export const sptm_kvtophys = /* @__PURE__ */ _bind(FW, 'sptm_kvtophys')
 export const sptm_lockdown = /* @__PURE__ */ _bind(FW, 'sptm_lockdown')
@@ -5729,13 +11657,21 @@ export const sptm_map_table = /* @__PURE__ */ _bind(FW, 'sptm_map_table')
 export const sptm_nest_region = /* @__PURE__ */ _bind(FW, 'sptm_nest_region')
 export const sptm_output_area = /* @__PURE__ */ _bind(FW, 'sptm_output_area')
 export const sptm_paddr_is_last_mapping = /* @__PURE__ */ _bind(FW, 'sptm_paddr_is_last_mapping')
-export const sptm_page_is_sk_shared_realtime = /* @__PURE__ */ _bind(FW, 'sptm_page_is_sk_shared_realtime')
+export const sptm_page_is_sk_shared_realtime = /* @__PURE__ */ _bind(
+	FW,
+	'sptm_page_is_sk_shared_realtime',
+)
+
 export const sptm_panic_source = /* @__PURE__ */ _bind(FW, 'sptm_panic_source')
 export const sptm_phystokv = /* @__PURE__ */ _bind(FW, 'sptm_phystokv')
 export const sptm_prefetch_fte = /* @__PURE__ */ _bind(FW, 'sptm_prefetch_fte')
 export const sptm_program_irgkey = /* @__PURE__ */ _bind(FW, 'sptm_program_irgkey')
 export const sptm_register_cpu = /* @__PURE__ */ _bind(FW, 'sptm_register_cpu')
-export const sptm_register_xnu_exc_return = /* @__PURE__ */ _bind(FW, 'sptm_register_xnu_exc_return')
+export const sptm_register_xnu_exc_return = /* @__PURE__ */ _bind(
+	FW,
+	'sptm_register_xnu_exc_return',
+)
+
 export const sptm_resume_from_exception = /* @__PURE__ */ _bind(FW, 'sptm_resume_from_exception')
 export const sptm_retype = /* @__PURE__ */ _bind(FW, 'sptm_retype')
 export const sptm_retype_params_t = /* @__PURE__ */ _bind(FW, 'sptm_retype_params_t')
@@ -5757,20 +11693,44 @@ export const sptm_unmap_region = /* @__PURE__ */ _bind(FW, 'sptm_unmap_region')
 export const sptm_unmap_table = /* @__PURE__ */ _bind(FW, 'sptm_unmap_table')
 export const sptm_unnest_region = /* @__PURE__ */ _bind(FW, 'sptm_unnest_region')
 export const sptm_update_disjoint = /* @__PURE__ */ _bind(FW, 'sptm_update_disjoint')
-export const sptm_update_disjoint_multipage = /* @__PURE__ */ _bind(FW, 'sptm_update_disjoint_multipage')
-export const sptm_update_disjoint_multipage_op_t = /* @__PURE__ */ _bind(FW, 'sptm_update_disjoint_multipage_op_t')
+export const sptm_update_disjoint_multipage = /* @__PURE__ */ _bind(
+	FW,
+	'sptm_update_disjoint_multipage',
+)
+
+export const sptm_update_disjoint_multipage_op_t = /* @__PURE__ */ _bind(
+	FW,
+	'sptm_update_disjoint_multipage_op_t',
+)
+
 export const sptm_update_region = /* @__PURE__ */ _bind(FW, 'sptm_update_region')
 export const sptm_vector_type_t = /* @__PURE__ */ _bind(FW, 'sptm_vector_type_t')
 export const sptm_xnu_panic_begin = /* @__PURE__ */ _bind(FW, 'sptm_xnu_panic_begin')
 export const sscanf = /* @__PURE__ */ _bind(FW, 'sscanf')
 export const stack_snapshot_with_config = /* @__PURE__ */ _bind(FW, 'stack_snapshot_with_config')
-export const stack_snapshot_with_config_args = /* @__PURE__ */ _bind(FW, 'stack_snapshot_with_config_args')
-export const stackshot_device_lock_flags_t = /* @__PURE__ */ _bind(FW, 'stackshot_device_lock_flags_t')
-export const stackshot_device_lock_state_t = /* @__PURE__ */ _bind(FW, 'stackshot_device_lock_state_t')
+export const stack_snapshot_with_config_args = /* @__PURE__ */ _bind(
+	FW,
+	'stack_snapshot_with_config_args',
+)
+
+export const stackshot_device_lock_flags_t = /* @__PURE__ */ _bind(
+	FW,
+	'stackshot_device_lock_flags_t',
+)
+
+export const stackshot_device_lock_state_t = /* @__PURE__ */ _bind(
+	FW,
+	'stackshot_device_lock_state_t',
+)
+
 export const stackshot_flags_t = /* @__PURE__ */ _bind(FW, 'stackshot_flags_t')
 export const stackshot_passcode_status_t = /* @__PURE__ */ _bind(FW, 'stackshot_passcode_status_t')
 export const stackshot_update_lock_state = /* @__PURE__ */ _bind(FW, 'stackshot_update_lock_state')
-export const stackshot_update_passcode_status = /* @__PURE__ */ _bind(FW, 'stackshot_update_passcode_status')
+export const stackshot_update_passcode_status = /* @__PURE__ */ _bind(
+	FW,
+	'stackshot_update_passcode_status',
+)
+
 export const stat = /* @__PURE__ */ _bind(FW, 'stat')
 export const stat64 = /* @__PURE__ */ _bind(FW, 'stat64')
 export const stat64_args = /* @__PURE__ */ _bind(FW, 'stat64_args')
@@ -5785,7 +11745,11 @@ export const statfs64_args = /* @__PURE__ */ _bind(FW, 'statfs64_args')
 export const statfs_args = /* @__PURE__ */ _bind(FW, 'statfs_args')
 export const static_if_abi = /* @__PURE__ */ _bind(FW, 'static_if_abi')
 export const static_if_boot_arg_uint64 = /* @__PURE__ */ _bind(FW, 'static_if_boot_arg_uint64')
-export const static_if_dt_property_uint32 = /* @__PURE__ */ _bind(FW, 'static_if_dt_property_uint32')
+export const static_if_dt_property_uint32 = /* @__PURE__ */ _bind(
+	FW,
+	'static_if_dt_property_uint32',
+)
+
 export const static_if_entry = /* @__PURE__ */ _bind(FW, 'static_if_entry')
 export const static_if_key = /* @__PURE__ */ _bind(FW, 'static_if_key')
 export const static_if_key_false = /* @__PURE__ */ _bind(FW, 'static_if_key_false')
@@ -5816,7 +11780,11 @@ export const sys_chdir = /* @__PURE__ */ _bind(FW, 'sys_chdir')
 export const sys_close = /* @__PURE__ */ _bind(FW, 'sys_close')
 export const sys_close_nocancel = /* @__PURE__ */ _bind(FW, 'sys_close_nocancel')
 export const sys_crossarch_trap = /* @__PURE__ */ _bind(FW, 'sys_crossarch_trap')
-export const sys_debug_syscall_reject_config = /* @__PURE__ */ _bind(FW, 'sys_debug_syscall_reject_config')
+export const sys_debug_syscall_reject_config = /* @__PURE__ */ _bind(
+	FW,
+	'sys_debug_syscall_reject_config',
+)
+
 export const sys_dup = /* @__PURE__ */ _bind(FW, 'sys_dup')
 export const sys_dup2 = /* @__PURE__ */ _bind(FW, 'sys_dup2')
 export const sys_dup3 = /* @__PURE__ */ _bind(FW, 'sys_dup3')
@@ -5844,13 +11812,25 @@ export const sys_sysctlbyname = /* @__PURE__ */ _bind(FW, 'sys_sysctlbyname')
 export const sys_ulock_wait = /* @__PURE__ */ _bind(FW, 'sys_ulock_wait')
 export const sys_ulock_wait2 = /* @__PURE__ */ _bind(FW, 'sys_ulock_wait2')
 export const sys_ulock_wake = /* @__PURE__ */ _bind(FW, 'sys_ulock_wake')
-export const syscp_ID_instructions_feat_1_reg = /* @__PURE__ */ _bind(FW, 'syscp_ID_instructions_feat_1_reg')
+export const syscp_ID_instructions_feat_1_reg = /* @__PURE__ */ _bind(
+	FW,
+	'syscp_ID_instructions_feat_1_reg',
+)
+
 export const sysctl = /* @__PURE__ */ _bind(FW, 'sysctl')
 export const sysctl_args = /* @__PURE__ */ _bind(FW, 'sysctl_args')
 export const sysctlbyname = /* @__PURE__ */ _bind(FW, 'sysctlbyname')
 export const sysctlbyname_args = /* @__PURE__ */ _bind(FW, 'sysctlbyname_args')
-export const sysdiagnose_notification_server = /* @__PURE__ */ _bind(FW, 'sysdiagnose_notification_server')
-export const sysdiagnose_notification_server_routine = /* @__PURE__ */ _bind(FW, 'sysdiagnose_notification_server_routine')
+export const sysdiagnose_notification_server = /* @__PURE__ */ _bind(
+	FW,
+	'sysdiagnose_notification_server',
+)
+
+export const sysdiagnose_notification_server_routine = /* @__PURE__ */ _bind(
+	FW,
+	'sysdiagnose_notification_server_routine',
+)
+
 export const system_override = /* @__PURE__ */ _bind(FW, 'system_override')
 export const system_override_args = /* @__PURE__ */ _bind(FW, 'system_override_args')
 export const tBusVoltage = /* @__PURE__ */ _bind(FW, 'tBusVoltage')
@@ -5861,7 +11841,11 @@ export const tDeviceRequestDirection = /* @__PURE__ */ _bind(FW, 'tDeviceRequest
 export const tDeviceRequestRecipient = /* @__PURE__ */ _bind(FW, 'tDeviceRequestRecipient')
 export const tDeviceRequestType = /* @__PURE__ */ _bind(FW, 'tDeviceRequestType')
 export const tEndpointDirection = /* @__PURE__ */ _bind(FW, 'tEndpointDirection')
-export const tEndpointSynchronizationType = /* @__PURE__ */ _bind(FW, 'tEndpointSynchronizationType')
+export const tEndpointSynchronizationType = /* @__PURE__ */ _bind(
+	FW,
+	'tEndpointSynchronizationType',
+)
+
 export const tEndpointType = /* @__PURE__ */ _bind(FW, 'tEndpointType')
 export const tEndpointUsageType = /* @__PURE__ */ _bind(FW, 'tEndpointUsageType')
 export const tIOPCIAccessOptions = /* @__PURE__ */ _bind(FW, 'tIOPCIAccessOptions')
@@ -5869,8 +11853,16 @@ export const tIOPCIDeviceResetOptions = /* @__PURE__ */ _bind(FW, 'tIOPCIDeviceR
 export const tIOPCIDeviceResetTypes = /* @__PURE__ */ _bind(FW, 'tIOPCIDeviceResetTypes')
 export const tIOPCILinkControlASPMBits = /* @__PURE__ */ _bind(FW, 'tIOPCILinkControlASPMBits')
 export const tIOPCILinkSpeed = /* @__PURE__ */ _bind(FW, 'tIOPCILinkSpeed')
-export const tInternalUSBHostConnectionSpeed = /* @__PURE__ */ _bind(FW, 'tInternalUSBHostConnectionSpeed')
-export const tIsochronousTransactionOptions = /* @__PURE__ */ _bind(FW, 'tIsochronousTransactionOptions')
+export const tInternalUSBHostConnectionSpeed = /* @__PURE__ */ _bind(
+	FW,
+	'tInternalUSBHostConnectionSpeed',
+)
+
+export const tIsochronousTransactionOptions = /* @__PURE__ */ _bind(
+	FW,
+	'tIsochronousTransactionOptions',
+)
+
 export const tIsochronousTransferOptions = /* @__PURE__ */ _bind(FW, 'tIsochronousTransferOptions')
 export const tLanguageID = /* @__PURE__ */ _bind(FW, 'tLanguageID')
 export const tPacketFilterMetadata = /* @__PURE__ */ _bind(FW, 'tPacketFilterMetadata')
@@ -5893,29 +11885,77 @@ export const task_inspect_for_pid_args = /* @__PURE__ */ _bind(FW, 'task_inspect
 export const task_is_driver = /* @__PURE__ */ _bind(FW, 'task_is_driver')
 export const task_ledgers_footprint = /* @__PURE__ */ _bind(FW, 'task_ledgers_footprint')
 export const task_name_deallocate_mig = /* @__PURE__ */ _bind(FW, 'task_name_deallocate_mig')
-export const task_policy_get_deallocate_mig = /* @__PURE__ */ _bind(FW, 'task_policy_get_deallocate_mig')
-export const task_policy_set_deallocate_mig = /* @__PURE__ */ _bind(FW, 'task_policy_set_deallocate_mig')
+export const task_policy_get_deallocate_mig = /* @__PURE__ */ _bind(
+	FW,
+	'task_policy_get_deallocate_mig',
+)
+
+export const task_policy_set_deallocate_mig = /* @__PURE__ */ _bind(
+	FW,
+	'task_policy_set_deallocate_mig',
+)
+
 export const task_read_deallocate_mig = /* @__PURE__ */ _bind(FW, 'task_read_deallocate_mig')
 export const task_read_for_pid = /* @__PURE__ */ _bind(FW, 'task_read_for_pid')
 export const task_read_for_pid_args = /* @__PURE__ */ _bind(FW, 'task_read_for_pid_args')
 export const task_reference = /* @__PURE__ */ _bind(FW, 'task_reference')
 export const task_restartable_range_t = /* @__PURE__ */ _bind(FW, 'task_restartable_range_t')
-export const task_restartable_ranges_register = /* @__PURE__ */ _bind(FW, 'task_restartable_ranges_register')
-export const task_restartable_ranges_synchronize = /* @__PURE__ */ _bind(FW, 'task_restartable_ranges_synchronize')
+export const task_restartable_ranges_register = /* @__PURE__ */ _bind(
+	FW,
+	'task_restartable_ranges_register',
+)
+
+export const task_restartable_ranges_synchronize = /* @__PURE__ */ _bind(
+	FW,
+	'task_restartable_ranges_synchronize',
+)
+
 export const task_self_region_footprint = /* @__PURE__ */ _bind(FW, 'task_self_region_footprint')
-export const task_self_region_footprint_set = /* @__PURE__ */ _bind(FW, 'task_self_region_footprint_set')
+export const task_self_region_footprint_set = /* @__PURE__ */ _bind(
+	FW,
+	'task_self_region_footprint_set',
+)
+
 export const task_self_region_info_flags = /* @__PURE__ */ _bind(FW, 'task_self_region_info_flags')
-export const task_self_region_info_flags_set = /* @__PURE__ */ _bind(FW, 'task_self_region_info_flags_set')
-export const task_self_region_reused_as_clean = /* @__PURE__ */ _bind(FW, 'task_self_region_reused_as_clean')
-export const task_set_ast_synthesize_async_fault_mach_exception = /* @__PURE__ */ _bind(FW, 'task_set_ast_synthesize_async_fault_mach_exception')
-export const task_set_memory_ownership_transfer = /* @__PURE__ */ _bind(FW, 'task_set_memory_ownership_transfer')
+export const task_self_region_info_flags_set = /* @__PURE__ */ _bind(
+	FW,
+	'task_self_region_info_flags_set',
+)
+
+export const task_self_region_reused_as_clean = /* @__PURE__ */ _bind(
+	FW,
+	'task_self_region_reused_as_clean',
+)
+
+export const task_set_ast_synthesize_async_fault_mach_exception = /* @__PURE__ */ _bind(
+	FW,
+	'task_set_ast_synthesize_async_fault_mach_exception',
+)
+
+export const task_set_memory_ownership_transfer = /* @__PURE__ */ _bind(
+	FW,
+	'task_set_memory_ownership_transfer',
+)
+
 export const task_snapshot = /* @__PURE__ */ _bind(FW, 'task_snapshot')
-export const task_suspension_token_deallocate = /* @__PURE__ */ _bind(FW, 'task_suspension_token_deallocate')
+export const task_suspension_token_deallocate = /* @__PURE__ */ _bind(
+	FW,
+	'task_suspension_token_deallocate',
+)
+
 export const tb_endpoint_s = /* @__PURE__ */ _bind(FW, 'tb_endpoint_s')
 export const tchars = /* @__PURE__ */ _bind(FW, 'tchars')
 export const tcp_conn_status = /* @__PURE__ */ _bind(FW, 'tcp_conn_status')
-export const tcp_connection_client_accurate_ecn_state_t = /* @__PURE__ */ _bind(FW, 'tcp_connection_client_accurate_ecn_state_t')
-export const tcp_connection_server_accurate_ecn_state_t = /* @__PURE__ */ _bind(FW, 'tcp_connection_server_accurate_ecn_state_t')
+export const tcp_connection_client_accurate_ecn_state_t = /* @__PURE__ */ _bind(
+	FW,
+	'tcp_connection_client_accurate_ecn_state_t',
+)
+
+export const tcp_connection_server_accurate_ecn_state_t = /* @__PURE__ */ _bind(
+	FW,
+	'tcp_connection_server_accurate_ecn_state_t',
+)
+
 export const tcp_info = /* @__PURE__ */ _bind(FW, 'tcp_info')
 export const tcp_measure_bw_burst = /* @__PURE__ */ _bind(FW, 'tcp_measure_bw_burst')
 export const tcp_notify_ack_complete = /* @__PURE__ */ _bind(FW, 'tcp_notify_ack_complete')
@@ -5928,9 +11968,21 @@ export const telemetry_args = /* @__PURE__ */ _bind(FW, 'telemetry_args')
 export const telemetry_command_t = /* @__PURE__ */ _bind(FW, 'telemetry_command_t')
 export const telemetry_notice_t = /* @__PURE__ */ _bind(FW, 'telemetry_notice_t')
 export const telemetry_notification = /* @__PURE__ */ _bind(FW, 'telemetry_notification')
-export const telemetry_notification_server = /* @__PURE__ */ _bind(FW, 'telemetry_notification_server')
-export const telemetry_notification_server_routine = /* @__PURE__ */ _bind(FW, 'telemetry_notification_server_routine')
-export const telemetry_notification_subsystem = /* @__PURE__ */ _bind(FW, 'telemetry_notification_subsystem')
+export const telemetry_notification_server = /* @__PURE__ */ _bind(
+	FW,
+	'telemetry_notification_server',
+)
+
+export const telemetry_notification_server_routine = /* @__PURE__ */ _bind(
+	FW,
+	'telemetry_notification_server_routine',
+)
+
+export const telemetry_notification_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'telemetry_notification_subsystem',
+)
+
 export const telemetry_page_grab_flags_t = /* @__PURE__ */ _bind(FW, 'telemetry_page_grab_flags_t')
 export const telemetry_page_grab_t = /* @__PURE__ */ _bind(FW, 'telemetry_page_grab_t')
 export const telemetry_pagein = /* @__PURE__ */ _bind(FW, 'telemetry_pagein')
@@ -5946,8 +11998,16 @@ export const thread_block = /* @__PURE__ */ _bind(FW, 'thread_block')
 export const thread_block_parameter = /* @__PURE__ */ _bind(FW, 'thread_block_parameter')
 export const thread_call = /* @__PURE__ */ _bind(FW, 'thread_call')
 export const thread_call_allocate = /* @__PURE__ */ _bind(FW, 'thread_call_allocate')
-export const thread_call_allocate_with_options = /* @__PURE__ */ _bind(FW, 'thread_call_allocate_with_options')
-export const thread_call_allocate_with_priority = /* @__PURE__ */ _bind(FW, 'thread_call_allocate_with_priority')
+export const thread_call_allocate_with_options = /* @__PURE__ */ _bind(
+	FW,
+	'thread_call_allocate_with_options',
+)
+
+export const thread_call_allocate_with_priority = /* @__PURE__ */ _bind(
+	FW,
+	'thread_call_allocate_with_priority',
+)
+
 export const thread_call_cancel = /* @__PURE__ */ _bind(FW, 'thread_call_cancel')
 export const thread_call_cancel_wait = /* @__PURE__ */ _bind(FW, 'thread_call_cancel_wait')
 export const thread_call_enter = /* @__PURE__ */ _bind(FW, 'thread_call_enter')
@@ -5976,21 +12036,49 @@ export const thread_tid = /* @__PURE__ */ _bind(FW, 'thread_tid')
 export const thread_wakeup_nthreads_prim = /* @__PURE__ */ _bind(FW, 'thread_wakeup_nthreads_prim')
 export const thread_wakeup_prim = /* @__PURE__ */ _bind(FW, 'thread_wakeup_prim')
 export const thread_wakeup_thread = /* @__PURE__ */ _bind(FW, 'thread_wakeup_thread')
-export const throttle_get_thread_effective_io_policy = /* @__PURE__ */ _bind(FW, 'throttle_get_thread_effective_io_policy')
+export const throttle_get_thread_effective_io_policy = /* @__PURE__ */ _bind(
+	FW,
+	'throttle_get_thread_effective_io_policy',
+)
+
 export const throttle_info_create = /* @__PURE__ */ _bind(FW, 'throttle_info_create')
-export const throttle_info_disable_throttle = /* @__PURE__ */ _bind(FW, 'throttle_info_disable_throttle')
-export const throttle_info_io_will_be_throttled = /* @__PURE__ */ _bind(FW, 'throttle_info_io_will_be_throttled')
+export const throttle_info_disable_throttle = /* @__PURE__ */ _bind(
+	FW,
+	'throttle_info_disable_throttle',
+)
+
+export const throttle_info_io_will_be_throttled = /* @__PURE__ */ _bind(
+	FW,
+	'throttle_info_io_will_be_throttled',
+)
+
 export const throttle_info_mount_ref = /* @__PURE__ */ _bind(FW, 'throttle_info_mount_ref')
 export const throttle_info_mount_rel = /* @__PURE__ */ _bind(FW, 'throttle_info_mount_rel')
 export const throttle_info_ref_by_mask = /* @__PURE__ */ _bind(FW, 'throttle_info_ref_by_mask')
 export const throttle_info_rel_by_mask = /* @__PURE__ */ _bind(FW, 'throttle_info_rel_by_mask')
 export const throttle_info_release = /* @__PURE__ */ _bind(FW, 'throttle_info_release')
 export const throttle_info_update = /* @__PURE__ */ _bind(FW, 'throttle_info_update')
-export const throttle_info_update_by_mask = /* @__PURE__ */ _bind(FW, 'throttle_info_update_by_mask')
+export const throttle_info_update_by_mask = /* @__PURE__ */ _bind(
+	FW,
+	'throttle_info_update_by_mask',
+)
+
 export const throttle_lowpri_io = /* @__PURE__ */ _bind(FW, 'throttle_lowpri_io')
-export const throttle_lowpri_io_will_be_throttled = /* @__PURE__ */ _bind(FW, 'throttle_lowpri_io_will_be_throttled')
-export const throttle_set_thread_io_policy = /* @__PURE__ */ _bind(FW, 'throttle_set_thread_io_policy')
-export const throttle_thread_io_tier_above_metadata = /* @__PURE__ */ _bind(FW, 'throttle_thread_io_tier_above_metadata')
+export const throttle_lowpri_io_will_be_throttled = /* @__PURE__ */ _bind(
+	FW,
+	'throttle_lowpri_io_will_be_throttled',
+)
+
+export const throttle_set_thread_io_policy = /* @__PURE__ */ _bind(
+	FW,
+	'throttle_set_thread_io_policy',
+)
+
+export const throttle_thread_io_tier_above_metadata = /* @__PURE__ */ _bind(
+	FW,
+	'throttle_thread_io_tier_above_metadata',
+)
+
 export const thsc_cpi = /* @__PURE__ */ _bind(FW, 'thsc_cpi')
 export const thsc_time_cpi = /* @__PURE__ */ _bind(FW, 'thsc_time_cpi')
 export const thsc_time_energy_cpi = /* @__PURE__ */ _bind(FW, 'thsc_time_energy_cpi')
@@ -6054,111 +12142,483 @@ export const unlinkat = /* @__PURE__ */ _bind(FW, 'unlinkat')
 export const unlinkat_args = /* @__PURE__ */ _bind(FW, 'unlinkat_args')
 export const unmount = /* @__PURE__ */ _bind(FW, 'unmount')
 export const unmount_args = /* @__PURE__ */ _bind(FW, 'unmount_args')
-export const unnamed_10026640810810341317 = /* @__PURE__ */ _bind(FW, 'unnamed_10026640810810341317')
-export const unnamed_10177877263919051962 = /* @__PURE__ */ _bind(FW, 'unnamed_10177877263919051962')
-export const unnamed_10211279379047170458 = /* @__PURE__ */ _bind(FW, 'unnamed_10211279379047170458')
-export const unnamed_10220754665406310398 = /* @__PURE__ */ _bind(FW, 'unnamed_10220754665406310398')
-export const unnamed_10374063414335218371 = /* @__PURE__ */ _bind(FW, 'unnamed_10374063414335218371')
-export const unnamed_10390242794974579164 = /* @__PURE__ */ _bind(FW, 'unnamed_10390242794974579164')
+export const unnamed_10026640810810341317 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_10026640810810341317',
+)
+
+export const unnamed_10177877263919051962 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_10177877263919051962',
+)
+
+export const unnamed_10211279379047170458 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_10211279379047170458',
+)
+
+export const unnamed_10220754665406310398 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_10220754665406310398',
+)
+
+export const unnamed_10374063414335218371 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_10374063414335218371',
+)
+
+export const unnamed_10390242794974579164 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_10390242794974579164',
+)
+
 export const unnamed_1049175290243989651 = /* @__PURE__ */ _bind(FW, 'unnamed_1049175290243989651')
-export const unnamed_10510658829443334742 = /* @__PURE__ */ _bind(FW, 'unnamed_10510658829443334742')
-export const unnamed_10582003878615679738 = /* @__PURE__ */ _bind(FW, 'unnamed_10582003878615679738')
-export const unnamed_10727096791350198791 = /* @__PURE__ */ _bind(FW, 'unnamed_10727096791350198791')
+export const unnamed_10510658829443334742 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_10510658829443334742',
+)
+
+export const unnamed_10582003878615679738 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_10582003878615679738',
+)
+
+export const unnamed_10727096791350198791 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_10727096791350198791',
+)
+
 export const unnamed_1073308609630588625 = /* @__PURE__ */ _bind(FW, 'unnamed_1073308609630588625')
-export const unnamed_10755400700205909662 = /* @__PURE__ */ _bind(FW, 'unnamed_10755400700205909662')
-export const unnamed_10947379444960332943 = /* @__PURE__ */ _bind(FW, 'unnamed_10947379444960332943')
-export const unnamed_11069552131084001118 = /* @__PURE__ */ _bind(FW, 'unnamed_11069552131084001118')
-export const unnamed_11077575776574576594 = /* @__PURE__ */ _bind(FW, 'unnamed_11077575776574576594')
-export const unnamed_11261674202216746262 = /* @__PURE__ */ _bind(FW, 'unnamed_11261674202216746262')
+export const unnamed_10755400700205909662 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_10755400700205909662',
+)
+
+export const unnamed_10947379444960332943 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_10947379444960332943',
+)
+
+export const unnamed_11069552131084001118 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_11069552131084001118',
+)
+
+export const unnamed_11077575776574576594 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_11077575776574576594',
+)
+
+export const unnamed_11261674202216746262 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_11261674202216746262',
+)
+
 export const unnamed_1136442601369146365 = /* @__PURE__ */ _bind(FW, 'unnamed_1136442601369146365')
-export const unnamed_11398826919476084987 = /* @__PURE__ */ _bind(FW, 'unnamed_11398826919476084987')
-export const unnamed_11542088580453735205 = /* @__PURE__ */ _bind(FW, 'unnamed_11542088580453735205')
-export const unnamed_11662164036177659439 = /* @__PURE__ */ _bind(FW, 'unnamed_11662164036177659439')
-export const unnamed_11712173663391785384 = /* @__PURE__ */ _bind(FW, 'unnamed_11712173663391785384')
+export const unnamed_11398826919476084987 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_11398826919476084987',
+)
+
+export const unnamed_11542088580453735205 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_11542088580453735205',
+)
+
+export const unnamed_11662164036177659439 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_11662164036177659439',
+)
+
+export const unnamed_11712173663391785384 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_11712173663391785384',
+)
+
 export const unnamed_1173359785540038269 = /* @__PURE__ */ _bind(FW, 'unnamed_1173359785540038269')
-export const unnamed_11757426018077089854 = /* @__PURE__ */ _bind(FW, 'unnamed_11757426018077089854')
-export const unnamed_11808078915071679330 = /* @__PURE__ */ _bind(FW, 'unnamed_11808078915071679330')
-export const unnamed_11816978242320104484 = /* @__PURE__ */ _bind(FW, 'unnamed_11816978242320104484')
-export const unnamed_11981656854238758750 = /* @__PURE__ */ _bind(FW, 'unnamed_11981656854238758750')
-export const unnamed_12162695335269374428 = /* @__PURE__ */ _bind(FW, 'unnamed_12162695335269374428')
+export const unnamed_11757426018077089854 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_11757426018077089854',
+)
+
+export const unnamed_11808078915071679330 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_11808078915071679330',
+)
+
+export const unnamed_11816978242320104484 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_11816978242320104484',
+)
+
+export const unnamed_11981656854238758750 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_11981656854238758750',
+)
+
+export const unnamed_12162695335269374428 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_12162695335269374428',
+)
+
 export const unnamed_1227888821503624707 = /* @__PURE__ */ _bind(FW, 'unnamed_1227888821503624707')
-export const unnamed_12295644343766646936 = /* @__PURE__ */ _bind(FW, 'unnamed_12295644343766646936')
-export const unnamed_12306680834597098402 = /* @__PURE__ */ _bind(FW, 'unnamed_12306680834597098402')
-export const unnamed_12453670226361702875 = /* @__PURE__ */ _bind(FW, 'unnamed_12453670226361702875')
-export const unnamed_12630235878951466609 = /* @__PURE__ */ _bind(FW, 'unnamed_12630235878951466609')
-export const unnamed_12682914610915075965 = /* @__PURE__ */ _bind(FW, 'unnamed_12682914610915075965')
+export const unnamed_12295644343766646936 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_12295644343766646936',
+)
+
+export const unnamed_12306680834597098402 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_12306680834597098402',
+)
+
+export const unnamed_12453670226361702875 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_12453670226361702875',
+)
+
+export const unnamed_12630235878951466609 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_12630235878951466609',
+)
+
+export const unnamed_12682914610915075965 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_12682914610915075965',
+)
+
 export const unnamed_1280015526819348806 = /* @__PURE__ */ _bind(FW, 'unnamed_1280015526819348806')
-export const unnamed_12832443407998816313 = /* @__PURE__ */ _bind(FW, 'unnamed_12832443407998816313')
-export const unnamed_12861891672978975315 = /* @__PURE__ */ _bind(FW, 'unnamed_12861891672978975315')
+export const unnamed_12832443407998816313 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_12832443407998816313',
+)
+
+export const unnamed_12861891672978975315 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_12861891672978975315',
+)
+
 export const unnamed_1304348816865981695 = /* @__PURE__ */ _bind(FW, 'unnamed_1304348816865981695')
-export const unnamed_13063672524086591502 = /* @__PURE__ */ _bind(FW, 'unnamed_13063672524086591502')
-export const unnamed_13169804758734469903 = /* @__PURE__ */ _bind(FW, 'unnamed_13169804758734469903')
-export const unnamed_13224477250890307626 = /* @__PURE__ */ _bind(FW, 'unnamed_13224477250890307626')
-export const unnamed_13305240614445395865 = /* @__PURE__ */ _bind(FW, 'unnamed_13305240614445395865')
-export const unnamed_13378802275720122984 = /* @__PURE__ */ _bind(FW, 'unnamed_13378802275720122984')
+export const unnamed_13063672524086591502 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_13063672524086591502',
+)
+
+export const unnamed_13169804758734469903 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_13169804758734469903',
+)
+
+export const unnamed_13224477250890307626 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_13224477250890307626',
+)
+
+export const unnamed_13305240614445395865 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_13305240614445395865',
+)
+
+export const unnamed_13378802275720122984 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_13378802275720122984',
+)
+
 export const unnamed_1349940271187565025 = /* @__PURE__ */ _bind(FW, 'unnamed_1349940271187565025')
 export const unnamed_1360006967418615942 = /* @__PURE__ */ _bind(FW, 'unnamed_1360006967418615942')
-export const unnamed_13742762121275367287 = /* @__PURE__ */ _bind(FW, 'unnamed_13742762121275367287')
-export const unnamed_13759521960893842890 = /* @__PURE__ */ _bind(FW, 'unnamed_13759521960893842890')
-export const unnamed_13783761404601817890 = /* @__PURE__ */ _bind(FW, 'unnamed_13783761404601817890')
-export const unnamed_13796328879155343206 = /* @__PURE__ */ _bind(FW, 'unnamed_13796328879155343206')
+export const unnamed_13742762121275367287 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_13742762121275367287',
+)
+
+export const unnamed_13759521960893842890 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_13759521960893842890',
+)
+
+export const unnamed_13783761404601817890 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_13783761404601817890',
+)
+
+export const unnamed_13796328879155343206 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_13796328879155343206',
+)
+
 export const unnamed_1386749823636698887 = /* @__PURE__ */ _bind(FW, 'unnamed_1386749823636698887')
-export const unnamed_13878812411451609392 = /* @__PURE__ */ _bind(FW, 'unnamed_13878812411451609392')
-export const unnamed_13907781885479186503 = /* @__PURE__ */ _bind(FW, 'unnamed_13907781885479186503')
-export const unnamed_14036872911643711871 = /* @__PURE__ */ _bind(FW, 'unnamed_14036872911643711871')
-export const unnamed_14090919454698453901 = /* @__PURE__ */ _bind(FW, 'unnamed_14090919454698453901')
-export const unnamed_14099649334180452822 = /* @__PURE__ */ _bind(FW, 'unnamed_14099649334180452822')
-export const unnamed_14112952107983209019 = /* @__PURE__ */ _bind(FW, 'unnamed_14112952107983209019')
-export const unnamed_14192601549458291969 = /* @__PURE__ */ _bind(FW, 'unnamed_14192601549458291969')
-export const unnamed_14229012674224057930 = /* @__PURE__ */ _bind(FW, 'unnamed_14229012674224057930')
-export const unnamed_14246928630746391285 = /* @__PURE__ */ _bind(FW, 'unnamed_14246928630746391285')
+export const unnamed_13878812411451609392 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_13878812411451609392',
+)
+
+export const unnamed_13907781885479186503 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_13907781885479186503',
+)
+
+export const unnamed_14036872911643711871 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_14036872911643711871',
+)
+
+export const unnamed_14090919454698453901 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_14090919454698453901',
+)
+
+export const unnamed_14099649334180452822 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_14099649334180452822',
+)
+
+export const unnamed_14112952107983209019 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_14112952107983209019',
+)
+
+export const unnamed_14192601549458291969 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_14192601549458291969',
+)
+
+export const unnamed_14229012674224057930 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_14229012674224057930',
+)
+
+export const unnamed_14246928630746391285 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_14246928630746391285',
+)
+
 export const unnamed_1434387329560475752 = /* @__PURE__ */ _bind(FW, 'unnamed_1434387329560475752')
-export const unnamed_14524932838175230803 = /* @__PURE__ */ _bind(FW, 'unnamed_14524932838175230803')
-export const unnamed_14587641823161028669 = /* @__PURE__ */ _bind(FW, 'unnamed_14587641823161028669')
-export const unnamed_14833996286085951864 = /* @__PURE__ */ _bind(FW, 'unnamed_14833996286085951864')
-export const unnamed_14942451247212652301 = /* @__PURE__ */ _bind(FW, 'unnamed_14942451247212652301')
-export const unnamed_15028991116108628871 = /* @__PURE__ */ _bind(FW, 'unnamed_15028991116108628871')
-export const unnamed_15093267558977120341 = /* @__PURE__ */ _bind(FW, 'unnamed_15093267558977120341')
-export const unnamed_15132999648494051444 = /* @__PURE__ */ _bind(FW, 'unnamed_15132999648494051444')
-export const unnamed_15139511001915224071 = /* @__PURE__ */ _bind(FW, 'unnamed_15139511001915224071')
-export const unnamed_15140756585836518908 = /* @__PURE__ */ _bind(FW, 'unnamed_15140756585836518908')
-export const unnamed_15145772721269910173 = /* @__PURE__ */ _bind(FW, 'unnamed_15145772721269910173')
-export const unnamed_15220813377071643169 = /* @__PURE__ */ _bind(FW, 'unnamed_15220813377071643169')
-export const unnamed_15224419824349941769 = /* @__PURE__ */ _bind(FW, 'unnamed_15224419824349941769')
+export const unnamed_14524932838175230803 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_14524932838175230803',
+)
+
+export const unnamed_14587641823161028669 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_14587641823161028669',
+)
+
+export const unnamed_14833996286085951864 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_14833996286085951864',
+)
+
+export const unnamed_14942451247212652301 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_14942451247212652301',
+)
+
+export const unnamed_15028991116108628871 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_15028991116108628871',
+)
+
+export const unnamed_15093267558977120341 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_15093267558977120341',
+)
+
+export const unnamed_15132999648494051444 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_15132999648494051444',
+)
+
+export const unnamed_15139511001915224071 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_15139511001915224071',
+)
+
+export const unnamed_15140756585836518908 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_15140756585836518908',
+)
+
+export const unnamed_15145772721269910173 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_15145772721269910173',
+)
+
+export const unnamed_15220813377071643169 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_15220813377071643169',
+)
+
+export const unnamed_15224419824349941769 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_15224419824349941769',
+)
+
 export const unnamed_1550632795945756785 = /* @__PURE__ */ _bind(FW, 'unnamed_1550632795945756785')
-export const unnamed_15629581316607134910 = /* @__PURE__ */ _bind(FW, 'unnamed_15629581316607134910')
-export const unnamed_15707010219511826939 = /* @__PURE__ */ _bind(FW, 'unnamed_15707010219511826939')
-export const unnamed_15723698468431497349 = /* @__PURE__ */ _bind(FW, 'unnamed_15723698468431497349')
-export const unnamed_15726182340047559911 = /* @__PURE__ */ _bind(FW, 'unnamed_15726182340047559911')
-export const unnamed_15787006660502189549 = /* @__PURE__ */ _bind(FW, 'unnamed_15787006660502189549')
-export const unnamed_16255488822298767969 = /* @__PURE__ */ _bind(FW, 'unnamed_16255488822298767969')
-export const unnamed_16267160547991243465 = /* @__PURE__ */ _bind(FW, 'unnamed_16267160547991243465')
-export const unnamed_16335416013016993515 = /* @__PURE__ */ _bind(FW, 'unnamed_16335416013016993515')
-export const unnamed_16339770963653865466 = /* @__PURE__ */ _bind(FW, 'unnamed_16339770963653865466')
-export const unnamed_16484138568302824955 = /* @__PURE__ */ _bind(FW, 'unnamed_16484138568302824955')
-export const unnamed_16542306770173988349 = /* @__PURE__ */ _bind(FW, 'unnamed_16542306770173988349')
-export const unnamed_16564182229133887322 = /* @__PURE__ */ _bind(FW, 'unnamed_16564182229133887322')
-export const unnamed_16568359550700740867 = /* @__PURE__ */ _bind(FW, 'unnamed_16568359550700740867')
-export const unnamed_16674912769216290365 = /* @__PURE__ */ _bind(FW, 'unnamed_16674912769216290365')
-export const unnamed_16762558694368875046 = /* @__PURE__ */ _bind(FW, 'unnamed_16762558694368875046')
-export const unnamed_16857616232028915605 = /* @__PURE__ */ _bind(FW, 'unnamed_16857616232028915605')
-export const unnamed_16860321427244527420 = /* @__PURE__ */ _bind(FW, 'unnamed_16860321427244527420')
-export const unnamed_16957772744137294220 = /* @__PURE__ */ _bind(FW, 'unnamed_16957772744137294220')
-export const unnamed_17063257302219593426 = /* @__PURE__ */ _bind(FW, 'unnamed_17063257302219593426')
-export const unnamed_17075762887868505076 = /* @__PURE__ */ _bind(FW, 'unnamed_17075762887868505076')
-export const unnamed_17120838966663620196 = /* @__PURE__ */ _bind(FW, 'unnamed_17120838966663620196')
-export const unnamed_17167130612807407298 = /* @__PURE__ */ _bind(FW, 'unnamed_17167130612807407298')
-export const unnamed_17201182400857150891 = /* @__PURE__ */ _bind(FW, 'unnamed_17201182400857150891')
-export const unnamed_17224357291029353072 = /* @__PURE__ */ _bind(FW, 'unnamed_17224357291029353072')
-export const unnamed_17432070091619386915 = /* @__PURE__ */ _bind(FW, 'unnamed_17432070091619386915')
-export const unnamed_17454206900496886574 = /* @__PURE__ */ _bind(FW, 'unnamed_17454206900496886574')
-export const unnamed_17479494569661773798 = /* @__PURE__ */ _bind(FW, 'unnamed_17479494569661773798')
-export const unnamed_17533628704571492567 = /* @__PURE__ */ _bind(FW, 'unnamed_17533628704571492567')
-export const unnamed_17963737212569277895 = /* @__PURE__ */ _bind(FW, 'unnamed_17963737212569277895')
-export const unnamed_18151751898155817558 = /* @__PURE__ */ _bind(FW, 'unnamed_18151751898155817558')
-export const unnamed_18189720082080832256 = /* @__PURE__ */ _bind(FW, 'unnamed_18189720082080832256')
-export const unnamed_18204092119029278614 = /* @__PURE__ */ _bind(FW, 'unnamed_18204092119029278614')
-export const unnamed_18360375898093340158 = /* @__PURE__ */ _bind(FW, 'unnamed_18360375898093340158')
+export const unnamed_15629581316607134910 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_15629581316607134910',
+)
+
+export const unnamed_15707010219511826939 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_15707010219511826939',
+)
+
+export const unnamed_15723698468431497349 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_15723698468431497349',
+)
+
+export const unnamed_15726182340047559911 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_15726182340047559911',
+)
+
+export const unnamed_15787006660502189549 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_15787006660502189549',
+)
+
+export const unnamed_16255488822298767969 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_16255488822298767969',
+)
+
+export const unnamed_16267160547991243465 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_16267160547991243465',
+)
+
+export const unnamed_16335416013016993515 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_16335416013016993515',
+)
+
+export const unnamed_16339770963653865466 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_16339770963653865466',
+)
+
+export const unnamed_16484138568302824955 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_16484138568302824955',
+)
+
+export const unnamed_16542306770173988349 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_16542306770173988349',
+)
+
+export const unnamed_16564182229133887322 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_16564182229133887322',
+)
+
+export const unnamed_16568359550700740867 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_16568359550700740867',
+)
+
+export const unnamed_16674912769216290365 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_16674912769216290365',
+)
+
+export const unnamed_16762558694368875046 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_16762558694368875046',
+)
+
+export const unnamed_16857616232028915605 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_16857616232028915605',
+)
+
+export const unnamed_16860321427244527420 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_16860321427244527420',
+)
+
+export const unnamed_16957772744137294220 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_16957772744137294220',
+)
+
+export const unnamed_17063257302219593426 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_17063257302219593426',
+)
+
+export const unnamed_17075762887868505076 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_17075762887868505076',
+)
+
+export const unnamed_17120838966663620196 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_17120838966663620196',
+)
+
+export const unnamed_17167130612807407298 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_17167130612807407298',
+)
+
+export const unnamed_17201182400857150891 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_17201182400857150891',
+)
+
+export const unnamed_17224357291029353072 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_17224357291029353072',
+)
+
+export const unnamed_17432070091619386915 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_17432070091619386915',
+)
+
+export const unnamed_17454206900496886574 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_17454206900496886574',
+)
+
+export const unnamed_17479494569661773798 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_17479494569661773798',
+)
+
+export const unnamed_17533628704571492567 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_17533628704571492567',
+)
+
+export const unnamed_17963737212569277895 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_17963737212569277895',
+)
+
+export const unnamed_18151751898155817558 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_18151751898155817558',
+)
+
+export const unnamed_18189720082080832256 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_18189720082080832256',
+)
+
+export const unnamed_18204092119029278614 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_18204092119029278614',
+)
+
+export const unnamed_18360375898093340158 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_18360375898093340158',
+)
+
 export const unnamed_2052650275735979896 = /* @__PURE__ */ _bind(FW, 'unnamed_2052650275735979896')
 export const unnamed_209822808425525863 = /* @__PURE__ */ _bind(FW, 'unnamed_209822808425525863')
 export const unnamed_2124654459153668523 = /* @__PURE__ */ _bind(FW, 'unnamed_2124654459153668523')
@@ -6304,7 +12764,11 @@ export const vm_addr_struct_t = /* @__PURE__ */ _bind(FW, 'vm_addr_struct_t')
 export const vm_kernel_addrhash = /* @__PURE__ */ _bind(FW, 'vm_kernel_addrhash')
 export const vm_kernel_addrhide = /* @__PURE__ */ _bind(FW, 'vm_kernel_addrhide')
 export const vm_kernel_addrperm_external = /* @__PURE__ */ _bind(FW, 'vm_kernel_addrperm_external')
-export const vm_kernel_unslide_or_perm_external = /* @__PURE__ */ _bind(FW, 'vm_kernel_unslide_or_perm_external')
+export const vm_kernel_unslide_or_perm_external = /* @__PURE__ */ _bind(
+	FW,
+	'vm_kernel_unslide_or_perm_external',
+)
+
 export const vm_pressure_monitor = /* @__PURE__ */ _bind(FW, 'vm_pressure_monitor')
 export const vm_pressure_monitor_args = /* @__PURE__ */ _bind(FW, 'vm_pressure_monitor_args')
 export const vm_size_struct_t = /* @__PURE__ */ _bind(FW, 'vm_size_struct_t')

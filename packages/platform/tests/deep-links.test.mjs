@@ -56,7 +56,11 @@ function loadLinux({ bridged = false, initialUrl = null, location = locationOf('
 }
 
 test('web consumeInitialUrl reports the host launch URL exactly once', () => {
-	const links = loadWeb({ bootstrap: { initialUrl: 'xplat://detail' }, location: locationOf('/app') })
+	const links = loadWeb({
+		bootstrap: { initialUrl: 'xplat://detail' },
+		location: locationOf('/app'),
+	})
+
 	assert.equal(links.consumeInitialUrl(), 'xplat://detail')
 	assert.equal(links.consumeInitialUrl(), null)
 })

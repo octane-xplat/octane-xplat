@@ -7,16 +7,40 @@ export const GCColor = /* @__PURE__ */ _bind(FW, 'GCColor')
 export const GCController = /* @__PURE__ */ _bind(FW, 'GCController')
 export const GCControllerAxisInput = /* @__PURE__ */ _bind(FW, 'GCControllerAxisInput')
 export const GCControllerButtonInput = /* @__PURE__ */ _bind(FW, 'GCControllerButtonInput')
-export const GCControllerDidBecomeCurrentNotification = /* @__PURE__ */ _bind(FW, 'GCControllerDidBecomeCurrentNotification')
-export const GCControllerDidConnectNotification = /* @__PURE__ */ _bind(FW, 'GCControllerDidConnectNotification')
-export const GCControllerDidDisconnectNotification = /* @__PURE__ */ _bind(FW, 'GCControllerDidDisconnectNotification')
-export const GCControllerDidStopBeingCurrentNotification = /* @__PURE__ */ _bind(FW, 'GCControllerDidStopBeingCurrentNotification')
+export const GCControllerDidBecomeCurrentNotification = /* @__PURE__ */ _bind(
+	FW,
+	'GCControllerDidBecomeCurrentNotification',
+)
+
+export const GCControllerDidConnectNotification = /* @__PURE__ */ _bind(
+	FW,
+	'GCControllerDidConnectNotification',
+)
+
+export const GCControllerDidDisconnectNotification = /* @__PURE__ */ _bind(
+	FW,
+	'GCControllerDidDisconnectNotification',
+)
+
+export const GCControllerDidStopBeingCurrentNotification = /* @__PURE__ */ _bind(
+	FW,
+	'GCControllerDidStopBeingCurrentNotification',
+)
+
 export const GCControllerDirectionPad = /* @__PURE__ */ _bind(FW, 'GCControllerDirectionPad')
 export const GCControllerElement = /* @__PURE__ */ _bind(FW, 'GCControllerElement')
 export const GCControllerPlayerIndex = /* @__PURE__ */ _bind(FW, 'GCControllerPlayerIndex')
 export const GCControllerTouchpad = /* @__PURE__ */ _bind(FW, 'GCControllerTouchpad')
-export const GCCurrentExtendedGamepadSnapshotDataVersion = /* @__PURE__ */ _bind(FW, 'GCCurrentExtendedGamepadSnapshotDataVersion')
-export const GCCurrentMicroGamepadSnapshotDataVersion = /* @__PURE__ */ _bind(FW, 'GCCurrentMicroGamepadSnapshotDataVersion')
+export const GCCurrentExtendedGamepadSnapshotDataVersion = /* @__PURE__ */ _bind(
+	FW,
+	'GCCurrentExtendedGamepadSnapshotDataVersion',
+)
+
+export const GCCurrentMicroGamepadSnapshotDataVersion = /* @__PURE__ */ _bind(
+	FW,
+	'GCCurrentMicroGamepadSnapshotDataVersion',
+)
+
 export const GCDevice = /* @__PURE__ */ _bind(FW, 'GCDevice')
 export const GCDeviceBattery = /* @__PURE__ */ _bind(FW, 'GCDeviceBattery')
 export const GCDeviceBatteryState = /* @__PURE__ */ _bind(FW, 'GCDeviceBatteryState')
@@ -24,30 +48,74 @@ export const GCDeviceCursor = /* @__PURE__ */ _bind(FW, 'GCDeviceCursor')
 export const GCDeviceHaptics = /* @__PURE__ */ _bind(FW, 'GCDeviceHaptics')
 export const GCDeviceLight = /* @__PURE__ */ _bind(FW, 'GCDeviceLight')
 export const GCDirectionPadElementName = /* @__PURE__ */ _bind(FW, 'GCDirectionPadElementName')
-export const GCDualSenseAdaptiveTriggerPositionalAmplitudes = /* @__PURE__ */ _bind(FW, 'GCDualSenseAdaptiveTriggerPositionalAmplitudes')
-export const GCDualSenseAdaptiveTriggerPositionalResistiveStrengths = /* @__PURE__ */ _bind(FW, 'GCDualSenseAdaptiveTriggerPositionalResistiveStrengths')
+export const GCDualSenseAdaptiveTriggerPositionalAmplitudes = /* @__PURE__ */ _bind(
+	FW,
+	'GCDualSenseAdaptiveTriggerPositionalAmplitudes',
+)
+
+export const GCDualSenseAdaptiveTriggerPositionalResistiveStrengths = /* @__PURE__ */ _bind(
+	FW,
+	'GCDualSenseAdaptiveTriggerPositionalResistiveStrengths',
+)
+
 export const GCDualShockGamepad = /* @__PURE__ */ _bind(FW, 'GCDualShockGamepad')
 export const GCEulerAngles = /* @__PURE__ */ _bind(FW, 'GCEulerAngles')
 export const GCEventViewController = /* @__PURE__ */ _bind(FW, 'GCEventViewController')
 export const GCExtendedGamepad = /* @__PURE__ */ _bind(FW, 'GCExtendedGamepad')
-export const GCExtendedGamepadSnapShotDataV100 = /* @__PURE__ */ _bind(FW, 'GCExtendedGamepadSnapShotDataV100')
-export const GCExtendedGamepadSnapShotDataV100FromNSData = /* @__PURE__ */ _bind(FW, 'GCExtendedGamepadSnapShotDataV100FromNSData')
+export const GCExtendedGamepadSnapShotDataV100 = /* @__PURE__ */ _bind(
+	FW,
+	'GCExtendedGamepadSnapShotDataV100',
+)
+
+export const GCExtendedGamepadSnapShotDataV100FromNSData = /* @__PURE__ */ _bind(
+	FW,
+	'GCExtendedGamepadSnapShotDataV100FromNSData',
+)
+
 export const GCExtendedGamepadSnapshot = /* @__PURE__ */ _bind(FW, 'GCExtendedGamepadSnapshot')
-export const GCExtendedGamepadSnapshotData = /* @__PURE__ */ _bind(FW, 'GCExtendedGamepadSnapshotData')
-export const GCExtendedGamepadSnapshotDataFromNSData = /* @__PURE__ */ _bind(FW, 'GCExtendedGamepadSnapshotDataFromNSData')
-export const GCExtendedGamepadSnapshotDataVersion = /* @__PURE__ */ _bind(FW, 'GCExtendedGamepadSnapshotDataVersion')
+export const GCExtendedGamepadSnapshotData = /* @__PURE__ */ _bind(
+	FW,
+	'GCExtendedGamepadSnapshotData',
+)
+
+export const GCExtendedGamepadSnapshotDataFromNSData = /* @__PURE__ */ _bind(
+	FW,
+	'GCExtendedGamepadSnapshotDataFromNSData',
+)
+
+export const GCExtendedGamepadSnapshotDataVersion = /* @__PURE__ */ _bind(
+	FW,
+	'GCExtendedGamepadSnapshotDataVersion',
+)
+
 export const GCGamepad = /* @__PURE__ */ _bind(FW, 'GCGamepad')
 export const GCGamepadSnapShotDataV100 = /* @__PURE__ */ _bind(FW, 'GCGamepadSnapShotDataV100')
-export const GCGamepadSnapShotDataV100FromNSData = /* @__PURE__ */ _bind(FW, 'GCGamepadSnapShotDataV100FromNSData')
+export const GCGamepadSnapShotDataV100FromNSData = /* @__PURE__ */ _bind(
+	FW,
+	'GCGamepadSnapShotDataV100FromNSData',
+)
+
 export const GCGamepadSnapshot = /* @__PURE__ */ _bind(FW, 'GCGamepadSnapshot')
 export const GCHapticDurationInfinite = /* @__PURE__ */ _bind(FW, 'GCHapticDurationInfinite')
 export const GCHapticsLocalityAll = /* @__PURE__ */ _bind(FW, 'GCHapticsLocalityAll')
 export const GCHapticsLocalityDefault = /* @__PURE__ */ _bind(FW, 'GCHapticsLocalityDefault')
 export const GCHapticsLocalityHandles = /* @__PURE__ */ _bind(FW, 'GCHapticsLocalityHandles')
 export const GCHapticsLocalityLeftHandle = /* @__PURE__ */ _bind(FW, 'GCHapticsLocalityLeftHandle')
-export const GCHapticsLocalityLeftTrigger = /* @__PURE__ */ _bind(FW, 'GCHapticsLocalityLeftTrigger')
-export const GCHapticsLocalityRightHandle = /* @__PURE__ */ _bind(FW, 'GCHapticsLocalityRightHandle')
-export const GCHapticsLocalityRightTrigger = /* @__PURE__ */ _bind(FW, 'GCHapticsLocalityRightTrigger')
+export const GCHapticsLocalityLeftTrigger = /* @__PURE__ */ _bind(
+	FW,
+	'GCHapticsLocalityLeftTrigger',
+)
+
+export const GCHapticsLocalityRightHandle = /* @__PURE__ */ _bind(
+	FW,
+	'GCHapticsLocalityRightHandle',
+)
+
+export const GCHapticsLocalityRightTrigger = /* @__PURE__ */ _bind(
+	FW,
+	'GCHapticsLocalityRightTrigger',
+)
+
 export const GCHapticsLocalityTriggers = /* @__PURE__ */ _bind(FW, 'GCHapticsLocalityTriggers')
 export const GCInputButtonA = /* @__PURE__ */ _bind(FW, 'GCInputButtonA')
 export const GCInputButtonB = /* @__PURE__ */ _bind(FW, 'GCInputButtonB')
@@ -57,7 +125,11 @@ export const GCInputButtonOptions = /* @__PURE__ */ _bind(FW, 'GCInputButtonOpti
 export const GCInputButtonX = /* @__PURE__ */ _bind(FW, 'GCInputButtonX')
 export const GCInputButtonY = /* @__PURE__ */ _bind(FW, 'GCInputButtonY')
 export const GCInputDirectionPad = /* @__PURE__ */ _bind(FW, 'GCInputDirectionPad')
-export const GCInputDualShockTouchpadButton = /* @__PURE__ */ _bind(FW, 'GCInputDualShockTouchpadButton')
+export const GCInputDualShockTouchpadButton = /* @__PURE__ */ _bind(
+	FW,
+	'GCInputDualShockTouchpadButton',
+)
+
 export const GCInputDualShockTouchpadOne = /* @__PURE__ */ _bind(FW, 'GCInputDualShockTouchpadOne')
 export const GCInputDualShockTouchpadTwo = /* @__PURE__ */ _bind(FW, 'GCInputDualShockTouchpadTwo')
 export const GCInputLeftShoulder = /* @__PURE__ */ _bind(FW, 'GCInputLeftShoulder')
@@ -66,7 +138,11 @@ export const GCInputLeftThumbstickButton = /* @__PURE__ */ _bind(FW, 'GCInputLef
 export const GCInputLeftTrigger = /* @__PURE__ */ _bind(FW, 'GCInputLeftTrigger')
 export const GCInputRightShoulder = /* @__PURE__ */ _bind(FW, 'GCInputRightShoulder')
 export const GCInputRightThumbstick = /* @__PURE__ */ _bind(FW, 'GCInputRightThumbstick')
-export const GCInputRightThumbstickButton = /* @__PURE__ */ _bind(FW, 'GCInputRightThumbstickButton')
+export const GCInputRightThumbstickButton = /* @__PURE__ */ _bind(
+	FW,
+	'GCInputRightThumbstickButton',
+)
+
 export const GCInputRightTrigger = /* @__PURE__ */ _bind(FW, 'GCInputRightTrigger')
 export const GCInputXboxPaddleFour = /* @__PURE__ */ _bind(FW, 'GCInputXboxPaddleFour')
 export const GCInputXboxPaddleOne = /* @__PURE__ */ _bind(FW, 'GCInputXboxPaddleOne')
@@ -105,7 +181,11 @@ export const GCKeyCodeF8 = /* @__PURE__ */ _bind(FW, 'GCKeyCodeF8')
 export const GCKeyCodeF9 = /* @__PURE__ */ _bind(FW, 'GCKeyCodeF9')
 export const GCKeyCodeFive = /* @__PURE__ */ _bind(FW, 'GCKeyCodeFive')
 export const GCKeyCodeFour = /* @__PURE__ */ _bind(FW, 'GCKeyCodeFour')
-export const GCKeyCodeGraveAccentAndTilde = /* @__PURE__ */ _bind(FW, 'GCKeyCodeGraveAccentAndTilde')
+export const GCKeyCodeGraveAccentAndTilde = /* @__PURE__ */ _bind(
+	FW,
+	'GCKeyCodeGraveAccentAndTilde',
+)
+
 export const GCKeyCodeHome = /* @__PURE__ */ _bind(FW, 'GCKeyCodeHome')
 export const GCKeyCodeHyphen = /* @__PURE__ */ _bind(FW, 'GCKeyCodeHyphen')
 export const GCKeyCodeInsert = /* @__PURE__ */ _bind(FW, 'GCKeyCodeInsert')
@@ -325,22 +405,62 @@ export const GCKeyY = /* @__PURE__ */ _bind(FW, 'GCKeyY')
 export const GCKeyZ = /* @__PURE__ */ _bind(FW, 'GCKeyZ')
 export const GCKeyZero = /* @__PURE__ */ _bind(FW, 'GCKeyZero')
 export const GCKeyboard = /* @__PURE__ */ _bind(FW, 'GCKeyboard')
-export const GCKeyboardDidConnectNotification = /* @__PURE__ */ _bind(FW, 'GCKeyboardDidConnectNotification')
-export const GCKeyboardDidDisconnectNotification = /* @__PURE__ */ _bind(FW, 'GCKeyboardDidDisconnectNotification')
+export const GCKeyboardDidConnectNotification = /* @__PURE__ */ _bind(
+	FW,
+	'GCKeyboardDidConnectNotification',
+)
+
+export const GCKeyboardDidDisconnectNotification = /* @__PURE__ */ _bind(
+	FW,
+	'GCKeyboardDidDisconnectNotification',
+)
+
 export const GCKeyboardInput = /* @__PURE__ */ _bind(FW, 'GCKeyboardInput')
 export const GCMicroGamepad = /* @__PURE__ */ _bind(FW, 'GCMicroGamepad')
-export const GCMicroGamepadSnapShotDataV100 = /* @__PURE__ */ _bind(FW, 'GCMicroGamepadSnapShotDataV100')
-export const GCMicroGamepadSnapShotDataV100FromNSData = /* @__PURE__ */ _bind(FW, 'GCMicroGamepadSnapShotDataV100FromNSData')
+export const GCMicroGamepadSnapShotDataV100 = /* @__PURE__ */ _bind(
+	FW,
+	'GCMicroGamepadSnapShotDataV100',
+)
+
+export const GCMicroGamepadSnapShotDataV100FromNSData = /* @__PURE__ */ _bind(
+	FW,
+	'GCMicroGamepadSnapShotDataV100FromNSData',
+)
+
 export const GCMicroGamepadSnapshot = /* @__PURE__ */ _bind(FW, 'GCMicroGamepadSnapshot')
 export const GCMicroGamepadSnapshotData = /* @__PURE__ */ _bind(FW, 'GCMicroGamepadSnapshotData')
-export const GCMicroGamepadSnapshotDataFromNSData = /* @__PURE__ */ _bind(FW, 'GCMicroGamepadSnapshotDataFromNSData')
-export const GCMicroGamepadSnapshotDataVersion = /* @__PURE__ */ _bind(FW, 'GCMicroGamepadSnapshotDataVersion')
+export const GCMicroGamepadSnapshotDataFromNSData = /* @__PURE__ */ _bind(
+	FW,
+	'GCMicroGamepadSnapshotDataFromNSData',
+)
+
+export const GCMicroGamepadSnapshotDataVersion = /* @__PURE__ */ _bind(
+	FW,
+	'GCMicroGamepadSnapshotDataVersion',
+)
+
 export const GCMotion = /* @__PURE__ */ _bind(FW, 'GCMotion')
 export const GCMouse = /* @__PURE__ */ _bind(FW, 'GCMouse')
-export const GCMouseDidBecomeCurrentNotification = /* @__PURE__ */ _bind(FW, 'GCMouseDidBecomeCurrentNotification')
-export const GCMouseDidConnectNotification = /* @__PURE__ */ _bind(FW, 'GCMouseDidConnectNotification')
-export const GCMouseDidDisconnectNotification = /* @__PURE__ */ _bind(FW, 'GCMouseDidDisconnectNotification')
-export const GCMouseDidStopBeingCurrentNotification = /* @__PURE__ */ _bind(FW, 'GCMouseDidStopBeingCurrentNotification')
+export const GCMouseDidBecomeCurrentNotification = /* @__PURE__ */ _bind(
+	FW,
+	'GCMouseDidBecomeCurrentNotification',
+)
+
+export const GCMouseDidConnectNotification = /* @__PURE__ */ _bind(
+	FW,
+	'GCMouseDidConnectNotification',
+)
+
+export const GCMouseDidDisconnectNotification = /* @__PURE__ */ _bind(
+	FW,
+	'GCMouseDidDisconnectNotification',
+)
+
+export const GCMouseDidStopBeingCurrentNotification = /* @__PURE__ */ _bind(
+	FW,
+	'GCMouseDidStopBeingCurrentNotification',
+)
+
 export const GCMouseInput = /* @__PURE__ */ _bind(FW, 'GCMouseInput')
 export const GCPhysicalInputElementName = /* @__PURE__ */ _bind(FW, 'GCPhysicalInputElementName')
 export const GCPhysicalInputProfile = /* @__PURE__ */ _bind(FW, 'GCPhysicalInputProfile')
@@ -350,8 +470,27 @@ export const GCSwitchElementName = /* @__PURE__ */ _bind(FW, 'GCSwitchElementNam
 export const GCSystemGestureState = /* @__PURE__ */ _bind(FW, 'GCSystemGestureState')
 export const GCTouchState = /* @__PURE__ */ _bind(FW, 'GCTouchState')
 export const GCXboxGamepad = /* @__PURE__ */ _bind(FW, 'GCXboxGamepad')
-export const NSDataFromGCExtendedGamepadSnapShotDataV100 = /* @__PURE__ */ _bind(FW, 'NSDataFromGCExtendedGamepadSnapShotDataV100')
-export const NSDataFromGCExtendedGamepadSnapshotData = /* @__PURE__ */ _bind(FW, 'NSDataFromGCExtendedGamepadSnapshotData')
-export const NSDataFromGCGamepadSnapShotDataV100 = /* @__PURE__ */ _bind(FW, 'NSDataFromGCGamepadSnapShotDataV100')
-export const NSDataFromGCMicroGamepadSnapShotDataV100 = /* @__PURE__ */ _bind(FW, 'NSDataFromGCMicroGamepadSnapShotDataV100')
-export const NSDataFromGCMicroGamepadSnapshotData = /* @__PURE__ */ _bind(FW, 'NSDataFromGCMicroGamepadSnapshotData')
+export const NSDataFromGCExtendedGamepadSnapShotDataV100 = /* @__PURE__ */ _bind(
+	FW,
+	'NSDataFromGCExtendedGamepadSnapShotDataV100',
+)
+
+export const NSDataFromGCExtendedGamepadSnapshotData = /* @__PURE__ */ _bind(
+	FW,
+	'NSDataFromGCExtendedGamepadSnapshotData',
+)
+
+export const NSDataFromGCGamepadSnapShotDataV100 = /* @__PURE__ */ _bind(
+	FW,
+	'NSDataFromGCGamepadSnapShotDataV100',
+)
+
+export const NSDataFromGCMicroGamepadSnapShotDataV100 = /* @__PURE__ */ _bind(
+	FW,
+	'NSDataFromGCMicroGamepadSnapShotDataV100',
+)
+
+export const NSDataFromGCMicroGamepadSnapshotData = /* @__PURE__ */ _bind(
+	FW,
+	'NSDataFromGCMicroGamepadSnapshotData',
+)

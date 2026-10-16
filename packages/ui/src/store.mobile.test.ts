@@ -152,6 +152,7 @@ describe('universal renderer — store reads under parent re-render', () => {
 		const renders = { sum: 0 }
 		const shallowArray = (a: readonly number[], b: readonly number[]) =>
 			a.length === b.length && a.every((v, i) => v === b[i])
+
 		const Child = defineUniversalComponent('object', () => {
 			renders.sum++
 			const items = useStore(store, (s) => s.items, shallowArray)

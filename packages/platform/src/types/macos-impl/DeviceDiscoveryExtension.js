@@ -5,15 +5,27 @@ export const DDDeviceCategory = /* @__PURE__ */ _bind(FW, 'DDDeviceCategory')
 export const DDDeviceCategoryToString = /* @__PURE__ */ _bind(FW, 'DDDeviceCategoryToString')
 export const DDDeviceEvent = /* @__PURE__ */ _bind(FW, 'DDDeviceEvent')
 export const DDDeviceMediaPlaybackState = /* @__PURE__ */ _bind(FW, 'DDDeviceMediaPlaybackState')
-export const DDDeviceMediaPlaybackStateToString = /* @__PURE__ */ _bind(FW, 'DDDeviceMediaPlaybackStateToString')
+export const DDDeviceMediaPlaybackStateToString = /* @__PURE__ */ _bind(
+	FW,
+	'DDDeviceMediaPlaybackStateToString',
+)
+
 export const DDDeviceProtocol = /* @__PURE__ */ _bind(FW, 'DDDeviceProtocol')
 export const DDDeviceProtocolStringDIAL = /* @__PURE__ */ _bind(FW, 'DDDeviceProtocolStringDIAL')
-export const DDDeviceProtocolStringInvalid = /* @__PURE__ */ _bind(FW, 'DDDeviceProtocolStringInvalid')
+export const DDDeviceProtocolStringInvalid = /* @__PURE__ */ _bind(
+	FW,
+	'DDDeviceProtocolStringInvalid',
+)
+
 export const DDDeviceProtocolToString = /* @__PURE__ */ _bind(FW, 'DDDeviceProtocolToString')
 export const DDDeviceState = /* @__PURE__ */ _bind(FW, 'DDDeviceState')
 export const DDDeviceStateToString = /* @__PURE__ */ _bind(FW, 'DDDeviceStateToString')
 export const DDDeviceSupports = /* @__PURE__ */ _bind(FW, 'DDDeviceSupports')
-export const DDDeviceWiFiAwareServiceRole = /* @__PURE__ */ _bind(FW, 'DDDeviceWiFiAwareServiceRole')
+export const DDDeviceWiFiAwareServiceRole = /* @__PURE__ */ _bind(
+	FW,
+	'DDDeviceWiFiAwareServiceRole',
+)
+
 export const DDDiscoverySession = /* @__PURE__ */ _bind(FW, 'DDDiscoverySession')
 export const DDErrorCode = /* @__PURE__ */ _bind(FW, 'DDErrorCode')
 export const DDErrorDomain = /* @__PURE__ */ _bind(FW, 'DDErrorDomain')

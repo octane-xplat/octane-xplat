@@ -34,7 +34,10 @@ export function createAnimatedValue(
 		settle = undefined
 	}
 
-	const run = (target: number, step: (elapsed: number) => number | null): Promise<AnimationResult> => {
+	const run = (
+		target: number,
+		step: (elapsed: number) => number | null,
+	): Promise<AnimationResult> => {
 		stop()
 		if (disposed) {
 			return Promise.resolve({ status: 'cancelled' })
@@ -111,7 +114,9 @@ export function createAnimatedValue(
 			const from = current
 
 			return run(target, (elapsed) =>
-				duration === 0 || elapsed >= duration ? null : from + ((target - from) * elapsed) / duration,
+				duration === 0 || elapsed >= duration
+					? null
+					: from + ((target - from) * elapsed) / duration,
 			)
 		},
 		spring(target, opts) {

@@ -655,9 +655,7 @@ function unitTestingOverlay(projectRoot, appRequire, env) {
 
 	let shimPath
 	try {
-		shimPath = realpathSync(
-			appRequire.resolve('@nativescript/unit-test-runner/runtime/shim'),
-		)
+		shimPath = realpathSync(appRequire.resolve('@nativescript/unit-test-runner/runtime/shim'))
 	} catch {
 		throw new Error(
 			'--env.unitTesting requires @nativescript/unit-test-runner as a devDependency ' +
@@ -685,10 +683,7 @@ function unitTestingOverlay(projectRoot, appRequire, env) {
 				name: 'xplat-ns-unit-test-entry',
 				enforce: 'pre',
 				resolveId(source, importer) {
-					if (
-						importer?.includes('virtual:entry-with-polyfills') &&
-						source === mainSpecifier
-					) {
+					if (importer?.includes('virtual:entry-with-polyfills') && source === mainSpecifier) {
 						return testEntry
 					}
 

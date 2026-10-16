@@ -42,15 +42,17 @@ export async function buildMacOSBarrel(
 
 export async function checkMacOSBarrels(root) {
 	const rootExports = await buildMacOSBarrel(root, '@octane-xplat/ui')
-	for (const name of [
-		'useLayer',
-		'openWindow',
-		'applyThemeClasses',
-	]) {
+	for (const name of ['useLayer', 'openWindow', 'applyThemeClasses']) {
 		assert.ok(rootExports.includes(name), `root barrel retains the public ${name} API`)
 	}
 
-	for (const name of ['useBackInterceptor', 'manifestToJson', 'cachedQuery$', 'Markdown', 'ChatComposer']) {
+	for (const name of [
+		'useBackInterceptor',
+		'manifestToJson',
+		'cachedQuery$',
+		'Markdown',
+		'ChatComposer',
+	]) {
 		assert.ok(
 			!rootExports.includes(name),
 			`${name} moved to its purpose entrypoint — the macOS root must not keep it`,
@@ -85,12 +87,24 @@ export async function checkMacOSBarrels(root) {
 	}
 
 	const markdown = await buildMacOSBarrel(root, '@octane-xplat/ui/markdown')
-	for (const name of ['Markdown', 'MarkdownScreen', 'parseMdDoc', 'tokenize', 'useOutlineFromMarkdown']) {
+	for (const name of [
+		'Markdown',
+		'MarkdownScreen',
+		'parseMdDoc',
+		'tokenize',
+		'useOutlineFromMarkdown',
+	]) {
 		assert.ok(markdown.includes(name), `markdown barrel retains the public ${name} API`)
 	}
 
 	const chat = await buildMacOSBarrel(root, '@octane-xplat/ui/chat')
-	for (const name of ['ChatComposer', 'ChatLayout', 'ChatMessage', 'useChatDictation', 'useSpeechRecognition']) {
+	for (const name of [
+		'ChatComposer',
+		'ChatLayout',
+		'ChatMessage',
+		'useChatDictation',
+		'useSpeechRecognition',
+	]) {
 		assert.ok(chat.includes(name), `chat barrel retains the public ${name} API`)
 	}
 

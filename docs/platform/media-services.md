@@ -16,12 +16,12 @@ Check the support table for each feature and platform you use.
 
 From your app folder, install the package for the feature you need:
 
-| Feature                            | Command                            |
-| ---------------------------------- | ---------------------------------- |
-| Advanced vibration patterns        | `pnpm add @octane-xplat/haptics`   |
-| Short sound effects                | `pnpm add @octane-xplat/sounds`    |
-| Audio tracks and playback controls | `pnpm add @octane-xplat/audio`     |
-| Microphone recording to WAV        | `pnpm add @octane-xplat/recorder`  |
+| Feature                            | Command                           |
+| ---------------------------------- | --------------------------------- |
+| Advanced vibration patterns        | `pnpm add @octane-xplat/haptics`  |
+| Short sound effects                | `pnpm add @octane-xplat/sounds`   |
+| Audio tracks and playback controls | `pnpm add @octane-xplat/audio`    |
+| Microphone recording to WAV        | `pnpm add @octane-xplat/recorder` |
 
 The packages include their JavaScript and Android plugin dependencies.
 Advanced haptics on iOS also needs the Pulsar Swift package and source
@@ -387,7 +387,7 @@ Watch `snapshot()` while a take is open: `state` moves between `recording`,
 mic, a disconnected route; it becomes `paused` when the interruption clears
 and `resume()` continues the same take), and `error`. `permission` reports
 `undetermined`, `granted`, `denied`, `unavailable` (no usable input device), or
-`unsupported` — a refused or failed `start()` rejects *and* updates the
+`unsupported` — a refused or failed `start()` rejects _and_ updates the
 snapshot, so always catch it.
 
 ```ts

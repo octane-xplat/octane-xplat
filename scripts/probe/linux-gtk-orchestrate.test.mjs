@@ -10,27 +10,42 @@ const script = new URL('./linux-gtk-orchestrate.sh', import.meta.url)
 async function runFixture(mode, timeout = '600') {
 	const work = await mkdtemp(join(tmpdir(), 'gtk-orchestrator-'))
 	const executable = join(work, 'fake-runtime.mjs')
-	const source = `#!/usr/bin/env node\n` +
+	const source =
+		`#!/usr/bin/env node\n` +
 		`import { writeFileSync } from 'node:fs'\n` +
 		`const work = process.env.PROOF_WORK\n` +
 		`writeFileSync(work + '/proof-log.jsonl', '')\n` +
 		`writeFileSync(work + '/child.pid', String(process.pid))\n` +
-		(mode === 'hang' ? `process.on('SIGTERM', () => {})\nsetInterval(() => {}, 1000)\n` :
-			`process.exit(${mode === 'error' ? '7' : '0'})\n`)
+		(mode === 'hang'
+			? `process.on('SIGTERM', () => {})\nsetInterval(() => {}, 1000)\n`
+			: `process.exit(${mode === 'error' ? '7' : '0'})\n`)
+
 	await writeFile(executable, source, { mode: 0o755 })
 	const result = await new Promise((resolve, reject) => {
 		const child = spawn('bash', [script.pathname], {
 			stdio: ['ignore', 'pipe', 'pipe'],
-			env: { ...process.env, PROOF_WORK: work, PROOF_EXECUTABLE: executable,
-				PROOF_TIMEOUT_SECONDS: timeout },
+			env: {
+				...process.env,
+				PROOF_WORK: work,
+				PROOF_EXECUTABLE: executable,
+				PROOF_TIMEOUT_SECONDS: timeout,
+			},
 		})
+
 		let stdout = ''
 		let stderr = ''
-		child.stdout.setEncoding('utf8').on('data', (chunk) => { stdout += chunk })
-		child.stderr.setEncoding('utf8').on('data', (chunk) => { stderr += chunk })
+		child.stdout.setEncoding('utf8').on('data', (chunk) => {
+			stdout += chunk
+		})
+
+		child.stderr.setEncoding('utf8').on('data', (chunk) => {
+			stderr += chunk
+		})
+
 		child.once('error', reject)
 		child.once('close', (code, signal) => resolve({ code, signal, stdout, stderr }))
 	})
+
 	const pid = Number(await readFile(join(work, 'child.pid'), 'utf8'))
 	const log = await readFile(join(work, 'orchestrator.jsonl'), 'utf8')
 	await rm(work, { recursive: true, force: true })
@@ -42,7 +57,10 @@ function processIsGone(pid) {
 		process.kill(pid, 0)
 		return false
 	} catch (error) {
-		if (error.code === 'ESRCH') {return true}
+		if (error.code === 'ESRCH') {
+			return true
+		}
+
 		throw error
 	}
 }

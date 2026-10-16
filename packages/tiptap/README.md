@@ -49,12 +49,12 @@ export function Notes() {
 
 ## Engine and feature boundary
 
-| Target | Editing engine | `web` options | Caller extensions, plugins, and browser views |
-| --- | --- | --- | --- |
-| Web | Tiptap `Editor` + `EditorContent` | `extensions` and `starterKit` apply | Supported by the web Tiptap engine |
-| Android | WordPress Aztec `AztecText`; a DOM-free Tiptap bridge converts JSON to and from HTML | Ignored | Unsupported; no live ProseMirror view, plugin, node view, or browser menu runs |
-| iOS | AztecEditor-iOS through the native Swift facade; HTML-backed JSON conversion | Ignored | Unsupported; no caller JavaScript engine plugins run |
-| macOS AppKit | Bundled Tiptap editor in WKWebView | Ignored by the AppKit host | Unsupported through this facade |
+| Target       | Editing engine                                                                       | `web` options                       | Caller extensions, plugins, and browser views                                  |
+| ------------ | ------------------------------------------------------------------------------------ | ----------------------------------- | ------------------------------------------------------------------------------ |
+| Web          | Tiptap `Editor` + `EditorContent`                                                    | `extensions` and `starterKit` apply | Supported by the web Tiptap engine                                             |
+| Android      | WordPress Aztec `AztecText`; a DOM-free Tiptap bridge converts JSON to and from HTML | Ignored                             | Unsupported; no live ProseMirror view, plugin, node view, or browser menu runs |
+| iOS          | AztecEditor-iOS through the native Swift facade; HTML-backed JSON conversion         | Ignored                             | Unsupported; no caller JavaScript engine plugins run                           |
+| macOS AppKit | Bundled Tiptap editor in WKWebView                                                   | Ignored by the AppKit host          | Unsupported through this facade                                                |
 
 On Android, keep HTML as the facade's canonical interchange. Tiptap JSON is a
 best-effort conversion over Aztec HTML, not a live ProseMirror document. The
@@ -119,7 +119,6 @@ RichText uses StarterKit; Tiptap and Lexical use their existing web facades.
 Wait for `onReady`; synchronous getters return the latest received snapshot
 and commands cross WebKit asynchronously. The `native` handle is the Swift
 host transport. See [AppKit setup and engine limits](../../docs/app/rich-text.md#macos-appkit-editing).
-
 
 ## Native content and format limits
 

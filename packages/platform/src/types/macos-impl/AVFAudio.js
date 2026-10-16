@@ -2,17 +2,49 @@ import { _bind } from './_rt.js'
 const FW = '/System/Library/Frameworks/AVFAudio.framework/AVFAudio'
 export const AVAudio3DAngularOrientation = /* @__PURE__ */ _bind(FW, 'AVAudio3DAngularOrientation')
 export const AVAudio3DMixing = /* @__PURE__ */ _bind(FW, 'AVAudio3DMixing')
-export const AVAudio3DMixingPointSourceInHeadMode = /* @__PURE__ */ _bind(FW, 'AVAudio3DMixingPointSourceInHeadMode')
-export const AVAudio3DMixingRenderingAlgorithm = /* @__PURE__ */ _bind(FW, 'AVAudio3DMixingRenderingAlgorithm')
+export const AVAudio3DMixingPointSourceInHeadMode = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudio3DMixingPointSourceInHeadMode',
+)
+
+export const AVAudio3DMixingRenderingAlgorithm = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudio3DMixingRenderingAlgorithm',
+)
+
 export const AVAudio3DMixingSourceMode = /* @__PURE__ */ _bind(FW, 'AVAudio3DMixingSourceMode')
 export const AVAudio3DPoint = /* @__PURE__ */ _bind(FW, 'AVAudio3DPoint')
 export const AVAudio3DVectorOrientation = /* @__PURE__ */ _bind(FW, 'AVAudio3DVectorOrientation')
-export const AVAudioApplicationMicrophoneInjectionPermission = /* @__PURE__ */ _bind(FW, 'AVAudioApplicationMicrophoneInjectionPermission')
-export const AVAudioApplicationRecordPermission = /* @__PURE__ */ _bind(FW, 'AVAudioApplicationRecordPermission')
-export const AVAudioBitRateStrategy_Constant = /* @__PURE__ */ _bind(FW, 'AVAudioBitRateStrategy_Constant')
-export const AVAudioBitRateStrategy_LongTermAverage = /* @__PURE__ */ _bind(FW, 'AVAudioBitRateStrategy_LongTermAverage')
-export const AVAudioBitRateStrategy_Variable = /* @__PURE__ */ _bind(FW, 'AVAudioBitRateStrategy_Variable')
-export const AVAudioBitRateStrategy_VariableConstrained = /* @__PURE__ */ _bind(FW, 'AVAudioBitRateStrategy_VariableConstrained')
+export const AVAudioApplicationMicrophoneInjectionPermission = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioApplicationMicrophoneInjectionPermission',
+)
+
+export const AVAudioApplicationRecordPermission = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioApplicationRecordPermission',
+)
+
+export const AVAudioBitRateStrategy_Constant = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioBitRateStrategy_Constant',
+)
+
+export const AVAudioBitRateStrategy_LongTermAverage = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioBitRateStrategy_LongTermAverage',
+)
+
+export const AVAudioBitRateStrategy_Variable = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioBitRateStrategy_Variable',
+)
+
+export const AVAudioBitRateStrategy_VariableConstrained = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioBitRateStrategy_VariableConstrained',
+)
+
 export const AVAudioBuffer = /* @__PURE__ */ _bind(FW, 'AVAudioBuffer')
 export const AVAudioChannelLayout = /* @__PURE__ */ _bind(FW, 'AVAudioChannelLayout')
 export const AVAudioCommonFormat = /* @__PURE__ */ _bind(FW, 'AVAudioCommonFormat')
@@ -20,20 +52,60 @@ export const AVAudioCompressedBuffer = /* @__PURE__ */ _bind(FW, 'AVAudioCompres
 export const AVAudioConnectionPoint = /* @__PURE__ */ _bind(FW, 'AVAudioConnectionPoint')
 export const AVAudioConverter = /* @__PURE__ */ _bind(FW, 'AVAudioConverter')
 export const AVAudioConverterInputStatus = /* @__PURE__ */ _bind(FW, 'AVAudioConverterInputStatus')
-export const AVAudioConverterOutputStatus = /* @__PURE__ */ _bind(FW, 'AVAudioConverterOutputStatus')
+export const AVAudioConverterOutputStatus = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioConverterOutputStatus',
+)
+
 export const AVAudioConverterPrimeInfo = /* @__PURE__ */ _bind(FW, 'AVAudioConverterPrimeInfo')
 export const AVAudioConverterPrimeMethod = /* @__PURE__ */ _bind(FW, 'AVAudioConverterPrimeMethod')
-export const AVAudioDynamicRangeControlConfiguration = /* @__PURE__ */ _bind(FW, 'AVAudioDynamicRangeControlConfiguration')
+export const AVAudioDynamicRangeControlConfiguration = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioDynamicRangeControlConfiguration',
+)
+
 export const AVAudioEngine = /* @__PURE__ */ _bind(FW, 'AVAudioEngine')
-export const AVAudioEngineConfigurationChangeNotification = /* @__PURE__ */ _bind(FW, 'AVAudioEngineConfigurationChangeNotification')
-export const AVAudioEngineManualRenderingError = /* @__PURE__ */ _bind(FW, 'AVAudioEngineManualRenderingError')
-export const AVAudioEngineManualRenderingMode = /* @__PURE__ */ _bind(FW, 'AVAudioEngineManualRenderingMode')
-export const AVAudioEngineManualRenderingStatus = /* @__PURE__ */ _bind(FW, 'AVAudioEngineManualRenderingStatus')
-export const AVAudioEnvironmentDistanceAttenuationModel = /* @__PURE__ */ _bind(FW, 'AVAudioEnvironmentDistanceAttenuationModel')
-export const AVAudioEnvironmentDistanceAttenuationParameters = /* @__PURE__ */ _bind(FW, 'AVAudioEnvironmentDistanceAttenuationParameters')
+export const AVAudioEngineConfigurationChangeNotification = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioEngineConfigurationChangeNotification',
+)
+
+export const AVAudioEngineManualRenderingError = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioEngineManualRenderingError',
+)
+
+export const AVAudioEngineManualRenderingMode = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioEngineManualRenderingMode',
+)
+
+export const AVAudioEngineManualRenderingStatus = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioEngineManualRenderingStatus',
+)
+
+export const AVAudioEnvironmentDistanceAttenuationModel = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioEnvironmentDistanceAttenuationModel',
+)
+
+export const AVAudioEnvironmentDistanceAttenuationParameters = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioEnvironmentDistanceAttenuationParameters',
+)
+
 export const AVAudioEnvironmentNode = /* @__PURE__ */ _bind(FW, 'AVAudioEnvironmentNode')
-export const AVAudioEnvironmentOutputType = /* @__PURE__ */ _bind(FW, 'AVAudioEnvironmentOutputType')
-export const AVAudioEnvironmentReverbParameters = /* @__PURE__ */ _bind(FW, 'AVAudioEnvironmentReverbParameters')
+export const AVAudioEnvironmentOutputType = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioEnvironmentOutputType',
+)
+
+export const AVAudioEnvironmentReverbParameters = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioEnvironmentReverbParameters',
+)
+
 export const AVAudioFile = /* @__PURE__ */ _bind(FW, 'AVAudioFile')
 export const AVAudioFileTypeKey = /* @__PURE__ */ _bind(FW, 'AVAudioFileTypeKey')
 export const AVAudioFormat = /* @__PURE__ */ _bind(FW, 'AVAudioFormat')
@@ -48,41 +120,137 @@ export const AVAudioPCMBuffer = /* @__PURE__ */ _bind(FW, 'AVAudioPCMBuffer')
 export const AVAudioPlayer = /* @__PURE__ */ _bind(FW, 'AVAudioPlayer')
 export const AVAudioPlayerDelegate = /* @__PURE__ */ _bind(FW, 'AVAudioPlayerDelegate')
 export const AVAudioPlayerNode = /* @__PURE__ */ _bind(FW, 'AVAudioPlayerNode')
-export const AVAudioPlayerNodeBufferOptions = /* @__PURE__ */ _bind(FW, 'AVAudioPlayerNodeBufferOptions')
-export const AVAudioPlayerNodeCompletionCallbackType = /* @__PURE__ */ _bind(FW, 'AVAudioPlayerNodeCompletionCallbackType')
+export const AVAudioPlayerNodeBufferOptions = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioPlayerNodeBufferOptions',
+)
+
+export const AVAudioPlayerNodeCompletionCallbackType = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioPlayerNodeCompletionCallbackType',
+)
+
 export const AVAudioQuality = /* @__PURE__ */ _bind(FW, 'AVAudioQuality')
 export const AVAudioRecorder = /* @__PURE__ */ _bind(FW, 'AVAudioRecorder')
 export const AVAudioRecorderDelegate = /* @__PURE__ */ _bind(FW, 'AVAudioRecorderDelegate')
 export const AVAudioRoutingArbiter = /* @__PURE__ */ _bind(FW, 'AVAudioRoutingArbiter')
-export const AVAudioRoutingArbitrationCategory = /* @__PURE__ */ _bind(FW, 'AVAudioRoutingArbitrationCategory')
+export const AVAudioRoutingArbitrationCategory = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioRoutingArbitrationCategory',
+)
+
 export const AVAudioSequencer = /* @__PURE__ */ _bind(FW, 'AVAudioSequencer')
-export const AVAudioSessionActivationOptions = /* @__PURE__ */ _bind(FW, 'AVAudioSessionActivationOptions')
-export const AVAudioSessionCategoryOptions = /* @__PURE__ */ _bind(FW, 'AVAudioSessionCategoryOptions')
-export const AVAudioSessionDeactivationOptions = /* @__PURE__ */ _bind(FW, 'AVAudioSessionDeactivationOptions')
+export const AVAudioSessionActivationOptions = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioSessionActivationOptions',
+)
+
+export const AVAudioSessionCategoryOptions = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioSessionCategoryOptions',
+)
+
+export const AVAudioSessionDeactivationOptions = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioSessionDeactivationOptions',
+)
+
 export const AVAudioSessionIOType = /* @__PURE__ */ _bind(FW, 'AVAudioSessionIOType')
-export const AVAudioSessionInterruptionOptions = /* @__PURE__ */ _bind(FW, 'AVAudioSessionInterruptionOptions')
-export const AVAudioSessionInterruptionReason = /* @__PURE__ */ _bind(FW, 'AVAudioSessionInterruptionReason')
-export const AVAudioSessionInterruptionType = /* @__PURE__ */ _bind(FW, 'AVAudioSessionInterruptionType')
-export const AVAudioSessionInterruptionWasSuspendedKey = /* @__PURE__ */ _bind(FW, 'AVAudioSessionInterruptionWasSuspendedKey')
+export const AVAudioSessionInterruptionOptions = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioSessionInterruptionOptions',
+)
+
+export const AVAudioSessionInterruptionReason = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioSessionInterruptionReason',
+)
+
+export const AVAudioSessionInterruptionType = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioSessionInterruptionType',
+)
+
+export const AVAudioSessionInterruptionWasSuspendedKey = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioSessionInterruptionWasSuspendedKey',
+)
+
 export const AVAudioSessionLocationLower = /* @__PURE__ */ _bind(FW, 'AVAudioSessionLocationLower')
 export const AVAudioSessionLocationUpper = /* @__PURE__ */ _bind(FW, 'AVAudioSessionLocationUpper')
-export const AVAudioSessionMicrophoneInjectionMode = /* @__PURE__ */ _bind(FW, 'AVAudioSessionMicrophoneInjectionMode')
-export const AVAudioSessionOrientationBack = /* @__PURE__ */ _bind(FW, 'AVAudioSessionOrientationBack')
-export const AVAudioSessionOrientationBottom = /* @__PURE__ */ _bind(FW, 'AVAudioSessionOrientationBottom')
-export const AVAudioSessionOrientationFront = /* @__PURE__ */ _bind(FW, 'AVAudioSessionOrientationFront')
-export const AVAudioSessionOrientationLeft = /* @__PURE__ */ _bind(FW, 'AVAudioSessionOrientationLeft')
-export const AVAudioSessionOrientationRight = /* @__PURE__ */ _bind(FW, 'AVAudioSessionOrientationRight')
-export const AVAudioSessionOrientationTop = /* @__PURE__ */ _bind(FW, 'AVAudioSessionOrientationTop')
-export const AVAudioSessionPolarPatternCardioid = /* @__PURE__ */ _bind(FW, 'AVAudioSessionPolarPatternCardioid')
-export const AVAudioSessionPolarPatternOmnidirectional = /* @__PURE__ */ _bind(FW, 'AVAudioSessionPolarPatternOmnidirectional')
-export const AVAudioSessionPolarPatternSubcardioid = /* @__PURE__ */ _bind(FW, 'AVAudioSessionPolarPatternSubcardioid')
+export const AVAudioSessionMicrophoneInjectionMode = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioSessionMicrophoneInjectionMode',
+)
+
+export const AVAudioSessionOrientationBack = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioSessionOrientationBack',
+)
+
+export const AVAudioSessionOrientationBottom = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioSessionOrientationBottom',
+)
+
+export const AVAudioSessionOrientationFront = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioSessionOrientationFront',
+)
+
+export const AVAudioSessionOrientationLeft = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioSessionOrientationLeft',
+)
+
+export const AVAudioSessionOrientationRight = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioSessionOrientationRight',
+)
+
+export const AVAudioSessionOrientationTop = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioSessionOrientationTop',
+)
+
+export const AVAudioSessionPolarPatternCardioid = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioSessionPolarPatternCardioid',
+)
+
+export const AVAudioSessionPolarPatternOmnidirectional = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioSessionPolarPatternOmnidirectional',
+)
+
+export const AVAudioSessionPolarPatternSubcardioid = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioSessionPolarPatternSubcardioid',
+)
+
 export const AVAudioSessionPortOverride = /* @__PURE__ */ _bind(FW, 'AVAudioSessionPortOverride')
 export const AVAudioSessionPromptStyle = /* @__PURE__ */ _bind(FW, 'AVAudioSessionPromptStyle')
 export const AVAudioSessionRenderingMode = /* @__PURE__ */ _bind(FW, 'AVAudioSessionRenderingMode')
-export const AVAudioSessionRouteChangeReason = /* @__PURE__ */ _bind(FW, 'AVAudioSessionRouteChangeReason')
-export const AVAudioSessionRouteSharingPolicy = /* @__PURE__ */ _bind(FW, 'AVAudioSessionRouteSharingPolicy')
-export const AVAudioSessionSetActiveOptions = /* @__PURE__ */ _bind(FW, 'AVAudioSessionSetActiveOptions')
-export const AVAudioSessionSilenceSecondaryAudioHintType = /* @__PURE__ */ _bind(FW, 'AVAudioSessionSilenceSecondaryAudioHintType')
+export const AVAudioSessionRouteChangeReason = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioSessionRouteChangeReason',
+)
+
+export const AVAudioSessionRouteSharingPolicy = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioSessionRouteSharingPolicy',
+)
+
+export const AVAudioSessionSetActiveOptions = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioSessionSetActiveOptions',
+)
+
+export const AVAudioSessionSilenceSecondaryAudioHintType = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioSessionSilenceSecondaryAudioHintType',
+)
+
 export const AVAudioSinkNode = /* @__PURE__ */ _bind(FW, 'AVAudioSinkNode')
 export const AVAudioSourceNode = /* @__PURE__ */ _bind(FW, 'AVAudioSourceNode')
 export const AVAudioStereoMixing = /* @__PURE__ */ _bind(FW, 'AVAudioStereoMixing')
@@ -91,40 +259,76 @@ export const AVAudioTime = /* @__PURE__ */ _bind(FW, 'AVAudioTime')
 export const AVAudioUnit = /* @__PURE__ */ _bind(FW, 'AVAudioUnit')
 export const AVAudioUnitComponent = /* @__PURE__ */ _bind(FW, 'AVAudioUnitComponent')
 export const AVAudioUnitComponentManager = /* @__PURE__ */ _bind(FW, 'AVAudioUnitComponentManager')
-export const AVAudioUnitComponentManagerRegistrationsChangedNotification = /* @__PURE__ */ _bind(FW, 'AVAudioUnitComponentManagerRegistrationsChangedNotification')
-export const AVAudioUnitComponentTagsDidChangeNotification = /* @__PURE__ */ _bind(FW, 'AVAudioUnitComponentTagsDidChangeNotification')
+export const AVAudioUnitComponentManagerRegistrationsChangedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioUnitComponentManagerRegistrationsChangedNotification',
+)
+
+export const AVAudioUnitComponentTagsDidChangeNotification = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioUnitComponentTagsDidChangeNotification',
+)
+
 export const AVAudioUnitDelay = /* @__PURE__ */ _bind(FW, 'AVAudioUnitDelay')
 export const AVAudioUnitDistortion = /* @__PURE__ */ _bind(FW, 'AVAudioUnitDistortion')
 export const AVAudioUnitDistortionPreset = /* @__PURE__ */ _bind(FW, 'AVAudioUnitDistortionPreset')
 export const AVAudioUnitEQ = /* @__PURE__ */ _bind(FW, 'AVAudioUnitEQ')
-export const AVAudioUnitEQFilterParameters = /* @__PURE__ */ _bind(FW, 'AVAudioUnitEQFilterParameters')
+export const AVAudioUnitEQFilterParameters = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioUnitEQFilterParameters',
+)
+
 export const AVAudioUnitEQFilterType = /* @__PURE__ */ _bind(FW, 'AVAudioUnitEQFilterType')
 export const AVAudioUnitEffect = /* @__PURE__ */ _bind(FW, 'AVAudioUnitEffect')
 export const AVAudioUnitGenerator = /* @__PURE__ */ _bind(FW, 'AVAudioUnitGenerator')
 export const AVAudioUnitMIDIInstrument = /* @__PURE__ */ _bind(FW, 'AVAudioUnitMIDIInstrument')
-export const AVAudioUnitManufacturerNameApple = /* @__PURE__ */ _bind(FW, 'AVAudioUnitManufacturerNameApple')
+export const AVAudioUnitManufacturerNameApple = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioUnitManufacturerNameApple',
+)
+
 export const AVAudioUnitReverb = /* @__PURE__ */ _bind(FW, 'AVAudioUnitReverb')
 export const AVAudioUnitReverbPreset = /* @__PURE__ */ _bind(FW, 'AVAudioUnitReverbPreset')
 export const AVAudioUnitSampler = /* @__PURE__ */ _bind(FW, 'AVAudioUnitSampler')
 export const AVAudioUnitTimeEffect = /* @__PURE__ */ _bind(FW, 'AVAudioUnitTimeEffect')
 export const AVAudioUnitTimePitch = /* @__PURE__ */ _bind(FW, 'AVAudioUnitTimePitch')
 export const AVAudioUnitTypeEffect = /* @__PURE__ */ _bind(FW, 'AVAudioUnitTypeEffect')
-export const AVAudioUnitTypeFormatConverter = /* @__PURE__ */ _bind(FW, 'AVAudioUnitTypeFormatConverter')
+export const AVAudioUnitTypeFormatConverter = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioUnitTypeFormatConverter',
+)
+
 export const AVAudioUnitTypeGenerator = /* @__PURE__ */ _bind(FW, 'AVAudioUnitTypeGenerator')
-export const AVAudioUnitTypeMIDIProcessor = /* @__PURE__ */ _bind(FW, 'AVAudioUnitTypeMIDIProcessor')
+export const AVAudioUnitTypeMIDIProcessor = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioUnitTypeMIDIProcessor',
+)
+
 export const AVAudioUnitTypeMixer = /* @__PURE__ */ _bind(FW, 'AVAudioUnitTypeMixer')
 export const AVAudioUnitTypeMusicDevice = /* @__PURE__ */ _bind(FW, 'AVAudioUnitTypeMusicDevice')
 export const AVAudioUnitTypeMusicEffect = /* @__PURE__ */ _bind(FW, 'AVAudioUnitTypeMusicEffect')
-export const AVAudioUnitTypeOfflineEffect = /* @__PURE__ */ _bind(FW, 'AVAudioUnitTypeOfflineEffect')
+export const AVAudioUnitTypeOfflineEffect = /* @__PURE__ */ _bind(
+	FW,
+	'AVAudioUnitTypeOfflineEffect',
+)
+
 export const AVAudioUnitTypeOutput = /* @__PURE__ */ _bind(FW, 'AVAudioUnitTypeOutput')
 export const AVAudioUnitTypePanner = /* @__PURE__ */ _bind(FW, 'AVAudioUnitTypePanner')
 export const AVAudioUnitVarispeed = /* @__PURE__ */ _bind(FW, 'AVAudioUnitVarispeed')
 export const AVChannelLayoutKey = /* @__PURE__ */ _bind(FW, 'AVChannelLayoutKey')
-export const AVEncoderAudioQualityForVBRKey = /* @__PURE__ */ _bind(FW, 'AVEncoderAudioQualityForVBRKey')
+export const AVEncoderAudioQualityForVBRKey = /* @__PURE__ */ _bind(
+	FW,
+	'AVEncoderAudioQualityForVBRKey',
+)
+
 export const AVEncoderAudioQualityKey = /* @__PURE__ */ _bind(FW, 'AVEncoderAudioQualityKey')
 export const AVEncoderBitDepthHintKey = /* @__PURE__ */ _bind(FW, 'AVEncoderBitDepthHintKey')
 export const AVEncoderBitRateKey = /* @__PURE__ */ _bind(FW, 'AVEncoderBitRateKey')
-export const AVEncoderBitRatePerChannelKey = /* @__PURE__ */ _bind(FW, 'AVEncoderBitRatePerChannelKey')
+export const AVEncoderBitRatePerChannelKey = /* @__PURE__ */ _bind(
+	FW,
+	'AVEncoderBitRatePerChannelKey',
+)
+
 export const AVEncoderBitRateStrategyKey = /* @__PURE__ */ _bind(FW, 'AVEncoderBitRateStrategyKey')
 export const AVFormatIDKey = /* @__PURE__ */ _bind(FW, 'AVFormatIDKey')
 export const AVLinearPCMBitDepthKey = /* @__PURE__ */ _bind(FW, 'AVLinearPCMBitDepthKey')
@@ -136,22 +340,70 @@ export const AVMusicSequenceLoadOptions = /* @__PURE__ */ _bind(FW, 'AVMusicSequ
 export const AVMusicTrack = /* @__PURE__ */ _bind(FW, 'AVMusicTrack')
 export const AVMusicTrackLoopCount = /* @__PURE__ */ _bind(FW, 'AVMusicTrackLoopCount')
 export const AVNumberOfChannelsKey = /* @__PURE__ */ _bind(FW, 'AVNumberOfChannelsKey')
-export const AVSampleRateConverterAlgorithmKey = /* @__PURE__ */ _bind(FW, 'AVSampleRateConverterAlgorithmKey')
-export const AVSampleRateConverterAlgorithm_Mastering = /* @__PURE__ */ _bind(FW, 'AVSampleRateConverterAlgorithm_Mastering')
-export const AVSampleRateConverterAlgorithm_MinimumPhase = /* @__PURE__ */ _bind(FW, 'AVSampleRateConverterAlgorithm_MinimumPhase')
-export const AVSampleRateConverterAlgorithm_Normal = /* @__PURE__ */ _bind(FW, 'AVSampleRateConverterAlgorithm_Normal')
-export const AVSampleRateConverterAudioQualityKey = /* @__PURE__ */ _bind(FW, 'AVSampleRateConverterAudioQualityKey')
+export const AVSampleRateConverterAlgorithmKey = /* @__PURE__ */ _bind(
+	FW,
+	'AVSampleRateConverterAlgorithmKey',
+)
+
+export const AVSampleRateConverterAlgorithm_Mastering = /* @__PURE__ */ _bind(
+	FW,
+	'AVSampleRateConverterAlgorithm_Mastering',
+)
+
+export const AVSampleRateConverterAlgorithm_MinimumPhase = /* @__PURE__ */ _bind(
+	FW,
+	'AVSampleRateConverterAlgorithm_MinimumPhase',
+)
+
+export const AVSampleRateConverterAlgorithm_Normal = /* @__PURE__ */ _bind(
+	FW,
+	'AVSampleRateConverterAlgorithm_Normal',
+)
+
+export const AVSampleRateConverterAudioQualityKey = /* @__PURE__ */ _bind(
+	FW,
+	'AVSampleRateConverterAudioQualityKey',
+)
+
 export const AVSampleRateKey = /* @__PURE__ */ _bind(FW, 'AVSampleRateKey')
 export const AVSpeechBoundary = /* @__PURE__ */ _bind(FW, 'AVSpeechBoundary')
-export const AVSpeechSynthesisIPANotationAttribute = /* @__PURE__ */ _bind(FW, 'AVSpeechSynthesisIPANotationAttribute')
+export const AVSpeechSynthesisIPANotationAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'AVSpeechSynthesisIPANotationAttribute',
+)
+
 export const AVSpeechSynthesisVoice = /* @__PURE__ */ _bind(FW, 'AVSpeechSynthesisVoice')
-export const AVSpeechSynthesisVoiceGender = /* @__PURE__ */ _bind(FW, 'AVSpeechSynthesisVoiceGender')
-export const AVSpeechSynthesisVoiceIdentifierAlex = /* @__PURE__ */ _bind(FW, 'AVSpeechSynthesisVoiceIdentifierAlex')
-export const AVSpeechSynthesisVoiceQuality = /* @__PURE__ */ _bind(FW, 'AVSpeechSynthesisVoiceQuality')
+export const AVSpeechSynthesisVoiceGender = /* @__PURE__ */ _bind(
+	FW,
+	'AVSpeechSynthesisVoiceGender',
+)
+
+export const AVSpeechSynthesisVoiceIdentifierAlex = /* @__PURE__ */ _bind(
+	FW,
+	'AVSpeechSynthesisVoiceIdentifierAlex',
+)
+
+export const AVSpeechSynthesisVoiceQuality = /* @__PURE__ */ _bind(
+	FW,
+	'AVSpeechSynthesisVoiceQuality',
+)
+
 export const AVSpeechSynthesizer = /* @__PURE__ */ _bind(FW, 'AVSpeechSynthesizer')
 export const AVSpeechSynthesizerDelegate = /* @__PURE__ */ _bind(FW, 'AVSpeechSynthesizerDelegate')
 export const AVSpeechUtterance = /* @__PURE__ */ _bind(FW, 'AVSpeechUtterance')
-export const AVSpeechUtteranceDefaultSpeechRate = /* @__PURE__ */ _bind(FW, 'AVSpeechUtteranceDefaultSpeechRate')
-export const AVSpeechUtteranceMaximumSpeechRate = /* @__PURE__ */ _bind(FW, 'AVSpeechUtteranceMaximumSpeechRate')
-export const AVSpeechUtteranceMinimumSpeechRate = /* @__PURE__ */ _bind(FW, 'AVSpeechUtteranceMinimumSpeechRate')
+export const AVSpeechUtteranceDefaultSpeechRate = /* @__PURE__ */ _bind(
+	FW,
+	'AVSpeechUtteranceDefaultSpeechRate',
+)
+
+export const AVSpeechUtteranceMaximumSpeechRate = /* @__PURE__ */ _bind(
+	FW,
+	'AVSpeechUtteranceMaximumSpeechRate',
+)
+
+export const AVSpeechUtteranceMinimumSpeechRate = /* @__PURE__ */ _bind(
+	FW,
+	'AVSpeechUtteranceMinimumSpeechRate',
+)
+
 export const _AVBeatRange = /* @__PURE__ */ _bind(FW, '_AVBeatRange')

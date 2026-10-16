@@ -12,7 +12,11 @@ const source = ts.transpile(
 // Stub the plugin + @nativescript/core so the shared NativeScript leaf can be
 // exercised without a device — captures the last availability result, verify
 // options, and lets tests fail or gate the plugin calls.
-function load({ ios = false, available = { any: true, biometrics: true }, verifyResult = { code: 0 } } = {}) {
+function load({
+	ios = false,
+	available = { any: true, biometrics: true },
+	verifyResult = { code: 0 },
+} = {}) {
 	const calls = []
 	let gate = null
 	class StubBiometricAuth {

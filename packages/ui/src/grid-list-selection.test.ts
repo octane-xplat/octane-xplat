@@ -51,9 +51,7 @@ describe('gridListPress', () => {
 	})
 
 	it("materializes 'all' over item keys on mutation", () => {
-		expect(press({ selection: 'all' }).selection).toEqual(
-			new Set(['b', 'c', 'd', 'e', 'f']),
-		)
+		expect(press({ selection: 'all' }).selection).toEqual(new Set(['b', 'c', 'd', 'e', 'f']))
 	})
 
 	it('extends a range from the anchor on shift+press', () => {
@@ -83,8 +81,8 @@ describe('gridListPress', () => {
 	})
 
 	it('keeps the last selected key under disallowEmptySelection', () => {
-		expect(
-			press({ selection: new Set(['a']), disallowEmptySelection: true }).selection,
-		).toEqual(new Set(['a']))
+		expect(press({ selection: new Set(['a']), disallowEmptySelection: true }).selection).toEqual(
+			new Set(['a']),
+		)
 	})
 })

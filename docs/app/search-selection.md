@@ -15,7 +15,12 @@ export function Example() {
 	return (
 		<>
 			<Selector selectionMode="single" label="Region" options={options} defaultValue="sfo" />
-			<MultiSelector selectionMode="multiple" label="Regions" options={options} defaultValue={['sfo']} />
+			<MultiSelector
+				selectionMode="multiple"
+				label="Regions"
+				options={options}
+				defaultValue={['sfo']}
+			/>
 		</>
 	)
 }
@@ -88,7 +93,8 @@ import { MultiSelector } from '@octane-xplat/ui'
 
 export function Example() {
 	return (
-		<MultiSelector selectionMode="multiple"
+		<MultiSelector
+			selectionMode="multiple"
 			label="Regions"
 			options={[{ value: 'sfo', label: 'San Francisco', group: 'West', description: 'California' }]}
 			searchable
@@ -118,7 +124,8 @@ import { MultiSelector } from '@octane-xplat/ui'
 export function Example() {
 	const [regions, setRegions] = useState<string[]>([])
 	return (
-		<MultiSelector selectionMode="multiple"
+		<MultiSelector
+			selectionMode="multiple"
 			label="Regions"
 			options={[{ value: 'sfo', label: 'San Francisco' }]}
 			value={regions}
@@ -149,7 +156,8 @@ import { MultiSelector } from '@octane-xplat/ui'
 
 export function Example() {
 	return (
-		<MultiSelector selectionMode="multiple"
+		<MultiSelector
+			selectionMode="multiple"
 			label="Regions"
 			options={[
 				{ value: 'sfo', label: 'San Francisco' },

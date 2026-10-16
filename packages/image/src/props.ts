@@ -1,4 +1,4 @@
-import type { ImageProps as CoreImageProps } from '@octane-xplat/ui';
+import type { ImageProps as CoreImageProps } from '@octane-xplat/ui'
 
 // The leaf's Image is a drop-in for `@octane-xplat/ui`'s Image — same name,
 // same props. The core contract types come straight from ui so the leaf can
@@ -11,7 +11,7 @@ export type {
 	ImageContentPositionValue,
 	ImageDecoding,
 	ImageSourceLike,
-} from '@octane-xplat/ui';
+} from '@octane-xplat/ui'
 
 /** How the engine's caches participate in a load. The plugin exposes a single
  *  all-off switch (`noCache` → Glide `skipMemoryCache` + `DiskCacheStrategy.NONE`

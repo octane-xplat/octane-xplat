@@ -103,6 +103,7 @@ export function createCommandPaletteController<T extends CommandPaletteItem>(
 
 	const patch = (next: Partial<CommandPaletteState<T>>) =>
 		store.update((state) => ({ ...state, ...next }))
+
 	// Each search/bootstrap call gets its own request — aborting a superseded
 	// one can never cancel another consumer's work on a shared source.
 	let request: AbortController | null = null
@@ -182,7 +183,10 @@ export function createCommandPaletteController<T extends CommandPaletteItem>(
 	}
 
 	const highlight = (id: string | null) => {
-		if (id === null || store.getSnapshot().results.some((item) => item.id === id && !item.disabled)) {
+		if (
+			id === null ||
+			store.getSnapshot().results.some((item) => item.id === id && !item.disabled)
+		) {
 			patch({ highlighted: id })
 		}
 	}
@@ -194,7 +198,12 @@ export function createCommandPaletteController<T extends CommandPaletteItem>(
 		defaultPrevented?: boolean
 		preventDefault(): void
 	}) => {
-		if (event.defaultPrevented || event.isComposing || event.keyCode === 229 || !store.getSnapshot().open) {
+		if (
+			event.defaultPrevented ||
+			event.isComposing ||
+			event.keyCode === 229 ||
+			!store.getSnapshot().open
+		) {
 			return
 		}
 

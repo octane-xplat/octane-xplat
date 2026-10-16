@@ -1,250 +1,281 @@
 /// <reference types="@nativescript/objc-node-api" />
 /// <reference path="./Runtime.d.ts" />
 
-declare const CLSContextTopicComputerScienceAndEngineering: string;
+declare const CLSContextTopicComputerScienceAndEngineering: string
 
-declare const CLSContextTopicWorldLanguage: string;
+declare const CLSContextTopicWorldLanguage: string
 
-declare const CLSContextTopicLiteracyAndWriting: string;
+declare const CLSContextTopicLiteracyAndWriting: string
 
-declare const CLSContextTopicMath: string;
+declare const CLSContextTopicMath: string
 
-declare const CLSPredicateKeyPathTitle: string;
+declare const CLSPredicateKeyPathTitle: string
 
-declare const CLSPredicateKeyPathIdentifier: string;
+declare const CLSPredicateKeyPathIdentifier: string
 
-declare const CLSContextTopicArtsAndMusic: string;
+declare const CLSContextTopicArtsAndMusic: string
 
-declare const CLSContextTopicScience: string;
+declare const CLSContextTopicScience: string
 
-declare const CLSErrorUnderlyingErrorsKey: string;
+declare const CLSErrorUnderlyingErrorsKey: string
 
-declare const CLSPredicateKeyPathParent: string;
+declare const CLSPredicateKeyPathParent: string
 
-declare const CLSPredicateKeyPathTopic: string;
+declare const CLSPredicateKeyPathTopic: string
 
-declare const CLSErrorObjectKey: string;
+declare const CLSErrorObjectKey: string
 
-declare const CLSContextTopicHealthAndFitness: string;
+declare const CLSContextTopicHealthAndFitness: string
 
-declare const CLSPredicateKeyPathDateCreated: string;
+declare const CLSPredicateKeyPathDateCreated: string
 
-declare const CLSPredicateKeyPathUniversalLinkURL: string;
+declare const CLSPredicateKeyPathUniversalLinkURL: string
 
-declare const CLSErrorCodeDomain: string;
+declare const CLSErrorCodeDomain: string
 
-declare const CLSContextTopicSocialScience: string;
+declare const CLSContextTopicSocialScience: string
 
 declare const CLSProgressReportingCapabilityKind: {
-  Duration: 0,
-  Percent: 1,
-  Binary: 2,
-  Quantity: 3,
-  Score: 4,
-};
+	Duration: 0
+	Percent: 1
+	Binary: 2
+	Quantity: 3
+	Score: 4
+}
 
 declare const CLSContextType: {
-  None: 0,
-  App: 1,
-  Chapter: 2,
-  Section: 3,
-  Level: 4,
-  Page: 5,
-  Task: 6,
-  Challenge: 7,
-  Quiz: 8,
-  Exercise: 9,
-  Lesson: 10,
-  Book: 11,
-  Game: 12,
-  Document: 13,
-  Audio: 14,
-  Video: 15,
-  Course: 16,
-  Custom: 17,
-};
+	None: 0
+	App: 1
+	Chapter: 2
+	Section: 3
+	Level: 4
+	Page: 5
+	Task: 6
+	Challenge: 7
+	Quiz: 8
+	Exercise: 9
+	Lesson: 10
+	Book: 11
+	Game: 12
+	Document: 13
+	Audio: 14
+	Video: 15
+	Course: 16
+	Custom: 17
+}
 
 declare const CLSBinaryValueType: {
-  TrueFalse: 0,
-  PassFail: 1,
-  YesNo: 2,
-  CorrectIncorrect: 3,
-};
+	TrueFalse: 0
+	PassFail: 1
+	YesNo: 2
+	CorrectIncorrect: 3
+}
 
 declare const CLSErrorCode: {
-  None: 0,
-  ClassKitUnavailable: 1,
-  InvalidArgument: 2,
-  InvalidModification: 3,
-  AuthorizationDenied: 4,
-  DatabaseInaccessible: 5,
-  Limits: 6,
-  InvalidCreate: 7,
-  InvalidUpdate: 8,
-  PartialFailure: 9,
-};
+	None: 0
+	ClassKitUnavailable: 1
+	InvalidArgument: 2
+	InvalidModification: 3
+	AuthorizationDenied: 4
+	DatabaseInaccessible: 5
+	Limits: 6
+	InvalidCreate: 7
+	InvalidUpdate: 8
+	PartialFailure: 9
+}
 
 declare interface CLSContextProvider {
-  updateDescendantsOfContextCompletion(context: CLSContext, completion: (p1: NSError) => void | null): void;
+	updateDescendantsOfContextCompletion(
+		context: CLSContext,
+		completion: (p1: NSError) => void | null,
+	): void
 }
 
-declare class CLSContextProvider extends NativeObject implements CLSContextProvider {
-}
+declare class CLSContextProvider extends NativeObject implements CLSContextProvider {}
 
 declare interface CLSDataStoreDelegate extends NSObjectProtocol {
-  createContextForIdentifierParentContextParentIdentifierPath(identifier: string, parentContext: CLSContext, parentIdentifierPath: NSArray<interop.Object> | Array<interop.Object>): CLSContext;
+	createContextForIdentifierParentContextParentIdentifierPath(
+		identifier: string,
+		parentContext: CLSContext,
+		parentIdentifierPath: NSArray<interop.Object> | Array<interop.Object>,
+	): CLSContext
 }
 
-declare class CLSDataStoreDelegate extends NativeObject implements CLSDataStoreDelegate {
-}
+declare class CLSDataStoreDelegate extends NativeObject implements CLSDataStoreDelegate {}
 
 declare class CLSQuantityItem extends CLSActivityItem {
-  quantity: number;
+	quantity: number
 
-  initWithIdentifierTitle(identifier: string, title: string): this;
+	initWithIdentifierTitle(identifier: string, title: string): this
 }
 
 declare class CLSActivityItem extends CLSObject {
-  title: string;
+	title: string
 
-  readonly identifier: string;
+	readonly identifier: string
 }
 
 declare class CLSActivity extends CLSObject {
-  progress: number;
+	progress: number
 
-  readonly duration: number;
+	readonly duration: number
 
-  primaryActivityItem: CLSActivityItem;
+	primaryActivityItem: CLSActivityItem
 
-  addProgressRangeFromStartToEnd(start: number, end: number): void;
+	addProgressRangeFromStartToEnd(start: number, end: number): void
 
-  addAdditionalActivityItem(activityItem: CLSActivityItem): void;
+	addAdditionalActivityItem(activityItem: CLSActivityItem): void
 
-  readonly additionalActivityItems: NSArray;
+	readonly additionalActivityItems: NSArray
 
-  readonly started: boolean;
+	readonly started: boolean
 
-  start(): void;
+	start(): void
 
-  stop(): void;
+	stop(): void
 
-  isStarted(): boolean;
+	isStarted(): boolean
 }
 
 declare class CLSObject extends NSObject implements NSSecureCoding {
-  readonly dateCreated: NSDate;
+	readonly dateCreated: NSDate
 
-  readonly dateLastModified: NSDate;
+	readonly dateLastModified: NSDate
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 declare class CLSDataStore extends NSObject {
-  static readonly shared: CLSDataStore;
+	static readonly shared: CLSDataStore
 
-  readonly mainAppContext: CLSContext;
+	readonly mainAppContext: CLSContext
 
-  readonly activeContext: CLSContext;
+	readonly activeContext: CLSContext
 
-  readonly runningActivity: CLSActivity;
+	readonly runningActivity: CLSActivity
 
-  delegate: CLSDataStoreDelegate;
+	delegate: CLSDataStoreDelegate
 
-  saveWithCompletion(completion: (p1: NSError) => void | null): void;
+	saveWithCompletion(completion: (p1: NSError) => void | null): void
 
-  completeAllAssignedActivitiesMatching(contextPath: NSArray<interop.Object> | Array<interop.Object>): void;
+	completeAllAssignedActivitiesMatching(
+		contextPath: NSArray<interop.Object> | Array<interop.Object>,
+	): void
 
-  contextsMatchingPredicateCompletion(predicate: NSPredicate, completion: (p1: NSArray<interop.Object> | Array<interop.Object>, p2: NSError) => void | null): void;
+	contextsMatchingPredicateCompletion(
+		predicate: NSPredicate,
+		completion: (p1: NSArray<interop.Object> | Array<interop.Object>, p2: NSError) => void | null,
+	): void
 
-  contextsMatchingIdentifierPathCompletion(identifierPath: NSArray<interop.Object> | Array<interop.Object>, completion: (p1: NSArray<interop.Object> | Array<interop.Object>, p2: NSError) => void | null): void;
+	contextsMatchingIdentifierPathCompletion(
+		identifierPath: NSArray<interop.Object> | Array<interop.Object>,
+		completion: (p1: NSArray<interop.Object> | Array<interop.Object>, p2: NSError) => void | null,
+	): void
 
-  removeContext(context: CLSContext): void;
+	removeContext(context: CLSContext): void
 }
 
 declare class CLSBinaryItem extends CLSActivityItem {
-  value: boolean;
+	value: boolean
 
-  readonly valueType: interop.Enum<typeof CLSBinaryValueType>;
+	readonly valueType: interop.Enum<typeof CLSBinaryValueType>
 
-  initWithIdentifierTitleType(identifier: string, title: string, valueType: interop.Enum<typeof CLSBinaryValueType>): this;
+	initWithIdentifierTitleType(
+		identifier: string,
+		title: string,
+		valueType: interop.Enum<typeof CLSBinaryValueType>,
+	): this
 }
 
 declare class CLSScoreItem extends CLSActivityItem {
-  score: number;
+	score: number
 
-  maxScore: number;
+	maxScore: number
 
-  initWithIdentifierTitleScoreMaxScore(identifier: string, title: string, score: number, maxScore: number): this;
+	initWithIdentifierTitleScoreMaxScore(
+		identifier: string,
+		title: string,
+		score: number,
+		maxScore: number,
+	): this
 }
 
 declare class CLSProgressReportingCapability extends CLSObject {
-  readonly kind: interop.Enum<typeof CLSProgressReportingCapabilityKind>;
+	readonly kind: interop.Enum<typeof CLSProgressReportingCapabilityKind>
 
-  readonly details: string;
+	readonly details: string
 
-  initWithKindDetails(kind: interop.Enum<typeof CLSProgressReportingCapabilityKind>, details: string | null): this;
+	initWithKindDetails(
+		kind: interop.Enum<typeof CLSProgressReportingCapabilityKind>,
+		details: string | null,
+	): this
 }
 
 declare class CLSContext extends CLSObject {
-  readonly identifierPath: NSArray;
+	readonly identifierPath: NSArray
 
-  readonly identifier: string;
+	readonly identifier: string
 
-  universalLinkURL: NSURL;
+	universalLinkURL: NSURL
 
-  readonly type: interop.Enum<typeof CLSContextType>;
+	readonly type: interop.Enum<typeof CLSContextType>
 
-  customTypeName: string;
+	customTypeName: string
 
-  title: string;
+	title: string
 
-  displayOrder: number;
+	displayOrder: number
 
-  topic: string;
+	topic: string
 
-  assignable: boolean;
+	assignable: boolean
 
-  suggestedAge: _NSRange;
+	suggestedAge: _NSRange
 
-  suggestedCompletionTime: _NSRange;
+	suggestedCompletionTime: _NSRange
 
-  readonly progressReportingCapabilities: NSSet;
+	readonly progressReportingCapabilities: NSSet
 
-  summary: string;
+	summary: string
 
-  thumbnail: interop.Object;
+	thumbnail: interop.Object
 
-  initWithTypeIdentifierTitle(type: interop.Enum<typeof CLSContextType>, identifier: string, title: string): this;
+	initWithTypeIdentifierTitle(
+		type: interop.Enum<typeof CLSContextType>,
+		identifier: string,
+		title: string,
+	): this
 
-  readonly active: boolean;
+	readonly active: boolean
 
-  becomeActive(): void;
+	becomeActive(): void
 
-  resignActive(): void;
+	resignActive(): void
 
-  addProgressReportingCapabilities(capabilities: NSSet): void;
+	addProgressReportingCapabilities(capabilities: NSSet): void
 
-  resetProgressReportingCapabilities(): void;
+	resetProgressReportingCapabilities(): void
 
-  isAssignable(): boolean;
+	isAssignable(): boolean
 
-  isActive(): boolean;
+	isActive(): boolean
 
-  readonly parent: CLSContext;
+	readonly parent: CLSContext
 
-  removeFromParent(): void;
+	removeFromParent(): void
 
-  addChildContext(child: CLSContext): void;
+	addChildContext(child: CLSContext): void
 
-  descendantMatchingIdentifierPathCompletion(identifierPath: NSArray<interop.Object> | Array<interop.Object>, completion: (p1: CLSContext, p2: NSError) => void | null): void;
+	descendantMatchingIdentifierPathCompletion(
+		identifierPath: NSArray<interop.Object> | Array<interop.Object>,
+		completion: (p1: CLSContext, p2: NSError) => void | null,
+	): void
 
-  readonly currentActivity: CLSActivity;
+	readonly currentActivity: CLSActivity
 
-  createNewActivity(): CLSActivity;
+	createNewActivity(): CLSActivity
 }
-

@@ -92,8 +92,7 @@ export function spawnManaged({
 	hookExit()
 	managed.add(child)
 
-	const note = (line) =>
-		logBuffer?.note(line, { source: source ?? `${cmd} ${args.join(' ')}` })
+	const note = (line) => logBuffer?.note(line, { source: source ?? `${cmd} ${args.join(' ')}` })
 
 	if (child.stdout) {
 		pipeLines(child.stdout, (line) => logBuffer?.append({ stream: 'stdout', line }))
@@ -116,7 +115,10 @@ export function spawnManaged({
 
 	child.once('close', (code, sig) => {
 		managed.delete(child)
-		note(`process ${child.pid ?? '?'} exited (code=${code ?? 'null'}${sig ? `, signal=${sig}` : ''})`)
+		note(
+			`process ${child.pid ?? '?'} exited (code=${code ?? 'null'}${sig ? `, signal=${sig}` : ''})`,
+		)
+
 		resolveExit({ code, signal: sig })
 	})
 

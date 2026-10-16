@@ -3,1424 +3,1640 @@
 /// <reference path="./Runtime.d.ts" />
 /// <reference path="./AppKit.d.ts" />
 
-declare const IKPictureTakerShowAddressBookPicture: string;
+declare const IKPictureTakerShowAddressBookPicture: string
 
-declare const IKToolModeSelectEllipse: string;
+declare const IKToolModeSelectEllipse: string
 
-declare const IKToolModeSelect: string;
+declare const IKToolModeSelect: string
 
-declare const IKToolModeMove: string;
+declare const IKToolModeMove: string
 
-declare const IKToolModeNone: string;
+declare const IKToolModeNone: string
 
-declare const IK_MailBundleIdentifier: string;
+declare const IK_MailBundleIdentifier: string
 
-declare const IK_ApertureBundleIdentifier: string;
+declare const IK_ApertureBundleIdentifier: string
 
-declare const IK_iPhotoBundleIdentifier: string;
+declare const IK_iPhotoBundleIdentifier: string
 
-declare const IKSlideshowPDFDisplaysAsBook: string;
+declare const IKSlideshowPDFDisplaysAsBook: string
 
-declare const IKSlideshowPDFDisplayMode: string;
+declare const IKSlideshowPDFDisplayMode: string
 
-declare const IKSlideshowAudioFile: string;
+declare const IKSlideshowAudioFile: string
 
-declare const IKSlideshowScreen: string;
+declare const IKSlideshowScreen: string
 
-declare const IKSlideshowStartPaused: string;
+declare const IKSlideshowStartPaused: string
 
-declare const IKSlideshowWrapAround: string;
+declare const IKSlideshowWrapAround: string
 
-declare const IKFilterBrowserExcludeCategories: string;
+declare const IKFilterBrowserExcludeCategories: string
 
-declare const IKFilterBrowserShowCategories: string;
+declare const IKFilterBrowserShowCategories: string
 
-declare const IKFilterBrowserWillPreviewFilterNotification: string;
+declare const IKFilterBrowserWillPreviewFilterNotification: string
 
-declare const IKFilterBrowserFilterDoubleClickNotification: string;
+declare const IKFilterBrowserFilterDoubleClickNotification: string
 
-declare const IKUISizeMini: string;
+declare const IKUISizeMini: string
 
-declare const IKPictureTakerImageTransformsKey: string;
+declare const IKPictureTakerImageTransformsKey: string
 
-declare const IKPictureTakerShowEffectsKey: string;
+declare const IKPictureTakerShowEffectsKey: string
 
-declare const IKPictureTakerUpdateRecentPictureKey: string;
+declare const IKPictureTakerUpdateRecentPictureKey: string
 
-declare const IKPictureTakerShowRecentPictureKey: string;
+declare const IKPictureTakerShowRecentPictureKey: string
 
-declare const IKPictureTakerAllowsFileChoosingKey: string;
+declare const IKPictureTakerAllowsFileChoosingKey: string
 
-declare const IKImageBrowserCellForegroundLayer: string;
+declare const IKImageBrowserCellForegroundLayer: string
 
-declare const IKImageBrowserCellBackgroundLayer: string;
+declare const IKImageBrowserCellBackgroundLayer: string
 
-declare const IKImageBrowserGroupFooterLayer: string;
+declare const IKImageBrowserGroupFooterLayer: string
 
-declare const IKImageBrowserGroupStyleKey: string;
+declare const IKImageBrowserGroupStyleKey: string
 
-declare const IKImageBrowserGroupBackgroundColorKey: string;
+declare const IKImageBrowserGroupBackgroundColorKey: string
 
-declare const IKImageBrowserGroupRangeKey: string;
+declare const IKImageBrowserGroupRangeKey: string
 
-declare const IKImageBrowserCellsHighlightedTitleAttributesKey: string;
+declare const IKImageBrowserCellsHighlightedTitleAttributesKey: string
 
-declare const IKImageBrowserSelectionColorKey: string;
+declare const IKImageBrowserSelectionColorKey: string
 
-declare const IKImageBrowserPDFPageRepresentationType: string;
+declare const IKImageBrowserPDFPageRepresentationType: string
 
-declare const IKImageBrowserQuickLookPathRepresentationType: string;
+declare const IKImageBrowserQuickLookPathRepresentationType: string
 
-declare const IKImageBrowserQCCompositionPathRepresentationType: string;
+declare const IKImageBrowserQCCompositionPathRepresentationType: string
 
-declare const IKImageBrowserQTMovieRepresentationType: string;
+declare const IKImageBrowserQTMovieRepresentationType: string
 
-declare const IKImageBrowserCGImageRepresentationType: string;
+declare const IKImageBrowserCGImageRepresentationType: string
 
-declare const IKImageBrowserNSImageRepresentationType: string;
+declare const IKImageBrowserNSImageRepresentationType: string
 
-declare const IKImageBrowserNSURLRepresentationType: string;
+declare const IKImageBrowserNSURLRepresentationType: string
 
-declare const IKImageBrowserPathRepresentationType: string;
+declare const IKImageBrowserPathRepresentationType: string
 
-declare const IKGroupBezelStyle: number;
+declare const IKGroupBezelStyle: number
 
-declare const IKCellsStyleOutlined: number;
+declare const IKCellsStyleOutlined: number
 
-declare const kQuartzFilterManagerDidAddFilterNotification: string;
+declare const kQuartzFilterManagerDidAddFilterNotification: string
 
-declare const globalUpdateOK: number;
+declare const globalUpdateOK: number
 
-declare const QCCompositionPickerViewDidSelectCompositionNotification: string;
+declare const QCCompositionPickerViewDidSelectCompositionNotification: string
 
-declare const QCRendererMouseLocationKey: string;
+declare const QCRendererMouseLocationKey: string
 
-declare const QCCompositionRepositoryDidUpdateNotification: string;
+declare const QCCompositionRepositoryDidUpdateNotification: string
 
-declare const QCCompositionProtocolScreenSaver: string;
+declare const QCCompositionProtocolScreenSaver: string
 
-declare const QCCompositionProtocolGraphicAnimation: string;
+declare const QCCompositionProtocolGraphicAnimation: string
 
-declare const QCCompositionOutputWebPageURLKey: string;
+declare const QCCompositionOutputWebPageURLKey: string
 
-declare const QCCompositionOutputImageKey: string;
+declare const QCCompositionOutputImageKey: string
 
-declare const QCCompositionInputPaceKey: string;
+declare const QCCompositionInputPaceKey: string
 
-declare const QCCompositionInputTrackSignalKey: string;
+declare const QCCompositionInputTrackSignalKey: string
 
-declare const QCCompositionInputTrackInfoKey: string;
+declare const QCCompositionInputTrackInfoKey: string
 
-declare const QCCompositionInputTrackPositionKey: string;
+declare const QCCompositionInputTrackPositionKey: string
 
-declare const QCCompositionInputScreenImageKey: string;
+declare const QCCompositionInputScreenImageKey: string
 
-declare const QCCompositionInputXKey: string;
+declare const QCCompositionInputXKey: string
 
-declare const QCCompositionInputRSSFeedURLKey: string;
+declare const QCCompositionInputRSSFeedURLKey: string
 
-declare const QCCompositionInputSourceImageKey: string;
+declare const QCCompositionInputSourceImageKey: string
 
-declare const QCCompositionInputImageKey: string;
+declare const QCCompositionInputImageKey: string
 
-declare const QCCompositionCategoryStylize: string;
+declare const QCCompositionCategoryStylize: string
 
-declare const QCCompositionCategoryDistortion: string;
+declare const QCCompositionCategoryDistortion: string
 
-declare const QCCompositionAttributeCategoryKey: string;
+declare const QCCompositionAttributeCategoryKey: string
 
-declare const QCCompositionAttributeHasConsumersKey: string;
+declare const QCCompositionAttributeHasConsumersKey: string
 
-declare const QCCompositionAttributeBuiltInKey: string;
+declare const QCCompositionAttributeBuiltInKey: string
 
-declare const QCCompositionAttributeCopyrightKey: string;
+declare const QCCompositionAttributeCopyrightKey: string
 
-declare const QCCompositionAttributeDescriptionKey: string;
+declare const QCCompositionAttributeDescriptionKey: string
 
-declare const QCPlugInExecutionArgumentEventKey: string;
+declare const QCPlugInExecutionArgumentEventKey: string
 
-declare const QCPlugInPixelFormatIf: string;
+declare const QCPlugInPixelFormatIf: string
 
-declare const QCPlugInPixelFormatBGRA8: string;
+declare const QCPlugInPixelFormatBGRA8: string
 
-declare const QCPortTypeImage: string;
+declare const QCPortTypeImage: string
 
-declare const QCPortTypeString: string;
+declare const QCPortTypeString: string
 
-declare const QCPortTypeNumber: string;
+declare const QCPortTypeNumber: string
 
-declare const QCPortTypeBoolean: string;
+declare const QCPortTypeBoolean: string
 
-declare const QCPortAttributeMinimumValueKey: string;
+declare const QCPortAttributeMinimumValueKey: string
 
-declare const QCPortAttributeNameKey: string;
+declare const QCPortAttributeNameKey: string
 
-declare const QCPortAttributeTypeKey: string;
+declare const QCPortAttributeTypeKey: string
 
-declare const QCPlugInAttributeCategoriesKey: string;
+declare const QCPlugInAttributeCategoriesKey: string
 
-declare const QCPlugInAttributeCopyrightKey: string;
+declare const QCPlugInAttributeCopyrightKey: string
 
-declare const QCPlugInAttributeDescriptionKey: string;
+declare const QCPlugInAttributeDescriptionKey: string
 
-declare const IKOverlayTypeImage: string;
+declare const IKOverlayTypeImage: string
 
-declare const QCCompositionInputDestinationImageKey: string;
+declare const QCCompositionInputDestinationImageKey: string
 
-declare const IKSlideshowModePDF: string;
+declare const IKSlideshowModePDF: string
 
-declare const QCPortAttributeDefaultValueKey: string;
+declare const QCPortAttributeDefaultValueKey: string
 
-declare const QCCompositionInputRSSArticleDurationKey: string;
+declare const QCCompositionInputRSSArticleDurationKey: string
 
-declare const IKFilterBrowserDefaultInputImage: string;
+declare const IKFilterBrowserDefaultInputImage: string
 
-declare const IKUISizeFlavor: string;
+declare const IKUISizeFlavor: string
 
-declare const IKPictureTakerRemainOpenAfterValidateKey: string;
+declare const IKPictureTakerRemainOpenAfterValidateKey: string
 
-declare const IKImageBrowserGroupHeaderLayer: string;
+declare const IKImageBrowserGroupHeaderLayer: string
 
-declare const IKCellsStyleShadowed: number;
+declare const IKCellsStyleShadowed: number
 
-declare const QCCompositionProtocolGraphicTransition: string;
+declare const QCCompositionProtocolGraphicTransition: string
 
-declare const QCPlugInPixelFormatI8: string;
+declare const QCPlugInPixelFormatI8: string
 
-declare const QCPlugInAttributeNameKey: string;
+declare const QCPlugInAttributeNameKey: string
 
-declare const IKCellsStyleTitled: number;
+declare const IKCellsStyleTitled: number
 
-declare const IKUImaxSize: string;
+declare const IKUImaxSize: string
 
-declare const QCCompositionInputAudioPeakKey: string;
+declare const QCCompositionInputAudioPeakKey: string
 
-declare const QCRendererEventKey: string;
+declare const QCRendererEventKey: string
 
-declare const QCPortTypeColor: string;
+declare const QCPortTypeColor: string
 
-declare const QCCompositionInputPreviewModeKey: string;
+declare const QCCompositionInputPreviewModeKey: string
 
-declare const IKImageBrowserCellsTitleAttributesKey: string;
+declare const IKImageBrowserCellsTitleAttributesKey: string
 
-declare const QCCompositionAttributeNameKey: string;
+declare const QCCompositionAttributeNameKey: string
 
-declare const QCViewDidStartRenderingNotification: string;
+declare const QCViewDidStartRenderingNotification: string
 
-declare const QCPortAttributeMenuItemsKey: string;
+declare const QCPortAttributeMenuItemsKey: string
 
-declare const kQuartzFilterManagerDidModifyFilterNotification: string;
+declare const kQuartzFilterManagerDidModifyFilterNotification: string
 
-declare const IKImageBrowserIconRefPathRepresentationType: string;
+declare const IKImageBrowserIconRefPathRepresentationType: string
 
-declare const IKSlideshowModeOther: string;
+declare const IKSlideshowModeOther: string
 
-declare const QCCompositionInputAudioSpectrumKey: string;
+declare const QCCompositionInputAudioSpectrumKey: string
 
-declare const IKImageBrowserCellsSubtitleAttributesKey: string;
+declare const IKImageBrowserCellsSubtitleAttributesKey: string
 
-declare const QCPortTypeIndex: string;
+declare const QCPortTypeIndex: string
 
-declare const kQuartzFilterApplicationDomain: string;
+declare const kQuartzFilterApplicationDomain: string
 
-declare const IKImageBrowserCGImageSourceRepresentationType: string;
+declare const IKImageBrowserCGImageSourceRepresentationType: string
 
-declare const IK_PhotosBundleIdentifier: string;
+declare const IK_PhotosBundleIdentifier: string
 
-declare const IKImageBrowserCellPlaceHolderLayer: string;
+declare const IKImageBrowserCellPlaceHolderLayer: string
 
-declare const QCPlugInPixelFormatRGBAf: string;
+declare const QCPlugInPixelFormatRGBAf: string
 
-declare const IKCellsStyleSubtitled: number;
+declare const IKCellsStyleSubtitled: number
 
-declare const kQuartzFilterManagerDidRemoveFilterNotification: string;
+declare const kQuartzFilterManagerDidRemoveFilterNotification: string
 
-declare const QCCompositionProtocolImageFilter: string;
+declare const QCCompositionProtocolImageFilter: string
 
-declare const IKPictureTakerAllowsVideoCaptureKey: string;
+declare const IKPictureTakerAllowsVideoCaptureKey: string
 
-declare const QCPlugInExecutionArgumentMouseLocationKey: string;
+declare const QCPlugInExecutionArgumentMouseLocationKey: string
 
-declare const IKGroupDisclosureStyle: number;
+declare const IKGroupDisclosureStyle: number
 
-declare const IKPictureTakerAllowsEditingKey: string;
+declare const IKPictureTakerAllowsEditingKey: string
 
-declare const IKUISizeSmall: string;
+declare const IKUISizeSmall: string
 
-declare const QCCompositionProtocolRSSVisualizer: string;
+declare const QCCompositionProtocolRSSVisualizer: string
 
-declare const IKPictureTakerShowEmptyPictureKey: string;
+declare const IKPictureTakerShowEmptyPictureKey: string
 
-declare const IKImageBrowserNSDataRepresentationType: string;
+declare const IKImageBrowserNSDataRepresentationType: string
 
-declare const IKToolModeAnnotate: string;
+declare const IKToolModeAnnotate: string
 
-declare const QCPortAttributeMaximumValueKey: string;
+declare const QCPortAttributeMaximumValueKey: string
 
-declare const IKOverlayTypeBackground: string;
+declare const IKOverlayTypeBackground: string
 
-declare const QCCompositionPickerPanelDidSelectCompositionNotification: string;
+declare const QCCompositionPickerPanelDidSelectCompositionNotification: string
 
-declare const IKCellsStyleNone: number;
+declare const IKCellsStyleNone: number
 
-declare const QCPlugInAttributeExamplesKey: string;
+declare const QCPlugInAttributeExamplesKey: string
 
-declare const QCViewDidStopRenderingNotification: string;
+declare const QCViewDidStopRenderingNotification: string
 
-declare const IKPictureTakerInformationalTextKey: string;
+declare const IKPictureTakerInformationalTextKey: string
 
-declare const IKImageBrowserCellSelectionLayer: string;
+declare const IKImageBrowserCellSelectionLayer: string
 
-declare const IKSlideshowStartIndex: string;
+declare const IKSlideshowStartIndex: string
 
-declare const IKFilterBrowserShowPreview: string;
+declare const IKFilterBrowserShowPreview: string
 
-declare const IKSlideshowPDFDisplayBox: string;
+declare const IKSlideshowPDFDisplayBox: string
 
-declare const IKPictureTakerOutputImageMaxSizeKey: string;
+declare const IKPictureTakerOutputImageMaxSizeKey: string
 
-declare const IKImageBrowserGroupTitleKey: string;
+declare const IKImageBrowserGroupTitleKey: string
 
-declare const IKImageBrowserQCCompositionRepresentationType: string;
+declare const IKImageBrowserQCCompositionRepresentationType: string
 
-declare const IKFilterBrowserFilterSelectedNotification: string;
+declare const IKFilterBrowserFilterSelectedNotification: string
 
-declare const QCPortTypeStructure: string;
+declare const QCPortTypeStructure: string
 
-declare const IKToolModeSelectLasso: string;
+declare const IKToolModeSelectLasso: string
 
-declare const IKToolModeRotate: string;
+declare const IKToolModeRotate: string
 
-declare const IKImageBrowserQTMoviePathRepresentationType: string;
+declare const IKImageBrowserQTMoviePathRepresentationType: string
 
-declare const kQuartzFilterPDFWorkflowDomain: string;
+declare const kQuartzFilterPDFWorkflowDomain: string
 
-declare const IKImageBrowserCellsOutlineColorKey: string;
+declare const IKImageBrowserCellsOutlineColorKey: string
 
-declare const IKPictureTakerShowAddressBookPictureKey: string;
+declare const IKPictureTakerShowAddressBookPictureKey: string
 
-declare const IKFilterBrowserExcludeFilters: string;
+declare const IKFilterBrowserExcludeFilters: string
 
-declare const IKImageBrowserNSBitmapImageRepresentationType: string;
+declare const IKImageBrowserNSBitmapImageRepresentationType: string
 
-declare const IKImageBrowserIconRefRepresentationType: string;
+declare const IKImageBrowserIconRefRepresentationType: string
 
-declare const kQuartzFilterPrintingDomain: string;
+declare const kQuartzFilterPrintingDomain: string
 
-declare const QCCompositionInputYKey: string;
+declare const QCCompositionInputYKey: string
 
-declare const IKUIFlavorAllowFallback: string;
+declare const IKUIFlavorAllowFallback: string
 
-declare const QCPlugInPixelFormatARGB8: string;
+declare const QCPlugInPixelFormatARGB8: string
 
-declare const IKSlideshowModeImages: string;
+declare const IKSlideshowModeImages: string
 
-declare const QCCompositionProtocolMusicVisualizer: string;
+declare const QCCompositionProtocolMusicVisualizer: string
 
-declare const QCCompositionCategoryUtility: string;
+declare const QCCompositionCategoryUtility: string
 
-declare const IKUISizeRegular: string;
+declare const IKUISizeRegular: string
 
-declare const QCCompositionInputSecondaryColorKey: string;
+declare const QCCompositionInputSecondaryColorKey: string
 
-declare const kQuartzFilterManagerDidSelectFilterNotification: string;
+declare const kQuartzFilterManagerDidSelectFilterNotification: string
 
-declare const IKToolModeCrop: string;
+declare const IKToolModeCrop: string
 
-declare const IKPictureTakerCropAreaSizeKey: string;
+declare const IKPictureTakerCropAreaSizeKey: string
 
-declare const IKPictureTakerShowEmptyPicture: string;
+declare const IKPictureTakerShowEmptyPicture: string
 
-declare const IKImageBrowserBackgroundColorKey: string;
+declare const IKImageBrowserBackgroundColorKey: string
 
-declare const IKToolModeSelectRect: string;
+declare const IKToolModeSelectRect: string
 
-declare const QCCompositionInputPrimaryColorKey: string;
+declare const QCCompositionInputPrimaryColorKey: string
 
-declare const QCCompositionAttributeIsTimeDependentKey: string;
+declare const QCCompositionAttributeIsTimeDependentKey: string
 
 declare const IKScannerDeviceViewDisplayMode: {
-  None: -1,
-  Simple: 0,
-  Advanced: 1,
-};
+	None: -1
+	Simple: 0
+	Advanced: 1
+}
 
 declare const IKDeviceBrowserViewDisplayMode: {
-  Table: 0,
-  Outline: 1,
-  Icon: 2,
-};
+	Table: 0
+	Outline: 1
+	Icon: 2
+}
 
 declare const IKImageBrowserCellState: {
-  NoImage: 0,
-  Invalid: 1,
-  Ready: 2,
-};
+	NoImage: 0
+	Invalid: 1
+	Ready: 2
+}
 
 declare const IKCameraDeviceViewTransferMode: {
-  File: 0,
-  Memory: 1,
-};
+	File: 0
+	Memory: 1
+}
 
 declare const QCPlugInExecutionMode: {
-  Provider: 1,
-  Processor: 2,
-  Consumer: 3,
-};
+	Provider: 1
+	Processor: 2
+	Consumer: 3
+}
 
 declare const IKScannerDeviceViewTransferMode: {
-  File: 0,
-  Memory: 1,
-};
+	File: 0
+	Memory: 1
+}
 
 declare const QCPlugInTimeMode: {
-  None: 0,
-  Idle: 1,
-  TimeBase: 2,
-};
+	None: 0
+	Idle: 1
+	TimeBase: 2
+}
 
 declare const IKImageBrowserDropOperation: {
-  On: 0,
-  Before: 1,
-};
+	On: 0
+	Before: 1
+}
 
 declare const IKCameraDeviceViewDisplayMode: {
-  None: -1,
-  Table: 0,
-  Icon: 1,
-};
+	None: -1
+	Table: 0
+	Icon: 1
+}
 
 declare interface IKImageEditPanelDataSource {
-  readonly image: interop.Object;
+	readonly image: interop.Object
 
-  setImageImageProperties(image: interop.Object, metaData: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): void;
+	setImageImageProperties(
+		image: interop.Object,
+		metaData: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+	): void
 
-  thumbnailWithMaximumSize?(size: CGSize): interop.Object;
+	thumbnailWithMaximumSize?(size: CGSize): interop.Object
 
-  readonly imageProperties?: NSDictionary;
+	readonly imageProperties?: NSDictionary
 
-  readonly hasAdjustMode?: boolean;
+	readonly hasAdjustMode?: boolean
 
-  readonly hasEffectsMode?: boolean;
+	readonly hasEffectsMode?: boolean
 
-  readonly hasDetailsMode?: boolean;
+	readonly hasDetailsMode?: boolean
 }
 
-declare class IKImageEditPanelDataSource extends NativeObject implements IKImageEditPanelDataSource {
-}
+declare class IKImageEditPanelDataSource
+	extends NativeObject
+	implements IKImageEditPanelDataSource {}
 
 declare interface IKScannerDeviceViewDelegate {
-  scannerDeviceViewDidScanToURLFileDataError?(scannerDeviceView: IKScannerDeviceView, url: NSURL, data: NSData, error: NSError): void;
+	scannerDeviceViewDidScanToURLFileDataError?(
+		scannerDeviceView: IKScannerDeviceView,
+		url: NSURL,
+		data: NSData,
+		error: NSError,
+	): void
 
-  scannerDeviceViewDidScanToURLError?(scannerDeviceView: IKScannerDeviceView, url: NSURL, error: NSError): void;
+	scannerDeviceViewDidScanToURLError?(
+		scannerDeviceView: IKScannerDeviceView,
+		url: NSURL,
+		error: NSError,
+	): void
 
-  scannerDeviceViewDidScanToBandDataScanInfoError?(scannerDeviceView: IKScannerDeviceView, data: ICScannerBandData, scanInfo: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>, error: NSError): void;
+	scannerDeviceViewDidScanToBandDataScanInfoError?(
+		scannerDeviceView: IKScannerDeviceView,
+		data: ICScannerBandData,
+		scanInfo: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+		error: NSError,
+	): void
 
-  scannerDeviceViewDidEncounterError?(scannerDeviceView: IKScannerDeviceView, error: NSError): void;
+	scannerDeviceViewDidEncounterError?(scannerDeviceView: IKScannerDeviceView, error: NSError): void
 }
 
-declare class IKScannerDeviceViewDelegate extends NativeObject implements IKScannerDeviceViewDelegate {
-}
+declare class IKScannerDeviceViewDelegate
+	extends NativeObject
+	implements IKScannerDeviceViewDelegate {}
 
 declare interface IKCameraDeviceViewDelegate {
-  cameraDeviceViewSelectionDidChange?(cameraDeviceView: IKCameraDeviceView): void;
+	cameraDeviceViewSelectionDidChange?(cameraDeviceView: IKCameraDeviceView): void
 
-  cameraDeviceViewDidDownloadFileLocationFileDataError?(cameraDeviceView: IKCameraDeviceView, file: ICCameraFile, url: NSURL, data: NSData, error: NSError): void;
+	cameraDeviceViewDidDownloadFileLocationFileDataError?(
+		cameraDeviceView: IKCameraDeviceView,
+		file: ICCameraFile,
+		url: NSURL,
+		data: NSData,
+		error: NSError,
+	): void
 
-  cameraDeviceViewDidEncounterError?(cameraDeviceView: IKCameraDeviceView, error: NSError): void;
+	cameraDeviceViewDidEncounterError?(cameraDeviceView: IKCameraDeviceView, error: NSError): void
 }
 
-declare class IKCameraDeviceViewDelegate extends NativeObject implements IKCameraDeviceViewDelegate {
-}
+declare class IKCameraDeviceViewDelegate
+	extends NativeObject
+	implements IKCameraDeviceViewDelegate {}
 
 declare interface IKDeviceBrowserViewDelegate {
-  deviceBrowserViewSelectionDidChange(deviceBrowserView: IKDeviceBrowserView, device: ICDevice): void;
+	deviceBrowserViewSelectionDidChange(
+		deviceBrowserView: IKDeviceBrowserView,
+		device: ICDevice,
+	): void
 
-  deviceBrowserViewDidEncounterError?(deviceBrowserView: IKDeviceBrowserView, error: NSError): void;
+	deviceBrowserViewDidEncounterError?(deviceBrowserView: IKDeviceBrowserView, error: NSError): void
 }
 
-declare class IKDeviceBrowserViewDelegate extends NativeObject implements IKDeviceBrowserViewDelegate {
-}
+declare class IKDeviceBrowserViewDelegate
+	extends NativeObject
+	implements IKDeviceBrowserViewDelegate {}
 
 declare interface IKSlideshowDataSource {
-  numberOfSlideshowItems(): number;
+	numberOfSlideshowItems(): number
 
-  slideshowItemAtIndex(index: number): interop.Object;
+	slideshowItemAtIndex(index: number): interop.Object
 
-  nameOfSlideshowItemAtIndex?(index: number): string;
+	nameOfSlideshowItemAtIndex?(index: number): string
 
-  canExportSlideshowItemAtIndexToApplication?(index: number, applicationBundleIdentifier: string): boolean;
+	canExportSlideshowItemAtIndexToApplication?(
+		index: number,
+		applicationBundleIdentifier: string,
+	): boolean
 
-  slideshowWillStart?(): void;
+	slideshowWillStart?(): void
 
-  slideshowDidStop?(): void;
+	slideshowDidStop?(): void
 
-  slideshowDidChangeCurrentIndex?(newIndex: number): void;
+	slideshowDidChangeCurrentIndex?(newIndex: number): void
 }
 
-declare class IKSlideshowDataSource extends NativeObject implements IKSlideshowDataSource {
-}
+declare class IKSlideshowDataSource extends NativeObject implements IKSlideshowDataSource {}
 
 declare interface IKFilterCustomUIProvider {
-  provideViewForUIConfigurationExcludedKeys(inUIConfiguration: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>, inKeys: NSArray<interop.Object> | Array<interop.Object>): IKFilterUIView;
+	provideViewForUIConfigurationExcludedKeys(
+		inUIConfiguration:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+		inKeys: NSArray<interop.Object> | Array<interop.Object>,
+	): IKFilterUIView
 }
 
-declare class IKFilterCustomUIProvider extends NativeObject implements IKFilterCustomUIProvider {
-}
+declare class IKFilterCustomUIProvider extends NativeObject implements IKFilterCustomUIProvider {}
 
 declare interface QCPlugInOutputImageProvider {
-  imageBounds(): CGRect;
+	imageBounds(): CGRect
 
-  imageColorSpace(): interop.Object;
+	imageColorSpace(): interop.Object
 
-  shouldColorMatch?(): boolean;
+	shouldColorMatch?(): boolean
 
-  supportedBufferPixelFormats?(): NSArray;
+	supportedBufferPixelFormats?(): NSArray
 
-  renderToBufferWithBytesPerRowPixelFormatForBounds?(baseAddress: interop.PointerConvertible, rowBytes: number, format: string, bounds: CGRect): boolean;
+	renderToBufferWithBytesPerRowPixelFormatForBounds?(
+		baseAddress: interop.PointerConvertible,
+		rowBytes: number,
+		format: string,
+		bounds: CGRect,
+	): boolean
 
-  supportedRenderedTexturePixelFormats?(): NSArray;
+	supportedRenderedTexturePixelFormats?(): NSArray
 
-  copyRenderedTextureForCGLContextPixelFormatBoundsIsFlipped?(cgl_ctx: interop.PointerConvertible, format: string, bounds: CGRect, flipped: interop.PointerConvertible): number;
+	copyRenderedTextureForCGLContextPixelFormatBoundsIsFlipped?(
+		cgl_ctx: interop.PointerConvertible,
+		format: string,
+		bounds: CGRect,
+		flipped: interop.PointerConvertible,
+	): number
 
-  releaseRenderedTextureForCGLContext?(name: number, cgl_ctx: interop.PointerConvertible): void;
+	releaseRenderedTextureForCGLContext?(name: number, cgl_ctx: interop.PointerConvertible): void
 
-  canRenderWithCGLContext?(cgl_ctx: interop.PointerConvertible): boolean;
+	canRenderWithCGLContext?(cgl_ctx: interop.PointerConvertible): boolean
 
-  renderWithCGLContextForBounds?(cgl_ctx: interop.PointerConvertible, bounds: CGRect): boolean;
+	renderWithCGLContextForBounds?(cgl_ctx: interop.PointerConvertible, bounds: CGRect): boolean
 }
 
-declare class QCPlugInOutputImageProvider extends NativeObject implements QCPlugInOutputImageProvider {
-}
+declare class QCPlugInOutputImageProvider
+	extends NativeObject
+	implements QCPlugInOutputImageProvider {}
 
 declare interface QCPlugInInputImageSource {
-  imageBounds(): CGRect;
+	imageBounds(): CGRect
 
-  imageColorSpace(): interop.Object;
+	imageColorSpace(): interop.Object
 
-  shouldColorMatch(): boolean;
+	shouldColorMatch(): boolean
 
-  lockBufferRepresentationWithPixelFormatColorSpaceForBounds(format: string, colorSpace: interop.Object, bounds: CGRect): boolean;
+	lockBufferRepresentationWithPixelFormatColorSpaceForBounds(
+		format: string,
+		colorSpace: interop.Object,
+		bounds: CGRect,
+	): boolean
 
-  bufferPixelsWide(): number;
+	bufferPixelsWide(): number
 
-  bufferPixelsHigh(): number;
+	bufferPixelsHigh(): number
 
-  bufferPixelFormat(): string;
+	bufferPixelFormat(): string
 
-  bufferColorSpace(): interop.Object;
+	bufferColorSpace(): interop.Object
 
-  bufferBaseAddress(): interop.Pointer;
+	bufferBaseAddress(): interop.Pointer
 
-  bufferBytesPerRow(): number;
+	bufferBytesPerRow(): number
 
-  unlockBufferRepresentation(): void;
+	unlockBufferRepresentation(): void
 
-  lockTextureRepresentationWithColorSpaceForBounds(colorSpace: interop.Object, bounds: CGRect): boolean;
+	lockTextureRepresentationWithColorSpaceForBounds(
+		colorSpace: interop.Object,
+		bounds: CGRect,
+	): boolean
 
-  texturePixelsWide(): number;
+	texturePixelsWide(): number
 
-  texturePixelsHigh(): number;
+	texturePixelsHigh(): number
 
-  textureTarget(): number;
+	textureTarget(): number
 
-  textureName(): number;
+	textureName(): number
 
-  textureColorSpace(): interop.Object;
+	textureColorSpace(): interop.Object
 
-  textureFlipped(): boolean;
+	textureFlipped(): boolean
 
-  textureMatrix(): interop.Pointer;
+	textureMatrix(): interop.Pointer
 
-  bindTextureRepresentationToCGLContextTextureUnitNormalizeCoordinates(cgl_ctx: interop.PointerConvertible, unit: number, flag: boolean): void;
+	bindTextureRepresentationToCGLContextTextureUnitNormalizeCoordinates(
+		cgl_ctx: interop.PointerConvertible,
+		unit: number,
+		flag: boolean,
+	): void
 
-  unbindTextureRepresentationFromCGLContextTextureUnit(cgl_ctx: interop.PointerConvertible, unit: number): void;
+	unbindTextureRepresentationFromCGLContextTextureUnit(
+		cgl_ctx: interop.PointerConvertible,
+		unit: number,
+	): void
 
-  unlockTextureRepresentation(): void;
+	unlockTextureRepresentation(): void
 }
 
-declare class QCPlugInInputImageSource extends NativeObject implements QCPlugInInputImageSource {
-}
+declare class QCPlugInInputImageSource extends NativeObject implements QCPlugInInputImageSource {}
 
 declare interface QCCompositionRenderer {
-  attributes(): NSDictionary;
+	attributes(): NSDictionary
 
-  inputKeys(): NSArray;
+	inputKeys(): NSArray
 
-  outputKeys(): NSArray;
+	outputKeys(): NSArray
 
-  setValueForInputKey(value: interop.Object, key: string): boolean;
+	setValueForInputKey(value: interop.Object, key: string): boolean
 
-  valueForInputKey(key: string): interop.Object;
+	valueForInputKey(key: string): interop.Object
 
-  valueForOutputKey(key: string): interop.Object;
+	valueForOutputKey(key: string): interop.Object
 
-  valueForOutputKeyOfType(key: string, type: string): interop.Object;
+	valueForOutputKeyOfType(key: string, type: string): interop.Object
 
-  propertyListFromInputValues(): interop.Object;
+	propertyListFromInputValues(): interop.Object
 
-  setInputValuesWithPropertyList(plist: interop.Object): void;
+	setInputValuesWithPropertyList(plist: interop.Object): void
 
-  userInfo(): NSMutableDictionary;
+	userInfo(): NSMutableDictionary
 }
 
-declare class QCCompositionRenderer extends NativeObject implements QCCompositionRenderer {
-}
+declare class QCCompositionRenderer extends NativeObject implements QCCompositionRenderer {}
 
 declare interface QCPlugInContext {
-  compositionURL(): NSURL;
+	compositionURL(): NSURL
 
-  logMessage(format: string): void;
+	logMessage(format: string): void
 
-  userInfo(): NSMutableDictionary;
+	userInfo(): NSMutableDictionary
 
-  colorSpace(): interop.Object;
+	colorSpace(): interop.Object
 
-  bounds(): CGRect;
+	bounds(): CGRect
 
-  CGLContextObj(): interop.Pointer;
+	CGLContextObj(): interop.Pointer
 
-  outputImageProviderFromBufferWithPixelFormatPixelsWidePixelsHighBaseAddressBytesPerRowReleaseCallbackReleaseContextColorSpaceShouldColorMatch(format: string, width: number, height: number, baseAddress: interop.PointerConvertible, rowBytes: number, callback: (p1: interop.PointerConvertible, p2: interop.PointerConvertible) => void, context: interop.PointerConvertible, colorSpace: interop.Object, colorMatch: boolean): interop.Object;
+	outputImageProviderFromBufferWithPixelFormatPixelsWidePixelsHighBaseAddressBytesPerRowReleaseCallbackReleaseContextColorSpaceShouldColorMatch(
+		format: string,
+		width: number,
+		height: number,
+		baseAddress: interop.PointerConvertible,
+		rowBytes: number,
+		callback: (p1: interop.PointerConvertible, p2: interop.PointerConvertible) => void,
+		context: interop.PointerConvertible,
+		colorSpace: interop.Object,
+		colorMatch: boolean,
+	): interop.Object
 
-  outputImageProviderFromTextureWithPixelFormatPixelsWidePixelsHighNameFlippedReleaseCallbackReleaseContextColorSpaceShouldColorMatch(format: string, width: number, height: number, name: number, flipped: boolean, callback: (p1: interop.PointerConvertible, p2: number, p3: interop.PointerConvertible) => void, context: interop.PointerConvertible, colorSpace: interop.Object, colorMatch: boolean): interop.Object;
+	outputImageProviderFromTextureWithPixelFormatPixelsWidePixelsHighNameFlippedReleaseCallbackReleaseContextColorSpaceShouldColorMatch(
+		format: string,
+		width: number,
+		height: number,
+		name: number,
+		flipped: boolean,
+		callback: (p1: interop.PointerConvertible, p2: number, p3: interop.PointerConvertible) => void,
+		context: interop.PointerConvertible,
+		colorSpace: interop.Object,
+		colorMatch: boolean,
+	): interop.Object
 }
 
-declare class QCPlugInContext extends NativeObject implements QCPlugInContext {
-}
+declare class QCPlugInContext extends NativeObject implements QCPlugInContext {}
 
 declare class IKSaveOptions extends NSObject {
-  delegate: interop.Object;
+	delegate: interop.Object
 
-  readonly imageProperties: NSDictionary;
+	readonly imageProperties: NSDictionary
 
-  readonly imageUTType: string;
+	readonly imageUTType: string
 
-  readonly userSelection: NSDictionary;
+	readonly userSelection: NSDictionary
 
-  initWithImagePropertiesImageUTType(imageProperties: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>, imageUTType: string): this;
+	initWithImagePropertiesImageUTType(
+		imageProperties:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+		imageUTType: string,
+	): this
 
-  addSaveOptionsAccessoryViewToSavePanel(savePanel: NSSavePanel): void;
+	addSaveOptionsAccessoryViewToSavePanel(savePanel: NSSavePanel): void
 
-  addSaveOptionsToView(view: NSView): void;
+	addSaveOptionsToView(view: NSView): void
 
-  rememberLastSetting: boolean;
+	rememberLastSetting: boolean
 }
 
 declare class IKFilterBrowserView extends NSView {
-  setPreviewState(inState: boolean): void;
+	setPreviewState(inState: boolean): void
 
-  filterName(): string;
+	filterName(): string
 }
 
 declare class IKFilterUIView extends NSView {
-  static viewWithFrameFilter(frameRect: CGRect, inFilter: CIFilter): interop.Object;
+	static viewWithFrameFilter(frameRect: CGRect, inFilter: CIFilter): interop.Object
 
-  initWithFrameFilter(frameRect: CGRect, inFilter: CIFilter): this;
+	initWithFrameFilter(frameRect: CGRect, inFilter: CIFilter): this
 
-  filter(): CIFilter;
+	filter(): CIFilter
 
-  objectController(): NSObjectController;
+	objectController(): NSObjectController
 }
 
 declare class IKImageBrowserCell extends NSObject {
-  imageBrowserView(): IKImageBrowserView;
+	imageBrowserView(): IKImageBrowserView
 
-  representedItem(): interop.Object;
+	representedItem(): interop.Object
 
-  indexOfRepresentedItem(): number;
+	indexOfRepresentedItem(): number
 
-  frame(): CGRect;
+	frame(): CGRect
 
-  imageContainerFrame(): CGRect;
+	imageContainerFrame(): CGRect
 
-  imageFrame(): CGRect;
+	imageFrame(): CGRect
 
-  selectionFrame(): CGRect;
+	selectionFrame(): CGRect
 
-  titleFrame(): CGRect;
+	titleFrame(): CGRect
 
-  subtitleFrame(): CGRect;
+	subtitleFrame(): CGRect
 
-  imageAlignment(): interop.Enum<typeof NSImageAlignment>;
+	imageAlignment(): interop.Enum<typeof NSImageAlignment>
 
-  isSelected(): boolean;
+	isSelected(): boolean
 
-  cellState(): interop.Enum<typeof IKImageBrowserCellState>;
+	cellState(): interop.Enum<typeof IKImageBrowserCellState>
 
-  opacity(): number;
+	opacity(): number
 
-  layerForType(type: string): CALayer;
+	layerForType(type: string): CALayer
 }
 
 declare class QuartzFilterManager extends NSObject {
-  static filterManager(): QuartzFilterManager;
+	static filterManager(): QuartzFilterManager
 
-  static filtersInDomains(domains: NSArray<interop.Object> | Array<interop.Object>): NSArray;
+	static filtersInDomains(domains: NSArray<interop.Object> | Array<interop.Object>): NSArray
 
-  filterPanel(): NSPanel;
+	filterPanel(): NSPanel
 
-  filterView(): QuartzFilterView;
+	filterView(): QuartzFilterView
 
-  selectedFilter(): QuartzFilter;
+	selectedFilter(): QuartzFilter
 
-  selectFilter(filter: QuartzFilter): boolean;
+	selectFilter(filter: QuartzFilter): boolean
 
-  setDelegate(aDelegate: interop.Object): void;
+	setDelegate(aDelegate: interop.Object): void
 
-  delegate(): interop.Object;
+	delegate(): interop.Object
 
-  importFilter(filterProperties: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): QuartzFilter;
+	importFilter(
+		filterProperties:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+	): QuartzFilter
 }
 
 declare class QuartzFilter extends NSObject {
-  static quartzFilterWithURL(aURL: NSURL): QuartzFilter;
+	static quartzFilterWithURL(aURL: NSURL): QuartzFilter
 
-  static quartzFilterWithProperties(properties: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): QuartzFilter;
+	static quartzFilterWithProperties(
+		properties:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+	): QuartzFilter
 
-  static quartzFilterWithOutputIntents(outputIntents: NSArray<interop.Object> | Array<interop.Object>): QuartzFilter;
+	static quartzFilterWithOutputIntents(
+		outputIntents: NSArray<interop.Object> | Array<interop.Object>,
+	): QuartzFilter
 
-  properties(): NSDictionary;
+	properties(): NSDictionary
 
-  url(): NSURL;
+	url(): NSURL
 
-  localizedName(): string;
+	localizedName(): string
 
-  applyToContext(aContext: interop.Object): boolean;
+	applyToContext(aContext: interop.Object): boolean
 
-  removeFromContext(aContext: interop.Object): void;
+	removeFromContext(aContext: interop.Object): void
 }
 
 declare class QCPlugInViewController extends NSViewController {
-  initWithPlugInViewNibName(plugIn: QCPlugIn, name: string): this;
+	initWithPlugInViewNibName(plugIn: QCPlugIn, name: string): this
 
-  plugIn(): QCPlugIn;
+	plugIn(): QCPlugIn
 }
 
 declare class QCRenderer extends NSObject implements QCCompositionRenderer {
-  initWithCompositionColorSpace(composition: QCComposition, colorSpace: interop.Object): this;
+	initWithCompositionColorSpace(composition: QCComposition, colorSpace: interop.Object): this
 
-  initWithCGLContextPixelFormatColorSpaceComposition(context: interop.PointerConvertible, format: interop.PointerConvertible, colorSpace: interop.Object, composition: QCComposition): this;
+	initWithCGLContextPixelFormatColorSpaceComposition(
+		context: interop.PointerConvertible,
+		format: interop.PointerConvertible,
+		colorSpace: interop.Object,
+		composition: QCComposition,
+	): this
 
-  initOffScreenWithSizeColorSpaceComposition(size: CGSize, colorSpace: interop.Object, composition: QCComposition): this;
+	initOffScreenWithSizeColorSpaceComposition(
+		size: CGSize,
+		colorSpace: interop.Object,
+		composition: QCComposition,
+	): this
 
-  initWithOpenGLContextPixelFormatFile(context: NSOpenGLContext, format: NSOpenGLPixelFormat, path: string): this;
+	initWithOpenGLContextPixelFormatFile(
+		context: NSOpenGLContext,
+		format: NSOpenGLPixelFormat,
+		path: string,
+	): this
 
-  renderAtTimeArguments(time: number, arguments$: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): boolean;
+	renderAtTimeArguments(
+		time: number,
+		arguments$:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+	): boolean
 
-  renderingTimeForTimeArguments(time: number, arguments$: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): number;
+	renderingTimeForTimeArguments(
+		time: number,
+		arguments$:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+	): number
 
-  composition(): QCComposition;
+	composition(): QCComposition
 
-  snapshotImage(): NSImage;
+	snapshotImage(): NSImage
 
-  createSnapshotImageOfType(type: string): interop.Object;
+	createSnapshotImageOfType(type: string): interop.Object
 
-  attributes(): NSDictionary;
+	attributes(): NSDictionary
 
-  inputKeys(): NSArray;
+	inputKeys(): NSArray
 
-  outputKeys(): NSArray;
+	outputKeys(): NSArray
 
-  setValueForInputKey(value: interop.Object, key: string): boolean;
+	setValueForInputKey(value: interop.Object, key: string): boolean
 
-  valueForInputKey(key: string): interop.Object;
+	valueForInputKey(key: string): interop.Object
 
-  valueForOutputKey(key: string): interop.Object;
+	valueForOutputKey(key: string): interop.Object
 
-  valueForOutputKeyOfType(key: string, type: string): interop.Object;
+	valueForOutputKeyOfType(key: string, type: string): interop.Object
 
-  propertyListFromInputValues(): interop.Object;
+	propertyListFromInputValues(): interop.Object
 
-  setInputValuesWithPropertyList(plist: interop.Object): void;
+	setInputValuesWithPropertyList(plist: interop.Object): void
 
-  userInfo(): NSMutableDictionary;
+	userInfo(): NSMutableDictionary
 }
 
 declare class QCComposition extends NSObject implements NSCopying {
-  static compositionWithFile(path: string): QCComposition;
+	static compositionWithFile(path: string): QCComposition
 
-  static compositionWithData(data: NSData): QCComposition;
+	static compositionWithData(data: NSData): QCComposition
 
-  protocols(): NSArray;
+	protocols(): NSArray
 
-  attributes(): NSDictionary;
+	attributes(): NSDictionary
 
-  inputKeys(): NSArray;
+	inputKeys(): NSArray
 
-  outputKeys(): NSArray;
+	outputKeys(): NSArray
 
-  identifier(): string;
+	identifier(): string
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class QCPlugIn extends NSObject {
-  static attributes(): NSDictionary;
+	static attributes(): NSDictionary
 
-  static attributesForPropertyPortWithKey(key: string): NSDictionary;
+	static attributesForPropertyPortWithKey(key: string): NSDictionary
 
-  static sortedPropertyPortKeys(): NSArray;
+	static sortedPropertyPortKeys(): NSArray
 
-  static executionMode(): interop.Enum<typeof QCPlugInExecutionMode>;
+	static executionMode(): interop.Enum<typeof QCPlugInExecutionMode>
 
-  static timeMode(): interop.Enum<typeof QCPlugInTimeMode>;
+	static timeMode(): interop.Enum<typeof QCPlugInTimeMode>
 
-  static plugInKeys(): NSArray;
+	static plugInKeys(): NSArray
 
-  startExecution(context: QCPlugInContext): boolean;
+	startExecution(context: QCPlugInContext): boolean
 
-  enableExecution(context: QCPlugInContext): void;
+	enableExecution(context: QCPlugInContext): void
 
-  executionTimeForContextAtTimeWithArguments(context: QCPlugInContext, time: number, arguments$: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): number;
+	executionTimeForContextAtTimeWithArguments(
+		context: QCPlugInContext,
+		time: number,
+		arguments$:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+	): number
 
-  executeAtTimeWithArguments(context: QCPlugInContext, time: number, arguments$: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): boolean;
+	executeAtTimeWithArguments(
+		context: QCPlugInContext,
+		time: number,
+		arguments$:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+	): boolean
 
-  disableExecution(context: QCPlugInContext): void;
+	disableExecution(context: QCPlugInContext): void
 
-  stopExecution(context: QCPlugInContext): void;
+	stopExecution(context: QCPlugInContext): void
 
-  serializedValueForKey(key: string): interop.Object;
+	serializedValueForKey(key: string): interop.Object
 
-  setSerializedValueForKey(serializedValue: interop.Object, key: string): void;
+	setSerializedValueForKey(serializedValue: interop.Object, key: string): void
 
-  didValueForInputKeyChange(key: string): boolean;
+	didValueForInputKeyChange(key: string): boolean
 
-  valueForInputKey(key: string): interop.Object;
+	valueForInputKey(key: string): interop.Object
 
-  setValueForOutputKey(value: interop.Object, key: string): boolean;
+	setValueForOutputKey(value: interop.Object, key: string): boolean
 
-  addInputPortWithTypeForKeyWithAttributes(type: string, key: string, attributes: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): void;
+	addInputPortWithTypeForKeyWithAttributes(
+		type: string,
+		key: string,
+		attributes:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+	): void
 
-  removeInputPortForKey(key: string): void;
+	removeInputPortForKey(key: string): void
 
-  addOutputPortWithTypeForKeyWithAttributes(type: string, key: string, attributes: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): void;
+	addOutputPortWithTypeForKeyWithAttributes(
+		type: string,
+		key: string,
+		attributes:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+	): void
 
-  removeOutputPortForKey(key: string): void;
+	removeOutputPortForKey(key: string): void
 
-  static loadPlugInAtPath(path: string): boolean;
+	static loadPlugInAtPath(path: string): boolean
 
-  static registerPlugInClass(aClass: interop.PointerConvertible): void;
+	static registerPlugInClass(aClass: interop.PointerConvertible): void
 
-  createViewController(): QCPlugInViewController;
+	createViewController(): QCPlugInViewController
 }
 
 declare class QuartzFilterView extends NSView {
-  sizeToFit(): void;
+	sizeToFit(): void
 }
 
 declare class IKSlideshow extends NSObject {
-  autoPlayDelay: number;
+	autoPlayDelay: number
 
-  static sharedSlideshow(): IKSlideshow;
+	static sharedSlideshow(): IKSlideshow
 
-  runSlideshowWithDataSourceInModeOptions(dataSource: IKSlideshowDataSource, slideshowMode: string, slideshowOptions: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): void;
+	runSlideshowWithDataSourceInModeOptions(
+		dataSource: IKSlideshowDataSource,
+		slideshowMode: string,
+		slideshowOptions:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+	): void
 
-  stopSlideshow(sender: interop.Object): void;
+	stopSlideshow(sender: interop.Object): void
 
-  reloadData(): void;
+	reloadData(): void
 
-  reloadSlideshowItemAtIndex(index: number): void;
+	reloadSlideshowItemAtIndex(index: number): void
 
-  indexOfCurrentSlideshowItem(): number;
+	indexOfCurrentSlideshowItem(): number
 
-  static canExportToApplication(applicationBundleIdentifier: string): boolean;
+	static canExportToApplication(applicationBundleIdentifier: string): boolean
 
-  static exportSlideshowItemToApplication(item: interop.Object, applicationBundleIdentifier: string): void;
+	static exportSlideshowItemToApplication(
+		item: interop.Object,
+		applicationBundleIdentifier: string,
+	): void
 }
 
-declare class QCPatchController extends NSController {
-}
+declare class QCPatchController extends NSController {}
 
 declare class IKPictureTaker extends NSPanel {
-  static pictureTaker(): IKPictureTaker;
+	static pictureTaker(): IKPictureTaker
 
-  runModal(): number;
+	runModal(): number
 
-  beginPictureTakerWithDelegateDidEndSelectorContextInfo(delegate: interop.Object, didEndSelector: string, contextInfo: interop.PointerConvertible): void;
+	beginPictureTakerWithDelegateDidEndSelectorContextInfo(
+		delegate: interop.Object,
+		didEndSelector: string,
+		contextInfo: interop.PointerConvertible,
+	): void
 
-  beginPictureTakerSheetForWindowWithDelegateDidEndSelectorContextInfo(aWindow: NSWindow, delegate: interop.Object, didEndSelector: string, contextInfo: interop.PointerConvertible): void;
+	beginPictureTakerSheetForWindowWithDelegateDidEndSelectorContextInfo(
+		aWindow: NSWindow,
+		delegate: interop.Object,
+		didEndSelector: string,
+		contextInfo: interop.PointerConvertible,
+	): void
 
-  popUpRecentsMenuForViewWithDelegateDidEndSelectorContextInfo(aView: NSView, delegate: interop.Object, didEndSelector: string, contextInfo: interop.PointerConvertible): void;
+	popUpRecentsMenuForViewWithDelegateDidEndSelectorContextInfo(
+		aView: NSView,
+		delegate: interop.Object,
+		didEndSelector: string,
+		contextInfo: interop.PointerConvertible,
+	): void
 
-  setInputImage(image: NSImage): void;
+	setInputImage(image: NSImage): void
 
-  inputImage(): NSImage;
+	inputImage(): NSImage
 
-  outputImage(): NSImage;
+	outputImage(): NSImage
 
-  setMirroring(b: boolean): void;
+	setMirroring(b: boolean): void
 
-  mirroring(): boolean;
+	mirroring(): boolean
 }
 
 declare class IKScannerDeviceView extends NSView {
-  delegate: IKScannerDeviceViewDelegate;
+	delegate: IKScannerDeviceViewDelegate
 
-  scannerDevice: ICScannerDevice;
+	scannerDevice: ICScannerDevice
 
-  mode: interop.Enum<typeof IKScannerDeviceViewDisplayMode>;
+	mode: interop.Enum<typeof IKScannerDeviceViewDisplayMode>
 
-  hasDisplayModeSimple: boolean;
+	hasDisplayModeSimple: boolean
 
-  hasDisplayModeAdvanced: boolean;
+	hasDisplayModeAdvanced: boolean
 
-  transferMode: interop.Enum<typeof IKScannerDeviceViewTransferMode>;
+	transferMode: interop.Enum<typeof IKScannerDeviceViewTransferMode>
 
-  scanControlLabel: string;
+	scanControlLabel: string
 
-  overviewControlLabel: string;
+	overviewControlLabel: string
 
-  displaysDownloadsDirectoryControl: boolean;
+	displaysDownloadsDirectoryControl: boolean
 
-  downloadsDirectory: NSURL;
+	downloadsDirectory: NSURL
 
-  documentName: string;
+	documentName: string
 
-  displaysPostProcessApplicationControl: boolean;
+	displaysPostProcessApplicationControl: boolean
 
-  postProcessApplication: NSURL;
+	postProcessApplication: NSURL
 }
 
 declare class QCCompositionParameterView extends NSView {
-  setCompositionRenderer(renderer: QCCompositionRenderer): void;
+	setCompositionRenderer(renderer: QCCompositionRenderer): void
 
-  compositionRenderer(): QCCompositionRenderer;
+	compositionRenderer(): QCCompositionRenderer
 
-  hasParameters(): boolean;
+	hasParameters(): boolean
 
-  setBackgroundColor(color: NSColor): void;
+	setBackgroundColor(color: NSColor): void
 
-  backgroundColor(): NSColor;
+	backgroundColor(): NSColor
 
-  setDrawsBackground(flag: boolean): void;
+	setDrawsBackground(flag: boolean): void
 
-  drawsBackground(): boolean;
+	drawsBackground(): boolean
 
-  setDelegate(delegate: interop.Object): void;
+	setDelegate(delegate: interop.Object): void
 
-  delegate(): interop.Object;
+	delegate(): interop.Object
 }
 
 declare class QCCompositionRepository extends NSObject {
-  static sharedCompositionRepository(): QCCompositionRepository;
+	static sharedCompositionRepository(): QCCompositionRepository
 
-  compositionWithIdentifier(identifier: string): QCComposition;
+	compositionWithIdentifier(identifier: string): QCComposition
 
-  compositionsWithProtocolsAndAttributes(protocols: NSArray<interop.Object> | Array<interop.Object>, attributes: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): NSArray;
+	compositionsWithProtocolsAndAttributes(
+		protocols: NSArray<interop.Object> | Array<interop.Object>,
+		attributes:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+	): NSArray
 
-  allCompositions(): NSArray;
+	allCompositions(): NSArray
 }
 
 declare class IKCameraDeviceView extends NSView {
-  delegate: IKCameraDeviceViewDelegate;
+	delegate: IKCameraDeviceViewDelegate
 
-  cameraDevice: ICCameraDevice;
+	cameraDevice: ICCameraDevice
 
-  mode: interop.Enum<typeof IKCameraDeviceViewDisplayMode>;
+	mode: interop.Enum<typeof IKCameraDeviceViewDisplayMode>
 
-  hasDisplayModeTable: boolean;
+	hasDisplayModeTable: boolean
 
-  hasDisplayModeIcon: boolean;
+	hasDisplayModeIcon: boolean
 
-  downloadAllControlLabel: string;
+	downloadAllControlLabel: string
 
-  downloadSelectedControlLabel: string;
+	downloadSelectedControlLabel: string
 
-  iconSize: number;
+	iconSize: number
 
-  transferMode: interop.Enum<typeof IKCameraDeviceViewTransferMode>;
+	transferMode: interop.Enum<typeof IKCameraDeviceViewTransferMode>
 
-  displaysDownloadsDirectoryControl: boolean;
+	displaysDownloadsDirectoryControl: boolean
 
-  downloadsDirectory: NSURL;
+	downloadsDirectory: NSURL
 
-  displaysPostProcessApplicationControl: boolean;
+	displaysPostProcessApplicationControl: boolean
 
-  postProcessApplication: NSURL;
+	postProcessApplication: NSURL
 
-  readonly canRotateSelectedItemsLeft: boolean;
+	readonly canRotateSelectedItemsLeft: boolean
 
-  readonly canRotateSelectedItemsRight: boolean;
+	readonly canRotateSelectedItemsRight: boolean
 
-  readonly canDeleteSelectedItems: boolean;
+	readonly canDeleteSelectedItems: boolean
 
-  readonly canDownloadSelectedItems: boolean;
+	readonly canDownloadSelectedItems: boolean
 
-  selectedIndexes(): NSIndexSet;
+	selectedIndexes(): NSIndexSet
 
-  selectIndexesByExtendingSelection(indexes: NSIndexSet, extend: boolean): void;
+	selectIndexesByExtendingSelection(indexes: NSIndexSet, extend: boolean): void
 
-  rotateLeft(sender: interop.Object): void;
+	rotateLeft(sender: interop.Object): void
 
-  rotateRight(sender: interop.Object): void;
+	rotateRight(sender: interop.Object): void
 
-  deleteSelectedItems(sender: interop.Object): void;
+	deleteSelectedItems(sender: interop.Object): void
 
-  downloadSelectedItems(sender: interop.Object): void;
+	downloadSelectedItems(sender: interop.Object): void
 
-  downloadAllItems(sender: interop.Object): void;
+	downloadAllItems(sender: interop.Object): void
 
-  setCustomIconSizeSlider(slider: NSSlider): void;
+	setCustomIconSizeSlider(slider: NSSlider): void
 
-  setCustomModeControl(control: NSSegmentedControl): void;
+	setCustomModeControl(control: NSSegmentedControl): void
 
-  setCustomActionControl(control: NSSegmentedControl): void;
+	setCustomActionControl(control: NSSegmentedControl): void
 
-  setCustomRotateControl(control: NSSegmentedControl): void;
+	setCustomRotateControl(control: NSSegmentedControl): void
 
-  setCustomDeleteControl(control: NSSegmentedControl): void;
+	setCustomDeleteControl(control: NSSegmentedControl): void
 
-  setShowStatusInfoAsWindowSubtitle(value: boolean): void;
+	setShowStatusInfoAsWindowSubtitle(value: boolean): void
 }
 
 declare class IKImageEditPanel extends NSPanel {
-  dataSource: IKImageEditPanelDataSource;
+	dataSource: IKImageEditPanelDataSource
 
-  readonly filterArray: NSArray;
+	readonly filterArray: NSArray
 
-  static sharedImageEditPanel(): IKImageEditPanel;
+	static sharedImageEditPanel(): IKImageEditPanel
 
-  reloadData(): void;
+	reloadData(): void
 }
 
 declare class IKFilterBrowserPanel extends NSPanel {
-  static filterBrowserPanelWithStyleMask(styleMask: number): interop.Object;
+	static filterBrowserPanelWithStyleMask(styleMask: number): interop.Object
 
-  filterName(): string;
+	filterName(): string
 
-  beginWithOptionsModelessDelegateDidEndSelectorContextInfo(inOptions: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>, modelessDelegate: interop.Object, didEndSelector: string, contextInfo: interop.PointerConvertible): void;
+	beginWithOptionsModelessDelegateDidEndSelectorContextInfo(
+		inOptions:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+		modelessDelegate: interop.Object,
+		didEndSelector: string,
+		contextInfo: interop.PointerConvertible,
+	): void
 
-  beginSheetWithOptionsModalForWindowModalDelegateDidEndSelectorContextInfo(inOptions: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>, docWindow: NSWindow, modalDelegate: interop.Object, didEndSelector: string, contextInfo: interop.PointerConvertible): void;
+	beginSheetWithOptionsModalForWindowModalDelegateDidEndSelectorContextInfo(
+		inOptions:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+		docWindow: NSWindow,
+		modalDelegate: interop.Object,
+		didEndSelector: string,
+		contextInfo: interop.PointerConvertible,
+	): void
 
-  runModalWithOptions(inOptions: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): number;
+	runModalWithOptions(
+		inOptions:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+	): number
 
-  filterBrowserViewWithOptions(inOptions: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): IKFilterBrowserView;
+	filterBrowserViewWithOptions(
+		inOptions:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+	): IKFilterBrowserView
 
-  finish(sender: interop.Object): void;
+	finish(sender: interop.Object): void
 }
 
 declare class QCCompositionPickerView extends NSView {
-  setCompositionsFromRepositoryWithProtocolAndAttributes(protocol: string, attributes: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): void;
+	setCompositionsFromRepositoryWithProtocolAndAttributes(
+		protocol: string,
+		attributes:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+	): void
 
-  compositions(): NSArray;
+	compositions(): NSArray
 
-  setDelegate(delegate: interop.Object): void;
+	setDelegate(delegate: interop.Object): void
 
-  delegate(): interop.Object;
+	delegate(): interop.Object
 
-  setShowsCompositionNames(flag: boolean): void;
+	setShowsCompositionNames(flag: boolean): void
 
-  showsCompositionNames(): boolean;
+	showsCompositionNames(): boolean
 
-  setAllowsEmptySelection(flag: boolean): void;
+	setAllowsEmptySelection(flag: boolean): void
 
-  allowsEmptySelection(): boolean;
+	allowsEmptySelection(): boolean
 
-  setCompositionAspectRatio(ratio: CGSize): void;
+	setCompositionAspectRatio(ratio: CGSize): void
 
-  compositionAspectRatio(): CGSize;
+	compositionAspectRatio(): CGSize
 
-  setDefaultValueForInputKey(value: interop.Object, key: string): void;
+	setDefaultValueForInputKey(value: interop.Object, key: string): void
 
-  resetDefaultInputValues(): void;
+	resetDefaultInputValues(): void
 
-  setSelectedComposition(composition: QCComposition): void;
+	setSelectedComposition(composition: QCComposition): void
 
-  selectedComposition(): QCComposition;
+	selectedComposition(): QCComposition
 
-  startAnimation(sender: interop.Object): void;
+	startAnimation(sender: interop.Object): void
 
-  stopAnimation(sender: interop.Object): void;
+	stopAnimation(sender: interop.Object): void
 
-  isAnimating(): boolean;
+	isAnimating(): boolean
 
-  setMaxAnimationFrameRate(maxFPS: number): void;
+	setMaxAnimationFrameRate(maxFPS: number): void
 
-  maxAnimationFrameRate(): number;
+	maxAnimationFrameRate(): number
 
-  setBackgroundColor(color: NSColor): void;
+	setBackgroundColor(color: NSColor): void
 
-  backgroundColor(): NSColor;
+	backgroundColor(): NSColor
 
-  setDrawsBackground(flag: boolean): void;
+	setDrawsBackground(flag: boolean): void
 
-  drawsBackground(): boolean;
+	drawsBackground(): boolean
 
-  numberOfColumns(): number;
+	numberOfColumns(): number
 
-  setNumberOfColumns(columns: number): void;
+	setNumberOfColumns(columns: number): void
 
-  numberOfRows(): number;
+	numberOfRows(): number
 
-  setNumberOfRows(rows: number): void;
+	setNumberOfRows(rows: number): void
 }
 
 declare class QCCompositionLayer extends CAOpenGLLayer implements QCCompositionRenderer {
-  static compositionLayerWithFile(path: string): QCCompositionLayer;
+	static compositionLayerWithFile(path: string): QCCompositionLayer
 
-  static compositionLayerWithComposition(composition: QCComposition): QCCompositionLayer;
+	static compositionLayerWithComposition(composition: QCComposition): QCCompositionLayer
 
-  initWithFile(path: string): this;
+	initWithFile(path: string): this
 
-  initWithComposition(composition: QCComposition): this;
+	initWithComposition(composition: QCComposition): this
 
-  composition(): QCComposition;
+	composition(): QCComposition
 
-  attributes(): NSDictionary;
+	attributes(): NSDictionary
 
-  inputKeys(): NSArray;
+	inputKeys(): NSArray
 
-  outputKeys(): NSArray;
+	outputKeys(): NSArray
 
-  setValueForInputKey(value: interop.Object, key: string): boolean;
+	setValueForInputKey(value: interop.Object, key: string): boolean
 
-  valueForInputKey(key: string): interop.Object;
+	valueForInputKey(key: string): interop.Object
 
-  valueForOutputKey(key: string): interop.Object;
+	valueForOutputKey(key: string): interop.Object
 
-  valueForOutputKeyOfType(key: string, type: string): interop.Object;
+	valueForOutputKeyOfType(key: string, type: string): interop.Object
 
-  propertyListFromInputValues(): interop.Object;
+	propertyListFromInputValues(): interop.Object
 
-  setInputValuesWithPropertyList(plist: interop.Object): void;
+	setInputValuesWithPropertyList(plist: interop.Object): void
 
-  userInfo(): NSMutableDictionary;
+	userInfo(): NSMutableDictionary
 }
 
 declare class QCView extends NSView implements QCCompositionRenderer {
-  loadCompositionFromFile(path: string): boolean;
+	loadCompositionFromFile(path: string): boolean
 
-  loadComposition(composition: QCComposition): boolean;
+	loadComposition(composition: QCComposition): boolean
 
-  loadedComposition(): QCComposition;
+	loadedComposition(): QCComposition
 
-  unloadComposition(): void;
+	unloadComposition(): void
 
-  setAutostartsRendering(flag: boolean): void;
+	setAutostartsRendering(flag: boolean): void
 
-  autostartsRendering(): boolean;
+	autostartsRendering(): boolean
 
-  setEraseColor(color: NSColor): void;
+	setEraseColor(color: NSColor): void
 
-  eraseColor(): NSColor;
+	eraseColor(): NSColor
 
-  setEventForwardingMask(mask: number): void;
+	setEventForwardingMask(mask: number): void
 
-  eventForwardingMask(): number;
+	eventForwardingMask(): number
 
-  setMaxRenderingFrameRate(maxFPS: number): void;
+	setMaxRenderingFrameRate(maxFPS: number): void
 
-  maxRenderingFrameRate(): number;
+	maxRenderingFrameRate(): number
 
-  erase(): void;
+	erase(): void
 
-  startRendering(): boolean;
+	startRendering(): boolean
 
-  renderAtTimeArguments(time: number, arguments$: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): boolean;
+	renderAtTimeArguments(
+		time: number,
+		arguments$:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+	): boolean
 
-  pauseRendering(): void;
+	pauseRendering(): void
 
-  isPausedRendering(): boolean;
+	isPausedRendering(): boolean
 
-  resumeRendering(): void;
+	resumeRendering(): void
 
-  stopRendering(): void;
+	stopRendering(): void
 
-  isRendering(): boolean;
+	isRendering(): boolean
 
-  snapshotImage(): NSImage;
+	snapshotImage(): NSImage
 
-  createSnapshotImageOfType(type: string): interop.Object;
+	createSnapshotImageOfType(type: string): interop.Object
 
-  openGLContext(): NSOpenGLContext;
+	openGLContext(): NSOpenGLContext
 
-  openGLPixelFormat(): NSOpenGLPixelFormat;
+	openGLPixelFormat(): NSOpenGLPixelFormat
 
-  start(sender: interop.Object): void;
+	start(sender: interop.Object): void
 
-  stop(sender: interop.Object): void;
+	stop(sender: interop.Object): void
 
-  play(sender: interop.Object): void;
+	play(sender: interop.Object): void
 
-  attributes(): NSDictionary;
+	attributes(): NSDictionary
 
-  inputKeys(): NSArray;
+	inputKeys(): NSArray
 
-  outputKeys(): NSArray;
+	outputKeys(): NSArray
 
-  setValueForInputKey(value: interop.Object, key: string): boolean;
+	setValueForInputKey(value: interop.Object, key: string): boolean
 
-  valueForInputKey(key: string): interop.Object;
+	valueForInputKey(key: string): interop.Object
 
-  valueForOutputKey(key: string): interop.Object;
+	valueForOutputKey(key: string): interop.Object
 
-  valueForOutputKeyOfType(key: string, type: string): interop.Object;
+	valueForOutputKeyOfType(key: string, type: string): interop.Object
 
-  propertyListFromInputValues(): interop.Object;
+	propertyListFromInputValues(): interop.Object
 
-  setInputValuesWithPropertyList(plist: interop.Object): void;
+	setInputValuesWithPropertyList(plist: interop.Object): void
 
-  userInfo(): NSMutableDictionary;
+	userInfo(): NSMutableDictionary
 }
 
 declare class IKImageBrowserView extends NSView implements NSDraggingSource {
-  initWithFrame(frameRect: CGRect): this;
-  initWithFrame(frame: CGRect): this;
+	initWithFrame(frameRect: CGRect): this
+	initWithFrame(frame: CGRect): this
 
-  dataSource: interop.Object;
+	dataSource: interop.Object
 
-  reloadData(): void;
+	reloadData(): void
 
-  delegate: interop.Object;
+	delegate: interop.Object
 
-  setCellsStyleMask(mask: number): void;
+	setCellsStyleMask(mask: number): void
 
-  cellsStyleMask(): number;
+	cellsStyleMask(): number
 
-  setConstrainsToOriginalSize(flag: boolean): void;
+	setConstrainsToOriginalSize(flag: boolean): void
 
-  constrainsToOriginalSize(): boolean;
+	constrainsToOriginalSize(): boolean
 
-  setBackgroundLayer(aLayer: CALayer): void;
+	setBackgroundLayer(aLayer: CALayer): void
 
-  backgroundLayer(): CALayer;
+	backgroundLayer(): CALayer
 
-  setForegroundLayer(aLayer: CALayer): void;
+	setForegroundLayer(aLayer: CALayer): void
 
-  foregroundLayer(): CALayer;
+	foregroundLayer(): CALayer
 
-  newCellForRepresentedItem(anItem: interop.Object): IKImageBrowserCell;
+	newCellForRepresentedItem(anItem: interop.Object): IKImageBrowserCell
 
-  cellForItemAtIndex(index: number): IKImageBrowserCell;
+	cellForItemAtIndex(index: number): IKImageBrowserCell
 
-  setZoomValue(aValue: number): void;
+	setZoomValue(aValue: number): void
 
-  zoomValue(): number;
+	zoomValue(): number
 
-  setContentResizingMask(mask: number): void;
+	setContentResizingMask(mask: number): void
 
-  contentResizingMask(): number;
+	contentResizingMask(): number
 
-  scrollIndexToVisible(index: number): void;
+	scrollIndexToVisible(index: number): void
 
-  setCellSize(size: CGSize): void;
+	setCellSize(size: CGSize): void
 
-  cellSize(): CGSize;
+	cellSize(): CGSize
 
-  intercellSpacing(): CGSize;
+	intercellSpacing(): CGSize
 
-  setIntercellSpacing(aSize: CGSize): void;
+	setIntercellSpacing(aSize: CGSize): void
 
-  indexOfItemAtPoint(point: CGPoint): number;
+	indexOfItemAtPoint(point: CGPoint): number
 
-  itemFrameAtIndex(index: number): CGRect;
+	itemFrameAtIndex(index: number): CGRect
 
-  visibleItemIndexes(): NSIndexSet;
+	visibleItemIndexes(): NSIndexSet
 
-  rowIndexesInRect(rect: CGRect): NSIndexSet;
+	rowIndexesInRect(rect: CGRect): NSIndexSet
 
-  columnIndexesInRect(rect: CGRect): NSIndexSet;
+	columnIndexesInRect(rect: CGRect): NSIndexSet
 
-  rectOfColumn(columnIndex: number): CGRect;
+	rectOfColumn(columnIndex: number): CGRect
 
-  rectOfRow(rowIndex: number): CGRect;
+	rectOfRow(rowIndex: number): CGRect
 
-  numberOfRows(): number;
+	numberOfRows(): number
 
-  numberOfColumns(): number;
+	numberOfColumns(): number
 
-  setCanControlQuickLookPanel(flag: boolean): void;
+	setCanControlQuickLookPanel(flag: boolean): void
 
-  canControlQuickLookPanel(): boolean;
+	canControlQuickLookPanel(): boolean
 
-  selectionIndexes(): NSIndexSet;
+	selectionIndexes(): NSIndexSet
 
-  setSelectionIndexesByExtendingSelection(indexes: NSIndexSet, extendSelection: boolean): void;
+	setSelectionIndexesByExtendingSelection(indexes: NSIndexSet, extendSelection: boolean): void
 
-  setAllowsMultipleSelection(flag: boolean): void;
+	setAllowsMultipleSelection(flag: boolean): void
 
-  allowsMultipleSelection(): boolean;
+	allowsMultipleSelection(): boolean
 
-  setAllowsEmptySelection(flag: boolean): void;
+	setAllowsEmptySelection(flag: boolean): void
 
-  allowsEmptySelection(): boolean;
+	allowsEmptySelection(): boolean
 
-  setAllowsReordering(flag: boolean): void;
+	setAllowsReordering(flag: boolean): void
 
-  allowsReordering(): boolean;
+	allowsReordering(): boolean
 
-  setAnimates(flag: boolean): void;
+	setAnimates(flag: boolean): void
 
-  animates(): boolean;
+	animates(): boolean
 
-  expandGroupAtIndex(index: number): void;
+	expandGroupAtIndex(index: number): void
 
-  collapseGroupAtIndex(index: number): void;
+	collapseGroupAtIndex(index: number): void
 
-  isGroupExpandedAtIndex(index: number): boolean;
+	isGroupExpandedAtIndex(index: number): boolean
 
-  setDraggingDestinationDelegate(delegate: interop.Object): void;
+	setDraggingDestinationDelegate(delegate: interop.Object): void
 
-  draggingDestinationDelegate(): interop.Object;
+	draggingDestinationDelegate(): interop.Object
 
-  indexAtLocationOfDroppedItem(): number;
+	indexAtLocationOfDroppedItem(): number
 
-  dropOperation(): interop.Enum<typeof IKImageBrowserDropOperation>;
+	dropOperation(): interop.Enum<typeof IKImageBrowserDropOperation>
 
-  setAllowsDroppingOnItems(flag: boolean): void;
+	setAllowsDroppingOnItems(flag: boolean): void
 
-  allowsDroppingOnItems(): boolean;
+	allowsDroppingOnItems(): boolean
 
-  setDropIndexDropOperation(index: number, operation: interop.Enum<typeof IKImageBrowserDropOperation>): void;
+	setDropIndexDropOperation(
+		index: number,
+		operation: interop.Enum<typeof IKImageBrowserDropOperation>,
+	): void
 
-  draggingSessionSourceOperationMaskForDraggingContext(session: NSDraggingSession, context: interop.Enum<typeof NSDraggingContext>): interop.Enum<typeof NSDragOperation>;
+	draggingSessionSourceOperationMaskForDraggingContext(
+		session: NSDraggingSession,
+		context: interop.Enum<typeof NSDraggingContext>,
+	): interop.Enum<typeof NSDragOperation>
 
-  draggingSessionWillBeginAtPoint(session: NSDraggingSession, screenPoint: CGPoint): void;
+	draggingSessionWillBeginAtPoint(session: NSDraggingSession, screenPoint: CGPoint): void
 
-  draggingSessionMovedToPoint(session: NSDraggingSession, screenPoint: CGPoint): void;
+	draggingSessionMovedToPoint(session: NSDraggingSession, screenPoint: CGPoint): void
 
-  draggingSessionEndedAtPointOperation(session: NSDraggingSession, screenPoint: CGPoint, operation: interop.Enum<typeof NSDragOperation>): void;
+	draggingSessionEndedAtPointOperation(
+		session: NSDraggingSession,
+		screenPoint: CGPoint,
+		operation: interop.Enum<typeof NSDragOperation>,
+	): void
 
-  ignoreModifierKeysForDraggingSession(session: NSDraggingSession): boolean;
+	ignoreModifierKeysForDraggingSession(session: NSDraggingSession): boolean
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 }
 
 declare class IKImageView extends NSView {
-  delegate: interop.Object;
+	delegate: interop.Object
 
-  zoomFactor: number;
+	zoomFactor: number
 
-  rotationAngle: number;
+	rotationAngle: number
 
-  currentToolMode: string;
+	currentToolMode: string
 
-  autoresizes: boolean;
+	autoresizes: boolean
 
-  hasHorizontalScroller: boolean;
+	hasHorizontalScroller: boolean
 
-  hasVerticalScroller: boolean;
+	hasVerticalScroller: boolean
 
-  autohidesScrollers: boolean;
+	autohidesScrollers: boolean
 
-  supportsDragAndDrop: boolean;
+	supportsDragAndDrop: boolean
 
-  editable: boolean;
+	editable: boolean
 
-  doubleClickOpensImageEditPanel: boolean;
+	doubleClickOpensImageEditPanel: boolean
 
-  imageCorrection: CIFilter;
+	imageCorrection: CIFilter
 
-  backgroundColor: NSColor;
+	backgroundColor: NSColor
 
-  setImageImageProperties(image: interop.Object, metaData: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): void;
+	setImageImageProperties(
+		image: interop.Object,
+		metaData: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+	): void
 
-  setImageWithURL(url: NSURL): void;
+	setImageWithURL(url: NSURL): void
 
-  image(): interop.Object;
+	image(): interop.Object
 
-  imageSize(): CGSize;
+	imageSize(): CGSize
 
-  imageProperties(): NSDictionary;
+	imageProperties(): NSDictionary
 
-  setRotationAngleCenterPoint(rotationAngle: number, centerPoint: CGPoint): void;
+	setRotationAngleCenterPoint(rotationAngle: number, centerPoint: CGPoint): void
 
-  rotateImageLeft(sender: interop.Object): void;
+	rotateImageLeft(sender: interop.Object): void
 
-  rotateImageRight(sender: interop.Object): void;
+	rotateImageRight(sender: interop.Object): void
 
-  setImageZoomFactorCenterPoint(zoomFactor: number, centerPoint: CGPoint): void;
+	setImageZoomFactorCenterPoint(zoomFactor: number, centerPoint: CGPoint): void
 
-  zoomImageToRect(rect: CGRect): void;
+	zoomImageToRect(rect: CGRect): void
 
-  zoomImageToFit(sender: interop.Object): void;
+	zoomImageToFit(sender: interop.Object): void
 
-  zoomImageToActualSize(sender: interop.Object): void;
+	zoomImageToActualSize(sender: interop.Object): void
 
-  zoomIn(sender: interop.Object): void;
+	zoomIn(sender: interop.Object): void
 
-  zoomOut(sender: interop.Object): void;
+	zoomOut(sender: interop.Object): void
 
-  flipImageHorizontal(sender: interop.Object): void;
+	flipImageHorizontal(sender: interop.Object): void
 
-  flipImageVertical(sender: interop.Object): void;
+	flipImageVertical(sender: interop.Object): void
 
-  crop(sender: interop.Object): void;
+	crop(sender: interop.Object): void
 
-  setOverlayForType(layer: CALayer, layerType: string): void;
+	setOverlayForType(layer: CALayer, layerType: string): void
 
-  overlayForType(layerType: string): CALayer;
+	overlayForType(layerType: string): CALayer
 
-  scrollToPoint(point: CGPoint): void;
+	scrollToPoint(point: CGPoint): void
 
-  scrollToRect(rect: CGRect): void;
+	scrollToRect(rect: CGRect): void
 
-  convertViewPointToImagePoint(viewPoint: CGPoint): CGPoint;
+	convertViewPointToImagePoint(viewPoint: CGPoint): CGPoint
 
-  convertViewRectToImageRect(viewRect: CGRect): CGRect;
+	convertViewRectToImageRect(viewRect: CGRect): CGRect
 
-  convertImagePointToViewPoint(imagePoint: CGPoint): CGPoint;
+	convertImagePointToViewPoint(imagePoint: CGPoint): CGPoint
 
-  convertImageRectToViewRect(imageRect: CGRect): CGRect;
+	convertImageRectToViewRect(imageRect: CGRect): CGRect
 }
 
 declare class QCCompositionPickerPanel extends NSPanel {
-  static sharedCompositionPickerPanel(): QCCompositionPickerPanel;
+	static sharedCompositionPickerPanel(): QCCompositionPickerPanel
 
-  compositionPickerView(): QCCompositionPickerView;
+	compositionPickerView(): QCCompositionPickerView
 }
 
 declare class IKDeviceBrowserView extends NSView {
-  delegate: IKDeviceBrowserViewDelegate;
+	delegate: IKDeviceBrowserViewDelegate
 
-  displaysLocalCameras: boolean;
+	displaysLocalCameras: boolean
 
-  displaysNetworkCameras: boolean;
+	displaysNetworkCameras: boolean
 
-  displaysLocalScanners: boolean;
+	displaysLocalScanners: boolean
 
-  displaysNetworkScanners: boolean;
+	displaysNetworkScanners: boolean
 
-  mode: interop.Enum<typeof IKDeviceBrowserViewDisplayMode>;
+	mode: interop.Enum<typeof IKDeviceBrowserViewDisplayMode>
 
-  readonly selectedDevice: ICDevice;
+	readonly selectedDevice: ICDevice
 }
-

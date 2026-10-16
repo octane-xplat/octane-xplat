@@ -53,31 +53,34 @@ function fixture() {
 	const parent = { id: 1, type: 'flexboxlayout', children: [], view: stack }
 	const container = { nodes: new Map([[1, parent]]), children: [] }
 	const noop = () => {}
-	const insert = runInNewContext(portalHelpers + gravityIndex + '\n' + detachment + '\n(' + insertion + ')', {
-		VIEW_PARENT_TYPES: new Set([
-			'stack',
-			'flexboxlayout',
-			'scrollview',
-			'gridlayout',
-			'absolutelayout',
-		]),
-		arrangedView: (node) => node.marginHost ?? node.view,
-		stackGravity: (_parent, node) => node.view.gravity,
-		marginInsetsOf: (node) => (node.marginHost ? {} : null),
-		makeMarginHost: noop,
-		applySizeConstraints: noop,
-		setStackChildPriorities: noop,
-		updateCrossAxisConstraints: noop,
-		syncScheme: noop,
-		updateStackDistribution: noop,
-		deactivateSizeConstraints: noop,
-		releasePlacementPins: noop,
-		setLayoutAction: noop,
-		syncText: noop,
-		layoutView: (node) => node.view,
-		layoutGridChildren: noop,
-		layoutAbsoluteChildren: noop,
-	})
+	const insert = runInNewContext(
+		portalHelpers + gravityIndex + '\n' + detachment + '\n(' + insertion + ')',
+		{
+			VIEW_PARENT_TYPES: new Set([
+				'stack',
+				'flexboxlayout',
+				'scrollview',
+				'gridlayout',
+				'absolutelayout',
+			]),
+			arrangedView: (node) => node.marginHost ?? node.view,
+			stackGravity: (_parent, node) => node.view.gravity,
+			marginInsetsOf: (node) => (node.marginHost ? {} : null),
+			makeMarginHost: noop,
+			applySizeConstraints: noop,
+			setStackChildPriorities: noop,
+			updateCrossAxisConstraints: noop,
+			syncScheme: noop,
+			updateStackDistribution: noop,
+			deactivateSizeConstraints: noop,
+			releasePlacementPins: noop,
+			setLayoutAction: noop,
+			syncText: noop,
+			layoutView: (node) => node.view,
+			layoutGridChildren: noop,
+			layoutAbsoluteChildren: noop,
+		},
+	)
 
 	const row = (id, gravity = 1) => ({ id, view: { id, gravity, removeFromSuperview() {} } })
 	return {

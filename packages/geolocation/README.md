@@ -13,8 +13,8 @@ without that facade or location purpose strings report `supported: false`.
 import { geolocation } from '@octane-xplat/geolocation'
 
 if ((await geolocation.ensure()) === 'granted') {
-  const pos = await geolocation.impl!.getCurrentPosition()
-  // { latitude, longitude, accuracy, altitude, heading, speed, timestamp }
+	const pos = await geolocation.impl!.getCurrentPosition()
+	// { latitude, longitude, accuracy, altitude, heading, speed, timestamp }
 }
 ```
 
@@ -32,13 +32,13 @@ a numeric `code` is not guaranteed. Web and macOS failures use codes 1
 import { geolocation } from '@octane-xplat/geolocation'
 
 if ((await geolocation.ensure()) === 'granted') {
-  try {
-    const position = await geolocation.impl!.getCurrentPosition()
-    console.log(position.latitude, position.longitude)
-  } catch (error) {
-    const code = (error as { code?: number }).code
-    console.log(code === undefined ? 'Location failed' : `Location failed: ${code}`)
-  }
+	try {
+		const position = await geolocation.impl!.getCurrentPosition()
+		console.log(position.latitude, position.longitude)
+	} catch (error) {
+		const code = (error as { code?: number }).code
+		console.log(code === undefined ? 'Location failed' : `Location failed: ${code}`)
+	}
 }
 ```
 
@@ -79,16 +79,16 @@ without a deadline, and omitted maximumAge requires a fresh fix.
 import { geolocation } from '@octane-xplat/geolocation'
 
 if ((await geolocation.ensure()) === 'granted') {
-  try {
-    const position = await geolocation.impl!.getCurrentPosition({
-      enableHighAccuracy: true,
-      timeout: 10000,
-      maximumAge: 5000,
-    })
-    console.log(position.latitude, position.longitude)
-  } catch (error) {
-    console.log('Location failed', (error as { code?: number }).code)
-  }
+	try {
+		const position = await geolocation.impl!.getCurrentPosition({
+			enableHighAccuracy: true,
+			timeout: 10000,
+			maximumAge: 5000,
+		})
+		console.log(position.latitude, position.longitude)
+	} catch (error) {
+		console.log('Location failed', (error as { code?: number }).code)
+	}
 }
 ```
 

@@ -15,10 +15,7 @@
 			".linux",
 			".windows"
 		],
-		"lib": [
-			"esnext",
-			"dom"
-		],
+		"lib": ["esnext", "dom"],
 		"target": "esnext",
 		"jsx": "react-jsx",
 		"jsxImportSource": "octane",

@@ -92,11 +92,35 @@ if (args['dry-run']) {
 	process.exit(0)
 }
 
-wrangler(['r2', 'object', 'put', `${args.bucket}/${bundleKey}`, '--file', zipPath, '--content-type', 'application/zip'])
-wrangler(['r2', 'object', 'put', `${args.bucket}/${channelKey}`, '--file', pointerPath, '--content-type', 'application/json'])
+wrangler([
+	'r2',
+	'object',
+	'put',
+	`${args.bucket}/${bundleKey}`,
+	'--file',
+	zipPath,
+	'--content-type',
+	'application/zip',
+])
 
-console.log(`published ${args.platform}/${args.channel} -> ${pointer.version} (${sha256.slice(0, 12)}…)`)
-console.log(`manifest: GET /manifest?platform=${args.platform}&channel=${args.channel}&nativeVersion=<x.y.z>`)
+wrangler([
+	'r2',
+	'object',
+	'put',
+	`${args.bucket}/${channelKey}`,
+	'--file',
+	pointerPath,
+	'--content-type',
+	'application/json',
+])
+
+console.log(
+	`published ${args.platform}/${args.channel} -> ${pointer.version} (${sha256.slice(0, 12)}…)`,
+)
+
+console.log(
+	`manifest: GET /manifest?platform=${args.platform}&channel=${args.channel}&nativeVersion=<x.y.z>`,
+)
 
 function wrangler(argv) {
 	const result = spawnSync('wrangler', argv, { stdio: 'inherit' })

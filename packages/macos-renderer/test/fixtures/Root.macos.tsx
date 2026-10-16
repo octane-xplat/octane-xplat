@@ -83,5 +83,9 @@ export function RootSurface() {
 }
 
 export function RootWindow() {
-	return <rootlayout id="root-window"><contentview id="root-window-child" /></rootlayout>
+	return (
+		<rootlayout id="root-window">
+			<contentview id="root-window-child" />
+		</rootlayout>
+	)
 }

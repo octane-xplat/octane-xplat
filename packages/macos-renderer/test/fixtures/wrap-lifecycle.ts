@@ -65,14 +65,34 @@ export async function checkWrapLifecycle(root: any, nativeWindow: any) {
 		'Natural wrapped height failed',
 	)
 
-	const resizeHost = debug.findId('wrap-resize'), resizeLast = debug.findId('wrap-resize-last')
+	const resizeHost = debug.findId('wrap-resize'),
+		resizeLast = debug.findId('wrap-resize-last')
+
 	expectRect('wrap-resize-last', [240, 0, 80, 30])
 	nativeWindow.setContentSize({ width: 260, height: 200 })
 	await settle()
-	check(debug.findId('wrap-resize') === resizeHost && debug.findId('wrap-resize-last') === resizeLast, 'Window resize changed identity')
-	console.log('WRAP_RESIZE_GEOMETRY ' + JSON.stringify({ content: Number(nativeWindow.contentView.bounds.size.width), host: Number(resizeHost.bounds.size.width), height: Number(resizeHost.bounds.size.height), natural: resizeHost.intrinsicContentSize, last: rect(resizeLast) }))
+	check(
+		debug.findId('wrap-resize') === resizeHost && debug.findId('wrap-resize-last') === resizeLast,
+		'Window resize changed identity',
+	)
+
+	console.log(
+		'WRAP_RESIZE_GEOMETRY ' +
+			JSON.stringify({
+				content: Number(nativeWindow.contentView.bounds.size.width),
+				host: Number(resizeHost.bounds.size.width),
+				height: Number(resizeHost.bounds.size.height),
+				natural: resizeHost.intrinsicContentSize,
+				last: rect(resizeLast),
+			}),
+	)
+
 	expectRect('wrap-resize-last', [0, 30, 80, 30])
-	check(Math.abs(Number(resizeHost.frame.size.height) - 60) < 1, 'Window resize did not update natural wrapped height')
+	check(
+		Math.abs(Number(resizeHost.frame.size.height) - 60) < 1,
+		'Window resize did not update natural wrapped height',
+	)
+
 	nativeWindow.setContentSize({ width: 400, height: 200 })
 	await settle()
 	expectRect('wrap-resize-last', [240, 0, 80, 30])
@@ -86,7 +106,11 @@ export async function checkWrapLifecycle(root: any, nativeWindow: any) {
 		'Wrap update changed identity',
 	)
 
-	check(debug.findId('wrap-natural-label') === naturalLabel && rect(naturalLabel)[2] > initialNaturalWidth, 'Natural child text update failed')
+	check(
+		debug.findId('wrap-natural-label') === naturalLabel &&
+			rect(naturalLabel)[2] > initialNaturalWidth,
+		'Natural child text update failed',
+	)
 
 	expectRect('wrap-a', [20, 5, 40, 20])
 	expectRect('wrap-b', [0, 35, 80, 20])

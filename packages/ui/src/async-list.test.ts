@@ -67,8 +67,9 @@ describe('createAsyncListData', () => {
 		const list = createAsyncListData<{ name: string }>({
 			load: async () => ({ items: [{ name: 'b' }, { name: 'a' }] }),
 			sort: ({ items, sortDescriptor }) => ({
-				items: [...items].sort((x, y) =>
-					(sortDescriptor.direction === 'ascending' ? 1 : -1) * x.name.localeCompare(y.name),
+				items: [...items].sort(
+					(x, y) =>
+						(sortDescriptor.direction === 'ascending' ? 1 : -1) * x.name.localeCompare(y.name),
 				),
 			}),
 			getKey: (item) => item.name,

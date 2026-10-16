@@ -21,7 +21,10 @@ export class BadgeNode extends TextNode {
 		return {
 			span: (element: HTMLElement) =>
 				element.hasAttribute('data-badge')
-					? { conversion: () => ({ node: $createBadgeNode(element.textContent ?? '') }), priority: 1 }
+					? {
+							conversion: () => ({ node: $createBadgeNode(element.textContent ?? '') }),
+							priority: 1,
+						}
 					: null,
 		}
 	}

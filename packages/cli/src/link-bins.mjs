@@ -45,11 +45,9 @@ const binEntries = (name, bin) => {
 	return Object.entries(bin ?? {})
 }
 
-const shCommand = (rel) =>
-	`#!/bin/sh\nexec node "$(dirname "$0")/${rel}" "$@"\n`
+const shCommand = (rel) => `#!/bin/sh\nexec node "$(dirname "$0")/${rel}" "$@"\n`
 
-const cmdShim = (rel) =>
-	`@ECHO off\nnode "%~dp0\\${rel.replaceAll('/', '\\')}" %*\n`
+const cmdShim = (rel) => `@ECHO off\nnode "%~dp0\\${rel.replaceAll('/', '\\')}" %*\n`
 
 const ps1Shim = (rel) =>
 	`#!/usr/bin/env pwsh\n& node "$PSScriptRoot/${rel}" @args\nexit $LASTEXITCODE\n`
@@ -114,5 +112,7 @@ for (const note of skipped) {
 }
 
 console.log(
-	linked.length ? `link-bins: wrote .bin shims for ${linked.join(', ')}` : 'link-bins: .bin already complete',
+	linked.length
+		? `link-bins: wrote .bin shims for ${linked.join(', ')}`
+		: 'link-bins: .bin already complete',
 )

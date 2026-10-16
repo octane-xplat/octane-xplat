@@ -1,4 +1,10 @@
-import { defineUniversalComponent, universalChildren, universalComponent, universalTry } from 'octane/universal/native'
+import {
+	defineUniversalComponent,
+	universalChildren,
+	universalComponent,
+	universalTry,
+} from 'octane/universal/native'
+
 import { createMacOSRoot } from '@octane-xplat/macos-renderer'
 import type { StageHost, MountRequest, MountedStory } from '../session'
 
@@ -10,7 +16,9 @@ const UNIVERSAL_COMPONENT = Symbol.for('octane.universal.component')
 const asComponent = (component: any) =>
 	component?.[UNIVERSAL_COMPONENT]
 		? component
-		: defineUniversalComponent(RENDERER, component, { module: '@octane-xplat/workshop/macos-stage' } as any)
+		: defineUniversalComponent(RENDERER, component, {
+				module: '@octane-xplat/workshop/macos-stage',
+			} as any)
 
 /**
  * Provider/story composition in explicit universal-runtime calls — the same
@@ -42,10 +50,11 @@ function storyTree(request: MountRequest, args: Record<string, unknown>) {
 
 /** Universal roots mount compiler-defined components only — the stage root
  * is a static wrapper; story/props arrive through its props. */
-const StoryTreeRoot = defineUniversalComponent(RENDERER,
-	(p: { request: MountRequest; args: Record<string, unknown> }) =>
-		storyTree(p.request, p.args),
-	{ module: '@octane-xplat/workshop/macos-stage' } as any)
+const StoryTreeRoot = defineUniversalComponent(
+	RENDERER,
+	(p: { request: MountRequest; args: Record<string, unknown> }) => storyTree(p.request, p.args),
+	{ module: '@octane-xplat/workshop/macos-stage' } as any,
+)
 
 export interface MacOSStageOptions {
 	/** An isolated native stage view; shell layout may move/resize it without remounting. */
@@ -66,46 +75,94 @@ export function createMacOSStageHost(options: MacOSStageOptions): StageHost {
 			const previousSheet = bridge.__xplatAppKitMountSheet
 			const windows = new Set<any>()
 			const open = (settings: any = {}) => {
-				if (disposed || request.signal.aborted) { throw new Error('Story generation has retired') }
-				if (typeof previousOpen !== 'function') { throw new Error('Consumer AppKit window service is unavailable') }
-				const win = previousOpen({ ...settings, parent: settings.parent ?? options.parentWindow,
-					...(settings.component ? { component: StoryTreeRoot, props: {
-						request: { ...request, component: settings.component },
-						args: { ...request.props, ...settings.props },
-					} } : {}),
+				if (disposed || request.signal.aborted) {
+					throw new Error('Story generation has retired')
+				}
+
+				if (typeof previousOpen !== 'function') {
+					throw new Error('Consumer AppKit window service is unavailable')
+				}
+
+				const win = previousOpen({
+					...settings,
+					parent: settings.parent ?? options.parentWindow,
+					...(settings.component
+						? {
+								component: StoryTreeRoot,
+								props: {
+									request: { ...request, component: settings.component },
+									args: { ...request.props, ...settings.props },
+								},
+							}
+						: {}),
 				})
 
 				if (!win || typeof win.close !== 'function') {
-					throw new Error('Consumer AppKit window service must return an owned closeable controller')
+					throw new Error(
+						'Consumer AppKit window service must return an owned closeable controller',
+					)
 				}
 
 				windows.add(win)
 				return win
 			}
 
-			const sheet = (component: any, props: any, settings: any) => open({ ...settings, kind: 'dialog', component, props })
+			const sheet = (component: any, props: any, settings: any) =>
+				open({ ...settings, kind: 'dialog', component, props })
+
 			bridge.__xplatAppKitOpenWindow = open
 			bridge.__xplatAppKitMountSheet = sheet
 			const unmount = () => {
-				if (disposed) { return }
+				if (disposed) {
+					return
+				}
+
 				disposed = true
-				if (bridge.__xplatAppKitOpenWindow === open) { bridge.__xplatAppKitOpenWindow = previousOpen }
-				if (bridge.__xplatAppKitMountSheet === sheet) { bridge.__xplatAppKitMountSheet = previousSheet }
+				if (bridge.__xplatAppKitOpenWindow === open) {
+					bridge.__xplatAppKitOpenWindow = previousOpen
+				}
+
+				if (bridge.__xplatAppKitMountSheet === sheet) {
+					bridge.__xplatAppKitMountSheet = previousSheet
+				}
+
 				const failures: unknown[] = []
-				for (const win of windows) { try { win.close() } catch (error) { failures.push(error) } }
+				for (const win of windows) {
+					try {
+						win.close()
+					} catch (error) {
+						failures.push(error)
+					}
+				}
+
 				windows.clear()
-				try { root.unmount() } catch (error) { failures.push(error) }
-				if (failures.length) { throw new AggregateError(failures, 'AppKit story disposal failed') }
+				try {
+					root.unmount()
+				} catch (error) {
+					failures.push(error)
+				}
+
+				if (failures.length) {
+					throw new AggregateError(failures, 'AppKit story disposal failed')
+				}
 			}
 
-			const render = (args: Record<string, unknown>) => root.render(StoryTreeRoot as any, {
-				request, args, parentWindow: options.parentWindow,
-			} as any)
+			const render = (args: Record<string, unknown>) =>
+				root.render(
+					StoryTreeRoot as any,
+					{
+						request,
+						args,
+						parentWindow: options.parentWindow,
+					} as any,
+				)
 
 			try {
 				render(request.props)
 			} catch (error: any) {
-				try { unmount() } catch (cleanup) {
+				try {
+					unmount()
+				} catch (cleanup) {
 					throw new AggregateError([error, cleanup], 'AppKit mount and rollback failed')
 				}
 
@@ -113,7 +170,11 @@ export function createMacOSStageHost(options: MacOSStageOptions): StageHost {
 			}
 
 			return {
-				update(args) { if (!disposed) { render({ ...args }) } },
+				update(args) {
+					if (!disposed) {
+						render({ ...args })
+					}
+				},
 				unmount,
 			}
 		},

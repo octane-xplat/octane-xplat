@@ -4,32 +4,30 @@ import type { interop } from './objc-runtime'
 
 import { NSObject } from './Runtime'
 
-
-
-export declare const CXCallDirectoryPhoneNumberMax: number;
+export declare const CXCallDirectoryPhoneNumberMax: number
 
 export declare class CXProviderConfiguration extends NSObject implements NSCopying {
-  readonly localizedName: string;
+	readonly localizedName: string
 
-  ringtoneSound: string;
+	ringtoneSound: string
 
-  iconTemplateImageData: NSData;
+	iconTemplateImageData: NSData
 
-  maximumCallGroups: number;
+	maximumCallGroups: number
 
-  maximumCallsPerCallGroup: number;
+	maximumCallsPerCallGroup: number
 
-  includesCallsInRecents: boolean;
+	includesCallsInRecents: boolean
 
-  supportsVideo: boolean;
+	supportsVideo: boolean
 
-  supportsAudioTranslation: boolean;
+	supportsAudioTranslation: boolean
 
-  supportedHandleTypes: NSSet;
+	supportedHandleTypes: NSSet
 
-  init(): this;
+	init(): this
 
-  initWithLocalizedName(localizedName: string): this;
+	initWithLocalizedName(localizedName: string): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }

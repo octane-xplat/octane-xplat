@@ -31,10 +31,12 @@ export function openBottomSheetWithOwner(
 	owner: ContentOwner | null,
 	...[Component, params, options = {}]: Parameters<OpenBottomSheet>
 ): BottomSheetHandle {
-	if (owner?.disposed)
+	if (owner?.disposed) {
 		return Object.assign(Promise.reject(new Error('The content outlet has been removed')), {
 			close() {},
 		}) as BottomSheetHandle
+	}
+
 	let closeSheet: ((result?: ModalOpenResult) => void) | undefined
 	const handle = new Promise<ModalOpenResult>((resolve) => {
 		const layer = document.createElement('div')
@@ -93,7 +95,10 @@ export function openBottomSheetWithOwner(
 		active.add(entry)
 		root.render(Component, { params, close: finish })
 		afterContentCommit(root, () => {
-			if (finished) return
+			if (finished) {
+				return
+			}
+
 			if (hasScrim) {
 				panel.setAttribute('role', 'dialog')
 				panel.setAttribute('aria-modal', 'true')

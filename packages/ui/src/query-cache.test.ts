@@ -103,14 +103,23 @@ describe('cachedQuery$', () => {
 		let secondCalls = 0
 
 		const queries = screen(() => ({
-			first: firstClient.cachedQuery$(['instance-scope'], () => 'same', () => 'first-' + ++firstCalls),
-			second: secondClient.cachedQuery$(['instance-scope'], () => 'same', () => 'second-' + ++secondCalls),
+			first: firstClient.cachedQuery$(
+				['instance-scope'],
+				() => 'same',
+				() => 'first-' + ++firstCalls,
+			),
+			second: secondClient.cachedQuery$(
+				['instance-scope'],
+				() => 'same',
+				() => 'second-' + ++secondCalls,
+			),
 		}))
 
 		screen(() => {
 			queries.first.latest()
 			queries.second.latest()
 		})
+
 		await settle()
 		screen(() => {
 			expect(queries.first.latest()).toBe('first-1')
@@ -124,6 +133,7 @@ describe('cachedQuery$', () => {
 			expect(queries.first.latest()).toBe('first-2')
 			expect(queries.second.latest()).toBe('second-1')
 		})
+
 		expect(firstCalls).toBe(2)
 		expect(secondCalls).toBe(1)
 	})
@@ -191,12 +201,18 @@ describe('cachedQuery$', () => {
 
 	it('serves fresh entries to new scopes within staleTimeMs without fetching', async () => {
 		const { calls, load } = recording()
-		const first = screen(() => cachedQuery$(['fresh-ttl'], () => 'x', load, { staleTimeMs: 60_000 }))
+		const first = screen(() =>
+			cachedQuery$(['fresh-ttl'], () => 'x', load, { staleTimeMs: 60_000 }),
+		)
+
 		screen(() => first.latest())
 		await settle()
 		expect(calls).toHaveLength(1)
 
-		const second = screen(() => cachedQuery$(['fresh-ttl'], () => 'x', load, { staleTimeMs: 60_000 }))
+		const second = screen(() =>
+			cachedQuery$(['fresh-ttl'], () => 'x', load, { staleTimeMs: 60_000 }),
+		)
+
 		screen(() => second.latest())
 		await settle()
 		screen(() => expect(second.latest()).toBe('v1'))
@@ -282,9 +298,7 @@ describe('cachedQuery$', () => {
 		const calls: LoadCall[] = []
 		const load = (selection: unknown, context: LoadContext) => {
 			calls.push({ selection, signal: context.signal, previous: context.previous })
-			return calls.length === 1
-				? Promise.resolve('v1')
-				: Promise.reject(new Error('offline'))
+			return calls.length === 1 ? Promise.resolve('v1') : Promise.reject(new Error('offline'))
 		}
 
 		const query = screen(() => cachedQuery$(['await-fail'], () => 'x', load))

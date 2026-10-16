@@ -1,62 +1,235 @@
 import { _bind } from './_rt.js'
 const FW = '/System/Library/Frameworks/AuthenticationServices.framework/AuthenticationServices'
 export const ASAuthorization = /* @__PURE__ */ _bind(FW, 'ASAuthorization')
-export const ASAuthorizationAppleIDButton = /* @__PURE__ */ _bind(FW, 'ASAuthorizationAppleIDButton')
-export const ASAuthorizationAppleIDButtonStyle = /* @__PURE__ */ _bind(FW, 'ASAuthorizationAppleIDButtonStyle')
-export const ASAuthorizationAppleIDButtonType = /* @__PURE__ */ _bind(FW, 'ASAuthorizationAppleIDButtonType')
-export const ASAuthorizationAppleIDCredential = /* @__PURE__ */ _bind(FW, 'ASAuthorizationAppleIDCredential')
-export const ASAuthorizationAppleIDProvider = /* @__PURE__ */ _bind(FW, 'ASAuthorizationAppleIDProvider')
-export const ASAuthorizationAppleIDProviderCredentialRevokedNotification = /* @__PURE__ */ _bind(FW, 'ASAuthorizationAppleIDProviderCredentialRevokedNotification')
-export const ASAuthorizationAppleIDProviderCredentialState = /* @__PURE__ */ _bind(FW, 'ASAuthorizationAppleIDProviderCredentialState')
-export const ASAuthorizationAppleIDRequest = /* @__PURE__ */ _bind(FW, 'ASAuthorizationAppleIDRequest')
+export const ASAuthorizationAppleIDButton = /* @__PURE__ */ _bind(
+	FW,
+	'ASAuthorizationAppleIDButton',
+)
+
+export const ASAuthorizationAppleIDButtonStyle = /* @__PURE__ */ _bind(
+	FW,
+	'ASAuthorizationAppleIDButtonStyle',
+)
+
+export const ASAuthorizationAppleIDButtonType = /* @__PURE__ */ _bind(
+	FW,
+	'ASAuthorizationAppleIDButtonType',
+)
+
+export const ASAuthorizationAppleIDCredential = /* @__PURE__ */ _bind(
+	FW,
+	'ASAuthorizationAppleIDCredential',
+)
+
+export const ASAuthorizationAppleIDProvider = /* @__PURE__ */ _bind(
+	FW,
+	'ASAuthorizationAppleIDProvider',
+)
+
+export const ASAuthorizationAppleIDProviderCredentialRevokedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'ASAuthorizationAppleIDProviderCredentialRevokedNotification',
+)
+
+export const ASAuthorizationAppleIDProviderCredentialState = /* @__PURE__ */ _bind(
+	FW,
+	'ASAuthorizationAppleIDProviderCredentialState',
+)
+
+export const ASAuthorizationAppleIDRequest = /* @__PURE__ */ _bind(
+	FW,
+	'ASAuthorizationAppleIDRequest',
+)
+
 export const ASAuthorizationController = /* @__PURE__ */ _bind(FW, 'ASAuthorizationController')
-export const ASAuthorizationControllerDelegate = /* @__PURE__ */ _bind(FW, 'ASAuthorizationControllerDelegate')
-export const ASAuthorizationControllerPresentationContextProviding = /* @__PURE__ */ _bind(FW, 'ASAuthorizationControllerPresentationContextProviding')
+export const ASAuthorizationControllerDelegate = /* @__PURE__ */ _bind(
+	FW,
+	'ASAuthorizationControllerDelegate',
+)
+
+export const ASAuthorizationControllerPresentationContextProviding = /* @__PURE__ */ _bind(
+	FW,
+	'ASAuthorizationControllerPresentationContextProviding',
+)
+
 export const ASAuthorizationCredential = /* @__PURE__ */ _bind(FW, 'ASAuthorizationCredential')
 export const ASAuthorizationError = /* @__PURE__ */ _bind(FW, 'ASAuthorizationError')
 export const ASAuthorizationErrorDomain = /* @__PURE__ */ _bind(FW, 'ASAuthorizationErrorDomain')
-export const ASAuthorizationOpenIDRequest = /* @__PURE__ */ _bind(FW, 'ASAuthorizationOpenIDRequest')
-export const ASAuthorizationOperationImplicit = /* @__PURE__ */ _bind(FW, 'ASAuthorizationOperationImplicit')
-export const ASAuthorizationOperationLogin = /* @__PURE__ */ _bind(FW, 'ASAuthorizationOperationLogin')
-export const ASAuthorizationOperationLogout = /* @__PURE__ */ _bind(FW, 'ASAuthorizationOperationLogout')
-export const ASAuthorizationOperationRefresh = /* @__PURE__ */ _bind(FW, 'ASAuthorizationOperationRefresh')
-export const ASAuthorizationPasswordProvider = /* @__PURE__ */ _bind(FW, 'ASAuthorizationPasswordProvider')
-export const ASAuthorizationPasswordRequest = /* @__PURE__ */ _bind(FW, 'ASAuthorizationPasswordRequest')
+export const ASAuthorizationOpenIDRequest = /* @__PURE__ */ _bind(
+	FW,
+	'ASAuthorizationOpenIDRequest',
+)
+
+export const ASAuthorizationOperationImplicit = /* @__PURE__ */ _bind(
+	FW,
+	'ASAuthorizationOperationImplicit',
+)
+
+export const ASAuthorizationOperationLogin = /* @__PURE__ */ _bind(
+	FW,
+	'ASAuthorizationOperationLogin',
+)
+
+export const ASAuthorizationOperationLogout = /* @__PURE__ */ _bind(
+	FW,
+	'ASAuthorizationOperationLogout',
+)
+
+export const ASAuthorizationOperationRefresh = /* @__PURE__ */ _bind(
+	FW,
+	'ASAuthorizationOperationRefresh',
+)
+
+export const ASAuthorizationPasswordProvider = /* @__PURE__ */ _bind(
+	FW,
+	'ASAuthorizationPasswordProvider',
+)
+
+export const ASAuthorizationPasswordRequest = /* @__PURE__ */ _bind(
+	FW,
+	'ASAuthorizationPasswordRequest',
+)
+
 export const ASAuthorizationProvider = /* @__PURE__ */ _bind(FW, 'ASAuthorizationProvider')
-export const ASAuthorizationProviderAuthorizationOperationConfigurationRemoved = /* @__PURE__ */ _bind(FW, 'ASAuthorizationProviderAuthorizationOperationConfigurationRemoved')
-export const ASAuthorizationProviderExtensionAuthorizationRequest = /* @__PURE__ */ _bind(FW, 'ASAuthorizationProviderExtensionAuthorizationRequest')
-export const ASAuthorizationProviderExtensionAuthorizationRequestHandler = /* @__PURE__ */ _bind(FW, 'ASAuthorizationProviderExtensionAuthorizationRequestHandler')
-export const ASAuthorizationProviderExtensionFederationType = /* @__PURE__ */ _bind(FW, 'ASAuthorizationProviderExtensionFederationType')
-export const ASAuthorizationProviderExtensionRequestOptions = /* @__PURE__ */ _bind(FW, 'ASAuthorizationProviderExtensionRequestOptions')
-export const ASAuthorizationProviderExtensionUserSecureEnclaveKeyBiometricPolicy = /* @__PURE__ */ _bind(FW, 'ASAuthorizationProviderExtensionUserSecureEnclaveKeyBiometricPolicy')
-export const ASAuthorizationPublicKeyCredentialAttachment = /* @__PURE__ */ _bind(FW, 'ASAuthorizationPublicKeyCredentialAttachment')
+export const ASAuthorizationProviderAuthorizationOperationConfigurationRemoved =
+	/* @__PURE__ */ _bind(FW, 'ASAuthorizationProviderAuthorizationOperationConfigurationRemoved')
+
+export const ASAuthorizationProviderExtensionAuthorizationRequest = /* @__PURE__ */ _bind(
+	FW,
+	'ASAuthorizationProviderExtensionAuthorizationRequest',
+)
+
+export const ASAuthorizationProviderExtensionAuthorizationRequestHandler = /* @__PURE__ */ _bind(
+	FW,
+	'ASAuthorizationProviderExtensionAuthorizationRequestHandler',
+)
+
+export const ASAuthorizationProviderExtensionFederationType = /* @__PURE__ */ _bind(
+	FW,
+	'ASAuthorizationProviderExtensionFederationType',
+)
+
+export const ASAuthorizationProviderExtensionRequestOptions = /* @__PURE__ */ _bind(
+	FW,
+	'ASAuthorizationProviderExtensionRequestOptions',
+)
+
+export const ASAuthorizationProviderExtensionUserSecureEnclaveKeyBiometricPolicy =
+	/* @__PURE__ */ _bind(FW, 'ASAuthorizationProviderExtensionUserSecureEnclaveKeyBiometricPolicy')
+
+export const ASAuthorizationPublicKeyCredentialAttachment = /* @__PURE__ */ _bind(
+	FW,
+	'ASAuthorizationPublicKeyCredentialAttachment',
+)
+
 export const ASAuthorizationRequest = /* @__PURE__ */ _bind(FW, 'ASAuthorizationRequest')
 export const ASAuthorizationScopeEmail = /* @__PURE__ */ _bind(FW, 'ASAuthorizationScopeEmail')
-export const ASAuthorizationScopeFullName = /* @__PURE__ */ _bind(FW, 'ASAuthorizationScopeFullName')
-export const ASAuthorizationSingleSignOnCredential = /* @__PURE__ */ _bind(FW, 'ASAuthorizationSingleSignOnCredential')
-export const ASAuthorizationSingleSignOnProvider = /* @__PURE__ */ _bind(FW, 'ASAuthorizationSingleSignOnProvider')
-export const ASAuthorizationSingleSignOnRequest = /* @__PURE__ */ _bind(FW, 'ASAuthorizationSingleSignOnRequest')
-export const ASAuthorizationWebBrowserPublicKeyCredentialManagerAuthorizationState = /* @__PURE__ */ _bind(FW, 'ASAuthorizationWebBrowserPublicKeyCredentialManagerAuthorizationState')
+export const ASAuthorizationScopeFullName = /* @__PURE__ */ _bind(
+	FW,
+	'ASAuthorizationScopeFullName',
+)
+
+export const ASAuthorizationSingleSignOnCredential = /* @__PURE__ */ _bind(
+	FW,
+	'ASAuthorizationSingleSignOnCredential',
+)
+
+export const ASAuthorizationSingleSignOnProvider = /* @__PURE__ */ _bind(
+	FW,
+	'ASAuthorizationSingleSignOnProvider',
+)
+
+export const ASAuthorizationSingleSignOnRequest = /* @__PURE__ */ _bind(
+	FW,
+	'ASAuthorizationSingleSignOnRequest',
+)
+
+export const ASAuthorizationWebBrowserPublicKeyCredentialManagerAuthorizationState =
+	/* @__PURE__ */ _bind(FW, 'ASAuthorizationWebBrowserPublicKeyCredentialManagerAuthorizationState')
+
 export const ASCredentialIdentity = /* @__PURE__ */ _bind(FW, 'ASCredentialIdentity')
 export const ASCredentialIdentityStore = /* @__PURE__ */ _bind(FW, 'ASCredentialIdentityStore')
-export const ASCredentialIdentityStoreErrorCode = /* @__PURE__ */ _bind(FW, 'ASCredentialIdentityStoreErrorCode')
-export const ASCredentialIdentityStoreErrorDomain = /* @__PURE__ */ _bind(FW, 'ASCredentialIdentityStoreErrorDomain')
-export const ASCredentialIdentityStoreState = /* @__PURE__ */ _bind(FW, 'ASCredentialIdentityStoreState')
-export const ASCredentialProviderExtensionContext = /* @__PURE__ */ _bind(FW, 'ASCredentialProviderExtensionContext')
-export const ASCredentialProviderViewController = /* @__PURE__ */ _bind(FW, 'ASCredentialProviderViewController')
-export const ASCredentialServiceIdentifier = /* @__PURE__ */ _bind(FW, 'ASCredentialServiceIdentifier')
-export const ASCredentialServiceIdentifierType = /* @__PURE__ */ _bind(FW, 'ASCredentialServiceIdentifierType')
+export const ASCredentialIdentityStoreErrorCode = /* @__PURE__ */ _bind(
+	FW,
+	'ASCredentialIdentityStoreErrorCode',
+)
+
+export const ASCredentialIdentityStoreErrorDomain = /* @__PURE__ */ _bind(
+	FW,
+	'ASCredentialIdentityStoreErrorDomain',
+)
+
+export const ASCredentialIdentityStoreState = /* @__PURE__ */ _bind(
+	FW,
+	'ASCredentialIdentityStoreState',
+)
+
+export const ASCredentialProviderExtensionContext = /* @__PURE__ */ _bind(
+	FW,
+	'ASCredentialProviderExtensionContext',
+)
+
+export const ASCredentialProviderViewController = /* @__PURE__ */ _bind(
+	FW,
+	'ASCredentialProviderViewController',
+)
+
+export const ASCredentialServiceIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'ASCredentialServiceIdentifier',
+)
+
+export const ASCredentialServiceIdentifierType = /* @__PURE__ */ _bind(
+	FW,
+	'ASCredentialServiceIdentifierType',
+)
+
 export const ASExtensionErrorCode = /* @__PURE__ */ _bind(FW, 'ASExtensionErrorCode')
 export const ASExtensionErrorDomain = /* @__PURE__ */ _bind(FW, 'ASExtensionErrorDomain')
 export const ASPasswordCredential = /* @__PURE__ */ _bind(FW, 'ASPasswordCredential')
-export const ASPasswordCredentialIdentity = /* @__PURE__ */ _bind(FW, 'ASPasswordCredentialIdentity')
-export const ASPublicKeyCredentialClientDataCrossOriginValue = /* @__PURE__ */ _bind(FW, 'ASPublicKeyCredentialClientDataCrossOriginValue')
+export const ASPasswordCredentialIdentity = /* @__PURE__ */ _bind(
+	FW,
+	'ASPasswordCredentialIdentity',
+)
+
+export const ASPublicKeyCredentialClientDataCrossOriginValue = /* @__PURE__ */ _bind(
+	FW,
+	'ASPublicKeyCredentialClientDataCrossOriginValue',
+)
+
 export const ASUserDetectionStatus = /* @__PURE__ */ _bind(FW, 'ASUserDetectionStatus')
-export const ASWebAuthenticationPresentationContextProviding = /* @__PURE__ */ _bind(FW, 'ASWebAuthenticationPresentationContextProviding')
+export const ASWebAuthenticationPresentationContextProviding = /* @__PURE__ */ _bind(
+	FW,
+	'ASWebAuthenticationPresentationContextProviding',
+)
+
 export const ASWebAuthenticationSession = /* @__PURE__ */ _bind(FW, 'ASWebAuthenticationSession')
-export const ASWebAuthenticationSessionErrorCode = /* @__PURE__ */ _bind(FW, 'ASWebAuthenticationSessionErrorCode')
-export const ASWebAuthenticationSessionErrorDomain = /* @__PURE__ */ _bind(FW, 'ASWebAuthenticationSessionErrorDomain')
-export const ASWebAuthenticationSessionRequest = /* @__PURE__ */ _bind(FW, 'ASWebAuthenticationSessionRequest')
-export const ASWebAuthenticationSessionRequestDelegate = /* @__PURE__ */ _bind(FW, 'ASWebAuthenticationSessionRequestDelegate')
-export const ASWebAuthenticationSessionWebBrowserSessionHandling = /* @__PURE__ */ _bind(FW, 'ASWebAuthenticationSessionWebBrowserSessionHandling')
-export const ASWebAuthenticationSessionWebBrowserSessionManager = /* @__PURE__ */ _bind(FW, 'ASWebAuthenticationSessionWebBrowserSessionManager')
+export const ASWebAuthenticationSessionErrorCode = /* @__PURE__ */ _bind(
+	FW,
+	'ASWebAuthenticationSessionErrorCode',
+)
+
+export const ASWebAuthenticationSessionErrorDomain = /* @__PURE__ */ _bind(
+	FW,
+	'ASWebAuthenticationSessionErrorDomain',
+)
+
+export const ASWebAuthenticationSessionRequest = /* @__PURE__ */ _bind(
+	FW,
+	'ASWebAuthenticationSessionRequest',
+)
+
+export const ASWebAuthenticationSessionRequestDelegate = /* @__PURE__ */ _bind(
+	FW,
+	'ASWebAuthenticationSessionRequestDelegate',
+)
+
+export const ASWebAuthenticationSessionWebBrowserSessionHandling = /* @__PURE__ */ _bind(
+	FW,
+	'ASWebAuthenticationSessionWebBrowserSessionHandling',
+)
+
+export const ASWebAuthenticationSessionWebBrowserSessionManager = /* @__PURE__ */ _bind(
+	FW,
+	'ASWebAuthenticationSessionWebBrowserSessionManager',
+)

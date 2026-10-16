@@ -60,4 +60,6 @@ export declare function startWorkshopServer(options?: {
 export declare function linuxMissingPrerequisites(): string[]
 
 export declare function findConfigFile(root: string): string | null
-export declare function loadWorkshopConfig(root: string): Promise<{ config: object; file: string | null }>
+export declare function loadWorkshopConfig(
+	root: string,
+): Promise<{ config: object; file: string | null }>

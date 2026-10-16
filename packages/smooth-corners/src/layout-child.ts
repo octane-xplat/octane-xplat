@@ -18,13 +18,7 @@ const OUTER_STYLE_KEYS = [
 	'marginLeft',
 ] as const
 
-const MARGIN_KEYS = [
-	'margin',
-	'marginTop',
-	'marginRight',
-	'marginBottom',
-	'marginLeft',
-] as const
+const MARGIN_KEYS = ['margin', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft'] as const
 
 /** The inner box's `style` — everything except margins, which belong to the
  *  element's border box and move out to the wrapper. Width/height stay: the
@@ -109,9 +103,7 @@ export function innerLayoutProps(
 			: (FLEX_JUSTIFY[props.justifyContent] ?? props.justifyContent)
 
 	result.alignItems =
-		props.alignItems === undefined
-			? undefined
-			: (FLEX_ALIGN[props.alignItems] ?? props.alignItems)
+		props.alignItems === undefined ? undefined : (FLEX_ALIGN[props.alignItems] ?? props.alignItems)
 
 	result.flexWrap =
 		props.flexWrap === undefined

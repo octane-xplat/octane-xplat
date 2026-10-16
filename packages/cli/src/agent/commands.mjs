@@ -53,7 +53,10 @@ export const AGENT_COMMANDS = [
 		context: 'none',
 		positionals: [],
 		flags: [json, schema],
-		output: { kind: 'json', description: 'Command catalog with envelope, exit, and selection contracts' },
+		output: {
+			kind: 'json',
+			description: 'Command catalog with envelope, exit, and selection contracts',
+		},
 		errors: [],
 		examples: ['xplat catalog --json'],
 	},
@@ -93,7 +96,12 @@ export const AGENT_COMMANDS = [
 		permissions: [],
 		context: 'workspace',
 		positionals: [
-			{ name: 'selector', type: 'string', required: true, desc: 'App id, relative path, or package name' },
+			{
+				name: 'selector',
+				type: 'string',
+				required: true,
+				desc: 'App id, relative path, or package name',
+			},
 		],
 		flags: [project, client, json, schema],
 		output: { kind: 'json', description: 'The bound app and where the preference was persisted' },
@@ -116,7 +124,8 @@ export const AGENT_COMMANDS = [
 		flags: [platform, ...contextFlags],
 		output: {
 			kind: 'json',
-			description: 'Capability matrix; supported | partial | unavailable entries keep their qualification detail',
+			description:
+				'Capability matrix; supported | partial | unavailable entries keep their qualification detail',
 		},
 		errors: [{ code: 'invalid_selection', exit: 2, when: 'Unknown platform' }],
 		examples: ['xplat capabilities --project /work/catalog-app --platform web --json'],
@@ -208,7 +217,8 @@ export const AGENT_COMMANDS = [
 		name: 'docs read',
 		path: ['docs', 'read'],
 		mcpTool: 'xplat_docs_read',
-		summary: 'Read a bounded documentation page from a search ref, or package + path, at its bound version',
+		summary:
+			'Read a bounded documentation page from a search ref, or package + path, at its bound version',
 		effect: 'read',
 		permissions: ['workspace'],
 		context: 'app',
@@ -222,12 +232,17 @@ export const AGENT_COMMANDS = [
 			{ flag: 'limit', type: 'integer', min: 1, max: 20000, desc: 'Maximum characters' },
 			...contextFlags,
 		],
-		output: { kind: 'json', description: 'Bounded page with provenance, or an explicit unavailable result' },
+		output: {
+			kind: 'json',
+			description: 'Bounded page with provenance, or an explicit unavailable result',
+		},
 		errors: [
 			{ code: 'permission_denied', exit: 4, when: 'The workspace scope is not granted' },
 			{ code: 'invalid_selection', exit: 2, when: 'No app is bound or the ref is malformed' },
 		],
-		examples: ['xplat docs read --ref xplat-doc://@octane-xplat%2Fui@0.14.0/start/install.md --json'],
+		examples: [
+			'xplat docs read --ref xplat-doc://@octane-xplat%2Fui@0.14.0/start/install.md --json',
+		],
 	},
 	{
 		name: 'guidance',
@@ -278,7 +293,10 @@ export const AGENT_COMMANDS = [
 			{ flag: 'limit', type: 'integer', min: 1, max: 50, desc: 'Maximum hits (default: 10)' },
 			...contextFlags,
 		],
-		output: { kind: 'json', description: 'Labeled hits with refs, freshness, coverage, and index state' },
+		output: {
+			kind: 'json',
+			description: 'Labeled hits with refs, freshness, coverage, and index state',
+		},
 		errors: [
 			{ code: 'permission_denied', exit: 4, when: 'The workspace scope is not granted' },
 			{ code: 'invalid_selection', exit: 2, when: 'No bound app in a consumer workspace' },
@@ -324,10 +342,18 @@ export const AGENT_COMMANDS = [
 		positionals: [],
 		flags: [
 			{ ...platform, desc: 'Platform to build (required)' },
-			{ flag: 'request-key', key: 'requestKey', type: 'string', desc: 'Idempotence key — a retry returns the live job' },
+			{
+				flag: 'request-key',
+				key: 'requestKey',
+				type: 'string',
+				desc: 'Idempotence key — a retry returns the live job',
+			},
 			...contextFlags,
 		],
-		output: { kind: 'json', description: 'The accepted job record and whether it deduplicated a live one' },
+		output: {
+			kind: 'json',
+			description: 'The accepted job record and whether it deduplicated a live one',
+		},
 		errors: [
 			{ code: 'invalid_selection', exit: 2, when: 'Missing/unknown platform or undeclared target' },
 			{ code: 'permission_denied', exit: 4, when: 'runtime-actions is not granted' },
@@ -346,8 +372,18 @@ export const AGENT_COMMANDS = [
 		positionals: [],
 		flags: [
 			{ ...platform, desc: 'Platform to launch (required)' },
-			{ flag: 'target', key: 'targetId', type: 'string', desc: 'Target id from `xplat targets` — required when several are available' },
-			{ flag: 'request-key', key: 'requestKey', type: 'string', desc: 'Idempotence key — a retry returns the live job' },
+			{
+				flag: 'target',
+				key: 'targetId',
+				type: 'string',
+				desc: 'Target id from `xplat targets` — required when several are available',
+			},
+			{
+				flag: 'request-key',
+				key: 'requestKey',
+				type: 'string',
+				desc: 'Idempotence key — a retry returns the live job',
+			},
 			{
 				flag: 'browser-mode',
 				key: 'browserMode',
@@ -357,7 +393,10 @@ export const AGENT_COMMANDS = [
 			},
 			...contextFlags,
 		],
-		output: { kind: 'json', description: 'The bound session and its launch job — poll `xplat job status` for readiness' },
+		output: {
+			kind: 'json',
+			description: 'The bound session and its launch job — poll `xplat job status` for readiness',
+		},
 		errors: [
 			{ code: 'invalid_selection', exit: 2, when: 'Missing/unknown platform or target' },
 			{ code: 'ambiguous_selection', exit: 2, when: 'Several targets available without --target' },
@@ -379,13 +418,22 @@ export const AGENT_COMMANDS = [
 		positionals: [],
 		flags: [
 			{ ...platform, desc: 'Platform to attach (required)' },
-			{ flag: 'target', key: 'targetId', type: 'string', desc: 'Candidate target id — required when several are attachable' },
+			{
+				flag: 'target',
+				key: 'targetId',
+				type: 'string',
+				desc: 'Candidate target id — required when several are attachable',
+			},
 			...contextFlags,
 		],
 		output: { kind: 'json', description: 'The attached session record and its discovery detail' },
 		errors: [
 			{ code: 'invalid_selection', exit: 2, when: 'Missing/unknown platform or candidate' },
-			{ code: 'ambiguous_selection', exit: 2, when: 'Several attachable sessions without --target' },
+			{
+				code: 'ambiguous_selection',
+				exit: 2,
+				when: 'Several attachable sessions without --target',
+			},
 			{ code: 'not_found', exit: 2, when: 'No running session qualifies' },
 			{ code: 'unsupported_capability', exit: 3, when: 'The platform has no attach provider' },
 			{ code: 'permission_denied', exit: 4, when: 'runtime-actions is not granted' },
@@ -403,7 +451,10 @@ export const AGENT_COMMANDS = [
 		context: 'workspace',
 		positionals: [],
 		flags: contextFlags,
-		output: { kind: 'json', description: 'Session records; host.state reports whether a runtime host answered' },
+		output: {
+			kind: 'json',
+			description: 'Session records; host.state reports whether a runtime host answered',
+		},
 		errors: [],
 		examples: ['xplat session list --json'],
 	},
@@ -415,7 +466,9 @@ export const AGENT_COMMANDS = [
 		effect: 'read',
 		permissions: [],
 		context: 'workspace',
-		positionals: [{ name: 'sessionId', type: 'string', required: true, desc: 'Session id (sess_…)' }],
+		positionals: [
+			{ name: 'sessionId', type: 'string', required: true, desc: 'Session id (sess_…)' },
+		],
 		flags: contextFlags,
 		output: { kind: 'json', description: 'The session record' },
 		errors: [{ code: 'not_found', exit: 2, when: 'No such session in a live host' }],
@@ -430,9 +483,15 @@ export const AGENT_COMMANDS = [
 		effect: 'orchestrate',
 		permissions: ['runtime-actions'],
 		context: 'workspace',
-		positionals: [{ name: 'sessionId', type: 'string', required: true, desc: 'Session id (sess_…)' }],
+		positionals: [
+			{ name: 'sessionId', type: 'string', required: true, desc: 'Session id (sess_…)' },
+		],
 		flags: contextFlags,
-		output: { kind: 'json', description: 'The end result — released resources or preserved-session note; ending is idempotent' },
+		output: {
+			kind: 'json',
+			description:
+				'The end result — released resources or preserved-session note; ending is idempotent',
+		},
 		errors: [{ code: 'not_found', exit: 2, when: 'No such session' }],
 		examples: ['xplat session end sess_abc123 --json'],
 	},
@@ -446,7 +505,10 @@ export const AGENT_COMMANDS = [
 		context: 'workspace',
 		positionals: [{ name: 'jobId', type: 'string', required: true, desc: 'Job id (job_…)' }],
 		flags: contextFlags,
-		output: { kind: 'json', description: 'The job record: state, progress, terminal result or error' },
+		output: {
+			kind: 'json',
+			description: 'The job record: state, progress, terminal result or error',
+		},
 		errors: [{ code: 'not_found', exit: 2, when: 'No such job in a live host' }],
 		examples: ['xplat job status job_abc123 --json'],
 	},
@@ -477,7 +539,12 @@ export const AGENT_COMMANDS = [
 		positionals: [],
 		flags: [
 			{ flag: 'session', key: 'sessionId', type: 'string', desc: 'Session id to read (or --job)' },
-			{ flag: 'job', key: 'jobId', type: 'string', desc: 'Build/launch job id to read (or --session)' },
+			{
+				flag: 'job',
+				key: 'jobId',
+				type: 'string',
+				desc: 'Build/launch job id to read (or --session)',
+			},
 			{ flag: 'cursor', type: 'integer', min: 0, desc: 'Continue after this record seq' },
 			{ flag: 'limit', type: 'integer', min: 1, max: 5000, desc: 'Maximum records (default: 500)' },
 			{
@@ -507,12 +574,20 @@ export const AGENT_COMMANDS = [
 		effect: 'read',
 		permissions: ['runtime-actions'],
 		context: 'app',
-		positionals: [{ name: 'sessionId', type: 'string', required: true, desc: 'Session id (sess_…)' }],
+		positionals: [
+			{ name: 'sessionId', type: 'string', required: true, desc: 'Session id (sess_…)' },
+		],
 		flags: [
 			{ flag: 'id', type: 'string', desc: 'Control id attribute to select' },
 			{ flag: 'testid', key: 'testID', type: 'string', desc: 'data-testid value to select' },
 			{ flag: 'offset', type: 'integer', min: 0, desc: 'Continuation offset' },
-			{ flag: 'limit', type: 'integer', min: 1, max: 100, desc: 'Maximum controls (default: bounded)' },
+			{
+				flag: 'limit',
+				type: 'integer',
+				min: 1,
+				max: 100,
+				desc: 'Maximum controls (default: bounded)',
+			},
 			...contextFlags,
 		],
 		output: {
@@ -537,9 +612,16 @@ export const AGENT_COMMANDS = [
 		effect: 'orchestrate',
 		permissions: ['runtime-actions'],
 		context: 'app',
-		positionals: [{ name: 'sessionId', type: 'string', required: true, desc: 'Session id (sess_…)' }],
+		positionals: [
+			{ name: 'sessionId', type: 'string', required: true, desc: 'Session id (sess_…)' },
+		],
 		flags: [
-			{ flag: 'document', key: 'documentId', type: 'string', desc: 'documentId from `xplat inspect` (required) — stale ids are refused' },
+			{
+				flag: 'document',
+				key: 'documentId',
+				type: 'string',
+				desc: 'documentId from `xplat inspect` (required) — stale ids are refused',
+			},
 			{ flag: 'id', type: 'string', desc: 'Control id attribute (or --testid)' },
 			{ flag: 'testid', key: 'testID', type: 'string', desc: 'data-testid value (or --id)' },
 			{
@@ -568,7 +650,9 @@ export const AGENT_COMMANDS = [
 			{ code: 'prerequisite_missing', exit: 3, when: 'os-input prerequisites are absent' },
 			{ code: 'permission_denied', exit: 4, when: 'runtime-actions is not granted' },
 		],
-		examples: ['xplat interact sess_abc123 --document doc_1 --testid counter.increment --mechanism dom-event --json'],
+		examples: [
+			'xplat interact sess_abc123 --document doc_1 --testid counter.increment --mechanism dom-event --json',
+		],
 	},
 	{
 		name: 'capture',
@@ -579,7 +663,9 @@ export const AGENT_COMMANDS = [
 		effect: 'orchestrate',
 		permissions: ['visual-capture'],
 		context: 'app',
-		positionals: [{ name: 'sessionId', type: 'string', required: true, desc: 'Session id (sess_…)' }],
+		positionals: [
+			{ name: 'sessionId', type: 'string', required: true, desc: 'Session id (sess_…)' },
+		],
 		flags: contextFlags,
 		output: { kind: 'json', description: 'The evidence record with artifact path and provenance' },
 		errors: [
@@ -615,9 +701,16 @@ export const AGENT_COMMANDS = [
 		effect: 'orchestrate',
 		permissions: [],
 		context: 'workspace',
-		positionals: [{ name: 'id', type: 'string', required: true, desc: 'Evidence record id (ev_…)' }],
+		positionals: [
+			{ name: 'id', type: 'string', required: true, desc: 'Evidence record id (ev_…)' },
+		],
 		flags: [
-			{ flag: 'expires-at', key: 'expiresAt', type: 'string', desc: 'ISO expiration; omit for manual deletion only' },
+			{
+				flag: 'expires-at',
+				key: 'expiresAt',
+				type: 'string',
+				desc: 'ISO expiration; omit for manual deletion only',
+			},
 			...contextFlags,
 		],
 		output: { kind: 'json', description: 'The retained record and the transcript limitation note' },
@@ -636,7 +729,9 @@ export const AGENT_COMMANDS = [
 		effect: 'orchestrate',
 		permissions: [],
 		context: 'workspace',
-		positionals: [{ name: 'id', type: 'string', required: true, desc: 'Evidence record id (ev_…)' }],
+		positionals: [
+			{ name: 'id', type: 'string', required: true, desc: 'Evidence record id (ev_…)' },
+		],
 		flags: contextFlags,
 		output: { kind: 'json', description: 'The deletion result and the transcript limitation note' },
 		errors: [{ code: 'not_found', exit: 2, when: 'No such evidence record' }],
@@ -655,7 +750,8 @@ export const AGENT_COMMANDS = [
 		flags: contextFlags,
 		output: {
 			kind: 'json',
-			description: 'Live instances with declared actions, availability, revision, and disconnected instances',
+			description:
+				'Live instances with declared actions, availability, revision, and disconnected instances',
 		},
 		errors: [{ code: 'invalid_selection', exit: 2, when: 'No app is bound' }],
 		examples: ['xplat actions list --json'],
@@ -671,23 +767,53 @@ export const AGENT_COMMANDS = [
 		context: 'app',
 		positionals: [],
 		flags: [
-			{ flag: 'action', key: 'actionId', type: 'string', desc: 'Stable action id from `xplat actions list` (required)' },
-			{ flag: 'instance', key: 'appInstanceId', type: 'string', desc: 'App instance id — required when several are live' },
+			{
+				flag: 'action',
+				key: 'actionId',
+				type: 'string',
+				desc: 'Stable action id from `xplat actions list` (required)',
+			},
+			{
+				flag: 'instance',
+				key: 'appInstanceId',
+				type: 'string',
+				desc: 'App instance id — required when several are live',
+			},
 			{ flag: 'input', type: 'string', desc: 'JSON object matching the declared input contract' },
-			{ flag: 'revision', key: 'registryRevision', type: 'integer', min: 0, desc: 'Registry revision from actions list — stale revisions are rejected' },
-			{ flag: 'request-key', key: 'requestKey', type: 'string', desc: 'Idempotence key — a retry returns the live job' },
+			{
+				flag: 'revision',
+				key: 'registryRevision',
+				type: 'integer',
+				min: 0,
+				desc: 'Registry revision from actions list — stale revisions are rejected',
+			},
+			{
+				flag: 'request-key',
+				key: 'requestKey',
+				type: 'string',
+				desc: 'Idempotence key — a retry returns the live job',
+			},
 			...contextFlags,
 		],
 		output: {
 			kind: 'json',
-			description: 'The accepted job, request id, action identity, and the revision it validated against',
+			description:
+				'The accepted job, request id, action identity, and the revision it validated against',
 		},
 		errors: [
 			{ code: 'invalid_selection', exit: 2, when: 'Missing action id or invalid input' },
 			{ code: 'stale_identity', exit: 5, when: 'The registry revision is stale' },
 			{ code: 'target_busy', exit: 3, when: 'The invocation queue is saturated' },
-			{ code: 'unavailable', exit: 3, when: 'The action is unavailable or no live instance announced' },
-			{ code: 'permission_denied', exit: 4, when: 'runtime-actions (or external-effects for declared effects) is not granted' },
+			{
+				code: 'unavailable',
+				exit: 3,
+				when: 'The action is unavailable or no live instance announced',
+			},
+			{
+				code: 'permission_denied',
+				exit: 4,
+				when: 'runtime-actions (or external-effects for declared effects) is not granted',
+			},
 		],
 		examples: ['xplat actions invoke --action fixture.describe-counter --json'],
 	},
@@ -700,7 +826,9 @@ export const AGENT_COMMANDS = [
 		effect: 'read',
 		permissions: [],
 		context: 'workspace',
-		positionals: [{ name: 'jobId', type: 'string', required: true, desc: 'Dev-action job id (job_…)' }],
+		positionals: [
+			{ name: 'jobId', type: 'string', required: true, desc: 'Dev-action job id (job_…)' },
+		],
 		flags: contextFlags,
 		output: { kind: 'json', description: 'The job record plus invocation metadata' },
 		errors: [
@@ -720,17 +848,63 @@ export const PLANNED_COMMANDS = [{ name: 'query', mcpTool: null, status: 'planne
 
 /** Existing orchestration commands — unchanged, human-oriented. */
 export const LEGACY_COMMANDS = [
-	{ name: 'dev', effect: 'orchestrate', output: 'human', summary: 'Run dev servers for the app’s targets' },
-	{ name: 'build', effect: 'orchestrate', output: 'human', summary: 'Production builds (the interactive orchestrator — see `runtime build` for the agent job contract)' },
-	{ name: 'typecheck', effect: 'orchestrate', output: 'human', summary: 'Type-check the app’s platform tsconfigs' },
-	{ name: 'doctor', effect: 'read', output: 'human', summary: 'Environment + framework patch diagnostics' },
+	{
+		name: 'dev',
+		effect: 'orchestrate',
+		output: 'human',
+		summary: 'Run dev servers for the app’s targets',
+	},
+	{
+		name: 'build',
+		effect: 'orchestrate',
+		output: 'human',
+		summary:
+			'Production builds (the interactive orchestrator — see `runtime build` for the agent job contract)',
+	},
+	{
+		name: 'typecheck',
+		effect: 'orchestrate',
+		output: 'human',
+		summary: 'Type-check the app’s platform tsconfigs',
+	},
+	{
+		name: 'doctor',
+		effect: 'read',
+		output: 'human',
+		summary: 'Environment + framework patch diagnostics',
+	},
 	{ name: 'clean', effect: 'mutate-workspace', output: 'human', summary: 'Remove build outputs' },
-	{ name: 'routes', effect: 'mutate-workspace', output: 'human', summary: 'Generate route manifests' },
-	{ name: 'add', effect: 'mutate-workspace', output: 'human', summary: 'Enable another platform target' },
-	{ name: 'patches', effect: 'mutate-workspace', output: 'human', summary: 'Apply/check the framework pnpm patch set' },
+	{
+		name: 'routes',
+		effect: 'mutate-workspace',
+		output: 'human',
+		summary: 'Generate route manifests',
+	},
+	{
+		name: 'add',
+		effect: 'mutate-workspace',
+		output: 'human',
+		summary: 'Enable another platform target',
+	},
+	{
+		name: 'patches',
+		effect: 'mutate-workspace',
+		output: 'human',
+		summary: 'Apply/check the framework pnpm patch set',
+	},
 	{ name: 'fonts', effect: 'mutate-workspace', output: 'human', summary: 'Install font files' },
-	{ name: 'updates', effect: 'mutate-workspace', output: 'human', summary: 'Configure OTA updates' },
-	{ name: 'workshop', effect: 'orchestrate', output: 'human', summary: 'Component workshop commands' },
+	{
+		name: 'updates',
+		effect: 'mutate-workspace',
+		output: 'human',
+		summary: 'Configure OTA updates',
+	},
+	{
+		name: 'workshop',
+		effect: 'orchestrate',
+		output: 'human',
+		summary: 'Component workshop commands',
+	},
 ]
 
 export const findCommand = (path) =>

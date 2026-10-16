@@ -79,7 +79,11 @@ export const TclCeil = /* @__PURE__ */ _bind(FW, 'TclCeil')
 export const TclChanCaughtErrorBypass = /* @__PURE__ */ _bind(FW, 'TclChanCaughtErrorBypass')
 export const TclChanCreateObjCmd = /* @__PURE__ */ _bind(FW, 'TclChanCreateObjCmd')
 export const TclChanPostEventObjCmd = /* @__PURE__ */ _bind(FW, 'TclChanPostEventObjCmd')
-export const TclChannelEventScriptInvoker = /* @__PURE__ */ _bind(FW, 'TclChannelEventScriptInvoker')
+export const TclChannelEventScriptInvoker = /* @__PURE__ */ _bind(
+	FW,
+	'TclChannelEventScriptInvoker',
+)
+
 export const TclChannelTransform = /* @__PURE__ */ _bind(FW, 'TclChannelTransform')
 export const TclCheckBadOctal = /* @__PURE__ */ _bind(FW, 'TclCheckBadOctal')
 export const TclCheckExecutionTraces = /* @__PURE__ */ _bind(FW, 'TclCheckExecutionTraces')
@@ -163,11 +167,19 @@ export const TclCompileWhileCmd = /* @__PURE__ */ _bind(FW, 'TclCompileWhileCmd'
 export const TclCompileXorOpCmd = /* @__PURE__ */ _bind(FW, 'TclCompileXorOpCmd')
 export const TclContinuationsCopy = /* @__PURE__ */ _bind(FW, 'TclContinuationsCopy')
 export const TclContinuationsEnter = /* @__PURE__ */ _bind(FW, 'TclContinuationsEnter')
-export const TclContinuationsEnterDerived = /* @__PURE__ */ _bind(FW, 'TclContinuationsEnterDerived')
+export const TclContinuationsEnterDerived = /* @__PURE__ */ _bind(
+	FW,
+	'TclContinuationsEnterDerived',
+)
+
 export const TclContinuationsGet = /* @__PURE__ */ _bind(FW, 'TclContinuationsGet')
 export const TclCopyAndCollapse = /* @__PURE__ */ _bind(FW, 'TclCopyAndCollapse')
 export const TclCopyChannel = /* @__PURE__ */ _bind(FW, 'TclCopyChannel')
-export const TclCreateAbsoluteTimerHandler = /* @__PURE__ */ _bind(FW, 'TclCreateAbsoluteTimerHandler')
+export const TclCreateAbsoluteTimerHandler = /* @__PURE__ */ _bind(
+	FW,
+	'TclCreateAbsoluteTimerHandler',
+)
+
 export const TclCreateAuxData = /* @__PURE__ */ _bind(FW, 'TclCreateAuxData')
 export const TclCreateExceptRange = /* @__PURE__ */ _bind(FW, 'TclCreateExceptRange')
 export const TclCreateExecEnv = /* @__PURE__ */ _bind(FW, 'TclCreateExecEnv')
@@ -177,7 +189,11 @@ export const TclCreatePipeline = /* @__PURE__ */ _bind(FW, 'TclCreatePipeline')
 export const TclCreateProc = /* @__PURE__ */ _bind(FW, 'TclCreateProc')
 export const TclCrossFilesystemCopy = /* @__PURE__ */ _bind(FW, 'TclCrossFilesystemCopy')
 export const TclDbDumpActiveObjects = /* @__PURE__ */ _bind(FW, 'TclDbDumpActiveObjects')
-export const TclDefaultBgErrorHandlerObjCmd = /* @__PURE__ */ _bind(FW, 'TclDefaultBgErrorHandlerObjCmd')
+export const TclDefaultBgErrorHandlerObjCmd = /* @__PURE__ */ _bind(
+	FW,
+	'TclDefaultBgErrorHandlerObjCmd',
+)
+
 export const TclDeleteCompiledLocalVars = /* @__PURE__ */ _bind(FW, 'TclDeleteCompiledLocalVars')
 export const TclDeleteExecEnv = /* @__PURE__ */ _bind(FW, 'TclDeleteExecEnv')
 export const TclDeleteLateExitHandler = /* @__PURE__ */ _bind(FW, 'TclDeleteLateExitHandler')
@@ -211,7 +227,11 @@ export const TclFinalizeAllocSubsystem = /* @__PURE__ */ _bind(FW, 'TclFinalizeA
 export const TclFinalizeAsync = /* @__PURE__ */ _bind(FW, 'TclFinalizeAsync')
 export const TclFinalizeAuxDataTypeTable = /* @__PURE__ */ _bind(FW, 'TclFinalizeAuxDataTypeTable')
 export const TclFinalizeDoubleConversion = /* @__PURE__ */ _bind(FW, 'TclFinalizeDoubleConversion')
-export const TclFinalizeEncodingSubsystem = /* @__PURE__ */ _bind(FW, 'TclFinalizeEncodingSubsystem')
+export const TclFinalizeEncodingSubsystem = /* @__PURE__ */ _bind(
+	FW,
+	'TclFinalizeEncodingSubsystem',
+)
+
 export const TclFinalizeEnvironment = /* @__PURE__ */ _bind(FW, 'TclFinalizeEnvironment')
 export const TclFinalizeExecution = /* @__PURE__ */ _bind(FW, 'TclFinalizeExecution')
 export const TclFinalizeFilesystem = /* @__PURE__ */ _bind(FW, 'TclFinalizeFilesystem')
@@ -298,7 +318,11 @@ export const TclInitCompiledLocals = /* @__PURE__ */ _bind(FW, 'TclInitCompiledL
 export const TclInitDbCkalloc = /* @__PURE__ */ _bind(FW, 'TclInitDbCkalloc')
 export const TclInitDictCmd = /* @__PURE__ */ _bind(FW, 'TclInitDictCmd')
 export const TclInitDoubleConversion = /* @__PURE__ */ _bind(FW, 'TclInitDoubleConversion')
-export const TclInitEmbeddedConfigurationInformation = /* @__PURE__ */ _bind(FW, 'TclInitEmbeddedConfigurationInformation')
+export const TclInitEmbeddedConfigurationInformation = /* @__PURE__ */ _bind(
+	FW,
+	'TclInitEmbeddedConfigurationInformation',
+)
+
 export const TclInitEncodingSubsystem = /* @__PURE__ */ _bind(FW, 'TclInitEncodingSubsystem')
 export const TclInitIOSubsystem = /* @__PURE__ */ _bind(FW, 'TclInitIOSubsystem')
 export const TclInitInfoCmd = /* @__PURE__ */ _bind(FW, 'TclInitInfoCmd')
@@ -342,7 +366,11 @@ export const TclLshiftOpCmd = /* @__PURE__ */ _bind(FW, 'TclLshiftOpCmd')
 export const TclMacOSXCopyFileAttributes = /* @__PURE__ */ _bind(FW, 'TclMacOSXCopyFileAttributes')
 export const TclMacOSXGetFileAttribute = /* @__PURE__ */ _bind(FW, 'TclMacOSXGetFileAttribute')
 export const TclMacOSXMatchType = /* @__PURE__ */ _bind(FW, 'TclMacOSXMatchType')
-export const TclMacOSXNotifierAddRunLoopMode = /* @__PURE__ */ _bind(FW, 'TclMacOSXNotifierAddRunLoopMode')
+export const TclMacOSXNotifierAddRunLoopMode = /* @__PURE__ */ _bind(
+	FW,
+	'TclMacOSXNotifierAddRunLoopMode',
+)
+
 export const TclMacOSXSetFileAttribute = /* @__PURE__ */ _bind(FW, 'TclMacOSXSetFileAttribute')
 export const TclMakeEnsemble = /* @__PURE__ */ _bind(FW, 'TclMakeEnsemble')
 export const TclMarkList = /* @__PURE__ */ _bind(FW, 'TclMarkList')
@@ -407,7 +435,11 @@ export const TclReleaseLiteral = /* @__PURE__ */ _bind(FW, 'TclReleaseLiteral')
 export const TclRememberCondition = /* @__PURE__ */ _bind(FW, 'TclRememberCondition')
 export const TclRememberJoinableThread = /* @__PURE__ */ _bind(FW, 'TclRememberJoinableThread')
 export const TclRememberMutex = /* @__PURE__ */ _bind(FW, 'TclRememberMutex')
-export const TclRemoveScriptLimitCallbacks = /* @__PURE__ */ _bind(FW, 'TclRemoveScriptLimitCallbacks')
+export const TclRemoveScriptLimitCallbacks = /* @__PURE__ */ _bind(
+	FW,
+	'TclRemoveScriptLimitCallbacks',
+)
+
 export const TclRenameCommand = /* @__PURE__ */ _bind(FW, 'TclRenameCommand')
 export const TclResetFilesystem = /* @__PURE__ */ _bind(FW, 'TclResetFilesystem')
 export const TclResetShadowedCmdRefs = /* @__PURE__ */ _bind(FW, 'TclResetShadowedCmdRefs')
@@ -567,7 +599,11 @@ export const TclpFinalizeCondition = /* @__PURE__ */ _bind(FW, 'TclpFinalizeCond
 export const TclpFinalizeMutex = /* @__PURE__ */ _bind(FW, 'TclpFinalizeMutex')
 export const TclpFinalizePipes = /* @__PURE__ */ _bind(FW, 'TclpFinalizePipes')
 export const TclpFinalizeSockets = /* @__PURE__ */ _bind(FW, 'TclpFinalizeSockets')
-export const TclpFinalizeThreadDataThread = /* @__PURE__ */ _bind(FW, 'TclpFinalizeThreadDataThread')
+export const TclpFinalizeThreadDataThread = /* @__PURE__ */ _bind(
+	FW,
+	'TclpFinalizeThreadDataThread',
+)
+
 export const TclpFindExecutable = /* @__PURE__ */ _bind(FW, 'TclpFindExecutable')
 export const TclpFindSymbol = /* @__PURE__ */ _bind(FW, 'TclpFindSymbol')
 export const TclpFindVariable = /* @__PURE__ */ _bind(FW, 'TclpFindVariable')
@@ -688,10 +724,26 @@ export const tclScaleTimeProcPtr = /* @__PURE__ */ _bind(FW, 'tclScaleTimeProcPt
 export const tclStringHashKeyType = /* @__PURE__ */ _bind(FW, 'tclStringHashKeyType')
 export const tclStringType = /* @__PURE__ */ _bind(FW, 'tclStringType')
 export const tclTimeClientData = /* @__PURE__ */ _bind(FW, 'tclTimeClientData')
-export const unnamed_10546957772915706595 = /* @__PURE__ */ _bind(FW, 'unnamed_10546957772915706595')
-export const unnamed_10865474152434340258 = /* @__PURE__ */ _bind(FW, 'unnamed_10865474152434340258')
-export const unnamed_11390820063786587861 = /* @__PURE__ */ _bind(FW, 'unnamed_11390820063786587861')
-export const unnamed_12498154485098774557 = /* @__PURE__ */ _bind(FW, 'unnamed_12498154485098774557')
+export const unnamed_10546957772915706595 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_10546957772915706595',
+)
+
+export const unnamed_10865474152434340258 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_10865474152434340258',
+)
+
+export const unnamed_11390820063786587861 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_11390820063786587861',
+)
+
+export const unnamed_12498154485098774557 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_12498154485098774557',
+)
+
 export const unnamed_3838363081761054882 = /* @__PURE__ */ _bind(FW, 'unnamed_3838363081761054882')
 export const unnamed_7773134410275066031 = /* @__PURE__ */ _bind(FW, 'unnamed_7773134410275066031')
 export const unnamed_8183570762359882055 = /* @__PURE__ */ _bind(FW, 'unnamed_8183570762359882055')

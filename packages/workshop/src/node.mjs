@@ -4,12 +4,7 @@
  */
 import { spawn, spawnSync } from 'node:child_process'
 import { createRequire } from 'node:module'
-import {
-	existsSync,
-	mkdirSync,
-	readFileSync,
-	writeFileSync,
-} from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 
 import { dirname, join, relative, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -63,10 +58,7 @@ export async function loadWorkshopConfig(root) {
 	}
 
 	const { loadConfigFromFile } = await importFrom(root, 'vite')
-	const result = await loadConfigFromFile(
-		{ command: 'serve', mode: 'development' },
-		file,
-	)
+	const result = await loadConfigFromFile({ command: 'serve', mode: 'development' }, file)
 
 	return { config: result.config?.default ?? result.config ?? {}, file }
 }
@@ -163,7 +155,7 @@ export async function workshopDoctor({ cwd, json = false } = {}) {
 			: macosRequirements['darwin-arm64 host']
 				? 'missing-prerequisites'
 				: 'unsupported-host',
-		note: 'the AppKit workshop needs the app\'s own macOS renderer and node-api versions',
+		note: "the AppKit workshop needs the app's own macOS renderer and node-api versions",
 	}
 
 	report.targets.windows = windowsPreflight(root)
@@ -348,7 +340,7 @@ function linuxDoctor(root, sharedRequirements, configFile) {
 			backend,
 			requirements: {},
 			status: 'remote-host-required',
-			note: 'Linux runs on the qualified GTK/WebKitGTK runtime — run `xplat workshop dev --target linux` in that host\'s checkout',
+			note: "Linux runs on the qualified GTK/WebKitGTK runtime — run `xplat workshop dev --target linux` in that host's checkout",
 		}
 	}
 
@@ -399,11 +391,7 @@ export async function startWorkshopServer({ root, config, target, story, port } 
 		server: {
 			...(port ? { port, strictPort: true } : {}),
 			fs: {
-				allow: [
-					...new Set(
-						[searchForWorkspaceRoot(root), root, ...assetRoots].filter(Boolean),
-					),
-				],
+				allow: [...new Set([searchForWorkspaceRoot(root), root, ...assetRoots].filter(Boolean))],
 			},
 		},
 	})
@@ -427,17 +415,24 @@ export async function workshopDev({ cwd, target = 'web', story, port, device } =
 
 	if (target === 'ios' || target === 'android') {
 		if (port !== undefined) {
-			throw new WorkshopUsageError('Mobile workshop uses the consumer native Vite server port; configure it in the native Vite config')
+			throw new WorkshopUsageError(
+				'Mobile workshop uses the consumer native Vite server port; configure it in the native Vite config',
+			)
 		}
 
 		const prerequisites = mobilePrerequisites(root, target)
 		if (prerequisites.status !== 'unqualified-backend') {
-			throw new WorkshopUsageError(`Mobile workshop ${target}: ${prerequisites.status}. Run xplat workshop doctor and follow @octane-xplat/workshop/MOBILE.md setup.`)
+			throw new WorkshopUsageError(
+				`Mobile workshop ${target}: ${prerequisites.status}. Run xplat workshop doctor and follow @octane-xplat/workshop/MOBILE.md setup.`,
+			)
 		}
 
 		const { config } = await loadWorkshopConfig(root)
-		try { return await launchMobile({ root, target, device, story, config }) }
-		catch (error) { throw new WorkshopUsageError(error.message) }
+		try {
+			return await launchMobile({ root, target, device, story, config })
+		} catch (error) {
+			throw new WorkshopUsageError(error.message)
+		}
 	}
 
 	if (target === 'windows') {
@@ -476,7 +471,7 @@ function checkLinuxHost(root) {
 	if (process.platform !== 'linux') {
 		throw new WorkshopUsageError(
 			'xplat workshop dev --target linux: the GTK4/WebKitGTK host runs on Linux only — ' +
-				'run this command in the Linux host\'s own checkout. `xplat workshop doctor` reports per-target status',
+				"run this command in the Linux host's own checkout. `xplat workshop doctor` reports per-target status",
 		)
 	}
 

@@ -14,14 +14,14 @@
 		"types"
 	],
 	"type": "module",
-	"scripts": {
-		"test:macos-movie-storage": "node tests/movie-storage.macos.mjs"
-	},
 	"exports": {
 		"./macos": {
 			"types": "./types/macos.d.ts",
 			"import": "./src/macos.macos.ts"
 		}
+	},
+	"scripts": {
+		"test:macos-movie-storage": "node tests/movie-storage.macos.mjs"
 	},
 	"dependencies": {
 		"@nativescript/macos-node-api": "0.4.4-next.2026-08-09-31292056208",

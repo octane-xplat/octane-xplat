@@ -10,9 +10,7 @@
 		"skipLibCheck": true,
 		"noEmit": false,
 		"paths": {
-			"@octane-xplat/ui": [
-				"../ui/types/generated/index.d.ts"
-			]
+			"@octane-xplat/ui": ["../ui/types/generated/index.d.ts"]
 		},
 		"declaration": true,
 		"emitDeclarationOnly": true,
@@ -30,10 +28,6 @@
 			".windows"
 		]
 	},
-	"include": [
-		"src/**/*"
-	],
-	"exclude": [
-		"src/**/*.test.*"
-	]
+	"include": ["src/**/*"],
+	"exclude": ["src/**/*.test.*"]
 }

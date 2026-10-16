@@ -16,16 +16,16 @@ The authority is `NativeElements` in `packages/jsx/src/shared.d.ts`: 39 core
 intrinsics, nine maintained extensions, and compiler-produced `#text`.
 All conditioned native declarations derive from that same map.
 
-| Family            | Existing AppKit factories                                                                                                       | Missing raw AppKit hosts                                                                                                               |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Layout            | `absolutelayout`, `flexboxlayout`, `gridlayout`, `stacklayout`, `contentview`, `docklayout`, `wraplayout`, `proxyviewcontainer`, `rootlayout` | —                                                                                                                           |
-| Text              | `label`, `span`, `formattedstring`, `htmlview`                                                                                                                 | —                                                                                                          |
-| Text input        | `textfield`, `textview`, `searchbar`                                                                                                         | —                                                                                                                            |
-| Controls          | `button`, `switch`, `slider`, `activityindicator`, `datepicker`, `listpicker`, `progress`, `segmentedbar`, `segmentedbaritem`, `timepicker`                                                                                                    | —                          |
-| Collections       | `listview`, `tabview`, `tabviewitem` | — |
-| Navigation        | —                                                                                                                               | `actionbar`, `actionitem`, `frame`, `navigationbutton`, `page`                                                                         |
-| Other             | `image`, `scrollview`, `webview`                                                                                                | `liquidglass`, `placeholder`                                                                                                           |
-| Shared extensions | —                                                                                                                               | `animatedimage`, `applesigninbutton`, `cachedimage`, `googlesigninbutton`, `nscanvas`, `pager`, `svgview`, `xplatlottie`, `xplatvideo` |
+| Family            | Existing AppKit factories                                                                                                                     | Missing raw AppKit hosts                                                                                                               |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Layout            | `absolutelayout`, `flexboxlayout`, `gridlayout`, `stacklayout`, `contentview`, `docklayout`, `wraplayout`, `proxyviewcontainer`, `rootlayout` | —                                                                                                                                      |
+| Text              | `label`, `span`, `formattedstring`, `htmlview`                                                                                                | —                                                                                                                                      |
+| Text input        | `textfield`, `textview`, `searchbar`                                                                                                          | —                                                                                                                                      |
+| Controls          | `button`, `switch`, `slider`, `activityindicator`, `datepicker`, `listpicker`, `progress`, `segmentedbar`, `segmentedbaritem`, `timepicker`   | —                                                                                                                                      |
+| Collections       | `listview`, `tabview`, `tabviewitem`                                                                                                          | —                                                                                                                                      |
+| Navigation        | —                                                                                                                                             | `actionbar`, `actionitem`, `frame`, `navigationbutton`, `page`                                                                         |
+| Other             | `image`, `scrollview`, `webview`                                                                                                              | `liquidglass`, `placeholder`                                                                                                           |
+| Shared extensions | —                                                                                                                                             | `animatedimage`, `applesigninbutton`, `cachedimage`, `googlesigninbutton`, `nscanvas`, `pager`, `svgview`, `xplatlottie`, `xplatvideo` |
 
 There are now 32 core factories and 7 missing core hosts. `span` and
 `formattedstring` are viewless; their composition checks are described below. The renderer
@@ -373,7 +373,10 @@ Supply content through `html`, with no JSX children.
 export default function HtmlExample() {
 	return (
 		<stacklayout>
-			<htmlview html="<b>Hello</b> &amp; welcome" style={{ fontSize: 20, color: '#2563eb', width: 240, height: 40 }} />
+			<htmlview
+				html="<b>Hello</b> &amp; welcome"
+				style={{ fontSize: 20, color: '#2563eb', width: 240, height: 40 }}
+			/>
 		</stacklayout>
 	)
 }
@@ -464,7 +467,6 @@ hardware qualification, particularly iOS's inherited time-preserving setters.
 Inherited common lifecycle/gesture/style/accessibility coverage and full release
 gates remain open. This raw-host unit changes no recipe workflow.
 
-
 ## ListPicker host
 
 ListPicker uses a noneditable AppKit popup button. Items keep their array order,
@@ -504,7 +506,6 @@ The inherited common lifecycle/gesture/style/accessibility audit, mobile hardwar
 visual parity and complete native release gates remain open. This core host
 changes no recipe workflow.
 
-
 ## Progress host
 
 Progress uses AppKit's regular determinate NSProgressIndicator bar. Value defaults
@@ -543,7 +544,6 @@ hardware qualification remain release gates. Inherited common lifecycle,
 gesture, visibility/collapse, complete class/style/accessibility behavior,
 mobile execution, OS input, visual parity and the full native release gates
 remain open. This raw-host unit changes no recipe workflow.
-
 
 ## SegmentedBar host
 
@@ -590,7 +590,6 @@ class/style/accessibility and host-object policy gaps, mobile hardware, visual
 parity and full release acceptance remain open. This raw host changes no recipe
 workflow; the normalized UI SegmentedControl remains separate.
 
-
 ## SegmentedBarItem logical host
 
 Put SegmentedBarItem children inside SegmentedBar to supply titles in JSX order.
@@ -630,7 +629,6 @@ The inherited common lifecycle/gesture/class/style/accessibility and host-object
 policy audit, mobile hardware, visual parity, OS input and full release gates
 remain open. This core unit changes no recipe workflow; the normalized UI
 SegmentedControl remains separate.
-
 
 ## TimePicker host
 
@@ -739,7 +737,8 @@ import type { ListViewProps, HostObject } from '@octane-xplat/jsx/jsx-runtime'
 declare function createCellHost(): HostObject
 const xml: ListViewProps<HostObject> = {
 	items: [{ person: { name: 'Ada' }, count: 2 }],
-	itemTemplate: '<StackLayout><Label text="{{ person.name }}"/><Label text="{{ count + 1 }}"/></StackLayout>',
+	itemTemplate:
+		'<StackLayout><Label text="{{ person.name }}"/><Label text="{{ count + 1 }}"/></StackLayout>',
 }
 const factory: ListViewProps<HostObject> = {
 	items: ['Ada'],
@@ -784,11 +783,18 @@ mounts on assignment, updates in place, and unmounts on unassignment or teardown
 /** @jsxImportSource @octane-xplat/jsx */
 export default function TabsExample() {
 	return (
-		<tabview selectedIndex={1} style={{ width: 320, height: 180 }}
+		<tabview
+			selectedIndex={1}
+			style={{ width: 320, height: 180 }}
 			onSelectedIndexChange={(event) => console.log(event.value)}
-			onSelectedIndexChanged={(event) => console.log(event.oldIndex, event.newIndex)}>
-			<tabviewitem title="Home"><label text="Home content" /></tabviewitem>
-			<tabviewitem title="Settings"><label text="Settings content" /></tabviewitem>
+			onSelectedIndexChanged={(event) => console.log(event.oldIndex, event.newIndex)}
+		>
+			<tabviewitem title="Home">
+				<label text="Home content" />
+			</tabviewitem>
+			<tabviewitem title="Settings">
+				<label text="Settings content" />
+			</tabviewitem>
 		</tabview>
 	)
 }
@@ -809,10 +815,13 @@ a separate qualification boundary.
 import type { JSX, TabViewItemHandle } from '@octane-xplat/jsx/jsx-runtime'
 const retained = { current: null as TabViewItemHandle | null }
 const itemAttributes: JSX.IntrinsicElements['tabviewitem'] = {
-	title: 'Home', iconSource: 'res://Home', ref: retained,
+	title: 'Home',
+	iconSource: 'res://Home',
+	ref: retained,
 }
 const attributes = (): JSX.IntrinsicElements['tabview'] => ({
-	items: retained.current ? [retained.current] : [], selectedIndex: 0,
+	items: retained.current ? [retained.current] : [],
+	selectedIndex: 0,
 })
 void itemAttributes
 void attributes

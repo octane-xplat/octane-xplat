@@ -4,7 +4,10 @@ import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
 import { runInNewContext } from 'node:vm'
 
-const source = stripTypeScriptTypes(readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'))
+const source = stripTypeScriptTypes(
+	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
+)
+
 const fn = (name: string) => {
 	const start = source.indexOf(`function ${name}(`)
 	assert.ok(start >= 0, name)
@@ -14,29 +17,65 @@ const fn = (name: string) => {
 function controlFixture() {
 	const calls: string[] = []
 	const view: any = {
-		startAnimation(sender: any) { assert.equal(sender, null); calls.push('start') },
-		stopAnimation(sender: any) { assert.equal(sender, null); calls.push('stop') },
-		sizeToFit() { calls.push('size') },
+		startAnimation(sender: any) {
+			assert.equal(sender, null)
+			calls.push('start')
+		},
+		stopAnimation(sender: any) {
+			assert.equal(sender, null)
+			calls.push('stop')
+		},
+		sizeToFit() {
+			calls.push('size')
+		},
 	}
 
-	const constants = source.slice(source.indexOf('function droppedPropClears('), source.indexOf('\nfunction applyProps('))
+	const constants = source.slice(
+		source.indexOf('function droppedPropClears('),
+		source.indexOf('\nfunction applyProps('),
+	)
+
 	const api = runInNewContext(
-		constants + '\n' + ['makeActivityIndicator', 'syncActivityIndicator', 'validateNodeProps',
-			'parentReference', 'resolveParentNode', 'canContainView',
-			'droppedPropClears', 'applyProps', 'applyCommand'].map(fn).join('\n') +
+		constants +
+			'\n' +
+			[
+				'makeActivityIndicator',
+				'syncActivityIndicator',
+				'validateNodeProps',
+				'parentReference',
+				'resolveParentNode',
+				'canContainView',
+				'droppedPropClears',
+				'applyProps',
+				'applyCommand',
+			]
+				.map(fn)
+				.join('\n') +
 			'\n({makeActivityIndicator,validateNodeProps,applyProps,applyCommand})',
 		{
 			NSProgressIndicator: { alloc: () => ({ initWithFrame: () => view }) },
-			NSProgressIndicatorStyle: { Spinning: 1 }, NSControlSize: { Regular: 0 },
-			applyStyle: (node: any, value: any) => { node.appliedStyle = value; calls.push('style:' + String(value?.opacity)) },
+			NSProgressIndicatorStyle: { Spinning: 1 },
+			NSControlSize: { Regular: 0 },
+			applyStyle: (node: any, value: any) => {
+				node.appliedStyle = value
+				calls.push('style:' + String(value?.opacity))
+			},
 			applyClassName: (_node: any, value: any) => calls.push('class:' + String(value)),
-			queueLayoutReconcile: () => {}, console: { warn: (message: string) => calls.push(message) },
+			queueLayoutReconcile: () => {},
+			console: { warn: (message: string) => calls.push(message) },
 		},
 	)
 
 	const container = { nodes: new Map() }
-	const node = { id: 1, type: 'activityindicator', view: api.makeActivityIndicator(), props: {},
-		children: [], parent: null, container }
+	const node = {
+		id: 1,
+		type: 'activityindicator',
+		view: api.makeActivityIndicator(),
+		props: {},
+		children: [],
+		parent: null,
+		container,
+	}
 
 	container.nodes.set(1, node)
 	return { api, node, view, calls, container }
@@ -66,18 +105,26 @@ test('production ActivityIndicator updates start/stop animation and dropped prop
 	assert.equal(view.alphaValue, 0)
 	assert.equal(node.view, view)
 	assert.equal(node.props.busy, undefined)
-	assert.deepEqual(calls.filter((call) => call === 'start' || call === 'stop'),
-		['stop', 'start', 'stop', 'start', 'stop'])
+	assert.deepEqual(
+		calls.filter((call) => call === 'start' || call === 'stop'),
+		['stop', 'start', 'stop', 'start', 'stop'],
+	)
 
 	assert.ok(calls.includes('style:undefined'))
 	assert.ok(calls.includes('class:undefined'))
-	assert.equal(calls.some((call) => call.includes('ignored')), false)
+	assert.equal(
+		calls.some((call) => call.includes('ignored')),
+		false,
+	)
 })
 
 test('ActivityIndicator primitive validation rejects invalid busy values before native mutation', () => {
 	const { api, calls } = controlFixture()
 	for (const busy of ['false', 1, {}, []]) {
-		assert.throws(() => api.validateNodeProps('activityindicator', { busy }), /busy must be boolean/)
+		assert.throws(
+			() => api.validateNodeProps('activityindicator', { busy }),
+			/busy must be boolean/,
+		)
 	}
 
 	for (const busy of [true, false, undefined]) {
@@ -90,7 +137,10 @@ test('ActivityIndicator primitive validation rejects invalid busy values before 
 test('ActivityIndicator accepts layout parents and rejects all children before insertion', () => {
 	const api = runInNewContext(fn('validateTextNesting') + '\n({validateTextNesting})')
 	for (const child of ['label', '#text', 'span', 'activityindicator']) {
-		assert.throws(() => api.validateTextNesting('activityindicator', child), /cannot contain JSX children/)
+		assert.throws(
+			() => api.validateTextNesting('activityindicator', child),
+			/cannot contain JSX children/,
+		)
 	}
 
 	for (const parent of ['stacklayout', 'contentview', 'docklayout', 'rootlayout', 'gridlayout']) {
@@ -120,8 +170,17 @@ test('ActivityIndicator production ownership moves its native host between paren
 	})
 
 	const api = runInNewContext(
-		['parentReference', 'resolveParentNode', 'canContainView', 'validateTextNesting', 'insert', 'detach', 'destroy'].map(fn).join('\n') +
-			'\n({insert,destroy})',
+		[
+			'parentReference',
+			'resolveParentNode',
+			'canContainView',
+			'validateTextNesting',
+			'insert',
+			'detach',
+			'destroy',
+		]
+			.map(fn)
+			.join('\n') + '\n({insert,destroy})',
 		{
 			VIEW_PARENT_TYPES: new Set(['contentview']),
 			layoutView: (node: any) => node.view,

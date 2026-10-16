@@ -17,7 +17,8 @@ const lazyGlobal = (name: string): any => {
 
 		set: (_t, p, v) => Reflect.set((globalThis as any)[name], p, v),
 
-		construct: (_t, args, newTarget) => Reflect.construct((globalThis as any)[name], args, newTarget),
+		construct: (_t, args, newTarget) =>
+			Reflect.construct((globalThis as any)[name], args, newTarget),
 
 		apply: (_t, _this, args) => Reflect.apply((globalThis as any)[name], undefined, args),
 
@@ -25,7 +26,8 @@ const lazyGlobal = (name: string): any => {
 
 		getPrototypeOf: () => Object.getPrototypeOf((globalThis as any)[name]),
 
-		getOwnPropertyDescriptor: (_t, p) => Object.getOwnPropertyDescriptor((globalThis as any)[name], p),
+		getOwnPropertyDescriptor: (_t, p) =>
+			Object.getOwnPropertyDescriptor((globalThis as any)[name], p),
 
 		ownKeys: () => Reflect.ownKeys((globalThis as any)[name]),
 
@@ -35,10 +37,15 @@ const lazyGlobal = (name: string): any => {
 	return self
 }
 
+export const android: typeof globalThis.android =
+	(globalThis as any).android ?? lazyGlobal('android')
 
-export const android: typeof globalThis.android = (globalThis as any).android ?? lazyGlobal('android')
-export const androidNative: typeof globalThis.androidNative = (globalThis as any).androidNative ?? lazyGlobal('androidNative')
-export const androidx: typeof globalThis.androidx = (globalThis as any).androidx ?? lazyGlobal('androidx')
+export const androidNative: typeof globalThis.androidNative =
+	(globalThis as any).androidNative ?? lazyGlobal('androidNative')
+
+export const androidx: typeof globalThis.androidx =
+	(globalThis as any).androidx ?? lazyGlobal('androidx')
+
 export const com: typeof globalThis.com = (globalThis as any).com ?? lazyGlobal('com')
 export const dalvik: typeof globalThis.dalvik = (globalThis as any).dalvik ?? lazyGlobal('dalvik')
 export const java: typeof globalThis.java = (globalThis as any).java ?? lazyGlobal('java')
@@ -46,7 +53,9 @@ export const javax: typeof globalThis.javax = (globalThis as any).javax ?? lazyG
 export const junit: typeof globalThis.junit = (globalThis as any).junit ?? lazyGlobal('junit')
 export const org: typeof globalThis.org = (globalThis as any).org ?? lazyGlobal('org')
 export type ArrayConstructor = D.ArrayConstructor_t
-export const __releaseNativeCounterpart: D.__releaseNativeCounterpart_c = (globalThis as any).__releaseNativeCounterpart ?? lazyGlobal('__releaseNativeCounterpart')
+export const __releaseNativeCounterpart: D.__releaseNativeCounterpart_c =
+	(globalThis as any).__releaseNativeCounterpart ?? lazyGlobal('__releaseNativeCounterpart')
+
 export const float: D.float_c = (globalThis as any).float ?? lazyGlobal('float')
 export const gc: D.gc_c = (globalThis as any).gc ?? lazyGlobal('gc')
 export const long: D.long_c = (globalThis as any).long ?? lazyGlobal('long')

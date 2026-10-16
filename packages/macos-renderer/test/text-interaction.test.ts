@@ -28,7 +28,8 @@ function load() {
 		NSPanGestureRecognizer: {},
 		NSNotification: {},
 		interop: { types: { void: {} } },
-		NativeClass() {}, registerGestureClass() {},
+		NativeClass() {},
+		registerGestureClass() {},
 		DEFAULT_TEXT_LINE_HEIGHT_RATIO: 21 / 16,
 		setSizeConstraint(node, name, value) {
 			node.sizeConstraintSpecs = { [name]: { points: value } }

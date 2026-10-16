@@ -22,7 +22,11 @@ export const DRBurnCompletionActionKey = /* @__PURE__ */ _bind(FW, 'DRBurnComple
 export const DRBurnCompletionActionMount = /* @__PURE__ */ _bind(FW, 'DRBurnCompletionActionMount')
 export const DRBurnCopyStatus = /* @__PURE__ */ _bind(FW, 'DRBurnCopyStatus')
 export const DRBurnCreate = /* @__PURE__ */ _bind(FW, 'DRBurnCreate')
-export const DRBurnDoubleLayerL0DataZoneBlocksKey = /* @__PURE__ */ _bind(FW, 'DRBurnDoubleLayerL0DataZoneBlocksKey')
+export const DRBurnDoubleLayerL0DataZoneBlocksKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRBurnDoubleLayerL0DataZoneBlocksKey',
+)
+
 export const DRBurnFailureActionEject = /* @__PURE__ */ _bind(FW, 'DRBurnFailureActionEject')
 export const DRBurnFailureActionKey = /* @__PURE__ */ _bind(FW, 'DRBurnFailureActionKey')
 export const DRBurnFailureActionNone = /* @__PURE__ */ _bind(FW, 'DRBurnFailureActionNone')
@@ -32,7 +36,11 @@ export const DRBurnGetTypeID = /* @__PURE__ */ _bind(FW, 'DRBurnGetTypeID')
 export const DRBurnOverwriteDiscKey = /* @__PURE__ */ _bind(FW, 'DRBurnOverwriteDiscKey')
 export const DRBurnRequestedSpeedKey = /* @__PURE__ */ _bind(FW, 'DRBurnRequestedSpeedKey')
 export const DRBurnSetProperties = /* @__PURE__ */ _bind(FW, 'DRBurnSetProperties')
-export const DRBurnStatusChangedNotification = /* @__PURE__ */ _bind(FW, 'DRBurnStatusChangedNotification')
+export const DRBurnStatusChangedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'DRBurnStatusChangedNotification',
+)
+
 export const DRBurnStrategyBDDAO = /* @__PURE__ */ _bind(FW, 'DRBurnStrategyBDDAO')
 export const DRBurnStrategyCDSAO = /* @__PURE__ */ _bind(FW, 'DRBurnStrategyCDSAO')
 export const DRBurnStrategyCDTAO = /* @__PURE__ */ _bind(FW, 'DRBurnStrategyCDTAO')
@@ -46,32 +54,76 @@ export const DRBurnWriteLayout = /* @__PURE__ */ _bind(FW, 'DRBurnWriteLayout')
 export const DRCDTextArrangerKey = /* @__PURE__ */ _bind(FW, 'DRCDTextArrangerKey')
 export const DRCDTextBlock = /* @__PURE__ */ _bind(FW, 'DRCDTextBlock')
 export const DRCDTextBlockCreate = /* @__PURE__ */ _bind(FW, 'DRCDTextBlockCreate')
-export const DRCDTextBlockCreateArrayFromPackList = /* @__PURE__ */ _bind(FW, 'DRCDTextBlockCreateArrayFromPackList')
+export const DRCDTextBlockCreateArrayFromPackList = /* @__PURE__ */ _bind(
+	FW,
+	'DRCDTextBlockCreateArrayFromPackList',
+)
+
 export const DRCDTextBlockFlatten = /* @__PURE__ */ _bind(FW, 'DRCDTextBlockFlatten')
 export const DRCDTextBlockGetProperties = /* @__PURE__ */ _bind(FW, 'DRCDTextBlockGetProperties')
-export const DRCDTextBlockGetTrackDictionaries = /* @__PURE__ */ _bind(FW, 'DRCDTextBlockGetTrackDictionaries')
+export const DRCDTextBlockGetTrackDictionaries = /* @__PURE__ */ _bind(
+	FW,
+	'DRCDTextBlockGetTrackDictionaries',
+)
+
 export const DRCDTextBlockGetTypeID = /* @__PURE__ */ _bind(FW, 'DRCDTextBlockGetTypeID')
 export const DRCDTextBlockGetValue = /* @__PURE__ */ _bind(FW, 'DRCDTextBlockGetValue')
 export const DRCDTextBlockSetProperties = /* @__PURE__ */ _bind(FW, 'DRCDTextBlockSetProperties')
-export const DRCDTextBlockSetTrackDictionaries = /* @__PURE__ */ _bind(FW, 'DRCDTextBlockSetTrackDictionaries')
+export const DRCDTextBlockSetTrackDictionaries = /* @__PURE__ */ _bind(
+	FW,
+	'DRCDTextBlockSetTrackDictionaries',
+)
+
 export const DRCDTextBlockSetValue = /* @__PURE__ */ _bind(FW, 'DRCDTextBlockSetValue')
 export const DRCDTextCharacterCodeKey = /* @__PURE__ */ _bind(FW, 'DRCDTextCharacterCodeKey')
 export const DRCDTextClosedKey = /* @__PURE__ */ _bind(FW, 'DRCDTextClosedKey')
 export const DRCDTextComposerKey = /* @__PURE__ */ _bind(FW, 'DRCDTextComposerKey')
-export const DRCDTextCopyrightAssertedForNamesKey = /* @__PURE__ */ _bind(FW, 'DRCDTextCopyrightAssertedForNamesKey')
-export const DRCDTextCopyrightAssertedForSpecialMessagesKey = /* @__PURE__ */ _bind(FW, 'DRCDTextCopyrightAssertedForSpecialMessagesKey')
-export const DRCDTextCopyrightAssertedForTitlesKey = /* @__PURE__ */ _bind(FW, 'DRCDTextCopyrightAssertedForTitlesKey')
+export const DRCDTextCopyrightAssertedForNamesKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRCDTextCopyrightAssertedForNamesKey',
+)
+
+export const DRCDTextCopyrightAssertedForSpecialMessagesKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRCDTextCopyrightAssertedForSpecialMessagesKey',
+)
+
+export const DRCDTextCopyrightAssertedForTitlesKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRCDTextCopyrightAssertedForTitlesKey',
+)
+
 export const DRCDTextDiscIdentKey = /* @__PURE__ */ _bind(FW, 'DRCDTextDiscIdentKey')
 export const DRCDTextEncodingASCII = /* @__PURE__ */ _bind(FW, 'DRCDTextEncodingASCII')
-export const DRCDTextEncodingISOLatin1Modified = /* @__PURE__ */ _bind(FW, 'DRCDTextEncodingISOLatin1Modified')
-export const DRCDTextGenreCodeAdultContemporary = /* @__PURE__ */ _bind(FW, 'DRCDTextGenreCodeAdultContemporary')
-export const DRCDTextGenreCodeAlternativeRock = /* @__PURE__ */ _bind(FW, 'DRCDTextGenreCodeAlternativeRock')
+export const DRCDTextEncodingISOLatin1Modified = /* @__PURE__ */ _bind(
+	FW,
+	'DRCDTextEncodingISOLatin1Modified',
+)
+
+export const DRCDTextGenreCodeAdultContemporary = /* @__PURE__ */ _bind(
+	FW,
+	'DRCDTextGenreCodeAdultContemporary',
+)
+
+export const DRCDTextGenreCodeAlternativeRock = /* @__PURE__ */ _bind(
+	FW,
+	'DRCDTextGenreCodeAlternativeRock',
+)
+
 export const DRCDTextGenreCodeChildrens = /* @__PURE__ */ _bind(FW, 'DRCDTextGenreCodeChildrens')
 export const DRCDTextGenreCodeClassical = /* @__PURE__ */ _bind(FW, 'DRCDTextGenreCodeClassical')
-export const DRCDTextGenreCodeContemporaryChristian = /* @__PURE__ */ _bind(FW, 'DRCDTextGenreCodeContemporaryChristian')
+export const DRCDTextGenreCodeContemporaryChristian = /* @__PURE__ */ _bind(
+	FW,
+	'DRCDTextGenreCodeContemporaryChristian',
+)
+
 export const DRCDTextGenreCodeCountry = /* @__PURE__ */ _bind(FW, 'DRCDTextGenreCodeCountry')
 export const DRCDTextGenreCodeDance = /* @__PURE__ */ _bind(FW, 'DRCDTextGenreCodeDance')
-export const DRCDTextGenreCodeEasyListening = /* @__PURE__ */ _bind(FW, 'DRCDTextGenreCodeEasyListening')
+export const DRCDTextGenreCodeEasyListening = /* @__PURE__ */ _bind(
+	FW,
+	'DRCDTextGenreCodeEasyListening',
+)
+
 export const DRCDTextGenreCodeErotic = /* @__PURE__ */ _bind(FW, 'DRCDTextGenreCodeErotic')
 export const DRCDTextGenreCodeFolk = /* @__PURE__ */ _bind(FW, 'DRCDTextGenreCodeFolk')
 export const DRCDTextGenreCodeGospel = /* @__PURE__ */ _bind(FW, 'DRCDTextGenreCodeGospel')
@@ -86,9 +138,17 @@ export const DRCDTextGenreCodeOperetta = /* @__PURE__ */ _bind(FW, 'DRCDTextGenr
 export const DRCDTextGenreCodePop = /* @__PURE__ */ _bind(FW, 'DRCDTextGenreCodePop')
 export const DRCDTextGenreCodeRap = /* @__PURE__ */ _bind(FW, 'DRCDTextGenreCodeRap')
 export const DRCDTextGenreCodeReggae = /* @__PURE__ */ _bind(FW, 'DRCDTextGenreCodeReggae')
-export const DRCDTextGenreCodeRhythmAndBlues = /* @__PURE__ */ _bind(FW, 'DRCDTextGenreCodeRhythmAndBlues')
+export const DRCDTextGenreCodeRhythmAndBlues = /* @__PURE__ */ _bind(
+	FW,
+	'DRCDTextGenreCodeRhythmAndBlues',
+)
+
 export const DRCDTextGenreCodeRock = /* @__PURE__ */ _bind(FW, 'DRCDTextGenreCodeRock')
-export const DRCDTextGenreCodeSoundEffects = /* @__PURE__ */ _bind(FW, 'DRCDTextGenreCodeSoundEffects')
+export const DRCDTextGenreCodeSoundEffects = /* @__PURE__ */ _bind(
+	FW,
+	'DRCDTextGenreCodeSoundEffects',
+)
+
 export const DRCDTextGenreCodeSoundtrack = /* @__PURE__ */ _bind(FW, 'DRCDTextGenreCodeSoundtrack')
 export const DRCDTextGenreCodeSpokenWord = /* @__PURE__ */ _bind(FW, 'DRCDTextGenreCodeSpokenWord')
 export const DRCDTextGenreCodeUnknown = /* @__PURE__ */ _bind(FW, 'DRCDTextGenreCodeUnknown')
@@ -107,10 +167,26 @@ export const DRCDTextTOCKey = /* @__PURE__ */ _bind(FW, 'DRCDTextTOCKey')
 export const DRCDTextTitleKey = /* @__PURE__ */ _bind(FW, 'DRCDTextTitleKey')
 export const DRContentModificationDate = /* @__PURE__ */ _bind(FW, 'DRContentModificationDate')
 export const DRCopyDeviceArray = /* @__PURE__ */ _bind(FW, 'DRCopyDeviceArray')
-export const DRCopyLocalizedStringForAdditionalSense = /* @__PURE__ */ _bind(FW, 'DRCopyLocalizedStringForAdditionalSense')
-export const DRCopyLocalizedStringForDiscRecordingError = /* @__PURE__ */ _bind(FW, 'DRCopyLocalizedStringForDiscRecordingError')
-export const DRCopyLocalizedStringForSenseCode = /* @__PURE__ */ _bind(FW, 'DRCopyLocalizedStringForSenseCode')
-export const DRCopyLocalizedStringForValue = /* @__PURE__ */ _bind(FW, 'DRCopyLocalizedStringForValue')
+export const DRCopyLocalizedStringForAdditionalSense = /* @__PURE__ */ _bind(
+	FW,
+	'DRCopyLocalizedStringForAdditionalSense',
+)
+
+export const DRCopyLocalizedStringForDiscRecordingError = /* @__PURE__ */ _bind(
+	FW,
+	'DRCopyLocalizedStringForDiscRecordingError',
+)
+
+export const DRCopyLocalizedStringForSenseCode = /* @__PURE__ */ _bind(
+	FW,
+	'DRCopyLocalizedStringForSenseCode',
+)
+
+export const DRCopyLocalizedStringForValue = /* @__PURE__ */ _bind(
+	FW,
+	'DRCopyLocalizedStringForValue',
+)
+
 export const DRCopyrightFile = /* @__PURE__ */ _bind(FW, 'DRCopyrightFile')
 export const DRCreationDate = /* @__PURE__ */ _bind(FW, 'DRCreationDate')
 export const DRDVDCopyrightInfoKey = /* @__PURE__ */ _bind(FW, 'DRDVDCopyrightInfoKey')
@@ -119,9 +195,21 @@ export const DRDataFormKey = /* @__PURE__ */ _bind(FW, 'DRDataFormKey')
 export const DRDataPreparer = /* @__PURE__ */ _bind(FW, 'DRDataPreparer')
 export const DRDefaultDate = /* @__PURE__ */ _bind(FW, 'DRDefaultDate')
 export const DRDevice = /* @__PURE__ */ _bind(FW, 'DRDevice')
-export const DRDeviceAcquireExclusiveAccess = /* @__PURE__ */ _bind(FW, 'DRDeviceAcquireExclusiveAccess')
-export const DRDeviceAcquireMediaReservation = /* @__PURE__ */ _bind(FW, 'DRDeviceAcquireMediaReservation')
-export const DRDeviceAppearedNotification = /* @__PURE__ */ _bind(FW, 'DRDeviceAppearedNotification')
+export const DRDeviceAcquireExclusiveAccess = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceAcquireExclusiveAccess',
+)
+
+export const DRDeviceAcquireMediaReservation = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceAcquireMediaReservation',
+)
+
+export const DRDeviceAppearedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceAppearedNotification',
+)
+
 export const DRDeviceBurnSpeedBD1x = /* @__PURE__ */ _bind(FW, 'DRDeviceBurnSpeedBD1x')
 export const DRDeviceBurnSpeedCD1x = /* @__PURE__ */ _bind(FW, 'DRDeviceBurnSpeedCD1x')
 export const DRDeviceBurnSpeedDVD1x = /* @__PURE__ */ _bind(FW, 'DRDeviceBurnSpeedDVD1x')
@@ -130,8 +218,16 @@ export const DRDeviceBurnSpeedMax = /* @__PURE__ */ _bind(FW, 'DRDeviceBurnSpeed
 export const DRDeviceBurnSpeedsKey = /* @__PURE__ */ _bind(FW, 'DRDeviceBurnSpeedsKey')
 export const DRDeviceCanTestWriteCDKey = /* @__PURE__ */ _bind(FW, 'DRDeviceCanTestWriteCDKey')
 export const DRDeviceCanTestWriteDVDKey = /* @__PURE__ */ _bind(FW, 'DRDeviceCanTestWriteDVDKey')
-export const DRDeviceCanUnderrunProtectCDKey = /* @__PURE__ */ _bind(FW, 'DRDeviceCanUnderrunProtectCDKey')
-export const DRDeviceCanUnderrunProtectDVDKey = /* @__PURE__ */ _bind(FW, 'DRDeviceCanUnderrunProtectDVDKey')
+export const DRDeviceCanUnderrunProtectCDKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceCanUnderrunProtectCDKey',
+)
+
+export const DRDeviceCanUnderrunProtectDVDKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceCanUnderrunProtectDVDKey',
+)
+
 export const DRDeviceCanWriteBDKey = /* @__PURE__ */ _bind(FW, 'DRDeviceCanWriteBDKey')
 export const DRDeviceCanWriteBDREKey = /* @__PURE__ */ _bind(FW, 'DRDeviceCanWriteBDREKey')
 export const DRDeviceCanWriteBDRKey = /* @__PURE__ */ _bind(FW, 'DRDeviceCanWriteBDRKey')
@@ -144,46 +240,118 @@ export const DRDeviceCanWriteCDTAOKey = /* @__PURE__ */ _bind(FW, 'DRDeviceCanWr
 export const DRDeviceCanWriteCDTextKey = /* @__PURE__ */ _bind(FW, 'DRDeviceCanWriteCDTextKey')
 export const DRDeviceCanWriteDVDDAOKey = /* @__PURE__ */ _bind(FW, 'DRDeviceCanWriteDVDDAOKey')
 export const DRDeviceCanWriteDVDKey = /* @__PURE__ */ _bind(FW, 'DRDeviceCanWriteDVDKey')
-export const DRDeviceCanWriteDVDPlusRDoubleLayerKey = /* @__PURE__ */ _bind(FW, 'DRDeviceCanWriteDVDPlusRDoubleLayerKey')
+export const DRDeviceCanWriteDVDPlusRDoubleLayerKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceCanWriteDVDPlusRDoubleLayerKey',
+)
+
 export const DRDeviceCanWriteDVDPlusRKey = /* @__PURE__ */ _bind(FW, 'DRDeviceCanWriteDVDPlusRKey')
-export const DRDeviceCanWriteDVDPlusRWDoubleLayerKey = /* @__PURE__ */ _bind(FW, 'DRDeviceCanWriteDVDPlusRWDoubleLayerKey')
-export const DRDeviceCanWriteDVDPlusRWKey = /* @__PURE__ */ _bind(FW, 'DRDeviceCanWriteDVDPlusRWKey')
+export const DRDeviceCanWriteDVDPlusRWDoubleLayerKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceCanWriteDVDPlusRWDoubleLayerKey',
+)
+
+export const DRDeviceCanWriteDVDPlusRWKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceCanWriteDVDPlusRWKey',
+)
+
 export const DRDeviceCanWriteDVDRAMKey = /* @__PURE__ */ _bind(FW, 'DRDeviceCanWriteDVDRAMKey')
-export const DRDeviceCanWriteDVDRDualLayerKey = /* @__PURE__ */ _bind(FW, 'DRDeviceCanWriteDVDRDualLayerKey')
+export const DRDeviceCanWriteDVDRDualLayerKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceCanWriteDVDRDualLayerKey',
+)
+
 export const DRDeviceCanWriteDVDRKey = /* @__PURE__ */ _bind(FW, 'DRDeviceCanWriteDVDRKey')
-export const DRDeviceCanWriteDVDRWDualLayerKey = /* @__PURE__ */ _bind(FW, 'DRDeviceCanWriteDVDRWDualLayerKey')
+export const DRDeviceCanWriteDVDRWDualLayerKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceCanWriteDVDRWDualLayerKey',
+)
+
 export const DRDeviceCanWriteDVDRWKey = /* @__PURE__ */ _bind(FW, 'DRDeviceCanWriteDVDRWKey')
 export const DRDeviceCanWriteHDDVDKey = /* @__PURE__ */ _bind(FW, 'DRDeviceCanWriteHDDVDKey')
 export const DRDeviceCanWriteHDDVDRAMKey = /* @__PURE__ */ _bind(FW, 'DRDeviceCanWriteHDDVDRAMKey')
-export const DRDeviceCanWriteHDDVDRDualLayerKey = /* @__PURE__ */ _bind(FW, 'DRDeviceCanWriteHDDVDRDualLayerKey')
+export const DRDeviceCanWriteHDDVDRDualLayerKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceCanWriteHDDVDRDualLayerKey',
+)
+
 export const DRDeviceCanWriteHDDVDRKey = /* @__PURE__ */ _bind(FW, 'DRDeviceCanWriteHDDVDRKey')
-export const DRDeviceCanWriteHDDVDRWDualLayerKey = /* @__PURE__ */ _bind(FW, 'DRDeviceCanWriteHDDVDRWDualLayerKey')
+export const DRDeviceCanWriteHDDVDRWDualLayerKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceCanWriteHDDVDRWDualLayerKey',
+)
+
 export const DRDeviceCanWriteHDDVDRWKey = /* @__PURE__ */ _bind(FW, 'DRDeviceCanWriteHDDVDRWKey')
 export const DRDeviceCanWriteISRCKey = /* @__PURE__ */ _bind(FW, 'DRDeviceCanWriteISRCKey')
-export const DRDeviceCanWriteIndexPointsKey = /* @__PURE__ */ _bind(FW, 'DRDeviceCanWriteIndexPointsKey')
+export const DRDeviceCanWriteIndexPointsKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceCanWriteIndexPointsKey',
+)
+
 export const DRDeviceCanWriteKey = /* @__PURE__ */ _bind(FW, 'DRDeviceCanWriteKey')
 export const DRDeviceCloseTray = /* @__PURE__ */ _bind(FW, 'DRDeviceCloseTray')
-export const DRDeviceCopyDeviceForBSDName = /* @__PURE__ */ _bind(FW, 'DRDeviceCopyDeviceForBSDName')
-export const DRDeviceCopyDeviceForIORegistryEntryPath = /* @__PURE__ */ _bind(FW, 'DRDeviceCopyDeviceForIORegistryEntryPath')
+export const DRDeviceCopyDeviceForBSDName = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceCopyDeviceForBSDName',
+)
+
+export const DRDeviceCopyDeviceForIORegistryEntryPath = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceCopyDeviceForIORegistryEntryPath',
+)
+
 export const DRDeviceCopyInfo = /* @__PURE__ */ _bind(FW, 'DRDeviceCopyInfo')
 export const DRDeviceCopyStatus = /* @__PURE__ */ _bind(FW, 'DRDeviceCopyStatus')
-export const DRDeviceCurrentWriteSpeedKey = /* @__PURE__ */ _bind(FW, 'DRDeviceCurrentWriteSpeedKey')
-export const DRDeviceDisappearedNotification = /* @__PURE__ */ _bind(FW, 'DRDeviceDisappearedNotification')
+export const DRDeviceCurrentWriteSpeedKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceCurrentWriteSpeedKey',
+)
+
+export const DRDeviceDisappearedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceDisappearedNotification',
+)
+
 export const DRDeviceEjectMedia = /* @__PURE__ */ _bind(FW, 'DRDeviceEjectMedia')
 export const DRDeviceFirmwareRevisionKey = /* @__PURE__ */ _bind(FW, 'DRDeviceFirmwareRevisionKey')
 export const DRDeviceGetTypeID = /* @__PURE__ */ _bind(FW, 'DRDeviceGetTypeID')
-export const DRDeviceIORegistryEntryPathKey = /* @__PURE__ */ _bind(FW, 'DRDeviceIORegistryEntryPathKey')
+export const DRDeviceIORegistryEntryPathKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceIORegistryEntryPathKey',
+)
+
 export const DRDeviceIsBusyKey = /* @__PURE__ */ _bind(FW, 'DRDeviceIsBusyKey')
 export const DRDeviceIsTrayOpenKey = /* @__PURE__ */ _bind(FW, 'DRDeviceIsTrayOpenKey')
 export const DRDeviceIsValid = /* @__PURE__ */ _bind(FW, 'DRDeviceIsValid')
 export const DRDeviceKPSForXFactor = /* @__PURE__ */ _bind(FW, 'DRDeviceKPSForXFactor')
-export const DRDeviceLoadingMechanismCanEjectKey = /* @__PURE__ */ _bind(FW, 'DRDeviceLoadingMechanismCanEjectKey')
-export const DRDeviceLoadingMechanismCanInjectKey = /* @__PURE__ */ _bind(FW, 'DRDeviceLoadingMechanismCanInjectKey')
-export const DRDeviceLoadingMechanismCanOpenKey = /* @__PURE__ */ _bind(FW, 'DRDeviceLoadingMechanismCanOpenKey')
-export const DRDeviceMaximumWriteSpeedKey = /* @__PURE__ */ _bind(FW, 'DRDeviceMaximumWriteSpeedKey')
+export const DRDeviceLoadingMechanismCanEjectKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceLoadingMechanismCanEjectKey',
+)
+
+export const DRDeviceLoadingMechanismCanInjectKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceLoadingMechanismCanInjectKey',
+)
+
+export const DRDeviceLoadingMechanismCanOpenKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceLoadingMechanismCanOpenKey',
+)
+
+export const DRDeviceMaximumWriteSpeedKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceMaximumWriteSpeedKey',
+)
+
 export const DRDeviceMediaBSDNameKey = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaBSDNameKey')
 export const DRDeviceMediaBlocksFreeKey = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaBlocksFreeKey')
-export const DRDeviceMediaBlocksOverwritableKey = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaBlocksOverwritableKey')
+export const DRDeviceMediaBlocksOverwritableKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceMediaBlocksOverwritableKey',
+)
+
 export const DRDeviceMediaBlocksUsedKey = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaBlocksUsedKey')
 export const DRDeviceMediaClassBD = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaClassBD')
 export const DRDeviceMediaClassCD = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaClassCD')
@@ -191,19 +359,47 @@ export const DRDeviceMediaClassDVD = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaCla
 export const DRDeviceMediaClassHDDVD = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaClassHDDVD')
 export const DRDeviceMediaClassKey = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaClassKey')
 export const DRDeviceMediaClassUnknown = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaClassUnknown')
-export const DRDeviceMediaDoubleLayerL0DataZoneBlocksKey = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaDoubleLayerL0DataZoneBlocksKey')
+export const DRDeviceMediaDoubleLayerL0DataZoneBlocksKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceMediaDoubleLayerL0DataZoneBlocksKey',
+)
+
 export const DRDeviceMediaFreeSpaceKey = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaFreeSpaceKey')
 export const DRDeviceMediaInfoKey = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaInfoKey')
-export const DRDeviceMediaIsAppendableKey = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaIsAppendableKey')
+export const DRDeviceMediaIsAppendableKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceMediaIsAppendableKey',
+)
+
 export const DRDeviceMediaIsBlankKey = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaIsBlankKey')
 export const DRDeviceMediaIsErasableKey = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaIsErasableKey')
-export const DRDeviceMediaIsOverwritableKey = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaIsOverwritableKey')
+export const DRDeviceMediaIsOverwritableKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceMediaIsOverwritableKey',
+)
+
 export const DRDeviceMediaIsReservedKey = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaIsReservedKey')
-export const DRDeviceMediaOverwritableSpaceKey = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaOverwritableSpaceKey')
-export const DRDeviceMediaSessionCountKey = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaSessionCountKey')
-export const DRDeviceMediaStateInTransition = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaStateInTransition')
+export const DRDeviceMediaOverwritableSpaceKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceMediaOverwritableSpaceKey',
+)
+
+export const DRDeviceMediaSessionCountKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceMediaSessionCountKey',
+)
+
+export const DRDeviceMediaStateInTransition = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceMediaStateInTransition',
+)
+
 export const DRDeviceMediaStateKey = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaStateKey')
-export const DRDeviceMediaStateMediaPresent = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaStateMediaPresent')
+export const DRDeviceMediaStateMediaPresent = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceMediaStateMediaPresent',
+)
+
 export const DRDeviceMediaStateNone = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaStateNone')
 export const DRDeviceMediaTrackCountKey = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaTrackCountKey')
 export const DRDeviceMediaTypeBDR = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaTypeBDR')
@@ -213,50 +409,146 @@ export const DRDeviceMediaTypeCDR = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaType
 export const DRDeviceMediaTypeCDROM = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaTypeCDROM')
 export const DRDeviceMediaTypeCDRW = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaTypeCDRW')
 export const DRDeviceMediaTypeDVDPlusR = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaTypeDVDPlusR')
-export const DRDeviceMediaTypeDVDPlusRDoubleLayer = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaTypeDVDPlusRDoubleLayer')
+export const DRDeviceMediaTypeDVDPlusRDoubleLayer = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceMediaTypeDVDPlusRDoubleLayer',
+)
+
 export const DRDeviceMediaTypeDVDPlusRW = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaTypeDVDPlusRW')
-export const DRDeviceMediaTypeDVDPlusRWDoubleLayer = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaTypeDVDPlusRWDoubleLayer')
+export const DRDeviceMediaTypeDVDPlusRWDoubleLayer = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceMediaTypeDVDPlusRWDoubleLayer',
+)
+
 export const DRDeviceMediaTypeDVDR = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaTypeDVDR')
 export const DRDeviceMediaTypeDVDRAM = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaTypeDVDRAM')
-export const DRDeviceMediaTypeDVDRDualLayer = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaTypeDVDRDualLayer')
+export const DRDeviceMediaTypeDVDRDualLayer = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceMediaTypeDVDRDualLayer',
+)
+
 export const DRDeviceMediaTypeDVDROM = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaTypeDVDROM')
 export const DRDeviceMediaTypeDVDRW = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaTypeDVDRW')
-export const DRDeviceMediaTypeDVDRWDualLayer = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaTypeDVDRWDualLayer')
+export const DRDeviceMediaTypeDVDRWDualLayer = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceMediaTypeDVDRWDualLayer',
+)
+
 export const DRDeviceMediaTypeHDDVDR = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaTypeHDDVDR')
 export const DRDeviceMediaTypeHDDVDRAM = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaTypeHDDVDRAM')
-export const DRDeviceMediaTypeHDDVDRDualLayer = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaTypeHDDVDRDualLayer')
+export const DRDeviceMediaTypeHDDVDRDualLayer = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceMediaTypeHDDVDRDualLayer',
+)
+
 export const DRDeviceMediaTypeHDDVDROM = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaTypeHDDVDROM')
 export const DRDeviceMediaTypeHDDVDRW = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaTypeHDDVDRW')
-export const DRDeviceMediaTypeHDDVDRWDualLayer = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaTypeHDDVDRWDualLayer')
+export const DRDeviceMediaTypeHDDVDRWDualLayer = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceMediaTypeHDDVDRWDualLayer',
+)
+
 export const DRDeviceMediaTypeKey = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaTypeKey')
 export const DRDeviceMediaTypeUnknown = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaTypeUnknown')
 export const DRDeviceMediaUsedSpaceKey = /* @__PURE__ */ _bind(FW, 'DRDeviceMediaUsedSpaceKey')
 export const DRDeviceOpenTray = /* @__PURE__ */ _bind(FW, 'DRDeviceOpenTray')
-export const DRDevicePhysicalInterconnectATAPI = /* @__PURE__ */ _bind(FW, 'DRDevicePhysicalInterconnectATAPI')
-export const DRDevicePhysicalInterconnectFibreChannel = /* @__PURE__ */ _bind(FW, 'DRDevicePhysicalInterconnectFibreChannel')
-export const DRDevicePhysicalInterconnectFireWire = /* @__PURE__ */ _bind(FW, 'DRDevicePhysicalInterconnectFireWire')
-export const DRDevicePhysicalInterconnectKey = /* @__PURE__ */ _bind(FW, 'DRDevicePhysicalInterconnectKey')
-export const DRDevicePhysicalInterconnectLocationExternal = /* @__PURE__ */ _bind(FW, 'DRDevicePhysicalInterconnectLocationExternal')
-export const DRDevicePhysicalInterconnectLocationInternal = /* @__PURE__ */ _bind(FW, 'DRDevicePhysicalInterconnectLocationInternal')
-export const DRDevicePhysicalInterconnectLocationKey = /* @__PURE__ */ _bind(FW, 'DRDevicePhysicalInterconnectLocationKey')
-export const DRDevicePhysicalInterconnectLocationUnknown = /* @__PURE__ */ _bind(FW, 'DRDevicePhysicalInterconnectLocationUnknown')
-export const DRDevicePhysicalInterconnectSCSI = /* @__PURE__ */ _bind(FW, 'DRDevicePhysicalInterconnectSCSI')
-export const DRDevicePhysicalInterconnectUSB = /* @__PURE__ */ _bind(FW, 'DRDevicePhysicalInterconnectUSB')
+export const DRDevicePhysicalInterconnectATAPI = /* @__PURE__ */ _bind(
+	FW,
+	'DRDevicePhysicalInterconnectATAPI',
+)
+
+export const DRDevicePhysicalInterconnectFibreChannel = /* @__PURE__ */ _bind(
+	FW,
+	'DRDevicePhysicalInterconnectFibreChannel',
+)
+
+export const DRDevicePhysicalInterconnectFireWire = /* @__PURE__ */ _bind(
+	FW,
+	'DRDevicePhysicalInterconnectFireWire',
+)
+
+export const DRDevicePhysicalInterconnectKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRDevicePhysicalInterconnectKey',
+)
+
+export const DRDevicePhysicalInterconnectLocationExternal = /* @__PURE__ */ _bind(
+	FW,
+	'DRDevicePhysicalInterconnectLocationExternal',
+)
+
+export const DRDevicePhysicalInterconnectLocationInternal = /* @__PURE__ */ _bind(
+	FW,
+	'DRDevicePhysicalInterconnectLocationInternal',
+)
+
+export const DRDevicePhysicalInterconnectLocationKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRDevicePhysicalInterconnectLocationKey',
+)
+
+export const DRDevicePhysicalInterconnectLocationUnknown = /* @__PURE__ */ _bind(
+	FW,
+	'DRDevicePhysicalInterconnectLocationUnknown',
+)
+
+export const DRDevicePhysicalInterconnectSCSI = /* @__PURE__ */ _bind(
+	FW,
+	'DRDevicePhysicalInterconnectSCSI',
+)
+
+export const DRDevicePhysicalInterconnectUSB = /* @__PURE__ */ _bind(
+	FW,
+	'DRDevicePhysicalInterconnectUSB',
+)
+
 export const DRDeviceProductNameKey = /* @__PURE__ */ _bind(FW, 'DRDeviceProductNameKey')
-export const DRDeviceReleaseExclusiveAccess = /* @__PURE__ */ _bind(FW, 'DRDeviceReleaseExclusiveAccess')
-export const DRDeviceReleaseMediaReservation = /* @__PURE__ */ _bind(FW, 'DRDeviceReleaseMediaReservation')
-export const DRDeviceStatusChangedNotification = /* @__PURE__ */ _bind(FW, 'DRDeviceStatusChangedNotification')
-export const DRDeviceSupportLevelAppleShipping = /* @__PURE__ */ _bind(FW, 'DRDeviceSupportLevelAppleShipping')
-export const DRDeviceSupportLevelAppleSupported = /* @__PURE__ */ _bind(FW, 'DRDeviceSupportLevelAppleSupported')
+export const DRDeviceReleaseExclusiveAccess = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceReleaseExclusiveAccess',
+)
+
+export const DRDeviceReleaseMediaReservation = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceReleaseMediaReservation',
+)
+
+export const DRDeviceStatusChangedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceStatusChangedNotification',
+)
+
+export const DRDeviceSupportLevelAppleShipping = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceSupportLevelAppleShipping',
+)
+
+export const DRDeviceSupportLevelAppleSupported = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceSupportLevelAppleSupported',
+)
+
 export const DRDeviceSupportLevelKey = /* @__PURE__ */ _bind(FW, 'DRDeviceSupportLevelKey')
 export const DRDeviceSupportLevelNone = /* @__PURE__ */ _bind(FW, 'DRDeviceSupportLevelNone')
-export const DRDeviceSupportLevelUnsupported = /* @__PURE__ */ _bind(FW, 'DRDeviceSupportLevelUnsupported')
-export const DRDeviceSupportLevelVendorSupported = /* @__PURE__ */ _bind(FW, 'DRDeviceSupportLevelVendorSupported')
+export const DRDeviceSupportLevelUnsupported = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceSupportLevelUnsupported',
+)
+
+export const DRDeviceSupportLevelVendorSupported = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceSupportLevelVendorSupported',
+)
+
 export const DRDeviceTrackInfoKey = /* @__PURE__ */ _bind(FW, 'DRDeviceTrackInfoKey')
 export const DRDeviceTrackRefsKey = /* @__PURE__ */ _bind(FW, 'DRDeviceTrackRefsKey')
 export const DRDeviceVendorNameKey = /* @__PURE__ */ _bind(FW, 'DRDeviceVendorNameKey')
 export const DRDeviceWriteBufferSizeKey = /* @__PURE__ */ _bind(FW, 'DRDeviceWriteBufferSizeKey')
-export const DRDeviceWriteCapabilitiesKey = /* @__PURE__ */ _bind(FW, 'DRDeviceWriteCapabilitiesKey')
+export const DRDeviceWriteCapabilitiesKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRDeviceWriteCapabilitiesKey',
+)
+
 export const DRDeviceXFactorForKPS = /* @__PURE__ */ _bind(FW, 'DRDeviceXFactorForKPS')
 export const DREffectiveDate = /* @__PURE__ */ _bind(FW, 'DREffectiveDate')
 export const DRErase = /* @__PURE__ */ _bind(FW, 'DRErase')
@@ -267,22 +559,46 @@ export const DREraseGetProperties = /* @__PURE__ */ _bind(FW, 'DREraseGetPropert
 export const DREraseGetTypeID = /* @__PURE__ */ _bind(FW, 'DREraseGetTypeID')
 export const DREraseSetProperties = /* @__PURE__ */ _bind(FW, 'DREraseSetProperties')
 export const DREraseStart = /* @__PURE__ */ _bind(FW, 'DREraseStart')
-export const DREraseStatusChangedNotification = /* @__PURE__ */ _bind(FW, 'DREraseStatusChangedNotification')
+export const DREraseStatusChangedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'DREraseStatusChangedNotification',
+)
+
 export const DREraseTypeComplete = /* @__PURE__ */ _bind(FW, 'DREraseTypeComplete')
 export const DREraseTypeKey = /* @__PURE__ */ _bind(FW, 'DREraseTypeKey')
 export const DREraseTypeQuick = /* @__PURE__ */ _bind(FW, 'DREraseTypeQuick')
-export const DRErrorStatusAdditionalSenseStringKey = /* @__PURE__ */ _bind(FW, 'DRErrorStatusAdditionalSenseStringKey')
-export const DRErrorStatusErrorInfoStringKey = /* @__PURE__ */ _bind(FW, 'DRErrorStatusErrorInfoStringKey')
+export const DRErrorStatusAdditionalSenseStringKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRErrorStatusAdditionalSenseStringKey',
+)
+
+export const DRErrorStatusErrorInfoStringKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRErrorStatusErrorInfoStringKey',
+)
+
 export const DRErrorStatusErrorKey = /* @__PURE__ */ _bind(FW, 'DRErrorStatusErrorKey')
 export const DRErrorStatusErrorStringKey = /* @__PURE__ */ _bind(FW, 'DRErrorStatusErrorStringKey')
 export const DRErrorStatusKey = /* @__PURE__ */ _bind(FW, 'DRErrorStatusKey')
-export const DRErrorStatusSenseCodeStringKey = /* @__PURE__ */ _bind(FW, 'DRErrorStatusSenseCodeStringKey')
+export const DRErrorStatusSenseCodeStringKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRErrorStatusSenseCodeStringKey',
+)
+
 export const DRErrorStatusSenseKey = /* @__PURE__ */ _bind(FW, 'DRErrorStatusSenseKey')
 export const DRExpirationDate = /* @__PURE__ */ _bind(FW, 'DRExpirationDate')
 export const DRFSObject = /* @__PURE__ */ _bind(FW, 'DRFSObject')
 export const DRFSObjectCopyBaseName = /* @__PURE__ */ _bind(FW, 'DRFSObjectCopyBaseName')
-export const DRFSObjectCopyFilesystemProperties = /* @__PURE__ */ _bind(FW, 'DRFSObjectCopyFilesystemProperties')
-export const DRFSObjectCopyFilesystemProperty = /* @__PURE__ */ _bind(FW, 'DRFSObjectCopyFilesystemProperty')
+export const DRFSObjectCopyFilesystemProperties = /* @__PURE__ */ _bind(
+	FW,
+	'DRFSObjectCopyFilesystemProperties',
+)
+
+export const DRFSObjectCopyFilesystemProperty = /* @__PURE__ */ _bind(
+	FW,
+	'DRFSObjectCopyFilesystemProperty',
+)
+
 export const DRFSObjectCopyMangledName = /* @__PURE__ */ _bind(FW, 'DRFSObjectCopyMangledName')
 export const DRFSObjectCopyMangledNames = /* @__PURE__ */ _bind(FW, 'DRFSObjectCopyMangledNames')
 export const DRFSObjectCopyRealURL = /* @__PURE__ */ _bind(FW, 'DRFSObjectCopyRealURL')
@@ -294,15 +610,27 @@ export const DRFSObjectGetRealFSRef = /* @__PURE__ */ _bind(FW, 'DRFSObjectGetRe
 export const DRFSObjectIsVirtual = /* @__PURE__ */ _bind(FW, 'DRFSObjectIsVirtual')
 export const DRFSObjectSetBaseName = /* @__PURE__ */ _bind(FW, 'DRFSObjectSetBaseName')
 export const DRFSObjectSetFilesystemMask = /* @__PURE__ */ _bind(FW, 'DRFSObjectSetFilesystemMask')
-export const DRFSObjectSetFilesystemProperties = /* @__PURE__ */ _bind(FW, 'DRFSObjectSetFilesystemProperties')
-export const DRFSObjectSetFilesystemProperty = /* @__PURE__ */ _bind(FW, 'DRFSObjectSetFilesystemProperty')
+export const DRFSObjectSetFilesystemProperties = /* @__PURE__ */ _bind(
+	FW,
+	'DRFSObjectSetFilesystemProperties',
+)
+
+export const DRFSObjectSetFilesystemProperty = /* @__PURE__ */ _bind(
+	FW,
+	'DRFSObjectSetFilesystemProperty',
+)
+
 export const DRFSObjectSetSpecificName = /* @__PURE__ */ _bind(FW, 'DRFSObjectSetSpecificName')
 export const DRFSObjectSetSpecificNames = /* @__PURE__ */ _bind(FW, 'DRFSObjectSetSpecificNames')
 export const DRFile = /* @__PURE__ */ _bind(FW, 'DRFile')
 export const DRFileCreateReal = /* @__PURE__ */ _bind(FW, 'DRFileCreateReal')
 export const DRFileCreateRealWithURL = /* @__PURE__ */ _bind(FW, 'DRFileCreateRealWithURL')
 export const DRFileCreateVirtualLink = /* @__PURE__ */ _bind(FW, 'DRFileCreateVirtualLink')
-export const DRFileCreateVirtualWithCallback = /* @__PURE__ */ _bind(FW, 'DRFileCreateVirtualWithCallback')
+export const DRFileCreateVirtualWithCallback = /* @__PURE__ */ _bind(
+	FW,
+	'DRFileCreateVirtualWithCallback',
+)
+
 export const DRFileCreateVirtualWithData = /* @__PURE__ */ _bind(FW, 'DRFileCreateVirtualWithData')
 export const DRFileDataProduction = /* @__PURE__ */ _bind(FW, 'DRFileDataProduction')
 export const DRFileForkData = /* @__PURE__ */ _bind(FW, 'DRFileForkData')
@@ -310,16 +638,44 @@ export const DRFileForkResource = /* @__PURE__ */ _bind(FW, 'DRFileForkResource'
 export const DRFileForkSizeInfo = /* @__PURE__ */ _bind(FW, 'DRFileForkSizeInfo')
 export const DRFileGetTypeID = /* @__PURE__ */ _bind(FW, 'DRFileGetTypeID')
 export const DRFileProductionInfo = /* @__PURE__ */ _bind(FW, 'DRFileProductionInfo')
-export const DRFilesystemInclusionMaskHFSPlus = /* @__PURE__ */ _bind(FW, 'DRFilesystemInclusionMaskHFSPlus')
-export const DRFilesystemInclusionMaskISO9660 = /* @__PURE__ */ _bind(FW, 'DRFilesystemInclusionMaskISO9660')
-export const DRFilesystemInclusionMaskJoliet = /* @__PURE__ */ _bind(FW, 'DRFilesystemInclusionMaskJoliet')
-export const DRFilesystemInclusionMaskUDF = /* @__PURE__ */ _bind(FW, 'DRFilesystemInclusionMaskUDF')
+export const DRFilesystemInclusionMaskHFSPlus = /* @__PURE__ */ _bind(
+	FW,
+	'DRFilesystemInclusionMaskHFSPlus',
+)
+
+export const DRFilesystemInclusionMaskISO9660 = /* @__PURE__ */ _bind(
+	FW,
+	'DRFilesystemInclusionMaskISO9660',
+)
+
+export const DRFilesystemInclusionMaskJoliet = /* @__PURE__ */ _bind(
+	FW,
+	'DRFilesystemInclusionMaskJoliet',
+)
+
+export const DRFilesystemInclusionMaskUDF = /* @__PURE__ */ _bind(
+	FW,
+	'DRFilesystemInclusionMaskUDF',
+)
+
 export const DRFilesystemTrackCreate = /* @__PURE__ */ _bind(FW, 'DRFilesystemTrackCreate')
-export const DRFilesystemTrackEstimateOverhead = /* @__PURE__ */ _bind(FW, 'DRFilesystemTrackEstimateOverhead')
-export const DRFlagSubchannelDataRequested = /* @__PURE__ */ _bind(FW, 'DRFlagSubchannelDataRequested')
+export const DRFilesystemTrackEstimateOverhead = /* @__PURE__ */ _bind(
+	FW,
+	'DRFilesystemTrackEstimateOverhead',
+)
+
+export const DRFlagSubchannelDataRequested = /* @__PURE__ */ _bind(
+	FW,
+	'DRFlagSubchannelDataRequested',
+)
+
 export const DRFolder = /* @__PURE__ */ _bind(FW, 'DRFolder')
 export const DRFolderAddChild = /* @__PURE__ */ _bind(FW, 'DRFolderAddChild')
-export const DRFolderConvertRealToVirtual = /* @__PURE__ */ _bind(FW, 'DRFolderConvertRealToVirtual')
+export const DRFolderConvertRealToVirtual = /* @__PURE__ */ _bind(
+	FW,
+	'DRFolderConvertRealToVirtual',
+)
+
 export const DRFolderCopyChildren = /* @__PURE__ */ _bind(FW, 'DRFolderCopyChildren')
 export const DRFolderCountChildren = /* @__PURE__ */ _bind(FW, 'DRFolderCountChildren')
 export const DRFolderCreateReal = /* @__PURE__ */ _bind(FW, 'DRFolderCreateReal')
@@ -361,11 +717,27 @@ export const DRMaxBurnSpeedKey = /* @__PURE__ */ _bind(FW, 'DRMaxBurnSpeedKey')
 export const DRMediaCatalogNumberKey = /* @__PURE__ */ _bind(FW, 'DRMediaCatalogNumberKey')
 export const DRNextWritableAddressKey = /* @__PURE__ */ _bind(FW, 'DRNextWritableAddressKey')
 export const DRNotificationCenter = /* @__PURE__ */ _bind(FW, 'DRNotificationCenter')
-export const DRNotificationCenterAddObserver = /* @__PURE__ */ _bind(FW, 'DRNotificationCenterAddObserver')
+export const DRNotificationCenterAddObserver = /* @__PURE__ */ _bind(
+	FW,
+	'DRNotificationCenterAddObserver',
+)
+
 export const DRNotificationCenterCreate = /* @__PURE__ */ _bind(FW, 'DRNotificationCenterCreate')
-export const DRNotificationCenterCreateRunLoopSource = /* @__PURE__ */ _bind(FW, 'DRNotificationCenterCreateRunLoopSource')
-export const DRNotificationCenterGetTypeID = /* @__PURE__ */ _bind(FW, 'DRNotificationCenterGetTypeID')
-export const DRNotificationCenterRemoveObserver = /* @__PURE__ */ _bind(FW, 'DRNotificationCenterRemoveObserver')
+export const DRNotificationCenterCreateRunLoopSource = /* @__PURE__ */ _bind(
+	FW,
+	'DRNotificationCenterCreateRunLoopSource',
+)
+
+export const DRNotificationCenterGetTypeID = /* @__PURE__ */ _bind(
+	FW,
+	'DRNotificationCenterGetTypeID',
+)
+
+export const DRNotificationCenterRemoveObserver = /* @__PURE__ */ _bind(
+	FW,
+	'DRNotificationCenterRemoveObserver',
+)
+
 export const DRPosixFileMode = /* @__PURE__ */ _bind(FW, 'DRPosixFileMode')
 export const DRPosixGID = /* @__PURE__ */ _bind(FW, 'DRPosixGID')
 export const DRPosixUID = /* @__PURE__ */ _bind(FW, 'DRPosixUID')
@@ -375,9 +747,21 @@ export const DRPublisher = /* @__PURE__ */ _bind(FW, 'DRPublisher')
 export const DRRecordingDate = /* @__PURE__ */ _bind(FW, 'DRRecordingDate')
 export const DRRefConCallbacks = /* @__PURE__ */ _bind(FW, 'DRRefConCallbacks')
 export const DRSCMSCopyrightFree = /* @__PURE__ */ _bind(FW, 'DRSCMSCopyrightFree')
-export const DRSCMSCopyrightProtectedCopy = /* @__PURE__ */ _bind(FW, 'DRSCMSCopyrightProtectedCopy')
-export const DRSCMSCopyrightProtectedOriginal = /* @__PURE__ */ _bind(FW, 'DRSCMSCopyrightProtectedOriginal')
-export const DRSerialCopyManagementStateKey = /* @__PURE__ */ _bind(FW, 'DRSerialCopyManagementStateKey')
+export const DRSCMSCopyrightProtectedCopy = /* @__PURE__ */ _bind(
+	FW,
+	'DRSCMSCopyrightProtectedCopy',
+)
+
+export const DRSCMSCopyrightProtectedOriginal = /* @__PURE__ */ _bind(
+	FW,
+	'DRSCMSCopyrightProtectedOriginal',
+)
+
+export const DRSerialCopyManagementStateKey = /* @__PURE__ */ _bind(
+	FW,
+	'DRSerialCopyManagementStateKey',
+)
+
 export const DRSessionFormatKey = /* @__PURE__ */ _bind(FW, 'DRSessionFormatKey')
 export const DRSessionNumberKey = /* @__PURE__ */ _bind(FW, 'DRSessionNumberKey')
 export const DRSetRefCon = /* @__PURE__ */ _bind(FW, 'DRSetRefCon')
@@ -387,7 +771,11 @@ export const DRStatusCurrentTrackKey = /* @__PURE__ */ _bind(FW, 'DRStatusCurren
 export const DRStatusEraseTypeKey = /* @__PURE__ */ _bind(FW, 'DRStatusEraseTypeKey')
 export const DRStatusPercentCompleteKey = /* @__PURE__ */ _bind(FW, 'DRStatusPercentCompleteKey')
 export const DRStatusProgressCurrentKPS = /* @__PURE__ */ _bind(FW, 'DRStatusProgressCurrentKPS')
-export const DRStatusProgressCurrentXFactor = /* @__PURE__ */ _bind(FW, 'DRStatusProgressCurrentXFactor')
+export const DRStatusProgressCurrentXFactor = /* @__PURE__ */ _bind(
+	FW,
+	'DRStatusProgressCurrentXFactor',
+)
+
 export const DRStatusProgressInfoKey = /* @__PURE__ */ _bind(FW, 'DRStatusProgressInfoKey')
 export const DRStatusStateDone = /* @__PURE__ */ _bind(FW, 'DRStatusStateDone')
 export const DRStatusStateErasing = /* @__PURE__ */ _bind(FW, 'DRStatusStateErasing')
@@ -436,25 +824,53 @@ export const DRTrackTypeInvisible = /* @__PURE__ */ _bind(FW, 'DRTrackTypeInvisi
 export const DRTrackTypeKey = /* @__PURE__ */ _bind(FW, 'DRTrackTypeKey')
 export const DRTrackTypeReserved = /* @__PURE__ */ _bind(FW, 'DRTrackTypeReserved')
 export const DRUDF = /* @__PURE__ */ _bind(FW, 'DRUDF')
-export const DRUDFApplicationIdentifierSuffix = /* @__PURE__ */ _bind(FW, 'DRUDFApplicationIdentifierSuffix')
-export const DRUDFExtendedFilePermissions = /* @__PURE__ */ _bind(FW, 'DRUDFExtendedFilePermissions')
+export const DRUDFApplicationIdentifierSuffix = /* @__PURE__ */ _bind(
+	FW,
+	'DRUDFApplicationIdentifierSuffix',
+)
+
+export const DRUDFExtendedFilePermissions = /* @__PURE__ */ _bind(
+	FW,
+	'DRUDFExtendedFilePermissions',
+)
+
 export const DRUDFInterchangeLevel = /* @__PURE__ */ _bind(FW, 'DRUDFInterchangeLevel')
 export const DRUDFMaxInterchangeLevel = /* @__PURE__ */ _bind(FW, 'DRUDFMaxInterchangeLevel')
-export const DRUDFMaxVolumeSequenceNumber = /* @__PURE__ */ _bind(FW, 'DRUDFMaxVolumeSequenceNumber')
-export const DRUDFPrimaryVolumeDescriptorNumber = /* @__PURE__ */ _bind(FW, 'DRUDFPrimaryVolumeDescriptorNumber')
+export const DRUDFMaxVolumeSequenceNumber = /* @__PURE__ */ _bind(
+	FW,
+	'DRUDFMaxVolumeSequenceNumber',
+)
+
+export const DRUDFPrimaryVolumeDescriptorNumber = /* @__PURE__ */ _bind(
+	FW,
+	'DRUDFPrimaryVolumeDescriptorNumber',
+)
+
 export const DRUDFRealTimeFile = /* @__PURE__ */ _bind(FW, 'DRUDFRealTimeFile')
 export const DRUDFVersion102 = /* @__PURE__ */ _bind(FW, 'DRUDFVersion102')
 export const DRUDFVersion150 = /* @__PURE__ */ _bind(FW, 'DRUDFVersion150')
 export const DRUDFVolumeSequenceNumber = /* @__PURE__ */ _bind(FW, 'DRUDFVolumeSequenceNumber')
 export const DRUDFVolumeSetIdentifier = /* @__PURE__ */ _bind(FW, 'DRUDFVolumeSetIdentifier')
-export const DRUDFVolumeSetImplementationUse = /* @__PURE__ */ _bind(FW, 'DRUDFVolumeSetImplementationUse')
+export const DRUDFVolumeSetImplementationUse = /* @__PURE__ */ _bind(
+	FW,
+	'DRUDFVolumeSetImplementationUse',
+)
+
 export const DRUDFVolumeSetTimestamp = /* @__PURE__ */ _bind(FW, 'DRUDFVolumeSetTimestamp')
 export const DRUDFWriteVersion = /* @__PURE__ */ _bind(FW, 'DRUDFWriteVersion')
 export const DRVerificationTypeChecksum = /* @__PURE__ */ _bind(FW, 'DRVerificationTypeChecksum')
 export const DRVerificationTypeKey = /* @__PURE__ */ _bind(FW, 'DRVerificationTypeKey')
 export const DRVerificationTypeNone = /* @__PURE__ */ _bind(FW, 'DRVerificationTypeNone')
-export const DRVerificationTypeProduceAgain = /* @__PURE__ */ _bind(FW, 'DRVerificationTypeProduceAgain')
-export const DRVerificationTypeReceiveData = /* @__PURE__ */ _bind(FW, 'DRVerificationTypeReceiveData')
+export const DRVerificationTypeProduceAgain = /* @__PURE__ */ _bind(
+	FW,
+	'DRVerificationTypeProduceAgain',
+)
+
+export const DRVerificationTypeReceiveData = /* @__PURE__ */ _bind(
+	FW,
+	'DRVerificationTypeReceiveData',
+)
+
 export const DRVolumeCheckedDate = /* @__PURE__ */ _bind(FW, 'DRVolumeCheckedDate')
 export const DRVolumeCreationDate = /* @__PURE__ */ _bind(FW, 'DRVolumeCreationDate')
 export const DRVolumeEffectiveDate = /* @__PURE__ */ _bind(FW, 'DRVolumeEffectiveDate')
@@ -473,7 +889,11 @@ export const kDRAbstractFile = /* @__PURE__ */ _bind(FW, 'kDRAbstractFile')
 export const kDRAccessDate = /* @__PURE__ */ _bind(FW, 'kDRAccessDate')
 export const kDRAllFilesystems = /* @__PURE__ */ _bind(FW, 'kDRAllFilesystems')
 export const kDRApplicationIdentifier = /* @__PURE__ */ _bind(FW, 'kDRApplicationIdentifier')
-export const kDRAttributeModificationDate = /* @__PURE__ */ _bind(FW, 'kDRAttributeModificationDate')
+export const kDRAttributeModificationDate = /* @__PURE__ */ _bind(
+	FW,
+	'kDRAttributeModificationDate',
+)
+
 export const kDRAudioFileNotSupportedErr = /* @__PURE__ */ _bind(FW, 'kDRAudioFileNotSupportedErr')
 export const kDRAudioFourChannelKey = /* @__PURE__ */ _bind(FW, 'kDRAudioFourChannelKey')
 export const kDRAudioPreEmphasisKey = /* @__PURE__ */ _bind(FW, 'kDRAudioPreEmphasisKey')
@@ -497,10 +917,22 @@ export const kDRBlockTypeMode2Form1Data = /* @__PURE__ */ _bind(FW, 'kDRBlockTyp
 export const kDRBlockTypeMode2Form2Data = /* @__PURE__ */ _bind(FW, 'kDRBlockTypeMode2Form2Data')
 export const kDRBufferZone1DataKey = /* @__PURE__ */ _bind(FW, 'kDRBufferZone1DataKey')
 export const kDRBurnAppendableKey = /* @__PURE__ */ _bind(FW, 'kDRBurnAppendableKey')
-export const kDRBurnCompletionActionEject = /* @__PURE__ */ _bind(FW, 'kDRBurnCompletionActionEject')
+export const kDRBurnCompletionActionEject = /* @__PURE__ */ _bind(
+	FW,
+	'kDRBurnCompletionActionEject',
+)
+
 export const kDRBurnCompletionActionKey = /* @__PURE__ */ _bind(FW, 'kDRBurnCompletionActionKey')
-export const kDRBurnCompletionActionMount = /* @__PURE__ */ _bind(FW, 'kDRBurnCompletionActionMount')
-export const kDRBurnDoubleLayerL0DataZoneBlocksKey = /* @__PURE__ */ _bind(FW, 'kDRBurnDoubleLayerL0DataZoneBlocksKey')
+export const kDRBurnCompletionActionMount = /* @__PURE__ */ _bind(
+	FW,
+	'kDRBurnCompletionActionMount',
+)
+
+export const kDRBurnDoubleLayerL0DataZoneBlocksKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRBurnDoubleLayerL0DataZoneBlocksKey',
+)
+
 export const kDRBurnFailureActionEject = /* @__PURE__ */ _bind(FW, 'kDRBurnFailureActionEject')
 export const kDRBurnFailureActionKey = /* @__PURE__ */ _bind(FW, 'kDRBurnFailureActionKey')
 export const kDRBurnFailureActionNone = /* @__PURE__ */ _bind(FW, 'kDRBurnFailureActionNone')
@@ -510,36 +942,84 @@ export const kDRBurnNotAllowedErr = /* @__PURE__ */ _bind(FW, 'kDRBurnNotAllowed
 export const kDRBurnOverwriteDiscKey = /* @__PURE__ */ _bind(FW, 'kDRBurnOverwriteDiscKey')
 export const kDRBurnPowerCalibrationErr = /* @__PURE__ */ _bind(FW, 'kDRBurnPowerCalibrationErr')
 export const kDRBurnRequestedSpeedKey = /* @__PURE__ */ _bind(FW, 'kDRBurnRequestedSpeedKey')
-export const kDRBurnStatusChangedNotification = /* @__PURE__ */ _bind(FW, 'kDRBurnStatusChangedNotification')
+export const kDRBurnStatusChangedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'kDRBurnStatusChangedNotification',
+)
+
 export const kDRBurnStrategyBDDAO = /* @__PURE__ */ _bind(FW, 'kDRBurnStrategyBDDAO')
 export const kDRBurnStrategyCDSAO = /* @__PURE__ */ _bind(FW, 'kDRBurnStrategyCDSAO')
 export const kDRBurnStrategyCDTAO = /* @__PURE__ */ _bind(FW, 'kDRBurnStrategyCDTAO')
 export const kDRBurnStrategyDVDDAO = /* @__PURE__ */ _bind(FW, 'kDRBurnStrategyDVDDAO')
-export const kDRBurnStrategyIsRequiredKey = /* @__PURE__ */ _bind(FW, 'kDRBurnStrategyIsRequiredKey')
+export const kDRBurnStrategyIsRequiredKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRBurnStrategyIsRequiredKey',
+)
+
 export const kDRBurnStrategyKey = /* @__PURE__ */ _bind(FW, 'kDRBurnStrategyKey')
 export const kDRBurnTestingKey = /* @__PURE__ */ _bind(FW, 'kDRBurnTestingKey')
 export const kDRBurnUnderrunErr = /* @__PURE__ */ _bind(FW, 'kDRBurnUnderrunErr')
-export const kDRBurnUnderrunProtectionKey = /* @__PURE__ */ _bind(FW, 'kDRBurnUnderrunProtectionKey')
+export const kDRBurnUnderrunProtectionKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRBurnUnderrunProtectionKey',
+)
+
 export const kDRBurnVerifyDiscKey = /* @__PURE__ */ _bind(FW, 'kDRBurnVerifyDiscKey')
 export const kDRCDTextArrangerKey = /* @__PURE__ */ _bind(FW, 'kDRCDTextArrangerKey')
-export const kDRCDTextCFStringEncodingKey = /* @__PURE__ */ _bind(FW, 'kDRCDTextCFStringEncodingKey')
+export const kDRCDTextCFStringEncodingKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRCDTextCFStringEncodingKey',
+)
+
 export const kDRCDTextCharacterCodeKey = /* @__PURE__ */ _bind(FW, 'kDRCDTextCharacterCodeKey')
 export const kDRCDTextClosedKey = /* @__PURE__ */ _bind(FW, 'kDRCDTextClosedKey')
 export const kDRCDTextComposerKey = /* @__PURE__ */ _bind(FW, 'kDRCDTextComposerKey')
-export const kDRCDTextCopyrightAssertedForNamesKey = /* @__PURE__ */ _bind(FW, 'kDRCDTextCopyrightAssertedForNamesKey')
-export const kDRCDTextCopyrightAssertedForSpecialMessagesKey = /* @__PURE__ */ _bind(FW, 'kDRCDTextCopyrightAssertedForSpecialMessagesKey')
-export const kDRCDTextCopyrightAssertedForTitlesKey = /* @__PURE__ */ _bind(FW, 'kDRCDTextCopyrightAssertedForTitlesKey')
+export const kDRCDTextCopyrightAssertedForNamesKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRCDTextCopyrightAssertedForNamesKey',
+)
+
+export const kDRCDTextCopyrightAssertedForSpecialMessagesKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRCDTextCopyrightAssertedForSpecialMessagesKey',
+)
+
+export const kDRCDTextCopyrightAssertedForTitlesKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRCDTextCopyrightAssertedForTitlesKey',
+)
+
 export const kDRCDTextDiscIdentKey = /* @__PURE__ */ _bind(FW, 'kDRCDTextDiscIdentKey')
 export const kDRCDTextEncodingASCII = /* @__PURE__ */ _bind(FW, 'kDRCDTextEncodingASCII')
-export const kDRCDTextEncodingISOLatin1Modified = /* @__PURE__ */ _bind(FW, 'kDRCDTextEncodingISOLatin1Modified')
-export const kDRCDTextGenreCodeAdultContemporary = /* @__PURE__ */ _bind(FW, 'kDRCDTextGenreCodeAdultContemporary')
-export const kDRCDTextGenreCodeAlternativeRock = /* @__PURE__ */ _bind(FW, 'kDRCDTextGenreCodeAlternativeRock')
+export const kDRCDTextEncodingISOLatin1Modified = /* @__PURE__ */ _bind(
+	FW,
+	'kDRCDTextEncodingISOLatin1Modified',
+)
+
+export const kDRCDTextGenreCodeAdultContemporary = /* @__PURE__ */ _bind(
+	FW,
+	'kDRCDTextGenreCodeAdultContemporary',
+)
+
+export const kDRCDTextGenreCodeAlternativeRock = /* @__PURE__ */ _bind(
+	FW,
+	'kDRCDTextGenreCodeAlternativeRock',
+)
+
 export const kDRCDTextGenreCodeChildrens = /* @__PURE__ */ _bind(FW, 'kDRCDTextGenreCodeChildrens')
 export const kDRCDTextGenreCodeClassical = /* @__PURE__ */ _bind(FW, 'kDRCDTextGenreCodeClassical')
-export const kDRCDTextGenreCodeContemporaryChristian = /* @__PURE__ */ _bind(FW, 'kDRCDTextGenreCodeContemporaryChristian')
+export const kDRCDTextGenreCodeContemporaryChristian = /* @__PURE__ */ _bind(
+	FW,
+	'kDRCDTextGenreCodeContemporaryChristian',
+)
+
 export const kDRCDTextGenreCodeCountry = /* @__PURE__ */ _bind(FW, 'kDRCDTextGenreCodeCountry')
 export const kDRCDTextGenreCodeDance = /* @__PURE__ */ _bind(FW, 'kDRCDTextGenreCodeDance')
-export const kDRCDTextGenreCodeEasyListening = /* @__PURE__ */ _bind(FW, 'kDRCDTextGenreCodeEasyListening')
+export const kDRCDTextGenreCodeEasyListening = /* @__PURE__ */ _bind(
+	FW,
+	'kDRCDTextGenreCodeEasyListening',
+)
+
 export const kDRCDTextGenreCodeErotic = /* @__PURE__ */ _bind(FW, 'kDRCDTextGenreCodeErotic')
 export const kDRCDTextGenreCodeFolk = /* @__PURE__ */ _bind(FW, 'kDRCDTextGenreCodeFolk')
 export const kDRCDTextGenreCodeGospel = /* @__PURE__ */ _bind(FW, 'kDRCDTextGenreCodeGospel')
@@ -554,13 +1034,33 @@ export const kDRCDTextGenreCodeOperetta = /* @__PURE__ */ _bind(FW, 'kDRCDTextGe
 export const kDRCDTextGenreCodePop = /* @__PURE__ */ _bind(FW, 'kDRCDTextGenreCodePop')
 export const kDRCDTextGenreCodeRap = /* @__PURE__ */ _bind(FW, 'kDRCDTextGenreCodeRap')
 export const kDRCDTextGenreCodeReggae = /* @__PURE__ */ _bind(FW, 'kDRCDTextGenreCodeReggae')
-export const kDRCDTextGenreCodeRhythmAndBlues = /* @__PURE__ */ _bind(FW, 'kDRCDTextGenreCodeRhythmAndBlues')
+export const kDRCDTextGenreCodeRhythmAndBlues = /* @__PURE__ */ _bind(
+	FW,
+	'kDRCDTextGenreCodeRhythmAndBlues',
+)
+
 export const kDRCDTextGenreCodeRock = /* @__PURE__ */ _bind(FW, 'kDRCDTextGenreCodeRock')
-export const kDRCDTextGenreCodeSoundEffects = /* @__PURE__ */ _bind(FW, 'kDRCDTextGenreCodeSoundEffects')
-export const kDRCDTextGenreCodeSoundtrack = /* @__PURE__ */ _bind(FW, 'kDRCDTextGenreCodeSoundtrack')
-export const kDRCDTextGenreCodeSpokenWord = /* @__PURE__ */ _bind(FW, 'kDRCDTextGenreCodeSpokenWord')
+export const kDRCDTextGenreCodeSoundEffects = /* @__PURE__ */ _bind(
+	FW,
+	'kDRCDTextGenreCodeSoundEffects',
+)
+
+export const kDRCDTextGenreCodeSoundtrack = /* @__PURE__ */ _bind(
+	FW,
+	'kDRCDTextGenreCodeSoundtrack',
+)
+
+export const kDRCDTextGenreCodeSpokenWord = /* @__PURE__ */ _bind(
+	FW,
+	'kDRCDTextGenreCodeSpokenWord',
+)
+
 export const kDRCDTextGenreCodeUnknown = /* @__PURE__ */ _bind(FW, 'kDRCDTextGenreCodeUnknown')
-export const kDRCDTextGenreCodeWorldMusic = /* @__PURE__ */ _bind(FW, 'kDRCDTextGenreCodeWorldMusic')
+export const kDRCDTextGenreCodeWorldMusic = /* @__PURE__ */ _bind(
+	FW,
+	'kDRCDTextGenreCodeWorldMusic',
+)
+
 export const kDRCDTextGenreKey = /* @__PURE__ */ _bind(FW, 'kDRCDTextGenreKey')
 export const kDRCDTextKey = /* @__PURE__ */ _bind(FW, 'kDRCDTextKey')
 export const kDRCDTextLanguageKey = /* @__PURE__ */ _bind(FW, 'kDRCDTextLanguageKey')
@@ -588,19 +1088,35 @@ export const kDRDataPreparer = /* @__PURE__ */ _bind(FW, 'kDRDataPreparer')
 export const kDRDataProductionErr = /* @__PURE__ */ _bind(FW, 'kDRDataProductionErr')
 export const kDRDefaultDate = /* @__PURE__ */ _bind(FW, 'kDRDefaultDate')
 export const kDRDeviceAccessErr = /* @__PURE__ */ _bind(FW, 'kDRDeviceAccessErr')
-export const kDRDeviceAppearedNotification = /* @__PURE__ */ _bind(FW, 'kDRDeviceAppearedNotification')
+export const kDRDeviceAppearedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceAppearedNotification',
+)
+
 export const kDRDeviceBurnSpeedBD1x = /* @__PURE__ */ _bind(FW, 'kDRDeviceBurnSpeedBD1x')
 export const kDRDeviceBurnSpeedCD1x = /* @__PURE__ */ _bind(FW, 'kDRDeviceBurnSpeedCD1x')
 export const kDRDeviceBurnSpeedDVD1x = /* @__PURE__ */ _bind(FW, 'kDRDeviceBurnSpeedDVD1x')
 export const kDRDeviceBurnSpeedHDDVD1x = /* @__PURE__ */ _bind(FW, 'kDRDeviceBurnSpeedHDDVD1x')
 export const kDRDeviceBurnSpeedMax = /* @__PURE__ */ _bind(FW, 'kDRDeviceBurnSpeedMax')
 export const kDRDeviceBurnSpeedsKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceBurnSpeedsKey')
-export const kDRDeviceBurnStrategyNotAvailableErr = /* @__PURE__ */ _bind(FW, 'kDRDeviceBurnStrategyNotAvailableErr')
+export const kDRDeviceBurnStrategyNotAvailableErr = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceBurnStrategyNotAvailableErr',
+)
+
 export const kDRDeviceBusyErr = /* @__PURE__ */ _bind(FW, 'kDRDeviceBusyErr')
 export const kDRDeviceCanTestWriteCDKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceCanTestWriteCDKey')
 export const kDRDeviceCanTestWriteDVDKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceCanTestWriteDVDKey')
-export const kDRDeviceCanUnderrunProtectCDKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceCanUnderrunProtectCDKey')
-export const kDRDeviceCanUnderrunProtectDVDKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceCanUnderrunProtectDVDKey')
+export const kDRDeviceCanUnderrunProtectCDKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceCanUnderrunProtectCDKey',
+)
+
+export const kDRDeviceCanUnderrunProtectDVDKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceCanUnderrunProtectDVDKey',
+)
+
 export const kDRDeviceCanWriteBDKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceCanWriteBDKey')
 export const kDRDeviceCanWriteBDREKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceCanWriteBDREKey')
 export const kDRDeviceCanWriteBDRKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceCanWriteBDRKey')
@@ -613,43 +1129,123 @@ export const kDRDeviceCanWriteCDTAOKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceCan
 export const kDRDeviceCanWriteCDTextKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceCanWriteCDTextKey')
 export const kDRDeviceCanWriteDVDDAOKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceCanWriteDVDDAOKey')
 export const kDRDeviceCanWriteDVDKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceCanWriteDVDKey')
-export const kDRDeviceCanWriteDVDPlusRDoubleLayerKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceCanWriteDVDPlusRDoubleLayerKey')
-export const kDRDeviceCanWriteDVDPlusRKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceCanWriteDVDPlusRKey')
-export const kDRDeviceCanWriteDVDPlusRWDoubleLayerKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceCanWriteDVDPlusRWDoubleLayerKey')
-export const kDRDeviceCanWriteDVDPlusRWKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceCanWriteDVDPlusRWKey')
+export const kDRDeviceCanWriteDVDPlusRDoubleLayerKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceCanWriteDVDPlusRDoubleLayerKey',
+)
+
+export const kDRDeviceCanWriteDVDPlusRKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceCanWriteDVDPlusRKey',
+)
+
+export const kDRDeviceCanWriteDVDPlusRWDoubleLayerKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceCanWriteDVDPlusRWDoubleLayerKey',
+)
+
+export const kDRDeviceCanWriteDVDPlusRWKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceCanWriteDVDPlusRWKey',
+)
+
 export const kDRDeviceCanWriteDVDRAMKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceCanWriteDVDRAMKey')
-export const kDRDeviceCanWriteDVDRDualLayerKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceCanWriteDVDRDualLayerKey')
+export const kDRDeviceCanWriteDVDRDualLayerKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceCanWriteDVDRDualLayerKey',
+)
+
 export const kDRDeviceCanWriteDVDRKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceCanWriteDVDRKey')
-export const kDRDeviceCanWriteDVDRWDualLayerKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceCanWriteDVDRWDualLayerKey')
+export const kDRDeviceCanWriteDVDRWDualLayerKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceCanWriteDVDRWDualLayerKey',
+)
+
 export const kDRDeviceCanWriteDVDRWKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceCanWriteDVDRWKey')
 export const kDRDeviceCanWriteHDDVDKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceCanWriteHDDVDKey')
-export const kDRDeviceCanWriteHDDVDRAMKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceCanWriteHDDVDRAMKey')
-export const kDRDeviceCanWriteHDDVDRDualLayerKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceCanWriteHDDVDRDualLayerKey')
+export const kDRDeviceCanWriteHDDVDRAMKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceCanWriteHDDVDRAMKey',
+)
+
+export const kDRDeviceCanWriteHDDVDRDualLayerKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceCanWriteHDDVDRDualLayerKey',
+)
+
 export const kDRDeviceCanWriteHDDVDRKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceCanWriteHDDVDRKey')
-export const kDRDeviceCanWriteHDDVDRWDualLayerKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceCanWriteHDDVDRWDualLayerKey')
+export const kDRDeviceCanWriteHDDVDRWDualLayerKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceCanWriteHDDVDRWDualLayerKey',
+)
+
 export const kDRDeviceCanWriteHDDVDRWKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceCanWriteHDDVDRWKey')
 export const kDRDeviceCanWriteISRCKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceCanWriteISRCKey')
-export const kDRDeviceCanWriteIndexPointsKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceCanWriteIndexPointsKey')
+export const kDRDeviceCanWriteIndexPointsKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceCanWriteIndexPointsKey',
+)
+
 export const kDRDeviceCanWriteKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceCanWriteKey')
 export const kDRDeviceCantWriteCDTextErr = /* @__PURE__ */ _bind(FW, 'kDRDeviceCantWriteCDTextErr')
 export const kDRDeviceCantWriteISRCErr = /* @__PURE__ */ _bind(FW, 'kDRDeviceCantWriteISRCErr')
-export const kDRDeviceCantWriteIndexPointsErr = /* @__PURE__ */ _bind(FW, 'kDRDeviceCantWriteIndexPointsErr')
+export const kDRDeviceCantWriteIndexPointsErr = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceCantWriteIndexPointsErr',
+)
+
 export const kDRDeviceCantWriteSCMSErr = /* @__PURE__ */ _bind(FW, 'kDRDeviceCantWriteSCMSErr')
 export const kDRDeviceCommunicationErr = /* @__PURE__ */ _bind(FW, 'kDRDeviceCommunicationErr')
-export const kDRDeviceCurrentWriteSpeedKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceCurrentWriteSpeedKey')
-export const kDRDeviceDisappearedNotification = /* @__PURE__ */ _bind(FW, 'kDRDeviceDisappearedNotification')
-export const kDRDeviceFirmwareRevisionKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceFirmwareRevisionKey')
-export const kDRDeviceIORegistryEntryPathKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceIORegistryEntryPathKey')
+export const kDRDeviceCurrentWriteSpeedKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceCurrentWriteSpeedKey',
+)
+
+export const kDRDeviceDisappearedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceDisappearedNotification',
+)
+
+export const kDRDeviceFirmwareRevisionKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceFirmwareRevisionKey',
+)
+
+export const kDRDeviceIORegistryEntryPathKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceIORegistryEntryPathKey',
+)
+
 export const kDRDeviceInvalidErr = /* @__PURE__ */ _bind(FW, 'kDRDeviceInvalidErr')
 export const kDRDeviceIsBusyKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceIsBusyKey')
 export const kDRDeviceIsTrayOpenKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceIsTrayOpenKey')
-export const kDRDeviceLoadingMechanismCanEjectKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceLoadingMechanismCanEjectKey')
-export const kDRDeviceLoadingMechanismCanInjectKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceLoadingMechanismCanInjectKey')
-export const kDRDeviceLoadingMechanismCanOpenKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceLoadingMechanismCanOpenKey')
-export const kDRDeviceMaximumWriteSpeedKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceMaximumWriteSpeedKey')
+export const kDRDeviceLoadingMechanismCanEjectKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceLoadingMechanismCanEjectKey',
+)
+
+export const kDRDeviceLoadingMechanismCanInjectKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceLoadingMechanismCanInjectKey',
+)
+
+export const kDRDeviceLoadingMechanismCanOpenKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceLoadingMechanismCanOpenKey',
+)
+
+export const kDRDeviceMaximumWriteSpeedKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceMaximumWriteSpeedKey',
+)
+
 export const kDRDeviceMediaBSDNameKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaBSDNameKey')
 export const kDRDeviceMediaBlocksFreeKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaBlocksFreeKey')
-export const kDRDeviceMediaBlocksOverwritableKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaBlocksOverwritableKey')
+export const kDRDeviceMediaBlocksOverwritableKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceMediaBlocksOverwritableKey',
+)
+
 export const kDRDeviceMediaBlocksUsedKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaBlocksUsedKey')
 export const kDRDeviceMediaClassBD = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaClassBD')
 export const kDRDeviceMediaClassCD = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaClassCD')
@@ -657,17 +1253,41 @@ export const kDRDeviceMediaClassDVD = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaC
 export const kDRDeviceMediaClassHDDVD = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaClassHDDVD')
 export const kDRDeviceMediaClassKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaClassKey')
 export const kDRDeviceMediaClassUnknown = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaClassUnknown')
-export const kDRDeviceMediaDoubleLayerL0DataZoneBlocksKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaDoubleLayerL0DataZoneBlocksKey')
+export const kDRDeviceMediaDoubleLayerL0DataZoneBlocksKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceMediaDoubleLayerL0DataZoneBlocksKey',
+)
+
 export const kDRDeviceMediaInfoKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaInfoKey')
-export const kDRDeviceMediaIsAppendableKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaIsAppendableKey')
+export const kDRDeviceMediaIsAppendableKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceMediaIsAppendableKey',
+)
+
 export const kDRDeviceMediaIsBlankKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaIsBlankKey')
 export const kDRDeviceMediaIsErasableKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaIsErasableKey')
-export const kDRDeviceMediaIsOverwritableKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaIsOverwritableKey')
+export const kDRDeviceMediaIsOverwritableKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceMediaIsOverwritableKey',
+)
+
 export const kDRDeviceMediaIsReservedKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaIsReservedKey')
-export const kDRDeviceMediaSessionCountKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaSessionCountKey')
-export const kDRDeviceMediaStateInTransition = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaStateInTransition')
+export const kDRDeviceMediaSessionCountKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceMediaSessionCountKey',
+)
+
+export const kDRDeviceMediaStateInTransition = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceMediaStateInTransition',
+)
+
 export const kDRDeviceMediaStateKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaStateKey')
-export const kDRDeviceMediaStateMediaPresent = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaStateMediaPresent')
+export const kDRDeviceMediaStateMediaPresent = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceMediaStateMediaPresent',
+)
+
 export const kDRDeviceMediaStateNone = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaStateNone')
 export const kDRDeviceMediaTrackCountKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaTrackCountKey')
 export const kDRDeviceMediaTypeBDR = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaTypeBDR')
@@ -677,62 +1297,182 @@ export const kDRDeviceMediaTypeCDR = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaTy
 export const kDRDeviceMediaTypeCDROM = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaTypeCDROM')
 export const kDRDeviceMediaTypeCDRW = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaTypeCDRW')
 export const kDRDeviceMediaTypeDVDPlusR = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaTypeDVDPlusR')
-export const kDRDeviceMediaTypeDVDPlusRDoubleLayer = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaTypeDVDPlusRDoubleLayer')
+export const kDRDeviceMediaTypeDVDPlusRDoubleLayer = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceMediaTypeDVDPlusRDoubleLayer',
+)
+
 export const kDRDeviceMediaTypeDVDPlusRW = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaTypeDVDPlusRW')
-export const kDRDeviceMediaTypeDVDPlusRWDoubleLayer = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaTypeDVDPlusRWDoubleLayer')
+export const kDRDeviceMediaTypeDVDPlusRWDoubleLayer = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceMediaTypeDVDPlusRWDoubleLayer',
+)
+
 export const kDRDeviceMediaTypeDVDR = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaTypeDVDR')
 export const kDRDeviceMediaTypeDVDRAM = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaTypeDVDRAM')
-export const kDRDeviceMediaTypeDVDRDualLayer = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaTypeDVDRDualLayer')
+export const kDRDeviceMediaTypeDVDRDualLayer = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceMediaTypeDVDRDualLayer',
+)
+
 export const kDRDeviceMediaTypeDVDROM = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaTypeDVDROM')
 export const kDRDeviceMediaTypeDVDRW = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaTypeDVDRW')
-export const kDRDeviceMediaTypeDVDRWDualLayer = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaTypeDVDRWDualLayer')
+export const kDRDeviceMediaTypeDVDRWDualLayer = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceMediaTypeDVDRWDualLayer',
+)
+
 export const kDRDeviceMediaTypeHDDVDR = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaTypeHDDVDR')
 export const kDRDeviceMediaTypeHDDVDRAM = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaTypeHDDVDRAM')
-export const kDRDeviceMediaTypeHDDVDRDualLayer = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaTypeHDDVDRDualLayer')
+export const kDRDeviceMediaTypeHDDVDRDualLayer = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceMediaTypeHDDVDRDualLayer',
+)
+
 export const kDRDeviceMediaTypeHDDVDROM = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaTypeHDDVDROM')
 export const kDRDeviceMediaTypeHDDVDRW = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaTypeHDDVDRW')
-export const kDRDeviceMediaTypeHDDVDRWDualLayer = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaTypeHDDVDRWDualLayer')
+export const kDRDeviceMediaTypeHDDVDRWDualLayer = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceMediaTypeHDDVDRWDualLayer',
+)
+
 export const kDRDeviceMediaTypeKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaTypeKey')
 export const kDRDeviceMediaTypeUnknown = /* @__PURE__ */ _bind(FW, 'kDRDeviceMediaTypeUnknown')
 export const kDRDeviceNotReadyErr = /* @__PURE__ */ _bind(FW, 'kDRDeviceNotReadyErr')
 export const kDRDeviceNotSupportedErr = /* @__PURE__ */ _bind(FW, 'kDRDeviceNotSupportedErr')
-export const kDRDevicePhysicalInterconnectATAPI = /* @__PURE__ */ _bind(FW, 'kDRDevicePhysicalInterconnectATAPI')
-export const kDRDevicePhysicalInterconnectFibreChannel = /* @__PURE__ */ _bind(FW, 'kDRDevicePhysicalInterconnectFibreChannel')
-export const kDRDevicePhysicalInterconnectFireWire = /* @__PURE__ */ _bind(FW, 'kDRDevicePhysicalInterconnectFireWire')
-export const kDRDevicePhysicalInterconnectKey = /* @__PURE__ */ _bind(FW, 'kDRDevicePhysicalInterconnectKey')
-export const kDRDevicePhysicalInterconnectLocationExternal = /* @__PURE__ */ _bind(FW, 'kDRDevicePhysicalInterconnectLocationExternal')
-export const kDRDevicePhysicalInterconnectLocationInternal = /* @__PURE__ */ _bind(FW, 'kDRDevicePhysicalInterconnectLocationInternal')
-export const kDRDevicePhysicalInterconnectLocationKey = /* @__PURE__ */ _bind(FW, 'kDRDevicePhysicalInterconnectLocationKey')
-export const kDRDevicePhysicalInterconnectLocationUnknown = /* @__PURE__ */ _bind(FW, 'kDRDevicePhysicalInterconnectLocationUnknown')
-export const kDRDevicePhysicalInterconnectSCSI = /* @__PURE__ */ _bind(FW, 'kDRDevicePhysicalInterconnectSCSI')
-export const kDRDevicePhysicalInterconnectUSB = /* @__PURE__ */ _bind(FW, 'kDRDevicePhysicalInterconnectUSB')
-export const kDRDevicePreGapLengthNotValidErr = /* @__PURE__ */ _bind(FW, 'kDRDevicePreGapLengthNotValidErr')
+export const kDRDevicePhysicalInterconnectATAPI = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDevicePhysicalInterconnectATAPI',
+)
+
+export const kDRDevicePhysicalInterconnectFibreChannel = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDevicePhysicalInterconnectFibreChannel',
+)
+
+export const kDRDevicePhysicalInterconnectFireWire = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDevicePhysicalInterconnectFireWire',
+)
+
+export const kDRDevicePhysicalInterconnectKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDevicePhysicalInterconnectKey',
+)
+
+export const kDRDevicePhysicalInterconnectLocationExternal = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDevicePhysicalInterconnectLocationExternal',
+)
+
+export const kDRDevicePhysicalInterconnectLocationInternal = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDevicePhysicalInterconnectLocationInternal',
+)
+
+export const kDRDevicePhysicalInterconnectLocationKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDevicePhysicalInterconnectLocationKey',
+)
+
+export const kDRDevicePhysicalInterconnectLocationUnknown = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDevicePhysicalInterconnectLocationUnknown',
+)
+
+export const kDRDevicePhysicalInterconnectSCSI = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDevicePhysicalInterconnectSCSI',
+)
+
+export const kDRDevicePhysicalInterconnectUSB = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDevicePhysicalInterconnectUSB',
+)
+
+export const kDRDevicePreGapLengthNotValidErr = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDevicePreGapLengthNotValidErr',
+)
+
 export const kDRDeviceProductNameKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceProductNameKey')
-export const kDRDeviceStatusChangedNotification = /* @__PURE__ */ _bind(FW, 'kDRDeviceStatusChangedNotification')
-export const kDRDeviceSupportLevelAppleShipping = /* @__PURE__ */ _bind(FW, 'kDRDeviceSupportLevelAppleShipping')
-export const kDRDeviceSupportLevelAppleSupported = /* @__PURE__ */ _bind(FW, 'kDRDeviceSupportLevelAppleSupported')
+export const kDRDeviceStatusChangedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceStatusChangedNotification',
+)
+
+export const kDRDeviceSupportLevelAppleShipping = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceSupportLevelAppleShipping',
+)
+
+export const kDRDeviceSupportLevelAppleSupported = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceSupportLevelAppleSupported',
+)
+
 export const kDRDeviceSupportLevelKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceSupportLevelKey')
 export const kDRDeviceSupportLevelNone = /* @__PURE__ */ _bind(FW, 'kDRDeviceSupportLevelNone')
-export const kDRDeviceSupportLevelUnsupported = /* @__PURE__ */ _bind(FW, 'kDRDeviceSupportLevelUnsupported')
-export const kDRDeviceSupportLevelVendorSupported = /* @__PURE__ */ _bind(FW, 'kDRDeviceSupportLevelVendorSupported')
+export const kDRDeviceSupportLevelUnsupported = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceSupportLevelUnsupported',
+)
+
+export const kDRDeviceSupportLevelVendorSupported = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceSupportLevelVendorSupported',
+)
+
 export const kDRDeviceTrackInfoKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceTrackInfoKey')
 export const kDRDeviceTrackRefsKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceTrackRefsKey')
 export const kDRDeviceVendorNameKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceVendorNameKey')
 export const kDRDeviceWriteBufferSizeKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceWriteBufferSizeKey')
-export const kDRDeviceWriteCapabilitiesKey = /* @__PURE__ */ _bind(FW, 'kDRDeviceWriteCapabilitiesKey')
-export const kDRDoubleLayerL0AlreadySpecifiedErr = /* @__PURE__ */ _bind(FW, 'kDRDoubleLayerL0AlreadySpecifiedErr')
-export const kDRDoubleLayerL0DataZoneBlocksParamErr = /* @__PURE__ */ _bind(FW, 'kDRDoubleLayerL0DataZoneBlocksParamErr')
+export const kDRDeviceWriteCapabilitiesKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDeviceWriteCapabilitiesKey',
+)
+
+export const kDRDoubleLayerL0AlreadySpecifiedErr = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDoubleLayerL0AlreadySpecifiedErr',
+)
+
+export const kDRDoubleLayerL0DataZoneBlocksParamErr = /* @__PURE__ */ _bind(
+	FW,
+	'kDRDoubleLayerL0DataZoneBlocksParamErr',
+)
+
 export const kDREffectiveDate = /* @__PURE__ */ _bind(FW, 'kDREffectiveDate')
-export const kDREraseStatusChangedNotification = /* @__PURE__ */ _bind(FW, 'kDREraseStatusChangedNotification')
+export const kDREraseStatusChangedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'kDREraseStatusChangedNotification',
+)
+
 export const kDREraseTypeComplete = /* @__PURE__ */ _bind(FW, 'kDREraseTypeComplete')
 export const kDREraseTypeKey = /* @__PURE__ */ _bind(FW, 'kDREraseTypeKey')
 export const kDREraseTypeQuick = /* @__PURE__ */ _bind(FW, 'kDREraseTypeQuick')
-export const kDRErrorStatusAdditionalSenseStringKey = /* @__PURE__ */ _bind(FW, 'kDRErrorStatusAdditionalSenseStringKey')
-export const kDRErrorStatusErrorInfoStringKey = /* @__PURE__ */ _bind(FW, 'kDRErrorStatusErrorInfoStringKey')
+export const kDRErrorStatusAdditionalSenseStringKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRErrorStatusAdditionalSenseStringKey',
+)
+
+export const kDRErrorStatusErrorInfoStringKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRErrorStatusErrorInfoStringKey',
+)
+
 export const kDRErrorStatusErrorKey = /* @__PURE__ */ _bind(FW, 'kDRErrorStatusErrorKey')
-export const kDRErrorStatusErrorStringKey = /* @__PURE__ */ _bind(FW, 'kDRErrorStatusErrorStringKey')
+export const kDRErrorStatusErrorStringKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRErrorStatusErrorStringKey',
+)
+
 export const kDRErrorStatusKey = /* @__PURE__ */ _bind(FW, 'kDRErrorStatusKey')
-export const kDRErrorStatusSenseCodeStringKey = /* @__PURE__ */ _bind(FW, 'kDRErrorStatusSenseCodeStringKey')
+export const kDRErrorStatusSenseCodeStringKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRErrorStatusSenseCodeStringKey',
+)
+
 export const kDRErrorStatusSenseKey = /* @__PURE__ */ _bind(FW, 'kDRErrorStatusSenseKey')
 export const kDRExpirationDate = /* @__PURE__ */ _bind(FW, 'kDRExpirationDate')
 export const kDRFileForkData = /* @__PURE__ */ _bind(FW, 'kDRFileForkData')
@@ -745,17 +1485,33 @@ export const kDRFileMessagePostBurn = /* @__PURE__ */ _bind(FW, 'kDRFileMessageP
 export const kDRFileMessagePreBurn = /* @__PURE__ */ _bind(FW, 'kDRFileMessagePreBurn')
 export const kDRFileMessageProduceData = /* @__PURE__ */ _bind(FW, 'kDRFileMessageProduceData')
 export const kDRFileMessageRelease = /* @__PURE__ */ _bind(FW, 'kDRFileMessageRelease')
-export const kDRFileMessageVerificationStarting = /* @__PURE__ */ _bind(FW, 'kDRFileMessageVerificationStarting')
-export const kDRFileModifiedDuringBurnErr = /* @__PURE__ */ _bind(FW, 'kDRFileModifiedDuringBurnErr')
+export const kDRFileMessageVerificationStarting = /* @__PURE__ */ _bind(
+	FW,
+	'kDRFileMessageVerificationStarting',
+)
+
+export const kDRFileModifiedDuringBurnErr = /* @__PURE__ */ _bind(
+	FW,
+	'kDRFileModifiedDuringBurnErr',
+)
+
 export const kDRFilesystemMaskDefault = /* @__PURE__ */ _bind(FW, 'kDRFilesystemMaskDefault')
 export const kDRFilesystemMaskHFSPlus = /* @__PURE__ */ _bind(FW, 'kDRFilesystemMaskHFSPlus')
 export const kDRFilesystemMaskISO9660 = /* @__PURE__ */ _bind(FW, 'kDRFilesystemMaskISO9660')
 export const kDRFilesystemMaskJoliet = /* @__PURE__ */ _bind(FW, 'kDRFilesystemMaskJoliet')
 export const kDRFilesystemMaskUDF = /* @__PURE__ */ _bind(FW, 'kDRFilesystemMaskUDF')
-export const kDRFilesystemsNotSupportedErr = /* @__PURE__ */ _bind(FW, 'kDRFilesystemsNotSupportedErr')
+export const kDRFilesystemsNotSupportedErr = /* @__PURE__ */ _bind(
+	FW,
+	'kDRFilesystemsNotSupportedErr',
+)
+
 export const kDRFirstErr = /* @__PURE__ */ _bind(FW, 'kDRFirstErr')
 export const kDRFlagNoMoreData = /* @__PURE__ */ _bind(FW, 'kDRFlagNoMoreData')
-export const kDRFlagSubchannelDataRequested = /* @__PURE__ */ _bind(FW, 'kDRFlagSubchannelDataRequested')
+export const kDRFlagSubchannelDataRequested = /* @__PURE__ */ _bind(
+	FW,
+	'kDRFlagSubchannelDataRequested',
+)
+
 export const kDRFreeBlocksKey = /* @__PURE__ */ _bind(FW, 'kDRFreeBlocksKey')
 export const kDRFunctionNotSupportedErr = /* @__PURE__ */ _bind(FW, 'kDRFunctionNotSupportedErr')
 export const kDRHFSPlus = /* @__PURE__ */ _bind(FW, 'kDRHFSPlus')
@@ -804,9 +1560,21 @@ export const kDRPublisher = /* @__PURE__ */ _bind(FW, 'kDRPublisher')
 export const kDRRecordingDate = /* @__PURE__ */ _bind(FW, 'kDRRecordingDate')
 export const kDRRefConCFTypeCallbacks = /* @__PURE__ */ _bind(FW, 'kDRRefConCFTypeCallbacks')
 export const kDRSCMSCopyrightFree = /* @__PURE__ */ _bind(FW, 'kDRSCMSCopyrightFree')
-export const kDRSCMSCopyrightProtectedCopy = /* @__PURE__ */ _bind(FW, 'kDRSCMSCopyrightProtectedCopy')
-export const kDRSCMSCopyrightProtectedOriginal = /* @__PURE__ */ _bind(FW, 'kDRSCMSCopyrightProtectedOriginal')
-export const kDRSerialCopyManagementStateKey = /* @__PURE__ */ _bind(FW, 'kDRSerialCopyManagementStateKey')
+export const kDRSCMSCopyrightProtectedCopy = /* @__PURE__ */ _bind(
+	FW,
+	'kDRSCMSCopyrightProtectedCopy',
+)
+
+export const kDRSCMSCopyrightProtectedOriginal = /* @__PURE__ */ _bind(
+	FW,
+	'kDRSCMSCopyrightProtectedOriginal',
+)
+
+export const kDRSerialCopyManagementStateKey = /* @__PURE__ */ _bind(
+	FW,
+	'kDRSerialCopyManagementStateKey',
+)
+
 export const kDRSessionFormatAudio = /* @__PURE__ */ _bind(FW, 'kDRSessionFormatAudio')
 export const kDRSessionFormatCDI = /* @__PURE__ */ _bind(FW, 'kDRSessionFormatCDI')
 export const kDRSessionFormatCDXA = /* @__PURE__ */ _bind(FW, 'kDRSessionFormatCDXA')
@@ -814,14 +1582,22 @@ export const kDRSessionFormatDVDData = /* @__PURE__ */ _bind(FW, 'kDRSessionForm
 export const kDRSessionFormatKey = /* @__PURE__ */ _bind(FW, 'kDRSessionFormatKey')
 export const kDRSessionFormatMode1Data = /* @__PURE__ */ _bind(FW, 'kDRSessionFormatMode1Data')
 export const kDRSessionNumberKey = /* @__PURE__ */ _bind(FW, 'kDRSessionNumberKey')
-export const kDRSpeedTestAlreadyRunningErr = /* @__PURE__ */ _bind(FW, 'kDRSpeedTestAlreadyRunningErr')
+export const kDRSpeedTestAlreadyRunningErr = /* @__PURE__ */ _bind(
+	FW,
+	'kDRSpeedTestAlreadyRunningErr',
+)
+
 export const kDRStatusCurrentSessionKey = /* @__PURE__ */ _bind(FW, 'kDRStatusCurrentSessionKey')
 export const kDRStatusCurrentSpeedKey = /* @__PURE__ */ _bind(FW, 'kDRStatusCurrentSpeedKey')
 export const kDRStatusCurrentTrackKey = /* @__PURE__ */ _bind(FW, 'kDRStatusCurrentTrackKey')
 export const kDRStatusEraseTypeKey = /* @__PURE__ */ _bind(FW, 'kDRStatusEraseTypeKey')
 export const kDRStatusPercentCompleteKey = /* @__PURE__ */ _bind(FW, 'kDRStatusPercentCompleteKey')
 export const kDRStatusProgressCurrentKPS = /* @__PURE__ */ _bind(FW, 'kDRStatusProgressCurrentKPS')
-export const kDRStatusProgressCurrentXFactor = /* @__PURE__ */ _bind(FW, 'kDRStatusProgressCurrentXFactor')
+export const kDRStatusProgressCurrentXFactor = /* @__PURE__ */ _bind(
+	FW,
+	'kDRStatusProgressCurrentXFactor',
+)
+
 export const kDRStatusProgressInfoKey = /* @__PURE__ */ _bind(FW, 'kDRStatusProgressInfoKey')
 export const kDRStatusStateDone = /* @__PURE__ */ _bind(FW, 'kDRStatusStateDone')
 export const kDRStatusStateErasing = /* @__PURE__ */ _bind(FW, 'kDRStatusStateErasing')
@@ -850,13 +1626,29 @@ export const kDRTooManyTracksForDVDErr = /* @__PURE__ */ _bind(FW, 'kDRTooManyTr
 export const kDRTrackISRCKey = /* @__PURE__ */ _bind(FW, 'kDRTrackISRCKey')
 export const kDRTrackIsEmptyKey = /* @__PURE__ */ _bind(FW, 'kDRTrackIsEmptyKey')
 export const kDRTrackLengthKey = /* @__PURE__ */ _bind(FW, 'kDRTrackLengthKey')
-export const kDRTrackMessageEstimateLength = /* @__PURE__ */ _bind(FW, 'kDRTrackMessageEstimateLength')
+export const kDRTrackMessageEstimateLength = /* @__PURE__ */ _bind(
+	FW,
+	'kDRTrackMessageEstimateLength',
+)
+
 export const kDRTrackMessagePostBurn = /* @__PURE__ */ _bind(FW, 'kDRTrackMessagePostBurn')
 export const kDRTrackMessagePreBurn = /* @__PURE__ */ _bind(FW, 'kDRTrackMessagePreBurn')
 export const kDRTrackMessageProduceData = /* @__PURE__ */ _bind(FW, 'kDRTrackMessageProduceData')
-export const kDRTrackMessageProducePreGap = /* @__PURE__ */ _bind(FW, 'kDRTrackMessageProducePreGap')
-export const kDRTrackMessageVerificationDone = /* @__PURE__ */ _bind(FW, 'kDRTrackMessageVerificationDone')
-export const kDRTrackMessageVerificationStarting = /* @__PURE__ */ _bind(FW, 'kDRTrackMessageVerificationStarting')
+export const kDRTrackMessageProducePreGap = /* @__PURE__ */ _bind(
+	FW,
+	'kDRTrackMessageProducePreGap',
+)
+
+export const kDRTrackMessageVerificationDone = /* @__PURE__ */ _bind(
+	FW,
+	'kDRTrackMessageVerificationDone',
+)
+
+export const kDRTrackMessageVerificationStarting = /* @__PURE__ */ _bind(
+	FW,
+	'kDRTrackMessageVerificationStarting',
+)
+
 export const kDRTrackMessageVerifyData = /* @__PURE__ */ _bind(FW, 'kDRTrackMessageVerifyData')
 export const kDRTrackMessageVerifyPreGap = /* @__PURE__ */ _bind(FW, 'kDRTrackMessageVerifyPreGap')
 export const kDRTrackMode1Data = /* @__PURE__ */ _bind(FW, 'kDRTrackMode1Data')
@@ -879,18 +1671,38 @@ export const kDRTrackTypeInvisible = /* @__PURE__ */ _bind(FW, 'kDRTrackTypeInvi
 export const kDRTrackTypeKey = /* @__PURE__ */ _bind(FW, 'kDRTrackTypeKey')
 export const kDRTrackTypeReserved = /* @__PURE__ */ _bind(FW, 'kDRTrackTypeReserved')
 export const kDRUDF = /* @__PURE__ */ _bind(FW, 'kDRUDF')
-export const kDRUDFApplicationIdentifierSuffix = /* @__PURE__ */ _bind(FW, 'kDRUDFApplicationIdentifierSuffix')
-export const kDRUDFExtendedFilePermissions = /* @__PURE__ */ _bind(FW, 'kDRUDFExtendedFilePermissions')
+export const kDRUDFApplicationIdentifierSuffix = /* @__PURE__ */ _bind(
+	FW,
+	'kDRUDFApplicationIdentifierSuffix',
+)
+
+export const kDRUDFExtendedFilePermissions = /* @__PURE__ */ _bind(
+	FW,
+	'kDRUDFExtendedFilePermissions',
+)
+
 export const kDRUDFInterchangeLevel = /* @__PURE__ */ _bind(FW, 'kDRUDFInterchangeLevel')
 export const kDRUDFMaxInterchangeLevel = /* @__PURE__ */ _bind(FW, 'kDRUDFMaxInterchangeLevel')
-export const kDRUDFMaxVolumeSequenceNumber = /* @__PURE__ */ _bind(FW, 'kDRUDFMaxVolumeSequenceNumber')
-export const kDRUDFPrimaryVolumeDescriptorNumber = /* @__PURE__ */ _bind(FW, 'kDRUDFPrimaryVolumeDescriptorNumber')
+export const kDRUDFMaxVolumeSequenceNumber = /* @__PURE__ */ _bind(
+	FW,
+	'kDRUDFMaxVolumeSequenceNumber',
+)
+
+export const kDRUDFPrimaryVolumeDescriptorNumber = /* @__PURE__ */ _bind(
+	FW,
+	'kDRUDFPrimaryVolumeDescriptorNumber',
+)
+
 export const kDRUDFRealTimeFile = /* @__PURE__ */ _bind(FW, 'kDRUDFRealTimeFile')
 export const kDRUDFVersion102 = /* @__PURE__ */ _bind(FW, 'kDRUDFVersion102')
 export const kDRUDFVersion150 = /* @__PURE__ */ _bind(FW, 'kDRUDFVersion150')
 export const kDRUDFVolumeSequenceNumber = /* @__PURE__ */ _bind(FW, 'kDRUDFVolumeSequenceNumber')
 export const kDRUDFVolumeSetIdentifier = /* @__PURE__ */ _bind(FW, 'kDRUDFVolumeSetIdentifier')
-export const kDRUDFVolumeSetImplementationUse = /* @__PURE__ */ _bind(FW, 'kDRUDFVolumeSetImplementationUse')
+export const kDRUDFVolumeSetImplementationUse = /* @__PURE__ */ _bind(
+	FW,
+	'kDRUDFVolumeSetImplementationUse',
+)
+
 export const kDRUDFVolumeSetTimestamp = /* @__PURE__ */ _bind(FW, 'kDRUDFVolumeSetTimestamp')
 export const kDRUDFWriteVersion = /* @__PURE__ */ _bind(FW, 'kDRUDFWriteVersion')
 export const kDRUserCanceledErr = /* @__PURE__ */ _bind(FW, 'kDRUserCanceledErr')
@@ -898,8 +1710,16 @@ export const kDRVerificationFailedErr = /* @__PURE__ */ _bind(FW, 'kDRVerificati
 export const kDRVerificationTypeChecksum = /* @__PURE__ */ _bind(FW, 'kDRVerificationTypeChecksum')
 export const kDRVerificationTypeKey = /* @__PURE__ */ _bind(FW, 'kDRVerificationTypeKey')
 export const kDRVerificationTypeNone = /* @__PURE__ */ _bind(FW, 'kDRVerificationTypeNone')
-export const kDRVerificationTypeProduceAgain = /* @__PURE__ */ _bind(FW, 'kDRVerificationTypeProduceAgain')
-export const kDRVerificationTypeReceiveData = /* @__PURE__ */ _bind(FW, 'kDRVerificationTypeReceiveData')
+export const kDRVerificationTypeProduceAgain = /* @__PURE__ */ _bind(
+	FW,
+	'kDRVerificationTypeProduceAgain',
+)
+
+export const kDRVerificationTypeReceiveData = /* @__PURE__ */ _bind(
+	FW,
+	'kDRVerificationTypeReceiveData',
+)
+
 export const kDRVolumeCheckedDate = /* @__PURE__ */ _bind(FW, 'kDRVolumeCheckedDate')
 export const kDRVolumeCreationDate = /* @__PURE__ */ _bind(FW, 'kDRVolumeCreationDate')
 export const kDRVolumeEffectiveDate = /* @__PURE__ */ _bind(FW, 'kDRVolumeEffectiveDate')

@@ -12,11 +12,11 @@ There is no shared picker API at the package root. Each platform entry exports
 its own component and types; import it from the platform subpath in a matching
 platform-suffixed file:
 
-| File suffix | Import | Component |
-| --- | --- | --- |
-| `*.ios.tsx` | `@octane-xplat/picker/ios` | `SwiftUIPicker` |
+| File suffix     | Import                         | Component          |
+| --------------- | ------------------------------ | ------------------ |
+| `*.ios.tsx`     | `@octane-xplat/picker/ios`     | `SwiftUIPicker`    |
 | `*.android.tsx` | `@octane-xplat/picker/android` | `MaterialDropdown` |
-| `*.web.tsx` | `@octane-xplat/picker/web` | `Select` |
+| `*.web.tsx`     | `@octane-xplat/picker/web`     | `Select`           |
 
 ```tsx
 /** @jsxImportSource @nativescript-community/octane */

@@ -19,10 +19,7 @@ import {
 	runToExit,
 } from './shared.mjs'
 
-const READY_MARKERS = [
-	/\[macos-(native|webview)\] host started/i,
-	/\[macos-webview\] frontend/i,
-]
+const READY_MARKERS = [/\[macos-(native|webview)\] host started/i, /\[macos-webview\] frontend/i]
 
 const cliPrereq = (app) =>
 	appCliFile(app, 'macos', 'dev-entry.mjs')
@@ -99,7 +96,11 @@ export function createMacosAdapter() {
 				throw contractError(
 					'prerequisite_missing',
 					'The app does not have @octane-xplat/cli installed — macOS packaging runs through it.',
-					{ recovery: { action: 'Add @octane-xplat/cli to the app\u2019s devDependencies and install.' } },
+					{
+						recovery: {
+							action: 'Add @octane-xplat/cli to the app\u2019s devDependencies and install.',
+						},
+					},
 				)
 			}
 
@@ -129,7 +130,11 @@ export function createMacosAdapter() {
 					throw contractError(
 						'prerequisite_missing',
 						'xplat.targets.macos.dev is declared but @octane-xplat/cli is not installed in the app.',
-						{ recovery: { action: 'Add @octane-xplat/cli to the app\u2019s devDependencies and install.' } },
+						{
+							recovery: {
+								action: 'Add @octane-xplat/cli to the app\u2019s devDependencies and install.',
+							},
+						},
 					)
 				}
 

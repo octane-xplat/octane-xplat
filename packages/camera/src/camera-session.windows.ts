@@ -87,7 +87,10 @@ export async function startCameraPreview(
 	const element = view?.nativeViewProtected ?? view
 	element.Source = capture
 	try {
-		if (Number(device?.EnclosureLocation?.Panel) === 1 && typeof capture.SetPreviewMirroring === 'function') {
+		if (
+			Number(device?.EnclosureLocation?.Panel) === 1 &&
+			typeof capture.SetPreviewMirroring === 'function'
+		) {
 			capture.SetPreviewMirroring(true)
 		}
 	} catch {

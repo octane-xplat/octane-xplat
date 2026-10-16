@@ -39,7 +39,11 @@ import { Text } from '@octane-xplat/ui'
 const AccountContext = createContext('Guest')
 const AccountContextProvider: any = AccountContext
 function AccountName(props: { label: string }) {
-	return <Text>{props.label}: {useContext(AccountContext)}</Text>
+	return (
+		<Text>
+			{props.label}: {useContext(AccountContext)}
+		</Text>
+	)
 }
 
 export function AccountDetails() {

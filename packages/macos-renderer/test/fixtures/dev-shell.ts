@@ -6,7 +6,6 @@ import * as signalClient from 'octane/signals/client'
 import * as internal from 'octane/internal/client'
 import { NSApplication, NSView } from '@octane-xplat/platform/macos'
 
-
 globalThis.__xplatDevModules = {
 	'@octane-xplat/macos-renderer': renderer,
 	'octane/universal/native': native,
@@ -92,8 +91,14 @@ function reload() {
 			retainedProxyChild = debug.findId('proxy-revision')
 			debug.pressId('increment')
 			setTimeout(() => {
-				if ((Number(retainedActivity.alphaValue) === 0)) {console.error('PACKED_HMR_FAIL: busy signal did not start spinner')}
-				if (Number(retainedProgress.doubleValue) !== 25) {console.error('PACKED_HMR_FAIL: Progress signal did not update bar')}
+				if (Number(retainedActivity.alphaValue) === 0) {
+					console.error('PACKED_HMR_FAIL: busy signal did not start spinner')
+				}
+
+				if (Number(retainedProgress.doubleValue) !== 25) {
+					console.error('PACKED_HMR_FAIL: Progress signal did not update bar')
+				}
+
 				retainedListViewLabel = retainedListViewCell.subviews.objectAtIndex(0)
 				console.log('HMR_CONSUMER_READY')
 			}, 60)
@@ -104,15 +109,41 @@ function reload() {
 			const label = debug.findId('count')
 			const revision = debug.findId('revision')
 			if (
-				debug.findId('hmr-listview') === retainedListView && retainedListView.documentView === retainedListViewTable && retainedListViewCell.subviews.objectAtIndex(0) === retainedListViewLabel && String(retainedListViewLabel.stringValue) === 'Second revision1' &&
-				debug.findId('hmr-item') === retainedItem && retainedItem.view === null && retainedItem.props.title === 'Second revision' && debug.findId('hmr-item-bar') === retainedItemBar && String(retainedItemBar.labelForSegment(0)) === 'Second revision' && String(retainedItemBar.labelForSegment(1)) === '1' && Number(retainedItemBar.selectedSegment) === 1 &&
-				debug.findId('hmr-tabs') === retainedTabs && debug.findId('hmr-tab-item') === retainedTabItem && debug.findId('hmr-tab-content') === retainedTabContent && String(retainedTabContent.stringValue) === 'Second revision' && String(retainedTabs.tabViewItemAtIndex(0).label) === 'Second revision' && retainedTabs.selectedTabViewItem === retainedTabs.tabViewItemAtIndex(1) &&
-				debug.findId('hmr-segment') === retainedSegment && Number(retainedSegment.selectedSegment) === 1 && String(retainedSegment.labelForSegment(0)) === 'Second revision' &&
-				debug.findId('hmr-progress') === retainedProgress && !retainedProgress.indeterminate && Number(retainedProgress.doubleValue) === 40 && Number(retainedProgress.maxValue) === 100 &&
-				debug.findId('hmr-list') === retainedList && Number(retainedList.indexOfSelectedItem) === 1 && String(retainedList.itemAtIndex(0).title) === 'Second revision' &&
-				debug.findId('hmr-time') === retainedTime && new Date(Number(retainedTime.dateValue.timeIntervalSince1970) * 1000).getTime() === new Date(0, 0, 0, 13, 35).getTime() &&
-				debug.findId('hmr-date') === retainedDate && new Date(Number(retainedDate.dateValue.timeIntervalSince1970) * 1000).getDate() === 13 && new Date(Number(retainedDate.dateValue.timeIntervalSince1970) * 1000).getHours() === 0 &&
-				debug.findId('hmr-activity') === retainedActivity && (Number(retainedActivity.alphaValue) === 0) &&
+				debug.findId('hmr-listview') === retainedListView &&
+				retainedListView.documentView === retainedListViewTable &&
+				retainedListViewCell.subviews.objectAtIndex(0) === retainedListViewLabel &&
+				String(retainedListViewLabel.stringValue) === 'Second revision1' &&
+				debug.findId('hmr-item') === retainedItem &&
+				retainedItem.view === null &&
+				retainedItem.props.title === 'Second revision' &&
+				debug.findId('hmr-item-bar') === retainedItemBar &&
+				String(retainedItemBar.labelForSegment(0)) === 'Second revision' &&
+				String(retainedItemBar.labelForSegment(1)) === '1' &&
+				Number(retainedItemBar.selectedSegment) === 1 &&
+				debug.findId('hmr-tabs') === retainedTabs &&
+				debug.findId('hmr-tab-item') === retainedTabItem &&
+				debug.findId('hmr-tab-content') === retainedTabContent &&
+				String(retainedTabContent.stringValue) === 'Second revision' &&
+				String(retainedTabs.tabViewItemAtIndex(0).label) === 'Second revision' &&
+				retainedTabs.selectedTabViewItem === retainedTabs.tabViewItemAtIndex(1) &&
+				debug.findId('hmr-segment') === retainedSegment &&
+				Number(retainedSegment.selectedSegment) === 1 &&
+				String(retainedSegment.labelForSegment(0)) === 'Second revision' &&
+				debug.findId('hmr-progress') === retainedProgress &&
+				!retainedProgress.indeterminate &&
+				Number(retainedProgress.doubleValue) === 40 &&
+				Number(retainedProgress.maxValue) === 100 &&
+				debug.findId('hmr-list') === retainedList &&
+				Number(retainedList.indexOfSelectedItem) === 1 &&
+				String(retainedList.itemAtIndex(0).title) === 'Second revision' &&
+				debug.findId('hmr-time') === retainedTime &&
+				new Date(Number(retainedTime.dateValue.timeIntervalSince1970) * 1000).getTime() ===
+					new Date(0, 0, 0, 13, 35).getTime() &&
+				debug.findId('hmr-date') === retainedDate &&
+				new Date(Number(retainedDate.dateValue.timeIntervalSince1970) * 1000).getDate() === 13 &&
+				new Date(Number(retainedDate.dateValue.timeIntervalSince1970) * 1000).getHours() === 0 &&
+				debug.findId('hmr-activity') === retainedActivity &&
+				Number(retainedActivity.alphaValue) === 0 &&
 				debug.findId('hmr-html') === retainedHtml &&
 				String(retainedHtml.stringValue).trim() === 'Second revision1' &&
 				debug.findId('hmr-formatted') === retainedFormatted &&
@@ -148,21 +179,42 @@ function reload() {
 			) {
 				root.unmount()
 				if (
-					retainedListView.superview || retainedListView.documentView != null || retainedListViewTable.delegate != null || retainedListViewTable.target != null || retainedListViewLabel.superview ||
-					retainedItem.parent || retainedItem.props.title !== undefined || retainedItemBar.superview || Number(retainedItemBar.segmentCount) !== 0 ||
-					retainedSegment.superview || retainedSegment.target != null || String(retainedSegment.action) !== '<null selector>' || Number(retainedSegment.segmentCount) !== 0 ||
+					retainedListView.superview ||
+					retainedListView.documentView != null ||
+					retainedListViewTable.delegate != null ||
+					retainedListViewTable.target != null ||
+					retainedListViewLabel.superview ||
+					retainedItem.parent ||
+					retainedItem.props.title !== undefined ||
+					retainedItemBar.superview ||
+					Number(retainedItemBar.segmentCount) !== 0 ||
+					retainedSegment.superview ||
+					retainedSegment.target != null ||
+					String(retainedSegment.action) !== '<null selector>' ||
+					Number(retainedSegment.segmentCount) !== 0 ||
 					retainedProgress.superview ||
-					retainedList.superview || retainedList.target != null || String(retainedList.action) !== '<null selector>' || Number(retainedList.numberOfItems) !== 0 ||
-					retainedTime.superview || retainedTime.target != null || String(retainedTime.action) !== '<null selector>' ||
-					retainedDate.superview || retainedDate.target != null || String(retainedDate.action) !== '<null selector>' ||
-					retainedActivity.superview || !(Number(retainedActivity.alphaValue) === 0) ||
+					retainedList.superview ||
+					retainedList.target != null ||
+					String(retainedList.action) !== '<null selector>' ||
+					Number(retainedList.numberOfItems) !== 0 ||
+					retainedTime.superview ||
+					retainedTime.target != null ||
+					String(retainedTime.action) !== '<null selector>' ||
+					retainedDate.superview ||
+					retainedDate.target != null ||
+					String(retainedDate.action) !== '<null selector>' ||
+					retainedActivity.superview ||
+					!(Number(retainedActivity.alphaValue) === 0) ||
 					retainedHtml.superview ||
 					retainedFormatted.children.length ||
 					retainedFormatted.parent ||
 					retainedSearch.superview ||
 					retainedSearch.delegate != null ||
 					retainedSearch.target != null ||
-					retainedTabs.superview || retainedTabs.numberOfTabViewItems || retainedTabItem.contentRoot || retainedTabContent.superview ||
+					retainedTabs.superview ||
+					retainedTabs.numberOfTabViewItems ||
+					retainedTabItem.contentRoot ||
+					retainedTabContent.superview ||
 					retainedRoot.superview ||
 					retainedRootChild.superview ||
 					retainedProxyChild.superview ||

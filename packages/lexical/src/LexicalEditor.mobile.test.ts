@@ -33,7 +33,12 @@ vi.mock('@octane-xplat/richtext', async () => {
 })
 
 import { LexicalEditor } from './LexicalEditor.tsrx'
-import { hosts, resetFakeRichtext, setDefer, setSupported } from '../tests/fake-richtext.fixture.mobile.tsrx'
+import {
+	hosts,
+	resetFakeRichtext,
+	setDefer,
+	setSupported,
+} from '../tests/fake-richtext.fixture.mobile.tsrx'
 
 const docA = { type: 'doc', html: '<p>alpha</p>' } as unknown as LexicalJSON
 const docB = { type: 'doc', html: '<p>bravo</p>' } as unknown as LexicalJSON
@@ -319,5 +324,4 @@ describe('LexicalEditor native JSON readiness', () => {
 		expect(bridge.waiters).toEqual([])
 		expect(view.handle).toBeNull()
 	})
-
 })

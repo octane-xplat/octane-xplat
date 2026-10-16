@@ -83,7 +83,12 @@ describe('windows adapter profile and orientation', () => {
 	]
 
 	it('selects 720p30 when offered and discloses the fallback otherwise', () => {
-		expect(chooseStandardProfile(profiles)).toMatchObject({ width: 1280, height: 720, frameRate: 30 })
+		expect(chooseStandardProfile(profiles)).toMatchObject({
+			width: 1280,
+			height: 720,
+			frameRate: 30,
+		})
+
 		expect(chooseStandardProfile([profiles[0], profiles[1]])).toMatchObject({
 			width: 640,
 			height: 480,

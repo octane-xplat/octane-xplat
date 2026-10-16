@@ -2,356 +2,523 @@
 /// <reference path="./AppKit.d.ts" />
 /// <reference path="./Runtime.d.ts" />
 
-declare const MTKModelErrorKey: string;
+declare const MTKModelErrorKey: string
 
-declare const MTKTextureLoaderOriginFlippedVertically: string;
+declare const MTKTextureLoaderOriginFlippedVertically: string
 
-declare const MTKTextureLoaderOptionOrigin: string;
+declare const MTKTextureLoaderOptionOrigin: string
 
-declare const MTKTextureLoaderOptionCubeLayout: string;
+declare const MTKTextureLoaderOptionCubeLayout: string
 
-declare const MTKTextureLoaderOptionTextureCPUCacheMode: string;
+declare const MTKTextureLoaderOptionTextureCPUCacheMode: string
 
-declare const MTKTextureLoaderOriginBottomLeft: string;
+declare const MTKTextureLoaderOriginBottomLeft: string
 
-declare const MTKTextureLoaderOptionTextureStorageMode: string;
+declare const MTKTextureLoaderOptionTextureStorageMode: string
 
-declare const MTKTextureLoaderOptionTextureUsage: string;
+declare const MTKTextureLoaderOptionTextureUsage: string
 
-declare const MTKTextureLoaderOptionGenerateMipmaps: string;
+declare const MTKTextureLoaderOptionGenerateMipmaps: string
 
-declare const MTKTextureLoaderErrorKey: string;
+declare const MTKTextureLoaderErrorKey: string
 
-declare const MTKTextureLoaderOptionSRGB: string;
+declare const MTKTextureLoaderOptionSRGB: string
 
-declare const MTKTextureLoaderErrorDomain: string;
+declare const MTKTextureLoaderErrorDomain: string
 
-declare const MTKTextureLoaderOriginTopLeft: string;
+declare const MTKTextureLoaderOriginTopLeft: string
 
-declare const MTKTextureLoaderOptionAllocateMipmaps: string;
+declare const MTKTextureLoaderOptionAllocateMipmaps: string
 
-declare const MTKModelErrorDomain: string;
+declare const MTKModelErrorDomain: string
 
-declare const MTKTextureLoaderCubeLayoutVertical: string;
+declare const MTKTextureLoaderCubeLayoutVertical: string
 
-declare function MTKModelIOVertexDescriptorFromMetal(metalDescriptor: MTLVertexDescriptor): MDLVertexDescriptor;
+declare function MTKModelIOVertexDescriptorFromMetal(
+	metalDescriptor: MTLVertexDescriptor,
+): MDLVertexDescriptor
 
-declare function MTKModelIOVertexDescriptorFromMetalWithError(metalDescriptor: MTLVertexDescriptor, error: interop.PointerConvertible): MDLVertexDescriptor;
+declare function MTKModelIOVertexDescriptorFromMetalWithError(
+	metalDescriptor: MTLVertexDescriptor,
+	error: interop.PointerConvertible,
+): MDLVertexDescriptor
 
-declare function MTKMetalVertexDescriptorFromModelIO(modelIODescriptor: MDLVertexDescriptor): MTLVertexDescriptor;
+declare function MTKMetalVertexDescriptorFromModelIO(
+	modelIODescriptor: MDLVertexDescriptor,
+): MTLVertexDescriptor
 
-declare function MTKMetalVertexDescriptorFromModelIOWithError(modelIODescriptor: MDLVertexDescriptor, error: interop.PointerConvertible): MTLVertexDescriptor;
+declare function MTKMetalVertexDescriptorFromModelIOWithError(
+	modelIODescriptor: MDLVertexDescriptor,
+	error: interop.PointerConvertible,
+): MTLVertexDescriptor
 
-declare function MTKModelIOVertexFormatFromMetal(vertexFormat: interop.Enum<typeof MTLVertexFormat>): interop.Enum<typeof MDLVertexFormat>;
+declare function MTKModelIOVertexFormatFromMetal(
+	vertexFormat: interop.Enum<typeof MTLVertexFormat>,
+): interop.Enum<typeof MDLVertexFormat>
 
-declare function MTKMetalVertexFormatFromModelIO(vertexFormat: interop.Enum<typeof MDLVertexFormat>): interop.Enum<typeof MTLVertexFormat>;
+declare function MTKMetalVertexFormatFromModelIO(
+	vertexFormat: interop.Enum<typeof MDLVertexFormat>,
+): interop.Enum<typeof MTLVertexFormat>
 
 declare interface MTKViewDelegate extends NSObjectProtocol {
-  mtkViewDrawableSizeWillChange(view: MTKView, size: CGSize): void;
+	mtkViewDrawableSizeWillChange(view: MTKView, size: CGSize): void
 
-  drawInMTKView(view: MTKView): void;
+	drawInMTKView(view: MTKView): void
 }
 
-declare class MTKViewDelegate extends NativeObject implements MTKViewDelegate {
-}
+declare class MTKViewDelegate extends NativeObject implements MTKViewDelegate {}
 
 declare class MTKView extends NSView implements NSCoding, CALayerDelegate {
-  initWithFrameDevice(frameRect: CGRect, device: MTLDevice | null): this;
+	initWithFrameDevice(frameRect: CGRect, device: MTLDevice | null): this
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  delegate: MTKViewDelegate;
+	delegate: MTKViewDelegate
 
-  device: MTLDevice;
+	device: MTLDevice
 
-  readonly currentDrawable: CAMetalDrawable;
+	readonly currentDrawable: CAMetalDrawable
 
-  framebufferOnly: boolean;
+	framebufferOnly: boolean
 
-  depthStencilAttachmentTextureUsage: interop.Enum<typeof MTLTextureUsage>;
+	depthStencilAttachmentTextureUsage: interop.Enum<typeof MTLTextureUsage>
 
-  multisampleColorAttachmentTextureUsage: interop.Enum<typeof MTLTextureUsage>;
+	multisampleColorAttachmentTextureUsage: interop.Enum<typeof MTLTextureUsage>
 
-  presentsWithTransaction: boolean;
+	presentsWithTransaction: boolean
 
-  colorPixelFormat: interop.Enum<typeof MTLPixelFormat>;
+	colorPixelFormat: interop.Enum<typeof MTLPixelFormat>
 
-  depthStencilPixelFormat: interop.Enum<typeof MTLPixelFormat>;
+	depthStencilPixelFormat: interop.Enum<typeof MTLPixelFormat>
 
-  sampleCount: number;
+	sampleCount: number
 
-  clearColor: MTLClearColor;
+	clearColor: MTLClearColor
 
-  clearDepth: number;
+	clearDepth: number
 
-  clearStencil: number;
+	clearStencil: number
 
-  readonly depthStencilTexture: MTLTexture;
+	readonly depthStencilTexture: MTLTexture
 
-  readonly multisampleColorTexture: MTLTexture;
+	readonly multisampleColorTexture: MTLTexture
 
-  releaseDrawables(): void;
+	releaseDrawables(): void
 
-  readonly currentRenderPassDescriptor: MTLRenderPassDescriptor;
+	readonly currentRenderPassDescriptor: MTLRenderPassDescriptor
 
-  preferredFramesPerSecond: number;
+	preferredFramesPerSecond: number
 
-  enableSetNeedsDisplay: boolean;
+	enableSetNeedsDisplay: boolean
 
-  autoResizeDrawable: boolean;
+	autoResizeDrawable: boolean
 
-  drawableSize: CGSize;
+	drawableSize: CGSize
 
-  readonly preferredDrawableSize: CGSize;
+	readonly preferredDrawableSize: CGSize
 
-  readonly preferredDevice: MTLDevice;
+	readonly preferredDevice: MTLDevice
 
-  paused: boolean;
+	paused: boolean
 
-  colorspace: interop.Object;
+	colorspace: interop.Object
 
-  draw(): void;
+	draw(): void
 
-  isPaused(): boolean;
+	isPaused(): boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  displayLayer(layer: CALayer): void;
+	displayLayer(layer: CALayer): void
 
-  drawLayerInContext(layer: CALayer, ctx: interop.Object): void;
+	drawLayerInContext(layer: CALayer, ctx: interop.Object): void
 
-  layerWillDraw(layer: CALayer): void;
+	layerWillDraw(layer: CALayer): void
 
-  layoutSublayersOfLayer(layer: CALayer): void;
+	layoutSublayersOfLayer(layer: CALayer): void
 
-  actionForLayerForKey(layer: CALayer, event: string): CAAction;
+	actionForLayerForKey(layer: CALayer, event: string): CAAction
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 }
 
 declare class MTKMesh extends NSObject {
-  initWithMeshDeviceError(mesh: MDLMesh, device: MTLDevice, error: interop.PointerConvertible): this;
+	initWithMeshDeviceError(mesh: MDLMesh, device: MTLDevice, error: interop.PointerConvertible): this
 
-  static newMeshesFromAssetDeviceSourceMeshesError(asset: MDLAsset, device: MTLDevice, sourceMeshes: interop.PointerConvertible, error: interop.PointerConvertible): NSArray;
+	static newMeshesFromAssetDeviceSourceMeshesError(
+		asset: MDLAsset,
+		device: MTLDevice,
+		sourceMeshes: interop.PointerConvertible,
+		error: interop.PointerConvertible,
+	): NSArray
 
-  readonly vertexBuffers: NSArray;
+	readonly vertexBuffers: NSArray
 
-  readonly vertexDescriptor: MDLVertexDescriptor;
+	readonly vertexDescriptor: MDLVertexDescriptor
 
-  readonly submeshes: NSArray;
+	readonly submeshes: NSArray
 
-  readonly vertexCount: number;
+	readonly vertexCount: number
 
-  name: string;
+	name: string
 }
 
 declare class MTKSubmesh extends NSObject {
-  readonly primitiveType: interop.Enum<typeof MTLPrimitiveType>;
+	readonly primitiveType: interop.Enum<typeof MTLPrimitiveType>
 
-  readonly indexType: interop.Enum<typeof MTLIndexType>;
+	readonly indexType: interop.Enum<typeof MTLIndexType>
 
-  readonly indexBuffer: MTKMeshBuffer;
+	readonly indexBuffer: MTKMeshBuffer
 
-  readonly indexCount: number;
+	readonly indexCount: number
 
-  readonly mesh: MTKMesh;
+	readonly mesh: MTKMesh
 
-  name: string;
+	name: string
 }
 
 // @ts-ignore ClassDecl.tsIgnore
 declare class MTKMeshBuffer extends NSObject implements MDLMeshBuffer, MDLNamed {
-  readonly length: number;
+	readonly length: number
 
-  readonly allocator: MTKMeshBufferAllocator;
+	readonly allocator: MTKMeshBufferAllocator
 
-  // @ts-ignore MemberDecl.tsIgnore
-  readonly zone: MDLMeshBufferZone;
+	// @ts-ignore MemberDecl.tsIgnore
+	readonly zone: MDLMeshBufferZone
 
-  readonly buffer: MTLBuffer;
+	readonly buffer: MTLBuffer
 
-  readonly offset: number;
+	readonly offset: number
 
-  readonly type: interop.Enum<typeof MDLMeshBufferType>;
+	readonly type: interop.Enum<typeof MDLMeshBufferType>
 
-  fillDataOffset(data: NSData, offset: number): void;
+	fillDataOffset(data: NSData, offset: number): void
 
-  map(): MDLMeshBufferMap;
+	map(): MDLMeshBufferMap
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  name: string;
+	name: string
 }
 
 declare class MTKTextureLoader extends NSObject {
-  readonly device: MTLDevice;
+	readonly device: MTLDevice
 
-  initWithDevice(device: MTLDevice): this;
+	initWithDevice(device: MTLDevice): this
 
-  newTextureWithContentsOfURLOptionsCompletionHandler(URL: NSURL, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null, completionHandler: (p1: MTLTexture, p2: NSError) => void): void;
+	newTextureWithContentsOfURLOptionsCompletionHandler(
+		URL: NSURL,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+		completionHandler: (p1: MTLTexture, p2: NSError) => void,
+	): void
 
-  newTextureWithNameScaleFactorBundleOptionsCompletionHandler(name: string, scaleFactor: number, bundle: NSBundle | null, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null, completionHandler: (p1: MTLTexture, p2: NSError) => void): void;
+	newTextureWithNameScaleFactorBundleOptionsCompletionHandler(
+		name: string,
+		scaleFactor: number,
+		bundle: NSBundle | null,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+		completionHandler: (p1: MTLTexture, p2: NSError) => void,
+	): void
 
-  newTextureWithNameScaleFactorDisplayGamutBundleOptionsCompletionHandler(name: string, scaleFactor: number, displayGamut: interop.Enum<typeof NSDisplayGamut>, bundle: NSBundle | null, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null, completionHandler: (p1: MTLTexture, p2: NSError) => void): void;
+	newTextureWithNameScaleFactorDisplayGamutBundleOptionsCompletionHandler(
+		name: string,
+		scaleFactor: number,
+		displayGamut: interop.Enum<typeof NSDisplayGamut>,
+		bundle: NSBundle | null,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+		completionHandler: (p1: MTLTexture, p2: NSError) => void,
+	): void
 
-  newTexturesWithContentsOfURLsOptionsCompletionHandler(URLs: NSArray<interop.Object> | Array<interop.Object>, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null, completionHandler: (p1: NSArray<interop.Object> | Array<interop.Object>, p2: NSError) => void): void;
+	newTexturesWithContentsOfURLsOptionsCompletionHandler(
+		URLs: NSArray<interop.Object> | Array<interop.Object>,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+		completionHandler: (p1: NSArray<interop.Object> | Array<interop.Object>, p2: NSError) => void,
+	): void
 
-  newTexturesWithNamesScaleFactorBundleOptionsCompletionHandler(names: NSArray<interop.Object> | Array<interop.Object>, scaleFactor: number, bundle: NSBundle | null, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null, completionHandler: (p1: NSArray<interop.Object> | Array<interop.Object>, p2: NSError) => void): void;
+	newTexturesWithNamesScaleFactorBundleOptionsCompletionHandler(
+		names: NSArray<interop.Object> | Array<interop.Object>,
+		scaleFactor: number,
+		bundle: NSBundle | null,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+		completionHandler: (p1: NSArray<interop.Object> | Array<interop.Object>, p2: NSError) => void,
+	): void
 
-  newTexturesWithNamesScaleFactorDisplayGamutBundleOptionsCompletionHandler(names: NSArray<interop.Object> | Array<interop.Object>, scaleFactor: number, displayGamut: interop.Enum<typeof NSDisplayGamut>, bundle: NSBundle | null, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null, completionHandler: (p1: NSArray<interop.Object> | Array<interop.Object>, p2: NSError) => void): void;
+	newTexturesWithNamesScaleFactorDisplayGamutBundleOptionsCompletionHandler(
+		names: NSArray<interop.Object> | Array<interop.Object>,
+		scaleFactor: number,
+		displayGamut: interop.Enum<typeof NSDisplayGamut>,
+		bundle: NSBundle | null,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+		completionHandler: (p1: NSArray<interop.Object> | Array<interop.Object>, p2: NSError) => void,
+	): void
 
-  newTextureWithDataOptionsCompletionHandler(data: NSData, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null, completionHandler: (p1: MTLTexture, p2: NSError) => void): void;
+	newTextureWithDataOptionsCompletionHandler(
+		data: NSData,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+		completionHandler: (p1: MTLTexture, p2: NSError) => void,
+	): void
 
-  newTextureWithCGImageOptionsCompletionHandler(cgImage: interop.Object, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null, completionHandler: (p1: MTLTexture, p2: NSError) => void): void;
+	newTextureWithCGImageOptionsCompletionHandler(
+		cgImage: interop.Object,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+		completionHandler: (p1: MTLTexture, p2: NSError) => void,
+	): void
 
-  newTextureWithMDLTextureOptionsCompletionHandler(texture: MDLTexture, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null, completionHandler: (p1: MTLTexture, p2: NSError) => void): void;
+	newTextureWithMDLTextureOptionsCompletionHandler(
+		texture: MDLTexture,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+		completionHandler: (p1: MTLTexture, p2: NSError) => void,
+	): void
 
-  newTextureWithContentsOfURLOptionsError(URL: NSURL, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null, error: interop.PointerConvertible): MTLTexture;
+	newTextureWithContentsOfURLOptionsError(
+		URL: NSURL,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+		error: interop.PointerConvertible,
+	): MTLTexture
 
-  newTexturesWithContentsOfURLsOptionsError(URLs: NSArray<interop.Object> | Array<interop.Object>, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null, error: interop.PointerConvertible): NSArray;
+	newTexturesWithContentsOfURLsOptionsError(
+		URLs: NSArray<interop.Object> | Array<interop.Object>,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+		error: interop.PointerConvertible,
+	): NSArray
 
-  newTextureWithDataOptionsError(data: NSData, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null, error: interop.PointerConvertible): MTLTexture;
+	newTextureWithDataOptionsError(
+		data: NSData,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+		error: interop.PointerConvertible,
+	): MTLTexture
 
-  newTextureWithCGImageOptionsError(cgImage: interop.Object, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null, error: interop.PointerConvertible): MTLTexture;
+	newTextureWithCGImageOptionsError(
+		cgImage: interop.Object,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+		error: interop.PointerConvertible,
+	): MTLTexture
 
-  newTextureWithMDLTextureOptionsError(texture: MDLTexture, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null, error: interop.PointerConvertible): MTLTexture;
+	newTextureWithMDLTextureOptionsError(
+		texture: MDLTexture,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+		error: interop.PointerConvertible,
+	): MTLTexture
 
-  newTextureWithNameScaleFactorBundleOptionsError(name: string, scaleFactor: number, bundle: NSBundle | null, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null, error: interop.PointerConvertible): MTLTexture;
+	newTextureWithNameScaleFactorBundleOptionsError(
+		name: string,
+		scaleFactor: number,
+		bundle: NSBundle | null,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+		error: interop.PointerConvertible,
+	): MTLTexture
 
-  newTextureWithNameScaleFactorDisplayGamutBundleOptionsError(name: string, scaleFactor: number, displayGamut: interop.Enum<typeof NSDisplayGamut>, bundle: NSBundle | null, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null, error: interop.PointerConvertible): MTLTexture;
+	newTextureWithNameScaleFactorDisplayGamutBundleOptionsError(
+		name: string,
+		scaleFactor: number,
+		displayGamut: interop.Enum<typeof NSDisplayGamut>,
+		bundle: NSBundle | null,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+		error: interop.PointerConvertible,
+	): MTLTexture
 }
 
 declare class MTKMeshBufferAllocator extends NSObject implements MDLMeshBufferAllocator {
-  initWithDevice(device: MTLDevice): this;
+	initWithDevice(device: MTLDevice): this
 
-  readonly device: MTLDevice;
+	readonly device: MTLDevice
 
-  newZone(capacity: number): MDLMeshBufferZone;
+	newZone(capacity: number): MDLMeshBufferZone
 
-  newZoneForBuffersWithSizeAndType(sizes: NSArray<interop.Object> | Array<interop.Object>, types: NSArray<interop.Object> | Array<interop.Object>): MDLMeshBufferZone;
+	newZoneForBuffersWithSizeAndType(
+		sizes: NSArray<interop.Object> | Array<interop.Object>,
+		types: NSArray<interop.Object> | Array<interop.Object>,
+	): MDLMeshBufferZone
 
-  newBufferType(length: number, type: interop.Enum<typeof MDLMeshBufferType>): MDLMeshBuffer;
+	newBufferType(length: number, type: interop.Enum<typeof MDLMeshBufferType>): MDLMeshBuffer
 
-  newBufferWithDataType(data: NSData, type: interop.Enum<typeof MDLMeshBufferType>): MDLMeshBuffer;
+	newBufferWithDataType(data: NSData, type: interop.Enum<typeof MDLMeshBufferType>): MDLMeshBuffer
 
-  newBufferFromZoneLengthType(zone: MDLMeshBufferZone | null, length: number, type: interop.Enum<typeof MDLMeshBufferType>): MDLMeshBuffer;
+	newBufferFromZoneLengthType(
+		zone: MDLMeshBufferZone | null,
+		length: number,
+		type: interop.Enum<typeof MDLMeshBufferType>,
+	): MDLMeshBuffer
 
-  newBufferFromZoneDataType(zone: MDLMeshBufferZone | null, data: NSData, type: interop.Enum<typeof MDLMeshBufferType>): MDLMeshBuffer;
+	newBufferFromZoneDataType(
+		zone: MDLMeshBufferZone | null,
+		data: NSData,
+		type: interop.Enum<typeof MDLMeshBufferType>,
+	): MDLMeshBuffer
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 }
-

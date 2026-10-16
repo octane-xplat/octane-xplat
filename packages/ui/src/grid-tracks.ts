@@ -99,11 +99,7 @@ export function gridTrackListToCss(
 
 	return tracks
 		.map((track) =>
-			track === 'auto'
-				? 'auto'
-				: track.endsWith('*')
-					? `${track.slice(0, -1)}fr`
-					: `${track}px`,
+			track === 'auto' ? 'auto' : track.endsWith('*') ? `${track.slice(0, -1)}fr` : `${track}px`,
 		)
 		.join(' ')
 }

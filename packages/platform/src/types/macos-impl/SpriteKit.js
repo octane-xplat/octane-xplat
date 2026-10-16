@@ -16,9 +16,17 @@ export const SKEmitterNode = /* @__PURE__ */ _bind(FW, 'SKEmitterNode')
 export const SKFieldNode = /* @__PURE__ */ _bind(FW, 'SKFieldNode')
 export const SKInterpolationMode = /* @__PURE__ */ _bind(FW, 'SKInterpolationMode')
 export const SKKeyframeSequence = /* @__PURE__ */ _bind(FW, 'SKKeyframeSequence')
-export const SKLabelHorizontalAlignmentMode = /* @__PURE__ */ _bind(FW, 'SKLabelHorizontalAlignmentMode')
+export const SKLabelHorizontalAlignmentMode = /* @__PURE__ */ _bind(
+	FW,
+	'SKLabelHorizontalAlignmentMode',
+)
+
 export const SKLabelNode = /* @__PURE__ */ _bind(FW, 'SKLabelNode')
-export const SKLabelVerticalAlignmentMode = /* @__PURE__ */ _bind(FW, 'SKLabelVerticalAlignmentMode')
+export const SKLabelVerticalAlignmentMode = /* @__PURE__ */ _bind(
+	FW,
+	'SKLabelVerticalAlignmentMode',
+)
+
 export const SKLightNode = /* @__PURE__ */ _bind(FW, 'SKLightNode')
 export const SKMutableTexture = /* @__PURE__ */ _bind(FW, 'SKMutableTexture')
 export const SKNode = /* @__PURE__ */ _bind(FW, 'SKNode')

@@ -44,4 +44,7 @@ export const TW_TWUNKDSENTRYRETURN = /* @__PURE__ */ _bind(FW, 'TW_TWUNKDSENTRYR
 export const TW_TWUNKIDENTITY = /* @__PURE__ */ _bind(FW, 'TW_TWUNKIDENTITY')
 export const TW_USERINTERFACE = /* @__PURE__ */ _bind(FW, 'TW_USERINTERFACE')
 export const TW_VERSION = /* @__PURE__ */ _bind(FW, 'TW_VERSION')
-export const unnamed_15099832478408139880 = /* @__PURE__ */ _bind(FW, 'unnamed_15099832478408139880')
+export const unnamed_15099832478408139880 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_15099832478408139880',
+)

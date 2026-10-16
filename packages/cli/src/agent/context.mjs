@@ -33,7 +33,9 @@ export function agentContext(options = {}) {
 	// Release-repo override for docs binding (XPLAT_DOCS_REPO) — mirrors
 	// XPLAT_MCP_CACHE for the docs snapshot cache. Used by packed-lane
 	// fixtures and offline mirrors; absent means the canonical repo.
-	const docs = options.docs ?? (process.env.XPLAT_DOCS_REPO ? { repo: process.env.XPLAT_DOCS_REPO } : undefined)
+	const docs =
+		options.docs ??
+		(process.env.XPLAT_DOCS_REPO ? { repo: process.env.XPLAT_DOCS_REPO } : undefined)
 
 	const context = createWorkspaceContext({
 		workspaceRoot,

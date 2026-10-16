@@ -127,10 +127,9 @@ leaf is a compiled Swift host, so the AppKit backend and the WKWebView host
 both need a native build; `xplat` dev and package builds compile it when the
 app depends on `@octane-xplat/camera`.
 
-
 ```ts
 async function enableAudio() {
-	if (await session.requestPermission('microphone') === 'granted') {
+	if ((await session.requestPermission('microphone')) === 'granted') {
 		await session.configure({ audio: true })
 	}
 }
@@ -285,7 +284,6 @@ and Linux select an explicitly supported WebM or MP4 codec and report the
 finalized file's actual MIME type, including codecs — on Ubuntu 24.04's
 WebKitGTK that resolves to MP4 (H.264/AAC) because WebM recording needs
 GStreamer ≥ 1.24.9.
-
 
 ```ts
 const take = session.startRecording()

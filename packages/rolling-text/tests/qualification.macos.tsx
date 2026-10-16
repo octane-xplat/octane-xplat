@@ -4,7 +4,6 @@ import { clipRow, viewHeight, writeCell } from '../src/host.macos'
 import { observeReducedMotion, readReducedMotion } from '../src/reduced-motion.macos'
 import { NSView, NSWorkspace } from '@octane-xplat/platform/macos'
 
-
 function App(props: any) {
 	return (
 		<flexboxlayout flexDirection="column">

@@ -2,7 +2,6 @@
 import { createMacOSRoot, type UniversalComponent } from '@octane-xplat/macos-renderer'
 import { NSWindow } from '@octane-xplat/platform/macos'
 
-
 function Panel() {
 	return (
 		<flexboxlayout id="panel" left={10} top={12} bottom={18} style={{ width: 268 }}>

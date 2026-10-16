@@ -34,7 +34,7 @@ export function Status() {
 | Capability             | Web impl                                                | Native impl                                                                              | Seam notes                                                                                                                                          |
 | ---------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Platform.OS`/`select` | `'web'`                                                 | `'ios'`/`'android'`                                                                      | `isNative` const exported from `@octane-xplat/ui` (value-level split, build-time eliminated); OS-level divergence stays in `.ios`/`.android` leaves |
-| kv storage             | `localStorage`                                          | `ApplicationSettings` / `@nativescript/preferences`                                      | sync API both sides — keep interface sync; `flush()` → `synchronize()`/`commit()` bool, auto-flushed on suspend/exit                                   |
+| kv storage             | `localStorage`                                          | `ApplicationSettings` / `@nativescript/preferences`                                      | sync API both sides — keep interface sync; `flush()` → `synchronize()`/`commit()` bool, auto-flushed on suspend/exit                                |
 | secure storage         | `crypto.subtle` + IndexedDB-ish (or just "unsupported") | Keychain/Keystore plugin                                                                 | `@octane-xplat/secure-storage` leaf (#72)                                                                                                           |
 | files                  | OPFS/download URLs                                      | `knownFolders`, `File`, `@nativescript-community/ui-document-picker`                     | `@octane-xplat/files` leaf (#72); paths don't transfer; keep opaque `FileRef`; Android SAF reads `content://` through `ContentResolver`             |
 | network                | `fetch`, `WebSocket`                                    | `fetch`, `WebSocket` (exist natively)                                                    | shared directly — no wrapper needed                                                                                                                 |
@@ -261,10 +261,16 @@ function lookup and these observed unsafe value bindings until they are used:
 
 ```ts
 export const NSMakeCollectable: D.NSMakeCollectable_c = lazyGlobal('NSMakeCollectable')
-export const TNSWidgetsVersionString: D.TNSWidgetsVersionString_c = lazyGlobal('TNSWidgetsVersionString')
-export const UIGraphicsImageRendererContext: D.UIGraphicsImageRendererContext_c = lazyGlobal('UIGraphicsImageRendererContext')
-export const UIGraphicsImageRendererFormat: D.UIGraphicsImageRendererFormat_c = lazyGlobal('UIGraphicsImageRendererFormat')
-export const kCFAllocatorUseContext: D.kCFAllocatorUseContext_c = lazyGlobal('kCFAllocatorUseContext')
+export const TNSWidgetsVersionString: D.TNSWidgetsVersionString_c =
+	lazyGlobal('TNSWidgetsVersionString')
+export const UIGraphicsImageRendererContext: D.UIGraphicsImageRendererContext_c = lazyGlobal(
+	'UIGraphicsImageRendererContext',
+)
+export const UIGraphicsImageRendererFormat: D.UIGraphicsImageRendererFormat_c = lazyGlobal(
+	'UIGraphicsImageRendererFormat',
+)
+export const kCFAllocatorUseContext: D.kCFAllocatorUseContext_c =
+	lazyGlobal('kCFAllocatorUseContext')
 ```
 
 Importing the iOS type module no longer probes these globals. Calling a

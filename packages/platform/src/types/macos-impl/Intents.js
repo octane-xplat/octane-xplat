@@ -5,13 +5,25 @@ export const INAirport = /* @__PURE__ */ _bind(FW, 'INAirport')
 export const INAirportGate = /* @__PURE__ */ _bind(FW, 'INAirportGate')
 export const INBoatReservation = /* @__PURE__ */ _bind(FW, 'INBoatReservation')
 export const INBoatTrip = /* @__PURE__ */ _bind(FW, 'INBoatTrip')
-export const INBookRestaurantReservationIntentCode = /* @__PURE__ */ _bind(FW, 'INBookRestaurantReservationIntentCode')
+export const INBookRestaurantReservationIntentCode = /* @__PURE__ */ _bind(
+	FW,
+	'INBookRestaurantReservationIntentCode',
+)
+
 export const INBooleanResolutionResult = /* @__PURE__ */ _bind(FW, 'INBooleanResolutionResult')
 export const INBusReservation = /* @__PURE__ */ _bind(FW, 'INBusReservation')
 export const INBusTrip = /* @__PURE__ */ _bind(FW, 'INBusTrip')
-export const INCurrencyAmountResolutionResult = /* @__PURE__ */ _bind(FW, 'INCurrencyAmountResolutionResult')
+export const INCurrencyAmountResolutionResult = /* @__PURE__ */ _bind(
+	FW,
+	'INCurrencyAmountResolutionResult',
+)
+
 export const INDateComponentsRange = /* @__PURE__ */ _bind(FW, 'INDateComponentsRange')
-export const INDateComponentsResolutionResult = /* @__PURE__ */ _bind(FW, 'INDateComponentsResolutionResult')
+export const INDateComponentsResolutionResult = /* @__PURE__ */ _bind(
+	FW,
+	'INDateComponentsResolutionResult',
+)
+
 export const INDoubleResolutionResult = /* @__PURE__ */ _bind(FW, 'INDoubleResolutionResult')
 export const INEnergyResolutionResult = /* @__PURE__ */ _bind(FW, 'INEnergyResolutionResult')
 export const INEnumResolutionResult = /* @__PURE__ */ _bind(FW, 'INEnumResolutionResult')
@@ -20,13 +32,37 @@ export const INFile = /* @__PURE__ */ _bind(FW, 'INFile')
 export const INFileResolutionResult = /* @__PURE__ */ _bind(FW, 'INFileResolutionResult')
 export const INFlight = /* @__PURE__ */ _bind(FW, 'INFlight')
 export const INFlightReservation = /* @__PURE__ */ _bind(FW, 'INFlightReservation')
-export const INGetAvailableRestaurantReservationBookingDefaultsIntentResponseCode = /* @__PURE__ */ _bind(FW, 'INGetAvailableRestaurantReservationBookingDefaultsIntentResponseCode')
-export const INGetAvailableRestaurantReservationBookingsIntentCode = /* @__PURE__ */ _bind(FW, 'INGetAvailableRestaurantReservationBookingsIntentCode')
-export const INGetReservationDetailsIntent = /* @__PURE__ */ _bind(FW, 'INGetReservationDetailsIntent')
-export const INGetReservationDetailsIntentResponse = /* @__PURE__ */ _bind(FW, 'INGetReservationDetailsIntentResponse')
-export const INGetReservationDetailsIntentResponseCode = /* @__PURE__ */ _bind(FW, 'INGetReservationDetailsIntentResponseCode')
-export const INGetRestaurantGuestIntentResponseCode = /* @__PURE__ */ _bind(FW, 'INGetRestaurantGuestIntentResponseCode')
-export const INGetUserCurrentRestaurantReservationBookingsIntentResponseCode = /* @__PURE__ */ _bind(FW, 'INGetUserCurrentRestaurantReservationBookingsIntentResponseCode')
+export const INGetAvailableRestaurantReservationBookingDefaultsIntentResponseCode =
+	/* @__PURE__ */ _bind(FW, 'INGetAvailableRestaurantReservationBookingDefaultsIntentResponseCode')
+
+export const INGetAvailableRestaurantReservationBookingsIntentCode = /* @__PURE__ */ _bind(
+	FW,
+	'INGetAvailableRestaurantReservationBookingsIntentCode',
+)
+
+export const INGetReservationDetailsIntent = /* @__PURE__ */ _bind(
+	FW,
+	'INGetReservationDetailsIntent',
+)
+
+export const INGetReservationDetailsIntentResponse = /* @__PURE__ */ _bind(
+	FW,
+	'INGetReservationDetailsIntentResponse',
+)
+
+export const INGetReservationDetailsIntentResponseCode = /* @__PURE__ */ _bind(
+	FW,
+	'INGetReservationDetailsIntentResponseCode',
+)
+
+export const INGetRestaurantGuestIntentResponseCode = /* @__PURE__ */ _bind(
+	FW,
+	'INGetRestaurantGuestIntentResponseCode',
+)
+
+export const INGetUserCurrentRestaurantReservationBookingsIntentResponseCode =
+	/* @__PURE__ */ _bind(FW, 'INGetUserCurrentRestaurantReservationBookingsIntentResponseCode')
+
 export const INImage = /* @__PURE__ */ _bind(FW, 'INImage')
 export const INIntegerResolutionResult = /* @__PURE__ */ _bind(FW, 'INIntegerResolutionResult')
 export const INIntent = /* @__PURE__ */ _bind(FW, 'INIntent')
@@ -46,7 +82,11 @@ export const INObjectCollection = /* @__PURE__ */ _bind(FW, 'INObjectCollection'
 export const INObjectResolutionResult = /* @__PURE__ */ _bind(FW, 'INObjectResolutionResult')
 export const INObjectSection = /* @__PURE__ */ _bind(FW, 'INObjectSection')
 export const INPaymentMethod = /* @__PURE__ */ _bind(FW, 'INPaymentMethod')
-export const INPaymentMethodResolutionResult = /* @__PURE__ */ _bind(FW, 'INPaymentMethodResolutionResult')
+export const INPaymentMethodResolutionResult = /* @__PURE__ */ _bind(
+	FW,
+	'INPaymentMethodResolutionResult',
+)
+
 export const INPaymentMethodType = /* @__PURE__ */ _bind(FW, 'INPaymentMethodType')
 export const INPerson = /* @__PURE__ */ _bind(FW, 'INPerson')
 export const INPersonHandle = /* @__PURE__ */ _bind(FW, 'INPersonHandle')
@@ -61,7 +101,11 @@ export const INPersonHandleLabelWork = /* @__PURE__ */ _bind(FW, 'INPersonHandle
 export const INPersonHandleLabelWorkFax = /* @__PURE__ */ _bind(FW, 'INPersonHandleLabelWorkFax')
 export const INPersonHandleLabeliPhone = /* @__PURE__ */ _bind(FW, 'INPersonHandleLabeliPhone')
 export const INPersonHandleType = /* @__PURE__ */ _bind(FW, 'INPersonHandleType')
-export const INPersonRelationshipDaughter = /* @__PURE__ */ _bind(FW, 'INPersonRelationshipDaughter')
+export const INPersonRelationshipDaughter = /* @__PURE__ */ _bind(
+	FW,
+	'INPersonRelationshipDaughter',
+)
+
 export const INPersonRelationshipSon = /* @__PURE__ */ _bind(FW, 'INPersonRelationshipSon')
 export const INPersonResolutionResult = /* @__PURE__ */ _bind(FW, 'INPersonResolutionResult')
 export const INPersonSuggestionType = /* @__PURE__ */ _bind(FW, 'INPersonSuggestionType')
@@ -74,18 +118,30 @@ export const INReservationAction = /* @__PURE__ */ _bind(FW, 'INReservationActio
 export const INReservationActionType = /* @__PURE__ */ _bind(FW, 'INReservationActionType')
 export const INReservationStatus = /* @__PURE__ */ _bind(FW, 'INReservationStatus')
 export const INRestaurantReservation = /* @__PURE__ */ _bind(FW, 'INRestaurantReservation')
-export const INRestaurantReservationUserBookingStatus = /* @__PURE__ */ _bind(FW, 'INRestaurantReservationUserBookingStatus')
+export const INRestaurantReservationUserBookingStatus = /* @__PURE__ */ _bind(
+	FW,
+	'INRestaurantReservationUserBookingStatus',
+)
+
 export const INSeat = /* @__PURE__ */ _bind(FW, 'INSeat')
 export const INShortcut = /* @__PURE__ */ _bind(FW, 'INShortcut')
 export const INSpeakable = /* @__PURE__ */ _bind(FW, 'INSpeakable')
 export const INSpeakableString = /* @__PURE__ */ _bind(FW, 'INSpeakableString')
 export const INSpeedResolutionResult = /* @__PURE__ */ _bind(FW, 'INSpeedResolutionResult')
 export const INStringResolutionResult = /* @__PURE__ */ _bind(FW, 'INStringResolutionResult')
-export const INTemperatureResolutionResult = /* @__PURE__ */ _bind(FW, 'INTemperatureResolutionResult')
+export const INTemperatureResolutionResult = /* @__PURE__ */ _bind(
+	FW,
+	'INTemperatureResolutionResult',
+)
+
 export const INTicketedEvent = /* @__PURE__ */ _bind(FW, 'INTicketedEvent')
 export const INTicketedEventCategory = /* @__PURE__ */ _bind(FW, 'INTicketedEventCategory')
 export const INTicketedEventReservation = /* @__PURE__ */ _bind(FW, 'INTicketedEventReservation')
-export const INTimeIntervalResolutionResult = /* @__PURE__ */ _bind(FW, 'INTimeIntervalResolutionResult')
+export const INTimeIntervalResolutionResult = /* @__PURE__ */ _bind(
+	FW,
+	'INTimeIntervalResolutionResult',
+)
+
 export const INTrainReservation = /* @__PURE__ */ _bind(FW, 'INTrainReservation')
 export const INTrainTrip = /* @__PURE__ */ _bind(FW, 'INTrainTrip')
 export const INURLResolutionResult = /* @__PURE__ */ _bind(FW, 'INURLResolutionResult')

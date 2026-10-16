@@ -1,156 +1,671 @@
 import { _bind } from './_rt.js'
 const FW = '/System/Library/Frameworks/MediaLibrary.framework/MediaLibrary'
-export const MLApertureAllPhotosTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLApertureAllPhotosTypeIdentifier')
-export const MLApertureAllProjectsTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLApertureAllProjectsTypeIdentifier')
-export const MLApertureFacebookAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLApertureFacebookAlbumTypeIdentifier')
-export const MLApertureFacebookGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLApertureFacebookGroupTypeIdentifier')
-export const MLApertureFacesAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLApertureFacesAlbumTypeIdentifier')
-export const MLApertureFlaggedTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLApertureFlaggedTypeIdentifier')
-export const MLApertureFlickrAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLApertureFlickrAlbumTypeIdentifier')
-export const MLApertureFlickrGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLApertureFlickrGroupTypeIdentifier')
-export const MLApertureFolderAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLApertureFolderAlbumTypeIdentifier')
-export const MLApertureLastImportAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLApertureLastImportAlbumTypeIdentifier')
-export const MLApertureLastNMonthsAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLApertureLastNMonthsAlbumTypeIdentifier')
-export const MLApertureLastViewedEventAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLApertureLastViewedEventAlbumTypeIdentifier')
-export const MLApertureLightTableTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLApertureLightTableTypeIdentifier')
-export const MLAperturePhotoStreamAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLAperturePhotoStreamAlbumTypeIdentifier')
-export const MLAperturePlacesAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLAperturePlacesAlbumTypeIdentifier')
-export const MLAperturePlacesCityAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLAperturePlacesCityAlbumTypeIdentifier')
-export const MLAperturePlacesCountryAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLAperturePlacesCountryAlbumTypeIdentifier')
-export const MLAperturePlacesPointOfInterestAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLAperturePlacesPointOfInterestAlbumTypeIdentifier')
-export const MLAperturePlacesProvinceAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLAperturePlacesProvinceAlbumTypeIdentifier')
-export const MLApertureProjectAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLApertureProjectAlbumTypeIdentifier')
-export const MLApertureProjectFolderAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLApertureProjectFolderAlbumTypeIdentifier')
-export const MLApertureRootGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLApertureRootGroupTypeIdentifier')
-export const MLApertureSlideShowTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLApertureSlideShowTypeIdentifier')
-export const MLApertureSmugMugAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLApertureSmugMugAlbumTypeIdentifier')
-export const MLApertureSmugMugGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLApertureSmugMugGroupTypeIdentifier')
-export const MLApertureUserAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLApertureUserAlbumTypeIdentifier')
-export const MLApertureUserSmartAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLApertureUserSmartAlbumTypeIdentifier')
-export const MLFinalCutEventCalendarGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLFinalCutEventCalendarGroupTypeIdentifier')
-export const MLFinalCutEventGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLFinalCutEventGroupTypeIdentifier')
-export const MLFinalCutEventLibraryGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLFinalCutEventLibraryGroupTypeIdentifier')
-export const MLFinalCutFolderGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLFinalCutFolderGroupTypeIdentifier')
-export const MLFinalCutProjectGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLFinalCutProjectGroupTypeIdentifier')
-export const MLFinalCutRootGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLFinalCutRootGroupTypeIdentifier')
+export const MLApertureAllPhotosTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLApertureAllPhotosTypeIdentifier',
+)
+
+export const MLApertureAllProjectsTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLApertureAllProjectsTypeIdentifier',
+)
+
+export const MLApertureFacebookAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLApertureFacebookAlbumTypeIdentifier',
+)
+
+export const MLApertureFacebookGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLApertureFacebookGroupTypeIdentifier',
+)
+
+export const MLApertureFacesAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLApertureFacesAlbumTypeIdentifier',
+)
+
+export const MLApertureFlaggedTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLApertureFlaggedTypeIdentifier',
+)
+
+export const MLApertureFlickrAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLApertureFlickrAlbumTypeIdentifier',
+)
+
+export const MLApertureFlickrGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLApertureFlickrGroupTypeIdentifier',
+)
+
+export const MLApertureFolderAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLApertureFolderAlbumTypeIdentifier',
+)
+
+export const MLApertureLastImportAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLApertureLastImportAlbumTypeIdentifier',
+)
+
+export const MLApertureLastNMonthsAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLApertureLastNMonthsAlbumTypeIdentifier',
+)
+
+export const MLApertureLastViewedEventAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLApertureLastViewedEventAlbumTypeIdentifier',
+)
+
+export const MLApertureLightTableTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLApertureLightTableTypeIdentifier',
+)
+
+export const MLAperturePhotoStreamAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLAperturePhotoStreamAlbumTypeIdentifier',
+)
+
+export const MLAperturePlacesAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLAperturePlacesAlbumTypeIdentifier',
+)
+
+export const MLAperturePlacesCityAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLAperturePlacesCityAlbumTypeIdentifier',
+)
+
+export const MLAperturePlacesCountryAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLAperturePlacesCountryAlbumTypeIdentifier',
+)
+
+export const MLAperturePlacesPointOfInterestAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLAperturePlacesPointOfInterestAlbumTypeIdentifier',
+)
+
+export const MLAperturePlacesProvinceAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLAperturePlacesProvinceAlbumTypeIdentifier',
+)
+
+export const MLApertureProjectAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLApertureProjectAlbumTypeIdentifier',
+)
+
+export const MLApertureProjectFolderAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLApertureProjectFolderAlbumTypeIdentifier',
+)
+
+export const MLApertureRootGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLApertureRootGroupTypeIdentifier',
+)
+
+export const MLApertureSlideShowTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLApertureSlideShowTypeIdentifier',
+)
+
+export const MLApertureSmugMugAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLApertureSmugMugAlbumTypeIdentifier',
+)
+
+export const MLApertureSmugMugGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLApertureSmugMugGroupTypeIdentifier',
+)
+
+export const MLApertureUserAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLApertureUserAlbumTypeIdentifier',
+)
+
+export const MLApertureUserSmartAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLApertureUserSmartAlbumTypeIdentifier',
+)
+
+export const MLFinalCutEventCalendarGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLFinalCutEventCalendarGroupTypeIdentifier',
+)
+
+export const MLFinalCutEventGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLFinalCutEventGroupTypeIdentifier',
+)
+
+export const MLFinalCutEventLibraryGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLFinalCutEventLibraryGroupTypeIdentifier',
+)
+
+export const MLFinalCutFolderGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLFinalCutFolderGroupTypeIdentifier',
+)
+
+export const MLFinalCutProjectGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLFinalCutProjectGroupTypeIdentifier',
+)
+
+export const MLFinalCutRootGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLFinalCutRootGroupTypeIdentifier',
+)
+
 export const MLFolderGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLFolderGroupTypeIdentifier')
-export const MLFolderRootGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLFolderRootGroupTypeIdentifier')
-export const MLGarageBandFolderGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLGarageBandFolderGroupTypeIdentifier')
-export const MLGarageBandRootGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLGarageBandRootGroupTypeIdentifier')
-export const MLLogicBouncesGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLLogicBouncesGroupTypeIdentifier')
-export const MLLogicProjectTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLLogicProjectTypeIdentifier')
-export const MLLogicProjectsGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLLogicProjectsGroupTypeIdentifier')
-export const MLLogicRootGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLLogicRootGroupTypeIdentifier')
+export const MLFolderRootGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLFolderRootGroupTypeIdentifier',
+)
+
+export const MLGarageBandFolderGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLGarageBandFolderGroupTypeIdentifier',
+)
+
+export const MLGarageBandRootGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLGarageBandRootGroupTypeIdentifier',
+)
+
+export const MLLogicBouncesGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLLogicBouncesGroupTypeIdentifier',
+)
+
+export const MLLogicProjectTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLLogicProjectTypeIdentifier',
+)
+
+export const MLLogicProjectsGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLLogicProjectsGroupTypeIdentifier',
+)
+
+export const MLLogicRootGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLLogicRootGroupTypeIdentifier',
+)
+
 export const MLMediaGroup = /* @__PURE__ */ _bind(FW, 'MLMediaGroup')
 export const MLMediaLibrary = /* @__PURE__ */ _bind(FW, 'MLMediaLibrary')
 export const MLMediaLoadAppFoldersKey = /* @__PURE__ */ _bind(FW, 'MLMediaLoadAppFoldersKey')
 export const MLMediaLoadAppleLoops = /* @__PURE__ */ _bind(FW, 'MLMediaLoadAppleLoops')
-export const MLMediaLoadExcludeSourcesKey = /* @__PURE__ */ _bind(FW, 'MLMediaLoadExcludeSourcesKey')
+export const MLMediaLoadExcludeSourcesKey = /* @__PURE__ */ _bind(
+	FW,
+	'MLMediaLoadExcludeSourcesKey',
+)
+
 export const MLMediaLoadFoldersKey = /* @__PURE__ */ _bind(FW, 'MLMediaLoadFoldersKey')
-export const MLMediaLoadIncludeSourcesKey = /* @__PURE__ */ _bind(FW, 'MLMediaLoadIncludeSourcesKey')
+export const MLMediaLoadIncludeSourcesKey = /* @__PURE__ */ _bind(
+	FW,
+	'MLMediaLoadIncludeSourcesKey',
+)
+
 export const MLMediaLoadMoviesFolder = /* @__PURE__ */ _bind(FW, 'MLMediaLoadMoviesFolder')
 export const MLMediaLoadSourceTypesKey = /* @__PURE__ */ _bind(FW, 'MLMediaLoadSourceTypesKey')
 export const MLMediaObject = /* @__PURE__ */ _bind(FW, 'MLMediaObject')
 export const MLMediaObjectAlbumKey = /* @__PURE__ */ _bind(FW, 'MLMediaObjectAlbumKey')
 export const MLMediaObjectArtistKey = /* @__PURE__ */ _bind(FW, 'MLMediaObjectArtistKey')
 export const MLMediaObjectBitRateKey = /* @__PURE__ */ _bind(FW, 'MLMediaObjectBitRateKey')
-export const MLMediaObjectChannelCountKey = /* @__PURE__ */ _bind(FW, 'MLMediaObjectChannelCountKey')
+export const MLMediaObjectChannelCountKey = /* @__PURE__ */ _bind(
+	FW,
+	'MLMediaObjectChannelCountKey',
+)
+
 export const MLMediaObjectCommentsKey = /* @__PURE__ */ _bind(FW, 'MLMediaObjectCommentsKey')
 export const MLMediaObjectDurationKey = /* @__PURE__ */ _bind(FW, 'MLMediaObjectDurationKey')
 export const MLMediaObjectGenreKey = /* @__PURE__ */ _bind(FW, 'MLMediaObjectGenreKey')
 export const MLMediaObjectKeywordsKey = /* @__PURE__ */ _bind(FW, 'MLMediaObjectKeywordsKey')
 export const MLMediaObjectKindKey = /* @__PURE__ */ _bind(FW, 'MLMediaObjectKindKey')
 export const MLMediaObjectProtectedKey = /* @__PURE__ */ _bind(FW, 'MLMediaObjectProtectedKey')
-export const MLMediaObjectResolutionStringKey = /* @__PURE__ */ _bind(FW, 'MLMediaObjectResolutionStringKey')
+export const MLMediaObjectResolutionStringKey = /* @__PURE__ */ _bind(
+	FW,
+	'MLMediaObjectResolutionStringKey',
+)
+
 export const MLMediaObjectSampleRateKey = /* @__PURE__ */ _bind(FW, 'MLMediaObjectSampleRateKey')
 export const MLMediaObjectTrackNumberKey = /* @__PURE__ */ _bind(FW, 'MLMediaObjectTrackNumberKey')
 export const MLMediaSource = /* @__PURE__ */ _bind(FW, 'MLMediaSource')
-export const MLMediaSourceApertureIdentifier = /* @__PURE__ */ _bind(FW, 'MLMediaSourceApertureIdentifier')
-export const MLMediaSourceAppDefinedFoldersIdentifier = /* @__PURE__ */ _bind(FW, 'MLMediaSourceAppDefinedFoldersIdentifier')
-export const MLMediaSourceCustomFoldersIdentifier = /* @__PURE__ */ _bind(FW, 'MLMediaSourceCustomFoldersIdentifier')
-export const MLMediaSourceFinalCutIdentifier = /* @__PURE__ */ _bind(FW, 'MLMediaSourceFinalCutIdentifier')
-export const MLMediaSourceGarageBandIdentifier = /* @__PURE__ */ _bind(FW, 'MLMediaSourceGarageBandIdentifier')
-export const MLMediaSourceLogicIdentifier = /* @__PURE__ */ _bind(FW, 'MLMediaSourceLogicIdentifier')
-export const MLMediaSourceMoviesFolderIdentifier = /* @__PURE__ */ _bind(FW, 'MLMediaSourceMoviesFolderIdentifier')
-export const MLMediaSourcePhotoBoothIdentifier = /* @__PURE__ */ _bind(FW, 'MLMediaSourcePhotoBoothIdentifier')
-export const MLMediaSourcePhotosIdentifier = /* @__PURE__ */ _bind(FW, 'MLMediaSourcePhotosIdentifier')
+export const MLMediaSourceApertureIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLMediaSourceApertureIdentifier',
+)
+
+export const MLMediaSourceAppDefinedFoldersIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLMediaSourceAppDefinedFoldersIdentifier',
+)
+
+export const MLMediaSourceCustomFoldersIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLMediaSourceCustomFoldersIdentifier',
+)
+
+export const MLMediaSourceFinalCutIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLMediaSourceFinalCutIdentifier',
+)
+
+export const MLMediaSourceGarageBandIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLMediaSourceGarageBandIdentifier',
+)
+
+export const MLMediaSourceLogicIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLMediaSourceLogicIdentifier',
+)
+
+export const MLMediaSourceMoviesFolderIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLMediaSourceMoviesFolderIdentifier',
+)
+
+export const MLMediaSourcePhotoBoothIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLMediaSourcePhotoBoothIdentifier',
+)
+
+export const MLMediaSourcePhotosIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLMediaSourcePhotosIdentifier',
+)
+
 export const MLMediaSourceType = /* @__PURE__ */ _bind(FW, 'MLMediaSourceType')
-export const MLMediaSourceiMovieIdentifier = /* @__PURE__ */ _bind(FW, 'MLMediaSourceiMovieIdentifier')
-export const MLMediaSourceiPhotoIdentifier = /* @__PURE__ */ _bind(FW, 'MLMediaSourceiPhotoIdentifier')
-export const MLMediaSourceiTunesIdentifier = /* @__PURE__ */ _bind(FW, 'MLMediaSourceiTunesIdentifier')
+export const MLMediaSourceiMovieIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLMediaSourceiMovieIdentifier',
+)
+
+export const MLMediaSourceiPhotoIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLMediaSourceiPhotoIdentifier',
+)
+
+export const MLMediaSourceiTunesIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLMediaSourceiTunesIdentifier',
+)
+
 export const MLMediaType = /* @__PURE__ */ _bind(FW, 'MLMediaType')
 export const MLPhotosAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLPhotosAlbumTypeIdentifier')
-export const MLPhotosAlbumsGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLPhotosAlbumsGroupTypeIdentifier')
-export const MLPhotosAllCollectionsGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLPhotosAllCollectionsGroupTypeIdentifier')
-export const MLPhotosAllMomentsGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLPhotosAllMomentsGroupTypeIdentifier')
-export const MLPhotosAllPhotosAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLPhotosAllPhotosAlbumTypeIdentifier')
-export const MLPhotosAllYearsGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLPhotosAllYearsGroupTypeIdentifier')
-export const MLPhotosAnimatedGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLPhotosAnimatedGroupTypeIdentifier')
-export const MLPhotosBurstGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLPhotosBurstGroupTypeIdentifier')
-export const MLPhotosCollectionGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLPhotosCollectionGroupTypeIdentifier')
-export const MLPhotosDepthEffectGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLPhotosDepthEffectGroupTypeIdentifier')
-export const MLPhotosFacesAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLPhotosFacesAlbumTypeIdentifier')
-export const MLPhotosFavoritesGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLPhotosFavoritesGroupTypeIdentifier')
-export const MLPhotosFolderTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLPhotosFolderTypeIdentifier')
-export const MLPhotosFrontCameraGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLPhotosFrontCameraGroupTypeIdentifier')
-export const MLPhotosLastImportGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLPhotosLastImportGroupTypeIdentifier')
-export const MLPhotosLivePhotosGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLPhotosLivePhotosGroupTypeIdentifier')
-export const MLPhotosLongExposureGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLPhotosLongExposureGroupTypeIdentifier')
-export const MLPhotosMomentGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLPhotosMomentGroupTypeIdentifier')
-export const MLPhotosMyPhotoStreamTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLPhotosMyPhotoStreamTypeIdentifier')
-export const MLPhotosPanoramasGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLPhotosPanoramasGroupTypeIdentifier')
-export const MLPhotosPublishedAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLPhotosPublishedAlbumTypeIdentifier')
-export const MLPhotosRootGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLPhotosRootGroupTypeIdentifier')
-export const MLPhotosScreenshotGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLPhotosScreenshotGroupTypeIdentifier')
-export const MLPhotosSharedGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLPhotosSharedGroupTypeIdentifier')
-export const MLPhotosSharedPhotoStreamTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLPhotosSharedPhotoStreamTypeIdentifier')
-export const MLPhotosSloMoGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLPhotosSloMoGroupTypeIdentifier')
-export const MLPhotosSmartAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLPhotosSmartAlbumTypeIdentifier')
-export const MLPhotosTimelapseGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLPhotosTimelapseGroupTypeIdentifier')
-export const MLPhotosVideosGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLPhotosVideosGroupTypeIdentifier')
-export const MLPhotosYearGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLPhotosYearGroupTypeIdentifier')
-export const MLiMovieEventCalendarGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiMovieEventCalendarGroupTypeIdentifier')
-export const MLiMovieEventGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiMovieEventGroupTypeIdentifier')
-export const MLiMovieEventLibraryGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiMovieEventLibraryGroupTypeIdentifier')
-export const MLiMovieFolderGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiMovieFolderGroupTypeIdentifier')
-export const MLiMovieProjectGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiMovieProjectGroupTypeIdentifier')
-export const MLiMovieRootGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiMovieRootGroupTypeIdentifier')
+export const MLPhotosAlbumsGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLPhotosAlbumsGroupTypeIdentifier',
+)
+
+export const MLPhotosAllCollectionsGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLPhotosAllCollectionsGroupTypeIdentifier',
+)
+
+export const MLPhotosAllMomentsGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLPhotosAllMomentsGroupTypeIdentifier',
+)
+
+export const MLPhotosAllPhotosAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLPhotosAllPhotosAlbumTypeIdentifier',
+)
+
+export const MLPhotosAllYearsGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLPhotosAllYearsGroupTypeIdentifier',
+)
+
+export const MLPhotosAnimatedGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLPhotosAnimatedGroupTypeIdentifier',
+)
+
+export const MLPhotosBurstGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLPhotosBurstGroupTypeIdentifier',
+)
+
+export const MLPhotosCollectionGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLPhotosCollectionGroupTypeIdentifier',
+)
+
+export const MLPhotosDepthEffectGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLPhotosDepthEffectGroupTypeIdentifier',
+)
+
+export const MLPhotosFacesAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLPhotosFacesAlbumTypeIdentifier',
+)
+
+export const MLPhotosFavoritesGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLPhotosFavoritesGroupTypeIdentifier',
+)
+
+export const MLPhotosFolderTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLPhotosFolderTypeIdentifier',
+)
+
+export const MLPhotosFrontCameraGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLPhotosFrontCameraGroupTypeIdentifier',
+)
+
+export const MLPhotosLastImportGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLPhotosLastImportGroupTypeIdentifier',
+)
+
+export const MLPhotosLivePhotosGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLPhotosLivePhotosGroupTypeIdentifier',
+)
+
+export const MLPhotosLongExposureGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLPhotosLongExposureGroupTypeIdentifier',
+)
+
+export const MLPhotosMomentGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLPhotosMomentGroupTypeIdentifier',
+)
+
+export const MLPhotosMyPhotoStreamTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLPhotosMyPhotoStreamTypeIdentifier',
+)
+
+export const MLPhotosPanoramasGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLPhotosPanoramasGroupTypeIdentifier',
+)
+
+export const MLPhotosPublishedAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLPhotosPublishedAlbumTypeIdentifier',
+)
+
+export const MLPhotosRootGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLPhotosRootGroupTypeIdentifier',
+)
+
+export const MLPhotosScreenshotGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLPhotosScreenshotGroupTypeIdentifier',
+)
+
+export const MLPhotosSharedGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLPhotosSharedGroupTypeIdentifier',
+)
+
+export const MLPhotosSharedPhotoStreamTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLPhotosSharedPhotoStreamTypeIdentifier',
+)
+
+export const MLPhotosSloMoGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLPhotosSloMoGroupTypeIdentifier',
+)
+
+export const MLPhotosSmartAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLPhotosSmartAlbumTypeIdentifier',
+)
+
+export const MLPhotosTimelapseGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLPhotosTimelapseGroupTypeIdentifier',
+)
+
+export const MLPhotosVideosGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLPhotosVideosGroupTypeIdentifier',
+)
+
+export const MLPhotosYearGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLPhotosYearGroupTypeIdentifier',
+)
+
+export const MLiMovieEventCalendarGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiMovieEventCalendarGroupTypeIdentifier',
+)
+
+export const MLiMovieEventGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiMovieEventGroupTypeIdentifier',
+)
+
+export const MLiMovieEventLibraryGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiMovieEventLibraryGroupTypeIdentifier',
+)
+
+export const MLiMovieFolderGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiMovieFolderGroupTypeIdentifier',
+)
+
+export const MLiMovieProjectGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiMovieProjectGroupTypeIdentifier',
+)
+
+export const MLiMovieRootGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiMovieRootGroupTypeIdentifier',
+)
+
 export const MLiPhotoAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiPhotoAlbumTypeIdentifier')
-export const MLiPhotoEventAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiPhotoEventAlbumTypeIdentifier')
-export const MLiPhotoEventsFolderTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiPhotoEventsFolderTypeIdentifier')
-export const MLiPhotoFacebookAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiPhotoFacebookAlbumTypeIdentifier')
-export const MLiPhotoFacebookGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiPhotoFacebookGroupTypeIdentifier')
-export const MLiPhotoFacesAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiPhotoFacesAlbumTypeIdentifier')
-export const MLiPhotoFlaggedAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiPhotoFlaggedAlbumTypeIdentifier')
-export const MLiPhotoFlickrAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiPhotoFlickrAlbumTypeIdentifier')
-export const MLiPhotoFlickrGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiPhotoFlickrGroupTypeIdentifier')
-export const MLiPhotoFolderAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiPhotoFolderAlbumTypeIdentifier')
-export const MLiPhotoLastImportAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiPhotoLastImportAlbumTypeIdentifier')
-export const MLiPhotoLastNMonthsAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiPhotoLastNMonthsAlbumTypeIdentifier')
-export const MLiPhotoLastViewedEventAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiPhotoLastViewedEventAlbumTypeIdentifier')
-export const MLiPhotoLibraryAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiPhotoLibraryAlbumTypeIdentifier')
-export const MLiPhotoPhotoStreamAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiPhotoPhotoStreamAlbumTypeIdentifier')
-export const MLiPhotoPlacesAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiPhotoPlacesAlbumTypeIdentifier')
-export const MLiPhotoPlacesCityAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiPhotoPlacesCityAlbumTypeIdentifier')
-export const MLiPhotoPlacesCountryAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiPhotoPlacesCountryAlbumTypeIdentifier')
-export const MLiPhotoPlacesPointOfInterestAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiPhotoPlacesPointOfInterestAlbumTypeIdentifier')
-export const MLiPhotoPlacesProvinceAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiPhotoPlacesProvinceAlbumTypeIdentifier')
-export const MLiPhotoRootGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiPhotoRootGroupTypeIdentifier')
-export const MLiPhotoSlideShowAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiPhotoSlideShowAlbumTypeIdentifier')
-export const MLiPhotoSmartAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiPhotoSmartAlbumTypeIdentifier')
-export const MLiPhotoSubscribedAlbumTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiPhotoSubscribedAlbumTypeIdentifier')
-export const MLiTunesAudioBooksPlaylistTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiTunesAudioBooksPlaylistTypeIdentifier')
-export const MLiTunesFolderPlaylistTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiTunesFolderPlaylistTypeIdentifier')
-export const MLiTunesGeniusPlaylistTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiTunesGeniusPlaylistTypeIdentifier')
-export const MLiTunesMoviesPlaylistTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiTunesMoviesPlaylistTypeIdentifier')
-export const MLiTunesMusicPlaylistTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiTunesMusicPlaylistTypeIdentifier')
-export const MLiTunesMusicVideosPlaylistTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiTunesMusicVideosPlaylistTypeIdentifier')
-export const MLiTunesPlaylistTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiTunesPlaylistTypeIdentifier')
-export const MLiTunesPodcastPlaylistTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiTunesPodcastPlaylistTypeIdentifier')
-export const MLiTunesPurchasedPlaylistTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiTunesPurchasedPlaylistTypeIdentifier')
-export const MLiTunesRootGroupTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiTunesRootGroupTypeIdentifier')
-export const MLiTunesSavedGeniusPlaylistTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiTunesSavedGeniusPlaylistTypeIdentifier')
-export const MLiTunesSmartPlaylistTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiTunesSmartPlaylistTypeIdentifier')
-export const MLiTunesTVShowsPlaylistTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiTunesTVShowsPlaylistTypeIdentifier')
-export const MLiTunesVideoPlaylistTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiTunesVideoPlaylistTypeIdentifier')
-export const MLiTunesiTunesUPlaylistTypeIdentifier = /* @__PURE__ */ _bind(FW, 'MLiTunesiTunesUPlaylistTypeIdentifier')
+export const MLiPhotoEventAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiPhotoEventAlbumTypeIdentifier',
+)
+
+export const MLiPhotoEventsFolderTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiPhotoEventsFolderTypeIdentifier',
+)
+
+export const MLiPhotoFacebookAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiPhotoFacebookAlbumTypeIdentifier',
+)
+
+export const MLiPhotoFacebookGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiPhotoFacebookGroupTypeIdentifier',
+)
+
+export const MLiPhotoFacesAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiPhotoFacesAlbumTypeIdentifier',
+)
+
+export const MLiPhotoFlaggedAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiPhotoFlaggedAlbumTypeIdentifier',
+)
+
+export const MLiPhotoFlickrAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiPhotoFlickrAlbumTypeIdentifier',
+)
+
+export const MLiPhotoFlickrGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiPhotoFlickrGroupTypeIdentifier',
+)
+
+export const MLiPhotoFolderAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiPhotoFolderAlbumTypeIdentifier',
+)
+
+export const MLiPhotoLastImportAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiPhotoLastImportAlbumTypeIdentifier',
+)
+
+export const MLiPhotoLastNMonthsAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiPhotoLastNMonthsAlbumTypeIdentifier',
+)
+
+export const MLiPhotoLastViewedEventAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiPhotoLastViewedEventAlbumTypeIdentifier',
+)
+
+export const MLiPhotoLibraryAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiPhotoLibraryAlbumTypeIdentifier',
+)
+
+export const MLiPhotoPhotoStreamAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiPhotoPhotoStreamAlbumTypeIdentifier',
+)
+
+export const MLiPhotoPlacesAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiPhotoPlacesAlbumTypeIdentifier',
+)
+
+export const MLiPhotoPlacesCityAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiPhotoPlacesCityAlbumTypeIdentifier',
+)
+
+export const MLiPhotoPlacesCountryAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiPhotoPlacesCountryAlbumTypeIdentifier',
+)
+
+export const MLiPhotoPlacesPointOfInterestAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiPhotoPlacesPointOfInterestAlbumTypeIdentifier',
+)
+
+export const MLiPhotoPlacesProvinceAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiPhotoPlacesProvinceAlbumTypeIdentifier',
+)
+
+export const MLiPhotoRootGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiPhotoRootGroupTypeIdentifier',
+)
+
+export const MLiPhotoSlideShowAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiPhotoSlideShowAlbumTypeIdentifier',
+)
+
+export const MLiPhotoSmartAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiPhotoSmartAlbumTypeIdentifier',
+)
+
+export const MLiPhotoSubscribedAlbumTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiPhotoSubscribedAlbumTypeIdentifier',
+)
+
+export const MLiTunesAudioBooksPlaylistTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiTunesAudioBooksPlaylistTypeIdentifier',
+)
+
+export const MLiTunesFolderPlaylistTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiTunesFolderPlaylistTypeIdentifier',
+)
+
+export const MLiTunesGeniusPlaylistTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiTunesGeniusPlaylistTypeIdentifier',
+)
+
+export const MLiTunesMoviesPlaylistTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiTunesMoviesPlaylistTypeIdentifier',
+)
+
+export const MLiTunesMusicPlaylistTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiTunesMusicPlaylistTypeIdentifier',
+)
+
+export const MLiTunesMusicVideosPlaylistTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiTunesMusicVideosPlaylistTypeIdentifier',
+)
+
+export const MLiTunesPlaylistTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiTunesPlaylistTypeIdentifier',
+)
+
+export const MLiTunesPodcastPlaylistTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiTunesPodcastPlaylistTypeIdentifier',
+)
+
+export const MLiTunesPurchasedPlaylistTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiTunesPurchasedPlaylistTypeIdentifier',
+)
+
+export const MLiTunesRootGroupTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiTunesRootGroupTypeIdentifier',
+)
+
+export const MLiTunesSavedGeniusPlaylistTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiTunesSavedGeniusPlaylistTypeIdentifier',
+)
+
+export const MLiTunesSmartPlaylistTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiTunesSmartPlaylistTypeIdentifier',
+)
+
+export const MLiTunesTVShowsPlaylistTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiTunesTVShowsPlaylistTypeIdentifier',
+)
+
+export const MLiTunesVideoPlaylistTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiTunesVideoPlaylistTypeIdentifier',
+)
+
+export const MLiTunesiTunesUPlaylistTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'MLiTunesiTunesUPlaylistTypeIdentifier',
+)

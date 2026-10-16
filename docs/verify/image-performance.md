@@ -68,9 +68,9 @@ source dimensions — the eager-`src` path this binding exists to avoid.
 Bitmaps are 4 bytes per pixel (`ARGB_8888`), so cost is source pixels if
 the deferred write never happens:
 
-| Source | View it fills | Decoded size by default | Needed for the view |
-| ------ | ------------- | ----------------------- | ------------------- |
-| 4032×3024 (12 MP) photo | 96×72 dip thumbnail on a 3× screen | ~48.8 MB | ~0.25 MB (288×216 px) |
+| Source                  | View it fills                      | Decoded size by default | Needed for the view   |
+| ----------------------- | ---------------------------------- | ----------------------- | --------------------- |
+| 4032×3024 (12 MP) photo | 96×72 dip thumbnail on a 3× screen | ~48.8 MB                | ~0.25 MB (288×216 px) |
 
 (“Dip” is device-independent pixels — the unit layout uses. A 3× screen turns
 96 dip into 288 real pixels, and the decoder wants real pixels.)
@@ -93,7 +93,7 @@ Android-only in practice.
 
 ### Compare expected and observed bitmap size
 
-Work out what one image *should* cost: view size in dip × screen scale × 4
+Work out what one image _should_ cost: view size in dip × screen scale × 4
 bytes. A 96×72 dip thumbnail on a 3× Android screen should cost about
 `96 * 3 * 72 * 3 * 4` ≈ 250 KB. If the profiler shows tens of megabytes per
 image, the app is over-decoding.
@@ -141,12 +141,12 @@ elsewhere in the tree.
 
 ### Healthy vs unhealthy at a glance
 
-| Signal | Healthy | Over-decoding |
-| ------ | ------- | ------------- |
-| Memory per image in a list | ~ view pixels × 4 B (often < 1 MB) | Source pixels × 4 B (tens of MB) |
-| Heap shape during scroll | Plateaus after initial loads | Sawtooth: climbs then GC drops |
-| Scrolling back over an item | Instant, `Memory cache hit` | Re-decode, blank/fade-in, new `loadImage` log |
-| Jank vs photo resolution | Independent of source size | Worse with bigger source files |
+| Signal                      | Healthy                            | Over-decoding                                 |
+| --------------------------- | ---------------------------------- | --------------------------------------------- |
+| Memory per image in a list  | ~ view pixels × 4 B (often < 1 MB) | Source pixels × 4 B (tens of MB)              |
+| Heap shape during scroll    | Plateaus after initial loads       | Sawtooth: climbs then GC drops                |
+| Scrolling back over an item | Instant, `Memory cache hit`        | Re-decode, blank/fade-in, new `loadImage` log |
+| Jank vs photo resolution    | Independent of source size         | Worse with bigger source files                |
 
 ## Remedies
 
@@ -167,7 +167,7 @@ Two paths still decode at full source resolution on Android:
 - Srcs applied through the platform escape bag (`android={{ src: … }}`)
   instead of the `src` prop, which bypass the binding entirely.
 
-If you need decode bounds that are *not* the view size — say a deliberate
+If you need decode bounds that are _not_ the view size — say a deliberate
 upscale limit — that's the `@octane-xplat/image` leaf's explicit
 `decodeWidth`/`decodeHeight` props (device px, engine-level):
 

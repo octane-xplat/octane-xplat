@@ -1,8 +1,46 @@
-import type { NSColor, NSDraggingInfo, NSImage, NSPasteboard, NSPrintInfo, NSPrintOperation, NSResponder, NSTextFinderClient, NSUserInterfaceValidations, NSValidatedUserInterfaceItem, NSWindow } from './AppKit'
+import type {
+	NSColor,
+	NSDraggingInfo,
+	NSImage,
+	NSPasteboard,
+	NSPrintInfo,
+	NSPrintOperation,
+	NSResponder,
+	NSTextFinderClient,
+	NSUserInterfaceValidations,
+	NSValidatedUserInterfaceItem,
+	NSWindow,
+} from './AppKit'
 
 import type { CGPoint, CGRect } from './CoreFoundation'
 
-import type { NSArray, NSAttributedString, NSCalendarDate, NSCoder, NSCoding, NSCopying, NSData, NSDate, NSDictionary, NSError, NSHTTPCookie, NSHTTPURLResponse, NSMutableURLRequest, NSNotification, NSNumber, NSSecureCoding, NSSet, NSURL, NSURLAuthenticationChallenge, NSURLCredential, NSURLDownloadDelegate, NSURLRequest, NSURLResponse, NSUndoManager, _NSRange } from './Foundation'
+import type {
+	NSArray,
+	NSAttributedString,
+	NSCalendarDate,
+	NSCoder,
+	NSCoding,
+	NSCopying,
+	NSData,
+	NSDate,
+	NSDictionary,
+	NSError,
+	NSHTTPCookie,
+	NSHTTPURLResponse,
+	NSMutableURLRequest,
+	NSNotification,
+	NSNumber,
+	NSSecureCoding,
+	NSSet,
+	NSURL,
+	NSURLAuthenticationChallenge,
+	NSURLCredential,
+	NSURLDownloadDelegate,
+	NSURLRequest,
+	NSURLResponse,
+	NSUndoManager,
+	_NSRange,
+} from './Foundation'
 
 import type { JSContext, JSValue } from './JavaScriptCore'
 
@@ -18,4597 +56,5204 @@ import { NSObject } from './Runtime'
 
 import { NativeObject } from './objc-runtime'
 
+export declare const WebViewDidChangeSelectionNotification: string
 
+export declare const WebViewDidChangeTypingStyleNotification: string
 
-export declare const WebViewDidChangeSelectionNotification: string;
+export declare const WebViewDidEndEditingNotification: string
 
-export declare const WebViewDidChangeTypingStyleNotification: string;
+export declare const WebViewDidBeginEditingNotification: string
 
-export declare const WebViewDidEndEditingNotification: string;
+export declare const WebViewProgressEstimateChangedNotification: string
 
-export declare const WebViewDidBeginEditingNotification: string;
+export declare const WebViewProgressStartedNotification: string
 
-export declare const WebViewProgressEstimateChangedNotification: string;
+export declare const WebElementLinkTitleKey: string
 
-export declare const WebViewProgressStartedNotification: string;
+export declare const WebElementLinkURLKey: string
 
-export declare const WebElementLinkTitleKey: string;
+export declare const WebElementIsSelectedKey: string
 
-export declare const WebElementLinkURLKey: string;
+export declare const WebElementImageKey: string
 
-export declare const WebElementIsSelectedKey: string;
+export declare const WebElementImageAltStringKey: string
 
-export declare const WebElementImageKey: string;
+export declare const WebMenuItemPDFPreviousPage: number
 
-export declare const WebElementImageAltStringKey: string;
+export declare const WebMenuItemTagOpenWithDefaultApplication: number
 
-export declare const WebMenuItemPDFPreviousPage: number;
+export declare const WebMenuItemTagLookUpInDictionary: number
 
-export declare const WebMenuItemTagOpenWithDefaultApplication: number;
+export declare const WebMenuItemTagSearchInSpotlight: number
 
-export declare const WebMenuItemTagLookUpInDictionary: number;
+export declare const WebMenuItemTagLearnSpelling: number
 
-export declare const WebMenuItemTagSearchInSpotlight: number;
+export declare const WebMenuItemTagIgnoreSpelling: number
 
-export declare const WebMenuItemTagLearnSpelling: number;
+export declare const WebMenuItemTagSpellingGuess: number
 
-export declare const WebMenuItemTagIgnoreSpelling: number;
+export declare const WebMenuItemTagReload: number
 
-export declare const WebMenuItemTagSpellingGuess: number;
+export declare const WebMenuItemTagStop: number
 
-export declare const WebMenuItemTagReload: number;
+export declare const WebMenuItemTagGoForward: number
 
-export declare const WebMenuItemTagStop: number;
+export declare const WebMenuItemTagOpenFrameInNewWindow: number
 
-export declare const WebMenuItemTagGoForward: number;
+export declare const WebMenuItemTagDownloadImageToDisk: number
 
-export declare const WebMenuItemTagOpenFrameInNewWindow: number;
+export declare const WebMenuItemTagOpenImageInNewWindow: number
 
-export declare const WebMenuItemTagDownloadImageToDisk: number;
+export declare const WebMenuItemTagDownloadLinkToDisk: number
 
-export declare const WebMenuItemTagOpenImageInNewWindow: number;
+export declare const WebMenuItemTagOpenLinkInNewWindow: number
 
-export declare const WebMenuItemTagDownloadLinkToDisk: number;
+export declare const WebPreferencesChangedNotification: string
 
-export declare const WebMenuItemTagOpenLinkInNewWindow: number;
+export declare const WebActionOriginalURLKey: string
 
-export declare const WebPreferencesChangedNotification: string;
+export declare const WebActionNavigationTypeKey: string
 
-export declare const WebActionOriginalURLKey: string;
+export declare const WebPlugInShouldLoadMainResourceKey: string
 
-export declare const WebActionNavigationTypeKey: string;
+export declare const WebPlugInBaseURLKey: string
 
-export declare const WebPlugInShouldLoadMainResourceKey: string;
+export declare const WebKitErrorJavaUnavailable: number
 
-export declare const WebPlugInBaseURLKey: string;
+export declare const WebKitErrorCannotLoadPlugIn: number
 
-export declare const WebKitErrorJavaUnavailable: number;
+export declare const WebKitErrorFrameLoadInterruptedByPolicyChange: number
 
-export declare const WebKitErrorCannotLoadPlugIn: number;
+export declare const WebKitErrorCannotShowURL: number
 
-export declare const WebKitErrorFrameLoadInterruptedByPolicyChange: number;
+export declare const WebKitErrorCannotShowMIMEType: number
 
-export declare const WebKitErrorCannotShowURL: number;
+export declare const WebKitErrorMIMETypeKey: string
 
-export declare const WebKitErrorCannotShowMIMEType: number;
+export declare const WebKitErrorDomain: string
 
-export declare const WebKitErrorMIMETypeKey: string;
+export declare const WebHistorySavedNotification: string
 
-export declare const WebKitErrorDomain: string;
+export declare const WebHistoryLoadedNotification: string
 
-export declare const WebHistorySavedNotification: string;
+export declare const WebHistoryAllItemsRemovedNotification: string
 
-export declare const WebHistoryLoadedNotification: string;
+export declare const DOM_ANY_UNORDERED_NODE_TYPE: number
 
-export declare const WebHistoryAllItemsRemovedNotification: string;
+export declare const DOM_ORDERED_NODE_ITERATOR_TYPE: number
 
-export declare const DOM_ANY_UNORDERED_NODE_TYPE: number;
+export declare const DOM_UNORDERED_NODE_ITERATOR_TYPE: number
 
-export declare const DOM_ORDERED_NODE_ITERATOR_TYPE: number;
+export declare const DOM_BOOLEAN_TYPE: number
 
-export declare const DOM_UNORDERED_NODE_ITERATOR_TYPE: number;
+export declare const DOM_NUMBER_TYPE: number
 
-export declare const DOM_BOOLEAN_TYPE: number;
+export declare const DOM_ANY_TYPE: number
 
-export declare const DOM_NUMBER_TYPE: number;
+export declare const DOMXPathException: string
 
-export declare const DOM_ANY_TYPE: number;
+export declare const DOM_SHOW_NOTATION: number
 
-export declare const DOMXPathException: string;
+export declare const DOM_SHOW_DOCUMENT_FRAGMENT: number
 
-export declare const DOM_SHOW_NOTATION: number;
+export declare const DOM_SHOW_PROCESSING_INSTRUCTION: number
 
-export declare const DOM_SHOW_DOCUMENT_FRAGMENT: number;
+export declare const DOM_SHOW_ENTITY: number
 
-export declare const DOM_SHOW_PROCESSING_INSTRUCTION: number;
+export declare const DOM_SHOW_ENTITY_REFERENCE: number
 
-export declare const DOM_SHOW_ENTITY: number;
+export declare const DOM_SHOW_ATTRIBUTE: number
 
-export declare const DOM_SHOW_ENTITY_REFERENCE: number;
+export declare const DOM_SHOW_ALL: number
 
-export declare const DOM_SHOW_ATTRIBUTE: number;
+export declare const DOM_FILTER_REJECT: number
 
-export declare const DOM_SHOW_ALL: number;
+export declare const DOM_DOM_DELTA_PAGE: number
 
-export declare const DOM_FILTER_REJECT: number;
+export declare const DOM_BOTH: number
 
-export declare const DOM_DOM_DELTA_PAGE: number;
+export declare const DOM_VERTICAL: number
 
-export declare const DOM_BOTH: number;
+export declare const DOM_KEY_LOCATION_LEFT: number
 
-export declare const DOM_VERTICAL: number;
+export declare const DOM_KEY_LOCATION_STANDARD: number
 
-export declare const DOM_KEY_LOCATION_LEFT: number;
+export declare const DOM_BUBBLING_PHASE: number
 
-export declare const DOM_KEY_LOCATION_STANDARD: number;
+export declare const DOM_NODE_AFTER: number
 
-export declare const DOM_BUBBLING_PHASE: number;
+export declare const DOM_END_TO_END: number
 
-export declare const DOM_NODE_AFTER: number;
+export declare const DOM_START_TO_START: number
 
-export declare const DOM_END_TO_END: number;
+export declare const DOMRangeException: string
 
-export declare const DOM_START_TO_START: number;
+export declare const DOM_CSS_VMIN: number
 
-export declare const DOMRangeException: string;
+export declare const DOM_CSS_VH: number
 
-export declare const DOM_CSS_VMIN: number;
+export declare const DOM_CSS_VW: number
 
-export declare const DOM_CSS_VH: number;
+export declare const DOM_CSS_RGBCOLOR: number
 
-export declare const DOM_CSS_VW: number;
+export declare const DOM_CSS_URI: number
 
-export declare const DOM_CSS_RGBCOLOR: number;
+export declare const DOM_CSS_STRING: number
 
-export declare const DOM_CSS_URI: number;
+export declare const DOM_CSS_DIMENSION: number
 
-export declare const DOM_CSS_STRING: number;
+export declare const DOM_CSS_HZ: number
 
-export declare const DOM_CSS_DIMENSION: number;
+export declare const DOM_CSS_MS: number
 
-export declare const DOM_CSS_HZ: number;
+export declare const DOM_CSS_GRAD: number
 
-export declare const DOM_CSS_MS: number;
+export declare const DOM_CSS_DEG: number
 
-export declare const DOM_CSS_GRAD: number;
+export declare const DOM_CSS_PT: number
 
-export declare const DOM_CSS_DEG: number;
+export declare const DOM_CSS_MM: number
 
-export declare const DOM_CSS_PT: number;
+export declare const DOM_CSS_CM: number
 
-export declare const DOM_CSS_MM: number;
+export declare const DOM_CSS_EMS: number
 
-export declare const DOM_CSS_CM: number;
+export declare const DOM_CSS_PERCENTAGE: number
 
-export declare const DOM_CSS_EMS: number;
+export declare const DOM_CSS_NUMBER: number
 
-export declare const DOM_CSS_PERCENTAGE: number;
+export declare const DOM_CSS_UNKNOWN: number
 
-export declare const DOM_CSS_NUMBER: number;
+export declare const DOM_CSS_CUSTOM: number
 
-export declare const DOM_CSS_UNKNOWN: number;
+export declare const DOM_CSS_VALUE_LIST: number
 
-export declare const DOM_CSS_CUSTOM: number;
+export declare const DOM_CSS_PRIMITIVE_VALUE: number
 
-export declare const DOM_CSS_VALUE_LIST: number;
+export declare const DOM_SUPPORTS_RULE: number
 
-export declare const DOM_CSS_PRIMITIVE_VALUE: number;
+export declare const DOM_NAMESPACE_RULE: number
 
-export declare const DOM_SUPPORTS_RULE: number;
+export declare const DOM_KEYFRAMES_RULE: number
 
-export declare const DOM_NAMESPACE_RULE: number;
+export declare const DOM_PAGE_RULE: number
 
-export declare const DOM_KEYFRAMES_RULE: number;
+export declare const DOM_MEDIA_RULE: number
 
-export declare const DOM_PAGE_RULE: number;
+export declare const DOM_STYLE_RULE: number
 
-export declare const DOM_MEDIA_RULE: number;
+export declare const DOM_UNKNOWN_RULE: number
 
-export declare const DOM_STYLE_RULE: number;
+export declare const DOM_DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC: number
 
-export declare const DOM_UNKNOWN_RULE: number;
+export declare const DOM_DOCUMENT_POSITION_CONTAINS: number
 
-export declare const DOM_DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC: number;
+export declare const DOM_DOCUMENT_POSITION_PRECEDING: number
 
-export declare const DOM_DOCUMENT_POSITION_CONTAINS: number;
+export declare const DOM_DOCUMENT_FRAGMENT_NODE: number
 
-export declare const DOM_DOCUMENT_POSITION_PRECEDING: number;
+export declare const DOM_DOCUMENT_TYPE_NODE: number
 
-export declare const DOM_DOCUMENT_FRAGMENT_NODE: number;
+export declare const DOM_DOCUMENT_NODE: number
 
-export declare const DOM_DOCUMENT_TYPE_NODE: number;
+export declare const DOM_COMMENT_NODE: number
 
-export declare const DOM_DOCUMENT_NODE: number;
+export declare const DOM_ENTITY_NODE: number
 
-export declare const DOM_COMMENT_NODE: number;
+export declare const DOM_ENTITY_REFERENCE_NODE: number
 
-export declare const DOM_ENTITY_NODE: number;
+export declare const DOM_TEXT_NODE: number
 
-export declare const DOM_ENTITY_REFERENCE_NODE: number;
+export declare const DOM_ATTRIBUTE_NODE: number
 
-export declare const DOM_TEXT_NODE: number;
+export declare const DOMException$: string
 
-export declare const DOM_ATTRIBUTE_NODE: number;
+export declare const WKWebsiteDataTypeServiceWorkerRegistrations: string
 
-export declare const DOMException$: string;
+export declare const WKWebsiteDataTypeIndexedDBDatabases: string
 
-export declare const WKWebsiteDataTypeServiceWorkerRegistrations: string;
+export declare const WKWebsiteDataTypeWebSQLDatabases: string
 
-export declare const WKWebsiteDataTypeIndexedDBDatabases: string;
+export declare const WKWebsiteDataTypeLocalStorage: string
 
-export declare const WKWebsiteDataTypeWebSQLDatabases: string;
+export declare const WKWebsiteDataTypeSessionStorage: string
 
-export declare const WKWebsiteDataTypeLocalStorage: string;
+export declare const WKWebsiteDataTypeMemoryCache: string
 
-export declare const WKWebsiteDataTypeSessionStorage: string;
+export declare const WKWebsiteDataTypeFetchCache: string
 
-export declare const WKWebsiteDataTypeMemoryCache: string;
+export declare const WKErrorDomain: string
 
-export declare const WKWebsiteDataTypeFetchCache: string;
+export declare const DOMEventException: string
 
-export declare const WKErrorDomain: string;
+export declare const WebElementImageURLKey: string
 
-export declare const DOMEventException: string;
+export declare const WebActionButtonKey: string
 
-export declare const WebElementImageURLKey: string;
+export declare const WebMenuItemPDFSinglePage: number
 
-export declare const WebActionButtonKey: string;
+export declare const DOM_WEBKIT_KEYFRAME_RULE: number
 
-export declare const WebMenuItemPDFSinglePage: number;
+export declare const DOM_IMPORT_RULE: number
 
-export declare const DOM_WEBKIT_KEYFRAME_RULE: number;
+export declare const DOM_CSS_IDENT: number
 
-export declare const DOM_IMPORT_RULE: number;
+export declare const WebKitErrorCannotFindPlugIn: number
 
-export declare const DOM_CSS_IDENT: number;
+export declare const DOM_MODIFICATION: number
 
-export declare const WebKitErrorCannotFindPlugIn: number;
+export declare const DOM_FILTER_SKIP: number
 
-export declare const DOM_MODIFICATION: number;
+export declare const DOM_NOTATION_NODE: number
 
-export declare const DOM_FILTER_SKIP: number;
+export declare const WKWebsiteDataTypeCookies: string
 
-export declare const DOM_NOTATION_NODE: number;
+export declare const DOM_FONT_FACE_RULE: number
 
-export declare const WKWebsiteDataTypeCookies: string;
+export declare const DOM_WEBKIT_REGION_RULE: number
 
-export declare const DOM_FONT_FACE_RULE: number;
+export declare const WebKitErrorPlugInPageURLStringKey: string
 
-export declare const DOM_WEBKIT_REGION_RULE: number;
+export declare const DOM_ELEMENT_NODE: number
 
-export declare const WebKitErrorPlugInPageURLStringKey: string;
+export declare const DOM_FILTER_ACCEPT: number
 
-export declare const DOM_ELEMENT_NODE: number;
+export declare const DOM_SHOW_TEXT: number
 
-export declare const DOM_FILTER_ACCEPT: number;
+export declare const WebViewProgressFinishedNotification: string
 
-export declare const DOM_SHOW_TEXT: number;
+export declare const WebMenuItemTagCopyLinkToClipboard: number
 
-export declare const WebViewProgressFinishedNotification: string;
+export declare const DOM_CSS_S: number
 
-export declare const WebMenuItemTagCopyLinkToClipboard: number;
+export declare const NSReadAccessURLDocumentOption: string
 
-export declare const DOM_CSS_S: number;
+export declare const DOM_SHOW_DOCUMENT_TYPE: number
 
-export declare const NSReadAccessURLDocumentOption: string;
+export declare const WebHistoryItemChangedNotification: string
 
-export declare const DOM_SHOW_DOCUMENT_TYPE: number;
+export declare const DOM_ALLOW_KEYBOARD_INPUT: number
 
-export declare const WebHistoryItemChangedNotification: string;
+export declare const DOM_START_TO_END: number
 
-export declare const DOM_ALLOW_KEYBOARD_INPUT: number;
+export declare const DOM_NONE: number
 
-export declare const DOM_START_TO_END: number;
+export declare const WebPlugInContainerKey: string
 
-export declare const DOM_NONE: number;
+export declare const WKWebsiteDataTypeOfflineWebApplicationCache: string
 
-export declare const WebPlugInContainerKey: string;
+export declare const WebHistoryItemsAddedNotification: string
 
-export declare const WKWebsiteDataTypeOfflineWebApplicationCache: string;
+export declare const WebViewDidChangeNotification: string
 
-export declare const WebHistoryItemsAddedNotification: string;
+export declare const DOM_NODE_BEFORE_AND_AFTER: number
 
-export declare const WebViewDidChangeNotification: string;
+export declare const DOM_CDATA_SECTION_NODE: number
 
-export declare const DOM_NODE_BEFORE_AND_AFTER: number;
+export declare const DOM_CSS_EXS: number
 
-export declare const DOM_CDATA_SECTION_NODE: number;
+export declare const DOM_CSS_INHERIT: number
 
-export declare const DOM_CSS_EXS: number;
+export declare const DOM_ORDERED_NODE_SNAPSHOT_TYPE: number
 
-export declare const DOM_CSS_INHERIT: number;
+export declare const WebMenuItemTagCopyImageToClipboard: number
 
-export declare const DOM_ORDERED_NODE_SNAPSHOT_TYPE: number;
+export declare const DOM_ADDITION: number
 
-export declare const WebMenuItemTagCopyImageToClipboard: number;
+export declare const DOM_CSS_COUNTER: number
 
-export declare const DOM_ADDITION: number;
+export declare const DOM_CSS_RECT: number
 
-export declare const DOM_CSS_COUNTER: number;
+export declare const WebElementFrameKey: string
 
-export declare const DOM_CSS_RECT: number;
+export declare const DOM_DOCUMENT_POSITION_FOLLOWING: number
 
-export declare const WebElementFrameKey: string;
+export declare const DOM_STRING_TYPE: number
 
-export declare const DOM_DOCUMENT_POSITION_FOLLOWING: number;
+export declare const WebMenuItemPDFContinuous: number
 
-export declare const DOM_STRING_TYPE: number;
+export declare const WebKitErrorPlugInNameKey: string
 
-export declare const WebMenuItemPDFContinuous: number;
+export declare const DOM_KEY_LOCATION_RIGHT: number
 
-export declare const WebKitErrorPlugInNameKey: string;
+export declare const WebActionModifierFlagsKey: string
 
-export declare const DOM_KEY_LOCATION_RIGHT: number;
+export declare const DOM_NODE_INSIDE: number
 
-export declare const WebActionModifierFlagsKey: string;
+export declare const DOM_END_TO_START: number
 
-export declare const DOM_NODE_INSIDE: number;
+export declare const WebMenuItemPDFNextPage: number
 
-export declare const DOM_END_TO_START: number;
+export declare const DOM_DOCUMENT_POSITION_DISCONNECTED: number
 
-export declare const WebMenuItemPDFNextPage: number;
+export declare const DOM_CHARSET_RULE: number
 
-export declare const DOM_DOCUMENT_POSITION_DISCONNECTED: number;
+export declare const WebMenuItemTagCut: number
 
-export declare const DOM_CHARSET_RULE: number;
+export declare const WebMenuItemTagCopy: number
 
-export declare const WebMenuItemTagCut: number;
+export declare const DOM_SHOW_COMMENT: number
 
-export declare const WebMenuItemTagCopy: number;
+export declare const WKWebsiteDataTypeDiskCache: string
 
-export declare const DOM_SHOW_COMMENT: number;
+export declare const WebArchivePboardType: string
 
-export declare const WKWebsiteDataTypeDiskCache: string;
+export declare const DOM_WEBKIT_KEYFRAMES_RULE: number
 
-export declare const WebArchivePboardType: string;
+export declare const WebMenuItemPDFZoomOut: number
 
-export declare const DOM_WEBKIT_KEYFRAMES_RULE: number;
+export declare const WebMenuItemPDFActualSize: number
 
-export declare const WebMenuItemPDFZoomOut: number;
+export declare const DOM_SHOW_ELEMENT: number
 
-export declare const WebMenuItemPDFActualSize: number;
+export declare const DOM_CAPTURING_PHASE: number
 
-export declare const DOM_SHOW_ELEMENT: number;
+export declare const WebPlugInContainingElementKey: string
 
-export declare const DOM_CAPTURING_PHASE: number;
+export declare const DOM_CSS_IN: number
 
-export declare const WebPlugInContainingElementKey: string;
+export declare const WebMenuItemTagSearchWeb: number
 
-export declare const DOM_CSS_IN: number;
+export declare const WebMenuItemTagPaste: number
 
-export declare const WebMenuItemTagSearchWeb: number;
+export declare const DOM_PROCESSING_INSTRUCTION_NODE: number
 
-export declare const WebMenuItemTagPaste: number;
+export declare const WebHistoryItemsKey: string
 
-export declare const DOM_PROCESSING_INSTRUCTION_NODE: number;
+export declare const WebKitErrorBlockedPlugInVersion: number
 
-export declare const WebHistoryItemsKey: string;
+export declare const DOM_SHOW_DOCUMENT: number
 
-export declare const WebKitErrorBlockedPlugInVersion: number;
+export declare const WebHistoryItemsRemovedNotification: string
 
-export declare const DOM_SHOW_DOCUMENT: number;
+export declare const DOM_CSS_KHZ: number
 
-export declare const WebHistoryItemsRemovedNotification: string;
+export declare const DOM_KEY_LOCATION_NUMPAD: number
 
-export declare const DOM_CSS_KHZ: number;
+export declare const WebElementImageRectKey: string
 
-export declare const DOM_KEY_LOCATION_NUMPAD: number;
+export declare const WebMenuItemTagNoGuessesFound: number
 
-export declare const WebElementImageRectKey: string;
+export declare const DOM_CSS_RAD: number
 
-export declare const WebMenuItemTagNoGuessesFound: number;
+export declare const DOM_CSS_VMAX: number
 
-export declare const DOM_CSS_RAD: number;
+export declare const WebMenuItemPDFAutoSize: number
 
-export declare const DOM_CSS_VMAX: number;
+export declare const DOM_NODE_BEFORE: number
 
-export declare const WebMenuItemPDFAutoSize: number;
+export declare const WebMenuItemTagOther: number
 
-export declare const DOM_NODE_BEFORE: number;
+export declare const WebElementDOMNodeKey: string
 
-export declare const WebMenuItemTagOther: number;
+export declare const DOM_DOM_DELTA_LINE: number
 
-export declare const WebElementDOMNodeKey: string;
+export declare const DOM_KEYFRAME_RULE: number
 
-export declare const DOM_DOM_DELTA_LINE: number;
+export declare const WebMenuItemPDFZoomIn: number
 
-export declare const DOM_KEYFRAME_RULE: number;
+export declare const DOM_DOM_DELTA_PIXEL: number
 
-export declare const WebMenuItemPDFZoomIn: number;
+export declare const WebElementLinkLabelKey: string
 
-export declare const DOM_DOM_DELTA_PIXEL: number;
+export declare const WebPlugInAttributesKey: string
 
-export declare const WebElementLinkLabelKey: string;
+export declare const DOM_UNORDERED_NODE_SNAPSHOT_TYPE: number
 
-export declare const WebPlugInAttributesKey: string;
+export declare const WebMenuItemPDFFacingPages: number
 
-export declare const DOM_UNORDERED_NODE_SNAPSHOT_TYPE: number;
+export declare const DOM_CSS_PX: number
 
-export declare const WebMenuItemPDFFacingPages: number;
+export declare const WebElementLinkTargetFrameKey: string
 
-export declare const DOM_CSS_PX: number;
+export declare const DOM_CSS_PC: number
 
-export declare const WebElementLinkTargetFrameKey: string;
+export declare const WebMenuItemTagGoBack: number
 
-export declare const DOM_CSS_PC: number;
+export declare const DOM_AT_TARGET: number
 
-export declare const WebMenuItemTagGoBack: number;
+export declare const DOM_CSS_ATTR: number
 
-export declare const DOM_AT_TARGET: number;
+export declare const DOM_REMOVAL: number
 
-export declare const DOM_CSS_ATTR: number;
+export declare const DOM_HORIZONTAL: number
 
-export declare const DOM_REMOVAL: number;
+export declare const DOM_FIRST_ORDERED_NODE_TYPE: number
 
-export declare const DOM_HORIZONTAL: number;
+export declare const DOM_SHOW_CDATA_SECTION: number
 
-export declare const DOM_FIRST_ORDERED_NODE_TYPE: number;
+export declare const DOM_DOCUMENT_POSITION_CONTAINED_BY: number
 
-export declare const DOM_SHOW_CDATA_SECTION: number;
-
-export declare const DOM_DOCUMENT_POSITION_CONTAINED_BY: number;
-
-export declare const WebActionElementKey: string;
+export declare const WebActionElementKey: string
 
 export declare const WebCacheModel: {
-  DocumentViewer: 0,
-  DocumentBrowser: 1,
-  PrimaryWebBrowser: 2,
-};
+	DocumentViewer: 0
+	DocumentBrowser: 1
+	PrimaryWebBrowser: 2
+}
 
 export declare const WebViewInsertAction: {
-  Typed: 0,
-  Pasted: 1,
-  Dropped: 2,
-};
+	Typed: 0
+	Pasted: 1
+	Dropped: 2
+}
 
 export declare const DOMXPathExceptionCode: {
-  INVALID_EXPRESSION_: 51,
-  TYPE_: 52,
-};
+	INVALID_EXPRESSION_: 51
+	TYPE_: 52
+}
 
 export declare const DOMEventExceptionCode: {
-  DOM_UNSPECIFIED_EVENT_TYPE_ERR: 0,
-};
+	DOM_UNSPECIFIED_EVENT_TYPE_ERR: 0
+}
 
 export declare const DOMExceptionCode: {
-  INDEX_SIZE_: 1,
-  DOMSTRING_SIZE_: 2,
-  HIERARCHY_REQUEST_: 3,
-  WRONG_DOCUMENT_: 4,
-  INVALID_CHARACTER_: 5,
-  NO_DATA_ALLOWED_: 6,
-  NO_MODIFICATION_ALLOWED_: 7,
-  NOT_FOUND_: 8,
-  NOT_SUPPORTED_: 9,
-  INUSE_ATTRIBUTE_: 10,
-  INVALID_STATE_: 11,
-  SYNTAX_: 12,
-  INVALID_MODIFICATION_: 13,
-  NAMESPACE_: 14,
-  INVALID_ACCESS_: 15,
-};
+	INDEX_SIZE_: 1
+	DOMSTRING_SIZE_: 2
+	HIERARCHY_REQUEST_: 3
+	WRONG_DOCUMENT_: 4
+	INVALID_CHARACTER_: 5
+	NO_DATA_ALLOWED_: 6
+	NO_MODIFICATION_ALLOWED_: 7
+	NOT_FOUND_: 8
+	NOT_SUPPORTED_: 9
+	INUSE_ATTRIBUTE_: 10
+	INVALID_STATE_: 11
+	SYNTAX_: 12
+	INVALID_MODIFICATION_: 13
+	NAMESPACE_: 14
+	INVALID_ACCESS_: 15
+}
 
 export declare const WKDialogResult: {
-  ShowDefault: 1,
-  AskAgain: 2,
-  Handled: 3,
-};
+	ShowDefault: 1
+	AskAgain: 2
+	Handled: 3
+}
 
 export declare const WKNavigationType: {
-  LinkActivated: 0,
-  FormSubmitted: 1,
-  BackForward: 2,
-  Reload: 3,
-  FormResubmitted: 4,
-  Other: -1,
-};
+	LinkActivated: 0
+	FormSubmitted: 1
+	BackForward: 2
+	Reload: 3
+	FormResubmitted: 4
+	Other: -1
+}
 
 export declare const WKContentMode: {
-  Recommended: 0,
-  Mobile: 1,
-  Desktop: 2,
-};
+	Recommended: 0
+	Mobile: 1
+	Desktop: 2
+}
 
 export declare const WKErrorCode: {
-  Unknown: 1,
-  WebContentProcessTerminated: 2,
-  WebViewInvalidated: 3,
-  JavaScriptExceptionOccurred: 4,
-  JavaScriptResultTypeIsUnsupported: 5,
-  ContentRuleListStoreCompileFailed: 6,
-  ContentRuleListStoreLookUpFailed: 7,
-  ContentRuleListStoreRemoveFailed: 8,
-  ContentRuleListStoreVersionMismatch: 9,
-  AttributedStringContentFailedToLoad: 10,
-  AttributedStringContentLoadTimedOut: 11,
-  JavaScriptInvalidFrameTarget: 12,
-  NavigationAppBoundDomain: 13,
-  JavaScriptAppBoundDomain: 14,
-};
+	Unknown: 1
+	WebContentProcessTerminated: 2
+	WebViewInvalidated: 3
+	JavaScriptExceptionOccurred: 4
+	JavaScriptResultTypeIsUnsupported: 5
+	ContentRuleListStoreCompileFailed: 6
+	ContentRuleListStoreLookUpFailed: 7
+	ContentRuleListStoreRemoveFailed: 8
+	ContentRuleListStoreVersionMismatch: 9
+	AttributedStringContentFailedToLoad: 10
+	AttributedStringContentLoadTimedOut: 11
+	JavaScriptInvalidFrameTarget: 12
+	NavigationAppBoundDomain: 13
+	JavaScriptAppBoundDomain: 14
+}
 
 export declare const WebDragDestinationAction: {
-  None: 0,
-  DHTML: 1,
-  Edit: 2,
-  Load: 4,
-  Any: 4294967295,
-};
+	None: 0
+	DHTML: 1
+	Edit: 2
+	Load: 4
+	Any: 4294967295
+}
 
 export declare const WebDragSourceAction: {
-  None: 0,
-  DHTML: 1,
-  Image: 2,
-  Link: 4,
-  Selection: 8,
-  Any: 4294967295,
-};
+	None: 0
+	DHTML: 1
+	Image: 2
+	Link: 4
+	Selection: 8
+	Any: 4294967295
+}
 
 export declare const WKUserScriptInjectionTime: {
-  Start: 0,
-  End: 1,
-};
+	Start: 0
+	End: 1
+}
 
 export declare const WebNavigationType: {
-  LinkClicked: 0,
-  FormSubmitted: 1,
-  BackForward: 2,
-  Reload: 3,
-  FormResubmitted: 4,
-  Other: 5,
-};
+	LinkClicked: 0
+	FormSubmitted: 1
+	BackForward: 2
+	Reload: 3
+	FormResubmitted: 4
+	Other: 5
+}
 
 export declare const WKNavigationActionPolicy: {
-  Cancel: 0,
-  Allow: 1,
-};
+	Cancel: 0
+	Allow: 1
+}
 
 export declare const WKNavigationResponsePolicy: {
-  Cancel: 0,
-  Allow: 1,
-};
+	Cancel: 0
+	Allow: 1
+}
 
 export declare const WKUserInterfaceDirectionPolicy: {
-  Content: 0,
-  System: 1,
-};
+	Content: 0
+	System: 1
+}
 
 export declare const WKAudiovisualMediaTypes: {
-  None: 0,
-  Audio: 1,
-  Video: 2,
-  All: -1,
-};
+	None: 0
+	Audio: 1
+	Video: 2
+	All: -1
+}
 
 export declare const WKDownloadPlaceholderPolicy: {
-  Disable: 0,
-  Enable: 1,
-};
+	Disable: 0
+	Enable: 1
+}
 
 export declare const DOMRangeExceptionCode: {
-  BAD_BOUNDARYPOINTS_: 1,
-  INVALID_NODE_TYPE_: 2,
-};
+	BAD_BOUNDARYPOINTS_: 1
+	INVALID_NODE_TYPE_: 2
+}
 
 export declare class WebPreferencesPrivate {
-  constructor(init?: WebPreferencesPrivate);
+	constructor(init?: WebPreferencesPrivate)
 }
 
 export declare class DOMObjectInternal {
-  constructor(init?: DOMObjectInternal);
+	constructor(init?: DOMObjectInternal)
 }
 
 export declare interface WebDownloadDelegate extends NSURLDownloadDelegate {
-  downloadWindowForAuthenticationSheet?(download: WebDownload): NSWindow;
+	downloadWindowForAuthenticationSheet?(download: WebDownload): NSWindow
 }
 
-export declare class WebDownloadDelegate extends NativeObject implements WebDownloadDelegate {
-}
+export declare class WebDownloadDelegate extends NativeObject implements WebDownloadDelegate {}
 
 export declare interface WKURLSchemeHandler extends NSObjectProtocol {
-  webViewStartURLSchemeTask(webView: WKWebView, urlSchemeTask: WKURLSchemeTask): void;
+	webViewStartURLSchemeTask(webView: WKWebView, urlSchemeTask: WKURLSchemeTask): void
 
-  webViewStopURLSchemeTask(webView: WKWebView, urlSchemeTask: WKURLSchemeTask): void;
+	webViewStopURLSchemeTask(webView: WKWebView, urlSchemeTask: WKURLSchemeTask): void
 }
 
-export declare class WKURLSchemeHandler extends NativeObject implements WKURLSchemeHandler {
-}
+export declare class WKURLSchemeHandler extends NativeObject implements WKURLSchemeHandler {}
 
 export declare interface WebOpenPanelResultListener extends NSObjectProtocol {
-  chooseFilename(fileName: string): void;
+	chooseFilename(fileName: string): void
 
-  chooseFilenames(fileNames: NSArray<interop.Object> | Array<interop.Object>): void;
+	chooseFilenames(fileNames: NSArray<interop.Object> | Array<interop.Object>): void
 
-  cancel(): void;
+	cancel(): void
 }
 
-export declare class WebOpenPanelResultListener extends NativeObject implements WebOpenPanelResultListener {
-}
+export declare class WebOpenPanelResultListener
+	extends NativeObject
+	implements WebOpenPanelResultListener {}
 
 export declare interface WebResourceLoadDelegate extends NSObjectProtocol {
-  webViewIdentifierForInitialRequestFromDataSource?(sender: WebView, request: NSURLRequest, dataSource: WebDataSource): interop.Object;
+	webViewIdentifierForInitialRequestFromDataSource?(
+		sender: WebView,
+		request: NSURLRequest,
+		dataSource: WebDataSource,
+	): interop.Object
 
-  webViewResourceWillSendRequestRedirectResponseFromDataSource?(sender: WebView, identifier: interop.Object, request: NSURLRequest, redirectResponse: NSURLResponse, dataSource: WebDataSource): NSURLRequest;
+	webViewResourceWillSendRequestRedirectResponseFromDataSource?(
+		sender: WebView,
+		identifier: interop.Object,
+		request: NSURLRequest,
+		redirectResponse: NSURLResponse,
+		dataSource: WebDataSource,
+	): NSURLRequest
 
-  webViewResourceDidReceiveAuthenticationChallengeFromDataSource?(sender: WebView, identifier: interop.Object, challenge: NSURLAuthenticationChallenge, dataSource: WebDataSource): void;
+	webViewResourceDidReceiveAuthenticationChallengeFromDataSource?(
+		sender: WebView,
+		identifier: interop.Object,
+		challenge: NSURLAuthenticationChallenge,
+		dataSource: WebDataSource,
+	): void
 
-  webViewResourceDidCancelAuthenticationChallengeFromDataSource?(sender: WebView, identifier: interop.Object, challenge: NSURLAuthenticationChallenge, dataSource: WebDataSource): void;
+	webViewResourceDidCancelAuthenticationChallengeFromDataSource?(
+		sender: WebView,
+		identifier: interop.Object,
+		challenge: NSURLAuthenticationChallenge,
+		dataSource: WebDataSource,
+	): void
 
-  webViewResourceDidReceiveResponseFromDataSource?(sender: WebView, identifier: interop.Object, response: NSURLResponse, dataSource: WebDataSource): void;
+	webViewResourceDidReceiveResponseFromDataSource?(
+		sender: WebView,
+		identifier: interop.Object,
+		response: NSURLResponse,
+		dataSource: WebDataSource,
+	): void
 
-  webViewResourceDidReceiveContentLengthFromDataSource?(sender: WebView, identifier: interop.Object, length: number, dataSource: WebDataSource): void;
+	webViewResourceDidReceiveContentLengthFromDataSource?(
+		sender: WebView,
+		identifier: interop.Object,
+		length: number,
+		dataSource: WebDataSource,
+	): void
 
-  webViewResourceDidFinishLoadingFromDataSource?(sender: WebView, identifier: interop.Object, dataSource: WebDataSource): void;
+	webViewResourceDidFinishLoadingFromDataSource?(
+		sender: WebView,
+		identifier: interop.Object,
+		dataSource: WebDataSource,
+	): void
 
-  webViewResourceDidFailLoadingWithErrorFromDataSource?(sender: WebView, identifier: interop.Object, error: NSError, dataSource: WebDataSource): void;
+	webViewResourceDidFailLoadingWithErrorFromDataSource?(
+		sender: WebView,
+		identifier: interop.Object,
+		error: NSError,
+		dataSource: WebDataSource,
+	): void
 
-  webViewPlugInFailedWithErrorDataSource?(sender: WebView, error: NSError, dataSource: WebDataSource): void;
+	webViewPlugInFailedWithErrorDataSource?(
+		sender: WebView,
+		error: NSError,
+		dataSource: WebDataSource,
+	): void
 }
 
-export declare class WebResourceLoadDelegate extends NativeObject implements WebResourceLoadDelegate {
-}
+export declare class WebResourceLoadDelegate
+	extends NativeObject
+	implements WebResourceLoadDelegate {}
 
 export declare interface WebPolicyDelegate extends NSObjectProtocol {
-  webViewDecidePolicyForNavigationActionRequestFrameDecisionListener?(webView: WebView, actionInformation: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>, request: NSURLRequest, frame: WebFrame, listener: WebPolicyDecisionListener): void;
+	webViewDecidePolicyForNavigationActionRequestFrameDecisionListener?(
+		webView: WebView,
+		actionInformation:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+		request: NSURLRequest,
+		frame: WebFrame,
+		listener: WebPolicyDecisionListener,
+	): void
 
-  webViewDecidePolicyForNewWindowActionRequestNewFrameNameDecisionListener?(webView: WebView, actionInformation: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>, request: NSURLRequest, frameName: string, listener: WebPolicyDecisionListener): void;
+	webViewDecidePolicyForNewWindowActionRequestNewFrameNameDecisionListener?(
+		webView: WebView,
+		actionInformation:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+		request: NSURLRequest,
+		frameName: string,
+		listener: WebPolicyDecisionListener,
+	): void
 
-  webViewDecidePolicyForMIMETypeRequestFrameDecisionListener?(webView: WebView, type: string, request: NSURLRequest, frame: WebFrame, listener: WebPolicyDecisionListener): void;
+	webViewDecidePolicyForMIMETypeRequestFrameDecisionListener?(
+		webView: WebView,
+		type: string,
+		request: NSURLRequest,
+		frame: WebFrame,
+		listener: WebPolicyDecisionListener,
+	): void
 
-  webViewUnableToImplementPolicyWithErrorFrame?(webView: WebView, error: NSError, frame: WebFrame): void;
+	webViewUnableToImplementPolicyWithErrorFrame?(
+		webView: WebView,
+		error: NSError,
+		frame: WebFrame,
+	): void
 }
 
-export declare class WebPolicyDelegate extends NativeObject implements WebPolicyDelegate {
-}
+export declare class WebPolicyDelegate extends NativeObject implements WebPolicyDelegate {}
 
-export declare interface WebPlugInViewFactory extends NSObjectProtocol {
-}
+export declare interface WebPlugInViewFactory extends NSObjectProtocol {}
 
 export declare class WebPlugInViewFactory extends NativeObject implements WebPlugInViewFactory {
-  static plugInViewWithArguments(arguments$: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): NSView;
+	static plugInViewWithArguments(
+		arguments$:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+	): NSView
 }
 
 export declare interface WebEditingDelegate extends NSObjectProtocol {
-  webViewShouldBeginEditingInDOMRange?(webView: WebView, range: DOMRange): boolean;
+	webViewShouldBeginEditingInDOMRange?(webView: WebView, range: DOMRange): boolean
 
-  webViewShouldEndEditingInDOMRange?(webView: WebView, range: DOMRange): boolean;
+	webViewShouldEndEditingInDOMRange?(webView: WebView, range: DOMRange): boolean
 
-  webViewShouldInsertNodeReplacingDOMRangeGivenAction?(webView: WebView, node: DOMNode, range: DOMRange, action: interop.Enum<typeof WebViewInsertAction>): boolean;
+	webViewShouldInsertNodeReplacingDOMRangeGivenAction?(
+		webView: WebView,
+		node: DOMNode,
+		range: DOMRange,
+		action: interop.Enum<typeof WebViewInsertAction>,
+	): boolean
 
-  webViewShouldInsertTextReplacingDOMRangeGivenAction?(webView: WebView, text: string, range: DOMRange, action: interop.Enum<typeof WebViewInsertAction>): boolean;
+	webViewShouldInsertTextReplacingDOMRangeGivenAction?(
+		webView: WebView,
+		text: string,
+		range: DOMRange,
+		action: interop.Enum<typeof WebViewInsertAction>,
+	): boolean
 
-  webViewShouldDeleteDOMRange?(webView: WebView, range: DOMRange): boolean;
+	webViewShouldDeleteDOMRange?(webView: WebView, range: DOMRange): boolean
 
-  webViewShouldChangeSelectedDOMRangeToDOMRangeAffinityStillSelecting?(webView: WebView, currentRange: DOMRange, proposedRange: DOMRange, selectionAffinity: interop.Enum<typeof NSSelectionAffinity>, flag: boolean): boolean;
+	webViewShouldChangeSelectedDOMRangeToDOMRangeAffinityStillSelecting?(
+		webView: WebView,
+		currentRange: DOMRange,
+		proposedRange: DOMRange,
+		selectionAffinity: interop.Enum<typeof NSSelectionAffinity>,
+		flag: boolean,
+	): boolean
 
-  webViewShouldApplyStyleToElementsInDOMRange?(webView: WebView, style: DOMCSSStyleDeclaration, range: DOMRange): boolean;
+	webViewShouldApplyStyleToElementsInDOMRange?(
+		webView: WebView,
+		style: DOMCSSStyleDeclaration,
+		range: DOMRange,
+	): boolean
 
-  webViewShouldChangeTypingStyleToStyle?(webView: WebView, currentStyle: DOMCSSStyleDeclaration, proposedStyle: DOMCSSStyleDeclaration): boolean;
+	webViewShouldChangeTypingStyleToStyle?(
+		webView: WebView,
+		currentStyle: DOMCSSStyleDeclaration,
+		proposedStyle: DOMCSSStyleDeclaration,
+	): boolean
 
-  webViewDoCommandBySelector?(webView: WebView, selector: string): boolean;
+	webViewDoCommandBySelector?(webView: WebView, selector: string): boolean
 
-  webViewDidBeginEditing?(notification: NSNotification): void;
+	webViewDidBeginEditing?(notification: NSNotification): void
 
-  webViewDidChange?(notification: NSNotification): void;
+	webViewDidChange?(notification: NSNotification): void
 
-  webViewDidEndEditing?(notification: NSNotification): void;
+	webViewDidEndEditing?(notification: NSNotification): void
 
-  webViewDidChangeTypingStyle?(notification: NSNotification): void;
+	webViewDidChangeTypingStyle?(notification: NSNotification): void
 
-  webViewDidChangeSelection?(notification: NSNotification): void;
+	webViewDidChangeSelection?(notification: NSNotification): void
 
-  undoManagerForWebView?(webView: WebView): NSUndoManager;
+	undoManagerForWebView?(webView: WebView): NSUndoManager
 }
 
-export declare class WebEditingDelegate extends NativeObject implements WebEditingDelegate {
-}
+export declare class WebEditingDelegate extends NativeObject implements WebEditingDelegate {}
 
 export declare interface WebDocumentSearching extends NSObjectProtocol {
-  searchForDirectionCaseSensitiveWrap(string: string, forward: boolean, caseFlag: boolean, wrapFlag: boolean): boolean;
+	searchForDirectionCaseSensitiveWrap(
+		string: string,
+		forward: boolean,
+		caseFlag: boolean,
+		wrapFlag: boolean,
+	): boolean
 }
 
-export declare class WebDocumentSearching extends NativeObject implements WebDocumentSearching {
-}
+export declare class WebDocumentSearching extends NativeObject implements WebDocumentSearching {}
 
 export declare interface DOMXPathNSResolver extends NSObjectProtocol {
-  lookupNamespaceURI(prefix: string): string;
+	lookupNamespaceURI(prefix: string): string
 }
 
-export declare class DOMXPathNSResolver extends NativeObject implements DOMXPathNSResolver {
-}
+export declare class DOMXPathNSResolver extends NativeObject implements DOMXPathNSResolver {}
 
 export declare interface DOMNodeFilter extends NSObjectProtocol {
-  acceptNode(n: DOMNode): number;
+	acceptNode(n: DOMNode): number
 }
 
-export declare class DOMNodeFilter extends NativeObject implements DOMNodeFilter {
-}
+export declare class DOMNodeFilter extends NativeObject implements DOMNodeFilter {}
 
 export declare interface DOMEventListener extends NSObjectProtocol {
-  handleEvent(event: DOMEvent): void;
+	handleEvent(event: DOMEvent): void
 }
 
-export declare class DOMEventListener extends NativeObject implements DOMEventListener {
-}
+export declare class DOMEventListener extends NativeObject implements DOMEventListener {}
 
 export declare interface DOMEventTarget extends NSObjectProtocol, NSCopying {
-  addEventListenerListenerUseCapture(type: string, listener: DOMEventListener, useCapture: boolean): void;
+	addEventListenerListenerUseCapture(
+		type: string,
+		listener: DOMEventListener,
+		useCapture: boolean,
+	): void
 
-  removeEventListenerListenerUseCapture(type: string, listener: DOMEventListener, useCapture: boolean): void;
+	removeEventListenerListenerUseCapture(
+		type: string,
+		listener: DOMEventListener,
+		useCapture: boolean,
+	): void
 
-  dispatchEvent(event: DOMEvent): boolean;
+	dispatchEvent(event: DOMEvent): boolean
 
-  addEventListener(type: string, listener: DOMEventListener, useCapture: boolean): void;
+	addEventListener(type: string, listener: DOMEventListener, useCapture: boolean): void
 
-  removeEventListener(type: string, listener: DOMEventListener, useCapture: boolean): void;
+	removeEventListener(type: string, listener: DOMEventListener, useCapture: boolean): void
 }
 
-export declare class DOMEventTarget extends NativeObject implements DOMEventTarget {
-}
+export declare class DOMEventTarget extends NativeObject implements DOMEventTarget {}
 
 export declare interface WKURLSchemeTask extends NSObjectProtocol {
-  readonly request: NSURLRequest;
+	readonly request: NSURLRequest
 
-  didReceiveResponse(response: NSURLResponse): void;
+	didReceiveResponse(response: NSURLResponse): void
 
-  didReceiveData(data: NSData): void;
+	didReceiveData(data: NSData): void
 
-  didFinish(): void;
+	didFinish(): void
 
-  didFailWithError(error: NSError): void;
+	didFailWithError(error: NSError): void
 }
 
-export declare class WKURLSchemeTask extends NativeObject implements WKURLSchemeTask {
-}
+export declare class WKURLSchemeTask extends NativeObject implements WKURLSchemeTask {}
 
 export declare interface WKUIDelegate extends NSObjectProtocol {
-  webViewCreateWebViewWithConfigurationForNavigationActionWindowFeatures?(webView: WKWebView, configuration: WKWebViewConfiguration, navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures): WKWebView;
+	webViewCreateWebViewWithConfigurationForNavigationActionWindowFeatures?(
+		webView: WKWebView,
+		configuration: WKWebViewConfiguration,
+		navigationAction: WKNavigationAction,
+		windowFeatures: WKWindowFeatures,
+	): WKWebView
 
-  webViewDidClose?(webView: WKWebView): void;
+	webViewDidClose?(webView: WKWebView): void
 
-  webViewRunJavaScriptAlertPanelWithMessageInitiatedByFrameCompletionHandler?(webView: WKWebView, message: string, frame: WKFrameInfo, completionHandler: () => void): void;
+	webViewRunJavaScriptAlertPanelWithMessageInitiatedByFrameCompletionHandler?(
+		webView: WKWebView,
+		message: string,
+		frame: WKFrameInfo,
+		completionHandler: () => void,
+	): void
 
-  webViewRunJavaScriptConfirmPanelWithMessageInitiatedByFrameCompletionHandler?(webView: WKWebView, message: string, frame: WKFrameInfo, completionHandler: (p1: boolean) => void): void;
+	webViewRunJavaScriptConfirmPanelWithMessageInitiatedByFrameCompletionHandler?(
+		webView: WKWebView,
+		message: string,
+		frame: WKFrameInfo,
+		completionHandler: (p1: boolean) => void,
+	): void
 
-  webViewRunJavaScriptTextInputPanelWithPromptDefaultTextInitiatedByFrameCompletionHandler?(webView: WKWebView, prompt: string, defaultText: string | null, frame: WKFrameInfo, completionHandler: (p1: string) => void | null): void;
+	webViewRunJavaScriptTextInputPanelWithPromptDefaultTextInitiatedByFrameCompletionHandler?(
+		webView: WKWebView,
+		prompt: string,
+		defaultText: string | null,
+		frame: WKFrameInfo,
+		completionHandler: (p1: string) => void | null,
+	): void
 
-  webViewRunOpenPanelWithParametersInitiatedByFrameCompletionHandler?(webView: WKWebView, parameters: WKOpenPanelParameters, frame: WKFrameInfo, completionHandler: (p1: NSArray<interop.Object> | Array<interop.Object>) => void | null): void;
+	webViewRunOpenPanelWithParametersInitiatedByFrameCompletionHandler?(
+		webView: WKWebView,
+		parameters: WKOpenPanelParameters,
+		frame: WKFrameInfo,
+		completionHandler: (p1: NSArray<interop.Object> | Array<interop.Object>) => void | null,
+	): void
 }
 
-export declare class WKUIDelegate extends NativeObject implements WKUIDelegate {
-}
+export declare class WKUIDelegate extends NativeObject implements WKUIDelegate {}
 
 export declare interface WebDocumentView extends NSObjectProtocol {
-  setDataSource(dataSource: WebDataSource): void;
+	setDataSource(dataSource: WebDataSource): void
 
-  dataSourceUpdated(dataSource: WebDataSource): void;
+	dataSourceUpdated(dataSource: WebDataSource): void
 
-  setNeedsLayout(flag: boolean): void;
+	setNeedsLayout(flag: boolean): void
 
-  layout(): void;
+	layout(): void
 
-  viewWillMoveToHostWindow(hostWindow: NSWindow): void;
+	viewWillMoveToHostWindow(hostWindow: NSWindow): void
 
-  viewDidMoveToHostWindow(): void;
+	viewDidMoveToHostWindow(): void
 }
 
-export declare class WebDocumentView extends NativeObject implements WebDocumentView {
-}
+export declare class WebDocumentView extends NativeObject implements WebDocumentView {}
 
 export declare interface WKScriptMessageHandlerWithReply extends NSObjectProtocol {
-  userContentControllerDidReceiveScriptMessageReplyHandler(userContentController: WKUserContentController, message: WKScriptMessage, replyHandler: (p1: interop.Object, p2: string) => void | null): void;
+	userContentControllerDidReceiveScriptMessageReplyHandler(
+		userContentController: WKUserContentController,
+		message: WKScriptMessage,
+		replyHandler: (p1: interop.Object, p2: string) => void | null,
+	): void
 }
 
-export declare class WKScriptMessageHandlerWithReply extends NativeObject implements WKScriptMessageHandlerWithReply {
-}
+export declare class WKScriptMessageHandlerWithReply
+	extends NativeObject
+	implements WKScriptMessageHandlerWithReply {}
 
 export declare interface WKNavigationDelegate extends NSObjectProtocol {
-  webViewDecidePolicyForNavigationActionDecisionHandler?(webView: WKWebView, navigationAction: WKNavigationAction, decisionHandler: (p1: interop.Enum<typeof WKNavigationActionPolicy>) => void): void;
+	webViewDecidePolicyForNavigationActionDecisionHandler?(
+		webView: WKWebView,
+		navigationAction: WKNavigationAction,
+		decisionHandler: (p1: interop.Enum<typeof WKNavigationActionPolicy>) => void,
+	): void
 
-  webViewDecidePolicyForNavigationActionPreferencesDecisionHandler?(webView: WKWebView, navigationAction: WKNavigationAction, preferences: WKWebpagePreferences, decisionHandler: (p1: interop.Enum<typeof WKNavigationActionPolicy>, p2: WKWebpagePreferences) => void): void;
+	webViewDecidePolicyForNavigationActionPreferencesDecisionHandler?(
+		webView: WKWebView,
+		navigationAction: WKNavigationAction,
+		preferences: WKWebpagePreferences,
+		decisionHandler: (
+			p1: interop.Enum<typeof WKNavigationActionPolicy>,
+			p2: WKWebpagePreferences,
+		) => void,
+	): void
 
-  webViewDecidePolicyForNavigationResponseDecisionHandler?(webView: WKWebView, navigationResponse: WKNavigationResponse, decisionHandler: (p1: interop.Enum<typeof WKNavigationResponsePolicy>) => void): void;
+	webViewDecidePolicyForNavigationResponseDecisionHandler?(
+		webView: WKWebView,
+		navigationResponse: WKNavigationResponse,
+		decisionHandler: (p1: interop.Enum<typeof WKNavigationResponsePolicy>) => void,
+	): void
 
-  webViewDidStartProvisionalNavigation?(webView: WKWebView, navigation: WKNavigation): void;
+	webViewDidStartProvisionalNavigation?(webView: WKWebView, navigation: WKNavigation): void
 
-  webViewDidReceiveServerRedirectForProvisionalNavigation?(webView: WKWebView, navigation: WKNavigation): void;
+	webViewDidReceiveServerRedirectForProvisionalNavigation?(
+		webView: WKWebView,
+		navigation: WKNavigation,
+	): void
 
-  webViewDidFailProvisionalNavigationWithError?(webView: WKWebView, navigation: WKNavigation, error: NSError): void;
+	webViewDidFailProvisionalNavigationWithError?(
+		webView: WKWebView,
+		navigation: WKNavigation,
+		error: NSError,
+	): void
 
-  webViewDidCommitNavigation?(webView: WKWebView, navigation: WKNavigation): void;
+	webViewDidCommitNavigation?(webView: WKWebView, navigation: WKNavigation): void
 
-  webViewDidFinishNavigation?(webView: WKWebView, navigation: WKNavigation): void;
+	webViewDidFinishNavigation?(webView: WKWebView, navigation: WKNavigation): void
 
-  webViewDidFailNavigationWithError?(webView: WKWebView, navigation: WKNavigation, error: NSError): void;
+	webViewDidFailNavigationWithError?(
+		webView: WKWebView,
+		navigation: WKNavigation,
+		error: NSError,
+	): void
 
-  webViewDidReceiveAuthenticationChallengeCompletionHandler?(webView: WKWebView, challenge: NSURLAuthenticationChallenge, completionHandler: (p1: interop.Enum<typeof NSURLSessionAuthChallengeDisposition>, p2: NSURLCredential) => void | null): void;
+	webViewDidReceiveAuthenticationChallengeCompletionHandler?(
+		webView: WKWebView,
+		challenge: NSURLAuthenticationChallenge,
+		completionHandler: (
+			p1: interop.Enum<typeof NSURLSessionAuthChallengeDisposition>,
+			p2: NSURLCredential,
+		) => void | null,
+	): void
 
-  webViewWebContentProcessDidTerminate?(webView: WKWebView): void;
+	webViewWebContentProcessDidTerminate?(webView: WKWebView): void
 
-  webViewAuthenticationChallengeShouldAllowDeprecatedTLS?(webView: WKWebView, challenge: NSURLAuthenticationChallenge, decisionHandler: (p1: boolean) => void): void;
+	webViewAuthenticationChallengeShouldAllowDeprecatedTLS?(
+		webView: WKWebView,
+		challenge: NSURLAuthenticationChallenge,
+		decisionHandler: (p1: boolean) => void,
+	): void
 }
 
-export declare class WKNavigationDelegate extends NativeObject implements WKNavigationDelegate {
-}
+export declare class WKNavigationDelegate extends NativeObject implements WKNavigationDelegate {}
 
 export declare interface WKScriptMessageHandler extends NSObjectProtocol {
-  userContentControllerDidReceiveScriptMessage(userContentController: WKUserContentController, message: WKScriptMessage): void;
+	userContentControllerDidReceiveScriptMessage(
+		userContentController: WKUserContentController,
+		message: WKScriptMessage,
+	): void
 }
 
-export declare class WKScriptMessageHandler extends NativeObject implements WKScriptMessageHandler {
-}
+export declare class WKScriptMessageHandler
+	extends NativeObject
+	implements WKScriptMessageHandler {}
 
 export declare interface WKDownloadDelegate extends NSObjectProtocol {
-  downloadDecideDestinationUsingResponseSuggestedFilenameCompletionHandler(download: WKDownload, response: NSURLResponse, suggestedFilename: string, completionHandler: (p1: NSURL) => void | null): void;
+	downloadDecideDestinationUsingResponseSuggestedFilenameCompletionHandler(
+		download: WKDownload,
+		response: NSURLResponse,
+		suggestedFilename: string,
+		completionHandler: (p1: NSURL) => void | null,
+	): void
 
-  downloadWillPerformHTTPRedirectionNewRequestDecisionHandler?(download: WKDownload, response: NSHTTPURLResponse, request: NSURLRequest, decisionHandler: (p1: interop.Enum<typeof WKDownloadRedirectPolicy>) => void): void;
+	downloadWillPerformHTTPRedirectionNewRequestDecisionHandler?(
+		download: WKDownload,
+		response: NSHTTPURLResponse,
+		request: NSURLRequest,
+		decisionHandler: (p1: interop.Enum<typeof WKDownloadRedirectPolicy>) => void,
+	): void
 
-  downloadDidReceiveAuthenticationChallengeCompletionHandler?(download: WKDownload, challenge: NSURLAuthenticationChallenge, completionHandler: (p1: interop.Enum<typeof NSURLSessionAuthChallengeDisposition>, p2: NSURLCredential) => void | null): void;
+	downloadDidReceiveAuthenticationChallengeCompletionHandler?(
+		download: WKDownload,
+		challenge: NSURLAuthenticationChallenge,
+		completionHandler: (
+			p1: interop.Enum<typeof NSURLSessionAuthChallengeDisposition>,
+			p2: NSURLCredential,
+		) => void | null,
+	): void
 
-  downloadDidFinish?(download: WKDownload): void;
+	downloadDidFinish?(download: WKDownload): void
 
-  downloadDidFailWithErrorResumeData?(download: WKDownload, error: NSError, resumeData: NSData | null): void;
+	downloadDidFailWithErrorResumeData?(
+		download: WKDownload,
+		error: NSError,
+		resumeData: NSData | null,
+	): void
 
-  downloadDecidePlaceholderPolicy?(download: WKDownload, completionHandler: (p1: interop.Enum<typeof WKDownloadPlaceholderPolicy>, p2: NSURL) => void | null): void;
+	downloadDecidePlaceholderPolicy?(
+		download: WKDownload,
+		completionHandler: (
+			p1: interop.Enum<typeof WKDownloadPlaceholderPolicy>,
+			p2: NSURL,
+		) => void | null,
+	): void
 
-  downloadDidReceivePlaceholderURLCompletionHandler?(download: WKDownload, url: NSURL, completionHandler: () => void): void;
+	downloadDidReceivePlaceholderURLCompletionHandler?(
+		download: WKDownload,
+		url: NSURL,
+		completionHandler: () => void,
+	): void
 
-  downloadDidReceiveFinalURL?(download: WKDownload, url: NSURL): void;
+	downloadDidReceiveFinalURL?(download: WKDownload, url: NSURL): void
 }
 
-export declare class WKDownloadDelegate extends NativeObject implements WKDownloadDelegate {
-}
+export declare class WKDownloadDelegate extends NativeObject implements WKDownloadDelegate {}
 
 export declare interface WebPolicyDecisionListener extends NSObjectProtocol {
-  use(): void;
+	use(): void
 
-  download(): void;
+	download(): void
 
-  ignore(): void;
+	ignore(): void
 }
 
-export declare class WebPolicyDecisionListener extends NativeObject implements WebPolicyDecisionListener {
-}
+export declare class WebPolicyDecisionListener
+	extends NativeObject
+	implements WebPolicyDecisionListener {}
 
 export declare interface WebDocumentRepresentation extends NSObjectProtocol {
-  setDataSource(dataSource: WebDataSource): void;
+	setDataSource(dataSource: WebDataSource): void
 
-  receivedDataWithDataSource(data: NSData, dataSource: WebDataSource): void;
+	receivedDataWithDataSource(data: NSData, dataSource: WebDataSource): void
 
-  receivedErrorWithDataSource(error: NSError, dataSource: WebDataSource): void;
+	receivedErrorWithDataSource(error: NSError, dataSource: WebDataSource): void
 
-  finishedLoadingWithDataSource(dataSource: WebDataSource): void;
+	finishedLoadingWithDataSource(dataSource: WebDataSource): void
 
-  canProvideDocumentSource(): boolean;
+	canProvideDocumentSource(): boolean
 
-  documentSource(): string;
+	documentSource(): string
 
-  title(): string;
+	title(): string
 }
 
-export declare class WebDocumentRepresentation extends NativeObject implements WebDocumentRepresentation {
-}
+export declare class WebDocumentRepresentation
+	extends NativeObject
+	implements WebDocumentRepresentation {}
 
 export declare interface WebUIDelegate extends NSObjectProtocol {
-  webViewCreateWebViewWithRequest?(sender: WebView, request: NSURLRequest): WebView;
+	webViewCreateWebViewWithRequest?(sender: WebView, request: NSURLRequest): WebView
 
-  webViewShow?(sender: WebView): void;
+	webViewShow?(sender: WebView): void
 
-  webViewCreateWebViewModalDialogWithRequest?(sender: WebView, request: NSURLRequest): WebView;
+	webViewCreateWebViewModalDialogWithRequest?(sender: WebView, request: NSURLRequest): WebView
 
-  webViewRunModal?(sender: WebView): void;
+	webViewRunModal?(sender: WebView): void
 
-  webViewClose?(sender: WebView): void;
+	webViewClose?(sender: WebView): void
 
-  webViewFocus?(sender: WebView): void;
+	webViewFocus?(sender: WebView): void
 
-  webViewUnfocus?(sender: WebView): void;
+	webViewUnfocus?(sender: WebView): void
 
-  webViewFirstResponder?(sender: WebView): NSResponder;
+	webViewFirstResponder?(sender: WebView): NSResponder
 
-  webViewMakeFirstResponder?(sender: WebView, responder: NSResponder): void;
+	webViewMakeFirstResponder?(sender: WebView, responder: NSResponder): void
 
-  webViewSetStatusText?(sender: WebView, text: string): void;
+	webViewSetStatusText?(sender: WebView, text: string): void
 
-  webViewStatusText?(sender: WebView): string;
+	webViewStatusText?(sender: WebView): string
 
-  webViewAreToolbarsVisible?(sender: WebView): boolean;
+	webViewAreToolbarsVisible?(sender: WebView): boolean
 
-  webViewSetToolbarsVisible?(sender: WebView, visible: boolean): void;
+	webViewSetToolbarsVisible?(sender: WebView, visible: boolean): void
 
-  webViewIsStatusBarVisible?(sender: WebView): boolean;
+	webViewIsStatusBarVisible?(sender: WebView): boolean
 
-  webViewSetStatusBarVisible?(sender: WebView, visible: boolean): void;
+	webViewSetStatusBarVisible?(sender: WebView, visible: boolean): void
 
-  webViewIsResizable?(sender: WebView): boolean;
+	webViewIsResizable?(sender: WebView): boolean
 
-  webViewSetResizable?(sender: WebView, resizable: boolean): void;
+	webViewSetResizable?(sender: WebView, resizable: boolean): void
 
-  webViewSetFrame?(sender: WebView, frame: CGRect): void;
+	webViewSetFrame?(sender: WebView, frame: CGRect): void
 
-  webViewFrame?(sender: WebView): CGRect;
+	webViewFrame?(sender: WebView): CGRect
 
-  webViewRunJavaScriptAlertPanelWithMessageInitiatedByFrame?(sender: WebView, message: string, frame: WebFrame): void;
+	webViewRunJavaScriptAlertPanelWithMessageInitiatedByFrame?(
+		sender: WebView,
+		message: string,
+		frame: WebFrame,
+	): void
 
-  webViewRunJavaScriptConfirmPanelWithMessageInitiatedByFrame?(sender: WebView, message: string, frame: WebFrame): boolean;
+	webViewRunJavaScriptConfirmPanelWithMessageInitiatedByFrame?(
+		sender: WebView,
+		message: string,
+		frame: WebFrame,
+	): boolean
 
-  webViewRunJavaScriptTextInputPanelWithPromptDefaultTextInitiatedByFrame?(sender: WebView, prompt: string, defaultText: string, frame: WebFrame): string;
+	webViewRunJavaScriptTextInputPanelWithPromptDefaultTextInitiatedByFrame?(
+		sender: WebView,
+		prompt: string,
+		defaultText: string,
+		frame: WebFrame,
+	): string
 
-  webViewRunBeforeUnloadConfirmPanelWithMessageInitiatedByFrame?(sender: WebView, message: string, frame: WebFrame): boolean;
+	webViewRunBeforeUnloadConfirmPanelWithMessageInitiatedByFrame?(
+		sender: WebView,
+		message: string,
+		frame: WebFrame,
+	): boolean
 
-  webViewRunOpenPanelForFileButtonWithResultListener?(sender: WebView, resultListener: WebOpenPanelResultListener): void;
+	webViewRunOpenPanelForFileButtonWithResultListener?(
+		sender: WebView,
+		resultListener: WebOpenPanelResultListener,
+	): void
 
-  webViewRunOpenPanelForFileButtonWithResultListenerAllowMultipleFiles?(sender: WebView, resultListener: WebOpenPanelResultListener, allowMultipleFiles: boolean): void;
+	webViewRunOpenPanelForFileButtonWithResultListenerAllowMultipleFiles?(
+		sender: WebView,
+		resultListener: WebOpenPanelResultListener,
+		allowMultipleFiles: boolean,
+	): void
 
-  webViewMouseDidMoveOverElementModifierFlags?(sender: WebView, elementInformation: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>, modifierFlags: number): void;
+	webViewMouseDidMoveOverElementModifierFlags?(
+		sender: WebView,
+		elementInformation:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+		modifierFlags: number,
+	): void
 
-  webViewContextMenuItemsForElementDefaultMenuItems?(sender: WebView, element: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>, defaultMenuItems: NSArray<interop.Object> | Array<interop.Object>): NSArray;
+	webViewContextMenuItemsForElementDefaultMenuItems?(
+		sender: WebView,
+		element: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+		defaultMenuItems: NSArray<interop.Object> | Array<interop.Object>,
+	): NSArray
 
-  webViewValidateUserInterfaceItemDefaultValidation?(webView: WebView, item: NSValidatedUserInterfaceItem, defaultValidation: boolean): boolean;
+	webViewValidateUserInterfaceItemDefaultValidation?(
+		webView: WebView,
+		item: NSValidatedUserInterfaceItem,
+		defaultValidation: boolean,
+	): boolean
 
-  webViewShouldPerformActionFromSender?(webView: WebView, action: string, sender: interop.Object): boolean;
+	webViewShouldPerformActionFromSender?(
+		webView: WebView,
+		action: string,
+		sender: interop.Object,
+	): boolean
 
-  webViewDragDestinationActionMaskForDraggingInfo?(webView: WebView, draggingInfo: NSDraggingInfo): number;
+	webViewDragDestinationActionMaskForDraggingInfo?(
+		webView: WebView,
+		draggingInfo: NSDraggingInfo,
+	): number
 
-  webViewWillPerformDragDestinationActionForDraggingInfo?(webView: WebView, action: interop.Enum<typeof WebDragDestinationAction>, draggingInfo: NSDraggingInfo): void;
+	webViewWillPerformDragDestinationActionForDraggingInfo?(
+		webView: WebView,
+		action: interop.Enum<typeof WebDragDestinationAction>,
+		draggingInfo: NSDraggingInfo,
+	): void
 
-  webViewDragSourceActionMaskForPoint?(webView: WebView, point: CGPoint): number;
+	webViewDragSourceActionMaskForPoint?(webView: WebView, point: CGPoint): number
 
-  webViewWillPerformDragSourceActionFromPointWithPasteboard?(webView: WebView, action: interop.Enum<typeof WebDragSourceAction>, point: CGPoint, pasteboard: NSPasteboard): void;
+	webViewWillPerformDragSourceActionFromPointWithPasteboard?(
+		webView: WebView,
+		action: interop.Enum<typeof WebDragSourceAction>,
+		point: CGPoint,
+		pasteboard: NSPasteboard,
+	): void
 
-  webViewPrintFrameView?(sender: WebView, frameView: WebFrameView): void;
+	webViewPrintFrameView?(sender: WebView, frameView: WebFrameView): void
 
-  webViewHeaderHeight?(sender: WebView): number;
+	webViewHeaderHeight?(sender: WebView): number
 
-  webViewFooterHeight?(sender: WebView): number;
+	webViewFooterHeight?(sender: WebView): number
 
-  webViewDrawHeaderInRect?(sender: WebView, rect: CGRect): void;
+	webViewDrawHeaderInRect?(sender: WebView, rect: CGRect): void
 
-  webViewDrawFooterInRect?(sender: WebView, rect: CGRect): void;
+	webViewDrawFooterInRect?(sender: WebView, rect: CGRect): void
 
-  webViewRunJavaScriptAlertPanelWithMessage?(sender: WebView, message: string): void;
+	webViewRunJavaScriptAlertPanelWithMessage?(sender: WebView, message: string): void
 
-  webViewRunJavaScriptConfirmPanelWithMessage?(sender: WebView, message: string): boolean;
+	webViewRunJavaScriptConfirmPanelWithMessage?(sender: WebView, message: string): boolean
 
-  webViewRunJavaScriptTextInputPanelWithPromptDefaultText?(sender: WebView, prompt: string, defaultText: string): string;
+	webViewRunJavaScriptTextInputPanelWithPromptDefaultText?(
+		sender: WebView,
+		prompt: string,
+		defaultText: string,
+	): string
 
-  webViewSetContentRect?(sender: WebView, frame: CGRect): void;
+	webViewSetContentRect?(sender: WebView, frame: CGRect): void
 
-  webViewContentRect?(sender: WebView): CGRect;
+	webViewContentRect?(sender: WebView): CGRect
 }
 
-export declare class WebUIDelegate extends NativeObject implements WebUIDelegate {
-}
+export declare class WebUIDelegate extends NativeObject implements WebUIDelegate {}
 
 export declare interface WebDocumentText extends NSObjectProtocol {
-  supportsTextEncoding(): boolean;
+	supportsTextEncoding(): boolean
 
-  string(): string;
+	string(): string
 
-  attributedString(): NSAttributedString;
+	attributedString(): NSAttributedString
 
-  selectedString(): string;
+	selectedString(): string
 
-  selectedAttributedString(): NSAttributedString;
+	selectedAttributedString(): NSAttributedString
 
-  selectAll(): void;
+	selectAll(): void
 
-  deselectAll(): void;
+	deselectAll(): void
 }
 
-export declare class WebDocumentText extends NativeObject implements WebDocumentText {
-}
+export declare class WebDocumentText extends NativeObject implements WebDocumentText {}
 
 export declare interface WebFrameLoadDelegate extends NSObjectProtocol {
-  webViewDidStartProvisionalLoadForFrame?(sender: WebView, frame: WebFrame): void;
+	webViewDidStartProvisionalLoadForFrame?(sender: WebView, frame: WebFrame): void
 
-  webViewDidReceiveServerRedirectForProvisionalLoadForFrame?(sender: WebView, frame: WebFrame): void;
+	webViewDidReceiveServerRedirectForProvisionalLoadForFrame?(sender: WebView, frame: WebFrame): void
 
-  webViewDidFailProvisionalLoadWithErrorForFrame?(sender: WebView, error: NSError, frame: WebFrame): void;
+	webViewDidFailProvisionalLoadWithErrorForFrame?(
+		sender: WebView,
+		error: NSError,
+		frame: WebFrame,
+	): void
 
-  webViewDidCommitLoadForFrame?(sender: WebView, frame: WebFrame): void;
+	webViewDidCommitLoadForFrame?(sender: WebView, frame: WebFrame): void
 
-  webViewDidReceiveTitleForFrame?(sender: WebView, title: string, frame: WebFrame): void;
+	webViewDidReceiveTitleForFrame?(sender: WebView, title: string, frame: WebFrame): void
 
-  webViewDidReceiveIconForFrame?(sender: WebView, image: NSImage, frame: WebFrame): void;
+	webViewDidReceiveIconForFrame?(sender: WebView, image: NSImage, frame: WebFrame): void
 
-  webViewDidFinishLoadForFrame?(sender: WebView, frame: WebFrame): void;
+	webViewDidFinishLoadForFrame?(sender: WebView, frame: WebFrame): void
 
-  webViewDidFailLoadWithErrorForFrame?(sender: WebView, error: NSError, frame: WebFrame): void;
+	webViewDidFailLoadWithErrorForFrame?(sender: WebView, error: NSError, frame: WebFrame): void
 
-  webViewDidChangeLocationWithinPageForFrame?(sender: WebView, frame: WebFrame): void;
+	webViewDidChangeLocationWithinPageForFrame?(sender: WebView, frame: WebFrame): void
 
-  webViewWillPerformClientRedirectToURLDelayFireDateForFrame?(sender: WebView, URL: NSURL, seconds: number, date: NSDate, frame: WebFrame): void;
+	webViewWillPerformClientRedirectToURLDelayFireDateForFrame?(
+		sender: WebView,
+		URL: NSURL,
+		seconds: number,
+		date: NSDate,
+		frame: WebFrame,
+	): void
 
-  webViewDidCancelClientRedirectForFrame?(sender: WebView, frame: WebFrame): void;
+	webViewDidCancelClientRedirectForFrame?(sender: WebView, frame: WebFrame): void
 
-  webViewWillCloseFrame?(sender: WebView, frame: WebFrame): void;
+	webViewWillCloseFrame?(sender: WebView, frame: WebFrame): void
 
-  webViewDidClearWindowObjectForFrame?(webView: WebView, windowObject: WebScriptObject, frame: WebFrame): void;
+	webViewDidClearWindowObjectForFrame?(
+		webView: WebView,
+		windowObject: WebScriptObject,
+		frame: WebFrame,
+	): void
 
-  webViewWindowScriptObjectAvailable?(webView: WebView, windowScriptObject: WebScriptObject): void;
+	webViewWindowScriptObjectAvailable?(webView: WebView, windowScriptObject: WebScriptObject): void
 
-  webViewDidCreateJavaScriptContextForFrame?(webView: WebView, context: JSContext, frame: WebFrame): void;
+	webViewDidCreateJavaScriptContextForFrame?(
+		webView: WebView,
+		context: JSContext,
+		frame: WebFrame,
+	): void
 }
 
-export declare class WebFrameLoadDelegate extends NativeObject implements WebFrameLoadDelegate {
-}
+export declare class WebFrameLoadDelegate extends NativeObject implements WebFrameLoadDelegate {}
 
 export declare interface WKHTTPCookieStoreObserver extends NSObjectProtocol {
-  cookiesDidChangeInCookieStore?(cookieStore: WKHTTPCookieStore): void;
+	cookiesDidChangeInCookieStore?(cookieStore: WKHTTPCookieStore): void
 }
 
-export declare class WKHTTPCookieStoreObserver extends NativeObject implements WKHTTPCookieStoreObserver {
-}
+export declare class WKHTTPCookieStoreObserver
+	extends NativeObject
+	implements WKHTTPCookieStoreObserver {}
 
 export declare class WebResource extends NSObject implements NSCoding, NSCopying {
-  initWithDataURLMIMETypeTextEncodingNameFrameName(data: NSData, URL: NSURL, MIMEType: string, textEncodingName: string, frameName: string): this;
+	initWithDataURLMIMETypeTextEncodingNameFrameName(
+		data: NSData,
+		URL: NSURL,
+		MIMEType: string,
+		textEncodingName: string,
+		frameName: string,
+	): this
 
-  readonly data: NSData;
+	readonly data: NSData
 
-  readonly URL: NSURL;
+	readonly URL: NSURL
 
-  readonly MIMEType: string;
+	readonly MIMEType: string
 
-  readonly textEncodingName: string;
+	readonly textEncodingName: string
 
-  readonly frameName: string;
+	readonly frameName: string
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 export declare class WebHistoryItem extends NSObject implements NSCopying {
-  initWithURLStringTitleLastVisitedTimeInterval(URLString: string, title: string, time: number): this;
+	initWithURLStringTitleLastVisitedTimeInterval(
+		URLString: string,
+		title: string,
+		time: number,
+	): this
 
-  readonly originalURLString: string;
+	readonly originalURLString: string
 
-  readonly URLString: string;
+	readonly URLString: string
 
-  readonly title: string;
+	readonly title: string
 
-  readonly lastVisitedTimeInterval: number;
+	readonly lastVisitedTimeInterval: number
 
-  alternateTitle: string;
+	alternateTitle: string
 
-  readonly icon: NSImage;
+	readonly icon: NSImage
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 export declare class WebFrameView extends NSView {
-  readonly webFrame: WebFrame;
+	readonly webFrame: WebFrame
 
-  readonly documentView: NSView;
+	readonly documentView: NSView
 
-  allowsScrolling: boolean;
+	allowsScrolling: boolean
 
-  readonly canPrintHeadersAndFooters: boolean;
+	readonly canPrintHeadersAndFooters: boolean
 
-  printOperationWithPrintInfo(printInfo: NSPrintInfo): NSPrintOperation;
+	printOperationWithPrintInfo(printInfo: NSPrintInfo): NSPrintOperation
 
-  readonly documentViewShouldHandlePrint: boolean;
+	readonly documentViewShouldHandlePrint: boolean
 
-  printDocumentView(): void;
+	printDocumentView(): void
 }
 
-export declare class WebDownload extends NSURLDownload {
-}
+export declare class WebDownload extends NSURLDownload {}
 
 export declare class DOMXPathResult extends DOMObject {
-  readonly resultType: number;
+	readonly resultType: number
 
-  readonly numberValue: number;
+	readonly numberValue: number
 
-  readonly stringValue: string;
+	readonly stringValue: string
 
-  readonly booleanValue: boolean;
+	readonly booleanValue: boolean
 
-  readonly singleNodeValue: DOMNode;
+	readonly singleNodeValue: DOMNode
 
-  readonly invalidIteratorState: boolean;
+	readonly invalidIteratorState: boolean
 
-  readonly snapshotLength: number;
+	readonly snapshotLength: number
 
-  iterateNext(): DOMNode;
+	iterateNext(): DOMNode
 
-  snapshotItem(index: number): DOMNode;
+	snapshotItem(index: number): DOMNode
 }
 
 export declare class DOMNodeIterator extends DOMObject {
-  readonly root: DOMNode;
+	readonly root: DOMNode
 
-  readonly whatToShow: number;
+	readonly whatToShow: number
 
-  readonly filter: DOMNodeFilter;
+	readonly filter: DOMNodeFilter
 
-  readonly expandEntityReferences: boolean;
+	readonly expandEntityReferences: boolean
 
-  readonly referenceNode: DOMNode;
+	readonly referenceNode: DOMNode
 
-  readonly pointerBeforeReferenceNode: boolean;
+	readonly pointerBeforeReferenceNode: boolean
 
-  nextNode(): DOMNode;
+	nextNode(): DOMNode
 
-  previousNode(): DOMNode;
+	previousNode(): DOMNode
 
-  detach(): void;
+	detach(): void
 }
 
 export declare class DOMOverflowEvent extends DOMEvent {
-  readonly orient: number;
+	readonly orient: number
 
-  readonly horizontalOverflow: boolean;
+	readonly horizontalOverflow: boolean
 
-  readonly verticalOverflow: boolean;
+	readonly verticalOverflow: boolean
 
-  initOverflowEventHorizontalOverflowVerticalOverflow(orient: number, horizontalOverflow: boolean, verticalOverflow: boolean): this;
+	initOverflowEventHorizontalOverflowVerticalOverflow(
+		orient: number,
+		horizontalOverflow: boolean,
+		verticalOverflow: boolean,
+	): this
 }
 
 export declare class DOMUIEvent extends DOMEvent {
-  readonly view: DOMAbstractView;
+	readonly view: DOMAbstractView
 
-  readonly detail: number;
+	readonly detail: number
 
-  readonly keyCode: number;
+	readonly keyCode: number
 
-  readonly charCode: number;
+	readonly charCode: number
 
-  readonly layerX: number;
+	readonly layerX: number
 
-  readonly layerY: number;
+	readonly layerY: number
 
-  readonly pageX: number;
+	readonly pageX: number
 
-  readonly pageY: number;
+	readonly pageY: number
 
-  readonly which: number;
+	readonly which: number
 
-  initUIEventCanBubbleCancelableViewDetail(type: string, canBubble: boolean, cancelable: boolean, view: DOMAbstractView, detail: number): this;
+	initUIEventCanBubbleCancelableViewDetail(
+		type: string,
+		canBubble: boolean,
+		cancelable: boolean,
+		view: DOMAbstractView,
+		detail: number,
+	): this
 
-  initUIEvent(type: string, canBubble: boolean, cancelable: boolean, view: DOMAbstractView, detail: number): this;
+	initUIEvent(
+		type: string,
+		canBubble: boolean,
+		cancelable: boolean,
+		view: DOMAbstractView,
+		detail: number,
+	): this
 }
 
 export declare class DOMEvent extends DOMObject {
-  readonly type: string;
+	readonly type: string
 
-  readonly target: DOMEventTarget;
+	readonly target: DOMEventTarget
 
-  readonly currentTarget: DOMEventTarget;
+	readonly currentTarget: DOMEventTarget
 
-  readonly eventPhase: number;
+	readonly eventPhase: number
 
-  readonly bubbles: boolean;
+	readonly bubbles: boolean
 
-  readonly cancelable: boolean;
+	readonly cancelable: boolean
 
-  readonly timeStamp: number;
+	readonly timeStamp: number
 
-  readonly srcElement: DOMEventTarget;
+	readonly srcElement: DOMEventTarget
 
-  returnValue: boolean;
+	returnValue: boolean
 
-  cancelBubble: boolean;
+	cancelBubble: boolean
 
-  stopPropagation(): void;
+	stopPropagation(): void
 
-  preventDefault(): void;
+	preventDefault(): void
 
-  initEventCanBubbleArgCancelableArg(eventTypeArg: string, canBubbleArg: boolean, cancelableArg: boolean): this;
+	initEventCanBubbleArgCancelableArg(
+		eventTypeArg: string,
+		canBubbleArg: boolean,
+		cancelableArg: boolean,
+	): this
 
-  initEvent(eventTypeArg: string, canBubbleArg: boolean, cancelableArg: boolean): this;
+	initEvent(eventTypeArg: string, canBubbleArg: boolean, cancelableArg: boolean): this
 }
 
 export declare class DOMAbstractView extends DOMObject {
-  readonly document: DOMDocument;
+	readonly document: DOMDocument
 }
 
 export declare class DOMHTMLTitleElement extends DOMHTMLElement {
-  text: string;
+	text: string
 }
 
 export declare class DOMHTMLTextAreaElement extends DOMHTMLElement {
-  autofocus: boolean;
+	autofocus: boolean
 
-  disabled: boolean;
+	disabled: boolean
 
-  readonly form: DOMHTMLFormElement;
+	readonly form: DOMHTMLFormElement
 
-  name: string;
+	name: string
 
-  readOnly: boolean;
+	readOnly: boolean
 
-  rows: number;
+	rows: number
 
-  cols: number;
+	cols: number
 
-  readonly type: string;
+	readonly type: string
 
-  defaultValue: string;
+	defaultValue: string
 
-  value: string;
+	value: string
 
-  readonly willValidate: boolean;
+	readonly willValidate: boolean
 
-  selectionStart: number;
+	selectionStart: number
 
-  selectionEnd: number;
+	selectionEnd: number
 
-  accessKey: string;
+	accessKey: string
 
-  select(): void;
+	select(): void
 
-  setSelectionRangeEnd(start: number, end: number): void;
+	setSelectionRangeEnd(start: number, end: number): void
 }
 
 export declare class DOMHTMLTableCellElement extends DOMHTMLElement {
-  readonly cellIndex: number;
+	readonly cellIndex: number
 
-  align: string;
+	align: string
 
-  axis: string;
+	axis: string
 
-  bgColor: string;
+	bgColor: string
 
-  ch: string;
+	ch: string
 
-  chOff: string;
+	chOff: string
 
-  colSpan: number;
+	colSpan: number
 
-  rowSpan: number;
+	rowSpan: number
 
-  headers: string;
+	headers: string
 
-  height: string;
+	height: string
 
-  noWrap: boolean;
+	noWrap: boolean
 
-  vAlign: string;
+	vAlign: string
 
-  width: string;
+	width: string
 
-  abbr: string;
+	abbr: string
 
-  scope: string;
+	scope: string
 }
 
 export declare class DOMHTMLScriptElement extends DOMHTMLElement {
-  text: string;
+	text: string
 
-  htmlFor: string;
+	htmlFor: string
 
-  event: string;
+	event: string
 
-  charset: string;
+	charset: string
 
-  defer: boolean;
+	defer: boolean
 
-  src: string;
+	src: string
 
-  type: string;
+	type: string
 }
 
 export declare class DOMHTMLQuoteElement extends DOMHTMLElement {
-  cite: string;
+	cite: string
 }
 
 export declare class DOMHTMLOptionsCollection extends DOMObject {
-  selectedIndex: number;
+	selectedIndex: number
 
-  length: number;
+	length: number
 
-  namedItem(name: string): DOMNode;
+	namedItem(name: string): DOMNode
 
-  addIndex(option: DOMHTMLOptionElement, index: number): void;
+	addIndex(option: DOMHTMLOptionElement, index: number): void
 
-  remove(index: number): void;
+	remove(index: number): void
 
-  item(index: number): DOMNode;
+	item(index: number): DOMNode
 }
 
 export declare class DOMHTMLOptionElement extends DOMHTMLElement {
-  disabled: boolean;
+	disabled: boolean
 
-  readonly form: DOMHTMLFormElement;
+	readonly form: DOMHTMLFormElement
 
-  label: string;
+	label: string
 
-  defaultSelected: boolean;
+	defaultSelected: boolean
 
-  selected: boolean;
+	selected: boolean
 
-  value: string;
+	value: string
 
-  readonly text: string;
+	readonly text: string
 
-  readonly index: number;
+	readonly index: number
 }
 
 export declare class DOMHTMLObjectElement extends DOMHTMLElement {
-  readonly form: DOMHTMLFormElement;
+	readonly form: DOMHTMLFormElement
 
-  code: string;
+	code: string
 
-  align: string;
+	align: string
 
-  archive: string;
+	archive: string
 
-  border: string;
+	border: string
 
-  codeBase: string;
+	codeBase: string
 
-  codeType: string;
+	codeType: string
 
-  data: string;
+	data: string
 
-  declare: boolean;
+	declare: boolean
 
-  height: string;
+	height: string
 
-  hspace: number;
+	hspace: number
 
-  name: string;
+	name: string
 
-  standby: string;
+	standby: string
 
-  type: string;
+	type: string
 
-  useMap: string;
+	useMap: string
 
-  vspace: number;
+	vspace: number
 
-  width: string;
+	width: string
 
-  readonly contentDocument: DOMDocument;
+	readonly contentDocument: DOMDocument
 
-  readonly absoluteImageURL: NSURL;
+	readonly absoluteImageURL: NSURL
 
-  readonly contentFrame: WebFrame;
+	readonly contentFrame: WebFrame
 }
 
 export declare class DOMHTMLOListElement extends DOMHTMLElement {
-  compact: boolean;
+	compact: boolean
 
-  start: number;
+	start: number
 
-  type: string;
+	type: string
 }
 
 export declare class DOMHTMLModElement extends DOMHTMLElement {
-  cite: string;
+	cite: string
 
-  dateTime: string;
+	dateTime: string
 }
 
 export declare class DOMHTMLMetaElement extends DOMHTMLElement {
-  content: string;
+	content: string
 
-  httpEquiv: string;
+	httpEquiv: string
 
-  name: string;
+	name: string
 
-  scheme: string;
+	scheme: string
 }
 
 export declare class DOMHTMLMarqueeElement extends DOMHTMLElement {
-  start(): void;
+	start(): void
 
-  stop(): void;
+	stop(): void
 }
 
 export declare class DOMHTMLLegendElement extends DOMHTMLElement {
-  readonly form: DOMHTMLFormElement;
+	readonly form: DOMHTMLFormElement
 
-  align: string;
+	align: string
 
-  accessKey: string;
+	accessKey: string
 }
 
 export declare class DOMHTMLInputElement extends DOMHTMLElement {
-  accept: string;
+	accept: string
 
-  alt: string;
+	alt: string
 
-  autofocus: boolean;
+	autofocus: boolean
 
-  defaultChecked: boolean;
+	defaultChecked: boolean
 
-  checked: boolean;
+	checked: boolean
 
-  disabled: boolean;
+	disabled: boolean
 
-  readonly form: DOMHTMLFormElement;
+	readonly form: DOMHTMLFormElement
 
-  files: DOMFileList;
+	files: DOMFileList
 
-  indeterminate: boolean;
+	indeterminate: boolean
 
-  maxLength: number;
+	maxLength: number
 
-  multiple: boolean;
+	multiple: boolean
 
-  name: string;
+	name: string
 
-  readOnly: boolean;
+	readOnly: boolean
 
-  size: string;
+	size: string
 
-  src: string;
+	src: string
 
-  type: string;
+	type: string
 
-  defaultValue: string;
+	defaultValue: string
 
-  value: string;
+	value: string
 
-  readonly willValidate: boolean;
+	readonly willValidate: boolean
 
-  selectionStart: number;
+	selectionStart: number
 
-  selectionEnd: number;
+	selectionEnd: number
 
-  align: string;
+	align: string
 
-  useMap: string;
+	useMap: string
 
-  accessKey: string;
+	accessKey: string
 
-  readonly altDisplayString: string;
+	readonly altDisplayString: string
 
-  readonly absoluteImageURL: NSURL;
+	readonly absoluteImageURL: NSURL
 
-  select(): void;
+	select(): void
 
-  setSelectionRangeEnd(start: number, end: number): void;
+	setSelectionRangeEnd(start: number, end: number): void
 
-  click(): void;
+	click(): void
 }
 
 export declare class DOMHTMLIFrameElement extends DOMHTMLElement {
-  align: string;
+	align: string
 
-  frameBorder: string;
+	frameBorder: string
 
-  height: string;
+	height: string
 
-  longDesc: string;
+	longDesc: string
 
-  marginHeight: string;
+	marginHeight: string
 
-  marginWidth: string;
+	marginWidth: string
 
-  name: string;
+	name: string
 
-  scrolling: string;
+	scrolling: string
 
-  src: string;
+	src: string
 
-  width: string;
+	width: string
 
-  readonly contentDocument: DOMDocument;
+	readonly contentDocument: DOMDocument
 
-  readonly contentWindow: DOMAbstractView;
+	readonly contentWindow: DOMAbstractView
 
-  readonly contentFrame: WebFrame;
+	readonly contentFrame: WebFrame
 }
 
 export declare class DOMHTMLHeadingElement extends DOMHTMLElement {
-  align: string;
+	align: string
 }
 
 export declare class DOMHTMLFrameSetElement extends DOMHTMLElement {
-  cols: string;
+	cols: string
 
-  rows: string;
+	rows: string
 }
 
 export declare class DOMHTMLFrameElement extends DOMHTMLElement {
-  frameBorder: string;
+	frameBorder: string
 
-  longDesc: string;
+	longDesc: string
 
-  marginHeight: string;
+	marginHeight: string
 
-  marginWidth: string;
+	marginWidth: string
 
-  name: string;
+	name: string
 
-  noResize: boolean;
+	noResize: boolean
 
-  scrolling: string;
+	scrolling: string
 
-  src: string;
+	src: string
 
-  readonly contentDocument: DOMDocument;
+	readonly contentDocument: DOMDocument
 
-  readonly contentWindow: DOMAbstractView;
+	readonly contentWindow: DOMAbstractView
 
-  location: string;
+	location: string
 
-  readonly width: number;
+	readonly width: number
 
-  readonly height: number;
+	readonly height: number
 
-  readonly contentFrame: WebFrame;
+	readonly contentFrame: WebFrame
 }
 
 export declare class DOMHTMLFormElement extends DOMHTMLElement {
-  acceptCharset: string;
+	acceptCharset: string
 
-  action: string;
+	action: string
 
-  enctype: string;
+	enctype: string
 
-  encoding: string;
+	encoding: string
 
-  method: string;
+	method: string
 
-  name: string;
+	name: string
 
-  target: string;
+	target: string
 
-  readonly elements: DOMHTMLCollection;
+	readonly elements: DOMHTMLCollection
 
-  readonly length: number;
+	readonly length: number
 
-  submit(): void;
+	submit(): void
 
-  reset(): void;
+	reset(): void
 }
 
 export declare class DOMHTMLFontElement extends DOMHTMLElement {
-  color: string;
+	color: string
 
-  face: string;
+	face: string
 
-  size: string;
+	size: string
 }
 
 export declare class DOMHTMLDirectoryElement extends DOMHTMLElement {
-  compact: boolean;
+	compact: boolean
 }
 
 export declare class DOMHTMLBaseElement extends DOMHTMLElement {
-  href: string;
+	href: string
 
-  target: string;
+	target: string
 }
 
 export declare class DOMHTMLAreaElement extends DOMHTMLElement {
-  alt: string;
+	alt: string
 
-  coords: string;
+	coords: string
 
-  noHref: boolean;
+	noHref: boolean
 
-  shape: string;
+	shape: string
 
-  target: string;
+	target: string
 
-  accessKey: string;
+	accessKey: string
 
-  readonly absoluteLinkURL: NSURL;
+	readonly absoluteLinkURL: NSURL
 
-  href: string;
+	href: string
 
-  readonly protocol: string;
+	readonly protocol: string
 
-  readonly host: string;
+	readonly host: string
 
-  readonly hostname: string;
+	readonly hostname: string
 
-  readonly port: string;
+	readonly port: string
 
-  readonly pathname: string;
+	readonly pathname: string
 
-  readonly search: string;
+	readonly search: string
 
-  readonly hashName: string;
+	readonly hashName: string
 }
 
 export declare class DOMHTMLAppletElement extends DOMHTMLElement {
-  align: string;
+	align: string
 
-  alt: string;
+	alt: string
 
-  archive: string;
+	archive: string
 
-  code: string;
+	code: string
 
-  codeBase: string;
+	codeBase: string
 
-  height: string;
+	height: string
 
-  hspace: number;
+	hspace: number
 
-  name: string;
+	name: string
 
-  object: string;
+	object: string
 
-  vspace: number;
+	vspace: number
 
-  width: string;
+	width: string
 }
 
 export declare class DOMHTMLElement extends DOMElement {
-  title: string;
+	title: string
 
-  lang: string;
+	lang: string
 
-  dir: string;
+	dir: string
 
-  tabIndex: number;
+	tabIndex: number
 
-  accessKey: string;
+	accessKey: string
 
-  // @ts-ignore MemberDecl.tsIgnore
-  innerText: string;
+	// @ts-ignore MemberDecl.tsIgnore
+	innerText: string
 
-  outerText: string;
+	outerText: string
 
-  contentEditable: string;
+	contentEditable: string
 
-  readonly isContentEditable: boolean;
+	readonly isContentEditable: boolean
 
-  idName: string;
+	idName: string
 
-  readonly children: DOMHTMLCollection;
+	readonly children: DOMHTMLCollection
 
-  readonly titleDisplayString: string;
+	readonly titleDisplayString: string
 
-  click(): void;
+	click(): void
 }
 
 export declare class DOMFile extends DOMBlob {
-  readonly name: string;
+	readonly name: string
 }
 
 export declare class DOMBlob extends DOMObject {
-  readonly size: number;
+	readonly size: number
 }
 
 export declare class DOMRect extends DOMObject {
-  readonly top: DOMCSSPrimitiveValue;
+	readonly top: DOMCSSPrimitiveValue
 
-  readonly right: DOMCSSPrimitiveValue;
+	readonly right: DOMCSSPrimitiveValue
 
-  readonly bottom: DOMCSSPrimitiveValue;
+	readonly bottom: DOMCSSPrimitiveValue
 
-  readonly left: DOMCSSPrimitiveValue;
+	readonly left: DOMCSSPrimitiveValue
 }
 
 export declare class DOMRGBColor extends DOMObject {
-  readonly red: DOMCSSPrimitiveValue;
+	readonly red: DOMCSSPrimitiveValue
 
-  readonly green: DOMCSSPrimitiveValue;
+	readonly green: DOMCSSPrimitiveValue
 
-  readonly blue: DOMCSSPrimitiveValue;
+	readonly blue: DOMCSSPrimitiveValue
 
-  readonly alpha: DOMCSSPrimitiveValue;
+	readonly alpha: DOMCSSPrimitiveValue
 
-  readonly color: NSColor;
+	readonly color: NSColor
 }
 
 export declare class DOMCounter extends DOMObject {
-  readonly identifier: string;
+	readonly identifier: string
 
-  readonly listStyle: string;
+	readonly listStyle: string
 
-  readonly separator: string;
+	readonly separator: string
 }
 
 export declare class DOMCSSValueList extends DOMCSSValue {
-  readonly length: number;
+	readonly length: number
 
-  item(index: number): DOMCSSValue;
+	item(index: number): DOMCSSValue
 }
 
-export declare class DOMCSSUnknownRule extends DOMCSSRule {
-}
+export declare class DOMCSSUnknownRule extends DOMCSSRule {}
 
 export declare class DOMCSSStyleSheet extends DOMStyleSheet {
-  readonly ownerRule: DOMCSSRule;
+	readonly ownerRule: DOMCSSRule
 
-  readonly cssRules: DOMCSSRuleList;
+	readonly cssRules: DOMCSSRuleList
 
-  readonly rules: DOMCSSRuleList;
+	readonly rules: DOMCSSRuleList
 
-  insertRuleIndex(rule: string, index: number): number;
+	insertRuleIndex(rule: string, index: number): number
 
-  deleteRule(index: number): void;
+	deleteRule(index: number): void
 
-  addRuleStyleIndex(selector: string, style: string, index: number): number;
+	addRuleStyleIndex(selector: string, style: string, index: number): number
 
-  removeRule(index: number): void;
+	removeRule(index: number): void
 
-  insertRule(rule: string, index: number): number;
+	insertRule(rule: string, index: number): number
 }
 
 export declare class DOMCSSStyleRule extends DOMCSSRule {
-  selectorText: string;
+	selectorText: string
 
-  readonly style: DOMCSSStyleDeclaration;
+	readonly style: DOMCSSStyleDeclaration
 }
 
 export declare class DOMCSSStyleDeclaration extends DOMObject {
-  cssText: string;
+	cssText: string
 
-  readonly length: number;
+	readonly length: number
 
-  readonly parentRule: DOMCSSRule;
+	readonly parentRule: DOMCSSRule
 
-  getPropertyValue(propertyName: string): string;
+	getPropertyValue(propertyName: string): string
 
-  getPropertyCSSValue(propertyName: string): DOMCSSValue;
+	getPropertyCSSValue(propertyName: string): DOMCSSValue
 
-  removeProperty(propertyName: string): string;
+	removeProperty(propertyName: string): string
 
-  getPropertyPriority(propertyName: string): string;
+	getPropertyPriority(propertyName: string): string
 
-  setPropertyValuePriority(propertyName: string, value: string, priority: string): void;
+	setPropertyValuePriority(propertyName: string, value: string, priority: string): void
 
-  item(index: number): string;
+	item(index: number): string
 
-  getPropertyShorthand(propertyName: string): string;
+	getPropertyShorthand(propertyName: string): string
 
-  isPropertyImplicit(propertyName: string): boolean;
+	isPropertyImplicit(propertyName: string): boolean
 
-  setProperty(propertyName: string, value: string, priority: string): void;
+	setProperty(propertyName: string, value: string, priority: string): void
 
-  azimuth(): string;
+	azimuth(): string
 
-  setAzimuth(azimuth: string): void;
+	setAzimuth(azimuth: string): void
 
-  background(): string;
+	background(): string
 
-  setBackground(background: string): void;
+	setBackground(background: string): void
 
-  backgroundAttachment(): string;
+	backgroundAttachment(): string
 
-  setBackgroundAttachment(backgroundAttachment: string): void;
+	setBackgroundAttachment(backgroundAttachment: string): void
 
-  backgroundColor(): string;
+	backgroundColor(): string
 
-  setBackgroundColor(backgroundColor: string): void;
+	setBackgroundColor(backgroundColor: string): void
 
-  backgroundImage(): string;
+	backgroundImage(): string
 
-  setBackgroundImage(backgroundImage: string): void;
+	setBackgroundImage(backgroundImage: string): void
 
-  backgroundPosition(): string;
+	backgroundPosition(): string
 
-  setBackgroundPosition(backgroundPosition: string): void;
+	setBackgroundPosition(backgroundPosition: string): void
 
-  backgroundRepeat(): string;
+	backgroundRepeat(): string
 
-  setBackgroundRepeat(backgroundRepeat: string): void;
+	setBackgroundRepeat(backgroundRepeat: string): void
 
-  border(): string;
+	border(): string
 
-  setBorder(border: string): void;
+	setBorder(border: string): void
 
-  borderCollapse(): string;
+	borderCollapse(): string
 
-  setBorderCollapse(borderCollapse: string): void;
+	setBorderCollapse(borderCollapse: string): void
 
-  borderColor(): string;
+	borderColor(): string
 
-  setBorderColor(borderColor: string): void;
+	setBorderColor(borderColor: string): void
 
-  borderSpacing(): string;
+	borderSpacing(): string
 
-  setBorderSpacing(borderSpacing: string): void;
+	setBorderSpacing(borderSpacing: string): void
 
-  borderStyle(): string;
+	borderStyle(): string
 
-  setBorderStyle(borderStyle: string): void;
+	setBorderStyle(borderStyle: string): void
 
-  borderTop(): string;
+	borderTop(): string
 
-  setBorderTop(borderTop: string): void;
+	setBorderTop(borderTop: string): void
 
-  borderRight(): string;
+	borderRight(): string
 
-  setBorderRight(borderRight: string): void;
+	setBorderRight(borderRight: string): void
 
-  borderBottom(): string;
+	borderBottom(): string
 
-  setBorderBottom(borderBottom: string): void;
+	setBorderBottom(borderBottom: string): void
 
-  borderLeft(): string;
+	borderLeft(): string
 
-  setBorderLeft(borderLeft: string): void;
+	setBorderLeft(borderLeft: string): void
 
-  borderTopColor(): string;
+	borderTopColor(): string
 
-  setBorderTopColor(borderTopColor: string): void;
+	setBorderTopColor(borderTopColor: string): void
 
-  borderRightColor(): string;
+	borderRightColor(): string
 
-  setBorderRightColor(borderRightColor: string): void;
+	setBorderRightColor(borderRightColor: string): void
 
-  borderBottomColor(): string;
+	borderBottomColor(): string
 
-  setBorderBottomColor(borderBottomColor: string): void;
+	setBorderBottomColor(borderBottomColor: string): void
 
-  borderLeftColor(): string;
+	borderLeftColor(): string
 
-  setBorderLeftColor(borderLeftColor: string): void;
+	setBorderLeftColor(borderLeftColor: string): void
 
-  borderTopStyle(): string;
+	borderTopStyle(): string
 
-  setBorderTopStyle(borderTopStyle: string): void;
+	setBorderTopStyle(borderTopStyle: string): void
 
-  borderRightStyle(): string;
+	borderRightStyle(): string
 
-  setBorderRightStyle(borderRightStyle: string): void;
+	setBorderRightStyle(borderRightStyle: string): void
 
-  borderBottomStyle(): string;
+	borderBottomStyle(): string
 
-  setBorderBottomStyle(borderBottomStyle: string): void;
+	setBorderBottomStyle(borderBottomStyle: string): void
 
-  borderLeftStyle(): string;
+	borderLeftStyle(): string
 
-  setBorderLeftStyle(borderLeftStyle: string): void;
+	setBorderLeftStyle(borderLeftStyle: string): void
 
-  borderTopWidth(): string;
+	borderTopWidth(): string
 
-  setBorderTopWidth(borderTopWidth: string): void;
+	setBorderTopWidth(borderTopWidth: string): void
 
-  borderRightWidth(): string;
+	borderRightWidth(): string
 
-  setBorderRightWidth(borderRightWidth: string): void;
+	setBorderRightWidth(borderRightWidth: string): void
 
-  borderBottomWidth(): string;
+	borderBottomWidth(): string
 
-  setBorderBottomWidth(borderBottomWidth: string): void;
+	setBorderBottomWidth(borderBottomWidth: string): void
 
-  borderLeftWidth(): string;
+	borderLeftWidth(): string
 
-  setBorderLeftWidth(borderLeftWidth: string): void;
+	setBorderLeftWidth(borderLeftWidth: string): void
 
-  borderWidth(): string;
+	borderWidth(): string
 
-  setBorderWidth(borderWidth: string): void;
+	setBorderWidth(borderWidth: string): void
 
-  bottom(): string;
+	bottom(): string
 
-  setBottom(bottom: string): void;
+	setBottom(bottom: string): void
 
-  captionSide(): string;
+	captionSide(): string
 
-  setCaptionSide(captionSide: string): void;
+	setCaptionSide(captionSide: string): void
 
-  clear(): string;
+	clear(): string
 
-  setClear(clear: string): void;
+	setClear(clear: string): void
 
-  clip(): string;
+	clip(): string
 
-  setClip(clip: string): void;
+	setClip(clip: string): void
 
-  color(): string;
+	color(): string
 
-  setColor(color: string): void;
+	setColor(color: string): void
 
-  content(): string;
+	content(): string
 
-  setContent(content: string): void;
+	setContent(content: string): void
 
-  counterIncrement(): string;
+	counterIncrement(): string
 
-  setCounterIncrement(counterIncrement: string): void;
+	setCounterIncrement(counterIncrement: string): void
 
-  counterReset(): string;
+	counterReset(): string
 
-  setCounterReset(counterReset: string): void;
+	setCounterReset(counterReset: string): void
 
-  cue(): string;
+	cue(): string
 
-  setCue(cue: string): void;
+	setCue(cue: string): void
 
-  cueAfter(): string;
+	cueAfter(): string
 
-  setCueAfter(cueAfter: string): void;
+	setCueAfter(cueAfter: string): void
 
-  cueBefore(): string;
+	cueBefore(): string
 
-  setCueBefore(cueBefore: string): void;
+	setCueBefore(cueBefore: string): void
 
-  cursor(): string;
+	cursor(): string
 
-  setCursor(cursor: string): void;
+	setCursor(cursor: string): void
 
-  direction(): string;
+	direction(): string
 
-  setDirection(direction: string): void;
+	setDirection(direction: string): void
 
-  display(): string;
+	display(): string
 
-  setDisplay(display: string): void;
+	setDisplay(display: string): void
 
-  elevation(): string;
+	elevation(): string
 
-  setElevation(elevation: string): void;
+	setElevation(elevation: string): void
 
-  emptyCells(): string;
+	emptyCells(): string
 
-  setEmptyCells(emptyCells: string): void;
+	setEmptyCells(emptyCells: string): void
 
-  cssFloat(): string;
+	cssFloat(): string
 
-  setCssFloat(cssFloat: string): void;
+	setCssFloat(cssFloat: string): void
 
-  font(): string;
+	font(): string
 
-  setFont(font: string): void;
+	setFont(font: string): void
 
-  fontFamily(): string;
+	fontFamily(): string
 
-  setFontFamily(fontFamily: string): void;
+	setFontFamily(fontFamily: string): void
 
-  fontSize(): string;
+	fontSize(): string
 
-  setFontSize(fontSize: string): void;
+	setFontSize(fontSize: string): void
 
-  fontSizeAdjust(): string;
+	fontSizeAdjust(): string
 
-  setFontSizeAdjust(fontSizeAdjust: string): void;
+	setFontSizeAdjust(fontSizeAdjust: string): void
 
-  fontStretch(): string;
+	fontStretch(): string
 
-  setFontStretch(fontStretch: string): void;
+	setFontStretch(fontStretch: string): void
 
-  fontStyle(): string;
+	fontStyle(): string
 
-  setFontStyle(fontStyle: string): void;
+	setFontStyle(fontStyle: string): void
 
-  fontVariant(): string;
+	fontVariant(): string
 
-  setFontVariant(fontVariant: string): void;
+	setFontVariant(fontVariant: string): void
 
-  fontWeight(): string;
+	fontWeight(): string
 
-  setFontWeight(fontWeight: string): void;
+	setFontWeight(fontWeight: string): void
 
-  height(): string;
+	height(): string
 
-  setHeight(height: string): void;
+	setHeight(height: string): void
 
-  left(): string;
+	left(): string
 
-  setLeft(left: string): void;
+	setLeft(left: string): void
 
-  letterSpacing(): string;
+	letterSpacing(): string
 
-  setLetterSpacing(letterSpacing: string): void;
+	setLetterSpacing(letterSpacing: string): void
 
-  lineHeight(): string;
+	lineHeight(): string
 
-  setLineHeight(lineHeight: string): void;
+	setLineHeight(lineHeight: string): void
 
-  listStyle(): string;
+	listStyle(): string
 
-  setListStyle(listStyle: string): void;
+	setListStyle(listStyle: string): void
 
-  listStyleImage(): string;
+	listStyleImage(): string
 
-  setListStyleImage(listStyleImage: string): void;
+	setListStyleImage(listStyleImage: string): void
 
-  listStylePosition(): string;
+	listStylePosition(): string
 
-  setListStylePosition(listStylePosition: string): void;
+	setListStylePosition(listStylePosition: string): void
 
-  listStyleType(): string;
+	listStyleType(): string
 
-  setListStyleType(listStyleType: string): void;
+	setListStyleType(listStyleType: string): void
 
-  margin(): string;
+	margin(): string
 
-  setMargin(margin: string): void;
+	setMargin(margin: string): void
 
-  marginTop(): string;
+	marginTop(): string
 
-  setMarginTop(marginTop: string): void;
+	setMarginTop(marginTop: string): void
 
-  marginRight(): string;
+	marginRight(): string
 
-  setMarginRight(marginRight: string): void;
+	setMarginRight(marginRight: string): void
 
-  marginBottom(): string;
+	marginBottom(): string
 
-  setMarginBottom(marginBottom: string): void;
+	setMarginBottom(marginBottom: string): void
 
-  marginLeft(): string;
+	marginLeft(): string
 
-  setMarginLeft(marginLeft: string): void;
+	setMarginLeft(marginLeft: string): void
 
-  markerOffset(): string;
+	markerOffset(): string
 
-  setMarkerOffset(markerOffset: string): void;
+	setMarkerOffset(markerOffset: string): void
 
-  marks(): string;
+	marks(): string
 
-  setMarks(marks: string): void;
+	setMarks(marks: string): void
 
-  maxHeight(): string;
+	maxHeight(): string
 
-  setMaxHeight(maxHeight: string): void;
+	setMaxHeight(maxHeight: string): void
 
-  maxWidth(): string;
+	maxWidth(): string
 
-  setMaxWidth(maxWidth: string): void;
+	setMaxWidth(maxWidth: string): void
 
-  minHeight(): string;
+	minHeight(): string
 
-  setMinHeight(minHeight: string): void;
+	setMinHeight(minHeight: string): void
 
-  minWidth(): string;
+	minWidth(): string
 
-  setMinWidth(minWidth: string): void;
+	setMinWidth(minWidth: string): void
 
-  orphans(): string;
+	orphans(): string
 
-  setOrphans(orphans: string): void;
+	setOrphans(orphans: string): void
 
-  outline(): string;
+	outline(): string
 
-  setOutline(outline: string): void;
+	setOutline(outline: string): void
 
-  outlineColor(): string;
+	outlineColor(): string
 
-  setOutlineColor(outlineColor: string): void;
+	setOutlineColor(outlineColor: string): void
 
-  outlineStyle(): string;
+	outlineStyle(): string
 
-  setOutlineStyle(outlineStyle: string): void;
+	setOutlineStyle(outlineStyle: string): void
 
-  outlineWidth(): string;
+	outlineWidth(): string
 
-  setOutlineWidth(outlineWidth: string): void;
+	setOutlineWidth(outlineWidth: string): void
 
-  overflow(): string;
+	overflow(): string
 
-  setOverflow(overflow: string): void;
+	setOverflow(overflow: string): void
 
-  padding(): string;
+	padding(): string
 
-  setPadding(padding: string): void;
+	setPadding(padding: string): void
 
-  paddingTop(): string;
+	paddingTop(): string
 
-  setPaddingTop(paddingTop: string): void;
+	setPaddingTop(paddingTop: string): void
 
-  paddingRight(): string;
+	paddingRight(): string
 
-  setPaddingRight(paddingRight: string): void;
+	setPaddingRight(paddingRight: string): void
 
-  paddingBottom(): string;
+	paddingBottom(): string
 
-  setPaddingBottom(paddingBottom: string): void;
+	setPaddingBottom(paddingBottom: string): void
 
-  paddingLeft(): string;
+	paddingLeft(): string
 
-  setPaddingLeft(paddingLeft: string): void;
+	setPaddingLeft(paddingLeft: string): void
 
-  page(): string;
+	page(): string
 
-  setPage(page: string): void;
+	setPage(page: string): void
 
-  pageBreakAfter(): string;
+	pageBreakAfter(): string
 
-  setPageBreakAfter(pageBreakAfter: string): void;
+	setPageBreakAfter(pageBreakAfter: string): void
 
-  pageBreakBefore(): string;
+	pageBreakBefore(): string
 
-  setPageBreakBefore(pageBreakBefore: string): void;
+	setPageBreakBefore(pageBreakBefore: string): void
 
-  pageBreakInside(): string;
+	pageBreakInside(): string
 
-  setPageBreakInside(pageBreakInside: string): void;
+	setPageBreakInside(pageBreakInside: string): void
 
-  pause(): string;
+	pause(): string
 
-  setPause(pause: string): void;
+	setPause(pause: string): void
 
-  pauseAfter(): string;
+	pauseAfter(): string
 
-  setPauseAfter(pauseAfter: string): void;
+	setPauseAfter(pauseAfter: string): void
 
-  pauseBefore(): string;
+	pauseBefore(): string
 
-  setPauseBefore(pauseBefore: string): void;
+	setPauseBefore(pauseBefore: string): void
 
-  pitch(): string;
+	pitch(): string
 
-  setPitch(pitch: string): void;
+	setPitch(pitch: string): void
 
-  pitchRange(): string;
+	pitchRange(): string
 
-  setPitchRange(pitchRange: string): void;
+	setPitchRange(pitchRange: string): void
 
-  playDuring(): string;
+	playDuring(): string
 
-  setPlayDuring(playDuring: string): void;
+	setPlayDuring(playDuring: string): void
 
-  position(): string;
+	position(): string
 
-  setPosition(position: string): void;
+	setPosition(position: string): void
 
-  quotes(): string;
+	quotes(): string
 
-  setQuotes(quotes: string): void;
+	setQuotes(quotes: string): void
 
-  richness(): string;
+	richness(): string
 
-  setRichness(richness: string): void;
+	setRichness(richness: string): void
 
-  right(): string;
+	right(): string
 
-  setRight(right: string): void;
+	setRight(right: string): void
 
-  size(): string;
+	size(): string
 
-  setSize(size: string): void;
+	setSize(size: string): void
 
-  speak(): string;
+	speak(): string
 
-  setSpeak(speak: string): void;
+	setSpeak(speak: string): void
 
-  speakHeader(): string;
+	speakHeader(): string
 
-  setSpeakHeader(speakHeader: string): void;
+	setSpeakHeader(speakHeader: string): void
 
-  speakNumeral(): string;
+	speakNumeral(): string
 
-  setSpeakNumeral(speakNumeral: string): void;
+	setSpeakNumeral(speakNumeral: string): void
 
-  speakPunctuation(): string;
+	speakPunctuation(): string
 
-  setSpeakPunctuation(speakPunctuation: string): void;
+	setSpeakPunctuation(speakPunctuation: string): void
 
-  speechRate(): string;
+	speechRate(): string
 
-  setSpeechRate(speechRate: string): void;
+	setSpeechRate(speechRate: string): void
 
-  stress(): string;
+	stress(): string
 
-  setStress(stress: string): void;
+	setStress(stress: string): void
 
-  tableLayout(): string;
+	tableLayout(): string
 
-  setTableLayout(tableLayout: string): void;
+	setTableLayout(tableLayout: string): void
 
-  textAlign(): string;
+	textAlign(): string
 
-  setTextAlign(textAlign: string): void;
+	setTextAlign(textAlign: string): void
 
-  textDecoration(): string;
+	textDecoration(): string
 
-  setTextDecoration(textDecoration: string): void;
+	setTextDecoration(textDecoration: string): void
 
-  textIndent(): string;
+	textIndent(): string
 
-  setTextIndent(textIndent: string): void;
+	setTextIndent(textIndent: string): void
 
-  textShadow(): string;
+	textShadow(): string
 
-  setTextShadow(textShadow: string): void;
+	setTextShadow(textShadow: string): void
 
-  textTransform(): string;
+	textTransform(): string
 
-  setTextTransform(textTransform: string): void;
+	setTextTransform(textTransform: string): void
 
-  top(): string;
+	top(): string
 
-  setTop(top: string): void;
+	setTop(top: string): void
 
-  unicodeBidi(): string;
+	unicodeBidi(): string
 
-  setUnicodeBidi(unicodeBidi: string): void;
+	setUnicodeBidi(unicodeBidi: string): void
 
-  verticalAlign(): string;
+	verticalAlign(): string
 
-  setVerticalAlign(verticalAlign: string): void;
+	setVerticalAlign(verticalAlign: string): void
 
-  visibility(): string;
+	visibility(): string
 
-  setVisibility(visibility: string): void;
+	setVisibility(visibility: string): void
 
-  voiceFamily(): string;
+	voiceFamily(): string
 
-  setVoiceFamily(voiceFamily: string): void;
+	setVoiceFamily(voiceFamily: string): void
 
-  volume(): string;
+	volume(): string
 
-  setVolume(volume: string): void;
+	setVolume(volume: string): void
 
-  whiteSpace(): string;
+	whiteSpace(): string
 
-  setWhiteSpace(whiteSpace: string): void;
+	setWhiteSpace(whiteSpace: string): void
 
-  widows(): string;
+	widows(): string
 
-  setWidows(widows: string): void;
+	setWidows(widows: string): void
 
-  width(): string;
+	width(): string
 
-  setWidth(width: string): void;
+	setWidth(width: string): void
 
-  wordSpacing(): string;
+	wordSpacing(): string
 
-  setWordSpacing(wordSpacing: string): void;
+	setWordSpacing(wordSpacing: string): void
 
-  zIndex(): string;
+	zIndex(): string
 
-  setZIndex(zIndex: string): void;
+	setZIndex(zIndex: string): void
 }
 
 export declare class DOMCSSRuleList extends DOMObject {
-  readonly length: number;
+	readonly length: number
 
-  item(index: number): DOMCSSRule;
+	item(index: number): DOMCSSRule
 }
 
 export declare class DOMCSSMediaRule extends DOMCSSRule {
-  readonly media: DOMMediaList;
+	readonly media: DOMMediaList
 
-  readonly cssRules: DOMCSSRuleList;
+	readonly cssRules: DOMCSSRuleList
 
-  insertRuleIndex(rule: string, index: number): number;
+	insertRuleIndex(rule: string, index: number): number
 
-  deleteRule(index: number): void;
+	deleteRule(index: number): void
 
-  insertRule(rule: string, index: number): number;
+	insertRule(rule: string, index: number): number
 }
 
 export declare class DOMCSSImportRule extends DOMCSSRule {
-  readonly href: string;
+	readonly href: string
 
-  readonly media: DOMMediaList;
+	readonly media: DOMMediaList
 
-  readonly styleSheet: DOMCSSStyleSheet;
+	readonly styleSheet: DOMCSSStyleSheet
 }
 
 export declare class DOMCSSFontFaceRule extends DOMCSSRule {
-  readonly style: DOMCSSStyleDeclaration;
+	readonly style: DOMCSSStyleDeclaration
 }
 
 export declare class DOMStyleSheet extends DOMObject {
-  readonly type: string;
+	readonly type: string
 
-  disabled: boolean;
+	disabled: boolean
 
-  readonly ownerNode: DOMNode;
+	readonly ownerNode: DOMNode
 
-  readonly parentStyleSheet: DOMStyleSheet;
+	readonly parentStyleSheet: DOMStyleSheet
 
-  readonly href: string;
+	readonly href: string
 
-  readonly title: string;
+	readonly title: string
 
-  readonly media: DOMMediaList;
+	readonly media: DOMMediaList
 }
 
 export declare class DOMNodeList extends DOMObject {
-  readonly length: number;
+	readonly length: number
 
-  item(index: number): DOMNode;
+	item(index: number): DOMNode
 }
 
 export declare class DOMImplementation extends DOMObject {
-  hasFeatureVersion(feature: string, version: string): boolean;
+	hasFeatureVersion(feature: string, version: string): boolean
 
-  createDocumentTypePublicIdSystemId(qualifiedName: string, publicId: string, systemId: string): DOMDocumentType;
+	createDocumentTypePublicIdSystemId(
+		qualifiedName: string,
+		publicId: string,
+		systemId: string,
+	): DOMDocumentType
 
-  createDocumentQualifiedNameDoctype(namespaceURI: string, qualifiedName: string, doctype: DOMDocumentType): DOMDocument;
+	createDocumentQualifiedNameDoctype(
+		namespaceURI: string,
+		qualifiedName: string,
+		doctype: DOMDocumentType,
+	): DOMDocument
 
-  createCSSStyleSheetMedia(title: string, media: string): DOMCSSStyleSheet;
+	createCSSStyleSheetMedia(title: string, media: string): DOMCSSStyleSheet
 
-  createHTMLDocument(title: string): DOMHTMLDocument;
+	createHTMLDocument(title: string): DOMHTMLDocument
 
-  hasFeature(feature: string, version: string): boolean;
+	hasFeature(feature: string, version: string): boolean
 
-  createDocumentType(qualifiedName: string, publicId: string, systemId: string): DOMDocumentType;
+	createDocumentType(qualifiedName: string, publicId: string, systemId: string): DOMDocumentType
 
-  createDocument(namespaceURI: string, qualifiedName: string, doctype: DOMDocumentType): DOMDocument;
+	createDocument(namespaceURI: string, qualifiedName: string, doctype: DOMDocumentType): DOMDocument
 
-  createCSSStyleSheet(title: string, media: string): DOMCSSStyleSheet;
+	createCSSStyleSheet(title: string, media: string): DOMCSSStyleSheet
 }
 
-export declare class DOMEntityReference extends DOMNode {
-}
+export declare class DOMEntityReference extends DOMNode {}
 
 export declare class DOMDocument extends DOMNode {
-  readonly doctype: DOMDocumentType;
+	readonly doctype: DOMDocumentType
 
-  readonly implementation: DOMImplementation;
+	readonly implementation: DOMImplementation
 
-  readonly documentElement: DOMElement;
+	readonly documentElement: DOMElement
 
-  readonly inputEncoding: string;
+	readonly inputEncoding: string
 
-  readonly xmlEncoding: string;
+	readonly xmlEncoding: string
 
-  xmlVersion: string;
+	xmlVersion: string
 
-  xmlStandalone: boolean;
+	xmlStandalone: boolean
 
-  documentURI: string;
+	documentURI: string
 
-  readonly defaultView: DOMAbstractView;
+	readonly defaultView: DOMAbstractView
 
-  readonly styleSheets: DOMStyleSheetList;
+	readonly styleSheets: DOMStyleSheetList
 
-  title: string;
+	title: string
 
-  readonly referrer: string;
+	readonly referrer: string
 
-  readonly domain: string;
+	readonly domain: string
 
-  readonly URL: string;
+	readonly URL: string
 
-  cookie: string;
+	cookie: string
 
-  body: DOMHTMLElement;
+	body: DOMHTMLElement
 
-  readonly images: DOMHTMLCollection;
+	readonly images: DOMHTMLCollection
 
-  readonly applets: DOMHTMLCollection;
+	readonly applets: DOMHTMLCollection
 
-  readonly links: DOMHTMLCollection;
+	readonly links: DOMHTMLCollection
 
-  readonly forms: DOMHTMLCollection;
+	readonly forms: DOMHTMLCollection
 
-  readonly anchors: DOMHTMLCollection;
+	readonly anchors: DOMHTMLCollection
 
-  readonly lastModified: string;
+	readonly lastModified: string
 
-  charset: string;
+	charset: string
 
-  readonly defaultCharset: string;
+	readonly defaultCharset: string
 
-  readonly readyState: string;
+	readonly readyState: string
 
-  readonly characterSet: string;
+	readonly characterSet: string
 
-  readonly preferredStylesheetSet: string;
+	readonly preferredStylesheetSet: string
 
-  selectedStylesheetSet: string;
+	selectedStylesheetSet: string
 
-  readonly activeElement: DOMElement;
+	readonly activeElement: DOMElement
 
-  createElement(tagName: string): DOMElement;
+	createElement(tagName: string): DOMElement
 
-  createDocumentFragment(): DOMDocumentFragment;
+	createDocumentFragment(): DOMDocumentFragment
 
-  createTextNode(data: string): DOMText;
+	createTextNode(data: string): DOMText
 
-  createComment(data: string): DOMComment;
+	createComment(data: string): DOMComment
 
-  createCDATASection(data: string): DOMCDATASection;
+	createCDATASection(data: string): DOMCDATASection
 
-  createProcessingInstructionData(target: string, data: string): DOMProcessingInstruction;
+	createProcessingInstructionData(target: string, data: string): DOMProcessingInstruction
 
-  createAttribute(name: string): DOMAttr;
+	createAttribute(name: string): DOMAttr
 
-  createEntityReference(name: string): DOMEntityReference;
+	createEntityReference(name: string): DOMEntityReference
 
-  getElementsByTagName(tagname: string): DOMNodeList;
+	getElementsByTagName(tagname: string): DOMNodeList
 
-  importNodeDeep(importedNode: DOMNode, deep: boolean): DOMNode;
+	importNodeDeep(importedNode: DOMNode, deep: boolean): DOMNode
 
-  createElementNSQualifiedName(namespaceURI: string, qualifiedName: string): DOMElement;
+	createElementNSQualifiedName(namespaceURI: string, qualifiedName: string): DOMElement
 
-  createAttributeNSQualifiedName(namespaceURI: string, qualifiedName: string): DOMAttr;
+	createAttributeNSQualifiedName(namespaceURI: string, qualifiedName: string): DOMAttr
 
-  getElementsByTagNameNSLocalName(namespaceURI: string, localName: string): DOMNodeList;
+	getElementsByTagNameNSLocalName(namespaceURI: string, localName: string): DOMNodeList
 
-  adoptNode(source: DOMNode): DOMNode;
+	adoptNode(source: DOMNode): DOMNode
 
-  createEvent(eventType: string): DOMEvent;
+	createEvent(eventType: string): DOMEvent
 
-  createRange(): DOMRange;
+	createRange(): DOMRange
 
-  createNodeIteratorWhatToShowFilterExpandEntityReferences(root: DOMNode, whatToShow: number, filter: DOMNodeFilter, expandEntityReferences: boolean): DOMNodeIterator;
+	createNodeIteratorWhatToShowFilterExpandEntityReferences(
+		root: DOMNode,
+		whatToShow: number,
+		filter: DOMNodeFilter,
+		expandEntityReferences: boolean,
+	): DOMNodeIterator
 
-  createTreeWalkerWhatToShowFilterExpandEntityReferences(root: DOMNode, whatToShow: number, filter: DOMNodeFilter, expandEntityReferences: boolean): DOMTreeWalker;
+	createTreeWalkerWhatToShowFilterExpandEntityReferences(
+		root: DOMNode,
+		whatToShow: number,
+		filter: DOMNodeFilter,
+		expandEntityReferences: boolean,
+	): DOMTreeWalker
 
-  getOverrideStylePseudoElement(element: DOMElement, pseudoElement: string): DOMCSSStyleDeclaration;
+	getOverrideStylePseudoElement(element: DOMElement, pseudoElement: string): DOMCSSStyleDeclaration
 
-  createExpressionResolver(expression: string, resolver: DOMXPathNSResolver): DOMXPathExpression;
+	createExpressionResolver(expression: string, resolver: DOMXPathNSResolver): DOMXPathExpression
 
-  createNSResolver(nodeResolver: DOMNode): DOMXPathNSResolver;
+	createNSResolver(nodeResolver: DOMNode): DOMXPathNSResolver
 
-  evaluateContextNodeResolverTypeInResult(expression: string, contextNode: DOMNode, resolver: DOMXPathNSResolver, type: number, inResult: DOMXPathResult): DOMXPathResult;
+	evaluateContextNodeResolverTypeInResult(
+		expression: string,
+		contextNode: DOMNode,
+		resolver: DOMXPathNSResolver,
+		type: number,
+		inResult: DOMXPathResult,
+	): DOMXPathResult
 
-  execCommandUserInterfaceValue(command: string, userInterface: boolean, value: string): boolean;
+	execCommandUserInterfaceValue(command: string, userInterface: boolean, value: string): boolean
 
-  execCommandUserInterface(command: string, userInterface: boolean): boolean;
+	execCommandUserInterface(command: string, userInterface: boolean): boolean
 
-  execCommand(command: string): boolean;
+	execCommand(command: string): boolean
 
-  queryCommandEnabled(command: string): boolean;
+	queryCommandEnabled(command: string): boolean
 
-  queryCommandIndeterm(command: string): boolean;
+	queryCommandIndeterm(command: string): boolean
 
-  queryCommandState(command: string): boolean;
+	queryCommandState(command: string): boolean
 
-  queryCommandSupported(command: string): boolean;
+	queryCommandSupported(command: string): boolean
 
-  queryCommandValue(command: string): string;
+	queryCommandValue(command: string): string
 
-  getElementsByName(elementName: string): DOMNodeList;
+	getElementsByName(elementName: string): DOMNodeList
 
-  elementFromPointY(x: number, y: number): DOMElement;
+	elementFromPointY(x: number, y: number): DOMElement
 
-  createCSSStyleDeclaration(): DOMCSSStyleDeclaration;
+	createCSSStyleDeclaration(): DOMCSSStyleDeclaration
 
-  getComputedStylePseudoElement(element: DOMElement, pseudoElement: string): DOMCSSStyleDeclaration;
+	getComputedStylePseudoElement(element: DOMElement, pseudoElement: string): DOMCSSStyleDeclaration
 
-  getMatchedCSSRulesPseudoElement(element: DOMElement, pseudoElement: string): DOMCSSRuleList;
+	getMatchedCSSRulesPseudoElement(element: DOMElement, pseudoElement: string): DOMCSSRuleList
 
-  getMatchedCSSRulesPseudoElementAuthorOnly(element: DOMElement, pseudoElement: string, authorOnly: boolean): DOMCSSRuleList;
+	getMatchedCSSRulesPseudoElementAuthorOnly(
+		element: DOMElement,
+		pseudoElement: string,
+		authorOnly: boolean,
+	): DOMCSSRuleList
 
-  getElementsByClassName(classNames: string): DOMNodeList;
+	getElementsByClassName(classNames: string): DOMNodeList
 
-  hasFocus(): boolean;
+	hasFocus(): boolean
 
-  webkitCancelFullScreen(): void;
+	webkitCancelFullScreen(): void
 
-  getElementById(elementId: string): DOMElement;
+	getElementById(elementId: string): DOMElement
 
-  querySelector(selectors: string): DOMElement;
+	querySelector(selectors: string): DOMElement
 
-  querySelectorAll(selectors: string): DOMNodeList;
+	querySelectorAll(selectors: string): DOMNodeList
 
-  createProcessingInstruction(target: string, data: string): DOMProcessingInstruction;
+	createProcessingInstruction(target: string, data: string): DOMProcessingInstruction
 
-  importNode(importedNode: DOMNode, deep: boolean): DOMNode;
+	importNode(importedNode: DOMNode, deep: boolean): DOMNode
 
-  createElementNS(namespaceURI: string, qualifiedName: string): DOMElement;
+	createElementNS(namespaceURI: string, qualifiedName: string): DOMElement
 
-  createAttributeNS(namespaceURI: string, qualifiedName: string): DOMAttr;
+	createAttributeNS(namespaceURI: string, qualifiedName: string): DOMAttr
 
-  getElementsByTagNameNS(namespaceURI: string, localName: string): DOMNodeList;
+	getElementsByTagNameNS(namespaceURI: string, localName: string): DOMNodeList
 
-  createNodeIterator(root: DOMNode, whatToShow: number, filter: DOMNodeFilter, expandEntityReferences: boolean): DOMNodeIterator;
+	createNodeIterator(
+		root: DOMNode,
+		whatToShow: number,
+		filter: DOMNodeFilter,
+		expandEntityReferences: boolean,
+	): DOMNodeIterator
 
-  createTreeWalker(root: DOMNode, whatToShow: number, filter: DOMNodeFilter, expandEntityReferences: boolean): DOMTreeWalker;
+	createTreeWalker(
+		root: DOMNode,
+		whatToShow: number,
+		filter: DOMNodeFilter,
+		expandEntityReferences: boolean,
+	): DOMTreeWalker
 
-  getOverrideStyle(element: DOMElement, pseudoElement: string): DOMCSSStyleDeclaration;
+	getOverrideStyle(element: DOMElement, pseudoElement: string): DOMCSSStyleDeclaration
 
-  createExpression(expression: string, resolver: DOMXPathNSResolver): DOMXPathExpression;
+	createExpression(expression: string, resolver: DOMXPathNSResolver): DOMXPathExpression
 
-  evaluate(expression: string, contextNode: DOMNode, resolver: DOMXPathNSResolver, type: number, inResult: DOMXPathResult): DOMXPathResult;
+	evaluate(
+		expression: string,
+		contextNode: DOMNode,
+		resolver: DOMXPathNSResolver,
+		type: number,
+		inResult: DOMXPathResult,
+	): DOMXPathResult
 
-  getComputedStyle(element: DOMElement, pseudoElement: string): DOMCSSStyleDeclaration;
+	getComputedStyle(element: DOMElement, pseudoElement: string): DOMCSSStyleDeclaration
 
-  readonly webFrame: WebFrame;
+	readonly webFrame: WebFrame
 
-  URLWithAttributeString(string: string): NSURL;
+	URLWithAttributeString(string: string): NSURL
 }
 
-export declare class DOMComment extends DOMCharacterData {
-}
+export declare class DOMComment extends DOMCharacterData {}
 
-export declare class DOMCDATASection extends DOMText {
-}
+export declare class DOMCDATASection extends DOMText {}
 
 export declare class DOMText extends DOMCharacterData {
-  readonly wholeText: string;
+	readonly wholeText: string
 
-  splitText(offset: number): DOMText;
+	splitText(offset: number): DOMText
 
-  replaceWholeText(content: string): DOMText;
+	replaceWholeText(content: string): DOMText
 }
 
 export declare class DOMAttr extends DOMNode {
-  readonly name: string;
+	readonly name: string
 
-  readonly specified: boolean;
+	readonly specified: boolean
 
-  value: string;
+	value: string
 
-  readonly ownerElement: DOMElement;
+	readonly ownerElement: DOMElement
 
-  readonly style: DOMCSSStyleDeclaration;
+	readonly style: DOMCSSStyleDeclaration
 }
 
 export declare class DOMNode extends DOMObject implements DOMEventTarget {
-  readonly nodeName: string;
+	readonly nodeName: string
 
-  nodeValue: string;
+	nodeValue: string
 
-  readonly nodeType: number;
+	readonly nodeType: number
 
-  readonly parentNode: DOMNode;
+	readonly parentNode: DOMNode
 
-  readonly childNodes: DOMNodeList;
+	readonly childNodes: DOMNodeList
 
-  readonly firstChild: DOMNode;
+	readonly firstChild: DOMNode
 
-  readonly lastChild: DOMNode;
+	readonly lastChild: DOMNode
 
-  readonly previousSibling: DOMNode;
+	readonly previousSibling: DOMNode
 
-  readonly nextSibling: DOMNode;
+	readonly nextSibling: DOMNode
 
-  readonly ownerDocument: DOMDocument;
+	readonly ownerDocument: DOMDocument
 
-  readonly namespaceURI: string;
+	readonly namespaceURI: string
 
-  prefix: string;
+	prefix: string
 
-  readonly localName: string;
+	readonly localName: string
 
-  readonly attributes: DOMNamedNodeMap;
+	readonly attributes: DOMNamedNodeMap
 
-  readonly baseURI: string;
+	readonly baseURI: string
 
-  textContent: string;
+	textContent: string
 
-  readonly parentElement: DOMElement;
+	readonly parentElement: DOMElement
 
-  readonly isContentEditable: boolean;
+	readonly isContentEditable: boolean
 
-  insertBeforeRefChild(newChild: DOMNode, refChild: DOMNode): DOMNode;
+	insertBeforeRefChild(newChild: DOMNode, refChild: DOMNode): DOMNode
 
-  replaceChildOldChild(newChild: DOMNode, oldChild: DOMNode): DOMNode;
+	replaceChildOldChild(newChild: DOMNode, oldChild: DOMNode): DOMNode
 
-  removeChild(oldChild: DOMNode): DOMNode;
+	removeChild(oldChild: DOMNode): DOMNode
 
-  appendChild(newChild: DOMNode): DOMNode;
+	appendChild(newChild: DOMNode): DOMNode
 
-  hasChildNodes(): boolean;
+	hasChildNodes(): boolean
 
-  cloneNode(deep: boolean): DOMNode;
+	cloneNode(deep: boolean): DOMNode
 
-  normalize(): void;
+	normalize(): void
 
-  isSupportedVersion(feature: string, version: string): boolean;
+	isSupportedVersion(feature: string, version: string): boolean
 
-  hasAttributes(): boolean;
+	hasAttributes(): boolean
 
-  isSameNode(other: DOMNode): boolean;
+	isSameNode(other: DOMNode): boolean
 
-  isEqualNode(other: DOMNode): boolean;
+	isEqualNode(other: DOMNode): boolean
 
-  lookupPrefix(namespaceURI: string): string;
+	lookupPrefix(namespaceURI: string): string
 
-  lookupNamespaceURI(prefix: string): string;
+	lookupNamespaceURI(prefix: string): string
 
-  isDefaultNamespace(namespaceURI: string): boolean;
+	isDefaultNamespace(namespaceURI: string): boolean
 
-  compareDocumentPosition(other: DOMNode): number;
+	compareDocumentPosition(other: DOMNode): number
 
-  contains(other: DOMNode): boolean;
+	contains(other: DOMNode): boolean
 
-  insertBefore(newChild: DOMNode, refChild: DOMNode): DOMNode;
+	insertBefore(newChild: DOMNode, refChild: DOMNode): DOMNode
 
-  replaceChild(newChild: DOMNode, oldChild: DOMNode): DOMNode;
+	replaceChild(newChild: DOMNode, oldChild: DOMNode): DOMNode
 
-  isSupported(feature: string, version: string): boolean;
+	isSupported(feature: string, version: string): boolean
 
-  boundingBox(): CGRect;
+	boundingBox(): CGRect
 
-  lineBoxRects(): NSArray;
+	lineBoxRects(): NSArray
 
-  readonly webArchive: WebArchive;
+	readonly webArchive: WebArchive
 
-  addEventListenerListenerUseCapture(type: string, listener: DOMEventListener, useCapture: boolean): void;
+	addEventListenerListenerUseCapture(
+		type: string,
+		listener: DOMEventListener,
+		useCapture: boolean,
+	): void
 
-  removeEventListenerListenerUseCapture(type: string, listener: DOMEventListener, useCapture: boolean): void;
+	removeEventListenerListenerUseCapture(
+		type: string,
+		listener: DOMEventListener,
+		useCapture: boolean,
+	): void
 
-  dispatchEvent(event: DOMEvent): boolean;
+	dispatchEvent(event: DOMEvent): boolean
 
-  addEventListener(type: string, listener: DOMEventListener, useCapture: boolean): void;
+	addEventListener(type: string, listener: DOMEventListener, useCapture: boolean): void
 
-  removeEventListener(type: string, listener: DOMEventListener, useCapture: boolean): void;
+	removeEventListener(type: string, listener: DOMEventListener, useCapture: boolean): void
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 export declare class WebUndefined extends NSObject implements NSCoding, NSCopying {
-  static undefined(): WebUndefined;
+	static undefined(): WebUndefined
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 export declare class WebScriptObject extends NSObject {
-  static throwException(exceptionMessage: string): boolean;
+	static throwException(exceptionMessage: string): boolean
 
-  JSObject(): interop.Pointer;
+	JSObject(): interop.Pointer
 
-  callWebScriptMethodWithArguments(name: string, arguments$: NSArray<interop.Object> | Array<interop.Object>): interop.Object;
+	callWebScriptMethodWithArguments(
+		name: string,
+		arguments$: NSArray<interop.Object> | Array<interop.Object>,
+	): interop.Object
 
-  evaluateWebScript(script: string): interop.Object;
+	evaluateWebScript(script: string): interop.Object
 
-  removeWebScriptKey(name: string): void;
+	removeWebScriptKey(name: string): void
 
-  stringRepresentation(): string;
+	stringRepresentation(): string
 
-  webScriptValueAtIndex(index: number): interop.Object;
+	webScriptValueAtIndex(index: number): interop.Object
 
-  setWebScriptValueAtIndexValue(index: number, value: interop.Object): void;
+	setWebScriptValueAtIndexValue(index: number, value: interop.Object): void
 
-  setException(description: string): void;
+	setException(description: string): void
 
-  JSValue(): JSValue;
+	JSValue(): JSValue
 }
 
 export declare class WKWebsiteDataStore extends NSObject implements NSSecureCoding {
-  static defaultDataStore(): WKWebsiteDataStore;
+	static defaultDataStore(): WKWebsiteDataStore
 
-  static nonPersistentDataStore(): WKWebsiteDataStore;
+	static nonPersistentDataStore(): WKWebsiteDataStore
 
-  readonly persistent: boolean;
+	readonly persistent: boolean
 
-  static allWebsiteDataTypes(): NSSet;
+	static allWebsiteDataTypes(): NSSet
 
-  fetchDataRecordsOfTypesCompletionHandler(dataTypes: NSSet, completionHandler: (p1: NSArray<interop.Object> | Array<interop.Object>) => void): void;
+	fetchDataRecordsOfTypesCompletionHandler(
+		dataTypes: NSSet,
+		completionHandler: (p1: NSArray<interop.Object> | Array<interop.Object>) => void,
+	): void
 
-  removeDataOfTypesForDataRecordsCompletionHandler(dataTypes: NSSet, dataRecords: NSArray<interop.Object> | Array<interop.Object>, completionHandler: () => void): void;
+	removeDataOfTypesForDataRecordsCompletionHandler(
+		dataTypes: NSSet,
+		dataRecords: NSArray<interop.Object> | Array<interop.Object>,
+		completionHandler: () => void,
+	): void
 
-  removeDataOfTypesModifiedSinceCompletionHandler(dataTypes: NSSet, date: NSDate, completionHandler: () => void): void;
+	removeDataOfTypesModifiedSinceCompletionHandler(
+		dataTypes: NSSet,
+		date: NSDate,
+		completionHandler: () => void,
+	): void
 
-  readonly httpCookieStore: WKHTTPCookieStore;
+	readonly httpCookieStore: WKHTTPCookieStore
 
-  isPersistent(): boolean;
+	isPersistent(): boolean
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 export declare class WKWebViewConfiguration extends NSObject implements NSSecureCoding, NSCopying {
-  processPool: WKProcessPool;
+	processPool: WKProcessPool
 
-  preferences: WKPreferences;
+	preferences: WKPreferences
 
-  userContentController: WKUserContentController;
+	userContentController: WKUserContentController
 
-  websiteDataStore: WKWebsiteDataStore;
+	websiteDataStore: WKWebsiteDataStore
 
-  suppressesIncrementalRendering: boolean;
+	suppressesIncrementalRendering: boolean
 
-  applicationNameForUserAgent: string;
+	applicationNameForUserAgent: string
 
-  allowsAirPlayForMediaPlayback: boolean;
+	allowsAirPlayForMediaPlayback: boolean
 
-  mediaTypesRequiringUserActionForPlayback: interop.Enum<typeof WKAudiovisualMediaTypes>;
+	mediaTypesRequiringUserActionForPlayback: interop.Enum<typeof WKAudiovisualMediaTypes>
 
-  defaultWebpagePreferences: WKWebpagePreferences;
+	defaultWebpagePreferences: WKWebpagePreferences
 
-  limitsNavigationsToAppBoundDomains: boolean;
+	limitsNavigationsToAppBoundDomains: boolean
 
-  userInterfaceDirectionPolicy: interop.Enum<typeof WKUserInterfaceDirectionPolicy>;
+	userInterfaceDirectionPolicy: interop.Enum<typeof WKUserInterfaceDirectionPolicy>
 
-  setURLSchemeHandlerForURLScheme(urlSchemeHandler: WKURLSchemeHandler | null, urlScheme: string): void;
+	setURLSchemeHandlerForURLScheme(
+		urlSchemeHandler: WKURLSchemeHandler | null,
+		urlScheme: string,
+	): void
 
-  urlSchemeHandlerForURLScheme(urlScheme: string): WKURLSchemeHandler;
+	urlSchemeHandlerForURLScheme(urlScheme: string): WKURLSchemeHandler
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 export declare class WKUserScript extends NSObject implements NSCopying {
-  readonly source: string;
+	readonly source: string
 
-  readonly injectionTime: interop.Enum<typeof WKUserScriptInjectionTime>;
+	readonly injectionTime: interop.Enum<typeof WKUserScriptInjectionTime>
 
-  readonly forMainFrameOnly: boolean;
+	readonly forMainFrameOnly: boolean
 
-  initWithSourceInjectionTimeForMainFrameOnly(source: string, injectionTime: interop.Enum<typeof WKUserScriptInjectionTime>, forMainFrameOnly: boolean): this;
+	initWithSourceInjectionTimeForMainFrameOnly(
+		source: string,
+		injectionTime: interop.Enum<typeof WKUserScriptInjectionTime>,
+		forMainFrameOnly: boolean,
+	): this
 
-  initWithSourceInjectionTimeForMainFrameOnlyInContentWorld(source: string, injectionTime: interop.Enum<typeof WKUserScriptInjectionTime>, forMainFrameOnly: boolean, contentWorld: WKContentWorld): this;
+	initWithSourceInjectionTimeForMainFrameOnlyInContentWorld(
+		source: string,
+		injectionTime: interop.Enum<typeof WKUserScriptInjectionTime>,
+		forMainFrameOnly: boolean,
+		contentWorld: WKContentWorld,
+	): this
 
-  isForMainFrameOnly(): boolean;
+	isForMainFrameOnly(): boolean
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 export declare class WKUserContentController extends NSObject implements NSSecureCoding {
-  readonly userScripts: NSArray;
+	readonly userScripts: NSArray
 
-  addUserScript(userScript: WKUserScript): void;
+	addUserScript(userScript: WKUserScript): void
 
-  removeAllUserScripts(): void;
+	removeAllUserScripts(): void
 
-  addScriptMessageHandlerContentWorldName(scriptMessageHandler: WKScriptMessageHandler, world: WKContentWorld, name: string): void;
+	addScriptMessageHandlerContentWorldName(
+		scriptMessageHandler: WKScriptMessageHandler,
+		world: WKContentWorld,
+		name: string,
+	): void
 
-  addScriptMessageHandlerWithReplyContentWorldName(scriptMessageHandlerWithReply: WKScriptMessageHandlerWithReply, contentWorld: WKContentWorld, name: string): void;
+	addScriptMessageHandlerWithReplyContentWorldName(
+		scriptMessageHandlerWithReply: WKScriptMessageHandlerWithReply,
+		contentWorld: WKContentWorld,
+		name: string,
+	): void
 
-  addScriptMessageHandlerName(scriptMessageHandler: WKScriptMessageHandler, name: string): void;
+	addScriptMessageHandlerName(scriptMessageHandler: WKScriptMessageHandler, name: string): void
 
-  removeScriptMessageHandlerForNameContentWorld(name: string, contentWorld: WKContentWorld): void;
+	removeScriptMessageHandlerForNameContentWorld(name: string, contentWorld: WKContentWorld): void
 
-  removeScriptMessageHandlerForName(name: string): void;
+	removeScriptMessageHandlerForName(name: string): void
 
-  removeAllScriptMessageHandlersFromContentWorld(contentWorld: WKContentWorld): void;
+	removeAllScriptMessageHandlersFromContentWorld(contentWorld: WKContentWorld): void
 
-  removeAllScriptMessageHandlers(): void;
+	removeAllScriptMessageHandlers(): void
 
-  addContentRuleList(contentRuleList: WKContentRuleList): void;
+	addContentRuleList(contentRuleList: WKContentRuleList): void
 
-  removeContentRuleList(contentRuleList: WKContentRuleList): void;
+	removeContentRuleList(contentRuleList: WKContentRuleList): void
 
-  removeAllContentRuleLists(): void;
+	removeAllContentRuleLists(): void
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 export declare class WKSnapshotConfiguration extends NSObject implements NSCopying {
-  rect: CGRect;
+	rect: CGRect
 
-  snapshotWidth: NSNumber;
+	snapshotWidth: NSNumber
 
-  afterScreenUpdates: boolean;
+	afterScreenUpdates: boolean
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 export declare class WKPreferences extends NSObject implements NSSecureCoding {
-  minimumFontSize: number;
+	minimumFontSize: number
 
-  javaScriptCanOpenWindowsAutomatically: boolean;
+	javaScriptCanOpenWindowsAutomatically: boolean
 
-  fraudulentWebsiteWarningEnabled: boolean;
+	fraudulentWebsiteWarningEnabled: boolean
 
-  tabFocusesLinks: boolean;
+	tabFocusesLinks: boolean
 
-  isFraudulentWebsiteWarningEnabled(): boolean;
+	isFraudulentWebsiteWarningEnabled(): boolean
 
-  javaEnabled: boolean;
+	javaEnabled: boolean
 
-  plugInsEnabled: boolean;
+	plugInsEnabled: boolean
 
-  javaScriptEnabled: boolean;
+	javaScriptEnabled: boolean
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 export declare class WKPDFConfiguration extends NSObject implements NSCopying {
-  rect: CGRect;
+	rect: CGRect
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 export declare class WKOpenPanelParameters extends NSObject {
-  readonly allowsMultipleSelection: boolean;
+	readonly allowsMultipleSelection: boolean
 
-  readonly allowsDirectories: boolean;
+	readonly allowsDirectories: boolean
 }
 
 export declare class WKNavigationResponse extends NSObject {
-  readonly forMainFrame: boolean;
+	readonly forMainFrame: boolean
 
-  readonly response: NSURLResponse;
+	readonly response: NSURLResponse
 
-  readonly canShowMIMEType: boolean;
+	readonly canShowMIMEType: boolean
 
-  isForMainFrame(): boolean;
+	isForMainFrame(): boolean
 }
 
 export declare class WKHTTPCookieStore extends NSObject {
-  getAllCookies(completionHandler: (p1: NSArray<interop.Object> | Array<interop.Object>) => void): void;
+	getAllCookies(
+		completionHandler: (p1: NSArray<interop.Object> | Array<interop.Object>) => void,
+	): void
 
-  setCookieCompletionHandler(cookie: NSHTTPCookie, completionHandler: () => void | null): void;
+	setCookieCompletionHandler(cookie: NSHTTPCookie, completionHandler: () => void | null): void
 
-  deleteCookieCompletionHandler(cookie: NSHTTPCookie, completionHandler: () => void | null): void;
+	deleteCookieCompletionHandler(cookie: NSHTTPCookie, completionHandler: () => void | null): void
 
-  addObserver(observer: WKHTTPCookieStoreObserver): void;
+	addObserver(observer: WKHTTPCookieStoreObserver): void
 
-  removeObserver(observer: WKHTTPCookieStoreObserver): void;
+	removeObserver(observer: WKHTTPCookieStoreObserver): void
 }
 
-export declare class WKWebView extends NSView implements NSUserInterfaceValidations, NSTextFinderClient {
-  readonly configuration: WKWebViewConfiguration;
+export declare class WKWebView
+	extends NSView
+	implements NSUserInterfaceValidations, NSTextFinderClient
+{
+	readonly configuration: WKWebViewConfiguration
 
-  navigationDelegate: WKNavigationDelegate;
+	navigationDelegate: WKNavigationDelegate
 
-  UIDelegate: WKUIDelegate;
+	UIDelegate: WKUIDelegate
 
-  readonly backForwardList: WKBackForwardList;
+	readonly backForwardList: WKBackForwardList
 
-  initWithFrameConfiguration(frame: CGRect, configuration: WKWebViewConfiguration): this;
+	initWithFrameConfiguration(frame: CGRect, configuration: WKWebViewConfiguration): this
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  loadRequest(request: NSURLRequest): WKNavigation;
+	loadRequest(request: NSURLRequest): WKNavigation
 
-  loadFileURLAllowingReadAccessToURL(URL: NSURL, readAccessURL: NSURL): WKNavigation;
+	loadFileURLAllowingReadAccessToURL(URL: NSURL, readAccessURL: NSURL): WKNavigation
 
-  loadHTMLStringBaseURL(string: string, baseURL: NSURL | null): WKNavigation;
+	loadHTMLStringBaseURL(string: string, baseURL: NSURL | null): WKNavigation
 
-  loadDataMIMETypeCharacterEncodingNameBaseURL(data: NSData, MIMEType: string, characterEncodingName: string, baseURL: NSURL): WKNavigation;
+	loadDataMIMETypeCharacterEncodingNameBaseURL(
+		data: NSData,
+		MIMEType: string,
+		characterEncodingName: string,
+		baseURL: NSURL,
+	): WKNavigation
 
-  goToBackForwardListItem(item: WKBackForwardListItem): WKNavigation;
+	goToBackForwardListItem(item: WKBackForwardListItem): WKNavigation
 
-  readonly title: string;
+	readonly title: string
 
-  readonly URL: NSURL;
+	readonly URL: NSURL
 
-  readonly loading: boolean;
+	readonly loading: boolean
 
-  readonly estimatedProgress: number;
+	readonly estimatedProgress: number
 
-  readonly hasOnlySecureContent: boolean;
+	readonly hasOnlySecureContent: boolean
 
-  readonly serverTrust: interop.Object;
+	readonly serverTrust: interop.Object
 
-  readonly canGoBack: boolean;
+	readonly canGoBack: boolean
 
-  readonly canGoForward: boolean;
+	readonly canGoForward: boolean
 
-  goBack(): WKNavigation;
+	goBack(): WKNavigation
 
-  goForward(): WKNavigation;
+	goForward(): WKNavigation
 
-  reload(): WKNavigation;
+	reload(): WKNavigation
 
-  reloadFromOrigin(): WKNavigation;
+	reloadFromOrigin(): WKNavigation
 
-  stopLoading(): void;
+	stopLoading(): void
 
-  evaluateJavaScriptCompletionHandler(javaScriptString: string, completionHandler: (p1: interop.Object, p2: NSError) => void | null): void;
+	evaluateJavaScriptCompletionHandler(
+		javaScriptString: string,
+		completionHandler: (p1: interop.Object, p2: NSError) => void | null,
+	): void
 
-  evaluateJavaScriptInFrameInContentWorldCompletionHandler(javaScriptString: string, frame: WKFrameInfo | null, contentWorld: WKContentWorld, completionHandler: (p1: interop.Object, p2: NSError) => void | null): void;
+	evaluateJavaScriptInFrameInContentWorldCompletionHandler(
+		javaScriptString: string,
+		frame: WKFrameInfo | null,
+		contentWorld: WKContentWorld,
+		completionHandler: (p1: interop.Object, p2: NSError) => void | null,
+	): void
 
-  callAsyncJavaScriptArgumentsInFrameInContentWorldCompletionHandler(functionBody: string, arguments$: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null, frame: WKFrameInfo | null, contentWorld: WKContentWorld, completionHandler: (p1: interop.Object, p2: NSError) => void | null): void;
+	callAsyncJavaScriptArgumentsInFrameInContentWorldCompletionHandler(
+		functionBody: string,
+		arguments$:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+		frame: WKFrameInfo | null,
+		contentWorld: WKContentWorld,
+		completionHandler: (p1: interop.Object, p2: NSError) => void | null,
+	): void
 
-  takeSnapshotWithConfigurationCompletionHandler(snapshotConfiguration: WKSnapshotConfiguration | null, completionHandler: (p1: NSImage, p2: NSError) => void | null): void;
+	takeSnapshotWithConfigurationCompletionHandler(
+		snapshotConfiguration: WKSnapshotConfiguration | null,
+		completionHandler: (p1: NSImage, p2: NSError) => void | null,
+	): void
 
-  createPDFWithConfigurationCompletionHandler(pdfConfiguration: WKPDFConfiguration | null, completionHandler: (p1: NSData, p2: NSError) => void | null): void;
+	createPDFWithConfigurationCompletionHandler(
+		pdfConfiguration: WKPDFConfiguration | null,
+		completionHandler: (p1: NSData, p2: NSError) => void | null,
+	): void
 
-  createWebArchiveDataWithCompletionHandler(completionHandler: (p1: NSData, p2: NSError) => void | null): void;
+	createWebArchiveDataWithCompletionHandler(
+		completionHandler: (p1: NSData, p2: NSError) => void | null,
+	): void
 
-  allowsBackForwardNavigationGestures: boolean;
+	allowsBackForwardNavigationGestures: boolean
 
-  customUserAgent: string;
+	customUserAgent: string
 
-  allowsLinkPreview: boolean;
+	allowsLinkPreview: boolean
 
-  allowsMagnification: boolean;
+	allowsMagnification: boolean
 
-  magnification: number;
+	magnification: number
 
-  setMagnificationCenteredAtPoint(magnification: number, point: CGPoint): void;
+	setMagnificationCenteredAtPoint(magnification: number, point: CGPoint): void
 
-  pageZoom: number;
+	pageZoom: number
 
-  findStringWithConfigurationCompletionHandler(string: string, configuration: WKFindConfiguration | null, completionHandler: (p1: WKFindResult) => void): void;
+	findStringWithConfigurationCompletionHandler(
+		string: string,
+		configuration: WKFindConfiguration | null,
+		completionHandler: (p1: WKFindResult) => void,
+	): void
 
-  static handlesURLScheme(urlScheme: string): boolean;
+	static handlesURLScheme(urlScheme: string): boolean
 
-  mediaType: string;
+	mediaType: string
 
-  printOperationWithPrintInfo(printInfo: NSPrintInfo): NSPrintOperation;
+	printOperationWithPrintInfo(printInfo: NSPrintInfo): NSPrintOperation
 
-  isLoading(): boolean;
+	isLoading(): boolean
 
-  goBack(sender: interop.Object | null): void;
+	goBack(sender: interop.Object | null): void
 
-  goForward(sender: interop.Object | null): void;
+	goForward(sender: interop.Object | null): void
 
-  reload(sender: interop.Object | null): void;
+	reload(sender: interop.Object | null): void
 
-  reloadFromOrigin(sender: interop.Object | null): void;
+	reloadFromOrigin(sender: interop.Object | null): void
 
-  stopLoading(sender: interop.Object | null): void;
+	stopLoading(sender: interop.Object | null): void
 
-  readonly certificateChain: NSArray;
+	readonly certificateChain: NSArray
 
-  validateUserInterfaceItem(item: NSValidatedUserInterfaceItem): boolean;
+	validateUserInterfaceItem(item: NSValidatedUserInterfaceItem): boolean
 
-  readonly selectable: boolean;
+	readonly selectable: boolean
 
-  readonly allowsMultipleSelection: boolean;
+	readonly allowsMultipleSelection: boolean
 
-  readonly editable: boolean;
+	readonly editable: boolean
 
-  readonly string: string;
+	readonly string: string
 
-  stringAtIndexEffectiveRangeEndsWithSearchBoundary(characterIndex: number, outRange: interop.PointerConvertible, outFlag: interop.PointerConvertible): string;
+	stringAtIndexEffectiveRangeEndsWithSearchBoundary(
+		characterIndex: number,
+		outRange: interop.PointerConvertible,
+		outFlag: interop.PointerConvertible,
+	): string
 
-  stringLength(): number;
+	stringLength(): number
 
-  readonly firstSelectedRange: _NSRange;
+	readonly firstSelectedRange: _NSRange
 
-  get selectedRanges(): NSArray;
-  set selectedRanges(value: NSArray<interop.Object> | Array<interop.Object>);
+	get selectedRanges(): NSArray
+	set selectedRanges(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  scrollRangeToVisible(range: _NSRange): void;
+	scrollRangeToVisible(range: _NSRange): void
 
-  shouldReplaceCharactersInRangesWithStrings(ranges: NSArray<interop.Object> | Array<interop.Object>, strings: NSArray<interop.Object> | Array<interop.Object>): boolean;
+	shouldReplaceCharactersInRangesWithStrings(
+		ranges: NSArray<interop.Object> | Array<interop.Object>,
+		strings: NSArray<interop.Object> | Array<interop.Object>,
+	): boolean
 
-  replaceCharactersInRangeWithString(range: _NSRange, string: string): void;
+	replaceCharactersInRangeWithString(range: _NSRange, string: string): void
 
-  didReplaceCharacters(): void;
+	didReplaceCharacters(): void
 
-  contentViewAtIndexEffectiveCharacterRange(index: number, outRange: interop.PointerConvertible): NSView;
+	contentViewAtIndexEffectiveCharacterRange(
+		index: number,
+		outRange: interop.PointerConvertible,
+	): NSView
 
-  rectsForCharacterRange(range: _NSRange): NSArray;
+	rectsForCharacterRange(range: _NSRange): NSArray
 
-  readonly visibleCharacterRanges: NSArray;
+	readonly visibleCharacterRanges: NSArray
 
-  drawCharactersInRangeForContentView(range: _NSRange, view: NSView): void;
+	drawCharactersInRangeForContentView(range: _NSRange, view: NSView): void
 
-  isSelectable(): boolean;
+	isSelectable(): boolean
 
-  isEditable(): boolean;
+	isEditable(): boolean
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 }
 
 export declare class WKSecurityOrigin extends NSObject {
-  readonly protocol: string;
+	readonly protocol: string
 
-  readonly host: string;
+	readonly host: string
 
-  readonly port: number;
+	readonly port: number
 }
 
 export declare class WKContentRuleListStore extends NSObject {
-  static defaultStore<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>;
+	static defaultStore<This extends abstract new (...args: any) => any>(
+		this: This,
+	): InstanceType<This>
 
-  static storeWithURL<This extends abstract new (...args: any) => any>(this: This, url: NSURL): InstanceType<This>;
+	static storeWithURL<This extends abstract new (...args: any) => any>(
+		this: This,
+		url: NSURL,
+	): InstanceType<This>
 
-  compileContentRuleListForIdentifierEncodedContentRuleListCompletionHandler(identifier: string, encodedContentRuleList: string, completionHandler: (p1: WKContentRuleList, p2: NSError) => void): void;
+	compileContentRuleListForIdentifierEncodedContentRuleListCompletionHandler(
+		identifier: string,
+		encodedContentRuleList: string,
+		completionHandler: (p1: WKContentRuleList, p2: NSError) => void,
+	): void
 
-  lookUpContentRuleListForIdentifierCompletionHandler(identifier: string, completionHandler: (p1: WKContentRuleList, p2: NSError) => void): void;
+	lookUpContentRuleListForIdentifierCompletionHandler(
+		identifier: string,
+		completionHandler: (p1: WKContentRuleList, p2: NSError) => void,
+	): void
 
-  removeContentRuleListForIdentifierCompletionHandler(identifier: string, completionHandler: (p1: NSError) => void): void;
+	removeContentRuleListForIdentifierCompletionHandler(
+		identifier: string,
+		completionHandler: (p1: NSError) => void,
+	): void
 
-  getAvailableContentRuleListIdentifiers(completionHandler: (p1: NSArray<interop.Object> | Array<interop.Object>) => void): void;
+	getAvailableContentRuleListIdentifiers(
+		completionHandler: (p1: NSArray<interop.Object> | Array<interop.Object>) => void,
+	): void
 }
 
 export declare class WKBackForwardList extends NSObject {
-  readonly currentItem: WKBackForwardListItem;
+	readonly currentItem: WKBackForwardListItem
 
-  readonly backItem: WKBackForwardListItem;
+	readonly backItem: WKBackForwardListItem
 
-  readonly forwardItem: WKBackForwardListItem;
+	readonly forwardItem: WKBackForwardListItem
 
-  itemAtIndex(index: number): WKBackForwardListItem;
+	itemAtIndex(index: number): WKBackForwardListItem
 
-  readonly backList: NSArray;
+	readonly backList: NSArray
 
-  readonly forwardList: NSArray;
+	readonly forwardList: NSArray
 }
 
 export declare class DOMHTMLOptGroupElement extends DOMHTMLElement {
-  disabled: boolean;
+	disabled: boolean
 
-  label: string;
+	label: string
 }
 
 export declare class DOMHTMLPreElement extends DOMHTMLElement {
-  width: number;
+	width: number
 
-  wrap: boolean;
+	wrap: boolean
 }
 
 export declare class DOMHTMLEmbedElement extends DOMHTMLElement {
-  align: string;
+	align: string
 
-  height: number;
+	height: number
 
-  name: string;
+	name: string
 
-  src: string;
+	src: string
 
-  type: string;
+	type: string
 
-  width: number;
+	width: number
 }
 
 export declare class DOMHTMLMenuElement extends DOMHTMLElement {
-  compact: boolean;
+	compact: boolean
 }
 
 export declare class DOMHTMLTableRowElement extends DOMHTMLElement {
-  readonly rowIndex: number;
+	readonly rowIndex: number
 
-  readonly sectionRowIndex: number;
+	readonly sectionRowIndex: number
 
-  readonly cells: DOMHTMLCollection;
+	readonly cells: DOMHTMLCollection
 
-  align: string;
+	align: string
 
-  bgColor: string;
+	bgColor: string
 
-  ch: string;
+	ch: string
 
-  chOff: string;
+	chOff: string
 
-  vAlign: string;
+	vAlign: string
 
-  insertCell(index: number): DOMHTMLElement;
+	insertCell(index: number): DOMHTMLElement
 
-  deleteCell(index: number): void;
+	deleteCell(index: number): void
 }
 
 export declare class DOMHTMLDListElement extends DOMHTMLElement {
-  compact: boolean;
+	compact: boolean
 }
 
 export declare class DOMHTMLTableColElement extends DOMHTMLElement {
-  align: string;
+	align: string
 
-  ch: string;
+	ch: string
 
-  chOff: string;
+	chOff: string
 
-  span: number;
+	span: number
 
-  vAlign: string;
+	vAlign: string
 
-  width: string;
+	width: string
 }
 
 export declare class DOMHTMLCollection extends DOMObject {
-  readonly length: number;
+	readonly length: number
 
-  item(index: number): DOMNode;
+	item(index: number): DOMNode
 
-  namedItem(name: string): DOMNode;
+	namedItem(name: string): DOMNode
 
-  tags(name: string): DOMNodeList;
+	tags(name: string): DOMNodeList
 }
 
 export declare class WKFindResult extends NSObject implements NSCopying {
-  readonly matchFound: boolean;
+	readonly matchFound: boolean
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 export declare class WebDataSource extends NSObject {
-  initWithRequest(request: NSURLRequest): this;
+	initWithRequest(request: NSURLRequest): this
 
-  readonly data: NSData;
+	readonly data: NSData
 
-  readonly representation: WebDocumentRepresentation;
+	readonly representation: WebDocumentRepresentation
 
-  readonly webFrame: WebFrame;
+	readonly webFrame: WebFrame
 
-  readonly initialRequest: NSURLRequest;
+	readonly initialRequest: NSURLRequest
 
-  readonly request: NSMutableURLRequest;
+	readonly request: NSMutableURLRequest
 
-  readonly response: NSURLResponse;
+	readonly response: NSURLResponse
 
-  readonly textEncodingName: string;
+	readonly textEncodingName: string
 
-  readonly loading: boolean;
+	readonly loading: boolean
 
-  readonly pageTitle: string;
+	readonly pageTitle: string
 
-  readonly unreachableURL: NSURL;
+	readonly unreachableURL: NSURL
 
-  readonly webArchive: WebArchive;
+	readonly webArchive: WebArchive
 
-  readonly mainResource: WebResource;
+	readonly mainResource: WebResource
 
-  readonly subresources: NSArray;
+	readonly subresources: NSArray
 
-  subresourceForURL(URL: NSURL): WebResource;
+	subresourceForURL(URL: NSURL): WebResource
 
-  addSubresource(subresource: WebResource): void;
+	addSubresource(subresource: WebResource): void
 
-  isLoading(): boolean;
+	isLoading(): boolean
 }
 
 export declare class DOMHTMLFieldSetElement extends DOMHTMLElement {
-  readonly form: DOMHTMLFormElement;
+	readonly form: DOMHTMLFormElement
 }
 
 export declare class DOMMouseEvent extends DOMUIEvent {
-  readonly screenX: number;
+	readonly screenX: number
 
-  readonly screenY: number;
+	readonly screenY: number
 
-  readonly clientX: number;
+	readonly clientX: number
 
-  readonly clientY: number;
+	readonly clientY: number
 
-  readonly ctrlKey: boolean;
+	readonly ctrlKey: boolean
 
-  readonly shiftKey: boolean;
+	readonly shiftKey: boolean
 
-  readonly altKey: boolean;
+	readonly altKey: boolean
 
-  readonly metaKey: boolean;
+	readonly metaKey: boolean
 
-  readonly button: number;
+	readonly button: number
 
-  readonly relatedTarget: DOMEventTarget;
+	readonly relatedTarget: DOMEventTarget
 
-  readonly offsetX: number;
+	readonly offsetX: number
 
-  readonly offsetY: number;
+	readonly offsetY: number
 
-  readonly x: number;
+	readonly x: number
 
-  readonly y: number;
+	readonly y: number
 
-  readonly fromElement: DOMNode;
+	readonly fromElement: DOMNode
 
-  readonly toElement: DOMNode;
+	readonly toElement: DOMNode
 
-  initMouseEventCanBubbleCancelableViewDetailScreenXScreenYClientXClientYCtrlKeyAltKeyShiftKeyMetaKeyButtonRelatedTarget(type: string, canBubble: boolean, cancelable: boolean, view: DOMAbstractView, detail: number, screenX: number, screenY: number, clientX: number, clientY: number, ctrlKey: boolean, altKey: boolean, shiftKey: boolean, metaKey: boolean, button: number, relatedTarget: DOMEventTarget): this;
+	initMouseEventCanBubbleCancelableViewDetailScreenXScreenYClientXClientYCtrlKeyAltKeyShiftKeyMetaKeyButtonRelatedTarget(
+		type: string,
+		canBubble: boolean,
+		cancelable: boolean,
+		view: DOMAbstractView,
+		detail: number,
+		screenX: number,
+		screenY: number,
+		clientX: number,
+		clientY: number,
+		ctrlKey: boolean,
+		altKey: boolean,
+		shiftKey: boolean,
+		metaKey: boolean,
+		button: number,
+		relatedTarget: DOMEventTarget,
+	): this
 
-  initMouseEvent(type: string, canBubble: boolean, cancelable: boolean, view: DOMAbstractView, detail: number, screenX: number, screenY: number, clientX: number, clientY: number, ctrlKey: boolean, altKey: boolean, shiftKey: boolean, metaKey: boolean, button: number, relatedTarget: DOMEventTarget): this;
+	initMouseEvent(
+		type: string,
+		canBubble: boolean,
+		cancelable: boolean,
+		view: DOMAbstractView,
+		detail: number,
+		screenX: number,
+		screenY: number,
+		clientX: number,
+		clientY: number,
+		ctrlKey: boolean,
+		altKey: boolean,
+		shiftKey: boolean,
+		metaKey: boolean,
+		button: number,
+		relatedTarget: DOMEventTarget,
+	): this
 }
 
 export declare class DOMWheelEvent extends DOMMouseEvent {
-  readonly wheelDeltaX: number;
+	readonly wheelDeltaX: number
 
-  readonly wheelDeltaY: number;
+	readonly wheelDeltaY: number
 
-  readonly wheelDelta: number;
+	readonly wheelDelta: number
 
-  readonly isHorizontal: boolean;
+	readonly isHorizontal: boolean
 
-  initWheelEventWheelDeltaYViewScreenXScreenYClientXClientYCtrlKeyAltKeyShiftKeyMetaKey(wheelDeltaX: number, wheelDeltaY: number, view: DOMAbstractView, screenX: number, screenY: number, clientX: number, clientY: number, ctrlKey: boolean, altKey: boolean, shiftKey: boolean, metaKey: boolean): this;
+	initWheelEventWheelDeltaYViewScreenXScreenYClientXClientYCtrlKeyAltKeyShiftKeyMetaKey(
+		wheelDeltaX: number,
+		wheelDeltaY: number,
+		view: DOMAbstractView,
+		screenX: number,
+		screenY: number,
+		clientX: number,
+		clientY: number,
+		ctrlKey: boolean,
+		altKey: boolean,
+		shiftKey: boolean,
+		metaKey: boolean,
+	): this
 }
 
 export declare class DOMHTMLHtmlElement extends DOMHTMLElement {
-  version: string;
+	version: string
 }
 
 export declare class DOMHTMLParamElement extends DOMHTMLElement {
-  name: string;
+	name: string
 
-  type: string;
+	type: string
 
-  value: string;
+	value: string
 
-  valueType: string;
+	valueType: string
 }
 
 export declare class DOMHTMLHRElement extends DOMHTMLElement {
-  align: string;
+	align: string
 
-  noShade: boolean;
+	noShade: boolean
 
-  size: string;
+	size: string
 
-  width: string;
+	width: string
 }
 
 export declare class DOMElement extends DOMNode {
-  readonly tagName: string;
+	readonly tagName: string
 
-  readonly style: DOMCSSStyleDeclaration;
+	readonly style: DOMCSSStyleDeclaration
 
-  readonly offsetLeft: number;
+	readonly offsetLeft: number
 
-  readonly offsetTop: number;
+	readonly offsetTop: number
 
-  readonly offsetWidth: number;
+	readonly offsetWidth: number
 
-  readonly offsetHeight: number;
+	readonly offsetHeight: number
 
-  readonly clientLeft: number;
+	readonly clientLeft: number
 
-  readonly clientTop: number;
+	readonly clientTop: number
 
-  readonly clientWidth: number;
+	readonly clientWidth: number
 
-  readonly clientHeight: number;
+	readonly clientHeight: number
 
-  scrollLeft: number;
+	scrollLeft: number
 
-  scrollTop: number;
+	scrollTop: number
 
-  readonly scrollWidth: number;
+	readonly scrollWidth: number
 
-  readonly scrollHeight: number;
+	readonly scrollHeight: number
 
-  readonly offsetParent: DOMElement;
+	readonly offsetParent: DOMElement
 
-  innerHTML: string;
+	innerHTML: string
 
-  outerHTML: string;
+	outerHTML: string
 
-  // @ts-ignore MemberDecl.tsIgnore
-  className: string;
+	// @ts-ignore MemberDecl.tsIgnore
+	className: string
 
-  readonly innerText: string;
+	readonly innerText: string
 
-  readonly previousElementSibling: DOMElement;
+	readonly previousElementSibling: DOMElement
 
-  readonly nextElementSibling: DOMElement;
+	readonly nextElementSibling: DOMElement
 
-  readonly firstElementChild: DOMElement;
+	readonly firstElementChild: DOMElement
 
-  readonly lastElementChild: DOMElement;
+	readonly lastElementChild: DOMElement
 
-  readonly childElementCount: number;
+	readonly childElementCount: number
 
-  getAttribute(name: string): string;
+	getAttribute(name: string): string
 
-  setAttributeValue(name: string, value: string): void;
+	setAttributeValue(name: string, value: string): void
 
-  removeAttribute(name: string): void;
+	removeAttribute(name: string): void
 
-  getAttributeNode(name: string): DOMAttr;
+	getAttributeNode(name: string): DOMAttr
 
-  setAttributeNode(newAttr: DOMAttr): DOMAttr;
+	setAttributeNode(newAttr: DOMAttr): DOMAttr
 
-  removeAttributeNode(oldAttr: DOMAttr): DOMAttr;
+	removeAttributeNode(oldAttr: DOMAttr): DOMAttr
 
-  getElementsByTagName(name: string): DOMNodeList;
+	getElementsByTagName(name: string): DOMNodeList
 
-  getAttributeNSLocalName(namespaceURI: string, localName: string): string;
+	getAttributeNSLocalName(namespaceURI: string, localName: string): string
 
-  setAttributeNSQualifiedNameValue(namespaceURI: string, qualifiedName: string, value: string): void;
+	setAttributeNSQualifiedNameValue(namespaceURI: string, qualifiedName: string, value: string): void
 
-  removeAttributeNSLocalName(namespaceURI: string, localName: string): void;
+	removeAttributeNSLocalName(namespaceURI: string, localName: string): void
 
-  getElementsByTagNameNSLocalName(namespaceURI: string, localName: string): DOMNodeList;
+	getElementsByTagNameNSLocalName(namespaceURI: string, localName: string): DOMNodeList
 
-  getAttributeNodeNSLocalName(namespaceURI: string, localName: string): DOMAttr;
+	getAttributeNodeNSLocalName(namespaceURI: string, localName: string): DOMAttr
 
-  setAttributeNodeNS(newAttr: DOMAttr): DOMAttr;
+	setAttributeNodeNS(newAttr: DOMAttr): DOMAttr
 
-  hasAttribute(name: string): boolean;
+	hasAttribute(name: string): boolean
 
-  hasAttributeNSLocalName(namespaceURI: string, localName: string): boolean;
+	hasAttributeNSLocalName(namespaceURI: string, localName: string): boolean
 
-  focus(): void;
+	focus(): void
 
-  blur(): void;
+	blur(): void
 
-  scrollIntoView(alignWithTop: boolean): void;
+	scrollIntoView(alignWithTop: boolean): void
 
-  scrollIntoViewIfNeeded(centerIfNeeded: boolean): void;
+	scrollIntoViewIfNeeded(centerIfNeeded: boolean): void
 
-  getElementsByClassName(name: string): DOMNodeList;
+	getElementsByClassName(name: string): DOMNodeList
 
-  webkitRequestFullScreen(flags: number): void;
+	webkitRequestFullScreen(flags: number): void
 
-  querySelector(selectors: string): DOMElement;
+	querySelector(selectors: string): DOMElement
 
-  querySelectorAll(selectors: string): DOMNodeList;
+	querySelectorAll(selectors: string): DOMNodeList
 
-  setAttribute(name: string, value: string): void;
+	setAttribute(name: string, value: string): void
 
-  getAttributeNS(namespaceURI: string, localName: string): string;
+	getAttributeNS(namespaceURI: string, localName: string): string
 
-  setAttributeNS(namespaceURI: string, qualifiedName: string, value: string): void;
+	setAttributeNS(namespaceURI: string, qualifiedName: string, value: string): void
 
-  removeAttributeNS(namespaceURI: string, localName: string): void;
+	removeAttributeNS(namespaceURI: string, localName: string): void
 
-  getElementsByTagNameNS(namespaceURI: string, localName: string): DOMNodeList;
+	getElementsByTagNameNS(namespaceURI: string, localName: string): DOMNodeList
 
-  getAttributeNodeNS(namespaceURI: string, localName: string): DOMAttr;
+	getAttributeNodeNS(namespaceURI: string, localName: string): DOMAttr
 
-  hasAttributeNS(namespaceURI: string, localName: string): boolean;
+	hasAttributeNS(namespaceURI: string, localName: string): boolean
 
-  scrollByLines(lines: number): void;
+	scrollByLines(lines: number): void
 
-  scrollByPages(pages: number): void;
+	scrollByPages(pages: number): void
 
-  image(): NSImage;
+	image(): NSImage
 }
 
 export declare class WebBackForwardList extends NSObject {
-  addItem(item: WebHistoryItem): void;
+	addItem(item: WebHistoryItem): void
 
-  goBack(): void;
+	goBack(): void
 
-  goForward(): void;
+	goForward(): void
 
-  goToItem(item: WebHistoryItem): void;
+	goToItem(item: WebHistoryItem): void
 
-  readonly backItem: WebHistoryItem;
+	readonly backItem: WebHistoryItem
 
-  readonly currentItem: WebHistoryItem;
+	readonly currentItem: WebHistoryItem
 
-  readonly forwardItem: WebHistoryItem;
+	readonly forwardItem: WebHistoryItem
 
-  backListWithLimit(limit: number): NSArray;
+	backListWithLimit(limit: number): NSArray
 
-  forwardListWithLimit(limit: number): NSArray;
+	forwardListWithLimit(limit: number): NSArray
 
-  capacity: number;
+	capacity: number
 
-  readonly backListCount: number;
+	readonly backListCount: number
 
-  readonly forwardListCount: number;
+	readonly forwardListCount: number
 
-  containsItem(item: WebHistoryItem): boolean;
+	containsItem(item: WebHistoryItem): boolean
 
-  itemAtIndex(index: number): WebHistoryItem;
+	itemAtIndex(index: number): WebHistoryItem
 
-  setPageCacheSize(size: number): void;
+	setPageCacheSize(size: number): void
 
-  pageCacheSize(): number;
+	pageCacheSize(): number
 }
 
 export declare class DOMHTMLLIElement extends DOMHTMLElement {
-  type: string;
+	type: string
 
-  value: number;
+	value: number
 }
 
 export declare class DOMHTMLBaseFontElement extends DOMHTMLElement {
-  color: string;
+	color: string
 
-  face: string;
+	face: string
 
-  size: string;
+	size: string
 }
 
 export declare class DOMHTMLImageElement extends DOMHTMLElement {
-  name: string;
+	name: string
 
-  align: string;
+	align: string
 
-  alt: string;
+	alt: string
 
-  border: string;
+	border: string
 
-  height: number;
+	height: number
 
-  hspace: number;
+	hspace: number
 
-  isMap: boolean;
+	isMap: boolean
 
-  longDesc: string;
+	longDesc: string
 
-  src: string;
+	src: string
 
-  useMap: string;
+	useMap: string
 
-  vspace: number;
+	vspace: number
 
-  width: number;
+	width: number
 
-  readonly complete: boolean;
+	readonly complete: boolean
 
-  lowsrc: string;
+	lowsrc: string
 
-  readonly naturalHeight: number;
+	readonly naturalHeight: number
 
-  readonly naturalWidth: number;
+	readonly naturalWidth: number
 
-  readonly x: number;
+	readonly x: number
 
-  readonly y: number;
+	readonly y: number
 
-  readonly altDisplayString: string;
+	readonly altDisplayString: string
 
-  readonly absoluteImageURL: NSURL;
+	readonly absoluteImageURL: NSURL
 }
 
 export declare class DOMHTMLSelectElement extends DOMHTMLElement {
-  autofocus: boolean;
+	autofocus: boolean
 
-  disabled: boolean;
+	disabled: boolean
 
-  readonly form: DOMHTMLFormElement;
+	readonly form: DOMHTMLFormElement
 
-  multiple: boolean;
+	multiple: boolean
 
-  name: string;
+	name: string
 
-  size: number;
+	size: number
 
-  readonly type: string;
+	readonly type: string
 
-  readonly options: DOMHTMLOptionsCollection;
+	readonly options: DOMHTMLOptionsCollection
 
-  readonly length: number;
+	readonly length: number
 
-  selectedIndex: number;
+	selectedIndex: number
 
-  value: string;
+	value: string
 
-  readonly willValidate: boolean;
+	readonly willValidate: boolean
 
-  item(index: number): DOMNode;
+	item(index: number): DOMNode
 
-  namedItem(name: string): DOMNode;
+	namedItem(name: string): DOMNode
 
-  addBefore(element: DOMHTMLElement, before: DOMHTMLElement): void;
+	addBefore(element: DOMHTMLElement, before: DOMHTMLElement): void
 
-  remove(index: number): void;
+	remove(index: number): void
 
-  add(element: DOMHTMLElement, before: DOMHTMLElement): void;
+	add(element: DOMHTMLElement, before: DOMHTMLElement): void
 }
 
 export declare class WebView extends NSView implements NSUserInterfaceValidations {
-  static canShowMIMEType(MIMEType: string): boolean;
+	static canShowMIMEType(MIMEType: string): boolean
 
-  static canShowMIMETypeAsHTML(MIMEType: string): boolean;
+	static canShowMIMETypeAsHTML(MIMEType: string): boolean
 
-  static MIMETypesShownAsHTML(): NSArray;
+	static MIMETypesShownAsHTML(): NSArray
 
-  static setMIMETypesShownAsHTML(MIMETypes: NSArray<interop.Object> | Array<interop.Object>): void;
+	static setMIMETypesShownAsHTML(MIMETypes: NSArray<interop.Object> | Array<interop.Object>): void
 
-  static URLFromPasteboard(pasteboard: NSPasteboard): NSURL;
+	static URLFromPasteboard(pasteboard: NSPasteboard): NSURL
 
-  static URLTitleFromPasteboard(pasteboard: NSPasteboard): string;
+	static URLTitleFromPasteboard(pasteboard: NSPasteboard): string
 
-  static registerURLSchemeAsLocal(scheme: string): void;
+	static registerURLSchemeAsLocal(scheme: string): void
 
-  initWithFrameFrameNameGroupName(frame: CGRect, frameName: string, groupName: string): this;
+	initWithFrameFrameNameGroupName(frame: CGRect, frameName: string, groupName: string): this
 
-  close(): void;
+	close(): void
 
-  shouldCloseWithWindow: boolean;
+	shouldCloseWithWindow: boolean
 
-  UIDelegate: WebUIDelegate;
+	UIDelegate: WebUIDelegate
 
-  resourceLoadDelegate: WebResourceLoadDelegate;
+	resourceLoadDelegate: WebResourceLoadDelegate
 
-  downloadDelegate: WebDownloadDelegate;
+	downloadDelegate: WebDownloadDelegate
 
-  frameLoadDelegate: WebFrameLoadDelegate;
+	frameLoadDelegate: WebFrameLoadDelegate
 
-  policyDelegate: WebPolicyDelegate;
+	policyDelegate: WebPolicyDelegate
 
-  readonly mainFrame: WebFrame;
+	readonly mainFrame: WebFrame
 
-  readonly selectedFrame: WebFrame;
+	readonly selectedFrame: WebFrame
 
-  readonly backForwardList: WebBackForwardList;
+	readonly backForwardList: WebBackForwardList
 
-  setMaintainsBackForwardList(flag: boolean): void;
+	setMaintainsBackForwardList(flag: boolean): void
 
-  goBack(): boolean;
+	goBack(): boolean
 
-  goForward(): boolean;
+	goForward(): boolean
 
-  goToBackForwardItem(item: WebHistoryItem): boolean;
+	goToBackForwardItem(item: WebHistoryItem): boolean
 
-  textSizeMultiplier: number;
+	textSizeMultiplier: number
 
-  applicationNameForUserAgent: string;
+	applicationNameForUserAgent: string
 
-  customUserAgent: string;
+	customUserAgent: string
 
-  userAgentForURL(URL: NSURL): string;
+	userAgentForURL(URL: NSURL): string
 
-  readonly supportsTextEncoding: boolean;
+	readonly supportsTextEncoding: boolean
 
-  customTextEncodingName: string;
+	customTextEncodingName: string
 
-  mediaStyle: string;
+	mediaStyle: string
 
-  stringByEvaluatingJavaScriptFromString(script: string): string;
+	stringByEvaluatingJavaScriptFromString(script: string): string
 
-  readonly windowScriptObject: WebScriptObject;
+	readonly windowScriptObject: WebScriptObject
 
-  preferences: WebPreferences;
+	preferences: WebPreferences
 
-  preferencesIdentifier: string;
+	preferencesIdentifier: string
 
-  hostWindow: NSWindow;
+	hostWindow: NSWindow
 
-  searchForDirectionCaseSensitiveWrap(string: string, forward: boolean, caseFlag: boolean, wrapFlag: boolean): boolean;
+	searchForDirectionCaseSensitiveWrap(
+		string: string,
+		forward: boolean,
+		caseFlag: boolean,
+		wrapFlag: boolean,
+	): boolean
 
-  static registerViewClassRepresentationClassForMIMEType(viewClass: interop.PointerConvertible, representationClass: interop.PointerConvertible, MIMEType: string): void;
+	static registerViewClassRepresentationClassForMIMEType(
+		viewClass: interop.PointerConvertible,
+		representationClass: interop.PointerConvertible,
+		MIMEType: string,
+	): void
 
-  groupName: string;
+	groupName: string
 
-  readonly estimatedProgress: number;
+	readonly estimatedProgress: number
 
-  readonly loading: boolean;
+	readonly loading: boolean
 
-  elementAtPoint(point: CGPoint): NSDictionary;
+	elementAtPoint(point: CGPoint): NSDictionary
 
-  readonly pasteboardTypesForSelection: NSArray;
+	readonly pasteboardTypesForSelection: NSArray
 
-  writeSelectionWithPasteboardTypesToPasteboard(types: NSArray<interop.Object> | Array<interop.Object>, pasteboard: NSPasteboard): void;
+	writeSelectionWithPasteboardTypesToPasteboard(
+		types: NSArray<interop.Object> | Array<interop.Object>,
+		pasteboard: NSPasteboard,
+	): void
 
-  pasteboardTypesForElement(element: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): NSArray;
+	pasteboardTypesForElement(
+		element: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+	): NSArray
 
-  writeElementWithPasteboardTypesToPasteboard(element: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>, types: NSArray<interop.Object> | Array<interop.Object>, pasteboard: NSPasteboard): void;
+	writeElementWithPasteboardTypesToPasteboard(
+		element: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+		types: NSArray<interop.Object> | Array<interop.Object>,
+		pasteboard: NSPasteboard,
+	): void
 
-  moveDragCaretToPoint(point: CGPoint): void;
+	moveDragCaretToPoint(point: CGPoint): void
 
-  removeDragCaret(): void;
+	removeDragCaret(): void
 
-  drawsBackground: boolean;
+	drawsBackground: boolean
 
-  shouldUpdateWhileOffscreen: boolean;
+	shouldUpdateWhileOffscreen: boolean
 
-  mainFrameURL: string;
+	mainFrameURL: string
 
-  readonly mainFrameDocument: DOMDocument;
+	readonly mainFrameDocument: DOMDocument
 
-  readonly mainFrameTitle: string;
+	readonly mainFrameTitle: string
 
-  readonly mainFrameIcon: NSImage;
+	readonly mainFrameIcon: NSImage
 
-  isLoading(): boolean;
+	isLoading(): boolean
 
-  takeStringURLFrom(sender: interop.Object): void;
+	takeStringURLFrom(sender: interop.Object): void
 
-  stopLoading(sender: interop.Object): void;
+	stopLoading(sender: interop.Object): void
 
-  reload(sender: interop.Object): void;
+	reload(sender: interop.Object): void
 
-  reloadFromOrigin(sender: interop.Object): void;
+	reloadFromOrigin(sender: interop.Object): void
 
-  readonly canGoBack: boolean;
+	readonly canGoBack: boolean
 
-  goBack(sender: interop.Object): void;
+	goBack(sender: interop.Object): void
 
-  readonly canGoForward: boolean;
+	readonly canGoForward: boolean
 
-  goForward(sender: interop.Object): void;
+	goForward(sender: interop.Object): void
 
-  readonly canMakeTextLarger: boolean;
+	readonly canMakeTextLarger: boolean
 
-  makeTextLarger(sender: interop.Object): void;
+	makeTextLarger(sender: interop.Object): void
 
-  readonly canMakeTextSmaller: boolean;
+	readonly canMakeTextSmaller: boolean
 
-  makeTextSmaller(sender: interop.Object): void;
+	makeTextSmaller(sender: interop.Object): void
 
-  readonly canMakeTextStandardSize: boolean;
+	readonly canMakeTextStandardSize: boolean
 
-  makeTextStandardSize(sender: interop.Object): void;
+	makeTextStandardSize(sender: interop.Object): void
 
-  toggleContinuousSpellChecking(sender: interop.Object): void;
+	toggleContinuousSpellChecking(sender: interop.Object): void
 
-  toggleSmartInsertDelete(sender: interop.Object): void;
+	toggleSmartInsertDelete(sender: interop.Object): void
 
-  computedStyleForElementPseudoElement(element: DOMElement, pseudoElement: string): DOMCSSStyleDeclaration;
+	computedStyleForElementPseudoElement(
+		element: DOMElement,
+		pseudoElement: string,
+	): DOMCSSStyleDeclaration
 
-  editableDOMRangeForPoint(point: CGPoint): DOMRange;
+	editableDOMRangeForPoint(point: CGPoint): DOMRange
 
-  setSelectedDOMRangeAffinity(range: DOMRange, selectionAffinity: interop.Enum<typeof NSSelectionAffinity>): void;
+	setSelectedDOMRangeAffinity(
+		range: DOMRange,
+		selectionAffinity: interop.Enum<typeof NSSelectionAffinity>,
+	): void
 
-  readonly selectedDOMRange: DOMRange;
+	readonly selectedDOMRange: DOMRange
 
-  readonly selectionAffinity: interop.Enum<typeof NSSelectionAffinity>;
+	readonly selectionAffinity: interop.Enum<typeof NSSelectionAffinity>
 
-  readonly maintainsInactiveSelection: boolean;
+	readonly maintainsInactiveSelection: boolean
 
-  editable: boolean;
+	editable: boolean
 
-  typingStyle: DOMCSSStyleDeclaration;
+	typingStyle: DOMCSSStyleDeclaration
 
-  smartInsertDeleteEnabled: boolean;
+	smartInsertDeleteEnabled: boolean
 
-  continuousSpellCheckingEnabled: boolean;
+	continuousSpellCheckingEnabled: boolean
 
-  readonly spellCheckerDocumentTag: number;
+	readonly spellCheckerDocumentTag: number
 
-  readonly undoManager: NSUndoManager;
+	readonly undoManager: NSUndoManager
 
-  editingDelegate: WebEditingDelegate;
+	editingDelegate: WebEditingDelegate
 
-  styleDeclarationWithText(text: string): DOMCSSStyleDeclaration;
+	styleDeclarationWithText(text: string): DOMCSSStyleDeclaration
 
-  isEditable(): boolean;
+	isEditable(): boolean
 
-  isContinuousSpellCheckingEnabled(): boolean;
+	isContinuousSpellCheckingEnabled(): boolean
 
-  replaceSelectionWithNode(node: DOMNode): void;
+	replaceSelectionWithNode(node: DOMNode): void
 
-  replaceSelectionWithText(text: string): void;
+	replaceSelectionWithText(text: string): void
 
-  replaceSelectionWithMarkupString(markupString: string): void;
+	replaceSelectionWithMarkupString(markupString: string): void
 
-  replaceSelectionWithArchive(archive: WebArchive): void;
+	replaceSelectionWithArchive(archive: WebArchive): void
 
-  deleteSelection(): void;
+	deleteSelection(): void
 
-  applyStyle(style: DOMCSSStyleDeclaration): void;
+	applyStyle(style: DOMCSSStyleDeclaration): void
 
-  copy(): interop.Object;
-  copy(sender: interop.Object): void;
+	copy(): interop.Object
+	copy(sender: interop.Object): void
 
-  cut(sender: interop.Object): void;
+	cut(sender: interop.Object): void
 
-  paste(sender: interop.Object): void;
+	paste(sender: interop.Object): void
 
-  copyFont(sender: interop.Object): void;
+	copyFont(sender: interop.Object): void
 
-  pasteFont(sender: interop.Object): void;
+	pasteFont(sender: interop.Object): void
 
-  delete(sender: interop.Object): void;
+	delete(sender: interop.Object): void
 
-  pasteAsPlainText(sender: interop.Object): void;
+	pasteAsPlainText(sender: interop.Object): void
 
-  pasteAsRichText(sender: interop.Object): void;
+	pasteAsRichText(sender: interop.Object): void
 
-  changeFont(sender: interop.Object | null): void;
-  changeFont(sender: interop.Object): void;
+	changeFont(sender: interop.Object | null): void
+	changeFont(sender: interop.Object): void
 
-  changeAttributes(sender: interop.Object): void;
+	changeAttributes(sender: interop.Object): void
 
-  changeDocumentBackgroundColor(sender: interop.Object): void;
+	changeDocumentBackgroundColor(sender: interop.Object): void
 
-  changeColor(sender: interop.Object | null): void;
-  changeColor(sender: interop.Object): void;
+	changeColor(sender: interop.Object | null): void
+	changeColor(sender: interop.Object): void
 
-  alignCenter(sender: interop.Object): void;
+	alignCenter(sender: interop.Object): void
 
-  alignJustified(sender: interop.Object): void;
+	alignJustified(sender: interop.Object): void
 
-  alignLeft(sender: interop.Object): void;
+	alignLeft(sender: interop.Object): void
 
-  alignRight(sender: interop.Object): void;
+	alignRight(sender: interop.Object): void
 
-  checkSpelling(sender: interop.Object): void;
+	checkSpelling(sender: interop.Object): void
 
-  showGuessPanel(sender: interop.Object): void;
+	showGuessPanel(sender: interop.Object): void
 
-  performFindPanelAction(sender: interop.Object): void;
+	performFindPanelAction(sender: interop.Object): void
 
-  startSpeaking(sender: interop.Object): void;
+	startSpeaking(sender: interop.Object): void
 
-  stopSpeaking(sender: interop.Object): void;
+	stopSpeaking(sender: interop.Object): void
 
-  moveToBeginningOfSentence(sender: interop.Object): void;
+	moveToBeginningOfSentence(sender: interop.Object): void
 
-  moveToBeginningOfSentenceAndModifySelection(sender: interop.Object): void;
+	moveToBeginningOfSentenceAndModifySelection(sender: interop.Object): void
 
-  moveToEndOfSentence(sender: interop.Object): void;
+	moveToEndOfSentence(sender: interop.Object): void
 
-  moveToEndOfSentenceAndModifySelection(sender: interop.Object): void;
+	moveToEndOfSentenceAndModifySelection(sender: interop.Object): void
 
-  selectSentence(sender: interop.Object): void;
+	selectSentence(sender: interop.Object): void
 
-  overWrite(sender: interop.Object): void;
+	overWrite(sender: interop.Object): void
 
-  validateUserInterfaceItem(item: NSValidatedUserInterfaceItem): boolean;
+	validateUserInterfaceItem(item: NSValidatedUserInterfaceItem): boolean
 }
 
 export declare class DOMNamedNodeMap extends DOMObject {
-  readonly length: number;
+	readonly length: number
 
-  getNamedItem(name: string): DOMNode;
+	getNamedItem(name: string): DOMNode
 
-  setNamedItem(node: DOMNode): DOMNode;
+	setNamedItem(node: DOMNode): DOMNode
 
-  removeNamedItem(name: string): DOMNode;
+	removeNamedItem(name: string): DOMNode
 
-  item(index: number): DOMNode;
+	item(index: number): DOMNode
 
-  getNamedItemNSLocalName(namespaceURI: string, localName: string): DOMNode;
+	getNamedItemNSLocalName(namespaceURI: string, localName: string): DOMNode
 
-  setNamedItemNS(node: DOMNode): DOMNode;
+	setNamedItemNS(node: DOMNode): DOMNode
 
-  removeNamedItemNSLocalName(namespaceURI: string, localName: string): DOMNode;
+	removeNamedItemNSLocalName(namespaceURI: string, localName: string): DOMNode
 
-  getNamedItemNS(namespaceURI: string, localName: string): DOMNode;
+	getNamedItemNS(namespaceURI: string, localName: string): DOMNode
 
-  removeNamedItemNS(namespaceURI: string, localName: string): DOMNode;
+	removeNamedItemNS(namespaceURI: string, localName: string): DOMNode
 }
 
 export declare class DOMRange extends DOMObject {
-  readonly startContainer: DOMNode;
+	readonly startContainer: DOMNode
 
-  readonly startOffset: number;
+	readonly startOffset: number
 
-  readonly endContainer: DOMNode;
+	readonly endContainer: DOMNode
 
-  readonly endOffset: number;
+	readonly endOffset: number
 
-  readonly collapsed: boolean;
+	readonly collapsed: boolean
 
-  readonly commonAncestorContainer: DOMNode;
+	readonly commonAncestorContainer: DOMNode
 
-  readonly text: string;
+	readonly text: string
 
-  setStartBefore(refNode: DOMNode): void;
+	setStartBefore(refNode: DOMNode): void
 
-  setStartAfter(refNode: DOMNode): void;
+	setStartAfter(refNode: DOMNode): void
 
-  setEndBefore(refNode: DOMNode): void;
+	setEndBefore(refNode: DOMNode): void
 
-  setEndAfter(refNode: DOMNode): void;
+	setEndAfter(refNode: DOMNode): void
 
-  collapse(toStart: boolean): void;
+	collapse(toStart: boolean): void
 
-  selectNode(refNode: DOMNode): void;
+	selectNode(refNode: DOMNode): void
 
-  selectNodeContents(refNode: DOMNode): void;
+	selectNodeContents(refNode: DOMNode): void
 
-  compareBoundaryPointsSourceRange(how: number, sourceRange: DOMRange): number;
+	compareBoundaryPointsSourceRange(how: number, sourceRange: DOMRange): number
 
-  deleteContents(): void;
+	deleteContents(): void
 
-  extractContents(): DOMDocumentFragment;
+	extractContents(): DOMDocumentFragment
 
-  cloneContents(): DOMDocumentFragment;
+	cloneContents(): DOMDocumentFragment
 
-  insertNode(newNode: DOMNode): void;
+	insertNode(newNode: DOMNode): void
 
-  surroundContents(newParent: DOMNode): void;
+	surroundContents(newParent: DOMNode): void
 
-  cloneRange(): DOMRange;
+	cloneRange(): DOMRange
 
-  toString(): string;
+	toString(): string
 
-  detach(): void;
+	detach(): void
 
-  createContextualFragment(html: string): DOMDocumentFragment;
+	createContextualFragment(html: string): DOMDocumentFragment
 
-  compareNode(refNode: DOMNode): number;
+	compareNode(refNode: DOMNode): number
 
-  intersectsNode(refNode: DOMNode): boolean;
+	intersectsNode(refNode: DOMNode): boolean
 
-  comparePointOffset(refNode: DOMNode, offset: number): number;
+	comparePointOffset(refNode: DOMNode, offset: number): number
 
-  isPointInRangeOffset(refNode: DOMNode, offset: number): boolean;
+	isPointInRangeOffset(refNode: DOMNode, offset: number): boolean
 
-  setStart(refNode: DOMNode, offset: number): void;
+	setStart(refNode: DOMNode, offset: number): void
 
-  setEnd(refNode: DOMNode, offset: number): void;
+	setEnd(refNode: DOMNode, offset: number): void
 
-  compareBoundaryPoints(how: number, sourceRange: DOMRange): number;
+	compareBoundaryPoints(how: number, sourceRange: DOMRange): number
 
-  readonly webArchive: WebArchive;
+	readonly webArchive: WebArchive
 
-  readonly markupString: string;
+	readonly markupString: string
 }
 
 export declare class WKBackForwardListItem extends NSObject {
-  readonly URL: NSURL;
+	readonly URL: NSURL
 
-  readonly title: string;
+	readonly title: string
 
-  readonly initialURL: NSURL;
+	readonly initialURL: NSURL
 }
 
 export declare class WebArchive extends NSObject implements NSCoding, NSCopying {
-  initWithMainResourceSubresourcesSubframeArchives(mainResource: WebResource, subresources: NSArray<interop.Object> | Array<interop.Object>, subframeArchives: NSArray<interop.Object> | Array<interop.Object>): this;
+	initWithMainResourceSubresourcesSubframeArchives(
+		mainResource: WebResource,
+		subresources: NSArray<interop.Object> | Array<interop.Object>,
+		subframeArchives: NSArray<interop.Object> | Array<interop.Object>,
+	): this
 
-  initWithData(data: NSData): this;
+	initWithData(data: NSData): this
 
-  readonly mainResource: WebResource;
+	readonly mainResource: WebResource
 
-  readonly subresources: NSArray;
+	readonly subresources: NSArray
 
-  readonly subframeArchives: NSArray;
+	readonly subframeArchives: NSArray
 
-  readonly data: NSData;
+	readonly data: NSData
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 export declare class DOMMutationEvent extends DOMEvent {
-  readonly relatedNode: DOMNode;
+	readonly relatedNode: DOMNode
 
-  readonly prevValue: string;
+	readonly prevValue: string
 
-  readonly newValue: string;
+	readonly newValue: string
 
-  readonly attrName: string;
+	readonly attrName: string
 
-  readonly attrChange: number;
+	readonly attrChange: number
 
-  initMutationEventCanBubbleCancelableRelatedNodePrevValueNewValueAttrNameAttrChange(type: string, canBubble: boolean, cancelable: boolean, relatedNode: DOMNode, prevValue: string, newValue: string, attrName: string, attrChange: number): this;
+	initMutationEventCanBubbleCancelableRelatedNodePrevValueNewValueAttrNameAttrChange(
+		type: string,
+		canBubble: boolean,
+		cancelable: boolean,
+		relatedNode: DOMNode,
+		prevValue: string,
+		newValue: string,
+		attrName: string,
+		attrChange: number,
+	): this
 
-  initMutationEvent(type: string, canBubble: boolean, cancelable: boolean, relatedNode: DOMNode, prevValue: string, newValue: string, attrName: string, attrChange: number): this;
+	initMutationEvent(
+		type: string,
+		canBubble: boolean,
+		cancelable: boolean,
+		relatedNode: DOMNode,
+		prevValue: string,
+		newValue: string,
+		attrName: string,
+		attrChange: number,
+	): this
 }
 
 export declare class DOMHTMLDivElement extends DOMHTMLElement {
-  align: string;
+	align: string
 }
 
 export declare class DOMHTMLLabelElement extends DOMHTMLElement {
-  readonly form: DOMHTMLFormElement;
+	readonly form: DOMHTMLFormElement
 
-  htmlFor: string;
+	htmlFor: string
 
-  accessKey: string;
+	accessKey: string
 }
 
 export declare class DOMMediaList extends DOMObject {
-  mediaText: string;
+	mediaText: string
 
-  readonly length: number;
+	readonly length: number
 
-  item(index: number): string;
+	item(index: number): string
 
-  deleteMedium(oldMedium: string): void;
+	deleteMedium(oldMedium: string): void
 
-  appendMedium(newMedium: string): void;
+	appendMedium(newMedium: string): void
 }
 
 export declare class DOMHTMLDocument extends DOMDocument {
-  readonly embeds: DOMHTMLCollection;
+	readonly embeds: DOMHTMLCollection
 
-  readonly plugins: DOMHTMLCollection;
+	readonly plugins: DOMHTMLCollection
 
-  readonly scripts: DOMHTMLCollection;
+	readonly scripts: DOMHTMLCollection
 
-  readonly width: number;
+	readonly width: number
 
-  readonly height: number;
+	readonly height: number
 
-  dir: string;
+	dir: string
 
-  designMode: string;
+	designMode: string
 
-  readonly compatMode: string;
+	readonly compatMode: string
 
-  bgColor: string;
+	bgColor: string
 
-  fgColor: string;
+	fgColor: string
 
-  alinkColor: string;
+	alinkColor: string
 
-  linkColor: string;
+	linkColor: string
 
-  vlinkColor: string;
+	vlinkColor: string
 
-  open(): void;
+	open(): void
 
-  close(): void;
+	close(): void
 
-  write(text: string): void;
+	write(text: string): void
 
-  writeln(text: string): void;
+	writeln(text: string): void
 
-  clear(): void;
+	clear(): void
 
-  captureEvents(): void;
+	captureEvents(): void
 
-  releaseEvents(): void;
+	releaseEvents(): void
 
-  createDocumentFragmentWithMarkupStringBaseURL(markupString: string, baseURL: NSURL): DOMDocumentFragment;
+	createDocumentFragmentWithMarkupStringBaseURL(
+		markupString: string,
+		baseURL: NSURL,
+	): DOMDocumentFragment
 
-  createDocumentFragmentWithText(text: string): DOMDocumentFragment;
+	createDocumentFragmentWithText(text: string): DOMDocumentFragment
 }
 
 export declare class WKNavigationAction extends NSObject {
-  readonly sourceFrame: WKFrameInfo;
+	readonly sourceFrame: WKFrameInfo
 
-  readonly targetFrame: WKFrameInfo;
+	readonly targetFrame: WKFrameInfo
 
-  readonly navigationType: interop.Enum<typeof WKNavigationType>;
+	readonly navigationType: interop.Enum<typeof WKNavigationType>
 
-  readonly request: NSURLRequest;
+	readonly request: NSURLRequest
 
-  readonly modifierFlags: interop.Enum<typeof NSEventModifierFlags>;
+	readonly modifierFlags: interop.Enum<typeof NSEventModifierFlags>
 
-  readonly buttonNumber: number;
+	readonly buttonNumber: number
 }
 
 export declare class WebHistory extends NSObject {
-  static optionalSharedHistory(): WebHistory;
+	static optionalSharedHistory(): WebHistory
 
-  static setOptionalSharedHistory(history: WebHistory): void;
+	static setOptionalSharedHistory(history: WebHistory): void
 
-  loadFromURLError(URL: NSURL, error: interop.PointerConvertible): boolean;
+	loadFromURLError(URL: NSURL, error: interop.PointerConvertible): boolean
 
-  saveToURLError(URL: NSURL, error: interop.PointerConvertible): boolean;
+	saveToURLError(URL: NSURL, error: interop.PointerConvertible): boolean
 
-  addItems(newItems: NSArray<interop.Object> | Array<interop.Object>): void;
+	addItems(newItems: NSArray<interop.Object> | Array<interop.Object>): void
 
-  removeItems(items: NSArray<interop.Object> | Array<interop.Object>): void;
+	removeItems(items: NSArray<interop.Object> | Array<interop.Object>): void
 
-  removeAllItems(): void;
+	removeAllItems(): void
 
-  readonly orderedLastVisitedDays: NSArray;
+	readonly orderedLastVisitedDays: NSArray
 
-  orderedItemsLastVisitedOnDay(calendarDate: NSCalendarDate): NSArray;
+	orderedItemsLastVisitedOnDay(calendarDate: NSCalendarDate): NSArray
 
-  itemForURL(URL: NSURL): WebHistoryItem;
+	itemForURL(URL: NSURL): WebHistoryItem
 
-  historyItemLimit: number;
+	historyItemLimit: number
 
-  historyAgeInDaysLimit: number;
+	historyAgeInDaysLimit: number
 }
 
 export declare class DOMHTMLBRElement extends DOMHTMLElement {
-  clear: string;
+	clear: string
 }
 
 export declare class DOMDocumentType extends DOMNode {
-  readonly name: string;
+	readonly name: string
 
-  readonly entities: DOMNamedNodeMap;
+	readonly entities: DOMNamedNodeMap
 
-  readonly notations: DOMNamedNodeMap;
+	readonly notations: DOMNamedNodeMap
 
-  readonly publicId: string;
+	readonly publicId: string
 
-  readonly systemId: string;
+	readonly systemId: string
 
-  readonly internalSubset: string;
+	readonly internalSubset: string
 }
 
 export declare class DOMCSSRule extends DOMObject {
-  readonly type: number;
+	readonly type: number
 
-  cssText: string;
+	cssText: string
 
-  readonly parentStyleSheet: DOMCSSStyleSheet;
+	readonly parentStyleSheet: DOMCSSStyleSheet
 
-  readonly parentRule: DOMCSSRule;
+	readonly parentRule: DOMCSSRule
 }
 
 export declare class DOMHTMLAnchorElement extends DOMHTMLElement {
-  charset: string;
+	charset: string
 
-  coords: string;
+	coords: string
 
-  hreflang: string;
+	hreflang: string
 
-  name: string;
+	name: string
 
-  rel: string;
+	rel: string
 
-  rev: string;
+	rev: string
 
-  shape: string;
+	shape: string
 
-  target: string;
+	target: string
 
-  type: string;
+	type: string
 
-  accessKey: string;
+	accessKey: string
 
-  readonly text: string;
+	readonly text: string
 
-  readonly absoluteLinkURL: NSURL;
+	readonly absoluteLinkURL: NSURL
 
-  href: string;
+	href: string
 
-  readonly protocol: string;
+	readonly protocol: string
 
-  readonly host: string;
+	readonly host: string
 
-  readonly hostname: string;
+	readonly hostname: string
 
-  readonly port: string;
+	readonly port: string
 
-  readonly pathname: string;
+	readonly pathname: string
 
-  readonly search: string;
+	readonly search: string
 
-  readonly hashName: string;
+	readonly hashName: string
 }
 
 export declare class DOMHTMLLinkElement extends DOMHTMLElement {
-  disabled: boolean;
+	disabled: boolean
 
-  charset: string;
+	charset: string
 
-  href: string;
+	href: string
 
-  hreflang: string;
+	hreflang: string
 
-  media: string;
+	media: string
 
-  rel: string;
+	rel: string
 
-  rev: string;
+	rev: string
 
-  target: string;
+	target: string
 
-  type: string;
+	type: string
 
-  readonly sheet: DOMStyleSheet;
+	readonly sheet: DOMStyleSheet
 
-  readonly absoluteLinkURL: NSURL;
+	readonly absoluteLinkURL: NSURL
 }
 
 export declare class DOMHTMLStyleElement extends DOMHTMLElement {
-  disabled: boolean;
+	disabled: boolean
 
-  media: string;
+	media: string
 
-  type: string;
+	type: string
 
-  readonly sheet: DOMStyleSheet;
+	readonly sheet: DOMStyleSheet
 }
 
 export declare class WKProcessPool extends NSObject implements NSSecureCoding {
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 export declare class DOMXPathExpression extends DOMObject {
-  evaluateTypeInResult(contextNode: DOMNode, type: number, inResult: DOMXPathResult): DOMXPathResult;
+	evaluateTypeInResult(contextNode: DOMNode, type: number, inResult: DOMXPathResult): DOMXPathResult
 
-  evaluate(contextNode: DOMNode, type: number, inResult: DOMXPathResult): DOMXPathResult;
+	evaluate(contextNode: DOMNode, type: number, inResult: DOMXPathResult): DOMXPathResult
 }
 
 export declare class DOMHTMLBodyElement extends DOMHTMLElement {
-  aLink: string;
+	aLink: string
 
-  background: string;
+	background: string
 
-  bgColor: string;
+	bgColor: string
 
-  link: string;
+	link: string
 
-  text: string;
+	text: string
 
-  vLink: string;
+	vLink: string
 }
 
 export declare class DOMStyleSheetList extends DOMObject {
-  readonly length: number;
+	readonly length: number
 
-  item(index: number): DOMStyleSheet;
+	item(index: number): DOMStyleSheet
 }
 
 export declare class DOMProcessingInstruction extends DOMCharacterData {
-  readonly target: string;
+	readonly target: string
 
-  readonly sheet: DOMStyleSheet;
+	readonly sheet: DOMStyleSheet
 }
 
 export declare class WKWebsiteDataRecord extends NSObject {
-  readonly displayName: string;
+	readonly displayName: string
 
-  readonly dataTypes: NSSet;
+	readonly dataTypes: NSSet
 }
 
 export declare class DOMCSSPageRule extends DOMCSSRule {
-  selectorText: string;
+	selectorText: string
 
-  readonly style: DOMCSSStyleDeclaration;
+	readonly style: DOMCSSStyleDeclaration
 }
 
 export declare class DOMHTMLUListElement extends DOMHTMLElement {
-  compact: boolean;
+	compact: boolean
 
-  type: string;
+	type: string
 }
 
 export declare class DOMKeyboardEvent extends DOMUIEvent {
-  readonly keyIdentifier: string;
+	readonly keyIdentifier: string
 
-  readonly location: number;
+	readonly location: number
 
-  readonly keyLocation: number;
+	readonly keyLocation: number
 
-  readonly ctrlKey: boolean;
+	readonly ctrlKey: boolean
 
-  readonly shiftKey: boolean;
+	readonly shiftKey: boolean
 
-  readonly altKey: boolean;
+	readonly altKey: boolean
 
-  readonly metaKey: boolean;
+	readonly metaKey: boolean
 
-  readonly altGraphKey: boolean;
+	readonly altGraphKey: boolean
 
-  readonly keyCode: number;
+	readonly keyCode: number
 
-  readonly charCode: number;
+	readonly charCode: number
 
-  getModifierState(keyIdentifierArg: string): boolean;
+	getModifierState(keyIdentifierArg: string): boolean
 
-  initKeyboardEventCanBubbleCancelableViewKeyIdentifierLocationCtrlKeyAltKeyShiftKeyMetaKeyAltGraphKey(type: string, canBubble: boolean, cancelable: boolean, view: DOMAbstractView, keyIdentifier: string, location: number, ctrlKey: boolean, altKey: boolean, shiftKey: boolean, metaKey: boolean, altGraphKey: boolean): this;
+	initKeyboardEventCanBubbleCancelableViewKeyIdentifierLocationCtrlKeyAltKeyShiftKeyMetaKeyAltGraphKey(
+		type: string,
+		canBubble: boolean,
+		cancelable: boolean,
+		view: DOMAbstractView,
+		keyIdentifier: string,
+		location: number,
+		ctrlKey: boolean,
+		altKey: boolean,
+		shiftKey: boolean,
+		metaKey: boolean,
+		altGraphKey: boolean,
+	): this
 
-  initKeyboardEventCanBubbleCancelableViewKeyIdentifierLocationCtrlKeyAltKeyShiftKeyMetaKey(type: string, canBubble: boolean, cancelable: boolean, view: DOMAbstractView, keyIdentifier: string, location: number, ctrlKey: boolean, altKey: boolean, shiftKey: boolean, metaKey: boolean): this;
+	initKeyboardEventCanBubbleCancelableViewKeyIdentifierLocationCtrlKeyAltKeyShiftKeyMetaKey(
+		type: string,
+		canBubble: boolean,
+		cancelable: boolean,
+		view: DOMAbstractView,
+		keyIdentifier: string,
+		location: number,
+		ctrlKey: boolean,
+		altKey: boolean,
+		shiftKey: boolean,
+		metaKey: boolean,
+	): this
 
-  initKeyboardEventCanBubbleCancelableViewKeyIdentifierKeyLocationCtrlKeyAltKeyShiftKeyMetaKeyAltGraphKey(type: string, canBubble: boolean, cancelable: boolean, view: DOMAbstractView, keyIdentifier: string, keyLocation: number, ctrlKey: boolean, altKey: boolean, shiftKey: boolean, metaKey: boolean, altGraphKey: boolean): this;
+	initKeyboardEventCanBubbleCancelableViewKeyIdentifierKeyLocationCtrlKeyAltKeyShiftKeyMetaKeyAltGraphKey(
+		type: string,
+		canBubble: boolean,
+		cancelable: boolean,
+		view: DOMAbstractView,
+		keyIdentifier: string,
+		keyLocation: number,
+		ctrlKey: boolean,
+		altKey: boolean,
+		shiftKey: boolean,
+		metaKey: boolean,
+		altGraphKey: boolean,
+	): this
 
-  initKeyboardEventCanBubbleCancelableViewKeyIdentifierKeyLocationCtrlKeyAltKeyShiftKeyMetaKey(type: string, canBubble: boolean, cancelable: boolean, view: DOMAbstractView, keyIdentifier: string, keyLocation: number, ctrlKey: boolean, altKey: boolean, shiftKey: boolean, metaKey: boolean): this;
+	initKeyboardEventCanBubbleCancelableViewKeyIdentifierKeyLocationCtrlKeyAltKeyShiftKeyMetaKey(
+		type: string,
+		canBubble: boolean,
+		cancelable: boolean,
+		view: DOMAbstractView,
+		keyIdentifier: string,
+		keyLocation: number,
+		ctrlKey: boolean,
+		altKey: boolean,
+		shiftKey: boolean,
+		metaKey: boolean,
+	): this
 }
 
 export declare class DOMEntity extends DOMNode {
-  readonly publicId: string;
+	readonly publicId: string
 
-  readonly systemId: string;
+	readonly systemId: string
 
-  readonly notationName: string;
+	readonly notationName: string
 }
 
 export declare class DOMHTMLButtonElement extends DOMHTMLElement {
-  autofocus: boolean;
+	autofocus: boolean
 
-  disabled: boolean;
+	disabled: boolean
 
-  readonly form: DOMHTMLFormElement;
+	readonly form: DOMHTMLFormElement
 
-  type: string;
+	type: string
 
-  name: string;
+	name: string
 
-  value: string;
+	value: string
 
-  readonly willValidate: boolean;
+	readonly willValidate: boolean
 
-  accessKey: string;
+	accessKey: string
 
-  click(): void;
+	click(): void
 }
 
 export declare class WKFrameInfo extends NSObject implements NSCopying {
-  readonly mainFrame: boolean;
+	readonly mainFrame: boolean
 
-  readonly request: NSURLRequest;
+	readonly request: NSURLRequest
 
-  readonly securityOrigin: WKSecurityOrigin;
+	readonly securityOrigin: WKSecurityOrigin
 
-  readonly webView: WKWebView | null;
+	readonly webView: WKWebView | null
 
-  isMainFrame(): boolean;
+	isMainFrame(): boolean
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 export declare class WKWindowFeatures extends NSObject {
-  readonly menuBarVisibility: NSNumber;
+	readonly menuBarVisibility: NSNumber
 
-  readonly statusBarVisibility: NSNumber;
+	readonly statusBarVisibility: NSNumber
 
-  readonly toolbarsVisibility: NSNumber;
+	readonly toolbarsVisibility: NSNumber
 
-  readonly allowsResizing: NSNumber;
+	readonly allowsResizing: NSNumber
 
-  readonly x: NSNumber;
+	readonly x: NSNumber
 
-  readonly y: NSNumber;
+	readonly y: NSNumber
 
-  readonly width: NSNumber;
+	readonly width: NSNumber
 
-  readonly height: NSNumber;
+	readonly height: NSNumber
 }
 
 export declare class DOMObject extends WebScriptObject implements NSCopying {
-  readonly sheet: DOMStyleSheet;
+	readonly sheet: DOMStyleSheet
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 export declare class DOMHTMLTableElement extends DOMHTMLElement {
-  caption: DOMHTMLTableCaptionElement;
+	caption: DOMHTMLTableCaptionElement
 
-  tHead: DOMHTMLTableSectionElement;
+	tHead: DOMHTMLTableSectionElement
 
-  tFoot: DOMHTMLTableSectionElement;
+	tFoot: DOMHTMLTableSectionElement
 
-  readonly rows: DOMHTMLCollection;
+	readonly rows: DOMHTMLCollection
 
-  readonly tBodies: DOMHTMLCollection;
+	readonly tBodies: DOMHTMLCollection
 
-  align: string;
+	align: string
 
-  bgColor: string;
+	bgColor: string
 
-  border: string;
+	border: string
 
-  cellPadding: string;
+	cellPadding: string
 
-  cellSpacing: string;
+	cellSpacing: string
 
-  frameBorders: string;
+	frameBorders: string
 
-  rules: string;
+	rules: string
 
-  summary: string;
+	summary: string
 
-  width: string;
+	width: string
 
-  createTHead(): DOMHTMLElement;
+	createTHead(): DOMHTMLElement
 
-  deleteTHead(): void;
+	deleteTHead(): void
 
-  createTFoot(): DOMHTMLElement;
+	createTFoot(): DOMHTMLElement
 
-  deleteTFoot(): void;
+	deleteTFoot(): void
 
-  createCaption(): DOMHTMLElement;
+	createCaption(): DOMHTMLElement
 
-  deleteCaption(): void;
+	deleteCaption(): void
 
-  insertRow(index: number): DOMHTMLElement;
+	insertRow(index: number): DOMHTMLElement
 
-  deleteRow(index: number): void;
+	deleteRow(index: number): void
 }
 
 export declare class DOMFileList extends DOMObject {
-  readonly length: number;
+	readonly length: number
 
-  item(index: number): DOMFile;
+	item(index: number): DOMFile
 }
 
 export declare class DOMCSSValue extends DOMObject {
-  cssText: string;
+	cssText: string
 
-  readonly cssValueType: number;
+	readonly cssValueType: number
 }
 
 export declare class DOMProgressEvent extends DOMEvent {
-  readonly lengthComputable: boolean;
+	readonly lengthComputable: boolean
 
-  readonly loaded: number;
+	readonly loaded: number
 
-  readonly total: number;
+	readonly total: number
 }
 
 export declare class WebPreferences extends NSObject implements NSCoding {
-  static standardPreferences(): WebPreferences;
+	static standardPreferences(): WebPreferences
 
-  initWithIdentifier(anIdentifier: string): this;
+	initWithIdentifier(anIdentifier: string): this
 
-  readonly identifier: string;
+	readonly identifier: string
 
-  standardFontFamily: string;
+	standardFontFamily: string
 
-  fixedFontFamily: string;
+	fixedFontFamily: string
 
-  serifFontFamily: string;
+	serifFontFamily: string
 
-  sansSerifFontFamily: string;
+	sansSerifFontFamily: string
 
-  cursiveFontFamily: string;
+	cursiveFontFamily: string
 
-  fantasyFontFamily: string;
+	fantasyFontFamily: string
 
-  defaultFontSize: number;
+	defaultFontSize: number
 
-  defaultFixedFontSize: number;
+	defaultFixedFontSize: number
 
-  minimumFontSize: number;
+	minimumFontSize: number
 
-  minimumLogicalFontSize: number;
+	minimumLogicalFontSize: number
 
-  defaultTextEncodingName: string;
+	defaultTextEncodingName: string
 
-  userStyleSheetEnabled: boolean;
+	userStyleSheetEnabled: boolean
 
-  userStyleSheetLocation: NSURL;
+	userStyleSheetLocation: NSURL
 
-  javaEnabled: boolean;
+	javaEnabled: boolean
 
-  javaScriptEnabled: boolean;
+	javaScriptEnabled: boolean
 
-  javaScriptCanOpenWindowsAutomatically: boolean;
+	javaScriptCanOpenWindowsAutomatically: boolean
 
-  plugInsEnabled: boolean;
+	plugInsEnabled: boolean
 
-  allowsAnimatedImages: boolean;
+	allowsAnimatedImages: boolean
 
-  allowsAnimatedImageLooping: boolean;
+	allowsAnimatedImageLooping: boolean
 
-  loadsImagesAutomatically: boolean;
+	loadsImagesAutomatically: boolean
 
-  autosaves: boolean;
+	autosaves: boolean
 
-  shouldPrintBackgrounds: boolean;
+	shouldPrintBackgrounds: boolean
 
-  privateBrowsingEnabled: boolean;
+	privateBrowsingEnabled: boolean
 
-  tabsToLinks: boolean;
+	tabsToLinks: boolean
 
-  usesPageCache: boolean;
+	usesPageCache: boolean
 
-  cacheModel: interop.Enum<typeof WebCacheModel>;
+	cacheModel: interop.Enum<typeof WebCacheModel>
 
-  suppressesIncrementalRendering: boolean;
+	suppressesIncrementalRendering: boolean
 
-  allowsAirPlayForMediaPlayback: boolean;
+	allowsAirPlayForMediaPlayback: boolean
 
-  isJavaEnabled(): boolean;
+	isJavaEnabled(): boolean
 
-  isJavaScriptEnabled(): boolean;
+	isJavaScriptEnabled(): boolean
 
-  arePlugInsEnabled(): boolean;
+	arePlugInsEnabled(): boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 export declare class WKContentRuleList extends NSObject {
-  readonly identifier: string;
+	readonly identifier: string
 }
 
 export declare class DOMCSSPrimitiveValue extends DOMCSSValue {
-  readonly primitiveType: number;
+	readonly primitiveType: number
 
-  setFloatValueFloatValue(unitType: number, floatValue: number): void;
+	setFloatValueFloatValue(unitType: number, floatValue: number): void
 
-  getFloatValue(unitType: number): number;
+	getFloatValue(unitType: number): number
 
-  setStringValueStringValue(stringType: number, stringValue: string): void;
+	setStringValueStringValue(stringType: number, stringValue: string): void
 
-  getStringValue(): string;
+	getStringValue(): string
 
-  getCounterValue(): DOMCounter;
+	getCounterValue(): DOMCounter
 
-  getRectValue(): DOMRect;
+	getRectValue(): DOMRect
 
-  getRGBColorValue(): DOMRGBColor;
+	getRGBColorValue(): DOMRGBColor
 
-  setFloatValue(unitType: number, floatValue: number): void;
+	setFloatValue(unitType: number, floatValue: number): void
 
-  setStringValue(stringType: number, stringValue: string): void;
+	setStringValue(stringType: number, stringValue: string): void
 }
 
-export declare class DOMDocumentFragment extends DOMNode {
-}
+export declare class DOMDocumentFragment extends DOMNode {}
 
 export declare class DOMHTMLTableCaptionElement extends DOMHTMLElement {
-  align: string;
+	align: string
 }
 
 export declare class WebFrame extends NSObject {
-  initWithNameWebFrameViewWebView(name: string, view: WebFrameView, webView: WebView): this;
+	initWithNameWebFrameViewWebView(name: string, view: WebFrameView, webView: WebView): this
 
-  readonly name: string;
+	readonly name: string
 
-  readonly webView: WebView;
+	readonly webView: WebView
 
-  readonly frameView: WebFrameView;
+	readonly frameView: WebFrameView
 
-  readonly DOMDocument: DOMDocument;
+	readonly DOMDocument: DOMDocument
 
-  readonly frameElement: DOMHTMLElement;
+	readonly frameElement: DOMHTMLElement
 
-  loadRequest(request: NSURLRequest): void;
+	loadRequest(request: NSURLRequest): void
 
-  loadDataMIMETypeTextEncodingNameBaseURL(data: NSData, MIMEType: string, encodingName: string, URL: NSURL): void;
+	loadDataMIMETypeTextEncodingNameBaseURL(
+		data: NSData,
+		MIMEType: string,
+		encodingName: string,
+		URL: NSURL,
+	): void
 
-  loadHTMLStringBaseURL(string: string, URL: NSURL): void;
+	loadHTMLStringBaseURL(string: string, URL: NSURL): void
 
-  loadAlternateHTMLStringBaseURLForUnreachableURL(string: string, baseURL: NSURL, unreachableURL: NSURL): void;
+	loadAlternateHTMLStringBaseURLForUnreachableURL(
+		string: string,
+		baseURL: NSURL,
+		unreachableURL: NSURL,
+	): void
 
-  loadArchive(archive: WebArchive): void;
+	loadArchive(archive: WebArchive): void
 
-  readonly dataSource: WebDataSource;
+	readonly dataSource: WebDataSource
 
-  readonly provisionalDataSource: WebDataSource;
+	readonly provisionalDataSource: WebDataSource
 
-  stopLoading(): void;
+	stopLoading(): void
 
-  reload(): void;
+	reload(): void
 
-  reloadFromOrigin(): void;
+	reloadFromOrigin(): void
 
-  findFrameNamed(name: string): WebFrame;
+	findFrameNamed(name: string): WebFrame
 
-  readonly parentFrame: WebFrame;
+	readonly parentFrame: WebFrame
 
-  readonly childFrames: NSArray;
+	readonly childFrames: NSArray
 
-  readonly windowObject: WebScriptObject;
+	readonly windowObject: WebScriptObject
 
-  readonly globalContext: interop.Pointer;
+	readonly globalContext: interop.Pointer
 
-  readonly javaScriptContext: JSContext;
+	readonly javaScriptContext: JSContext
 }
 
 export declare class WKNavigation extends NSObject {
-  readonly effectiveContentMode: interop.Enum<typeof WKContentMode>;
+	readonly effectiveContentMode: interop.Enum<typeof WKContentMode>
 }
 
 export declare class DOMHTMLTableSectionElement extends DOMHTMLElement {
-  align: string;
+	align: string
 
-  ch: string;
+	ch: string
 
-  chOff: string;
+	chOff: string
 
-  vAlign: string;
+	vAlign: string
 
-  readonly rows: DOMHTMLCollection;
+	readonly rows: DOMHTMLCollection
 
-  insertRow(index: number): DOMHTMLElement;
+	insertRow(index: number): DOMHTMLElement
 
-  deleteRow(index: number): void;
+	deleteRow(index: number): void
 }
 
 export declare class DOMHTMLParagraphElement extends DOMHTMLElement {
-  align: string;
+	align: string
 }
 
 export declare class WKScriptMessage extends NSObject {
-  readonly body: interop.Object;
+	readonly body: interop.Object
 
-  readonly webView: WKWebView;
+	readonly webView: WKWebView
 
-  readonly frameInfo: WKFrameInfo;
+	readonly frameInfo: WKFrameInfo
 
-  readonly name: string;
+	readonly name: string
 
-  readonly world: WKContentWorld;
+	readonly world: WKContentWorld
 }
 
 export declare class WKFindConfiguration extends NSObject implements NSCopying {
-  backwards: boolean;
+	backwards: boolean
 
-  caseSensitive: boolean;
+	caseSensitive: boolean
 
-  wraps: boolean;
+	wraps: boolean
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 export declare class WKWebpagePreferences extends NSObject {
-  preferredContentMode: interop.Enum<typeof WKContentMode>;
+	preferredContentMode: interop.Enum<typeof WKContentMode>
 
-  allowsContentJavaScript: boolean;
+	allowsContentJavaScript: boolean
 }
 
 export declare class DOMHTMLHeadElement extends DOMHTMLElement {
-  profile: string;
+	profile: string
 }
 
 export declare class DOMCSSCharsetRule extends DOMCSSRule {
-  readonly encoding: string;
+	readonly encoding: string
 }
 
 export declare class DOMCharacterData extends DOMNode {
-  data: string;
+	data: string
 
-  readonly length: number;
+	readonly length: number
 
-  substringDataLength(offset: number, length: number): string;
+	substringDataLength(offset: number, length: number): string
 
-  appendData(data: string): void;
+	appendData(data: string): void
 
-  insertDataData(offset: number, data: string): void;
+	insertDataData(offset: number, data: string): void
 
-  deleteDataLength(offset: number, length: number): void;
+	deleteDataLength(offset: number, length: number): void
 
-  replaceDataLengthData(offset: number, length: number, data: string): void;
+	replaceDataLengthData(offset: number, length: number, data: string): void
 
-  substringData(offset: number, length: number): string;
+	substringData(offset: number, length: number): string
 
-  insertData(offset: number, data: string): void;
+	insertData(offset: number, data: string): void
 
-  deleteData(offset: number, length: number): void;
+	deleteData(offset: number, length: number): void
 
-  replaceData(offset: number, length: number, data: string): void;
+	replaceData(offset: number, length: number, data: string): void
 }
 
 export declare class DOMTreeWalker extends DOMObject {
-  readonly root: DOMNode;
+	readonly root: DOMNode
 
-  readonly whatToShow: number;
+	readonly whatToShow: number
 
-  readonly filter: DOMNodeFilter;
+	readonly filter: DOMNodeFilter
 
-  readonly expandEntityReferences: boolean;
+	readonly expandEntityReferences: boolean
 
-  currentNode: DOMNode;
+	currentNode: DOMNode
 
-  parentNode(): DOMNode;
+	parentNode(): DOMNode
 
-  firstChild(): DOMNode;
+	firstChild(): DOMNode
 
-  lastChild(): DOMNode;
+	lastChild(): DOMNode
 
-  previousSibling(): DOMNode;
+	previousSibling(): DOMNode
 
-  nextSibling(): DOMNode;
+	nextSibling(): DOMNode
 
-  previousNode(): DOMNode;
+	previousNode(): DOMNode
 
-  nextNode(): DOMNode;
+	nextNode(): DOMNode
 }
 
 export declare class DOMHTMLMapElement extends DOMHTMLElement {
-  readonly areas: DOMHTMLCollection;
+	readonly areas: DOMHTMLCollection
 
-  name: string;
+	name: string
 }
 
 export declare class WKContentWorld extends NSObject {
-  static readonly pageWorld: WKContentWorld;
+	static readonly pageWorld: WKContentWorld
 
-  static readonly defaultClientWorld: WKContentWorld;
+	static readonly defaultClientWorld: WKContentWorld
 
-  static worldWithName(name: string): WKContentWorld;
+	static worldWithName(name: string): WKContentWorld
 
-  readonly name: string;
+	readonly name: string
 }

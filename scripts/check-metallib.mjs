@@ -26,9 +26,7 @@ for (const file of globSync(join(pkgRoot, 'metal/*.metal'))) {
 	const source = readFileSync(file, 'utf8')
 	for (const match of source.matchAll(/\[\[\s*stitchable\s*\]\]/g)) {
 		const rest = source.slice(match.index)
-		const name = rest
-			.slice(0, rest.indexOf('('))
-			.match(/([A-Za-z_]\w*)\s*$/)?.[1]
+		const name = rest.slice(0, rest.indexOf('(')).match(/([A-Za-z_]\w*)\s*$/)?.[1]
 
 		if (name) {
 			declared.set(name, file)
@@ -54,9 +52,7 @@ if (libraries.length === 0) {
 for (const lib of libraries) {
 	// Pull printable ASCII runs from the bitcode blob — enough to recover
 	// embedded function names without parsing the format.
-	const strings = new Set(
-		readFileSync(lib, 'latin1').match(/[\x20-\x7e]{4,}/g) ?? [],
-	)
+	const strings = new Set(readFileSync(lib, 'latin1').match(/[\x20-\x7e]{4,}/g) ?? [])
 
 	for (const [name, file] of declared) {
 		if (!strings.has(name)) {

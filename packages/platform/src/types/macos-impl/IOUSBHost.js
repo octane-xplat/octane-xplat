@@ -1,77 +1,281 @@
 import { _bind } from './_rt.js'
 const FW = '/System/Library/Frameworks/IOUSBHost.framework/IOUSBHost'
 export const IOUSBGetBillboardDescriptor = /* @__PURE__ */ _bind(FW, 'IOUSBGetBillboardDescriptor')
-export const IOUSBGetConfigurationMaxPowerMilliAmps = /* @__PURE__ */ _bind(FW, 'IOUSBGetConfigurationMaxPowerMilliAmps')
-export const IOUSBGetContainerIDDescriptor = /* @__PURE__ */ _bind(FW, 'IOUSBGetContainerIDDescriptor')
+export const IOUSBGetConfigurationMaxPowerMilliAmps = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBGetConfigurationMaxPowerMilliAmps',
+)
+
+export const IOUSBGetContainerIDDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBGetContainerIDDescriptor',
+)
+
 export const IOUSBGetEndpointAddress = /* @__PURE__ */ _bind(FW, 'IOUSBGetEndpointAddress')
 export const IOUSBGetEndpointBurstSize = /* @__PURE__ */ _bind(FW, 'IOUSBGetEndpointBurstSize')
 export const IOUSBGetEndpointDirection = /* @__PURE__ */ _bind(FW, 'IOUSBGetEndpointDirection')
-export const IOUSBGetEndpointIntervalEncodedMicroframes = /* @__PURE__ */ _bind(FW, 'IOUSBGetEndpointIntervalEncodedMicroframes')
-export const IOUSBGetEndpointIntervalFrames = /* @__PURE__ */ _bind(FW, 'IOUSBGetEndpointIntervalFrames')
-export const IOUSBGetEndpointIntervalMicroframes = /* @__PURE__ */ _bind(FW, 'IOUSBGetEndpointIntervalMicroframes')
-export const IOUSBGetEndpointMaxPacketSize = /* @__PURE__ */ _bind(FW, 'IOUSBGetEndpointMaxPacketSize')
+export const IOUSBGetEndpointIntervalEncodedMicroframes = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBGetEndpointIntervalEncodedMicroframes',
+)
+
+export const IOUSBGetEndpointIntervalFrames = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBGetEndpointIntervalFrames',
+)
+
+export const IOUSBGetEndpointIntervalMicroframes = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBGetEndpointIntervalMicroframes',
+)
+
+export const IOUSBGetEndpointMaxPacketSize = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBGetEndpointMaxPacketSize',
+)
+
 export const IOUSBGetEndpointMaxStreams = /* @__PURE__ */ _bind(FW, 'IOUSBGetEndpointMaxStreams')
-export const IOUSBGetEndpointMaxStreamsEncoded = /* @__PURE__ */ _bind(FW, 'IOUSBGetEndpointMaxStreamsEncoded')
+export const IOUSBGetEndpointMaxStreamsEncoded = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBGetEndpointMaxStreamsEncoded',
+)
+
 export const IOUSBGetEndpointMult = /* @__PURE__ */ _bind(FW, 'IOUSBGetEndpointMult')
 export const IOUSBGetEndpointNumber = /* @__PURE__ */ _bind(FW, 'IOUSBGetEndpointNumber')
-export const IOUSBGetEndpointSynchronizationType = /* @__PURE__ */ _bind(FW, 'IOUSBGetEndpointSynchronizationType')
+export const IOUSBGetEndpointSynchronizationType = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBGetEndpointSynchronizationType',
+)
+
 export const IOUSBGetEndpointType = /* @__PURE__ */ _bind(FW, 'IOUSBGetEndpointType')
 export const IOUSBGetEndpointUsageType = /* @__PURE__ */ _bind(FW, 'IOUSBGetEndpointUsageType')
-export const IOUSBGetNextAssociatedDescriptor = /* @__PURE__ */ _bind(FW, 'IOUSBGetNextAssociatedDescriptor')
-export const IOUSBGetNextAssociatedDescriptorWithType = /* @__PURE__ */ _bind(FW, 'IOUSBGetNextAssociatedDescriptorWithType')
-export const IOUSBGetNextCapabilityDescriptor = /* @__PURE__ */ _bind(FW, 'IOUSBGetNextCapabilityDescriptor')
-export const IOUSBGetNextCapabilityDescriptorWithType = /* @__PURE__ */ _bind(FW, 'IOUSBGetNextCapabilityDescriptorWithType')
+export const IOUSBGetNextAssociatedDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBGetNextAssociatedDescriptor',
+)
+
+export const IOUSBGetNextAssociatedDescriptorWithType = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBGetNextAssociatedDescriptorWithType',
+)
+
+export const IOUSBGetNextCapabilityDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBGetNextCapabilityDescriptor',
+)
+
+export const IOUSBGetNextCapabilityDescriptorWithType = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBGetNextCapabilityDescriptorWithType',
+)
+
 export const IOUSBGetNextDescriptor = /* @__PURE__ */ _bind(FW, 'IOUSBGetNextDescriptor')
-export const IOUSBGetNextDescriptorWithType = /* @__PURE__ */ _bind(FW, 'IOUSBGetNextDescriptorWithType')
-export const IOUSBGetNextEndpointDescriptor = /* @__PURE__ */ _bind(FW, 'IOUSBGetNextEndpointDescriptor')
-export const IOUSBGetNextInterfaceAssociationDescriptor = /* @__PURE__ */ _bind(FW, 'IOUSBGetNextInterfaceAssociationDescriptor')
-export const IOUSBGetNextInterfaceDescriptor = /* @__PURE__ */ _bind(FW, 'IOUSBGetNextInterfaceDescriptor')
-export const IOUSBGetPlatformCapabilityDescriptor = /* @__PURE__ */ _bind(FW, 'IOUSBGetPlatformCapabilityDescriptor')
-export const IOUSBGetPlatformCapabilityDescriptorWithUUID = /* @__PURE__ */ _bind(FW, 'IOUSBGetPlatformCapabilityDescriptorWithUUID')
-export const IOUSBGetSuperSpeedDeviceCapabilityDescriptor = /* @__PURE__ */ _bind(FW, 'IOUSBGetSuperSpeedDeviceCapabilityDescriptor')
-export const IOUSBGetSuperSpeedPlusDeviceCapabilityDescriptor = /* @__PURE__ */ _bind(FW, 'IOUSBGetSuperSpeedPlusDeviceCapabilityDescriptor')
-export const IOUSBGetUSB20ExtensionDeviceCapabilityDescriptor = /* @__PURE__ */ _bind(FW, 'IOUSBGetUSB20ExtensionDeviceCapabilityDescriptor')
+export const IOUSBGetNextDescriptorWithType = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBGetNextDescriptorWithType',
+)
+
+export const IOUSBGetNextEndpointDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBGetNextEndpointDescriptor',
+)
+
+export const IOUSBGetNextInterfaceAssociationDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBGetNextInterfaceAssociationDescriptor',
+)
+
+export const IOUSBGetNextInterfaceDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBGetNextInterfaceDescriptor',
+)
+
+export const IOUSBGetPlatformCapabilityDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBGetPlatformCapabilityDescriptor',
+)
+
+export const IOUSBGetPlatformCapabilityDescriptorWithUUID = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBGetPlatformCapabilityDescriptorWithUUID',
+)
+
+export const IOUSBGetSuperSpeedDeviceCapabilityDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBGetSuperSpeedDeviceCapabilityDescriptor',
+)
+
+export const IOUSBGetSuperSpeedPlusDeviceCapabilityDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBGetSuperSpeedPlusDeviceCapabilityDescriptor',
+)
+
+export const IOUSBGetUSB20ExtensionDeviceCapabilityDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBGetUSB20ExtensionDeviceCapabilityDescriptor',
+)
+
 export const IOUSBHostAbortOption = /* @__PURE__ */ _bind(FW, 'IOUSBHostAbortOption')
-export const IOUSBHostCIControllerStateMachine = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIControllerStateMachine')
-export const IOUSBHostCIDeviceStateMachine = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIDeviceStateMachine')
-export const IOUSBHostCIEndpointStateMachine = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIEndpointStateMachine')
+export const IOUSBHostCIControllerStateMachine = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIControllerStateMachine',
+)
+
+export const IOUSBHostCIDeviceStateMachine = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIDeviceStateMachine',
+)
+
+export const IOUSBHostCIEndpointStateMachine = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostCIEndpointStateMachine',
+)
+
 export const IOUSBHostCIPortStateMachine = /* @__PURE__ */ _bind(FW, 'IOUSBHostCIPortStateMachine')
-export const IOUSBHostControllerInterface = /* @__PURE__ */ _bind(FW, 'IOUSBHostControllerInterface')
-export const IOUSBHostDefaultControlCompletionTimeout = /* @__PURE__ */ _bind(FW, 'IOUSBHostDefaultControlCompletionTimeout')
+export const IOUSBHostControllerInterface = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostControllerInterface',
+)
+
+export const IOUSBHostDefaultControlCompletionTimeout = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostDefaultControlCompletionTimeout',
+)
+
 export const IOUSBHostDevice = /* @__PURE__ */ _bind(FW, 'IOUSBHostDevice')
-export const IOUSBHostDevicePropertyKeyContainerID = /* @__PURE__ */ _bind(FW, 'IOUSBHostDevicePropertyKeyContainerID')
-export const IOUSBHostDevicePropertyKeyCurrentConfiguration = /* @__PURE__ */ _bind(FW, 'IOUSBHostDevicePropertyKeyCurrentConfiguration')
-export const IOUSBHostDevicePropertyKeySerialNumberString = /* @__PURE__ */ _bind(FW, 'IOUSBHostDevicePropertyKeySerialNumberString')
-export const IOUSBHostDevicePropertyKeyVendorString = /* @__PURE__ */ _bind(FW, 'IOUSBHostDevicePropertyKeyVendorString')
+export const IOUSBHostDevicePropertyKeyContainerID = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostDevicePropertyKeyContainerID',
+)
+
+export const IOUSBHostDevicePropertyKeyCurrentConfiguration = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostDevicePropertyKeyCurrentConfiguration',
+)
+
+export const IOUSBHostDevicePropertyKeySerialNumberString = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostDevicePropertyKeySerialNumberString',
+)
+
+export const IOUSBHostDevicePropertyKeyVendorString = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostDevicePropertyKeyVendorString',
+)
+
 export const IOUSBHostErrorDomain = /* @__PURE__ */ _bind(FW, 'IOUSBHostErrorDomain')
 export const IOUSBHostIOSource = /* @__PURE__ */ _bind(FW, 'IOUSBHostIOSource')
-export const IOUSBHostIOSourceDescriptors = /* @__PURE__ */ _bind(FW, 'IOUSBHostIOSourceDescriptors')
+export const IOUSBHostIOSourceDescriptors = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostIOSourceDescriptors',
+)
+
 export const IOUSBHostInterface = /* @__PURE__ */ _bind(FW, 'IOUSBHostInterface')
-export const IOUSBHostInterfacePropertyKeyAlternateSetting = /* @__PURE__ */ _bind(FW, 'IOUSBHostInterfacePropertyKeyAlternateSetting')
-export const IOUSBHostIsochronousTransactionOptions = /* @__PURE__ */ _bind(FW, 'IOUSBHostIsochronousTransactionOptions')
-export const IOUSBHostIsochronousTransferOptions = /* @__PURE__ */ _bind(FW, 'IOUSBHostIsochronousTransferOptions')
-export const IOUSBHostMatchingPropertyKeyConfigurationValue = /* @__PURE__ */ _bind(FW, 'IOUSBHostMatchingPropertyKeyConfigurationValue')
-export const IOUSBHostMatchingPropertyKeyDeviceClass = /* @__PURE__ */ _bind(FW, 'IOUSBHostMatchingPropertyKeyDeviceClass')
-export const IOUSBHostMatchingPropertyKeyDeviceProtocol = /* @__PURE__ */ _bind(FW, 'IOUSBHostMatchingPropertyKeyDeviceProtocol')
-export const IOUSBHostMatchingPropertyKeyDeviceReleaseNumber = /* @__PURE__ */ _bind(FW, 'IOUSBHostMatchingPropertyKeyDeviceReleaseNumber')
-export const IOUSBHostMatchingPropertyKeyDeviceSubClass = /* @__PURE__ */ _bind(FW, 'IOUSBHostMatchingPropertyKeyDeviceSubClass')
-export const IOUSBHostMatchingPropertyKeyInterfaceClass = /* @__PURE__ */ _bind(FW, 'IOUSBHostMatchingPropertyKeyInterfaceClass')
-export const IOUSBHostMatchingPropertyKeyInterfaceNumber = /* @__PURE__ */ _bind(FW, 'IOUSBHostMatchingPropertyKeyInterfaceNumber')
-export const IOUSBHostMatchingPropertyKeyInterfaceProtocol = /* @__PURE__ */ _bind(FW, 'IOUSBHostMatchingPropertyKeyInterfaceProtocol')
-export const IOUSBHostMatchingPropertyKeyInterfaceSubClass = /* @__PURE__ */ _bind(FW, 'IOUSBHostMatchingPropertyKeyInterfaceSubClass')
-export const IOUSBHostMatchingPropertyKeyProductID = /* @__PURE__ */ _bind(FW, 'IOUSBHostMatchingPropertyKeyProductID')
-export const IOUSBHostMatchingPropertyKeyProductIDArray = /* @__PURE__ */ _bind(FW, 'IOUSBHostMatchingPropertyKeyProductIDArray')
-export const IOUSBHostMatchingPropertyKeyProductIDMask = /* @__PURE__ */ _bind(FW, 'IOUSBHostMatchingPropertyKeyProductIDMask')
-export const IOUSBHostMatchingPropertyKeySpeed = /* @__PURE__ */ _bind(FW, 'IOUSBHostMatchingPropertyKeySpeed')
-export const IOUSBHostMatchingPropertyKeyVendorID = /* @__PURE__ */ _bind(FW, 'IOUSBHostMatchingPropertyKeyVendorID')
+export const IOUSBHostInterfacePropertyKeyAlternateSetting = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostInterfacePropertyKeyAlternateSetting',
+)
+
+export const IOUSBHostIsochronousTransactionOptions = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostIsochronousTransactionOptions',
+)
+
+export const IOUSBHostIsochronousTransferOptions = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostIsochronousTransferOptions',
+)
+
+export const IOUSBHostMatchingPropertyKeyConfigurationValue = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostMatchingPropertyKeyConfigurationValue',
+)
+
+export const IOUSBHostMatchingPropertyKeyDeviceClass = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostMatchingPropertyKeyDeviceClass',
+)
+
+export const IOUSBHostMatchingPropertyKeyDeviceProtocol = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostMatchingPropertyKeyDeviceProtocol',
+)
+
+export const IOUSBHostMatchingPropertyKeyDeviceReleaseNumber = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostMatchingPropertyKeyDeviceReleaseNumber',
+)
+
+export const IOUSBHostMatchingPropertyKeyDeviceSubClass = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostMatchingPropertyKeyDeviceSubClass',
+)
+
+export const IOUSBHostMatchingPropertyKeyInterfaceClass = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostMatchingPropertyKeyInterfaceClass',
+)
+
+export const IOUSBHostMatchingPropertyKeyInterfaceNumber = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostMatchingPropertyKeyInterfaceNumber',
+)
+
+export const IOUSBHostMatchingPropertyKeyInterfaceProtocol = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostMatchingPropertyKeyInterfaceProtocol',
+)
+
+export const IOUSBHostMatchingPropertyKeyInterfaceSubClass = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostMatchingPropertyKeyInterfaceSubClass',
+)
+
+export const IOUSBHostMatchingPropertyKeyProductID = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostMatchingPropertyKeyProductID',
+)
+
+export const IOUSBHostMatchingPropertyKeyProductIDArray = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostMatchingPropertyKeyProductIDArray',
+)
+
+export const IOUSBHostMatchingPropertyKeyProductIDMask = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostMatchingPropertyKeyProductIDMask',
+)
+
+export const IOUSBHostMatchingPropertyKeySpeed = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostMatchingPropertyKeySpeed',
+)
+
+export const IOUSBHostMatchingPropertyKeyVendorID = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostMatchingPropertyKeyVendorID',
+)
+
 export const IOUSBHostObject = /* @__PURE__ */ _bind(FW, 'IOUSBHostObject')
 export const IOUSBHostObjectDataOptions = /* @__PURE__ */ _bind(FW, 'IOUSBHostObjectDataOptions')
-export const IOUSBHostObjectDestroyOptions = /* @__PURE__ */ _bind(FW, 'IOUSBHostObjectDestroyOptions')
+export const IOUSBHostObjectDestroyOptions = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostObjectDestroyOptions',
+)
+
 export const IOUSBHostObjectInitOptions = /* @__PURE__ */ _bind(FW, 'IOUSBHostObjectInitOptions')
 export const IOUSBHostPipe = /* @__PURE__ */ _bind(FW, 'IOUSBHostPipe')
-export const IOUSBHostPropertyKeyLocationID = /* @__PURE__ */ _bind(FW, 'IOUSBHostPropertyKeyLocationID')
+export const IOUSBHostPropertyKeyLocationID = /* @__PURE__ */ _bind(
+	FW,
+	'IOUSBHostPropertyKeyLocationID',
+)
+
 export const IOUSBHostStream = /* @__PURE__ */ _bind(FW, 'IOUSBHostStream')
 export const IOUSBHostVersionNumber = /* @__PURE__ */ _bind(FW, 'IOUSBHostVersionNumber')
 export const IOUSBHostVersionString = /* @__PURE__ */ _bind(FW, 'IOUSBHostVersionString')
-export const unnamed_13920030179087226621 = /* @__PURE__ */ _bind(FW, 'unnamed_13920030179087226621')
+export const unnamed_13920030179087226621 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_13920030179087226621',
+)
+
 export const unnamed_4794104136170733004 = /* @__PURE__ */ _bind(FW, 'unnamed_4794104136170733004')

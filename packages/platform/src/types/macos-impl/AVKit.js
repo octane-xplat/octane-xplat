@@ -3,13 +3,33 @@ const FW = '/System/Library/Frameworks/AVKit.framework/AVKit'
 export const AVCaptureView = /* @__PURE__ */ _bind(FW, 'AVCaptureView')
 export const AVCaptureViewControlsStyle = /* @__PURE__ */ _bind(FW, 'AVCaptureViewControlsStyle')
 export const AVCaptureViewDelegate = /* @__PURE__ */ _bind(FW, 'AVCaptureViewDelegate')
-export const AVLegibleMediaOptionsMenuState = /* @__PURE__ */ _bind(FW, 'AVLegibleMediaOptionsMenuState')
-export const AVPictureInPictureController = /* @__PURE__ */ _bind(FW, 'AVPictureInPictureController')
-export const AVPictureInPictureControllerDelegate = /* @__PURE__ */ _bind(FW, 'AVPictureInPictureControllerDelegate')
+export const AVLegibleMediaOptionsMenuState = /* @__PURE__ */ _bind(
+	FW,
+	'AVLegibleMediaOptionsMenuState',
+)
+
+export const AVPictureInPictureController = /* @__PURE__ */ _bind(
+	FW,
+	'AVPictureInPictureController',
+)
+
+export const AVPictureInPictureControllerDelegate = /* @__PURE__ */ _bind(
+	FW,
+	'AVPictureInPictureControllerDelegate',
+)
+
 export const AVPlayerView = /* @__PURE__ */ _bind(FW, 'AVPlayerView')
 export const AVPlayerViewControlsStyle = /* @__PURE__ */ _bind(FW, 'AVPlayerViewControlsStyle')
-export const AVPlayerViewPictureInPictureDelegate = /* @__PURE__ */ _bind(FW, 'AVPlayerViewPictureInPictureDelegate')
+export const AVPlayerViewPictureInPictureDelegate = /* @__PURE__ */ _bind(
+	FW,
+	'AVPlayerViewPictureInPictureDelegate',
+)
+
 export const AVPlayerViewTrimResult = /* @__PURE__ */ _bind(FW, 'AVPlayerViewTrimResult')
 export const AVRoutePickerView = /* @__PURE__ */ _bind(FW, 'AVRoutePickerView')
-export const AVRoutePickerViewButtonState = /* @__PURE__ */ _bind(FW, 'AVRoutePickerViewButtonState')
+export const AVRoutePickerViewButtonState = /* @__PURE__ */ _bind(
+	FW,
+	'AVRoutePickerViewButtonState',
+)
+
 export const AVRoutePickerViewDelegate = /* @__PURE__ */ _bind(FW, 'AVRoutePickerViewDelegate')

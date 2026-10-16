@@ -494,7 +494,6 @@ test('stacklayout stretches unconstrained children inside padding', () => {
 	assert.equal(child.crossAxisConstraint.active, true)
 })
 
-
 test('an unstyled stacklayout initializes explicit child alignment without a prop update', () => {
 	const stack = node('stacklayout', { orientation: 1 })
 	applyProps(stack, {})

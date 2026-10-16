@@ -2,7 +2,6 @@ import { Application, Utils } from '@nativescript/core'
 import { android } from '@octane-xplat/platform/android'
 import { NSNotificationCenter, NSOperationQueue, UIScreen } from '@octane-xplat/platform/ios'
 
-
 // One shared observer tracks the keyboard's current bottom inset — a sheet
 // opened while another reader or overlay tracks the keyboard can lift
 // immediately. Mount a reader before focus to retain frames across sheet swaps.
@@ -188,7 +187,9 @@ export function bindBottomInsetToKeyboard(host: any): () => void {
 		const ViewCompat = coreView?.ViewCompat
 		const WindowInsetsCompat = coreView?.WindowInsetsCompat
 		const OnApplyWindowInsetsListener = coreView?.OnApplyWindowInsetsListener
-		if (!ViewCompat || !WindowInsetsCompat || !OnApplyWindowInsetsListener) return () => {}
+		if (!ViewCompat || !WindowInsetsCompat || !OnApplyWindowInsetsListener) {
+			return () => {}
+		}
 
 		const decorView = nativeWindow.getDecorView()
 		let entry = androidBindings.get(decorView)
@@ -199,28 +200,38 @@ export function bindBottomInsetToKeyboard(host: any): () => void {
 					const ime = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
 					const nav = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
 					created.offset = -Utils.layout.toDeviceIndependentPixels(Math.max(0, ime - nav))
-					for (const boundHost of created.hosts.keys()) boundHost.translateY = created.offset
+					for (const boundHost of created.hosts.keys()) {
+						boundHost.translateY = created.offset
+					}
+
 					return insets
 				},
 			})
+
 			entry = created
 			androidBindings.set(decorView, entry)
 			ViewCompat.setOnApplyWindowInsetsListener(decorView, listener)
 			ViewCompat.requestApplyInsets?.(decorView)
 		}
+
 		const binding = entry
 		binding.hosts.set(host, (binding.hosts.get(host) ?? 0) + 1)
 		host.translateY = binding.offset
 		let released = false
 		return () => {
-			if (released) return
+			if (released) {
+				return
+			}
+
 			released = true
 			const count = binding.hosts.get(host) ?? 0
-			if (count > 1) binding.hosts.set(host, count - 1)
-			else {
+			if (count > 1) {
+				binding.hosts.set(host, count - 1)
+			} else {
 				binding.hosts.delete(host)
 				host.translateY = 0
 			}
+
 			if (!binding.hosts.size) {
 				androidBindings.delete(decorView)
 				ViewCompat.setOnApplyWindowInsetsListener(decorView, null)

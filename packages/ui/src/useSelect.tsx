@@ -121,9 +121,9 @@ export function useSelect(props: SelectProps) {
 				}
 
 				if (nextProps.selectionMode === 'multiple') {
-					(nextProps as SelectMultipleProps).onValueChange?.(previous)
+					;(nextProps as SelectMultipleProps).onValueChange?.(previous)
 				} else {
-					(nextProps as SelectSingleProps).onValueChange?.(previous[0] ?? null)
+					;(nextProps as SelectSingleProps).onValueChange?.(previous[0] ?? null)
 				}
 			}
 
@@ -165,7 +165,12 @@ export function useSelect(props: SelectProps) {
 	}
 
 	const selectAll = () => {
-		if (props.selectionMode !== 'multiple' || !props.hasSelectAll || blocked || pendingRef.current) {
+		if (
+			props.selectionMode !== 'multiple' ||
+			!props.hasSelectAll ||
+			blocked ||
+			pendingRef.current
+		) {
 			return
 		}
 

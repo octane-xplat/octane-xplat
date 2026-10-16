@@ -10,59 +10,135 @@ export const NSAtomicStoreCacheNode = /* @__PURE__ */ _bind(FW, 'NSAtomicStoreCa
 export const NSAttributeDescription = /* @__PURE__ */ _bind(FW, 'NSAttributeDescription')
 export const NSAttributeType = /* @__PURE__ */ _bind(FW, 'NSAttributeType')
 export const NSBatchDeleteRequest = /* @__PURE__ */ _bind(FW, 'NSBatchDeleteRequest')
-export const NSBatchDeleteRequestResultType = /* @__PURE__ */ _bind(FW, 'NSBatchDeleteRequestResultType')
+export const NSBatchDeleteRequestResultType = /* @__PURE__ */ _bind(
+	FW,
+	'NSBatchDeleteRequestResultType',
+)
+
 export const NSBatchDeleteResult = /* @__PURE__ */ _bind(FW, 'NSBatchDeleteResult')
 export const NSBatchInsertRequest = /* @__PURE__ */ _bind(FW, 'NSBatchInsertRequest')
-export const NSBatchInsertRequestResultType = /* @__PURE__ */ _bind(FW, 'NSBatchInsertRequestResultType')
+export const NSBatchInsertRequestResultType = /* @__PURE__ */ _bind(
+	FW,
+	'NSBatchInsertRequestResultType',
+)
+
 export const NSBatchInsertResult = /* @__PURE__ */ _bind(FW, 'NSBatchInsertResult')
 export const NSBatchUpdateRequest = /* @__PURE__ */ _bind(FW, 'NSBatchUpdateRequest')
-export const NSBatchUpdateRequestResultType = /* @__PURE__ */ _bind(FW, 'NSBatchUpdateRequestResultType')
+export const NSBatchUpdateRequestResultType = /* @__PURE__ */ _bind(
+	FW,
+	'NSBatchUpdateRequestResultType',
+)
+
 export const NSBatchUpdateResult = /* @__PURE__ */ _bind(FW, 'NSBatchUpdateResult')
 export const NSBinaryExternalRecordType = /* @__PURE__ */ _bind(FW, 'NSBinaryExternalRecordType')
-export const NSBinaryStoreInsecureDecodingCompatibilityOption = /* @__PURE__ */ _bind(FW, 'NSBinaryStoreInsecureDecodingCompatibilityOption')
-export const NSBinaryStoreSecureDecodingClasses = /* @__PURE__ */ _bind(FW, 'NSBinaryStoreSecureDecodingClasses')
+export const NSBinaryStoreInsecureDecodingCompatibilityOption = /* @__PURE__ */ _bind(
+	FW,
+	'NSBinaryStoreInsecureDecodingCompatibilityOption',
+)
+
+export const NSBinaryStoreSecureDecodingClasses = /* @__PURE__ */ _bind(
+	FW,
+	'NSBinaryStoreSecureDecodingClasses',
+)
+
 export const NSBinaryStoreType = /* @__PURE__ */ _bind(FW, 'NSBinaryStoreType')
 export const NSConstraintConflict = /* @__PURE__ */ _bind(FW, 'NSConstraintConflict')
-export const NSCoreDataCoreSpotlightDelegate = /* @__PURE__ */ _bind(FW, 'NSCoreDataCoreSpotlightDelegate')
-export const NSCoreDataCoreSpotlightDelegateIndexDidUpdateNotification = /* @__PURE__ */ _bind(FW, 'NSCoreDataCoreSpotlightDelegateIndexDidUpdateNotification')
-export const NSCoreDataCoreSpotlightExporter = /* @__PURE__ */ _bind(FW, 'NSCoreDataCoreSpotlightExporter')
+export const NSCoreDataCoreSpotlightDelegate = /* @__PURE__ */ _bind(
+	FW,
+	'NSCoreDataCoreSpotlightDelegate',
+)
+
+export const NSCoreDataCoreSpotlightDelegateIndexDidUpdateNotification = /* @__PURE__ */ _bind(
+	FW,
+	'NSCoreDataCoreSpotlightDelegateIndexDidUpdateNotification',
+)
+
+export const NSCoreDataCoreSpotlightExporter = /* @__PURE__ */ _bind(
+	FW,
+	'NSCoreDataCoreSpotlightExporter',
+)
+
 export const NSCoreDataError = /* @__PURE__ */ _bind(FW, 'NSCoreDataError')
 export const NSCoreDataVersionNumber = /* @__PURE__ */ _bind(FW, 'NSCoreDataVersionNumber')
 export const NSDeleteRule = /* @__PURE__ */ _bind(FW, 'NSDeleteRule')
 export const NSDeletedObjectIDsKey = /* @__PURE__ */ _bind(FW, 'NSDeletedObjectIDsKey')
 export const NSDeletedObjectsKey = /* @__PURE__ */ _bind(FW, 'NSDeletedObjectsKey')
-export const NSDerivedAttributeDescription = /* @__PURE__ */ _bind(FW, 'NSDerivedAttributeDescription')
+export const NSDerivedAttributeDescription = /* @__PURE__ */ _bind(
+	FW,
+	'NSDerivedAttributeDescription',
+)
+
 export const NSDetailedErrorsKey = /* @__PURE__ */ _bind(FW, 'NSDetailedErrorsKey')
 export const NSEntityDescription = /* @__PURE__ */ _bind(FW, 'NSEntityDescription')
 export const NSEntityMapping = /* @__PURE__ */ _bind(FW, 'NSEntityMapping')
 export const NSEntityMappingType = /* @__PURE__ */ _bind(FW, 'NSEntityMappingType')
 export const NSEntityMigrationPolicy = /* @__PURE__ */ _bind(FW, 'NSEntityMigrationPolicy')
-export const NSEntityMigrationPolicyError = /* @__PURE__ */ _bind(FW, 'NSEntityMigrationPolicyError')
+export const NSEntityMigrationPolicyError = /* @__PURE__ */ _bind(
+	FW,
+	'NSEntityMigrationPolicyError',
+)
+
 export const NSEntityNameInPathKey = /* @__PURE__ */ _bind(FW, 'NSEntityNameInPathKey')
 export const NSErrorMergePolicy = /* @__PURE__ */ _bind(FW, 'NSErrorMergePolicy')
 export const NSExpressionDescription = /* @__PURE__ */ _bind(FW, 'NSExpressionDescription')
-export const NSExternalRecordExtensionOption = /* @__PURE__ */ _bind(FW, 'NSExternalRecordExtensionOption')
+export const NSExternalRecordExtensionOption = /* @__PURE__ */ _bind(
+	FW,
+	'NSExternalRecordExtensionOption',
+)
+
 export const NSExternalRecordImportError = /* @__PURE__ */ _bind(FW, 'NSExternalRecordImportError')
-export const NSExternalRecordsDirectoryOption = /* @__PURE__ */ _bind(FW, 'NSExternalRecordsDirectoryOption')
-export const NSExternalRecordsFileFormatOption = /* @__PURE__ */ _bind(FW, 'NSExternalRecordsFileFormatOption')
+export const NSExternalRecordsDirectoryOption = /* @__PURE__ */ _bind(
+	FW,
+	'NSExternalRecordsDirectoryOption',
+)
+
+export const NSExternalRecordsFileFormatOption = /* @__PURE__ */ _bind(
+	FW,
+	'NSExternalRecordsFileFormatOption',
+)
+
 export const NSFetchIndexDescription = /* @__PURE__ */ _bind(FW, 'NSFetchIndexDescription')
-export const NSFetchIndexElementDescription = /* @__PURE__ */ _bind(FW, 'NSFetchIndexElementDescription')
+export const NSFetchIndexElementDescription = /* @__PURE__ */ _bind(
+	FW,
+	'NSFetchIndexElementDescription',
+)
+
 export const NSFetchIndexElementType = /* @__PURE__ */ _bind(FW, 'NSFetchIndexElementType')
 export const NSFetchRequest = /* @__PURE__ */ _bind(FW, 'NSFetchRequest')
 export const NSFetchRequestExpression = /* @__PURE__ */ _bind(FW, 'NSFetchRequestExpression')
-export const NSFetchRequestExpressionType = /* @__PURE__ */ _bind(FW, 'NSFetchRequestExpressionType')
+export const NSFetchRequestExpressionType = /* @__PURE__ */ _bind(
+	FW,
+	'NSFetchRequestExpressionType',
+)
+
 export const NSFetchRequestResult = /* @__PURE__ */ _bind(FW, 'NSFetchRequestResult')
 export const NSFetchRequestResultType = /* @__PURE__ */ _bind(FW, 'NSFetchRequestResultType')
-export const NSFetchedPropertyDescription = /* @__PURE__ */ _bind(FW, 'NSFetchedPropertyDescription')
+export const NSFetchedPropertyDescription = /* @__PURE__ */ _bind(
+	FW,
+	'NSFetchedPropertyDescription',
+)
+
 export const NSFetchedResultsChangeType = /* @__PURE__ */ _bind(FW, 'NSFetchedResultsChangeType')
 export const NSFetchedResultsController = /* @__PURE__ */ _bind(FW, 'NSFetchedResultsController')
-export const NSFetchedResultsControllerDelegate = /* @__PURE__ */ _bind(FW, 'NSFetchedResultsControllerDelegate')
+export const NSFetchedResultsControllerDelegate = /* @__PURE__ */ _bind(
+	FW,
+	'NSFetchedResultsControllerDelegate',
+)
+
 export const NSFetchedResultsSectionInfo = /* @__PURE__ */ _bind(FW, 'NSFetchedResultsSectionInfo')
-export const NSIgnorePersistentStoreVersioningOption = /* @__PURE__ */ _bind(FW, 'NSIgnorePersistentStoreVersioningOption')
+export const NSIgnorePersistentStoreVersioningOption = /* @__PURE__ */ _bind(
+	FW,
+	'NSIgnorePersistentStoreVersioningOption',
+)
+
 export const NSInMemoryStoreType = /* @__PURE__ */ _bind(FW, 'NSInMemoryStoreType')
 export const NSIncrementalStore = /* @__PURE__ */ _bind(FW, 'NSIncrementalStore')
 export const NSIncrementalStoreNode = /* @__PURE__ */ _bind(FW, 'NSIncrementalStoreNode')
-export const NSInferMappingModelAutomaticallyOption = /* @__PURE__ */ _bind(FW, 'NSInferMappingModelAutomaticallyOption')
+export const NSInferMappingModelAutomaticallyOption = /* @__PURE__ */ _bind(
+	FW,
+	'NSInferMappingModelAutomaticallyOption',
+)
+
 export const NSInferredMappingModelError = /* @__PURE__ */ _bind(FW, 'NSInferredMappingModelError')
 export const NSInsertedObjectIDsKey = /* @__PURE__ */ _bind(FW, 'NSInsertedObjectIDsKey')
 export const NSInsertedObjectsKey = /* @__PURE__ */ _bind(FW, 'NSInsertedObjectsKey')
@@ -70,117 +146,421 @@ export const NSInvalidatedAllObjectsKey = /* @__PURE__ */ _bind(FW, 'NSInvalidat
 export const NSInvalidatedObjectIDsKey = /* @__PURE__ */ _bind(FW, 'NSInvalidatedObjectIDsKey')
 export const NSInvalidatedObjectsKey = /* @__PURE__ */ _bind(FW, 'NSInvalidatedObjectsKey')
 export const NSManagedObject = /* @__PURE__ */ _bind(FW, 'NSManagedObject')
-export const NSManagedObjectConstraintMergeError = /* @__PURE__ */ _bind(FW, 'NSManagedObjectConstraintMergeError')
-export const NSManagedObjectConstraintValidationError = /* @__PURE__ */ _bind(FW, 'NSManagedObjectConstraintValidationError')
+export const NSManagedObjectConstraintMergeError = /* @__PURE__ */ _bind(
+	FW,
+	'NSManagedObjectConstraintMergeError',
+)
+
+export const NSManagedObjectConstraintValidationError = /* @__PURE__ */ _bind(
+	FW,
+	'NSManagedObjectConstraintValidationError',
+)
+
 export const NSManagedObjectContext = /* @__PURE__ */ _bind(FW, 'NSManagedObjectContext')
-export const NSManagedObjectContextConcurrencyType = /* @__PURE__ */ _bind(FW, 'NSManagedObjectContextConcurrencyType')
-export const NSManagedObjectContextDidMergeChangesObjectIDsNotification = /* @__PURE__ */ _bind(FW, 'NSManagedObjectContextDidMergeChangesObjectIDsNotification')
-export const NSManagedObjectContextDidSaveNotification = /* @__PURE__ */ _bind(FW, 'NSManagedObjectContextDidSaveNotification')
-export const NSManagedObjectContextDidSaveObjectIDsNotification = /* @__PURE__ */ _bind(FW, 'NSManagedObjectContextDidSaveObjectIDsNotification')
-export const NSManagedObjectContextLockingError = /* @__PURE__ */ _bind(FW, 'NSManagedObjectContextLockingError')
-export const NSManagedObjectContextObjectsDidChangeNotification = /* @__PURE__ */ _bind(FW, 'NSManagedObjectContextObjectsDidChangeNotification')
-export const NSManagedObjectContextQueryGenerationKey = /* @__PURE__ */ _bind(FW, 'NSManagedObjectContextQueryGenerationKey')
-export const NSManagedObjectContextWillSaveNotification = /* @__PURE__ */ _bind(FW, 'NSManagedObjectContextWillSaveNotification')
-export const NSManagedObjectExternalRelationshipError = /* @__PURE__ */ _bind(FW, 'NSManagedObjectExternalRelationshipError')
+export const NSManagedObjectContextConcurrencyType = /* @__PURE__ */ _bind(
+	FW,
+	'NSManagedObjectContextConcurrencyType',
+)
+
+export const NSManagedObjectContextDidMergeChangesObjectIDsNotification = /* @__PURE__ */ _bind(
+	FW,
+	'NSManagedObjectContextDidMergeChangesObjectIDsNotification',
+)
+
+export const NSManagedObjectContextDidSaveNotification = /* @__PURE__ */ _bind(
+	FW,
+	'NSManagedObjectContextDidSaveNotification',
+)
+
+export const NSManagedObjectContextDidSaveObjectIDsNotification = /* @__PURE__ */ _bind(
+	FW,
+	'NSManagedObjectContextDidSaveObjectIDsNotification',
+)
+
+export const NSManagedObjectContextLockingError = /* @__PURE__ */ _bind(
+	FW,
+	'NSManagedObjectContextLockingError',
+)
+
+export const NSManagedObjectContextObjectsDidChangeNotification = /* @__PURE__ */ _bind(
+	FW,
+	'NSManagedObjectContextObjectsDidChangeNotification',
+)
+
+export const NSManagedObjectContextQueryGenerationKey = /* @__PURE__ */ _bind(
+	FW,
+	'NSManagedObjectContextQueryGenerationKey',
+)
+
+export const NSManagedObjectContextWillSaveNotification = /* @__PURE__ */ _bind(
+	FW,
+	'NSManagedObjectContextWillSaveNotification',
+)
+
+export const NSManagedObjectExternalRelationshipError = /* @__PURE__ */ _bind(
+	FW,
+	'NSManagedObjectExternalRelationshipError',
+)
+
 export const NSManagedObjectID = /* @__PURE__ */ _bind(FW, 'NSManagedObjectID')
 export const NSManagedObjectMergeError = /* @__PURE__ */ _bind(FW, 'NSManagedObjectMergeError')
 export const NSManagedObjectModel = /* @__PURE__ */ _bind(FW, 'NSManagedObjectModel')
-export const NSManagedObjectModelReferenceNotFoundError = /* @__PURE__ */ _bind(FW, 'NSManagedObjectModelReferenceNotFoundError')
-export const NSManagedObjectReferentialIntegrityError = /* @__PURE__ */ _bind(FW, 'NSManagedObjectReferentialIntegrityError')
-export const NSManagedObjectValidationError = /* @__PURE__ */ _bind(FW, 'NSManagedObjectValidationError')
+export const NSManagedObjectModelReferenceNotFoundError = /* @__PURE__ */ _bind(
+	FW,
+	'NSManagedObjectModelReferenceNotFoundError',
+)
+
+export const NSManagedObjectReferentialIntegrityError = /* @__PURE__ */ _bind(
+	FW,
+	'NSManagedObjectReferentialIntegrityError',
+)
+
+export const NSManagedObjectValidationError = /* @__PURE__ */ _bind(
+	FW,
+	'NSManagedObjectValidationError',
+)
+
 export const NSMappingModel = /* @__PURE__ */ _bind(FW, 'NSMappingModel')
-export const NSMergeByPropertyObjectTrumpMergePolicy = /* @__PURE__ */ _bind(FW, 'NSMergeByPropertyObjectTrumpMergePolicy')
-export const NSMergeByPropertyStoreTrumpMergePolicy = /* @__PURE__ */ _bind(FW, 'NSMergeByPropertyStoreTrumpMergePolicy')
+export const NSMergeByPropertyObjectTrumpMergePolicy = /* @__PURE__ */ _bind(
+	FW,
+	'NSMergeByPropertyObjectTrumpMergePolicy',
+)
+
+export const NSMergeByPropertyStoreTrumpMergePolicy = /* @__PURE__ */ _bind(
+	FW,
+	'NSMergeByPropertyStoreTrumpMergePolicy',
+)
+
 export const NSMergeConflict = /* @__PURE__ */ _bind(FW, 'NSMergeConflict')
 export const NSMergePolicy = /* @__PURE__ */ _bind(FW, 'NSMergePolicy')
 export const NSMergePolicyType = /* @__PURE__ */ _bind(FW, 'NSMergePolicyType')
-export const NSMigratePersistentStoresAutomaticallyOption = /* @__PURE__ */ _bind(FW, 'NSMigratePersistentStoresAutomaticallyOption')
+export const NSMigratePersistentStoresAutomaticallyOption = /* @__PURE__ */ _bind(
+	FW,
+	'NSMigratePersistentStoresAutomaticallyOption',
+)
+
 export const NSMigrationCancelledError = /* @__PURE__ */ _bind(FW, 'NSMigrationCancelledError')
-export const NSMigrationConstraintViolationError = /* @__PURE__ */ _bind(FW, 'NSMigrationConstraintViolationError')
-export const NSMigrationDestinationObjectKey = /* @__PURE__ */ _bind(FW, 'NSMigrationDestinationObjectKey')
+export const NSMigrationConstraintViolationError = /* @__PURE__ */ _bind(
+	FW,
+	'NSMigrationConstraintViolationError',
+)
+
+export const NSMigrationDestinationObjectKey = /* @__PURE__ */ _bind(
+	FW,
+	'NSMigrationDestinationObjectKey',
+)
+
 export const NSMigrationEntityMappingKey = /* @__PURE__ */ _bind(FW, 'NSMigrationEntityMappingKey')
 export const NSMigrationEntityPolicyKey = /* @__PURE__ */ _bind(FW, 'NSMigrationEntityPolicyKey')
 export const NSMigrationError = /* @__PURE__ */ _bind(FW, 'NSMigrationError')
 export const NSMigrationManager = /* @__PURE__ */ _bind(FW, 'NSMigrationManager')
-export const NSMigrationManagerDestinationStoreError = /* @__PURE__ */ _bind(FW, 'NSMigrationManagerDestinationStoreError')
+export const NSMigrationManagerDestinationStoreError = /* @__PURE__ */ _bind(
+	FW,
+	'NSMigrationManagerDestinationStoreError',
+)
+
 export const NSMigrationManagerKey = /* @__PURE__ */ _bind(FW, 'NSMigrationManagerKey')
-export const NSMigrationManagerSourceStoreError = /* @__PURE__ */ _bind(FW, 'NSMigrationManagerSourceStoreError')
-export const NSMigrationMissingMappingModelError = /* @__PURE__ */ _bind(FW, 'NSMigrationMissingMappingModelError')
-export const NSMigrationMissingSourceModelError = /* @__PURE__ */ _bind(FW, 'NSMigrationMissingSourceModelError')
-export const NSMigrationPropertyMappingKey = /* @__PURE__ */ _bind(FW, 'NSMigrationPropertyMappingKey')
+export const NSMigrationManagerSourceStoreError = /* @__PURE__ */ _bind(
+	FW,
+	'NSMigrationManagerSourceStoreError',
+)
+
+export const NSMigrationMissingMappingModelError = /* @__PURE__ */ _bind(
+	FW,
+	'NSMigrationMissingMappingModelError',
+)
+
+export const NSMigrationMissingSourceModelError = /* @__PURE__ */ _bind(
+	FW,
+	'NSMigrationMissingSourceModelError',
+)
+
+export const NSMigrationPropertyMappingKey = /* @__PURE__ */ _bind(
+	FW,
+	'NSMigrationPropertyMappingKey',
+)
+
 export const NSMigrationSourceObjectKey = /* @__PURE__ */ _bind(FW, 'NSMigrationSourceObjectKey')
 export const NSModelPathKey = /* @__PURE__ */ _bind(FW, 'NSModelPathKey')
 export const NSObjectURIKey = /* @__PURE__ */ _bind(FW, 'NSObjectURIKey')
 export const NSOverwriteMergePolicy = /* @__PURE__ */ _bind(FW, 'NSOverwriteMergePolicy')
-export const NSPersistentCloudKitContainer = /* @__PURE__ */ _bind(FW, 'NSPersistentCloudKitContainer')
-export const NSPersistentCloudKitContainerEvent = /* @__PURE__ */ _bind(FW, 'NSPersistentCloudKitContainerEvent')
-export const NSPersistentCloudKitContainerEventChangedNotification = /* @__PURE__ */ _bind(FW, 'NSPersistentCloudKitContainerEventChangedNotification')
-export const NSPersistentCloudKitContainerEventRequest = /* @__PURE__ */ _bind(FW, 'NSPersistentCloudKitContainerEventRequest')
-export const NSPersistentCloudKitContainerEventResult = /* @__PURE__ */ _bind(FW, 'NSPersistentCloudKitContainerEventResult')
-export const NSPersistentCloudKitContainerEventResultType = /* @__PURE__ */ _bind(FW, 'NSPersistentCloudKitContainerEventResultType')
-export const NSPersistentCloudKitContainerEventType = /* @__PURE__ */ _bind(FW, 'NSPersistentCloudKitContainerEventType')
-export const NSPersistentCloudKitContainerEventUserInfoKey = /* @__PURE__ */ _bind(FW, 'NSPersistentCloudKitContainerEventUserInfoKey')
-export const NSPersistentCloudKitContainerOptions = /* @__PURE__ */ _bind(FW, 'NSPersistentCloudKitContainerOptions')
-export const NSPersistentCloudKitContainerSchemaInitializationOptions = /* @__PURE__ */ _bind(FW, 'NSPersistentCloudKitContainerSchemaInitializationOptions')
+export const NSPersistentCloudKitContainer = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentCloudKitContainer',
+)
+
+export const NSPersistentCloudKitContainerEvent = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentCloudKitContainerEvent',
+)
+
+export const NSPersistentCloudKitContainerEventChangedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentCloudKitContainerEventChangedNotification',
+)
+
+export const NSPersistentCloudKitContainerEventRequest = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentCloudKitContainerEventRequest',
+)
+
+export const NSPersistentCloudKitContainerEventResult = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentCloudKitContainerEventResult',
+)
+
+export const NSPersistentCloudKitContainerEventResultType = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentCloudKitContainerEventResultType',
+)
+
+export const NSPersistentCloudKitContainerEventType = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentCloudKitContainerEventType',
+)
+
+export const NSPersistentCloudKitContainerEventUserInfoKey = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentCloudKitContainerEventUserInfoKey',
+)
+
+export const NSPersistentCloudKitContainerOptions = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentCloudKitContainerOptions',
+)
+
+export const NSPersistentCloudKitContainerSchemaInitializationOptions = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentCloudKitContainerSchemaInitializationOptions',
+)
+
 export const NSPersistentContainer = /* @__PURE__ */ _bind(FW, 'NSPersistentContainer')
 export const NSPersistentHistoryChange = /* @__PURE__ */ _bind(FW, 'NSPersistentHistoryChange')
-export const NSPersistentHistoryChangeRequest = /* @__PURE__ */ _bind(FW, 'NSPersistentHistoryChangeRequest')
-export const NSPersistentHistoryChangeType = /* @__PURE__ */ _bind(FW, 'NSPersistentHistoryChangeType')
+export const NSPersistentHistoryChangeRequest = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentHistoryChangeRequest',
+)
+
+export const NSPersistentHistoryChangeType = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentHistoryChangeType',
+)
+
 export const NSPersistentHistoryResult = /* @__PURE__ */ _bind(FW, 'NSPersistentHistoryResult')
-export const NSPersistentHistoryResultType = /* @__PURE__ */ _bind(FW, 'NSPersistentHistoryResultType')
+export const NSPersistentHistoryResultType = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentHistoryResultType',
+)
+
 export const NSPersistentHistoryToken = /* @__PURE__ */ _bind(FW, 'NSPersistentHistoryToken')
-export const NSPersistentHistoryTokenExpiredError = /* @__PURE__ */ _bind(FW, 'NSPersistentHistoryTokenExpiredError')
+export const NSPersistentHistoryTokenExpiredError = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentHistoryTokenExpiredError',
+)
+
 export const NSPersistentHistoryTokenKey = /* @__PURE__ */ _bind(FW, 'NSPersistentHistoryTokenKey')
-export const NSPersistentHistoryTrackingKey = /* @__PURE__ */ _bind(FW, 'NSPersistentHistoryTrackingKey')
-export const NSPersistentHistoryTransaction = /* @__PURE__ */ _bind(FW, 'NSPersistentHistoryTransaction')
+export const NSPersistentHistoryTrackingKey = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentHistoryTrackingKey',
+)
+
+export const NSPersistentHistoryTransaction = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentHistoryTransaction',
+)
+
 export const NSPersistentStore = /* @__PURE__ */ _bind(FW, 'NSPersistentStore')
-export const NSPersistentStoreAsynchronousResult = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreAsynchronousResult')
-export const NSPersistentStoreConnectionPoolMaxSizeKey = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreConnectionPoolMaxSizeKey')
-export const NSPersistentStoreCoordinator = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreCoordinator')
-export const NSPersistentStoreCoordinatorLockingError = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreCoordinatorLockingError')
-export const NSPersistentStoreCoordinatorStoresDidChangeNotification = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreCoordinatorStoresDidChangeNotification')
-export const NSPersistentStoreCoordinatorStoresWillChangeNotification = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreCoordinatorStoresWillChangeNotification')
-export const NSPersistentStoreCoordinatorWillRemoveStoreNotification = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreCoordinatorWillRemoveStoreNotification')
-export const NSPersistentStoreDeferredLightweightMigrationOptionKey = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreDeferredLightweightMigrationOptionKey')
-export const NSPersistentStoreDescription = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreDescription')
-export const NSPersistentStoreDidImportUbiquitousContentChangesNotification = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreDidImportUbiquitousContentChangesNotification')
-export const NSPersistentStoreForceDestroyOption = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreForceDestroyOption')
-export const NSPersistentStoreIncompatibleSchemaError = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreIncompatibleSchemaError')
-export const NSPersistentStoreIncompatibleVersionHashError = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreIncompatibleVersionHashError')
-export const NSPersistentStoreIncompleteSaveError = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreIncompleteSaveError')
-export const NSPersistentStoreInvalidTypeError = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreInvalidTypeError')
-export const NSPersistentStoreOSCompatibility = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreOSCompatibility')
+export const NSPersistentStoreAsynchronousResult = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreAsynchronousResult',
+)
+
+export const NSPersistentStoreConnectionPoolMaxSizeKey = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreConnectionPoolMaxSizeKey',
+)
+
+export const NSPersistentStoreCoordinator = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreCoordinator',
+)
+
+export const NSPersistentStoreCoordinatorLockingError = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreCoordinatorLockingError',
+)
+
+export const NSPersistentStoreCoordinatorStoresDidChangeNotification = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreCoordinatorStoresDidChangeNotification',
+)
+
+export const NSPersistentStoreCoordinatorStoresWillChangeNotification = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreCoordinatorStoresWillChangeNotification',
+)
+
+export const NSPersistentStoreCoordinatorWillRemoveStoreNotification = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreCoordinatorWillRemoveStoreNotification',
+)
+
+export const NSPersistentStoreDeferredLightweightMigrationOptionKey = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreDeferredLightweightMigrationOptionKey',
+)
+
+export const NSPersistentStoreDescription = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreDescription',
+)
+
+export const NSPersistentStoreDidImportUbiquitousContentChangesNotification = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreDidImportUbiquitousContentChangesNotification',
+)
+
+export const NSPersistentStoreForceDestroyOption = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreForceDestroyOption',
+)
+
+export const NSPersistentStoreIncompatibleSchemaError = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreIncompatibleSchemaError',
+)
+
+export const NSPersistentStoreIncompatibleVersionHashError = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreIncompatibleVersionHashError',
+)
+
+export const NSPersistentStoreIncompleteSaveError = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreIncompleteSaveError',
+)
+
+export const NSPersistentStoreInvalidTypeError = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreInvalidTypeError',
+)
+
+export const NSPersistentStoreOSCompatibility = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreOSCompatibility',
+)
+
 export const NSPersistentStoreOpenError = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreOpenError')
-export const NSPersistentStoreOperationError = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreOperationError')
-export const NSPersistentStoreRebuildFromUbiquitousContentOption = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreRebuildFromUbiquitousContentOption')
-export const NSPersistentStoreRemoteChangeNotification = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreRemoteChangeNotification')
-export const NSPersistentStoreRemoteChangeNotificationPostOptionKey = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreRemoteChangeNotificationPostOptionKey')
-export const NSPersistentStoreRemoveUbiquitousMetadataOption = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreRemoveUbiquitousMetadataOption')
+export const NSPersistentStoreOperationError = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreOperationError',
+)
+
+export const NSPersistentStoreRebuildFromUbiquitousContentOption = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreRebuildFromUbiquitousContentOption',
+)
+
+export const NSPersistentStoreRemoteChangeNotification = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreRemoteChangeNotification',
+)
+
+export const NSPersistentStoreRemoteChangeNotificationPostOptionKey = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreRemoteChangeNotificationPostOptionKey',
+)
+
+export const NSPersistentStoreRemoveUbiquitousMetadataOption = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreRemoveUbiquitousMetadataOption',
+)
+
 export const NSPersistentStoreRequest = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreRequest')
-export const NSPersistentStoreRequestType = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreRequestType')
+export const NSPersistentStoreRequestType = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreRequestType',
+)
+
 export const NSPersistentStoreResult = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreResult')
-export const NSPersistentStoreSaveConflictsError = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreSaveConflictsError')
-export const NSPersistentStoreSaveConflictsErrorKey = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreSaveConflictsErrorKey')
+export const NSPersistentStoreSaveConflictsError = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreSaveConflictsError',
+)
+
+export const NSPersistentStoreSaveConflictsErrorKey = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreSaveConflictsErrorKey',
+)
+
 export const NSPersistentStoreSaveError = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreSaveError')
-export const NSPersistentStoreTimeoutError = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreTimeoutError')
-export const NSPersistentStoreTimeoutOption = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreTimeoutOption')
-export const NSPersistentStoreTypeMismatchError = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreTypeMismatchError')
+export const NSPersistentStoreTimeoutError = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreTimeoutError',
+)
+
+export const NSPersistentStoreTimeoutOption = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreTimeoutOption',
+)
+
+export const NSPersistentStoreTypeMismatchError = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreTypeMismatchError',
+)
+
 export const NSPersistentStoreURLKey = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreURLKey')
-export const NSPersistentStoreUbiquitousContainerIdentifierKey = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreUbiquitousContainerIdentifierKey')
-export const NSPersistentStoreUbiquitousContentNameKey = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreUbiquitousContentNameKey')
-export const NSPersistentStoreUbiquitousContentURLKey = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreUbiquitousContentURLKey')
-export const NSPersistentStoreUbiquitousPeerTokenOption = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreUbiquitousPeerTokenOption')
-export const NSPersistentStoreUbiquitousTransitionType = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreUbiquitousTransitionType')
-export const NSPersistentStoreUbiquitousTransitionTypeKey = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreUbiquitousTransitionTypeKey')
-export const NSPersistentStoreUnsupportedRequestTypeError = /* @__PURE__ */ _bind(FW, 'NSPersistentStoreUnsupportedRequestTypeError')
+export const NSPersistentStoreUbiquitousContainerIdentifierKey = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreUbiquitousContainerIdentifierKey',
+)
+
+export const NSPersistentStoreUbiquitousContentNameKey = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreUbiquitousContentNameKey',
+)
+
+export const NSPersistentStoreUbiquitousContentURLKey = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreUbiquitousContentURLKey',
+)
+
+export const NSPersistentStoreUbiquitousPeerTokenOption = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreUbiquitousPeerTokenOption',
+)
+
+export const NSPersistentStoreUbiquitousTransitionType = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreUbiquitousTransitionType',
+)
+
+export const NSPersistentStoreUbiquitousTransitionTypeKey = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreUbiquitousTransitionTypeKey',
+)
+
+export const NSPersistentStoreUnsupportedRequestTypeError = /* @__PURE__ */ _bind(
+	FW,
+	'NSPersistentStoreUnsupportedRequestTypeError',
+)
+
 export const NSPropertyDescription = /* @__PURE__ */ _bind(FW, 'NSPropertyDescription')
 export const NSPropertyMapping = /* @__PURE__ */ _bind(FW, 'NSPropertyMapping')
 export const NSQueryGenerationToken = /* @__PURE__ */ _bind(FW, 'NSQueryGenerationToken')
-export const NSReadOnlyPersistentStoreOption = /* @__PURE__ */ _bind(FW, 'NSReadOnlyPersistentStoreOption')
+export const NSReadOnlyPersistentStoreOption = /* @__PURE__ */ _bind(
+	FW,
+	'NSReadOnlyPersistentStoreOption',
+)
+
 export const NSRefreshedObjectIDsKey = /* @__PURE__ */ _bind(FW, 'NSRefreshedObjectIDsKey')
 export const NSRefreshedObjectsKey = /* @__PURE__ */ _bind(FW, 'NSRefreshedObjectsKey')
 export const NSRelationshipDescription = /* @__PURE__ */ _bind(FW, 'NSRelationshipDescription')
-export const NSRemovedPersistentStoresKey = /* @__PURE__ */ _bind(FW, 'NSRemovedPersistentStoresKey')
+export const NSRemovedPersistentStoresKey = /* @__PURE__ */ _bind(
+	FW,
+	'NSRemovedPersistentStoresKey',
+)
+
 export const NSRollbackMergePolicy = /* @__PURE__ */ _bind(FW, 'NSRollbackMergePolicy')
 export const NSSQLiteAnalyzeOption = /* @__PURE__ */ _bind(FW, 'NSSQLiteAnalyzeOption')
 export const NSSQLiteError = /* @__PURE__ */ _bind(FW, 'NSSQLiteError')
@@ -190,35 +570,111 @@ export const NSSQLitePragmasOption = /* @__PURE__ */ _bind(FW, 'NSSQLitePragmasO
 export const NSSQLiteStoreType = /* @__PURE__ */ _bind(FW, 'NSSQLiteStoreType')
 export const NSSaveChangesRequest = /* @__PURE__ */ _bind(FW, 'NSSaveChangesRequest')
 export const NSSnapshotEventType = /* @__PURE__ */ _bind(FW, 'NSSnapshotEventType')
-export const NSStagedMigrationBackwardMigrationError = /* @__PURE__ */ _bind(FW, 'NSStagedMigrationBackwardMigrationError')
-export const NSStagedMigrationFrameworkVersionMismatchError = /* @__PURE__ */ _bind(FW, 'NSStagedMigrationFrameworkVersionMismatchError')
-export const NSStoreModelVersionHashesKey = /* @__PURE__ */ _bind(FW, 'NSStoreModelVersionHashesKey')
-export const NSStoreModelVersionIdentifiersKey = /* @__PURE__ */ _bind(FW, 'NSStoreModelVersionIdentifiersKey')
+export const NSStagedMigrationBackwardMigrationError = /* @__PURE__ */ _bind(
+	FW,
+	'NSStagedMigrationBackwardMigrationError',
+)
+
+export const NSStagedMigrationFrameworkVersionMismatchError = /* @__PURE__ */ _bind(
+	FW,
+	'NSStagedMigrationFrameworkVersionMismatchError',
+)
+
+export const NSStoreModelVersionHashesKey = /* @__PURE__ */ _bind(
+	FW,
+	'NSStoreModelVersionHashesKey',
+)
+
+export const NSStoreModelVersionIdentifiersKey = /* @__PURE__ */ _bind(
+	FW,
+	'NSStoreModelVersionIdentifiersKey',
+)
+
 export const NSStorePathKey = /* @__PURE__ */ _bind(FW, 'NSStorePathKey')
 export const NSStoreTypeKey = /* @__PURE__ */ _bind(FW, 'NSStoreTypeKey')
 export const NSStoreUUIDInPathKey = /* @__PURE__ */ _bind(FW, 'NSStoreUUIDInPathKey')
 export const NSStoreUUIDKey = /* @__PURE__ */ _bind(FW, 'NSStoreUUIDKey')
-export const NSUUIDChangedPersistentStoresKey = /* @__PURE__ */ _bind(FW, 'NSUUIDChangedPersistentStoresKey')
+export const NSUUIDChangedPersistentStoresKey = /* @__PURE__ */ _bind(
+	FW,
+	'NSUUIDChangedPersistentStoresKey',
+)
+
 export const NSUpdatedObjectIDsKey = /* @__PURE__ */ _bind(FW, 'NSUpdatedObjectIDsKey')
 export const NSUpdatedObjectsKey = /* @__PURE__ */ _bind(FW, 'NSUpdatedObjectsKey')
 export const NSValidateXMLStoreOption = /* @__PURE__ */ _bind(FW, 'NSValidateXMLStoreOption')
-export const NSValidationDateTooLateError = /* @__PURE__ */ _bind(FW, 'NSValidationDateTooLateError')
-export const NSValidationDateTooSoonError = /* @__PURE__ */ _bind(FW, 'NSValidationDateTooSoonError')
-export const NSValidationInvalidDateError = /* @__PURE__ */ _bind(FW, 'NSValidationInvalidDateError')
+export const NSValidationDateTooLateError = /* @__PURE__ */ _bind(
+	FW,
+	'NSValidationDateTooLateError',
+)
+
+export const NSValidationDateTooSoonError = /* @__PURE__ */ _bind(
+	FW,
+	'NSValidationDateTooSoonError',
+)
+
+export const NSValidationInvalidDateError = /* @__PURE__ */ _bind(
+	FW,
+	'NSValidationInvalidDateError',
+)
+
 export const NSValidationInvalidURIError = /* @__PURE__ */ _bind(FW, 'NSValidationInvalidURIError')
 export const NSValidationKeyErrorKey = /* @__PURE__ */ _bind(FW, 'NSValidationKeyErrorKey')
-export const NSValidationMissingMandatoryPropertyError = /* @__PURE__ */ _bind(FW, 'NSValidationMissingMandatoryPropertyError')
-export const NSValidationMultipleErrorsError = /* @__PURE__ */ _bind(FW, 'NSValidationMultipleErrorsError')
-export const NSValidationNumberTooLargeError = /* @__PURE__ */ _bind(FW, 'NSValidationNumberTooLargeError')
-export const NSValidationNumberTooSmallError = /* @__PURE__ */ _bind(FW, 'NSValidationNumberTooSmallError')
+export const NSValidationMissingMandatoryPropertyError = /* @__PURE__ */ _bind(
+	FW,
+	'NSValidationMissingMandatoryPropertyError',
+)
+
+export const NSValidationMultipleErrorsError = /* @__PURE__ */ _bind(
+	FW,
+	'NSValidationMultipleErrorsError',
+)
+
+export const NSValidationNumberTooLargeError = /* @__PURE__ */ _bind(
+	FW,
+	'NSValidationNumberTooLargeError',
+)
+
+export const NSValidationNumberTooSmallError = /* @__PURE__ */ _bind(
+	FW,
+	'NSValidationNumberTooSmallError',
+)
+
 export const NSValidationObjectErrorKey = /* @__PURE__ */ _bind(FW, 'NSValidationObjectErrorKey')
-export const NSValidationPredicateErrorKey = /* @__PURE__ */ _bind(FW, 'NSValidationPredicateErrorKey')
-export const NSValidationRelationshipDeniedDeleteError = /* @__PURE__ */ _bind(FW, 'NSValidationRelationshipDeniedDeleteError')
-export const NSValidationRelationshipExceedsMaximumCountError = /* @__PURE__ */ _bind(FW, 'NSValidationRelationshipExceedsMaximumCountError')
-export const NSValidationRelationshipLacksMinimumCountError = /* @__PURE__ */ _bind(FW, 'NSValidationRelationshipLacksMinimumCountError')
-export const NSValidationStringPatternMatchingError = /* @__PURE__ */ _bind(FW, 'NSValidationStringPatternMatchingError')
-export const NSValidationStringTooLongError = /* @__PURE__ */ _bind(FW, 'NSValidationStringTooLongError')
-export const NSValidationStringTooShortError = /* @__PURE__ */ _bind(FW, 'NSValidationStringTooShortError')
+export const NSValidationPredicateErrorKey = /* @__PURE__ */ _bind(
+	FW,
+	'NSValidationPredicateErrorKey',
+)
+
+export const NSValidationRelationshipDeniedDeleteError = /* @__PURE__ */ _bind(
+	FW,
+	'NSValidationRelationshipDeniedDeleteError',
+)
+
+export const NSValidationRelationshipExceedsMaximumCountError = /* @__PURE__ */ _bind(
+	FW,
+	'NSValidationRelationshipExceedsMaximumCountError',
+)
+
+export const NSValidationRelationshipLacksMinimumCountError = /* @__PURE__ */ _bind(
+	FW,
+	'NSValidationRelationshipLacksMinimumCountError',
+)
+
+export const NSValidationStringPatternMatchingError = /* @__PURE__ */ _bind(
+	FW,
+	'NSValidationStringPatternMatchingError',
+)
+
+export const NSValidationStringTooLongError = /* @__PURE__ */ _bind(
+	FW,
+	'NSValidationStringTooLongError',
+)
+
+export const NSValidationStringTooShortError = /* @__PURE__ */ _bind(
+	FW,
+	'NSValidationStringTooShortError',
+)
+
 export const NSValidationValueErrorKey = /* @__PURE__ */ _bind(FW, 'NSValidationValueErrorKey')
 export const NSXMLExternalRecordType = /* @__PURE__ */ _bind(FW, 'NSXMLExternalRecordType')
 export const NSXMLStoreType = /* @__PURE__ */ _bind(FW, 'NSXMLStoreType')

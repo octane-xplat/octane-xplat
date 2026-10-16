@@ -23,10 +23,7 @@ const outline = (nodes: TreeNode<Value>[]): string[] =>
 
 describe('createTreeData', () => {
 	it('builds nodes with keys, parents, and children', () => {
-		const tree = data([
-			{ name: 'a', items: [{ name: 'a1' }] },
-			{ name: 'b' },
-		])
+		const tree = data([{ name: 'a', items: [{ name: 'a1' }] }, { name: 'b' }])
 
 		expect(outline(tree.items)).toEqual(['a(a1())', 'b()'])
 		expect(tree.getItem('a1')?.parentKey).toBe('a')
@@ -60,7 +57,7 @@ describe('createTreeData', () => {
 
 		tree.remove('a1')
 		expect(outline(tree.items)).toEqual(['a()', 'b()'])
-		expect([...tree.selectedKeys as Set<string>]).toEqual(['b'])
+		expect([...(tree.selectedKeys as Set<string>)]).toEqual(['b'])
 	})
 
 	it('moves nodes across parents and to the root', () => {

@@ -5,7 +5,11 @@
 import { desktopHost, desktopHostSupports } from '@octane-xplat/platform/host/web'
 import type { Share, ShareResult } from './types'
 
-async function navShare(payload: { text?: string; url?: string; title?: string }): Promise<ShareResult> {
+async function navShare(payload: {
+	text?: string
+	url?: string
+	title?: string
+}): Promise<ShareResult> {
 	const nav = navigator as any
 	if (nav.share) {
 		try {

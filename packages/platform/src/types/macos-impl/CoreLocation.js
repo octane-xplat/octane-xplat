@@ -19,8 +19,16 @@ export const CLPlacemark = /* @__PURE__ */ _bind(FW, 'CLPlacemark')
 export const CLProximity = /* @__PURE__ */ _bind(FW, 'CLProximity')
 export const CLRegion = /* @__PURE__ */ _bind(FW, 'CLRegion')
 export const CLRegionState = /* @__PURE__ */ _bind(FW, 'CLRegionState')
-export const CLServiceSessionAuthorizationRequirement = /* @__PURE__ */ _bind(FW, 'CLServiceSessionAuthorizationRequirement')
+export const CLServiceSessionAuthorizationRequirement = /* @__PURE__ */ _bind(
+	FW,
+	'CLServiceSessionAuthorizationRequirement',
+)
+
 export const CLVisit = /* @__PURE__ */ _bind(FW, 'CLVisit')
 export const kCLErrorDomain = /* @__PURE__ */ _bind(FW, 'kCLErrorDomain')
-export const kCLErrorUserInfoAlternateRegionKey = /* @__PURE__ */ _bind(FW, 'kCLErrorUserInfoAlternateRegionKey')
+export const kCLErrorUserInfoAlternateRegionKey = /* @__PURE__ */ _bind(
+	FW,
+	'kCLErrorUserInfoAlternateRegionKey',
+)
+
 export const kCLHeadingFilterNone = /* @__PURE__ */ _bind(FW, 'kCLHeadingFilterNone')

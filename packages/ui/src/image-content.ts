@@ -123,9 +123,7 @@ function centeredAxis(
 }
 
 export function isCenteredContentPosition(position: ImageContentPositionObject): boolean {
-	return (
-		centeredAxis(position.left, position.right) && centeredAxis(position.top, position.bottom)
-	)
+	return centeredAxis(position.left, position.right) && centeredAxis(position.top, position.bottom)
 }
 
 /** The rect the bitmap occupies inside the view box, in the same units the
@@ -279,13 +277,10 @@ export function imageSrcSet(sources: readonly ImageSourceLike[]): {
 		return { src: '' }
 	}
 
-	const everyWidth = sources.every(
-		(source) => typeof source.width === 'number' && source.width > 0,
-	)
+	const everyWidth = sources.every((source) => typeof source.width === 'number' && source.width > 0)
 
 	const everyScale =
-		!everyWidth &&
-		sources.every((source) => typeof source.scale === 'number' && source.scale > 0)
+		!everyWidth && sources.every((source) => typeof source.scale === 'number' && source.scale > 0)
 
 	const srcSet = everyWidth
 		? sources

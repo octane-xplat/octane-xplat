@@ -13,7 +13,9 @@ test('embedded and local image sources decode without network access; empty sour
 			}),
 		},
 		NSData: {
-			alloc: () => ({ initWithBase64EncodedStringOptions: (value, options) => ({ value, options }) }),
+			alloc: () => ({
+				initWithBase64EncodedStringOptions: (value, options) => ({ value, options }),
+			}),
 		},
 		NSURL: { URLWithString: (value) => value },
 	})
@@ -44,7 +46,9 @@ test('uncached sources decode off the caller path; cached, stale and disposed lo
 			}),
 		},
 		NSData: {
-			alloc: () => ({ initWithBase64EncodedStringOptions: (value, options) => ({ value, options }) }),
+			alloc: () => ({
+				initWithBase64EncodedStringOptions: (value, options) => ({ value, options }),
+			}),
 		},
 		NSURL: { URLWithString: (value) => value },
 	})

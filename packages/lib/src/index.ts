@@ -4,4 +4,5 @@ export {
 	registerSwiftUIHost,
 	unregisterSwiftUIHost,
 } from './swift-ui-host-registry.js'
+
 export type { SwiftUIHostHandler, SwiftUIHostLifecycle } from './swift-ui-host-registry.js'

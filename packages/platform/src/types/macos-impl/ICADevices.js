@@ -4,8 +4,16 @@ export const ICACloseSession = /* @__PURE__ */ _bind(FW, 'ICACloseSession')
 export const ICACloseSessionPB = /* @__PURE__ */ _bind(FW, 'ICACloseSessionPB')
 export const ICACopyObjectData = /* @__PURE__ */ _bind(FW, 'ICACopyObjectData')
 export const ICACopyObjectDataPB = /* @__PURE__ */ _bind(FW, 'ICACopyObjectDataPB')
-export const ICACopyObjectPropertyDictionary = /* @__PURE__ */ _bind(FW, 'ICACopyObjectPropertyDictionary')
-export const ICACopyObjectPropertyDictionaryPB = /* @__PURE__ */ _bind(FW, 'ICACopyObjectPropertyDictionaryPB')
+export const ICACopyObjectPropertyDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'ICACopyObjectPropertyDictionary',
+)
+
+export const ICACopyObjectPropertyDictionaryPB = /* @__PURE__ */ _bind(
+	FW,
+	'ICACopyObjectPropertyDictionaryPB',
+)
+
 export const ICACopyObjectThumbnail = /* @__PURE__ */ _bind(FW, 'ICACopyObjectThumbnail')
 export const ICACopyObjectThumbnailPB = /* @__PURE__ */ _bind(FW, 'ICACopyObjectThumbnailPB')
 export const ICADownloadFile = /* @__PURE__ */ _bind(FW, 'ICADownloadFile')
@@ -26,8 +34,16 @@ export const ICAOpenSessionPB = /* @__PURE__ */ _bind(FW, 'ICAOpenSessionPB')
 export const ICAPTPEventDataset = /* @__PURE__ */ _bind(FW, 'ICAPTPEventDataset')
 export const ICAPTPPassThroughPB = /* @__PURE__ */ _bind(FW, 'ICAPTPPassThroughPB')
 export const ICARawFileHeader = /* @__PURE__ */ _bind(FW, 'ICARawFileHeader')
-export const ICARegisterForEventNotification = /* @__PURE__ */ _bind(FW, 'ICARegisterForEventNotification')
-export const ICARegisterForEventNotificationPB = /* @__PURE__ */ _bind(FW, 'ICARegisterForEventNotificationPB')
+export const ICARegisterForEventNotification = /* @__PURE__ */ _bind(
+	FW,
+	'ICARegisterForEventNotification',
+)
+
+export const ICARegisterForEventNotificationPB = /* @__PURE__ */ _bind(
+	FW,
+	'ICARegisterForEventNotificationPB',
+)
+
 export const ICAScannerCloseSession = /* @__PURE__ */ _bind(FW, 'ICAScannerCloseSession')
 export const ICAScannerCloseSessionPB = /* @__PURE__ */ _bind(FW, 'ICAScannerCloseSessionPB')
 export const ICAScannerGetParameters = /* @__PURE__ */ _bind(FW, 'ICAScannerGetParameters')
@@ -43,59 +59,171 @@ export const ICAScannerStartPB = /* @__PURE__ */ _bind(FW, 'ICAScannerStartPB')
 export const ICAScannerStatus = /* @__PURE__ */ _bind(FW, 'ICAScannerStatus')
 export const ICAScannerStatusPB = /* @__PURE__ */ _bind(FW, 'ICAScannerStatusPB')
 export const ICASendNotification = /* @__PURE__ */ _bind(FW, 'ICASendNotification')
-export const ICASendNotificationAndWaitForReply = /* @__PURE__ */ _bind(FW, 'ICASendNotificationAndWaitForReply')
+export const ICASendNotificationAndWaitForReply = /* @__PURE__ */ _bind(
+	FW,
+	'ICASendNotificationAndWaitForReply',
+)
+
 export const ICASendNotificationPB = /* @__PURE__ */ _bind(FW, 'ICASendNotificationPB')
 export const ICAShowDeviceBrowser = /* @__PURE__ */ _bind(FW, 'ICAShowDeviceBrowser')
 export const ICAUnloadDeviceModule = /* @__PURE__ */ _bind(FW, 'ICAUnloadDeviceModule')
 export const ICAUnloadDeviceModulePB = /* @__PURE__ */ _bind(FW, 'ICAUnloadDeviceModulePB')
 export const ICAUploadFile = /* @__PURE__ */ _bind(FW, 'ICAUploadFile')
 export const ICAUploadFilePB = /* @__PURE__ */ _bind(FW, 'ICAUploadFilePB')
-export const ICDAddBandInfoToNotificationDictionary = /* @__PURE__ */ _bind(FW, 'ICDAddBandInfoToNotificationDictionary')
-export const ICDAddImageInfoToNotificationDictionary = /* @__PURE__ */ _bind(FW, 'ICDAddImageInfoToNotificationDictionary')
+export const ICDAddBandInfoToNotificationDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'ICDAddBandInfoToNotificationDictionary',
+)
+
+export const ICDAddImageInfoToNotificationDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'ICDAddImageInfoToNotificationDictionary',
+)
+
 export const ICDConnectBluetoothDevice = /* @__PURE__ */ _bind(FW, 'ICDConnectBluetoothDevice')
 export const ICDConnectFWDevice = /* @__PURE__ */ _bind(FW, 'ICDConnectFWDevice')
-export const ICDConnectFWDeviceWithIORegPath = /* @__PURE__ */ _bind(FW, 'ICDConnectFWDeviceWithIORegPath')
+export const ICDConnectFWDeviceWithIORegPath = /* @__PURE__ */ _bind(
+	FW,
+	'ICDConnectFWDeviceWithIORegPath',
+)
+
 export const ICDConnectTCPIPDevice = /* @__PURE__ */ _bind(FW, 'ICDConnectTCPIPDevice')
 export const ICDConnectUSBDevice = /* @__PURE__ */ _bind(FW, 'ICDConnectUSBDevice')
-export const ICDConnectUSBDeviceWithIORegPath = /* @__PURE__ */ _bind(FW, 'ICDConnectUSBDeviceWithIORegPath')
+export const ICDConnectUSBDeviceWithIORegPath = /* @__PURE__ */ _bind(
+	FW,
+	'ICDConnectUSBDeviceWithIORegPath',
+)
+
 export const ICDCopyDeviceInfoDictionary = /* @__PURE__ */ _bind(FW, 'ICDCopyDeviceInfoDictionary')
 export const ICDCreateColorSpace = /* @__PURE__ */ _bind(FW, 'ICDCreateColorSpace')
 export const ICDCreateEventDataCookie = /* @__PURE__ */ _bind(FW, 'ICDCreateEventDataCookie')
-export const ICDCreateICAThumbnailFromICNS = /* @__PURE__ */ _bind(FW, 'ICDCreateICAThumbnailFromICNS')
-export const ICDCreateICAThumbnailFromIconRef = /* @__PURE__ */ _bind(FW, 'ICDCreateICAThumbnailFromIconRef')
-export const ICDDisconnectBluetoothDevice = /* @__PURE__ */ _bind(FW, 'ICDDisconnectBluetoothDevice')
+export const ICDCreateICAThumbnailFromICNS = /* @__PURE__ */ _bind(
+	FW,
+	'ICDCreateICAThumbnailFromICNS',
+)
+
+export const ICDCreateICAThumbnailFromIconRef = /* @__PURE__ */ _bind(
+	FW,
+	'ICDCreateICAThumbnailFromIconRef',
+)
+
+export const ICDDisconnectBluetoothDevice = /* @__PURE__ */ _bind(
+	FW,
+	'ICDDisconnectBluetoothDevice',
+)
+
 export const ICDDisconnectFWDevice = /* @__PURE__ */ _bind(FW, 'ICDDisconnectFWDevice')
-export const ICDDisconnectFWDeviceWithIORegPath = /* @__PURE__ */ _bind(FW, 'ICDDisconnectFWDeviceWithIORegPath')
+export const ICDDisconnectFWDeviceWithIORegPath = /* @__PURE__ */ _bind(
+	FW,
+	'ICDDisconnectFWDeviceWithIORegPath',
+)
+
 export const ICDDisconnectTCPIPDevice = /* @__PURE__ */ _bind(FW, 'ICDDisconnectTCPIPDevice')
 export const ICDDisconnectUSBDevice = /* @__PURE__ */ _bind(FW, 'ICDDisconnectUSBDevice')
-export const ICDDisconnectUSBDeviceWithIORegPath = /* @__PURE__ */ _bind(FW, 'ICDDisconnectUSBDeviceWithIORegPath')
+export const ICDDisconnectUSBDeviceWithIORegPath = /* @__PURE__ */ _bind(
+	FW,
+	'ICDDisconnectUSBDeviceWithIORegPath',
+)
+
 export const ICDDisposeObject = /* @__PURE__ */ _bind(FW, 'ICDDisposeObject')
 export const ICDGetStandardPropertyData = /* @__PURE__ */ _bind(FW, 'ICDGetStandardPropertyData')
 export const ICDHeader = /* @__PURE__ */ _bind(FW, 'ICDHeader')
-export const ICDInitiateNotificationCallback = /* @__PURE__ */ _bind(FW, 'ICDInitiateNotificationCallback')
+export const ICDInitiateNotificationCallback = /* @__PURE__ */ _bind(
+	FW,
+	'ICDInitiateNotificationCallback',
+)
+
 export const ICDNewObject = /* @__PURE__ */ _bind(FW, 'ICDNewObject')
 export const ICDNewObjectCreated = /* @__PURE__ */ _bind(FW, 'ICDNewObjectCreated')
 export const ICDNewObjectInfoCreated = /* @__PURE__ */ _bind(FW, 'ICDNewObjectInfoCreated')
-export const ICDScannerConnectBluetoothDevice = /* @__PURE__ */ _bind(FW, 'ICDScannerConnectBluetoothDevice')
+export const ICDScannerConnectBluetoothDevice = /* @__PURE__ */ _bind(
+	FW,
+	'ICDScannerConnectBluetoothDevice',
+)
+
 export const ICDScannerConnectFWDevice = /* @__PURE__ */ _bind(FW, 'ICDScannerConnectFWDevice')
-export const ICDScannerConnectFWDeviceWithIORegPath = /* @__PURE__ */ _bind(FW, 'ICDScannerConnectFWDeviceWithIORegPath')
-export const ICDScannerConnectTCPIPDevice = /* @__PURE__ */ _bind(FW, 'ICDScannerConnectTCPIPDevice')
+export const ICDScannerConnectFWDeviceWithIORegPath = /* @__PURE__ */ _bind(
+	FW,
+	'ICDScannerConnectFWDeviceWithIORegPath',
+)
+
+export const ICDScannerConnectTCPIPDevice = /* @__PURE__ */ _bind(
+	FW,
+	'ICDScannerConnectTCPIPDevice',
+)
+
 export const ICDScannerConnectUSBDevice = /* @__PURE__ */ _bind(FW, 'ICDScannerConnectUSBDevice')
-export const ICDScannerConnectUSBDeviceWithIORegPath = /* @__PURE__ */ _bind(FW, 'ICDScannerConnectUSBDeviceWithIORegPath')
-export const ICDScannerCopyDeviceInfoDictionary = /* @__PURE__ */ _bind(FW, 'ICDScannerCopyDeviceInfoDictionary')
-export const ICDScannerCreateEventDataCookie = /* @__PURE__ */ _bind(FW, 'ICDScannerCreateEventDataCookie')
-export const ICDScannerCreateICAThumbnailFromICNS = /* @__PURE__ */ _bind(FW, 'ICDScannerCreateICAThumbnailFromICNS')
-export const ICDScannerDisconnectBluetoothDevice = /* @__PURE__ */ _bind(FW, 'ICDScannerDisconnectBluetoothDevice')
-export const ICDScannerDisconnectFWDevice = /* @__PURE__ */ _bind(FW, 'ICDScannerDisconnectFWDevice')
-export const ICDScannerDisconnectFWDeviceWithIORegPath = /* @__PURE__ */ _bind(FW, 'ICDScannerDisconnectFWDeviceWithIORegPath')
-export const ICDScannerDisconnectTCPIPDevice = /* @__PURE__ */ _bind(FW, 'ICDScannerDisconnectTCPIPDevice')
-export const ICDScannerDisconnectUSBDevice = /* @__PURE__ */ _bind(FW, 'ICDScannerDisconnectUSBDevice')
-export const ICDScannerDisconnectUSBDeviceWithIORegPath = /* @__PURE__ */ _bind(FW, 'ICDScannerDisconnectUSBDeviceWithIORegPath')
-export const ICDScannerGetStandardPropertyData = /* @__PURE__ */ _bind(FW, 'ICDScannerGetStandardPropertyData')
-export const ICDScannerInitiateNotificationCallback = /* @__PURE__ */ _bind(FW, 'ICDScannerInitiateNotificationCallback')
-export const ICDScannerNewObjectInfoCreated = /* @__PURE__ */ _bind(FW, 'ICDScannerNewObjectInfoCreated')
+export const ICDScannerConnectUSBDeviceWithIORegPath = /* @__PURE__ */ _bind(
+	FW,
+	'ICDScannerConnectUSBDeviceWithIORegPath',
+)
+
+export const ICDScannerCopyDeviceInfoDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'ICDScannerCopyDeviceInfoDictionary',
+)
+
+export const ICDScannerCreateEventDataCookie = /* @__PURE__ */ _bind(
+	FW,
+	'ICDScannerCreateEventDataCookie',
+)
+
+export const ICDScannerCreateICAThumbnailFromICNS = /* @__PURE__ */ _bind(
+	FW,
+	'ICDScannerCreateICAThumbnailFromICNS',
+)
+
+export const ICDScannerDisconnectBluetoothDevice = /* @__PURE__ */ _bind(
+	FW,
+	'ICDScannerDisconnectBluetoothDevice',
+)
+
+export const ICDScannerDisconnectFWDevice = /* @__PURE__ */ _bind(
+	FW,
+	'ICDScannerDisconnectFWDevice',
+)
+
+export const ICDScannerDisconnectFWDeviceWithIORegPath = /* @__PURE__ */ _bind(
+	FW,
+	'ICDScannerDisconnectFWDeviceWithIORegPath',
+)
+
+export const ICDScannerDisconnectTCPIPDevice = /* @__PURE__ */ _bind(
+	FW,
+	'ICDScannerDisconnectTCPIPDevice',
+)
+
+export const ICDScannerDisconnectUSBDevice = /* @__PURE__ */ _bind(
+	FW,
+	'ICDScannerDisconnectUSBDevice',
+)
+
+export const ICDScannerDisconnectUSBDeviceWithIORegPath = /* @__PURE__ */ _bind(
+	FW,
+	'ICDScannerDisconnectUSBDeviceWithIORegPath',
+)
+
+export const ICDScannerGetStandardPropertyData = /* @__PURE__ */ _bind(
+	FW,
+	'ICDScannerGetStandardPropertyData',
+)
+
+export const ICDScannerInitiateNotificationCallback = /* @__PURE__ */ _bind(
+	FW,
+	'ICDScannerInitiateNotificationCallback',
+)
+
+export const ICDScannerNewObjectInfoCreated = /* @__PURE__ */ _bind(
+	FW,
+	'ICDScannerNewObjectInfoCreated',
+)
+
 export const ICDSendNotification = /* @__PURE__ */ _bind(FW, 'ICDSendNotification')
-export const ICDSendNotificationAndWaitForReply = /* @__PURE__ */ _bind(FW, 'ICDSendNotificationAndWaitForReply')
+export const ICDSendNotificationAndWaitForReply = /* @__PURE__ */ _bind(
+	FW,
+	'ICDSendNotificationAndWaitForReply',
+)
+
 export const ICD_DisposeObjectPB = /* @__PURE__ */ _bind(FW, 'ICD_DisposeObjectPB')
 export const ICD_NewObjectPB = /* @__PURE__ */ _bind(FW, 'ICD_NewObjectPB')
 export const ICD_ObjectSendMessagePB = /* @__PURE__ */ _bind(FW, 'ICD_ObjectSendMessagePB')
@@ -103,12 +231,20 @@ export const ICD_ScannerCloseSessionPB = /* @__PURE__ */ _bind(FW, 'ICD_ScannerC
 export const ICD_ScannerGetParametersPB = /* @__PURE__ */ _bind(FW, 'ICD_ScannerGetParametersPB')
 export const ICD_ScannerInitializePB = /* @__PURE__ */ _bind(FW, 'ICD_ScannerInitializePB')
 export const ICD_ScannerMain = /* @__PURE__ */ _bind(FW, 'ICD_ScannerMain')
-export const ICD_ScannerObjectSendMessagePB = /* @__PURE__ */ _bind(FW, 'ICD_ScannerObjectSendMessagePB')
+export const ICD_ScannerObjectSendMessagePB = /* @__PURE__ */ _bind(
+	FW,
+	'ICD_ScannerObjectSendMessagePB',
+)
+
 export const ICD_ScannerOpenSessionPB = /* @__PURE__ */ _bind(FW, 'ICD_ScannerOpenSessionPB')
 export const ICD_ScannerSetParametersPB = /* @__PURE__ */ _bind(FW, 'ICD_ScannerSetParametersPB')
 export const ICD_ScannerStartPB = /* @__PURE__ */ _bind(FW, 'ICD_ScannerStartPB')
 export const ICD_ScannerStatusPB = /* @__PURE__ */ _bind(FW, 'ICD_ScannerStatusPB')
-export const ICD_Scannerscanner_callback_functions = /* @__PURE__ */ _bind(FW, 'ICD_Scannerscanner_callback_functions')
+export const ICD_Scannerscanner_callback_functions = /* @__PURE__ */ _bind(
+	FW,
+	'ICD_Scannerscanner_callback_functions',
+)
+
 export const ICD_callback_functions = /* @__PURE__ */ _bind(FW, 'ICD_callback_functions')
 export const ICD_main = /* @__PURE__ */ _bind(FW, 'ICD_main')
 export const ObjectInfo = /* @__PURE__ */ _bind(FW, 'ObjectInfo')
@@ -117,7 +253,11 @@ export const addedAfterCCCMask = /* @__PURE__ */ _bind(FW, 'addedAfterCCCMask')
 export const fileInTempCacheMask = /* @__PURE__ */ _bind(FW, 'fileInTempCacheMask')
 export const fileLockedMask = /* @__PURE__ */ _bind(FW, 'fileLockedMask')
 export const gICDCallbackFunctions = /* @__PURE__ */ _bind(FW, 'gICDCallbackFunctions')
-export const gICDScannerCallbackFunctions = /* @__PURE__ */ _bind(FW, 'gICDScannerCallbackFunctions')
+export const gICDScannerCallbackFunctions = /* @__PURE__ */ _bind(
+	FW,
+	'gICDScannerCallbackFunctions',
+)
+
 export const hasChildrenMask = /* @__PURE__ */ _bind(FW, 'hasChildrenMask')
 export const hasThumbnailMask = /* @__PURE__ */ _bind(FW, 'hasThumbnailMask')
 export const kAddMetaDataToFinderComment = /* @__PURE__ */ _bind(FW, 'kAddMetaDataToFinderComment')
@@ -147,17 +287,33 @@ export const kICADataTypeKey = /* @__PURE__ */ _bind(FW, 'kICADataTypeKey')
 export const kICADataTypeNotFoundErr = /* @__PURE__ */ _bind(FW, 'kICADataTypeNotFoundErr')
 export const kICADevice = /* @__PURE__ */ _bind(FW, 'kICADevice')
 export const kICADeviceAlreadyOpenErr = /* @__PURE__ */ _bind(FW, 'kICADeviceAlreadyOpenErr')
-export const kICADeviceBrowserDeviceRefKey = /* @__PURE__ */ _bind(FW, 'kICADeviceBrowserDeviceRefKey')
+export const kICADeviceBrowserDeviceRefKey = /* @__PURE__ */ _bind(
+	FW,
+	'kICADeviceBrowserDeviceRefKey',
+)
+
 export const kICADeviceCamera = /* @__PURE__ */ _bind(FW, 'kICADeviceCamera')
 export const kICADeviceCapabilitiesKey = /* @__PURE__ */ _bind(FW, 'kICADeviceCapabilitiesKey')
 export const kICADeviceGUIDNotFoundErr = /* @__PURE__ */ _bind(FW, 'kICADeviceGUIDNotFoundErr')
-export const kICADeviceIOServicePathNotFoundErr = /* @__PURE__ */ _bind(FW, 'kICADeviceIOServicePathNotFoundErr')
+export const kICADeviceIOServicePathNotFoundErr = /* @__PURE__ */ _bind(
+	FW,
+	'kICADeviceIOServicePathNotFoundErr',
+)
+
 export const kICADeviceIconPathKey = /* @__PURE__ */ _bind(FW, 'kICADeviceIconPathKey')
 export const kICADeviceInternalErr = /* @__PURE__ */ _bind(FW, 'kICADeviceInternalErr')
 export const kICADeviceInvalidParamErr = /* @__PURE__ */ _bind(FW, 'kICADeviceInvalidParamErr')
-export const kICADeviceLocationIDNotFoundErr = /* @__PURE__ */ _bind(FW, 'kICADeviceLocationIDNotFoundErr')
+export const kICADeviceLocationIDNotFoundErr = /* @__PURE__ */ _bind(
+	FW,
+	'kICADeviceLocationIDNotFoundErr',
+)
+
 export const kICADeviceMFP = /* @__PURE__ */ _bind(FW, 'kICADeviceMFP')
-export const kICADeviceMemoryAllocationErr = /* @__PURE__ */ _bind(FW, 'kICADeviceMemoryAllocationErr')
+export const kICADeviceMemoryAllocationErr = /* @__PURE__ */ _bind(
+	FW,
+	'kICADeviceMemoryAllocationErr',
+)
+
 export const kICADeviceModulePathKey = /* @__PURE__ */ _bind(FW, 'kICADeviceModulePathKey')
 export const kICADeviceNotFoundErr = /* @__PURE__ */ _bind(FW, 'kICADeviceNotFoundErr')
 export const kICADeviceNotOpenErr = /* @__PURE__ */ _bind(FW, 'kICADeviceNotOpenErr')
@@ -169,30 +325,66 @@ export const kICADevicePropBatteryLevel = /* @__PURE__ */ _bind(FW, 'kICADeviceP
 export const kICADevicePropBurstInterval = /* @__PURE__ */ _bind(FW, 'kICADevicePropBurstInterval')
 export const kICADevicePropBurstNumber = /* @__PURE__ */ _bind(FW, 'kICADevicePropBurstNumber')
 export const kICADevicePropCaptureDelay = /* @__PURE__ */ _bind(FW, 'kICADevicePropCaptureDelay')
-export const kICADevicePropCompressionSetting = /* @__PURE__ */ _bind(FW, 'kICADevicePropCompressionSetting')
+export const kICADevicePropCompressionSetting = /* @__PURE__ */ _bind(
+	FW,
+	'kICADevicePropCompressionSetting',
+)
+
 export const kICADevicePropContrast = /* @__PURE__ */ _bind(FW, 'kICADevicePropContrast')
 export const kICADevicePropCopyrightInfo = /* @__PURE__ */ _bind(FW, 'kICADevicePropCopyrightInfo')
 export const kICADevicePropDateTime = /* @__PURE__ */ _bind(FW, 'kICADevicePropDateTime')
 export const kICADevicePropDigitalZoom = /* @__PURE__ */ _bind(FW, 'kICADevicePropDigitalZoom')
 export const kICADevicePropEffectMode = /* @__PURE__ */ _bind(FW, 'kICADevicePropEffectMode')
-export const kICADevicePropExposureBiasCompensation = /* @__PURE__ */ _bind(FW, 'kICADevicePropExposureBiasCompensation')
+export const kICADevicePropExposureBiasCompensation = /* @__PURE__ */ _bind(
+	FW,
+	'kICADevicePropExposureBiasCompensation',
+)
+
 export const kICADevicePropExposureIndex = /* @__PURE__ */ _bind(FW, 'kICADevicePropExposureIndex')
-export const kICADevicePropExposureMeteringMode = /* @__PURE__ */ _bind(FW, 'kICADevicePropExposureMeteringMode')
-export const kICADevicePropExposureProgramMode = /* @__PURE__ */ _bind(FW, 'kICADevicePropExposureProgramMode')
+export const kICADevicePropExposureMeteringMode = /* @__PURE__ */ _bind(
+	FW,
+	'kICADevicePropExposureMeteringMode',
+)
+
+export const kICADevicePropExposureProgramMode = /* @__PURE__ */ _bind(
+	FW,
+	'kICADevicePropExposureProgramMode',
+)
+
 export const kICADevicePropExposureTime = /* @__PURE__ */ _bind(FW, 'kICADevicePropExposureTime')
 export const kICADevicePropFNumber = /* @__PURE__ */ _bind(FW, 'kICADevicePropFNumber')
 export const kICADevicePropFlashMode = /* @__PURE__ */ _bind(FW, 'kICADevicePropFlashMode')
 export const kICADevicePropFocalLength = /* @__PURE__ */ _bind(FW, 'kICADevicePropFocalLength')
 export const kICADevicePropFocusDistance = /* @__PURE__ */ _bind(FW, 'kICADevicePropFocusDistance')
-export const kICADevicePropFocusMeteringMode = /* @__PURE__ */ _bind(FW, 'kICADevicePropFocusMeteringMode')
+export const kICADevicePropFocusMeteringMode = /* @__PURE__ */ _bind(
+	FW,
+	'kICADevicePropFocusMeteringMode',
+)
+
 export const kICADevicePropFocusMode = /* @__PURE__ */ _bind(FW, 'kICADevicePropFocusMode')
-export const kICADevicePropFunctionalMode = /* @__PURE__ */ _bind(FW, 'kICADevicePropFunctionalMode')
+export const kICADevicePropFunctionalMode = /* @__PURE__ */ _bind(
+	FW,
+	'kICADevicePropFunctionalMode',
+)
+
 export const kICADevicePropImageSize = /* @__PURE__ */ _bind(FW, 'kICADevicePropImageSize')
 export const kICADevicePropRGBGain = /* @__PURE__ */ _bind(FW, 'kICADevicePropRGBGain')
 export const kICADevicePropSharpness = /* @__PURE__ */ _bind(FW, 'kICADevicePropSharpness')
-export const kICADevicePropStillCaptureMode = /* @__PURE__ */ _bind(FW, 'kICADevicePropStillCaptureMode')
-export const kICADevicePropTimelapseInterval = /* @__PURE__ */ _bind(FW, 'kICADevicePropTimelapseInterval')
-export const kICADevicePropTimelapseNumber = /* @__PURE__ */ _bind(FW, 'kICADevicePropTimelapseNumber')
+export const kICADevicePropStillCaptureMode = /* @__PURE__ */ _bind(
+	FW,
+	'kICADevicePropStillCaptureMode',
+)
+
+export const kICADevicePropTimelapseInterval = /* @__PURE__ */ _bind(
+	FW,
+	'kICADevicePropTimelapseInterval',
+)
+
+export const kICADevicePropTimelapseNumber = /* @__PURE__ */ _bind(
+	FW,
+	'kICADevicePropTimelapseNumber',
+)
+
 export const kICADevicePropUndefined = /* @__PURE__ */ _bind(FW, 'kICADevicePropUndefined')
 export const kICADevicePropUploadURL = /* @__PURE__ */ _bind(FW, 'kICADevicePropUploadURL')
 export const kICADevicePropWhiteBalance = /* @__PURE__ */ _bind(FW, 'kICADevicePropWhiteBalance')
@@ -206,9 +398,17 @@ export const kICADeviceUsedKey = /* @__PURE__ */ _bind(FW, 'kICADeviceUsedKey')
 export const kICADeviceWebSharedKey = /* @__PURE__ */ _bind(FW, 'kICADeviceWebSharedKey')
 export const kICADevicesArrayKey = /* @__PURE__ */ _bind(FW, 'kICADevicesArrayKey')
 export const kICADirectory = /* @__PURE__ */ _bind(FW, 'kICADirectory')
-export const kICADownloadAndReturnPathArray = /* @__PURE__ */ _bind(FW, 'kICADownloadAndReturnPathArray')
+export const kICADownloadAndReturnPathArray = /* @__PURE__ */ _bind(
+	FW,
+	'kICADownloadAndReturnPathArray',
+)
+
 export const kICAErrorKey = /* @__PURE__ */ _bind(FW, 'kICAErrorKey')
-export const kICAExecutableArchitectureKey = /* @__PURE__ */ _bind(FW, 'kICAExecutableArchitectureKey')
+export const kICAExecutableArchitectureKey = /* @__PURE__ */ _bind(
+	FW,
+	'kICAExecutableArchitectureKey',
+)
+
 export const kICAExtensionInternalErr = /* @__PURE__ */ _bind(FW, 'kICAExtensionInternalErr')
 export const kICAFile = /* @__PURE__ */ _bind(FW, 'kICAFile')
 export const kICAFileAudio = /* @__PURE__ */ _bind(FW, 'kICAFileAudio')
@@ -234,97 +434,345 @@ export const kICAInvalidPropertyErr = /* @__PURE__ */ _bind(FW, 'kICAInvalidProp
 export const kICAInvalidSessionErr = /* @__PURE__ */ _bind(FW, 'kICAInvalidSessionErr')
 export const kICAList = /* @__PURE__ */ _bind(FW, 'kICAList')
 export const kICALockStatusKey = /* @__PURE__ */ _bind(FW, 'kICALockStatusKey')
-export const kICAMediaDurationInSecondsKey = /* @__PURE__ */ _bind(FW, 'kICAMediaDurationInSecondsKey')
+export const kICAMediaDurationInSecondsKey = /* @__PURE__ */ _bind(
+	FW,
+	'kICAMediaDurationInSecondsKey',
+)
+
 export const kICAMediaHeightKey = /* @__PURE__ */ _bind(FW, 'kICAMediaHeightKey')
 export const kICAMediaWidthKey = /* @__PURE__ */ _bind(FW, 'kICAMediaWidthKey')
-export const kICAMessageCameraPassThrough = /* @__PURE__ */ _bind(FW, 'kICAMessageCameraPassThrough')
+export const kICAMessageCameraPassThrough = /* @__PURE__ */ _bind(
+	FW,
+	'kICAMessageCameraPassThrough',
+)
+
 export const kICAMessageCameraReadClock = /* @__PURE__ */ _bind(FW, 'kICAMessageCameraReadClock')
 export const kICAMessageCheckDevice = /* @__PURE__ */ _bind(FW, 'kICAMessageCheckDevice')
 export const kICAMessageConnect = /* @__PURE__ */ _bind(FW, 'kICAMessageConnect')
 export const kICAMessageDeviceYield = /* @__PURE__ */ _bind(FW, 'kICAMessageDeviceYield')
 export const kICAMessageDisconnect = /* @__PURE__ */ _bind(FW, 'kICAMessageDisconnect')
 export const kICAMessageGetEventData = /* @__PURE__ */ _bind(FW, 'kICAMessageGetEventData')
-export const kICAMessageGetLastButtonPressed = /* @__PURE__ */ _bind(FW, 'kICAMessageGetLastButtonPressed')
+export const kICAMessageGetLastButtonPressed = /* @__PURE__ */ _bind(
+	FW,
+	'kICAMessageGetLastButtonPressed',
+)
+
 export const kICAMessageReset = /* @__PURE__ */ _bind(FW, 'kICAMessageReset')
-export const kICAMessageScannerOverviewSelectionChanged = /* @__PURE__ */ _bind(FW, 'kICAMessageScannerOverviewSelectionChanged')
-export const kICAModificationDateStringKey = /* @__PURE__ */ _bind(FW, 'kICAModificationDateStringKey')
+export const kICAMessageScannerOverviewSelectionChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kICAMessageScannerOverviewSelectionChanged',
+)
+
+export const kICAModificationDateStringKey = /* @__PURE__ */ _bind(
+	FW,
+	'kICAModificationDateStringKey',
+)
+
 export const kICANotificationClassKey = /* @__PURE__ */ _bind(FW, 'kICANotificationClassKey')
-export const kICANotificationClassPTPStandard = /* @__PURE__ */ _bind(FW, 'kICANotificationClassPTPStandard')
-export const kICANotificationClassPTPVendor = /* @__PURE__ */ _bind(FW, 'kICANotificationClassPTPVendor')
-export const kICANotificationClassProprietary = /* @__PURE__ */ _bind(FW, 'kICANotificationClassProprietary')
-export const kICANotificationDataCookieKey = /* @__PURE__ */ _bind(FW, 'kICANotificationDataCookieKey')
-export const kICANotificationDataIsBigEndianKey = /* @__PURE__ */ _bind(FW, 'kICANotificationDataIsBigEndianKey')
+export const kICANotificationClassPTPStandard = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationClassPTPStandard',
+)
+
+export const kICANotificationClassPTPVendor = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationClassPTPVendor',
+)
+
+export const kICANotificationClassProprietary = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationClassProprietary',
+)
+
+export const kICANotificationDataCookieKey = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationDataCookieKey',
+)
+
+export const kICANotificationDataIsBigEndianKey = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationDataIsBigEndianKey',
+)
+
 export const kICANotificationDataKey = /* @__PURE__ */ _bind(FW, 'kICANotificationDataKey')
 export const kICANotificationDataSizeKey = /* @__PURE__ */ _bind(FW, 'kICANotificationDataSizeKey')
-export const kICANotificationDeviceICAObjectKey = /* @__PURE__ */ _bind(FW, 'kICANotificationDeviceICAObjectKey')
-export const kICANotificationDeviceListICAObjectKey = /* @__PURE__ */ _bind(FW, 'kICANotificationDeviceListICAObjectKey')
-export const kICANotificationICAObjectKey = /* @__PURE__ */ _bind(FW, 'kICANotificationICAObjectKey')
-export const kICANotificationImageBytesPerRowKey = /* @__PURE__ */ _bind(FW, 'kICANotificationImageBytesPerRowKey')
-export const kICANotificationImageDataKey = /* @__PURE__ */ _bind(FW, 'kICANotificationImageDataKey')
-export const kICANotificationImageDataSizeKey = /* @__PURE__ */ _bind(FW, 'kICANotificationImageDataSizeKey')
-export const kICANotificationImageHeightKey = /* @__PURE__ */ _bind(FW, 'kICANotificationImageHeightKey')
+export const kICANotificationDeviceICAObjectKey = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationDeviceICAObjectKey',
+)
+
+export const kICANotificationDeviceListICAObjectKey = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationDeviceListICAObjectKey',
+)
+
+export const kICANotificationICAObjectKey = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationICAObjectKey',
+)
+
+export const kICANotificationImageBytesPerRowKey = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationImageBytesPerRowKey',
+)
+
+export const kICANotificationImageDataKey = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationImageDataKey',
+)
+
+export const kICANotificationImageDataSizeKey = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationImageDataSizeKey',
+)
+
+export const kICANotificationImageHeightKey = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationImageHeightKey',
+)
+
 export const kICANotificationImageKey = /* @__PURE__ */ _bind(FW, 'kICANotificationImageKey')
-export const kICANotificationImageNumberOfRowsKey = /* @__PURE__ */ _bind(FW, 'kICANotificationImageNumberOfRowsKey')
-export const kICANotificationImageStartRowKey = /* @__PURE__ */ _bind(FW, 'kICANotificationImageStartRowKey')
-export const kICANotificationImageWidthKey = /* @__PURE__ */ _bind(FW, 'kICANotificationImageWidthKey')
-export const kICANotificationNumerOfImagesRemainingKey = /* @__PURE__ */ _bind(FW, 'kICANotificationNumerOfImagesRemainingKey')
-export const kICANotificationPercentDownloadedKey = /* @__PURE__ */ _bind(FW, 'kICANotificationPercentDownloadedKey')
+export const kICANotificationImageNumberOfRowsKey = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationImageNumberOfRowsKey',
+)
+
+export const kICANotificationImageStartRowKey = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationImageStartRowKey',
+)
+
+export const kICANotificationImageWidthKey = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationImageWidthKey',
+)
+
+export const kICANotificationNumerOfImagesRemainingKey = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationNumerOfImagesRemainingKey',
+)
+
+export const kICANotificationPercentDownloadedKey = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationPercentDownloadedKey',
+)
+
 export const kICANotificationRawEventKey = /* @__PURE__ */ _bind(FW, 'kICANotificationRawEventKey')
-export const kICANotificationScannerButtonTypeKey = /* @__PURE__ */ _bind(FW, 'kICANotificationScannerButtonTypeKey')
-export const kICANotificationScannerDocumentNameKey = /* @__PURE__ */ _bind(FW, 'kICANotificationScannerDocumentNameKey')
-export const kICANotificationSubTypeDocumentLoaded = /* @__PURE__ */ _bind(FW, 'kICANotificationSubTypeDocumentLoaded')
-export const kICANotificationSubTypeDocumentNotLoaded = /* @__PURE__ */ _bind(FW, 'kICANotificationSubTypeDocumentNotLoaded')
+export const kICANotificationScannerButtonTypeKey = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationScannerButtonTypeKey',
+)
+
+export const kICANotificationScannerDocumentNameKey = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationScannerDocumentNameKey',
+)
+
+export const kICANotificationSubTypeDocumentLoaded = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationSubTypeDocumentLoaded',
+)
+
+export const kICANotificationSubTypeDocumentNotLoaded = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationSubTypeDocumentNotLoaded',
+)
+
 export const kICANotificationSubTypeKey = /* @__PURE__ */ _bind(FW, 'kICANotificationSubTypeKey')
-export const kICANotificationSubTypePerformOverviewScan = /* @__PURE__ */ _bind(FW, 'kICANotificationSubTypePerformOverviewScan')
-export const kICANotificationSubTypeWarmUpDone = /* @__PURE__ */ _bind(FW, 'kICANotificationSubTypeWarmUpDone')
-export const kICANotificationSubTypeWarmUpStarted = /* @__PURE__ */ _bind(FW, 'kICANotificationSubTypeWarmUpStarted')
-export const kICANotificationTypeCaptureComplete = /* @__PURE__ */ _bind(FW, 'kICANotificationTypeCaptureComplete')
-export const kICANotificationTypeDeviceAdded = /* @__PURE__ */ _bind(FW, 'kICANotificationTypeDeviceAdded')
-export const kICANotificationTypeDeviceConnectionProgress = /* @__PURE__ */ _bind(FW, 'kICANotificationTypeDeviceConnectionProgress')
-export const kICANotificationTypeDeviceInfoChanged = /* @__PURE__ */ _bind(FW, 'kICANotificationTypeDeviceInfoChanged')
-export const kICANotificationTypeDevicePropertyChanged = /* @__PURE__ */ _bind(FW, 'kICANotificationTypeDevicePropertyChanged')
-export const kICANotificationTypeDeviceRemoved = /* @__PURE__ */ _bind(FW, 'kICANotificationTypeDeviceRemoved')
-export const kICANotificationTypeDeviceStatusError = /* @__PURE__ */ _bind(FW, 'kICANotificationTypeDeviceStatusError')
-export const kICANotificationTypeDeviceStatusInfo = /* @__PURE__ */ _bind(FW, 'kICANotificationTypeDeviceStatusInfo')
-export const kICANotificationTypeDeviceWasReset = /* @__PURE__ */ _bind(FW, 'kICANotificationTypeDeviceWasReset')
-export const kICANotificationTypeDownloadProgressStatus = /* @__PURE__ */ _bind(FW, 'kICANotificationTypeDownloadProgressStatus')
+export const kICANotificationSubTypePerformOverviewScan = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationSubTypePerformOverviewScan',
+)
+
+export const kICANotificationSubTypeWarmUpDone = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationSubTypeWarmUpDone',
+)
+
+export const kICANotificationSubTypeWarmUpStarted = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationSubTypeWarmUpStarted',
+)
+
+export const kICANotificationTypeCaptureComplete = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationTypeCaptureComplete',
+)
+
+export const kICANotificationTypeDeviceAdded = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationTypeDeviceAdded',
+)
+
+export const kICANotificationTypeDeviceConnectionProgress = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationTypeDeviceConnectionProgress',
+)
+
+export const kICANotificationTypeDeviceInfoChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationTypeDeviceInfoChanged',
+)
+
+export const kICANotificationTypeDevicePropertyChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationTypeDevicePropertyChanged',
+)
+
+export const kICANotificationTypeDeviceRemoved = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationTypeDeviceRemoved',
+)
+
+export const kICANotificationTypeDeviceStatusError = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationTypeDeviceStatusError',
+)
+
+export const kICANotificationTypeDeviceStatusInfo = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationTypeDeviceStatusInfo',
+)
+
+export const kICANotificationTypeDeviceWasReset = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationTypeDeviceWasReset',
+)
+
+export const kICANotificationTypeDownloadProgressStatus = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationTypeDownloadProgressStatus',
+)
+
 export const kICANotificationTypeKey = /* @__PURE__ */ _bind(FW, 'kICANotificationTypeKey')
-export const kICANotificationTypeObjectAdded = /* @__PURE__ */ _bind(FW, 'kICANotificationTypeObjectAdded')
-export const kICANotificationTypeObjectInfoChanged = /* @__PURE__ */ _bind(FW, 'kICANotificationTypeObjectInfoChanged')
-export const kICANotificationTypeObjectRemoved = /* @__PURE__ */ _bind(FW, 'kICANotificationTypeObjectRemoved')
-export const kICANotificationTypeProprietary = /* @__PURE__ */ _bind(FW, 'kICANotificationTypeProprietary')
-export const kICANotificationTypeRequestObjectTransfer = /* @__PURE__ */ _bind(FW, 'kICANotificationTypeRequestObjectTransfer')
-export const kICANotificationTypeScanProgressStatus = /* @__PURE__ */ _bind(FW, 'kICANotificationTypeScanProgressStatus')
-export const kICANotificationTypeScannerButtonPressed = /* @__PURE__ */ _bind(FW, 'kICANotificationTypeScannerButtonPressed')
-export const kICANotificationTypeScannerOverviewOverlayAvailable = /* @__PURE__ */ _bind(FW, 'kICANotificationTypeScannerOverviewOverlayAvailable')
-export const kICANotificationTypeScannerPageDone = /* @__PURE__ */ _bind(FW, 'kICANotificationTypeScannerPageDone')
-export const kICANotificationTypeScannerScanDone = /* @__PURE__ */ _bind(FW, 'kICANotificationTypeScannerScanDone')
-export const kICANotificationTypeScannerSessionClosed = /* @__PURE__ */ _bind(FW, 'kICANotificationTypeScannerSessionClosed')
-export const kICANotificationTypeStoreAdded = /* @__PURE__ */ _bind(FW, 'kICANotificationTypeStoreAdded')
-export const kICANotificationTypeStoreFull = /* @__PURE__ */ _bind(FW, 'kICANotificationTypeStoreFull')
-export const kICANotificationTypeStoreInfoChanged = /* @__PURE__ */ _bind(FW, 'kICANotificationTypeStoreInfoChanged')
-export const kICANotificationTypeStoreRemoved = /* @__PURE__ */ _bind(FW, 'kICANotificationTypeStoreRemoved')
-export const kICANotificationTypeTransactionCanceled = /* @__PURE__ */ _bind(FW, 'kICANotificationTypeTransactionCanceled')
-export const kICANotificationTypeUnreportedStatus = /* @__PURE__ */ _bind(FW, 'kICANotificationTypeUnreportedStatus')
-export const kICANotificationVendorErrorCodeKey = /* @__PURE__ */ _bind(FW, 'kICANotificationVendorErrorCodeKey')
+export const kICANotificationTypeObjectAdded = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationTypeObjectAdded',
+)
+
+export const kICANotificationTypeObjectInfoChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationTypeObjectInfoChanged',
+)
+
+export const kICANotificationTypeObjectRemoved = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationTypeObjectRemoved',
+)
+
+export const kICANotificationTypeProprietary = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationTypeProprietary',
+)
+
+export const kICANotificationTypeRequestObjectTransfer = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationTypeRequestObjectTransfer',
+)
+
+export const kICANotificationTypeScanProgressStatus = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationTypeScanProgressStatus',
+)
+
+export const kICANotificationTypeScannerButtonPressed = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationTypeScannerButtonPressed',
+)
+
+export const kICANotificationTypeScannerOverviewOverlayAvailable = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationTypeScannerOverviewOverlayAvailable',
+)
+
+export const kICANotificationTypeScannerPageDone = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationTypeScannerPageDone',
+)
+
+export const kICANotificationTypeScannerScanDone = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationTypeScannerScanDone',
+)
+
+export const kICANotificationTypeScannerSessionClosed = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationTypeScannerSessionClosed',
+)
+
+export const kICANotificationTypeStoreAdded = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationTypeStoreAdded',
+)
+
+export const kICANotificationTypeStoreFull = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationTypeStoreFull',
+)
+
+export const kICANotificationTypeStoreInfoChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationTypeStoreInfoChanged',
+)
+
+export const kICANotificationTypeStoreRemoved = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationTypeStoreRemoved',
+)
+
+export const kICANotificationTypeTransactionCanceled = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationTypeTransactionCanceled',
+)
+
+export const kICANotificationTypeUnreportedStatus = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationTypeUnreportedStatus',
+)
+
+export const kICANotificationVendorErrorCodeKey = /* @__PURE__ */ _bind(
+	FW,
+	'kICANotificationVendorErrorCodeKey',
+)
+
 export const kICAObjectKey = /* @__PURE__ */ _bind(FW, 'kICAObjectKey')
 export const kICAObjectNameKey = /* @__PURE__ */ _bind(FW, 'kICAObjectNameKey')
 export const kICAPBVersion = /* @__PURE__ */ _bind(FW, 'kICAPBVersion')
 export const kICAProperty = /* @__PURE__ */ _bind(FW, 'kICAProperty')
 export const kICAPropertyColorSpace = /* @__PURE__ */ _bind(FW, 'kICAPropertyColorSpace')
-export const kICAPropertyColorSyncProfile = /* @__PURE__ */ _bind(FW, 'kICAPropertyColorSyncProfile')
+export const kICAPropertyColorSyncProfile = /* @__PURE__ */ _bind(
+	FW,
+	'kICAPropertyColorSyncProfile',
+)
+
 export const kICAPropertyImageAperture = /* @__PURE__ */ _bind(FW, 'kICAPropertyImageAperture')
 export const kICAPropertyImageBitDepth = /* @__PURE__ */ _bind(FW, 'kICAPropertyImageBitDepth')
 export const kICAPropertyImageDPI = /* @__PURE__ */ _bind(FW, 'kICAPropertyImageDPI')
 export const kICAPropertyImageData = /* @__PURE__ */ _bind(FW, 'kICAPropertyImageData')
-export const kICAPropertyImageDateDigitized = /* @__PURE__ */ _bind(FW, 'kICAPropertyImageDateDigitized')
-export const kICAPropertyImageDateOriginal = /* @__PURE__ */ _bind(FW, 'kICAPropertyImageDateOriginal')
-export const kICAPropertyImageExposureTime = /* @__PURE__ */ _bind(FW, 'kICAPropertyImageExposureTime')
+export const kICAPropertyImageDateDigitized = /* @__PURE__ */ _bind(
+	FW,
+	'kICAPropertyImageDateDigitized',
+)
+
+export const kICAPropertyImageDateOriginal = /* @__PURE__ */ _bind(
+	FW,
+	'kICAPropertyImageDateOriginal',
+)
+
+export const kICAPropertyImageExposureTime = /* @__PURE__ */ _bind(
+	FW,
+	'kICAPropertyImageExposureTime',
+)
+
 export const kICAPropertyImageFNumber = /* @__PURE__ */ _bind(FW, 'kICAPropertyImageFNumber')
 export const kICAPropertyImageFilename = /* @__PURE__ */ _bind(FW, 'kICAPropertyImageFilename')
 export const kICAPropertyImageFlash = /* @__PURE__ */ _bind(FW, 'kICAPropertyImageFlash')
 export const kICAPropertyImageHeight = /* @__PURE__ */ _bind(FW, 'kICAPropertyImageHeight')
-export const kICAPropertyImageShutterSpeed = /* @__PURE__ */ _bind(FW, 'kICAPropertyImageShutterSpeed')
+export const kICAPropertyImageShutterSpeed = /* @__PURE__ */ _bind(
+	FW,
+	'kICAPropertyImageShutterSpeed',
+)
+
 export const kICAPropertyImageSize = /* @__PURE__ */ _bind(FW, 'kICAPropertyImageSize')
 export const kICAPropertyImageThumbnail = /* @__PURE__ */ _bind(FW, 'kICAPropertyImageThumbnail')
 export const kICAPropertyImageWidth = /* @__PURE__ */ _bind(FW, 'kICAPropertyImageWidth')
@@ -363,19 +811,39 @@ export const kICAUSBTransportType = /* @__PURE__ */ _bind(FW, 'kICAUSBTransportT
 export const kICAUSBVendorIDKey = /* @__PURE__ */ _bind(FW, 'kICAUSBVendorIDKey')
 export const kICAUploadFileAsIs = /* @__PURE__ */ _bind(FW, 'kICAUploadFileAsIs')
 export const kICAUploadFileScaleToFit = /* @__PURE__ */ _bind(FW, 'kICAUploadFileScaleToFit')
-export const kICAUserAssignedDeviceNameKey = /* @__PURE__ */ _bind(FW, 'kICAUserAssignedDeviceNameKey')
+export const kICAUserAssignedDeviceNameKey = /* @__PURE__ */ _bind(
+	FW,
+	'kICAUserAssignedDeviceNameKey',
+)
+
 export const kICD_FileData = /* @__PURE__ */ _bind(FW, 'kICD_FileData')
 export const kICD_MetaData = /* @__PURE__ */ _bind(FW, 'kICD_MetaData')
 export const kICD_ThumbnailData = /* @__PURE__ */ _bind(FW, 'kICD_ThumbnailData')
-export const kICD_ThumbnailDataFormatJPEG = /* @__PURE__ */ _bind(FW, 'kICD_ThumbnailDataFormatJPEG')
+export const kICD_ThumbnailDataFormatJPEG = /* @__PURE__ */ _bind(
+	FW,
+	'kICD_ThumbnailDataFormatJPEG',
+)
+
 export const kICD_ThumbnailDataFormatPNG = /* @__PURE__ */ _bind(FW, 'kICD_ThumbnailDataFormatPNG')
-export const kICD_ThumbnailDataFormatTIFF = /* @__PURE__ */ _bind(FW, 'kICD_ThumbnailDataFormatTIFF')
+export const kICD_ThumbnailDataFormatTIFF = /* @__PURE__ */ _bind(
+	FW,
+	'kICD_ThumbnailDataFormatTIFF',
+)
+
 export const kICS_FileData = /* @__PURE__ */ _bind(FW, 'kICS_FileData')
 export const kICS_MetaData = /* @__PURE__ */ _bind(FW, 'kICS_MetaData')
 export const kICS_ThumbnailData = /* @__PURE__ */ _bind(FW, 'kICS_ThumbnailData')
-export const kICS_ThumbnailDataFormatJPEG = /* @__PURE__ */ _bind(FW, 'kICS_ThumbnailDataFormatJPEG')
+export const kICS_ThumbnailDataFormatJPEG = /* @__PURE__ */ _bind(
+	FW,
+	'kICS_ThumbnailDataFormatJPEG',
+)
+
 export const kICS_ThumbnailDataFormatPNG = /* @__PURE__ */ _bind(FW, 'kICS_ThumbnailDataFormatPNG')
-export const kICS_ThumbnailDataFormatTIFF = /* @__PURE__ */ _bind(FW, 'kICS_ThumbnailDataFormatTIFF')
+export const kICS_ThumbnailDataFormatTIFF = /* @__PURE__ */ _bind(
+	FW,
+	'kICS_ThumbnailDataFormatTIFF',
+)
+
 export const kICUTTypeRaw = /* @__PURE__ */ _bind(FW, 'kICUTTypeRaw')
 export const kMetaDataDictionaryKey = /* @__PURE__ */ _bind(FW, 'kMetaDataDictionaryKey')
 export const kRotateImage = /* @__PURE__ */ _bind(FW, 'kRotateImage')

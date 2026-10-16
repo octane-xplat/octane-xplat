@@ -3,7 +3,6 @@ import { createMacOSRoot } from '@octane-xplat/macos-renderer'
 import { useAnimation, View } from '@octane-xplat/ui'
 import { NSView, NSWorkspace } from '@octane-xplat/platform/macos'
 
-
 let x, opacity
 function Content({ revision: _revision = 0 }) {
 	x = useAnimation(0)

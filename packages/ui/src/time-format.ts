@@ -2,7 +2,14 @@
 // formatInstant.ts, formatRelativeTime.ts, and tooltipEntries.ts. Intl is a
 // universal-runtime API (platform-notes i18n row), so the module is identical
 // on web and native.
-import type { ISOInstantString, TimestampFormat, TimestampTooltipEntry, TimestampTooltipFormat, TimestampValueUnit } from './props'
+import type {
+	ISOInstantString,
+	TimestampFormat,
+	TimestampTooltipEntry,
+	TimestampTooltipFormat,
+	TimestampValueUnit,
+} from './props'
+
 export type { TimestampTooltipEntry, TimestampTooltipFormat } from './props'
 
 /** A rendered tooltip line for the Timestamp hover card. */
@@ -364,14 +371,26 @@ export const DEFAULT_AUTO_THRESHOLD = 7 * DAY
  *  explicit unit. Numbers are never interpreted by magnitude. */
 export function parseTimestampValue(value: ISOInstantString): Date
 export function parseTimestampValue(value: number, unit: TimestampValueUnit): Date
-export function parseTimestampValue(value: ISOInstantString | number, unit?: TimestampValueUnit): Date {
+export function parseTimestampValue(
+	value: ISOInstantString | number,
+	unit?: TimestampValueUnit,
+): Date {
 	if (typeof value === 'number') {
-		if (unit === 'unix-seconds') return new Date(value * 1000)
-		if (unit === 'unix-milliseconds') return new Date(value)
+		if (unit === 'unix-seconds') {
+			return new Date(value * 1000)
+		}
+
+		if (unit === 'unix-milliseconds') {
+			return new Date(value)
+		}
+
 		return new Date(Number.NaN)
 	}
 
-	if (!/(?:Z|[+-]\d{2}:\d{2})$/i.test(value)) return new Date(Number.NaN)
+	if (!/(?:Z|[+-]\d{2}:\d{2})$/i.test(value)) {
+		return new Date(Number.NaN)
+	}
+
 	return new Date(value)
 }
 

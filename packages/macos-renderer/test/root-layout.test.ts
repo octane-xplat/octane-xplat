@@ -279,9 +279,8 @@ test('RootLayout geometry observer releases on disposal and ignores late callbac
 	}
 
 	const api = runInNewContext(
-		['makeRootLayout', 'destroy', 'detach', 'releasePlacementPins']
-			.map(fn)
-			.join('\n') + '\n;({makeRootLayout,destroy})',
+		['makeRootLayout', 'destroy', 'detach', 'releasePlacementPins'].map(fn).join('\n') +
+			'\n;({makeRootLayout,destroy})',
 		{
 			NSUserInterfaceLayoutOrientation: { Horizontal: 0, Vertical: 1 },
 			RootLayoutView: { alloc: () => ({ initWithFrame: () => view }) },

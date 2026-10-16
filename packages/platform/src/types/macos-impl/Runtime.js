@@ -4,7 +4,11 @@ export const BTHeaderRec = /* @__PURE__ */ _bind(FW, 'BTHeaderRec')
 export const BTNodeDescriptor = /* @__PURE__ */ _bind(FW, 'BTNodeDescriptor')
 export const BTreeKey = /* @__PURE__ */ _bind(FW, 'BTreeKey')
 export const BTreeKeyLimits = /* @__PURE__ */ _bind(FW, 'BTreeKeyLimits')
-export const CompileTimeAssertionChecks_DNS_SD = /* @__PURE__ */ _bind(FW, 'CompileTimeAssertionChecks_DNS_SD')
+export const CompileTimeAssertionChecks_DNS_SD = /* @__PURE__ */ _bind(
+	FW,
+	'CompileTimeAssertionChecks_DNS_SD',
+)
+
 export const DERItem = /* @__PURE__ */ _bind(FW, 'DERItem')
 export const DIR = /* @__PURE__ */ _bind(FW, 'DIR')
 export const DISPATCH_DECL_SWIFT = /* @__PURE__ */ _bind(FW, 'DISPATCH_DECL_SWIFT')
@@ -17,7 +21,11 @@ export const DNSServiceCreateConnection = /* @__PURE__ */ _bind(FW, 'DNSServiceC
 export const DNSServiceEnumerateDomains = /* @__PURE__ */ _bind(FW, 'DNSServiceEnumerateDomains')
 export const DNSServiceGetAddrInfo = /* @__PURE__ */ _bind(FW, 'DNSServiceGetAddrInfo')
 export const DNSServiceGetProperty = /* @__PURE__ */ _bind(FW, 'DNSServiceGetProperty')
-export const DNSServiceNATPortMappingCreate = /* @__PURE__ */ _bind(FW, 'DNSServiceNATPortMappingCreate')
+export const DNSServiceNATPortMappingCreate = /* @__PURE__ */ _bind(
+	FW,
+	'DNSServiceNATPortMappingCreate',
+)
+
 export const DNSServiceProcessResult = /* @__PURE__ */ _bind(FW, 'DNSServiceProcessResult')
 export const DNSServiceQueryRecord = /* @__PURE__ */ _bind(FW, 'DNSServiceQueryRecord')
 export const DNSServiceReconfirmRecord = /* @__PURE__ */ _bind(FW, 'DNSServiceReconfirmRecord')
@@ -127,9 +135,17 @@ export const OBJC_CLEAR_RESIDENT_STACK = /* @__PURE__ */ _bind(FW, 'OBJC_CLEAR_R
 export const OBJC_COLLECT_IF_NEEDED = /* @__PURE__ */ _bind(FW, 'OBJC_COLLECT_IF_NEEDED')
 export const OBJC_EXHAUSTIVE_COLLECTION = /* @__PURE__ */ _bind(FW, 'OBJC_EXHAUSTIVE_COLLECTION')
 export const OBJC_FULL_COLLECTION = /* @__PURE__ */ _bind(FW, 'OBJC_FULL_COLLECTION')
-export const OBJC_GENERATIONAL_COLLECTION = /* @__PURE__ */ _bind(FW, 'OBJC_GENERATIONAL_COLLECTION')
+export const OBJC_GENERATIONAL_COLLECTION = /* @__PURE__ */ _bind(
+	FW,
+	'OBJC_GENERATIONAL_COLLECTION',
+)
+
 export const OBJC_RATIO_COLLECTION = /* @__PURE__ */ _bind(FW, 'OBJC_RATIO_COLLECTION')
-export const OBJC_SYNC_NOT_OWNING_THREAD_ERROR = /* @__PURE__ */ _bind(FW, 'OBJC_SYNC_NOT_OWNING_THREAD_ERROR')
+export const OBJC_SYNC_NOT_OWNING_THREAD_ERROR = /* @__PURE__ */ _bind(
+	FW,
+	'OBJC_SYNC_NOT_OWNING_THREAD_ERROR',
+)
+
 export const OBJC_SYNC_SUCCESS = /* @__PURE__ */ _bind(FW, 'OBJC_SYNC_SUCCESS')
 export const OBJC_WAIT_UNTIL_DONE = /* @__PURE__ */ _bind(FW, 'OBJC_WAIT_UNTIL_DONE')
 export const OSAtomicAdd32 = /* @__PURE__ */ _bind(FW, 'OSAtomicAdd32')
@@ -141,15 +157,35 @@ export const OSAtomicAnd32Barrier = /* @__PURE__ */ _bind(FW, 'OSAtomicAnd32Barr
 export const OSAtomicAnd32Orig = /* @__PURE__ */ _bind(FW, 'OSAtomicAnd32Orig')
 export const OSAtomicAnd32OrigBarrier = /* @__PURE__ */ _bind(FW, 'OSAtomicAnd32OrigBarrier')
 export const OSAtomicCompareAndSwap32 = /* @__PURE__ */ _bind(FW, 'OSAtomicCompareAndSwap32')
-export const OSAtomicCompareAndSwap32Barrier = /* @__PURE__ */ _bind(FW, 'OSAtomicCompareAndSwap32Barrier')
+export const OSAtomicCompareAndSwap32Barrier = /* @__PURE__ */ _bind(
+	FW,
+	'OSAtomicCompareAndSwap32Barrier',
+)
+
 export const OSAtomicCompareAndSwap64 = /* @__PURE__ */ _bind(FW, 'OSAtomicCompareAndSwap64')
-export const OSAtomicCompareAndSwap64Barrier = /* @__PURE__ */ _bind(FW, 'OSAtomicCompareAndSwap64Barrier')
+export const OSAtomicCompareAndSwap64Barrier = /* @__PURE__ */ _bind(
+	FW,
+	'OSAtomicCompareAndSwap64Barrier',
+)
+
 export const OSAtomicCompareAndSwapInt = /* @__PURE__ */ _bind(FW, 'OSAtomicCompareAndSwapInt')
-export const OSAtomicCompareAndSwapIntBarrier = /* @__PURE__ */ _bind(FW, 'OSAtomicCompareAndSwapIntBarrier')
+export const OSAtomicCompareAndSwapIntBarrier = /* @__PURE__ */ _bind(
+	FW,
+	'OSAtomicCompareAndSwapIntBarrier',
+)
+
 export const OSAtomicCompareAndSwapLong = /* @__PURE__ */ _bind(FW, 'OSAtomicCompareAndSwapLong')
-export const OSAtomicCompareAndSwapLongBarrier = /* @__PURE__ */ _bind(FW, 'OSAtomicCompareAndSwapLongBarrier')
+export const OSAtomicCompareAndSwapLongBarrier = /* @__PURE__ */ _bind(
+	FW,
+	'OSAtomicCompareAndSwapLongBarrier',
+)
+
 export const OSAtomicCompareAndSwapPtr = /* @__PURE__ */ _bind(FW, 'OSAtomicCompareAndSwapPtr')
-export const OSAtomicCompareAndSwapPtrBarrier = /* @__PURE__ */ _bind(FW, 'OSAtomicCompareAndSwapPtrBarrier')
+export const OSAtomicCompareAndSwapPtrBarrier = /* @__PURE__ */ _bind(
+	FW,
+	'OSAtomicCompareAndSwapPtrBarrier',
+)
+
 export const OSAtomicDecrement32 = /* @__PURE__ */ _bind(FW, 'OSAtomicDecrement32')
 export const OSAtomicDecrement32Barrier = /* @__PURE__ */ _bind(FW, 'OSAtomicDecrement32Barrier')
 export const OSAtomicDecrement64 = /* @__PURE__ */ _bind(FW, 'OSAtomicDecrement64')
@@ -187,7 +223,11 @@ export const OS_dispatch_io = /* @__PURE__ */ _bind(FW, 'OS_dispatch_io')
 export const OS_dispatch_object = /* @__PURE__ */ _bind(FW, 'OS_dispatch_object')
 export const OS_dispatch_queue = /* @__PURE__ */ _bind(FW, 'OS_dispatch_queue')
 export const OS_dispatch_queue_attr = /* @__PURE__ */ _bind(FW, 'OS_dispatch_queue_attr')
-export const OS_dispatch_queue_concurrent = /* @__PURE__ */ _bind(FW, 'OS_dispatch_queue_concurrent')
+export const OS_dispatch_queue_concurrent = /* @__PURE__ */ _bind(
+	FW,
+	'OS_dispatch_queue_concurrent',
+)
+
 export const OS_dispatch_queue_global = /* @__PURE__ */ _bind(FW, 'OS_dispatch_queue_global')
 export const OS_dispatch_queue_main = /* @__PURE__ */ _bind(FW, 'OS_dispatch_queue_main')
 export const OS_dispatch_queue_serial = /* @__PURE__ */ _bind(FW, 'OS_dispatch_queue_serial')
@@ -198,9 +238,17 @@ export const OS_os_activity = /* @__PURE__ */ _bind(FW, 'OS_os_activity')
 export const OS_os_log = /* @__PURE__ */ _bind(FW, 'OS_os_log')
 export const OS_os_workgroup = /* @__PURE__ */ _bind(FW, 'OS_os_workgroup')
 export const OS_os_workgroup_interval = /* @__PURE__ */ _bind(FW, 'OS_os_workgroup_interval')
-export const OS_os_workgroup_intervalProtocol = /* @__PURE__ */ _bind(FW, 'OS_os_workgroup_intervalProtocol')
+export const OS_os_workgroup_intervalProtocol = /* @__PURE__ */ _bind(
+	FW,
+	'OS_os_workgroup_intervalProtocol',
+)
+
 export const OS_os_workgroup_parallel = /* @__PURE__ */ _bind(FW, 'OS_os_workgroup_parallel')
-export const OS_os_workgroup_parallelProtocol = /* @__PURE__ */ _bind(FW, 'OS_os_workgroup_parallelProtocol')
+export const OS_os_workgroup_parallelProtocol = /* @__PURE__ */ _bind(
+	FW,
+	'OS_os_workgroup_parallelProtocol',
+)
+
 export const OS_xpc_listener = /* @__PURE__ */ _bind(FW, 'OS_xpc_listener')
 export const OS_xpc_object = /* @__PURE__ */ _bind(FW, 'OS_xpc_object')
 export const OS_xpc_peer_requirement = /* @__PURE__ */ _bind(FW, 'OS_xpc_peer_requirement')
@@ -214,8 +262,16 @@ export const PE_cpu_down = /* @__PURE__ */ _bind(FW, 'PE_cpu_down')
 export const PE_cpu_halt = /* @__PURE__ */ _bind(FW, 'PE_cpu_halt')
 export const PE_cpu_machine_init = /* @__PURE__ */ _bind(FW, 'PE_cpu_machine_init')
 export const PE_cpu_machine_quiesce = /* @__PURE__ */ _bind(FW, 'PE_cpu_machine_quiesce')
-export const PE_cpu_perfmon_interrupt_enable = /* @__PURE__ */ _bind(FW, 'PE_cpu_perfmon_interrupt_enable')
-export const PE_cpu_perfmon_interrupt_install_handler = /* @__PURE__ */ _bind(FW, 'PE_cpu_perfmon_interrupt_install_handler')
+export const PE_cpu_perfmon_interrupt_enable = /* @__PURE__ */ _bind(
+	FW,
+	'PE_cpu_perfmon_interrupt_enable',
+)
+
+export const PE_cpu_perfmon_interrupt_install_handler = /* @__PURE__ */ _bind(
+	FW,
+	'PE_cpu_perfmon_interrupt_install_handler',
+)
+
 export const PE_cpu_power_check_kdp = /* @__PURE__ */ _bind(FW, 'PE_cpu_power_check_kdp')
 export const PE_cpu_power_disable = /* @__PURE__ */ _bind(FW, 'PE_cpu_power_disable')
 export const PE_cpu_power_enable = /* @__PURE__ */ _bind(FW, 'PE_cpu_power_enable')
@@ -236,7 +292,11 @@ export const PE_get_kc_format = /* @__PURE__ */ _bind(FW, 'PE_get_kc_format')
 export const PE_get_kc_header = /* @__PURE__ */ _bind(FW, 'PE_get_kc_header')
 export const PE_get_kc_slide = /* @__PURE__ */ _bind(FW, 'PE_get_kc_slide')
 export const PE_get_kc_vp = /* @__PURE__ */ _bind(FW, 'PE_get_kc_vp')
-export const PE_get_offset_into_panic_region = /* @__PURE__ */ _bind(FW, 'PE_get_offset_into_panic_region')
+export const PE_get_offset_into_panic_region = /* @__PURE__ */ _bind(
+	FW,
+	'PE_get_offset_into_panic_region',
+)
+
 export const PE_get_primary_kc_format = /* @__PURE__ */ _bind(FW, 'PE_get_primary_kc_format')
 export const PE_get_random_seed = /* @__PURE__ */ _bind(FW, 'PE_get_random_seed')
 export const PE_handle_ext_interrupt = /* @__PURE__ */ _bind(FW, 'PE_handle_ext_interrupt')
@@ -261,14 +321,26 @@ export const PE_parse_boot_arg_str = /* @__PURE__ */ _bind(FW, 'PE_parse_boot_ar
 export const PE_parse_boot_argn = /* @__PURE__ */ _bind(FW, 'PE_parse_boot_argn')
 export const PE_putc = /* @__PURE__ */ _bind(FW, 'PE_putc')
 export const PE_read_socd_client_buffer = /* @__PURE__ */ _bind(FW, 'PE_read_socd_client_buffer')
-export const PE_register_timebase_callback = /* @__PURE__ */ _bind(FW, 'PE_register_timebase_callback')
+export const PE_register_timebase_callback = /* @__PURE__ */ _bind(
+	FW,
+	'PE_register_timebase_callback',
+)
+
 export const PE_reset_all_kc_vp = /* @__PURE__ */ _bind(FW, 'PE_reset_all_kc_vp')
 export const PE_set_kc_vp = /* @__PURE__ */ _bind(FW, 'PE_set_kc_vp')
 export const PE_singlestep_hook = /* @__PURE__ */ _bind(FW, 'PE_singlestep_hook')
 export const PE_state = /* @__PURE__ */ _bind(FW, 'PE_state')
 export const PE_stub_poll_input = /* @__PURE__ */ _bind(FW, 'PE_stub_poll_input')
-export const PE_update_panicheader_device_data = /* @__PURE__ */ _bind(FW, 'PE_update_panicheader_device_data')
-export const PE_update_panicheader_nestedpanic = /* @__PURE__ */ _bind(FW, 'PE_update_panicheader_nestedpanic')
+export const PE_update_panicheader_device_data = /* @__PURE__ */ _bind(
+	FW,
+	'PE_update_panicheader_device_data',
+)
+
+export const PE_update_panicheader_nestedpanic = /* @__PURE__ */ _bind(
+	FW,
+	'PE_update_panicheader_nestedpanic',
+)
+
 export const PE_write_socd_client_buffer = /* @__PURE__ */ _bind(FW, 'PE_write_socd_client_buffer')
 export const PeerConnectionRelease = /* @__PURE__ */ _bind(FW, 'PeerConnectionRelease')
 export const Point = /* @__PURE__ */ _bind(FW, 'Point')
@@ -574,7 +646,11 @@ export const Tcl_FSGetNativePath = /* @__PURE__ */ _bind(FW, 'Tcl_FSGetNativePat
 export const Tcl_FSGetNormalizedPath = /* @__PURE__ */ _bind(FW, 'Tcl_FSGetNormalizedPath')
 export const Tcl_FSGetPathType = /* @__PURE__ */ _bind(FW, 'Tcl_FSGetPathType')
 export const Tcl_FSGetTranslatedPath = /* @__PURE__ */ _bind(FW, 'Tcl_FSGetTranslatedPath')
-export const Tcl_FSGetTranslatedStringPath = /* @__PURE__ */ _bind(FW, 'Tcl_FSGetTranslatedStringPath')
+export const Tcl_FSGetTranslatedStringPath = /* @__PURE__ */ _bind(
+	FW,
+	'Tcl_FSGetTranslatedStringPath',
+)
+
 export const Tcl_FSJoinPath = /* @__PURE__ */ _bind(FW, 'Tcl_FSJoinPath')
 export const Tcl_FSJoinToPath = /* @__PURE__ */ _bind(FW, 'Tcl_FSJoinToPath')
 export const Tcl_FSLink = /* @__PURE__ */ _bind(FW, 'Tcl_FSLink')
@@ -647,14 +723,26 @@ export const Tcl_GetDoubleFromObj = /* @__PURE__ */ _bind(FW, 'Tcl_GetDoubleFrom
 export const Tcl_GetEncoding = /* @__PURE__ */ _bind(FW, 'Tcl_GetEncoding')
 export const Tcl_GetEncodingFromObj = /* @__PURE__ */ _bind(FW, 'Tcl_GetEncodingFromObj')
 export const Tcl_GetEncodingName = /* @__PURE__ */ _bind(FW, 'Tcl_GetEncodingName')
-export const Tcl_GetEncodingNameFromEnvironment = /* @__PURE__ */ _bind(FW, 'Tcl_GetEncodingNameFromEnvironment')
+export const Tcl_GetEncodingNameFromEnvironment = /* @__PURE__ */ _bind(
+	FW,
+	'Tcl_GetEncodingNameFromEnvironment',
+)
+
 export const Tcl_GetEncodingNames = /* @__PURE__ */ _bind(FW, 'Tcl_GetEncodingNames')
 export const Tcl_GetEncodingSearchPath = /* @__PURE__ */ _bind(FW, 'Tcl_GetEncodingSearchPath')
 export const Tcl_GetEnsembleFlags = /* @__PURE__ */ _bind(FW, 'Tcl_GetEnsembleFlags')
 export const Tcl_GetEnsembleMappingDict = /* @__PURE__ */ _bind(FW, 'Tcl_GetEnsembleMappingDict')
 export const Tcl_GetEnsembleNamespace = /* @__PURE__ */ _bind(FW, 'Tcl_GetEnsembleNamespace')
-export const Tcl_GetEnsembleSubcommandList = /* @__PURE__ */ _bind(FW, 'Tcl_GetEnsembleSubcommandList')
-export const Tcl_GetEnsembleUnknownHandler = /* @__PURE__ */ _bind(FW, 'Tcl_GetEnsembleUnknownHandler')
+export const Tcl_GetEnsembleSubcommandList = /* @__PURE__ */ _bind(
+	FW,
+	'Tcl_GetEnsembleSubcommandList',
+)
+
+export const Tcl_GetEnsembleUnknownHandler = /* @__PURE__ */ _bind(
+	FW,
+	'Tcl_GetEnsembleUnknownHandler',
+)
+
 export const Tcl_GetErrno = /* @__PURE__ */ _bind(FW, 'Tcl_GetErrno')
 export const Tcl_GetGlobalNamespace = /* @__PURE__ */ _bind(FW, 'Tcl_GetGlobalNamespace')
 export const Tcl_GetHostName = /* @__PURE__ */ _bind(FW, 'Tcl_GetHostName')
@@ -668,7 +756,11 @@ export const Tcl_GetMaster = /* @__PURE__ */ _bind(FW, 'Tcl_GetMaster')
 export const Tcl_GetMathFuncInfo = /* @__PURE__ */ _bind(FW, 'Tcl_GetMathFuncInfo')
 export const Tcl_GetMemoryInfo = /* @__PURE__ */ _bind(FW, 'Tcl_GetMemoryInfo')
 export const Tcl_GetNameOfExecutable = /* @__PURE__ */ _bind(FW, 'Tcl_GetNameOfExecutable')
-export const Tcl_GetNamespaceUnknownHandler = /* @__PURE__ */ _bind(FW, 'Tcl_GetNamespaceUnknownHandler')
+export const Tcl_GetNamespaceUnknownHandler = /* @__PURE__ */ _bind(
+	FW,
+	'Tcl_GetNamespaceUnknownHandler',
+)
+
 export const Tcl_GetObjResult = /* @__PURE__ */ _bind(FW, 'Tcl_GetObjResult')
 export const Tcl_GetObjType = /* @__PURE__ */ _bind(FW, 'Tcl_GetObjType')
 export const Tcl_GetOpenFile = /* @__PURE__ */ _bind(FW, 'Tcl_GetOpenFile')
@@ -755,8 +847,16 @@ export const Tcl_ListObjLength = /* @__PURE__ */ _bind(FW, 'Tcl_ListObjLength')
 export const Tcl_ListObjReplace = /* @__PURE__ */ _bind(FW, 'Tcl_ListObjReplace')
 export const Tcl_LoadHandle_ = /* @__PURE__ */ _bind(FW, 'Tcl_LoadHandle_')
 export const Tcl_LogCommandInfo = /* @__PURE__ */ _bind(FW, 'Tcl_LogCommandInfo')
-export const Tcl_MacOSXOpenBundleResources = /* @__PURE__ */ _bind(FW, 'Tcl_MacOSXOpenBundleResources')
-export const Tcl_MacOSXOpenVersionedBundleResources = /* @__PURE__ */ _bind(FW, 'Tcl_MacOSXOpenVersionedBundleResources')
+export const Tcl_MacOSXOpenBundleResources = /* @__PURE__ */ _bind(
+	FW,
+	'Tcl_MacOSXOpenBundleResources',
+)
+
+export const Tcl_MacOSXOpenVersionedBundleResources = /* @__PURE__ */ _bind(
+	FW,
+	'Tcl_MacOSXOpenVersionedBundleResources',
+)
+
 export const Tcl_Main = /* @__PURE__ */ _bind(FW, 'Tcl_Main')
 export const Tcl_MakeFileChannel = /* @__PURE__ */ _bind(FW, 'Tcl_MakeFileChannel')
 export const Tcl_MakeSafe = /* @__PURE__ */ _bind(FW, 'Tcl_MakeSafe')
@@ -869,8 +969,16 @@ export const Tcl_SetDoubleObj = /* @__PURE__ */ _bind(FW, 'Tcl_SetDoubleObj')
 export const Tcl_SetEncodingSearchPath = /* @__PURE__ */ _bind(FW, 'Tcl_SetEncodingSearchPath')
 export const Tcl_SetEnsembleFlags = /* @__PURE__ */ _bind(FW, 'Tcl_SetEnsembleFlags')
 export const Tcl_SetEnsembleMappingDict = /* @__PURE__ */ _bind(FW, 'Tcl_SetEnsembleMappingDict')
-export const Tcl_SetEnsembleSubcommandList = /* @__PURE__ */ _bind(FW, 'Tcl_SetEnsembleSubcommandList')
-export const Tcl_SetEnsembleUnknownHandler = /* @__PURE__ */ _bind(FW, 'Tcl_SetEnsembleUnknownHandler')
+export const Tcl_SetEnsembleSubcommandList = /* @__PURE__ */ _bind(
+	FW,
+	'Tcl_SetEnsembleSubcommandList',
+)
+
+export const Tcl_SetEnsembleUnknownHandler = /* @__PURE__ */ _bind(
+	FW,
+	'Tcl_SetEnsembleUnknownHandler',
+)
+
 export const Tcl_SetErrno = /* @__PURE__ */ _bind(FW, 'Tcl_SetErrno')
 export const Tcl_SetErrorCode = /* @__PURE__ */ _bind(FW, 'Tcl_SetErrorCode')
 export const Tcl_SetErrorCodeVA = /* @__PURE__ */ _bind(FW, 'Tcl_SetErrorCodeVA')
@@ -880,7 +988,11 @@ export const Tcl_SetListObj = /* @__PURE__ */ _bind(FW, 'Tcl_SetListObj')
 export const Tcl_SetLongObj = /* @__PURE__ */ _bind(FW, 'Tcl_SetLongObj')
 export const Tcl_SetMainLoop = /* @__PURE__ */ _bind(FW, 'Tcl_SetMainLoop')
 export const Tcl_SetMaxBlockTime = /* @__PURE__ */ _bind(FW, 'Tcl_SetMaxBlockTime')
-export const Tcl_SetNamespaceUnknownHandler = /* @__PURE__ */ _bind(FW, 'Tcl_SetNamespaceUnknownHandler')
+export const Tcl_SetNamespaceUnknownHandler = /* @__PURE__ */ _bind(
+	FW,
+	'Tcl_SetNamespaceUnknownHandler',
+)
+
 export const Tcl_SetNotifier = /* @__PURE__ */ _bind(FW, 'Tcl_SetNotifier')
 export const Tcl_SetObjErrorCode = /* @__PURE__ */ _bind(FW, 'Tcl_SetObjErrorCode')
 export const Tcl_SetObjLength = /* @__PURE__ */ _bind(FW, 'Tcl_SetObjLength')
@@ -1058,7 +1170,11 @@ export const Tk_CoordsToWindow = /* @__PURE__ */ _bind(FW, 'Tk_CoordsToWindow')
 export const Tk_CreateAnonymousWindow = /* @__PURE__ */ _bind(FW, 'Tk_CreateAnonymousWindow')
 export const Tk_CreateBinding = /* @__PURE__ */ _bind(FW, 'Tk_CreateBinding')
 export const Tk_CreateBindingTable = /* @__PURE__ */ _bind(FW, 'Tk_CreateBindingTable')
-export const Tk_CreateClientMessageHandler = /* @__PURE__ */ _bind(FW, 'Tk_CreateClientMessageHandler')
+export const Tk_CreateClientMessageHandler = /* @__PURE__ */ _bind(
+	FW,
+	'Tk_CreateClientMessageHandler',
+)
+
 export const Tk_CreateConsoleWindow = /* @__PURE__ */ _bind(FW, 'Tk_CreateConsoleWindow')
 export const Tk_CreateErrorHandler = /* @__PURE__ */ _bind(FW, 'Tk_CreateErrorHandler')
 export const Tk_CreateEventHandler = /* @__PURE__ */ _bind(FW, 'Tk_CreateEventHandler')
@@ -1066,7 +1182,11 @@ export const Tk_CreateGenericHandler = /* @__PURE__ */ _bind(FW, 'Tk_CreateGener
 export const Tk_CreateImageType = /* @__PURE__ */ _bind(FW, 'Tk_CreateImageType')
 export const Tk_CreateItemType = /* @__PURE__ */ _bind(FW, 'Tk_CreateItemType')
 export const Tk_CreateOldImageType = /* @__PURE__ */ _bind(FW, 'Tk_CreateOldImageType')
-export const Tk_CreateOldPhotoImageFormat = /* @__PURE__ */ _bind(FW, 'Tk_CreateOldPhotoImageFormat')
+export const Tk_CreateOldPhotoImageFormat = /* @__PURE__ */ _bind(
+	FW,
+	'Tk_CreateOldPhotoImageFormat',
+)
+
 export const Tk_CreateOptionTable = /* @__PURE__ */ _bind(FW, 'Tk_CreateOptionTable')
 export const Tk_CreateOutline = /* @__PURE__ */ _bind(FW, 'Tk_CreateOutline')
 export const Tk_CreatePhotoImageFormat = /* @__PURE__ */ _bind(FW, 'Tk_CreatePhotoImageFormat')
@@ -1083,7 +1203,11 @@ export const Tk_DefineCursor = /* @__PURE__ */ _bind(FW, 'Tk_DefineCursor')
 export const Tk_DeleteAllBindings = /* @__PURE__ */ _bind(FW, 'Tk_DeleteAllBindings')
 export const Tk_DeleteBinding = /* @__PURE__ */ _bind(FW, 'Tk_DeleteBinding')
 export const Tk_DeleteBindingTable = /* @__PURE__ */ _bind(FW, 'Tk_DeleteBindingTable')
-export const Tk_DeleteClientMessageHandler = /* @__PURE__ */ _bind(FW, 'Tk_DeleteClientMessageHandler')
+export const Tk_DeleteClientMessageHandler = /* @__PURE__ */ _bind(
+	FW,
+	'Tk_DeleteClientMessageHandler',
+)
+
 export const Tk_DeleteErrorHandler = /* @__PURE__ */ _bind(FW, 'Tk_DeleteErrorHandler')
 export const Tk_DeleteEventHandler = /* @__PURE__ */ _bind(FW, 'Tk_DeleteEventHandler')
 export const Tk_DeleteGenericHandler = /* @__PURE__ */ _bind(FW, 'Tk_DeleteGenericHandler')
@@ -1247,11 +1371,23 @@ export const Tk_PhotoGetSize = /* @__PURE__ */ _bind(FW, 'Tk_PhotoGetSize')
 export const Tk_PhotoImageBlock = /* @__PURE__ */ _bind(FW, 'Tk_PhotoImageBlock')
 export const Tk_PhotoImageFormat = /* @__PURE__ */ _bind(FW, 'Tk_PhotoImageFormat')
 export const Tk_PhotoPutBlock = /* @__PURE__ */ _bind(FW, 'Tk_PhotoPutBlock')
-export const Tk_PhotoPutBlock_NoComposite = /* @__PURE__ */ _bind(FW, 'Tk_PhotoPutBlock_NoComposite')
+export const Tk_PhotoPutBlock_NoComposite = /* @__PURE__ */ _bind(
+	FW,
+	'Tk_PhotoPutBlock_NoComposite',
+)
+
 export const Tk_PhotoPutBlock_Panic = /* @__PURE__ */ _bind(FW, 'Tk_PhotoPutBlock_Panic')
 export const Tk_PhotoPutZoomedBlock = /* @__PURE__ */ _bind(FW, 'Tk_PhotoPutZoomedBlock')
-export const Tk_PhotoPutZoomedBlock_NoComposite = /* @__PURE__ */ _bind(FW, 'Tk_PhotoPutZoomedBlock_NoComposite')
-export const Tk_PhotoPutZoomedBlock_Panic = /* @__PURE__ */ _bind(FW, 'Tk_PhotoPutZoomedBlock_Panic')
+export const Tk_PhotoPutZoomedBlock_NoComposite = /* @__PURE__ */ _bind(
+	FW,
+	'Tk_PhotoPutZoomedBlock_NoComposite',
+)
+
+export const Tk_PhotoPutZoomedBlock_Panic = /* @__PURE__ */ _bind(
+	FW,
+	'Tk_PhotoPutZoomedBlock_Panic',
+)
+
 export const Tk_PhotoSetSize = /* @__PURE__ */ _bind(FW, 'Tk_PhotoSetSize')
 export const Tk_PhotoSetSize_Panic = /* @__PURE__ */ _bind(FW, 'Tk_PhotoSetSize_Panic')
 export const Tk_PkgInitStubsCheck = /* @__PURE__ */ _bind(FW, 'Tk_PkgInitStubsCheck')
@@ -1293,7 +1429,11 @@ export const Tk_SetMinimumRequestSize = /* @__PURE__ */ _bind(FW, 'Tk_SetMinimum
 export const Tk_SetOptions = /* @__PURE__ */ _bind(FW, 'Tk_SetOptions')
 export const Tk_SetTSOrigin = /* @__PURE__ */ _bind(FW, 'Tk_SetTSOrigin')
 export const Tk_SetWindowBackground = /* @__PURE__ */ _bind(FW, 'Tk_SetWindowBackground')
-export const Tk_SetWindowBackgroundPixmap = /* @__PURE__ */ _bind(FW, 'Tk_SetWindowBackgroundPixmap')
+export const Tk_SetWindowBackgroundPixmap = /* @__PURE__ */ _bind(
+	FW,
+	'Tk_SetWindowBackgroundPixmap',
+)
+
 export const Tk_SetWindowBorder = /* @__PURE__ */ _bind(FW, 'Tk_SetWindowBorder')
 export const Tk_SetWindowBorderPixmap = /* @__PURE__ */ _bind(FW, 'Tk_SetWindowBorderPixmap')
 export const Tk_SetWindowBorderWidth = /* @__PURE__ */ _bind(FW, 'Tk_SetWindowBorderWidth')
@@ -1329,22 +1469,66 @@ export const XPC_ACTIVITY_CHECK_IN = /* @__PURE__ */ _bind(FW, 'XPC_ACTIVITY_CHE
 export const XPC_ACTIVITY_DELAY = /* @__PURE__ */ _bind(FW, 'XPC_ACTIVITY_DELAY')
 export const XPC_ACTIVITY_GRACE_PERIOD = /* @__PURE__ */ _bind(FW, 'XPC_ACTIVITY_GRACE_PERIOD')
 export const XPC_ACTIVITY_INTERVAL = /* @__PURE__ */ _bind(FW, 'XPC_ACTIVITY_INTERVAL')
-export const XPC_ACTIVITY_INTERVAL_15_MIN = /* @__PURE__ */ _bind(FW, 'XPC_ACTIVITY_INTERVAL_15_MIN')
+export const XPC_ACTIVITY_INTERVAL_15_MIN = /* @__PURE__ */ _bind(
+	FW,
+	'XPC_ACTIVITY_INTERVAL_15_MIN',
+)
+
 export const XPC_ACTIVITY_INTERVAL_1_DAY = /* @__PURE__ */ _bind(FW, 'XPC_ACTIVITY_INTERVAL_1_DAY')
-export const XPC_ACTIVITY_INTERVAL_1_HOUR = /* @__PURE__ */ _bind(FW, 'XPC_ACTIVITY_INTERVAL_1_HOUR')
+export const XPC_ACTIVITY_INTERVAL_1_HOUR = /* @__PURE__ */ _bind(
+	FW,
+	'XPC_ACTIVITY_INTERVAL_1_HOUR',
+)
+
 export const XPC_ACTIVITY_INTERVAL_1_MIN = /* @__PURE__ */ _bind(FW, 'XPC_ACTIVITY_INTERVAL_1_MIN')
-export const XPC_ACTIVITY_INTERVAL_30_MIN = /* @__PURE__ */ _bind(FW, 'XPC_ACTIVITY_INTERVAL_30_MIN')
-export const XPC_ACTIVITY_INTERVAL_4_HOURS = /* @__PURE__ */ _bind(FW, 'XPC_ACTIVITY_INTERVAL_4_HOURS')
+export const XPC_ACTIVITY_INTERVAL_30_MIN = /* @__PURE__ */ _bind(
+	FW,
+	'XPC_ACTIVITY_INTERVAL_30_MIN',
+)
+
+export const XPC_ACTIVITY_INTERVAL_4_HOURS = /* @__PURE__ */ _bind(
+	FW,
+	'XPC_ACTIVITY_INTERVAL_4_HOURS',
+)
+
 export const XPC_ACTIVITY_INTERVAL_5_MIN = /* @__PURE__ */ _bind(FW, 'XPC_ACTIVITY_INTERVAL_5_MIN')
-export const XPC_ACTIVITY_INTERVAL_7_DAYS = /* @__PURE__ */ _bind(FW, 'XPC_ACTIVITY_INTERVAL_7_DAYS')
-export const XPC_ACTIVITY_INTERVAL_8_HOURS = /* @__PURE__ */ _bind(FW, 'XPC_ACTIVITY_INTERVAL_8_HOURS')
+export const XPC_ACTIVITY_INTERVAL_7_DAYS = /* @__PURE__ */ _bind(
+	FW,
+	'XPC_ACTIVITY_INTERVAL_7_DAYS',
+)
+
+export const XPC_ACTIVITY_INTERVAL_8_HOURS = /* @__PURE__ */ _bind(
+	FW,
+	'XPC_ACTIVITY_INTERVAL_8_HOURS',
+)
+
 export const XPC_ACTIVITY_PRIORITY = /* @__PURE__ */ _bind(FW, 'XPC_ACTIVITY_PRIORITY')
-export const XPC_ACTIVITY_PRIORITY_MAINTENANCE = /* @__PURE__ */ _bind(FW, 'XPC_ACTIVITY_PRIORITY_MAINTENANCE')
-export const XPC_ACTIVITY_PRIORITY_UTILITY = /* @__PURE__ */ _bind(FW, 'XPC_ACTIVITY_PRIORITY_UTILITY')
+export const XPC_ACTIVITY_PRIORITY_MAINTENANCE = /* @__PURE__ */ _bind(
+	FW,
+	'XPC_ACTIVITY_PRIORITY_MAINTENANCE',
+)
+
+export const XPC_ACTIVITY_PRIORITY_UTILITY = /* @__PURE__ */ _bind(
+	FW,
+	'XPC_ACTIVITY_PRIORITY_UTILITY',
+)
+
 export const XPC_ACTIVITY_REPEATING = /* @__PURE__ */ _bind(FW, 'XPC_ACTIVITY_REPEATING')
-export const XPC_ACTIVITY_REQUIRE_BATTERY_LEVEL = /* @__PURE__ */ _bind(FW, 'XPC_ACTIVITY_REQUIRE_BATTERY_LEVEL')
-export const XPC_ACTIVITY_REQUIRE_HDD_SPINNING = /* @__PURE__ */ _bind(FW, 'XPC_ACTIVITY_REQUIRE_HDD_SPINNING')
-export const XPC_ACTIVITY_REQUIRE_SCREEN_SLEEP = /* @__PURE__ */ _bind(FW, 'XPC_ACTIVITY_REQUIRE_SCREEN_SLEEP')
+export const XPC_ACTIVITY_REQUIRE_BATTERY_LEVEL = /* @__PURE__ */ _bind(
+	FW,
+	'XPC_ACTIVITY_REQUIRE_BATTERY_LEVEL',
+)
+
+export const XPC_ACTIVITY_REQUIRE_HDD_SPINNING = /* @__PURE__ */ _bind(
+	FW,
+	'XPC_ACTIVITY_REQUIRE_HDD_SPINNING',
+)
+
+export const XPC_ACTIVITY_REQUIRE_SCREEN_SLEEP = /* @__PURE__ */ _bind(
+	FW,
+	'XPC_ACTIVITY_REQUIRE_SCREEN_SLEEP',
+)
+
 export const XPC_ACTIVITY_STATE_CHECK_IN = /* @__PURE__ */ _bind(FW, 'XPC_ACTIVITY_STATE_CHECK_IN')
 export const XPC_ACTIVITY_STATE_CONTINUE = /* @__PURE__ */ _bind(FW, 'XPC_ACTIVITY_STATE_CONTINUE')
 export const XPC_ACTIVITY_STATE_DEFER = /* @__PURE__ */ _bind(FW, 'XPC_ACTIVITY_STATE_DEFER')
@@ -1379,57 +1563,225 @@ export const _RuneEntry = /* @__PURE__ */ _bind(FW, '_RuneEntry')
 export const _RuneLocale = /* @__PURE__ */ _bind(FW, '_RuneLocale')
 export const _RuneRange = /* @__PURE__ */ _bind(FW, '_RuneRange')
 export const _TXTRecordRef_t = /* @__PURE__ */ _bind(FW, '_TXTRecordRef_t')
-export const __ReplyUnion__clock_priv_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__clock_priv_subsystem')
-export const __ReplyUnion__host_priv_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__host_priv_subsystem')
-export const __ReplyUnion__host_security_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__host_security_subsystem')
-export const __ReplyUnion__mach_host_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__mach_host_subsystem')
-export const __ReplyUnion__mach_port_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__mach_port_subsystem')
-export const __ReplyUnion__processor_set_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__processor_set_subsystem')
-export const __ReplyUnion__processor_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__processor_subsystem')
-export const __ReplyUnion__task_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__task_subsystem')
-export const __ReplyUnion__thread_act_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__thread_act_subsystem')
-export const __ReplyUnion__vm_map_subsystem = /* @__PURE__ */ _bind(FW, '__ReplyUnion__vm_map_subsystem')
+export const __ReplyUnion__clock_priv_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__clock_priv_subsystem',
+)
+
+export const __ReplyUnion__host_priv_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__host_priv_subsystem',
+)
+
+export const __ReplyUnion__host_security_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__host_security_subsystem',
+)
+
+export const __ReplyUnion__mach_host_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__mach_host_subsystem',
+)
+
+export const __ReplyUnion__mach_port_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__mach_port_subsystem',
+)
+
+export const __ReplyUnion__processor_set_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__processor_set_subsystem',
+)
+
+export const __ReplyUnion__processor_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__processor_subsystem',
+)
+
+export const __ReplyUnion__task_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__task_subsystem',
+)
+
+export const __ReplyUnion__thread_act_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__thread_act_subsystem',
+)
+
+export const __ReplyUnion__vm_map_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__ReplyUnion__vm_map_subsystem',
+)
+
 export const __Reply___host_page_size_t = /* @__PURE__ */ _bind(FW, '__Reply___host_page_size_t')
 export const __Reply__act_get_state_t = /* @__PURE__ */ _bind(FW, '__Reply__act_get_state_t')
 export const __Reply__act_set_state_t = /* @__PURE__ */ _bind(FW, '__Reply__act_set_state_t')
-export const __Reply__clock_set_attributes_t = /* @__PURE__ */ _bind(FW, '__Reply__clock_set_attributes_t')
+export const __Reply__clock_set_attributes_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__clock_set_attributes_t',
+)
+
 export const __Reply__clock_set_time_t = /* @__PURE__ */ _bind(FW, '__Reply__clock_set_time_t')
-export const __Reply__etap_trace_thread_t = /* @__PURE__ */ _bind(FW, '__Reply__etap_trace_thread_t')
-export const __Reply__host_check_multiuser_mode_t = /* @__PURE__ */ _bind(FW, '__Reply__host_check_multiuser_mode_t')
-export const __Reply__host_create_mach_voucher_t = /* @__PURE__ */ _bind(FW, '__Reply__host_create_mach_voucher_t')
-export const __Reply__host_default_memory_manager_t = /* @__PURE__ */ _bind(FW, '__Reply__host_default_memory_manager_t')
-export const __Reply__host_get_UNDServer_t = /* @__PURE__ */ _bind(FW, '__Reply__host_get_UNDServer_t')
-export const __Reply__host_get_atm_diagnostic_flag_t = /* @__PURE__ */ _bind(FW, '__Reply__host_get_atm_diagnostic_flag_t')
-export const __Reply__host_get_boot_info_t = /* @__PURE__ */ _bind(FW, '__Reply__host_get_boot_info_t')
-export const __Reply__host_get_clock_control_t = /* @__PURE__ */ _bind(FW, '__Reply__host_get_clock_control_t')
-export const __Reply__host_get_clock_service_t = /* @__PURE__ */ _bind(FW, '__Reply__host_get_clock_service_t')
-export const __Reply__host_get_exception_ports_t = /* @__PURE__ */ _bind(FW, '__Reply__host_get_exception_ports_t')
+export const __Reply__etap_trace_thread_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__etap_trace_thread_t',
+)
+
+export const __Reply__host_check_multiuser_mode_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__host_check_multiuser_mode_t',
+)
+
+export const __Reply__host_create_mach_voucher_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__host_create_mach_voucher_t',
+)
+
+export const __Reply__host_default_memory_manager_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__host_default_memory_manager_t',
+)
+
+export const __Reply__host_get_UNDServer_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__host_get_UNDServer_t',
+)
+
+export const __Reply__host_get_atm_diagnostic_flag_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__host_get_atm_diagnostic_flag_t',
+)
+
+export const __Reply__host_get_boot_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__host_get_boot_info_t',
+)
+
+export const __Reply__host_get_clock_control_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__host_get_clock_control_t',
+)
+
+export const __Reply__host_get_clock_service_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__host_get_clock_service_t',
+)
+
+export const __Reply__host_get_exception_ports_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__host_get_exception_ports_t',
+)
+
 export const __Reply__host_get_io_main_t = /* @__PURE__ */ _bind(FW, '__Reply__host_get_io_main_t')
-export const __Reply__host_get_multiuser_config_flags_t = /* @__PURE__ */ _bind(FW, '__Reply__host_get_multiuser_config_flags_t')
-export const __Reply__host_get_special_port_t = /* @__PURE__ */ _bind(FW, '__Reply__host_get_special_port_t')
+export const __Reply__host_get_multiuser_config_flags_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__host_get_multiuser_config_flags_t',
+)
+
+export const __Reply__host_get_special_port_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__host_get_special_port_t',
+)
+
 export const __Reply__host_info_t = /* @__PURE__ */ _bind(FW, '__Reply__host_info_t')
-export const __Reply__host_kernel_version_t = /* @__PURE__ */ _bind(FW, '__Reply__host_kernel_version_t')
-export const __Reply__host_lockgroup_info_t = /* @__PURE__ */ _bind(FW, '__Reply__host_lockgroup_info_t')
-export const __Reply__host_priv_statistics_t = /* @__PURE__ */ _bind(FW, '__Reply__host_priv_statistics_t')
-export const __Reply__host_processor_info_t = /* @__PURE__ */ _bind(FW, '__Reply__host_processor_info_t')
-export const __Reply__host_processor_set_priv_t = /* @__PURE__ */ _bind(FW, '__Reply__host_processor_set_priv_t')
-export const __Reply__host_processor_sets_t = /* @__PURE__ */ _bind(FW, '__Reply__host_processor_sets_t')
+export const __Reply__host_kernel_version_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__host_kernel_version_t',
+)
+
+export const __Reply__host_lockgroup_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__host_lockgroup_info_t',
+)
+
+export const __Reply__host_priv_statistics_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__host_priv_statistics_t',
+)
+
+export const __Reply__host_processor_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__host_processor_info_t',
+)
+
+export const __Reply__host_processor_set_priv_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__host_processor_set_priv_t',
+)
+
+export const __Reply__host_processor_sets_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__host_processor_sets_t',
+)
+
 export const __Reply__host_processors_t = /* @__PURE__ */ _bind(FW, '__Reply__host_processors_t')
 export const __Reply__host_reboot_t = /* @__PURE__ */ _bind(FW, '__Reply__host_reboot_t')
-export const __Reply__host_register_mach_voucher_attr_manager_t = /* @__PURE__ */ _bind(FW, '__Reply__host_register_mach_voucher_attr_manager_t')
-export const __Reply__host_register_well_known_mach_voucher_attr_manager_t = /* @__PURE__ */ _bind(FW, '__Reply__host_register_well_known_mach_voucher_attr_manager_t')
-export const __Reply__host_request_notification_t = /* @__PURE__ */ _bind(FW, '__Reply__host_request_notification_t')
-export const __Reply__host_security_create_task_token_t = /* @__PURE__ */ _bind(FW, '__Reply__host_security_create_task_token_t')
-export const __Reply__host_security_set_task_token_t = /* @__PURE__ */ _bind(FW, '__Reply__host_security_set_task_token_t')
-export const __Reply__host_set_UNDServer_t = /* @__PURE__ */ _bind(FW, '__Reply__host_set_UNDServer_t')
-export const __Reply__host_set_atm_diagnostic_flag_t = /* @__PURE__ */ _bind(FW, '__Reply__host_set_atm_diagnostic_flag_t')
-export const __Reply__host_set_exception_ports_t = /* @__PURE__ */ _bind(FW, '__Reply__host_set_exception_ports_t')
-export const __Reply__host_set_multiuser_config_flags_t = /* @__PURE__ */ _bind(FW, '__Reply__host_set_multiuser_config_flags_t')
-export const __Reply__host_set_special_port_t = /* @__PURE__ */ _bind(FW, '__Reply__host_set_special_port_t')
-export const __Reply__host_statistics64_t = /* @__PURE__ */ _bind(FW, '__Reply__host_statistics64_t')
+export const __Reply__host_register_mach_voucher_attr_manager_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__host_register_mach_voucher_attr_manager_t',
+)
+
+export const __Reply__host_register_well_known_mach_voucher_attr_manager_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__host_register_well_known_mach_voucher_attr_manager_t',
+)
+
+export const __Reply__host_request_notification_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__host_request_notification_t',
+)
+
+export const __Reply__host_security_create_task_token_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__host_security_create_task_token_t',
+)
+
+export const __Reply__host_security_set_task_token_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__host_security_set_task_token_t',
+)
+
+export const __Reply__host_set_UNDServer_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__host_set_UNDServer_t',
+)
+
+export const __Reply__host_set_atm_diagnostic_flag_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__host_set_atm_diagnostic_flag_t',
+)
+
+export const __Reply__host_set_exception_ports_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__host_set_exception_ports_t',
+)
+
+export const __Reply__host_set_multiuser_config_flags_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__host_set_multiuser_config_flags_t',
+)
+
+export const __Reply__host_set_special_port_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__host_set_special_port_t',
+)
+
+export const __Reply__host_statistics64_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__host_statistics64_t',
+)
+
 export const __Reply__host_statistics_t = /* @__PURE__ */ _bind(FW, '__Reply__host_statistics_t')
-export const __Reply__host_swap_exception_ports_t = /* @__PURE__ */ _bind(FW, '__Reply__host_swap_exception_ports_t')
-export const __Reply__host_virtual_physical_table_info_t = /* @__PURE__ */ _bind(FW, '__Reply__host_virtual_physical_table_info_t')
+export const __Reply__host_swap_exception_ports_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__host_swap_exception_ports_t',
+)
+
+export const __Reply__host_virtual_physical_table_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__host_virtual_physical_table_info_t',
+)
+
 export const __Reply__kext_request_t = /* @__PURE__ */ _bind(FW, '__Reply__kext_request_t')
 export const __Reply__kmod_control_t = /* @__PURE__ */ _bind(FW, '__Reply__kmod_control_t')
 export const __Reply__kmod_create_t = /* @__PURE__ */ _bind(FW, '__Reply__kmod_create_t')
@@ -1437,170 +1789,642 @@ export const __Reply__kmod_destroy_t = /* @__PURE__ */ _bind(FW, '__Reply__kmod_
 export const __Reply__kmod_get_info_t = /* @__PURE__ */ _bind(FW, '__Reply__kmod_get_info_t')
 export const __Reply__lock_set_create_t = /* @__PURE__ */ _bind(FW, '__Reply__lock_set_create_t')
 export const __Reply__lock_set_destroy_t = /* @__PURE__ */ _bind(FW, '__Reply__lock_set_destroy_t')
-export const __Reply__mach_make_memory_entry_64_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_make_memory_entry_64_t')
-export const __Reply__mach_make_memory_entry_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_make_memory_entry_t')
-export const __Reply__mach_memory_info_redacted_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_memory_info_redacted_t')
+export const __Reply__mach_make_memory_entry_64_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_make_memory_entry_64_t',
+)
+
+export const __Reply__mach_make_memory_entry_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_make_memory_entry_t',
+)
+
+export const __Reply__mach_memory_info_redacted_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_memory_info_redacted_t',
+)
+
 export const __Reply__mach_memory_info_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_memory_info_t')
-export const __Reply__mach_memory_object_memory_entry_64_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_memory_object_memory_entry_64_t')
-export const __Reply__mach_memory_object_memory_entry_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_memory_object_memory_entry_t')
-export const __Reply__mach_port_allocate_full_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_allocate_full_t')
-export const __Reply__mach_port_allocate_name_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_allocate_name_t')
-export const __Reply__mach_port_allocate_qos_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_allocate_qos_t')
-export const __Reply__mach_port_allocate_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_allocate_t')
-export const __Reply__mach_port_assert_attributes_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_assert_attributes_t')
-export const __Reply__mach_port_construct_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_construct_t')
-export const __Reply__mach_port_deallocate_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_deallocate_t')
-export const __Reply__mach_port_destroy_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_destroy_t')
-export const __Reply__mach_port_destruct_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_destruct_t')
-export const __Reply__mach_port_dnrequest_info_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_dnrequest_info_t')
-export const __Reply__mach_port_extract_member_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_extract_member_t')
-export const __Reply__mach_port_extract_right_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_extract_right_t')
-export const __Reply__mach_port_get_attributes_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_get_attributes_t')
-export const __Reply__mach_port_get_context_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_get_context_t')
-export const __Reply__mach_port_get_refs_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_get_refs_t')
-export const __Reply__mach_port_get_service_port_info_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_get_service_port_info_t')
-export const __Reply__mach_port_get_set_status_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_get_set_status_t')
-export const __Reply__mach_port_get_srights_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_get_srights_t')
+export const __Reply__mach_memory_object_memory_entry_64_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_memory_object_memory_entry_64_t',
+)
+
+export const __Reply__mach_memory_object_memory_entry_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_memory_object_memory_entry_t',
+)
+
+export const __Reply__mach_port_allocate_full_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_allocate_full_t',
+)
+
+export const __Reply__mach_port_allocate_name_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_allocate_name_t',
+)
+
+export const __Reply__mach_port_allocate_qos_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_allocate_qos_t',
+)
+
+export const __Reply__mach_port_allocate_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_allocate_t',
+)
+
+export const __Reply__mach_port_assert_attributes_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_assert_attributes_t',
+)
+
+export const __Reply__mach_port_construct_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_construct_t',
+)
+
+export const __Reply__mach_port_deallocate_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_deallocate_t',
+)
+
+export const __Reply__mach_port_destroy_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_destroy_t',
+)
+
+export const __Reply__mach_port_destruct_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_destruct_t',
+)
+
+export const __Reply__mach_port_dnrequest_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_dnrequest_info_t',
+)
+
+export const __Reply__mach_port_extract_member_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_extract_member_t',
+)
+
+export const __Reply__mach_port_extract_right_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_extract_right_t',
+)
+
+export const __Reply__mach_port_get_attributes_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_get_attributes_t',
+)
+
+export const __Reply__mach_port_get_context_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_get_context_t',
+)
+
+export const __Reply__mach_port_get_refs_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_get_refs_t',
+)
+
+export const __Reply__mach_port_get_service_port_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_get_service_port_info_t',
+)
+
+export const __Reply__mach_port_get_set_status_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_get_set_status_t',
+)
+
+export const __Reply__mach_port_get_srights_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_get_srights_t',
+)
+
 export const __Reply__mach_port_guard_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_guard_t')
-export const __Reply__mach_port_guard_with_flags_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_guard_with_flags_t')
-export const __Reply__mach_port_insert_member_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_insert_member_t')
-export const __Reply__mach_port_insert_right_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_insert_right_t')
-export const __Reply__mach_port_is_connection_for_service_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_is_connection_for_service_t')
-export const __Reply__mach_port_kernel_object_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_kernel_object_t')
-export const __Reply__mach_port_kobject_description_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_kobject_description_t')
-export const __Reply__mach_port_kobject_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_kobject_t')
-export const __Reply__mach_port_mod_refs_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_mod_refs_t')
-export const __Reply__mach_port_move_member_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_move_member_t')
+export const __Reply__mach_port_guard_with_flags_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_guard_with_flags_t',
+)
+
+export const __Reply__mach_port_insert_member_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_insert_member_t',
+)
+
+export const __Reply__mach_port_insert_right_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_insert_right_t',
+)
+
+export const __Reply__mach_port_is_connection_for_service_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_is_connection_for_service_t',
+)
+
+export const __Reply__mach_port_kernel_object_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_kernel_object_t',
+)
+
+export const __Reply__mach_port_kobject_description_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_kobject_description_t',
+)
+
+export const __Reply__mach_port_kobject_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_kobject_t',
+)
+
+export const __Reply__mach_port_mod_refs_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_mod_refs_t',
+)
+
+export const __Reply__mach_port_move_member_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_move_member_t',
+)
+
 export const __Reply__mach_port_names_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_names_t')
 export const __Reply__mach_port_peek_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_peek_t')
 export const __Reply__mach_port_rename_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_rename_t')
-export const __Reply__mach_port_request_notification_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_request_notification_t')
-export const __Reply__mach_port_set_attributes_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_set_attributes_t')
-export const __Reply__mach_port_set_context_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_set_context_t')
-export const __Reply__mach_port_set_mscount_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_set_mscount_t')
-export const __Reply__mach_port_set_seqno_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_set_seqno_t')
-export const __Reply__mach_port_space_basic_info_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_space_basic_info_t')
-export const __Reply__mach_port_space_info_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_space_info_t')
-export const __Reply__mach_port_swap_guard_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_swap_guard_t')
+export const __Reply__mach_port_request_notification_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_request_notification_t',
+)
+
+export const __Reply__mach_port_set_attributes_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_set_attributes_t',
+)
+
+export const __Reply__mach_port_set_context_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_set_context_t',
+)
+
+export const __Reply__mach_port_set_mscount_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_set_mscount_t',
+)
+
+export const __Reply__mach_port_set_seqno_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_set_seqno_t',
+)
+
+export const __Reply__mach_port_space_basic_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_space_basic_info_t',
+)
+
+export const __Reply__mach_port_space_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_space_info_t',
+)
+
+export const __Reply__mach_port_swap_guard_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_swap_guard_t',
+)
+
 export const __Reply__mach_port_type_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_type_t')
-export const __Reply__mach_port_unguard_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_port_unguard_t')
-export const __Reply__mach_ports_lookup_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_ports_lookup_t')
-export const __Reply__mach_ports_register_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_ports_register_t')
-export const __Reply__mach_vm_region_info_64_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_vm_region_info_64_t')
-export const __Reply__mach_vm_region_info_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_vm_region_info_t')
+export const __Reply__mach_port_unguard_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_port_unguard_t',
+)
+
+export const __Reply__mach_ports_lookup_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_ports_lookup_t',
+)
+
+export const __Reply__mach_ports_register_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_ports_register_t',
+)
+
+export const __Reply__mach_vm_region_info_64_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_vm_region_info_64_t',
+)
+
+export const __Reply__mach_vm_region_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_vm_region_info_t',
+)
+
 export const __Reply__mach_vm_wire_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_vm_wire_t')
-export const __Reply__mach_zone_info_for_zone_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_zone_info_for_zone_t')
+export const __Reply__mach_zone_info_for_zone_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__mach_zone_info_for_zone_t',
+)
+
 export const __Reply__mach_zone_info_t = /* @__PURE__ */ _bind(FW, '__Reply__mach_zone_info_t')
 export const __Reply__processor_assign_t = /* @__PURE__ */ _bind(FW, '__Reply__processor_assign_t')
-export const __Reply__processor_control_t = /* @__PURE__ */ _bind(FW, '__Reply__processor_control_t')
+export const __Reply__processor_control_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__processor_control_t',
+)
+
 export const __Reply__processor_exit_t = /* @__PURE__ */ _bind(FW, '__Reply__processor_exit_t')
-export const __Reply__processor_get_assignment_t = /* @__PURE__ */ _bind(FW, '__Reply__processor_get_assignment_t')
+export const __Reply__processor_get_assignment_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__processor_get_assignment_t',
+)
+
 export const __Reply__processor_info_t = /* @__PURE__ */ _bind(FW, '__Reply__processor_info_t')
-export const __Reply__processor_set_create_t = /* @__PURE__ */ _bind(FW, '__Reply__processor_set_create_t')
-export const __Reply__processor_set_default_t = /* @__PURE__ */ _bind(FW, '__Reply__processor_set_default_t')
-export const __Reply__processor_set_destroy_t = /* @__PURE__ */ _bind(FW, '__Reply__processor_set_destroy_t')
-export const __Reply__processor_set_info_t = /* @__PURE__ */ _bind(FW, '__Reply__processor_set_info_t')
-export const __Reply__processor_set_max_priority_t = /* @__PURE__ */ _bind(FW, '__Reply__processor_set_max_priority_t')
-export const __Reply__processor_set_policy_control_t = /* @__PURE__ */ _bind(FW, '__Reply__processor_set_policy_control_t')
-export const __Reply__processor_set_policy_disable_t = /* @__PURE__ */ _bind(FW, '__Reply__processor_set_policy_disable_t')
-export const __Reply__processor_set_policy_enable_t = /* @__PURE__ */ _bind(FW, '__Reply__processor_set_policy_enable_t')
-export const __Reply__processor_set_stack_usage_t = /* @__PURE__ */ _bind(FW, '__Reply__processor_set_stack_usage_t')
-export const __Reply__processor_set_statistics_t = /* @__PURE__ */ _bind(FW, '__Reply__processor_set_statistics_t')
-export const __Reply__processor_set_tasks_t = /* @__PURE__ */ _bind(FW, '__Reply__processor_set_tasks_t')
-export const __Reply__processor_set_tasks_with_flavor_t = /* @__PURE__ */ _bind(FW, '__Reply__processor_set_tasks_with_flavor_t')
-export const __Reply__processor_set_threads_t = /* @__PURE__ */ _bind(FW, '__Reply__processor_set_threads_t')
+export const __Reply__processor_set_create_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__processor_set_create_t',
+)
+
+export const __Reply__processor_set_default_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__processor_set_default_t',
+)
+
+export const __Reply__processor_set_destroy_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__processor_set_destroy_t',
+)
+
+export const __Reply__processor_set_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__processor_set_info_t',
+)
+
+export const __Reply__processor_set_max_priority_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__processor_set_max_priority_t',
+)
+
+export const __Reply__processor_set_policy_control_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__processor_set_policy_control_t',
+)
+
+export const __Reply__processor_set_policy_disable_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__processor_set_policy_disable_t',
+)
+
+export const __Reply__processor_set_policy_enable_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__processor_set_policy_enable_t',
+)
+
+export const __Reply__processor_set_stack_usage_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__processor_set_stack_usage_t',
+)
+
+export const __Reply__processor_set_statistics_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__processor_set_statistics_t',
+)
+
+export const __Reply__processor_set_tasks_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__processor_set_tasks_t',
+)
+
+export const __Reply__processor_set_tasks_with_flavor_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__processor_set_tasks_with_flavor_t',
+)
+
+export const __Reply__processor_set_threads_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__processor_set_threads_t',
+)
+
 export const __Reply__processor_start_t = /* @__PURE__ */ _bind(FW, '__Reply__processor_start_t')
 export const __Reply__semaphore_create_t = /* @__PURE__ */ _bind(FW, '__Reply__semaphore_create_t')
-export const __Reply__semaphore_destroy_t = /* @__PURE__ */ _bind(FW, '__Reply__semaphore_destroy_t')
-export const __Reply__task_assign_default_t = /* @__PURE__ */ _bind(FW, '__Reply__task_assign_default_t')
+export const __Reply__semaphore_destroy_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__semaphore_destroy_t',
+)
+
+export const __Reply__task_assign_default_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_assign_default_t',
+)
+
 export const __Reply__task_assign_t = /* @__PURE__ */ _bind(FW, '__Reply__task_assign_t')
-export const __Reply__task_create_identity_token_t = /* @__PURE__ */ _bind(FW, '__Reply__task_create_identity_token_t')
+export const __Reply__task_create_identity_token_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_create_identity_token_t',
+)
+
 export const __Reply__task_create_t = /* @__PURE__ */ _bind(FW, '__Reply__task_create_t')
-export const __Reply__task_dyld_process_info_notify_deregister_t = /* @__PURE__ */ _bind(FW, '__Reply__task_dyld_process_info_notify_deregister_t')
-export const __Reply__task_dyld_process_info_notify_register_t = /* @__PURE__ */ _bind(FW, '__Reply__task_dyld_process_info_notify_register_t')
-export const __Reply__task_generate_corpse_t = /* @__PURE__ */ _bind(FW, '__Reply__task_generate_corpse_t')
-export const __Reply__task_get_assignment_t = /* @__PURE__ */ _bind(FW, '__Reply__task_get_assignment_t')
-export const __Reply__task_get_dyld_image_infos_t = /* @__PURE__ */ _bind(FW, '__Reply__task_get_dyld_image_infos_t')
-export const __Reply__task_get_emulation_vector_t = /* @__PURE__ */ _bind(FW, '__Reply__task_get_emulation_vector_t')
-export const __Reply__task_get_exc_guard_behavior_t = /* @__PURE__ */ _bind(FW, '__Reply__task_get_exc_guard_behavior_t')
-export const __Reply__task_get_exception_ports_info_t = /* @__PURE__ */ _bind(FW, '__Reply__task_get_exception_ports_info_t')
-export const __Reply__task_get_exception_ports_t = /* @__PURE__ */ _bind(FW, '__Reply__task_get_exception_ports_t')
-export const __Reply__task_get_mach_voucher_t = /* @__PURE__ */ _bind(FW, '__Reply__task_get_mach_voucher_t')
-export const __Reply__task_get_special_port_t = /* @__PURE__ */ _bind(FW, '__Reply__task_get_special_port_t')
+export const __Reply__task_dyld_process_info_notify_deregister_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_dyld_process_info_notify_deregister_t',
+)
+
+export const __Reply__task_dyld_process_info_notify_register_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_dyld_process_info_notify_register_t',
+)
+
+export const __Reply__task_generate_corpse_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_generate_corpse_t',
+)
+
+export const __Reply__task_get_assignment_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_get_assignment_t',
+)
+
+export const __Reply__task_get_dyld_image_infos_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_get_dyld_image_infos_t',
+)
+
+export const __Reply__task_get_emulation_vector_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_get_emulation_vector_t',
+)
+
+export const __Reply__task_get_exc_guard_behavior_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_get_exc_guard_behavior_t',
+)
+
+export const __Reply__task_get_exception_ports_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_get_exception_ports_info_t',
+)
+
+export const __Reply__task_get_exception_ports_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_get_exception_ports_t',
+)
+
+export const __Reply__task_get_mach_voucher_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_get_mach_voucher_t',
+)
+
+export const __Reply__task_get_special_port_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_get_special_port_t',
+)
+
 export const __Reply__task_get_state_t = /* @__PURE__ */ _bind(FW, '__Reply__task_get_state_t')
-export const __Reply__task_identity_token_get_task_port_t = /* @__PURE__ */ _bind(FW, '__Reply__task_identity_token_get_task_port_t')
+export const __Reply__task_identity_token_get_task_port_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_identity_token_get_task_port_t',
+)
+
 export const __Reply__task_info_t = /* @__PURE__ */ _bind(FW, '__Reply__task_info_t')
 export const __Reply__task_inspect_t = /* @__PURE__ */ _bind(FW, '__Reply__task_inspect_t')
-export const __Reply__task_map_corpse_info_64_t = /* @__PURE__ */ _bind(FW, '__Reply__task_map_corpse_info_64_t')
-export const __Reply__task_map_corpse_info_t = /* @__PURE__ */ _bind(FW, '__Reply__task_map_corpse_info_t')
-export const __Reply__task_map_kcdata_object_64_t = /* @__PURE__ */ _bind(FW, '__Reply__task_map_kcdata_object_64_t')
+export const __Reply__task_map_corpse_info_64_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_map_corpse_info_64_t',
+)
+
+export const __Reply__task_map_corpse_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_map_corpse_info_t',
+)
+
+export const __Reply__task_map_kcdata_object_64_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_map_kcdata_object_64_t',
+)
+
 export const __Reply__task_policy_get_t = /* @__PURE__ */ _bind(FW, '__Reply__task_policy_get_t')
 export const __Reply__task_policy_set_t = /* @__PURE__ */ _bind(FW, '__Reply__task_policy_set_t')
 export const __Reply__task_policy_t = /* @__PURE__ */ _bind(FW, '__Reply__task_policy_t')
-export const __Reply__task_purgable_info_t = /* @__PURE__ */ _bind(FW, '__Reply__task_purgable_info_t')
-export const __Reply__task_register_dyld_get_process_state_t = /* @__PURE__ */ _bind(FW, '__Reply__task_register_dyld_get_process_state_t')
-export const __Reply__task_register_dyld_image_infos_t = /* @__PURE__ */ _bind(FW, '__Reply__task_register_dyld_image_infos_t')
-export const __Reply__task_register_dyld_set_dyld_state_t = /* @__PURE__ */ _bind(FW, '__Reply__task_register_dyld_set_dyld_state_t')
-export const __Reply__task_register_dyld_shared_cache_image_info_t = /* @__PURE__ */ _bind(FW, '__Reply__task_register_dyld_shared_cache_image_info_t')
-export const __Reply__task_register_hardened_exception_handler_t = /* @__PURE__ */ _bind(FW, '__Reply__task_register_hardened_exception_handler_t')
+export const __Reply__task_purgable_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_purgable_info_t',
+)
+
+export const __Reply__task_register_dyld_get_process_state_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_register_dyld_get_process_state_t',
+)
+
+export const __Reply__task_register_dyld_image_infos_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_register_dyld_image_infos_t',
+)
+
+export const __Reply__task_register_dyld_set_dyld_state_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_register_dyld_set_dyld_state_t',
+)
+
+export const __Reply__task_register_dyld_shared_cache_image_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_register_dyld_shared_cache_image_info_t',
+)
+
+export const __Reply__task_register_hardened_exception_handler_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_register_hardened_exception_handler_t',
+)
+
 export const __Reply__task_resume2_t = /* @__PURE__ */ _bind(FW, '__Reply__task_resume2_t')
 export const __Reply__task_resume_t = /* @__PURE__ */ _bind(FW, '__Reply__task_resume_t')
 export const __Reply__task_sample_t = /* @__PURE__ */ _bind(FW, '__Reply__task_sample_t')
-export const __Reply__task_set_corpse_forking_behavior_t = /* @__PURE__ */ _bind(FW, '__Reply__task_set_corpse_forking_behavior_t')
-export const __Reply__task_set_emulation_t = /* @__PURE__ */ _bind(FW, '__Reply__task_set_emulation_t')
-export const __Reply__task_set_emulation_vector_t = /* @__PURE__ */ _bind(FW, '__Reply__task_set_emulation_vector_t')
-export const __Reply__task_set_exc_guard_behavior_t = /* @__PURE__ */ _bind(FW, '__Reply__task_set_exc_guard_behavior_t')
-export const __Reply__task_set_exception_ports_t = /* @__PURE__ */ _bind(FW, '__Reply__task_set_exception_ports_t')
+export const __Reply__task_set_corpse_forking_behavior_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_set_corpse_forking_behavior_t',
+)
+
+export const __Reply__task_set_emulation_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_set_emulation_t',
+)
+
+export const __Reply__task_set_emulation_vector_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_set_emulation_vector_t',
+)
+
+export const __Reply__task_set_exc_guard_behavior_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_set_exc_guard_behavior_t',
+)
+
+export const __Reply__task_set_exception_ports_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_set_exception_ports_t',
+)
+
 export const __Reply__task_set_info_t = /* @__PURE__ */ _bind(FW, '__Reply__task_set_info_t')
-export const __Reply__task_set_mach_voucher_t = /* @__PURE__ */ _bind(FW, '__Reply__task_set_mach_voucher_t')
-export const __Reply__task_set_phys_footprint_limit_t = /* @__PURE__ */ _bind(FW, '__Reply__task_set_phys_footprint_limit_t')
+export const __Reply__task_set_mach_voucher_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_set_mach_voucher_t',
+)
+
+export const __Reply__task_set_phys_footprint_limit_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_set_phys_footprint_limit_t',
+)
+
 export const __Reply__task_set_policy_t = /* @__PURE__ */ _bind(FW, '__Reply__task_set_policy_t')
-export const __Reply__task_set_port_space_t = /* @__PURE__ */ _bind(FW, '__Reply__task_set_port_space_t')
+export const __Reply__task_set_port_space_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_set_port_space_t',
+)
+
 export const __Reply__task_set_ras_pc_t = /* @__PURE__ */ _bind(FW, '__Reply__task_set_ras_pc_t')
-export const __Reply__task_set_special_port_t = /* @__PURE__ */ _bind(FW, '__Reply__task_set_special_port_t')
+export const __Reply__task_set_special_port_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_set_special_port_t',
+)
+
 export const __Reply__task_set_state_t = /* @__PURE__ */ _bind(FW, '__Reply__task_set_state_t')
 export const __Reply__task_suspend2_t = /* @__PURE__ */ _bind(FW, '__Reply__task_suspend2_t')
 export const __Reply__task_suspend_t = /* @__PURE__ */ _bind(FW, '__Reply__task_suspend_t')
-export const __Reply__task_swap_exception_ports_t = /* @__PURE__ */ _bind(FW, '__Reply__task_swap_exception_ports_t')
-export const __Reply__task_swap_mach_voucher_t = /* @__PURE__ */ _bind(FW, '__Reply__task_swap_mach_voucher_t')
+export const __Reply__task_swap_exception_ports_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_swap_exception_ports_t',
+)
+
+export const __Reply__task_swap_mach_voucher_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_swap_mach_voucher_t',
+)
+
 export const __Reply__task_terminate_t = /* @__PURE__ */ _bind(FW, '__Reply__task_terminate_t')
-export const __Reply__task_test_async_upcall_propagation_t = /* @__PURE__ */ _bind(FW, '__Reply__task_test_async_upcall_propagation_t')
-export const __Reply__task_test_sync_upcall_t = /* @__PURE__ */ _bind(FW, '__Reply__task_test_sync_upcall_t')
+export const __Reply__task_test_async_upcall_propagation_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_test_async_upcall_propagation_t',
+)
+
+export const __Reply__task_test_sync_upcall_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_test_sync_upcall_t',
+)
+
 export const __Reply__task_threads_t = /* @__PURE__ */ _bind(FW, '__Reply__task_threads_t')
-export const __Reply__task_unregister_dyld_image_infos_t = /* @__PURE__ */ _bind(FW, '__Reply__task_unregister_dyld_image_infos_t')
+export const __Reply__task_unregister_dyld_image_infos_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__task_unregister_dyld_image_infos_t',
+)
+
 export const __Reply__task_wire_t = /* @__PURE__ */ _bind(FW, '__Reply__task_wire_t')
 export const __Reply__task_zone_info_t = /* @__PURE__ */ _bind(FW, '__Reply__task_zone_info_t')
-export const __Reply__thread_abort_safely_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_abort_safely_t')
+export const __Reply__thread_abort_safely_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__thread_abort_safely_t',
+)
+
 export const __Reply__thread_abort_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_abort_t')
-export const __Reply__thread_adopt_exception_handler_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_adopt_exception_handler_t')
-export const __Reply__thread_assign_default_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_assign_default_t')
+export const __Reply__thread_adopt_exception_handler_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__thread_adopt_exception_handler_t',
+)
+
+export const __Reply__thread_assign_default_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__thread_assign_default_t',
+)
+
 export const __Reply__thread_assign_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_assign_t')
-export const __Reply__thread_convert_thread_state_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_convert_thread_state_t')
-export const __Reply__thread_create_running_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_create_running_t')
+export const __Reply__thread_convert_thread_state_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__thread_convert_thread_state_t',
+)
+
+export const __Reply__thread_create_running_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__thread_create_running_t',
+)
+
 export const __Reply__thread_create_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_create_t')
-export const __Reply__thread_depress_abort_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_depress_abort_t')
-export const __Reply__thread_get_assignment_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_get_assignment_t')
-export const __Reply__thread_get_exception_ports_info_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_get_exception_ports_info_t')
-export const __Reply__thread_get_exception_ports_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_get_exception_ports_t')
-export const __Reply__thread_get_mach_voucher_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_get_mach_voucher_t')
-export const __Reply__thread_get_special_port_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_get_special_port_t')
+export const __Reply__thread_depress_abort_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__thread_depress_abort_t',
+)
+
+export const __Reply__thread_get_assignment_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__thread_get_assignment_t',
+)
+
+export const __Reply__thread_get_exception_ports_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__thread_get_exception_ports_info_t',
+)
+
+export const __Reply__thread_get_exception_ports_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__thread_get_exception_ports_t',
+)
+
+export const __Reply__thread_get_mach_voucher_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__thread_get_mach_voucher_t',
+)
+
+export const __Reply__thread_get_special_port_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__thread_get_special_port_t',
+)
+
 export const __Reply__thread_get_state_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_get_state_t')
 export const __Reply__thread_info_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_info_t')
-export const __Reply__thread_policy_get_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_policy_get_t')
-export const __Reply__thread_policy_set_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_policy_set_t')
+export const __Reply__thread_policy_get_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__thread_policy_get_t',
+)
+
+export const __Reply__thread_policy_set_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__thread_policy_set_t',
+)
+
 export const __Reply__thread_policy_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_policy_t')
 export const __Reply__thread_resume2_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_resume2_t')
 export const __Reply__thread_resume_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_resume_t')
 export const __Reply__thread_sample_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_sample_t')
-export const __Reply__thread_set_exception_ports_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_set_exception_ports_t')
-export const __Reply__thread_set_mach_voucher_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_set_mach_voucher_t')
-export const __Reply__thread_set_policy_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_set_policy_t')
-export const __Reply__thread_set_special_port_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_set_special_port_t')
+export const __Reply__thread_set_exception_ports_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__thread_set_exception_ports_t',
+)
+
+export const __Reply__thread_set_mach_voucher_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__thread_set_mach_voucher_t',
+)
+
+export const __Reply__thread_set_policy_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__thread_set_policy_t',
+)
+
+export const __Reply__thread_set_special_port_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__thread_set_special_port_t',
+)
+
 export const __Reply__thread_set_state_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_set_state_t')
 export const __Reply__thread_suspend2_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_suspend2_t')
 export const __Reply__thread_suspend_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_suspend_t')
-export const __Reply__thread_swap_exception_ports_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_swap_exception_ports_t')
-export const __Reply__thread_swap_mach_voucher_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_swap_mach_voucher_t')
+export const __Reply__thread_swap_exception_ports_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__thread_swap_exception_ports_t',
+)
+
+export const __Reply__thread_swap_mach_voucher_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__thread_swap_mach_voucher_t',
+)
+
 export const __Reply__thread_terminate_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_terminate_t')
 export const __Reply__thread_wire_t = /* @__PURE__ */ _bind(FW, '__Reply__thread_wire_t')
 export const __Reply__vm_allocate_cpm_t = /* @__PURE__ */ _bind(FW, '__Reply__vm_allocate_cpm_t')
@@ -1609,273 +2433,1067 @@ export const __Reply__vm_behavior_set_t = /* @__PURE__ */ _bind(FW, '__Reply__vm
 export const __Reply__vm_copy_t = /* @__PURE__ */ _bind(FW, '__Reply__vm_copy_t')
 export const __Reply__vm_deallocate_t = /* @__PURE__ */ _bind(FW, '__Reply__vm_deallocate_t')
 export const __Reply__vm_inherit_t = /* @__PURE__ */ _bind(FW, '__Reply__vm_inherit_t')
-export const __Reply__vm_machine_attribute_t = /* @__PURE__ */ _bind(FW, '__Reply__vm_machine_attribute_t')
+export const __Reply__vm_machine_attribute_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__vm_machine_attribute_t',
+)
+
 export const __Reply__vm_map_64_t = /* @__PURE__ */ _bind(FW, '__Reply__vm_map_64_t')
-export const __Reply__vm_map_exec_lockdown_t = /* @__PURE__ */ _bind(FW, '__Reply__vm_map_exec_lockdown_t')
-export const __Reply__vm_map_page_query_t = /* @__PURE__ */ _bind(FW, '__Reply__vm_map_page_query_t')
+export const __Reply__vm_map_exec_lockdown_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__vm_map_exec_lockdown_t',
+)
+
+export const __Reply__vm_map_page_query_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__vm_map_page_query_t',
+)
+
 export const __Reply__vm_map_t = /* @__PURE__ */ _bind(FW, '__Reply__vm_map_t')
-export const __Reply__vm_mapped_pages_info_t = /* @__PURE__ */ _bind(FW, '__Reply__vm_mapped_pages_info_t')
+export const __Reply__vm_mapped_pages_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__vm_mapped_pages_info_t',
+)
+
 export const __Reply__vm_msync_t = /* @__PURE__ */ _bind(FW, '__Reply__vm_msync_t')
 export const __Reply__vm_protect_t = /* @__PURE__ */ _bind(FW, '__Reply__vm_protect_t')
-export const __Reply__vm_purgable_control_t = /* @__PURE__ */ _bind(FW, '__Reply__vm_purgable_control_t')
+export const __Reply__vm_purgable_control_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__vm_purgable_control_t',
+)
+
 export const __Reply__vm_read_list_t = /* @__PURE__ */ _bind(FW, '__Reply__vm_read_list_t')
-export const __Reply__vm_read_overwrite_t = /* @__PURE__ */ _bind(FW, '__Reply__vm_read_overwrite_t')
+export const __Reply__vm_read_overwrite_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__vm_read_overwrite_t',
+)
+
 export const __Reply__vm_read_t = /* @__PURE__ */ _bind(FW, '__Reply__vm_read_t')
 export const __Reply__vm_reallocate_t = /* @__PURE__ */ _bind(FW, '__Reply__vm_reallocate_t')
 export const __Reply__vm_region_64_t = /* @__PURE__ */ _bind(FW, '__Reply__vm_region_64_t')
-export const __Reply__vm_region_recurse_64_t = /* @__PURE__ */ _bind(FW, '__Reply__vm_region_recurse_64_t')
-export const __Reply__vm_region_recurse_t = /* @__PURE__ */ _bind(FW, '__Reply__vm_region_recurse_t')
+export const __Reply__vm_region_recurse_64_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__vm_region_recurse_64_t',
+)
+
+export const __Reply__vm_region_recurse_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Reply__vm_region_recurse_t',
+)
+
 export const __Reply__vm_region_t = /* @__PURE__ */ _bind(FW, '__Reply__vm_region_t')
 export const __Reply__vm_remap_new_t = /* @__PURE__ */ _bind(FW, '__Reply__vm_remap_new_t')
 export const __Reply__vm_remap_t = /* @__PURE__ */ _bind(FW, '__Reply__vm_remap_t')
 export const __Reply__vm_wire_t = /* @__PURE__ */ _bind(FW, '__Reply__vm_wire_t')
 export const __Reply__vm_write_t = /* @__PURE__ */ _bind(FW, '__Reply__vm_write_t')
-export const __RequestUnion__clock_priv_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__clock_priv_subsystem')
-export const __RequestUnion__host_priv_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__host_priv_subsystem')
-export const __RequestUnion__host_security_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__host_security_subsystem')
-export const __RequestUnion__mach_host_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__mach_host_subsystem')
-export const __RequestUnion__mach_port_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__mach_port_subsystem')
-export const __RequestUnion__processor_set_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__processor_set_subsystem')
-export const __RequestUnion__processor_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__processor_subsystem')
-export const __RequestUnion__task_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__task_subsystem')
-export const __RequestUnion__thread_act_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__thread_act_subsystem')
-export const __RequestUnion__vm_map_subsystem = /* @__PURE__ */ _bind(FW, '__RequestUnion__vm_map_subsystem')
-export const __Request___host_page_size_t = /* @__PURE__ */ _bind(FW, '__Request___host_page_size_t')
+export const __RequestUnion__clock_priv_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__clock_priv_subsystem',
+)
+
+export const __RequestUnion__host_priv_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__host_priv_subsystem',
+)
+
+export const __RequestUnion__host_security_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__host_security_subsystem',
+)
+
+export const __RequestUnion__mach_host_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__mach_host_subsystem',
+)
+
+export const __RequestUnion__mach_port_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__mach_port_subsystem',
+)
+
+export const __RequestUnion__processor_set_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__processor_set_subsystem',
+)
+
+export const __RequestUnion__processor_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__processor_subsystem',
+)
+
+export const __RequestUnion__task_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__task_subsystem',
+)
+
+export const __RequestUnion__thread_act_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__thread_act_subsystem',
+)
+
+export const __RequestUnion__vm_map_subsystem = /* @__PURE__ */ _bind(
+	FW,
+	'__RequestUnion__vm_map_subsystem',
+)
+
+export const __Request___host_page_size_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request___host_page_size_t',
+)
+
 export const __Request__act_get_state_t = /* @__PURE__ */ _bind(FW, '__Request__act_get_state_t')
 export const __Request__act_set_state_t = /* @__PURE__ */ _bind(FW, '__Request__act_set_state_t')
-export const __Request__clock_set_attributes_t = /* @__PURE__ */ _bind(FW, '__Request__clock_set_attributes_t')
+export const __Request__clock_set_attributes_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__clock_set_attributes_t',
+)
+
 export const __Request__clock_set_time_t = /* @__PURE__ */ _bind(FW, '__Request__clock_set_time_t')
-export const __Request__etap_trace_thread_t = /* @__PURE__ */ _bind(FW, '__Request__etap_trace_thread_t')
-export const __Request__host_check_multiuser_mode_t = /* @__PURE__ */ _bind(FW, '__Request__host_check_multiuser_mode_t')
-export const __Request__host_create_mach_voucher_t = /* @__PURE__ */ _bind(FW, '__Request__host_create_mach_voucher_t')
-export const __Request__host_default_memory_manager_t = /* @__PURE__ */ _bind(FW, '__Request__host_default_memory_manager_t')
-export const __Request__host_get_UNDServer_t = /* @__PURE__ */ _bind(FW, '__Request__host_get_UNDServer_t')
-export const __Request__host_get_atm_diagnostic_flag_t = /* @__PURE__ */ _bind(FW, '__Request__host_get_atm_diagnostic_flag_t')
-export const __Request__host_get_boot_info_t = /* @__PURE__ */ _bind(FW, '__Request__host_get_boot_info_t')
-export const __Request__host_get_clock_control_t = /* @__PURE__ */ _bind(FW, '__Request__host_get_clock_control_t')
-export const __Request__host_get_clock_service_t = /* @__PURE__ */ _bind(FW, '__Request__host_get_clock_service_t')
-export const __Request__host_get_exception_ports_t = /* @__PURE__ */ _bind(FW, '__Request__host_get_exception_ports_t')
-export const __Request__host_get_io_main_t = /* @__PURE__ */ _bind(FW, '__Request__host_get_io_main_t')
-export const __Request__host_get_multiuser_config_flags_t = /* @__PURE__ */ _bind(FW, '__Request__host_get_multiuser_config_flags_t')
-export const __Request__host_get_special_port_t = /* @__PURE__ */ _bind(FW, '__Request__host_get_special_port_t')
+export const __Request__etap_trace_thread_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__etap_trace_thread_t',
+)
+
+export const __Request__host_check_multiuser_mode_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_check_multiuser_mode_t',
+)
+
+export const __Request__host_create_mach_voucher_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_create_mach_voucher_t',
+)
+
+export const __Request__host_default_memory_manager_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_default_memory_manager_t',
+)
+
+export const __Request__host_get_UNDServer_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_get_UNDServer_t',
+)
+
+export const __Request__host_get_atm_diagnostic_flag_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_get_atm_diagnostic_flag_t',
+)
+
+export const __Request__host_get_boot_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_get_boot_info_t',
+)
+
+export const __Request__host_get_clock_control_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_get_clock_control_t',
+)
+
+export const __Request__host_get_clock_service_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_get_clock_service_t',
+)
+
+export const __Request__host_get_exception_ports_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_get_exception_ports_t',
+)
+
+export const __Request__host_get_io_main_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_get_io_main_t',
+)
+
+export const __Request__host_get_multiuser_config_flags_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_get_multiuser_config_flags_t',
+)
+
+export const __Request__host_get_special_port_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_get_special_port_t',
+)
+
 export const __Request__host_info_t = /* @__PURE__ */ _bind(FW, '__Request__host_info_t')
-export const __Request__host_kernel_version_t = /* @__PURE__ */ _bind(FW, '__Request__host_kernel_version_t')
-export const __Request__host_lockgroup_info_t = /* @__PURE__ */ _bind(FW, '__Request__host_lockgroup_info_t')
-export const __Request__host_priv_statistics_t = /* @__PURE__ */ _bind(FW, '__Request__host_priv_statistics_t')
-export const __Request__host_processor_info_t = /* @__PURE__ */ _bind(FW, '__Request__host_processor_info_t')
-export const __Request__host_processor_set_priv_t = /* @__PURE__ */ _bind(FW, '__Request__host_processor_set_priv_t')
-export const __Request__host_processor_sets_t = /* @__PURE__ */ _bind(FW, '__Request__host_processor_sets_t')
-export const __Request__host_processors_t = /* @__PURE__ */ _bind(FW, '__Request__host_processors_t')
+export const __Request__host_kernel_version_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_kernel_version_t',
+)
+
+export const __Request__host_lockgroup_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_lockgroup_info_t',
+)
+
+export const __Request__host_priv_statistics_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_priv_statistics_t',
+)
+
+export const __Request__host_processor_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_processor_info_t',
+)
+
+export const __Request__host_processor_set_priv_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_processor_set_priv_t',
+)
+
+export const __Request__host_processor_sets_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_processor_sets_t',
+)
+
+export const __Request__host_processors_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_processors_t',
+)
+
 export const __Request__host_reboot_t = /* @__PURE__ */ _bind(FW, '__Request__host_reboot_t')
-export const __Request__host_register_mach_voucher_attr_manager_t = /* @__PURE__ */ _bind(FW, '__Request__host_register_mach_voucher_attr_manager_t')
-export const __Request__host_register_well_known_mach_voucher_attr_manager_t = /* @__PURE__ */ _bind(FW, '__Request__host_register_well_known_mach_voucher_attr_manager_t')
-export const __Request__host_request_notification_t = /* @__PURE__ */ _bind(FW, '__Request__host_request_notification_t')
-export const __Request__host_security_create_task_token_t = /* @__PURE__ */ _bind(FW, '__Request__host_security_create_task_token_t')
-export const __Request__host_security_set_task_token_t = /* @__PURE__ */ _bind(FW, '__Request__host_security_set_task_token_t')
-export const __Request__host_set_UNDServer_t = /* @__PURE__ */ _bind(FW, '__Request__host_set_UNDServer_t')
-export const __Request__host_set_atm_diagnostic_flag_t = /* @__PURE__ */ _bind(FW, '__Request__host_set_atm_diagnostic_flag_t')
-export const __Request__host_set_exception_ports_t = /* @__PURE__ */ _bind(FW, '__Request__host_set_exception_ports_t')
-export const __Request__host_set_multiuser_config_flags_t = /* @__PURE__ */ _bind(FW, '__Request__host_set_multiuser_config_flags_t')
-export const __Request__host_set_special_port_t = /* @__PURE__ */ _bind(FW, '__Request__host_set_special_port_t')
-export const __Request__host_statistics64_t = /* @__PURE__ */ _bind(FW, '__Request__host_statistics64_t')
-export const __Request__host_statistics_t = /* @__PURE__ */ _bind(FW, '__Request__host_statistics_t')
-export const __Request__host_swap_exception_ports_t = /* @__PURE__ */ _bind(FW, '__Request__host_swap_exception_ports_t')
-export const __Request__host_virtual_physical_table_info_t = /* @__PURE__ */ _bind(FW, '__Request__host_virtual_physical_table_info_t')
+export const __Request__host_register_mach_voucher_attr_manager_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_register_mach_voucher_attr_manager_t',
+)
+
+export const __Request__host_register_well_known_mach_voucher_attr_manager_t =
+	/* @__PURE__ */ _bind(FW, '__Request__host_register_well_known_mach_voucher_attr_manager_t')
+
+export const __Request__host_request_notification_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_request_notification_t',
+)
+
+export const __Request__host_security_create_task_token_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_security_create_task_token_t',
+)
+
+export const __Request__host_security_set_task_token_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_security_set_task_token_t',
+)
+
+export const __Request__host_set_UNDServer_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_set_UNDServer_t',
+)
+
+export const __Request__host_set_atm_diagnostic_flag_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_set_atm_diagnostic_flag_t',
+)
+
+export const __Request__host_set_exception_ports_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_set_exception_ports_t',
+)
+
+export const __Request__host_set_multiuser_config_flags_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_set_multiuser_config_flags_t',
+)
+
+export const __Request__host_set_special_port_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_set_special_port_t',
+)
+
+export const __Request__host_statistics64_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_statistics64_t',
+)
+
+export const __Request__host_statistics_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_statistics_t',
+)
+
+export const __Request__host_swap_exception_ports_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_swap_exception_ports_t',
+)
+
+export const __Request__host_virtual_physical_table_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__host_virtual_physical_table_info_t',
+)
+
 export const __Request__kext_request_t = /* @__PURE__ */ _bind(FW, '__Request__kext_request_t')
 export const __Request__kmod_control_t = /* @__PURE__ */ _bind(FW, '__Request__kmod_control_t')
 export const __Request__kmod_create_t = /* @__PURE__ */ _bind(FW, '__Request__kmod_create_t')
 export const __Request__kmod_destroy_t = /* @__PURE__ */ _bind(FW, '__Request__kmod_destroy_t')
 export const __Request__kmod_get_info_t = /* @__PURE__ */ _bind(FW, '__Request__kmod_get_info_t')
-export const __Request__lock_set_create_t = /* @__PURE__ */ _bind(FW, '__Request__lock_set_create_t')
-export const __Request__lock_set_destroy_t = /* @__PURE__ */ _bind(FW, '__Request__lock_set_destroy_t')
-export const __Request__mach_make_memory_entry_64_t = /* @__PURE__ */ _bind(FW, '__Request__mach_make_memory_entry_64_t')
-export const __Request__mach_make_memory_entry_t = /* @__PURE__ */ _bind(FW, '__Request__mach_make_memory_entry_t')
-export const __Request__mach_memory_info_redacted_t = /* @__PURE__ */ _bind(FW, '__Request__mach_memory_info_redacted_t')
-export const __Request__mach_memory_info_t = /* @__PURE__ */ _bind(FW, '__Request__mach_memory_info_t')
-export const __Request__mach_memory_object_memory_entry_64_t = /* @__PURE__ */ _bind(FW, '__Request__mach_memory_object_memory_entry_64_t')
-export const __Request__mach_memory_object_memory_entry_t = /* @__PURE__ */ _bind(FW, '__Request__mach_memory_object_memory_entry_t')
-export const __Request__mach_port_allocate_full_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_allocate_full_t')
-export const __Request__mach_port_allocate_name_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_allocate_name_t')
-export const __Request__mach_port_allocate_qos_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_allocate_qos_t')
-export const __Request__mach_port_allocate_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_allocate_t')
-export const __Request__mach_port_assert_attributes_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_assert_attributes_t')
-export const __Request__mach_port_construct_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_construct_t')
-export const __Request__mach_port_deallocate_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_deallocate_t')
-export const __Request__mach_port_destroy_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_destroy_t')
-export const __Request__mach_port_destruct_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_destruct_t')
-export const __Request__mach_port_dnrequest_info_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_dnrequest_info_t')
-export const __Request__mach_port_extract_member_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_extract_member_t')
-export const __Request__mach_port_extract_right_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_extract_right_t')
-export const __Request__mach_port_get_attributes_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_get_attributes_t')
-export const __Request__mach_port_get_context_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_get_context_t')
-export const __Request__mach_port_get_refs_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_get_refs_t')
-export const __Request__mach_port_get_service_port_info_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_get_service_port_info_t')
-export const __Request__mach_port_get_set_status_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_get_set_status_t')
-export const __Request__mach_port_get_srights_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_get_srights_t')
-export const __Request__mach_port_guard_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_guard_t')
-export const __Request__mach_port_guard_with_flags_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_guard_with_flags_t')
-export const __Request__mach_port_insert_member_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_insert_member_t')
-export const __Request__mach_port_insert_right_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_insert_right_t')
-export const __Request__mach_port_is_connection_for_service_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_is_connection_for_service_t')
-export const __Request__mach_port_kernel_object_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_kernel_object_t')
-export const __Request__mach_port_kobject_description_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_kobject_description_t')
-export const __Request__mach_port_kobject_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_kobject_t')
-export const __Request__mach_port_mod_refs_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_mod_refs_t')
-export const __Request__mach_port_move_member_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_move_member_t')
-export const __Request__mach_port_names_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_names_t')
+export const __Request__lock_set_create_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__lock_set_create_t',
+)
+
+export const __Request__lock_set_destroy_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__lock_set_destroy_t',
+)
+
+export const __Request__mach_make_memory_entry_64_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_make_memory_entry_64_t',
+)
+
+export const __Request__mach_make_memory_entry_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_make_memory_entry_t',
+)
+
+export const __Request__mach_memory_info_redacted_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_memory_info_redacted_t',
+)
+
+export const __Request__mach_memory_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_memory_info_t',
+)
+
+export const __Request__mach_memory_object_memory_entry_64_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_memory_object_memory_entry_64_t',
+)
+
+export const __Request__mach_memory_object_memory_entry_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_memory_object_memory_entry_t',
+)
+
+export const __Request__mach_port_allocate_full_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_allocate_full_t',
+)
+
+export const __Request__mach_port_allocate_name_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_allocate_name_t',
+)
+
+export const __Request__mach_port_allocate_qos_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_allocate_qos_t',
+)
+
+export const __Request__mach_port_allocate_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_allocate_t',
+)
+
+export const __Request__mach_port_assert_attributes_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_assert_attributes_t',
+)
+
+export const __Request__mach_port_construct_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_construct_t',
+)
+
+export const __Request__mach_port_deallocate_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_deallocate_t',
+)
+
+export const __Request__mach_port_destroy_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_destroy_t',
+)
+
+export const __Request__mach_port_destruct_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_destruct_t',
+)
+
+export const __Request__mach_port_dnrequest_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_dnrequest_info_t',
+)
+
+export const __Request__mach_port_extract_member_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_extract_member_t',
+)
+
+export const __Request__mach_port_extract_right_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_extract_right_t',
+)
+
+export const __Request__mach_port_get_attributes_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_get_attributes_t',
+)
+
+export const __Request__mach_port_get_context_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_get_context_t',
+)
+
+export const __Request__mach_port_get_refs_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_get_refs_t',
+)
+
+export const __Request__mach_port_get_service_port_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_get_service_port_info_t',
+)
+
+export const __Request__mach_port_get_set_status_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_get_set_status_t',
+)
+
+export const __Request__mach_port_get_srights_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_get_srights_t',
+)
+
+export const __Request__mach_port_guard_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_guard_t',
+)
+
+export const __Request__mach_port_guard_with_flags_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_guard_with_flags_t',
+)
+
+export const __Request__mach_port_insert_member_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_insert_member_t',
+)
+
+export const __Request__mach_port_insert_right_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_insert_right_t',
+)
+
+export const __Request__mach_port_is_connection_for_service_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_is_connection_for_service_t',
+)
+
+export const __Request__mach_port_kernel_object_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_kernel_object_t',
+)
+
+export const __Request__mach_port_kobject_description_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_kobject_description_t',
+)
+
+export const __Request__mach_port_kobject_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_kobject_t',
+)
+
+export const __Request__mach_port_mod_refs_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_mod_refs_t',
+)
+
+export const __Request__mach_port_move_member_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_move_member_t',
+)
+
+export const __Request__mach_port_names_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_names_t',
+)
+
 export const __Request__mach_port_peek_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_peek_t')
-export const __Request__mach_port_rename_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_rename_t')
-export const __Request__mach_port_request_notification_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_request_notification_t')
-export const __Request__mach_port_set_attributes_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_set_attributes_t')
-export const __Request__mach_port_set_context_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_set_context_t')
-export const __Request__mach_port_set_mscount_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_set_mscount_t')
-export const __Request__mach_port_set_seqno_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_set_seqno_t')
-export const __Request__mach_port_space_basic_info_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_space_basic_info_t')
-export const __Request__mach_port_space_info_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_space_info_t')
-export const __Request__mach_port_swap_guard_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_swap_guard_t')
+export const __Request__mach_port_rename_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_rename_t',
+)
+
+export const __Request__mach_port_request_notification_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_request_notification_t',
+)
+
+export const __Request__mach_port_set_attributes_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_set_attributes_t',
+)
+
+export const __Request__mach_port_set_context_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_set_context_t',
+)
+
+export const __Request__mach_port_set_mscount_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_set_mscount_t',
+)
+
+export const __Request__mach_port_set_seqno_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_set_seqno_t',
+)
+
+export const __Request__mach_port_space_basic_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_space_basic_info_t',
+)
+
+export const __Request__mach_port_space_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_space_info_t',
+)
+
+export const __Request__mach_port_swap_guard_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_swap_guard_t',
+)
+
 export const __Request__mach_port_type_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_type_t')
-export const __Request__mach_port_unguard_t = /* @__PURE__ */ _bind(FW, '__Request__mach_port_unguard_t')
-export const __Request__mach_ports_lookup_t = /* @__PURE__ */ _bind(FW, '__Request__mach_ports_lookup_t')
-export const __Request__mach_ports_register_t = /* @__PURE__ */ _bind(FW, '__Request__mach_ports_register_t')
-export const __Request__mach_vm_region_info_64_t = /* @__PURE__ */ _bind(FW, '__Request__mach_vm_region_info_64_t')
-export const __Request__mach_vm_region_info_t = /* @__PURE__ */ _bind(FW, '__Request__mach_vm_region_info_t')
+export const __Request__mach_port_unguard_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_port_unguard_t',
+)
+
+export const __Request__mach_ports_lookup_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_ports_lookup_t',
+)
+
+export const __Request__mach_ports_register_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_ports_register_t',
+)
+
+export const __Request__mach_vm_region_info_64_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_vm_region_info_64_t',
+)
+
+export const __Request__mach_vm_region_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_vm_region_info_t',
+)
+
 export const __Request__mach_vm_wire_t = /* @__PURE__ */ _bind(FW, '__Request__mach_vm_wire_t')
-export const __Request__mach_zone_info_for_zone_t = /* @__PURE__ */ _bind(FW, '__Request__mach_zone_info_for_zone_t')
+export const __Request__mach_zone_info_for_zone_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__mach_zone_info_for_zone_t',
+)
+
 export const __Request__mach_zone_info_t = /* @__PURE__ */ _bind(FW, '__Request__mach_zone_info_t')
-export const __Request__processor_assign_t = /* @__PURE__ */ _bind(FW, '__Request__processor_assign_t')
-export const __Request__processor_control_t = /* @__PURE__ */ _bind(FW, '__Request__processor_control_t')
+export const __Request__processor_assign_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__processor_assign_t',
+)
+
+export const __Request__processor_control_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__processor_control_t',
+)
+
 export const __Request__processor_exit_t = /* @__PURE__ */ _bind(FW, '__Request__processor_exit_t')
-export const __Request__processor_get_assignment_t = /* @__PURE__ */ _bind(FW, '__Request__processor_get_assignment_t')
+export const __Request__processor_get_assignment_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__processor_get_assignment_t',
+)
+
 export const __Request__processor_info_t = /* @__PURE__ */ _bind(FW, '__Request__processor_info_t')
-export const __Request__processor_set_create_t = /* @__PURE__ */ _bind(FW, '__Request__processor_set_create_t')
-export const __Request__processor_set_default_t = /* @__PURE__ */ _bind(FW, '__Request__processor_set_default_t')
-export const __Request__processor_set_destroy_t = /* @__PURE__ */ _bind(FW, '__Request__processor_set_destroy_t')
-export const __Request__processor_set_info_t = /* @__PURE__ */ _bind(FW, '__Request__processor_set_info_t')
-export const __Request__processor_set_max_priority_t = /* @__PURE__ */ _bind(FW, '__Request__processor_set_max_priority_t')
-export const __Request__processor_set_policy_control_t = /* @__PURE__ */ _bind(FW, '__Request__processor_set_policy_control_t')
-export const __Request__processor_set_policy_disable_t = /* @__PURE__ */ _bind(FW, '__Request__processor_set_policy_disable_t')
-export const __Request__processor_set_policy_enable_t = /* @__PURE__ */ _bind(FW, '__Request__processor_set_policy_enable_t')
-export const __Request__processor_set_stack_usage_t = /* @__PURE__ */ _bind(FW, '__Request__processor_set_stack_usage_t')
-export const __Request__processor_set_statistics_t = /* @__PURE__ */ _bind(FW, '__Request__processor_set_statistics_t')
-export const __Request__processor_set_tasks_t = /* @__PURE__ */ _bind(FW, '__Request__processor_set_tasks_t')
-export const __Request__processor_set_tasks_with_flavor_t = /* @__PURE__ */ _bind(FW, '__Request__processor_set_tasks_with_flavor_t')
-export const __Request__processor_set_threads_t = /* @__PURE__ */ _bind(FW, '__Request__processor_set_threads_t')
-export const __Request__processor_start_t = /* @__PURE__ */ _bind(FW, '__Request__processor_start_t')
-export const __Request__semaphore_create_t = /* @__PURE__ */ _bind(FW, '__Request__semaphore_create_t')
-export const __Request__semaphore_destroy_t = /* @__PURE__ */ _bind(FW, '__Request__semaphore_destroy_t')
-export const __Request__task_assign_default_t = /* @__PURE__ */ _bind(FW, '__Request__task_assign_default_t')
+export const __Request__processor_set_create_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__processor_set_create_t',
+)
+
+export const __Request__processor_set_default_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__processor_set_default_t',
+)
+
+export const __Request__processor_set_destroy_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__processor_set_destroy_t',
+)
+
+export const __Request__processor_set_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__processor_set_info_t',
+)
+
+export const __Request__processor_set_max_priority_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__processor_set_max_priority_t',
+)
+
+export const __Request__processor_set_policy_control_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__processor_set_policy_control_t',
+)
+
+export const __Request__processor_set_policy_disable_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__processor_set_policy_disable_t',
+)
+
+export const __Request__processor_set_policy_enable_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__processor_set_policy_enable_t',
+)
+
+export const __Request__processor_set_stack_usage_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__processor_set_stack_usage_t',
+)
+
+export const __Request__processor_set_statistics_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__processor_set_statistics_t',
+)
+
+export const __Request__processor_set_tasks_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__processor_set_tasks_t',
+)
+
+export const __Request__processor_set_tasks_with_flavor_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__processor_set_tasks_with_flavor_t',
+)
+
+export const __Request__processor_set_threads_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__processor_set_threads_t',
+)
+
+export const __Request__processor_start_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__processor_start_t',
+)
+
+export const __Request__semaphore_create_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__semaphore_create_t',
+)
+
+export const __Request__semaphore_destroy_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__semaphore_destroy_t',
+)
+
+export const __Request__task_assign_default_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_assign_default_t',
+)
+
 export const __Request__task_assign_t = /* @__PURE__ */ _bind(FW, '__Request__task_assign_t')
-export const __Request__task_create_identity_token_t = /* @__PURE__ */ _bind(FW, '__Request__task_create_identity_token_t')
+export const __Request__task_create_identity_token_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_create_identity_token_t',
+)
+
 export const __Request__task_create_t = /* @__PURE__ */ _bind(FW, '__Request__task_create_t')
-export const __Request__task_dyld_process_info_notify_deregister_t = /* @__PURE__ */ _bind(FW, '__Request__task_dyld_process_info_notify_deregister_t')
-export const __Request__task_dyld_process_info_notify_register_t = /* @__PURE__ */ _bind(FW, '__Request__task_dyld_process_info_notify_register_t')
-export const __Request__task_generate_corpse_t = /* @__PURE__ */ _bind(FW, '__Request__task_generate_corpse_t')
-export const __Request__task_get_assignment_t = /* @__PURE__ */ _bind(FW, '__Request__task_get_assignment_t')
-export const __Request__task_get_dyld_image_infos_t = /* @__PURE__ */ _bind(FW, '__Request__task_get_dyld_image_infos_t')
-export const __Request__task_get_emulation_vector_t = /* @__PURE__ */ _bind(FW, '__Request__task_get_emulation_vector_t')
-export const __Request__task_get_exc_guard_behavior_t = /* @__PURE__ */ _bind(FW, '__Request__task_get_exc_guard_behavior_t')
-export const __Request__task_get_exception_ports_info_t = /* @__PURE__ */ _bind(FW, '__Request__task_get_exception_ports_info_t')
-export const __Request__task_get_exception_ports_t = /* @__PURE__ */ _bind(FW, '__Request__task_get_exception_ports_t')
-export const __Request__task_get_mach_voucher_t = /* @__PURE__ */ _bind(FW, '__Request__task_get_mach_voucher_t')
-export const __Request__task_get_special_port_t = /* @__PURE__ */ _bind(FW, '__Request__task_get_special_port_t')
+export const __Request__task_dyld_process_info_notify_deregister_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_dyld_process_info_notify_deregister_t',
+)
+
+export const __Request__task_dyld_process_info_notify_register_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_dyld_process_info_notify_register_t',
+)
+
+export const __Request__task_generate_corpse_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_generate_corpse_t',
+)
+
+export const __Request__task_get_assignment_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_get_assignment_t',
+)
+
+export const __Request__task_get_dyld_image_infos_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_get_dyld_image_infos_t',
+)
+
+export const __Request__task_get_emulation_vector_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_get_emulation_vector_t',
+)
+
+export const __Request__task_get_exc_guard_behavior_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_get_exc_guard_behavior_t',
+)
+
+export const __Request__task_get_exception_ports_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_get_exception_ports_info_t',
+)
+
+export const __Request__task_get_exception_ports_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_get_exception_ports_t',
+)
+
+export const __Request__task_get_mach_voucher_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_get_mach_voucher_t',
+)
+
+export const __Request__task_get_special_port_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_get_special_port_t',
+)
+
 export const __Request__task_get_state_t = /* @__PURE__ */ _bind(FW, '__Request__task_get_state_t')
-export const __Request__task_identity_token_get_task_port_t = /* @__PURE__ */ _bind(FW, '__Request__task_identity_token_get_task_port_t')
+export const __Request__task_identity_token_get_task_port_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_identity_token_get_task_port_t',
+)
+
 export const __Request__task_info_t = /* @__PURE__ */ _bind(FW, '__Request__task_info_t')
 export const __Request__task_inspect_t = /* @__PURE__ */ _bind(FW, '__Request__task_inspect_t')
-export const __Request__task_map_corpse_info_64_t = /* @__PURE__ */ _bind(FW, '__Request__task_map_corpse_info_64_t')
-export const __Request__task_map_corpse_info_t = /* @__PURE__ */ _bind(FW, '__Request__task_map_corpse_info_t')
-export const __Request__task_map_kcdata_object_64_t = /* @__PURE__ */ _bind(FW, '__Request__task_map_kcdata_object_64_t')
-export const __Request__task_policy_get_t = /* @__PURE__ */ _bind(FW, '__Request__task_policy_get_t')
-export const __Request__task_policy_set_t = /* @__PURE__ */ _bind(FW, '__Request__task_policy_set_t')
+export const __Request__task_map_corpse_info_64_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_map_corpse_info_64_t',
+)
+
+export const __Request__task_map_corpse_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_map_corpse_info_t',
+)
+
+export const __Request__task_map_kcdata_object_64_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_map_kcdata_object_64_t',
+)
+
+export const __Request__task_policy_get_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_policy_get_t',
+)
+
+export const __Request__task_policy_set_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_policy_set_t',
+)
+
 export const __Request__task_policy_t = /* @__PURE__ */ _bind(FW, '__Request__task_policy_t')
-export const __Request__task_purgable_info_t = /* @__PURE__ */ _bind(FW, '__Request__task_purgable_info_t')
-export const __Request__task_register_dyld_get_process_state_t = /* @__PURE__ */ _bind(FW, '__Request__task_register_dyld_get_process_state_t')
-export const __Request__task_register_dyld_image_infos_t = /* @__PURE__ */ _bind(FW, '__Request__task_register_dyld_image_infos_t')
-export const __Request__task_register_dyld_set_dyld_state_t = /* @__PURE__ */ _bind(FW, '__Request__task_register_dyld_set_dyld_state_t')
-export const __Request__task_register_dyld_shared_cache_image_info_t = /* @__PURE__ */ _bind(FW, '__Request__task_register_dyld_shared_cache_image_info_t')
-export const __Request__task_register_hardened_exception_handler_t = /* @__PURE__ */ _bind(FW, '__Request__task_register_hardened_exception_handler_t')
+export const __Request__task_purgable_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_purgable_info_t',
+)
+
+export const __Request__task_register_dyld_get_process_state_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_register_dyld_get_process_state_t',
+)
+
+export const __Request__task_register_dyld_image_infos_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_register_dyld_image_infos_t',
+)
+
+export const __Request__task_register_dyld_set_dyld_state_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_register_dyld_set_dyld_state_t',
+)
+
+export const __Request__task_register_dyld_shared_cache_image_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_register_dyld_shared_cache_image_info_t',
+)
+
+export const __Request__task_register_hardened_exception_handler_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_register_hardened_exception_handler_t',
+)
+
 export const __Request__task_resume2_t = /* @__PURE__ */ _bind(FW, '__Request__task_resume2_t')
 export const __Request__task_resume_t = /* @__PURE__ */ _bind(FW, '__Request__task_resume_t')
 export const __Request__task_sample_t = /* @__PURE__ */ _bind(FW, '__Request__task_sample_t')
-export const __Request__task_set_corpse_forking_behavior_t = /* @__PURE__ */ _bind(FW, '__Request__task_set_corpse_forking_behavior_t')
-export const __Request__task_set_emulation_t = /* @__PURE__ */ _bind(FW, '__Request__task_set_emulation_t')
-export const __Request__task_set_emulation_vector_t = /* @__PURE__ */ _bind(FW, '__Request__task_set_emulation_vector_t')
-export const __Request__task_set_exc_guard_behavior_t = /* @__PURE__ */ _bind(FW, '__Request__task_set_exc_guard_behavior_t')
-export const __Request__task_set_exception_ports_t = /* @__PURE__ */ _bind(FW, '__Request__task_set_exception_ports_t')
+export const __Request__task_set_corpse_forking_behavior_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_set_corpse_forking_behavior_t',
+)
+
+export const __Request__task_set_emulation_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_set_emulation_t',
+)
+
+export const __Request__task_set_emulation_vector_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_set_emulation_vector_t',
+)
+
+export const __Request__task_set_exc_guard_behavior_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_set_exc_guard_behavior_t',
+)
+
+export const __Request__task_set_exception_ports_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_set_exception_ports_t',
+)
+
 export const __Request__task_set_info_t = /* @__PURE__ */ _bind(FW, '__Request__task_set_info_t')
-export const __Request__task_set_mach_voucher_t = /* @__PURE__ */ _bind(FW, '__Request__task_set_mach_voucher_t')
-export const __Request__task_set_phys_footprint_limit_t = /* @__PURE__ */ _bind(FW, '__Request__task_set_phys_footprint_limit_t')
-export const __Request__task_set_policy_t = /* @__PURE__ */ _bind(FW, '__Request__task_set_policy_t')
-export const __Request__task_set_port_space_t = /* @__PURE__ */ _bind(FW, '__Request__task_set_port_space_t')
-export const __Request__task_set_ras_pc_t = /* @__PURE__ */ _bind(FW, '__Request__task_set_ras_pc_t')
-export const __Request__task_set_special_port_t = /* @__PURE__ */ _bind(FW, '__Request__task_set_special_port_t')
+export const __Request__task_set_mach_voucher_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_set_mach_voucher_t',
+)
+
+export const __Request__task_set_phys_footprint_limit_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_set_phys_footprint_limit_t',
+)
+
+export const __Request__task_set_policy_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_set_policy_t',
+)
+
+export const __Request__task_set_port_space_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_set_port_space_t',
+)
+
+export const __Request__task_set_ras_pc_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_set_ras_pc_t',
+)
+
+export const __Request__task_set_special_port_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_set_special_port_t',
+)
+
 export const __Request__task_set_state_t = /* @__PURE__ */ _bind(FW, '__Request__task_set_state_t')
 export const __Request__task_suspend2_t = /* @__PURE__ */ _bind(FW, '__Request__task_suspend2_t')
 export const __Request__task_suspend_t = /* @__PURE__ */ _bind(FW, '__Request__task_suspend_t')
-export const __Request__task_swap_exception_ports_t = /* @__PURE__ */ _bind(FW, '__Request__task_swap_exception_ports_t')
-export const __Request__task_swap_mach_voucher_t = /* @__PURE__ */ _bind(FW, '__Request__task_swap_mach_voucher_t')
+export const __Request__task_swap_exception_ports_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_swap_exception_ports_t',
+)
+
+export const __Request__task_swap_mach_voucher_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_swap_mach_voucher_t',
+)
+
 export const __Request__task_terminate_t = /* @__PURE__ */ _bind(FW, '__Request__task_terminate_t')
-export const __Request__task_test_async_upcall_propagation_t = /* @__PURE__ */ _bind(FW, '__Request__task_test_async_upcall_propagation_t')
-export const __Request__task_test_sync_upcall_t = /* @__PURE__ */ _bind(FW, '__Request__task_test_sync_upcall_t')
+export const __Request__task_test_async_upcall_propagation_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_test_async_upcall_propagation_t',
+)
+
+export const __Request__task_test_sync_upcall_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_test_sync_upcall_t',
+)
+
 export const __Request__task_threads_t = /* @__PURE__ */ _bind(FW, '__Request__task_threads_t')
-export const __Request__task_unregister_dyld_image_infos_t = /* @__PURE__ */ _bind(FW, '__Request__task_unregister_dyld_image_infos_t')
+export const __Request__task_unregister_dyld_image_infos_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__task_unregister_dyld_image_infos_t',
+)
+
 export const __Request__task_wire_t = /* @__PURE__ */ _bind(FW, '__Request__task_wire_t')
 export const __Request__task_zone_info_t = /* @__PURE__ */ _bind(FW, '__Request__task_zone_info_t')
-export const __Request__thread_abort_safely_t = /* @__PURE__ */ _bind(FW, '__Request__thread_abort_safely_t')
+export const __Request__thread_abort_safely_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__thread_abort_safely_t',
+)
+
 export const __Request__thread_abort_t = /* @__PURE__ */ _bind(FW, '__Request__thread_abort_t')
-export const __Request__thread_adopt_exception_handler_t = /* @__PURE__ */ _bind(FW, '__Request__thread_adopt_exception_handler_t')
-export const __Request__thread_assign_default_t = /* @__PURE__ */ _bind(FW, '__Request__thread_assign_default_t')
+export const __Request__thread_adopt_exception_handler_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__thread_adopt_exception_handler_t',
+)
+
+export const __Request__thread_assign_default_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__thread_assign_default_t',
+)
+
 export const __Request__thread_assign_t = /* @__PURE__ */ _bind(FW, '__Request__thread_assign_t')
-export const __Request__thread_convert_thread_state_t = /* @__PURE__ */ _bind(FW, '__Request__thread_convert_thread_state_t')
-export const __Request__thread_create_running_t = /* @__PURE__ */ _bind(FW, '__Request__thread_create_running_t')
+export const __Request__thread_convert_thread_state_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__thread_convert_thread_state_t',
+)
+
+export const __Request__thread_create_running_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__thread_create_running_t',
+)
+
 export const __Request__thread_create_t = /* @__PURE__ */ _bind(FW, '__Request__thread_create_t')
-export const __Request__thread_depress_abort_t = /* @__PURE__ */ _bind(FW, '__Request__thread_depress_abort_t')
-export const __Request__thread_get_assignment_t = /* @__PURE__ */ _bind(FW, '__Request__thread_get_assignment_t')
-export const __Request__thread_get_exception_ports_info_t = /* @__PURE__ */ _bind(FW, '__Request__thread_get_exception_ports_info_t')
-export const __Request__thread_get_exception_ports_t = /* @__PURE__ */ _bind(FW, '__Request__thread_get_exception_ports_t')
-export const __Request__thread_get_mach_voucher_t = /* @__PURE__ */ _bind(FW, '__Request__thread_get_mach_voucher_t')
-export const __Request__thread_get_special_port_t = /* @__PURE__ */ _bind(FW, '__Request__thread_get_special_port_t')
-export const __Request__thread_get_state_t = /* @__PURE__ */ _bind(FW, '__Request__thread_get_state_t')
+export const __Request__thread_depress_abort_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__thread_depress_abort_t',
+)
+
+export const __Request__thread_get_assignment_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__thread_get_assignment_t',
+)
+
+export const __Request__thread_get_exception_ports_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__thread_get_exception_ports_info_t',
+)
+
+export const __Request__thread_get_exception_ports_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__thread_get_exception_ports_t',
+)
+
+export const __Request__thread_get_mach_voucher_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__thread_get_mach_voucher_t',
+)
+
+export const __Request__thread_get_special_port_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__thread_get_special_port_t',
+)
+
+export const __Request__thread_get_state_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__thread_get_state_t',
+)
+
 export const __Request__thread_info_t = /* @__PURE__ */ _bind(FW, '__Request__thread_info_t')
-export const __Request__thread_policy_get_t = /* @__PURE__ */ _bind(FW, '__Request__thread_policy_get_t')
-export const __Request__thread_policy_set_t = /* @__PURE__ */ _bind(FW, '__Request__thread_policy_set_t')
+export const __Request__thread_policy_get_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__thread_policy_get_t',
+)
+
+export const __Request__thread_policy_set_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__thread_policy_set_t',
+)
+
 export const __Request__thread_policy_t = /* @__PURE__ */ _bind(FW, '__Request__thread_policy_t')
 export const __Request__thread_resume2_t = /* @__PURE__ */ _bind(FW, '__Request__thread_resume2_t')
 export const __Request__thread_resume_t = /* @__PURE__ */ _bind(FW, '__Request__thread_resume_t')
 export const __Request__thread_sample_t = /* @__PURE__ */ _bind(FW, '__Request__thread_sample_t')
-export const __Request__thread_set_exception_ports_t = /* @__PURE__ */ _bind(FW, '__Request__thread_set_exception_ports_t')
-export const __Request__thread_set_mach_voucher_t = /* @__PURE__ */ _bind(FW, '__Request__thread_set_mach_voucher_t')
-export const __Request__thread_set_policy_t = /* @__PURE__ */ _bind(FW, '__Request__thread_set_policy_t')
-export const __Request__thread_set_special_port_t = /* @__PURE__ */ _bind(FW, '__Request__thread_set_special_port_t')
-export const __Request__thread_set_state_t = /* @__PURE__ */ _bind(FW, '__Request__thread_set_state_t')
-export const __Request__thread_suspend2_t = /* @__PURE__ */ _bind(FW, '__Request__thread_suspend2_t')
+export const __Request__thread_set_exception_ports_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__thread_set_exception_ports_t',
+)
+
+export const __Request__thread_set_mach_voucher_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__thread_set_mach_voucher_t',
+)
+
+export const __Request__thread_set_policy_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__thread_set_policy_t',
+)
+
+export const __Request__thread_set_special_port_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__thread_set_special_port_t',
+)
+
+export const __Request__thread_set_state_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__thread_set_state_t',
+)
+
+export const __Request__thread_suspend2_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__thread_suspend2_t',
+)
+
 export const __Request__thread_suspend_t = /* @__PURE__ */ _bind(FW, '__Request__thread_suspend_t')
-export const __Request__thread_swap_exception_ports_t = /* @__PURE__ */ _bind(FW, '__Request__thread_swap_exception_ports_t')
-export const __Request__thread_swap_mach_voucher_t = /* @__PURE__ */ _bind(FW, '__Request__thread_swap_mach_voucher_t')
-export const __Request__thread_terminate_t = /* @__PURE__ */ _bind(FW, '__Request__thread_terminate_t')
+export const __Request__thread_swap_exception_ports_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__thread_swap_exception_ports_t',
+)
+
+export const __Request__thread_swap_mach_voucher_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__thread_swap_mach_voucher_t',
+)
+
+export const __Request__thread_terminate_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__thread_terminate_t',
+)
+
 export const __Request__thread_wire_t = /* @__PURE__ */ _bind(FW, '__Request__thread_wire_t')
-export const __Request__vm_allocate_cpm_t = /* @__PURE__ */ _bind(FW, '__Request__vm_allocate_cpm_t')
+export const __Request__vm_allocate_cpm_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__vm_allocate_cpm_t',
+)
+
 export const __Request__vm_allocate_t = /* @__PURE__ */ _bind(FW, '__Request__vm_allocate_t')
-export const __Request__vm_behavior_set_t = /* @__PURE__ */ _bind(FW, '__Request__vm_behavior_set_t')
+export const __Request__vm_behavior_set_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__vm_behavior_set_t',
+)
+
 export const __Request__vm_copy_t = /* @__PURE__ */ _bind(FW, '__Request__vm_copy_t')
 export const __Request__vm_deallocate_t = /* @__PURE__ */ _bind(FW, '__Request__vm_deallocate_t')
 export const __Request__vm_inherit_t = /* @__PURE__ */ _bind(FW, '__Request__vm_inherit_t')
-export const __Request__vm_machine_attribute_t = /* @__PURE__ */ _bind(FW, '__Request__vm_machine_attribute_t')
+export const __Request__vm_machine_attribute_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__vm_machine_attribute_t',
+)
+
 export const __Request__vm_map_64_t = /* @__PURE__ */ _bind(FW, '__Request__vm_map_64_t')
-export const __Request__vm_map_exec_lockdown_t = /* @__PURE__ */ _bind(FW, '__Request__vm_map_exec_lockdown_t')
-export const __Request__vm_map_page_query_t = /* @__PURE__ */ _bind(FW, '__Request__vm_map_page_query_t')
+export const __Request__vm_map_exec_lockdown_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__vm_map_exec_lockdown_t',
+)
+
+export const __Request__vm_map_page_query_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__vm_map_page_query_t',
+)
+
 export const __Request__vm_map_t = /* @__PURE__ */ _bind(FW, '__Request__vm_map_t')
-export const __Request__vm_mapped_pages_info_t = /* @__PURE__ */ _bind(FW, '__Request__vm_mapped_pages_info_t')
+export const __Request__vm_mapped_pages_info_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__vm_mapped_pages_info_t',
+)
+
 export const __Request__vm_msync_t = /* @__PURE__ */ _bind(FW, '__Request__vm_msync_t')
 export const __Request__vm_protect_t = /* @__PURE__ */ _bind(FW, '__Request__vm_protect_t')
-export const __Request__vm_purgable_control_t = /* @__PURE__ */ _bind(FW, '__Request__vm_purgable_control_t')
+export const __Request__vm_purgable_control_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__vm_purgable_control_t',
+)
+
 export const __Request__vm_read_list_t = /* @__PURE__ */ _bind(FW, '__Request__vm_read_list_t')
-export const __Request__vm_read_overwrite_t = /* @__PURE__ */ _bind(FW, '__Request__vm_read_overwrite_t')
+export const __Request__vm_read_overwrite_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__vm_read_overwrite_t',
+)
+
 export const __Request__vm_read_t = /* @__PURE__ */ _bind(FW, '__Request__vm_read_t')
 export const __Request__vm_reallocate_t = /* @__PURE__ */ _bind(FW, '__Request__vm_reallocate_t')
 export const __Request__vm_region_64_t = /* @__PURE__ */ _bind(FW, '__Request__vm_region_64_t')
-export const __Request__vm_region_recurse_64_t = /* @__PURE__ */ _bind(FW, '__Request__vm_region_recurse_64_t')
-export const __Request__vm_region_recurse_t = /* @__PURE__ */ _bind(FW, '__Request__vm_region_recurse_t')
+export const __Request__vm_region_recurse_64_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__vm_region_recurse_64_t',
+)
+
+export const __Request__vm_region_recurse_t = /* @__PURE__ */ _bind(
+	FW,
+	'__Request__vm_region_recurse_t',
+)
+
 export const __Request__vm_region_t = /* @__PURE__ */ _bind(FW, '__Request__vm_region_t')
 export const __Request__vm_remap_new_t = /* @__PURE__ */ _bind(FW, '__Request__vm_remap_new_t')
 export const __Request__vm_remap_t = /* @__PURE__ */ _bind(FW, '__Request__vm_remap_t')
@@ -1893,9 +3511,21 @@ export const __cospif = /* @__PURE__ */ _bind(FW, '__cospif')
 export const __darwin_arm_cpmu_state64 = /* @__PURE__ */ _bind(FW, '__darwin_arm_cpmu_state64')
 export const __darwin_arm_debug_state32 = /* @__PURE__ */ _bind(FW, '__darwin_arm_debug_state32')
 export const __darwin_arm_debug_state64 = /* @__PURE__ */ _bind(FW, '__darwin_arm_debug_state64')
-export const __darwin_arm_exception_state = /* @__PURE__ */ _bind(FW, '__darwin_arm_exception_state')
-export const __darwin_arm_exception_state64 = /* @__PURE__ */ _bind(FW, '__darwin_arm_exception_state64')
-export const __darwin_arm_exception_state64_v2 = /* @__PURE__ */ _bind(FW, '__darwin_arm_exception_state64_v2')
+export const __darwin_arm_exception_state = /* @__PURE__ */ _bind(
+	FW,
+	'__darwin_arm_exception_state',
+)
+
+export const __darwin_arm_exception_state64 = /* @__PURE__ */ _bind(
+	FW,
+	'__darwin_arm_exception_state64',
+)
+
+export const __darwin_arm_exception_state64_v2 = /* @__PURE__ */ _bind(
+	FW,
+	'__darwin_arm_exception_state64_v2',
+)
+
 export const __darwin_arm_neon_state = /* @__PURE__ */ _bind(FW, '__darwin_arm_neon_state')
 export const __darwin_arm_neon_state64 = /* @__PURE__ */ _bind(FW, '__darwin_arm_neon_state64')
 export const __darwin_arm_sme2_state = /* @__PURE__ */ _bind(FW, '__darwin_arm_sme2_state')
@@ -1906,10 +3536,18 @@ export const __darwin_arm_sve_z_state = /* @__PURE__ */ _bind(FW, '__darwin_arm_
 export const __darwin_arm_thread_state = /* @__PURE__ */ _bind(FW, '__darwin_arm_thread_state')
 export const __darwin_arm_thread_state64 = /* @__PURE__ */ _bind(FW, '__darwin_arm_thread_state64')
 export const __darwin_arm_vfp_state = /* @__PURE__ */ _bind(FW, '__darwin_arm_vfp_state')
-export const __darwin_check_fd_set_overflow = /* @__PURE__ */ _bind(FW, '__darwin_check_fd_set_overflow')
+export const __darwin_check_fd_set_overflow = /* @__PURE__ */ _bind(
+	FW,
+	'__darwin_check_fd_set_overflow',
+)
+
 export const __darwin_mcontext32 = /* @__PURE__ */ _bind(FW, '__darwin_mcontext32')
 export const __darwin_mcontext64 = /* @__PURE__ */ _bind(FW, '__darwin_mcontext64')
-export const __darwin_pthread_handler_rec = /* @__PURE__ */ _bind(FW, '__darwin_pthread_handler_rec')
+export const __darwin_pthread_handler_rec = /* @__PURE__ */ _bind(
+	FW,
+	'__darwin_pthread_handler_rec',
+)
+
 export const __darwin_sigaltstack = /* @__PURE__ */ _bind(FW, '__darwin_sigaltstack')
 export const __darwin_ucontext = /* @__PURE__ */ _bind(FW, '__darwin_ucontext')
 export const __double2 = /* @__PURE__ */ _bind(FW, '__double2')
@@ -2054,20 +3692,60 @@ export const _cups_array_s = /* @__PURE__ */ _bind(FW, '_cups_array_s')
 export const _cups_dinfo_s = /* @__PURE__ */ _bind(FW, '_cups_dinfo_s')
 export const _cups_file_s = /* @__PURE__ */ _bind(FW, '_cups_file_s')
 export const _cups_raster_s = /* @__PURE__ */ _bind(FW, '_cups_raster_s')
-export const _dispatch_data_destructor_free = /* @__PURE__ */ _bind(FW, '_dispatch_data_destructor_free')
-export const _dispatch_data_destructor_munmap = /* @__PURE__ */ _bind(FW, '_dispatch_data_destructor_munmap')
+export const _dispatch_data_destructor_free = /* @__PURE__ */ _bind(
+	FW,
+	'_dispatch_data_destructor_free',
+)
+
+export const _dispatch_data_destructor_munmap = /* @__PURE__ */ _bind(
+	FW,
+	'_dispatch_data_destructor_munmap',
+)
+
 export const _dispatch_data_empty = /* @__PURE__ */ _bind(FW, '_dispatch_data_empty')
 export const _dispatch_main_q = /* @__PURE__ */ _bind(FW, '_dispatch_main_q')
-export const _dispatch_queue_attr_concurrent = /* @__PURE__ */ _bind(FW, '_dispatch_queue_attr_concurrent')
-export const _dispatch_source_type_data_add = /* @__PURE__ */ _bind(FW, '_dispatch_source_type_data_add')
-export const _dispatch_source_type_data_or = /* @__PURE__ */ _bind(FW, '_dispatch_source_type_data_or')
-export const _dispatch_source_type_data_replace = /* @__PURE__ */ _bind(FW, '_dispatch_source_type_data_replace')
-export const _dispatch_source_type_mach_recv = /* @__PURE__ */ _bind(FW, '_dispatch_source_type_mach_recv')
-export const _dispatch_source_type_mach_send = /* @__PURE__ */ _bind(FW, '_dispatch_source_type_mach_send')
-export const _dispatch_source_type_memorypressure = /* @__PURE__ */ _bind(FW, '_dispatch_source_type_memorypressure')
+export const _dispatch_queue_attr_concurrent = /* @__PURE__ */ _bind(
+	FW,
+	'_dispatch_queue_attr_concurrent',
+)
+
+export const _dispatch_source_type_data_add = /* @__PURE__ */ _bind(
+	FW,
+	'_dispatch_source_type_data_add',
+)
+
+export const _dispatch_source_type_data_or = /* @__PURE__ */ _bind(
+	FW,
+	'_dispatch_source_type_data_or',
+)
+
+export const _dispatch_source_type_data_replace = /* @__PURE__ */ _bind(
+	FW,
+	'_dispatch_source_type_data_replace',
+)
+
+export const _dispatch_source_type_mach_recv = /* @__PURE__ */ _bind(
+	FW,
+	'_dispatch_source_type_mach_recv',
+)
+
+export const _dispatch_source_type_mach_send = /* @__PURE__ */ _bind(
+	FW,
+	'_dispatch_source_type_mach_send',
+)
+
+export const _dispatch_source_type_memorypressure = /* @__PURE__ */ _bind(
+	FW,
+	'_dispatch_source_type_memorypressure',
+)
+
 export const _dispatch_source_type_proc = /* @__PURE__ */ _bind(FW, '_dispatch_source_type_proc')
 export const _dispatch_source_type_read = /* @__PURE__ */ _bind(FW, '_dispatch_source_type_read')
-export const _dispatch_source_type_signal = /* @__PURE__ */ _bind(FW, '_dispatch_source_type_signal')
+export const _dispatch_source_type_signal = /* @__PURE__ */ _bind(
+	FW,
+	'_dispatch_source_type_signal',
+)
+
 export const _dispatch_source_type_timer = /* @__PURE__ */ _bind(FW, '_dispatch_source_type_timer')
 export const _dispatch_source_type_vnode = /* @__PURE__ */ _bind(FW, '_dispatch_source_type_vnode')
 export const _dispatch_source_type_write = /* @__PURE__ */ _bind(FW, '_dispatch_source_type_write')
@@ -2079,25 +3757,97 @@ export const _http_s = /* @__PURE__ */ _bind(FW, '_http_s')
 export const _inpcb_list_entry = /* @__PURE__ */ _bind(FW, '_inpcb_list_entry')
 export const _ipp_attribute_s = /* @__PURE__ */ _bind(FW, '_ipp_attribute_s')
 export const _ipp_s = /* @__PURE__ */ _bind(FW, '_ipp_s')
-export const _kernelrpc_mach_port_allocate_trap = /* @__PURE__ */ _bind(FW, '_kernelrpc_mach_port_allocate_trap')
-export const _kernelrpc_mach_port_construct_trap = /* @__PURE__ */ _bind(FW, '_kernelrpc_mach_port_construct_trap')
-export const _kernelrpc_mach_port_deallocate_trap = /* @__PURE__ */ _bind(FW, '_kernelrpc_mach_port_deallocate_trap')
-export const _kernelrpc_mach_port_destruct_trap = /* @__PURE__ */ _bind(FW, '_kernelrpc_mach_port_destruct_trap')
-export const _kernelrpc_mach_port_extract_member_trap = /* @__PURE__ */ _bind(FW, '_kernelrpc_mach_port_extract_member_trap')
-export const _kernelrpc_mach_port_get_attributes_trap = /* @__PURE__ */ _bind(FW, '_kernelrpc_mach_port_get_attributes_trap')
-export const _kernelrpc_mach_port_guard_trap = /* @__PURE__ */ _bind(FW, '_kernelrpc_mach_port_guard_trap')
-export const _kernelrpc_mach_port_insert_member_trap = /* @__PURE__ */ _bind(FW, '_kernelrpc_mach_port_insert_member_trap')
-export const _kernelrpc_mach_port_insert_right_trap = /* @__PURE__ */ _bind(FW, '_kernelrpc_mach_port_insert_right_trap')
-export const _kernelrpc_mach_port_mod_refs_trap = /* @__PURE__ */ _bind(FW, '_kernelrpc_mach_port_mod_refs_trap')
-export const _kernelrpc_mach_port_move_member_trap = /* @__PURE__ */ _bind(FW, '_kernelrpc_mach_port_move_member_trap')
-export const _kernelrpc_mach_port_request_notification_trap = /* @__PURE__ */ _bind(FW, '_kernelrpc_mach_port_request_notification_trap')
-export const _kernelrpc_mach_port_type_trap = /* @__PURE__ */ _bind(FW, '_kernelrpc_mach_port_type_trap')
-export const _kernelrpc_mach_port_unguard_trap = /* @__PURE__ */ _bind(FW, '_kernelrpc_mach_port_unguard_trap')
-export const _kernelrpc_mach_vm_allocate_trap = /* @__PURE__ */ _bind(FW, '_kernelrpc_mach_vm_allocate_trap')
-export const _kernelrpc_mach_vm_deallocate_trap = /* @__PURE__ */ _bind(FW, '_kernelrpc_mach_vm_deallocate_trap')
+export const _kernelrpc_mach_port_allocate_trap = /* @__PURE__ */ _bind(
+	FW,
+	'_kernelrpc_mach_port_allocate_trap',
+)
+
+export const _kernelrpc_mach_port_construct_trap = /* @__PURE__ */ _bind(
+	FW,
+	'_kernelrpc_mach_port_construct_trap',
+)
+
+export const _kernelrpc_mach_port_deallocate_trap = /* @__PURE__ */ _bind(
+	FW,
+	'_kernelrpc_mach_port_deallocate_trap',
+)
+
+export const _kernelrpc_mach_port_destruct_trap = /* @__PURE__ */ _bind(
+	FW,
+	'_kernelrpc_mach_port_destruct_trap',
+)
+
+export const _kernelrpc_mach_port_extract_member_trap = /* @__PURE__ */ _bind(
+	FW,
+	'_kernelrpc_mach_port_extract_member_trap',
+)
+
+export const _kernelrpc_mach_port_get_attributes_trap = /* @__PURE__ */ _bind(
+	FW,
+	'_kernelrpc_mach_port_get_attributes_trap',
+)
+
+export const _kernelrpc_mach_port_guard_trap = /* @__PURE__ */ _bind(
+	FW,
+	'_kernelrpc_mach_port_guard_trap',
+)
+
+export const _kernelrpc_mach_port_insert_member_trap = /* @__PURE__ */ _bind(
+	FW,
+	'_kernelrpc_mach_port_insert_member_trap',
+)
+
+export const _kernelrpc_mach_port_insert_right_trap = /* @__PURE__ */ _bind(
+	FW,
+	'_kernelrpc_mach_port_insert_right_trap',
+)
+
+export const _kernelrpc_mach_port_mod_refs_trap = /* @__PURE__ */ _bind(
+	FW,
+	'_kernelrpc_mach_port_mod_refs_trap',
+)
+
+export const _kernelrpc_mach_port_move_member_trap = /* @__PURE__ */ _bind(
+	FW,
+	'_kernelrpc_mach_port_move_member_trap',
+)
+
+export const _kernelrpc_mach_port_request_notification_trap = /* @__PURE__ */ _bind(
+	FW,
+	'_kernelrpc_mach_port_request_notification_trap',
+)
+
+export const _kernelrpc_mach_port_type_trap = /* @__PURE__ */ _bind(
+	FW,
+	'_kernelrpc_mach_port_type_trap',
+)
+
+export const _kernelrpc_mach_port_unguard_trap = /* @__PURE__ */ _bind(
+	FW,
+	'_kernelrpc_mach_port_unguard_trap',
+)
+
+export const _kernelrpc_mach_vm_allocate_trap = /* @__PURE__ */ _bind(
+	FW,
+	'_kernelrpc_mach_vm_allocate_trap',
+)
+
+export const _kernelrpc_mach_vm_deallocate_trap = /* @__PURE__ */ _bind(
+	FW,
+	'_kernelrpc_mach_vm_deallocate_trap',
+)
+
 export const _kernelrpc_mach_vm_map_trap = /* @__PURE__ */ _bind(FW, '_kernelrpc_mach_vm_map_trap')
-export const _kernelrpc_mach_vm_protect_trap = /* @__PURE__ */ _bind(FW, '_kernelrpc_mach_vm_protect_trap')
-export const _kernelrpc_mach_vm_purgable_control_trap = /* @__PURE__ */ _bind(FW, '_kernelrpc_mach_vm_purgable_control_trap')
+export const _kernelrpc_mach_vm_protect_trap = /* @__PURE__ */ _bind(
+	FW,
+	'_kernelrpc_mach_vm_protect_trap',
+)
+
+export const _kernelrpc_mach_vm_purgable_control_trap = /* @__PURE__ */ _bind(
+	FW,
+	'_kernelrpc_mach_vm_purgable_control_trap',
+)
+
 export const _launch_data = /* @__PURE__ */ _bind(FW, '_launch_data')
 export const _longjmp = /* @__PURE__ */ _bind(FW, '_longjmp')
 export const _malloc_zone_t = /* @__PURE__ */ _bind(FW, '_malloc_zone_t')
@@ -2111,13 +3861,21 @@ export const _opaque_pthread_mutex_t = /* @__PURE__ */ _bind(FW, '_opaque_pthrea
 export const _opaque_pthread_mutexattr_t = /* @__PURE__ */ _bind(FW, '_opaque_pthread_mutexattr_t')
 export const _opaque_pthread_once_t = /* @__PURE__ */ _bind(FW, '_opaque_pthread_once_t')
 export const _opaque_pthread_rwlock_t = /* @__PURE__ */ _bind(FW, '_opaque_pthread_rwlock_t')
-export const _opaque_pthread_rwlockattr_t = /* @__PURE__ */ _bind(FW, '_opaque_pthread_rwlockattr_t')
+export const _opaque_pthread_rwlockattr_t = /* @__PURE__ */ _bind(
+	FW,
+	'_opaque_pthread_rwlockattr_t',
+)
+
 export const _opaque_pthread_t = /* @__PURE__ */ _bind(FW, '_opaque_pthread_t')
 export const _os_activity_create = /* @__PURE__ */ _bind(FW, '_os_activity_create')
 export const _os_activity_current = /* @__PURE__ */ _bind(FW, '_os_activity_current')
 export const _os_activity_initiate = /* @__PURE__ */ _bind(FW, '_os_activity_initiate')
 export const _os_activity_initiate_f = /* @__PURE__ */ _bind(FW, '_os_activity_initiate_f')
-export const _os_activity_label_useraction = /* @__PURE__ */ _bind(FW, '_os_activity_label_useraction')
+export const _os_activity_label_useraction = /* @__PURE__ */ _bind(
+	FW,
+	'_os_activity_label_useraction',
+)
+
 export const _os_activity_none = /* @__PURE__ */ _bind(FW, '_os_activity_none')
 export const _os_activity_set_breadcrumb = /* @__PURE__ */ _bind(FW, '_os_activity_set_breadcrumb')
 export const _os_activity_start = /* @__PURE__ */ _bind(FW, '_os_activity_start')
@@ -2128,7 +3886,11 @@ export const _os_log_disabled = /* @__PURE__ */ _bind(FW, '_os_log_disabled')
 export const _os_log_error_impl = /* @__PURE__ */ _bind(FW, '_os_log_error_impl')
 export const _os_log_fault_impl = /* @__PURE__ */ _bind(FW, '_os_log_fault_impl')
 export const _os_log_impl = /* @__PURE__ */ _bind(FW, '_os_log_impl')
-export const _os_signpost_emit_with_name_impl = /* @__PURE__ */ _bind(FW, '_os_signpost_emit_with_name_impl')
+export const _os_signpost_emit_with_name_impl = /* @__PURE__ */ _bind(
+	FW,
+	'_os_signpost_emit_with_name_impl',
+)
+
 export const _os_trace_with_buffer = /* @__PURE__ */ _bind(FW, '_os_trace_with_buffer')
 export const _pcred = /* @__PURE__ */ _bind(FW, '_pcred')
 export const _ppd_cache_s = /* @__PURE__ */ _bind(FW, '_ppd_cache_s')
@@ -2239,10 +4001,22 @@ export const _xpc_bool_false = /* @__PURE__ */ _bind(FW, '_xpc_bool_false')
 export const _xpc_bool_s = /* @__PURE__ */ _bind(FW, '_xpc_bool_s')
 export const _xpc_bool_true = /* @__PURE__ */ _bind(FW, '_xpc_bool_true')
 export const _xpc_dictionary_s = /* @__PURE__ */ _bind(FW, '_xpc_dictionary_s')
-export const _xpc_error_connection_interrupted = /* @__PURE__ */ _bind(FW, '_xpc_error_connection_interrupted')
-export const _xpc_error_connection_invalid = /* @__PURE__ */ _bind(FW, '_xpc_error_connection_invalid')
+export const _xpc_error_connection_interrupted = /* @__PURE__ */ _bind(
+	FW,
+	'_xpc_error_connection_interrupted',
+)
+
+export const _xpc_error_connection_invalid = /* @__PURE__ */ _bind(
+	FW,
+	'_xpc_error_connection_invalid',
+)
+
 export const _xpc_error_key_description = /* @__PURE__ */ _bind(FW, '_xpc_error_key_description')
-export const _xpc_error_termination_imminent = /* @__PURE__ */ _bind(FW, '_xpc_error_termination_imminent')
+export const _xpc_error_termination_imminent = /* @__PURE__ */ _bind(
+	FW,
+	'_xpc_error_termination_imminent',
+)
+
 export const _xpc_event_key_name = /* @__PURE__ */ _bind(FW, '_xpc_event_key_name')
 export const _xpc_type_activity = /* @__PURE__ */ _bind(FW, '_xpc_type_activity')
 export const _xpc_type_array = /* @__PURE__ */ _bind(FW, '_xpc_type_array')
@@ -2664,7 +4438,11 @@ export const class_copyMethodList = /* @__PURE__ */ _bind(FW, 'class_copyMethodL
 export const class_copyPropertyList = /* @__PURE__ */ _bind(FW, 'class_copyPropertyList')
 export const class_copyProtocolList = /* @__PURE__ */ _bind(FW, 'class_copyProtocolList')
 export const class_createInstance = /* @__PURE__ */ _bind(FW, 'class_createInstance')
-export const class_createInstanceFromZone = /* @__PURE__ */ _bind(FW, 'class_createInstanceFromZone')
+export const class_createInstanceFromZone = /* @__PURE__ */ _bind(
+	FW,
+	'class_createInstanceFromZone',
+)
+
 export const class_getClassMethod = /* @__PURE__ */ _bind(FW, 'class_getClassMethod')
 export const class_getClassVariable = /* @__PURE__ */ _bind(FW, 'class_getClassVariable')
 export const class_getImageName = /* @__PURE__ */ _bind(FW, 'class_getImageName')
@@ -2672,7 +4450,11 @@ export const class_getInstanceMethod = /* @__PURE__ */ _bind(FW, 'class_getInsta
 export const class_getInstanceSize = /* @__PURE__ */ _bind(FW, 'class_getInstanceSize')
 export const class_getInstanceVariable = /* @__PURE__ */ _bind(FW, 'class_getInstanceVariable')
 export const class_getIvarLayout = /* @__PURE__ */ _bind(FW, 'class_getIvarLayout')
-export const class_getMethodImplementation = /* @__PURE__ */ _bind(FW, 'class_getMethodImplementation')
+export const class_getMethodImplementation = /* @__PURE__ */ _bind(
+	FW,
+	'class_getMethodImplementation',
+)
+
 export const class_getName = /* @__PURE__ */ _bind(FW, 'class_getName')
 export const class_getProperty = /* @__PURE__ */ _bind(FW, 'class_getProperty')
 export const class_getSuperclass = /* @__PURE__ */ _bind(FW, 'class_getSuperclass')
@@ -2710,7 +4492,11 @@ export const close = /* @__PURE__ */ _bind(FW, 'close')
 export const closedir = /* @__PURE__ */ _bind(FW, 'closedir')
 export const cmsghdr = /* @__PURE__ */ _bind(FW, 'cmsghdr')
 export const coalition_flags = /* @__PURE__ */ _bind(FW, 'coalition_flags')
-export const codesigning_exit_reason_info = /* @__PURE__ */ _bind(FW, 'codesigning_exit_reason_info')
+export const codesigning_exit_reason_info = /* @__PURE__ */ _bind(
+	FW,
+	'codesigning_exit_reason_info',
+)
+
 export const condense = /* @__PURE__ */ _bind(FW, 'condense')
 export const confstr = /* @__PURE__ */ _bind(FW, 'confstr')
 export const conj = /* @__PURE__ */ _bind(FW, 'conj')
@@ -2735,8 +4521,16 @@ export const cprojf = /* @__PURE__ */ _bind(FW, 'cprojf')
 export const cprojl = /* @__PURE__ */ _bind(FW, 'cprojl')
 export const crashinfo_jit_address_range = /* @__PURE__ */ _bind(FW, 'crashinfo_jit_address_range')
 export const crashinfo_mb = /* @__PURE__ */ _bind(FW, 'crashinfo_mb')
-export const crashinfo_proc_uniqidentifierinfo = /* @__PURE__ */ _bind(FW, 'crashinfo_proc_uniqidentifierinfo')
-export const crashinfo_task_security_config = /* @__PURE__ */ _bind(FW, 'crashinfo_task_security_config')
+export const crashinfo_proc_uniqidentifierinfo = /* @__PURE__ */ _bind(
+	FW,
+	'crashinfo_proc_uniqidentifierinfo',
+)
+
+export const crashinfo_task_security_config = /* @__PURE__ */ _bind(
+	FW,
+	'crashinfo_task_security_config',
+)
+
 export const crashinfo_voucher = /* @__PURE__ */ _bind(FW, 'crashinfo_voucher')
 export const creal = /* @__PURE__ */ _bind(FW, 'creal')
 export const crealf = /* @__PURE__ */ _bind(FW, 'crealf')
@@ -2961,7 +4755,11 @@ export const daemon = /* @__PURE__ */ _bind(FW, 'daemon')
 export const data_in_code_entry = /* @__PURE__ */ _bind(FW, 'data_in_code_entry')
 export const daylight = /* @__PURE__ */ _bind(FW, 'daylight')
 export const debug_control_port_for_pid = /* @__PURE__ */ _bind(FW, 'debug_control_port_for_pid')
-export const debug_cpu_performance_degradation_factor = /* @__PURE__ */ _bind(FW, 'debug_cpu_performance_degradation_factor')
+export const debug_cpu_performance_degradation_factor = /* @__PURE__ */ _bind(
+	FW,
+	'debug_cpu_performance_degradation_factor',
+)
+
 export const der_alloc = /* @__PURE__ */ _bind(FW, 'der_alloc')
 export const developStage = /* @__PURE__ */ _bind(FW, 'developStage')
 export const devname = /* @__PURE__ */ _bind(FW, 'devname')
@@ -2980,22 +4778,42 @@ export const dispatch_after_f = /* @__PURE__ */ _bind(FW, 'dispatch_after_f')
 export const dispatch_apply = /* @__PURE__ */ _bind(FW, 'dispatch_apply')
 export const dispatch_apply_f = /* @__PURE__ */ _bind(FW, 'dispatch_apply_f')
 export const dispatch_assert_queue = /* @__PURE__ */ _bind(FW, 'dispatch_assert_queue')
-export const dispatch_assert_queue_barrier = /* @__PURE__ */ _bind(FW, 'dispatch_assert_queue_barrier')
+export const dispatch_assert_queue_barrier = /* @__PURE__ */ _bind(
+	FW,
+	'dispatch_assert_queue_barrier',
+)
+
 export const dispatch_assert_queue_not = /* @__PURE__ */ _bind(FW, 'dispatch_assert_queue_not')
 export const dispatch_async = /* @__PURE__ */ _bind(FW, 'dispatch_async')
 export const dispatch_async_and_wait = /* @__PURE__ */ _bind(FW, 'dispatch_async_and_wait')
 export const dispatch_async_and_wait_f = /* @__PURE__ */ _bind(FW, 'dispatch_async_and_wait_f')
 export const dispatch_async_f = /* @__PURE__ */ _bind(FW, 'dispatch_async_f')
-export const dispatch_autorelease_frequency_t = /* @__PURE__ */ _bind(FW, 'dispatch_autorelease_frequency_t')
+export const dispatch_autorelease_frequency_t = /* @__PURE__ */ _bind(
+	FW,
+	'dispatch_autorelease_frequency_t',
+)
+
 export const dispatch_barrier_async = /* @__PURE__ */ _bind(FW, 'dispatch_barrier_async')
-export const dispatch_barrier_async_and_wait = /* @__PURE__ */ _bind(FW, 'dispatch_barrier_async_and_wait')
-export const dispatch_barrier_async_and_wait_f = /* @__PURE__ */ _bind(FW, 'dispatch_barrier_async_and_wait_f')
+export const dispatch_barrier_async_and_wait = /* @__PURE__ */ _bind(
+	FW,
+	'dispatch_barrier_async_and_wait',
+)
+
+export const dispatch_barrier_async_and_wait_f = /* @__PURE__ */ _bind(
+	FW,
+	'dispatch_barrier_async_and_wait_f',
+)
+
 export const dispatch_barrier_async_f = /* @__PURE__ */ _bind(FW, 'dispatch_barrier_async_f')
 export const dispatch_barrier_sync = /* @__PURE__ */ _bind(FW, 'dispatch_barrier_sync')
 export const dispatch_barrier_sync_f = /* @__PURE__ */ _bind(FW, 'dispatch_barrier_sync_f')
 export const dispatch_block_cancel = /* @__PURE__ */ _bind(FW, 'dispatch_block_cancel')
 export const dispatch_block_create = /* @__PURE__ */ _bind(FW, 'dispatch_block_create')
-export const dispatch_block_create_with_qos_class = /* @__PURE__ */ _bind(FW, 'dispatch_block_create_with_qos_class')
+export const dispatch_block_create_with_qos_class = /* @__PURE__ */ _bind(
+	FW,
+	'dispatch_block_create_with_qos_class',
+)
+
 export const dispatch_block_flags_t = /* @__PURE__ */ _bind(FW, 'dispatch_block_flags_t')
 export const dispatch_block_notify = /* @__PURE__ */ _bind(FW, 'dispatch_block_notify')
 export const dispatch_block_perform = /* @__PURE__ */ _bind(FW, 'dispatch_block_perform')
@@ -3006,7 +4824,11 @@ export const dispatch_data_copy_region = /* @__PURE__ */ _bind(FW, 'dispatch_dat
 export const dispatch_data_create = /* @__PURE__ */ _bind(FW, 'dispatch_data_create')
 export const dispatch_data_create_concat = /* @__PURE__ */ _bind(FW, 'dispatch_data_create_concat')
 export const dispatch_data_create_map = /* @__PURE__ */ _bind(FW, 'dispatch_data_create_map')
-export const dispatch_data_create_subrange = /* @__PURE__ */ _bind(FW, 'dispatch_data_create_subrange')
+export const dispatch_data_create_subrange = /* @__PURE__ */ _bind(
+	FW,
+	'dispatch_data_create_subrange',
+)
+
 export const dispatch_data_get_size = /* @__PURE__ */ _bind(FW, 'dispatch_data_get_size')
 export const dispatch_data_s = /* @__PURE__ */ _bind(FW, 'dispatch_data_s')
 export const dispatch_debug = /* @__PURE__ */ _bind(FW, 'dispatch_debug')
@@ -3023,18 +4845,50 @@ export const dispatch_group_leave = /* @__PURE__ */ _bind(FW, 'dispatch_group_le
 export const dispatch_group_notify = /* @__PURE__ */ _bind(FW, 'dispatch_group_notify')
 export const dispatch_group_notify_f = /* @__PURE__ */ _bind(FW, 'dispatch_group_notify_f')
 export const dispatch_group_wait = /* @__PURE__ */ _bind(FW, 'dispatch_group_wait')
-export const dispatch_introspection_hook_queue_callout_begin = /* @__PURE__ */ _bind(FW, 'dispatch_introspection_hook_queue_callout_begin')
-export const dispatch_introspection_hook_queue_callout_end = /* @__PURE__ */ _bind(FW, 'dispatch_introspection_hook_queue_callout_end')
-export const dispatch_introspection_hook_queue_create = /* @__PURE__ */ _bind(FW, 'dispatch_introspection_hook_queue_create')
-export const dispatch_introspection_hook_queue_destroy = /* @__PURE__ */ _bind(FW, 'dispatch_introspection_hook_queue_destroy')
-export const dispatch_introspection_hook_queue_item_complete = /* @__PURE__ */ _bind(FW, 'dispatch_introspection_hook_queue_item_complete')
-export const dispatch_introspection_hook_queue_item_dequeue = /* @__PURE__ */ _bind(FW, 'dispatch_introspection_hook_queue_item_dequeue')
-export const dispatch_introspection_hook_queue_item_enqueue = /* @__PURE__ */ _bind(FW, 'dispatch_introspection_hook_queue_item_enqueue')
+export const dispatch_introspection_hook_queue_callout_begin = /* @__PURE__ */ _bind(
+	FW,
+	'dispatch_introspection_hook_queue_callout_begin',
+)
+
+export const dispatch_introspection_hook_queue_callout_end = /* @__PURE__ */ _bind(
+	FW,
+	'dispatch_introspection_hook_queue_callout_end',
+)
+
+export const dispatch_introspection_hook_queue_create = /* @__PURE__ */ _bind(
+	FW,
+	'dispatch_introspection_hook_queue_create',
+)
+
+export const dispatch_introspection_hook_queue_destroy = /* @__PURE__ */ _bind(
+	FW,
+	'dispatch_introspection_hook_queue_destroy',
+)
+
+export const dispatch_introspection_hook_queue_item_complete = /* @__PURE__ */ _bind(
+	FW,
+	'dispatch_introspection_hook_queue_item_complete',
+)
+
+export const dispatch_introspection_hook_queue_item_dequeue = /* @__PURE__ */ _bind(
+	FW,
+	'dispatch_introspection_hook_queue_item_dequeue',
+)
+
+export const dispatch_introspection_hook_queue_item_enqueue = /* @__PURE__ */ _bind(
+	FW,
+	'dispatch_introspection_hook_queue_item_enqueue',
+)
+
 export const dispatch_io_barrier = /* @__PURE__ */ _bind(FW, 'dispatch_io_barrier')
 export const dispatch_io_close = /* @__PURE__ */ _bind(FW, 'dispatch_io_close')
 export const dispatch_io_create = /* @__PURE__ */ _bind(FW, 'dispatch_io_create')
 export const dispatch_io_create_with_io = /* @__PURE__ */ _bind(FW, 'dispatch_io_create_with_io')
-export const dispatch_io_create_with_path = /* @__PURE__ */ _bind(FW, 'dispatch_io_create_with_path')
+export const dispatch_io_create_with_path = /* @__PURE__ */ _bind(
+	FW,
+	'dispatch_io_create_with_path',
+)
+
 export const dispatch_io_get_descriptor = /* @__PURE__ */ _bind(FW, 'dispatch_io_get_descriptor')
 export const dispatch_io_read = /* @__PURE__ */ _bind(FW, 'dispatch_io_read')
 export const dispatch_io_set_high_water = /* @__PURE__ */ _bind(FW, 'dispatch_io_set_high_water')
@@ -3044,14 +4898,34 @@ export const dispatch_io_write = /* @__PURE__ */ _bind(FW, 'dispatch_io_write')
 export const dispatch_main = /* @__PURE__ */ _bind(FW, 'dispatch_main')
 export const dispatch_once = /* @__PURE__ */ _bind(FW, 'dispatch_once')
 export const dispatch_once_f = /* @__PURE__ */ _bind(FW, 'dispatch_once_f')
-export const dispatch_queue_attr_make_initially_inactive = /* @__PURE__ */ _bind(FW, 'dispatch_queue_attr_make_initially_inactive')
-export const dispatch_queue_attr_make_with_autorelease_frequency = /* @__PURE__ */ _bind(FW, 'dispatch_queue_attr_make_with_autorelease_frequency')
-export const dispatch_queue_attr_make_with_qos_class = /* @__PURE__ */ _bind(FW, 'dispatch_queue_attr_make_with_qos_class')
+export const dispatch_queue_attr_make_initially_inactive = /* @__PURE__ */ _bind(
+	FW,
+	'dispatch_queue_attr_make_initially_inactive',
+)
+
+export const dispatch_queue_attr_make_with_autorelease_frequency = /* @__PURE__ */ _bind(
+	FW,
+	'dispatch_queue_attr_make_with_autorelease_frequency',
+)
+
+export const dispatch_queue_attr_make_with_qos_class = /* @__PURE__ */ _bind(
+	FW,
+	'dispatch_queue_attr_make_with_qos_class',
+)
+
 export const dispatch_queue_attr_s = /* @__PURE__ */ _bind(FW, 'dispatch_queue_attr_s')
 export const dispatch_queue_create = /* @__PURE__ */ _bind(FW, 'dispatch_queue_create')
-export const dispatch_queue_create_with_target = /* @__PURE__ */ _bind(FW, 'dispatch_queue_create_with_target')
+export const dispatch_queue_create_with_target = /* @__PURE__ */ _bind(
+	FW,
+	'dispatch_queue_create_with_target',
+)
+
 export const dispatch_queue_get_label = /* @__PURE__ */ _bind(FW, 'dispatch_queue_get_label')
-export const dispatch_queue_get_qos_class = /* @__PURE__ */ _bind(FW, 'dispatch_queue_get_qos_class')
+export const dispatch_queue_get_qos_class = /* @__PURE__ */ _bind(
+	FW,
+	'dispatch_queue_get_qos_class',
+)
+
 export const dispatch_queue_get_specific = /* @__PURE__ */ _bind(FW, 'dispatch_queue_get_specific')
 export const dispatch_queue_s = /* @__PURE__ */ _bind(FW, 'dispatch_queue_s')
 export const dispatch_queue_set_specific = /* @__PURE__ */ _bind(FW, 'dispatch_queue_set_specific')
@@ -3064,7 +4938,11 @@ export const dispatch_semaphore_t = /* @__PURE__ */ _bind(FW, 'dispatch_semaphor
 export const dispatch_semaphore_wait = /* @__PURE__ */ _bind(FW, 'dispatch_semaphore_wait')
 export const dispatch_set_context = /* @__PURE__ */ _bind(FW, 'dispatch_set_context')
 export const dispatch_set_finalizer_f = /* @__PURE__ */ _bind(FW, 'dispatch_set_finalizer_f')
-export const dispatch_set_qos_class_floor = /* @__PURE__ */ _bind(FW, 'dispatch_set_qos_class_floor')
+export const dispatch_set_qos_class_floor = /* @__PURE__ */ _bind(
+	FW,
+	'dispatch_set_qos_class_floor',
+)
+
 export const dispatch_set_target_queue = /* @__PURE__ */ _bind(FW, 'dispatch_set_target_queue')
 export const dispatch_source_cancel = /* @__PURE__ */ _bind(FW, 'dispatch_source_cancel')
 export const dispatch_source_create = /* @__PURE__ */ _bind(FW, 'dispatch_source_create')
@@ -3072,12 +4950,36 @@ export const dispatch_source_get_data = /* @__PURE__ */ _bind(FW, 'dispatch_sour
 export const dispatch_source_get_handle = /* @__PURE__ */ _bind(FW, 'dispatch_source_get_handle')
 export const dispatch_source_get_mask = /* @__PURE__ */ _bind(FW, 'dispatch_source_get_mask')
 export const dispatch_source_merge_data = /* @__PURE__ */ _bind(FW, 'dispatch_source_merge_data')
-export const dispatch_source_set_cancel_handler = /* @__PURE__ */ _bind(FW, 'dispatch_source_set_cancel_handler')
-export const dispatch_source_set_cancel_handler_f = /* @__PURE__ */ _bind(FW, 'dispatch_source_set_cancel_handler_f')
-export const dispatch_source_set_event_handler = /* @__PURE__ */ _bind(FW, 'dispatch_source_set_event_handler')
-export const dispatch_source_set_event_handler_f = /* @__PURE__ */ _bind(FW, 'dispatch_source_set_event_handler_f')
-export const dispatch_source_set_registration_handler = /* @__PURE__ */ _bind(FW, 'dispatch_source_set_registration_handler')
-export const dispatch_source_set_registration_handler_f = /* @__PURE__ */ _bind(FW, 'dispatch_source_set_registration_handler_f')
+export const dispatch_source_set_cancel_handler = /* @__PURE__ */ _bind(
+	FW,
+	'dispatch_source_set_cancel_handler',
+)
+
+export const dispatch_source_set_cancel_handler_f = /* @__PURE__ */ _bind(
+	FW,
+	'dispatch_source_set_cancel_handler_f',
+)
+
+export const dispatch_source_set_event_handler = /* @__PURE__ */ _bind(
+	FW,
+	'dispatch_source_set_event_handler',
+)
+
+export const dispatch_source_set_event_handler_f = /* @__PURE__ */ _bind(
+	FW,
+	'dispatch_source_set_event_handler_f',
+)
+
+export const dispatch_source_set_registration_handler = /* @__PURE__ */ _bind(
+	FW,
+	'dispatch_source_set_registration_handler',
+)
+
+export const dispatch_source_set_registration_handler_f = /* @__PURE__ */ _bind(
+	FW,
+	'dispatch_source_set_registration_handler_f',
+)
+
 export const dispatch_source_set_timer = /* @__PURE__ */ _bind(FW, 'dispatch_source_set_timer')
 export const dispatch_source_testcancel = /* @__PURE__ */ _bind(FW, 'dispatch_source_testcancel')
 export const dispatch_source_type_s = /* @__PURE__ */ _bind(FW, 'dispatch_source_type_s')
@@ -3087,9 +4989,21 @@ export const dispatch_sync_f = /* @__PURE__ */ _bind(FW, 'dispatch_sync_f')
 export const dispatch_time = /* @__PURE__ */ _bind(FW, 'dispatch_time')
 export const dispatch_walltime = /* @__PURE__ */ _bind(FW, 'dispatch_walltime')
 export const dispatch_workloop_create = /* @__PURE__ */ _bind(FW, 'dispatch_workloop_create')
-export const dispatch_workloop_create_inactive = /* @__PURE__ */ _bind(FW, 'dispatch_workloop_create_inactive')
-export const dispatch_workloop_set_autorelease_frequency = /* @__PURE__ */ _bind(FW, 'dispatch_workloop_set_autorelease_frequency')
-export const dispatch_workloop_set_os_workgroup = /* @__PURE__ */ _bind(FW, 'dispatch_workloop_set_os_workgroup')
+export const dispatch_workloop_create_inactive = /* @__PURE__ */ _bind(
+	FW,
+	'dispatch_workloop_create_inactive',
+)
+
+export const dispatch_workloop_set_autorelease_frequency = /* @__PURE__ */ _bind(
+	FW,
+	'dispatch_workloop_set_autorelease_frequency',
+)
+
+export const dispatch_workloop_set_os_workgroup = /* @__PURE__ */ _bind(
+	FW,
+	'dispatch_workloop_set_os_workgroup',
+)
+
 export const dispatch_write = /* @__PURE__ */ _bind(FW, 'dispatch_write')
 export const display_putc = /* @__PURE__ */ _bind(FW, 'display_putc')
 export const div = /* @__PURE__ */ _bind(FW, 'div')
@@ -3122,7 +5036,11 @@ export const dyld_kernel_image_info = /* @__PURE__ */ _bind(FW, 'dyld_kernel_ima
 export const dyld_kernel_process_info = /* @__PURE__ */ _bind(FW, 'dyld_kernel_process_info')
 export const dyld_shared_cache_flags = /* @__PURE__ */ _bind(FW, 'dyld_shared_cache_flags')
 export const dyld_shared_cache_loadinfo = /* @__PURE__ */ _bind(FW, 'dyld_shared_cache_loadinfo')
-export const dyld_shared_cache_loadinfo_v2 = /* @__PURE__ */ _bind(FW, 'dyld_shared_cache_loadinfo_v2')
+export const dyld_shared_cache_loadinfo_v2 = /* @__PURE__ */ _bind(
+	FW,
+	'dyld_shared_cache_loadinfo_v2',
+)
+
 export const dyld_uuid_info_32 = /* @__PURE__ */ _bind(FW, 'dyld_uuid_info_32')
 export const dyld_uuid_info_64 = /* @__PURE__ */ _bind(FW, 'dyld_uuid_info_64')
 export const dyld_uuid_info_64_v2 = /* @__PURE__ */ _bind(FW, 'dyld_uuid_info_64_v2')
@@ -3135,7 +5053,11 @@ export const dylib_table_of_contents = /* @__PURE__ */ _bind(FW, 'dylib_table_of
 export const dylib_use_command = /* @__PURE__ */ _bind(FW, 'dylib_use_command')
 export const dylinker_command = /* @__PURE__ */ _bind(FW, 'dylinker_command')
 export const dysymtab_command = /* @__PURE__ */ _bind(FW, 'dysymtab_command')
-export const eNoteExitReparentedDeprecated = /* @__PURE__ */ _bind(FW, 'eNoteExitReparentedDeprecated')
+export const eNoteExitReparentedDeprecated = /* @__PURE__ */ _bind(
+	FW,
+	'eNoteExitReparentedDeprecated',
+)
+
 export const eNoteReapDeprecated = /* @__PURE__ */ _bind(FW, 'eNoteReapDeprecated')
 export const ecvt = /* @__PURE__ */ _bind(FW, 'ecvt')
 export const encrypt = /* @__PURE__ */ _bind(FW, 'encrypt')
@@ -3178,7 +5100,11 @@ export const exclave_textlayout_flags = /* @__PURE__ */ _bind(FW, 'exclave_textl
 export const exclave_textlayout_info = /* @__PURE__ */ _bind(FW, 'exclave_textlayout_info')
 export const exclave_textlayout_info_v1 = /* @__PURE__ */ _bind(FW, 'exclave_textlayout_info_v1')
 export const exclave_textlayout_segment = /* @__PURE__ */ _bind(FW, 'exclave_textlayout_segment')
-export const exclave_textlayout_segment_v2 = /* @__PURE__ */ _bind(FW, 'exclave_textlayout_segment_v2')
+export const exclave_textlayout_segment_v2 = /* @__PURE__ */ _bind(
+	FW,
+	'exclave_textlayout_segment_v2',
+)
+
 export const execl = /* @__PURE__ */ _bind(FW, 'execl')
 export const execle = /* @__PURE__ */ _bind(FW, 'execle')
 export const execlp = /* @__PURE__ */ _bind(FW, 'execlp')
@@ -3420,16 +5346,28 @@ export const host_check_multiuser_mode = /* @__PURE__ */ _bind(FW, 'host_check_m
 export const host_cpu_counters_info = /* @__PURE__ */ _bind(FW, 'host_cpu_counters_info')
 export const host_cpu_load_info = /* @__PURE__ */ _bind(FW, 'host_cpu_load_info')
 export const host_create_mach_voucher = /* @__PURE__ */ _bind(FW, 'host_create_mach_voucher')
-export const host_create_mach_voucher_trap = /* @__PURE__ */ _bind(FW, 'host_create_mach_voucher_trap')
+export const host_create_mach_voucher_trap = /* @__PURE__ */ _bind(
+	FW,
+	'host_create_mach_voucher_trap',
+)
+
 export const host_default_memory_manager = /* @__PURE__ */ _bind(FW, 'host_default_memory_manager')
 export const host_get_UNDServer = /* @__PURE__ */ _bind(FW, 'host_get_UNDServer')
-export const host_get_atm_diagnostic_flag = /* @__PURE__ */ _bind(FW, 'host_get_atm_diagnostic_flag')
+export const host_get_atm_diagnostic_flag = /* @__PURE__ */ _bind(
+	FW,
+	'host_get_atm_diagnostic_flag',
+)
+
 export const host_get_boot_info = /* @__PURE__ */ _bind(FW, 'host_get_boot_info')
 export const host_get_clock_control = /* @__PURE__ */ _bind(FW, 'host_get_clock_control')
 export const host_get_clock_service = /* @__PURE__ */ _bind(FW, 'host_get_clock_service')
 export const host_get_exception_ports = /* @__PURE__ */ _bind(FW, 'host_get_exception_ports')
 export const host_get_io_main = /* @__PURE__ */ _bind(FW, 'host_get_io_main')
-export const host_get_multiuser_config_flags = /* @__PURE__ */ _bind(FW, 'host_get_multiuser_config_flags')
+export const host_get_multiuser_config_flags = /* @__PURE__ */ _bind(
+	FW,
+	'host_get_multiuser_config_flags',
+)
+
 export const host_get_special_port = /* @__PURE__ */ _bind(FW, 'host_get_special_port')
 export const host_info = /* @__PURE__ */ _bind(FW, 'host_info')
 export const host_kernel_version = /* @__PURE__ */ _bind(FW, 'host_kernel_version')
@@ -3444,21 +5382,49 @@ export const host_processor_set_priv = /* @__PURE__ */ _bind(FW, 'host_processor
 export const host_processor_sets = /* @__PURE__ */ _bind(FW, 'host_processor_sets')
 export const host_processors = /* @__PURE__ */ _bind(FW, 'host_processors')
 export const host_reboot = /* @__PURE__ */ _bind(FW, 'host_reboot')
-export const host_register_mach_voucher_attr_manager = /* @__PURE__ */ _bind(FW, 'host_register_mach_voucher_attr_manager')
-export const host_register_well_known_mach_voucher_attr_manager = /* @__PURE__ */ _bind(FW, 'host_register_well_known_mach_voucher_attr_manager')
+export const host_register_mach_voucher_attr_manager = /* @__PURE__ */ _bind(
+	FW,
+	'host_register_mach_voucher_attr_manager',
+)
+
+export const host_register_well_known_mach_voucher_attr_manager = /* @__PURE__ */ _bind(
+	FW,
+	'host_register_well_known_mach_voucher_attr_manager',
+)
+
 export const host_request_notification = /* @__PURE__ */ _bind(FW, 'host_request_notification')
 export const host_sched_info = /* @__PURE__ */ _bind(FW, 'host_sched_info')
-export const host_security_create_task_token = /* @__PURE__ */ _bind(FW, 'host_security_create_task_token')
-export const host_security_set_task_token = /* @__PURE__ */ _bind(FW, 'host_security_set_task_token')
+export const host_security_create_task_token = /* @__PURE__ */ _bind(
+	FW,
+	'host_security_create_task_token',
+)
+
+export const host_security_set_task_token = /* @__PURE__ */ _bind(
+	FW,
+	'host_security_set_task_token',
+)
+
 export const host_set_UNDServer = /* @__PURE__ */ _bind(FW, 'host_set_UNDServer')
-export const host_set_atm_diagnostic_flag = /* @__PURE__ */ _bind(FW, 'host_set_atm_diagnostic_flag')
+export const host_set_atm_diagnostic_flag = /* @__PURE__ */ _bind(
+	FW,
+	'host_set_atm_diagnostic_flag',
+)
+
 export const host_set_exception_ports = /* @__PURE__ */ _bind(FW, 'host_set_exception_ports')
-export const host_set_multiuser_config_flags = /* @__PURE__ */ _bind(FW, 'host_set_multiuser_config_flags')
+export const host_set_multiuser_config_flags = /* @__PURE__ */ _bind(
+	FW,
+	'host_set_multiuser_config_flags',
+)
+
 export const host_set_special_port = /* @__PURE__ */ _bind(FW, 'host_set_special_port')
 export const host_statistics = /* @__PURE__ */ _bind(FW, 'host_statistics')
 export const host_statistics64 = /* @__PURE__ */ _bind(FW, 'host_statistics64')
 export const host_swap_exception_ports = /* @__PURE__ */ _bind(FW, 'host_swap_exception_ports')
-export const host_virtual_physical_table_info = /* @__PURE__ */ _bind(FW, 'host_virtual_physical_table_info')
+export const host_virtual_physical_table_info = /* @__PURE__ */ _bind(
+	FW,
+	'host_virtual_physical_table_info',
+)
+
 export const hostent = /* @__PURE__ */ _bind(FW, 'hostent')
 export const hstrerror = /* @__PURE__ */ _bind(FW, 'hstrerror')
 export const httpAcceptConnection = /* @__PURE__ */ _bind(FW, 'httpAcceptConnection')
@@ -3491,8 +5457,16 @@ export const httpConnect = /* @__PURE__ */ _bind(FW, 'httpConnect')
 export const httpConnect2 = /* @__PURE__ */ _bind(FW, 'httpConnect2')
 export const httpConnectEncrypt = /* @__PURE__ */ _bind(FW, 'httpConnectEncrypt')
 export const httpCopyCredentials = /* @__PURE__ */ _bind(FW, 'httpCopyCredentials')
-export const httpCredentialsAreValidForName = /* @__PURE__ */ _bind(FW, 'httpCredentialsAreValidForName')
-export const httpCredentialsGetExpiration = /* @__PURE__ */ _bind(FW, 'httpCredentialsGetExpiration')
+export const httpCredentialsAreValidForName = /* @__PURE__ */ _bind(
+	FW,
+	'httpCredentialsAreValidForName',
+)
+
+export const httpCredentialsGetExpiration = /* @__PURE__ */ _bind(
+	FW,
+	'httpCredentialsGetExpiration',
+)
+
 export const httpCredentialsGetTrust = /* @__PURE__ */ _bind(FW, 'httpCredentialsGetTrust')
 export const httpCredentialsString = /* @__PURE__ */ _bind(FW, 'httpCredentialsString')
 export const httpDecode64 = /* @__PURE__ */ _bind(FW, 'httpDecode64')
@@ -3590,7 +5564,11 @@ export const http_trust_e = /* @__PURE__ */ _bind(FW, 'http_trust_e')
 export const http_uri_coding_e = /* @__PURE__ */ _bind(FW, 'http_uri_coding_e')
 export const http_uri_status_e = /* @__PURE__ */ _bind(FW, 'http_uri_status_e')
 export const http_version_e = /* @__PURE__ */ _bind(FW, 'http_version_e')
-export const hv_data_abort_notification_t = /* @__PURE__ */ _bind(FW, 'hv_data_abort_notification_t')
+export const hv_data_abort_notification_t = /* @__PURE__ */ _bind(
+	FW,
+	'hv_data_abort_notification_t',
+)
+
 export const hv_vm_mem_access_msg_t = /* @__PURE__ */ _bind(FW, 'hv_vm_mem_access_msg_t')
 export const hypot = /* @__PURE__ */ _bind(FW, 'hypot')
 export const hypotf = /* @__PURE__ */ _bind(FW, 'hypotf')
@@ -3624,24 +5602,88 @@ export const ifma_msghdr2 = /* @__PURE__ */ _bind(FW, 'ifma_msghdr2')
 export const ifmedia_description = /* @__PURE__ */ _bind(FW, 'ifmedia_description')
 export const ifmediareq = /* @__PURE__ */ _bind(FW, 'ifmediareq')
 export const ifnet_interface_advisory = /* @__PURE__ */ _bind(FW, 'ifnet_interface_advisory')
-export const ifnet_interface_advisory_capacity = /* @__PURE__ */ _bind(FW, 'ifnet_interface_advisory_capacity')
-export const ifnet_interface_advisory_cell_context = /* @__PURE__ */ _bind(FW, 'ifnet_interface_advisory_cell_context')
-export const ifnet_interface_advisory_direction = /* @__PURE__ */ _bind(FW, 'ifnet_interface_advisory_direction')
-export const ifnet_interface_advisory_header = /* @__PURE__ */ _bind(FW, 'ifnet_interface_advisory_header')
-export const ifnet_interface_advisory_interface_type = /* @__PURE__ */ _bind(FW, 'ifnet_interface_advisory_interface_type')
-export const ifnet_interface_advisory_notification_type_cell = /* @__PURE__ */ _bind(FW, 'ifnet_interface_advisory_notification_type_cell')
-export const ifnet_interface_advisory_notification_type_t = /* @__PURE__ */ _bind(FW, 'ifnet_interface_advisory_notification_type_t')
-export const ifnet_interface_advisory_notification_type_wifi = /* @__PURE__ */ _bind(FW, 'ifnet_interface_advisory_notification_type_wifi')
-export const ifnet_interface_advisory_rate_trend = /* @__PURE__ */ _bind(FW, 'ifnet_interface_advisory_rate_trend')
-export const ifnet_interface_advisory_version = /* @__PURE__ */ _bind(FW, 'ifnet_interface_advisory_version')
-export const ifnet_interface_advisory_wifi_context = /* @__PURE__ */ _bind(FW, 'ifnet_interface_advisory_wifi_context')
-export const ifnet_interface_advisory_wifi_freq_band = /* @__PURE__ */ _bind(FW, 'ifnet_interface_advisory_wifi_freq_band')
+export const ifnet_interface_advisory_capacity = /* @__PURE__ */ _bind(
+	FW,
+	'ifnet_interface_advisory_capacity',
+)
+
+export const ifnet_interface_advisory_cell_context = /* @__PURE__ */ _bind(
+	FW,
+	'ifnet_interface_advisory_cell_context',
+)
+
+export const ifnet_interface_advisory_direction = /* @__PURE__ */ _bind(
+	FW,
+	'ifnet_interface_advisory_direction',
+)
+
+export const ifnet_interface_advisory_header = /* @__PURE__ */ _bind(
+	FW,
+	'ifnet_interface_advisory_header',
+)
+
+export const ifnet_interface_advisory_interface_type = /* @__PURE__ */ _bind(
+	FW,
+	'ifnet_interface_advisory_interface_type',
+)
+
+export const ifnet_interface_advisory_notification_type_cell = /* @__PURE__ */ _bind(
+	FW,
+	'ifnet_interface_advisory_notification_type_cell',
+)
+
+export const ifnet_interface_advisory_notification_type_t = /* @__PURE__ */ _bind(
+	FW,
+	'ifnet_interface_advisory_notification_type_t',
+)
+
+export const ifnet_interface_advisory_notification_type_wifi = /* @__PURE__ */ _bind(
+	FW,
+	'ifnet_interface_advisory_notification_type_wifi',
+)
+
+export const ifnet_interface_advisory_rate_trend = /* @__PURE__ */ _bind(
+	FW,
+	'ifnet_interface_advisory_rate_trend',
+)
+
+export const ifnet_interface_advisory_version = /* @__PURE__ */ _bind(
+	FW,
+	'ifnet_interface_advisory_version',
+)
+
+export const ifnet_interface_advisory_wifi_context = /* @__PURE__ */ _bind(
+	FW,
+	'ifnet_interface_advisory_wifi_context',
+)
+
+export const ifnet_interface_advisory_wifi_freq_band = /* @__PURE__ */ _bind(
+	FW,
+	'ifnet_interface_advisory_wifi_freq_band',
+)
+
 export const ifnet_ip_addr = /* @__PURE__ */ _bind(FW, 'ifnet_ip_addr')
-export const ifnet_traffic_descriptor_common = /* @__PURE__ */ _bind(FW, 'ifnet_traffic_descriptor_common')
-export const ifnet_traffic_descriptor_eth = /* @__PURE__ */ _bind(FW, 'ifnet_traffic_descriptor_eth')
-export const ifnet_traffic_descriptor_inet = /* @__PURE__ */ _bind(FW, 'ifnet_traffic_descriptor_inet')
+export const ifnet_traffic_descriptor_common = /* @__PURE__ */ _bind(
+	FW,
+	'ifnet_traffic_descriptor_common',
+)
+
+export const ifnet_traffic_descriptor_eth = /* @__PURE__ */ _bind(
+	FW,
+	'ifnet_traffic_descriptor_eth',
+)
+
+export const ifnet_traffic_descriptor_inet = /* @__PURE__ */ _bind(
+	FW,
+	'ifnet_traffic_descriptor_inet',
+)
+
 export const ifnet_traffic_rule_action = /* @__PURE__ */ _bind(FW, 'ifnet_traffic_rule_action')
-export const ifnet_traffic_rule_action_steer = /* @__PURE__ */ _bind(FW, 'ifnet_traffic_rule_action_steer')
+export const ifnet_traffic_rule_action_steer = /* @__PURE__ */ _bind(
+	FW,
+	'ifnet_traffic_rule_action_steer',
+)
+
 export const ifqueue = /* @__PURE__ */ _bind(FW, 'ifqueue')
 export const ifreq = /* @__PURE__ */ _bind(FW, 'ifreq')
 export const ifstat = /* @__PURE__ */ _bind(FW, 'ifstat')
@@ -3666,8 +5708,16 @@ export const in6_prflags = /* @__PURE__ */ _bind(FW, 'in6_prflags')
 export const in6_rrenumreq = /* @__PURE__ */ _bind(FW, 'in6_rrenumreq')
 export const in6addr_any = /* @__PURE__ */ _bind(FW, 'in6addr_any')
 export const in6addr_linklocal_allnodes = /* @__PURE__ */ _bind(FW, 'in6addr_linklocal_allnodes')
-export const in6addr_linklocal_allrouters = /* @__PURE__ */ _bind(FW, 'in6addr_linklocal_allrouters')
-export const in6addr_linklocal_allv2routers = /* @__PURE__ */ _bind(FW, 'in6addr_linklocal_allv2routers')
+export const in6addr_linklocal_allrouters = /* @__PURE__ */ _bind(
+	FW,
+	'in6addr_linklocal_allrouters',
+)
+
+export const in6addr_linklocal_allv2routers = /* @__PURE__ */ _bind(
+	FW,
+	'in6addr_linklocal_allv2routers',
+)
+
 export const in6addr_loopback = /* @__PURE__ */ _bind(FW, 'in6addr_loopback')
 export const in6addr_nodelocal_allnodes = /* @__PURE__ */ _bind(FW, 'in6addr_nodelocal_allnodes')
 export const in_addr = /* @__PURE__ */ _bind(FW, 'in_addr')
@@ -3883,22 +5933,42 @@ export const kBTMapNode = /* @__PURE__ */ _bind(FW, 'kBTMapNode')
 export const kBTVariableIndexKeysMask = /* @__PURE__ */ _bind(FW, 'kBTVariableIndexKeysMask')
 export const kDNSServiceClass_IN = /* @__PURE__ */ _bind(FW, 'kDNSServiceClass_IN')
 export const kDNSServiceErr_AWDLTimeout = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_AWDLTimeout')
-export const kDNSServiceErr_AlreadyRegistered = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_AlreadyRegistered')
+export const kDNSServiceErr_AlreadyRegistered = /* @__PURE__ */ _bind(
+	FW,
+	'kDNSServiceErr_AlreadyRegistered',
+)
+
 export const kDNSServiceErr_BadFlags = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_BadFlags')
-export const kDNSServiceErr_BadInterfaceIndex = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_BadInterfaceIndex')
+export const kDNSServiceErr_BadInterfaceIndex = /* @__PURE__ */ _bind(
+	FW,
+	'kDNSServiceErr_BadInterfaceIndex',
+)
+
 export const kDNSServiceErr_BadKey = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_BadKey')
 export const kDNSServiceErr_BadParam = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_BadParam')
 export const kDNSServiceErr_BadReference = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_BadReference')
 export const kDNSServiceErr_BadSig = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_BadSig')
 export const kDNSServiceErr_BadState = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_BadState')
 export const kDNSServiceErr_BadTime = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_BadTime')
-export const kDNSServiceErr_DefunctConnection = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_DefunctConnection')
+export const kDNSServiceErr_DefunctConnection = /* @__PURE__ */ _bind(
+	FW,
+	'kDNSServiceErr_DefunctConnection',
+)
+
 export const kDNSServiceErr_DoubleNAT = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_DoubleNAT')
 export const kDNSServiceErr_Firewall = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_Firewall')
 export const kDNSServiceErr_Incompatible = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_Incompatible')
 export const kDNSServiceErr_Invalid = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_Invalid')
-export const kDNSServiceErr_NATPortMappingDisabled = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_NATPortMappingDisabled')
-export const kDNSServiceErr_NATPortMappingUnsupported = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_NATPortMappingUnsupported')
+export const kDNSServiceErr_NATPortMappingDisabled = /* @__PURE__ */ _bind(
+	FW,
+	'kDNSServiceErr_NATPortMappingDisabled',
+)
+
+export const kDNSServiceErr_NATPortMappingUnsupported = /* @__PURE__ */ _bind(
+	FW,
+	'kDNSServiceErr_NATPortMappingUnsupported',
+)
+
 export const kDNSServiceErr_NATTraversal = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_NATTraversal')
 export const kDNSServiceErr_NameConflict = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_NameConflict')
 export const kDNSServiceErr_NoAuth = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_NoAuth')
@@ -3908,60 +5978,164 @@ export const kDNSServiceErr_NoRouter = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr
 export const kDNSServiceErr_NoSuchKey = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_NoSuchKey')
 export const kDNSServiceErr_NoSuchName = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_NoSuchName')
 export const kDNSServiceErr_NoSuchRecord = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_NoSuchRecord')
-export const kDNSServiceErr_NotInitialized = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_NotInitialized')
+export const kDNSServiceErr_NotInitialized = /* @__PURE__ */ _bind(
+	FW,
+	'kDNSServiceErr_NotInitialized',
+)
+
 export const kDNSServiceErr_NotPermitted = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_NotPermitted')
 export const kDNSServiceErr_PolicyDenied = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_PolicyDenied')
 export const kDNSServiceErr_PollingMode = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_PollingMode')
 export const kDNSServiceErr_Refused = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_Refused')
-export const kDNSServiceErr_ServiceNotRunning = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_ServiceNotRunning')
+export const kDNSServiceErr_ServiceNotRunning = /* @__PURE__ */ _bind(
+	FW,
+	'kDNSServiceErr_ServiceNotRunning',
+)
+
 export const kDNSServiceErr_StaleData = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_StaleData')
 export const kDNSServiceErr_Timeout = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_Timeout')
 export const kDNSServiceErr_Transient = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_Transient')
 export const kDNSServiceErr_Unknown = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_Unknown')
 export const kDNSServiceErr_Unsupported = /* @__PURE__ */ _bind(FW, 'kDNSServiceErr_Unsupported')
-export const kDNSServiceFlagAnsweredFromCache = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagAnsweredFromCache')
+export const kDNSServiceFlagAnsweredFromCache = /* @__PURE__ */ _bind(
+	FW,
+	'kDNSServiceFlagAnsweredFromCache',
+)
+
 export const kDNSServiceFlagsAdd = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsAdd')
-export const kDNSServiceFlagsAllowExpiredAnswers = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsAllowExpiredAnswers')
-export const kDNSServiceFlagsAllowRemoteQuery = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsAllowRemoteQuery')
+export const kDNSServiceFlagsAllowExpiredAnswers = /* @__PURE__ */ _bind(
+	FW,
+	'kDNSServiceFlagsAllowExpiredAnswers',
+)
+
+export const kDNSServiceFlagsAllowRemoteQuery = /* @__PURE__ */ _bind(
+	FW,
+	'kDNSServiceFlagsAllowRemoteQuery',
+)
+
 export const kDNSServiceFlagsAutoTrigger = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsAutoTrigger')
-export const kDNSServiceFlagsBackgroundTrafficClass = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsBackgroundTrafficClass')
+export const kDNSServiceFlagsBackgroundTrafficClass = /* @__PURE__ */ _bind(
+	FW,
+	'kDNSServiceFlagsBackgroundTrafficClass',
+)
+
 export const kDNSServiceFlagsBogus = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsBogus')
-export const kDNSServiceFlagsBrowseDomains = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsBrowseDomains')
+export const kDNSServiceFlagsBrowseDomains = /* @__PURE__ */ _bind(
+	FW,
+	'kDNSServiceFlagsBrowseDomains',
+)
+
 export const kDNSServiceFlagsDefault = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsDefault')
-export const kDNSServiceFlagsEnableDNSSEC = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsEnableDNSSEC')
-export const kDNSServiceFlagsExpiredAnswer = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsExpiredAnswer')
+export const kDNSServiceFlagsEnableDNSSEC = /* @__PURE__ */ _bind(
+	FW,
+	'kDNSServiceFlagsEnableDNSSEC',
+)
+
+export const kDNSServiceFlagsExpiredAnswer = /* @__PURE__ */ _bind(
+	FW,
+	'kDNSServiceFlagsExpiredAnswer',
+)
+
 export const kDNSServiceFlagsForce = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsForce')
-export const kDNSServiceFlagsForceMulticast = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsForceMulticast')
+export const kDNSServiceFlagsForceMulticast = /* @__PURE__ */ _bind(
+	FW,
+	'kDNSServiceFlagsForceMulticast',
+)
+
 export const kDNSServiceFlagsIncludeAWDL = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsIncludeAWDL')
 export const kDNSServiceFlagsIncludeP2P = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsIncludeP2P')
-export const kDNSServiceFlagsIndeterminate = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsIndeterminate')
+export const kDNSServiceFlagsIndeterminate = /* @__PURE__ */ _bind(
+	FW,
+	'kDNSServiceFlagsIndeterminate',
+)
+
 export const kDNSServiceFlagsInsecure = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsInsecure')
 export const kDNSServiceFlagsKnownUnique = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsKnownUnique')
-export const kDNSServiceFlagsLongLivedQuery = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsLongLivedQuery')
+export const kDNSServiceFlagsLongLivedQuery = /* @__PURE__ */ _bind(
+	FW,
+	'kDNSServiceFlagsLongLivedQuery',
+)
+
 export const kDNSServiceFlagsMoreComing = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsMoreComing')
-export const kDNSServiceFlagsNoAutoRename = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsNoAutoRename')
+export const kDNSServiceFlagsNoAutoRename = /* @__PURE__ */ _bind(
+	FW,
+	'kDNSServiceFlagsNoAutoRename',
+)
+
 export const kDNSServiceFlagsPrivateFive = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsPrivateFive')
 export const kDNSServiceFlagsPrivateFour = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsPrivateFour')
 export const kDNSServiceFlagsPrivateOne = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsPrivateOne')
-export const kDNSServiceFlagsPrivateThree = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsPrivateThree')
+export const kDNSServiceFlagsPrivateThree = /* @__PURE__ */ _bind(
+	FW,
+	'kDNSServiceFlagsPrivateThree',
+)
+
 export const kDNSServiceFlagsPrivateTwo = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsPrivateTwo')
-export const kDNSServiceFlagsQueueRequest = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsQueueRequest')
-export const kDNSServiceFlagsRegistrationDomains = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsRegistrationDomains')
-export const kDNSServiceFlagsReturnIntermediates = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsReturnIntermediates')
+export const kDNSServiceFlagsQueueRequest = /* @__PURE__ */ _bind(
+	FW,
+	'kDNSServiceFlagsQueueRequest',
+)
+
+export const kDNSServiceFlagsRegistrationDomains = /* @__PURE__ */ _bind(
+	FW,
+	'kDNSServiceFlagsRegistrationDomains',
+)
+
+export const kDNSServiceFlagsReturnIntermediates = /* @__PURE__ */ _bind(
+	FW,
+	'kDNSServiceFlagsReturnIntermediates',
+)
+
 export const kDNSServiceFlagsSecure = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsSecure')
-export const kDNSServiceFlagsShareConnection = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsShareConnection')
+export const kDNSServiceFlagsShareConnection = /* @__PURE__ */ _bind(
+	FW,
+	'kDNSServiceFlagsShareConnection',
+)
+
 export const kDNSServiceFlagsShared = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsShared')
-export const kDNSServiceFlagsSuppressUnusable = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsSuppressUnusable')
-export const kDNSServiceFlagsThresholdFinder = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsThresholdFinder')
-export const kDNSServiceFlagsThresholdOne = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsThresholdOne')
-export const kDNSServiceFlagsThresholdReached = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsThresholdReached')
+export const kDNSServiceFlagsSuppressUnusable = /* @__PURE__ */ _bind(
+	FW,
+	'kDNSServiceFlagsSuppressUnusable',
+)
+
+export const kDNSServiceFlagsThresholdFinder = /* @__PURE__ */ _bind(
+	FW,
+	'kDNSServiceFlagsThresholdFinder',
+)
+
+export const kDNSServiceFlagsThresholdOne = /* @__PURE__ */ _bind(
+	FW,
+	'kDNSServiceFlagsThresholdOne',
+)
+
+export const kDNSServiceFlagsThresholdReached = /* @__PURE__ */ _bind(
+	FW,
+	'kDNSServiceFlagsThresholdReached',
+)
+
 export const kDNSServiceFlagsTimeout = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsTimeout')
-export const kDNSServiceFlagsUnicastResponse = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsUnicastResponse')
+export const kDNSServiceFlagsUnicastResponse = /* @__PURE__ */ _bind(
+	FW,
+	'kDNSServiceFlagsUnicastResponse',
+)
+
 export const kDNSServiceFlagsUnique = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsUnique')
 export const kDNSServiceFlagsValidate = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsValidate')
-export const kDNSServiceFlagsValidateOptional = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsValidateOptional')
-export const kDNSServiceFlagsWakeOnResolve = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsWakeOnResolve')
-export const kDNSServiceFlagsWakeOnlyService = /* @__PURE__ */ _bind(FW, 'kDNSServiceFlagsWakeOnlyService')
+export const kDNSServiceFlagsValidateOptional = /* @__PURE__ */ _bind(
+	FW,
+	'kDNSServiceFlagsValidateOptional',
+)
+
+export const kDNSServiceFlagsWakeOnResolve = /* @__PURE__ */ _bind(
+	FW,
+	'kDNSServiceFlagsWakeOnResolve',
+)
+
+export const kDNSServiceFlagsWakeOnlyService = /* @__PURE__ */ _bind(
+	FW,
+	'kDNSServiceFlagsWakeOnlyService',
+)
+
 export const kDNSServiceProtocol_IPv4 = /* @__PURE__ */ _bind(FW, 'kDNSServiceProtocol_IPv4')
 export const kDNSServiceProtocol_IPv6 = /* @__PURE__ */ _bind(FW, 'kDNSServiceProtocol_IPv6')
 export const kDNSServiceProtocol_TCP = /* @__PURE__ */ _bind(FW, 'kDNSServiceProtocol_TCP')
@@ -4044,8 +6218,16 @@ export const kHFSAutoCandidateMask = /* @__PURE__ */ _bind(FW, 'kHFSAutoCandidat
 export const kHFSBadBlockFileID = /* @__PURE__ */ _bind(FW, 'kHFSBadBlockFileID')
 export const kHFSBinaryCompare = /* @__PURE__ */ _bind(FW, 'kHFSBinaryCompare')
 export const kHFSBogusExtentFileID = /* @__PURE__ */ _bind(FW, 'kHFSBogusExtentFileID')
-export const kHFSBootVolumeInconsistentBit = /* @__PURE__ */ _bind(FW, 'kHFSBootVolumeInconsistentBit')
-export const kHFSBootVolumeInconsistentMask = /* @__PURE__ */ _bind(FW, 'kHFSBootVolumeInconsistentMask')
+export const kHFSBootVolumeInconsistentBit = /* @__PURE__ */ _bind(
+	FW,
+	'kHFSBootVolumeInconsistentBit',
+)
+
+export const kHFSBootVolumeInconsistentMask = /* @__PURE__ */ _bind(
+	FW,
+	'kHFSBootVolumeInconsistentMask',
+)
+
 export const kHFSCaseFolding = /* @__PURE__ */ _bind(FW, 'kHFSCaseFolding')
 export const kHFSCatExpandedTimesBit = /* @__PURE__ */ _bind(FW, 'kHFSCatExpandedTimesBit')
 export const kHFSCatExpandedTimesMask = /* @__PURE__ */ _bind(FW, 'kHFSCatExpandedTimesMask')
@@ -4053,7 +6235,11 @@ export const kHFSCatalogFileID = /* @__PURE__ */ _bind(FW, 'kHFSCatalogFileID')
 export const kHFSCatalogKeyMaximumLength = /* @__PURE__ */ _bind(FW, 'kHFSCatalogKeyMaximumLength')
 export const kHFSCatalogKeyMinimumLength = /* @__PURE__ */ _bind(FW, 'kHFSCatalogKeyMinimumLength')
 export const kHFSCatalogNodeIDsReusedBit = /* @__PURE__ */ _bind(FW, 'kHFSCatalogNodeIDsReusedBit')
-export const kHFSCatalogNodeIDsReusedMask = /* @__PURE__ */ _bind(FW, 'kHFSCatalogNodeIDsReusedMask')
+export const kHFSCatalogNodeIDsReusedMask = /* @__PURE__ */ _bind(
+	FW,
+	'kHFSCatalogNodeIDsReusedMask',
+)
+
 export const kHFSContentProtectionBit = /* @__PURE__ */ _bind(FW, 'kHFSContentProtectionBit')
 export const kHFSContentProtectionMask = /* @__PURE__ */ _bind(FW, 'kHFSContentProtectionMask')
 export const kHFSDoNotFastDevPinBit = /* @__PURE__ */ _bind(FW, 'kHFSDoNotFastDevPinBit')
@@ -4095,12 +6281,24 @@ export const kHFSPlusAttrExtents = /* @__PURE__ */ _bind(FW, 'kHFSPlusAttrExtent
 export const kHFSPlusAttrForkData = /* @__PURE__ */ _bind(FW, 'kHFSPlusAttrForkData')
 export const kHFSPlusAttrInlineData = /* @__PURE__ */ _bind(FW, 'kHFSPlusAttrInlineData')
 export const kHFSPlusAttrMinNodeSize = /* @__PURE__ */ _bind(FW, 'kHFSPlusAttrMinNodeSize')
-export const kHFSPlusCatalogKeyMaximumLength = /* @__PURE__ */ _bind(FW, 'kHFSPlusCatalogKeyMaximumLength')
-export const kHFSPlusCatalogKeyMinimumLength = /* @__PURE__ */ _bind(FW, 'kHFSPlusCatalogKeyMinimumLength')
+export const kHFSPlusCatalogKeyMaximumLength = /* @__PURE__ */ _bind(
+	FW,
+	'kHFSPlusCatalogKeyMaximumLength',
+)
+
+export const kHFSPlusCatalogKeyMinimumLength = /* @__PURE__ */ _bind(
+	FW,
+	'kHFSPlusCatalogKeyMinimumLength',
+)
+
 export const kHFSPlusCatalogMinNodeSize = /* @__PURE__ */ _bind(FW, 'kHFSPlusCatalogMinNodeSize')
 export const kHFSPlusCreator = /* @__PURE__ */ _bind(FW, 'kHFSPlusCreator')
 export const kHFSPlusExtentDensity = /* @__PURE__ */ _bind(FW, 'kHFSPlusExtentDensity')
-export const kHFSPlusExtentKeyMaximumLength = /* @__PURE__ */ _bind(FW, 'kHFSPlusExtentKeyMaximumLength')
+export const kHFSPlusExtentKeyMaximumLength = /* @__PURE__ */ _bind(
+	FW,
+	'kHFSPlusExtentKeyMaximumLength',
+)
+
 export const kHFSPlusExtentMinNodeSize = /* @__PURE__ */ _bind(FW, 'kHFSPlusExtentMinNodeSize')
 export const kHFSPlusFileRecord = /* @__PURE__ */ _bind(FW, 'kHFSPlusFileRecord')
 export const kHFSPlusFileThreadRecord = /* @__PURE__ */ _bind(FW, 'kHFSPlusFileThreadRecord')
@@ -4120,15 +6318,27 @@ export const kHFSThreadExistsMask = /* @__PURE__ */ _bind(FW, 'kHFSThreadExistsM
 export const kHFSUnusedNodeFixBit = /* @__PURE__ */ _bind(FW, 'kHFSUnusedNodeFixBit')
 export const kHFSUnusedNodeFixMask = /* @__PURE__ */ _bind(FW, 'kHFSUnusedNodeFixMask')
 export const kHFSUnusedNodesFixDate = /* @__PURE__ */ _bind(FW, 'kHFSUnusedNodesFixDate')
-export const kHFSUnusedNodesFixExpandedDate = /* @__PURE__ */ _bind(FW, 'kHFSUnusedNodesFixExpandedDate')
+export const kHFSUnusedNodesFixExpandedDate = /* @__PURE__ */ _bind(
+	FW,
+	'kHFSUnusedNodesFixExpandedDate',
+)
+
 export const kHFSVolumeHardwareLockBit = /* @__PURE__ */ _bind(FW, 'kHFSVolumeHardwareLockBit')
 export const kHFSVolumeHardwareLockMask = /* @__PURE__ */ _bind(FW, 'kHFSVolumeHardwareLockMask')
 export const kHFSVolumeInconsistentBit = /* @__PURE__ */ _bind(FW, 'kHFSVolumeInconsistentBit')
 export const kHFSVolumeInconsistentMask = /* @__PURE__ */ _bind(FW, 'kHFSVolumeInconsistentMask')
 export const kHFSVolumeJournaledBit = /* @__PURE__ */ _bind(FW, 'kHFSVolumeJournaledBit')
 export const kHFSVolumeJournaledMask = /* @__PURE__ */ _bind(FW, 'kHFSVolumeJournaledMask')
-export const kHFSVolumeNoCacheRequiredBit = /* @__PURE__ */ _bind(FW, 'kHFSVolumeNoCacheRequiredBit')
-export const kHFSVolumeNoCacheRequiredMask = /* @__PURE__ */ _bind(FW, 'kHFSVolumeNoCacheRequiredMask')
+export const kHFSVolumeNoCacheRequiredBit = /* @__PURE__ */ _bind(
+	FW,
+	'kHFSVolumeNoCacheRequiredBit',
+)
+
+export const kHFSVolumeNoCacheRequiredMask = /* @__PURE__ */ _bind(
+	FW,
+	'kHFSVolumeNoCacheRequiredMask',
+)
+
 export const kHFSVolumeSoftwareLockBit = /* @__PURE__ */ _bind(FW, 'kHFSVolumeSoftwareLockBit')
 export const kHFSVolumeSoftwareLockMask = /* @__PURE__ */ _bind(FW, 'kHFSVolumeSoftwareLockMask')
 export const kHFSVolumeSparedBlocksBit = /* @__PURE__ */ _bind(FW, 'kHFSVolumeSparedBlocksBit')
@@ -4258,7 +6468,11 @@ export const ldap_ava = /* @__PURE__ */ _bind(FW, 'ldap_ava')
 export const ldap_bind = /* @__PURE__ */ _bind(FW, 'ldap_bind')
 export const ldap_bind_s = /* @__PURE__ */ _bind(FW, 'ldap_bind_s')
 export const ldap_bv2dn = /* @__PURE__ */ _bind(FW, 'ldap_bv2dn')
-export const ldap_bv2escaped_filter_value = /* @__PURE__ */ _bind(FW, 'ldap_bv2escaped_filter_value')
+export const ldap_bv2escaped_filter_value = /* @__PURE__ */ _bind(
+	FW,
+	'ldap_bv2escaped_filter_value',
+)
+
 export const ldap_bv2rdn = /* @__PURE__ */ _bind(FW, 'ldap_bv2rdn')
 export const ldap_cancel = /* @__PURE__ */ _bind(FW, 'ldap_cancel')
 export const ldap_cancel_s = /* @__PURE__ */ _bind(FW, 'ldap_cancel_s')
@@ -4279,21 +6493,57 @@ export const ldap_count_references = /* @__PURE__ */ _bind(FW, 'ldap_count_refer
 export const ldap_count_values = /* @__PURE__ */ _bind(FW, 'ldap_count_values')
 export const ldap_count_values_len = /* @__PURE__ */ _bind(FW, 'ldap_count_values_len')
 export const ldap_create = /* @__PURE__ */ _bind(FW, 'ldap_create')
-export const ldap_create_assertion_control = /* @__PURE__ */ _bind(FW, 'ldap_create_assertion_control')
-export const ldap_create_assertion_control_value = /* @__PURE__ */ _bind(FW, 'ldap_create_assertion_control_value')
+export const ldap_create_assertion_control = /* @__PURE__ */ _bind(
+	FW,
+	'ldap_create_assertion_control',
+)
+
+export const ldap_create_assertion_control_value = /* @__PURE__ */ _bind(
+	FW,
+	'ldap_create_assertion_control_value',
+)
+
 export const ldap_create_control = /* @__PURE__ */ _bind(FW, 'ldap_create_control')
 export const ldap_create_deref_control = /* @__PURE__ */ _bind(FW, 'ldap_create_deref_control')
-export const ldap_create_deref_control_value = /* @__PURE__ */ _bind(FW, 'ldap_create_deref_control_value')
+export const ldap_create_deref_control_value = /* @__PURE__ */ _bind(
+	FW,
+	'ldap_create_deref_control_value',
+)
+
 export const ldap_create_page_control = /* @__PURE__ */ _bind(FW, 'ldap_create_page_control')
-export const ldap_create_page_control_value = /* @__PURE__ */ _bind(FW, 'ldap_create_page_control_value')
-export const ldap_create_passwordpolicy_control = /* @__PURE__ */ _bind(FW, 'ldap_create_passwordpolicy_control')
-export const ldap_create_session_tracking = /* @__PURE__ */ _bind(FW, 'ldap_create_session_tracking')
-export const ldap_create_session_tracking_value = /* @__PURE__ */ _bind(FW, 'ldap_create_session_tracking_value')
+export const ldap_create_page_control_value = /* @__PURE__ */ _bind(
+	FW,
+	'ldap_create_page_control_value',
+)
+
+export const ldap_create_passwordpolicy_control = /* @__PURE__ */ _bind(
+	FW,
+	'ldap_create_passwordpolicy_control',
+)
+
+export const ldap_create_session_tracking = /* @__PURE__ */ _bind(
+	FW,
+	'ldap_create_session_tracking',
+)
+
+export const ldap_create_session_tracking_value = /* @__PURE__ */ _bind(
+	FW,
+	'ldap_create_session_tracking_value',
+)
+
 export const ldap_create_sort_control = /* @__PURE__ */ _bind(FW, 'ldap_create_sort_control')
-export const ldap_create_sort_control_value = /* @__PURE__ */ _bind(FW, 'ldap_create_sort_control_value')
+export const ldap_create_sort_control_value = /* @__PURE__ */ _bind(
+	FW,
+	'ldap_create_sort_control_value',
+)
+
 export const ldap_create_sort_keylist = /* @__PURE__ */ _bind(FW, 'ldap_create_sort_keylist')
 export const ldap_create_vlv_control = /* @__PURE__ */ _bind(FW, 'ldap_create_vlv_control')
-export const ldap_create_vlv_control_value = /* @__PURE__ */ _bind(FW, 'ldap_create_vlv_control_value')
+export const ldap_create_vlv_control_value = /* @__PURE__ */ _bind(
+	FW,
+	'ldap_create_vlv_control_value',
+)
+
 export const ldap_dcedn2dn = /* @__PURE__ */ _bind(FW, 'ldap_dcedn2dn')
 export const ldap_delete = /* @__PURE__ */ _bind(FW, 'ldap_delete')
 export const ldap_delete_ext = /* @__PURE__ */ _bind(FW, 'ldap_delete_ext')
@@ -4364,22 +6614,46 @@ export const ldap_next_message = /* @__PURE__ */ _bind(FW, 'ldap_next_message')
 export const ldap_next_reference = /* @__PURE__ */ _bind(FW, 'ldap_next_reference')
 export const ldap_open = /* @__PURE__ */ _bind(FW, 'ldap_open')
 export const ldap_parse_deref_control = /* @__PURE__ */ _bind(FW, 'ldap_parse_deref_control')
-export const ldap_parse_derefresponse_control = /* @__PURE__ */ _bind(FW, 'ldap_parse_derefresponse_control')
+export const ldap_parse_derefresponse_control = /* @__PURE__ */ _bind(
+	FW,
+	'ldap_parse_derefresponse_control',
+)
+
 export const ldap_parse_extended_result = /* @__PURE__ */ _bind(FW, 'ldap_parse_extended_result')
 export const ldap_parse_intermediate = /* @__PURE__ */ _bind(FW, 'ldap_parse_intermediate')
 export const ldap_parse_page_control = /* @__PURE__ */ _bind(FW, 'ldap_parse_page_control')
-export const ldap_parse_pageresponse_control = /* @__PURE__ */ _bind(FW, 'ldap_parse_pageresponse_control')
+export const ldap_parse_pageresponse_control = /* @__PURE__ */ _bind(
+	FW,
+	'ldap_parse_pageresponse_control',
+)
+
 export const ldap_parse_passwd = /* @__PURE__ */ _bind(FW, 'ldap_parse_passwd')
-export const ldap_parse_passwordpolicy_control = /* @__PURE__ */ _bind(FW, 'ldap_parse_passwordpolicy_control')
+export const ldap_parse_passwordpolicy_control = /* @__PURE__ */ _bind(
+	FW,
+	'ldap_parse_passwordpolicy_control',
+)
+
 export const ldap_parse_reference = /* @__PURE__ */ _bind(FW, 'ldap_parse_reference')
 export const ldap_parse_refresh = /* @__PURE__ */ _bind(FW, 'ldap_parse_refresh')
 export const ldap_parse_result = /* @__PURE__ */ _bind(FW, 'ldap_parse_result')
 export const ldap_parse_sasl_bind_result = /* @__PURE__ */ _bind(FW, 'ldap_parse_sasl_bind_result')
-export const ldap_parse_session_tracking_control = /* @__PURE__ */ _bind(FW, 'ldap_parse_session_tracking_control')
+export const ldap_parse_session_tracking_control = /* @__PURE__ */ _bind(
+	FW,
+	'ldap_parse_session_tracking_control',
+)
+
 export const ldap_parse_sort_control = /* @__PURE__ */ _bind(FW, 'ldap_parse_sort_control')
-export const ldap_parse_sortresponse_control = /* @__PURE__ */ _bind(FW, 'ldap_parse_sortresponse_control')
+export const ldap_parse_sortresponse_control = /* @__PURE__ */ _bind(
+	FW,
+	'ldap_parse_sortresponse_control',
+)
+
 export const ldap_parse_vlv_control = /* @__PURE__ */ _bind(FW, 'ldap_parse_vlv_control')
-export const ldap_parse_vlvresponse_control = /* @__PURE__ */ _bind(FW, 'ldap_parse_vlvresponse_control')
+export const ldap_parse_vlvresponse_control = /* @__PURE__ */ _bind(
+	FW,
+	'ldap_parse_vlvresponse_control',
+)
+
 export const ldap_parse_whoami = /* @__PURE__ */ _bind(FW, 'ldap_parse_whoami')
 export const ldap_passwd = /* @__PURE__ */ _bind(FW, 'ldap_passwd')
 export const ldap_passwd_s = /* @__PURE__ */ _bind(FW, 'ldap_passwd_s')
@@ -4400,7 +6674,11 @@ export const ldap_result2error = /* @__PURE__ */ _bind(FW, 'ldap_result2error')
 export const ldap_sasl_bind = /* @__PURE__ */ _bind(FW, 'ldap_sasl_bind')
 export const ldap_sasl_bind_s = /* @__PURE__ */ _bind(FW, 'ldap_sasl_bind_s')
 export const ldap_sasl_interactive_bind = /* @__PURE__ */ _bind(FW, 'ldap_sasl_interactive_bind')
-export const ldap_sasl_interactive_bind_s = /* @__PURE__ */ _bind(FW, 'ldap_sasl_interactive_bind_s')
+export const ldap_sasl_interactive_bind_s = /* @__PURE__ */ _bind(
+	FW,
+	'ldap_sasl_interactive_bind_s',
+)
+
 export const ldap_search = /* @__PURE__ */ _bind(FW, 'ldap_search')
 export const ldap_search_ext = /* @__PURE__ */ _bind(FW, 'ldap_search_ext')
 export const ldap_search_ext_s = /* @__PURE__ */ _bind(FW, 'ldap_search_ext_s')
@@ -4422,7 +6700,11 @@ export const ldap_str2rdn = /* @__PURE__ */ _bind(FW, 'ldap_str2rdn')
 export const ldap_strdup = /* @__PURE__ */ _bind(FW, 'ldap_strdup')
 export const ldap_sync_destroy = /* @__PURE__ */ _bind(FW, 'ldap_sync_destroy')
 export const ldap_sync_init = /* @__PURE__ */ _bind(FW, 'ldap_sync_init')
-export const ldap_sync_init_refresh_and_persist = /* @__PURE__ */ _bind(FW, 'ldap_sync_init_refresh_and_persist')
+export const ldap_sync_init_refresh_and_persist = /* @__PURE__ */ _bind(
+	FW,
+	'ldap_sync_init_refresh_and_persist',
+)
+
 export const ldap_sync_init_refresh_only = /* @__PURE__ */ _bind(FW, 'ldap_sync_init_refresh_only')
 export const ldap_sync_initialize = /* @__PURE__ */ _bind(FW, 'ldap_sync_initialize')
 export const ldap_sync_poll = /* @__PURE__ */ _bind(FW, 'ldap_sync_poll')
@@ -4509,14 +6791,22 @@ export const lstatx_np = /* @__PURE__ */ _bind(FW, 'lstatx_np')
 export const lutimes = /* @__PURE__ */ _bind(FW, 'lutimes')
 export const mach_absolute_time = /* @__PURE__ */ _bind(FW, 'mach_absolute_time')
 export const mach_approximate_time = /* @__PURE__ */ _bind(FW, 'mach_approximate_time')
-export const mach_continuous_approximate_time = /* @__PURE__ */ _bind(FW, 'mach_continuous_approximate_time')
+export const mach_continuous_approximate_time = /* @__PURE__ */ _bind(
+	FW,
+	'mach_continuous_approximate_time',
+)
+
 export const mach_continuous_time = /* @__PURE__ */ _bind(FW, 'mach_continuous_time')
 export const mach_core_details = /* @__PURE__ */ _bind(FW, 'mach_core_details')
 export const mach_core_details_v2 = /* @__PURE__ */ _bind(FW, 'mach_core_details_v2')
 export const mach_core_fileheader = /* @__PURE__ */ _bind(FW, 'mach_core_fileheader')
 export const mach_core_fileheader_base = /* @__PURE__ */ _bind(FW, 'mach_core_fileheader_base')
 export const mach_core_fileheader_v2 = /* @__PURE__ */ _bind(FW, 'mach_core_fileheader_v2')
-export const mach_dead_name_notification_t = /* @__PURE__ */ _bind(FW, 'mach_dead_name_notification_t')
+export const mach_dead_name_notification_t = /* @__PURE__ */ _bind(
+	FW,
+	'mach_dead_name_notification_t',
+)
+
 export const mach_error = /* @__PURE__ */ _bind(FW, 'mach_error')
 export const mach_error_string = /* @__PURE__ */ _bind(FW, 'mach_error_string')
 export const mach_error_type = /* @__PURE__ */ _bind(FW, 'mach_error_type')
@@ -4528,8 +6818,16 @@ export const mach_make_memory_entry = /* @__PURE__ */ _bind(FW, 'mach_make_memor
 export const mach_make_memory_entry_64 = /* @__PURE__ */ _bind(FW, 'mach_make_memory_entry_64')
 export const mach_memory_info = /* @__PURE__ */ _bind(FW, 'mach_memory_info')
 export const mach_memory_info_redacted = /* @__PURE__ */ _bind(FW, 'mach_memory_info_redacted')
-export const mach_memory_object_memory_entry = /* @__PURE__ */ _bind(FW, 'mach_memory_object_memory_entry')
-export const mach_memory_object_memory_entry_64 = /* @__PURE__ */ _bind(FW, 'mach_memory_object_memory_entry_64')
+export const mach_memory_object_memory_entry = /* @__PURE__ */ _bind(
+	FW,
+	'mach_memory_object_memory_entry',
+)
+
+export const mach_memory_object_memory_entry_64 = /* @__PURE__ */ _bind(
+	FW,
+	'mach_memory_object_memory_entry_64',
+)
+
 export const mach_msg = /* @__PURE__ */ _bind(FW, 'mach_msg')
 export const mach_msg_audit_trailer_t = /* @__PURE__ */ _bind(FW, 'mach_msg_audit_trailer_t')
 export const mach_msg_base_t = /* @__PURE__ */ _bind(FW, 'mach_msg_base_t')
@@ -4540,17 +6838,41 @@ export const mach_msg_destroy = /* @__PURE__ */ _bind(FW, 'mach_msg_destroy')
 export const mach_msg_empty_rcv_t = /* @__PURE__ */ _bind(FW, 'mach_msg_empty_rcv_t')
 export const mach_msg_empty_send_t = /* @__PURE__ */ _bind(FW, 'mach_msg_empty_send_t')
 export const mach_msg_empty_t = /* @__PURE__ */ _bind(FW, 'mach_msg_empty_t')
-export const mach_msg_guarded_port_descriptor32_t = /* @__PURE__ */ _bind(FW, 'mach_msg_guarded_port_descriptor32_t')
-export const mach_msg_guarded_port_descriptor64_t = /* @__PURE__ */ _bind(FW, 'mach_msg_guarded_port_descriptor64_t')
-export const mach_msg_guarded_port_descriptor_t = /* @__PURE__ */ _bind(FW, 'mach_msg_guarded_port_descriptor_t')
+export const mach_msg_guarded_port_descriptor32_t = /* @__PURE__ */ _bind(
+	FW,
+	'mach_msg_guarded_port_descriptor32_t',
+)
+
+export const mach_msg_guarded_port_descriptor64_t = /* @__PURE__ */ _bind(
+	FW,
+	'mach_msg_guarded_port_descriptor64_t',
+)
+
+export const mach_msg_guarded_port_descriptor_t = /* @__PURE__ */ _bind(
+	FW,
+	'mach_msg_guarded_port_descriptor_t',
+)
+
 export const mach_msg_header_t = /* @__PURE__ */ _bind(FW, 'mach_msg_header_t')
 export const mach_msg_mac_trailer_t = /* @__PURE__ */ _bind(FW, 'mach_msg_mac_trailer_t')
 export const mach_msg_ool_descriptor32_t = /* @__PURE__ */ _bind(FW, 'mach_msg_ool_descriptor32_t')
 export const mach_msg_ool_descriptor64_t = /* @__PURE__ */ _bind(FW, 'mach_msg_ool_descriptor64_t')
 export const mach_msg_ool_descriptor_t = /* @__PURE__ */ _bind(FW, 'mach_msg_ool_descriptor_t')
-export const mach_msg_ool_ports_descriptor32_t = /* @__PURE__ */ _bind(FW, 'mach_msg_ool_ports_descriptor32_t')
-export const mach_msg_ool_ports_descriptor64_t = /* @__PURE__ */ _bind(FW, 'mach_msg_ool_ports_descriptor64_t')
-export const mach_msg_ool_ports_descriptor_t = /* @__PURE__ */ _bind(FW, 'mach_msg_ool_ports_descriptor_t')
+export const mach_msg_ool_ports_descriptor32_t = /* @__PURE__ */ _bind(
+	FW,
+	'mach_msg_ool_ports_descriptor32_t',
+)
+
+export const mach_msg_ool_ports_descriptor64_t = /* @__PURE__ */ _bind(
+	FW,
+	'mach_msg_ool_ports_descriptor64_t',
+)
+
+export const mach_msg_ool_ports_descriptor_t = /* @__PURE__ */ _bind(
+	FW,
+	'mach_msg_ool_ports_descriptor_t',
+)
+
 export const mach_msg_overwrite = /* @__PURE__ */ _bind(FW, 'mach_msg_overwrite')
 export const mach_msg_port_descriptor_t = /* @__PURE__ */ _bind(FW, 'mach_msg_port_descriptor_t')
 export const mach_msg_receive = /* @__PURE__ */ _bind(FW, 'mach_msg_receive')
@@ -4562,7 +6884,11 @@ export const mach_msg_server_importance = /* @__PURE__ */ _bind(FW, 'mach_msg_se
 export const mach_msg_server_once = /* @__PURE__ */ _bind(FW, 'mach_msg_server_once')
 export const mach_msg_trailer_t = /* @__PURE__ */ _bind(FW, 'mach_msg_trailer_t')
 export const mach_msg_type_descriptor_t = /* @__PURE__ */ _bind(FW, 'mach_msg_type_descriptor_t')
-export const mach_no_senders_notification_t = /* @__PURE__ */ _bind(FW, 'mach_no_senders_notification_t')
+export const mach_no_senders_notification_t = /* @__PURE__ */ _bind(
+	FW,
+	'mach_no_senders_notification_t',
+)
+
 export const mach_port_allocate = /* @__PURE__ */ _bind(FW, 'mach_port_allocate')
 export const mach_port_allocate_full = /* @__PURE__ */ _bind(FW, 'mach_port_allocate_full')
 export const mach_port_allocate_name = /* @__PURE__ */ _bind(FW, 'mach_port_allocate_name')
@@ -4570,9 +6896,17 @@ export const mach_port_allocate_qos = /* @__PURE__ */ _bind(FW, 'mach_port_alloc
 export const mach_port_assert_attributes = /* @__PURE__ */ _bind(FW, 'mach_port_assert_attributes')
 export const mach_port_construct = /* @__PURE__ */ _bind(FW, 'mach_port_construct')
 export const mach_port_deallocate = /* @__PURE__ */ _bind(FW, 'mach_port_deallocate')
-export const mach_port_deleted_notification_t = /* @__PURE__ */ _bind(FW, 'mach_port_deleted_notification_t')
+export const mach_port_deleted_notification_t = /* @__PURE__ */ _bind(
+	FW,
+	'mach_port_deleted_notification_t',
+)
+
 export const mach_port_destroy = /* @__PURE__ */ _bind(FW, 'mach_port_destroy')
-export const mach_port_destroyed_notification_t = /* @__PURE__ */ _bind(FW, 'mach_port_destroyed_notification_t')
+export const mach_port_destroyed_notification_t = /* @__PURE__ */ _bind(
+	FW,
+	'mach_port_destroyed_notification_t',
+)
+
 export const mach_port_destruct = /* @__PURE__ */ _bind(FW, 'mach_port_destruct')
 export const mach_port_dnrequest_info = /* @__PURE__ */ _bind(FW, 'mach_port_dnrequest_info')
 export const mach_port_extract_member = /* @__PURE__ */ _bind(FW, 'mach_port_extract_member')
@@ -4580,20 +6914,36 @@ export const mach_port_extract_right = /* @__PURE__ */ _bind(FW, 'mach_port_extr
 export const mach_port_get_attributes = /* @__PURE__ */ _bind(FW, 'mach_port_get_attributes')
 export const mach_port_get_context = /* @__PURE__ */ _bind(FW, 'mach_port_get_context')
 export const mach_port_get_refs = /* @__PURE__ */ _bind(FW, 'mach_port_get_refs')
-export const mach_port_get_service_port_info = /* @__PURE__ */ _bind(FW, 'mach_port_get_service_port_info')
+export const mach_port_get_service_port_info = /* @__PURE__ */ _bind(
+	FW,
+	'mach_port_get_service_port_info',
+)
+
 export const mach_port_get_set_status = /* @__PURE__ */ _bind(FW, 'mach_port_get_set_status')
 export const mach_port_get_srights = /* @__PURE__ */ _bind(FW, 'mach_port_get_srights')
 export const mach_port_guard = /* @__PURE__ */ _bind(FW, 'mach_port_guard')
-export const mach_port_guard_exception_codes = /* @__PURE__ */ _bind(FW, 'mach_port_guard_exception_codes')
+export const mach_port_guard_exception_codes = /* @__PURE__ */ _bind(
+	FW,
+	'mach_port_guard_exception_codes',
+)
+
 export const mach_port_guard_info = /* @__PURE__ */ _bind(FW, 'mach_port_guard_info')
 export const mach_port_guard_with_flags = /* @__PURE__ */ _bind(FW, 'mach_port_guard_with_flags')
 export const mach_port_info_ext = /* @__PURE__ */ _bind(FW, 'mach_port_info_ext')
 export const mach_port_insert_member = /* @__PURE__ */ _bind(FW, 'mach_port_insert_member')
 export const mach_port_insert_right = /* @__PURE__ */ _bind(FW, 'mach_port_insert_right')
-export const mach_port_is_connection_for_service = /* @__PURE__ */ _bind(FW, 'mach_port_is_connection_for_service')
+export const mach_port_is_connection_for_service = /* @__PURE__ */ _bind(
+	FW,
+	'mach_port_is_connection_for_service',
+)
+
 export const mach_port_kernel_object = /* @__PURE__ */ _bind(FW, 'mach_port_kernel_object')
 export const mach_port_kobject = /* @__PURE__ */ _bind(FW, 'mach_port_kobject')
-export const mach_port_kobject_description = /* @__PURE__ */ _bind(FW, 'mach_port_kobject_description')
+export const mach_port_kobject_description = /* @__PURE__ */ _bind(
+	FW,
+	'mach_port_kobject_description',
+)
+
 export const mach_port_limits = /* @__PURE__ */ _bind(FW, 'mach_port_limits')
 export const mach_port_mod_refs = /* @__PURE__ */ _bind(FW, 'mach_port_mod_refs')
 export const mach_port_move_member = /* @__PURE__ */ _bind(FW, 'mach_port_move_member')
@@ -4602,7 +6952,11 @@ export const mach_port_options = /* @__PURE__ */ _bind(FW, 'mach_port_options')
 export const mach_port_peek = /* @__PURE__ */ _bind(FW, 'mach_port_peek')
 export const mach_port_qos = /* @__PURE__ */ _bind(FW, 'mach_port_qos')
 export const mach_port_rename = /* @__PURE__ */ _bind(FW, 'mach_port_rename')
-export const mach_port_request_notification = /* @__PURE__ */ _bind(FW, 'mach_port_request_notification')
+export const mach_port_request_notification = /* @__PURE__ */ _bind(
+	FW,
+	'mach_port_request_notification',
+)
+
 export const mach_port_set_attributes = /* @__PURE__ */ _bind(FW, 'mach_port_set_attributes')
 export const mach_port_set_context = /* @__PURE__ */ _bind(FW, 'mach_port_set_context')
 export const mach_port_set_mscount = /* @__PURE__ */ _bind(FW, 'mach_port_set_mscount')
@@ -4615,8 +6969,16 @@ export const mach_port_type = /* @__PURE__ */ _bind(FW, 'mach_port_type')
 export const mach_port_unguard = /* @__PURE__ */ _bind(FW, 'mach_port_unguard')
 export const mach_ports_lookup = /* @__PURE__ */ _bind(FW, 'mach_ports_lookup')
 export const mach_ports_register = /* @__PURE__ */ _bind(FW, 'mach_ports_register')
-export const mach_send_once_notification_t = /* @__PURE__ */ _bind(FW, 'mach_send_once_notification_t')
-export const mach_send_possible_notification_t = /* @__PURE__ */ _bind(FW, 'mach_send_possible_notification_t')
+export const mach_send_once_notification_t = /* @__PURE__ */ _bind(
+	FW,
+	'mach_send_once_notification_t',
+)
+
+export const mach_send_possible_notification_t = /* @__PURE__ */ _bind(
+	FW,
+	'mach_send_possible_notification_t',
+)
+
 export const mach_service_port_info = /* @__PURE__ */ _bind(FW, 'mach_service_port_info')
 export const mach_task_basic_info = /* @__PURE__ */ _bind(FW, 'mach_task_basic_info')
 export const mach_task_self_ = /* @__PURE__ */ _bind(FW, 'mach_task_self_')
@@ -4630,13 +6992,25 @@ export const mach_vm_range_flavor_t = /* @__PURE__ */ _bind(FW, 'mach_vm_range_f
 export const mach_vm_range_recipe_v1_t = /* @__PURE__ */ _bind(FW, 'mach_vm_range_recipe_v1_t')
 export const mach_vm_range_tag_t = /* @__PURE__ */ _bind(FW, 'mach_vm_range_tag_t')
 export const mach_vm_read_entry = /* @__PURE__ */ _bind(FW, 'mach_vm_read_entry')
-export const mach_vm_reclaim_update_kernel_accounting_trap = /* @__PURE__ */ _bind(FW, 'mach_vm_reclaim_update_kernel_accounting_trap')
+export const mach_vm_reclaim_update_kernel_accounting_trap = /* @__PURE__ */ _bind(
+	FW,
+	'mach_vm_reclaim_update_kernel_accounting_trap',
+)
+
 export const mach_vm_region_info = /* @__PURE__ */ _bind(FW, 'mach_vm_region_info')
 export const mach_vm_region_info_64 = /* @__PURE__ */ _bind(FW, 'mach_vm_region_info_64')
 export const mach_vm_wire = /* @__PURE__ */ _bind(FW, 'mach_vm_wire')
-export const mach_voucher_attr_recipe_data = /* @__PURE__ */ _bind(FW, 'mach_voucher_attr_recipe_data')
+export const mach_voucher_attr_recipe_data = /* @__PURE__ */ _bind(
+	FW,
+	'mach_voucher_attr_recipe_data',
+)
+
 export const mach_voucher_deallocate = /* @__PURE__ */ _bind(FW, 'mach_voucher_deallocate')
-export const mach_voucher_extract_attr_recipe_trap = /* @__PURE__ */ _bind(FW, 'mach_voucher_extract_attr_recipe_trap')
+export const mach_voucher_extract_attr_recipe_trap = /* @__PURE__ */ _bind(
+	FW,
+	'mach_voucher_extract_attr_recipe_trap',
+)
+
 export const mach_wait_until = /* @__PURE__ */ _bind(FW, 'mach_wait_until')
 export const mach_zone_info = /* @__PURE__ */ _bind(FW, 'mach_zone_info')
 export const mach_zone_info_data = /* @__PURE__ */ _bind(FW, 'mach_zone_info_data')
@@ -4649,7 +7023,11 @@ export const macx_swapon = /* @__PURE__ */ _bind(FW, 'macx_swapon')
 export const macx_triggers = /* @__PURE__ */ _bind(FW, 'macx_triggers')
 export const malloc = /* @__PURE__ */ _bind(FW, 'malloc')
 export const malloc_create_zone = /* @__PURE__ */ _bind(FW, 'malloc_create_zone')
-export const malloc_default_purgeable_zone = /* @__PURE__ */ _bind(FW, 'malloc_default_purgeable_zone')
+export const malloc_default_purgeable_zone = /* @__PURE__ */ _bind(
+	FW,
+	'malloc_default_purgeable_zone',
+)
+
 export const malloc_default_zone = /* @__PURE__ */ _bind(FW, 'malloc_default_zone')
 export const malloc_destroy_zone = /* @__PURE__ */ _bind(FW, 'malloc_destroy_zone')
 export const malloc_get_all_zones = /* @__PURE__ */ _bind(FW, 'malloc_get_all_zones')
@@ -4662,24 +7040,48 @@ export const malloc_printf = /* @__PURE__ */ _bind(FW, 'malloc_printf')
 export const malloc_set_zone_name = /* @__PURE__ */ _bind(FW, 'malloc_set_zone_name')
 export const malloc_size = /* @__PURE__ */ _bind(FW, 'malloc_size')
 export const malloc_statistics_t = /* @__PURE__ */ _bind(FW, 'malloc_statistics_t')
-export const malloc_type_callsite_flags_v0_t = /* @__PURE__ */ _bind(FW, 'malloc_type_callsite_flags_v0_t')
+export const malloc_type_callsite_flags_v0_t = /* @__PURE__ */ _bind(
+	FW,
+	'malloc_type_callsite_flags_v0_t',
+)
+
 export const malloc_type_descriptor_v0_t = /* @__PURE__ */ _bind(FW, 'malloc_type_descriptor_v0_t')
 export const malloc_type_kind_v0_t = /* @__PURE__ */ _bind(FW, 'malloc_type_kind_v0_t')
-export const malloc_type_layout_semantics_v0_t = /* @__PURE__ */ _bind(FW, 'malloc_type_layout_semantics_v0_t')
+export const malloc_type_layout_semantics_v0_t = /* @__PURE__ */ _bind(
+	FW,
+	'malloc_type_layout_semantics_v0_t',
+)
+
 export const malloc_type_summary_v0_t = /* @__PURE__ */ _bind(FW, 'malloc_type_summary_v0_t')
 export const malloc_zone_batch_free = /* @__PURE__ */ _bind(FW, 'malloc_zone_batch_free')
 export const malloc_zone_batch_malloc = /* @__PURE__ */ _bind(FW, 'malloc_zone_batch_malloc')
 export const malloc_zone_calloc = /* @__PURE__ */ _bind(FW, 'malloc_zone_calloc')
 export const malloc_zone_check = /* @__PURE__ */ _bind(FW, 'malloc_zone_check')
-export const malloc_zone_disable_discharge_checking = /* @__PURE__ */ _bind(FW, 'malloc_zone_disable_discharge_checking')
+export const malloc_zone_disable_discharge_checking = /* @__PURE__ */ _bind(
+	FW,
+	'malloc_zone_disable_discharge_checking',
+)
+
 export const malloc_zone_discharge = /* @__PURE__ */ _bind(FW, 'malloc_zone_discharge')
-export const malloc_zone_enable_discharge_checking = /* @__PURE__ */ _bind(FW, 'malloc_zone_enable_discharge_checking')
-export const malloc_zone_enumerate_discharged_pointers = /* @__PURE__ */ _bind(FW, 'malloc_zone_enumerate_discharged_pointers')
+export const malloc_zone_enable_discharge_checking = /* @__PURE__ */ _bind(
+	FW,
+	'malloc_zone_enable_discharge_checking',
+)
+
+export const malloc_zone_enumerate_discharged_pointers = /* @__PURE__ */ _bind(
+	FW,
+	'malloc_zone_enumerate_discharged_pointers',
+)
+
 export const malloc_zone_free = /* @__PURE__ */ _bind(FW, 'malloc_zone_free')
 export const malloc_zone_from_ptr = /* @__PURE__ */ _bind(FW, 'malloc_zone_from_ptr')
 export const malloc_zone_log = /* @__PURE__ */ _bind(FW, 'malloc_zone_log')
 export const malloc_zone_malloc = /* @__PURE__ */ _bind(FW, 'malloc_zone_malloc')
-export const malloc_zone_malloc_options_t = /* @__PURE__ */ _bind(FW, 'malloc_zone_malloc_options_t')
+export const malloc_zone_malloc_options_t = /* @__PURE__ */ _bind(
+	FW,
+	'malloc_zone_malloc_options_t',
+)
+
 export const malloc_zone_memalign = /* @__PURE__ */ _bind(FW, 'malloc_zone_memalign')
 export const malloc_zone_pressure_relief = /* @__PURE__ */ _bind(FW, 'malloc_zone_pressure_relief')
 export const malloc_zone_print = /* @__PURE__ */ _bind(FW, 'malloc_zone_print')
@@ -4720,7 +7122,11 @@ export const mergesort = /* @__PURE__ */ _bind(FW, 'mergesort')
 export const mergesort_b = /* @__PURE__ */ _bind(FW, 'mergesort_b')
 export const method_copyArgumentType = /* @__PURE__ */ _bind(FW, 'method_copyArgumentType')
 export const method_copyReturnType = /* @__PURE__ */ _bind(FW, 'method_copyReturnType')
-export const method_exchangeImplementations = /* @__PURE__ */ _bind(FW, 'method_exchangeImplementations')
+export const method_exchangeImplementations = /* @__PURE__ */ _bind(
+	FW,
+	'method_exchangeImplementations',
+)
+
 export const method_getArgumentType = /* @__PURE__ */ _bind(FW, 'method_getArgumentType')
 export const method_getDescription = /* @__PURE__ */ _bind(FW, 'method_getDescription')
 export const method_getImplementation = /* @__PURE__ */ _bind(FW, 'method_getImplementation')
@@ -4835,18 +7241,34 @@ export const objc_property = /* @__PURE__ */ _bind(FW, 'objc_property')
 export const objc_property_attribute_t = /* @__PURE__ */ _bind(FW, 'objc_property_attribute_t')
 export const objc_registerClassPair = /* @__PURE__ */ _bind(FW, 'objc_registerClassPair')
 export const objc_registerProtocol = /* @__PURE__ */ _bind(FW, 'objc_registerProtocol')
-export const objc_removeAssociatedObjects = /* @__PURE__ */ _bind(FW, 'objc_removeAssociatedObjects')
+export const objc_removeAssociatedObjects = /* @__PURE__ */ _bind(
+	FW,
+	'objc_removeAssociatedObjects',
+)
+
 export const objc_removeExceptionHandler = /* @__PURE__ */ _bind(FW, 'objc_removeExceptionHandler')
 export const objc_selector = /* @__PURE__ */ _bind(FW, 'objc_selector')
 export const objc_setAssociatedObject = /* @__PURE__ */ _bind(FW, 'objc_setAssociatedObject')
-export const objc_setEnumerationMutationHandler = /* @__PURE__ */ _bind(FW, 'objc_setEnumerationMutationHandler')
+export const objc_setEnumerationMutationHandler = /* @__PURE__ */ _bind(
+	FW,
+	'objc_setEnumerationMutationHandler',
+)
+
 export const objc_setExceptionMatcher = /* @__PURE__ */ _bind(FW, 'objc_setExceptionMatcher')
-export const objc_setExceptionPreprocessor = /* @__PURE__ */ _bind(FW, 'objc_setExceptionPreprocessor')
+export const objc_setExceptionPreprocessor = /* @__PURE__ */ _bind(
+	FW,
+	'objc_setExceptionPreprocessor',
+)
+
 export const objc_setForwardHandler = /* @__PURE__ */ _bind(FW, 'objc_setForwardHandler')
 export const objc_setHook_getClass = /* @__PURE__ */ _bind(FW, 'objc_setHook_getClass')
 export const objc_setHook_getImageName = /* @__PURE__ */ _bind(FW, 'objc_setHook_getImageName')
 export const objc_setHook_lazyClassNamer = /* @__PURE__ */ _bind(FW, 'objc_setHook_lazyClassNamer')
-export const objc_setUncaughtExceptionHandler = /* @__PURE__ */ _bind(FW, 'objc_setUncaughtExceptionHandler')
+export const objc_setUncaughtExceptionHandler = /* @__PURE__ */ _bind(
+	FW,
+	'objc_setUncaughtExceptionHandler',
+)
+
 export const objc_storeWeak = /* @__PURE__ */ _bind(FW, 'objc_storeWeak')
 export const objc_super = /* @__PURE__ */ _bind(FW, 'objc_super')
 export const objc_sync_enter = /* @__PURE__ */ _bind(FW, 'objc_sync_enter')
@@ -4863,9 +7285,17 @@ export const object_getIvar = /* @__PURE__ */ _bind(FW, 'object_getIvar')
 export const object_isClass = /* @__PURE__ */ _bind(FW, 'object_isClass')
 export const object_setClass = /* @__PURE__ */ _bind(FW, 'object_setClass')
 export const object_setInstanceVariable = /* @__PURE__ */ _bind(FW, 'object_setInstanceVariable')
-export const object_setInstanceVariableWithStrongDefault = /* @__PURE__ */ _bind(FW, 'object_setInstanceVariableWithStrongDefault')
+export const object_setInstanceVariableWithStrongDefault = /* @__PURE__ */ _bind(
+	FW,
+	'object_setInstanceVariableWithStrongDefault',
+)
+
 export const object_setIvar = /* @__PURE__ */ _bind(FW, 'object_setIvar')
-export const object_setIvarWithStrongDefault = /* @__PURE__ */ _bind(FW, 'object_setIvarWithStrongDefault')
+export const object_setIvarWithStrongDefault = /* @__PURE__ */ _bind(
+	FW,
+	'object_setIvarWithStrongDefault',
+)
+
 export const open_memstream = /* @__PURE__ */ _bind(FW, 'open_memstream')
 export const openat_authenticated_np = /* @__PURE__ */ _bind(FW, 'openat_authenticated_np')
 export const opendir = /* @__PURE__ */ _bind(FW, 'opendir')
@@ -4894,11 +7324,19 @@ export const os_release = /* @__PURE__ */ _bind(FW, 'os_release')
 export const os_retain = /* @__PURE__ */ _bind(FW, 'os_retain')
 export const os_signpost_enabled = /* @__PURE__ */ _bind(FW, 'os_signpost_enabled')
 export const os_signpost_id_generate = /* @__PURE__ */ _bind(FW, 'os_signpost_id_generate')
-export const os_signpost_id_make_with_pointer = /* @__PURE__ */ _bind(FW, 'os_signpost_id_make_with_pointer')
+export const os_signpost_id_make_with_pointer = /* @__PURE__ */ _bind(
+	FW,
+	'os_signpost_id_make_with_pointer',
+)
+
 export const os_signpost_type_t = /* @__PURE__ */ _bind(FW, 'os_signpost_type_t')
 export const os_trace_debug_enabled = /* @__PURE__ */ _bind(FW, 'os_trace_debug_enabled')
 export const os_trace_info_enabled = /* @__PURE__ */ _bind(FW, 'os_trace_info_enabled')
-export const os_unfair_lock_assert_not_owner = /* @__PURE__ */ _bind(FW, 'os_unfair_lock_assert_not_owner')
+export const os_unfair_lock_assert_not_owner = /* @__PURE__ */ _bind(
+	FW,
+	'os_unfair_lock_assert_not_owner',
+)
+
 export const os_unfair_lock_assert_owner = /* @__PURE__ */ _bind(FW, 'os_unfair_lock_assert_owner')
 export const os_unfair_lock_lock = /* @__PURE__ */ _bind(FW, 'os_unfair_lock_lock')
 export const os_unfair_lock_s = /* @__PURE__ */ _bind(FW, 'os_unfair_lock_s')
@@ -4907,20 +7345,64 @@ export const os_unfair_lock_unlock = /* @__PURE__ */ _bind(FW, 'os_unfair_lock_u
 export const os_workgroup_attr_opaque_s = /* @__PURE__ */ _bind(FW, 'os_workgroup_attr_opaque_s')
 export const os_workgroup_cancel = /* @__PURE__ */ _bind(FW, 'os_workgroup_cancel')
 export const os_workgroup_copy_port = /* @__PURE__ */ _bind(FW, 'os_workgroup_copy_port')
-export const os_workgroup_create_with_port = /* @__PURE__ */ _bind(FW, 'os_workgroup_create_with_port')
-export const os_workgroup_create_with_workgroup = /* @__PURE__ */ _bind(FW, 'os_workgroup_create_with_workgroup')
-export const os_workgroup_get_working_arena = /* @__PURE__ */ _bind(FW, 'os_workgroup_get_working_arena')
-export const os_workgroup_interval_data_opaque_s = /* @__PURE__ */ _bind(FW, 'os_workgroup_interval_data_opaque_s')
-export const os_workgroup_interval_finish = /* @__PURE__ */ _bind(FW, 'os_workgroup_interval_finish')
+export const os_workgroup_create_with_port = /* @__PURE__ */ _bind(
+	FW,
+	'os_workgroup_create_with_port',
+)
+
+export const os_workgroup_create_with_workgroup = /* @__PURE__ */ _bind(
+	FW,
+	'os_workgroup_create_with_workgroup',
+)
+
+export const os_workgroup_get_working_arena = /* @__PURE__ */ _bind(
+	FW,
+	'os_workgroup_get_working_arena',
+)
+
+export const os_workgroup_interval_data_opaque_s = /* @__PURE__ */ _bind(
+	FW,
+	'os_workgroup_interval_data_opaque_s',
+)
+
+export const os_workgroup_interval_finish = /* @__PURE__ */ _bind(
+	FW,
+	'os_workgroup_interval_finish',
+)
+
 export const os_workgroup_interval_start = /* @__PURE__ */ _bind(FW, 'os_workgroup_interval_start')
-export const os_workgroup_interval_update = /* @__PURE__ */ _bind(FW, 'os_workgroup_interval_update')
+export const os_workgroup_interval_update = /* @__PURE__ */ _bind(
+	FW,
+	'os_workgroup_interval_update',
+)
+
 export const os_workgroup_join = /* @__PURE__ */ _bind(FW, 'os_workgroup_join')
-export const os_workgroup_join_token_opaque_s = /* @__PURE__ */ _bind(FW, 'os_workgroup_join_token_opaque_s')
+export const os_workgroup_join_token_opaque_s = /* @__PURE__ */ _bind(
+	FW,
+	'os_workgroup_join_token_opaque_s',
+)
+
 export const os_workgroup_leave = /* @__PURE__ */ _bind(FW, 'os_workgroup_leave')
-export const os_workgroup_max_parallel_threads = /* @__PURE__ */ _bind(FW, 'os_workgroup_max_parallel_threads')
-export const os_workgroup_max_parallel_threads_attr_s = /* @__PURE__ */ _bind(FW, 'os_workgroup_max_parallel_threads_attr_s')
-export const os_workgroup_parallel_create = /* @__PURE__ */ _bind(FW, 'os_workgroup_parallel_create')
-export const os_workgroup_set_working_arena = /* @__PURE__ */ _bind(FW, 'os_workgroup_set_working_arena')
+export const os_workgroup_max_parallel_threads = /* @__PURE__ */ _bind(
+	FW,
+	'os_workgroup_max_parallel_threads',
+)
+
+export const os_workgroup_max_parallel_threads_attr_s = /* @__PURE__ */ _bind(
+	FW,
+	'os_workgroup_max_parallel_threads_attr_s',
+)
+
+export const os_workgroup_parallel_create = /* @__PURE__ */ _bind(
+	FW,
+	'os_workgroup_parallel_create',
+)
+
+export const os_workgroup_set_working_arena = /* @__PURE__ */ _bind(
+	FW,
+	'os_workgroup_set_working_arena',
+)
+
 export const os_workgroup_testcancel = /* @__PURE__ */ _bind(FW, 'os_workgroup_testcancel')
 export const ostat = /* @__PURE__ */ _bind(FW, 'ostat')
 export const outline = /* @__PURE__ */ _bind(FW, 'outline')
@@ -5026,7 +7508,11 @@ export const prf_ra = /* @__PURE__ */ _bind(FW, 'prf_ra')
 export const prf_rr = /* @__PURE__ */ _bind(FW, 'prf_rr')
 export const proc = /* @__PURE__ */ _bind(FW, 'proc')
 export const proc_ident = /* @__PURE__ */ _bind(FW, 'proc_ident')
-export const proc_rlimit_control_wakeupmon = /* @__PURE__ */ _bind(FW, 'proc_rlimit_control_wakeupmon')
+export const proc_rlimit_control_wakeupmon = /* @__PURE__ */ _bind(
+	FW,
+	'proc_rlimit_control_wakeupmon',
+)
+
 export const processor_assign = /* @__PURE__ */ _bind(FW, 'processor_assign')
 export const processor_basic_info = /* @__PURE__ */ _bind(FW, 'processor_basic_info')
 export const processor_control = /* @__PURE__ */ _bind(FW, 'processor_control')
@@ -5044,13 +7530,25 @@ export const processor_set_destroy = /* @__PURE__ */ _bind(FW, 'processor_set_de
 export const processor_set_info = /* @__PURE__ */ _bind(FW, 'processor_set_info')
 export const processor_set_load_info = /* @__PURE__ */ _bind(FW, 'processor_set_load_info')
 export const processor_set_max_priority = /* @__PURE__ */ _bind(FW, 'processor_set_max_priority')
-export const processor_set_policy_control = /* @__PURE__ */ _bind(FW, 'processor_set_policy_control')
-export const processor_set_policy_disable = /* @__PURE__ */ _bind(FW, 'processor_set_policy_disable')
+export const processor_set_policy_control = /* @__PURE__ */ _bind(
+	FW,
+	'processor_set_policy_control',
+)
+
+export const processor_set_policy_disable = /* @__PURE__ */ _bind(
+	FW,
+	'processor_set_policy_disable',
+)
+
 export const processor_set_policy_enable = /* @__PURE__ */ _bind(FW, 'processor_set_policy_enable')
 export const processor_set_stack_usage = /* @__PURE__ */ _bind(FW, 'processor_set_stack_usage')
 export const processor_set_statistics = /* @__PURE__ */ _bind(FW, 'processor_set_statistics')
 export const processor_set_tasks = /* @__PURE__ */ _bind(FW, 'processor_set_tasks')
-export const processor_set_tasks_with_flavor = /* @__PURE__ */ _bind(FW, 'processor_set_tasks_with_flavor')
+export const processor_set_tasks_with_flavor = /* @__PURE__ */ _bind(
+	FW,
+	'processor_set_tasks_with_flavor',
+)
+
 export const processor_set_threads = /* @__PURE__ */ _bind(FW, 'processor_set_threads')
 export const processor_start = /* @__PURE__ */ _bind(FW, 'processor_start')
 export const profil = /* @__PURE__ */ _bind(FW, 'profil')
@@ -5058,15 +7556,27 @@ export const property_copyAttributeList = /* @__PURE__ */ _bind(FW, 'property_co
 export const property_copyAttributeValue = /* @__PURE__ */ _bind(FW, 'property_copyAttributeValue')
 export const property_getAttributes = /* @__PURE__ */ _bind(FW, 'property_getAttributes')
 export const property_getName = /* @__PURE__ */ _bind(FW, 'property_getName')
-export const protocol_addMethodDescription = /* @__PURE__ */ _bind(FW, 'protocol_addMethodDescription')
+export const protocol_addMethodDescription = /* @__PURE__ */ _bind(
+	FW,
+	'protocol_addMethodDescription',
+)
+
 export const protocol_addProperty = /* @__PURE__ */ _bind(FW, 'protocol_addProperty')
 export const protocol_addProtocol = /* @__PURE__ */ _bind(FW, 'protocol_addProtocol')
 export const protocol_conformsToProtocol = /* @__PURE__ */ _bind(FW, 'protocol_conformsToProtocol')
-export const protocol_copyMethodDescriptionList = /* @__PURE__ */ _bind(FW, 'protocol_copyMethodDescriptionList')
+export const protocol_copyMethodDescriptionList = /* @__PURE__ */ _bind(
+	FW,
+	'protocol_copyMethodDescriptionList',
+)
+
 export const protocol_copyPropertyList = /* @__PURE__ */ _bind(FW, 'protocol_copyPropertyList')
 export const protocol_copyPropertyList2 = /* @__PURE__ */ _bind(FW, 'protocol_copyPropertyList2')
 export const protocol_copyProtocolList = /* @__PURE__ */ _bind(FW, 'protocol_copyProtocolList')
-export const protocol_getMethodDescription = /* @__PURE__ */ _bind(FW, 'protocol_getMethodDescription')
+export const protocol_getMethodDescription = /* @__PURE__ */ _bind(
+	FW,
+	'protocol_getMethodDescription',
+)
+
 export const protocol_getName = /* @__PURE__ */ _bind(FW, 'protocol_getName')
 export const protocol_getProperty = /* @__PURE__ */ _bind(FW, 'protocol_getProperty')
 export const protocol_isEqual = /* @__PURE__ */ _bind(FW, 'protocol_isEqual')
@@ -5251,7 +7761,11 @@ export const setwgroups_np = /* @__PURE__ */ _bind(FW, 'setwgroups_np')
 export const sf_hdtr = /* @__PURE__ */ _bind(FW, 'sf_hdtr')
 export const shadow = /* @__PURE__ */ _bind(FW, 'shadow')
 export const shared_file_mapping_np = /* @__PURE__ */ _bind(FW, 'shared_file_mapping_np')
-export const shared_file_mapping_slide_np = /* @__PURE__ */ _bind(FW, 'shared_file_mapping_slide_np')
+export const shared_file_mapping_slide_np = /* @__PURE__ */ _bind(
+	FW,
+	'shared_file_mapping_slide_np',
+)
+
 export const shared_file_np = /* @__PURE__ */ _bind(FW, 'shared_file_np')
 export const shared_region_map_np = /* @__PURE__ */ _bind(FW, 'shared_region_map_np')
 export const shared_region_slide_np = /* @__PURE__ */ _bind(FW, 'shared_region_slide_np')
@@ -5281,7 +7795,11 @@ export const sigvec = /* @__PURE__ */ _bind(FW, 'sigvec')
 export const sigwait = /* @__PURE__ */ _bind(FW, 'sigwait')
 export const simd_add = /* @__PURE__ */ _bind(FW, 'simd_add')
 export const simd_almost_equal_elements = /* @__PURE__ */ _bind(FW, 'simd_almost_equal_elements')
-export const simd_almost_equal_elements_relative = /* @__PURE__ */ _bind(FW, 'simd_almost_equal_elements_relative')
+export const simd_almost_equal_elements_relative = /* @__PURE__ */ _bind(
+	FW,
+	'simd_almost_equal_elements_relative',
+)
+
 export const simd_bezier = /* @__PURE__ */ _bind(FW, 'simd_bezier')
 export const simd_char = /* @__PURE__ */ _bind(FW, 'simd_char')
 export const simd_char_sat = /* @__PURE__ */ _bind(FW, 'simd_char_sat')
@@ -5422,8 +7940,16 @@ export const sqlite3_bind_double = /* @__PURE__ */ _bind(FW, 'sqlite3_bind_doubl
 export const sqlite3_bind_int = /* @__PURE__ */ _bind(FW, 'sqlite3_bind_int')
 export const sqlite3_bind_int64 = /* @__PURE__ */ _bind(FW, 'sqlite3_bind_int64')
 export const sqlite3_bind_null = /* @__PURE__ */ _bind(FW, 'sqlite3_bind_null')
-export const sqlite3_bind_parameter_count = /* @__PURE__ */ _bind(FW, 'sqlite3_bind_parameter_count')
-export const sqlite3_bind_parameter_index = /* @__PURE__ */ _bind(FW, 'sqlite3_bind_parameter_index')
+export const sqlite3_bind_parameter_count = /* @__PURE__ */ _bind(
+	FW,
+	'sqlite3_bind_parameter_count',
+)
+
+export const sqlite3_bind_parameter_index = /* @__PURE__ */ _bind(
+	FW,
+	'sqlite3_bind_parameter_index',
+)
+
 export const sqlite3_bind_parameter_name = /* @__PURE__ */ _bind(FW, 'sqlite3_bind_parameter_name')
 export const sqlite3_bind_pointer = /* @__PURE__ */ _bind(FW, 'sqlite3_bind_pointer')
 export const sqlite3_bind_text = /* @__PURE__ */ _bind(FW, 'sqlite3_bind_text')
@@ -5441,7 +7967,11 @@ export const sqlite3_blob_reopen = /* @__PURE__ */ _bind(FW, 'sqlite3_blob_reope
 export const sqlite3_blob_write = /* @__PURE__ */ _bind(FW, 'sqlite3_blob_write')
 export const sqlite3_busy_handler = /* @__PURE__ */ _bind(FW, 'sqlite3_busy_handler')
 export const sqlite3_busy_timeout = /* @__PURE__ */ _bind(FW, 'sqlite3_busy_timeout')
-export const sqlite3_cancel_auto_extension = /* @__PURE__ */ _bind(FW, 'sqlite3_cancel_auto_extension')
+export const sqlite3_cancel_auto_extension = /* @__PURE__ */ _bind(
+	FW,
+	'sqlite3_cancel_auto_extension',
+)
+
 export const sqlite3_changes = /* @__PURE__ */ _bind(FW, 'sqlite3_changes')
 export const sqlite3_clear_bindings = /* @__PURE__ */ _bind(FW, 'sqlite3_clear_bindings')
 export const sqlite3_close = /* @__PURE__ */ _bind(FW, 'sqlite3_close')
@@ -5452,8 +7982,16 @@ export const sqlite3_column_blob = /* @__PURE__ */ _bind(FW, 'sqlite3_column_blo
 export const sqlite3_column_bytes = /* @__PURE__ */ _bind(FW, 'sqlite3_column_bytes')
 export const sqlite3_column_bytes16 = /* @__PURE__ */ _bind(FW, 'sqlite3_column_bytes16')
 export const sqlite3_column_count = /* @__PURE__ */ _bind(FW, 'sqlite3_column_count')
-export const sqlite3_column_database_name = /* @__PURE__ */ _bind(FW, 'sqlite3_column_database_name')
-export const sqlite3_column_database_name16 = /* @__PURE__ */ _bind(FW, 'sqlite3_column_database_name16')
+export const sqlite3_column_database_name = /* @__PURE__ */ _bind(
+	FW,
+	'sqlite3_column_database_name',
+)
+
+export const sqlite3_column_database_name16 = /* @__PURE__ */ _bind(
+	FW,
+	'sqlite3_column_database_name16',
+)
+
 export const sqlite3_column_decltype = /* @__PURE__ */ _bind(FW, 'sqlite3_column_decltype')
 export const sqlite3_column_decltype16 = /* @__PURE__ */ _bind(FW, 'sqlite3_column_decltype16')
 export const sqlite3_column_double = /* @__PURE__ */ _bind(FW, 'sqlite3_column_double')
@@ -5462,7 +8000,11 @@ export const sqlite3_column_int64 = /* @__PURE__ */ _bind(FW, 'sqlite3_column_in
 export const sqlite3_column_name = /* @__PURE__ */ _bind(FW, 'sqlite3_column_name')
 export const sqlite3_column_name16 = /* @__PURE__ */ _bind(FW, 'sqlite3_column_name16')
 export const sqlite3_column_origin_name = /* @__PURE__ */ _bind(FW, 'sqlite3_column_origin_name')
-export const sqlite3_column_origin_name16 = /* @__PURE__ */ _bind(FW, 'sqlite3_column_origin_name16')
+export const sqlite3_column_origin_name16 = /* @__PURE__ */ _bind(
+	FW,
+	'sqlite3_column_origin_name16',
+)
+
 export const sqlite3_column_table_name = /* @__PURE__ */ _bind(FW, 'sqlite3_column_table_name')
 export const sqlite3_column_table_name16 = /* @__PURE__ */ _bind(FW, 'sqlite3_column_table_name16')
 export const sqlite3_column_text = /* @__PURE__ */ _bind(FW, 'sqlite3_column_text')
@@ -5486,10 +8028,18 @@ export const sqlite3_create_function16 = /* @__PURE__ */ _bind(FW, 'sqlite3_crea
 export const sqlite3_create_function_v2 = /* @__PURE__ */ _bind(FW, 'sqlite3_create_function_v2')
 export const sqlite3_create_module = /* @__PURE__ */ _bind(FW, 'sqlite3_create_module')
 export const sqlite3_create_module_v2 = /* @__PURE__ */ _bind(FW, 'sqlite3_create_module_v2')
-export const sqlite3_create_window_function = /* @__PURE__ */ _bind(FW, 'sqlite3_create_window_function')
+export const sqlite3_create_window_function = /* @__PURE__ */ _bind(
+	FW,
+	'sqlite3_create_window_function',
+)
+
 export const sqlite3_data_count = /* @__PURE__ */ _bind(FW, 'sqlite3_data_count')
 export const sqlite3_data_directory = /* @__PURE__ */ _bind(FW, 'sqlite3_data_directory')
-export const sqlite3_database_file_object = /* @__PURE__ */ _bind(FW, 'sqlite3_database_file_object')
+export const sqlite3_database_file_object = /* @__PURE__ */ _bind(
+	FW,
+	'sqlite3_database_file_object',
+)
+
 export const sqlite3_db_cacheflush = /* @__PURE__ */ _bind(FW, 'sqlite3_db_cacheflush')
 export const sqlite3_db_config = /* @__PURE__ */ _bind(FW, 'sqlite3_db_config')
 export const sqlite3_db_filename = /* @__PURE__ */ _bind(FW, 'sqlite3_db_filename')
@@ -5511,7 +8061,11 @@ export const sqlite3_exec = /* @__PURE__ */ _bind(FW, 'sqlite3_exec')
 export const sqlite3_expanded_sql = /* @__PURE__ */ _bind(FW, 'sqlite3_expanded_sql')
 export const sqlite3_expired = /* @__PURE__ */ _bind(FW, 'sqlite3_expired')
 export const sqlite3_extended_errcode = /* @__PURE__ */ _bind(FW, 'sqlite3_extended_errcode')
-export const sqlite3_extended_result_codes = /* @__PURE__ */ _bind(FW, 'sqlite3_extended_result_codes')
+export const sqlite3_extended_result_codes = /* @__PURE__ */ _bind(
+	FW,
+	'sqlite3_extended_result_codes',
+)
+
 export const sqlite3_file = /* @__PURE__ */ _bind(FW, 'sqlite3_file')
 export const sqlite3_file_control = /* @__PURE__ */ _bind(FW, 'sqlite3_file_control')
 export const sqlite3_filename_database = /* @__PURE__ */ _bind(FW, 'sqlite3_filename_database')
@@ -5526,7 +8080,11 @@ export const sqlite3_get_auxdata = /* @__PURE__ */ _bind(FW, 'sqlite3_get_auxdat
 export const sqlite3_get_table = /* @__PURE__ */ _bind(FW, 'sqlite3_get_table')
 export const sqlite3_global_recover = /* @__PURE__ */ _bind(FW, 'sqlite3_global_recover')
 export const sqlite3_index_constraint = /* @__PURE__ */ _bind(FW, 'sqlite3_index_constraint')
-export const sqlite3_index_constraint_usage = /* @__PURE__ */ _bind(FW, 'sqlite3_index_constraint_usage')
+export const sqlite3_index_constraint_usage = /* @__PURE__ */ _bind(
+	FW,
+	'sqlite3_index_constraint_usage',
+)
+
 export const sqlite3_index_info = /* @__PURE__ */ _bind(FW, 'sqlite3_index_info')
 export const sqlite3_index_orderby = /* @__PURE__ */ _bind(FW, 'sqlite3_index_orderby')
 export const sqlite3_initialize = /* @__PURE__ */ _bind(FW, 'sqlite3_initialize')
@@ -5580,7 +8138,11 @@ export const sqlite3_realloc = /* @__PURE__ */ _bind(FW, 'sqlite3_realloc')
 export const sqlite3_realloc64 = /* @__PURE__ */ _bind(FW, 'sqlite3_realloc64')
 export const sqlite3_release_memory = /* @__PURE__ */ _bind(FW, 'sqlite3_release_memory')
 export const sqlite3_reset = /* @__PURE__ */ _bind(FW, 'sqlite3_reset')
-export const sqlite3_reset_auto_extension = /* @__PURE__ */ _bind(FW, 'sqlite3_reset_auto_extension')
+export const sqlite3_reset_auto_extension = /* @__PURE__ */ _bind(
+	FW,
+	'sqlite3_reset_auto_extension',
+)
+
 export const sqlite3_result_blob = /* @__PURE__ */ _bind(FW, 'sqlite3_result_blob')
 export const sqlite3_result_blob64 = /* @__PURE__ */ _bind(FW, 'sqlite3_result_blob64')
 export const sqlite3_result_double = /* @__PURE__ */ _bind(FW, 'sqlite3_result_double')
@@ -5604,13 +8166,25 @@ export const sqlite3_result_zeroblob = /* @__PURE__ */ _bind(FW, 'sqlite3_result
 export const sqlite3_result_zeroblob64 = /* @__PURE__ */ _bind(FW, 'sqlite3_result_zeroblob64')
 export const sqlite3_rollback_hook = /* @__PURE__ */ _bind(FW, 'sqlite3_rollback_hook')
 export const sqlite3_rtree_geometry = /* @__PURE__ */ _bind(FW, 'sqlite3_rtree_geometry')
-export const sqlite3_rtree_geometry_callback = /* @__PURE__ */ _bind(FW, 'sqlite3_rtree_geometry_callback')
-export const sqlite3_rtree_query_callback = /* @__PURE__ */ _bind(FW, 'sqlite3_rtree_query_callback')
+export const sqlite3_rtree_geometry_callback = /* @__PURE__ */ _bind(
+	FW,
+	'sqlite3_rtree_geometry_callback',
+)
+
+export const sqlite3_rtree_query_callback = /* @__PURE__ */ _bind(
+	FW,
+	'sqlite3_rtree_query_callback',
+)
+
 export const sqlite3_rtree_query_info = /* @__PURE__ */ _bind(FW, 'sqlite3_rtree_query_info')
 export const sqlite3_serialize = /* @__PURE__ */ _bind(FW, 'sqlite3_serialize')
 export const sqlite3_set_authorizer = /* @__PURE__ */ _bind(FW, 'sqlite3_set_authorizer')
 export const sqlite3_set_auxdata = /* @__PURE__ */ _bind(FW, 'sqlite3_set_auxdata')
-export const sqlite3_set_last_insert_rowid = /* @__PURE__ */ _bind(FW, 'sqlite3_set_last_insert_rowid')
+export const sqlite3_set_last_insert_rowid = /* @__PURE__ */ _bind(
+	FW,
+	'sqlite3_set_last_insert_rowid',
+)
+
 export const sqlite3_setlk_timeout = /* @__PURE__ */ _bind(FW, 'sqlite3_setlk_timeout')
 export const sqlite3_shutdown = /* @__PURE__ */ _bind(FW, 'sqlite3_shutdown')
 export const sqlite3_sleep = /* @__PURE__ */ _bind(FW, 'sqlite3_sleep')
@@ -5633,7 +8207,11 @@ export const sqlite3_stmt_busy = /* @__PURE__ */ _bind(FW, 'sqlite3_stmt_busy')
 export const sqlite3_stmt_isexplain = /* @__PURE__ */ _bind(FW, 'sqlite3_stmt_isexplain')
 export const sqlite3_stmt_readonly = /* @__PURE__ */ _bind(FW, 'sqlite3_stmt_readonly')
 export const sqlite3_stmt_scanstatus = /* @__PURE__ */ _bind(FW, 'sqlite3_stmt_scanstatus')
-export const sqlite3_stmt_scanstatus_reset = /* @__PURE__ */ _bind(FW, 'sqlite3_stmt_scanstatus_reset')
+export const sqlite3_stmt_scanstatus_reset = /* @__PURE__ */ _bind(
+	FW,
+	'sqlite3_stmt_scanstatus_reset',
+)
+
 export const sqlite3_stmt_status = /* @__PURE__ */ _bind(FW, 'sqlite3_stmt_status')
 export const sqlite3_str = /* @__PURE__ */ _bind(FW, 'sqlite3_str')
 export const sqlite3_str_append = /* @__PURE__ */ _bind(FW, 'sqlite3_str_append')
@@ -5652,7 +8230,11 @@ export const sqlite3_stricmp = /* @__PURE__ */ _bind(FW, 'sqlite3_stricmp')
 export const sqlite3_strlike = /* @__PURE__ */ _bind(FW, 'sqlite3_strlike')
 export const sqlite3_strnicmp = /* @__PURE__ */ _bind(FW, 'sqlite3_strnicmp')
 export const sqlite3_system_errno = /* @__PURE__ */ _bind(FW, 'sqlite3_system_errno')
-export const sqlite3_table_column_metadata = /* @__PURE__ */ _bind(FW, 'sqlite3_table_column_metadata')
+export const sqlite3_table_column_metadata = /* @__PURE__ */ _bind(
+	FW,
+	'sqlite3_table_column_metadata',
+)
+
 export const sqlite3_temp_directory = /* @__PURE__ */ _bind(FW, 'sqlite3_temp_directory')
 export const sqlite3_test_control = /* @__PURE__ */ _bind(FW, 'sqlite3_test_control')
 export const sqlite3_thread_cleanup = /* @__PURE__ */ _bind(FW, 'sqlite3_thread_cleanup')
@@ -5724,20 +8306,48 @@ export const stackshot_duration = /* @__PURE__ */ _bind(FW, 'stackshot_duration'
 export const stackshot_duration_v2 = /* @__PURE__ */ _bind(FW, 'stackshot_duration_v2')
 export const stackshot_fault_stats = /* @__PURE__ */ _bind(FW, 'stackshot_fault_stats')
 export const stackshot_latency_buffer = /* @__PURE__ */ _bind(FW, 'stackshot_latency_buffer')
-export const stackshot_latency_collection = /* @__PURE__ */ _bind(FW, 'stackshot_latency_collection')
-export const stackshot_latency_collection_v2 = /* @__PURE__ */ _bind(FW, 'stackshot_latency_collection_v2')
+export const stackshot_latency_collection = /* @__PURE__ */ _bind(
+	FW,
+	'stackshot_latency_collection',
+)
+
+export const stackshot_latency_collection_v2 = /* @__PURE__ */ _bind(
+	FW,
+	'stackshot_latency_collection_v2',
+)
+
 export const stackshot_latency_cpu = /* @__PURE__ */ _bind(FW, 'stackshot_latency_cpu')
 export const stackshot_latency_task = /* @__PURE__ */ _bind(FW, 'stackshot_latency_task')
 export const stackshot_latency_thread = /* @__PURE__ */ _bind(FW, 'stackshot_latency_thread')
 export const stackshot_scheduler_state = /* @__PURE__ */ _bind(FW, 'stackshot_scheduler_state')
 export const stackshot_suspension_info = /* @__PURE__ */ _bind(FW, 'stackshot_suspension_info')
 export const stackshot_suspension_source = /* @__PURE__ */ _bind(FW, 'stackshot_suspension_source')
-export const stackshot_task_codesigning_info = /* @__PURE__ */ _bind(FW, 'stackshot_task_codesigning_info')
-export const stackshot_thread_turnstileinfo = /* @__PURE__ */ _bind(FW, 'stackshot_thread_turnstileinfo')
-export const stackshot_thread_turnstileinfo_v2 = /* @__PURE__ */ _bind(FW, 'stackshot_thread_turnstileinfo_v2')
+export const stackshot_task_codesigning_info = /* @__PURE__ */ _bind(
+	FW,
+	'stackshot_task_codesigning_info',
+)
+
+export const stackshot_thread_turnstileinfo = /* @__PURE__ */ _bind(
+	FW,
+	'stackshot_thread_turnstileinfo',
+)
+
+export const stackshot_thread_turnstileinfo_v2 = /* @__PURE__ */ _bind(
+	FW,
+	'stackshot_thread_turnstileinfo_v2',
+)
+
 export const stackshot_thread_waitinfo = /* @__PURE__ */ _bind(FW, 'stackshot_thread_waitinfo')
-export const stackshot_thread_waitinfo_v2 = /* @__PURE__ */ _bind(FW, 'stackshot_thread_waitinfo_v2')
-export const stackshot_vmrl_blocking_relationship = /* @__PURE__ */ _bind(FW, 'stackshot_vmrl_blocking_relationship')
+export const stackshot_thread_waitinfo_v2 = /* @__PURE__ */ _bind(
+	FW,
+	'stackshot_thread_waitinfo_v2',
+)
+
+export const stackshot_vmrl_blocking_relationship = /* @__PURE__ */ _bind(
+	FW,
+	'stackshot_vmrl_blocking_relationship',
+)
+
 export const statx_np = /* @__PURE__ */ _bind(FW, 'statx_np')
 export const stpcpy = /* @__PURE__ */ _bind(FW, 'stpcpy')
 export const stpncpy = /* @__PURE__ */ _bind(FW, 'stpncpy')
@@ -5822,9 +8432,21 @@ export const task_create = /* @__PURE__ */ _bind(FW, 'task_create')
 export const task_create_identity_token = /* @__PURE__ */ _bind(FW, 'task_create_identity_token')
 export const task_delta_snapshot_v2 = /* @__PURE__ */ _bind(FW, 'task_delta_snapshot_v2')
 export const task_dyld_info = /* @__PURE__ */ _bind(FW, 'task_dyld_info')
-export const task_dyld_process_info_notify_deregister = /* @__PURE__ */ _bind(FW, 'task_dyld_process_info_notify_deregister')
-export const task_dyld_process_info_notify_get = /* @__PURE__ */ _bind(FW, 'task_dyld_process_info_notify_get')
-export const task_dyld_process_info_notify_register = /* @__PURE__ */ _bind(FW, 'task_dyld_process_info_notify_register')
+export const task_dyld_process_info_notify_deregister = /* @__PURE__ */ _bind(
+	FW,
+	'task_dyld_process_info_notify_deregister',
+)
+
+export const task_dyld_process_info_notify_get = /* @__PURE__ */ _bind(
+	FW,
+	'task_dyld_process_info_notify_get',
+)
+
+export const task_dyld_process_info_notify_register = /* @__PURE__ */ _bind(
+	FW,
+	'task_dyld_process_info_notify_register',
+)
+
 export const task_events_info = /* @__PURE__ */ _bind(FW, 'task_events_info')
 export const task_exec_flags = /* @__PURE__ */ _bind(FW, 'task_exec_flags')
 export const task_exec_meta = /* @__PURE__ */ _bind(FW, 'task_exec_meta')
@@ -5838,11 +8460,19 @@ export const task_get_dyld_image_infos = /* @__PURE__ */ _bind(FW, 'task_get_dyl
 export const task_get_emulation_vector = /* @__PURE__ */ _bind(FW, 'task_get_emulation_vector')
 export const task_get_exc_guard_behavior = /* @__PURE__ */ _bind(FW, 'task_get_exc_guard_behavior')
 export const task_get_exception_ports = /* @__PURE__ */ _bind(FW, 'task_get_exception_ports')
-export const task_get_exception_ports_info = /* @__PURE__ */ _bind(FW, 'task_get_exception_ports_info')
+export const task_get_exception_ports_info = /* @__PURE__ */ _bind(
+	FW,
+	'task_get_exception_ports_info',
+)
+
 export const task_get_mach_voucher = /* @__PURE__ */ _bind(FW, 'task_get_mach_voucher')
 export const task_get_special_port = /* @__PURE__ */ _bind(FW, 'task_get_special_port')
 export const task_get_state = /* @__PURE__ */ _bind(FW, 'task_get_state')
-export const task_identity_token_get_task_port = /* @__PURE__ */ _bind(FW, 'task_identity_token_get_task_port')
+export const task_identity_token_get_task_port = /* @__PURE__ */ _bind(
+	FW,
+	'task_identity_token_get_task_port',
+)
+
 export const task_info = /* @__PURE__ */ _bind(FW, 'task_info')
 export const task_inspect = /* @__PURE__ */ _bind(FW, 'task_inspect')
 export const task_inspect_basic_counts = /* @__PURE__ */ _bind(FW, 'task_inspect_basic_counts')
@@ -5862,25 +8492,53 @@ export const task_power_info = /* @__PURE__ */ _bind(FW, 'task_power_info')
 export const task_power_info_v2 = /* @__PURE__ */ _bind(FW, 'task_power_info_v2')
 export const task_purgable_info = /* @__PURE__ */ _bind(FW, 'task_purgable_info')
 export const task_qos_policy = /* @__PURE__ */ _bind(FW, 'task_qos_policy')
-export const task_register_dyld_get_process_state = /* @__PURE__ */ _bind(FW, 'task_register_dyld_get_process_state')
-export const task_register_dyld_image_infos = /* @__PURE__ */ _bind(FW, 'task_register_dyld_image_infos')
-export const task_register_dyld_set_dyld_state = /* @__PURE__ */ _bind(FW, 'task_register_dyld_set_dyld_state')
-export const task_register_dyld_shared_cache_image_info = /* @__PURE__ */ _bind(FW, 'task_register_dyld_shared_cache_image_info')
-export const task_register_hardened_exception_handler = /* @__PURE__ */ _bind(FW, 'task_register_hardened_exception_handler')
+export const task_register_dyld_get_process_state = /* @__PURE__ */ _bind(
+	FW,
+	'task_register_dyld_get_process_state',
+)
+
+export const task_register_dyld_image_infos = /* @__PURE__ */ _bind(
+	FW,
+	'task_register_dyld_image_infos',
+)
+
+export const task_register_dyld_set_dyld_state = /* @__PURE__ */ _bind(
+	FW,
+	'task_register_dyld_set_dyld_state',
+)
+
+export const task_register_dyld_shared_cache_image_info = /* @__PURE__ */ _bind(
+	FW,
+	'task_register_dyld_shared_cache_image_info',
+)
+
+export const task_register_hardened_exception_handler = /* @__PURE__ */ _bind(
+	FW,
+	'task_register_hardened_exception_handler',
+)
+
 export const task_resume = /* @__PURE__ */ _bind(FW, 'task_resume')
 export const task_resume2 = /* @__PURE__ */ _bind(FW, 'task_resume2')
 export const task_role = /* @__PURE__ */ _bind(FW, 'task_role')
 export const task_sample = /* @__PURE__ */ _bind(FW, 'task_sample')
 export const task_security_config_info = /* @__PURE__ */ _bind(FW, 'task_security_config_info')
 export const task_self_trap = /* @__PURE__ */ _bind(FW, 'task_self_trap')
-export const task_set_corpse_forking_behavior = /* @__PURE__ */ _bind(FW, 'task_set_corpse_forking_behavior')
+export const task_set_corpse_forking_behavior = /* @__PURE__ */ _bind(
+	FW,
+	'task_set_corpse_forking_behavior',
+)
+
 export const task_set_emulation = /* @__PURE__ */ _bind(FW, 'task_set_emulation')
 export const task_set_emulation_vector = /* @__PURE__ */ _bind(FW, 'task_set_emulation_vector')
 export const task_set_exc_guard_behavior = /* @__PURE__ */ _bind(FW, 'task_set_exc_guard_behavior')
 export const task_set_exception_ports = /* @__PURE__ */ _bind(FW, 'task_set_exception_ports')
 export const task_set_info = /* @__PURE__ */ _bind(FW, 'task_set_info')
 export const task_set_mach_voucher = /* @__PURE__ */ _bind(FW, 'task_set_mach_voucher')
-export const task_set_phys_footprint_limit = /* @__PURE__ */ _bind(FW, 'task_set_phys_footprint_limit')
+export const task_set_phys_footprint_limit = /* @__PURE__ */ _bind(
+	FW,
+	'task_set_phys_footprint_limit',
+)
+
 export const task_set_policy = /* @__PURE__ */ _bind(FW, 'task_set_policy')
 export const task_set_port_space = /* @__PURE__ */ _bind(FW, 'task_set_port_space')
 export const task_set_ras_pc = /* @__PURE__ */ _bind(FW, 'task_set_ras_pc')
@@ -5898,14 +8556,22 @@ export const task_suspend2 = /* @__PURE__ */ _bind(FW, 'task_suspend2')
 export const task_swap_exception_ports = /* @__PURE__ */ _bind(FW, 'task_swap_exception_ports')
 export const task_swap_mach_voucher = /* @__PURE__ */ _bind(FW, 'task_swap_mach_voucher')
 export const task_terminate = /* @__PURE__ */ _bind(FW, 'task_terminate')
-export const task_test_async_upcall_propagation = /* @__PURE__ */ _bind(FW, 'task_test_async_upcall_propagation')
+export const task_test_async_upcall_propagation = /* @__PURE__ */ _bind(
+	FW,
+	'task_test_async_upcall_propagation',
+)
+
 export const task_test_sync_upcall = /* @__PURE__ */ _bind(FW, 'task_test_sync_upcall')
 export const task_thread_times_info = /* @__PURE__ */ _bind(FW, 'task_thread_times_info')
 export const task_threads = /* @__PURE__ */ _bind(FW, 'task_threads')
 export const task_throughput_qos = /* @__PURE__ */ _bind(FW, 'task_throughput_qos')
 export const task_trace_memory_info = /* @__PURE__ */ _bind(FW, 'task_trace_memory_info')
 export const task_transition_type = /* @__PURE__ */ _bind(FW, 'task_transition_type')
-export const task_unregister_dyld_image_infos = /* @__PURE__ */ _bind(FW, 'task_unregister_dyld_image_infos')
+export const task_unregister_dyld_image_infos = /* @__PURE__ */ _bind(
+	FW,
+	'task_unregister_dyld_image_infos',
+)
+
 export const task_vm_info = /* @__PURE__ */ _bind(FW, 'task_vm_info')
 export const task_vm_shared_cache_info = /* @__PURE__ */ _bind(FW, 'task_vm_shared_cache_info')
 export const task_wait_state_info = /* @__PURE__ */ _bind(FW, 'task_wait_state_info')
@@ -5933,7 +8599,11 @@ export const tgammaf = /* @__PURE__ */ _bind(FW, 'tgammaf')
 export const tgammal = /* @__PURE__ */ _bind(FW, 'tgammal')
 export const thread_abort = /* @__PURE__ */ _bind(FW, 'thread_abort')
 export const thread_abort_safely = /* @__PURE__ */ _bind(FW, 'thread_abort_safely')
-export const thread_adopt_exception_handler = /* @__PURE__ */ _bind(FW, 'thread_adopt_exception_handler')
+export const thread_adopt_exception_handler = /* @__PURE__ */ _bind(
+	FW,
+	'thread_adopt_exception_handler',
+)
+
 export const thread_affinity_policy = /* @__PURE__ */ _bind(FW, 'thread_affinity_policy')
 export const thread_assign = /* @__PURE__ */ _bind(FW, 'thread_assign')
 export const thread_assign_default = /* @__PURE__ */ _bind(FW, 'thread_assign_default')
@@ -5953,7 +8623,11 @@ export const thread_extended_info = /* @__PURE__ */ _bind(FW, 'thread_extended_i
 export const thread_extended_policy = /* @__PURE__ */ _bind(FW, 'thread_extended_policy')
 export const thread_get_assignment = /* @__PURE__ */ _bind(FW, 'thread_get_assignment')
 export const thread_get_exception_ports = /* @__PURE__ */ _bind(FW, 'thread_get_exception_ports')
-export const thread_get_exception_ports_info = /* @__PURE__ */ _bind(FW, 'thread_get_exception_ports_info')
+export const thread_get_exception_ports_info = /* @__PURE__ */ _bind(
+	FW,
+	'thread_get_exception_ports_info',
+)
+
 export const thread_get_mach_voucher = /* @__PURE__ */ _bind(FW, 'thread_get_mach_voucher')
 export const thread_get_special_port = /* @__PURE__ */ _bind(FW, 'thread_get_special_port')
 export const thread_get_state = /* @__PURE__ */ _bind(FW, 'thread_get_state')
@@ -5986,8 +8660,16 @@ export const thread_swap_exception_ports = /* @__PURE__ */ _bind(FW, 'thread_swa
 export const thread_swap_mach_voucher = /* @__PURE__ */ _bind(FW, 'thread_swap_mach_voucher')
 export const thread_switch = /* @__PURE__ */ _bind(FW, 'thread_switch')
 export const thread_terminate = /* @__PURE__ */ _bind(FW, 'thread_terminate')
-export const thread_throughput_qos_policy = /* @__PURE__ */ _bind(FW, 'thread_throughput_qos_policy')
-export const thread_time_constraint_policy = /* @__PURE__ */ _bind(FW, 'thread_time_constraint_policy')
+export const thread_throughput_qos_policy = /* @__PURE__ */ _bind(
+	FW,
+	'thread_throughput_qos_policy',
+)
+
+export const thread_time_constraint_policy = /* @__PURE__ */ _bind(
+	FW,
+	'thread_time_constraint_policy',
+)
+
 export const thread_wire = /* @__PURE__ */ _bind(FW, 'thread_wire')
 export const time = /* @__PURE__ */ _bind(FW, 'time')
 export const time2posix = /* @__PURE__ */ _bind(FW, 'time2posix')
@@ -6036,32 +8718,116 @@ export const uname = /* @__PURE__ */ _bind(FW, 'uname')
 export const underline = /* @__PURE__ */ _bind(FW, 'underline')
 export const ungetc = /* @__PURE__ */ _bind(FW, 'ungetc')
 export const unlockpt = /* @__PURE__ */ _bind(FW, 'unlockpt')
-export const unnamed_10109105998428124976 = /* @__PURE__ */ _bind(FW, 'unnamed_10109105998428124976')
-export const unnamed_10140430161551550115 = /* @__PURE__ */ _bind(FW, 'unnamed_10140430161551550115')
-export const unnamed_10236469109653629915 = /* @__PURE__ */ _bind(FW, 'unnamed_10236469109653629915')
-export const unnamed_10791959741762061271 = /* @__PURE__ */ _bind(FW, 'unnamed_10791959741762061271')
-export const unnamed_11346953066764833676 = /* @__PURE__ */ _bind(FW, 'unnamed_11346953066764833676')
+export const unnamed_10109105998428124976 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_10109105998428124976',
+)
+
+export const unnamed_10140430161551550115 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_10140430161551550115',
+)
+
+export const unnamed_10236469109653629915 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_10236469109653629915',
+)
+
+export const unnamed_10791959741762061271 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_10791959741762061271',
+)
+
+export const unnamed_11346953066764833676 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_11346953066764833676',
+)
+
 export const unnamed_1213512764850119608 = /* @__PURE__ */ _bind(FW, 'unnamed_1213512764850119608')
-export const unnamed_12294228211067402445 = /* @__PURE__ */ _bind(FW, 'unnamed_12294228211067402445')
-export const unnamed_12734190966776688155 = /* @__PURE__ */ _bind(FW, 'unnamed_12734190966776688155')
-export const unnamed_12890456654114998726 = /* @__PURE__ */ _bind(FW, 'unnamed_12890456654114998726')
+export const unnamed_12294228211067402445 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_12294228211067402445',
+)
+
+export const unnamed_12734190966776688155 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_12734190966776688155',
+)
+
+export const unnamed_12890456654114998726 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_12890456654114998726',
+)
+
 export const unnamed_1292917760517941412 = /* @__PURE__ */ _bind(FW, 'unnamed_1292917760517941412')
-export const unnamed_13286572044778976206 = /* @__PURE__ */ _bind(FW, 'unnamed_13286572044778976206')
-export const unnamed_13593929765051075793 = /* @__PURE__ */ _bind(FW, 'unnamed_13593929765051075793')
-export const unnamed_13682755225929384263 = /* @__PURE__ */ _bind(FW, 'unnamed_13682755225929384263')
-export const unnamed_13947235425111152660 = /* @__PURE__ */ _bind(FW, 'unnamed_13947235425111152660')
-export const unnamed_14209618307403754422 = /* @__PURE__ */ _bind(FW, 'unnamed_14209618307403754422')
-export const unnamed_14716957259204065889 = /* @__PURE__ */ _bind(FW, 'unnamed_14716957259204065889')
-export const unnamed_14952188833799488425 = /* @__PURE__ */ _bind(FW, 'unnamed_14952188833799488425')
+export const unnamed_13286572044778976206 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_13286572044778976206',
+)
+
+export const unnamed_13593929765051075793 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_13593929765051075793',
+)
+
+export const unnamed_13682755225929384263 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_13682755225929384263',
+)
+
+export const unnamed_13947235425111152660 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_13947235425111152660',
+)
+
+export const unnamed_14209618307403754422 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_14209618307403754422',
+)
+
+export const unnamed_14716957259204065889 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_14716957259204065889',
+)
+
+export const unnamed_14952188833799488425 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_14952188833799488425',
+)
+
 export const unnamed_1614171274374036916 = /* @__PURE__ */ _bind(FW, 'unnamed_1614171274374036916')
 export const unnamed_1637250662564425332 = /* @__PURE__ */ _bind(FW, 'unnamed_1637250662564425332')
-export const unnamed_16763535577980594465 = /* @__PURE__ */ _bind(FW, 'unnamed_16763535577980594465')
-export const unnamed_16841939090335137160 = /* @__PURE__ */ _bind(FW, 'unnamed_16841939090335137160')
-export const unnamed_17415015730289440420 = /* @__PURE__ */ _bind(FW, 'unnamed_17415015730289440420')
-export const unnamed_17524291907931727653 = /* @__PURE__ */ _bind(FW, 'unnamed_17524291907931727653')
-export const unnamed_17907233245453945828 = /* @__PURE__ */ _bind(FW, 'unnamed_17907233245453945828')
+export const unnamed_16763535577980594465 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_16763535577980594465',
+)
+
+export const unnamed_16841939090335137160 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_16841939090335137160',
+)
+
+export const unnamed_17415015730289440420 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_17415015730289440420',
+)
+
+export const unnamed_17524291907931727653 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_17524291907931727653',
+)
+
+export const unnamed_17907233245453945828 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_17907233245453945828',
+)
+
 export const unnamed_1797908571091620428 = /* @__PURE__ */ _bind(FW, 'unnamed_1797908571091620428')
-export const unnamed_18356223320910014706 = /* @__PURE__ */ _bind(FW, 'unnamed_18356223320910014706')
+export const unnamed_18356223320910014706 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_18356223320910014706',
+)
+
 export const unnamed_1997650705226832794 = /* @__PURE__ */ _bind(FW, 'unnamed_1997650705226832794')
 export const unnamed_2140472392207428731 = /* @__PURE__ */ _bind(FW, 'unnamed_2140472392207428731')
 export const unnamed_2479287804501638396 = /* @__PURE__ */ _bind(FW, 'unnamed_2479287804501638396')
@@ -6126,7 +8892,11 @@ export const vfsidctl = /* @__PURE__ */ _bind(FW, 'vfsidctl')
 export const vfsquery = /* @__PURE__ */ _bind(FW, 'vfsquery')
 export const vfsstatfs = /* @__PURE__ */ _bind(FW, 'vfsstatfs')
 export const vfstable = /* @__PURE__ */ _bind(FW, 'vfstable')
-export const virtual_memory_guard_exception_code_t = /* @__PURE__ */ _bind(FW, 'virtual_memory_guard_exception_code_t')
+export const virtual_memory_guard_exception_code_t = /* @__PURE__ */ _bind(
+	FW,
+	'virtual_memory_guard_exception_code_t',
+)
+
 export const vm_allocate = /* @__PURE__ */ _bind(FW, 'vm_allocate')
 export const vm_allocate_cpm = /* @__PURE__ */ _bind(FW, 'vm_allocate_cpm')
 export const vm_behavior_set = /* @__PURE__ */ _bind(FW, 'vm_behavior_set')
@@ -6171,7 +8941,11 @@ export const vm_region_recurse = /* @__PURE__ */ _bind(FW, 'vm_region_recurse')
 export const vm_region_recurse_64 = /* @__PURE__ */ _bind(FW, 'vm_region_recurse_64')
 export const vm_region_submap_info = /* @__PURE__ */ _bind(FW, 'vm_region_submap_info')
 export const vm_region_submap_info_64 = /* @__PURE__ */ _bind(FW, 'vm_region_submap_info_64')
-export const vm_region_submap_short_info_64 = /* @__PURE__ */ _bind(FW, 'vm_region_submap_short_info_64')
+export const vm_region_submap_short_info_64 = /* @__PURE__ */ _bind(
+	FW,
+	'vm_region_submap_short_info_64',
+)
+
 export const vm_region_top_info = /* @__PURE__ */ _bind(FW, 'vm_region_top_info')
 export const vm_remap = /* @__PURE__ */ _bind(FW, 'vm_remap')
 export const vm_remap_new = /* @__PURE__ */ _bind(FW, 'vm_remap_new')
@@ -6249,8 +9023,16 @@ export const xpc_bool_get_value = /* @__PURE__ */ _bind(FW, 'xpc_bool_get_value'
 export const xpc_connection_activate = /* @__PURE__ */ _bind(FW, 'xpc_connection_activate')
 export const xpc_connection_cancel = /* @__PURE__ */ _bind(FW, 'xpc_connection_cancel')
 export const xpc_connection_create = /* @__PURE__ */ _bind(FW, 'xpc_connection_create')
-export const xpc_connection_create_from_endpoint = /* @__PURE__ */ _bind(FW, 'xpc_connection_create_from_endpoint')
-export const xpc_connection_create_mach_service = /* @__PURE__ */ _bind(FW, 'xpc_connection_create_mach_service')
+export const xpc_connection_create_from_endpoint = /* @__PURE__ */ _bind(
+	FW,
+	'xpc_connection_create_from_endpoint',
+)
+
+export const xpc_connection_create_mach_service = /* @__PURE__ */ _bind(
+	FW,
+	'xpc_connection_create_mach_service',
+)
+
 export const xpc_connection_get_asid = /* @__PURE__ */ _bind(FW, 'xpc_connection_get_asid')
 export const xpc_connection_get_context = /* @__PURE__ */ _bind(FW, 'xpc_connection_get_context')
 export const xpc_connection_get_egid = /* @__PURE__ */ _bind(FW, 'xpc_connection_get_egid')
@@ -6260,28 +9042,68 @@ export const xpc_connection_get_pid = /* @__PURE__ */ _bind(FW, 'xpc_connection_
 export const xpc_connection_resume = /* @__PURE__ */ _bind(FW, 'xpc_connection_resume')
 export const xpc_connection_send_barrier = /* @__PURE__ */ _bind(FW, 'xpc_connection_send_barrier')
 export const xpc_connection_send_message = /* @__PURE__ */ _bind(FW, 'xpc_connection_send_message')
-export const xpc_connection_send_message_with_reply = /* @__PURE__ */ _bind(FW, 'xpc_connection_send_message_with_reply')
-export const xpc_connection_send_message_with_reply_sync = /* @__PURE__ */ _bind(FW, 'xpc_connection_send_message_with_reply_sync')
+export const xpc_connection_send_message_with_reply = /* @__PURE__ */ _bind(
+	FW,
+	'xpc_connection_send_message_with_reply',
+)
+
+export const xpc_connection_send_message_with_reply_sync = /* @__PURE__ */ _bind(
+	FW,
+	'xpc_connection_send_message_with_reply_sync',
+)
+
 export const xpc_connection_set_context = /* @__PURE__ */ _bind(FW, 'xpc_connection_set_context')
-export const xpc_connection_set_event_handler = /* @__PURE__ */ _bind(FW, 'xpc_connection_set_event_handler')
-export const xpc_connection_set_finalizer_f = /* @__PURE__ */ _bind(FW, 'xpc_connection_set_finalizer_f')
-export const xpc_connection_set_target_queue = /* @__PURE__ */ _bind(FW, 'xpc_connection_set_target_queue')
+export const xpc_connection_set_event_handler = /* @__PURE__ */ _bind(
+	FW,
+	'xpc_connection_set_event_handler',
+)
+
+export const xpc_connection_set_finalizer_f = /* @__PURE__ */ _bind(
+	FW,
+	'xpc_connection_set_finalizer_f',
+)
+
+export const xpc_connection_set_target_queue = /* @__PURE__ */ _bind(
+	FW,
+	'xpc_connection_set_target_queue',
+)
+
 export const xpc_connection_suspend = /* @__PURE__ */ _bind(FW, 'xpc_connection_suspend')
 export const xpc_copy = /* @__PURE__ */ _bind(FW, 'xpc_copy')
 export const xpc_copy_description = /* @__PURE__ */ _bind(FW, 'xpc_copy_description')
 export const xpc_data_create = /* @__PURE__ */ _bind(FW, 'xpc_data_create')
-export const xpc_data_create_with_dispatch_data = /* @__PURE__ */ _bind(FW, 'xpc_data_create_with_dispatch_data')
+export const xpc_data_create_with_dispatch_data = /* @__PURE__ */ _bind(
+	FW,
+	'xpc_data_create_with_dispatch_data',
+)
+
 export const xpc_data_get_bytes = /* @__PURE__ */ _bind(FW, 'xpc_data_get_bytes')
 export const xpc_data_get_bytes_ptr = /* @__PURE__ */ _bind(FW, 'xpc_data_get_bytes_ptr')
 export const xpc_data_get_length = /* @__PURE__ */ _bind(FW, 'xpc_data_get_length')
 export const xpc_date_create = /* @__PURE__ */ _bind(FW, 'xpc_date_create')
-export const xpc_date_create_from_current = /* @__PURE__ */ _bind(FW, 'xpc_date_create_from_current')
+export const xpc_date_create_from_current = /* @__PURE__ */ _bind(
+	FW,
+	'xpc_date_create_from_current',
+)
+
 export const xpc_date_get_value = /* @__PURE__ */ _bind(FW, 'xpc_date_get_value')
-export const xpc_debugger_api_misuse_info = /* @__PURE__ */ _bind(FW, 'xpc_debugger_api_misuse_info')
+export const xpc_debugger_api_misuse_info = /* @__PURE__ */ _bind(
+	FW,
+	'xpc_debugger_api_misuse_info',
+)
+
 export const xpc_dictionary_apply = /* @__PURE__ */ _bind(FW, 'xpc_dictionary_apply')
-export const xpc_dictionary_copy_mach_send = /* @__PURE__ */ _bind(FW, 'xpc_dictionary_copy_mach_send')
+export const xpc_dictionary_copy_mach_send = /* @__PURE__ */ _bind(
+	FW,
+	'xpc_dictionary_copy_mach_send',
+)
+
 export const xpc_dictionary_create = /* @__PURE__ */ _bind(FW, 'xpc_dictionary_create')
-export const xpc_dictionary_create_connection = /* @__PURE__ */ _bind(FW, 'xpc_dictionary_create_connection')
+export const xpc_dictionary_create_connection = /* @__PURE__ */ _bind(
+	FW,
+	'xpc_dictionary_create_connection',
+)
+
 export const xpc_dictionary_create_empty = /* @__PURE__ */ _bind(FW, 'xpc_dictionary_create_empty')
 export const xpc_dictionary_create_reply = /* @__PURE__ */ _bind(FW, 'xpc_dictionary_create_reply')
 export const xpc_dictionary_dup_fd = /* @__PURE__ */ _bind(FW, 'xpc_dictionary_dup_fd')
@@ -6290,22 +9112,38 @@ export const xpc_dictionary_get_bool = /* @__PURE__ */ _bind(FW, 'xpc_dictionary
 export const xpc_dictionary_get_count = /* @__PURE__ */ _bind(FW, 'xpc_dictionary_get_count')
 export const xpc_dictionary_get_data = /* @__PURE__ */ _bind(FW, 'xpc_dictionary_get_data')
 export const xpc_dictionary_get_date = /* @__PURE__ */ _bind(FW, 'xpc_dictionary_get_date')
-export const xpc_dictionary_get_dictionary = /* @__PURE__ */ _bind(FW, 'xpc_dictionary_get_dictionary')
+export const xpc_dictionary_get_dictionary = /* @__PURE__ */ _bind(
+	FW,
+	'xpc_dictionary_get_dictionary',
+)
+
 export const xpc_dictionary_get_double = /* @__PURE__ */ _bind(FW, 'xpc_dictionary_get_double')
 export const xpc_dictionary_get_int64 = /* @__PURE__ */ _bind(FW, 'xpc_dictionary_get_int64')
-export const xpc_dictionary_get_remote_connection = /* @__PURE__ */ _bind(FW, 'xpc_dictionary_get_remote_connection')
+export const xpc_dictionary_get_remote_connection = /* @__PURE__ */ _bind(
+	FW,
+	'xpc_dictionary_get_remote_connection',
+)
+
 export const xpc_dictionary_get_string = /* @__PURE__ */ _bind(FW, 'xpc_dictionary_get_string')
 export const xpc_dictionary_get_uint64 = /* @__PURE__ */ _bind(FW, 'xpc_dictionary_get_uint64')
 export const xpc_dictionary_get_uuid = /* @__PURE__ */ _bind(FW, 'xpc_dictionary_get_uuid')
 export const xpc_dictionary_get_value = /* @__PURE__ */ _bind(FW, 'xpc_dictionary_get_value')
 export const xpc_dictionary_set_bool = /* @__PURE__ */ _bind(FW, 'xpc_dictionary_set_bool')
-export const xpc_dictionary_set_connection = /* @__PURE__ */ _bind(FW, 'xpc_dictionary_set_connection')
+export const xpc_dictionary_set_connection = /* @__PURE__ */ _bind(
+	FW,
+	'xpc_dictionary_set_connection',
+)
+
 export const xpc_dictionary_set_data = /* @__PURE__ */ _bind(FW, 'xpc_dictionary_set_data')
 export const xpc_dictionary_set_date = /* @__PURE__ */ _bind(FW, 'xpc_dictionary_set_date')
 export const xpc_dictionary_set_double = /* @__PURE__ */ _bind(FW, 'xpc_dictionary_set_double')
 export const xpc_dictionary_set_fd = /* @__PURE__ */ _bind(FW, 'xpc_dictionary_set_fd')
 export const xpc_dictionary_set_int64 = /* @__PURE__ */ _bind(FW, 'xpc_dictionary_set_int64')
-export const xpc_dictionary_set_mach_send = /* @__PURE__ */ _bind(FW, 'xpc_dictionary_set_mach_send')
+export const xpc_dictionary_set_mach_send = /* @__PURE__ */ _bind(
+	FW,
+	'xpc_dictionary_set_mach_send',
+)
+
 export const xpc_dictionary_set_string = /* @__PURE__ */ _bind(FW, 'xpc_dictionary_set_string')
 export const xpc_dictionary_set_uint64 = /* @__PURE__ */ _bind(FW, 'xpc_dictionary_set_uint64')
 export const xpc_dictionary_set_uuid = /* @__PURE__ */ _bind(FW, 'xpc_dictionary_set_uuid')
@@ -6326,14 +9164,30 @@ export const xpc_null_create = /* @__PURE__ */ _bind(FW, 'xpc_null_create')
 export const xpc_release = /* @__PURE__ */ _bind(FW, 'xpc_release')
 export const xpc_retain = /* @__PURE__ */ _bind(FW, 'xpc_retain')
 export const xpc_rich_error_can_retry = /* @__PURE__ */ _bind(FW, 'xpc_rich_error_can_retry')
-export const xpc_rich_error_copy_description = /* @__PURE__ */ _bind(FW, 'xpc_rich_error_copy_description')
+export const xpc_rich_error_copy_description = /* @__PURE__ */ _bind(
+	FW,
+	'xpc_rich_error_copy_description',
+)
+
 export const xpc_session_create_flags_t = /* @__PURE__ */ _bind(FW, 'xpc_session_create_flags_t')
-export const xpc_set_event_stream_handler = /* @__PURE__ */ _bind(FW, 'xpc_set_event_stream_handler')
+export const xpc_set_event_stream_handler = /* @__PURE__ */ _bind(
+	FW,
+	'xpc_set_event_stream_handler',
+)
+
 export const xpc_shmem_create = /* @__PURE__ */ _bind(FW, 'xpc_shmem_create')
 export const xpc_shmem_map = /* @__PURE__ */ _bind(FW, 'xpc_shmem_map')
 export const xpc_string_create = /* @__PURE__ */ _bind(FW, 'xpc_string_create')
-export const xpc_string_create_with_format = /* @__PURE__ */ _bind(FW, 'xpc_string_create_with_format')
-export const xpc_string_create_with_format_and_arguments = /* @__PURE__ */ _bind(FW, 'xpc_string_create_with_format_and_arguments')
+export const xpc_string_create_with_format = /* @__PURE__ */ _bind(
+	FW,
+	'xpc_string_create_with_format',
+)
+
+export const xpc_string_create_with_format_and_arguments = /* @__PURE__ */ _bind(
+	FW,
+	'xpc_string_create_with_format_and_arguments',
+)
+
 export const xpc_string_get_length = /* @__PURE__ */ _bind(FW, 'xpc_string_get_length')
 export const xpc_string_get_string_ptr = /* @__PURE__ */ _bind(FW, 'xpc_string_get_string_ptr')
 export const xpc_transaction_begin = /* @__PURE__ */ _bind(FW, 'xpc_transaction_begin')

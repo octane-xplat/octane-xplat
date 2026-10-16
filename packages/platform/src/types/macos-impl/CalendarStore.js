@@ -8,7 +8,11 @@ export const CalAlarmActionSound = /* @__PURE__ */ _bind(FW, 'CalAlarmActionSoun
 export const CalAttendee = /* @__PURE__ */ _bind(FW, 'CalAttendee')
 export const CalAttendeeStatusAccepted = /* @__PURE__ */ _bind(FW, 'CalAttendeeStatusAccepted')
 export const CalAttendeeStatusDeclined = /* @__PURE__ */ _bind(FW, 'CalAttendeeStatusDeclined')
-export const CalAttendeeStatusNeedsAction = /* @__PURE__ */ _bind(FW, 'CalAttendeeStatusNeedsAction')
+export const CalAttendeeStatusNeedsAction = /* @__PURE__ */ _bind(
+	FW,
+	'CalAttendeeStatusNeedsAction',
+)
+
 export const CalAttendeeStatusTentative = /* @__PURE__ */ _bind(FW, 'CalAttendeeStatusTentative')
 export const CalCalendar = /* @__PURE__ */ _bind(FW, 'CalCalendar')
 export const CalCalendarItem = /* @__PURE__ */ _bind(FW, 'CalCalendarItem')
@@ -16,21 +20,45 @@ export const CalCalendarNotEditableError = /* @__PURE__ */ _bind(FW, 'CalCalenda
 export const CalCalendarNotInRepository = /* @__PURE__ */ _bind(FW, 'CalCalendarNotInRepository')
 export const CalCalendarStore = /* @__PURE__ */ _bind(FW, 'CalCalendarStore')
 export const CalCalendarStoreErrorDomain = /* @__PURE__ */ _bind(FW, 'CalCalendarStoreErrorDomain')
-export const CalCalendarTitleNotUniqueError = /* @__PURE__ */ _bind(FW, 'CalCalendarTitleNotUniqueError')
+export const CalCalendarTitleNotUniqueError = /* @__PURE__ */ _bind(
+	FW,
+	'CalCalendarTitleNotUniqueError',
+)
+
 export const CalCalendarTypeBirthday = /* @__PURE__ */ _bind(FW, 'CalCalendarTypeBirthday')
 export const CalCalendarTypeCalDAV = /* @__PURE__ */ _bind(FW, 'CalCalendarTypeCalDAV')
 export const CalCalendarTypeExchange = /* @__PURE__ */ _bind(FW, 'CalCalendarTypeExchange')
 export const CalCalendarTypeIMAP = /* @__PURE__ */ _bind(FW, 'CalCalendarTypeIMAP')
 export const CalCalendarTypeLocal = /* @__PURE__ */ _bind(FW, 'CalCalendarTypeLocal')
 export const CalCalendarTypeSubscription = /* @__PURE__ */ _bind(FW, 'CalCalendarTypeSubscription')
-export const CalCalendarsChangedExternallyNotification = /* @__PURE__ */ _bind(FW, 'CalCalendarsChangedExternallyNotification')
-export const CalCalendarsChangedNotification = /* @__PURE__ */ _bind(FW, 'CalCalendarsChangedNotification')
+export const CalCalendarsChangedExternallyNotification = /* @__PURE__ */ _bind(
+	FW,
+	'CalCalendarsChangedExternallyNotification',
+)
+
+export const CalCalendarsChangedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'CalCalendarsChangedNotification',
+)
+
 export const CalDateInvalidError = /* @__PURE__ */ _bind(FW, 'CalDateInvalidError')
-export const CalDefaultRecurrenceInterval = /* @__PURE__ */ _bind(FW, 'CalDefaultRecurrenceInterval')
+export const CalDefaultRecurrenceInterval = /* @__PURE__ */ _bind(
+	FW,
+	'CalDefaultRecurrenceInterval',
+)
+
 export const CalDeletedRecordsKey = /* @__PURE__ */ _bind(FW, 'CalDeletedRecordsKey')
 export const CalEvent = /* @__PURE__ */ _bind(FW, 'CalEvent')
-export const CalEventsChangedExternallyNotification = /* @__PURE__ */ _bind(FW, 'CalEventsChangedExternallyNotification')
-export const CalEventsChangedNotification = /* @__PURE__ */ _bind(FW, 'CalEventsChangedNotification')
+export const CalEventsChangedExternallyNotification = /* @__PURE__ */ _bind(
+	FW,
+	'CalEventsChangedExternallyNotification',
+)
+
+export const CalEventsChangedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'CalEventsChangedNotification',
+)
+
 export const CalInsertedRecordsKey = /* @__PURE__ */ _bind(FW, 'CalInsertedRecordsKey')
 export const CalNthWeekDay = /* @__PURE__ */ _bind(FW, 'CalNthWeekDay')
 export const CalPriorityHigh = /* @__PURE__ */ _bind(FW, 'CalPriorityHigh')
@@ -43,7 +71,11 @@ export const CalRecurrenceType = /* @__PURE__ */ _bind(FW, 'CalRecurrenceType')
 export const CalSenderProcessIDKey = /* @__PURE__ */ _bind(FW, 'CalSenderProcessIDKey')
 export const CalSpan = /* @__PURE__ */ _bind(FW, 'CalSpan')
 export const CalTask = /* @__PURE__ */ _bind(FW, 'CalTask')
-export const CalTasksChangedExternallyNotification = /* @__PURE__ */ _bind(FW, 'CalTasksChangedExternallyNotification')
+export const CalTasksChangedExternallyNotification = /* @__PURE__ */ _bind(
+	FW,
+	'CalTasksChangedExternallyNotification',
+)
+
 export const CalTasksChangedNotification = /* @__PURE__ */ _bind(FW, 'CalTasksChangedNotification')
 export const CalUpdatedRecordsKey = /* @__PURE__ */ _bind(FW, 'CalUpdatedRecordsKey')
 export const CalUserUIDKey = /* @__PURE__ */ _bind(FW, 'CalUserUIDKey')

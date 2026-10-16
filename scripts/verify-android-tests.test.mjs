@@ -16,20 +16,31 @@ function fixture(t, overrides = {}) {
 	const calls = []
 	const run = (cmd, args, cwd, env) => {
 		calls.push({ cmd, args, cwd, env })
-		if (cmd === 'pnpm')
-			{return {
+		if (cmd === 'pnpm') {
+			return {
 				status: overrides.testStatus ?? 0,
 				stdout: overrides.summary ?? 'Test Files 3 passed (3)\nTests 10 passed (10)',
-			}}
+			}
+		}
 
 		assert.equal(cmd, 'adb')
 		assert.deepEqual(args.slice(0, 2), ['-s', 'emulator-5566'])
-		if (args.includes('getprop')) {return { status: 0, stdout: overrides.boot ?? '1' }}
-		if (args.includes('packages'))
-			{return { status: 0, stdout: overrides.installed ? `package:${args.at(-1)}` : '' }}
+		if (args.includes('getprop')) {
+			return { status: 0, stdout: overrides.boot ?? '1' }
+		}
 
-		if (args.includes('force-stop')) {return { status: overrides.stopStatus ?? 0, stdout: '' }}
-		if (args.includes('pidof')) {return { status: 1, stdout: overrides.pid ?? '' }}
+		if (args.includes('packages')) {
+			return { status: 0, stdout: overrides.installed ? `package:${args.at(-1)}` : '' }
+		}
+
+		if (args.includes('force-stop')) {
+			return { status: overrides.stopStatus ?? 0, stdout: '' }
+		}
+
+		if (args.includes('pidof')) {
+			return { status: 1, stdout: overrides.pid ?? '' }
+		}
+
 		assert.equal(args[2], 'uninstall')
 		return { status: 0, stdout: 'Success' }
 	}
@@ -55,14 +66,18 @@ test('explicit device and boot readiness gate all app writes and launches', (t) 
 
 test('repeated runs reset only the disposable identity and stop it', (t) => {
 	const f = fixture(t, { installed: true })
-	for (let i = 0; i < 2; i++) {assert.match(verifyAndroidTests(f), /gesture-observer-dispatch/)}
+	for (let i = 0; i < 2; i++) {
+		assert.match(verifyAndroidTests(f), /gesture-observer-dispatch/)
+	}
+
 	const config = readFileSync(join(f.appDir, 'nativescript.config.ts'), 'utf8')
 	const id = config.match(/id: '([^']+)'/)[1]
 	assert.match(id, /^org\.octanexplat\.consumer\.t[a-f0-9]{12}$/)
 	for (const c of f.calls.filter(
 		(c) => c.args.includes('uninstall') || c.args.includes('force-stop'),
-	))
-		{assert.equal(c.args.at(-1), id)}
+	)) {
+		assert.equal(c.args.at(-1), id)
+	}
 
 	assert.equal(f.calls.filter((c) => c.cmd === 'pnpm').length, 2)
 })

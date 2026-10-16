@@ -290,14 +290,20 @@ vertically centered content. The renderer recognizes these inputs on
 ```tsx
 /** @jsxImportSource @octane-xplat/macos-renderer */
 export function Rows() {
-	return <stack>
-		<flexboxlayout flexDirection="row" gap={12} alignItems="center" justifyContent="start">
-			<label text="Name" /><label text="Value" />
-		</flexboxlayout>
-		<flexboxlayout style={{ flexDirection: 'row', gap: 12, alignItems: 'center', justifyContent: 'start' }}>
-			<label text="Name" /><label text="Value" />
-		</flexboxlayout>
-	</stack>
+	return (
+		<stack>
+			<flexboxlayout flexDirection="row" gap={12} alignItems="center" justifyContent="start">
+				<label text="Name" />
+				<label text="Value" />
+			</flexboxlayout>
+			<flexboxlayout
+				style={{ flexDirection: 'row', gap: 12, alignItems: 'center', justifyContent: 'start' }}
+			>
+				<label text="Name" />
+				<label text="Value" />
+			</flexboxlayout>
+		</stack>
+	)
 }
 ```
 
@@ -310,10 +316,16 @@ restores `gap-2` (8 points); removing the class then restores `gap={4}`.
 ```tsx
 /** @jsxImportSource @octane-xplat/macos-renderer */
 export function ConflictingRow({ inlineGap }: { inlineGap?: number }) {
-	return <flexboxlayout gap={4} className="flex-row gap-2 items-center justify-end"
-		style={{ gap: inlineGap }}>
-		<label text="Name" /><label text="Value" />
-	</flexboxlayout>
+	return (
+		<flexboxlayout
+			gap={4}
+			className="flex-row gap-2 items-center justify-end"
+			style={{ gap: inlineGap }}
+		>
+			<label text="Name" />
+			<label text="Value" />
+		</flexboxlayout>
+	)
 }
 ```
 
@@ -328,9 +340,12 @@ The class forms are `flex-row`/`flex-col`, `gap-1/2/3/4/6`,
 ```tsx
 /** @jsxImportSource @octane-xplat/macos-renderer */
 export function AxisGap() {
-	return <flexboxlayout style={{ flexDirection: 'row', gap: 4, columnGap: 12 }}>
-		<label text="Name" /><label text="Value" />
-	</flexboxlayout>
+	return (
+		<flexboxlayout style={{ flexDirection: 'row', gap: 4, columnGap: 12 }}>
+			<label text="Name" />
+			<label text="Value" />
+		</flexboxlayout>
+	)
 }
 ```
 
@@ -344,11 +359,18 @@ placement into styles. Keep those values on the child host.
 ```tsx
 /** @jsxImportSource @octane-xplat/macos-renderer */
 export function PositionedRow() {
-	return <absolutelayout>
-		<flexboxlayout left={20} top={12} style={{ width: 240, height: 40, flexDirection: 'row', gap: 12 }}>
-			<label text="Name" /><label text="Value" />
-		</flexboxlayout>
-	</absolutelayout>
+	return (
+		<absolutelayout>
+			<flexboxlayout
+				left={20}
+				top={12}
+				style={{ width: 240, height: 40, flexDirection: 'row', gap: 12 }}
+			>
+				<label text="Name" />
+				<label text="Value" />
+			</flexboxlayout>
+		</absolutelayout>
+	)
 }
 ```
 

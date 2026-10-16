@@ -20,7 +20,9 @@
 		let lastError
 		while (Date.now() < deadline) {
 			try {
-				if (await predicate()) {return}
+				if (await predicate()) {
+					return
+				}
 			} catch (e) {
 				lastError = e
 			}
@@ -92,7 +94,10 @@
 			const opened = await window.session.openOutput(output)
 			const bytes = await fetch(opened.url).then((r) => r.blob())
 			opened.release()
-			if (!bytes.size) {throw new Error('reopened movie is empty')}
+			if (!bytes.size) {
+				throw new Error('reopened movie is empty')
+			}
+
 			return bytes.size
 		})
 
@@ -109,7 +114,10 @@
 			const opened = await window.session.openOutput(JSON.parse(stored))
 			const bytes = await fetch(opened.url).then((r) => r.blob())
 			opened.release()
-			if (!bytes.size) {throw new Error('reopened movie is empty')}
+			if (!bytes.size) {
+				throw new Error('reopened movie is empty')
+			}
+
 			return bytes.size
 		})
 
@@ -129,13 +137,19 @@
 
 	await check('permission.request', async () => {
 		const status = await window.session.requestPermission('camera')
-		if (status !== 'granted') {throw new Error(`expected granted, got ${status}`)}
+		if (status !== 'granted') {
+			throw new Error(`expected granted, got ${status}`)
+		}
+
 		return status
 	})
 
 	await check('permission.persistedQuery', async () => {
 		const status = (await window.session.permissions()).camera
-		if (status !== 'granted') {throw new Error(`expected granted, got ${status}`)}
+		if (status !== 'granted') {
+			throw new Error(`expected granted, got ${status}`)
+		}
+
 		return status
 	})
 
@@ -149,12 +163,30 @@
 	let caps
 	await check('capabilities', async () => {
 		caps = await window.session.capabilities()
-		if (!caps.supported) {throw new Error(`unsupported: ${caps.reason}`)}
-		if (!caps.available) {throw new Error(`unavailable: ${caps.reason}`)}
-		if (caps.output.storage !== 'appPrivateFile') {throw new Error(caps.output.storage)}
-		if (!caps.output.destinationFileUrl) {throw new Error('destinationFileUrl false')}
-		if (!caps.cameras.length) {throw new Error('no cameras reported')}
-		if (!caps.output.mimeType) {throw new Error('no recorder MIME')}
+		if (!caps.supported) {
+			throw new Error(`unsupported: ${caps.reason}`)
+		}
+
+		if (!caps.available) {
+			throw new Error(`unavailable: ${caps.reason}`)
+		}
+
+		if (caps.output.storage !== 'appPrivateFile') {
+			throw new Error(caps.output.storage)
+		}
+
+		if (!caps.output.destinationFileUrl) {
+			throw new Error('destinationFileUrl false')
+		}
+
+		if (!caps.cameras.length) {
+			throw new Error('no cameras reported')
+		}
+
+		if (!caps.output.mimeType) {
+			throw new Error('no recorder MIME')
+		}
+
 		return {
 			mime: caps.output.mimeType,
 			container: caps.output.container,
@@ -193,9 +225,18 @@
 	let clip
 	await check('record.silent', async () => {
 		const outcome = await record()
-		if (outcome.kind !== 'clip') {throw new Error(JSON.stringify(outcome))}
-		if (outcome.clip.hasAudio) {throw new Error('unexpected audio track')}
-		if (outcome.partial) {throw new Error('unexpected partial')}
+		if (outcome.kind !== 'clip') {
+			throw new Error(JSON.stringify(outcome))
+		}
+
+		if (outcome.clip.hasAudio) {
+			throw new Error('unexpected audio track')
+		}
+
+		if (outcome.partial) {
+			throw new Error('unexpected partial')
+		}
+
 		const output = outcome.clip.output
 		if (output.kind !== 'nativeFile' || !output.fileUrl.startsWith('file://')) {
 			throw new Error(`output ${JSON.stringify(output)}`)
@@ -216,7 +257,10 @@
 
 	await check('storage.committed', async () => {
 		const { info } = await call('camera', 'movieFileInfo', [{ fileUrl: clip.output.fileUrl }])
-		if (!info?.exists || !(info.size > 0)) {throw new Error(JSON.stringify(info))}
+		if (!info?.exists || !(info.size > 0)) {
+			throw new Error(JSON.stringify(info))
+		}
+
 		return info.size
 	})
 
@@ -336,8 +380,7 @@
 
 		// A destination outside the private root is refused identically.
 		const outside = window.serialize(
-			await window.session
-				.startRecording({ destinationFileUrl: 'file:///tmp/xplat-outside.mp4' })
+			await window.session.startRecording({ destinationFileUrl: 'file:///tmp/xplat-outside.mp4' })
 				.completion,
 		)
 

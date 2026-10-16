@@ -2,7 +2,6 @@ import { Utils } from '@nativescript/core'
 import type { AudioCapabilities, AudioPlayer, AudioSnapshot, Track } from './types'
 import { android } from '@octane-xplat/platform/android'
 
-
 // The plugin's Java bridge is exposed by NativeScript's runtime metadata.
 declare const com: {
 	xplat: {

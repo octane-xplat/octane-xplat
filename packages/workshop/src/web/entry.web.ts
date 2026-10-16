@@ -43,7 +43,10 @@ export interface WorkshopRuntime {
 let runtime: WorkshopRuntime | null = null
 
 /** Called by the generated catalog module on load and on every HMR re-execution. */
-export function catalogDidUpdate(entries: CatalogEntry[], diagnostics: readonly { message: string }[] = []): void {
+export function catalogDidUpdate(
+	entries: CatalogEntry[],
+	diagnostics: readonly { message: string }[] = [],
+): void {
 	runtime?.updateCatalog(entries, diagnostics)
 }
 
@@ -80,7 +83,9 @@ export function startWorkshop(options: WorkshopBootOptions): WorkshopRuntime {
 		stageBackground: 'default',
 		stageBounds: 'available',
 		catalog: options.catalog,
-		catalogError: options.diagnostics?.length ? options.diagnostics.map((d) => d.message).join('\n') : undefined,
+		catalogError: options.diagnostics?.length
+			? options.diagnostics.map((d) => d.message).join('\n')
+			: undefined,
 		missingId: null,
 		session: session.state,
 		drafts: {},
@@ -112,7 +117,9 @@ export function startWorkshop(options: WorkshopBootOptions): WorkshopRuntime {
 				const definition = resolveDefinition(loaded, entry)
 				await session.select(definition)
 			} catch (error) {
-				if (generation === runtime!.loadGeneration) {session.markCompileError(error)}
+				if (generation === runtime!.loadGeneration) {
+					session.markCompileError(error)
+				}
 			}
 		},
 		updateCatalog(entries, diagnostics = []) {
@@ -151,7 +158,9 @@ export function startWorkshop(options: WorkshopBootOptions): WorkshopRuntime {
 
 					await session.reload(resolveDefinition(loaded, entry))
 				} catch (error) {
-					if (generation === runtime!.loadGeneration) {session.markCompileError(error)}
+					if (generation === runtime!.loadGeneration) {
+						session.markCompileError(error)
+					}
 				}
 			})()
 		},
@@ -186,14 +195,16 @@ export function startWorkshop(options: WorkshopBootOptions): WorkshopRuntime {
 	options.hot?.on?.('vite:ws:connect', () => session.markConnected())
 
 	const hostElement = document.getElementById('workshop-root') ?? document.body
-	createRoot(hostElement).render(
-		createElement(WorkshopApp as never, { runtime } as never),
-	)
+	createRoot(hostElement).render(createElement(WorkshopApp as never, { runtime } as never))
 
 	// Hash selection: #/story/<id> survives reloads and deep-links a story.
 	const idFromHash = () => {
 		const raw = location.hash.replace(/^#\/?story\//, '')
-		try { return decodeURIComponent(raw) || null } catch { return raw || null }
+		try {
+			return decodeURIComponent(raw) || null
+		} catch {
+			return raw || null
+		}
 	}
 
 	const pickEntry = (entries: CatalogEntry[], id: string) =>
@@ -232,7 +243,11 @@ export function startWorkshop(options: WorkshopBootOptions): WorkshopRuntime {
 function groupKeys(entries: CatalogEntry[]): string[] {
 	const keys = new Set<string>()
 	for (const entry of entries) {
-		const segments = entry.title.split('/').map((seg) => seg.trim()).filter(Boolean)
+		const segments = entry.title
+			.split('/')
+			.map((seg) => seg.trim())
+			.filter(Boolean)
+
 		for (let depth = 0; depth < segments.length - 1; depth++) {
 			keys.add(`${segments[depth]}@${depth}`)
 		}

@@ -1,6 +1,16 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { chmodSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
+import {
+	chmodSync,
+	lstatSync,
+	mkdirSync,
+	mkdtempSync,
+	readFileSync,
+	rmSync,
+	symlinkSync,
+	writeFileSync,
+} from 'node:fs'
+
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -39,8 +49,7 @@ const linkInto = (root, dep) => {
 	symlinkSync(dep.dir, dest, 'dir')
 }
 
-const run = (cwd) =>
-	spawnSync(process.execPath, [linkBins], { cwd, encoding: 'utf8' })
+const run = (cwd) => spawnSync(process.execPath, [linkBins], { cwd, encoding: 'utf8' })
 
 test('writes missing .bin shims for link: deps', (t) => {
 	const dir = mkdtempSync(join(tmpdir(), 'xplat-link-bins-deps-'))

@@ -4,7 +4,10 @@ import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
 import { runInNewContext } from 'node:vm'
 
-const source = stripTypeScriptTypes(readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'))
+const source = stripTypeScriptTypes(
+	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
+)
+
 const fn = (name: string) => {
 	const start = source.indexOf(`function ${name}(`)
 	assert.ok(start >= 0, name)
@@ -16,26 +19,67 @@ function fixture() {
 	const titles: string[] = []
 	const view: any = {
 		indexOfSelectedItem: -1,
-		menu: { addItem(item: any) {titles.push(item.title)} },
-		removeAllItems() {titles.length = 0; this.indexOfSelectedItem = -1},
-		selectItemAtIndex(index: number) {this.indexOfSelectedItem = index},
+		menu: {
+			addItem(item: any) {
+				titles.push(item.title)
+			},
+		},
+		removeAllItems() {
+			titles.length = 0
+			this.indexOfSelectedItem = -1
+		},
+		selectItemAtIndex(index: number) {
+			this.indexOfSelectedItem = index
+		},
 		invalidateIntrinsicContentSize() {},
 	}
 
-	const constants = source.slice(source.indexOf('function droppedPropClears('), source.indexOf('\nfunction applyProps('))
-	const api = runInNewContext(constants + '\n' + [
-		'parentReference', 'resolveParentNode', 'canContainView',
-		'makeListPicker', 'notifyListPickerChange', 'syncListPicker', 'validateNodeProps',
-		'droppedPropClears', 'applyProps', 'applyCommand',
-	].map(fn).join('\n') + '\n({makeListPicker,validateNodeProps,applyProps,applyCommand})', {
-		NSPopUpButton: { alloc: () => ({ initWithFramePullsDown: () => view }) },
-		NSMenuItem: { alloc: () => ({ initWithTitleActionKeyEquivalent: (title: string) => ({ title }) }) },
-		buttonActionTarget: {}, nextActionId: 1, actionHandlers: new Map(),
-		setControlAction: (_node: any, handler: any) => {view.callback = handler},
-		applyStyle: (node: any, style: any) => {node.appliedStyle = style},
-		applyClassName() {}, queueLayoutReconcile() {},
-		console: {warn(message: string) {throw new Error(message)}},
-	})
+	const constants = source.slice(
+		source.indexOf('function droppedPropClears('),
+		source.indexOf('\nfunction applyProps('),
+	)
+
+	const api = runInNewContext(
+		constants +
+			'\n' +
+			[
+				'parentReference',
+				'resolveParentNode',
+				'canContainView',
+				'makeListPicker',
+				'notifyListPickerChange',
+				'syncListPicker',
+				'validateNodeProps',
+				'droppedPropClears',
+				'applyProps',
+				'applyCommand',
+			]
+				.map(fn)
+				.join('\n') +
+			'\n({makeListPicker,validateNodeProps,applyProps,applyCommand})',
+		{
+			NSPopUpButton: { alloc: () => ({ initWithFramePullsDown: () => view }) },
+			NSMenuItem: {
+				alloc: () => ({ initWithTitleActionKeyEquivalent: (title: string) => ({ title }) }),
+			},
+			buttonActionTarget: {},
+			nextActionId: 1,
+			actionHandlers: new Map(),
+			setControlAction: (_node: any, handler: any) => {
+				view.callback = handler
+			},
+			applyStyle: (node: any, style: any) => {
+				node.appliedStyle = style
+			},
+			applyClassName() {},
+			queueLayoutReconcile() {},
+			console: {
+				warn(message: string) {
+					throw new Error(message)
+				},
+			},
+		},
+	)
 
 	const container: any = { nodes: new Map() }
 	const node: any = { id: 1, type: 'listpicker', props: {}, children: [], parent: null, container }
@@ -68,24 +112,24 @@ test('ListPicker preserves duplicate/empty labels, renders nulls as indices and 
 
 test('ListPicker restores missing props and style, re-coerces requested indices as items grow', () => {
 	const { node, view, update, titles } = fixture()
-	update({items: ['a'], selectedIndex: 4, style: {opacity: 0.5}})
+	update({ items: ['a'], selectedIndex: 4, style: { opacity: 0.5 } })
 	assert.equal(view.indexOfSelectedItem, 0)
-	update({items: ['a', 'b', 'c', 'd', 'e'], selectedIndex: 4})
+	update({ items: ['a', 'b', 'c', 'd', 'e'], selectedIndex: 4 })
 	assert.equal(view.indexOfSelectedItem, 4)
 	assert.equal(node.appliedStyle, undefined)
-	update({items: ['a', 'b']})
+	update({ items: ['a', 'b'] })
 	assert.equal(view.indexOfSelectedItem, 0)
 	update({})
 	assert.deepEqual(titles, [])
 	assert.equal(view.indexOfSelectedItem, -1)
-	update({items: ['new']})
+	update({ items: ['new'] })
 	assert.equal(view.indexOfSelectedItem, 0)
 })
 
 test('ListPicker native selection survives unchanged props, updates payloads and removes stale handlers', () => {
 	const { view, update, events, onSelectedIndexChange } = fixture()
 	const items = ['a', 'b', 'c']
-	update({items, selectedIndex: 0, onSelectedIndexChange})
+	update({ items, selectedIndex: 0, onSelectedIndexChange })
 	events.length = 0
 	view.selectItemAtIndex(2)
 	view.callback()
@@ -93,12 +137,12 @@ test('ListPicker native selection survives unchanged props, updates payloads and
 	assert.equal(events[0].value, 2)
 	assert.equal(events[0].oldValue, 0)
 	view.callback()
-	update({items, selectedIndex: 0, onSelectedIndexChange})
+	update({ items, selectedIndex: 0, onSelectedIndexChange })
 	assert.equal(view.indexOfSelectedItem, 2)
 	assert.equal(events.length, 1)
 	// Replacing/mutating items updates labels without discarding native choice.
 	items[2] = 'changed'
-	update({items, selectedIndex: 0})
+	update({ items, selectedIndex: 0 })
 	view.selectItemAtIndex(1)
 	view.callback()
 	assert.equal(events.length, 1)
@@ -116,7 +160,10 @@ test('ListPicker rejects invalid props before allocating and rejects child conte
 
 	const nesting = runInNewContext(fn('validateTextNesting') + '\n({validateTextNesting})')
 	for (const child of ['label', '#text', 'listpicker']) {
-		assert.throws(() => nesting.validateTextNesting('listpicker', child), /cannot contain JSX children/)
+		assert.throws(
+			() => nesting.validateTextNesting('listpicker', child),
+			/cannot contain JSX children/,
+		)
 	}
 
 	for (const parent of ['stacklayout', 'contentview', 'docklayout', 'rootlayout', 'gridlayout']) {
@@ -146,8 +193,17 @@ test('ListPicker production ownership moves its native host between parents and 
 	})
 
 	const api = runInNewContext(
-		['parentReference', 'resolveParentNode', 'canContainView', 'validateTextNesting', 'insert', 'detach', 'destroy'].map(fn).join('\n') +
-			'\n({insert,destroy})',
+		[
+			'parentReference',
+			'resolveParentNode',
+			'canContainView',
+			'validateTextNesting',
+			'insert',
+			'detach',
+			'destroy',
+		]
+			.map(fn)
+			.join('\n') + '\n({insert,destroy})',
 		{
 			VIEW_PARENT_TYPES: new Set(['contentview']),
 			layoutView: (node: any) => node.view,
@@ -160,7 +216,9 @@ test('ListPicker production ownership moves its native host between parents and 
 			disposePressGestures: noop,
 			panHandlersByView: new WeakMap(),
 			layoutHandlers: new WeakMap(),
-			actionHandlers: actions, accessibilityLabels: new Map(), accessibilityRoles: new Map(),
+			actionHandlers: actions,
+			accessibilityLabels: new Map(),
+			accessibilityRoles: new Map(),
 		},
 	)
 

@@ -70,10 +70,7 @@ try {
 			['media', 'media.macos'],
 			['files', 'files.macos'],
 		].map(async ([pkg, base]) => {
-			const source = await readFile(
-				new URL(`../../${pkg}/src/${base}.ts`, import.meta.url),
-				'utf8',
-			)
+			const source = await readFile(new URL(`../../${pkg}/src/${base}.ts`, import.meta.url), 'utf8')
 
 			return `registry[${JSON.stringify(`./${base}`)}] = (() => { const exports = {}; ${ts.transpile(
 				source,
@@ -86,11 +83,11 @@ try {
 		`const registry = (() => { const registry = {}; const require = (spec) => { const found = registry[spec]; if (!found) { throw new Error('unsupported fixture require: ' + spec); } return found; };`,
 		...leaves,
 		'return registry; })();',
-		'const media = registry[\'./media.macos\'].media;',
-		'const files = registry[\'./files.macos\'].files;',
+		"const media = registry['./media.macos'].media;",
+		"const files = registry['./files.macos'].files;",
 	]
 
-	const script = join(directory, "fixture.cjs")
+	const script = join(directory, 'fixture.cjs')
 	await writeFile(
 		script,
 		`${modules.join('\n')}

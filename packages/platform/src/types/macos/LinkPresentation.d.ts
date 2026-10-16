@@ -1,4 +1,11 @@
-import type { NSCoder, NSCopying, NSError, NSItemProvider, NSSecureCoding, NSURL } from './Foundation'
+import type {
+	NSCoder,
+	NSCopying,
+	NSError,
+	NSItemProvider,
+	NSSecureCoding,
+	NSURL,
+} from './Foundation'
 
 import type { interop } from './objc-runtime'
 
@@ -6,55 +13,56 @@ import { NSView } from './AppKit'
 
 import { NSObject } from './Runtime'
 
-
-
-export declare const LPErrorDomain: string;
+export declare const LPErrorDomain: string
 
 export declare const LPErrorCode: {
-  Unknown: 1,
-  MetadataFetchFailed: 2,
-  MetadataFetchCancelled: 3,
-  MetadataFetchTimedOut: 4,
-};
+	Unknown: 1
+	MetadataFetchFailed: 2
+	MetadataFetchCancelled: 3
+	MetadataFetchTimedOut: 4
+}
 
 export declare class LPMetadataProvider extends NSObject {
-  startFetchingMetadataForURLCompletionHandler(URL: NSURL, completionHandler: (p1: LPLinkMetadata, p2: NSError) => void | null): void;
+	startFetchingMetadataForURLCompletionHandler(
+		URL: NSURL,
+		completionHandler: (p1: LPLinkMetadata, p2: NSError) => void | null,
+	): void
 
-  cancel(): void;
+	cancel(): void
 
-  shouldFetchSubresources: boolean;
+	shouldFetchSubresources: boolean
 
-  timeout: number;
+	timeout: number
 }
 
 export declare class LPLinkView extends NSView {
-  initWithURL(URL: NSURL): this;
+	initWithURL(URL: NSURL): this
 
-  initWithMetadata(metadata: LPLinkMetadata): this;
+	initWithMetadata(metadata: LPLinkMetadata): this
 
-  metadata: LPLinkMetadata;
+	metadata: LPLinkMetadata
 }
 
 export declare class LPLinkMetadata extends NSObject implements NSCopying, NSSecureCoding {
-  originalURL: NSURL;
+	originalURL: NSURL
 
-  URL: NSURL;
+	URL: NSURL
 
-  title: string;
+	title: string
 
-  iconProvider: NSItemProvider;
+	iconProvider: NSItemProvider
 
-  imageProvider: NSItemProvider;
+	imageProvider: NSItemProvider
 
-  videoProvider: NSItemProvider;
+	videoProvider: NSItemProvider
 
-  remoteVideoURL: NSURL;
+	remoteVideoURL: NSURL
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }

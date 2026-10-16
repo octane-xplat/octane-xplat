@@ -2,11 +2,31 @@ import { _bind } from './_rt.js'
 const FW = '/System/Library/Frameworks/DriverKit.framework/DriverKit'
 export const IOAddressSegment = /* @__PURE__ */ _bind(FW, 'IOAddressSegment')
 export const IOBufferMemoryDescriptor = /* @__PURE__ */ _bind(FW, 'IOBufferMemoryDescriptor')
-export const IOBufferMemoryDescriptorInterface = /* @__PURE__ */ _bind(FW, 'IOBufferMemoryDescriptorInterface')
-export const IOBufferMemoryDescriptorMetaClass = /* @__PURE__ */ _bind(FW, 'IOBufferMemoryDescriptorMetaClass')
-export const IOBufferMemoryDescriptor_Class = /* @__PURE__ */ _bind(FW, 'IOBufferMemoryDescriptor_Class')
-export const IOBufferMemoryDescriptor_IVars = /* @__PURE__ */ _bind(FW, 'IOBufferMemoryDescriptor_IVars')
-export const IOBufferMemoryDescriptor_LocalIVars = /* @__PURE__ */ _bind(FW, 'IOBufferMemoryDescriptor_LocalIVars')
+export const IOBufferMemoryDescriptorInterface = /* @__PURE__ */ _bind(
+	FW,
+	'IOBufferMemoryDescriptorInterface',
+)
+
+export const IOBufferMemoryDescriptorMetaClass = /* @__PURE__ */ _bind(
+	FW,
+	'IOBufferMemoryDescriptorMetaClass',
+)
+
+export const IOBufferMemoryDescriptor_Class = /* @__PURE__ */ _bind(
+	FW,
+	'IOBufferMemoryDescriptor_Class',
+)
+
+export const IOBufferMemoryDescriptor_IVars = /* @__PURE__ */ _bind(
+	FW,
+	'IOBufferMemoryDescriptor_IVars',
+)
+
+export const IOBufferMemoryDescriptor_LocalIVars = /* @__PURE__ */ _bind(
+	FW,
+	'IOBufferMemoryDescriptor_LocalIVars',
+)
+
 export const IODMACommandInterface = /* @__PURE__ */ _bind(FW, 'IODMACommandInterface')
 export const IODMACommandMetaClass = /* @__PURE__ */ _bind(FW, 'IODMACommandMetaClass')
 export const IODMACommandSpecification = /* @__PURE__ */ _bind(FW, 'IODMACommandSpecification')
@@ -14,11 +34,31 @@ export const IODMACommand_Class = /* @__PURE__ */ _bind(FW, 'IODMACommand_Class'
 export const IODMACommand_IVars = /* @__PURE__ */ _bind(FW, 'IODMACommand_IVars')
 export const IODMACommand_LocalIVars = /* @__PURE__ */ _bind(FW, 'IODMACommand_LocalIVars')
 export const IODataQueueDispatchSource = /* @__PURE__ */ _bind(FW, 'IODataQueueDispatchSource')
-export const IODataQueueDispatchSourceInterface = /* @__PURE__ */ _bind(FW, 'IODataQueueDispatchSourceInterface')
-export const IODataQueueDispatchSourceMetaClass = /* @__PURE__ */ _bind(FW, 'IODataQueueDispatchSourceMetaClass')
-export const IODataQueueDispatchSource_Class = /* @__PURE__ */ _bind(FW, 'IODataQueueDispatchSource_Class')
-export const IODataQueueDispatchSource_IVars = /* @__PURE__ */ _bind(FW, 'IODataQueueDispatchSource_IVars')
-export const IODataQueueDispatchSource_LocalIVars = /* @__PURE__ */ _bind(FW, 'IODataQueueDispatchSource_LocalIVars')
+export const IODataQueueDispatchSourceInterface = /* @__PURE__ */ _bind(
+	FW,
+	'IODataQueueDispatchSourceInterface',
+)
+
+export const IODataQueueDispatchSourceMetaClass = /* @__PURE__ */ _bind(
+	FW,
+	'IODataQueueDispatchSourceMetaClass',
+)
+
+export const IODataQueueDispatchSource_Class = /* @__PURE__ */ _bind(
+	FW,
+	'IODataQueueDispatchSource_Class',
+)
+
+export const IODataQueueDispatchSource_IVars = /* @__PURE__ */ _bind(
+	FW,
+	'IODataQueueDispatchSource_IVars',
+)
+
+export const IODataQueueDispatchSource_LocalIVars = /* @__PURE__ */ _bind(
+	FW,
+	'IODataQueueDispatchSource_LocalIVars',
+)
+
 export const IODispatchQueue = /* @__PURE__ */ _bind(FW, 'IODispatchQueue')
 export const IODispatchQueueInterface = /* @__PURE__ */ _bind(FW, 'IODispatchQueueInterface')
 export const IODispatchQueueMetaClass = /* @__PURE__ */ _bind(FW, 'IODispatchQueueMetaClass')
@@ -32,18 +72,46 @@ export const IODispatchSource_Class = /* @__PURE__ */ _bind(FW, 'IODispatchSourc
 export const IODispatchSource_IVars = /* @__PURE__ */ _bind(FW, 'IODispatchSource_IVars')
 export const IODispatchSource_LocalIVars = /* @__PURE__ */ _bind(FW, 'IODispatchSource_LocalIVars')
 export const IOInterruptDispatchSource = /* @__PURE__ */ _bind(FW, 'IOInterruptDispatchSource')
-export const IOInterruptDispatchSourceInterface = /* @__PURE__ */ _bind(FW, 'IOInterruptDispatchSourceInterface')
-export const IOInterruptDispatchSourceMetaClass = /* @__PURE__ */ _bind(FW, 'IOInterruptDispatchSourceMetaClass')
-export const IOInterruptDispatchSourcePayload = /* @__PURE__ */ _bind(FW, 'IOInterruptDispatchSourcePayload')
-export const IOInterruptDispatchSource_Class = /* @__PURE__ */ _bind(FW, 'IOInterruptDispatchSource_Class')
-export const IOInterruptDispatchSource_IVars = /* @__PURE__ */ _bind(FW, 'IOInterruptDispatchSource_IVars')
-export const IOInterruptDispatchSource_LocalIVars = /* @__PURE__ */ _bind(FW, 'IOInterruptDispatchSource_LocalIVars')
+export const IOInterruptDispatchSourceInterface = /* @__PURE__ */ _bind(
+	FW,
+	'IOInterruptDispatchSourceInterface',
+)
+
+export const IOInterruptDispatchSourceMetaClass = /* @__PURE__ */ _bind(
+	FW,
+	'IOInterruptDispatchSourceMetaClass',
+)
+
+export const IOInterruptDispatchSourcePayload = /* @__PURE__ */ _bind(
+	FW,
+	'IOInterruptDispatchSourcePayload',
+)
+
+export const IOInterruptDispatchSource_Class = /* @__PURE__ */ _bind(
+	FW,
+	'IOInterruptDispatchSource_Class',
+)
+
+export const IOInterruptDispatchSource_IVars = /* @__PURE__ */ _bind(
+	FW,
+	'IOInterruptDispatchSource_IVars',
+)
+
+export const IOInterruptDispatchSource_LocalIVars = /* @__PURE__ */ _bind(
+	FW,
+	'IOInterruptDispatchSource_LocalIVars',
+)
+
 export const IOMemoryDescriptor = /* @__PURE__ */ _bind(FW, 'IOMemoryDescriptor')
 export const IOMemoryDescriptorInterface = /* @__PURE__ */ _bind(FW, 'IOMemoryDescriptorInterface')
 export const IOMemoryDescriptorMetaClass = /* @__PURE__ */ _bind(FW, 'IOMemoryDescriptorMetaClass')
 export const IOMemoryDescriptor_Class = /* @__PURE__ */ _bind(FW, 'IOMemoryDescriptor_Class')
 export const IOMemoryDescriptor_IVars = /* @__PURE__ */ _bind(FW, 'IOMemoryDescriptor_IVars')
-export const IOMemoryDescriptor_LocalIVars = /* @__PURE__ */ _bind(FW, 'IOMemoryDescriptor_LocalIVars')
+export const IOMemoryDescriptor_LocalIVars = /* @__PURE__ */ _bind(
+	FW,
+	'IOMemoryDescriptor_LocalIVars',
+)
+
 export const IOMemoryMap = /* @__PURE__ */ _bind(FW, 'IOMemoryMap')
 export const IOMemoryMapInterface = /* @__PURE__ */ _bind(FW, 'IOMemoryMapInterface')
 export const IOMemoryMapMetaClass = /* @__PURE__ */ _bind(FW, 'IOMemoryMapMetaClass')
@@ -53,16 +121,32 @@ export const IOMemoryMap_LocalIVars = /* @__PURE__ */ _bind(FW, 'IOMemoryMap_Loc
 export const IOService = /* @__PURE__ */ _bind(FW, 'IOService')
 export const IOServiceInterface = /* @__PURE__ */ _bind(FW, 'IOServiceInterface')
 export const IOServiceMetaClass = /* @__PURE__ */ _bind(FW, 'IOServiceMetaClass')
-export const IOServiceStateNotificationDispatchSource = /* @__PURE__ */ _bind(FW, 'IOServiceStateNotificationDispatchSource')
+export const IOServiceStateNotificationDispatchSource = /* @__PURE__ */ _bind(
+	FW,
+	'IOServiceStateNotificationDispatchSource',
+)
+
 export const IOService_Class = /* @__PURE__ */ _bind(FW, 'IOService_Class')
 export const IOService_IVars = /* @__PURE__ */ _bind(FW, 'IOService_IVars')
 export const IOService_LocalIVars = /* @__PURE__ */ _bind(FW, 'IOService_LocalIVars')
 export const IOTimerDispatchSource = /* @__PURE__ */ _bind(FW, 'IOTimerDispatchSource')
-export const IOTimerDispatchSourceInterface = /* @__PURE__ */ _bind(FW, 'IOTimerDispatchSourceInterface')
-export const IOTimerDispatchSourceMetaClass = /* @__PURE__ */ _bind(FW, 'IOTimerDispatchSourceMetaClass')
+export const IOTimerDispatchSourceInterface = /* @__PURE__ */ _bind(
+	FW,
+	'IOTimerDispatchSourceInterface',
+)
+
+export const IOTimerDispatchSourceMetaClass = /* @__PURE__ */ _bind(
+	FW,
+	'IOTimerDispatchSourceMetaClass',
+)
+
 export const IOTimerDispatchSource_Class = /* @__PURE__ */ _bind(FW, 'IOTimerDispatchSource_Class')
 export const IOTimerDispatchSource_IVars = /* @__PURE__ */ _bind(FW, 'IOTimerDispatchSource_IVars')
-export const IOTimerDispatchSource_LocalIVars = /* @__PURE__ */ _bind(FW, 'IOTimerDispatchSource_LocalIVars')
+export const IOTimerDispatchSource_LocalIVars = /* @__PURE__ */ _bind(
+	FW,
+	'IOTimerDispatchSource_LocalIVars',
+)
+
 export const IOUserClient = /* @__PURE__ */ _bind(FW, 'IOUserClient')
 export const IOUserClientInterface = /* @__PURE__ */ _bind(FW, 'IOUserClientInterface')
 export const IOUserClientMetaClass = /* @__PURE__ */ _bind(FW, 'IOUserClientMetaClass')
@@ -82,12 +166,36 @@ export const OSActionInterface = /* @__PURE__ */ _bind(FW, 'OSActionInterface')
 export const OSActionMetaClass = /* @__PURE__ */ _bind(FW, 'OSActionMetaClass')
 export const OSActionWaitToken = /* @__PURE__ */ _bind(FW, 'OSActionWaitToken')
 export const OSAction_Class = /* @__PURE__ */ _bind(FW, 'OSAction_Class')
-export const OSAction_IOUserClient_KernelCompletion = /* @__PURE__ */ _bind(FW, 'OSAction_IOUserClient_KernelCompletion')
-export const OSAction_IOUserClient_KernelCompletionInterface = /* @__PURE__ */ _bind(FW, 'OSAction_IOUserClient_KernelCompletionInterface')
-export const OSAction_IOUserClient_KernelCompletionMetaClass = /* @__PURE__ */ _bind(FW, 'OSAction_IOUserClient_KernelCompletionMetaClass')
-export const OSAction_IOUserClient_KernelCompletion_Class = /* @__PURE__ */ _bind(FW, 'OSAction_IOUserClient_KernelCompletion_Class')
-export const OSAction_IOUserClient_KernelCompletion_IVars = /* @__PURE__ */ _bind(FW, 'OSAction_IOUserClient_KernelCompletion_IVars')
-export const OSAction_IOUserClient_KernelCompletion_LocalIVars = /* @__PURE__ */ _bind(FW, 'OSAction_IOUserClient_KernelCompletion_LocalIVars')
+export const OSAction_IOUserClient_KernelCompletion = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_IOUserClient_KernelCompletion',
+)
+
+export const OSAction_IOUserClient_KernelCompletionInterface = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_IOUserClient_KernelCompletionInterface',
+)
+
+export const OSAction_IOUserClient_KernelCompletionMetaClass = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_IOUserClient_KernelCompletionMetaClass',
+)
+
+export const OSAction_IOUserClient_KernelCompletion_Class = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_IOUserClient_KernelCompletion_Class',
+)
+
+export const OSAction_IOUserClient_KernelCompletion_IVars = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_IOUserClient_KernelCompletion_IVars',
+)
+
+export const OSAction_IOUserClient_KernelCompletion_LocalIVars = /* @__PURE__ */ _bind(
+	FW,
+	'OSAction_IOUserClient_KernelCompletion_LocalIVars',
+)
+
 export const OSAction_IVars = /* @__PURE__ */ _bind(FW, 'OSAction_IVars')
 export const OSAction_LocalIVars = /* @__PURE__ */ _bind(FW, 'OSAction_LocalIVars')
 export const OSArray = /* @__PURE__ */ _bind(FW, 'OSArray')
@@ -154,22 +262,50 @@ export const OSString_LocalIVars = /* @__PURE__ */ _bind(FW, 'OSString_LocalIVar
 export const _IOMDPrivateState = /* @__PURE__ */ _bind(FW, '_IOMDPrivateState')
 export const _IOMemoryMapPrivateState = /* @__PURE__ */ _bind(FW, '_IOMemoryMapPrivateState')
 export const _kIOPMWakeEventFullWake = /* @__PURE__ */ _bind(FW, '_kIOPMWakeEventFullWake')
-export const _kIOPMWakeEventPossibleFullWake = /* @__PURE__ */ _bind(FW, '_kIOPMWakeEventPossibleFullWake')
+export const _kIOPMWakeEventPossibleFullWake = /* @__PURE__ */ _bind(
+	FW,
+	'_kIOPMWakeEventPossibleFullWake',
+)
+
 export const _kIOPMWakeEventSource = /* @__PURE__ */ _bind(FW, '_kIOPMWakeEventSource')
-export const gIOBufferMemoryDescriptorMetaClass = /* @__PURE__ */ _bind(FW, 'gIOBufferMemoryDescriptorMetaClass')
+export const gIOBufferMemoryDescriptorMetaClass = /* @__PURE__ */ _bind(
+	FW,
+	'gIOBufferMemoryDescriptorMetaClass',
+)
+
 export const gIODMACommandMetaClass = /* @__PURE__ */ _bind(FW, 'gIODMACommandMetaClass')
-export const gIODataQueueDispatchSourceMetaClass = /* @__PURE__ */ _bind(FW, 'gIODataQueueDispatchSourceMetaClass')
+export const gIODataQueueDispatchSourceMetaClass = /* @__PURE__ */ _bind(
+	FW,
+	'gIODataQueueDispatchSourceMetaClass',
+)
+
 export const gIODispatchQueueMetaClass = /* @__PURE__ */ _bind(FW, 'gIODispatchQueueMetaClass')
 export const gIODispatchSourceMetaClass = /* @__PURE__ */ _bind(FW, 'gIODispatchSourceMetaClass')
-export const gIOInterruptDispatchSourceMetaClass = /* @__PURE__ */ _bind(FW, 'gIOInterruptDispatchSourceMetaClass')
-export const gIOMemoryDescriptorMetaClass = /* @__PURE__ */ _bind(FW, 'gIOMemoryDescriptorMetaClass')
+export const gIOInterruptDispatchSourceMetaClass = /* @__PURE__ */ _bind(
+	FW,
+	'gIOInterruptDispatchSourceMetaClass',
+)
+
+export const gIOMemoryDescriptorMetaClass = /* @__PURE__ */ _bind(
+	FW,
+	'gIOMemoryDescriptorMetaClass',
+)
+
 export const gIOMemoryMapMetaClass = /* @__PURE__ */ _bind(FW, 'gIOMemoryMapMetaClass')
 export const gIOServiceMetaClass = /* @__PURE__ */ _bind(FW, 'gIOServiceMetaClass')
-export const gIOTimerDispatchSourceMetaClass = /* @__PURE__ */ _bind(FW, 'gIOTimerDispatchSourceMetaClass')
+export const gIOTimerDispatchSourceMetaClass = /* @__PURE__ */ _bind(
+	FW,
+	'gIOTimerDispatchSourceMetaClass',
+)
+
 export const gIOUserClientMetaClass = /* @__PURE__ */ _bind(FW, 'gIOUserClientMetaClass')
 export const gIOUserServerMetaClass = /* @__PURE__ */ _bind(FW, 'gIOUserServerMetaClass')
 export const gOSActionMetaClass = /* @__PURE__ */ _bind(FW, 'gOSActionMetaClass')
-export const gOSAction_IOUserClient_KernelCompletionMetaClass = /* @__PURE__ */ _bind(FW, 'gOSAction_IOUserClient_KernelCompletionMetaClass')
+export const gOSAction_IOUserClient_KernelCompletionMetaClass = /* @__PURE__ */ _bind(
+	FW,
+	'gOSAction_IOUserClient_KernelCompletionMetaClass',
+)
+
 export const gOSArrayMetaClass = /* @__PURE__ */ _bind(FW, 'gOSArrayMetaClass')
 export const gOSBooleanMetaClass = /* @__PURE__ */ _bind(FW, 'gOSBooleanMetaClass')
 export const gOSCollectionMetaClass = /* @__PURE__ */ _bind(FW, 'gOSCollectionMetaClass')
@@ -180,21 +316,73 @@ export const gOSNumberMetaClass = /* @__PURE__ */ _bind(FW, 'gOSNumberMetaClass'
 export const gOSObjectMetaClass = /* @__PURE__ */ _bind(FW, 'gOSObjectMetaClass')
 export const gOSSerializationMetaClass = /* @__PURE__ */ _bind(FW, 'gOSSerializationMetaClass')
 export const gOSStringMetaClass = /* @__PURE__ */ _bind(FW, 'gOSStringMetaClass')
-export const kIODMACommandCompleteDMANoOptions = /* @__PURE__ */ _bind(FW, 'kIODMACommandCompleteDMANoOptions')
-export const kIODMACommandCreateNoOptions = /* @__PURE__ */ _bind(FW, 'kIODMACommandCreateNoOptions')
-export const kIODMACommandPerformOperationOptionRead = /* @__PURE__ */ _bind(FW, 'kIODMACommandPerformOperationOptionRead')
-export const kIODMACommandPerformOperationOptionWrite = /* @__PURE__ */ _bind(FW, 'kIODMACommandPerformOperationOptionWrite')
-export const kIODMACommandPerformOperationOptionZero = /* @__PURE__ */ _bind(FW, 'kIODMACommandPerformOperationOptionZero')
-export const kIODMACommandPrepareForDMANoOptions = /* @__PURE__ */ _bind(FW, 'kIODMACommandPrepareForDMANoOptions')
-export const kIODMACommandSpecificationNoOptions = /* @__PURE__ */ _bind(FW, 'kIODMACommandSpecificationNoOptions')
-export const kIODispatchQueueMethodsNotSynchronized = /* @__PURE__ */ _bind(FW, 'kIODispatchQueueMethodsNotSynchronized')
+export const kIODMACommandCompleteDMANoOptions = /* @__PURE__ */ _bind(
+	FW,
+	'kIODMACommandCompleteDMANoOptions',
+)
+
+export const kIODMACommandCreateNoOptions = /* @__PURE__ */ _bind(
+	FW,
+	'kIODMACommandCreateNoOptions',
+)
+
+export const kIODMACommandPerformOperationOptionRead = /* @__PURE__ */ _bind(
+	FW,
+	'kIODMACommandPerformOperationOptionRead',
+)
+
+export const kIODMACommandPerformOperationOptionWrite = /* @__PURE__ */ _bind(
+	FW,
+	'kIODMACommandPerformOperationOptionWrite',
+)
+
+export const kIODMACommandPerformOperationOptionZero = /* @__PURE__ */ _bind(
+	FW,
+	'kIODMACommandPerformOperationOptionZero',
+)
+
+export const kIODMACommandPrepareForDMANoOptions = /* @__PURE__ */ _bind(
+	FW,
+	'kIODMACommandPrepareForDMANoOptions',
+)
+
+export const kIODMACommandSpecificationNoOptions = /* @__PURE__ */ _bind(
+	FW,
+	'kIODMACommandSpecificationNoOptions',
+)
+
+export const kIODispatchQueueMethodsNotSynchronized = /* @__PURE__ */ _bind(
+	FW,
+	'kIODispatchQueueMethodsNotSynchronized',
+)
+
 export const kIODispatchQueueReentrant = /* @__PURE__ */ _bind(FW, 'kIODispatchQueueReentrant')
-export const kIODispatchQueueSleepReuseEvent = /* @__PURE__ */ _bind(FW, 'kIODispatchQueueSleepReuseEvent')
+export const kIODispatchQueueSleepReuseEvent = /* @__PURE__ */ _bind(
+	FW,
+	'kIODispatchQueueSleepReuseEvent',
+)
+
 export const kIODispatchQueueWakeupAll = /* @__PURE__ */ _bind(FW, 'kIODispatchQueueWakeupAll')
-export const kIOInterruptDispatchSourceTypeEdge = /* @__PURE__ */ _bind(FW, 'kIOInterruptDispatchSourceTypeEdge')
-export const kIOInterruptDispatchSourceTypeLevel = /* @__PURE__ */ _bind(FW, 'kIOInterruptDispatchSourceTypeLevel')
-export const kIOInterruptSourceAbsoluteTime = /* @__PURE__ */ _bind(FW, 'kIOInterruptSourceAbsoluteTime')
-export const kIOInterruptSourceContinuousTime = /* @__PURE__ */ _bind(FW, 'kIOInterruptSourceContinuousTime')
+export const kIOInterruptDispatchSourceTypeEdge = /* @__PURE__ */ _bind(
+	FW,
+	'kIOInterruptDispatchSourceTypeEdge',
+)
+
+export const kIOInterruptDispatchSourceTypeLevel = /* @__PURE__ */ _bind(
+	FW,
+	'kIOInterruptDispatchSourceTypeLevel',
+)
+
+export const kIOInterruptSourceAbsoluteTime = /* @__PURE__ */ _bind(
+	FW,
+	'kIOInterruptSourceAbsoluteTime',
+)
+
+export const kIOInterruptSourceContinuousTime = /* @__PURE__ */ _bind(
+	FW,
+	'kIOInterruptSourceContinuousTime',
+)
+
 export const kIOInterruptSourceIndexMask = /* @__PURE__ */ _bind(FW, 'kIOInterruptSourceIndexMask')
 export const kIOMemoryDirectionIn = /* @__PURE__ */ _bind(FW, 'kIOMemoryDirectionIn')
 export const kIOMemoryDirectionInOut = /* @__PURE__ */ _bind(FW, 'kIOMemoryDirectionInOut')
@@ -202,12 +390,36 @@ export const kIOMemoryDirectionNone = /* @__PURE__ */ _bind(FW, 'kIOMemoryDirect
 export const kIOMemoryDirectionOut = /* @__PURE__ */ _bind(FW, 'kIOMemoryDirectionOut')
 export const kIOMemoryDirectionOutIn = /* @__PURE__ */ _bind(FW, 'kIOMemoryDirectionOutIn')
 export const kIOMemoryDisableCopyOnWrite = /* @__PURE__ */ _bind(FW, 'kIOMemoryDisableCopyOnWrite')
-export const kIOMemoryMapCacheModeCopyback = /* @__PURE__ */ _bind(FW, 'kIOMemoryMapCacheModeCopyback')
-export const kIOMemoryMapCacheModeDefault = /* @__PURE__ */ _bind(FW, 'kIOMemoryMapCacheModeDefault')
-export const kIOMemoryMapCacheModeInhibit = /* @__PURE__ */ _bind(FW, 'kIOMemoryMapCacheModeInhibit')
-export const kIOMemoryMapCacheModePostedCombinedReordered = /* @__PURE__ */ _bind(FW, 'kIOMemoryMapCacheModePostedCombinedReordered')
-export const kIOMemoryMapCacheModeRealTime = /* @__PURE__ */ _bind(FW, 'kIOMemoryMapCacheModeRealTime')
-export const kIOMemoryMapCacheModeWriteThrough = /* @__PURE__ */ _bind(FW, 'kIOMemoryMapCacheModeWriteThrough')
+export const kIOMemoryMapCacheModeCopyback = /* @__PURE__ */ _bind(
+	FW,
+	'kIOMemoryMapCacheModeCopyback',
+)
+
+export const kIOMemoryMapCacheModeDefault = /* @__PURE__ */ _bind(
+	FW,
+	'kIOMemoryMapCacheModeDefault',
+)
+
+export const kIOMemoryMapCacheModeInhibit = /* @__PURE__ */ _bind(
+	FW,
+	'kIOMemoryMapCacheModeInhibit',
+)
+
+export const kIOMemoryMapCacheModePostedCombinedReordered = /* @__PURE__ */ _bind(
+	FW,
+	'kIOMemoryMapCacheModePostedCombinedReordered',
+)
+
+export const kIOMemoryMapCacheModeRealTime = /* @__PURE__ */ _bind(
+	FW,
+	'kIOMemoryMapCacheModeRealTime',
+)
+
+export const kIOMemoryMapCacheModeWriteThrough = /* @__PURE__ */ _bind(
+	FW,
+	'kIOMemoryMapCacheModeWriteThrough',
+)
+
 export const kIOMemoryMapFixedAddress = /* @__PURE__ */ _bind(FW, 'kIOMemoryMapFixedAddress')
 export const kIOMemoryMapGuardedDefault = /* @__PURE__ */ _bind(FW, 'kIOMemoryMapGuardedDefault')
 export const kIOMemoryMapGuardedLarge = /* @__PURE__ */ _bind(FW, 'kIOMemoryMapGuardedLarge')
@@ -218,23 +430,71 @@ export const kIOMemoryMapReadOnly = /* @__PURE__ */ _bind(FW, 'kIOMemoryMapReadO
 export const kIOServiceHaltStatePowerOff = /* @__PURE__ */ _bind(FW, 'kIOServiceHaltStatePowerOff')
 export const kIOServiceHaltStateRestart = /* @__PURE__ */ _bind(FW, 'kIOServiceHaltStateRestart')
 export const kIOServicePMAssertionCPUBit = /* @__PURE__ */ _bind(FW, 'kIOServicePMAssertionCPUBit')
-export const kIOServicePMAssertionForceFullWakeupBit = /* @__PURE__ */ _bind(FW, 'kIOServicePMAssertionForceFullWakeupBit')
-export const kIOServicePowerCapabilityLPW = /* @__PURE__ */ _bind(FW, 'kIOServicePowerCapabilityLPW')
-export const kIOServicePowerCapabilityLow = /* @__PURE__ */ _bind(FW, 'kIOServicePowerCapabilityLow')
-export const kIOServicePowerCapabilityOff = /* @__PURE__ */ _bind(FW, 'kIOServicePowerCapabilityOff')
+export const kIOServicePMAssertionForceFullWakeupBit = /* @__PURE__ */ _bind(
+	FW,
+	'kIOServicePMAssertionForceFullWakeupBit',
+)
+
+export const kIOServicePowerCapabilityLPW = /* @__PURE__ */ _bind(
+	FW,
+	'kIOServicePowerCapabilityLPW',
+)
+
+export const kIOServicePowerCapabilityLow = /* @__PURE__ */ _bind(
+	FW,
+	'kIOServicePowerCapabilityLow',
+)
+
+export const kIOServicePowerCapabilityOff = /* @__PURE__ */ _bind(
+	FW,
+	'kIOServicePowerCapabilityOff',
+)
+
 export const kIOServicePowerCapabilityOn = /* @__PURE__ */ _bind(FW, 'kIOServicePowerCapabilityOn')
-export const kIOServiceSearchPropertyParents = /* @__PURE__ */ _bind(FW, 'kIOServiceSearchPropertyParents')
-export const kIOTimerClockMachAbsoluteTime = /* @__PURE__ */ _bind(FW, 'kIOTimerClockMachAbsoluteTime')
-export const kIOTimerClockMachContinuousTime = /* @__PURE__ */ _bind(FW, 'kIOTimerClockMachContinuousTime')
+export const kIOServiceSearchPropertyParents = /* @__PURE__ */ _bind(
+	FW,
+	'kIOServiceSearchPropertyParents',
+)
+
+export const kIOTimerClockMachAbsoluteTime = /* @__PURE__ */ _bind(
+	FW,
+	'kIOTimerClockMachAbsoluteTime',
+)
+
+export const kIOTimerClockMachContinuousTime = /* @__PURE__ */ _bind(
+	FW,
+	'kIOTimerClockMachContinuousTime',
+)
+
 export const kIOTimerClockMonotonicRaw = /* @__PURE__ */ _bind(FW, 'kIOTimerClockMonotonicRaw')
 export const kIOTimerClockRealTime = /* @__PURE__ */ _bind(FW, 'kIOTimerClockRealTime')
 export const kIOTimerClockUptimeRaw = /* @__PURE__ */ _bind(FW, 'kIOTimerClockUptimeRaw')
 export const kIOTimerClockWallTime = /* @__PURE__ */ _bind(FW, 'kIOTimerClockWallTime')
-export const kIOUserClientAsyncArgumentsCountMax = /* @__PURE__ */ _bind(FW, 'kIOUserClientAsyncArgumentsCountMax')
-export const kIOUserClientAsyncReferenceCountMax = /* @__PURE__ */ _bind(FW, 'kIOUserClientAsyncReferenceCountMax')
+export const kIOUserClientAsyncArgumentsCountMax = /* @__PURE__ */ _bind(
+	FW,
+	'kIOUserClientAsyncArgumentsCountMax',
+)
+
+export const kIOUserClientAsyncReferenceCountMax = /* @__PURE__ */ _bind(
+	FW,
+	'kIOUserClientAsyncReferenceCountMax',
+)
+
 export const kIOUserClientMemoryReadOnly = /* @__PURE__ */ _bind(FW, 'kIOUserClientMemoryReadOnly')
-export const kIOUserClientMethodArgumentsCurrentVersion = /* @__PURE__ */ _bind(FW, 'kIOUserClientMethodArgumentsCurrentVersion')
-export const kIOUserClientScalarArrayCountMax = /* @__PURE__ */ _bind(FW, 'kIOUserClientScalarArrayCountMax')
-export const kIOUserClientVariableStructureSize = /* @__PURE__ */ _bind(FW, 'kIOUserClientVariableStructureSize')
+export const kIOUserClientMethodArgumentsCurrentVersion = /* @__PURE__ */ _bind(
+	FW,
+	'kIOUserClientMethodArgumentsCurrentVersion',
+)
+
+export const kIOUserClientScalarArrayCountMax = /* @__PURE__ */ _bind(
+	FW,
+	'kIOUserClientScalarArrayCountMax',
+)
+
+export const kIOUserClientVariableStructureSize = /* @__PURE__ */ _bind(
+	FW,
+	'kIOUserClientVariableStructureSize',
+)
+
 export const kOSBooleanFalse = /* @__PURE__ */ _bind(FW, 'kOSBooleanFalse')
 export const kOSBooleanTrue = /* @__PURE__ */ _bind(FW, 'kOSBooleanTrue')

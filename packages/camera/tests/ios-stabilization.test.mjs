@@ -8,10 +8,15 @@ const source = await readFile(new URL('../src/session-backend.ios.ts', import.me
 const start = source.indexOf('const preferAutoStabilization =')
 const end = source.indexOf('const mapInterruptionReason =', start)
 assert.ok(start >= 0 && end > start)
-const compiled = ts.transpile('const videoStabilizationModeAuto = -1;\n' + source.slice(start, end) + '\nglobalThis.prefer = preferAutoStabilization', {
-	module: ts.ModuleKind.CommonJS,
-	target: ts.ScriptTarget.ES2022,
-})
+const compiled = ts.transpile(
+	'const videoStabilizationModeAuto = -1;\n' +
+		source.slice(start, end) +
+		'\nglobalThis.prefer = preferAutoStabilization',
+	{
+		module: ts.ModuleKind.CommonJS,
+		target: ts.ScriptTarget.ES2022,
+	},
+)
 
 const context = vm.createContext({})
 vm.runInContext(compiled, context)
@@ -32,7 +37,12 @@ test('supported connections receive the automatic stabilization preference', () 
 })
 
 test('explicit unsupported mode leaves the preference unchanged', () => {
-	const connection = { preferredVideoStabilizationMode: 0, supportsVideoStabilization: true, isVideoStabilizationModeSupported: () => false }
+	const connection = {
+		preferredVideoStabilizationMode: 0,
+		supportsVideoStabilization: true,
+		isVideoStabilizationModeSupported: () => false,
+	}
+
 	prefer(connection)
 	assert.equal(connection.preferredVideoStabilizationMode, 0)
 })

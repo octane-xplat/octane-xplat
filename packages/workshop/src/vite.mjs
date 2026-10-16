@@ -14,7 +14,8 @@ import { discoverStories, normalizeInclude } from './discover.mjs'
 
 const CATALOG_ID = '\0xplat-workshop-catalog'
 const ENTRY_ID = '\0xplat-workshop-entry'
-const STORY_FILE_RE = /\.stories(?:\.(?:web|mobile|ios|android|macos|windows|linux))?\.(?:[cm]?[jt]s|[jt]sx|[jt]srx)$/
+const STORY_FILE_RE =
+	/\.stories(?:\.(?:web|mobile|ios|android|macos|windows|linux))?\.(?:[cm]?[jt]s|[jt]sx|[jt]srx)$/
 
 const WEB_EXTENSIONS = [
 	'.web.tsrx',
@@ -122,7 +123,10 @@ function entryCode(config, target, story, packageDir, root) {
 		.join('\n')
 
 	const providers = providerModules
-		.map((_, index) => `...(__workshopPreset${index}.providers ?? __workshopPreset${index}.default ?? [])`)
+		.map(
+			(_, index) =>
+				`...(__workshopPreset${index}.providers ?? __workshopPreset${index}.default ?? [])`,
+		)
 		.join(', ')
 
 	const shellCss = fsUrl(join(packageDir, 'web', 'shell.css'))
@@ -245,9 +249,15 @@ export function xplatWorkshop(options = {}) {
 			// stamped loader import.
 			order: 'pre',
 			handler(ctx) {
-				if (this.environment.name !== 'client' || !STORY_FILE_RE.test(ctx.file)) {return}
+				if (this.environment.name !== 'client' || !STORY_FILE_RE.test(ctx.file)) {
+					return
+				}
+
 				const catalog = this.environment.moduleGraph.getModuleById(CATALOG_ID)
-				if (!catalog) {return}
+				if (!catalog) {
+					return
+				}
+
 				this.environment.moduleGraph.invalidateModule(catalog)
 				// The environment-aware hook includes create/delete. Stamped story
 				// nodes carry no graph importer edge (@vite-ignore loader import),
@@ -273,7 +283,6 @@ export function xplatWorkshop(options = {}) {
 
 				next()
 			})
-
 		},
 	}
 
@@ -291,7 +300,11 @@ function serveAsset(config, root, url, res, next) {
 	}
 
 	const file = resolve(dir, rest.slice(name.length + 1))
-	if (!(file === dir || file.startsWith(dir + sep)) || !existsSync(file) || !statSync(file).isFile()) {
+	if (
+		!(file === dir || file.startsWith(dir + sep)) ||
+		!existsSync(file) ||
+		!statSync(file).isFile()
+	) {
 		res.statusCode = 404
 		res.end('not found')
 		return

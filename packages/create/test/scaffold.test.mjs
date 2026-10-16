@@ -111,10 +111,7 @@ test('ios-only scaffold carries shared native machinery but not android', (t) =>
 
 	const manifest = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
 	assert.equal(manifest.scripts['dev:android'], undefined)
-	assert.equal(
-		manifest.scripts.typecheck,
-		'xplat typecheck',
-	)
+	assert.equal(manifest.scripts.typecheck, 'xplat typecheck')
 
 	assert.equal(
 		manifest.devDependencies['@nativescript/ios'],
@@ -171,10 +168,7 @@ test('applyTarget adds a platform to a web-only app without clobbering edits', (
 	assert.equal(manifest.main, 'src/main.ts')
 	assert.equal(manifest.scripts.lint, 'custom-lint')
 	assert.equal(manifest.scripts['dev:ios'], 'ns run ios')
-	assert.equal(
-		manifest.scripts.typecheck,
-		'xplat typecheck',
-	)
+	assert.equal(manifest.scripts.typecheck, 'xplat typecheck')
 
 	assert.equal(
 		manifest.devDependencies['@nativescript/ios'],

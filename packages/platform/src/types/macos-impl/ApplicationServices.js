@@ -1,49 +1,125 @@
 import { _bind } from './_rt.js'
 const FW = '/System/Library/Frameworks/ApplicationServices.framework/ApplicationServices'
-export const ATSCreateFontQueryRunLoopSource = /* @__PURE__ */ _bind(FW, 'ATSCreateFontQueryRunLoopSource')
+export const ATSCreateFontQueryRunLoopSource = /* @__PURE__ */ _bind(
+	FW,
+	'ATSCreateFontQueryRunLoopSource',
+)
+
 export const ATSFSSpec = /* @__PURE__ */ _bind(FW, 'ATSFSSpec')
-export const ATSFlatDataFontNameDataHeader = /* @__PURE__ */ _bind(FW, 'ATSFlatDataFontNameDataHeader')
-export const ATSFlatDataFontSpecRawNameData = /* @__PURE__ */ _bind(FW, 'ATSFlatDataFontSpecRawNameData')
-export const ATSFlatDataFontSpecRawNameDataHeader = /* @__PURE__ */ _bind(FW, 'ATSFlatDataFontSpecRawNameDataHeader')
-export const ATSFlatDataLayoutControlsDataHeader = /* @__PURE__ */ _bind(FW, 'ATSFlatDataLayoutControlsDataHeader')
+export const ATSFlatDataFontNameDataHeader = /* @__PURE__ */ _bind(
+	FW,
+	'ATSFlatDataFontNameDataHeader',
+)
+
+export const ATSFlatDataFontSpecRawNameData = /* @__PURE__ */ _bind(
+	FW,
+	'ATSFlatDataFontSpecRawNameData',
+)
+
+export const ATSFlatDataFontSpecRawNameDataHeader = /* @__PURE__ */ _bind(
+	FW,
+	'ATSFlatDataFontSpecRawNameDataHeader',
+)
+
+export const ATSFlatDataLayoutControlsDataHeader = /* @__PURE__ */ _bind(
+	FW,
+	'ATSFlatDataLayoutControlsDataHeader',
+)
+
 export const ATSFlatDataLineInfoData = /* @__PURE__ */ _bind(FW, 'ATSFlatDataLineInfoData')
 export const ATSFlatDataLineInfoHeader = /* @__PURE__ */ _bind(FW, 'ATSFlatDataLineInfoHeader')
 export const ATSFlatDataMainHeaderBlock = /* @__PURE__ */ _bind(FW, 'ATSFlatDataMainHeaderBlock')
-export const ATSFlatDataStyleListFeatureData = /* @__PURE__ */ _bind(FW, 'ATSFlatDataStyleListFeatureData')
+export const ATSFlatDataStyleListFeatureData = /* @__PURE__ */ _bind(
+	FW,
+	'ATSFlatDataStyleListFeatureData',
+)
+
 export const ATSFlatDataStyleListHeader = /* @__PURE__ */ _bind(FW, 'ATSFlatDataStyleListHeader')
-export const ATSFlatDataStyleListStyleDataHeader = /* @__PURE__ */ _bind(FW, 'ATSFlatDataStyleListStyleDataHeader')
-export const ATSFlatDataStyleListVariationData = /* @__PURE__ */ _bind(FW, 'ATSFlatDataStyleListVariationData')
-export const ATSFlatDataStyleRunDataHeader = /* @__PURE__ */ _bind(FW, 'ATSFlatDataStyleRunDataHeader')
-export const ATSFlatDataTextLayoutDataHeader = /* @__PURE__ */ _bind(FW, 'ATSFlatDataTextLayoutDataHeader')
+export const ATSFlatDataStyleListStyleDataHeader = /* @__PURE__ */ _bind(
+	FW,
+	'ATSFlatDataStyleListStyleDataHeader',
+)
+
+export const ATSFlatDataStyleListVariationData = /* @__PURE__ */ _bind(
+	FW,
+	'ATSFlatDataStyleListVariationData',
+)
+
+export const ATSFlatDataStyleRunDataHeader = /* @__PURE__ */ _bind(
+	FW,
+	'ATSFlatDataStyleRunDataHeader',
+)
+
+export const ATSFlatDataTextLayoutDataHeader = /* @__PURE__ */ _bind(
+	FW,
+	'ATSFlatDataTextLayoutDataHeader',
+)
+
 export const ATSFlatDataTextLayoutHeader = /* @__PURE__ */ _bind(FW, 'ATSFlatDataTextLayoutHeader')
-export const ATSFontActivateFromFileReference = /* @__PURE__ */ _bind(FW, 'ATSFontActivateFromFileReference')
+export const ATSFontActivateFromFileReference = /* @__PURE__ */ _bind(
+	FW,
+	'ATSFontActivateFromFileReference',
+)
+
 export const ATSFontActivateFromMemory = /* @__PURE__ */ _bind(FW, 'ATSFontActivateFromMemory')
 export const ATSFontApplyFunction = /* @__PURE__ */ _bind(FW, 'ATSFontApplyFunction')
 export const ATSFontDeactivate = /* @__PURE__ */ _bind(FW, 'ATSFontDeactivate')
 export const ATSFontFamilyApplyFunction = /* @__PURE__ */ _bind(FW, 'ATSFontFamilyApplyFunction')
 export const ATSFontFamilyFindFromName = /* @__PURE__ */ _bind(FW, 'ATSFontFamilyFindFromName')
-export const ATSFontFamilyFindFromQuickDrawName = /* @__PURE__ */ _bind(FW, 'ATSFontFamilyFindFromQuickDrawName')
+export const ATSFontFamilyFindFromQuickDrawName = /* @__PURE__ */ _bind(
+	FW,
+	'ATSFontFamilyFindFromQuickDrawName',
+)
+
 export const ATSFontFamilyGetEncoding = /* @__PURE__ */ _bind(FW, 'ATSFontFamilyGetEncoding')
 export const ATSFontFamilyGetGeneration = /* @__PURE__ */ _bind(FW, 'ATSFontFamilyGetGeneration')
 export const ATSFontFamilyGetName = /* @__PURE__ */ _bind(FW, 'ATSFontFamilyGetName')
-export const ATSFontFamilyGetQuickDrawName = /* @__PURE__ */ _bind(FW, 'ATSFontFamilyGetQuickDrawName')
+export const ATSFontFamilyGetQuickDrawName = /* @__PURE__ */ _bind(
+	FW,
+	'ATSFontFamilyGetQuickDrawName',
+)
+
 export const ATSFontFamilyIteratorCreate = /* @__PURE__ */ _bind(FW, 'ATSFontFamilyIteratorCreate')
 export const ATSFontFamilyIteratorNext = /* @__PURE__ */ _bind(FW, 'ATSFontFamilyIteratorNext')
-export const ATSFontFamilyIteratorRelease = /* @__PURE__ */ _bind(FW, 'ATSFontFamilyIteratorRelease')
+export const ATSFontFamilyIteratorRelease = /* @__PURE__ */ _bind(
+	FW,
+	'ATSFontFamilyIteratorRelease',
+)
+
 export const ATSFontFamilyIteratorReset = /* @__PURE__ */ _bind(FW, 'ATSFontFamilyIteratorReset')
 export const ATSFontFamilyIterator_ = /* @__PURE__ */ _bind(FW, 'ATSFontFamilyIterator_')
 export const ATSFontFilter = /* @__PURE__ */ _bind(FW, 'ATSFontFilter')
 export const ATSFontFilterSelector = /* @__PURE__ */ _bind(FW, 'ATSFontFilterSelector')
 export const ATSFontFindFromContainer = /* @__PURE__ */ _bind(FW, 'ATSFontFindFromContainer')
 export const ATSFontFindFromName = /* @__PURE__ */ _bind(FW, 'ATSFontFindFromName')
-export const ATSFontFindFromPostScriptName = /* @__PURE__ */ _bind(FW, 'ATSFontFindFromPostScriptName')
-export const ATSFontGetAutoActivationSettingForApplication = /* @__PURE__ */ _bind(FW, 'ATSFontGetAutoActivationSettingForApplication')
+export const ATSFontFindFromPostScriptName = /* @__PURE__ */ _bind(
+	FW,
+	'ATSFontFindFromPostScriptName',
+)
+
+export const ATSFontGetAutoActivationSettingForApplication = /* @__PURE__ */ _bind(
+	FW,
+	'ATSFontGetAutoActivationSettingForApplication',
+)
+
 export const ATSFontGetContainer = /* @__PURE__ */ _bind(FW, 'ATSFontGetContainer')
-export const ATSFontGetContainerFromFileReference = /* @__PURE__ */ _bind(FW, 'ATSFontGetContainerFromFileReference')
+export const ATSFontGetContainerFromFileReference = /* @__PURE__ */ _bind(
+	FW,
+	'ATSFontGetContainerFromFileReference',
+)
+
 export const ATSFontGetFileReference = /* @__PURE__ */ _bind(FW, 'ATSFontGetFileReference')
-export const ATSFontGetFontFamilyResource = /* @__PURE__ */ _bind(FW, 'ATSFontGetFontFamilyResource')
+export const ATSFontGetFontFamilyResource = /* @__PURE__ */ _bind(
+	FW,
+	'ATSFontGetFontFamilyResource',
+)
+
 export const ATSFontGetGeneration = /* @__PURE__ */ _bind(FW, 'ATSFontGetGeneration')
-export const ATSFontGetGlobalAutoActivationSetting = /* @__PURE__ */ _bind(FW, 'ATSFontGetGlobalAutoActivationSetting')
+export const ATSFontGetGlobalAutoActivationSetting = /* @__PURE__ */ _bind(
+	FW,
+	'ATSFontGetGlobalAutoActivationSetting',
+)
+
 export const ATSFontGetHorizontalMetrics = /* @__PURE__ */ _bind(FW, 'ATSFontGetHorizontalMetrics')
 export const ATSFontGetName = /* @__PURE__ */ _bind(FW, 'ATSFontGetName')
 export const ATSFontGetPostScriptName = /* @__PURE__ */ _bind(FW, 'ATSFontGetPostScriptName')
@@ -59,21 +135,41 @@ export const ATSFontIterator_ = /* @__PURE__ */ _bind(FW, 'ATSFontIterator_')
 export const ATSFontMetrics = /* @__PURE__ */ _bind(FW, 'ATSFontMetrics')
 export const ATSFontNotificationInfoRef_ = /* @__PURE__ */ _bind(FW, 'ATSFontNotificationInfoRef_')
 export const ATSFontNotificationRef_ = /* @__PURE__ */ _bind(FW, 'ATSFontNotificationRef_')
-export const ATSFontNotificationSubscribe = /* @__PURE__ */ _bind(FW, 'ATSFontNotificationSubscribe')
-export const ATSFontNotificationUnsubscribe = /* @__PURE__ */ _bind(FW, 'ATSFontNotificationUnsubscribe')
+export const ATSFontNotificationSubscribe = /* @__PURE__ */ _bind(
+	FW,
+	'ATSFontNotificationSubscribe',
+)
+
+export const ATSFontNotificationUnsubscribe = /* @__PURE__ */ _bind(
+	FW,
+	'ATSFontNotificationUnsubscribe',
+)
+
 export const ATSFontNotify = /* @__PURE__ */ _bind(FW, 'ATSFontNotify')
 export const ATSFontNotifyAction = /* @__PURE__ */ _bind(FW, 'ATSFontNotifyAction')
 export const ATSFontNotifyOption = /* @__PURE__ */ _bind(FW, 'ATSFontNotifyOption')
 export const ATSFontQueryMessageID = /* @__PURE__ */ _bind(FW, 'ATSFontQueryMessageID')
 export const ATSFontQuerySourceContext = /* @__PURE__ */ _bind(FW, 'ATSFontQuerySourceContext')
-export const ATSFontSetAutoActivationSettingForApplication = /* @__PURE__ */ _bind(FW, 'ATSFontSetAutoActivationSettingForApplication')
+export const ATSFontSetAutoActivationSettingForApplication = /* @__PURE__ */ _bind(
+	FW,
+	'ATSFontSetAutoActivationSettingForApplication',
+)
+
 export const ATSFontSetEnabled = /* @__PURE__ */ _bind(FW, 'ATSFontSetEnabled')
-export const ATSFontSetGlobalAutoActivationSetting = /* @__PURE__ */ _bind(FW, 'ATSFontSetGlobalAutoActivationSetting')
+export const ATSFontSetGlobalAutoActivationSetting = /* @__PURE__ */ _bind(
+	FW,
+	'ATSFontSetGlobalAutoActivationSetting',
+)
+
 export const ATSGetGeneration = /* @__PURE__ */ _bind(FW, 'ATSGetGeneration')
 export const ATSGlyphIdealMetrics = /* @__PURE__ */ _bind(FW, 'ATSGlyphIdealMetrics')
 export const ATSGlyphScreenMetrics = /* @__PURE__ */ _bind(FW, 'ATSGlyphScreenMetrics')
 export const ATSGlyphVector = /* @__PURE__ */ _bind(FW, 'ATSGlyphVector')
-export const ATSJustWidthDeltaEntryOverride = /* @__PURE__ */ _bind(FW, 'ATSJustWidthDeltaEntryOverride')
+export const ATSJustWidthDeltaEntryOverride = /* @__PURE__ */ _bind(
+	FW,
+	'ATSJustWidthDeltaEntryOverride',
+)
+
 export const ATSLayoutRecord = /* @__PURE__ */ _bind(FW, 'ATSLayoutRecord')
 export const ATSTrapezoid = /* @__PURE__ */ _bind(FW, 'ATSTrapezoid')
 export const ATSUAttributeInfo = /* @__PURE__ */ _bind(FW, 'ATSUAttributeInfo')
@@ -84,53 +180,141 @@ export const ATSUCurvePaths = /* @__PURE__ */ _bind(FW, 'ATSUCurvePaths')
 export const ATSUGlyphInfo = /* @__PURE__ */ _bind(FW, 'ATSUGlyphInfo')
 export const ATSUGlyphInfoArray = /* @__PURE__ */ _bind(FW, 'ATSUGlyphInfoArray')
 export const ATSUGlyphSelector = /* @__PURE__ */ _bind(FW, 'ATSUGlyphSelector')
-export const ATSULayoutOperationOverrideSpecifier = /* @__PURE__ */ _bind(FW, 'ATSULayoutOperationOverrideSpecifier')
+export const ATSULayoutOperationOverrideSpecifier = /* @__PURE__ */ _bind(
+	FW,
+	'ATSULayoutOperationOverrideSpecifier',
+)
+
 export const ATSURGBAlphaColor = /* @__PURE__ */ _bind(FW, 'ATSURGBAlphaColor')
 export const ATSUStyleRunInfo = /* @__PURE__ */ _bind(FW, 'ATSUStyleRunInfo')
 export const ATSUTab = /* @__PURE__ */ _bind(FW, 'ATSUTab')
 export const ATSUUnhighlightData = /* @__PURE__ */ _bind(FW, 'ATSUUnhighlightData')
 export const AXAPIEnabled = /* @__PURE__ */ _bind(FW, 'AXAPIEnabled')
-export const AXCopyMultipleAttributeOptions = /* @__PURE__ */ _bind(FW, 'AXCopyMultipleAttributeOptions')
+export const AXCopyMultipleAttributeOptions = /* @__PURE__ */ _bind(
+	FW,
+	'AXCopyMultipleAttributeOptions',
+)
+
 export const AXError = /* @__PURE__ */ _bind(FW, 'AXError')
 export const AXIsProcessTrusted = /* @__PURE__ */ _bind(FW, 'AXIsProcessTrusted')
-export const AXIsProcessTrustedWithOptions = /* @__PURE__ */ _bind(FW, 'AXIsProcessTrustedWithOptions')
+export const AXIsProcessTrustedWithOptions = /* @__PURE__ */ _bind(
+	FW,
+	'AXIsProcessTrustedWithOptions',
+)
+
 export const AXMakeProcessTrusted = /* @__PURE__ */ _bind(FW, 'AXMakeProcessTrusted')
 export const AXMenuItemModifiers = /* @__PURE__ */ _bind(FW, 'AXMenuItemModifiers')
 export const AXObserverAddNotification = /* @__PURE__ */ _bind(FW, 'AXObserverAddNotification')
 export const AXObserverCreate = /* @__PURE__ */ _bind(FW, 'AXObserverCreate')
-export const AXObserverCreateWithInfoCallback = /* @__PURE__ */ _bind(FW, 'AXObserverCreateWithInfoCallback')
+export const AXObserverCreateWithInfoCallback = /* @__PURE__ */ _bind(
+	FW,
+	'AXObserverCreateWithInfoCallback',
+)
+
 export const AXObserverGetRunLoopSource = /* @__PURE__ */ _bind(FW, 'AXObserverGetRunLoopSource')
 export const AXObserverGetTypeID = /* @__PURE__ */ _bind(FW, 'AXObserverGetTypeID')
-export const AXObserverRemoveNotification = /* @__PURE__ */ _bind(FW, 'AXObserverRemoveNotification')
+export const AXObserverRemoveNotification = /* @__PURE__ */ _bind(
+	FW,
+	'AXObserverRemoveNotification',
+)
+
 export const AXPriority = /* @__PURE__ */ _bind(FW, 'AXPriority')
 export const AXTextMarkerCreate = /* @__PURE__ */ _bind(FW, 'AXTextMarkerCreate')
 export const AXTextMarkerGetBytePtr = /* @__PURE__ */ _bind(FW, 'AXTextMarkerGetBytePtr')
 export const AXTextMarkerGetLength = /* @__PURE__ */ _bind(FW, 'AXTextMarkerGetLength')
 export const AXTextMarkerGetTypeID = /* @__PURE__ */ _bind(FW, 'AXTextMarkerGetTypeID')
-export const AXTextMarkerRangeCopyEndMarker = /* @__PURE__ */ _bind(FW, 'AXTextMarkerRangeCopyEndMarker')
-export const AXTextMarkerRangeCopyStartMarker = /* @__PURE__ */ _bind(FW, 'AXTextMarkerRangeCopyStartMarker')
+export const AXTextMarkerRangeCopyEndMarker = /* @__PURE__ */ _bind(
+	FW,
+	'AXTextMarkerRangeCopyEndMarker',
+)
+
+export const AXTextMarkerRangeCopyStartMarker = /* @__PURE__ */ _bind(
+	FW,
+	'AXTextMarkerRangeCopyStartMarker',
+)
+
 export const AXTextMarkerRangeCreate = /* @__PURE__ */ _bind(FW, 'AXTextMarkerRangeCreate')
-export const AXTextMarkerRangeCreateWithBytes = /* @__PURE__ */ _bind(FW, 'AXTextMarkerRangeCreateWithBytes')
+export const AXTextMarkerRangeCreateWithBytes = /* @__PURE__ */ _bind(
+	FW,
+	'AXTextMarkerRangeCreateWithBytes',
+)
+
 export const AXTextMarkerRangeGetTypeID = /* @__PURE__ */ _bind(FW, 'AXTextMarkerRangeGetTypeID')
-export const AXUIElementCopyActionDescription = /* @__PURE__ */ _bind(FW, 'AXUIElementCopyActionDescription')
+export const AXUIElementCopyActionDescription = /* @__PURE__ */ _bind(
+	FW,
+	'AXUIElementCopyActionDescription',
+)
+
 export const AXUIElementCopyActionNames = /* @__PURE__ */ _bind(FW, 'AXUIElementCopyActionNames')
-export const AXUIElementCopyAttributeNames = /* @__PURE__ */ _bind(FW, 'AXUIElementCopyAttributeNames')
-export const AXUIElementCopyAttributeValue = /* @__PURE__ */ _bind(FW, 'AXUIElementCopyAttributeValue')
-export const AXUIElementCopyAttributeValues = /* @__PURE__ */ _bind(FW, 'AXUIElementCopyAttributeValues')
-export const AXUIElementCopyElementAtPosition = /* @__PURE__ */ _bind(FW, 'AXUIElementCopyElementAtPosition')
-export const AXUIElementCopyMultipleAttributeValues = /* @__PURE__ */ _bind(FW, 'AXUIElementCopyMultipleAttributeValues')
-export const AXUIElementCopyParameterizedAttributeNames = /* @__PURE__ */ _bind(FW, 'AXUIElementCopyParameterizedAttributeNames')
-export const AXUIElementCopyParameterizedAttributeValue = /* @__PURE__ */ _bind(FW, 'AXUIElementCopyParameterizedAttributeValue')
-export const AXUIElementCreateApplication = /* @__PURE__ */ _bind(FW, 'AXUIElementCreateApplication')
+export const AXUIElementCopyAttributeNames = /* @__PURE__ */ _bind(
+	FW,
+	'AXUIElementCopyAttributeNames',
+)
+
+export const AXUIElementCopyAttributeValue = /* @__PURE__ */ _bind(
+	FW,
+	'AXUIElementCopyAttributeValue',
+)
+
+export const AXUIElementCopyAttributeValues = /* @__PURE__ */ _bind(
+	FW,
+	'AXUIElementCopyAttributeValues',
+)
+
+export const AXUIElementCopyElementAtPosition = /* @__PURE__ */ _bind(
+	FW,
+	'AXUIElementCopyElementAtPosition',
+)
+
+export const AXUIElementCopyMultipleAttributeValues = /* @__PURE__ */ _bind(
+	FW,
+	'AXUIElementCopyMultipleAttributeValues',
+)
+
+export const AXUIElementCopyParameterizedAttributeNames = /* @__PURE__ */ _bind(
+	FW,
+	'AXUIElementCopyParameterizedAttributeNames',
+)
+
+export const AXUIElementCopyParameterizedAttributeValue = /* @__PURE__ */ _bind(
+	FW,
+	'AXUIElementCopyParameterizedAttributeValue',
+)
+
+export const AXUIElementCreateApplication = /* @__PURE__ */ _bind(
+	FW,
+	'AXUIElementCreateApplication',
+)
+
 export const AXUIElementCreateSystemWide = /* @__PURE__ */ _bind(FW, 'AXUIElementCreateSystemWide')
-export const AXUIElementGetAttributeValueCount = /* @__PURE__ */ _bind(FW, 'AXUIElementGetAttributeValueCount')
+export const AXUIElementGetAttributeValueCount = /* @__PURE__ */ _bind(
+	FW,
+	'AXUIElementGetAttributeValueCount',
+)
+
 export const AXUIElementGetPid = /* @__PURE__ */ _bind(FW, 'AXUIElementGetPid')
 export const AXUIElementGetTypeID = /* @__PURE__ */ _bind(FW, 'AXUIElementGetTypeID')
-export const AXUIElementIsAttributeSettable = /* @__PURE__ */ _bind(FW, 'AXUIElementIsAttributeSettable')
+export const AXUIElementIsAttributeSettable = /* @__PURE__ */ _bind(
+	FW,
+	'AXUIElementIsAttributeSettable',
+)
+
 export const AXUIElementPerformAction = /* @__PURE__ */ _bind(FW, 'AXUIElementPerformAction')
-export const AXUIElementPostKeyboardEvent = /* @__PURE__ */ _bind(FW, 'AXUIElementPostKeyboardEvent')
-export const AXUIElementSetAttributeValue = /* @__PURE__ */ _bind(FW, 'AXUIElementSetAttributeValue')
-export const AXUIElementSetMessagingTimeout = /* @__PURE__ */ _bind(FW, 'AXUIElementSetMessagingTimeout')
+export const AXUIElementPostKeyboardEvent = /* @__PURE__ */ _bind(
+	FW,
+	'AXUIElementPostKeyboardEvent',
+)
+
+export const AXUIElementSetAttributeValue = /* @__PURE__ */ _bind(
+	FW,
+	'AXUIElementSetAttributeValue',
+)
+
+export const AXUIElementSetMessagingTimeout = /* @__PURE__ */ _bind(
+	FW,
+	'AXUIElementSetMessagingTimeout',
+)
+
 export const AXUnderlineStyle = /* @__PURE__ */ _bind(FW, 'AXUnderlineStyle')
 export const AXValueCreate = /* @__PURE__ */ _bind(FW, 'AXValueCreate')
 export const AXValueGetType = /* @__PURE__ */ _bind(FW, 'AXValueGetType')
@@ -178,7 +362,11 @@ export const CMMakeAndModelType = /* @__PURE__ */ _bind(FW, 'CMMakeAndModelType'
 export const CMMeasurementType = /* @__PURE__ */ _bind(FW, 'CMMeasurementType')
 export const CMMultiFunctCLUTType = /* @__PURE__ */ _bind(FW, 'CMMultiFunctCLUTType')
 export const CMMultiFunctLutType = /* @__PURE__ */ _bind(FW, 'CMMultiFunctLutType')
-export const CMMultiLocalizedUniCodeEntryRec = /* @__PURE__ */ _bind(FW, 'CMMultiLocalizedUniCodeEntryRec')
+export const CMMultiLocalizedUniCodeEntryRec = /* @__PURE__ */ _bind(
+	FW,
+	'CMMultiLocalizedUniCodeEntryRec',
+)
+
 export const CMMultiLocalizedUniCodeType = /* @__PURE__ */ _bind(FW, 'CMMultiLocalizedUniCodeType')
 export const CMMultichannel5Color = /* @__PURE__ */ _bind(FW, 'CMMultichannel5Color')
 export const CMMultichannel6Color = /* @__PURE__ */ _bind(FW, 'CMMultichannel6Color')
@@ -244,7 +432,11 @@ export const ExitToShell = /* @__PURE__ */ _bind(FW, 'ExitToShell')
 export const FMFilter = /* @__PURE__ */ _bind(FW, 'FMFilter')
 export const FMFontDirectoryFilter = /* @__PURE__ */ _bind(FW, 'FMFontDirectoryFilter')
 export const FMFontFamilyInstance = /* @__PURE__ */ _bind(FW, 'FMFontFamilyInstance')
-export const FMFontFamilyInstanceIterator = /* @__PURE__ */ _bind(FW, 'FMFontFamilyInstanceIterator')
+export const FMFontFamilyInstanceIterator = /* @__PURE__ */ _bind(
+	FW,
+	'FMFontFamilyInstanceIterator',
+)
+
 export const FMFontFamilyIterator = /* @__PURE__ */ _bind(FW, 'FMFontFamilyIterator')
 export const FMFontIterator = /* @__PURE__ */ _bind(FW, 'FMFontIterator')
 export const FMInput = /* @__PURE__ */ _bind(FW, 'FMInput')
@@ -276,7 +468,11 @@ export const HIShapeCreateEmpty = /* @__PURE__ */ _bind(FW, 'HIShapeCreateEmpty'
 export const HIShapeCreateIntersection = /* @__PURE__ */ _bind(FW, 'HIShapeCreateIntersection')
 export const HIShapeCreateMutable = /* @__PURE__ */ _bind(FW, 'HIShapeCreateMutable')
 export const HIShapeCreateMutableCopy = /* @__PURE__ */ _bind(FW, 'HIShapeCreateMutableCopy')
-export const HIShapeCreateMutableWithRect = /* @__PURE__ */ _bind(FW, 'HIShapeCreateMutableWithRect')
+export const HIShapeCreateMutableWithRect = /* @__PURE__ */ _bind(
+	FW,
+	'HIShapeCreateMutableWithRect',
+)
+
 export const HIShapeCreateUnion = /* @__PURE__ */ _bind(FW, 'HIShapeCreateUnion')
 export const HIShapeCreateWithQDRgn = /* @__PURE__ */ _bind(FW, 'HIShapeCreateWithQDRgn')
 export const HIShapeCreateWithRect = /* @__PURE__ */ _bind(FW, 'HIShapeCreateWithRect')
@@ -292,7 +488,11 @@ export const HIShapeIntersectsRect = /* @__PURE__ */ _bind(FW, 'HIShapeIntersect
 export const HIShapeIsEmpty = /* @__PURE__ */ _bind(FW, 'HIShapeIsEmpty')
 export const HIShapeIsRectangular = /* @__PURE__ */ _bind(FW, 'HIShapeIsRectangular')
 export const HIShapeOffset = /* @__PURE__ */ _bind(FW, 'HIShapeOffset')
-export const HIShapeReplacePathInCGContext = /* @__PURE__ */ _bind(FW, 'HIShapeReplacePathInCGContext')
+export const HIShapeReplacePathInCGContext = /* @__PURE__ */ _bind(
+	FW,
+	'HIShapeReplacePathInCGContext',
+)
+
 export const HIShapeSetEmpty = /* @__PURE__ */ _bind(FW, 'HIShapeSetEmpty')
 export const HIShapeSetWithShape = /* @__PURE__ */ _bind(FW, 'HIShapeSetWithShape')
 export const HIShapeUnion = /* @__PURE__ */ _bind(FW, 'HIShapeUnion')
@@ -405,7 +605,11 @@ export const OpenCPicParams = /* @__PURE__ */ _bind(FW, 'OpenCPicParams')
 export const PDEPanel = /* @__PURE__ */ _bind(FW, 'PDEPanel')
 export const PDEPlugIn = /* @__PURE__ */ _bind(FW, 'PDEPlugIn')
 export const PDEPlugInCallbackProtocol = /* @__PURE__ */ _bind(FW, 'PDEPlugInCallbackProtocol')
-export const PMCGImageCreateWithEPSDataProvider = /* @__PURE__ */ _bind(FW, 'PMCGImageCreateWithEPSDataProvider')
+export const PMCGImageCreateWithEPSDataProvider = /* @__PURE__ */ _bind(
+	FW,
+	'PMCGImageCreateWithEPSDataProvider',
+)
+
 export const PMCopyAvailablePPDs = /* @__PURE__ */ _bind(FW, 'PMCopyAvailablePPDs')
 export const PMCopyLocalizedPPD = /* @__PURE__ */ _bind(FW, 'PMCopyLocalizedPPD')
 export const PMCopyPPDData = /* @__PURE__ */ _bind(FW, 'PMCopyPPDData')
@@ -413,7 +617,11 @@ export const PMCopyPageFormat = /* @__PURE__ */ _bind(FW, 'PMCopyPageFormat')
 export const PMCopyPrintSettings = /* @__PURE__ */ _bind(FW, 'PMCopyPrintSettings')
 export const PMCreateGenericPrinter = /* @__PURE__ */ _bind(FW, 'PMCreateGenericPrinter')
 export const PMCreatePageFormat = /* @__PURE__ */ _bind(FW, 'PMCreatePageFormat')
-export const PMCreatePageFormatWithPMPaper = /* @__PURE__ */ _bind(FW, 'PMCreatePageFormatWithPMPaper')
+export const PMCreatePageFormatWithPMPaper = /* @__PURE__ */ _bind(
+	FW,
+	'PMCreatePageFormatWithPMPaper',
+)
+
 export const PMCreatePrintSettings = /* @__PURE__ */ _bind(FW, 'PMCreatePrintSettings')
 export const PMCreateSession = /* @__PURE__ */ _bind(FW, 'PMCreateSession')
 export const PMDataFormat = /* @__PURE__ */ _bind(FW, 'PMDataFormat')
@@ -432,8 +640,16 @@ export const PMGetScale = /* @__PURE__ */ _bind(FW, 'PMGetScale')
 export const PMGetUnadjustedPageRect = /* @__PURE__ */ _bind(FW, 'PMGetUnadjustedPageRect')
 export const PMGetUnadjustedPaperRect = /* @__PURE__ */ _bind(FW, 'PMGetUnadjustedPaperRect')
 export const PMLanguageInfo = /* @__PURE__ */ _bind(FW, 'PMLanguageInfo')
-export const PMPageFormatCreateDataRepresentation = /* @__PURE__ */ _bind(FW, 'PMPageFormatCreateDataRepresentation')
-export const PMPageFormatCreateWithDataRepresentation = /* @__PURE__ */ _bind(FW, 'PMPageFormatCreateWithDataRepresentation')
+export const PMPageFormatCreateDataRepresentation = /* @__PURE__ */ _bind(
+	FW,
+	'PMPageFormatCreateDataRepresentation',
+)
+
+export const PMPageFormatCreateWithDataRepresentation = /* @__PURE__ */ _bind(
+	FW,
+	'PMPageFormatCreateWithDataRepresentation',
+)
+
 export const PMPageFormatGetPrinterID = /* @__PURE__ */ _bind(FW, 'PMPageFormatGetPrinterID')
 export const PMPageToPaperMappingType = /* @__PURE__ */ _bind(FW, 'PMPageToPaperMappingType')
 export const PMPaperCreateCustom = /* @__PURE__ */ _bind(FW, 'PMPaperCreateCustom')
@@ -448,75 +664,175 @@ export const PMPaperIsCustom = /* @__PURE__ */ _bind(FW, 'PMPaperIsCustom')
 export const PMPresetCopyName = /* @__PURE__ */ _bind(FW, 'PMPresetCopyName')
 export const PMPresetCreatePrintSettings = /* @__PURE__ */ _bind(FW, 'PMPresetCreatePrintSettings')
 export const PMPresetGetAttributes = /* @__PURE__ */ _bind(FW, 'PMPresetGetAttributes')
-export const PMPrintSettingsCopyAsDictionary = /* @__PURE__ */ _bind(FW, 'PMPrintSettingsCopyAsDictionary')
+export const PMPrintSettingsCopyAsDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'PMPrintSettingsCopyAsDictionary',
+)
+
 export const PMPrintSettingsCopyKeys = /* @__PURE__ */ _bind(FW, 'PMPrintSettingsCopyKeys')
-export const PMPrintSettingsCreateDataRepresentation = /* @__PURE__ */ _bind(FW, 'PMPrintSettingsCreateDataRepresentation')
-export const PMPrintSettingsCreateWithDataRepresentation = /* @__PURE__ */ _bind(FW, 'PMPrintSettingsCreateWithDataRepresentation')
+export const PMPrintSettingsCreateDataRepresentation = /* @__PURE__ */ _bind(
+	FW,
+	'PMPrintSettingsCreateDataRepresentation',
+)
+
+export const PMPrintSettingsCreateWithDataRepresentation = /* @__PURE__ */ _bind(
+	FW,
+	'PMPrintSettingsCreateWithDataRepresentation',
+)
+
 export const PMPrintSettingsGetJobName = /* @__PURE__ */ _bind(FW, 'PMPrintSettingsGetJobName')
 export const PMPrintSettingsGetValue = /* @__PURE__ */ _bind(FW, 'PMPrintSettingsGetValue')
 export const PMPrintSettingsSetJobName = /* @__PURE__ */ _bind(FW, 'PMPrintSettingsSetJobName')
 export const PMPrintSettingsSetValue = /* @__PURE__ */ _bind(FW, 'PMPrintSettingsSetValue')
 export const PMPrintSettingsToOptions = /* @__PURE__ */ _bind(FW, 'PMPrintSettingsToOptions')
-export const PMPrintSettingsToOptionsWithPrinterAndPageFormat = /* @__PURE__ */ _bind(FW, 'PMPrintSettingsToOptionsWithPrinterAndPageFormat')
+export const PMPrintSettingsToOptionsWithPrinterAndPageFormat = /* @__PURE__ */ _bind(
+	FW,
+	'PMPrintSettingsToOptionsWithPrinterAndPageFormat',
+)
+
 export const PMPrinterCopyDescriptionURL = /* @__PURE__ */ _bind(FW, 'PMPrinterCopyDescriptionURL')
 export const PMPrinterCopyDeviceURI = /* @__PURE__ */ _bind(FW, 'PMPrinterCopyDeviceURI')
 export const PMPrinterCopyHostName = /* @__PURE__ */ _bind(FW, 'PMPrinterCopyHostName')
 export const PMPrinterCopyPresets = /* @__PURE__ */ _bind(FW, 'PMPrinterCopyPresets')
 export const PMPrinterCopyState = /* @__PURE__ */ _bind(FW, 'PMPrinterCopyState')
-export const PMPrinterCreateFromPrinterID = /* @__PURE__ */ _bind(FW, 'PMPrinterCreateFromPrinterID')
+export const PMPrinterCreateFromPrinterID = /* @__PURE__ */ _bind(
+	FW,
+	'PMPrinterCreateFromPrinterID',
+)
+
 export const PMPrinterGetCommInfo = /* @__PURE__ */ _bind(FW, 'PMPrinterGetCommInfo')
 export const PMPrinterGetDriverCreator = /* @__PURE__ */ _bind(FW, 'PMPrinterGetDriverCreator')
-export const PMPrinterGetDriverReleaseInfo = /* @__PURE__ */ _bind(FW, 'PMPrinterGetDriverReleaseInfo')
+export const PMPrinterGetDriverReleaseInfo = /* @__PURE__ */ _bind(
+	FW,
+	'PMPrinterGetDriverReleaseInfo',
+)
+
 export const PMPrinterGetID = /* @__PURE__ */ _bind(FW, 'PMPrinterGetID')
-export const PMPrinterGetIndexedPrinterResolution = /* @__PURE__ */ _bind(FW, 'PMPrinterGetIndexedPrinterResolution')
+export const PMPrinterGetIndexedPrinterResolution = /* @__PURE__ */ _bind(
+	FW,
+	'PMPrinterGetIndexedPrinterResolution',
+)
+
 export const PMPrinterGetLanguageInfo = /* @__PURE__ */ _bind(FW, 'PMPrinterGetLanguageInfo')
 export const PMPrinterGetLocation = /* @__PURE__ */ _bind(FW, 'PMPrinterGetLocation')
-export const PMPrinterGetMakeAndModelName = /* @__PURE__ */ _bind(FW, 'PMPrinterGetMakeAndModelName')
+export const PMPrinterGetMakeAndModelName = /* @__PURE__ */ _bind(
+	FW,
+	'PMPrinterGetMakeAndModelName',
+)
+
 export const PMPrinterGetMimeTypes = /* @__PURE__ */ _bind(FW, 'PMPrinterGetMimeTypes')
 export const PMPrinterGetName = /* @__PURE__ */ _bind(FW, 'PMPrinterGetName')
-export const PMPrinterGetOutputResolution = /* @__PURE__ */ _bind(FW, 'PMPrinterGetOutputResolution')
+export const PMPrinterGetOutputResolution = /* @__PURE__ */ _bind(
+	FW,
+	'PMPrinterGetOutputResolution',
+)
+
 export const PMPrinterGetPaperList = /* @__PURE__ */ _bind(FW, 'PMPrinterGetPaperList')
-export const PMPrinterGetPrinterResolutionCount = /* @__PURE__ */ _bind(FW, 'PMPrinterGetPrinterResolutionCount')
+export const PMPrinterGetPrinterResolutionCount = /* @__PURE__ */ _bind(
+	FW,
+	'PMPrinterGetPrinterResolutionCount',
+)
+
 export const PMPrinterGetState = /* @__PURE__ */ _bind(FW, 'PMPrinterGetState')
 export const PMPrinterIsDefault = /* @__PURE__ */ _bind(FW, 'PMPrinterIsDefault')
 export const PMPrinterIsFavorite = /* @__PURE__ */ _bind(FW, 'PMPrinterIsFavorite')
-export const PMPrinterIsPostScriptCapable = /* @__PURE__ */ _bind(FW, 'PMPrinterIsPostScriptCapable')
-export const PMPrinterIsPostScriptPrinter = /* @__PURE__ */ _bind(FW, 'PMPrinterIsPostScriptPrinter')
+export const PMPrinterIsPostScriptCapable = /* @__PURE__ */ _bind(
+	FW,
+	'PMPrinterIsPostScriptCapable',
+)
+
+export const PMPrinterIsPostScriptPrinter = /* @__PURE__ */ _bind(
+	FW,
+	'PMPrinterIsPostScriptPrinter',
+)
+
 export const PMPrinterIsRemote = /* @__PURE__ */ _bind(FW, 'PMPrinterIsRemote')
 export const PMPrinterPrintWithFile = /* @__PURE__ */ _bind(FW, 'PMPrinterPrintWithFile')
 export const PMPrinterPrintWithProvider = /* @__PURE__ */ _bind(FW, 'PMPrinterPrintWithProvider')
 export const PMPrinterSendCommand = /* @__PURE__ */ _bind(FW, 'PMPrinterSendCommand')
 export const PMPrinterSetDefault = /* @__PURE__ */ _bind(FW, 'PMPrinterSetDefault')
-export const PMPrinterSetOutputResolution = /* @__PURE__ */ _bind(FW, 'PMPrinterSetOutputResolution')
-export const PMPrinterWritePostScriptToURL = /* @__PURE__ */ _bind(FW, 'PMPrinterWritePostScriptToURL')
+export const PMPrinterSetOutputResolution = /* @__PURE__ */ _bind(
+	FW,
+	'PMPrinterSetOutputResolution',
+)
+
+export const PMPrinterWritePostScriptToURL = /* @__PURE__ */ _bind(
+	FW,
+	'PMPrinterWritePostScriptToURL',
+)
+
 export const PMRect = /* @__PURE__ */ _bind(FW, 'PMRect')
 export const PMRelease = /* @__PURE__ */ _bind(FW, 'PMRelease')
 export const PMResolution = /* @__PURE__ */ _bind(FW, 'PMResolution')
 export const PMRetain = /* @__PURE__ */ _bind(FW, 'PMRetain')
 export const PMServerCreatePrinterList = /* @__PURE__ */ _bind(FW, 'PMServerCreatePrinterList')
-export const PMServerLaunchPrinterBrowser = /* @__PURE__ */ _bind(FW, 'PMServerLaunchPrinterBrowser')
-export const PMSessionBeginCGDocumentNoDialog = /* @__PURE__ */ _bind(FW, 'PMSessionBeginCGDocumentNoDialog')
+export const PMServerLaunchPrinterBrowser = /* @__PURE__ */ _bind(
+	FW,
+	'PMServerLaunchPrinterBrowser',
+)
+
+export const PMSessionBeginCGDocumentNoDialog = /* @__PURE__ */ _bind(
+	FW,
+	'PMSessionBeginCGDocumentNoDialog',
+)
+
 export const PMSessionBeginPageNoDialog = /* @__PURE__ */ _bind(FW, 'PMSessionBeginPageNoDialog')
-export const PMSessionCopyDestinationFormat = /* @__PURE__ */ _bind(FW, 'PMSessionCopyDestinationFormat')
-export const PMSessionCopyDestinationLocation = /* @__PURE__ */ _bind(FW, 'PMSessionCopyDestinationLocation')
-export const PMSessionCopyOutputFormatList = /* @__PURE__ */ _bind(FW, 'PMSessionCopyOutputFormatList')
-export const PMSessionCreatePageFormatList = /* @__PURE__ */ _bind(FW, 'PMSessionCreatePageFormatList')
+export const PMSessionCopyDestinationFormat = /* @__PURE__ */ _bind(
+	FW,
+	'PMSessionCopyDestinationFormat',
+)
+
+export const PMSessionCopyDestinationLocation = /* @__PURE__ */ _bind(
+	FW,
+	'PMSessionCopyDestinationLocation',
+)
+
+export const PMSessionCopyOutputFormatList = /* @__PURE__ */ _bind(
+	FW,
+	'PMSessionCopyOutputFormatList',
+)
+
+export const PMSessionCreatePageFormatList = /* @__PURE__ */ _bind(
+	FW,
+	'PMSessionCreatePageFormatList',
+)
+
 export const PMSessionCreatePrinterList = /* @__PURE__ */ _bind(FW, 'PMSessionCreatePrinterList')
 export const PMSessionDefaultPageFormat = /* @__PURE__ */ _bind(FW, 'PMSessionDefaultPageFormat')
-export const PMSessionDefaultPrintSettings = /* @__PURE__ */ _bind(FW, 'PMSessionDefaultPrintSettings')
-export const PMSessionEndDocumentNoDialog = /* @__PURE__ */ _bind(FW, 'PMSessionEndDocumentNoDialog')
+export const PMSessionDefaultPrintSettings = /* @__PURE__ */ _bind(
+	FW,
+	'PMSessionDefaultPrintSettings',
+)
+
+export const PMSessionEndDocumentNoDialog = /* @__PURE__ */ _bind(
+	FW,
+	'PMSessionEndDocumentNoDialog',
+)
+
 export const PMSessionEndPageNoDialog = /* @__PURE__ */ _bind(FW, 'PMSessionEndPageNoDialog')
 export const PMSessionError = /* @__PURE__ */ _bind(FW, 'PMSessionError')
-export const PMSessionGetCGGraphicsContext = /* @__PURE__ */ _bind(FW, 'PMSessionGetCGGraphicsContext')
+export const PMSessionGetCGGraphicsContext = /* @__PURE__ */ _bind(
+	FW,
+	'PMSessionGetCGGraphicsContext',
+)
+
 export const PMSessionGetCurrentPrinter = /* @__PURE__ */ _bind(FW, 'PMSessionGetCurrentPrinter')
 export const PMSessionGetDataFromSession = /* @__PURE__ */ _bind(FW, 'PMSessionGetDataFromSession')
 export const PMSessionGetDestinationType = /* @__PURE__ */ _bind(FW, 'PMSessionGetDestinationType')
-export const PMSessionSetCurrentPMPrinter = /* @__PURE__ */ _bind(FW, 'PMSessionSetCurrentPMPrinter')
+export const PMSessionSetCurrentPMPrinter = /* @__PURE__ */ _bind(
+	FW,
+	'PMSessionSetCurrentPMPrinter',
+)
+
 export const PMSessionSetDataInSession = /* @__PURE__ */ _bind(FW, 'PMSessionSetDataInSession')
 export const PMSessionSetDestination = /* @__PURE__ */ _bind(FW, 'PMSessionSetDestination')
 export const PMSessionSetError = /* @__PURE__ */ _bind(FW, 'PMSessionSetError')
 export const PMSessionValidatePageFormat = /* @__PURE__ */ _bind(FW, 'PMSessionValidatePageFormat')
-export const PMSessionValidatePrintSettings = /* @__PURE__ */ _bind(FW, 'PMSessionValidatePrintSettings')
+export const PMSessionValidatePrintSettings = /* @__PURE__ */ _bind(
+	FW,
+	'PMSessionValidatePrintSettings',
+)
+
 export const PMSetCollate = /* @__PURE__ */ _bind(FW, 'PMSetCollate')
 export const PMSetCopies = /* @__PURE__ */ _bind(FW, 'PMSetCopies')
 export const PMSetDuplex = /* @__PURE__ */ _bind(FW, 'PMSetDuplex')
@@ -527,17 +843,33 @@ export const PMSetPageFormatExtendedData = /* @__PURE__ */ _bind(FW, 'PMSetPageF
 export const PMSetPageRange = /* @__PURE__ */ _bind(FW, 'PMSetPageRange')
 export const PMSetScale = /* @__PURE__ */ _bind(FW, 'PMSetScale')
 export const PMWorkflowCopyItems = /* @__PURE__ */ _bind(FW, 'PMWorkflowCopyItems')
-export const PMWorkflowSubmitPDFWithOptions = /* @__PURE__ */ _bind(FW, 'PMWorkflowSubmitPDFWithOptions')
-export const PMWorkflowSubmitPDFWithSettings = /* @__PURE__ */ _bind(FW, 'PMWorkflowSubmitPDFWithSettings')
+export const PMWorkflowSubmitPDFWithOptions = /* @__PURE__ */ _bind(
+	FW,
+	'PMWorkflowSubmitPDFWithOptions',
+)
+
+export const PMWorkflowSubmitPDFWithSettings = /* @__PURE__ */ _bind(
+	FW,
+	'PMWorkflowSubmitPDFWithSettings',
+)
+
 export const PasteboardClear = /* @__PURE__ */ _bind(FW, 'PasteboardClear')
-export const PasteboardCopyItemFlavorData = /* @__PURE__ */ _bind(FW, 'PasteboardCopyItemFlavorData')
+export const PasteboardCopyItemFlavorData = /* @__PURE__ */ _bind(
+	FW,
+	'PasteboardCopyItemFlavorData',
+)
+
 export const PasteboardCopyItemFlavors = /* @__PURE__ */ _bind(FW, 'PasteboardCopyItemFlavors')
 export const PasteboardCopyName = /* @__PURE__ */ _bind(FW, 'PasteboardCopyName')
 export const PasteboardCopyPasteLocation = /* @__PURE__ */ _bind(FW, 'PasteboardCopyPasteLocation')
 export const PasteboardCreate = /* @__PURE__ */ _bind(FW, 'PasteboardCreate')
 export const PasteboardFlavorFlags = /* @__PURE__ */ _bind(FW, 'PasteboardFlavorFlags')
 export const PasteboardGetItemCount = /* @__PURE__ */ _bind(FW, 'PasteboardGetItemCount')
-export const PasteboardGetItemFlavorFlags = /* @__PURE__ */ _bind(FW, 'PasteboardGetItemFlavorFlags')
+export const PasteboardGetItemFlavorFlags = /* @__PURE__ */ _bind(
+	FW,
+	'PasteboardGetItemFlavorFlags',
+)
+
 export const PasteboardGetItemIdentifier = /* @__PURE__ */ _bind(FW, 'PasteboardGetItemIdentifier')
 export const PasteboardGetTypeID = /* @__PURE__ */ _bind(FW, 'PasteboardGetTypeID')
 export const PasteboardPutItemFlavor = /* @__PURE__ */ _bind(FW, 'PasteboardPutItemFlavor')
@@ -557,7 +889,11 @@ export const PixPat = /* @__PURE__ */ _bind(FW, 'PixPat')
 export const PlotIconRefInContext = /* @__PURE__ */ _bind(FW, 'PlotIconRefInContext')
 export const ProcessInfoExtendedRec = /* @__PURE__ */ _bind(FW, 'ProcessInfoExtendedRec')
 export const ProcessInfoRec = /* @__PURE__ */ _bind(FW, 'ProcessInfoRec')
-export const ProcessInformationCopyDictionary = /* @__PURE__ */ _bind(FW, 'ProcessInformationCopyDictionary')
+export const ProcessInformationCopyDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'ProcessInformationCopyDictionary',
+)
+
 export const RGBColor = /* @__PURE__ */ _bind(FW, 'RGBColor')
 export const SameProcess = /* @__PURE__ */ _bind(FW, 'SameProcess')
 export const SetFrontProcess = /* @__PURE__ */ _bind(FW, 'SetFrontProcess')
@@ -579,8 +915,16 @@ export const SpeechChannelRecord = /* @__PURE__ */ _bind(FW, 'SpeechChannelRecor
 export const SpeechErrorInfo = /* @__PURE__ */ _bind(FW, 'SpeechErrorInfo')
 export const SpeechManagerVersion = /* @__PURE__ */ _bind(FW, 'SpeechManagerVersion')
 export const SpeechStatusInfo = /* @__PURE__ */ _bind(FW, 'SpeechStatusInfo')
-export const SpeechSynthesisRegisterModuleURL = /* @__PURE__ */ _bind(FW, 'SpeechSynthesisRegisterModuleURL')
-export const SpeechSynthesisUnregisterModuleURL = /* @__PURE__ */ _bind(FW, 'SpeechSynthesisUnregisterModuleURL')
+export const SpeechSynthesisRegisterModuleURL = /* @__PURE__ */ _bind(
+	FW,
+	'SpeechSynthesisRegisterModuleURL',
+)
+
+export const SpeechSynthesisUnregisterModuleURL = /* @__PURE__ */ _bind(
+	FW,
+	'SpeechSynthesisUnregisterModuleURL',
+)
+
 export const SpeechVersionInfo = /* @__PURE__ */ _bind(FW, 'SpeechVersionInfo')
 export const SpeechXtndData = /* @__PURE__ */ _bind(FW, 'SpeechXtndData')
 export const StopSpeech = /* @__PURE__ */ _bind(FW, 'StopSpeech')
@@ -588,11 +932,23 @@ export const StopSpeechAt = /* @__PURE__ */ _bind(FW, 'StopSpeechAt')
 export const StyleTable = /* @__PURE__ */ _bind(FW, 'StyleTable')
 export const TextToPhonemes = /* @__PURE__ */ _bind(FW, 'TextToPhonemes')
 export const TransformProcessType = /* @__PURE__ */ _bind(FW, 'TransformProcessType')
-export const TranslationCopyDestinationType = /* @__PURE__ */ _bind(FW, 'TranslationCopyDestinationType')
+export const TranslationCopyDestinationType = /* @__PURE__ */ _bind(
+	FW,
+	'TranslationCopyDestinationType',
+)
+
 export const TranslationCopySourceType = /* @__PURE__ */ _bind(FW, 'TranslationCopySourceType')
 export const TranslationCreate = /* @__PURE__ */ _bind(FW, 'TranslationCreate')
-export const TranslationCreateWithSourceArray = /* @__PURE__ */ _bind(FW, 'TranslationCreateWithSourceArray')
-export const TranslationGetTranslationFlags = /* @__PURE__ */ _bind(FW, 'TranslationGetTranslationFlags')
+export const TranslationCreateWithSourceArray = /* @__PURE__ */ _bind(
+	FW,
+	'TranslationCreateWithSourceArray',
+)
+
+export const TranslationGetTranslationFlags = /* @__PURE__ */ _bind(
+	FW,
+	'TranslationGetTranslationFlags',
+)
+
 export const TranslationGetTypeID = /* @__PURE__ */ _bind(FW, 'TranslationGetTypeID')
 export const TranslationPerformForData = /* @__PURE__ */ _bind(FW, 'TranslationPerformForData')
 export const TranslationPerformForFile = /* @__PURE__ */ _bind(FW, 'TranslationPerformForFile')
@@ -689,10 +1045,18 @@ export const cmBeginAccess = /* @__PURE__ */ _bind(FW, 'cmBeginAccess')
 export const cmBestMode = /* @__PURE__ */ _bind(FW, 'cmBestMode')
 export const cmBinaryData = /* @__PURE__ */ _bind(FW, 'cmBinaryData')
 export const cmBlackPointCompensation = /* @__PURE__ */ _bind(FW, 'cmBlackPointCompensation')
-export const cmBlackPointCompensationMask = /* @__PURE__ */ _bind(FW, 'cmBlackPointCompensationMask')
+export const cmBlackPointCompensationMask = /* @__PURE__ */ _bind(
+	FW,
+	'cmBlackPointCompensationMask',
+)
+
 export const cmBlueColorantTag = /* @__PURE__ */ _bind(FW, 'cmBlueColorantTag')
 export const cmBlueTRCTag = /* @__PURE__ */ _bind(FW, 'cmBlueTRCTag')
-export const cmBradfordChromaticAdaptation = /* @__PURE__ */ _bind(FW, 'cmBradfordChromaticAdaptation')
+export const cmBradfordChromaticAdaptation = /* @__PURE__ */ _bind(
+	FW,
+	'cmBradfordChromaticAdaptation',
+)
+
 export const cmBufferBasedProfile = /* @__PURE__ */ _bind(FW, 'cmBufferBasedProfile')
 export const cmCMSReservedFlagsMask = /* @__PURE__ */ _bind(FW, 'cmCMSReservedFlagsMask')
 export const cmCMYData = /* @__PURE__ */ _bind(FW, 'cmCMYData')
@@ -719,14 +1083,26 @@ export const cmColorSpaceEncodingMask = /* @__PURE__ */ _bind(FW, 'cmColorSpaceE
 export const cmColorSpacePackingMask = /* @__PURE__ */ _bind(FW, 'cmColorSpacePackingMask')
 export const cmColorSpacePremulAlphaMask = /* @__PURE__ */ _bind(FW, 'cmColorSpacePremulAlphaMask')
 export const cmColorSpaceReservedMask = /* @__PURE__ */ _bind(FW, 'cmColorSpaceReservedMask')
-export const cmColorSpaceSpaceAndAlphaMask = /* @__PURE__ */ _bind(FW, 'cmColorSpaceSpaceAndAlphaMask')
+export const cmColorSpaceSpaceAndAlphaMask = /* @__PURE__ */ _bind(
+	FW,
+	'cmColorSpaceSpaceAndAlphaMask',
+)
+
 export const cmColorSpaceSpaceMask = /* @__PURE__ */ _bind(FW, 'cmColorSpaceSpaceMask')
 export const cmCopyrightTag = /* @__PURE__ */ _bind(FW, 'cmCopyrightTag')
 export const cmCreateNewAccess = /* @__PURE__ */ _bind(FW, 'cmCreateNewAccess')
 export const cmCurrentDeviceInfoVersion = /* @__PURE__ */ _bind(FW, 'cmCurrentDeviceInfoVersion')
 export const cmCurrentProfileInfoVersion = /* @__PURE__ */ _bind(FW, 'cmCurrentProfileInfoVersion')
-export const cmCurrentProfileLocationSize = /* @__PURE__ */ _bind(FW, 'cmCurrentProfileLocationSize')
-export const cmCurrentProfileMajorVersion = /* @__PURE__ */ _bind(FW, 'cmCurrentProfileMajorVersion')
+export const cmCurrentProfileLocationSize = /* @__PURE__ */ _bind(
+	FW,
+	'cmCurrentProfileLocationSize',
+)
+
+export const cmCurrentProfileMajorVersion = /* @__PURE__ */ _bind(
+	FW,
+	'cmCurrentProfileMajorVersion',
+)
+
 export const cmDefaultDeviceID = /* @__PURE__ */ _bind(FW, 'cmDefaultDeviceID')
 export const cmDefaultProfileID = /* @__PURE__ */ _bind(FW, 'cmDefaultProfileID')
 export const cmDeviceAlreadyRegistered = /* @__PURE__ */ _bind(FW, 'cmDeviceAlreadyRegistered')
@@ -804,10 +1180,22 @@ export const cmInputUse = /* @__PURE__ */ _bind(FW, 'cmInputUse')
 export const cmInternalCFErr = /* @__PURE__ */ _bind(FW, 'cmInternalCFErr')
 export const cmInterpolationMask = /* @__PURE__ */ _bind(FW, 'cmInterpolationMask')
 export const cmIterateAllDeviceProfiles = /* @__PURE__ */ _bind(FW, 'cmIterateAllDeviceProfiles')
-export const cmIterateCurrentDeviceProfiles = /* @__PURE__ */ _bind(FW, 'cmIterateCurrentDeviceProfiles')
-export const cmIterateCustomDeviceProfiles = /* @__PURE__ */ _bind(FW, 'cmIterateCustomDeviceProfiles')
+export const cmIterateCurrentDeviceProfiles = /* @__PURE__ */ _bind(
+	FW,
+	'cmIterateCurrentDeviceProfiles',
+)
+
+export const cmIterateCustomDeviceProfiles = /* @__PURE__ */ _bind(
+	FW,
+	'cmIterateCustomDeviceProfiles',
+)
+
 export const cmIterateDeviceProfilesMask = /* @__PURE__ */ _bind(FW, 'cmIterateDeviceProfilesMask')
-export const cmIterateFactoryDeviceProfiles = /* @__PURE__ */ _bind(FW, 'cmIterateFactoryDeviceProfiles')
+export const cmIterateFactoryDeviceProfiles = /* @__PURE__ */ _bind(
+	FW,
+	'cmIterateFactoryDeviceProfiles',
+)
+
 export const cmLAB24Space = /* @__PURE__ */ _bind(FW, 'cmLAB24Space')
 export const cmLAB32Space = /* @__PURE__ */ _bind(FW, 'cmLAB32Space')
 export const cmLAB48LSpace = /* @__PURE__ */ _bind(FW, 'cmLAB48LSpace')
@@ -861,7 +1249,11 @@ export const cmOpenReadAccess = /* @__PURE__ */ _bind(FW, 'cmOpenReadAccess')
 export const cmOpenReadSpool = /* @__PURE__ */ _bind(FW, 'cmOpenReadSpool')
 export const cmOpenWriteAccess = /* @__PURE__ */ _bind(FW, 'cmOpenWriteAccess')
 export const cmOpenWriteSpool = /* @__PURE__ */ _bind(FW, 'cmOpenWriteSpool')
-export const cmOriginalProfileLocationSize = /* @__PURE__ */ _bind(FW, 'cmOriginalProfileLocationSize')
+export const cmOriginalProfileLocationSize = /* @__PURE__ */ _bind(
+	FW,
+	'cmOriginalProfileLocationSize',
+)
+
 export const cmOutputClass = /* @__PURE__ */ _bind(FW, 'cmOutputClass')
 export const cmOutputUse = /* @__PURE__ */ _bind(FW, 'cmOutputUse')
 export const cmPS2CRD0Tag = /* @__PURE__ */ _bind(FW, 'cmPS2CRD0Tag')
@@ -887,10 +1279,26 @@ export const cmPreview2Tag = /* @__PURE__ */ _bind(FW, 'cmPreview2Tag')
 export const cmPrinterDeviceClass = /* @__PURE__ */ _bind(FW, 'cmPrinterDeviceClass')
 export const cmProfileDescriptionMLTag = /* @__PURE__ */ _bind(FW, 'cmProfileDescriptionMLTag')
 export const cmProfileDescriptionTag = /* @__PURE__ */ _bind(FW, 'cmProfileDescriptionTag')
-export const cmProfileIterateDataVersion1 = /* @__PURE__ */ _bind(FW, 'cmProfileIterateDataVersion1')
-export const cmProfileIterateDataVersion2 = /* @__PURE__ */ _bind(FW, 'cmProfileIterateDataVersion2')
-export const cmProfileIterateDataVersion3 = /* @__PURE__ */ _bind(FW, 'cmProfileIterateDataVersion3')
-export const cmProfileIterateDataVersion4 = /* @__PURE__ */ _bind(FW, 'cmProfileIterateDataVersion4')
+export const cmProfileIterateDataVersion1 = /* @__PURE__ */ _bind(
+	FW,
+	'cmProfileIterateDataVersion1',
+)
+
+export const cmProfileIterateDataVersion2 = /* @__PURE__ */ _bind(
+	FW,
+	'cmProfileIterateDataVersion2',
+)
+
+export const cmProfileIterateDataVersion3 = /* @__PURE__ */ _bind(
+	FW,
+	'cmProfileIterateDataVersion3',
+)
+
+export const cmProfileIterateDataVersion4 = /* @__PURE__ */ _bind(
+	FW,
+	'cmProfileIterateDataVersion4',
+)
+
 export const cmProfileMajorVersionMask = /* @__PURE__ */ _bind(FW, 'cmProfileMajorVersionMask')
 export const cmProfileSequenceDescTag = /* @__PURE__ */ _bind(FW, 'cmProfileSequenceDescTag')
 export const cmProofDeviceClass = /* @__PURE__ */ _bind(FW, 'cmProofDeviceClass')
@@ -941,14 +1349,22 @@ export const cmSigMakeAndModelType = /* @__PURE__ */ _bind(FW, 'cmSigMakeAndMode
 export const cmSigMeasurementType = /* @__PURE__ */ _bind(FW, 'cmSigMeasurementType')
 export const cmSigMultiFunctA2BType = /* @__PURE__ */ _bind(FW, 'cmSigMultiFunctA2BType')
 export const cmSigMultiFunctB2AType = /* @__PURE__ */ _bind(FW, 'cmSigMultiFunctB2AType')
-export const cmSigMultiLocalizedUniCodeType = /* @__PURE__ */ _bind(FW, 'cmSigMultiLocalizedUniCodeType')
+export const cmSigMultiLocalizedUniCodeType = /* @__PURE__ */ _bind(
+	FW,
+	'cmSigMultiLocalizedUniCodeType',
+)
+
 export const cmSigNamedColor2Type = /* @__PURE__ */ _bind(FW, 'cmSigNamedColor2Type')
 export const cmSigNamedColorType = /* @__PURE__ */ _bind(FW, 'cmSigNamedColorType')
 export const cmSigNativeDisplayInfoType = /* @__PURE__ */ _bind(FW, 'cmSigNativeDisplayInfoType')
 export const cmSigPS2CRDVMSizeType = /* @__PURE__ */ _bind(FW, 'cmSigPS2CRDVMSizeType')
 export const cmSigParametricCurveType = /* @__PURE__ */ _bind(FW, 'cmSigParametricCurveType')
 export const cmSigProfileDescriptionType = /* @__PURE__ */ _bind(FW, 'cmSigProfileDescriptionType')
-export const cmSigProfileSequenceDescType = /* @__PURE__ */ _bind(FW, 'cmSigProfileSequenceDescType')
+export const cmSigProfileSequenceDescType = /* @__PURE__ */ _bind(
+	FW,
+	'cmSigProfileSequenceDescType',
+)
+
 export const cmSigS15Fixed16Type = /* @__PURE__ */ _bind(FW, 'cmSigS15Fixed16Type')
 export const cmSigScreeningType = /* @__PURE__ */ _bind(FW, 'cmSigScreeningType')
 export const cmSigSignatureType = /* @__PURE__ */ _bind(FW, 'cmSigSignatureType')
@@ -981,34 +1397,78 @@ export const cmTaligent = /* @__PURE__ */ _bind(FW, 'cmTaligent')
 export const cmTechnologyAMDisplay = /* @__PURE__ */ _bind(FW, 'cmTechnologyAMDisplay')
 export const cmTechnologyCRTDisplay = /* @__PURE__ */ _bind(FW, 'cmTechnologyCRTDisplay')
 export const cmTechnologyDigitalCamera = /* @__PURE__ */ _bind(FW, 'cmTechnologyDigitalCamera')
-export const cmTechnologyDyeSublimationPrinter = /* @__PURE__ */ _bind(FW, 'cmTechnologyDyeSublimationPrinter')
-export const cmTechnologyElectrophotographicPrinter = /* @__PURE__ */ _bind(FW, 'cmTechnologyElectrophotographicPrinter')
-export const cmTechnologyElectrostaticPrinter = /* @__PURE__ */ _bind(FW, 'cmTechnologyElectrostaticPrinter')
+export const cmTechnologyDyeSublimationPrinter = /* @__PURE__ */ _bind(
+	FW,
+	'cmTechnologyDyeSublimationPrinter',
+)
+
+export const cmTechnologyElectrophotographicPrinter = /* @__PURE__ */ _bind(
+	FW,
+	'cmTechnologyElectrophotographicPrinter',
+)
+
+export const cmTechnologyElectrostaticPrinter = /* @__PURE__ */ _bind(
+	FW,
+	'cmTechnologyElectrostaticPrinter',
+)
+
 export const cmTechnologyFilmScanner = /* @__PURE__ */ _bind(FW, 'cmTechnologyFilmScanner')
 export const cmTechnologyFilmWriter = /* @__PURE__ */ _bind(FW, 'cmTechnologyFilmWriter')
 export const cmTechnologyFlexography = /* @__PURE__ */ _bind(FW, 'cmTechnologyFlexography')
 export const cmTechnologyGravure = /* @__PURE__ */ _bind(FW, 'cmTechnologyGravure')
 export const cmTechnologyInkJetPrinter = /* @__PURE__ */ _bind(FW, 'cmTechnologyInkJetPrinter')
-export const cmTechnologyOffsetLithography = /* @__PURE__ */ _bind(FW, 'cmTechnologyOffsetLithography')
+export const cmTechnologyOffsetLithography = /* @__PURE__ */ _bind(
+	FW,
+	'cmTechnologyOffsetLithography',
+)
+
 export const cmTechnologyPMDisplay = /* @__PURE__ */ _bind(FW, 'cmTechnologyPMDisplay')
 export const cmTechnologyPhotoCD = /* @__PURE__ */ _bind(FW, 'cmTechnologyPhotoCD')
-export const cmTechnologyPhotoImageSetter = /* @__PURE__ */ _bind(FW, 'cmTechnologyPhotoImageSetter')
-export const cmTechnologyPhotographicPaperPrinter = /* @__PURE__ */ _bind(FW, 'cmTechnologyPhotographicPaperPrinter')
-export const cmTechnologyProjectionTelevision = /* @__PURE__ */ _bind(FW, 'cmTechnologyProjectionTelevision')
-export const cmTechnologyReflectiveScanner = /* @__PURE__ */ _bind(FW, 'cmTechnologyReflectiveScanner')
+export const cmTechnologyPhotoImageSetter = /* @__PURE__ */ _bind(
+	FW,
+	'cmTechnologyPhotoImageSetter',
+)
+
+export const cmTechnologyPhotographicPaperPrinter = /* @__PURE__ */ _bind(
+	FW,
+	'cmTechnologyPhotographicPaperPrinter',
+)
+
+export const cmTechnologyProjectionTelevision = /* @__PURE__ */ _bind(
+	FW,
+	'cmTechnologyProjectionTelevision',
+)
+
+export const cmTechnologyReflectiveScanner = /* @__PURE__ */ _bind(
+	FW,
+	'cmTechnologyReflectiveScanner',
+)
+
 export const cmTechnologySilkscreen = /* @__PURE__ */ _bind(FW, 'cmTechnologySilkscreen')
 export const cmTechnologyTag = /* @__PURE__ */ _bind(FW, 'cmTechnologyTag')
-export const cmTechnologyThermalWaxPrinter = /* @__PURE__ */ _bind(FW, 'cmTechnologyThermalWaxPrinter')
+export const cmTechnologyThermalWaxPrinter = /* @__PURE__ */ _bind(
+	FW,
+	'cmTechnologyThermalWaxPrinter',
+)
+
 export const cmTechnologyVideoCamera = /* @__PURE__ */ _bind(FW, 'cmTechnologyVideoCamera')
 export const cmTechnologyVideoMonitor = /* @__PURE__ */ _bind(FW, 'cmTechnologyVideoMonitor')
 export const cmUcrBgTag = /* @__PURE__ */ _bind(FW, 'cmUcrBgTag')
-export const cmUseDefaultChromaticAdaptation = /* @__PURE__ */ _bind(FW, 'cmUseDefaultChromaticAdaptation')
+export const cmUseDefaultChromaticAdaptation = /* @__PURE__ */ _bind(
+	FW,
+	'cmUseDefaultChromaticAdaptation',
+)
+
 export const cmVideoCardGammaFormulaType = /* @__PURE__ */ _bind(FW, 'cmVideoCardGammaFormulaType')
 export const cmVideoCardGammaTableType = /* @__PURE__ */ _bind(FW, 'cmVideoCardGammaTableType')
 export const cmVideoCardGammaTag = /* @__PURE__ */ _bind(FW, 'cmVideoCardGammaTag')
 export const cmViewingConditionsDescTag = /* @__PURE__ */ _bind(FW, 'cmViewingConditionsDescTag')
 export const cmViewingConditionsTag = /* @__PURE__ */ _bind(FW, 'cmViewingConditionsTag')
-export const cmVonKriesChromaticAdaptation = /* @__PURE__ */ _bind(FW, 'cmVonKriesChromaticAdaptation')
+export const cmVonKriesChromaticAdaptation = /* @__PURE__ */ _bind(
+	FW,
+	'cmVonKriesChromaticAdaptation',
+)
+
 export const cmWord565ColorPacking = /* @__PURE__ */ _bind(FW, 'cmWord565ColorPacking')
 export const cmWord5ColorPacking = /* @__PURE__ */ _bind(FW, 'cmWord5ColorPacking')
 export const cmWriteAccess = /* @__PURE__ */ _bind(FW, 'cmWriteAccess')
@@ -1027,7 +1487,11 @@ export const copyDev = /* @__PURE__ */ _bind(FW, 'copyDev')
 export const cursorDev = /* @__PURE__ */ _bind(FW, 'cursorDev')
 export const cutDev = /* @__PURE__ */ _bind(FW, 'cutDev')
 export const deactivDev = /* @__PURE__ */ _bind(FW, 'deactivDev')
-export const duplicatePasteboardFlavorErr = /* @__PURE__ */ _bind(FW, 'duplicatePasteboardFlavorErr')
+export const duplicatePasteboardFlavorErr = /* @__PURE__ */ _bind(
+	FW,
+	'duplicatePasteboardFlavorErr',
+)
+
 export const extendedBlock = /* @__PURE__ */ _bind(FW, 'extendedBlock')
 export const extendedBlockLen = /* @__PURE__ */ _bind(FW, 'extendedBlockLen')
 export const hitDev = /* @__PURE__ */ _bind(FW, 'hitDev')
@@ -1072,34 +1536,78 @@ export const kAEGetURL = /* @__PURE__ */ _bind(FW, 'kAEGetURL')
 export const kATSBoldQDStretch = /* @__PURE__ */ _bind(FW, 'kATSBoldQDStretch')
 export const kATSCubicCurveType = /* @__PURE__ */ _bind(FW, 'kATSCubicCurveType')
 export const kATSDeletedGlyphcode = /* @__PURE__ */ _bind(FW, 'kATSDeletedGlyphcode')
-export const kATSFlatDataUstlCurrentVersion = /* @__PURE__ */ _bind(FW, 'kATSFlatDataUstlCurrentVersion')
+export const kATSFlatDataUstlCurrentVersion = /* @__PURE__ */ _bind(
+	FW,
+	'kATSFlatDataUstlCurrentVersion',
+)
+
 export const kATSFlatDataUstlVersion0 = /* @__PURE__ */ _bind(FW, 'kATSFlatDataUstlVersion0')
 export const kATSFlatDataUstlVersion1 = /* @__PURE__ */ _bind(FW, 'kATSFlatDataUstlVersion1')
 export const kATSFlatDataUstlVersion2 = /* @__PURE__ */ _bind(FW, 'kATSFlatDataUstlVersion2')
-export const kATSFlattenedFontSpecifierRawNameData = /* @__PURE__ */ _bind(FW, 'kATSFlattenedFontSpecifierRawNameData')
+export const kATSFlattenedFontSpecifierRawNameData = /* @__PURE__ */ _bind(
+	FW,
+	'kATSFlattenedFontSpecifierRawNameData',
+)
+
 export const kATSFontAutoActivationAsk = /* @__PURE__ */ _bind(FW, 'kATSFontAutoActivationAsk')
-export const kATSFontAutoActivationDefault = /* @__PURE__ */ _bind(FW, 'kATSFontAutoActivationDefault')
-export const kATSFontAutoActivationDisabled = /* @__PURE__ */ _bind(FW, 'kATSFontAutoActivationDisabled')
-export const kATSFontAutoActivationEnabled = /* @__PURE__ */ _bind(FW, 'kATSFontAutoActivationEnabled')
-export const kATSFontContainerRefUnspecified = /* @__PURE__ */ _bind(FW, 'kATSFontContainerRefUnspecified')
+export const kATSFontAutoActivationDefault = /* @__PURE__ */ _bind(
+	FW,
+	'kATSFontAutoActivationDefault',
+)
+
+export const kATSFontAutoActivationDisabled = /* @__PURE__ */ _bind(
+	FW,
+	'kATSFontAutoActivationDisabled',
+)
+
+export const kATSFontAutoActivationEnabled = /* @__PURE__ */ _bind(
+	FW,
+	'kATSFontAutoActivationEnabled',
+)
+
+export const kATSFontContainerRefUnspecified = /* @__PURE__ */ _bind(
+	FW,
+	'kATSFontContainerRefUnspecified',
+)
+
 export const kATSFontContextGlobal = /* @__PURE__ */ _bind(FW, 'kATSFontContextGlobal')
 export const kATSFontContextLocal = /* @__PURE__ */ _bind(FW, 'kATSFontContextLocal')
 export const kATSFontContextUnspecified = /* @__PURE__ */ _bind(FW, 'kATSFontContextUnspecified')
-export const kATSFontFamilyRefUnspecified = /* @__PURE__ */ _bind(FW, 'kATSFontFamilyRefUnspecified')
-export const kATSFontFilterCurrentVersion = /* @__PURE__ */ _bind(FW, 'kATSFontFilterCurrentVersion')
+export const kATSFontFamilyRefUnspecified = /* @__PURE__ */ _bind(
+	FW,
+	'kATSFontFamilyRefUnspecified',
+)
+
+export const kATSFontFilterCurrentVersion = /* @__PURE__ */ _bind(
+	FW,
+	'kATSFontFilterCurrentVersion',
+)
+
 export const kATSFontFormatUnspecified = /* @__PURE__ */ _bind(FW, 'kATSFontFormatUnspecified')
 export const kATSFontRefUnspecified = /* @__PURE__ */ _bind(FW, 'kATSFontRefUnspecified')
 export const kATSGenerationUnspecified = /* @__PURE__ */ _bind(FW, 'kATSGenerationUnspecified')
 export const kATSGlyphInfoAppleReserved = /* @__PURE__ */ _bind(FW, 'kATSGlyphInfoAppleReserved')
 export const kATSGlyphInfoByteSizeMask = /* @__PURE__ */ _bind(FW, 'kATSGlyphInfoByteSizeMask')
-export const kATSGlyphInfoHasImposedWidth = /* @__PURE__ */ _bind(FW, 'kATSGlyphInfoHasImposedWidth')
+export const kATSGlyphInfoHasImposedWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kATSGlyphInfoHasImposedWidth',
+)
+
 export const kATSGlyphInfoIsAttachment = /* @__PURE__ */ _bind(FW, 'kATSGlyphInfoIsAttachment')
 export const kATSGlyphInfoIsLTHanger = /* @__PURE__ */ _bind(FW, 'kATSGlyphInfoIsLTHanger')
 export const kATSGlyphInfoIsRBHanger = /* @__PURE__ */ _bind(FW, 'kATSGlyphInfoIsRBHanger')
 export const kATSGlyphInfoIsWhiteSpace = /* @__PURE__ */ _bind(FW, 'kATSGlyphInfoIsWhiteSpace')
-export const kATSGlyphInfoTerminatorGlyph = /* @__PURE__ */ _bind(FW, 'kATSGlyphInfoTerminatorGlyph')
+export const kATSGlyphInfoTerminatorGlyph = /* @__PURE__ */ _bind(
+	FW,
+	'kATSGlyphInfoTerminatorGlyph',
+)
+
 export const kATSInvalidFontAccess = /* @__PURE__ */ _bind(FW, 'kATSInvalidFontAccess')
-export const kATSInvalidFontContainerAccess = /* @__PURE__ */ _bind(FW, 'kATSInvalidFontContainerAccess')
+export const kATSInvalidFontContainerAccess = /* @__PURE__ */ _bind(
+	FW,
+	'kATSInvalidFontContainerAccess',
+)
+
 export const kATSInvalidFontFamilyAccess = /* @__PURE__ */ _bind(FW, 'kATSInvalidFontFamilyAccess')
 export const kATSInvalidFontTableAccess = /* @__PURE__ */ _bind(FW, 'kATSInvalidFontTableAccess')
 export const kATSInvalidGlyphAccess = /* @__PURE__ */ _bind(FW, 'kATSInvalidGlyphAccess')
@@ -1108,46 +1616,142 @@ export const kATSIterationCompleted = /* @__PURE__ */ _bind(FW, 'kATSIterationCo
 export const kATSIterationScopeModified = /* @__PURE__ */ _bind(FW, 'kATSIterationScopeModified')
 export const kATSLineAppleReserved = /* @__PURE__ */ _bind(FW, 'kATSLineAppleReserved')
 export const kATSLineApplyAntiAliasing = /* @__PURE__ */ _bind(FW, 'kATSLineApplyAntiAliasing')
-export const kATSLineBreakToNearestCharacter = /* @__PURE__ */ _bind(FW, 'kATSLineBreakToNearestCharacter')
-export const kATSLineDisableAllBaselineAdjustments = /* @__PURE__ */ _bind(FW, 'kATSLineDisableAllBaselineAdjustments')
-export const kATSLineDisableAllGlyphMorphing = /* @__PURE__ */ _bind(FW, 'kATSLineDisableAllGlyphMorphing')
-export const kATSLineDisableAllJustification = /* @__PURE__ */ _bind(FW, 'kATSLineDisableAllJustification')
-export const kATSLineDisableAllKerningAdjustments = /* @__PURE__ */ _bind(FW, 'kATSLineDisableAllKerningAdjustments')
-export const kATSLineDisableAllLayoutOperations = /* @__PURE__ */ _bind(FW, 'kATSLineDisableAllLayoutOperations')
-export const kATSLineDisableAllTrackingAdjustments = /* @__PURE__ */ _bind(FW, 'kATSLineDisableAllTrackingAdjustments')
-export const kATSLineDisableAutoAdjustDisplayPos = /* @__PURE__ */ _bind(FW, 'kATSLineDisableAutoAdjustDisplayPos')
-export const kATSLineDisableNegativeJustification = /* @__PURE__ */ _bind(FW, 'kATSLineDisableNegativeJustification')
+export const kATSLineBreakToNearestCharacter = /* @__PURE__ */ _bind(
+	FW,
+	'kATSLineBreakToNearestCharacter',
+)
+
+export const kATSLineDisableAllBaselineAdjustments = /* @__PURE__ */ _bind(
+	FW,
+	'kATSLineDisableAllBaselineAdjustments',
+)
+
+export const kATSLineDisableAllGlyphMorphing = /* @__PURE__ */ _bind(
+	FW,
+	'kATSLineDisableAllGlyphMorphing',
+)
+
+export const kATSLineDisableAllJustification = /* @__PURE__ */ _bind(
+	FW,
+	'kATSLineDisableAllJustification',
+)
+
+export const kATSLineDisableAllKerningAdjustments = /* @__PURE__ */ _bind(
+	FW,
+	'kATSLineDisableAllKerningAdjustments',
+)
+
+export const kATSLineDisableAllLayoutOperations = /* @__PURE__ */ _bind(
+	FW,
+	'kATSLineDisableAllLayoutOperations',
+)
+
+export const kATSLineDisableAllTrackingAdjustments = /* @__PURE__ */ _bind(
+	FW,
+	'kATSLineDisableAllTrackingAdjustments',
+)
+
+export const kATSLineDisableAutoAdjustDisplayPos = /* @__PURE__ */ _bind(
+	FW,
+	'kATSLineDisableAutoAdjustDisplayPos',
+)
+
+export const kATSLineDisableNegativeJustification = /* @__PURE__ */ _bind(
+	FW,
+	'kATSLineDisableNegativeJustification',
+)
+
 export const kATSLineFillOutToWidth = /* @__PURE__ */ _bind(FW, 'kATSLineFillOutToWidth')
 export const kATSLineFractDisable = /* @__PURE__ */ _bind(FW, 'kATSLineFractDisable')
 export const kATSLineHasNoHangers = /* @__PURE__ */ _bind(FW, 'kATSLineHasNoHangers')
-export const kATSLineHasNoOpticalAlignment = /* @__PURE__ */ _bind(FW, 'kATSLineHasNoOpticalAlignment')
+export const kATSLineHasNoOpticalAlignment = /* @__PURE__ */ _bind(
+	FW,
+	'kATSLineHasNoOpticalAlignment',
+)
+
 export const kATSLineIgnoreFontLeading = /* @__PURE__ */ _bind(FW, 'kATSLineIgnoreFontLeading')
-export const kATSLineImposeNoAngleForEnds = /* @__PURE__ */ _bind(FW, 'kATSLineImposeNoAngleForEnds')
+export const kATSLineImposeNoAngleForEnds = /* @__PURE__ */ _bind(
+	FW,
+	'kATSLineImposeNoAngleForEnds',
+)
+
 export const kATSLineIsDisplayOnly = /* @__PURE__ */ _bind(FW, 'kATSLineIsDisplayOnly')
-export const kATSLineKeepSpacesOutOfMargin = /* @__PURE__ */ _bind(FW, 'kATSLineKeepSpacesOutOfMargin')
+export const kATSLineKeepSpacesOutOfMargin = /* @__PURE__ */ _bind(
+	FW,
+	'kATSLineKeepSpacesOutOfMargin',
+)
+
 export const kATSLineLastNoJustification = /* @__PURE__ */ _bind(FW, 'kATSLineLastNoJustification')
 export const kATSLineNoAntiAliasing = /* @__PURE__ */ _bind(FW, 'kATSLineNoAntiAliasing')
 export const kATSLineNoLayoutOptions = /* @__PURE__ */ _bind(FW, 'kATSLineNoLayoutOptions')
-export const kATSLineNoSpecialJustification = /* @__PURE__ */ _bind(FW, 'kATSLineNoSpecialJustification')
+export const kATSLineNoSpecialJustification = /* @__PURE__ */ _bind(
+	FW,
+	'kATSLineNoSpecialJustification',
+)
+
 export const kATSLineTabAdjustEnabled = /* @__PURE__ */ _bind(FW, 'kATSLineTabAdjustEnabled')
 export const kATSLineUseDeviceMetrics = /* @__PURE__ */ _bind(FW, 'kATSLineUseDeviceMetrics')
 export const kATSLineUseQDRendering = /* @__PURE__ */ _bind(FW, 'kATSLineUseQDRendering')
 export const kATSNoTracking = /* @__PURE__ */ _bind(FW, 'kATSNoTracking')
-export const kATSOptionFlagsActivateDisabled = /* @__PURE__ */ _bind(FW, 'kATSOptionFlagsActivateDisabled')
-export const kATSOptionFlagsComposeFontPostScriptName = /* @__PURE__ */ _bind(FW, 'kATSOptionFlagsComposeFontPostScriptName')
+export const kATSOptionFlagsActivateDisabled = /* @__PURE__ */ _bind(
+	FW,
+	'kATSOptionFlagsActivateDisabled',
+)
+
+export const kATSOptionFlagsComposeFontPostScriptName = /* @__PURE__ */ _bind(
+	FW,
+	'kATSOptionFlagsComposeFontPostScriptName',
+)
+
 export const kATSOptionFlagsDefault = /* @__PURE__ */ _bind(FW, 'kATSOptionFlagsDefault')
 export const kATSOptionFlagsDefaultScope = /* @__PURE__ */ _bind(FW, 'kATSOptionFlagsDefaultScope')
 export const kATSOptionFlagsDoNotNotify = /* @__PURE__ */ _bind(FW, 'kATSOptionFlagsDoNotNotify')
-export const kATSOptionFlagsIncludeDisabledMask = /* @__PURE__ */ _bind(FW, 'kATSOptionFlagsIncludeDisabledMask')
-export const kATSOptionFlagsIterateByPrecedenceMask = /* @__PURE__ */ _bind(FW, 'kATSOptionFlagsIterateByPrecedenceMask')
-export const kATSOptionFlagsIterationScopeMask = /* @__PURE__ */ _bind(FW, 'kATSOptionFlagsIterationScopeMask')
-export const kATSOptionFlagsProcessSubdirectories = /* @__PURE__ */ _bind(FW, 'kATSOptionFlagsProcessSubdirectories')
-export const kATSOptionFlagsRecordPersistently = /* @__PURE__ */ _bind(FW, 'kATSOptionFlagsRecordPersistently')
-export const kATSOptionFlagsRestrictedScope = /* @__PURE__ */ _bind(FW, 'kATSOptionFlagsRestrictedScope')
-export const kATSOptionFlagsUnRestrictedScope = /* @__PURE__ */ _bind(FW, 'kATSOptionFlagsUnRestrictedScope')
+export const kATSOptionFlagsIncludeDisabledMask = /* @__PURE__ */ _bind(
+	FW,
+	'kATSOptionFlagsIncludeDisabledMask',
+)
+
+export const kATSOptionFlagsIterateByPrecedenceMask = /* @__PURE__ */ _bind(
+	FW,
+	'kATSOptionFlagsIterateByPrecedenceMask',
+)
+
+export const kATSOptionFlagsIterationScopeMask = /* @__PURE__ */ _bind(
+	FW,
+	'kATSOptionFlagsIterationScopeMask',
+)
+
+export const kATSOptionFlagsProcessSubdirectories = /* @__PURE__ */ _bind(
+	FW,
+	'kATSOptionFlagsProcessSubdirectories',
+)
+
+export const kATSOptionFlagsRecordPersistently = /* @__PURE__ */ _bind(
+	FW,
+	'kATSOptionFlagsRecordPersistently',
+)
+
+export const kATSOptionFlagsRestrictedScope = /* @__PURE__ */ _bind(
+	FW,
+	'kATSOptionFlagsRestrictedScope',
+)
+
+export const kATSOptionFlagsUnRestrictedScope = /* @__PURE__ */ _bind(
+	FW,
+	'kATSOptionFlagsUnRestrictedScope',
+)
+
 export const kATSOptionFlagsUseDataFork = /* @__PURE__ */ _bind(FW, 'kATSOptionFlagsUseDataFork')
-export const kATSOptionFlagsUseDataForkAsResourceFork = /* @__PURE__ */ _bind(FW, 'kATSOptionFlagsUseDataForkAsResourceFork')
-export const kATSOptionFlagsUseResourceFork = /* @__PURE__ */ _bind(FW, 'kATSOptionFlagsUseResourceFork')
+export const kATSOptionFlagsUseDataForkAsResourceFork = /* @__PURE__ */ _bind(
+	FW,
+	'kATSOptionFlagsUseDataForkAsResourceFork',
+)
+
+export const kATSOptionFlagsUseResourceFork = /* @__PURE__ */ _bind(
+	FW,
+	'kATSOptionFlagsUseResourceFork',
+)
+
 export const kATSOtherCurveType = /* @__PURE__ */ _bind(FW, 'kATSOtherCurveType')
 export const kATSQuadCurveType = /* @__PURE__ */ _bind(FW, 'kATSQuadCurveType')
 export const kATSRadiansFactor = /* @__PURE__ */ _bind(FW, 'kATSRadiansFactor')
@@ -1157,12 +1761,20 @@ export const kATSStyleApplyHints = /* @__PURE__ */ _bind(FW, 'kATSStyleApplyHint
 export const kATSStyleNoAntiAliasing = /* @__PURE__ */ _bind(FW, 'kATSStyleNoAntiAliasing')
 export const kATSStyleNoHinting = /* @__PURE__ */ _bind(FW, 'kATSStyleNoHinting')
 export const kATSStyleNoOptions = /* @__PURE__ */ _bind(FW, 'kATSStyleNoOptions')
-export const kATSUAfterWithStreamShiftTag = /* @__PURE__ */ _bind(FW, 'kATSUAfterWithStreamShiftTag')
+export const kATSUAfterWithStreamShiftTag = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUAfterWithStreamShiftTag',
+)
+
 export const kATSUAscentTag = /* @__PURE__ */ _bind(FW, 'kATSUAscentTag')
 export const kATSUBackgroundCallback = /* @__PURE__ */ _bind(FW, 'kATSUBackgroundCallback')
 export const kATSUBackgroundColor = /* @__PURE__ */ _bind(FW, 'kATSUBackgroundColor')
 export const kATSUBaselineClassTag = /* @__PURE__ */ _bind(FW, 'kATSUBaselineClassTag')
-export const kATSUBeforeWithStreamShiftTag = /* @__PURE__ */ _bind(FW, 'kATSUBeforeWithStreamShiftTag')
+export const kATSUBeforeWithStreamShiftTag = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUBeforeWithStreamShiftTag',
+)
+
 export const kATSUByCharacter = /* @__PURE__ */ _bind(FW, 'kATSUByCharacter')
 export const kATSUByCharacterCluster = /* @__PURE__ */ _bind(FW, 'kATSUByCharacterCluster')
 export const kATSUByCluster = /* @__PURE__ */ _bind(FW, 'kATSUByCluster')
@@ -1173,19 +1785,55 @@ export const kATSUCenterTab = /* @__PURE__ */ _bind(FW, 'kATSUCenterTab')
 export const kATSUClearAll = /* @__PURE__ */ _bind(FW, 'kATSUClearAll')
 export const kATSUColorTag = /* @__PURE__ */ _bind(FW, 'kATSUColorTag')
 export const kATSUCrossStreamShiftTag = /* @__PURE__ */ _bind(FW, 'kATSUCrossStreamShiftTag')
-export const kATSUDataStreamUnicodeStyledText = /* @__PURE__ */ _bind(FW, 'kATSUDataStreamUnicodeStyledText')
+export const kATSUDataStreamUnicodeStyledText = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUDataStreamUnicodeStyledText',
+)
+
 export const kATSUDecimalTab = /* @__PURE__ */ _bind(FW, 'kATSUDecimalTab')
 export const kATSUDecompositionFactorTag = /* @__PURE__ */ _bind(FW, 'kATSUDecompositionFactorTag')
 export const kATSUDefaultFontFallbacks = /* @__PURE__ */ _bind(FW, 'kATSUDefaultFontFallbacks')
 export const kATSUDescentTag = /* @__PURE__ */ _bind(FW, 'kATSUDescentTag')
-export const kATSUDirectDataAdvanceDeltaFixedArray = /* @__PURE__ */ _bind(FW, 'kATSUDirectDataAdvanceDeltaFixedArray')
-export const kATSUDirectDataBaselineDeltaFixedArray = /* @__PURE__ */ _bind(FW, 'kATSUDirectDataBaselineDeltaFixedArray')
-export const kATSUDirectDataDeviceDeltaSInt16Array = /* @__PURE__ */ _bind(FW, 'kATSUDirectDataDeviceDeltaSInt16Array')
-export const kATSUDirectDataLayoutRecordATSLayoutRecordCurrent = /* @__PURE__ */ _bind(FW, 'kATSUDirectDataLayoutRecordATSLayoutRecordCurrent')
-export const kATSUDirectDataLayoutRecordATSLayoutRecordVersion1 = /* @__PURE__ */ _bind(FW, 'kATSUDirectDataLayoutRecordATSLayoutRecordVersion1')
-export const kATSUDirectDataStyleIndexUInt16Array = /* @__PURE__ */ _bind(FW, 'kATSUDirectDataStyleIndexUInt16Array')
-export const kATSUDirectDataStyleSettingATSUStyleSettingRefArray = /* @__PURE__ */ _bind(FW, 'kATSUDirectDataStyleSettingATSUStyleSettingRefArray')
-export const kATSUFlattenOptionNoOptionsMask = /* @__PURE__ */ _bind(FW, 'kATSUFlattenOptionNoOptionsMask')
+export const kATSUDirectDataAdvanceDeltaFixedArray = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUDirectDataAdvanceDeltaFixedArray',
+)
+
+export const kATSUDirectDataBaselineDeltaFixedArray = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUDirectDataBaselineDeltaFixedArray',
+)
+
+export const kATSUDirectDataDeviceDeltaSInt16Array = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUDirectDataDeviceDeltaSInt16Array',
+)
+
+export const kATSUDirectDataLayoutRecordATSLayoutRecordCurrent = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUDirectDataLayoutRecordATSLayoutRecordCurrent',
+)
+
+export const kATSUDirectDataLayoutRecordATSLayoutRecordVersion1 = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUDirectDataLayoutRecordATSLayoutRecordVersion1',
+)
+
+export const kATSUDirectDataStyleIndexUInt16Array = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUDirectDataStyleIndexUInt16Array',
+)
+
+export const kATSUDirectDataStyleSettingATSUStyleSettingRefArray = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUDirectDataStyleSettingATSUStyleSettingRefArray',
+)
+
+export const kATSUFlattenOptionNoOptionsMask = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUFlattenOptionNoOptionsMask',
+)
+
 export const kATSUFontMatrixTag = /* @__PURE__ */ _bind(FW, 'kATSUFontMatrixTag')
 export const kATSUFontTag = /* @__PURE__ */ _bind(FW, 'kATSUFontTag')
 export const kATSUForceHangingTag = /* @__PURE__ */ _bind(FW, 'kATSUForceHangingTag')
@@ -1193,36 +1841,96 @@ export const kATSUFromFollowingLayout = /* @__PURE__ */ _bind(FW, 'kATSUFromFoll
 export const kATSUFromPreviousLayout = /* @__PURE__ */ _bind(FW, 'kATSUFromPreviousLayout')
 export const kATSUFromTextBeginning = /* @__PURE__ */ _bind(FW, 'kATSUFromTextBeginning')
 export const kATSUGlyphSelectorTag = /* @__PURE__ */ _bind(FW, 'kATSUGlyphSelectorTag')
-export const kATSUHangingInhibitFactorTag = /* @__PURE__ */ _bind(FW, 'kATSUHangingInhibitFactorTag')
+export const kATSUHangingInhibitFactorTag = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUHangingInhibitFactorTag',
+)
+
 export const kATSUImposeWidthTag = /* @__PURE__ */ _bind(FW, 'kATSUImposeWidthTag')
 export const kATSUInvalidFontID = /* @__PURE__ */ _bind(FW, 'kATSUInvalidFontID')
-export const kATSUKerningInhibitFactorTag = /* @__PURE__ */ _bind(FW, 'kATSUKerningInhibitFactorTag')
+export const kATSUKerningInhibitFactorTag = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUKerningInhibitFactorTag',
+)
+
 export const kATSULangRegionTag = /* @__PURE__ */ _bind(FW, 'kATSULangRegionTag')
 export const kATSULanguageTag = /* @__PURE__ */ _bind(FW, 'kATSULanguageTag')
 export const kATSULastResortOnlyFallback = /* @__PURE__ */ _bind(FW, 'kATSULastResortOnlyFallback')
-export const kATSULayoutOperationAppleReserved = /* @__PURE__ */ _bind(FW, 'kATSULayoutOperationAppleReserved')
-export const kATSULayoutOperationBaselineAdjustment = /* @__PURE__ */ _bind(FW, 'kATSULayoutOperationBaselineAdjustment')
-export const kATSULayoutOperationCallbackStatusContinue = /* @__PURE__ */ _bind(FW, 'kATSULayoutOperationCallbackStatusContinue')
-export const kATSULayoutOperationCallbackStatusHandled = /* @__PURE__ */ _bind(FW, 'kATSULayoutOperationCallbackStatusHandled')
-export const kATSULayoutOperationJustification = /* @__PURE__ */ _bind(FW, 'kATSULayoutOperationJustification')
-export const kATSULayoutOperationKerningAdjustment = /* @__PURE__ */ _bind(FW, 'kATSULayoutOperationKerningAdjustment')
+export const kATSULayoutOperationAppleReserved = /* @__PURE__ */ _bind(
+	FW,
+	'kATSULayoutOperationAppleReserved',
+)
+
+export const kATSULayoutOperationBaselineAdjustment = /* @__PURE__ */ _bind(
+	FW,
+	'kATSULayoutOperationBaselineAdjustment',
+)
+
+export const kATSULayoutOperationCallbackStatusContinue = /* @__PURE__ */ _bind(
+	FW,
+	'kATSULayoutOperationCallbackStatusContinue',
+)
+
+export const kATSULayoutOperationCallbackStatusHandled = /* @__PURE__ */ _bind(
+	FW,
+	'kATSULayoutOperationCallbackStatusHandled',
+)
+
+export const kATSULayoutOperationJustification = /* @__PURE__ */ _bind(
+	FW,
+	'kATSULayoutOperationJustification',
+)
+
+export const kATSULayoutOperationKerningAdjustment = /* @__PURE__ */ _bind(
+	FW,
+	'kATSULayoutOperationKerningAdjustment',
+)
+
 export const kATSULayoutOperationMorph = /* @__PURE__ */ _bind(FW, 'kATSULayoutOperationMorph')
 export const kATSULayoutOperationNone = /* @__PURE__ */ _bind(FW, 'kATSULayoutOperationNone')
-export const kATSULayoutOperationOverrideTag = /* @__PURE__ */ _bind(FW, 'kATSULayoutOperationOverrideTag')
-export const kATSULayoutOperationPostLayoutAdjustment = /* @__PURE__ */ _bind(FW, 'kATSULayoutOperationPostLayoutAdjustment')
-export const kATSULayoutOperationTrackingAdjustment = /* @__PURE__ */ _bind(FW, 'kATSULayoutOperationTrackingAdjustment')
+export const kATSULayoutOperationOverrideTag = /* @__PURE__ */ _bind(
+	FW,
+	'kATSULayoutOperationOverrideTag',
+)
+
+export const kATSULayoutOperationPostLayoutAdjustment = /* @__PURE__ */ _bind(
+	FW,
+	'kATSULayoutOperationPostLayoutAdjustment',
+)
+
+export const kATSULayoutOperationTrackingAdjustment = /* @__PURE__ */ _bind(
+	FW,
+	'kATSULayoutOperationTrackingAdjustment',
+)
+
 export const kATSULeadingTag = /* @__PURE__ */ _bind(FW, 'kATSULeadingTag')
 export const kATSULeftTab = /* @__PURE__ */ _bind(FW, 'kATSULeftTab')
-export const kATSULeftToRightBaseDirection = /* @__PURE__ */ _bind(FW, 'kATSULeftToRightBaseDirection')
+export const kATSULeftToRightBaseDirection = /* @__PURE__ */ _bind(
+	FW,
+	'kATSULeftToRightBaseDirection',
+)
+
 export const kATSULineAscentTag = /* @__PURE__ */ _bind(FW, 'kATSULineAscentTag')
 export const kATSULineBaselineValuesTag = /* @__PURE__ */ _bind(FW, 'kATSULineBaselineValuesTag')
-export const kATSULineDecimalTabCharacterTag = /* @__PURE__ */ _bind(FW, 'kATSULineDecimalTabCharacterTag')
+export const kATSULineDecimalTabCharacterTag = /* @__PURE__ */ _bind(
+	FW,
+	'kATSULineDecimalTabCharacterTag',
+)
+
 export const kATSULineDescentTag = /* @__PURE__ */ _bind(FW, 'kATSULineDescentTag')
 export const kATSULineDirectionTag = /* @__PURE__ */ _bind(FW, 'kATSULineDirectionTag')
 export const kATSULineFlushFactorTag = /* @__PURE__ */ _bind(FW, 'kATSULineFlushFactorTag')
 export const kATSULineFontFallbacksTag = /* @__PURE__ */ _bind(FW, 'kATSULineFontFallbacksTag')
-export const kATSULineHighlightCGColorTag = /* @__PURE__ */ _bind(FW, 'kATSULineHighlightCGColorTag')
-export const kATSULineJustificationFactorTag = /* @__PURE__ */ _bind(FW, 'kATSULineJustificationFactorTag')
+export const kATSULineHighlightCGColorTag = /* @__PURE__ */ _bind(
+	FW,
+	'kATSULineHighlightCGColorTag',
+)
+
+export const kATSULineJustificationFactorTag = /* @__PURE__ */ _bind(
+	FW,
+	'kATSULineJustificationFactorTag',
+)
+
 export const kATSULineLangRegionTag = /* @__PURE__ */ _bind(FW, 'kATSULineLangRegionTag')
 export const kATSULineLanguageTag = /* @__PURE__ */ _bind(FW, 'kATSULineLanguageTag')
 export const kATSULineLayoutOptionsTag = /* @__PURE__ */ _bind(FW, 'kATSULineLayoutOptionsTag')
@@ -1237,9 +1945,17 @@ export const kATSUNoCaretAngleTag = /* @__PURE__ */ _bind(FW, 'kATSUNoCaretAngle
 export const kATSUNoLigatureSplitTag = /* @__PURE__ */ _bind(FW, 'kATSUNoLigatureSplitTag')
 export const kATSUNoOpticalAlignmentTag = /* @__PURE__ */ _bind(FW, 'kATSUNoOpticalAlignmentTag')
 export const kATSUNoSelector = /* @__PURE__ */ _bind(FW, 'kATSUNoSelector')
-export const kATSUNoSpecialJustificationTag = /* @__PURE__ */ _bind(FW, 'kATSUNoSpecialJustificationTag')
+export const kATSUNoSpecialJustificationTag = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUNoSpecialJustificationTag',
+)
+
 export const kATSUNumberTabTypes = /* @__PURE__ */ _bind(FW, 'kATSUNumberTabTypes')
-export const kATSUPriorityJustOverrideTag = /* @__PURE__ */ _bind(FW, 'kATSUPriorityJustOverrideTag')
+export const kATSUPriorityJustOverrideTag = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUPriorityJustOverrideTag',
+)
+
 export const kATSUQDBoldfaceTag = /* @__PURE__ */ _bind(FW, 'kATSUQDBoldfaceTag')
 export const kATSUQDCondensedTag = /* @__PURE__ */ _bind(FW, 'kATSUQDCondensedTag')
 export const kATSUQDExtendedTag = /* @__PURE__ */ _bind(FW, 'kATSUQDExtendedTag')
@@ -1247,39 +1963,95 @@ export const kATSUQDItalicTag = /* @__PURE__ */ _bind(FW, 'kATSUQDItalicTag')
 export const kATSUQDUnderlineTag = /* @__PURE__ */ _bind(FW, 'kATSUQDUnderlineTag')
 export const kATSURGBAlphaColorTag = /* @__PURE__ */ _bind(FW, 'kATSURGBAlphaColorTag')
 export const kATSURightTab = /* @__PURE__ */ _bind(FW, 'kATSURightTab')
-export const kATSURightToLeftBaseDirection = /* @__PURE__ */ _bind(FW, 'kATSURightToLeftBaseDirection')
-export const kATSUSequentialFallbacksExclusive = /* @__PURE__ */ _bind(FW, 'kATSUSequentialFallbacksExclusive')
-export const kATSUSequentialFallbacksPreferred = /* @__PURE__ */ _bind(FW, 'kATSUSequentialFallbacksPreferred')
+export const kATSURightToLeftBaseDirection = /* @__PURE__ */ _bind(
+	FW,
+	'kATSURightToLeftBaseDirection',
+)
+
+export const kATSUSequentialFallbacksExclusive = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUSequentialFallbacksExclusive',
+)
+
+export const kATSUSequentialFallbacksPreferred = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUSequentialFallbacksPreferred',
+)
+
 export const kATSUSizeTag = /* @__PURE__ */ _bind(FW, 'kATSUSizeTag')
 export const kATSUStronglyHorizontal = /* @__PURE__ */ _bind(FW, 'kATSUStronglyHorizontal')
 export const kATSUStronglyVertical = /* @__PURE__ */ _bind(FW, 'kATSUStronglyVertical')
 export const kATSUStyleContainedBy = /* @__PURE__ */ _bind(FW, 'kATSUStyleContainedBy')
 export const kATSUStyleContains = /* @__PURE__ */ _bind(FW, 'kATSUStyleContains')
 export const kATSUStyleDoubleLineCount = /* @__PURE__ */ _bind(FW, 'kATSUStyleDoubleLineCount')
-export const kATSUStyleDropShadowBlurOptionTag = /* @__PURE__ */ _bind(FW, 'kATSUStyleDropShadowBlurOptionTag')
-export const kATSUStyleDropShadowColorOptionTag = /* @__PURE__ */ _bind(FW, 'kATSUStyleDropShadowColorOptionTag')
-export const kATSUStyleDropShadowOffsetOptionTag = /* @__PURE__ */ _bind(FW, 'kATSUStyleDropShadowOffsetOptionTag')
+export const kATSUStyleDropShadowBlurOptionTag = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUStyleDropShadowBlurOptionTag',
+)
+
+export const kATSUStyleDropShadowColorOptionTag = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUStyleDropShadowColorOptionTag',
+)
+
+export const kATSUStyleDropShadowOffsetOptionTag = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUStyleDropShadowOffsetOptionTag',
+)
+
 export const kATSUStyleDropShadowTag = /* @__PURE__ */ _bind(FW, 'kATSUStyleDropShadowTag')
 export const kATSUStyleEquals = /* @__PURE__ */ _bind(FW, 'kATSUStyleEquals')
-export const kATSUStyleRenderingOptionsTag = /* @__PURE__ */ _bind(FW, 'kATSUStyleRenderingOptionsTag')
+export const kATSUStyleRenderingOptionsTag = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUStyleRenderingOptionsTag',
+)
+
 export const kATSUStyleSingleLineCount = /* @__PURE__ */ _bind(FW, 'kATSUStyleSingleLineCount')
-export const kATSUStyleStrikeThroughColorOptionTag = /* @__PURE__ */ _bind(FW, 'kATSUStyleStrikeThroughColorOptionTag')
-export const kATSUStyleStrikeThroughCountOptionTag = /* @__PURE__ */ _bind(FW, 'kATSUStyleStrikeThroughCountOptionTag')
+export const kATSUStyleStrikeThroughColorOptionTag = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUStyleStrikeThroughColorOptionTag',
+)
+
+export const kATSUStyleStrikeThroughCountOptionTag = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUStyleStrikeThroughCountOptionTag',
+)
+
 export const kATSUStyleStrikeThroughTag = /* @__PURE__ */ _bind(FW, 'kATSUStyleStrikeThroughTag')
 export const kATSUStyleTextLocatorTag = /* @__PURE__ */ _bind(FW, 'kATSUStyleTextLocatorTag')
-export const kATSUStyleUnderlineColorOptionTag = /* @__PURE__ */ _bind(FW, 'kATSUStyleUnderlineColorOptionTag')
-export const kATSUStyleUnderlineCountOptionTag = /* @__PURE__ */ _bind(FW, 'kATSUStyleUnderlineCountOptionTag')
+export const kATSUStyleUnderlineColorOptionTag = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUStyleUnderlineColorOptionTag',
+)
+
+export const kATSUStyleUnderlineCountOptionTag = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUStyleUnderlineCountOptionTag',
+)
+
 export const kATSUStyleUnequal = /* @__PURE__ */ _bind(FW, 'kATSUStyleUnequal')
-export const kATSUSuppressCrossKerningTag = /* @__PURE__ */ _bind(FW, 'kATSUSuppressCrossKerningTag')
+export const kATSUSuppressCrossKerningTag = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUSuppressCrossKerningTag',
+)
+
 export const kATSUToTextEnd = /* @__PURE__ */ _bind(FW, 'kATSUToTextEnd')
 export const kATSUTrackingTag = /* @__PURE__ */ _bind(FW, 'kATSUTrackingTag')
 export const kATSUTruncFeatNoSquishing = /* @__PURE__ */ _bind(FW, 'kATSUTruncFeatNoSquishing')
 export const kATSUTruncateEnd = /* @__PURE__ */ _bind(FW, 'kATSUTruncateEnd')
 export const kATSUTruncateMiddle = /* @__PURE__ */ _bind(FW, 'kATSUTruncateMiddle')
 export const kATSUTruncateNone = /* @__PURE__ */ _bind(FW, 'kATSUTruncateNone')
-export const kATSUTruncateSpecificationMask = /* @__PURE__ */ _bind(FW, 'kATSUTruncateSpecificationMask')
+export const kATSUTruncateSpecificationMask = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUTruncateSpecificationMask',
+)
+
 export const kATSUTruncateStart = /* @__PURE__ */ _bind(FW, 'kATSUTruncateStart')
-export const kATSUUnFlattenOptionNoOptionsMask = /* @__PURE__ */ _bind(FW, 'kATSUUnFlattenOptionNoOptionsMask')
+export const kATSUUnFlattenOptionNoOptionsMask = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUUnFlattenOptionNoOptionsMask',
+)
+
 export const kATSUUseGrafPortPenLoc = /* @__PURE__ */ _bind(FW, 'kATSUUseGrafPortPenLoc')
 export const kATSUUseLineControlWidth = /* @__PURE__ */ _bind(FW, 'kATSUUseLineControlWidth')
 export const kATSUVerticalCharacterTag = /* @__PURE__ */ _bind(FW, 'kATSUVerticalCharacterTag')
@@ -1290,28 +2062,80 @@ export const kATSUseGlyphAdvance = /* @__PURE__ */ _bind(FW, 'kATSUseGlyphAdvanc
 export const kATSUseLineHeight = /* @__PURE__ */ _bind(FW, 'kATSUseLineHeight')
 export const kATSUseOriginFlags = /* @__PURE__ */ _bind(FW, 'kATSUseOriginFlags')
 export const kAXAttachmentTextAttribute = /* @__PURE__ */ _bind(FW, 'kAXAttachmentTextAttribute')
-export const kAXAutocorrectedTextAttribute = /* @__PURE__ */ _bind(FW, 'kAXAutocorrectedTextAttribute')
-export const kAXBackgroundColorTextAttribute = /* @__PURE__ */ _bind(FW, 'kAXBackgroundColorTextAttribute')
+export const kAXAutocorrectedTextAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kAXAutocorrectedTextAttribute',
+)
+
+export const kAXBackgroundColorTextAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kAXBackgroundColorTextAttribute',
+)
+
 export const kAXFontFamilyKey = /* @__PURE__ */ _bind(FW, 'kAXFontFamilyKey')
 export const kAXFontNameKey = /* @__PURE__ */ _bind(FW, 'kAXFontNameKey')
 export const kAXFontSizeKey = /* @__PURE__ */ _bind(FW, 'kAXFontSizeKey')
 export const kAXFontTextAttribute = /* @__PURE__ */ _bind(FW, 'kAXFontTextAttribute')
-export const kAXForegoundColorTextAttribute = /* @__PURE__ */ _bind(FW, 'kAXForegoundColorTextAttribute')
-export const kAXForegroundColorTextAttribute = /* @__PURE__ */ _bind(FW, 'kAXForegroundColorTextAttribute')
+export const kAXForegoundColorTextAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kAXForegoundColorTextAttribute',
+)
+
+export const kAXForegroundColorTextAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kAXForegroundColorTextAttribute',
+)
+
 export const kAXLinkTextAttribute = /* @__PURE__ */ _bind(FW, 'kAXLinkTextAttribute')
-export const kAXListItemIndexTextAttribute = /* @__PURE__ */ _bind(FW, 'kAXListItemIndexTextAttribute')
-export const kAXListItemLevelTextAttribute = /* @__PURE__ */ _bind(FW, 'kAXListItemLevelTextAttribute')
-export const kAXListItemPrefixTextAttribute = /* @__PURE__ */ _bind(FW, 'kAXListItemPrefixTextAttribute')
-export const kAXMarkedMisspelledTextAttribute = /* @__PURE__ */ _bind(FW, 'kAXMarkedMisspelledTextAttribute')
+export const kAXListItemIndexTextAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kAXListItemIndexTextAttribute',
+)
+
+export const kAXListItemLevelTextAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kAXListItemLevelTextAttribute',
+)
+
+export const kAXListItemPrefixTextAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kAXListItemPrefixTextAttribute',
+)
+
+export const kAXMarkedMisspelledTextAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kAXMarkedMisspelledTextAttribute',
+)
+
 export const kAXMisspelledTextAttribute = /* @__PURE__ */ _bind(FW, 'kAXMisspelledTextAttribute')
-export const kAXNaturalLanguageTextAttribute = /* @__PURE__ */ _bind(FW, 'kAXNaturalLanguageTextAttribute')
-export const kAXReplacementStringTextAttribute = /* @__PURE__ */ _bind(FW, 'kAXReplacementStringTextAttribute')
+export const kAXNaturalLanguageTextAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kAXNaturalLanguageTextAttribute',
+)
+
+export const kAXReplacementStringTextAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kAXReplacementStringTextAttribute',
+)
+
 export const kAXShadowTextAttribute = /* @__PURE__ */ _bind(FW, 'kAXShadowTextAttribute')
-export const kAXStrikethroughColorTextAttribute = /* @__PURE__ */ _bind(FW, 'kAXStrikethroughColorTextAttribute')
-export const kAXStrikethroughTextAttribute = /* @__PURE__ */ _bind(FW, 'kAXStrikethroughTextAttribute')
+export const kAXStrikethroughColorTextAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kAXStrikethroughColorTextAttribute',
+)
+
+export const kAXStrikethroughTextAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kAXStrikethroughTextAttribute',
+)
+
 export const kAXSuperscriptTextAttribute = /* @__PURE__ */ _bind(FW, 'kAXSuperscriptTextAttribute')
 export const kAXTrustedCheckOptionPrompt = /* @__PURE__ */ _bind(FW, 'kAXTrustedCheckOptionPrompt')
-export const kAXUnderlineColorTextAttribute = /* @__PURE__ */ _bind(FW, 'kAXUnderlineColorTextAttribute')
+export const kAXUnderlineColorTextAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kAXUnderlineColorTextAttribute',
+)
+
 export const kAXUnderlineTextAttribute = /* @__PURE__ */ _bind(FW, 'kAXUnderlineTextAttribute')
 export const kAXValueAXErrorType = /* @__PURE__ */ _bind(FW, 'kAXValueAXErrorType')
 export const kAXValueCFRangeType = /* @__PURE__ */ _bind(FW, 'kAXValueCFRangeType')
@@ -1337,9 +2161,17 @@ export const kAlignTopLeft = /* @__PURE__ */ _bind(FW, 'kAlignTopLeft')
 export const kAlignTopRight = /* @__PURE__ */ _bind(FW, 'kAlignTopRight')
 export const kAlignVerticalCenter = /* @__PURE__ */ _bind(FW, 'kAlignVerticalCenter')
 export const kAllPPDDomains = /* @__PURE__ */ _bind(FW, 'kAllPPDDomains')
-export const kAudioUnitProperty_SpeechChannel = /* @__PURE__ */ _bind(FW, 'kAudioUnitProperty_SpeechChannel')
+export const kAudioUnitProperty_SpeechChannel = /* @__PURE__ */ _bind(
+	FW,
+	'kAudioUnitProperty_SpeechChannel',
+)
+
 export const kAudioUnitProperty_Voice = /* @__PURE__ */ _bind(FW, 'kAudioUnitProperty_Voice')
-export const kAudioUnitSubType_SpeechSynthesis = /* @__PURE__ */ _bind(FW, 'kAudioUnitSubType_SpeechSynthesis')
+export const kAudioUnitSubType_SpeechSynthesis = /* @__PURE__ */ _bind(
+	FW,
+	'kAudioUnitSubType_SpeechSynthesis',
+)
+
 export const kCUPSPPDDomain = /* @__PURE__ */ _bind(FW, 'kCUPSPPDDomain')
 export const kCurrentProcess = /* @__PURE__ */ _bind(FW, 'kCurrentProcess')
 export const kDefaultCMMSignature = /* @__PURE__ */ _bind(FW, 'kDefaultCMMSignature')
@@ -1347,12 +2179,36 @@ export const kDeviceToPCS = /* @__PURE__ */ _bind(FW, 'kDeviceToPCS')
 export const kEndOfSentence = /* @__PURE__ */ _bind(FW, 'kEndOfSentence')
 export const kEndOfWord = /* @__PURE__ */ _bind(FW, 'kEndOfWord')
 export const kFMCurrentFilterFormat = /* @__PURE__ */ _bind(FW, 'kFMCurrentFilterFormat')
-export const kFMFontCallbackFilterSelector = /* @__PURE__ */ _bind(FW, 'kFMFontCallbackFilterSelector')
-export const kFMFontContainerFilterSelector = /* @__PURE__ */ _bind(FW, 'kFMFontContainerFilterSelector')
-export const kFMFontDirectoryFilterSelector = /* @__PURE__ */ _bind(FW, 'kFMFontDirectoryFilterSelector')
-export const kFMFontFamilyCallbackFilterSelector = /* @__PURE__ */ _bind(FW, 'kFMFontFamilyCallbackFilterSelector')
-export const kFMFontFileRefFilterSelector = /* @__PURE__ */ _bind(FW, 'kFMFontFileRefFilterSelector')
-export const kFMFontTechnologyFilterSelector = /* @__PURE__ */ _bind(FW, 'kFMFontTechnologyFilterSelector')
+export const kFMFontCallbackFilterSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kFMFontCallbackFilterSelector',
+)
+
+export const kFMFontContainerFilterSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kFMFontContainerFilterSelector',
+)
+
+export const kFMFontDirectoryFilterSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kFMFontDirectoryFilterSelector',
+)
+
+export const kFMFontFamilyCallbackFilterSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kFMFontFamilyCallbackFilterSelector',
+)
+
+export const kFMFontFileRefFilterSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kFMFontFileRefFilterSelector',
+)
+
+export const kFMFontTechnologyFilterSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kFMFontTechnologyFilterSelector',
+)
+
 export const kFMGenerationFilterSelector = /* @__PURE__ */ _bind(FW, 'kFMGenerationFilterSelector')
 export const kFMPostScriptFontTechnology = /* @__PURE__ */ _bind(FW, 'kFMPostScriptFontTechnology')
 export const kFMTrueTypeFontTechnology = /* @__PURE__ */ _bind(FW, 'kFMTrueTypeFontTechnology')
@@ -1372,7 +2228,11 @@ export const kHIShapeEnumerateInit = /* @__PURE__ */ _bind(FW, 'kHIShapeEnumerat
 export const kHIShapeEnumerateRect = /* @__PURE__ */ _bind(FW, 'kHIShapeEnumerateRect')
 export const kHIShapeEnumerateTerminate = /* @__PURE__ */ _bind(FW, 'kHIShapeEnumerateTerminate')
 export const kHIShapeParseFromBottom = /* @__PURE__ */ _bind(FW, 'kHIShapeParseFromBottom')
-export const kHIShapeParseFromBottomRight = /* @__PURE__ */ _bind(FW, 'kHIShapeParseFromBottomRight')
+export const kHIShapeParseFromBottomRight = /* @__PURE__ */ _bind(
+	FW,
+	'kHIShapeParseFromBottomRight',
+)
+
 export const kHIShapeParseFromLeft = /* @__PURE__ */ _bind(FW, 'kHIShapeParseFromLeft')
 export const kHIShapeParseFromRight = /* @__PURE__ */ _bind(FW, 'kHIShapeParseFromRight')
 export const kHIShapeParseFromTop = /* @__PURE__ */ _bind(FW, 'kHIShapeParseFromTop')
@@ -1383,12 +2243,36 @@ export const kICAttrLockedMask = /* @__PURE__ */ _bind(FW, 'kICAttrLockedMask')
 export const kICAttrNoChange = /* @__PURE__ */ _bind(FW, 'kICAttrNoChange')
 export const kICAttrVolatileBit = /* @__PURE__ */ _bind(FW, 'kICAttrVolatileBit')
 export const kICAttrVolatileMask = /* @__PURE__ */ _bind(FW, 'kICAttrVolatileMask')
-export const kICComponentInterfaceVersion = /* @__PURE__ */ _bind(FW, 'kICComponentInterfaceVersion')
-export const kICComponentInterfaceVersion0 = /* @__PURE__ */ _bind(FW, 'kICComponentInterfaceVersion0')
-export const kICComponentInterfaceVersion1 = /* @__PURE__ */ _bind(FW, 'kICComponentInterfaceVersion1')
-export const kICComponentInterfaceVersion2 = /* @__PURE__ */ _bind(FW, 'kICComponentInterfaceVersion2')
-export const kICComponentInterfaceVersion3 = /* @__PURE__ */ _bind(FW, 'kICComponentInterfaceVersion3')
-export const kICComponentInterfaceVersion4 = /* @__PURE__ */ _bind(FW, 'kICComponentInterfaceVersion4')
+export const kICComponentInterfaceVersion = /* @__PURE__ */ _bind(
+	FW,
+	'kICComponentInterfaceVersion',
+)
+
+export const kICComponentInterfaceVersion0 = /* @__PURE__ */ _bind(
+	FW,
+	'kICComponentInterfaceVersion0',
+)
+
+export const kICComponentInterfaceVersion1 = /* @__PURE__ */ _bind(
+	FW,
+	'kICComponentInterfaceVersion1',
+)
+
+export const kICComponentInterfaceVersion2 = /* @__PURE__ */ _bind(
+	FW,
+	'kICComponentInterfaceVersion2',
+)
+
+export const kICComponentInterfaceVersion3 = /* @__PURE__ */ _bind(
+	FW,
+	'kICComponentInterfaceVersion3',
+)
+
+export const kICComponentInterfaceVersion4 = /* @__PURE__ */ _bind(
+	FW,
+	'kICComponentInterfaceVersion4',
+)
+
 export const kICComponentVersion = /* @__PURE__ */ _bind(FW, 'kICComponentVersion')
 export const kICCreator = /* @__PURE__ */ _bind(FW, 'kICCreator')
 export const kICEditPreferenceEvent = /* @__PURE__ */ _bind(FW, 'kICEditPreferenceEvent')
@@ -1505,7 +2389,11 @@ export const kPMInvalidValue = /* @__PURE__ */ _bind(FW, 'kPMInvalidValue')
 export const kPMItemIsLocked = /* @__PURE__ */ _bind(FW, 'kPMItemIsLocked')
 export const kPMJobBusy = /* @__PURE__ */ _bind(FW, 'kPMJobBusy')
 export const kPMJobCanceled = /* @__PURE__ */ _bind(FW, 'kPMJobCanceled')
-export const kPMJobGetTicketBadFormatError = /* @__PURE__ */ _bind(FW, 'kPMJobGetTicketBadFormatError')
+export const kPMJobGetTicketBadFormatError = /* @__PURE__ */ _bind(
+	FW,
+	'kPMJobGetTicketBadFormatError',
+)
+
 export const kPMJobGetTicketReadError = /* @__PURE__ */ _bind(FW, 'kPMJobGetTicketReadError')
 export const kPMJobManagerAborted = /* @__PURE__ */ _bind(FW, 'kPMJobManagerAborted')
 export const kPMJobNotFound = /* @__PURE__ */ _bind(FW, 'kPMJobNotFound')
@@ -1516,7 +2404,11 @@ export const kPMKeyNotFound = /* @__PURE__ */ _bind(FW, 'kPMKeyNotFound')
 export const kPMKeyNotUnique = /* @__PURE__ */ _bind(FW, 'kPMKeyNotUnique')
 export const kPMKeyOrValueNotFound = /* @__PURE__ */ _bind(FW, 'kPMKeyOrValueNotFound')
 export const kPMLandscape = /* @__PURE__ */ _bind(FW, 'kPMLandscape')
-export const kPMLastErrorCodeToMakeMaintenanceOfThisListEasier = /* @__PURE__ */ _bind(FW, 'kPMLastErrorCodeToMakeMaintenanceOfThisListEasier')
+export const kPMLastErrorCodeToMakeMaintenanceOfThisListEasier = /* @__PURE__ */ _bind(
+	FW,
+	'kPMLastErrorCodeToMakeMaintenanceOfThisListEasier',
+)
+
 export const kPMLayoutBottomTopLeftRight = /* @__PURE__ */ _bind(FW, 'kPMLayoutBottomTopLeftRight')
 export const kPMLayoutBottomTopRightLeft = /* @__PURE__ */ _bind(FW, 'kPMLayoutBottomTopRightLeft')
 export const kPMLayoutLeftRightBottomTop = /* @__PURE__ */ _bind(FW, 'kPMLayoutLeftRightBottomTop')
@@ -1547,7 +2439,11 @@ export const kPMPaperTypeTransparency = /* @__PURE__ */ _bind(FW, 'kPMPaperTypeT
 export const kPMPaperTypeUnknown = /* @__PURE__ */ _bind(FW, 'kPMPaperTypeUnknown')
 export const kPMPermissionError = /* @__PURE__ */ _bind(FW, 'kPMPermissionError')
 export const kPMPluginNotFound = /* @__PURE__ */ _bind(FW, 'kPMPluginNotFound')
-export const kPMPluginRegisterationFailed = /* @__PURE__ */ _bind(FW, 'kPMPluginRegisterationFailed')
+export const kPMPluginRegisterationFailed = /* @__PURE__ */ _bind(
+	FW,
+	'kPMPluginRegisterationFailed',
+)
+
 export const kPMPortrait = /* @__PURE__ */ _bind(FW, 'kPMPortrait')
 export const kPMPrBrowserNoUI = /* @__PURE__ */ _bind(FW, 'kPMPrBrowserNoUI')
 export const kPMPrintAllPages = /* @__PURE__ */ _bind(FW, 'kPMPrintAllPages')
@@ -1576,15 +2472,27 @@ export const kPMScalingPinBottomRight = /* @__PURE__ */ _bind(FW, 'kPMScalingPin
 export const kPMScalingPinTopLeft = /* @__PURE__ */ _bind(FW, 'kPMScalingPinTopLeft')
 export const kPMScalingPinTopRight = /* @__PURE__ */ _bind(FW, 'kPMScalingPinTopRight')
 export const kPMServerAlreadyRunning = /* @__PURE__ */ _bind(FW, 'kPMServerAlreadyRunning')
-export const kPMServerAttributeRestricted = /* @__PURE__ */ _bind(FW, 'kPMServerAttributeRestricted')
-export const kPMServerCommunicationFailed = /* @__PURE__ */ _bind(FW, 'kPMServerCommunicationFailed')
+export const kPMServerAttributeRestricted = /* @__PURE__ */ _bind(
+	FW,
+	'kPMServerAttributeRestricted',
+)
+
+export const kPMServerCommunicationFailed = /* @__PURE__ */ _bind(
+	FW,
+	'kPMServerCommunicationFailed',
+)
+
 export const kPMServerNotFound = /* @__PURE__ */ _bind(FW, 'kPMServerNotFound')
 export const kPMServerSuspended = /* @__PURE__ */ _bind(FW, 'kPMServerSuspended')
 export const kPMShowDefaultInlineItems = /* @__PURE__ */ _bind(FW, 'kPMShowDefaultInlineItems')
 export const kPMShowInlineCopies = /* @__PURE__ */ _bind(FW, 'kPMShowInlineCopies')
 export const kPMShowInlineOrientation = /* @__PURE__ */ _bind(FW, 'kPMShowInlineOrientation')
 export const kPMShowInlinePageRange = /* @__PURE__ */ _bind(FW, 'kPMShowInlinePageRange')
-export const kPMShowInlinePageRangeWithSelection = /* @__PURE__ */ _bind(FW, 'kPMShowInlinePageRangeWithSelection')
+export const kPMShowInlinePageRangeWithSelection = /* @__PURE__ */ _bind(
+	FW,
+	'kPMShowInlinePageRangeWithSelection',
+)
+
 export const kPMShowInlinePaperSize = /* @__PURE__ */ _bind(FW, 'kPMShowInlinePaperSize')
 export const kPMShowInlineScale = /* @__PURE__ */ _bind(FW, 'kPMShowInlineScale')
 export const kPMShowPageAttributesPDE = /* @__PURE__ */ _bind(FW, 'kPMShowPageAttributesPDE')
@@ -1613,18 +2521,46 @@ export const kPlotIconRefNoImage = /* @__PURE__ */ _bind(FW, 'kPlotIconRefNoImag
 export const kPlotIconRefNoMask = /* @__PURE__ */ _bind(FW, 'kPlotIconRefNoMask')
 export const kPlotIconRefNormalFlags = /* @__PURE__ */ _bind(FW, 'kPlotIconRefNormalFlags')
 export const kPreflightThenPause = /* @__PURE__ */ _bind(FW, 'kPreflightThenPause')
-export const kProcessDictionaryIncludeAllInformationMask = /* @__PURE__ */ _bind(FW, 'kProcessDictionaryIncludeAllInformationMask')
-export const kProcessTransformToBackgroundApplication = /* @__PURE__ */ _bind(FW, 'kProcessTransformToBackgroundApplication')
-export const kProcessTransformToForegroundApplication = /* @__PURE__ */ _bind(FW, 'kProcessTransformToForegroundApplication')
-export const kProcessTransformToUIElementApplication = /* @__PURE__ */ _bind(FW, 'kProcessTransformToUIElementApplication')
+export const kProcessDictionaryIncludeAllInformationMask = /* @__PURE__ */ _bind(
+	FW,
+	'kProcessDictionaryIncludeAllInformationMask',
+)
+
+export const kProcessTransformToBackgroundApplication = /* @__PURE__ */ _bind(
+	FW,
+	'kProcessTransformToBackgroundApplication',
+)
+
+export const kProcessTransformToForegroundApplication = /* @__PURE__ */ _bind(
+	FW,
+	'kProcessTransformToForegroundApplication',
+)
+
+export const kProcessTransformToUIElementApplication = /* @__PURE__ */ _bind(
+	FW,
+	'kProcessTransformToUIElementApplication',
+)
+
 export const kQuitAtNormalTimeMask = /* @__PURE__ */ _bind(FW, 'kQuitAtNormalTimeMask')
 export const kQuitBeforeFBAsQuitMask = /* @__PURE__ */ _bind(FW, 'kQuitBeforeFBAsQuitMask')
 export const kQuitBeforeNormalTimeMask = /* @__PURE__ */ _bind(FW, 'kQuitBeforeNormalTimeMask')
 export const kQuitBeforeShellQuitsMask = /* @__PURE__ */ _bind(FW, 'kQuitBeforeShellQuitsMask')
-export const kQuitBeforeTerminatorAppQuitsMask = /* @__PURE__ */ _bind(FW, 'kQuitBeforeTerminatorAppQuitsMask')
+export const kQuitBeforeTerminatorAppQuitsMask = /* @__PURE__ */ _bind(
+	FW,
+	'kQuitBeforeTerminatorAppQuitsMask',
+)
+
 export const kQuitNeverMask = /* @__PURE__ */ _bind(FW, 'kQuitNeverMask')
-export const kQuitNotQuitDuringInstallMask = /* @__PURE__ */ _bind(FW, 'kQuitNotQuitDuringInstallMask')
-export const kQuitNotQuitDuringLogoutMask = /* @__PURE__ */ _bind(FW, 'kQuitNotQuitDuringLogoutMask')
+export const kQuitNotQuitDuringInstallMask = /* @__PURE__ */ _bind(
+	FW,
+	'kQuitNotQuitDuringInstallMask',
+)
+
+export const kQuitNotQuitDuringLogoutMask = /* @__PURE__ */ _bind(
+	FW,
+	'kQuitNotQuitDuringLogoutMask',
+)
+
 export const kQuitOptionsMask = /* @__PURE__ */ _bind(FW, 'kQuitOptionsMask')
 export const kRedrawHighlighting = /* @__PURE__ */ _bind(FW, 'kRedrawHighlighting')
 export const kSelectorAll1BitData = /* @__PURE__ */ _bind(FW, 'kSelectorAll1BitData')
@@ -1654,30 +2590,90 @@ export const kSelectorSmall32Bit = /* @__PURE__ */ _bind(FW, 'kSelectorSmall32Bi
 export const kSelectorSmall4Bit = /* @__PURE__ */ _bind(FW, 'kSelectorSmall4Bit')
 export const kSelectorSmall8Bit = /* @__PURE__ */ _bind(FW, 'kSelectorSmall8Bit')
 export const kSelectorSmall8BitMask = /* @__PURE__ */ _bind(FW, 'kSelectorSmall8BitMask')
-export const kSetFrontProcessCausedByUser = /* @__PURE__ */ _bind(FW, 'kSetFrontProcessCausedByUser')
-export const kSetFrontProcessFrontWindowOnly = /* @__PURE__ */ _bind(FW, 'kSetFrontProcessFrontWindowOnly')
+export const kSetFrontProcessCausedByUser = /* @__PURE__ */ _bind(
+	FW,
+	'kSetFrontProcessCausedByUser',
+)
+
+export const kSetFrontProcessFrontWindowOnly = /* @__PURE__ */ _bind(
+	FW,
+	'kSetFrontProcessFrontWindowOnly',
+)
+
 export const kSpeechAudioGraphProperty = /* @__PURE__ */ _bind(FW, 'kSpeechAudioGraphProperty')
-export const kSpeechAudioOutputFormatProperty = /* @__PURE__ */ _bind(FW, 'kSpeechAudioOutputFormatProperty')
+export const kSpeechAudioOutputFormatProperty = /* @__PURE__ */ _bind(
+	FW,
+	'kSpeechAudioOutputFormatProperty',
+)
+
 export const kSpeechAudioUnitProperty = /* @__PURE__ */ _bind(FW, 'kSpeechAudioUnitProperty')
-export const kSpeechCharacterModeProperty = /* @__PURE__ */ _bind(FW, 'kSpeechCharacterModeProperty')
-export const kSpeechCommandDelimiterProperty = /* @__PURE__ */ _bind(FW, 'kSpeechCommandDelimiterProperty')
+export const kSpeechCharacterModeProperty = /* @__PURE__ */ _bind(
+	FW,
+	'kSpeechCharacterModeProperty',
+)
+
+export const kSpeechCommandDelimiterProperty = /* @__PURE__ */ _bind(
+	FW,
+	'kSpeechCommandDelimiterProperty',
+)
+
 export const kSpeechCommandPrefix = /* @__PURE__ */ _bind(FW, 'kSpeechCommandPrefix')
 export const kSpeechCommandSuffix = /* @__PURE__ */ _bind(FW, 'kSpeechCommandSuffix')
 export const kSpeechCurrentVoiceProperty = /* @__PURE__ */ _bind(FW, 'kSpeechCurrentVoiceProperty')
-export const kSpeechDictionaryAbbreviations = /* @__PURE__ */ _bind(FW, 'kSpeechDictionaryAbbreviations')
-export const kSpeechDictionaryEntryPhonemes = /* @__PURE__ */ _bind(FW, 'kSpeechDictionaryEntryPhonemes')
-export const kSpeechDictionaryEntrySpelling = /* @__PURE__ */ _bind(FW, 'kSpeechDictionaryEntrySpelling')
-export const kSpeechDictionaryLocaleIdentifier = /* @__PURE__ */ _bind(FW, 'kSpeechDictionaryLocaleIdentifier')
-export const kSpeechDictionaryModificationDate = /* @__PURE__ */ _bind(FW, 'kSpeechDictionaryModificationDate')
-export const kSpeechDictionaryPronunciations = /* @__PURE__ */ _bind(FW, 'kSpeechDictionaryPronunciations')
+export const kSpeechDictionaryAbbreviations = /* @__PURE__ */ _bind(
+	FW,
+	'kSpeechDictionaryAbbreviations',
+)
+
+export const kSpeechDictionaryEntryPhonemes = /* @__PURE__ */ _bind(
+	FW,
+	'kSpeechDictionaryEntryPhonemes',
+)
+
+export const kSpeechDictionaryEntrySpelling = /* @__PURE__ */ _bind(
+	FW,
+	'kSpeechDictionaryEntrySpelling',
+)
+
+export const kSpeechDictionaryLocaleIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'kSpeechDictionaryLocaleIdentifier',
+)
+
+export const kSpeechDictionaryModificationDate = /* @__PURE__ */ _bind(
+	FW,
+	'kSpeechDictionaryModificationDate',
+)
+
+export const kSpeechDictionaryPronunciations = /* @__PURE__ */ _bind(
+	FW,
+	'kSpeechDictionaryPronunciations',
+)
+
 export const kSpeechErrorCFCallBack = /* @__PURE__ */ _bind(FW, 'kSpeechErrorCFCallBack')
-export const kSpeechErrorCallbackCharacterOffset = /* @__PURE__ */ _bind(FW, 'kSpeechErrorCallbackCharacterOffset')
-export const kSpeechErrorCallbackSpokenString = /* @__PURE__ */ _bind(FW, 'kSpeechErrorCallbackSpokenString')
+export const kSpeechErrorCallbackCharacterOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kSpeechErrorCallbackCharacterOffset',
+)
+
+export const kSpeechErrorCallbackSpokenString = /* @__PURE__ */ _bind(
+	FW,
+	'kSpeechErrorCallbackSpokenString',
+)
+
 export const kSpeechErrorCount = /* @__PURE__ */ _bind(FW, 'kSpeechErrorCount')
 export const kSpeechErrorNewest = /* @__PURE__ */ _bind(FW, 'kSpeechErrorNewest')
-export const kSpeechErrorNewestCharacterOffset = /* @__PURE__ */ _bind(FW, 'kSpeechErrorNewestCharacterOffset')
+export const kSpeechErrorNewestCharacterOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kSpeechErrorNewestCharacterOffset',
+)
+
 export const kSpeechErrorOldest = /* @__PURE__ */ _bind(FW, 'kSpeechErrorOldest')
-export const kSpeechErrorOldestCharacterOffset = /* @__PURE__ */ _bind(FW, 'kSpeechErrorOldestCharacterOffset')
+export const kSpeechErrorOldestCharacterOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kSpeechErrorOldestCharacterOffset',
+)
+
 export const kSpeechErrorsProperty = /* @__PURE__ */ _bind(FW, 'kSpeechErrorsProperty')
 export const kSpeechGenerateTune = /* @__PURE__ */ _bind(FW, 'kSpeechGenerateTune')
 export const kSpeechInputModeProperty = /* @__PURE__ */ _bind(FW, 'kSpeechInputModeProperty')
@@ -1689,19 +2685,51 @@ export const kSpeechModeTune = /* @__PURE__ */ _bind(FW, 'kSpeechModeTune')
 export const kSpeechNoEndingProsody = /* @__PURE__ */ _bind(FW, 'kSpeechNoEndingProsody')
 export const kSpeechNoSpeechInterrupt = /* @__PURE__ */ _bind(FW, 'kSpeechNoSpeechInterrupt')
 export const kSpeechNumberModeProperty = /* @__PURE__ */ _bind(FW, 'kSpeechNumberModeProperty')
-export const kSpeechOutputChannelMapProperty = /* @__PURE__ */ _bind(FW, 'kSpeechOutputChannelMapProperty')
-export const kSpeechOutputToAudioDeviceProperty = /* @__PURE__ */ _bind(FW, 'kSpeechOutputToAudioDeviceProperty')
-export const kSpeechOutputToExtAudioFileProperty = /* @__PURE__ */ _bind(FW, 'kSpeechOutputToExtAudioFileProperty')
-export const kSpeechOutputToFileDescriptorProperty = /* @__PURE__ */ _bind(FW, 'kSpeechOutputToFileDescriptorProperty')
-export const kSpeechOutputToFileURLProperty = /* @__PURE__ */ _bind(FW, 'kSpeechOutputToFileURLProperty')
+export const kSpeechOutputChannelMapProperty = /* @__PURE__ */ _bind(
+	FW,
+	'kSpeechOutputChannelMapProperty',
+)
+
+export const kSpeechOutputToAudioDeviceProperty = /* @__PURE__ */ _bind(
+	FW,
+	'kSpeechOutputToAudioDeviceProperty',
+)
+
+export const kSpeechOutputToExtAudioFileProperty = /* @__PURE__ */ _bind(
+	FW,
+	'kSpeechOutputToExtAudioFileProperty',
+)
+
+export const kSpeechOutputToFileDescriptorProperty = /* @__PURE__ */ _bind(
+	FW,
+	'kSpeechOutputToFileDescriptorProperty',
+)
+
+export const kSpeechOutputToFileURLProperty = /* @__PURE__ */ _bind(
+	FW,
+	'kSpeechOutputToFileURLProperty',
+)
+
 export const kSpeechPhonemeCallBack = /* @__PURE__ */ _bind(FW, 'kSpeechPhonemeCallBack')
 export const kSpeechPhonemeInfoExample = /* @__PURE__ */ _bind(FW, 'kSpeechPhonemeInfoExample')
 export const kSpeechPhonemeInfoHiliteEnd = /* @__PURE__ */ _bind(FW, 'kSpeechPhonemeInfoHiliteEnd')
-export const kSpeechPhonemeInfoHiliteStart = /* @__PURE__ */ _bind(FW, 'kSpeechPhonemeInfoHiliteStart')
+export const kSpeechPhonemeInfoHiliteStart = /* @__PURE__ */ _bind(
+	FW,
+	'kSpeechPhonemeInfoHiliteStart',
+)
+
 export const kSpeechPhonemeInfoOpcode = /* @__PURE__ */ _bind(FW, 'kSpeechPhonemeInfoOpcode')
 export const kSpeechPhonemeInfoSymbol = /* @__PURE__ */ _bind(FW, 'kSpeechPhonemeInfoSymbol')
-export const kSpeechPhonemeOptionsProperty = /* @__PURE__ */ _bind(FW, 'kSpeechPhonemeOptionsProperty')
-export const kSpeechPhonemeSymbolsProperty = /* @__PURE__ */ _bind(FW, 'kSpeechPhonemeSymbolsProperty')
+export const kSpeechPhonemeOptionsProperty = /* @__PURE__ */ _bind(
+	FW,
+	'kSpeechPhonemeOptionsProperty',
+)
+
+export const kSpeechPhonemeSymbolsProperty = /* @__PURE__ */ _bind(
+	FW,
+	'kSpeechPhonemeSymbolsProperty',
+)
+
 export const kSpeechPitchBaseProperty = /* @__PURE__ */ _bind(FW, 'kSpeechPitchBaseProperty')
 export const kSpeechPitchModProperty = /* @__PURE__ */ _bind(FW, 'kSpeechPitchModProperty')
 export const kSpeechPreflightThenPause = /* @__PURE__ */ _bind(FW, 'kSpeechPreflightThenPause')
@@ -1713,17 +2741,41 @@ export const kSpeechRelativePitch = /* @__PURE__ */ _bind(FW, 'kSpeechRelativePi
 export const kSpeechResetProperty = /* @__PURE__ */ _bind(FW, 'kSpeechResetProperty')
 export const kSpeechShowSyllables = /* @__PURE__ */ _bind(FW, 'kSpeechShowSyllables')
 export const kSpeechSpeechDoneCallBack = /* @__PURE__ */ _bind(FW, 'kSpeechSpeechDoneCallBack')
-export const kSpeechStatusNumberOfCharactersLeft = /* @__PURE__ */ _bind(FW, 'kSpeechStatusNumberOfCharactersLeft')
+export const kSpeechStatusNumberOfCharactersLeft = /* @__PURE__ */ _bind(
+	FW,
+	'kSpeechStatusNumberOfCharactersLeft',
+)
+
 export const kSpeechStatusOutputBusy = /* @__PURE__ */ _bind(FW, 'kSpeechStatusOutputBusy')
 export const kSpeechStatusOutputPaused = /* @__PURE__ */ _bind(FW, 'kSpeechStatusOutputPaused')
 export const kSpeechStatusPhonemeCode = /* @__PURE__ */ _bind(FW, 'kSpeechStatusPhonemeCode')
 export const kSpeechStatusProperty = /* @__PURE__ */ _bind(FW, 'kSpeechStatusProperty')
 export const kSpeechSyncCallBack = /* @__PURE__ */ _bind(FW, 'kSpeechSyncCallBack')
-export const kSpeechSynthExtensionProperty = /* @__PURE__ */ _bind(FW, 'kSpeechSynthExtensionProperty')
-export const kSpeechSynthesizerInfoIdentifier = /* @__PURE__ */ _bind(FW, 'kSpeechSynthesizerInfoIdentifier')
-export const kSpeechSynthesizerInfoManufacturer = /* @__PURE__ */ _bind(FW, 'kSpeechSynthesizerInfoManufacturer')
-export const kSpeechSynthesizerInfoProperty = /* @__PURE__ */ _bind(FW, 'kSpeechSynthesizerInfoProperty')
-export const kSpeechSynthesizerInfoVersion = /* @__PURE__ */ _bind(FW, 'kSpeechSynthesizerInfoVersion')
+export const kSpeechSynthExtensionProperty = /* @__PURE__ */ _bind(
+	FW,
+	'kSpeechSynthExtensionProperty',
+)
+
+export const kSpeechSynthesizerInfoIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'kSpeechSynthesizerInfoIdentifier',
+)
+
+export const kSpeechSynthesizerInfoManufacturer = /* @__PURE__ */ _bind(
+	FW,
+	'kSpeechSynthesizerInfoManufacturer',
+)
+
+export const kSpeechSynthesizerInfoProperty = /* @__PURE__ */ _bind(
+	FW,
+	'kSpeechSynthesizerInfoProperty',
+)
+
+export const kSpeechSynthesizerInfoVersion = /* @__PURE__ */ _bind(
+	FW,
+	'kSpeechSynthesizerInfoVersion',
+)
+
 export const kSpeechTextDoneCallBack = /* @__PURE__ */ _bind(FW, 'kSpeechTextDoneCallBack')
 export const kSpeechVoiceCreator = /* @__PURE__ */ _bind(FW, 'kSpeechVoiceCreator')
 export const kSpeechVoiceID = /* @__PURE__ */ _bind(FW, 'kSpeechVoiceID')
@@ -1732,7 +2784,11 @@ export const kSpeechWordCFCallBack = /* @__PURE__ */ _bind(FW, 'kSpeechWordCFCal
 export const kSystemPPDDomain = /* @__PURE__ */ _bind(FW, 'kSystemPPDDomain')
 export const kSystemProcess = /* @__PURE__ */ _bind(FW, 'kSystemProcess')
 export const kTextToSpeechSynthType = /* @__PURE__ */ _bind(FW, 'kTextToSpeechSynthType')
-export const kTextToSpeechVoiceBundleType = /* @__PURE__ */ _bind(FW, 'kTextToSpeechVoiceBundleType')
+export const kTextToSpeechVoiceBundleType = /* @__PURE__ */ _bind(
+	FW,
+	'kTextToSpeechVoiceBundleType',
+)
+
 export const kTextToSpeechVoiceFileType = /* @__PURE__ */ _bind(FW, 'kTextToSpeechVoiceFileType')
 export const kTextToSpeechVoiceType = /* @__PURE__ */ _bind(FW, 'kTextToSpeechVoiceType')
 export const kTransformDisabled = /* @__PURE__ */ _bind(FW, 'kTransformDisabled')
@@ -1752,7 +2808,11 @@ export const kTransformSelectedOffline = /* @__PURE__ */ _bind(FW, 'kTransformSe
 export const kTransformSelectedOpen = /* @__PURE__ */ _bind(FW, 'kTransformSelectedOpen')
 export const kTranslationDataTranslation = /* @__PURE__ */ _bind(FW, 'kTranslationDataTranslation')
 export const kTranslationFileTranslation = /* @__PURE__ */ _bind(FW, 'kTranslationFileTranslation')
-export const kUAZoomFocusTypeInsertionPoint = /* @__PURE__ */ _bind(FW, 'kUAZoomFocusTypeInsertionPoint')
+export const kUAZoomFocusTypeInsertionPoint = /* @__PURE__ */ _bind(
+	FW,
+	'kUAZoomFocusTypeInsertionPoint',
+)
+
 export const kUAZoomFocusTypeOther = /* @__PURE__ */ _bind(FW, 'kUAZoomFocusTypeOther')
 export const kUYVY422PixelFormat = /* @__PURE__ */ _bind(FW, 'kUYVY422PixelFormat')
 export const kUseAtoB = /* @__PURE__ */ _bind(FW, 'kUseAtoB')
@@ -1769,7 +2829,11 @@ export const kYVU9PixelFormat = /* @__PURE__ */ _bind(FW, 'kYVU9PixelFormat')
 export const kYVYU422PixelFormat = /* @__PURE__ */ _bind(FW, 'kYVYU422PixelFormat')
 export const keyAEAttaching = /* @__PURE__ */ _bind(FW, 'keyAEAttaching')
 export const keyEvtDev = /* @__PURE__ */ _bind(FW, 'keyEvtDev')
-export const keyICEditPreferenceDestination = /* @__PURE__ */ _bind(FW, 'keyICEditPreferenceDestination')
+export const keyICEditPreferenceDestination = /* @__PURE__ */ _bind(
+	FW,
+	'keyICEditPreferenceDestination',
+)
+
 export const launchAllow24Bit = /* @__PURE__ */ _bind(FW, 'launchAllow24Bit')
 export const launchContinue = /* @__PURE__ */ _bind(FW, 'launchContinue')
 export const launchDontSwitch = /* @__PURE__ */ _bind(FW, 'launchDontSwitch')
@@ -1799,7 +2863,11 @@ export const modeStationeryAware = /* @__PURE__ */ _bind(FW, 'modeStationeryAwar
 export const modeText = /* @__PURE__ */ _bind(FW, 'modeText')
 export const modeTune = /* @__PURE__ */ _bind(FW, 'modeTune')
 export const modeUseTextEditServices = /* @__PURE__ */ _bind(FW, 'modeUseTextEditServices')
-export const noPasteboardPromiseKeeperErr = /* @__PURE__ */ _bind(FW, 'noPasteboardPromiseKeeperErr')
+export const noPasteboardPromiseKeeperErr = /* @__PURE__ */ _bind(
+	FW,
+	'noPasteboardPromiseKeeperErr',
+)
+
 export const notPasteboardOwnerErr = /* @__PURE__ */ _bind(FW, 'notPasteboardOwnerErr')
 export const nulDev = /* @__PURE__ */ _bind(FW, 'nulDev')
 export const pasteDev = /* @__PURE__ */ _bind(FW, 'pasteDev')
@@ -1867,8 +2935,16 @@ export const ttSelectedDisabled = /* @__PURE__ */ _bind(FW, 'ttSelectedDisabled'
 export const ttSelectedOffline = /* @__PURE__ */ _bind(FW, 'ttSelectedOffline')
 export const ttSelectedOpen = /* @__PURE__ */ _bind(FW, 'ttSelectedOpen')
 export const undoDev = /* @__PURE__ */ _bind(FW, 'undoDev')
-export const unnamed_10139400973548267267 = /* @__PURE__ */ _bind(FW, 'unnamed_10139400973548267267')
-export const unnamed_15486290801389724502 = /* @__PURE__ */ _bind(FW, 'unnamed_15486290801389724502')
+export const unnamed_10139400973548267267 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_10139400973548267267',
+)
+
+export const unnamed_15486290801389724502 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_15486290801389724502',
+)
+
 export const unnamed_4672107459432106759 = /* @__PURE__ */ _bind(FW, 'unnamed_4672107459432106759')
 export const unnamed_9992588540590216126 = /* @__PURE__ */ _bind(FW, 'unnamed_9992588540590216126')
 export const updateDev = /* @__PURE__ */ _bind(FW, 'updateDev')

@@ -97,8 +97,7 @@ export function Counter() {
 \`\`\`
 `
 
-const link = (d) =>
-	`- [${d.title}](${BASE}${docPath(d.slug)})${d.purpose ? `: ${d.purpose}` : ''}`
+const link = (d) => `- [${d.title}](${BASE}${docPath(d.slug)})${d.purpose ? `: ${d.purpose}` : ''}`
 
 const guideLinks = GROUPS.map(
 	(g) =>
@@ -124,9 +123,7 @@ ${guideLinks}
 - [npm: @octane-xplat/ui](https://www.npmjs.com/package/@octane-xplat/ui)
 `
 
-const body = docs
-	.map((d) => rewriteLinks(d.md, d.dir, slugs).trim())
-	.join('\n\n---\n\n')
+const body = docs.map((d) => rewriteLinks(d.md, d.dir, slugs).trim()).join('\n\n---\n\n')
 
 const full = `${HEADER}
 The complete app-building guides follow in reading order, separated by --- lines. Framework implementation notes and design records are maintained in the repository under .agents/ and are not part of this corpus.
@@ -139,6 +136,4 @@ ${body}
 await mkdir(outDir, { recursive: true })
 await writeFile(join(outDir, 'llms.txt'), llms)
 await writeFile(join(outDir, 'llms-full.txt'), full)
-console.log(
-	`llms.txt + llms-full.txt → ${outDir} (${docs.length} guides)`,
-)
+console.log(`llms.txt + llms-full.txt → ${outDir} (${docs.length} guides)`)

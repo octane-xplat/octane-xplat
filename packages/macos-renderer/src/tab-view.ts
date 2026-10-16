@@ -1,5 +1,20 @@
 import type { ElementNode, AppKitView } from './index'
-import { NSAttributedString, NSBundle, NSColor, NSFontAttributeName, NSForegroundColorAttributeName, NSImage, NSObject, NSTabView, NSTabViewDelegate, NSTabViewItem, NSURL, NSURLSession, NSView } from '@octane-xplat/platform/macos'
+import {
+	NSAttributedString,
+	NSBundle,
+	NSColor,
+	NSFontAttributeName,
+	NSForegroundColorAttributeName,
+	NSImage,
+	NSObject,
+	NSTabView,
+	NSTabViewDelegate,
+	NSTabViewItem,
+	NSURL,
+	NSURLSession,
+	NSView,
+} from '@octane-xplat/platform/macos'
+
 import { registerGestureClass } from './gestures'
 import { defineUniversalComponent } from 'octane/universal/native'
 import { loadImage } from './image'
@@ -8,8 +23,11 @@ import { resolveFont } from './fonts'
 /** Compiler adapter for JSX spreads: read getters once and remove the outer
  * root's children channel while preserving ordinary key/ref/prop ordering. */
 export function __tabItemProps(props: any) {
-	if (props == null) {return props}
-	const attributes = {...props}
+	if (props == null) {
+		return props
+	}
+
+	const attributes = { ...props }
 	if (Object.prototype.hasOwnProperty.call(attributes, 'children')) {
 		attributes.__tabContent = attributes.children
 		delete attributes.children
@@ -27,31 +45,51 @@ const delegates = new WeakMap<object, ElementNode>()
 
 class TabDelegate extends NSObject {
 	static ObjCProtocols = [NSTabViewDelegate]
-	static { registerGestureClass(this) }
+	static {
+		registerGestureClass(this)
+	}
 	tabViewDidSelectTabViewItem(view: any, _item: any) {
 		const node = delegates.get(this)
-		if (!node || node.tabSyncing) {return}
+		if (!node || node.tabSyncing) {
+			return
+		}
+
 		const index = Number(view.indexOfTabViewItem(view.selectedTabViewItem))
-		const deliver = () => {node.tabRequested = index; notifySelection(node, index)}
-		if (node.container.root) {node.container.root.eventScope('discrete', deliver)}
-		else {deliver()}
+		const deliver = () => {
+			node.tabRequested = index
+			notifySelection(node, index)
+		}
+
+		if (node.container.root) {
+			node.container.root.eventScope('discrete', deliver)
+		} else {
+			deliver()
+		}
 	}
 }
 
 /** NSTabView's ordinary tabs do not display the item's image. Include it in
  * label measurement/drawing rather than accepting an invisible iconSource. */
 class IconTabItem extends NSTabViewItem {
-	static { registerGestureClass(this) }
+	static {
+		registerGestureClass(this)
+	}
 	sizeOfLabel(minimum: boolean) {
 		const size = super.sizeOfLabel(minimum)
 		return this.image ? { width: size.width + 20, height: Math.max(16, size.height) } : size
 	}
 
 	drawLabelInRect(truncate: boolean, rect: any) {
-		if (!this.image) {super.drawLabelInRect(truncate, rect); return}
+		if (!this.image) {
+			super.drawLabelInRect(truncate, rect)
+			return
+		}
+
 		this.image.drawInRectFromRectOperationFraction(
 			{ origin: rect.origin, size: { width: 16, height: 16 } },
-			{ origin: { x: 0, y: 0 }, size: { width: 0, height: 0 } }, 2, 1,
+			{ origin: { x: 0, y: 0 }, size: { width: 0, height: 0 } },
+			2,
+			1,
 		)
 
 		super.drawLabelInRect(truncate, {
@@ -63,17 +101,45 @@ class IconTabItem extends NSTabViewItem {
 
 export function validateTabProps(type: string, props: Record<string, any>) {
 	if (type === 'tabview') {
-		if (props.items != null && (!Array.isArray(props.items) || props.items.some((item: any) => !item || !handles.has(item) || item.tabDisposed))) {
-			throw new TypeError('AppKit tabview items must be an array of live tabviewitem logical handles obtained through refs')
+		if (
+			props.items != null &&
+			(!Array.isArray(props.items) ||
+				props.items.some((item: any) => !item || !handles.has(item) || item.tabDisposed))
+		) {
+			throw new TypeError(
+				'AppKit tabview items must be an array of live tabviewitem logical handles obtained through refs',
+			)
 		}
 
-		if (props.items && new Set(props.items).size !== props.items.length) {throw new TypeError('AppKit tabview items must not contain duplicate handles')}
-		if (props.selectedIndex != null && !Number.isInteger(props.selectedIndex)) {throw new TypeError('AppKit tabview selectedIndex must be an integer')}
+		if (props.items && new Set(props.items).size !== props.items.length) {
+			throw new TypeError('AppKit tabview items must not contain duplicate handles')
+		}
+
+		if (props.selectedIndex != null && !Number.isInteger(props.selectedIndex)) {
+			throw new TypeError('AppKit tabview selectedIndex must be an integer')
+		}
 	} else {
-		if (props.title != null && typeof props.title !== 'string') {throw new TypeError('AppKit tabviewitem title must be a string')}
-		if ('view' in props || 'contentRoot' in props) {throw new TypeError('AppKit tabviewitem content root cannot be reassigned; update JSX children instead')}
-		if (props.iconSource != null && typeof props.iconSource === 'object') {iconImage(props.iconSource)}
-		if (props.iconSource != null && typeof props.iconSource !== 'string' && typeof props.iconSource !== 'object') {throw new TypeError('AppKit tabviewitem iconSource must be a string or host image source')}
+		if (props.title != null && typeof props.title !== 'string') {
+			throw new TypeError('AppKit tabviewitem title must be a string')
+		}
+
+		if ('view' in props || 'contentRoot' in props) {
+			throw new TypeError(
+				'AppKit tabviewitem content root cannot be reassigned; update JSX children instead',
+			)
+		}
+
+		if (props.iconSource != null && typeof props.iconSource === 'object') {
+			iconImage(props.iconSource)
+		}
+
+		if (
+			props.iconSource != null &&
+			typeof props.iconSource !== 'string' &&
+			typeof props.iconSource !== 'object'
+		) {
+			throw new TypeError('AppKit tabviewitem iconSource must be a string or host image source')
+		}
 	}
 }
 
@@ -114,18 +180,21 @@ function iconImage(source: any, style: Record<string, any> = {}): any {
 	if (source == null || source === '') {
 		return null
 	}
+
 	if (typeof source !== 'string') {
 		// Shared ImageSource-like handles expose their platform image.
 		const image = source.macos ?? source.nativeImage ?? source
 		if (typeof image.drawInRectFromRectOperationFraction !== 'function') {
 			throw new TypeError('AppKit tabviewitem iconSource host object must contain an NSImage')
 		}
+
 		return image
 	}
 
 	if (source.startsWith('sys://')) {
 		return NSImage.imageWithSystemSymbolNameAccessibilityDescription(source.slice(6), null)
 	}
+
 	if (source.startsWith('font://')) {
 		const text = NSAttributedString.alloc().initWithStringAttributes(source.slice(7), {
 			[NSFontAttributeName]: resolveFont(
@@ -141,6 +210,7 @@ function iconImage(source: any, style: Record<string, any> = {}): any {
 		if (size.width <= 0 || size.height <= 0) {
 			return null
 		}
+
 		const image = NSImage.alloc().initWithSize(size)
 		image.lockFocus()
 		try {
@@ -148,25 +218,34 @@ function iconImage(source: any, style: Record<string, any> = {}): any {
 		} finally {
 			image.unlockFocus()
 		}
+
 		return image
 	}
 
 	if (source.startsWith('res://')) {
 		return NSImage.imageNamed(source.slice(6))
 	}
+
 	if (source.startsWith('~/')) {
 		return loadImage(NSBundle.mainBundle.resourcePath + '/' + source.slice(2))
 	}
+
 	return loadImage(source)
 }
 
 // Ownership transfers can detach and attach the same handle in one batch.
 // Publish only its final target, avoiding a transient content unmount.
 function notifyContentTarget(node: ElementNode) {
-	if (typeof node.props.__onContentTarget !== 'function') return
+	if (typeof node.props.__onContentTarget !== 'function') {
+		return
+	}
+
 	const generation = (node.tabPortalGeneration = (node.tabPortalGeneration ?? 0) + 1)
 	queueMicrotask(() => {
-		if (node.tabPortalGeneration !== generation) return
+		if (node.tabPortalGeneration !== generation) {
+			return
+		}
+
 		node.props.__onContentTarget?.(!node.tabDisposed && owners.has(node) ? node.childHost : null)
 	})
 }
@@ -180,6 +259,7 @@ function mountContent(node: ElementNode) {
 	if (!node.tabContentRoot) {
 		node.tabContentRoot = createContentRoot(node.childHost!, node.container.fontFamily)
 	}
+
 	node.tabContentRoot.render(contentComponent, { content: node.props.__tabContent })
 }
 
@@ -198,6 +278,7 @@ export function syncTabItem(node: ElementNode) {
 	if (node.tabDisposed) {
 		return
 	}
+
 	const item = node.tabNativeItem
 	item.label = node.props.title ?? ''
 	const style = node.props.style ?? {}
@@ -222,6 +303,7 @@ export function syncTabItem(node: ElementNode) {
 					if (node.tabDisposed || node.tabIconGeneration !== generation) {
 						return
 					}
+
 					item.image = data && !error ? NSImage.alloc().initWithData(data) : null
 					const owner = owners.get(node)
 					if (owner) {
@@ -252,6 +334,7 @@ function notifySelection(node: ElementNode, value: number) {
 	if (oldIndex === value || node.tabDisposed) {
 		return
 	}
+
 	const event = { object: node.view, value, oldIndex, newIndex: value }
 	node.props.onSelectedIndexChanged?.({ ...event, eventName: 'selectedIndexChanged' })
 	node.props.onSelectedIndexChange?.({ ...event, eventName: 'selectedIndexChange' })
@@ -264,12 +347,14 @@ export function detachTabItem(item: ElementNode, preserveContent = false) {
 	if (!owner) {
 		return
 	}
+
 	owner.tabSyncing = true
 	try {
 		owner.view!.removeTabViewItem(item.tabNativeItem)
 	} finally {
 		owner.tabSyncing = false
 	}
+
 	owner.tabItems = owner.tabItems.filter((candidate: ElementNode) => candidate !== item)
 	owners.delete(item)
 	if (!preserveContent) {
@@ -277,9 +362,11 @@ export function detachTabItem(item: ElementNode, preserveContent = false) {
 		item.tabContentRoot = null
 		notifyContentTarget(item)
 	}
+
 	const index = owner.tabItems.length
 		? Math.min(Math.max(0, owner.tabRequested), owner.tabItems.length - 1)
 		: -1
+
 	if (index >= 0) {
 		owner.tabSyncing = true
 		try {
@@ -298,6 +385,7 @@ export function flushTabViews(container: any) {
 	if (!dirty) {
 		return
 	}
+
 	const releases = (container.tabReleases = new Set<ElementNode>())
 	try {
 		for (const node of dirty) {
@@ -319,6 +407,7 @@ export function syncTabView(node: ElementNode) {
 	if (node.tabDisposed) {
 		return
 	}
+
 	if (node.container.layoutDirty) {
 		;(node.container.tabDirty ??= new Set()).add(node)
 		return
@@ -327,6 +416,7 @@ export function syncTabView(node: ElementNode) {
 	validateTabProps('tabview', node.props)
 	const items: ElementNode[] =
 		node.props.items != null ? [...node.props.items] : node.children.slice()
+
 	const view = node.view!
 	node.tabSyncing = true
 	try {
@@ -349,13 +439,24 @@ export function syncTabView(node: ElementNode) {
 				const previous = owners.get(item)!
 				detachTabItem(item, true)
 				previous.children = previous.children.filter((child) => child !== item)
-				if (previous.props.items) {previous.props.items = previous.props.items.filter((child: ElementNode) => child !== item)}
-				if (item.parent === previous) {item.parent = null}
+				if (previous.props.items) {
+					previous.props.items = previous.props.items.filter((child: ElementNode) => child !== item)
+				}
+
+				if (item.parent === previous) {
+					item.parent = null
+				}
 			}
 
 			// Reordering keeps the native item and its content-root identity.
-			if (index >= Number(view.numberOfTabViewItems) || view.tabViewItemAtIndex(index) !== item.tabNativeItem) {
-				if (owners.get(item) === node) {view.removeTabViewItem(item.tabNativeItem)}
+			if (
+				index >= Number(view.numberOfTabViewItems) ||
+				view.tabViewItemAtIndex(index) !== item.tabNativeItem
+			) {
+				if (owners.get(item) === node) {
+					view.removeTabViewItem(item.tabNativeItem)
+				}
+
 				view.insertTabViewItemAtIndex(item.tabNativeItem, index)
 			}
 
@@ -370,14 +471,22 @@ export function syncTabView(node: ElementNode) {
 		}
 
 		const index = items.length ? Math.min(Math.max(0, node.tabRequested), items.length - 1) : -1
-		if (index >= 0) {view.selectTabViewItemAtIndex(index)}
+		if (index >= 0) {
+			view.selectTabViewItemAtIndex(index)
+		}
+
 		notifySelection(node, index)
-	} finally {node.tabSyncing = false}
+	} finally {
+		node.tabSyncing = false
+	}
 }
 
 export function releaseTabView(node: ElementNode) {
 	node.tabDisposed = true
-	for (const item of (node.tabItems ?? []).slice()) {detachTabItem(item)}
+	for (const item of (node.tabItems ?? []).slice()) {
+		detachTabItem(item)
+	}
+
 	delegates.delete(node.tabDelegate)
 	node.view!.delegate = null
 	node.tabDelegate = null

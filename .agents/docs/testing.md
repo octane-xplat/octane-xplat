@@ -135,7 +135,7 @@ pnpm --filter @xplat/mobile test:android -- --device DEVICE_ID
   first run — cold builds exceed the 120s default.
 - Xcode 27 caveat (this repo's CI lane): Simulator.app is gone, so
   `ns run ios` can only target an already-booted simulator — `xcrun simctl
-  boot <udid>` first, then pass `--device <udid>`. `ios-sim-portable` 4.5.1
+boot <udid>` first, then pass `--device <udid>`. `ios-sim-portable` 4.5.1
   (bundled in global CLI 9.1.1) cannot boot devices itself here.
 - iOS needs `NSAllowsLocalNetworking` (set in the harness Info.plist) for the
   loopback `ws://127.0.0.1` bridge; Android needs the scoped cleartext

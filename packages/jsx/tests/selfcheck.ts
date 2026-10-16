@@ -7,120 +7,128 @@
  * The `native`-conditioned View binding is asserted in selfcheck.mobile.ts —
  * shared-file rules keep `@nativescript/*` imports out of this file.
  */
-import type {
-	Attributes,
-	HostElement,
-	JSX,
-	NativeElements,
-	Ref,
-} from '../src/jsx-runtime.js';
+import type { Attributes, HostElement, JSX, NativeElements, Ref } from '../src/jsx-runtime.js'
 
-import type { HostElement as MacHostElement, JSX as MacJSX } from '../src/macos.js';
-import type { NativeElements as IntrinsicsElements } from '../src/intrinsics.js';
+import type { HostElement as MacHostElement, JSX as MacJSX } from '../src/macos.js'
+import type { NativeElements as IntrinsicsElements } from '../src/intrinsics.js'
 
 // --- Intrinsic membership is identical across conditioned entries ----------
 
-type Tags<M> = keyof M extends infer K ? (K extends string ? K : never) : never;
-type Expect<T extends true> = T;
-type SameMembers<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
+type Tags<M> = keyof M extends infer K ? (K extends string ? K : never) : never
+type Expect<T extends true> = T
+type SameMembers<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false
 
-export type SharedTags = Tags<JSX.IntrinsicElements>;
-type _MembershipParity = Expect<
-	SameMembers<SharedTags, Tags<MacJSX.IntrinsicElements>>
->;
+export type SharedTags = Tags<JSX.IntrinsicElements>
+type _MembershipParity = Expect<SameMembers<SharedTags, Tags<MacJSX.IntrinsicElements>>>
 
-const coreTag: SharedTags = 'flexboxlayout';
-const textNode: SharedTags = '#text';
-const extensionTag: SharedTags = 'svgview';
-const extensionTag2: SharedTags = 'googlesigninbutton';
-void coreTag;
-void textNode;
-void extensionTag;
-void extensionTag2;
+const coreTag: SharedTags = 'flexboxlayout'
+const textNode: SharedTags = '#text'
+const extensionTag: SharedTags = 'svgview'
+const extensionTag2: SharedTags = 'googlesigninbutton'
+void coreTag
+void textNode
+void extensionTag
+void extensionTag2
 
 // --- Default HostElement is opaque -----------------------------------------
 
 // Non-unknown (assignable to object) and non-forgeable (nothing but the
 // driver produces one).
-declare const shared: HostElement;
-const asObject: object = shared;
+declare const shared: HostElement
+const asObject: object = shared
 // @ts-expect-error opaque members are not readable
-const noMember = shared.ios;
+const noMember = shared.ios
 // @ts-expect-error cannot forge the opaque host element
-const forged: HostElement = {};
-void asObject;
-void noMember;
-void forged;
+const forged: HostElement = {}
+void asObject
+void noMember
+void forged
 
 // --- macOS binds the AppKit host surface ------------------------------------
 
-declare const macView: MacHostElement;
-macView.addSubview(macView);
-const macAsObject: object = macView;
-void macAsObject;
+declare const macView: MacHostElement
+macView.addSubview(macView)
+const macAsObject: object = macView
+void macAsObject
 
 // --- Ref lifecycle: callback-with-cleanup, object refs, arrays --------------
 
 const refCallback: Ref<HostElement> = (instance) => {
-	void instance;
-	return () => {};
-};
+	void instance
+	return () => {}
+}
 
-const refObject: Ref<HostElement> = { current: null };
-const refArray: Ref<HostElement> = [refCallback, refObject, [refObject]];
-const refNull: Ref<HostElement> = null;
-void refArray;
-void refNull;
+const refObject: Ref<HostElement> = { current: null }
+const refArray: Ref<HostElement> = [refCallback, refObject, [refObject]]
+const refNull: Ref<HostElement> = null
+void refArray
+void refNull
 
 // --- Augmentation surface ---------------------------------------------------
 
-type Augmented = IntrinsicsElements<HostElement>['label'];
-const labelProps: Augmented = { text: 'ok', className: 'x' };
-void labelProps;
+type Augmented = IntrinsicsElements<HostElement>['label']
+const labelProps: Augmented = { text: 'ok', className: 'x' }
+void labelProps
 
 declare module '../src/intrinsics.js' {
 	interface NativeElements<TElement> {
-		fixturewidget: Attributes<TElement, { marker?: number }>;
+		fixturewidget: Attributes<TElement, { marker?: number }>
 	}
 }
 
-const augmented: Tags<NativeElements<HostElement>> = 'fixturewidget';
-void augmented;
+const augmented: Tags<NativeElements<HostElement>> = 'fixturewidget'
+void augmented
 
 // ContentView uses common props across conditions; only refs bind host types.
 const sharedContent: NativeElements<HostElement>['contentview'] = {
-	id: 'single', style: { width: 200, height: 80 }, ref: refArray,
-};
+	id: 'single',
+	style: { width: 200, height: 80 },
+	ref: refArray,
+}
 
 const macContent: MacJSX.IntrinsicElements['contentview'] = {
-	id: 'single', ref: (view) => { void view; return () => {}; },
-};
+	id: 'single',
+	ref: (view) => {
+		void view
+		return () => {}
+	},
+}
 
-void sharedContent;
-void macContent;
+void sharedContent
+void macContent
 
 // DockLayout retains the shared primitive contract across target conditions.
-const dockProps: JSX.IntrinsicElements['docklayout'] = { stretchLastChild: false };
-const dockChildProps: JSX.IntrinsicElements['label'] = { dock: 'right' };
-void dockProps;
-void dockChildProps;
+const dockProps: JSX.IntrinsicElements['docklayout'] = { stretchLastChild: false }
+const dockChildProps: JSX.IntrinsicElements['label'] = { dock: 'right' }
+void dockProps
+void dockChildProps
 // @ts-expect-error stretchLastChild accepts only boolean
-const badDockProps: JSX.IntrinsicElements['docklayout'] = { stretchLastChild: 'false' };
+const badDockProps: JSX.IntrinsicElements['docklayout'] = { stretchLastChild: 'false' }
 // @ts-expect-error attached dock edges are closed
-const badDockChildProps: JSX.IntrinsicElements['label'] = { dock: 'center' };
-void badDockProps;
-void badDockChildProps;
+const badDockChildProps: JSX.IntrinsicElements['label'] = { dock: 'center' }
+void badDockProps
+void badDockChildProps
 
-const wrapProps: JSX.IntrinsicElements['wraplayout'] = { orientation: 'horizontal', itemWidth: 0, itemHeight: 30 };
-const macWrapProps: MacJSX.IntrinsicElements['wraplayout'] = { orientation: 'vertical', itemWidth: 30, itemHeight: 0 };
-void wrapProps;
-void macWrapProps;
+const wrapProps: JSX.IntrinsicElements['wraplayout'] = {
+	orientation: 'horizontal',
+	itemWidth: 0,
+	itemHeight: 30,
+}
+
+const macWrapProps: MacJSX.IntrinsicElements['wraplayout'] = {
+	orientation: 'vertical',
+	itemWidth: 30,
+	itemHeight: 0,
+}
+
+void wrapProps
+void macWrapProps
 // @ts-expect-error WrapLayout size is numeric
-const badWrapSize: JSX.IntrinsicElements['wraplayout'] = { itemWidth: '30' };
+const badWrapSize: JSX.IntrinsicElements['wraplayout'] = { itemWidth: '30' }
 // @ts-expect-error WrapLayout direction is closed
-const badWrapOrientation: JSX.IntrinsicElements['wraplayout'] = { orientation: 'diagonal' };
-void badWrapSize;
-void badWrapOrientation;
+const badWrapOrientation: JSX.IntrinsicElements['wraplayout'] = { orientation: 'diagonal' }
+void badWrapSize
+void badWrapOrientation
 
 // Viewless macOS hosts expose logical identity, never an NSView facade.
 const macProxy: MacJSX.IntrinsicElements['proxyviewcontainer'] = {
@@ -213,7 +221,13 @@ void invalidFormatted
 const htmlView: MacJSX.IntrinsicElements['htmlview'] = {
 	html: '<b>Hello</b>',
 	style: { fontSize: 18 },
-	ref: (view) => { if (view) { view.removeFromSuperview() }; return () => {} },
+	ref: (view) => {
+		if (view) {
+			view.removeFromSuperview()
+		}
+
+		return () => {}
+	},
 }
 
 void htmlView
@@ -226,7 +240,13 @@ void invalidHtmlText
 
 const activityIndicator: MacJSX.IntrinsicElements['activityindicator'] = {
 	busy: true,
-	ref: (view) => { if (view) { view.removeFromSuperview() }; return () => {} },
+	ref: (view) => {
+		if (view) {
+			view.removeFromSuperview()
+		}
+
+		return () => {}
+	},
 }
 
 void activityIndicator
@@ -238,10 +258,23 @@ void invalidActivityBusy
 void invalidActivityStyle
 
 const datePicker: MacJSX.IntrinsicElements['datepicker'] = {
-	date: new Date(2026, 4, 10, 19), minDate: '2026-05-01', maxDate: new Date(2026, 4, 31),
-	year: 2026, month: 5, day: 10,
-	onDateChange: (event) => {const date: Date = event.value; const old: Date | undefined = event.oldValue; void date; void old; void event.object},
-	ref: (view) => {void view; return () => {}},
+	date: new Date(2026, 4, 10, 19),
+	minDate: '2026-05-01',
+	maxDate: new Date(2026, 4, 31),
+	year: 2026,
+	month: 5,
+	day: 10,
+	onDateChange: (event) => {
+		const date: Date = event.value
+		const old: Date | undefined = event.oldValue
+		void date
+		void old
+		void event.object
+	},
+	ref: (view) => {
+		void view
+		return () => {}
+	},
 }
 
 void datePicker
@@ -253,9 +286,17 @@ const invalidDateStyle: MacJSX.IntrinsicElements['datepicker'] = { datePickerSty
 void invalidDateStyle
 
 const listPicker: MacJSX.IntrinsicElements['listpicker'] = {
-	items: ['First', null, 42], selectedIndex: 1,
-	onSelectedIndexChange: (event) => {const index: number = event.value; void index; void event.object},
-	ref: (view) => {void view; return () => {}},
+	items: ['First', null, 42],
+	selectedIndex: 1,
+	onSelectedIndexChange: (event) => {
+		const index: number = event.value
+		void index
+		void event.object
+	},
+	ref: (view) => {
+		void view
+		return () => {}
+	},
 }
 
 void listPicker
@@ -267,8 +308,12 @@ const invalidListMode: MacJSX.IntrinsicElements['listpicker'] = { pullsDown: tru
 void invalidListMode
 
 const progress: MacJSX.IntrinsicElements['progress'] = {
-	value: 12.5, maxValue: 100,
-	ref: (view) => { void view; return () => {} },
+	value: 12.5,
+	maxValue: 100,
+	ref: (view) => {
+		void view
+		return () => {}
+	},
 }
 
 // @ts-expect-error Progress value must be numeric
@@ -280,10 +325,22 @@ void invalidProgress
 void invalidProgressMode
 
 const segmentedBar: MacJSX.IntrinsicElements['segmentedbar'] = {
-	items: [{ title: 'First' }, { title: 'Second' }], selectedIndex: 1,
+	items: [{ title: 'First' }, { title: 'Second' }],
+	selectedIndex: 1,
 	style: { selectedBackgroundColor: '#ff0000' },
-	onSelectedIndexChange: (event) => { const value: number = event.value; const old: number | undefined = event.oldIndex; void value; void old; void event.object },
-	ref: [(view) => { void view; return () => {} }],
+	onSelectedIndexChange: (event) => {
+		const value: number = event.value
+		const old: number | undefined = event.oldIndex
+		void value
+		void old
+		void event.object
+	},
+	ref: [
+		(view) => {
+			void view
+			return () => {}
+		},
+	],
 }
 
 // @ts-expect-error Index must be numeric
@@ -298,13 +355,21 @@ void badSegmentItems
 void badSegmentMode
 
 const segmentItem: MacJSX.IntrinsicElements['segmentedbaritem'] = {
- title: 'Day', ref: (element) => {if (element) { const absent: null = element.view; void absent }; return () => {}},
+	title: 'Day',
+	ref: (element) => {
+		if (element) {
+			const absent: null = element.view
+			void absent
+		}
+
+		return () => {}
+	},
 }
 
 // @ts-expect-error Title is a string
-const badItemTitle: MacJSX.IntrinsicElements['segmentedbaritem'] = {title: 1}
+const badItemTitle: MacJSX.IntrinsicElements['segmentedbaritem'] = { title: 1 }
 // @ts-expect-error Per-item enabled is not in the canonical shared contract
-const badItemEnabled: MacJSX.IntrinsicElements['segmentedbaritem'] = {enabled: false}
+const badItemEnabled: MacJSX.IntrinsicElements['segmentedbaritem'] = { enabled: false }
 void segmentItem
 void badItemTitle
 void badItemEnabled
@@ -331,30 +396,51 @@ void invalidTimePicker
 const invalidTimeStyle: MacJSX.IntrinsicElements['timepicker'] = { datePickerStyle: 0 }
 void invalidTimeStyle
 
-
 const listTemplates: JSX.IntrinsicElements['listview'] = {
- items: [{ name: 'Ada' }], itemTemplate: '<Label text="{{ name }}"/>',
- itemTemplates: [{ key: 'default', createView: () => ({}) }],
- onItemLoading: (event) => {
-  const index: number = event.index; void index; void event.view;
-  // @ts-expect-error ItemLoading is observation-only
-  event.view = {};
- },
-};
+	items: [{ name: 'Ada' }],
+	itemTemplate: '<Label text="{{ name }}"/>',
+	itemTemplates: [{ key: 'default', createView: () => ({}) }],
+	onItemLoading: (event) => {
+		const index: number = event.index
+		void index
+		void event.view
+		// @ts-expect-error ItemLoading is observation-only
+		event.view = {}
+	},
+}
 
-void listTemplates;
+void listTemplates
 const tabs: MacJSX.IntrinsicElements['tabview'] = {
- selectedIndex: 1,
- onSelectedIndexChange: (event) => { const value: number = event.value; void value },
- onSelectedIndexChanged: (event) => { const next: number | undefined = event.newIndex; void next },
+	selectedIndex: 1,
+	onSelectedIndexChange: (event) => {
+		const value: number = event.value
+		void value
+	},
+	onSelectedIndexChanged: (event) => {
+		const next: number | undefined = event.newIndex
+		void next
+	},
 }
 
 const tabItem: MacJSX.IntrinsicElements['tabviewitem'] = {
- title: 'Home', iconSource: 'res://Home', ref: (item) => {if (item) {const absent: null = item.view; tabs.items = [item]; void absent}; return () => {}},
+	title: 'Home',
+	iconSource: 'res://Home',
+	ref: (item) => {
+		if (item) {
+			const absent: null = item.view
+			tabs.items = [item]
+			void absent
+		}
+
+		return () => {}
+	},
 }
 
 // @ts-expect-error macOS items are logical handles, not prop bags or native views
-const badTabs: MacJSX.IntrinsicElements['tabview'] = {items: [{title: 'Home'}]}
+const badTabs: MacJSX.IntrinsicElements['tabview'] = { items: [{ title: 'Home' }] }
 // @ts-expect-error Content roots are host-owned
-const badTabContent: MacJSX.IntrinsicElements['tabviewitem'] = {view: {}}
-void tabs; void tabItem; void badTabs; void badTabContent
+const badTabContent: MacJSX.IntrinsicElements['tabviewitem'] = { view: {} }
+void tabs
+void tabItem
+void badTabs
+void badTabContent

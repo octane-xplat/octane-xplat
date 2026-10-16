@@ -24,21 +24,62 @@ export async function checkTimeLifecycle(root: any, nativeWindow: any) {
 	}
 
 	const value = (view: any) => new Date(Number(view.dateValue.timeIntervalSince1970) * 1000)
-	const normalized = (time: Date) => time.getTime() === new Date(0, 0, 0, time.getHours(), time.getMinutes()).getTime()
+	const normalized = (time: Date) =>
+		time.getTime() === new Date(0, 0, 0, time.getHours(), time.getMinutes()).getTime()
+
 	const minutes = (time: Date) => time.getHours() * 60 + time.getMinutes()
-	const bound = (view: any, key: string) => minutes(new Date(Number(view[key].timeIntervalSince1970) * 1000))
+	const bound = (view: any, key: string) =>
+		minutes(new Date(Number(view[key].timeIntervalSince1970) * 1000))
+
 	root.render(TimePicker, {})
 	await settle()
-	const first = timeRef.current, left = debug.findId('time-left'), tail = debug.findId('time-tail')
-	check(first instanceof NSDatePicker && first.bezeled && first.drawsBackground, 'TimePicker native chrome failed')
-	check(timeRef.current === first && minutes(value(first)) === 625 && normalized(value(first)), 'TimePicker initial time/ref failed')
-	check(Number(first.datePickerElements) === Number(NSDatePickerElementFlags.HourMinute), 'TimePicker mode failed')
+	const first = timeRef.current,
+		left = debug.findId('time-left'),
+		tail = debug.findId('time-tail')
+
+	check(
+		first instanceof NSDatePicker && first.bezeled && first.drawsBackground,
+		'TimePicker native chrome failed',
+	)
+
+	check(
+		timeRef.current === first && minutes(value(first)) === 625 && normalized(value(first)),
+		'TimePicker initial time/ref failed',
+	)
+
+	check(
+		Number(first.datePickerElements) === Number(NSDatePickerElementFlags.HourMinute),
+		'TimePicker mode failed',
+	)
+
 	const range = debug.findId('range-check')
-	check(minutes(value(range)) === 555 && bound(range, 'minDate') === 555 && bound(range, 'maxDate') === 1065, 'TimePicker initial lower clamp failed')
-	check(bound(first, 'minDate') === 490 && bound(first, 'maxDate') === 1250, 'TimePicker initial bounds failed')
-	const idle = debug.findId('idle-default'), initial = value(idle).getTime(), natural = debug.findId('intrinsic-size')
-	check(normalized(value(idle)) && bound(idle, 'minDate') === 0 && bound(idle, 'maxDate') === 1439, 'TimePicker defaults failed')
-	check(minutes(value(natural)) === 375 && Number(natural.frame.size.width) > 0 && Number(natural.frame.size.height) > 0, 'TimePicker components/intrinsic layout failed')
+	check(
+		minutes(value(range)) === 555 &&
+			bound(range, 'minDate') === 555 &&
+			bound(range, 'maxDate') === 1065,
+		'TimePicker initial lower clamp failed',
+	)
+
+	check(
+		bound(first, 'minDate') === 490 && bound(first, 'maxDate') === 1250,
+		'TimePicker initial bounds failed',
+	)
+
+	const idle = debug.findId('idle-default'),
+		initial = value(idle).getTime(),
+		natural = debug.findId('intrinsic-size')
+
+	check(
+		normalized(value(idle)) && bound(idle, 'minDate') === 0 && bound(idle, 'maxDate') === 1439,
+		'TimePicker defaults failed',
+	)
+
+	check(
+		minutes(value(natural)) === 375 &&
+			Number(natural.frame.size.width) > 0 &&
+			Number(natural.frame.size.height) > 0,
+		'TimePicker components/intrinsic layout failed',
+	)
 
 	check(
 		Number(first.alphaValue) === 0.5 &&
@@ -57,8 +98,17 @@ export async function checkTimeLifecycle(root: any, nativeWindow: any) {
 		'TimePicker reactive time/enabled identity failed',
 	)
 
-	check(minutes(value(range)) === 1065 && bound(range, 'minDate') === 555 && bound(range, 'maxDate') === 1065, 'TimePicker inverted range must preserve both endpoints and clamp to old maximum')
-	check(bound(first, 'minDate') === 560 && bound(first, 'maxDate') === 1120, 'TimePicker reactive bound updates failed')
+	check(
+		minutes(value(range)) === 1065 &&
+			bound(range, 'minDate') === 555 &&
+			bound(range, 'maxDate') === 1065,
+		'TimePicker inverted range must preserve both endpoints and clamp to old maximum',
+	)
+
+	check(
+		bound(first, 'minDate') === 560 && bound(first, 'maxDate') === 1120,
+		'TimePicker reactive bound updates failed',
+	)
 
 	check(
 		timeChanges.some(

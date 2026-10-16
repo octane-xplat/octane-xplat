@@ -19,11 +19,7 @@ export interface WindowLayerOptions {
 	anchor: NSView
 	component?: any
 	props?: Record<string, any>
-	position(
-		anchor: WindowLayerBounds,
-		size: NSSize,
-		viewport: WindowLayerBounds,
-	): WindowLayerPoint
+	position(anchor: WindowLayerBounds, size: NSSize, viewport: WindowLayerBounds): WindowLayerPoint
 	lightDismiss?: boolean
 	onClose?: () => void
 	[key: string]: any
@@ -37,7 +33,10 @@ export interface WindowLayer {
 }
 
 export interface WindowLayerDeps {
-	createRoot(contentView: NSView, anchor: NSView): {
+	createRoot(
+		contentView: NSView,
+		anchor: NSView,
+	): {
 		render(component: any, props: Record<string, any>): unknown
 		unmount(): void
 	}

@@ -28,7 +28,11 @@ export {
 	waitUntil,
 } from '@nativescript/unit-test-runner/testing'
 
-export type { Mounted, MountOptions, WaitUntilOptions } from '@nativescript/unit-test-runner/testing'
+export type {
+	Mounted,
+	MountOptions,
+	WaitUntilOptions,
+} from '@nativescript/unit-test-runner/testing'
 
 /** The view shape `enterText` accepts — handy as `findByTestId<TextInputView>`. */
 export type TextInputView = Parameters<typeof enterText>[0]
@@ -64,7 +68,11 @@ export async function mountXplat<P extends object>(
 	}
 
 	let root: { unmount(): void } | undefined
-	const { view, host, unmount: unmountView } = await mount(
+	const {
+		view,
+		host,
+		unmount: unmountView,
+	} = await mount(
 		() => {
 			const holder = new ContentView()
 			root = renderNativeScriptApp(holder, component, props)

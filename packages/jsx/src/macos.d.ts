@@ -12,9 +12,20 @@
  *
  * Types only — the compiler lowers JSX before any factory could run.
  */
-import type { Attributes, ElementTypeOf, NativeElements, NativeNode, Ref, FormattedStringProps, SpanProps, SegmentedBarItemProps, TabViewProps, TabViewItemProps } from './shared.js';
+import type {
+	Attributes,
+	ElementTypeOf,
+	NativeElements,
+	NativeNode,
+	Ref,
+	FormattedStringProps,
+	SpanProps,
+	SegmentedBarItemProps,
+	TabViewProps,
+	TabViewItemProps,
+} from './shared.js'
 
-export * from './shared.js';
+export * from './shared.js'
 
 /**
  * AppKit host element — the bridged `NSView` the AppKit driver hands to
@@ -22,54 +33,62 @@ export * from './shared.js';
  * how the renderer exposes AppKit objects.
  */
 export interface HostElement {
-	addSubview(subview: HostElement): void;
-	removeFromSuperview(): void;
-	readonly subviews: HostElement[];
-	hidden: boolean;
-	[key: string]: any;
+	addSubview(subview: HostElement): void
+	removeFromSuperview(): void
+	readonly subviews: HostElement[]
+	hidden: boolean
+	[key: string]: any
 }
 
 /** Public instance of a viewless intrinsic. It owns logical identity and
  * children without allocating an NSView. Universal refs retain this instance
  * across updates and clear it on replacement or disposal. */
 export interface LogicalElement {
-	readonly id: number;
-	readonly type: string;
-	readonly view: null;
+	readonly id: number
+	readonly type: string
+	readonly view: null
 }
 
 /** Logical TabView item instance. Its content root is owned by the host. */
 export interface TabViewItemHandle extends LogicalElement {
-	readonly type: 'tabviewitem';
+	readonly type: 'tabviewitem'
 }
 
 export declare namespace JSX {
-	type Element = NativeNode;
-	type ElementType = ElementTypeOf;
-	interface IntrinsicElements extends Omit<NativeElements<HostElement>, 'proxyviewcontainer' | 'formattedstring' | 'span' | 'segmentedbaritem' | 'tabview' | 'tabviewitem'> {
-		proxyviewcontainer: Attributes<LogicalElement>;
-		tabview: Attributes<HostElement, TabViewProps<HostElement, TabViewItemHandle>>;
-		tabviewitem: Attributes<TabViewItemHandle, TabViewItemProps>;
-		segmentedbaritem: Attributes<LogicalElement, SegmentedBarItemProps>;
-		formattedstring: Attributes<LogicalElement, FormattedStringProps>;
-		span: Attributes<LogicalElement, SpanProps>;
+	type Element = NativeNode
+	type ElementType = ElementTypeOf
+	interface IntrinsicElements extends Omit<
+		NativeElements<HostElement>,
+		| 'proxyviewcontainer'
+		| 'formattedstring'
+		| 'span'
+		| 'segmentedbaritem'
+		| 'tabview'
+		| 'tabviewitem'
+	> {
+		proxyviewcontainer: Attributes<LogicalElement>
+		tabview: Attributes<HostElement, TabViewProps<HostElement, TabViewItemHandle>>
+		tabviewitem: Attributes<TabViewItemHandle, TabViewItemProps>
+		segmentedbaritem: Attributes<LogicalElement, SegmentedBarItemProps>
+		formattedstring: Attributes<LogicalElement, FormattedStringProps>
+		span: Attributes<LogicalElement, SpanProps>
 	}
 
 	interface IntrinsicAttributes {
-		key?: string | number;
+		key?: string | number
 	}
 
 	interface IntrinsicClassAttributes<T> {
-		ref?: Ref<T>;
+		ref?: Ref<T>
 	}
 
 	interface ElementChildrenAttribute {
-		children: {};
+		children: {}
 	}
 }
 
-export declare function jsx(type: ElementTypeOf, props: unknown, key?: unknown): JSX.Element;
-export declare function jsxs(type: ElementTypeOf, props: unknown, key?: unknown): JSX.Element;
+export declare function jsx(type: ElementTypeOf, props: unknown, key?: unknown): JSX.Element
+export declare function jsxs(type: ElementTypeOf, props: unknown, key?: unknown): JSX.Element
 export declare function jsxDEV(
 	type: ElementTypeOf,
 	props: unknown,
@@ -77,6 +96,6 @@ export declare function jsxDEV(
 	isStaticChildren?: boolean,
 	source?: unknown,
 	self?: unknown,
-): JSX.Element;
+): JSX.Element
 
-export declare function Fragment(props: { children?: NativeNode }): JSX.Element;
+export declare function Fragment(props: { children?: NativeNode }): JSX.Element

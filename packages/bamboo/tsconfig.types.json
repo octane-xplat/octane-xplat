@@ -22,8 +22,5 @@
 		],
 		"allowImportingTsExtensions": true
 	},
-	"include": [
-		"src/config.ts",
-		"src/vite.ts"
-	]
+	"include": ["src/config.ts", "src/vite.ts"]
 }

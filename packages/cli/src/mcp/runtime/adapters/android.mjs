@@ -148,9 +148,7 @@ export function createAndroidAdapter() {
 					continue
 				}
 
-				const pid = deps
-					.exec('adb', ['-s', device.targetId, 'shell', 'pidof', '-s', appId])
-					?.trim()
+				const pid = deps.exec('adb', ['-s', device.targetId, 'shell', 'pidof', '-s', appId])?.trim()
 
 				if (!pid) {
 					continue // installed but not running

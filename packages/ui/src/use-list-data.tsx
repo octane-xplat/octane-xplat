@@ -1,6 +1,6 @@
-import { useRef } from 'octane';
-import { createListData, type ListData, type ListDataOptions } from './list-data';
-import { useStore } from './use-store';
+import { useRef } from 'octane'
+import { createListData, type ListData, type ListDataOptions } from './list-data'
+import { useStore } from './use-store'
 
 /**
  * React Aria useListData counterpart: one immutable list store per component.
@@ -9,11 +9,11 @@ import { useStore } from './use-store';
  * goes through useStore, the portable subscription rule.
  */
 export function useListData<T>(options: ListDataOptions<T> = {}): ListData<T> {
-	const ref = useRef<ListData<T> | null>(null);
+	const ref = useRef<ListData<T> | null>(null)
 	if (ref.current === null) {
-		ref.current = createListData(options);
+		ref.current = createListData(options)
 	}
 
-	useStore(ref.current);
-	return ref.current;
+	useStore(ref.current)
+	return ref.current
 }

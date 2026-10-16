@@ -6,39 +6,47 @@ import { NSObject } from './Runtime'
 
 import { NativeObject } from './objc-runtime'
 
-
-
-export declare const PKPushTypeFileProvider: string;
+export declare const PKPushTypeFileProvider: string
 
 export declare interface PKPushRegistryDelegate extends NSObjectProtocol {
-  pushRegistryDidUpdatePushCredentialsForType(registry: PKPushRegistry, pushCredentials: PKPushCredentials, type: string): void;
+	pushRegistryDidUpdatePushCredentialsForType(
+		registry: PKPushRegistry,
+		pushCredentials: PKPushCredentials,
+		type: string,
+	): void
 
-  pushRegistryDidReceiveIncomingPushWithPayloadForTypeWithCompletionHandler?(registry: PKPushRegistry, payload: PKPushPayload, type: string, completion: () => void): void;
+	pushRegistryDidReceiveIncomingPushWithPayloadForTypeWithCompletionHandler?(
+		registry: PKPushRegistry,
+		payload: PKPushPayload,
+		type: string,
+		completion: () => void,
+	): void
 
-  pushRegistryDidInvalidatePushTokenForType?(registry: PKPushRegistry, type: string): void;
+	pushRegistryDidInvalidatePushTokenForType?(registry: PKPushRegistry, type: string): void
 }
 
-export declare class PKPushRegistryDelegate extends NativeObject implements PKPushRegistryDelegate {
-}
+export declare class PKPushRegistryDelegate
+	extends NativeObject
+	implements PKPushRegistryDelegate {}
 
 export declare class PKPushPayload extends NSObject {
-  readonly type: string;
+	readonly type: string
 
-  readonly dictionaryPayload: NSDictionary;
+	readonly dictionaryPayload: NSDictionary
 }
 
 export declare class PKPushCredentials extends NSObject {
-  readonly type: string;
+	readonly type: string
 
-  readonly token: NSData;
+	readonly token: NSData
 }
 
 export declare class PKPushRegistry extends NSObject {
-  delegate: PKPushRegistryDelegate;
+	delegate: PKPushRegistryDelegate
 
-  desiredPushTypes: NSSet;
+	desiredPushTypes: NSSet
 
-  pushTokenForType(type: string): NSData;
+	pushTokenForType(type: string): NSData
 
-  initWithQueue(queue: NSObject | null): this;
+	initWithQueue(queue: NSObject | null): this
 }

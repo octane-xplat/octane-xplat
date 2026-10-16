@@ -15,8 +15,9 @@ for (const engine of [chromium, firefox, webkit]) {
 		await page.getByRole('button', { name: 'Try in browser', exact: true }).click()
 		await page.getByRole('status').filter({ hasText: 'Browser demo ready.' }).waitFor()
 		const frame = page.frameLocator('iframe')
-		for (let i = 0; i < 5; i++)
-			{await frame.getByRole('button', { name: 'Complete one step' }).click()}
+		for (let i = 0; i < 5; i++) {
+			await frame.getByRole('button', { name: 'Complete one step' }).click()
+		}
 
 		assert.match(await frame.locator('main').innerText(), /5 of 5.*goal reached/)
 		await frame.getByRole('button', { name: 'Undo one step' }).click()
@@ -29,7 +30,12 @@ for (const engine of [chromium, firefox, webkit]) {
 		assert.match(await frame.locator('main').innerText(), /1 of 5/)
 		await frame.getByRole('button', { name: 'Reset goal' }).focus()
 		await page.keyboard.press('Tab')
-		assert.equal(await frame.locator(':focus').count(), 0, 'Tab leaves the preview without a focus trap')
+		assert.equal(
+			await frame.locator(':focus').count(),
+			0,
+			'Tab leaves the preview without a focus trap',
+		)
+
 		await page.getByRole('button', { name: 'Close preview' }).click()
 		assert.equal(await page.locator('iframe').count(), 0)
 		await page.waitForFunction(() => document.activeElement.textContent === 'Try in browser')

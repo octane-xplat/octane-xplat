@@ -9,9 +9,15 @@ export const updates = createUpdates({
 
 // Call only after the essential screen and its required data are ready.
 export async function afterSuccessfulStartup() {
-	if (!updates.supported) {return}
+	if (!updates.supported) {
+		return
+	}
+
 	updates.markHealthy()
 	const result = await updates.check()
-	if (result.available) {await updates.install(result.manifest)}
+	if (result.available) {
+		await updates.install(result.manifest)
+	}
+
 	return updates.status()
 }

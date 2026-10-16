@@ -13,7 +13,11 @@ export const SCNAntialiasingMode = /* @__PURE__ */ _bind(FW, 'SCNAntialiasingMod
 export const SCNAudioPlayer = /* @__PURE__ */ _bind(FW, 'SCNAudioPlayer')
 export const SCNAudioSource = /* @__PURE__ */ _bind(FW, 'SCNAudioSource')
 export const SCNAvoidOccluderConstraint = /* @__PURE__ */ _bind(FW, 'SCNAvoidOccluderConstraint')
-export const SCNAvoidOccluderConstraintDelegate = /* @__PURE__ */ _bind(FW, 'SCNAvoidOccluderConstraintDelegate')
+export const SCNAvoidOccluderConstraintDelegate = /* @__PURE__ */ _bind(
+	FW,
+	'SCNAvoidOccluderConstraintDelegate',
+)
+
 export const SCNBillboardAxis = /* @__PURE__ */ _bind(FW, 'SCNBillboardAxis')
 export const SCNBillboardConstraint = /* @__PURE__ */ _bind(FW, 'SCNBillboardConstraint')
 export const SCNBlendMode = /* @__PURE__ */ _bind(FW, 'SCNBlendMode')
@@ -22,23 +26,67 @@ export const SCNBox = /* @__PURE__ */ _bind(FW, 'SCNBox')
 export const SCNBufferFrequency = /* @__PURE__ */ _bind(FW, 'SCNBufferFrequency')
 export const SCNBufferStream = /* @__PURE__ */ _bind(FW, 'SCNBufferStream')
 export const SCNCamera = /* @__PURE__ */ _bind(FW, 'SCNCamera')
-export const SCNCameraControlConfiguration = /* @__PURE__ */ _bind(FW, 'SCNCameraControlConfiguration')
+export const SCNCameraControlConfiguration = /* @__PURE__ */ _bind(
+	FW,
+	'SCNCameraControlConfiguration',
+)
+
 export const SCNCameraController = /* @__PURE__ */ _bind(FW, 'SCNCameraController')
 export const SCNCameraControllerDelegate = /* @__PURE__ */ _bind(FW, 'SCNCameraControllerDelegate')
-export const SCNCameraProjectionDirection = /* @__PURE__ */ _bind(FW, 'SCNCameraProjectionDirection')
+export const SCNCameraProjectionDirection = /* @__PURE__ */ _bind(
+	FW,
+	'SCNCameraProjectionDirection',
+)
+
 export const SCNCapsule = /* @__PURE__ */ _bind(FW, 'SCNCapsule')
 export const SCNChamferMode = /* @__PURE__ */ _bind(FW, 'SCNChamferMode')
 export const SCNColorMask = /* @__PURE__ */ _bind(FW, 'SCNColorMask')
 export const SCNCone = /* @__PURE__ */ _bind(FW, 'SCNCone')
-export const SCNConsistencyElementIDErrorKey = /* @__PURE__ */ _bind(FW, 'SCNConsistencyElementIDErrorKey')
-export const SCNConsistencyElementTypeErrorKey = /* @__PURE__ */ _bind(FW, 'SCNConsistencyElementTypeErrorKey')
-export const SCNConsistencyInvalidArgumentError = /* @__PURE__ */ _bind(FW, 'SCNConsistencyInvalidArgumentError')
-export const SCNConsistencyInvalidCountError = /* @__PURE__ */ _bind(FW, 'SCNConsistencyInvalidCountError')
-export const SCNConsistencyInvalidURIError = /* @__PURE__ */ _bind(FW, 'SCNConsistencyInvalidURIError')
-export const SCNConsistencyLineNumberErrorKey = /* @__PURE__ */ _bind(FW, 'SCNConsistencyLineNumberErrorKey')
-export const SCNConsistencyMissingAttributeError = /* @__PURE__ */ _bind(FW, 'SCNConsistencyMissingAttributeError')
-export const SCNConsistencyMissingElementError = /* @__PURE__ */ _bind(FW, 'SCNConsistencyMissingElementError')
-export const SCNConsistencyXMLSchemaValidationError = /* @__PURE__ */ _bind(FW, 'SCNConsistencyXMLSchemaValidationError')
+export const SCNConsistencyElementIDErrorKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNConsistencyElementIDErrorKey',
+)
+
+export const SCNConsistencyElementTypeErrorKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNConsistencyElementTypeErrorKey',
+)
+
+export const SCNConsistencyInvalidArgumentError = /* @__PURE__ */ _bind(
+	FW,
+	'SCNConsistencyInvalidArgumentError',
+)
+
+export const SCNConsistencyInvalidCountError = /* @__PURE__ */ _bind(
+	FW,
+	'SCNConsistencyInvalidCountError',
+)
+
+export const SCNConsistencyInvalidURIError = /* @__PURE__ */ _bind(
+	FW,
+	'SCNConsistencyInvalidURIError',
+)
+
+export const SCNConsistencyLineNumberErrorKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNConsistencyLineNumberErrorKey',
+)
+
+export const SCNConsistencyMissingAttributeError = /* @__PURE__ */ _bind(
+	FW,
+	'SCNConsistencyMissingAttributeError',
+)
+
+export const SCNConsistencyMissingElementError = /* @__PURE__ */ _bind(
+	FW,
+	'SCNConsistencyMissingElementError',
+)
+
+export const SCNConsistencyXMLSchemaValidationError = /* @__PURE__ */ _bind(
+	FW,
+	'SCNConsistencyXMLSchemaValidationError',
+)
+
 export const SCNConstraint = /* @__PURE__ */ _bind(FW, 'SCNConstraint')
 export const SCNCullMode = /* @__PURE__ */ _bind(FW, 'SCNCullMode')
 export const SCNCylinder = /* @__PURE__ */ _bind(FW, 'SCNCylinder')
@@ -54,24 +102,84 @@ export const SCNGeometry = /* @__PURE__ */ _bind(FW, 'SCNGeometry')
 export const SCNGeometryElement = /* @__PURE__ */ _bind(FW, 'SCNGeometryElement')
 export const SCNGeometryPrimitiveType = /* @__PURE__ */ _bind(FW, 'SCNGeometryPrimitiveType')
 export const SCNGeometrySource = /* @__PURE__ */ _bind(FW, 'SCNGeometrySource')
-export const SCNGeometrySourceSemanticBoneIndices = /* @__PURE__ */ _bind(FW, 'SCNGeometrySourceSemanticBoneIndices')
-export const SCNGeometrySourceSemanticBoneWeights = /* @__PURE__ */ _bind(FW, 'SCNGeometrySourceSemanticBoneWeights')
-export const SCNGeometrySourceSemanticColor = /* @__PURE__ */ _bind(FW, 'SCNGeometrySourceSemanticColor')
-export const SCNGeometrySourceSemanticEdgeCrease = /* @__PURE__ */ _bind(FW, 'SCNGeometrySourceSemanticEdgeCrease')
-export const SCNGeometrySourceSemanticNormal = /* @__PURE__ */ _bind(FW, 'SCNGeometrySourceSemanticNormal')
-export const SCNGeometrySourceSemanticTangent = /* @__PURE__ */ _bind(FW, 'SCNGeometrySourceSemanticTangent')
-export const SCNGeometrySourceSemanticTexcoord = /* @__PURE__ */ _bind(FW, 'SCNGeometrySourceSemanticTexcoord')
-export const SCNGeometrySourceSemanticVertex = /* @__PURE__ */ _bind(FW, 'SCNGeometrySourceSemanticVertex')
-export const SCNGeometrySourceSemanticVertexCrease = /* @__PURE__ */ _bind(FW, 'SCNGeometrySourceSemanticVertexCrease')
+export const SCNGeometrySourceSemanticBoneIndices = /* @__PURE__ */ _bind(
+	FW,
+	'SCNGeometrySourceSemanticBoneIndices',
+)
+
+export const SCNGeometrySourceSemanticBoneWeights = /* @__PURE__ */ _bind(
+	FW,
+	'SCNGeometrySourceSemanticBoneWeights',
+)
+
+export const SCNGeometrySourceSemanticColor = /* @__PURE__ */ _bind(
+	FW,
+	'SCNGeometrySourceSemanticColor',
+)
+
+export const SCNGeometrySourceSemanticEdgeCrease = /* @__PURE__ */ _bind(
+	FW,
+	'SCNGeometrySourceSemanticEdgeCrease',
+)
+
+export const SCNGeometrySourceSemanticNormal = /* @__PURE__ */ _bind(
+	FW,
+	'SCNGeometrySourceSemanticNormal',
+)
+
+export const SCNGeometrySourceSemanticTangent = /* @__PURE__ */ _bind(
+	FW,
+	'SCNGeometrySourceSemanticTangent',
+)
+
+export const SCNGeometrySourceSemanticTexcoord = /* @__PURE__ */ _bind(
+	FW,
+	'SCNGeometrySourceSemanticTexcoord',
+)
+
+export const SCNGeometrySourceSemanticVertex = /* @__PURE__ */ _bind(
+	FW,
+	'SCNGeometrySourceSemanticVertex',
+)
+
+export const SCNGeometrySourceSemanticVertexCrease = /* @__PURE__ */ _bind(
+	FW,
+	'SCNGeometrySourceSemanticVertexCrease',
+)
+
 export const SCNGeometryTessellator = /* @__PURE__ */ _bind(FW, 'SCNGeometryTessellator')
-export const SCNHitTestBackFaceCullingKey = /* @__PURE__ */ _bind(FW, 'SCNHitTestBackFaceCullingKey')
-export const SCNHitTestBoundingBoxOnlyKey = /* @__PURE__ */ _bind(FW, 'SCNHitTestBoundingBoxOnlyKey')
+export const SCNHitTestBackFaceCullingKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNHitTestBackFaceCullingKey',
+)
+
+export const SCNHitTestBoundingBoxOnlyKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNHitTestBoundingBoxOnlyKey',
+)
+
 export const SCNHitTestClipToZRangeKey = /* @__PURE__ */ _bind(FW, 'SCNHitTestClipToZRangeKey')
 export const SCNHitTestFirstFoundOnlyKey = /* @__PURE__ */ _bind(FW, 'SCNHitTestFirstFoundOnlyKey')
-export const SCNHitTestIgnoreChildNodesKey = /* @__PURE__ */ _bind(FW, 'SCNHitTestIgnoreChildNodesKey')
-export const SCNHitTestIgnoreHiddenNodesKey = /* @__PURE__ */ _bind(FW, 'SCNHitTestIgnoreHiddenNodesKey')
-export const SCNHitTestOptionCategoryBitMask = /* @__PURE__ */ _bind(FW, 'SCNHitTestOptionCategoryBitMask')
-export const SCNHitTestOptionIgnoreLightArea = /* @__PURE__ */ _bind(FW, 'SCNHitTestOptionIgnoreLightArea')
+export const SCNHitTestIgnoreChildNodesKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNHitTestIgnoreChildNodesKey',
+)
+
+export const SCNHitTestIgnoreHiddenNodesKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNHitTestIgnoreHiddenNodesKey',
+)
+
+export const SCNHitTestOptionCategoryBitMask = /* @__PURE__ */ _bind(
+	FW,
+	'SCNHitTestOptionCategoryBitMask',
+)
+
+export const SCNHitTestOptionIgnoreLightArea = /* @__PURE__ */ _bind(
+	FW,
+	'SCNHitTestOptionIgnoreLightArea',
+)
+
 export const SCNHitTestOptionSearchMode = /* @__PURE__ */ _bind(FW, 'SCNHitTestOptionSearchMode')
 export const SCNHitTestResult = /* @__PURE__ */ _bind(FW, 'SCNHitTestResult')
 export const SCNHitTestRootNodeKey = /* @__PURE__ */ _bind(FW, 'SCNHitTestRootNodeKey')
@@ -84,12 +192,24 @@ export const SCNLevelOfDetail = /* @__PURE__ */ _bind(FW, 'SCNLevelOfDetail')
 export const SCNLight = /* @__PURE__ */ _bind(FW, 'SCNLight')
 export const SCNLightAreaType = /* @__PURE__ */ _bind(FW, 'SCNLightAreaType')
 export const SCNLightAttenuationEndKey = /* @__PURE__ */ _bind(FW, 'SCNLightAttenuationEndKey')
-export const SCNLightAttenuationFalloffExponentKey = /* @__PURE__ */ _bind(FW, 'SCNLightAttenuationFalloffExponentKey')
+export const SCNLightAttenuationFalloffExponentKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNLightAttenuationFalloffExponentKey',
+)
+
 export const SCNLightAttenuationStartKey = /* @__PURE__ */ _bind(FW, 'SCNLightAttenuationStartKey')
 export const SCNLightProbeType = /* @__PURE__ */ _bind(FW, 'SCNLightProbeType')
 export const SCNLightProbeUpdateType = /* @__PURE__ */ _bind(FW, 'SCNLightProbeUpdateType')
-export const SCNLightShadowFarClippingKey = /* @__PURE__ */ _bind(FW, 'SCNLightShadowFarClippingKey')
-export const SCNLightShadowNearClippingKey = /* @__PURE__ */ _bind(FW, 'SCNLightShadowNearClippingKey')
+export const SCNLightShadowFarClippingKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNLightShadowFarClippingKey',
+)
+
+export const SCNLightShadowNearClippingKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNLightShadowNearClippingKey',
+)
+
 export const SCNLightSpotInnerAngleKey = /* @__PURE__ */ _bind(FW, 'SCNLightSpotInnerAngleKey')
 export const SCNLightSpotOuterAngleKey = /* @__PURE__ */ _bind(FW, 'SCNLightSpotOuterAngleKey')
 export const SCNLightTypeAmbient = /* @__PURE__ */ _bind(FW, 'SCNLightTypeAmbient')
@@ -103,7 +223,11 @@ export const SCNLightingModelBlinn = /* @__PURE__ */ _bind(FW, 'SCNLightingModel
 export const SCNLightingModelConstant = /* @__PURE__ */ _bind(FW, 'SCNLightingModelConstant')
 export const SCNLightingModelLambert = /* @__PURE__ */ _bind(FW, 'SCNLightingModelLambert')
 export const SCNLightingModelPhong = /* @__PURE__ */ _bind(FW, 'SCNLightingModelPhong')
-export const SCNLightingModelPhysicallyBased = /* @__PURE__ */ _bind(FW, 'SCNLightingModelPhysicallyBased')
+export const SCNLightingModelPhysicallyBased = /* @__PURE__ */ _bind(
+	FW,
+	'SCNLightingModelPhysicallyBased',
+)
+
 export const SCNLightingModelShadowOnly = /* @__PURE__ */ _bind(FW, 'SCNLightingModelShadowOnly')
 export const SCNLookAtConstraint = /* @__PURE__ */ _bind(FW, 'SCNLookAtConstraint')
 export const SCNMaterial = /* @__PURE__ */ _bind(FW, 'SCNMaterial')
@@ -119,7 +243,11 @@ export const SCNMatrix4Rotate = /* @__PURE__ */ _bind(FW, 'SCNMatrix4Rotate')
 export const SCNMatrix4Scale = /* @__PURE__ */ _bind(FW, 'SCNMatrix4Scale')
 export const SCNMatrix4ToGLKMatrix4 = /* @__PURE__ */ _bind(FW, 'SCNMatrix4ToGLKMatrix4')
 export const SCNModelTransform = /* @__PURE__ */ _bind(FW, 'SCNModelTransform')
-export const SCNModelViewProjectionTransform = /* @__PURE__ */ _bind(FW, 'SCNModelViewProjectionTransform')
+export const SCNModelViewProjectionTransform = /* @__PURE__ */ _bind(
+	FW,
+	'SCNModelViewProjectionTransform',
+)
+
 export const SCNModelViewTransform = /* @__PURE__ */ _bind(FW, 'SCNModelViewTransform')
 export const SCNMorpher = /* @__PURE__ */ _bind(FW, 'SCNMorpher')
 export const SCNMorpherCalculationMode = /* @__PURE__ */ _bind(FW, 'SCNMorpherCalculationMode')
@@ -132,25 +260,53 @@ export const SCNParticleBirthDirection = /* @__PURE__ */ _bind(FW, 'SCNParticleB
 export const SCNParticleBirthLocation = /* @__PURE__ */ _bind(FW, 'SCNParticleBirthLocation')
 export const SCNParticleBlendMode = /* @__PURE__ */ _bind(FW, 'SCNParticleBlendMode')
 export const SCNParticleEvent = /* @__PURE__ */ _bind(FW, 'SCNParticleEvent')
-export const SCNParticleImageSequenceAnimationMode = /* @__PURE__ */ _bind(FW, 'SCNParticleImageSequenceAnimationMode')
+export const SCNParticleImageSequenceAnimationMode = /* @__PURE__ */ _bind(
+	FW,
+	'SCNParticleImageSequenceAnimationMode',
+)
+
 export const SCNParticleInputMode = /* @__PURE__ */ _bind(FW, 'SCNParticleInputMode')
 export const SCNParticleModifierStage = /* @__PURE__ */ _bind(FW, 'SCNParticleModifierStage')
 export const SCNParticleOrientationMode = /* @__PURE__ */ _bind(FW, 'SCNParticleOrientationMode')
 export const SCNParticlePropertyAngle = /* @__PURE__ */ _bind(FW, 'SCNParticlePropertyAngle')
-export const SCNParticlePropertyAngularVelocity = /* @__PURE__ */ _bind(FW, 'SCNParticlePropertyAngularVelocity')
+export const SCNParticlePropertyAngularVelocity = /* @__PURE__ */ _bind(
+	FW,
+	'SCNParticlePropertyAngularVelocity',
+)
+
 export const SCNParticlePropertyBounce = /* @__PURE__ */ _bind(FW, 'SCNParticlePropertyBounce')
 export const SCNParticlePropertyCharge = /* @__PURE__ */ _bind(FW, 'SCNParticlePropertyCharge')
 export const SCNParticlePropertyColor = /* @__PURE__ */ _bind(FW, 'SCNParticlePropertyColor')
-export const SCNParticlePropertyContactNormal = /* @__PURE__ */ _bind(FW, 'SCNParticlePropertyContactNormal')
-export const SCNParticlePropertyContactPoint = /* @__PURE__ */ _bind(FW, 'SCNParticlePropertyContactPoint')
-export const SCNParticlePropertyController = /* @__PURE__ */ _bind(FW, 'SCNParticlePropertyController')
+export const SCNParticlePropertyContactNormal = /* @__PURE__ */ _bind(
+	FW,
+	'SCNParticlePropertyContactNormal',
+)
+
+export const SCNParticlePropertyContactPoint = /* @__PURE__ */ _bind(
+	FW,
+	'SCNParticlePropertyContactPoint',
+)
+
+export const SCNParticlePropertyController = /* @__PURE__ */ _bind(
+	FW,
+	'SCNParticlePropertyController',
+)
+
 export const SCNParticlePropertyFrame = /* @__PURE__ */ _bind(FW, 'SCNParticlePropertyFrame')
-export const SCNParticlePropertyFrameRate = /* @__PURE__ */ _bind(FW, 'SCNParticlePropertyFrameRate')
+export const SCNParticlePropertyFrameRate = /* @__PURE__ */ _bind(
+	FW,
+	'SCNParticlePropertyFrameRate',
+)
+
 export const SCNParticlePropertyFriction = /* @__PURE__ */ _bind(FW, 'SCNParticlePropertyFriction')
 export const SCNParticlePropertyLife = /* @__PURE__ */ _bind(FW, 'SCNParticlePropertyLife')
 export const SCNParticlePropertyOpacity = /* @__PURE__ */ _bind(FW, 'SCNParticlePropertyOpacity')
 export const SCNParticlePropertyPosition = /* @__PURE__ */ _bind(FW, 'SCNParticlePropertyPosition')
-export const SCNParticlePropertyRotationAxis = /* @__PURE__ */ _bind(FW, 'SCNParticlePropertyRotationAxis')
+export const SCNParticlePropertyRotationAxis = /* @__PURE__ */ _bind(
+	FW,
+	'SCNParticlePropertyRotationAxis',
+)
+
 export const SCNParticlePropertySize = /* @__PURE__ */ _bind(FW, 'SCNParticlePropertySize')
 export const SCNParticlePropertyVelocity = /* @__PURE__ */ _bind(FW, 'SCNParticlePropertyVelocity')
 export const SCNParticleSortingMode = /* @__PURE__ */ _bind(FW, 'SCNParticleSortingMode')
@@ -167,19 +323,51 @@ export const SCNPhysicsField = /* @__PURE__ */ _bind(FW, 'SCNPhysicsField')
 export const SCNPhysicsFieldScope = /* @__PURE__ */ _bind(FW, 'SCNPhysicsFieldScope')
 export const SCNPhysicsHingeJoint = /* @__PURE__ */ _bind(FW, 'SCNPhysicsHingeJoint')
 export const SCNPhysicsShape = /* @__PURE__ */ _bind(FW, 'SCNPhysicsShape')
-export const SCNPhysicsShapeKeepAsCompoundKey = /* @__PURE__ */ _bind(FW, 'SCNPhysicsShapeKeepAsCompoundKey')
-export const SCNPhysicsShapeOptionCollisionMargin = /* @__PURE__ */ _bind(FW, 'SCNPhysicsShapeOptionCollisionMargin')
+export const SCNPhysicsShapeKeepAsCompoundKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNPhysicsShapeKeepAsCompoundKey',
+)
+
+export const SCNPhysicsShapeOptionCollisionMargin = /* @__PURE__ */ _bind(
+	FW,
+	'SCNPhysicsShapeOptionCollisionMargin',
+)
+
 export const SCNPhysicsShapeScaleKey = /* @__PURE__ */ _bind(FW, 'SCNPhysicsShapeScaleKey')
-export const SCNPhysicsShapeTypeBoundingBox = /* @__PURE__ */ _bind(FW, 'SCNPhysicsShapeTypeBoundingBox')
-export const SCNPhysicsShapeTypeConcavePolyhedron = /* @__PURE__ */ _bind(FW, 'SCNPhysicsShapeTypeConcavePolyhedron')
-export const SCNPhysicsShapeTypeConvexHull = /* @__PURE__ */ _bind(FW, 'SCNPhysicsShapeTypeConvexHull')
+export const SCNPhysicsShapeTypeBoundingBox = /* @__PURE__ */ _bind(
+	FW,
+	'SCNPhysicsShapeTypeBoundingBox',
+)
+
+export const SCNPhysicsShapeTypeConcavePolyhedron = /* @__PURE__ */ _bind(
+	FW,
+	'SCNPhysicsShapeTypeConcavePolyhedron',
+)
+
+export const SCNPhysicsShapeTypeConvexHull = /* @__PURE__ */ _bind(
+	FW,
+	'SCNPhysicsShapeTypeConvexHull',
+)
+
 export const SCNPhysicsShapeTypeKey = /* @__PURE__ */ _bind(FW, 'SCNPhysicsShapeTypeKey')
 export const SCNPhysicsSliderJoint = /* @__PURE__ */ _bind(FW, 'SCNPhysicsSliderJoint')
-export const SCNPhysicsTestBackfaceCullingKey = /* @__PURE__ */ _bind(FW, 'SCNPhysicsTestBackfaceCullingKey')
-export const SCNPhysicsTestCollisionBitMaskKey = /* @__PURE__ */ _bind(FW, 'SCNPhysicsTestCollisionBitMaskKey')
+export const SCNPhysicsTestBackfaceCullingKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNPhysicsTestBackfaceCullingKey',
+)
+
+export const SCNPhysicsTestCollisionBitMaskKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNPhysicsTestCollisionBitMaskKey',
+)
+
 export const SCNPhysicsTestSearchModeAll = /* @__PURE__ */ _bind(FW, 'SCNPhysicsTestSearchModeAll')
 export const SCNPhysicsTestSearchModeAny = /* @__PURE__ */ _bind(FW, 'SCNPhysicsTestSearchModeAny')
-export const SCNPhysicsTestSearchModeClosest = /* @__PURE__ */ _bind(FW, 'SCNPhysicsTestSearchModeClosest')
+export const SCNPhysicsTestSearchModeClosest = /* @__PURE__ */ _bind(
+	FW,
+	'SCNPhysicsTestSearchModeClosest',
+)
+
 export const SCNPhysicsTestSearchModeKey = /* @__PURE__ */ _bind(FW, 'SCNPhysicsTestSearchModeKey')
 export const SCNPhysicsVehicle = /* @__PURE__ */ _bind(FW, 'SCNPhysicsVehicle')
 export const SCNPhysicsVehicleWheel = /* @__PURE__ */ _bind(FW, 'SCNPhysicsVehicleWheel')
@@ -202,43 +390,163 @@ export const SCNReplicatorConstraint = /* @__PURE__ */ _bind(FW, 'SCNReplicatorC
 export const SCNScene = /* @__PURE__ */ _bind(FW, 'SCNScene')
 export const SCNSceneEndTimeAttributeKey = /* @__PURE__ */ _bind(FW, 'SCNSceneEndTimeAttributeKey')
 export const SCNSceneExportDelegate = /* @__PURE__ */ _bind(FW, 'SCNSceneExportDelegate')
-export const SCNSceneExportDestinationURL = /* @__PURE__ */ _bind(FW, 'SCNSceneExportDestinationURL')
-export const SCNSceneFrameRateAttributeKey = /* @__PURE__ */ _bind(FW, 'SCNSceneFrameRateAttributeKey')
+export const SCNSceneExportDestinationURL = /* @__PURE__ */ _bind(
+	FW,
+	'SCNSceneExportDestinationURL',
+)
+
+export const SCNSceneFrameRateAttributeKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNSceneFrameRateAttributeKey',
+)
+
 export const SCNSceneRenderer = /* @__PURE__ */ _bind(FW, 'SCNSceneRenderer')
 export const SCNSceneRendererDelegate = /* @__PURE__ */ _bind(FW, 'SCNSceneRendererDelegate')
 export const SCNSceneSource = /* @__PURE__ */ _bind(FW, 'SCNSceneSource')
-export const SCNSceneSourceAnimationImportPolicyDoNotPlay = /* @__PURE__ */ _bind(FW, 'SCNSceneSourceAnimationImportPolicyDoNotPlay')
-export const SCNSceneSourceAnimationImportPolicyKey = /* @__PURE__ */ _bind(FW, 'SCNSceneSourceAnimationImportPolicyKey')
-export const SCNSceneSourceAnimationImportPolicyPlay = /* @__PURE__ */ _bind(FW, 'SCNSceneSourceAnimationImportPolicyPlay')
-export const SCNSceneSourceAnimationImportPolicyPlayRepeatedly = /* @__PURE__ */ _bind(FW, 'SCNSceneSourceAnimationImportPolicyPlayRepeatedly')
-export const SCNSceneSourceAnimationImportPolicyPlayUsingSceneTimeBase = /* @__PURE__ */ _bind(FW, 'SCNSceneSourceAnimationImportPolicyPlayUsingSceneTimeBase')
-export const SCNSceneSourceAssetAuthorKey = /* @__PURE__ */ _bind(FW, 'SCNSceneSourceAssetAuthorKey')
-export const SCNSceneSourceAssetAuthoringToolKey = /* @__PURE__ */ _bind(FW, 'SCNSceneSourceAssetAuthoringToolKey')
-export const SCNSceneSourceAssetContributorsKey = /* @__PURE__ */ _bind(FW, 'SCNSceneSourceAssetContributorsKey')
-export const SCNSceneSourceAssetCreatedDateKey = /* @__PURE__ */ _bind(FW, 'SCNSceneSourceAssetCreatedDateKey')
-export const SCNSceneSourceAssetDirectoryURLsKey = /* @__PURE__ */ _bind(FW, 'SCNSceneSourceAssetDirectoryURLsKey')
-export const SCNSceneSourceAssetModifiedDateKey = /* @__PURE__ */ _bind(FW, 'SCNSceneSourceAssetModifiedDateKey')
+export const SCNSceneSourceAnimationImportPolicyDoNotPlay = /* @__PURE__ */ _bind(
+	FW,
+	'SCNSceneSourceAnimationImportPolicyDoNotPlay',
+)
+
+export const SCNSceneSourceAnimationImportPolicyKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNSceneSourceAnimationImportPolicyKey',
+)
+
+export const SCNSceneSourceAnimationImportPolicyPlay = /* @__PURE__ */ _bind(
+	FW,
+	'SCNSceneSourceAnimationImportPolicyPlay',
+)
+
+export const SCNSceneSourceAnimationImportPolicyPlayRepeatedly = /* @__PURE__ */ _bind(
+	FW,
+	'SCNSceneSourceAnimationImportPolicyPlayRepeatedly',
+)
+
+export const SCNSceneSourceAnimationImportPolicyPlayUsingSceneTimeBase = /* @__PURE__ */ _bind(
+	FW,
+	'SCNSceneSourceAnimationImportPolicyPlayUsingSceneTimeBase',
+)
+
+export const SCNSceneSourceAssetAuthorKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNSceneSourceAssetAuthorKey',
+)
+
+export const SCNSceneSourceAssetAuthoringToolKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNSceneSourceAssetAuthoringToolKey',
+)
+
+export const SCNSceneSourceAssetContributorsKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNSceneSourceAssetContributorsKey',
+)
+
+export const SCNSceneSourceAssetCreatedDateKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNSceneSourceAssetCreatedDateKey',
+)
+
+export const SCNSceneSourceAssetDirectoryURLsKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNSceneSourceAssetDirectoryURLsKey',
+)
+
+export const SCNSceneSourceAssetModifiedDateKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNSceneSourceAssetModifiedDateKey',
+)
+
 export const SCNSceneSourceAssetUnitKey = /* @__PURE__ */ _bind(FW, 'SCNSceneSourceAssetUnitKey')
-export const SCNSceneSourceAssetUnitMeterKey = /* @__PURE__ */ _bind(FW, 'SCNSceneSourceAssetUnitMeterKey')
-export const SCNSceneSourceAssetUnitNameKey = /* @__PURE__ */ _bind(FW, 'SCNSceneSourceAssetUnitNameKey')
-export const SCNSceneSourceAssetUpAxisKey = /* @__PURE__ */ _bind(FW, 'SCNSceneSourceAssetUpAxisKey')
-export const SCNSceneSourceCheckConsistencyKey = /* @__PURE__ */ _bind(FW, 'SCNSceneSourceCheckConsistencyKey')
-export const SCNSceneSourceConvertToYUpKey = /* @__PURE__ */ _bind(FW, 'SCNSceneSourceConvertToYUpKey')
-export const SCNSceneSourceConvertUnitsToMetersKey = /* @__PURE__ */ _bind(FW, 'SCNSceneSourceConvertUnitsToMetersKey')
-export const SCNSceneSourceCreateNormalsIfAbsentKey = /* @__PURE__ */ _bind(FW, 'SCNSceneSourceCreateNormalsIfAbsentKey')
-export const SCNSceneSourceFlattenSceneKey = /* @__PURE__ */ _bind(FW, 'SCNSceneSourceFlattenSceneKey')
-export const SCNSceneSourceLoadingOptionPreserveOriginalTopology = /* @__PURE__ */ _bind(FW, 'SCNSceneSourceLoadingOptionPreserveOriginalTopology')
-export const SCNSceneSourceOverrideAssetURLsKey = /* @__PURE__ */ _bind(FW, 'SCNSceneSourceOverrideAssetURLsKey')
+export const SCNSceneSourceAssetUnitMeterKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNSceneSourceAssetUnitMeterKey',
+)
+
+export const SCNSceneSourceAssetUnitNameKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNSceneSourceAssetUnitNameKey',
+)
+
+export const SCNSceneSourceAssetUpAxisKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNSceneSourceAssetUpAxisKey',
+)
+
+export const SCNSceneSourceCheckConsistencyKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNSceneSourceCheckConsistencyKey',
+)
+
+export const SCNSceneSourceConvertToYUpKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNSceneSourceConvertToYUpKey',
+)
+
+export const SCNSceneSourceConvertUnitsToMetersKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNSceneSourceConvertUnitsToMetersKey',
+)
+
+export const SCNSceneSourceCreateNormalsIfAbsentKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNSceneSourceCreateNormalsIfAbsentKey',
+)
+
+export const SCNSceneSourceFlattenSceneKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNSceneSourceFlattenSceneKey',
+)
+
+export const SCNSceneSourceLoadingOptionPreserveOriginalTopology = /* @__PURE__ */ _bind(
+	FW,
+	'SCNSceneSourceLoadingOptionPreserveOriginalTopology',
+)
+
+export const SCNSceneSourceOverrideAssetURLsKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNSceneSourceOverrideAssetURLsKey',
+)
+
 export const SCNSceneSourceStatus = /* @__PURE__ */ _bind(FW, 'SCNSceneSourceStatus')
-export const SCNSceneSourceStrictConformanceKey = /* @__PURE__ */ _bind(FW, 'SCNSceneSourceStrictConformanceKey')
-export const SCNSceneSourceUseSafeModeKey = /* @__PURE__ */ _bind(FW, 'SCNSceneSourceUseSafeModeKey')
-export const SCNSceneStartTimeAttributeKey = /* @__PURE__ */ _bind(FW, 'SCNSceneStartTimeAttributeKey')
+export const SCNSceneSourceStrictConformanceKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNSceneSourceStrictConformanceKey',
+)
+
+export const SCNSceneSourceUseSafeModeKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNSceneSourceUseSafeModeKey',
+)
+
+export const SCNSceneStartTimeAttributeKey = /* @__PURE__ */ _bind(
+	FW,
+	'SCNSceneStartTimeAttributeKey',
+)
+
 export const SCNSceneUpAxisAttributeKey = /* @__PURE__ */ _bind(FW, 'SCNSceneUpAxisAttributeKey')
 export const SCNShadable = /* @__PURE__ */ _bind(FW, 'SCNShadable')
-export const SCNShaderModifierEntryPointFragment = /* @__PURE__ */ _bind(FW, 'SCNShaderModifierEntryPointFragment')
-export const SCNShaderModifierEntryPointGeometry = /* @__PURE__ */ _bind(FW, 'SCNShaderModifierEntryPointGeometry')
-export const SCNShaderModifierEntryPointLightingModel = /* @__PURE__ */ _bind(FW, 'SCNShaderModifierEntryPointLightingModel')
-export const SCNShaderModifierEntryPointSurface = /* @__PURE__ */ _bind(FW, 'SCNShaderModifierEntryPointSurface')
+export const SCNShaderModifierEntryPointFragment = /* @__PURE__ */ _bind(
+	FW,
+	'SCNShaderModifierEntryPointFragment',
+)
+
+export const SCNShaderModifierEntryPointGeometry = /* @__PURE__ */ _bind(
+	FW,
+	'SCNShaderModifierEntryPointGeometry',
+)
+
+export const SCNShaderModifierEntryPointLightingModel = /* @__PURE__ */ _bind(
+	FW,
+	'SCNShaderModifierEntryPointLightingModel',
+)
+
+export const SCNShaderModifierEntryPointSurface = /* @__PURE__ */ _bind(
+	FW,
+	'SCNShaderModifierEntryPointSurface',
+)
+
 export const SCNShadowMode = /* @__PURE__ */ _bind(FW, 'SCNShadowMode')
 export const SCNShape = /* @__PURE__ */ _bind(FW, 'SCNShape')
 export const SCNSkinner = /* @__PURE__ */ _bind(FW, 'SCNSkinner')
@@ -246,7 +554,11 @@ export const SCNSliderConstraint = /* @__PURE__ */ _bind(FW, 'SCNSliderConstrain
 export const SCNSphere = /* @__PURE__ */ _bind(FW, 'SCNSphere')
 export const SCNTechnique = /* @__PURE__ */ _bind(FW, 'SCNTechnique')
 export const SCNTechniqueSupport = /* @__PURE__ */ _bind(FW, 'SCNTechniqueSupport')
-export const SCNTessellationSmoothingMode = /* @__PURE__ */ _bind(FW, 'SCNTessellationSmoothingMode')
+export const SCNTessellationSmoothingMode = /* @__PURE__ */ _bind(
+	FW,
+	'SCNTessellationSmoothingMode',
+)
+
 export const SCNText = /* @__PURE__ */ _bind(FW, 'SCNText')
 export const SCNTimingFunction = /* @__PURE__ */ _bind(FW, 'SCNTimingFunction')
 export const SCNTorus = /* @__PURE__ */ _bind(FW, 'SCNTorus')

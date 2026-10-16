@@ -22,10 +22,5 @@
 		],
 		"allowImportingTsExtensions": true
 	},
-	"include": [
-		"src/props.ts",
-		"src/table.ts",
-		"types/index.d.ts",
-		"types/index.macos.d.ts"
-	]
+	"include": ["src/props.ts", "src/table.ts", "types/index.d.ts", "types/index.macos.d.ts"]
 }

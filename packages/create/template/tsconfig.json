@@ -17,26 +17,13 @@
 			".linux",
 			".windows"
 		],
-		"lib": [
-			"ESNext",
-			"DOM",
-			"DOM.Iterable"
-		],
-		"types": [
-			"vite/client",
-			"@nativescript/types"
-		],
+		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"types": ["vite/client", "@nativescript/types"],
 		"noEmit": true,
 		"skipLibCheck": true,
 		"allowImportingTsExtensions": true
 	},
-	"include": [
-		"src/**/*"
-	],
-	"exclude": [
-		"node_modules"
-	],
-	"files": [
-		"references.d.ts"
-	]
+	"include": ["src/**/*"],
+	"exclude": ["node_modules"],
+	"files": ["references.d.ts"]
 }

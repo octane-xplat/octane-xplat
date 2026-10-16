@@ -33,7 +33,12 @@ test('AppKit meter and progressbar roles report range, value, and description', 
 	const stackProps = new WeakMap()
 	const gridNodes = new WeakMap()
 	const { AccessibleStackView, GridLayoutView, applyAccessibility } = runInNewContext(
-		stack + '\n' + grid + '\n' + apply + '\n({ AccessibleStackView, GridLayoutView, applyAccessibility })',
+		stack +
+			'\n' +
+			grid +
+			'\n' +
+			apply +
+			'\n({ AccessibleStackView, GridLayoutView, applyAccessibility })',
 		{
 			NSStackView: class {},
 			NSView: class {},

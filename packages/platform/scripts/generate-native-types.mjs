@@ -35,7 +35,10 @@ function ambientFiles(packageName) {
 	const requireFor = createRequire(entry)
 	while (queue.length) {
 		const file = queue.shift()
-		if (seen.has(file) || !existsSync(file)) {continue}
+		if (seen.has(file) || !existsSync(file)) {
+			continue
+		}
+
 		seen.add(file)
 		files.push(file)
 		const source = readFileSync(file, 'utf8')
@@ -91,12 +94,18 @@ function collect(files) {
 	const membersOf = (block) => {
 		const members = new Map()
 		const add = (name, kind) => {
-			if (!members.has(name)) {members.set(name, { name, kind, members: null })}
+			if (!members.has(name)) {
+				members.set(name, { name, kind, members: null })
+			}
 		}
 
 		for (const stmt of block.statements) {
 			// `export { a as b }` inside a module block — re-exported member
-			if (ts.isExportDeclaration(stmt) && stmt.exportClause && ts.isNamedExports(stmt.exportClause)) {
+			if (
+				ts.isExportDeclaration(stmt) &&
+				stmt.exportClause &&
+				ts.isNamedExports(stmt.exportClause)
+			) {
 				for (const el of stmt.exportClause.elements) {
 					const alias = el.name.text
 					const target = el.propertyName?.text ?? alias
@@ -127,18 +136,29 @@ function collect(files) {
 
 			if (ts.isVariableStatement(stmt)) {
 				for (const decl of stmt.declarationList.declarations) {
-					if (ts.isIdentifier(decl.name)) {add(decl.name.text, 'var')}
+					if (ts.isIdentifier(decl.name)) {
+						add(decl.name.text, 'var')
+					}
 				}
 
 				continue
 			}
 
-			if (!name) {continue}
-			if (ts.isClassDeclaration(stmt)) {add(name, 'class')}
-			else if (ts.isInterfaceDeclaration(stmt)) {add(name, 'interface')}
-			else if (ts.isTypeAliasDeclaration(stmt)) {add(name, 'type')}
-			else if (ts.isEnumDeclaration(stmt)) {add(name, 'enum')}
-			else if (ts.isFunctionDeclaration(stmt)) {add(name, 'function')}
+			if (!name) {
+				continue
+			}
+
+			if (ts.isClassDeclaration(stmt)) {
+				add(name, 'class')
+			} else if (ts.isInterfaceDeclaration(stmt)) {
+				add(name, 'interface')
+			} else if (ts.isTypeAliasDeclaration(stmt)) {
+				add(name, 'type')
+			} else if (ts.isEnumDeclaration(stmt)) {
+				add(name, 'enum')
+			} else if (ts.isFunctionDeclaration(stmt)) {
+				add(name, 'function')
+			}
 		}
 
 		return members
@@ -159,10 +179,13 @@ function collect(files) {
 						} else {
 							const gname = g.name?.text
 							if (gname) {
-								if (ts.isClassDeclaration(g)) {addGlobal(gname, true, true)}
-								else if (ts.isInterfaceDeclaration(g) || ts.isTypeAliasDeclaration(g)) {addGlobal(gname, true, false)}
-								else if (ts.isEnumDeclaration(g)) {addGlobal(gname, true, true)}
-								else if (ts.isFunctionDeclaration(g)) {
+								if (ts.isClassDeclaration(g)) {
+									addGlobal(gname, true, true)
+								} else if (ts.isInterfaceDeclaration(g) || ts.isTypeAliasDeclaration(g)) {
+									addGlobal(gname, true, false)
+								} else if (ts.isEnumDeclaration(g)) {
+									addGlobal(gname, true, true)
+								} else if (ts.isFunctionDeclaration(g)) {
 									addGlobal(gname, false, true)
 									functions.add(gname)
 								}
@@ -170,7 +193,9 @@ function collect(files) {
 
 							if (ts.isVariableStatement(g)) {
 								for (const decl of g.declarationList.declarations) {
-									if (ts.isIdentifier(decl.name)) {addGlobal(decl.name.text, false, true)}
+									if (ts.isIdentifier(decl.name)) {
+										addGlobal(decl.name.text, false, true)
+									}
 								}
 							}
 						}
@@ -201,7 +226,10 @@ function collect(files) {
 
 				if (kind) {
 					addGlobal(name, kind !== 'function', kind !== 'interface' && kind !== 'type')
-					if (kind === 'function') {functions.add(name)}
+					if (kind === 'function') {
+						functions.add(name)
+					}
+
 					if (stmt.typeParameters?.length && !params.has(name)) {
 						params.set(name, {
 							decl: `<${stmt.typeParameters.map((p) => p.getText(sf)).join(', ')}>`,
@@ -215,7 +243,9 @@ function collect(files) {
 
 			if (ts.isVariableStatement(stmt)) {
 				for (const decl of stmt.declarationList.declarations) {
-					if (ts.isIdentifier(decl.name)) {addGlobal(decl.name.text, false, true)}
+					if (ts.isIdentifier(decl.name)) {
+						addGlobal(decl.name.text, false, true)
+					}
 				}
 			}
 		}
@@ -273,7 +303,6 @@ const LAZY = `const lazyGlobal = (name: string): any => {
 }
 `
 
-
 function generate(platform, packageName) {
 	const files = ambientFiles(packageName)
 	const { globals, functions, namespaces, params } = collect(files)
@@ -283,8 +312,13 @@ function generate(platform, packageName) {
 	const decls = [HEADER]
 	for (const [name, f] of [...globals.entries()].sort()) {
 		const p = params.get(name)
-		if (f.type) {decls.push(`export type ${name}_t${p?.decl ?? ''} = ${name}${p?.args ?? ''}`)}
-		if (f.value) {decls.push(`export type ${name}_c = typeof ${name}`)}
+		if (f.type) {
+			decls.push(`export type ${name}_t${p?.decl ?? ''} = ${name}${p?.args ?? ''}`)
+		}
+
+		if (f.value) {
+			decls.push(`export type ${name}_c = typeof ${name}`)
+		}
 	}
 
 	writeFileSync(join(outDir, `${platform}.decls.d.ts`), decls.join('\n') + '\n')
@@ -301,16 +335,22 @@ function generate(platform, packageName) {
 
 	for (const name of [...namespaces.keys()].sort()) {
 		// typeof globalThis carries the namespace's member types verbatim
-		impl.push(`export const ${name}: typeof globalThis.${name} = (globalThis as any).${name} ?? lazyGlobal('${name}')`)
+		impl.push(
+			`export const ${name}: typeof globalThis.${name} = (globalThis as any).${name} ?? lazyGlobal('${name}')`,
+		)
 	}
 
 	for (const [name, f] of [...globals.entries()].sort()) {
 		const p = params.get(name)
-		if (f.type) {impl.push(`export type ${name}${p?.decl ?? ''} = D.${name}_t${p?.args ?? ''}`)}
+		if (f.type) {
+			impl.push(`export type ${name}${p?.decl ?? ''} = D.${name}_t${p?.args ?? ''}`)
+		}
+
 		if (f.value) {
-			const binding = platform === 'ios' && (functions.has(name) || IOS_LAZY_GLOBALS.has(name))
-				? `lazyGlobal('${name}')`
-				: `(globalThis as any).${name} ?? lazyGlobal('${name}')`
+			const binding =
+				platform === 'ios' && (functions.has(name) || IOS_LAZY_GLOBALS.has(name))
+					? `lazyGlobal('${name}')`
+					: `(globalThis as any).${name} ?? lazyGlobal('${name}')`
 
 			impl.push(`export const ${name}: D.${name}_c = ${binding}`)
 		}

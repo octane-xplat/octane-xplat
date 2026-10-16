@@ -87,15 +87,15 @@ export interface EnumControl<T> {
 	options: readonly T[]
 }
 
-type ControlValue<T> = 0 extends (1 & T)
+type ControlValue<T> = 0 extends 1 & T
 	? BooleanControl | NumberControl | StringControl | EnumControl<T>
 	: [T] extends [boolean]
-	? BooleanControl
-	: [T] extends [number]
-		? NumberControl | EnumControl<T>
-		: [T] extends [string]
-			? StringControl | EnumControl<T>
-			: never
+		? BooleanControl
+		: [T] extends [number]
+			? NumberControl | EnumControl<T>
+			: [T] extends [string]
+				? StringControl | EnumControl<T>
+				: never
 
 /**
  * Controls may be declared only for explicitly declared, portable-valued
@@ -116,12 +116,7 @@ export type InjectedStoryProps<S, F> = (S extends void ? unknown : { state: Stor
 type ReservedStoryKeys = 'state' | 'fixture'
 
 /** Reserved injected prop names cannot collide with declared props. */
-type PropsWithoutReserved<P> = Extract<
-	keyof P,
-	ReservedStoryKeys
-> extends never
-	? P
-	: never
+type PropsWithoutReserved<P> = Extract<keyof P, ReservedStoryKeys> extends never ? P : never
 
 /**
  * A complete story declaration. `id`, `title`, `targets`, and `capabilities`
@@ -203,9 +198,7 @@ function assertLiteralAuthoring(definition: StoryDefinition<any, any, any>): voi
 	if (definition.args && typeof definition.args === 'object') {
 		for (const key of ['state', 'fixture'] as const) {
 			if (key in definition.args) {
-				fail(
-					`story "${definition.id}" — args may not declare reserved injected prop "${key}"`,
-				)
+				fail(`story "${definition.id}" — args may not declare reserved injected prop "${key}"`)
 			}
 		}
 	}

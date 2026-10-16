@@ -18,7 +18,12 @@ import {
 import { consumeInitialUrl, onDeepLink } from '@octane-xplat/platform'
 import type { ManifestRouteParams, TypedRoute } from '@octane-xplat/ui'
 // oxlint-disable-next-line xplat/no-ts-imports-tsrx — isolated compiled fixture
-import { NavigationScreen, NavigationShell, navigationRoutes } from './navigation-fixture.mobile.tsrx'
+import {
+	NavigationScreen,
+	NavigationShell,
+	navigationRoutes,
+} from './navigation-fixture.mobile.tsrx'
+
 import { NavigationTabs } from './navigation-tabs'
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'

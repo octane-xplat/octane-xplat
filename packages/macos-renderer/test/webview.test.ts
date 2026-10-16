@@ -28,38 +28,42 @@ mockGlobals({
 	NSError: NativeObject,
 	WKWebViewConfiguration: NativeObject,
 	WKWebView: class extends NativeObject {
-	calls = []
-	pending = []
-	initWithFrameConfiguration() {
-		return this
-	}
-	stopLoading() {
-		this.calls.push('stop')
-	}
-	loadHTMLStringBaseURL(html) {
-		this.calls.push(['html', html])
-		return {}
-	}
-	loadRequest(request) {
-		this.calls.push(['request', request])
-		return {}
-	}
-	loadFileURLAllowingReadAccessToURL(url, access) {
-		this.calls.push(['file', url, access])
-		return {}
-	}
-	evaluateJavaScriptCompletionHandler(script, callback) {
-		if (callback) {
-			this.pending.push(callback)
-		} else {
-			this.calls.push(['script', script])
+		calls = []
+		pending = []
+		initWithFrameConfiguration() {
+			return this
 		}
-	}
+		stopLoading() {
+			this.calls.push('stop')
+		}
+		loadHTMLStringBaseURL(html) {
+			this.calls.push(['html', html])
+			return {}
+		}
+		loadRequest(request) {
+			this.calls.push(['request', request])
+			return {}
+		}
+		loadFileURLAllowingReadAccessToURL(url, access) {
+			this.calls.push(['file', url, access])
+			return {}
+		}
+		evaluateJavaScriptCompletionHandler(script, callback) {
+			if (callback) {
+				this.pending.push(callback)
+			} else {
+				this.calls.push(['script', script])
+			}
+		}
 	},
 
 	NSBundle: { mainBundle: { resourcePath: '/bundle' } },
 	NSURL: {
-		fileURLWithPath: (path) => ({ isFileURL: true, path, URLByDeletingLastPathComponent: '/parent' }),
+		fileURLWithPath: (path) => ({
+			isFileURL: true,
+			path,
+			URLByDeletingLastPathComponent: '/parent',
+		}),
 		URLWithString: (url) => ({ absoluteString: url }),
 	},
 	NSURLRequest: { requestWithURL: (url) => url },

@@ -29,18 +29,19 @@ vi.mock('@nativescript/core', () => ({
 		},
 	},
 	Application: {
-		android: { get foregroundActivity() { return mock.activity }, startActivity: null },
+		android: {
+			get foregroundActivity() {
+				return mock.activity
+			},
+			startActivity: null,
+		},
 	},
 	isIOS: false,
 }))
 
 // Explicit suffixed specifiers — the shared leaf module names resolve per
 // platform under consumer builds; these tests pin each leaf directly.
-import {
-	fileProviderAuthority,
-	mimeTypeFromName,
-	normalizeFilePath,
-} from '../src/share-paths.ts'
+import { fileProviderAuthority, mimeTypeFromName, normalizeFilePath } from '../src/share-paths.ts'
 
 import { shareFile as shareFileIos } from '../src/share-file.ios.ts'
 import { shareFile as shareFileAndroid } from '../src/share-file.android.ts'
@@ -65,7 +66,11 @@ function stubIosRuntime() {
 	;(globalThis as any).UIActivityViewController = {
 		alloc: () => ({
 			initWithActivityItemsApplicationActivities(items: any[]) {
-				const sheet = { items, popoverPresentationController: { sourceView: null, sourceRect: null } }
+				const sheet = {
+					items,
+					popoverPresentationController: { sourceView: null, sourceRect: null },
+				}
+
 				mock.presented.push(sheet)
 				return sheet
 			},
@@ -89,7 +94,10 @@ function stubAndroidRuntime() {
 	}
 
 	mock.activity = { startActivity: vi.fn() }
-	mock.getUriForFile.mockReset().mockReturnValue('content://com.example.app.xplatshare/cache/clip.mov')
+	mock.getUriForFile
+		.mockReset()
+		.mockReturnValue('content://com.example.app.xplatshare/cache/clip.mov')
+
 	mock.uriParse.mockReset().mockImplementation((u: string) => ({ uri: u }))
 	mock.intents.length = 0
 
@@ -329,8 +337,18 @@ describe('shareFile (Android leaf)', () => {
 		)
 
 		expect(intent.flags & 1).toBe(1)
-		expect(mock.context.grantUriPermission).toHaveBeenCalledWith('com.target.0', expect.anything(), 1)
-		expect(mock.context.grantUriPermission).toHaveBeenCalledWith('com.target.1', expect.anything(), 1)
+		expect(mock.context.grantUriPermission).toHaveBeenCalledWith(
+			'com.target.0',
+			expect.anything(),
+			1,
+		)
+
+		expect(mock.context.grantUriPermission).toHaveBeenCalledWith(
+			'com.target.1',
+			expect.anything(),
+			1,
+		)
+
 		expect(mock.activity.startActivity).toHaveBeenCalledWith({ chooserOf: intent })
 	})
 

@@ -24,10 +24,7 @@ test('resolveBin resolves a mapped bin entry from the anchor tree', (t) => {
 	const dir = fixture(t)
 	const pkgDir = installBin(dir, 'oxlint', { oxlint: 'bin/oxlint' })
 
-	assert.equal(
-		resolveBin('oxlint', [join(dir, 'consumer.js')]),
-		join(pkgDir, 'bin/oxlint'),
-	)
+	assert.equal(resolveBin('oxlint', [join(dir, 'consumer.js')]), join(pkgDir, 'bin/oxlint'))
 })
 
 test('resolveBin resolves a string bin field', (t) => {

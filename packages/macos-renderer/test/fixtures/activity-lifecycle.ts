@@ -1,6 +1,10 @@
 import Activity, { activityRef, activityRefEvents } from './Activity'
 
-import { NSControlSize, NSProgressIndicator, NSProgressIndicatorStyle } from '@octane-xplat/platform/macos'
+import {
+	NSControlSize,
+	NSProgressIndicator,
+	NSProgressIndicatorStyle,
+} from '@octane-xplat/platform/macos'
 
 export async function checkActivityLifecycle(root: any, nativeWindow: any) {
 	const debug = root.__macosDebug
@@ -30,17 +34,27 @@ export async function checkActivityLifecycle(root: any, nativeWindow: any) {
 		tail = debug.findId('activity-tail')
 
 	check(
-		first instanceof NSProgressIndicator && first.indeterminate &&
-		Number(first.style) === Number(NSProgressIndicatorStyle.Spinning) &&
-		Number(first.controlSize) === Number(NSControlSize.Regular) &&
-		!first.displayedWhenStopped && !(Number(first.alphaValue) === 0),
+		first instanceof NSProgressIndicator &&
+			first.indeterminate &&
+			Number(first.style) === Number(NSProgressIndicatorStyle.Spinning) &&
+			Number(first.controlSize) === Number(NSControlSize.Regular) &&
+			!first.displayedWhenStopped &&
+			!(Number(first.alphaValue) === 0),
 		'ActivityIndicator default spinner styling/busy mount failed',
 	)
 
-	const idle = debug.findId('idle-default'), natural = debug.findId('intrinsic-size')
-	check((Number(idle.alphaValue) === 0) && !idle.displayedWhenStopped, 'Unspecified busy default failed')
-	check(Number(natural.frame.size.width) > 0 && Number(natural.frame.size.height) > 0,
-		'Unstyled spinner has no intrinsic layout size')
+	const idle = debug.findId('idle-default'),
+		natural = debug.findId('intrinsic-size')
+
+	check(
+		Number(idle.alphaValue) === 0 && !idle.displayedWhenStopped,
+		'Unspecified busy default failed',
+	)
+
+	check(
+		Number(natural.frame.size.width) > 0 && Number(natural.frame.size.height) > 0,
+		'Unstyled spinner has no intrinsic layout size',
+	)
 
 	check(Number(first.alphaValue) === 0.5, 'ActivityIndicator opacity style failed')
 	const rect = first.alignmentRectForFrame(first.frame)
@@ -57,25 +71,40 @@ export async function checkActivityLifecycle(root: any, nativeWindow: any) {
 	const initialTailY = Number(tail.frame.origin.y)
 	await advance()
 	check(Number(tail.frame.origin.y) === initialTailY, 'Stopped spinner collapsed its layout slot')
-	check(activityRef.current === first && (Number(first.alphaValue) === 0),
-		'ActivityIndicator reactive busy=false/identity failed')
+	check(
+		activityRef.current === first && Number(first.alphaValue) === 0,
+		'ActivityIndicator reactive busy=false/identity failed',
+	)
 
 	await advance()
-	check(activityRef.current === first && (Number(first.alphaValue) === 0),
-		'Dropped busy did not restore stopped default')
+	check(
+		activityRef.current === first && Number(first.alphaValue) === 0,
+		'Dropped busy did not restore stopped default',
+	)
 
-	check(Number(first.alphaValue) === 0, 'Dropped busy/style did not leave the default spinner stopped')
+	check(
+		Number(first.alphaValue) === 0,
+		'Dropped busy/style did not leave the default spinner stopped',
+	)
+
 	await advance()
-	check(activityRef.current === first && !(Number(first.alphaValue) === 0) &&
-		Number(first.frame.origin.y) < Number(tail.frame.origin.y),
-		'Keyed indicator reorder/busy restart lost native identity/order')
+	check(
+		activityRef.current === first &&
+			!(Number(first.alphaValue) === 0) &&
+			Number(first.frame.origin.y) < Number(tail.frame.origin.y),
+		'Keyed indicator reorder/busy restart lost native identity/order',
+	)
 
 	check(Number(first.alphaValue) === 1, 'Restart retained removed opacity style')
 
 	await advance()
 	const moved = activityRef.current
 	check(
-		moved && moved !== first && moved.superview === debug.findId('activity-right') && !first.superview && (Number(first.alphaValue) === 0),
+		moved &&
+			moved !== first &&
+			moved.superview === debug.findId('activity-right') &&
+			!first.superview &&
+			Number(first.alphaValue) === 0,
 		'ActivityIndicator parent change ownership failed',
 	)
 
@@ -87,7 +116,11 @@ export async function checkActivityLifecycle(root: any, nativeWindow: any) {
 	await advance()
 	const returned = activityRef.current
 	check(
-		returned && returned !== moved && returned.superview === left && !moved.superview && moved.hidden,
+		returned &&
+			returned !== moved &&
+			returned.superview === left &&
+			!moved.superview &&
+			moved.hidden,
 		'ActivityIndicator return to original parent failed',
 	)
 
@@ -97,14 +130,16 @@ export async function checkActivityLifecycle(root: any, nativeWindow: any) {
 		replacement &&
 			replacement !== returned &&
 			replacement.superview === left &&
-			!returned.superview && returned.hidden,
+			!returned.superview &&
+			returned.hidden,
 		'ActivityIndicator replacement failed',
 	)
 
 	await advance()
 	check(
 		activityRef.current == null &&
-			!replacement.superview && replacement.hidden &&
+			!replacement.superview &&
+			replacement.hidden &&
 			activityRefEvents.join(',') === 'attach,cleanup,attach,cleanup,attach,cleanup,attach,cleanup',
 		'ActivityIndicator removal/ref cleanup failed',
 	)
@@ -115,12 +150,17 @@ export async function checkActivityLifecycle(root: any, nativeWindow: any) {
 	root.unmount()
 	check(
 		activityRef.current == null &&
-			!retained.superview && retained.hidden &&
+			!retained.superview &&
+			retained.hidden &&
 			activityRefEvents.join(',') ===
 				'attach,cleanup,attach,cleanup,attach,cleanup,attach,cleanup,attach,cleanup',
 		'ActivityIndicator live ref teardown failed',
 	)
 
-	check(!tail.superview && !left.superview, 'ActivityIndicator ancestor teardown retained native hosts')
+	check(
+		!tail.superview && !left.superview,
+		'ActivityIndicator ancestor teardown retained native hosts',
+	)
+
 	console.log('PACKED_ACTIVITYINDICATOR_OK')
 }

@@ -70,7 +70,9 @@ describe('toast store', () => {
 
 	it('returns no handle for an ignore-suppressed toast and dismisses owned entries', () => {
 		pushToast({ body: 'first', uniqueID: 'save' })
-		expect(toastHandleFor(pushToast({ body: 'next', uniqueID: 'save', collisionBehavior: 'ignore' }))).toBeNull()
+		expect(
+			toastHandleFor(pushToast({ body: 'next', uniqueID: 'save', collisionBehavior: 'ignore' })),
+		).toBeNull()
 
 		const handle = toastHandleFor(pushToast({ body: 'kept' }))!
 		expect(handle.id).toBe(toastStore.getSnapshot()[1].id)

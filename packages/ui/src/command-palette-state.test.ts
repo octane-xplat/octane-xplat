@@ -151,7 +151,11 @@ describe('CommandPalette search and selection', () => {
 		await tick()
 		props.open = true
 		controller.configure()
-		expect(controller.store.getSnapshot()).toMatchObject({ query: '', results: [], status: 'ready' })
+		expect(controller.store.getSnapshot()).toMatchObject({
+			query: '',
+			results: [],
+			status: 'ready',
+		})
 	})
 
 	it('rejects a late response after internal close or disposal', async () => {
@@ -238,7 +242,11 @@ describe('CommandPalette search and selection', () => {
 			controller.configure()
 			props.open = true
 			controller.configure()
-			expect(controller.store.getSnapshot()).toMatchObject({ open: true, query: '', highlighted: null })
+			expect(controller.store.getSnapshot()).toMatchObject({
+				open: true,
+				query: '',
+				highlighted: null,
+			})
 		}
 	})
 })

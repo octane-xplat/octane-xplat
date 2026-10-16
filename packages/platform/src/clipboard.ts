@@ -6,7 +6,6 @@ import { Application, Utils } from '@nativescript/core'
 import { android } from '@octane-xplat/platform/android'
 import { UIPasteboard } from '@octane-xplat/platform/ios'
 
-
 function toText(value: unknown): string | null {
 	const text = value ? String(value) : ''
 	return text || null

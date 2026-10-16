@@ -17,6 +17,7 @@ function getRegistry(): SwiftUIHostRegistry {
 	const global = globalThis as typeof globalThis & {
 		__xplatSwiftUIHostRegistry?: SwiftUIHostRegistry
 	}
+
 	if (global.__xplatSwiftUIHostRegistry) {
 		return global.__xplatSwiftUIHostRegistry
 	}
@@ -31,6 +32,7 @@ function getRegistry(): SwiftUIHostRegistry {
 				handler = candidate
 			}
 		}
+
 		return handler
 	}
 

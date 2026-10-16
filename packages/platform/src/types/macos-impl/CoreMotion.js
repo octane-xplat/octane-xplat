@@ -8,14 +8,26 @@ export const CMAttitudeReferenceFrame = /* @__PURE__ */ _bind(FW, 'CMAttitudeRef
 export const CMAuthorizationStatus = /* @__PURE__ */ _bind(FW, 'CMAuthorizationStatus')
 export const CMCalibratedMagneticField = /* @__PURE__ */ _bind(FW, 'CMCalibratedMagneticField')
 export const CMDeviceMotion = /* @__PURE__ */ _bind(FW, 'CMDeviceMotion')
-export const CMDeviceMotionSensorLocation = /* @__PURE__ */ _bind(FW, 'CMDeviceMotionSensorLocation')
+export const CMDeviceMotionSensorLocation = /* @__PURE__ */ _bind(
+	FW,
+	'CMDeviceMotionSensorLocation',
+)
+
 export const CMError = /* @__PURE__ */ _bind(FW, 'CMError')
-export const CMFallDetectionEventUserResolution = /* @__PURE__ */ _bind(FW, 'CMFallDetectionEventUserResolution')
+export const CMFallDetectionEventUserResolution = /* @__PURE__ */ _bind(
+	FW,
+	'CMFallDetectionEventUserResolution',
+)
+
 export const CMGyroData = /* @__PURE__ */ _bind(FW, 'CMGyroData')
 export const CMHeadphoneActivityStatus = /* @__PURE__ */ _bind(FW, 'CMHeadphoneActivityStatus')
 export const CMLogItem = /* @__PURE__ */ _bind(FW, 'CMLogItem')
 export const CMMagneticField = /* @__PURE__ */ _bind(FW, 'CMMagneticField')
-export const CMMagneticFieldCalibrationAccuracy = /* @__PURE__ */ _bind(FW, 'CMMagneticFieldCalibrationAccuracy')
+export const CMMagneticFieldCalibrationAccuracy = /* @__PURE__ */ _bind(
+	FW,
+	'CMMagneticFieldCalibrationAccuracy',
+)
+
 export const CMMagnetometerData = /* @__PURE__ */ _bind(FW, 'CMMagnetometerData')
 export const CMMotionActivityConfidence = /* @__PURE__ */ _bind(FW, 'CMMotionActivityConfidence')
 export const CMOdometerData = /* @__PURE__ */ _bind(FW, 'CMOdometerData')

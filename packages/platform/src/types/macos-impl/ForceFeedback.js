@@ -21,13 +21,33 @@ export const FFCUSTOMFORCE = /* @__PURE__ */ _bind(FW, 'FFCUSTOMFORCE')
 export const FFCreateDevice = /* @__PURE__ */ _bind(FW, 'FFCreateDevice')
 export const FFDeviceCreateEffect = /* @__PURE__ */ _bind(FW, 'FFDeviceCreateEffect')
 export const FFDeviceEscape = /* @__PURE__ */ _bind(FW, 'FFDeviceEscape')
-export const FFDeviceGetForceFeedbackCapabilities = /* @__PURE__ */ _bind(FW, 'FFDeviceGetForceFeedbackCapabilities')
-export const FFDeviceGetForceFeedbackProperty = /* @__PURE__ */ _bind(FW, 'FFDeviceGetForceFeedbackProperty')
-export const FFDeviceGetForceFeedbackState = /* @__PURE__ */ _bind(FW, 'FFDeviceGetForceFeedbackState')
+export const FFDeviceGetForceFeedbackCapabilities = /* @__PURE__ */ _bind(
+	FW,
+	'FFDeviceGetForceFeedbackCapabilities',
+)
+
+export const FFDeviceGetForceFeedbackProperty = /* @__PURE__ */ _bind(
+	FW,
+	'FFDeviceGetForceFeedbackProperty',
+)
+
+export const FFDeviceGetForceFeedbackState = /* @__PURE__ */ _bind(
+	FW,
+	'FFDeviceGetForceFeedbackState',
+)
+
 export const FFDeviceReleaseEffect = /* @__PURE__ */ _bind(FW, 'FFDeviceReleaseEffect')
-export const FFDeviceSendForceFeedbackCommand = /* @__PURE__ */ _bind(FW, 'FFDeviceSendForceFeedbackCommand')
+export const FFDeviceSendForceFeedbackCommand = /* @__PURE__ */ _bind(
+	FW,
+	'FFDeviceSendForceFeedbackCommand',
+)
+
 export const FFDeviceSetCooperativeLevel = /* @__PURE__ */ _bind(FW, 'FFDeviceSetCooperativeLevel')
-export const FFDeviceSetForceFeedbackProperty = /* @__PURE__ */ _bind(FW, 'FFDeviceSetForceFeedbackProperty')
+export const FFDeviceSetForceFeedbackProperty = /* @__PURE__ */ _bind(
+	FW,
+	'FFDeviceSetForceFeedbackProperty',
+)
+
 export const FFEB_NOTRIGGER = /* @__PURE__ */ _bind(FW, 'FFEB_NOTRIGGER')
 export const FFEFFECT = /* @__PURE__ */ _bind(FW, 'FFEFFECT')
 export const FFEFFESCAPE = /* @__PURE__ */ _bind(FW, 'FFEFFESCAPE')
@@ -92,7 +112,11 @@ export const FFSFFC_SETACTUATORSON = /* @__PURE__ */ _bind(FW, 'FFSFFC_SETACTUAT
 export const FFSFFC_STOPALL = /* @__PURE__ */ _bind(FW, 'FFSFFC_STOPALL')
 export const ForceFeedbackDeviceState = /* @__PURE__ */ _bind(FW, 'ForceFeedbackDeviceState')
 export const ForceFeedbackVersion = /* @__PURE__ */ _bind(FW, 'ForceFeedbackVersion')
-export const IOForceFeedbackDeviceInterface = /* @__PURE__ */ _bind(FW, 'IOForceFeedbackDeviceInterface')
+export const IOForceFeedbackDeviceInterface = /* @__PURE__ */ _bind(
+	FW,
+	'IOForceFeedbackDeviceInterface',
+)
+
 export const __FFDHIDDEN = /* @__PURE__ */ _bind(FW, '__FFDHIDDEN')
 export const __FFEHIDDEN = /* @__PURE__ */ _bind(FW, '__FFEHIDDEN')
 export const kFFAPIMajorRev = /* @__PURE__ */ _bind(FW, 'kFFAPIMajorRev')

@@ -107,7 +107,11 @@ export async function checkProxyLifecycle(root: any, nativeWindow: any) {
 		'Group move recreated children',
 	)
 
-	check(host.subviews.objectAtIndex(1) === b && host.subviews.objectAtIndex(2) === a, 'Native projection order differs after move')
+	check(
+		host.subviews.objectAtIndex(1) === b && host.subviews.objectAtIndex(2) === a,
+		'Native projection order differs after move',
+	)
+
 	expectRect('proxy-b', [40, 0, 40, 20])
 	expectRect('proxy-a', [80, 0, 40, 20])
 	await advance()

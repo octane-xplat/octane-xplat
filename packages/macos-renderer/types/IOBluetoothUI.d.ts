@@ -1,218 +1,250 @@
 /// <reference types="@nativescript/objc-node-api" />
 /// <reference path="./AppKit.d.ts" />
 
-declare const kIOBluetoothServiceBrowserControllerOptionsNone: number;
+declare const kIOBluetoothServiceBrowserControllerOptionsNone: number
 
-declare const kIOBluetoothServiceBrowserControllerOptionsAutoStartInquiry: number;
+declare const kIOBluetoothServiceBrowserControllerOptionsAutoStartInquiry: number
 
-declare const kIOBluetoothServiceBrowserControllerOptionsDisconnectWhenDone: number;
+declare const kIOBluetoothServiceBrowserControllerOptionsDisconnectWhenDone: number
 
-declare const kIOBluetoothUIUserCanceledErr: number;
+declare const kIOBluetoothUIUserCanceledErr: number
 
-declare const kIOBluetoothUISuccess: number;
+declare const kIOBluetoothUISuccess: number
 
 declare const BluetoothKeyboardReturnType: {
-  ANSI: 0,
-  ISO: 1,
-  JIS: 2,
-  No: 3,
-};
+	ANSI: 0
+	ISO: 1
+	JIS: 2
+	No: 3
+}
 
-declare function IOBluetoothValidateHardwareWithDescription(cancelButtonTitle: interop.Object, descriptionText: interop.Object): number;
+declare function IOBluetoothValidateHardwareWithDescription(
+	cancelButtonTitle: interop.Object,
+	descriptionText: interop.Object,
+): number
 
-declare function IOBluetoothGetPairingController(): interop.Object;
+declare function IOBluetoothGetPairingController(): interop.Object
 
-declare function IOBluetoothGetDeviceSelectorController(): interop.Object;
+declare function IOBluetoothGetDeviceSelectorController(): interop.Object
 
 declare class IOBluetoothServiceBrowserController extends NSWindowController {
-  static serviceBrowserController(inOptions: number): IOBluetoothServiceBrowserController;
+	static serviceBrowserController(inOptions: number): IOBluetoothServiceBrowserController
 
-  static browseDevicesOptions(outRecord: interop.PointerConvertible, inOptions: number): number;
+	static browseDevicesOptions(outRecord: interop.PointerConvertible, inOptions: number): number
 
-  static browseDevicesAsSheetForWindowOptionsWindow(outRecord: interop.PointerConvertible, inOptions: number, inWindow: NSWindow): number;
+	static browseDevicesAsSheetForWindowOptionsWindow(
+		outRecord: interop.PointerConvertible,
+		inOptions: number,
+		inWindow: NSWindow,
+	): number
 
-  static withServiceBrowserControllerRef(serviceBrowserControllerRef: interop.Object): IOBluetoothServiceBrowserController;
+	static withServiceBrowserControllerRef(
+		serviceBrowserControllerRef: interop.Object,
+	): IOBluetoothServiceBrowserController
 
-  getServiceBrowserControllerRef(): interop.Object;
+	getServiceBrowserControllerRef(): interop.Object
 
-  discover(outRecord: interop.PointerConvertible): number;
+	discover(outRecord: interop.PointerConvertible): number
 
-  discoverAsSheetForWindowWithRecord(sheetWindow: NSWindow, outRecord: interop.PointerConvertible): number;
+	discoverAsSheetForWindowWithRecord(
+		sheetWindow: NSWindow,
+		outRecord: interop.PointerConvertible,
+	): number
 
-  discoverWithDeviceAttributesServiceListServiceRecord(deviceAttributes: interop.PointerConvertible, serviceArray: NSArray<interop.Object> | Array<interop.Object>, outRecord: interop.PointerConvertible): number;
+	discoverWithDeviceAttributesServiceListServiceRecord(
+		deviceAttributes: interop.PointerConvertible,
+		serviceArray: NSArray<interop.Object> | Array<interop.Object>,
+		outRecord: interop.PointerConvertible,
+	): number
 
-  setOptions(inOptions: number): void;
+	setOptions(inOptions: number): void
 
-  runModal(): number;
+	runModal(): number
 
-  beginSheetModalForWindowModalDelegateDidEndSelectorContextInfo(sheetWindow: NSWindow, modalDelegate: interop.Object, didEndSelector: string, contextInfo: interop.PointerConvertible): number;
+	beginSheetModalForWindowModalDelegateDidEndSelectorContextInfo(
+		sheetWindow: NSWindow,
+		modalDelegate: interop.Object,
+		didEndSelector: string,
+		contextInfo: interop.PointerConvertible,
+	): number
 
-  getResults(): NSArray;
+	getResults(): NSArray
 
-  getOptions(): number;
+	getOptions(): number
 
-  setSearchAttributes(searchAttributes: interop.PointerConvertible): void;
+	setSearchAttributes(searchAttributes: interop.PointerConvertible): void
 
-  getSearchAttributes(): interop.Pointer;
+	getSearchAttributes(): interop.Pointer
 
-  addAllowedUUID(allowedUUID: IOBluetoothSDPUUID): void;
+	addAllowedUUID(allowedUUID: IOBluetoothSDPUUID): void
 
-  addAllowedUUIDArray(allowedUUIDArray: NSArray<interop.Object> | Array<interop.Object>): void;
+	addAllowedUUIDArray(allowedUUIDArray: NSArray<interop.Object> | Array<interop.Object>): void
 
-  clearAllowedUUIDs(): void;
+	clearAllowedUUIDs(): void
 
-  setTitle(windowTitle: string): void;
+	setTitle(windowTitle: string): void
 
-  getTitle(): string;
+	getTitle(): string
 
-  setDescriptionText(descriptionText: string): void;
+	setDescriptionText(descriptionText: string): void
 
-  getDescriptionText(): string;
+	getDescriptionText(): string
 
-  setPrompt(prompt: string): void;
+	setPrompt(prompt: string): void
 
-  getPrompt(): string;
+	getPrompt(): string
 }
 
-declare class IOBluetoothAccessibilityIgnoredImageCell extends NSImageCell {
-}
+declare class IOBluetoothAccessibilityIgnoredImageCell extends NSImageCell {}
 
 declare class IOBluetoothPairingController extends NSWindowController {
-  static pairingController(): IOBluetoothPairingController;
+	static pairingController(): IOBluetoothPairingController
 
-  runModal(): number;
+	runModal(): number
 
-  getResults(): NSArray;
+	getResults(): NSArray
 
-  setOptions(options: number): void;
+	setOptions(options: number): void
 
-  getOptions(): number;
+	getOptions(): number
 
-  setSearchAttributes(searchAttributes: interop.PointerConvertible): void;
+	setSearchAttributes(searchAttributes: interop.PointerConvertible): void
 
-  getSearchAttributes(): interop.Pointer;
+	getSearchAttributes(): interop.Pointer
 
-  addAllowedUUID(allowedUUID: IOBluetoothSDPUUID): void;
+	addAllowedUUID(allowedUUID: IOBluetoothSDPUUID): void
 
-  addAllowedUUIDArray(allowedUUIDArray: NSArray<interop.Object> | Array<interop.Object>): void;
+	addAllowedUUIDArray(allowedUUIDArray: NSArray<interop.Object> | Array<interop.Object>): void
 
-  clearAllowedUUIDs(): void;
+	clearAllowedUUIDs(): void
 
-  setTitle(windowTitle: string): void;
+	setTitle(windowTitle: string): void
 
-  getTitle(): string;
+	getTitle(): string
 
-  setDescriptionText(descriptionText: string): void;
+	setDescriptionText(descriptionText: string): void
 
-  getDescriptionText(): string;
+	getDescriptionText(): string
 
-  setPrompt(prompt: string): void;
+	setPrompt(prompt: string): void
 
-  getPrompt(): string;
+	getPrompt(): string
 }
 
 declare class IOBluetoothObjectPushUIController extends NSWindowController {
-  initObjectPushWithBluetoothDeviceWithFilesDelegate(inDevice: IOBluetoothDevice, inFiles: NSArray<interop.Object> | Array<interop.Object>, inDelegate: interop.Object): this;
+	initObjectPushWithBluetoothDeviceWithFilesDelegate(
+		inDevice: IOBluetoothDevice,
+		inFiles: NSArray<interop.Object> | Array<interop.Object>,
+		inDelegate: interop.Object,
+	): this
 
-  runModal(): void;
+	runModal(): void
 
-  runPanel(): void;
+	runPanel(): void
 
-  beginSheetModalForWindowModalDelegateDidEndSelectorContextInfo(sheetWindow: NSWindow, modalDelegate: interop.Object, didEndSelector: string, contextInfo: interop.PointerConvertible): number;
+	beginSheetModalForWindowModalDelegateDidEndSelectorContextInfo(
+		sheetWindow: NSWindow,
+		modalDelegate: interop.Object,
+		didEndSelector: string,
+		contextInfo: interop.PointerConvertible,
+	): number
 
-  stop(): void;
+	stop(): void
 
-  setTitle(windowTitle: string): void;
+	setTitle(windowTitle: string): void
 
-  getTitle(): string;
+	getTitle(): string
 
-  setIconImage(image: NSImage): void;
+	setIconImage(image: NSImage): void
 
-  getDevice(): IOBluetoothDevice;
+	getDevice(): IOBluetoothDevice
 
-  isTransferInProgress(): boolean;
+	isTransferInProgress(): boolean
 }
 
 declare class IOBluetoothPasskeyDisplay extends NSView {
-  usePasskeyNotificaitons: boolean;
+	usePasskeyNotificaitons: boolean
 
-  isIncomingRequest: boolean;
+	isIncomingRequest: boolean
 
-  passkey: string;
+	passkey: string
 
-  returnImage: NSImage;
+	returnImage: NSImage
 
-  returnHighlightImage: NSImage;
+	returnHighlightImage: NSImage
 
-  centeredView: NSView;
+	centeredView: NSView
 
-  backgroundImageConstraint: NSLayoutConstraint;
+	backgroundImageConstraint: NSLayoutConstraint
 
-  static sharedDisplayView(): IOBluetoothPasskeyDisplay;
+	static sharedDisplayView(): IOBluetoothPasskeyDisplay
 
-  setPasskeyForDeviceUsingSSP(inString: string, device: IOBluetoothDevice, isSSP: boolean): void;
+	setPasskeyForDeviceUsingSSP(inString: string, device: IOBluetoothDevice, isSSP: boolean): void
 
-  advancePasskeyIndicator(): void;
+	advancePasskeyIndicator(): void
 
-  retreatPasskeyIndicator(): void;
+	retreatPasskeyIndicator(): void
 
-  resetPasskeyIndicator(): void;
+	resetPasskeyIndicator(): void
 
-  setupUIForDevice(device: IOBluetoothDevice): void;
+	setupUIForDevice(device: IOBluetoothDevice): void
 
-  setupUIForSSPDevice(device: IOBluetoothDevice): void;
+	setupUIForSSPDevice(device: IOBluetoothDevice): void
 
-  setPasskeyString(inString: string): void;
+	setPasskeyString(inString: string): void
 
-  setPasskeyIndicatorEnabled(inEnabled: boolean): void;
+	setPasskeyIndicatorEnabled(inEnabled: boolean): void
 
-  resetAll(): void;
+	resetAll(): void
 }
 
-declare class IOBluetoothAccessibilityIgnoredTextFieldCell extends NSTextFieldCell {
-}
+declare class IOBluetoothAccessibilityIgnoredTextFieldCell extends NSTextFieldCell {}
 
 declare class IOBluetoothDeviceSelectorController extends NSWindowController {
-  static deviceSelector(): IOBluetoothDeviceSelectorController;
+	static deviceSelector(): IOBluetoothDeviceSelectorController
 
-  runModal(): number;
+	runModal(): number
 
-  beginSheetModalForWindowModalDelegateDidEndSelectorContextInfo(sheetWindow: NSWindow, modalDelegate: interop.Object, didEndSelector: string, contextInfo: interop.PointerConvertible): number;
+	beginSheetModalForWindowModalDelegateDidEndSelectorContextInfo(
+		sheetWindow: NSWindow,
+		modalDelegate: interop.Object,
+		didEndSelector: string,
+		contextInfo: interop.PointerConvertible,
+	): number
 
-  getResults(): NSArray;
+	getResults(): NSArray
 
-  setOptions(options: number): void;
+	setOptions(options: number): void
 
-  getOptions(): number;
+	getOptions(): number
 
-  setSearchAttributes(searchAttributes: interop.PointerConvertible): void;
+	setSearchAttributes(searchAttributes: interop.PointerConvertible): void
 
-  getSearchAttributes(): interop.Pointer;
+	getSearchAttributes(): interop.Pointer
 
-  addAllowedUUID(allowedUUID: IOBluetoothSDPUUID): void;
+	addAllowedUUID(allowedUUID: IOBluetoothSDPUUID): void
 
-  addAllowedUUIDArray(allowedUUIDArray: NSArray<interop.Object> | Array<interop.Object>): void;
+	addAllowedUUIDArray(allowedUUIDArray: NSArray<interop.Object> | Array<interop.Object>): void
 
-  clearAllowedUUIDs(): void;
+	clearAllowedUUIDs(): void
 
-  setTitle(windowTitle: string): void;
+	setTitle(windowTitle: string): void
 
-  getTitle(): string;
+	getTitle(): string
 
-  setHeader(headerText: string): void;
+	setHeader(headerText: string): void
 
-  getHeader(): string;
+	getHeader(): string
 
-  setDescriptionText(descriptionText: string): void;
+	setDescriptionText(descriptionText: string): void
 
-  getDescriptionText(): string;
+	getDescriptionText(): string
 
-  setPrompt(prompt: string): void;
+	setPrompt(prompt: string): void
 
-  getPrompt(): string;
+	getPrompt(): string
 
-  setCancel(prompt: string): void;
+	setCancel(prompt: string): void
 
-  getCancel(): string;
+	getCancel(): string
 }
-

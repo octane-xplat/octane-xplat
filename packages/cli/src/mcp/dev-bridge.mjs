@@ -364,7 +364,10 @@ export function xplatDevBridge(options = {}) {
 							? `[${address.address}]`
 							: address.address
 
-				const url = (server.resolvedUrls?.local?.[0] ?? `${protocol}://${host}:${address.port}`).replace(/\/$/, '')
+				const url = (
+					server.resolvedUrls?.local?.[0] ?? `${protocol}://${host}:${address.port}`
+				).replace(/\/$/, '')
+
 				const appRoot = options.appRoot ?? server.config.root
 				const dir = join(appRoot, 'node_modules', '.cache', 'xplat', 'dev-bridge')
 				try {

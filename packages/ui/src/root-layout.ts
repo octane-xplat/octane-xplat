@@ -47,16 +47,24 @@ export function rootLayoutFor(view: any): RootLayout | undefined {
 export function currentRootLayoutFor(view: any): RootLayout | undefined {
 	const page = view?.page
 	const current = page?.frame?.currentPage
-	if (!current || current === page) return rootLayoutFor(view)
+	if (!current || current === page) {
+		return rootLayoutFor(view)
+	}
+
 	const walk = (node: any): RootLayout | undefined => {
-		if (node instanceof RootLayout && node.isLoaded) return node
+		if (node instanceof RootLayout && node.isLoaded) {
+			return node
+		}
+
 		let result: RootLayout | undefined
 		node?.eachChildView?.((child: any) => {
 			result = walk(child)
 			return !result
 		})
+
 		return result
 	}
+
 	return walk(current)
 }
 

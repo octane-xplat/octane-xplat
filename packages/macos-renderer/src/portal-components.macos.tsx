@@ -62,15 +62,19 @@ export function __PortalList(props: any) {
 					? current.filter((cell) => cell.id !== event.id)
 					: current
 			}
+
 			if (
 				existing?.generation === event.generation &&
 				existing.index === event.index &&
 				Object.is(existing.item, event.item)
-			)
+			) {
 				return current
+			}
+
 			return [...current.filter((cell) => cell.id !== event.id), event]
 		})
 	}, [])
+
 	return (
 		<>
 			<listview {...props} __onCellTarget={props.renderItem ? onTarget : undefined} />

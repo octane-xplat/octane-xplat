@@ -7,113 +7,465 @@ export const GSSCredentialCopyName = /* @__PURE__ */ _bind(FW, 'GSSCredentialCop
 export const GSSCredentialCopyUUID = /* @__PURE__ */ _bind(FW, 'GSSCredentialCopyUUID')
 export const GSSCredentialGetLifetime = /* @__PURE__ */ _bind(FW, 'GSSCredentialGetLifetime')
 export const GSSNameCreateDisplayString = /* @__PURE__ */ _bind(FW, 'GSSNameCreateDisplayString')
-export const __gss_appl_lkdc_supported_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_appl_lkdc_supported_oid_desc')
-export const __gss_c_attr_local_login_user = /* @__PURE__ */ _bind(FW, '__gss_c_attr_local_login_user')
-export const __gss_c_cred_certificate_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_cred_certificate_oid_desc')
+export const __gss_appl_lkdc_supported_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_appl_lkdc_supported_oid_desc',
+)
+
+export const __gss_c_attr_local_login_user = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_attr_local_login_user',
+)
+
+export const __gss_c_cred_certificate_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_cred_certificate_oid_desc',
+)
+
 export const __gss_c_cred_diag_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_cred_diag_oid_desc')
-export const __gss_c_cred_get_default_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_cred_get_default_oid_desc')
-export const __gss_c_cred_heimbase_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_cred_heimbase_oid_desc')
-export const __gss_c_cred_password_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_cred_password_oid_desc')
+export const __gss_c_cred_get_default_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_cred_get_default_oid_desc',
+)
+
+export const __gss_c_cred_heimbase_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_cred_heimbase_oid_desc',
+)
+
+export const __gss_c_cred_password_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_cred_password_oid_desc',
+)
+
 export const __gss_c_cred_renew_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_cred_renew_oid_desc')
-export const __gss_c_cred_secidentity_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_cred_secidentity_oid_desc')
-export const __gss_c_cred_set_default_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_cred_set_default_oid_desc')
-export const __gss_c_cred_validate_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_cred_validate_oid_desc')
+export const __gss_c_cred_secidentity_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_cred_secidentity_oid_desc',
+)
+
+export const __gss_c_cred_set_default_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_cred_set_default_oid_desc',
+)
+
+export const __gss_c_cred_validate_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_cred_validate_oid_desc',
+)
+
 export const __gss_c_ctx_pfs_x_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ctx_pfs_x_oid_desc')
-export const __gss_c_inq_sspi_session_key_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_inq_sspi_session_key_oid_desc')
-export const __gss_c_inq_win2k_pac_x_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_inq_win2k_pac_x_oid_desc')
-export const __gss_c_ma_auth_init_anon_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ma_auth_init_anon_oid_desc')
-export const __gss_c_ma_auth_init_init_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ma_auth_init_init_oid_desc')
-export const __gss_c_ma_auth_init_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ma_auth_init_oid_desc')
-export const __gss_c_ma_auth_targ_anon_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ma_auth_targ_anon_oid_desc')
-export const __gss_c_ma_auth_targ_init_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ma_auth_targ_init_oid_desc')
-export const __gss_c_ma_auth_targ_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ma_auth_targ_oid_desc')
-export const __gss_c_ma_cbindings_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ma_cbindings_oid_desc')
-export const __gss_c_ma_compress_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ma_compress_oid_desc')
-export const __gss_c_ma_conf_prot_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ma_conf_prot_oid_desc')
-export const __gss_c_ma_ctx_trans_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ma_ctx_trans_oid_desc')
-export const __gss_c_ma_deleg_cred_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ma_deleg_cred_oid_desc')
-export const __gss_c_ma_deprecated_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ma_deprecated_oid_desc')
-export const __gss_c_ma_integ_prot_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ma_integ_prot_oid_desc')
-export const __gss_c_ma_itok_framed_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ma_itok_framed_oid_desc')
-export const __gss_c_ma_mech_composite_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ma_mech_composite_oid_desc')
-export const __gss_c_ma_mech_concrete_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ma_mech_concrete_oid_desc')
-export const __gss_c_ma_mech_description_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ma_mech_description_oid_desc')
-export const __gss_c_ma_mech_glue_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ma_mech_glue_oid_desc')
-export const __gss_c_ma_mech_name_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ma_mech_name_oid_desc')
-export const __gss_c_ma_mech_nego_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ma_mech_nego_oid_desc')
-export const __gss_c_ma_mech_pseudo_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ma_mech_pseudo_oid_desc')
+export const __gss_c_inq_sspi_session_key_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_inq_sspi_session_key_oid_desc',
+)
+
+export const __gss_c_inq_win2k_pac_x_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_inq_win2k_pac_x_oid_desc',
+)
+
+export const __gss_c_ma_auth_init_anon_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_ma_auth_init_anon_oid_desc',
+)
+
+export const __gss_c_ma_auth_init_init_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_ma_auth_init_init_oid_desc',
+)
+
+export const __gss_c_ma_auth_init_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_ma_auth_init_oid_desc',
+)
+
+export const __gss_c_ma_auth_targ_anon_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_ma_auth_targ_anon_oid_desc',
+)
+
+export const __gss_c_ma_auth_targ_init_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_ma_auth_targ_init_oid_desc',
+)
+
+export const __gss_c_ma_auth_targ_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_ma_auth_targ_oid_desc',
+)
+
+export const __gss_c_ma_cbindings_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_ma_cbindings_oid_desc',
+)
+
+export const __gss_c_ma_compress_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_ma_compress_oid_desc',
+)
+
+export const __gss_c_ma_conf_prot_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_ma_conf_prot_oid_desc',
+)
+
+export const __gss_c_ma_ctx_trans_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_ma_ctx_trans_oid_desc',
+)
+
+export const __gss_c_ma_deleg_cred_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_ma_deleg_cred_oid_desc',
+)
+
+export const __gss_c_ma_deprecated_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_ma_deprecated_oid_desc',
+)
+
+export const __gss_c_ma_integ_prot_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_ma_integ_prot_oid_desc',
+)
+
+export const __gss_c_ma_itok_framed_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_ma_itok_framed_oid_desc',
+)
+
+export const __gss_c_ma_mech_composite_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_ma_mech_composite_oid_desc',
+)
+
+export const __gss_c_ma_mech_concrete_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_ma_mech_concrete_oid_desc',
+)
+
+export const __gss_c_ma_mech_description_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_ma_mech_description_oid_desc',
+)
+
+export const __gss_c_ma_mech_glue_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_ma_mech_glue_oid_desc',
+)
+
+export const __gss_c_ma_mech_name_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_ma_mech_name_oid_desc',
+)
+
+export const __gss_c_ma_mech_nego_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_ma_mech_nego_oid_desc',
+)
+
+export const __gss_c_ma_mech_pseudo_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_ma_mech_pseudo_oid_desc',
+)
+
 export const __gss_c_ma_mic_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ma_mic_oid_desc')
-export const __gss_c_ma_not_dflt_mech_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ma_not_dflt_mech_oid_desc')
-export const __gss_c_ma_not_mech_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ma_not_mech_oid_desc')
+export const __gss_c_ma_not_dflt_mech_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_ma_not_dflt_mech_oid_desc',
+)
+
+export const __gss_c_ma_not_mech_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_ma_not_mech_oid_desc',
+)
+
 export const __gss_c_ma_oos_det_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ma_oos_det_oid_desc')
 export const __gss_c_ma_pfs_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ma_pfs_oid_desc')
-export const __gss_c_ma_prot_ready_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ma_prot_ready_oid_desc')
-export const __gss_c_ma_replay_det_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ma_replay_det_oid_desc')
-export const __gss_c_ma_sasl_mech_name_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ma_sasl_mech_name_oid_desc')
+export const __gss_c_ma_prot_ready_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_ma_prot_ready_oid_desc',
+)
+
+export const __gss_c_ma_replay_det_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_ma_replay_det_oid_desc',
+)
+
+export const __gss_c_ma_sasl_mech_name_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_ma_sasl_mech_name_oid_desc',
+)
+
 export const __gss_c_ma_wrap_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ma_wrap_oid_desc')
-export const __gss_c_nt_anonymous_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_nt_anonymous_oid_desc')
+export const __gss_c_nt_anonymous_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_nt_anonymous_oid_desc',
+)
+
 export const __gss_c_nt_dn_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_nt_dn_oid_desc')
-export const __gss_c_nt_export_name_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_nt_export_name_oid_desc')
-export const __gss_c_nt_hostbased_service_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_nt_hostbased_service_oid_desc')
-export const __gss_c_nt_hostbased_service_x_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_nt_hostbased_service_x_oid_desc')
-export const __gss_c_nt_machine_uid_name_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_nt_machine_uid_name_oid_desc')
+export const __gss_c_nt_export_name_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_nt_export_name_oid_desc',
+)
+
+export const __gss_c_nt_hostbased_service_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_nt_hostbased_service_oid_desc',
+)
+
+export const __gss_c_nt_hostbased_service_x_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_nt_hostbased_service_x_oid_desc',
+)
+
+export const __gss_c_nt_machine_uid_name_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_nt_machine_uid_name_oid_desc',
+)
+
 export const __gss_c_nt_ntlm_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_nt_ntlm_oid_desc')
-export const __gss_c_nt_string_uid_name_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_nt_string_uid_name_oid_desc')
-export const __gss_c_nt_user_name_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_nt_user_name_oid_desc')
+export const __gss_c_nt_string_uid_name_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_nt_string_uid_name_oid_desc',
+)
+
+export const __gss_c_nt_user_name_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_nt_user_name_oid_desc',
+)
+
 export const __gss_c_nt_uuid_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_nt_uuid_oid_desc')
-export const __gss_c_ntlm_force_v1_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ntlm_force_v1_oid_desc')
+export const __gss_c_ntlm_force_v1_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_ntlm_force_v1_oid_desc',
+)
+
 export const __gss_c_ntlm_guest_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ntlm_guest_oid_desc')
-export const __gss_c_ntlm_reset_keys_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ntlm_reset_keys_oid_desc')
-export const __gss_c_ntlm_session_key_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ntlm_session_key_oid_desc')
-export const __gss_c_ntlm_support_channelbindings_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ntlm_support_channelbindings_oid_desc')
-export const __gss_c_ntlm_support_lm2_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ntlm_support_lm2_oid_desc')
+export const __gss_c_ntlm_reset_keys_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_ntlm_reset_keys_oid_desc',
+)
+
+export const __gss_c_ntlm_session_key_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_ntlm_session_key_oid_desc',
+)
+
+export const __gss_c_ntlm_support_channelbindings_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_ntlm_support_channelbindings_oid_desc',
+)
+
+export const __gss_c_ntlm_support_lm2_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_ntlm_support_lm2_oid_desc',
+)
+
 export const __gss_c_ntlm_v1_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ntlm_v1_oid_desc')
 export const __gss_c_ntlm_v2_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_ntlm_v2_oid_desc')
-export const __gss_c_peer_has_updated_spnego_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_c_peer_has_updated_spnego_oid_desc')
-export const __gss_iakerb_mechanism_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_iakerb_mechanism_oid_desc')
-export const __gss_krb5_ccache_name_x_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_krb5_ccache_name_x_oid_desc')
-export const __gss_krb5_compat_des3_mic_x_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_krb5_compat_des3_mic_x_oid_desc')
-export const __gss_krb5_copy_ccache_x_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_krb5_copy_ccache_x_oid_desc')
-export const __gss_krb5_cred_no_ci_flags_x_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_krb5_cred_no_ci_flags_x_oid_desc')
-export const __gss_krb5_export_lucid_context_v1_x_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_krb5_export_lucid_context_v1_x_oid_desc')
-export const __gss_krb5_export_lucid_context_x_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_krb5_export_lucid_context_x_oid_desc')
-export const __gss_krb5_extract_authz_data_from_sec_context_x_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_krb5_extract_authz_data_from_sec_context_x_oid_desc')
-export const __gss_krb5_get_acceptor_subkey_x_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_krb5_get_acceptor_subkey_x_oid_desc')
-export const __gss_krb5_get_authtime_x_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_krb5_get_authtime_x_oid_desc')
-export const __gss_krb5_get_initiator_subkey_x_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_krb5_get_initiator_subkey_x_oid_desc')
-export const __gss_krb5_get_service_keyblock_x_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_krb5_get_service_keyblock_x_oid_desc')
-export const __gss_krb5_get_subkey_x_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_krb5_get_subkey_x_oid_desc')
-export const __gss_krb5_get_time_offset_x_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_krb5_get_time_offset_x_oid_desc')
-export const __gss_krb5_get_tkt_flags_x_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_krb5_get_tkt_flags_x_oid_desc')
-export const __gss_krb5_import_cred_x_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_krb5_import_cred_x_oid_desc')
-export const __gss_krb5_mechanism_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_krb5_mechanism_oid_desc')
-export const __gss_krb5_nt_principal_name_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_krb5_nt_principal_name_oid_desc')
-export const __gss_krb5_nt_principal_name_referral_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_krb5_nt_principal_name_referral_oid_desc')
-export const __gss_krb5_nt_principal_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_krb5_nt_principal_oid_desc')
-export const __gss_krb5_plugin_register_x_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_krb5_plugin_register_x_oid_desc')
-export const __gss_krb5_register_acceptor_identity_x_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_krb5_register_acceptor_identity_x_oid_desc')
-export const __gss_krb5_send_to_kdc_x_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_krb5_send_to_kdc_x_oid_desc')
-export const __gss_krb5_set_allowable_enctypes_x_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_krb5_set_allowable_enctypes_x_oid_desc')
-export const __gss_krb5_set_default_realm_x_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_krb5_set_default_realm_x_oid_desc')
-export const __gss_krb5_set_dns_canonicalize_x_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_krb5_set_dns_canonicalize_x_oid_desc')
-export const __gss_krb5_set_time_offset_x_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_krb5_set_time_offset_x_oid_desc')
-export const __gss_netlogon_mechanism_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_netlogon_mechanism_oid_desc')
-export const __gss_netlogon_nt_netbios_dns_name_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_netlogon_nt_netbios_dns_name_oid_desc')
-export const __gss_netlogon_set_session_key_x_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_netlogon_set_session_key_x_oid_desc')
-export const __gss_netlogon_set_sign_algorithm_x_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_netlogon_set_sign_algorithm_x_oid_desc')
-export const __gss_ntlm_get_session_key_x_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_ntlm_get_session_key_x_oid_desc')
-export const __gss_ntlm_mechanism_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_ntlm_mechanism_oid_desc')
-export const __gss_pku2u_mechanism_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_pku2u_mechanism_oid_desc')
-export const __gss_sasl_digest_md5_mechanism_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_sasl_digest_md5_mechanism_oid_desc')
-export const __gss_scram_mechanism_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_scram_mechanism_oid_desc')
-export const __gss_spnego_mechanism_oid_desc = /* @__PURE__ */ _bind(FW, '__gss_spnego_mechanism_oid_desc')
+export const __gss_c_peer_has_updated_spnego_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_c_peer_has_updated_spnego_oid_desc',
+)
+
+export const __gss_iakerb_mechanism_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_iakerb_mechanism_oid_desc',
+)
+
+export const __gss_krb5_ccache_name_x_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_krb5_ccache_name_x_oid_desc',
+)
+
+export const __gss_krb5_compat_des3_mic_x_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_krb5_compat_des3_mic_x_oid_desc',
+)
+
+export const __gss_krb5_copy_ccache_x_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_krb5_copy_ccache_x_oid_desc',
+)
+
+export const __gss_krb5_cred_no_ci_flags_x_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_krb5_cred_no_ci_flags_x_oid_desc',
+)
+
+export const __gss_krb5_export_lucid_context_v1_x_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_krb5_export_lucid_context_v1_x_oid_desc',
+)
+
+export const __gss_krb5_export_lucid_context_x_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_krb5_export_lucid_context_x_oid_desc',
+)
+
+export const __gss_krb5_extract_authz_data_from_sec_context_x_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_krb5_extract_authz_data_from_sec_context_x_oid_desc',
+)
+
+export const __gss_krb5_get_acceptor_subkey_x_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_krb5_get_acceptor_subkey_x_oid_desc',
+)
+
+export const __gss_krb5_get_authtime_x_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_krb5_get_authtime_x_oid_desc',
+)
+
+export const __gss_krb5_get_initiator_subkey_x_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_krb5_get_initiator_subkey_x_oid_desc',
+)
+
+export const __gss_krb5_get_service_keyblock_x_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_krb5_get_service_keyblock_x_oid_desc',
+)
+
+export const __gss_krb5_get_subkey_x_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_krb5_get_subkey_x_oid_desc',
+)
+
+export const __gss_krb5_get_time_offset_x_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_krb5_get_time_offset_x_oid_desc',
+)
+
+export const __gss_krb5_get_tkt_flags_x_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_krb5_get_tkt_flags_x_oid_desc',
+)
+
+export const __gss_krb5_import_cred_x_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_krb5_import_cred_x_oid_desc',
+)
+
+export const __gss_krb5_mechanism_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_krb5_mechanism_oid_desc',
+)
+
+export const __gss_krb5_nt_principal_name_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_krb5_nt_principal_name_oid_desc',
+)
+
+export const __gss_krb5_nt_principal_name_referral_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_krb5_nt_principal_name_referral_oid_desc',
+)
+
+export const __gss_krb5_nt_principal_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_krb5_nt_principal_oid_desc',
+)
+
+export const __gss_krb5_plugin_register_x_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_krb5_plugin_register_x_oid_desc',
+)
+
+export const __gss_krb5_register_acceptor_identity_x_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_krb5_register_acceptor_identity_x_oid_desc',
+)
+
+export const __gss_krb5_send_to_kdc_x_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_krb5_send_to_kdc_x_oid_desc',
+)
+
+export const __gss_krb5_set_allowable_enctypes_x_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_krb5_set_allowable_enctypes_x_oid_desc',
+)
+
+export const __gss_krb5_set_default_realm_x_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_krb5_set_default_realm_x_oid_desc',
+)
+
+export const __gss_krb5_set_dns_canonicalize_x_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_krb5_set_dns_canonicalize_x_oid_desc',
+)
+
+export const __gss_krb5_set_time_offset_x_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_krb5_set_time_offset_x_oid_desc',
+)
+
+export const __gss_netlogon_mechanism_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_netlogon_mechanism_oid_desc',
+)
+
+export const __gss_netlogon_nt_netbios_dns_name_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_netlogon_nt_netbios_dns_name_oid_desc',
+)
+
+export const __gss_netlogon_set_session_key_x_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_netlogon_set_session_key_x_oid_desc',
+)
+
+export const __gss_netlogon_set_sign_algorithm_x_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_netlogon_set_sign_algorithm_x_oid_desc',
+)
+
+export const __gss_ntlm_get_session_key_x_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_ntlm_get_session_key_x_oid_desc',
+)
+
+export const __gss_ntlm_mechanism_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_ntlm_mechanism_oid_desc',
+)
+
+export const __gss_pku2u_mechanism_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_pku2u_mechanism_oid_desc',
+)
+
+export const __gss_sasl_digest_md5_mechanism_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_sasl_digest_md5_mechanism_oid_desc',
+)
+
+export const __gss_scram_mechanism_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_scram_mechanism_oid_desc',
+)
+
+export const __gss_spnego_mechanism_oid_desc = /* @__PURE__ */ _bind(
+	FW,
+	'__gss_spnego_mechanism_oid_desc',
+)
+
 export const gss_OID_desc_struct = /* @__PURE__ */ _bind(FW, 'gss_OID_desc_struct')
 export const gss_OID_set_desc_struct = /* @__PURE__ */ _bind(FW, 'gss_OID_set_desc_struct')
 export const gss_aapl_change_password = /* @__PURE__ */ _bind(FW, 'gss_aapl_change_password')
 export const gss_aapl_initial_cred = /* @__PURE__ */ _bind(FW, 'gss_aapl_initial_cred')
 export const gss_accept_sec_context = /* @__PURE__ */ _bind(FW, 'gss_accept_sec_context')
 export const gss_acquire_cred = /* @__PURE__ */ _bind(FW, 'gss_acquire_cred')
-export const gss_acquire_cred_with_password = /* @__PURE__ */ _bind(FW, 'gss_acquire_cred_with_password')
+export const gss_acquire_cred_with_password = /* @__PURE__ */ _bind(
+	FW,
+	'gss_acquire_cred_with_password',
+)
+
 export const gss_add_buffer_set_member = /* @__PURE__ */ _bind(FW, 'gss_add_buffer_set_member')
 export const gss_add_cred = /* @__PURE__ */ _bind(FW, 'gss_add_cred')
 export const gss_add_oid_set_member = /* @__PURE__ */ _bind(FW, 'gss_add_oid_set_member')
@@ -152,25 +504,53 @@ export const gss_inquire_context = /* @__PURE__ */ _bind(FW, 'gss_inquire_contex
 export const gss_inquire_cred = /* @__PURE__ */ _bind(FW, 'gss_inquire_cred')
 export const gss_inquire_cred_by_mech = /* @__PURE__ */ _bind(FW, 'gss_inquire_cred_by_mech')
 export const gss_inquire_cred_by_oid = /* @__PURE__ */ _bind(FW, 'gss_inquire_cred_by_oid')
-export const gss_inquire_mech_for_saslname = /* @__PURE__ */ _bind(FW, 'gss_inquire_mech_for_saslname')
+export const gss_inquire_mech_for_saslname = /* @__PURE__ */ _bind(
+	FW,
+	'gss_inquire_mech_for_saslname',
+)
+
 export const gss_inquire_mechs_for_name = /* @__PURE__ */ _bind(FW, 'gss_inquire_mechs_for_name')
 export const gss_inquire_name = /* @__PURE__ */ _bind(FW, 'gss_inquire_name')
 export const gss_inquire_names_for_mech = /* @__PURE__ */ _bind(FW, 'gss_inquire_names_for_mech')
-export const gss_inquire_saslname_for_mech = /* @__PURE__ */ _bind(FW, 'gss_inquire_saslname_for_mech')
-export const gss_inquire_sec_context_by_oid = /* @__PURE__ */ _bind(FW, 'gss_inquire_sec_context_by_oid')
+export const gss_inquire_saslname_for_mech = /* @__PURE__ */ _bind(
+	FW,
+	'gss_inquire_saslname_for_mech',
+)
+
+export const gss_inquire_sec_context_by_oid = /* @__PURE__ */ _bind(
+	FW,
+	'gss_inquire_sec_context_by_oid',
+)
+
 export const gss_iov_buffer_desc_struct = /* @__PURE__ */ _bind(FW, 'gss_iov_buffer_desc_struct')
 export const gss_iter_creds = /* @__PURE__ */ _bind(FW, 'gss_iter_creds')
 export const gss_iter_creds_f = /* @__PURE__ */ _bind(FW, 'gss_iter_creds_f')
 export const gss_krb5_ccache_name = /* @__PURE__ */ _bind(FW, 'gss_krb5_ccache_name')
 export const gss_krb5_cfx_keydata = /* @__PURE__ */ _bind(FW, 'gss_krb5_cfx_keydata')
 export const gss_krb5_copy_ccache = /* @__PURE__ */ _bind(FW, 'gss_krb5_copy_ccache')
-export const gss_krb5_export_lucid_sec_context = /* @__PURE__ */ _bind(FW, 'gss_krb5_export_lucid_sec_context')
-export const gss_krb5_free_lucid_sec_context = /* @__PURE__ */ _bind(FW, 'gss_krb5_free_lucid_sec_context')
+export const gss_krb5_export_lucid_sec_context = /* @__PURE__ */ _bind(
+	FW,
+	'gss_krb5_export_lucid_sec_context',
+)
+
+export const gss_krb5_free_lucid_sec_context = /* @__PURE__ */ _bind(
+	FW,
+	'gss_krb5_free_lucid_sec_context',
+)
+
 export const gss_krb5_lucid_context_v1 = /* @__PURE__ */ _bind(FW, 'gss_krb5_lucid_context_v1')
-export const gss_krb5_lucid_context_version = /* @__PURE__ */ _bind(FW, 'gss_krb5_lucid_context_version')
+export const gss_krb5_lucid_context_version = /* @__PURE__ */ _bind(
+	FW,
+	'gss_krb5_lucid_context_version',
+)
+
 export const gss_krb5_lucid_key = /* @__PURE__ */ _bind(FW, 'gss_krb5_lucid_key')
 export const gss_krb5_rfc1964_keydata = /* @__PURE__ */ _bind(FW, 'gss_krb5_rfc1964_keydata')
-export const gss_krb5_set_allowable_enctypes = /* @__PURE__ */ _bind(FW, 'gss_krb5_set_allowable_enctypes')
+export const gss_krb5_set_allowable_enctypes = /* @__PURE__ */ _bind(
+	FW,
+	'gss_krb5_set_allowable_enctypes',
+)
+
 export const gss_name_t_desc_struct = /* @__PURE__ */ _bind(FW, 'gss_name_t_desc_struct')
 export const gss_oid_equal = /* @__PURE__ */ _bind(FW, 'gss_oid_equal')
 export const gss_oid_to_str = /* @__PURE__ */ _bind(FW, 'gss_oid_to_str')
@@ -194,7 +574,18 @@ export const gss_verify = /* @__PURE__ */ _bind(FW, 'gss_verify')
 export const gss_verify_mic = /* @__PURE__ */ _bind(FW, 'gss_verify_mic')
 export const gss_wrap = /* @__PURE__ */ _bind(FW, 'gss_wrap')
 export const gss_wrap_size_limit = /* @__PURE__ */ _bind(FW, 'gss_wrap_size_limit')
-export const gsskrb5_extract_authz_data_from_sec_context = /* @__PURE__ */ _bind(FW, 'gsskrb5_extract_authz_data_from_sec_context')
-export const gsskrb5_register_acceptor_identity = /* @__PURE__ */ _bind(FW, 'gsskrb5_register_acceptor_identity')
+export const gsskrb5_extract_authz_data_from_sec_context = /* @__PURE__ */ _bind(
+	FW,
+	'gsskrb5_extract_authz_data_from_sec_context',
+)
+
+export const gsskrb5_register_acceptor_identity = /* @__PURE__ */ _bind(
+	FW,
+	'gsskrb5_register_acceptor_identity',
+)
+
 export const krb5_ccache_data = /* @__PURE__ */ _bind(FW, 'krb5_ccache_data')
-export const krb5_gss_register_acceptor_identity = /* @__PURE__ */ _bind(FW, 'krb5_gss_register_acceptor_identity')
+export const krb5_gss_register_acceptor_identity = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_gss_register_acceptor_identity',
+)

@@ -35,7 +35,19 @@ try {
 	)
 
 	for (const [fixture, extra] of [
-		['declared', ['-Xlinker', '-sectcreate', '-Xlinker', '__TEXT', '-Xlinker', '__info_plist', '-Xlinker', plist]],
+		[
+			'declared',
+			[
+				'-Xlinker',
+				'-sectcreate',
+				'-Xlinker',
+				'__TEXT',
+				'-Xlinker',
+				'__info_plist',
+				'-Xlinker',
+				plist,
+			],
+		],
 		['undeclared', []],
 	]) {
 		// Each binary gets its own directory: Bundle.main can read a sibling

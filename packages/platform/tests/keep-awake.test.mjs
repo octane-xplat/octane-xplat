@@ -504,7 +504,10 @@ test('macOS desktop windows own independent tags and close cancels late activati
 			isAvailable: async () => true,
 			activate: async (key) => {
 				calls.push(key)
-				if (delayed) {await delayed}
+				if (delayed) {
+					await delayed
+				}
+
 				held.add(key)
 				return true
 			},

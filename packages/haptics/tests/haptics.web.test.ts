@@ -80,10 +80,7 @@ test('playPattern reports false when nothing can play', () => {
 
 	assert.deepEqual(calls, [])
 	engine.dispose()
-	assert.equal(
-		engine.playPattern({ duration: 100, points: [{ at: 0, intensity: 1 }] }),
-		false,
-	)
+	assert.equal(engine.playPattern({ duration: 100, points: [{ at: 0, intensity: 1 }] }), false)
 
 	// dispose cancels any in-flight vibration but plays nothing new.
 	assert.deepEqual(calls, [0])

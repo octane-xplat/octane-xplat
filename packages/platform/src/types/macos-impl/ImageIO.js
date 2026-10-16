@@ -1,753 +1,3376 @@
 import { _bind } from './_rt.js'
 const FW = '/System/Library/Frameworks/ImageIO.framework/ImageIO'
-export const CGAnimateImageAtURLWithBlock = /* @__PURE__ */ _bind(FW, 'CGAnimateImageAtURLWithBlock')
+export const CGAnimateImageAtURLWithBlock = /* @__PURE__ */ _bind(
+	FW,
+	'CGAnimateImageAtURLWithBlock',
+)
+
 export const CGAnimateImageDataWithBlock = /* @__PURE__ */ _bind(FW, 'CGAnimateImageDataWithBlock')
 export const CGImageAnimationStatus = /* @__PURE__ */ _bind(FW, 'CGImageAnimationStatus')
 export const CGImageDestination = /* @__PURE__ */ _bind(FW, 'CGImageDestination')
-export const CGImageDestinationAddAuxiliaryDataInfo = /* @__PURE__ */ _bind(FW, 'CGImageDestinationAddAuxiliaryDataInfo')
+export const CGImageDestinationAddAuxiliaryDataInfo = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageDestinationAddAuxiliaryDataInfo',
+)
+
 export const CGImageDestinationAddImage = /* @__PURE__ */ _bind(FW, 'CGImageDestinationAddImage')
-export const CGImageDestinationAddImageAndMetadata = /* @__PURE__ */ _bind(FW, 'CGImageDestinationAddImageAndMetadata')
-export const CGImageDestinationAddImageFromSource = /* @__PURE__ */ _bind(FW, 'CGImageDestinationAddImageFromSource')
-export const CGImageDestinationCopyImageSource = /* @__PURE__ */ _bind(FW, 'CGImageDestinationCopyImageSource')
-export const CGImageDestinationCopyTypeIdentifiers = /* @__PURE__ */ _bind(FW, 'CGImageDestinationCopyTypeIdentifiers')
-export const CGImageDestinationCreateWithData = /* @__PURE__ */ _bind(FW, 'CGImageDestinationCreateWithData')
-export const CGImageDestinationCreateWithDataConsumer = /* @__PURE__ */ _bind(FW, 'CGImageDestinationCreateWithDataConsumer')
-export const CGImageDestinationCreateWithURL = /* @__PURE__ */ _bind(FW, 'CGImageDestinationCreateWithURL')
+export const CGImageDestinationAddImageAndMetadata = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageDestinationAddImageAndMetadata',
+)
+
+export const CGImageDestinationAddImageFromSource = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageDestinationAddImageFromSource',
+)
+
+export const CGImageDestinationCopyImageSource = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageDestinationCopyImageSource',
+)
+
+export const CGImageDestinationCopyTypeIdentifiers = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageDestinationCopyTypeIdentifiers',
+)
+
+export const CGImageDestinationCreateWithData = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageDestinationCreateWithData',
+)
+
+export const CGImageDestinationCreateWithDataConsumer = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageDestinationCreateWithDataConsumer',
+)
+
+export const CGImageDestinationCreateWithURL = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageDestinationCreateWithURL',
+)
+
 export const CGImageDestinationFinalize = /* @__PURE__ */ _bind(FW, 'CGImageDestinationFinalize')
 export const CGImageDestinationGetTypeID = /* @__PURE__ */ _bind(FW, 'CGImageDestinationGetTypeID')
-export const CGImageDestinationSetProperties = /* @__PURE__ */ _bind(FW, 'CGImageDestinationSetProperties')
+export const CGImageDestinationSetProperties = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageDestinationSetProperties',
+)
+
 export const CGImageMetadata = /* @__PURE__ */ _bind(FW, 'CGImageMetadata')
-export const CGImageMetadataCopyStringValueWithPath = /* @__PURE__ */ _bind(FW, 'CGImageMetadataCopyStringValueWithPath')
-export const CGImageMetadataCopyTagMatchingImageProperty = /* @__PURE__ */ _bind(FW, 'CGImageMetadataCopyTagMatchingImageProperty')
-export const CGImageMetadataCopyTagWithPath = /* @__PURE__ */ _bind(FW, 'CGImageMetadataCopyTagWithPath')
+export const CGImageMetadataCopyStringValueWithPath = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageMetadataCopyStringValueWithPath',
+)
+
+export const CGImageMetadataCopyTagMatchingImageProperty = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageMetadataCopyTagMatchingImageProperty',
+)
+
+export const CGImageMetadataCopyTagWithPath = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageMetadataCopyTagWithPath',
+)
+
 export const CGImageMetadataCopyTags = /* @__PURE__ */ _bind(FW, 'CGImageMetadataCopyTags')
-export const CGImageMetadataCreateFromXMPData = /* @__PURE__ */ _bind(FW, 'CGImageMetadataCreateFromXMPData')
-export const CGImageMetadataCreateMutable = /* @__PURE__ */ _bind(FW, 'CGImageMetadataCreateMutable')
-export const CGImageMetadataCreateMutableCopy = /* @__PURE__ */ _bind(FW, 'CGImageMetadataCreateMutableCopy')
-export const CGImageMetadataCreateXMPData = /* @__PURE__ */ _bind(FW, 'CGImageMetadataCreateXMPData')
-export const CGImageMetadataEnumerateTagsUsingBlock = /* @__PURE__ */ _bind(FW, 'CGImageMetadataEnumerateTagsUsingBlock')
+export const CGImageMetadataCreateFromXMPData = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageMetadataCreateFromXMPData',
+)
+
+export const CGImageMetadataCreateMutable = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageMetadataCreateMutable',
+)
+
+export const CGImageMetadataCreateMutableCopy = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageMetadataCreateMutableCopy',
+)
+
+export const CGImageMetadataCreateXMPData = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageMetadataCreateXMPData',
+)
+
+export const CGImageMetadataEnumerateTagsUsingBlock = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageMetadataEnumerateTagsUsingBlock',
+)
+
 export const CGImageMetadataErrors = /* @__PURE__ */ _bind(FW, 'CGImageMetadataErrors')
 export const CGImageMetadataGetTypeID = /* @__PURE__ */ _bind(FW, 'CGImageMetadataGetTypeID')
-export const CGImageMetadataRegisterNamespaceForPrefix = /* @__PURE__ */ _bind(FW, 'CGImageMetadataRegisterNamespaceForPrefix')
-export const CGImageMetadataRemoveTagWithPath = /* @__PURE__ */ _bind(FW, 'CGImageMetadataRemoveTagWithPath')
-export const CGImageMetadataSetTagWithPath = /* @__PURE__ */ _bind(FW, 'CGImageMetadataSetTagWithPath')
-export const CGImageMetadataSetValueMatchingImageProperty = /* @__PURE__ */ _bind(FW, 'CGImageMetadataSetValueMatchingImageProperty')
-export const CGImageMetadataSetValueWithPath = /* @__PURE__ */ _bind(FW, 'CGImageMetadataSetValueWithPath')
+export const CGImageMetadataRegisterNamespaceForPrefix = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageMetadataRegisterNamespaceForPrefix',
+)
+
+export const CGImageMetadataRemoveTagWithPath = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageMetadataRemoveTagWithPath',
+)
+
+export const CGImageMetadataSetTagWithPath = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageMetadataSetTagWithPath',
+)
+
+export const CGImageMetadataSetValueMatchingImageProperty = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageMetadataSetValueMatchingImageProperty',
+)
+
+export const CGImageMetadataSetValueWithPath = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageMetadataSetValueWithPath',
+)
+
 export const CGImageMetadataTag = /* @__PURE__ */ _bind(FW, 'CGImageMetadataTag')
 export const CGImageMetadataTagCopyName = /* @__PURE__ */ _bind(FW, 'CGImageMetadataTagCopyName')
-export const CGImageMetadataTagCopyNamespace = /* @__PURE__ */ _bind(FW, 'CGImageMetadataTagCopyNamespace')
-export const CGImageMetadataTagCopyPrefix = /* @__PURE__ */ _bind(FW, 'CGImageMetadataTagCopyPrefix')
-export const CGImageMetadataTagCopyQualifiers = /* @__PURE__ */ _bind(FW, 'CGImageMetadataTagCopyQualifiers')
+export const CGImageMetadataTagCopyNamespace = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageMetadataTagCopyNamespace',
+)
+
+export const CGImageMetadataTagCopyPrefix = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageMetadataTagCopyPrefix',
+)
+
+export const CGImageMetadataTagCopyQualifiers = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageMetadataTagCopyQualifiers',
+)
+
 export const CGImageMetadataTagCopyValue = /* @__PURE__ */ _bind(FW, 'CGImageMetadataTagCopyValue')
 export const CGImageMetadataTagCreate = /* @__PURE__ */ _bind(FW, 'CGImageMetadataTagCreate')
 export const CGImageMetadataTagGetType = /* @__PURE__ */ _bind(FW, 'CGImageMetadataTagGetType')
 export const CGImageMetadataTagGetTypeID = /* @__PURE__ */ _bind(FW, 'CGImageMetadataTagGetTypeID')
 export const CGImageMetadataType = /* @__PURE__ */ _bind(FW, 'CGImageMetadataType')
 export const CGImagePropertyOrientation = /* @__PURE__ */ _bind(FW, 'CGImagePropertyOrientation')
-export const CGImagePropertyTGACompression = /* @__PURE__ */ _bind(FW, 'CGImagePropertyTGACompression')
+export const CGImagePropertyTGACompression = /* @__PURE__ */ _bind(
+	FW,
+	'CGImagePropertyTGACompression',
+)
+
 export const CGImageSource = /* @__PURE__ */ _bind(FW, 'CGImageSource')
-export const CGImageSourceCopyAuxiliaryDataInfoAtIndex = /* @__PURE__ */ _bind(FW, 'CGImageSourceCopyAuxiliaryDataInfoAtIndex')
-export const CGImageSourceCopyMetadataAtIndex = /* @__PURE__ */ _bind(FW, 'CGImageSourceCopyMetadataAtIndex')
+export const CGImageSourceCopyAuxiliaryDataInfoAtIndex = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageSourceCopyAuxiliaryDataInfoAtIndex',
+)
+
+export const CGImageSourceCopyMetadataAtIndex = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageSourceCopyMetadataAtIndex',
+)
+
 export const CGImageSourceCopyProperties = /* @__PURE__ */ _bind(FW, 'CGImageSourceCopyProperties')
-export const CGImageSourceCopyPropertiesAtIndex = /* @__PURE__ */ _bind(FW, 'CGImageSourceCopyPropertiesAtIndex')
-export const CGImageSourceCopyTypeIdentifiers = /* @__PURE__ */ _bind(FW, 'CGImageSourceCopyTypeIdentifiers')
-export const CGImageSourceCreateImageAtIndex = /* @__PURE__ */ _bind(FW, 'CGImageSourceCreateImageAtIndex')
-export const CGImageSourceCreateIncremental = /* @__PURE__ */ _bind(FW, 'CGImageSourceCreateIncremental')
-export const CGImageSourceCreateThumbnailAtIndex = /* @__PURE__ */ _bind(FW, 'CGImageSourceCreateThumbnailAtIndex')
+export const CGImageSourceCopyPropertiesAtIndex = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageSourceCopyPropertiesAtIndex',
+)
+
+export const CGImageSourceCopyTypeIdentifiers = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageSourceCopyTypeIdentifiers',
+)
+
+export const CGImageSourceCreateImageAtIndex = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageSourceCreateImageAtIndex',
+)
+
+export const CGImageSourceCreateIncremental = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageSourceCreateIncremental',
+)
+
+export const CGImageSourceCreateThumbnailAtIndex = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageSourceCreateThumbnailAtIndex',
+)
+
 export const CGImageSourceCreateWithData = /* @__PURE__ */ _bind(FW, 'CGImageSourceCreateWithData')
-export const CGImageSourceCreateWithDataProvider = /* @__PURE__ */ _bind(FW, 'CGImageSourceCreateWithDataProvider')
+export const CGImageSourceCreateWithDataProvider = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageSourceCreateWithDataProvider',
+)
+
 export const CGImageSourceCreateWithURL = /* @__PURE__ */ _bind(FW, 'CGImageSourceCreateWithURL')
 export const CGImageSourceGetCount = /* @__PURE__ */ _bind(FW, 'CGImageSourceGetCount')
-export const CGImageSourceGetPrimaryImageIndex = /* @__PURE__ */ _bind(FW, 'CGImageSourceGetPrimaryImageIndex')
+export const CGImageSourceGetPrimaryImageIndex = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageSourceGetPrimaryImageIndex',
+)
+
 export const CGImageSourceGetStatus = /* @__PURE__ */ _bind(FW, 'CGImageSourceGetStatus')
-export const CGImageSourceGetStatusAtIndex = /* @__PURE__ */ _bind(FW, 'CGImageSourceGetStatusAtIndex')
+export const CGImageSourceGetStatusAtIndex = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageSourceGetStatusAtIndex',
+)
+
 export const CGImageSourceGetType = /* @__PURE__ */ _bind(FW, 'CGImageSourceGetType')
 export const CGImageSourceGetTypeID = /* @__PURE__ */ _bind(FW, 'CGImageSourceGetTypeID')
-export const CGImageSourceRemoveCacheAtIndex = /* @__PURE__ */ _bind(FW, 'CGImageSourceRemoveCacheAtIndex')
+export const CGImageSourceRemoveCacheAtIndex = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageSourceRemoveCacheAtIndex',
+)
+
 export const CGImageSourceStatus = /* @__PURE__ */ _bind(FW, 'CGImageSourceStatus')
 export const CGImageSourceUpdateData = /* @__PURE__ */ _bind(FW, 'CGImageSourceUpdateData')
-export const CGImageSourceUpdateDataProvider = /* @__PURE__ */ _bind(FW, 'CGImageSourceUpdateDataProvider')
-export const kCFErrorDomainCGImageMetadata = /* @__PURE__ */ _bind(FW, 'kCFErrorDomainCGImageMetadata')
+export const CGImageSourceUpdateDataProvider = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageSourceUpdateDataProvider',
+)
+
+export const kCFErrorDomainCGImageMetadata = /* @__PURE__ */ _bind(
+	FW,
+	'kCFErrorDomainCGImageMetadata',
+)
+
 export const kCGImageAnimationDelayTime = /* @__PURE__ */ _bind(FW, 'kCGImageAnimationDelayTime')
 export const kCGImageAnimationLoopCount = /* @__PURE__ */ _bind(FW, 'kCGImageAnimationLoopCount')
 export const kCGImageAnimationStartIndex = /* @__PURE__ */ _bind(FW, 'kCGImageAnimationStartIndex')
-export const kCGImageAuxiliaryDataInfoData = /* @__PURE__ */ _bind(FW, 'kCGImageAuxiliaryDataInfoData')
-export const kCGImageAuxiliaryDataInfoDataDescription = /* @__PURE__ */ _bind(FW, 'kCGImageAuxiliaryDataInfoDataDescription')
-export const kCGImageAuxiliaryDataInfoMetadata = /* @__PURE__ */ _bind(FW, 'kCGImageAuxiliaryDataInfoMetadata')
-export const kCGImageAuxiliaryDataTypeDepth = /* @__PURE__ */ _bind(FW, 'kCGImageAuxiliaryDataTypeDepth')
-export const kCGImageAuxiliaryDataTypeDisparity = /* @__PURE__ */ _bind(FW, 'kCGImageAuxiliaryDataTypeDisparity')
-export const kCGImageAuxiliaryDataTypeHDRGainMap = /* @__PURE__ */ _bind(FW, 'kCGImageAuxiliaryDataTypeHDRGainMap')
-export const kCGImageAuxiliaryDataTypePortraitEffectsMatte = /* @__PURE__ */ _bind(FW, 'kCGImageAuxiliaryDataTypePortraitEffectsMatte')
-export const kCGImageAuxiliaryDataTypeSemanticSegmentationGlassesMatte = /* @__PURE__ */ _bind(FW, 'kCGImageAuxiliaryDataTypeSemanticSegmentationGlassesMatte')
-export const kCGImageAuxiliaryDataTypeSemanticSegmentationHairMatte = /* @__PURE__ */ _bind(FW, 'kCGImageAuxiliaryDataTypeSemanticSegmentationHairMatte')
-export const kCGImageAuxiliaryDataTypeSemanticSegmentationSkinMatte = /* @__PURE__ */ _bind(FW, 'kCGImageAuxiliaryDataTypeSemanticSegmentationSkinMatte')
-export const kCGImageAuxiliaryDataTypeSemanticSegmentationSkyMatte = /* @__PURE__ */ _bind(FW, 'kCGImageAuxiliaryDataTypeSemanticSegmentationSkyMatte')
-export const kCGImageAuxiliaryDataTypeSemanticSegmentationTeethMatte = /* @__PURE__ */ _bind(FW, 'kCGImageAuxiliaryDataTypeSemanticSegmentationTeethMatte')
-export const kCGImageDestinationBackgroundColor = /* @__PURE__ */ _bind(FW, 'kCGImageDestinationBackgroundColor')
+export const kCGImageAuxiliaryDataInfoData = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageAuxiliaryDataInfoData',
+)
+
+export const kCGImageAuxiliaryDataInfoDataDescription = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageAuxiliaryDataInfoDataDescription',
+)
+
+export const kCGImageAuxiliaryDataInfoMetadata = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageAuxiliaryDataInfoMetadata',
+)
+
+export const kCGImageAuxiliaryDataTypeDepth = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageAuxiliaryDataTypeDepth',
+)
+
+export const kCGImageAuxiliaryDataTypeDisparity = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageAuxiliaryDataTypeDisparity',
+)
+
+export const kCGImageAuxiliaryDataTypeHDRGainMap = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageAuxiliaryDataTypeHDRGainMap',
+)
+
+export const kCGImageAuxiliaryDataTypePortraitEffectsMatte = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageAuxiliaryDataTypePortraitEffectsMatte',
+)
+
+export const kCGImageAuxiliaryDataTypeSemanticSegmentationGlassesMatte = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageAuxiliaryDataTypeSemanticSegmentationGlassesMatte',
+)
+
+export const kCGImageAuxiliaryDataTypeSemanticSegmentationHairMatte = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageAuxiliaryDataTypeSemanticSegmentationHairMatte',
+)
+
+export const kCGImageAuxiliaryDataTypeSemanticSegmentationSkinMatte = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageAuxiliaryDataTypeSemanticSegmentationSkinMatte',
+)
+
+export const kCGImageAuxiliaryDataTypeSemanticSegmentationSkyMatte = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageAuxiliaryDataTypeSemanticSegmentationSkyMatte',
+)
+
+export const kCGImageAuxiliaryDataTypeSemanticSegmentationTeethMatte = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageAuxiliaryDataTypeSemanticSegmentationTeethMatte',
+)
+
+export const kCGImageDestinationBackgroundColor = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageDestinationBackgroundColor',
+)
+
 export const kCGImageDestinationDateTime = /* @__PURE__ */ _bind(FW, 'kCGImageDestinationDateTime')
-export const kCGImageDestinationEmbedThumbnail = /* @__PURE__ */ _bind(FW, 'kCGImageDestinationEmbedThumbnail')
-export const kCGImageDestinationImageMaxPixelSize = /* @__PURE__ */ _bind(FW, 'kCGImageDestinationImageMaxPixelSize')
-export const kCGImageDestinationLossyCompressionQuality = /* @__PURE__ */ _bind(FW, 'kCGImageDestinationLossyCompressionQuality')
-export const kCGImageDestinationMergeMetadata = /* @__PURE__ */ _bind(FW, 'kCGImageDestinationMergeMetadata')
+export const kCGImageDestinationEmbedThumbnail = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageDestinationEmbedThumbnail',
+)
+
+export const kCGImageDestinationImageMaxPixelSize = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageDestinationImageMaxPixelSize',
+)
+
+export const kCGImageDestinationLossyCompressionQuality = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageDestinationLossyCompressionQuality',
+)
+
+export const kCGImageDestinationMergeMetadata = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageDestinationMergeMetadata',
+)
+
 export const kCGImageDestinationMetadata = /* @__PURE__ */ _bind(FW, 'kCGImageDestinationMetadata')
-export const kCGImageDestinationOptimizeColorForSharing = /* @__PURE__ */ _bind(FW, 'kCGImageDestinationOptimizeColorForSharing')
-export const kCGImageDestinationOrientation = /* @__PURE__ */ _bind(FW, 'kCGImageDestinationOrientation')
-export const kCGImageDestinationPreserveGainMap = /* @__PURE__ */ _bind(FW, 'kCGImageDestinationPreserveGainMap')
-export const kCGImageMetadataEnumerateRecursively = /* @__PURE__ */ _bind(FW, 'kCGImageMetadataEnumerateRecursively')
-export const kCGImageMetadataNamespaceDublinCore = /* @__PURE__ */ _bind(FW, 'kCGImageMetadataNamespaceDublinCore')
-export const kCGImageMetadataNamespaceExif = /* @__PURE__ */ _bind(FW, 'kCGImageMetadataNamespaceExif')
-export const kCGImageMetadataNamespaceExifAux = /* @__PURE__ */ _bind(FW, 'kCGImageMetadataNamespaceExifAux')
-export const kCGImageMetadataNamespaceExifEX = /* @__PURE__ */ _bind(FW, 'kCGImageMetadataNamespaceExifEX')
-export const kCGImageMetadataNamespaceIPTCCore = /* @__PURE__ */ _bind(FW, 'kCGImageMetadataNamespaceIPTCCore')
-export const kCGImageMetadataNamespaceIPTCExtension = /* @__PURE__ */ _bind(FW, 'kCGImageMetadataNamespaceIPTCExtension')
-export const kCGImageMetadataNamespacePhotoshop = /* @__PURE__ */ _bind(FW, 'kCGImageMetadataNamespacePhotoshop')
-export const kCGImageMetadataNamespaceTIFF = /* @__PURE__ */ _bind(FW, 'kCGImageMetadataNamespaceTIFF')
-export const kCGImageMetadataNamespaceXMPBasic = /* @__PURE__ */ _bind(FW, 'kCGImageMetadataNamespaceXMPBasic')
-export const kCGImageMetadataNamespaceXMPRights = /* @__PURE__ */ _bind(FW, 'kCGImageMetadataNamespaceXMPRights')
-export const kCGImageMetadataPrefixDublinCore = /* @__PURE__ */ _bind(FW, 'kCGImageMetadataPrefixDublinCore')
+export const kCGImageDestinationOptimizeColorForSharing = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageDestinationOptimizeColorForSharing',
+)
+
+export const kCGImageDestinationOrientation = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageDestinationOrientation',
+)
+
+export const kCGImageDestinationPreserveGainMap = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageDestinationPreserveGainMap',
+)
+
+export const kCGImageMetadataEnumerateRecursively = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageMetadataEnumerateRecursively',
+)
+
+export const kCGImageMetadataNamespaceDublinCore = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageMetadataNamespaceDublinCore',
+)
+
+export const kCGImageMetadataNamespaceExif = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageMetadataNamespaceExif',
+)
+
+export const kCGImageMetadataNamespaceExifAux = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageMetadataNamespaceExifAux',
+)
+
+export const kCGImageMetadataNamespaceExifEX = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageMetadataNamespaceExifEX',
+)
+
+export const kCGImageMetadataNamespaceIPTCCore = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageMetadataNamespaceIPTCCore',
+)
+
+export const kCGImageMetadataNamespaceIPTCExtension = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageMetadataNamespaceIPTCExtension',
+)
+
+export const kCGImageMetadataNamespacePhotoshop = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageMetadataNamespacePhotoshop',
+)
+
+export const kCGImageMetadataNamespaceTIFF = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageMetadataNamespaceTIFF',
+)
+
+export const kCGImageMetadataNamespaceXMPBasic = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageMetadataNamespaceXMPBasic',
+)
+
+export const kCGImageMetadataNamespaceXMPRights = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageMetadataNamespaceXMPRights',
+)
+
+export const kCGImageMetadataPrefixDublinCore = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageMetadataPrefixDublinCore',
+)
+
 export const kCGImageMetadataPrefixExif = /* @__PURE__ */ _bind(FW, 'kCGImageMetadataPrefixExif')
-export const kCGImageMetadataPrefixExifAux = /* @__PURE__ */ _bind(FW, 'kCGImageMetadataPrefixExifAux')
-export const kCGImageMetadataPrefixExifEX = /* @__PURE__ */ _bind(FW, 'kCGImageMetadataPrefixExifEX')
-export const kCGImageMetadataPrefixIPTCCore = /* @__PURE__ */ _bind(FW, 'kCGImageMetadataPrefixIPTCCore')
-export const kCGImageMetadataPrefixIPTCExtension = /* @__PURE__ */ _bind(FW, 'kCGImageMetadataPrefixIPTCExtension')
-export const kCGImageMetadataPrefixPhotoshop = /* @__PURE__ */ _bind(FW, 'kCGImageMetadataPrefixPhotoshop')
+export const kCGImageMetadataPrefixExifAux = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageMetadataPrefixExifAux',
+)
+
+export const kCGImageMetadataPrefixExifEX = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageMetadataPrefixExifEX',
+)
+
+export const kCGImageMetadataPrefixIPTCCore = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageMetadataPrefixIPTCCore',
+)
+
+export const kCGImageMetadataPrefixIPTCExtension = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageMetadataPrefixIPTCExtension',
+)
+
+export const kCGImageMetadataPrefixPhotoshop = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageMetadataPrefixPhotoshop',
+)
+
 export const kCGImageMetadataPrefixTIFF = /* @__PURE__ */ _bind(FW, 'kCGImageMetadataPrefixTIFF')
-export const kCGImageMetadataPrefixXMPBasic = /* @__PURE__ */ _bind(FW, 'kCGImageMetadataPrefixXMPBasic')
-export const kCGImageMetadataPrefixXMPRights = /* @__PURE__ */ _bind(FW, 'kCGImageMetadataPrefixXMPRights')
-export const kCGImageMetadataShouldExcludeGPS = /* @__PURE__ */ _bind(FW, 'kCGImageMetadataShouldExcludeGPS')
-export const kCGImageMetadataShouldExcludeXMP = /* @__PURE__ */ _bind(FW, 'kCGImageMetadataShouldExcludeXMP')
-export const kCGImageProperty8BIMDictionary = /* @__PURE__ */ _bind(FW, 'kCGImageProperty8BIMDictionary')
-export const kCGImageProperty8BIMLayerNames = /* @__PURE__ */ _bind(FW, 'kCGImageProperty8BIMLayerNames')
+export const kCGImageMetadataPrefixXMPBasic = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageMetadataPrefixXMPBasic',
+)
+
+export const kCGImageMetadataPrefixXMPRights = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageMetadataPrefixXMPRights',
+)
+
+export const kCGImageMetadataShouldExcludeGPS = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageMetadataShouldExcludeGPS',
+)
+
+export const kCGImageMetadataShouldExcludeXMP = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageMetadataShouldExcludeXMP',
+)
+
+export const kCGImageProperty8BIMDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageProperty8BIMDictionary',
+)
+
+export const kCGImageProperty8BIMLayerNames = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageProperty8BIMLayerNames',
+)
+
 export const kCGImageProperty8BIMVersion = /* @__PURE__ */ _bind(FW, 'kCGImageProperty8BIMVersion')
-export const kCGImagePropertyAPNGCanvasPixelHeight = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyAPNGCanvasPixelHeight')
-export const kCGImagePropertyAPNGCanvasPixelWidth = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyAPNGCanvasPixelWidth')
-export const kCGImagePropertyAPNGDelayTime = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyAPNGDelayTime')
-export const kCGImagePropertyAPNGFrameInfoArray = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyAPNGFrameInfoArray')
-export const kCGImagePropertyAPNGLoopCount = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyAPNGLoopCount')
-export const kCGImagePropertyAPNGUnclampedDelayTime = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyAPNGUnclampedDelayTime')
-export const kCGImagePropertyASTCBlockSize = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyASTCBlockSize')
+export const kCGImagePropertyAPNGCanvasPixelHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyAPNGCanvasPixelHeight',
+)
+
+export const kCGImagePropertyAPNGCanvasPixelWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyAPNGCanvasPixelWidth',
+)
+
+export const kCGImagePropertyAPNGDelayTime = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyAPNGDelayTime',
+)
+
+export const kCGImagePropertyAPNGFrameInfoArray = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyAPNGFrameInfoArray',
+)
+
+export const kCGImagePropertyAPNGLoopCount = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyAPNGLoopCount',
+)
+
+export const kCGImagePropertyAPNGUnclampedDelayTime = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyAPNGUnclampedDelayTime',
+)
+
+export const kCGImagePropertyASTCBlockSize = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyASTCBlockSize',
+)
+
 export const kCGImagePropertyASTCEncoder = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyASTCEncoder')
-export const kCGImagePropertyAuxiliaryData = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyAuxiliaryData')
-export const kCGImagePropertyAuxiliaryDataType = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyAuxiliaryDataType')
+export const kCGImagePropertyAuxiliaryData = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyAuxiliaryData',
+)
+
+export const kCGImagePropertyAuxiliaryDataType = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyAuxiliaryDataType',
+)
+
 export const kCGImagePropertyBCEncoder = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyBCEncoder')
 export const kCGImagePropertyBCFormat = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyBCFormat')
 export const kCGImagePropertyBytesPerRow = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyBytesPerRow')
-export const kCGImagePropertyCIFFCameraSerialNumber = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyCIFFCameraSerialNumber')
-export const kCGImagePropertyCIFFContinuousDrive = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyCIFFContinuousDrive')
-export const kCGImagePropertyCIFFDescription = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyCIFFDescription')
-export const kCGImagePropertyCIFFDictionary = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyCIFFDictionary')
-export const kCGImagePropertyCIFFFirmware = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyCIFFFirmware')
-export const kCGImagePropertyCIFFFlashExposureComp = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyCIFFFlashExposureComp')
-export const kCGImagePropertyCIFFFocusMode = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyCIFFFocusMode')
-export const kCGImagePropertyCIFFImageFileName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyCIFFImageFileName')
-export const kCGImagePropertyCIFFImageName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyCIFFImageName')
-export const kCGImagePropertyCIFFImageSerialNumber = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyCIFFImageSerialNumber')
-export const kCGImagePropertyCIFFLensMaxMM = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyCIFFLensMaxMM')
-export const kCGImagePropertyCIFFLensMinMM = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyCIFFLensMinMM')
-export const kCGImagePropertyCIFFLensModel = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyCIFFLensModel')
-export const kCGImagePropertyCIFFMeasuredEV = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyCIFFMeasuredEV')
-export const kCGImagePropertyCIFFMeteringMode = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyCIFFMeteringMode')
-export const kCGImagePropertyCIFFOwnerName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyCIFFOwnerName')
-export const kCGImagePropertyCIFFRecordID = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyCIFFRecordID')
-export const kCGImagePropertyCIFFReleaseMethod = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyCIFFReleaseMethod')
-export const kCGImagePropertyCIFFReleaseTiming = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyCIFFReleaseTiming')
-export const kCGImagePropertyCIFFSelfTimingTime = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyCIFFSelfTimingTime')
-export const kCGImagePropertyCIFFShootingMode = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyCIFFShootingMode')
-export const kCGImagePropertyCIFFWhiteBalanceIndex = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyCIFFWhiteBalanceIndex')
+export const kCGImagePropertyCIFFCameraSerialNumber = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyCIFFCameraSerialNumber',
+)
+
+export const kCGImagePropertyCIFFContinuousDrive = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyCIFFContinuousDrive',
+)
+
+export const kCGImagePropertyCIFFDescription = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyCIFFDescription',
+)
+
+export const kCGImagePropertyCIFFDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyCIFFDictionary',
+)
+
+export const kCGImagePropertyCIFFFirmware = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyCIFFFirmware',
+)
+
+export const kCGImagePropertyCIFFFlashExposureComp = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyCIFFFlashExposureComp',
+)
+
+export const kCGImagePropertyCIFFFocusMode = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyCIFFFocusMode',
+)
+
+export const kCGImagePropertyCIFFImageFileName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyCIFFImageFileName',
+)
+
+export const kCGImagePropertyCIFFImageName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyCIFFImageName',
+)
+
+export const kCGImagePropertyCIFFImageSerialNumber = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyCIFFImageSerialNumber',
+)
+
+export const kCGImagePropertyCIFFLensMaxMM = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyCIFFLensMaxMM',
+)
+
+export const kCGImagePropertyCIFFLensMinMM = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyCIFFLensMinMM',
+)
+
+export const kCGImagePropertyCIFFLensModel = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyCIFFLensModel',
+)
+
+export const kCGImagePropertyCIFFMeasuredEV = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyCIFFMeasuredEV',
+)
+
+export const kCGImagePropertyCIFFMeteringMode = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyCIFFMeteringMode',
+)
+
+export const kCGImagePropertyCIFFOwnerName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyCIFFOwnerName',
+)
+
+export const kCGImagePropertyCIFFRecordID = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyCIFFRecordID',
+)
+
+export const kCGImagePropertyCIFFReleaseMethod = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyCIFFReleaseMethod',
+)
+
+export const kCGImagePropertyCIFFReleaseTiming = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyCIFFReleaseTiming',
+)
+
+export const kCGImagePropertyCIFFSelfTimingTime = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyCIFFSelfTimingTime',
+)
+
+export const kCGImagePropertyCIFFShootingMode = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyCIFFShootingMode',
+)
+
+export const kCGImagePropertyCIFFWhiteBalanceIndex = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyCIFFWhiteBalanceIndex',
+)
+
 export const kCGImagePropertyColorModel = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyColorModel')
-export const kCGImagePropertyColorModelCMYK = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyColorModelCMYK')
-export const kCGImagePropertyColorModelGray = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyColorModelGray')
-export const kCGImagePropertyColorModelLab = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyColorModelLab')
-export const kCGImagePropertyColorModelRGB = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyColorModelRGB')
-export const kCGImagePropertyDNGActiveArea = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGActiveArea')
-export const kCGImagePropertyDNGAnalogBalance = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGAnalogBalance')
-export const kCGImagePropertyDNGAntiAliasStrength = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGAntiAliasStrength')
-export const kCGImagePropertyDNGAsShotICCProfile = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGAsShotICCProfile')
-export const kCGImagePropertyDNGAsShotNeutral = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGAsShotNeutral')
-export const kCGImagePropertyDNGAsShotPreProfileMatrix = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGAsShotPreProfileMatrix')
-export const kCGImagePropertyDNGAsShotProfileName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGAsShotProfileName')
-export const kCGImagePropertyDNGAsShotWhiteXY = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGAsShotWhiteXY')
-export const kCGImagePropertyDNGBackwardVersion = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGBackwardVersion')
-export const kCGImagePropertyDNGBaselineExposure = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGBaselineExposure')
-export const kCGImagePropertyDNGBaselineExposureOffset = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGBaselineExposureOffset')
-export const kCGImagePropertyDNGBaselineNoise = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGBaselineNoise')
-export const kCGImagePropertyDNGBaselineSharpness = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGBaselineSharpness')
-export const kCGImagePropertyDNGBayerGreenSplit = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGBayerGreenSplit')
-export const kCGImagePropertyDNGBestQualityScale = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGBestQualityScale')
-export const kCGImagePropertyDNGBlackLevel = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGBlackLevel')
-export const kCGImagePropertyDNGBlackLevelDeltaH = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGBlackLevelDeltaH')
-export const kCGImagePropertyDNGBlackLevelDeltaV = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGBlackLevelDeltaV')
-export const kCGImagePropertyDNGBlackLevelRepeatDim = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGBlackLevelRepeatDim')
-export const kCGImagePropertyDNGCFALayout = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGCFALayout')
-export const kCGImagePropertyDNGCFAPlaneColor = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGCFAPlaneColor')
-export const kCGImagePropertyDNGCalibrationIlluminant1 = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGCalibrationIlluminant1')
-export const kCGImagePropertyDNGCalibrationIlluminant2 = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGCalibrationIlluminant2')
-export const kCGImagePropertyDNGCameraCalibration1 = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGCameraCalibration1')
-export const kCGImagePropertyDNGCameraCalibration2 = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGCameraCalibration2')
-export const kCGImagePropertyDNGCameraCalibrationSignature = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGCameraCalibrationSignature')
-export const kCGImagePropertyDNGCameraSerialNumber = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGCameraSerialNumber')
-export const kCGImagePropertyDNGChromaBlurRadius = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGChromaBlurRadius')
-export const kCGImagePropertyDNGColorMatrix1 = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGColorMatrix1')
-export const kCGImagePropertyDNGColorMatrix2 = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGColorMatrix2')
-export const kCGImagePropertyDNGColorimetricReference = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGColorimetricReference')
-export const kCGImagePropertyDNGCurrentICCProfile = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGCurrentICCProfile')
-export const kCGImagePropertyDNGCurrentPreProfileMatrix = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGCurrentPreProfileMatrix')
-export const kCGImagePropertyDNGDefaultBlackRender = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGDefaultBlackRender')
-export const kCGImagePropertyDNGDefaultCropOrigin = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGDefaultCropOrigin')
-export const kCGImagePropertyDNGDefaultCropSize = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGDefaultCropSize')
-export const kCGImagePropertyDNGDefaultScale = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGDefaultScale')
-export const kCGImagePropertyDNGDefaultUserCrop = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGDefaultUserCrop')
-export const kCGImagePropertyDNGDictionary = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGDictionary')
-export const kCGImagePropertyDNGExtraCameraProfiles = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGExtraCameraProfiles')
-export const kCGImagePropertyDNGFixVignetteRadial = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGFixVignetteRadial')
-export const kCGImagePropertyDNGForwardMatrix1 = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGForwardMatrix1')
-export const kCGImagePropertyDNGForwardMatrix2 = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGForwardMatrix2')
+export const kCGImagePropertyColorModelCMYK = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyColorModelCMYK',
+)
+
+export const kCGImagePropertyColorModelGray = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyColorModelGray',
+)
+
+export const kCGImagePropertyColorModelLab = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyColorModelLab',
+)
+
+export const kCGImagePropertyColorModelRGB = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyColorModelRGB',
+)
+
+export const kCGImagePropertyDNGActiveArea = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGActiveArea',
+)
+
+export const kCGImagePropertyDNGAnalogBalance = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGAnalogBalance',
+)
+
+export const kCGImagePropertyDNGAntiAliasStrength = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGAntiAliasStrength',
+)
+
+export const kCGImagePropertyDNGAsShotICCProfile = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGAsShotICCProfile',
+)
+
+export const kCGImagePropertyDNGAsShotNeutral = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGAsShotNeutral',
+)
+
+export const kCGImagePropertyDNGAsShotPreProfileMatrix = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGAsShotPreProfileMatrix',
+)
+
+export const kCGImagePropertyDNGAsShotProfileName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGAsShotProfileName',
+)
+
+export const kCGImagePropertyDNGAsShotWhiteXY = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGAsShotWhiteXY',
+)
+
+export const kCGImagePropertyDNGBackwardVersion = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGBackwardVersion',
+)
+
+export const kCGImagePropertyDNGBaselineExposure = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGBaselineExposure',
+)
+
+export const kCGImagePropertyDNGBaselineExposureOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGBaselineExposureOffset',
+)
+
+export const kCGImagePropertyDNGBaselineNoise = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGBaselineNoise',
+)
+
+export const kCGImagePropertyDNGBaselineSharpness = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGBaselineSharpness',
+)
+
+export const kCGImagePropertyDNGBayerGreenSplit = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGBayerGreenSplit',
+)
+
+export const kCGImagePropertyDNGBestQualityScale = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGBestQualityScale',
+)
+
+export const kCGImagePropertyDNGBlackLevel = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGBlackLevel',
+)
+
+export const kCGImagePropertyDNGBlackLevelDeltaH = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGBlackLevelDeltaH',
+)
+
+export const kCGImagePropertyDNGBlackLevelDeltaV = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGBlackLevelDeltaV',
+)
+
+export const kCGImagePropertyDNGBlackLevelRepeatDim = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGBlackLevelRepeatDim',
+)
+
+export const kCGImagePropertyDNGCFALayout = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGCFALayout',
+)
+
+export const kCGImagePropertyDNGCFAPlaneColor = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGCFAPlaneColor',
+)
+
+export const kCGImagePropertyDNGCalibrationIlluminant1 = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGCalibrationIlluminant1',
+)
+
+export const kCGImagePropertyDNGCalibrationIlluminant2 = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGCalibrationIlluminant2',
+)
+
+export const kCGImagePropertyDNGCameraCalibration1 = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGCameraCalibration1',
+)
+
+export const kCGImagePropertyDNGCameraCalibration2 = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGCameraCalibration2',
+)
+
+export const kCGImagePropertyDNGCameraCalibrationSignature = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGCameraCalibrationSignature',
+)
+
+export const kCGImagePropertyDNGCameraSerialNumber = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGCameraSerialNumber',
+)
+
+export const kCGImagePropertyDNGChromaBlurRadius = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGChromaBlurRadius',
+)
+
+export const kCGImagePropertyDNGColorMatrix1 = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGColorMatrix1',
+)
+
+export const kCGImagePropertyDNGColorMatrix2 = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGColorMatrix2',
+)
+
+export const kCGImagePropertyDNGColorimetricReference = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGColorimetricReference',
+)
+
+export const kCGImagePropertyDNGCurrentICCProfile = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGCurrentICCProfile',
+)
+
+export const kCGImagePropertyDNGCurrentPreProfileMatrix = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGCurrentPreProfileMatrix',
+)
+
+export const kCGImagePropertyDNGDefaultBlackRender = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGDefaultBlackRender',
+)
+
+export const kCGImagePropertyDNGDefaultCropOrigin = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGDefaultCropOrigin',
+)
+
+export const kCGImagePropertyDNGDefaultCropSize = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGDefaultCropSize',
+)
+
+export const kCGImagePropertyDNGDefaultScale = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGDefaultScale',
+)
+
+export const kCGImagePropertyDNGDefaultUserCrop = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGDefaultUserCrop',
+)
+
+export const kCGImagePropertyDNGDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGDictionary',
+)
+
+export const kCGImagePropertyDNGExtraCameraProfiles = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGExtraCameraProfiles',
+)
+
+export const kCGImagePropertyDNGFixVignetteRadial = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGFixVignetteRadial',
+)
+
+export const kCGImagePropertyDNGForwardMatrix1 = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGForwardMatrix1',
+)
+
+export const kCGImagePropertyDNGForwardMatrix2 = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGForwardMatrix2',
+)
+
 export const kCGImagePropertyDNGLensInfo = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGLensInfo')
-export const kCGImagePropertyDNGLinearResponseLimit = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGLinearResponseLimit')
-export const kCGImagePropertyDNGLinearizationTable = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGLinearizationTable')
-export const kCGImagePropertyDNGLocalizedCameraModel = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGLocalizedCameraModel')
-export const kCGImagePropertyDNGMakerNoteSafety = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGMakerNoteSafety')
-export const kCGImagePropertyDNGMaskedAreas = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGMaskedAreas')
-export const kCGImagePropertyDNGNewRawImageDigest = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGNewRawImageDigest')
-export const kCGImagePropertyDNGNoiseProfile = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGNoiseProfile')
-export const kCGImagePropertyDNGNoiseReductionApplied = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGNoiseReductionApplied')
-export const kCGImagePropertyDNGOpcodeList1 = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGOpcodeList1')
-export const kCGImagePropertyDNGOpcodeList2 = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGOpcodeList2')
-export const kCGImagePropertyDNGOpcodeList3 = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGOpcodeList3')
-export const kCGImagePropertyDNGOriginalBestQualityFinalSize = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGOriginalBestQualityFinalSize')
-export const kCGImagePropertyDNGOriginalDefaultCropSize = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGOriginalDefaultCropSize')
-export const kCGImagePropertyDNGOriginalDefaultFinalSize = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGOriginalDefaultFinalSize')
-export const kCGImagePropertyDNGOriginalRawFileData = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGOriginalRawFileData')
-export const kCGImagePropertyDNGOriginalRawFileDigest = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGOriginalRawFileDigest')
-export const kCGImagePropertyDNGOriginalRawFileName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGOriginalRawFileName')
-export const kCGImagePropertyDNGPreviewApplicationName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGPreviewApplicationName')
-export const kCGImagePropertyDNGPreviewApplicationVersion = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGPreviewApplicationVersion')
-export const kCGImagePropertyDNGPreviewColorSpace = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGPreviewColorSpace')
-export const kCGImagePropertyDNGPreviewDateTime = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGPreviewDateTime')
-export const kCGImagePropertyDNGPreviewSettingsDigest = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGPreviewSettingsDigest')
-export const kCGImagePropertyDNGPreviewSettingsName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGPreviewSettingsName')
-export const kCGImagePropertyDNGPrivateData = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGPrivateData')
-export const kCGImagePropertyDNGProfileCalibrationSignature = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGProfileCalibrationSignature')
-export const kCGImagePropertyDNGProfileCopyright = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGProfileCopyright')
-export const kCGImagePropertyDNGProfileEmbedPolicy = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGProfileEmbedPolicy')
-export const kCGImagePropertyDNGProfileHueSatMapData1 = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGProfileHueSatMapData1')
-export const kCGImagePropertyDNGProfileHueSatMapData2 = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGProfileHueSatMapData2')
-export const kCGImagePropertyDNGProfileHueSatMapDims = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGProfileHueSatMapDims')
-export const kCGImagePropertyDNGProfileHueSatMapEncoding = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGProfileHueSatMapEncoding')
-export const kCGImagePropertyDNGProfileLookTableData = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGProfileLookTableData')
-export const kCGImagePropertyDNGProfileLookTableDims = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGProfileLookTableDims')
-export const kCGImagePropertyDNGProfileLookTableEncoding = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGProfileLookTableEncoding')
-export const kCGImagePropertyDNGProfileName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGProfileName')
-export const kCGImagePropertyDNGProfileToneCurve = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGProfileToneCurve')
-export const kCGImagePropertyDNGRawDataUniqueID = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGRawDataUniqueID')
-export const kCGImagePropertyDNGRawImageDigest = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGRawImageDigest')
-export const kCGImagePropertyDNGRawToPreviewGain = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGRawToPreviewGain')
-export const kCGImagePropertyDNGReductionMatrix1 = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGReductionMatrix1')
-export const kCGImagePropertyDNGReductionMatrix2 = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGReductionMatrix2')
-export const kCGImagePropertyDNGRowInterleaveFactor = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGRowInterleaveFactor')
-export const kCGImagePropertyDNGShadowScale = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGShadowScale')
-export const kCGImagePropertyDNGSubTileBlockSize = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGSubTileBlockSize')
-export const kCGImagePropertyDNGUniqueCameraModel = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGUniqueCameraModel')
+export const kCGImagePropertyDNGLinearResponseLimit = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGLinearResponseLimit',
+)
+
+export const kCGImagePropertyDNGLinearizationTable = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGLinearizationTable',
+)
+
+export const kCGImagePropertyDNGLocalizedCameraModel = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGLocalizedCameraModel',
+)
+
+export const kCGImagePropertyDNGMakerNoteSafety = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGMakerNoteSafety',
+)
+
+export const kCGImagePropertyDNGMaskedAreas = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGMaskedAreas',
+)
+
+export const kCGImagePropertyDNGNewRawImageDigest = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGNewRawImageDigest',
+)
+
+export const kCGImagePropertyDNGNoiseProfile = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGNoiseProfile',
+)
+
+export const kCGImagePropertyDNGNoiseReductionApplied = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGNoiseReductionApplied',
+)
+
+export const kCGImagePropertyDNGOpcodeList1 = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGOpcodeList1',
+)
+
+export const kCGImagePropertyDNGOpcodeList2 = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGOpcodeList2',
+)
+
+export const kCGImagePropertyDNGOpcodeList3 = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGOpcodeList3',
+)
+
+export const kCGImagePropertyDNGOriginalBestQualityFinalSize = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGOriginalBestQualityFinalSize',
+)
+
+export const kCGImagePropertyDNGOriginalDefaultCropSize = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGOriginalDefaultCropSize',
+)
+
+export const kCGImagePropertyDNGOriginalDefaultFinalSize = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGOriginalDefaultFinalSize',
+)
+
+export const kCGImagePropertyDNGOriginalRawFileData = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGOriginalRawFileData',
+)
+
+export const kCGImagePropertyDNGOriginalRawFileDigest = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGOriginalRawFileDigest',
+)
+
+export const kCGImagePropertyDNGOriginalRawFileName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGOriginalRawFileName',
+)
+
+export const kCGImagePropertyDNGPreviewApplicationName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGPreviewApplicationName',
+)
+
+export const kCGImagePropertyDNGPreviewApplicationVersion = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGPreviewApplicationVersion',
+)
+
+export const kCGImagePropertyDNGPreviewColorSpace = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGPreviewColorSpace',
+)
+
+export const kCGImagePropertyDNGPreviewDateTime = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGPreviewDateTime',
+)
+
+export const kCGImagePropertyDNGPreviewSettingsDigest = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGPreviewSettingsDigest',
+)
+
+export const kCGImagePropertyDNGPreviewSettingsName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGPreviewSettingsName',
+)
+
+export const kCGImagePropertyDNGPrivateData = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGPrivateData',
+)
+
+export const kCGImagePropertyDNGProfileCalibrationSignature = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGProfileCalibrationSignature',
+)
+
+export const kCGImagePropertyDNGProfileCopyright = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGProfileCopyright',
+)
+
+export const kCGImagePropertyDNGProfileEmbedPolicy = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGProfileEmbedPolicy',
+)
+
+export const kCGImagePropertyDNGProfileHueSatMapData1 = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGProfileHueSatMapData1',
+)
+
+export const kCGImagePropertyDNGProfileHueSatMapData2 = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGProfileHueSatMapData2',
+)
+
+export const kCGImagePropertyDNGProfileHueSatMapDims = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGProfileHueSatMapDims',
+)
+
+export const kCGImagePropertyDNGProfileHueSatMapEncoding = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGProfileHueSatMapEncoding',
+)
+
+export const kCGImagePropertyDNGProfileLookTableData = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGProfileLookTableData',
+)
+
+export const kCGImagePropertyDNGProfileLookTableDims = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGProfileLookTableDims',
+)
+
+export const kCGImagePropertyDNGProfileLookTableEncoding = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGProfileLookTableEncoding',
+)
+
+export const kCGImagePropertyDNGProfileName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGProfileName',
+)
+
+export const kCGImagePropertyDNGProfileToneCurve = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGProfileToneCurve',
+)
+
+export const kCGImagePropertyDNGRawDataUniqueID = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGRawDataUniqueID',
+)
+
+export const kCGImagePropertyDNGRawImageDigest = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGRawImageDigest',
+)
+
+export const kCGImagePropertyDNGRawToPreviewGain = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGRawToPreviewGain',
+)
+
+export const kCGImagePropertyDNGReductionMatrix1 = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGReductionMatrix1',
+)
+
+export const kCGImagePropertyDNGReductionMatrix2 = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGReductionMatrix2',
+)
+
+export const kCGImagePropertyDNGRowInterleaveFactor = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGRowInterleaveFactor',
+)
+
+export const kCGImagePropertyDNGShadowScale = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGShadowScale',
+)
+
+export const kCGImagePropertyDNGSubTileBlockSize = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGSubTileBlockSize',
+)
+
+export const kCGImagePropertyDNGUniqueCameraModel = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGUniqueCameraModel',
+)
+
 export const kCGImagePropertyDNGVersion = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGVersion')
-export const kCGImagePropertyDNGWarpFisheye = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGWarpFisheye')
-export const kCGImagePropertyDNGWarpRectilinear = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGWarpRectilinear')
-export const kCGImagePropertyDNGWhiteLevel = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDNGWhiteLevel')
+export const kCGImagePropertyDNGWarpFisheye = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGWarpFisheye',
+)
+
+export const kCGImagePropertyDNGWarpRectilinear = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGWarpRectilinear',
+)
+
+export const kCGImagePropertyDNGWhiteLevel = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyDNGWhiteLevel',
+)
+
 export const kCGImagePropertyDPIHeight = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDPIHeight')
 export const kCGImagePropertyDPIWidth = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDPIWidth')
 export const kCGImagePropertyDepth = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyDepth')
 export const kCGImagePropertyEncoder = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyEncoder')
-export const kCGImagePropertyExifApertureValue = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifApertureValue')
-export const kCGImagePropertyExifAuxDictionary = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifAuxDictionary')
-export const kCGImagePropertyExifAuxFirmware = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifAuxFirmware')
-export const kCGImagePropertyExifAuxFlashCompensation = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifAuxFlashCompensation')
-export const kCGImagePropertyExifAuxImageNumber = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifAuxImageNumber')
-export const kCGImagePropertyExifAuxLensID = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifAuxLensID')
-export const kCGImagePropertyExifAuxLensInfo = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifAuxLensInfo')
-export const kCGImagePropertyExifAuxLensModel = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifAuxLensModel')
-export const kCGImagePropertyExifAuxLensSerialNumber = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifAuxLensSerialNumber')
-export const kCGImagePropertyExifAuxOwnerName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifAuxOwnerName')
-export const kCGImagePropertyExifAuxSerialNumber = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifAuxSerialNumber')
-export const kCGImagePropertyExifBodySerialNumber = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifBodySerialNumber')
-export const kCGImagePropertyExifBrightnessValue = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifBrightnessValue')
-export const kCGImagePropertyExifCFAPattern = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifCFAPattern')
-export const kCGImagePropertyExifCameraOwnerName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifCameraOwnerName')
-export const kCGImagePropertyExifColorSpace = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifColorSpace')
-export const kCGImagePropertyExifComponentsConfiguration = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifComponentsConfiguration')
-export const kCGImagePropertyExifCompositeImage = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifCompositeImage')
-export const kCGImagePropertyExifCompressedBitsPerPixel = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifCompressedBitsPerPixel')
-export const kCGImagePropertyExifContrast = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifContrast')
-export const kCGImagePropertyExifCustomRendered = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifCustomRendered')
-export const kCGImagePropertyExifDateTimeDigitized = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifDateTimeDigitized')
-export const kCGImagePropertyExifDateTimeOriginal = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifDateTimeOriginal')
-export const kCGImagePropertyExifDeviceSettingDescription = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifDeviceSettingDescription')
-export const kCGImagePropertyExifDictionary = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifDictionary')
-export const kCGImagePropertyExifDigitalZoomRatio = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifDigitalZoomRatio')
-export const kCGImagePropertyExifExposureBiasValue = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifExposureBiasValue')
-export const kCGImagePropertyExifExposureIndex = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifExposureIndex')
-export const kCGImagePropertyExifExposureMode = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifExposureMode')
-export const kCGImagePropertyExifExposureProgram = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifExposureProgram')
-export const kCGImagePropertyExifExposureTime = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifExposureTime')
+export const kCGImagePropertyExifApertureValue = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifApertureValue',
+)
+
+export const kCGImagePropertyExifAuxDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifAuxDictionary',
+)
+
+export const kCGImagePropertyExifAuxFirmware = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifAuxFirmware',
+)
+
+export const kCGImagePropertyExifAuxFlashCompensation = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifAuxFlashCompensation',
+)
+
+export const kCGImagePropertyExifAuxImageNumber = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifAuxImageNumber',
+)
+
+export const kCGImagePropertyExifAuxLensID = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifAuxLensID',
+)
+
+export const kCGImagePropertyExifAuxLensInfo = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifAuxLensInfo',
+)
+
+export const kCGImagePropertyExifAuxLensModel = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifAuxLensModel',
+)
+
+export const kCGImagePropertyExifAuxLensSerialNumber = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifAuxLensSerialNumber',
+)
+
+export const kCGImagePropertyExifAuxOwnerName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifAuxOwnerName',
+)
+
+export const kCGImagePropertyExifAuxSerialNumber = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifAuxSerialNumber',
+)
+
+export const kCGImagePropertyExifBodySerialNumber = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifBodySerialNumber',
+)
+
+export const kCGImagePropertyExifBrightnessValue = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifBrightnessValue',
+)
+
+export const kCGImagePropertyExifCFAPattern = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifCFAPattern',
+)
+
+export const kCGImagePropertyExifCameraOwnerName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifCameraOwnerName',
+)
+
+export const kCGImagePropertyExifColorSpace = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifColorSpace',
+)
+
+export const kCGImagePropertyExifComponentsConfiguration = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifComponentsConfiguration',
+)
+
+export const kCGImagePropertyExifCompositeImage = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifCompositeImage',
+)
+
+export const kCGImagePropertyExifCompressedBitsPerPixel = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifCompressedBitsPerPixel',
+)
+
+export const kCGImagePropertyExifContrast = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifContrast',
+)
+
+export const kCGImagePropertyExifCustomRendered = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifCustomRendered',
+)
+
+export const kCGImagePropertyExifDateTimeDigitized = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifDateTimeDigitized',
+)
+
+export const kCGImagePropertyExifDateTimeOriginal = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifDateTimeOriginal',
+)
+
+export const kCGImagePropertyExifDeviceSettingDescription = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifDeviceSettingDescription',
+)
+
+export const kCGImagePropertyExifDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifDictionary',
+)
+
+export const kCGImagePropertyExifDigitalZoomRatio = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifDigitalZoomRatio',
+)
+
+export const kCGImagePropertyExifExposureBiasValue = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifExposureBiasValue',
+)
+
+export const kCGImagePropertyExifExposureIndex = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifExposureIndex',
+)
+
+export const kCGImagePropertyExifExposureMode = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifExposureMode',
+)
+
+export const kCGImagePropertyExifExposureProgram = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifExposureProgram',
+)
+
+export const kCGImagePropertyExifExposureTime = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifExposureTime',
+)
+
 export const kCGImagePropertyExifFNumber = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifFNumber')
-export const kCGImagePropertyExifFileSource = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifFileSource')
+export const kCGImagePropertyExifFileSource = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifFileSource',
+)
+
 export const kCGImagePropertyExifFlash = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifFlash')
-export const kCGImagePropertyExifFlashEnergy = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifFlashEnergy')
-export const kCGImagePropertyExifFlashPixVersion = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifFlashPixVersion')
-export const kCGImagePropertyExifFocalLenIn35mmFilm = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifFocalLenIn35mmFilm')
-export const kCGImagePropertyExifFocalLength = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifFocalLength')
-export const kCGImagePropertyExifFocalPlaneResolutionUnit = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifFocalPlaneResolutionUnit')
-export const kCGImagePropertyExifFocalPlaneXResolution = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifFocalPlaneXResolution')
-export const kCGImagePropertyExifFocalPlaneYResolution = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifFocalPlaneYResolution')
-export const kCGImagePropertyExifGainControl = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifGainControl')
+export const kCGImagePropertyExifFlashEnergy = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifFlashEnergy',
+)
+
+export const kCGImagePropertyExifFlashPixVersion = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifFlashPixVersion',
+)
+
+export const kCGImagePropertyExifFocalLenIn35mmFilm = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifFocalLenIn35mmFilm',
+)
+
+export const kCGImagePropertyExifFocalLength = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifFocalLength',
+)
+
+export const kCGImagePropertyExifFocalPlaneResolutionUnit = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifFocalPlaneResolutionUnit',
+)
+
+export const kCGImagePropertyExifFocalPlaneXResolution = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifFocalPlaneXResolution',
+)
+
+export const kCGImagePropertyExifFocalPlaneYResolution = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifFocalPlaneYResolution',
+)
+
+export const kCGImagePropertyExifGainControl = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifGainControl',
+)
+
 export const kCGImagePropertyExifGamma = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifGamma')
-export const kCGImagePropertyExifISOSpeed = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifISOSpeed')
-export const kCGImagePropertyExifISOSpeedLatitudeyyy = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifISOSpeedLatitudeyyy')
-export const kCGImagePropertyExifISOSpeedLatitudezzz = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifISOSpeedLatitudezzz')
-export const kCGImagePropertyExifISOSpeedRatings = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifISOSpeedRatings')
-export const kCGImagePropertyExifImageUniqueID = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifImageUniqueID')
-export const kCGImagePropertyExifLensMake = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifLensMake')
-export const kCGImagePropertyExifLensModel = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifLensModel')
-export const kCGImagePropertyExifLensSerialNumber = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifLensSerialNumber')
-export const kCGImagePropertyExifLensSpecification = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifLensSpecification')
-export const kCGImagePropertyExifLightSource = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifLightSource')
-export const kCGImagePropertyExifMakerNote = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifMakerNote')
-export const kCGImagePropertyExifMaxApertureValue = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifMaxApertureValue')
-export const kCGImagePropertyExifMeteringMode = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifMeteringMode')
+export const kCGImagePropertyExifISOSpeed = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifISOSpeed',
+)
+
+export const kCGImagePropertyExifISOSpeedLatitudeyyy = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifISOSpeedLatitudeyyy',
+)
+
+export const kCGImagePropertyExifISOSpeedLatitudezzz = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifISOSpeedLatitudezzz',
+)
+
+export const kCGImagePropertyExifISOSpeedRatings = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifISOSpeedRatings',
+)
+
+export const kCGImagePropertyExifImageUniqueID = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifImageUniqueID',
+)
+
+export const kCGImagePropertyExifLensMake = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifLensMake',
+)
+
+export const kCGImagePropertyExifLensModel = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifLensModel',
+)
+
+export const kCGImagePropertyExifLensSerialNumber = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifLensSerialNumber',
+)
+
+export const kCGImagePropertyExifLensSpecification = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifLensSpecification',
+)
+
+export const kCGImagePropertyExifLightSource = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifLightSource',
+)
+
+export const kCGImagePropertyExifMakerNote = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifMakerNote',
+)
+
+export const kCGImagePropertyExifMaxApertureValue = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifMaxApertureValue',
+)
+
+export const kCGImagePropertyExifMeteringMode = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifMeteringMode',
+)
+
 export const kCGImagePropertyExifOECF = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifOECF')
-export const kCGImagePropertyExifOffsetTime = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifOffsetTime')
-export const kCGImagePropertyExifOffsetTimeDigitized = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifOffsetTimeDigitized')
-export const kCGImagePropertyExifOffsetTimeOriginal = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifOffsetTimeOriginal')
-export const kCGImagePropertyExifPixelXDimension = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifPixelXDimension')
-export const kCGImagePropertyExifPixelYDimension = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifPixelYDimension')
-export const kCGImagePropertyExifRecommendedExposureIndex = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifRecommendedExposureIndex')
-export const kCGImagePropertyExifRelatedSoundFile = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifRelatedSoundFile')
-export const kCGImagePropertyExifSaturation = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifSaturation')
-export const kCGImagePropertyExifSceneCaptureType = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifSceneCaptureType')
-export const kCGImagePropertyExifSceneType = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifSceneType')
-export const kCGImagePropertyExifSensingMethod = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifSensingMethod')
-export const kCGImagePropertyExifSensitivityType = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifSensitivityType')
-export const kCGImagePropertyExifSharpness = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifSharpness')
-export const kCGImagePropertyExifShutterSpeedValue = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifShutterSpeedValue')
-export const kCGImagePropertyExifSourceExposureTimesOfCompositeImage = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifSourceExposureTimesOfCompositeImage')
-export const kCGImagePropertyExifSourceImageNumberOfCompositeImage = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifSourceImageNumberOfCompositeImage')
-export const kCGImagePropertyExifSpatialFrequencyResponse = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifSpatialFrequencyResponse')
-export const kCGImagePropertyExifSpectralSensitivity = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifSpectralSensitivity')
-export const kCGImagePropertyExifStandardOutputSensitivity = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifStandardOutputSensitivity')
-export const kCGImagePropertyExifSubjectArea = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifSubjectArea')
-export const kCGImagePropertyExifSubjectDistRange = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifSubjectDistRange')
-export const kCGImagePropertyExifSubjectDistance = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifSubjectDistance')
-export const kCGImagePropertyExifSubjectLocation = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifSubjectLocation')
-export const kCGImagePropertyExifSubsecTime = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifSubsecTime')
-export const kCGImagePropertyExifSubsecTimeDigitized = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifSubsecTimeDigitized')
-export const kCGImagePropertyExifSubsecTimeOrginal = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifSubsecTimeOrginal')
-export const kCGImagePropertyExifSubsecTimeOriginal = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifSubsecTimeOriginal')
-export const kCGImagePropertyExifUserComment = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifUserComment')
+export const kCGImagePropertyExifOffsetTime = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifOffsetTime',
+)
+
+export const kCGImagePropertyExifOffsetTimeDigitized = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifOffsetTimeDigitized',
+)
+
+export const kCGImagePropertyExifOffsetTimeOriginal = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifOffsetTimeOriginal',
+)
+
+export const kCGImagePropertyExifPixelXDimension = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifPixelXDimension',
+)
+
+export const kCGImagePropertyExifPixelYDimension = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifPixelYDimension',
+)
+
+export const kCGImagePropertyExifRecommendedExposureIndex = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifRecommendedExposureIndex',
+)
+
+export const kCGImagePropertyExifRelatedSoundFile = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifRelatedSoundFile',
+)
+
+export const kCGImagePropertyExifSaturation = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifSaturation',
+)
+
+export const kCGImagePropertyExifSceneCaptureType = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifSceneCaptureType',
+)
+
+export const kCGImagePropertyExifSceneType = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifSceneType',
+)
+
+export const kCGImagePropertyExifSensingMethod = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifSensingMethod',
+)
+
+export const kCGImagePropertyExifSensitivityType = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifSensitivityType',
+)
+
+export const kCGImagePropertyExifSharpness = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifSharpness',
+)
+
+export const kCGImagePropertyExifShutterSpeedValue = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifShutterSpeedValue',
+)
+
+export const kCGImagePropertyExifSourceExposureTimesOfCompositeImage = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifSourceExposureTimesOfCompositeImage',
+)
+
+export const kCGImagePropertyExifSourceImageNumberOfCompositeImage = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifSourceImageNumberOfCompositeImage',
+)
+
+export const kCGImagePropertyExifSpatialFrequencyResponse = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifSpatialFrequencyResponse',
+)
+
+export const kCGImagePropertyExifSpectralSensitivity = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifSpectralSensitivity',
+)
+
+export const kCGImagePropertyExifStandardOutputSensitivity = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifStandardOutputSensitivity',
+)
+
+export const kCGImagePropertyExifSubjectArea = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifSubjectArea',
+)
+
+export const kCGImagePropertyExifSubjectDistRange = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifSubjectDistRange',
+)
+
+export const kCGImagePropertyExifSubjectDistance = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifSubjectDistance',
+)
+
+export const kCGImagePropertyExifSubjectLocation = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifSubjectLocation',
+)
+
+export const kCGImagePropertyExifSubsecTime = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifSubsecTime',
+)
+
+export const kCGImagePropertyExifSubsecTimeDigitized = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifSubsecTimeDigitized',
+)
+
+export const kCGImagePropertyExifSubsecTimeOrginal = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifSubsecTimeOrginal',
+)
+
+export const kCGImagePropertyExifSubsecTimeOriginal = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifSubsecTimeOriginal',
+)
+
+export const kCGImagePropertyExifUserComment = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifUserComment',
+)
+
 export const kCGImagePropertyExifVersion = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifVersion')
-export const kCGImagePropertyExifWhiteBalance = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyExifWhiteBalance')
-export const kCGImagePropertyFileContentsDictionary = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyFileContentsDictionary')
+export const kCGImagePropertyExifWhiteBalance = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyExifWhiteBalance',
+)
+
+export const kCGImagePropertyFileContentsDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyFileContentsDictionary',
+)
+
 export const kCGImagePropertyFileSize = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyFileSize')
-export const kCGImagePropertyGIFCanvasPixelHeight = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGIFCanvasPixelHeight')
-export const kCGImagePropertyGIFCanvasPixelWidth = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGIFCanvasPixelWidth')
-export const kCGImagePropertyGIFDelayTime = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGIFDelayTime')
-export const kCGImagePropertyGIFDictionary = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGIFDictionary')
-export const kCGImagePropertyGIFFrameInfoArray = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGIFFrameInfoArray')
-export const kCGImagePropertyGIFHasGlobalColorMap = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGIFHasGlobalColorMap')
-export const kCGImagePropertyGIFImageColorMap = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGIFImageColorMap')
-export const kCGImagePropertyGIFLoopCount = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGIFLoopCount')
-export const kCGImagePropertyGIFUnclampedDelayTime = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGIFUnclampedDelayTime')
+export const kCGImagePropertyGIFCanvasPixelHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGIFCanvasPixelHeight',
+)
+
+export const kCGImagePropertyGIFCanvasPixelWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGIFCanvasPixelWidth',
+)
+
+export const kCGImagePropertyGIFDelayTime = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGIFDelayTime',
+)
+
+export const kCGImagePropertyGIFDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGIFDictionary',
+)
+
+export const kCGImagePropertyGIFFrameInfoArray = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGIFFrameInfoArray',
+)
+
+export const kCGImagePropertyGIFHasGlobalColorMap = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGIFHasGlobalColorMap',
+)
+
+export const kCGImagePropertyGIFImageColorMap = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGIFImageColorMap',
+)
+
+export const kCGImagePropertyGIFLoopCount = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGIFLoopCount',
+)
+
+export const kCGImagePropertyGIFUnclampedDelayTime = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGIFUnclampedDelayTime',
+)
+
 export const kCGImagePropertyGPSAltitude = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSAltitude')
-export const kCGImagePropertyGPSAltitudeRef = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSAltitudeRef')
-export const kCGImagePropertyGPSAreaInformation = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSAreaInformation')
+export const kCGImagePropertyGPSAltitudeRef = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGPSAltitudeRef',
+)
+
+export const kCGImagePropertyGPSAreaInformation = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGPSAreaInformation',
+)
+
 export const kCGImagePropertyGPSDOP = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSDOP')
-export const kCGImagePropertyGPSDateStamp = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSDateStamp')
-export const kCGImagePropertyGPSDestBearing = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSDestBearing')
-export const kCGImagePropertyGPSDestBearingRef = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSDestBearingRef')
-export const kCGImagePropertyGPSDestDistance = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSDestDistance')
-export const kCGImagePropertyGPSDestDistanceRef = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSDestDistanceRef')
-export const kCGImagePropertyGPSDestLatitude = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSDestLatitude')
-export const kCGImagePropertyGPSDestLatitudeRef = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSDestLatitudeRef')
-export const kCGImagePropertyGPSDestLongitude = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSDestLongitude')
-export const kCGImagePropertyGPSDestLongitudeRef = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSDestLongitudeRef')
-export const kCGImagePropertyGPSDictionary = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSDictionary')
-export const kCGImagePropertyGPSDifferental = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSDifferental')
-export const kCGImagePropertyGPSHPositioningError = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSHPositioningError')
-export const kCGImagePropertyGPSImgDirection = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSImgDirection')
-export const kCGImagePropertyGPSImgDirectionRef = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSImgDirectionRef')
+export const kCGImagePropertyGPSDateStamp = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGPSDateStamp',
+)
+
+export const kCGImagePropertyGPSDestBearing = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGPSDestBearing',
+)
+
+export const kCGImagePropertyGPSDestBearingRef = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGPSDestBearingRef',
+)
+
+export const kCGImagePropertyGPSDestDistance = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGPSDestDistance',
+)
+
+export const kCGImagePropertyGPSDestDistanceRef = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGPSDestDistanceRef',
+)
+
+export const kCGImagePropertyGPSDestLatitude = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGPSDestLatitude',
+)
+
+export const kCGImagePropertyGPSDestLatitudeRef = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGPSDestLatitudeRef',
+)
+
+export const kCGImagePropertyGPSDestLongitude = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGPSDestLongitude',
+)
+
+export const kCGImagePropertyGPSDestLongitudeRef = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGPSDestLongitudeRef',
+)
+
+export const kCGImagePropertyGPSDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGPSDictionary',
+)
+
+export const kCGImagePropertyGPSDifferental = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGPSDifferental',
+)
+
+export const kCGImagePropertyGPSHPositioningError = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGPSHPositioningError',
+)
+
+export const kCGImagePropertyGPSImgDirection = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGPSImgDirection',
+)
+
+export const kCGImagePropertyGPSImgDirectionRef = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGPSImgDirectionRef',
+)
+
 export const kCGImagePropertyGPSLatitude = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSLatitude')
-export const kCGImagePropertyGPSLatitudeRef = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSLatitudeRef')
-export const kCGImagePropertyGPSLongitude = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSLongitude')
-export const kCGImagePropertyGPSLongitudeRef = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSLongitudeRef')
+export const kCGImagePropertyGPSLatitudeRef = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGPSLatitudeRef',
+)
+
+export const kCGImagePropertyGPSLongitude = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGPSLongitude',
+)
+
+export const kCGImagePropertyGPSLongitudeRef = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGPSLongitudeRef',
+)
+
 export const kCGImagePropertyGPSMapDatum = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSMapDatum')
-export const kCGImagePropertyGPSMeasureMode = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSMeasureMode')
-export const kCGImagePropertyGPSProcessingMethod = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSProcessingMethod')
-export const kCGImagePropertyGPSSatellites = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSSatellites')
+export const kCGImagePropertyGPSMeasureMode = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGPSMeasureMode',
+)
+
+export const kCGImagePropertyGPSProcessingMethod = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGPSProcessingMethod',
+)
+
+export const kCGImagePropertyGPSSatellites = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGPSSatellites',
+)
+
 export const kCGImagePropertyGPSSpeed = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSSpeed')
 export const kCGImagePropertyGPSSpeedRef = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSSpeedRef')
 export const kCGImagePropertyGPSStatus = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSStatus')
-export const kCGImagePropertyGPSTimeStamp = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSTimeStamp')
+export const kCGImagePropertyGPSTimeStamp = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyGPSTimeStamp',
+)
+
 export const kCGImagePropertyGPSTrack = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSTrack')
 export const kCGImagePropertyGPSTrackRef = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSTrackRef')
 export const kCGImagePropertyGPSVersion = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyGPSVersion')
-export const kCGImagePropertyHEICSCanvasPixelHeight = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyHEICSCanvasPixelHeight')
-export const kCGImagePropertyHEICSCanvasPixelWidth = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyHEICSCanvasPixelWidth')
-export const kCGImagePropertyHEICSDelayTime = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyHEICSDelayTime')
-export const kCGImagePropertyHEICSDictionary = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyHEICSDictionary')
-export const kCGImagePropertyHEICSFrameInfoArray = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyHEICSFrameInfoArray')
-export const kCGImagePropertyHEICSLoopCount = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyHEICSLoopCount')
-export const kCGImagePropertyHEICSUnclampedDelayTime = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyHEICSUnclampedDelayTime')
+export const kCGImagePropertyHEICSCanvasPixelHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyHEICSCanvasPixelHeight',
+)
+
+export const kCGImagePropertyHEICSCanvasPixelWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyHEICSCanvasPixelWidth',
+)
+
+export const kCGImagePropertyHEICSDelayTime = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyHEICSDelayTime',
+)
+
+export const kCGImagePropertyHEICSDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyHEICSDictionary',
+)
+
+export const kCGImagePropertyHEICSFrameInfoArray = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyHEICSFrameInfoArray',
+)
+
+export const kCGImagePropertyHEICSLoopCount = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyHEICSLoopCount',
+)
+
+export const kCGImagePropertyHEICSUnclampedDelayTime = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyHEICSUnclampedDelayTime',
+)
+
 export const kCGImagePropertyHasAlpha = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyHasAlpha')
 export const kCGImagePropertyHeight = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyHeight')
-export const kCGImagePropertyIPTCActionAdvised = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCActionAdvised')
+export const kCGImagePropertyIPTCActionAdvised = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCActionAdvised',
+)
+
 export const kCGImagePropertyIPTCByline = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCByline')
-export const kCGImagePropertyIPTCBylineTitle = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCBylineTitle')
-export const kCGImagePropertyIPTCCaptionAbstract = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCCaptionAbstract')
-export const kCGImagePropertyIPTCCategory = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCCategory')
+export const kCGImagePropertyIPTCBylineTitle = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCBylineTitle',
+)
+
+export const kCGImagePropertyIPTCCaptionAbstract = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCCaptionAbstract',
+)
+
+export const kCGImagePropertyIPTCCategory = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCCategory',
+)
+
 export const kCGImagePropertyIPTCCity = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCCity')
 export const kCGImagePropertyIPTCContact = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCContact')
-export const kCGImagePropertyIPTCContactInfoAddress = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCContactInfoAddress')
-export const kCGImagePropertyIPTCContactInfoCity = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCContactInfoCity')
-export const kCGImagePropertyIPTCContactInfoCountry = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCContactInfoCountry')
-export const kCGImagePropertyIPTCContactInfoEmails = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCContactInfoEmails')
-export const kCGImagePropertyIPTCContactInfoPhones = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCContactInfoPhones')
-export const kCGImagePropertyIPTCContactInfoPostalCode = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCContactInfoPostalCode')
-export const kCGImagePropertyIPTCContactInfoStateProvince = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCContactInfoStateProvince')
-export const kCGImagePropertyIPTCContactInfoWebURLs = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCContactInfoWebURLs')
-export const kCGImagePropertyIPTCContentLocationCode = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCContentLocationCode')
-export const kCGImagePropertyIPTCContentLocationName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCContentLocationName')
-export const kCGImagePropertyIPTCCopyrightNotice = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCCopyrightNotice')
-export const kCGImagePropertyIPTCCountryPrimaryLocationCode = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCCountryPrimaryLocationCode')
-export const kCGImagePropertyIPTCCountryPrimaryLocationName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCCountryPrimaryLocationName')
-export const kCGImagePropertyIPTCCreatorContactInfo = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCCreatorContactInfo')
+export const kCGImagePropertyIPTCContactInfoAddress = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCContactInfoAddress',
+)
+
+export const kCGImagePropertyIPTCContactInfoCity = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCContactInfoCity',
+)
+
+export const kCGImagePropertyIPTCContactInfoCountry = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCContactInfoCountry',
+)
+
+export const kCGImagePropertyIPTCContactInfoEmails = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCContactInfoEmails',
+)
+
+export const kCGImagePropertyIPTCContactInfoPhones = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCContactInfoPhones',
+)
+
+export const kCGImagePropertyIPTCContactInfoPostalCode = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCContactInfoPostalCode',
+)
+
+export const kCGImagePropertyIPTCContactInfoStateProvince = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCContactInfoStateProvince',
+)
+
+export const kCGImagePropertyIPTCContactInfoWebURLs = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCContactInfoWebURLs',
+)
+
+export const kCGImagePropertyIPTCContentLocationCode = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCContentLocationCode',
+)
+
+export const kCGImagePropertyIPTCContentLocationName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCContentLocationName',
+)
+
+export const kCGImagePropertyIPTCCopyrightNotice = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCCopyrightNotice',
+)
+
+export const kCGImagePropertyIPTCCountryPrimaryLocationCode = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCCountryPrimaryLocationCode',
+)
+
+export const kCGImagePropertyIPTCCountryPrimaryLocationName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCCountryPrimaryLocationName',
+)
+
+export const kCGImagePropertyIPTCCreatorContactInfo = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCCreatorContactInfo',
+)
+
 export const kCGImagePropertyIPTCCredit = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCCredit')
-export const kCGImagePropertyIPTCDateCreated = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCDateCreated')
-export const kCGImagePropertyIPTCDictionary = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCDictionary')
-export const kCGImagePropertyIPTCDigitalCreationDate = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCDigitalCreationDate')
-export const kCGImagePropertyIPTCDigitalCreationTime = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCDigitalCreationTime')
-export const kCGImagePropertyIPTCEditStatus = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCEditStatus')
-export const kCGImagePropertyIPTCEditorialUpdate = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCEditorialUpdate')
-export const kCGImagePropertyIPTCExpirationDate = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExpirationDate')
-export const kCGImagePropertyIPTCExpirationTime = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExpirationTime')
-export const kCGImagePropertyIPTCExtAboutCvTerm = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtAboutCvTerm')
-export const kCGImagePropertyIPTCExtAboutCvTermCvId = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtAboutCvTermCvId')
-export const kCGImagePropertyIPTCExtAboutCvTermId = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtAboutCvTermId')
-export const kCGImagePropertyIPTCExtAboutCvTermName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtAboutCvTermName')
-export const kCGImagePropertyIPTCExtAboutCvTermRefinedAbout = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtAboutCvTermRefinedAbout')
-export const kCGImagePropertyIPTCExtAddlModelInfo = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtAddlModelInfo')
-export const kCGImagePropertyIPTCExtArtworkCircaDateCreated = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtArtworkCircaDateCreated')
-export const kCGImagePropertyIPTCExtArtworkContentDescription = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtArtworkContentDescription')
-export const kCGImagePropertyIPTCExtArtworkContributionDescription = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtArtworkContributionDescription')
-export const kCGImagePropertyIPTCExtArtworkCopyrightNotice = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtArtworkCopyrightNotice')
-export const kCGImagePropertyIPTCExtArtworkCopyrightOwnerID = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtArtworkCopyrightOwnerID')
-export const kCGImagePropertyIPTCExtArtworkCopyrightOwnerName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtArtworkCopyrightOwnerName')
-export const kCGImagePropertyIPTCExtArtworkCreator = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtArtworkCreator')
-export const kCGImagePropertyIPTCExtArtworkCreatorID = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtArtworkCreatorID')
-export const kCGImagePropertyIPTCExtArtworkDateCreated = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtArtworkDateCreated')
-export const kCGImagePropertyIPTCExtArtworkLicensorID = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtArtworkLicensorID')
-export const kCGImagePropertyIPTCExtArtworkLicensorName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtArtworkLicensorName')
-export const kCGImagePropertyIPTCExtArtworkOrObject = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtArtworkOrObject')
-export const kCGImagePropertyIPTCExtArtworkPhysicalDescription = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtArtworkPhysicalDescription')
-export const kCGImagePropertyIPTCExtArtworkSource = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtArtworkSource')
-export const kCGImagePropertyIPTCExtArtworkSourceInvURL = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtArtworkSourceInvURL')
-export const kCGImagePropertyIPTCExtArtworkSourceInventoryNo = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtArtworkSourceInventoryNo')
-export const kCGImagePropertyIPTCExtArtworkStylePeriod = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtArtworkStylePeriod')
-export const kCGImagePropertyIPTCExtArtworkTitle = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtArtworkTitle')
-export const kCGImagePropertyIPTCExtAudioBitrate = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtAudioBitrate')
-export const kCGImagePropertyIPTCExtAudioBitrateMode = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtAudioBitrateMode')
-export const kCGImagePropertyIPTCExtAudioChannelCount = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtAudioChannelCount')
-export const kCGImagePropertyIPTCExtCircaDateCreated = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtCircaDateCreated')
-export const kCGImagePropertyIPTCExtContainerFormat = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtContainerFormat')
-export const kCGImagePropertyIPTCExtContainerFormatIdentifier = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtContainerFormatIdentifier')
-export const kCGImagePropertyIPTCExtContainerFormatName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtContainerFormatName')
-export const kCGImagePropertyIPTCExtContributor = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtContributor')
-export const kCGImagePropertyIPTCExtContributorIdentifier = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtContributorIdentifier')
-export const kCGImagePropertyIPTCExtContributorName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtContributorName')
-export const kCGImagePropertyIPTCExtContributorRole = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtContributorRole')
-export const kCGImagePropertyIPTCExtControlledVocabularyTerm = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtControlledVocabularyTerm')
-export const kCGImagePropertyIPTCExtCopyrightYear = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtCopyrightYear')
-export const kCGImagePropertyIPTCExtCreator = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtCreator')
-export const kCGImagePropertyIPTCExtCreatorIdentifier = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtCreatorIdentifier')
-export const kCGImagePropertyIPTCExtCreatorName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtCreatorName')
-export const kCGImagePropertyIPTCExtCreatorRole = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtCreatorRole')
-export const kCGImagePropertyIPTCExtDataOnScreen = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtDataOnScreen')
-export const kCGImagePropertyIPTCExtDataOnScreenRegion = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtDataOnScreenRegion')
-export const kCGImagePropertyIPTCExtDataOnScreenRegionD = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtDataOnScreenRegionD')
-export const kCGImagePropertyIPTCExtDataOnScreenRegionH = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtDataOnScreenRegionH')
-export const kCGImagePropertyIPTCExtDataOnScreenRegionText = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtDataOnScreenRegionText')
-export const kCGImagePropertyIPTCExtDataOnScreenRegionUnit = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtDataOnScreenRegionUnit')
-export const kCGImagePropertyIPTCExtDataOnScreenRegionW = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtDataOnScreenRegionW')
-export const kCGImagePropertyIPTCExtDataOnScreenRegionX = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtDataOnScreenRegionX')
-export const kCGImagePropertyIPTCExtDataOnScreenRegionY = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtDataOnScreenRegionY')
-export const kCGImagePropertyIPTCExtDigitalImageGUID = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtDigitalImageGUID')
-export const kCGImagePropertyIPTCExtDigitalSourceFileType = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtDigitalSourceFileType')
-export const kCGImagePropertyIPTCExtDigitalSourceType = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtDigitalSourceType')
-export const kCGImagePropertyIPTCExtDopesheet = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtDopesheet')
-export const kCGImagePropertyIPTCExtDopesheetLink = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtDopesheetLink')
-export const kCGImagePropertyIPTCExtDopesheetLinkLink = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtDopesheetLinkLink')
-export const kCGImagePropertyIPTCExtDopesheetLinkLinkQualifier = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtDopesheetLinkLinkQualifier')
-export const kCGImagePropertyIPTCExtEmbdEncRightsExpr = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtEmbdEncRightsExpr')
-export const kCGImagePropertyIPTCExtEmbeddedEncodedRightsExpr = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtEmbeddedEncodedRightsExpr')
-export const kCGImagePropertyIPTCExtEmbeddedEncodedRightsExprLangID = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtEmbeddedEncodedRightsExprLangID')
-export const kCGImagePropertyIPTCExtEmbeddedEncodedRightsExprType = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtEmbeddedEncodedRightsExprType')
-export const kCGImagePropertyIPTCExtEpisode = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtEpisode')
-export const kCGImagePropertyIPTCExtEpisodeIdentifier = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtEpisodeIdentifier')
-export const kCGImagePropertyIPTCExtEpisodeName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtEpisodeName')
-export const kCGImagePropertyIPTCExtEpisodeNumber = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtEpisodeNumber')
-export const kCGImagePropertyIPTCExtEvent = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtEvent')
-export const kCGImagePropertyIPTCExtExternalMetadataLink = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtExternalMetadataLink')
-export const kCGImagePropertyIPTCExtFeedIdentifier = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtFeedIdentifier')
-export const kCGImagePropertyIPTCExtGenre = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtGenre')
-export const kCGImagePropertyIPTCExtGenreCvId = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtGenreCvId')
-export const kCGImagePropertyIPTCExtGenreCvTermId = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtGenreCvTermId')
-export const kCGImagePropertyIPTCExtGenreCvTermName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtGenreCvTermName')
-export const kCGImagePropertyIPTCExtGenreCvTermRefinedAbout = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtGenreCvTermRefinedAbout')
-export const kCGImagePropertyIPTCExtHeadline = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtHeadline')
-export const kCGImagePropertyIPTCExtIPTCLastEdited = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtIPTCLastEdited')
-export const kCGImagePropertyIPTCExtLinkedEncRightsExpr = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtLinkedEncRightsExpr')
-export const kCGImagePropertyIPTCExtLinkedEncodedRightsExpr = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtLinkedEncodedRightsExpr')
-export const kCGImagePropertyIPTCExtLinkedEncodedRightsExprLangID = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtLinkedEncodedRightsExprLangID')
-export const kCGImagePropertyIPTCExtLinkedEncodedRightsExprType = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtLinkedEncodedRightsExprType')
-export const kCGImagePropertyIPTCExtLocationCity = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtLocationCity')
-export const kCGImagePropertyIPTCExtLocationCountryCode = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtLocationCountryCode')
-export const kCGImagePropertyIPTCExtLocationCountryName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtLocationCountryName')
-export const kCGImagePropertyIPTCExtLocationCreated = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtLocationCreated')
-export const kCGImagePropertyIPTCExtLocationGPSAltitude = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtLocationGPSAltitude')
-export const kCGImagePropertyIPTCExtLocationGPSLatitude = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtLocationGPSLatitude')
-export const kCGImagePropertyIPTCExtLocationGPSLongitude = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtLocationGPSLongitude')
-export const kCGImagePropertyIPTCExtLocationIdentifier = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtLocationIdentifier')
-export const kCGImagePropertyIPTCExtLocationLocationId = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtLocationLocationId')
-export const kCGImagePropertyIPTCExtLocationLocationName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtLocationLocationName')
-export const kCGImagePropertyIPTCExtLocationProvinceState = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtLocationProvinceState')
-export const kCGImagePropertyIPTCExtLocationShown = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtLocationShown')
-export const kCGImagePropertyIPTCExtLocationSublocation = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtLocationSublocation')
-export const kCGImagePropertyIPTCExtLocationWorldRegion = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtLocationWorldRegion')
-export const kCGImagePropertyIPTCExtMaxAvailHeight = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtMaxAvailHeight')
-export const kCGImagePropertyIPTCExtMaxAvailWidth = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtMaxAvailWidth')
-export const kCGImagePropertyIPTCExtModelAge = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtModelAge')
-export const kCGImagePropertyIPTCExtOrganisationInImageCode = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtOrganisationInImageCode')
-export const kCGImagePropertyIPTCExtOrganisationInImageName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtOrganisationInImageName')
-export const kCGImagePropertyIPTCExtPersonHeard = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtPersonHeard')
-export const kCGImagePropertyIPTCExtPersonHeardIdentifier = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtPersonHeardIdentifier')
-export const kCGImagePropertyIPTCExtPersonHeardName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtPersonHeardName')
-export const kCGImagePropertyIPTCExtPersonInImage = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtPersonInImage')
-export const kCGImagePropertyIPTCExtPersonInImageCharacteristic = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtPersonInImageCharacteristic')
-export const kCGImagePropertyIPTCExtPersonInImageCvTermCvId = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtPersonInImageCvTermCvId')
-export const kCGImagePropertyIPTCExtPersonInImageCvTermId = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtPersonInImageCvTermId')
-export const kCGImagePropertyIPTCExtPersonInImageCvTermName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtPersonInImageCvTermName')
-export const kCGImagePropertyIPTCExtPersonInImageCvTermRefinedAbout = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtPersonInImageCvTermRefinedAbout')
-export const kCGImagePropertyIPTCExtPersonInImageDescription = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtPersonInImageDescription')
-export const kCGImagePropertyIPTCExtPersonInImageId = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtPersonInImageId')
-export const kCGImagePropertyIPTCExtPersonInImageName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtPersonInImageName')
-export const kCGImagePropertyIPTCExtPersonInImageWDetails = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtPersonInImageWDetails')
-export const kCGImagePropertyIPTCExtProductInImage = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtProductInImage')
-export const kCGImagePropertyIPTCExtProductInImageDescription = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtProductInImageDescription')
-export const kCGImagePropertyIPTCExtProductInImageGTIN = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtProductInImageGTIN')
-export const kCGImagePropertyIPTCExtProductInImageName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtProductInImageName')
-export const kCGImagePropertyIPTCExtPublicationEvent = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtPublicationEvent')
-export const kCGImagePropertyIPTCExtPublicationEventDate = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtPublicationEventDate')
-export const kCGImagePropertyIPTCExtPublicationEventIdentifier = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtPublicationEventIdentifier')
-export const kCGImagePropertyIPTCExtPublicationEventName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtPublicationEventName')
-export const kCGImagePropertyIPTCExtRating = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtRating')
-export const kCGImagePropertyIPTCExtRatingRatingRegion = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtRatingRatingRegion')
-export const kCGImagePropertyIPTCExtRatingRegionCity = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtRatingRegionCity')
-export const kCGImagePropertyIPTCExtRatingRegionCountryCode = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtRatingRegionCountryCode')
-export const kCGImagePropertyIPTCExtRatingRegionCountryName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtRatingRegionCountryName')
-export const kCGImagePropertyIPTCExtRatingRegionGPSAltitude = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtRatingRegionGPSAltitude')
-export const kCGImagePropertyIPTCExtRatingRegionGPSLatitude = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtRatingRegionGPSLatitude')
-export const kCGImagePropertyIPTCExtRatingRegionGPSLongitude = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtRatingRegionGPSLongitude')
-export const kCGImagePropertyIPTCExtRatingRegionIdentifier = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtRatingRegionIdentifier')
-export const kCGImagePropertyIPTCExtRatingRegionLocationId = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtRatingRegionLocationId')
-export const kCGImagePropertyIPTCExtRatingRegionLocationName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtRatingRegionLocationName')
-export const kCGImagePropertyIPTCExtRatingRegionProvinceState = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtRatingRegionProvinceState')
-export const kCGImagePropertyIPTCExtRatingRegionSublocation = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtRatingRegionSublocation')
-export const kCGImagePropertyIPTCExtRatingRegionWorldRegion = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtRatingRegionWorldRegion')
-export const kCGImagePropertyIPTCExtRatingScaleMaxValue = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtRatingScaleMaxValue')
-export const kCGImagePropertyIPTCExtRatingScaleMinValue = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtRatingScaleMinValue')
-export const kCGImagePropertyIPTCExtRatingSourceLink = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtRatingSourceLink')
-export const kCGImagePropertyIPTCExtRatingValue = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtRatingValue')
-export const kCGImagePropertyIPTCExtRatingValueLogoLink = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtRatingValueLogoLink')
-export const kCGImagePropertyIPTCExtRegistryEntryRole = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtRegistryEntryRole')
-export const kCGImagePropertyIPTCExtRegistryID = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtRegistryID')
-export const kCGImagePropertyIPTCExtRegistryItemID = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtRegistryItemID')
-export const kCGImagePropertyIPTCExtRegistryOrganisationID = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtRegistryOrganisationID')
-export const kCGImagePropertyIPTCExtReleaseReady = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtReleaseReady')
-export const kCGImagePropertyIPTCExtSeason = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtSeason')
-export const kCGImagePropertyIPTCExtSeasonIdentifier = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtSeasonIdentifier')
-export const kCGImagePropertyIPTCExtSeasonName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtSeasonName')
-export const kCGImagePropertyIPTCExtSeasonNumber = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtSeasonNumber')
-export const kCGImagePropertyIPTCExtSeries = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtSeries')
-export const kCGImagePropertyIPTCExtSeriesIdentifier = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtSeriesIdentifier')
-export const kCGImagePropertyIPTCExtSeriesName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtSeriesName')
-export const kCGImagePropertyIPTCExtShownEvent = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtShownEvent')
-export const kCGImagePropertyIPTCExtShownEventIdentifier = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtShownEventIdentifier')
-export const kCGImagePropertyIPTCExtShownEventName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtShownEventName')
-export const kCGImagePropertyIPTCExtStorylineIdentifier = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtStorylineIdentifier')
-export const kCGImagePropertyIPTCExtStreamReady = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtStreamReady')
-export const kCGImagePropertyIPTCExtStylePeriod = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtStylePeriod')
-export const kCGImagePropertyIPTCExtSupplyChainSource = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtSupplyChainSource')
-export const kCGImagePropertyIPTCExtSupplyChainSourceIdentifier = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtSupplyChainSourceIdentifier')
-export const kCGImagePropertyIPTCExtSupplyChainSourceName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtSupplyChainSourceName')
-export const kCGImagePropertyIPTCExtTemporalCoverage = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtTemporalCoverage')
-export const kCGImagePropertyIPTCExtTemporalCoverageFrom = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtTemporalCoverageFrom')
-export const kCGImagePropertyIPTCExtTemporalCoverageTo = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtTemporalCoverageTo')
-export const kCGImagePropertyIPTCExtTranscript = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtTranscript')
-export const kCGImagePropertyIPTCExtTranscriptLink = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtTranscriptLink')
-export const kCGImagePropertyIPTCExtTranscriptLinkLink = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtTranscriptLinkLink')
-export const kCGImagePropertyIPTCExtTranscriptLinkLinkQualifier = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtTranscriptLinkLinkQualifier')
-export const kCGImagePropertyIPTCExtVideoBitrate = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtVideoBitrate')
-export const kCGImagePropertyIPTCExtVideoBitrateMode = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtVideoBitrateMode')
-export const kCGImagePropertyIPTCExtVideoDisplayAspectRatio = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtVideoDisplayAspectRatio')
-export const kCGImagePropertyIPTCExtVideoEncodingProfile = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtVideoEncodingProfile')
-export const kCGImagePropertyIPTCExtVideoShotType = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtVideoShotType')
-export const kCGImagePropertyIPTCExtVideoShotTypeIdentifier = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtVideoShotTypeIdentifier')
-export const kCGImagePropertyIPTCExtVideoShotTypeName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtVideoShotTypeName')
-export const kCGImagePropertyIPTCExtVideoStreamsCount = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtVideoStreamsCount')
-export const kCGImagePropertyIPTCExtVisualColor = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtVisualColor')
-export const kCGImagePropertyIPTCExtWorkflowTag = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtWorkflowTag')
-export const kCGImagePropertyIPTCExtWorkflowTagCvId = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtWorkflowTagCvId')
-export const kCGImagePropertyIPTCExtWorkflowTagCvTermId = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtWorkflowTagCvTermId')
-export const kCGImagePropertyIPTCExtWorkflowTagCvTermName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtWorkflowTagCvTermName')
-export const kCGImagePropertyIPTCExtWorkflowTagCvTermRefinedAbout = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCExtWorkflowTagCvTermRefinedAbout')
-export const kCGImagePropertyIPTCFixtureIdentifier = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCFixtureIdentifier')
-export const kCGImagePropertyIPTCHeadline = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCHeadline')
-export const kCGImagePropertyIPTCImageOrientation = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCImageOrientation')
-export const kCGImagePropertyIPTCImageType = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCImageType')
-export const kCGImagePropertyIPTCKeywords = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCKeywords')
-export const kCGImagePropertyIPTCLanguageIdentifier = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCLanguageIdentifier')
-export const kCGImagePropertyIPTCObjectAttributeReference = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCObjectAttributeReference')
-export const kCGImagePropertyIPTCObjectCycle = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCObjectCycle')
-export const kCGImagePropertyIPTCObjectName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCObjectName')
-export const kCGImagePropertyIPTCObjectTypeReference = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCObjectTypeReference')
-export const kCGImagePropertyIPTCOriginalTransmissionReference = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCOriginalTransmissionReference')
-export const kCGImagePropertyIPTCOriginatingProgram = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCOriginatingProgram')
-export const kCGImagePropertyIPTCProgramVersion = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCProgramVersion')
-export const kCGImagePropertyIPTCProvinceState = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCProvinceState')
-export const kCGImagePropertyIPTCReferenceDate = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCReferenceDate')
-export const kCGImagePropertyIPTCReferenceNumber = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCReferenceNumber')
-export const kCGImagePropertyIPTCReferenceService = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCReferenceService')
-export const kCGImagePropertyIPTCReleaseDate = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCReleaseDate')
-export const kCGImagePropertyIPTCReleaseTime = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCReleaseTime')
-export const kCGImagePropertyIPTCRightsUsageTerms = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCRightsUsageTerms')
+export const kCGImagePropertyIPTCDateCreated = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCDateCreated',
+)
+
+export const kCGImagePropertyIPTCDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCDictionary',
+)
+
+export const kCGImagePropertyIPTCDigitalCreationDate = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCDigitalCreationDate',
+)
+
+export const kCGImagePropertyIPTCDigitalCreationTime = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCDigitalCreationTime',
+)
+
+export const kCGImagePropertyIPTCEditStatus = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCEditStatus',
+)
+
+export const kCGImagePropertyIPTCEditorialUpdate = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCEditorialUpdate',
+)
+
+export const kCGImagePropertyIPTCExpirationDate = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExpirationDate',
+)
+
+export const kCGImagePropertyIPTCExpirationTime = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExpirationTime',
+)
+
+export const kCGImagePropertyIPTCExtAboutCvTerm = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtAboutCvTerm',
+)
+
+export const kCGImagePropertyIPTCExtAboutCvTermCvId = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtAboutCvTermCvId',
+)
+
+export const kCGImagePropertyIPTCExtAboutCvTermId = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtAboutCvTermId',
+)
+
+export const kCGImagePropertyIPTCExtAboutCvTermName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtAboutCvTermName',
+)
+
+export const kCGImagePropertyIPTCExtAboutCvTermRefinedAbout = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtAboutCvTermRefinedAbout',
+)
+
+export const kCGImagePropertyIPTCExtAddlModelInfo = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtAddlModelInfo',
+)
+
+export const kCGImagePropertyIPTCExtArtworkCircaDateCreated = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtArtworkCircaDateCreated',
+)
+
+export const kCGImagePropertyIPTCExtArtworkContentDescription = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtArtworkContentDescription',
+)
+
+export const kCGImagePropertyIPTCExtArtworkContributionDescription = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtArtworkContributionDescription',
+)
+
+export const kCGImagePropertyIPTCExtArtworkCopyrightNotice = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtArtworkCopyrightNotice',
+)
+
+export const kCGImagePropertyIPTCExtArtworkCopyrightOwnerID = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtArtworkCopyrightOwnerID',
+)
+
+export const kCGImagePropertyIPTCExtArtworkCopyrightOwnerName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtArtworkCopyrightOwnerName',
+)
+
+export const kCGImagePropertyIPTCExtArtworkCreator = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtArtworkCreator',
+)
+
+export const kCGImagePropertyIPTCExtArtworkCreatorID = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtArtworkCreatorID',
+)
+
+export const kCGImagePropertyIPTCExtArtworkDateCreated = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtArtworkDateCreated',
+)
+
+export const kCGImagePropertyIPTCExtArtworkLicensorID = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtArtworkLicensorID',
+)
+
+export const kCGImagePropertyIPTCExtArtworkLicensorName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtArtworkLicensorName',
+)
+
+export const kCGImagePropertyIPTCExtArtworkOrObject = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtArtworkOrObject',
+)
+
+export const kCGImagePropertyIPTCExtArtworkPhysicalDescription = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtArtworkPhysicalDescription',
+)
+
+export const kCGImagePropertyIPTCExtArtworkSource = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtArtworkSource',
+)
+
+export const kCGImagePropertyIPTCExtArtworkSourceInvURL = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtArtworkSourceInvURL',
+)
+
+export const kCGImagePropertyIPTCExtArtworkSourceInventoryNo = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtArtworkSourceInventoryNo',
+)
+
+export const kCGImagePropertyIPTCExtArtworkStylePeriod = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtArtworkStylePeriod',
+)
+
+export const kCGImagePropertyIPTCExtArtworkTitle = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtArtworkTitle',
+)
+
+export const kCGImagePropertyIPTCExtAudioBitrate = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtAudioBitrate',
+)
+
+export const kCGImagePropertyIPTCExtAudioBitrateMode = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtAudioBitrateMode',
+)
+
+export const kCGImagePropertyIPTCExtAudioChannelCount = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtAudioChannelCount',
+)
+
+export const kCGImagePropertyIPTCExtCircaDateCreated = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtCircaDateCreated',
+)
+
+export const kCGImagePropertyIPTCExtContainerFormat = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtContainerFormat',
+)
+
+export const kCGImagePropertyIPTCExtContainerFormatIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtContainerFormatIdentifier',
+)
+
+export const kCGImagePropertyIPTCExtContainerFormatName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtContainerFormatName',
+)
+
+export const kCGImagePropertyIPTCExtContributor = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtContributor',
+)
+
+export const kCGImagePropertyIPTCExtContributorIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtContributorIdentifier',
+)
+
+export const kCGImagePropertyIPTCExtContributorName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtContributorName',
+)
+
+export const kCGImagePropertyIPTCExtContributorRole = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtContributorRole',
+)
+
+export const kCGImagePropertyIPTCExtControlledVocabularyTerm = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtControlledVocabularyTerm',
+)
+
+export const kCGImagePropertyIPTCExtCopyrightYear = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtCopyrightYear',
+)
+
+export const kCGImagePropertyIPTCExtCreator = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtCreator',
+)
+
+export const kCGImagePropertyIPTCExtCreatorIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtCreatorIdentifier',
+)
+
+export const kCGImagePropertyIPTCExtCreatorName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtCreatorName',
+)
+
+export const kCGImagePropertyIPTCExtCreatorRole = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtCreatorRole',
+)
+
+export const kCGImagePropertyIPTCExtDataOnScreen = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtDataOnScreen',
+)
+
+export const kCGImagePropertyIPTCExtDataOnScreenRegion = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtDataOnScreenRegion',
+)
+
+export const kCGImagePropertyIPTCExtDataOnScreenRegionD = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtDataOnScreenRegionD',
+)
+
+export const kCGImagePropertyIPTCExtDataOnScreenRegionH = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtDataOnScreenRegionH',
+)
+
+export const kCGImagePropertyIPTCExtDataOnScreenRegionText = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtDataOnScreenRegionText',
+)
+
+export const kCGImagePropertyIPTCExtDataOnScreenRegionUnit = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtDataOnScreenRegionUnit',
+)
+
+export const kCGImagePropertyIPTCExtDataOnScreenRegionW = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtDataOnScreenRegionW',
+)
+
+export const kCGImagePropertyIPTCExtDataOnScreenRegionX = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtDataOnScreenRegionX',
+)
+
+export const kCGImagePropertyIPTCExtDataOnScreenRegionY = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtDataOnScreenRegionY',
+)
+
+export const kCGImagePropertyIPTCExtDigitalImageGUID = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtDigitalImageGUID',
+)
+
+export const kCGImagePropertyIPTCExtDigitalSourceFileType = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtDigitalSourceFileType',
+)
+
+export const kCGImagePropertyIPTCExtDigitalSourceType = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtDigitalSourceType',
+)
+
+export const kCGImagePropertyIPTCExtDopesheet = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtDopesheet',
+)
+
+export const kCGImagePropertyIPTCExtDopesheetLink = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtDopesheetLink',
+)
+
+export const kCGImagePropertyIPTCExtDopesheetLinkLink = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtDopesheetLinkLink',
+)
+
+export const kCGImagePropertyIPTCExtDopesheetLinkLinkQualifier = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtDopesheetLinkLinkQualifier',
+)
+
+export const kCGImagePropertyIPTCExtEmbdEncRightsExpr = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtEmbdEncRightsExpr',
+)
+
+export const kCGImagePropertyIPTCExtEmbeddedEncodedRightsExpr = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtEmbeddedEncodedRightsExpr',
+)
+
+export const kCGImagePropertyIPTCExtEmbeddedEncodedRightsExprLangID = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtEmbeddedEncodedRightsExprLangID',
+)
+
+export const kCGImagePropertyIPTCExtEmbeddedEncodedRightsExprType = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtEmbeddedEncodedRightsExprType',
+)
+
+export const kCGImagePropertyIPTCExtEpisode = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtEpisode',
+)
+
+export const kCGImagePropertyIPTCExtEpisodeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtEpisodeIdentifier',
+)
+
+export const kCGImagePropertyIPTCExtEpisodeName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtEpisodeName',
+)
+
+export const kCGImagePropertyIPTCExtEpisodeNumber = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtEpisodeNumber',
+)
+
+export const kCGImagePropertyIPTCExtEvent = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtEvent',
+)
+
+export const kCGImagePropertyIPTCExtExternalMetadataLink = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtExternalMetadataLink',
+)
+
+export const kCGImagePropertyIPTCExtFeedIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtFeedIdentifier',
+)
+
+export const kCGImagePropertyIPTCExtGenre = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtGenre',
+)
+
+export const kCGImagePropertyIPTCExtGenreCvId = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtGenreCvId',
+)
+
+export const kCGImagePropertyIPTCExtGenreCvTermId = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtGenreCvTermId',
+)
+
+export const kCGImagePropertyIPTCExtGenreCvTermName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtGenreCvTermName',
+)
+
+export const kCGImagePropertyIPTCExtGenreCvTermRefinedAbout = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtGenreCvTermRefinedAbout',
+)
+
+export const kCGImagePropertyIPTCExtHeadline = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtHeadline',
+)
+
+export const kCGImagePropertyIPTCExtIPTCLastEdited = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtIPTCLastEdited',
+)
+
+export const kCGImagePropertyIPTCExtLinkedEncRightsExpr = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtLinkedEncRightsExpr',
+)
+
+export const kCGImagePropertyIPTCExtLinkedEncodedRightsExpr = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtLinkedEncodedRightsExpr',
+)
+
+export const kCGImagePropertyIPTCExtLinkedEncodedRightsExprLangID = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtLinkedEncodedRightsExprLangID',
+)
+
+export const kCGImagePropertyIPTCExtLinkedEncodedRightsExprType = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtLinkedEncodedRightsExprType',
+)
+
+export const kCGImagePropertyIPTCExtLocationCity = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtLocationCity',
+)
+
+export const kCGImagePropertyIPTCExtLocationCountryCode = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtLocationCountryCode',
+)
+
+export const kCGImagePropertyIPTCExtLocationCountryName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtLocationCountryName',
+)
+
+export const kCGImagePropertyIPTCExtLocationCreated = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtLocationCreated',
+)
+
+export const kCGImagePropertyIPTCExtLocationGPSAltitude = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtLocationGPSAltitude',
+)
+
+export const kCGImagePropertyIPTCExtLocationGPSLatitude = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtLocationGPSLatitude',
+)
+
+export const kCGImagePropertyIPTCExtLocationGPSLongitude = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtLocationGPSLongitude',
+)
+
+export const kCGImagePropertyIPTCExtLocationIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtLocationIdentifier',
+)
+
+export const kCGImagePropertyIPTCExtLocationLocationId = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtLocationLocationId',
+)
+
+export const kCGImagePropertyIPTCExtLocationLocationName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtLocationLocationName',
+)
+
+export const kCGImagePropertyIPTCExtLocationProvinceState = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtLocationProvinceState',
+)
+
+export const kCGImagePropertyIPTCExtLocationShown = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtLocationShown',
+)
+
+export const kCGImagePropertyIPTCExtLocationSublocation = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtLocationSublocation',
+)
+
+export const kCGImagePropertyIPTCExtLocationWorldRegion = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtLocationWorldRegion',
+)
+
+export const kCGImagePropertyIPTCExtMaxAvailHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtMaxAvailHeight',
+)
+
+export const kCGImagePropertyIPTCExtMaxAvailWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtMaxAvailWidth',
+)
+
+export const kCGImagePropertyIPTCExtModelAge = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtModelAge',
+)
+
+export const kCGImagePropertyIPTCExtOrganisationInImageCode = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtOrganisationInImageCode',
+)
+
+export const kCGImagePropertyIPTCExtOrganisationInImageName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtOrganisationInImageName',
+)
+
+export const kCGImagePropertyIPTCExtPersonHeard = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtPersonHeard',
+)
+
+export const kCGImagePropertyIPTCExtPersonHeardIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtPersonHeardIdentifier',
+)
+
+export const kCGImagePropertyIPTCExtPersonHeardName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtPersonHeardName',
+)
+
+export const kCGImagePropertyIPTCExtPersonInImage = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtPersonInImage',
+)
+
+export const kCGImagePropertyIPTCExtPersonInImageCharacteristic = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtPersonInImageCharacteristic',
+)
+
+export const kCGImagePropertyIPTCExtPersonInImageCvTermCvId = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtPersonInImageCvTermCvId',
+)
+
+export const kCGImagePropertyIPTCExtPersonInImageCvTermId = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtPersonInImageCvTermId',
+)
+
+export const kCGImagePropertyIPTCExtPersonInImageCvTermName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtPersonInImageCvTermName',
+)
+
+export const kCGImagePropertyIPTCExtPersonInImageCvTermRefinedAbout = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtPersonInImageCvTermRefinedAbout',
+)
+
+export const kCGImagePropertyIPTCExtPersonInImageDescription = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtPersonInImageDescription',
+)
+
+export const kCGImagePropertyIPTCExtPersonInImageId = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtPersonInImageId',
+)
+
+export const kCGImagePropertyIPTCExtPersonInImageName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtPersonInImageName',
+)
+
+export const kCGImagePropertyIPTCExtPersonInImageWDetails = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtPersonInImageWDetails',
+)
+
+export const kCGImagePropertyIPTCExtProductInImage = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtProductInImage',
+)
+
+export const kCGImagePropertyIPTCExtProductInImageDescription = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtProductInImageDescription',
+)
+
+export const kCGImagePropertyIPTCExtProductInImageGTIN = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtProductInImageGTIN',
+)
+
+export const kCGImagePropertyIPTCExtProductInImageName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtProductInImageName',
+)
+
+export const kCGImagePropertyIPTCExtPublicationEvent = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtPublicationEvent',
+)
+
+export const kCGImagePropertyIPTCExtPublicationEventDate = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtPublicationEventDate',
+)
+
+export const kCGImagePropertyIPTCExtPublicationEventIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtPublicationEventIdentifier',
+)
+
+export const kCGImagePropertyIPTCExtPublicationEventName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtPublicationEventName',
+)
+
+export const kCGImagePropertyIPTCExtRating = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtRating',
+)
+
+export const kCGImagePropertyIPTCExtRatingRatingRegion = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtRatingRatingRegion',
+)
+
+export const kCGImagePropertyIPTCExtRatingRegionCity = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtRatingRegionCity',
+)
+
+export const kCGImagePropertyIPTCExtRatingRegionCountryCode = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtRatingRegionCountryCode',
+)
+
+export const kCGImagePropertyIPTCExtRatingRegionCountryName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtRatingRegionCountryName',
+)
+
+export const kCGImagePropertyIPTCExtRatingRegionGPSAltitude = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtRatingRegionGPSAltitude',
+)
+
+export const kCGImagePropertyIPTCExtRatingRegionGPSLatitude = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtRatingRegionGPSLatitude',
+)
+
+export const kCGImagePropertyIPTCExtRatingRegionGPSLongitude = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtRatingRegionGPSLongitude',
+)
+
+export const kCGImagePropertyIPTCExtRatingRegionIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtRatingRegionIdentifier',
+)
+
+export const kCGImagePropertyIPTCExtRatingRegionLocationId = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtRatingRegionLocationId',
+)
+
+export const kCGImagePropertyIPTCExtRatingRegionLocationName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtRatingRegionLocationName',
+)
+
+export const kCGImagePropertyIPTCExtRatingRegionProvinceState = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtRatingRegionProvinceState',
+)
+
+export const kCGImagePropertyIPTCExtRatingRegionSublocation = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtRatingRegionSublocation',
+)
+
+export const kCGImagePropertyIPTCExtRatingRegionWorldRegion = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtRatingRegionWorldRegion',
+)
+
+export const kCGImagePropertyIPTCExtRatingScaleMaxValue = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtRatingScaleMaxValue',
+)
+
+export const kCGImagePropertyIPTCExtRatingScaleMinValue = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtRatingScaleMinValue',
+)
+
+export const kCGImagePropertyIPTCExtRatingSourceLink = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtRatingSourceLink',
+)
+
+export const kCGImagePropertyIPTCExtRatingValue = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtRatingValue',
+)
+
+export const kCGImagePropertyIPTCExtRatingValueLogoLink = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtRatingValueLogoLink',
+)
+
+export const kCGImagePropertyIPTCExtRegistryEntryRole = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtRegistryEntryRole',
+)
+
+export const kCGImagePropertyIPTCExtRegistryID = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtRegistryID',
+)
+
+export const kCGImagePropertyIPTCExtRegistryItemID = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtRegistryItemID',
+)
+
+export const kCGImagePropertyIPTCExtRegistryOrganisationID = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtRegistryOrganisationID',
+)
+
+export const kCGImagePropertyIPTCExtReleaseReady = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtReleaseReady',
+)
+
+export const kCGImagePropertyIPTCExtSeason = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtSeason',
+)
+
+export const kCGImagePropertyIPTCExtSeasonIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtSeasonIdentifier',
+)
+
+export const kCGImagePropertyIPTCExtSeasonName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtSeasonName',
+)
+
+export const kCGImagePropertyIPTCExtSeasonNumber = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtSeasonNumber',
+)
+
+export const kCGImagePropertyIPTCExtSeries = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtSeries',
+)
+
+export const kCGImagePropertyIPTCExtSeriesIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtSeriesIdentifier',
+)
+
+export const kCGImagePropertyIPTCExtSeriesName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtSeriesName',
+)
+
+export const kCGImagePropertyIPTCExtShownEvent = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtShownEvent',
+)
+
+export const kCGImagePropertyIPTCExtShownEventIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtShownEventIdentifier',
+)
+
+export const kCGImagePropertyIPTCExtShownEventName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtShownEventName',
+)
+
+export const kCGImagePropertyIPTCExtStorylineIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtStorylineIdentifier',
+)
+
+export const kCGImagePropertyIPTCExtStreamReady = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtStreamReady',
+)
+
+export const kCGImagePropertyIPTCExtStylePeriod = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtStylePeriod',
+)
+
+export const kCGImagePropertyIPTCExtSupplyChainSource = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtSupplyChainSource',
+)
+
+export const kCGImagePropertyIPTCExtSupplyChainSourceIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtSupplyChainSourceIdentifier',
+)
+
+export const kCGImagePropertyIPTCExtSupplyChainSourceName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtSupplyChainSourceName',
+)
+
+export const kCGImagePropertyIPTCExtTemporalCoverage = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtTemporalCoverage',
+)
+
+export const kCGImagePropertyIPTCExtTemporalCoverageFrom = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtTemporalCoverageFrom',
+)
+
+export const kCGImagePropertyIPTCExtTemporalCoverageTo = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtTemporalCoverageTo',
+)
+
+export const kCGImagePropertyIPTCExtTranscript = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtTranscript',
+)
+
+export const kCGImagePropertyIPTCExtTranscriptLink = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtTranscriptLink',
+)
+
+export const kCGImagePropertyIPTCExtTranscriptLinkLink = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtTranscriptLinkLink',
+)
+
+export const kCGImagePropertyIPTCExtTranscriptLinkLinkQualifier = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtTranscriptLinkLinkQualifier',
+)
+
+export const kCGImagePropertyIPTCExtVideoBitrate = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtVideoBitrate',
+)
+
+export const kCGImagePropertyIPTCExtVideoBitrateMode = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtVideoBitrateMode',
+)
+
+export const kCGImagePropertyIPTCExtVideoDisplayAspectRatio = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtVideoDisplayAspectRatio',
+)
+
+export const kCGImagePropertyIPTCExtVideoEncodingProfile = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtVideoEncodingProfile',
+)
+
+export const kCGImagePropertyIPTCExtVideoShotType = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtVideoShotType',
+)
+
+export const kCGImagePropertyIPTCExtVideoShotTypeIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtVideoShotTypeIdentifier',
+)
+
+export const kCGImagePropertyIPTCExtVideoShotTypeName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtVideoShotTypeName',
+)
+
+export const kCGImagePropertyIPTCExtVideoStreamsCount = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtVideoStreamsCount',
+)
+
+export const kCGImagePropertyIPTCExtVisualColor = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtVisualColor',
+)
+
+export const kCGImagePropertyIPTCExtWorkflowTag = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtWorkflowTag',
+)
+
+export const kCGImagePropertyIPTCExtWorkflowTagCvId = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtWorkflowTagCvId',
+)
+
+export const kCGImagePropertyIPTCExtWorkflowTagCvTermId = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtWorkflowTagCvTermId',
+)
+
+export const kCGImagePropertyIPTCExtWorkflowTagCvTermName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtWorkflowTagCvTermName',
+)
+
+export const kCGImagePropertyIPTCExtWorkflowTagCvTermRefinedAbout = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCExtWorkflowTagCvTermRefinedAbout',
+)
+
+export const kCGImagePropertyIPTCFixtureIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCFixtureIdentifier',
+)
+
+export const kCGImagePropertyIPTCHeadline = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCHeadline',
+)
+
+export const kCGImagePropertyIPTCImageOrientation = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCImageOrientation',
+)
+
+export const kCGImagePropertyIPTCImageType = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCImageType',
+)
+
+export const kCGImagePropertyIPTCKeywords = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCKeywords',
+)
+
+export const kCGImagePropertyIPTCLanguageIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCLanguageIdentifier',
+)
+
+export const kCGImagePropertyIPTCObjectAttributeReference = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCObjectAttributeReference',
+)
+
+export const kCGImagePropertyIPTCObjectCycle = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCObjectCycle',
+)
+
+export const kCGImagePropertyIPTCObjectName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCObjectName',
+)
+
+export const kCGImagePropertyIPTCObjectTypeReference = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCObjectTypeReference',
+)
+
+export const kCGImagePropertyIPTCOriginalTransmissionReference = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCOriginalTransmissionReference',
+)
+
+export const kCGImagePropertyIPTCOriginatingProgram = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCOriginatingProgram',
+)
+
+export const kCGImagePropertyIPTCProgramVersion = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCProgramVersion',
+)
+
+export const kCGImagePropertyIPTCProvinceState = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCProvinceState',
+)
+
+export const kCGImagePropertyIPTCReferenceDate = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCReferenceDate',
+)
+
+export const kCGImagePropertyIPTCReferenceNumber = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCReferenceNumber',
+)
+
+export const kCGImagePropertyIPTCReferenceService = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCReferenceService',
+)
+
+export const kCGImagePropertyIPTCReleaseDate = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCReleaseDate',
+)
+
+export const kCGImagePropertyIPTCReleaseTime = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCReleaseTime',
+)
+
+export const kCGImagePropertyIPTCRightsUsageTerms = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCRightsUsageTerms',
+)
+
 export const kCGImagePropertyIPTCScene = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCScene')
 export const kCGImagePropertyIPTCSource = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCSource')
-export const kCGImagePropertyIPTCSpecialInstructions = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCSpecialInstructions')
-export const kCGImagePropertyIPTCStarRating = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCStarRating')
-export const kCGImagePropertyIPTCSubLocation = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCSubLocation')
-export const kCGImagePropertyIPTCSubjectReference = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCSubjectReference')
-export const kCGImagePropertyIPTCSupplementalCategory = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCSupplementalCategory')
-export const kCGImagePropertyIPTCTimeCreated = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCTimeCreated')
+export const kCGImagePropertyIPTCSpecialInstructions = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCSpecialInstructions',
+)
+
+export const kCGImagePropertyIPTCStarRating = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCStarRating',
+)
+
+export const kCGImagePropertyIPTCSubLocation = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCSubLocation',
+)
+
+export const kCGImagePropertyIPTCSubjectReference = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCSubjectReference',
+)
+
+export const kCGImagePropertyIPTCSupplementalCategory = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCSupplementalCategory',
+)
+
+export const kCGImagePropertyIPTCTimeCreated = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCTimeCreated',
+)
+
 export const kCGImagePropertyIPTCUrgency = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCUrgency')
-export const kCGImagePropertyIPTCWriterEditor = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIPTCWriterEditor')
+export const kCGImagePropertyIPTCWriterEditor = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyIPTCWriterEditor',
+)
+
 export const kCGImagePropertyImageCount = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyImageCount')
 export const kCGImagePropertyImages = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyImages')
 export const kCGImagePropertyIsFloat = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIsFloat')
 export const kCGImagePropertyIsIndexed = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyIsIndexed')
-export const kCGImagePropertyJFIFDensityUnit = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyJFIFDensityUnit')
-export const kCGImagePropertyJFIFDictionary = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyJFIFDictionary')
-export const kCGImagePropertyJFIFIsProgressive = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyJFIFIsProgressive')
+export const kCGImagePropertyJFIFDensityUnit = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyJFIFDensityUnit',
+)
+
+export const kCGImagePropertyJFIFDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyJFIFDictionary',
+)
+
+export const kCGImagePropertyJFIFIsProgressive = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyJFIFIsProgressive',
+)
+
 export const kCGImagePropertyJFIFVersion = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyJFIFVersion')
-export const kCGImagePropertyJFIFXDensity = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyJFIFXDensity')
-export const kCGImagePropertyJFIFYDensity = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyJFIFYDensity')
-export const kCGImagePropertyMakerAppleDictionary = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerAppleDictionary')
-export const kCGImagePropertyMakerCanonAspectRatioInfo = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerCanonAspectRatioInfo')
-export const kCGImagePropertyMakerCanonCameraSerialNumber = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerCanonCameraSerialNumber')
-export const kCGImagePropertyMakerCanonContinuousDrive = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerCanonContinuousDrive')
-export const kCGImagePropertyMakerCanonDictionary = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerCanonDictionary')
-export const kCGImagePropertyMakerCanonFirmware = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerCanonFirmware')
-export const kCGImagePropertyMakerCanonFlashExposureComp = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerCanonFlashExposureComp')
-export const kCGImagePropertyMakerCanonImageSerialNumber = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerCanonImageSerialNumber')
-export const kCGImagePropertyMakerCanonLensModel = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerCanonLensModel')
-export const kCGImagePropertyMakerCanonOwnerName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerCanonOwnerName')
-export const kCGImagePropertyMakerFujiDictionary = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerFujiDictionary')
-export const kCGImagePropertyMakerMinoltaDictionary = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerMinoltaDictionary')
-export const kCGImagePropertyMakerNikonCameraSerialNumber = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerNikonCameraSerialNumber')
-export const kCGImagePropertyMakerNikonColorMode = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerNikonColorMode')
-export const kCGImagePropertyMakerNikonDictionary = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerNikonDictionary')
-export const kCGImagePropertyMakerNikonDigitalZoom = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerNikonDigitalZoom')
-export const kCGImagePropertyMakerNikonFlashExposureComp = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerNikonFlashExposureComp')
-export const kCGImagePropertyMakerNikonFlashSetting = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerNikonFlashSetting')
-export const kCGImagePropertyMakerNikonFocusDistance = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerNikonFocusDistance')
-export const kCGImagePropertyMakerNikonFocusMode = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerNikonFocusMode')
-export const kCGImagePropertyMakerNikonISOSelection = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerNikonISOSelection')
-export const kCGImagePropertyMakerNikonISOSetting = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerNikonISOSetting')
-export const kCGImagePropertyMakerNikonImageAdjustment = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerNikonImageAdjustment')
-export const kCGImagePropertyMakerNikonLensAdapter = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerNikonLensAdapter')
-export const kCGImagePropertyMakerNikonLensInfo = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerNikonLensInfo')
-export const kCGImagePropertyMakerNikonLensType = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerNikonLensType')
-export const kCGImagePropertyMakerNikonQuality = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerNikonQuality')
-export const kCGImagePropertyMakerNikonSharpenMode = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerNikonSharpenMode')
-export const kCGImagePropertyMakerNikonShootingMode = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerNikonShootingMode')
-export const kCGImagePropertyMakerNikonShutterCount = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerNikonShutterCount')
-export const kCGImagePropertyMakerNikonWhiteBalanceMode = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerNikonWhiteBalanceMode')
-export const kCGImagePropertyMakerOlympusDictionary = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerOlympusDictionary')
-export const kCGImagePropertyMakerPentaxDictionary = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyMakerPentaxDictionary')
-export const kCGImagePropertyNamedColorSpace = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyNamedColorSpace')
-export const kCGImagePropertyOpenEXRAspectRatio = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyOpenEXRAspectRatio')
-export const kCGImagePropertyOpenEXRDictionary = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyOpenEXRDictionary')
+export const kCGImagePropertyJFIFXDensity = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyJFIFXDensity',
+)
+
+export const kCGImagePropertyJFIFYDensity = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyJFIFYDensity',
+)
+
+export const kCGImagePropertyMakerAppleDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerAppleDictionary',
+)
+
+export const kCGImagePropertyMakerCanonAspectRatioInfo = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerCanonAspectRatioInfo',
+)
+
+export const kCGImagePropertyMakerCanonCameraSerialNumber = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerCanonCameraSerialNumber',
+)
+
+export const kCGImagePropertyMakerCanonContinuousDrive = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerCanonContinuousDrive',
+)
+
+export const kCGImagePropertyMakerCanonDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerCanonDictionary',
+)
+
+export const kCGImagePropertyMakerCanonFirmware = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerCanonFirmware',
+)
+
+export const kCGImagePropertyMakerCanonFlashExposureComp = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerCanonFlashExposureComp',
+)
+
+export const kCGImagePropertyMakerCanonImageSerialNumber = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerCanonImageSerialNumber',
+)
+
+export const kCGImagePropertyMakerCanonLensModel = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerCanonLensModel',
+)
+
+export const kCGImagePropertyMakerCanonOwnerName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerCanonOwnerName',
+)
+
+export const kCGImagePropertyMakerFujiDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerFujiDictionary',
+)
+
+export const kCGImagePropertyMakerMinoltaDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerMinoltaDictionary',
+)
+
+export const kCGImagePropertyMakerNikonCameraSerialNumber = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerNikonCameraSerialNumber',
+)
+
+export const kCGImagePropertyMakerNikonColorMode = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerNikonColorMode',
+)
+
+export const kCGImagePropertyMakerNikonDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerNikonDictionary',
+)
+
+export const kCGImagePropertyMakerNikonDigitalZoom = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerNikonDigitalZoom',
+)
+
+export const kCGImagePropertyMakerNikonFlashExposureComp = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerNikonFlashExposureComp',
+)
+
+export const kCGImagePropertyMakerNikonFlashSetting = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerNikonFlashSetting',
+)
+
+export const kCGImagePropertyMakerNikonFocusDistance = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerNikonFocusDistance',
+)
+
+export const kCGImagePropertyMakerNikonFocusMode = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerNikonFocusMode',
+)
+
+export const kCGImagePropertyMakerNikonISOSelection = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerNikonISOSelection',
+)
+
+export const kCGImagePropertyMakerNikonISOSetting = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerNikonISOSetting',
+)
+
+export const kCGImagePropertyMakerNikonImageAdjustment = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerNikonImageAdjustment',
+)
+
+export const kCGImagePropertyMakerNikonLensAdapter = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerNikonLensAdapter',
+)
+
+export const kCGImagePropertyMakerNikonLensInfo = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerNikonLensInfo',
+)
+
+export const kCGImagePropertyMakerNikonLensType = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerNikonLensType',
+)
+
+export const kCGImagePropertyMakerNikonQuality = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerNikonQuality',
+)
+
+export const kCGImagePropertyMakerNikonSharpenMode = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerNikonSharpenMode',
+)
+
+export const kCGImagePropertyMakerNikonShootingMode = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerNikonShootingMode',
+)
+
+export const kCGImagePropertyMakerNikonShutterCount = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerNikonShutterCount',
+)
+
+export const kCGImagePropertyMakerNikonWhiteBalanceMode = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerNikonWhiteBalanceMode',
+)
+
+export const kCGImagePropertyMakerOlympusDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerOlympusDictionary',
+)
+
+export const kCGImagePropertyMakerPentaxDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyMakerPentaxDictionary',
+)
+
+export const kCGImagePropertyNamedColorSpace = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyNamedColorSpace',
+)
+
+export const kCGImagePropertyOpenEXRAspectRatio = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyOpenEXRAspectRatio',
+)
+
+export const kCGImagePropertyOpenEXRDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyOpenEXRDictionary',
+)
+
 export const kCGImagePropertyOrientation = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyOrientation')
 export const kCGImagePropertyPNGAuthor = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyPNGAuthor')
-export const kCGImagePropertyPNGChromaticities = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyPNGChromaticities')
+export const kCGImagePropertyPNGChromaticities = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyPNGChromaticities',
+)
+
 export const kCGImagePropertyPNGComment = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyPNGComment')
-export const kCGImagePropertyPNGCompressionFilter = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyPNGCompressionFilter')
-export const kCGImagePropertyPNGCopyright = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyPNGCopyright')
-export const kCGImagePropertyPNGCreationTime = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyPNGCreationTime')
-export const kCGImagePropertyPNGDescription = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyPNGDescription')
-export const kCGImagePropertyPNGDictionary = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyPNGDictionary')
-export const kCGImagePropertyPNGDisclaimer = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyPNGDisclaimer')
+export const kCGImagePropertyPNGCompressionFilter = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyPNGCompressionFilter',
+)
+
+export const kCGImagePropertyPNGCopyright = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyPNGCopyright',
+)
+
+export const kCGImagePropertyPNGCreationTime = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyPNGCreationTime',
+)
+
+export const kCGImagePropertyPNGDescription = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyPNGDescription',
+)
+
+export const kCGImagePropertyPNGDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyPNGDictionary',
+)
+
+export const kCGImagePropertyPNGDisclaimer = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyPNGDisclaimer',
+)
+
 export const kCGImagePropertyPNGGamma = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyPNGGamma')
-export const kCGImagePropertyPNGInterlaceType = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyPNGInterlaceType')
-export const kCGImagePropertyPNGModificationTime = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyPNGModificationTime')
+export const kCGImagePropertyPNGInterlaceType = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyPNGInterlaceType',
+)
+
+export const kCGImagePropertyPNGModificationTime = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyPNGModificationTime',
+)
+
 export const kCGImagePropertyPNGSoftware = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyPNGSoftware')
 export const kCGImagePropertyPNGSource = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyPNGSource')
 export const kCGImagePropertyPNGTitle = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyPNGTitle')
-export const kCGImagePropertyPNGTransparency = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyPNGTransparency')
+export const kCGImagePropertyPNGTransparency = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyPNGTransparency',
+)
+
 export const kCGImagePropertyPNGWarning = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyPNGWarning')
-export const kCGImagePropertyPNGXPixelsPerMeter = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyPNGXPixelsPerMeter')
-export const kCGImagePropertyPNGYPixelsPerMeter = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyPNGYPixelsPerMeter')
-export const kCGImagePropertyPNGsRGBIntent = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyPNGsRGBIntent')
+export const kCGImagePropertyPNGXPixelsPerMeter = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyPNGXPixelsPerMeter',
+)
+
+export const kCGImagePropertyPNGYPixelsPerMeter = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyPNGYPixelsPerMeter',
+)
+
+export const kCGImagePropertyPNGsRGBIntent = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyPNGsRGBIntent',
+)
+
 export const kCGImagePropertyPVREncoder = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyPVREncoder')
 export const kCGImagePropertyPixelFormat = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyPixelFormat')
 export const kCGImagePropertyPixelHeight = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyPixelHeight')
 export const kCGImagePropertyPixelWidth = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyPixelWidth')
-export const kCGImagePropertyPrimaryImage = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyPrimaryImage')
+export const kCGImagePropertyPrimaryImage = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyPrimaryImage',
+)
+
 export const kCGImagePropertyProfileName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyProfileName')
-export const kCGImagePropertyRawDictionary = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyRawDictionary')
-export const kCGImagePropertyTGACompression = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyTGACompression')
-export const kCGImagePropertyTGADictionary = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyTGADictionary')
+export const kCGImagePropertyRawDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyRawDictionary',
+)
+
+export const kCGImagePropertyTGACompression = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyTGACompression',
+)
+
+export const kCGImagePropertyTGADictionary = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyTGADictionary',
+)
+
 export const kCGImagePropertyTIFFArtist = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyTIFFArtist')
-export const kCGImagePropertyTIFFCompression = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyTIFFCompression')
-export const kCGImagePropertyTIFFCopyright = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyTIFFCopyright')
-export const kCGImagePropertyTIFFDateTime = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyTIFFDateTime')
-export const kCGImagePropertyTIFFDictionary = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyTIFFDictionary')
-export const kCGImagePropertyTIFFDocumentName = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyTIFFDocumentName')
-export const kCGImagePropertyTIFFHostComputer = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyTIFFHostComputer')
-export const kCGImagePropertyTIFFImageDescription = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyTIFFImageDescription')
+export const kCGImagePropertyTIFFCompression = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyTIFFCompression',
+)
+
+export const kCGImagePropertyTIFFCopyright = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyTIFFCopyright',
+)
+
+export const kCGImagePropertyTIFFDateTime = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyTIFFDateTime',
+)
+
+export const kCGImagePropertyTIFFDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyTIFFDictionary',
+)
+
+export const kCGImagePropertyTIFFDocumentName = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyTIFFDocumentName',
+)
+
+export const kCGImagePropertyTIFFHostComputer = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyTIFFHostComputer',
+)
+
+export const kCGImagePropertyTIFFImageDescription = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyTIFFImageDescription',
+)
+
 export const kCGImagePropertyTIFFMake = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyTIFFMake')
 export const kCGImagePropertyTIFFModel = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyTIFFModel')
-export const kCGImagePropertyTIFFOrientation = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyTIFFOrientation')
-export const kCGImagePropertyTIFFPhotometricInterpretation = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyTIFFPhotometricInterpretation')
-export const kCGImagePropertyTIFFPrimaryChromaticities = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyTIFFPrimaryChromaticities')
-export const kCGImagePropertyTIFFResolutionUnit = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyTIFFResolutionUnit')
-export const kCGImagePropertyTIFFSoftware = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyTIFFSoftware')
-export const kCGImagePropertyTIFFTileLength = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyTIFFTileLength')
-export const kCGImagePropertyTIFFTileWidth = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyTIFFTileWidth')
-export const kCGImagePropertyTIFFTransferFunction = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyTIFFTransferFunction')
-export const kCGImagePropertyTIFFWhitePoint = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyTIFFWhitePoint')
-export const kCGImagePropertyTIFFXResolution = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyTIFFXResolution')
-export const kCGImagePropertyTIFFYResolution = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyTIFFYResolution')
-export const kCGImagePropertyThumbnailImages = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyThumbnailImages')
-export const kCGImagePropertyWebPCanvasPixelHeight = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyWebPCanvasPixelHeight')
-export const kCGImagePropertyWebPCanvasPixelWidth = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyWebPCanvasPixelWidth')
-export const kCGImagePropertyWebPDelayTime = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyWebPDelayTime')
-export const kCGImagePropertyWebPDictionary = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyWebPDictionary')
-export const kCGImagePropertyWebPFrameInfoArray = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyWebPFrameInfoArray')
-export const kCGImagePropertyWebPLoopCount = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyWebPLoopCount')
-export const kCGImagePropertyWebPUnclampedDelayTime = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyWebPUnclampedDelayTime')
+export const kCGImagePropertyTIFFOrientation = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyTIFFOrientation',
+)
+
+export const kCGImagePropertyTIFFPhotometricInterpretation = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyTIFFPhotometricInterpretation',
+)
+
+export const kCGImagePropertyTIFFPrimaryChromaticities = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyTIFFPrimaryChromaticities',
+)
+
+export const kCGImagePropertyTIFFResolutionUnit = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyTIFFResolutionUnit',
+)
+
+export const kCGImagePropertyTIFFSoftware = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyTIFFSoftware',
+)
+
+export const kCGImagePropertyTIFFTileLength = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyTIFFTileLength',
+)
+
+export const kCGImagePropertyTIFFTileWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyTIFFTileWidth',
+)
+
+export const kCGImagePropertyTIFFTransferFunction = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyTIFFTransferFunction',
+)
+
+export const kCGImagePropertyTIFFWhitePoint = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyTIFFWhitePoint',
+)
+
+export const kCGImagePropertyTIFFXResolution = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyTIFFXResolution',
+)
+
+export const kCGImagePropertyTIFFYResolution = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyTIFFYResolution',
+)
+
+export const kCGImagePropertyThumbnailImages = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyThumbnailImages',
+)
+
+export const kCGImagePropertyWebPCanvasPixelHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyWebPCanvasPixelHeight',
+)
+
+export const kCGImagePropertyWebPCanvasPixelWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyWebPCanvasPixelWidth',
+)
+
+export const kCGImagePropertyWebPDelayTime = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyWebPDelayTime',
+)
+
+export const kCGImagePropertyWebPDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyWebPDictionary',
+)
+
+export const kCGImagePropertyWebPFrameInfoArray = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyWebPFrameInfoArray',
+)
+
+export const kCGImagePropertyWebPLoopCount = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyWebPLoopCount',
+)
+
+export const kCGImagePropertyWebPUnclampedDelayTime = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImagePropertyWebPUnclampedDelayTime',
+)
+
 export const kCGImagePropertyWidth = /* @__PURE__ */ _bind(FW, 'kCGImagePropertyWidth')
-export const kCGImageSourceCreateThumbnailFromImageAlways = /* @__PURE__ */ _bind(FW, 'kCGImageSourceCreateThumbnailFromImageAlways')
-export const kCGImageSourceCreateThumbnailFromImageIfAbsent = /* @__PURE__ */ _bind(FW, 'kCGImageSourceCreateThumbnailFromImageIfAbsent')
-export const kCGImageSourceCreateThumbnailWithTransform = /* @__PURE__ */ _bind(FW, 'kCGImageSourceCreateThumbnailWithTransform')
-export const kCGImageSourceShouldAllowFloat = /* @__PURE__ */ _bind(FW, 'kCGImageSourceShouldAllowFloat')
+export const kCGImageSourceCreateThumbnailFromImageAlways = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageSourceCreateThumbnailFromImageAlways',
+)
+
+export const kCGImageSourceCreateThumbnailFromImageIfAbsent = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageSourceCreateThumbnailFromImageIfAbsent',
+)
+
+export const kCGImageSourceCreateThumbnailWithTransform = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageSourceCreateThumbnailWithTransform',
+)
+
+export const kCGImageSourceShouldAllowFloat = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageSourceShouldAllowFloat',
+)
+
 export const kCGImageSourceShouldCache = /* @__PURE__ */ _bind(FW, 'kCGImageSourceShouldCache')
-export const kCGImageSourceShouldCacheImmediately = /* @__PURE__ */ _bind(FW, 'kCGImageSourceShouldCacheImmediately')
-export const kCGImageSourceSubsampleFactor = /* @__PURE__ */ _bind(FW, 'kCGImageSourceSubsampleFactor')
-export const kCGImageSourceThumbnailMaxPixelSize = /* @__PURE__ */ _bind(FW, 'kCGImageSourceThumbnailMaxPixelSize')
-export const kCGImageSourceTypeIdentifierHint = /* @__PURE__ */ _bind(FW, 'kCGImageSourceTypeIdentifierHint')
+export const kCGImageSourceShouldCacheImmediately = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageSourceShouldCacheImmediately',
+)
+
+export const kCGImageSourceSubsampleFactor = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageSourceSubsampleFactor',
+)
+
+export const kCGImageSourceThumbnailMaxPixelSize = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageSourceThumbnailMaxPixelSize',
+)
+
+export const kCGImageSourceTypeIdentifierHint = /* @__PURE__ */ _bind(
+	FW,
+	'kCGImageSourceTypeIdentifierHint',
+)

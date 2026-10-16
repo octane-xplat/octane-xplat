@@ -22,11 +22,16 @@ const boundAppId = (context) => {
 // Commands that reference a specific session/job/evidence id get not_found
 // when no host exists — nothing anywhere owns that state.
 const NO_STATE_HOST = () =>
-	contractError('not_found', 'No agent runtime host is running — no sessions, jobs, or evidence exist for this workspace.', {
-		recovery: {
-			action: 'Start work with `xplat session start` or `xplat runtime build`; state lives only while a host owns it.',
+	contractError(
+		'not_found',
+		'No agent runtime host is running — no sessions, jobs, or evidence exist for this workspace.',
+		{
+			recovery: {
+				action:
+					'Start work with `xplat session start` or `xplat runtime build`; state lives only while a host owns it.',
+			},
 		},
-	})
+	)
 
 /**
  * Route one service call through the agent runtime host. `spawn` marks
@@ -248,9 +253,13 @@ export const handlers = {
 	async 'docs read'({ context }, args) {
 		if (!args.ref && !(args.package && args.path)) {
 			return fail(
-				contractError('invalid_selection', 'Pass --ref from docs search, or --package with --path.', {
-					recovery: { action: 'Run `xplat docs search` to get a versioned ref.' },
-				}),
+				contractError(
+					'invalid_selection',
+					'Pass --ref from docs search, or --package with --path.',
+					{
+						recovery: { action: 'Run `xplat docs search` to get a versioned ref.' },
+					},
+				),
 			)
 		}
 
@@ -291,47 +300,82 @@ export const handlers = {
 	},
 
 	async 'runtime build'(env, args) {
-		const missing = requireFlag(args.platform, '--platform', 'one of web, ios, android, macos, linux, windows')
+		const missing = requireFlag(
+			args.platform,
+			'--platform',
+			'one of web, ios, android, macos, linux, windows',
+		)
+
 		if (missing) {
 			return missing
 		}
 
-		return hostCall(env, 'runtime.build', {
-			platform: args.platform,
-			requestKey: args.requestKey,
-		}, { spawn: true })
+		return hostCall(
+			env,
+			'runtime.build',
+			{
+				platform: args.platform,
+				requestKey: args.requestKey,
+			},
+			{ spawn: true },
+		)
 	},
 
 	async 'session start'(env, args) {
-		const missing = requireFlag(args.platform, '--platform', 'one of web, ios, android, macos, linux, windows')
+		const missing = requireFlag(
+			args.platform,
+			'--platform',
+			'one of web, ios, android, macos, linux, windows',
+		)
+
 		if (missing) {
 			return missing
 		}
 
-		return hostCall(env, 'runtime.launch', {
-			platform: args.platform,
-			targetId: args.targetId,
-			requestKey: args.requestKey,
-			browserMode: args.browserMode,
-		}, { spawn: true })
+		return hostCall(
+			env,
+			'runtime.launch',
+			{
+				platform: args.platform,
+				targetId: args.targetId,
+				requestKey: args.requestKey,
+				browserMode: args.browserMode,
+			},
+			{ spawn: true },
+		)
 	},
 
 	async 'session attach'(env, args) {
-		const missing = requireFlag(args.platform, '--platform', 'one of web, ios, android, macos, linux, windows')
+		const missing = requireFlag(
+			args.platform,
+			'--platform',
+			'one of web, ios, android, macos, linux, windows',
+		)
+
 		if (missing) {
 			return missing
 		}
 
-		return hostCall(env, 'runtime.attach', {
-			platform: args.platform,
-			targetId: args.targetId,
-		}, { spawn: true })
+		return hostCall(
+			env,
+			'runtime.attach',
+			{
+				platform: args.platform,
+				targetId: args.targetId,
+			},
+			{ spawn: true },
+		)
 	},
 
 	async 'session list'(env) {
-		return hostCall(env, 'sessions.list', {}, {
-			absent: () => ok({ sessions: [], host: { state: 'absent' } }),
-		})
+		return hostCall(
+			env,
+			'sessions.list',
+			{},
+			{
+				absent: () => ok({ sessions: [], host: { state: 'absent' } }),
+			},
+		)
 	},
 
 	async 'session status'(env, args) {
@@ -354,7 +398,9 @@ export const handlers = {
 		if (!args.sessionId && !args.jobId) {
 			return fail(
 				contractError('invalid_selection', 'Pass --session or --job.', {
-					recovery: { action: 'Use `xplat session list` or a job id from a runtime/actions command.' },
+					recovery: {
+						action: 'Use `xplat session list` or a job id from a runtime/actions command.',
+					},
 				}),
 			)
 		}
@@ -419,9 +465,14 @@ export const handlers = {
 	},
 
 	async 'evidence list'(env, args) {
-		return hostCall(env, 'evidence.list', { kind: args.kind }, {
-			absent: () => ok({ evidence: [], host: { state: 'absent' } }),
-		})
+		return hostCall(
+			env,
+			'evidence.list',
+			{ kind: args.kind },
+			{
+				absent: () => ok({ evidence: [], host: { state: 'absent' } }),
+			},
+		)
 	},
 
 	async 'evidence retain'(env, args) {
@@ -476,13 +527,18 @@ export const handlers = {
 			}
 		}
 
-		return hostCall(env, 'devActions.invoke', {
-			appInstanceId: args.appInstanceId,
-			actionId: args.actionId,
-			input: input ?? {},
-			registryRevision: args.registryRevision,
-			requestKey: args.requestKey,
-		}, { spawn: true })
+		return hostCall(
+			env,
+			'devActions.invoke',
+			{
+				appInstanceId: args.appInstanceId,
+				actionId: args.actionId,
+				input: input ?? {},
+				registryRevision: args.registryRevision,
+				requestKey: args.requestKey,
+			},
+			{ spawn: true },
+		)
 	},
 
 	async 'actions status'(env, args) {

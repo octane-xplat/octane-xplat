@@ -39,7 +39,7 @@ describe('createListData', () => {
 
 		list.remove('a')
 		expect(names(list)).toEqual(['b', 'c'])
-		expect([...list.selectedKeys as Set<string>]).toEqual(['b'])
+		expect([...(list.selectedKeys as Set<string>)]).toEqual(['b'])
 	})
 
 	it('removeSelectedItems clears selection or empties the list for all', () => {

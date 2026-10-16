@@ -27,26 +27,66 @@ export const CC_NOT_SUPP = /* @__PURE__ */ _bind(FW, 'CC_NOT_SUPP')
 export const CC_NO_EXIST = /* @__PURE__ */ _bind(FW, 'CC_NO_EXIST')
 export const CC_WRITE = /* @__PURE__ */ _bind(FW, 'CC_WRITE')
 export const KLAcquireInitialTickets = /* @__PURE__ */ _bind(FW, 'KLAcquireInitialTickets')
-export const KLAcquireInitialTicketsWithPassword = /* @__PURE__ */ _bind(FW, 'KLAcquireInitialTicketsWithPassword')
-export const KLAcquireNewInitialTicketCredentialsWithPassword = /* @__PURE__ */ _bind(FW, 'KLAcquireNewInitialTicketCredentialsWithPassword')
+export const KLAcquireInitialTicketsWithPassword = /* @__PURE__ */ _bind(
+	FW,
+	'KLAcquireInitialTicketsWithPassword',
+)
+
+export const KLAcquireNewInitialTicketCredentialsWithPassword = /* @__PURE__ */ _bind(
+	FW,
+	'KLAcquireNewInitialTicketCredentialsWithPassword',
+)
+
 export const KLAcquireNewInitialTickets = /* @__PURE__ */ _bind(FW, 'KLAcquireNewInitialTickets')
-export const KLAcquireNewInitialTicketsWithKeytab = /* @__PURE__ */ _bind(FW, 'KLAcquireNewInitialTicketsWithKeytab')
-export const KLAcquireNewInitialTicketsWithPassword = /* @__PURE__ */ _bind(FW, 'KLAcquireNewInitialTicketsWithPassword')
+export const KLAcquireNewInitialTicketsWithKeytab = /* @__PURE__ */ _bind(
+	FW,
+	'KLAcquireNewInitialTicketsWithKeytab',
+)
+
+export const KLAcquireNewInitialTicketsWithPassword = /* @__PURE__ */ _bind(
+	FW,
+	'KLAcquireNewInitialTicketsWithPassword',
+)
+
 export const KLAcquireNewTickets = /* @__PURE__ */ _bind(FW, 'KLAcquireNewTickets')
-export const KLAcquireNewTicketsWithPassword = /* @__PURE__ */ _bind(FW, 'KLAcquireNewTicketsWithPassword')
+export const KLAcquireNewTicketsWithPassword = /* @__PURE__ */ _bind(
+	FW,
+	'KLAcquireNewTicketsWithPassword',
+)
+
 export const KLAcquireTickets = /* @__PURE__ */ _bind(FW, 'KLAcquireTickets')
-export const KLAcquireTicketsWithPassword = /* @__PURE__ */ _bind(FW, 'KLAcquireTicketsWithPassword')
+export const KLAcquireTicketsWithPassword = /* @__PURE__ */ _bind(
+	FW,
+	'KLAcquireTicketsWithPassword',
+)
+
 export const KLCacheHasValidTickets = /* @__PURE__ */ _bind(FW, 'KLCacheHasValidTickets')
 export const KLCancelAllDialogs = /* @__PURE__ */ _bind(FW, 'KLCancelAllDialogs')
 export const KLChangePassword = /* @__PURE__ */ _bind(FW, 'KLChangePassword')
-export const KLChangePasswordWithPasswords = /* @__PURE__ */ _bind(FW, 'KLChangePasswordWithPasswords')
+export const KLChangePasswordWithPasswords = /* @__PURE__ */ _bind(
+	FW,
+	'KLChangePasswordWithPasswords',
+)
+
 export const KLComparePrincipal = /* @__PURE__ */ _bind(FW, 'KLComparePrincipal')
 export const KLCountKerberosRealms = /* @__PURE__ */ _bind(FW, 'KLCountKerberosRealms')
 export const KLCreateLoginOptions = /* @__PURE__ */ _bind(FW, 'KLCreateLoginOptions')
-export const KLCreatePrincipalFromKerberos5Principal = /* @__PURE__ */ _bind(FW, 'KLCreatePrincipalFromKerberos5Principal')
-export const KLCreatePrincipalFromPrincipal = /* @__PURE__ */ _bind(FW, 'KLCreatePrincipalFromPrincipal')
+export const KLCreatePrincipalFromKerberos5Principal = /* @__PURE__ */ _bind(
+	FW,
+	'KLCreatePrincipalFromKerberos5Principal',
+)
+
+export const KLCreatePrincipalFromPrincipal = /* @__PURE__ */ _bind(
+	FW,
+	'KLCreatePrincipalFromPrincipal',
+)
+
 export const KLCreatePrincipalFromString = /* @__PURE__ */ _bind(FW, 'KLCreatePrincipalFromString')
-export const KLCreatePrincipalFromTriplet = /* @__PURE__ */ _bind(FW, 'KLCreatePrincipalFromTriplet')
+export const KLCreatePrincipalFromTriplet = /* @__PURE__ */ _bind(
+	FW,
+	'KLCreatePrincipalFromTriplet',
+)
+
 export const KLDestroyTickets = /* @__PURE__ */ _bind(FW, 'KLDestroyTickets')
 export const KLDisposeLoginOptions = /* @__PURE__ */ _bind(FW, 'KLDisposeLoginOptions')
 export const KLDisposePrincipal = /* @__PURE__ */ _bind(FW, 'KLDisposePrincipal')
@@ -54,24 +94,56 @@ export const KLDisposeString = /* @__PURE__ */ _bind(FW, 'KLDisposeString')
 export const KLFindKerberosRealmByName = /* @__PURE__ */ _bind(FW, 'KLFindKerberosRealmByName')
 export const KLGetApplicationOptions = /* @__PURE__ */ _bind(FW, 'KLGetApplicationOptions')
 export const KLGetDefaultLoginOption = /* @__PURE__ */ _bind(FW, 'KLGetDefaultLoginOption')
-export const KLGetDisplayStringFromPrincipal = /* @__PURE__ */ _bind(FW, 'KLGetDisplayStringFromPrincipal')
+export const KLGetDisplayStringFromPrincipal = /* @__PURE__ */ _bind(
+	FW,
+	'KLGetDisplayStringFromPrincipal',
+)
+
 export const KLGetErrorString = /* @__PURE__ */ _bind(FW, 'KLGetErrorString')
 export const KLGetIdleCallback = /* @__PURE__ */ _bind(FW, 'KLGetIdleCallback')
 export const KLGetKerberosDefaultRealm = /* @__PURE__ */ _bind(FW, 'KLGetKerberosDefaultRealm')
-export const KLGetKerberosDefaultRealmByName = /* @__PURE__ */ _bind(FW, 'KLGetKerberosDefaultRealmByName')
+export const KLGetKerberosDefaultRealmByName = /* @__PURE__ */ _bind(
+	FW,
+	'KLGetKerberosDefaultRealmByName',
+)
+
 export const KLGetKerberosRealm = /* @__PURE__ */ _bind(FW, 'KLGetKerberosRealm')
 export const KLGetStringFromPrincipal = /* @__PURE__ */ _bind(FW, 'KLGetStringFromPrincipal')
 export const KLGetTripletFromPrincipal = /* @__PURE__ */ _bind(FW, 'KLGetTripletFromPrincipal')
 export const KLHandleError = /* @__PURE__ */ _bind(FW, 'KLHandleError')
 export const KLInsertKerberosRealm = /* @__PURE__ */ _bind(FW, 'KLInsertKerberosRealm')
 export const KLLastChangedTime = /* @__PURE__ */ _bind(FW, 'KLLastChangedTime')
-export const KLLoginOptionsSetAddressless = /* @__PURE__ */ _bind(FW, 'KLLoginOptionsSetAddressless')
-export const KLLoginOptionsSetForwardable = /* @__PURE__ */ _bind(FW, 'KLLoginOptionsSetForwardable')
+export const KLLoginOptionsSetAddressless = /* @__PURE__ */ _bind(
+	FW,
+	'KLLoginOptionsSetAddressless',
+)
+
+export const KLLoginOptionsSetForwardable = /* @__PURE__ */ _bind(
+	FW,
+	'KLLoginOptionsSetForwardable',
+)
+
 export const KLLoginOptionsSetProxiable = /* @__PURE__ */ _bind(FW, 'KLLoginOptionsSetProxiable')
-export const KLLoginOptionsSetRenewableLifetime = /* @__PURE__ */ _bind(FW, 'KLLoginOptionsSetRenewableLifetime')
-export const KLLoginOptionsSetServiceName = /* @__PURE__ */ _bind(FW, 'KLLoginOptionsSetServiceName')
-export const KLLoginOptionsSetTicketLifetime = /* @__PURE__ */ _bind(FW, 'KLLoginOptionsSetTicketLifetime')
-export const KLLoginOptionsSetTicketStartTime = /* @__PURE__ */ _bind(FW, 'KLLoginOptionsSetTicketStartTime')
+export const KLLoginOptionsSetRenewableLifetime = /* @__PURE__ */ _bind(
+	FW,
+	'KLLoginOptionsSetRenewableLifetime',
+)
+
+export const KLLoginOptionsSetServiceName = /* @__PURE__ */ _bind(
+	FW,
+	'KLLoginOptionsSetServiceName',
+)
+
+export const KLLoginOptionsSetTicketLifetime = /* @__PURE__ */ _bind(
+	FW,
+	'KLLoginOptionsSetTicketLifetime',
+)
+
+export const KLLoginOptionsSetTicketStartTime = /* @__PURE__ */ _bind(
+	FW,
+	'KLLoginOptionsSetTicketStartTime',
+)
+
 export const KLRemoveAllKerberosRealms = /* @__PURE__ */ _bind(FW, 'KLRemoveAllKerberosRealms')
 export const KLRemoveKerberosRealm = /* @__PURE__ */ _bind(FW, 'KLRemoveKerberosRealm')
 export const KLRenewInitialTickets = /* @__PURE__ */ _bind(FW, 'KLRenewInitialTickets')
@@ -79,21 +151,41 @@ export const KLSetApplicationOptions = /* @__PURE__ */ _bind(FW, 'KLSetApplicati
 export const KLSetDefaultLoginOption = /* @__PURE__ */ _bind(FW, 'KLSetDefaultLoginOption')
 export const KLSetIdleCallback = /* @__PURE__ */ _bind(FW, 'KLSetIdleCallback')
 export const KLSetKerberosDefaultRealm = /* @__PURE__ */ _bind(FW, 'KLSetKerberosDefaultRealm')
-export const KLSetKerberosDefaultRealmByName = /* @__PURE__ */ _bind(FW, 'KLSetKerberosDefaultRealmByName')
+export const KLSetKerberosDefaultRealmByName = /* @__PURE__ */ _bind(
+	FW,
+	'KLSetKerberosDefaultRealmByName',
+)
+
 export const KLSetKerberosRealm = /* @__PURE__ */ _bind(FW, 'KLSetKerberosRealm')
 export const KLSetSystemDefaultCache = /* @__PURE__ */ _bind(FW, 'KLSetSystemDefaultCache')
-export const KLStoreNewInitialTicketCredentials = /* @__PURE__ */ _bind(FW, 'KLStoreNewInitialTicketCredentials')
+export const KLStoreNewInitialTicketCredentials = /* @__PURE__ */ _bind(
+	FW,
+	'KLStoreNewInitialTicketCredentials',
+)
+
 export const KLTicketExpirationTime = /* @__PURE__ */ _bind(FW, 'KLTicketExpirationTime')
 export const KLTicketStartTime = /* @__PURE__ */ _bind(FW, 'KLTicketStartTime')
 export const KLValidateInitialTickets = /* @__PURE__ */ _bind(FW, 'KLValidateInitialTickets')
-export const KLVerifyInitialTicketCredentials = /* @__PURE__ */ _bind(FW, 'KLVerifyInitialTicketCredentials')
+export const KLVerifyInitialTicketCredentials = /* @__PURE__ */ _bind(
+	FW,
+	'KLVerifyInitialTicketCredentials',
+)
+
 export const KLVerifyInitialTickets = /* @__PURE__ */ _bind(FW, 'KLVerifyInitialTickets')
-export const KRB5_C_RANDSOURCE_EXTERNAL_PROTOCOL = /* @__PURE__ */ _bind(FW, 'KRB5_C_RANDSOURCE_EXTERNAL_PROTOCOL')
+export const KRB5_C_RANDSOURCE_EXTERNAL_PROTOCOL = /* @__PURE__ */ _bind(
+	FW,
+	'KRB5_C_RANDSOURCE_EXTERNAL_PROTOCOL',
+)
+
 export const KRB5_C_RANDSOURCE_MAX = /* @__PURE__ */ _bind(FW, 'KRB5_C_RANDSOURCE_MAX')
 export const KRB5_C_RANDSOURCE_OLDAPI = /* @__PURE__ */ _bind(FW, 'KRB5_C_RANDSOURCE_OLDAPI')
 export const KRB5_C_RANDSOURCE_OSRAND = /* @__PURE__ */ _bind(FW, 'KRB5_C_RANDSOURCE_OSRAND')
 export const KRB5_C_RANDSOURCE_TIMING = /* @__PURE__ */ _bind(FW, 'KRB5_C_RANDSOURCE_TIMING')
-export const KRB5_C_RANDSOURCE_TRUSTEDPARTY = /* @__PURE__ */ _bind(FW, 'KRB5_C_RANDSOURCE_TRUSTEDPARTY')
+export const KRB5_C_RANDSOURCE_TRUSTEDPARTY = /* @__PURE__ */ _bind(
+	FW,
+	'KRB5_C_RANDSOURCE_TRUSTEDPARTY',
+)
+
 export const KRB_INSTANCE_SZ = /* @__PURE__ */ _bind(FW, 'KRB_INSTANCE_SZ')
 export const KRB_NAME_SZ = /* @__PURE__ */ _bind(FW, 'KRB_NAME_SZ')
 export const KRB_REALM_SZ = /* @__PURE__ */ _bind(FW, 'KRB_REALM_SZ')
@@ -144,9 +236,21 @@ export const _krb5_verify_init_creds_opt = /* @__PURE__ */ _bind(FW, '_krb5_veri
 export const _passwd_phrase_element = /* @__PURE__ */ _bind(FW, '_passwd_phrase_element')
 export const _profile_t = /* @__PURE__ */ _bind(FW, '_profile_t')
 export const add_error_table = /* @__PURE__ */ _bind(FW, 'add_error_table')
-export const apple_gss_krb5_authdata_if_relevant_key = /* @__PURE__ */ _bind(FW, 'apple_gss_krb5_authdata_if_relevant_key')
-export const apple_gss_krb5_export_authdata_if_relevant_context = /* @__PURE__ */ _bind(FW, 'apple_gss_krb5_export_authdata_if_relevant_context')
-export const apple_gss_krb5_free_authdata_if_relevant = /* @__PURE__ */ _bind(FW, 'apple_gss_krb5_free_authdata_if_relevant')
+export const apple_gss_krb5_authdata_if_relevant_key = /* @__PURE__ */ _bind(
+	FW,
+	'apple_gss_krb5_authdata_if_relevant_key',
+)
+
+export const apple_gss_krb5_export_authdata_if_relevant_context = /* @__PURE__ */ _bind(
+	FW,
+	'apple_gss_krb5_export_authdata_if_relevant_context',
+)
+
+export const apple_gss_krb5_free_authdata_if_relevant = /* @__PURE__ */ _bind(
+	FW,
+	'apple_gss_krb5_free_authdata_if_relevant',
+)
+
 export const ccErrBadAPIVersion = /* @__PURE__ */ _bind(FW, 'ccErrBadAPIVersion')
 export const ccErrBadCredentialsVersion = /* @__PURE__ */ _bind(FW, 'ccErrBadCredentialsVersion')
 export const ccErrBadInternalMessage = /* @__PURE__ */ _bind(FW, 'ccErrBadInternalMessage')
@@ -165,7 +269,11 @@ export const ccErrInvalidCCache = /* @__PURE__ */ _bind(FW, 'ccErrInvalidCCache'
 export const ccErrInvalidCCacheIterator = /* @__PURE__ */ _bind(FW, 'ccErrInvalidCCacheIterator')
 export const ccErrInvalidContext = /* @__PURE__ */ _bind(FW, 'ccErrInvalidContext')
 export const ccErrInvalidCredentials = /* @__PURE__ */ _bind(FW, 'ccErrInvalidCredentials')
-export const ccErrInvalidCredentialsIterator = /* @__PURE__ */ _bind(FW, 'ccErrInvalidCredentialsIterator')
+export const ccErrInvalidCredentialsIterator = /* @__PURE__ */ _bind(
+	FW,
+	'ccErrInvalidCredentialsIterator',
+)
+
 export const ccErrInvalidLock = /* @__PURE__ */ _bind(FW, 'ccErrInvalidLock')
 export const ccErrInvalidString = /* @__PURE__ */ _bind(FW, 'ccErrInvalidString')
 export const ccErrNeverDefault = /* @__PURE__ */ _bind(FW, 'ccErrNeverDefault')
@@ -285,7 +393,11 @@ export const klCantDisplayUIErr = /* @__PURE__ */ _bind(FW, 'klCantDisplayUIErr'
 export const klCapsLockErr = /* @__PURE__ */ _bind(FW, 'klCapsLockErr')
 export const klCredentialsBadAddressErr = /* @__PURE__ */ _bind(FW, 'klCredentialsBadAddressErr')
 export const klCredentialsExpiredErr = /* @__PURE__ */ _bind(FW, 'klCredentialsExpiredErr')
-export const klCredentialsNeedValidationErr = /* @__PURE__ */ _bind(FW, 'klCredentialsNeedValidationErr')
+export const klCredentialsNeedValidationErr = /* @__PURE__ */ _bind(
+	FW,
+	'klCredentialsNeedValidationErr',
+)
+
 export const klInsecurePasswordErr = /* @__PURE__ */ _bind(FW, 'klInsecurePasswordErr')
 export const klInvalidOptionErr = /* @__PURE__ */ _bind(FW, 'klInvalidOptionErr')
 export const klInvalidVersionErr = /* @__PURE__ */ _bind(FW, 'klInvalidVersionErr')
@@ -302,7 +414,11 @@ export const klPreferencesWriteErr = /* @__PURE__ */ _bind(FW, 'klPreferencesWri
 export const klPrincipalDoesNotExistErr = /* @__PURE__ */ _bind(FW, 'klPrincipalDoesNotExistErr')
 export const klRealmDoesNotExistErr = /* @__PURE__ */ _bind(FW, 'klRealmDoesNotExistErr')
 export const klServerInsecureErr = /* @__PURE__ */ _bind(FW, 'klServerInsecureErr')
-export const klSystemDefaultDoesNotExistErr = /* @__PURE__ */ _bind(FW, 'klSystemDefaultDoesNotExistErr')
+export const klSystemDefaultDoesNotExistErr = /* @__PURE__ */ _bind(
+	FW,
+	'klSystemDefaultDoesNotExistErr',
+)
+
 export const klUserCanceledErr = /* @__PURE__ */ _bind(FW, 'klUserCanceledErr')
 export const klV5InitializationFailedErr = /* @__PURE__ */ _bind(FW, 'klV5InitializationFailedErr')
 export const krb5_425_conv_principal = /* @__PURE__ */ _bind(FW, 'krb5_425_conv_principal')
@@ -316,27 +432,55 @@ export const krb5_appdefault_boolean = /* @__PURE__ */ _bind(FW, 'krb5_appdefaul
 export const krb5_appdefault_string = /* @__PURE__ */ _bind(FW, 'krb5_appdefault_string')
 export const krb5_auth_con_free = /* @__PURE__ */ _bind(FW, 'krb5_auth_con_free')
 export const krb5_auth_con_genaddrs = /* @__PURE__ */ _bind(FW, 'krb5_auth_con_genaddrs')
-export const krb5_auth_con_get_checksum_func = /* @__PURE__ */ _bind(FW, 'krb5_auth_con_get_checksum_func')
+export const krb5_auth_con_get_checksum_func = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_auth_con_get_checksum_func',
+)
+
 export const krb5_auth_con_getaddrs = /* @__PURE__ */ _bind(FW, 'krb5_auth_con_getaddrs')
-export const krb5_auth_con_getauthenticator = /* @__PURE__ */ _bind(FW, 'krb5_auth_con_getauthenticator')
+export const krb5_auth_con_getauthenticator = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_auth_con_getauthenticator',
+)
+
 export const krb5_auth_con_getflags = /* @__PURE__ */ _bind(FW, 'krb5_auth_con_getflags')
 export const krb5_auth_con_getkey = /* @__PURE__ */ _bind(FW, 'krb5_auth_con_getkey')
-export const krb5_auth_con_getlocalseqnumber = /* @__PURE__ */ _bind(FW, 'krb5_auth_con_getlocalseqnumber')
+export const krb5_auth_con_getlocalseqnumber = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_auth_con_getlocalseqnumber',
+)
+
 export const krb5_auth_con_getrcache = /* @__PURE__ */ _bind(FW, 'krb5_auth_con_getrcache')
 export const krb5_auth_con_getrecvsubkey = /* @__PURE__ */ _bind(FW, 'krb5_auth_con_getrecvsubkey')
-export const krb5_auth_con_getremoteseqnumber = /* @__PURE__ */ _bind(FW, 'krb5_auth_con_getremoteseqnumber')
+export const krb5_auth_con_getremoteseqnumber = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_auth_con_getremoteseqnumber',
+)
+
 export const krb5_auth_con_getsendsubkey = /* @__PURE__ */ _bind(FW, 'krb5_auth_con_getsendsubkey')
 export const krb5_auth_con_init = /* @__PURE__ */ _bind(FW, 'krb5_auth_con_init')
-export const krb5_auth_con_set_checksum_func = /* @__PURE__ */ _bind(FW, 'krb5_auth_con_set_checksum_func')
+export const krb5_auth_con_set_checksum_func = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_auth_con_set_checksum_func',
+)
+
 export const krb5_auth_con_setaddrs = /* @__PURE__ */ _bind(FW, 'krb5_auth_con_setaddrs')
 export const krb5_auth_con_setflags = /* @__PURE__ */ _bind(FW, 'krb5_auth_con_setflags')
 export const krb5_auth_con_setports = /* @__PURE__ */ _bind(FW, 'krb5_auth_con_setports')
 export const krb5_auth_con_setrcache = /* @__PURE__ */ _bind(FW, 'krb5_auth_con_setrcache')
 export const krb5_auth_con_setrecvsubkey = /* @__PURE__ */ _bind(FW, 'krb5_auth_con_setrecvsubkey')
 export const krb5_auth_con_setsendsubkey = /* @__PURE__ */ _bind(FW, 'krb5_auth_con_setsendsubkey')
-export const krb5_auth_con_setuseruserkey = /* @__PURE__ */ _bind(FW, 'krb5_auth_con_setuseruserkey')
+export const krb5_auth_con_setuseruserkey = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_auth_con_setuseruserkey',
+)
+
 export const krb5_build_principal = /* @__PURE__ */ _bind(FW, 'krb5_build_principal')
-export const krb5_build_principal_alloc_va = /* @__PURE__ */ _bind(FW, 'krb5_build_principal_alloc_va')
+export const krb5_build_principal_alloc_va = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_build_principal_alloc_va',
+)
+
 export const krb5_build_principal_ext = /* @__PURE__ */ _bind(FW, 'krb5_build_principal_ext')
 export const krb5_c_block_size = /* @__PURE__ */ _bind(FW, 'krb5_c_block_size')
 export const krb5_c_checksum_length = /* @__PURE__ */ _bind(FW, 'krb5_c_checksum_length')
@@ -356,7 +500,11 @@ export const krb5_c_random_make_octets = /* @__PURE__ */ _bind(FW, 'krb5_c_rando
 export const krb5_c_random_os_entropy = /* @__PURE__ */ _bind(FW, 'krb5_c_random_os_entropy')
 export const krb5_c_random_seed = /* @__PURE__ */ _bind(FW, 'krb5_c_random_seed')
 export const krb5_c_string_to_key = /* @__PURE__ */ _bind(FW, 'krb5_c_string_to_key')
-export const krb5_c_string_to_key_with_params = /* @__PURE__ */ _bind(FW, 'krb5_c_string_to_key_with_params')
+export const krb5_c_string_to_key_with_params = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_c_string_to_key_with_params',
+)
+
 export const krb5_c_valid_cksumtype = /* @__PURE__ */ _bind(FW, 'krb5_c_valid_cksumtype')
 export const krb5_c_valid_enctype = /* @__PURE__ */ _bind(FW, 'krb5_c_valid_enctype')
 export const krb5_c_verify_checksum = /* @__PURE__ */ _bind(FW, 'krb5_c_verify_checksum')
@@ -436,7 +584,11 @@ export const krb5_free_error_message = /* @__PURE__ */ _bind(FW, 'krb5_free_erro
 export const krb5_free_host_realm = /* @__PURE__ */ _bind(FW, 'krb5_free_host_realm')
 export const krb5_free_keyblock = /* @__PURE__ */ _bind(FW, 'krb5_free_keyblock')
 export const krb5_free_keyblock_contents = /* @__PURE__ */ _bind(FW, 'krb5_free_keyblock_contents')
-export const krb5_free_keytab_entry_contents = /* @__PURE__ */ _bind(FW, 'krb5_free_keytab_entry_contents')
+export const krb5_free_keytab_entry_contents = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_free_keytab_entry_contents',
+)
+
 export const krb5_free_principal = /* @__PURE__ */ _bind(FW, 'krb5_free_principal')
 export const krb5_free_tgt_creds = /* @__PURE__ */ _bind(FW, 'krb5_free_tgt_creds')
 export const krb5_free_ticket = /* @__PURE__ */ _bind(FW, 'krb5_free_ticket')
@@ -444,27 +596,95 @@ export const krb5_free_unparsed_name = /* @__PURE__ */ _bind(FW, 'krb5_free_unpa
 export const krb5_fwd_tgt_creds = /* @__PURE__ */ _bind(FW, 'krb5_fwd_tgt_creds')
 export const krb5_get_credentials = /* @__PURE__ */ _bind(FW, 'krb5_get_credentials')
 export const krb5_get_credentials_renew = /* @__PURE__ */ _bind(FW, 'krb5_get_credentials_renew')
-export const krb5_get_credentials_validate = /* @__PURE__ */ _bind(FW, 'krb5_get_credentials_validate')
+export const krb5_get_credentials_validate = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_get_credentials_validate',
+)
+
 export const krb5_get_default_realm = /* @__PURE__ */ _bind(FW, 'krb5_get_default_realm')
 export const krb5_get_error_message = /* @__PURE__ */ _bind(FW, 'krb5_get_error_message')
 export const krb5_get_host_realm = /* @__PURE__ */ _bind(FW, 'krb5_get_host_realm')
 export const krb5_get_init_creds_keytab = /* @__PURE__ */ _bind(FW, 'krb5_get_init_creds_keytab')
-export const krb5_get_init_creds_opt_alloc = /* @__PURE__ */ _bind(FW, 'krb5_get_init_creds_opt_alloc')
-export const krb5_get_init_creds_opt_free = /* @__PURE__ */ _bind(FW, 'krb5_get_init_creds_opt_free')
-export const krb5_get_init_creds_opt_init = /* @__PURE__ */ _bind(FW, 'krb5_get_init_creds_opt_init')
-export const krb5_get_init_creds_opt_set_address_list = /* @__PURE__ */ _bind(FW, 'krb5_get_init_creds_opt_set_address_list')
-export const krb5_get_init_creds_opt_set_canonicalize = /* @__PURE__ */ _bind(FW, 'krb5_get_init_creds_opt_set_canonicalize')
-export const krb5_get_init_creds_opt_set_change_password_prompt = /* @__PURE__ */ _bind(FW, 'krb5_get_init_creds_opt_set_change_password_prompt')
-export const krb5_get_init_creds_opt_set_etype_list = /* @__PURE__ */ _bind(FW, 'krb5_get_init_creds_opt_set_etype_list')
-export const krb5_get_init_creds_opt_set_forwardable = /* @__PURE__ */ _bind(FW, 'krb5_get_init_creds_opt_set_forwardable')
-export const krb5_get_init_creds_opt_set_pa = /* @__PURE__ */ _bind(FW, 'krb5_get_init_creds_opt_set_pa')
-export const krb5_get_init_creds_opt_set_preauth_list = /* @__PURE__ */ _bind(FW, 'krb5_get_init_creds_opt_set_preauth_list')
-export const krb5_get_init_creds_opt_set_process_last_req = /* @__PURE__ */ _bind(FW, 'krb5_get_init_creds_opt_set_process_last_req')
-export const krb5_get_init_creds_opt_set_proxiable = /* @__PURE__ */ _bind(FW, 'krb5_get_init_creds_opt_set_proxiable')
-export const krb5_get_init_creds_opt_set_renew_life = /* @__PURE__ */ _bind(FW, 'krb5_get_init_creds_opt_set_renew_life')
-export const krb5_get_init_creds_opt_set_salt = /* @__PURE__ */ _bind(FW, 'krb5_get_init_creds_opt_set_salt')
-export const krb5_get_init_creds_opt_set_tkt_life = /* @__PURE__ */ _bind(FW, 'krb5_get_init_creds_opt_set_tkt_life')
-export const krb5_get_init_creds_password = /* @__PURE__ */ _bind(FW, 'krb5_get_init_creds_password')
+export const krb5_get_init_creds_opt_alloc = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_get_init_creds_opt_alloc',
+)
+
+export const krb5_get_init_creds_opt_free = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_get_init_creds_opt_free',
+)
+
+export const krb5_get_init_creds_opt_init = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_get_init_creds_opt_init',
+)
+
+export const krb5_get_init_creds_opt_set_address_list = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_get_init_creds_opt_set_address_list',
+)
+
+export const krb5_get_init_creds_opt_set_canonicalize = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_get_init_creds_opt_set_canonicalize',
+)
+
+export const krb5_get_init_creds_opt_set_change_password_prompt = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_get_init_creds_opt_set_change_password_prompt',
+)
+
+export const krb5_get_init_creds_opt_set_etype_list = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_get_init_creds_opt_set_etype_list',
+)
+
+export const krb5_get_init_creds_opt_set_forwardable = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_get_init_creds_opt_set_forwardable',
+)
+
+export const krb5_get_init_creds_opt_set_pa = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_get_init_creds_opt_set_pa',
+)
+
+export const krb5_get_init_creds_opt_set_preauth_list = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_get_init_creds_opt_set_preauth_list',
+)
+
+export const krb5_get_init_creds_opt_set_process_last_req = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_get_init_creds_opt_set_process_last_req',
+)
+
+export const krb5_get_init_creds_opt_set_proxiable = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_get_init_creds_opt_set_proxiable',
+)
+
+export const krb5_get_init_creds_opt_set_renew_life = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_get_init_creds_opt_set_renew_life',
+)
+
+export const krb5_get_init_creds_opt_set_salt = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_get_init_creds_opt_set_salt',
+)
+
+export const krb5_get_init_creds_opt_set_tkt_life = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_get_init_creds_opt_set_tkt_life',
+)
+
+export const krb5_get_init_creds_password = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_get_init_creds_password',
+)
+
 export const krb5_get_permitted_enctypes = /* @__PURE__ */ _bind(FW, 'krb5_get_permitted_enctypes')
 export const krb5_get_profile = /* @__PURE__ */ _bind(FW, 'krb5_get_profile')
 export const krb5_get_prompt_types = /* @__PURE__ */ _bind(FW, 'krb5_get_prompt_types')
@@ -526,12 +746,24 @@ export const krb5_recvauth_version = /* @__PURE__ */ _bind(FW, 'krb5_recvauth_ve
 export const krb5_replay_data = /* @__PURE__ */ _bind(FW, 'krb5_replay_data')
 export const krb5_salttype_to_string = /* @__PURE__ */ _bind(FW, 'krb5_salttype_to_string')
 export const krb5_sendauth = /* @__PURE__ */ _bind(FW, 'krb5_sendauth')
-export const krb5_server_decrypt_ticket_keytab = /* @__PURE__ */ _bind(FW, 'krb5_server_decrypt_ticket_keytab')
+export const krb5_server_decrypt_ticket_keytab = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_server_decrypt_ticket_keytab',
+)
+
 export const krb5_set_default_realm = /* @__PURE__ */ _bind(FW, 'krb5_set_default_realm')
-export const krb5_set_default_tgs_enctypes = /* @__PURE__ */ _bind(FW, 'krb5_set_default_tgs_enctypes')
+export const krb5_set_default_tgs_enctypes = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_set_default_tgs_enctypes',
+)
+
 export const krb5_set_error_message = /* @__PURE__ */ _bind(FW, 'krb5_set_error_message')
 export const krb5_set_password = /* @__PURE__ */ _bind(FW, 'krb5_set_password')
-export const krb5_set_password_using_ccache = /* @__PURE__ */ _bind(FW, 'krb5_set_password_using_ccache')
+export const krb5_set_password_using_ccache = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_set_password_using_ccache',
+)
+
 export const krb5_set_principal_realm = /* @__PURE__ */ _bind(FW, 'krb5_set_principal_realm')
 export const krb5_set_real_time = /* @__PURE__ */ _bind(FW, 'krb5_set_real_time')
 export const krb5_sname_to_principal = /* @__PURE__ */ _bind(FW, 'krb5_sname_to_principal')
@@ -552,39 +784,119 @@ export const krb5_us_timeofday = /* @__PURE__ */ _bind(FW, 'krb5_us_timeofday')
 export const krb5_use_enctype = /* @__PURE__ */ _bind(FW, 'krb5_use_enctype')
 export const krb5_verify_checksum = /* @__PURE__ */ _bind(FW, 'krb5_verify_checksum')
 export const krb5_verify_init_creds = /* @__PURE__ */ _bind(FW, 'krb5_verify_init_creds')
-export const krb5_verify_init_creds_opt_init = /* @__PURE__ */ _bind(FW, 'krb5_verify_init_creds_opt_init')
-export const krb5_verify_init_creds_opt_set_ap_req_nofail = /* @__PURE__ */ _bind(FW, 'krb5_verify_init_creds_opt_set_ap_req_nofail')
+export const krb5_verify_init_creds_opt_init = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_verify_init_creds_opt_init',
+)
+
+export const krb5_verify_init_creds_opt_set_ap_req_nofail = /* @__PURE__ */ _bind(
+	FW,
+	'krb5_verify_init_creds_opt_set_ap_req_nofail',
+)
+
 export const krb5_vset_error_message = /* @__PURE__ */ _bind(FW, 'krb5_vset_error_message')
-export const krb5plugin_preauth_client_ftable_v1 = /* @__PURE__ */ _bind(FW, 'krb5plugin_preauth_client_ftable_v1')
-export const krb5plugin_preauth_client_request_type = /* @__PURE__ */ _bind(FW, 'krb5plugin_preauth_client_request_type')
-export const krb5plugin_preauth_entry_request_type = /* @__PURE__ */ _bind(FW, 'krb5plugin_preauth_entry_request_type')
-export const krb5plugin_preauth_server_ftable_v1 = /* @__PURE__ */ _bind(FW, 'krb5plugin_preauth_server_ftable_v1')
-export const krb5plugin_service_locate_ftable = /* @__PURE__ */ _bind(FW, 'krb5plugin_service_locate_ftable')
+export const krb5plugin_preauth_client_ftable_v1 = /* @__PURE__ */ _bind(
+	FW,
+	'krb5plugin_preauth_client_ftable_v1',
+)
+
+export const krb5plugin_preauth_client_request_type = /* @__PURE__ */ _bind(
+	FW,
+	'krb5plugin_preauth_client_request_type',
+)
+
+export const krb5plugin_preauth_entry_request_type = /* @__PURE__ */ _bind(
+	FW,
+	'krb5plugin_preauth_entry_request_type',
+)
+
+export const krb5plugin_preauth_server_ftable_v1 = /* @__PURE__ */ _bind(
+	FW,
+	'krb5plugin_preauth_server_ftable_v1',
+)
+
+export const krb5plugin_service_locate_ftable = /* @__PURE__ */ _bind(
+	FW,
+	'krb5plugin_service_locate_ftable',
+)
+
 export const locate_service_type = /* @__PURE__ */ _bind(FW, 'locate_service_type')
-export const loginLibrary_ChangePasswordDialog = /* @__PURE__ */ _bind(FW, 'loginLibrary_ChangePasswordDialog')
+export const loginLibrary_ChangePasswordDialog = /* @__PURE__ */ _bind(
+	FW,
+	'loginLibrary_ChangePasswordDialog',
+)
+
 export const loginLibrary_LoginDialog = /* @__PURE__ */ _bind(FW, 'loginLibrary_LoginDialog')
 export const loginLibrary_OptionsDialog = /* @__PURE__ */ _bind(FW, 'loginLibrary_OptionsDialog')
 export const loginLibrary_ProgressDialog = /* @__PURE__ */ _bind(FW, 'loginLibrary_ProgressDialog')
 export const loginLibrary_PrompterDialog = /* @__PURE__ */ _bind(FW, 'loginLibrary_PrompterDialog')
 export const loginLibrary_UnknownDialog = /* @__PURE__ */ _bind(FW, 'loginLibrary_UnknownDialog')
-export const loginOption_DefaultAddresslessTicket = /* @__PURE__ */ _bind(FW, 'loginOption_DefaultAddresslessTicket')
-export const loginOption_DefaultForwardableTicket = /* @__PURE__ */ _bind(FW, 'loginOption_DefaultForwardableTicket')
-export const loginOption_DefaultProxiableTicket = /* @__PURE__ */ _bind(FW, 'loginOption_DefaultProxiableTicket')
-export const loginOption_DefaultRenewableLifetime = /* @__PURE__ */ _bind(FW, 'loginOption_DefaultRenewableLifetime')
-export const loginOption_DefaultRenewableTicket = /* @__PURE__ */ _bind(FW, 'loginOption_DefaultRenewableTicket')
-export const loginOption_DefaultTicketLifetime = /* @__PURE__ */ _bind(FW, 'loginOption_DefaultTicketLifetime')
+export const loginOption_DefaultAddresslessTicket = /* @__PURE__ */ _bind(
+	FW,
+	'loginOption_DefaultAddresslessTicket',
+)
+
+export const loginOption_DefaultForwardableTicket = /* @__PURE__ */ _bind(
+	FW,
+	'loginOption_DefaultForwardableTicket',
+)
+
+export const loginOption_DefaultProxiableTicket = /* @__PURE__ */ _bind(
+	FW,
+	'loginOption_DefaultProxiableTicket',
+)
+
+export const loginOption_DefaultRenewableLifetime = /* @__PURE__ */ _bind(
+	FW,
+	'loginOption_DefaultRenewableLifetime',
+)
+
+export const loginOption_DefaultRenewableTicket = /* @__PURE__ */ _bind(
+	FW,
+	'loginOption_DefaultRenewableTicket',
+)
+
+export const loginOption_DefaultTicketLifetime = /* @__PURE__ */ _bind(
+	FW,
+	'loginOption_DefaultTicketLifetime',
+)
+
 export const loginOption_LoginInstance = /* @__PURE__ */ _bind(FW, 'loginOption_LoginInstance')
 export const loginOption_LoginName = /* @__PURE__ */ _bind(FW, 'loginOption_LoginName')
-export const loginOption_MaximalRenewableLifetime = /* @__PURE__ */ _bind(FW, 'loginOption_MaximalRenewableLifetime')
-export const loginOption_MaximalTicketLifetime = /* @__PURE__ */ _bind(FW, 'loginOption_MaximalTicketLifetime')
-export const loginOption_MinimalRenewableLifetime = /* @__PURE__ */ _bind(FW, 'loginOption_MinimalRenewableLifetime')
-export const loginOption_MinimalTicketLifetime = /* @__PURE__ */ _bind(FW, 'loginOption_MinimalTicketLifetime')
+export const loginOption_MaximalRenewableLifetime = /* @__PURE__ */ _bind(
+	FW,
+	'loginOption_MaximalRenewableLifetime',
+)
+
+export const loginOption_MaximalTicketLifetime = /* @__PURE__ */ _bind(
+	FW,
+	'loginOption_MaximalTicketLifetime',
+)
+
+export const loginOption_MinimalRenewableLifetime = /* @__PURE__ */ _bind(
+	FW,
+	'loginOption_MinimalRenewableLifetime',
+)
+
+export const loginOption_MinimalTicketLifetime = /* @__PURE__ */ _bind(
+	FW,
+	'loginOption_MinimalTicketLifetime',
+)
+
 export const loginOption_RememberExtras = /* @__PURE__ */ _bind(FW, 'loginOption_RememberExtras')
-export const loginOption_RememberPrincipal = /* @__PURE__ */ _bind(FW, 'loginOption_RememberPrincipal')
+export const loginOption_RememberPrincipal = /* @__PURE__ */ _bind(
+	FW,
+	'loginOption_RememberPrincipal',
+)
+
 export const profile_abandon = /* @__PURE__ */ _bind(FW, 'profile_abandon')
 export const profile_add_relation = /* @__PURE__ */ _bind(FW, 'profile_add_relation')
 export const profile_clear_relation = /* @__PURE__ */ _bind(FW, 'profile_clear_relation')
-export const profile_configuration_updated = /* @__PURE__ */ _bind(FW, 'profile_configuration_updated')
+export const profile_configuration_updated = /* @__PURE__ */ _bind(
+	FW,
+	'profile_configuration_updated',
+)
+
 export const profile_flush = /* @__PURE__ */ _bind(FW, 'profile_flush')
 export const profile_flush_to_buffer = /* @__PURE__ */ _bind(FW, 'profile_flush_to_buffer')
 export const profile_flush_to_file = /* @__PURE__ */ _bind(FW, 'profile_flush_to_file')
@@ -594,7 +906,11 @@ export const profile_get_boolean = /* @__PURE__ */ _bind(FW, 'profile_get_boolea
 export const profile_get_integer = /* @__PURE__ */ _bind(FW, 'profile_get_integer')
 export const profile_get_relation_names = /* @__PURE__ */ _bind(FW, 'profile_get_relation_names')
 export const profile_get_string = /* @__PURE__ */ _bind(FW, 'profile_get_string')
-export const profile_get_subsection_names = /* @__PURE__ */ _bind(FW, 'profile_get_subsection_names')
+export const profile_get_subsection_names = /* @__PURE__ */ _bind(
+	FW,
+	'profile_get_subsection_names',
+)
+
 export const profile_get_values = /* @__PURE__ */ _bind(FW, 'profile_get_values')
 export const profile_init = /* @__PURE__ */ _bind(FW, 'profile_init')
 export const profile_init_path = /* @__PURE__ */ _bind(FW, 'profile_init_path')
@@ -613,8 +929,16 @@ export const remove_error_table = /* @__PURE__ */ _bind(FW, 'remove_error_table'
 export const reset_com_err_hook = /* @__PURE__ */ _bind(FW, 'reset_com_err_hook')
 export const set_com_err_hook = /* @__PURE__ */ _bind(FW, 'set_com_err_hook')
 export const unnamed_1230767297392062464 = /* @__PURE__ */ _bind(FW, 'unnamed_1230767297392062464')
-export const unnamed_12969026422328130762 = /* @__PURE__ */ _bind(FW, 'unnamed_12969026422328130762')
-export const unnamed_13715746505189883393 = /* @__PURE__ */ _bind(FW, 'unnamed_13715746505189883393')
+export const unnamed_12969026422328130762 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_12969026422328130762',
+)
+
+export const unnamed_13715746505189883393 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_13715746505189883393',
+)
+
 export const unnamed_2227238517119808899 = /* @__PURE__ */ _bind(FW, 'unnamed_2227238517119808899')
 export const unnamed_2859326158316158292 = /* @__PURE__ */ _bind(FW, 'unnamed_2859326158316158292')
 export const unnamed_3856970353115069321 = /* @__PURE__ */ _bind(FW, 'unnamed_3856970353115069321')

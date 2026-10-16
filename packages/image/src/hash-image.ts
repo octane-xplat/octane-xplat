@@ -38,7 +38,10 @@ function decode83(str: string, start: number, end: number): number {
 	let value = 0
 	for (let i = start; i < end; i++) {
 		const digit = BASE83.indexOf(str[i])
-		if (digit === -1) {return -1}
+		if (digit === -1) {
+			return -1
+		}
+
 		value = value * 83 + digit
 	}
 
@@ -62,14 +65,23 @@ function signPow(value: number, exp: number): number {
 }
 
 function decodeBlurHash(hash: string, width: number, height: number): Uint8ClampedArray | null {
-	if (hash.length < 6) {return null}
+	if (hash.length < 6) {
+		return null
+	}
+
 	const sizeFlag = decode83(hash, 0, 1)
 	const quantisedMax = decode83(hash, 1, 2)
 	const dcValue = decode83(hash, 2, 6)
-	if (sizeFlag < 0 || quantisedMax < 0 || dcValue < 0) {return null}
+	if (sizeFlag < 0 || quantisedMax < 0 || dcValue < 0) {
+		return null
+	}
+
 	const numY = Math.floor(sizeFlag / 9) + 1
 	const numX = (sizeFlag % 9) + 1
-	if (hash.length !== 4 + 2 * numX * numY) {return null}
+	if (hash.length !== 4 + 2 * numX * numY) {
+		return null
+	}
+
 	const maximumValue = (quantisedMax + 1) / 166
 	const colors: [number, number, number][] = new Array(numX * numY)
 	colors[0] = [
@@ -80,7 +92,10 @@ function decodeBlurHash(hash: string, width: number, height: number): Uint8Clamp
 
 	for (let i = 1; i < numX * numY; i++) {
 		const value = decode83(hash, 4 + i * 2, 6 + i * 2)
-		if (value < 0) {return null}
+		if (value < 0) {
+			return null
+		}
+
 		const quantR = Math.floor(value / (19 * 19))
 		const quantG = Math.floor(value / 19) % 19
 		const quantB = value % 19
@@ -99,8 +114,7 @@ function decodeBlurHash(hash: string, width: number, height: number): Uint8Clamp
 			let b = 0
 			for (let j = 0; j < numY; j++) {
 				for (let i = 0; i < numX; i++) {
-					const basis =
-						Math.cos((Math.PI * x * i) / width) * Math.cos((Math.PI * y * j) / height)
+					const basis = Math.cos((Math.PI * x * i) / width) * Math.cos((Math.PI * y * j) / height)
 
 					const color = colors[i + j * numX]
 					r += color[0] * basis
@@ -132,7 +146,10 @@ function thumbHashToApproximateAspectRatio(hash: Uint8Array): number {
 }
 
 function thumbHashToRGBA(hash: Uint8Array): { w: number; h: number; rgba: Uint8Array } | null {
-	if (hash.length < 5) {return null}
+	if (hash.length < 5) {
+		return null
+	}
+
 	const { PI, min, max, cos, round } = Math
 	const header24 = hash[0] | (hash[1] << 8) | (hash[2] << 16)
 	const header16 = hash[3] | (hash[4] << 8)
@@ -152,12 +169,16 @@ function thumbHashToRGBA(hash: Uint8Array): { w: number; h: number; rgba: Uint8A
 	let ac_index = 0
 	const decodeChannel = (nx: number, ny: number, scale: number) => {
 		const ac: number[] = []
-		for (let cy = 0; cy < ny; cy++)
-			{for (let cx = cy ? 0 : 1; cx * ny < nx * (ny - cy); cx++) {
+		for (let cy = 0; cy < ny; cy++) {
+			for (let cx = cy ? 0 : 1; cx * ny < nx * (ny - cy); cx++) {
 				const byte = hash[ac_start + (ac_index >> 1)]
-				if (byte === undefined) {return null}
+				if (byte === undefined) {
+					return null
+				}
+
 				ac.push((((byte >> ((ac_index++ & 1) << 2)) & 15) / 7.5 - 1) * scale)
-			}}
+			}
+		}
 
 		return ac
 	}
@@ -166,7 +187,9 @@ function thumbHashToRGBA(hash: Uint8Array): { w: number; h: number; rgba: Uint8A
 	const p_ac = decodeChannel(3, 3, p_scale * 1.25)
 	const q_ac = decodeChannel(3, 3, q_scale * 1.25)
 	const a_ac = hasAlpha ? decodeChannel(5, 5, a_scale) : null
-	if (!l_ac || !p_ac || !q_ac || (hasAlpha && !a_ac)) {return null}
+	if (!l_ac || !p_ac || !q_ac || (hasAlpha && !a_ac)) {
+		return null
+	}
 
 	const ratio = thumbHashToApproximateAspectRatio(hash)
 	const w = round(ratio > 1 ? 32 : 32 * ratio)
@@ -180,15 +203,19 @@ function thumbHashToRGBA(hash: Uint8Array): { w: number; h: number; rgba: Uint8A
 			let p = p_dc
 			let q = q_dc
 			let a = a_dc
-			for (let cx = 0, n = max(lx, hasAlpha ? 5 : 3); cx < n; cx++)
-				{fx[cx] = cos((PI / w) * (x + 0.5) * cx)}
+			for (let cx = 0, n = max(lx, hasAlpha ? 5 : 3); cx < n; cx++) {
+				fx[cx] = cos((PI / w) * (x + 0.5) * cx)
+			}
 
-			for (let cy = 0, n = max(ly, hasAlpha ? 5 : 3); cy < n; cy++)
-				{fy[cy] = cos((PI / h) * (y + 0.5) * cy)}
+			for (let cy = 0, n = max(ly, hasAlpha ? 5 : 3); cy < n; cy++) {
+				fy[cy] = cos((PI / h) * (y + 0.5) * cy)
+			}
 
-			for (let cy = 0, j = 0; cy < ly; cy++)
-				{for (let cx = cy ? 0 : 1, fy2 = fy[cy] * 2; cx * ly < lx * (ly - cy); cx++, j++)
-					{l += l_ac[j] * fx[cx] * fy2}}
+			for (let cy = 0, j = 0; cy < ly; cy++) {
+				for (let cx = cy ? 0 : 1, fy2 = fy[cy] * 2; cx * ly < lx * (ly - cy); cx++, j++) {
+					l += l_ac[j] * fx[cx] * fy2
+				}
+			}
 
 			for (let cy = 0, j = 0; cy < 3; cy++) {
 				for (let cx = cy ? 0 : 1, fy2 = fy[cy] * 2; cx < 3 - cy; cx++, j++) {
@@ -199,10 +226,11 @@ function thumbHashToRGBA(hash: Uint8Array): { w: number; h: number; rgba: Uint8A
 			}
 
 			if (hasAlpha && a_ac) {
-				for (let cy = 0, j = 0; cy < 5; cy++)
-					{for (let cx = cy ? 0 : 1, fy2 = fy[cy] * 2; cx < 5 - cy; cx++, j++) {
+				for (let cy = 0, j = 0; cy < 5; cy++) {
+					for (let cx = cy ? 0 : 1, fy2 = fy[cy] * 2; cx < 5 - cy; cx++, j++) {
 						a += a_ac[j] * fx[cx] * fy2
-					}}
+					}
+				}
 			}
 
 			const b = l - (2 / 3) * p
@@ -221,9 +249,8 @@ function thumbHashToRGBA(hash: Uint8Array): { w: number; h: number; rgba: Uint8A
 // ---------- PNG encode + base64 (Wallace rgbaToDataURL port, MIT) ----------
 
 const PNG_CRC_TABLE = [
-	0, 498536548, 997073096, 651767980, 1994146192, 1802195444, 1303535960, 1342533948,
-	-306674912, -267414716, -690576408, -882789492, -1687895376, -2032938284, -1609899400,
-	-1111625188,
+	0, 498536548, 997073096, 651767980, 1994146192, 1802195444, 1303535960, 1342533948, -306674912,
+	-267414716, -690576408, -882789492, -1687895376, -2032938284, -1609899400, -1111625188,
 ]
 
 /** Uncompressed PNG (zlib store blocks) — correctness over size; inputs are
@@ -232,9 +259,49 @@ function rgbaToPng(w: number, h: number, rgba: Uint8ClampedArray | Uint8Array): 
 	const row = w * 4 + 1
 	const idat = 6 + h * (5 + row)
 	const bytes = [
-		137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, w >> 8,
-		w & 255, 0, 0, h >> 8, h & 255, 8, 6, 0, 0, 0, 0, 0, 0, 0, idat >>> 24,
-		(idat >> 16) & 255, (idat >> 8) & 255, idat & 255, 73, 68, 65, 84, 120, 1,
+		137,
+		80,
+		78,
+		71,
+		13,
+		10,
+		26,
+		10,
+		0,
+		0,
+		0,
+		13,
+		73,
+		72,
+		68,
+		82,
+		0,
+		0,
+		w >> 8,
+		w & 255,
+		0,
+		0,
+		h >> 8,
+		h & 255,
+		8,
+		6,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		idat >>> 24,
+		(idat >> 16) & 255,
+		(idat >> 8) & 255,
+		idat & 255,
+		73,
+		68,
+		65,
+		84,
+		120,
+		1,
 	]
 
 	let a = 1
@@ -250,8 +317,26 @@ function rgbaToPng(w: number, h: number, rgba: Uint8ClampedArray | Uint8Array): 
 	}
 
 	bytes.push(
-		b >> 8, b & 255, a >> 8, a & 255, 0, 0, 0, 0,
-		0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130,
+		b >> 8,
+		b & 255,
+		a >> 8,
+		a & 255,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		73,
+		69,
+		78,
+		68,
+		174,
+		66,
+		96,
+		130,
 	)
 
 	for (let [start, end] of [
@@ -300,12 +385,17 @@ function base64Decode(text: string): Uint8Array | null {
 	let bits = 0
 	for (const ch of clean) {
 		const digit = BASE64_CHARS.indexOf(ch)
-		if (digit === -1) {return null}
+		if (digit === -1) {
+			return null
+		}
+
 		acc = (acc << 6) | digit
 		bits += 6
 		if (bits >= 8) {
 			bits -= 8
-			if (out < bytes.length) {bytes[out++] = (acc >> bits) & 255}
+			if (out < bytes.length) {
+				bytes[out++] = (acc >> bits) & 255
+			}
 		}
 	}
 

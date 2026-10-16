@@ -4,7 +4,6 @@ import { Application, Utils } from '@nativescript/core'
 import type { Capability, OpenSettingsImpl } from './types'
 import { android } from '@octane-xplat/platform/android'
 
-
 export function openUrl(url: string): boolean {
 	return Utils.openUrl(url)
 }

@@ -63,7 +63,17 @@ const runPhase = (label, extraEnv = {}, args = []) => {
 	const xdg = mkdtempSync(join(tmpdir(), `camera-xdg-${label}-`))
 	const result = spawnSync(
 		'xvfb-run',
-		['-a', 'dbus-run-session', '--', 'gjs', hostScript, '--bundle', bundleDir, '--self-test', ...args],
+		[
+			'-a',
+			'dbus-run-session',
+			'--',
+			'gjs',
+			hostScript,
+			'--bundle',
+			bundleDir,
+			'--self-test',
+			...args,
+		],
 		{
 			env: {
 				...process.env,
@@ -107,11 +117,9 @@ assert.ok(output.fileUrl.startsWith('file://'))
 // Phase 2 — a fresh host process reopens the phase-1 output. The movie lives
 // under the app data dir, so the phases share one XDG profile; this proves
 // the clip survives recorder disposal AND a full app restart.
-runPhase(
-	'reopen',
-	{ XDG_DATA_HOME: record.xdg, XDG_CONFIG_HOME: record.xdg },
-	[`xplat://localhost/?phase=reopen&output=${encodeURIComponent(JSON.stringify(output))}`],
-)
+runPhase('reopen', { XDG_DATA_HOME: record.xdg, XDG_CONFIG_HOME: record.xdg }, [
+	`xplat://localhost/?phase=reopen&output=${encodeURIComponent(JSON.stringify(output))}`,
+])
 
 // Phase 3 — denial policy on a clean profile reports blocked honestly.
 runPhase('deny', { XPLAT_MEDIA_POLICY: 'deny' }, ['xplat://localhost/?phase=deny'])

@@ -3,7 +3,6 @@
 import { Application } from '@nativescript/core'
 import { UIAccessibilityPostNotification } from '@octane-xplat/platform/ios'
 
-
 export function announce(text: string): void {
 	if (Application.ios) {
 		UIAccessibilityPostNotification(UIAccessibilityAnnouncementNotification, text)

@@ -3,20 +3,67 @@ const FW = '/System/Library/Frameworks/ExceptionHandling.framework/ExceptionHand
 export const NSExceptionHandler = /* @__PURE__ */ _bind(FW, 'NSExceptionHandler')
 export const NSExceptionHandlerResume = /* @__PURE__ */ _bind(FW, 'NSExceptionHandlerResume')
 export const NSHandleOtherExceptionMask = /* @__PURE__ */ _bind(FW, 'NSHandleOtherExceptionMask')
-export const NSHandleTopLevelExceptionMask = /* @__PURE__ */ _bind(FW, 'NSHandleTopLevelExceptionMask')
-export const NSHandleUncaughtExceptionMask = /* @__PURE__ */ _bind(FW, 'NSHandleUncaughtExceptionMask')
-export const NSHandleUncaughtRuntimeErrorMask = /* @__PURE__ */ _bind(FW, 'NSHandleUncaughtRuntimeErrorMask')
-export const NSHandleUncaughtSystemExceptionMask = /* @__PURE__ */ _bind(FW, 'NSHandleUncaughtSystemExceptionMask')
+export const NSHandleTopLevelExceptionMask = /* @__PURE__ */ _bind(
+	FW,
+	'NSHandleTopLevelExceptionMask',
+)
+
+export const NSHandleUncaughtExceptionMask = /* @__PURE__ */ _bind(
+	FW,
+	'NSHandleUncaughtExceptionMask',
+)
+
+export const NSHandleUncaughtRuntimeErrorMask = /* @__PURE__ */ _bind(
+	FW,
+	'NSHandleUncaughtRuntimeErrorMask',
+)
+
+export const NSHandleUncaughtSystemExceptionMask = /* @__PURE__ */ _bind(
+	FW,
+	'NSHandleUncaughtSystemExceptionMask',
+)
+
 export const NSHangOnOtherExceptionMask = /* @__PURE__ */ _bind(FW, 'NSHangOnOtherExceptionMask')
-export const NSHangOnTopLevelExceptionMask = /* @__PURE__ */ _bind(FW, 'NSHangOnTopLevelExceptionMask')
-export const NSHangOnUncaughtExceptionMask = /* @__PURE__ */ _bind(FW, 'NSHangOnUncaughtExceptionMask')
-export const NSHangOnUncaughtRuntimeErrorMask = /* @__PURE__ */ _bind(FW, 'NSHangOnUncaughtRuntimeErrorMask')
-export const NSHangOnUncaughtSystemExceptionMask = /* @__PURE__ */ _bind(FW, 'NSHangOnUncaughtSystemExceptionMask')
+export const NSHangOnTopLevelExceptionMask = /* @__PURE__ */ _bind(
+	FW,
+	'NSHangOnTopLevelExceptionMask',
+)
+
+export const NSHangOnUncaughtExceptionMask = /* @__PURE__ */ _bind(
+	FW,
+	'NSHangOnUncaughtExceptionMask',
+)
+
+export const NSHangOnUncaughtRuntimeErrorMask = /* @__PURE__ */ _bind(
+	FW,
+	'NSHangOnUncaughtRuntimeErrorMask',
+)
+
+export const NSHangOnUncaughtSystemExceptionMask = /* @__PURE__ */ _bind(
+	FW,
+	'NSHangOnUncaughtSystemExceptionMask',
+)
+
 export const NSLogOtherExceptionMask = /* @__PURE__ */ _bind(FW, 'NSLogOtherExceptionMask')
 export const NSLogTopLevelExceptionMask = /* @__PURE__ */ _bind(FW, 'NSLogTopLevelExceptionMask')
 export const NSLogUncaughtExceptionMask = /* @__PURE__ */ _bind(FW, 'NSLogUncaughtExceptionMask')
-export const NSLogUncaughtRuntimeErrorMask = /* @__PURE__ */ _bind(FW, 'NSLogUncaughtRuntimeErrorMask')
-export const NSLogUncaughtSystemExceptionMask = /* @__PURE__ */ _bind(FW, 'NSLogUncaughtSystemExceptionMask')
+export const NSLogUncaughtRuntimeErrorMask = /* @__PURE__ */ _bind(
+	FW,
+	'NSLogUncaughtRuntimeErrorMask',
+)
+
+export const NSLogUncaughtSystemExceptionMask = /* @__PURE__ */ _bind(
+	FW,
+	'NSLogUncaughtSystemExceptionMask',
+)
+
 export const NSStackTraceKey = /* @__PURE__ */ _bind(FW, 'NSStackTraceKey')
-export const NSUncaughtRuntimeErrorException = /* @__PURE__ */ _bind(FW, 'NSUncaughtRuntimeErrorException')
-export const NSUncaughtSystemExceptionException = /* @__PURE__ */ _bind(FW, 'NSUncaughtSystemExceptionException')
+export const NSUncaughtRuntimeErrorException = /* @__PURE__ */ _bind(
+	FW,
+	'NSUncaughtRuntimeErrorException',
+)
+
+export const NSUncaughtSystemExceptionException = /* @__PURE__ */ _bind(
+	FW,
+	'NSUncaughtSystemExceptionException',
+)

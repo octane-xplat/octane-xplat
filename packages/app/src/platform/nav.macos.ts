@@ -10,7 +10,13 @@ export function navigate(...args: NavigateArgs): void {
 	]
 
 	const stack = options?.into ?? 'root'
-	pushRoute({ stack, name, params: params ?? {}, presentation: options?.presentation } as TypedRoute)
+	pushRoute({
+		stack,
+		name,
+		params: params ?? {},
+		presentation: options?.presentation,
+	} as TypedRoute)
+
 	console.log('[probe] nav macos → ' + name + ' into ' + stack)
 }
 

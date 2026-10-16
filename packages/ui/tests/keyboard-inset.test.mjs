@@ -258,8 +258,10 @@ test('Android sheet hosts share the top-level AndroidX inset listener until the 
 			},
 		},
 	)
+
 	const first = {},
 		second = {}
+
 	const off1 = api.bindBottomInsetToKeyboard(first)
 	const insets = { getInsets: (type) => ({ bottom: type === 'ime' ? 620 : 20 }) }
 	assert.equal(listener.onApplyWindowInsets(decor, insets), insets)

@@ -93,7 +93,7 @@ import { BadgeNode, BadgePlugin } from './lexical-extensions'
 export function NoteEditor() {
 	return (
 		<LexicalEditor
-			value='<p><span data-badge>Voyager</span></p>'
+			value="<p><span data-badge>Voyager</span></p>"
 			web={{ nodes: [BadgeNode], plugins: <BadgePlugin /> }}
 		/>
 	)
@@ -108,7 +108,12 @@ import { BadgeNode, BadgePlugin } from './lexical-extensions'
 export function CustomEditor() {
 	return (
 		<LexicalEditor
-			web={{ replaceNodes: true, nodes: [BadgeNode], replacePlugins: true, plugins: <BadgePlugin /> }}
+			web={{
+				replaceNodes: true,
+				nodes: [BadgeNode],
+				replacePlugins: true,
+				plugins: <BadgePlugin />,
+			}}
 		/>
 	)
 }
@@ -120,12 +125,12 @@ nodes, browser views, or arbitrary JavaScript transforms run there.
 
 ## Engine and feature boundary
 
-| Target | Editing engine | `web` options | Caller plugins, custom nodes, and browser views |
-| --- | --- | --- | --- |
-| Web | Lexical `LexicalComposer` with the facade's default nodes and plugins | `nodes`, `plugins`, and replacement flags apply | Supported by the web Lexical engine |
-| Android | WordPress Aztec `AztecText`; a headless Lexical editor converts serialized state to and from HTML | Ignored | Unsupported; no live Lexical editor, plugin, transform, custom node, or browser view runs |
-| iOS | AztecEditor-iOS through the native Swift facade; HTML-backed JSON conversion | Ignored | Unsupported; no caller JavaScript engine plugins run |
-| macOS AppKit | Bundled Lexical editor in WKWebView | Ignored by the AppKit host | Unsupported through this facade |
+| Target       | Editing engine                                                                                    | `web` options                                   | Caller plugins, custom nodes, and browser views                                           |
+| ------------ | ------------------------------------------------------------------------------------------------- | ----------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Web          | Lexical `LexicalComposer` with the facade's default nodes and plugins                             | `nodes`, `plugins`, and replacement flags apply | Supported by the web Lexical engine                                                       |
+| Android      | WordPress Aztec `AztecText`; a headless Lexical editor converts serialized state to and from HTML | Ignored                                         | Unsupported; no live Lexical editor, plugin, transform, custom node, or browser view runs |
+| iOS          | AztecEditor-iOS through the native Swift facade; HTML-backed JSON conversion                      | Ignored                                         | Unsupported; no caller JavaScript engine plugins run                                      |
+| macOS AppKit | Bundled Lexical editor in WKWebView                                                               | Ignored by the AppKit host                      | Unsupported through this facade                                                           |
 
 On Android, save HTML as the canonical document. Lexical serialized state is
 a best-effort conversion through the fixed built-in node set; it is not a live

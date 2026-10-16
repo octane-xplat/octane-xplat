@@ -18,7 +18,5 @@
 		],
 		"allowImportingTsExtensions": true
 	},
-	"include": [
-		"types/**/*.d.ts"
-	]
+	"include": ["types/**/*.d.ts"]
 }

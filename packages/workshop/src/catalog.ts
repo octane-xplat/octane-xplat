@@ -37,7 +37,8 @@ export const SUFFIX_TARGETS: Record<string, readonly WorkshopTarget[]> = {
 	linux: ['linux'],
 }
 
-export const PLATFORM_SUFFIX_RE = /\.stories\.(web|mobile|ios|android|macos|windows|linux)\.[cm]?[jt]srx?$/
+export const PLATFORM_SUFFIX_RE =
+	/\.stories\.(web|mobile|ios|android|macos|windows|linux)\.[cm]?[jt]srx?$/
 
 export function storyFileTag(file: string): string | null {
 	return PLATFORM_SUFFIX_RE.exec(file)?.[1] ?? null

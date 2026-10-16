@@ -268,7 +268,8 @@ function barrelEnv(rel) {
 	return SUFFIX_ENV[suffix] ?? null
 }
 
-const arraysEqual = (a, b) => Array.isArray(a) && a.length === b.length && a.every((v, i) => v === b[i])
+const arraysEqual = (a, b) =>
+	Array.isArray(a) && a.length === b.length && a.every((v, i) => v === b[i])
 
 /** Fixed-order union: known keys first in `order`, extras appended in insertion order. */
 function orderedUnion(set, order) {
@@ -363,14 +364,10 @@ export function expandEnvPrograms(dir, { path: manifestPath, manifest }) {
 
 		const abs = `/${rel}`
 		if (env === 'any') {
-			const claimed = Object.values(resolved).some((files) =>
-				files.some((f) => f.endsWith(abs)),
-			)
+			const claimed = Object.values(resolved).some((files) => files.some((f) => f.endsWith(abs)))
 
 			if (!claimed) {
-				errors.push(
-					`${ENV_MANIFEST}: ${rel} is not checked by any declared environment`,
-				)
+				errors.push(`${ENV_MANIFEST}: ${rel} is not checked by any declared environment`)
 			}
 
 			continue
@@ -378,14 +375,15 @@ export function expandEnvPrograms(dir, { path: manifestPath, manifest }) {
 
 		const claimed = resolved[env]?.some((f) => f.endsWith(abs))
 		if (!claimed) {
-			errors.push(
-				`${ENV_MANIFEST}: ${rel} exists but is not claimed by the "${env}" environment`,
-			)
+			errors.push(`${ENV_MANIFEST}: ${rel} exists but is not claimed by the "${env}" environment`)
 		}
 	}
 
 	const top = manifest.compilerOptions ?? {}
-	if (top.moduleSuffixes !== undefined && !arraysEqual(top.moduleSuffixes, PLATFORM_MODULE_SUFFIXES)) {
+	if (
+		top.moduleSuffixes !== undefined &&
+		!arraysEqual(top.moduleSuffixes, PLATFORM_MODULE_SUFFIXES)
+	) {
 		errors.push(
 			`${ENV_MANIFEST}: compilerOptions.moduleSuffixes is fixed — use the platform precedence order ${JSON.stringify(PLATFORM_MODULE_SUFFIXES)} or omit it (inherited)`,
 		)

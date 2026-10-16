@@ -20,6 +20,7 @@ describe('Table schema types', () => {
 		expectTypeOf<TableProps<Row>['renderCell']>().toEqualTypeOf<
 			((cell: TableCellRenderProps<Row>) => any) | undefined
 		>()
+
 		expectTypeOf<TableCellRenderProps<Row>>().toEqualTypeOf<{
 			row: Row
 			column: TableColumn<'name' | 'qty'>
@@ -31,6 +32,7 @@ describe('Table schema types', () => {
 		type Row = { name: string; qty: number }
 		const positional = (row: Row, column: TableColumn<'name' | 'qty'>, rowIndex: number) =>
 			String(row[column.key]) + rowIndex
+
 		// @ts-expect-error renderCell now receives one named context object.
 		const renderCell: NonNullable<TableProps<Row>['renderCell']> = positional
 		void renderCell

@@ -1,5 +1,7 @@
 import { _bind } from './_rt.js'
-const FW = '/System/Library/Frameworks/AutomaticAssessmentConfiguration.framework/AutomaticAssessmentConfiguration'
+const FW =
+	'/System/Library/Frameworks/AutomaticAssessmentConfiguration.framework/AutomaticAssessmentConfiguration'
+
 export const AEAssessmentConfiguration = /* @__PURE__ */ _bind(FW, 'AEAssessmentConfiguration')
 export const AEAssessmentErrorCode = /* @__PURE__ */ _bind(FW, 'AEAssessmentErrorCode')
 export const AEAssessmentErrorDomain = /* @__PURE__ */ _bind(FW, 'AEAssessmentErrorDomain')

@@ -6,56 +6,54 @@ import type { interop } from './objc-runtime'
 
 import { NSObject } from './Runtime'
 
+export declare const GameSaveVersionString: interop.Pointer
 
-
-export declare const GameSaveVersionString: interop.Pointer;
-
-export declare const GameSaveVersionNumber: number;
+export declare const GameSaveVersionNumber: number
 
 export declare const GSSyncState: {
-  Ready: 0,
-  Offline: 1,
-  Local: 2,
-  Syncing: 3,
-  Conflicted: 4,
-  Error: 5,
-  Closed: 6,
-};
+	Ready: 0
+	Offline: 1
+	Local: 2
+	Syncing: 3
+	Conflicted: 4
+	Error: 5
+	Closed: 6
+}
 
 export declare class GSSyncedDirectory extends NSObject {
-  static openDirectoryForContainerIdentifier(containerIdentifier: string | null): GSSyncedDirectory;
+	static openDirectoryForContainerIdentifier(containerIdentifier: string | null): GSSyncedDirectory
 
-  close(): void;
+	close(): void
 
-  triggerPendingUploadWithCompletionHandler(completion: (p1: boolean) => void): void;
+	triggerPendingUploadWithCompletionHandler(completion: (p1: boolean) => void): void
 
-  resolveConflictsWithVersion(version: GSSyncedDirectoryVersion): void;
+	resolveConflictsWithVersion(version: GSSyncedDirectoryVersion): void
 
-  finishSyncingWithCompletionHandler(completion: () => void): void;
+	finishSyncingWithCompletionHandler(completion: () => void): void
 
-  finishSyncingCompletionHandler(statusDisplay: NSWindow, completion: () => void): void;
+	finishSyncingCompletionHandler(statusDisplay: NSWindow, completion: () => void): void
 
-  readonly directoryState: GSSyncedDirectoryState;
+	readonly directoryState: GSSyncedDirectoryState
 }
 
 export declare class GSSyncedDirectoryVersion extends NSObject {
-  readonly isLocal: boolean;
+	readonly isLocal: boolean
 
-  readonly localizedNameOfSavingComputer: string;
+	readonly localizedNameOfSavingComputer: string
 
-  readonly modifiedDate: NSDate;
+	readonly modifiedDate: NSDate
 
-  readonly url: NSURL;
+	readonly url: NSURL
 
-  readonly description: string;
+	readonly description: string
 }
 
 export declare class GSSyncedDirectoryState extends NSObject {
-  readonly state: interop.Enum<typeof GSSyncState>;
+	readonly state: interop.Enum<typeof GSSyncState>
 
-  readonly url: NSURL;
+	readonly url: NSURL
 
-  readonly conflictedVersions: NSArray;
+	readonly conflictedVersions: NSArray
 
-  readonly error: NSError;
+	readonly error: NSError
 }

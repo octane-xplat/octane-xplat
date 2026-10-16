@@ -2,33 +2,15 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"jsxImportSource": "octane",
-		"types": [
-			"vite/client"
-		],
-		"lib": [
-			"ESNext",
-			"DOM",
-			"DOM.Iterable"
-		],
+		"types": ["vite/client"],
+		"lib": ["ESNext", "DOM", "DOM.Iterable"],
 		"paths": {
-			"@octane-xplat/ui": [
-				"../../packages/ui/src/index.ts"
-			],
-			"@octane-xplat/ui/routing": [
-				"../../packages/ui/src/routing/index.ts"
-			],
-			"@octane-xplat/ui/data": [
-				"../../packages/ui/src/data/index.ts"
-			],
-			"@octane-xplat/ui/markdown": [
-				"../../packages/ui/src/markdown/index.ts"
-			],
-			"@octane-xplat/ui/chat": [
-				"../../packages/ui/src/chat/index.ts"
-			],
-			"@octane-xplat/ui/*": [
-				"../../packages/ui/src/*"
-			]
+			"@octane-xplat/ui": ["../../packages/ui/src/index.ts"],
+			"@octane-xplat/ui/routing": ["../../packages/ui/src/routing/index.ts"],
+			"@octane-xplat/ui/data": ["../../packages/ui/src/data/index.ts"],
+			"@octane-xplat/ui/markdown": ["../../packages/ui/src/markdown/index.ts"],
+			"@octane-xplat/ui/chat": ["../../packages/ui/src/chat/index.ts"],
+			"@octane-xplat/ui/*": ["../../packages/ui/src/*"]
 		}
 	},
 	"include": [
@@ -36,11 +18,6 @@
 		"../../packages/*/src/**/*.d.ts",
 		"../../packages/ui/type-support/**/*.d.ts"
 	],
-	"exclude": [
-		"node_modules",
-		"**/*.test.*"
-	],
-	"files": [
-		"../../packages/macos-renderer/src/host-globals.d.ts"
-	]
+	"exclude": ["node_modules", "**/*.test.*"],
+	"files": ["../../packages/macos-renderer/src/host-globals.d.ts"]
 }

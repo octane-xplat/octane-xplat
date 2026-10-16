@@ -5,8 +5,16 @@ export const IMAVControl = /* @__PURE__ */ _bind(FW, 'IMAVControl')
 export const IMAVControlBar = /* @__PURE__ */ _bind(FW, 'IMAVControlBar')
 export const IMAVInactive = /* @__PURE__ */ _bind(FW, 'IMAVInactive')
 export const IMAVManager = /* @__PURE__ */ _bind(FW, 'IMAVManager')
-export const IMAVManagerStateChangedNotification = /* @__PURE__ */ _bind(FW, 'IMAVManagerStateChangedNotification')
-export const IMAVManagerURLToShareChangedNotification = /* @__PURE__ */ _bind(FW, 'IMAVManagerURLToShareChangedNotification')
+export const IMAVManagerStateChangedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'IMAVManagerStateChangedNotification',
+)
+
+export const IMAVManagerURLToShareChangedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'IMAVManagerURLToShareChangedNotification',
+)
+
 export const IMAVPending = /* @__PURE__ */ _bind(FW, 'IMAVPending')
 export const IMAVRequested = /* @__PURE__ */ _bind(FW, 'IMAVRequested')
 export const IMAVRunning = /* @__PURE__ */ _bind(FW, 'IMAVRunning')
@@ -20,20 +28,32 @@ export const IMCapabilityFileTransfer = /* @__PURE__ */ _bind(FW, 'IMCapabilityF
 export const IMCapabilityText = /* @__PURE__ */ _bind(FW, 'IMCapabilityText')
 export const IMCapabilityVideoConference = /* @__PURE__ */ _bind(FW, 'IMCapabilityVideoConference')
 export const IMComparePersonStatus = /* @__PURE__ */ _bind(FW, 'IMComparePersonStatus')
-export const IMMyStatusChangedNotification = /* @__PURE__ */ _bind(FW, 'IMMyStatusChangedNotification')
+export const IMMyStatusChangedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'IMMyStatusChangedNotification',
+)
+
 export const IMPersonAVBusyKey = /* @__PURE__ */ _bind(FW, 'IMPersonAVBusyKey')
 export const IMPersonCapabilitiesKey = /* @__PURE__ */ _bind(FW, 'IMPersonCapabilitiesKey')
 export const IMPersonEmailKey = /* @__PURE__ */ _bind(FW, 'IMPersonEmailKey')
 export const IMPersonFirstNameKey = /* @__PURE__ */ _bind(FW, 'IMPersonFirstNameKey')
 export const IMPersonIdleSinceKey = /* @__PURE__ */ _bind(FW, 'IMPersonIdleSinceKey')
-export const IMPersonInfoChangedNotification = /* @__PURE__ */ _bind(FW, 'IMPersonInfoChangedNotification')
+export const IMPersonInfoChangedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'IMPersonInfoChangedNotification',
+)
+
 export const IMPersonLastNameKey = /* @__PURE__ */ _bind(FW, 'IMPersonLastNameKey')
 export const IMPersonPictureDataKey = /* @__PURE__ */ _bind(FW, 'IMPersonPictureDataKey')
 export const IMPersonScreenNameKey = /* @__PURE__ */ _bind(FW, 'IMPersonScreenNameKey')
 export const IMPersonServiceNameKey = /* @__PURE__ */ _bind(FW, 'IMPersonServiceNameKey')
 export const IMPersonStatusAvailable = /* @__PURE__ */ _bind(FW, 'IMPersonStatusAvailable')
 export const IMPersonStatusAway = /* @__PURE__ */ _bind(FW, 'IMPersonStatusAway')
-export const IMPersonStatusChangedNotification = /* @__PURE__ */ _bind(FW, 'IMPersonStatusChangedNotification')
+export const IMPersonStatusChangedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'IMPersonStatusChangedNotification',
+)
+
 export const IMPersonStatusIdle = /* @__PURE__ */ _bind(FW, 'IMPersonStatusIdle')
 export const IMPersonStatusKey = /* @__PURE__ */ _bind(FW, 'IMPersonStatusKey')
 export const IMPersonStatusMessageKey = /* @__PURE__ */ _bind(FW, 'IMPersonStatusMessageKey')
@@ -41,13 +61,25 @@ export const IMPersonStatusNoStatus = /* @__PURE__ */ _bind(FW, 'IMPersonStatusN
 export const IMPersonStatusOffline = /* @__PURE__ */ _bind(FW, 'IMPersonStatusOffline')
 export const IMPersonStatusUnknown = /* @__PURE__ */ _bind(FW, 'IMPersonStatusUnknown')
 export const IMService = /* @__PURE__ */ _bind(FW, 'IMService')
-export const IMServiceStatusChangedNotification = /* @__PURE__ */ _bind(FW, 'IMServiceStatusChangedNotification')
+export const IMServiceStatusChangedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'IMServiceStatusChangedNotification',
+)
+
 export const IMServiceStatusDisconnected = /* @__PURE__ */ _bind(FW, 'IMServiceStatusDisconnected')
 export const IMServiceStatusLoggedIn = /* @__PURE__ */ _bind(FW, 'IMServiceStatusLoggedIn')
 export const IMServiceStatusLoggedOut = /* @__PURE__ */ _bind(FW, 'IMServiceStatusLoggedOut')
 export const IMServiceStatusLoggingIn = /* @__PURE__ */ _bind(FW, 'IMServiceStatusLoggingIn')
 export const IMServiceStatusLoggingOut = /* @__PURE__ */ _bind(FW, 'IMServiceStatusLoggingOut')
-export const IMStatusImagesChangedAppearanceNotification = /* @__PURE__ */ _bind(FW, 'IMStatusImagesChangedAppearanceNotification')
+export const IMStatusImagesChangedAppearanceNotification = /* @__PURE__ */ _bind(
+	FW,
+	'IMStatusImagesChangedAppearanceNotification',
+)
+
 export const IMVideoOptimizationDefault = /* @__PURE__ */ _bind(FW, 'IMVideoOptimizationDefault')
-export const IMVideoOptimizationReplacement = /* @__PURE__ */ _bind(FW, 'IMVideoOptimizationReplacement')
+export const IMVideoOptimizationReplacement = /* @__PURE__ */ _bind(
+	FW,
+	'IMVideoOptimizationReplacement',
+)
+
 export const IMVideoOptimizationStills = /* @__PURE__ */ _bind(FW, 'IMVideoOptimizationStills')

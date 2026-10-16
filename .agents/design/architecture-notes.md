@@ -283,8 +283,8 @@ using the shared presets (`jsxImportSource`, `lib`, ambient host-globals) in
 
 ## Where the seams are (index)
 
-| Seam                                       | Doc                                                   |
-| ------------------------------------------ | ----------------------------------------------------- |
+| Seam                                       | Doc                                                           |
+| ------------------------------------------ | ------------------------------------------------------------- |
 | File vocabulary split, resolver, tsconfig  | [module-resolution](../../docs/platform/module-resolution.md) |
 | Element/component abstraction              | [primitives](../../docs/app/primitives.md)                    |
 | Shared styling language                    | [styling](../../docs/app/styling.md)                          |
@@ -293,4 +293,4 @@ using the shared presets (`jsxImportSource`, `lib`, ambient host-globals) in
 | Storage, lifecycle, a11y, icons, safe area | [platform-services](../../docs/platform/platform-services.md) |
 | Build/HMR/CI/version pinning               | [toolchain](../../docs/start/toolchain.md)                    |
 | How we verify each target                  | [testing](../../docs/verify/testing.md)                       |
-| Unresolved seams                           | [open-questions](open-questions.md)                   |
+| Unresolved seams                           | [open-questions](open-questions.md)                           |

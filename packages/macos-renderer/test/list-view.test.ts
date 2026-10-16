@@ -303,7 +303,12 @@ test('ItemsSource change subscriptions refresh, transfer and release without ret
 test('portal cells publish bindings without roots and ignore an obsolete row removal', () => {
 	const f = fixture()
 	const events: any[] = []
-	const props = { items: ['A'], renderItem: (item: any) => item, __onCellTarget: (event: any) => events.push(event) }
+	const props = {
+		items: ['A'],
+		renderItem: (item: any) => item,
+		__onCellTarget: (event: any) => events.push(event),
+	}
+
 	f.update(props)
 	const host = f.row(0)
 	const first = { viewAtColumn: () => host }

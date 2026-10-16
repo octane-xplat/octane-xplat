@@ -319,7 +319,11 @@ export class SharedCameraSession implements CameraSession {
 		// Store a swallowed continuation — a rejected backend call must not
 		// poison the chain and refuse every later request with the original
 		// error. The caller still receives the real rejection.
-		this.requestChains.set(kind, chain.catch(() => 'unknown' as CameraPermissionStatus))
+		this.requestChains.set(
+			kind,
+			chain.catch(() => 'unknown' as CameraPermissionStatus),
+		)
+
 		return chain
 	}
 
@@ -331,11 +335,7 @@ export class SharedCameraSession implements CameraSession {
 
 	focusAtPoint(point: CameraPreviewPoint): void {
 		if (!point || !Number.isFinite(point.x) || !Number.isFinite(point.y)) {
-			throw issue(
-				'invalidArgument',
-				'focusAtPoint',
-				'point.x and point.y must be finite numbers',
-			)
+			throw issue('invalidArgument', 'focusAtPoint', 'point.x and point.y must be finite numbers')
 		}
 
 		if (this.disposed || this.disposeRequested) {
@@ -472,17 +472,11 @@ export class SharedCameraSession implements CameraSession {
 		let destinationPath: string | undefined
 		if (options.destinationFileUrl !== undefined) {
 			if (!options.destinationFileUrl.startsWith('file://')) {
-				throw issue(
-					'invalidArgument',
-					operation,
-					'destinationFileUrl must be a local file:// URL',
-				)
+				throw issue('invalidArgument', operation, 'destinationFileUrl must be a local file:// URL')
 			}
 
 			try {
-				destinationPath = decodeURIComponent(
-					options.destinationFileUrl.slice('file://'.length),
-				)
+				destinationPath = decodeURIComponent(options.destinationFileUrl.slice('file://'.length))
 			} catch (cause) {
 				throw issue(
 					'invalidArgument',

@@ -142,8 +142,7 @@ function lineMarks(layout: ChartLayout, series: ResolvedSeries[]): BuiltMarks {
 function areaMarks(layout: ChartLayout, series: ResolvedSeries[]): BuiltMarks {
 	const { xKind, x, y } = layout
 	const zero = y(Math.max(y.domain()[0], Math.min(0, y.domain()[1])))
-	const defined = (d: ChartDatum) =>
-		Number.isFinite(d.y) && Number.isFinite(xCenter(xKind, x, d.x))
+	const defined = (d: ChartDatum) => Number.isFinite(d.y) && Number.isFinite(xCenter(xKind, x, d.x))
 
 	const gen = areaPath<ChartDatum>()
 		.defined(defined)

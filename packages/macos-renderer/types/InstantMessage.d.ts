@@ -1,227 +1,229 @@
 /// <reference types="@nativescript/objc-node-api" />
 /// <reference path="./Runtime.d.ts" />
 
-declare const IMAVRunning: number;
+declare const IMAVRunning: number
 
-declare const IMAVRequested: number;
+declare const IMAVRequested: number
 
-declare const IMCapabilityVideoConference: string;
+declare const IMCapabilityVideoConference: string
 
-declare const IMCapabilityAudioConference: string;
+declare const IMCapabilityAudioConference: string
 
-declare const IMCapabilityFileSharing: string;
+declare const IMCapabilityFileSharing: string
 
-declare const IMCapabilityFileTransfer: string;
+declare const IMCapabilityFileTransfer: string
 
-declare const IMPersonAVBusyKey: string;
+declare const IMPersonAVBusyKey: string
 
-declare const IMPersonPictureDataKey: string;
+declare const IMPersonPictureDataKey: string
 
-declare const IMPersonEmailKey: string;
+declare const IMPersonEmailKey: string
 
-declare const IMPersonLastNameKey: string;
+declare const IMPersonLastNameKey: string
 
-declare const IMPersonFirstNameKey: string;
+declare const IMPersonFirstNameKey: string
 
-declare const IMPersonIdleSinceKey: string;
+declare const IMPersonIdleSinceKey: string
 
-declare const IMPersonStatusMessageKey: string;
+declare const IMPersonStatusMessageKey: string
 
-declare const IMPersonStatusKey: string;
+declare const IMPersonStatusKey: string
 
-declare const IMPersonScreenNameKey: string;
+declare const IMPersonScreenNameKey: string
 
-declare const IMPersonStatusNoStatus: number;
+declare const IMPersonStatusNoStatus: number
 
-declare const IMPersonStatusAway: number;
+declare const IMPersonStatusAway: number
 
-declare const IMServiceStatusLoggedIn: number;
+declare const IMServiceStatusLoggedIn: number
 
-declare const IMServiceStatusLoggingIn: number;
+declare const IMServiceStatusLoggingIn: number
 
-declare const IMServiceStatusLoggingOut: number;
+declare const IMServiceStatusLoggingOut: number
 
-declare const IMServiceStatusDisconnected: number;
+declare const IMServiceStatusDisconnected: number
 
-declare const IMPersonInfoChangedNotification: string;
+declare const IMPersonInfoChangedNotification: string
 
-declare const IMPersonStatusChangedNotification: string;
+declare const IMPersonStatusChangedNotification: string
 
-declare const IMPersonStatusAvailable: number;
+declare const IMPersonStatusAvailable: number
 
-declare const IMAVPending: number;
+declare const IMAVPending: number
 
-declare const IMServiceStatusLoggedOut: number;
+declare const IMServiceStatusLoggedOut: number
 
-declare const IMServiceStatusChangedNotification: string;
+declare const IMServiceStatusChangedNotification: string
 
-declare const IMAVShuttingDown: number;
+declare const IMAVShuttingDown: number
 
-declare const IMPersonStatusOffline: number;
+declare const IMPersonStatusOffline: number
 
-declare const IMVideoOptimizationDefault: number;
+declare const IMVideoOptimizationDefault: number
 
-declare const IMVideoOptimizationStills: number;
+declare const IMVideoOptimizationStills: number
 
-declare const IMAVInactive: number;
+declare const IMAVInactive: number
 
-declare const IMCapabilityDirectIM: string;
+declare const IMCapabilityDirectIM: string
 
-declare const IMStatusImagesChangedAppearanceNotification: string;
+declare const IMStatusImagesChangedAppearanceNotification: string
 
-declare const IMPersonStatusIdle: number;
+declare const IMPersonStatusIdle: number
 
-declare const IMPersonStatusUnknown: number;
+declare const IMPersonStatusUnknown: number
 
-declare const IMAVStartingUp: number;
+declare const IMAVStartingUp: number
 
-declare const IMPersonServiceNameKey: string;
+declare const IMPersonServiceNameKey: string
 
-declare const IMCapabilityText: string;
+declare const IMCapabilityText: string
 
-declare const IMAVManagerStateChangedNotification: string;
+declare const IMAVManagerStateChangedNotification: string
 
-declare const IMVideoOptimizationReplacement: number;
+declare const IMVideoOptimizationReplacement: number
 
-declare const IMAVManagerURLToShareChangedNotification: string;
+declare const IMAVManagerURLToShareChangedNotification: string
 
-declare const IMMyStatusChangedNotification: string;
+declare const IMMyStatusChangedNotification: string
 
-declare const IMPersonCapabilitiesKey: string;
+declare const IMPersonCapabilitiesKey: string
 
-declare function IMComparePersonStatus(status: number, compareTo: number): interop.Enum<typeof NSComparisonResult>;
+declare function IMComparePersonStatus(
+	status: number,
+	compareTo: number,
+): interop.Enum<typeof NSComparisonResult>
 
 declare class IMService extends NSObject {
-  static imageNameForStatus(status: number): string;
+	static imageNameForStatus(status: number): string
 
-  static allServices(): NSArray;
+	static allServices(): NSArray
 
-  static serviceWithName(name: string): IMService;
+	static serviceWithName(name: string): IMService
 
-  static notificationCenter(): NSNotificationCenter;
+	static notificationCenter(): NSNotificationCenter
 
-  static myStatus(): number;
+	static myStatus(): number
 
-  static myIdleTime(): NSDate;
+	static myIdleTime(): NSDate
 
-  localizedName(): string;
+	localizedName(): string
 
-  localizedShortName(): string;
+	localizedShortName(): string
 
-  name(): string;
+	name(): string
 
-  status(): number;
+	status(): number
 
-  infoForScreenName(screenName: string): NSDictionary;
+	infoForScreenName(screenName: string): NSDictionary
 
-  infoForAllScreenNames(): NSArray;
+	infoForAllScreenNames(): NSArray
 
-  infoForPreferredScreenNames(): NSArray;
+	infoForPreferredScreenNames(): NSArray
 
-  peopleWithScreenName(screenName: string): NSArray;
+	peopleWithScreenName(screenName: string): NSArray
 
-  screenNamesForPerson(person: ABPerson): NSArray;
+	screenNamesForPerson(person: ABPerson): NSArray
 
-  static imageURLForStatus(status: number): NSURL;
+	static imageURLForStatus(status: number): NSURL
 }
 
 declare class IMAVControlBar extends NSObject {
-  controls(): NSArray;
+	controls(): NSArray
 
-  addControl(control: IMAVControl): void;
+	addControl(control: IMAVControl): void
 
-  removeControl(control: IMAVControl): void;
+	removeControl(control: IMAVControl): void
 
-  removeAllControls(): void;
+	removeAllControls(): void
 }
 
 declare class IMAVSlider extends IMAVControl {
-  minValue(): number;
+	minValue(): number
 
-  setMinValue(aDouble: number): void;
+	setMinValue(aDouble: number): void
 
-  maxValue(): number;
+	maxValue(): number
 
-  setMaxValue(aDouble: number): void;
+	setMaxValue(aDouble: number): void
 
-  static timeSlider(): IMAVSlider;
+	static timeSlider(): IMAVSlider
 }
 
 declare class IMAVControl extends NSObject {
-  target(): interop.Object;
+	target(): interop.Object
 
-  setTarget(anObject: interop.Object): void;
+	setTarget(anObject: interop.Object): void
 
-  action(): string;
+	action(): string
 
-  setAction(aSelector: string): void;
+	setAction(aSelector: string): void
 
-  tag(): number;
+	tag(): number
 
-  setTag(anInt: number): void;
+	setTag(anInt: number): void
 
-  isEnabled(): boolean;
+	isEnabled(): boolean
 
-  setEnabled(flag: boolean): void;
+	setEnabled(flag: boolean): void
 
-  integerValue(): number;
+	integerValue(): number
 
-  setIntegerValue(anInteger: number): void;
+	setIntegerValue(anInteger: number): void
 
-  intValue(): number;
+	intValue(): number
 
-  setIntValue(anInt: number): void;
+	setIntValue(anInt: number): void
 
-  floatValue(): number;
+	floatValue(): number
 
-  setFloatValue(aFloat: number): void;
+	setFloatValue(aFloat: number): void
 
-  doubleValue(): number;
+	doubleValue(): number
 
-  setDoubleValue(aDouble: number): void;
+	setDoubleValue(aDouble: number): void
 }
 
 declare class IMAVButton extends IMAVControl {
-  state(): number;
+	state(): number
 
-  setState(value: number): void;
+	setState(value: number): void
 
-  static playPauseButton(): IMAVButton;
+	static playPauseButton(): IMAVButton
 
-  static forwardButton(): IMAVButton;
+	static forwardButton(): IMAVButton
 
-  static backwardButton(): IMAVButton;
+	static backwardButton(): IMAVButton
 
-  static muteButton(): IMAVButton;
+	static muteButton(): IMAVButton
 }
 
 declare class IMAVManager extends NSObject {
-  static sharedAVManager(): IMAVManager;
+	static sharedAVManager(): IMAVManager
 
-  state(): number;
+	state(): number
 
-  URLToShare(): NSURL;
+	URLToShare(): NSURL
 
-  setVideoDataSource(dataSource: interop.Object): void;
+	setVideoDataSource(dataSource: interop.Object): void
 
-  videoDataSource(): interop.Object;
+	videoDataSource(): interop.Object
 
-  setVideoOptimizationOptions(options: number): void;
+	setVideoOptimizationOptions(options: number): void
 
-  videoOptimizationOptions(): number;
+	videoOptimizationOptions(): number
 
-  setNumberOfAudioChannels(count: number): void;
+	setNumberOfAudioChannels(count: number): void
 
-  numberOfAudioChannels(): number;
+	numberOfAudioChannels(): number
 
-  audioDeviceUID(): string;
+	audioDeviceUID(): string
 
-  audioDeviceChannels(): NSArray;
+	audioDeviceChannels(): NSArray
 
-  controlBar(): IMAVControlBar;
+	controlBar(): IMAVControlBar
 
-  start(): void;
+	start(): void
 
-  stop(): void;
+	stop(): void
 }
-

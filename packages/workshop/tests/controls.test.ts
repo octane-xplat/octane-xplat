@@ -1,15 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import {
-	UNSET,
-	applyControlInput,
-	freshArgs,
-	isUnsettable,
-	reconcileProps,
-} from '../src/controls'
+import { UNSET, applyControlInput, freshArgs, isUnsettable, reconcileProps } from '../src/controls'
 
 import type { StoryDefinition } from '../src/contract'
 
-const base = (over: Partial<StoryDefinition<any, any, any>> = {}): StoryDefinition<any, any, any> => ({
+const base = (
+	over: Partial<StoryDefinition<any, any, any>> = {},
+): StoryDefinition<any, any, any> => ({
 	id: 'x/y',
 	title: 'X / Y',
 	targets: 'all',
@@ -68,9 +64,7 @@ describe('isUnsettable', () => {
 			),
 		).toBe(false)
 
-		expect(
-			isUnsettable(base({ controls: { extra: { type: 'string' } } }), 'extra'),
-		).toBe(true)
+		expect(isUnsettable(base({ controls: { extra: { type: 'string' } } }), 'extra')).toBe(true)
 	})
 })
 
@@ -97,7 +91,11 @@ describe('applyControlInput', () => {
 	})
 
 	it('UNSET removes the key entirely when unsettable', () => {
-		const def = base({ args: { label: 'x' }, controls: { label: { type: 'string', allowUnset: true } } })
+		const def = base({
+			args: { label: 'x' },
+			controls: { label: { type: 'string', allowUnset: true } },
+		})
+
 		const result = applyControlInput(def, { label: 'x', keep: 1 }, 'label', UNSET)
 		expect(result.props).toEqual({ keep: 1 })
 		expect('label' in (result.props ?? {})).toBe(false)

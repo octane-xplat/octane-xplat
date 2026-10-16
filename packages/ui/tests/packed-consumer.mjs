@@ -429,7 +429,9 @@ ownedSheet.close('done')
 const outletProps: RouteOutletProps = { stack: 'root' }
 void [<RouteOutlet {...outletProps}>{scoped.element}</RouteOutlet>, ownedSheet]
 `
-	if (target === 'native') source += `
+
+	if (target === 'native') {
+		source += `
 import { useImperativeModal as iosModal } from '@octane-xplat/ui/ios'
 import { useImperativeModal as androidModal } from '@octane-xplat/ui/android'
 import { useNativeRouteNavigator } from '@octane-xplat/ui/nativescript'
@@ -439,6 +441,8 @@ const navigation = useNativeRouteNavigator('root')
 navigation.push({ name: 'settings', params: {} })
 void [iosOwner.element, androidOwner.element, navigation.element]
 `
+	}
+
 	writeFileSync(join(consumerRoot, 'consumer.tsx'), source)
 	const keyboardGuide = readFileSync(join(repoRoot, 'docs/app/text-entry.md'), 'utf8').split(
 		'## Read software keyboard space',

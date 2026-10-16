@@ -73,7 +73,8 @@ describe('schema-inferred filters', () => {
 		>()
 
 		expectTypeOf<Extract<Filter, { field: 'year' }>['value']>().toEqualTypeOf<
-			{ readonly type: 'integer'; readonly value: number } | { readonly type: 'float'; readonly value: number }
+			| { readonly type: 'integer'; readonly value: number }
+			| { readonly type: 'float'; readonly value: number }
 		>()
 
 		expectTypeOf<Extract<Filter, { field: 'genre' }>['value']>().toEqualTypeOf<{
@@ -88,26 +89,31 @@ describe('schema-inferred filters', () => {
 		)
 
 		// @ts-expect-error — 'bogus' is not a defined field
-		applyFilters([{ field: 'bogus', operator: 'contains', value: { type: 'string', value: 'x' } }], books)
+		applyFilters(
+			[{ field: 'bogus', operator: 'contains', value: { type: 'string', value: 'x' } }],
+			books,
+		)
 
 		// @ts-expect-error — 'greater_than' is not a string-field operator
-		applyFilters([{ field: 'title', operator: 'greater_than', value: { type: 'float', value: 1 } }], books)
+		applyFilters(
+			[{ field: 'title', operator: 'greater_than', value: { type: 'float', value: 1 } }],
+			books,
+		)
 
 		// @ts-expect-error — the value shape must match the operator
-		applyFilters([{ field: 'title', operator: 'contains', value: { type: 'float', value: 1 } }], books)
+		applyFilters(
+			[{ field: 'title', operator: 'contains', value: { type: 'float', value: 1 } }],
+			books,
+		)
 	})
 
 	it('types the component contract from the branded config', () => {
-		const { config } = createPowerSearchConfig([
-			{ key: 'title', type: 'string' },
-		] as const)
+		const { config } = createPowerSearchConfig([{ key: 'title', type: 'string' }] as const)
 
 		expectTypeOf<PowerSearchProps<typeof config>['filters']>().toEqualTypeOf<
 			ReadonlyArray<PowerSearchFilterFor<typeof config>>
 		>()
 
-		expectTypeOf<PowerSearchProps['filters']>().toEqualTypeOf<
-			ReadonlyArray<PowerSearchFilter>
-		>()
+		expectTypeOf<PowerSearchProps['filters']>().toEqualTypeOf<ReadonlyArray<PowerSearchFilter>>()
 	})
 })

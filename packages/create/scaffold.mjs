@@ -16,7 +16,10 @@ import { basename, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 export const TEMPLATE_DIR = join(dirname(fileURLToPath(import.meta.url)), 'template')
-export const LIBRARY_TEMPLATE_DIR = join(dirname(fileURLToPath(import.meta.url)), 'library-template')
+export const LIBRARY_TEMPLATE_DIR = join(
+	dirname(fileURLToPath(import.meta.url)),
+	'library-template',
+)
 
 /** Scaffoldable targets. `files` entries are template-relative paths —
  *  directories copy recursively. `deps`/`devDeps`/`scripts` name keys whose

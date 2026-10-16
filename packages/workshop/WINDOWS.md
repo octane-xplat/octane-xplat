@@ -14,11 +14,11 @@ It does not install tools, launch a device, or change settings.
 pnpm exec xplat workshop doctor --json
 ```
 
-| Windows status | Meaning |
-| --- | --- |
-| `remote-host-required` | This checkout is running on another OS. Repeat the command in a Windows checkout. Windows machine checks were skipped. |
-| `missing-prerequisites` | A Windows checkout is missing one or more reported development prerequisites. |
-| `unqualified-backend` | Setup checks passed, but the workshop backend remains incomplete and unverified. |
+| Windows status          | Meaning                                                                                                                |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `remote-host-required`  | This checkout is running on another OS. Repeat the command in a Windows checkout. Windows machine checks were skipped. |
+| `missing-prerequisites` | A Windows checkout is missing one or more reported development prerequisites.                                          |
+| `unqualified-backend`   | Setup checks passed, but the workshop backend remains incomplete and unverified.                                       |
 
 The report names NativeScript configuration, Windows application resources,
 installed NativeScript/compiler packages, an exact Windows runtime declaration,

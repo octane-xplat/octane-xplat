@@ -4,7 +4,13 @@
 // no-op instance reporting the upstream-style 'unsupported' failure
 // reason so callers keep their static fallback path identical to web's.
 export * from './types'
-import type { CreateShaderOptions, PresetConfig, SharedGpu, ShaderInstance, WebGPUSupportInfo } from './types'
+import type {
+	CreateShaderOptions,
+	PresetConfig,
+	SharedGpu,
+	ShaderInstance,
+	WebGPUSupportInfo,
+} from './types'
 
 const UNSUPPORTED: ShaderInstance = {
 	getFailureReason: () => 'unsupported',
@@ -24,7 +30,9 @@ export async function createShader(
 	return UNSUPPORTED
 }
 
-export async function createSharedDevice(_options?: { powerPreference?: string }): Promise<SharedGpu | null> {
+export async function createSharedDevice(_options?: {
+	powerPreference?: string
+}): Promise<SharedGpu | null> {
 	return null
 }
 

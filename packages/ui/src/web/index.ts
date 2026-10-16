@@ -3,7 +3,10 @@
 // root barrel (`@octane-xplat/ui`); the HoverCard/Tooltip re-exports below
 // are deprecated compatibility aliases kept for migration.
 
-import type { HoverCardProps as SharedHoverCardProps, TooltipProps as SharedTooltipProps } from '../props'
+import type {
+	HoverCardProps as SharedHoverCardProps,
+	TooltipProps as SharedTooltipProps,
+} from '../props'
 
 /** @deprecated `HoverCard` is a portable component — import it from
  *  `@octane-xplat/ui`. This alias will be removed. */

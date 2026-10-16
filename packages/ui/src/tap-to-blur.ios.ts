@@ -11,7 +11,16 @@
  *  Keyboard taps live in a separate UIWindow, so they never reach it.
  *  `cancelsTouchesInView` stays false so taps still reach buttons. */
 
-import { NSObject, UIApplication, UITapGestureRecognizer, UITextField, UITextView, UIWindowScene, interop } from '@octane-xplat/platform/ios'
+import {
+	NSObject,
+	UIApplication,
+	UITapGestureRecognizer,
+	UITextField,
+	UITextView,
+	UIWindowScene,
+	interop,
+} from '@octane-xplat/platform/ios'
+
 import { UIGestureRecognizerDelegate } from '@octane-xplat/platform/ios'
 export function attachTapToBlur(view: any): () => void {
 	const marker = '__xplatTapToBlur'

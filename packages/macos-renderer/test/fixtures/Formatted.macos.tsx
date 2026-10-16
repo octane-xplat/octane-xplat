@@ -59,24 +59,32 @@ export default function Formatted() {
 				{phase !== 6 && phase < 9 ? content() : null}
 			</label>
 			<button id="formatted-button" text="Plain Button">
-				{phase === 6 ? null : <formattedstring fontSize={phase < 2 ? (phase === 1 ? 24 : 20) : undefined}>
-					<span text={phase === 1 ? 'Updated Button' : 'Button'} />
-				</formattedstring>}
+				{phase === 6 ? null : (
+					<formattedstring fontSize={phase < 2 ? (phase === 1 ? 24 : 20) : undefined}>
+						<span text={phase === 1 ? 'Updated Button' : 'Button'} />
+					</formattedstring>
+				)}
 			</button>
 			<textfield id="formatted-field" text="Plain Field">
-				{phase === 6 ? null : <formattedstring fontSize={phase < 2 ? (phase === 1 ? 24 : 20) : undefined}>
-					<span text={phase === 1 ? 'Updated Field' : 'Field'} />
-				</formattedstring>}
+				{phase === 6 ? null : (
+					<formattedstring fontSize={phase < 2 ? (phase === 1 ? 24 : 20) : undefined}>
+						<span text={phase === 1 ? 'Updated Field' : 'Field'} />
+					</formattedstring>
+				)}
 			</textfield>
 			<textview id="formatted-view" text="Plain View" style={{ height: 30 }}>
-				{phase === 6 ? null : <formattedstring fontSize={phase < 2 ? (phase === 1 ? 24 : 20) : undefined}>
-					<span text={phase === 1 ? 'Updated View' : 'View'} />
-				</formattedstring>}
+				{phase === 6 ? null : (
+					<formattedstring fontSize={phase < 2 ? (phase === 1 ? 24 : 20) : undefined}>
+						<span text={phase === 1 ? 'Updated View' : 'View'} />
+					</formattedstring>
+				)}
 			</textview>
 			<searchbar id="formatted-search" text="Plain Search">
-				{phase === 6 ? null : <formattedstring fontSize={phase < 2 ? (phase === 1 ? 24 : 20) : undefined}>
-					<span text={phase === 1 ? 'Updated Search' : 'Search'} />
-				</formattedstring>}
+				{phase === 6 ? null : (
+					<formattedstring fontSize={phase < 2 ? (phase === 1 ? 24 : 20) : undefined}>
+						<span text={phase === 1 ? 'Updated Search' : 'Search'} />
+					</formattedstring>
+				)}
 			</searchbar>
 			<button id="formatted-other" text="other">
 				{phase >= 9 ? content() : null}

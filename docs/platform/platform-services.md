@@ -117,8 +117,8 @@ import { useKeepAwake } from '@octane-xplat/platform'
 import { Text } from '@octane-xplat/ui'
 
 export function ReadingScreen() {
- useKeepAwake()
- return <Text>Reading</Text>
+	useKeepAwake()
+	return <Text>Reading</Text>
 }
 ```
 

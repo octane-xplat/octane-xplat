@@ -58,12 +58,12 @@ export function Row() {
 `createNanoIconSet(glyphMap, { font })` takes a `NanoFontSource`; the generated module
 fills in the defaults so the common path needs no extra work:
 
-| Platform | Source used | What you must do |
-| -------- | ----------- | ---------------- |
-| Web      | `font.url` (→ `FontFace`) | Nothing if you import the generated `.ts` — the `.woff2` beside it is loaded lazily. |
-| iOS      | `font.fileName` | Copy `<family>.ttf` into your app's `app/fonts` (the CLI's `--app-fonts` writes it there). iOS registers it at startup. |
-| Android  | `font.fileName` | Same `app/fonts` copy — Android resolves `app/fonts/<family>.ttf`. The TTF must ship with the app; there is no runtime injection hook. |
-| macOS    | `font.path` or `font.data` | Register bytes or a file path — `registerNanoIconFont` runs `CTFontManagerCreateFontDescriptorsFromURL` + `registerFontFamily`. |
+| Platform | Source used                | What you must do                                                                                                                       |
+| -------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Web      | `font.url` (→ `FontFace`)  | Nothing if you import the generated `.ts` — the `.woff2` beside it is loaded lazily.                                                   |
+| iOS      | `font.fileName`            | Copy `<family>.ttf` into your app's `app/fonts` (the CLI's `--app-fonts` writes it there). iOS registers it at startup.                |
+| Android  | `font.fileName`            | Same `app/fonts` copy — Android resolves `app/fonts/<family>.ttf`. The TTF must ship with the app; there is no runtime injection hook. |
+| macOS    | `font.path` or `font.data` | Register bytes or a file path — `registerNanoIconFont` runs `CTFontManagerCreateFontDescriptorsFromURL` + `registerFontFamily`.        |
 
 Web apps that already emit their own `@font-face` can omit `font` entirely —
 `registerNanoIconFont` checks `document.fonts` first and resolves `'ready'`.
@@ -92,7 +92,16 @@ For several sets or repeatable builds, put `.nanoicons.json` at the package root
 `nano-icons build` with no flags:
 
 ```json
-{ "iconSets": [{ "inputDir": "assets/icons", "fontFamily": "MyIcons", "outputDir": "src/icons-font", "appFontsDir": "app/fonts" }] }
+{
+	"iconSets": [
+		{
+			"inputDir": "assets/icons",
+			"fontFamily": "MyIcons",
+			"outputDir": "src/icons-font",
+			"appFontsDir": "app/fonts"
+		}
+	]
+}
 ```
 
 ## Colors and sizing
@@ -156,16 +165,19 @@ used `NanoIcon` with `addCollection` names:
 
 ```ts
 import {
-	buildNanoIconFont,           // Node: run the pipeline
-	iconifyCollectionToSvgs,     // Node: Iconify collection → svg inputs
-	type NanoIconFontOptions,    // inputDir/inputs, outputDir, fontFamily, web, appFontsDir…
+	buildNanoIconFont, // Node: run the pipeline
+	iconifyCollectionToSvgs, // Node: Iconify collection → svg inputs
+	type NanoIconFontOptions, // inputDir/inputs, outputDir, fontFamily, web, appFontsDir…
 } from '@octane-xplat/nano-icons/build'
 import {
-	NanoIcon,                    // registry-resolving component
-	createNanoIconSet,           // bind a glyph map (+ font source) to a set
-	registerNanoIconFont,        // platform registration primitive
-	resolveNanoIcon,             // name → { set, entry } lookup
-	type NanoIconProps, NanoIconSet, NanoGlyphMap, NanoFontSource,
+	NanoIcon, // registry-resolving component
+	createNanoIconSet, // bind a glyph map (+ font source) to a set
+	registerNanoIconFont, // platform registration primitive
+	resolveNanoIcon, // name → { set, entry } lookup
+	type NanoIconProps,
+	NanoIconSet,
+	NanoGlyphMap,
+	NanoFontSource,
 } from '@octane-xplat/nano-icons'
 ```
 

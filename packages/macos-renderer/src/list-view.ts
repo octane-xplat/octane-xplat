@@ -6,7 +6,21 @@ import {
 	type UniversalRoot,
 } from 'octane/universal/native'
 
-import { NSIndexSet, NSObject, NSScrollView, NSTableColumn, NSTableColumnResizingOptions, NSTableView, NSTableViewColumnAutoresizingStyle, NSTableViewDataSource, NSTableViewDelegate, NSTableViewGridLineStyle, NSView, interop } from '@octane-xplat/platform/macos'
+import {
+	NSIndexSet,
+	NSObject,
+	NSScrollView,
+	NSTableColumn,
+	NSTableColumnResizingOptions,
+	NSTableView,
+	NSTableViewColumnAutoresizingStyle,
+	NSTableViewDataSource,
+	NSTableViewDelegate,
+	NSTableViewGridLineStyle,
+	NSView,
+	interop,
+} from '@octane-xplat/platform/macos'
+
 import type { NSColor } from '@octane-xplat/platform/macos'
 
 import { listFactory, parseListTemplate } from './list-template'
@@ -60,7 +74,10 @@ function itemAt(state: ListState, index: number) {
 }
 
 function releasePortal(cell: Cell) {
-	if (!cell.portalActive) return
+	if (!cell.portalActive) {
+		return
+	}
+
 	cell.portalActive = false
 	cell.portalNotify?.({ type: 'release', id: cell.portalId, generation: cell.portalGeneration })
 	cell.portalNotify = undefined
@@ -130,10 +147,15 @@ function bind(state: ListState, cell: Cell, index: number) {
 			cell.root.unmount()
 			cell.root = null
 		}
+
 		const changed =
 			!cell.portalActive || !Object.is(cell.portalItem, item) || cell.host.__portalIndex !== index
+
 		cell.portalId ??= nextPortalCellId++
-		if (changed) cell.portalGeneration = (cell.portalGeneration ?? 0) + 1
+		if (changed) {
+			cell.portalGeneration = (cell.portalGeneration ?? 0) + 1
+		}
+
 		cell.portalActive = true
 		cell.portalItem = item
 		cell.host.__portalIndex = index
@@ -219,7 +241,10 @@ const ListDelegate = NSObject.extend(
 		['tableView:didAddRowView:forRow:'](table: NSView, rowView: NSView, row: number) {
 			const host = (rowView as any).viewAtColumn?.(0)
 			const cell = host && cellsByHost.get(host)
-			if (cell) cell.rowView = rowView
+			if (cell) {
+				cell.rowView = rowView
+			}
+
 			const state = states.get(table)
 			if (state && !state.closed && row >= 0 && row === state.count - 1) {
 				state.props.onLoadMoreItems?.({ eventName: 'loadMoreItems', object: state.view })

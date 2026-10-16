@@ -1,10 +1,47 @@
-html { color: #172033; background: #fff; font-family: system-ui, sans-serif; }
-body { margin: 0; }
-.demo-standalone { box-sizing: border-box; width: 100%; max-width: 42rem; margin: auto; padding: 1rem; overflow-wrap: anywhere; }
-.demo-standalone .btn { min-height: 44px; white-space: normal; }
-.demo-standalone input { box-sizing: border-box; min-width: 0; width: 100%; }
-.demo-standalone a { color: #174bb5; display: inline-block; padding: .75rem 0; }
-.demo-standalone :focus-visible { outline: 3px solid #174bb5; outline-offset: 3px; }
-@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+html {
+	color: #172033;
+	background: #fff;
+	font-family: system-ui, sans-serif;
+}
+body {
+	margin: 0;
+}
+.demo-standalone {
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 42rem;
+	margin: auto;
+	padding: 1rem;
+	overflow-wrap: anywhere;
+}
+.demo-standalone .btn {
+	min-height: 44px;
+	white-space: normal;
+}
+.demo-standalone input {
+	box-sizing: border-box;
+	min-width: 0;
+	width: 100%;
+}
+.demo-standalone a {
+	color: #174bb5;
+	display: inline-block;
+	padding: 0.75rem 0;
+}
+.demo-standalone :focus-visible {
+	outline: 3px solid #174bb5;
+	outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation: none !important;
+		transition: none !important;
+	}
+}
 
-.demo-standalone .vx-search-clear { min-width: 44px; min-height: 44px; }
+.demo-standalone .vx-search-clear {
+	min-width: 44px;
+	min-height: 44px;
+}

@@ -7,13 +7,33 @@ export const CLSBinaryValueType = /* @__PURE__ */ _bind(FW, 'CLSBinaryValueType'
 export const CLSContext = /* @__PURE__ */ _bind(FW, 'CLSContext')
 export const CLSContextProvider = /* @__PURE__ */ _bind(FW, 'CLSContextProvider')
 export const CLSContextTopicArtsAndMusic = /* @__PURE__ */ _bind(FW, 'CLSContextTopicArtsAndMusic')
-export const CLSContextTopicComputerScienceAndEngineering = /* @__PURE__ */ _bind(FW, 'CLSContextTopicComputerScienceAndEngineering')
-export const CLSContextTopicHealthAndFitness = /* @__PURE__ */ _bind(FW, 'CLSContextTopicHealthAndFitness')
-export const CLSContextTopicLiteracyAndWriting = /* @__PURE__ */ _bind(FW, 'CLSContextTopicLiteracyAndWriting')
+export const CLSContextTopicComputerScienceAndEngineering = /* @__PURE__ */ _bind(
+	FW,
+	'CLSContextTopicComputerScienceAndEngineering',
+)
+
+export const CLSContextTopicHealthAndFitness = /* @__PURE__ */ _bind(
+	FW,
+	'CLSContextTopicHealthAndFitness',
+)
+
+export const CLSContextTopicLiteracyAndWriting = /* @__PURE__ */ _bind(
+	FW,
+	'CLSContextTopicLiteracyAndWriting',
+)
+
 export const CLSContextTopicMath = /* @__PURE__ */ _bind(FW, 'CLSContextTopicMath')
 export const CLSContextTopicScience = /* @__PURE__ */ _bind(FW, 'CLSContextTopicScience')
-export const CLSContextTopicSocialScience = /* @__PURE__ */ _bind(FW, 'CLSContextTopicSocialScience')
-export const CLSContextTopicWorldLanguage = /* @__PURE__ */ _bind(FW, 'CLSContextTopicWorldLanguage')
+export const CLSContextTopicSocialScience = /* @__PURE__ */ _bind(
+	FW,
+	'CLSContextTopicSocialScience',
+)
+
+export const CLSContextTopicWorldLanguage = /* @__PURE__ */ _bind(
+	FW,
+	'CLSContextTopicWorldLanguage',
+)
+
 export const CLSContextType = /* @__PURE__ */ _bind(FW, 'CLSContextType')
 export const CLSDataStore = /* @__PURE__ */ _bind(FW, 'CLSDataStore')
 export const CLSDataStoreDelegate = /* @__PURE__ */ _bind(FW, 'CLSDataStoreDelegate')
@@ -22,13 +42,33 @@ export const CLSErrorCodeDomain = /* @__PURE__ */ _bind(FW, 'CLSErrorCodeDomain'
 export const CLSErrorObjectKey = /* @__PURE__ */ _bind(FW, 'CLSErrorObjectKey')
 export const CLSErrorUnderlyingErrorsKey = /* @__PURE__ */ _bind(FW, 'CLSErrorUnderlyingErrorsKey')
 export const CLSObject = /* @__PURE__ */ _bind(FW, 'CLSObject')
-export const CLSPredicateKeyPathDateCreated = /* @__PURE__ */ _bind(FW, 'CLSPredicateKeyPathDateCreated')
-export const CLSPredicateKeyPathIdentifier = /* @__PURE__ */ _bind(FW, 'CLSPredicateKeyPathIdentifier')
+export const CLSPredicateKeyPathDateCreated = /* @__PURE__ */ _bind(
+	FW,
+	'CLSPredicateKeyPathDateCreated',
+)
+
+export const CLSPredicateKeyPathIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'CLSPredicateKeyPathIdentifier',
+)
+
 export const CLSPredicateKeyPathParent = /* @__PURE__ */ _bind(FW, 'CLSPredicateKeyPathParent')
 export const CLSPredicateKeyPathTitle = /* @__PURE__ */ _bind(FW, 'CLSPredicateKeyPathTitle')
 export const CLSPredicateKeyPathTopic = /* @__PURE__ */ _bind(FW, 'CLSPredicateKeyPathTopic')
-export const CLSPredicateKeyPathUniversalLinkURL = /* @__PURE__ */ _bind(FW, 'CLSPredicateKeyPathUniversalLinkURL')
-export const CLSProgressReportingCapability = /* @__PURE__ */ _bind(FW, 'CLSProgressReportingCapability')
-export const CLSProgressReportingCapabilityKind = /* @__PURE__ */ _bind(FW, 'CLSProgressReportingCapabilityKind')
+export const CLSPredicateKeyPathUniversalLinkURL = /* @__PURE__ */ _bind(
+	FW,
+	'CLSPredicateKeyPathUniversalLinkURL',
+)
+
+export const CLSProgressReportingCapability = /* @__PURE__ */ _bind(
+	FW,
+	'CLSProgressReportingCapability',
+)
+
+export const CLSProgressReportingCapabilityKind = /* @__PURE__ */ _bind(
+	FW,
+	'CLSProgressReportingCapabilityKind',
+)
+
 export const CLSQuantityItem = /* @__PURE__ */ _bind(FW, 'CLSQuantityItem')
 export const CLSScoreItem = /* @__PURE__ */ _bind(FW, 'CLSScoreItem')

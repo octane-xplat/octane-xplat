@@ -4,7 +4,10 @@ import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
 import { runInNewContext } from 'node:vm'
 
-const source = stripTypeScriptTypes(readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'))
+const source = stripTypeScriptTypes(
+	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
+)
+
 const fn = (name: string) => {
 	const start = source.indexOf(`function ${name}(`)
 	assert.ok(start >= 0, name)
@@ -14,29 +17,65 @@ const fn = (name: string) => {
 function controlFixture() {
 	const calls: string[] = []
 	const view: any = {
-		startAnimation(sender: any) { assert.equal(sender, null); calls.push('start') },
-		stopAnimation(sender: any) { assert.equal(sender, null); calls.push('stop') },
-		sizeToFit() { calls.push('size') },
+		startAnimation(sender: any) {
+			assert.equal(sender, null)
+			calls.push('start')
+		},
+		stopAnimation(sender: any) {
+			assert.equal(sender, null)
+			calls.push('stop')
+		},
+		sizeToFit() {
+			calls.push('size')
+		},
 	}
 
-	const constants = source.slice(source.indexOf('function droppedPropClears('), source.indexOf('\nfunction applyProps('))
+	const constants = source.slice(
+		source.indexOf('function droppedPropClears('),
+		source.indexOf('\nfunction applyProps('),
+	)
+
 	const api = runInNewContext(
-		constants + '\n' + ['makeProgress', 'syncProgress', 'validateNodeProps',
-			'parentReference', 'resolveParentNode', 'canContainView',
-			'droppedPropClears', 'applyProps', 'applyCommand'].map(fn).join('\n') +
+		constants +
+			'\n' +
+			[
+				'makeProgress',
+				'syncProgress',
+				'validateNodeProps',
+				'parentReference',
+				'resolveParentNode',
+				'canContainView',
+				'droppedPropClears',
+				'applyProps',
+				'applyCommand',
+			]
+				.map(fn)
+				.join('\n') +
 			'\n({makeProgress,validateNodeProps,applyProps,applyCommand})',
 		{
 			NSProgressIndicator: { alloc: () => ({ initWithFrame: () => view }) },
-			NSProgressIndicatorStyle: { Bar: 0 }, NSControlSize: { Regular: 0 },
-			applyStyle: (node: any, value: any) => { node.appliedStyle = value; calls.push('style:' + String(value?.opacity)) },
+			NSProgressIndicatorStyle: { Bar: 0 },
+			NSControlSize: { Regular: 0 },
+			applyStyle: (node: any, value: any) => {
+				node.appliedStyle = value
+				calls.push('style:' + String(value?.opacity))
+			},
 			applyClassName: (_node: any, value: any) => calls.push('class:' + String(value)),
-			queueLayoutReconcile: () => {}, console: { warn: (message: string) => calls.push(message) },
+			queueLayoutReconcile: () => {},
+			console: { warn: (message: string) => calls.push(message) },
 		},
 	)
 
 	const container = { nodes: new Map() }
-	const node = { id: 1, type: 'progress', view: api.makeProgress(), props: {},
-		children: [], parent: null, container }
+	const node = {
+		id: 1,
+		type: 'progress',
+		view: api.makeProgress(),
+		props: {},
+		children: [],
+		parent: null,
+		container,
+	}
 
 	container.nodes.set(1, node)
 	return { api, node, view, calls, container }
@@ -95,14 +134,20 @@ test('production Progress update commands restore dropped value, maximum and sty
 	assert.equal(node.view, view)
 	assert.ok(calls.includes('style:undefined'))
 	assert.ok(calls.includes('class:undefined'))
-	assert.equal(calls.some((call) => call.includes('ignored')), false)
+	assert.equal(
+		calls.some((call) => call.includes('ignored')),
+		false,
+	)
 })
 
 test('Progress rejects nonnumeric/nonfinite inputs before allocation but accepts negative and fractional values', () => {
 	const { api, calls } = controlFixture()
 	for (const name of ['value', 'maxValue']) {
 		for (const value of ['12', true, {}, [], NaN, Infinity, -Infinity]) {
-			assert.throws(() => api.validateNodeProps('progress', { [name]: value }), /must be a finite number/)
+			assert.throws(
+				() => api.validateNodeProps('progress', { [name]: value }),
+				/must be a finite number/,
+			)
 		}
 
 		for (const value of [-100, 0, 0.5, 100, undefined]) {
@@ -146,8 +191,17 @@ test('Progress production ownership moves its native host between parents and re
 	})
 
 	const api = runInNewContext(
-		['parentReference', 'resolveParentNode', 'canContainView', 'validateTextNesting', 'insert', 'detach', 'destroy'].map(fn).join('\n') +
-			'\n({insert,destroy})',
+		[
+			'parentReference',
+			'resolveParentNode',
+			'canContainView',
+			'validateTextNesting',
+			'insert',
+			'detach',
+			'destroy',
+		]
+			.map(fn)
+			.join('\n') + '\n({insert,destroy})',
 		{
 			VIEW_PARENT_TYPES: new Set(['contentview']),
 			layoutView: (node: any) => node.view,

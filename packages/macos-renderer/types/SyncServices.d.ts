@@ -1,394 +1,551 @@
 /// <reference types="@nativescript/objc-node-api" />
 /// <reference path="./Runtime.d.ts" />
 
-declare const ISyncInvalidArgumentsException: string;
+declare const ISyncInvalidArgumentsException: string
 
-declare const ISyncInvalidSchemaException: string;
+declare const ISyncInvalidSchemaException: string
 
-declare const ISyncSessionDriverFatalError: number;
+declare const ISyncSessionDriverFatalError: number
 
-declare const ISyncSessionDriverRegistrationError: number;
+declare const ISyncSessionDriverRegistrationError: number
 
-declare const ISyncSessionUserCanceledSessionError: number;
+declare const ISyncSessionUserCanceledSessionError: number
 
-declare const ISyncErrorDomain: string;
+declare const ISyncErrorDomain: string
 
-declare const ISyncRecordEntityNameKey: string;
+declare const ISyncRecordEntityNameKey: string
 
-declare const ISyncUnsupportedEntityException: string;
+declare const ISyncUnsupportedEntityException: string
 
-declare const ISyncInvalidRecordsKey: string;
+declare const ISyncInvalidRecordsKey: string
 
-declare const ISyncInvalidRecordReasonsKey: string;
+declare const ISyncInvalidRecordReasonsKey: string
 
-declare const ISyncInvalidRecordIdentifiersKey: string;
+declare const ISyncInvalidRecordIdentifiersKey: string
 
-declare const ISyncSessionCancelledException: string;
+declare const ISyncSessionCancelledException: string
 
-declare const ISyncServerUnavailableException: string;
+declare const ISyncServerUnavailableException: string
 
-declare const ISyncAvailabilityChangedNotification: string;
+declare const ISyncAvailabilityChangedNotification: string
 
-declare const ISyncClientTypePeer: string;
+declare const ISyncClientTypePeer: string
 
-declare const ISyncChangePropertyValueIsDefaultKey: string;
+declare const ISyncChangePropertyValueIsDefaultKey: string
 
-declare const ISyncChangePropertyValueKey: string;
+declare const ISyncChangePropertyValueKey: string
 
-declare const ISyncChangePropertyNameKey: string;
+declare const ISyncChangePropertyNameKey: string
 
-declare const ISyncChangePropertyClear: string;
+declare const ISyncChangePropertyClear: string
 
-declare const ISyncChangePropertySet: string;
+declare const ISyncChangePropertySet: string
 
-declare const ISyncInvalidEntityException: string;
+declare const ISyncInvalidEntityException: string
 
-declare const ISyncClientTypeDevice: string;
+declare const ISyncClientTypeDevice: string
 
-declare const ISyncChangePropertyActionKey: string;
+declare const ISyncChangePropertyActionKey: string
 
-declare const ISyncSessionUnavailableException: string;
+declare const ISyncSessionUnavailableException: string
 
-declare const ISyncSessionDriverPullFailureError: number;
+declare const ISyncSessionDriverPullFailureError: number
 
-declare const ISyncSessionClientAlreadySyncingError: number;
+declare const ISyncSessionClientAlreadySyncingError: number
 
-declare const ISyncClientTypeApplication: string;
+declare const ISyncClientTypeApplication: string
 
-declare const ISyncInvalidRecordException: string;
+declare const ISyncInvalidRecordException: string
 
-declare const ISyncClientTypeServer: string;
+declare const ISyncClientTypeServer: string
 
 declare const ISyncServerDisabledReason: {
-  None: 1000,
-  ByPreference: 1001,
-  SharedNetworkHome: 1002,
-  Unresponsive: 1003,
-  Unknown: 1004,
-};
+	None: 1000
+	ByPreference: 1001
+	SharedNetworkHome: 1002
+	Unresponsive: 1003
+	Unknown: 1004
+}
 
 declare const ISyncSessionDriverMode: {
-  Fast: 1,
-  Slow: 2,
-  Refresh: 3,
-};
+	Fast: 1
+	Slow: 2
+	Refresh: 3
+}
 
 declare const __ISyncStatus: {
-  Running: 1,
-  Success: 2,
-  Warnings: 3,
-  Errors: 4,
-  Cancelled: 5,
-  Failed: 6,
-  Never: 7,
-};
+	Running: 1
+	Success: 2
+	Warnings: 3
+	Errors: 4
+	Cancelled: 5
+	Failed: 6
+	Never: 7
+}
 
 declare const ISyncSessionDriverChangeResult: {
-  Refused: 0,
-  Accepted: 1,
-  Ignored: 2,
-  Error: 3,
-};
+	Refused: 0
+	Accepted: 1
+	Ignored: 2
+	Error: 3
+}
 
 declare const __ISyncChangeType: {
-  None: 0,
-  Add: 1,
-  Modify: 2,
-  Delete: 3,
-};
+	None: 0
+	Add: 1
+	Modify: 2
+	Delete: 3
+}
 
 declare interface NSPersistentStoreCoordinatorSyncing extends NSObjectProtocol {
-  managedObjectContextsToMonitorWhenSyncingPersistentStoreCoordinator?(coordinator: NSPersistentStoreCoordinator): NSArray;
+	managedObjectContextsToMonitorWhenSyncingPersistentStoreCoordinator?(
+		coordinator: NSPersistentStoreCoordinator,
+	): NSArray
 
-  managedObjectContextsToReloadAfterSyncingPersistentStoreCoordinator?(coordinator: NSPersistentStoreCoordinator): NSArray;
+	managedObjectContextsToReloadAfterSyncingPersistentStoreCoordinator?(
+		coordinator: NSPersistentStoreCoordinator,
+	): NSArray
 
-  persistentStoreCoordinatorShouldStartSyncing?(coordinator: NSPersistentStoreCoordinator): boolean;
+	persistentStoreCoordinatorShouldStartSyncing?(coordinator: NSPersistentStoreCoordinator): boolean
 
-  persistentStoreCoordinatorWillPushChangesInSyncSession?(coordinator: NSPersistentStoreCoordinator, session: ISyncSession): void;
+	persistentStoreCoordinatorWillPushChangesInSyncSession?(
+		coordinator: NSPersistentStoreCoordinator,
+		session: ISyncSession,
+	): void
 
-  persistentStoreCoordinatorDidPushChangesInSyncSession?(coordinator: NSPersistentStoreCoordinator, session: ISyncSession): void;
+	persistentStoreCoordinatorDidPushChangesInSyncSession?(
+		coordinator: NSPersistentStoreCoordinator,
+		session: ISyncSession,
+	): void
 
-  persistentStoreCoordinatorWillPullChangesInSyncSession?(coordinator: NSPersistentStoreCoordinator, session: ISyncSession): void;
+	persistentStoreCoordinatorWillPullChangesInSyncSession?(
+		coordinator: NSPersistentStoreCoordinator,
+		session: ISyncSession,
+	): void
 
-  persistentStoreCoordinatorDidPullChangesInSyncSession?(coordinator: NSPersistentStoreCoordinator, session: ISyncSession): void;
+	persistentStoreCoordinatorDidPullChangesInSyncSession?(
+		coordinator: NSPersistentStoreCoordinator,
+		session: ISyncSession,
+	): void
 
-  persistentStoreCoordinatorDidFinishSyncSession?(coordinator: NSPersistentStoreCoordinator, session: ISyncSession): void;
+	persistentStoreCoordinatorDidFinishSyncSession?(
+		coordinator: NSPersistentStoreCoordinator,
+		session: ISyncSession,
+	): void
 
-  persistentStoreCoordinatorDidCancelSyncSessionError?(coordinator: NSPersistentStoreCoordinator, session: ISyncSession, error: NSError): void;
+	persistentStoreCoordinatorDidCancelSyncSessionError?(
+		coordinator: NSPersistentStoreCoordinator,
+		session: ISyncSession,
+		error: NSError,
+	): void
 
-  persistentStoreCoordinatorWillPushRecordForManagedObjectInSyncSession?(coordinator: NSPersistentStoreCoordinator, record: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>, managedObject: NSManagedObject, session: ISyncSession): NSDictionary;
+	persistentStoreCoordinatorWillPushRecordForManagedObjectInSyncSession?(
+		coordinator: NSPersistentStoreCoordinator,
+		record: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+		managedObject: NSManagedObject,
+		session: ISyncSession,
+	): NSDictionary
 
-  persistentStoreCoordinatorWillDeleteRecordWithIdentifierInSyncSession?(coordinator: NSPersistentStoreCoordinator, identifier: string, session: ISyncSession): boolean;
+	persistentStoreCoordinatorWillDeleteRecordWithIdentifierInSyncSession?(
+		coordinator: NSPersistentStoreCoordinator,
+		identifier: string,
+		session: ISyncSession,
+	): boolean
 
-  persistentStoreCoordinatorWillApplyChangeToManagedObjectInSyncSession?(coordinator: NSPersistentStoreCoordinator, change: ISyncChange, managedObject: NSManagedObject, session: ISyncSession): ISyncChange;
+	persistentStoreCoordinatorWillApplyChangeToManagedObjectInSyncSession?(
+		coordinator: NSPersistentStoreCoordinator,
+		change: ISyncChange,
+		managedObject: NSManagedObject,
+		session: ISyncSession,
+	): ISyncChange
 
-  persistentStoreCoordinatorDidApplyChangeToManagedObjectInSyncSession?(coordinator: NSPersistentStoreCoordinator, change: ISyncChange, managedObject: NSManagedObject, session: ISyncSession): void;
+	persistentStoreCoordinatorDidApplyChangeToManagedObjectInSyncSession?(
+		coordinator: NSPersistentStoreCoordinator,
+		change: ISyncChange,
+		managedObject: NSManagedObject,
+		session: ISyncSession,
+	): void
 
-  persistentStoreCoordinatorDidCommitChangesInSyncSession?(coordinator: NSPersistentStoreCoordinator, changes: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>, session: ISyncSession): void;
+	persistentStoreCoordinatorDidCommitChangesInSyncSession?(
+		coordinator: NSPersistentStoreCoordinator,
+		changes: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+		session: ISyncSession,
+	): void
 }
 
-declare class NSPersistentStoreCoordinatorSyncing extends NativeObject implements NSPersistentStoreCoordinatorSyncing {
-}
+declare class NSPersistentStoreCoordinatorSyncing
+	extends NativeObject
+	implements NSPersistentStoreCoordinatorSyncing {}
 
 declare interface ISyncSessionDriverDataSource {
-  clientIdentifier(): string;
+	clientIdentifier(): string
 
-  clientDescriptionURL(): NSURL;
+	clientDescriptionURL(): NSURL
 
-  schemaBundleURLs(): NSArray;
+	schemaBundleURLs(): NSArray
 
-  preferredSyncModeForEntityName(entity: string): interop.Enum<typeof ISyncSessionDriverMode>;
+	preferredSyncModeForEntityName(entity: string): interop.Enum<typeof ISyncSessionDriverMode>
 
-  recordsForEntityNameMoreComingError(entity: string, moreComing: interop.PointerConvertible, outError: interop.PointerConvertible): NSDictionary;
+	recordsForEntityNameMoreComingError(
+		entity: string,
+		moreComing: interop.PointerConvertible,
+		outError: interop.PointerConvertible,
+	): NSDictionary
 
-  applyChangeForEntityNameRemappedRecordIdentifierFormattedRecordError(change: ISyncChange, entityName: string, outRecordIdentifier: interop.PointerConvertible, outRecord: interop.PointerConvertible, outError: interop.PointerConvertible): interop.Enum<typeof ISyncSessionDriverChangeResult>;
+	applyChangeForEntityNameRemappedRecordIdentifierFormattedRecordError(
+		change: ISyncChange,
+		entityName: string,
+		outRecordIdentifier: interop.PointerConvertible,
+		outRecord: interop.PointerConvertible,
+		outError: interop.PointerConvertible,
+	): interop.Enum<typeof ISyncSessionDriverChangeResult>
 
-  deleteAllRecordsForEntityNameError(entityName: string, outError: interop.PointerConvertible): boolean;
+	deleteAllRecordsForEntityNameError(
+		entityName: string,
+		outError: interop.PointerConvertible,
+	): boolean
 
-  entityNamesToSync?(): NSArray;
+	entityNamesToSync?(): NSArray
 
-  entityNamesToPull?(): NSArray;
+	entityNamesToPull?(): NSArray
 
-  sessionBeginTimeout?(): number;
+	sessionBeginTimeout?(): number
 
-  sessionPullChangesTimeout?(): number;
+	sessionPullChangesTimeout?(): number
 
-  lastAnchorForEntityName?(entityName: string): string;
+	lastAnchorForEntityName?(entityName: string): string
 
-  nextAnchorForEntityName?(entityName: string): string;
+	nextAnchorForEntityName?(entityName: string): string
 
-  changedRecordsForEntityNameMoreComingError?(entity: string, moreComing: interop.PointerConvertible, outError: interop.PointerConvertible): NSDictionary;
+	changedRecordsForEntityNameMoreComingError?(
+		entity: string,
+		moreComing: interop.PointerConvertible,
+		outError: interop.PointerConvertible,
+	): NSDictionary
 
-  changesForEntityNameMoreComingError?(entity: string, moreComing: interop.PointerConvertible, outError: interop.PointerConvertible): NSArray;
+	changesForEntityNameMoreComingError?(
+		entity: string,
+		moreComing: interop.PointerConvertible,
+		outError: interop.PointerConvertible,
+	): NSArray
 
-  identifiersForRecordsToDeleteForEntityNameMoreComingError?(entityName: string, moreComing: interop.PointerConvertible, outError: interop.PointerConvertible): NSArray;
+	identifiersForRecordsToDeleteForEntityNameMoreComingError?(
+		entityName: string,
+		moreComing: interop.PointerConvertible,
+		outError: interop.PointerConvertible,
+	): NSArray
 }
 
-declare class ISyncSessionDriverDataSource extends NativeObject implements ISyncSessionDriverDataSource {
-}
+declare class ISyncSessionDriverDataSource
+	extends NativeObject
+	implements ISyncSessionDriverDataSource {}
 
 declare interface ISyncFiltering extends NSCoding {
-  isEqual(anotherFilter: interop.Object): boolean;
+	isEqual(anotherFilter: interop.Object): boolean
 
-  supportedEntityNames(): NSArray;
+	supportedEntityNames(): NSArray
 
-  shouldApplyRecordWithRecordIdentifier(record: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>, recordId: string): boolean;
+	shouldApplyRecordWithRecordIdentifier(
+		record: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+		recordId: string,
+	): boolean
 }
 
-declare class ISyncFiltering extends NativeObject implements ISyncFiltering {
-}
+declare class ISyncFiltering extends NativeObject implements ISyncFiltering {}
 
 declare class ISyncSession extends NSObject {
-  static beginSessionWithClientEntityNamesBeforeDate(client: ISyncClient, entityNames: NSArray<interop.Object> | Array<interop.Object>, date: NSDate): ISyncSession;
+	static beginSessionWithClientEntityNamesBeforeDate(
+		client: ISyncClient,
+		entityNames: NSArray<interop.Object> | Array<interop.Object>,
+		date: NSDate,
+	): ISyncSession
 
-  static beginSessionInBackgroundWithClientEntityNamesTargetSelector(client: ISyncClient, entityNames: NSArray<interop.Object> | Array<interop.Object>, target: interop.Object, selector: string): void;
+	static beginSessionInBackgroundWithClientEntityNamesTargetSelector(
+		client: ISyncClient,
+		entityNames: NSArray<interop.Object> | Array<interop.Object>,
+		target: interop.Object,
+		selector: string,
+	): void
 
-  static cancelPreviousBeginSessionWithClient(client: ISyncClient): void;
+	static cancelPreviousBeginSessionWithClient(client: ISyncClient): void
 
-  static beginSessionWithClientEntityNamesBeforeDateLastAnchors(client: ISyncClient, entityNames: NSArray<interop.Object> | Array<interop.Object>, date: NSDate, anchors: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): ISyncSession;
+	static beginSessionWithClientEntityNamesBeforeDateLastAnchors(
+		client: ISyncClient,
+		entityNames: NSArray<interop.Object> | Array<interop.Object>,
+		date: NSDate,
+		anchors: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+	): ISyncSession
 
-  static beginSessionInBackgroundWithClientEntityNamesTargetSelectorLastAnchors(client: ISyncClient, entityNames: NSArray<interop.Object> | Array<interop.Object>, target: interop.Object, selector: string, anchors: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): void;
+	static beginSessionInBackgroundWithClientEntityNamesTargetSelectorLastAnchors(
+		client: ISyncClient,
+		entityNames: NSArray<interop.Object> | Array<interop.Object>,
+		target: interop.Object,
+		selector: string,
+		anchors: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+	): void
 
-  clientDidResetEntityNames(entityNames: NSArray<interop.Object> | Array<interop.Object>): void;
+	clientDidResetEntityNames(entityNames: NSArray<interop.Object> | Array<interop.Object>): void
 
-  clientWantsToPushAllRecordsForEntityNames(entityNames: NSArray<interop.Object> | Array<interop.Object>): void;
+	clientWantsToPushAllRecordsForEntityNames(
+		entityNames: NSArray<interop.Object> | Array<interop.Object>,
+	): void
 
-  shouldPushChangesForEntityName(entityName: string): boolean;
+	shouldPushChangesForEntityName(entityName: string): boolean
 
-  shouldPushAllRecordsForEntityName(entityName: string): boolean;
+	shouldPushAllRecordsForEntityName(entityName: string): boolean
 
-  shouldPullChangesForEntityName(entityName: string): boolean;
+	shouldPullChangesForEntityName(entityName: string): boolean
 
-  shouldReplaceAllRecordsOnClientForEntityName(entityName: string): boolean;
+	shouldReplaceAllRecordsOnClientForEntityName(entityName: string): boolean
 
-  pushChange(change: ISyncChange): void;
+	pushChange(change: ISyncChange): void
 
-  pushChangesFromRecordWithIdentifier(record: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>, recordId: string): void;
+	pushChangesFromRecordWithIdentifier(
+		record: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+		recordId: string,
+	): void
 
-  deleteRecordWithIdentifier(recordId: string): void;
+	deleteRecordWithIdentifier(recordId: string): void
 
-  clientLostRecordWithIdentifierShouldReplaceOnNextSync(recordId: string, flag: boolean): void;
+	clientLostRecordWithIdentifierShouldReplaceOnNextSync(recordId: string, flag: boolean): void
 
-  clientFinishedPushingChangesWithNextAnchors(anchors: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): void;
+	clientFinishedPushingChangesWithNextAnchors(
+		anchors: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+	): void
 
-  prepareToPullChangesForEntityNamesBeforeDate(entityNames: NSArray<interop.Object> | Array<interop.Object>, date: NSDate): boolean;
+	prepareToPullChangesForEntityNamesBeforeDate(
+		entityNames: NSArray<interop.Object> | Array<interop.Object>,
+		date: NSDate,
+	): boolean
 
-  prepareToPullChangesInBackgroundForEntityNamesTargetSelector(entityNames: NSArray<interop.Object> | Array<interop.Object>, target: interop.Object, selector: string): void;
+	prepareToPullChangesInBackgroundForEntityNamesTargetSelector(
+		entityNames: NSArray<interop.Object> | Array<interop.Object>,
+		target: interop.Object,
+		selector: string,
+	): void
 
-  changeEnumeratorForEntityNames(entityNames: NSArray<interop.Object> | Array<interop.Object>): NSEnumerator;
+	changeEnumeratorForEntityNames(
+		entityNames: NSArray<interop.Object> | Array<interop.Object>,
+	): NSEnumerator
 
-  clientAcceptedChangesForRecordWithIdentifierFormattedRecordNewRecordIdentifier(recordId: string, formattedRecord: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>, recordId_: string): void;
+	clientAcceptedChangesForRecordWithIdentifierFormattedRecordNewRecordIdentifier(
+		recordId: string,
+		formattedRecord:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+		recordId_: string,
+	): void
 
-  clientRefusedChangesForRecordWithIdentifier(recordId: string): void;
+	clientRefusedChangesForRecordWithIdentifier(recordId: string): void
 
-  clientCommittedAcceptedChanges(): void;
+	clientCommittedAcceptedChanges(): void
 
-  clientCommittedAcceptedChangesWithNextAnchors(anchors: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): void;
+	clientCommittedAcceptedChangesWithNextAnchors(
+		anchors: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+	): void
 
-  clientChangedRecordIdentifiers(oldToNew: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): void;
+	clientChangedRecordIdentifiers(
+		oldToNew: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+	): void
 
-  isCancelled(): boolean;
+	isCancelled(): boolean
 
-  cancelSyncing(): void;
+	cancelSyncing(): void
 
-  finishSyncing(): void;
+	finishSyncing(): void
 
-  clientInfoForRecordWithIdentifier(recordId: string): interop.Object;
+	clientInfoForRecordWithIdentifier(recordId: string): interop.Object
 
-  setClientInfoForRecordWithIdentifier(clientInfo: NSCoding, recordId: string): void;
+	setClientInfoForRecordWithIdentifier(clientInfo: NSCoding, recordId: string): void
 
-  snapshotOfRecordsInTruth(): ISyncRecordSnapshot;
+	snapshotOfRecordsInTruth(): ISyncRecordSnapshot
 
-  ping(): void;
+	ping(): void
 }
 
 declare class ISyncClient extends NSObject {
-  clientIdentifier(): string;
+	clientIdentifier(): string
 
-  clientType(): string;
+	clientType(): string
 
-  displayName(): string;
+	displayName(): string
 
-  setDisplayName(displayName: string): void;
+	setDisplayName(displayName: string): void
 
-  imagePath(): string;
+	imagePath(): string
 
-  setImagePath(path: string): void;
+	setImagePath(path: string): void
 
-  supportedEntityNames(): NSArray;
+	supportedEntityNames(): NSArray
 
-  canPushChangesForEntityName(entityName: string): boolean;
+	canPushChangesForEntityName(entityName: string): boolean
 
-  canPullChangesForEntityName(entityName: string): boolean;
+	canPullChangesForEntityName(entityName: string): boolean
 
-  lastSyncDateForEntityName(entityName: string): NSDate;
+	lastSyncDateForEntityName(entityName: string): NSDate
 
-  lastSyncStatusForEntityName(entityName: string): number;
+	lastSyncStatusForEntityName(entityName: string): number
 
-  enabledEntityNames(): NSArray;
+	enabledEntityNames(): NSArray
 
-  isEnabledForEntityName(entityName: string): boolean;
+	isEnabledForEntityName(entityName: string): boolean
 
-  setEnabledForEntityNames(flag: boolean, entityNames: NSArray<interop.Object> | Array<interop.Object>): void;
+	setEnabledForEntityNames(
+		flag: boolean,
+		entityNames: NSArray<interop.Object> | Array<interop.Object>,
+	): void
 
-  formatsRelationships(): boolean;
+	formatsRelationships(): boolean
 
-  setFormatsRelationships(flag: boolean): void;
+	setFormatsRelationships(flag: boolean): void
 
-  shouldReplaceClientRecordsForEntityName(entityName: string): boolean;
+	shouldReplaceClientRecordsForEntityName(entityName: string): boolean
 
-  setShouldReplaceClientRecordsForEntityNames(flag: boolean, entityNames: NSArray<interop.Object> | Array<interop.Object>): void;
+	setShouldReplaceClientRecordsForEntityNames(
+		flag: boolean,
+		entityNames: NSArray<interop.Object> | Array<interop.Object>,
+	): void
 
-  objectForKey(key: string): interop.Object;
+	objectForKey(key: string): interop.Object
 
-  setObjectForKey(value: NSCoding, key: string): void;
+	setObjectForKey(value: NSCoding, key: string): void
 
-  filters(): NSArray;
+	filters(): NSArray
 
-  setFilters(filters: NSArray<interop.Object> | Array<interop.Object>): void;
+	setFilters(filters: NSArray<interop.Object> | Array<interop.Object>): void
 
-  shouldSynchronizeWithClientsOfType(clientType: string): boolean;
+	shouldSynchronizeWithClientsOfType(clientType: string): boolean
 
-  setShouldSynchronizeWithClientsOfType(flag: boolean, clientType: string): void;
+	setShouldSynchronizeWithClientsOfType(flag: boolean, clientType: string): void
 
-  syncAlertToolPath(): string;
+	syncAlertToolPath(): string
 
-  setSyncAlertToolPath(path: string): void;
+	setSyncAlertToolPath(path: string): void
 
-  setSyncAlertHandlerSelector(handler: interop.Object, selector: string): void;
+	setSyncAlertHandlerSelector(handler: interop.Object, selector: string): void
 }
 
 declare class ISyncChange extends NSObject {
-  static changeWithTypeRecordIdentifierChanges(type: number, recordIdentifier: string, changes: NSArray<interop.Object> | Array<interop.Object>): interop.Object;
+	static changeWithTypeRecordIdentifierChanges(
+		type: number,
+		recordIdentifier: string,
+		changes: NSArray<interop.Object> | Array<interop.Object>,
+	): interop.Object
 
-  initWithChangeTypeRecordIdentifierChanges(type: number, recordIdentifier: string, changes: NSArray<interop.Object> | Array<interop.Object>): this;
+	initWithChangeTypeRecordIdentifierChanges(
+		type: number,
+		recordIdentifier: string,
+		changes: NSArray<interop.Object> | Array<interop.Object>,
+	): this
 
-  type(): number;
+	type(): number
 
-  recordIdentifier(): string;
+	recordIdentifier(): string
 
-  record(): NSDictionary;
+	record(): NSDictionary
 
-  changes(): NSArray;
+	changes(): NSArray
 }
 
 declare class ISyncSessionDriver extends NSObject {
-  static sessionDriverWithDataSource(dataSource: ISyncSessionDriverDataSource): ISyncSessionDriver;
+	static sessionDriverWithDataSource(dataSource: ISyncSessionDriverDataSource): ISyncSessionDriver
 
-  sync(): boolean;
+	sync(): boolean
 
-  startAsynchronousSync(outError: interop.PointerConvertible): boolean;
+	startAsynchronousSync(outError: interop.PointerConvertible): boolean
 
-  lastError(): NSError;
+	lastError(): NSError
 
-  dataSource(): ISyncSessionDriverDataSource;
+	dataSource(): ISyncSessionDriverDataSource
 
-  setDelegate(delegate: interop.Object): void;
+	setDelegate(delegate: interop.Object): void
 
-  delegate(): interop.Object;
+	delegate(): interop.Object
 
-  setHandlesSyncAlerts(yesOrNo: boolean): void;
+	setHandlesSyncAlerts(yesOrNo: boolean): void
 
-  handlesSyncAlerts(): boolean;
+	handlesSyncAlerts(): boolean
 
-  client(): ISyncClient;
+	client(): ISyncClient
 
-  session(): ISyncSession;
+	session(): ISyncSession
 
-  finishSyncing(): void;
+	finishSyncing(): void
 }
 
 declare class ISyncFilter extends NSObject {
-  static filterMatchingAllFilters(filters: NSArray<interop.Object> | Array<interop.Object>): ISyncFiltering;
+	static filterMatchingAllFilters(
+		filters: NSArray<interop.Object> | Array<interop.Object>,
+	): ISyncFiltering
 
-  static filterMatchingAtLeastOneFilter(filters: NSArray<interop.Object> | Array<interop.Object>): ISyncFiltering;
+	static filterMatchingAtLeastOneFilter(
+		filters: NSArray<interop.Object> | Array<interop.Object>,
+	): ISyncFiltering
 }
 
 declare class ISyncRecordReference extends NSObject implements NSCoding {
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 declare class ISyncRecordSnapshot extends NSObject {
-  recordsWithIdentifiers(recordIds: NSArray<interop.Object> | Array<interop.Object>): NSDictionary;
+	recordsWithIdentifiers(recordIds: NSArray<interop.Object> | Array<interop.Object>): NSDictionary
 
-  targetIdentifiersForRelationshipNameWithSourceIdentifier(relationshipName: string, sourceId: string): NSArray;
+	targetIdentifiersForRelationshipNameWithSourceIdentifier(
+		relationshipName: string,
+		sourceId: string,
+	): NSArray
 
-  sourceIdentifiersForRelationshipNameWithTargetIdentifier(relationshipName: string, sourceId: string): NSArray;
+	sourceIdentifiersForRelationshipNameWithTargetIdentifier(
+		relationshipName: string,
+		sourceId: string,
+	): NSArray
 
-  recordsWithMatchingAttributes(attributes: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): NSDictionary;
+	recordsWithMatchingAttributes(
+		attributes:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+	): NSDictionary
 
-  recordReferenceForRecordWithIdentifier(identifier: string): ISyncRecordReference;
+	recordReferenceForRecordWithIdentifier(identifier: string): ISyncRecordReference
 
-  recordIdentifierForReferenceIsModified(reference: ISyncRecordReference, pModified: interop.PointerConvertible): string;
+	recordIdentifierForReferenceIsModified(
+		reference: ISyncRecordReference,
+		pModified: interop.PointerConvertible,
+	): string
 }
 
 declare class ISyncManager extends NSObject {
-  static sharedManager(): ISyncManager;
+	static sharedManager(): ISyncManager
 
-  isEnabled(): boolean;
+	isEnabled(): boolean
 
-  syncDisabledReason(): NSError;
+	syncDisabledReason(): NSError
 
-  clientWithIdentifier(clientId: string): ISyncClient;
+	clientWithIdentifier(clientId: string): ISyncClient
 
-  registerClientWithIdentifierDescriptionFilePath(clientId: string, descriptionFilePath: string): ISyncClient;
+	registerClientWithIdentifierDescriptionFilePath(
+		clientId: string,
+		descriptionFilePath: string,
+	): ISyncClient
 
-  unregisterClient(client: ISyncClient): void;
+	unregisterClient(client: ISyncClient): void
 
-  registerSchemaWithBundlePath(bundlePath: string): boolean;
+	registerSchemaWithBundlePath(bundlePath: string): boolean
 
-  unregisterSchemaWithName(schemaName: string): void;
+	unregisterSchemaWithName(schemaName: string): void
 
-  clientWithIdentifierNeedsSyncing(clientId: string, flag: boolean): void;
+	clientWithIdentifierNeedsSyncing(clientId: string, flag: boolean): void
 
-  snapshotOfRecordsInTruthWithEntityNamesUsingIdentifiersForClient(entityNames: NSArray<interop.Object> | Array<interop.Object>, client: ISyncClient): ISyncRecordSnapshot;
+	snapshotOfRecordsInTruthWithEntityNamesUsingIdentifiersForClient(
+		entityNames: NSArray<interop.Object> | Array<interop.Object>,
+		client: ISyncClient,
+	): ISyncRecordSnapshot
 
-  addRequestMode(mode: string): void;
+	addRequestMode(mode: string): void
 
-  removeRequestMode(mode: string): void;
+	removeRequestMode(mode: string): void
 
-  requestModes(): NSArray;
+	requestModes(): NSArray
 }
-

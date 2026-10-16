@@ -13,41 +13,49 @@
 // `@nativescript/core`'s root index re-exports `./ui` as a bare directory,
 // which bundler-mode resolution indexes but node16/nodenext does not — the
 // deep specifier keeps `View` resolvable under both modes.
-import type { TabViewItem } from '@nativescript/core/ui/tab-view/index.js';
-import type { View } from '@nativescript/core/ui/core/view/index.js';
-import type { Attributes, ElementTypeOf, NativeElements, NativeNode, Ref, TabViewProps, TabViewItemProps } from './shared.js';
+import type { TabViewItem } from '@nativescript/core/ui/tab-view/index.js'
+import type { View } from '@nativescript/core/ui/core/view/index.js'
+import type {
+	Attributes,
+	ElementTypeOf,
+	NativeElements,
+	NativeNode,
+	Ref,
+	TabViewProps,
+	TabViewItemProps,
+} from './shared.js'
 
-export * from './shared.js';
+export * from './shared.js'
 
 /** NativeScript host element — the `View` the driver creates for intrinsics. */
-export type HostElement = View;
+export type HostElement = View
 
 /** NativeScript logical tab item instance, not its hosted View. */
-export type TabViewItemHandle = TabViewItem;
+export type TabViewItemHandle = TabViewItem
 
 export declare namespace JSX {
-	type Element = NativeNode;
-	type ElementType = ElementTypeOf;
+	type Element = NativeNode
+	type ElementType = ElementTypeOf
 	interface IntrinsicElements extends Omit<NativeElements<View>, 'tabview' | 'tabviewitem'> {
-		tabview: Attributes<View, TabViewProps<View, TabViewItem>>;
-		tabviewitem: Attributes<TabViewItem, TabViewItemProps>;
+		tabview: Attributes<View, TabViewProps<View, TabViewItem>>
+		tabviewitem: Attributes<TabViewItem, TabViewItemProps>
 	}
 
 	interface IntrinsicAttributes {
-		key?: string | number;
+		key?: string | number
 	}
 
 	interface IntrinsicClassAttributes<T> {
-		ref?: Ref<T>;
+		ref?: Ref<T>
 	}
 
 	interface ElementChildrenAttribute {
-		children: {};
+		children: {}
 	}
 }
 
-export declare function jsx(type: ElementTypeOf, props: unknown, key?: unknown): JSX.Element;
-export declare function jsxs(type: ElementTypeOf, props: unknown, key?: unknown): JSX.Element;
+export declare function jsx(type: ElementTypeOf, props: unknown, key?: unknown): JSX.Element
+export declare function jsxs(type: ElementTypeOf, props: unknown, key?: unknown): JSX.Element
 export declare function jsxDEV(
 	type: ElementTypeOf,
 	props: unknown,
@@ -55,6 +63,6 @@ export declare function jsxDEV(
 	isStaticChildren?: boolean,
 	source?: unknown,
 	self?: unknown,
-): JSX.Element;
+): JSX.Element
 
-export declare function Fragment(props: { children?: NativeNode }): JSX.Element;
+export declare function Fragment(props: { children?: NativeNode }): JSX.Element

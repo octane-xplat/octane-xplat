@@ -10,8 +10,16 @@ import {
 import { showWindowLayer, type WindowLayerOptions } from './layer'
 import { disposeImage, updateImage } from './image'
 import {
-	makeTabView, makeTabItem, syncTabView, flushTabViews, configureTabContentRoots,
-	syncTabItem, validateTabProps, releaseTabView, releaseTabItem, detachTabItem,
+	makeTabView,
+	makeTabItem,
+	syncTabView,
+	flushTabViews,
+	configureTabContentRoots,
+	syncTabItem,
+	validateTabProps,
+	releaseTabView,
+	releaseTabItem,
+	detachTabItem,
 } from './tab-view'
 
 import { installPresentationBridge } from './presentation'
@@ -32,7 +40,77 @@ import type {
 import { composeAttributedText, validateTextStyle } from './formatted-text'
 import { parseHtmlText, validateHtmlProps } from './html-text'
 import { resolveFont as fontForFamilyStyle } from './fonts'
-import { NSAttributedString, NSAutoresizingMaskOptions, NSBackingStoreType, NSBezelStyle, NSBorderType, NSButton, NSButtonType, NSClickGestureRecognizer, NSColor, NSColorSpace, NSControlSize, NSDate, NSDatePicker, NSDatePickerElementFlags, NSDatePickerMode, NSDatePickerStyle, NSEvent, NSFontAttributeName, NSForegroundColorAttributeName, NSImageView, NSLayoutAttribute, NSLineBreakMode, NSMenu, NSMenuItem, NSMutableParagraphStyle, NSNotification, NSNotificationCenter, NSNumber, NSObject, NSPanGestureRecognizer, NSParagraphStyleAttributeName, NSPopover, NSPopoverBehavior, NSPopoverDidCloseNotification, NSPopUpButton, NSProgressIndicator, NSProgressIndicatorStyle, NSRectEdge, NSScrollView, NSSearchField, NSSecureTextField, NSSecureTextFieldCell, NSSegmentedControl, NSSegmentSwitchTracking, NSSlider, NSStackView, NSStackViewDistribution, NSStackViewGravity, NSTextAlignment, NSTextField, NSTextFieldCell, NSTextFieldDelegate, NSTextView, NSTextViewDelegate, NSTrackingArea, NSTrackingAreaOptions, NSUserInterfaceLayoutOrientation, NSView, NSViewBoundsDidChangeNotification, NSViewController, NSViewFrameDidChangeNotification, NSWindow, NSWindowDelegate, NSWindowOrderingMode, NSWindowStyleMask, NativeClass, WKWebView, interop } from '@octane-xplat/platform/macos'
+import {
+	NSAttributedString,
+	NSAutoresizingMaskOptions,
+	NSBackingStoreType,
+	NSBezelStyle,
+	NSBorderType,
+	NSButton,
+	NSButtonType,
+	NSClickGestureRecognizer,
+	NSColor,
+	NSColorSpace,
+	NSControlSize,
+	NSDate,
+	NSDatePicker,
+	NSDatePickerElementFlags,
+	NSDatePickerMode,
+	NSDatePickerStyle,
+	NSEvent,
+	NSFontAttributeName,
+	NSForegroundColorAttributeName,
+	NSImageView,
+	NSLayoutAttribute,
+	NSLineBreakMode,
+	NSMenu,
+	NSMenuItem,
+	NSMutableParagraphStyle,
+	NSNotification,
+	NSNotificationCenter,
+	NSNumber,
+	NSObject,
+	NSPanGestureRecognizer,
+	NSParagraphStyleAttributeName,
+	NSPopover,
+	NSPopoverBehavior,
+	NSPopoverDidCloseNotification,
+	NSPopUpButton,
+	NSProgressIndicator,
+	NSProgressIndicatorStyle,
+	NSRectEdge,
+	NSScrollView,
+	NSSearchField,
+	NSSecureTextField,
+	NSSecureTextFieldCell,
+	NSSegmentedControl,
+	NSSegmentSwitchTracking,
+	NSSlider,
+	NSStackView,
+	NSStackViewDistribution,
+	NSStackViewGravity,
+	NSTextAlignment,
+	NSTextField,
+	NSTextFieldCell,
+	NSTextFieldDelegate,
+	NSTextView,
+	NSTextViewDelegate,
+	NSTrackingArea,
+	NSTrackingAreaOptions,
+	NSUserInterfaceLayoutOrientation,
+	NSView,
+	NSViewBoundsDidChangeNotification,
+	NSViewController,
+	NSViewFrameDidChangeNotification,
+	NSWindow,
+	NSWindowDelegate,
+	NSWindowOrderingMode,
+	NSWindowStyleMask,
+	NativeClass,
+	WKWebView,
+	interop,
+} from '@octane-xplat/platform/macos'
+
 import type { NSClass, NSControl } from '@octane-xplat/platform/macos'
 
 export { registerFontFamily } from './fonts'
@@ -162,6 +240,7 @@ function parentReference(parent: ElementNode | null | undefined): UniversalHostP
 
 	const handle =
 		typeof portalHandlesByNode === 'undefined' ? undefined : portalHandlesByNode.get(parent)
+
 	return handle ?? parent.id ?? null
 }
 
@@ -1458,8 +1537,7 @@ function setStackChildPriorities(parent: ElementNode, child: ElementNode) {
 
 function makeFlexbox(props: PropBag) {
 	const stack = makeStack(props, AccessibleStackView as unknown as NSClass<NSStackView>)
-	const interactive =
-		typeof props.onTap === 'function' || props.accessibilityRole === 'button'
+	const interactive = typeof props.onTap === 'function' || props.accessibilityRole === 'button'
 
 	// Accessibility props need the AX id too — a 'checkbox'/'link' role or a
 	// bare accessibilityLabel must not drop every accessibility prop.
@@ -1573,7 +1651,7 @@ function setScrollAction(node: ElementNode, handler: ((event: any) => void) | un
 			console.error('[macos-event] scroll handler failed', error)
 		}
 
-		if (((process.env as {[key: string]: string | undefined}).OCTANE_MACOS_AUTOMATION) === '1') {
+		if ((process.env as { [key: string]: string | undefined }).OCTANE_MACOS_AUTOMATION === '1') {
 			node.scrollMetrics ??= { events: [] }
 			const sample = {
 				verticalOffset: event.verticalOffset,
@@ -1802,9 +1880,13 @@ function makeSwitch(props: PropBag) {
 
 /** A noneditable AppKit picker for the shared NativeScript item/index API. */
 function makeListPicker(node: ElementNode) {
-	const view = NSPopUpButton.alloc().initWithFramePullsDown({
-		origin: { x: 0, y: 0 }, size: { width: 120, height: 26 },
-	}, false)
+	const view = NSPopUpButton.alloc().initWithFramePullsDown(
+		{
+			origin: { x: 0, y: 0 },
+			size: { width: 120, height: 26 },
+		},
+		false,
+	)
 
 	view.target = buttonActionTarget
 	view.action = 'controlChanged:'
@@ -1821,17 +1903,26 @@ function notifyListPickerChange(node: ElementNode, value: number) {
 	const oldValue = node.listPickerIndex
 	node.listPickerIndex = value
 	if (value !== oldValue && typeof node.props.onSelectedIndexChange === 'function') {
-		node.props.onSelectedIndexChange({ eventName: 'selectedIndexChange', object: node.view, value, oldValue })
+		node.props.onSelectedIndexChange({
+			eventName: 'selectedIndexChange',
+			object: node.view,
+			value,
+			oldValue,
+		})
 	}
 }
 
 function syncListPicker(node: ElementNode) {
 	const view = node.view! as NSPopUpButton
 	const items = node.props.items ?? []
-	const titles = Array.from(items, (item, index) => item == null ? String(index) : item + '')
+	const titles = Array.from(items, (item, index) => (item == null ? String(index) : item + ''))
 	// Adding by title can merge duplicate labels. Explicit menu items preserve
 	// every entry and its index, including empty or repeated labels.
-	if (!node.listPickerTitles || titles.length !== node.listPickerTitles.length || titles.some((title, index) => title !== node.listPickerTitles[index])) {
+	if (
+		!node.listPickerTitles ||
+		titles.length !== node.listPickerTitles.length ||
+		titles.some((title, index) => title !== node.listPickerTitles[index])
+	) {
 		view.removeAllItems()
 		for (const title of titles) {
 			view.menu!.addItem(NSMenuItem.alloc().initWithTitleActionKeyEquivalent(title, null, ''))
@@ -1846,13 +1937,20 @@ function syncListPicker(node: ElementNode) {
 		node.listPickerInput = node.props.selectedIndex
 	}
 
-	const value = titles.length ? Math.max(0, Math.min(node.listPickerRequested, titles.length - 1)) : -1
+	const value = titles.length
+		? Math.max(0, Math.min(node.listPickerRequested, titles.length - 1))
+		: -1
+
 	view.selectItemAtIndex(value)
-	setControlAction(node, () => {
-		const index = Number(view.indexOfSelectedItem)
-		node.listPickerRequested = index
-		notifyListPickerChange(node, index)
-	}, () => undefined)
+	setControlAction(
+		node,
+		() => {
+			const index = Number(view.indexOfSelectedItem)
+			node.listPickerRequested = index
+			notifyListPickerChange(node, index)
+		},
+		() => undefined,
+	)
 
 	notifyListPickerChange(node, value)
 }
@@ -1860,7 +1958,10 @@ function syncListPicker(node: ElementNode) {
 /** Raw shared SegmentedBar: ordered item titles with one retained selection. */
 function makeSegmentedBar(node: ElementNode) {
 	const view = NSSegmentedControl.segmentedControlWithLabelsTrackingModeTargetAction(
-		[], NSSegmentSwitchTracking.SelectOne, buttonActionTarget, 'controlChanged:',
+		[],
+		NSSegmentSwitchTracking.SelectOne,
+		buttonActionTarget,
+		'controlChanged:',
 	)
 
 	view.translatesAutoresizingMaskIntoConstraints = false
@@ -1877,7 +1978,13 @@ function notifySegmentedBarChange(node: ElementNode, value: number) {
 	const oldIndex = node.segmentedBarIndex
 	node.segmentedBarIndex = value
 	if (value !== oldIndex && typeof node.props.onSelectedIndexChange === 'function') {
-		node.props.onSelectedIndexChange({ eventName: 'selectedIndexChange', object: node.view, value, oldIndex, newIndex: value })
+		node.props.onSelectedIndexChange({
+			eventName: 'selectedIndexChange',
+			object: node.view,
+			value,
+			oldIndex,
+			newIndex: value,
+		})
 	}
 }
 
@@ -1889,9 +1996,15 @@ function syncSegmentedBar(node: ElementNode) {
 		...node.children.map((item) => item.props.title ?? ''),
 	]
 
-	if (!node.segmentedBarTitles || titles.length !== node.segmentedBarTitles.length || titles.some((title, index) => title !== node.segmentedBarTitles[index])) {
+	if (
+		!node.segmentedBarTitles ||
+		titles.length !== node.segmentedBarTitles.length ||
+		titles.some((title, index) => title !== node.segmentedBarTitles[index])
+	) {
 		view.segmentCount = titles.length
-		for (const [index, title] of titles.entries()) {view.setLabelForSegment(title, index)}
+		for (const [index, title] of titles.entries()) {
+			view.setLabelForSegment(title, index)
+		}
 
 		node.segmentedBarTitles = titles
 		view.invalidateIntrinsicContentSize()
@@ -1903,13 +2016,20 @@ function syncSegmentedBar(node: ElementNode) {
 		node.segmentedBarInput = node.props.selectedIndex
 	}
 
-	const value = titles.length ? Math.max(0, Math.min(node.segmentedBarRequested, titles.length - 1)) : -1
+	const value = titles.length
+		? Math.max(0, Math.min(node.segmentedBarRequested, titles.length - 1))
+		: -1
+
 	view.selectedSegment = value
-	setControlAction(node, () => {
-		const index = Number(view.selectedSegment)
-		node.segmentedBarRequested = index
-		notifySegmentedBarChange(node, index)
-	}, () => undefined)
+	setControlAction(
+		node,
+		() => {
+			const index = Number(view.selectedSegment)
+			node.segmentedBarRequested = index
+			notifySegmentedBarChange(node, index)
+		},
+		() => undefined,
+	)
 
 	notifySegmentedBarChange(node, value)
 }
@@ -1918,8 +2038,16 @@ function syncSegmentedBar(node: ElementNode) {
 function timeOfDay(value: Date | string): Date {
 	if (typeof value === 'string') {
 		const match = /^(\d{2}):(\d{2})(?::(\d{2}))?$/.exec(value)
-		if (!match || match[0] !== value || Number(match[1]) > 23 || Number(match[2]) > 59 || Number(match[3] ?? 0) > 59) {
-			throw new TypeError('AppKit timepicker time must be a valid Date or 24-hour HH:mm[:ss] string')
+		if (
+			!match ||
+			match[0] !== value ||
+			Number(match[1]) > 23 ||
+			Number(match[2]) > 59 ||
+			Number(match[3] ?? 0) > 59
+		) {
+			throw new TypeError(
+				'AppKit timepicker time must be a valid Date or 24-hour HH:mm[:ss] string',
+			)
 		}
 
 		return new Date(0, 0, 0, Number(match[1]), Number(match[2]))
@@ -1933,7 +2061,11 @@ function timeOfDay(value: Date | string): Date {
 }
 
 function makeTimePicker(node: ElementNode) {
-	const view = NSDatePicker.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 100, height: 24 } })
+	const view = NSDatePicker.alloc().initWithFrame({
+		origin: { x: 0, y: 0 },
+		size: { width: 100, height: 24 },
+	})
+
 	view.datePickerStyle = NSDatePickerStyle.TextFieldAndStepper
 	view.datePickerElements = NSDatePickerElementFlags.HourMinute
 	view.datePickerMode = NSDatePickerMode.Single
@@ -1956,15 +2088,27 @@ function makeTimePicker(node: ElementNode) {
 function notifyTimeChange(node: ElementNode, value: Date) {
 	const normalized = timeOfDay(value)
 	const [minimum, maximum] = node.timePickerBounds!
-	const minutes = Math.min(Math.max(normalized.getHours() * 60 + normalized.getMinutes(), minimum), maximum)
+	const minutes = Math.min(
+		Math.max(normalized.getHours() * 60 + normalized.getMinutes(), minimum),
+		maximum,
+	)
+
 	const time = new Date(0, 0, 0, 0, minutes)
 	const oldValue = node.timePickerValue!
 	node.timePickerValue = time
 
-	;(node.view! as NSDatePicker).dateValue = NSDate.dateWithTimeIntervalSince1970(time.getTime() / 1000)
+	;(node.view! as NSDatePicker).dateValue = NSDate.dateWithTimeIntervalSince1970(
+		time.getTime() / 1000,
+	)
+
 	if (time.getHours() !== oldValue.getHours() || time.getMinutes() !== oldValue.getMinutes()) {
 		if (typeof node.props.onTimeChange === 'function') {
-			node.props.onTimeChange({ eventName: 'timeChange', object: node.view, value: new Date(time), oldValue: new Date(oldValue) })
+			node.props.onTimeChange({
+				eventName: 'timeChange',
+				object: node.view,
+				value: new Date(time),
+				oldValue: new Date(oldValue),
+			})
 		}
 	}
 }
@@ -1974,7 +2118,10 @@ function syncTimePicker(node: ElementNode, props: PropBag) {
 	const minimum = (node.props.minHour ?? 0) * 60 + (node.props.minMinute ?? 0)
 	const maximum = (node.props.maxHour ?? 23) * 60 + (node.props.maxMinute ?? 59)
 	// Bounds are one atomic range. Never partially apply an inverted proposal.
-	if (minimum <= maximum) {node.timePickerBounds = [minimum, maximum]}
+	if (minimum <= maximum) {
+		node.timePickerBounds = [minimum, maximum]
+	}
+
 	const [lower, upper] = node.timePickerBounds!
 	view.minDate = null as any
 	view.maxDate = null as any
@@ -1983,36 +2130,65 @@ function syncTimePicker(node: ElementNode, props: PropBag) {
 	let time = new Date(node.timePickerValue!)
 	const previous = node.timePickerInputs ?? {}
 	for (const name of Object.keys(props)) {
-		if (!['time', 'hour', 'minute'].includes(name)) {continue}
+		if (!['time', 'hour', 'minute'].includes(name)) {
+			continue
+		}
+
 		const value = props[name]
 		if (name === 'time') {
 			const next = value == null ? node.timePickerDefault! : timeOfDay(value)
 			const old = previous.time == null ? node.timePickerDefault! : timeOfDay(previous.time)
-			if ((value == null) === (previous.time == null) && next.getHours() === old.getHours() && next.getMinutes() === old.getMinutes()) {continue}
+			if (
+				(value == null) === (previous.time == null) &&
+				next.getHours() === old.getHours() &&
+				next.getMinutes() === old.getMinutes()
+			) {
+				continue
+			}
+
 			time = new Date(next)
 		} else if (!Object.is(previous[name], value)) {
-			if (name === 'hour') {time.setHours(value ?? node.timePickerDefault!.getHours())}
-			else {time.setMinutes(value ?? node.timePickerDefault!.getMinutes())}
+			if (name === 'hour') {
+				time.setHours(value ?? node.timePickerDefault!.getHours())
+			} else {
+				time.setMinutes(value ?? node.timePickerDefault!.getMinutes())
+			}
 		}
 	}
 
 	// Keep copies so mutating a caller-owned Date cannot alter equality history.
-	node.timePickerInputs = { ...node.props, time: node.props.time == null ? undefined : timeOfDay(node.props.time) }
+	node.timePickerInputs = {
+		...node.props,
+		time: node.props.time == null ? undefined : timeOfDay(node.props.time),
+	}
+
 	view.enabled = node.props.isEnabled !== false
-	setControlAction(node, () => notifyTimeChange(node, new Date(Number(view.dateValue!.timeIntervalSince1970) * 1000)), () => undefined)
+	setControlAction(
+		node,
+		() => notifyTimeChange(node, new Date(Number(view.dateValue!.timeIntervalSince1970) * 1000)),
+		() => undefined,
+	)
+
 	notifyTimeChange(node, time)
 }
 
 /** DatePicker's shared values carry a local calendar day, never time-of-day. */
 function calendarDate(value: Date | string): Date {
 	const date = new Date(value)
-	if (!Number.isFinite(date.getTime())) {throw new Error('AppKit datepicker requires a valid date')}
+	if (!Number.isFinite(date.getTime())) {
+		throw new Error('AppKit datepicker requires a valid date')
+	}
+
 	date.setHours(0, 0, 0, 0)
 	return date
 }
 
 function makeDatePicker(node: ElementNode) {
-	const view = NSDatePicker.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 140, height: 24 } })
+	const view = NSDatePicker.alloc().initWithFrame({
+		origin: { x: 0, y: 0 },
+		size: { width: 140, height: 24 },
+	})
+
 	view.datePickerStyle = NSDatePickerStyle.TextFieldAndStepper
 	view.datePickerElements = NSDatePickerElementFlags.YearMonthDay
 	view.datePickerMode = NSDatePickerMode.Single
@@ -2036,9 +2212,17 @@ function notifyDateChange(node: ElementNode, value: Date) {
 	const date = calendarDate(value)
 	node.datePickerValue = date
 
-	;(node.view! as NSDatePicker).dateValue = NSDate.dateWithTimeIntervalSince1970(date.getTime() / 1000)
+	;(node.view! as NSDatePicker).dateValue = NSDate.dateWithTimeIntervalSince1970(
+		date.getTime() / 1000,
+	)
+
 	if (date.getTime() !== oldValue.getTime() && typeof node.props.onDateChange === 'function') {
-		node.props.onDateChange({ eventName: 'dateChange', object: node.view, value: new Date(date), oldValue: new Date(oldValue) })
+		node.props.onDateChange({
+			eventName: 'dateChange',
+			object: node.view,
+			value: new Date(date),
+			oldValue: new Date(oldValue),
+		})
 	}
 }
 
@@ -2048,26 +2232,58 @@ function syncDatePicker(node: ElementNode, props: PropBag) {
 	// does not leave AppKit temporarily constrained by the previous endpoint.
 	view.minDate = null as any
 	view.maxDate = null as any
-	if (node.props.minDate != null) {view.minDate = NSDate.dateWithTimeIntervalSince1970(calendarDate(node.props.minDate).getTime() / 1000)}
-	if (node.props.maxDate != null) {view.maxDate = NSDate.dateWithTimeIntervalSince1970(calendarDate(node.props.maxDate).getTime() / 1000)}
+	if (node.props.minDate != null) {
+		view.minDate = NSDate.dateWithTimeIntervalSince1970(
+			calendarDate(node.props.minDate).getTime() / 1000,
+		)
+	}
+
+	if (node.props.maxDate != null) {
+		view.maxDate = NSDate.dateWithTimeIntervalSince1970(
+			calendarDate(node.props.maxDate).getTime() / 1000,
+		)
+	}
+
 	let date = new Date(node.datePickerValue as Date)
 	const previous = node.datePickerInputs ?? {}
 	// Property order matches NativeScript's sequential setters. An explicit
 	// date sets all components; subsequent component props adjust that date.
 	for (const name of Object.keys(props)) {
-		if (!['date', 'year', 'month', 'day'].includes(name) || Object.is(previous[name], props[name])) {continue}
+		if (
+			!['date', 'year', 'month', 'day'].includes(name) ||
+			Object.is(previous[name], props[name])
+		) {
+			continue
+		}
+
 		const value = props[name]
-		if (name === 'date') {date = value == null ? new Date(node.datePickerDefault as Date) : calendarDate(value)}
-		else if (name === 'year') {date.setFullYear(value ?? (node.datePickerDefault as Date).getFullYear())}
-		else if (name === 'month') {date.setMonth((value ?? ((node.datePickerDefault as Date).getMonth() + 1)) - 1)}
-		else {date.setDate(value ?? (node.datePickerDefault as Date).getDate())}
+		if (name === 'date') {
+			date = value == null ? new Date(node.datePickerDefault as Date) : calendarDate(value)
+		} else if (name === 'year') {
+			date.setFullYear(value ?? (node.datePickerDefault as Date).getFullYear())
+		} else if (name === 'month') {
+			date.setMonth((value ?? (node.datePickerDefault as Date).getMonth() + 1) - 1)
+		} else {
+			date.setDate(value ?? (node.datePickerDefault as Date).getDate())
+		}
 	}
 
 	node.datePickerInputs = { ...node.props }
-	if (node.props.minDate != null && date < calendarDate(node.props.minDate)) {date = calendarDate(node.props.minDate)}
-	if (node.props.maxDate != null && date > calendarDate(node.props.maxDate)) {date = calendarDate(node.props.maxDate)}
+	if (node.props.minDate != null && date < calendarDate(node.props.minDate)) {
+		date = calendarDate(node.props.minDate)
+	}
+
+	if (node.props.maxDate != null && date > calendarDate(node.props.maxDate)) {
+		date = calendarDate(node.props.maxDate)
+	}
+
 	view.enabled = node.props.isEnabled !== false
-	setControlAction(node, () => notifyDateChange(node, new Date(Number(view.dateValue!.timeIntervalSince1970) * 1000)), () => undefined)
+	setControlAction(
+		node,
+		() => notifyDateChange(node, new Date(Number(view.dateValue!.timeIntervalSince1970) * 1000)),
+		() => undefined,
+	)
+
 	notifyDateChange(node, date)
 }
 
@@ -3281,7 +3497,14 @@ const SUPPORTED_TYPES = new Set([
 ])
 
 function typeHasView(type: string) {
-	return type !== 'tabviewitem' && type !== 'segmentedbaritem' && type !== '#text' && type !== 'span' && type !== 'formattedstring' && type !== 'proxyviewcontainer'
+	return (
+		type !== 'tabviewitem' &&
+		type !== 'segmentedbaritem' &&
+		type !== '#text' &&
+		type !== 'span' &&
+		type !== 'formattedstring' &&
+		type !== 'proxyviewcontainer'
+	)
 }
 
 function assertSupportedType(type: string) {
@@ -3295,49 +3518,97 @@ function assertSupportedType(type: string) {
  *  update commands so merged-prop rules (e.g. placeholder color) stay exact. */
 function validateNodeProps(type: string, props: PropBag | undefined, baseProps?: PropBag) {
 	if (type === 'listview') {
-		validateListProps(props ?? {}, (template) => template.validate((tag, values) => {
-			try { assertSupportedType(tag); validateNodeProps(tag, values) }
-			catch (error) { throw new TypeError('[macos-host] listview itemTemplate: ' + String(error)) }
-		}, (parent, child) => {
-			validateTextNesting(parent, child)
-			if (parent && (typeHasView(child) || child === 'proxyviewcontainer') && !VIEW_PARENT_TYPES.has(parent)) {
-				throw new TypeError('[macos-host] listview itemTemplate: <' + parent + '> cannot contain child views')
-			}
-		}))
+		validateListProps(props ?? {}, (template) =>
+			template.validate(
+				(tag, values) => {
+					try {
+						assertSupportedType(tag)
+						validateNodeProps(tag, values)
+					} catch (error) {
+						throw new TypeError('[macos-host] listview itemTemplate: ' + String(error))
+					}
+				},
+				(parent, child) => {
+					validateTextNesting(parent, child)
+					if (
+						parent &&
+						(typeHasView(child) || child === 'proxyviewcontainer') &&
+						!VIEW_PARENT_TYPES.has(parent)
+					) {
+						throw new TypeError(
+							'[macos-host] listview itemTemplate: <' + parent + '> cannot contain child views',
+						)
+					}
+				},
+			),
+		)
 
-		if (props?.separatorColor != null) { nativeColor(props.separatorColor) }
+		if (props?.separatorColor != null) {
+			nativeColor(props.separatorColor)
+		}
 	}
 
-	if (type === 'tabview' || type === 'tabviewitem') {validateTabProps(type, props ?? {})}
+	if (type === 'tabview' || type === 'tabviewitem') {
+		validateTabProps(type, props ?? {})
+	}
+
 	if (type === 'segmentedbaritem' && props?.title != null && typeof props.title !== 'string') {
 		throw new Error('AppKit segmentedbaritem title must be a string')
 	}
 
 	if (type === 'segmentedbar') {
-		if (props?.items != null && !Array.isArray(props.items)) {throw new Error('AppKit segmentedbar items must be an array')}
-		for (const item of props?.items ?? []) {
-			if (!item || typeof item !== 'object') {throw new Error('AppKit segmentedbar items must be objects with optional titles')}
-			if (item.title != null && typeof item.title !== 'string') {throw new Error('AppKit segmentedbar item title must be a string')}
+		if (props?.items != null && !Array.isArray(props.items)) {
+			throw new Error('AppKit segmentedbar items must be an array')
 		}
 
-		if (props?.selectedIndex != null && !Number.isInteger(props.selectedIndex)) {throw new Error('AppKit segmentedbar selectedIndex must be an integer')}
-		if (props?.style?.selectedBackgroundColor != null) {nativeColor(props.style.selectedBackgroundColor)}
+		for (const item of props?.items ?? []) {
+			if (!item || typeof item !== 'object') {
+				throw new Error('AppKit segmentedbar items must be objects with optional titles')
+			}
+
+			if (item.title != null && typeof item.title !== 'string') {
+				throw new Error('AppKit segmentedbar item title must be a string')
+			}
+		}
+
+		if (props?.selectedIndex != null && !Number.isInteger(props.selectedIndex)) {
+			throw new Error('AppKit segmentedbar selectedIndex must be an integer')
+		}
+
+		if (props?.style?.selectedBackgroundColor != null) {
+			nativeColor(props.style.selectedBackgroundColor)
+		}
 	}
 
 	if (type === 'listpicker') {
-		if (props?.items != null && !Array.isArray(props.items)) {throw new Error('AppKit listpicker items must be an array')}
-		if (props?.selectedIndex != null && !Number.isInteger(props.selectedIndex)) {throw new Error('AppKit listpicker selectedIndex must be an integer')}
+		if (props?.items != null && !Array.isArray(props.items)) {
+			throw new Error('AppKit listpicker items must be an array')
+		}
+
+		if (props?.selectedIndex != null && !Number.isInteger(props.selectedIndex)) {
+			throw new Error('AppKit listpicker selectedIndex must be an integer')
+		}
+
 		// Validate item conversion before allocating a view or registration.
-		for (const item of props?.items ?? []) {if (item != null) {void (item + '')}}
+		for (const item of props?.items ?? []) {
+			if (item != null) {
+				void (item + '')
+			}
+		}
 	}
 
 	if (type === 'timepicker') {
-		if (props?.time != null) {timeOfDay(props.time)}
+		if (props?.time != null) {
+			timeOfDay(props.time)
+		}
+
 		for (const name of ['hour', 'minute', 'minHour', 'minMinute', 'maxHour', 'maxMinute']) {
 			const value = props?.[name]
 			const maximum = name.toLowerCase().includes('hour') ? 23 : 59
 			if (value != null && (!Number.isInteger(value) || value < 0 || value > maximum)) {
-				throw new TypeError('AppKit timepicker ' + name + ' must be an integer from 0 through ' + maximum)
+				throw new TypeError(
+					'AppKit timepicker ' + name + ' must be an integer from 0 through ' + maximum,
+				)
 			}
 		}
 	}
@@ -3345,19 +3616,27 @@ function validateNodeProps(type: string, props: PropBag | undefined, baseProps?:
 	if (type === 'datepicker') {
 		for (const name of ['date', 'minDate', 'maxDate']) {
 			if (props?.[name] != null) {
-				if (!(props[name] instanceof Date) && typeof props[name] !== 'string') {throw new Error('AppKit datepicker ' + name + ' must be Date or string')}
+				if (!(props[name] instanceof Date) && typeof props[name] !== 'string') {
+					throw new Error('AppKit datepicker ' + name + ' must be Date or string')
+				}
+
 				calendarDate(props[name])
 			}
 		}
 
 		for (const name of ['year', 'month', 'day']) {
-			if (props?.[name] != null && !Number.isInteger(props[name])) {throw new Error('AppKit datepicker ' + name + ' must be an integer')}
+			if (props?.[name] != null && !Number.isInteger(props[name])) {
+				throw new Error('AppKit datepicker ' + name + ' must be an integer')
+			}
 		}
 	}
 
 	if (type === 'progress') {
 		for (const name of ['value', 'maxValue']) {
-			if (props?.[name] != null && (typeof props[name] !== 'number' || !Number.isFinite(props[name]))) {
+			if (
+				props?.[name] != null &&
+				(typeof props[name] !== 'number' || !Number.isFinite(props[name]))
+			) {
 				throw new Error('AppKit progress ' + name + ' must be a finite number')
 			}
 		}
@@ -3367,7 +3646,10 @@ function validateNodeProps(type: string, props: PropBag | undefined, baseProps?:
 		throw new Error('AppKit activityindicator busy must be boolean')
 	}
 
-	if (type === 'htmlview') {validateHtmlProps(props ?? {})}
+	if (type === 'htmlview') {
+		validateHtmlProps(props ?? {})
+	}
+
 	if (type === 'span' || type === 'formattedstring') {
 		validateTextStyle(props ?? {}, nativeColor)
 		return
@@ -3392,7 +3674,10 @@ function validateNodeProps(type: string, props: PropBag | undefined, baseProps?:
 			nativeColor(style.borderColor)
 		}
 
-		if (['label', 'htmlview', 'textfield', 'textview', 'searchbar'].includes(type) && style.color != null) {
+		if (
+			['label', 'htmlview', 'textfield', 'textview', 'searchbar'].includes(type) &&
+			style.color != null
+		) {
 			nativeColor(style.color)
 		}
 	}
@@ -4110,7 +4395,10 @@ function resetStyle(node: ElementNode, name: string) {
 		return
 	}
 
-	const textControl = ['label', 'htmlview', 'textfield', 'textview', 'searchbar'].includes(node.type)
+	const textControl = ['label', 'htmlview', 'textfield', 'textview', 'searchbar'].includes(
+		node.type,
+	)
+
 	if (name === 'selectedBackgroundColor' && node.type === 'segmentedbar') {
 		view.selectedSegmentBezelColor = nativeColor('#0000ff')
 	} else if (name === 'pointerEvents') {
@@ -4695,40 +4983,70 @@ function setLabelText(node: ElementNode, text: any) {
 }
 
 function syncText(parent: ElementNode | null | undefined) {
-	while (parent && ['span', 'formattedstring'].includes(parent.type)) {parent = parent.parent}
-	if (!parent || !['label', 'button', 'textfield', 'textview', 'searchbar'].includes(parent.type)) {return}
+	while (parent && ['span', 'formattedstring'].includes(parent.type)) {
+		parent = parent.parent
+	}
 
-	const rich = parent.children.some((child) => child.type === 'formattedstring' || child.type === 'span')
+	if (!parent || !['label', 'button', 'textfield', 'textview', 'searchbar'].includes(parent.type)) {
+		return
+	}
+
+	const rich = parent.children.some(
+		(child) => child.type === 'formattedstring' || child.type === 'span',
+	)
+
 	if (rich) {
 		const view = parent.view!
-		const attributed = composeAttributedText(parent.children, view, parent.props, fontForFamilyStyle, nativeColor, {
-			fontFamily: parent.appliedFontFamily,
-			fontSize: Number(view.font?.pointSize ?? (parent.type === 'label' ? 16 : 14)),
-			fontWeight: parent.appliedFontWeight ?? 400,
-			color: view.textColor,
-		})
+		const attributed = composeAttributedText(
+			parent.children,
+			view,
+			parent.props,
+			fontForFamilyStyle,
+			nativeColor,
+			{
+				fontFamily: parent.appliedFontFamily,
+				fontSize: Number(view.font?.pointSize ?? (parent.type === 'label' ? 16 : 14)),
+				fontWeight: parent.appliedFontWeight ?? 400,
+				color: view.textColor,
+			},
+		)
 
-		if (parent.type === 'button') {view.attributedTitle = attributed}
-		else if (parent.type === 'textview') {view.textStorage.setAttributedString(attributed)}
-		else {view.attributedStringValue = attributed}
+		if (parent.type === 'button') {
+			view.attributedTitle = attributed
+		} else if (parent.type === 'textview') {
+			view.textStorage.setAttributedString(attributed)
+		} else {
+			view.attributedStringValue = attributed
+		}
 
 		parent.formattedTextActive = true
 		view.invalidateIntrinsicContentSize()
-		if (parent.type === 'textview') {fitTextView(parent)}
+		if (parent.type === 'textview') {
+			fitTextView(parent)
+		}
+
 		queueLayoutReconcile(parent.container, parent.parent)
 		return
 	}
 
-	if (parent.type !== 'label' && !parent.formattedTextActive) {return}
+	if (parent.type !== 'label' && !parent.formattedTextActive) {
+		return
+	}
+
 	parent.formattedTextActive = false
 	const text = parent.children.length
 		? parent.children.map(textContent).join('')
 		: String(parent.props?.text ?? '')
 
-	if (parent.type === 'label') {setLabelText(parent, text)}
-	else if (parent.type === 'button') {parent.view!.title = text}
-	else if (parent.type === 'textview') {parent.view!.string = text}
-	else {parent.view!.stringValue = text}
+	if (parent.type === 'label') {
+		setLabelText(parent, text)
+	} else if (parent.type === 'button') {
+		parent.view!.title = text
+	} else if (parent.type === 'textview') {
+		parent.view!.string = text
+	} else {
+		parent.view!.stringValue = text
+	}
 
 	parent.view!.invalidateIntrinsicContentSize()
 }
@@ -5054,9 +5372,16 @@ function droppedPropClears(node: ElementNode, next: PropBag): PropBag {
 }
 
 function applyProps(node: ElementNode, props: PropBag) {
-	if (node.type === 'timepicker') {validateNodeProps(node.type, props)}
+	if (node.type === 'timepicker') {
+		validateNodeProps(node.type, props)
+	}
+
 	node.props = { ...node.props, ...props }
-	if (node.authoredProps || node.parent?.type === 'proxyviewcontainer' || node.type === 'proxyviewcontainer') {
+	if (
+		node.authoredProps ||
+		node.parent?.type === 'proxyviewcontainer' ||
+		node.type === 'proxyviewcontainer'
+	) {
 		node.authoredProps = { ...node.authoredProps, ...props }
 	}
 
@@ -5066,7 +5391,10 @@ function applyProps(node: ElementNode, props: PropBag) {
 	}
 
 	if (node.type === 'segmentedbaritem') {
-		if (node.parent) {syncSegmentedBar(node.parent)}
+		if (node.parent) {
+			syncSegmentedBar(node.parent)
+		}
+
 		return
 	}
 
@@ -5274,66 +5602,160 @@ function applyProps(node: ElementNode, props: PropBag) {
 
 				break
 			case 'tabview':
-				if (['items', 'selectedIndex', 'onSelectedIndexChange', 'onSelectedIndexChanged', 'id'].includes(name)) {continue}
-				else if (name === 'style') {applyStyle(node, value)}
-				else if (name === 'className') {applyClassName(node, value)}
-				else if (name === 'accessible' || name.startsWith('accessibility')) {applyAccessibility(node, name, value)}
-				else if (name.startsWith('on') && value == null) {continue}
-				else if (value !== undefined) {console.warn('[macos-host] ignored tabview prop ' + name)}
+				if (
+					[
+						'items',
+						'selectedIndex',
+						'onSelectedIndexChange',
+						'onSelectedIndexChanged',
+						'id',
+					].includes(name)
+				) {
+					continue
+				} else if (name === 'style') {
+					applyStyle(node, value)
+				} else if (name === 'className') {
+					applyClassName(node, value)
+				} else if (name === 'accessible' || name.startsWith('accessibility')) {
+					applyAccessibility(node, name, value)
+				} else if (name.startsWith('on') && value == null) {
+					continue
+				} else if (value !== undefined) {
+					console.warn('[macos-host] ignored tabview prop ' + name)
+				}
 
 				break
 			case 'segmentedbar':
-				if (['items', 'selectedIndex', 'onSelectedIndexChange', 'id'].includes(name)) {continue}
-				else if (name === 'style') {applyStyle(node, value)}
-				else if (name === 'className') {applyClassName(node, value)}
-				else if (name === 'accessible' || name.startsWith('accessibility')) {applyAccessibility(node, name, value)}
-				else if (name.startsWith('on') && value == null) {continue}
-				else if (value !== undefined) {console.warn('[macos-host] ignored segmentedbar prop ' + name)}
+				if (['items', 'selectedIndex', 'onSelectedIndexChange', 'id'].includes(name)) {
+					continue
+				} else if (name === 'style') {
+					applyStyle(node, value)
+				} else if (name === 'className') {
+					applyClassName(node, value)
+				} else if (name === 'accessible' || name.startsWith('accessibility')) {
+					applyAccessibility(node, name, value)
+				} else if (name.startsWith('on') && value == null) {
+					continue
+				} else if (value !== undefined) {
+					console.warn('[macos-host] ignored segmentedbar prop ' + name)
+				}
 
 				break
 			case 'listview':
-				if (['items', 'renderItem', 'itemTemplate', 'itemTemplates', 'separatorColor', 'onItemTap', 'onItemLoading', 'onLoadMoreItems', 'id'].includes(name)) { continue }
-				else if (name === 'style') { applyStyle(node, value) }
-				else if (name === 'className') { applyClassName(node, value) }
-				else if (name === 'accessible' || name.startsWith('accessibility')) { applyAccessibility(node, name, value) }
-				else if (name.startsWith('on') && value == null) { continue }
-				else if (value !== undefined) { console.warn('[macos-host] ignored listview prop ' + name) }
+				if (
+					[
+						'items',
+						'renderItem',
+						'itemTemplate',
+						'itemTemplates',
+						'separatorColor',
+						'onItemTap',
+						'onItemLoading',
+						'onLoadMoreItems',
+						'id',
+					].includes(name)
+				) {
+					continue
+				} else if (name === 'style') {
+					applyStyle(node, value)
+				} else if (name === 'className') {
+					applyClassName(node, value)
+				} else if (name === 'accessible' || name.startsWith('accessibility')) {
+					applyAccessibility(node, name, value)
+				} else if (name.startsWith('on') && value == null) {
+					continue
+				} else if (value !== undefined) {
+					console.warn('[macos-host] ignored listview prop ' + name)
+				}
 
 				break
 			case 'listpicker':
-				if (['items', 'selectedIndex', 'onSelectedIndexChange', 'id'].includes(name)) {continue}
-				else if (name === 'style') {applyStyle(node, value)}
-				else if (name === 'className') {applyClassName(node, value)}
-				else if (name === 'accessible' || name.startsWith('accessibility')) {applyAccessibility(node, name, value)}
-				else if (name.startsWith('on') && value == null) {continue}
-				else if (value !== undefined) {console.warn('[macos-host] ignored listpicker prop ' + name)}
+				if (['items', 'selectedIndex', 'onSelectedIndexChange', 'id'].includes(name)) {
+					continue
+				} else if (name === 'style') {
+					applyStyle(node, value)
+				} else if (name === 'className') {
+					applyClassName(node, value)
+				} else if (name === 'accessible' || name.startsWith('accessibility')) {
+					applyAccessibility(node, name, value)
+				} else if (name.startsWith('on') && value == null) {
+					continue
+				} else if (value !== undefined) {
+					console.warn('[macos-host] ignored listpicker prop ' + name)
+				}
 
 				break
 			case 'timepicker':
-				if (['time', 'hour', 'minute', 'minHour', 'minMinute', 'maxHour', 'maxMinute', 'isEnabled', 'onTimeChange', 'id'].includes(name)) {continue}
-				else if (name === 'style') {applyStyle(node, value)}
-				else if (name === 'className') {applyClassName(node, value)}
-				else if (name === 'accessible' || name.startsWith('accessibility')) {applyAccessibility(node, name, value)}
-				else if (name.startsWith('on') && value == null) {continue}
-				else if (value !== undefined) {console.warn('[macos-host] ignored timepicker prop ' + name)}
+				if (
+					[
+						'time',
+						'hour',
+						'minute',
+						'minHour',
+						'minMinute',
+						'maxHour',
+						'maxMinute',
+						'isEnabled',
+						'onTimeChange',
+						'id',
+					].includes(name)
+				) {
+					continue
+				} else if (name === 'style') {
+					applyStyle(node, value)
+				} else if (name === 'className') {
+					applyClassName(node, value)
+				} else if (name === 'accessible' || name.startsWith('accessibility')) {
+					applyAccessibility(node, name, value)
+				} else if (name.startsWith('on') && value == null) {
+					continue
+				} else if (value !== undefined) {
+					console.warn('[macos-host] ignored timepicker prop ' + name)
+				}
 
 				break
 			case 'datepicker':
-				if (['date', 'minDate', 'maxDate', 'year', 'month', 'day', 'isEnabled', 'onDateChange', 'id'].includes(name)) {continue}
-				else if (name === 'style') {applyStyle(node, value)}
-				else if (name === 'className') {applyClassName(node, value)}
-				else if (name === 'accessible' || name.startsWith('accessibility')) {applyAccessibility(node, name, value)}
-				else if (name.startsWith('on') && value == null) {continue}
-				else if (value !== undefined) {console.warn('[macos-host] ignored datepicker prop ' + name)}
+				if (
+					[
+						'date',
+						'minDate',
+						'maxDate',
+						'year',
+						'month',
+						'day',
+						'isEnabled',
+						'onDateChange',
+						'id',
+					].includes(name)
+				) {
+					continue
+				} else if (name === 'style') {
+					applyStyle(node, value)
+				} else if (name === 'className') {
+					applyClassName(node, value)
+				} else if (name === 'accessible' || name.startsWith('accessibility')) {
+					applyAccessibility(node, name, value)
+				} else if (name.startsWith('on') && value == null) {
+					continue
+				} else if (value !== undefined) {
+					console.warn('[macos-host] ignored datepicker prop ' + name)
+				}
 
 				break
 			case 'progress':
-				if (['value', 'maxValue', 'id'].includes(name)) {continue}
-				else if (name === 'style') {applyStyle(node, value)}
-				else if (name === 'className') {applyClassName(node, value)}
-				else if (name === 'accessible' || name.startsWith('accessibility')) {applyAccessibility(node, name, value)}
-				else if (name.startsWith('on') && value == null) {continue}
-				else if (value !== undefined) {console.warn('[macos-host] ignored progress prop ' + name)}
+				if (['value', 'maxValue', 'id'].includes(name)) {
+					continue
+				} else if (name === 'style') {
+					applyStyle(node, value)
+				} else if (name === 'className') {
+					applyClassName(node, value)
+				} else if (name === 'accessible' || name.startsWith('accessibility')) {
+					applyAccessibility(node, name, value)
+				} else if (name.startsWith('on') && value == null) {
+					continue
+				} else if (value !== undefined) {
+					console.warn('[macos-host] ignored progress prop ' + name)
+				}
 
 				break
 			case 'activityindicator':
@@ -5641,15 +6063,41 @@ function applyProps(node: ElementNode, props: PropBag) {
 		}
 	}
 
-	if (node.type === 'tabview') {syncTabView(node)}
-	if (node.type === 'segmentedbar') {syncSegmentedBar(node)}
-	if (node.type === 'listpicker') {syncListPicker(node)}
-	if (node.type === 'listview') { updateListView(node.view!, node.props) }
-	if (node.type === 'datepicker') {syncDatePicker(node, props)}
-	if (node.type === 'timepicker') {syncTimePicker(node, props)}
-	if (node.type === 'activityindicator') {syncActivityIndicator(node)}
-	if (node.type === 'progress') {syncProgress(node)}
-	if (node.type === 'htmlview') {syncHtmlView(node)}
+	if (node.type === 'tabview') {
+		syncTabView(node)
+	}
+
+	if (node.type === 'segmentedbar') {
+		syncSegmentedBar(node)
+	}
+
+	if (node.type === 'listpicker') {
+		syncListPicker(node)
+	}
+
+	if (node.type === 'listview') {
+		updateListView(node.view!, node.props)
+	}
+
+	if (node.type === 'datepicker') {
+		syncDatePicker(node, props)
+	}
+
+	if (node.type === 'timepicker') {
+		syncTimePicker(node, props)
+	}
+
+	if (node.type === 'activityindicator') {
+		syncActivityIndicator(node)
+	}
+
+	if (node.type === 'progress') {
+		syncProgress(node)
+	}
+
+	if (node.type === 'htmlview') {
+		syncHtmlView(node)
+	}
 
 	if (node.type === 'searchbar') {
 		syncSearchBar(node, props)
@@ -5709,7 +6157,9 @@ function applyProps(node: ElementNode, props: PropBag) {
 		queueLayoutReconcile(node.container, node.parent)
 	}
 
-	if (node.children?.some((child) => child.type === 'formattedstring' || child.type === 'span')) {syncText(node)}
+	if (node.children?.some((child) => child.type === 'formattedstring' || child.type === 'span')) {
+		syncText(node)
+	}
 }
 
 // NativeScript ProxyViewContainer's attached layout-property inventory.
@@ -5881,8 +6331,9 @@ function syncProxyProjection(parent: ElementNode) {
 		const views = children.map(layoutView)
 		const native = host.subviews
 		const count = native.count
-		const actual = Array.from({ length: Number(count) }, (_, index) => native.objectAtIndex(index))
-			.filter((view) => views.includes(view))
+		const actual = Array.from({ length: Number(count) }, (_, index) =>
+			native.objectAtIndex(index),
+		).filter((view) => views.includes(view))
 
 		if (views.some((view, index) => view !== actual[index])) {
 			let previous: NSView | null = null
@@ -5933,9 +6384,8 @@ function validateProxyTree(container: RootContainer, commands: readonly Universa
 	const unlink = (id: number) => {
 		const node = nodes.get(id)
 		const parent =
-			node?.parent == null || typeof node.parent !== 'number'
-				? null
-				: nodes.get(node.parent)
+			node?.parent == null || typeof node.parent !== 'number' ? null : nodes.get(node.parent)
+
 		if (parent) {
 			parent.children = parent.children.filter((child) => child !== id)
 			if (parent.slot === id) {
@@ -6023,7 +6473,10 @@ function validateProxyTree(container: RootContainer, commands: readonly Universa
 
 function detach(container: RootContainer, node: ElementNode, preserveTab = false) {
 	const previousParent = node.parent
-	if (node.type === 'tabviewitem' && !preserveTab) {detachTabItem(node)}
+	if (node.type === 'tabviewitem' && !preserveTab) {
+		detachTabItem(node)
+	}
+
 	const physicalParent = node.layoutParent ?? previousParent
 	if (node.layoutParent) {
 		releaseProjectedView(node)
@@ -6064,8 +6517,14 @@ function detach(container: RootContainer, node: ElementNode, preserveTab = false
 
 	queueLayoutReconcile(container, previousParent)
 	syncText(previousParent)
-	if (previousParent?.type === 'tabview') {syncTabView(previousParent)}
-	if (previousParent?.type === 'segmentedbar') {syncSegmentedBar(previousParent)}
+	if (previousParent?.type === 'tabview') {
+		syncTabView(previousParent)
+	}
+
+	if (previousParent?.type === 'segmentedbar') {
+		syncSegmentedBar(previousParent)
+	}
+
 	node.parent = null
 	node.layoutParent = null
 }
@@ -6122,6 +6581,7 @@ function reconcileLayoutParent(parent: ElementNode) {
 		const views = (parent.projectedChildren ?? parent.children)
 			.filter((child) => child.view)
 			.map(layoutView)
+
 		const host = parent.view
 		const native = host?.subviews
 		if (!host?.addSubviewPositionedRelativeTo || !native) {
@@ -6220,17 +6680,50 @@ function reconcileLayoutParent(parent: ElementNode) {
 }
 
 function validateTextNesting(parentType: string | undefined, childType: string) {
-	if (parentType === 'listview') { throw new Error('AppKit <listview> takes item templates, not JSX children') }
-	if (parentType === 'tabview' && childType !== 'tabviewitem') {throw new TypeError('AppKit <tabview> accepts only tabviewitem children')}
-	if (childType === 'tabviewitem' && parentType !== 'tabview' && parentType !== undefined) {throw new TypeError('AppKit <tabviewitem> requires a tabview parent or an unparented handle')}
-	if (parentType === 'tabviewitem') {throw new TypeError('AppKit <tabviewitem> content requires the xplatMacOS compiler adapter')}
-	if (parentType === 'segmentedbaritem') {throw new Error('AppKit <segmentedbaritem> takes title content, not JSX children')}
-	if (childType === 'segmentedbaritem' && parentType !== 'segmentedbar') {throw new Error('AppKit <segmentedbaritem> requires a segmentedbar parent')}
-	if (parentType === 'progress') {throw new Error('AppKit <progress> cannot contain JSX children')}
-	if (parentType === 'segmentedbar' && childType !== 'segmentedbaritem') {throw new Error('AppKit <segmentedbar> accepts only segmentedbaritem children')}
-	if (parentType === 'listpicker') {throw new Error('AppKit <listpicker> cannot contain JSX children')}
-	if (parentType === 'timepicker') {throw new Error('AppKit <timepicker> cannot contain JSX children')}
-	if (parentType === 'datepicker') {throw new Error('AppKit <datepicker> cannot contain JSX children')}
+	if (parentType === 'listview') {
+		throw new Error('AppKit <listview> takes item templates, not JSX children')
+	}
+
+	if (parentType === 'tabview' && childType !== 'tabviewitem') {
+		throw new TypeError('AppKit <tabview> accepts only tabviewitem children')
+	}
+
+	if (childType === 'tabviewitem' && parentType !== 'tabview' && parentType !== undefined) {
+		throw new TypeError('AppKit <tabviewitem> requires a tabview parent or an unparented handle')
+	}
+
+	if (parentType === 'tabviewitem') {
+		throw new TypeError('AppKit <tabviewitem> content requires the xplatMacOS compiler adapter')
+	}
+
+	if (parentType === 'segmentedbaritem') {
+		throw new Error('AppKit <segmentedbaritem> takes title content, not JSX children')
+	}
+
+	if (childType === 'segmentedbaritem' && parentType !== 'segmentedbar') {
+		throw new Error('AppKit <segmentedbaritem> requires a segmentedbar parent')
+	}
+
+	if (parentType === 'progress') {
+		throw new Error('AppKit <progress> cannot contain JSX children')
+	}
+
+	if (parentType === 'segmentedbar' && childType !== 'segmentedbaritem') {
+		throw new Error('AppKit <segmentedbar> accepts only segmentedbaritem children')
+	}
+
+	if (parentType === 'listpicker') {
+		throw new Error('AppKit <listpicker> cannot contain JSX children')
+	}
+
+	if (parentType === 'timepicker') {
+		throw new Error('AppKit <timepicker> cannot contain JSX children')
+	}
+
+	if (parentType === 'datepicker') {
+		throw new Error('AppKit <datepicker> cannot contain JSX children')
+	}
+
 	if (parentType === 'activityindicator') {
 		throw new Error('AppKit <activityindicator> cannot contain JSX children')
 	}
@@ -6247,7 +6740,10 @@ function validateTextNesting(parentType: string | undefined, childType: string) 
 		throw new Error('AppKit <span> accepts only span or text children')
 	}
 
-	if (childType === 'formattedstring' && !['label', 'button', 'textfield', 'textview', 'searchbar'].includes(parentType ?? '')) {
+	if (
+		childType === 'formattedstring' &&
+		!['label', 'button', 'textfield', 'textview', 'searchbar'].includes(parentType ?? '')
+	) {
 		throw new Error('AppKit <formattedstring> requires a text-bearing parent')
 	}
 
@@ -6269,7 +6765,7 @@ function insert(
 	if (parentId !== null && !parent) {
 		throw new Error(
 			'Unknown AppKit ' +
-			(typeof parentId === 'number' ? 'parent ' + parentId : 'portal parent ' + parentId.id),
+				(typeof parentId === 'number' ? 'parent ' + parentId : 'portal parent ' + parentId.id),
 		)
 	}
 
@@ -6288,11 +6784,7 @@ function insert(
 		throw new Error('AppKit <' + parent!.type + '> cannot contain text-only children')
 	}
 
-	if (
-		parent &&
-		(node.view || node.type === 'proxyviewcontainer') &&
-		!canContainView(parent.type)
-	) {
+	if (parent && (node.view || node.type === 'proxyviewcontainer') && !canContainView(parent.type)) {
 		throw new Error('AppKit <' + parent.type + '> cannot contain child views')
 	}
 
@@ -6355,8 +6847,12 @@ function insert(
 			if (parent.type === 'portalroot') {
 				parentView.addSubview(layoutView(node))
 				layoutView(node).translatesAutoresizingMaskIntoConstraints = false
-				layoutView(node).leadingAnchor.constraintEqualToAnchor(parentView.leadingAnchor).active = true
-				layoutView(node).trailingAnchor.constraintEqualToAnchor(parentView.trailingAnchor).active = true
+				layoutView(node).leadingAnchor.constraintEqualToAnchor(parentView.leadingAnchor).active =
+					true
+
+				layoutView(node).trailingAnchor.constraintEqualToAnchor(parentView.trailingAnchor).active =
+					true
+
 				layoutView(node).topAnchor.constraintEqualToAnchor(parentView.topAnchor).active = true
 				layoutView(node).bottomAnchor.constraintEqualToAnchor(parentView.bottomAnchor).active = true
 				applySizeConstraints(node)
@@ -6417,9 +6913,13 @@ function insert(
 
 		syncScheme(node)
 	} else {
-		if (parent?.type === 'tabview') {syncTabView(parent)}
-		else if (parent?.type === 'segmentedbar') {syncSegmentedBar(parent)}
-		else {syncText(parent)}
+		if (parent?.type === 'tabview') {
+			syncTabView(parent)
+		} else if (parent?.type === 'segmentedbar') {
+			syncSegmentedBar(parent)
+		} else {
+			syncText(parent)
+		}
 	}
 }
 
@@ -6438,7 +6938,10 @@ function remove(container: RootContainer, parentId: UniversalHostParent, node: E
 		return
 	}
 
-	if (node.type === 'tabviewitem') {detachTabItem(node)}
+	if (node.type === 'tabviewitem') {
+		detachTabItem(node)
+	}
+
 	const siblings = expectedParent ? expectedParent.children : container.children
 	const index = siblings.indexOf(node)
 	if (index >= 0) {
@@ -6473,13 +6976,24 @@ function remove(container: RootContainer, parentId: UniversalHostParent, node: E
 	queueLayoutReconcile(container, expectedParent)
 	node.parent = null
 	syncText(expectedParent)
-	if (expectedParent?.type === 'tabview') {syncTabView(expectedParent)}
-	if (expectedParent?.type === 'segmentedbar') {syncSegmentedBar(expectedParent)}
+	if (expectedParent?.type === 'tabview') {
+		syncTabView(expectedParent)
+	}
+
+	if (expectedParent?.type === 'segmentedbar') {
+		syncSegmentedBar(expectedParent)
+	}
 }
 
 function destroy(node: ElementNode) {
-	if (node.type === 'listview' && node.view) { disposeListView(node.view) }
-	if (node.type === 'tabview') {releaseTabView(node)}
+	if (node.type === 'listview' && node.view) {
+		disposeListView(node.view)
+	}
+
+	if (node.type === 'tabview') {
+		releaseTabView(node)
+	}
+
 	if (node.type === 'tabviewitem') {
 		detach(node.container, node)
 		releaseTabItem(node)
@@ -6491,12 +7005,16 @@ function destroy(node: ElementNode) {
 	}
 
 	if (node.type === 'segmentedbar') {
-		for (const child of node.children.slice()) {detach(node.container, child)}
+		for (const child of node.children.slice()) {
+			detach(node.container, child)
+		}
 	}
 
 	if (node.type === 'formattedstring' || node.type === 'span') {
 		detach(node.container, node)
-		for (const child of node.children.slice()) {detach(node.container, child)}
+		for (const child of node.children.slice()) {
+			detach(node.container, child)
+		}
 	}
 
 	if (node.type === 'proxyviewcontainer') {
@@ -6512,8 +7030,13 @@ function destroy(node: ElementNode) {
 			node.rootGeometryObserver = null
 		}
 
-		if (node.view) {rootLayoutNodesByView.delete(node.view)}
-		for (const child of node.children.slice()) {detach(node.container, child)}
+		if (node.view) {
+			rootLayoutNodesByView.delete(node.view)
+		}
+
+		for (const child of node.children.slice()) {
+			detach(node.container, child)
+		}
 	}
 
 	if (node.type === 'wraplayout') {
@@ -6696,12 +7219,15 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 
 	const known = (id: number): { type: string; props: PropBag } | undefined =>
 		pending.get(id) ?? (destroyed.has(id) ? undefined : container.nodes.get(id))
+
 	const parentNode = (parent: UniversalHostParent) => {
 		if (parent === null) {
 			return null
 		}
 
-		return typeof parent === 'number' ? (known(parent) ?? null) : resolveParentNode(container, parent)
+		return typeof parent === 'number'
+			? (known(parent) ?? null)
+			: resolveParentNode(container, parent)
 	}
 
 	for (const command of commands) {
@@ -6774,7 +7300,9 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 					if (!parent) {
 						throw new Error(
 							'Unknown AppKit ' +
-							(typeof parentId === 'number' ? 'parent ' + parentId : 'portal parent ' + parentId.id),
+								(typeof parentId === 'number'
+									? 'parent ' + parentId
+									: 'portal parent ' + parentId.id),
 						)
 					}
 
@@ -6807,7 +7335,10 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 					typeof ancestor === 'number';
 					ancestor = parentOf(ancestor) ?? null
 				) {
-					if (seen.has(ancestor)) {throw new Error('AppKit logical ownership cycle')}
+					if (seen.has(ancestor)) {
+						throw new Error('AppKit logical ownership cycle')
+					}
+
 					seen.add(ancestor)
 				}
 
@@ -6847,13 +7378,9 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 			// registered — release the previous node instead of orphaning it.
 			const existing = container.nodes.get(command.id)
 			if (
-				[
-					'stacklayout',
-					'contentview',
-					'docklayout',
-					'wraplayout',
-					'rootlayout',
-				].includes(existing?.parent?.type ?? '') &&
+				['stacklayout', 'contentview', 'docklayout', 'wraplayout', 'rootlayout'].includes(
+					existing?.parent?.type ?? '',
+				) &&
 				!typeHasView(command.type) &&
 				command.type !== 'proxyviewcontainer'
 			) {
@@ -6984,6 +7511,7 @@ const macOSDriver: UniversalHostDriver<RootContainer, any> = {
 			if (!isPortalTargetView(target)) {
 				throw new TypeError('AppKit portal targets must be NSView instances.')
 			}
+
 			const owner = nodeContainersByView.get(target)
 			if (owner && owner !== container) {
 				throw new Error('AppKit portal target belongs to another Octane root.')
@@ -7014,6 +7542,7 @@ const macOSDriver: UniversalHostDriver<RootContainer, any> = {
 					scrollObserverInstalled: false,
 					text: '',
 				}
+
 				portalHandlesByNode.set(root, handle)
 				registration = { root, registrations: 0 }
 				container.portalTargets.set(handle, registration)
@@ -7042,6 +7571,7 @@ const macOSDriver: UniversalHostDriver<RootContainer, any> = {
 							cleanupError ??= error
 						}
 					}
+
 					portalHandlesByNode.delete(registration!.root)
 
 					if (container.portalTargets.get(handle) === registration) {
@@ -7100,7 +7630,12 @@ const macOSDriver: UniversalHostDriver<RootContainer, any> = {
 	},
 	getPublicInstance(container, id) {
 		const node = container.nodes.get(id)
-		return node && ['proxyviewcontainer', 'formattedstring', 'span', 'segmentedbaritem', 'tabviewitem'].includes(node.type) ? node : (node?.view ?? null)
+		return node &&
+			['proxyviewcontainer', 'formattedstring', 'span', 'segmentedbaritem', 'tabviewitem'].includes(
+				node.type,
+			)
+			? node
+			: (node?.view ?? null)
 	},
 }
 
@@ -7513,7 +8048,10 @@ const hoverRecordsByArea = new Map<object, { enter?: () => void; exit?: () => vo
 const hoverRecordByView = new WeakMap<object, any>()
 const openPopups = new Set<any>()
 
-const TRACKING_OPTS = (typeof NSTrackingAreaOptions === 'undefined' ? {} : NSTrackingAreaOptions) as { [key: string]: number }
+const TRACKING_OPTS = (
+	typeof NSTrackingAreaOptions === 'undefined' ? {} : NSTrackingAreaOptions
+) as { [key: string]: number }
+
 const trackingOpt = (value: number | undefined, fallback: number) =>
 	typeof value === 'number' && Number.isFinite(value) ? value : fallback
 
@@ -7613,7 +8151,10 @@ try {
 // panel above the anchor (its MaxY edge). Numeric NSRectEdge values are the
 // fallback when the bridged enum object is absent.
 function popoverEdge(placement: string | undefined) {
-	const edges = (typeof NSRectEdge === 'object' && NSRectEdge ? NSRectEdge : {}) as { [key: string]: number }
+	const edges = (typeof NSRectEdge === 'object' && NSRectEdge ? NSRectEdge : {}) as {
+		[key: string]: number
+	}
+
 	switch (placement) {
 		case 'bottom': {
 			return edges.MinYEdge ?? 1
@@ -8119,13 +8660,13 @@ function presentSheet(view: NSView, options: PropBag) {
 		}
 	}
 
-
 	return {
 		target: contentView,
 		present() {
 			if (entry.closed) {
 				return false
 			}
+
 			if (entry.presented) {
 				return true
 			}
@@ -8136,13 +8677,13 @@ function presentSheet(view: NSView, options: PropBag) {
 			const width = Math.max(fit?.width ?? 0, options?.minWidth ?? 360)
 			const height = Math.max(fit?.height ?? 0, options?.minHeight ?? 160)
 
-			const SM = (typeof NSWindowStyleMask === 'object' && NSWindowStyleMask
-				? NSWindowStyleMask
-				: {}) as { [key: string]: number }
+			const SM = (
+				typeof NSWindowStyleMask === 'object' && NSWindowStyleMask ? NSWindowStyleMask : {}
+			) as { [key: string]: number }
 
-			const BT = (typeof NSBackingStoreType === 'object' && NSBackingStoreType
-				? NSBackingStoreType
-				: {}) as { [key: string]: number }
+			const BT = (
+				typeof NSBackingStoreType === 'object' && NSBackingStoreType ? NSBackingStoreType : {}
+			) as { [key: string]: number }
 
 			const sheet = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
 				{ origin: { x: 0, y: 0 }, size: { width, height } },
@@ -8167,6 +8708,7 @@ function presentSheet(view: NSView, options: PropBag) {
 					sheet.center?.()
 					sheet.makeKeyAndOrderFront(null)
 				}
+
 				entry.presented = true
 				return true
 			} catch (error) {
@@ -8247,15 +8789,27 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 	ownedRoots.set(hostView, root)
 	const unmount = root.unmount.bind(root)
 	root.unmount = () => {
-		if (ownedRoots.get(hostView) === root) { ownedRoots.delete(hostView) }
+		if (ownedRoots.get(hostView) === root) {
+			ownedRoots.delete(hostView)
+		}
+
 		unmount()
 	}
 
-	if (((process.env as {[key: string]: string | undefined}).OCTANE_MACOS_AUTOMATION) === '1') {
+	if ((process.env as { [key: string]: string | undefined }).OCTANE_MACOS_AUTOMATION === '1') {
 		const debug = {
 			findId(id: string) {
 				const node = [...container.nodes.values()].find((node) => node.props.id === id)
-				return node && ['proxyviewcontainer', 'formattedstring', 'span', 'segmentedbaritem', 'tabviewitem'].includes(node.type) ? node : (node?.view ?? null)
+				return node &&
+					[
+						'proxyviewcontainer',
+						'formattedstring',
+						'span',
+						'segmentedbaritem',
+						'tabviewitem',
+					].includes(node.type)
+					? node
+					: (node?.view ?? null)
 			},
 			measureParity(facets: readonly string[]) {
 				return measureParity(container, facets)

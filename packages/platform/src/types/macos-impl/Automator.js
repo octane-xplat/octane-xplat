@@ -8,6 +8,10 @@ export const AMLogLevel = /* @__PURE__ */ _bind(FW, 'AMLogLevel')
 export const AMShellScriptAction = /* @__PURE__ */ _bind(FW, 'AMShellScriptAction')
 export const AMWorkflow = /* @__PURE__ */ _bind(FW, 'AMWorkflow')
 export const AMWorkflowController = /* @__PURE__ */ _bind(FW, 'AMWorkflowController')
-export const AMWorkflowControllerDelegate = /* @__PURE__ */ _bind(FW, 'AMWorkflowControllerDelegate')
+export const AMWorkflowControllerDelegate = /* @__PURE__ */ _bind(
+	FW,
+	'AMWorkflowControllerDelegate',
+)
+
 export const AMWorkflowView = /* @__PURE__ */ _bind(FW, 'AMWorkflowView')
 export const AMWorkspace = /* @__PURE__ */ _bind(FW, 'AMWorkspace')

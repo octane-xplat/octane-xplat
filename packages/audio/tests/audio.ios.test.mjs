@@ -211,7 +211,8 @@ test('iOS surfaces an asynchronous item failure as state error', async () => {
 	const failure = observers.find((observer) => observer.name === 'failed')
 	failure.callback({
 		userInfo: {
-			objectForKey: (key) => (key === 'error' ? { localizedDescription: 'cannot decode' } : undefined),
+			objectForKey: (key) =>
+				key === 'error' ? { localizedDescription: 'cannot decode' } : undefined,
 		},
 	})
 

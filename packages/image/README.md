@@ -45,10 +45,13 @@ initializeImageCache({ memoryCacheScreens: 2 })
 // Warm the disk cache ahead of a feed scroll (bytes only — decode at
 // display). One URL or a batch; resolves false if any URL fails.
 await prefetch('https://example.com/next.jpg')
-await prefetch(feed.map((post) => post.imageUrl), {
-	headers: { Authorization: 'Bearer …' }, // Android only — see below
-	concurrency: 5, // max parallel fetches (default)
-})
+await prefetch(
+	feed.map((post) => post.imageUrl),
+	{
+		headers: { Authorization: 'Bearer …' }, // Android only — see below
+		concurrency: 5, // max parallel fetches (default)
+	},
+)
 ```
 
 `onLoad`'s `source` field reports which cache level served the image
@@ -80,10 +83,7 @@ prefetch carrying `headers` sends them on iOS the same as Android.
 shape:
 
 ```ts
-const states = await isImageCached([
-	'https://example.com/a.jpg',
-	'https://example.com/b.jpg',
-])
+const states = await isImageCached(['https://example.com/a.jpg', 'https://example.com/b.jpg'])
 // states['https://example.com/a.jpg'] === 'memory' | 'disk' | 'none'
 ```
 

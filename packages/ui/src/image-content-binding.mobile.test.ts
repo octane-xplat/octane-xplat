@@ -31,7 +31,9 @@ function mockView(width = 0, height = 0) {
 			return { width: view.measured.w, height: view.measured.h }
 		},
 		emit(event: string) {
-			for (const callback of handlers.get(event) ?? []) {callback()}
+			for (const callback of handlers.get(event) ?? []) {
+				callback()
+			}
 		},
 		handlerCount(event: string) {
 			return handlers.get(event)?.size ?? 0
@@ -51,7 +53,13 @@ function mockView(width = 0, height = 0) {
 	return view
 }
 
-const noSources = { source: 'img.png', sources: null, fit: 'cover' as const, position: {}, computed: false }
+const noSources = {
+	source: 'img.png',
+	sources: null,
+	fit: 'cover' as const,
+	position: {},
+	computed: false,
+}
 
 describe('image content binding — source handoff', () => {
 	it('forwards a single source to the issue seam with no decode override', () => {

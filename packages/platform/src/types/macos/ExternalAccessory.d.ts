@@ -6,101 +6,98 @@ import { NSObject } from './Runtime'
 
 import { NativeObject } from './objc-runtime'
 
+export declare const EAConnectionIDNone: number
 
+export declare const EAAccessoryDidConnectNotification: string
 
-export declare const EAConnectionIDNone: number;
+export declare const EABluetoothAccessoryPickerErrorDomain: string
 
-export declare const EAAccessoryDidConnectNotification: string;
+export declare const EAAccessoryDidDisconnectNotification: string
 
-export declare const EABluetoothAccessoryPickerErrorDomain: string;
-
-export declare const EAAccessoryDidDisconnectNotification: string;
-
-export declare const EAAccessoryKey: string;
+export declare const EAAccessoryKey: string
 
 export declare const EAWiFiUnconfiguredAccessoryProperties: {
-  AirPlay: 1,
-  AirPrint: 2,
-  HomeKit: 4,
-};
+	AirPlay: 1
+	AirPrint: 2
+	HomeKit: 4
+}
 
 export declare const EABluetoothAccessoryPickerErrorCode: {
-  AlreadyConnected: 0,
-  ResultNotFound: 1,
-  ResultCancelled: 2,
-  ResultFailed: 3,
-};
+	AlreadyConnected: 0
+	ResultNotFound: 1
+	ResultCancelled: 2
+	ResultFailed: 3
+}
 
 export declare const EAWiFiUnconfiguredAccessoryConfigurationStatus: {
-  Success: 0,
-  UserCancelledConfiguration: 1,
-  Failed: 2,
-};
+	Success: 0
+	UserCancelledConfiguration: 1
+	Failed: 2
+}
 
 export declare const EAWiFiUnconfiguredAccessoryBrowserState: {
-  WiFiUnavailable: 0,
-  Stopped: 1,
-  Searching: 2,
-  Configuring: 3,
-};
+	WiFiUnavailable: 0
+	Stopped: 1
+	Searching: 2
+	Configuring: 3
+}
 
 export declare interface EAAccessoryDelegate extends NSObjectProtocol {
-  accessoryDidDisconnect?(accessory: EAAccessory): void;
+	accessoryDidDisconnect?(accessory: EAAccessory): void
 }
 
-export declare class EAAccessoryDelegate extends NativeObject implements EAAccessoryDelegate {
-}
+export declare class EAAccessoryDelegate extends NativeObject implements EAAccessoryDelegate {}
 
-export declare interface EAWiFiUnconfiguredAccessoryBrowserDelegate extends NSObjectProtocol {
-}
+export declare interface EAWiFiUnconfiguredAccessoryBrowserDelegate extends NSObjectProtocol {}
 
-export declare class EAWiFiUnconfiguredAccessoryBrowserDelegate extends NativeObject implements EAWiFiUnconfiguredAccessoryBrowserDelegate {
-}
+export declare class EAWiFiUnconfiguredAccessoryBrowserDelegate
+	extends NativeObject
+	implements EAWiFiUnconfiguredAccessoryBrowserDelegate {}
 
 export declare class EASession extends NSObject {
-  initWithAccessoryForProtocol(accessory: EAAccessory, protocolString: string): this;
+	initWithAccessoryForProtocol(accessory: EAAccessory, protocolString: string): this
 
-  readonly accessory: EAAccessory;
+	readonly accessory: EAAccessory
 
-  readonly protocolString: string;
+	readonly protocolString: string
 
-  readonly inputStream: NSInputStream;
+	readonly inputStream: NSInputStream
 
-  readonly outputStream: NSOutputStream;
+	readonly outputStream: NSOutputStream
 }
 
 export declare class EAAccessory extends NSObject {
-  readonly connected: boolean;
+	readonly connected: boolean
 
-  readonly connectionID: number;
+	readonly connectionID: number
 
-  readonly manufacturer: string;
+	readonly manufacturer: string
 
-  readonly name: string;
+	readonly name: string
 
-  readonly modelNumber: string;
+	readonly modelNumber: string
 
-  readonly serialNumber: string;
+	readonly serialNumber: string
 
-  readonly firmwareRevision: string;
+	readonly firmwareRevision: string
 
-  readonly hardwareRevision: string;
+	readonly hardwareRevision: string
 
-  readonly dockType: string;
+	readonly dockType: string
 
-  readonly protocolStrings: NSArray;
+	readonly protocolStrings: NSArray
 
-  delegate: EAAccessoryDelegate;
+	delegate: EAAccessoryDelegate
 
-  isConnected(): boolean;
+	isConnected(): boolean
 }
 
 export declare class EAAccessoryManager extends NSObject {
-  static sharedAccessoryManager(): EAAccessoryManager;
+	static sharedAccessoryManager(): EAAccessoryManager
 
-  registerForLocalNotifications(): void;
+	registerForLocalNotifications(): void
 
-  unregisterForLocalNotifications(): void;
+	unregisterForLocalNotifications(): void
 
-  readonly connectedAccessories: NSArray;
+	readonly connectedAccessories: NSArray
 }

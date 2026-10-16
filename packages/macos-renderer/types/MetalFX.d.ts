@@ -1,110 +1,107 @@
 /// <reference types="@nativescript/objc-node-api" />
 
 declare interface MTLFXSpatialScalerBase extends NSObjectProtocol {
-  readonly colorTextureUsage: interop.Enum<typeof MTLTextureUsage>;
+	readonly colorTextureUsage: interop.Enum<typeof MTLTextureUsage>
 
-  readonly outputTextureUsage: interop.Enum<typeof MTLTextureUsage>;
+	readonly outputTextureUsage: interop.Enum<typeof MTLTextureUsage>
 
-  inputContentWidth: number;
+	inputContentWidth: number
 
-  inputContentHeight: number;
+	inputContentHeight: number
 
-  colorTexture: MTLTexture;
+	colorTexture: MTLTexture
 
-  outputTexture: MTLTexture;
+	outputTexture: MTLTexture
 
-  readonly colorTextureFormat: interop.Enum<typeof MTLPixelFormat>;
+	readonly colorTextureFormat: interop.Enum<typeof MTLPixelFormat>
 
-  readonly outputTextureFormat: interop.Enum<typeof MTLPixelFormat>;
+	readonly outputTextureFormat: interop.Enum<typeof MTLPixelFormat>
 
-  readonly inputWidth: number;
+	readonly inputWidth: number
 
-  readonly inputHeight: number;
+	readonly inputHeight: number
 
-  readonly outputWidth: number;
+	readonly outputWidth: number
 
-  readonly outputHeight: number;
+	readonly outputHeight: number
 
-  readonly colorProcessingMode: interop.Enum<typeof MTLFXSpatialScalerColorProcessingMode>;
+	readonly colorProcessingMode: interop.Enum<typeof MTLFXSpatialScalerColorProcessingMode>
 
-  fence: MTLFence;
+	fence: MTLFence
 }
 
-declare class MTLFXSpatialScalerBase extends NativeObject implements MTLFXSpatialScalerBase {
-}
+declare class MTLFXSpatialScalerBase extends NativeObject implements MTLFXSpatialScalerBase {}
 
 declare interface MTLFXTemporalScalerBase extends MTLFXFrameInterpolatableScaler {
-  readonly colorTextureUsage: interop.Enum<typeof MTLTextureUsage>;
+	readonly colorTextureUsage: interop.Enum<typeof MTLTextureUsage>
 
-  readonly depthTextureUsage: interop.Enum<typeof MTLTextureUsage>;
+	readonly depthTextureUsage: interop.Enum<typeof MTLTextureUsage>
 
-  readonly motionTextureUsage: interop.Enum<typeof MTLTextureUsage>;
+	readonly motionTextureUsage: interop.Enum<typeof MTLTextureUsage>
 
-  readonly outputTextureUsage: interop.Enum<typeof MTLTextureUsage>;
+	readonly outputTextureUsage: interop.Enum<typeof MTLTextureUsage>
 
-  inputContentWidth: number;
+	inputContentWidth: number
 
-  inputContentHeight: number;
+	inputContentHeight: number
 
-  colorTexture: MTLTexture;
+	colorTexture: MTLTexture
 
-  depthTexture: MTLTexture;
+	depthTexture: MTLTexture
 
-  motionTexture: MTLTexture;
+	motionTexture: MTLTexture
 
-  outputTexture: MTLTexture;
+	outputTexture: MTLTexture
 
-  exposureTexture: MTLTexture;
+	exposureTexture: MTLTexture
 
-  reactiveMaskTexture: MTLTexture;
+	reactiveMaskTexture: MTLTexture
 
-  preExposure: number;
+	preExposure: number
 
-  jitterOffsetX: number;
+	jitterOffsetX: number
 
-  jitterOffsetY: number;
+	jitterOffsetY: number
 
-  motionVectorScaleX: number;
+	motionVectorScaleX: number
 
-  motionVectorScaleY: number;
+	motionVectorScaleY: number
 
-  reset: boolean;
+	reset: boolean
 
-  depthReversed: boolean;
+	depthReversed: boolean
 
-  readonly colorTextureFormat: interop.Enum<typeof MTLPixelFormat>;
+	readonly colorTextureFormat: interop.Enum<typeof MTLPixelFormat>
 
-  readonly depthTextureFormat: interop.Enum<typeof MTLPixelFormat>;
+	readonly depthTextureFormat: interop.Enum<typeof MTLPixelFormat>
 
-  readonly motionTextureFormat: interop.Enum<typeof MTLPixelFormat>;
+	readonly motionTextureFormat: interop.Enum<typeof MTLPixelFormat>
 
-  readonly reactiveMaskTextureFormat: interop.Enum<typeof MTLPixelFormat>;
+	readonly reactiveMaskTextureFormat: interop.Enum<typeof MTLPixelFormat>
 
-  readonly outputTextureFormat: interop.Enum<typeof MTLPixelFormat>;
+	readonly outputTextureFormat: interop.Enum<typeof MTLPixelFormat>
 
-  readonly inputWidth: number;
+	readonly inputWidth: number
 
-  readonly inputHeight: number;
+	readonly inputHeight: number
 
-  readonly outputWidth: number;
+	readonly outputWidth: number
 
-  readonly outputHeight: number;
+	readonly outputHeight: number
 
-  readonly inputContentMinScale: number;
+	readonly inputContentMinScale: number
 
-  readonly inputContentMaxScale: number;
+	readonly inputContentMaxScale: number
 
-  fence: MTLFence;
+	fence: MTLFence
 
-  isDepthReversed(): boolean;
+	isDepthReversed(): boolean
 }
 
-declare class MTLFXTemporalScalerBase extends NativeObject implements MTLFXTemporalScalerBase {
-}
+declare class MTLFXTemporalScalerBase extends NativeObject implements MTLFXTemporalScalerBase {}
 
-declare interface MTLFXFrameInterpolatableScaler extends NSObjectProtocol {
-}
+declare interface MTLFXFrameInterpolatableScaler extends NSObjectProtocol {}
 
-declare class MTLFXFrameInterpolatableScaler extends NativeObject implements MTLFXFrameInterpolatableScaler {
-}
-
+declare class MTLFXFrameInterpolatableScaler
+	extends NativeObject
+	implements MTLFXFrameInterpolatableScaler {}

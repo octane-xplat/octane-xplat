@@ -87,17 +87,23 @@ describe('files.readBytes (web)', () => {
 
 describe('files.readText (web)', () => {
 	it('rejects on a non-2xx response instead of returning the error body', async () => {
-		vi.stubGlobal('fetch', vi.fn(async () => new Response('not found', { status: 404 })))
-		await expect(
-			files.readText({ name: 'x.txt', uri: 'https://x/missing.txt' }),
-		).rejects.toThrow(/Unable to read file/)
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async () => new Response('not found', { status: 404 })),
+		)
+
+		await expect(files.readText({ name: 'x.txt', uri: 'https://x/missing.txt' })).rejects.toThrow(
+			/Unable to read file/,
+		)
 	})
 
 	it('returns fetched text for a good response', async () => {
-		vi.stubGlobal('fetch', vi.fn(async () => new Response('héllo ✓')))
-		await expect(files.readText({ name: 'x.txt', uri: 'https://x/a.txt' })).resolves.toBe(
-			'héllo ✓',
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async () => new Response('héllo ✓')),
 		)
+
+		await expect(files.readText({ name: 'x.txt', uri: 'https://x/a.txt' })).resolves.toBe('héllo ✓')
 	})
 })
 

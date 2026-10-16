@@ -19,14 +19,26 @@ export const AECreateAppleEvent = /* @__PURE__ */ _bind(FW, 'AECreateAppleEvent'
 export const AECreateDesc = /* @__PURE__ */ _bind(FW, 'AECreateDesc')
 export const AECreateDescFromExternalPtr = /* @__PURE__ */ _bind(FW, 'AECreateDescFromExternalPtr')
 export const AECreateList = /* @__PURE__ */ _bind(FW, 'AECreateList')
-export const AECreateRemoteProcessResolver = /* @__PURE__ */ _bind(FW, 'AECreateRemoteProcessResolver')
+export const AECreateRemoteProcessResolver = /* @__PURE__ */ _bind(
+	FW,
+	'AECreateRemoteProcessResolver',
+)
+
 export const AEDecodeMessage = /* @__PURE__ */ _bind(FW, 'AEDecodeMessage')
 export const AEDeleteItem = /* @__PURE__ */ _bind(FW, 'AEDeleteItem')
 export const AEDeleteParam = /* @__PURE__ */ _bind(FW, 'AEDeleteParam')
 export const AEDesc = /* @__PURE__ */ _bind(FW, 'AEDesc')
-export const AEDeterminePermissionToAutomateTarget = /* @__PURE__ */ _bind(FW, 'AEDeterminePermissionToAutomateTarget')
+export const AEDeterminePermissionToAutomateTarget = /* @__PURE__ */ _bind(
+	FW,
+	'AEDeterminePermissionToAutomateTarget',
+)
+
 export const AEDisposeDesc = /* @__PURE__ */ _bind(FW, 'AEDisposeDesc')
-export const AEDisposeRemoteProcessResolver = /* @__PURE__ */ _bind(FW, 'AEDisposeRemoteProcessResolver')
+export const AEDisposeRemoteProcessResolver = /* @__PURE__ */ _bind(
+	FW,
+	'AEDisposeRemoteProcessResolver',
+)
+
 export const AEDisposeToken = /* @__PURE__ */ _bind(FW, 'AEDisposeToken')
 export const AEDuplicateDesc = /* @__PURE__ */ _bind(FW, 'AEDuplicateDesc')
 export const AEFlattenDesc = /* @__PURE__ */ _bind(FW, 'AEFlattenDesc')
@@ -63,9 +75,21 @@ export const AEPutParamDesc = /* @__PURE__ */ _bind(FW, 'AEPutParamDesc')
 export const AEPutParamPtr = /* @__PURE__ */ _bind(FW, 'AEPutParamPtr')
 export const AEPutPtr = /* @__PURE__ */ _bind(FW, 'AEPutPtr')
 export const AERemoteProcessResolver = /* @__PURE__ */ _bind(FW, 'AERemoteProcessResolver')
-export const AERemoteProcessResolverContext = /* @__PURE__ */ _bind(FW, 'AERemoteProcessResolverContext')
-export const AERemoteProcessResolverGetProcesses = /* @__PURE__ */ _bind(FW, 'AERemoteProcessResolverGetProcesses')
-export const AERemoteProcessResolverScheduleWithRunLoop = /* @__PURE__ */ _bind(FW, 'AERemoteProcessResolverScheduleWithRunLoop')
+export const AERemoteProcessResolverContext = /* @__PURE__ */ _bind(
+	FW,
+	'AERemoteProcessResolverContext',
+)
+
+export const AERemoteProcessResolverGetProcesses = /* @__PURE__ */ _bind(
+	FW,
+	'AERemoteProcessResolverGetProcesses',
+)
+
+export const AERemoteProcessResolverScheduleWithRunLoop = /* @__PURE__ */ _bind(
+	FW,
+	'AERemoteProcessResolverScheduleWithRunLoop',
+)
+
 export const AERemoveCoercionHandler = /* @__PURE__ */ _bind(FW, 'AERemoveCoercionHandler')
 export const AERemoveEventHandler = /* @__PURE__ */ _bind(FW, 'AERemoveEventHandler')
 export const AERemoveObjectAccessor = /* @__PURE__ */ _bind(FW, 'AERemoveObjectAccessor')
@@ -164,24 +188,60 @@ export const CSBackupSetItemExcluded = /* @__PURE__ */ _bind(FW, 'CSBackupSetIte
 export const CSCopyMachineName = /* @__PURE__ */ _bind(FW, 'CSCopyMachineName')
 export const CSCopyUserName = /* @__PURE__ */ _bind(FW, 'CSCopyUserName')
 export const CSDiskSpaceCancelRecovery = /* @__PURE__ */ _bind(FW, 'CSDiskSpaceCancelRecovery')
-export const CSDiskSpaceGetRecoveryEstimate = /* @__PURE__ */ _bind(FW, 'CSDiskSpaceGetRecoveryEstimate')
+export const CSDiskSpaceGetRecoveryEstimate = /* @__PURE__ */ _bind(
+	FW,
+	'CSDiskSpaceGetRecoveryEstimate',
+)
+
 export const CSDiskSpaceStartRecovery = /* @__PURE__ */ _bind(FW, 'CSDiskSpaceStartRecovery')
 export const CSGetComponentsThreadMode = /* @__PURE__ */ _bind(FW, 'CSGetComponentsThreadMode')
-export const CSGetDefaultIdentityAuthority = /* @__PURE__ */ _bind(FW, 'CSGetDefaultIdentityAuthority')
+export const CSGetDefaultIdentityAuthority = /* @__PURE__ */ _bind(
+	FW,
+	'CSGetDefaultIdentityAuthority',
+)
+
 export const CSGetLocalIdentityAuthority = /* @__PURE__ */ _bind(FW, 'CSGetLocalIdentityAuthority')
-export const CSGetManagedIdentityAuthority = /* @__PURE__ */ _bind(FW, 'CSGetManagedIdentityAuthority')
+export const CSGetManagedIdentityAuthority = /* @__PURE__ */ _bind(
+	FW,
+	'CSGetManagedIdentityAuthority',
+)
+
 export const CSIdentityAddAlias = /* @__PURE__ */ _bind(FW, 'CSIdentityAddAlias')
 export const CSIdentityAddMember = /* @__PURE__ */ _bind(FW, 'CSIdentityAddMember')
-export const CSIdentityAuthenticateUsingPassword = /* @__PURE__ */ _bind(FW, 'CSIdentityAuthenticateUsingPassword')
-export const CSIdentityAuthorityCopyLocalizedName = /* @__PURE__ */ _bind(FW, 'CSIdentityAuthorityCopyLocalizedName')
-export const CSIdentityAuthorityGetTypeID = /* @__PURE__ */ _bind(FW, 'CSIdentityAuthorityGetTypeID')
+export const CSIdentityAuthenticateUsingPassword = /* @__PURE__ */ _bind(
+	FW,
+	'CSIdentityAuthenticateUsingPassword',
+)
+
+export const CSIdentityAuthorityCopyLocalizedName = /* @__PURE__ */ _bind(
+	FW,
+	'CSIdentityAuthorityCopyLocalizedName',
+)
+
+export const CSIdentityAuthorityGetTypeID = /* @__PURE__ */ _bind(
+	FW,
+	'CSIdentityAuthorityGetTypeID',
+)
+
 export const CSIdentityClientContext = /* @__PURE__ */ _bind(FW, 'CSIdentityClientContext')
 export const CSIdentityCommit = /* @__PURE__ */ _bind(FW, 'CSIdentityCommit')
-export const CSIdentityCommitAsynchronously = /* @__PURE__ */ _bind(FW, 'CSIdentityCommitAsynchronously')
+export const CSIdentityCommitAsynchronously = /* @__PURE__ */ _bind(
+	FW,
+	'CSIdentityCommitAsynchronously',
+)
+
 export const CSIdentityCreate = /* @__PURE__ */ _bind(FW, 'CSIdentityCreate')
 export const CSIdentityCreateCopy = /* @__PURE__ */ _bind(FW, 'CSIdentityCreateCopy')
-export const CSIdentityCreateGroupMembershipQuery = /* @__PURE__ */ _bind(FW, 'CSIdentityCreateGroupMembershipQuery')
-export const CSIdentityCreatePersistentReference = /* @__PURE__ */ _bind(FW, 'CSIdentityCreatePersistentReference')
+export const CSIdentityCreateGroupMembershipQuery = /* @__PURE__ */ _bind(
+	FW,
+	'CSIdentityCreateGroupMembershipQuery',
+)
+
+export const CSIdentityCreatePersistentReference = /* @__PURE__ */ _bind(
+	FW,
+	'CSIdentityCreatePersistentReference',
+)
+
 export const CSIdentityDelete = /* @__PURE__ */ _bind(FW, 'CSIdentityDelete')
 export const CSIdentityGetAliases = /* @__PURE__ */ _bind(FW, 'CSIdentityGetAliases')
 export const CSIdentityGetAuthority = /* @__PURE__ */ _bind(FW, 'CSIdentityGetAuthority')
@@ -200,16 +260,44 @@ export const CSIdentityIsCommitting = /* @__PURE__ */ _bind(FW, 'CSIdentityIsCom
 export const CSIdentityIsEnabled = /* @__PURE__ */ _bind(FW, 'CSIdentityIsEnabled')
 export const CSIdentityIsHidden = /* @__PURE__ */ _bind(FW, 'CSIdentityIsHidden')
 export const CSIdentityIsMemberOfGroup = /* @__PURE__ */ _bind(FW, 'CSIdentityIsMemberOfGroup')
-export const CSIdentityQueryClientContext = /* @__PURE__ */ _bind(FW, 'CSIdentityQueryClientContext')
+export const CSIdentityQueryClientContext = /* @__PURE__ */ _bind(
+	FW,
+	'CSIdentityQueryClientContext',
+)
+
 export const CSIdentityQueryCopyResults = /* @__PURE__ */ _bind(FW, 'CSIdentityQueryCopyResults')
 export const CSIdentityQueryCreate = /* @__PURE__ */ _bind(FW, 'CSIdentityQueryCreate')
-export const CSIdentityQueryCreateForCurrentUser = /* @__PURE__ */ _bind(FW, 'CSIdentityQueryCreateForCurrentUser')
-export const CSIdentityQueryCreateForName = /* @__PURE__ */ _bind(FW, 'CSIdentityQueryCreateForName')
-export const CSIdentityQueryCreateForPersistentReference = /* @__PURE__ */ _bind(FW, 'CSIdentityQueryCreateForPersistentReference')
-export const CSIdentityQueryCreateForPosixID = /* @__PURE__ */ _bind(FW, 'CSIdentityQueryCreateForPosixID')
-export const CSIdentityQueryCreateForUUID = /* @__PURE__ */ _bind(FW, 'CSIdentityQueryCreateForUUID')
+export const CSIdentityQueryCreateForCurrentUser = /* @__PURE__ */ _bind(
+	FW,
+	'CSIdentityQueryCreateForCurrentUser',
+)
+
+export const CSIdentityQueryCreateForName = /* @__PURE__ */ _bind(
+	FW,
+	'CSIdentityQueryCreateForName',
+)
+
+export const CSIdentityQueryCreateForPersistentReference = /* @__PURE__ */ _bind(
+	FW,
+	'CSIdentityQueryCreateForPersistentReference',
+)
+
+export const CSIdentityQueryCreateForPosixID = /* @__PURE__ */ _bind(
+	FW,
+	'CSIdentityQueryCreateForPosixID',
+)
+
+export const CSIdentityQueryCreateForUUID = /* @__PURE__ */ _bind(
+	FW,
+	'CSIdentityQueryCreateForUUID',
+)
+
 export const CSIdentityQueryExecute = /* @__PURE__ */ _bind(FW, 'CSIdentityQueryExecute')
-export const CSIdentityQueryExecuteAsynchronously = /* @__PURE__ */ _bind(FW, 'CSIdentityQueryExecuteAsynchronously')
+export const CSIdentityQueryExecuteAsynchronously = /* @__PURE__ */ _bind(
+	FW,
+	'CSIdentityQueryExecuteAsynchronously',
+)
+
 export const CSIdentityQueryGetTypeID = /* @__PURE__ */ _bind(FW, 'CSIdentityQueryGetTypeID')
 export const CSIdentityQueryStop = /* @__PURE__ */ _bind(FW, 'CSIdentityQueryStop')
 export const CSIdentityRemoveAlias = /* @__PURE__ */ _bind(FW, 'CSIdentityRemoveAlias')
@@ -227,10 +315,26 @@ export const CallComponentCanDo = /* @__PURE__ */ _bind(FW, 'CallComponentCanDo'
 export const CallComponentClose = /* @__PURE__ */ _bind(FW, 'CallComponentClose')
 export const CallComponentDispatch = /* @__PURE__ */ _bind(FW, 'CallComponentDispatch')
 export const CallComponentFunction = /* @__PURE__ */ _bind(FW, 'CallComponentFunction')
-export const CallComponentFunctionWithStorage = /* @__PURE__ */ _bind(FW, 'CallComponentFunctionWithStorage')
-export const CallComponentFunctionWithStorageProcInfo = /* @__PURE__ */ _bind(FW, 'CallComponentFunctionWithStorageProcInfo')
-export const CallComponentGetMPWorkFunction = /* @__PURE__ */ _bind(FW, 'CallComponentGetMPWorkFunction')
-export const CallComponentGetPublicResource = /* @__PURE__ */ _bind(FW, 'CallComponentGetPublicResource')
+export const CallComponentFunctionWithStorage = /* @__PURE__ */ _bind(
+	FW,
+	'CallComponentFunctionWithStorage',
+)
+
+export const CallComponentFunctionWithStorageProcInfo = /* @__PURE__ */ _bind(
+	FW,
+	'CallComponentFunctionWithStorageProcInfo',
+)
+
+export const CallComponentGetMPWorkFunction = /* @__PURE__ */ _bind(
+	FW,
+	'CallComponentGetMPWorkFunction',
+)
+
+export const CallComponentGetPublicResource = /* @__PURE__ */ _bind(
+	FW,
+	'CallComponentGetPublicResource',
+)
+
 export const CallComponentOpen = /* @__PURE__ */ _bind(FW, 'CallComponentOpen')
 export const CallComponentRegister = /* @__PURE__ */ _bind(FW, 'CallComponentRegister')
 export const CallComponentTarget = /* @__PURE__ */ _bind(FW, 'CallComponentTarget')
@@ -257,7 +361,11 @@ export const CompareAndSwap = /* @__PURE__ */ _bind(FW, 'CompareAndSwap')
 export const ComponentAliasResource = /* @__PURE__ */ _bind(FW, 'ComponentAliasResource')
 export const ComponentDescription = /* @__PURE__ */ _bind(FW, 'ComponentDescription')
 export const ComponentInstanceRecord = /* @__PURE__ */ _bind(FW, 'ComponentInstanceRecord')
-export const ComponentMPWorkFunctionHeaderRecord = /* @__PURE__ */ _bind(FW, 'ComponentMPWorkFunctionHeaderRecord')
+export const ComponentMPWorkFunctionHeaderRecord = /* @__PURE__ */ _bind(
+	FW,
+	'ComponentMPWorkFunctionHeaderRecord',
+)
+
 export const ComponentParameters = /* @__PURE__ */ _bind(FW, 'ComponentParameters')
 export const ComponentPlatformInfo = /* @__PURE__ */ _bind(FW, 'ComponentPlatformInfo')
 export const ComponentPlatformInfoArray = /* @__PURE__ */ _bind(FW, 'ComponentPlatformInfoArray')
@@ -269,7 +377,11 @@ export const ContainerChunk = /* @__PURE__ */ _bind(FW, 'ContainerChunk')
 export const ConvertFromPStringToUnicode = /* @__PURE__ */ _bind(FW, 'ConvertFromPStringToUnicode')
 export const ConvertFromTextToUnicode = /* @__PURE__ */ _bind(FW, 'ConvertFromTextToUnicode')
 export const ConvertFromUnicodeToPString = /* @__PURE__ */ _bind(FW, 'ConvertFromUnicodeToPString')
-export const ConvertFromUnicodeToScriptCodeRun = /* @__PURE__ */ _bind(FW, 'ConvertFromUnicodeToScriptCodeRun')
+export const ConvertFromUnicodeToScriptCodeRun = /* @__PURE__ */ _bind(
+	FW,
+	'ConvertFromUnicodeToScriptCodeRun',
+)
+
 export const ConvertFromUnicodeToText = /* @__PURE__ */ _bind(FW, 'ConvertFromUnicodeToText')
 export const ConvertFromUnicodeToTextRun = /* @__PURE__ */ _bind(FW, 'ConvertFromUnicodeToTextRun')
 export const CopyCollection = /* @__PURE__ */ _bind(FW, 'CopyCollection')
@@ -295,13 +407,29 @@ export const CreateOffsetDescriptor = /* @__PURE__ */ _bind(FW, 'CreateOffsetDes
 export const CreateRangeDescriptor = /* @__PURE__ */ _bind(FW, 'CreateRangeDescriptor')
 export const CreateTextEncoding = /* @__PURE__ */ _bind(FW, 'CreateTextEncoding')
 export const CreateTextToUnicodeInfo = /* @__PURE__ */ _bind(FW, 'CreateTextToUnicodeInfo')
-export const CreateTextToUnicodeInfoByEncoding = /* @__PURE__ */ _bind(FW, 'CreateTextToUnicodeInfoByEncoding')
+export const CreateTextToUnicodeInfoByEncoding = /* @__PURE__ */ _bind(
+	FW,
+	'CreateTextToUnicodeInfoByEncoding',
+)
+
 export const CreateThreadPool = /* @__PURE__ */ _bind(FW, 'CreateThreadPool')
 export const CreateUnicodeToTextInfo = /* @__PURE__ */ _bind(FW, 'CreateUnicodeToTextInfo')
-export const CreateUnicodeToTextInfoByEncoding = /* @__PURE__ */ _bind(FW, 'CreateUnicodeToTextInfoByEncoding')
+export const CreateUnicodeToTextInfoByEncoding = /* @__PURE__ */ _bind(
+	FW,
+	'CreateUnicodeToTextInfoByEncoding',
+)
+
 export const CreateUnicodeToTextRunInfo = /* @__PURE__ */ _bind(FW, 'CreateUnicodeToTextRunInfo')
-export const CreateUnicodeToTextRunInfoByEncoding = /* @__PURE__ */ _bind(FW, 'CreateUnicodeToTextRunInfoByEncoding')
-export const CreateUnicodeToTextRunInfoByScriptCode = /* @__PURE__ */ _bind(FW, 'CreateUnicodeToTextRunInfoByScriptCode')
+export const CreateUnicodeToTextRunInfoByEncoding = /* @__PURE__ */ _bind(
+	FW,
+	'CreateUnicodeToTextRunInfoByEncoding',
+)
+
+export const CreateUnicodeToTextRunInfoByScriptCode = /* @__PURE__ */ _bind(
+	FW,
+	'CreateUnicodeToTextRunInfoByScriptCode',
+)
+
 export const CurResFile = /* @__PURE__ */ _bind(FW, 'CurResFile')
 export const CurrentProcessorSpeed = /* @__PURE__ */ _bind(FW, 'CurrentProcessorSpeed')
 export const CustomBadgeResource = /* @__PURE__ */ _bind(FW, 'CustomBadgeResource')
@@ -322,31 +450,67 @@ export const DeleteGestaltValue = /* @__PURE__ */ _bind(FW, 'DeleteGestaltValue'
 export const Dequeue = /* @__PURE__ */ _bind(FW, 'Dequeue')
 export const DetachResource = /* @__PURE__ */ _bind(FW, 'DetachResource')
 export const DetachResourceFile = /* @__PURE__ */ _bind(FW, 'DetachResourceFile')
-export const DetermineIfPathIsEnclosedByFolder = /* @__PURE__ */ _bind(FW, 'DetermineIfPathIsEnclosedByFolder')
+export const DetermineIfPathIsEnclosedByFolder = /* @__PURE__ */ _bind(
+	FW,
+	'DetermineIfPathIsEnclosedByFolder',
+)
+
 export const DisposeAECoerceDescUPP = /* @__PURE__ */ _bind(FW, 'DisposeAECoerceDescUPP')
 export const DisposeAECoercePtrUPP = /* @__PURE__ */ _bind(FW, 'DisposeAECoercePtrUPP')
 export const DisposeAEDisposeExternalUPP = /* @__PURE__ */ _bind(FW, 'DisposeAEDisposeExternalUPP')
 export const DisposeAEEventHandlerUPP = /* @__PURE__ */ _bind(FW, 'DisposeAEEventHandlerUPP')
 export const DisposeCollection = /* @__PURE__ */ _bind(FW, 'DisposeCollection')
-export const DisposeCollectionExceptionUPP = /* @__PURE__ */ _bind(FW, 'DisposeCollectionExceptionUPP')
+export const DisposeCollectionExceptionUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeCollectionExceptionUPP',
+)
+
 export const DisposeCollectionFlattenUPP = /* @__PURE__ */ _bind(FW, 'DisposeCollectionFlattenUPP')
 export const DisposeComponentFunctionUPP = /* @__PURE__ */ _bind(FW, 'DisposeComponentFunctionUPP')
-export const DisposeComponentMPWorkFunctionUPP = /* @__PURE__ */ _bind(FW, 'DisposeComponentMPWorkFunctionUPP')
+export const DisposeComponentMPWorkFunctionUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeComponentMPWorkFunctionUPP',
+)
+
 export const DisposeComponentRoutineUPP = /* @__PURE__ */ _bind(FW, 'DisposeComponentRoutineUPP')
-export const DisposeDebugAssertOutputHandlerUPP = /* @__PURE__ */ _bind(FW, 'DisposeDebugAssertOutputHandlerUPP')
+export const DisposeDebugAssertOutputHandlerUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeDebugAssertOutputHandlerUPP',
+)
+
 export const DisposeDebugComponent = /* @__PURE__ */ _bind(FW, 'DisposeDebugComponent')
-export const DisposeDebugComponentCallbackUPP = /* @__PURE__ */ _bind(FW, 'DisposeDebugComponentCallbackUPP')
-export const DisposeDebuggerDisposeThreadUPP = /* @__PURE__ */ _bind(FW, 'DisposeDebuggerDisposeThreadUPP')
+export const DisposeDebugComponentCallbackUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeDebugComponentCallbackUPP',
+)
+
+export const DisposeDebuggerDisposeThreadUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeDebuggerDisposeThreadUPP',
+)
+
 export const DisposeDebuggerNewThreadUPP = /* @__PURE__ */ _bind(FW, 'DisposeDebuggerNewThreadUPP')
-export const DisposeDebuggerThreadSchedulerUPP = /* @__PURE__ */ _bind(FW, 'DisposeDebuggerThreadSchedulerUPP')
+export const DisposeDebuggerThreadSchedulerUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeDebuggerThreadSchedulerUPP',
+)
+
 export const DisposeDeferredTaskUPP = /* @__PURE__ */ _bind(FW, 'DisposeDeferredTaskUPP')
 export const DisposeExceptionHandlerUPP = /* @__PURE__ */ _bind(FW, 'DisposeExceptionHandlerUPP')
 export const DisposeFNSubscriptionUPP = /* @__PURE__ */ _bind(FW, 'DisposeFNSubscriptionUPP')
 export const DisposeFSVolumeEjectUPP = /* @__PURE__ */ _bind(FW, 'DisposeFSVolumeEjectUPP')
 export const DisposeFSVolumeMountUPP = /* @__PURE__ */ _bind(FW, 'DisposeFSVolumeMountUPP')
 export const DisposeFSVolumeUnmountUPP = /* @__PURE__ */ _bind(FW, 'DisposeFSVolumeUnmountUPP')
-export const DisposeFolderManagerNotificationUPP = /* @__PURE__ */ _bind(FW, 'DisposeFolderManagerNotificationUPP')
-export const DisposeGetMissingComponentResourceUPP = /* @__PURE__ */ _bind(FW, 'DisposeGetMissingComponentResourceUPP')
+export const DisposeFolderManagerNotificationUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeFolderManagerNotificationUPP',
+)
+
+export const DisposeGetMissingComponentResourceUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeGetMissingComponentResourceUPP',
+)
+
 export const DisposeHandle = /* @__PURE__ */ _bind(FW, 'DisposeHandle')
 export const DisposeIOCompletionUPP = /* @__PURE__ */ _bind(FW, 'DisposeIOCompletionUPP')
 export const DisposeIndexToUCStringUPP = /* @__PURE__ */ _bind(FW, 'DisposeIndexToUCStringUPP')
@@ -370,7 +534,11 @@ export const DisposeThreadSchedulerUPP = /* @__PURE__ */ _bind(FW, 'DisposeThrea
 export const DisposeThreadSwitchUPP = /* @__PURE__ */ _bind(FW, 'DisposeThreadSwitchUPP')
 export const DisposeThreadTerminationUPP = /* @__PURE__ */ _bind(FW, 'DisposeThreadTerminationUPP')
 export const DisposeTimerUPP = /* @__PURE__ */ _bind(FW, 'DisposeTimerUPP')
-export const DisposeUnicodeToTextFallbackUPP = /* @__PURE__ */ _bind(FW, 'DisposeUnicodeToTextFallbackUPP')
+export const DisposeUnicodeToTextFallbackUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeUnicodeToTextFallbackUPP',
+)
+
 export const DisposeUnicodeToTextInfo = /* @__PURE__ */ _bind(FW, 'DisposeUnicodeToTextInfo')
 export const DisposeUnicodeToTextRunInfo = /* @__PURE__ */ _bind(FW, 'DisposeUnicodeToTextRunInfo')
 export const DurationToAbsolute = /* @__PURE__ */ _bind(FW, 'DurationToAbsolute')
@@ -387,7 +555,11 @@ export const ExtComponentResource = /* @__PURE__ */ _bind(FW, 'ExtComponentResou
 export const ExtendedFileInfo = /* @__PURE__ */ _bind(FW, 'ExtendedFileInfo')
 export const ExtendedFolderInfo = /* @__PURE__ */ _bind(FW, 'ExtendedFolderInfo')
 export const FInfo = /* @__PURE__ */ _bind(FW, 'FInfo')
-export const FNGetDirectoryForSubscription = /* @__PURE__ */ _bind(FW, 'FNGetDirectoryForSubscription')
+export const FNGetDirectoryForSubscription = /* @__PURE__ */ _bind(
+	FW,
+	'FNGetDirectoryForSubscription',
+)
+
 export const FNNotify = /* @__PURE__ */ _bind(FW, 'FNNotify')
 export const FNNotifyAll = /* @__PURE__ */ _bind(FW, 'FNNotifyAll')
 export const FNNotifyByPath = /* @__PURE__ */ _bind(FW, 'FNNotifyByPath')
@@ -413,7 +585,11 @@ export const FSCopyObjectAsync = /* @__PURE__ */ _bind(FW, 'FSCopyObjectAsync')
 export const FSCopyObjectSync = /* @__PURE__ */ _bind(FW, 'FSCopyObjectSync')
 export const FSCopyURLForVolume = /* @__PURE__ */ _bind(FW, 'FSCopyURLForVolume')
 export const FSCreateDirectoryUnicode = /* @__PURE__ */ _bind(FW, 'FSCreateDirectoryUnicode')
-export const FSCreateFileAndOpenForkUnicode = /* @__PURE__ */ _bind(FW, 'FSCreateFileAndOpenForkUnicode')
+export const FSCreateFileAndOpenForkUnicode = /* @__PURE__ */ _bind(
+	FW,
+	'FSCreateFileAndOpenForkUnicode',
+)
+
 export const FSCreateFileUnicode = /* @__PURE__ */ _bind(FW, 'FSCreateFileUnicode')
 export const FSCreateFork = /* @__PURE__ */ _bind(FW, 'FSCreateFork')
 export const FSCreateResFile = /* @__PURE__ */ _bind(FW, 'FSCreateResFile')
@@ -423,44 +599,112 @@ export const FSCreateStringFromHFSUniStr = /* @__PURE__ */ _bind(FW, 'FSCreateSt
 export const FSCreateVolumeOperation = /* @__PURE__ */ _bind(FW, 'FSCreateVolumeOperation')
 export const FSDeleteFork = /* @__PURE__ */ _bind(FW, 'FSDeleteFork')
 export const FSDeleteObject = /* @__PURE__ */ _bind(FW, 'FSDeleteObject')
-export const FSDetermineIfRefIsEnclosedByFolder = /* @__PURE__ */ _bind(FW, 'FSDetermineIfRefIsEnclosedByFolder')
+export const FSDetermineIfRefIsEnclosedByFolder = /* @__PURE__ */ _bind(
+	FW,
+	'FSDetermineIfRefIsEnclosedByFolder',
+)
+
 export const FSDisposeVolumeOperation = /* @__PURE__ */ _bind(FW, 'FSDisposeVolumeOperation')
 export const FSEjectVolumeAsync = /* @__PURE__ */ _bind(FW, 'FSEjectVolumeAsync')
 export const FSEjectVolumeSync = /* @__PURE__ */ _bind(FW, 'FSEjectVolumeSync')
 export const FSEventStreamContext = /* @__PURE__ */ _bind(FW, 'FSEventStreamContext')
-export const FSEventStreamCopyDescription = /* @__PURE__ */ _bind(FW, 'FSEventStreamCopyDescription')
-export const FSEventStreamCopyPathsBeingWatched = /* @__PURE__ */ _bind(FW, 'FSEventStreamCopyPathsBeingWatched')
+export const FSEventStreamCopyDescription = /* @__PURE__ */ _bind(
+	FW,
+	'FSEventStreamCopyDescription',
+)
+
+export const FSEventStreamCopyPathsBeingWatched = /* @__PURE__ */ _bind(
+	FW,
+	'FSEventStreamCopyPathsBeingWatched',
+)
+
 export const FSEventStreamCreate = /* @__PURE__ */ _bind(FW, 'FSEventStreamCreate')
-export const FSEventStreamCreateRelativeToDevice = /* @__PURE__ */ _bind(FW, 'FSEventStreamCreateRelativeToDevice')
+export const FSEventStreamCreateRelativeToDevice = /* @__PURE__ */ _bind(
+	FW,
+	'FSEventStreamCreateRelativeToDevice',
+)
+
 export const FSEventStreamFlushAsync = /* @__PURE__ */ _bind(FW, 'FSEventStreamFlushAsync')
 export const FSEventStreamFlushSync = /* @__PURE__ */ _bind(FW, 'FSEventStreamFlushSync')
-export const FSEventStreamGetDeviceBeingWatched = /* @__PURE__ */ _bind(FW, 'FSEventStreamGetDeviceBeingWatched')
-export const FSEventStreamGetLatestEventId = /* @__PURE__ */ _bind(FW, 'FSEventStreamGetLatestEventId')
+export const FSEventStreamGetDeviceBeingWatched = /* @__PURE__ */ _bind(
+	FW,
+	'FSEventStreamGetDeviceBeingWatched',
+)
+
+export const FSEventStreamGetLatestEventId = /* @__PURE__ */ _bind(
+	FW,
+	'FSEventStreamGetLatestEventId',
+)
+
 export const FSEventStreamInvalidate = /* @__PURE__ */ _bind(FW, 'FSEventStreamInvalidate')
 export const FSEventStreamRelease = /* @__PURE__ */ _bind(FW, 'FSEventStreamRelease')
 export const FSEventStreamRetain = /* @__PURE__ */ _bind(FW, 'FSEventStreamRetain')
-export const FSEventStreamScheduleWithRunLoop = /* @__PURE__ */ _bind(FW, 'FSEventStreamScheduleWithRunLoop')
-export const FSEventStreamSetDispatchQueue = /* @__PURE__ */ _bind(FW, 'FSEventStreamSetDispatchQueue')
-export const FSEventStreamSetExclusionPaths = /* @__PURE__ */ _bind(FW, 'FSEventStreamSetExclusionPaths')
+export const FSEventStreamScheduleWithRunLoop = /* @__PURE__ */ _bind(
+	FW,
+	'FSEventStreamScheduleWithRunLoop',
+)
+
+export const FSEventStreamSetDispatchQueue = /* @__PURE__ */ _bind(
+	FW,
+	'FSEventStreamSetDispatchQueue',
+)
+
+export const FSEventStreamSetExclusionPaths = /* @__PURE__ */ _bind(
+	FW,
+	'FSEventStreamSetExclusionPaths',
+)
+
 export const FSEventStreamShow = /* @__PURE__ */ _bind(FW, 'FSEventStreamShow')
 export const FSEventStreamStart = /* @__PURE__ */ _bind(FW, 'FSEventStreamStart')
 export const FSEventStreamStop = /* @__PURE__ */ _bind(FW, 'FSEventStreamStop')
-export const FSEventStreamUnscheduleFromRunLoop = /* @__PURE__ */ _bind(FW, 'FSEventStreamUnscheduleFromRunLoop')
+export const FSEventStreamUnscheduleFromRunLoop = /* @__PURE__ */ _bind(
+	FW,
+	'FSEventStreamUnscheduleFromRunLoop',
+)
+
 export const FSEventsCopyUUIDForDevice = /* @__PURE__ */ _bind(FW, 'FSEventsCopyUUIDForDevice')
 export const FSEventsGetCurrentEventId = /* @__PURE__ */ _bind(FW, 'FSEventsGetCurrentEventId')
-export const FSEventsGetLastEventIdForDeviceBeforeTime = /* @__PURE__ */ _bind(FW, 'FSEventsGetLastEventIdForDeviceBeforeTime')
-export const FSEventsPurgeEventsForDeviceUpToEventId = /* @__PURE__ */ _bind(FW, 'FSEventsPurgeEventsForDeviceUpToEventId')
+export const FSEventsGetLastEventIdForDeviceBeforeTime = /* @__PURE__ */ _bind(
+	FW,
+	'FSEventsGetLastEventIdForDeviceBeforeTime',
+)
+
+export const FSEventsPurgeEventsForDeviceUpToEventId = /* @__PURE__ */ _bind(
+	FW,
+	'FSEventsPurgeEventsForDeviceUpToEventId',
+)
+
 export const FSExchangeObjects = /* @__PURE__ */ _bind(FW, 'FSExchangeObjects')
 export const FSFileOperationCancel = /* @__PURE__ */ _bind(FW, 'FSFileOperationCancel')
-export const FSFileOperationClientContext = /* @__PURE__ */ _bind(FW, 'FSFileOperationClientContext')
+export const FSFileOperationClientContext = /* @__PURE__ */ _bind(
+	FW,
+	'FSFileOperationClientContext',
+)
+
 export const FSFileOperationCopyStatus = /* @__PURE__ */ _bind(FW, 'FSFileOperationCopyStatus')
 export const FSFileOperationCreate = /* @__PURE__ */ _bind(FW, 'FSFileOperationCreate')
 export const FSFileOperationGetTypeID = /* @__PURE__ */ _bind(FW, 'FSFileOperationGetTypeID')
-export const FSFileOperationScheduleWithRunLoop = /* @__PURE__ */ _bind(FW, 'FSFileOperationScheduleWithRunLoop')
-export const FSFileOperationUnscheduleFromRunLoop = /* @__PURE__ */ _bind(FW, 'FSFileOperationUnscheduleFromRunLoop')
-export const FSFileSecurityCopyAccessControlList = /* @__PURE__ */ _bind(FW, 'FSFileSecurityCopyAccessControlList')
+export const FSFileOperationScheduleWithRunLoop = /* @__PURE__ */ _bind(
+	FW,
+	'FSFileOperationScheduleWithRunLoop',
+)
+
+export const FSFileOperationUnscheduleFromRunLoop = /* @__PURE__ */ _bind(
+	FW,
+	'FSFileOperationUnscheduleFromRunLoop',
+)
+
+export const FSFileSecurityCopyAccessControlList = /* @__PURE__ */ _bind(
+	FW,
+	'FSFileSecurityCopyAccessControlList',
+)
+
 export const FSFileSecurityCreate = /* @__PURE__ */ _bind(FW, 'FSFileSecurityCreate')
-export const FSFileSecurityCreateWithFSPermissionInfo = /* @__PURE__ */ _bind(FW, 'FSFileSecurityCreateWithFSPermissionInfo')
+export const FSFileSecurityCreateWithFSPermissionInfo = /* @__PURE__ */ _bind(
+	FW,
+	'FSFileSecurityCreateWithFSPermissionInfo',
+)
+
 export const FSFileSecurityGetGroup = /* @__PURE__ */ _bind(FW, 'FSFileSecurityGetGroup')
 export const FSFileSecurityGetGroupUUID = /* @__PURE__ */ _bind(FW, 'FSFileSecurityGetGroupUUID')
 export const FSFileSecurityGetMode = /* @__PURE__ */ _bind(FW, 'FSFileSecurityGetMode')
@@ -468,7 +712,11 @@ export const FSFileSecurityGetOwner = /* @__PURE__ */ _bind(FW, 'FSFileSecurityG
 export const FSFileSecurityGetOwnerUUID = /* @__PURE__ */ _bind(FW, 'FSFileSecurityGetOwnerUUID')
 export const FSFileSecurityGetTypeID = /* @__PURE__ */ _bind(FW, 'FSFileSecurityGetTypeID')
 export const FSFileSecurityRefCreateCopy = /* @__PURE__ */ _bind(FW, 'FSFileSecurityRefCreateCopy')
-export const FSFileSecuritySetAccessControlList = /* @__PURE__ */ _bind(FW, 'FSFileSecuritySetAccessControlList')
+export const FSFileSecuritySetAccessControlList = /* @__PURE__ */ _bind(
+	FW,
+	'FSFileSecuritySetAccessControlList',
+)
+
 export const FSFileSecuritySetGroup = /* @__PURE__ */ _bind(FW, 'FSFileSecuritySetGroup')
 export const FSFileSecuritySetGroupUUID = /* @__PURE__ */ _bind(FW, 'FSFileSecuritySetGroupUUID')
 export const FSFileSecuritySetMode = /* @__PURE__ */ _bind(FW, 'FSFileSecuritySetMode')
@@ -492,7 +740,11 @@ export const FSGetForkPosition = /* @__PURE__ */ _bind(FW, 'FSGetForkPosition')
 export const FSGetForkSize = /* @__PURE__ */ _bind(FW, 'FSGetForkSize')
 export const FSGetHFSUniStrFromString = /* @__PURE__ */ _bind(FW, 'FSGetHFSUniStrFromString')
 export const FSGetResourceForkName = /* @__PURE__ */ _bind(FW, 'FSGetResourceForkName')
-export const FSGetTemporaryDirectoryForReplaceObject = /* @__PURE__ */ _bind(FW, 'FSGetTemporaryDirectoryForReplaceObject')
+export const FSGetTemporaryDirectoryForReplaceObject = /* @__PURE__ */ _bind(
+	FW,
+	'FSGetTemporaryDirectoryForReplaceObject',
+)
+
 export const FSGetVolumeForDADisk = /* @__PURE__ */ _bind(FW, 'FSGetVolumeForDADisk')
 export const FSGetVolumeForDiskID = /* @__PURE__ */ _bind(FW, 'FSGetVolumeForDiskID')
 export const FSGetVolumeInfo = /* @__PURE__ */ _bind(FW, 'FSGetVolumeInfo')
@@ -526,13 +778,25 @@ export const FSOpenResFile = /* @__PURE__ */ _bind(FW, 'FSOpenResFile')
 export const FSOpenResourceFile = /* @__PURE__ */ _bind(FW, 'FSOpenResourceFile')
 export const FSPathCopyObjectAsync = /* @__PURE__ */ _bind(FW, 'FSPathCopyObjectAsync')
 export const FSPathCopyObjectSync = /* @__PURE__ */ _bind(FW, 'FSPathCopyObjectSync')
-export const FSPathFileOperationCopyStatus = /* @__PURE__ */ _bind(FW, 'FSPathFileOperationCopyStatus')
-export const FSPathGetTemporaryDirectoryForReplaceObject = /* @__PURE__ */ _bind(FW, 'FSPathGetTemporaryDirectoryForReplaceObject')
+export const FSPathFileOperationCopyStatus = /* @__PURE__ */ _bind(
+	FW,
+	'FSPathFileOperationCopyStatus',
+)
+
+export const FSPathGetTemporaryDirectoryForReplaceObject = /* @__PURE__ */ _bind(
+	FW,
+	'FSPathGetTemporaryDirectoryForReplaceObject',
+)
+
 export const FSPathMakeRef = /* @__PURE__ */ _bind(FW, 'FSPathMakeRef')
 export const FSPathMakeRefWithOptions = /* @__PURE__ */ _bind(FW, 'FSPathMakeRefWithOptions')
 export const FSPathMoveObjectAsync = /* @__PURE__ */ _bind(FW, 'FSPathMoveObjectAsync')
 export const FSPathMoveObjectSync = /* @__PURE__ */ _bind(FW, 'FSPathMoveObjectSync')
-export const FSPathMoveObjectToTrashAsync = /* @__PURE__ */ _bind(FW, 'FSPathMoveObjectToTrashAsync')
+export const FSPathMoveObjectToTrashAsync = /* @__PURE__ */ _bind(
+	FW,
+	'FSPathMoveObjectToTrashAsync',
+)
+
 export const FSPathMoveObjectToTrashSync = /* @__PURE__ */ _bind(FW, 'FSPathMoveObjectToTrashSync')
 export const FSPathReplaceObject = /* @__PURE__ */ _bind(FW, 'FSPathReplaceObject')
 export const FSPermissionInfo = /* @__PURE__ */ _bind(FW, 'FSPermissionInfo')
@@ -545,8 +809,16 @@ export const FSRenameUnicode = /* @__PURE__ */ _bind(FW, 'FSRenameUnicode')
 export const FSReplaceObject = /* @__PURE__ */ _bind(FW, 'FSReplaceObject')
 export const FSResolveAlias = /* @__PURE__ */ _bind(FW, 'FSResolveAlias')
 export const FSResolveAliasFile = /* @__PURE__ */ _bind(FW, 'FSResolveAliasFile')
-export const FSResolveAliasFileWithMountFlags = /* @__PURE__ */ _bind(FW, 'FSResolveAliasFileWithMountFlags')
-export const FSResolveAliasWithMountFlags = /* @__PURE__ */ _bind(FW, 'FSResolveAliasWithMountFlags')
+export const FSResolveAliasFileWithMountFlags = /* @__PURE__ */ _bind(
+	FW,
+	'FSResolveAliasFileWithMountFlags',
+)
+
+export const FSResolveAliasWithMountFlags = /* @__PURE__ */ _bind(
+	FW,
+	'FSResolveAliasWithMountFlags',
+)
+
 export const FSResolveNodeID = /* @__PURE__ */ _bind(FW, 'FSResolveNodeID')
 export const FSResourceFileAlreadyOpen = /* @__PURE__ */ _bind(FW, 'FSResourceFileAlreadyOpen')
 export const FSSearchParams = /* @__PURE__ */ _bind(FW, 'FSSearchParams')
@@ -605,7 +877,11 @@ export const GetAliasSizeFromPtr = /* @__PURE__ */ _bind(FW, 'GetAliasSizeFromPt
 export const GetAliasUserType = /* @__PURE__ */ _bind(FW, 'GetAliasUserType')
 export const GetAliasUserTypeFromPtr = /* @__PURE__ */ _bind(FW, 'GetAliasUserTypeFromPtr')
 export const GetCPUSpeed = /* @__PURE__ */ _bind(FW, 'GetCPUSpeed')
-export const GetCollectionDefaultAttributes = /* @__PURE__ */ _bind(FW, 'GetCollectionDefaultAttributes')
+export const GetCollectionDefaultAttributes = /* @__PURE__ */ _bind(
+	FW,
+	'GetCollectionDefaultAttributes',
+)
+
 export const GetCollectionExceptionProc = /* @__PURE__ */ _bind(FW, 'GetCollectionExceptionProc')
 export const GetCollectionItem = /* @__PURE__ */ _bind(FW, 'GetCollectionItem')
 export const GetCollectionItemHdl = /* @__PURE__ */ _bind(FW, 'GetCollectionItemHdl')
@@ -618,7 +894,11 @@ export const GetComponentInstanceStorage = /* @__PURE__ */ _bind(FW, 'GetCompone
 export const GetComponentListModSeed = /* @__PURE__ */ _bind(FW, 'GetComponentListModSeed')
 export const GetComponentPublicIndString = /* @__PURE__ */ _bind(FW, 'GetComponentPublicIndString')
 export const GetComponentPublicResource = /* @__PURE__ */ _bind(FW, 'GetComponentPublicResource')
-export const GetComponentPublicResourceList = /* @__PURE__ */ _bind(FW, 'GetComponentPublicResourceList')
+export const GetComponentPublicResourceList = /* @__PURE__ */ _bind(
+	FW,
+	'GetComponentPublicResourceList',
+)
+
 export const GetComponentRefcon = /* @__PURE__ */ _bind(FW, 'GetComponentRefcon')
 export const GetComponentResource = /* @__PURE__ */ _bind(FW, 'GetComponentResource')
 export const GetComponentTypeModSeed = /* @__PURE__ */ _bind(FW, 'GetComponentTypeModSeed')
@@ -641,7 +921,11 @@ export const GetIndResource = /* @__PURE__ */ _bind(FW, 'GetIndResource')
 export const GetIndType = /* @__PURE__ */ _bind(FW, 'GetIndType')
 export const GetIndexedCollectionItem = /* @__PURE__ */ _bind(FW, 'GetIndexedCollectionItem')
 export const GetIndexedCollectionItemHdl = /* @__PURE__ */ _bind(FW, 'GetIndexedCollectionItemHdl')
-export const GetIndexedCollectionItemInfo = /* @__PURE__ */ _bind(FW, 'GetIndexedCollectionItemInfo')
+export const GetIndexedCollectionItemInfo = /* @__PURE__ */ _bind(
+	FW,
+	'GetIndexedCollectionItemInfo',
+)
+
 export const GetIndexedCollectionTag = /* @__PURE__ */ _bind(FW, 'GetIndexedCollectionTag')
 export const GetMacOSStatusCommentString = /* @__PURE__ */ _bind(FW, 'GetMacOSStatusCommentString')
 export const GetMacOSStatusErrorString = /* @__PURE__ */ _bind(FW, 'GetMacOSStatusErrorString')
@@ -656,13 +940,21 @@ export const GetResFileAttrs = /* @__PURE__ */ _bind(FW, 'GetResFileAttrs')
 export const GetResInfo = /* @__PURE__ */ _bind(FW, 'GetResInfo')
 export const GetResource = /* @__PURE__ */ _bind(FW, 'GetResource')
 export const GetResourceSizeOnDisk = /* @__PURE__ */ _bind(FW, 'GetResourceSizeOnDisk')
-export const GetScriptInfoFromTextEncoding = /* @__PURE__ */ _bind(FW, 'GetScriptInfoFromTextEncoding')
+export const GetScriptInfoFromTextEncoding = /* @__PURE__ */ _bind(
+	FW,
+	'GetScriptInfoFromTextEncoding',
+)
+
 export const GetScriptManagerVariable = /* @__PURE__ */ _bind(FW, 'GetScriptManagerVariable')
 export const GetTaggedCollectionItem = /* @__PURE__ */ _bind(FW, 'GetTaggedCollectionItem')
 export const GetTaggedCollectionItemInfo = /* @__PURE__ */ _bind(FW, 'GetTaggedCollectionItemInfo')
 export const GetTextEncodingBase = /* @__PURE__ */ _bind(FW, 'GetTextEncodingBase')
 export const GetTextEncodingFormat = /* @__PURE__ */ _bind(FW, 'GetTextEncodingFormat')
-export const GetTextEncodingFromScriptInfo = /* @__PURE__ */ _bind(FW, 'GetTextEncodingFromScriptInfo')
+export const GetTextEncodingFromScriptInfo = /* @__PURE__ */ _bind(
+	FW,
+	'GetTextEncodingFromScriptInfo',
+)
+
 export const GetTextEncodingName = /* @__PURE__ */ _bind(FW, 'GetTextEncodingName')
 export const GetTextEncodingVariant = /* @__PURE__ */ _bind(FW, 'GetTextEncodingVariant')
 export const GetThreadCurrentTaskRef = /* @__PURE__ */ _bind(FW, 'GetThreadCurrentTaskRef')
@@ -691,7 +983,11 @@ export const IncrementAtomic8 = /* @__PURE__ */ _bind(FW, 'IncrementAtomic8')
 export const InsTime = /* @__PURE__ */ _bind(FW, 'InsTime')
 export const InsXTime = /* @__PURE__ */ _bind(FW, 'InsXTime')
 export const InsertResourceFile = /* @__PURE__ */ _bind(FW, 'InsertResourceFile')
-export const InstallDebugAssertOutputHandler = /* @__PURE__ */ _bind(FW, 'InstallDebugAssertOutputHandler')
+export const InstallDebugAssertOutputHandler = /* @__PURE__ */ _bind(
+	FW,
+	'InstallDebugAssertOutputHandler',
+)
+
 export const InstallExceptionHandler = /* @__PURE__ */ _bind(FW, 'InstallExceptionHandler')
 export const InstallTimeTask = /* @__PURE__ */ _bind(FW, 'InstallTimeTask')
 export const InstallXTimeTask = /* @__PURE__ */ _bind(FW, 'InstallXTimeTask')
@@ -700,28 +996,64 @@ export const InstrumentID = /* @__PURE__ */ _bind(FW, 'InstrumentID')
 export const Intl0Rec = /* @__PURE__ */ _bind(FW, 'Intl0Rec')
 export const Intl1Rec = /* @__PURE__ */ _bind(FW, 'Intl1Rec')
 export const IntlText = /* @__PURE__ */ _bind(FW, 'IntlText')
-export const InvalidateFolderDescriptorCache = /* @__PURE__ */ _bind(FW, 'InvalidateFolderDescriptorCache')
+export const InvalidateFolderDescriptorCache = /* @__PURE__ */ _bind(
+	FW,
+	'InvalidateFolderDescriptorCache',
+)
+
 export const InvokeAECoerceDescUPP = /* @__PURE__ */ _bind(FW, 'InvokeAECoerceDescUPP')
 export const InvokeAECoercePtrUPP = /* @__PURE__ */ _bind(FW, 'InvokeAECoercePtrUPP')
 export const InvokeAEDisposeExternalUPP = /* @__PURE__ */ _bind(FW, 'InvokeAEDisposeExternalUPP')
 export const InvokeAEEventHandlerUPP = /* @__PURE__ */ _bind(FW, 'InvokeAEEventHandlerUPP')
-export const InvokeCollectionExceptionUPP = /* @__PURE__ */ _bind(FW, 'InvokeCollectionExceptionUPP')
+export const InvokeCollectionExceptionUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeCollectionExceptionUPP',
+)
+
 export const InvokeCollectionFlattenUPP = /* @__PURE__ */ _bind(FW, 'InvokeCollectionFlattenUPP')
-export const InvokeComponentMPWorkFunctionUPP = /* @__PURE__ */ _bind(FW, 'InvokeComponentMPWorkFunctionUPP')
+export const InvokeComponentMPWorkFunctionUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeComponentMPWorkFunctionUPP',
+)
+
 export const InvokeComponentRoutineUPP = /* @__PURE__ */ _bind(FW, 'InvokeComponentRoutineUPP')
-export const InvokeDebugAssertOutputHandlerUPP = /* @__PURE__ */ _bind(FW, 'InvokeDebugAssertOutputHandlerUPP')
-export const InvokeDebugComponentCallbackUPP = /* @__PURE__ */ _bind(FW, 'InvokeDebugComponentCallbackUPP')
-export const InvokeDebuggerDisposeThreadUPP = /* @__PURE__ */ _bind(FW, 'InvokeDebuggerDisposeThreadUPP')
+export const InvokeDebugAssertOutputHandlerUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeDebugAssertOutputHandlerUPP',
+)
+
+export const InvokeDebugComponentCallbackUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeDebugComponentCallbackUPP',
+)
+
+export const InvokeDebuggerDisposeThreadUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeDebuggerDisposeThreadUPP',
+)
+
 export const InvokeDebuggerNewThreadUPP = /* @__PURE__ */ _bind(FW, 'InvokeDebuggerNewThreadUPP')
-export const InvokeDebuggerThreadSchedulerUPP = /* @__PURE__ */ _bind(FW, 'InvokeDebuggerThreadSchedulerUPP')
+export const InvokeDebuggerThreadSchedulerUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeDebuggerThreadSchedulerUPP',
+)
+
 export const InvokeDeferredTaskUPP = /* @__PURE__ */ _bind(FW, 'InvokeDeferredTaskUPP')
 export const InvokeExceptionHandlerUPP = /* @__PURE__ */ _bind(FW, 'InvokeExceptionHandlerUPP')
 export const InvokeFNSubscriptionUPP = /* @__PURE__ */ _bind(FW, 'InvokeFNSubscriptionUPP')
 export const InvokeFSVolumeEjectUPP = /* @__PURE__ */ _bind(FW, 'InvokeFSVolumeEjectUPP')
 export const InvokeFSVolumeMountUPP = /* @__PURE__ */ _bind(FW, 'InvokeFSVolumeMountUPP')
 export const InvokeFSVolumeUnmountUPP = /* @__PURE__ */ _bind(FW, 'InvokeFSVolumeUnmountUPP')
-export const InvokeFolderManagerNotificationUPP = /* @__PURE__ */ _bind(FW, 'InvokeFolderManagerNotificationUPP')
-export const InvokeGetMissingComponentResourceUPP = /* @__PURE__ */ _bind(FW, 'InvokeGetMissingComponentResourceUPP')
+export const InvokeFolderManagerNotificationUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeFolderManagerNotificationUPP',
+)
+
+export const InvokeGetMissingComponentResourceUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeGetMissingComponentResourceUPP',
+)
+
 export const InvokeIOCompletionUPP = /* @__PURE__ */ _bind(FW, 'InvokeIOCompletionUPP')
 export const InvokeIndexToUCStringUPP = /* @__PURE__ */ _bind(FW, 'InvokeIndexToUCStringUPP')
 export const InvokeKCCallbackUPP = /* @__PURE__ */ _bind(FW, 'InvokeKCCallbackUPP')
@@ -741,7 +1073,11 @@ export const InvokeThreadSchedulerUPP = /* @__PURE__ */ _bind(FW, 'InvokeThreadS
 export const InvokeThreadSwitchUPP = /* @__PURE__ */ _bind(FW, 'InvokeThreadSwitchUPP')
 export const InvokeThreadTerminationUPP = /* @__PURE__ */ _bind(FW, 'InvokeThreadTerminationUPP')
 export const InvokeTimerUPP = /* @__PURE__ */ _bind(FW, 'InvokeTimerUPP')
-export const InvokeUnicodeToTextFallbackUPP = /* @__PURE__ */ _bind(FW, 'InvokeUnicodeToTextFallbackUPP')
+export const InvokeUnicodeToTextFallbackUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeUnicodeToTextFallbackUPP',
+)
+
 export const IsDataAvailableInIconRef = /* @__PURE__ */ _bind(FW, 'IsDataAvailableInIconRef')
 export const IsHandleValid = /* @__PURE__ */ _bind(FW, 'IsHandleValid')
 export const IsHeapValid = /* @__PURE__ */ _bind(FW, 'IsHeapValid')
@@ -765,7 +1101,11 @@ export const KCFindAppleSharePassword = /* @__PURE__ */ _bind(FW, 'KCFindAppleSh
 export const KCFindFirstItem = /* @__PURE__ */ _bind(FW, 'KCFindFirstItem')
 export const KCFindGenericPassword = /* @__PURE__ */ _bind(FW, 'KCFindGenericPassword')
 export const KCFindInternetPassword = /* @__PURE__ */ _bind(FW, 'KCFindInternetPassword')
-export const KCFindInternetPasswordWithPath = /* @__PURE__ */ _bind(FW, 'KCFindInternetPasswordWithPath')
+export const KCFindInternetPasswordWithPath = /* @__PURE__ */ _bind(
+	FW,
+	'KCFindInternetPasswordWithPath',
+)
+
 export const KCFindNextItem = /* @__PURE__ */ _bind(FW, 'KCFindNextItem')
 export const KCGetAttribute = /* @__PURE__ */ _bind(FW, 'KCGetAttribute')
 export const KCGetData = /* @__PURE__ */ _bind(FW, 'KCGetData')
@@ -814,15 +1154,47 @@ export const LSAcceptanceFlags = /* @__PURE__ */ _bind(FW, 'LSAcceptanceFlags')
 export const LSApplicationParameters = /* @__PURE__ */ _bind(FW, 'LSApplicationParameters')
 export const LSCanRefAcceptItem = /* @__PURE__ */ _bind(FW, 'LSCanRefAcceptItem')
 export const LSCanURLAcceptURL = /* @__PURE__ */ _bind(FW, 'LSCanURLAcceptURL')
-export const LSCopyAllHandlersForURLScheme = /* @__PURE__ */ _bind(FW, 'LSCopyAllHandlersForURLScheme')
-export const LSCopyAllRoleHandlersForContentType = /* @__PURE__ */ _bind(FW, 'LSCopyAllRoleHandlersForContentType')
-export const LSCopyApplicationForMIMEType = /* @__PURE__ */ _bind(FW, 'LSCopyApplicationForMIMEType')
-export const LSCopyApplicationURLsForBundleIdentifier = /* @__PURE__ */ _bind(FW, 'LSCopyApplicationURLsForBundleIdentifier')
+export const LSCopyAllHandlersForURLScheme = /* @__PURE__ */ _bind(
+	FW,
+	'LSCopyAllHandlersForURLScheme',
+)
+
+export const LSCopyAllRoleHandlersForContentType = /* @__PURE__ */ _bind(
+	FW,
+	'LSCopyAllRoleHandlersForContentType',
+)
+
+export const LSCopyApplicationForMIMEType = /* @__PURE__ */ _bind(
+	FW,
+	'LSCopyApplicationForMIMEType',
+)
+
+export const LSCopyApplicationURLsForBundleIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'LSCopyApplicationURLsForBundleIdentifier',
+)
+
 export const LSCopyApplicationURLsForURL = /* @__PURE__ */ _bind(FW, 'LSCopyApplicationURLsForURL')
-export const LSCopyDefaultApplicationURLForContentType = /* @__PURE__ */ _bind(FW, 'LSCopyDefaultApplicationURLForContentType')
-export const LSCopyDefaultApplicationURLForURL = /* @__PURE__ */ _bind(FW, 'LSCopyDefaultApplicationURLForURL')
-export const LSCopyDefaultHandlerForURLScheme = /* @__PURE__ */ _bind(FW, 'LSCopyDefaultHandlerForURLScheme')
-export const LSCopyDefaultRoleHandlerForContentType = /* @__PURE__ */ _bind(FW, 'LSCopyDefaultRoleHandlerForContentType')
+export const LSCopyDefaultApplicationURLForContentType = /* @__PURE__ */ _bind(
+	FW,
+	'LSCopyDefaultApplicationURLForContentType',
+)
+
+export const LSCopyDefaultApplicationURLForURL = /* @__PURE__ */ _bind(
+	FW,
+	'LSCopyDefaultApplicationURLForURL',
+)
+
+export const LSCopyDefaultHandlerForURLScheme = /* @__PURE__ */ _bind(
+	FW,
+	'LSCopyDefaultHandlerForURLScheme',
+)
+
+export const LSCopyDefaultRoleHandlerForContentType = /* @__PURE__ */ _bind(
+	FW,
+	'LSCopyDefaultRoleHandlerForContentType',
+)
+
 export const LSCopyDisplayNameForRef = /* @__PURE__ */ _bind(FW, 'LSCopyDisplayNameForRef')
 export const LSCopyDisplayNameForURL = /* @__PURE__ */ _bind(FW, 'LSCopyDisplayNameForURL')
 export const LSCopyItemAttribute = /* @__PURE__ */ _bind(FW, 'LSCopyItemAttribute')
@@ -838,7 +1210,11 @@ export const LSGetApplicationForInfo = /* @__PURE__ */ _bind(FW, 'LSGetApplicati
 export const LSGetApplicationForItem = /* @__PURE__ */ _bind(FW, 'LSGetApplicationForItem')
 export const LSGetApplicationForURL = /* @__PURE__ */ _bind(FW, 'LSGetApplicationForURL')
 export const LSGetExtensionInfo = /* @__PURE__ */ _bind(FW, 'LSGetExtensionInfo')
-export const LSGetHandlerOptionsForContentType = /* @__PURE__ */ _bind(FW, 'LSGetHandlerOptionsForContentType')
+export const LSGetHandlerOptionsForContentType = /* @__PURE__ */ _bind(
+	FW,
+	'LSGetHandlerOptionsForContentType',
+)
+
 export const LSHandlerOptions = /* @__PURE__ */ _bind(FW, 'LSHandlerOptions')
 export const LSItemInfoFlags = /* @__PURE__ */ _bind(FW, 'LSItemInfoFlags')
 export const LSItemInfoRecord = /* @__PURE__ */ _bind(FW, 'LSItemInfoRecord')
@@ -856,33 +1232,101 @@ export const LSRegisterFSRef = /* @__PURE__ */ _bind(FW, 'LSRegisterFSRef')
 export const LSRegisterURL = /* @__PURE__ */ _bind(FW, 'LSRegisterURL')
 export const LSRequestedInfo = /* @__PURE__ */ _bind(FW, 'LSRequestedInfo')
 export const LSRolesMask = /* @__PURE__ */ _bind(FW, 'LSRolesMask')
-export const LSSetDefaultHandlerForURLScheme = /* @__PURE__ */ _bind(FW, 'LSSetDefaultHandlerForURLScheme')
-export const LSSetDefaultRoleHandlerForContentType = /* @__PURE__ */ _bind(FW, 'LSSetDefaultRoleHandlerForContentType')
+export const LSSetDefaultHandlerForURLScheme = /* @__PURE__ */ _bind(
+	FW,
+	'LSSetDefaultHandlerForURLScheme',
+)
+
+export const LSSetDefaultRoleHandlerForContentType = /* @__PURE__ */ _bind(
+	FW,
+	'LSSetDefaultRoleHandlerForContentType',
+)
+
 export const LSSetExtensionHiddenForRef = /* @__PURE__ */ _bind(FW, 'LSSetExtensionHiddenForRef')
 export const LSSetExtensionHiddenForURL = /* @__PURE__ */ _bind(FW, 'LSSetExtensionHiddenForURL')
-export const LSSetHandlerOptionsForContentType = /* @__PURE__ */ _bind(FW, 'LSSetHandlerOptionsForContentType')
+export const LSSetHandlerOptionsForContentType = /* @__PURE__ */ _bind(
+	FW,
+	'LSSetHandlerOptionsForContentType',
+)
+
 export const LSSetItemAttribute = /* @__PURE__ */ _bind(FW, 'LSSetItemAttribute')
 export const LSSharedFileListAddObserver = /* @__PURE__ */ _bind(FW, 'LSSharedFileListAddObserver')
-export const LSSharedFileListCopyProperty = /* @__PURE__ */ _bind(FW, 'LSSharedFileListCopyProperty')
-export const LSSharedFileListCopySnapshot = /* @__PURE__ */ _bind(FW, 'LSSharedFileListCopySnapshot')
+export const LSSharedFileListCopyProperty = /* @__PURE__ */ _bind(
+	FW,
+	'LSSharedFileListCopyProperty',
+)
+
+export const LSSharedFileListCopySnapshot = /* @__PURE__ */ _bind(
+	FW,
+	'LSSharedFileListCopySnapshot',
+)
+
 export const LSSharedFileListCreate = /* @__PURE__ */ _bind(FW, 'LSSharedFileListCreate')
-export const LSSharedFileListGetSeedValue = /* @__PURE__ */ _bind(FW, 'LSSharedFileListGetSeedValue')
+export const LSSharedFileListGetSeedValue = /* @__PURE__ */ _bind(
+	FW,
+	'LSSharedFileListGetSeedValue',
+)
+
 export const LSSharedFileListGetTypeID = /* @__PURE__ */ _bind(FW, 'LSSharedFileListGetTypeID')
-export const LSSharedFileListInsertItemFSRef = /* @__PURE__ */ _bind(FW, 'LSSharedFileListInsertItemFSRef')
-export const LSSharedFileListInsertItemURL = /* @__PURE__ */ _bind(FW, 'LSSharedFileListInsertItemURL')
-export const LSSharedFileListItemCopyDisplayName = /* @__PURE__ */ _bind(FW, 'LSSharedFileListItemCopyDisplayName')
-export const LSSharedFileListItemCopyIconRef = /* @__PURE__ */ _bind(FW, 'LSSharedFileListItemCopyIconRef')
-export const LSSharedFileListItemCopyProperty = /* @__PURE__ */ _bind(FW, 'LSSharedFileListItemCopyProperty')
-export const LSSharedFileListItemCopyResolvedURL = /* @__PURE__ */ _bind(FW, 'LSSharedFileListItemCopyResolvedURL')
+export const LSSharedFileListInsertItemFSRef = /* @__PURE__ */ _bind(
+	FW,
+	'LSSharedFileListInsertItemFSRef',
+)
+
+export const LSSharedFileListInsertItemURL = /* @__PURE__ */ _bind(
+	FW,
+	'LSSharedFileListInsertItemURL',
+)
+
+export const LSSharedFileListItemCopyDisplayName = /* @__PURE__ */ _bind(
+	FW,
+	'LSSharedFileListItemCopyDisplayName',
+)
+
+export const LSSharedFileListItemCopyIconRef = /* @__PURE__ */ _bind(
+	FW,
+	'LSSharedFileListItemCopyIconRef',
+)
+
+export const LSSharedFileListItemCopyProperty = /* @__PURE__ */ _bind(
+	FW,
+	'LSSharedFileListItemCopyProperty',
+)
+
+export const LSSharedFileListItemCopyResolvedURL = /* @__PURE__ */ _bind(
+	FW,
+	'LSSharedFileListItemCopyResolvedURL',
+)
+
 export const LSSharedFileListItemGetID = /* @__PURE__ */ _bind(FW, 'LSSharedFileListItemGetID')
-export const LSSharedFileListItemGetTypeID = /* @__PURE__ */ _bind(FW, 'LSSharedFileListItemGetTypeID')
+export const LSSharedFileListItemGetTypeID = /* @__PURE__ */ _bind(
+	FW,
+	'LSSharedFileListItemGetTypeID',
+)
+
 export const LSSharedFileListItemMove = /* @__PURE__ */ _bind(FW, 'LSSharedFileListItemMove')
 export const LSSharedFileListItemRemove = /* @__PURE__ */ _bind(FW, 'LSSharedFileListItemRemove')
 export const LSSharedFileListItemResolve = /* @__PURE__ */ _bind(FW, 'LSSharedFileListItemResolve')
-export const LSSharedFileListItemSetProperty = /* @__PURE__ */ _bind(FW, 'LSSharedFileListItemSetProperty')
-export const LSSharedFileListRemoveAllItems = /* @__PURE__ */ _bind(FW, 'LSSharedFileListRemoveAllItems')
-export const LSSharedFileListRemoveObserver = /* @__PURE__ */ _bind(FW, 'LSSharedFileListRemoveObserver')
-export const LSSharedFileListSetAuthorization = /* @__PURE__ */ _bind(FW, 'LSSharedFileListSetAuthorization')
+export const LSSharedFileListItemSetProperty = /* @__PURE__ */ _bind(
+	FW,
+	'LSSharedFileListItemSetProperty',
+)
+
+export const LSSharedFileListRemoveAllItems = /* @__PURE__ */ _bind(
+	FW,
+	'LSSharedFileListRemoveAllItems',
+)
+
+export const LSSharedFileListRemoveObserver = /* @__PURE__ */ _bind(
+	FW,
+	'LSSharedFileListRemoveObserver',
+)
+
+export const LSSharedFileListSetAuthorization = /* @__PURE__ */ _bind(
+	FW,
+	'LSSharedFileListSetAuthorization',
+)
+
 export const LSSharedFileListSetProperty = /* @__PURE__ */ _bind(FW, 'LSSharedFileListSetProperty')
 export const LoadResource = /* @__PURE__ */ _bind(FW, 'LoadResource')
 export const LocalDateTime = /* @__PURE__ */ _bind(FW, 'LocalDateTime')
@@ -895,10 +1339,18 @@ export const LocaleOperationCountNames = /* @__PURE__ */ _bind(FW, 'LocaleOperat
 export const LocaleOperationGetIndName = /* @__PURE__ */ _bind(FW, 'LocaleOperationGetIndName')
 export const LocaleOperationGetLocales = /* @__PURE__ */ _bind(FW, 'LocaleOperationGetLocales')
 export const LocaleOperationGetName = /* @__PURE__ */ _bind(FW, 'LocaleOperationGetName')
-export const LocaleRefFromLangOrRegionCode = /* @__PURE__ */ _bind(FW, 'LocaleRefFromLangOrRegionCode')
+export const LocaleRefFromLangOrRegionCode = /* @__PURE__ */ _bind(
+	FW,
+	'LocaleRefFromLangOrRegionCode',
+)
+
 export const LocaleRefFromLocaleString = /* @__PURE__ */ _bind(FW, 'LocaleRefFromLocaleString')
 export const LocaleRefGetPartString = /* @__PURE__ */ _bind(FW, 'LocaleRefGetPartString')
-export const LocaleStringToLangAndRegionCodes = /* @__PURE__ */ _bind(FW, 'LocaleStringToLangAndRegionCodes')
+export const LocaleStringToLangAndRegionCodes = /* @__PURE__ */ _bind(
+	FW,
+	'LocaleStringToLangAndRegionCodes',
+)
+
 export const Long2Fix = /* @__PURE__ */ _bind(FW, 'Long2Fix')
 export const LongDateCvt = /* @__PURE__ */ _bind(FW, 'LongDateCvt')
 export const LongDateRec = /* @__PURE__ */ _bind(FW, 'LongDateRec')
@@ -906,7 +1358,11 @@ export const MACE3Type = /* @__PURE__ */ _bind(FW, 'MACE3Type')
 export const MACE6Type = /* @__PURE__ */ _bind(FW, 'MACE6Type')
 export const MDCopyLabelKinds = /* @__PURE__ */ _bind(FW, 'MDCopyLabelKinds')
 export const MDCopyLabelWithUUID = /* @__PURE__ */ _bind(FW, 'MDCopyLabelWithUUID')
-export const MDCopyLabelsMatchingExpression = /* @__PURE__ */ _bind(FW, 'MDCopyLabelsMatchingExpression')
+export const MDCopyLabelsMatchingExpression = /* @__PURE__ */ _bind(
+	FW,
+	'MDCopyLabelsMatchingExpression',
+)
+
 export const MDCopyLabelsWithKind = /* @__PURE__ */ _bind(FW, 'MDCopyLabelsWithKind')
 export const MDItemCopyAttribute = /* @__PURE__ */ _bind(FW, 'MDItemCopyAttribute')
 export const MDItemCopyAttributeList = /* @__PURE__ */ _bind(FW, 'MDItemCopyAttributeList')
@@ -929,42 +1385,106 @@ export const MDLabelGetTypeID = /* @__PURE__ */ _bind(FW, 'MDLabelGetTypeID')
 export const MDLabelSetAttributes = /* @__PURE__ */ _bind(FW, 'MDLabelSetAttributes')
 export const MDQueryBatchingParams = /* @__PURE__ */ _bind(FW, 'MDQueryBatchingParams')
 export const MDQueryCopyQueryString = /* @__PURE__ */ _bind(FW, 'MDQueryCopyQueryString')
-export const MDQueryCopySortingAttributes = /* @__PURE__ */ _bind(FW, 'MDQueryCopySortingAttributes')
-export const MDQueryCopyValueListAttributes = /* @__PURE__ */ _bind(FW, 'MDQueryCopyValueListAttributes')
-export const MDQueryCopyValuesOfAttribute = /* @__PURE__ */ _bind(FW, 'MDQueryCopyValuesOfAttribute')
+export const MDQueryCopySortingAttributes = /* @__PURE__ */ _bind(
+	FW,
+	'MDQueryCopySortingAttributes',
+)
+
+export const MDQueryCopyValueListAttributes = /* @__PURE__ */ _bind(
+	FW,
+	'MDQueryCopyValueListAttributes',
+)
+
+export const MDQueryCopyValuesOfAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'MDQueryCopyValuesOfAttribute',
+)
+
 export const MDQueryCreate = /* @__PURE__ */ _bind(FW, 'MDQueryCreate')
 export const MDQueryCreateForItems = /* @__PURE__ */ _bind(FW, 'MDQueryCreateForItems')
 export const MDQueryCreateSubset = /* @__PURE__ */ _bind(FW, 'MDQueryCreateSubset')
 export const MDQueryDisableUpdates = /* @__PURE__ */ _bind(FW, 'MDQueryDisableUpdates')
 export const MDQueryEnableUpdates = /* @__PURE__ */ _bind(FW, 'MDQueryEnableUpdates')
 export const MDQueryExecute = /* @__PURE__ */ _bind(FW, 'MDQueryExecute')
-export const MDQueryGetAttributeValueOfResultAtIndex = /* @__PURE__ */ _bind(FW, 'MDQueryGetAttributeValueOfResultAtIndex')
-export const MDQueryGetBatchingParameters = /* @__PURE__ */ _bind(FW, 'MDQueryGetBatchingParameters')
-export const MDQueryGetCountOfResultsWithAttributeValue = /* @__PURE__ */ _bind(FW, 'MDQueryGetCountOfResultsWithAttributeValue')
+export const MDQueryGetAttributeValueOfResultAtIndex = /* @__PURE__ */ _bind(
+	FW,
+	'MDQueryGetAttributeValueOfResultAtIndex',
+)
+
+export const MDQueryGetBatchingParameters = /* @__PURE__ */ _bind(
+	FW,
+	'MDQueryGetBatchingParameters',
+)
+
+export const MDQueryGetCountOfResultsWithAttributeValue = /* @__PURE__ */ _bind(
+	FW,
+	'MDQueryGetCountOfResultsWithAttributeValue',
+)
+
 export const MDQueryGetIndexOfResult = /* @__PURE__ */ _bind(FW, 'MDQueryGetIndexOfResult')
 export const MDQueryGetResultAtIndex = /* @__PURE__ */ _bind(FW, 'MDQueryGetResultAtIndex')
 export const MDQueryGetResultCount = /* @__PURE__ */ _bind(FW, 'MDQueryGetResultCount')
-export const MDQueryGetSortOptionFlagsForAttribute = /* @__PURE__ */ _bind(FW, 'MDQueryGetSortOptionFlagsForAttribute')
+export const MDQueryGetSortOptionFlagsForAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'MDQueryGetSortOptionFlagsForAttribute',
+)
+
 export const MDQueryGetTypeID = /* @__PURE__ */ _bind(FW, 'MDQueryGetTypeID')
 export const MDQueryIsGatheringComplete = /* @__PURE__ */ _bind(FW, 'MDQueryIsGatheringComplete')
 export const MDQueryOptionFlags = /* @__PURE__ */ _bind(FW, 'MDQueryOptionFlags')
-export const MDQuerySetBatchingParameters = /* @__PURE__ */ _bind(FW, 'MDQuerySetBatchingParameters')
-export const MDQuerySetCreateResultFunction = /* @__PURE__ */ _bind(FW, 'MDQuerySetCreateResultFunction')
-export const MDQuerySetCreateValueFunction = /* @__PURE__ */ _bind(FW, 'MDQuerySetCreateValueFunction')
+export const MDQuerySetBatchingParameters = /* @__PURE__ */ _bind(
+	FW,
+	'MDQuerySetBatchingParameters',
+)
+
+export const MDQuerySetCreateResultFunction = /* @__PURE__ */ _bind(
+	FW,
+	'MDQuerySetCreateResultFunction',
+)
+
+export const MDQuerySetCreateValueFunction = /* @__PURE__ */ _bind(
+	FW,
+	'MDQuerySetCreateValueFunction',
+)
+
 export const MDQuerySetDispatchQueue = /* @__PURE__ */ _bind(FW, 'MDQuerySetDispatchQueue')
 export const MDQuerySetMaxCount = /* @__PURE__ */ _bind(FW, 'MDQuerySetMaxCount')
 export const MDQuerySetSearchScope = /* @__PURE__ */ _bind(FW, 'MDQuerySetSearchScope')
 export const MDQuerySetSortComparator = /* @__PURE__ */ _bind(FW, 'MDQuerySetSortComparator')
-export const MDQuerySetSortComparatorBlock = /* @__PURE__ */ _bind(FW, 'MDQuerySetSortComparatorBlock')
-export const MDQuerySetSortOptionFlagsForAttribute = /* @__PURE__ */ _bind(FW, 'MDQuerySetSortOptionFlagsForAttribute')
+export const MDQuerySetSortComparatorBlock = /* @__PURE__ */ _bind(
+	FW,
+	'MDQuerySetSortComparatorBlock',
+)
+
+export const MDQuerySetSortOptionFlagsForAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'MDQuerySetSortOptionFlagsForAttribute',
+)
+
 export const MDQuerySetSortOrder = /* @__PURE__ */ _bind(FW, 'MDQuerySetSortOrder')
 export const MDQuerySortOptionFlags = /* @__PURE__ */ _bind(FW, 'MDQuerySortOptionFlags')
 export const MDQueryStop = /* @__PURE__ */ _bind(FW, 'MDQueryStop')
 export const MDSchemaCopyAllAttributes = /* @__PURE__ */ _bind(FW, 'MDSchemaCopyAllAttributes')
-export const MDSchemaCopyAttributesForContentType = /* @__PURE__ */ _bind(FW, 'MDSchemaCopyAttributesForContentType')
-export const MDSchemaCopyDisplayDescriptionForAttribute = /* @__PURE__ */ _bind(FW, 'MDSchemaCopyDisplayDescriptionForAttribute')
-export const MDSchemaCopyDisplayNameForAttribute = /* @__PURE__ */ _bind(FW, 'MDSchemaCopyDisplayNameForAttribute')
-export const MDSchemaCopyMetaAttributesForAttribute = /* @__PURE__ */ _bind(FW, 'MDSchemaCopyMetaAttributesForAttribute')
+export const MDSchemaCopyAttributesForContentType = /* @__PURE__ */ _bind(
+	FW,
+	'MDSchemaCopyAttributesForContentType',
+)
+
+export const MDSchemaCopyDisplayDescriptionForAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'MDSchemaCopyDisplayDescriptionForAttribute',
+)
+
+export const MDSchemaCopyDisplayNameForAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'MDSchemaCopyDisplayNameForAttribute',
+)
+
+export const MDSchemaCopyMetaAttributesForAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'MDSchemaCopyMetaAttributesForAttribute',
+)
+
 export const MIDIDataChunk = /* @__PURE__ */ _bind(FW, 'MIDIDataChunk')
 export const MIDIDataID = /* @__PURE__ */ _bind(FW, 'MIDIDataID')
 export const MPAddressSpaceInfo = /* @__PURE__ */ _bind(FW, 'MPAddressSpaceInfo')
@@ -985,7 +1505,11 @@ export const MPCreateTask = /* @__PURE__ */ _bind(FW, 'MPCreateTask')
 export const MPCreateTimer = /* @__PURE__ */ _bind(FW, 'MPCreateTimer')
 export const MPCriticalRegionInfo = /* @__PURE__ */ _bind(FW, 'MPCriticalRegionInfo')
 export const MPCurrentTaskID = /* @__PURE__ */ _bind(FW, 'MPCurrentTaskID')
-export const MPDeallocateTaskStorageIndex = /* @__PURE__ */ _bind(FW, 'MPDeallocateTaskStorageIndex')
+export const MPDeallocateTaskStorageIndex = /* @__PURE__ */ _bind(
+	FW,
+	'MPDeallocateTaskStorageIndex',
+)
+
 export const MPDelayUntil = /* @__PURE__ */ _bind(FW, 'MPDelayUntil')
 export const MPDeleteCriticalRegion = /* @__PURE__ */ _bind(FW, 'MPDeleteCriticalRegion')
 export const MPDeleteEvent = /* @__PURE__ */ _bind(FW, 'MPDeleteEvent')
@@ -1004,12 +1528,20 @@ export const MPGetAllocatedBlockSize = /* @__PURE__ */ _bind(FW, 'MPGetAllocated
 export const MPGetNextCpuID = /* @__PURE__ */ _bind(FW, 'MPGetNextCpuID')
 export const MPGetNextTaskID = /* @__PURE__ */ _bind(FW, 'MPGetNextTaskID')
 export const MPGetTaskStorageValue = /* @__PURE__ */ _bind(FW, 'MPGetTaskStorageValue')
-export const MPLibrary_DevelopmentRevision = /* @__PURE__ */ _bind(FW, 'MPLibrary_DevelopmentRevision')
+export const MPLibrary_DevelopmentRevision = /* @__PURE__ */ _bind(
+	FW,
+	'MPLibrary_DevelopmentRevision',
+)
+
 export const MPLibrary_MajorVersion = /* @__PURE__ */ _bind(FW, 'MPLibrary_MajorVersion')
 export const MPLibrary_MinorVersion = /* @__PURE__ */ _bind(FW, 'MPLibrary_MinorVersion')
 export const MPLibrary_Release = /* @__PURE__ */ _bind(FW, 'MPLibrary_Release')
 export const MPModifyNotification = /* @__PURE__ */ _bind(FW, 'MPModifyNotification')
-export const MPModifyNotificationParameters = /* @__PURE__ */ _bind(FW, 'MPModifyNotificationParameters')
+export const MPModifyNotificationParameters = /* @__PURE__ */ _bind(
+	FW,
+	'MPModifyNotificationParameters',
+)
+
 export const MPNotificationInfo = /* @__PURE__ */ _bind(FW, 'MPNotificationInfo')
 export const MPNotifyQueue = /* @__PURE__ */ _bind(FW, 'MPNotifyQueue')
 export const MPProcessors = /* @__PURE__ */ _bind(FW, 'MPProcessors')
@@ -1065,15 +1597,31 @@ export const NewCollection = /* @__PURE__ */ _bind(FW, 'NewCollection')
 export const NewCollectionExceptionUPP = /* @__PURE__ */ _bind(FW, 'NewCollectionExceptionUPP')
 export const NewCollectionFlattenUPP = /* @__PURE__ */ _bind(FW, 'NewCollectionFlattenUPP')
 export const NewComponentFunctionUPP = /* @__PURE__ */ _bind(FW, 'NewComponentFunctionUPP')
-export const NewComponentMPWorkFunctionUPP = /* @__PURE__ */ _bind(FW, 'NewComponentMPWorkFunctionUPP')
+export const NewComponentMPWorkFunctionUPP = /* @__PURE__ */ _bind(
+	FW,
+	'NewComponentMPWorkFunctionUPP',
+)
+
 export const NewComponentRoutineUPP = /* @__PURE__ */ _bind(FW, 'NewComponentRoutineUPP')
-export const NewDebugAssertOutputHandlerUPP = /* @__PURE__ */ _bind(FW, 'NewDebugAssertOutputHandlerUPP')
+export const NewDebugAssertOutputHandlerUPP = /* @__PURE__ */ _bind(
+	FW,
+	'NewDebugAssertOutputHandlerUPP',
+)
+
 export const NewDebugComponent = /* @__PURE__ */ _bind(FW, 'NewDebugComponent')
-export const NewDebugComponentCallbackUPP = /* @__PURE__ */ _bind(FW, 'NewDebugComponentCallbackUPP')
+export const NewDebugComponentCallbackUPP = /* @__PURE__ */ _bind(
+	FW,
+	'NewDebugComponentCallbackUPP',
+)
+
 export const NewDebugOption = /* @__PURE__ */ _bind(FW, 'NewDebugOption')
 export const NewDebuggerDisposeThreadUPP = /* @__PURE__ */ _bind(FW, 'NewDebuggerDisposeThreadUPP')
 export const NewDebuggerNewThreadUPP = /* @__PURE__ */ _bind(FW, 'NewDebuggerNewThreadUPP')
-export const NewDebuggerThreadSchedulerUPP = /* @__PURE__ */ _bind(FW, 'NewDebuggerThreadSchedulerUPP')
+export const NewDebuggerThreadSchedulerUPP = /* @__PURE__ */ _bind(
+	FW,
+	'NewDebuggerThreadSchedulerUPP',
+)
+
 export const NewDeferredTaskUPP = /* @__PURE__ */ _bind(FW, 'NewDeferredTaskUPP')
 export const NewEmptyHandle = /* @__PURE__ */ _bind(FW, 'NewEmptyHandle')
 export const NewExceptionHandlerUPP = /* @__PURE__ */ _bind(FW, 'NewExceptionHandlerUPP')
@@ -1081,9 +1629,17 @@ export const NewFNSubscriptionUPP = /* @__PURE__ */ _bind(FW, 'NewFNSubscription
 export const NewFSVolumeEjectUPP = /* @__PURE__ */ _bind(FW, 'NewFSVolumeEjectUPP')
 export const NewFSVolumeMountUPP = /* @__PURE__ */ _bind(FW, 'NewFSVolumeMountUPP')
 export const NewFSVolumeUnmountUPP = /* @__PURE__ */ _bind(FW, 'NewFSVolumeUnmountUPP')
-export const NewFolderManagerNotificationUPP = /* @__PURE__ */ _bind(FW, 'NewFolderManagerNotificationUPP')
+export const NewFolderManagerNotificationUPP = /* @__PURE__ */ _bind(
+	FW,
+	'NewFolderManagerNotificationUPP',
+)
+
 export const NewGestaltValue = /* @__PURE__ */ _bind(FW, 'NewGestaltValue')
-export const NewGetMissingComponentResourceUPP = /* @__PURE__ */ _bind(FW, 'NewGetMissingComponentResourceUPP')
+export const NewGetMissingComponentResourceUPP = /* @__PURE__ */ _bind(
+	FW,
+	'NewGetMissingComponentResourceUPP',
+)
+
 export const NewHandle = /* @__PURE__ */ _bind(FW, 'NewHandle')
 export const NewHandleClear = /* @__PURE__ */ _bind(FW, 'NewHandleClear')
 export const NewIOCompletionUPP = /* @__PURE__ */ _bind(FW, 'NewIOCompletionUPP')
@@ -1141,7 +1697,11 @@ export const OpaqueFNSubscriptionRef = /* @__PURE__ */ _bind(FW, 'OpaqueFNSubscr
 export const OpaqueFSIterator = /* @__PURE__ */ _bind(FW, 'OpaqueFSIterator')
 export const OpaqueFSVolumeOperation = /* @__PURE__ */ _bind(FW, 'OpaqueFSVolumeOperation')
 export const OpaqueIconRef = /* @__PURE__ */ _bind(FW, 'OpaqueIconRef')
-export const OpaqueLSSharedFileListItemRef = /* @__PURE__ */ _bind(FW, 'OpaqueLSSharedFileListItemRef')
+export const OpaqueLSSharedFileListItemRef = /* @__PURE__ */ _bind(
+	FW,
+	'OpaqueLSSharedFileListItemRef',
+)
+
 export const OpaqueLSSharedFileListRef = /* @__PURE__ */ _bind(FW, 'OpaqueLSSharedFileListRef')
 export const OpaqueLocaleRef = /* @__PURE__ */ _bind(FW, 'OpaqueLocaleRef')
 export const OpaqueMPAddressSpaceID = /* @__PURE__ */ _bind(FW, 'OpaqueMPAddressSpaceID')
@@ -1185,10 +1745,26 @@ export const PBCloseIteratorAsync = /* @__PURE__ */ _bind(FW, 'PBCloseIteratorAs
 export const PBCloseIteratorSync = /* @__PURE__ */ _bind(FW, 'PBCloseIteratorSync')
 export const PBCompareFSRefsAsync = /* @__PURE__ */ _bind(FW, 'PBCompareFSRefsAsync')
 export const PBCompareFSRefsSync = /* @__PURE__ */ _bind(FW, 'PBCompareFSRefsSync')
-export const PBCreateDirectoryUnicodeAsync = /* @__PURE__ */ _bind(FW, 'PBCreateDirectoryUnicodeAsync')
-export const PBCreateDirectoryUnicodeSync = /* @__PURE__ */ _bind(FW, 'PBCreateDirectoryUnicodeSync')
-export const PBCreateFileAndOpenForkUnicodeAsync = /* @__PURE__ */ _bind(FW, 'PBCreateFileAndOpenForkUnicodeAsync')
-export const PBCreateFileAndOpenForkUnicodeSync = /* @__PURE__ */ _bind(FW, 'PBCreateFileAndOpenForkUnicodeSync')
+export const PBCreateDirectoryUnicodeAsync = /* @__PURE__ */ _bind(
+	FW,
+	'PBCreateDirectoryUnicodeAsync',
+)
+
+export const PBCreateDirectoryUnicodeSync = /* @__PURE__ */ _bind(
+	FW,
+	'PBCreateDirectoryUnicodeSync',
+)
+
+export const PBCreateFileAndOpenForkUnicodeAsync = /* @__PURE__ */ _bind(
+	FW,
+	'PBCreateFileAndOpenForkUnicodeAsync',
+)
+
+export const PBCreateFileAndOpenForkUnicodeSync = /* @__PURE__ */ _bind(
+	FW,
+	'PBCreateFileAndOpenForkUnicodeSync',
+)
+
 export const PBCreateFileUnicodeAsync = /* @__PURE__ */ _bind(FW, 'PBCreateFileUnicodeAsync')
 export const PBCreateFileUnicodeSync = /* @__PURE__ */ _bind(FW, 'PBCreateFileUnicodeSync')
 export const PBCreateForkAsync = /* @__PURE__ */ _bind(FW, 'PBCreateForkAsync')
@@ -1289,14 +1865,30 @@ export const ReallocateHandle = /* @__PURE__ */ _bind(FW, 'ReallocateHandle')
 export const RecoverHandle = /* @__PURE__ */ _bind(FW, 'RecoverHandle')
 export const RegisterComponent = /* @__PURE__ */ _bind(FW, 'RegisterComponent')
 export const RegisterComponentFileRef = /* @__PURE__ */ _bind(FW, 'RegisterComponentFileRef')
-export const RegisterComponentFileRefEntries = /* @__PURE__ */ _bind(FW, 'RegisterComponentFileRefEntries')
+export const RegisterComponentFileRefEntries = /* @__PURE__ */ _bind(
+	FW,
+	'RegisterComponentFileRefEntries',
+)
+
 export const RegisterComponentResource = /* @__PURE__ */ _bind(FW, 'RegisterComponentResource')
-export const RegisterComponentResourceFile = /* @__PURE__ */ _bind(FW, 'RegisterComponentResourceFile')
+export const RegisterComponentResourceFile = /* @__PURE__ */ _bind(
+	FW,
+	'RegisterComponentResourceFile',
+)
+
 export const RegisterIconRefFromFSRef = /* @__PURE__ */ _bind(FW, 'RegisterIconRefFromFSRef')
-export const RegisterIconRefFromIconFamily = /* @__PURE__ */ _bind(FW, 'RegisterIconRefFromIconFamily')
+export const RegisterIconRefFromIconFamily = /* @__PURE__ */ _bind(
+	FW,
+	'RegisterIconRefFromIconFamily',
+)
+
 export const RegisterInformation = /* @__PURE__ */ _bind(FW, 'RegisterInformation')
 export const RegisterInformationPowerPC = /* @__PURE__ */ _bind(FW, 'RegisterInformationPowerPC')
-export const RegisteredComponentInstanceRecord = /* @__PURE__ */ _bind(FW, 'RegisteredComponentInstanceRecord')
+export const RegisteredComponentInstanceRecord = /* @__PURE__ */ _bind(
+	FW,
+	'RegisteredComponentInstanceRecord',
+)
+
 export const RegisteredComponentRecord = /* @__PURE__ */ _bind(FW, 'RegisteredComponentRecord')
 export const ReleaseCollection = /* @__PURE__ */ _bind(FW, 'ReleaseCollection')
 export const ReleaseFolder = /* @__PURE__ */ _bind(FW, 'ReleaseFolder')
@@ -1309,8 +1901,16 @@ export const RemoveIndexedCollectionItem = /* @__PURE__ */ _bind(FW, 'RemoveInde
 export const RemoveResource = /* @__PURE__ */ _bind(FW, 'RemoveResource')
 export const RemoveTimeTask = /* @__PURE__ */ _bind(FW, 'RemoveTimeTask')
 export const ReplaceGestaltValue = /* @__PURE__ */ _bind(FW, 'ReplaceGestaltValue')
-export const ReplaceIndexedCollectionItem = /* @__PURE__ */ _bind(FW, 'ReplaceIndexedCollectionItem')
-export const ReplaceIndexedCollectionItemHdl = /* @__PURE__ */ _bind(FW, 'ReplaceIndexedCollectionItemHdl')
+export const ReplaceIndexedCollectionItem = /* @__PURE__ */ _bind(
+	FW,
+	'ReplaceIndexedCollectionItem',
+)
+
+export const ReplaceIndexedCollectionItemHdl = /* @__PURE__ */ _bind(
+	FW,
+	'ReplaceIndexedCollectionItemHdl',
+)
+
 export const ResError = /* @__PURE__ */ _bind(FW, 'ResError')
 export const ResetTextToUnicodeInfo = /* @__PURE__ */ _bind(FW, 'ResetTextToUnicodeInfo')
 export const ResetUnicodeToTextInfo = /* @__PURE__ */ _bind(FW, 'ResetUnicodeToTextInfo')
@@ -1319,7 +1919,11 @@ export const ResolveComponentAlias = /* @__PURE__ */ _bind(FW, 'ResolveComponent
 export const ResolveDefaultTextEncoding = /* @__PURE__ */ _bind(FW, 'ResolveDefaultTextEncoding')
 export const ResourceSpec = /* @__PURE__ */ _bind(FW, 'ResourceSpec')
 export const RetainCollection = /* @__PURE__ */ _bind(FW, 'RetainCollection')
-export const RevertTextEncodingToScriptInfo = /* @__PURE__ */ _bind(FW, 'RevertTextEncodingToScriptInfo')
+export const RevertTextEncodingToScriptInfo = /* @__PURE__ */ _bind(
+	FW,
+	'RevertTextEncodingToScriptInfo',
+)
+
 export const RmvTime = /* @__PURE__ */ _bind(FW, 'RmvTime')
 export const RoutineDescriptor = /* @__PURE__ */ _bind(FW, 'RoutineDescriptor')
 export const RoutineRecord = /* @__PURE__ */ _bind(FW, 'RoutineRecord')
@@ -1338,32 +1942,96 @@ export const SKIndexAddDocument = /* @__PURE__ */ _bind(FW, 'SKIndexAddDocument'
 export const SKIndexAddDocumentWithText = /* @__PURE__ */ _bind(FW, 'SKIndexAddDocumentWithText')
 export const SKIndexClose = /* @__PURE__ */ _bind(FW, 'SKIndexClose')
 export const SKIndexCompact = /* @__PURE__ */ _bind(FW, 'SKIndexCompact')
-export const SKIndexCopyDocumentForDocumentID = /* @__PURE__ */ _bind(FW, 'SKIndexCopyDocumentForDocumentID')
-export const SKIndexCopyDocumentIDArrayForTermID = /* @__PURE__ */ _bind(FW, 'SKIndexCopyDocumentIDArrayForTermID')
-export const SKIndexCopyDocumentProperties = /* @__PURE__ */ _bind(FW, 'SKIndexCopyDocumentProperties')
-export const SKIndexCopyDocumentRefsForDocumentIDs = /* @__PURE__ */ _bind(FW, 'SKIndexCopyDocumentRefsForDocumentIDs')
-export const SKIndexCopyDocumentURLsForDocumentIDs = /* @__PURE__ */ _bind(FW, 'SKIndexCopyDocumentURLsForDocumentIDs')
-export const SKIndexCopyInfoForDocumentIDs = /* @__PURE__ */ _bind(FW, 'SKIndexCopyInfoForDocumentIDs')
-export const SKIndexCopyTermIDArrayForDocumentID = /* @__PURE__ */ _bind(FW, 'SKIndexCopyTermIDArrayForDocumentID')
-export const SKIndexCopyTermStringForTermID = /* @__PURE__ */ _bind(FW, 'SKIndexCopyTermStringForTermID')
-export const SKIndexCreateWithMutableData = /* @__PURE__ */ _bind(FW, 'SKIndexCreateWithMutableData')
+export const SKIndexCopyDocumentForDocumentID = /* @__PURE__ */ _bind(
+	FW,
+	'SKIndexCopyDocumentForDocumentID',
+)
+
+export const SKIndexCopyDocumentIDArrayForTermID = /* @__PURE__ */ _bind(
+	FW,
+	'SKIndexCopyDocumentIDArrayForTermID',
+)
+
+export const SKIndexCopyDocumentProperties = /* @__PURE__ */ _bind(
+	FW,
+	'SKIndexCopyDocumentProperties',
+)
+
+export const SKIndexCopyDocumentRefsForDocumentIDs = /* @__PURE__ */ _bind(
+	FW,
+	'SKIndexCopyDocumentRefsForDocumentIDs',
+)
+
+export const SKIndexCopyDocumentURLsForDocumentIDs = /* @__PURE__ */ _bind(
+	FW,
+	'SKIndexCopyDocumentURLsForDocumentIDs',
+)
+
+export const SKIndexCopyInfoForDocumentIDs = /* @__PURE__ */ _bind(
+	FW,
+	'SKIndexCopyInfoForDocumentIDs',
+)
+
+export const SKIndexCopyTermIDArrayForDocumentID = /* @__PURE__ */ _bind(
+	FW,
+	'SKIndexCopyTermIDArrayForDocumentID',
+)
+
+export const SKIndexCopyTermStringForTermID = /* @__PURE__ */ _bind(
+	FW,
+	'SKIndexCopyTermStringForTermID',
+)
+
+export const SKIndexCreateWithMutableData = /* @__PURE__ */ _bind(
+	FW,
+	'SKIndexCreateWithMutableData',
+)
+
 export const SKIndexCreateWithURL = /* @__PURE__ */ _bind(FW, 'SKIndexCreateWithURL')
-export const SKIndexDocumentIteratorCopyNext = /* @__PURE__ */ _bind(FW, 'SKIndexDocumentIteratorCopyNext')
-export const SKIndexDocumentIteratorCreate = /* @__PURE__ */ _bind(FW, 'SKIndexDocumentIteratorCreate')
-export const SKIndexDocumentIteratorGetTypeID = /* @__PURE__ */ _bind(FW, 'SKIndexDocumentIteratorGetTypeID')
+export const SKIndexDocumentIteratorCopyNext = /* @__PURE__ */ _bind(
+	FW,
+	'SKIndexDocumentIteratorCopyNext',
+)
+
+export const SKIndexDocumentIteratorCreate = /* @__PURE__ */ _bind(
+	FW,
+	'SKIndexDocumentIteratorCreate',
+)
+
+export const SKIndexDocumentIteratorGetTypeID = /* @__PURE__ */ _bind(
+	FW,
+	'SKIndexDocumentIteratorGetTypeID',
+)
+
 export const SKIndexFlush = /* @__PURE__ */ _bind(FW, 'SKIndexFlush')
-export const SKIndexGetAnalysisProperties = /* @__PURE__ */ _bind(FW, 'SKIndexGetAnalysisProperties')
+export const SKIndexGetAnalysisProperties = /* @__PURE__ */ _bind(
+	FW,
+	'SKIndexGetAnalysisProperties',
+)
+
 export const SKIndexGetDocumentCount = /* @__PURE__ */ _bind(FW, 'SKIndexGetDocumentCount')
 export const SKIndexGetDocumentID = /* @__PURE__ */ _bind(FW, 'SKIndexGetDocumentID')
 export const SKIndexGetDocumentState = /* @__PURE__ */ _bind(FW, 'SKIndexGetDocumentState')
 export const SKIndexGetDocumentTermCount = /* @__PURE__ */ _bind(FW, 'SKIndexGetDocumentTermCount')
-export const SKIndexGetDocumentTermFrequency = /* @__PURE__ */ _bind(FW, 'SKIndexGetDocumentTermFrequency')
+export const SKIndexGetDocumentTermFrequency = /* @__PURE__ */ _bind(
+	FW,
+	'SKIndexGetDocumentTermFrequency',
+)
+
 export const SKIndexGetIndexType = /* @__PURE__ */ _bind(FW, 'SKIndexGetIndexType')
-export const SKIndexGetMaximumBytesBeforeFlush = /* @__PURE__ */ _bind(FW, 'SKIndexGetMaximumBytesBeforeFlush')
+export const SKIndexGetMaximumBytesBeforeFlush = /* @__PURE__ */ _bind(
+	FW,
+	'SKIndexGetMaximumBytesBeforeFlush',
+)
+
 export const SKIndexGetMaximumDocumentID = /* @__PURE__ */ _bind(FW, 'SKIndexGetMaximumDocumentID')
 export const SKIndexGetMaximumTermID = /* @__PURE__ */ _bind(FW, 'SKIndexGetMaximumTermID')
 export const SKIndexGetTermDocumentCount = /* @__PURE__ */ _bind(FW, 'SKIndexGetTermDocumentCount')
-export const SKIndexGetTermIDForTermString = /* @__PURE__ */ _bind(FW, 'SKIndexGetTermIDForTermString')
+export const SKIndexGetTermIDForTermString = /* @__PURE__ */ _bind(
+	FW,
+	'SKIndexGetTermIDForTermString',
+)
+
 export const SKIndexGetTypeID = /* @__PURE__ */ _bind(FW, 'SKIndexGetTypeID')
 export const SKIndexMoveDocument = /* @__PURE__ */ _bind(FW, 'SKIndexMoveDocument')
 export const SKIndexOpenWithData = /* @__PURE__ */ _bind(FW, 'SKIndexOpenWithData')
@@ -1371,10 +2039,22 @@ export const SKIndexOpenWithMutableData = /* @__PURE__ */ _bind(FW, 'SKIndexOpen
 export const SKIndexOpenWithURL = /* @__PURE__ */ _bind(FW, 'SKIndexOpenWithURL')
 export const SKIndexRemoveDocument = /* @__PURE__ */ _bind(FW, 'SKIndexRemoveDocument')
 export const SKIndexRenameDocument = /* @__PURE__ */ _bind(FW, 'SKIndexRenameDocument')
-export const SKIndexSetDocumentProperties = /* @__PURE__ */ _bind(FW, 'SKIndexSetDocumentProperties')
-export const SKIndexSetMaximumBytesBeforeFlush = /* @__PURE__ */ _bind(FW, 'SKIndexSetMaximumBytesBeforeFlush')
+export const SKIndexSetDocumentProperties = /* @__PURE__ */ _bind(
+	FW,
+	'SKIndexSetDocumentProperties',
+)
+
+export const SKIndexSetMaximumBytesBeforeFlush = /* @__PURE__ */ _bind(
+	FW,
+	'SKIndexSetMaximumBytesBeforeFlush',
+)
+
 export const SKIndexType = /* @__PURE__ */ _bind(FW, 'SKIndexType')
-export const SKLoadDefaultExtractorPlugIns = /* @__PURE__ */ _bind(FW, 'SKLoadDefaultExtractorPlugIns')
+export const SKLoadDefaultExtractorPlugIns = /* @__PURE__ */ _bind(
+	FW,
+	'SKLoadDefaultExtractorPlugIns',
+)
+
 export const SKSearchCancel = /* @__PURE__ */ _bind(FW, 'SKSearchCancel')
 export const SKSearchCreate = /* @__PURE__ */ _bind(FW, 'SKSearchCreate')
 export const SKSearchFindMatches = /* @__PURE__ */ _bind(FW, 'SKSearchFindMatches')
@@ -1382,28 +2062,72 @@ export const SKSearchGetTypeID = /* @__PURE__ */ _bind(FW, 'SKSearchGetTypeID')
 export const SKSearchGroupCopyIndexes = /* @__PURE__ */ _bind(FW, 'SKSearchGroupCopyIndexes')
 export const SKSearchGroupCreate = /* @__PURE__ */ _bind(FW, 'SKSearchGroupCreate')
 export const SKSearchGroupGetTypeID = /* @__PURE__ */ _bind(FW, 'SKSearchGroupGetTypeID')
-export const SKSearchResultsCopyMatchingTerms = /* @__PURE__ */ _bind(FW, 'SKSearchResultsCopyMatchingTerms')
-export const SKSearchResultsCreateWithDocuments = /* @__PURE__ */ _bind(FW, 'SKSearchResultsCreateWithDocuments')
-export const SKSearchResultsCreateWithQuery = /* @__PURE__ */ _bind(FW, 'SKSearchResultsCreateWithQuery')
+export const SKSearchResultsCopyMatchingTerms = /* @__PURE__ */ _bind(
+	FW,
+	'SKSearchResultsCopyMatchingTerms',
+)
+
+export const SKSearchResultsCreateWithDocuments = /* @__PURE__ */ _bind(
+	FW,
+	'SKSearchResultsCreateWithDocuments',
+)
+
+export const SKSearchResultsCreateWithQuery = /* @__PURE__ */ _bind(
+	FW,
+	'SKSearchResultsCreateWithQuery',
+)
+
 export const SKSearchResultsGetCount = /* @__PURE__ */ _bind(FW, 'SKSearchResultsGetCount')
-export const SKSearchResultsGetInfoInRange = /* @__PURE__ */ _bind(FW, 'SKSearchResultsGetInfoInRange')
+export const SKSearchResultsGetInfoInRange = /* @__PURE__ */ _bind(
+	FW,
+	'SKSearchResultsGetInfoInRange',
+)
+
 export const SKSearchResultsGetTypeID = /* @__PURE__ */ _bind(FW, 'SKSearchResultsGetTypeID')
 export const SKSearchType = /* @__PURE__ */ _bind(FW, 'SKSearchType')
-export const SKSummaryCopyParagraphAtIndex = /* @__PURE__ */ _bind(FW, 'SKSummaryCopyParagraphAtIndex')
-export const SKSummaryCopyParagraphSummaryString = /* @__PURE__ */ _bind(FW, 'SKSummaryCopyParagraphSummaryString')
-export const SKSummaryCopySentenceAtIndex = /* @__PURE__ */ _bind(FW, 'SKSummaryCopySentenceAtIndex')
-export const SKSummaryCopySentenceSummaryString = /* @__PURE__ */ _bind(FW, 'SKSummaryCopySentenceSummaryString')
+export const SKSummaryCopyParagraphAtIndex = /* @__PURE__ */ _bind(
+	FW,
+	'SKSummaryCopyParagraphAtIndex',
+)
+
+export const SKSummaryCopyParagraphSummaryString = /* @__PURE__ */ _bind(
+	FW,
+	'SKSummaryCopyParagraphSummaryString',
+)
+
+export const SKSummaryCopySentenceAtIndex = /* @__PURE__ */ _bind(
+	FW,
+	'SKSummaryCopySentenceAtIndex',
+)
+
+export const SKSummaryCopySentenceSummaryString = /* @__PURE__ */ _bind(
+	FW,
+	'SKSummaryCopySentenceSummaryString',
+)
+
 export const SKSummaryCreateWithString = /* @__PURE__ */ _bind(FW, 'SKSummaryCreateWithString')
 export const SKSummaryGetParagraphCount = /* @__PURE__ */ _bind(FW, 'SKSummaryGetParagraphCount')
-export const SKSummaryGetParagraphSummaryInfo = /* @__PURE__ */ _bind(FW, 'SKSummaryGetParagraphSummaryInfo')
+export const SKSummaryGetParagraphSummaryInfo = /* @__PURE__ */ _bind(
+	FW,
+	'SKSummaryGetParagraphSummaryInfo',
+)
+
 export const SKSummaryGetSentenceCount = /* @__PURE__ */ _bind(FW, 'SKSummaryGetSentenceCount')
-export const SKSummaryGetSentenceSummaryInfo = /* @__PURE__ */ _bind(FW, 'SKSummaryGetSentenceSummaryInfo')
+export const SKSummaryGetSentenceSummaryInfo = /* @__PURE__ */ _bind(
+	FW,
+	'SKSummaryGetSentenceSummaryInfo',
+)
+
 export const SKSummaryGetTypeID = /* @__PURE__ */ _bind(FW, 'SKSummaryGetTypeID')
 export const SchedulerInfoRec = /* @__PURE__ */ _bind(FW, 'SchedulerInfoRec')
 export const ScriptCodeRun = /* @__PURE__ */ _bind(FW, 'ScriptCodeRun')
 export const SetAliasUserType = /* @__PURE__ */ _bind(FW, 'SetAliasUserType')
 export const SetAliasUserTypeWithPtr = /* @__PURE__ */ _bind(FW, 'SetAliasUserTypeWithPtr')
-export const SetCollectionDefaultAttributes = /* @__PURE__ */ _bind(FW, 'SetCollectionDefaultAttributes')
+export const SetCollectionDefaultAttributes = /* @__PURE__ */ _bind(
+	FW,
+	'SetCollectionDefaultAttributes',
+)
+
 export const SetCollectionExceptionProc = /* @__PURE__ */ _bind(FW, 'SetCollectionExceptionProc')
 export const SetCollectionItemInfo = /* @__PURE__ */ _bind(FW, 'SetCollectionItemInfo')
 export const SetComponentInstanceError = /* @__PURE__ */ _bind(FW, 'SetComponentInstanceError')
@@ -1411,13 +2135,21 @@ export const SetComponentInstanceStorage = /* @__PURE__ */ _bind(FW, 'SetCompone
 export const SetComponentRefcon = /* @__PURE__ */ _bind(FW, 'SetComponentRefcon')
 export const SetCustomIconsEnabled = /* @__PURE__ */ _bind(FW, 'SetCustomIconsEnabled')
 export const SetDebugOptionValue = /* @__PURE__ */ _bind(FW, 'SetDebugOptionValue')
-export const SetDebuggerNotificationProcs = /* @__PURE__ */ _bind(FW, 'SetDebuggerNotificationProcs')
+export const SetDebuggerNotificationProcs = /* @__PURE__ */ _bind(
+	FW,
+	'SetDebuggerNotificationProcs',
+)
+
 export const SetDefaultComponent = /* @__PURE__ */ _bind(FW, 'SetDefaultComponent')
 export const SetFallbackUnicodeToText = /* @__PURE__ */ _bind(FW, 'SetFallbackUnicodeToText')
 export const SetFallbackUnicodeToTextRun = /* @__PURE__ */ _bind(FW, 'SetFallbackUnicodeToTextRun')
 export const SetGestaltValue = /* @__PURE__ */ _bind(FW, 'SetGestaltValue')
 export const SetHandleSize = /* @__PURE__ */ _bind(FW, 'SetHandleSize')
-export const SetIndexedCollectionItemInfo = /* @__PURE__ */ _bind(FW, 'SetIndexedCollectionItemInfo')
+export const SetIndexedCollectionItemInfo = /* @__PURE__ */ _bind(
+	FW,
+	'SetIndexedCollectionItemInfo',
+)
+
 export const SetPtrSize = /* @__PURE__ */ _bind(FW, 'SetPtrSize')
 export const SetResAttrs = /* @__PURE__ */ _bind(FW, 'SetResAttrs')
 export const SetResFileAttrs = /* @__PURE__ */ _bind(FW, 'SetResFileAttrs')
@@ -1443,17 +2175,41 @@ export const SubDurationFromAbsolute = /* @__PURE__ */ _bind(FW, 'SubDurationFro
 export const SubNanosecondsFromAbsolute = /* @__PURE__ */ _bind(FW, 'SubNanosecondsFromAbsolute')
 export const SysError = /* @__PURE__ */ _bind(FW, 'SysError')
 export const TECBufferContextRec = /* @__PURE__ */ _bind(FW, 'TECBufferContextRec')
-export const TECClearConverterContextInfo = /* @__PURE__ */ _bind(FW, 'TECClearConverterContextInfo')
+export const TECClearConverterContextInfo = /* @__PURE__ */ _bind(
+	FW,
+	'TECClearConverterContextInfo',
+)
+
 export const TECClearSnifferContextInfo = /* @__PURE__ */ _bind(FW, 'TECClearSnifferContextInfo')
 export const TECConversionInfo = /* @__PURE__ */ _bind(FW, 'TECConversionInfo')
 export const TECConvertText = /* @__PURE__ */ _bind(FW, 'TECConvertText')
-export const TECConvertTextToMultipleEncodings = /* @__PURE__ */ _bind(FW, 'TECConvertTextToMultipleEncodings')
+export const TECConvertTextToMultipleEncodings = /* @__PURE__ */ _bind(
+	FW,
+	'TECConvertTextToMultipleEncodings',
+)
+
 export const TECConverterContextRec = /* @__PURE__ */ _bind(FW, 'TECConverterContextRec')
-export const TECCopyTextEncodingInternetNameAndMIB = /* @__PURE__ */ _bind(FW, 'TECCopyTextEncodingInternetNameAndMIB')
+export const TECCopyTextEncodingInternetNameAndMIB = /* @__PURE__ */ _bind(
+	FW,
+	'TECCopyTextEncodingInternetNameAndMIB',
+)
+
 export const TECCountAvailableSniffers = /* @__PURE__ */ _bind(FW, 'TECCountAvailableSniffers')
-export const TECCountAvailableTextEncodings = /* @__PURE__ */ _bind(FW, 'TECCountAvailableTextEncodings')
-export const TECCountDestinationTextEncodings = /* @__PURE__ */ _bind(FW, 'TECCountDestinationTextEncodings')
-export const TECCountDirectTextEncodingConversions = /* @__PURE__ */ _bind(FW, 'TECCountDirectTextEncodingConversions')
+export const TECCountAvailableTextEncodings = /* @__PURE__ */ _bind(
+	FW,
+	'TECCountAvailableTextEncodings',
+)
+
+export const TECCountDestinationTextEncodings = /* @__PURE__ */ _bind(
+	FW,
+	'TECCountDestinationTextEncodings',
+)
+
+export const TECCountDirectTextEncodingConversions = /* @__PURE__ */ _bind(
+	FW,
+	'TECCountDirectTextEncodingConversions',
+)
+
 export const TECCountMailTextEncodings = /* @__PURE__ */ _bind(FW, 'TECCountMailTextEncodings')
 export const TECCountSubTextEncodings = /* @__PURE__ */ _bind(FW, 'TECCountSubTextEncodings')
 export const TECCountWebTextEncodings = /* @__PURE__ */ _bind(FW, 'TECCountWebTextEncodings')
@@ -1470,21 +2226,49 @@ export const TECEncodingsListRec = /* @__PURE__ */ _bind(FW, 'TECEncodingsListRe
 export const TECFlushMultipleEncodings = /* @__PURE__ */ _bind(FW, 'TECFlushMultipleEncodings')
 export const TECFlushText = /* @__PURE__ */ _bind(FW, 'TECFlushText')
 export const TECGetAvailableSniffers = /* @__PURE__ */ _bind(FW, 'TECGetAvailableSniffers')
-export const TECGetAvailableTextEncodings = /* @__PURE__ */ _bind(FW, 'TECGetAvailableTextEncodings')
-export const TECGetDestinationTextEncodings = /* @__PURE__ */ _bind(FW, 'TECGetDestinationTextEncodings')
-export const TECGetDirectTextEncodingConversions = /* @__PURE__ */ _bind(FW, 'TECGetDirectTextEncodingConversions')
+export const TECGetAvailableTextEncodings = /* @__PURE__ */ _bind(
+	FW,
+	'TECGetAvailableTextEncodings',
+)
+
+export const TECGetDestinationTextEncodings = /* @__PURE__ */ _bind(
+	FW,
+	'TECGetDestinationTextEncodings',
+)
+
+export const TECGetDirectTextEncodingConversions = /* @__PURE__ */ _bind(
+	FW,
+	'TECGetDirectTextEncodingConversions',
+)
+
 export const TECGetEncodingList = /* @__PURE__ */ _bind(FW, 'TECGetEncodingList')
 export const TECGetInfo = /* @__PURE__ */ _bind(FW, 'TECGetInfo')
 export const TECGetMailTextEncodings = /* @__PURE__ */ _bind(FW, 'TECGetMailTextEncodings')
 export const TECGetSubTextEncodings = /* @__PURE__ */ _bind(FW, 'TECGetSubTextEncodings')
-export const TECGetTextEncodingFromInternetName = /* @__PURE__ */ _bind(FW, 'TECGetTextEncodingFromInternetName')
-export const TECGetTextEncodingFromInternetNameOrMIB = /* @__PURE__ */ _bind(FW, 'TECGetTextEncodingFromInternetNameOrMIB')
-export const TECGetTextEncodingInternetName = /* @__PURE__ */ _bind(FW, 'TECGetTextEncodingInternetName')
+export const TECGetTextEncodingFromInternetName = /* @__PURE__ */ _bind(
+	FW,
+	'TECGetTextEncodingFromInternetName',
+)
+
+export const TECGetTextEncodingFromInternetNameOrMIB = /* @__PURE__ */ _bind(
+	FW,
+	'TECGetTextEncodingFromInternetNameOrMIB',
+)
+
+export const TECGetTextEncodingInternetName = /* @__PURE__ */ _bind(
+	FW,
+	'TECGetTextEncodingInternetName',
+)
+
 export const TECGetWebTextEncodings = /* @__PURE__ */ _bind(FW, 'TECGetWebTextEncodings')
 export const TECInfo = /* @__PURE__ */ _bind(FW, 'TECInfo')
 export const TECInternetNameRec = /* @__PURE__ */ _bind(FW, 'TECInternetNameRec')
 export const TECInternetNamesRec = /* @__PURE__ */ _bind(FW, 'TECInternetNamesRec')
-export const TECLocaleListToEncodingListRec = /* @__PURE__ */ _bind(FW, 'TECLocaleListToEncodingListRec')
+export const TECLocaleListToEncodingListRec = /* @__PURE__ */ _bind(
+	FW,
+	'TECLocaleListToEncodingListRec',
+)
+
 export const TECLocaleToEncodingsListRec = /* @__PURE__ */ _bind(FW, 'TECLocaleToEncodingsListRec')
 export const TECPluginDispatchTable = /* @__PURE__ */ _bind(FW, 'TECPluginDispatchTable')
 export const TECPluginStateRec = /* @__PURE__ */ _bind(FW, 'TECPluginStateRec')
@@ -1519,12 +2303,36 @@ export const UCCompareCollationKeys = /* @__PURE__ */ _bind(FW, 'UCCompareCollat
 export const UCCompareText = /* @__PURE__ */ _bind(FW, 'UCCompareText')
 export const UCCompareTextDefault = /* @__PURE__ */ _bind(FW, 'UCCompareTextDefault')
 export const UCCompareTextNoLocale = /* @__PURE__ */ _bind(FW, 'UCCompareTextNoLocale')
-export const UCConvertCFAbsoluteTimeToLongDateTime = /* @__PURE__ */ _bind(FW, 'UCConvertCFAbsoluteTimeToLongDateTime')
-export const UCConvertCFAbsoluteTimeToSeconds = /* @__PURE__ */ _bind(FW, 'UCConvertCFAbsoluteTimeToSeconds')
-export const UCConvertCFAbsoluteTimeToUTCDateTime = /* @__PURE__ */ _bind(FW, 'UCConvertCFAbsoluteTimeToUTCDateTime')
-export const UCConvertLongDateTimeToCFAbsoluteTime = /* @__PURE__ */ _bind(FW, 'UCConvertLongDateTimeToCFAbsoluteTime')
-export const UCConvertSecondsToCFAbsoluteTime = /* @__PURE__ */ _bind(FW, 'UCConvertSecondsToCFAbsoluteTime')
-export const UCConvertUTCDateTimeToCFAbsoluteTime = /* @__PURE__ */ _bind(FW, 'UCConvertUTCDateTimeToCFAbsoluteTime')
+export const UCConvertCFAbsoluteTimeToLongDateTime = /* @__PURE__ */ _bind(
+	FW,
+	'UCConvertCFAbsoluteTimeToLongDateTime',
+)
+
+export const UCConvertCFAbsoluteTimeToSeconds = /* @__PURE__ */ _bind(
+	FW,
+	'UCConvertCFAbsoluteTimeToSeconds',
+)
+
+export const UCConvertCFAbsoluteTimeToUTCDateTime = /* @__PURE__ */ _bind(
+	FW,
+	'UCConvertCFAbsoluteTimeToUTCDateTime',
+)
+
+export const UCConvertLongDateTimeToCFAbsoluteTime = /* @__PURE__ */ _bind(
+	FW,
+	'UCConvertLongDateTimeToCFAbsoluteTime',
+)
+
+export const UCConvertSecondsToCFAbsoluteTime = /* @__PURE__ */ _bind(
+	FW,
+	'UCConvertSecondsToCFAbsoluteTime',
+)
+
+export const UCConvertUTCDateTimeToCFAbsoluteTime = /* @__PURE__ */ _bind(
+	FW,
+	'UCConvertUTCDateTimeToCFAbsoluteTime',
+)
+
 export const UCCreateCollator = /* @__PURE__ */ _bind(FW, 'UCCreateCollator')
 export const UCCreateTextBreakLocator = /* @__PURE__ */ _bind(FW, 'UCCreateTextBreakLocator')
 export const UCDisposeCollator = /* @__PURE__ */ _bind(FW, 'UCDisposeCollator')
@@ -1544,14 +2352,26 @@ export const UCKeyToCharTableIndex = /* @__PURE__ */ _bind(FW, 'UCKeyToCharTable
 export const UCKeyTranslate = /* @__PURE__ */ _bind(FW, 'UCKeyTranslate')
 export const UCKeyboardLayout = /* @__PURE__ */ _bind(FW, 'UCKeyboardLayout')
 export const UCKeyboardTypeHeader = /* @__PURE__ */ _bind(FW, 'UCKeyboardTypeHeader')
-export const UCTypeSelectAddKeyToSelector = /* @__PURE__ */ _bind(FW, 'UCTypeSelectAddKeyToSelector')
+export const UCTypeSelectAddKeyToSelector = /* @__PURE__ */ _bind(
+	FW,
+	'UCTypeSelectAddKeyToSelector',
+)
+
 export const UCTypeSelectCompare = /* @__PURE__ */ _bind(FW, 'UCTypeSelectCompare')
 export const UCTypeSelectCreateSelector = /* @__PURE__ */ _bind(FW, 'UCTypeSelectCreateSelector')
 export const UCTypeSelectFindItem = /* @__PURE__ */ _bind(FW, 'UCTypeSelectFindItem')
-export const UCTypeSelectFlushSelectorData = /* @__PURE__ */ _bind(FW, 'UCTypeSelectFlushSelectorData')
+export const UCTypeSelectFlushSelectorData = /* @__PURE__ */ _bind(
+	FW,
+	'UCTypeSelectFlushSelectorData',
+)
+
 export const UCTypeSelectReleaseSelector = /* @__PURE__ */ _bind(FW, 'UCTypeSelectReleaseSelector')
 export const UCTypeSelectWalkList = /* @__PURE__ */ _bind(FW, 'UCTypeSelectWalkList')
-export const UCTypeSelectWouldResetBuffer = /* @__PURE__ */ _bind(FW, 'UCTypeSelectWouldResetBuffer')
+export const UCTypeSelectWouldResetBuffer = /* @__PURE__ */ _bind(
+	FW,
+	'UCTypeSelectWouldResetBuffer',
+)
+
 export const UNORDERED = /* @__PURE__ */ _bind(FW, 'UNORDERED')
 export const UTCDateTime = /* @__PURE__ */ _bind(FW, 'UTCDateTime')
 export const UTCreateStringForOSType = /* @__PURE__ */ _bind(FW, 'UTCreateStringForOSType')
@@ -1559,11 +2379,27 @@ export const UTGetOSTypeFromString = /* @__PURE__ */ _bind(FW, 'UTGetOSTypeFromS
 export const UTTypeConformsTo = /* @__PURE__ */ _bind(FW, 'UTTypeConformsTo')
 export const UTTypeCopyAllTagsWithClass = /* @__PURE__ */ _bind(FW, 'UTTypeCopyAllTagsWithClass')
 export const UTTypeCopyDeclaration = /* @__PURE__ */ _bind(FW, 'UTTypeCopyDeclaration')
-export const UTTypeCopyDeclaringBundleURL = /* @__PURE__ */ _bind(FW, 'UTTypeCopyDeclaringBundleURL')
+export const UTTypeCopyDeclaringBundleURL = /* @__PURE__ */ _bind(
+	FW,
+	'UTTypeCopyDeclaringBundleURL',
+)
+
 export const UTTypeCopyDescription = /* @__PURE__ */ _bind(FW, 'UTTypeCopyDescription')
-export const UTTypeCopyPreferredTagWithClass = /* @__PURE__ */ _bind(FW, 'UTTypeCopyPreferredTagWithClass')
-export const UTTypeCreateAllIdentifiersForTag = /* @__PURE__ */ _bind(FW, 'UTTypeCreateAllIdentifiersForTag')
-export const UTTypeCreatePreferredIdentifierForTag = /* @__PURE__ */ _bind(FW, 'UTTypeCreatePreferredIdentifierForTag')
+export const UTTypeCopyPreferredTagWithClass = /* @__PURE__ */ _bind(
+	FW,
+	'UTTypeCopyPreferredTagWithClass',
+)
+
+export const UTTypeCreateAllIdentifiersForTag = /* @__PURE__ */ _bind(
+	FW,
+	'UTTypeCreateAllIdentifiersForTag',
+)
+
+export const UTTypeCreatePreferredIdentifierForTag = /* @__PURE__ */ _bind(
+	FW,
+	'UTTypeCreatePreferredIdentifierForTag',
+)
+
 export const UTTypeEqual = /* @__PURE__ */ _bind(FW, 'UTTypeEqual')
 export const UTTypeIsDeclared = /* @__PURE__ */ _bind(FW, 'UTTypeIsDeclared')
 export const UTTypeIsDynamic = /* @__PURE__ */ _bind(FW, 'UTTypeIsDynamic')
@@ -1581,7 +2417,11 @@ export const UpTime = /* @__PURE__ */ _bind(FW, 'UpTime')
 export const UpdateIconRef = /* @__PURE__ */ _bind(FW, 'UpdateIconRef')
 export const UpdateResFile = /* @__PURE__ */ _bind(FW, 'UpdateResFile')
 export const UpdateSystemActivity = /* @__PURE__ */ _bind(FW, 'UpdateSystemActivity')
-export const UpgradeScriptInfoToTextEncoding = /* @__PURE__ */ _bind(FW, 'UpgradeScriptInfoToTextEncoding')
+export const UpgradeScriptInfoToTextEncoding = /* @__PURE__ */ _bind(
+	FW,
+	'UpgradeScriptInfoToTextEncoding',
+)
+
 export const UseResFile = /* @__PURE__ */ _bind(FW, 'UseResFile')
 export const UsrActivity = /* @__PURE__ */ _bind(FW, 'UsrActivity')
 export const Vector128 = /* @__PURE__ */ _bind(FW, 'Vector128')
@@ -1593,32 +2433,112 @@ export const WDEFNFnd = /* @__PURE__ */ _bind(FW, 'WDEFNFnd')
 export const WSClientContext = /* @__PURE__ */ _bind(FW, 'WSClientContext')
 export const WSGetCFTypeIDFromWSTypeID = /* @__PURE__ */ _bind(FW, 'WSGetCFTypeIDFromWSTypeID')
 export const WSGetWSTypeIDFromCFType = /* @__PURE__ */ _bind(FW, 'WSGetWSTypeIDFromCFType')
-export const WSMethodInvocationAddDeserializationOverride = /* @__PURE__ */ _bind(FW, 'WSMethodInvocationAddDeserializationOverride')
-export const WSMethodInvocationAddSerializationOverride = /* @__PURE__ */ _bind(FW, 'WSMethodInvocationAddSerializationOverride')
-export const WSMethodInvocationCopyParameters = /* @__PURE__ */ _bind(FW, 'WSMethodInvocationCopyParameters')
-export const WSMethodInvocationCopyProperty = /* @__PURE__ */ _bind(FW, 'WSMethodInvocationCopyProperty')
-export const WSMethodInvocationCopySerialization = /* @__PURE__ */ _bind(FW, 'WSMethodInvocationCopySerialization')
+export const WSMethodInvocationAddDeserializationOverride = /* @__PURE__ */ _bind(
+	FW,
+	'WSMethodInvocationAddDeserializationOverride',
+)
+
+export const WSMethodInvocationAddSerializationOverride = /* @__PURE__ */ _bind(
+	FW,
+	'WSMethodInvocationAddSerializationOverride',
+)
+
+export const WSMethodInvocationCopyParameters = /* @__PURE__ */ _bind(
+	FW,
+	'WSMethodInvocationCopyParameters',
+)
+
+export const WSMethodInvocationCopyProperty = /* @__PURE__ */ _bind(
+	FW,
+	'WSMethodInvocationCopyProperty',
+)
+
+export const WSMethodInvocationCopySerialization = /* @__PURE__ */ _bind(
+	FW,
+	'WSMethodInvocationCopySerialization',
+)
+
 export const WSMethodInvocationCreate = /* @__PURE__ */ _bind(FW, 'WSMethodInvocationCreate')
-export const WSMethodInvocationCreateFromSerialization = /* @__PURE__ */ _bind(FW, 'WSMethodInvocationCreateFromSerialization')
+export const WSMethodInvocationCreateFromSerialization = /* @__PURE__ */ _bind(
+	FW,
+	'WSMethodInvocationCreateFromSerialization',
+)
+
 export const WSMethodInvocationGetTypeID = /* @__PURE__ */ _bind(FW, 'WSMethodInvocationGetTypeID')
 export const WSMethodInvocationInvoke = /* @__PURE__ */ _bind(FW, 'WSMethodInvocationInvoke')
-export const WSMethodInvocationScheduleWithRunLoop = /* @__PURE__ */ _bind(FW, 'WSMethodInvocationScheduleWithRunLoop')
-export const WSMethodInvocationSetCallBack = /* @__PURE__ */ _bind(FW, 'WSMethodInvocationSetCallBack')
-export const WSMethodInvocationSetParameters = /* @__PURE__ */ _bind(FW, 'WSMethodInvocationSetParameters')
-export const WSMethodInvocationSetProperty = /* @__PURE__ */ _bind(FW, 'WSMethodInvocationSetProperty')
-export const WSMethodInvocationUnscheduleFromRunLoop = /* @__PURE__ */ _bind(FW, 'WSMethodInvocationUnscheduleFromRunLoop')
+export const WSMethodInvocationScheduleWithRunLoop = /* @__PURE__ */ _bind(
+	FW,
+	'WSMethodInvocationScheduleWithRunLoop',
+)
+
+export const WSMethodInvocationSetCallBack = /* @__PURE__ */ _bind(
+	FW,
+	'WSMethodInvocationSetCallBack',
+)
+
+export const WSMethodInvocationSetParameters = /* @__PURE__ */ _bind(
+	FW,
+	'WSMethodInvocationSetParameters',
+)
+
+export const WSMethodInvocationSetProperty = /* @__PURE__ */ _bind(
+	FW,
+	'WSMethodInvocationSetProperty',
+)
+
+export const WSMethodInvocationUnscheduleFromRunLoop = /* @__PURE__ */ _bind(
+	FW,
+	'WSMethodInvocationUnscheduleFromRunLoop',
+)
+
 export const WSMethodResultIsFault = /* @__PURE__ */ _bind(FW, 'WSMethodResultIsFault')
-export const WSProtocolHandlerCopyFaultDocument = /* @__PURE__ */ _bind(FW, 'WSProtocolHandlerCopyFaultDocument')
-export const WSProtocolHandlerCopyProperty = /* @__PURE__ */ _bind(FW, 'WSProtocolHandlerCopyProperty')
-export const WSProtocolHandlerCopyReplyDictionary = /* @__PURE__ */ _bind(FW, 'WSProtocolHandlerCopyReplyDictionary')
-export const WSProtocolHandlerCopyReplyDocument = /* @__PURE__ */ _bind(FW, 'WSProtocolHandlerCopyReplyDocument')
-export const WSProtocolHandlerCopyRequestDictionary = /* @__PURE__ */ _bind(FW, 'WSProtocolHandlerCopyRequestDictionary')
-export const WSProtocolHandlerCopyRequestDocument = /* @__PURE__ */ _bind(FW, 'WSProtocolHandlerCopyRequestDocument')
+export const WSProtocolHandlerCopyFaultDocument = /* @__PURE__ */ _bind(
+	FW,
+	'WSProtocolHandlerCopyFaultDocument',
+)
+
+export const WSProtocolHandlerCopyProperty = /* @__PURE__ */ _bind(
+	FW,
+	'WSProtocolHandlerCopyProperty',
+)
+
+export const WSProtocolHandlerCopyReplyDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'WSProtocolHandlerCopyReplyDictionary',
+)
+
+export const WSProtocolHandlerCopyReplyDocument = /* @__PURE__ */ _bind(
+	FW,
+	'WSProtocolHandlerCopyReplyDocument',
+)
+
+export const WSProtocolHandlerCopyRequestDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'WSProtocolHandlerCopyRequestDictionary',
+)
+
+export const WSProtocolHandlerCopyRequestDocument = /* @__PURE__ */ _bind(
+	FW,
+	'WSProtocolHandlerCopyRequestDocument',
+)
+
 export const WSProtocolHandlerCreate = /* @__PURE__ */ _bind(FW, 'WSProtocolHandlerCreate')
 export const WSProtocolHandlerGetTypeID = /* @__PURE__ */ _bind(FW, 'WSProtocolHandlerGetTypeID')
-export const WSProtocolHandlerSetDeserializationOverride = /* @__PURE__ */ _bind(FW, 'WSProtocolHandlerSetDeserializationOverride')
-export const WSProtocolHandlerSetProperty = /* @__PURE__ */ _bind(FW, 'WSProtocolHandlerSetProperty')
-export const WSProtocolHandlerSetSerializationOverride = /* @__PURE__ */ _bind(FW, 'WSProtocolHandlerSetSerializationOverride')
+export const WSProtocolHandlerSetDeserializationOverride = /* @__PURE__ */ _bind(
+	FW,
+	'WSProtocolHandlerSetDeserializationOverride',
+)
+
+export const WSProtocolHandlerSetProperty = /* @__PURE__ */ _bind(
+	FW,
+	'WSProtocolHandlerSetProperty',
+)
+
+export const WSProtocolHandlerSetSerializationOverride = /* @__PURE__ */ _bind(
+	FW,
+	'WSProtocolHandlerSetSerializationOverride',
+)
+
 export const WSTypeID = /* @__PURE__ */ _bind(FW, 'WSTypeID')
 export const WideAdd = /* @__PURE__ */ _bind(FW, 'WideAdd')
 export const WideBitShift = /* @__PURE__ */ _bind(FW, 'WideBitShift')
@@ -1653,7 +2573,11 @@ export const __FSEventStream = /* @__PURE__ */ _bind(FW, '__FSEventStream')
 export const __FSFileOperation = /* @__PURE__ */ _bind(FW, '__FSFileOperation')
 export const __FSFileSecurity = /* @__PURE__ */ _bind(FW, '__FSFileSecurity')
 export const __MDItem = /* @__PURE__ */ _bind(FW, '__MDItem')
-export const __MDItemCopyAttributesEllipsis1 = /* @__PURE__ */ _bind(FW, '__MDItemCopyAttributesEllipsis1')
+export const __MDItemCopyAttributesEllipsis1 = /* @__PURE__ */ _bind(
+	FW,
+	'__MDItemCopyAttributesEllipsis1',
+)
+
 export const __MDLabel = /* @__PURE__ */ _bind(FW, '__MDLabel')
 export const __MDQuery = /* @__PURE__ */ _bind(FW, '__MDQuery')
 export const __SKIndex = /* @__PURE__ */ _bind(FW, '__SKIndex')
@@ -1688,7 +2612,11 @@ export const aeBuildSyntaxNoEOF = /* @__PURE__ */ _bind(FW, 'aeBuildSyntaxNoEOF'
 export const aeBuildSyntaxNoErr = /* @__PURE__ */ _bind(FW, 'aeBuildSyntaxNoErr')
 export const aeBuildSyntaxNoKey = /* @__PURE__ */ _bind(FW, 'aeBuildSyntaxNoKey')
 export const aeBuildSyntaxOddHex = /* @__PURE__ */ _bind(FW, 'aeBuildSyntaxOddHex')
-export const aeBuildSyntaxUncoercedDoubleAt = /* @__PURE__ */ _bind(FW, 'aeBuildSyntaxUncoercedDoubleAt')
+export const aeBuildSyntaxUncoercedDoubleAt = /* @__PURE__ */ _bind(
+	FW,
+	'aeBuildSyntaxUncoercedDoubleAt',
+)
+
 export const aeBuildSyntaxUncoercedHex = /* @__PURE__ */ _bind(FW, 'aeBuildSyntaxUncoercedHex')
 export const afpAccessDenied = /* @__PURE__ */ _bind(FW, 'afpAccessDenied')
 export const afpAlreadyLoggedInErr = /* @__PURE__ */ _bind(FW, 'afpAlreadyLoggedInErr')
@@ -1770,7 +2698,11 @@ export const atomsNotOfSameTypeErr = /* @__PURE__ */ _bind(FW, 'atomsNotOfSameTy
 export const atpBadRsp = /* @__PURE__ */ _bind(FW, 'atpBadRsp')
 export const atpLenErr = /* @__PURE__ */ _bind(FW, 'atpLenErr')
 export const authFailErr = /* @__PURE__ */ _bind(FW, 'authFailErr')
-export const auxiliaryExportDataUnavailable = /* @__PURE__ */ _bind(FW, 'auxiliaryExportDataUnavailable')
+export const auxiliaryExportDataUnavailable = /* @__PURE__ */ _bind(
+	FW,
+	'auxiliaryExportDataUnavailable',
+)
+
 export const bAccessCntl = /* @__PURE__ */ _bind(FW, 'bAccessCntl')
 export const bAllowCDiDataHandler = /* @__PURE__ */ _bind(FW, 'bAllowCDiDataHandler')
 export const bAncestorModDateChanges = /* @__PURE__ */ _bind(FW, 'bAncestorModDateChanges')
@@ -1786,7 +2718,11 @@ export const bHasFileIDs = /* @__PURE__ */ _bind(FW, 'bHasFileIDs')
 export const bHasFolderLock = /* @__PURE__ */ _bind(FW, 'bHasFolderLock')
 export const bHasMoveRename = /* @__PURE__ */ _bind(FW, 'bHasMoveRename')
 export const bHasOpenDeny = /* @__PURE__ */ _bind(FW, 'bHasOpenDeny')
-export const bHasPersonalAccessPrivileges = /* @__PURE__ */ _bind(FW, 'bHasPersonalAccessPrivileges')
+export const bHasPersonalAccessPrivileges = /* @__PURE__ */ _bind(
+	FW,
+	'bHasPersonalAccessPrivileges',
+)
+
 export const bHasShortName = /* @__PURE__ */ _bind(FW, 'bHasShortName')
 export const bHasUserGroupList = /* @__PURE__ */ _bind(FW, 'bHasUserGroupList')
 export const bIsAutoMounted = /* @__PURE__ */ _bind(FW, 'bIsAutoMounted')
@@ -1812,7 +2748,11 @@ export const bParentModDateChanges = /* @__PURE__ */ _bind(FW, 'bParentModDateCh
 export const bSupports2TBFiles = /* @__PURE__ */ _bind(FW, 'bSupports2TBFiles')
 export const bSupportsAsyncRequests = /* @__PURE__ */ _bind(FW, 'bSupportsAsyncRequests')
 export const bSupportsExclusiveLocks = /* @__PURE__ */ _bind(FW, 'bSupportsExclusiveLocks')
-export const bSupportsExtendedFileSecurity = /* @__PURE__ */ _bind(FW, 'bSupportsExtendedFileSecurity')
+export const bSupportsExtendedFileSecurity = /* @__PURE__ */ _bind(
+	FW,
+	'bSupportsExtendedFileSecurity',
+)
+
 export const bSupportsFSCatalogSearch = /* @__PURE__ */ _bind(FW, 'bSupportsFSCatalogSearch')
 export const bSupportsFSExchangeObjects = /* @__PURE__ */ _bind(FW, 'bSupportsFSExchangeObjects')
 export const bSupportsHFSPlusAPIs = /* @__PURE__ */ _bind(FW, 'bSupportsHFSPlusAPIs')
@@ -1988,8 +2928,16 @@ export const cannotBeLeafAtomErr = /* @__PURE__ */ _bind(FW, 'cannotBeLeafAtomEr
 export const cannotDeferErr = /* @__PURE__ */ _bind(FW, 'cannotDeferErr')
 export const cannotFindAtomErr = /* @__PURE__ */ _bind(FW, 'cannotFindAtomErr')
 export const cannotMakeContiguousErr = /* @__PURE__ */ _bind(FW, 'cannotMakeContiguousErr')
-export const cannotMoveAttachedController = /* @__PURE__ */ _bind(FW, 'cannotMoveAttachedController')
-export const cannotSetWidthOfAttachedController = /* @__PURE__ */ _bind(FW, 'cannotSetWidthOfAttachedController')
+export const cannotMoveAttachedController = /* @__PURE__ */ _bind(
+	FW,
+	'cannotMoveAttachedController',
+)
+
+export const cannotSetWidthOfAttachedController = /* @__PURE__ */ _bind(
+	FW,
+	'cannotSetWidthOfAttachedController',
+)
+
 export const cantCreatePickerWindow = /* @__PURE__ */ _bind(FW, 'cantCreatePickerWindow')
 export const cantCreateSingleForkFile = /* @__PURE__ */ _bind(FW, 'cantCreateSingleForkFile')
 export const cantDoThatInCurrentMode = /* @__PURE__ */ _bind(FW, 'cantDoThatInCurrentMode')
@@ -2002,7 +2950,11 @@ export const cantLoadPicker = /* @__PURE__ */ _bind(FW, 'cantLoadPicker')
 export const cantOpenHandler = /* @__PURE__ */ _bind(FW, 'cantOpenHandler')
 export const cantPutPublicMovieAtom = /* @__PURE__ */ _bind(FW, 'cantPutPublicMovieAtom')
 export const cantReadUtilities = /* @__PURE__ */ _bind(FW, 'cantReadUtilities')
-export const cantReceiveFromSynthesizerOSErr = /* @__PURE__ */ _bind(FW, 'cantReceiveFromSynthesizerOSErr')
+export const cantReceiveFromSynthesizerOSErr = /* @__PURE__ */ _bind(
+	FW,
+	'cantReceiveFromSynthesizerOSErr',
+)
+
 export const cantSendToSynthesizerOSErr = /* @__PURE__ */ _bind(FW, 'cantSendToSynthesizerOSErr')
 export const cantStepErr = /* @__PURE__ */ _bind(FW, 'cantStepErr')
 export const catChangedErr = /* @__PURE__ */ _bind(FW, 'catChangedErr')
@@ -2115,7 +3067,11 @@ export const codecNeedToFlushChainErr = /* @__PURE__ */ _bind(FW, 'codecNeedToFl
 export const codecNoMemoryPleaseWaitErr = /* @__PURE__ */ _bind(FW, 'codecNoMemoryPleaseWaitErr')
 export const codecNothingToBlitErr = /* @__PURE__ */ _bind(FW, 'codecNothingToBlitErr')
 export const codecOffscreenFailedErr = /* @__PURE__ */ _bind(FW, 'codecOffscreenFailedErr')
-export const codecOffscreenFailedPleaseRetryErr = /* @__PURE__ */ _bind(FW, 'codecOffscreenFailedPleaseRetryErr')
+export const codecOffscreenFailedPleaseRetryErr = /* @__PURE__ */ _bind(
+	FW,
+	'codecOffscreenFailedPleaseRetryErr',
+)
+
 export const codecOpenErr = /* @__PURE__ */ _bind(FW, 'codecOpenErr')
 export const codecParameterDialogConfirm = /* @__PURE__ */ _bind(FW, 'codecParameterDialogConfirm')
 export const codecScreenBufErr = /* @__PURE__ */ _bind(FW, 'codecScreenBufErr')
@@ -2129,12 +3085,24 @@ export const collectionItemNotFoundErr = /* @__PURE__ */ _bind(FW, 'collectionIt
 export const collectionVersionErr = /* @__PURE__ */ _bind(FW, 'collectionVersionErr')
 export const colorSyncNotInstalled = /* @__PURE__ */ _bind(FW, 'colorSyncNotInstalled')
 export const colorsRequestedErr = /* @__PURE__ */ _bind(FW, 'colorsRequestedErr')
-export const componentAutoVersionIncludeFlags = /* @__PURE__ */ _bind(FW, 'componentAutoVersionIncludeFlags')
-export const componentDllEntryNotFoundErr = /* @__PURE__ */ _bind(FW, 'componentDllEntryNotFoundErr')
+export const componentAutoVersionIncludeFlags = /* @__PURE__ */ _bind(
+	FW,
+	'componentAutoVersionIncludeFlags',
+)
+
+export const componentDllEntryNotFoundErr = /* @__PURE__ */ _bind(
+	FW,
+	'componentDllEntryNotFoundErr',
+)
+
 export const componentDllLoadErr = /* @__PURE__ */ _bind(FW, 'componentDllLoadErr')
 export const componentDoAutoVersion = /* @__PURE__ */ _bind(FW, 'componentDoAutoVersion')
 export const componentDontRegister = /* @__PURE__ */ _bind(FW, 'componentDontRegister')
-export const componentHasMultiplePlatforms = /* @__PURE__ */ _bind(FW, 'componentHasMultiplePlatforms')
+export const componentHasMultiplePlatforms = /* @__PURE__ */ _bind(
+	FW,
+	'componentHasMultiplePlatforms',
+)
+
 export const componentLoadResident = /* @__PURE__ */ _bind(FW, 'componentLoadResident')
 export const componentNotCaptured = /* @__PURE__ */ _bind(FW, 'componentNotCaptured')
 export const componentNotThreadSafeErr = /* @__PURE__ */ _bind(FW, 'componentNotThreadSafeErr')
@@ -2146,8 +3114,16 @@ export const containerAlreadyOpenWrn = /* @__PURE__ */ _bind(FW, 'containerAlrea
 export const containerNotFoundWrn = /* @__PURE__ */ _bind(FW, 'containerNotFoundWrn')
 export const controlErr = /* @__PURE__ */ _bind(FW, 'controlErr')
 export const controlHandleInvalidErr = /* @__PURE__ */ _bind(FW, 'controlHandleInvalidErr')
-export const controlInvalidDataVersionErr = /* @__PURE__ */ _bind(FW, 'controlInvalidDataVersionErr')
-export const controlPanelFolderIconResource = /* @__PURE__ */ _bind(FW, 'controlPanelFolderIconResource')
+export const controlInvalidDataVersionErr = /* @__PURE__ */ _bind(
+	FW,
+	'controlInvalidDataVersionErr',
+)
+
+export const controlPanelFolderIconResource = /* @__PURE__ */ _bind(
+	FW,
+	'controlPanelFolderIconResource',
+)
+
 export const controlPropertyInvalid = /* @__PURE__ */ _bind(FW, 'controlPropertyInvalid')
 export const controlPropertyNotFoundErr = /* @__PURE__ */ _bind(FW, 'controlPropertyNotFoundErr')
 export const controllerBoundsNotExact = /* @__PURE__ */ _bind(FW, 'controllerBoundsNotExact')
@@ -2212,11 +3188,23 @@ export const dcmTooManyKeyErr = /* @__PURE__ */ _bind(FW, 'dcmTooManyKeyErr')
 export const ddpLenErr = /* @__PURE__ */ _bind(FW, 'ddpLenErr')
 export const ddpSktErr = /* @__PURE__ */ _bind(FW, 'ddpSktErr')
 export const debuggingDuplicateOptionErr = /* @__PURE__ */ _bind(FW, 'debuggingDuplicateOptionErr')
-export const debuggingDuplicateSignatureErr = /* @__PURE__ */ _bind(FW, 'debuggingDuplicateSignatureErr')
-export const debuggingExecutionContextErr = /* @__PURE__ */ _bind(FW, 'debuggingExecutionContextErr')
+export const debuggingDuplicateSignatureErr = /* @__PURE__ */ _bind(
+	FW,
+	'debuggingDuplicateSignatureErr',
+)
+
+export const debuggingExecutionContextErr = /* @__PURE__ */ _bind(
+	FW,
+	'debuggingExecutionContextErr',
+)
+
 export const debuggingInvalidNameErr = /* @__PURE__ */ _bind(FW, 'debuggingInvalidNameErr')
 export const debuggingInvalidOptionErr = /* @__PURE__ */ _bind(FW, 'debuggingInvalidOptionErr')
-export const debuggingInvalidSignatureErr = /* @__PURE__ */ _bind(FW, 'debuggingInvalidSignatureErr')
+export const debuggingInvalidSignatureErr = /* @__PURE__ */ _bind(
+	FW,
+	'debuggingInvalidSignatureErr',
+)
+
 export const debuggingNoCallbackErr = /* @__PURE__ */ _bind(FW, 'debuggingNoCallbackErr')
 export const debuggingNoMatchErr = /* @__PURE__ */ _bind(FW, 'debuggingNoMatchErr')
 export const dec2f = /* @__PURE__ */ _bind(FW, 'dec2f')
@@ -2228,9 +3216,21 @@ export const dec2str = /* @__PURE__ */ _bind(FW, 'dec2str')
 export const decform = /* @__PURE__ */ _bind(FW, 'decform')
 export const decimal = /* @__PURE__ */ _bind(FW, 'decimal')
 export const defaultComponentAnyFlags = /* @__PURE__ */ _bind(FW, 'defaultComponentAnyFlags')
-export const defaultComponentAnyFlagsAnyManufacturer = /* @__PURE__ */ _bind(FW, 'defaultComponentAnyFlagsAnyManufacturer')
-export const defaultComponentAnyFlagsAnyManufacturerAnySubType = /* @__PURE__ */ _bind(FW, 'defaultComponentAnyFlagsAnyManufacturerAnySubType')
-export const defaultComponentAnyManufacturer = /* @__PURE__ */ _bind(FW, 'defaultComponentAnyManufacturer')
+export const defaultComponentAnyFlagsAnyManufacturer = /* @__PURE__ */ _bind(
+	FW,
+	'defaultComponentAnyFlagsAnyManufacturer',
+)
+
+export const defaultComponentAnyFlagsAnyManufacturerAnySubType = /* @__PURE__ */ _bind(
+	FW,
+	'defaultComponentAnyFlagsAnyManufacturerAnySubType',
+)
+
+export const defaultComponentAnyManufacturer = /* @__PURE__ */ _bind(
+	FW,
+	'defaultComponentAnyManufacturer',
+)
+
 export const defaultComponentAnySubType = /* @__PURE__ */ _bind(FW, 'defaultComponentAnySubType')
 export const defaultComponentIdentical = /* @__PURE__ */ _bind(FW, 'defaultComponentIdentical')
 export const defaultPhysicalEntryCount = /* @__PURE__ */ _bind(FW, 'defaultPhysicalEntryCount')
@@ -2277,7 +3277,11 @@ export const dsFPErr = /* @__PURE__ */ _bind(FW, 'dsFPErr')
 export const dsFSErr = /* @__PURE__ */ _bind(FW, 'dsFSErr')
 export const dsFinderErr = /* @__PURE__ */ _bind(FW, 'dsFinderErr')
 export const dsForcedQuit = /* @__PURE__ */ _bind(FW, 'dsForcedQuit')
-export const dsGibblyMovedToDisabledFolder = /* @__PURE__ */ _bind(FW, 'dsGibblyMovedToDisabledFolder')
+export const dsGibblyMovedToDisabledFolder = /* @__PURE__ */ _bind(
+	FW,
+	'dsGibblyMovedToDisabledFolder',
+)
+
 export const dsGreeting = /* @__PURE__ */ _bind(FW, 'dsGreeting')
 export const dsHD20Installed = /* @__PURE__ */ _bind(FW, 'dsHD20Installed')
 export const dsHMenuFindErr = /* @__PURE__ */ _bind(FW, 'dsHMenuFindErr')
@@ -2287,7 +3291,11 @@ export const dsIrqErr = /* @__PURE__ */ _bind(FW, 'dsIrqErr')
 export const dsLineAErr = /* @__PURE__ */ _bind(FW, 'dsLineAErr')
 export const dsLineFErr = /* @__PURE__ */ _bind(FW, 'dsLineFErr')
 export const dsLoadErr = /* @__PURE__ */ _bind(FW, 'dsLoadErr')
-export const dsLostConnectionToNetworkDisk = /* @__PURE__ */ _bind(FW, 'dsLostConnectionToNetworkDisk')
+export const dsLostConnectionToNetworkDisk = /* @__PURE__ */ _bind(
+	FW,
+	'dsLostConnectionToNetworkDisk',
+)
+
 export const dsMBATAPISysError = /* @__PURE__ */ _bind(FW, 'dsMBATAPISysError')
 export const dsMBATASysError = /* @__PURE__ */ _bind(FW, 'dsMBATASysError')
 export const dsMBExternFlpySysError = /* @__PURE__ */ _bind(FW, 'dsMBExternFlpySysError')
@@ -2337,7 +3345,11 @@ export const dsUnBootableSystem = /* @__PURE__ */ _bind(FW, 'dsUnBootableSystem'
 export const dsVMBadBackingStore = /* @__PURE__ */ _bind(FW, 'dsVMBadBackingStore')
 export const dsVMDeferredFuncTableFull = /* @__PURE__ */ _bind(FW, 'dsVMDeferredFuncTableFull')
 export const dsWDEFNotFound = /* @__PURE__ */ _bind(FW, 'dsWDEFNotFound')
-export const dsWriteToSupervisorStackGuardPage = /* @__PURE__ */ _bind(FW, 'dsWriteToSupervisorStackGuardPage')
+export const dsWriteToSupervisorStackGuardPage = /* @__PURE__ */ _bind(
+	FW,
+	'dsWriteToSupervisorStackGuardPage',
+)
+
 export const dsZeroDivErr = /* @__PURE__ */ _bind(FW, 'dsZeroDivErr')
 export const dskFulErr = /* @__PURE__ */ _bind(FW, 'dskFulErr')
 export const dtQType = /* @__PURE__ */ _bind(FW, 'dtQType')
@@ -2499,7 +3511,11 @@ export const errAEEventFailed = /* @__PURE__ */ _bind(FW, 'errAEEventFailed')
 export const errAEEventFiltered = /* @__PURE__ */ _bind(FW, 'errAEEventFiltered')
 export const errAEEventNotHandled = /* @__PURE__ */ _bind(FW, 'errAEEventNotHandled')
 export const errAEEventNotPermitted = /* @__PURE__ */ _bind(FW, 'errAEEventNotPermitted')
-export const errAEEventWouldRequireUserConsent = /* @__PURE__ */ _bind(FW, 'errAEEventWouldRequireUserConsent')
+export const errAEEventWouldRequireUserConsent = /* @__PURE__ */ _bind(
+	FW,
+	'errAEEventWouldRequireUserConsent',
+)
+
 export const errAEHandlerNotFound = /* @__PURE__ */ _bind(FW, 'errAEHandlerNotFound')
 export const errAEIllegalIndex = /* @__PURE__ */ _bind(FW, 'errAEIllegalIndex')
 export const errAEImpossibleRange = /* @__PURE__ */ _bind(FW, 'errAEImpossibleRange')
@@ -2532,7 +3548,11 @@ export const errAEReplyNotArrived = /* @__PURE__ */ _bind(FW, 'errAEReplyNotArri
 export const errAEReplyNotValid = /* @__PURE__ */ _bind(FW, 'errAEReplyNotValid')
 export const errAEStreamAlreadyConverted = /* @__PURE__ */ _bind(FW, 'errAEStreamAlreadyConverted')
 export const errAEStreamBadNesting = /* @__PURE__ */ _bind(FW, 'errAEStreamBadNesting')
-export const errAETargetAddressNotPermitted = /* @__PURE__ */ _bind(FW, 'errAETargetAddressNotPermitted')
+export const errAETargetAddressNotPermitted = /* @__PURE__ */ _bind(
+	FW,
+	'errAETargetAddressNotPermitted',
+)
+
 export const errAETimeout = /* @__PURE__ */ _bind(FW, 'errAETimeout')
 export const errAETypeError = /* @__PURE__ */ _bind(FW, 'errAETypeError')
 export const errAEUnknownAddressType = /* @__PURE__ */ _bind(FW, 'errAEUnknownAddressType')
@@ -2548,24 +3568,48 @@ export const errASIllegalFormalParameter = /* @__PURE__ */ _bind(FW, 'errASIlleg
 export const errASInconsistentNames = /* @__PURE__ */ _bind(FW, 'errASInconsistentNames')
 export const errASNoResultReturned = /* @__PURE__ */ _bind(FW, 'errASNoResultReturned')
 export const errASParameterNotForEvent = /* @__PURE__ */ _bind(FW, 'errASParameterNotForEvent')
-export const errASTerminologyNestingTooDeep = /* @__PURE__ */ _bind(FW, 'errASTerminologyNestingTooDeep')
+export const errASTerminologyNestingTooDeep = /* @__PURE__ */ _bind(
+	FW,
+	'errASTerminologyNestingTooDeep',
+)
+
 export const errAborted = /* @__PURE__ */ _bind(FW, 'errAborted')
 export const errAlreadyInImagingMode = /* @__PURE__ */ _bind(FW, 'errAlreadyInImagingMode')
 export const errAttention = /* @__PURE__ */ _bind(FW, 'errAttention')
 export const errCannotUndo = /* @__PURE__ */ _bind(FW, 'errCannotUndo')
 export const errCantEmbedIntoSelf = /* @__PURE__ */ _bind(FW, 'errCantEmbedIntoSelf')
 export const errCantEmbedRoot = /* @__PURE__ */ _bind(FW, 'errCantEmbedRoot')
-export const errControlDoesntSupportFocus = /* @__PURE__ */ _bind(FW, 'errControlDoesntSupportFocus')
+export const errControlDoesntSupportFocus = /* @__PURE__ */ _bind(
+	FW,
+	'errControlDoesntSupportFocus',
+)
+
 export const errControlHiddenOrDisabled = /* @__PURE__ */ _bind(FW, 'errControlHiddenOrDisabled')
 export const errControlIsNotEmbedder = /* @__PURE__ */ _bind(FW, 'errControlIsNotEmbedder')
 export const errControlsAlreadyExist = /* @__PURE__ */ _bind(FW, 'errControlsAlreadyExist')
-export const errCoreEndianDataDoesNotMatchFormat = /* @__PURE__ */ _bind(FW, 'errCoreEndianDataDoesNotMatchFormat')
-export const errCoreEndianDataTooLongForFormat = /* @__PURE__ */ _bind(FW, 'errCoreEndianDataTooLongForFormat')
-export const errCoreEndianDataTooShortForFormat = /* @__PURE__ */ _bind(FW, 'errCoreEndianDataTooShortForFormat')
+export const errCoreEndianDataDoesNotMatchFormat = /* @__PURE__ */ _bind(
+	FW,
+	'errCoreEndianDataDoesNotMatchFormat',
+)
+
+export const errCoreEndianDataTooLongForFormat = /* @__PURE__ */ _bind(
+	FW,
+	'errCoreEndianDataTooLongForFormat',
+)
+
+export const errCoreEndianDataTooShortForFormat = /* @__PURE__ */ _bind(
+	FW,
+	'errCoreEndianDataTooShortForFormat',
+)
+
 export const errCorruptWindowDescription = /* @__PURE__ */ _bind(FW, 'errCorruptWindowDescription')
 export const errCouldntSetFocus = /* @__PURE__ */ _bind(FW, 'errCouldntSetFocus')
 export const errCppGeneral = /* @__PURE__ */ _bind(FW, 'errCppGeneral')
-export const errCppLastSystemDefinedError = /* @__PURE__ */ _bind(FW, 'errCppLastSystemDefinedError')
+export const errCppLastSystemDefinedError = /* @__PURE__ */ _bind(
+	FW,
+	'errCppLastSystemDefinedError',
+)
+
 export const errCppLastUserDefinedError = /* @__PURE__ */ _bind(FW, 'errCppLastUserDefinedError')
 export const errCppbad_alloc = /* @__PURE__ */ _bind(FW, 'errCppbad_alloc')
 export const errCppbad_cast = /* @__PURE__ */ _bind(FW, 'errCppbad_cast')
@@ -2608,13 +3652,21 @@ export const errFSMissingName = /* @__PURE__ */ _bind(FW, 'errFSMissingName')
 export const errFSNameTooLong = /* @__PURE__ */ _bind(FW, 'errFSNameTooLong')
 export const errFSNoMoreItems = /* @__PURE__ */ _bind(FW, 'errFSNoMoreItems')
 export const errFSNotAFolder = /* @__PURE__ */ _bind(FW, 'errFSNotAFolder')
-export const errFSNotEnoughSpaceForOperation = /* @__PURE__ */ _bind(FW, 'errFSNotEnoughSpaceForOperation')
+export const errFSNotEnoughSpaceForOperation = /* @__PURE__ */ _bind(
+	FW,
+	'errFSNotEnoughSpaceForOperation',
+)
+
 export const errFSOperationNotSupported = /* @__PURE__ */ _bind(FW, 'errFSOperationNotSupported')
 export const errFSPropertyNotValid = /* @__PURE__ */ _bind(FW, 'errFSPropertyNotValid')
 export const errFSQuotaExceeded = /* @__PURE__ */ _bind(FW, 'errFSQuotaExceeded')
 export const errFSRefsDifferent = /* @__PURE__ */ _bind(FW, 'errFSRefsDifferent')
 export const errFSUnknownCall = /* @__PURE__ */ _bind(FW, 'errFSUnknownCall')
-export const errFloatingWindowsNotInitialized = /* @__PURE__ */ _bind(FW, 'errFloatingWindowsNotInitialized')
+export const errFloatingWindowsNotInitialized = /* @__PURE__ */ _bind(
+	FW,
+	'errFloatingWindowsNotInitialized',
+)
+
 export const errFwdReset = /* @__PURE__ */ _bind(FW, 'errFwdReset')
 export const errIAAllocationErr = /* @__PURE__ */ _bind(FW, 'errIAAllocationErr')
 export const errIABufferTooSmall = /* @__PURE__ */ _bind(FW, 'errIABufferTooSmall')
@@ -2667,7 +3719,11 @@ export const errNoHiliteText = /* @__PURE__ */ _bind(FW, 'errNoHiliteText')
 export const errNoRootControl = /* @__PURE__ */ _bind(FW, 'errNoRootControl')
 export const errNonContiuousAttribute = /* @__PURE__ */ _bind(FW, 'errNonContiuousAttribute')
 export const errNotInImagingMode = /* @__PURE__ */ _bind(FW, 'errNotInImagingMode')
-export const errOSAAppNotHighLevelEventAware = /* @__PURE__ */ _bind(FW, 'errOSAAppNotHighLevelEventAware')
+export const errOSAAppNotHighLevelEventAware = /* @__PURE__ */ _bind(
+	FW,
+	'errOSAAppNotHighLevelEventAware',
+)
+
 export const errOSABadSelector = /* @__PURE__ */ _bind(FW, 'errOSABadSelector')
 export const errOSABadStorageType = /* @__PURE__ */ _bind(FW, 'errOSABadStorageType')
 export const errOSACantAccess = /* @__PURE__ */ _bind(FW, 'errOSACantAccess')
@@ -2698,7 +3754,11 @@ export const errOSASystemError = /* @__PURE__ */ _bind(FW, 'errOSASystemError')
 export const errOSATypeError = /* @__PURE__ */ _bind(FW, 'errOSATypeError')
 export const errOffsetInvalid = /* @__PURE__ */ _bind(FW, 'errOffsetInvalid')
 export const errOffsetIsOutsideOfView = /* @__PURE__ */ _bind(FW, 'errOffsetIsOutsideOfView')
-export const errOffsetNotOnElementBounday = /* @__PURE__ */ _bind(FW, 'errOffsetNotOnElementBounday')
+export const errOffsetNotOnElementBounday = /* @__PURE__ */ _bind(
+	FW,
+	'errOffsetNotOnElementBounday',
+)
+
 export const errOpenDenied = /* @__PURE__ */ _bind(FW, 'errOpenDenied')
 export const errOpening = /* @__PURE__ */ _bind(FW, 'errOpening')
 export const errReadOnlyText = /* @__PURE__ */ _bind(FW, 'errReadOnlyText')
@@ -2712,7 +3772,11 @@ export const errUnknownAttributeTag = /* @__PURE__ */ _bind(FW, 'errUnknownAttri
 export const errUnknownControl = /* @__PURE__ */ _bind(FW, 'errUnknownControl')
 export const errUnknownElement = /* @__PURE__ */ _bind(FW, 'errUnknownElement')
 export const errUnrecognizedWindowClass = /* @__PURE__ */ _bind(FW, 'errUnrecognizedWindowClass')
-export const errUnsupportedWindowAttributesForClass = /* @__PURE__ */ _bind(FW, 'errUnsupportedWindowAttributesForClass')
+export const errUnsupportedWindowAttributesForClass = /* @__PURE__ */ _bind(
+	FW,
+	'errUnsupportedWindowAttributesForClass',
+)
+
 export const errUserWantsToDragWindow = /* @__PURE__ */ _bind(FW, 'errUserWantsToDragWindow')
 export const errWSInternalError = /* @__PURE__ */ _bind(FW, 'errWSInternalError')
 export const errWSParseError = /* @__PURE__ */ _bind(FW, 'errWSParseError')
@@ -2724,7 +3788,11 @@ export const errWindowDoesntSupportFocus = /* @__PURE__ */ _bind(FW, 'errWindowD
 export const errWindowNotFound = /* @__PURE__ */ _bind(FW, 'errWindowNotFound')
 export const errWindowPropertyNotFound = /* @__PURE__ */ _bind(FW, 'errWindowPropertyNotFound')
 export const errWindowRegionCodeInvalid = /* @__PURE__ */ _bind(FW, 'errWindowRegionCodeInvalid')
-export const errWindowsAlreadyInitialized = /* @__PURE__ */ _bind(FW, 'errWindowsAlreadyInitialized')
+export const errWindowsAlreadyInitialized = /* @__PURE__ */ _bind(
+	FW,
+	'errWindowsAlreadyInitialized',
+)
+
 export const eurlAFP = /* @__PURE__ */ _bind(FW, 'eurlAFP')
 export const eurlAT = /* @__PURE__ */ _bind(FW, 'eurlAT')
 export const eurlEPPC = /* @__PURE__ */ _bind(FW, 'eurlEPPC')
@@ -2753,7 +3821,11 @@ export const evtNotEnb = /* @__PURE__ */ _bind(FW, 'evtNotEnb')
 export const exUserBreak = /* @__PURE__ */ _bind(FW, 'exUserBreak')
 export const excessCollsns = /* @__PURE__ */ _bind(FW, 'excessCollsns')
 export const extFSErr = /* @__PURE__ */ _bind(FW, 'extFSErr')
-export const extensionsFolderIconResource = /* @__PURE__ */ _bind(FW, 'extensionsFolderIconResource')
+export const extensionsFolderIconResource = /* @__PURE__ */ _bind(
+	FW,
+	'extensionsFolderIconResource',
+)
+
 export const extractErr = /* @__PURE__ */ _bind(FW, 'extractErr')
 export const extraneousStrings = /* @__PURE__ */ _bind(FW, 'extraneousStrings')
 export const fBadPartsTable = /* @__PURE__ */ _bind(FW, 'fBadPartsTable')
@@ -2903,23 +3975,63 @@ export const fsmFFSNotFoundErr = /* @__PURE__ */ _bind(FW, 'fsmFFSNotFoundErr')
 export const fsmNoAlternateStackErr = /* @__PURE__ */ _bind(FW, 'fsmNoAlternateStackErr')
 export const fsmUnknownFSMMessageErr = /* @__PURE__ */ _bind(FW, 'fsmUnknownFSMMessageErr')
 export const fullTrashIconResource = /* @__PURE__ */ _bind(FW, 'fullTrashIconResource')
-export const gWorldsNotSameDepthAndSizeErr = /* @__PURE__ */ _bind(FW, 'gWorldsNotSameDepthAndSizeErr')
+export const gWorldsNotSameDepthAndSizeErr = /* @__PURE__ */ _bind(
+	FW,
+	'gWorldsNotSameDepthAndSizeErr',
+)
+
 export const gcrOnMFMErr = /* @__PURE__ */ _bind(FW, 'gcrOnMFMErr')
 export const genCdevRangeBit = /* @__PURE__ */ _bind(FW, 'genCdevRangeBit')
-export const genericApplicationIconResource = /* @__PURE__ */ _bind(FW, 'genericApplicationIconResource')
+export const genericApplicationIconResource = /* @__PURE__ */ _bind(
+	FW,
+	'genericApplicationIconResource',
+)
+
 export const genericCDROMIconResource = /* @__PURE__ */ _bind(FW, 'genericCDROMIconResource')
-export const genericDeskAccessoryIconResource = /* @__PURE__ */ _bind(FW, 'genericDeskAccessoryIconResource')
+export const genericDeskAccessoryIconResource = /* @__PURE__ */ _bind(
+	FW,
+	'genericDeskAccessoryIconResource',
+)
+
 export const genericDocumentIconResource = /* @__PURE__ */ _bind(FW, 'genericDocumentIconResource')
-export const genericEditionFileIconResource = /* @__PURE__ */ _bind(FW, 'genericEditionFileIconResource')
-export const genericExtensionIconResource = /* @__PURE__ */ _bind(FW, 'genericExtensionIconResource')
-export const genericFileServerIconResource = /* @__PURE__ */ _bind(FW, 'genericFileServerIconResource')
+export const genericEditionFileIconResource = /* @__PURE__ */ _bind(
+	FW,
+	'genericEditionFileIconResource',
+)
+
+export const genericExtensionIconResource = /* @__PURE__ */ _bind(
+	FW,
+	'genericExtensionIconResource',
+)
+
+export const genericFileServerIconResource = /* @__PURE__ */ _bind(
+	FW,
+	'genericFileServerIconResource',
+)
+
 export const genericFolderIconResource = /* @__PURE__ */ _bind(FW, 'genericFolderIconResource')
 export const genericHardDiskIconResource = /* @__PURE__ */ _bind(FW, 'genericHardDiskIconResource')
-export const genericMoverObjectIconResource = /* @__PURE__ */ _bind(FW, 'genericMoverObjectIconResource')
-export const genericPreferencesIconResource = /* @__PURE__ */ _bind(FW, 'genericPreferencesIconResource')
-export const genericQueryDocumentIconResource = /* @__PURE__ */ _bind(FW, 'genericQueryDocumentIconResource')
+export const genericMoverObjectIconResource = /* @__PURE__ */ _bind(
+	FW,
+	'genericMoverObjectIconResource',
+)
+
+export const genericPreferencesIconResource = /* @__PURE__ */ _bind(
+	FW,
+	'genericPreferencesIconResource',
+)
+
+export const genericQueryDocumentIconResource = /* @__PURE__ */ _bind(
+	FW,
+	'genericQueryDocumentIconResource',
+)
+
 export const genericRAMDiskIconResource = /* @__PURE__ */ _bind(FW, 'genericRAMDiskIconResource')
-export const genericStationeryIconResource = /* @__PURE__ */ _bind(FW, 'genericStationeryIconResource')
+export const genericStationeryIconResource = /* @__PURE__ */ _bind(
+	FW,
+	'genericStationeryIconResource',
+)
+
 export const genericSuitcaseIconResource = /* @__PURE__ */ _bind(FW, 'genericSuitcaseIconResource')
 export const gestalt16BitAudioSupport = /* @__PURE__ */ _bind(FW, 'gestalt16BitAudioSupport')
 export const gestalt16BitSoundIO = /* @__PURE__ */ _bind(FW, 'gestalt16BitSoundIO')
@@ -2958,7 +4070,11 @@ export const gestaltAFPClient3_8 = /* @__PURE__ */ _bind(FW, 'gestaltAFPClient3_
 export const gestaltAFPClient3_8_1 = /* @__PURE__ */ _bind(FW, 'gestaltAFPClient3_8_1')
 export const gestaltAFPClient3_8_3 = /* @__PURE__ */ _bind(FW, 'gestaltAFPClient3_8_3')
 export const gestaltAFPClient3_8_4 = /* @__PURE__ */ _bind(FW, 'gestaltAFPClient3_8_4')
-export const gestaltAFPClientAttributeMask = /* @__PURE__ */ _bind(FW, 'gestaltAFPClientAttributeMask')
+export const gestaltAFPClientAttributeMask = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltAFPClientAttributeMask',
+)
+
 export const gestaltAFPClientCfgRsrc = /* @__PURE__ */ _bind(FW, 'gestaltAFPClientCfgRsrc')
 export const gestaltAFPClientMultiReq = /* @__PURE__ */ _bind(FW, 'gestaltAFPClientMultiReq')
 export const gestaltAFPClientSupportsIP = /* @__PURE__ */ _bind(FW, 'gestaltAFPClientSupportsIP')
@@ -2966,7 +4082,11 @@ export const gestaltAFPClientVMUI = /* @__PURE__ */ _bind(FW, 'gestaltAFPClientV
 export const gestaltAFPClientVersionMask = /* @__PURE__ */ _bind(FW, 'gestaltAFPClientVersionMask')
 export const gestaltALMAttr = /* @__PURE__ */ _bind(FW, 'gestaltALMAttr')
 export const gestaltALMHasCFMSupport = /* @__PURE__ */ _bind(FW, 'gestaltALMHasCFMSupport')
-export const gestaltALMHasRescanNotifiers = /* @__PURE__ */ _bind(FW, 'gestaltALMHasRescanNotifiers')
+export const gestaltALMHasRescanNotifiers = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltALMHasRescanNotifiers',
+)
+
 export const gestaltALMHasSFGroup = /* @__PURE__ */ _bind(FW, 'gestaltALMHasSFGroup')
 export const gestaltALMHasSFLocation = /* @__PURE__ */ _bind(FW, 'gestaltALMHasSFLocation')
 export const gestaltALMPresent = /* @__PURE__ */ _bind(FW, 'gestaltALMPresent')
@@ -2974,32 +4094,116 @@ export const gestaltALMVers = /* @__PURE__ */ _bind(FW, 'gestaltALMVers')
 export const gestaltAMU = /* @__PURE__ */ _bind(FW, 'gestaltAMU')
 export const gestaltATAAttr = /* @__PURE__ */ _bind(FW, 'gestaltATAAttr')
 export const gestaltATAPresent = /* @__PURE__ */ _bind(FW, 'gestaltATAPresent')
-export const gestaltATSUAscentDescentControlsFeature = /* @__PURE__ */ _bind(FW, 'gestaltATSUAscentDescentControlsFeature')
-export const gestaltATSUBatchBreakLinesFeature = /* @__PURE__ */ _bind(FW, 'gestaltATSUBatchBreakLinesFeature')
-export const gestaltATSUBiDiCursorPositionFeature = /* @__PURE__ */ _bind(FW, 'gestaltATSUBiDiCursorPositionFeature')
-export const gestaltATSUByCharacterClusterFeature = /* @__PURE__ */ _bind(FW, 'gestaltATSUByCharacterClusterFeature')
-export const gestaltATSUDecimalTabFeature = /* @__PURE__ */ _bind(FW, 'gestaltATSUDecimalTabFeature')
+export const gestaltATSUAscentDescentControlsFeature = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltATSUAscentDescentControlsFeature',
+)
+
+export const gestaltATSUBatchBreakLinesFeature = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltATSUBatchBreakLinesFeature',
+)
+
+export const gestaltATSUBiDiCursorPositionFeature = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltATSUBiDiCursorPositionFeature',
+)
+
+export const gestaltATSUByCharacterClusterFeature = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltATSUByCharacterClusterFeature',
+)
+
+export const gestaltATSUDecimalTabFeature = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltATSUDecimalTabFeature',
+)
+
 export const gestaltATSUDirectAccess = /* @__PURE__ */ _bind(FW, 'gestaltATSUDirectAccess')
-export const gestaltATSUDropShadowStyleFeature = /* @__PURE__ */ _bind(FW, 'gestaltATSUDropShadowStyleFeature')
+export const gestaltATSUDropShadowStyleFeature = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltATSUDropShadowStyleFeature',
+)
+
 export const gestaltATSUFallbacksFeature = /* @__PURE__ */ _bind(FW, 'gestaltATSUFallbacksFeature')
-export const gestaltATSUFallbacksObjFeatures = /* @__PURE__ */ _bind(FW, 'gestaltATSUFallbacksObjFeatures')
+export const gestaltATSUFallbacksObjFeatures = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltATSUFallbacksObjFeatures',
+)
+
 export const gestaltATSUFeatures = /* @__PURE__ */ _bind(FW, 'gestaltATSUFeatures')
-export const gestaltATSUGlyphBoundsFeature = /* @__PURE__ */ _bind(FW, 'gestaltATSUGlyphBoundsFeature')
-export const gestaltATSUHighlightColorControlFeature = /* @__PURE__ */ _bind(FW, 'gestaltATSUHighlightColorControlFeature')
-export const gestaltATSUHighlightInactiveTextFeature = /* @__PURE__ */ _bind(FW, 'gestaltATSUHighlightInactiveTextFeature')
-export const gestaltATSUIgnoreLeadingFeature = /* @__PURE__ */ _bind(FW, 'gestaltATSUIgnoreLeadingFeature')
-export const gestaltATSULayoutCacheClearFeature = /* @__PURE__ */ _bind(FW, 'gestaltATSULayoutCacheClearFeature')
-export const gestaltATSULayoutCreateAndCopyFeature = /* @__PURE__ */ _bind(FW, 'gestaltATSULayoutCreateAndCopyFeature')
-export const gestaltATSULineControlFeature = /* @__PURE__ */ _bind(FW, 'gestaltATSULineControlFeature')
-export const gestaltATSULowLevelOrigFeatures = /* @__PURE__ */ _bind(FW, 'gestaltATSULowLevelOrigFeatures')
+export const gestaltATSUGlyphBoundsFeature = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltATSUGlyphBoundsFeature',
+)
+
+export const gestaltATSUHighlightColorControlFeature = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltATSUHighlightColorControlFeature',
+)
+
+export const gestaltATSUHighlightInactiveTextFeature = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltATSUHighlightInactiveTextFeature',
+)
+
+export const gestaltATSUIgnoreLeadingFeature = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltATSUIgnoreLeadingFeature',
+)
+
+export const gestaltATSULayoutCacheClearFeature = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltATSULayoutCacheClearFeature',
+)
+
+export const gestaltATSULayoutCreateAndCopyFeature = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltATSULayoutCreateAndCopyFeature',
+)
+
+export const gestaltATSULineControlFeature = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltATSULineControlFeature',
+)
+
+export const gestaltATSULowLevelOrigFeatures = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltATSULowLevelOrigFeatures',
+)
+
 export const gestaltATSUMemoryFeature = /* @__PURE__ */ _bind(FW, 'gestaltATSUMemoryFeature')
-export const gestaltATSUNearestCharLineBreakFeature = /* @__PURE__ */ _bind(FW, 'gestaltATSUNearestCharLineBreakFeature')
-export const gestaltATSUPositionToCursorFeature = /* @__PURE__ */ _bind(FW, 'gestaltATSUPositionToCursorFeature')
-export const gestaltATSUStrikeThroughStyleFeature = /* @__PURE__ */ _bind(FW, 'gestaltATSUStrikeThroughStyleFeature')
-export const gestaltATSUTabSupportFeature = /* @__PURE__ */ _bind(FW, 'gestaltATSUTabSupportFeature')
-export const gestaltATSUTextLocatorUsageFeature = /* @__PURE__ */ _bind(FW, 'gestaltATSUTextLocatorUsageFeature')
+export const gestaltATSUNearestCharLineBreakFeature = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltATSUNearestCharLineBreakFeature',
+)
+
+export const gestaltATSUPositionToCursorFeature = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltATSUPositionToCursorFeature',
+)
+
+export const gestaltATSUStrikeThroughStyleFeature = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltATSUStrikeThroughStyleFeature',
+)
+
+export const gestaltATSUTabSupportFeature = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltATSUTabSupportFeature',
+)
+
+export const gestaltATSUTextLocatorUsageFeature = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltATSUTextLocatorUsageFeature',
+)
+
 export const gestaltATSUTrackingFeature = /* @__PURE__ */ _bind(FW, 'gestaltATSUTrackingFeature')
-export const gestaltATSUUnderlineOptionsStyleFeature = /* @__PURE__ */ _bind(FW, 'gestaltATSUUnderlineOptionsStyleFeature')
+export const gestaltATSUUnderlineOptionsStyleFeature = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltATSUUnderlineOptionsStyleFeature',
+)
+
 export const gestaltATSUUpdate1 = /* @__PURE__ */ _bind(FW, 'gestaltATSUUpdate1')
 export const gestaltATSUUpdate2 = /* @__PURE__ */ _bind(FW, 'gestaltATSUUpdate2')
 export const gestaltATSUUpdate3 = /* @__PURE__ */ _bind(FW, 'gestaltATSUUpdate3')
@@ -3012,8 +4216,16 @@ export const gestaltATalkVersion = /* @__PURE__ */ _bind(FW, 'gestaltATalkVersio
 export const gestaltAUXVersion = /* @__PURE__ */ _bind(FW, 'gestaltAUXVersion')
 export const gestaltAVLTreeAttr = /* @__PURE__ */ _bind(FW, 'gestaltAVLTreeAttr')
 export const gestaltAVLTreePresentBit = /* @__PURE__ */ _bind(FW, 'gestaltAVLTreePresentBit')
-export const gestaltAVLTreeSupportsHandleBasedTreeBit = /* @__PURE__ */ _bind(FW, 'gestaltAVLTreeSupportsHandleBasedTreeBit')
-export const gestaltAVLTreeSupportsTreeLockingBit = /* @__PURE__ */ _bind(FW, 'gestaltAVLTreeSupportsTreeLockingBit')
+export const gestaltAVLTreeSupportsHandleBasedTreeBit = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltAVLTreeSupportsHandleBasedTreeBit',
+)
+
+export const gestaltAVLTreeSupportsTreeLockingBit = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltAVLTreeSupportsTreeLockingBit',
+)
+
 export const gestaltAWS6150_60 = /* @__PURE__ */ _bind(FW, 'gestaltAWS6150_60')
 export const gestaltAWS6150_66 = /* @__PURE__ */ _bind(FW, 'gestaltAWS6150_66')
 export const gestaltAWS8150_110 = /* @__PURE__ */ _bind(FW, 'gestaltAWS8150_110')
@@ -3022,21 +4234,61 @@ export const gestaltAWS8550 = /* @__PURE__ */ _bind(FW, 'gestaltAWS8550')
 export const gestaltAWS9150_120 = /* @__PURE__ */ _bind(FW, 'gestaltAWS9150_120')
 export const gestaltAWS9150_80 = /* @__PURE__ */ _bind(FW, 'gestaltAWS9150_80')
 export const gestaltAddressingModeAttr = /* @__PURE__ */ _bind(FW, 'gestaltAddressingModeAttr')
-export const gestaltAdminFeaturesFlagsAttr = /* @__PURE__ */ _bind(FW, 'gestaltAdminFeaturesFlagsAttr')
+export const gestaltAdminFeaturesFlagsAttr = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltAdminFeaturesFlagsAttr',
+)
+
 export const gestaltAliasMgrAttr = /* @__PURE__ */ _bind(FW, 'gestaltAliasMgrAttr')
-export const gestaltAliasMgrFollowsAliasesWhenResolving = /* @__PURE__ */ _bind(FW, 'gestaltAliasMgrFollowsAliasesWhenResolving')
+export const gestaltAliasMgrFollowsAliasesWhenResolving = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltAliasMgrFollowsAliasesWhenResolving',
+)
+
 export const gestaltAliasMgrPrefersPath = /* @__PURE__ */ _bind(FW, 'gestaltAliasMgrPrefersPath')
 export const gestaltAliasMgrPresent = /* @__PURE__ */ _bind(FW, 'gestaltAliasMgrPresent')
-export const gestaltAliasMgrRequiresAccessors = /* @__PURE__ */ _bind(FW, 'gestaltAliasMgrRequiresAccessors')
-export const gestaltAliasMgrResolveAliasFileWithMountOptions = /* @__PURE__ */ _bind(FW, 'gestaltAliasMgrResolveAliasFileWithMountOptions')
-export const gestaltAliasMgrSupportsAOCEKeychain = /* @__PURE__ */ _bind(FW, 'gestaltAliasMgrSupportsAOCEKeychain')
-export const gestaltAliasMgrSupportsExtendedCalls = /* @__PURE__ */ _bind(FW, 'gestaltAliasMgrSupportsExtendedCalls')
-export const gestaltAliasMgrSupportsFSCalls = /* @__PURE__ */ _bind(FW, 'gestaltAliasMgrSupportsFSCalls')
-export const gestaltAliasMgrSupportsRemoteAppletalk = /* @__PURE__ */ _bind(FW, 'gestaltAliasMgrSupportsRemoteAppletalk')
+export const gestaltAliasMgrRequiresAccessors = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltAliasMgrRequiresAccessors',
+)
+
+export const gestaltAliasMgrResolveAliasFileWithMountOptions = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltAliasMgrResolveAliasFileWithMountOptions',
+)
+
+export const gestaltAliasMgrSupportsAOCEKeychain = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltAliasMgrSupportsAOCEKeychain',
+)
+
+export const gestaltAliasMgrSupportsExtendedCalls = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltAliasMgrSupportsExtendedCalls',
+)
+
+export const gestaltAliasMgrSupportsFSCalls = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltAliasMgrSupportsFSCalls',
+)
+
+export const gestaltAliasMgrSupportsRemoteAppletalk = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltAliasMgrSupportsRemoteAppletalk',
+)
+
 export const gestaltAllegroQD = /* @__PURE__ */ _bind(FW, 'gestaltAllegroQD')
 export const gestaltAllegroQDText = /* @__PURE__ */ _bind(FW, 'gestaltAllegroQDText')
-export const gestaltAltivecRegistersSwappedCorrectlyBit = /* @__PURE__ */ _bind(FW, 'gestaltAltivecRegistersSwappedCorrectlyBit')
-export const gestaltAntiAliasedTextAvailable = /* @__PURE__ */ _bind(FW, 'gestaltAntiAliasedTextAvailable')
+export const gestaltAltivecRegistersSwappedCorrectlyBit = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltAltivecRegistersSwappedCorrectlyBit',
+)
+
+export const gestaltAntiAliasedTextAvailable = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltAntiAliasedTextAvailable',
+)
+
 export const gestaltAppearanceAttr = /* @__PURE__ */ _bind(FW, 'gestaltAppearanceAttr')
 export const gestaltAppearanceCompatMode = /* @__PURE__ */ _bind(FW, 'gestaltAppearanceCompatMode')
 export const gestaltAppearanceExists = /* @__PURE__ */ _bind(FW, 'gestaltAppearanceExists')
@@ -3049,7 +4301,11 @@ export const gestaltAppleEventsPresent = /* @__PURE__ */ _bind(FW, 'gestaltApple
 export const gestaltAppleGuideIsDebug = /* @__PURE__ */ _bind(FW, 'gestaltAppleGuideIsDebug')
 export const gestaltAppleGuidePresent = /* @__PURE__ */ _bind(FW, 'gestaltAppleGuidePresent')
 export const gestaltAppleScriptAttr = /* @__PURE__ */ _bind(FW, 'gestaltAppleScriptAttr')
-export const gestaltAppleScriptPowerPCSupport = /* @__PURE__ */ _bind(FW, 'gestaltAppleScriptPowerPCSupport')
+export const gestaltAppleScriptPowerPCSupport = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltAppleScriptPowerPCSupport',
+)
+
 export const gestaltAppleScriptPresent = /* @__PURE__ */ _bind(FW, 'gestaltAppleScriptPresent')
 export const gestaltAppleScriptVersion = /* @__PURE__ */ _bind(FW, 'gestaltAppleScriptVersion')
 export const gestaltAppleTalkVersion = /* @__PURE__ */ _bind(FW, 'gestaltAppleTalkVersion')
@@ -3099,18 +4355,34 @@ export const gestaltCRMPersistentFix = /* @__PURE__ */ _bind(FW, 'gestaltCRMPers
 export const gestaltCRMPresent = /* @__PURE__ */ _bind(FW, 'gestaltCRMPresent')
 export const gestaltCRMToolRsrcCalls = /* @__PURE__ */ _bind(FW, 'gestaltCRMToolRsrcCalls')
 export const gestaltCTBVersion = /* @__PURE__ */ _bind(FW, 'gestaltCTBVersion')
-export const gestaltCanStartDragInFloatWindow = /* @__PURE__ */ _bind(FW, 'gestaltCanStartDragInFloatWindow')
-export const gestaltCanUseCGTextRendering = /* @__PURE__ */ _bind(FW, 'gestaltCanUseCGTextRendering')
+export const gestaltCanStartDragInFloatWindow = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltCanStartDragInFloatWindow',
+)
+
+export const gestaltCanUseCGTextRendering = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltCanUseCGTextRendering',
+)
+
 export const gestaltCarbonVersion = /* @__PURE__ */ _bind(FW, 'gestaltCarbonVersion')
 export const gestaltCardServicesPresent = /* @__PURE__ */ _bind(FW, 'gestaltCardServicesPresent')
 export const gestaltClassic = /* @__PURE__ */ _bind(FW, 'gestaltClassic')
 export const gestaltClassicII = /* @__PURE__ */ _bind(FW, 'gestaltClassicII')
 export const gestaltCloseViewAttr = /* @__PURE__ */ _bind(FW, 'gestaltCloseViewAttr')
-export const gestaltCloseViewDisplayMgrFriendly = /* @__PURE__ */ _bind(FW, 'gestaltCloseViewDisplayMgrFriendly')
+export const gestaltCloseViewDisplayMgrFriendly = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltCloseViewDisplayMgrFriendly',
+)
+
 export const gestaltCloseViewEnabled = /* @__PURE__ */ _bind(FW, 'gestaltCloseViewEnabled')
 export const gestaltCollectionMgrVersion = /* @__PURE__ */ _bind(FW, 'gestaltCollectionMgrVersion')
 export const gestaltColorMatchingAttr = /* @__PURE__ */ _bind(FW, 'gestaltColorMatchingAttr')
-export const gestaltColorMatchingLibLoaded = /* @__PURE__ */ _bind(FW, 'gestaltColorMatchingLibLoaded')
+export const gestaltColorMatchingLibLoaded = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltColorMatchingLibLoaded',
+)
+
 export const gestaltColorMatchingVersion = /* @__PURE__ */ _bind(FW, 'gestaltColorMatchingVersion')
 export const gestaltColorPicker = /* @__PURE__ */ _bind(FW, 'gestaltColorPicker')
 export const gestaltColorPickerVersion = /* @__PURE__ */ _bind(FW, 'gestaltColorPickerVersion')
@@ -3139,16 +4411,32 @@ export const gestaltControlMgrAttr = /* @__PURE__ */ _bind(FW, 'gestaltControlMg
 export const gestaltControlMgrPresent = /* @__PURE__ */ _bind(FW, 'gestaltControlMgrPresent')
 export const gestaltControlMgrPresentBit = /* @__PURE__ */ _bind(FW, 'gestaltControlMgrPresentBit')
 export const gestaltControlMgrVersion = /* @__PURE__ */ _bind(FW, 'gestaltControlMgrVersion')
-export const gestaltControlMsgPresentMask = /* @__PURE__ */ _bind(FW, 'gestaltControlMsgPresentMask')
+export const gestaltControlMsgPresentMask = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltControlMsgPresentMask',
+)
+
 export const gestaltControlStripAttr = /* @__PURE__ */ _bind(FW, 'gestaltControlStripAttr')
 export const gestaltControlStripExists = /* @__PURE__ */ _bind(FW, 'gestaltControlStripExists')
 export const gestaltControlStripUserFont = /* @__PURE__ */ _bind(FW, 'gestaltControlStripUserFont')
-export const gestaltControlStripUserHotKey = /* @__PURE__ */ _bind(FW, 'gestaltControlStripUserHotKey')
+export const gestaltControlStripUserHotKey = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltControlStripUserHotKey',
+)
+
 export const gestaltControlStripVersion = /* @__PURE__ */ _bind(FW, 'gestaltControlStripVersion')
-export const gestaltControlStripVersionFixed = /* @__PURE__ */ _bind(FW, 'gestaltControlStripVersionFixed')
+export const gestaltControlStripVersionFixed = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltControlStripVersionFixed',
+)
+
 export const gestaltCountOfCPUs = /* @__PURE__ */ _bind(FW, 'gestaltCountOfCPUs')
 export const gestaltCreatesAliasFontRsrc = /* @__PURE__ */ _bind(FW, 'gestaltCreatesAliasFontRsrc')
-export const gestaltCurrentGraphicsVersion = /* @__PURE__ */ _bind(FW, 'gestaltCurrentGraphicsVersion')
+export const gestaltCurrentGraphicsVersion = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltCurrentGraphicsVersion',
+)
+
 export const gestaltDBAccessMgrAttr = /* @__PURE__ */ _bind(FW, 'gestaltDBAccessMgrAttr')
 export const gestaltDBAccessMgrPresent = /* @__PURE__ */ _bind(FW, 'gestaltDBAccessMgrPresent')
 export const gestaltDITLExtAttr = /* @__PURE__ */ _bind(FW, 'gestaltDITLExtAttr')
@@ -3158,32 +4446,80 @@ export const gestaltDTMgrSupportsFSM = /* @__PURE__ */ _bind(FW, 'gestaltDTMgrSu
 export const gestaltDTPFeatures = /* @__PURE__ */ _bind(FW, 'gestaltDTPFeatures')
 export const gestaltDTPInfo = /* @__PURE__ */ _bind(FW, 'gestaltDTPInfo')
 export const gestaltDesktopPicturesAttr = /* @__PURE__ */ _bind(FW, 'gestaltDesktopPicturesAttr')
-export const gestaltDesktopPicturesDisplayed = /* @__PURE__ */ _bind(FW, 'gestaltDesktopPicturesDisplayed')
-export const gestaltDesktopPicturesInstalled = /* @__PURE__ */ _bind(FW, 'gestaltDesktopPicturesInstalled')
-export const gestaltDesktopSpeechRecognition = /* @__PURE__ */ _bind(FW, 'gestaltDesktopSpeechRecognition')
+export const gestaltDesktopPicturesDisplayed = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltDesktopPicturesDisplayed',
+)
+
+export const gestaltDesktopPicturesInstalled = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltDesktopPicturesInstalled',
+)
+
+export const gestaltDesktopSpeechRecognition = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltDesktopSpeechRecognition',
+)
+
 export const gestaltDialogMgrAttr = /* @__PURE__ */ _bind(FW, 'gestaltDialogMgrAttr')
-export const gestaltDialogMgrHasAquaAlertBit = /* @__PURE__ */ _bind(FW, 'gestaltDialogMgrHasAquaAlertBit')
-export const gestaltDialogMgrHasAquaAlertMask = /* @__PURE__ */ _bind(FW, 'gestaltDialogMgrHasAquaAlertMask')
+export const gestaltDialogMgrHasAquaAlertBit = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltDialogMgrHasAquaAlertBit',
+)
+
+export const gestaltDialogMgrHasAquaAlertMask = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltDialogMgrHasAquaAlertMask',
+)
+
 export const gestaltDialogMgrPresent = /* @__PURE__ */ _bind(FW, 'gestaltDialogMgrPresent')
 export const gestaltDialogMgrPresentBit = /* @__PURE__ */ _bind(FW, 'gestaltDialogMgrPresentBit')
 export const gestaltDialogMgrPresentMask = /* @__PURE__ */ _bind(FW, 'gestaltDialogMgrPresentMask')
 export const gestaltDialogMsgPresentMask = /* @__PURE__ */ _bind(FW, 'gestaltDialogMsgPresentMask')
 export const gestaltDictionaryMgrAttr = /* @__PURE__ */ _bind(FW, 'gestaltDictionaryMgrAttr')
 export const gestaltDictionaryMgrPresent = /* @__PURE__ */ _bind(FW, 'gestaltDictionaryMgrPresent')
-export const gestaltDigitalSignatureVersion = /* @__PURE__ */ _bind(FW, 'gestaltDigitalSignatureVersion')
+export const gestaltDigitalSignatureVersion = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltDigitalSignatureVersion',
+)
+
 export const gestaltDiskCacheSize = /* @__PURE__ */ _bind(FW, 'gestaltDiskCacheSize')
 export const gestaltDisplayMgrAttr = /* @__PURE__ */ _bind(FW, 'gestaltDisplayMgrAttr')
 export const gestaltDisplayMgrCanConfirm = /* @__PURE__ */ _bind(FW, 'gestaltDisplayMgrCanConfirm')
-export const gestaltDisplayMgrCanSwitchMirrored = /* @__PURE__ */ _bind(FW, 'gestaltDisplayMgrCanSwitchMirrored')
-export const gestaltDisplayMgrColorSyncAware = /* @__PURE__ */ _bind(FW, 'gestaltDisplayMgrColorSyncAware')
-export const gestaltDisplayMgrGeneratesProfiles = /* @__PURE__ */ _bind(FW, 'gestaltDisplayMgrGeneratesProfiles')
+export const gestaltDisplayMgrCanSwitchMirrored = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltDisplayMgrCanSwitchMirrored',
+)
+
+export const gestaltDisplayMgrColorSyncAware = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltDisplayMgrColorSyncAware',
+)
+
+export const gestaltDisplayMgrGeneratesProfiles = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltDisplayMgrGeneratesProfiles',
+)
+
 export const gestaltDisplayMgrPresent = /* @__PURE__ */ _bind(FW, 'gestaltDisplayMgrPresent')
-export const gestaltDisplayMgrSetDepthNotifies = /* @__PURE__ */ _bind(FW, 'gestaltDisplayMgrSetDepthNotifies')
-export const gestaltDisplayMgrSleepNotifies = /* @__PURE__ */ _bind(FW, 'gestaltDisplayMgrSleepNotifies')
+export const gestaltDisplayMgrSetDepthNotifies = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltDisplayMgrSetDepthNotifies',
+)
+
+export const gestaltDisplayMgrSleepNotifies = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltDisplayMgrSleepNotifies',
+)
+
 export const gestaltDisplayMgrVers = /* @__PURE__ */ _bind(FW, 'gestaltDisplayMgrVers')
 export const gestaltDragMgrAttr = /* @__PURE__ */ _bind(FW, 'gestaltDragMgrAttr')
 export const gestaltDragMgrFloatingWind = /* @__PURE__ */ _bind(FW, 'gestaltDragMgrFloatingWind')
-export const gestaltDragMgrHasImageSupport = /* @__PURE__ */ _bind(FW, 'gestaltDragMgrHasImageSupport')
+export const gestaltDragMgrHasImageSupport = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltDragMgrHasImageSupport',
+)
+
 export const gestaltDragMgrPresent = /* @__PURE__ */ _bind(FW, 'gestaltDragMgrPresent')
 export const gestaltDrawSprocketVersion = /* @__PURE__ */ _bind(FW, 'gestaltDrawSprocketVersion')
 export const gestaltDupSelectorErr = /* @__PURE__ */ _bind(FW, 'gestaltDupSelectorErr')
@@ -3195,22 +4531,46 @@ export const gestaltEasyAccessOn = /* @__PURE__ */ _bind(FW, 'gestaltEasyAccessO
 export const gestaltEasyAccessSticky = /* @__PURE__ */ _bind(FW, 'gestaltEasyAccessSticky')
 export const gestaltEditionMgrAttr = /* @__PURE__ */ _bind(FW, 'gestaltEditionMgrAttr')
 export const gestaltEditionMgrPresent = /* @__PURE__ */ _bind(FW, 'gestaltEditionMgrPresent')
-export const gestaltEditionMgrTranslationAware = /* @__PURE__ */ _bind(FW, 'gestaltEditionMgrTranslationAware')
+export const gestaltEditionMgrTranslationAware = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltEditionMgrTranslationAware',
+)
+
 export const gestaltExtADBKbd = /* @__PURE__ */ _bind(FW, 'gestaltExtADBKbd')
 export const gestaltExtISOADBKbd = /* @__PURE__ */ _bind(FW, 'gestaltExtISOADBKbd')
 export const gestaltExtToolboxTable = /* @__PURE__ */ _bind(FW, 'gestaltExtToolboxTable')
 export const gestaltExtendedTimeMgr = /* @__PURE__ */ _bind(FW, 'gestaltExtendedTimeMgr')
-export const gestaltExtendedWindowAttributes = /* @__PURE__ */ _bind(FW, 'gestaltExtendedWindowAttributes')
-export const gestaltExtendedWindowAttributesBit = /* @__PURE__ */ _bind(FW, 'gestaltExtendedWindowAttributesBit')
-export const gestaltExtendedWindowAttributesMask = /* @__PURE__ */ _bind(FW, 'gestaltExtendedWindowAttributesMask')
-export const gestaltExtensionTableVersion = /* @__PURE__ */ _bind(FW, 'gestaltExtensionTableVersion')
+export const gestaltExtendedWindowAttributes = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltExtendedWindowAttributes',
+)
+
+export const gestaltExtendedWindowAttributesBit = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltExtendedWindowAttributesBit',
+)
+
+export const gestaltExtendedWindowAttributesMask = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltExtendedWindowAttributesMask',
+)
+
+export const gestaltExtensionTableVersion = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltExtensionTableVersion',
+)
+
 export const gestaltFBCCurrentVersion = /* @__PURE__ */ _bind(FW, 'gestaltFBCCurrentVersion')
 export const gestaltFBCIndexingState = /* @__PURE__ */ _bind(FW, 'gestaltFBCIndexingState')
 export const gestaltFBCVersion = /* @__PURE__ */ _bind(FW, 'gestaltFBCVersion')
 export const gestaltFBCindexingCritical = /* @__PURE__ */ _bind(FW, 'gestaltFBCindexingCritical')
 export const gestaltFBCindexingSafe = /* @__PURE__ */ _bind(FW, 'gestaltFBCindexingSafe')
 export const gestaltFPUType = /* @__PURE__ */ _bind(FW, 'gestaltFPUType')
-export const gestaltFSAllowsConcurrentAsyncIO = /* @__PURE__ */ _bind(FW, 'gestaltFSAllowsConcurrentAsyncIO')
+export const gestaltFSAllowsConcurrentAsyncIO = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltFSAllowsConcurrentAsyncIO',
+)
+
 export const gestaltFSAttr = /* @__PURE__ */ _bind(FW, 'gestaltFSAttr')
 export const gestaltFSIncompatibleDFA82 = /* @__PURE__ */ _bind(FW, 'gestaltFSIncompatibleDFA82')
 export const gestaltFSMDoesDynamicLoad = /* @__PURE__ */ _bind(FW, 'gestaltFSMDoesDynamicLoad')
@@ -3219,47 +4579,131 @@ export const gestaltFSNoMFSVols = /* @__PURE__ */ _bind(FW, 'gestaltFSNoMFSVols'
 export const gestaltFSSupports2TBVols = /* @__PURE__ */ _bind(FW, 'gestaltFSSupports2TBVols')
 export const gestaltFSSupports4GBVols = /* @__PURE__ */ _bind(FW, 'gestaltFSSupports4GBVols')
 export const gestaltFSSupportsDirectIO = /* @__PURE__ */ _bind(FW, 'gestaltFSSupportsDirectIO')
-export const gestaltFSSupportsExclusiveLocks = /* @__PURE__ */ _bind(FW, 'gestaltFSSupportsExclusiveLocks')
-export const gestaltFSSupportsHFSPlusVols = /* @__PURE__ */ _bind(FW, 'gestaltFSSupportsHFSPlusVols')
-export const gestaltFSSupportsHardLinkDetection = /* @__PURE__ */ _bind(FW, 'gestaltFSSupportsHardLinkDetection')
-export const gestaltFSUsesPOSIXPathsForConversion = /* @__PURE__ */ _bind(FW, 'gestaltFSUsesPOSIXPathsForConversion')
+export const gestaltFSSupportsExclusiveLocks = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltFSSupportsExclusiveLocks',
+)
+
+export const gestaltFSSupportsHFSPlusVols = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltFSSupportsHFSPlusVols',
+)
+
+export const gestaltFSSupportsHardLinkDetection = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltFSSupportsHardLinkDetection',
+)
+
+export const gestaltFSUsesPOSIXPathsForConversion = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltFSUsesPOSIXPathsForConversion',
+)
+
 export const gestaltFXfrMgrAsync = /* @__PURE__ */ _bind(FW, 'gestaltFXfrMgrAsync')
 export const gestaltFXfrMgrAttr = /* @__PURE__ */ _bind(FW, 'gestaltFXfrMgrAttr')
 export const gestaltFXfrMgrErrorString = /* @__PURE__ */ _bind(FW, 'gestaltFXfrMgrErrorString')
 export const gestaltFXfrMgrMultiFile = /* @__PURE__ */ _bind(FW, 'gestaltFXfrMgrMultiFile')
 export const gestaltFXfrMgrPresent = /* @__PURE__ */ _bind(FW, 'gestaltFXfrMgrPresent')
-export const gestaltFileAllocationZeroedBlocksBit = /* @__PURE__ */ _bind(FW, 'gestaltFileAllocationZeroedBlocksBit')
+export const gestaltFileAllocationZeroedBlocksBit = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltFileAllocationZeroedBlocksBit',
+)
+
 export const gestaltFileMappingAttr = /* @__PURE__ */ _bind(FW, 'gestaltFileMappingAttr')
-export const gestaltFileMappingMultipleFilesFix = /* @__PURE__ */ _bind(FW, 'gestaltFileMappingMultipleFilesFix')
+export const gestaltFileMappingMultipleFilesFix = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltFileMappingMultipleFilesFix',
+)
+
 export const gestaltFileMappingPresent = /* @__PURE__ */ _bind(FW, 'gestaltFileMappingPresent')
 export const gestaltFindFolderAttr = /* @__PURE__ */ _bind(FW, 'gestaltFindFolderAttr')
 export const gestaltFindFolderPresent = /* @__PURE__ */ _bind(FW, 'gestaltFindFolderPresent')
-export const gestaltFindFolderRedirectionAttr = /* @__PURE__ */ _bind(FW, 'gestaltFindFolderRedirectionAttr')
+export const gestaltFindFolderRedirectionAttr = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltFindFolderRedirectionAttr',
+)
+
 export const gestaltFinderAttr = /* @__PURE__ */ _bind(FW, 'gestaltFinderAttr')
 export const gestaltFinderCallsAEProcess = /* @__PURE__ */ _bind(FW, 'gestaltFinderCallsAEProcess')
 export const gestaltFinderDropEvent = /* @__PURE__ */ _bind(FW, 'gestaltFinderDropEvent')
-export const gestaltFinderFloppyRootComments = /* @__PURE__ */ _bind(FW, 'gestaltFinderFloppyRootComments')
-export const gestaltFinderFullDragManagerSupport = /* @__PURE__ */ _bind(FW, 'gestaltFinderFullDragManagerSupport')
+export const gestaltFinderFloppyRootComments = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltFinderFloppyRootComments',
+)
+
+export const gestaltFinderFullDragManagerSupport = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltFinderFullDragManagerSupport',
+)
+
 export const gestaltFinderHasClippings = /* @__PURE__ */ _bind(FW, 'gestaltFinderHasClippings')
-export const gestaltFinderLargeAndNotSavedFlavorsOK = /* @__PURE__ */ _bind(FW, 'gestaltFinderLargeAndNotSavedFlavorsOK')
+export const gestaltFinderLargeAndNotSavedFlavorsOK = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltFinderLargeAndNotSavedFlavorsOK',
+)
+
 export const gestaltFinderMagicPlacement = /* @__PURE__ */ _bind(FW, 'gestaltFinderMagicPlacement')
-export const gestaltFinderSupports4GBVolumes = /* @__PURE__ */ _bind(FW, 'gestaltFinderSupports4GBVolumes')
-export const gestaltFinderUnderstandsRedirectedDesktopFolder = /* @__PURE__ */ _bind(FW, 'gestaltFinderUnderstandsRedirectedDesktopFolder')
-export const gestaltFinderUsesExtensibleFolderManager = /* @__PURE__ */ _bind(FW, 'gestaltFinderUsesExtensibleFolderManager')
-export const gestaltFinderUsesSpecialOpenFoldersFile = /* @__PURE__ */ _bind(FW, 'gestaltFinderUsesSpecialOpenFoldersFile')
+export const gestaltFinderSupports4GBVolumes = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltFinderSupports4GBVolumes',
+)
+
+export const gestaltFinderUnderstandsRedirectedDesktopFolder = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltFinderUnderstandsRedirectedDesktopFolder',
+)
+
+export const gestaltFinderUsesExtensibleFolderManager = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltFinderUsesExtensibleFolderManager',
+)
+
+export const gestaltFinderUsesSpecialOpenFoldersFile = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltFinderUsesSpecialOpenFoldersFile',
+)
+
 export const gestaltFirstSlotNumber = /* @__PURE__ */ _bind(FW, 'gestaltFirstSlotNumber')
 export const gestaltFloppyAttr = /* @__PURE__ */ _bind(FW, 'gestaltFloppyAttr')
 export const gestaltFloppyIsMFMOnly = /* @__PURE__ */ _bind(FW, 'gestaltFloppyIsMFMOnly')
 export const gestaltFloppyIsManualEject = /* @__PURE__ */ _bind(FW, 'gestaltFloppyIsManualEject')
-export const gestaltFloppyUsesDiskInPlace = /* @__PURE__ */ _bind(FW, 'gestaltFloppyUsesDiskInPlace')
+export const gestaltFloppyUsesDiskInPlace = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltFloppyUsesDiskInPlace',
+)
+
 export const gestaltFolderDescSupport = /* @__PURE__ */ _bind(FW, 'gestaltFolderDescSupport')
-export const gestaltFolderMgrFollowsAliasesWhenResolving = /* @__PURE__ */ _bind(FW, 'gestaltFolderMgrFollowsAliasesWhenResolving')
-export const gestaltFolderMgrSupportsDomains = /* @__PURE__ */ _bind(FW, 'gestaltFolderMgrSupportsDomains')
-export const gestaltFolderMgrSupportsExtendedCalls = /* @__PURE__ */ _bind(FW, 'gestaltFolderMgrSupportsExtendedCalls')
-export const gestaltFolderMgrSupportsFSCalls = /* @__PURE__ */ _bind(FW, 'gestaltFolderMgrSupportsFSCalls')
+export const gestaltFolderMgrFollowsAliasesWhenResolving = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltFolderMgrFollowsAliasesWhenResolving',
+)
+
+export const gestaltFolderMgrSupportsDomains = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltFolderMgrSupportsDomains',
+)
+
+export const gestaltFolderMgrSupportsExtendedCalls = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltFolderMgrSupportsExtendedCalls',
+)
+
+export const gestaltFolderMgrSupportsFSCalls = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltFolderMgrSupportsFSCalls',
+)
+
 export const gestaltFontMgrAttr = /* @__PURE__ */ _bind(FW, 'gestaltFontMgrAttr')
-export const gestaltFrontWindowMayBeHiddenBit = /* @__PURE__ */ _bind(FW, 'gestaltFrontWindowMayBeHiddenBit')
-export const gestaltFrontWindowMayBeHiddenMask = /* @__PURE__ */ _bind(FW, 'gestaltFrontWindowMayBeHiddenMask')
+export const gestaltFrontWindowMayBeHiddenBit = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltFrontWindowMayBeHiddenBit',
+)
+
+export const gestaltFrontWindowMayBeHiddenMask = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltFrontWindowMayBeHiddenMask',
+)
+
 export const gestaltFullExtFSDispatching = /* @__PURE__ */ _bind(FW, 'gestaltFullExtFSDispatching')
 export const gestaltGXPrintingMgrVersion = /* @__PURE__ */ _bind(FW, 'gestaltGXPrintingMgrVersion')
 export const gestaltGXVersion = /* @__PURE__ */ _bind(FW, 'gestaltGXVersion')
@@ -3281,14 +4725,26 @@ export const gestaltHasFMTuner = /* @__PURE__ */ _bind(FW, 'gestaltHasFMTuner')
 export const gestaltHasFSSpecCalls = /* @__PURE__ */ _bind(FW, 'gestaltHasFSSpecCalls')
 export const gestaltHasFileSystemManager = /* @__PURE__ */ _bind(FW, 'gestaltHasFileSystemManager')
 export const gestaltHasFloatingWindows = /* @__PURE__ */ _bind(FW, 'gestaltHasFloatingWindows')
-export const gestaltHasFloatingWindowsBit = /* @__PURE__ */ _bind(FW, 'gestaltHasFloatingWindowsBit')
-export const gestaltHasFloatingWindowsMask = /* @__PURE__ */ _bind(FW, 'gestaltHasFloatingWindowsMask')
+export const gestaltHasFloatingWindowsBit = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltHasFloatingWindowsBit',
+)
+
+export const gestaltHasFloatingWindowsMask = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltHasFloatingWindowsMask',
+)
+
 export const gestaltHasGPIaToDCDa = /* @__PURE__ */ _bind(FW, 'gestaltHasGPIaToDCDa')
 export const gestaltHasGPIaToRTxCa = /* @__PURE__ */ _bind(FW, 'gestaltHasGPIaToRTxCa')
 export const gestaltHasGPIbToDCDb = /* @__PURE__ */ _bind(FW, 'gestaltHasGPIbToDCDb')
 export const gestaltHasGrayishTextOr = /* @__PURE__ */ _bind(FW, 'gestaltHasGrayishTextOr')
 export const gestaltHasHFSPlusAPIs = /* @__PURE__ */ _bind(FW, 'gestaltHasHFSPlusAPIs')
-export const gestaltHasHWClosedCaptioning = /* @__PURE__ */ _bind(FW, 'gestaltHasHWClosedCaptioning')
+export const gestaltHasHWClosedCaptioning = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltHasHWClosedCaptioning',
+)
+
 export const gestaltHasIRRemote = /* @__PURE__ */ _bind(FW, 'gestaltHasIRRemote')
 export const gestaltHasParityCapability = /* @__PURE__ */ _bind(FW, 'gestaltHasParityCapability')
 export const gestaltHasResourceOverrides = /* @__PURE__ */ _bind(FW, 'gestaltHasResourceOverrides')
@@ -3297,8 +4753,16 @@ export const gestaltHasSCSI = /* @__PURE__ */ _bind(FW, 'gestaltHasSCSI')
 export const gestaltHasSCSI961 = /* @__PURE__ */ _bind(FW, 'gestaltHasSCSI961')
 export const gestaltHasSCSI962 = /* @__PURE__ */ _bind(FW, 'gestaltHasSCSI962')
 export const gestaltHasSerialFader = /* @__PURE__ */ _bind(FW, 'gestaltHasSerialFader')
-export const gestaltHasSingleWindowModeBit = /* @__PURE__ */ _bind(FW, 'gestaltHasSingleWindowModeBit')
-export const gestaltHasSingleWindowModeMask = /* @__PURE__ */ _bind(FW, 'gestaltHasSingleWindowModeMask')
+export const gestaltHasSingleWindowModeBit = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltHasSingleWindowModeBit',
+)
+
+export const gestaltHasSingleWindowModeMask = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltHasSingleWindowModeMask',
+)
+
 export const gestaltHasSoftPowerOff = /* @__PURE__ */ _bind(FW, 'gestaltHasSoftPowerOff')
 export const gestaltHasSoundFader = /* @__PURE__ */ _bind(FW, 'gestaltHasSoundFader')
 export const gestaltHasSoundInputDevice = /* @__PURE__ */ _bind(FW, 'gestaltHasSoundInputDevice')
@@ -3310,8 +4774,16 @@ export const gestaltHasVIA1 = /* @__PURE__ */ _bind(FW, 'gestaltHasVIA1')
 export const gestaltHasVIA2 = /* @__PURE__ */ _bind(FW, 'gestaltHasVIA2')
 export const gestaltHasVidDecoderScaler = /* @__PURE__ */ _bind(FW, 'gestaltHasVidDecoderScaler')
 export const gestaltHasWindowBuffering = /* @__PURE__ */ _bind(FW, 'gestaltHasWindowBuffering')
-export const gestaltHasWindowBufferingBit = /* @__PURE__ */ _bind(FW, 'gestaltHasWindowBufferingBit')
-export const gestaltHasWindowBufferingMask = /* @__PURE__ */ _bind(FW, 'gestaltHasWindowBufferingMask')
+export const gestaltHasWindowBufferingBit = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltHasWindowBufferingBit',
+)
+
+export const gestaltHasWindowBufferingMask = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltHasWindowBufferingMask',
+)
+
 export const gestaltHasWindowShadowsBit = /* @__PURE__ */ _bind(FW, 'gestaltHasWindowShadowsBit')
 export const gestaltHasWindowShadowsMask = /* @__PURE__ */ _bind(FW, 'gestaltHasWindowShadowsMask')
 export const gestaltHasZoomedVideo = /* @__PURE__ */ _bind(FW, 'gestaltHasZoomedVideo')
@@ -3321,16 +4793,40 @@ export const gestaltHelpMgrPresent = /* @__PURE__ */ _bind(FW, 'gestaltHelpMgrPr
 export const gestaltHidePortA = /* @__PURE__ */ _bind(FW, 'gestaltHidePortA')
 export const gestaltHidePortB = /* @__PURE__ */ _bind(FW, 'gestaltHidePortB')
 export const gestaltHighLevelMatching = /* @__PURE__ */ _bind(FW, 'gestaltHighLevelMatching')
-export const gestaltINeedIRPowerOffConfirm = /* @__PURE__ */ _bind(FW, 'gestaltINeedIRPowerOffConfirm')
+export const gestaltINeedIRPowerOffConfirm = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltINeedIRPowerOffConfirm',
+)
+
 export const gestaltIPCSupport = /* @__PURE__ */ _bind(FW, 'gestaltIPCSupport')
 export const gestaltIRDisabled = /* @__PURE__ */ _bind(FW, 'gestaltIRDisabled')
 export const gestaltIconUtilitiesAttr = /* @__PURE__ */ _bind(FW, 'gestaltIconUtilitiesAttr')
-export const gestaltIconUtilitiesHas32BitIcons = /* @__PURE__ */ _bind(FW, 'gestaltIconUtilitiesHas32BitIcons')
-export const gestaltIconUtilitiesHas48PixelIcons = /* @__PURE__ */ _bind(FW, 'gestaltIconUtilitiesHas48PixelIcons')
-export const gestaltIconUtilitiesHas8BitDeepMasks = /* @__PURE__ */ _bind(FW, 'gestaltIconUtilitiesHas8BitDeepMasks')
-export const gestaltIconUtilitiesHasIconServices = /* @__PURE__ */ _bind(FW, 'gestaltIconUtilitiesHasIconServices')
+export const gestaltIconUtilitiesHas32BitIcons = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltIconUtilitiesHas32BitIcons',
+)
+
+export const gestaltIconUtilitiesHas48PixelIcons = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltIconUtilitiesHas48PixelIcons',
+)
+
+export const gestaltIconUtilitiesHas8BitDeepMasks = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltIconUtilitiesHas8BitDeepMasks',
+)
+
+export const gestaltIconUtilitiesHasIconServices = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltIconUtilitiesHasIconServices',
+)
+
 export const gestaltIconUtilitiesPresent = /* @__PURE__ */ _bind(FW, 'gestaltIconUtilitiesPresent')
-export const gestaltInitHeapZerosOutHeapsBit = /* @__PURE__ */ _bind(FW, 'gestaltInitHeapZerosOutHeapsBit')
+export const gestaltInitHeapZerosOutHeapsBit = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltInitHeapZerosOutHeapsBit',
+)
+
 export const gestaltIntel = /* @__PURE__ */ _bind(FW, 'gestaltIntel')
 export const gestaltInternalDisplay = /* @__PURE__ */ _bind(FW, 'gestaltInternalDisplay')
 export const gestaltJapanAdjustADBKbd = /* @__PURE__ */ _bind(FW, 'gestaltJapanAdjustADBKbd')
@@ -3376,10 +4872,26 @@ export const gestaltMacLC580 = /* @__PURE__ */ _bind(FW, 'gestaltMacLC580')
 export const gestaltMacLCII = /* @__PURE__ */ _bind(FW, 'gestaltMacLCII')
 export const gestaltMacLCIII = /* @__PURE__ */ _bind(FW, 'gestaltMacLCIII')
 export const gestaltMacOSCompatibility = /* @__PURE__ */ _bind(FW, 'gestaltMacOSCompatibility')
-export const gestaltMacOSCompatibilityBoxAttr = /* @__PURE__ */ _bind(FW, 'gestaltMacOSCompatibilityBoxAttr')
-export const gestaltMacOSCompatibilityBoxHasSerial = /* @__PURE__ */ _bind(FW, 'gestaltMacOSCompatibilityBoxHasSerial')
-export const gestaltMacOSCompatibilityBoxPresent = /* @__PURE__ */ _bind(FW, 'gestaltMacOSCompatibilityBoxPresent')
-export const gestaltMacOSCompatibilityBoxless = /* @__PURE__ */ _bind(FW, 'gestaltMacOSCompatibilityBoxless')
+export const gestaltMacOSCompatibilityBoxAttr = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltMacOSCompatibilityBoxAttr',
+)
+
+export const gestaltMacOSCompatibilityBoxHasSerial = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltMacOSCompatibilityBoxHasSerial',
+)
+
+export const gestaltMacOSCompatibilityBoxPresent = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltMacOSCompatibilityBoxPresent',
+)
+
+export const gestaltMacOSCompatibilityBoxless = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltMacOSCompatibilityBoxless',
+)
+
 export const gestaltMacOSXQD = /* @__PURE__ */ _bind(FW, 'gestaltMacOSXQD')
 export const gestaltMacOSXQDText = /* @__PURE__ */ _bind(FW, 'gestaltMacOSXQDText')
 export const gestaltMacPlus = /* @__PURE__ */ _bind(FW, 'gestaltMacPlus')
@@ -3404,27 +4916,79 @@ export const gestaltMediaBay = /* @__PURE__ */ _bind(FW, 'gestaltMediaBay')
 export const gestaltMemoryMapAttr = /* @__PURE__ */ _bind(FW, 'gestaltMemoryMapAttr')
 export const gestaltMemoryMapSparse = /* @__PURE__ */ _bind(FW, 'gestaltMemoryMapSparse')
 export const gestaltMenuMgrAquaLayoutBit = /* @__PURE__ */ _bind(FW, 'gestaltMenuMgrAquaLayoutBit')
-export const gestaltMenuMgrAquaLayoutMask = /* @__PURE__ */ _bind(FW, 'gestaltMenuMgrAquaLayoutMask')
+export const gestaltMenuMgrAquaLayoutMask = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltMenuMgrAquaLayoutMask',
+)
+
 export const gestaltMenuMgrAttr = /* @__PURE__ */ _bind(FW, 'gestaltMenuMgrAttr')
-export const gestaltMenuMgrCGImageMenuTitleBit = /* @__PURE__ */ _bind(FW, 'gestaltMenuMgrCGImageMenuTitleBit')
-export const gestaltMenuMgrCGImageMenuTitleMask = /* @__PURE__ */ _bind(FW, 'gestaltMenuMgrCGImageMenuTitleMask')
-export const gestaltMenuMgrMoreThanFiveMenusDeepBit = /* @__PURE__ */ _bind(FW, 'gestaltMenuMgrMoreThanFiveMenusDeepBit')
-export const gestaltMenuMgrMoreThanFiveMenusDeepMask = /* @__PURE__ */ _bind(FW, 'gestaltMenuMgrMoreThanFiveMenusDeepMask')
-export const gestaltMenuMgrMultipleItemsWithCommandIDBit = /* @__PURE__ */ _bind(FW, 'gestaltMenuMgrMultipleItemsWithCommandIDBit')
-export const gestaltMenuMgrMultipleItemsWithCommandIDMask = /* @__PURE__ */ _bind(FW, 'gestaltMenuMgrMultipleItemsWithCommandIDMask')
+export const gestaltMenuMgrCGImageMenuTitleBit = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltMenuMgrCGImageMenuTitleBit',
+)
+
+export const gestaltMenuMgrCGImageMenuTitleMask = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltMenuMgrCGImageMenuTitleMask',
+)
+
+export const gestaltMenuMgrMoreThanFiveMenusDeepBit = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltMenuMgrMoreThanFiveMenusDeepBit',
+)
+
+export const gestaltMenuMgrMoreThanFiveMenusDeepMask = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltMenuMgrMoreThanFiveMenusDeepMask',
+)
+
+export const gestaltMenuMgrMultipleItemsWithCommandIDBit = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltMenuMgrMultipleItemsWithCommandIDBit',
+)
+
+export const gestaltMenuMgrMultipleItemsWithCommandIDMask = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltMenuMgrMultipleItemsWithCommandIDMask',
+)
+
 export const gestaltMenuMgrPresent = /* @__PURE__ */ _bind(FW, 'gestaltMenuMgrPresent')
 export const gestaltMenuMgrPresentBit = /* @__PURE__ */ _bind(FW, 'gestaltMenuMgrPresentBit')
 export const gestaltMenuMgrPresentMask = /* @__PURE__ */ _bind(FW, 'gestaltMenuMgrPresentMask')
-export const gestaltMenuMgrRetainsIconRefBit = /* @__PURE__ */ _bind(FW, 'gestaltMenuMgrRetainsIconRefBit')
-export const gestaltMenuMgrRetainsIconRefMask = /* @__PURE__ */ _bind(FW, 'gestaltMenuMgrRetainsIconRefMask')
-export const gestaltMenuMgrSendsMenuBoundsToDefProcBit = /* @__PURE__ */ _bind(FW, 'gestaltMenuMgrSendsMenuBoundsToDefProcBit')
-export const gestaltMenuMgrSendsMenuBoundsToDefProcMask = /* @__PURE__ */ _bind(FW, 'gestaltMenuMgrSendsMenuBoundsToDefProcMask')
+export const gestaltMenuMgrRetainsIconRefBit = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltMenuMgrRetainsIconRefBit',
+)
+
+export const gestaltMenuMgrRetainsIconRefMask = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltMenuMgrRetainsIconRefMask',
+)
+
+export const gestaltMenuMgrSendsMenuBoundsToDefProcBit = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltMenuMgrSendsMenuBoundsToDefProcBit',
+)
+
+export const gestaltMenuMgrSendsMenuBoundsToDefProcMask = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltMenuMgrSendsMenuBoundsToDefProcMask',
+)
+
 export const gestaltMessageMgrVersion = /* @__PURE__ */ _bind(FW, 'gestaltMessageMgrVersion')
 export const gestaltMiscAttr = /* @__PURE__ */ _bind(FW, 'gestaltMiscAttr')
 export const gestaltMixedModeAttr = /* @__PURE__ */ _bind(FW, 'gestaltMixedModeAttr')
 export const gestaltMixedModeCFM68K = /* @__PURE__ */ _bind(FW, 'gestaltMixedModeCFM68K')
-export const gestaltMixedModeCFM68KHasState = /* @__PURE__ */ _bind(FW, 'gestaltMixedModeCFM68KHasState')
-export const gestaltMixedModeCFM68KHasTrap = /* @__PURE__ */ _bind(FW, 'gestaltMixedModeCFM68KHasTrap')
+export const gestaltMixedModeCFM68KHasState = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltMixedModeCFM68KHasState',
+)
+
+export const gestaltMixedModeCFM68KHasTrap = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltMixedModeCFM68KHasTrap',
+)
+
 export const gestaltMixedModePowerPC = /* @__PURE__ */ _bind(FW, 'gestaltMixedModePowerPC')
 export const gestaltMixedModeVersion = /* @__PURE__ */ _bind(FW, 'gestaltMixedModeVersion')
 export const gestaltMultiChannels = /* @__PURE__ */ _bind(FW, 'gestaltMultiChannels')
@@ -3435,9 +4999,21 @@ export const gestaltNativeCPUfamily = /* @__PURE__ */ _bind(FW, 'gestaltNativeCP
 export const gestaltNativeCPUtype = /* @__PURE__ */ _bind(FW, 'gestaltNativeCPUtype')
 export const gestaltNativeProcessMgrBit = /* @__PURE__ */ _bind(FW, 'gestaltNativeProcessMgrBit')
 export const gestaltNativeTimeMgr = /* @__PURE__ */ _bind(FW, 'gestaltNativeTimeMgr')
-export const gestaltNativeType1FontSupport = /* @__PURE__ */ _bind(FW, 'gestaltNativeType1FontSupport')
-export const gestaltNewHandleReturnsZeroedMemoryBit = /* @__PURE__ */ _bind(FW, 'gestaltNewHandleReturnsZeroedMemoryBit')
-export const gestaltNewPtrReturnsZeroedMemoryBit = /* @__PURE__ */ _bind(FW, 'gestaltNewPtrReturnsZeroedMemoryBit')
+export const gestaltNativeType1FontSupport = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltNativeType1FontSupport',
+)
+
+export const gestaltNewHandleReturnsZeroedMemoryBit = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltNewHandleReturnsZeroedMemoryBit',
+)
+
+export const gestaltNewPtrReturnsZeroedMemoryBit = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltNewPtrReturnsZeroedMemoryBit',
+)
+
 export const gestaltNoFPU = /* @__PURE__ */ _bind(FW, 'gestaltNoFPU')
 export const gestaltNoMMU = /* @__PURE__ */ _bind(FW, 'gestaltNoMMU')
 export const gestaltNotificationMgrAttr = /* @__PURE__ */ _bind(FW, 'gestaltNotificationMgrAttr')
@@ -3448,7 +5024,11 @@ export const gestaltNuBusSlotCount = /* @__PURE__ */ _bind(FW, 'gestaltNuBusSlot
 export const gestaltOCESFServerAvailable = /* @__PURE__ */ _bind(FW, 'gestaltOCESFServerAvailable')
 export const gestaltOCETB = /* @__PURE__ */ _bind(FW, 'gestaltOCETB')
 export const gestaltOCETBAvailable = /* @__PURE__ */ _bind(FW, 'gestaltOCETBAvailable')
-export const gestaltOCETBNativeGlueAvailable = /* @__PURE__ */ _bind(FW, 'gestaltOCETBNativeGlueAvailable')
+export const gestaltOCETBNativeGlueAvailable = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltOCETBNativeGlueAvailable',
+)
+
 export const gestaltOCETBPresent = /* @__PURE__ */ _bind(FW, 'gestaltOCETBPresent')
 export const gestaltOCEToolboxAttr = /* @__PURE__ */ _bind(FW, 'gestaltOCEToolboxAttr')
 export const gestaltOCEToolboxVersion = /* @__PURE__ */ _bind(FW, 'gestaltOCEToolboxVersion')
@@ -3461,35 +5041,111 @@ export const gestaltOSXFBCCurrentVersion = /* @__PURE__ */ _bind(FW, 'gestaltOSX
 export const gestaltOpenFirmwareInfo = /* @__PURE__ */ _bind(FW, 'gestaltOpenFirmwareInfo')
 export const gestaltOpenTpt = /* @__PURE__ */ _bind(FW, 'gestaltOpenTpt')
 export const gestaltOpenTptARAPPresent = /* @__PURE__ */ _bind(FW, 'gestaltOpenTptARAPPresent')
-export const gestaltOpenTptAppleTalkLoadedBit = /* @__PURE__ */ _bind(FW, 'gestaltOpenTptAppleTalkLoadedBit')
-export const gestaltOpenTptAppleTalkLoadedMask = /* @__PURE__ */ _bind(FW, 'gestaltOpenTptAppleTalkLoadedMask')
-export const gestaltOpenTptAppleTalkPresentBit = /* @__PURE__ */ _bind(FW, 'gestaltOpenTptAppleTalkPresentBit')
-export const gestaltOpenTptAppleTalkPresentMask = /* @__PURE__ */ _bind(FW, 'gestaltOpenTptAppleTalkPresentMask')
-export const gestaltOpenTptIPXSPXLoadedBit = /* @__PURE__ */ _bind(FW, 'gestaltOpenTptIPXSPXLoadedBit')
-export const gestaltOpenTptIPXSPXLoadedMask = /* @__PURE__ */ _bind(FW, 'gestaltOpenTptIPXSPXLoadedMask')
-export const gestaltOpenTptIPXSPXPresentBit = /* @__PURE__ */ _bind(FW, 'gestaltOpenTptIPXSPXPresentBit')
-export const gestaltOpenTptIPXSPXPresentMask = /* @__PURE__ */ _bind(FW, 'gestaltOpenTptIPXSPXPresentMask')
+export const gestaltOpenTptAppleTalkLoadedBit = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltOpenTptAppleTalkLoadedBit',
+)
+
+export const gestaltOpenTptAppleTalkLoadedMask = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltOpenTptAppleTalkLoadedMask',
+)
+
+export const gestaltOpenTptAppleTalkPresentBit = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltOpenTptAppleTalkPresentBit',
+)
+
+export const gestaltOpenTptAppleTalkPresentMask = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltOpenTptAppleTalkPresentMask',
+)
+
+export const gestaltOpenTptIPXSPXLoadedBit = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltOpenTptIPXSPXLoadedBit',
+)
+
+export const gestaltOpenTptIPXSPXLoadedMask = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltOpenTptIPXSPXLoadedMask',
+)
+
+export const gestaltOpenTptIPXSPXPresentBit = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltOpenTptIPXSPXPresentBit',
+)
+
+export const gestaltOpenTptIPXSPXPresentMask = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltOpenTptIPXSPXPresentMask',
+)
+
 export const gestaltOpenTptLoadedBit = /* @__PURE__ */ _bind(FW, 'gestaltOpenTptLoadedBit')
 export const gestaltOpenTptLoadedMask = /* @__PURE__ */ _bind(FW, 'gestaltOpenTptLoadedMask')
 export const gestaltOpenTptNetworkSetup = /* @__PURE__ */ _bind(FW, 'gestaltOpenTptNetworkSetup')
-export const gestaltOpenTptNetworkSetupLegacyExport = /* @__PURE__ */ _bind(FW, 'gestaltOpenTptNetworkSetupLegacyExport')
-export const gestaltOpenTptNetworkSetupLegacyImport = /* @__PURE__ */ _bind(FW, 'gestaltOpenTptNetworkSetupLegacyImport')
-export const gestaltOpenTptNetworkSetupSupportsMultihoming = /* @__PURE__ */ _bind(FW, 'gestaltOpenTptNetworkSetupSupportsMultihoming')
-export const gestaltOpenTptNetworkSetupVersion = /* @__PURE__ */ _bind(FW, 'gestaltOpenTptNetworkSetupVersion')
+export const gestaltOpenTptNetworkSetupLegacyExport = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltOpenTptNetworkSetupLegacyExport',
+)
+
+export const gestaltOpenTptNetworkSetupLegacyImport = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltOpenTptNetworkSetupLegacyImport',
+)
+
+export const gestaltOpenTptNetworkSetupSupportsMultihoming = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltOpenTptNetworkSetupSupportsMultihoming',
+)
+
+export const gestaltOpenTptNetworkSetupVersion = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltOpenTptNetworkSetupVersion',
+)
+
 export const gestaltOpenTptPPPPresent = /* @__PURE__ */ _bind(FW, 'gestaltOpenTptPPPPresent')
 export const gestaltOpenTptPresentBit = /* @__PURE__ */ _bind(FW, 'gestaltOpenTptPresentBit')
 export const gestaltOpenTptPresentMask = /* @__PURE__ */ _bind(FW, 'gestaltOpenTptPresentMask')
 export const gestaltOpenTptRemoteAccess = /* @__PURE__ */ _bind(FW, 'gestaltOpenTptRemoteAccess')
-export const gestaltOpenTptRemoteAccessClientOnly = /* @__PURE__ */ _bind(FW, 'gestaltOpenTptRemoteAccessClientOnly')
-export const gestaltOpenTptRemoteAccessLoaded = /* @__PURE__ */ _bind(FW, 'gestaltOpenTptRemoteAccessLoaded')
-export const gestaltOpenTptRemoteAccessMPServer = /* @__PURE__ */ _bind(FW, 'gestaltOpenTptRemoteAccessMPServer')
-export const gestaltOpenTptRemoteAccessPServer = /* @__PURE__ */ _bind(FW, 'gestaltOpenTptRemoteAccessPServer')
-export const gestaltOpenTptRemoteAccessPresent = /* @__PURE__ */ _bind(FW, 'gestaltOpenTptRemoteAccessPresent')
-export const gestaltOpenTptRemoteAccessVersion = /* @__PURE__ */ _bind(FW, 'gestaltOpenTptRemoteAccessVersion')
+export const gestaltOpenTptRemoteAccessClientOnly = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltOpenTptRemoteAccessClientOnly',
+)
+
+export const gestaltOpenTptRemoteAccessLoaded = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltOpenTptRemoteAccessLoaded',
+)
+
+export const gestaltOpenTptRemoteAccessMPServer = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltOpenTptRemoteAccessMPServer',
+)
+
+export const gestaltOpenTptRemoteAccessPServer = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltOpenTptRemoteAccessPServer',
+)
+
+export const gestaltOpenTptRemoteAccessPresent = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltOpenTptRemoteAccessPresent',
+)
+
+export const gestaltOpenTptRemoteAccessVersion = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltOpenTptRemoteAccessVersion',
+)
+
 export const gestaltOpenTptTCPLoadedBit = /* @__PURE__ */ _bind(FW, 'gestaltOpenTptTCPLoadedBit')
 export const gestaltOpenTptTCPLoadedMask = /* @__PURE__ */ _bind(FW, 'gestaltOpenTptTCPLoadedMask')
 export const gestaltOpenTptTCPPresentBit = /* @__PURE__ */ _bind(FW, 'gestaltOpenTptTCPPresentBit')
-export const gestaltOpenTptTCPPresentMask = /* @__PURE__ */ _bind(FW, 'gestaltOpenTptTCPPresentMask')
+export const gestaltOpenTptTCPPresentMask = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltOpenTptTCPPresentMask',
+)
+
 export const gestaltOpenTptVersions = /* @__PURE__ */ _bind(FW, 'gestaltOpenTptVersions')
 export const gestaltOriginalATSUVersion = /* @__PURE__ */ _bind(FW, 'gestaltOriginalATSUVersion')
 export const gestaltOriginalQD = /* @__PURE__ */ _bind(FW, 'gestaltOriginalQD')
@@ -3497,8 +5153,16 @@ export const gestaltOriginalQDText = /* @__PURE__ */ _bind(FW, 'gestaltOriginalQ
 export const gestaltOutlineFonts = /* @__PURE__ */ _bind(FW, 'gestaltOutlineFonts')
 export const gestaltPCCard = /* @__PURE__ */ _bind(FW, 'gestaltPCCard')
 export const gestaltPCCardFamilyPresent = /* @__PURE__ */ _bind(FW, 'gestaltPCCardFamilyPresent')
-export const gestaltPCCardHasPowerControl = /* @__PURE__ */ _bind(FW, 'gestaltPCCardHasPowerControl')
-export const gestaltPCCardSupportsCardBus = /* @__PURE__ */ _bind(FW, 'gestaltPCCardSupportsCardBus')
+export const gestaltPCCardHasPowerControl = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltPCCardHasPowerControl',
+)
+
+export const gestaltPCCardSupportsCardBus = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltPCCardSupportsCardBus',
+)
+
 export const gestaltPCXAttr = /* @__PURE__ */ _bind(FW, 'gestaltPCXAttr')
 export const gestaltPCXHas8and16BitFAT = /* @__PURE__ */ _bind(FW, 'gestaltPCXHas8and16BitFAT')
 export const gestaltPCXHasProDOS = /* @__PURE__ */ _bind(FW, 'gestaltPCXHasProDOS')
@@ -3509,15 +5173,39 @@ export const gestaltPMgrDispatchExists = /* @__PURE__ */ _bind(FW, 'gestaltPMgrD
 export const gestaltPMgrExists = /* @__PURE__ */ _bind(FW, 'gestaltPMgrExists')
 export const gestaltPMgrSCC = /* @__PURE__ */ _bind(FW, 'gestaltPMgrSCC')
 export const gestaltPMgrSound = /* @__PURE__ */ _bind(FW, 'gestaltPMgrSound')
-export const gestaltPMgrSupportsAVPowerStateAtSleepWake = /* @__PURE__ */ _bind(FW, 'gestaltPMgrSupportsAVPowerStateAtSleepWake')
+export const gestaltPMgrSupportsAVPowerStateAtSleepWake = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltPMgrSupportsAVPowerStateAtSleepWake',
+)
+
 export const gestaltPPCDragLibPresent = /* @__PURE__ */ _bind(FW, 'gestaltPPCDragLibPresent')
-export const gestaltPPCQuickTimeLibPresent = /* @__PURE__ */ _bind(FW, 'gestaltPPCQuickTimeLibPresent')
+export const gestaltPPCQuickTimeLibPresent = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltPPCQuickTimeLibPresent',
+)
+
 export const gestaltPPCSupportsIncoming = /* @__PURE__ */ _bind(FW, 'gestaltPPCSupportsIncoming')
-export const gestaltPPCSupportsIncomingAppleTalk = /* @__PURE__ */ _bind(FW, 'gestaltPPCSupportsIncomingAppleTalk')
-export const gestaltPPCSupportsIncomingTCP_IP = /* @__PURE__ */ _bind(FW, 'gestaltPPCSupportsIncomingTCP_IP')
+export const gestaltPPCSupportsIncomingAppleTalk = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltPPCSupportsIncomingAppleTalk',
+)
+
+export const gestaltPPCSupportsIncomingTCP_IP = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltPPCSupportsIncomingTCP_IP',
+)
+
 export const gestaltPPCSupportsOutGoing = /* @__PURE__ */ _bind(FW, 'gestaltPPCSupportsOutGoing')
-export const gestaltPPCSupportsOutgoingAppleTalk = /* @__PURE__ */ _bind(FW, 'gestaltPPCSupportsOutgoingAppleTalk')
-export const gestaltPPCSupportsOutgoingTCP_IP = /* @__PURE__ */ _bind(FW, 'gestaltPPCSupportsOutgoingTCP_IP')
+export const gestaltPPCSupportsOutgoingAppleTalk = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltPPCSupportsOutgoingAppleTalk',
+)
+
+export const gestaltPPCSupportsOutgoingTCP_IP = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltPPCSupportsOutgoingTCP_IP',
+)
+
 export const gestaltPPCSupportsRealTime = /* @__PURE__ */ _bind(FW, 'gestaltPPCSupportsRealTime')
 export const gestaltPPCSupportsTCP_IP = /* @__PURE__ */ _bind(FW, 'gestaltPPCSupportsTCP_IP')
 export const gestaltPPCToolboxAttr = /* @__PURE__ */ _bind(FW, 'gestaltPPCToolboxAttr')
@@ -3538,7 +5226,11 @@ export const gestaltPerforma6300 = /* @__PURE__ */ _bind(FW, 'gestaltPerforma630
 export const gestaltPerforma6360 = /* @__PURE__ */ _bind(FW, 'gestaltPerforma6360')
 export const gestaltPerforma6400 = /* @__PURE__ */ _bind(FW, 'gestaltPerforma6400')
 export const gestaltPhysicalRAMSize = /* @__PURE__ */ _bind(FW, 'gestaltPhysicalRAMSize')
-export const gestaltPhysicalRAMSizeInMegabytes = /* @__PURE__ */ _bind(FW, 'gestaltPhysicalRAMSizeInMegabytes')
+export const gestaltPhysicalRAMSizeInMegabytes = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltPhysicalRAMSizeInMegabytes',
+)
+
 export const gestaltPlayAndRecord = /* @__PURE__ */ _bind(FW, 'gestaltPlayAndRecord')
 export const gestaltPopupAttr = /* @__PURE__ */ _bind(FW, 'gestaltPopupAttr')
 export const gestaltPopupPresent = /* @__PURE__ */ _bind(FW, 'gestaltPopupPresent')
@@ -3566,7 +5258,11 @@ export const gestaltPowerBook180c = /* @__PURE__ */ _bind(FW, 'gestaltPowerBook1
 export const gestaltPowerBook190 = /* @__PURE__ */ _bind(FW, 'gestaltPowerBook190')
 export const gestaltPowerBook2400 = /* @__PURE__ */ _bind(FW, 'gestaltPowerBook2400')
 export const gestaltPowerBook3400 = /* @__PURE__ */ _bind(FW, 'gestaltPowerBook3400')
-export const gestaltPowerBook500PPCUpgrade = /* @__PURE__ */ _bind(FW, 'gestaltPowerBook500PPCUpgrade')
+export const gestaltPowerBook500PPCUpgrade = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltPowerBook500PPCUpgrade',
+)
+
 export const gestaltPowerBook520 = /* @__PURE__ */ _bind(FW, 'gestaltPowerBook520')
 export const gestaltPowerBook520c = /* @__PURE__ */ _bind(FW, 'gestaltPowerBook520c')
 export const gestaltPowerBook5300 = /* @__PURE__ */ _bind(FW, 'gestaltPowerBook5300')
@@ -3627,24 +5323,68 @@ export const gestaltPowerMacQuadra950 = /* @__PURE__ */ _bind(FW, 'gestaltPowerM
 export const gestaltPowerMgrAttr = /* @__PURE__ */ _bind(FW, 'gestaltPowerMgrAttr')
 export const gestaltPowerMgrVers = /* @__PURE__ */ _bind(FW, 'gestaltPowerMgrVers')
 export const gestaltPowerPC = /* @__PURE__ */ _bind(FW, 'gestaltPowerPC')
-export const gestaltPowerPCASArchitecture = /* @__PURE__ */ _bind(FW, 'gestaltPowerPCASArchitecture')
+export const gestaltPowerPCASArchitecture = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltPowerPCASArchitecture',
+)
+
 export const gestaltPowerPCAware = /* @__PURE__ */ _bind(FW, 'gestaltPowerPCAware')
-export const gestaltPowerPCHas64BitSupport = /* @__PURE__ */ _bind(FW, 'gestaltPowerPCHas64BitSupport')
-export const gestaltPowerPCHasDCBAInstruction = /* @__PURE__ */ _bind(FW, 'gestaltPowerPCHasDCBAInstruction')
-export const gestaltPowerPCHasDCBTStreams = /* @__PURE__ */ _bind(FW, 'gestaltPowerPCHasDCBTStreams')
-export const gestaltPowerPCHasDataStreams = /* @__PURE__ */ _bind(FW, 'gestaltPowerPCHasDataStreams')
-export const gestaltPowerPCHasGraphicsInstructions = /* @__PURE__ */ _bind(FW, 'gestaltPowerPCHasGraphicsInstructions')
-export const gestaltPowerPCHasSTFIWXInstruction = /* @__PURE__ */ _bind(FW, 'gestaltPowerPCHasSTFIWXInstruction')
-export const gestaltPowerPCHasSquareRootInstructions = /* @__PURE__ */ _bind(FW, 'gestaltPowerPCHasSquareRootInstructions')
-export const gestaltPowerPCHasVectorInstructions = /* @__PURE__ */ _bind(FW, 'gestaltPowerPCHasVectorInstructions')
+export const gestaltPowerPCHas64BitSupport = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltPowerPCHas64BitSupport',
+)
+
+export const gestaltPowerPCHasDCBAInstruction = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltPowerPCHasDCBAInstruction',
+)
+
+export const gestaltPowerPCHasDCBTStreams = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltPowerPCHasDCBTStreams',
+)
+
+export const gestaltPowerPCHasDataStreams = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltPowerPCHasDataStreams',
+)
+
+export const gestaltPowerPCHasGraphicsInstructions = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltPowerPCHasGraphicsInstructions',
+)
+
+export const gestaltPowerPCHasSTFIWXInstruction = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltPowerPCHasSTFIWXInstruction',
+)
+
+export const gestaltPowerPCHasSquareRootInstructions = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltPowerPCHasSquareRootInstructions',
+)
+
+export const gestaltPowerPCHasVectorInstructions = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltPowerPCHasVectorInstructions',
+)
+
 export const gestaltPowerPCIgnoresDCBST = /* @__PURE__ */ _bind(FW, 'gestaltPowerPCIgnoresDCBST')
-export const gestaltPowerPCProcessorFeatures = /* @__PURE__ */ _bind(FW, 'gestaltPowerPCProcessorFeatures')
+export const gestaltPowerPCProcessorFeatures = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltPowerPCProcessorFeatures',
+)
+
 export const gestaltProF16ANSIKbd = /* @__PURE__ */ _bind(FW, 'gestaltProF16ANSIKbd')
 export const gestaltProF16ISOKbd = /* @__PURE__ */ _bind(FW, 'gestaltProF16ISOKbd')
 export const gestaltProF16JISKbd = /* @__PURE__ */ _bind(FW, 'gestaltProF16JISKbd')
 export const gestaltProcClkSpeed = /* @__PURE__ */ _bind(FW, 'gestaltProcClkSpeed')
 export const gestaltProcClkSpeedMHz = /* @__PURE__ */ _bind(FW, 'gestaltProcClkSpeedMHz')
-export const gestaltProcessorCacheLineSize = /* @__PURE__ */ _bind(FW, 'gestaltProcessorCacheLineSize')
+export const gestaltProcessorCacheLineSize = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltProcessorCacheLineSize',
+)
+
 export const gestaltProcessorType = /* @__PURE__ */ _bind(FW, 'gestaltProcessorType')
 export const gestaltPrtblADBKbd = /* @__PURE__ */ _bind(FW, 'gestaltPrtblADBKbd')
 export const gestaltPrtblISOKbd = /* @__PURE__ */ _bind(FW, 'gestaltPrtblISOKbd')
@@ -3668,8 +5408,16 @@ export const gestaltQD3DViewerPresent = /* @__PURE__ */ _bind(FW, 'gestaltQD3DVi
 export const gestaltQDHasLongRowBytes = /* @__PURE__ */ _bind(FW, 'gestaltQDHasLongRowBytes')
 export const gestaltQDTextFeatures = /* @__PURE__ */ _bind(FW, 'gestaltQDTextFeatures')
 export const gestaltQDTextVersion = /* @__PURE__ */ _bind(FW, 'gestaltQDTextVersion')
-export const gestaltQTVRCubicPanosPresent = /* @__PURE__ */ _bind(FW, 'gestaltQTVRCubicPanosPresent')
-export const gestaltQTVRCylinderPanosPresent = /* @__PURE__ */ _bind(FW, 'gestaltQTVRCylinderPanosPresent')
+export const gestaltQTVRCubicPanosPresent = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltQTVRCubicPanosPresent',
+)
+
+export const gestaltQTVRCylinderPanosPresent = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltQTVRCylinderPanosPresent',
+)
+
 export const gestaltQTVRMgrAttr = /* @__PURE__ */ _bind(FW, 'gestaltQTVRMgrAttr')
 export const gestaltQTVRMgrPresent = /* @__PURE__ */ _bind(FW, 'gestaltQTVRMgrPresent')
 export const gestaltQTVRMgrVers = /* @__PURE__ */ _bind(FW, 'gestaltQTVRMgrVers')
@@ -3685,34 +5433,98 @@ export const gestaltQuadra840AV = /* @__PURE__ */ _bind(FW, 'gestaltQuadra840AV'
 export const gestaltQuadra900 = /* @__PURE__ */ _bind(FW, 'gestaltQuadra900')
 export const gestaltQuadra950 = /* @__PURE__ */ _bind(FW, 'gestaltQuadra950')
 export const gestaltQuickTime = /* @__PURE__ */ _bind(FW, 'gestaltQuickTime')
-export const gestaltQuickTimeConferencing = /* @__PURE__ */ _bind(FW, 'gestaltQuickTimeConferencing')
-export const gestaltQuickTimeConferencingInfo = /* @__PURE__ */ _bind(FW, 'gestaltQuickTimeConferencingInfo')
+export const gestaltQuickTimeConferencing = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltQuickTimeConferencing',
+)
+
+export const gestaltQuickTimeConferencingInfo = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltQuickTimeConferencingInfo',
+)
+
 export const gestaltQuickTimeFeatures = /* @__PURE__ */ _bind(FW, 'gestaltQuickTimeFeatures')
-export const gestaltQuickTimeStreamingFeatures = /* @__PURE__ */ _bind(FW, 'gestaltQuickTimeStreamingFeatures')
-export const gestaltQuickTimeStreamingVersion = /* @__PURE__ */ _bind(FW, 'gestaltQuickTimeStreamingVersion')
-export const gestaltQuickTimeThreadSafeFeaturesAttr = /* @__PURE__ */ _bind(FW, 'gestaltQuickTimeThreadSafeFeaturesAttr')
-export const gestaltQuickTimeThreadSafeGraphicsExport = /* @__PURE__ */ _bind(FW, 'gestaltQuickTimeThreadSafeGraphicsExport')
-export const gestaltQuickTimeThreadSafeGraphicsImport = /* @__PURE__ */ _bind(FW, 'gestaltQuickTimeThreadSafeGraphicsImport')
-export const gestaltQuickTimeThreadSafeICM = /* @__PURE__ */ _bind(FW, 'gestaltQuickTimeThreadSafeICM')
-export const gestaltQuickTimeThreadSafeMovieExport = /* @__PURE__ */ _bind(FW, 'gestaltQuickTimeThreadSafeMovieExport')
-export const gestaltQuickTimeThreadSafeMovieImport = /* @__PURE__ */ _bind(FW, 'gestaltQuickTimeThreadSafeMovieImport')
-export const gestaltQuickTimeThreadSafeMoviePlayback = /* @__PURE__ */ _bind(FW, 'gestaltQuickTimeThreadSafeMoviePlayback')
-export const gestaltQuickTimeThreadSafeMovieToolbox = /* @__PURE__ */ _bind(FW, 'gestaltQuickTimeThreadSafeMovieToolbox')
+export const gestaltQuickTimeStreamingFeatures = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltQuickTimeStreamingFeatures',
+)
+
+export const gestaltQuickTimeStreamingVersion = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltQuickTimeStreamingVersion',
+)
+
+export const gestaltQuickTimeThreadSafeFeaturesAttr = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltQuickTimeThreadSafeFeaturesAttr',
+)
+
+export const gestaltQuickTimeThreadSafeGraphicsExport = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltQuickTimeThreadSafeGraphicsExport',
+)
+
+export const gestaltQuickTimeThreadSafeGraphicsImport = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltQuickTimeThreadSafeGraphicsImport',
+)
+
+export const gestaltQuickTimeThreadSafeICM = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltQuickTimeThreadSafeICM',
+)
+
+export const gestaltQuickTimeThreadSafeMovieExport = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltQuickTimeThreadSafeMovieExport',
+)
+
+export const gestaltQuickTimeThreadSafeMovieImport = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltQuickTimeThreadSafeMovieImport',
+)
+
+export const gestaltQuickTimeThreadSafeMoviePlayback = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltQuickTimeThreadSafeMoviePlayback',
+)
+
+export const gestaltQuickTimeThreadSafeMovieToolbox = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltQuickTimeThreadSafeMovieToolbox',
+)
+
 export const gestaltQuickTimeVersion = /* @__PURE__ */ _bind(FW, 'gestaltQuickTimeVersion')
 export const gestaltQuickdrawFeatures = /* @__PURE__ */ _bind(FW, 'gestaltQuickdrawFeatures')
 export const gestaltQuickdrawVersion = /* @__PURE__ */ _bind(FW, 'gestaltQuickdrawVersion')
 export const gestaltRBVAddr = /* @__PURE__ */ _bind(FW, 'gestaltRBVAddr')
-export const gestaltRMFakeAppleMenuItemsRolledIn = /* @__PURE__ */ _bind(FW, 'gestaltRMFakeAppleMenuItemsRolledIn')
-export const gestaltRMForceSysHeapRolledIn = /* @__PURE__ */ _bind(FW, 'gestaltRMForceSysHeapRolledIn')
+export const gestaltRMFakeAppleMenuItemsRolledIn = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltRMFakeAppleMenuItemsRolledIn',
+)
+
+export const gestaltRMForceSysHeapRolledIn = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltRMForceSysHeapRolledIn',
+)
+
 export const gestaltRMSupportsFSCalls = /* @__PURE__ */ _bind(FW, 'gestaltRMSupportsFSCalls')
-export const gestaltRMTypeIndexOrderingReverse = /* @__PURE__ */ _bind(FW, 'gestaltRMTypeIndexOrderingReverse')
+export const gestaltRMTypeIndexOrderingReverse = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltRMTypeIndexOrderingReverse',
+)
+
 export const gestaltROMSize = /* @__PURE__ */ _bind(FW, 'gestaltROMSize')
 export const gestaltROMVersion = /* @__PURE__ */ _bind(FW, 'gestaltROMVersion')
 export const gestaltRealTempMemory = /* @__PURE__ */ _bind(FW, 'gestaltRealTempMemory')
 export const gestaltRealtimeMgrAttr = /* @__PURE__ */ _bind(FW, 'gestaltRealtimeMgrAttr')
 export const gestaltRealtimeMgrPresent = /* @__PURE__ */ _bind(FW, 'gestaltRealtimeMgrPresent')
 export const gestaltResourceMgrAttr = /* @__PURE__ */ _bind(FW, 'gestaltResourceMgrAttr')
-export const gestaltResourceMgrBugFixesAttrs = /* @__PURE__ */ _bind(FW, 'gestaltResourceMgrBugFixesAttrs')
+export const gestaltResourceMgrBugFixesAttrs = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltResourceMgrBugFixesAttrs',
+)
+
 export const gestaltRevisedTimeMgr = /* @__PURE__ */ _bind(FW, 'gestaltRevisedTimeMgr')
 export const gestaltSCCReadAddr = /* @__PURE__ */ _bind(FW, 'gestaltSCCReadAddr')
 export const gestaltSCCWriteAddr = /* @__PURE__ */ _bind(FW, 'gestaltSCCWriteAddr')
@@ -3721,68 +5533,156 @@ export const gestaltSCSIPollSIH = /* @__PURE__ */ _bind(FW, 'gestaltSCSIPollSIH'
 export const gestaltSCSISlotBoot = /* @__PURE__ */ _bind(FW, 'gestaltSCSISlotBoot')
 export const gestaltSDPFindVersion = /* @__PURE__ */ _bind(FW, 'gestaltSDPFindVersion')
 export const gestaltSDPPromptVersion = /* @__PURE__ */ _bind(FW, 'gestaltSDPPromptVersion')
-export const gestaltSDPStandardDirectoryVersion = /* @__PURE__ */ _bind(FW, 'gestaltSDPStandardDirectoryVersion')
+export const gestaltSDPStandardDirectoryVersion = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltSDPStandardDirectoryVersion',
+)
+
 export const gestaltSE30SlotPresent = /* @__PURE__ */ _bind(FW, 'gestaltSE30SlotPresent')
 export const gestaltSESlotPresent = /* @__PURE__ */ _bind(FW, 'gestaltSESlotPresent')
 export const gestaltSFServer = /* @__PURE__ */ _bind(FW, 'gestaltSFServer')
 export const gestaltSMPMailerVersion = /* @__PURE__ */ _bind(FW, 'gestaltSMPMailerVersion')
-export const gestaltSMPSPSendLetterVersion = /* @__PURE__ */ _bind(FW, 'gestaltSMPSPSendLetterVersion')
+export const gestaltSMPSPSendLetterVersion = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltSMPSPSendLetterVersion',
+)
+
 export const gestaltSafeOFAttr = /* @__PURE__ */ _bind(FW, 'gestaltSafeOFAttr')
-export const gestaltSanityCheckResourceFiles = /* @__PURE__ */ _bind(FW, 'gestaltSanityCheckResourceFiles')
+export const gestaltSanityCheckResourceFiles = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltSanityCheckResourceFiles',
+)
+
 export const gestaltSbitFontSupport = /* @__PURE__ */ _bind(FW, 'gestaltSbitFontSupport')
 export const gestaltScrapMgrAttr = /* @__PURE__ */ _bind(FW, 'gestaltScrapMgrAttr')
-export const gestaltScrapMgrTranslationAware = /* @__PURE__ */ _bind(FW, 'gestaltScrapMgrTranslationAware')
+export const gestaltScrapMgrTranslationAware = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltScrapMgrTranslationAware',
+)
+
 export const gestaltScreenCaptureDir = /* @__PURE__ */ _bind(FW, 'gestaltScreenCaptureDir')
 export const gestaltScreenCaptureMain = /* @__PURE__ */ _bind(FW, 'gestaltScreenCaptureMain')
 export const gestaltScriptCount = /* @__PURE__ */ _bind(FW, 'gestaltScriptCount')
 export const gestaltScriptMgrVersion = /* @__PURE__ */ _bind(FW, 'gestaltScriptMgrVersion')
 export const gestaltScriptingSupport = /* @__PURE__ */ _bind(FW, 'gestaltScriptingSupport')
 export const gestaltScrollingThrottle = /* @__PURE__ */ _bind(FW, 'gestaltScrollingThrottle')
-export const gestaltSerialArbitrationExists = /* @__PURE__ */ _bind(FW, 'gestaltSerialArbitrationExists')
+export const gestaltSerialArbitrationExists = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltSerialArbitrationExists',
+)
+
 export const gestaltSerialAttr = /* @__PURE__ */ _bind(FW, 'gestaltSerialAttr')
 export const gestaltSetDragImageUpdates = /* @__PURE__ */ _bind(FW, 'gestaltSetDragImageUpdates')
-export const gestaltSheetsAreWindowModalBit = /* @__PURE__ */ _bind(FW, 'gestaltSheetsAreWindowModalBit')
-export const gestaltSheetsAreWindowModalMask = /* @__PURE__ */ _bind(FW, 'gestaltSheetsAreWindowModalMask')
+export const gestaltSheetsAreWindowModalBit = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltSheetsAreWindowModalBit',
+)
+
+export const gestaltSheetsAreWindowModalMask = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltSheetsAreWindowModalMask',
+)
+
 export const gestaltShutdownAttributes = /* @__PURE__ */ _bind(FW, 'gestaltShutdownAttributes')
-export const gestaltShutdownHassdOnBootVolUnmount = /* @__PURE__ */ _bind(FW, 'gestaltShutdownHassdOnBootVolUnmount')
+export const gestaltShutdownHassdOnBootVolUnmount = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltShutdownHassdOnBootVolUnmount',
+)
+
 export const gestaltSlotAttr = /* @__PURE__ */ _bind(FW, 'gestaltSlotAttr')
 export const gestaltSlotMgrExists = /* @__PURE__ */ _bind(FW, 'gestaltSlotMgrExists')
 export const gestaltSndPlayDoubleBuffer = /* @__PURE__ */ _bind(FW, 'gestaltSndPlayDoubleBuffer')
 export const gestaltSoftwareVendorApple = /* @__PURE__ */ _bind(FW, 'gestaltSoftwareVendorApple')
 export const gestaltSoftwareVendorCode = /* @__PURE__ */ _bind(FW, 'gestaltSoftwareVendorCode')
-export const gestaltSoftwareVendorLicensee = /* @__PURE__ */ _bind(FW, 'gestaltSoftwareVendorLicensee')
+export const gestaltSoftwareVendorLicensee = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltSoftwareVendorLicensee',
+)
+
 export const gestaltSoundAttr = /* @__PURE__ */ _bind(FW, 'gestaltSoundAttr')
 export const gestaltSoundIOMgrPresent = /* @__PURE__ */ _bind(FW, 'gestaltSoundIOMgrPresent')
 export const gestaltSpecificMatchSupport = /* @__PURE__ */ _bind(FW, 'gestaltSpecificMatchSupport')
 export const gestaltSpeechAttr = /* @__PURE__ */ _bind(FW, 'gestaltSpeechAttr')
 export const gestaltSpeechHasPPCGlue = /* @__PURE__ */ _bind(FW, 'gestaltSpeechHasPPCGlue')
 export const gestaltSpeechMgrPresent = /* @__PURE__ */ _bind(FW, 'gestaltSpeechMgrPresent')
-export const gestaltSpeechRecognitionAttr = /* @__PURE__ */ _bind(FW, 'gestaltSpeechRecognitionAttr')
-export const gestaltSpeechRecognitionVersion = /* @__PURE__ */ _bind(FW, 'gestaltSpeechRecognitionVersion')
+export const gestaltSpeechRecognitionAttr = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltSpeechRecognitionAttr',
+)
+
+export const gestaltSpeechRecognitionVersion = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltSpeechRecognitionVersion',
+)
+
 export const gestaltSplitOSAttr = /* @__PURE__ */ _bind(FW, 'gestaltSplitOSAttr')
 export const gestaltSplitOSAware = /* @__PURE__ */ _bind(FW, 'gestaltSplitOSAware')
-export const gestaltSplitOSBootDriveIsNetworkVolume = /* @__PURE__ */ _bind(FW, 'gestaltSplitOSBootDriveIsNetworkVolume')
-export const gestaltSplitOSEnablerVolumeIsDifferentFromBootVolume = /* @__PURE__ */ _bind(FW, 'gestaltSplitOSEnablerVolumeIsDifferentFromBootVolume')
-export const gestaltSplitOSMachineNameSetToNetworkNameTemp = /* @__PURE__ */ _bind(FW, 'gestaltSplitOSMachineNameSetToNetworkNameTemp')
-export const gestaltSplitOSMachineNameStartupDiskIsNonPersistent = /* @__PURE__ */ _bind(FW, 'gestaltSplitOSMachineNameStartupDiskIsNonPersistent')
+export const gestaltSplitOSBootDriveIsNetworkVolume = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltSplitOSBootDriveIsNetworkVolume',
+)
+
+export const gestaltSplitOSEnablerVolumeIsDifferentFromBootVolume = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltSplitOSEnablerVolumeIsDifferentFromBootVolume',
+)
+
+export const gestaltSplitOSMachineNameSetToNetworkNameTemp = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltSplitOSMachineNameSetToNetworkNameTemp',
+)
+
+export const gestaltSplitOSMachineNameStartupDiskIsNonPersistent = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltSplitOSMachineNameStartupDiskIsNonPersistent',
+)
+
 export const gestaltSquareMenuBar = /* @__PURE__ */ _bind(FW, 'gestaltSquareMenuBar')
 export const gestaltStandardFile58 = /* @__PURE__ */ _bind(FW, 'gestaltStandardFile58')
 export const gestaltStandardFileAttr = /* @__PURE__ */ _bind(FW, 'gestaltStandardFileAttr')
-export const gestaltStandardFileHasColorIcons = /* @__PURE__ */ _bind(FW, 'gestaltStandardFileHasColorIcons')
-export const gestaltStandardFileHasDynamicVolumeAllocation = /* @__PURE__ */ _bind(FW, 'gestaltStandardFileHasDynamicVolumeAllocation')
-export const gestaltStandardFileTranslationAware = /* @__PURE__ */ _bind(FW, 'gestaltStandardFileTranslationAware')
-export const gestaltStandardFileUseGenericIcons = /* @__PURE__ */ _bind(FW, 'gestaltStandardFileUseGenericIcons')
+export const gestaltStandardFileHasColorIcons = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltStandardFileHasColorIcons',
+)
+
+export const gestaltStandardFileHasDynamicVolumeAllocation = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltStandardFileHasDynamicVolumeAllocation',
+)
+
+export const gestaltStandardFileTranslationAware = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltStandardFileTranslationAware',
+)
+
+export const gestaltStandardFileUseGenericIcons = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltStandardFileUseGenericIcons',
+)
+
 export const gestaltStandardTimeMgr = /* @__PURE__ */ _bind(FW, 'gestaltStandardTimeMgr')
 export const gestaltStdADBKbd = /* @__PURE__ */ _bind(FW, 'gestaltStdADBKbd')
 export const gestaltStdISOADBKbd = /* @__PURE__ */ _bind(FW, 'gestaltStdISOADBKbd')
 export const gestaltStdNBPAttr = /* @__PURE__ */ _bind(FW, 'gestaltStdNBPAttr')
 export const gestaltStdNBPPresent = /* @__PURE__ */ _bind(FW, 'gestaltStdNBPPresent')
-export const gestaltStdNBPSupportsAutoPosition = /* @__PURE__ */ _bind(FW, 'gestaltStdNBPSupportsAutoPosition')
+export const gestaltStdNBPSupportsAutoPosition = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltStdNBPSupportsAutoPosition',
+)
+
 export const gestaltStereoCapability = /* @__PURE__ */ _bind(FW, 'gestaltStereoCapability')
 export const gestaltStereoInput = /* @__PURE__ */ _bind(FW, 'gestaltStereoInput')
 export const gestaltStereoMixing = /* @__PURE__ */ _bind(FW, 'gestaltStereoMixing')
-export const gestaltSupportsApplicationURL = /* @__PURE__ */ _bind(FW, 'gestaltSupportsApplicationURL')
-export const gestaltSupportsFSpResourceFileAlreadyOpenBit = /* @__PURE__ */ _bind(FW, 'gestaltSupportsFSpResourceFileAlreadyOpenBit')
+export const gestaltSupportsApplicationURL = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltSupportsApplicationURL',
+)
+
+export const gestaltSupportsFSpResourceFileAlreadyOpenBit = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltSupportsFSpResourceFileAlreadyOpenBit',
+)
+
 export const gestaltSupportsMirroring = /* @__PURE__ */ _bind(FW, 'gestaltSupportsMirroring')
 export const gestaltSysArchitecture = /* @__PURE__ */ _bind(FW, 'gestaltSysArchitecture')
 export const gestaltSysDebuggerSupport = /* @__PURE__ */ _bind(FW, 'gestaltSysDebuggerSupport')
@@ -3801,9 +5701,21 @@ export const gestaltTE6 = /* @__PURE__ */ _bind(FW, 'gestaltTE6')
 export const gestaltTEAttr = /* @__PURE__ */ _bind(FW, 'gestaltTEAttr')
 export const gestaltTEHasGetHiliteRgn = /* @__PURE__ */ _bind(FW, 'gestaltTEHasGetHiliteRgn')
 export const gestaltTEHasWhiteBackground = /* @__PURE__ */ _bind(FW, 'gestaltTEHasWhiteBackground')
-export const gestaltTESupportsInlineInput = /* @__PURE__ */ _bind(FW, 'gestaltTESupportsInlineInput')
-export const gestaltTESupportsTextObjects = /* @__PURE__ */ _bind(FW, 'gestaltTESupportsTextObjects')
-export const gestaltTSMDisplayMgrAwareBit = /* @__PURE__ */ _bind(FW, 'gestaltTSMDisplayMgrAwareBit')
+export const gestaltTESupportsInlineInput = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltTESupportsInlineInput',
+)
+
+export const gestaltTESupportsTextObjects = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltTESupportsTextObjects',
+)
+
+export const gestaltTSMDisplayMgrAwareBit = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltTSMDisplayMgrAwareBit',
+)
+
 export const gestaltTSMTE = /* @__PURE__ */ _bind(FW, 'gestaltTSMTE')
 export const gestaltTSMTE1 = /* @__PURE__ */ _bind(FW, 'gestaltTSMTE1')
 export const gestaltTSMTE15 = /* @__PURE__ */ _bind(FW, 'gestaltTSMTE15')
@@ -3822,12 +5734,24 @@ export const gestaltTVAttr = /* @__PURE__ */ _bind(FW, 'gestaltTVAttr')
 export const gestaltTeleMgrAttr = /* @__PURE__ */ _bind(FW, 'gestaltTeleMgrAttr')
 export const gestaltTeleMgrAutoAnswer = /* @__PURE__ */ _bind(FW, 'gestaltTeleMgrAutoAnswer')
 export const gestaltTeleMgrIndHandset = /* @__PURE__ */ _bind(FW, 'gestaltTeleMgrIndHandset')
-export const gestaltTeleMgrNewTELNewSupport = /* @__PURE__ */ _bind(FW, 'gestaltTeleMgrNewTELNewSupport')
-export const gestaltTeleMgrPowerPCSupport = /* @__PURE__ */ _bind(FW, 'gestaltTeleMgrPowerPCSupport')
+export const gestaltTeleMgrNewTELNewSupport = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltTeleMgrNewTELNewSupport',
+)
+
+export const gestaltTeleMgrPowerPCSupport = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltTeleMgrPowerPCSupport',
+)
+
 export const gestaltTeleMgrPresent = /* @__PURE__ */ _bind(FW, 'gestaltTeleMgrPresent')
 export const gestaltTeleMgrSilenceDetect = /* @__PURE__ */ _bind(FW, 'gestaltTeleMgrSilenceDetect')
 export const gestaltTeleMgrSoundStreams = /* @__PURE__ */ _bind(FW, 'gestaltTeleMgrSoundStreams')
-export const gestaltTelephoneSpeechRecognition = /* @__PURE__ */ _bind(FW, 'gestaltTelephoneSpeechRecognition')
+export const gestaltTelephoneSpeechRecognition = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltTelephoneSpeechRecognition',
+)
+
 export const gestaltTempMemSupport = /* @__PURE__ */ _bind(FW, 'gestaltTempMemSupport')
 export const gestaltTempMemTracked = /* @__PURE__ */ _bind(FW, 'gestaltTempMemTracked')
 export const gestaltTermMgrAttr = /* @__PURE__ */ _bind(FW, 'gestaltTermMgrAttr')
@@ -3839,13 +5763,25 @@ export const gestaltThirdPartyISOKbd = /* @__PURE__ */ _bind(FW, 'gestaltThirdPa
 export const gestaltThirdPartyJISKbd = /* @__PURE__ */ _bind(FW, 'gestaltThirdPartyJISKbd')
 export const gestaltThreadMgrAttr = /* @__PURE__ */ _bind(FW, 'gestaltThreadMgrAttr')
 export const gestaltThreadMgrPresent = /* @__PURE__ */ _bind(FW, 'gestaltThreadMgrPresent')
-export const gestaltThreadsLibraryPresent = /* @__PURE__ */ _bind(FW, 'gestaltThreadsLibraryPresent')
+export const gestaltThreadsLibraryPresent = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltThreadsLibraryPresent',
+)
+
 export const gestaltTimeMgrVersion = /* @__PURE__ */ _bind(FW, 'gestaltTimeMgrVersion')
 export const gestaltToolboxTable = /* @__PURE__ */ _bind(FW, 'gestaltToolboxTable')
 export const gestaltTranslationAttr = /* @__PURE__ */ _bind(FW, 'gestaltTranslationAttr')
-export const gestaltTranslationGetPathAPIAvail = /* @__PURE__ */ _bind(FW, 'gestaltTranslationGetPathAPIAvail')
+export const gestaltTranslationGetPathAPIAvail = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltTranslationGetPathAPIAvail',
+)
+
 export const gestaltTranslationMgrExists = /* @__PURE__ */ _bind(FW, 'gestaltTranslationMgrExists')
-export const gestaltTranslationMgrHintOrder = /* @__PURE__ */ _bind(FW, 'gestaltTranslationMgrHintOrder')
+export const gestaltTranslationMgrHintOrder = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltTranslationMgrHintOrder',
+)
+
 export const gestaltTranslationPPCAvail = /* @__PURE__ */ _bind(FW, 'gestaltTranslationPPCAvail')
 export const gestaltUDFSupport = /* @__PURE__ */ _bind(FW, 'gestaltUDFSupport')
 export const gestaltUSBAndyANSIKbd = /* @__PURE__ */ _bind(FW, 'gestaltUSBAndyANSIKbd')
@@ -3857,12 +5793,36 @@ export const gestaltUSBCosmoISOKbd = /* @__PURE__ */ _bind(FW, 'gestaltUSBCosmoI
 export const gestaltUSBCosmoJISKbd = /* @__PURE__ */ _bind(FW, 'gestaltUSBCosmoJISKbd')
 export const gestaltUSBHasIsoch = /* @__PURE__ */ _bind(FW, 'gestaltUSBHasIsoch')
 export const gestaltUSBPresent = /* @__PURE__ */ _bind(FW, 'gestaltUSBPresent')
-export const gestaltUSBPrinterSharingAttr = /* @__PURE__ */ _bind(FW, 'gestaltUSBPrinterSharingAttr')
-export const gestaltUSBPrinterSharingAttrBooted = /* @__PURE__ */ _bind(FW, 'gestaltUSBPrinterSharingAttrBooted')
-export const gestaltUSBPrinterSharingAttrMask = /* @__PURE__ */ _bind(FW, 'gestaltUSBPrinterSharingAttrMask')
-export const gestaltUSBPrinterSharingAttrRunning = /* @__PURE__ */ _bind(FW, 'gestaltUSBPrinterSharingAttrRunning')
-export const gestaltUSBPrinterSharingVersion = /* @__PURE__ */ _bind(FW, 'gestaltUSBPrinterSharingVersion')
-export const gestaltUSBPrinterSharingVersionMask = /* @__PURE__ */ _bind(FW, 'gestaltUSBPrinterSharingVersionMask')
+export const gestaltUSBPrinterSharingAttr = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltUSBPrinterSharingAttr',
+)
+
+export const gestaltUSBPrinterSharingAttrBooted = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltUSBPrinterSharingAttrBooted',
+)
+
+export const gestaltUSBPrinterSharingAttrMask = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltUSBPrinterSharingAttrMask',
+)
+
+export const gestaltUSBPrinterSharingAttrRunning = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltUSBPrinterSharingAttrRunning',
+)
+
+export const gestaltUSBPrinterSharingVersion = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltUSBPrinterSharingVersion',
+)
+
+export const gestaltUSBPrinterSharingVersionMask = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltUSBPrinterSharingVersionMask',
+)
+
 export const gestaltUSBProF16ANSIKbd = /* @__PURE__ */ _bind(FW, 'gestaltUSBProF16ANSIKbd')
 export const gestaltUSBProF16ISOKbd = /* @__PURE__ */ _bind(FW, 'gestaltUSBProF16ISOKbd')
 export const gestaltUSBProF16JISKbd = /* @__PURE__ */ _bind(FW, 'gestaltUSBProF16JISKbd')
@@ -3870,24 +5830,44 @@ export const gestaltUSBVersion = /* @__PURE__ */ _bind(FW, 'gestaltUSBVersion')
 export const gestaltUndefSelectorErr = /* @__PURE__ */ _bind(FW, 'gestaltUndefSelectorErr')
 export const gestaltUnknownErr = /* @__PURE__ */ _bind(FW, 'gestaltUnknownErr')
 export const gestaltUnknownThirdPartyKbd = /* @__PURE__ */ _bind(FW, 'gestaltUnknownThirdPartyKbd')
-export const gestaltUserVisibleMachineName = /* @__PURE__ */ _bind(FW, 'gestaltUserVisibleMachineName')
+export const gestaltUserVisibleMachineName = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltUserVisibleMachineName',
+)
+
 export const gestaltVIA1Addr = /* @__PURE__ */ _bind(FW, 'gestaltVIA1Addr')
 export const gestaltVIA2Addr = /* @__PURE__ */ _bind(FW, 'gestaltVIA2Addr')
 export const gestaltVMAttr = /* @__PURE__ */ _bind(FW, 'gestaltVMAttr')
-export const gestaltVMBackingStoreFileRefNum = /* @__PURE__ */ _bind(FW, 'gestaltVMBackingStoreFileRefNum')
+export const gestaltVMBackingStoreFileRefNum = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltVMBackingStoreFileRefNum',
+)
+
 export const gestaltVMFilemappingOn = /* @__PURE__ */ _bind(FW, 'gestaltVMFilemappingOn')
-export const gestaltVMHasLockMemoryForOutput = /* @__PURE__ */ _bind(FW, 'gestaltVMHasLockMemoryForOutput')
+export const gestaltVMHasLockMemoryForOutput = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltVMHasLockMemoryForOutput',
+)
+
 export const gestaltVMHasPagingControl = /* @__PURE__ */ _bind(FW, 'gestaltVMHasPagingControl')
 export const gestaltVMInfoNoneType = /* @__PURE__ */ _bind(FW, 'gestaltVMInfoNoneType')
 export const gestaltVMInfoSimpleType = /* @__PURE__ */ _bind(FW, 'gestaltVMInfoSimpleType')
-export const gestaltVMInfoSizeStorageType = /* @__PURE__ */ _bind(FW, 'gestaltVMInfoSizeStorageType')
+export const gestaltVMInfoSizeStorageType = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltVMInfoSizeStorageType',
+)
+
 export const gestaltVMInfoSizeType = /* @__PURE__ */ _bind(FW, 'gestaltVMInfoSizeType')
 export const gestaltVMInfoType = /* @__PURE__ */ _bind(FW, 'gestaltVMInfoType')
 export const gestaltVMPresent = /* @__PURE__ */ _bind(FW, 'gestaltVMPresent')
 export const gestaltVMZerosPagesBit = /* @__PURE__ */ _bind(FW, 'gestaltVMZerosPagesBit')
 export const gestaltValueImplementedVers = /* @__PURE__ */ _bind(FW, 'gestaltValueImplementedVers')
 export const gestaltVersion = /* @__PURE__ */ _bind(FW, 'gestaltVersion')
-export const gestaltWSIICanPrintWithoutPrGeneralBit = /* @__PURE__ */ _bind(FW, 'gestaltWSIICanPrintWithoutPrGeneralBit')
+export const gestaltWSIICanPrintWithoutPrGeneralBit = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltWSIICanPrintWithoutPrGeneralBit',
+)
+
 export const gestaltWSIISupport = /* @__PURE__ */ _bind(FW, 'gestaltWSIISupport')
 export const gestaltWindowLiveResizeBit = /* @__PURE__ */ _bind(FW, 'gestaltWindowLiveResizeBit')
 export const gestaltWindowLiveResizeMask = /* @__PURE__ */ _bind(FW, 'gestaltWindowLiveResizeMask')
@@ -3895,11 +5875,23 @@ export const gestaltWindowMgrAttr = /* @__PURE__ */ _bind(FW, 'gestaltWindowMgrA
 export const gestaltWindowMgrPresent = /* @__PURE__ */ _bind(FW, 'gestaltWindowMgrPresent')
 export const gestaltWindowMgrPresentBit = /* @__PURE__ */ _bind(FW, 'gestaltWindowMgrPresentBit')
 export const gestaltWindowMgrPresentMask = /* @__PURE__ */ _bind(FW, 'gestaltWindowMgrPresentMask')
-export const gestaltWindowMinimizeToDockBit = /* @__PURE__ */ _bind(FW, 'gestaltWindowMinimizeToDockBit')
-export const gestaltWindowMinimizeToDockMask = /* @__PURE__ */ _bind(FW, 'gestaltWindowMinimizeToDockMask')
+export const gestaltWindowMinimizeToDockBit = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltWindowMinimizeToDockBit',
+)
+
+export const gestaltWindowMinimizeToDockMask = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltWindowMinimizeToDockMask',
+)
+
 export const gestaltWorldScriptIIAttr = /* @__PURE__ */ _bind(FW, 'gestaltWorldScriptIIAttr')
 export const gestaltWorldScriptIIVersion = /* @__PURE__ */ _bind(FW, 'gestaltWorldScriptIIVersion')
-export const gestaltX86AdditionalFeatures = /* @__PURE__ */ _bind(FW, 'gestaltX86AdditionalFeatures')
+export const gestaltX86AdditionalFeatures = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltX86AdditionalFeatures',
+)
+
 export const gestaltX86Features = /* @__PURE__ */ _bind(FW, 'gestaltX86Features')
 export const gestaltX86HasAPIC = /* @__PURE__ */ _bind(FW, 'gestaltX86HasAPIC')
 export const gestaltX86HasCID = /* @__PURE__ */ _bind(FW, 'gestaltX86HasCID')
@@ -3932,7 +5924,11 @@ export const gestaltX86HasSS = /* @__PURE__ */ _bind(FW, 'gestaltX86HasSS')
 export const gestaltX86HasSSE = /* @__PURE__ */ _bind(FW, 'gestaltX86HasSSE')
 export const gestaltX86HasSSE2 = /* @__PURE__ */ _bind(FW, 'gestaltX86HasSSE2')
 export const gestaltX86HasSSE3 = /* @__PURE__ */ _bind(FW, 'gestaltX86HasSSE3')
-export const gestaltX86HasSupplementalSSE3 = /* @__PURE__ */ _bind(FW, 'gestaltX86HasSupplementalSSE3')
+export const gestaltX86HasSupplementalSSE3 = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltX86HasSupplementalSSE3',
+)
+
 export const gestaltX86HasTM = /* @__PURE__ */ _bind(FW, 'gestaltX86HasTM')
 export const gestaltX86HasTM2 = /* @__PURE__ */ _bind(FW, 'gestaltX86HasTM2')
 export const gestaltX86HasTSC = /* @__PURE__ */ _bind(FW, 'gestaltX86HasTSC')
@@ -3964,7 +5960,11 @@ export const hmUnknownHelpType = /* @__PURE__ */ _bind(FW, 'hmUnknownHelpType')
 export const hmWrongVersion = /* @__PURE__ */ _bind(FW, 'hmWrongVersion')
 export const hourField = /* @__PURE__ */ _bind(FW, 'hourField')
 export const hourMask = /* @__PURE__ */ _bind(FW, 'hourMask')
-export const hrHTMLRenderingLibNotInstalledErr = /* @__PURE__ */ _bind(FW, 'hrHTMLRenderingLibNotInstalledErr')
+export const hrHTMLRenderingLibNotInstalledErr = /* @__PURE__ */ _bind(
+	FW,
+	'hrHTMLRenderingLibNotInstalledErr',
+)
+
 export const hrLeadingZ = /* @__PURE__ */ _bind(FW, 'hrLeadingZ')
 export const hrMiscellaneousExceptionErr = /* @__PURE__ */ _bind(FW, 'hrMiscellaneousExceptionErr')
 export const hrURLNotHandledErr = /* @__PURE__ */ _bind(FW, 'hrURLNotHandledErr')
@@ -4028,7 +6028,11 @@ export const invalidSampleTable = /* @__PURE__ */ _bind(FW, 'invalidSampleTable'
 export const invalidSpriteIDErr = /* @__PURE__ */ _bind(FW, 'invalidSpriteIDErr')
 export const invalidSpriteIndexErr = /* @__PURE__ */ _bind(FW, 'invalidSpriteIndexErr')
 export const invalidSpritePropertyErr = /* @__PURE__ */ _bind(FW, 'invalidSpritePropertyErr')
-export const invalidSpriteWorldPropertyErr = /* @__PURE__ */ _bind(FW, 'invalidSpriteWorldPropertyErr')
+export const invalidSpriteWorldPropertyErr = /* @__PURE__ */ _bind(
+	FW,
+	'invalidSpriteWorldPropertyErr',
+)
+
 export const invalidTime = /* @__PURE__ */ _bind(FW, 'invalidTime')
 export const invalidTrack = /* @__PURE__ */ _bind(FW, 'invalidTrack')
 export const invalidTranslationPathErr = /* @__PURE__ */ _bind(FW, 'invalidTranslationPathErr')
@@ -4038,7 +6042,11 @@ export const ioDirMask = /* @__PURE__ */ _bind(FW, 'ioDirMask')
 export const ioErr = /* @__PURE__ */ _bind(FW, 'ioErr')
 export const ioQType = /* @__PURE__ */ _bind(FW, 'ioQType')
 export const itlcDisableKeyScriptSync = /* @__PURE__ */ _bind(FW, 'itlcDisableKeyScriptSync')
-export const itlcDisableKeyScriptSyncMask = /* @__PURE__ */ _bind(FW, 'itlcDisableKeyScriptSyncMask')
+export const itlcDisableKeyScriptSyncMask = /* @__PURE__ */ _bind(
+	FW,
+	'itlcDisableKeyScriptSyncMask',
+)
+
 export const itlcDualCaret = /* @__PURE__ */ _bind(FW, 'itlcDualCaret')
 export const itlcShowIcon = /* @__PURE__ */ _bind(FW, 'itlcShowIcon')
 export const itlcSysDirection = /* @__PURE__ */ _bind(FW, 'itlcSysDirection')
@@ -4068,7 +6076,11 @@ export const kAEAllCaps = /* @__PURE__ */ _bind(FW, 'kAEAllCaps')
 export const kAEAlwaysInteract = /* @__PURE__ */ _bind(FW, 'kAEAlwaysInteract')
 export const kAEAnswer = /* @__PURE__ */ _bind(FW, 'kAEAnswer')
 export const kAEAny = /* @__PURE__ */ _bind(FW, 'kAEAny')
-export const kAEApplicationActivationExpected = /* @__PURE__ */ _bind(FW, 'kAEApplicationActivationExpected')
+export const kAEApplicationActivationExpected = /* @__PURE__ */ _bind(
+	FW,
+	'kAEApplicationActivationExpected',
+)
+
 export const kAEApplicationClass = /* @__PURE__ */ _bind(FW, 'kAEApplicationClass')
 export const kAEApplicationDied = /* @__PURE__ */ _bind(FW, 'kAEApplicationDied')
 export const kAEArrowAtEnd = /* @__PURE__ */ _bind(FW, 'kAEArrowAtEnd')
@@ -4109,11 +6121,23 @@ export const kAEDelete = /* @__PURE__ */ _bind(FW, 'kAEDelete')
 export const kAEDescArray = /* @__PURE__ */ _bind(FW, 'kAEDescArray')
 export const kAEDescListFactorNone = /* @__PURE__ */ _bind(FW, 'kAEDescListFactorNone')
 export const kAEDescListFactorType = /* @__PURE__ */ _bind(FW, 'kAEDescListFactorType')
-export const kAEDescListFactorTypeAndSize = /* @__PURE__ */ _bind(FW, 'kAEDescListFactorTypeAndSize')
+export const kAEDescListFactorTypeAndSize = /* @__PURE__ */ _bind(
+	FW,
+	'kAEDescListFactorTypeAndSize',
+)
+
 export const kAEDirectCall = /* @__PURE__ */ _bind(FW, 'kAEDirectCall')
 export const kAEDiskEvent = /* @__PURE__ */ _bind(FW, 'kAEDiskEvent')
-export const kAEDoNotAutomaticallyAddAnnotationsToEvent = /* @__PURE__ */ _bind(FW, 'kAEDoNotAutomaticallyAddAnnotationsToEvent')
-export const kAEDoNotPromptForUserConsent = /* @__PURE__ */ _bind(FW, 'kAEDoNotPromptForUserConsent')
+export const kAEDoNotAutomaticallyAddAnnotationsToEvent = /* @__PURE__ */ _bind(
+	FW,
+	'kAEDoNotAutomaticallyAddAnnotationsToEvent',
+)
+
+export const kAEDoNotPromptForUserConsent = /* @__PURE__ */ _bind(
+	FW,
+	'kAEDoNotPromptForUserConsent',
+)
+
 export const kAEDoObjectsExist = /* @__PURE__ */ _bind(FW, 'kAEDoObjectsExist')
 export const kAEDoScript = /* @__PURE__ */ _bind(FW, 'kAEDoScript')
 export const kAEDontExecute = /* @__PURE__ */ _bind(FW, 'kAEDontExecute')
@@ -4264,7 +6288,11 @@ export const kAERedo = /* @__PURE__ */ _bind(FW, 'kAERedo')
 export const kAERegular = /* @__PURE__ */ _bind(FW, 'kAERegular')
 export const kAERemoteProcess = /* @__PURE__ */ _bind(FW, 'kAERemoteProcess')
 export const kAERemoteProcessNameKey = /* @__PURE__ */ _bind(FW, 'kAERemoteProcessNameKey')
-export const kAERemoteProcessProcessIDKey = /* @__PURE__ */ _bind(FW, 'kAERemoteProcessProcessIDKey')
+export const kAERemoteProcessProcessIDKey = /* @__PURE__ */ _bind(
+	FW,
+	'kAERemoteProcessProcessIDKey',
+)
+
 export const kAERemoteProcessURLKey = /* @__PURE__ */ _bind(FW, 'kAERemoteProcessURLKey')
 export const kAERemoteProcessUserIDKey = /* @__PURE__ */ _bind(FW, 'kAERemoteProcessUserIDKey')
 export const kAEReopenApplication = /* @__PURE__ */ _bind(FW, 'kAEReopenApplication')
@@ -4353,7 +6381,11 @@ export const kAEYes = /* @__PURE__ */ _bind(FW, 'kAEYes')
 export const kAEZoom = /* @__PURE__ */ _bind(FW, 'kAEZoom')
 export const kAEZoomIn = /* @__PURE__ */ _bind(FW, 'kAEZoomIn')
 export const kAEZoomOut = /* @__PURE__ */ _bind(FW, 'kAEZoomOut')
-export const kAFPExtendedFlagsAlternateAddressMask = /* @__PURE__ */ _bind(FW, 'kAFPExtendedFlagsAlternateAddressMask')
+export const kAFPExtendedFlagsAlternateAddressMask = /* @__PURE__ */ _bind(
+	FW,
+	'kAFPExtendedFlagsAlternateAddressMask',
+)
+
 export const kAFPServerIcon = /* @__PURE__ */ _bind(FW, 'kAFPServerIcon')
 export const kAFPTagLengthDDP = /* @__PURE__ */ _bind(FW, 'kAFPTagLengthDDP')
 export const kAFPTagLengthIP = /* @__PURE__ */ _bind(FW, 'kAFPTagLengthIP')
@@ -4386,13 +6418,29 @@ export const kATSUBusyObjectErr = /* @__PURE__ */ _bind(FW, 'kATSUBusyObjectErr'
 export const kATSUCoordinateOverflowErr = /* @__PURE__ */ _bind(FW, 'kATSUCoordinateOverflowErr')
 export const kATSUFontsMatched = /* @__PURE__ */ _bind(FW, 'kATSUFontsMatched')
 export const kATSUFontsNotMatched = /* @__PURE__ */ _bind(FW, 'kATSUFontsNotMatched')
-export const kATSUInvalidAttributeSizeErr = /* @__PURE__ */ _bind(FW, 'kATSUInvalidAttributeSizeErr')
+export const kATSUInvalidAttributeSizeErr = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUInvalidAttributeSizeErr',
+)
+
 export const kATSUInvalidAttributeTagErr = /* @__PURE__ */ _bind(FW, 'kATSUInvalidAttributeTagErr')
-export const kATSUInvalidAttributeValueErr = /* @__PURE__ */ _bind(FW, 'kATSUInvalidAttributeValueErr')
+export const kATSUInvalidAttributeValueErr = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUInvalidAttributeValueErr',
+)
+
 export const kATSUInvalidCacheErr = /* @__PURE__ */ _bind(FW, 'kATSUInvalidCacheErr')
-export const kATSUInvalidCallInsideCallbackErr = /* @__PURE__ */ _bind(FW, 'kATSUInvalidCallInsideCallbackErr')
+export const kATSUInvalidCallInsideCallbackErr = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUInvalidCallInsideCallbackErr',
+)
+
 export const kATSUInvalidFontErr = /* @__PURE__ */ _bind(FW, 'kATSUInvalidFontErr')
-export const kATSUInvalidFontFallbacksErr = /* @__PURE__ */ _bind(FW, 'kATSUInvalidFontFallbacksErr')
+export const kATSUInvalidFontFallbacksErr = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUInvalidFontFallbacksErr',
+)
+
 export const kATSUInvalidStyleErr = /* @__PURE__ */ _bind(FW, 'kATSUInvalidStyleErr')
 export const kATSUInvalidTextLayoutErr = /* @__PURE__ */ _bind(FW, 'kATSUInvalidTextLayoutErr')
 export const kATSUInvalidTextRangeErr = /* @__PURE__ */ _bind(FW, 'kATSUInvalidTextRangeErr')
@@ -4402,12 +6450,24 @@ export const kATSULowLevelErr = /* @__PURE__ */ _bind(FW, 'kATSULowLevelErr')
 export const kATSUNoCorrespondingFontErr = /* @__PURE__ */ _bind(FW, 'kATSUNoCorrespondingFontErr')
 export const kATSUNoFontCmapAvailableErr = /* @__PURE__ */ _bind(FW, 'kATSUNoFontCmapAvailableErr')
 export const kATSUNoFontNameErr = /* @__PURE__ */ _bind(FW, 'kATSUNoFontNameErr')
-export const kATSUNoFontScalerAvailableErr = /* @__PURE__ */ _bind(FW, 'kATSUNoFontScalerAvailableErr')
+export const kATSUNoFontScalerAvailableErr = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUNoFontScalerAvailableErr',
+)
+
 export const kATSUNoStyleRunsAssignedErr = /* @__PURE__ */ _bind(FW, 'kATSUNoStyleRunsAssignedErr')
 export const kATSUNotSetErr = /* @__PURE__ */ _bind(FW, 'kATSUNotSetErr')
-export const kATSUOutputBufferTooSmallErr = /* @__PURE__ */ _bind(FW, 'kATSUOutputBufferTooSmallErr')
+export const kATSUOutputBufferTooSmallErr = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUOutputBufferTooSmallErr',
+)
+
 export const kATSUQuickDrawTextErr = /* @__PURE__ */ _bind(FW, 'kATSUQuickDrawTextErr')
-export const kATSUUnsupportedStreamFormatErr = /* @__PURE__ */ _bind(FW, 'kATSUUnsupportedStreamFormatErr')
+export const kATSUUnsupportedStreamFormatErr = /* @__PURE__ */ _bind(
+	FW,
+	'kATSUUnsupportedStreamFormatErr',
+)
+
 export const kAccessException = /* @__PURE__ */ _bind(FW, 'kAccessException')
 export const kAccountKCItemAttr = /* @__PURE__ */ _bind(FW, 'kAccountKCItemAttr')
 export const kAddKCEvent = /* @__PURE__ */ _bind(FW, 'kAddKCEvent')
@@ -4437,21 +6497,49 @@ export const kAppleLogoIcon = /* @__PURE__ */ _bind(FW, 'kAppleLogoIcon')
 export const kAppleManufacturer = /* @__PURE__ */ _bind(FW, 'kAppleManufacturer')
 export const kAppleMenuFolderAliasType = /* @__PURE__ */ _bind(FW, 'kAppleMenuFolderAliasType')
 export const kAppleMenuFolderIcon = /* @__PURE__ */ _bind(FW, 'kAppleMenuFolderIcon')
-export const kAppleMenuFolderIconResource = /* @__PURE__ */ _bind(FW, 'kAppleMenuFolderIconResource')
+export const kAppleMenuFolderIconResource = /* @__PURE__ */ _bind(
+	FW,
+	'kAppleMenuFolderIconResource',
+)
+
 export const kAppleMenuFolderType = /* @__PURE__ */ _bind(FW, 'kAppleMenuFolderType')
 export const kAppleMenuIcon = /* @__PURE__ */ _bind(FW, 'kAppleMenuIcon')
 export const kAppleScriptBadgeIcon = /* @__PURE__ */ _bind(FW, 'kAppleScriptBadgeIcon')
-export const kAppleShareAuthenticationFolderType = /* @__PURE__ */ _bind(FW, 'kAppleShareAuthenticationFolderType')
-export const kAppleSharePasswordKCItemClass = /* @__PURE__ */ _bind(FW, 'kAppleSharePasswordKCItemClass')
-export const kAppleShareSupportFolderType = /* @__PURE__ */ _bind(FW, 'kAppleShareSupportFolderType')
+export const kAppleShareAuthenticationFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kAppleShareAuthenticationFolderType',
+)
+
+export const kAppleSharePasswordKCItemClass = /* @__PURE__ */ _bind(
+	FW,
+	'kAppleSharePasswordKCItemClass',
+)
+
+export const kAppleShareSupportFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kAppleShareSupportFolderType',
+)
+
 export const kAppleTalkIcon = /* @__PURE__ */ _bind(FW, 'kAppleTalkIcon')
 export const kAppleTalkZoneIcon = /* @__PURE__ */ _bind(FW, 'kAppleTalkZoneIcon')
-export const kAppleshareAutomountServerAliasesFolderType = /* @__PURE__ */ _bind(FW, 'kAppleshareAutomountServerAliasesFolderType')
+export const kAppleshareAutomountServerAliasesFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kAppleshareAutomountServerAliasesFolderType',
+)
+
 export const kApplicationAliasType = /* @__PURE__ */ _bind(FW, 'kApplicationAliasType')
 export const kApplicationCPAliasType = /* @__PURE__ */ _bind(FW, 'kApplicationCPAliasType')
 export const kApplicationDAAliasType = /* @__PURE__ */ _bind(FW, 'kApplicationDAAliasType')
-export const kApplicationSupportFolderIcon = /* @__PURE__ */ _bind(FW, 'kApplicationSupportFolderIcon')
-export const kApplicationSupportFolderType = /* @__PURE__ */ _bind(FW, 'kApplicationSupportFolderType')
+export const kApplicationSupportFolderIcon = /* @__PURE__ */ _bind(
+	FW,
+	'kApplicationSupportFolderIcon',
+)
+
+export const kApplicationSupportFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kApplicationSupportFolderType',
+)
+
 export const kApplicationThreadID = /* @__PURE__ */ _bind(FW, 'kApplicationThreadID')
 export const kApplicationsFolderIcon = /* @__PURE__ */ _bind(FW, 'kApplicationsFolderIcon')
 export const kApplicationsFolderType = /* @__PURE__ */ _bind(FW, 'kApplicationsFolderType')
@@ -4475,8 +6563,16 @@ export const kAudioSupportFolderType = /* @__PURE__ */ _bind(FW, 'kAudioSupportF
 export const kAudioVSTFolderType = /* @__PURE__ */ _bind(FW, 'kAudioVSTFolderType')
 export const kAuthTypeKCItemAttr = /* @__PURE__ */ _bind(FW, 'kAuthTypeKCItemAttr')
 export const kAutoGenerateReturnID = /* @__PURE__ */ _bind(FW, 'kAutoGenerateReturnID')
-export const kAutomatorWorkflowsFolderType = /* @__PURE__ */ _bind(FW, 'kAutomatorWorkflowsFolderType')
-export const kAutosaveInformationFolderType = /* @__PURE__ */ _bind(FW, 'kAutosaveInformationFolderType')
+export const kAutomatorWorkflowsFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kAutomatorWorkflowsFolderType',
+)
+
+export const kAutosaveInformationFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kAutosaveInformationFolderType',
+)
+
 export const kBLibTag2 = /* @__PURE__ */ _bind(FW, 'kBLibTag2')
 export const kBackwardArrowIcon = /* @__PURE__ */ _bind(FW, 'kBackwardArrowIcon')
 export const kBadAdapterErr = /* @__PURE__ */ _bind(FW, 'kBadAdapterErr')
@@ -4507,8 +6603,16 @@ export const kBig5_ETenVariant = /* @__PURE__ */ _bind(FW, 'kBig5_ETenVariant')
 export const kBig5_StandardVariant = /* @__PURE__ */ _bind(FW, 'kBig5_StandardVariant')
 export const kBlessedBusErrorBait = /* @__PURE__ */ _bind(FW, 'kBlessedBusErrorBait')
 export const kBlessedFolder = /* @__PURE__ */ _bind(FW, 'kBlessedFolder')
-export const kBootTimeStartupItemsFolderType = /* @__PURE__ */ _bind(FW, 'kBootTimeStartupItemsFolderType')
-export const kBridgeSoftwareRunningCantSleep = /* @__PURE__ */ _bind(FW, 'kBridgeSoftwareRunningCantSleep')
+export const kBootTimeStartupItemsFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kBootTimeStartupItemsFolderType',
+)
+
+export const kBridgeSoftwareRunningCantSleep = /* @__PURE__ */ _bind(
+	FW,
+	'kBridgeSoftwareRunningCantSleep',
+)
+
 export const kBurningIcon = /* @__PURE__ */ _bind(FW, 'kBurningIcon')
 export const kBusyErr = /* @__PURE__ */ _bind(FW, 'kBusyErr')
 export const kByCommentView = /* @__PURE__ */ _bind(FW, 'kByCommentView')
@@ -4527,55 +6631,143 @@ export const kCCRegisterXBit = /* @__PURE__ */ _bind(FW, 'kCCRegisterXBit')
 export const kCCRegisterZBit = /* @__PURE__ */ _bind(FW, 'kCCRegisterZBit')
 export const kCFM68kRTA = /* @__PURE__ */ _bind(FW, 'kCFM68kRTA')
 export const kCSAcceptAllComponentsMode = /* @__PURE__ */ _bind(FW, 'kCSAcceptAllComponentsMode')
-export const kCSAcceptThreadSafeComponentsOnlyMode = /* @__PURE__ */ _bind(FW, 'kCSAcceptThreadSafeComponentsOnlyMode')
-export const kCSDiskSpaceRecoveryOptionNoUI = /* @__PURE__ */ _bind(FW, 'kCSDiskSpaceRecoveryOptionNoUI')
-export const kCSIdentityAuthorityNotAccessibleErr = /* @__PURE__ */ _bind(FW, 'kCSIdentityAuthorityNotAccessibleErr')
+export const kCSAcceptThreadSafeComponentsOnlyMode = /* @__PURE__ */ _bind(
+	FW,
+	'kCSAcceptThreadSafeComponentsOnlyMode',
+)
+
+export const kCSDiskSpaceRecoveryOptionNoUI = /* @__PURE__ */ _bind(
+	FW,
+	'kCSDiskSpaceRecoveryOptionNoUI',
+)
+
+export const kCSIdentityAuthorityNotAccessibleErr = /* @__PURE__ */ _bind(
+	FW,
+	'kCSIdentityAuthorityNotAccessibleErr',
+)
+
 export const kCSIdentityClassGroup = /* @__PURE__ */ _bind(FW, 'kCSIdentityClassGroup')
 export const kCSIdentityClassUser = /* @__PURE__ */ _bind(FW, 'kCSIdentityClassUser')
 export const kCSIdentityCommitCompleted = /* @__PURE__ */ _bind(FW, 'kCSIdentityCommitCompleted')
 export const kCSIdentityDeletedErr = /* @__PURE__ */ _bind(FW, 'kCSIdentityDeletedErr')
-export const kCSIdentityDuplicateFullNameErr = /* @__PURE__ */ _bind(FW, 'kCSIdentityDuplicateFullNameErr')
-export const kCSIdentityDuplicatePosixNameErr = /* @__PURE__ */ _bind(FW, 'kCSIdentityDuplicatePosixNameErr')
+export const kCSIdentityDuplicateFullNameErr = /* @__PURE__ */ _bind(
+	FW,
+	'kCSIdentityDuplicateFullNameErr',
+)
+
+export const kCSIdentityDuplicatePosixNameErr = /* @__PURE__ */ _bind(
+	FW,
+	'kCSIdentityDuplicatePosixNameErr',
+)
+
 export const kCSIdentityErrorDomain = /* @__PURE__ */ _bind(FW, 'kCSIdentityErrorDomain')
 export const kCSIdentityFlagHidden = /* @__PURE__ */ _bind(FW, 'kCSIdentityFlagHidden')
 export const kCSIdentityFlagNone = /* @__PURE__ */ _bind(FW, 'kCSIdentityFlagNone')
-export const kCSIdentityGeneratePosixName = /* @__PURE__ */ _bind(FW, 'kCSIdentityGeneratePosixName')
-export const kCSIdentityInvalidFullNameErr = /* @__PURE__ */ _bind(FW, 'kCSIdentityInvalidFullNameErr')
-export const kCSIdentityInvalidPosixNameErr = /* @__PURE__ */ _bind(FW, 'kCSIdentityInvalidPosixNameErr')
+export const kCSIdentityGeneratePosixName = /* @__PURE__ */ _bind(
+	FW,
+	'kCSIdentityGeneratePosixName',
+)
+
+export const kCSIdentityInvalidFullNameErr = /* @__PURE__ */ _bind(
+	FW,
+	'kCSIdentityInvalidFullNameErr',
+)
+
+export const kCSIdentityInvalidPosixNameErr = /* @__PURE__ */ _bind(
+	FW,
+	'kCSIdentityInvalidPosixNameErr',
+)
+
 export const kCSIdentityPermissionErr = /* @__PURE__ */ _bind(FW, 'kCSIdentityPermissionErr')
-export const kCSIdentityQueryEventErrorOccurred = /* @__PURE__ */ _bind(FW, 'kCSIdentityQueryEventErrorOccurred')
-export const kCSIdentityQueryEventResultsAdded = /* @__PURE__ */ _bind(FW, 'kCSIdentityQueryEventResultsAdded')
-export const kCSIdentityQueryEventResultsChanged = /* @__PURE__ */ _bind(FW, 'kCSIdentityQueryEventResultsChanged')
-export const kCSIdentityQueryEventResultsRemoved = /* @__PURE__ */ _bind(FW, 'kCSIdentityQueryEventResultsRemoved')
-export const kCSIdentityQueryEventSearchPhaseFinished = /* @__PURE__ */ _bind(FW, 'kCSIdentityQueryEventSearchPhaseFinished')
-export const kCSIdentityQueryGenerateUpdateEvents = /* @__PURE__ */ _bind(FW, 'kCSIdentityQueryGenerateUpdateEvents')
-export const kCSIdentityQueryIncludeHiddenIdentities = /* @__PURE__ */ _bind(FW, 'kCSIdentityQueryIncludeHiddenIdentities')
-export const kCSIdentityQueryStringBeginsWith = /* @__PURE__ */ _bind(FW, 'kCSIdentityQueryStringBeginsWith')
-export const kCSIdentityQueryStringEquals = /* @__PURE__ */ _bind(FW, 'kCSIdentityQueryStringEquals')
-export const kCSIdentityUnknownAuthorityErr = /* @__PURE__ */ _bind(FW, 'kCSIdentityUnknownAuthorityErr')
+export const kCSIdentityQueryEventErrorOccurred = /* @__PURE__ */ _bind(
+	FW,
+	'kCSIdentityQueryEventErrorOccurred',
+)
+
+export const kCSIdentityQueryEventResultsAdded = /* @__PURE__ */ _bind(
+	FW,
+	'kCSIdentityQueryEventResultsAdded',
+)
+
+export const kCSIdentityQueryEventResultsChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kCSIdentityQueryEventResultsChanged',
+)
+
+export const kCSIdentityQueryEventResultsRemoved = /* @__PURE__ */ _bind(
+	FW,
+	'kCSIdentityQueryEventResultsRemoved',
+)
+
+export const kCSIdentityQueryEventSearchPhaseFinished = /* @__PURE__ */ _bind(
+	FW,
+	'kCSIdentityQueryEventSearchPhaseFinished',
+)
+
+export const kCSIdentityQueryGenerateUpdateEvents = /* @__PURE__ */ _bind(
+	FW,
+	'kCSIdentityQueryGenerateUpdateEvents',
+)
+
+export const kCSIdentityQueryIncludeHiddenIdentities = /* @__PURE__ */ _bind(
+	FW,
+	'kCSIdentityQueryIncludeHiddenIdentities',
+)
+
+export const kCSIdentityQueryStringBeginsWith = /* @__PURE__ */ _bind(
+	FW,
+	'kCSIdentityQueryStringBeginsWith',
+)
+
+export const kCSIdentityQueryStringEquals = /* @__PURE__ */ _bind(
+	FW,
+	'kCSIdentityQueryStringEquals',
+)
+
+export const kCSIdentityUnknownAuthorityErr = /* @__PURE__ */ _bind(
+	FW,
+	'kCSIdentityUnknownAuthorityErr',
+)
+
 export const kCStackBased = /* @__PURE__ */ _bind(FW, 'kCStackBased')
 export const kCachedDataFolderType = /* @__PURE__ */ _bind(FW, 'kCachedDataFolderType')
 export const kCallingConventionMask = /* @__PURE__ */ _bind(FW, 'kCallingConventionMask')
 export const kCallingConventionPhase = /* @__PURE__ */ _bind(FW, 'kCallingConventionPhase')
 export const kCallingConventionWidth = /* @__PURE__ */ _bind(FW, 'kCallingConventionWidth')
 export const kCantConfigureCardErr = /* @__PURE__ */ _bind(FW, 'kCantConfigureCardErr')
-export const kCantReportProcessorTemperatureErr = /* @__PURE__ */ _bind(FW, 'kCantReportProcessorTemperatureErr')
+export const kCantReportProcessorTemperatureErr = /* @__PURE__ */ _bind(
+	FW,
+	'kCantReportProcessorTemperatureErr',
+)
+
 export const kCarbonLibraryFolderType = /* @__PURE__ */ _bind(FW, 'kCarbonLibraryFolderType')
 export const kCardBusCardErr = /* @__PURE__ */ _bind(FW, 'kCardBusCardErr')
 export const kCardPowerOffErr = /* @__PURE__ */ _bind(FW, 'kCardPowerOffErr')
 export const kCertSearchAny = /* @__PURE__ */ _bind(FW, 'kCertSearchAny')
 export const kCertSearchDecryptAllowed = /* @__PURE__ */ _bind(FW, 'kCertSearchDecryptAllowed')
-export const kCertSearchDecryptDisallowed = /* @__PURE__ */ _bind(FW, 'kCertSearchDecryptDisallowed')
+export const kCertSearchDecryptDisallowed = /* @__PURE__ */ _bind(
+	FW,
+	'kCertSearchDecryptDisallowed',
+)
+
 export const kCertSearchDecryptIgnored = /* @__PURE__ */ _bind(FW, 'kCertSearchDecryptIgnored')
 export const kCertSearchDecryptMask = /* @__PURE__ */ _bind(FW, 'kCertSearchDecryptMask')
 export const kCertSearchEncryptAllowed = /* @__PURE__ */ _bind(FW, 'kCertSearchEncryptAllowed')
-export const kCertSearchEncryptDisallowed = /* @__PURE__ */ _bind(FW, 'kCertSearchEncryptDisallowed')
+export const kCertSearchEncryptDisallowed = /* @__PURE__ */ _bind(
+	FW,
+	'kCertSearchEncryptDisallowed',
+)
+
 export const kCertSearchEncryptIgnored = /* @__PURE__ */ _bind(FW, 'kCertSearchEncryptIgnored')
 export const kCertSearchEncryptMask = /* @__PURE__ */ _bind(FW, 'kCertSearchEncryptMask')
 export const kCertSearchPrivKeyRequired = /* @__PURE__ */ _bind(FW, 'kCertSearchPrivKeyRequired')
 export const kCertSearchShift = /* @__PURE__ */ _bind(FW, 'kCertSearchShift')
 export const kCertSearchSigningAllowed = /* @__PURE__ */ _bind(FW, 'kCertSearchSigningAllowed')
-export const kCertSearchSigningDisallowed = /* @__PURE__ */ _bind(FW, 'kCertSearchSigningDisallowed')
+export const kCertSearchSigningDisallowed = /* @__PURE__ */ _bind(
+	FW,
+	'kCertSearchSigningDisallowed',
+)
+
 export const kCertSearchSigningIgnored = /* @__PURE__ */ _bind(FW, 'kCertSearchSigningIgnored')
 export const kCertSearchSigningMask = /* @__PURE__ */ _bind(FW, 'kCertSearchSigningMask')
 export const kCertSearchUnwrapAllowed = /* @__PURE__ */ _bind(FW, 'kCertSearchUnwrapAllowed')
@@ -4611,7 +6803,11 @@ export const kChewableItemsFolderType = /* @__PURE__ */ _bind(FW, 'kChewableItem
 export const kClassKCItemAttr = /* @__PURE__ */ _bind(FW, 'kClassKCItemAttr')
 export const kClassicDesktopFolderType = /* @__PURE__ */ _bind(FW, 'kClassicDesktopFolderType')
 export const kClassicDomain = /* @__PURE__ */ _bind(FW, 'kClassicDomain')
-export const kClassicPreferencesFolderType = /* @__PURE__ */ _bind(FW, 'kClassicPreferencesFolderType')
+export const kClassicPreferencesFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kClassicPreferencesFolderType',
+)
+
 export const kClientRequestDenied = /* @__PURE__ */ _bind(FW, 'kClientRequestDenied')
 export const kClipboardIcon = /* @__PURE__ */ _bind(FW, 'kClipboardIcon')
 export const kClippingCreator = /* @__PURE__ */ _bind(FW, 'kClippingCreator')
@@ -4623,17 +6819,37 @@ export const kClippingTextType = /* @__PURE__ */ _bind(FW, 'kClippingTextType')
 export const kClippingTextTypeIcon = /* @__PURE__ */ _bind(FW, 'kClippingTextTypeIcon')
 export const kClippingUnknownType = /* @__PURE__ */ _bind(FW, 'kClippingUnknownType')
 export const kClippingUnknownTypeIcon = /* @__PURE__ */ _bind(FW, 'kClippingUnknownTypeIcon')
-export const kCollateAttributesNotFoundErr = /* @__PURE__ */ _bind(FW, 'kCollateAttributesNotFoundErr')
+export const kCollateAttributesNotFoundErr = /* @__PURE__ */ _bind(
+	FW,
+	'kCollateAttributesNotFoundErr',
+)
+
 export const kCollateBufferTooSmall = /* @__PURE__ */ _bind(FW, 'kCollateBufferTooSmall')
 export const kCollateInvalidChar = /* @__PURE__ */ _bind(FW, 'kCollateInvalidChar')
 export const kCollateInvalidCollationRef = /* @__PURE__ */ _bind(FW, 'kCollateInvalidCollationRef')
 export const kCollateInvalidOptions = /* @__PURE__ */ _bind(FW, 'kCollateInvalidOptions')
-export const kCollateMissingUnicodeTableErr = /* @__PURE__ */ _bind(FW, 'kCollateMissingUnicodeTableErr')
+export const kCollateMissingUnicodeTableErr = /* @__PURE__ */ _bind(
+	FW,
+	'kCollateMissingUnicodeTableErr',
+)
+
 export const kCollatePatternNotFoundErr = /* @__PURE__ */ _bind(FW, 'kCollatePatternNotFoundErr')
-export const kCollateUnicodeConvertFailedErr = /* @__PURE__ */ _bind(FW, 'kCollateUnicodeConvertFailedErr')
+export const kCollateUnicodeConvertFailedErr = /* @__PURE__ */ _bind(
+	FW,
+	'kCollateUnicodeConvertFailedErr',
+)
+
 export const kCollectionAllAttributes = /* @__PURE__ */ _bind(FW, 'kCollectionAllAttributes')
-export const kCollectionDefaultAttributes = /* @__PURE__ */ _bind(FW, 'kCollectionDefaultAttributes')
-export const kCollectionDontWantAttributes = /* @__PURE__ */ _bind(FW, 'kCollectionDontWantAttributes')
+export const kCollectionDefaultAttributes = /* @__PURE__ */ _bind(
+	FW,
+	'kCollectionDefaultAttributes',
+)
+
+export const kCollectionDontWantAttributes = /* @__PURE__ */ _bind(
+	FW,
+	'kCollectionDontWantAttributes',
+)
+
 export const kCollectionDontWantData = /* @__PURE__ */ _bind(FW, 'kCollectionDontWantData')
 export const kCollectionDontWantId = /* @__PURE__ */ _bind(FW, 'kCollectionDontWantId')
 export const kCollectionDontWantIndex = /* @__PURE__ */ _bind(FW, 'kCollectionDontWantIndex')
@@ -4710,17 +6926,37 @@ export const kColorPickersFolderType = /* @__PURE__ */ _bind(FW, 'kColorPickersF
 export const kColorSyncCMMFolderType = /* @__PURE__ */ _bind(FW, 'kColorSyncCMMFolderType')
 export const kColorSyncFolderIcon = /* @__PURE__ */ _bind(FW, 'kColorSyncFolderIcon')
 export const kColorSyncFolderType = /* @__PURE__ */ _bind(FW, 'kColorSyncFolderType')
-export const kColorSyncProfilesFolderType = /* @__PURE__ */ _bind(FW, 'kColorSyncProfilesFolderType')
-export const kColorSyncScriptingFolderType = /* @__PURE__ */ _bind(FW, 'kColorSyncScriptingFolderType')
+export const kColorSyncProfilesFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kColorSyncProfilesFolderType',
+)
+
+export const kColorSyncScriptingFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kColorSyncScriptingFolderType',
+)
+
 export const kCommentKCItemAttr = /* @__PURE__ */ _bind(FW, 'kCommentKCItemAttr')
 export const kCommonNameKCItemAttr = /* @__PURE__ */ _bind(FW, 'kCommonNameKCItemAttr')
 export const kComponentAliasResourceType = /* @__PURE__ */ _bind(FW, 'kComponentAliasResourceType')
 export const kComponentCanDoSelect = /* @__PURE__ */ _bind(FW, 'kComponentCanDoSelect')
 export const kComponentCloseSelect = /* @__PURE__ */ _bind(FW, 'kComponentCloseSelect')
 export const kComponentDebugOption = /* @__PURE__ */ _bind(FW, 'kComponentDebugOption')
-export const kComponentExecuteWiredActionSelect = /* @__PURE__ */ _bind(FW, 'kComponentExecuteWiredActionSelect')
-export const kComponentGetMPWorkFunctionSelect = /* @__PURE__ */ _bind(FW, 'kComponentGetMPWorkFunctionSelect')
-export const kComponentGetPublicResourceSelect = /* @__PURE__ */ _bind(FW, 'kComponentGetPublicResourceSelect')
+export const kComponentExecuteWiredActionSelect = /* @__PURE__ */ _bind(
+	FW,
+	'kComponentExecuteWiredActionSelect',
+)
+
+export const kComponentGetMPWorkFunctionSelect = /* @__PURE__ */ _bind(
+	FW,
+	'kComponentGetMPWorkFunctionSelect',
+)
+
+export const kComponentGetPublicResourceSelect = /* @__PURE__ */ _bind(
+	FW,
+	'kComponentGetPublicResourceSelect',
+)
+
 export const kComponentOpenSelect = /* @__PURE__ */ _bind(FW, 'kComponentOpenSelect')
 export const kComponentRegisterSelect = /* @__PURE__ */ _bind(FW, 'kComponentRegisterSelect')
 export const kComponentResourceType = /* @__PURE__ */ _bind(FW, 'kComponentResourceType')
@@ -4740,19 +6976,59 @@ export const kContainerFolderAliasType = /* @__PURE__ */ _bind(FW, 'kContainerFo
 export const kContainerHardDiskAliasType = /* @__PURE__ */ _bind(FW, 'kContainerHardDiskAliasType')
 export const kContainerServerAliasType = /* @__PURE__ */ _bind(FW, 'kContainerServerAliasType')
 export const kContainerTrashAliasType = /* @__PURE__ */ _bind(FW, 'kContainerTrashAliasType')
-export const kContextualMenuItemsFolderIcon = /* @__PURE__ */ _bind(FW, 'kContextualMenuItemsFolderIcon')
-export const kContextualMenuItemsFolderType = /* @__PURE__ */ _bind(FW, 'kContextualMenuItemsFolderType')
-export const kControlPanelDisabledFolderIcon = /* @__PURE__ */ _bind(FW, 'kControlPanelDisabledFolderIcon')
-export const kControlPanelDisabledFolderType = /* @__PURE__ */ _bind(FW, 'kControlPanelDisabledFolderType')
-export const kControlPanelFolderAliasType = /* @__PURE__ */ _bind(FW, 'kControlPanelFolderAliasType')
+export const kContextualMenuItemsFolderIcon = /* @__PURE__ */ _bind(
+	FW,
+	'kContextualMenuItemsFolderIcon',
+)
+
+export const kContextualMenuItemsFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kContextualMenuItemsFolderType',
+)
+
+export const kControlPanelDisabledFolderIcon = /* @__PURE__ */ _bind(
+	FW,
+	'kControlPanelDisabledFolderIcon',
+)
+
+export const kControlPanelDisabledFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kControlPanelDisabledFolderType',
+)
+
+export const kControlPanelFolderAliasType = /* @__PURE__ */ _bind(
+	FW,
+	'kControlPanelFolderAliasType',
+)
+
 export const kControlPanelFolderIcon = /* @__PURE__ */ _bind(FW, 'kControlPanelFolderIcon')
-export const kControlPanelFolderIconResource = /* @__PURE__ */ _bind(FW, 'kControlPanelFolderIconResource')
+export const kControlPanelFolderIconResource = /* @__PURE__ */ _bind(
+	FW,
+	'kControlPanelFolderIconResource',
+)
+
 export const kControlPanelFolderType = /* @__PURE__ */ _bind(FW, 'kControlPanelFolderType')
-export const kControlStripModulesFolderIcon = /* @__PURE__ */ _bind(FW, 'kControlStripModulesFolderIcon')
-export const kControlStripModulesFolderType = /* @__PURE__ */ _bind(FW, 'kControlStripModulesFolderType')
+export const kControlStripModulesFolderIcon = /* @__PURE__ */ _bind(
+	FW,
+	'kControlStripModulesFolderIcon',
+)
+
+export const kControlStripModulesFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kControlStripModulesFolderType',
+)
+
 export const kCooperativeThread = /* @__PURE__ */ _bind(FW, 'kCooperativeThread')
-export const kCoreEndianAppleEventManagerDomain = /* @__PURE__ */ _bind(FW, 'kCoreEndianAppleEventManagerDomain')
-export const kCoreEndianResourceManagerDomain = /* @__PURE__ */ _bind(FW, 'kCoreEndianResourceManagerDomain')
+export const kCoreEndianAppleEventManagerDomain = /* @__PURE__ */ _bind(
+	FW,
+	'kCoreEndianAppleEventManagerDomain',
+)
+
+export const kCoreEndianResourceManagerDomain = /* @__PURE__ */ _bind(
+	FW,
+	'kCoreEndianResourceManagerDomain',
+)
+
 export const kCoreEventClass = /* @__PURE__ */ _bind(FW, 'kCoreEventClass')
 export const kCoreServicesFolderType = /* @__PURE__ */ _bind(FW, 'kCoreServicesFolderType')
 export const kCreateFolder = /* @__PURE__ */ _bind(FW, 'kCreateFolder')
@@ -4761,24 +7037,52 @@ export const kCreateFolderAtBootBit = /* @__PURE__ */ _bind(FW, 'kCreateFolderAt
 export const kCreateIfNeeded = /* @__PURE__ */ _bind(FW, 'kCreateIfNeeded')
 export const kCreationDateKCItemAttr = /* @__PURE__ */ _bind(FW, 'kCreationDateKCItemAttr')
 export const kCreatorKCItemAttr = /* @__PURE__ */ _bind(FW, 'kCreatorKCItemAttr')
-export const kCurrentMixedModeStateRecord = /* @__PURE__ */ _bind(FW, 'kCurrentMixedModeStateRecord')
+export const kCurrentMixedModeStateRecord = /* @__PURE__ */ _bind(
+	FW,
+	'kCurrentMixedModeStateRecord',
+)
+
 export const kCurrentThreadID = /* @__PURE__ */ _bind(FW, 'kCurrentThreadID')
 export const kCurrentUserFolderLocation = /* @__PURE__ */ _bind(FW, 'kCurrentUserFolderLocation')
 export const kCurrentUserFolderType = /* @__PURE__ */ _bind(FW, 'kCurrentUserFolderType')
-export const kCurrentUserRemoteFolderLocation = /* @__PURE__ */ _bind(FW, 'kCurrentUserRemoteFolderLocation')
-export const kCurrentUserRemoteFolderType = /* @__PURE__ */ _bind(FW, 'kCurrentUserRemoteFolderType')
+export const kCurrentUserRemoteFolderLocation = /* @__PURE__ */ _bind(
+	FW,
+	'kCurrentUserRemoteFolderLocation',
+)
+
+export const kCurrentUserRemoteFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kCurrentUserRemoteFolderType',
+)
+
 export const kCustomBadgeResourceID = /* @__PURE__ */ _bind(FW, 'kCustomBadgeResourceID')
 export const kCustomBadgeResourceType = /* @__PURE__ */ _bind(FW, 'kCustomBadgeResourceType')
 export const kCustomBadgeResourceVersion = /* @__PURE__ */ _bind(FW, 'kCustomBadgeResourceVersion')
 export const kCustomIconKCItemAttr = /* @__PURE__ */ _bind(FW, 'kCustomIconKCItemAttr')
 export const kCustomIconResource = /* @__PURE__ */ _bind(FW, 'kCustomIconResource')
 export const kD0DispatchedCStackBased = /* @__PURE__ */ _bind(FW, 'kD0DispatchedCStackBased')
-export const kD0DispatchedPascalStackBased = /* @__PURE__ */ _bind(FW, 'kD0DispatchedPascalStackBased')
-export const kD1DispatchedPascalStackBased = /* @__PURE__ */ _bind(FW, 'kD1DispatchedPascalStackBased')
+export const kD0DispatchedPascalStackBased = /* @__PURE__ */ _bind(
+	FW,
+	'kD0DispatchedPascalStackBased',
+)
+
+export const kD1DispatchedPascalStackBased = /* @__PURE__ */ _bind(
+	FW,
+	'kD1DispatchedPascalStackBased',
+)
+
 export const kDMCantBlock = /* @__PURE__ */ _bind(FW, 'kDMCantBlock')
-export const kDMDisplayAlreadyInstalledErr = /* @__PURE__ */ _bind(FW, 'kDMDisplayAlreadyInstalledErr')
+export const kDMDisplayAlreadyInstalledErr = /* @__PURE__ */ _bind(
+	FW,
+	'kDMDisplayAlreadyInstalledErr',
+)
+
 export const kDMDisplayNotFoundErr = /* @__PURE__ */ _bind(FW, 'kDMDisplayNotFoundErr')
-export const kDMDriverNotDisplayMgrAwareErr = /* @__PURE__ */ _bind(FW, 'kDMDriverNotDisplayMgrAwareErr')
+export const kDMDriverNotDisplayMgrAwareErr = /* @__PURE__ */ _bind(
+	FW,
+	'kDMDriverNotDisplayMgrAwareErr',
+)
+
 export const kDMFoundErr = /* @__PURE__ */ _bind(FW, 'kDMFoundErr')
 export const kDMGenErr = /* @__PURE__ */ _bind(FW, 'kDMGenErr')
 export const kDMMainDisplayCannotMoveErr = /* @__PURE__ */ _bind(FW, 'kDMMainDisplayCannotMoveErr')
@@ -4792,7 +7096,11 @@ export const kDMWrongNumberOfDisplays = /* @__PURE__ */ _bind(FW, 'kDMWrongNumbe
 export const kDOSJapanesePalmVariant = /* @__PURE__ */ _bind(FW, 'kDOSJapanesePalmVariant')
 export const kDOSJapaneseStandardVariant = /* @__PURE__ */ _bind(FW, 'kDOSJapaneseStandardVariant')
 export const kDSpConfirmSwitchWarning = /* @__PURE__ */ _bind(FW, 'kDSpConfirmSwitchWarning')
-export const kDSpContextAlreadyReservedErr = /* @__PURE__ */ _bind(FW, 'kDSpContextAlreadyReservedErr')
+export const kDSpContextAlreadyReservedErr = /* @__PURE__ */ _bind(
+	FW,
+	'kDSpContextAlreadyReservedErr',
+)
+
 export const kDSpContextNotFoundErr = /* @__PURE__ */ _bind(FW, 'kDSpContextNotFoundErr')
 export const kDSpContextNotReservedErr = /* @__PURE__ */ _bind(FW, 'kDSpContextNotReservedErr')
 export const kDSpFrameRateNotReadyErr = /* @__PURE__ */ _bind(FW, 'kDSpFrameRateNotReadyErr')
@@ -4823,18 +7131,42 @@ export const kDesktopIcon = /* @__PURE__ */ _bind(FW, 'kDesktopIcon')
 export const kDesktopIconResource = /* @__PURE__ */ _bind(FW, 'kDesktopIconResource')
 export const kDesktopPicturesFolderType = /* @__PURE__ */ _bind(FW, 'kDesktopPicturesFolderType')
 export const kDesktopPrinterAliasType = /* @__PURE__ */ _bind(FW, 'kDesktopPrinterAliasType')
-export const kDeveloperApplicationsFolderType = /* @__PURE__ */ _bind(FW, 'kDeveloperApplicationsFolderType')
+export const kDeveloperApplicationsFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kDeveloperApplicationsFolderType',
+)
+
 export const kDeveloperDocsFolderType = /* @__PURE__ */ _bind(FW, 'kDeveloperDocsFolderType')
 export const kDeveloperFolderType = /* @__PURE__ */ _bind(FW, 'kDeveloperFolderType')
 export const kDeveloperHelpFolderType = /* @__PURE__ */ _bind(FW, 'kDeveloperHelpFolderType')
 export const kDeviceInitiatedWake = /* @__PURE__ */ _bind(FW, 'kDeviceInitiatedWake')
 export const kDictionariesFolderType = /* @__PURE__ */ _bind(FW, 'kDictionariesFolderType')
-export const kDirectoryServicesFolderType = /* @__PURE__ */ _bind(FW, 'kDirectoryServicesFolderType')
-export const kDirectoryServicesPlugInsFolderType = /* @__PURE__ */ _bind(FW, 'kDirectoryServicesPlugInsFolderType')
+export const kDirectoryServicesFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kDirectoryServicesFolderType',
+)
+
+export const kDirectoryServicesPlugInsFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kDirectoryServicesPlugInsFolderType',
+)
+
 export const kDispatchedParameterPhase = /* @__PURE__ */ _bind(FW, 'kDispatchedParameterPhase')
-export const kDispatchedSelectorSizePhase = /* @__PURE__ */ _bind(FW, 'kDispatchedSelectorSizePhase')
-export const kDispatchedSelectorSizeWidth = /* @__PURE__ */ _bind(FW, 'kDispatchedSelectorSizeWidth')
-export const kDisplayExtensionsFolderType = /* @__PURE__ */ _bind(FW, 'kDisplayExtensionsFolderType')
+export const kDispatchedSelectorSizePhase = /* @__PURE__ */ _bind(
+	FW,
+	'kDispatchedSelectorSizePhase',
+)
+
+export const kDispatchedSelectorSizeWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kDispatchedSelectorSizeWidth',
+)
+
+export const kDisplayExtensionsFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kDisplayExtensionsFolderType',
+)
+
 export const kDoFolderActionEvent = /* @__PURE__ */ _bind(FW, 'kDoFolderActionEvent')
 export const kDocumentationFolderType = /* @__PURE__ */ _bind(FW, 'kDocumentationFolderType')
 export const kDocumentsFolderIcon = /* @__PURE__ */ _bind(FW, 'kDocumentsFolderIcon')
@@ -4935,12 +7267,24 @@ export const kExtendedFlagHasCustomBadge = /* @__PURE__ */ _bind(FW, 'kExtendedF
 export const kExtendedFlagHasRoutingInfo = /* @__PURE__ */ _bind(FW, 'kExtendedFlagHasRoutingInfo')
 export const kExtendedFlagObjectIsBusy = /* @__PURE__ */ _bind(FW, 'kExtendedFlagObjectIsBusy')
 export const kExtendedFlagsAreInvalid = /* @__PURE__ */ _bind(FW, 'kExtendedFlagsAreInvalid')
-export const kExtensionDisabledFolderType = /* @__PURE__ */ _bind(FW, 'kExtensionDisabledFolderType')
+export const kExtensionDisabledFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kExtensionDisabledFolderType',
+)
+
 export const kExtensionFolderAliasType = /* @__PURE__ */ _bind(FW, 'kExtensionFolderAliasType')
 export const kExtensionFolderType = /* @__PURE__ */ _bind(FW, 'kExtensionFolderType')
-export const kExtensionsDisabledFolderIcon = /* @__PURE__ */ _bind(FW, 'kExtensionsDisabledFolderIcon')
+export const kExtensionsDisabledFolderIcon = /* @__PURE__ */ _bind(
+	FW,
+	'kExtensionsDisabledFolderIcon',
+)
+
 export const kExtensionsFolderIcon = /* @__PURE__ */ _bind(FW, 'kExtensionsFolderIcon')
-export const kExtensionsFolderIconResource = /* @__PURE__ */ _bind(FW, 'kExtensionsFolderIconResource')
+export const kExtensionsFolderIconResource = /* @__PURE__ */ _bind(
+	FW,
+	'kExtensionsFolderIconResource',
+)
+
 export const kFAAttachCommand = /* @__PURE__ */ _bind(FW, 'kFAAttachCommand')
 export const kFAEditCommand = /* @__PURE__ */ _bind(FW, 'kFAEditCommand')
 export const kFAFileParam = /* @__PURE__ */ _bind(FW, 'kFAFileParam')
@@ -4986,9 +7330,17 @@ export const kFMFontTableAccessErr = /* @__PURE__ */ _bind(FW, 'kFMFontTableAcce
 export const kFMInvalidFontErr = /* @__PURE__ */ _bind(FW, 'kFMInvalidFontErr')
 export const kFMInvalidFontFamilyErr = /* @__PURE__ */ _bind(FW, 'kFMInvalidFontFamilyErr')
 export const kFMIterationCompleted = /* @__PURE__ */ _bind(FW, 'kFMIterationCompleted')
-export const kFMIterationScopeModifiedErr = /* @__PURE__ */ _bind(FW, 'kFMIterationScopeModifiedErr')
+export const kFMIterationScopeModifiedErr = /* @__PURE__ */ _bind(
+	FW,
+	'kFMIterationScopeModifiedErr',
+)
+
 export const kFNDirectoryModifiedMessage = /* @__PURE__ */ _bind(FW, 'kFNDirectoryModifiedMessage')
-export const kFNNoImplicitAllSubscription = /* @__PURE__ */ _bind(FW, 'kFNNoImplicitAllSubscription')
+export const kFNNoImplicitAllSubscription = /* @__PURE__ */ _bind(
+	FW,
+	'kFNNoImplicitAllSubscription',
+)
+
 export const kFNNotifyInBackground = /* @__PURE__ */ _bind(FW, 'kFNNotifyInBackground')
 export const kFNSBadFlattenedSizeErr = /* @__PURE__ */ _bind(FW, 'kFNSBadFlattenedSizeErr')
 export const kFNSBadProfileVersionErr = /* @__PURE__ */ _bind(FW, 'kFNSBadProfileVersionErr')
@@ -5005,16 +7357,32 @@ export const kFSAliasInfoFinderInfo = /* @__PURE__ */ _bind(FW, 'kFSAliasInfoFin
 export const kFSAliasInfoIDs = /* @__PURE__ */ _bind(FW, 'kFSAliasInfoIDs')
 export const kFSAliasInfoIsDirectory = /* @__PURE__ */ _bind(FW, 'kFSAliasInfoIsDirectory')
 export const kFSAliasInfoNone = /* @__PURE__ */ _bind(FW, 'kFSAliasInfoNone')
-export const kFSAliasInfoTargetCreateDate = /* @__PURE__ */ _bind(FW, 'kFSAliasInfoTargetCreateDate')
-export const kFSAliasInfoVolumeCreateDate = /* @__PURE__ */ _bind(FW, 'kFSAliasInfoVolumeCreateDate')
+export const kFSAliasInfoTargetCreateDate = /* @__PURE__ */ _bind(
+	FW,
+	'kFSAliasInfoTargetCreateDate',
+)
+
+export const kFSAliasInfoVolumeCreateDate = /* @__PURE__ */ _bind(
+	FW,
+	'kFSAliasInfoVolumeCreateDate',
+)
+
 export const kFSAliasInfoVolumeFlags = /* @__PURE__ */ _bind(FW, 'kFSAliasInfoVolumeFlags')
 export const kFSAllocAllOrNothingMask = /* @__PURE__ */ _bind(FW, 'kFSAllocAllOrNothingMask')
 export const kFSAllocContiguousMask = /* @__PURE__ */ _bind(FW, 'kFSAllocContiguousMask')
 export const kFSAllocDefaultFlags = /* @__PURE__ */ _bind(FW, 'kFSAllocDefaultFlags')
 export const kFSAllocNoRoundUpMask = /* @__PURE__ */ _bind(FW, 'kFSAllocNoRoundUpMask')
 export const kFSAllocReservedMask = /* @__PURE__ */ _bind(FW, 'kFSAllocReservedMask')
-export const kFSAllowConcurrentAsyncIOBit = /* @__PURE__ */ _bind(FW, 'kFSAllowConcurrentAsyncIOBit')
-export const kFSAllowConcurrentAsyncIOMask = /* @__PURE__ */ _bind(FW, 'kFSAllowConcurrentAsyncIOMask')
+export const kFSAllowConcurrentAsyncIOBit = /* @__PURE__ */ _bind(
+	FW,
+	'kFSAllowConcurrentAsyncIOBit',
+)
+
+export const kFSAllowConcurrentAsyncIOMask = /* @__PURE__ */ _bind(
+	FW,
+	'kFSAllowConcurrentAsyncIOMask',
+)
+
 export const kFSCatInfoAccessDate = /* @__PURE__ */ _bind(FW, 'kFSCatInfoAccessDate')
 export const kFSCatInfoAllDates = /* @__PURE__ */ _bind(FW, 'kFSCatInfoAllDates')
 export const kFSCatInfoAttrMod = /* @__PURE__ */ _bind(FW, 'kFSCatInfoAttrMod')
@@ -5042,46 +7410,198 @@ export const kFSCatInfoUserPrivs = /* @__PURE__ */ _bind(FW, 'kFSCatInfoUserPriv
 export const kFSCatInfoValence = /* @__PURE__ */ _bind(FW, 'kFSCatInfoValence')
 export const kFSCatInfoVolume = /* @__PURE__ */ _bind(FW, 'kFSCatInfoVolume')
 export const kFSEjectVolumeForceEject = /* @__PURE__ */ _bind(FW, 'kFSEjectVolumeForceEject')
-export const kFSEventStreamCreateFlagFileEvents = /* @__PURE__ */ _bind(FW, 'kFSEventStreamCreateFlagFileEvents')
-export const kFSEventStreamCreateFlagFullHistory = /* @__PURE__ */ _bind(FW, 'kFSEventStreamCreateFlagFullHistory')
-export const kFSEventStreamCreateFlagIgnoreSelf = /* @__PURE__ */ _bind(FW, 'kFSEventStreamCreateFlagIgnoreSelf')
-export const kFSEventStreamCreateFlagMarkSelf = /* @__PURE__ */ _bind(FW, 'kFSEventStreamCreateFlagMarkSelf')
-export const kFSEventStreamCreateFlagNoDefer = /* @__PURE__ */ _bind(FW, 'kFSEventStreamCreateFlagNoDefer')
-export const kFSEventStreamCreateFlagNone = /* @__PURE__ */ _bind(FW, 'kFSEventStreamCreateFlagNone')
-export const kFSEventStreamCreateFlagUseCFTypes = /* @__PURE__ */ _bind(FW, 'kFSEventStreamCreateFlagUseCFTypes')
-export const kFSEventStreamCreateFlagUseExtendedData = /* @__PURE__ */ _bind(FW, 'kFSEventStreamCreateFlagUseExtendedData')
-export const kFSEventStreamCreateFlagWatchRoot = /* @__PURE__ */ _bind(FW, 'kFSEventStreamCreateFlagWatchRoot')
-export const kFSEventStreamCreateWithDocID = /* @__PURE__ */ _bind(FW, 'kFSEventStreamCreateWithDocID')
-export const kFSEventStreamEventFlagEventIdsWrapped = /* @__PURE__ */ _bind(FW, 'kFSEventStreamEventFlagEventIdsWrapped')
-export const kFSEventStreamEventFlagHistoryDone = /* @__PURE__ */ _bind(FW, 'kFSEventStreamEventFlagHistoryDone')
-export const kFSEventStreamEventFlagItemChangeOwner = /* @__PURE__ */ _bind(FW, 'kFSEventStreamEventFlagItemChangeOwner')
-export const kFSEventStreamEventFlagItemCloned = /* @__PURE__ */ _bind(FW, 'kFSEventStreamEventFlagItemCloned')
-export const kFSEventStreamEventFlagItemCreated = /* @__PURE__ */ _bind(FW, 'kFSEventStreamEventFlagItemCreated')
-export const kFSEventStreamEventFlagItemFinderInfoMod = /* @__PURE__ */ _bind(FW, 'kFSEventStreamEventFlagItemFinderInfoMod')
-export const kFSEventStreamEventFlagItemInodeMetaMod = /* @__PURE__ */ _bind(FW, 'kFSEventStreamEventFlagItemInodeMetaMod')
-export const kFSEventStreamEventFlagItemIsDir = /* @__PURE__ */ _bind(FW, 'kFSEventStreamEventFlagItemIsDir')
-export const kFSEventStreamEventFlagItemIsFile = /* @__PURE__ */ _bind(FW, 'kFSEventStreamEventFlagItemIsFile')
-export const kFSEventStreamEventFlagItemIsHardlink = /* @__PURE__ */ _bind(FW, 'kFSEventStreamEventFlagItemIsHardlink')
-export const kFSEventStreamEventFlagItemIsLastHardlink = /* @__PURE__ */ _bind(FW, 'kFSEventStreamEventFlagItemIsLastHardlink')
-export const kFSEventStreamEventFlagItemIsSymlink = /* @__PURE__ */ _bind(FW, 'kFSEventStreamEventFlagItemIsSymlink')
-export const kFSEventStreamEventFlagItemModified = /* @__PURE__ */ _bind(FW, 'kFSEventStreamEventFlagItemModified')
-export const kFSEventStreamEventFlagItemRemoved = /* @__PURE__ */ _bind(FW, 'kFSEventStreamEventFlagItemRemoved')
-export const kFSEventStreamEventFlagItemRenamed = /* @__PURE__ */ _bind(FW, 'kFSEventStreamEventFlagItemRenamed')
-export const kFSEventStreamEventFlagItemXattrMod = /* @__PURE__ */ _bind(FW, 'kFSEventStreamEventFlagItemXattrMod')
-export const kFSEventStreamEventFlagKernelDropped = /* @__PURE__ */ _bind(FW, 'kFSEventStreamEventFlagKernelDropped')
-export const kFSEventStreamEventFlagMount = /* @__PURE__ */ _bind(FW, 'kFSEventStreamEventFlagMount')
-export const kFSEventStreamEventFlagMustScanSubDirs = /* @__PURE__ */ _bind(FW, 'kFSEventStreamEventFlagMustScanSubDirs')
+export const kFSEventStreamCreateFlagFileEvents = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamCreateFlagFileEvents',
+)
+
+export const kFSEventStreamCreateFlagFullHistory = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamCreateFlagFullHistory',
+)
+
+export const kFSEventStreamCreateFlagIgnoreSelf = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamCreateFlagIgnoreSelf',
+)
+
+export const kFSEventStreamCreateFlagMarkSelf = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamCreateFlagMarkSelf',
+)
+
+export const kFSEventStreamCreateFlagNoDefer = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamCreateFlagNoDefer',
+)
+
+export const kFSEventStreamCreateFlagNone = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamCreateFlagNone',
+)
+
+export const kFSEventStreamCreateFlagUseCFTypes = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamCreateFlagUseCFTypes',
+)
+
+export const kFSEventStreamCreateFlagUseExtendedData = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamCreateFlagUseExtendedData',
+)
+
+export const kFSEventStreamCreateFlagWatchRoot = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamCreateFlagWatchRoot',
+)
+
+export const kFSEventStreamCreateWithDocID = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamCreateWithDocID',
+)
+
+export const kFSEventStreamEventFlagEventIdsWrapped = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamEventFlagEventIdsWrapped',
+)
+
+export const kFSEventStreamEventFlagHistoryDone = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamEventFlagHistoryDone',
+)
+
+export const kFSEventStreamEventFlagItemChangeOwner = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamEventFlagItemChangeOwner',
+)
+
+export const kFSEventStreamEventFlagItemCloned = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamEventFlagItemCloned',
+)
+
+export const kFSEventStreamEventFlagItemCreated = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamEventFlagItemCreated',
+)
+
+export const kFSEventStreamEventFlagItemFinderInfoMod = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamEventFlagItemFinderInfoMod',
+)
+
+export const kFSEventStreamEventFlagItemInodeMetaMod = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamEventFlagItemInodeMetaMod',
+)
+
+export const kFSEventStreamEventFlagItemIsDir = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamEventFlagItemIsDir',
+)
+
+export const kFSEventStreamEventFlagItemIsFile = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamEventFlagItemIsFile',
+)
+
+export const kFSEventStreamEventFlagItemIsHardlink = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamEventFlagItemIsHardlink',
+)
+
+export const kFSEventStreamEventFlagItemIsLastHardlink = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamEventFlagItemIsLastHardlink',
+)
+
+export const kFSEventStreamEventFlagItemIsSymlink = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamEventFlagItemIsSymlink',
+)
+
+export const kFSEventStreamEventFlagItemModified = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamEventFlagItemModified',
+)
+
+export const kFSEventStreamEventFlagItemRemoved = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamEventFlagItemRemoved',
+)
+
+export const kFSEventStreamEventFlagItemRenamed = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamEventFlagItemRenamed',
+)
+
+export const kFSEventStreamEventFlagItemXattrMod = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamEventFlagItemXattrMod',
+)
+
+export const kFSEventStreamEventFlagKernelDropped = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamEventFlagKernelDropped',
+)
+
+export const kFSEventStreamEventFlagMount = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamEventFlagMount',
+)
+
+export const kFSEventStreamEventFlagMustScanSubDirs = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamEventFlagMustScanSubDirs',
+)
+
 export const kFSEventStreamEventFlagNone = /* @__PURE__ */ _bind(FW, 'kFSEventStreamEventFlagNone')
-export const kFSEventStreamEventFlagOwnEvent = /* @__PURE__ */ _bind(FW, 'kFSEventStreamEventFlagOwnEvent')
-export const kFSEventStreamEventFlagRootChanged = /* @__PURE__ */ _bind(FW, 'kFSEventStreamEventFlagRootChanged')
-export const kFSEventStreamEventFlagUnmount = /* @__PURE__ */ _bind(FW, 'kFSEventStreamEventFlagUnmount')
-export const kFSEventStreamEventFlagUserDropped = /* @__PURE__ */ _bind(FW, 'kFSEventStreamEventFlagUserDropped')
-export const kFSEventStreamEventIdSinceNow = /* @__PURE__ */ _bind(FW, 'kFSEventStreamEventIdSinceNow')
-export const kFSFileOperationDefaultOptions = /* @__PURE__ */ _bind(FW, 'kFSFileOperationDefaultOptions')
-export const kFSFileOperationDoNotMoveAcrossVolumes = /* @__PURE__ */ _bind(FW, 'kFSFileOperationDoNotMoveAcrossVolumes')
+export const kFSEventStreamEventFlagOwnEvent = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamEventFlagOwnEvent',
+)
+
+export const kFSEventStreamEventFlagRootChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamEventFlagRootChanged',
+)
+
+export const kFSEventStreamEventFlagUnmount = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamEventFlagUnmount',
+)
+
+export const kFSEventStreamEventFlagUserDropped = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamEventFlagUserDropped',
+)
+
+export const kFSEventStreamEventIdSinceNow = /* @__PURE__ */ _bind(
+	FW,
+	'kFSEventStreamEventIdSinceNow',
+)
+
+export const kFSFileOperationDefaultOptions = /* @__PURE__ */ _bind(
+	FW,
+	'kFSFileOperationDefaultOptions',
+)
+
+export const kFSFileOperationDoNotMoveAcrossVolumes = /* @__PURE__ */ _bind(
+	FW,
+	'kFSFileOperationDoNotMoveAcrossVolumes',
+)
+
 export const kFSFileOperationOverwrite = /* @__PURE__ */ _bind(FW, 'kFSFileOperationOverwrite')
-export const kFSFileOperationSkipPreflight = /* @__PURE__ */ _bind(FW, 'kFSFileOperationSkipPreflight')
-export const kFSFileOperationSkipSourcePermissionErrors = /* @__PURE__ */ _bind(FW, 'kFSFileOperationSkipSourcePermissionErrors')
+export const kFSFileOperationSkipPreflight = /* @__PURE__ */ _bind(
+	FW,
+	'kFSFileOperationSkipPreflight',
+)
+
+export const kFSFileOperationSkipSourcePermissionErrors = /* @__PURE__ */ _bind(
+	FW,
+	'kFSFileOperationSkipSourcePermissionErrors',
+)
+
 export const kFSForceReadBit = /* @__PURE__ */ _bind(FW, 'kFSForceReadBit')
 export const kFSForceReadMask = /* @__PURE__ */ _bind(FW, 'kFSForceReadMask')
 export const kFSInvalidVolumeRefNum = /* @__PURE__ */ _bind(FW, 'kFSInvalidVolumeRefNum')
@@ -5089,10 +7609,26 @@ export const kFSIterateDelete = /* @__PURE__ */ _bind(FW, 'kFSIterateDelete')
 export const kFSIterateFlat = /* @__PURE__ */ _bind(FW, 'kFSIterateFlat')
 export const kFSIterateReserved = /* @__PURE__ */ _bind(FW, 'kFSIterateReserved')
 export const kFSIterateSubtree = /* @__PURE__ */ _bind(FW, 'kFSIterateSubtree')
-export const kFSMountServerMarkDoNotDisplay = /* @__PURE__ */ _bind(FW, 'kFSMountServerMarkDoNotDisplay')
-export const kFSMountServerMountOnMountDir = /* @__PURE__ */ _bind(FW, 'kFSMountServerMountOnMountDir')
-export const kFSMountServerMountWithoutNotification = /* @__PURE__ */ _bind(FW, 'kFSMountServerMountWithoutNotification')
-export const kFSMountServerSuppressConnectionUI = /* @__PURE__ */ _bind(FW, 'kFSMountServerSuppressConnectionUI')
+export const kFSMountServerMarkDoNotDisplay = /* @__PURE__ */ _bind(
+	FW,
+	'kFSMountServerMarkDoNotDisplay',
+)
+
+export const kFSMountServerMountOnMountDir = /* @__PURE__ */ _bind(
+	FW,
+	'kFSMountServerMountOnMountDir',
+)
+
+export const kFSMountServerMountWithoutNotification = /* @__PURE__ */ _bind(
+	FW,
+	'kFSMountServerMountWithoutNotification',
+)
+
+export const kFSMountServerSuppressConnectionUI = /* @__PURE__ */ _bind(
+	FW,
+	'kFSMountServerSuppressConnectionUI',
+)
+
 export const kFSNewLineBit = /* @__PURE__ */ _bind(FW, 'kFSNewLineBit')
 export const kFSNewLineCharMask = /* @__PURE__ */ _bind(FW, 'kFSNewLineCharMask')
 export const kFSNewLineMask = /* @__PURE__ */ _bind(FW, 'kFSNewLineMask')
@@ -5118,43 +7654,127 @@ export const kFSNodeLockedBit = /* @__PURE__ */ _bind(FW, 'kFSNodeLockedBit')
 export const kFSNodeLockedMask = /* @__PURE__ */ _bind(FW, 'kFSNodeLockedMask')
 export const kFSNodeResOpenBit = /* @__PURE__ */ _bind(FW, 'kFSNodeResOpenBit')
 export const kFSNodeResOpenMask = /* @__PURE__ */ _bind(FW, 'kFSNodeResOpenMask')
-export const kFSOperationBytesCompleteKey = /* @__PURE__ */ _bind(FW, 'kFSOperationBytesCompleteKey')
-export const kFSOperationBytesRemainingKey = /* @__PURE__ */ _bind(FW, 'kFSOperationBytesRemainingKey')
-export const kFSOperationObjectsCompleteKey = /* @__PURE__ */ _bind(FW, 'kFSOperationObjectsCompleteKey')
-export const kFSOperationObjectsRemainingKey = /* @__PURE__ */ _bind(FW, 'kFSOperationObjectsRemainingKey')
+export const kFSOperationBytesCompleteKey = /* @__PURE__ */ _bind(
+	FW,
+	'kFSOperationBytesCompleteKey',
+)
+
+export const kFSOperationBytesRemainingKey = /* @__PURE__ */ _bind(
+	FW,
+	'kFSOperationBytesRemainingKey',
+)
+
+export const kFSOperationObjectsCompleteKey = /* @__PURE__ */ _bind(
+	FW,
+	'kFSOperationObjectsCompleteKey',
+)
+
+export const kFSOperationObjectsRemainingKey = /* @__PURE__ */ _bind(
+	FW,
+	'kFSOperationObjectsRemainingKey',
+)
+
 export const kFSOperationStageComplete = /* @__PURE__ */ _bind(FW, 'kFSOperationStageComplete')
-export const kFSOperationStagePreflighting = /* @__PURE__ */ _bind(FW, 'kFSOperationStagePreflighting')
+export const kFSOperationStagePreflighting = /* @__PURE__ */ _bind(
+	FW,
+	'kFSOperationStagePreflighting',
+)
+
 export const kFSOperationStageRunning = /* @__PURE__ */ _bind(FW, 'kFSOperationStageRunning')
 export const kFSOperationStageUndefined = /* @__PURE__ */ _bind(FW, 'kFSOperationStageUndefined')
 export const kFSOperationThroughputKey = /* @__PURE__ */ _bind(FW, 'kFSOperationThroughputKey')
 export const kFSOperationTotalBytesKey = /* @__PURE__ */ _bind(FW, 'kFSOperationTotalBytesKey')
 export const kFSOperationTotalObjectsKey = /* @__PURE__ */ _bind(FW, 'kFSOperationTotalObjectsKey')
-export const kFSOperationTotalUserVisibleObjectsKey = /* @__PURE__ */ _bind(FW, 'kFSOperationTotalUserVisibleObjectsKey')
-export const kFSOperationUserVisibleObjectsCompleteKey = /* @__PURE__ */ _bind(FW, 'kFSOperationUserVisibleObjectsCompleteKey')
-export const kFSOperationUserVisibleObjectsRemainingKey = /* @__PURE__ */ _bind(FW, 'kFSOperationUserVisibleObjectsRemainingKey')
-export const kFSPathMakeRefDefaultOptions = /* @__PURE__ */ _bind(FW, 'kFSPathMakeRefDefaultOptions')
-export const kFSPathMakeRefDoNotFollowLeafSymlink = /* @__PURE__ */ _bind(FW, 'kFSPathMakeRefDoNotFollowLeafSymlink')
+export const kFSOperationTotalUserVisibleObjectsKey = /* @__PURE__ */ _bind(
+	FW,
+	'kFSOperationTotalUserVisibleObjectsKey',
+)
+
+export const kFSOperationUserVisibleObjectsCompleteKey = /* @__PURE__ */ _bind(
+	FW,
+	'kFSOperationUserVisibleObjectsCompleteKey',
+)
+
+export const kFSOperationUserVisibleObjectsRemainingKey = /* @__PURE__ */ _bind(
+	FW,
+	'kFSOperationUserVisibleObjectsRemainingKey',
+)
+
+export const kFSPathMakeRefDefaultOptions = /* @__PURE__ */ _bind(
+	FW,
+	'kFSPathMakeRefDefaultOptions',
+)
+
+export const kFSPathMakeRefDoNotFollowLeafSymlink = /* @__PURE__ */ _bind(
+	FW,
+	'kFSPathMakeRefDoNotFollowLeafSymlink',
+)
+
 export const kFSPleaseCacheBit = /* @__PURE__ */ _bind(FW, 'kFSPleaseCacheBit')
 export const kFSPleaseCacheMask = /* @__PURE__ */ _bind(FW, 'kFSPleaseCacheMask')
 export const kFSRdVerifyBit = /* @__PURE__ */ _bind(FW, 'kFSRdVerifyBit')
 export const kFSRdVerifyMask = /* @__PURE__ */ _bind(FW, 'kFSRdVerifyMask')
-export const kFSReplaceObjectDefaultOptions = /* @__PURE__ */ _bind(FW, 'kFSReplaceObjectDefaultOptions')
-export const kFSReplaceObjectDoNotCheckObjectWriteAccess = /* @__PURE__ */ _bind(FW, 'kFSReplaceObjectDoNotCheckObjectWriteAccess')
-export const kFSReplaceObjectPreservePermissionInfo = /* @__PURE__ */ _bind(FW, 'kFSReplaceObjectPreservePermissionInfo')
-export const kFSReplaceObjectReplaceMetadata = /* @__PURE__ */ _bind(FW, 'kFSReplaceObjectReplaceMetadata')
-export const kFSReplaceObjectReplacePermissionInfo = /* @__PURE__ */ _bind(FW, 'kFSReplaceObjectReplacePermissionInfo')
-export const kFSReplaceObjectSaveOriginalAsABackup = /* @__PURE__ */ _bind(FW, 'kFSReplaceObjectSaveOriginalAsABackup')
-export const kFSUnmountVolumeForceUnmount = /* @__PURE__ */ _bind(FW, 'kFSUnmountVolumeForceUnmount')
+export const kFSReplaceObjectDefaultOptions = /* @__PURE__ */ _bind(
+	FW,
+	'kFSReplaceObjectDefaultOptions',
+)
+
+export const kFSReplaceObjectDoNotCheckObjectWriteAccess = /* @__PURE__ */ _bind(
+	FW,
+	'kFSReplaceObjectDoNotCheckObjectWriteAccess',
+)
+
+export const kFSReplaceObjectPreservePermissionInfo = /* @__PURE__ */ _bind(
+	FW,
+	'kFSReplaceObjectPreservePermissionInfo',
+)
+
+export const kFSReplaceObjectReplaceMetadata = /* @__PURE__ */ _bind(
+	FW,
+	'kFSReplaceObjectReplaceMetadata',
+)
+
+export const kFSReplaceObjectReplacePermissionInfo = /* @__PURE__ */ _bind(
+	FW,
+	'kFSReplaceObjectReplacePermissionInfo',
+)
+
+export const kFSReplaceObjectSaveOriginalAsABackup = /* @__PURE__ */ _bind(
+	FW,
+	'kFSReplaceObjectSaveOriginalAsABackup',
+)
+
+export const kFSUnmountVolumeForceUnmount = /* @__PURE__ */ _bind(
+	FW,
+	'kFSUnmountVolumeForceUnmount',
+)
+
 export const kFSVolFlagDefaultVolumeBit = /* @__PURE__ */ _bind(FW, 'kFSVolFlagDefaultVolumeBit')
 export const kFSVolFlagDefaultVolumeMask = /* @__PURE__ */ _bind(FW, 'kFSVolFlagDefaultVolumeMask')
 export const kFSVolFlagFilesOpenBit = /* @__PURE__ */ _bind(FW, 'kFSVolFlagFilesOpenBit')
 export const kFSVolFlagFilesOpenMask = /* @__PURE__ */ _bind(FW, 'kFSVolFlagFilesOpenMask')
 export const kFSVolFlagHardwareLockedBit = /* @__PURE__ */ _bind(FW, 'kFSVolFlagHardwareLockedBit')
-export const kFSVolFlagHardwareLockedMask = /* @__PURE__ */ _bind(FW, 'kFSVolFlagHardwareLockedMask')
-export const kFSVolFlagJournalingActiveBit = /* @__PURE__ */ _bind(FW, 'kFSVolFlagJournalingActiveBit')
-export const kFSVolFlagJournalingActiveMask = /* @__PURE__ */ _bind(FW, 'kFSVolFlagJournalingActiveMask')
+export const kFSVolFlagHardwareLockedMask = /* @__PURE__ */ _bind(
+	FW,
+	'kFSVolFlagHardwareLockedMask',
+)
+
+export const kFSVolFlagJournalingActiveBit = /* @__PURE__ */ _bind(
+	FW,
+	'kFSVolFlagJournalingActiveBit',
+)
+
+export const kFSVolFlagJournalingActiveMask = /* @__PURE__ */ _bind(
+	FW,
+	'kFSVolFlagJournalingActiveMask',
+)
+
 export const kFSVolFlagSoftwareLockedBit = /* @__PURE__ */ _bind(FW, 'kFSVolFlagSoftwareLockedBit')
-export const kFSVolFlagSoftwareLockedMask = /* @__PURE__ */ _bind(FW, 'kFSVolFlagSoftwareLockedMask')
+export const kFSVolFlagSoftwareLockedMask = /* @__PURE__ */ _bind(
+	FW,
+	'kFSVolFlagSoftwareLockedMask',
+)
+
 export const kFSVolInfoBackupDate = /* @__PURE__ */ _bind(FW, 'kFSVolInfoBackupDate')
 export const kFSVolInfoBlocks = /* @__PURE__ */ _bind(FW, 'kFSVolInfoBlocks')
 export const kFSVolInfoCheckedDate = /* @__PURE__ */ _bind(FW, 'kFSVolInfoCheckedDate')
@@ -5179,10 +7799,22 @@ export const kFavoriteItemsIcon = /* @__PURE__ */ _bind(FW, 'kFavoriteItemsIcon'
 export const kFavoritesFolderIcon = /* @__PURE__ */ _bind(FW, 'kFavoritesFolderIcon')
 export const kFavoritesFolderType = /* @__PURE__ */ _bind(FW, 'kFavoritesFolderType')
 export const kFetchReference = /* @__PURE__ */ _bind(FW, 'kFetchReference')
-export const kFileSystemSupportFolderType = /* @__PURE__ */ _bind(FW, 'kFileSystemSupportFolderType')
+export const kFileSystemSupportFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kFileSystemSupportFolderType',
+)
+
 export const kFindByContentFolderType = /* @__PURE__ */ _bind(FW, 'kFindByContentFolderType')
-export const kFindByContentIndexesFolderType = /* @__PURE__ */ _bind(FW, 'kFindByContentIndexesFolderType')
-export const kFindByContentPluginsFolderType = /* @__PURE__ */ _bind(FW, 'kFindByContentPluginsFolderType')
+export const kFindByContentIndexesFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kFindByContentIndexesFolderType',
+)
+
+export const kFindByContentPluginsFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kFindByContentPluginsFolderType',
+)
+
 export const kFindSupportFolderType = /* @__PURE__ */ _bind(FW, 'kFindSupportFolderType')
 export const kFinderIcon = /* @__PURE__ */ _bind(FW, 'kFinderIcon')
 export const kFirstFailKCStopOn = /* @__PURE__ */ _bind(FW, 'kFirstFailKCStopOn')
@@ -5199,24 +7831,73 @@ export const kFolderCreatedInvisible = /* @__PURE__ */ _bind(FW, 'kFolderCreated
 export const kFolderCreatedInvisibleBit = /* @__PURE__ */ _bind(FW, 'kFolderCreatedInvisibleBit')
 export const kFolderCreatedNameLocked = /* @__PURE__ */ _bind(FW, 'kFolderCreatedNameLocked')
 export const kFolderCreatedNameLockedBit = /* @__PURE__ */ _bind(FW, 'kFolderCreatedNameLockedBit')
-export const kFolderInLocalOrRemoteUserFolder = /* @__PURE__ */ _bind(FW, 'kFolderInLocalOrRemoteUserFolder')
-export const kFolderInRemoteUserFolderIfAvailable = /* @__PURE__ */ _bind(FW, 'kFolderInRemoteUserFolderIfAvailable')
-export const kFolderInRemoteUserFolderIfAvailableBit = /* @__PURE__ */ _bind(FW, 'kFolderInRemoteUserFolderIfAvailableBit')
+export const kFolderInLocalOrRemoteUserFolder = /* @__PURE__ */ _bind(
+	FW,
+	'kFolderInLocalOrRemoteUserFolder',
+)
+
+export const kFolderInRemoteUserFolderIfAvailable = /* @__PURE__ */ _bind(
+	FW,
+	'kFolderInRemoteUserFolderIfAvailable',
+)
+
+export const kFolderInRemoteUserFolderIfAvailableBit = /* @__PURE__ */ _bind(
+	FW,
+	'kFolderInRemoteUserFolderIfAvailableBit',
+)
+
 export const kFolderInUserFolder = /* @__PURE__ */ _bind(FW, 'kFolderInUserFolder')
 export const kFolderInUserFolderBit = /* @__PURE__ */ _bind(FW, 'kFolderInUserFolderBit')
 export const kFolderItemsAddedEvent = /* @__PURE__ */ _bind(FW, 'kFolderItemsAddedEvent')
 export const kFolderItemsRemovedEvent = /* @__PURE__ */ _bind(FW, 'kFolderItemsRemovedEvent')
-export const kFolderManagerFolderInMacOS9FolderIfMacOSXIsInstalledBit = /* @__PURE__ */ _bind(FW, 'kFolderManagerFolderInMacOS9FolderIfMacOSXIsInstalledBit')
-export const kFolderManagerFolderInMacOS9FolderIfMacOSXIsInstalledMask = /* @__PURE__ */ _bind(FW, 'kFolderManagerFolderInMacOS9FolderIfMacOSXIsInstalledMask')
+export const kFolderManagerFolderInMacOS9FolderIfMacOSXIsInstalledBit = /* @__PURE__ */ _bind(
+	FW,
+	'kFolderManagerFolderInMacOS9FolderIfMacOSXIsInstalledBit',
+)
+
+export const kFolderManagerFolderInMacOS9FolderIfMacOSXIsInstalledMask = /* @__PURE__ */ _bind(
+	FW,
+	'kFolderManagerFolderInMacOS9FolderIfMacOSXIsInstalledMask',
+)
+
 export const kFolderManagerLastDomain = /* @__PURE__ */ _bind(FW, 'kFolderManagerLastDomain')
-export const kFolderManagerNewlyCreatedFolderIsLocalizedBit = /* @__PURE__ */ _bind(FW, 'kFolderManagerNewlyCreatedFolderIsLocalizedBit')
-export const kFolderManagerNewlyCreatedFolderShouldHaveDotLocalizedCreatedWithinMask = /* @__PURE__ */ _bind(FW, 'kFolderManagerNewlyCreatedFolderShouldHaveDotLocalizedCreatedWithinMask')
-export const kFolderManagerNotCreatedOnRemoteVolumesBit = /* @__PURE__ */ _bind(FW, 'kFolderManagerNotCreatedOnRemoteVolumesBit')
-export const kFolderManagerNotCreatedOnRemoteVolumesMask = /* @__PURE__ */ _bind(FW, 'kFolderManagerNotCreatedOnRemoteVolumesMask')
+export const kFolderManagerNewlyCreatedFolderIsLocalizedBit = /* @__PURE__ */ _bind(
+	FW,
+	'kFolderManagerNewlyCreatedFolderIsLocalizedBit',
+)
+
+export const kFolderManagerNewlyCreatedFolderShouldHaveDotLocalizedCreatedWithinMask =
+	/* @__PURE__ */ _bind(
+		FW,
+		'kFolderManagerNewlyCreatedFolderShouldHaveDotLocalizedCreatedWithinMask',
+	)
+
+export const kFolderManagerNotCreatedOnRemoteVolumesBit = /* @__PURE__ */ _bind(
+	FW,
+	'kFolderManagerNotCreatedOnRemoteVolumesBit',
+)
+
+export const kFolderManagerNotCreatedOnRemoteVolumesMask = /* @__PURE__ */ _bind(
+	FW,
+	'kFolderManagerNotCreatedOnRemoteVolumesMask',
+)
+
 export const kFolderMustStayOnSameVolume = /* @__PURE__ */ _bind(FW, 'kFolderMustStayOnSameVolume')
-export const kFolderMustStayOnSameVolumeBit = /* @__PURE__ */ _bind(FW, 'kFolderMustStayOnSameVolumeBit')
-export const kFolderNeverMatchedInIdentifyFolder = /* @__PURE__ */ _bind(FW, 'kFolderNeverMatchedInIdentifyFolder')
-export const kFolderNeverMatchedInIdentifyFolderBit = /* @__PURE__ */ _bind(FW, 'kFolderNeverMatchedInIdentifyFolderBit')
+export const kFolderMustStayOnSameVolumeBit = /* @__PURE__ */ _bind(
+	FW,
+	'kFolderMustStayOnSameVolumeBit',
+)
+
+export const kFolderNeverMatchedInIdentifyFolder = /* @__PURE__ */ _bind(
+	FW,
+	'kFolderNeverMatchedInIdentifyFolder',
+)
+
+export const kFolderNeverMatchedInIdentifyFolderBit = /* @__PURE__ */ _bind(
+	FW,
+	'kFolderNeverMatchedInIdentifyFolderBit',
+)
+
 export const kFolderOpenedEvent = /* @__PURE__ */ _bind(FW, 'kFolderOpenedEvent')
 export const kFolderTrackedByAlias = /* @__PURE__ */ _bind(FW, 'kFolderTrackedByAlias')
 export const kFolderTrackedByAliasBit = /* @__PURE__ */ _bind(FW, 'kFolderTrackedByAliasBit')
@@ -5227,7 +7908,11 @@ export const kFontsFolderIcon = /* @__PURE__ */ _bind(FW, 'kFontsFolderIcon')
 export const kFontsFolderIconResource = /* @__PURE__ */ _bind(FW, 'kFontsFolderIconResource')
 export const kFontsFolderType = /* @__PURE__ */ _bind(FW, 'kFontsFolderType')
 export const kForkInfoFlagsFileLockedBit = /* @__PURE__ */ _bind(FW, 'kForkInfoFlagsFileLockedBit')
-export const kForkInfoFlagsFileLockedMask = /* @__PURE__ */ _bind(FW, 'kForkInfoFlagsFileLockedMask')
+export const kForkInfoFlagsFileLockedMask = /* @__PURE__ */ _bind(
+	FW,
+	'kForkInfoFlagsFileLockedMask',
+)
+
 export const kForkInfoFlagsLargeFileBit = /* @__PURE__ */ _bind(FW, 'kForkInfoFlagsLargeFileBit')
 export const kForkInfoFlagsLargeFileMask = /* @__PURE__ */ _bind(FW, 'kForkInfoFlagsLargeFileMask')
 export const kForkInfoFlagsModifiedBit = /* @__PURE__ */ _bind(FW, 'kForkInfoFlagsModifiedBit')
@@ -5236,11 +7921,27 @@ export const kForkInfoFlagsOwnClumpBit = /* @__PURE__ */ _bind(FW, 'kForkInfoFla
 export const kForkInfoFlagsOwnClumpMask = /* @__PURE__ */ _bind(FW, 'kForkInfoFlagsOwnClumpMask')
 export const kForkInfoFlagsResourceBit = /* @__PURE__ */ _bind(FW, 'kForkInfoFlagsResourceBit')
 export const kForkInfoFlagsResourceMask = /* @__PURE__ */ _bind(FW, 'kForkInfoFlagsResourceMask')
-export const kForkInfoFlagsSharedWriteBit = /* @__PURE__ */ _bind(FW, 'kForkInfoFlagsSharedWriteBit')
-export const kForkInfoFlagsSharedWriteMask = /* @__PURE__ */ _bind(FW, 'kForkInfoFlagsSharedWriteMask')
+export const kForkInfoFlagsSharedWriteBit = /* @__PURE__ */ _bind(
+	FW,
+	'kForkInfoFlagsSharedWriteBit',
+)
+
+export const kForkInfoFlagsSharedWriteMask = /* @__PURE__ */ _bind(
+	FW,
+	'kForkInfoFlagsSharedWriteMask',
+)
+
 export const kForkInfoFlagsWriteBit = /* @__PURE__ */ _bind(FW, 'kForkInfoFlagsWriteBit')
-export const kForkInfoFlagsWriteLockedBit = /* @__PURE__ */ _bind(FW, 'kForkInfoFlagsWriteLockedBit')
-export const kForkInfoFlagsWriteLockedMask = /* @__PURE__ */ _bind(FW, 'kForkInfoFlagsWriteLockedMask')
+export const kForkInfoFlagsWriteLockedBit = /* @__PURE__ */ _bind(
+	FW,
+	'kForkInfoFlagsWriteLockedBit',
+)
+
+export const kForkInfoFlagsWriteLockedMask = /* @__PURE__ */ _bind(
+	FW,
+	'kForkInfoFlagsWriteLockedMask',
+)
+
 export const kForkInfoFlagsWriteMask = /* @__PURE__ */ _bind(FW, 'kForkInfoFlagsWriteMask')
 export const kForwardArrowIcon = /* @__PURE__ */ _bind(FW, 'kForwardArrowIcon')
 export const kFourByteCode = /* @__PURE__ */ _bind(FW, 'kFourByteCode')
@@ -5252,48 +7953,100 @@ export const kFullTrashIconResource = /* @__PURE__ */ _bind(FW, 'kFullTrashIconR
 export const kGenEditorsFolderType = /* @__PURE__ */ _bind(FW, 'kGenEditorsFolderType')
 export const kGeneralFailureErr = /* @__PURE__ */ _bind(FW, 'kGeneralFailureErr')
 export const kGenericApplicationIcon = /* @__PURE__ */ _bind(FW, 'kGenericApplicationIcon')
-export const kGenericApplicationIconResource = /* @__PURE__ */ _bind(FW, 'kGenericApplicationIconResource')
+export const kGenericApplicationIconResource = /* @__PURE__ */ _bind(
+	FW,
+	'kGenericApplicationIconResource',
+)
+
 export const kGenericCDROMIcon = /* @__PURE__ */ _bind(FW, 'kGenericCDROMIcon')
 export const kGenericCDROMIconResource = /* @__PURE__ */ _bind(FW, 'kGenericCDROMIconResource')
 export const kGenericComponentIcon = /* @__PURE__ */ _bind(FW, 'kGenericComponentIcon')
 export const kGenericControlPanelIcon = /* @__PURE__ */ _bind(FW, 'kGenericControlPanelIcon')
-export const kGenericControlStripModuleIcon = /* @__PURE__ */ _bind(FW, 'kGenericControlStripModuleIcon')
+export const kGenericControlStripModuleIcon = /* @__PURE__ */ _bind(
+	FW,
+	'kGenericControlStripModuleIcon',
+)
+
 export const kGenericDeskAccessoryIcon = /* @__PURE__ */ _bind(FW, 'kGenericDeskAccessoryIcon')
-export const kGenericDeskAccessoryIconResource = /* @__PURE__ */ _bind(FW, 'kGenericDeskAccessoryIconResource')
+export const kGenericDeskAccessoryIconResource = /* @__PURE__ */ _bind(
+	FW,
+	'kGenericDeskAccessoryIconResource',
+)
+
 export const kGenericDocumentIcon = /* @__PURE__ */ _bind(FW, 'kGenericDocumentIcon')
-export const kGenericDocumentIconResource = /* @__PURE__ */ _bind(FW, 'kGenericDocumentIconResource')
+export const kGenericDocumentIconResource = /* @__PURE__ */ _bind(
+	FW,
+	'kGenericDocumentIconResource',
+)
+
 export const kGenericEditionFileIcon = /* @__PURE__ */ _bind(FW, 'kGenericEditionFileIcon')
-export const kGenericEditionFileIconResource = /* @__PURE__ */ _bind(FW, 'kGenericEditionFileIconResource')
+export const kGenericEditionFileIconResource = /* @__PURE__ */ _bind(
+	FW,
+	'kGenericEditionFileIconResource',
+)
+
 export const kGenericExtensionIcon = /* @__PURE__ */ _bind(FW, 'kGenericExtensionIcon')
-export const kGenericExtensionIconResource = /* @__PURE__ */ _bind(FW, 'kGenericExtensionIconResource')
+export const kGenericExtensionIconResource = /* @__PURE__ */ _bind(
+	FW,
+	'kGenericExtensionIconResource',
+)
+
 export const kGenericFileServerIcon = /* @__PURE__ */ _bind(FW, 'kGenericFileServerIcon')
-export const kGenericFileServerIconResource = /* @__PURE__ */ _bind(FW, 'kGenericFileServerIconResource')
+export const kGenericFileServerIconResource = /* @__PURE__ */ _bind(
+	FW,
+	'kGenericFileServerIconResource',
+)
+
 export const kGenericFloppyIcon = /* @__PURE__ */ _bind(FW, 'kGenericFloppyIcon')
 export const kGenericFolderIcon = /* @__PURE__ */ _bind(FW, 'kGenericFolderIcon')
 export const kGenericFolderIconResource = /* @__PURE__ */ _bind(FW, 'kGenericFolderIconResource')
 export const kGenericFontIcon = /* @__PURE__ */ _bind(FW, 'kGenericFontIcon')
 export const kGenericFontScalerIcon = /* @__PURE__ */ _bind(FW, 'kGenericFontScalerIcon')
 export const kGenericHardDiskIcon = /* @__PURE__ */ _bind(FW, 'kGenericHardDiskIcon')
-export const kGenericHardDiskIconResource = /* @__PURE__ */ _bind(FW, 'kGenericHardDiskIconResource')
+export const kGenericHardDiskIconResource = /* @__PURE__ */ _bind(
+	FW,
+	'kGenericHardDiskIconResource',
+)
+
 export const kGenericIDiskIcon = /* @__PURE__ */ _bind(FW, 'kGenericIDiskIcon')
 export const kGenericKCItemAttr = /* @__PURE__ */ _bind(FW, 'kGenericKCItemAttr')
 export const kGenericMoverObjectIcon = /* @__PURE__ */ _bind(FW, 'kGenericMoverObjectIcon')
-export const kGenericMoverObjectIconResource = /* @__PURE__ */ _bind(FW, 'kGenericMoverObjectIconResource')
+export const kGenericMoverObjectIconResource = /* @__PURE__ */ _bind(
+	FW,
+	'kGenericMoverObjectIconResource',
+)
+
 export const kGenericNetworkIcon = /* @__PURE__ */ _bind(FW, 'kGenericNetworkIcon')
 export const kGenericPCCardIcon = /* @__PURE__ */ _bind(FW, 'kGenericPCCardIcon')
 export const kGenericPasswordKCItemClass = /* @__PURE__ */ _bind(FW, 'kGenericPasswordKCItemClass')
 export const kGenericPreferencesIcon = /* @__PURE__ */ _bind(FW, 'kGenericPreferencesIcon')
-export const kGenericPreferencesIconResource = /* @__PURE__ */ _bind(FW, 'kGenericPreferencesIconResource')
+export const kGenericPreferencesIconResource = /* @__PURE__ */ _bind(
+	FW,
+	'kGenericPreferencesIconResource',
+)
+
 export const kGenericQueryDocumentIcon = /* @__PURE__ */ _bind(FW, 'kGenericQueryDocumentIcon')
-export const kGenericQueryDocumentIconResource = /* @__PURE__ */ _bind(FW, 'kGenericQueryDocumentIconResource')
+export const kGenericQueryDocumentIconResource = /* @__PURE__ */ _bind(
+	FW,
+	'kGenericQueryDocumentIconResource',
+)
+
 export const kGenericRAMDiskIcon = /* @__PURE__ */ _bind(FW, 'kGenericRAMDiskIcon')
 export const kGenericRAMDiskIconResource = /* @__PURE__ */ _bind(FW, 'kGenericRAMDiskIconResource')
 export const kGenericRemovableMediaIcon = /* @__PURE__ */ _bind(FW, 'kGenericRemovableMediaIcon')
 export const kGenericSharedLibaryIcon = /* @__PURE__ */ _bind(FW, 'kGenericSharedLibaryIcon')
 export const kGenericStationeryIcon = /* @__PURE__ */ _bind(FW, 'kGenericStationeryIcon')
-export const kGenericStationeryIconResource = /* @__PURE__ */ _bind(FW, 'kGenericStationeryIconResource')
+export const kGenericStationeryIconResource = /* @__PURE__ */ _bind(
+	FW,
+	'kGenericStationeryIconResource',
+)
+
 export const kGenericSuitcaseIcon = /* @__PURE__ */ _bind(FW, 'kGenericSuitcaseIcon')
-export const kGenericSuitcaseIconResource = /* @__PURE__ */ _bind(FW, 'kGenericSuitcaseIconResource')
+export const kGenericSuitcaseIconResource = /* @__PURE__ */ _bind(
+	FW,
+	'kGenericSuitcaseIconResource',
+)
+
 export const kGenericURLIcon = /* @__PURE__ */ _bind(FW, 'kGenericURLIcon')
 export const kGenericWORMIcon = /* @__PURE__ */ _bind(FW, 'kGenericWORMIcon')
 export const kGenericWindowIcon = /* @__PURE__ */ _bind(FW, 'kGenericWindowIcon')
@@ -5321,7 +8074,11 @@ export const kHIDInvalidRangePageErr = /* @__PURE__ */ _bind(FW, 'kHIDInvalidRan
 export const kHIDInvalidReportLengthErr = /* @__PURE__ */ _bind(FW, 'kHIDInvalidReportLengthErr')
 export const kHIDInvalidReportTypeErr = /* @__PURE__ */ _bind(FW, 'kHIDInvalidReportTypeErr')
 export const kHIDInvertedLogicalRangeErr = /* @__PURE__ */ _bind(FW, 'kHIDInvertedLogicalRangeErr')
-export const kHIDInvertedPhysicalRangeErr = /* @__PURE__ */ _bind(FW, 'kHIDInvertedPhysicalRangeErr')
+export const kHIDInvertedPhysicalRangeErr = /* @__PURE__ */ _bind(
+	FW,
+	'kHIDInvertedPhysicalRangeErr',
+)
+
 export const kHIDInvertedUsageRangeErr = /* @__PURE__ */ _bind(FW, 'kHIDInvertedUsageRangeErr')
 export const kHIDNotEnoughMemoryErr = /* @__PURE__ */ _bind(FW, 'kHIDNotEnoughMemoryErr')
 export const kHIDNotValueArrayErr = /* @__PURE__ */ _bind(FW, 'kHIDNotValueArrayErr')
@@ -5331,7 +8088,11 @@ export const kHIDReportCountZeroErr = /* @__PURE__ */ _bind(FW, 'kHIDReportCount
 export const kHIDReportIDZeroErr = /* @__PURE__ */ _bind(FW, 'kHIDReportIDZeroErr')
 export const kHIDReportSizeZeroErr = /* @__PURE__ */ _bind(FW, 'kHIDReportSizeZeroErr')
 export const kHIDSuccess = /* @__PURE__ */ _bind(FW, 'kHIDSuccess')
-export const kHIDUnmatchedDesignatorRangeErr = /* @__PURE__ */ _bind(FW, 'kHIDUnmatchedDesignatorRangeErr')
+export const kHIDUnmatchedDesignatorRangeErr = /* @__PURE__ */ _bind(
+	FW,
+	'kHIDUnmatchedDesignatorRangeErr',
+)
+
 export const kHIDUnmatchedStringRangeErr = /* @__PURE__ */ _bind(FW, 'kHIDUnmatchedStringRangeErr')
 export const kHIDUnmatchedUsageRangeErr = /* @__PURE__ */ _bind(FW, 'kHIDUnmatchedUsageRangeErr')
 export const kHIDUsageNotFoundErr = /* @__PURE__ */ _bind(FW, 'kHIDUsageNotFoundErr')
@@ -5363,12 +8124,36 @@ export const kHuge8BitMask = /* @__PURE__ */ _bind(FW, 'kHuge8BitMask')
 export const kIPFileServerIcon = /* @__PURE__ */ _bind(FW, 'kIPFileServerIcon')
 export const kISOLatin1MusicCDVariant = /* @__PURE__ */ _bind(FW, 'kISOLatin1MusicCDVariant')
 export const kISOLatin1StandardVariant = /* @__PURE__ */ _bind(FW, 'kISOLatin1StandardVariant')
-export const kISOLatinArabicExplicitOrderVariant = /* @__PURE__ */ _bind(FW, 'kISOLatinArabicExplicitOrderVariant')
-export const kISOLatinArabicImplicitOrderVariant = /* @__PURE__ */ _bind(FW, 'kISOLatinArabicImplicitOrderVariant')
-export const kISOLatinArabicVisualOrderVariant = /* @__PURE__ */ _bind(FW, 'kISOLatinArabicVisualOrderVariant')
-export const kISOLatinHebrewExplicitOrderVariant = /* @__PURE__ */ _bind(FW, 'kISOLatinHebrewExplicitOrderVariant')
-export const kISOLatinHebrewImplicitOrderVariant = /* @__PURE__ */ _bind(FW, 'kISOLatinHebrewImplicitOrderVariant')
-export const kISOLatinHebrewVisualOrderVariant = /* @__PURE__ */ _bind(FW, 'kISOLatinHebrewVisualOrderVariant')
+export const kISOLatinArabicExplicitOrderVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kISOLatinArabicExplicitOrderVariant',
+)
+
+export const kISOLatinArabicImplicitOrderVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kISOLatinArabicImplicitOrderVariant',
+)
+
+export const kISOLatinArabicVisualOrderVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kISOLatinArabicVisualOrderVariant',
+)
+
+export const kISOLatinHebrewExplicitOrderVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kISOLatinHebrewExplicitOrderVariant',
+)
+
+export const kISOLatinHebrewImplicitOrderVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kISOLatinHebrewImplicitOrderVariant',
+)
+
+export const kISOLatinHebrewVisualOrderVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kISOLatinHebrewVisualOrderVariant',
+)
+
 export const kISSDownloadsFolderType = /* @__PURE__ */ _bind(FW, 'kISSDownloadsFolderType')
 export const kISpBufferToSmallErr = /* @__PURE__ */ _bind(FW, 'kISpBufferToSmallErr')
 export const kISpDeviceActiveErr = /* @__PURE__ */ _bind(FW, 'kISpDeviceActiveErr')
@@ -5381,21 +8166,65 @@ export const kISpSystemActiveErr = /* @__PURE__ */ _bind(FW, 'kISpSystemActiveEr
 export const kISpSystemInactiveErr = /* @__PURE__ */ _bind(FW, 'kISpSystemInactiveErr')
 export const kISpSystemListErr = /* @__PURE__ */ _bind(FW, 'kISpSystemListErr')
 export const kIconFamilyType = /* @__PURE__ */ _bind(FW, 'kIconFamilyType')
-export const kIconServices1024PixelDataARGB = /* @__PURE__ */ _bind(FW, 'kIconServices1024PixelDataARGB')
-export const kIconServices128PixelDataARGB = /* @__PURE__ */ _bind(FW, 'kIconServices128PixelDataARGB')
-export const kIconServices16PixelDataARGB = /* @__PURE__ */ _bind(FW, 'kIconServices16PixelDataARGB')
-export const kIconServices256PixelDataARGB = /* @__PURE__ */ _bind(FW, 'kIconServices256PixelDataARGB')
-export const kIconServices32PixelDataARGB = /* @__PURE__ */ _bind(FW, 'kIconServices32PixelDataARGB')
-export const kIconServices48PixelDataARGB = /* @__PURE__ */ _bind(FW, 'kIconServices48PixelDataARGB')
-export const kIconServices512PixelDataARGB = /* @__PURE__ */ _bind(FW, 'kIconServices512PixelDataARGB')
-export const kIconServicesCatalogInfoMask = /* @__PURE__ */ _bind(FW, 'kIconServicesCatalogInfoMask')
+export const kIconServices1024PixelDataARGB = /* @__PURE__ */ _bind(
+	FW,
+	'kIconServices1024PixelDataARGB',
+)
+
+export const kIconServices128PixelDataARGB = /* @__PURE__ */ _bind(
+	FW,
+	'kIconServices128PixelDataARGB',
+)
+
+export const kIconServices16PixelDataARGB = /* @__PURE__ */ _bind(
+	FW,
+	'kIconServices16PixelDataARGB',
+)
+
+export const kIconServices256PixelDataARGB = /* @__PURE__ */ _bind(
+	FW,
+	'kIconServices256PixelDataARGB',
+)
+
+export const kIconServices32PixelDataARGB = /* @__PURE__ */ _bind(
+	FW,
+	'kIconServices32PixelDataARGB',
+)
+
+export const kIconServices48PixelDataARGB = /* @__PURE__ */ _bind(
+	FW,
+	'kIconServices48PixelDataARGB',
+)
+
+export const kIconServices512PixelDataARGB = /* @__PURE__ */ _bind(
+	FW,
+	'kIconServices512PixelDataARGB',
+)
+
+export const kIconServicesCatalogInfoMask = /* @__PURE__ */ _bind(
+	FW,
+	'kIconServicesCatalogInfoMask',
+)
+
 export const kIconServicesNoBadgeFlag = /* @__PURE__ */ _bind(FW, 'kIconServicesNoBadgeFlag')
-export const kIconServicesNormalUsageFlag = /* @__PURE__ */ _bind(FW, 'kIconServicesNormalUsageFlag')
-export const kIconServicesUpdateIfNeededFlag = /* @__PURE__ */ _bind(FW, 'kIconServicesUpdateIfNeededFlag')
+export const kIconServicesNormalUsageFlag = /* @__PURE__ */ _bind(
+	FW,
+	'kIconServicesNormalUsageFlag',
+)
+
+export const kIconServicesUpdateIfNeededFlag = /* @__PURE__ */ _bind(
+	FW,
+	'kIconServicesUpdateIfNeededFlag',
+)
+
 export const kIdleKCEvent = /* @__PURE__ */ _bind(FW, 'kIdleKCEvent')
 export const kIdleKCEventMask = /* @__PURE__ */ _bind(FW, 'kIdleKCEventMask')
 export const kIllegalClockValueErr = /* @__PURE__ */ _bind(FW, 'kIllegalClockValueErr')
-export const kIllegalInstructionException = /* @__PURE__ */ _bind(FW, 'kIllegalInstructionException')
+export const kIllegalInstructionException = /* @__PURE__ */ _bind(
+	FW,
+	'kIllegalInstructionException',
+)
+
 export const kInDeferredTaskMask = /* @__PURE__ */ _bind(FW, 'kInDeferredTaskMask')
 export const kInNestedInterruptMask = /* @__PURE__ */ _bind(FW, 'kInNestedInterruptMask')
 export const kInSecondaryIntHandlerMask = /* @__PURE__ */ _bind(FW, 'kInSecondaryIntHandlerMask')
@@ -5405,37 +8234,73 @@ export const kIndexFilesFolderType = /* @__PURE__ */ _bind(FW, 'kIndexFilesFolde
 export const kInputManagersFolderType = /* @__PURE__ */ _bind(FW, 'kInputManagersFolderType')
 export const kInputMethodsFolderType = /* @__PURE__ */ _bind(FW, 'kInputMethodsFolderType')
 export const kInstallerLogsFolderType = /* @__PURE__ */ _bind(FW, 'kInstallerLogsFolderType')
-export const kInstallerReceiptsFolderType = /* @__PURE__ */ _bind(FW, 'kInstallerReceiptsFolderType')
-export const kInstructionBreakpointException = /* @__PURE__ */ _bind(FW, 'kInstructionBreakpointException')
+export const kInstallerReceiptsFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kInstallerReceiptsFolderType',
+)
+
+export const kInstructionBreakpointException = /* @__PURE__ */ _bind(
+	FW,
+	'kInstructionBreakpointException',
+)
+
 export const kIntegerException = /* @__PURE__ */ _bind(FW, 'kIntegerException')
 export const kInternationResourcesIcon = /* @__PURE__ */ _bind(FW, 'kInternationResourcesIcon')
 export const kInternationalResourcesIcon = /* @__PURE__ */ _bind(FW, 'kInternationalResourcesIcon')
 export const kInternetFolderIcon = /* @__PURE__ */ _bind(FW, 'kInternetFolderIcon')
 export const kInternetFolderType = /* @__PURE__ */ _bind(FW, 'kInternetFolderType')
 export const kInternetLocationAFP = /* @__PURE__ */ _bind(FW, 'kInternetLocationAFP')
-export const kInternetLocationAppleShareIcon = /* @__PURE__ */ _bind(FW, 'kInternetLocationAppleShareIcon')
+export const kInternetLocationAppleShareIcon = /* @__PURE__ */ _bind(
+	FW,
+	'kInternetLocationAppleShareIcon',
+)
+
 export const kInternetLocationAppleTalk = /* @__PURE__ */ _bind(FW, 'kInternetLocationAppleTalk')
-export const kInternetLocationAppleTalkZoneIcon = /* @__PURE__ */ _bind(FW, 'kInternetLocationAppleTalkZoneIcon')
+export const kInternetLocationAppleTalkZoneIcon = /* @__PURE__ */ _bind(
+	FW,
+	'kInternetLocationAppleTalkZoneIcon',
+)
+
 export const kInternetLocationCreator = /* @__PURE__ */ _bind(FW, 'kInternetLocationCreator')
 export const kInternetLocationFTP = /* @__PURE__ */ _bind(FW, 'kInternetLocationFTP')
 export const kInternetLocationFTPIcon = /* @__PURE__ */ _bind(FW, 'kInternetLocationFTPIcon')
 export const kInternetLocationFile = /* @__PURE__ */ _bind(FW, 'kInternetLocationFile')
 export const kInternetLocationFileIcon = /* @__PURE__ */ _bind(FW, 'kInternetLocationFileIcon')
 export const kInternetLocationGeneric = /* @__PURE__ */ _bind(FW, 'kInternetLocationGeneric')
-export const kInternetLocationGenericIcon = /* @__PURE__ */ _bind(FW, 'kInternetLocationGenericIcon')
+export const kInternetLocationGenericIcon = /* @__PURE__ */ _bind(
+	FW,
+	'kInternetLocationGenericIcon',
+)
+
 export const kInternetLocationHTTP = /* @__PURE__ */ _bind(FW, 'kInternetLocationHTTP')
 export const kInternetLocationHTTPIcon = /* @__PURE__ */ _bind(FW, 'kInternetLocationHTTPIcon')
 export const kInternetLocationMail = /* @__PURE__ */ _bind(FW, 'kInternetLocationMail')
 export const kInternetLocationMailIcon = /* @__PURE__ */ _bind(FW, 'kInternetLocationMailIcon')
 export const kInternetLocationNNTP = /* @__PURE__ */ _bind(FW, 'kInternetLocationNNTP')
 export const kInternetLocationNSL = /* @__PURE__ */ _bind(FW, 'kInternetLocationNSL')
-export const kInternetLocationNSLNeighborhoodIcon = /* @__PURE__ */ _bind(FW, 'kInternetLocationNSLNeighborhoodIcon')
+export const kInternetLocationNSLNeighborhoodIcon = /* @__PURE__ */ _bind(
+	FW,
+	'kInternetLocationNSLNeighborhoodIcon',
+)
+
 export const kInternetLocationNewsIcon = /* @__PURE__ */ _bind(FW, 'kInternetLocationNewsIcon')
-export const kInternetPasswordKCItemClass = /* @__PURE__ */ _bind(FW, 'kInternetPasswordKCItemClass')
+export const kInternetPasswordKCItemClass = /* @__PURE__ */ _bind(
+	FW,
+	'kInternetPasswordKCItemClass',
+)
+
 export const kInternetPlugInFolderIcon = /* @__PURE__ */ _bind(FW, 'kInternetPlugInFolderIcon')
 export const kInternetPlugInFolderType = /* @__PURE__ */ _bind(FW, 'kInternetPlugInFolderType')
-export const kInternetSearchSitesFolderIcon = /* @__PURE__ */ _bind(FW, 'kInternetSearchSitesFolderIcon')
-export const kInternetSearchSitesFolderType = /* @__PURE__ */ _bind(FW, 'kInternetSearchSitesFolderType')
+export const kInternetSearchSitesFolderIcon = /* @__PURE__ */ _bind(
+	FW,
+	'kInternetSearchSitesFolderIcon',
+)
+
+export const kInternetSearchSitesFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kInternetSearchSitesFolderType',
+)
+
 export const kInternetSitesFolderType = /* @__PURE__ */ _bind(FW, 'kInternetSitesFolderType')
 export const kInvalidCSClientErr = /* @__PURE__ */ _bind(FW, 'kInvalidCSClientErr')
 export const kInvalidDeviceNumber = /* @__PURE__ */ _bind(FW, 'kInvalidDeviceNumber')
@@ -5450,11 +8315,27 @@ export const kIssuerKCItemAttr = /* @__PURE__ */ _bind(FW, 'kIssuerKCItemAttr')
 export const kIssuerURLKCItemAttr = /* @__PURE__ */ _bind(FW, 'kIssuerURLKCItemAttr')
 export const kItemList = /* @__PURE__ */ _bind(FW, 'kItemList')
 export const kJapaneseBasicVariant = /* @__PURE__ */ _bind(FW, 'kJapaneseBasicVariant')
-export const kJapanesePostScriptPrintVariant = /* @__PURE__ */ _bind(FW, 'kJapanesePostScriptPrintVariant')
-export const kJapanesePostScriptScrnVariant = /* @__PURE__ */ _bind(FW, 'kJapanesePostScriptScrnVariant')
+export const kJapanesePostScriptPrintVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kJapanesePostScriptPrintVariant',
+)
+
+export const kJapanesePostScriptScrnVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kJapanesePostScriptScrnVariant',
+)
+
 export const kJapaneseStandardVariant = /* @__PURE__ */ _bind(FW, 'kJapaneseStandardVariant')
-export const kJapaneseStdNoVerticalsVariant = /* @__PURE__ */ _bind(FW, 'kJapaneseStdNoVerticalsVariant')
-export const kJapaneseVertAtKuPlusTenVariant = /* @__PURE__ */ _bind(FW, 'kJapaneseVertAtKuPlusTenVariant')
+export const kJapaneseStdNoVerticalsVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kJapaneseStdNoVerticalsVariant',
+)
+
+export const kJapaneseVertAtKuPlusTenVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kJapaneseVertAtKuPlusTenVariant',
+)
+
 export const kKCAuthTypeDPA = /* @__PURE__ */ _bind(FW, 'kKCAuthTypeDPA')
 export const kKCAuthTypeDefault = /* @__PURE__ */ _bind(FW, 'kKCAuthTypeDefault')
 export const kKCAuthTypeHTTPDigest = /* @__PURE__ */ _bind(FW, 'kKCAuthTypeHTTPDigest')
@@ -5481,7 +8362,11 @@ export const kKeyboardLayoutsFolderType = /* @__PURE__ */ _bind(FW, 'kKeyboardLa
 export const kKeychainFolderType = /* @__PURE__ */ _bind(FW, 'kKeychainFolderType')
 export const kKeychainListChangedKCEvent = /* @__PURE__ */ _bind(FW, 'kKeychainListChangedKCEvent')
 export const kLSAppDoesNotClaimTypeErr = /* @__PURE__ */ _bind(FW, 'kLSAppDoesNotClaimTypeErr')
-export const kLSAppDoesNotSupportSchemeWarning = /* @__PURE__ */ _bind(FW, 'kLSAppDoesNotSupportSchemeWarning')
+export const kLSAppDoesNotSupportSchemeWarning = /* @__PURE__ */ _bind(
+	FW,
+	'kLSAppDoesNotSupportSchemeWarning',
+)
+
 export const kLSAppInTrashErr = /* @__PURE__ */ _bind(FW, 'kLSAppInTrashErr')
 export const kLSApplicationNotFoundErr = /* @__PURE__ */ _bind(FW, 'kLSApplicationNotFoundErr')
 export const kLSAttributeNotFoundErr = /* @__PURE__ */ _bind(FW, 'kLSAttributeNotFoundErr')
@@ -5490,10 +8375,26 @@ export const kLSCannotSetInfoErr = /* @__PURE__ */ _bind(FW, 'kLSCannotSetInfoEr
 export const kLSDataErr = /* @__PURE__ */ _bind(FW, 'kLSDataErr')
 export const kLSDataTooOldErr = /* @__PURE__ */ _bind(FW, 'kLSDataTooOldErr')
 export const kLSDataUnavailableErr = /* @__PURE__ */ _bind(FW, 'kLSDataUnavailableErr')
-export const kLSExecutableIncorrectFormat = /* @__PURE__ */ _bind(FW, 'kLSExecutableIncorrectFormat')
-export const kLSGarbageCollectionUnsupportedErr = /* @__PURE__ */ _bind(FW, 'kLSGarbageCollectionUnsupportedErr')
-export const kLSIncompatibleApplicationVersionErr = /* @__PURE__ */ _bind(FW, 'kLSIncompatibleApplicationVersionErr')
-export const kLSIncompatibleSystemVersionErr = /* @__PURE__ */ _bind(FW, 'kLSIncompatibleSystemVersionErr')
+export const kLSExecutableIncorrectFormat = /* @__PURE__ */ _bind(
+	FW,
+	'kLSExecutableIncorrectFormat',
+)
+
+export const kLSGarbageCollectionUnsupportedErr = /* @__PURE__ */ _bind(
+	FW,
+	'kLSGarbageCollectionUnsupportedErr',
+)
+
+export const kLSIncompatibleApplicationVersionErr = /* @__PURE__ */ _bind(
+	FW,
+	'kLSIncompatibleApplicationVersionErr',
+)
+
+export const kLSIncompatibleSystemVersionErr = /* @__PURE__ */ _bind(
+	FW,
+	'kLSIncompatibleSystemVersionErr',
+)
+
 export const kLSItemContentType = /* @__PURE__ */ _bind(FW, 'kLSItemContentType')
 export const kLSItemDisplayKind = /* @__PURE__ */ _bind(FW, 'kLSItemDisplayKind')
 export const kLSItemDisplayName = /* @__PURE__ */ _bind(FW, 'kLSItemDisplayName')
@@ -5503,15 +8404,27 @@ export const kLSItemFileCreator = /* @__PURE__ */ _bind(FW, 'kLSItemFileCreator'
 export const kLSItemFileType = /* @__PURE__ */ _bind(FW, 'kLSItemFileType')
 export const kLSItemIsInvisible = /* @__PURE__ */ _bind(FW, 'kLSItemIsInvisible')
 export const kLSItemQuarantineProperties = /* @__PURE__ */ _bind(FW, 'kLSItemQuarantineProperties')
-export const kLSItemRoleHandlerDisplayName = /* @__PURE__ */ _bind(FW, 'kLSItemRoleHandlerDisplayName')
-export const kLSLaunchHasUntrustedContents = /* @__PURE__ */ _bind(FW, 'kLSLaunchHasUntrustedContents')
+export const kLSItemRoleHandlerDisplayName = /* @__PURE__ */ _bind(
+	FW,
+	'kLSItemRoleHandlerDisplayName',
+)
+
+export const kLSLaunchHasUntrustedContents = /* @__PURE__ */ _bind(
+	FW,
+	'kLSLaunchHasUntrustedContents',
+)
+
 export const kLSLaunchInClassic = /* @__PURE__ */ _bind(FW, 'kLSLaunchInClassic')
 export const kLSLaunchInProgressErr = /* @__PURE__ */ _bind(FW, 'kLSLaunchInProgressErr')
 export const kLSLaunchInhibitBGOnly = /* @__PURE__ */ _bind(FW, 'kLSLaunchInhibitBGOnly')
 export const kLSLaunchNoParams = /* @__PURE__ */ _bind(FW, 'kLSLaunchNoParams')
 export const kLSLaunchStartClassic = /* @__PURE__ */ _bind(FW, 'kLSLaunchStartClassic')
 export const kLSMalformedLocErr = /* @__PURE__ */ _bind(FW, 'kLSMalformedLocErr')
-export const kLSMultipleSessionsNotSupportedErr = /* @__PURE__ */ _bind(FW, 'kLSMultipleSessionsNotSupportedErr')
+export const kLSMultipleSessionsNotSupportedErr = /* @__PURE__ */ _bind(
+	FW,
+	'kLSMultipleSessionsNotSupportedErr',
+)
+
 export const kLSNo32BitEnvironmentErr = /* @__PURE__ */ _bind(FW, 'kLSNo32BitEnvironmentErr')
 export const kLSNoClassicEnvironmentErr = /* @__PURE__ */ _bind(FW, 'kLSNoClassicEnvironmentErr')
 export const kLSNoExecutableErr = /* @__PURE__ */ _bind(FW, 'kLSNoExecutableErr')
@@ -5521,36 +8434,124 @@ export const kLSNoRosettaEnvironmentErr = /* @__PURE__ */ _bind(FW, 'kLSNoRosett
 export const kLSNotAnApplicationErr = /* @__PURE__ */ _bind(FW, 'kLSNotAnApplicationErr')
 export const kLSNotInitializedErr = /* @__PURE__ */ _bind(FW, 'kLSNotInitializedErr')
 export const kLSNotRegisteredErr = /* @__PURE__ */ _bind(FW, 'kLSNotRegisteredErr')
-export const kLSQuarantineAgentBundleIdentifierKey = /* @__PURE__ */ _bind(FW, 'kLSQuarantineAgentBundleIdentifierKey')
+export const kLSQuarantineAgentBundleIdentifierKey = /* @__PURE__ */ _bind(
+	FW,
+	'kLSQuarantineAgentBundleIdentifierKey',
+)
+
 export const kLSQuarantineAgentNameKey = /* @__PURE__ */ _bind(FW, 'kLSQuarantineAgentNameKey')
 export const kLSQuarantineDataURLKey = /* @__PURE__ */ _bind(FW, 'kLSQuarantineDataURLKey')
 export const kLSQuarantineOriginURLKey = /* @__PURE__ */ _bind(FW, 'kLSQuarantineOriginURLKey')
 export const kLSQuarantineTimeStampKey = /* @__PURE__ */ _bind(FW, 'kLSQuarantineTimeStampKey')
-export const kLSQuarantineTypeCalendarEventAttachment = /* @__PURE__ */ _bind(FW, 'kLSQuarantineTypeCalendarEventAttachment')
-export const kLSQuarantineTypeEmailAttachment = /* @__PURE__ */ _bind(FW, 'kLSQuarantineTypeEmailAttachment')
-export const kLSQuarantineTypeInstantMessageAttachment = /* @__PURE__ */ _bind(FW, 'kLSQuarantineTypeInstantMessageAttachment')
+export const kLSQuarantineTypeCalendarEventAttachment = /* @__PURE__ */ _bind(
+	FW,
+	'kLSQuarantineTypeCalendarEventAttachment',
+)
+
+export const kLSQuarantineTypeEmailAttachment = /* @__PURE__ */ _bind(
+	FW,
+	'kLSQuarantineTypeEmailAttachment',
+)
+
+export const kLSQuarantineTypeInstantMessageAttachment = /* @__PURE__ */ _bind(
+	FW,
+	'kLSQuarantineTypeInstantMessageAttachment',
+)
+
 export const kLSQuarantineTypeKey = /* @__PURE__ */ _bind(FW, 'kLSQuarantineTypeKey')
-export const kLSQuarantineTypeOtherAttachment = /* @__PURE__ */ _bind(FW, 'kLSQuarantineTypeOtherAttachment')
-export const kLSQuarantineTypeOtherDownload = /* @__PURE__ */ _bind(FW, 'kLSQuarantineTypeOtherDownload')
-export const kLSQuarantineTypeWebDownload = /* @__PURE__ */ _bind(FW, 'kLSQuarantineTypeWebDownload')
+export const kLSQuarantineTypeOtherAttachment = /* @__PURE__ */ _bind(
+	FW,
+	'kLSQuarantineTypeOtherAttachment',
+)
+
+export const kLSQuarantineTypeOtherDownload = /* @__PURE__ */ _bind(
+	FW,
+	'kLSQuarantineTypeOtherDownload',
+)
+
+export const kLSQuarantineTypeWebDownload = /* @__PURE__ */ _bind(
+	FW,
+	'kLSQuarantineTypeWebDownload',
+)
+
 export const kLSServerCommunicationErr = /* @__PURE__ */ _bind(FW, 'kLSServerCommunicationErr')
-export const kLSSharedFileListDoNotMountVolumes = /* @__PURE__ */ _bind(FW, 'kLSSharedFileListDoNotMountVolumes')
-export const kLSSharedFileListFavoriteItems = /* @__PURE__ */ _bind(FW, 'kLSSharedFileListFavoriteItems')
-export const kLSSharedFileListFavoriteVolumes = /* @__PURE__ */ _bind(FW, 'kLSSharedFileListFavoriteVolumes')
-export const kLSSharedFileListGlobalLoginItems = /* @__PURE__ */ _bind(FW, 'kLSSharedFileListGlobalLoginItems')
-export const kLSSharedFileListItemBeforeFirst = /* @__PURE__ */ _bind(FW, 'kLSSharedFileListItemBeforeFirst')
+export const kLSSharedFileListDoNotMountVolumes = /* @__PURE__ */ _bind(
+	FW,
+	'kLSSharedFileListDoNotMountVolumes',
+)
+
+export const kLSSharedFileListFavoriteItems = /* @__PURE__ */ _bind(
+	FW,
+	'kLSSharedFileListFavoriteItems',
+)
+
+export const kLSSharedFileListFavoriteVolumes = /* @__PURE__ */ _bind(
+	FW,
+	'kLSSharedFileListFavoriteVolumes',
+)
+
+export const kLSSharedFileListGlobalLoginItems = /* @__PURE__ */ _bind(
+	FW,
+	'kLSSharedFileListGlobalLoginItems',
+)
+
+export const kLSSharedFileListItemBeforeFirst = /* @__PURE__ */ _bind(
+	FW,
+	'kLSSharedFileListItemBeforeFirst',
+)
+
 export const kLSSharedFileListItemHidden = /* @__PURE__ */ _bind(FW, 'kLSSharedFileListItemHidden')
 export const kLSSharedFileListItemLast = /* @__PURE__ */ _bind(FW, 'kLSSharedFileListItemLast')
-export const kLSSharedFileListLoginItemHidden = /* @__PURE__ */ _bind(FW, 'kLSSharedFileListLoginItemHidden')
-export const kLSSharedFileListNoUserInteraction = /* @__PURE__ */ _bind(FW, 'kLSSharedFileListNoUserInteraction')
-export const kLSSharedFileListRecentApplicationItems = /* @__PURE__ */ _bind(FW, 'kLSSharedFileListRecentApplicationItems')
-export const kLSSharedFileListRecentDocumentItems = /* @__PURE__ */ _bind(FW, 'kLSSharedFileListRecentDocumentItems')
-export const kLSSharedFileListRecentItemsMaxAmount = /* @__PURE__ */ _bind(FW, 'kLSSharedFileListRecentItemsMaxAmount')
-export const kLSSharedFileListRecentServerItems = /* @__PURE__ */ _bind(FW, 'kLSSharedFileListRecentServerItems')
-export const kLSSharedFileListSessionLoginItems = /* @__PURE__ */ _bind(FW, 'kLSSharedFileListSessionLoginItems')
-export const kLSSharedFileListVolumesComputerVisible = /* @__PURE__ */ _bind(FW, 'kLSSharedFileListVolumesComputerVisible')
-export const kLSSharedFileListVolumesIDiskVisible = /* @__PURE__ */ _bind(FW, 'kLSSharedFileListVolumesIDiskVisible')
-export const kLSSharedFileListVolumesNetworkVisible = /* @__PURE__ */ _bind(FW, 'kLSSharedFileListVolumesNetworkVisible')
+export const kLSSharedFileListLoginItemHidden = /* @__PURE__ */ _bind(
+	FW,
+	'kLSSharedFileListLoginItemHidden',
+)
+
+export const kLSSharedFileListNoUserInteraction = /* @__PURE__ */ _bind(
+	FW,
+	'kLSSharedFileListNoUserInteraction',
+)
+
+export const kLSSharedFileListRecentApplicationItems = /* @__PURE__ */ _bind(
+	FW,
+	'kLSSharedFileListRecentApplicationItems',
+)
+
+export const kLSSharedFileListRecentDocumentItems = /* @__PURE__ */ _bind(
+	FW,
+	'kLSSharedFileListRecentDocumentItems',
+)
+
+export const kLSSharedFileListRecentItemsMaxAmount = /* @__PURE__ */ _bind(
+	FW,
+	'kLSSharedFileListRecentItemsMaxAmount',
+)
+
+export const kLSSharedFileListRecentServerItems = /* @__PURE__ */ _bind(
+	FW,
+	'kLSSharedFileListRecentServerItems',
+)
+
+export const kLSSharedFileListSessionLoginItems = /* @__PURE__ */ _bind(
+	FW,
+	'kLSSharedFileListSessionLoginItems',
+)
+
+export const kLSSharedFileListVolumesComputerVisible = /* @__PURE__ */ _bind(
+	FW,
+	'kLSSharedFileListVolumesComputerVisible',
+)
+
+export const kLSSharedFileListVolumesIDiskVisible = /* @__PURE__ */ _bind(
+	FW,
+	'kLSSharedFileListVolumesIDiskVisible',
+)
+
+export const kLSSharedFileListVolumesNetworkVisible = /* @__PURE__ */ _bind(
+	FW,
+	'kLSSharedFileListVolumesNetworkVisible',
+)
+
 export const kLSUnknownCreator = /* @__PURE__ */ _bind(FW, 'kLSUnknownCreator')
 export const kLSUnknownErr = /* @__PURE__ */ _bind(FW, 'kLSUnknownErr')
 export const kLSUnknownType = /* @__PURE__ */ _bind(FW, 'kLSUnknownType')
@@ -5568,20 +8569,32 @@ export const kLastDomainConstant = /* @__PURE__ */ _bind(FW, 'kLastDomainConstan
 export const kLastMagicBusyFiletype = /* @__PURE__ */ _bind(FW, 'kLastMagicBusyFiletype')
 export const kLaunchToGetTerminology = /* @__PURE__ */ _bind(FW, 'kLaunchToGetTerminology')
 export const kLauncherItemsFolderType = /* @__PURE__ */ _bind(FW, 'kLauncherItemsFolderType')
-export const kLibraryAssistantsFolderType = /* @__PURE__ */ _bind(FW, 'kLibraryAssistantsFolderType')
+export const kLibraryAssistantsFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kLibraryAssistantsFolderType',
+)
+
 export const kLocalDomain = /* @__PURE__ */ _bind(FW, 'kLocalDomain')
 export const kLocaleAllPartsMask = /* @__PURE__ */ _bind(FW, 'kLocaleAllPartsMask')
 export const kLocaleAndVariantNameMask = /* @__PURE__ */ _bind(FW, 'kLocaleAndVariantNameMask')
 export const kLocaleLanguageMask = /* @__PURE__ */ _bind(FW, 'kLocaleLanguageMask')
 export const kLocaleLanguageVariantMask = /* @__PURE__ */ _bind(FW, 'kLocaleLanguageVariantMask')
 export const kLocaleNameMask = /* @__PURE__ */ _bind(FW, 'kLocaleNameMask')
-export const kLocaleOperationVariantNameMask = /* @__PURE__ */ _bind(FW, 'kLocaleOperationVariantNameMask')
+export const kLocaleOperationVariantNameMask = /* @__PURE__ */ _bind(
+	FW,
+	'kLocaleOperationVariantNameMask',
+)
+
 export const kLocaleRegionMask = /* @__PURE__ */ _bind(FW, 'kLocaleRegionMask')
 export const kLocaleRegionVariantMask = /* @__PURE__ */ _bind(FW, 'kLocaleRegionVariantMask')
 export const kLocaleScriptMask = /* @__PURE__ */ _bind(FW, 'kLocaleScriptMask')
 export const kLocaleScriptVariantMask = /* @__PURE__ */ _bind(FW, 'kLocaleScriptVariantMask')
 export const kLocalesBufferTooSmallErr = /* @__PURE__ */ _bind(FW, 'kLocalesBufferTooSmallErr')
-export const kLocalesDefaultDisplayStatus = /* @__PURE__ */ _bind(FW, 'kLocalesDefaultDisplayStatus')
+export const kLocalesDefaultDisplayStatus = /* @__PURE__ */ _bind(
+	FW,
+	'kLocalesDefaultDisplayStatus',
+)
+
 export const kLocalesFolderIcon = /* @__PURE__ */ _bind(FW, 'kLocalesFolderIcon')
 export const kLocalesFolderType = /* @__PURE__ */ _bind(FW, 'kLocalesFolderType')
 export const kLocalesTableFormatErr = /* @__PURE__ */ _bind(FW, 'kLocalesTableFormatErr')
@@ -5604,15 +8617,27 @@ export const kMDItemAlbum = /* @__PURE__ */ _bind(FW, 'kMDItemAlbum')
 export const kMDItemAltitude = /* @__PURE__ */ _bind(FW, 'kMDItemAltitude')
 export const kMDItemAperture = /* @__PURE__ */ _bind(FW, 'kMDItemAperture')
 export const kMDItemAppleLoopDescriptors = /* @__PURE__ */ _bind(FW, 'kMDItemAppleLoopDescriptors')
-export const kMDItemAppleLoopsKeyFilterType = /* @__PURE__ */ _bind(FW, 'kMDItemAppleLoopsKeyFilterType')
+export const kMDItemAppleLoopsKeyFilterType = /* @__PURE__ */ _bind(
+	FW,
+	'kMDItemAppleLoopsKeyFilterType',
+)
+
 export const kMDItemAppleLoopsLoopMode = /* @__PURE__ */ _bind(FW, 'kMDItemAppleLoopsLoopMode')
 export const kMDItemAppleLoopsRootKey = /* @__PURE__ */ _bind(FW, 'kMDItemAppleLoopsRootKey')
-export const kMDItemApplicationCategories = /* @__PURE__ */ _bind(FW, 'kMDItemApplicationCategories')
+export const kMDItemApplicationCategories = /* @__PURE__ */ _bind(
+	FW,
+	'kMDItemApplicationCategories',
+)
+
 export const kMDItemAttributeChangeDate = /* @__PURE__ */ _bind(FW, 'kMDItemAttributeChangeDate')
 export const kMDItemAudiences = /* @__PURE__ */ _bind(FW, 'kMDItemAudiences')
 export const kMDItemAudioBitRate = /* @__PURE__ */ _bind(FW, 'kMDItemAudioBitRate')
 export const kMDItemAudioChannelCount = /* @__PURE__ */ _bind(FW, 'kMDItemAudioChannelCount')
-export const kMDItemAudioEncodingApplication = /* @__PURE__ */ _bind(FW, 'kMDItemAudioEncodingApplication')
+export const kMDItemAudioEncodingApplication = /* @__PURE__ */ _bind(
+	FW,
+	'kMDItemAudioEncodingApplication',
+)
+
 export const kMDItemAudioSampleRate = /* @__PURE__ */ _bind(FW, 'kMDItemAudioSampleRate')
 export const kMDItemAudioTrackNumber = /* @__PURE__ */ _bind(FW, 'kMDItemAudioTrackNumber')
 export const kMDItemAuthorAddresses = /* @__PURE__ */ _bind(FW, 'kMDItemAuthorAddresses')
@@ -5628,7 +8653,11 @@ export const kMDItemComment = /* @__PURE__ */ _bind(FW, 'kMDItemComment')
 export const kMDItemComposer = /* @__PURE__ */ _bind(FW, 'kMDItemComposer')
 export const kMDItemContactKeywords = /* @__PURE__ */ _bind(FW, 'kMDItemContactKeywords')
 export const kMDItemContentCreationDate = /* @__PURE__ */ _bind(FW, 'kMDItemContentCreationDate')
-export const kMDItemContentModificationDate = /* @__PURE__ */ _bind(FW, 'kMDItemContentModificationDate')
+export const kMDItemContentModificationDate = /* @__PURE__ */ _bind(
+	FW,
+	'kMDItemContentModificationDate',
+)
+
 export const kMDItemContentType = /* @__PURE__ */ _bind(FW, 'kMDItemContentType')
 export const kMDItemContentTypeTree = /* @__PURE__ */ _bind(FW, 'kMDItemContentTypeTree')
 export const kMDItemContributors = /* @__PURE__ */ _bind(FW, 'kMDItemContributors')
@@ -5649,7 +8678,11 @@ export const kMDItemEXIFVersion = /* @__PURE__ */ _bind(FW, 'kMDItemEXIFVersion'
 export const kMDItemEditors = /* @__PURE__ */ _bind(FW, 'kMDItemEditors')
 export const kMDItemEmailAddresses = /* @__PURE__ */ _bind(FW, 'kMDItemEmailAddresses')
 export const kMDItemEncodingApplications = /* @__PURE__ */ _bind(FW, 'kMDItemEncodingApplications')
-export const kMDItemExecutableArchitectures = /* @__PURE__ */ _bind(FW, 'kMDItemExecutableArchitectures')
+export const kMDItemExecutableArchitectures = /* @__PURE__ */ _bind(
+	FW,
+	'kMDItemExecutableArchitectures',
+)
+
 export const kMDItemExecutablePlatform = /* @__PURE__ */ _bind(FW, 'kMDItemExecutablePlatform')
 export const kMDItemExposureMode = /* @__PURE__ */ _bind(FW, 'kMDItemExposureMode')
 export const kMDItemExposureProgram = /* @__PURE__ */ _bind(FW, 'kMDItemExposureProgram')
@@ -5697,10 +8730,18 @@ export const kMDItemISOSpeed = /* @__PURE__ */ _bind(FW, 'kMDItemISOSpeed')
 export const kMDItemIdentifier = /* @__PURE__ */ _bind(FW, 'kMDItemIdentifier')
 export const kMDItemImageDirection = /* @__PURE__ */ _bind(FW, 'kMDItemImageDirection')
 export const kMDItemInformation = /* @__PURE__ */ _bind(FW, 'kMDItemInformation')
-export const kMDItemInstantMessageAddresses = /* @__PURE__ */ _bind(FW, 'kMDItemInstantMessageAddresses')
+export const kMDItemInstantMessageAddresses = /* @__PURE__ */ _bind(
+	FW,
+	'kMDItemInstantMessageAddresses',
+)
+
 export const kMDItemInstructions = /* @__PURE__ */ _bind(FW, 'kMDItemInstructions')
 export const kMDItemIsApplicationManaged = /* @__PURE__ */ _bind(FW, 'kMDItemIsApplicationManaged')
-export const kMDItemIsGeneralMIDISequence = /* @__PURE__ */ _bind(FW, 'kMDItemIsGeneralMIDISequence')
+export const kMDItemIsGeneralMIDISequence = /* @__PURE__ */ _bind(
+	FW,
+	'kMDItemIsGeneralMIDISequence',
+)
+
 export const kMDItemIsLikelyJunk = /* @__PURE__ */ _bind(FW, 'kMDItemIsLikelyJunk')
 export const kMDItemKeySignature = /* @__PURE__ */ _bind(FW, 'kMDItemKeySignature')
 export const kMDItemKeywords = /* @__PURE__ */ _bind(FW, 'kMDItemKeywords')
@@ -5720,8 +8761,16 @@ export const kMDItemMaxAperture = /* @__PURE__ */ _bind(FW, 'kMDItemMaxAperture'
 export const kMDItemMediaTypes = /* @__PURE__ */ _bind(FW, 'kMDItemMediaTypes')
 export const kMDItemMeteringMode = /* @__PURE__ */ _bind(FW, 'kMDItemMeteringMode')
 export const kMDItemMusicalGenre = /* @__PURE__ */ _bind(FW, 'kMDItemMusicalGenre')
-export const kMDItemMusicalInstrumentCategory = /* @__PURE__ */ _bind(FW, 'kMDItemMusicalInstrumentCategory')
-export const kMDItemMusicalInstrumentName = /* @__PURE__ */ _bind(FW, 'kMDItemMusicalInstrumentName')
+export const kMDItemMusicalInstrumentCategory = /* @__PURE__ */ _bind(
+	FW,
+	'kMDItemMusicalInstrumentCategory',
+)
+
+export const kMDItemMusicalInstrumentName = /* @__PURE__ */ _bind(
+	FW,
+	'kMDItemMusicalInstrumentName',
+)
+
 export const kMDItemNamedLocation = /* @__PURE__ */ _bind(FW, 'kMDItemNamedLocation')
 export const kMDItemNumberOfPages = /* @__PURE__ */ _bind(FW, 'kMDItemNumberOfPages')
 export const kMDItemOrganizations = /* @__PURE__ */ _bind(FW, 'kMDItemOrganizations')
@@ -5742,7 +8791,11 @@ export const kMDItemProfileName = /* @__PURE__ */ _bind(FW, 'kMDItemProfileName'
 export const kMDItemProjects = /* @__PURE__ */ _bind(FW, 'kMDItemProjects')
 export const kMDItemPublishers = /* @__PURE__ */ _bind(FW, 'kMDItemPublishers')
 export const kMDItemRecipientAddresses = /* @__PURE__ */ _bind(FW, 'kMDItemRecipientAddresses')
-export const kMDItemRecipientEmailAddresses = /* @__PURE__ */ _bind(FW, 'kMDItemRecipientEmailAddresses')
+export const kMDItemRecipientEmailAddresses = /* @__PURE__ */ _bind(
+	FW,
+	'kMDItemRecipientEmailAddresses',
+)
+
 export const kMDItemRecipients = /* @__PURE__ */ _bind(FW, 'kMDItemRecipients')
 export const kMDItemRecordingDate = /* @__PURE__ */ _bind(FW, 'kMDItemRecordingDate')
 export const kMDItemRecordingYear = /* @__PURE__ */ _bind(FW, 'kMDItemRecordingYear')
@@ -5778,9 +8831,17 @@ export const kMDLabelContentChangeDate = /* @__PURE__ */ _bind(FW, 'kMDLabelCont
 export const kMDLabelDisplayName = /* @__PURE__ */ _bind(FW, 'kMDLabelDisplayName')
 export const kMDLabelIconData = /* @__PURE__ */ _bind(FW, 'kMDLabelIconData')
 export const kMDLabelIconUUID = /* @__PURE__ */ _bind(FW, 'kMDLabelIconUUID')
-export const kMDLabelIsMutuallyExclusiveSetMember = /* @__PURE__ */ _bind(FW, 'kMDLabelIsMutuallyExclusiveSetMember')
+export const kMDLabelIsMutuallyExclusiveSetMember = /* @__PURE__ */ _bind(
+	FW,
+	'kMDLabelIsMutuallyExclusiveSetMember',
+)
+
 export const kMDLabelKind = /* @__PURE__ */ _bind(FW, 'kMDLabelKind')
-export const kMDLabelKindIsMutuallyExclusiveSetKey = /* @__PURE__ */ _bind(FW, 'kMDLabelKindIsMutuallyExclusiveSetKey')
+export const kMDLabelKindIsMutuallyExclusiveSetKey = /* @__PURE__ */ _bind(
+	FW,
+	'kMDLabelKindIsMutuallyExclusiveSetKey',
+)
+
 export const kMDLabelKindVisibilityKey = /* @__PURE__ */ _bind(FW, 'kMDLabelKindVisibilityKey')
 export const kMDLabelRemovedNotification = /* @__PURE__ */ _bind(FW, 'kMDLabelRemovedNotification')
 export const kMDLabelSetsFinderColor = /* @__PURE__ */ _bind(FW, 'kMDLabelSetsFinderColor')
@@ -5788,13 +8849,33 @@ export const kMDLabelUUID = /* @__PURE__ */ _bind(FW, 'kMDLabelUUID')
 export const kMDLabelVisibility = /* @__PURE__ */ _bind(FW, 'kMDLabelVisibility')
 export const kMDPrivateVisibility = /* @__PURE__ */ _bind(FW, 'kMDPrivateVisibility')
 export const kMDPublicVisibility = /* @__PURE__ */ _bind(FW, 'kMDPublicVisibility')
-export const kMDQueryDidFinishNotification = /* @__PURE__ */ _bind(FW, 'kMDQueryDidFinishNotification')
-export const kMDQueryDidUpdateNotification = /* @__PURE__ */ _bind(FW, 'kMDQueryDidUpdateNotification')
-export const kMDQueryProgressNotification = /* @__PURE__ */ _bind(FW, 'kMDQueryProgressNotification')
-export const kMDQueryResultContentRelevance = /* @__PURE__ */ _bind(FW, 'kMDQueryResultContentRelevance')
+export const kMDQueryDidFinishNotification = /* @__PURE__ */ _bind(
+	FW,
+	'kMDQueryDidFinishNotification',
+)
+
+export const kMDQueryDidUpdateNotification = /* @__PURE__ */ _bind(
+	FW,
+	'kMDQueryDidUpdateNotification',
+)
+
+export const kMDQueryProgressNotification = /* @__PURE__ */ _bind(
+	FW,
+	'kMDQueryProgressNotification',
+)
+
+export const kMDQueryResultContentRelevance = /* @__PURE__ */ _bind(
+	FW,
+	'kMDQueryResultContentRelevance',
+)
+
 export const kMDQueryScopeAllIndexed = /* @__PURE__ */ _bind(FW, 'kMDQueryScopeAllIndexed')
 export const kMDQueryScopeComputer = /* @__PURE__ */ _bind(FW, 'kMDQueryScopeComputer')
-export const kMDQueryScopeComputerIndexed = /* @__PURE__ */ _bind(FW, 'kMDQueryScopeComputerIndexed')
+export const kMDQueryScopeComputerIndexed = /* @__PURE__ */ _bind(
+	FW,
+	'kMDQueryScopeComputerIndexed',
+)
+
 export const kMDQueryScopeHome = /* @__PURE__ */ _bind(FW, 'kMDQueryScopeHome')
 export const kMDQueryScopeNetwork = /* @__PURE__ */ _bind(FW, 'kMDQueryScopeNetwork')
 export const kMDQueryScopeNetworkIndexed = /* @__PURE__ */ _bind(FW, 'kMDQueryScopeNetworkIndexed')
@@ -5820,13 +8901,33 @@ export const kMPAllocateResidentMask = /* @__PURE__ */ _bind(FW, 'kMPAllocateRes
 export const kMPAllocateVMPageAligned = /* @__PURE__ */ _bind(FW, 'kMPAllocateVMPageAligned')
 export const kMPAllocateVMXAligned = /* @__PURE__ */ _bind(FW, 'kMPAllocateVMXAligned')
 export const kMPAnyRemoteContext = /* @__PURE__ */ _bind(FW, 'kMPAnyRemoteContext')
-export const kMPAsyncInterruptRemoteContext = /* @__PURE__ */ _bind(FW, 'kMPAsyncInterruptRemoteContext')
+export const kMPAsyncInterruptRemoteContext = /* @__PURE__ */ _bind(
+	FW,
+	'kMPAsyncInterruptRemoteContext',
+)
+
 export const kMPBlueBlockingErr = /* @__PURE__ */ _bind(FW, 'kMPBlueBlockingErr')
-export const kMPCreateTaskNotDebuggableMask = /* @__PURE__ */ _bind(FW, 'kMPCreateTaskNotDebuggableMask')
+export const kMPCreateTaskNotDebuggableMask = /* @__PURE__ */ _bind(
+	FW,
+	'kMPCreateTaskNotDebuggableMask',
+)
+
 export const kMPCreateTaskSuspendedMask = /* @__PURE__ */ _bind(FW, 'kMPCreateTaskSuspendedMask')
-export const kMPCreateTaskTakesAllExceptionsMask = /* @__PURE__ */ _bind(FW, 'kMPCreateTaskTakesAllExceptionsMask')
-export const kMPCreateTaskValidOptionsMask = /* @__PURE__ */ _bind(FW, 'kMPCreateTaskValidOptionsMask')
-export const kMPCriticalRegionInfoVersion = /* @__PURE__ */ _bind(FW, 'kMPCriticalRegionInfoVersion')
+export const kMPCreateTaskTakesAllExceptionsMask = /* @__PURE__ */ _bind(
+	FW,
+	'kMPCreateTaskTakesAllExceptionsMask',
+)
+
+export const kMPCreateTaskValidOptionsMask = /* @__PURE__ */ _bind(
+	FW,
+	'kMPCreateTaskValidOptionsMask',
+)
+
+export const kMPCriticalRegionInfoVersion = /* @__PURE__ */ _bind(
+	FW,
+	'kMPCriticalRegionInfoVersion',
+)
+
 export const kMPDeletedErr = /* @__PURE__ */ _bind(FW, 'kMPDeletedErr')
 export const kMPEventInfoVersion = /* @__PURE__ */ _bind(FW, 'kMPEventInfoVersion')
 export const kMPHighLevelDebugger = /* @__PURE__ */ _bind(FW, 'kMPHighLevelDebugger')
@@ -5840,7 +8941,11 @@ export const kMPMidLevelDebugger = /* @__PURE__ */ _bind(FW, 'kMPMidLevelDebugge
 export const kMPNanokernelNeedsMemoryErr = /* @__PURE__ */ _bind(FW, 'kMPNanokernelNeedsMemoryErr')
 export const kMPNoID = /* @__PURE__ */ _bind(FW, 'kMPNoID')
 export const kMPNotificationInfoVersion = /* @__PURE__ */ _bind(FW, 'kMPNotificationInfoVersion')
-export const kMPOwningProcessRemoteContext = /* @__PURE__ */ _bind(FW, 'kMPOwningProcessRemoteContext')
+export const kMPOwningProcessRemoteContext = /* @__PURE__ */ _bind(
+	FW,
+	'kMPOwningProcessRemoteContext',
+)
+
 export const kMPPreserveTimerIDMask = /* @__PURE__ */ _bind(FW, 'kMPPreserveTimerIDMask')
 export const kMPPrivilegedErr = /* @__PURE__ */ _bind(FW, 'kMPPrivilegedErr')
 export const kMPProcessCreatedErr = /* @__PURE__ */ _bind(FW, 'kMPProcessCreatedErr')
@@ -5861,7 +8966,11 @@ export const kMPTaskResumeMask = /* @__PURE__ */ _bind(FW, 'kMPTaskResumeMask')
 export const kMPTaskResumeStep = /* @__PURE__ */ _bind(FW, 'kMPTaskResumeStep')
 export const kMPTaskResumeStepMask = /* @__PURE__ */ _bind(FW, 'kMPTaskResumeStepMask')
 export const kMPTaskRunning = /* @__PURE__ */ _bind(FW, 'kMPTaskRunning')
-export const kMPTaskState32BitMemoryException = /* @__PURE__ */ _bind(FW, 'kMPTaskState32BitMemoryException')
+export const kMPTaskState32BitMemoryException = /* @__PURE__ */ _bind(
+	FW,
+	'kMPTaskState32BitMemoryException',
+)
+
 export const kMPTaskStateFPU = /* @__PURE__ */ _bind(FW, 'kMPTaskStateFPU')
 export const kMPTaskStateMachine = /* @__PURE__ */ _bind(FW, 'kMPTaskStateMachine')
 export const kMPTaskStateRegisters = /* @__PURE__ */ _bind(FW, 'kMPTaskStateRegisters')
@@ -5875,11 +8984,23 @@ export const kMacArabicAlBayanVariant = /* @__PURE__ */ _bind(FW, 'kMacArabicAlB
 export const kMacArabicStandardVariant = /* @__PURE__ */ _bind(FW, 'kMacArabicStandardVariant')
 export const kMacArabicThuluthVariant = /* @__PURE__ */ _bind(FW, 'kMacArabicThuluthVariant')
 export const kMacArabicTrueTypeVariant = /* @__PURE__ */ _bind(FW, 'kMacArabicTrueTypeVariant')
-export const kMacCroatianCurrencySignVariant = /* @__PURE__ */ _bind(FW, 'kMacCroatianCurrencySignVariant')
+export const kMacCroatianCurrencySignVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kMacCroatianCurrencySignVariant',
+)
+
 export const kMacCroatianDefaultVariant = /* @__PURE__ */ _bind(FW, 'kMacCroatianDefaultVariant')
 export const kMacCroatianEuroSignVariant = /* @__PURE__ */ _bind(FW, 'kMacCroatianEuroSignVariant')
-export const kMacCyrillicCurrSignStdVariant = /* @__PURE__ */ _bind(FW, 'kMacCyrillicCurrSignStdVariant')
-export const kMacCyrillicCurrSignUkrVariant = /* @__PURE__ */ _bind(FW, 'kMacCyrillicCurrSignUkrVariant')
+export const kMacCyrillicCurrSignStdVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kMacCyrillicCurrSignStdVariant',
+)
+
+export const kMacCyrillicCurrSignUkrVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kMacCyrillicCurrSignUkrVariant',
+)
+
 export const kMacCyrillicDefaultVariant = /* @__PURE__ */ _bind(FW, 'kMacCyrillicDefaultVariant')
 export const kMacCyrillicEuroSignVariant = /* @__PURE__ */ _bind(FW, 'kMacCyrillicEuroSignVariant')
 export const kMacFarsiStandardVariant = /* @__PURE__ */ _bind(FW, 'kMacFarsiStandardVariant')
@@ -5887,44 +9008,140 @@ export const kMacFarsiTrueTypeVariant = /* @__PURE__ */ _bind(FW, 'kMacFarsiTrue
 export const kMacGreekDefaultVariant = /* @__PURE__ */ _bind(FW, 'kMacGreekDefaultVariant')
 export const kMacGreekEuroSignVariant = /* @__PURE__ */ _bind(FW, 'kMacGreekEuroSignVariant')
 export const kMacGreekNoEuroSignVariant = /* @__PURE__ */ _bind(FW, 'kMacGreekNoEuroSignVariant')
-export const kMacHebrewFigureSpaceVariant = /* @__PURE__ */ _bind(FW, 'kMacHebrewFigureSpaceVariant')
+export const kMacHebrewFigureSpaceVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kMacHebrewFigureSpaceVariant',
+)
+
 export const kMacHebrewStandardVariant = /* @__PURE__ */ _bind(FW, 'kMacHebrewStandardVariant')
-export const kMacIcelandicStandardVariant = /* @__PURE__ */ _bind(FW, 'kMacIcelandicStandardVariant')
-export const kMacIcelandicStdCurrSignVariant = /* @__PURE__ */ _bind(FW, 'kMacIcelandicStdCurrSignVariant')
-export const kMacIcelandicStdDefaultVariant = /* @__PURE__ */ _bind(FW, 'kMacIcelandicStdDefaultVariant')
-export const kMacIcelandicStdEuroSignVariant = /* @__PURE__ */ _bind(FW, 'kMacIcelandicStdEuroSignVariant')
-export const kMacIcelandicTTCurrSignVariant = /* @__PURE__ */ _bind(FW, 'kMacIcelandicTTCurrSignVariant')
-export const kMacIcelandicTTDefaultVariant = /* @__PURE__ */ _bind(FW, 'kMacIcelandicTTDefaultVariant')
-export const kMacIcelandicTTEuroSignVariant = /* @__PURE__ */ _bind(FW, 'kMacIcelandicTTEuroSignVariant')
-export const kMacIcelandicTrueTypeVariant = /* @__PURE__ */ _bind(FW, 'kMacIcelandicTrueTypeVariant')
+export const kMacIcelandicStandardVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kMacIcelandicStandardVariant',
+)
+
+export const kMacIcelandicStdCurrSignVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kMacIcelandicStdCurrSignVariant',
+)
+
+export const kMacIcelandicStdDefaultVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kMacIcelandicStdDefaultVariant',
+)
+
+export const kMacIcelandicStdEuroSignVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kMacIcelandicStdEuroSignVariant',
+)
+
+export const kMacIcelandicTTCurrSignVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kMacIcelandicTTCurrSignVariant',
+)
+
+export const kMacIcelandicTTDefaultVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kMacIcelandicTTDefaultVariant',
+)
+
+export const kMacIcelandicTTEuroSignVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kMacIcelandicTTEuroSignVariant',
+)
+
+export const kMacIcelandicTrueTypeVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kMacIcelandicTrueTypeVariant',
+)
+
 export const kMacJapaneseBasicVariant = /* @__PURE__ */ _bind(FW, 'kMacJapaneseBasicVariant')
-export const kMacJapanesePostScriptPrintVariant = /* @__PURE__ */ _bind(FW, 'kMacJapanesePostScriptPrintVariant')
-export const kMacJapanesePostScriptScrnVariant = /* @__PURE__ */ _bind(FW, 'kMacJapanesePostScriptScrnVariant')
+export const kMacJapanesePostScriptPrintVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kMacJapanesePostScriptPrintVariant',
+)
+
+export const kMacJapanesePostScriptScrnVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kMacJapanesePostScriptScrnVariant',
+)
+
 export const kMacJapaneseStandardVariant = /* @__PURE__ */ _bind(FW, 'kMacJapaneseStandardVariant')
-export const kMacJapaneseStdNoVerticalsVariant = /* @__PURE__ */ _bind(FW, 'kMacJapaneseStdNoVerticalsVariant')
-export const kMacJapaneseVertAtKuPlusTenVariant = /* @__PURE__ */ _bind(FW, 'kMacJapaneseVertAtKuPlusTenVariant')
-export const kMacMemoryMaximumMemoryManagerBlockSize = /* @__PURE__ */ _bind(FW, 'kMacMemoryMaximumMemoryManagerBlockSize')
+export const kMacJapaneseStdNoVerticalsVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kMacJapaneseStdNoVerticalsVariant',
+)
+
+export const kMacJapaneseVertAtKuPlusTenVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kMacJapaneseVertAtKuPlusTenVariant',
+)
+
+export const kMacMemoryMaximumMemoryManagerBlockSize = /* @__PURE__ */ _bind(
+	FW,
+	'kMacMemoryMaximumMemoryManagerBlockSize',
+)
+
 export const kMacOSReadMeFolderIcon = /* @__PURE__ */ _bind(FW, 'kMacOSReadMeFolderIcon')
 export const kMacOSReadMesFolderType = /* @__PURE__ */ _bind(FW, 'kMacOSReadMesFolderType')
-export const kMacRomanCurrencySignVariant = /* @__PURE__ */ _bind(FW, 'kMacRomanCurrencySignVariant')
+export const kMacRomanCurrencySignVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kMacRomanCurrencySignVariant',
+)
+
 export const kMacRomanDefaultVariant = /* @__PURE__ */ _bind(FW, 'kMacRomanDefaultVariant')
 export const kMacRomanEuroSignVariant = /* @__PURE__ */ _bind(FW, 'kMacRomanEuroSignVariant')
-export const kMacRomanLatin1CroatianVariant = /* @__PURE__ */ _bind(FW, 'kMacRomanLatin1CroatianVariant')
-export const kMacRomanLatin1DefaultVariant = /* @__PURE__ */ _bind(FW, 'kMacRomanLatin1DefaultVariant')
-export const kMacRomanLatin1IcelandicVariant = /* @__PURE__ */ _bind(FW, 'kMacRomanLatin1IcelandicVariant')
-export const kMacRomanLatin1RomanianVariant = /* @__PURE__ */ _bind(FW, 'kMacRomanLatin1RomanianVariant')
-export const kMacRomanLatin1StandardVariant = /* @__PURE__ */ _bind(FW, 'kMacRomanLatin1StandardVariant')
-export const kMacRomanLatin1TurkishVariant = /* @__PURE__ */ _bind(FW, 'kMacRomanLatin1TurkishVariant')
+export const kMacRomanLatin1CroatianVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kMacRomanLatin1CroatianVariant',
+)
+
+export const kMacRomanLatin1DefaultVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kMacRomanLatin1DefaultVariant',
+)
+
+export const kMacRomanLatin1IcelandicVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kMacRomanLatin1IcelandicVariant',
+)
+
+export const kMacRomanLatin1RomanianVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kMacRomanLatin1RomanianVariant',
+)
+
+export const kMacRomanLatin1StandardVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kMacRomanLatin1StandardVariant',
+)
+
+export const kMacRomanLatin1TurkishVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kMacRomanLatin1TurkishVariant',
+)
+
 export const kMacRomanStandardVariant = /* @__PURE__ */ _bind(FW, 'kMacRomanStandardVariant')
-export const kMacRomanianCurrencySignVariant = /* @__PURE__ */ _bind(FW, 'kMacRomanianCurrencySignVariant')
+export const kMacRomanianCurrencySignVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kMacRomanianCurrencySignVariant',
+)
+
 export const kMacRomanianDefaultVariant = /* @__PURE__ */ _bind(FW, 'kMacRomanianDefaultVariant')
 export const kMacRomanianEuroSignVariant = /* @__PURE__ */ _bind(FW, 'kMacRomanianEuroSignVariant')
-export const kMacVT100CurrencySignVariant = /* @__PURE__ */ _bind(FW, 'kMacVT100CurrencySignVariant')
+export const kMacVT100CurrencySignVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kMacVT100CurrencySignVariant',
+)
+
 export const kMacVT100DefaultVariant = /* @__PURE__ */ _bind(FW, 'kMacVT100DefaultVariant')
 export const kMacVT100EuroSignVariant = /* @__PURE__ */ _bind(FW, 'kMacVT100EuroSignVariant')
 export const kMachineNameStrID = /* @__PURE__ */ _bind(FW, 'kMachineNameStrID')
 export const kMagicBusyCreationDate = /* @__PURE__ */ _bind(FW, 'kMagicBusyCreationDate')
-export const kMagicTemporaryItemsFolderType = /* @__PURE__ */ _bind(FW, 'kMagicTemporaryItemsFolderType')
+export const kMagicTemporaryItemsFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kMagicTemporaryItemsFolderType',
+)
+
 export const kManagedItemsFolderType = /* @__PURE__ */ _bind(FW, 'kManagedItemsFolderType')
 export const kMaximumBlocksIn4GB = /* @__PURE__ */ _bind(FW, 'kMaximumBlocksIn4GB')
 export const kMini1BitMask = /* @__PURE__ */ _bind(FW, 'kMini1BitMask')
@@ -5968,7 +9185,11 @@ export const kNSLNotInitialized = /* @__PURE__ */ _bind(FW, 'kNSLNotInitialized'
 export const kNSLNullListPtr = /* @__PURE__ */ _bind(FW, 'kNSLNullListPtr')
 export const kNSLNullNeighborhoodPtr = /* @__PURE__ */ _bind(FW, 'kNSLNullNeighborhoodPtr')
 export const kNSLPluginLoadFailed = /* @__PURE__ */ _bind(FW, 'kNSLPluginLoadFailed')
-export const kNSLRequestBufferAlreadyInList = /* @__PURE__ */ _bind(FW, 'kNSLRequestBufferAlreadyInList')
+export const kNSLRequestBufferAlreadyInList = /* @__PURE__ */ _bind(
+	FW,
+	'kNSLRequestBufferAlreadyInList',
+)
+
 export const kNSLSchedulerError = /* @__PURE__ */ _bind(FW, 'kNSLSchedulerError')
 export const kNSLSearchAlreadyInProgress = /* @__PURE__ */ _bind(FW, 'kNSLSearchAlreadyInProgress')
 export const kNSLSomePluginsFailedToLoad = /* @__PURE__ */ _bind(FW, 'kNSLSomePluginsFailedToLoad')
@@ -5980,7 +9201,11 @@ export const kNSpAlreadyInitializedErr = /* @__PURE__ */ _bind(FW, 'kNSpAlreadyI
 export const kNSpCantBlockErr = /* @__PURE__ */ _bind(FW, 'kNSpCantBlockErr')
 export const kNSpConnectFailedErr = /* @__PURE__ */ _bind(FW, 'kNSpConnectFailedErr')
 export const kNSpCreateGroupFailedErr = /* @__PURE__ */ _bind(FW, 'kNSpCreateGroupFailedErr')
-export const kNSpFeatureNotImplementedErr = /* @__PURE__ */ _bind(FW, 'kNSpFeatureNotImplementedErr')
+export const kNSpFeatureNotImplementedErr = /* @__PURE__ */ _bind(
+	FW,
+	'kNSpFeatureNotImplementedErr',
+)
+
 export const kNSpFreeQExhaustedErr = /* @__PURE__ */ _bind(FW, 'kNSpFreeQExhaustedErr')
 export const kNSpGameTerminatedErr = /* @__PURE__ */ _bind(FW, 'kNSpGameTerminatedErr')
 export const kNSpHostFailedErr = /* @__PURE__ */ _bind(FW, 'kNSpHostFailedErr')
@@ -6010,8 +9235,16 @@ export const kNSpSendFailedErr = /* @__PURE__ */ _bind(FW, 'kNSpSendFailedErr')
 export const kNSpTimeoutErr = /* @__PURE__ */ _bind(FW, 'kNSpTimeoutErr')
 export const kNSpTopologyNotSupportedErr = /* @__PURE__ */ _bind(FW, 'kNSpTopologyNotSupportedErr')
 export const kNameLocked = /* @__PURE__ */ _bind(FW, 'kNameLocked')
-export const kNavCustomControlMessageFailedErr = /* @__PURE__ */ _bind(FW, 'kNavCustomControlMessageFailedErr')
-export const kNavInvalidCustomControlMessageErr = /* @__PURE__ */ _bind(FW, 'kNavInvalidCustomControlMessageErr')
+export const kNavCustomControlMessageFailedErr = /* @__PURE__ */ _bind(
+	FW,
+	'kNavCustomControlMessageFailedErr',
+)
+
+export const kNavInvalidCustomControlMessageErr = /* @__PURE__ */ _bind(
+	FW,
+	'kNavInvalidCustomControlMessageErr',
+)
+
 export const kNavInvalidSystemConfigErr = /* @__PURE__ */ _bind(FW, 'kNavInvalidSystemConfigErr')
 export const kNavMissingKindStringErr = /* @__PURE__ */ _bind(FW, 'kNavMissingKindStringErr')
 export const kNavWrongDialogClassErr = /* @__PURE__ */ _bind(FW, 'kNavWrongDialogClassErr')
@@ -6114,7 +9347,11 @@ export const kOpaqueTimerID = /* @__PURE__ */ _bind(FW, 'kOpaqueTimerID')
 export const kOpenDocEditorsFolderType = /* @__PURE__ */ _bind(FW, 'kOpenDocEditorsFolderType')
 export const kOpenDocFolderType = /* @__PURE__ */ _bind(FW, 'kOpenDocFolderType')
 export const kOpenDocLibrariesFolderType = /* @__PURE__ */ _bind(FW, 'kOpenDocLibrariesFolderType')
-export const kOpenDocShellPlugInsFolderType = /* @__PURE__ */ _bind(FW, 'kOpenDocShellPlugInsFolderType')
+export const kOpenDocShellPlugInsFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kOpenDocShellPlugInsFolderType',
+)
+
 export const kOpenDropIconVariant = /* @__PURE__ */ _bind(FW, 'kOpenDropIconVariant')
 export const kOpenFolderIcon = /* @__PURE__ */ _bind(FW, 'kOpenFolderIcon')
 export const kOpenFolderIconResource = /* @__PURE__ */ _bind(FW, 'kOpenFolderIconResource')
@@ -6136,7 +9373,11 @@ export const kPEFExecDataSection = /* @__PURE__ */ _bind(FW, 'kPEFExecDataSectio
 export const kPEFExpSymClassShift = /* @__PURE__ */ _bind(FW, 'kPEFExpSymClassShift')
 export const kPEFExpSymMaxNameOffset = /* @__PURE__ */ _bind(FW, 'kPEFExpSymMaxNameOffset')
 export const kPEFExpSymNameOffsetMask = /* @__PURE__ */ _bind(FW, 'kPEFExpSymNameOffsetMask')
-export const kPEFFirstSectionHeaderOffset = /* @__PURE__ */ _bind(FW, 'kPEFFirstSectionHeaderOffset')
+export const kPEFFirstSectionHeaderOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kPEFFirstSectionHeaderOffset',
+)
+
 export const kPEFGlobalShare = /* @__PURE__ */ _bind(FW, 'kPEFGlobalShare')
 export const kPEFGlueSymbol = /* @__PURE__ */ _bind(FW, 'kPEFGlueSymbol')
 export const kPEFHashLengthShift = /* @__PURE__ */ _bind(FW, 'kPEFHashLengthShift')
@@ -6172,17 +9413,45 @@ export const kPEFRelocBySectD = /* @__PURE__ */ _bind(FW, 'kPEFRelocBySectD')
 export const kPEFRelocBySectDWithSkip = /* @__PURE__ */ _bind(FW, 'kPEFRelocBySectDWithSkip')
 export const kPEFRelocImportRun = /* @__PURE__ */ _bind(FW, 'kPEFRelocImportRun')
 export const kPEFRelocIncrPosition = /* @__PURE__ */ _bind(FW, 'kPEFRelocIncrPosition')
-export const kPEFRelocIncrPositionMaxOffset = /* @__PURE__ */ _bind(FW, 'kPEFRelocIncrPositionMaxOffset')
+export const kPEFRelocIncrPositionMaxOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kPEFRelocIncrPositionMaxOffset',
+)
+
 export const kPEFRelocLgByImport = /* @__PURE__ */ _bind(FW, 'kPEFRelocLgByImport')
 export const kPEFRelocLgByImportMaxIndex = /* @__PURE__ */ _bind(FW, 'kPEFRelocLgByImportMaxIndex')
-export const kPEFRelocLgBySectionSubopcode = /* @__PURE__ */ _bind(FW, 'kPEFRelocLgBySectionSubopcode')
+export const kPEFRelocLgBySectionSubopcode = /* @__PURE__ */ _bind(
+	FW,
+	'kPEFRelocLgBySectionSubopcode',
+)
+
 export const kPEFRelocLgRepeat = /* @__PURE__ */ _bind(FW, 'kPEFRelocLgRepeat')
-export const kPEFRelocLgRepeatMaxChunkCount = /* @__PURE__ */ _bind(FW, 'kPEFRelocLgRepeatMaxChunkCount')
-export const kPEFRelocLgRepeatMaxRepeatCount = /* @__PURE__ */ _bind(FW, 'kPEFRelocLgRepeatMaxRepeatCount')
+export const kPEFRelocLgRepeatMaxChunkCount = /* @__PURE__ */ _bind(
+	FW,
+	'kPEFRelocLgRepeatMaxChunkCount',
+)
+
+export const kPEFRelocLgRepeatMaxRepeatCount = /* @__PURE__ */ _bind(
+	FW,
+	'kPEFRelocLgRepeatMaxRepeatCount',
+)
+
 export const kPEFRelocLgSetOrBySection = /* @__PURE__ */ _bind(FW, 'kPEFRelocLgSetOrBySection')
-export const kPEFRelocLgSetOrBySectionMaxIndex = /* @__PURE__ */ _bind(FW, 'kPEFRelocLgSetOrBySectionMaxIndex')
-export const kPEFRelocLgSetSectCSubopcode = /* @__PURE__ */ _bind(FW, 'kPEFRelocLgSetSectCSubopcode')
-export const kPEFRelocLgSetSectDSubopcode = /* @__PURE__ */ _bind(FW, 'kPEFRelocLgSetSectDSubopcode')
+export const kPEFRelocLgSetOrBySectionMaxIndex = /* @__PURE__ */ _bind(
+	FW,
+	'kPEFRelocLgSetOrBySectionMaxIndex',
+)
+
+export const kPEFRelocLgSetSectCSubopcode = /* @__PURE__ */ _bind(
+	FW,
+	'kPEFRelocLgSetSectCSubopcode',
+)
+
+export const kPEFRelocLgSetSectDSubopcode = /* @__PURE__ */ _bind(
+	FW,
+	'kPEFRelocLgSetSectDSubopcode',
+)
+
 export const kPEFRelocRunMaxRunLength = /* @__PURE__ */ _bind(FW, 'kPEFRelocRunMaxRunLength')
 export const kPEFRelocSetPosMaxOffset = /* @__PURE__ */ _bind(FW, 'kPEFRelocSetPosMaxOffset')
 export const kPEFRelocSetPosition = /* @__PURE__ */ _bind(FW, 'kPEFRelocSetPosition')
@@ -6190,16 +9459,32 @@ export const kPEFRelocSmByImport = /* @__PURE__ */ _bind(FW, 'kPEFRelocSmByImpor
 export const kPEFRelocSmBySection = /* @__PURE__ */ _bind(FW, 'kPEFRelocSmBySection')
 export const kPEFRelocSmIndexMaxIndex = /* @__PURE__ */ _bind(FW, 'kPEFRelocSmIndexMaxIndex')
 export const kPEFRelocSmRepeat = /* @__PURE__ */ _bind(FW, 'kPEFRelocSmRepeat')
-export const kPEFRelocSmRepeatMaxChunkCount = /* @__PURE__ */ _bind(FW, 'kPEFRelocSmRepeatMaxChunkCount')
-export const kPEFRelocSmRepeatMaxRepeatCount = /* @__PURE__ */ _bind(FW, 'kPEFRelocSmRepeatMaxRepeatCount')
+export const kPEFRelocSmRepeatMaxChunkCount = /* @__PURE__ */ _bind(
+	FW,
+	'kPEFRelocSmRepeatMaxChunkCount',
+)
+
+export const kPEFRelocSmRepeatMaxRepeatCount = /* @__PURE__ */ _bind(
+	FW,
+	'kPEFRelocSmRepeatMaxRepeatCount',
+)
+
 export const kPEFRelocSmSetSectC = /* @__PURE__ */ _bind(FW, 'kPEFRelocSmSetSectC')
 export const kPEFRelocSmSetSectD = /* @__PURE__ */ _bind(FW, 'kPEFRelocSmSetSectD')
 export const kPEFRelocTVector12 = /* @__PURE__ */ _bind(FW, 'kPEFRelocTVector12')
 export const kPEFRelocTVector8 = /* @__PURE__ */ _bind(FW, 'kPEFRelocTVector8')
 export const kPEFRelocUndefinedOpcode = /* @__PURE__ */ _bind(FW, 'kPEFRelocUndefinedOpcode')
 export const kPEFRelocVTable8 = /* @__PURE__ */ _bind(FW, 'kPEFRelocVTable8')
-export const kPEFRelocWithSkipMaxRelocCount = /* @__PURE__ */ _bind(FW, 'kPEFRelocWithSkipMaxRelocCount')
-export const kPEFRelocWithSkipMaxSkipCount = /* @__PURE__ */ _bind(FW, 'kPEFRelocWithSkipMaxSkipCount')
+export const kPEFRelocWithSkipMaxRelocCount = /* @__PURE__ */ _bind(
+	FW,
+	'kPEFRelocWithSkipMaxRelocCount',
+)
+
+export const kPEFRelocWithSkipMaxSkipCount = /* @__PURE__ */ _bind(
+	FW,
+	'kPEFRelocWithSkipMaxSkipCount',
+)
+
 export const kPEFTOCSymbol = /* @__PURE__ */ _bind(FW, 'kPEFTOCSymbol')
 export const kPEFTVectorSymbol = /* @__PURE__ */ _bind(FW, 'kPEFTVectorSymbol')
 export const kPEFTag1 = /* @__PURE__ */ _bind(FW, 'kPEFTag1')
@@ -6328,49 +9613,133 @@ export const kPolicyKCStopOn = /* @__PURE__ */ _bind(FW, 'kPolicyKCStopOn')
 export const kPortKCItemAttr = /* @__PURE__ */ _bind(FW, 'kPortKCItemAttr')
 export const kPos2Offset = /* @__PURE__ */ _bind(FW, 'kPos2Offset')
 export const kPostCardEventErr = /* @__PURE__ */ _bind(FW, 'kPostCardEventErr')
-export const kPowerHandlerExistsForDeviceErr = /* @__PURE__ */ _bind(FW, 'kPowerHandlerExistsForDeviceErr')
-export const kPowerHandlerNotFoundForDeviceErr = /* @__PURE__ */ _bind(FW, 'kPowerHandlerNotFoundForDeviceErr')
-export const kPowerHandlerNotFoundForProcErr = /* @__PURE__ */ _bind(FW, 'kPowerHandlerNotFoundForProcErr')
+export const kPowerHandlerExistsForDeviceErr = /* @__PURE__ */ _bind(
+	FW,
+	'kPowerHandlerExistsForDeviceErr',
+)
+
+export const kPowerHandlerNotFoundForDeviceErr = /* @__PURE__ */ _bind(
+	FW,
+	'kPowerHandlerNotFoundForDeviceErr',
+)
+
+export const kPowerHandlerNotFoundForProcErr = /* @__PURE__ */ _bind(
+	FW,
+	'kPowerHandlerNotFoundForProcErr',
+)
+
 export const kPowerMgtMessageNotHandled = /* @__PURE__ */ _bind(FW, 'kPowerMgtMessageNotHandled')
 export const kPowerMgtRequestDenied = /* @__PURE__ */ _bind(FW, 'kPowerMgtRequestDenied')
 export const kPowerPCISA = /* @__PURE__ */ _bind(FW, 'kPowerPCISA')
 export const kPowerPCRTA = /* @__PURE__ */ _bind(FW, 'kPowerPCRTA')
-export const kPreMacOS91AppleExtrasFolderType = /* @__PURE__ */ _bind(FW, 'kPreMacOS91AppleExtrasFolderType')
-export const kPreMacOS91ApplicationsFolderType = /* @__PURE__ */ _bind(FW, 'kPreMacOS91ApplicationsFolderType')
-export const kPreMacOS91AssistantsFolderType = /* @__PURE__ */ _bind(FW, 'kPreMacOS91AssistantsFolderType')
-export const kPreMacOS91AutomountedServersFolderType = /* @__PURE__ */ _bind(FW, 'kPreMacOS91AutomountedServersFolderType')
-export const kPreMacOS91InstallerLogsFolderType = /* @__PURE__ */ _bind(FW, 'kPreMacOS91InstallerLogsFolderType')
-export const kPreMacOS91InternetFolderType = /* @__PURE__ */ _bind(FW, 'kPreMacOS91InternetFolderType')
-export const kPreMacOS91MacOSReadMesFolderType = /* @__PURE__ */ _bind(FW, 'kPreMacOS91MacOSReadMesFolderType')
-export const kPreMacOS91StationeryFolderType = /* @__PURE__ */ _bind(FW, 'kPreMacOS91StationeryFolderType')
-export const kPreMacOS91UtilitiesFolderType = /* @__PURE__ */ _bind(FW, 'kPreMacOS91UtilitiesFolderType')
+export const kPreMacOS91AppleExtrasFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kPreMacOS91AppleExtrasFolderType',
+)
+
+export const kPreMacOS91ApplicationsFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kPreMacOS91ApplicationsFolderType',
+)
+
+export const kPreMacOS91AssistantsFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kPreMacOS91AssistantsFolderType',
+)
+
+export const kPreMacOS91AutomountedServersFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kPreMacOS91AutomountedServersFolderType',
+)
+
+export const kPreMacOS91InstallerLogsFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kPreMacOS91InstallerLogsFolderType',
+)
+
+export const kPreMacOS91InternetFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kPreMacOS91InternetFolderType',
+)
+
+export const kPreMacOS91MacOSReadMesFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kPreMacOS91MacOSReadMesFolderType',
+)
+
+export const kPreMacOS91StationeryFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kPreMacOS91StationeryFolderType',
+)
+
+export const kPreMacOS91UtilitiesFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kPreMacOS91UtilitiesFolderType',
+)
+
 export const kPreemptiveThread = /* @__PURE__ */ _bind(FW, 'kPreemptiveThread')
 export const kPreferencePanesFolderType = /* @__PURE__ */ _bind(FW, 'kPreferencePanesFolderType')
 export const kPreferencesFolderAliasType = /* @__PURE__ */ _bind(FW, 'kPreferencesFolderAliasType')
 export const kPreferencesFolderIcon = /* @__PURE__ */ _bind(FW, 'kPreferencesFolderIcon')
-export const kPreferencesFolderIconResource = /* @__PURE__ */ _bind(FW, 'kPreferencesFolderIconResource')
+export const kPreferencesFolderIconResource = /* @__PURE__ */ _bind(
+	FW,
+	'kPreferencesFolderIconResource',
+)
+
 export const kPreferencesFolderType = /* @__PURE__ */ _bind(FW, 'kPreferencesFolderType')
 export const kPreviousBody = /* @__PURE__ */ _bind(FW, 'kPreviousBody')
-export const kPrintMonitorDocsFolderAliasType = /* @__PURE__ */ _bind(FW, 'kPrintMonitorDocsFolderAliasType')
+export const kPrintMonitorDocsFolderAliasType = /* @__PURE__ */ _bind(
+	FW,
+	'kPrintMonitorDocsFolderAliasType',
+)
+
 export const kPrintMonitorDocsFolderType = /* @__PURE__ */ _bind(FW, 'kPrintMonitorDocsFolderType')
 export const kPrintMonitorFolderIcon = /* @__PURE__ */ _bind(FW, 'kPrintMonitorFolderIcon')
-export const kPrintMonitorFolderIconResource = /* @__PURE__ */ _bind(FW, 'kPrintMonitorFolderIconResource')
-export const kPrinterDescriptionFolderIcon = /* @__PURE__ */ _bind(FW, 'kPrinterDescriptionFolderIcon')
-export const kPrinterDescriptionFolderType = /* @__PURE__ */ _bind(FW, 'kPrinterDescriptionFolderType')
+export const kPrintMonitorFolderIconResource = /* @__PURE__ */ _bind(
+	FW,
+	'kPrintMonitorFolderIconResource',
+)
+
+export const kPrinterDescriptionFolderIcon = /* @__PURE__ */ _bind(
+	FW,
+	'kPrinterDescriptionFolderIcon',
+)
+
+export const kPrinterDescriptionFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kPrinterDescriptionFolderType',
+)
+
 export const kPrinterDriverFolderIcon = /* @__PURE__ */ _bind(FW, 'kPrinterDriverFolderIcon')
 export const kPrinterDriverFolderType = /* @__PURE__ */ _bind(FW, 'kPrinterDriverFolderType')
 export const kPrintersFolderType = /* @__PURE__ */ _bind(FW, 'kPrintersFolderType')
 export const kPrintingPlugInsFolderType = /* @__PURE__ */ _bind(FW, 'kPrintingPlugInsFolderType')
 export const kPrivateFolderIcon = /* @__PURE__ */ _bind(FW, 'kPrivateFolderIcon')
 export const kPrivateFolderIconResource = /* @__PURE__ */ _bind(FW, 'kPrivateFolderIconResource')
-export const kPrivateFrameworksFolderType = /* @__PURE__ */ _bind(FW, 'kPrivateFrameworksFolderType')
-export const kPrivilegeViolationException = /* @__PURE__ */ _bind(FW, 'kPrivilegeViolationException')
+export const kPrivateFrameworksFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kPrivateFrameworksFolderType',
+)
+
+export const kPrivilegeViolationException = /* @__PURE__ */ _bind(
+	FW,
+	'kPrivilegeViolationException',
+)
+
 export const kProcDescriptorIsAbsolute = /* @__PURE__ */ _bind(FW, 'kProcDescriptorIsAbsolute')
 export const kProcDescriptorIsIndex = /* @__PURE__ */ _bind(FW, 'kProcDescriptorIsIndex')
 export const kProcDescriptorIsProcPtr = /* @__PURE__ */ _bind(FW, 'kProcDescriptorIsProcPtr')
 export const kProcDescriptorIsRelative = /* @__PURE__ */ _bind(FW, 'kProcDescriptorIsRelative')
-export const kProcessorTempRoutineRequiresMPLib2 = /* @__PURE__ */ _bind(FW, 'kProcessorTempRoutineRequiresMPLib2')
-export const kProtectedApplicationFolderIcon = /* @__PURE__ */ _bind(FW, 'kProtectedApplicationFolderIcon')
+export const kProcessorTempRoutineRequiresMPLib2 = /* @__PURE__ */ _bind(
+	FW,
+	'kProcessorTempRoutineRequiresMPLib2',
+)
+
+export const kProtectedApplicationFolderIcon = /* @__PURE__ */ _bind(
+	FW,
+	'kProtectedApplicationFolderIcon',
+)
+
 export const kProtectedSystemFolderIcon = /* @__PURE__ */ _bind(FW, 'kProtectedSystemFolderIcon')
 export const kProtocolKCItemAttr = /* @__PURE__ */ _bind(FW, 'kProtocolKCItemAttr')
 export const kPublicFolderIcon = /* @__PURE__ */ _bind(FW, 'kPublicFolderIcon')
@@ -6384,8 +9753,16 @@ export const kQDNoPalette = /* @__PURE__ */ _bind(FW, 'kQDNoPalette')
 export const kQTSSUnknownErr = /* @__PURE__ */ _bind(FW, 'kQTSSUnknownErr')
 export const kQuestionMarkIcon = /* @__PURE__ */ _bind(FW, 'kQuestionMarkIcon')
 export const kQuickLookFolderType = /* @__PURE__ */ _bind(FW, 'kQuickLookFolderType')
-export const kQuickTimeComponentsFolderType = /* @__PURE__ */ _bind(FW, 'kQuickTimeComponentsFolderType')
-export const kQuickTimeExtensionsFolderType = /* @__PURE__ */ _bind(FW, 'kQuickTimeExtensionsFolderType')
+export const kQuickTimeComponentsFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kQuickTimeComponentsFolderType',
+)
+
+export const kQuickTimeExtensionsFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kQuickTimeExtensionsFolderType',
+)
+
 export const kRAATalkInactive = /* @__PURE__ */ _bind(FW, 'kRAATalkInactive')
 export const kRACallBackFailed = /* @__PURE__ */ _bind(FW, 'kRACallBackFailed')
 export const kRAConfigurationDBInitErr = /* @__PURE__ */ _bind(FW, 'kRAConfigurationDBInitErr')
@@ -6432,8 +9809,16 @@ export const kReadFailureErr = /* @__PURE__ */ _bind(FW, 'kReadFailureErr')
 export const kReadOnlyMemoryException = /* @__PURE__ */ _bind(FW, 'kReadOnlyMemoryException')
 export const kReadReference = /* @__PURE__ */ _bind(FW, 'kReadReference')
 export const kReadyThreadState = /* @__PURE__ */ _bind(FW, 'kReadyThreadState')
-export const kRecentApplicationsFolderIcon = /* @__PURE__ */ _bind(FW, 'kRecentApplicationsFolderIcon')
-export const kRecentApplicationsFolderType = /* @__PURE__ */ _bind(FW, 'kRecentApplicationsFolderType')
+export const kRecentApplicationsFolderIcon = /* @__PURE__ */ _bind(
+	FW,
+	'kRecentApplicationsFolderIcon',
+)
+
+export const kRecentApplicationsFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kRecentApplicationsFolderType',
+)
+
 export const kRecentDocumentsFolderIcon = /* @__PURE__ */ _bind(FW, 'kRecentDocumentsFolderIcon')
 export const kRecentDocumentsFolderType = /* @__PURE__ */ _bind(FW, 'kRecentDocumentsFolderType')
 export const kRecentItemsIcon = /* @__PURE__ */ _bind(FW, 'kRecentItemsIcon')
@@ -6460,11 +9845,27 @@ export const kRegisterParameterMask = /* @__PURE__ */ _bind(FW, 'kRegisterParame
 export const kRegisterParameterPhase = /* @__PURE__ */ _bind(FW, 'kRegisterParameterPhase')
 export const kRegisterParameterSizePhase = /* @__PURE__ */ _bind(FW, 'kRegisterParameterSizePhase')
 export const kRegisterParameterSizeWidth = /* @__PURE__ */ _bind(FW, 'kRegisterParameterSizeWidth')
-export const kRegisterParameterWhichPhase = /* @__PURE__ */ _bind(FW, 'kRegisterParameterWhichPhase')
-export const kRegisterParameterWhichWidth = /* @__PURE__ */ _bind(FW, 'kRegisterParameterWhichWidth')
+export const kRegisterParameterWhichPhase = /* @__PURE__ */ _bind(
+	FW,
+	'kRegisterParameterWhichPhase',
+)
+
+export const kRegisterParameterWhichWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kRegisterParameterWhichWidth',
+)
+
 export const kRegisterParameterWidth = /* @__PURE__ */ _bind(FW, 'kRegisterParameterWidth')
-export const kRegisterResultLocationPhase = /* @__PURE__ */ _bind(FW, 'kRegisterResultLocationPhase')
-export const kRegisterResultLocationWidth = /* @__PURE__ */ _bind(FW, 'kRegisterResultLocationWidth')
+export const kRegisterResultLocationPhase = /* @__PURE__ */ _bind(
+	FW,
+	'kRegisterResultLocationPhase',
+)
+
+export const kRegisterResultLocationWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kRegisterResultLocationWidth',
+)
+
 export const kRelativeFolder = /* @__PURE__ */ _bind(FW, 'kRelativeFolder')
 export const kResFileNotOpened = /* @__PURE__ */ _bind(FW, 'kResFileNotOpened')
 export const kResolveAliasFileNoUI = /* @__PURE__ */ _bind(FW, 'kResolveAliasFileNoUI')
@@ -6479,13 +9880,29 @@ export const kRightContainerArrowIcon = /* @__PURE__ */ _bind(FW, 'kRightContain
 export const kRolloverIconVariant = /* @__PURE__ */ _bind(FW, 'kRolloverIconVariant')
 export const kRootFolder = /* @__PURE__ */ _bind(FW, 'kRootFolder')
 export const kRoutineDescriptorVersion = /* @__PURE__ */ _bind(FW, 'kRoutineDescriptorVersion')
-export const kRoutineIsDispatchedDefaultRoutine = /* @__PURE__ */ _bind(FW, 'kRoutineIsDispatchedDefaultRoutine')
-export const kRoutineIsNotDispatchedDefaultRoutine = /* @__PURE__ */ _bind(FW, 'kRoutineIsNotDispatchedDefaultRoutine')
+export const kRoutineIsDispatchedDefaultRoutine = /* @__PURE__ */ _bind(
+	FW,
+	'kRoutineIsDispatchedDefaultRoutine',
+)
+
+export const kRoutineIsNotDispatchedDefaultRoutine = /* @__PURE__ */ _bind(
+	FW,
+	'kRoutineIsNotDispatchedDefaultRoutine',
+)
+
 export const kRoutingResourceID = /* @__PURE__ */ _bind(FW, 'kRoutingResourceID')
 export const kRoutingResourceType = /* @__PURE__ */ _bind(FW, 'kRoutingResourceType')
 export const kRsrcChainAboveAllMaps = /* @__PURE__ */ _bind(FW, 'kRsrcChainAboveAllMaps')
-export const kRsrcChainAboveApplicationMap = /* @__PURE__ */ _bind(FW, 'kRsrcChainAboveApplicationMap')
-export const kRsrcChainBelowApplicationMap = /* @__PURE__ */ _bind(FW, 'kRsrcChainBelowApplicationMap')
+export const kRsrcChainAboveApplicationMap = /* @__PURE__ */ _bind(
+	FW,
+	'kRsrcChainAboveApplicationMap',
+)
+
+export const kRsrcChainBelowApplicationMap = /* @__PURE__ */ _bind(
+	FW,
+	'kRsrcChainBelowApplicationMap',
+)
+
 export const kRsrcChainBelowSystemMap = /* @__PURE__ */ _bind(FW, 'kRsrcChainBelowSystemMap')
 export const kRunningThreadState = /* @__PURE__ */ _bind(FW, 'kRunningThreadState')
 export const kSKEndTermChars = /* @__PURE__ */ _bind(FW, 'kSKEndTermChars')
@@ -6495,7 +9912,11 @@ export const kSKMinTermLength = /* @__PURE__ */ _bind(FW, 'kSKMinTermLength')
 export const kSKProximityIndexing = /* @__PURE__ */ _bind(FW, 'kSKProximityIndexing')
 export const kSKSearchOptionDefault = /* @__PURE__ */ _bind(FW, 'kSKSearchOptionDefault')
 export const kSKSearchOptionFindSimilar = /* @__PURE__ */ _bind(FW, 'kSKSearchOptionFindSimilar')
-export const kSKSearchOptionNoRelevanceScores = /* @__PURE__ */ _bind(FW, 'kSKSearchOptionNoRelevanceScores')
+export const kSKSearchOptionNoRelevanceScores = /* @__PURE__ */ _bind(
+	FW,
+	'kSKSearchOptionNoRelevanceScores',
+)
+
 export const kSKSearchOptionSpaceMeansOR = /* @__PURE__ */ _bind(FW, 'kSKSearchOptionSpaceMeansOR')
 export const kSKStartTermChars = /* @__PURE__ */ _bind(FW, 'kSKStartTermChars')
 export const kSKStopWords = /* @__PURE__ */ _bind(FW, 'kSKStopWords')
@@ -6510,8 +9931,16 @@ export const kSSpScaleToZeroErr = /* @__PURE__ */ _bind(FW, 'kSSpScaleToZeroErr'
 export const kSSpVersionErr = /* @__PURE__ */ _bind(FW, 'kSSpVersionErr')
 export const kScreenSaversFolderType = /* @__PURE__ */ _bind(FW, 'kScreenSaversFolderType')
 export const kScriptCodeKCItemAttr = /* @__PURE__ */ _bind(FW, 'kScriptCodeKCItemAttr')
-export const kScriptingAdditionsFolderIcon = /* @__PURE__ */ _bind(FW, 'kScriptingAdditionsFolderIcon')
-export const kScriptingAdditionsFolderType = /* @__PURE__ */ _bind(FW, 'kScriptingAdditionsFolderType')
+export const kScriptingAdditionsFolderIcon = /* @__PURE__ */ _bind(
+	FW,
+	'kScriptingAdditionsFolderIcon',
+)
+
+export const kScriptingAdditionsFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kScriptingAdditionsFolderType',
+)
+
 export const kScriptsFolderIcon = /* @__PURE__ */ _bind(FW, 'kScriptsFolderIcon')
 export const kScriptsFolderType = /* @__PURE__ */ _bind(FW, 'kScriptsFolderType')
 export const kSecOptionReserved = /* @__PURE__ */ _bind(FW, 'kSecOptionReserved')
@@ -6531,7 +9960,11 @@ export const kSharedFolderIconResource = /* @__PURE__ */ _bind(FW, 'kSharedFolde
 export const kSharedLibrariesFolderIcon = /* @__PURE__ */ _bind(FW, 'kSharedLibrariesFolderIcon')
 export const kSharedLibrariesFolderType = /* @__PURE__ */ _bind(FW, 'kSharedLibrariesFolderType')
 export const kSharedUserDataFolderType = /* @__PURE__ */ _bind(FW, 'kSharedUserDataFolderType')
-export const kSharingPrivsNotApplicableIcon = /* @__PURE__ */ _bind(FW, 'kSharingPrivsNotApplicableIcon')
+export const kSharingPrivsNotApplicableIcon = /* @__PURE__ */ _bind(
+	FW,
+	'kSharingPrivsNotApplicableIcon',
+)
+
 export const kSharingPrivsReadOnlyIcon = /* @__PURE__ */ _bind(FW, 'kSharingPrivsReadOnlyIcon')
 export const kSharingPrivsReadWriteIcon = /* @__PURE__ */ _bind(FW, 'kSharingPrivsReadWriteIcon')
 export const kSharingPrivsUnknownIcon = /* @__PURE__ */ _bind(FW, 'kSharingPrivsUnknownIcon')
@@ -6542,8 +9975,16 @@ export const kShiftJIS_MusicCDVariant = /* @__PURE__ */ _bind(FW, 'kShiftJIS_Mus
 export const kShortcutIcon = /* @__PURE__ */ _bind(FW, 'kShortcutIcon')
 export const kShowHideInputWindow = /* @__PURE__ */ _bind(FW, 'kShowHideInputWindow')
 export const kShutdownFolderType = /* @__PURE__ */ _bind(FW, 'kShutdownFolderType')
-export const kShutdownItemsDisabledFolderIcon = /* @__PURE__ */ _bind(FW, 'kShutdownItemsDisabledFolderIcon')
-export const kShutdownItemsDisabledFolderType = /* @__PURE__ */ _bind(FW, 'kShutdownItemsDisabledFolderType')
+export const kShutdownItemsDisabledFolderIcon = /* @__PURE__ */ _bind(
+	FW,
+	'kShutdownItemsDisabledFolderIcon',
+)
+
+export const kShutdownItemsDisabledFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kShutdownItemsDisabledFolderType',
+)
+
 export const kShutdownItemsFolderIcon = /* @__PURE__ */ _bind(FW, 'kShutdownItemsFolderIcon')
 export const kSignKCItemAttr = /* @__PURE__ */ _bind(FW, 'kSignKCItemAttr')
 export const kSignatureKCItemAttr = /* @__PURE__ */ _bind(FW, 'kSignatureKCItemAttr')
@@ -6589,10 +10030,26 @@ export const kSpecialCaseTextWidthHook = /* @__PURE__ */ _bind(FW, 'kSpecialCase
 export const kSpecialCaseWidthHook = /* @__PURE__ */ _bind(FW, 'kSpecialCaseWidthHook')
 export const kSpecialFolder = /* @__PURE__ */ _bind(FW, 'kSpecialFolder')
 export const kSpeechFolderType = /* @__PURE__ */ _bind(FW, 'kSpeechFolderType')
-export const kSpotlightImportersFolderType = /* @__PURE__ */ _bind(FW, 'kSpotlightImportersFolderType')
-export const kSpotlightMetadataCacheFolderType = /* @__PURE__ */ _bind(FW, 'kSpotlightMetadataCacheFolderType')
-export const kSpotlightSavedSearchesFolderType = /* @__PURE__ */ _bind(FW, 'kSpotlightSavedSearchesFolderType')
-export const kStackDispatchedPascalStackBased = /* @__PURE__ */ _bind(FW, 'kStackDispatchedPascalStackBased')
+export const kSpotlightImportersFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kSpotlightImportersFolderType',
+)
+
+export const kSpotlightMetadataCacheFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kSpotlightMetadataCacheFolderType',
+)
+
+export const kSpotlightSavedSearchesFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kSpotlightSavedSearchesFolderType',
+)
+
+export const kStackDispatchedPascalStackBased = /* @__PURE__ */ _bind(
+	FW,
+	'kStackDispatchedPascalStackBased',
+)
+
 export const kStackOverflowException = /* @__PURE__ */ _bind(FW, 'kStackOverflowException')
 export const kStackParameterMask = /* @__PURE__ */ _bind(FW, 'kStackParameterMask')
 export const kStackParameterPhase = /* @__PURE__ */ _bind(FW, 'kStackParameterPhase')
@@ -6601,8 +10058,16 @@ export const kStartDateKCItemAttr = /* @__PURE__ */ _bind(FW, 'kStartDateKCItemA
 export const kStartupFolderAliasType = /* @__PURE__ */ _bind(FW, 'kStartupFolderAliasType')
 export const kStartupFolderIconResource = /* @__PURE__ */ _bind(FW, 'kStartupFolderIconResource')
 export const kStartupFolderType = /* @__PURE__ */ _bind(FW, 'kStartupFolderType')
-export const kStartupItemsDisabledFolderIcon = /* @__PURE__ */ _bind(FW, 'kStartupItemsDisabledFolderIcon')
-export const kStartupItemsDisabledFolderType = /* @__PURE__ */ _bind(FW, 'kStartupItemsDisabledFolderType')
+export const kStartupItemsDisabledFolderIcon = /* @__PURE__ */ _bind(
+	FW,
+	'kStartupItemsDisabledFolderIcon',
+)
+
+export const kStartupItemsDisabledFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kStartupItemsDisabledFolderType',
+)
+
 export const kStartupItemsFolderIcon = /* @__PURE__ */ _bind(FW, 'kStartupItemsFolderIcon')
 export const kStationeryFolderType = /* @__PURE__ */ _bind(FW, 'kStationeryFolderType')
 export const kStillIdle = /* @__PURE__ */ _bind(FW, 'kStillIdle')
@@ -6614,34 +10079,74 @@ export const kSuspendRevoke = /* @__PURE__ */ _bind(FW, 'kSuspendRevoke')
 export const kSuspendWakeToDoze = /* @__PURE__ */ _bind(FW, 'kSuspendWakeToDoze')
 export const kSuspendWakeUp = /* @__PURE__ */ _bind(FW, 'kSuspendWakeUp')
 export const kSysSWTooOld = /* @__PURE__ */ _bind(FW, 'kSysSWTooOld')
-export const kSystemControlPanelFolderType = /* @__PURE__ */ _bind(FW, 'kSystemControlPanelFolderType')
+export const kSystemControlPanelFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kSystemControlPanelFolderType',
+)
+
 export const kSystemDesktopFolderType = /* @__PURE__ */ _bind(FW, 'kSystemDesktopFolderType')
 export const kSystemDomain = /* @__PURE__ */ _bind(FW, 'kSystemDomain')
 export const kSystemEventKCEventMask = /* @__PURE__ */ _bind(FW, 'kSystemEventKCEventMask')
-export const kSystemExtensionDisabledFolderIcon = /* @__PURE__ */ _bind(FW, 'kSystemExtensionDisabledFolderIcon')
-export const kSystemExtensionDisabledFolderType = /* @__PURE__ */ _bind(FW, 'kSystemExtensionDisabledFolderType')
+export const kSystemExtensionDisabledFolderIcon = /* @__PURE__ */ _bind(
+	FW,
+	'kSystemExtensionDisabledFolderIcon',
+)
+
+export const kSystemExtensionDisabledFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kSystemExtensionDisabledFolderType',
+)
+
 export const kSystemFolderAliasType = /* @__PURE__ */ _bind(FW, 'kSystemFolderAliasType')
 export const kSystemFolderIcon = /* @__PURE__ */ _bind(FW, 'kSystemFolderIcon')
 export const kSystemFolderIconResource = /* @__PURE__ */ _bind(FW, 'kSystemFolderIconResource')
 export const kSystemFolderType = /* @__PURE__ */ _bind(FW, 'kSystemFolderType')
 export const kSystemIconsCreator = /* @__PURE__ */ _bind(FW, 'kSystemIconsCreator')
 export const kSystemKCEvent = /* @__PURE__ */ _bind(FW, 'kSystemKCEvent')
-export const kSystemPreferencesFolderType = /* @__PURE__ */ _bind(FW, 'kSystemPreferencesFolderType')
+export const kSystemPreferencesFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kSystemPreferencesFolderType',
+)
+
 export const kSystemResFile = /* @__PURE__ */ _bind(FW, 'kSystemResFile')
 export const kSystemSoundsFolderType = /* @__PURE__ */ _bind(FW, 'kSystemSoundsFolderType')
 export const kSystemSuitcaseIcon = /* @__PURE__ */ _bind(FW, 'kSystemSuitcaseIcon')
 export const kSystemTrashFolderType = /* @__PURE__ */ _bind(FW, 'kSystemTrashFolderType')
 export const kTECAddFallbackInterruptBit = /* @__PURE__ */ _bind(FW, 'kTECAddFallbackInterruptBit')
-export const kTECAddFallbackInterruptMask = /* @__PURE__ */ _bind(FW, 'kTECAddFallbackInterruptMask')
+export const kTECAddFallbackInterruptMask = /* @__PURE__ */ _bind(
+	FW,
+	'kTECAddFallbackInterruptMask',
+)
+
 export const kTECAddForceASCIIChangesBit = /* @__PURE__ */ _bind(FW, 'kTECAddForceASCIIChangesBit')
-export const kTECAddForceASCIIChangesMask = /* @__PURE__ */ _bind(FW, 'kTECAddForceASCIIChangesMask')
+export const kTECAddForceASCIIChangesMask = /* @__PURE__ */ _bind(
+	FW,
+	'kTECAddForceASCIIChangesMask',
+)
+
 export const kTECAddTextRunHeuristicsBit = /* @__PURE__ */ _bind(FW, 'kTECAddTextRunHeuristicsBit')
-export const kTECAddTextRunHeuristicsMask = /* @__PURE__ */ _bind(FW, 'kTECAddTextRunHeuristicsMask')
+export const kTECAddTextRunHeuristicsMask = /* @__PURE__ */ _bind(
+	FW,
+	'kTECAddTextRunHeuristicsMask',
+)
+
 export const kTECArrayFullErr = /* @__PURE__ */ _bind(FW, 'kTECArrayFullErr')
-export const kTECAvailableEncodingsResType = /* @__PURE__ */ _bind(FW, 'kTECAvailableEncodingsResType')
-export const kTECAvailableSniffersResType = /* @__PURE__ */ _bind(FW, 'kTECAvailableSniffersResType')
+export const kTECAvailableEncodingsResType = /* @__PURE__ */ _bind(
+	FW,
+	'kTECAvailableEncodingsResType',
+)
+
+export const kTECAvailableSniffersResType = /* @__PURE__ */ _bind(
+	FW,
+	'kTECAvailableSniffersResType',
+)
+
 export const kTECBadTextRunErr = /* @__PURE__ */ _bind(FW, 'kTECBadTextRunErr')
-export const kTECBufferBelowMinimumSizeErr = /* @__PURE__ */ _bind(FW, 'kTECBufferBelowMinimumSizeErr')
+export const kTECBufferBelowMinimumSizeErr = /* @__PURE__ */ _bind(
+	FW,
+	'kTECBufferBelowMinimumSizeErr',
+)
+
 export const kTECChinesePluginSignature = /* @__PURE__ */ _bind(FW, 'kTECChinesePluginSignature')
 export const kTECConversionInfoResType = /* @__PURE__ */ _bind(FW, 'kTECConversionInfoResType')
 export const kTECCorruptConverterErr = /* @__PURE__ */ _bind(FW, 'kTECCorruptConverterErr')
@@ -6649,15 +10154,39 @@ export const kTECDirectionErr = /* @__PURE__ */ _bind(FW, 'kTECDirectionErr')
 export const kTECDisableFallbacksBit = /* @__PURE__ */ _bind(FW, 'kTECDisableFallbacksBit')
 export const kTECDisableFallbacksMask = /* @__PURE__ */ _bind(FW, 'kTECDisableFallbacksMask')
 export const kTECDisableLooseMappingsBit = /* @__PURE__ */ _bind(FW, 'kTECDisableLooseMappingsBit')
-export const kTECDisableLooseMappingsMask = /* @__PURE__ */ _bind(FW, 'kTECDisableLooseMappingsMask')
-export const kTECFallbackTextLengthFixBit = /* @__PURE__ */ _bind(FW, 'kTECFallbackTextLengthFixBit')
-export const kTECFallbackTextLengthFixMask = /* @__PURE__ */ _bind(FW, 'kTECFallbackTextLengthFixMask')
+export const kTECDisableLooseMappingsMask = /* @__PURE__ */ _bind(
+	FW,
+	'kTECDisableLooseMappingsMask',
+)
+
+export const kTECFallbackTextLengthFixBit = /* @__PURE__ */ _bind(
+	FW,
+	'kTECFallbackTextLengthFixBit',
+)
+
+export const kTECFallbackTextLengthFixMask = /* @__PURE__ */ _bind(
+	FW,
+	'kTECFallbackTextLengthFixMask',
+)
+
 export const kTECGlobalsUnavailableErr = /* @__PURE__ */ _bind(FW, 'kTECGlobalsUnavailableErr')
 export const kTECIncompleteElementErr = /* @__PURE__ */ _bind(FW, 'kTECIncompleteElementErr')
 export const kTECInfoCurrentFormat = /* @__PURE__ */ _bind(FW, 'kTECInfoCurrentFormat')
-export const kTECInternetNameDefaultUsageMask = /* @__PURE__ */ _bind(FW, 'kTECInternetNameDefaultUsageMask')
-export const kTECInternetNameStrictUsageMask = /* @__PURE__ */ _bind(FW, 'kTECInternetNameStrictUsageMask')
-export const kTECInternetNameTolerantUsageMask = /* @__PURE__ */ _bind(FW, 'kTECInternetNameTolerantUsageMask')
+export const kTECInternetNameDefaultUsageMask = /* @__PURE__ */ _bind(
+	FW,
+	'kTECInternetNameDefaultUsageMask',
+)
+
+export const kTECInternetNameStrictUsageMask = /* @__PURE__ */ _bind(
+	FW,
+	'kTECInternetNameStrictUsageMask',
+)
+
+export const kTECInternetNameTolerantUsageMask = /* @__PURE__ */ _bind(
+	FW,
+	'kTECInternetNameTolerantUsageMask',
+)
+
 export const kTECInternetNamesResType = /* @__PURE__ */ _bind(FW, 'kTECInternetNamesResType')
 export const kTECItemUnavailableErr = /* @__PURE__ */ _bind(FW, 'kTECItemUnavailableErr')
 export const kTECJapanesePluginSignature = /* @__PURE__ */ _bind(FW, 'kTECJapanesePluginSignature')
@@ -6671,17 +10200,37 @@ export const kTECNoConversionPathErr = /* @__PURE__ */ _bind(FW, 'kTECNoConversi
 export const kTECOutputBufferFullStatus = /* @__PURE__ */ _bind(FW, 'kTECOutputBufferFullStatus')
 export const kTECPartialCharErr = /* @__PURE__ */ _bind(FW, 'kTECPartialCharErr')
 export const kTECPluginCreator = /* @__PURE__ */ _bind(FW, 'kTECPluginCreator')
-export const kTECPluginDispatchTableCurrentVersion = /* @__PURE__ */ _bind(FW, 'kTECPluginDispatchTableCurrentVersion')
-export const kTECPluginDispatchTableVersion1 = /* @__PURE__ */ _bind(FW, 'kTECPluginDispatchTableVersion1')
-export const kTECPluginDispatchTableVersion1_1 = /* @__PURE__ */ _bind(FW, 'kTECPluginDispatchTableVersion1_1')
-export const kTECPluginDispatchTableVersion1_2 = /* @__PURE__ */ _bind(FW, 'kTECPluginDispatchTableVersion1_2')
+export const kTECPluginDispatchTableCurrentVersion = /* @__PURE__ */ _bind(
+	FW,
+	'kTECPluginDispatchTableCurrentVersion',
+)
+
+export const kTECPluginDispatchTableVersion1 = /* @__PURE__ */ _bind(
+	FW,
+	'kTECPluginDispatchTableVersion1',
+)
+
+export const kTECPluginDispatchTableVersion1_1 = /* @__PURE__ */ _bind(
+	FW,
+	'kTECPluginDispatchTableVersion1_1',
+)
+
+export const kTECPluginDispatchTableVersion1_2 = /* @__PURE__ */ _bind(
+	FW,
+	'kTECPluginDispatchTableVersion1_2',
+)
+
 export const kTECPluginManyToOne = /* @__PURE__ */ _bind(FW, 'kTECPluginManyToOne')
 export const kTECPluginOneToMany = /* @__PURE__ */ _bind(FW, 'kTECPluginOneToMany')
 export const kTECPluginOneToOne = /* @__PURE__ */ _bind(FW, 'kTECPluginOneToOne')
 export const kTECPluginSniffObj = /* @__PURE__ */ _bind(FW, 'kTECPluginSniffObj')
 export const kTECPluginType = /* @__PURE__ */ _bind(FW, 'kTECPluginType')
 export const kTECPreferredEncodingFixBit = /* @__PURE__ */ _bind(FW, 'kTECPreferredEncodingFixBit')
-export const kTECPreferredEncodingFixMask = /* @__PURE__ */ _bind(FW, 'kTECPreferredEncodingFixMask')
+export const kTECPreferredEncodingFixMask = /* @__PURE__ */ _bind(
+	FW,
+	'kTECPreferredEncodingFixMask',
+)
+
 export const kTECResourceID = /* @__PURE__ */ _bind(FW, 'kTECResourceID')
 export const kTECSignature = /* @__PURE__ */ _bind(FW, 'kTECSignature')
 export const kTECSubTextEncodingsResType = /* @__PURE__ */ _bind(FW, 'kTECSubTextEncodingsResType')
@@ -6690,7 +10239,11 @@ export const kTECTableFormatErr = /* @__PURE__ */ _bind(FW, 'kTECTableFormatErr'
 export const kTECTextRunBitClearFixBit = /* @__PURE__ */ _bind(FW, 'kTECTextRunBitClearFixBit')
 export const kTECTextRunBitClearFixMask = /* @__PURE__ */ _bind(FW, 'kTECTextRunBitClearFixMask')
 export const kTECTextToUnicodeScanFixBit = /* @__PURE__ */ _bind(FW, 'kTECTextToUnicodeScanFixBit')
-export const kTECTextToUnicodeScanFixMask = /* @__PURE__ */ _bind(FW, 'kTECTextToUnicodeScanFixMask')
+export const kTECTextToUnicodeScanFixMask = /* @__PURE__ */ _bind(
+	FW,
+	'kTECTextToUnicodeScanFixMask',
+)
+
 export const kTECUnicodePluginSignature = /* @__PURE__ */ _bind(FW, 'kTECUnicodePluginSignature')
 export const kTECUnmappableElementErr = /* @__PURE__ */ _bind(FW, 'kTECUnmappableElementErr')
 export const kTECUsedFallbacksStatus = /* @__PURE__ */ _bind(FW, 'kTECUsedFallbacksStatus')
@@ -6703,7 +10256,11 @@ export const kTSMHiliteConvertedText = /* @__PURE__ */ _bind(FW, 'kTSMHiliteConv
 export const kTSMHiliteNoHilite = /* @__PURE__ */ _bind(FW, 'kTSMHiliteNoHilite')
 export const kTSMHiliteOutlineText = /* @__PURE__ */ _bind(FW, 'kTSMHiliteOutlineText')
 export const kTSMHiliteRawText = /* @__PURE__ */ _bind(FW, 'kTSMHiliteRawText')
-export const kTSMHiliteSelectedConvertedText = /* @__PURE__ */ _bind(FW, 'kTSMHiliteSelectedConvertedText')
+export const kTSMHiliteSelectedConvertedText = /* @__PURE__ */ _bind(
+	FW,
+	'kTSMHiliteSelectedConvertedText',
+)
+
 export const kTSMHiliteSelectedRawText = /* @__PURE__ */ _bind(FW, 'kTSMHiliteSelectedRawText')
 export const kTSMHiliteSelectedText = /* @__PURE__ */ _bind(FW, 'kTSMHiliteSelectedText')
 export const kTSMInsideOfActiveInputArea = /* @__PURE__ */ _bind(FW, 'kTSMInsideOfActiveInputArea')
@@ -6711,41 +10268,101 @@ export const kTSMInsideOfBody = /* @__PURE__ */ _bind(FW, 'kTSMInsideOfBody')
 export const kTSMOutsideOfBody = /* @__PURE__ */ _bind(FW, 'kTSMOutsideOfBody')
 export const kTXNATSUIIsNotInstalledErr = /* @__PURE__ */ _bind(FW, 'kTXNATSUIIsNotInstalledErr')
 export const kTXNAlreadyInitializedErr = /* @__PURE__ */ _bind(FW, 'kTXNAlreadyInitializedErr')
-export const kTXNAttributeTagInvalidForRunErr = /* @__PURE__ */ _bind(FW, 'kTXNAttributeTagInvalidForRunErr')
-export const kTXNBadDefaultFileTypeWarning = /* @__PURE__ */ _bind(FW, 'kTXNBadDefaultFileTypeWarning')
+export const kTXNAttributeTagInvalidForRunErr = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNAttributeTagInvalidForRunErr',
+)
+
+export const kTXNBadDefaultFileTypeWarning = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNBadDefaultFileTypeWarning',
+)
+
 export const kTXNCannotAddFrameErr = /* @__PURE__ */ _bind(FW, 'kTXNCannotAddFrameErr')
 export const kTXNCannotSetAutoIndentErr = /* @__PURE__ */ _bind(FW, 'kTXNCannotSetAutoIndentErr')
-export const kTXNCannotTurnTSMOffWhenUsingUnicodeErr = /* @__PURE__ */ _bind(FW, 'kTXNCannotTurnTSMOffWhenUsingUnicodeErr')
-export const kTXNCopyNotAllowedInEchoModeErr = /* @__PURE__ */ _bind(FW, 'kTXNCopyNotAllowedInEchoModeErr')
+export const kTXNCannotTurnTSMOffWhenUsingUnicodeErr = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNCannotTurnTSMOffWhenUsingUnicodeErr',
+)
+
+export const kTXNCopyNotAllowedInEchoModeErr = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNCopyNotAllowedInEchoModeErr',
+)
+
 export const kTXNDataTypeNotAllowedErr = /* @__PURE__ */ _bind(FW, 'kTXNDataTypeNotAllowedErr')
 export const kTXNEndIterationErr = /* @__PURE__ */ _bind(FW, 'kTXNEndIterationErr')
-export const kTXNIllegalToCrossDataBoundariesErr = /* @__PURE__ */ _bind(FW, 'kTXNIllegalToCrossDataBoundariesErr')
+export const kTXNIllegalToCrossDataBoundariesErr = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNIllegalToCrossDataBoundariesErr',
+)
+
 export const kTXNInvalidFrameIDErr = /* @__PURE__ */ _bind(FW, 'kTXNInvalidFrameIDErr')
 export const kTXNInvalidRunIndex = /* @__PURE__ */ _bind(FW, 'kTXNInvalidRunIndex')
 export const kTXNNoMatchErr = /* @__PURE__ */ _bind(FW, 'kTXNNoMatchErr')
 export const kTXNOutsideOfFrameErr = /* @__PURE__ */ _bind(FW, 'kTXNOutsideOfFrameErr')
 export const kTXNOutsideOfLineErr = /* @__PURE__ */ _bind(FW, 'kTXNOutsideOfLineErr')
 export const kTXNRunIndexOutofBoundsErr = /* @__PURE__ */ _bind(FW, 'kTXNRunIndexOutofBoundsErr')
-export const kTXNSomeOrAllTagsInvalidForRunErr = /* @__PURE__ */ _bind(FW, 'kTXNSomeOrAllTagsInvalidForRunErr')
-export const kTXNUserCanceledOperationErr = /* @__PURE__ */ _bind(FW, 'kTXNUserCanceledOperationErr')
+export const kTXNSomeOrAllTagsInvalidForRunErr = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNSomeOrAllTagsInvalidForRunErr',
+)
+
+export const kTXNUserCanceledOperationErr = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNUserCanceledOperationErr',
+)
+
 export const kTaskCreationException = /* @__PURE__ */ _bind(FW, 'kTaskCreationException')
 export const kTaskTerminationException = /* @__PURE__ */ _bind(FW, 'kTaskTerminationException')
 export const kTemporaryFolderType = /* @__PURE__ */ _bind(FW, 'kTemporaryFolderType')
-export const kTemporaryItemsInCacheDataFolderType = /* @__PURE__ */ _bind(FW, 'kTemporaryItemsInCacheDataFolderType')
-export const kTemporaryItemsInUserDomainFolderType = /* @__PURE__ */ _bind(FW, 'kTemporaryItemsInUserDomainFolderType')
+export const kTemporaryItemsInCacheDataFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kTemporaryItemsInCacheDataFolderType',
+)
+
+export const kTemporaryItemsInUserDomainFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kTemporaryItemsInUserDomainFolderType',
+)
+
 export const kTextCenter = /* @__PURE__ */ _bind(FW, 'kTextCenter')
 export const kTextEncodingANSEL = /* @__PURE__ */ _bind(FW, 'kTextEncodingANSEL')
 export const kTextEncodingBaseName = /* @__PURE__ */ _bind(FW, 'kTextEncodingBaseName')
 export const kTextEncodingBig5 = /* @__PURE__ */ _bind(FW, 'kTextEncodingBig5')
 export const kTextEncodingBig5_E = /* @__PURE__ */ _bind(FW, 'kTextEncodingBig5_E')
-export const kTextEncodingBig5_HKSCS_1999 = /* @__PURE__ */ _bind(FW, 'kTextEncodingBig5_HKSCS_1999')
-export const kTextEncodingCNS_11643_92_P1 = /* @__PURE__ */ _bind(FW, 'kTextEncodingCNS_11643_92_P1')
-export const kTextEncodingCNS_11643_92_P2 = /* @__PURE__ */ _bind(FW, 'kTextEncodingCNS_11643_92_P2')
-export const kTextEncodingCNS_11643_92_P3 = /* @__PURE__ */ _bind(FW, 'kTextEncodingCNS_11643_92_P3')
+export const kTextEncodingBig5_HKSCS_1999 = /* @__PURE__ */ _bind(
+	FW,
+	'kTextEncodingBig5_HKSCS_1999',
+)
+
+export const kTextEncodingCNS_11643_92_P1 = /* @__PURE__ */ _bind(
+	FW,
+	'kTextEncodingCNS_11643_92_P1',
+)
+
+export const kTextEncodingCNS_11643_92_P2 = /* @__PURE__ */ _bind(
+	FW,
+	'kTextEncodingCNS_11643_92_P2',
+)
+
+export const kTextEncodingCNS_11643_92_P3 = /* @__PURE__ */ _bind(
+	FW,
+	'kTextEncodingCNS_11643_92_P3',
+)
+
 export const kTextEncodingDOSArabic = /* @__PURE__ */ _bind(FW, 'kTextEncodingDOSArabic')
 export const kTextEncodingDOSBalticRim = /* @__PURE__ */ _bind(FW, 'kTextEncodingDOSBalticRim')
-export const kTextEncodingDOSCanadianFrench = /* @__PURE__ */ _bind(FW, 'kTextEncodingDOSCanadianFrench')
-export const kTextEncodingDOSChineseSimplif = /* @__PURE__ */ _bind(FW, 'kTextEncodingDOSChineseSimplif')
+export const kTextEncodingDOSCanadianFrench = /* @__PURE__ */ _bind(
+	FW,
+	'kTextEncodingDOSCanadianFrench',
+)
+
+export const kTextEncodingDOSChineseSimplif = /* @__PURE__ */ _bind(
+	FW,
+	'kTextEncodingDOSChineseSimplif',
+)
+
 export const kTextEncodingDOSChineseTrad = /* @__PURE__ */ _bind(FW, 'kTextEncodingDOSChineseTrad')
 export const kTextEncodingDOSCyrillic = /* @__PURE__ */ _bind(FW, 'kTextEncodingDOSCyrillic')
 export const kTextEncodingDOSGreek = /* @__PURE__ */ _bind(FW, 'kTextEncodingDOSGreek')
@@ -6766,7 +10383,11 @@ export const kTextEncodingDOSTurkish = /* @__PURE__ */ _bind(FW, 'kTextEncodingD
 export const kTextEncodingDefaultFormat = /* @__PURE__ */ _bind(FW, 'kTextEncodingDefaultFormat')
 export const kTextEncodingDefaultVariant = /* @__PURE__ */ _bind(FW, 'kTextEncodingDefaultVariant')
 export const kTextEncodingEBCDIC_CP037 = /* @__PURE__ */ _bind(FW, 'kTextEncodingEBCDIC_CP037')
-export const kTextEncodingEBCDIC_LatinCore = /* @__PURE__ */ _bind(FW, 'kTextEncodingEBCDIC_LatinCore')
+export const kTextEncodingEBCDIC_LatinCore = /* @__PURE__ */ _bind(
+	FW,
+	'kTextEncodingEBCDIC_LatinCore',
+)
+
 export const kTextEncodingEBCDIC_US = /* @__PURE__ */ _bind(FW, 'kTextEncodingEBCDIC_US')
 export const kTextEncodingEUC_CN = /* @__PURE__ */ _bind(FW, 'kTextEncodingEUC_CN')
 export const kTextEncodingEUC_JP = /* @__PURE__ */ _bind(FW, 'kTextEncodingEUC_JP')
@@ -6791,11 +10412,19 @@ export const kTextEncodingISOLatin7 = /* @__PURE__ */ _bind(FW, 'kTextEncodingIS
 export const kTextEncodingISOLatin8 = /* @__PURE__ */ _bind(FW, 'kTextEncodingISOLatin8')
 export const kTextEncodingISOLatin9 = /* @__PURE__ */ _bind(FW, 'kTextEncodingISOLatin9')
 export const kTextEncodingISOLatinArabic = /* @__PURE__ */ _bind(FW, 'kTextEncodingISOLatinArabic')
-export const kTextEncodingISOLatinCyrillic = /* @__PURE__ */ _bind(FW, 'kTextEncodingISOLatinCyrillic')
+export const kTextEncodingISOLatinCyrillic = /* @__PURE__ */ _bind(
+	FW,
+	'kTextEncodingISOLatinCyrillic',
+)
+
 export const kTextEncodingISOLatinGreek = /* @__PURE__ */ _bind(FW, 'kTextEncodingISOLatinGreek')
 export const kTextEncodingISOLatinHebrew = /* @__PURE__ */ _bind(FW, 'kTextEncodingISOLatinHebrew')
 export const kTextEncodingISO_2022_CN = /* @__PURE__ */ _bind(FW, 'kTextEncodingISO_2022_CN')
-export const kTextEncodingISO_2022_CN_EXT = /* @__PURE__ */ _bind(FW, 'kTextEncodingISO_2022_CN_EXT')
+export const kTextEncodingISO_2022_CN_EXT = /* @__PURE__ */ _bind(
+	FW,
+	'kTextEncodingISO_2022_CN_EXT',
+)
+
 export const kTextEncodingISO_2022_JP = /* @__PURE__ */ _bind(FW, 'kTextEncodingISO_2022_JP')
 export const kTextEncodingISO_2022_JP_1 = /* @__PURE__ */ _bind(FW, 'kTextEncodingISO_2022_JP_1')
 export const kTextEncodingISO_2022_JP_2 = /* @__PURE__ */ _bind(FW, 'kTextEncodingISO_2022_JP_2')
@@ -6806,24 +10435,40 @@ export const kTextEncodingJIS_X0201_76 = /* @__PURE__ */ _bind(FW, 'kTextEncodin
 export const kTextEncodingJIS_X0208_83 = /* @__PURE__ */ _bind(FW, 'kTextEncodingJIS_X0208_83')
 export const kTextEncodingJIS_X0208_90 = /* @__PURE__ */ _bind(FW, 'kTextEncodingJIS_X0208_90')
 export const kTextEncodingJIS_X0212_90 = /* @__PURE__ */ _bind(FW, 'kTextEncodingJIS_X0212_90')
-export const kTextEncodingJIS_X0213_MenKuTen = /* @__PURE__ */ _bind(FW, 'kTextEncodingJIS_X0213_MenKuTen')
+export const kTextEncodingJIS_X0213_MenKuTen = /* @__PURE__ */ _bind(
+	FW,
+	'kTextEncodingJIS_X0213_MenKuTen',
+)
+
 export const kTextEncodingKOI8_R = /* @__PURE__ */ _bind(FW, 'kTextEncodingKOI8_R')
 export const kTextEncodingKOI8_U = /* @__PURE__ */ _bind(FW, 'kTextEncodingKOI8_U')
 export const kTextEncodingKSC_5601_87 = /* @__PURE__ */ _bind(FW, 'kTextEncodingKSC_5601_87')
-export const kTextEncodingKSC_5601_92_Johab = /* @__PURE__ */ _bind(FW, 'kTextEncodingKSC_5601_92_Johab')
+export const kTextEncodingKSC_5601_92_Johab = /* @__PURE__ */ _bind(
+	FW,
+	'kTextEncodingKSC_5601_92_Johab',
+)
+
 export const kTextEncodingMacArabic = /* @__PURE__ */ _bind(FW, 'kTextEncodingMacArabic')
 export const kTextEncodingMacArmenian = /* @__PURE__ */ _bind(FW, 'kTextEncodingMacArmenian')
 export const kTextEncodingMacBengali = /* @__PURE__ */ _bind(FW, 'kTextEncodingMacBengali')
 export const kTextEncodingMacBurmese = /* @__PURE__ */ _bind(FW, 'kTextEncodingMacBurmese')
 export const kTextEncodingMacCeltic = /* @__PURE__ */ _bind(FW, 'kTextEncodingMacCeltic')
-export const kTextEncodingMacCentralEurRoman = /* @__PURE__ */ _bind(FW, 'kTextEncodingMacCentralEurRoman')
+export const kTextEncodingMacCentralEurRoman = /* @__PURE__ */ _bind(
+	FW,
+	'kTextEncodingMacCentralEurRoman',
+)
+
 export const kTextEncodingMacChineseSimp = /* @__PURE__ */ _bind(FW, 'kTextEncodingMacChineseSimp')
 export const kTextEncodingMacChineseTrad = /* @__PURE__ */ _bind(FW, 'kTextEncodingMacChineseTrad')
 export const kTextEncodingMacCroatian = /* @__PURE__ */ _bind(FW, 'kTextEncodingMacCroatian')
 export const kTextEncodingMacCyrillic = /* @__PURE__ */ _bind(FW, 'kTextEncodingMacCyrillic')
 export const kTextEncodingMacDevanagari = /* @__PURE__ */ _bind(FW, 'kTextEncodingMacDevanagari')
 export const kTextEncodingMacDingbats = /* @__PURE__ */ _bind(FW, 'kTextEncodingMacDingbats')
-export const kTextEncodingMacEastEurRoman = /* @__PURE__ */ _bind(FW, 'kTextEncodingMacEastEurRoman')
+export const kTextEncodingMacEastEurRoman = /* @__PURE__ */ _bind(
+	FW,
+	'kTextEncodingMacEastEurRoman',
+)
+
 export const kTextEncodingMacEthiopic = /* @__PURE__ */ _bind(FW, 'kTextEncodingMacEthiopic')
 export const kTextEncodingMacExtArabic = /* @__PURE__ */ _bind(FW, 'kTextEncodingMacExtArabic')
 export const kTextEncodingMacFarsi = /* @__PURE__ */ _bind(FW, 'kTextEncodingMacFarsi')
@@ -6839,7 +10484,11 @@ export const kTextEncodingMacIcelandic = /* @__PURE__ */ _bind(FW, 'kTextEncodin
 export const kTextEncodingMacInuit = /* @__PURE__ */ _bind(FW, 'kTextEncodingMacInuit')
 export const kTextEncodingMacJapanese = /* @__PURE__ */ _bind(FW, 'kTextEncodingMacJapanese')
 export const kTextEncodingMacKannada = /* @__PURE__ */ _bind(FW, 'kTextEncodingMacKannada')
-export const kTextEncodingMacKeyboardGlyphs = /* @__PURE__ */ _bind(FW, 'kTextEncodingMacKeyboardGlyphs')
+export const kTextEncodingMacKeyboardGlyphs = /* @__PURE__ */ _bind(
+	FW,
+	'kTextEncodingMacKeyboardGlyphs',
+)
+
 export const kTextEncodingMacKhmer = /* @__PURE__ */ _bind(FW, 'kTextEncodingMacKhmer')
 export const kTextEncodingMacKorean = /* @__PURE__ */ _bind(FW, 'kTextEncodingMacKorean')
 export const kTextEncodingMacLaotian = /* @__PURE__ */ _bind(FW, 'kTextEncodingMacLaotian')
@@ -6865,11 +10514,19 @@ export const kTextEncodingMacUninterp = /* @__PURE__ */ _bind(FW, 'kTextEncoding
 export const kTextEncodingMacVT100 = /* @__PURE__ */ _bind(FW, 'kTextEncodingMacVT100')
 export const kTextEncodingMacVietnamese = /* @__PURE__ */ _bind(FW, 'kTextEncodingMacVietnamese')
 export const kTextEncodingMultiRun = /* @__PURE__ */ _bind(FW, 'kTextEncodingMultiRun')
-export const kTextEncodingNextStepJapanese = /* @__PURE__ */ _bind(FW, 'kTextEncodingNextStepJapanese')
+export const kTextEncodingNextStepJapanese = /* @__PURE__ */ _bind(
+	FW,
+	'kTextEncodingNextStepJapanese',
+)
+
 export const kTextEncodingNextStepLatin = /* @__PURE__ */ _bind(FW, 'kTextEncodingNextStepLatin')
 export const kTextEncodingShiftJIS = /* @__PURE__ */ _bind(FW, 'kTextEncodingShiftJIS')
 export const kTextEncodingShiftJIS_X0213 = /* @__PURE__ */ _bind(FW, 'kTextEncodingShiftJIS_X0213')
-export const kTextEncodingShiftJIS_X0213_00 = /* @__PURE__ */ _bind(FW, 'kTextEncodingShiftJIS_X0213_00')
+export const kTextEncodingShiftJIS_X0213_00 = /* @__PURE__ */ _bind(
+	FW,
+	'kTextEncodingShiftJIS_X0213_00',
+)
+
 export const kTextEncodingUS_ASCII = /* @__PURE__ */ _bind(FW, 'kTextEncodingUS_ASCII')
 export const kTextEncodingUnicodeDefault = /* @__PURE__ */ _bind(FW, 'kTextEncodingUnicodeDefault')
 export const kTextEncodingUnicodeV10_0 = /* @__PURE__ */ _bind(FW, 'kTextEncodingUnicodeV10_0')
@@ -6899,15 +10556,31 @@ export const kTextEncodingVISCII = /* @__PURE__ */ _bind(FW, 'kTextEncodingVISCI
 export const kTextEncodingVariantName = /* @__PURE__ */ _bind(FW, 'kTextEncodingVariantName')
 export const kTextEncodingWindowsANSI = /* @__PURE__ */ _bind(FW, 'kTextEncodingWindowsANSI')
 export const kTextEncodingWindowsArabic = /* @__PURE__ */ _bind(FW, 'kTextEncodingWindowsArabic')
-export const kTextEncodingWindowsBalticRim = /* @__PURE__ */ _bind(FW, 'kTextEncodingWindowsBalticRim')
-export const kTextEncodingWindowsCyrillic = /* @__PURE__ */ _bind(FW, 'kTextEncodingWindowsCyrillic')
+export const kTextEncodingWindowsBalticRim = /* @__PURE__ */ _bind(
+	FW,
+	'kTextEncodingWindowsBalticRim',
+)
+
+export const kTextEncodingWindowsCyrillic = /* @__PURE__ */ _bind(
+	FW,
+	'kTextEncodingWindowsCyrillic',
+)
+
 export const kTextEncodingWindowsGreek = /* @__PURE__ */ _bind(FW, 'kTextEncodingWindowsGreek')
 export const kTextEncodingWindowsHebrew = /* @__PURE__ */ _bind(FW, 'kTextEncodingWindowsHebrew')
-export const kTextEncodingWindowsKoreanJohab = /* @__PURE__ */ _bind(FW, 'kTextEncodingWindowsKoreanJohab')
+export const kTextEncodingWindowsKoreanJohab = /* @__PURE__ */ _bind(
+	FW,
+	'kTextEncodingWindowsKoreanJohab',
+)
+
 export const kTextEncodingWindowsLatin1 = /* @__PURE__ */ _bind(FW, 'kTextEncodingWindowsLatin1')
 export const kTextEncodingWindowsLatin2 = /* @__PURE__ */ _bind(FW, 'kTextEncodingWindowsLatin2')
 export const kTextEncodingWindowsLatin5 = /* @__PURE__ */ _bind(FW, 'kTextEncodingWindowsLatin5')
-export const kTextEncodingWindowsVietnamese = /* @__PURE__ */ _bind(FW, 'kTextEncodingWindowsVietnamese')
+export const kTextEncodingWindowsVietnamese = /* @__PURE__ */ _bind(
+	FW,
+	'kTextEncodingWindowsVietnamese',
+)
+
 export const kTextEncodingsFolderIcon = /* @__PURE__ */ _bind(FW, 'kTextEncodingsFolderIcon')
 export const kTextEncodingsFolderType = /* @__PURE__ */ _bind(FW, 'kTextEncodingsFolderType')
 export const kTextFlushDefault = /* @__PURE__ */ _bind(FW, 'kTextFlushDefault')
@@ -6927,7 +10600,11 @@ export const kThumbnail8BitMask = /* @__PURE__ */ _bind(FW, 'kThumbnail8BitMask'
 export const kTileIconVariant = /* @__PURE__ */ _bind(FW, 'kTileIconVariant')
 export const kTooManyIOWindowsErr = /* @__PURE__ */ _bind(FW, 'kTooManyIOWindowsErr')
 export const kToolbarAdvancedIcon = /* @__PURE__ */ _bind(FW, 'kToolbarAdvancedIcon')
-export const kToolbarApplicationsFolderIcon = /* @__PURE__ */ _bind(FW, 'kToolbarApplicationsFolderIcon')
+export const kToolbarApplicationsFolderIcon = /* @__PURE__ */ _bind(
+	FW,
+	'kToolbarApplicationsFolderIcon',
+)
+
 export const kToolbarCustomizeIcon = /* @__PURE__ */ _bind(FW, 'kToolbarCustomizeIcon')
 export const kToolbarDeleteIcon = /* @__PURE__ */ _bind(FW, 'kToolbarDeleteIcon')
 export const kToolbarDesktopFolderIcon = /* @__PURE__ */ _bind(FW, 'kToolbarDesktopFolderIcon')
@@ -6958,43 +10635,111 @@ export const kTypeKCItemAttr = /* @__PURE__ */ _bind(FW, 'kTypeKCItemAttr')
 export const kUCBidiCatArabicNumber = /* @__PURE__ */ _bind(FW, 'kUCBidiCatArabicNumber')
 export const kUCBidiCatBlockSeparator = /* @__PURE__ */ _bind(FW, 'kUCBidiCatBlockSeparator')
 export const kUCBidiCatBoundaryNeutral = /* @__PURE__ */ _bind(FW, 'kUCBidiCatBoundaryNeutral')
-export const kUCBidiCatCommonNumberSeparator = /* @__PURE__ */ _bind(FW, 'kUCBidiCatCommonNumberSeparator')
+export const kUCBidiCatCommonNumberSeparator = /* @__PURE__ */ _bind(
+	FW,
+	'kUCBidiCatCommonNumberSeparator',
+)
+
 export const kUCBidiCatEuroNumber = /* @__PURE__ */ _bind(FW, 'kUCBidiCatEuroNumber')
-export const kUCBidiCatEuroNumberSeparator = /* @__PURE__ */ _bind(FW, 'kUCBidiCatEuroNumberSeparator')
-export const kUCBidiCatEuroNumberTerminator = /* @__PURE__ */ _bind(FW, 'kUCBidiCatEuroNumberTerminator')
-export const kUCBidiCatFirstStrongIsolate = /* @__PURE__ */ _bind(FW, 'kUCBidiCatFirstStrongIsolate')
+export const kUCBidiCatEuroNumberSeparator = /* @__PURE__ */ _bind(
+	FW,
+	'kUCBidiCatEuroNumberSeparator',
+)
+
+export const kUCBidiCatEuroNumberTerminator = /* @__PURE__ */ _bind(
+	FW,
+	'kUCBidiCatEuroNumberTerminator',
+)
+
+export const kUCBidiCatFirstStrongIsolate = /* @__PURE__ */ _bind(
+	FW,
+	'kUCBidiCatFirstStrongIsolate',
+)
+
 export const kUCBidiCatLeftRight = /* @__PURE__ */ _bind(FW, 'kUCBidiCatLeftRight')
-export const kUCBidiCatLeftRightEmbedding = /* @__PURE__ */ _bind(FW, 'kUCBidiCatLeftRightEmbedding')
+export const kUCBidiCatLeftRightEmbedding = /* @__PURE__ */ _bind(
+	FW,
+	'kUCBidiCatLeftRightEmbedding',
+)
+
 export const kUCBidiCatLeftRightIsolate = /* @__PURE__ */ _bind(FW, 'kUCBidiCatLeftRightIsolate')
 export const kUCBidiCatLeftRightOverride = /* @__PURE__ */ _bind(FW, 'kUCBidiCatLeftRightOverride')
 export const kUCBidiCatNonSpacingMark = /* @__PURE__ */ _bind(FW, 'kUCBidiCatNonSpacingMark')
 export const kUCBidiCatNotApplicable = /* @__PURE__ */ _bind(FW, 'kUCBidiCatNotApplicable')
 export const kUCBidiCatOtherNeutral = /* @__PURE__ */ _bind(FW, 'kUCBidiCatOtherNeutral')
-export const kUCBidiCatPopDirectionalFormat = /* @__PURE__ */ _bind(FW, 'kUCBidiCatPopDirectionalFormat')
-export const kUCBidiCatPopDirectionalIsolate = /* @__PURE__ */ _bind(FW, 'kUCBidiCatPopDirectionalIsolate')
+export const kUCBidiCatPopDirectionalFormat = /* @__PURE__ */ _bind(
+	FW,
+	'kUCBidiCatPopDirectionalFormat',
+)
+
+export const kUCBidiCatPopDirectionalIsolate = /* @__PURE__ */ _bind(
+	FW,
+	'kUCBidiCatPopDirectionalIsolate',
+)
+
 export const kUCBidiCatRightLeft = /* @__PURE__ */ _bind(FW, 'kUCBidiCatRightLeft')
 export const kUCBidiCatRightLeftArabic = /* @__PURE__ */ _bind(FW, 'kUCBidiCatRightLeftArabic')
-export const kUCBidiCatRightLeftEmbedding = /* @__PURE__ */ _bind(FW, 'kUCBidiCatRightLeftEmbedding')
+export const kUCBidiCatRightLeftEmbedding = /* @__PURE__ */ _bind(
+	FW,
+	'kUCBidiCatRightLeftEmbedding',
+)
+
 export const kUCBidiCatRightLeftIsolate = /* @__PURE__ */ _bind(FW, 'kUCBidiCatRightLeftIsolate')
 export const kUCBidiCatRightLeftOverride = /* @__PURE__ */ _bind(FW, 'kUCBidiCatRightLeftOverride')
 export const kUCBidiCatSegmentSeparator = /* @__PURE__ */ _bind(FW, 'kUCBidiCatSegmentSeparator')
 export const kUCBidiCatWhitespace = /* @__PURE__ */ _bind(FW, 'kUCBidiCatWhitespace')
 export const kUCCharPropTypeBidiCategory = /* @__PURE__ */ _bind(FW, 'kUCCharPropTypeBidiCategory')
-export const kUCCharPropTypeCombiningClass = /* @__PURE__ */ _bind(FW, 'kUCCharPropTypeCombiningClass')
-export const kUCCharPropTypeDecimalDigitValue = /* @__PURE__ */ _bind(FW, 'kUCCharPropTypeDecimalDigitValue')
+export const kUCCharPropTypeCombiningClass = /* @__PURE__ */ _bind(
+	FW,
+	'kUCCharPropTypeCombiningClass',
+)
+
+export const kUCCharPropTypeDecimalDigitValue = /* @__PURE__ */ _bind(
+	FW,
+	'kUCCharPropTypeDecimalDigitValue',
+)
+
 export const kUCCharPropTypeGenlCategory = /* @__PURE__ */ _bind(FW, 'kUCCharPropTypeGenlCategory')
-export const kUCCollateCaseInsensitiveMask = /* @__PURE__ */ _bind(FW, 'kUCCollateCaseInsensitiveMask')
-export const kUCCollateComposeInsensitiveMask = /* @__PURE__ */ _bind(FW, 'kUCCollateComposeInsensitiveMask')
-export const kUCCollateDiacritInsensitiveMask = /* @__PURE__ */ _bind(FW, 'kUCCollateDiacritInsensitiveMask')
-export const kUCCollateDigitsAsNumberMask = /* @__PURE__ */ _bind(FW, 'kUCCollateDigitsAsNumberMask')
-export const kUCCollateDigitsOverrideMask = /* @__PURE__ */ _bind(FW, 'kUCCollateDigitsOverrideMask')
-export const kUCCollatePunctuationSignificantMask = /* @__PURE__ */ _bind(FW, 'kUCCollatePunctuationSignificantMask')
+export const kUCCollateCaseInsensitiveMask = /* @__PURE__ */ _bind(
+	FW,
+	'kUCCollateCaseInsensitiveMask',
+)
+
+export const kUCCollateComposeInsensitiveMask = /* @__PURE__ */ _bind(
+	FW,
+	'kUCCollateComposeInsensitiveMask',
+)
+
+export const kUCCollateDiacritInsensitiveMask = /* @__PURE__ */ _bind(
+	FW,
+	'kUCCollateDiacritInsensitiveMask',
+)
+
+export const kUCCollateDigitsAsNumberMask = /* @__PURE__ */ _bind(
+	FW,
+	'kUCCollateDigitsAsNumberMask',
+)
+
+export const kUCCollateDigitsOverrideMask = /* @__PURE__ */ _bind(
+	FW,
+	'kUCCollateDigitsOverrideMask',
+)
+
+export const kUCCollatePunctuationSignificantMask = /* @__PURE__ */ _bind(
+	FW,
+	'kUCCollatePunctuationSignificantMask',
+)
+
 export const kUCCollateStandardOptions = /* @__PURE__ */ _bind(FW, 'kUCCollateStandardOptions')
 export const kUCCollateTypeHFSExtended = /* @__PURE__ */ _bind(FW, 'kUCCollateTypeHFSExtended')
 export const kUCCollateTypeMask = /* @__PURE__ */ _bind(FW, 'kUCCollateTypeMask')
 export const kUCCollateTypeShiftBits = /* @__PURE__ */ _bind(FW, 'kUCCollateTypeShiftBits')
 export const kUCCollateTypeSourceMask = /* @__PURE__ */ _bind(FW, 'kUCCollateTypeSourceMask')
-export const kUCCollateWidthInsensitiveMask = /* @__PURE__ */ _bind(FW, 'kUCCollateWidthInsensitiveMask')
+export const kUCCollateWidthInsensitiveMask = /* @__PURE__ */ _bind(
+	FW,
+	'kUCCollateWidthInsensitiveMask',
+)
+
 export const kUCGenlCatLetterLowercase = /* @__PURE__ */ _bind(FW, 'kUCGenlCatLetterLowercase')
 export const kUCGenlCatLetterModifier = /* @__PURE__ */ _bind(FW, 'kUCGenlCatLetterModifier')
 export const kUCGenlCatLetterOther = /* @__PURE__ */ _bind(FW, 'kUCGenlCatLetterOther')
@@ -7002,8 +10747,16 @@ export const kUCGenlCatLetterTitlecase = /* @__PURE__ */ _bind(FW, 'kUCGenlCatLe
 export const kUCGenlCatLetterUppercase = /* @__PURE__ */ _bind(FW, 'kUCGenlCatLetterUppercase')
 export const kUCGenlCatMarkEnclosing = /* @__PURE__ */ _bind(FW, 'kUCGenlCatMarkEnclosing')
 export const kUCGenlCatMarkNonSpacing = /* @__PURE__ */ _bind(FW, 'kUCGenlCatMarkNonSpacing')
-export const kUCGenlCatMarkSpacingCombining = /* @__PURE__ */ _bind(FW, 'kUCGenlCatMarkSpacingCombining')
-export const kUCGenlCatNumberDecimalDigit = /* @__PURE__ */ _bind(FW, 'kUCGenlCatNumberDecimalDigit')
+export const kUCGenlCatMarkSpacingCombining = /* @__PURE__ */ _bind(
+	FW,
+	'kUCGenlCatMarkSpacingCombining',
+)
+
+export const kUCGenlCatNumberDecimalDigit = /* @__PURE__ */ _bind(
+	FW,
+	'kUCGenlCatNumberDecimalDigit',
+)
+
 export const kUCGenlCatNumberLetter = /* @__PURE__ */ _bind(FW, 'kUCGenlCatNumberLetter')
 export const kUCGenlCatNumberOther = /* @__PURE__ */ _bind(FW, 'kUCGenlCatNumberOther')
 export const kUCGenlCatOtherControl = /* @__PURE__ */ _bind(FW, 'kUCGenlCatOtherControl')
@@ -7019,7 +10772,11 @@ export const kUCGenlCatPunctInitialQuote = /* @__PURE__ */ _bind(FW, 'kUCGenlCat
 export const kUCGenlCatPunctOpen = /* @__PURE__ */ _bind(FW, 'kUCGenlCatPunctOpen')
 export const kUCGenlCatPunctOther = /* @__PURE__ */ _bind(FW, 'kUCGenlCatPunctOther')
 export const kUCGenlCatSeparatorLine = /* @__PURE__ */ _bind(FW, 'kUCGenlCatSeparatorLine')
-export const kUCGenlCatSeparatorParagraph = /* @__PURE__ */ _bind(FW, 'kUCGenlCatSeparatorParagraph')
+export const kUCGenlCatSeparatorParagraph = /* @__PURE__ */ _bind(
+	FW,
+	'kUCGenlCatSeparatorParagraph',
+)
+
 export const kUCGenlCatSeparatorSpace = /* @__PURE__ */ _bind(FW, 'kUCGenlCatSeparatorSpace')
 export const kUCGenlCatSymbolCurrency = /* @__PURE__ */ _bind(FW, 'kUCGenlCatSymbolCurrency')
 export const kUCGenlCatSymbolMath = /* @__PURE__ */ _bind(FW, 'kUCGenlCatSymbolMath')
@@ -7031,30 +10788,82 @@ export const kUCKeyActionAutoKey = /* @__PURE__ */ _bind(FW, 'kUCKeyActionAutoKe
 export const kUCKeyActionDisplay = /* @__PURE__ */ _bind(FW, 'kUCKeyActionDisplay')
 export const kUCKeyActionDown = /* @__PURE__ */ _bind(FW, 'kUCKeyActionDown')
 export const kUCKeyActionUp = /* @__PURE__ */ _bind(FW, 'kUCKeyActionUp')
-export const kUCKeyLayoutFeatureInfoFormat = /* @__PURE__ */ _bind(FW, 'kUCKeyLayoutFeatureInfoFormat')
+export const kUCKeyLayoutFeatureInfoFormat = /* @__PURE__ */ _bind(
+	FW,
+	'kUCKeyLayoutFeatureInfoFormat',
+)
+
 export const kUCKeyLayoutHeaderFormat = /* @__PURE__ */ _bind(FW, 'kUCKeyLayoutHeaderFormat')
-export const kUCKeyModifiersToTableNumFormat = /* @__PURE__ */ _bind(FW, 'kUCKeyModifiersToTableNumFormat')
+export const kUCKeyModifiersToTableNumFormat = /* @__PURE__ */ _bind(
+	FW,
+	'kUCKeyModifiersToTableNumFormat',
+)
+
 export const kUCKeyOutputGetIndexMask = /* @__PURE__ */ _bind(FW, 'kUCKeyOutputGetIndexMask')
-export const kUCKeyOutputSequenceIndexMask = /* @__PURE__ */ _bind(FW, 'kUCKeyOutputSequenceIndexMask')
+export const kUCKeyOutputSequenceIndexMask = /* @__PURE__ */ _bind(
+	FW,
+	'kUCKeyOutputSequenceIndexMask',
+)
+
 export const kUCKeyOutputStateIndexMask = /* @__PURE__ */ _bind(FW, 'kUCKeyOutputStateIndexMask')
-export const kUCKeyOutputTestForIndexMask = /* @__PURE__ */ _bind(FW, 'kUCKeyOutputTestForIndexMask')
-export const kUCKeySequenceDataIndexFormat = /* @__PURE__ */ _bind(FW, 'kUCKeySequenceDataIndexFormat')
+export const kUCKeyOutputTestForIndexMask = /* @__PURE__ */ _bind(
+	FW,
+	'kUCKeyOutputTestForIndexMask',
+)
+
+export const kUCKeySequenceDataIndexFormat = /* @__PURE__ */ _bind(
+	FW,
+	'kUCKeySequenceDataIndexFormat',
+)
+
 export const kUCKeyStateEntryRangeFormat = /* @__PURE__ */ _bind(FW, 'kUCKeyStateEntryRangeFormat')
-export const kUCKeyStateEntryTerminalFormat = /* @__PURE__ */ _bind(FW, 'kUCKeyStateEntryTerminalFormat')
-export const kUCKeyStateRecordsIndexFormat = /* @__PURE__ */ _bind(FW, 'kUCKeyStateRecordsIndexFormat')
-export const kUCKeyStateTerminatorsFormat = /* @__PURE__ */ _bind(FW, 'kUCKeyStateTerminatorsFormat')
-export const kUCKeyToCharTableIndexFormat = /* @__PURE__ */ _bind(FW, 'kUCKeyToCharTableIndexFormat')
-export const kUCKeyTranslateNoDeadKeysBit = /* @__PURE__ */ _bind(FW, 'kUCKeyTranslateNoDeadKeysBit')
-export const kUCKeyTranslateNoDeadKeysMask = /* @__PURE__ */ _bind(FW, 'kUCKeyTranslateNoDeadKeysMask')
+export const kUCKeyStateEntryTerminalFormat = /* @__PURE__ */ _bind(
+	FW,
+	'kUCKeyStateEntryTerminalFormat',
+)
+
+export const kUCKeyStateRecordsIndexFormat = /* @__PURE__ */ _bind(
+	FW,
+	'kUCKeyStateRecordsIndexFormat',
+)
+
+export const kUCKeyStateTerminatorsFormat = /* @__PURE__ */ _bind(
+	FW,
+	'kUCKeyStateTerminatorsFormat',
+)
+
+export const kUCKeyToCharTableIndexFormat = /* @__PURE__ */ _bind(
+	FW,
+	'kUCKeyToCharTableIndexFormat',
+)
+
+export const kUCKeyTranslateNoDeadKeysBit = /* @__PURE__ */ _bind(
+	FW,
+	'kUCKeyTranslateNoDeadKeysBit',
+)
+
+export const kUCKeyTranslateNoDeadKeysMask = /* @__PURE__ */ _bind(
+	FW,
+	'kUCKeyTranslateNoDeadKeysMask',
+)
+
 export const kUCLowSurrogateRangeEnd = /* @__PURE__ */ _bind(FW, 'kUCLowSurrogateRangeEnd')
 export const kUCLowSurrogateRangeStart = /* @__PURE__ */ _bind(FW, 'kUCLowSurrogateRangeStart')
 export const kUCOutputBufferTooSmall = /* @__PURE__ */ _bind(FW, 'kUCOutputBufferTooSmall')
 export const kUCTSDirectionNext = /* @__PURE__ */ _bind(FW, 'kUCTSDirectionNext')
 export const kUCTSDirectionPrevious = /* @__PURE__ */ _bind(FW, 'kUCTSDirectionPrevious')
 export const kUCTSNoKeysAddedToObjectErr = /* @__PURE__ */ _bind(FW, 'kUCTSNoKeysAddedToObjectErr')
-export const kUCTSOptionsDataIsOrderedMask = /* @__PURE__ */ _bind(FW, 'kUCTSOptionsDataIsOrderedMask')
+export const kUCTSOptionsDataIsOrderedMask = /* @__PURE__ */ _bind(
+	FW,
+	'kUCTSOptionsDataIsOrderedMask',
+)
+
 export const kUCTSOptionsNoneMask = /* @__PURE__ */ _bind(FW, 'kUCTSOptionsNoneMask')
-export const kUCTSOptionsReleaseStringMask = /* @__PURE__ */ _bind(FW, 'kUCTSOptionsReleaseStringMask')
+export const kUCTSOptionsReleaseStringMask = /* @__PURE__ */ _bind(
+	FW,
+	'kUCTSOptionsReleaseStringMask',
+)
+
 export const kUCTSSearchListErr = /* @__PURE__ */ _bind(FW, 'kUCTSSearchListErr')
 export const kUCTextBreakCharMask = /* @__PURE__ */ _bind(FW, 'kUCTextBreakCharMask')
 export const kUCTextBreakClusterMask = /* @__PURE__ */ _bind(FW, 'kUCTextBreakClusterMask')
@@ -7062,11 +10871,19 @@ export const kUCTextBreakGoBackwardsMask = /* @__PURE__ */ _bind(FW, 'kUCTextBre
 export const kUCTextBreakIterateMask = /* @__PURE__ */ _bind(FW, 'kUCTextBreakIterateMask')
 export const kUCTextBreakLeadingEdgeMask = /* @__PURE__ */ _bind(FW, 'kUCTextBreakLeadingEdgeMask')
 export const kUCTextBreakLineMask = /* @__PURE__ */ _bind(FW, 'kUCTextBreakLineMask')
-export const kUCTextBreakLocatorMissingType = /* @__PURE__ */ _bind(FW, 'kUCTextBreakLocatorMissingType')
+export const kUCTextBreakLocatorMissingType = /* @__PURE__ */ _bind(
+	FW,
+	'kUCTextBreakLocatorMissingType',
+)
+
 export const kUCTextBreakParagraphMask = /* @__PURE__ */ _bind(FW, 'kUCTextBreakParagraphMask')
 export const kUCTextBreakWordMask = /* @__PURE__ */ _bind(FW, 'kUCTextBreakWordMask')
 export const kUCTokenNotFound = /* @__PURE__ */ _bind(FW, 'kUCTokenNotFound')
-export const kUCTokenizerIterationFinished = /* @__PURE__ */ _bind(FW, 'kUCTokenizerIterationFinished')
+export const kUCTokenizerIterationFinished = /* @__PURE__ */ _bind(
+	FW,
+	'kUCTokenizerIterationFinished',
+)
+
 export const kUCTokenizerUnknownLang = /* @__PURE__ */ _bind(FW, 'kUCTokenizerUnknownLang')
 export const kUCTypeSelectMaxListSize = /* @__PURE__ */ _bind(FW, 'kUCTypeSelectMaxListSize')
 export const kURL68kNotSupportedError = /* @__PURE__ */ _bind(FW, 'kURL68kNotSupportedError')
@@ -7076,12 +10893,32 @@ export const kURLDestinationExistsError = /* @__PURE__ */ _bind(FW, 'kURLDestina
 export const kURLExtensionFailureError = /* @__PURE__ */ _bind(FW, 'kURLExtensionFailureError')
 export const kURLFileEmptyError = /* @__PURE__ */ _bind(FW, 'kURLFileEmptyError')
 export const kURLInvalidCallError = /* @__PURE__ */ _bind(FW, 'kURLInvalidCallError')
-export const kURLInvalidConfigurationError = /* @__PURE__ */ _bind(FW, 'kURLInvalidConfigurationError')
+export const kURLInvalidConfigurationError = /* @__PURE__ */ _bind(
+	FW,
+	'kURLInvalidConfigurationError',
+)
+
 export const kURLInvalidURLError = /* @__PURE__ */ _bind(FW, 'kURLInvalidURLError')
-export const kURLInvalidURLReferenceError = /* @__PURE__ */ _bind(FW, 'kURLInvalidURLReferenceError')
-export const kURLProgressAlreadyDisplayedError = /* @__PURE__ */ _bind(FW, 'kURLProgressAlreadyDisplayedError')
-export const kURLPropertyBufferTooSmallError = /* @__PURE__ */ _bind(FW, 'kURLPropertyBufferTooSmallError')
-export const kURLPropertyNotYetKnownError = /* @__PURE__ */ _bind(FW, 'kURLPropertyNotYetKnownError')
+export const kURLInvalidURLReferenceError = /* @__PURE__ */ _bind(
+	FW,
+	'kURLInvalidURLReferenceError',
+)
+
+export const kURLProgressAlreadyDisplayedError = /* @__PURE__ */ _bind(
+	FW,
+	'kURLProgressAlreadyDisplayedError',
+)
+
+export const kURLPropertyBufferTooSmallError = /* @__PURE__ */ _bind(
+	FW,
+	'kURLPropertyBufferTooSmallError',
+)
+
+export const kURLPropertyNotYetKnownError = /* @__PURE__ */ _bind(
+	FW,
+	'kURLPropertyNotYetKnownError',
+)
+
 export const kURLServerBusyError = /* @__PURE__ */ _bind(FW, 'kURLServerBusyError')
 export const kURLUnknownPropertyError = /* @__PURE__ */ _bind(FW, 'kURLUnknownPropertyError')
 export const kURLUnsettablePropertyError = /* @__PURE__ */ _bind(FW, 'kURLUnsettablePropertyError')
@@ -7154,9 +10991,21 @@ export const kUSBWrongPIDErr = /* @__PURE__ */ _bind(FW, 'kUSBWrongPIDErr')
 export const kUTCDefaultOptions = /* @__PURE__ */ _bind(FW, 'kUTCDefaultOptions')
 export const kUTCOverflowErr = /* @__PURE__ */ _bind(FW, 'kUTCOverflowErr')
 export const kUTCUnderflowErr = /* @__PURE__ */ _bind(FW, 'kUTCUnderflowErr')
-export const kUTExportedTypeDeclarationsKey = /* @__PURE__ */ _bind(FW, 'kUTExportedTypeDeclarationsKey')
-export const kUTImportedTypeDeclarationsKey = /* @__PURE__ */ _bind(FW, 'kUTImportedTypeDeclarationsKey')
-export const kUTTagClassFilenameExtension = /* @__PURE__ */ _bind(FW, 'kUTTagClassFilenameExtension')
+export const kUTExportedTypeDeclarationsKey = /* @__PURE__ */ _bind(
+	FW,
+	'kUTExportedTypeDeclarationsKey',
+)
+
+export const kUTImportedTypeDeclarationsKey = /* @__PURE__ */ _bind(
+	FW,
+	'kUTImportedTypeDeclarationsKey',
+)
+
+export const kUTTagClassFilenameExtension = /* @__PURE__ */ _bind(
+	FW,
+	'kUTTagClassFilenameExtension',
+)
+
 export const kUTTagClassMIMEType = /* @__PURE__ */ _bind(FW, 'kUTTagClassMIMEType')
 export const kUTTagClassNSPboardType = /* @__PURE__ */ _bind(FW, 'kUTTagClassNSPboardType')
 export const kUTTagClassOSType = /* @__PURE__ */ _bind(FW, 'kUTTagClassOSType')
@@ -7165,16 +11014,32 @@ export const kUTTypeAVIMovie = /* @__PURE__ */ _bind(FW, 'kUTTypeAVIMovie')
 export const kUTTypeAliasFile = /* @__PURE__ */ _bind(FW, 'kUTTypeAliasFile')
 export const kUTTypeAliasRecord = /* @__PURE__ */ _bind(FW, 'kUTTypeAliasRecord')
 export const kUTTypeAppleICNS = /* @__PURE__ */ _bind(FW, 'kUTTypeAppleICNS')
-export const kUTTypeAppleProtectedMPEG4Audio = /* @__PURE__ */ _bind(FW, 'kUTTypeAppleProtectedMPEG4Audio')
-export const kUTTypeAppleProtectedMPEG4Video = /* @__PURE__ */ _bind(FW, 'kUTTypeAppleProtectedMPEG4Video')
+export const kUTTypeAppleProtectedMPEG4Audio = /* @__PURE__ */ _bind(
+	FW,
+	'kUTTypeAppleProtectedMPEG4Audio',
+)
+
+export const kUTTypeAppleProtectedMPEG4Video = /* @__PURE__ */ _bind(
+	FW,
+	'kUTTypeAppleProtectedMPEG4Video',
+)
+
 export const kUTTypeAppleScript = /* @__PURE__ */ _bind(FW, 'kUTTypeAppleScript')
 export const kUTTypeApplication = /* @__PURE__ */ _bind(FW, 'kUTTypeApplication')
 export const kUTTypeApplicationBundle = /* @__PURE__ */ _bind(FW, 'kUTTypeApplicationBundle')
 export const kUTTypeApplicationFile = /* @__PURE__ */ _bind(FW, 'kUTTypeApplicationFile')
 export const kUTTypeArchive = /* @__PURE__ */ _bind(FW, 'kUTTypeArchive')
-export const kUTTypeAssemblyLanguageSource = /* @__PURE__ */ _bind(FW, 'kUTTypeAssemblyLanguageSource')
+export const kUTTypeAssemblyLanguageSource = /* @__PURE__ */ _bind(
+	FW,
+	'kUTTypeAssemblyLanguageSource',
+)
+
 export const kUTTypeAudio = /* @__PURE__ */ _bind(FW, 'kUTTypeAudio')
-export const kUTTypeAudioInterchangeFileFormat = /* @__PURE__ */ _bind(FW, 'kUTTypeAudioInterchangeFileFormat')
+export const kUTTypeAudioInterchangeFileFormat = /* @__PURE__ */ _bind(
+	FW,
+	'kUTTypeAudioInterchangeFileFormat',
+)
+
 export const kUTTypeAudiovisualContent = /* @__PURE__ */ _bind(FW, 'kUTTypeAudiovisualContent')
 export const kUTTypeBMP = /* @__PURE__ */ _bind(FW, 'kUTTypeBMP')
 export const kUTTypeBinaryPropertyList = /* @__PURE__ */ _bind(FW, 'kUTTypeBinaryPropertyList')
@@ -7197,7 +11062,11 @@ export const kUTTypeDelimitedText = /* @__PURE__ */ _bind(FW, 'kUTTypeDelimitedT
 export const kUTTypeDescriptionKey = /* @__PURE__ */ _bind(FW, 'kUTTypeDescriptionKey')
 export const kUTTypeDirectory = /* @__PURE__ */ _bind(FW, 'kUTTypeDirectory')
 export const kUTTypeDiskImage = /* @__PURE__ */ _bind(FW, 'kUTTypeDiskImage')
-export const kUTTypeElectronicPublication = /* @__PURE__ */ _bind(FW, 'kUTTypeElectronicPublication')
+export const kUTTypeElectronicPublication = /* @__PURE__ */ _bind(
+	FW,
+	'kUTTypeElectronicPublication',
+)
+
 export const kUTTypeEmailMessage = /* @__PURE__ */ _bind(FW, 'kUTTypeEmailMessage')
 export const kUTTypeExecutable = /* @__PURE__ */ _bind(FW, 'kUTTypeExecutable')
 export const kUTTypeFileURL = /* @__PURE__ */ _bind(FW, 'kUTTypeFileURL')
@@ -7237,7 +11106,11 @@ export const kUTTypeMountPoint = /* @__PURE__ */ _bind(FW, 'kUTTypeMountPoint')
 export const kUTTypeMovie = /* @__PURE__ */ _bind(FW, 'kUTTypeMovie')
 export const kUTTypeOSAScript = /* @__PURE__ */ _bind(FW, 'kUTTypeOSAScript')
 export const kUTTypeOSAScriptBundle = /* @__PURE__ */ _bind(FW, 'kUTTypeOSAScriptBundle')
-export const kUTTypeObjectiveCPlusPlusSource = /* @__PURE__ */ _bind(FW, 'kUTTypeObjectiveCPlusPlusSource')
+export const kUTTypeObjectiveCPlusPlusSource = /* @__PURE__ */ _bind(
+	FW,
+	'kUTTypeObjectiveCPlusPlusSource',
+)
+
 export const kUTTypeObjectiveCSource = /* @__PURE__ */ _bind(FW, 'kUTTypeObjectiveCSource')
 export const kUTTypePDF = /* @__PURE__ */ _bind(FW, 'kUTTypePDF')
 export const kUTTypePHPScript = /* @__PURE__ */ _bind(FW, 'kUTTypePHPScript')
@@ -7261,7 +11134,11 @@ export const kUTTypeRawImage = /* @__PURE__ */ _bind(FW, 'kUTTypeRawImage')
 export const kUTTypeReferenceURLKey = /* @__PURE__ */ _bind(FW, 'kUTTypeReferenceURLKey')
 export const kUTTypeResolvable = /* @__PURE__ */ _bind(FW, 'kUTTypeResolvable')
 export const kUTTypeRubyScript = /* @__PURE__ */ _bind(FW, 'kUTTypeRubyScript')
-export const kUTTypeScalableVectorGraphics = /* @__PURE__ */ _bind(FW, 'kUTTypeScalableVectorGraphics')
+export const kUTTypeScalableVectorGraphics = /* @__PURE__ */ _bind(
+	FW,
+	'kUTTypeScalableVectorGraphics',
+)
+
 export const kUTTypeScript = /* @__PURE__ */ _bind(FW, 'kUTTypeScript')
 export const kUTTypeShellScript = /* @__PURE__ */ _bind(FW, 'kUTTypeShellScript')
 export const kUTTypeSourceCode = /* @__PURE__ */ _bind(FW, 'kUTTypeSourceCode')
@@ -7269,16 +11146,28 @@ export const kUTTypeSpotlightImporter = /* @__PURE__ */ _bind(FW, 'kUTTypeSpotli
 export const kUTTypeSpreadsheet = /* @__PURE__ */ _bind(FW, 'kUTTypeSpreadsheet')
 export const kUTTypeSwiftSource = /* @__PURE__ */ _bind(FW, 'kUTTypeSwiftSource')
 export const kUTTypeSymLink = /* @__PURE__ */ _bind(FW, 'kUTTypeSymLink')
-export const kUTTypeSystemPreferencesPane = /* @__PURE__ */ _bind(FW, 'kUTTypeSystemPreferencesPane')
+export const kUTTypeSystemPreferencesPane = /* @__PURE__ */ _bind(
+	FW,
+	'kUTTypeSystemPreferencesPane',
+)
+
 export const kUTTypeTIFF = /* @__PURE__ */ _bind(FW, 'kUTTypeTIFF')
-export const kUTTypeTXNTextAndMultimediaData = /* @__PURE__ */ _bind(FW, 'kUTTypeTXNTextAndMultimediaData')
+export const kUTTypeTXNTextAndMultimediaData = /* @__PURE__ */ _bind(
+	FW,
+	'kUTTypeTXNTextAndMultimediaData',
+)
+
 export const kUTTypeTabSeparatedText = /* @__PURE__ */ _bind(FW, 'kUTTypeTabSeparatedText')
 export const kUTTypeTagSpecificationKey = /* @__PURE__ */ _bind(FW, 'kUTTypeTagSpecificationKey')
 export const kUTTypeText = /* @__PURE__ */ _bind(FW, 'kUTTypeText')
 export const kUTTypeToDoItem = /* @__PURE__ */ _bind(FW, 'kUTTypeToDoItem')
 export const kUTTypeURL = /* @__PURE__ */ _bind(FW, 'kUTTypeURL')
 export const kUTTypeURLBookmarkData = /* @__PURE__ */ _bind(FW, 'kUTTypeURLBookmarkData')
-export const kUTTypeUTF16ExternalPlainText = /* @__PURE__ */ _bind(FW, 'kUTTypeUTF16ExternalPlainText')
+export const kUTTypeUTF16ExternalPlainText = /* @__PURE__ */ _bind(
+	FW,
+	'kUTTypeUTF16ExternalPlainText',
+)
+
 export const kUTTypeUTF16PlainText = /* @__PURE__ */ _bind(FW, 'kUTTypeUTF16PlainText')
 export const kUTTypeUTF8PlainText = /* @__PURE__ */ _bind(FW, 'kUTTypeUTF8PlainText')
 export const kUTTypeUTF8TabSeparatedText = /* @__PURE__ */ _bind(FW, 'kUTTypeUTF8TabSeparatedText')
@@ -7298,52 +11187,140 @@ export const kUTTypeZipArchive = /* @__PURE__ */ _bind(FW, 'kUTTypeZipArchive')
 export const kUnicode16BitFormat = /* @__PURE__ */ _bind(FW, 'kUnicode16BitFormat')
 export const kUnicode32BitFormat = /* @__PURE__ */ _bind(FW, 'kUnicode32BitFormat')
 export const kUnicodeByteOrderMark = /* @__PURE__ */ _bind(FW, 'kUnicodeByteOrderMark')
-export const kUnicodeCanonicalCompVariant = /* @__PURE__ */ _bind(FW, 'kUnicodeCanonicalCompVariant')
-export const kUnicodeCanonicalDecompVariant = /* @__PURE__ */ _bind(FW, 'kUnicodeCanonicalDecompVariant')
+export const kUnicodeCanonicalCompVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kUnicodeCanonicalCompVariant',
+)
+
+export const kUnicodeCanonicalDecompVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kUnicodeCanonicalDecompVariant',
+)
+
 export const kUnicodeCollationClass = /* @__PURE__ */ _bind(FW, 'kUnicodeCollationClass')
 export const kUnicodeDefaultDirection = /* @__PURE__ */ _bind(FW, 'kUnicodeDefaultDirection')
-export const kUnicodeDefaultDirectionMask = /* @__PURE__ */ _bind(FW, 'kUnicodeDefaultDirectionMask')
+export const kUnicodeDefaultDirectionMask = /* @__PURE__ */ _bind(
+	FW,
+	'kUnicodeDefaultDirectionMask',
+)
+
 export const kUnicodeDirectionalityBits = /* @__PURE__ */ _bind(FW, 'kUnicodeDirectionalityBits')
 export const kUnicodeDirectionalityMask = /* @__PURE__ */ _bind(FW, 'kUnicodeDirectionalityMask')
 export const kUnicodeFallbackCustomFirst = /* @__PURE__ */ _bind(FW, 'kUnicodeFallbackCustomFirst')
 export const kUnicodeFallbackCustomOnly = /* @__PURE__ */ _bind(FW, 'kUnicodeFallbackCustomOnly')
-export const kUnicodeFallbackDefaultFirst = /* @__PURE__ */ _bind(FW, 'kUnicodeFallbackDefaultFirst')
+export const kUnicodeFallbackDefaultFirst = /* @__PURE__ */ _bind(
+	FW,
+	'kUnicodeFallbackDefaultFirst',
+)
+
 export const kUnicodeFallbackDefaultOnly = /* @__PURE__ */ _bind(FW, 'kUnicodeFallbackDefaultOnly')
-export const kUnicodeFallbackInterruptSafeMask = /* @__PURE__ */ _bind(FW, 'kUnicodeFallbackInterruptSafeMask')
-export const kUnicodeFallbackSequencingBits = /* @__PURE__ */ _bind(FW, 'kUnicodeFallbackSequencingBits')
-export const kUnicodeFallbackSequencingMask = /* @__PURE__ */ _bind(FW, 'kUnicodeFallbackSequencingMask')
+export const kUnicodeFallbackInterruptSafeMask = /* @__PURE__ */ _bind(
+	FW,
+	'kUnicodeFallbackInterruptSafeMask',
+)
+
+export const kUnicodeFallbackSequencingBits = /* @__PURE__ */ _bind(
+	FW,
+	'kUnicodeFallbackSequencingBits',
+)
+
+export const kUnicodeFallbackSequencingMask = /* @__PURE__ */ _bind(
+	FW,
+	'kUnicodeFallbackSequencingMask',
+)
+
 export const kUnicodeForceASCIIRangeBit = /* @__PURE__ */ _bind(FW, 'kUnicodeForceASCIIRangeBit')
 export const kUnicodeForceASCIIRangeMask = /* @__PURE__ */ _bind(FW, 'kUnicodeForceASCIIRangeMask')
 export const kUnicodeHFSPlusCompVariant = /* @__PURE__ */ _bind(FW, 'kUnicodeHFSPlusCompVariant')
-export const kUnicodeHFSPlusDecompVariant = /* @__PURE__ */ _bind(FW, 'kUnicodeHFSPlusDecompVariant')
+export const kUnicodeHFSPlusDecompVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kUnicodeHFSPlusDecompVariant',
+)
+
 export const kUnicodeKeepInfoBit = /* @__PURE__ */ _bind(FW, 'kUnicodeKeepInfoBit')
 export const kUnicodeKeepInfoMask = /* @__PURE__ */ _bind(FW, 'kUnicodeKeepInfoMask')
 export const kUnicodeKeepSameEncodingBit = /* @__PURE__ */ _bind(FW, 'kUnicodeKeepSameEncodingBit')
-export const kUnicodeKeepSameEncodingMask = /* @__PURE__ */ _bind(FW, 'kUnicodeKeepSameEncodingMask')
+export const kUnicodeKeepSameEncodingMask = /* @__PURE__ */ _bind(
+	FW,
+	'kUnicodeKeepSameEncodingMask',
+)
+
 export const kUnicodeLeftToRight = /* @__PURE__ */ _bind(FW, 'kUnicodeLeftToRight')
 export const kUnicodeLeftToRightMask = /* @__PURE__ */ _bind(FW, 'kUnicodeLeftToRightMask')
 export const kUnicodeLooseMappingsBit = /* @__PURE__ */ _bind(FW, 'kUnicodeLooseMappingsBit')
 export const kUnicodeLooseMappingsMask = /* @__PURE__ */ _bind(FW, 'kUnicodeLooseMappingsMask')
-export const kUnicodeMapLineFeedToReturnBit = /* @__PURE__ */ _bind(FW, 'kUnicodeMapLineFeedToReturnBit')
-export const kUnicodeMapLineFeedToReturnMask = /* @__PURE__ */ _bind(FW, 'kUnicodeMapLineFeedToReturnMask')
+export const kUnicodeMapLineFeedToReturnBit = /* @__PURE__ */ _bind(
+	FW,
+	'kUnicodeMapLineFeedToReturnBit',
+)
+
+export const kUnicodeMapLineFeedToReturnMask = /* @__PURE__ */ _bind(
+	FW,
+	'kUnicodeMapLineFeedToReturnMask',
+)
+
 export const kUnicodeMatchOtherBaseBit = /* @__PURE__ */ _bind(FW, 'kUnicodeMatchOtherBaseBit')
 export const kUnicodeMatchOtherBaseMask = /* @__PURE__ */ _bind(FW, 'kUnicodeMatchOtherBaseMask')
 export const kUnicodeMatchOtherFormatBit = /* @__PURE__ */ _bind(FW, 'kUnicodeMatchOtherFormatBit')
-export const kUnicodeMatchOtherFormatMask = /* @__PURE__ */ _bind(FW, 'kUnicodeMatchOtherFormatMask')
-export const kUnicodeMatchOtherVariantBit = /* @__PURE__ */ _bind(FW, 'kUnicodeMatchOtherVariantBit')
-export const kUnicodeMatchOtherVariantMask = /* @__PURE__ */ _bind(FW, 'kUnicodeMatchOtherVariantMask')
+export const kUnicodeMatchOtherFormatMask = /* @__PURE__ */ _bind(
+	FW,
+	'kUnicodeMatchOtherFormatMask',
+)
+
+export const kUnicodeMatchOtherVariantBit = /* @__PURE__ */ _bind(
+	FW,
+	'kUnicodeMatchOtherVariantBit',
+)
+
+export const kUnicodeMatchOtherVariantMask = /* @__PURE__ */ _bind(
+	FW,
+	'kUnicodeMatchOtherVariantMask',
+)
+
 export const kUnicodeMatchUnicodeBaseBit = /* @__PURE__ */ _bind(FW, 'kUnicodeMatchUnicodeBaseBit')
-export const kUnicodeMatchUnicodeBaseMask = /* @__PURE__ */ _bind(FW, 'kUnicodeMatchUnicodeBaseMask')
-export const kUnicodeMatchUnicodeFormatBit = /* @__PURE__ */ _bind(FW, 'kUnicodeMatchUnicodeFormatBit')
-export const kUnicodeMatchUnicodeFormatMask = /* @__PURE__ */ _bind(FW, 'kUnicodeMatchUnicodeFormatMask')
-export const kUnicodeMatchUnicodeVariantBit = /* @__PURE__ */ _bind(FW, 'kUnicodeMatchUnicodeVariantBit')
-export const kUnicodeMatchUnicodeVariantMask = /* @__PURE__ */ _bind(FW, 'kUnicodeMatchUnicodeVariantMask')
-export const kUnicodeMaxDecomposedVariant = /* @__PURE__ */ _bind(FW, 'kUnicodeMaxDecomposedVariant')
-export const kUnicodeNoCompatibilityVariant = /* @__PURE__ */ _bind(FW, 'kUnicodeNoCompatibilityVariant')
+export const kUnicodeMatchUnicodeBaseMask = /* @__PURE__ */ _bind(
+	FW,
+	'kUnicodeMatchUnicodeBaseMask',
+)
+
+export const kUnicodeMatchUnicodeFormatBit = /* @__PURE__ */ _bind(
+	FW,
+	'kUnicodeMatchUnicodeFormatBit',
+)
+
+export const kUnicodeMatchUnicodeFormatMask = /* @__PURE__ */ _bind(
+	FW,
+	'kUnicodeMatchUnicodeFormatMask',
+)
+
+export const kUnicodeMatchUnicodeVariantBit = /* @__PURE__ */ _bind(
+	FW,
+	'kUnicodeMatchUnicodeVariantBit',
+)
+
+export const kUnicodeMatchUnicodeVariantMask = /* @__PURE__ */ _bind(
+	FW,
+	'kUnicodeMatchUnicodeVariantMask',
+)
+
+export const kUnicodeMaxDecomposedVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kUnicodeMaxDecomposedVariant',
+)
+
+export const kUnicodeNoCompatibilityVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kUnicodeNoCompatibilityVariant',
+)
+
 export const kUnicodeNoComposedVariant = /* @__PURE__ */ _bind(FW, 'kUnicodeNoComposedVariant')
 export const kUnicodeNoCorporateVariant = /* @__PURE__ */ _bind(FW, 'kUnicodeNoCorporateVariant')
 export const kUnicodeNoHalfwidthCharsBit = /* @__PURE__ */ _bind(FW, 'kUnicodeNoHalfwidthCharsBit')
-export const kUnicodeNoHalfwidthCharsMask = /* @__PURE__ */ _bind(FW, 'kUnicodeNoHalfwidthCharsMask')
+export const kUnicodeNoHalfwidthCharsMask = /* @__PURE__ */ _bind(
+	FW,
+	'kUnicodeNoHalfwidthCharsMask',
+)
+
 export const kUnicodeNoSubset = /* @__PURE__ */ _bind(FW, 'kUnicodeNoSubset')
 export const kUnicodeNormalizationFormC = /* @__PURE__ */ _bind(FW, 'kUnicodeNormalizationFormC')
 export const kUnicodeNormalizationFormD = /* @__PURE__ */ _bind(FW, 'kUnicodeNormalizationFormD')
@@ -7354,13 +11331,33 @@ export const kUnicodeReplacementChar = /* @__PURE__ */ _bind(FW, 'kUnicodeReplac
 export const kUnicodeRightToLeft = /* @__PURE__ */ _bind(FW, 'kUnicodeRightToLeft')
 export const kUnicodeRightToLeftMask = /* @__PURE__ */ _bind(FW, 'kUnicodeRightToLeftMask')
 export const kUnicodeSCSUFormat = /* @__PURE__ */ _bind(FW, 'kUnicodeSCSUFormat')
-export const kUnicodeStringUnterminatedBit = /* @__PURE__ */ _bind(FW, 'kUnicodeStringUnterminatedBit')
-export const kUnicodeStringUnterminatedMask = /* @__PURE__ */ _bind(FW, 'kUnicodeStringUnterminatedMask')
-export const kUnicodeSwappedByteOrderMark = /* @__PURE__ */ _bind(FW, 'kUnicodeSwappedByteOrderMark')
+export const kUnicodeStringUnterminatedBit = /* @__PURE__ */ _bind(
+	FW,
+	'kUnicodeStringUnterminatedBit',
+)
+
+export const kUnicodeStringUnterminatedMask = /* @__PURE__ */ _bind(
+	FW,
+	'kUnicodeStringUnterminatedMask',
+)
+
+export const kUnicodeSwappedByteOrderMark = /* @__PURE__ */ _bind(
+	FW,
+	'kUnicodeSwappedByteOrderMark',
+)
+
 export const kUnicodeTextBreakClass = /* @__PURE__ */ _bind(FW, 'kUnicodeTextBreakClass')
 export const kUnicodeTextRunBit = /* @__PURE__ */ _bind(FW, 'kUnicodeTextRunBit')
-export const kUnicodeTextRunHeuristicsBit = /* @__PURE__ */ _bind(FW, 'kUnicodeTextRunHeuristicsBit')
-export const kUnicodeTextRunHeuristicsMask = /* @__PURE__ */ _bind(FW, 'kUnicodeTextRunHeuristicsMask')
+export const kUnicodeTextRunHeuristicsBit = /* @__PURE__ */ _bind(
+	FW,
+	'kUnicodeTextRunHeuristicsBit',
+)
+
+export const kUnicodeTextRunHeuristicsMask = /* @__PURE__ */ _bind(
+	FW,
+	'kUnicodeTextRunHeuristicsMask',
+)
+
 export const kUnicodeTextRunMask = /* @__PURE__ */ _bind(FW, 'kUnicodeTextRunMask')
 export const kUnicodeUTF16BEFormat = /* @__PURE__ */ _bind(FW, 'kUnicodeUTF16BEFormat')
 export const kUnicodeUTF16Format = /* @__PURE__ */ _bind(FW, 'kUnicodeUTF16Format')
@@ -7370,8 +11367,16 @@ export const kUnicodeUTF32Format = /* @__PURE__ */ _bind(FW, 'kUnicodeUTF32Forma
 export const kUnicodeUTF32LEFormat = /* @__PURE__ */ _bind(FW, 'kUnicodeUTF32LEFormat')
 export const kUnicodeUTF7Format = /* @__PURE__ */ _bind(FW, 'kUnicodeUTF7Format')
 export const kUnicodeUTF8Format = /* @__PURE__ */ _bind(FW, 'kUnicodeUTF8Format')
-export const kUnicodeUseExternalEncodingFormBit = /* @__PURE__ */ _bind(FW, 'kUnicodeUseExternalEncodingFormBit')
-export const kUnicodeUseExternalEncodingFormMask = /* @__PURE__ */ _bind(FW, 'kUnicodeUseExternalEncodingFormMask')
+export const kUnicodeUseExternalEncodingFormBit = /* @__PURE__ */ _bind(
+	FW,
+	'kUnicodeUseExternalEncodingFormBit',
+)
+
+export const kUnicodeUseExternalEncodingFormMask = /* @__PURE__ */ _bind(
+	FW,
+	'kUnicodeUseExternalEncodingFormMask',
+)
+
 export const kUnicodeUseFallbacksBit = /* @__PURE__ */ _bind(FW, 'kUnicodeUseFallbacksBit')
 export const kUnicodeUseFallbacksMask = /* @__PURE__ */ _bind(FW, 'kUnicodeUseFallbacksMask')
 export const kUnicodeUseHFSPlusMapping = /* @__PURE__ */ _bind(FW, 'kUnicodeUseHFSPlusMapping')
@@ -7385,7 +11390,11 @@ export const kUnlockKCEventMask = /* @__PURE__ */ _bind(FW, 'kUnlockKCEventMask'
 export const kUnlockStateKCStatus = /* @__PURE__ */ _bind(FW, 'kUnlockStateKCStatus')
 export const kUnlockedIcon = /* @__PURE__ */ _bind(FW, 'kUnlockedIcon')
 export const kUnmappedMemoryException = /* @__PURE__ */ _bind(FW, 'kUnmappedMemoryException')
-export const kUnresolvablePageFaultException = /* @__PURE__ */ _bind(FW, 'kUnresolvablePageFaultException')
+export const kUnresolvablePageFaultException = /* @__PURE__ */ _bind(
+	FW,
+	'kUnresolvablePageFaultException',
+)
+
 export const kUnsupportedCardErr = /* @__PURE__ */ _bind(FW, 'kUnsupportedCardErr')
 export const kUnsupportedFunctionErr = /* @__PURE__ */ _bind(FW, 'kUnsupportedFunctionErr')
 export const kUnsupportedModeErr = /* @__PURE__ */ _bind(FW, 'kUnsupportedModeErr')
@@ -7436,8 +11445,16 @@ export const kWSHTTPProxy = /* @__PURE__ */ _bind(FW, 'kWSHTTPProxy')
 export const kWSHTTPResponseMessage = /* @__PURE__ */ _bind(FW, 'kWSHTTPResponseMessage')
 export const kWSHTTPVersion = /* @__PURE__ */ _bind(FW, 'kWSHTTPVersion')
 export const kWSMethodInvocationResult = /* @__PURE__ */ _bind(FW, 'kWSMethodInvocationResult')
-export const kWSMethodInvocationResultParameterName = /* @__PURE__ */ _bind(FW, 'kWSMethodInvocationResultParameterName')
-export const kWSMethodInvocationTimeoutValue = /* @__PURE__ */ _bind(FW, 'kWSMethodInvocationTimeoutValue')
+export const kWSMethodInvocationResultParameterName = /* @__PURE__ */ _bind(
+	FW,
+	'kWSMethodInvocationResultParameterName',
+)
+
+export const kWSMethodInvocationTimeoutValue = /* @__PURE__ */ _bind(
+	FW,
+	'kWSMethodInvocationTimeoutValue',
+)
+
 export const kWSNetworkStreamFaultString = /* @__PURE__ */ _bind(FW, 'kWSNetworkStreamFaultString')
 export const kWSRecordNamespaceURI = /* @__PURE__ */ _bind(FW, 'kWSRecordNamespaceURI')
 export const kWSRecordParameterOrder = /* @__PURE__ */ _bind(FW, 'kWSRecordParameterOrder')
@@ -7454,11 +11471,19 @@ export const kWSStreamErrorError = /* @__PURE__ */ _bind(FW, 'kWSStreamErrorErro
 export const kWSStreamErrorMessage = /* @__PURE__ */ _bind(FW, 'kWSStreamErrorMessage')
 export const kWSXMLRPCProtocol = /* @__PURE__ */ _bind(FW, 'kWSXMLRPCProtocol')
 export const kWakeToDoze = /* @__PURE__ */ _bind(FW, 'kWakeToDoze')
-export const kWhereToEmptyTrashFolderType = /* @__PURE__ */ _bind(FW, 'kWhereToEmptyTrashFolderType')
+export const kWhereToEmptyTrashFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kWhereToEmptyTrashFolderType',
+)
+
 export const kWidePosOffsetBit = /* @__PURE__ */ _bind(FW, 'kWidePosOffsetBit')
 export const kWidgetsFolderType = /* @__PURE__ */ _bind(FW, 'kWidgetsFolderType')
 export const kWindowsLatin1PalmVariant = /* @__PURE__ */ _bind(FW, 'kWindowsLatin1PalmVariant')
-export const kWindowsLatin1StandardVariant = /* @__PURE__ */ _bind(FW, 'kWindowsLatin1StandardVariant')
+export const kWindowsLatin1StandardVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowsLatin1StandardVariant',
+)
+
 export const kWorkgroupFolderIcon = /* @__PURE__ */ _bind(FW, 'kWorkgroupFolderIcon')
 export const kWrPermKCStatus = /* @__PURE__ */ _bind(FW, 'kWrPermKCStatus')
 export const kWrapKCItemAttr = /* @__PURE__ */ _bind(FW, 'kWrapKCItemAttr')
@@ -7473,7 +11498,11 @@ export const kadministratorUser = /* @__PURE__ */ _bind(FW, 'kadministratorUser'
 export const kcfindapplesharepassword = /* @__PURE__ */ _bind(FW, 'kcfindapplesharepassword')
 export const kcfindgenericpassword = /* @__PURE__ */ _bind(FW, 'kcfindgenericpassword')
 export const kcfindinternetpassword = /* @__PURE__ */ _bind(FW, 'kcfindinternetpassword')
-export const kcfindinternetpasswordwithpath = /* @__PURE__ */ _bind(FW, 'kcfindinternetpasswordwithpath')
+export const kcfindinternetpasswordwithpath = /* @__PURE__ */ _bind(
+	FW,
+	'kcfindinternetpasswordwithpath',
+)
+
 export const kcgetkeychainname = /* @__PURE__ */ _bind(FW, 'kcgetkeychainname')
 export const kernelAlreadyFreeErr = /* @__PURE__ */ _bind(FW, 'kernelAlreadyFreeErr')
 export const kernelAsyncReceiveLimitErr = /* @__PURE__ */ _bind(FW, 'kernelAsyncReceiveLimitErr')
@@ -7660,7 +11689,11 @@ export const keyAddressAttr = /* @__PURE__ */ _bind(FW, 'keyAddressAttr')
 export const keyAppleEventAttributesAttr = /* @__PURE__ */ _bind(FW, 'keyAppleEventAttributesAttr')
 export const keyCloseAllWindows = /* @__PURE__ */ _bind(FW, 'keyCloseAllWindows')
 export const keyDirectObject = /* @__PURE__ */ _bind(FW, 'keyDirectObject')
-export const keyDisableAuthenticationAttr = /* @__PURE__ */ _bind(FW, 'keyDisableAuthenticationAttr')
+export const keyDisableAuthenticationAttr = /* @__PURE__ */ _bind(
+	FW,
+	'keyDisableAuthenticationAttr',
+)
+
 export const keyDisposeTokenProc = /* @__PURE__ */ _bind(FW, 'keyDisposeTokenProc')
 export const keyDriveNumber = /* @__PURE__ */ _bind(FW, 'keyDriveNumber')
 export const keyErrorCode = /* @__PURE__ */ _bind(FW, 'keyErrorCode')
@@ -7703,9 +11736,21 @@ export const keySOAPSchemaVersion = /* @__PURE__ */ _bind(FW, 'keySOAPSchemaVers
 export const keySOAPStructureMetaData = /* @__PURE__ */ _bind(FW, 'keySOAPStructureMetaData')
 export const keySelectProc = /* @__PURE__ */ _bind(FW, 'keySelectProc')
 export const keySelection = /* @__PURE__ */ _bind(FW, 'keySelection')
-export const keySenderApplescriptEntitlementsAttr = /* @__PURE__ */ _bind(FW, 'keySenderApplescriptEntitlementsAttr')
-export const keySenderApplicationIdentifierEntitlementAttr = /* @__PURE__ */ _bind(FW, 'keySenderApplicationIdentifierEntitlementAttr')
-export const keySenderApplicationSandboxed = /* @__PURE__ */ _bind(FW, 'keySenderApplicationSandboxed')
+export const keySenderApplescriptEntitlementsAttr = /* @__PURE__ */ _bind(
+	FW,
+	'keySenderApplescriptEntitlementsAttr',
+)
+
+export const keySenderApplicationIdentifierEntitlementAttr = /* @__PURE__ */ _bind(
+	FW,
+	'keySenderApplicationIdentifierEntitlementAttr',
+)
+
+export const keySenderApplicationSandboxed = /* @__PURE__ */ _bind(
+	FW,
+	'keySenderApplicationSandboxed',
+)
+
 export const keySenderAuditTokenAttr = /* @__PURE__ */ _bind(FW, 'keySenderAuditTokenAttr')
 export const keySenderEGIDAttr = /* @__PURE__ */ _bind(FW, 'keySenderEGIDAttr')
 export const keySenderEUIDAttr = /* @__PURE__ */ _bind(FW, 'keySenderEUIDAttr')
@@ -7723,15 +11768,31 @@ export const keyXMLDebuggingAttr = /* @__PURE__ */ _bind(FW, 'keyXMLDebuggingAtt
 export const kfullPrivileges = /* @__PURE__ */ _bind(FW, 'kfullPrivileges')
 export const kiMovieFolderType = /* @__PURE__ */ _bind(FW, 'kiMovieFolderType')
 export const kiMoviePlugInsFolderType = /* @__PURE__ */ _bind(FW, 'kiMoviePlugInsFolderType')
-export const kiMovieSoundEffectsFolderType = /* @__PURE__ */ _bind(FW, 'kiMovieSoundEffectsFolderType')
+export const kiMovieSoundEffectsFolderType = /* @__PURE__ */ _bind(
+	FW,
+	'kiMovieSoundEffectsFolderType',
+)
+
 export const kioACAccessBlankAccessBit = /* @__PURE__ */ _bind(FW, 'kioACAccessBlankAccessBit')
 export const kioACAccessBlankAccessMask = /* @__PURE__ */ _bind(FW, 'kioACAccessBlankAccessMask')
 export const kioACAccessEveryoneReadBit = /* @__PURE__ */ _bind(FW, 'kioACAccessEveryoneReadBit')
 export const kioACAccessEveryoneReadMask = /* @__PURE__ */ _bind(FW, 'kioACAccessEveryoneReadMask')
-export const kioACAccessEveryoneSearchBit = /* @__PURE__ */ _bind(FW, 'kioACAccessEveryoneSearchBit')
-export const kioACAccessEveryoneSearchMask = /* @__PURE__ */ _bind(FW, 'kioACAccessEveryoneSearchMask')
+export const kioACAccessEveryoneSearchBit = /* @__PURE__ */ _bind(
+	FW,
+	'kioACAccessEveryoneSearchBit',
+)
+
+export const kioACAccessEveryoneSearchMask = /* @__PURE__ */ _bind(
+	FW,
+	'kioACAccessEveryoneSearchMask',
+)
+
 export const kioACAccessEveryoneWriteBit = /* @__PURE__ */ _bind(FW, 'kioACAccessEveryoneWriteBit')
-export const kioACAccessEveryoneWriteMask = /* @__PURE__ */ _bind(FW, 'kioACAccessEveryoneWriteMask')
+export const kioACAccessEveryoneWriteMask = /* @__PURE__ */ _bind(
+	FW,
+	'kioACAccessEveryoneWriteMask',
+)
+
 export const kioACAccessGroupReadBit = /* @__PURE__ */ _bind(FW, 'kioACAccessGroupReadBit')
 export const kioACAccessGroupReadMask = /* @__PURE__ */ _bind(FW, 'kioACAccessGroupReadMask')
 export const kioACAccessGroupSearchBit = /* @__PURE__ */ _bind(FW, 'kioACAccessGroupSearchBit')
@@ -7972,9 +12033,17 @@ export const localOnlyErr = /* @__PURE__ */ _bind(FW, 'localOnlyErr')
 export const lockPortBitsBadPortErr = /* @__PURE__ */ _bind(FW, 'lockPortBitsBadPortErr')
 export const lockPortBitsBadSurfaceErr = /* @__PURE__ */ _bind(FW, 'lockPortBitsBadSurfaceErr')
 export const lockPortBitsSurfaceLostErr = /* @__PURE__ */ _bind(FW, 'lockPortBitsSurfaceLostErr')
-export const lockPortBitsWindowClippedErr = /* @__PURE__ */ _bind(FW, 'lockPortBitsWindowClippedErr')
+export const lockPortBitsWindowClippedErr = /* @__PURE__ */ _bind(
+	FW,
+	'lockPortBitsWindowClippedErr',
+)
+
 export const lockPortBitsWindowMovedErr = /* @__PURE__ */ _bind(FW, 'lockPortBitsWindowMovedErr')
-export const lockPortBitsWindowResizedErr = /* @__PURE__ */ _bind(FW, 'lockPortBitsWindowResizedErr')
+export const lockPortBitsWindowResizedErr = /* @__PURE__ */ _bind(
+	FW,
+	'lockPortBitsWindowResizedErr',
+)
+
 export const lockPortBitsWrongGDeviceErr = /* @__PURE__ */ _bind(FW, 'lockPortBitsWrongGDeviceErr')
 export const longDate = /* @__PURE__ */ _bind(FW, 'longDate')
 export const longDateFound = /* @__PURE__ */ _bind(FW, 'longDateFound')
@@ -8100,7 +12169,11 @@ export const noMachineNameErr = /* @__PURE__ */ _bind(FW, 'noMachineNameErr')
 export const noMaskFoundErr = /* @__PURE__ */ _bind(FW, 'noMaskFoundErr')
 export const noMediaHandler = /* @__PURE__ */ _bind(FW, 'noMediaHandler')
 export const noMemForPictPlaybackErr = /* @__PURE__ */ _bind(FW, 'noMemForPictPlaybackErr')
-export const noMemoryNodeFailedInitialize = /* @__PURE__ */ _bind(FW, 'noMemoryNodeFailedInitialize')
+export const noMemoryNodeFailedInitialize = /* @__PURE__ */ _bind(
+	FW,
+	'noMemoryNodeFailedInitialize',
+)
+
 export const noMoreFolderDescErr = /* @__PURE__ */ _bind(FW, 'noMoreFolderDescErr')
 export const noMoreKeyColorsErr = /* @__PURE__ */ _bind(FW, 'noMoreKeyColorsErr')
 export const noMoreRealTime = /* @__PURE__ */ _bind(FW, 'noMoreRealTime')
@@ -8158,7 +12231,11 @@ export const notLoggedInErr = /* @__PURE__ */ _bind(FW, 'notLoggedInErr')
 export const notOpenErr = /* @__PURE__ */ _bind(FW, 'notOpenErr')
 export const notRegisteredSectionErr = /* @__PURE__ */ _bind(FW, 'notRegisteredSectionErr')
 export const notThePublisherWrn = /* @__PURE__ */ _bind(FW, 'notThePublisherWrn')
-export const noteChannelNotAllocatedOSErr = /* @__PURE__ */ _bind(FW, 'noteChannelNotAllocatedOSErr')
+export const noteChannelNotAllocatedOSErr = /* @__PURE__ */ _bind(
+	FW,
+	'noteChannelNotAllocatedOSErr',
+)
+
 export const nrCallNotSupported = /* @__PURE__ */ _bind(FW, 'nrCallNotSupported')
 export const nrDataTruncatedErr = /* @__PURE__ */ _bind(FW, 'nrDataTruncatedErr')
 export const nrExitedIteratorScope = /* @__PURE__ */ _bind(FW, 'nrExitedIteratorScope')
@@ -8186,21 +12263,77 @@ export const nsStackErr = /* @__PURE__ */ _bind(FW, 'nsStackErr')
 export const nsvErr = /* @__PURE__ */ _bind(FW, 'nsvErr')
 export const num2dec = /* @__PURE__ */ _bind(FW, 'num2dec')
 export const num2decl = /* @__PURE__ */ _bind(FW, 'num2decl')
-export const numberFormattingBadCurrencyPositionErr = /* @__PURE__ */ _bind(FW, 'numberFormattingBadCurrencyPositionErr')
-export const numberFormattingBadFormatErr = /* @__PURE__ */ _bind(FW, 'numberFormattingBadFormatErr')
-export const numberFormattingBadNumberFormattingObjectErr = /* @__PURE__ */ _bind(FW, 'numberFormattingBadNumberFormattingObjectErr')
-export const numberFormattingBadOptionsErr = /* @__PURE__ */ _bind(FW, 'numberFormattingBadOptionsErr')
+export const numberFormattingBadCurrencyPositionErr = /* @__PURE__ */ _bind(
+	FW,
+	'numberFormattingBadCurrencyPositionErr',
+)
+
+export const numberFormattingBadFormatErr = /* @__PURE__ */ _bind(
+	FW,
+	'numberFormattingBadFormatErr',
+)
+
+export const numberFormattingBadNumberFormattingObjectErr = /* @__PURE__ */ _bind(
+	FW,
+	'numberFormattingBadNumberFormattingObjectErr',
+)
+
+export const numberFormattingBadOptionsErr = /* @__PURE__ */ _bind(
+	FW,
+	'numberFormattingBadOptionsErr',
+)
+
 export const numberFormattingBadTokenErr = /* @__PURE__ */ _bind(FW, 'numberFormattingBadTokenErr')
-export const numberFormattingDelimiterMissingErr = /* @__PURE__ */ _bind(FW, 'numberFormattingDelimiterMissingErr')
-export const numberFormattingEmptyFormatErr = /* @__PURE__ */ _bind(FW, 'numberFormattingEmptyFormatErr')
-export const numberFormattingLiteralMissingErr = /* @__PURE__ */ _bind(FW, 'numberFormattingLiteralMissingErr')
-export const numberFormattingNotADigitErr = /* @__PURE__ */ _bind(FW, 'numberFormattingNotADigitErr')
-export const numberFormattingNotANumberErr = /* @__PURE__ */ _bind(FW, 'numberFormattingNotANumberErr')
-export const numberFormattingOverflowInDestinationErr = /* @__PURE__ */ _bind(FW, 'numberFormattingOverflowInDestinationErr')
-export const numberFormattingSpuriousCharErr = /* @__PURE__ */ _bind(FW, 'numberFormattingSpuriousCharErr')
-export const numberFormattingUnOrderedCurrencyRangeErr = /* @__PURE__ */ _bind(FW, 'numberFormattingUnOrderedCurrencyRangeErr')
-export const numberFormattingUnOrdredCurrencyRangeErr = /* @__PURE__ */ _bind(FW, 'numberFormattingUnOrdredCurrencyRangeErr')
-export const numberFortmattingNotADigitErr = /* @__PURE__ */ _bind(FW, 'numberFortmattingNotADigitErr')
+export const numberFormattingDelimiterMissingErr = /* @__PURE__ */ _bind(
+	FW,
+	'numberFormattingDelimiterMissingErr',
+)
+
+export const numberFormattingEmptyFormatErr = /* @__PURE__ */ _bind(
+	FW,
+	'numberFormattingEmptyFormatErr',
+)
+
+export const numberFormattingLiteralMissingErr = /* @__PURE__ */ _bind(
+	FW,
+	'numberFormattingLiteralMissingErr',
+)
+
+export const numberFormattingNotADigitErr = /* @__PURE__ */ _bind(
+	FW,
+	'numberFormattingNotADigitErr',
+)
+
+export const numberFormattingNotANumberErr = /* @__PURE__ */ _bind(
+	FW,
+	'numberFormattingNotANumberErr',
+)
+
+export const numberFormattingOverflowInDestinationErr = /* @__PURE__ */ _bind(
+	FW,
+	'numberFormattingOverflowInDestinationErr',
+)
+
+export const numberFormattingSpuriousCharErr = /* @__PURE__ */ _bind(
+	FW,
+	'numberFormattingSpuriousCharErr',
+)
+
+export const numberFormattingUnOrderedCurrencyRangeErr = /* @__PURE__ */ _bind(
+	FW,
+	'numberFormattingUnOrderedCurrencyRangeErr',
+)
+
+export const numberFormattingUnOrdredCurrencyRangeErr = /* @__PURE__ */ _bind(
+	FW,
+	'numberFormattingUnOrdredCurrencyRangeErr',
+)
+
+export const numberFortmattingNotADigitErr = /* @__PURE__ */ _bind(
+	FW,
+	'numberFortmattingNotADigitErr',
+)
+
 export const numtostring = /* @__PURE__ */ _bind(FW, 'numtostring')
 export const offLinErr = /* @__PURE__ */ _bind(FW, 'offLinErr')
 export const ogonek = /* @__PURE__ */ _bind(FW, 'ogonek')
@@ -8319,8 +12452,16 @@ export const pictureDataErr = /* @__PURE__ */ _bind(FW, 'pictureDataErr')
 export const pixMapTooDeepErr = /* @__PURE__ */ _bind(FW, 'pixMapTooDeepErr')
 export const platform68k = /* @__PURE__ */ _bind(FW, 'platform68k')
 export const platformAIXppc = /* @__PURE__ */ _bind(FW, 'platformAIXppc')
-export const platformArm64NativeEntryPoint = /* @__PURE__ */ _bind(FW, 'platformArm64NativeEntryPoint')
-export const platformIA32NativeEntryPoint = /* @__PURE__ */ _bind(FW, 'platformIA32NativeEntryPoint')
+export const platformArm64NativeEntryPoint = /* @__PURE__ */ _bind(
+	FW,
+	'platformArm64NativeEntryPoint',
+)
+
+export const platformIA32NativeEntryPoint = /* @__PURE__ */ _bind(
+	FW,
+	'platformIA32NativeEntryPoint',
+)
+
 export const platformIRIXmips = /* @__PURE__ */ _bind(FW, 'platformIRIXmips')
 export const platformInterpreted = /* @__PURE__ */ _bind(FW, 'platformInterpreted')
 export const platformLinuxintel = /* @__PURE__ */ _bind(FW, 'platformLinuxintel')
@@ -8331,12 +12472,24 @@ export const platformNeXTIntel = /* @__PURE__ */ _bind(FW, 'platformNeXTIntel')
 export const platformNeXTppc = /* @__PURE__ */ _bind(FW, 'platformNeXTppc')
 export const platformNeXTsparc = /* @__PURE__ */ _bind(FW, 'platformNeXTsparc')
 export const platformPowerPC = /* @__PURE__ */ _bind(FW, 'platformPowerPC')
-export const platformPowerPC64NativeEntryPoint = /* @__PURE__ */ _bind(FW, 'platformPowerPC64NativeEntryPoint')
-export const platformPowerPCNativeEntryPoint = /* @__PURE__ */ _bind(FW, 'platformPowerPCNativeEntryPoint')
+export const platformPowerPC64NativeEntryPoint = /* @__PURE__ */ _bind(
+	FW,
+	'platformPowerPC64NativeEntryPoint',
+)
+
+export const platformPowerPCNativeEntryPoint = /* @__PURE__ */ _bind(
+	FW,
+	'platformPowerPCNativeEntryPoint',
+)
+
 export const platformSunOSintel = /* @__PURE__ */ _bind(FW, 'platformSunOSintel')
 export const platformSunOSsparc = /* @__PURE__ */ _bind(FW, 'platformSunOSsparc')
 export const platformWin32 = /* @__PURE__ */ _bind(FW, 'platformWin32')
-export const platformX86_64NativeEntryPoint = /* @__PURE__ */ _bind(FW, 'platformX86_64NativeEntryPoint')
+export const platformX86_64NativeEntryPoint = /* @__PURE__ */ _bind(
+	FW,
+	'platformX86_64NativeEntryPoint',
+)
+
 export const pleaseCacheBit = /* @__PURE__ */ _bind(FW, 'pleaseCacheBit')
 export const pleaseCacheMask = /* @__PURE__ */ _bind(FW, 'pleaseCacheMask')
 export const pmBusyErr = /* @__PURE__ */ _bind(FW, 'pmBusyErr')
@@ -8355,20 +12508,40 @@ export const portNotPwr = /* @__PURE__ */ _bind(FW, 'portNotPwr')
 export const posErr = /* @__PURE__ */ _bind(FW, 'posErr')
 export const prInitErr = /* @__PURE__ */ _bind(FW, 'prInitErr')
 export const prWrErr = /* @__PURE__ */ _bind(FW, 'prWrErr')
-export const preferencesFolderIconResource = /* @__PURE__ */ _bind(FW, 'preferencesFolderIconResource')
-export const printMonitorFolderIconResource = /* @__PURE__ */ _bind(FW, 'printMonitorFolderIconResource')
-export const printerStatusOpCodeNotSupportedErr = /* @__PURE__ */ _bind(FW, 'printerStatusOpCodeNotSupportedErr')
+export const preferencesFolderIconResource = /* @__PURE__ */ _bind(
+	FW,
+	'preferencesFolderIconResource',
+)
+
+export const printMonitorFolderIconResource = /* @__PURE__ */ _bind(
+	FW,
+	'printMonitorFolderIconResource',
+)
+
+export const printerStatusOpCodeNotSupportedErr = /* @__PURE__ */ _bind(
+	FW,
+	'printerStatusOpCodeNotSupportedErr',
+)
+
 export const privateFolderIconResource = /* @__PURE__ */ _bind(FW, 'privateFolderIconResource')
 export const procNotFound = /* @__PURE__ */ _bind(FW, 'procNotFound')
 export const processStateIncorrectErr = /* @__PURE__ */ _bind(FW, 'processStateIncorrectErr')
 export const progressProcAborted = /* @__PURE__ */ _bind(FW, 'progressProcAborted')
-export const propertyNotSupportedByNodeErr = /* @__PURE__ */ _bind(FW, 'propertyNotSupportedByNodeErr')
+export const propertyNotSupportedByNodeErr = /* @__PURE__ */ _bind(
+	FW,
+	'propertyNotSupportedByNodeErr',
+)
+
 export const protocolErr = /* @__PURE__ */ _bind(FW, 'protocolErr')
 export const qErr = /* @__PURE__ */ _bind(FW, 'qErr')
 export const qfcbNotCreatedErr = /* @__PURE__ */ _bind(FW, 'qfcbNotCreatedErr')
 export const qfcbNotFoundErr = /* @__PURE__ */ _bind(FW, 'qfcbNotFoundErr')
 export const qtActionNotHandledErr = /* @__PURE__ */ _bind(FW, 'qtActionNotHandledErr')
-export const qtNetworkAlreadyAllocatedErr = /* @__PURE__ */ _bind(FW, 'qtNetworkAlreadyAllocatedErr')
+export const qtNetworkAlreadyAllocatedErr = /* @__PURE__ */ _bind(
+	FW,
+	'qtNetworkAlreadyAllocatedErr',
+)
+
 export const qtParamErr = /* @__PURE__ */ _bind(FW, 'qtParamErr')
 export const qtXMLApplicationErr = /* @__PURE__ */ _bind(FW, 'qtXMLApplicationErr')
 export const qtXMLParseErr = /* @__PURE__ */ _bind(FW, 'qtXMLParseErr')
@@ -8414,10 +12587,22 @@ export const readQErr = /* @__PURE__ */ _bind(FW, 'readQErr')
 export const readReference = /* @__PURE__ */ _bind(FW, 'readReference')
 export const recNotFnd = /* @__PURE__ */ _bind(FW, 'recNotFnd')
 export const recordDataTooBigErr = /* @__PURE__ */ _bind(FW, 'recordDataTooBigErr')
-export const registerComponentAfterExisting = /* @__PURE__ */ _bind(FW, 'registerComponentAfterExisting')
-export const registerComponentAliasesOnly = /* @__PURE__ */ _bind(FW, 'registerComponentAliasesOnly')
+export const registerComponentAfterExisting = /* @__PURE__ */ _bind(
+	FW,
+	'registerComponentAfterExisting',
+)
+
+export const registerComponentAliasesOnly = /* @__PURE__ */ _bind(
+	FW,
+	'registerComponentAliasesOnly',
+)
+
 export const registerComponentGlobal = /* @__PURE__ */ _bind(FW, 'registerComponentGlobal')
-export const registerComponentNoDuplicates = /* @__PURE__ */ _bind(FW, 'registerComponentNoDuplicates')
+export const registerComponentNoDuplicates = /* @__PURE__ */ _bind(
+	FW,
+	'registerComponentNoDuplicates',
+)
+
 export const relation = /* @__PURE__ */ _bind(FW, 'relation')
 export const relationl = /* @__PURE__ */ _bind(FW, 'relationl')
 export const reqAborted = /* @__PURE__ */ _bind(FW, 'reqAborted')
@@ -8444,7 +12629,11 @@ export const resSysHeap = /* @__PURE__ */ _bind(FW, 'resSysHeap')
 export const resSysHeapBit = /* @__PURE__ */ _bind(FW, 'resSysHeapBit')
 export const resSysRefBit = /* @__PURE__ */ _bind(FW, 'resSysRefBit')
 export const resourceInMemory = /* @__PURE__ */ _bind(FW, 'resourceInMemory')
-export const retryComponentRegistrationErr = /* @__PURE__ */ _bind(FW, 'retryComponentRegistrationErr')
+export const retryComponentRegistrationErr = /* @__PURE__ */ _bind(
+	FW,
+	'retryComponentRegistrationErr',
+)
+
 export const rfNumErr = /* @__PURE__ */ _bind(FW, 'rfNumErr')
 export const rgnOverflowErr = /* @__PURE__ */ _bind(FW, 'rgnOverflowErr')
 export const rgnTooBigErr = /* @__PURE__ */ _bind(FW, 'rgnTooBigErr')
@@ -8478,13 +12667,21 @@ export const secondField = /* @__PURE__ */ _bind(FW, 'secondField')
 export const secondMask = /* @__PURE__ */ _bind(FW, 'secondMask')
 export const sectNFErr = /* @__PURE__ */ _bind(FW, 'sectNFErr')
 export const seekErr = /* @__PURE__ */ _bind(FW, 'seekErr')
-export const selectorNotSupportedByNodeErr = /* @__PURE__ */ _bind(FW, 'selectorNotSupportedByNodeErr')
+export const selectorNotSupportedByNodeErr = /* @__PURE__ */ _bind(
+	FW,
+	'selectorNotSupportedByNodeErr',
+)
+
 export const sepNotConsistent = /* @__PURE__ */ _bind(FW, 'sepNotConsistent')
 export const sepNotIntlSep = /* @__PURE__ */ _bind(FW, 'sepNotIntlSep')
 export const seqGrabInfoNotAvailable = /* @__PURE__ */ _bind(FW, 'seqGrabInfoNotAvailable')
 export const sessClosedErr = /* @__PURE__ */ _bind(FW, 'sessClosedErr')
 export const sessTableErr = /* @__PURE__ */ _bind(FW, 'sessTableErr')
-export const settingNotSupportedByNodeErr = /* @__PURE__ */ _bind(FW, 'settingNotSupportedByNodeErr')
+export const settingNotSupportedByNodeErr = /* @__PURE__ */ _bind(
+	FW,
+	'settingNotSupportedByNodeErr',
+)
+
 export const sharedFolderIconResource = /* @__PURE__ */ _bind(FW, 'sharedFolderIconResource')
 export const shortDate = /* @__PURE__ */ _bind(FW, 'shortDate')
 export const shutDownAlert = /* @__PURE__ */ _bind(FW, 'shutDownAlert')
@@ -8504,7 +12701,11 @@ export const siNoBufferSpecified = /* @__PURE__ */ _bind(FW, 'siNoBufferSpecifie
 export const siNoSoundInHardware = /* @__PURE__ */ _bind(FW, 'siNoSoundInHardware')
 export const siUnknownInfoType = /* @__PURE__ */ _bind(FW, 'siUnknownInfoType')
 export const siUnknownQuality = /* @__PURE__ */ _bind(FW, 'siUnknownQuality')
-export const siVBRCompressionNotSupported = /* @__PURE__ */ _bind(FW, 'siVBRCompressionNotSupported')
+export const siVBRCompressionNotSupported = /* @__PURE__ */ _bind(
+	FW,
+	'siVBRCompressionNotSupported',
+)
+
 export const sktClosedErr = /* @__PURE__ */ _bind(FW, 'sktClosedErr')
 export const sleepQType = /* @__PURE__ */ _bind(FW, 'sleepQType')
 export const slotNumErr = /* @__PURE__ */ _bind(FW, 'slotNumErr')
@@ -8766,7 +12967,11 @@ export const svDisabled = /* @__PURE__ */ _bind(FW, 'svDisabled')
 export const svTempDisable = /* @__PURE__ */ _bind(FW, 'svTempDisable')
 export const synthNotReady = /* @__PURE__ */ _bind(FW, 'synthNotReady')
 export const synthOpenFailed = /* @__PURE__ */ _bind(FW, 'synthOpenFailed')
-export const synthesizerNotRespondingOSErr = /* @__PURE__ */ _bind(FW, 'synthesizerNotRespondingOSErr')
+export const synthesizerNotRespondingOSErr = /* @__PURE__ */ _bind(
+	FW,
+	'synthesizerNotRespondingOSErr',
+)
+
 export const synthesizerOSErr = /* @__PURE__ */ _bind(FW, 'synthesizerOSErr')
 export const systemCurLang = /* @__PURE__ */ _bind(FW, 'systemCurLang')
 export const systemDefLang = /* @__PURE__ */ _bind(FW, 'systemDefLang')
@@ -8847,22 +13052,46 @@ export const telUnknownErr = /* @__PURE__ */ _bind(FW, 'telUnknownErr')
 export const telVTypeNotSupp = /* @__PURE__ */ _bind(FW, 'telVTypeNotSupp')
 export const telValidateFailed = /* @__PURE__ */ _bind(FW, 'telValidateFailed')
 export const textParserBadParamErr = /* @__PURE__ */ _bind(FW, 'textParserBadParamErr')
-export const textParserBadParserObjectErr = /* @__PURE__ */ _bind(FW, 'textParserBadParserObjectErr')
-export const textParserBadTextEncodingErr = /* @__PURE__ */ _bind(FW, 'textParserBadTextEncodingErr')
-export const textParserBadTextLanguageErr = /* @__PURE__ */ _bind(FW, 'textParserBadTextLanguageErr')
+export const textParserBadParserObjectErr = /* @__PURE__ */ _bind(
+	FW,
+	'textParserBadParserObjectErr',
+)
+
+export const textParserBadTextEncodingErr = /* @__PURE__ */ _bind(
+	FW,
+	'textParserBadTextEncodingErr',
+)
+
+export const textParserBadTextLanguageErr = /* @__PURE__ */ _bind(
+	FW,
+	'textParserBadTextLanguageErr',
+)
+
 export const textParserBadTokenValueErr = /* @__PURE__ */ _bind(FW, 'textParserBadTokenValueErr')
 export const textParserNoMoreTextErr = /* @__PURE__ */ _bind(FW, 'textParserNoMoreTextErr')
 export const textParserNoMoreTokensErr = /* @__PURE__ */ _bind(FW, 'textParserNoMoreTokensErr')
-export const textParserNoSuchTokenFoundErr = /* @__PURE__ */ _bind(FW, 'textParserNoSuchTokenFoundErr')
+export const textParserNoSuchTokenFoundErr = /* @__PURE__ */ _bind(
+	FW,
+	'textParserNoSuchTokenFoundErr',
+)
+
 export const textParserObjectNotFoundErr = /* @__PURE__ */ _bind(FW, 'textParserObjectNotFoundErr')
 export const textParserParamErr = /* @__PURE__ */ _bind(FW, 'textParserParamErr')
 export const themeBadCursorIndexErr = /* @__PURE__ */ _bind(FW, 'themeBadCursorIndexErr')
 export const themeBadTextColorErr = /* @__PURE__ */ _bind(FW, 'themeBadTextColorErr')
 export const themeHasNoAccentsErr = /* @__PURE__ */ _bind(FW, 'themeHasNoAccentsErr')
 export const themeInvalidBrushErr = /* @__PURE__ */ _bind(FW, 'themeInvalidBrushErr')
-export const themeMonitorDepthNotSupportedErr = /* @__PURE__ */ _bind(FW, 'themeMonitorDepthNotSupportedErr')
+export const themeMonitorDepthNotSupportedErr = /* @__PURE__ */ _bind(
+	FW,
+	'themeMonitorDepthNotSupportedErr',
+)
+
 export const themeNoAppropriateBrushErr = /* @__PURE__ */ _bind(FW, 'themeNoAppropriateBrushErr')
-export const themeProcessNotRegisteredErr = /* @__PURE__ */ _bind(FW, 'themeProcessNotRegisteredErr')
+export const themeProcessNotRegisteredErr = /* @__PURE__ */ _bind(
+	FW,
+	'themeProcessNotRegisteredErr',
+)
+
 export const themeProcessRegisteredErr = /* @__PURE__ */ _bind(FW, 'themeProcessRegisteredErr')
 export const themeScriptFontNotFoundErr = /* @__PURE__ */ _bind(FW, 'themeScriptFontNotFoundErr')
 export const threadBadAppContextErr = /* @__PURE__ */ _bind(FW, 'threadBadAppContextErr')
@@ -9005,15 +13234,35 @@ export const trackNotInMovie = /* @__PURE__ */ _bind(FW, 'trackNotInMovie')
 export const trashIconResource = /* @__PURE__ */ _bind(FW, 'trashIconResource')
 export const true32b = /* @__PURE__ */ _bind(FW, 'true32b')
 export const tsmAlreadyRegisteredErr = /* @__PURE__ */ _bind(FW, 'tsmAlreadyRegisteredErr')
-export const tsmCantChangeForcedClassStateErr = /* @__PURE__ */ _bind(FW, 'tsmCantChangeForcedClassStateErr')
+export const tsmCantChangeForcedClassStateErr = /* @__PURE__ */ _bind(
+	FW,
+	'tsmCantChangeForcedClassStateErr',
+)
+
 export const tsmCantOpenComponentErr = /* @__PURE__ */ _bind(FW, 'tsmCantOpenComponentErr')
 export const tsmComponentAlreadyOpenErr = /* @__PURE__ */ _bind(FW, 'tsmComponentAlreadyOpenErr')
 export const tsmComponentNoErr = /* @__PURE__ */ _bind(FW, 'tsmComponentNoErr')
-export const tsmComponentPropertyNotFoundErr = /* @__PURE__ */ _bind(FW, 'tsmComponentPropertyNotFoundErr')
-export const tsmComponentPropertyUnsupportedErr = /* @__PURE__ */ _bind(FW, 'tsmComponentPropertyUnsupportedErr')
-export const tsmDefaultIsNotInputMethodErr = /* @__PURE__ */ _bind(FW, 'tsmDefaultIsNotInputMethodErr')
+export const tsmComponentPropertyNotFoundErr = /* @__PURE__ */ _bind(
+	FW,
+	'tsmComponentPropertyNotFoundErr',
+)
+
+export const tsmComponentPropertyUnsupportedErr = /* @__PURE__ */ _bind(
+	FW,
+	'tsmComponentPropertyUnsupportedErr',
+)
+
+export const tsmDefaultIsNotInputMethodErr = /* @__PURE__ */ _bind(
+	FW,
+	'tsmDefaultIsNotInputMethodErr',
+)
+
 export const tsmDocNotActiveErr = /* @__PURE__ */ _bind(FW, 'tsmDocNotActiveErr')
-export const tsmDocPropertyBufferTooSmallErr = /* @__PURE__ */ _bind(FW, 'tsmDocPropertyBufferTooSmallErr')
+export const tsmDocPropertyBufferTooSmallErr = /* @__PURE__ */ _bind(
+	FW,
+	'tsmDocPropertyBufferTooSmallErr',
+)
+
 export const tsmDocPropertyNotFoundErr = /* @__PURE__ */ _bind(FW, 'tsmDocPropertyNotFoundErr')
 export const tsmDocumentOpenErr = /* @__PURE__ */ _bind(FW, 'tsmDocumentOpenErr')
 export const tsmInputMethodIsOldErr = /* @__PURE__ */ _bind(FW, 'tsmInputMethodIsOldErr')
@@ -9061,7 +13310,11 @@ export const typeCFAttributedStringRef = /* @__PURE__ */ _bind(FW, 'typeCFAttrib
 export const typeCFBooleanRef = /* @__PURE__ */ _bind(FW, 'typeCFBooleanRef')
 export const typeCFDictionaryRef = /* @__PURE__ */ _bind(FW, 'typeCFDictionaryRef')
 export const typeCFMutableArrayRef = /* @__PURE__ */ _bind(FW, 'typeCFMutableArrayRef')
-export const typeCFMutableAttributedStringRef = /* @__PURE__ */ _bind(FW, 'typeCFMutableAttributedStringRef')
+export const typeCFMutableAttributedStringRef = /* @__PURE__ */ _bind(
+	FW,
+	'typeCFMutableAttributedStringRef',
+)
+
 export const typeCFMutableDictionaryRef = /* @__PURE__ */ _bind(FW, 'typeCFMutableDictionaryRef')
 export const typeCFMutableStringRef = /* @__PURE__ */ _bind(FW, 'typeCFMutableStringRef')
 export const typeCFNumberRef = /* @__PURE__ */ _bind(FW, 'typeCFNumberRef')
@@ -9198,7 +13451,11 @@ export const typeType = /* @__PURE__ */ _bind(FW, 'typeType')
 export const typeUInt16 = /* @__PURE__ */ _bind(FW, 'typeUInt16')
 export const typeUInt32 = /* @__PURE__ */ _bind(FW, 'typeUInt32')
 export const typeUInt64 = /* @__PURE__ */ _bind(FW, 'typeUInt64')
-export const typeUTF16ExternalRepresentation = /* @__PURE__ */ _bind(FW, 'typeUTF16ExternalRepresentation')
+export const typeUTF16ExternalRepresentation = /* @__PURE__ */ _bind(
+	FW,
+	'typeUTF16ExternalRepresentation',
+)
+
 export const typeUTF8Text = /* @__PURE__ */ _bind(FW, 'typeUTF8Text')
 export const typeUnicodeText = /* @__PURE__ */ _bind(FW, 'typeUnicodeText')
 export const typeVersion = /* @__PURE__ */ _bind(FW, 'typeVersion')
@@ -9224,36 +13481,108 @@ export const unitEmptyErr = /* @__PURE__ */ _bind(FW, 'unitEmptyErr')
 export const unitTblFullErr = /* @__PURE__ */ _bind(FW, 'unitTblFullErr')
 export const unknownFormatErr = /* @__PURE__ */ _bind(FW, 'unknownFormatErr')
 export const unknownInsertModeErr = /* @__PURE__ */ _bind(FW, 'unknownInsertModeErr')
-export const unnamed_11669986646035351884 = /* @__PURE__ */ _bind(FW, 'unnamed_11669986646035351884')
-export const unnamed_11772551771042142526 = /* @__PURE__ */ _bind(FW, 'unnamed_11772551771042142526')
-export const unnamed_17753414563426342352 = /* @__PURE__ */ _bind(FW, 'unnamed_17753414563426342352')
-export const unnamed_18198488241920268160 = /* @__PURE__ */ _bind(FW, 'unnamed_18198488241920268160')
+export const unnamed_11669986646035351884 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_11669986646035351884',
+)
+
+export const unnamed_11772551771042142526 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_11772551771042142526',
+)
+
+export const unnamed_17753414563426342352 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_17753414563426342352',
+)
+
+export const unnamed_18198488241920268160 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_18198488241920268160',
+)
+
 export const unnamed_4113676762463593885 = /* @__PURE__ */ _bind(FW, 'unnamed_4113676762463593885')
 export const unnamed_5112872868179081794 = /* @__PURE__ */ _bind(FW, 'unnamed_5112872868179081794')
 export const unnamed_8264836466375597242 = /* @__PURE__ */ _bind(FW, 'unnamed_8264836466375597242')
 export const unnamed_9912716794451110525 = /* @__PURE__ */ _bind(FW, 'unnamed_9912716794451110525')
 export const unresolvedComponentDLLErr = /* @__PURE__ */ _bind(FW, 'unresolvedComponentDLLErr')
-export const unsupportedAuxiliaryImportData = /* @__PURE__ */ _bind(FW, 'unsupportedAuxiliaryImportData')
+export const unsupportedAuxiliaryImportData = /* @__PURE__ */ _bind(
+	FW,
+	'unsupportedAuxiliaryImportData',
+)
+
 export const unsupportedForPlatformErr = /* @__PURE__ */ _bind(FW, 'unsupportedForPlatformErr')
 export const unsupportedOSErr = /* @__PURE__ */ _bind(FW, 'unsupportedOSErr')
 export const unsupportedProcessorErr = /* @__PURE__ */ _bind(FW, 'unsupportedProcessorErr')
 export const updPixMemErr = /* @__PURE__ */ _bind(FW, 'updPixMemErr')
-export const uppCallComponentCanDoProcInfo = /* @__PURE__ */ _bind(FW, 'uppCallComponentCanDoProcInfo')
-export const uppCallComponentCloseProcInfo = /* @__PURE__ */ _bind(FW, 'uppCallComponentCloseProcInfo')
-export const uppCallComponentGetMPWorkFunctionProcInfo = /* @__PURE__ */ _bind(FW, 'uppCallComponentGetMPWorkFunctionProcInfo')
-export const uppCallComponentGetPublicResourceProcInfo = /* @__PURE__ */ _bind(FW, 'uppCallComponentGetPublicResourceProcInfo')
-export const uppCallComponentOpenProcInfo = /* @__PURE__ */ _bind(FW, 'uppCallComponentOpenProcInfo')
-export const uppCallComponentRegisterProcInfo = /* @__PURE__ */ _bind(FW, 'uppCallComponentRegisterProcInfo')
-export const uppCallComponentTargetProcInfo = /* @__PURE__ */ _bind(FW, 'uppCallComponentTargetProcInfo')
-export const uppCallComponentUnregisterProcInfo = /* @__PURE__ */ _bind(FW, 'uppCallComponentUnregisterProcInfo')
-export const uppCallComponentVersionProcInfo = /* @__PURE__ */ _bind(FW, 'uppCallComponentVersionProcInfo')
-export const uppComponentFunctionImplementedProcInfo = /* @__PURE__ */ _bind(FW, 'uppComponentFunctionImplementedProcInfo')
-export const uppComponentSetTargetProcInfo = /* @__PURE__ */ _bind(FW, 'uppComponentSetTargetProcInfo')
-export const uppGetComponentVersionProcInfo = /* @__PURE__ */ _bind(FW, 'uppGetComponentVersionProcInfo')
+export const uppCallComponentCanDoProcInfo = /* @__PURE__ */ _bind(
+	FW,
+	'uppCallComponentCanDoProcInfo',
+)
+
+export const uppCallComponentCloseProcInfo = /* @__PURE__ */ _bind(
+	FW,
+	'uppCallComponentCloseProcInfo',
+)
+
+export const uppCallComponentGetMPWorkFunctionProcInfo = /* @__PURE__ */ _bind(
+	FW,
+	'uppCallComponentGetMPWorkFunctionProcInfo',
+)
+
+export const uppCallComponentGetPublicResourceProcInfo = /* @__PURE__ */ _bind(
+	FW,
+	'uppCallComponentGetPublicResourceProcInfo',
+)
+
+export const uppCallComponentOpenProcInfo = /* @__PURE__ */ _bind(
+	FW,
+	'uppCallComponentOpenProcInfo',
+)
+
+export const uppCallComponentRegisterProcInfo = /* @__PURE__ */ _bind(
+	FW,
+	'uppCallComponentRegisterProcInfo',
+)
+
+export const uppCallComponentTargetProcInfo = /* @__PURE__ */ _bind(
+	FW,
+	'uppCallComponentTargetProcInfo',
+)
+
+export const uppCallComponentUnregisterProcInfo = /* @__PURE__ */ _bind(
+	FW,
+	'uppCallComponentUnregisterProcInfo',
+)
+
+export const uppCallComponentVersionProcInfo = /* @__PURE__ */ _bind(
+	FW,
+	'uppCallComponentVersionProcInfo',
+)
+
+export const uppComponentFunctionImplementedProcInfo = /* @__PURE__ */ _bind(
+	FW,
+	'uppComponentFunctionImplementedProcInfo',
+)
+
+export const uppComponentSetTargetProcInfo = /* @__PURE__ */ _bind(
+	FW,
+	'uppComponentSetTargetProcInfo',
+)
+
+export const uppGetComponentVersionProcInfo = /* @__PURE__ */ _bind(
+	FW,
+	'uppGetComponentVersionProcInfo',
+)
+
 export const urlDataHFTPBadNameListErr = /* @__PURE__ */ _bind(FW, 'urlDataHFTPBadNameListErr')
 export const urlDataHFTPBadPasswordErr = /* @__PURE__ */ _bind(FW, 'urlDataHFTPBadPasswordErr')
 export const urlDataHFTPBadUserErr = /* @__PURE__ */ _bind(FW, 'urlDataHFTPBadUserErr')
-export const urlDataHFTPDataConnectionErr = /* @__PURE__ */ _bind(FW, 'urlDataHFTPDataConnectionErr')
+export const urlDataHFTPDataConnectionErr = /* @__PURE__ */ _bind(
+	FW,
+	'urlDataHFTPDataConnectionErr',
+)
+
 export const urlDataHFTPFilenameErr = /* @__PURE__ */ _bind(FW, 'urlDataHFTPFilenameErr')
 export const urlDataHFTPNeedPasswordErr = /* @__PURE__ */ _bind(FW, 'urlDataHFTPNeedPasswordErr')
 export const urlDataHFTPNoDirectoryErr = /* @__PURE__ */ _bind(FW, 'urlDataHFTPNoDirectoryErr')
@@ -9262,7 +13591,11 @@ export const urlDataHFTPNoPasswordErr = /* @__PURE__ */ _bind(FW, 'urlDataHFTPNo
 export const urlDataHFTPPermissionsErr = /* @__PURE__ */ _bind(FW, 'urlDataHFTPPermissionsErr')
 export const urlDataHFTPProtocolErr = /* @__PURE__ */ _bind(FW, 'urlDataHFTPProtocolErr')
 export const urlDataHFTPQuotaErr = /* @__PURE__ */ _bind(FW, 'urlDataHFTPQuotaErr')
-export const urlDataHFTPServerDisconnectedErr = /* @__PURE__ */ _bind(FW, 'urlDataHFTPServerDisconnectedErr')
+export const urlDataHFTPServerDisconnectedErr = /* @__PURE__ */ _bind(
+	FW,
+	'urlDataHFTPServerDisconnectedErr',
+)
+
 export const urlDataHFTPServerErr = /* @__PURE__ */ _bind(FW, 'urlDataHFTPServerErr')
 export const urlDataHFTPShutdownErr = /* @__PURE__ */ _bind(FW, 'urlDataHFTPShutdownErr')
 export const urlDataHFTPURLErr = /* @__PURE__ */ _bind(FW, 'urlDataHFTPURLErr')
@@ -9426,7 +13759,11 @@ export const vmInvalidOwningProcessErr = /* @__PURE__ */ _bind(FW, 'vmInvalidOwn
 export const vmKernelMMUInitErr = /* @__PURE__ */ _bind(FW, 'vmKernelMMUInitErr')
 export const vmMappingPrivilegesErr = /* @__PURE__ */ _bind(FW, 'vmMappingPrivilegesErr')
 export const vmMemLckdErr = /* @__PURE__ */ _bind(FW, 'vmMemLckdErr')
-export const vmMorePhysicalThanVirtualErr = /* @__PURE__ */ _bind(FW, 'vmMorePhysicalThanVirtualErr')
+export const vmMorePhysicalThanVirtualErr = /* @__PURE__ */ _bind(
+	FW,
+	'vmMorePhysicalThanVirtualErr',
+)
+
 export const vmNoMoreBackingFilesErr = /* @__PURE__ */ _bind(FW, 'vmNoMoreBackingFilesErr')
 export const vmNoMoreFileViewsErr = /* @__PURE__ */ _bind(FW, 'vmNoMoreFileViewsErr')
 export const vmNoVectorErr = /* @__PURE__ */ _bind(FW, 'vmNoVectorErr')
@@ -9453,7 +13790,11 @@ export const wackForkNotFoundErr = /* @__PURE__ */ _bind(FW, 'wackForkNotFoundEr
 export const weekOfYearField = /* @__PURE__ */ _bind(FW, 'weekOfYearField')
 export const weekOfYearMask = /* @__PURE__ */ _bind(FW, 'weekOfYearMask')
 export const wfFileNotFound = /* @__PURE__ */ _bind(FW, 'wfFileNotFound')
-export const windowAppModalStateAlreadyExistsErr = /* @__PURE__ */ _bind(FW, 'windowAppModalStateAlreadyExistsErr')
+export const windowAppModalStateAlreadyExistsErr = /* @__PURE__ */ _bind(
+	FW,
+	'windowAppModalStateAlreadyExistsErr',
+)
+
 export const windowAttributeImmutableErr = /* @__PURE__ */ _bind(FW, 'windowAttributeImmutableErr')
 export const windowAttributesConflictErr = /* @__PURE__ */ _bind(FW, 'windowAttributesConflictErr')
 export const windowGroupInvalidErr = /* @__PURE__ */ _bind(FW, 'windowGroupInvalidErr')

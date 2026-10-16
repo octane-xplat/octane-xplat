@@ -1,138 +1,139 @@
 /// <reference types="@nativescript/objc-node-api" />
 /// <reference path="./Runtime.d.ts" />
 
-declare const VSErrorInfoKeyUnsupportedProviderIdentifier: string;
+declare const VSErrorInfoKeyUnsupportedProviderIdentifier: string
 
-declare const VSErrorInfoKeySAMLResponseStatus: string;
+declare const VSErrorInfoKeySAMLResponseStatus: string
 
-declare const VSErrorInfoKeySAMLResponse: string;
+declare const VSErrorInfoKeySAMLResponse: string
 
-declare const VSCheckAccessOptionPrompt: string;
+declare const VSCheckAccessOptionPrompt: string
 
-declare const VSAccountProviderAuthenticationSchemeSAML: string;
+declare const VSAccountProviderAuthenticationSchemeSAML: string
 
-declare const VSErrorDomain: string;
+declare const VSErrorDomain: string
 
-declare const VSErrorInfoKeyAccountProviderResponse: string;
+declare const VSErrorInfoKeyAccountProviderResponse: string
 
-declare const VSAccountProviderAuthenticationSchemeAPI: string;
+declare const VSAccountProviderAuthenticationSchemeAPI: string
 
 declare const VSErrorCode: {
-  AccessNotGranted: 0,
-  UnsupportedProvider: 1,
-  UserCancelled: 2,
-  ServiceTemporarilyUnavailable: 3,
-  ProviderRejected: 4,
-  InvalidVerificationToken: 5,
-  Rejected: 6,
-  Unsupported: 7,
-};
+	AccessNotGranted: 0
+	UnsupportedProvider: 1
+	UserCancelled: 2
+	ServiceTemporarilyUnavailable: 3
+	ProviderRejected: 4
+	InvalidVerificationToken: 5
+	Rejected: 6
+	Unsupported: 7
+}
 
 declare const VSSubscriptionAccessLevel: {
-  Unknown: 0,
-  FreeWithAccount: 1,
-  Paid: 2,
-};
+	Unknown: 0
+	FreeWithAccount: 1
+	Paid: 2
+}
 
 declare const VSAccountAccessStatus: {
-  NotDetermined: 0,
-  Restricted: 1,
-  Denied: 2,
-  Granted: 3,
-};
+	NotDetermined: 0
+	Restricted: 1
+	Denied: 2
+	Granted: 3
+}
 
 declare interface VSAccountManagerDelegate extends NSObjectProtocol {
-  accountManagerShouldAuthenticateAccountProviderWithIdentifier?(accountManager: VSAccountManager, accountProviderIdentifier: string): boolean;
+	accountManagerShouldAuthenticateAccountProviderWithIdentifier?(
+		accountManager: VSAccountManager,
+		accountProviderIdentifier: string,
+	): boolean
 }
 
-declare class VSAccountManagerDelegate extends NativeObject implements VSAccountManagerDelegate {
-}
+declare class VSAccountManagerDelegate extends NativeObject implements VSAccountManagerDelegate {}
 
 declare class VSAccountMetadataRequest extends NSObject {
-  channelIdentifier: string;
+	channelIdentifier: string
 
-  get supportedAccountProviderIdentifiers(): NSArray;
-  set supportedAccountProviderIdentifiers(value: NSArray<interop.Object> | Array<interop.Object>);
+	get supportedAccountProviderIdentifiers(): NSArray
+	set supportedAccountProviderIdentifiers(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get featuredAccountProviderIdentifiers(): NSArray;
-  set featuredAccountProviderIdentifiers(value: NSArray<interop.Object> | Array<interop.Object>);
+	get featuredAccountProviderIdentifiers(): NSArray
+	set featuredAccountProviderIdentifiers(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  verificationToken: string;
+	verificationToken: string
 
-  includeAccountProviderIdentifier: boolean;
+	includeAccountProviderIdentifier: boolean
 
-  includeAuthenticationExpirationDate: boolean;
+	includeAuthenticationExpirationDate: boolean
 
-  localizedVideoTitle: string;
+	localizedVideoTitle: string
 
-  interruptionAllowed: boolean;
+	interruptionAllowed: boolean
 
-  forceAuthentication: boolean;
+	forceAuthentication: boolean
 
-  get attributeNames(): NSArray;
-  set attributeNames(value: NSArray<interop.Object> | Array<interop.Object>);
+	get attributeNames(): NSArray
+	set attributeNames(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get supportedAuthenticationSchemes(): NSArray;
-  set supportedAuthenticationSchemes(value: NSArray<interop.Object> | Array<interop.Object>);
+	get supportedAuthenticationSchemes(): NSArray
+	set supportedAuthenticationSchemes(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  accountProviderAuthenticationToken: string;
+	accountProviderAuthenticationToken: string
 
-  get applicationAccountProviders(): NSArray;
-  set applicationAccountProviders(value: NSArray<interop.Object> | Array<interop.Object>);
+	get applicationAccountProviders(): NSArray
+	set applicationAccountProviders(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  isInterruptionAllowed(): boolean;
+	isInterruptionAllowed(): boolean
 }
 
 declare class VSAccountMetadata extends NSObject {
-  readonly accountProviderIdentifier: string;
+	readonly accountProviderIdentifier: string
 
-  readonly authenticationExpirationDate: NSDate;
+	readonly authenticationExpirationDate: NSDate
 
-  readonly verificationData: NSData;
+	readonly verificationData: NSData
 
-  readonly SAMLAttributeQueryResponse: string;
+	readonly SAMLAttributeQueryResponse: string
 
-  readonly accountProviderResponse: VSAccountProviderResponse;
+	readonly accountProviderResponse: VSAccountProviderResponse
 }
 
 declare class VSAccountApplicationProvider extends NSObject {
-  initWithLocalizedDisplayNameIdentifier(localizedDisplayName: string, identifier: string): this;
+	initWithLocalizedDisplayNameIdentifier(localizedDisplayName: string, identifier: string): this
 
-  readonly localizedDisplayName: string;
+	readonly localizedDisplayName: string
 
-  readonly identifier: string;
+	readonly identifier: string
 }
 
 declare class VSSubscription extends NSObject {
-  expirationDate: NSDate;
+	expirationDate: NSDate
 
-  accessLevel: interop.Enum<typeof VSSubscriptionAccessLevel>;
+	accessLevel: interop.Enum<typeof VSSubscriptionAccessLevel>
 
-  get tierIdentifiers(): NSArray;
-  set tierIdentifiers(value: NSArray<interop.Object> | Array<interop.Object>);
+	get tierIdentifiers(): NSArray
+	set tierIdentifiers(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  billingIdentifier: string;
+	billingIdentifier: string
 }
 
 declare class VSAccountManager extends NSObject {
-  delegate: VSAccountManagerDelegate | null;
+	delegate: VSAccountManagerDelegate | null
 }
 
 declare class VSAccountManagerResult extends NSObject {
-  cancel(): void;
+	cancel(): void
 }
 
 declare class VSAccountProviderResponse extends NSObject {
-  readonly authenticationScheme: string;
+	readonly authenticationScheme: string
 
-  readonly status: string;
+	readonly status: string
 
-  readonly body: string;
+	readonly body: string
 }
 
 declare class VSSubscriptionRegistrationCenter extends NSObject {
-  static defaultSubscriptionRegistrationCenter(): VSSubscriptionRegistrationCenter;
+	static defaultSubscriptionRegistrationCenter(): VSSubscriptionRegistrationCenter
 
-  setCurrentSubscription(currentSubscription: VSSubscription | null): void;
+	setCurrentSubscription(currentSubscription: VSSubscription | null): void
 }
-

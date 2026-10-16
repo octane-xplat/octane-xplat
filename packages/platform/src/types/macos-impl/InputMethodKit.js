@@ -1,8 +1,16 @@
 import { _bind } from './_rt.js'
 const FW = '/System/Library/Frameworks/InputMethodKit.framework/InputMethodKit'
 export const IMKCandidates = /* @__PURE__ */ _bind(FW, 'IMKCandidates')
-export const IMKCandidatesOpacityAttributeName = /* @__PURE__ */ _bind(FW, 'IMKCandidatesOpacityAttributeName')
-export const IMKCandidatesSendServerKeyEventFirst = /* @__PURE__ */ _bind(FW, 'IMKCandidatesSendServerKeyEventFirst')
+export const IMKCandidatesOpacityAttributeName = /* @__PURE__ */ _bind(
+	FW,
+	'IMKCandidatesOpacityAttributeName',
+)
+
+export const IMKCandidatesSendServerKeyEventFirst = /* @__PURE__ */ _bind(
+	FW,
+	'IMKCandidatesSendServerKeyEventFirst',
+)
+
 export const IMKControllerClass = /* @__PURE__ */ _bind(FW, 'IMKControllerClass')
 export const IMKDelegateClass = /* @__PURE__ */ _bind(FW, 'IMKDelegateClass')
 export const IMKInputController = /* @__PURE__ */ _bind(FW, 'IMKInputController')
@@ -13,12 +21,40 @@ export const IMKStateSetting = /* @__PURE__ */ _bind(FW, 'IMKStateSetting')
 export const kIMKAnnotation = /* @__PURE__ */ _bind(FW, 'kIMKAnnotation')
 export const kIMKCommandClientName = /* @__PURE__ */ _bind(FW, 'kIMKCommandClientName')
 export const kIMKCommandMenuItemName = /* @__PURE__ */ _bind(FW, 'kIMKCommandMenuItemName')
-export const kIMKLocateCandidatesAboveHint = /* @__PURE__ */ _bind(FW, 'kIMKLocateCandidatesAboveHint')
-export const kIMKLocateCandidatesBelowHint = /* @__PURE__ */ _bind(FW, 'kIMKLocateCandidatesBelowHint')
-export const kIMKLocateCandidatesLeftHint = /* @__PURE__ */ _bind(FW, 'kIMKLocateCandidatesLeftHint')
-export const kIMKLocateCandidatesRightHint = /* @__PURE__ */ _bind(FW, 'kIMKLocateCandidatesRightHint')
+export const kIMKLocateCandidatesAboveHint = /* @__PURE__ */ _bind(
+	FW,
+	'kIMKLocateCandidatesAboveHint',
+)
+
+export const kIMKLocateCandidatesBelowHint = /* @__PURE__ */ _bind(
+	FW,
+	'kIMKLocateCandidatesBelowHint',
+)
+
+export const kIMKLocateCandidatesLeftHint = /* @__PURE__ */ _bind(
+	FW,
+	'kIMKLocateCandidatesLeftHint',
+)
+
+export const kIMKLocateCandidatesRightHint = /* @__PURE__ */ _bind(
+	FW,
+	'kIMKLocateCandidatesRightHint',
+)
+
 export const kIMKMain = /* @__PURE__ */ _bind(FW, 'kIMKMain')
-export const kIMKScrollingGridCandidatePanel = /* @__PURE__ */ _bind(FW, 'kIMKScrollingGridCandidatePanel')
-export const kIMKSingleColumnScrollingCandidatePanel = /* @__PURE__ */ _bind(FW, 'kIMKSingleColumnScrollingCandidatePanel')
-export const kIMKSingleRowSteppingCandidatePanel = /* @__PURE__ */ _bind(FW, 'kIMKSingleRowSteppingCandidatePanel')
+export const kIMKScrollingGridCandidatePanel = /* @__PURE__ */ _bind(
+	FW,
+	'kIMKScrollingGridCandidatePanel',
+)
+
+export const kIMKSingleColumnScrollingCandidatePanel = /* @__PURE__ */ _bind(
+	FW,
+	'kIMKSingleColumnScrollingCandidatePanel',
+)
+
+export const kIMKSingleRowSteppingCandidatePanel = /* @__PURE__ */ _bind(
+	FW,
+	'kIMKSingleRowSteppingCandidatePanel',
+)
+
 export const kIMKSubList = /* @__PURE__ */ _bind(FW, 'kIMKSubList')

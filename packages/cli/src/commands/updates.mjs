@@ -13,11 +13,14 @@ export async function initializeUpdates(root) {
 	try {
 		existing = await readFile(destination, 'utf8')
 	} catch (error) {
-		if (error.code !== 'ENOENT') {throw error}
+		if (error.code !== 'ENOENT') {
+			throw error
+		}
 	}
 
-	if (existing && existing !== hook)
-		{throw new Error('Existing OTA hook differs; reconcile it before running updates init')}
+	if (existing && existing !== hook) {
+		throw new Error('Existing OTA hook differs; reconcile it before running updates init')
+	}
 
 	await mkdir(folder, { recursive: true })
 	await writeFile(destination, hook)

@@ -240,10 +240,13 @@ test('preflight detects children inserted after a newly created empty proxy', ()
 	)
 })
 
-
 test('batched group reparenting cannot detach the new parent projection while draining the old one', () => {
-	const f = fixture(), proxy = f.node(2, 'proxyviewcontainer'), a = f.node(3)
-	f.insert(proxy, 1); f.insert(a, 2)
+	const f = fixture(),
+		proxy = f.node(2, 'proxyviewcontainer'),
+		a = f.node(3)
+
+	f.insert(proxy, 1)
+	f.insert(a, 2)
 	f.container.layoutDirty = new Set() as any
 	f.insert(proxy, 9)
 	f.api.reconcileLayoutParent(f.other)
@@ -254,7 +257,10 @@ test('batched group reparenting cannot detach the new parent projection while dr
 })
 
 test('empty logical containers occupy no native child slot and can gain or lose children', () => {
-	const f = fixture(), proxy = f.node(2, 'proxyviewcontainer'), a = f.node(3)
+	const f = fixture(),
+		proxy = f.node(2, 'proxyviewcontainer'),
+		a = f.node(3)
+
 	f.insert(proxy, 1)
 	assert.equal(f.parent.view.subviews.length, 0)
 	f.insert(a, 2)
@@ -266,8 +272,16 @@ test('empty logical containers occupy no native child slot and can gain or lose 
 })
 
 test('proxy chains reject ownership cycles rather than recursing during native apply', () => {
-	const f = fixture(), a = f.node(2, 'proxyviewcontainer'), b = f.node(3, 'proxyviewcontainer')
-	f.insert(a, 1); f.insert(b, 2)
-	assert.throws(() => f.api.validateProxyTree(f.container, [{op: 'move', id: 2, parent: 3, before: null}]), /ownership cycle/)
+	const f = fixture(),
+		a = f.node(2, 'proxyviewcontainer'),
+		b = f.node(3, 'proxyviewcontainer')
+
+	f.insert(a, 1)
+	f.insert(b, 2)
+	assert.throws(
+		() => f.api.validateProxyTree(f.container, [{ op: 'move', id: 2, parent: 3, before: null }]),
+		/ownership cycle/,
+	)
+
 	assert.equal(a.parent, f.parent)
 })

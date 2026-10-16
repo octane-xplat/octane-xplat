@@ -18,6 +18,7 @@ test('Markdown links resolve from the page directory and preserve repository bou
 		repoPathFor('../../.agents/docs/evidence/list.json', 'app'),
 		'.agents/docs/evidence/list.json',
 	)
+
 	assert.equal(repoPathFor('../../.agents/', 'app'), '.agents/')
 })
 

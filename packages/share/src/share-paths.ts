@@ -12,9 +12,7 @@ export function fileProviderAuthority(packageName: string): string {
 	return packageName + FILE_PROVIDER_AUTHORITY_SUFFIX
 }
 
-export type ShareFilePath =
-	| { kind: 'file'; path: string }
-	| { kind: 'content'; uri: string }
+export type ShareFilePath = { kind: 'file'; path: string } | { kind: 'content'; uri: string }
 
 /** Validate and normalize the `share.file` path argument. Returns a local
  *  filesystem path or a pass-through `content://` URI; throws for empty or

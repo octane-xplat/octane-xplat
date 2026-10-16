@@ -38,9 +38,7 @@ it('args updates and story switches leave no residual pixels', async () => {
 
 		first.update({ checked: true })
 		await first.recapture()
-		expect(first.host.querySelector('[role="switch"]')?.getAttribute('aria-checked')).toBe(
-			'true',
-		)
+		expect(first.host.querySelector('[role="switch"]')?.getAttribute('aria-checked')).toBe('true')
 
 		first.update({ checked: false })
 		const returned = await decodePng((await first.recapture()).pngBase64)
@@ -53,9 +51,7 @@ it('args updates and story switches leave no residual pixels', async () => {
 
 	const away = await launchWeb('switch--checked-light')
 	try {
-		expect(away.host.querySelector('[role="switch"]')?.getAttribute('aria-checked')).toBe(
-			'true',
-		)
+		expect(away.host.querySelector('[role="switch"]')?.getAttribute('aria-checked')).toBe('true')
 	} finally {
 		away.dispose()
 	}

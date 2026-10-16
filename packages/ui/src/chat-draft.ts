@@ -64,6 +64,9 @@ export function deserializeChatComposerDraft(
 }
 
 /** Build a draft from plain text and an optional token table. */
-export function createChatComposerDraft(text = '', tokens: ChatComposerToken[] = []): ChatComposerDraft {
+export function createChatComposerDraft(
+	text = '',
+	tokens: ChatComposerToken[] = [],
+): ChatComposerDraft {
 	return { text, tokens }
 }

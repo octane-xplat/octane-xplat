@@ -2,7 +2,11 @@ import { _bind } from './_rt.js'
 const FW = '/System/Library/Frameworks/IOSurface.framework/IOSurface'
 export const IOSurface = /* @__PURE__ */ _bind(FW, 'IOSurface')
 export const IOSurfaceAlignProperty = /* @__PURE__ */ _bind(FW, 'IOSurfaceAlignProperty')
-export const IOSurfaceAllowsPixelSizeCasting = /* @__PURE__ */ _bind(FW, 'IOSurfaceAllowsPixelSizeCasting')
+export const IOSurfaceAllowsPixelSizeCasting = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfaceAllowsPixelSizeCasting',
+)
+
 export const IOSurfaceComponentName = /* @__PURE__ */ _bind(FW, 'IOSurfaceComponentName')
 export const IOSurfaceComponentRange = /* @__PURE__ */ _bind(FW, 'IOSurfaceComponentRange')
 export const IOSurfaceComponentType = /* @__PURE__ */ _bind(FW, 'IOSurfaceComponentType')
@@ -14,31 +18,79 @@ export const IOSurfaceCreateXPCObject = /* @__PURE__ */ _bind(FW, 'IOSurfaceCrea
 export const IOSurfaceDecrementUseCount = /* @__PURE__ */ _bind(FW, 'IOSurfaceDecrementUseCount')
 export const IOSurfaceGetAllocSize = /* @__PURE__ */ _bind(FW, 'IOSurfaceGetAllocSize')
 export const IOSurfaceGetBaseAddress = /* @__PURE__ */ _bind(FW, 'IOSurfaceGetBaseAddress')
-export const IOSurfaceGetBaseAddressOfPlane = /* @__PURE__ */ _bind(FW, 'IOSurfaceGetBaseAddressOfPlane')
-export const IOSurfaceGetBitDepthOfComponentOfPlane = /* @__PURE__ */ _bind(FW, 'IOSurfaceGetBitDepthOfComponentOfPlane')
-export const IOSurfaceGetBitOffsetOfComponentOfPlane = /* @__PURE__ */ _bind(FW, 'IOSurfaceGetBitOffsetOfComponentOfPlane')
+export const IOSurfaceGetBaseAddressOfPlane = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfaceGetBaseAddressOfPlane',
+)
+
+export const IOSurfaceGetBitDepthOfComponentOfPlane = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfaceGetBitDepthOfComponentOfPlane',
+)
+
+export const IOSurfaceGetBitOffsetOfComponentOfPlane = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfaceGetBitOffsetOfComponentOfPlane',
+)
+
 export const IOSurfaceGetBytesPerElement = /* @__PURE__ */ _bind(FW, 'IOSurfaceGetBytesPerElement')
-export const IOSurfaceGetBytesPerElementOfPlane = /* @__PURE__ */ _bind(FW, 'IOSurfaceGetBytesPerElementOfPlane')
+export const IOSurfaceGetBytesPerElementOfPlane = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfaceGetBytesPerElementOfPlane',
+)
+
 export const IOSurfaceGetBytesPerRow = /* @__PURE__ */ _bind(FW, 'IOSurfaceGetBytesPerRow')
-export const IOSurfaceGetBytesPerRowOfPlane = /* @__PURE__ */ _bind(FW, 'IOSurfaceGetBytesPerRowOfPlane')
+export const IOSurfaceGetBytesPerRowOfPlane = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfaceGetBytesPerRowOfPlane',
+)
+
 export const IOSurfaceGetElementHeight = /* @__PURE__ */ _bind(FW, 'IOSurfaceGetElementHeight')
-export const IOSurfaceGetElementHeightOfPlane = /* @__PURE__ */ _bind(FW, 'IOSurfaceGetElementHeightOfPlane')
+export const IOSurfaceGetElementHeightOfPlane = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfaceGetElementHeightOfPlane',
+)
+
 export const IOSurfaceGetElementWidth = /* @__PURE__ */ _bind(FW, 'IOSurfaceGetElementWidth')
-export const IOSurfaceGetElementWidthOfPlane = /* @__PURE__ */ _bind(FW, 'IOSurfaceGetElementWidthOfPlane')
+export const IOSurfaceGetElementWidthOfPlane = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfaceGetElementWidthOfPlane',
+)
+
 export const IOSurfaceGetHeight = /* @__PURE__ */ _bind(FW, 'IOSurfaceGetHeight')
 export const IOSurfaceGetHeightOfPlane = /* @__PURE__ */ _bind(FW, 'IOSurfaceGetHeightOfPlane')
 export const IOSurfaceGetID = /* @__PURE__ */ _bind(FW, 'IOSurfaceGetID')
-export const IOSurfaceGetNameOfComponentOfPlane = /* @__PURE__ */ _bind(FW, 'IOSurfaceGetNameOfComponentOfPlane')
-export const IOSurfaceGetNumberOfComponentsOfPlane = /* @__PURE__ */ _bind(FW, 'IOSurfaceGetNumberOfComponentsOfPlane')
+export const IOSurfaceGetNameOfComponentOfPlane = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfaceGetNameOfComponentOfPlane',
+)
+
+export const IOSurfaceGetNumberOfComponentsOfPlane = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfaceGetNumberOfComponentsOfPlane',
+)
+
 export const IOSurfaceGetPixelFormat = /* @__PURE__ */ _bind(FW, 'IOSurfaceGetPixelFormat')
 export const IOSurfaceGetPlaneCount = /* @__PURE__ */ _bind(FW, 'IOSurfaceGetPlaneCount')
-export const IOSurfaceGetPropertyAlignment = /* @__PURE__ */ _bind(FW, 'IOSurfaceGetPropertyAlignment')
+export const IOSurfaceGetPropertyAlignment = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfaceGetPropertyAlignment',
+)
+
 export const IOSurfaceGetPropertyMaximum = /* @__PURE__ */ _bind(FW, 'IOSurfaceGetPropertyMaximum')
-export const IOSurfaceGetRangeOfComponentOfPlane = /* @__PURE__ */ _bind(FW, 'IOSurfaceGetRangeOfComponentOfPlane')
+export const IOSurfaceGetRangeOfComponentOfPlane = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfaceGetRangeOfComponentOfPlane',
+)
+
 export const IOSurfaceGetSeed = /* @__PURE__ */ _bind(FW, 'IOSurfaceGetSeed')
 export const IOSurfaceGetSubsampling = /* @__PURE__ */ _bind(FW, 'IOSurfaceGetSubsampling')
 export const IOSurfaceGetTypeID = /* @__PURE__ */ _bind(FW, 'IOSurfaceGetTypeID')
-export const IOSurfaceGetTypeOfComponentOfPlane = /* @__PURE__ */ _bind(FW, 'IOSurfaceGetTypeOfComponentOfPlane')
+export const IOSurfaceGetTypeOfComponentOfPlane = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfaceGetTypeOfComponentOfPlane',
+)
+
 export const IOSurfaceGetUseCount = /* @__PURE__ */ _bind(FW, 'IOSurfaceGetUseCount')
 export const IOSurfaceGetWidth = /* @__PURE__ */ _bind(FW, 'IOSurfaceGetWidth')
 export const IOSurfaceGetWidthOfPlane = /* @__PURE__ */ _bind(FW, 'IOSurfaceGetWidthOfPlane')
@@ -48,30 +100,110 @@ export const IOSurfaceLock = /* @__PURE__ */ _bind(FW, 'IOSurfaceLock')
 export const IOSurfaceLockOptions = /* @__PURE__ */ _bind(FW, 'IOSurfaceLockOptions')
 export const IOSurfaceLookup = /* @__PURE__ */ _bind(FW, 'IOSurfaceLookup')
 export const IOSurfaceLookupFromMachPort = /* @__PURE__ */ _bind(FW, 'IOSurfaceLookupFromMachPort')
-export const IOSurfaceLookupFromXPCObject = /* @__PURE__ */ _bind(FW, 'IOSurfaceLookupFromXPCObject')
+export const IOSurfaceLookupFromXPCObject = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfaceLookupFromXPCObject',
+)
+
 export const IOSurfaceMemoryLedgerFlags = /* @__PURE__ */ _bind(FW, 'IOSurfaceMemoryLedgerFlags')
 export const IOSurfaceMemoryLedgerTags = /* @__PURE__ */ _bind(FW, 'IOSurfaceMemoryLedgerTags')
-export const IOSurfacePropertyAllocSizeKey = /* @__PURE__ */ _bind(FW, 'IOSurfacePropertyAllocSizeKey')
-export const IOSurfacePropertyKeyAllocSize = /* @__PURE__ */ _bind(FW, 'IOSurfacePropertyKeyAllocSize')
-export const IOSurfacePropertyKeyBytesPerElement = /* @__PURE__ */ _bind(FW, 'IOSurfacePropertyKeyBytesPerElement')
-export const IOSurfacePropertyKeyBytesPerRow = /* @__PURE__ */ _bind(FW, 'IOSurfacePropertyKeyBytesPerRow')
-export const IOSurfacePropertyKeyCacheMode = /* @__PURE__ */ _bind(FW, 'IOSurfacePropertyKeyCacheMode')
-export const IOSurfacePropertyKeyElementHeight = /* @__PURE__ */ _bind(FW, 'IOSurfacePropertyKeyElementHeight')
-export const IOSurfacePropertyKeyElementWidth = /* @__PURE__ */ _bind(FW, 'IOSurfacePropertyKeyElementWidth')
+export const IOSurfacePropertyAllocSizeKey = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfacePropertyAllocSizeKey',
+)
+
+export const IOSurfacePropertyKeyAllocSize = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfacePropertyKeyAllocSize',
+)
+
+export const IOSurfacePropertyKeyBytesPerElement = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfacePropertyKeyBytesPerElement',
+)
+
+export const IOSurfacePropertyKeyBytesPerRow = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfacePropertyKeyBytesPerRow',
+)
+
+export const IOSurfacePropertyKeyCacheMode = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfacePropertyKeyCacheMode',
+)
+
+export const IOSurfacePropertyKeyElementHeight = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfacePropertyKeyElementHeight',
+)
+
+export const IOSurfacePropertyKeyElementWidth = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfacePropertyKeyElementWidth',
+)
+
 export const IOSurfacePropertyKeyHeight = /* @__PURE__ */ _bind(FW, 'IOSurfacePropertyKeyHeight')
 export const IOSurfacePropertyKeyOffset = /* @__PURE__ */ _bind(FW, 'IOSurfacePropertyKeyOffset')
-export const IOSurfacePropertyKeyPixelFormat = /* @__PURE__ */ _bind(FW, 'IOSurfacePropertyKeyPixelFormat')
-export const IOSurfacePropertyKeyPixelSizeCastingAllowed = /* @__PURE__ */ _bind(FW, 'IOSurfacePropertyKeyPixelSizeCastingAllowed')
-export const IOSurfacePropertyKeyPlaneBase = /* @__PURE__ */ _bind(FW, 'IOSurfacePropertyKeyPlaneBase')
-export const IOSurfacePropertyKeyPlaneBytesPerElement = /* @__PURE__ */ _bind(FW, 'IOSurfacePropertyKeyPlaneBytesPerElement')
-export const IOSurfacePropertyKeyPlaneBytesPerRow = /* @__PURE__ */ _bind(FW, 'IOSurfacePropertyKeyPlaneBytesPerRow')
-export const IOSurfacePropertyKeyPlaneElementHeight = /* @__PURE__ */ _bind(FW, 'IOSurfacePropertyKeyPlaneElementHeight')
-export const IOSurfacePropertyKeyPlaneElementWidth = /* @__PURE__ */ _bind(FW, 'IOSurfacePropertyKeyPlaneElementWidth')
-export const IOSurfacePropertyKeyPlaneHeight = /* @__PURE__ */ _bind(FW, 'IOSurfacePropertyKeyPlaneHeight')
-export const IOSurfacePropertyKeyPlaneInfo = /* @__PURE__ */ _bind(FW, 'IOSurfacePropertyKeyPlaneInfo')
-export const IOSurfacePropertyKeyPlaneOffset = /* @__PURE__ */ _bind(FW, 'IOSurfacePropertyKeyPlaneOffset')
-export const IOSurfacePropertyKeyPlaneSize = /* @__PURE__ */ _bind(FW, 'IOSurfacePropertyKeyPlaneSize')
-export const IOSurfacePropertyKeyPlaneWidth = /* @__PURE__ */ _bind(FW, 'IOSurfacePropertyKeyPlaneWidth')
+export const IOSurfacePropertyKeyPixelFormat = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfacePropertyKeyPixelFormat',
+)
+
+export const IOSurfacePropertyKeyPixelSizeCastingAllowed = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfacePropertyKeyPixelSizeCastingAllowed',
+)
+
+export const IOSurfacePropertyKeyPlaneBase = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfacePropertyKeyPlaneBase',
+)
+
+export const IOSurfacePropertyKeyPlaneBytesPerElement = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfacePropertyKeyPlaneBytesPerElement',
+)
+
+export const IOSurfacePropertyKeyPlaneBytesPerRow = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfacePropertyKeyPlaneBytesPerRow',
+)
+
+export const IOSurfacePropertyKeyPlaneElementHeight = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfacePropertyKeyPlaneElementHeight',
+)
+
+export const IOSurfacePropertyKeyPlaneElementWidth = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfacePropertyKeyPlaneElementWidth',
+)
+
+export const IOSurfacePropertyKeyPlaneHeight = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfacePropertyKeyPlaneHeight',
+)
+
+export const IOSurfacePropertyKeyPlaneInfo = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfacePropertyKeyPlaneInfo',
+)
+
+export const IOSurfacePropertyKeyPlaneOffset = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfacePropertyKeyPlaneOffset',
+)
+
+export const IOSurfacePropertyKeyPlaneSize = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfacePropertyKeyPlaneSize',
+)
+
+export const IOSurfacePropertyKeyPlaneWidth = /* @__PURE__ */ _bind(
+	FW,
+	'IOSurfacePropertyKeyPlaneWidth',
+)
+
 export const IOSurfacePropertyKeyWidth = /* @__PURE__ */ _bind(FW, 'IOSurfacePropertyKeyWidth')
 export const IOSurfacePurgeabilityState = /* @__PURE__ */ _bind(FW, 'IOSurfacePurgeabilityState')
 export const IOSurfaceRemoveAllValues = /* @__PURE__ */ _bind(FW, 'IOSurfaceRemoveAllValues')
@@ -87,7 +219,11 @@ export const kIOSurfaceBytesPerRow = /* @__PURE__ */ _bind(FW, 'kIOSurfaceBytesP
 export const kIOSurfaceCacheMode = /* @__PURE__ */ _bind(FW, 'kIOSurfaceCacheMode')
 export const kIOSurfaceColorSpace = /* @__PURE__ */ _bind(FW, 'kIOSurfaceColorSpace')
 export const kIOSurfaceCopybackCache = /* @__PURE__ */ _bind(FW, 'kIOSurfaceCopybackCache')
-export const kIOSurfaceCopybackInnerCache = /* @__PURE__ */ _bind(FW, 'kIOSurfaceCopybackInnerCache')
+export const kIOSurfaceCopybackInnerCache = /* @__PURE__ */ _bind(
+	FW,
+	'kIOSurfaceCopybackInnerCache',
+)
+
 export const kIOSurfaceDefaultCache = /* @__PURE__ */ _bind(FW, 'kIOSurfaceDefaultCache')
 export const kIOSurfaceElementHeight = /* @__PURE__ */ _bind(FW, 'kIOSurfaceElementHeight')
 export const kIOSurfaceElementWidth = /* @__PURE__ */ _bind(FW, 'kIOSurfaceElementWidth')
@@ -97,25 +233,69 @@ export const kIOSurfaceInhibitCache = /* @__PURE__ */ _bind(FW, 'kIOSurfaceInhib
 export const kIOSurfaceIsGlobal = /* @__PURE__ */ _bind(FW, 'kIOSurfaceIsGlobal')
 export const kIOSurfaceMapCacheShift = /* @__PURE__ */ _bind(FW, 'kIOSurfaceMapCacheShift')
 export const kIOSurfaceMapCopybackCache = /* @__PURE__ */ _bind(FW, 'kIOSurfaceMapCopybackCache')
-export const kIOSurfaceMapCopybackInnerCache = /* @__PURE__ */ _bind(FW, 'kIOSurfaceMapCopybackInnerCache')
+export const kIOSurfaceMapCopybackInnerCache = /* @__PURE__ */ _bind(
+	FW,
+	'kIOSurfaceMapCopybackInnerCache',
+)
+
 export const kIOSurfaceMapDefaultCache = /* @__PURE__ */ _bind(FW, 'kIOSurfaceMapDefaultCache')
 export const kIOSurfaceMapInhibitCache = /* @__PURE__ */ _bind(FW, 'kIOSurfaceMapInhibitCache')
-export const kIOSurfaceMapWriteCombineCache = /* @__PURE__ */ _bind(FW, 'kIOSurfaceMapWriteCombineCache')
+export const kIOSurfaceMapWriteCombineCache = /* @__PURE__ */ _bind(
+	FW,
+	'kIOSurfaceMapWriteCombineCache',
+)
+
 export const kIOSurfaceMapWriteThruCache = /* @__PURE__ */ _bind(FW, 'kIOSurfaceMapWriteThruCache')
 export const kIOSurfaceName = /* @__PURE__ */ _bind(FW, 'kIOSurfaceName')
 export const kIOSurfaceOffset = /* @__PURE__ */ _bind(FW, 'kIOSurfaceOffset')
 export const kIOSurfacePixelFormat = /* @__PURE__ */ _bind(FW, 'kIOSurfacePixelFormat')
-export const kIOSurfacePixelSizeCastingAllowed = /* @__PURE__ */ _bind(FW, 'kIOSurfacePixelSizeCastingAllowed')
+export const kIOSurfacePixelSizeCastingAllowed = /* @__PURE__ */ _bind(
+	FW,
+	'kIOSurfacePixelSizeCastingAllowed',
+)
+
 export const kIOSurfacePlaneBase = /* @__PURE__ */ _bind(FW, 'kIOSurfacePlaneBase')
-export const kIOSurfacePlaneBitsPerElement = /* @__PURE__ */ _bind(FW, 'kIOSurfacePlaneBitsPerElement')
-export const kIOSurfacePlaneBytesPerElement = /* @__PURE__ */ _bind(FW, 'kIOSurfacePlaneBytesPerElement')
+export const kIOSurfacePlaneBitsPerElement = /* @__PURE__ */ _bind(
+	FW,
+	'kIOSurfacePlaneBitsPerElement',
+)
+
+export const kIOSurfacePlaneBytesPerElement = /* @__PURE__ */ _bind(
+	FW,
+	'kIOSurfacePlaneBytesPerElement',
+)
+
 export const kIOSurfacePlaneBytesPerRow = /* @__PURE__ */ _bind(FW, 'kIOSurfacePlaneBytesPerRow')
-export const kIOSurfacePlaneComponentBitDepths = /* @__PURE__ */ _bind(FW, 'kIOSurfacePlaneComponentBitDepths')
-export const kIOSurfacePlaneComponentBitOffsets = /* @__PURE__ */ _bind(FW, 'kIOSurfacePlaneComponentBitOffsets')
-export const kIOSurfacePlaneComponentNames = /* @__PURE__ */ _bind(FW, 'kIOSurfacePlaneComponentNames')
-export const kIOSurfacePlaneComponentRanges = /* @__PURE__ */ _bind(FW, 'kIOSurfacePlaneComponentRanges')
-export const kIOSurfacePlaneComponentTypes = /* @__PURE__ */ _bind(FW, 'kIOSurfacePlaneComponentTypes')
-export const kIOSurfacePlaneElementHeight = /* @__PURE__ */ _bind(FW, 'kIOSurfacePlaneElementHeight')
+export const kIOSurfacePlaneComponentBitDepths = /* @__PURE__ */ _bind(
+	FW,
+	'kIOSurfacePlaneComponentBitDepths',
+)
+
+export const kIOSurfacePlaneComponentBitOffsets = /* @__PURE__ */ _bind(
+	FW,
+	'kIOSurfacePlaneComponentBitOffsets',
+)
+
+export const kIOSurfacePlaneComponentNames = /* @__PURE__ */ _bind(
+	FW,
+	'kIOSurfacePlaneComponentNames',
+)
+
+export const kIOSurfacePlaneComponentRanges = /* @__PURE__ */ _bind(
+	FW,
+	'kIOSurfacePlaneComponentRanges',
+)
+
+export const kIOSurfacePlaneComponentTypes = /* @__PURE__ */ _bind(
+	FW,
+	'kIOSurfacePlaneComponentTypes',
+)
+
+export const kIOSurfacePlaneElementHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kIOSurfacePlaneElementHeight',
+)
+
 export const kIOSurfacePlaneElementWidth = /* @__PURE__ */ _bind(FW, 'kIOSurfacePlaneElementWidth')
 export const kIOSurfacePlaneHeight = /* @__PURE__ */ _bind(FW, 'kIOSurfacePlaneHeight')
 export const kIOSurfacePlaneInfo = /* @__PURE__ */ _bind(FW, 'kIOSurfacePlaneInfo')

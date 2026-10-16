@@ -26,7 +26,14 @@ import {
 	isWebGPUSupported as upstreamIsWebGPUSupported,
 } from 'shaders/js'
 
-import type { CreateShaderOptions, PresetConfig, SharedGpu, ShaderInstance, WebGPUSupportInfo } from './types'
+import type {
+	CreateShaderOptions,
+	PresetConfig,
+	SharedGpu,
+	ShaderInstance,
+	WebGPUSupportInfo,
+} from './types'
+
 import { resolveOptions, throwIfAborted, waitForPositiveSize, wrapInstance } from './shared'
 import type { Size } from './shared'
 
@@ -46,10 +53,16 @@ function ensureGpu(): any {
 	}
 
 	const gpu = gpuShim
-	if (!gpu) {return null}
+	if (!gpu) {
+		return null
+	}
+
 	const g = globalThis as any
 	try {
-		if (!g.navigator) {g.navigator = {}}
+		if (!g.navigator) {
+			g.navigator = {}
+		}
+
 		if (!g.navigator.gpu) {
 			try {
 				g.navigator.gpu = gpu
@@ -110,10 +123,16 @@ function hostCanvas(view: any): any {
 
 async function acquireInjectedGpu(): Promise<SharedGpu | null> {
 	const gpu = ensureGpu()
-	if (!gpu?.requestAdapter) {return null}
+	if (!gpu?.requestAdapter) {
+		return null
+	}
+
 	try {
 		const adapter = await gpu.requestAdapter()
-		if (!adapter) {return null}
+		if (!adapter) {
+			return null
+		}
+
 		const device = await adapter.requestDevice()
 		return device ? { device, adapter } : null
 	} catch {
@@ -135,7 +154,9 @@ export async function createShader(
 	// cannot kill another's shared device.
 	if (!upstream.gpu) {
 		const gpu = await acquireInjectedGpu()
-		if (gpu) {upstream.gpu = gpu}
+		if (gpu) {
+			upstream.gpu = gpu
+		}
 	}
 
 	throwIfAborted(signal)
@@ -165,7 +186,9 @@ export async function createShader(
 	return wrapInstance(inner, attach)
 }
 
-export async function createSharedDevice(options?: { powerPreference?: string }): Promise<SharedGpu | null> {
+export async function createSharedDevice(options?: {
+	powerPreference?: string
+}): Promise<SharedGpu | null> {
 	ensureGpu()
 	return upstreamCreateSharedDevice(options as any)
 }
@@ -190,7 +213,10 @@ export function prefersReducedMotion(): boolean {
 		if (isAndroid) {
 			const context = Application.android?.context
 			const settings = (globalThis as any).android?.provider?.Settings
-			if (!context || !settings?.Global) {return false}
+			if (!context || !settings?.Global) {
+				return false
+			}
+
 			const scale = settings.Global.getFloat(
 				context.getContentResolver(),
 				settings.Global.ANIMATOR_DURATION_SCALE,

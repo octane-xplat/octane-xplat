@@ -10,7 +10,11 @@ export const SMLoginItemSetEnabled = /* @__PURE__ */ _bind(FW, 'SMLoginItemSetEn
 export const kSMDomainSystemLaunchd = /* @__PURE__ */ _bind(FW, 'kSMDomainSystemLaunchd')
 export const kSMDomainUserLaunchd = /* @__PURE__ */ _bind(FW, 'kSMDomainUserLaunchd')
 export const kSMErrorAlreadyRegistered = /* @__PURE__ */ _bind(FW, 'kSMErrorAlreadyRegistered')
-export const kSMErrorAuthorizationFailure = /* @__PURE__ */ _bind(FW, 'kSMErrorAuthorizationFailure')
+export const kSMErrorAuthorizationFailure = /* @__PURE__ */ _bind(
+	FW,
+	'kSMErrorAuthorizationFailure',
+)
+
 export const kSMErrorDomainFramework = /* @__PURE__ */ _bind(FW, 'kSMErrorDomainFramework')
 export const kSMErrorDomainIPC = /* @__PURE__ */ _bind(FW, 'kSMErrorDomainIPC')
 export const kSMErrorDomainLaunchd = /* @__PURE__ */ _bind(FW, 'kSMErrorDomainLaunchd')

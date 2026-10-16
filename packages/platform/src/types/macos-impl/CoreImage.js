@@ -15,7 +15,11 @@ export const CIAreaMinMaxRed = /* @__PURE__ */ _bind(FW, 'CIAreaMinMaxRed')
 export const CIAreaMinimum = /* @__PURE__ */ _bind(FW, 'CIAreaMinimum')
 export const CIAreaMinimumAlpha = /* @__PURE__ */ _bind(FW, 'CIAreaMinimumAlpha')
 export const CIAreaReductionFilter = /* @__PURE__ */ _bind(FW, 'CIAreaReductionFilter')
-export const CIAttributedTextImageGenerator = /* @__PURE__ */ _bind(FW, 'CIAttributedTextImageGenerator')
+export const CIAttributedTextImageGenerator = /* @__PURE__ */ _bind(
+	FW,
+	'CIAttributedTextImageGenerator',
+)
+
 export const CIAztecCodeDescriptor = /* @__PURE__ */ _bind(FW, 'CIAztecCodeDescriptor')
 export const CIAztecCodeGenerator = /* @__PURE__ */ _bind(FW, 'CIAztecCodeGenerator')
 export const CIBarcodeDescriptor = /* @__PURE__ */ _bind(FW, 'CIBarcodeDescriptor')
@@ -26,7 +30,11 @@ export const CIBlendKernel = /* @__PURE__ */ _bind(FW, 'CIBlendKernel')
 export const CIBlendWithMask = /* @__PURE__ */ _bind(FW, 'CIBlendWithMask')
 export const CIBloom = /* @__PURE__ */ _bind(FW, 'CIBloom')
 export const CIBlurredRectangleGenerator = /* @__PURE__ */ _bind(FW, 'CIBlurredRectangleGenerator')
-export const CIBlurredRoundedRectangleGenerator = /* @__PURE__ */ _bind(FW, 'CIBlurredRoundedRectangleGenerator')
+export const CIBlurredRoundedRectangleGenerator = /* @__PURE__ */ _bind(
+	FW,
+	'CIBlurredRoundedRectangleGenerator',
+)
+
 export const CIBokehBlur = /* @__PURE__ */ _bind(FW, 'CIBokehBlur')
 export const CIBoxBlur = /* @__PURE__ */ _bind(FW, 'CIBoxBlur')
 export const CIBumpDistortion = /* @__PURE__ */ _bind(FW, 'CIBumpDistortion')
@@ -88,11 +96,19 @@ export const CIDetectorTypeQRCode = /* @__PURE__ */ _bind(FW, 'CIDetectorTypeQRC
 export const CIDetectorTypeRectangle = /* @__PURE__ */ _bind(FW, 'CIDetectorTypeRectangle')
 export const CIDetectorTypeText = /* @__PURE__ */ _bind(FW, 'CIDetectorTypeText')
 export const CIDiscBlur = /* @__PURE__ */ _bind(FW, 'CIDiscBlur')
-export const CIDisintegrateWithMaskTransition = /* @__PURE__ */ _bind(FW, 'CIDisintegrateWithMaskTransition')
+export const CIDisintegrateWithMaskTransition = /* @__PURE__ */ _bind(
+	FW,
+	'CIDisintegrateWithMaskTransition',
+)
+
 export const CIDisparityToDepth = /* @__PURE__ */ _bind(FW, 'CIDisparityToDepth')
 export const CIDisplacementDistortion = /* @__PURE__ */ _bind(FW, 'CIDisplacementDistortion')
 export const CIDissolveTransition = /* @__PURE__ */ _bind(FW, 'CIDissolveTransition')
-export const CIDistanceGradientFromRedMask = /* @__PURE__ */ _bind(FW, 'CIDistanceGradientFromRedMask')
+export const CIDistanceGradientFromRedMask = /* @__PURE__ */ _bind(
+	FW,
+	'CIDistanceGradientFromRedMask',
+)
+
 export const CIDither = /* @__PURE__ */ _bind(FW, 'CIDither')
 export const CIDocumentEnhancer = /* @__PURE__ */ _bind(FW, 'CIDocumentEnhancer')
 export const CIDotScreen = /* @__PURE__ */ _bind(FW, 'CIDotScreen')
@@ -115,7 +131,11 @@ export const CIFilterGenerator = /* @__PURE__ */ _bind(FW, 'CIFilterGenerator')
 export const CIFilterProtocol = /* @__PURE__ */ _bind(FW, 'CIFilterProtocol')
 export const CIFilterShape = /* @__PURE__ */ _bind(FW, 'CIFilterShape')
 export const CIFlashTransition = /* @__PURE__ */ _bind(FW, 'CIFlashTransition')
-export const CIFourCoordinateGeometryFilter = /* @__PURE__ */ _bind(FW, 'CIFourCoordinateGeometryFilter')
+export const CIFourCoordinateGeometryFilter = /* @__PURE__ */ _bind(
+	FW,
+	'CIFourCoordinateGeometryFilter',
+)
+
 export const CIFourfoldReflectedTile = /* @__PURE__ */ _bind(FW, 'CIFourfoldReflectedTile')
 export const CIFourfoldRotatedTile = /* @__PURE__ */ _bind(FW, 'CIFourfoldRotatedTile')
 export const CIFourfoldTranslatedTile = /* @__PURE__ */ _bind(FW, 'CIFourfoldTranslatedTile')
@@ -134,7 +154,11 @@ export const CIHighlightShadowAdjust = /* @__PURE__ */ _bind(FW, 'CIHighlightSha
 export const CIHistogramDisplay = /* @__PURE__ */ _bind(FW, 'CIHistogramDisplay')
 export const CIHoleDistortion = /* @__PURE__ */ _bind(FW, 'CIHoleDistortion')
 export const CIHueAdjust = /* @__PURE__ */ _bind(FW, 'CIHueAdjust')
-export const CIHueSaturationValueGradient = /* @__PURE__ */ _bind(FW, 'CIHueSaturationValueGradient')
+export const CIHueSaturationValueGradient = /* @__PURE__ */ _bind(
+	FW,
+	'CIHueSaturationValueGradient',
+)
+
 export const CIImage = /* @__PURE__ */ _bind(FW, 'CIImage')
 export const CIImageAccumulator = /* @__PURE__ */ _bind(FW, 'CIImageAccumulator')
 export const CIImageProcessorInput = /* @__PURE__ */ _bind(FW, 'CIImageProcessorInput')
@@ -143,9 +167,21 @@ export const CIImageProcessorOutput = /* @__PURE__ */ _bind(FW, 'CIImageProcesso
 export const CIKMeans = /* @__PURE__ */ _bind(FW, 'CIKMeans')
 export const CIKaleidoscope = /* @__PURE__ */ _bind(FW, 'CIKaleidoscope')
 export const CIKernel = /* @__PURE__ */ _bind(FW, 'CIKernel')
-export const CIKeystoneCorrectionCombined = /* @__PURE__ */ _bind(FW, 'CIKeystoneCorrectionCombined')
-export const CIKeystoneCorrectionHorizontal = /* @__PURE__ */ _bind(FW, 'CIKeystoneCorrectionHorizontal')
-export const CIKeystoneCorrectionVertical = /* @__PURE__ */ _bind(FW, 'CIKeystoneCorrectionVertical')
+export const CIKeystoneCorrectionCombined = /* @__PURE__ */ _bind(
+	FW,
+	'CIKeystoneCorrectionCombined',
+)
+
+export const CIKeystoneCorrectionHorizontal = /* @__PURE__ */ _bind(
+	FW,
+	'CIKeystoneCorrectionHorizontal',
+)
+
+export const CIKeystoneCorrectionVertical = /* @__PURE__ */ _bind(
+	FW,
+	'CIKeystoneCorrectionVertical',
+)
+
 export const CILabDeltaE = /* @__PURE__ */ _bind(FW, 'CILabDeltaE')
 export const CILanczosScaleTransform = /* @__PURE__ */ _bind(FW, 'CILanczosScaleTransform')
 export const CILenticularHaloGenerator = /* @__PURE__ */ _bind(FW, 'CILenticularHaloGenerator')
@@ -166,8 +202,16 @@ export const CIModTransition = /* @__PURE__ */ _bind(FW, 'CIModTransition')
 export const CIMorphologyGradient = /* @__PURE__ */ _bind(FW, 'CIMorphologyGradient')
 export const CIMorphologyMaximum = /* @__PURE__ */ _bind(FW, 'CIMorphologyMaximum')
 export const CIMorphologyMinimum = /* @__PURE__ */ _bind(FW, 'CIMorphologyMinimum')
-export const CIMorphologyRectangleMaximum = /* @__PURE__ */ _bind(FW, 'CIMorphologyRectangleMaximum')
-export const CIMorphologyRectangleMinimum = /* @__PURE__ */ _bind(FW, 'CIMorphologyRectangleMinimum')
+export const CIMorphologyRectangleMaximum = /* @__PURE__ */ _bind(
+	FW,
+	'CIMorphologyRectangleMaximum',
+)
+
+export const CIMorphologyRectangleMinimum = /* @__PURE__ */ _bind(
+	FW,
+	'CIMorphologyRectangleMinimum',
+)
+
 export const CIMotionBlur = /* @__PURE__ */ _bind(FW, 'CIMotionBlur')
 export const CINinePartStretched = /* @__PURE__ */ _bind(FW, 'CINinePartStretched')
 export const CINinePartTiled = /* @__PURE__ */ _bind(FW, 'CINinePartTiled')
@@ -176,7 +220,11 @@ export const CIOpTile = /* @__PURE__ */ _bind(FW, 'CIOpTile')
 export const CIPDF417BarcodeGenerator = /* @__PURE__ */ _bind(FW, 'CIPDF417BarcodeGenerator')
 export const CIPDF417CodeDescriptor = /* @__PURE__ */ _bind(FW, 'CIPDF417CodeDescriptor')
 export const CIPageCurlTransition = /* @__PURE__ */ _bind(FW, 'CIPageCurlTransition')
-export const CIPageCurlWithShadowTransition = /* @__PURE__ */ _bind(FW, 'CIPageCurlWithShadowTransition')
+export const CIPageCurlWithShadowTransition = /* @__PURE__ */ _bind(
+	FW,
+	'CIPageCurlWithShadowTransition',
+)
+
 export const CIPaletteCentroid = /* @__PURE__ */ _bind(FW, 'CIPaletteCentroid')
 export const CIPalettize = /* @__PURE__ */ _bind(FW, 'CIPalettize')
 export const CIParallelogramTile = /* @__PURE__ */ _bind(FW, 'CIParallelogramTile')
@@ -185,7 +233,11 @@ export const CIPerspectiveCorrection = /* @__PURE__ */ _bind(FW, 'CIPerspectiveC
 export const CIPerspectiveRotate = /* @__PURE__ */ _bind(FW, 'CIPerspectiveRotate')
 export const CIPerspectiveTile = /* @__PURE__ */ _bind(FW, 'CIPerspectiveTile')
 export const CIPerspectiveTransform = /* @__PURE__ */ _bind(FW, 'CIPerspectiveTransform')
-export const CIPerspectiveTransformWithExtent = /* @__PURE__ */ _bind(FW, 'CIPerspectiveTransformWithExtent')
+export const CIPerspectiveTransformWithExtent = /* @__PURE__ */ _bind(
+	FW,
+	'CIPerspectiveTransformWithExtent',
+)
+
 export const CIPhotoEffect = /* @__PURE__ */ _bind(FW, 'CIPhotoEffect')
 export const CIPinchDistortion = /* @__PURE__ */ _bind(FW, 'CIPinchDistortion')
 export const CIPixellate = /* @__PURE__ */ _bind(FW, 'CIPixellate')
@@ -193,7 +245,11 @@ export const CIPlugIn = /* @__PURE__ */ _bind(FW, 'CIPlugIn')
 export const CIPlugInRegistration = /* @__PURE__ */ _bind(FW, 'CIPlugInRegistration')
 export const CIPointillize = /* @__PURE__ */ _bind(FW, 'CIPointillize')
 export const CIQRCodeDescriptor = /* @__PURE__ */ _bind(FW, 'CIQRCodeDescriptor')
-export const CIQRCodeErrorCorrectionLevel = /* @__PURE__ */ _bind(FW, 'CIQRCodeErrorCorrectionLevel')
+export const CIQRCodeErrorCorrectionLevel = /* @__PURE__ */ _bind(
+	FW,
+	'CIQRCodeErrorCorrectionLevel',
+)
+
 export const CIQRCodeFeature = /* @__PURE__ */ _bind(FW, 'CIQRCodeFeature')
 export const CIQRCodeGenerator = /* @__PURE__ */ _bind(FW, 'CIQRCodeGenerator')
 export const CIRAWDecoderVersion6 = /* @__PURE__ */ _bind(FW, 'CIRAWDecoderVersion6')
@@ -209,13 +265,21 @@ export const CIRadialGradient = /* @__PURE__ */ _bind(FW, 'CIRadialGradient')
 export const CIRandomGenerator = /* @__PURE__ */ _bind(FW, 'CIRandomGenerator')
 export const CIRectangleFeature = /* @__PURE__ */ _bind(FW, 'CIRectangleFeature')
 export const CIRenderDestination = /* @__PURE__ */ _bind(FW, 'CIRenderDestination')
-export const CIRenderDestinationAlphaMode = /* @__PURE__ */ _bind(FW, 'CIRenderDestinationAlphaMode')
+export const CIRenderDestinationAlphaMode = /* @__PURE__ */ _bind(
+	FW,
+	'CIRenderDestinationAlphaMode',
+)
+
 export const CIRenderInfo = /* @__PURE__ */ _bind(FW, 'CIRenderInfo')
 export const CIRenderTask = /* @__PURE__ */ _bind(FW, 'CIRenderTask')
 export const CIRippleTransition = /* @__PURE__ */ _bind(FW, 'CIRippleTransition')
 export const CIRoundedQRCodeGenerator = /* @__PURE__ */ _bind(FW, 'CIRoundedQRCodeGenerator')
 export const CIRoundedRectangleGenerator = /* @__PURE__ */ _bind(FW, 'CIRoundedRectangleGenerator')
-export const CIRoundedRectangleStrokeGenerator = /* @__PURE__ */ _bind(FW, 'CIRoundedRectangleStrokeGenerator')
+export const CIRoundedRectangleStrokeGenerator = /* @__PURE__ */ _bind(
+	FW,
+	'CIRoundedRectangleStrokeGenerator',
+)
+
 export const CIRowAverage = /* @__PURE__ */ _bind(FW, 'CIRowAverage')
 export const CISRGBToneCurveToLinear = /* @__PURE__ */ _bind(FW, 'CISRGBToneCurveToLinear')
 export const CISaliencyMap = /* @__PURE__ */ _bind(FW, 'CISaliencyMap')
@@ -223,7 +287,11 @@ export const CISampler = /* @__PURE__ */ _bind(FW, 'CISampler')
 export const CISepiaTone = /* @__PURE__ */ _bind(FW, 'CISepiaTone')
 export const CIShadedMaterial = /* @__PURE__ */ _bind(FW, 'CIShadedMaterial')
 export const CISharpenLuminance = /* @__PURE__ */ _bind(FW, 'CISharpenLuminance')
-export const CISignedDistanceGradientFromRedMask = /* @__PURE__ */ _bind(FW, 'CISignedDistanceGradientFromRedMask')
+export const CISignedDistanceGradientFromRedMask = /* @__PURE__ */ _bind(
+	FW,
+	'CISignedDistanceGradientFromRedMask',
+)
+
 export const CISixfoldReflectedTile = /* @__PURE__ */ _bind(FW, 'CISixfoldReflectedTile')
 export const CISixfoldRotatedTile = /* @__PURE__ */ _bind(FW, 'CISixfoldRotatedTile')
 export const CISmoothLinearGradient = /* @__PURE__ */ _bind(FW, 'CISmoothLinearGradient')
@@ -268,16 +336,36 @@ export const kCIAttributeClass = /* @__PURE__ */ _bind(FW, 'kCIAttributeClass')
 export const kCIAttributeDefault = /* @__PURE__ */ _bind(FW, 'kCIAttributeDefault')
 export const kCIAttributeDescription = /* @__PURE__ */ _bind(FW, 'kCIAttributeDescription')
 export const kCIAttributeDisplayName = /* @__PURE__ */ _bind(FW, 'kCIAttributeDisplayName')
-export const kCIAttributeFilterAvailable_Mac = /* @__PURE__ */ _bind(FW, 'kCIAttributeFilterAvailable_Mac')
-export const kCIAttributeFilterAvailable_iOS = /* @__PURE__ */ _bind(FW, 'kCIAttributeFilterAvailable_iOS')
-export const kCIAttributeFilterCategories = /* @__PURE__ */ _bind(FW, 'kCIAttributeFilterCategories')
-export const kCIAttributeFilterDisplayName = /* @__PURE__ */ _bind(FW, 'kCIAttributeFilterDisplayName')
+export const kCIAttributeFilterAvailable_Mac = /* @__PURE__ */ _bind(
+	FW,
+	'kCIAttributeFilterAvailable_Mac',
+)
+
+export const kCIAttributeFilterAvailable_iOS = /* @__PURE__ */ _bind(
+	FW,
+	'kCIAttributeFilterAvailable_iOS',
+)
+
+export const kCIAttributeFilterCategories = /* @__PURE__ */ _bind(
+	FW,
+	'kCIAttributeFilterCategories',
+)
+
+export const kCIAttributeFilterDisplayName = /* @__PURE__ */ _bind(
+	FW,
+	'kCIAttributeFilterDisplayName',
+)
+
 export const kCIAttributeFilterName = /* @__PURE__ */ _bind(FW, 'kCIAttributeFilterName')
 export const kCIAttributeIdentity = /* @__PURE__ */ _bind(FW, 'kCIAttributeIdentity')
 export const kCIAttributeMax = /* @__PURE__ */ _bind(FW, 'kCIAttributeMax')
 export const kCIAttributeMin = /* @__PURE__ */ _bind(FW, 'kCIAttributeMin')
 export const kCIAttributeName = /* @__PURE__ */ _bind(FW, 'kCIAttributeName')
-export const kCIAttributeReferenceDocumentation = /* @__PURE__ */ _bind(FW, 'kCIAttributeReferenceDocumentation')
+export const kCIAttributeReferenceDocumentation = /* @__PURE__ */ _bind(
+	FW,
+	'kCIAttributeReferenceDocumentation',
+)
+
 export const kCIAttributeSliderMax = /* @__PURE__ */ _bind(FW, 'kCIAttributeSliderMax')
 export const kCIAttributeSliderMin = /* @__PURE__ */ _bind(FW, 'kCIAttributeSliderMin')
 export const kCIAttributeType = /* @__PURE__ */ _bind(FW, 'kCIAttributeType')
@@ -301,11 +389,19 @@ export const kCICategoryBlur = /* @__PURE__ */ _bind(FW, 'kCICategoryBlur')
 export const kCICategoryBuiltIn = /* @__PURE__ */ _bind(FW, 'kCICategoryBuiltIn')
 export const kCICategoryColorAdjustment = /* @__PURE__ */ _bind(FW, 'kCICategoryColorAdjustment')
 export const kCICategoryColorEffect = /* @__PURE__ */ _bind(FW, 'kCICategoryColorEffect')
-export const kCICategoryCompositeOperation = /* @__PURE__ */ _bind(FW, 'kCICategoryCompositeOperation')
+export const kCICategoryCompositeOperation = /* @__PURE__ */ _bind(
+	FW,
+	'kCICategoryCompositeOperation',
+)
+
 export const kCICategoryDistortionEffect = /* @__PURE__ */ _bind(FW, 'kCICategoryDistortionEffect')
 export const kCICategoryFilterGenerator = /* @__PURE__ */ _bind(FW, 'kCICategoryFilterGenerator')
 export const kCICategoryGenerator = /* @__PURE__ */ _bind(FW, 'kCICategoryGenerator')
-export const kCICategoryGeometryAdjustment = /* @__PURE__ */ _bind(FW, 'kCICategoryGeometryAdjustment')
+export const kCICategoryGeometryAdjustment = /* @__PURE__ */ _bind(
+	FW,
+	'kCICategoryGeometryAdjustment',
+)
+
 export const kCICategoryGradient = /* @__PURE__ */ _bind(FW, 'kCICategoryGradient')
 export const kCICategoryHalftoneEffect = /* @__PURE__ */ _bind(FW, 'kCICategoryHalftoneEffect')
 export const kCICategoryHighDynamicRange = /* @__PURE__ */ _bind(FW, 'kCICategoryHighDynamicRange')
@@ -319,18 +415,50 @@ export const kCICategoryTileEffect = /* @__PURE__ */ _bind(FW, 'kCICategoryTileE
 export const kCICategoryTransition = /* @__PURE__ */ _bind(FW, 'kCICategoryTransition')
 export const kCICategoryVideo = /* @__PURE__ */ _bind(FW, 'kCICategoryVideo')
 export const kCIContextAllowLowPower = /* @__PURE__ */ _bind(FW, 'kCIContextAllowLowPower')
-export const kCIContextCacheIntermediates = /* @__PURE__ */ _bind(FW, 'kCIContextCacheIntermediates')
-export const kCIContextHighQualityDownsample = /* @__PURE__ */ _bind(FW, 'kCIContextHighQualityDownsample')
+export const kCIContextCacheIntermediates = /* @__PURE__ */ _bind(
+	FW,
+	'kCIContextCacheIntermediates',
+)
+
+export const kCIContextHighQualityDownsample = /* @__PURE__ */ _bind(
+	FW,
+	'kCIContextHighQualityDownsample',
+)
+
 export const kCIContextName = /* @__PURE__ */ _bind(FW, 'kCIContextName')
 export const kCIContextOutputColorSpace = /* @__PURE__ */ _bind(FW, 'kCIContextOutputColorSpace')
-export const kCIContextOutputPremultiplied = /* @__PURE__ */ _bind(FW, 'kCIContextOutputPremultiplied')
-export const kCIContextPriorityRequestLow = /* @__PURE__ */ _bind(FW, 'kCIContextPriorityRequestLow')
-export const kCIContextUseSoftwareRenderer = /* @__PURE__ */ _bind(FW, 'kCIContextUseSoftwareRenderer')
+export const kCIContextOutputPremultiplied = /* @__PURE__ */ _bind(
+	FW,
+	'kCIContextOutputPremultiplied',
+)
+
+export const kCIContextPriorityRequestLow = /* @__PURE__ */ _bind(
+	FW,
+	'kCIContextPriorityRequestLow',
+)
+
+export const kCIContextUseSoftwareRenderer = /* @__PURE__ */ _bind(
+	FW,
+	'kCIContextUseSoftwareRenderer',
+)
+
 export const kCIContextWorkingColorSpace = /* @__PURE__ */ _bind(FW, 'kCIContextWorkingColorSpace')
 export const kCIContextWorkingFormat = /* @__PURE__ */ _bind(FW, 'kCIContextWorkingFormat')
-export const kCIFilterGeneratorExportedKey = /* @__PURE__ */ _bind(FW, 'kCIFilterGeneratorExportedKey')
-export const kCIFilterGeneratorExportedKeyName = /* @__PURE__ */ _bind(FW, 'kCIFilterGeneratorExportedKeyName')
-export const kCIFilterGeneratorExportedKeyTargetObject = /* @__PURE__ */ _bind(FW, 'kCIFilterGeneratorExportedKeyTargetObject')
+export const kCIFilterGeneratorExportedKey = /* @__PURE__ */ _bind(
+	FW,
+	'kCIFilterGeneratorExportedKey',
+)
+
+export const kCIFilterGeneratorExportedKeyName = /* @__PURE__ */ _bind(
+	FW,
+	'kCIFilterGeneratorExportedKeyName',
+)
+
+export const kCIFilterGeneratorExportedKeyTargetObject = /* @__PURE__ */ _bind(
+	FW,
+	'kCIFilterGeneratorExportedKeyTargetObject',
+)
+
 export const kCIFormatA16 = /* @__PURE__ */ _bind(FW, 'kCIFormatA16')
 export const kCIFormatA8 = /* @__PURE__ */ _bind(FW, 'kCIFormatA8')
 export const kCIFormatABGR8 = /* @__PURE__ */ _bind(FW, 'kCIFormatABGR8')
@@ -360,7 +488,11 @@ export const kCIFormatRGf = /* @__PURE__ */ _bind(FW, 'kCIFormatRGf')
 export const kCIFormatRGh = /* @__PURE__ */ _bind(FW, 'kCIFormatRGh')
 export const kCIFormatRf = /* @__PURE__ */ _bind(FW, 'kCIFormatRf')
 export const kCIFormatRh = /* @__PURE__ */ _bind(FW, 'kCIFormatRh')
-export const kCIImageApplyOrientationProperty = /* @__PURE__ */ _bind(FW, 'kCIImageApplyOrientationProperty')
+export const kCIImageApplyOrientationProperty = /* @__PURE__ */ _bind(
+	FW,
+	'kCIImageApplyOrientationProperty',
+)
+
 export const kCIImageAutoAdjustCrop = /* @__PURE__ */ _bind(FW, 'kCIImageAutoAdjustCrop')
 export const kCIImageAutoAdjustEnhance = /* @__PURE__ */ _bind(FW, 'kCIImageAutoAdjustEnhance')
 export const kCIImageAutoAdjustFeatures = /* @__PURE__ */ _bind(FW, 'kCIImageAutoAdjustFeatures')
@@ -369,28 +501,92 @@ export const kCIImageAutoAdjustRedEye = /* @__PURE__ */ _bind(FW, 'kCIImageAutoA
 export const kCIImageAuxiliaryDepth = /* @__PURE__ */ _bind(FW, 'kCIImageAuxiliaryDepth')
 export const kCIImageAuxiliaryDisparity = /* @__PURE__ */ _bind(FW, 'kCIImageAuxiliaryDisparity')
 export const kCIImageAuxiliaryHDRGainMap = /* @__PURE__ */ _bind(FW, 'kCIImageAuxiliaryHDRGainMap')
-export const kCIImageAuxiliaryPortraitEffectsMatte = /* @__PURE__ */ _bind(FW, 'kCIImageAuxiliaryPortraitEffectsMatte')
-export const kCIImageAuxiliarySemanticSegmentationGlassesMatte = /* @__PURE__ */ _bind(FW, 'kCIImageAuxiliarySemanticSegmentationGlassesMatte')
-export const kCIImageAuxiliarySemanticSegmentationHairMatte = /* @__PURE__ */ _bind(FW, 'kCIImageAuxiliarySemanticSegmentationHairMatte')
-export const kCIImageAuxiliarySemanticSegmentationSkinMatte = /* @__PURE__ */ _bind(FW, 'kCIImageAuxiliarySemanticSegmentationSkinMatte')
-export const kCIImageAuxiliarySemanticSegmentationTeethMatte = /* @__PURE__ */ _bind(FW, 'kCIImageAuxiliarySemanticSegmentationTeethMatte')
+export const kCIImageAuxiliaryPortraitEffectsMatte = /* @__PURE__ */ _bind(
+	FW,
+	'kCIImageAuxiliaryPortraitEffectsMatte',
+)
+
+export const kCIImageAuxiliarySemanticSegmentationGlassesMatte = /* @__PURE__ */ _bind(
+	FW,
+	'kCIImageAuxiliarySemanticSegmentationGlassesMatte',
+)
+
+export const kCIImageAuxiliarySemanticSegmentationHairMatte = /* @__PURE__ */ _bind(
+	FW,
+	'kCIImageAuxiliarySemanticSegmentationHairMatte',
+)
+
+export const kCIImageAuxiliarySemanticSegmentationSkinMatte = /* @__PURE__ */ _bind(
+	FW,
+	'kCIImageAuxiliarySemanticSegmentationSkinMatte',
+)
+
+export const kCIImageAuxiliarySemanticSegmentationTeethMatte = /* @__PURE__ */ _bind(
+	FW,
+	'kCIImageAuxiliarySemanticSegmentationTeethMatte',
+)
+
 export const kCIImageCacheImmediately = /* @__PURE__ */ _bind(FW, 'kCIImageCacheImmediately')
 export const kCIImageColorSpace = /* @__PURE__ */ _bind(FW, 'kCIImageColorSpace')
 export const kCIImageNearestSampling = /* @__PURE__ */ _bind(FW, 'kCIImageNearestSampling')
 export const kCIImageProperties = /* @__PURE__ */ _bind(FW, 'kCIImageProperties')
 export const kCIImageProviderTileSize = /* @__PURE__ */ _bind(FW, 'kCIImageProviderTileSize')
 export const kCIImageProviderUserInfo = /* @__PURE__ */ _bind(FW, 'kCIImageProviderUserInfo')
-export const kCIImageRepresentationAVDepthData = /* @__PURE__ */ _bind(FW, 'kCIImageRepresentationAVDepthData')
-export const kCIImageRepresentationAVPortraitEffectsMatte = /* @__PURE__ */ _bind(FW, 'kCIImageRepresentationAVPortraitEffectsMatte')
-export const kCIImageRepresentationAVSemanticSegmentationMattes = /* @__PURE__ */ _bind(FW, 'kCIImageRepresentationAVSemanticSegmentationMattes')
-export const kCIImageRepresentationDepthImage = /* @__PURE__ */ _bind(FW, 'kCIImageRepresentationDepthImage')
-export const kCIImageRepresentationDisparityImage = /* @__PURE__ */ _bind(FW, 'kCIImageRepresentationDisparityImage')
-export const kCIImageRepresentationHDRGainMapImage = /* @__PURE__ */ _bind(FW, 'kCIImageRepresentationHDRGainMapImage')
-export const kCIImageRepresentationPortraitEffectsMatteImage = /* @__PURE__ */ _bind(FW, 'kCIImageRepresentationPortraitEffectsMatteImage')
-export const kCIImageRepresentationSemanticSegmentationGlassesMatteImage = /* @__PURE__ */ _bind(FW, 'kCIImageRepresentationSemanticSegmentationGlassesMatteImage')
-export const kCIImageRepresentationSemanticSegmentationHairMatteImage = /* @__PURE__ */ _bind(FW, 'kCIImageRepresentationSemanticSegmentationHairMatteImage')
-export const kCIImageRepresentationSemanticSegmentationSkinMatteImage = /* @__PURE__ */ _bind(FW, 'kCIImageRepresentationSemanticSegmentationSkinMatteImage')
-export const kCIImageRepresentationSemanticSegmentationTeethMatteImage = /* @__PURE__ */ _bind(FW, 'kCIImageRepresentationSemanticSegmentationTeethMatteImage')
+export const kCIImageRepresentationAVDepthData = /* @__PURE__ */ _bind(
+	FW,
+	'kCIImageRepresentationAVDepthData',
+)
+
+export const kCIImageRepresentationAVPortraitEffectsMatte = /* @__PURE__ */ _bind(
+	FW,
+	'kCIImageRepresentationAVPortraitEffectsMatte',
+)
+
+export const kCIImageRepresentationAVSemanticSegmentationMattes = /* @__PURE__ */ _bind(
+	FW,
+	'kCIImageRepresentationAVSemanticSegmentationMattes',
+)
+
+export const kCIImageRepresentationDepthImage = /* @__PURE__ */ _bind(
+	FW,
+	'kCIImageRepresentationDepthImage',
+)
+
+export const kCIImageRepresentationDisparityImage = /* @__PURE__ */ _bind(
+	FW,
+	'kCIImageRepresentationDisparityImage',
+)
+
+export const kCIImageRepresentationHDRGainMapImage = /* @__PURE__ */ _bind(
+	FW,
+	'kCIImageRepresentationHDRGainMapImage',
+)
+
+export const kCIImageRepresentationPortraitEffectsMatteImage = /* @__PURE__ */ _bind(
+	FW,
+	'kCIImageRepresentationPortraitEffectsMatteImage',
+)
+
+export const kCIImageRepresentationSemanticSegmentationGlassesMatteImage = /* @__PURE__ */ _bind(
+	FW,
+	'kCIImageRepresentationSemanticSegmentationGlassesMatteImage',
+)
+
+export const kCIImageRepresentationSemanticSegmentationHairMatteImage = /* @__PURE__ */ _bind(
+	FW,
+	'kCIImageRepresentationSemanticSegmentationHairMatteImage',
+)
+
+export const kCIImageRepresentationSemanticSegmentationSkinMatteImage = /* @__PURE__ */ _bind(
+	FW,
+	'kCIImageRepresentationSemanticSegmentationSkinMatteImage',
+)
+
+export const kCIImageRepresentationSemanticSegmentationTeethMatteImage = /* @__PURE__ */ _bind(
+	FW,
+	'kCIImageRepresentationSemanticSegmentationTeethMatteImage',
+)
+
 export const kCIImageTextureFormat = /* @__PURE__ */ _bind(FW, 'kCIImageTextureFormat')
 export const kCIImageTextureTarget = /* @__PURE__ */ _bind(FW, 'kCIImageTextureTarget')
 export const kCIImageToneMapHDRtoSDR = /* @__PURE__ */ _bind(FW, 'kCIImageToneMapHDRtoSDR')
@@ -402,41 +598,93 @@ export const kCIInputBackgroundImageKey = /* @__PURE__ */ _bind(FW, 'kCIInputBac
 export const kCIInputBaselineExposureKey = /* @__PURE__ */ _bind(FW, 'kCIInputBaselineExposureKey')
 export const kCIInputBiasKey = /* @__PURE__ */ _bind(FW, 'kCIInputBiasKey')
 export const kCIInputBoostKey = /* @__PURE__ */ _bind(FW, 'kCIInputBoostKey')
-export const kCIInputBoostShadowAmountKey = /* @__PURE__ */ _bind(FW, 'kCIInputBoostShadowAmountKey')
+export const kCIInputBoostShadowAmountKey = /* @__PURE__ */ _bind(
+	FW,
+	'kCIInputBoostShadowAmountKey',
+)
+
 export const kCIInputBrightnessKey = /* @__PURE__ */ _bind(FW, 'kCIInputBrightnessKey')
 export const kCIInputCenterKey = /* @__PURE__ */ _bind(FW, 'kCIInputCenterKey')
 export const kCIInputColorKey = /* @__PURE__ */ _bind(FW, 'kCIInputColorKey')
-export const kCIInputColorNoiseReductionAmountKey = /* @__PURE__ */ _bind(FW, 'kCIInputColorNoiseReductionAmountKey')
+export const kCIInputColorNoiseReductionAmountKey = /* @__PURE__ */ _bind(
+	FW,
+	'kCIInputColorNoiseReductionAmountKey',
+)
+
 export const kCIInputContrastKey = /* @__PURE__ */ _bind(FW, 'kCIInputContrastKey')
 export const kCIInputDecoderVersionKey = /* @__PURE__ */ _bind(FW, 'kCIInputDecoderVersionKey')
 export const kCIInputDepthImageKey = /* @__PURE__ */ _bind(FW, 'kCIInputDepthImageKey')
 export const kCIInputDisableGamutMapKey = /* @__PURE__ */ _bind(FW, 'kCIInputDisableGamutMapKey')
 export const kCIInputDisparityImageKey = /* @__PURE__ */ _bind(FW, 'kCIInputDisparityImageKey')
 export const kCIInputEVKey = /* @__PURE__ */ _bind(FW, 'kCIInputEVKey')
-export const kCIInputEnableChromaticNoiseTrackingKey = /* @__PURE__ */ _bind(FW, 'kCIInputEnableChromaticNoiseTrackingKey')
+export const kCIInputEnableChromaticNoiseTrackingKey = /* @__PURE__ */ _bind(
+	FW,
+	'kCIInputEnableChromaticNoiseTrackingKey',
+)
+
 export const kCIInputEnableEDRModeKey = /* @__PURE__ */ _bind(FW, 'kCIInputEnableEDRModeKey')
 export const kCIInputEnableSharpeningKey = /* @__PURE__ */ _bind(FW, 'kCIInputEnableSharpeningKey')
-export const kCIInputEnableVendorLensCorrectionKey = /* @__PURE__ */ _bind(FW, 'kCIInputEnableVendorLensCorrectionKey')
+export const kCIInputEnableVendorLensCorrectionKey = /* @__PURE__ */ _bind(
+	FW,
+	'kCIInputEnableVendorLensCorrectionKey',
+)
+
 export const kCIInputExtentKey = /* @__PURE__ */ _bind(FW, 'kCIInputExtentKey')
 export const kCIInputGradientImageKey = /* @__PURE__ */ _bind(FW, 'kCIInputGradientImageKey')
-export const kCIInputIgnoreImageOrientationKey = /* @__PURE__ */ _bind(FW, 'kCIInputIgnoreImageOrientationKey')
+export const kCIInputIgnoreImageOrientationKey = /* @__PURE__ */ _bind(
+	FW,
+	'kCIInputIgnoreImageOrientationKey',
+)
+
 export const kCIInputImageKey = /* @__PURE__ */ _bind(FW, 'kCIInputImageKey')
 export const kCIInputImageOrientationKey = /* @__PURE__ */ _bind(FW, 'kCIInputImageOrientationKey')
 export const kCIInputIntensityKey = /* @__PURE__ */ _bind(FW, 'kCIInputIntensityKey')
 export const kCIInputLinearSpaceFilter = /* @__PURE__ */ _bind(FW, 'kCIInputLinearSpaceFilter')
-export const kCIInputLuminanceNoiseReductionAmountKey = /* @__PURE__ */ _bind(FW, 'kCIInputLuminanceNoiseReductionAmountKey')
+export const kCIInputLuminanceNoiseReductionAmountKey = /* @__PURE__ */ _bind(
+	FW,
+	'kCIInputLuminanceNoiseReductionAmountKey',
+)
+
 export const kCIInputMaskImageKey = /* @__PURE__ */ _bind(FW, 'kCIInputMaskImageKey')
 export const kCIInputMatteImageKey = /* @__PURE__ */ _bind(FW, 'kCIInputMatteImageKey')
 export const kCIInputMoireAmountKey = /* @__PURE__ */ _bind(FW, 'kCIInputMoireAmountKey')
-export const kCIInputNeutralChromaticityXKey = /* @__PURE__ */ _bind(FW, 'kCIInputNeutralChromaticityXKey')
-export const kCIInputNeutralChromaticityYKey = /* @__PURE__ */ _bind(FW, 'kCIInputNeutralChromaticityYKey')
+export const kCIInputNeutralChromaticityXKey = /* @__PURE__ */ _bind(
+	FW,
+	'kCIInputNeutralChromaticityXKey',
+)
+
+export const kCIInputNeutralChromaticityYKey = /* @__PURE__ */ _bind(
+	FW,
+	'kCIInputNeutralChromaticityYKey',
+)
+
 export const kCIInputNeutralLocationKey = /* @__PURE__ */ _bind(FW, 'kCIInputNeutralLocationKey')
-export const kCIInputNeutralTemperatureKey = /* @__PURE__ */ _bind(FW, 'kCIInputNeutralTemperatureKey')
+export const kCIInputNeutralTemperatureKey = /* @__PURE__ */ _bind(
+	FW,
+	'kCIInputNeutralTemperatureKey',
+)
+
 export const kCIInputNeutralTintKey = /* @__PURE__ */ _bind(FW, 'kCIInputNeutralTintKey')
-export const kCIInputNoiseReductionAmountKey = /* @__PURE__ */ _bind(FW, 'kCIInputNoiseReductionAmountKey')
-export const kCIInputNoiseReductionContrastAmountKey = /* @__PURE__ */ _bind(FW, 'kCIInputNoiseReductionContrastAmountKey')
-export const kCIInputNoiseReductionDetailAmountKey = /* @__PURE__ */ _bind(FW, 'kCIInputNoiseReductionDetailAmountKey')
-export const kCIInputNoiseReductionSharpnessAmountKey = /* @__PURE__ */ _bind(FW, 'kCIInputNoiseReductionSharpnessAmountKey')
+export const kCIInputNoiseReductionAmountKey = /* @__PURE__ */ _bind(
+	FW,
+	'kCIInputNoiseReductionAmountKey',
+)
+
+export const kCIInputNoiseReductionContrastAmountKey = /* @__PURE__ */ _bind(
+	FW,
+	'kCIInputNoiseReductionContrastAmountKey',
+)
+
+export const kCIInputNoiseReductionDetailAmountKey = /* @__PURE__ */ _bind(
+	FW,
+	'kCIInputNoiseReductionDetailAmountKey',
+)
+
+export const kCIInputNoiseReductionSharpnessAmountKey = /* @__PURE__ */ _bind(
+	FW,
+	'kCIInputNoiseReductionSharpnessAmountKey',
+)
+
 export const kCIInputRadiusKey = /* @__PURE__ */ _bind(FW, 'kCIInputRadiusKey')
 export const kCIInputRefractionKey = /* @__PURE__ */ _bind(FW, 'kCIInputRefractionKey')
 export const kCIInputSaturationKey = /* @__PURE__ */ _bind(FW, 'kCIInputSaturationKey')
@@ -460,7 +708,11 @@ export const kCISamplerFilterNearest = /* @__PURE__ */ _bind(FW, 'kCISamplerFilt
 export const kCISamplerWrapBlack = /* @__PURE__ */ _bind(FW, 'kCISamplerWrapBlack')
 export const kCISamplerWrapClamp = /* @__PURE__ */ _bind(FW, 'kCISamplerWrapClamp')
 export const kCISamplerWrapMode = /* @__PURE__ */ _bind(FW, 'kCISamplerWrapMode')
-export const kCISupportedDecoderVersionsKey = /* @__PURE__ */ _bind(FW, 'kCISupportedDecoderVersionsKey')
+export const kCISupportedDecoderVersionsKey = /* @__PURE__ */ _bind(
+	FW,
+	'kCISupportedDecoderVersionsKey',
+)
+
 export const kCIUIParameterSet = /* @__PURE__ */ _bind(FW, 'kCIUIParameterSet')
 export const kCIUISetAdvanced = /* @__PURE__ */ _bind(FW, 'kCIUISetAdvanced')
 export const kCIUISetBasic = /* @__PURE__ */ _bind(FW, 'kCIUISetBasic')

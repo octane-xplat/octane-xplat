@@ -45,7 +45,10 @@ export function mobileRegexPlugin() {
 	return {
 		name: 'xplat-workshop-mobile-unicode-regex',
 		async transform(code, id) {
-			if (!/\\[pP]\{/.test(code) || !/\.[cm]?js(?:\?|$)/.test(id)) {return null}
+			if (!/\\[pP]\{/.test(code) || !/\.[cm]?js(?:\?|$)/.test(id)) {
+				return null
+			}
+
 			const result = await transformMobileRegex(code, id.split('?')[0])
 			return result ? { code: result.code, map: result.map } : null
 		},

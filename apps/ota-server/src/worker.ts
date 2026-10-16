@@ -55,15 +55,24 @@ async function manifest(request: Request, env: Env): Promise<Response> {
 	const currentVersion = params.get('currentVersion')
 
 	if (!PLATFORMS.has(platform)) {
-		return json({ error: 'bad-request', detail: 'platform must be ios or android' }, { status: 400 })
+		return json(
+			{ error: 'bad-request', detail: 'platform must be ios or android' },
+			{ status: 400 },
+		)
 	}
 
 	if (!CHANNEL_RE.test(channel)) {
-		return json({ error: 'bad-request', detail: 'channel must match [a-z0-9-]{1,32}' }, { status: 400 })
+		return json(
+			{ error: 'bad-request', detail: 'channel must match [a-z0-9-]{1,32}' },
+			{ status: 400 },
+		)
 	}
 
 	if (nativeVersion !== null && compareVersions(nativeVersion, '0.0.0') === null) {
-		return json({ error: 'bad-request', detail: 'nativeVersion must be numeric x.y.z' }, { status: 400 })
+		return json(
+			{ error: 'bad-request', detail: 'nativeVersion must be numeric x.y.z' },
+			{ status: 400 },
+		)
 	}
 
 	const key = `channels/${channel}/${platform}.json`
@@ -74,7 +83,10 @@ async function manifest(request: Request, env: Env): Promise<Response> {
 
 	const pointer = readPointer(await object.text())
 	if (pointer === null) {
-		return json({ error: 'bad-pointer', detail: `${key} is not a valid channel pointer` }, { status: 502 })
+		return json(
+			{ error: 'bad-pointer', detail: `${key} is not a valid channel pointer` },
+			{ status: 502 },
+		)
 	}
 
 	if (currentVersion === pointer.version) {

@@ -178,11 +178,7 @@ test('macOS cleanup failures are reported and all batch outputs are attempted', 
 	})
 
 	assert.equal(d.events.filter(([event]) => event === 'remove').length, 2)
-	assert.equal(
-		d.host.__xplatTemporaryFiles.size,
-		2,
-		'failed cleanup retains ownership for retry',
-	)
+	assert.equal(d.host.__xplatTemporaryFiles.size, 2, 'failed cleanup retains ownership for retry')
 })
 
 test('files.release never removes an unregistered original and retains ownership on deletion failure', async () => {

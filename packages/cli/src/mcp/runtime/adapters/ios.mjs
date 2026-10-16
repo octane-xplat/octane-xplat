@@ -90,7 +90,10 @@ export function createIosAdapter() {
 				phase: 'building',
 			})
 
-			return { summary: 'ns build ios succeeded', buildIdentity: { revision: gitRevision(app, deps) } }
+			return {
+				summary: 'ns build ios succeeded',
+				buildIdentity: { revision: gitRevision(app, deps) },
+			}
 		},
 
 		async launch({ app, target, logs, signal, report, claim, deps }) {

@@ -2,56 +2,76 @@
 /// <reference path="./Runtime.d.ts" />
 
 declare class THClient extends NSObject {
-  init(): this;
+	init(): this
 
-  retrieveAllCredentials(completion: (p1: NSSet, p2: NSError) => void | null): void;
+	retrieveAllCredentials(completion: (p1: NSSet, p2: NSError) => void | null): void
 
-  retrieveAllActiveCredentials(completion: (p1: NSSet, p2: NSError) => void | null): void;
+	retrieveAllActiveCredentials(completion: (p1: NSSet, p2: NSError) => void | null): void
 
-  retrieveActiveCredentialsForNearbyNetworksWithCompletion(completion: (p1: NSSet, p2: NSError) => void | null): void;
+	retrieveActiveCredentialsForNearbyNetworksWithCompletion(
+		completion: (p1: NSSet, p2: NSError) => void | null,
+	): void
 
-  deleteCredentialsForBorderAgentCompletion(borderAgentID: NSData, completion: (p1: NSError) => void | null): void;
+	deleteCredentialsForBorderAgentCompletion(
+		borderAgentID: NSData,
+		completion: (p1: NSError) => void | null,
+	): void
 
-  retrieveCredentialsForBorderAgentCompletion(borderAgentID: NSData, completion: (p1: THCredentials, p2: NSError) => void | null): void;
+	retrieveCredentialsForBorderAgentCompletion(
+		borderAgentID: NSData,
+		completion: (p1: THCredentials, p2: NSError) => void | null,
+	): void
 
-  storeCredentialsForBorderAgentActiveOperationalDataSetCompletion(borderAgentID: NSData, activeOperationalDataSet: NSData, completion: (p1: NSError) => void | null): void;
+	storeCredentialsForBorderAgentActiveOperationalDataSetCompletion(
+		borderAgentID: NSData,
+		activeOperationalDataSet: NSData,
+		completion: (p1: NSError) => void | null,
+	): void
 
-  retrievePreferredCredentials(completion: (p1: THCredentials, p2: NSError) => void | null): void;
+	retrievePreferredCredentials(completion: (p1: THCredentials, p2: NSError) => void | null): void
 
-  retrieveCredentialsForExtendedPANIDCompletion(extendedPANID: NSData, completion: (p1: THCredentials, p2: NSError) => void | null): void;
+	retrieveCredentialsForExtendedPANIDCompletion(
+		extendedPANID: NSData,
+		completion: (p1: THCredentials, p2: NSError) => void | null,
+	): void
 
-  checkPreferredNetworkForActiveOperationalDatasetCompletion(activeOperationalDataSet: NSData, completion: (p1: boolean) => void): void;
+	checkPreferredNetworkForActiveOperationalDatasetCompletion(
+		activeOperationalDataSet: NSData,
+		completion: (p1: boolean) => void,
+	): void
 
-  isPreferredNetworkAvailableWithCompletion(completion: (p1: boolean) => void): void;
+	isPreferredNetworkAvailableWithCompletion(completion: (p1: boolean) => void): void
 
-  enableCredentialSharingModeForExtendedPANIDCompletion(extendedPANID: NSData, completion: (p1: NSError) => void | null): void;
+	enableCredentialSharingModeForExtendedPANIDCompletion(
+		extendedPANID: NSData,
+		completion: (p1: NSError) => void | null,
+	): void
 }
 
 declare class THCredentials extends NSObject implements NSSecureCoding {
-  readonly networkName: string;
+	readonly networkName: string
 
-  readonly extendedPANID: NSData;
+	readonly extendedPANID: NSData
 
-  readonly borderAgentID: NSData;
+	readonly borderAgentID: NSData
 
-  readonly activeOperationalDataSet: NSData;
+	readonly activeOperationalDataSet: NSData
 
-  readonly networkKey: NSData;
+	readonly networkKey: NSData
 
-  readonly PSKC: NSData;
+	readonly PSKC: NSData
 
-  channel: number;
+	channel: number
 
-  readonly panID: NSData;
+	readonly panID: NSData
 
-  readonly creationDate: NSDate;
+	readonly creationDate: NSDate
 
-  readonly lastModificationDate: NSDate;
+	readonly lastModificationDate: NSDate
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
-

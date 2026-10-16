@@ -100,7 +100,9 @@ export class OwnedResources {
 			await (late ? withTimeout(Promise.resolve(work), this.lateTimeout, () => {}) : work)
 		} catch (error) {
 			this.failures.push({ cleanup, error })
-			if (late) {this.onLateFailure?.(error)}
+			if (late) {
+				this.onLateFailure?.(error)
+			}
 		}
 	}
 

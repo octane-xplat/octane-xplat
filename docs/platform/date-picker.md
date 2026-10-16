@@ -20,9 +20,7 @@ import { Field, DateInput } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Example() {
-	const [date, setDate] = useState<import('@octane-xplat/ui').ISODateString | null>(
-		'2026-10-02',
-	)
+	const [date, setDate] = useState<import('@octane-xplat/ui').ISODateString | null>('2026-10-02')
 	return (
 		<Field label="Travel date">
 			<DateInput value={date} onChange={setDate} />
@@ -80,9 +78,7 @@ import { Field, DateInput } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Example() {
-	const [date, setDate] = useState<import('@octane-xplat/ui').ISODateString | null>(
-		'2026-10-02',
-	)
+	const [date, setDate] = useState<import('@octane-xplat/ui').ISODateString | null>('2026-10-02')
 	return (
 		<Field label="Travel date">
 			<DateInput value={date} onChange={setDate} />
@@ -142,9 +138,7 @@ import { DateInput, TimeInput } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Example() {
-	const [date, setDate] = useState<import('@octane-xplat/ui').ISODateString | null>(
-		'2026-10-02',
-	)
+	const [date, setDate] = useState<import('@octane-xplat/ui').ISODateString | null>('2026-10-02')
 	const [time, setTime] = useState<import('@octane-xplat/ui').ISOTimeString | null>('14:30')
 	return (
 		<>

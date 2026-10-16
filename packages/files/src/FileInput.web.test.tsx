@@ -181,9 +181,7 @@ describe('FileInput (web)', () => {
 			revokeObjectURL: vi.fn(),
 		})
 
-		const el = mount(
-			<FileInput value={null} onChange={vi.fn()} accept=".txt" />,
-		)
+		const el = mount(<FileInput value={null} onChange={vi.fn()} accept=".txt" />)
 
 		const input = el.querySelector('.vx-fileinput-nativeinput') as HTMLInputElement
 		Object.defineProperty(input, 'files', {

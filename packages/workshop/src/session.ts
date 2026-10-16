@@ -145,9 +145,17 @@ export class WorkshopSession {
 	}
 
 	private emit(patch: Partial<SessionSnapshot>): void {
-		this.snapshot = { ...this.snapshot, ...patch, ...(this.blockedFailure ? {
-			phase: 'restart-required' as const, failure: this.blockedFailure, stale: false,
-		} : {}) }
+		this.snapshot = {
+			...this.snapshot,
+			...patch,
+			...(this.blockedFailure
+				? {
+						phase: 'restart-required' as const,
+						failure: this.blockedFailure,
+						stale: false,
+					}
+				: {}),
+		}
 
 		for (const listener of this.listeners) {
 			listener(this.snapshot)
@@ -161,17 +169,25 @@ export class WorkshopSession {
 	}
 
 	/** Begin a fresh run of `story`; any prior generation is retired first. */
-	async select(story: StoryDefinition<any, any, any>, mode: 'select' | 'reset' | 'rebuild' = 'select'): Promise<void> {
-		if (this.blockedFailure) {return}
+	async select(
+		story: StoryDefinition<any, any, any>,
+		mode: 'select' | 'reset' | 'rebuild' = 'select',
+	): Promise<void> {
+		if (this.blockedFailure) {
+			return
+		}
+
 		const id = ++this.generation
 		const gen: Generation = {
 			id,
 			story,
 			cancellation: new Cancellation(),
 			resources: new OwnedResources((error) => {
-				this.blockedFailure = new WorkshopError('cleanup',
+				this.blockedFailure = new WorkshopError(
+					'cleanup',
 					`Late resource cleanup failed — restart the workshop target: ${describeCause(error)}`,
-					{ storyId: story.id })
+					{ storyId: story.id },
+				)
 
 				this.emit({ phase: 'restart-required' })
 			}, this.options.disposalTimeout ?? DEFAULT_DISPOSAL_TIMEOUT),
@@ -190,7 +206,9 @@ export class WorkshopSession {
 				return // a newer selection superseded this one mid-disposal
 			}
 
-			if (!disposal.ok) {return}
+			if (!disposal.ok) {
+				return
+			}
 		}
 
 		this.current = gen
@@ -234,7 +252,10 @@ export class WorkshopSession {
 		} catch (error) {
 			// Preparation failure: unwind everything registered so far.
 			const disposal = await this.retire(gen)
-			if (!disposal.ok) {return}
+			if (!disposal.ok) {
+				return
+			}
+
 			if (id !== this.generation) {
 				return
 			}
@@ -242,11 +263,10 @@ export class WorkshopSession {
 			const wrapped =
 				error instanceof WorkshopError
 					? error
-					: new WorkshopError(
-							'fixture',
-							`fixture rejected or timed out: ${describeCause(error)}`,
-							{ storyId: story.id, cause: error },
-						)
+					: new WorkshopError('fixture', `fixture rejected or timed out: ${describeCause(error)}`, {
+							storyId: story.id,
+							cause: error,
+						})
 
 			this.fail(wrapped)
 			return
@@ -262,34 +282,39 @@ export class WorkshopSession {
 		this.emit({ phase: 'mounting', storyId: story.id })
 		gen.props = freshArgs(story.args ?? {})
 		try {
-			gen.mounting = Promise.resolve(this.options.host.mount({
-				story,
-				component: story.component,
-				props: this.injectedProps(gen, gen.props),
-				providers: [...(this.options.globalProviders ?? []), ...(story.providers ?? [])],
-				fixture: gen.fixture,
-				signal: gen.cancellation,
-				onRenderError: (error) => {
-					if (gen.id === this.generation) {
-						// Awaited mounts yield to microtasks — mark so the 'ready'
-						// emit below does not overwrite this failure.
-						gen.failed = true
-						this.fail(
-							new WorkshopError('mount', `render failed: ${describeCause(error)}`, {
-								storyId: story.id,
-								cause: error,
-							}),
-						)
+			gen.mounting = Promise.resolve(
+				this.options.host.mount({
+					story,
+					component: story.component,
+					props: this.injectedProps(gen, gen.props),
+					providers: [...(this.options.globalProviders ?? []), ...(story.providers ?? [])],
+					fixture: gen.fixture,
+					signal: gen.cancellation,
+					onRenderError: (error) => {
+						if (gen.id === this.generation) {
+							// Awaited mounts yield to microtasks — mark so the 'ready'
+							// emit below does not overwrite this failure.
+							gen.failed = true
+							this.fail(
+								new WorkshopError('mount', `render failed: ${describeCause(error)}`, {
+									storyId: story.id,
+									cause: error,
+								}),
+							)
 
-						void this.retire(gen)
-					}
-				},
-			}))
+							void this.retire(gen)
+						}
+					},
+				}),
+			)
 
 			gen.mounted = await gen.mounting
 		} catch (error) {
 			const disposal = await this.retire(gen)
-			if (!disposal.ok) {return}
+			if (!disposal.ok) {
+				return
+			}
+
 			if (id !== this.generation) {
 				return
 			}
@@ -324,10 +349,7 @@ export class WorkshopSession {
 		})
 	}
 
-	private injectedProps(
-		gen: Generation,
-		props: Record<string, unknown>,
-	): Record<string, unknown> {
+	private injectedProps(gen: Generation, props: Record<string, unknown>): Record<string, unknown> {
 		const merged = { ...props }
 		if (gen.store !== undefined) {
 			merged.state = gen.store
@@ -403,7 +425,10 @@ export class WorkshopSession {
 
 	/** Retire a generation: cancel, unmount, run owned cleanups (all of them). */
 	private retire(gen: Generation): Promise<DisposalResult> {
-		if (gen.retirement) {return gen.retirement}
+		if (gen.retirement) {
+			return gen.retirement
+		}
+
 		// Cache one retirement promise so concurrent selections await the same
 		// cleanup rather than treating an in-flight retirement as completed.
 		gen.retirement = Promise.resolve().then(() => this.disposeGeneration(gen))
@@ -417,11 +442,19 @@ export class WorkshopSession {
 			// Keep that acquisition inside the disposal budget and own its root.
 			let mounted = gen.mounted
 			if (!mounted && gen.mounting) {
-				try { mounted = await gen.mounting } catch { /* mount failed */ }
+				try {
+					mounted = await gen.mounting
+				} catch {
+					/* mount failed */
+				}
 			}
 
 			if (mounted) {
-				try { await mounted.unmount() } catch (error) { return [error] }
+				try {
+					await mounted.unmount()
+				} catch (error) {
+					return [error]
+				}
 			}
 
 			return []
@@ -434,16 +467,28 @@ export class WorkshopSession {
 		}))
 
 		let timedOut = false
-		const result = await withTimeout(work, this.options.disposalTimeout ?? DEFAULT_DISPOSAL_TIMEOUT, () => {
-			timedOut = true
-		}).catch((error) => ({ errors: [error] }))
+		const result = await withTimeout(
+			work,
+			this.options.disposalTimeout ?? DEFAULT_DISPOSAL_TIMEOUT,
+			() => {
+				timedOut = true
+			},
+		).catch((error) => ({ errors: [error] }))
 
-		const disposal = { ok: !timedOut && result.errors.length === 0, timedOut, errors: result.errors }
+		const disposal = {
+			ok: !timedOut && result.errors.length === 0,
+			timedOut,
+			errors: result.errors,
+		}
+
 		if (!disposal.ok) {
-			this.blockedFailure = new WorkshopError('cleanup', timedOut
-				? 'Owned cleanup timed out — restart the workshop target'
-				: `Owned cleanup failed — restart the workshop target: ${result.errors.map(describeCause).join('; ')}`,
-				{ storyId: gen.story.id })
+			this.blockedFailure = new WorkshopError(
+				'cleanup',
+				timedOut
+					? 'Owned cleanup timed out — restart the workshop target'
+					: `Owned cleanup failed — restart the workshop target: ${result.errors.map(describeCause).join('; ')}`,
+				{ storyId: gen.story.id },
+			)
 
 			this.emit({ phase: 'restart-required' })
 		}
@@ -457,11 +502,19 @@ export class WorkshopSession {
 		const previous = this.current
 		if (previous) {
 			await this.retire(previous)
-			if (this.current === previous) {this.current = undefined}
+			if (this.current === previous) {
+				this.current = undefined
+			}
 		}
 
 		if (id === this.generation && !this.blockedFailure) {
-			this.emit({ phase: 'discovered', storyId: null, mountedGeneration: 0, stale: false, failure: undefined })
+			this.emit({
+				phase: 'discovered',
+				storyId: null,
+				mountedGeneration: 0,
+				stale: false,
+				failure: undefined,
+			})
 		}
 	}
 }

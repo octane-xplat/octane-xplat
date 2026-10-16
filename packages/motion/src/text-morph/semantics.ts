@@ -90,10 +90,15 @@ export function textMorphSegmenters(): TextMorphSegmenters | null {
 
 function equal(a: string, b: string, budget: Budget): boolean {
 	budget.spend()
-	if (a.length !== b.length) {return false}
+	if (a.length !== b.length) {
+		return false
+	}
+
 	for (let i = 0; i < a.length; i++) {
 		budget.spend()
-		if (a.charCodeAt(i) !== b.charCodeAt(i)) {return false}
+		if (a.charCodeAt(i) !== b.charCodeAt(i)) {
+			return false
+		}
 	}
 
 	return true
@@ -123,30 +128,51 @@ function segments(value: string, segmenter: TextMorphSegmenter, budget: Budget, 
 
 		result.push(part)
 		offset = end
-		if (word && part.isWordLike && ++words > TEXT_MORPH_LIMITS.words) {throw 'word-limit'}
-		if (!word && result.length > TEXT_MORPH_LIMITS.graphemes) {throw 'grapheme-limit'}
+		if (word && part.isWordLike && ++words > TEXT_MORPH_LIMITS.words) {
+			throw 'word-limit'
+		}
+
+		if (!word && result.length > TEXT_MORPH_LIMITS.graphemes) {
+			throw 'grapheme-limit'
+		}
 	}
 
-	if (offset !== value.length) {throw 'segmentation-unreliable'}
+	if (offset !== value.length) {
+		throw 'segmentation-unreliable'
+	}
+
 	return result
 }
 
 function tokenize(value: string, segmenters: TextMorphSegmenters | null, budget: Budget) {
 	// Charge input scans before regex/segmentation, including very long clusters.
 	budget.spend(value.length)
-	if (UNSUPPORTED.test(value)) {throw 'unsupported-input'}
+	if (UNSUPPORTED.test(value)) {
+		throw 'unsupported-input'
+	}
+
 	for (let i = 0; i < value.length; i++) {
 		const unit = value.charCodeAt(i)
 		if (unit >= 0xd800 && unit <= 0xdbff) {
 			const low = value.charCodeAt(++i)
-			if (!(low >= 0xdc00 && low <= 0xdfff)) {throw 'unsupported-input'}
-		} else if (unit >= 0xdc00 && unit <= 0xdfff) {throw 'unsupported-input'}
+			if (!(low >= 0xdc00 && low <= 0xdfff)) {
+				throw 'unsupported-input'
+			}
+		} else if (unit >= 0xdc00 && unit <= 0xdfff) {
+			throw 'unsupported-input'
+		}
 	}
 
-	if (!segmenters) {throw 'segmentation-unavailable'}
+	if (!segmenters) {
+		throw 'segmentation-unavailable'
+	}
+
 	const graphemes = segments(value, segmenters.grapheme, budget, false)
 	const boundaries = new Set([0, value.length])
-	for (const part of graphemes) {boundaries.add(part.index)}
+	for (const part of graphemes) {
+		boundaries.add(part.index)
+	}
+
 	return segments(value, segmenters.word, budget, true).map((part) => {
 		budget.spend(part.segment.length)
 		if (!boundaries.has(part.index) || !boundaries.has(part.index + part.segment.length)) {

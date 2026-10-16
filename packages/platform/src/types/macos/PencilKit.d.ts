@@ -8,175 +8,201 @@ import type { interop } from './objc-runtime'
 
 import { NSObject } from './Runtime'
 
+export declare const PKInkTypeMarker: string
 
+export declare const PKInkTypePencil: string
 
-export declare const PKInkTypeMarker: string;
+export declare const PKInkTypePen: string
 
-export declare const PKInkTypePencil: string;
-
-export declare const PKInkTypePen: string;
-
-export declare const PKAppleDrawingTypeIdentifier: interop.Pointer;
+export declare const PKAppleDrawingTypeIdentifier: interop.Pointer
 
 export declare const PKContentVersion: {
-  Version1: 1,
-  Version2: 2,
-  VersionLatest: 5,
-};
+	Version1: 1
+	Version2: 2
+	VersionLatest: 5
+}
 
 export declare const PKEraserType: {
-  Vector: 0,
-  Bitmap: 1,
-};
+	Vector: 0
+	Bitmap: 1
+}
 
 export declare class PKStrokePath extends NSObject implements NSCopying {
-  initWithControlPointsCreationDate(controlPoints: NSArray<interop.Object> | Array<interop.Object>, creationDate: NSDate): this;
+	initWithControlPointsCreationDate(
+		controlPoints: NSArray<interop.Object> | Array<interop.Object>,
+		creationDate: NSDate,
+	): this
 
-  readonly count: number;
+	readonly count: number
 
-  readonly creationDate: NSDate;
+	readonly creationDate: NSDate
 
-  pointAtIndex(i: number): PKStrokePoint;
+	pointAtIndex(i: number): PKStrokePoint
 
-  objectAtIndexedSubscript(i: number): PKStrokePoint;
+	objectAtIndexedSubscript(i: number): PKStrokePoint
 
-  interpolatedLocationAt(parametricValue: number): CGPoint;
+	interpolatedLocationAt(parametricValue: number): CGPoint
 
-  interpolatedPointAt(parametricValue: number): PKStrokePoint;
+	interpolatedPointAt(parametricValue: number): PKStrokePoint
 
-  enumerateInterpolatedPointsInRangeStrideByDistanceUsingBlock(range: PKFloatRange, distanceStep: number, block: (p1: PKStrokePoint, p2: interop.PointerConvertible) => void): void;
+	enumerateInterpolatedPointsInRangeStrideByDistanceUsingBlock(
+		range: PKFloatRange,
+		distanceStep: number,
+		block: (p1: PKStrokePoint, p2: interop.PointerConvertible) => void,
+	): void
 
-  enumerateInterpolatedPointsInRangeStrideByTimeUsingBlock(range: PKFloatRange, timeStep: number, block: (p1: PKStrokePoint, p2: interop.PointerConvertible) => void): void;
+	enumerateInterpolatedPointsInRangeStrideByTimeUsingBlock(
+		range: PKFloatRange,
+		timeStep: number,
+		block: (p1: PKStrokePoint, p2: interop.PointerConvertible) => void,
+	): void
 
-  enumerateInterpolatedPointsInRangeStrideByParametricStepUsingBlock(range: PKFloatRange, parametricStep: number, block: (p1: PKStrokePoint, p2: interop.PointerConvertible) => void): void;
+	enumerateInterpolatedPointsInRangeStrideByParametricStepUsingBlock(
+		range: PKFloatRange,
+		parametricStep: number,
+		block: (p1: PKStrokePoint, p2: interop.PointerConvertible) => void,
+	): void
 
-  parametricValueOffsetByDistance(parametricValue: number, distanceStep: number): number;
+	parametricValueOffsetByDistance(parametricValue: number, distanceStep: number): number
 
-  parametricValueOffsetByTime(parametricValue: number, timeStep: number): number;
+	parametricValueOffsetByTime(parametricValue: number, timeStep: number): number
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 export declare class PKStroke extends NSObject implements NSCopying {
-  initWithInkStrokePathTransformMask(ink: PKInk, strokePath: PKStrokePath, transform: CGAffineTransform, mask: NSBezierPath | null): this;
+	initWithInkStrokePathTransformMask(
+		ink: PKInk,
+		strokePath: PKStrokePath,
+		transform: CGAffineTransform,
+		mask: NSBezierPath | null,
+	): this
 
-  readonly ink: PKInk;
+	readonly ink: PKInk
 
-  readonly transform: CGAffineTransform;
+	readonly transform: CGAffineTransform
 
-  readonly path: PKStrokePath;
+	readonly path: PKStrokePath
 
-  readonly mask: NSBezierPath;
+	readonly mask: NSBezierPath
 
-  readonly renderBounds: CGRect;
+	readonly renderBounds: CGRect
 
-  readonly maskedPathRanges: NSArray;
+	readonly maskedPathRanges: NSArray
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 export declare class PKEraserTool extends PKTool {
-  readonly eraserType: interop.Enum<typeof PKEraserType>;
+	readonly eraserType: interop.Enum<typeof PKEraserType>
 
-  initWithEraserType(eraserType: interop.Enum<typeof PKEraserType>): this;
+	initWithEraserType(eraserType: interop.Enum<typeof PKEraserType>): this
 }
 
 export declare class PKLassoTool extends PKTool {
-  init(): this;
+	init(): this
 }
 
 export declare class PKTool extends NSObject implements NSCopying {
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 export declare class PKInkingTool extends PKTool {
-  initWithInkTypeColorWidth(type: string, color: NSColor, width: number): this;
+	initWithInkTypeColorWidth(type: string, color: NSColor, width: number): this
 
-  initWithInkTypeColor(type: string, color: NSColor): this;
+	initWithInkTypeColor(type: string, color: NSColor): this
 
-  initWithInkWidth(ink: PKInk, width: number): this;
+	initWithInkWidth(ink: PKInk, width: number): this
 
-  static defaultWidthForInkType(inkType: string): number;
+	static defaultWidthForInkType(inkType: string): number
 
-  static minimumWidthForInkType(inkType: string): number;
+	static minimumWidthForInkType(inkType: string): number
 
-  static maximumWidthForInkType(inkType: string): number;
+	static maximumWidthForInkType(inkType: string): number
 
-  readonly inkType: string;
+	readonly inkType: string
 
-  readonly color: NSColor;
+	readonly color: NSColor
 
-  readonly width: number;
+	readonly width: number
 
-  readonly ink: PKInk;
+	readonly ink: PKInk
 }
 
 export declare class PKInk extends NSObject implements NSCopying {
-  initWithInkTypeColor(type: string, color: NSColor): this;
+	initWithInkTypeColor(type: string, color: NSColor): this
 
-  readonly inkType: string;
+	readonly inkType: string
 
-  readonly color: NSColor;
+	readonly color: NSColor
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 export declare class PKFloatRange extends NSObject implements NSCopying {
-  readonly lowerBound: number;
+	readonly lowerBound: number
 
-  readonly upperBound: number;
+	readonly upperBound: number
 
-  initWithLowerBoundUpperBound(lowerBound: number, upperBound: number): this;
+	initWithLowerBoundUpperBound(lowerBound: number, upperBound: number): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 export declare class PKDrawing extends NSObject implements NSCopying, NSSecureCoding {
-  init(): this;
+	init(): this
 
-  initWithStrokes(strokes: NSArray<interop.Object> | Array<interop.Object>): this;
+	initWithStrokes(strokes: NSArray<interop.Object> | Array<interop.Object>): this
 
-  initWithDataError(data: NSData, error: interop.PointerConvertible): this;
+	initWithDataError(data: NSData, error: interop.PointerConvertible): this
 
-  dataRepresentation(): NSData;
+	dataRepresentation(): NSData
 
-  readonly strokes: NSArray;
+	readonly strokes: NSArray
 
-  readonly bounds: CGRect;
+	readonly bounds: CGRect
 
-  imageFromRectScale(rect: CGRect, scale: number): NSImage;
+	imageFromRectScale(rect: CGRect, scale: number): NSImage
 
-  drawingByApplyingTransform(transform: CGAffineTransform): PKDrawing;
+	drawingByApplyingTransform(transform: CGAffineTransform): PKDrawing
 
-  drawingByAppendingDrawing(drawing: PKDrawing): PKDrawing;
+	drawingByAppendingDrawing(drawing: PKDrawing): PKDrawing
 
-  drawingByAppendingStrokes(strokes: NSArray<interop.Object> | Array<interop.Object>): PKDrawing;
+	drawingByAppendingStrokes(strokes: NSArray<interop.Object> | Array<interop.Object>): PKDrawing
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 export declare class PKStrokePoint extends NSObject implements NSCopying {
-  initWithLocationTimeOffsetSizeOpacityForceAzimuthAltitude(location: CGPoint, timeOffset: number, size: CGSize, opacity: number, force: number, azimuth: number, altitude: number): this;
+	initWithLocationTimeOffsetSizeOpacityForceAzimuthAltitude(
+		location: CGPoint,
+		timeOffset: number,
+		size: CGSize,
+		opacity: number,
+		force: number,
+		azimuth: number,
+		altitude: number,
+	): this
 
-  readonly location: CGPoint;
+	readonly location: CGPoint
 
-  readonly timeOffset: number;
+	readonly timeOffset: number
 
-  readonly size: CGSize;
+	readonly size: CGSize
 
-  readonly opacity: number;
+	readonly opacity: number
 
-  readonly force: number;
+	readonly force: number
 
-  readonly azimuth: number;
+	readonly azimuth: number
 
-  readonly altitude: number;
+	readonly altitude: number
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }

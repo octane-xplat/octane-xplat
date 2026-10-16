@@ -151,9 +151,7 @@
 
 		let movieFileUrl = null
 		await run('camera.writeMovieFile', async () => {
-			const { reservation } = await call('camera', 'reserveMoviePath', [
-				{ container: 'mp4' },
-			])
+			const { reservation } = await call('camera', 'reserveMoviePath', [{ container: 'mp4' }])
 
 			const { file } = await call('camera', 'writeMovieFile', [
 				{ fileUrl: reservation.fileUrl, base64: btoa('movie-bytes') },

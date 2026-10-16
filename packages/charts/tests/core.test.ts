@@ -130,7 +130,11 @@ describe('scales', () => {
 		const mixed = [
 			{
 				name: 's',
-				values: [{ x: 0, y: 1 }, { x: 'gap', y: 9 }, { x: 2, y: 3 }],
+				values: [
+					{ x: 0, y: 1 },
+					{ x: 'gap', y: 9 },
+					{ x: 2, y: 3 },
+				],
 			},
 		]
 
@@ -259,7 +263,14 @@ describe('hit math', () => {
 	test('group centers average every series cx in the band', () => {
 		const three = [
 			...XY,
-			{ name: 'gamma', values: [{ x: 'a', y: 5 }, { x: 'b', y: 4 }, { x: 'c', y: 6 }] },
+			{
+				name: 'gamma',
+				values: [
+					{ x: 'a', y: 5 },
+					{ x: 'b', y: 4 },
+					{ x: 'c', y: 6 },
+				],
+			},
 		]
 
 		const scene = sceneFor({ type: 'bar', data: three })

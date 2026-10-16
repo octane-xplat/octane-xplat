@@ -459,14 +459,21 @@ export function createMarkdownStreamParser(): MarkdownStreamParser {
 	let document: MdDoc = { kind: 'octane-xplat/md', v: 1, children: [] }
 	return {
 		append(chunk) {
-			if (finished) throw new Error('Markdown stream is finished; call reset() before append().')
-			if (chunk === '') return document
+			if (finished) {
+				throw new Error('Markdown stream is finished; call reset() before append().')
+			}
+
+			if (chunk === '') {
+				return document
+			}
+
 			source += chunk
 			document = {
 				kind: 'octane-xplat/md',
 				v: 1,
 				children: parseMarkdownIncremental(source, state),
 			}
+
 			return document
 		},
 		reset() {
@@ -481,6 +488,7 @@ export function createMarkdownStreamParser(): MarkdownStreamParser {
 				document = parseMdDoc(source)
 				finished = true
 			}
+
 			return document
 		},
 	}

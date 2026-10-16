@@ -1,6 +1,13 @@
 import Formatted, { formattedRef, spanRef, formattedRefEvents } from './Formatted'
 
-import { NSBackgroundColorAttributeName, NSFontAttributeName, NSFontTraitMask, NSForegroundColorAttributeName, NSStrikethroughStyleAttributeName, NSUnderlineStyleAttributeName } from '@octane-xplat/platform/macos'
+import {
+	NSBackgroundColorAttributeName,
+	NSFontAttributeName,
+	NSFontTraitMask,
+	NSForegroundColorAttributeName,
+	NSStrikethroughStyleAttributeName,
+	NSUnderlineStyleAttributeName,
+} from '@octane-xplat/platform/macos'
 
 export async function checkFormattedLifecycle(root: any, nativeWindow: any) {
 	const debug = root.__macosDebug
@@ -101,9 +108,18 @@ export async function checkFormattedLifecycle(root: any, nativeWindow: any) {
 	await advance()
 	for (const id of ['button', 'field', 'view', 'search']) {
 		const host = debug.findId('formatted-' + id)
-		const value = id === 'button' ? host.attributedTitle : id === 'view' ? host.textStorage : host.attributedStringValue
+		const value =
+			id === 'button'
+				? host.attributedTitle
+				: id === 'view'
+					? host.textStorage
+					: host.attributedStringValue
+
 		check(String(value.string).startsWith('Updated '), id + ' formatted update failed')
-		check(Number(value.attributeAtIndexEffectiveRange(NSFontAttributeName, 0, null).pointSize) === 24, id + ' font update failed')
+		check(
+			Number(value.attributeAtIndexEffectiveRange(NSFontAttributeName, 0, null).pointSize) === 24,
+			id + ' font update failed',
+		)
 	}
 
 	check(
@@ -121,8 +137,18 @@ export async function checkFormattedLifecycle(root: any, nativeWindow: any) {
 	await advance()
 	for (const id of ['button', 'field', 'view', 'search']) {
 		const host = debug.findId('formatted-' + id)
-		const value = id === 'button' ? host.attributedTitle : id === 'view' ? host.textStorage : host.attributedStringValue
-		check(Number(value.attributeAtIndexEffectiveRange(NSFontAttributeName, 0, null).pointSize) === Number(host.font?.pointSize ?? 14), id + ' default restoration failed')
+		const value =
+			id === 'button'
+				? host.attributedTitle
+				: id === 'view'
+					? host.textStorage
+					: host.attributedStringValue
+
+		check(
+			Number(value.attributeAtIndexEffectiveRange(NSFontAttributeName, 0, null).pointSize) ===
+				Number(host.font?.pointSize ?? 14),
+			id + ' default restoration failed',
+		)
 	}
 
 	check(

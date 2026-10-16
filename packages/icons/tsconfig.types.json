@@ -2,11 +2,7 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"jsxImportSource": "octane",
-		"lib": [
-			"ESNext",
-			"DOM",
-			"DOM.Iterable"
-		],
+		"lib": ["ESNext", "DOM", "DOM.Iterable"],
 		"declaration": true,
 		"emitDeclarationOnly": true,
 		"noEmit": false,
@@ -25,9 +21,5 @@
 		],
 		"allowImportingTsExtensions": true
 	},
-	"files": [
-		"src/index.ts",
-		"src/index.web.ts",
-		"src/index.macos.ts"
-	]
+	"files": ["src/index.ts", "src/index.web.ts", "src/index.macos.ts"]
 }

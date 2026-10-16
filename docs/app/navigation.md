@@ -999,9 +999,15 @@ import { RouteOutlet, Screen, Text } from '@octane-xplat/ui'
 
 const Account = createContext('guest')
 export function AppShell() {
-    return <Account value="Avery">
-        <Screen><RouteOutlet stack="root"><Text>Home</Text></RouteOutlet></Screen>
-    </Account>
+	return (
+		<Account value="Avery">
+			<Screen>
+				<RouteOutlet stack="root">
+					<Text>Home</Text>
+				</RouteOutlet>
+			</Screen>
+		</Account>
+	)
 }
 ```
 
@@ -1016,11 +1022,15 @@ import { useNativeRouteNavigator } from '@octane-xplat/ui/nativescript'
 import { Button } from '@octane-xplat/ui'
 
 export function AccountActions() {
-    const navigation = useNativeRouteNavigator('root')
-    return <>
-        <Button clickAction={() => navigation.push({ name: 'settings', params: {} })}>Settings</Button>
-        {navigation.element}
-    </>
+	const navigation = useNativeRouteNavigator('root')
+	return (
+		<>
+			<Button clickAction={() => navigation.push({ name: 'settings', params: {} })}>
+				Settings
+			</Button>
+			{navigation.element}
+		</>
+	)
 }
 ```
 

@@ -21,7 +21,6 @@ import { navigate } from '@xplat/app'
 import { getStack, routeFor } from '@octane-xplat/ui/routing'
 import { java } from '@octane-xplat/platform/android'
 
-
 const DOCS_DIR = knownFolders.documents().path
 const RESULTS = path.join(DOCS_DIR, 'lottie-probe-results.json')
 const URL_SRC =

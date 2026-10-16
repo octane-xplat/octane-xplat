@@ -57,8 +57,8 @@
 		"pack:check": "tsrx-typegen --pack-check"
 	},
 	"dependencies": {
-		"@octane-xplat/lib": "workspace:*",
-		"@nativescript/swift-ui": "4.0.2"
+		"@nativescript/swift-ui": "4.0.2",
+		"@octane-xplat/lib": "workspace:*"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.4",

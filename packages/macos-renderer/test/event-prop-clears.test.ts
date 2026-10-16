@@ -43,16 +43,19 @@ function fixture() {
 		console,
 	}
 
-	const api = runInNewContext(
-		prefix + slices + '\n;({ applyCommand })',
-		sandbox,
-	)
+	const api = runInNewContext(prefix + slices + '\n;({ applyCommand })', sandbox)
 
 	const container = { nodes: new Map<number, any>(), children: [] }
 	return { ...api, container, applied }
 }
 
-function existingNode(container: any, id: number, type: string, props: Record<string, any>, parent: any = null) {
+function existingNode(
+	container: any,
+	id: number,
+	type: string,
+	props: Record<string, any>,
+	parent: any = null,
+) {
 	const node = { id, type, props: { ...props }, parent, children: [], container, view: {} }
 	container.nodes.set(id, node)
 	return node
@@ -171,8 +174,7 @@ const applyPropsSandbox: Record<string, any> = {
 }
 
 const applyPropsApi = runInNewContext(
-	source.slice(at('function applyProps('), at('\nfunction detach(')) +
-		'\n;({ applyProps })',
+	source.slice(at('function applyProps('), at('\nfunction detach(')) + '\n;({ applyProps })',
 	new Proxy(applyPropsSandbox, {
 		get(target, key: string | symbol) {
 			if (key in target) {

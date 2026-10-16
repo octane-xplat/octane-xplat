@@ -4,10 +4,9 @@
 
 ### Bug Fixes
 
-- *(tsrx-typegen)* Normalize Windows project source paths
-- *(typegen)* Validate the published package tarball
-- *(typegen)* Handle case-only declaration renames
-
+- _(tsrx-typegen)_ Normalize Windows project source paths
+- _(typegen)_ Validate the published package tarball
+- _(typegen)_ Handle case-only declaration renames
 
 ## [tsrx-typegen-v0.2.1] - 2026-10-02
 

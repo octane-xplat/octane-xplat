@@ -5,9 +5,7 @@
 		"module": "esnext",
 		"moduleResolution": "bundler",
 		"target": "esnext",
-		"types": [
-			"@nativescript/types"
-		],
+		"types": ["@nativescript/types"],
 		"declaration": true,
 		"allowImportingTsExtensions": true,
 		"emitDeclarationOnly": true,
@@ -26,7 +24,5 @@
 			".windows"
 		]
 	},
-	"include": [
-		"src/**/*.ts"
-	]
+	"include": ["src/**/*.ts"]
 }

@@ -1,6 +1,11 @@
 import DatePicker, { dateRef, dateRefEvents, dateChanges } from './Date'
 
-import { NSDate, NSDatePicker, NSDatePickerElementFlags, NSDatePickerStyle } from '@octane-xplat/platform/macos'
+import {
+	NSDate,
+	NSDatePicker,
+	NSDatePickerElementFlags,
+	NSDatePickerStyle,
+} from '@octane-xplat/platform/macos'
 
 export async function checkDateLifecycle(root: any, nativeWindow: any) {
 	const debug = root.__macosDebug
@@ -91,7 +96,11 @@ export async function checkDateLifecycle(root: any, nativeWindow: any) {
 		'DatePicker reactive date/enabled identity failed',
 	)
 
-	check(new Date(Number(first.minDate.timeIntervalSince1970) * 1000).getDate() === 2 && new Date(Number(first.maxDate.timeIntervalSince1970) * 1000).getDate() === 18, 'DatePicker reactive bound updates failed')
+	check(
+		new Date(Number(first.minDate.timeIntervalSince1970) * 1000).getDate() === 2 &&
+			new Date(Number(first.maxDate.timeIntervalSince1970) * 1000).getDate() === 18,
+		'DatePicker reactive bound updates failed',
+	)
 
 	check(
 		dateChanges.some(

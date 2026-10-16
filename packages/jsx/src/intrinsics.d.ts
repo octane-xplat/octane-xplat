@@ -19,5 +19,5 @@
  * platform-scoped tags belong in platform-suffixed files that only compile
  * where the element is registered.
  */
-export * from './shared.js';
-export type { HostElement } from './jsx-runtime.js';
+export * from './shared.js'
+export type { HostElement } from './jsx-runtime.js'

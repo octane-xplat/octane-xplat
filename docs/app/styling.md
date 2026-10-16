@@ -497,7 +497,13 @@ matching `getColorScheme`, `getThemePreference`, and `getThemeScheme`
 getters.
 
 ```tsx
-import { Text, Pressable, useThemePreference, useThemeScheme, setThemePreference } from '@octane-xplat/ui'
+import {
+	Text,
+	Pressable,
+	useThemePreference,
+	useThemeScheme,
+	setThemePreference,
+} from '@octane-xplat/ui'
 
 export function ThemePicker() {
 	const preference = useThemePreference() // 'system' | 'light' | 'dark'

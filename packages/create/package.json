@@ -3,9 +3,9 @@
 	"version": "0.14.0",
 	"description": "Scaffold Octane Xplat apps and cross-platform libraries",
 	"keywords": [
+		"component-library",
 		"create",
 		"cross-platform",
-		"component-library",
 		"init",
 		"octane",
 		"project-generator",
@@ -34,10 +34,10 @@
 		"./scaffold": "./scaffold.mjs"
 	},
 	"publishConfig": {
-		"access": "public",
 		"exports": {
 			"./scaffold": "./scaffold.mjs"
-		}
+		},
+		"access": "public"
 	},
 	"dependencies": {
 		"@clack/prompts": "1.8.1"

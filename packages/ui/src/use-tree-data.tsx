@@ -1,6 +1,6 @@
-import { useRef } from 'octane';
-import { createTreeData, type TreeData, type TreeDataOptions } from './tree-data';
-import { useStore } from './use-store';
+import { useRef } from 'octane'
+import { createTreeData, type TreeData, type TreeDataOptions } from './tree-data'
+import { useStore } from './use-store'
 
 /**
  * React Aria useTreeData counterpart: one immutable tree store per component.
@@ -8,11 +8,11 @@ import { useStore } from './use-store';
  * every mutator commits a fresh tree, re-rendering subscribed readers.
  */
 export function useTreeData<T>(options: TreeDataOptions<T> = {}): TreeData<T> {
-	const ref = useRef<TreeData<T> | null>(null);
+	const ref = useRef<TreeData<T> | null>(null)
 	if (ref.current === null) {
-		ref.current = createTreeData(options);
+		ref.current = createTreeData(options)
 	}
 
-	useStore(ref.current);
-	return ref.current;
+	useStore(ref.current)
+	return ref.current
 }

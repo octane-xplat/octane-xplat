@@ -5,7 +5,9 @@ import { NSSearchField, NSStackViewGravity } from '@octane-xplat/platform/macos'
 export async function checkSearchLifecycle(root: any, nativeWindow: any) {
 	const debug = root.__macosDebug
 	const check = (condition: boolean, message: string) => {
-		if (!condition) {throw new Error(message)}
+		if (!condition) {
+			throw new Error(message)
+		}
 	}
 
 	const settle = () =>
@@ -96,7 +98,8 @@ export async function checkSearchLifecycle(root: any, nativeWindow: any) {
 
 	check(
 		String(a.action) === '<null selector>' && a.cell.sendsActionOnEndEditing === false,
-		'Search cancel/end-editing can submit: ' + JSON.stringify({ action: a.action, end: a.cell.sendsActionOnEndEditing }),
+		'Search cancel/end-editing can submit: ' +
+			JSON.stringify({ action: a.action, end: a.cell.sendsActionOnEndEditing }),
 	)
 
 	await advance()

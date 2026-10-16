@@ -49,7 +49,11 @@ export function createWindowsAdapter() {
 					status: 'unavailable',
 					detail: 'Windows dev-session detection is not qualified yet — no attach provider.',
 				},
-				{ capability: 'logs', status: ready ? 'supported' : 'unavailable', detail: blocked ?? undefined },
+				{
+					capability: 'logs',
+					status: ready ? 'supported' : 'unavailable',
+					detail: blocked ?? undefined,
+				},
 			]
 		},
 

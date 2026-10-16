@@ -181,7 +181,11 @@ export function inspectMacOSPackageConfig(appRoot, value, selectedRenderer) {
 				})
 
 	if (settings.infoPlist !== undefined) {
-		if (!settings.infoPlist || typeof settings.infoPlist !== 'object' || Array.isArray(settings.infoPlist)) {
+		if (
+			!settings.infoPlist ||
+			typeof settings.infoPlist !== 'object' ||
+			Array.isArray(settings.infoPlist)
+		) {
 			issues.push('xplat.targets.macos.package.infoPlist must be an object')
 		} else {
 			for (const [key, value] of Object.entries(settings.infoPlist)) {

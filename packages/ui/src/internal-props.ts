@@ -1,9 +1,4 @@
-import type {
-	BaseTypeaheadProps,
-	ContextRenderProps,
-	PopoverProps,
-	SearchableItem,
-} from './props'
+import type { BaseTypeaheadProps, ContextRenderProps, PopoverProps, SearchableItem } from './props'
 
 /** Internal plumbing — fields used by sibling components/hooks that must not
  *  appear on the public props contracts. Not re-exported by the package

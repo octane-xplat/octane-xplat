@@ -76,7 +76,8 @@ export function pnpmPrerequisite({ exec = execText } = {}) {
 				id: 'pnpm',
 				name: 'pnpm',
 				status: 'missing',
-				remedy: 'Install pnpm — the runtime adapters spawn the app\u2019s toolchain through `pnpm exec`.',
+				remedy:
+					'Install pnpm — the runtime adapters spawn the app\u2019s toolchain through `pnpm exec`.',
 			}
 }
 

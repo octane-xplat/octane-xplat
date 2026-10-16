@@ -18,9 +18,7 @@ export interface SelectOptionGroup {
 	options: SelectOption[]
 }
 
-export function groupSelectOptions(
-	options: SelectOption[],
-): SelectOptionGroup[] {
+export function groupSelectOptions(options: SelectOption[]): SelectOptionGroup[] {
 	const groups = new Map<string | undefined, SelectOption[]>()
 	for (const option of options) {
 		const rows = groups.get(option.group)

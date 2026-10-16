@@ -52,7 +52,10 @@ export function mountShader(
 
 /** Reduced motion → hold the first rendered frame instead of animating. */
 export function applyMotionPreference(instance: ShaderInstance): boolean {
-	if (!prefersReducedMotion()) {return false}
+	if (!prefersReducedMotion()) {
+		return false
+	}
+
 	instance.pause()
 	return true
 }

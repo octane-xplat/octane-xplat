@@ -1,8 +1,16 @@
 import { describe, expect, it } from 'vitest'
-import { WorkshopSession, type MountRequest, type MountedStory, type StageHost } from '../src/session'
+import {
+	WorkshopSession,
+	type MountRequest,
+	type MountedStory,
+	type StageHost,
+} from '../src/session'
+
 import type { StoryDefinition } from '../src/contract'
 
-const story = (over: Partial<StoryDefinition<any, any, any>> = {}): StoryDefinition<any, any, any> => ({
+const story = (
+	over: Partial<StoryDefinition<any, any, any>> = {},
+): StoryDefinition<any, any, any> => ({
 	id: 'demo/basic',
 	title: 'Demo / Basic',
 	targets: 'all',
@@ -14,7 +22,11 @@ const story = (over: Partial<StoryDefinition<any, any, any>> = {}): StoryDefinit
 interface Recorded {
 	events: string[]
 	mounts: MountRequest[]
-	mounted: { props: Record<string, unknown>; unmounted: boolean; updates: Record<string, unknown>[] }[]
+	mounted: {
+		props: Record<string, unknown>
+		unmounted: boolean
+		updates: Record<string, unknown>[]
+	}[]
 }
 
 function host(events: string[] = []): StageHost & { recorded: Recorded } {
@@ -23,7 +35,12 @@ function host(events: string[] = []): StageHost & { recorded: Recorded } {
 		recorded,
 		mount(request: MountRequest): MountedStory {
 			recorded.mounts.push(request)
-			const entry = { props: request.props, unmounted: false, updates: [] as Record<string, unknown>[] }
+			const entry = {
+				props: request.props,
+				unmounted: false,
+				updates: [] as Record<string, unknown>[],
+			}
+
 			recorded.mounted.push(entry)
 			events.push(`mount:${request.story.id}`)
 			return {
@@ -83,7 +100,11 @@ describe('mount lifecycle', () => {
 		const s = session(h)
 		let fixtureRuns = 0
 		await s.select(
-			story({ args: { step: 1 }, state: () => ({ n: 1 }), fixture: () => ({ run: ++fixtureRuns }) }),
+			story({
+				args: { step: 1 },
+				state: () => ({ n: 1 }),
+				fixture: () => ({ run: ++fixtureRuns }),
+			}),
 		)
 
 		s.applyProps({ step: 9 })
@@ -253,9 +274,7 @@ describe('state-preserving controls', () => {
 		const h = host()
 		const s = session(h)
 		let fixtureRuns = 0
-		await s.select(
-			story({ args: { step: 1 }, fixture: () => ({ run: ++fixtureRuns }) }),
-		)
+		await s.select(story({ args: { step: 1 }, fixture: () => ({ run: ++fixtureRuns }) }))
 
 		s.applyProps({ step: 7 })
 		expect(fixtureRuns).toBe(1)
@@ -317,16 +336,25 @@ describe('errors and staleness', () => {
 	})
 })
 
-
 describe('retirement races and isolation', () => {
 	it('concurrent selections await the same retirement before mounting', async () => {
 		const h = host()
 		const s = session(h)
 		let release!: () => void
-		await s.select(story({ fixture: (ctx: any) => {
-			ctx.onCleanup(() => new Promise<void>((resolve) => { release = resolve }))
-			return {}
-		} }))
+		await s.select(
+			story({
+				fixture: (ctx: any) => {
+					ctx.onCleanup(
+						() =>
+							new Promise<void>((resolve) => {
+								release = resolve
+							}),
+					)
+
+					return {}
+				},
+			}),
+		)
 
 		const first = s.select(story({ id: 'next/first' }))
 		const second = s.select(story({ id: 'next/second' }))
@@ -341,12 +369,26 @@ describe('retirement races and isolation', () => {
 		const h = host()
 		const s = session(h)
 		const cleaned: string[] = []
-		await s.select(story({ fixture: (ctx: any) => {
-			ctx.onCleanup(() => { cleaned.push('first') })
-			ctx.onCleanup(() => { cleaned.push('second'); throw new Error('second failed') })
-			ctx.onCleanup(() => { cleaned.push('third') })
-			return {}
-		} }))
+		await s.select(
+			story({
+				fixture: (ctx: any) => {
+					ctx.onCleanup(() => {
+						cleaned.push('first')
+					})
+
+					ctx.onCleanup(() => {
+						cleaned.push('second')
+						throw new Error('second failed')
+					})
+
+					ctx.onCleanup(() => {
+						cleaned.push('third')
+					})
+
+					return {}
+				},
+			}),
+		)
 
 		await s.reset()
 		await s.reset()
@@ -358,11 +400,18 @@ describe('retirement races and isolation', () => {
 		const h = host()
 		const s = session(h, { disposalTimeout: 20 })
 		let cleaned = 0
-		await s.select(story({ fixture: (ctx: any) => {
-			ctx.onCleanup(() => { cleaned++ })
-			ctx.onCleanup(() => new Promise<void>(() => {}))
-			return {}
-		} }))
+		await s.select(
+			story({
+				fixture: (ctx: any) => {
+					ctx.onCleanup(() => {
+						cleaned++
+					})
+
+					ctx.onCleanup(() => new Promise<void>(() => {}))
+					return {}
+				},
+			}),
+		)
 
 		await s.reset()
 		await s.select(story({ id: 'next/story' }))
@@ -373,10 +422,14 @@ describe('retirement races and isolation', () => {
 
 	it('bounds partial preparation cleanup and reports its failure', async () => {
 		const s = session(host(), { disposalTimeout: 20 })
-		await s.select(story({ fixture: (ctx: any) => {
-			ctx.onCleanup(() => new Promise<void>(() => {}))
-			throw new Error('preparation failed')
-		} }))
+		await s.select(
+			story({
+				fixture: (ctx: any) => {
+					ctx.onCleanup(() => new Promise<void>(() => {}))
+					throw new Error('preparation failed')
+				},
+			}),
+		)
 
 		expect(s.state.phase).toBe('restart-required')
 		expect(s.state.failure?.phase).toBe('cleanup')
@@ -387,15 +440,24 @@ describe('retirement races and isolation', () => {
 		let unmounted = 0
 		const h = host()
 		const originalMount = h.mount
-		h.mount = ((request: MountRequest) => request.story.id === 'slow/mount'
-			? new Promise<MountedStory>((resolve) => { acquire = resolve })
-			: originalMount(request)) as any
+		h.mount = ((request: MountRequest) =>
+			request.story.id === 'slow/mount'
+				? new Promise<MountedStory>((resolve) => {
+						acquire = resolve
+					})
+				: originalMount(request)) as any
 
 		const s = session(h)
 		const first = s.select(story({ id: 'slow/mount' }))
 		await Promise.resolve()
 		const second = s.select(story({ id: 'next/story' }))
-		acquire({ update() {}, unmount() { unmounted++ } })
+		acquire({
+			update() {},
+			unmount() {
+				unmounted++
+			},
+		})
+
 		await Promise.all([first, second])
 		expect(unmounted).toBe(1)
 		expect(s.state.phase).toBe('ready')
@@ -405,8 +467,11 @@ describe('retirement races and isolation', () => {
 	it('nested defaults, state and fixture data are fresh on reset', async () => {
 		const h = host()
 		const s = session(h)
-		const definition = story({ args: { nested: { label: 'default' } },
-			state: () => ({ nested: { count: 0 } }), fixture: () => ({ nested: { label: 'fixture' } }) })
+		const definition = story({
+			args: { nested: { label: 'default' } },
+			state: () => ({ nested: { count: 0 } }),
+			fixture: () => ({ nested: { label: 'fixture' } }),
+		})
 
 		await s.select(definition)
 		const first = h.recorded.mounts[0]!.props as any
@@ -422,32 +487,51 @@ describe('retirement races and isolation', () => {
 	})
 })
 
-
 describe('late fixture ownership', () => {
 	it('late resource acquisition after ignored cancellation is disposed exactly once', async () => {
 		const h = host()
 		const s = session(h)
 		let finish!: () => void
 		let cleaned = 0
-		const first = s.select(story({ id: 'late/fixture', fixture: (ctx: any) => new Promise((resolve) => {
-			finish = () => { ctx.onCleanup(() => { cleaned++ }); resolve({ late: true }) }
-		}) }))
+		const first = s.select(
+			story({
+				id: 'late/fixture',
+				fixture: (ctx: any) =>
+					new Promise((resolve) => {
+						finish = () => {
+							ctx.onCleanup(() => {
+								cleaned++
+							})
+
+							resolve({ late: true })
+						}
+					}),
+			}),
+		)
 
 		await s.select(story({ id: 'next/story' }))
 		finish()
 		await first
 		await Promise.resolve()
 		expect(cleaned).toBe(1)
-		expect(h.recorded.mounts.map(m => m.story.id)).toEqual(['next/story'])
+		expect(h.recorded.mounts.map((m) => m.story.id)).toEqual(['next/story'])
 	})
 
 	it('late cleanup failure invalidates isolation and blocks later runs', async () => {
 		const h = host()
 		const s = session(h)
 		let register!: () => void
-		const first = s.select(story({ fixture: (ctx: any) => new Promise(() => {
-			register = () => ctx.onCleanup(() => { throw new Error('late failure') })
-		}) }))
+		const first = s.select(
+			story({
+				fixture: (ctx: any) =>
+					new Promise(() => {
+						register = () =>
+							ctx.onCleanup(() => {
+								throw new Error('late failure')
+							})
+					}),
+			}),
+		)
 
 		await s.select(story({ id: 'next/story' }))
 		register()
@@ -460,21 +544,29 @@ describe('late fixture ownership', () => {
 	})
 })
 
-
 describe('bounded late cleanup', () => {
 	it('late hanging cleanup requires restart, without retrying resources', async () => {
 		const h = host()
 		const s = session(h, { disposalTimeout: 20 })
 		let register!: () => void
 		let attempts = 0
-		const first = s.select(story({ fixture: (ctx: any) => new Promise(() => {
-			register = () => ctx.onCleanup(() => { attempts++; return new Promise<void>(() => {}) })
-		}) }))
+		const first = s.select(
+			story({
+				fixture: (ctx: any) =>
+					new Promise(() => {
+						register = () =>
+							ctx.onCleanup(() => {
+								attempts++
+								return new Promise<void>(() => {})
+							})
+					}),
+			}),
+		)
 
 		await s.select(story({ id: 'next/story' }))
 		register()
 		await first
-		await new Promise(resolve => setTimeout(resolve, 30))
+		await new Promise((resolve) => setTimeout(resolve, 30))
 		await s.reset()
 		expect(attempts).toBe(1)
 		expect(s.state.phase).toBe('restart-required')
@@ -483,11 +575,31 @@ describe('bounded late cleanup', () => {
 
 	it('a hung root unmount still attempts fixture resources', async () => {
 		let cleaned = 0
-		const s = session({ mount() { return { update() {}, unmount() { return new Promise<void>(() => {}) } } } }, { disposalTimeout: 20 })
-		await s.select(story({ fixture: (ctx: any) => {
-			ctx.onCleanup(() => { cleaned++ })
-			return {}
-		} }))
+		const s = session(
+			{
+				mount() {
+					return {
+						update() {},
+						unmount() {
+							return new Promise<void>(() => {})
+						},
+					}
+				},
+			},
+			{ disposalTimeout: 20 },
+		)
+
+		await s.select(
+			story({
+				fixture: (ctx: any) => {
+					ctx.onCleanup(() => {
+						cleaned++
+					})
+
+					return {}
+				},
+			}),
+		)
 
 		await s.reset()
 		expect(cleaned).toBe(1)
@@ -498,10 +610,17 @@ describe('bounded late cleanup', () => {
 		const h = host()
 		const s = session(h)
 		let cleaned = 0
-		await s.select(story({ fixture: (ctx: any) => {
-			ctx.onCleanup(() => { cleaned++ })
-			return {}
-		} }))
+		await s.select(
+			story({
+				fixture: (ctx: any) => {
+					ctx.onCleanup(() => {
+						cleaned++
+					})
+
+					return {}
+				},
+			}),
+		)
 
 		h.recorded.mounts[0]!.onRenderError(new Error('provider failed'))
 		await s.dispose()
@@ -510,15 +629,24 @@ describe('bounded late cleanup', () => {
 	})
 })
 
-
 it('disposal racing selection cannot clear the new generation owner', async () => {
 	const h = host()
 	const s = session(h)
 	let finish!: () => void
-	await s.select(story({ fixture: (ctx: any) => {
-		ctx.onCleanup(() => new Promise<void>(resolve => { finish = resolve }))
-		return {}
-	} }))
+	await s.select(
+		story({
+			fixture: (ctx: any) => {
+				ctx.onCleanup(
+					() =>
+						new Promise<void>((resolve) => {
+							finish = resolve
+						}),
+				)
+
+				return {}
+			},
+		}),
+	)
 
 	const ending = s.dispose()
 	const selecting = s.select(story({ id: 'next/story' }))

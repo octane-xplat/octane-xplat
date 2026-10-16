@@ -1,4 +1,13 @@
-import type { NSArray, NSCoder, NSData, NSDictionary, NSError, NSLocale, NSNumber, NSSecureCoding } from './Foundation'
+import type {
+	NSArray,
+	NSCoder,
+	NSData,
+	NSDictionary,
+	NSError,
+	NSLocale,
+	NSNumber,
+	NSSecureCoding,
+} from './Foundation'
 
 import type { NSObjectProtocol } from './Runtime'
 
@@ -8,464 +17,550 @@ import { NSObject } from './Runtime'
 
 import { NativeObject } from './objc-runtime'
 
-
-
-export declare const TKErrorDomain: string;
+export declare const TKErrorDomain: string
 
 export declare const TKTokenOperation: {
-  None: 0,
-  ReadData: 1,
-  SignData: 2,
-  DecryptData: 3,
-  PerformKeyExchange: 4,
-};
+	None: 0
+	ReadData: 1
+	SignData: 2
+	DecryptData: 3
+	PerformKeyExchange: 4
+}
 
 export declare const TKSmartCardPINConfirmation: {
-  None: 0,
-  New: 1,
-  Current: 2,
-};
+	None: 0
+	New: 1
+	Current: 2
+}
 
 export declare const TKSmartCardPINCompletion: {
-  MaxLength: 1,
-  Key: 2,
-  Timeout: 4,
-};
+	MaxLength: 1
+	Key: 2
+	Timeout: 4
+}
 
 export declare const TKSmartCardPINJustification: {
-  Left: 0,
-  Right: 1,
-};
+	Left: 0
+	Right: 1
+}
 
 export declare const TKErrorCode: {
-  CodeNotImplemented: -1,
-  CodeCommunicationError: -2,
-  CodeCorruptedData: -3,
-  CodeCanceledByUser: -4,
-  CodeAuthenticationFailed: -5,
-  CodeObjectNotFound: -6,
-  CodeTokenNotFound: -7,
-  CodeBadParameter: -8,
-  CodeAuthenticationNeeded: -9,
-  AuthenticationFailed: -5,
-  ObjectNotFound: -6,
-  TokenNotFound: -7,
-};
+	CodeNotImplemented: -1
+	CodeCommunicationError: -2
+	CodeCorruptedData: -3
+	CodeCanceledByUser: -4
+	CodeAuthenticationFailed: -5
+	CodeObjectNotFound: -6
+	CodeTokenNotFound: -7
+	CodeBadParameter: -8
+	CodeAuthenticationNeeded: -9
+	AuthenticationFailed: -5
+	ObjectNotFound: -6
+	TokenNotFound: -7
+}
 
 export declare const TKSmartCardPINEncoding: {
-  Binary: 0,
-  ASCII: 1,
-  BCD: 2,
-};
+	Binary: 0
+	ASCII: 1
+	BCD: 2
+}
 
 export declare const TKSmartCardPINCharset: {
-  Numeric: 0,
-  Alphanumeric: 1,
-  UpperAlphanumeric: 2,
-};
+	Numeric: 0
+	Alphanumeric: 1
+	UpperAlphanumeric: 2
+}
 
 export declare const TKSmartCardProtocol: {
-  None: 0,
-  T0: 1,
-  T1: 2,
-  T15: 32768,
-  Any: 65535,
-};
+	None: 0
+	T0: 1
+	T1: 2
+	T15: 32768
+	Any: 65535
+}
 
 export declare const TKSmartCardSlotState: {
-  Missing: 0,
-  Empty: 1,
-  Probing: 2,
-  MuteCard: 3,
-  ValidCard: 4,
-};
+	Missing: 0
+	Empty: 1
+	Probing: 2
+	MuteCard: 3
+	ValidCard: 4
+}
 
 export declare interface TKSmartCardTokenDriverDelegate extends TKTokenDriverDelegate {
-  tokenDriverCreateTokenForSmartCardAIDError(driver: TKSmartCardTokenDriver, smartCard: TKSmartCard, AID: NSData | null, error: interop.PointerConvertible): TKSmartCardToken;
+	tokenDriverCreateTokenForSmartCardAIDError(
+		driver: TKSmartCardTokenDriver,
+		smartCard: TKSmartCard,
+		AID: NSData | null,
+		error: interop.PointerConvertible,
+	): TKSmartCardToken
 }
 
-export declare class TKSmartCardTokenDriverDelegate extends NativeObject implements TKSmartCardTokenDriverDelegate {
-}
+export declare class TKSmartCardTokenDriverDelegate
+	extends NativeObject
+	implements TKSmartCardTokenDriverDelegate {}
 
 export declare interface TKTokenSessionDelegate extends NSObjectProtocol {
-  tokenSessionBeginAuthForOperationConstraintError?(session: TKTokenSession, operation: interop.Enum<typeof TKTokenOperation>, constraint: interop.Object, error: interop.PointerConvertible): TKTokenAuthOperation;
+	tokenSessionBeginAuthForOperationConstraintError?(
+		session: TKTokenSession,
+		operation: interop.Enum<typeof TKTokenOperation>,
+		constraint: interop.Object,
+		error: interop.PointerConvertible,
+	): TKTokenAuthOperation
 
-  tokenSessionSupportsOperationUsingKeyAlgorithm?(session: TKTokenSession, operation: interop.Enum<typeof TKTokenOperation>, keyObjectID: interop.Object, algorithm: TKTokenKeyAlgorithm): boolean;
+	tokenSessionSupportsOperationUsingKeyAlgorithm?(
+		session: TKTokenSession,
+		operation: interop.Enum<typeof TKTokenOperation>,
+		keyObjectID: interop.Object,
+		algorithm: TKTokenKeyAlgorithm,
+	): boolean
 
-  tokenSessionSignDataUsingKeyAlgorithmError?(session: TKTokenSession, dataToSign: NSData, keyObjectID: interop.Object, algorithm: TKTokenKeyAlgorithm, error: interop.PointerConvertible): NSData;
+	tokenSessionSignDataUsingKeyAlgorithmError?(
+		session: TKTokenSession,
+		dataToSign: NSData,
+		keyObjectID: interop.Object,
+		algorithm: TKTokenKeyAlgorithm,
+		error: interop.PointerConvertible,
+	): NSData
 
-  tokenSessionDecryptDataUsingKeyAlgorithmError?(session: TKTokenSession, ciphertext: NSData, keyObjectID: interop.Object, algorithm: TKTokenKeyAlgorithm, error: interop.PointerConvertible): NSData;
+	tokenSessionDecryptDataUsingKeyAlgorithmError?(
+		session: TKTokenSession,
+		ciphertext: NSData,
+		keyObjectID: interop.Object,
+		algorithm: TKTokenKeyAlgorithm,
+		error: interop.PointerConvertible,
+	): NSData
 
-  tokenSessionPerformKeyExchangeWithPublicKeyUsingKeyAlgorithmParametersError?(session: TKTokenSession, otherPartyPublicKeyData: NSData, objectID: interop.Object, algorithm: TKTokenKeyAlgorithm, parameters: TKTokenKeyExchangeParameters, error: interop.PointerConvertible): NSData;
+	tokenSessionPerformKeyExchangeWithPublicKeyUsingKeyAlgorithmParametersError?(
+		session: TKTokenSession,
+		otherPartyPublicKeyData: NSData,
+		objectID: interop.Object,
+		algorithm: TKTokenKeyAlgorithm,
+		parameters: TKTokenKeyExchangeParameters,
+		error: interop.PointerConvertible,
+	): NSData
 }
 
-export declare class TKTokenSessionDelegate extends NativeObject implements TKTokenSessionDelegate {
-}
+export declare class TKTokenSessionDelegate
+	extends NativeObject
+	implements TKTokenSessionDelegate {}
 
 export declare interface TKSmartCardUserInteractionDelegate {
-  characterEnteredInUserInteraction?(interaction: TKSmartCardUserInteraction): void;
+	characterEnteredInUserInteraction?(interaction: TKSmartCardUserInteraction): void
 
-  correctionKeyPressedInUserInteraction?(interaction: TKSmartCardUserInteraction): void;
+	correctionKeyPressedInUserInteraction?(interaction: TKSmartCardUserInteraction): void
 
-  validationKeyPressedInUserInteraction?(interaction: TKSmartCardUserInteraction): void;
+	validationKeyPressedInUserInteraction?(interaction: TKSmartCardUserInteraction): void
 
-  invalidCharacterEnteredInUserInteraction?(interaction: TKSmartCardUserInteraction): void;
+	invalidCharacterEnteredInUserInteraction?(interaction: TKSmartCardUserInteraction): void
 
-  oldPINRequestedInUserInteraction?(interaction: TKSmartCardUserInteraction): void;
+	oldPINRequestedInUserInteraction?(interaction: TKSmartCardUserInteraction): void
 
-  newPINRequestedInUserInteraction?(interaction: TKSmartCardUserInteraction): void;
+	newPINRequestedInUserInteraction?(interaction: TKSmartCardUserInteraction): void
 
-  newPINConfirmationRequestedInUserInteraction?(interaction: TKSmartCardUserInteraction): void;
+	newPINConfirmationRequestedInUserInteraction?(interaction: TKSmartCardUserInteraction): void
 }
 
-export declare class TKSmartCardUserInteractionDelegate extends NativeObject implements TKSmartCardUserInteractionDelegate {
-}
+export declare class TKSmartCardUserInteractionDelegate
+	extends NativeObject
+	implements TKSmartCardUserInteractionDelegate {}
 
 export declare interface TKTokenDelegate extends NSObjectProtocol {
-  tokenCreateSessionWithError(token: TKToken, error: interop.PointerConvertible): TKTokenSession;
+	tokenCreateSessionWithError(token: TKToken, error: interop.PointerConvertible): TKTokenSession
 
-  tokenTerminateSession?(token: TKToken, session: TKTokenSession): void;
+	tokenTerminateSession?(token: TKToken, session: TKTokenSession): void
 }
 
-export declare class TKTokenDelegate extends NativeObject implements TKTokenDelegate {
-}
+export declare class TKTokenDelegate extends NativeObject implements TKTokenDelegate {}
 
 export declare interface TKTokenDriverDelegate extends NSObjectProtocol {
-  tokenDriverTokenForConfigurationError?(driver: TKTokenDriver, configuration: TKTokenConfiguration, error: interop.PointerConvertible): TKToken;
+	tokenDriverTokenForConfigurationError?(
+		driver: TKTokenDriver,
+		configuration: TKTokenConfiguration,
+		error: interop.PointerConvertible,
+	): TKToken
 
-  tokenDriverTerminateToken?(driver: TKTokenDriver, token: TKToken): void;
+	tokenDriverTerminateToken?(driver: TKTokenDriver, token: TKToken): void
 }
 
-export declare class TKTokenDriverDelegate extends NativeObject implements TKTokenDriverDelegate {
-}
+export declare class TKTokenDriverDelegate extends NativeObject implements TKTokenDriverDelegate {}
 
-export declare class TKSmartCardTokenDriver extends TKTokenDriver {
-}
+export declare class TKSmartCardTokenDriver extends TKTokenDriver {}
 
 export declare class TKTokenConfiguration extends NSObject {
-  readonly instanceID: string;
+	readonly instanceID: string
 
-  configurationData: NSData;
+	configurationData: NSData
 
-  get keychainItems(): NSArray;
-  set keychainItems(value: NSArray<interop.Object> | Array<interop.Object>);
+	get keychainItems(): NSArray
+	set keychainItems(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  keyForObjectIDError(objectID: interop.Object, error: interop.PointerConvertible): TKTokenKeychainKey;
+	keyForObjectIDError(
+		objectID: interop.Object,
+		error: interop.PointerConvertible,
+	): TKTokenKeychainKey
 
-  certificateForObjectIDError(objectID: interop.Object, error: interop.PointerConvertible): TKTokenKeychainCertificate;
+	certificateForObjectIDError(
+		objectID: interop.Object,
+		error: interop.PointerConvertible,
+	): TKTokenKeychainCertificate
 }
 
 export declare class TKTokenKeychainContents extends NSObject {
-  fillWithItems(items: NSArray<interop.Object> | Array<interop.Object>): void;
+	fillWithItems(items: NSArray<interop.Object> | Array<interop.Object>): void
 
-  readonly items: NSArray;
+	readonly items: NSArray
 
-  keyForObjectIDError(objectID: interop.Object, error: interop.PointerConvertible): TKTokenKeychainKey;
+	keyForObjectIDError(
+		objectID: interop.Object,
+		error: interop.PointerConvertible,
+	): TKTokenKeychainKey
 
-  certificateForObjectIDError(objectID: interop.Object, error: interop.PointerConvertible): TKTokenKeychainCertificate;
+	certificateForObjectIDError(
+		objectID: interop.Object,
+		error: interop.PointerConvertible,
+	): TKTokenKeychainCertificate
 }
 
 export declare class TKTokenKeychainCertificate extends TKTokenKeychainItem {
-  initWithCertificateObjectID(certificateRef: interop.Object, objectID: interop.Object): this;
+	initWithCertificateObjectID(certificateRef: interop.Object, objectID: interop.Object): this
 
-  readonly data: NSData;
+	readonly data: NSData
 }
 
 export declare class TKTokenKeychainItem extends NSObject {
-  initWithObjectID(objectID: interop.Object): this;
+	initWithObjectID(objectID: interop.Object): this
 
-  readonly objectID: interop.Object;
+	readonly objectID: interop.Object
 
-  label: string;
+	label: string
 
-  get constraints(): NSDictionary;
-  set constraints(value: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>);
+	get constraints(): NSDictionary
+	set constraints(
+		value: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+	)
 }
 
 export declare class TKTokenPasswordAuthOperation extends TKTokenAuthOperation {
-  password: string;
+	password: string
 }
 
 export declare class TKTokenAuthOperation extends NSObject implements NSSecureCoding {
-  finishWithError(error: interop.PointerConvertible): boolean;
+	finishWithError(error: interop.PointerConvertible): boolean
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 export declare class TKTokenDriver extends NSObject {
-  delegate: TKTokenDriverDelegate;
+	delegate: TKTokenDriverDelegate
 }
 
 export declare class TKTokenKeyExchangeParameters extends NSObject {
-  readonly requestedSize: number;
+	readonly requestedSize: number
 
-  readonly sharedInfo: NSData;
+	readonly sharedInfo: NSData
 }
 
 export declare class TKSmartCard extends NSObject {
-  readonly slot: TKSmartCardSlot;
+	readonly slot: TKSmartCardSlot
 
-  readonly valid: boolean;
+	readonly valid: boolean
 
-  allowedProtocols: interop.Enum<typeof TKSmartCardProtocol>;
+	allowedProtocols: interop.Enum<typeof TKSmartCardProtocol>
 
-  readonly currentProtocol: interop.Enum<typeof TKSmartCardProtocol>;
+	readonly currentProtocol: interop.Enum<typeof TKSmartCardProtocol>
 
-  sensitive: boolean;
+	sensitive: boolean
 
-  context: interop.Object;
+	context: interop.Object
 
-  beginSessionWithReply(reply: (p1: boolean, p2: NSError) => void | null): void;
+	beginSessionWithReply(reply: (p1: boolean, p2: NSError) => void | null): void
 
-  transmitRequestReply(request: NSData, reply: (p1: NSData, p2: NSError) => void | null): void;
+	transmitRequestReply(request: NSData, reply: (p1: NSData, p2: NSError) => void | null): void
 
-  endSession(): void;
+	endSession(): void
 
-  userInteractionForSecurePINVerificationWithPINFormatAPDUPINByteOffset(PINFormat: TKSmartCardPINFormat, APDU: NSData, PINByteOffset: number): TKSmartCardUserInteractionForSecurePINVerification;
+	userInteractionForSecurePINVerificationWithPINFormatAPDUPINByteOffset(
+		PINFormat: TKSmartCardPINFormat,
+		APDU: NSData,
+		PINByteOffset: number,
+	): TKSmartCardUserInteractionForSecurePINVerification
 
-  userInteractionForSecurePINChangeWithPINFormatAPDUCurrentPINByteOffsetNewPINByteOffset(PINFormat: TKSmartCardPINFormat, APDU: NSData, currentPINByteOffset: number, newPINByteOffset: number): TKSmartCardUserInteractionForSecurePINChange;
+	userInteractionForSecurePINChangeWithPINFormatAPDUCurrentPINByteOffsetNewPINByteOffset(
+		PINFormat: TKSmartCardPINFormat,
+		APDU: NSData,
+		currentPINByteOffset: number,
+		newPINByteOffset: number,
+	): TKSmartCardUserInteractionForSecurePINChange
 
-  cla: number;
+	cla: number
 
-  useExtendedLength: boolean;
+	useExtendedLength: boolean
 
-  useCommandChaining: boolean;
+	useCommandChaining: boolean
 
-  sendInsP1P2DataLeReply(ins: number, p1: number, p2: number, requestData: NSData | null, le: NSNumber | null, reply: (p1: NSData, p2: number, p3: NSError) => void | null): void;
+	sendInsP1P2DataLeReply(
+		ins: number,
+		p1: number,
+		p2: number,
+		requestData: NSData | null,
+		le: NSNumber | null,
+		reply: (p1: NSData, p2: number, p3: NSError) => void | null,
+	): void
 
-  inSessionWithErrorExecuteBlock(error: interop.PointerConvertible, block: (p1: interop.PointerConvertible) => boolean | null): boolean;
+	inSessionWithErrorExecuteBlock(
+		error: interop.PointerConvertible,
+		block: (p1: interop.PointerConvertible) => boolean | null,
+	): boolean
 
-  sendInsP1P2DataLeSwError(ins: number, p1: number, p2: number, requestData: NSData | null, le: NSNumber | null, sw: interop.PointerConvertible, error: interop.PointerConvertible): NSData;
+	sendInsP1P2DataLeSwError(
+		ins: number,
+		p1: number,
+		p2: number,
+		requestData: NSData | null,
+		le: NSNumber | null,
+		sw: interop.PointerConvertible,
+		error: interop.PointerConvertible,
+	): NSData
 }
 
 export declare class TKSmartCardSlot extends NSObject {
-  readonly state: interop.Enum<typeof TKSmartCardSlotState>;
+	readonly state: interop.Enum<typeof TKSmartCardSlotState>
 
-  readonly ATR: TKSmartCardATR;
+	readonly ATR: TKSmartCardATR
 
-  readonly name: string;
+	readonly name: string
 
-  readonly maxInputLength: number;
+	readonly maxInputLength: number
 
-  readonly maxOutputLength: number;
+	readonly maxOutputLength: number
 
-  makeSmartCard(): TKSmartCard;
+	makeSmartCard(): TKSmartCard
 }
 
-export declare class TKSmartCardUserInteractionForSecurePINVerification extends TKSmartCardUserInteractionForPINOperation {
-}
+export declare class TKSmartCardUserInteractionForSecurePINVerification extends TKSmartCardUserInteractionForPINOperation {}
 
 export declare class TKSmartCardUserInteraction extends NSObject {
-  delegate: TKSmartCardUserInteractionDelegate;
+	delegate: TKSmartCardUserInteractionDelegate
 
-  initialTimeout: number;
+	initialTimeout: number
 
-  interactionTimeout: number;
+	interactionTimeout: number
 
-  runWithReply(reply: (p1: boolean, p2: NSError) => void | null): void;
+	runWithReply(reply: (p1: boolean, p2: NSError) => void | null): void
 
-  cancel(): boolean;
+	cancel(): boolean
 }
 
 export declare class TKSmartCardATR extends NSObject {
-  initWithBytes(bytes: NSData): this;
+	initWithBytes(bytes: NSData): this
 
-  initWithSource(source: () => number): this;
+	initWithSource(source: () => number): this
 
-  readonly bytes: NSData;
+	readonly bytes: NSData
 
-  readonly protocols: NSArray;
+	readonly protocols: NSArray
 
-  interfaceGroupAtIndex(index: number): TKSmartCardATRInterfaceGroup;
+	interfaceGroupAtIndex(index: number): TKSmartCardATRInterfaceGroup
 
-  interfaceGroupForProtocol(protocol: interop.Enum<typeof TKSmartCardProtocol>): TKSmartCardATRInterfaceGroup;
+	interfaceGroupForProtocol(
+		protocol: interop.Enum<typeof TKSmartCardProtocol>,
+	): TKSmartCardATRInterfaceGroup
 
-  readonly historicalBytes: NSData;
+	readonly historicalBytes: NSData
 
-  readonly historicalRecords: NSArray;
+	readonly historicalRecords: NSArray
 }
 
 export declare class TKSmartCardATRInterfaceGroup extends NSObject {
-  readonly TA: NSNumber;
+	readonly TA: NSNumber
 
-  readonly TB: NSNumber;
+	readonly TB: NSNumber
 
-  readonly TC: NSNumber;
+	readonly TC: NSNumber
 
-  readonly protocol: NSNumber;
+	readonly protocol: NSNumber
 }
 
 export declare class TKSimpleTLVRecord extends TKTLVRecord {
-  initWithTagValue(tag: number, value: NSData): this;
+	initWithTagValue(tag: number, value: NSData): this
 }
 
 export declare class TKTLVRecord extends NSObject {
-  readonly tag: number;
+	readonly tag: number
 
-  readonly value: NSData;
+	readonly value: NSData
 
-  readonly data: NSData;
+	readonly data: NSData
 
-  static recordFromData<This extends abstract new (...args: any) => any>(this: This, data: NSData): InstanceType<This>;
+	static recordFromData<This extends abstract new (...args: any) => any>(
+		this: This,
+		data: NSData,
+	): InstanceType<This>
 
-  static sequenceOfRecordsFromData(data: NSData): NSArray;
+	static sequenceOfRecordsFromData(data: NSData): NSArray
 }
 
 export declare class TKCompactTLVRecord extends TKTLVRecord {
-  initWithTagValue(tag: number, value: NSData): this;
+	initWithTagValue(tag: number, value: NSData): this
 }
 
 export declare class TKTokenSession extends NSObject {
-  initWithToken(token: TKToken): this;
+	initWithToken(token: TKToken): this
 
-  readonly token: TKToken;
+	readonly token: TKToken
 
-  delegate: TKTokenSessionDelegate;
+	delegate: TKTokenSessionDelegate
 }
 
 export declare class TKTokenKeyAlgorithm extends NSObject {
-  isAlgorithm(algorithm: interop.PointerConvertible): boolean;
+	isAlgorithm(algorithm: interop.PointerConvertible): boolean
 
-  supportsAlgorithm(algorithm: interop.PointerConvertible): boolean;
+	supportsAlgorithm(algorithm: interop.PointerConvertible): boolean
 }
 
 export declare class TKBERTLVRecord extends TKTLVRecord {
-  static dataForTag(tag: number): NSData;
+	static dataForTag(tag: number): NSData
 
-  initWithTagValue(tag: number, value: NSData): this;
+	initWithTagValue(tag: number, value: NSData): this
 
-  initWithTagRecords(tag: number, records: NSArray<interop.Object> | Array<interop.Object>): this;
+	initWithTagRecords(tag: number, records: NSArray<interop.Object> | Array<interop.Object>): this
 }
 
 export declare class TKToken extends NSObject {
-  initWithTokenDriverInstanceID(tokenDriver: TKTokenDriver, instanceID: string): this;
+	initWithTokenDriverInstanceID(tokenDriver: TKTokenDriver, instanceID: string): this
 
-  readonly tokenDriver: TKTokenDriver;
+	readonly tokenDriver: TKTokenDriver
 
-  delegate: TKTokenDelegate;
+	delegate: TKTokenDelegate
 
-  readonly configuration: TKTokenConfiguration;
+	readonly configuration: TKTokenConfiguration
 
-  readonly keychainContents: TKTokenKeychainContents;
+	readonly keychainContents: TKTokenKeychainContents
 }
 
 export declare class TKSmartCardUserInteractionForSecurePINChange extends TKSmartCardUserInteractionForPINOperation {
-  PINConfirmation: interop.Enum<typeof TKSmartCardPINConfirmation>;
+	PINConfirmation: interop.Enum<typeof TKSmartCardPINConfirmation>
 }
 
 export declare class TKTokenWatcher extends NSObject {
-  readonly tokenIDs: NSArray;
+	readonly tokenIDs: NSArray
 
-  init(): this;
+	init(): this
 
-  initWithInsertionHandler(insertionHandler: (p1: string) => void): this;
+	initWithInsertionHandler(insertionHandler: (p1: string) => void): this
 
-  setInsertionHandler(insertionHandler: (p1: string) => void): void;
+	setInsertionHandler(insertionHandler: (p1: string) => void): void
 
-  addRemovalHandlerForTokenID(removalHandler: (p1: string) => void, tokenID: string): void;
+	addRemovalHandlerForTokenID(removalHandler: (p1: string) => void, tokenID: string): void
 }
 
 export declare class TKSmartCardPINFormat extends NSObject {
-  charset: interop.Enum<typeof TKSmartCardPINCharset>;
+	charset: interop.Enum<typeof TKSmartCardPINCharset>
 
-  encoding: interop.Enum<typeof TKSmartCardPINEncoding>;
+	encoding: interop.Enum<typeof TKSmartCardPINEncoding>
 
-  minPINLength: number;
+	minPINLength: number
 
-  maxPINLength: number;
+	maxPINLength: number
 
-  PINBlockByteLength: number;
+	PINBlockByteLength: number
 
-  PINJustification: interop.Enum<typeof TKSmartCardPINJustification>;
+	PINJustification: interop.Enum<typeof TKSmartCardPINJustification>
 
-  PINBitOffset: number;
+	PINBitOffset: number
 
-  PINLengthBitOffset: number;
+	PINLengthBitOffset: number
 
-  PINLengthBitSize: number;
+	PINLengthBitSize: number
 }
 
 export declare class TKSmartCardTokenSession extends TKTokenSession {
-  readonly smartCard: TKSmartCard;
+	readonly smartCard: TKSmartCard
 }
 
 export declare class TKTokenSmartCardPINAuthOperation extends TKTokenAuthOperation {
-  PINFormat: TKSmartCardPINFormat;
+	PINFormat: TKSmartCardPINFormat
 
-  APDUTemplate: NSData;
+	APDUTemplate: NSData
 
-  PINByteOffset: number;
+	PINByteOffset: number
 
-  smartCard: TKSmartCard;
+	smartCard: TKSmartCard
 
-  PIN: string;
+	PIN: string
 }
 
 export declare class TKSmartCardSlotManager extends NSObject {
-  static readonly defaultManager: TKSmartCardSlotManager;
+	static readonly defaultManager: TKSmartCardSlotManager
 
-  readonly slotNames: NSArray;
+	readonly slotNames: NSArray
 
-  getSlotWithNameReply(name: string, reply: (p1: TKSmartCardSlot) => void | null): void;
+	getSlotWithNameReply(name: string, reply: (p1: TKSmartCardSlot) => void | null): void
 
-  slotNamed(name: string): TKSmartCardSlot;
+	slotNamed(name: string): TKSmartCardSlot
 }
 
 export declare class TKSmartCardUserInteractionForPINOperation extends TKSmartCardUserInteraction {
-  PINCompletion: interop.Enum<typeof TKSmartCardPINCompletion>;
+	PINCompletion: interop.Enum<typeof TKSmartCardPINCompletion>
 
-  get PINMessageIndices(): NSArray;
-  set PINMessageIndices(value: NSArray<interop.Object> | Array<interop.Object>);
+	get PINMessageIndices(): NSArray
+	set PINMessageIndices(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  locale: NSLocale;
+	locale: NSLocale
 
-  resultSW: number;
+	resultSW: number
 
-  resultData: NSData;
+	resultData: NSData
 }
 
 export declare class TKTokenDriverConfiguration extends NSObject {
-  static readonly driverConfigurations: NSDictionary;
+	static readonly driverConfigurations: NSDictionary
 
-  readonly classID: string;
+	readonly classID: string
 
-  readonly tokenConfigurations: NSDictionary;
+	readonly tokenConfigurations: NSDictionary
 
-  addTokenConfigurationForTokenInstanceID(instanceID: string): TKTokenConfiguration;
+	addTokenConfigurationForTokenInstanceID(instanceID: string): TKTokenConfiguration
 
-  removeTokenConfigurationForTokenInstanceID(instanceID: string): void;
+	removeTokenConfigurationForTokenInstanceID(instanceID: string): void
 }
 
 export declare class TKTokenKeychainKey extends TKTokenKeychainItem {
-  initWithCertificateObjectID(certificateRef: interop.Object | null, objectID: interop.Object): this;
+	initWithCertificateObjectID(certificateRef: interop.Object | null, objectID: interop.Object): this
 
-  keyType: string;
+	keyType: string
 
-  applicationTag: NSData;
+	applicationTag: NSData
 
-  keySizeInBits: number;
+	keySizeInBits: number
 
-  publicKeyData: NSData;
+	publicKeyData: NSData
 
-  publicKeyHash: NSData;
+	publicKeyHash: NSData
 
-  canDecrypt: boolean;
+	canDecrypt: boolean
 
-  canSign: boolean;
+	canSign: boolean
 
-  canPerformKeyExchange: boolean;
+	canPerformKeyExchange: boolean
 
-  suitableForLogin: boolean;
+	suitableForLogin: boolean
 
-  isSuitableForLogin(): boolean;
+	isSuitableForLogin(): boolean
 }
 
 export declare class TKSmartCardToken extends TKToken {
-  initWithSmartCardAIDInstanceIDTokenDriver(smartCard: TKSmartCard, AID: NSData | null, instanceID: string, tokenDriver: TKSmartCardTokenDriver): this;
+	initWithSmartCardAIDInstanceIDTokenDriver(
+		smartCard: TKSmartCard,
+		AID: NSData | null,
+		instanceID: string,
+		tokenDriver: TKSmartCardTokenDriver,
+	): this
 
-  readonly AID: NSData;
+	readonly AID: NSData
 }

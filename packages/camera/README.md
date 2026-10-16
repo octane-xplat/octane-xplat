@@ -62,9 +62,7 @@ import { CameraView, createCameraSession } from '@octane-xplat/camera'
 const session = createCameraSession()
 
 export function FocusablePreview() {
-	return (
-		<CameraView session={session} onTap={(point) => session.focusAtPoint(point)} />
-	)
+	return <CameraView session={session} onTap={(point) => session.focusAtPoint(point)} />
 }
 ```
 

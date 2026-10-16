@@ -8,4 +8,7 @@ export const DDMatchLink = /* @__PURE__ */ _bind(FW, 'DDMatchLink')
 export const DDMatchMoneyAmount = /* @__PURE__ */ _bind(FW, 'DDMatchMoneyAmount')
 export const DDMatchPhoneNumber = /* @__PURE__ */ _bind(FW, 'DDMatchPhoneNumber')
 export const DDMatchPostalAddress = /* @__PURE__ */ _bind(FW, 'DDMatchPostalAddress')
-export const DDMatchShipmentTrackingNumber = /* @__PURE__ */ _bind(FW, 'DDMatchShipmentTrackingNumber')
+export const DDMatchShipmentTrackingNumber = /* @__PURE__ */ _bind(
+	FW,
+	'DDMatchShipmentTrackingNumber',
+)

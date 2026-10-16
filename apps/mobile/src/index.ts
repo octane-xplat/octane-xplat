@@ -25,17 +25,9 @@ import {
 
 import { bottomSheetHost } from '@xplat/app/platform/sheet'
 import '@xplat/app/platform/filepick.mobile'
-import {
-	getColorScheme,
-	setThemePreference,
-} from '@octane-xplat/ui'
+import { getColorScheme, setThemePreference } from '@octane-xplat/ui'
 
-import {
-	registerStack,
-	getStack,
-	routeFor,
-	popRoute,
-} from '@octane-xplat/ui/routing'
+import { registerStack, getStack, routeFor, popRoute } from '@octane-xplat/ui/routing'
 
 import { findInRootLayouts } from '@octane-xplat/ui/nativescript'
 

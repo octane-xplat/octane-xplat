@@ -21,8 +21,5 @@
 		],
 		"allowImportingTsExtensions": true
 	},
-	"include": [
-		"src/types.ts",
-		"types/index.d.ts"
-	]
+	"include": ["src/types.ts", "types/index.d.ts"]
 }

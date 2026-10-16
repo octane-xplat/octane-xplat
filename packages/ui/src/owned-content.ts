@@ -27,14 +27,20 @@ export function createContentOwner() {
 		},
 		host: null as any,
 		createRoot(target: unknown, onOwnerDispose: () => void = () => {}): ContentRoot {
-			if (disposed) throw new Error('The content outlet has been removed')
+			if (disposed) {
+				throw new Error('The content outlet has been removed')
+			}
+
 			const id = nextId++
 			let closed = false
 			let committed = false
 			const pending = new Set<() => void>()
 			const root = {
 				render(component: any, props: any = {}) {
-					if (closed) return
+					if (closed) {
+						return
+					}
+
 					committed = false
 					const entry: ContentEntry = {
 						id,
@@ -42,29 +48,47 @@ export function createContentOwner() {
 						component,
 						props,
 						committed() {
-							if (closed) return
+							if (closed) {
+								return
+							}
+
 							committed = true
 							const callbacks = [...pending]
 							pending.clear()
-							for (const callback of callbacks) callback()
+							for (const callback of callbacks) {
+								callback()
+							}
 						},
 					}
+
 					entries.update((current) => [...current.filter((entry) => entry.id !== id), entry])
 				},
 				whenCommitted(callback: () => void) {
-					if (closed) return
-					if (committed) callback()
-					else pending.add(callback)
+					if (closed) {
+						return
+					}
+
+					if (committed) {
+						callback()
+					} else {
+						pending.add(callback)
+					}
 				},
 				unmount() {
-					if (closed) return
+					if (closed) {
+						return
+					}
+
 					closed = true
 					pending.clear()
 					roots.delete(root)
 					entries.update((current) => current.filter((entry) => entry.id !== id))
 				},
 				dispose() {
-					if (closed) return
+					if (closed) {
+						return
+					}
+
 					try {
 						root.unmount()
 					} finally {
@@ -72,11 +96,15 @@ export function createContentOwner() {
 					}
 				},
 			}
+
 			roots.add(root)
 			return root
 		},
 		dispose() {
-			if (disposed) return
+			if (disposed) {
+				return
+			}
+
 			disposed = true
 			const errors: unknown[] = []
 			for (const root of [...roots]) {
@@ -86,7 +114,10 @@ export function createContentOwner() {
 					errors.push(error)
 				}
 			}
-			if (errors.length) throw new AggregateError(errors, 'Content owner cleanup failed')
+
+			if (errors.length) {
+				throw new AggregateError(errors, 'Content owner cleanup failed')
+			}
 		},
 	}
 }
@@ -98,6 +129,9 @@ export function afterContentCommit(
 	root: { unmount(): void; whenCommitted?: (callback: () => void) => void },
 	callback: () => void,
 ) {
-	if (root.whenCommitted) root.whenCommitted(callback)
-	else callback()
+	if (root.whenCommitted) {
+		root.whenCommitted(callback)
+	} else {
+		callback()
+	}
 }

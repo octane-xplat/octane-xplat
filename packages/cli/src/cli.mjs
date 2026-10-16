@@ -38,8 +38,7 @@ if (process.argv[2] && AGENT_HEADS.has(process.argv[2])) {
 } else {
 	const cli = subcommands({
 		name: 'xplat',
-		description:
-			'One Octane codebase → web + iOS + Android + experimental macOS AppKit/WKWebView',
+		description: 'One Octane codebase → web + iOS + Android + experimental macOS AppKit/WKWebView',
 		cmds: {
 			add,
 			dev,

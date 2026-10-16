@@ -136,17 +136,38 @@ try {
 		assert.equal(data.cli.version, manifest.frameworkVersion)
 		const names = data.commands.map((c) => c.command)
 		for (const expected of [
-			'catalog', 'status', 'app select', 'capabilities', 'permissions', 'targets',
-			'docs search', 'docs read', 'guidance', 'code search', 'code read',
+			'catalog',
+			'status',
+			'app select',
+			'capabilities',
+			'permissions',
+			'targets',
+			'docs search',
+			'docs read',
+			'guidance',
+			'code search',
+			'code read',
 		]) {
 			assert.ok(names.includes(expected), `missing ${expected}`)
 		}
 
 		for (const runtime of [
-			'runtime build', 'session start', 'session attach', 'session list',
-			'session status', 'session end', 'job status', 'job cancel', 'logs',
-			'inspect', 'interact', 'capture', 'evidence list', 'actions list',
-			'actions invoke', 'actions status',
+			'runtime build',
+			'session start',
+			'session attach',
+			'session list',
+			'session status',
+			'session end',
+			'job status',
+			'job cancel',
+			'logs',
+			'inspect',
+			'interact',
+			'capture',
+			'evidence list',
+			'actions list',
+			'actions invoke',
+			'actions status',
 		]) {
 			assert.ok(names.includes(runtime), `missing ${runtime}`)
 		}
@@ -200,7 +221,17 @@ try {
 
 	check('unreleased versions return explicit unavailable — never latest', () => {
 		const outside = json(
-			run(['docs', 'read', '--package', '@octane-xplat/ui', '--version', '0.9.0', '--path', 'docs/verify/test-identifiers.md', '--json']),
+			run([
+				'docs',
+				'read',
+				'--package',
+				'@octane-xplat/ui',
+				'--version',
+				'0.9.0',
+				'--path',
+				'docs/verify/test-identifiers.md',
+				'--json',
+			]),
 		).data
 
 		assert.equal(outside.status, 'unavailable')
@@ -209,12 +240,23 @@ try {
 
 	check('offline docs report unavailable with installed-source fallback', () => {
 		const offline = json(
-			run(['docs', 'read', '--package', '@octane-xplat/ui', '--path', 'docs/verify/test-identifiers.md', '--json'], {
-				env: {
-					XPLAT_DOCS_REPO: 'file:///nonexistent/xplat-release',
-					XPLAT_MCP_CACHE: join(work, 'docs-cache-offline'),
+			run(
+				[
+					'docs',
+					'read',
+					'--package',
+					'@octane-xplat/ui',
+					'--path',
+					'docs/verify/test-identifiers.md',
+					'--json',
+				],
+				{
+					env: {
+						XPLAT_DOCS_REPO: 'file:///nonexistent/xplat-release',
+						XPLAT_MCP_CACHE: join(work, 'docs-cache-offline'),
+					},
 				},
-			}),
+			),
 		).data
 
 		assert.equal(offline.status, 'unavailable')
@@ -282,7 +324,15 @@ try {
 	})
 
 	const launch = json(
-		run(['session', 'start', '--platform', 'web', '--browser-mode', osInput ? 'headed' : 'headless', '--json']),
+		run([
+			'session',
+			'start',
+			'--platform',
+			'web',
+			'--browser-mode',
+			osInput ? 'headed' : 'headless',
+			'--json',
+		]),
 	).data
 
 	sessionId = launch.session.sessionId
@@ -372,22 +422,22 @@ try {
 				provenance: outcome.provenance,
 			})
 		} else {
-			evidence.push({ check: 'os-input blocked by console state — recorded, not passed', blocked: true })
+			evidence.push({
+				check: 'os-input blocked by console state — recorded, not passed',
+				blocked: true,
+			})
 		}
 	} else {
-		evidence.push({ check: 'os-input journey skipped — requires macOS headed Chromium', skipped: true })
+		evidence.push({
+			check: 'os-input journey skipped — requires macOS headed Chromium',
+			skipped: true,
+		})
 	}
 
 	// -- failure honesty ------------------------------------------------------------------
-	assert.equal(
-		inspect(['--testid', 'missing-control']).error.code,
-		'not_found',
-	)
+	assert.equal(inspect(['--testid', 'missing-control']).error.code, 'not_found')
 
-	assert.equal(
-		inspect(['--testid', 'fixture.duplicate']).error.code,
-		'ambiguous_selection',
-	)
+	assert.equal(inspect(['--testid', 'fixture.duplicate']).error.code, 'ambiguous_selection')
 
 	const privateHost = inspect(['--id', 'fixture.private']).data
 	assert.equal(privateHost.controls[0].text, '[redacted]')
@@ -442,7 +492,9 @@ try {
 		osInputState === 'passed' ? '2' : '1',
 	)
 
-	evidence.push({ check: 'bridge-announced action discovered + invoked; app state asserted separately' })
+	evidence.push({
+		check: 'bridge-announced action discovered + invoked; app state asserted separately',
+	})
 
 	// -- logs + owned cleanup -------------------------------------------------------------------
 	const logs = json(run(['logs', '--session', sessionId, '--limit', '20', '--json'])).data
@@ -519,7 +571,11 @@ try {
 	console.error('PACKED AGENT LANE FAILED:', error)
 	writeFileSync(
 		join(work, 'packed-agent-consumer.json'),
-		JSON.stringify({ evidence, failed: error.message, completedAt: new Date().toISOString() }, null, '\t') + '\n',
+		JSON.stringify(
+			{ evidence, failed: error.message, completedAt: new Date().toISOString() },
+			null,
+			'\t',
+		) + '\n',
 	)
 
 	process.exit(1)

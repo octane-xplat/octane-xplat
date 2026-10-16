@@ -67,7 +67,7 @@ Pick a guide when you need it. You don't need to read them all before you start.
 | Put text, buttons, and lists on a screen        | [Building screens](app/primitives.md)                  |
 | Change colors, spacing, and fonts               | [Styling screens](app/styling.md)                      |
 | Let someone type into a form                    | [Enter and submit text](app/text-entry.md)             |
-| Migrate changed UI value and unit props          | [UI API migrations](app/ui-api-migrations.md)          |
+| Migrate changed UI value and unit props         | [UI API migrations](app/ui-api-migrations.md)          |
 | Move between screens                            | [Moving between screens](app/navigation.md)            |
 | Load information from a server                  | [Fetching data](app/data.md)                           |
 | Save a setting, attach a photo, or share a link | [Using device features](platform/platform-services.md) |

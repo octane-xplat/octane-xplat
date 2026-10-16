@@ -23,7 +23,12 @@ export interface AppKitHostServices {
 	readonly windowSize: WindowSize
 	readClipboard(): string | null
 	writeClipboard(value: string): boolean
-	shareContent(input: { text?: string; url?: string; title?: string; file?: string }): 'shared' | 'unavailable'
+	shareContent(input: {
+		text?: string
+		url?: string
+		title?: string
+		file?: string
+	}): 'shared' | 'unavailable'
 	openUrl(url: string): boolean
 	openPath(path: string): boolean
 	getColorScheme(): 'light' | 'dark'
@@ -336,11 +341,8 @@ export function createDesktopWebViewHost<
 						Promise.resolve({ reservation: sender.reserveMoviePath(options) }),
 					writeMovieFile: (options: { fileUrl: string; base64: string }) =>
 						Promise.resolve({ file: sender.writeMovieFile(options) }),
-					writeMovieFileChunk: (options: {
-						fileUrl: string
-						base64: string
-						final?: boolean
-					}) => Promise.resolve({ file: sender.writeMovieFileChunk(options) }),
+					writeMovieFileChunk: (options: { fileUrl: string; base64: string; final?: boolean }) =>
+						Promise.resolve({ file: sender.writeMovieFileChunk(options) }),
 					readMovieFileChunk: (options: { fileUrl: string; offset: number; length: number }) =>
 						Promise.resolve({ base64: sender.readMovieFileChunk(options) }),
 					movieFileInfo: (options: { fileUrl: string }) =>

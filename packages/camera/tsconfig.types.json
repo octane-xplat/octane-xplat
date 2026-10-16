@@ -21,10 +21,5 @@
 		],
 		"allowImportingTsExtensions": true
 	},
-	"include": [
-		"src/props.ts",
-		"src/types.ts",
-		"src/synthetic-session.ts",
-		"types/index.d.ts"
-	]
+	"include": ["src/props.ts", "src/types.ts", "src/synthetic-session.ts", "types/index.d.ts"]
 }

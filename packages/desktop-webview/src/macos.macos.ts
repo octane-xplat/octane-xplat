@@ -1,7 +1,6 @@
 import '@nativescript/macos-node-api'
 import { NSWindow } from '@octane-xplat/platform/macos'
 
-
 interface NativeWebView {
 	attachTo(parent: object): void
 	load(address: string): boolean
@@ -26,10 +25,11 @@ interface NativeWebView {
 	movieDirectory(): string | null
 	reserveMoviePath(options: { fileUrl?: string; container?: string }): { fileUrl: string } | null
 	writeMovieFile(options: { fileUrl: string; base64: string }): { name: string; uri: string } | null
-	writeMovieFileChunk(options: { fileUrl: string; base64: string; final?: boolean }):
-		| { ok: boolean }
-		| { name: string; uri: string }
-		| null
+	writeMovieFileChunk(options: {
+		fileUrl: string
+		base64: string
+		final?: boolean
+	}): { ok: boolean } | { name: string; uri: string } | null
 	movieFileInfo(uri: string): { exists: boolean; fileUrl?: string; size?: number } | null
 	readMovieFile(uri: string): string | null
 	readMovieFileChunk(options: { fileUrl: string; offset: number; length: number }): string | null
@@ -68,10 +68,11 @@ export interface MacOSWebView {
 	writeMovieFile(options: { fileUrl: string; base64: string }): { name: string; uri: string } | null
 	/** Append a staged movie chunk; `final` moves it into place atomically and
 	 *  returns the file ref — keeps large recordings off the single-payload path. */
-	writeMovieFileChunk(options: { fileUrl: string; base64: string; final?: boolean }):
-		| { name: string; uri: string }
-		| { ok: boolean }
-		| null
+	writeMovieFileChunk(options: {
+		fileUrl: string
+		base64: string
+		final?: boolean
+	}): { name: string; uri: string } | { ok: boolean } | null
 	movieFileInfo(uri: string): { exists: boolean; fileUrl?: string; size?: number } | null
 	/** Read a stored movie back as base64. */
 	readMovieFile(uri: string): string | null

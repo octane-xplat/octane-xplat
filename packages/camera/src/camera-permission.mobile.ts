@@ -1,7 +1,6 @@
 import { Application, isAndroid, isIOS } from '@nativescript/core'
 import { android } from '@octane-xplat/platform/android'
 
-
 let requestCode = 7719
 
 export function cameraHardwarePresent(): boolean {
@@ -58,10 +57,7 @@ export async function ensureCameraPermission(): Promise<boolean> {
 				const currentRequest = requestCode++
 				const finish = (granted: boolean) => {
 					clearTimeout(timer)
-					Application.android.off(
-						Application.android.activityRequestPermissionsEvent,
-						onResult,
-					)
+					Application.android.off(Application.android.activityRequestPermissionsEvent, onResult)
 
 					resolve(granted)
 				}
@@ -71,9 +67,7 @@ export async function ensureCameraPermission(): Promise<boolean> {
 						return
 					}
 
-					finish(
-						args.grantResults?.[0] === android.content.pm.PackageManager.PERMISSION_GRANTED,
-					)
+					finish(args.grantResults?.[0] === android.content.pm.PackageManager.PERMISSION_GRANTED)
 				}
 
 				// Same bound the session adapter uses — an activity destroyed or

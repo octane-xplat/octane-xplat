@@ -26,7 +26,10 @@ window.__xplatBridge = {
 window.__xplatDebugMovie = true
 window.dumpLastBlob = async () => {
 	const blob = (window as any).__xplatLastMovieBlob
-	if (!blob) {return null}
+	if (!blob) {
+		return null
+	}
+
 	const bytes = new Uint8Array(await blob.arrayBuffer())
 	let binary = ''
 	for (let i = 0; i < bytes.length; i += 0x8000) {

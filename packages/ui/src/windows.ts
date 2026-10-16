@@ -65,9 +65,7 @@ export function openWindow(options: OpenWindowOptions = {}): WindowHandle | null
 	} catch (error) {
 		pending.splice(pending.indexOf(bind), 1)
 		finish()
-		console.warn(
-			`[octane-xplat] openWindow failed: ${(error as Error)?.message ?? String(error)}`,
-		)
+		console.warn(`[octane-xplat] openWindow failed: ${(error as Error)?.message ?? String(error)}`)
 
 		return null
 	}

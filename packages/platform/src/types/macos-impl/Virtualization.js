@@ -1,40 +1,112 @@
 import { _bind } from './_rt.js'
 const FW = '/System/Library/Frameworks/Virtualization.framework/Virtualization'
 export const VZBootLoader = /* @__PURE__ */ _bind(FW, 'VZBootLoader')
-export const VZBridgedNetworkDeviceAttachment = /* @__PURE__ */ _bind(FW, 'VZBridgedNetworkDeviceAttachment')
+export const VZBridgedNetworkDeviceAttachment = /* @__PURE__ */ _bind(
+	FW,
+	'VZBridgedNetworkDeviceAttachment',
+)
+
 export const VZBridgedNetworkInterface = /* @__PURE__ */ _bind(FW, 'VZBridgedNetworkInterface')
-export const VZDiskImageStorageDeviceAttachment = /* @__PURE__ */ _bind(FW, 'VZDiskImageStorageDeviceAttachment')
-export const VZEntropyDeviceConfiguration = /* @__PURE__ */ _bind(FW, 'VZEntropyDeviceConfiguration')
+export const VZDiskImageStorageDeviceAttachment = /* @__PURE__ */ _bind(
+	FW,
+	'VZDiskImageStorageDeviceAttachment',
+)
+
+export const VZEntropyDeviceConfiguration = /* @__PURE__ */ _bind(
+	FW,
+	'VZEntropyDeviceConfiguration',
+)
+
 export const VZErrorCode = /* @__PURE__ */ _bind(FW, 'VZErrorCode')
 export const VZErrorDomain = /* @__PURE__ */ _bind(FW, 'VZErrorDomain')
-export const VZFileHandleNetworkDeviceAttachment = /* @__PURE__ */ _bind(FW, 'VZFileHandleNetworkDeviceAttachment')
-export const VZFileHandleSerialPortAttachment = /* @__PURE__ */ _bind(FW, 'VZFileHandleSerialPortAttachment')
+export const VZFileHandleNetworkDeviceAttachment = /* @__PURE__ */ _bind(
+	FW,
+	'VZFileHandleNetworkDeviceAttachment',
+)
+
+export const VZFileHandleSerialPortAttachment = /* @__PURE__ */ _bind(
+	FW,
+	'VZFileHandleSerialPortAttachment',
+)
+
 export const VZFileSerialPortAttachment = /* @__PURE__ */ _bind(FW, 'VZFileSerialPortAttachment')
 export const VZLinuxBootLoader = /* @__PURE__ */ _bind(FW, 'VZLinuxBootLoader')
 export const VZMACAddress = /* @__PURE__ */ _bind(FW, 'VZMACAddress')
 export const VZMemoryBalloonDevice = /* @__PURE__ */ _bind(FW, 'VZMemoryBalloonDevice')
-export const VZMemoryBalloonDeviceConfiguration = /* @__PURE__ */ _bind(FW, 'VZMemoryBalloonDeviceConfiguration')
-export const VZNATNetworkDeviceAttachment = /* @__PURE__ */ _bind(FW, 'VZNATNetworkDeviceAttachment')
+export const VZMemoryBalloonDeviceConfiguration = /* @__PURE__ */ _bind(
+	FW,
+	'VZMemoryBalloonDeviceConfiguration',
+)
+
+export const VZNATNetworkDeviceAttachment = /* @__PURE__ */ _bind(
+	FW,
+	'VZNATNetworkDeviceAttachment',
+)
+
 export const VZNetworkDeviceAttachment = /* @__PURE__ */ _bind(FW, 'VZNetworkDeviceAttachment')
-export const VZNetworkDeviceConfiguration = /* @__PURE__ */ _bind(FW, 'VZNetworkDeviceConfiguration')
+export const VZNetworkDeviceConfiguration = /* @__PURE__ */ _bind(
+	FW,
+	'VZNetworkDeviceConfiguration',
+)
+
 export const VZSerialPortAttachment = /* @__PURE__ */ _bind(FW, 'VZSerialPortAttachment')
 export const VZSerialPortConfiguration = /* @__PURE__ */ _bind(FW, 'VZSerialPortConfiguration')
 export const VZSocketDevice = /* @__PURE__ */ _bind(FW, 'VZSocketDevice')
 export const VZSocketDeviceConfiguration = /* @__PURE__ */ _bind(FW, 'VZSocketDeviceConfiguration')
 export const VZStorageDeviceAttachment = /* @__PURE__ */ _bind(FW, 'VZStorageDeviceAttachment')
-export const VZStorageDeviceConfiguration = /* @__PURE__ */ _bind(FW, 'VZStorageDeviceConfiguration')
-export const VZVirtioBlockDeviceConfiguration = /* @__PURE__ */ _bind(FW, 'VZVirtioBlockDeviceConfiguration')
-export const VZVirtioConsoleDeviceSerialPortConfiguration = /* @__PURE__ */ _bind(FW, 'VZVirtioConsoleDeviceSerialPortConfiguration')
-export const VZVirtioEntropyDeviceConfiguration = /* @__PURE__ */ _bind(FW, 'VZVirtioEntropyDeviceConfiguration')
-export const VZVirtioNetworkDeviceConfiguration = /* @__PURE__ */ _bind(FW, 'VZVirtioNetworkDeviceConfiguration')
+export const VZStorageDeviceConfiguration = /* @__PURE__ */ _bind(
+	FW,
+	'VZStorageDeviceConfiguration',
+)
+
+export const VZVirtioBlockDeviceConfiguration = /* @__PURE__ */ _bind(
+	FW,
+	'VZVirtioBlockDeviceConfiguration',
+)
+
+export const VZVirtioConsoleDeviceSerialPortConfiguration = /* @__PURE__ */ _bind(
+	FW,
+	'VZVirtioConsoleDeviceSerialPortConfiguration',
+)
+
+export const VZVirtioEntropyDeviceConfiguration = /* @__PURE__ */ _bind(
+	FW,
+	'VZVirtioEntropyDeviceConfiguration',
+)
+
+export const VZVirtioNetworkDeviceConfiguration = /* @__PURE__ */ _bind(
+	FW,
+	'VZVirtioNetworkDeviceConfiguration',
+)
+
 export const VZVirtioSocketConnection = /* @__PURE__ */ _bind(FW, 'VZVirtioSocketConnection')
 export const VZVirtioSocketDevice = /* @__PURE__ */ _bind(FW, 'VZVirtioSocketDevice')
-export const VZVirtioSocketDeviceConfiguration = /* @__PURE__ */ _bind(FW, 'VZVirtioSocketDeviceConfiguration')
+export const VZVirtioSocketDeviceConfiguration = /* @__PURE__ */ _bind(
+	FW,
+	'VZVirtioSocketDeviceConfiguration',
+)
+
 export const VZVirtioSocketListener = /* @__PURE__ */ _bind(FW, 'VZVirtioSocketListener')
-export const VZVirtioSocketListenerDelegate = /* @__PURE__ */ _bind(FW, 'VZVirtioSocketListenerDelegate')
-export const VZVirtioTraditionalMemoryBalloonDevice = /* @__PURE__ */ _bind(FW, 'VZVirtioTraditionalMemoryBalloonDevice')
-export const VZVirtioTraditionalMemoryBalloonDeviceConfiguration = /* @__PURE__ */ _bind(FW, 'VZVirtioTraditionalMemoryBalloonDeviceConfiguration')
+export const VZVirtioSocketListenerDelegate = /* @__PURE__ */ _bind(
+	FW,
+	'VZVirtioSocketListenerDelegate',
+)
+
+export const VZVirtioTraditionalMemoryBalloonDevice = /* @__PURE__ */ _bind(
+	FW,
+	'VZVirtioTraditionalMemoryBalloonDevice',
+)
+
+export const VZVirtioTraditionalMemoryBalloonDeviceConfiguration = /* @__PURE__ */ _bind(
+	FW,
+	'VZVirtioTraditionalMemoryBalloonDeviceConfiguration',
+)
+
 export const VZVirtualMachine = /* @__PURE__ */ _bind(FW, 'VZVirtualMachine')
-export const VZVirtualMachineConfiguration = /* @__PURE__ */ _bind(FW, 'VZVirtualMachineConfiguration')
+export const VZVirtualMachineConfiguration = /* @__PURE__ */ _bind(
+	FW,
+	'VZVirtualMachineConfiguration',
+)
+
 export const VZVirtualMachineDelegate = /* @__PURE__ */ _bind(FW, 'VZVirtualMachineDelegate')
 export const VZVirtualMachineState = /* @__PURE__ */ _bind(FW, 'VZVirtualMachineState')

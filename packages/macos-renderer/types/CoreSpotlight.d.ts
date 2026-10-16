@@ -2,706 +2,788 @@
 /// <reference path="./Runtime.d.ts" />
 /// <reference path="./Foundation.d.ts" />
 
-declare const CSSearchQueryErrorDomain: string;
+declare const CSSearchQueryErrorDomain: string
 
-declare const CSSearchQueryString: string;
+declare const CSSearchQueryString: string
 
-declare const CSQueryContinuationActionType: string;
+declare const CSQueryContinuationActionType: string
 
-declare const CSSearchableItemActionType: string;
+declare const CSSearchableItemActionType: string
 
-declare const CSMailboxInbox: string;
+declare const CSMailboxInbox: string
 
-declare const CSMailboxTrash: string;
+declare const CSMailboxTrash: string
 
-declare const CSMailboxJunk: string;
+declare const CSMailboxJunk: string
 
-declare const CoreSpotlightVersionNumber: number;
+declare const CoreSpotlightVersionNumber: number
 
-declare const CSMailboxArchive: string;
+declare const CSMailboxArchive: string
 
-declare const CSMailboxSent: string;
+declare const CSMailboxSent: string
 
-declare const CSIndexErrorDomain: string;
+declare const CSIndexErrorDomain: string
 
-declare const CoreSpotlightVersionString: interop.Pointer;
+declare const CoreSpotlightVersionString: interop.Pointer
 
-declare const CSMailboxDrafts: string;
+declare const CSMailboxDrafts: string
 
-declare const CSSearchableItemActivityIdentifier: string;
+declare const CSSearchableItemActivityIdentifier: string
 
 declare const CSUserInteraction: {
-  Select: 0,
-  Default: 0,
-  Focus: 1,
-};
+	Select: 0
+	Default: 0
+	Focus: 1
+}
 
 declare const CSSearchQueryErrorCode: {
-  Unknown: -2000,
-  IndexUnreachable: -2001,
-  InvalidQuery: -2002,
-  Cancelled: -2003,
-};
+	Unknown: -2000
+	IndexUnreachable: -2001
+	InvalidQuery: -2002
+	Cancelled: -2003
+}
 
 declare const CSSuggestionKind: {
-  None: 0,
-  Custom: 1,
-  Default: 2,
-};
+	None: 0
+	Custom: 1
+	Default: 2
+}
 
 declare const CSIndexErrorCode: {
-  UnknownError: -1,
-  IndexUnavailableError: -1000,
-  InvalidItemError: -1001,
-  InvalidClientStateError: -1002,
-  RemoteConnectionError: -1003,
-  QuotaExceeded: -1004,
-  IndexingUnsupported: -1005,
-};
+	UnknownError: -1
+	IndexUnavailableError: -1000
+	InvalidItemError: -1001
+	InvalidClientStateError: -1002
+	RemoteConnectionError: -1003
+	QuotaExceeded: -1004
+	IndexingUnsupported: -1005
+}
 
 declare interface CSSearchableIndexDelegate extends NSObjectProtocol {
-  searchableIndexReindexAllSearchableItemsWithAcknowledgementHandler(searchableIndex: CSSearchableIndex, acknowledgementHandler: () => void): void;
+	searchableIndexReindexAllSearchableItemsWithAcknowledgementHandler(
+		searchableIndex: CSSearchableIndex,
+		acknowledgementHandler: () => void,
+	): void
 
-  searchableIndexReindexSearchableItemsWithIdentifiersAcknowledgementHandler(searchableIndex: CSSearchableIndex, identifiers: NSArray<interop.Object> | Array<interop.Object>, acknowledgementHandler: () => void): void;
+	searchableIndexReindexSearchableItemsWithIdentifiersAcknowledgementHandler(
+		searchableIndex: CSSearchableIndex,
+		identifiers: NSArray<interop.Object> | Array<interop.Object>,
+		acknowledgementHandler: () => void,
+	): void
 
-  searchableIndexDidThrottle?(searchableIndex: CSSearchableIndex): void;
+	searchableIndexDidThrottle?(searchableIndex: CSSearchableIndex): void
 
-  searchableIndexDidFinishThrottle?(searchableIndex: CSSearchableIndex): void;
+	searchableIndexDidFinishThrottle?(searchableIndex: CSSearchableIndex): void
 
-  dataForSearchableIndexItemIdentifierTypeIdentifierError?(searchableIndex: CSSearchableIndex, itemIdentifier: string, typeIdentifier: string, outError: interop.PointerConvertible): NSData;
+	dataForSearchableIndexItemIdentifierTypeIdentifierError?(
+		searchableIndex: CSSearchableIndex,
+		itemIdentifier: string,
+		typeIdentifier: string,
+		outError: interop.PointerConvertible,
+	): NSData
 
-  fileURLForSearchableIndexItemIdentifierTypeIdentifierInPlaceError?(searchableIndex: CSSearchableIndex, itemIdentifier: string, typeIdentifier: string, inPlace: boolean, outError: interop.PointerConvertible): NSURL;
+	fileURLForSearchableIndexItemIdentifierTypeIdentifierInPlaceError?(
+		searchableIndex: CSSearchableIndex,
+		itemIdentifier: string,
+		typeIdentifier: string,
+		inPlace: boolean,
+		outError: interop.PointerConvertible,
+	): NSURL
 }
 
-declare class CSSearchableIndexDelegate extends NativeObject implements CSSearchableIndexDelegate {
-}
+declare class CSSearchableIndexDelegate extends NativeObject implements CSSearchableIndexDelegate {}
 
 declare class CSSearchQuery extends NSObject {
-  initWithQueryStringAttributes(queryString: string, attributes: NSArray<interop.Object> | Array<interop.Object> | null): this;
+	initWithQueryStringAttributes(
+		queryString: string,
+		attributes: NSArray<interop.Object> | Array<interop.Object> | null,
+	): this
 
-  readonly cancelled: boolean;
+	readonly cancelled: boolean
 
-  readonly foundItemCount: number;
+	readonly foundItemCount: number
 
-  foundItemsHandler: (p1: NSArray<interop.Object> | Array<interop.Object>) => void;
+	foundItemsHandler: (p1: NSArray<interop.Object> | Array<interop.Object>) => void
 
-  completionHandler: (p1: NSError) => void | null;
+	completionHandler: (p1: NSError) => void | null
 
-  get protectionClasses(): NSArray;
-  set protectionClasses(value: NSArray<interop.Object> | Array<interop.Object>);
+	get protectionClasses(): NSArray
+	set protectionClasses(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  start(): void;
+	start(): void
 
-  cancel(): void;
+	cancel(): void
 
-  isCancelled(): boolean;
+	isCancelled(): boolean
 }
 
-declare class CSIndexExtensionRequestHandler extends NSObject implements NSExtensionRequestHandling, CSSearchableIndexDelegate {
-  beginRequestWithExtensionContext(context: NSExtensionContext): void;
+declare class CSIndexExtensionRequestHandler
+	extends NSObject
+	implements NSExtensionRequestHandling, CSSearchableIndexDelegate
+{
+	beginRequestWithExtensionContext(context: NSExtensionContext): void
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 
-  searchableIndexReindexAllSearchableItemsWithAcknowledgementHandler(searchableIndex: CSSearchableIndex, acknowledgementHandler: () => void): void;
+	searchableIndexReindexAllSearchableItemsWithAcknowledgementHandler(
+		searchableIndex: CSSearchableIndex,
+		acknowledgementHandler: () => void,
+	): void
 
-  searchableIndexReindexSearchableItemsWithIdentifiersAcknowledgementHandler(searchableIndex: CSSearchableIndex, identifiers: NSArray<interop.Object> | Array<interop.Object>, acknowledgementHandler: () => void): void;
+	searchableIndexReindexSearchableItemsWithIdentifiersAcknowledgementHandler(
+		searchableIndex: CSSearchableIndex,
+		identifiers: NSArray<interop.Object> | Array<interop.Object>,
+		acknowledgementHandler: () => void,
+	): void
 
-  searchableIndexDidThrottle(searchableIndex: CSSearchableIndex): void;
+	searchableIndexDidThrottle(searchableIndex: CSSearchableIndex): void
 
-  searchableIndexDidFinishThrottle(searchableIndex: CSSearchableIndex): void;
+	searchableIndexDidFinishThrottle(searchableIndex: CSSearchableIndex): void
 
-  dataForSearchableIndexItemIdentifierTypeIdentifierError(searchableIndex: CSSearchableIndex, itemIdentifier: string, typeIdentifier: string, outError: interop.PointerConvertible): NSData;
+	dataForSearchableIndexItemIdentifierTypeIdentifierError(
+		searchableIndex: CSSearchableIndex,
+		itemIdentifier: string,
+		typeIdentifier: string,
+		outError: interop.PointerConvertible,
+	): NSData
 
-  fileURLForSearchableIndexItemIdentifierTypeIdentifierInPlaceError(searchableIndex: CSSearchableIndex, itemIdentifier: string, typeIdentifier: string, inPlace: boolean, outError: interop.PointerConvertible): NSURL;
+	fileURLForSearchableIndexItemIdentifierTypeIdentifierInPlaceError(
+		searchableIndex: CSSearchableIndex,
+		itemIdentifier: string,
+		typeIdentifier: string,
+		inPlace: boolean,
+		outError: interop.PointerConvertible,
+	): NSURL
 }
 
 declare class CSSearchableIndex extends NSObject {
-  indexDelegate: CSSearchableIndexDelegate;
+	indexDelegate: CSSearchableIndexDelegate
 
-  static isIndexingAvailable(): boolean;
+	static isIndexingAvailable(): boolean
 
-  static defaultSearchableIndex<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>;
+	static defaultSearchableIndex<This extends abstract new (...args: any) => any>(
+		this: This,
+	): InstanceType<This>
 
-  initWithName(name: string): this;
+	initWithName(name: string): this
 
-  initWithNameProtectionClass(name: string, protectionClass: string | null): this;
+	initWithNameProtectionClass(name: string, protectionClass: string | null): this
 
-  indexSearchableItemsCompletionHandler(items: NSArray<interop.Object> | Array<interop.Object>, completionHandler: (p1: NSError) => void | null): void;
+	indexSearchableItemsCompletionHandler(
+		items: NSArray<interop.Object> | Array<interop.Object>,
+		completionHandler: (p1: NSError) => void | null,
+	): void
 
-  deleteSearchableItemsWithIdentifiersCompletionHandler(identifiers: NSArray<interop.Object> | Array<interop.Object>, completionHandler: (p1: NSError) => void | null): void;
+	deleteSearchableItemsWithIdentifiersCompletionHandler(
+		identifiers: NSArray<interop.Object> | Array<interop.Object>,
+		completionHandler: (p1: NSError) => void | null,
+	): void
 
-  deleteSearchableItemsWithDomainIdentifiersCompletionHandler(domainIdentifiers: NSArray<interop.Object> | Array<interop.Object>, completionHandler: (p1: NSError) => void | null): void;
+	deleteSearchableItemsWithDomainIdentifiersCompletionHandler(
+		domainIdentifiers: NSArray<interop.Object> | Array<interop.Object>,
+		completionHandler: (p1: NSError) => void | null,
+	): void
 
-  deleteAllSearchableItemsWithCompletionHandler(completionHandler: (p1: NSError) => void | null): void;
+	deleteAllSearchableItemsWithCompletionHandler(
+		completionHandler: (p1: NSError) => void | null,
+	): void
 
-  beginIndexBatch(): void;
+	beginIndexBatch(): void
 
-  endIndexBatchWithClientStateCompletionHandler(clientState: NSData, completionHandler: (p1: NSError) => void | null): void;
+	endIndexBatchWithClientStateCompletionHandler(
+		clientState: NSData,
+		completionHandler: (p1: NSError) => void | null,
+	): void
 
-  fetchLastClientStateWithCompletionHandler(completionHandler: (p1: NSData, p2: NSError) => void | null): void;
+	fetchLastClientStateWithCompletionHandler(
+		completionHandler: (p1: NSData, p2: NSError) => void | null,
+	): void
 }
 
 declare class CSSearchableItem extends NSObject implements NSSecureCoding, NSCopying {
-  initWithUniqueIdentifierDomainIdentifierAttributeSet(uniqueIdentifier: string | null, domainIdentifier: string | null, attributeSet: CSSearchableItemAttributeSet): this;
+	initWithUniqueIdentifierDomainIdentifierAttributeSet(
+		uniqueIdentifier: string | null,
+		domainIdentifier: string | null,
+		attributeSet: CSSearchableItemAttributeSet,
+	): this
 
-  uniqueIdentifier: string;
+	uniqueIdentifier: string
 
-  domainIdentifier: string;
+	domainIdentifier: string
 
-  expirationDate: NSDate;
+	expirationDate: NSDate
 
-  attributeSet: CSSearchableItemAttributeSet;
+	attributeSet: CSSearchableItemAttributeSet
 
-  isUpdate: boolean;
+	isUpdate: boolean
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class CSSearchableItemAttributeSet extends NSObject implements NSCopying, NSSecureCoding {
-  initWithItemContentType(itemContentType: string): this;
+	initWithItemContentType(itemContentType: string): this
 
-  initWithContentType(contentType: UTType): this;
+	initWithContentType(contentType: UTType): this
 
-  setValueForCustomKey(value: NSSecureCoding | null, key: CSCustomAttributeKey): void;
+	setValueForCustomKey(value: NSSecureCoding | null, key: CSCustomAttributeKey): void
 
-  valueForCustomKey(key: CSCustomAttributeKey): NSSecureCoding;
+	valueForCustomKey(key: CSCustomAttributeKey): NSSecureCoding
 
-  displayName: string;
+	displayName: string
 
-  get alternateNames(): NSArray;
-  set alternateNames(value: NSArray<interop.Object> | Array<interop.Object>);
+	get alternateNames(): NSArray
+	set alternateNames(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  path: string;
+	path: string
 
-  contentURL: NSURL;
+	contentURL: NSURL
 
-  thumbnailURL: NSURL;
+	thumbnailURL: NSURL
 
-  thumbnailData: NSData;
+	thumbnailData: NSData
 
-  relatedUniqueIdentifier: string;
+	relatedUniqueIdentifier: string
 
-  weakRelatedUniqueIdentifier: string;
+	weakRelatedUniqueIdentifier: string
 
-  metadataModificationDate: NSDate;
+	metadataModificationDate: NSDate
 
-  contentType: string;
+	contentType: string
 
-  get contentTypeTree(): NSArray;
-  set contentTypeTree(value: NSArray<interop.Object> | Array<interop.Object>);
+	get contentTypeTree(): NSArray
+	set contentTypeTree(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get keywords(): NSArray;
-  set keywords(value: NSArray<interop.Object> | Array<interop.Object>);
+	get keywords(): NSArray
+	set keywords(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  title: string;
+	title: string
 
-  version: string;
+	version: string
 
-  userCreated: NSNumber;
+	userCreated: NSNumber
 
-  userOwned: NSNumber;
+	userOwned: NSNumber
 
-  userCurated: NSNumber;
+	userCurated: NSNumber
 
-  rankingHint: NSNumber;
+	rankingHint: NSNumber
 
-  domainIdentifier: string;
+	domainIdentifier: string
 
-  isUserCreated(): NSNumber | null;
+	isUserCreated(): NSNumber | null
 
-  isUserOwned(): NSNumber | null;
+	isUserOwned(): NSNumber | null
 
-  isUserCurated(): NSNumber | null;
+	isUserCurated(): NSNumber | null
 
-  supportsPhoneCall: NSNumber;
+	supportsPhoneCall: NSNumber
 
-  supportsNavigation: NSNumber;
+	supportsNavigation: NSNumber
 
-  containerTitle: string;
+	containerTitle: string
 
-  containerDisplayName: string;
+	containerDisplayName: string
 
-  containerIdentifier: string;
+	containerIdentifier: string
 
-  containerOrder: NSNumber;
+	containerOrder: NSNumber
 
-  get providerDataTypeIdentifiers(): NSArray;
-  set providerDataTypeIdentifiers(value: NSArray<interop.Object> | Array<interop.Object>);
+	get providerDataTypeIdentifiers(): NSArray
+	set providerDataTypeIdentifiers(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get providerFileTypeIdentifiers(): NSArray;
-  set providerFileTypeIdentifiers(value: NSArray<interop.Object> | Array<interop.Object>);
+	get providerFileTypeIdentifiers(): NSArray
+	set providerFileTypeIdentifiers(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get providerInPlaceFileTypeIdentifiers(): NSArray;
-  set providerInPlaceFileTypeIdentifiers(value: NSArray<interop.Object> | Array<interop.Object>);
+	get providerInPlaceFileTypeIdentifiers(): NSArray
+	set providerInPlaceFileTypeIdentifiers(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  subject: string;
+	subject: string
 
-  theme: string;
+	theme: string
 
-  contentDescription: string;
+	contentDescription: string
 
-  identifier: string;
+	identifier: string
 
-  get audiences(): NSArray;
-  set audiences(value: NSArray<interop.Object> | Array<interop.Object>);
+	get audiences(): NSArray
+	set audiences(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  fileSize: NSNumber;
+	fileSize: NSNumber
 
-  pageCount: NSNumber;
+	pageCount: NSNumber
 
-  pageWidth: NSNumber;
+	pageWidth: NSNumber
 
-  pageHeight: NSNumber;
+	pageHeight: NSNumber
 
-  securityMethod: string;
+	securityMethod: string
 
-  creator: string;
+	creator: string
 
-  get encodingApplications(): NSArray;
-  set encodingApplications(value: NSArray<interop.Object> | Array<interop.Object>);
+	get encodingApplications(): NSArray
+	set encodingApplications(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  kind: string;
+	kind: string
 
-  get fontNames(): NSArray;
-  set fontNames(value: NSArray<interop.Object> | Array<interop.Object>);
+	get fontNames(): NSArray
+	set fontNames(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  dueDate: NSDate;
+	dueDate: NSDate
 
-  completionDate: NSDate;
+	completionDate: NSDate
 
-  startDate: NSDate;
+	startDate: NSDate
 
-  endDate: NSDate;
+	endDate: NSDate
 
-  get importantDates(): NSArray;
-  set importantDates(value: NSArray<interop.Object> | Array<interop.Object>);
+	get importantDates(): NSArray
+	set importantDates(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  allDay: NSNumber;
+	allDay: NSNumber
 
-  accountIdentifier: string;
+	accountIdentifier: string
 
-  get accountHandles(): NSArray;
-  set accountHandles(value: NSArray<interop.Object> | Array<interop.Object>);
+	get accountHandles(): NSArray
+	set accountHandles(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  HTMLContentData: NSData;
+	HTMLContentData: NSData
 
-  textContent: string;
+	textContent: string
 
-  get authors(): NSArray;
-  set authors(value: NSArray<interop.Object> | Array<interop.Object>);
+	get authors(): NSArray
+	set authors(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get primaryRecipients(): NSArray;
-  set primaryRecipients(value: NSArray<interop.Object> | Array<interop.Object>);
+	get primaryRecipients(): NSArray
+	set primaryRecipients(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get additionalRecipients(): NSArray;
-  set additionalRecipients(value: NSArray<interop.Object> | Array<interop.Object>);
+	get additionalRecipients(): NSArray
+	set additionalRecipients(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get hiddenAdditionalRecipients(): NSArray;
-  set hiddenAdditionalRecipients(value: NSArray<interop.Object> | Array<interop.Object>);
+	get hiddenAdditionalRecipients(): NSArray
+	set hiddenAdditionalRecipients(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get emailHeaders(): NSDictionary;
-  set emailHeaders(value: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>);
+	get emailHeaders(): NSDictionary
+	set emailHeaders(
+		value: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+	)
 
-  get mailboxIdentifiers(): NSArray;
-  set mailboxIdentifiers(value: NSArray<interop.Object> | Array<interop.Object>);
+	get mailboxIdentifiers(): NSArray
+	set mailboxIdentifiers(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get authorNames(): NSArray;
-  set authorNames(value: NSArray<interop.Object> | Array<interop.Object>);
+	get authorNames(): NSArray
+	set authorNames(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get recipientNames(): NSArray;
-  set recipientNames(value: NSArray<interop.Object> | Array<interop.Object>);
+	get recipientNames(): NSArray
+	set recipientNames(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get authorEmailAddresses(): NSArray;
-  set authorEmailAddresses(value: NSArray<interop.Object> | Array<interop.Object>);
+	get authorEmailAddresses(): NSArray
+	set authorEmailAddresses(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get recipientEmailAddresses(): NSArray;
-  set recipientEmailAddresses(value: NSArray<interop.Object> | Array<interop.Object>);
+	get recipientEmailAddresses(): NSArray
+	set recipientEmailAddresses(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get authorAddresses(): NSArray;
-  set authorAddresses(value: NSArray<interop.Object> | Array<interop.Object>);
+	get authorAddresses(): NSArray
+	set authorAddresses(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get recipientAddresses(): NSArray;
-  set recipientAddresses(value: NSArray<interop.Object> | Array<interop.Object>);
+	get recipientAddresses(): NSArray
+	set recipientAddresses(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get phoneNumbers(): NSArray;
-  set phoneNumbers(value: NSArray<interop.Object> | Array<interop.Object>);
+	get phoneNumbers(): NSArray
+	set phoneNumbers(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get emailAddresses(): NSArray;
-  set emailAddresses(value: NSArray<interop.Object> | Array<interop.Object>);
+	get emailAddresses(): NSArray
+	set emailAddresses(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get instantMessageAddresses(): NSArray;
-  set instantMessageAddresses(value: NSArray<interop.Object> | Array<interop.Object>);
+	get instantMessageAddresses(): NSArray
+	set instantMessageAddresses(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  likelyJunk: NSNumber;
+	likelyJunk: NSNumber
 
-  isLikelyJunk(): NSNumber;
+	isLikelyJunk(): NSNumber
 
-  get editors(): NSArray;
-  set editors(value: NSArray<interop.Object> | Array<interop.Object>);
+	get editors(): NSArray
+	set editors(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get participants(): NSArray;
-  set participants(value: NSArray<interop.Object> | Array<interop.Object>);
+	get participants(): NSArray
+	set participants(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get projects(): NSArray;
-  set projects(value: NSArray<interop.Object> | Array<interop.Object>);
+	get projects(): NSArray
+	set projects(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get contentSources(): NSArray;
-  set contentSources(value: NSArray<interop.Object> | Array<interop.Object>);
+	get contentSources(): NSArray
+	set contentSources(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  comment: string;
+	comment: string
 
-  copyright: string;
+	copyright: string
 
-  lastUsedDate: NSDate;
+	lastUsedDate: NSDate
 
-  contentCreationDate: NSDate;
+	contentCreationDate: NSDate
 
-  contentModificationDate: NSDate;
+	contentModificationDate: NSDate
 
-  addedDate: NSDate;
+	addedDate: NSDate
 
-  downloadedDate: NSDate;
+	downloadedDate: NSDate
 
-  duration: NSNumber;
+	duration: NSNumber
 
-  get contactKeywords(): NSArray;
-  set contactKeywords(value: NSArray<interop.Object> | Array<interop.Object>);
+	get contactKeywords(): NSArray
+	set contactKeywords(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get codecs(): NSArray;
-  set codecs(value: NSArray<interop.Object> | Array<interop.Object>);
+	get codecs(): NSArray
+	set codecs(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get mediaTypes(): NSArray;
-  set mediaTypes(value: NSArray<interop.Object> | Array<interop.Object>);
+	get mediaTypes(): NSArray
+	set mediaTypes(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  streamable: NSNumber;
+	streamable: NSNumber
 
-  totalBitRate: NSNumber;
+	totalBitRate: NSNumber
 
-  videoBitRate: NSNumber;
+	videoBitRate: NSNumber
 
-  audioBitRate: NSNumber;
+	audioBitRate: NSNumber
 
-  deliveryType: NSNumber;
+	deliveryType: NSNumber
 
-  get organizations(): NSArray;
-  set organizations(value: NSArray<interop.Object> | Array<interop.Object>);
+	get organizations(): NSArray
+	set organizations(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  role: string;
+	role: string
 
-  get languages(): NSArray;
-  set languages(value: NSArray<interop.Object> | Array<interop.Object>);
+	get languages(): NSArray
+	set languages(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  rights: string;
+	rights: string
 
-  get publishers(): NSArray;
-  set publishers(value: NSArray<interop.Object> | Array<interop.Object>);
+	get publishers(): NSArray
+	set publishers(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get contributors(): NSArray;
-  set contributors(value: NSArray<interop.Object> | Array<interop.Object>);
+	get contributors(): NSArray
+	set contributors(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get coverage(): NSArray;
-  set coverage(value: NSArray<interop.Object> | Array<interop.Object>);
+	get coverage(): NSArray
+	set coverage(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  rating: NSNumber;
+	rating: NSNumber
 
-  ratingDescription: string;
+	ratingDescription: string
 
-  playCount: NSNumber;
+	playCount: NSNumber
 
-  information: string;
+	information: string
 
-  director: string;
+	director: string
 
-  producer: string;
+	producer: string
 
-  genre: string;
+	genre: string
 
-  get performers(): NSArray;
-  set performers(value: NSArray<interop.Object> | Array<interop.Object>);
+	get performers(): NSArray
+	set performers(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  originalFormat: string;
+	originalFormat: string
 
-  originalSource: string;
+	originalSource: string
 
-  local: NSNumber;
+	local: NSNumber
 
-  contentRating: NSNumber;
+	contentRating: NSNumber
 
-  URL: NSURL;
+	URL: NSURL
 
-  isStreamable(): NSNumber | null;
+	isStreamable(): NSNumber | null
 
-  isLocal(): NSNumber | null;
+	isLocal(): NSNumber | null
 
-  audioSampleRate: NSNumber;
+	audioSampleRate: NSNumber
 
-  audioChannelCount: NSNumber;
+	audioChannelCount: NSNumber
 
-  tempo: NSNumber;
+	tempo: NSNumber
 
-  keySignature: string;
+	keySignature: string
 
-  timeSignature: string;
+	timeSignature: string
 
-  audioEncodingApplication: string;
+	audioEncodingApplication: string
 
-  composer: string;
+	composer: string
 
-  lyricist: string;
+	lyricist: string
 
-  album: string;
+	album: string
 
-  artist: string;
+	artist: string
 
-  audioTrackNumber: NSNumber;
+	audioTrackNumber: NSNumber
 
-  recordingDate: NSDate;
+	recordingDate: NSDate
 
-  musicalGenre: string;
+	musicalGenre: string
 
-  generalMIDISequence: NSNumber;
+	generalMIDISequence: NSNumber
 
-  musicalInstrumentCategory: string;
+	musicalInstrumentCategory: string
 
-  musicalInstrumentName: string;
+	musicalInstrumentName: string
 
-  isGeneralMIDISequence(): NSNumber | null;
+	isGeneralMIDISequence(): NSNumber | null
 
-  pixelHeight: NSNumber;
+	pixelHeight: NSNumber
 
-  pixelWidth: NSNumber;
+	pixelWidth: NSNumber
 
-  pixelCount: NSNumber;
+	pixelCount: NSNumber
 
-  colorSpace: string;
+	colorSpace: string
 
-  bitsPerSample: NSNumber;
+	bitsPerSample: NSNumber
 
-  flashOn: NSNumber;
+	flashOn: NSNumber
 
-  focalLength: NSNumber;
+	focalLength: NSNumber
 
-  focalLength35mm: NSNumber;
+	focalLength35mm: NSNumber
 
-  acquisitionMake: string;
+	acquisitionMake: string
 
-  acquisitionModel: string;
+	acquisitionModel: string
 
-  cameraOwner: string;
+	cameraOwner: string
 
-  lensModel: string;
+	lensModel: string
 
-  ISOSpeed: NSNumber;
+	ISOSpeed: NSNumber
 
-  orientation: NSNumber;
+	orientation: NSNumber
 
-  get layerNames(): NSArray;
-  set layerNames(value: NSArray<interop.Object> | Array<interop.Object>);
+	get layerNames(): NSArray
+	set layerNames(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  whiteBalance: NSNumber;
+	whiteBalance: NSNumber
 
-  aperture: NSNumber;
+	aperture: NSNumber
 
-  profileName: string;
+	profileName: string
 
-  resolutionWidthDPI: NSNumber;
+	resolutionWidthDPI: NSNumber
 
-  resolutionHeightDPI: NSNumber;
+	resolutionHeightDPI: NSNumber
 
-  exposureMode: NSNumber;
+	exposureMode: NSNumber
 
-  exposureTime: NSNumber;
+	exposureTime: NSNumber
 
-  EXIFVersion: string;
+	EXIFVersion: string
 
-  EXIFGPSVersion: string;
+	EXIFGPSVersion: string
 
-  hasAlphaChannel: NSNumber;
+	hasAlphaChannel: NSNumber
 
-  redEyeOn: NSNumber;
+	redEyeOn: NSNumber
 
-  meteringMode: string;
+	meteringMode: string
 
-  maxAperture: NSNumber;
+	maxAperture: NSNumber
 
-  fNumber: NSNumber;
+	fNumber: NSNumber
 
-  exposureProgram: string;
+	exposureProgram: string
 
-  exposureTimeString: string;
+	exposureTimeString: string
 
-  isFlashOn(): NSNumber | null;
+	isFlashOn(): NSNumber | null
 
-  isFocalLength35mm(): NSNumber | null;
+	isFocalLength35mm(): NSNumber | null
 
-  isRedEyeOn(): NSNumber | null;
+	isRedEyeOn(): NSNumber | null
 
-  headline: string;
+	headline: string
 
-  instructions: string;
+	instructions: string
 
-  thoroughfare: string;
+	thoroughfare: string
 
-  subThoroughfare: string;
+	subThoroughfare: string
 
-  postalCode: string;
+	postalCode: string
 
-  city: string;
+	city: string
 
-  stateOrProvince: string;
+	stateOrProvince: string
 
-  country: string;
+	country: string
 
-  fullyFormattedAddress: string;
+	fullyFormattedAddress: string
 
-  altitude: NSNumber;
+	altitude: NSNumber
 
-  latitude: NSNumber;
+	latitude: NSNumber
 
-  longitude: NSNumber;
+	longitude: NSNumber
 
-  speed: NSNumber;
+	speed: NSNumber
 
-  timestamp: NSDate;
+	timestamp: NSDate
 
-  imageDirection: NSNumber;
+	imageDirection: NSNumber
 
-  namedLocation: string;
+	namedLocation: string
 
-  GPSTrack: NSNumber;
+	GPSTrack: NSNumber
 
-  GPSStatus: string;
+	GPSStatus: string
 
-  GPSMeasureMode: string;
+	GPSMeasureMode: string
 
-  GPSDOP: NSNumber;
+	GPSDOP: NSNumber
 
-  GPSMapDatum: string;
+	GPSMapDatum: string
 
-  GPSDestLatitude: NSNumber;
+	GPSDestLatitude: NSNumber
 
-  GPSDestLongitude: NSNumber;
+	GPSDestLongitude: NSNumber
 
-  GPSDestBearing: NSNumber;
+	GPSDestBearing: NSNumber
 
-  GPSDestDistance: NSNumber;
+	GPSDestDistance: NSNumber
 
-  GPSProcessingMethod: string;
+	GPSProcessingMethod: string
 
-  GPSAreaInformation: string;
+	GPSAreaInformation: string
 
-  GPSDateStamp: NSDate;
+	GPSDateStamp: NSDate
 
-  GPSDifferental: NSNumber;
+	GPSDifferental: NSNumber
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 declare class CSPerson extends NSObject implements NSSecureCoding, NSCopying {
-  initWithDisplayNameHandlesHandleIdentifier(displayName: string | null, handles: NSArray<interop.Object> | Array<interop.Object>, handleIdentifier: string): this;
+	initWithDisplayNameHandlesHandleIdentifier(
+		displayName: string | null,
+		handles: NSArray<interop.Object> | Array<interop.Object>,
+		handleIdentifier: string,
+	): this
 
-  readonly displayName: string;
+	readonly displayName: string
 
-  readonly handles: NSArray;
+	readonly handles: NSArray
 
-  readonly handleIdentifier: string;
+	readonly handleIdentifier: string
 
-  contactIdentifier: string;
+	contactIdentifier: string
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class CSCustomAttributeKey extends NSObject implements NSCopying, NSSecureCoding {
-  initWithKeyName(keyName: string): this;
+	initWithKeyName(keyName: string): this
 
-  initWithKeyNameSearchableSearchableByDefaultUniqueMultiValued(keyName: string, searchable: boolean, searchableByDefault: boolean, unique: boolean, multiValued: boolean): this;
+	initWithKeyNameSearchableSearchableByDefaultUniqueMultiValued(
+		keyName: string,
+		searchable: boolean,
+		searchableByDefault: boolean,
+		unique: boolean,
+		multiValued: boolean,
+	): this
 
-  readonly keyName: string;
+	readonly keyName: string
 
-  readonly searchable: boolean;
+	readonly searchable: boolean
 
-  readonly searchableByDefault: boolean;
+	readonly searchableByDefault: boolean
 
-  readonly unique: boolean;
+	readonly unique: boolean
 
-  readonly multiValued: boolean;
+	readonly multiValued: boolean
 
-  isSearchable(): boolean;
+	isSearchable(): boolean
 
-  isSearchableByDefault(): boolean;
+	isSearchableByDefault(): boolean
 
-  isUnique(): boolean;
+	isUnique(): boolean
 
-  isMultiValued(): boolean;
+	isMultiValued(): boolean
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 declare class CSLocalizedString extends NSString {
-  initWithLocalizedStrings(localizedStrings: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): this;
+	initWithLocalizedStrings(
+		localizedStrings:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+	): this
 
-  localizedString(): string;
+	localizedString(): string
 }
-

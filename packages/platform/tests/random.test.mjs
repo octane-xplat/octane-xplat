@@ -72,7 +72,10 @@ test('macOS random fills typed arrays and DataViews through SecRandomCopyBytes',
 	const buffer = new ArrayBuffer(40)
 	const view = new Uint8Array(buffer, 8, 16)
 	assert.equal(random.fill(view), view)
-	assert.deepEqual(new Uint8Array(buffer), new Uint8Array([...new Uint8Array(8), ...expected(16), ...new Uint8Array(16)]))
+	assert.deepEqual(
+		new Uint8Array(buffer),
+		new Uint8Array([...new Uint8Array(8), ...expected(16), ...new Uint8Array(16)]),
+	)
 
 	const dataView = new DataView(new ArrayBuffer(4))
 	random.fill(dataView)
@@ -110,7 +113,10 @@ test('web random chunks fills past the 64 KiB getRandomValues quota', () => {
 	const view = new Uint8Array(200_000)
 	random.fill(view)
 	assert.deepEqual(calls, [65536, 65536, 65536, 3392])
-	assert.equal(view.every((byte) => byte === 0xa5), true)
+	assert.equal(
+		view.every((byte) => byte === 0xa5),
+		true,
+	)
 
 	assert.equal(random.bytes(0).length, 0)
 	assert.throws(() => random.bytes(-1), RangeError)
@@ -123,8 +129,7 @@ test('web random reports unsupported when crypto is absent', () => {
 })
 
 test('native random dispatches to SecRandomCopyBytes under Application.ios', () => {
-	const require = (name) =>
-		name === '@nativescript/core' ? { Application: { ios: {} } } : {}
+	const require = (name) => (name === '@nativescript/core' ? { Application: { ios: {} } } : {})
 
 	const { random } = load(nativeCompiled, { ...appleHost(), require })
 	assert.equal(random.supported, true)
@@ -151,8 +156,7 @@ test('native random dispatches to SecureRandom under Application.android', () =>
 		},
 	}
 
-	const require = (name) =>
-		name === '@nativescript/core' ? { Application: { android: {} } } : {}
+	const require = (name) => (name === '@nativescript/core' ? { Application: { android: {} } } : {})
 
 	const { random } = load(nativeCompiled, { require, java, Array: FakeArray })
 	assert.equal(random.supported, true)

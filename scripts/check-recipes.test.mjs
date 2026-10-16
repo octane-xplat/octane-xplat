@@ -39,7 +39,10 @@ test('accepts mapped criteria and explicit gaps', (t) => {
 		checkRecipes(
 			fixture(
 				t,
-				recipe.replace('[Instructions](../../../guide.md#instructions).', 'Gap: instructions missing.'),
+				recipe.replace(
+					'[Instructions](../../../guide.md#instructions).',
+					'Gap: instructions missing.',
+				),
 			),
 		),
 		[],

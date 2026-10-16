@@ -9,7 +9,7 @@ experience of agents writing Octane-xplat code effectively.
 - **Task orchestration runs through Turborepo** (`turbo` 2.11.4 devDep,
   `turbo.json` at the root). `pnpm typegen`, `pnpm typecheck`, the
   `typecheck:{web,mobile,macos,linux,windows,docs}` filters, `pnpm
-  build:packages`, `pnpm build:web`, and the package-test half of `pnpm test`
+build:packages`, `pnpm build:web`, and the package-test half of `pnpm test`
   delegate to `turbo run`. Results cache locally under `.turbo/` (gitignored —
   shared across worktrees of this clone): a no-op `pnpm typecheck` is ~200ms
   and touching a leaf package reruns only that package's tasks plus its
@@ -38,7 +38,7 @@ experience of agents writing Octane-xplat code effectively.
   on native/macOS leaves) and runs `tsrx-tsc --noEmit` on it under
   `node_modules/.cache/xplat-typecheck/`. Every program resolves under the
   fixed `moduleSuffixes` order `["" , ".web", ".ios", ".android", ".mobile",
-  ".native", ".macos", ".linux", ".windows"]` — extensionless first — with no
+".native", ".macos", ".linux", ".windows"]` — extensionless first — with no
   platform `customConditions` (package boundaries resolve the default export
   surface). Per-environment `compilerOptions` are rejected except `types`.
   Every platform is meant to expose the same API surface at the type level, so
@@ -59,7 +59,7 @@ experience of agents writing Octane-xplat code effectively.
   run: a spec pointing through a path created mid-install (e.g. a consumer's
   sibling-checkout symlink) yields the `node_modules` symlink but no
   `node_modules/.bin` shims — `xplat`/`xplat-lint` come back `command not
-  found` — and reinstalls stay "Already up to date" (GH#16). Heal by
+found` — and reinstalls stay "Already up to date" (GH#16). Heal by
   reinstalling once the path exists (`rm -rf node_modules && pnpm install`)
   or by running `node node_modules/@octane-xplat/cli/src/link-bins.mjs` from
   the app root; wiring that into the consumer's `postinstall` covers fresh

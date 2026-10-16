@@ -152,7 +152,11 @@ try {
 	const capture = await client.callTool({ name: 'xplat_screenshot', arguments: { sessionId } })
 	assert.equal(capture.structuredContent.error.code, 'permission_denied')
 	assert.equal(context.evidence.list({ kind: 'screenshot' }).length, 0)
-	evidence.push({ check: 'missing/duplicate controls fail; private content redacted; pagination bounded; no visual grant means no capture' })
+	evidence.push({
+		check:
+			'missing/duplicate controls fail; private content redacted; pagination bounded; no visual grant means no capture',
+	})
+
 	const registry = await until(async () => {
 		const value = await call('xplat_dev_actions')
 		return value.instances.find((instance) =>

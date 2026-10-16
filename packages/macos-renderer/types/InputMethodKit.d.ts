@@ -2,207 +2,263 @@
 /// <reference path="./Runtime.d.ts" />
 /// <reference path="./AppKit.d.ts" />
 
-declare const IMKCandidatesOpacityAttributeName: string;
+declare const IMKCandidatesOpacityAttributeName: string
 
-declare const kIMKLocateCandidatesRightHint: number;
+declare const kIMKLocateCandidatesRightHint: number
 
-declare const kIMKLocateCandidatesBelowHint: number;
+declare const kIMKLocateCandidatesBelowHint: number
 
-declare const kIMKLocateCandidatesAboveHint: number;
+declare const kIMKLocateCandidatesAboveHint: number
 
-declare const kIMKSingleColumnScrollingCandidatePanel: number;
+declare const kIMKSingleColumnScrollingCandidatePanel: number
 
-declare const IMKDelegateClass: string;
+declare const IMKDelegateClass: string
 
-declare const IMKControllerClass: string;
+declare const IMKControllerClass: string
 
-declare const IMKModeDictionary: string;
+declare const IMKModeDictionary: string
 
-declare const kIMKSingleRowSteppingCandidatePanel: number;
+declare const kIMKSingleRowSteppingCandidatePanel: number
 
-declare const kIMKAnnotation: number;
+declare const kIMKAnnotation: number
 
-declare const kIMKMain: number;
+declare const kIMKMain: number
 
-declare const IMKCandidatesSendServerKeyEventFirst: string;
+declare const IMKCandidatesSendServerKeyEventFirst: string
 
-declare const kIMKCommandMenuItemName: string;
+declare const kIMKCommandMenuItemName: string
 
-declare const kIMKSubList: number;
+declare const kIMKSubList: number
 
-declare const kIMKCommandClientName: string;
+declare const kIMKCommandClientName: string
 
-declare const kIMKLocateCandidatesLeftHint: number;
+declare const kIMKLocateCandidatesLeftHint: number
 
-declare const kIMKScrollingGridCandidatePanel: number;
+declare const kIMKScrollingGridCandidatePanel: number
 
 declare interface IMKStateSetting {
-  activateServer(sender: interop.Object): void;
+	activateServer(sender: interop.Object): void
 
-  deactivateServer(sender: interop.Object): void;
+	deactivateServer(sender: interop.Object): void
 
-  valueForTagClient(tag: number, sender: interop.Object): interop.Object;
+	valueForTagClient(tag: number, sender: interop.Object): interop.Object
 
-  setValueForTagClient(value: interop.Object, tag: number, sender: interop.Object): void;
+	setValueForTagClient(value: interop.Object, tag: number, sender: interop.Object): void
 
-  modes(sender: interop.Object): NSDictionary;
+	modes(sender: interop.Object): NSDictionary
 
-  recognizedEvents(sender: interop.Object): number;
+	recognizedEvents(sender: interop.Object): number
 
-  showPreferences(sender: interop.Object): void;
+	showPreferences(sender: interop.Object): void
 }
 
-declare class IMKStateSetting extends NativeObject implements IMKStateSetting {
-}
+declare class IMKStateSetting extends NativeObject implements IMKStateSetting {}
 
 declare interface IMKMouseHandling {
-  mouseDownOnCharacterIndexCoordinateWithModifierContinueTrackingClient(index: number, point: CGPoint, flags: number, keepTracking: interop.PointerConvertible, sender: interop.Object): boolean;
+	mouseDownOnCharacterIndexCoordinateWithModifierContinueTrackingClient(
+		index: number,
+		point: CGPoint,
+		flags: number,
+		keepTracking: interop.PointerConvertible,
+		sender: interop.Object,
+	): boolean
 
-  mouseUpOnCharacterIndexCoordinateWithModifierClient(index: number, point: CGPoint, flags: number, sender: interop.Object): boolean;
+	mouseUpOnCharacterIndexCoordinateWithModifierClient(
+		index: number,
+		point: CGPoint,
+		flags: number,
+		sender: interop.Object,
+	): boolean
 
-  mouseMovedOnCharacterIndexCoordinateWithModifierClient(index: number, point: CGPoint, flags: number, sender: interop.Object): boolean;
+	mouseMovedOnCharacterIndexCoordinateWithModifierClient(
+		index: number,
+		point: CGPoint,
+		flags: number,
+		sender: interop.Object,
+	): boolean
 }
 
-declare class IMKMouseHandling extends NativeObject implements IMKMouseHandling {
-}
+declare class IMKMouseHandling extends NativeObject implements IMKMouseHandling {}
 
 declare class IMKServer extends NSObject implements IMKServerProxy {
-  initWithNameBundleIdentifier(name: string, bundleIdentifier: string): this;
+	initWithNameBundleIdentifier(name: string, bundleIdentifier: string): this
 
-  initWithNameControllerClassDelegateClass(name: string, controllerClassID: interop.PointerConvertible, delegateClassID: interop.PointerConvertible): this;
+	initWithNameControllerClassDelegateClass(
+		name: string,
+		controllerClassID: interop.PointerConvertible,
+		delegateClassID: interop.PointerConvertible,
+	): this
 
-  bundle(): NSBundle;
+	bundle(): NSBundle
 
-  paletteWillTerminate(): boolean;
+	paletteWillTerminate(): boolean
 
-  lastKeyEventWasDeadKey(): boolean;
+	lastKeyEventWasDeadKey(): boolean
 }
 
 declare class IMKInputController extends NSObject implements IMKStateSetting, IMKMouseHandling {
-  initWithServerDelegateClient(server: IMKServer, delegate: interop.Object, inputClient: interop.Object): this;
+	initWithServerDelegateClient(
+		server: IMKServer,
+		delegate: interop.Object,
+		inputClient: interop.Object,
+	): this
 
-  updateComposition(): void;
+	updateComposition(): void
 
-  cancelComposition(): void;
+	cancelComposition(): void
 
-  compositionAttributesAtRange(range: _NSRange): NSMutableDictionary;
+	compositionAttributesAtRange(range: _NSRange): NSMutableDictionary
 
-  selectionRange(): _NSRange;
+	selectionRange(): _NSRange
 
-  replacementRange(): _NSRange;
+	replacementRange(): _NSRange
 
-  markForStyleAtRange(style: number, range: _NSRange): NSDictionary;
+	markForStyleAtRange(style: number, range: _NSRange): NSDictionary
 
-  doCommandBySelectorCommandDictionary(aSelector: string, infoDictionary: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): void;
+	doCommandBySelectorCommandDictionary(
+		aSelector: string,
+		infoDictionary:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+	): void
 
-  hidePalettes(): void;
+	hidePalettes(): void
 
-  menu(): NSMenu;
+	menu(): NSMenu
 
-  delegate(): interop.Object;
+	delegate(): interop.Object
 
-  setDelegate(newDelegate: interop.Object): void;
+	setDelegate(newDelegate: interop.Object): void
 
-  server(): IMKServer;
+	server(): IMKServer
 
-  client(): IMKTextInput;
+	client(): IMKTextInput
 
-  inputControllerWillClose(): void;
+	inputControllerWillClose(): void
 
-  annotationSelectedForCandidate(annotationString: NSAttributedString, candidateString: NSAttributedString): void;
+	annotationSelectedForCandidate(
+		annotationString: NSAttributedString,
+		candidateString: NSAttributedString,
+	): void
 
-  candidateSelectionChanged(candidateString: NSAttributedString): void;
+	candidateSelectionChanged(candidateString: NSAttributedString): void
 
-  candidateSelected(candidateString: NSAttributedString): void;
+	candidateSelected(candidateString: NSAttributedString): void
 
-  activateServer(sender: interop.Object): void;
+	activateServer(sender: interop.Object): void
 
-  deactivateServer(sender: interop.Object): void;
+	deactivateServer(sender: interop.Object): void
 
-  valueForTagClient(tag: number, sender: interop.Object): interop.Object;
+	valueForTagClient(tag: number, sender: interop.Object): interop.Object
 
-  setValueForTagClient(value: interop.Object, tag: number, sender: interop.Object): void;
+	setValueForTagClient(value: interop.Object, tag: number, sender: interop.Object): void
 
-  modes(sender: interop.Object): NSDictionary;
+	modes(sender: interop.Object): NSDictionary
 
-  recognizedEvents(sender: interop.Object): number;
+	recognizedEvents(sender: interop.Object): number
 
-  showPreferences(sender: interop.Object): void;
+	showPreferences(sender: interop.Object): void
 
-  mouseDownOnCharacterIndexCoordinateWithModifierContinueTrackingClient(index: number, point: CGPoint, flags: number, keepTracking: interop.PointerConvertible, sender: interop.Object): boolean;
+	mouseDownOnCharacterIndexCoordinateWithModifierContinueTrackingClient(
+		index: number,
+		point: CGPoint,
+		flags: number,
+		keepTracking: interop.PointerConvertible,
+		sender: interop.Object,
+	): boolean
 
-  mouseUpOnCharacterIndexCoordinateWithModifierClient(index: number, point: CGPoint, flags: number, sender: interop.Object): boolean;
+	mouseUpOnCharacterIndexCoordinateWithModifierClient(
+		index: number,
+		point: CGPoint,
+		flags: number,
+		sender: interop.Object,
+	): boolean
 
-  mouseMovedOnCharacterIndexCoordinateWithModifierClient(index: number, point: CGPoint, flags: number, sender: interop.Object): boolean;
+	mouseMovedOnCharacterIndexCoordinateWithModifierClient(
+		index: number,
+		point: CGPoint,
+		flags: number,
+		sender: interop.Object,
+	): boolean
 }
 
 declare class IMKCandidates extends NSResponder {
-  initWithServerPanelType(server: IMKServer, panelType: number): this;
+	initWithServerPanelType(server: IMKServer, panelType: number): this
 
-  initWithServerPanelTypeStyleType(server: IMKServer, panelType: number, style: number): this;
+	initWithServerPanelTypeStyleType(server: IMKServer, panelType: number, style: number): this
 
-  panelType(): number;
+	panelType(): number
 
-  setPanelType(panelType: number): void;
+	setPanelType(panelType: number): void
 
-  show(locationHint: number): void;
+	show(locationHint: number): void
 
-  hide(): void;
+	hide(): void
 
-  isVisible(): boolean;
+	isVisible(): boolean
 
-  updateCandidates(): void;
+	updateCandidates(): void
 
-  showAnnotation(annotationString: NSAttributedString): void;
+	showAnnotation(annotationString: NSAttributedString): void
 
-  showSublistSubListDelegate(candidates: NSArray<interop.Object> | Array<interop.Object>, delegate: interop.Object): void;
+	showSublistSubListDelegate(
+		candidates: NSArray<interop.Object> | Array<interop.Object>,
+		delegate: interop.Object,
+	): void
 
-  candidateFrame(): CGRect;
+	candidateFrame(): CGRect
 
-  setSelectionKeys(keyCodes: NSArray<interop.Object> | Array<interop.Object>): void;
+	setSelectionKeys(keyCodes: NSArray<interop.Object> | Array<interop.Object>): void
 
-  selectionKeys(): NSArray;
+	selectionKeys(): NSArray
 
-  setSelectionKeysKeylayout(layout: interop.Object): void;
+	setSelectionKeysKeylayout(layout: interop.Object): void
 
-  selectionKeysKeylayout(): interop.Object;
+	selectionKeysKeylayout(): interop.Object
 
-  setAttributes(attributes: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): void;
+	setAttributes(
+		attributes:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+	): void
 
-  attributes(): NSDictionary;
+	attributes(): NSDictionary
 
-  setDismissesAutomatically(flag: boolean): void;
+	setDismissesAutomatically(flag: boolean): void
 
-  dismissesAutomatically(): boolean;
+	dismissesAutomatically(): boolean
 
-  selectedCandidate(): number;
+	selectedCandidate(): number
 
-  setCandidateFrameTopLeft(point: CGPoint): void;
+	setCandidateFrameTopLeft(point: CGPoint): void
 
-  showChild(): void;
+	showChild(): void
 
-  hideChild(): void;
+	hideChild(): void
 
-  attachChildToCandidateType(child: IMKCandidates, candidateIdentifier: number, theType: number): void;
+	attachChildToCandidateType(
+		child: IMKCandidates,
+		candidateIdentifier: number,
+		theType: number,
+	): void
 
-  detachChild(candidateIdentifier: number): void;
+	detachChild(candidateIdentifier: number): void
 
-  setCandidateData(candidatesArray: NSArray<interop.Object> | Array<interop.Object>): void;
+	setCandidateData(candidatesArray: NSArray<interop.Object> | Array<interop.Object>): void
 
-  selectCandidateWithIdentifier(candidateIdentifier: number): boolean;
+	selectCandidateWithIdentifier(candidateIdentifier: number): boolean
 
-  selectCandidate(candidateIdentifier: number): void;
+	selectCandidate(candidateIdentifier: number): void
 
-  showCandidates(): void;
+	showCandidates(): void
 
-  candidateStringIdentifier(candidateString: interop.Object): number;
+	candidateStringIdentifier(candidateString: interop.Object): number
 
-  selectedCandidateString(): NSAttributedString;
+	selectedCandidateString(): NSAttributedString
 
-  candidateIdentifierAtLineNumber(lineNumber: number): number;
+	candidateIdentifierAtLineNumber(lineNumber: number): number
 
-  lineNumberForCandidateWithIdentifier(candidateIdentifier: number): number;
+	lineNumberForCandidateWithIdentifier(candidateIdentifier: number): number
 
-  clearSelection(): void;
+	clearSelection(): void
 }
-

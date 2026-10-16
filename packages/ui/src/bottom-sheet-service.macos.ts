@@ -27,10 +27,12 @@ export function openBottomSheetWithOwner(
 	owner: ContentOwner | null,
 	...[Component, params, options = {}]: Parameters<OpenBottomSheet>
 ): BottomSheetHandle {
-	if (owner?.disposed)
+	if (owner?.disposed) {
 		return Object.assign(Promise.reject(new Error('The content outlet has been removed')), {
 			close() {},
 		}) as BottomSheetHandle
+	}
+
 	let closeSheet: ((result?: ModalOpenResult) => void) | undefined
 	const handle = new Promise<ModalOpenResult>((resolve, reject) => {
 		let finished = false

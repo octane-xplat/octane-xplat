@@ -193,16 +193,30 @@ test('host write and scheduling failures settle the run without unhandled reject
 	let tick
 	const error = new Error('host unavailable')
 	const value = createAnimatedValue(0, {
-		now: () => 0, cancel() {}, request(callback) { tick = callback; return 1 },
-		write() { throw error },
+		now: () => 0,
+		cancel() {},
+		request(callback) {
+			tick = callback
+			return 1
+		},
+		write() {
+			throw error
+		},
 	})
+
 	assert.throws(() => value.ref({}), /host unavailable/)
 	const run = value.to(10)
 	tick()
 	assert.deepEqual(await run, { status: 'failed', error })
 	assert.deepEqual(await value.to(10, { duration: 0 }), { status: 'failed', error })
 	const unscheduled = createAnimatedValue(0, {
-		now: () => 0, cancel() {}, request() { throw error }, write() {},
+		now: () => 0,
+		cancel() {},
+		request() {
+			throw error
+		},
+		write() {},
 	})
+
 	assert.deepEqual(await unscheduled.to(10), { status: 'failed', error })
 })

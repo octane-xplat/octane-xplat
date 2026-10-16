@@ -58,9 +58,15 @@ describe('Calendar (web)', () => {
 		const { el, render } = mount(
 			<Calendar mode="single" value="2026-03-15" focusDate="2026-03-01" />,
 		)
-		expect(el.querySelector('[data-date="2026-03-15"]')?.classList.contains('vx-calendar-day--selected')).toBe(true)
+
+		expect(
+			el.querySelector('[data-date="2026-03-15"]')?.classList.contains('vx-calendar-day--selected'),
+		).toBe(true)
+
 		render(<Calendar mode="single" value={null} focusDate="2026-03-01" />)
-		expect(el.querySelector('[data-date="2026-03-15"]')?.classList.contains('vx-calendar-day--selected')).toBe(false)
+		expect(
+			el.querySelector('[data-date="2026-03-15"]')?.classList.contains('vx-calendar-day--selected'),
+		).toBe(false)
 	})
 
 	it('range mode anchors, normalizes order, and commits', () => {
@@ -143,6 +149,7 @@ describe('DateInput (web)', () => {
 		const { el, render } = mount(
 			<DateInput value="2026-03-25" onChange={change} presentation="popover" hasClear />,
 		)
+
 		click(el.querySelector('.vx-dateinput-clear')!)
 		render(<DateInput value={null} onChange={change} presentation="popover" hasClear />)
 		expect((el.querySelector('input') as HTMLInputElement).value).toBe('')
@@ -162,7 +169,10 @@ describe('TimeInput (web)', () => {
 
 	it('reports null when the time field is cleared', () => {
 		const change = vi.fn()
-		const { el } = mount(<TimeInput value="14:30" onChange={change} presentation="text-input" hasClear />)
+		const { el } = mount(
+			<TimeInput value="14:30" onChange={change} presentation="text-input" hasClear />,
+		)
+
 		click(el.querySelector('.vx-timeinput-clear')!)
 		expect(change).toHaveBeenCalledWith(null)
 	})

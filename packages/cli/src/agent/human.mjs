@@ -3,7 +3,9 @@
 const lines = (out, text) => out.push(text)
 
 const prov = (p) =>
-	p ? ` [${p.servedVersion ?? p.source}${p.match ? `, ${p.match}` : ''}${p.offline ? ', offline' : ''}]` : ''
+	p
+		? ` [${p.servedVersion ?? p.source}${p.match ? `, ${p.match}` : ''}${p.offline ? ', offline' : ''}]`
+		: ''
 
 export function renderHuman(command, result, out = []) {
 	const { name } = command
@@ -22,7 +24,11 @@ export function renderHuman(command, result, out = []) {
 			}
 
 			lines(out, '')
-			lines(out, `Planned next (persistent sessions): ${data.planned.map((p) => p.name).join(', ')}`)
+			lines(
+				out,
+				`Planned next (persistent sessions): ${data.planned.map((p) => p.name).join(', ')}`,
+			)
+
 			break
 
 		case 'status': {
@@ -57,7 +63,11 @@ export function renderHuman(command, result, out = []) {
 		}
 
 		case 'app select':
-			lines(out, `Bound ${data.bound.id} (${data.bound.name}) — preference saved for client "${data.preference.client}"`)
+			lines(
+				out,
+				`Bound ${data.bound.id} (${data.bound.name}) — preference saved for client "${data.preference.client}"`,
+			)
+
 			break
 
 		case 'capabilities':
@@ -159,12 +169,24 @@ export function renderHuman(command, result, out = []) {
 		}
 
 		case 'session start':
-			lines(out, `session ${data.session.sessionId} — ${data.session.platform} on ${data.session.targetId} (${data.session.ownership}, ${data.session.state})`)
-			lines(out, `launch job ${data.job.jobId} — ${data.job.state}; poll: xplat job status ${data.job.jobId}`)
+			lines(
+				out,
+				`session ${data.session.sessionId} — ${data.session.platform} on ${data.session.targetId} (${data.session.ownership}, ${data.session.state})`,
+			)
+
+			lines(
+				out,
+				`launch job ${data.job.jobId} — ${data.job.state}; poll: xplat job status ${data.job.jobId}`,
+			)
+
 			break
 
 		case 'session attach':
-			lines(out, `session ${data.session.sessionId} — attached ${data.session.platform} on ${data.session.targetId}${data.detail ? ` (${data.detail})` : ''}`)
+			lines(
+				out,
+				`session ${data.session.sessionId} — attached ${data.session.platform} on ${data.session.targetId}${data.detail ? ` (${data.detail})` : ''}`,
+			)
+
 			break
 
 		case 'session list':
@@ -173,7 +195,10 @@ export function renderHuman(command, result, out = []) {
 			}
 
 			for (const session of data.sessions) {
-				lines(out, `${session.sessionId} — ${session.platform} on ${session.targetId} (${session.ownership}, ${session.state})`)
+				lines(
+					out,
+					`${session.sessionId} — ${session.platform} on ${session.targetId} (${session.ownership}, ${session.state})`,
+				)
 			}
 
 			if (!data.sessions.length && data.host?.state !== 'absent') {
@@ -227,7 +252,10 @@ export function renderHuman(command, result, out = []) {
 
 		case 'inspect':
 			for (const control of data.controls ?? []) {
-				lines(out, `${control.name ?? control.kind} — ${JSON.stringify(control.frame ?? {})}${control.text !== undefined ? ` "${control.text}"` : ''}`)
+				lines(
+					out,
+					`${control.name ?? control.kind} — ${JSON.stringify(control.frame ?? {})}${control.text !== undefined ? ` "${control.text}"` : ''}`,
+				)
 			}
 
 			if (!data.controls?.length) {
@@ -241,11 +269,19 @@ export function renderHuman(command, result, out = []) {
 			break
 
 		case 'interact':
-			lines(out, `Input sent (${data.evidence?.provenance?.mechanism ?? 'unknown'}) — verify app state separately; delivery is not an assertion.`)
+			lines(
+				out,
+				`Input sent (${data.evidence?.provenance?.mechanism ?? 'unknown'}) — verify app state separately; delivery is not an assertion.`,
+			)
+
 			break
 
 		case 'capture':
-			lines(out, `Captured: ${data.evidence?.artifactPath ?? 'artifact recorded'} (${data.evidence?.id})`)
+			lines(
+				out,
+				`Captured: ${data.evidence?.artifactPath ?? 'artifact recorded'} (${data.evidence?.id})`,
+			)
+
 			break
 
 		case 'evidence list':
@@ -264,7 +300,11 @@ export function renderHuman(command, result, out = []) {
 			break
 
 		case 'evidence retain':
-			lines(out, `Retained ${data.record.id} (${data.record.retention.scope}${data.record.retention.expiresAt ? `, expires ${data.record.retention.expiresAt}` : ''})`)
+			lines(
+				out,
+				`Retained ${data.record.id} (${data.record.retention.scope}${data.record.retention.expiresAt ? `, expires ${data.record.retention.expiresAt}` : ''})`,
+			)
+
 			break
 
 		case 'evidence delete':
@@ -274,9 +314,16 @@ export function renderHuman(command, result, out = []) {
 		case 'actions list':
 			lines(out, `${data.state}: ${data.detail}`)
 			for (const instance of data.instances ?? []) {
-				lines(out, `${instance.appInstanceId} — ${instance.platform} rev ${instance.revision} (${instance.state})`)
+				lines(
+					out,
+					`${instance.appInstanceId} — ${instance.platform} rev ${instance.revision} (${instance.state})`,
+				)
+
 				for (const action of instance.actions) {
-					lines(out, `  ${action.id} — ${action.title}${action.liveAvailability?.ready === false ? ` (unavailable: ${action.liveAvailability.reason})` : ''}`)
+					lines(
+						out,
+						`  ${action.id} — ${action.title}${action.liveAvailability?.ready === false ? ` (unavailable: ${action.liveAvailability.reason})` : ''}`,
+					)
 				}
 			}
 

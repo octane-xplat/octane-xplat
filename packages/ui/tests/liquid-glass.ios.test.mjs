@@ -20,7 +20,11 @@ function fixture(glassSupported) {
 	class CoreLiquidGlass {
 		createNativeView() {
 			// Model core's root and child host, not UIKit hit testing.
-			const view = { effect: { kind: glassSupported ? 'glass' : 'empty' }, contentView: { host: {} } }
+			const view = {
+				effect: { kind: glassSupported ? 'glass' : 'empty' },
+				contentView: { host: {} },
+			}
+
 			calls.push(['create', view])
 			return view
 		}

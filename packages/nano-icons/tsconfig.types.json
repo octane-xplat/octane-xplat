@@ -2,19 +2,13 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"jsxImportSource": "octane",
-		"lib": [
-			"ESNext",
-			"DOM",
-			"DOM.Iterable"
-		],
+		"lib": ["ESNext", "DOM", "DOM.Iterable"],
 		"declaration": true,
 		"emitDeclarationOnly": true,
 		"noEmit": false,
 		"rootDir": "src",
 		"outDir": "types/generated",
-		"types": [
-			"node"
-		],
+		"types": ["node"],
 		"moduleSuffixes": [
 			"",
 			".web",

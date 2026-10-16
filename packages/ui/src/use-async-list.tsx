@@ -1,11 +1,7 @@
-import { useEffect, useRef } from 'octane';
-import {
-	createAsyncListData,
-	type AsyncListData,
-	type AsyncListOptions,
-} from './async-list';
+import { useEffect, useRef } from 'octane'
+import { createAsyncListData, type AsyncListData, type AsyncListOptions } from './async-list'
 
-import { useStore } from './use-store';
+import { useStore } from './use-store'
 
 /**
  * React Aria useAsyncList counterpart: managed async list state with
@@ -14,15 +10,15 @@ import { useStore } from './use-store';
  * trigger reloads thereafter.
  */
 export function useAsyncList<T, C = string>(options: AsyncListOptions<T, C>): AsyncListData<T> {
-	const ref = useRef<AsyncListData<T> | null>(null);
+	const ref = useRef<AsyncListData<T> | null>(null)
 	if (ref.current === null) {
-		ref.current = createAsyncListData(options);
+		ref.current = createAsyncListData(options)
 	}
 
-	useStore(ref.current);
+	useStore(ref.current)
 	useEffect(() => {
-		void ref.current!.reload();
-	}, []);
+		void ref.current!.reload()
+	}, [])
 
-	return ref.current;
+	return ref.current
 }

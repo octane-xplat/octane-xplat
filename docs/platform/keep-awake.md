@@ -19,8 +19,8 @@ import { useKeepAwake } from '@octane-xplat/platform'
 import { Text } from '@octane-xplat/ui'
 
 export function ReadingScreen() {
- useKeepAwake()
- return <Text>Your reading screen stays awake while it is open.</Text>
+	useKeepAwake()
+	return <Text>Your reading screen stays awake while it is open.</Text>
 }
 ```
 
@@ -35,13 +35,13 @@ tag twice does not require two deactivations. Omitting the tag uses
 import { keepAwake } from '@octane-xplat/platform'
 
 export async function present(runPresentation: () => Promise<void>) {
- const held = await keepAwake.activate('presentation')
- if (!held) console.log('The screen may sleep')
- try {
-  await runPresentation()
- } finally {
-  await keepAwake.deactivate('presentation')
- }
+	const held = await keepAwake.activate('presentation')
+	if (!held) console.log('The screen may sleep')
+	try {
+		await runPresentation()
+	} finally {
+		await keepAwake.deactivate('presentation')
+	}
 }
 ```
 
@@ -58,10 +58,10 @@ retry, so always deactivate when the activity ends, even after a false result.
 import { keepAwake } from '@octane-xplat/platform'
 
 export async function checkScreenRequest() {
- console.log('Available:', await keepAwake.isAvailable())
- const requested = await keepAwake.activate('reading')
- console.log('Accepted:', requested, 'Held:', await keepAwake.isActivated())
- await keepAwake.deactivate('reading')
+	console.log('Available:', await keepAwake.isAvailable())
+	const requested = await keepAwake.activate('reading')
+	console.log('Accepted:', requested, 'Held:', await keepAwake.isActivated())
+	await keepAwake.deactivate('reading')
 }
 ```
 
@@ -76,12 +76,12 @@ to newly started activities and clears owned windows on the last deactivation.
 import { keepAwake } from '@octane-xplat/platform'
 
 export async function monitorReading() {
- const stop = keepAwake.onRelease?.((tag) => console.log('Released:', tag))
- await keepAwake.activate('reading')
- return async () => {
-  stop?.()
-  await keepAwake.deactivate('reading')
- }
+	const stop = keepAwake.onRelease?.((tag) => console.log('Released:', tag))
+	await keepAwake.activate('reading')
+	return async () => {
+		stop?.()
+		await keepAwake.deactivate('reading')
+	}
 }
 ```
 
@@ -94,24 +94,24 @@ import { useKeepAwake } from '@octane-xplat/platform'
 import { Text } from '@octane-xplat/ui'
 
 export function PresentationScreen() {
- useKeepAwake(undefined, {
-  suppressDeactivateWarnings: true,
-  onRelease: (tag) => console.log('Screen lock released:', tag),
- })
- return <Text>Presentation</Text>
+	useKeepAwake(undefined, {
+		suppressDeactivateWarnings: true,
+		onRelease: (tag) => console.log('Screen lock released:', tag),
+	})
+	return <Text>Presentation</Text>
 }
 ```
 
 ## Target limits and verification
 
-| Target | Mechanism and limits |
-| --- | --- |
-| iOS | Application idle timer; foreground only. No added permission. |
-| Android | `FLAG_KEEP_SCREEN_ON` on activity windows, on the UI thread. No wake-lock permission. |
-| Web | Screen Wake Lock, requiring HTTPS or localhost, a visible document, and permission-policy allowance. Missing API returns false. |
-| macOS | Foundation activity token preventing idle display sleep while permitting idle system sleep; native AppKit and desktop WKWebView hosts. |
-| Linux | Desktop host uses GTK `IDLE` inhibition; a zero cookie returns false. Session support varies. Without that host capability, tries the browser API if exposed by WebKitGTK. Runtime qualification requires a real Linux session. |
-| Windows | Unsupported native leaf; all service methods return false. |
+| Target  | Mechanism and limits                                                                                                                                                                                                            |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| iOS     | Application idle timer; foreground only. No added permission.                                                                                                                                                                   |
+| Android | `FLAG_KEEP_SCREEN_ON` on activity windows, on the UI thread. No wake-lock permission.                                                                                                                                           |
+| Web     | Screen Wake Lock, requiring HTTPS or localhost, a visible document, and permission-policy allowance. Missing API returns false.                                                                                                 |
+| macOS   | Foundation activity token preventing idle display sleep while permitting idle system sleep; native AppKit and desktop WKWebView hosts.                                                                                          |
+| Linux   | Desktop host uses GTK `IDLE` inhibition; a zero cookie returns false. Session support varies. Without that host capability, tries the browser API if exposed by WebKitGTK. Runtime qualification requires a real Linux session. |
+| Windows | Unsupported native leaf; all service methods return false.                                                                                                                                                                      |
 
 This is screen-sleep prevention, not a CPU/background-task wake lock. Linux uses
 `IDLE` rather than `SUSPEND` to preserve that boundary. OS policy still takes

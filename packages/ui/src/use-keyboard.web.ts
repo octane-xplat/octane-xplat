@@ -1,4 +1,9 @@
-import type { KeyboardEvent as NormalizedKeyboardEvent, UseKeyboardOptions, UseKeyboardResult } from './use-keyboard'
+import type {
+	KeyboardEvent as NormalizedKeyboardEvent,
+	UseKeyboardOptions,
+	UseKeyboardResult,
+} from './use-keyboard'
+
 export type { KeyboardEvent, UseKeyboardOptions, UseKeyboardResult } from './use-keyboard'
 
 function normalize(event: NormalizedKeyboardEvent): NormalizedKeyboardEvent {
@@ -10,8 +15,11 @@ function normalize(event: NormalizedKeyboardEvent): NormalizedKeyboardEvent {
 		metaKey: Boolean(event.metaKey),
 		shiftKey: Boolean(event.shiftKey),
 		repeat: Boolean(event.repeat),
-		isComposing: Boolean(event.isComposing) || (event as unknown as { keyCode?: number }).keyCode === 229,
-		get defaultPrevented() { return event.defaultPrevented },
+		isComposing:
+			Boolean(event.isComposing) || (event as unknown as { keyCode?: number }).keyCode === 229,
+		get defaultPrevented() {
+			return event.defaultPrevented
+		},
 		preventDefault: () => event.preventDefault(),
 		stopPropagation: () => event.stopPropagation(),
 	}

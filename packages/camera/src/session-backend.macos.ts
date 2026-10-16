@@ -232,11 +232,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 					return
 				}
 
-				if (
-					!(event.clip.durationMs > 0) ||
-					!(event.clip.width > 0) ||
-					!(event.clip.height > 0)
-				) {
+				if (!(event.clip.durationMs > 0) || !(event.clip.width > 0) || !(event.clip.height > 0)) {
 					sink.settled({
 						kind: 'failed',
 						stage: 'capture',

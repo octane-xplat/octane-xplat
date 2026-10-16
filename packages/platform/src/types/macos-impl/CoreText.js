@@ -13,26 +13,84 @@ export const BslnFormatUnion = /* @__PURE__ */ _bind(FW, 'BslnFormatUnion')
 export const BslnTable = /* @__PURE__ */ _bind(FW, 'BslnTable')
 export const CTAdaptiveImageProviding = /* @__PURE__ */ _bind(FW, 'CTAdaptiveImageProviding')
 export const CTCharacterCollection = /* @__PURE__ */ _bind(FW, 'CTCharacterCollection')
-export const CTFontCollectionCopyExclusionDescriptors = /* @__PURE__ */ _bind(FW, 'CTFontCollectionCopyExclusionDescriptors')
-export const CTFontCollectionCopyFontAttribute = /* @__PURE__ */ _bind(FW, 'CTFontCollectionCopyFontAttribute')
-export const CTFontCollectionCopyFontAttributes = /* @__PURE__ */ _bind(FW, 'CTFontCollectionCopyFontAttributes')
+export const CTFontCollectionCopyExclusionDescriptors = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontCollectionCopyExclusionDescriptors',
+)
+
+export const CTFontCollectionCopyFontAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontCollectionCopyFontAttribute',
+)
+
+export const CTFontCollectionCopyFontAttributes = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontCollectionCopyFontAttributes',
+)
+
 export const CTFontCollectionCopyOptions = /* @__PURE__ */ _bind(FW, 'CTFontCollectionCopyOptions')
-export const CTFontCollectionCopyQueryDescriptors = /* @__PURE__ */ _bind(FW, 'CTFontCollectionCopyQueryDescriptors')
-export const CTFontCollectionCreateCopyWithFontDescriptors = /* @__PURE__ */ _bind(FW, 'CTFontCollectionCreateCopyWithFontDescriptors')
-export const CTFontCollectionCreateFromAvailableFonts = /* @__PURE__ */ _bind(FW, 'CTFontCollectionCreateFromAvailableFonts')
-export const CTFontCollectionCreateMatchingFontDescriptors = /* @__PURE__ */ _bind(FW, 'CTFontCollectionCreateMatchingFontDescriptors')
-export const CTFontCollectionCreateMatchingFontDescriptorsForFamily = /* @__PURE__ */ _bind(FW, 'CTFontCollectionCreateMatchingFontDescriptorsForFamily')
-export const CTFontCollectionCreateMatchingFontDescriptorsSortedWithCallback = /* @__PURE__ */ _bind(FW, 'CTFontCollectionCreateMatchingFontDescriptorsSortedWithCallback')
-export const CTFontCollectionCreateMatchingFontDescriptorsWithOptions = /* @__PURE__ */ _bind(FW, 'CTFontCollectionCreateMatchingFontDescriptorsWithOptions')
-export const CTFontCollectionCreateMutableCopy = /* @__PURE__ */ _bind(FW, 'CTFontCollectionCreateMutableCopy')
-export const CTFontCollectionCreateWithFontDescriptors = /* @__PURE__ */ _bind(FW, 'CTFontCollectionCreateWithFontDescriptors')
+export const CTFontCollectionCopyQueryDescriptors = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontCollectionCopyQueryDescriptors',
+)
+
+export const CTFontCollectionCreateCopyWithFontDescriptors = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontCollectionCreateCopyWithFontDescriptors',
+)
+
+export const CTFontCollectionCreateFromAvailableFonts = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontCollectionCreateFromAvailableFonts',
+)
+
+export const CTFontCollectionCreateMatchingFontDescriptors = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontCollectionCreateMatchingFontDescriptors',
+)
+
+export const CTFontCollectionCreateMatchingFontDescriptorsForFamily = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontCollectionCreateMatchingFontDescriptorsForFamily',
+)
+
+export const CTFontCollectionCreateMatchingFontDescriptorsSortedWithCallback =
+	/* @__PURE__ */ _bind(FW, 'CTFontCollectionCreateMatchingFontDescriptorsSortedWithCallback')
+
+export const CTFontCollectionCreateMatchingFontDescriptorsWithOptions = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontCollectionCreateMatchingFontDescriptorsWithOptions',
+)
+
+export const CTFontCollectionCreateMutableCopy = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontCollectionCreateMutableCopy',
+)
+
+export const CTFontCollectionCreateWithFontDescriptors = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontCollectionCreateWithFontDescriptors',
+)
+
 export const CTFontCollectionGetTypeID = /* @__PURE__ */ _bind(FW, 'CTFontCollectionGetTypeID')
-export const CTFontCollectionSetExclusionDescriptors = /* @__PURE__ */ _bind(FW, 'CTFontCollectionSetExclusionDescriptors')
-export const CTFontCollectionSetQueryDescriptors = /* @__PURE__ */ _bind(FW, 'CTFontCollectionSetQueryDescriptors')
+export const CTFontCollectionSetExclusionDescriptors = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontCollectionSetExclusionDescriptors',
+)
+
+export const CTFontCollectionSetQueryDescriptors = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontCollectionSetQueryDescriptors',
+)
+
 export const CTFontCopyAttribute = /* @__PURE__ */ _bind(FW, 'CTFontCopyAttribute')
 export const CTFontCopyAvailableTables = /* @__PURE__ */ _bind(FW, 'CTFontCopyAvailableTables')
 export const CTFontCopyCharacterSet = /* @__PURE__ */ _bind(FW, 'CTFontCopyCharacterSet')
-export const CTFontCopyDefaultCascadeListForLanguages = /* @__PURE__ */ _bind(FW, 'CTFontCopyDefaultCascadeListForLanguages')
+export const CTFontCopyDefaultCascadeListForLanguages = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontCopyDefaultCascadeListForLanguages',
+)
+
 export const CTFontCopyDisplayName = /* @__PURE__ */ _bind(FW, 'CTFontCopyDisplayName')
 export const CTFontCopyFamilyName = /* @__PURE__ */ _bind(FW, 'CTFontCopyFamilyName')
 export const CTFontCopyFeatureSettings = /* @__PURE__ */ _bind(FW, 'CTFontCopyFeatureSettings')
@@ -44,55 +102,171 @@ export const CTFontCopyLocalizedName = /* @__PURE__ */ _bind(FW, 'CTFontCopyLoca
 export const CTFontCopyName = /* @__PURE__ */ _bind(FW, 'CTFontCopyName')
 export const CTFontCopyNameForGlyph = /* @__PURE__ */ _bind(FW, 'CTFontCopyNameForGlyph')
 export const CTFontCopyPostScriptName = /* @__PURE__ */ _bind(FW, 'CTFontCopyPostScriptName')
-export const CTFontCopySupportedLanguages = /* @__PURE__ */ _bind(FW, 'CTFontCopySupportedLanguages')
+export const CTFontCopySupportedLanguages = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontCopySupportedLanguages',
+)
+
 export const CTFontCopyTable = /* @__PURE__ */ _bind(FW, 'CTFontCopyTable')
 export const CTFontCopyTraits = /* @__PURE__ */ _bind(FW, 'CTFontCopyTraits')
 export const CTFontCopyVariation = /* @__PURE__ */ _bind(FW, 'CTFontCopyVariation')
 export const CTFontCopyVariationAxes = /* @__PURE__ */ _bind(FW, 'CTFontCopyVariationAxes')
-export const CTFontCreateCopyWithAttributes = /* @__PURE__ */ _bind(FW, 'CTFontCreateCopyWithAttributes')
+export const CTFontCreateCopyWithAttributes = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontCreateCopyWithAttributes',
+)
+
 export const CTFontCreateCopyWithFamily = /* @__PURE__ */ _bind(FW, 'CTFontCreateCopyWithFamily')
-export const CTFontCreateCopyWithSymbolicTraits = /* @__PURE__ */ _bind(FW, 'CTFontCreateCopyWithSymbolicTraits')
+export const CTFontCreateCopyWithSymbolicTraits = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontCreateCopyWithSymbolicTraits',
+)
+
 export const CTFontCreateForString = /* @__PURE__ */ _bind(FW, 'CTFontCreateForString')
-export const CTFontCreateForStringWithLanguage = /* @__PURE__ */ _bind(FW, 'CTFontCreateForStringWithLanguage')
+export const CTFontCreateForStringWithLanguage = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontCreateForStringWithLanguage',
+)
+
 export const CTFontCreatePathForGlyph = /* @__PURE__ */ _bind(FW, 'CTFontCreatePathForGlyph')
-export const CTFontCreateUIFontForLanguage = /* @__PURE__ */ _bind(FW, 'CTFontCreateUIFontForLanguage')
-export const CTFontCreateWithFontDescriptor = /* @__PURE__ */ _bind(FW, 'CTFontCreateWithFontDescriptor')
-export const CTFontCreateWithFontDescriptorAndOptions = /* @__PURE__ */ _bind(FW, 'CTFontCreateWithFontDescriptorAndOptions')
-export const CTFontCreateWithGraphicsFont = /* @__PURE__ */ _bind(FW, 'CTFontCreateWithGraphicsFont')
+export const CTFontCreateUIFontForLanguage = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontCreateUIFontForLanguage',
+)
+
+export const CTFontCreateWithFontDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontCreateWithFontDescriptor',
+)
+
+export const CTFontCreateWithFontDescriptorAndOptions = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontCreateWithFontDescriptorAndOptions',
+)
+
+export const CTFontCreateWithGraphicsFont = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontCreateWithGraphicsFont',
+)
+
 export const CTFontCreateWithName = /* @__PURE__ */ _bind(FW, 'CTFontCreateWithName')
-export const CTFontCreateWithNameAndOptions = /* @__PURE__ */ _bind(FW, 'CTFontCreateWithNameAndOptions')
-export const CTFontCreateWithPlatformFont = /* @__PURE__ */ _bind(FW, 'CTFontCreateWithPlatformFont')
-export const CTFontCreateWithQuickdrawInstance = /* @__PURE__ */ _bind(FW, 'CTFontCreateWithQuickdrawInstance')
-export const CTFontDescriptorCopyAttribute = /* @__PURE__ */ _bind(FW, 'CTFontDescriptorCopyAttribute')
-export const CTFontDescriptorCopyAttributes = /* @__PURE__ */ _bind(FW, 'CTFontDescriptorCopyAttributes')
-export const CTFontDescriptorCopyLocalizedAttribute = /* @__PURE__ */ _bind(FW, 'CTFontDescriptorCopyLocalizedAttribute')
-export const CTFontDescriptorCreateCopyWithAttributes = /* @__PURE__ */ _bind(FW, 'CTFontDescriptorCreateCopyWithAttributes')
-export const CTFontDescriptorCreateCopyWithFamily = /* @__PURE__ */ _bind(FW, 'CTFontDescriptorCreateCopyWithFamily')
-export const CTFontDescriptorCreateCopyWithFeature = /* @__PURE__ */ _bind(FW, 'CTFontDescriptorCreateCopyWithFeature')
-export const CTFontDescriptorCreateCopyWithSymbolicTraits = /* @__PURE__ */ _bind(FW, 'CTFontDescriptorCreateCopyWithSymbolicTraits')
-export const CTFontDescriptorCreateCopyWithVariation = /* @__PURE__ */ _bind(FW, 'CTFontDescriptorCreateCopyWithVariation')
-export const CTFontDescriptorCreateMatchingFontDescriptor = /* @__PURE__ */ _bind(FW, 'CTFontDescriptorCreateMatchingFontDescriptor')
-export const CTFontDescriptorCreateMatchingFontDescriptors = /* @__PURE__ */ _bind(FW, 'CTFontDescriptorCreateMatchingFontDescriptors')
-export const CTFontDescriptorCreateWithAttributes = /* @__PURE__ */ _bind(FW, 'CTFontDescriptorCreateWithAttributes')
-export const CTFontDescriptorCreateWithNameAndSize = /* @__PURE__ */ _bind(FW, 'CTFontDescriptorCreateWithNameAndSize')
+export const CTFontCreateWithNameAndOptions = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontCreateWithNameAndOptions',
+)
+
+export const CTFontCreateWithPlatformFont = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontCreateWithPlatformFont',
+)
+
+export const CTFontCreateWithQuickdrawInstance = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontCreateWithQuickdrawInstance',
+)
+
+export const CTFontDescriptorCopyAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontDescriptorCopyAttribute',
+)
+
+export const CTFontDescriptorCopyAttributes = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontDescriptorCopyAttributes',
+)
+
+export const CTFontDescriptorCopyLocalizedAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontDescriptorCopyLocalizedAttribute',
+)
+
+export const CTFontDescriptorCreateCopyWithAttributes = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontDescriptorCreateCopyWithAttributes',
+)
+
+export const CTFontDescriptorCreateCopyWithFamily = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontDescriptorCreateCopyWithFamily',
+)
+
+export const CTFontDescriptorCreateCopyWithFeature = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontDescriptorCreateCopyWithFeature',
+)
+
+export const CTFontDescriptorCreateCopyWithSymbolicTraits = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontDescriptorCreateCopyWithSymbolicTraits',
+)
+
+export const CTFontDescriptorCreateCopyWithVariation = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontDescriptorCreateCopyWithVariation',
+)
+
+export const CTFontDescriptorCreateMatchingFontDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontDescriptorCreateMatchingFontDescriptor',
+)
+
+export const CTFontDescriptorCreateMatchingFontDescriptors = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontDescriptorCreateMatchingFontDescriptors',
+)
+
+export const CTFontDescriptorCreateWithAttributes = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontDescriptorCreateWithAttributes',
+)
+
+export const CTFontDescriptorCreateWithNameAndSize = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontDescriptorCreateWithNameAndSize',
+)
+
 export const CTFontDescriptorGetTypeID = /* @__PURE__ */ _bind(FW, 'CTFontDescriptorGetTypeID')
-export const CTFontDescriptorMatchFontDescriptorsWithProgressHandler = /* @__PURE__ */ _bind(FW, 'CTFontDescriptorMatchFontDescriptorsWithProgressHandler')
-export const CTFontDescriptorMatchingState = /* @__PURE__ */ _bind(FW, 'CTFontDescriptorMatchingState')
+export const CTFontDescriptorMatchFontDescriptorsWithProgressHandler = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontDescriptorMatchFontDescriptorsWithProgressHandler',
+)
+
+export const CTFontDescriptorMatchingState = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontDescriptorMatchingState',
+)
+
 export const CTFontDrawGlyphs = /* @__PURE__ */ _bind(FW, 'CTFontDrawGlyphs')
 export const CTFontFormat = /* @__PURE__ */ _bind(FW, 'CTFontFormat')
 export const CTFontGetAdvancesForGlyphs = /* @__PURE__ */ _bind(FW, 'CTFontGetAdvancesForGlyphs')
 export const CTFontGetAscent = /* @__PURE__ */ _bind(FW, 'CTFontGetAscent')
 export const CTFontGetBoundingBox = /* @__PURE__ */ _bind(FW, 'CTFontGetBoundingBox')
-export const CTFontGetBoundingRectsForGlyphs = /* @__PURE__ */ _bind(FW, 'CTFontGetBoundingRectsForGlyphs')
+export const CTFontGetBoundingRectsForGlyphs = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontGetBoundingRectsForGlyphs',
+)
+
 export const CTFontGetCapHeight = /* @__PURE__ */ _bind(FW, 'CTFontGetCapHeight')
 export const CTFontGetDescent = /* @__PURE__ */ _bind(FW, 'CTFontGetDescent')
 export const CTFontGetGlyphCount = /* @__PURE__ */ _bind(FW, 'CTFontGetGlyphCount')
 export const CTFontGetGlyphWithName = /* @__PURE__ */ _bind(FW, 'CTFontGetGlyphWithName')
-export const CTFontGetGlyphsForCharacters = /* @__PURE__ */ _bind(FW, 'CTFontGetGlyphsForCharacters')
+export const CTFontGetGlyphsForCharacters = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontGetGlyphsForCharacters',
+)
+
 export const CTFontGetLeading = /* @__PURE__ */ _bind(FW, 'CTFontGetLeading')
-export const CTFontGetLigatureCaretPositions = /* @__PURE__ */ _bind(FW, 'CTFontGetLigatureCaretPositions')
+export const CTFontGetLigatureCaretPositions = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontGetLigatureCaretPositions',
+)
+
 export const CTFontGetMatrix = /* @__PURE__ */ _bind(FW, 'CTFontGetMatrix')
-export const CTFontGetOpticalBoundsForGlyphs = /* @__PURE__ */ _bind(FW, 'CTFontGetOpticalBoundsForGlyphs')
+export const CTFontGetOpticalBoundsForGlyphs = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontGetOpticalBoundsForGlyphs',
+)
+
 export const CTFontGetPlatformFont = /* @__PURE__ */ _bind(FW, 'CTFontGetPlatformFont')
 export const CTFontGetSize = /* @__PURE__ */ _bind(FW, 'CTFontGetSize')
 export const CTFontGetSlantAngle = /* @__PURE__ */ _bind(FW, 'CTFontGetSlantAngle')
@@ -103,35 +277,131 @@ export const CTFontGetUIFontType = /* @__PURE__ */ _bind(FW, 'CTFontGetUIFontTyp
 export const CTFontGetUnderlinePosition = /* @__PURE__ */ _bind(FW, 'CTFontGetUnderlinePosition')
 export const CTFontGetUnderlineThickness = /* @__PURE__ */ _bind(FW, 'CTFontGetUnderlineThickness')
 export const CTFontGetUnitsPerEm = /* @__PURE__ */ _bind(FW, 'CTFontGetUnitsPerEm')
-export const CTFontGetVerticalTranslationsForGlyphs = /* @__PURE__ */ _bind(FW, 'CTFontGetVerticalTranslationsForGlyphs')
+export const CTFontGetVerticalTranslationsForGlyphs = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontGetVerticalTranslationsForGlyphs',
+)
+
 export const CTFontGetXHeight = /* @__PURE__ */ _bind(FW, 'CTFontGetXHeight')
 export const CTFontHasTable = /* @__PURE__ */ _bind(FW, 'CTFontHasTable')
-export const CTFontManagerAutoActivationSetting = /* @__PURE__ */ _bind(FW, 'CTFontManagerAutoActivationSetting')
-export const CTFontManagerCompareFontFamilyNames = /* @__PURE__ */ _bind(FW, 'CTFontManagerCompareFontFamilyNames')
-export const CTFontManagerCopyAvailableFontFamilyNames = /* @__PURE__ */ _bind(FW, 'CTFontManagerCopyAvailableFontFamilyNames')
-export const CTFontManagerCopyAvailableFontURLs = /* @__PURE__ */ _bind(FW, 'CTFontManagerCopyAvailableFontURLs')
-export const CTFontManagerCopyAvailablePostScriptNames = /* @__PURE__ */ _bind(FW, 'CTFontManagerCopyAvailablePostScriptNames')
-export const CTFontManagerCreateFontDescriptorFromData = /* @__PURE__ */ _bind(FW, 'CTFontManagerCreateFontDescriptorFromData')
-export const CTFontManagerCreateFontDescriptorsFromData = /* @__PURE__ */ _bind(FW, 'CTFontManagerCreateFontDescriptorsFromData')
-export const CTFontManagerCreateFontDescriptorsFromURL = /* @__PURE__ */ _bind(FW, 'CTFontManagerCreateFontDescriptorsFromURL')
-export const CTFontManagerCreateFontRequestRunLoopSource = /* @__PURE__ */ _bind(FW, 'CTFontManagerCreateFontRequestRunLoopSource')
-export const CTFontManagerEnableFontDescriptors = /* @__PURE__ */ _bind(FW, 'CTFontManagerEnableFontDescriptors')
+export const CTFontManagerAutoActivationSetting = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontManagerAutoActivationSetting',
+)
+
+export const CTFontManagerCompareFontFamilyNames = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontManagerCompareFontFamilyNames',
+)
+
+export const CTFontManagerCopyAvailableFontFamilyNames = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontManagerCopyAvailableFontFamilyNames',
+)
+
+export const CTFontManagerCopyAvailableFontURLs = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontManagerCopyAvailableFontURLs',
+)
+
+export const CTFontManagerCopyAvailablePostScriptNames = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontManagerCopyAvailablePostScriptNames',
+)
+
+export const CTFontManagerCreateFontDescriptorFromData = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontManagerCreateFontDescriptorFromData',
+)
+
+export const CTFontManagerCreateFontDescriptorsFromData = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontManagerCreateFontDescriptorsFromData',
+)
+
+export const CTFontManagerCreateFontDescriptorsFromURL = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontManagerCreateFontDescriptorsFromURL',
+)
+
+export const CTFontManagerCreateFontRequestRunLoopSource = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontManagerCreateFontRequestRunLoopSource',
+)
+
+export const CTFontManagerEnableFontDescriptors = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontManagerEnableFontDescriptors',
+)
+
 export const CTFontManagerError = /* @__PURE__ */ _bind(FW, 'CTFontManagerError')
-export const CTFontManagerGetAutoActivationSetting = /* @__PURE__ */ _bind(FW, 'CTFontManagerGetAutoActivationSetting')
+export const CTFontManagerGetAutoActivationSetting = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontManagerGetAutoActivationSetting',
+)
+
 export const CTFontManagerGetScopeForURL = /* @__PURE__ */ _bind(FW, 'CTFontManagerGetScopeForURL')
-export const CTFontManagerIsSupportedFont = /* @__PURE__ */ _bind(FW, 'CTFontManagerIsSupportedFont')
-export const CTFontManagerRegisterFontDescriptors = /* @__PURE__ */ _bind(FW, 'CTFontManagerRegisterFontDescriptors')
-export const CTFontManagerRegisterFontURLs = /* @__PURE__ */ _bind(FW, 'CTFontManagerRegisterFontURLs')
-export const CTFontManagerRegisterFontsForURL = /* @__PURE__ */ _bind(FW, 'CTFontManagerRegisterFontsForURL')
-export const CTFontManagerRegisterFontsForURLs = /* @__PURE__ */ _bind(FW, 'CTFontManagerRegisterFontsForURLs')
-export const CTFontManagerRegisterGraphicsFont = /* @__PURE__ */ _bind(FW, 'CTFontManagerRegisterGraphicsFont')
+export const CTFontManagerIsSupportedFont = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontManagerIsSupportedFont',
+)
+
+export const CTFontManagerRegisterFontDescriptors = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontManagerRegisterFontDescriptors',
+)
+
+export const CTFontManagerRegisterFontURLs = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontManagerRegisterFontURLs',
+)
+
+export const CTFontManagerRegisterFontsForURL = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontManagerRegisterFontsForURL',
+)
+
+export const CTFontManagerRegisterFontsForURLs = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontManagerRegisterFontsForURLs',
+)
+
+export const CTFontManagerRegisterGraphicsFont = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontManagerRegisterGraphicsFont',
+)
+
 export const CTFontManagerScope = /* @__PURE__ */ _bind(FW, 'CTFontManagerScope')
-export const CTFontManagerSetAutoActivationSetting = /* @__PURE__ */ _bind(FW, 'CTFontManagerSetAutoActivationSetting')
-export const CTFontManagerUnregisterFontDescriptors = /* @__PURE__ */ _bind(FW, 'CTFontManagerUnregisterFontDescriptors')
-export const CTFontManagerUnregisterFontURLs = /* @__PURE__ */ _bind(FW, 'CTFontManagerUnregisterFontURLs')
-export const CTFontManagerUnregisterFontsForURL = /* @__PURE__ */ _bind(FW, 'CTFontManagerUnregisterFontsForURL')
-export const CTFontManagerUnregisterFontsForURLs = /* @__PURE__ */ _bind(FW, 'CTFontManagerUnregisterFontsForURLs')
-export const CTFontManagerUnregisterGraphicsFont = /* @__PURE__ */ _bind(FW, 'CTFontManagerUnregisterGraphicsFont')
+export const CTFontManagerSetAutoActivationSetting = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontManagerSetAutoActivationSetting',
+)
+
+export const CTFontManagerUnregisterFontDescriptors = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontManagerUnregisterFontDescriptors',
+)
+
+export const CTFontManagerUnregisterFontURLs = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontManagerUnregisterFontURLs',
+)
+
+export const CTFontManagerUnregisterFontsForURL = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontManagerUnregisterFontsForURL',
+)
+
+export const CTFontManagerUnregisterFontsForURLs = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontManagerUnregisterFontsForURLs',
+)
+
+export const CTFontManagerUnregisterGraphicsFont = /* @__PURE__ */ _bind(
+	FW,
+	'CTFontManagerUnregisterGraphicsFont',
+)
+
 export const CTFontOptions = /* @__PURE__ */ _bind(FW, 'CTFontOptions')
 export const CTFontOrientation = /* @__PURE__ */ _bind(FW, 'CTFontOrientation')
 export const CTFontStylisticClass = /* @__PURE__ */ _bind(FW, 'CTFontStylisticClass')
@@ -145,21 +415,53 @@ export const CTFrameGetLines = /* @__PURE__ */ _bind(FW, 'CTFrameGetLines')
 export const CTFrameGetPath = /* @__PURE__ */ _bind(FW, 'CTFrameGetPath')
 export const CTFrameGetStringRange = /* @__PURE__ */ _bind(FW, 'CTFrameGetStringRange')
 export const CTFrameGetTypeID = /* @__PURE__ */ _bind(FW, 'CTFrameGetTypeID')
-export const CTFrameGetVisibleStringRange = /* @__PURE__ */ _bind(FW, 'CTFrameGetVisibleStringRange')
+export const CTFrameGetVisibleStringRange = /* @__PURE__ */ _bind(
+	FW,
+	'CTFrameGetVisibleStringRange',
+)
+
 export const CTFramePathFillRule = /* @__PURE__ */ _bind(FW, 'CTFramePathFillRule')
 export const CTFrameProgression = /* @__PURE__ */ _bind(FW, 'CTFrameProgression')
 export const CTFramesetterCreateFrame = /* @__PURE__ */ _bind(FW, 'CTFramesetterCreateFrame')
-export const CTFramesetterCreateWithAttributedString = /* @__PURE__ */ _bind(FW, 'CTFramesetterCreateWithAttributedString')
-export const CTFramesetterCreateWithTypesetter = /* @__PURE__ */ _bind(FW, 'CTFramesetterCreateWithTypesetter')
+export const CTFramesetterCreateWithAttributedString = /* @__PURE__ */ _bind(
+	FW,
+	'CTFramesetterCreateWithAttributedString',
+)
+
+export const CTFramesetterCreateWithTypesetter = /* @__PURE__ */ _bind(
+	FW,
+	'CTFramesetterCreateWithTypesetter',
+)
+
 export const CTFramesetterGetTypeID = /* @__PURE__ */ _bind(FW, 'CTFramesetterGetTypeID')
 export const CTFramesetterGetTypesetter = /* @__PURE__ */ _bind(FW, 'CTFramesetterGetTypesetter')
-export const CTFramesetterSuggestFrameSizeWithConstraints = /* @__PURE__ */ _bind(FW, 'CTFramesetterSuggestFrameSizeWithConstraints')
+export const CTFramesetterSuggestFrameSizeWithConstraints = /* @__PURE__ */ _bind(
+	FW,
+	'CTFramesetterSuggestFrameSizeWithConstraints',
+)
+
 export const CTGetCoreTextVersion = /* @__PURE__ */ _bind(FW, 'CTGetCoreTextVersion')
-export const CTGlyphInfoCreateWithCharacterIdentifier = /* @__PURE__ */ _bind(FW, 'CTGlyphInfoCreateWithCharacterIdentifier')
+export const CTGlyphInfoCreateWithCharacterIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'CTGlyphInfoCreateWithCharacterIdentifier',
+)
+
 export const CTGlyphInfoCreateWithGlyph = /* @__PURE__ */ _bind(FW, 'CTGlyphInfoCreateWithGlyph')
-export const CTGlyphInfoCreateWithGlyphName = /* @__PURE__ */ _bind(FW, 'CTGlyphInfoCreateWithGlyphName')
-export const CTGlyphInfoGetCharacterCollection = /* @__PURE__ */ _bind(FW, 'CTGlyphInfoGetCharacterCollection')
-export const CTGlyphInfoGetCharacterIdentifier = /* @__PURE__ */ _bind(FW, 'CTGlyphInfoGetCharacterIdentifier')
+export const CTGlyphInfoCreateWithGlyphName = /* @__PURE__ */ _bind(
+	FW,
+	'CTGlyphInfoCreateWithGlyphName',
+)
+
+export const CTGlyphInfoGetCharacterCollection = /* @__PURE__ */ _bind(
+	FW,
+	'CTGlyphInfoGetCharacterCollection',
+)
+
+export const CTGlyphInfoGetCharacterIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'CTGlyphInfoGetCharacterIdentifier',
+)
+
 export const CTGlyphInfoGetGlyph = /* @__PURE__ */ _bind(FW, 'CTGlyphInfoGetGlyph')
 export const CTGlyphInfoGetGlyphName = /* @__PURE__ */ _bind(FW, 'CTGlyphInfoGetGlyphName')
 export const CTGlyphInfoGetTypeID = /* @__PURE__ */ _bind(FW, 'CTGlyphInfoGetTypeID')
@@ -167,35 +469,71 @@ export const CTLineBoundsOptions = /* @__PURE__ */ _bind(FW, 'CTLineBoundsOption
 export const CTLineBreakMode = /* @__PURE__ */ _bind(FW, 'CTLineBreakMode')
 export const CTLineCreateJustifiedLine = /* @__PURE__ */ _bind(FW, 'CTLineCreateJustifiedLine')
 export const CTLineCreateTruncatedLine = /* @__PURE__ */ _bind(FW, 'CTLineCreateTruncatedLine')
-export const CTLineCreateWithAttributedString = /* @__PURE__ */ _bind(FW, 'CTLineCreateWithAttributedString')
+export const CTLineCreateWithAttributedString = /* @__PURE__ */ _bind(
+	FW,
+	'CTLineCreateWithAttributedString',
+)
+
 export const CTLineDraw = /* @__PURE__ */ _bind(FW, 'CTLineDraw')
 export const CTLineEnumerateCaretOffsets = /* @__PURE__ */ _bind(FW, 'CTLineEnumerateCaretOffsets')
 export const CTLineGetBoundsWithOptions = /* @__PURE__ */ _bind(FW, 'CTLineGetBoundsWithOptions')
 export const CTLineGetGlyphCount = /* @__PURE__ */ _bind(FW, 'CTLineGetGlyphCount')
 export const CTLineGetGlyphRuns = /* @__PURE__ */ _bind(FW, 'CTLineGetGlyphRuns')
 export const CTLineGetImageBounds = /* @__PURE__ */ _bind(FW, 'CTLineGetImageBounds')
-export const CTLineGetOffsetForStringIndex = /* @__PURE__ */ _bind(FW, 'CTLineGetOffsetForStringIndex')
+export const CTLineGetOffsetForStringIndex = /* @__PURE__ */ _bind(
+	FW,
+	'CTLineGetOffsetForStringIndex',
+)
+
 export const CTLineGetPenOffsetForFlush = /* @__PURE__ */ _bind(FW, 'CTLineGetPenOffsetForFlush')
-export const CTLineGetStringIndexForPosition = /* @__PURE__ */ _bind(FW, 'CTLineGetStringIndexForPosition')
+export const CTLineGetStringIndexForPosition = /* @__PURE__ */ _bind(
+	FW,
+	'CTLineGetStringIndexForPosition',
+)
+
 export const CTLineGetStringRange = /* @__PURE__ */ _bind(FW, 'CTLineGetStringRange')
-export const CTLineGetTrailingWhitespaceWidth = /* @__PURE__ */ _bind(FW, 'CTLineGetTrailingWhitespaceWidth')
+export const CTLineGetTrailingWhitespaceWidth = /* @__PURE__ */ _bind(
+	FW,
+	'CTLineGetTrailingWhitespaceWidth',
+)
+
 export const CTLineGetTypeID = /* @__PURE__ */ _bind(FW, 'CTLineGetTypeID')
 export const CTLineGetTypographicBounds = /* @__PURE__ */ _bind(FW, 'CTLineGetTypographicBounds')
 export const CTLineTruncationType = /* @__PURE__ */ _bind(FW, 'CTLineTruncationType')
 export const CTParagraphStyleCreate = /* @__PURE__ */ _bind(FW, 'CTParagraphStyleCreate')
 export const CTParagraphStyleCreateCopy = /* @__PURE__ */ _bind(FW, 'CTParagraphStyleCreateCopy')
 export const CTParagraphStyleGetTypeID = /* @__PURE__ */ _bind(FW, 'CTParagraphStyleGetTypeID')
-export const CTParagraphStyleGetValueForSpecifier = /* @__PURE__ */ _bind(FW, 'CTParagraphStyleGetValueForSpecifier')
+export const CTParagraphStyleGetValueForSpecifier = /* @__PURE__ */ _bind(
+	FW,
+	'CTParagraphStyleGetValueForSpecifier',
+)
+
 export const CTParagraphStyleSetting = /* @__PURE__ */ _bind(FW, 'CTParagraphStyleSetting')
 export const CTParagraphStyleSpecifier = /* @__PURE__ */ _bind(FW, 'CTParagraphStyleSpecifier')
 export const CTRubyAlignment = /* @__PURE__ */ _bind(FW, 'CTRubyAlignment')
 export const CTRubyAnnotationCreate = /* @__PURE__ */ _bind(FW, 'CTRubyAnnotationCreate')
 export const CTRubyAnnotationCreateCopy = /* @__PURE__ */ _bind(FW, 'CTRubyAnnotationCreateCopy')
-export const CTRubyAnnotationCreateWithAttributes = /* @__PURE__ */ _bind(FW, 'CTRubyAnnotationCreateWithAttributes')
-export const CTRubyAnnotationGetAlignment = /* @__PURE__ */ _bind(FW, 'CTRubyAnnotationGetAlignment')
+export const CTRubyAnnotationCreateWithAttributes = /* @__PURE__ */ _bind(
+	FW,
+	'CTRubyAnnotationCreateWithAttributes',
+)
+
+export const CTRubyAnnotationGetAlignment = /* @__PURE__ */ _bind(
+	FW,
+	'CTRubyAnnotationGetAlignment',
+)
+
 export const CTRubyAnnotationGetOverhang = /* @__PURE__ */ _bind(FW, 'CTRubyAnnotationGetOverhang')
-export const CTRubyAnnotationGetSizeFactor = /* @__PURE__ */ _bind(FW, 'CTRubyAnnotationGetSizeFactor')
-export const CTRubyAnnotationGetTextForPosition = /* @__PURE__ */ _bind(FW, 'CTRubyAnnotationGetTextForPosition')
+export const CTRubyAnnotationGetSizeFactor = /* @__PURE__ */ _bind(
+	FW,
+	'CTRubyAnnotationGetSizeFactor',
+)
+
+export const CTRubyAnnotationGetTextForPosition = /* @__PURE__ */ _bind(
+	FW,
+	'CTRubyAnnotationGetTextForPosition',
+)
+
 export const CTRubyAnnotationGetTypeID = /* @__PURE__ */ _bind(FW, 'CTRubyAnnotationGetTypeID')
 export const CTRubyOverhang = /* @__PURE__ */ _bind(FW, 'CTRubyOverhang')
 export const CTRubyPosition = /* @__PURE__ */ _bind(FW, 'CTRubyPosition')
@@ -207,7 +545,11 @@ export const CTRunDraw = /* @__PURE__ */ _bind(FW, 'CTRunDraw')
 export const CTRunGetAdvances = /* @__PURE__ */ _bind(FW, 'CTRunGetAdvances')
 export const CTRunGetAdvancesPtr = /* @__PURE__ */ _bind(FW, 'CTRunGetAdvancesPtr')
 export const CTRunGetAttributes = /* @__PURE__ */ _bind(FW, 'CTRunGetAttributes')
-export const CTRunGetBaseAdvancesAndOrigins = /* @__PURE__ */ _bind(FW, 'CTRunGetBaseAdvancesAndOrigins')
+export const CTRunGetBaseAdvancesAndOrigins = /* @__PURE__ */ _bind(
+	FW,
+	'CTRunGetBaseAdvancesAndOrigins',
+)
+
 export const CTRunGetGlyphCount = /* @__PURE__ */ _bind(FW, 'CTRunGetGlyphCount')
 export const CTRunGetGlyphs = /* @__PURE__ */ _bind(FW, 'CTRunGetGlyphs')
 export const CTRunGetGlyphsPtr = /* @__PURE__ */ _bind(FW, 'CTRunGetGlyphsPtr')
@@ -229,14 +571,42 @@ export const CTTextTabGetLocation = /* @__PURE__ */ _bind(FW, 'CTTextTabGetLocat
 export const CTTextTabGetOptions = /* @__PURE__ */ _bind(FW, 'CTTextTabGetOptions')
 export const CTTextTabGetTypeID = /* @__PURE__ */ _bind(FW, 'CTTextTabGetTypeID')
 export const CTTypesetterCreateLine = /* @__PURE__ */ _bind(FW, 'CTTypesetterCreateLine')
-export const CTTypesetterCreateLineWithOffset = /* @__PURE__ */ _bind(FW, 'CTTypesetterCreateLineWithOffset')
-export const CTTypesetterCreateWithAttributedString = /* @__PURE__ */ _bind(FW, 'CTTypesetterCreateWithAttributedString')
-export const CTTypesetterCreateWithAttributedStringAndOptions = /* @__PURE__ */ _bind(FW, 'CTTypesetterCreateWithAttributedStringAndOptions')
+export const CTTypesetterCreateLineWithOffset = /* @__PURE__ */ _bind(
+	FW,
+	'CTTypesetterCreateLineWithOffset',
+)
+
+export const CTTypesetterCreateWithAttributedString = /* @__PURE__ */ _bind(
+	FW,
+	'CTTypesetterCreateWithAttributedString',
+)
+
+export const CTTypesetterCreateWithAttributedStringAndOptions = /* @__PURE__ */ _bind(
+	FW,
+	'CTTypesetterCreateWithAttributedStringAndOptions',
+)
+
 export const CTTypesetterGetTypeID = /* @__PURE__ */ _bind(FW, 'CTTypesetterGetTypeID')
-export const CTTypesetterSuggestClusterBreak = /* @__PURE__ */ _bind(FW, 'CTTypesetterSuggestClusterBreak')
-export const CTTypesetterSuggestClusterBreakWithOffset = /* @__PURE__ */ _bind(FW, 'CTTypesetterSuggestClusterBreakWithOffset')
-export const CTTypesetterSuggestLineBreak = /* @__PURE__ */ _bind(FW, 'CTTypesetterSuggestLineBreak')
-export const CTTypesetterSuggestLineBreakWithOffset = /* @__PURE__ */ _bind(FW, 'CTTypesetterSuggestLineBreakWithOffset')
+export const CTTypesetterSuggestClusterBreak = /* @__PURE__ */ _bind(
+	FW,
+	'CTTypesetterSuggestClusterBreak',
+)
+
+export const CTTypesetterSuggestClusterBreakWithOffset = /* @__PURE__ */ _bind(
+	FW,
+	'CTTypesetterSuggestClusterBreakWithOffset',
+)
+
+export const CTTypesetterSuggestLineBreak = /* @__PURE__ */ _bind(
+	FW,
+	'CTTypesetterSuggestLineBreak',
+)
+
+export const CTTypesetterSuggestLineBreakWithOffset = /* @__PURE__ */ _bind(
+	FW,
+	'CTTypesetterSuggestLineBreakWithOffset',
+)
+
 export const CTUnderlineStyle = /* @__PURE__ */ _bind(FW, 'CTUnderlineStyle')
 export const CTUnderlineStyleModifiers = /* @__PURE__ */ _bind(FW, 'CTUnderlineStyleModifiers')
 export const CTWritingDirection = /* @__PURE__ */ _bind(FW, 'CTWritingDirection')
@@ -310,14 +680,26 @@ export const PropTable = /* @__PURE__ */ _bind(FW, 'PropTable')
 export const ROTAGlyphEntry = /* @__PURE__ */ _bind(FW, 'ROTAGlyphEntry')
 export const ROTAHeader = /* @__PURE__ */ _bind(FW, 'ROTAHeader')
 export const SFNTLookupArrayHeader = /* @__PURE__ */ _bind(FW, 'SFNTLookupArrayHeader')
-export const SFNTLookupBinarySearchHeader = /* @__PURE__ */ _bind(FW, 'SFNTLookupBinarySearchHeader')
-export const SFNTLookupFormatSpecificHeader = /* @__PURE__ */ _bind(FW, 'SFNTLookupFormatSpecificHeader')
+export const SFNTLookupBinarySearchHeader = /* @__PURE__ */ _bind(
+	FW,
+	'SFNTLookupBinarySearchHeader',
+)
+
+export const SFNTLookupFormatSpecificHeader = /* @__PURE__ */ _bind(
+	FW,
+	'SFNTLookupFormatSpecificHeader',
+)
+
 export const SFNTLookupSegment = /* @__PURE__ */ _bind(FW, 'SFNTLookupSegment')
 export const SFNTLookupSegmentHeader = /* @__PURE__ */ _bind(FW, 'SFNTLookupSegmentHeader')
 export const SFNTLookupSingle = /* @__PURE__ */ _bind(FW, 'SFNTLookupSingle')
 export const SFNTLookupSingleHeader = /* @__PURE__ */ _bind(FW, 'SFNTLookupSingleHeader')
 export const SFNTLookupTable = /* @__PURE__ */ _bind(FW, 'SFNTLookupTable')
-export const SFNTLookupTrimmedArrayHeader = /* @__PURE__ */ _bind(FW, 'SFNTLookupTrimmedArrayHeader')
+export const SFNTLookupTrimmedArrayHeader = /* @__PURE__ */ _bind(
+	FW,
+	'SFNTLookupTrimmedArrayHeader',
+)
+
 export const SFNTLookupVectorHeader = /* @__PURE__ */ _bind(FW, 'SFNTLookupVectorHeader')
 export const STClassTable = /* @__PURE__ */ _bind(FW, 'STClassTable')
 export const STEntryOne = /* @__PURE__ */ _bind(FW, 'STEntryOne')
@@ -348,31 +730,83 @@ export const cmapFontTableTag = /* @__PURE__ */ _bind(FW, 'cmapFontTableTag')
 export const descriptorFontTableTag = /* @__PURE__ */ _bind(FW, 'descriptorFontTableTag')
 export const featureFontTableTag = /* @__PURE__ */ _bind(FW, 'featureFontTableTag')
 export const kANKRCurrentVersion = /* @__PURE__ */ _bind(FW, 'kANKRCurrentVersion')
-export const kAbbrevSquaredLigaturesOffSelector = /* @__PURE__ */ _bind(FW, 'kAbbrevSquaredLigaturesOffSelector')
-export const kAbbrevSquaredLigaturesOnSelector = /* @__PURE__ */ _bind(FW, 'kAbbrevSquaredLigaturesOnSelector')
+export const kAbbrevSquaredLigaturesOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kAbbrevSquaredLigaturesOffSelector',
+)
+
+export const kAbbrevSquaredLigaturesOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kAbbrevSquaredLigaturesOnSelector',
+)
+
 export const kAllCapsSelector = /* @__PURE__ */ _bind(FW, 'kAllCapsSelector')
 export const kAllLowerCaseSelector = /* @__PURE__ */ _bind(FW, 'kAllLowerCaseSelector')
 export const kAllTypeFeaturesOffSelector = /* @__PURE__ */ _bind(FW, 'kAllTypeFeaturesOffSelector')
 export const kAllTypeFeaturesOnSelector = /* @__PURE__ */ _bind(FW, 'kAllTypeFeaturesOnSelector')
 export const kAllTypographicFeaturesType = /* @__PURE__ */ _bind(FW, 'kAllTypographicFeaturesType')
 export const kAltHalfWidthTextSelector = /* @__PURE__ */ _bind(FW, 'kAltHalfWidthTextSelector')
-export const kAltProportionalTextSelector = /* @__PURE__ */ _bind(FW, 'kAltProportionalTextSelector')
-export const kAlternateHorizKanaOffSelector = /* @__PURE__ */ _bind(FW, 'kAlternateHorizKanaOffSelector')
-export const kAlternateHorizKanaOnSelector = /* @__PURE__ */ _bind(FW, 'kAlternateHorizKanaOnSelector')
+export const kAltProportionalTextSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kAltProportionalTextSelector',
+)
+
+export const kAlternateHorizKanaOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kAlternateHorizKanaOffSelector',
+)
+
+export const kAlternateHorizKanaOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kAlternateHorizKanaOnSelector',
+)
+
 export const kAlternateKanaType = /* @__PURE__ */ _bind(FW, 'kAlternateKanaType')
-export const kAlternateVertKanaOffSelector = /* @__PURE__ */ _bind(FW, 'kAlternateVertKanaOffSelector')
-export const kAlternateVertKanaOnSelector = /* @__PURE__ */ _bind(FW, 'kAlternateVertKanaOnSelector')
+export const kAlternateVertKanaOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kAlternateVertKanaOffSelector',
+)
+
+export const kAlternateVertKanaOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kAlternateVertKanaOnSelector',
+)
+
 export const kAnnotationType = /* @__PURE__ */ _bind(FW, 'kAnnotationType')
-export const kAsteriskToMultiplyOffSelector = /* @__PURE__ */ _bind(FW, 'kAsteriskToMultiplyOffSelector')
-export const kAsteriskToMultiplyOnSelector = /* @__PURE__ */ _bind(FW, 'kAsteriskToMultiplyOnSelector')
-export const kBSLNControlPointFormatNoMap = /* @__PURE__ */ _bind(FW, 'kBSLNControlPointFormatNoMap')
-export const kBSLNControlPointFormatWithMap = /* @__PURE__ */ _bind(FW, 'kBSLNControlPointFormatWithMap')
+export const kAsteriskToMultiplyOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kAsteriskToMultiplyOffSelector',
+)
+
+export const kAsteriskToMultiplyOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kAsteriskToMultiplyOnSelector',
+)
+
+export const kBSLNControlPointFormatNoMap = /* @__PURE__ */ _bind(
+	FW,
+	'kBSLNControlPointFormatNoMap',
+)
+
+export const kBSLNControlPointFormatWithMap = /* @__PURE__ */ _bind(
+	FW,
+	'kBSLNControlPointFormatWithMap',
+)
+
 export const kBSLNCurrentVersion = /* @__PURE__ */ _bind(FW, 'kBSLNCurrentVersion')
 export const kBSLNDistanceFormatNoMap = /* @__PURE__ */ _bind(FW, 'kBSLNDistanceFormatNoMap')
 export const kBSLNDistanceFormatWithMap = /* @__PURE__ */ _bind(FW, 'kBSLNDistanceFormatWithMap')
 export const kBSLNHangingBaseline = /* @__PURE__ */ _bind(FW, 'kBSLNHangingBaseline')
-export const kBSLNIdeographicCenterBaseline = /* @__PURE__ */ _bind(FW, 'kBSLNIdeographicCenterBaseline')
-export const kBSLNIdeographicHighBaseline = /* @__PURE__ */ _bind(FW, 'kBSLNIdeographicHighBaseline')
+export const kBSLNIdeographicCenterBaseline = /* @__PURE__ */ _bind(
+	FW,
+	'kBSLNIdeographicCenterBaseline',
+)
+
+export const kBSLNIdeographicHighBaseline = /* @__PURE__ */ _bind(
+	FW,
+	'kBSLNIdeographicHighBaseline',
+)
+
 export const kBSLNIdeographicLowBaseline = /* @__PURE__ */ _bind(FW, 'kBSLNIdeographicLowBaseline')
 export const kBSLNLastBaseline = /* @__PURE__ */ _bind(FW, 'kBSLNLastBaseline')
 export const kBSLNMathBaseline = /* @__PURE__ */ _bind(FW, 'kBSLNMathBaseline')
@@ -392,73 +826,237 @@ export const kCJKSymbolAltOneSelector = /* @__PURE__ */ _bind(FW, 'kCJKSymbolAlt
 export const kCJKSymbolAltThreeSelector = /* @__PURE__ */ _bind(FW, 'kCJKSymbolAltThreeSelector')
 export const kCJKSymbolAltTwoSelector = /* @__PURE__ */ _bind(FW, 'kCJKSymbolAltTwoSelector')
 export const kCJKSymbolAlternativesType = /* @__PURE__ */ _bind(FW, 'kCJKSymbolAlternativesType')
-export const kCJKVerticalRomanCenteredSelector = /* @__PURE__ */ _bind(FW, 'kCJKVerticalRomanCenteredSelector')
-export const kCJKVerticalRomanHBaselineSelector = /* @__PURE__ */ _bind(FW, 'kCJKVerticalRomanHBaselineSelector')
-export const kCJKVerticalRomanPlacementType = /* @__PURE__ */ _bind(FW, 'kCJKVerticalRomanPlacementType')
-export const kCTBackgroundColorAttributeName = /* @__PURE__ */ _bind(FW, 'kCTBackgroundColorAttributeName')
-export const kCTBaselineClassAttributeName = /* @__PURE__ */ _bind(FW, 'kCTBaselineClassAttributeName')
+export const kCJKVerticalRomanCenteredSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kCJKVerticalRomanCenteredSelector',
+)
+
+export const kCJKVerticalRomanHBaselineSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kCJKVerticalRomanHBaselineSelector',
+)
+
+export const kCJKVerticalRomanPlacementType = /* @__PURE__ */ _bind(
+	FW,
+	'kCJKVerticalRomanPlacementType',
+)
+
+export const kCTBackgroundColorAttributeName = /* @__PURE__ */ _bind(
+	FW,
+	'kCTBackgroundColorAttributeName',
+)
+
+export const kCTBaselineClassAttributeName = /* @__PURE__ */ _bind(
+	FW,
+	'kCTBaselineClassAttributeName',
+)
+
 export const kCTBaselineClassHanging = /* @__PURE__ */ _bind(FW, 'kCTBaselineClassHanging')
-export const kCTBaselineClassIdeographicCentered = /* @__PURE__ */ _bind(FW, 'kCTBaselineClassIdeographicCentered')
-export const kCTBaselineClassIdeographicHigh = /* @__PURE__ */ _bind(FW, 'kCTBaselineClassIdeographicHigh')
-export const kCTBaselineClassIdeographicLow = /* @__PURE__ */ _bind(FW, 'kCTBaselineClassIdeographicLow')
+export const kCTBaselineClassIdeographicCentered = /* @__PURE__ */ _bind(
+	FW,
+	'kCTBaselineClassIdeographicCentered',
+)
+
+export const kCTBaselineClassIdeographicHigh = /* @__PURE__ */ _bind(
+	FW,
+	'kCTBaselineClassIdeographicHigh',
+)
+
+export const kCTBaselineClassIdeographicLow = /* @__PURE__ */ _bind(
+	FW,
+	'kCTBaselineClassIdeographicLow',
+)
+
 export const kCTBaselineClassMath = /* @__PURE__ */ _bind(FW, 'kCTBaselineClassMath')
 export const kCTBaselineClassRoman = /* @__PURE__ */ _bind(FW, 'kCTBaselineClassRoman')
-export const kCTBaselineInfoAttributeName = /* @__PURE__ */ _bind(FW, 'kCTBaselineInfoAttributeName')
-export const kCTBaselineOffsetAttributeName = /* @__PURE__ */ _bind(FW, 'kCTBaselineOffsetAttributeName')
+export const kCTBaselineInfoAttributeName = /* @__PURE__ */ _bind(
+	FW,
+	'kCTBaselineInfoAttributeName',
+)
+
+export const kCTBaselineOffsetAttributeName = /* @__PURE__ */ _bind(
+	FW,
+	'kCTBaselineOffsetAttributeName',
+)
+
 export const kCTBaselineOriginalFont = /* @__PURE__ */ _bind(FW, 'kCTBaselineOriginalFont')
 export const kCTBaselineReferenceFont = /* @__PURE__ */ _bind(FW, 'kCTBaselineReferenceFont')
-export const kCTBaselineReferenceInfoAttributeName = /* @__PURE__ */ _bind(FW, 'kCTBaselineReferenceInfoAttributeName')
-export const kCTCharacterShapeAttributeName = /* @__PURE__ */ _bind(FW, 'kCTCharacterShapeAttributeName')
+export const kCTBaselineReferenceInfoAttributeName = /* @__PURE__ */ _bind(
+	FW,
+	'kCTBaselineReferenceInfoAttributeName',
+)
+
+export const kCTCharacterShapeAttributeName = /* @__PURE__ */ _bind(
+	FW,
+	'kCTCharacterShapeAttributeName',
+)
+
 export const kCTFontAttributeName = /* @__PURE__ */ _bind(FW, 'kCTFontAttributeName')
-export const kCTFontBaselineAdjustAttribute = /* @__PURE__ */ _bind(FW, 'kCTFontBaselineAdjustAttribute')
+export const kCTFontBaselineAdjustAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontBaselineAdjustAttribute',
+)
+
 export const kCTFontCascadeListAttribute = /* @__PURE__ */ _bind(FW, 'kCTFontCascadeListAttribute')
-export const kCTFontCharacterSetAttribute = /* @__PURE__ */ _bind(FW, 'kCTFontCharacterSetAttribute')
+export const kCTFontCharacterSetAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontCharacterSetAttribute',
+)
+
 export const kCTFontClassMaskShift = /* @__PURE__ */ _bind(FW, 'kCTFontClassMaskShift')
-export const kCTFontCollectionDisallowAutoActivationOption = /* @__PURE__ */ _bind(FW, 'kCTFontCollectionDisallowAutoActivationOption')
-export const kCTFontCollectionIncludeDisabledFontsOption = /* @__PURE__ */ _bind(FW, 'kCTFontCollectionIncludeDisabledFontsOption')
-export const kCTFontCollectionRemoveDuplicatesOption = /* @__PURE__ */ _bind(FW, 'kCTFontCollectionRemoveDuplicatesOption')
+export const kCTFontCollectionDisallowAutoActivationOption = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontCollectionDisallowAutoActivationOption',
+)
+
+export const kCTFontCollectionIncludeDisabledFontsOption = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontCollectionIncludeDisabledFontsOption',
+)
+
+export const kCTFontCollectionRemoveDuplicatesOption = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontCollectionRemoveDuplicatesOption',
+)
+
 export const kCTFontCopyrightNameKey = /* @__PURE__ */ _bind(FW, 'kCTFontCopyrightNameKey')
 export const kCTFontDescriptionNameKey = /* @__PURE__ */ _bind(FW, 'kCTFontDescriptionNameKey')
-export const kCTFontDescriptorLanguageAttribute = /* @__PURE__ */ _bind(FW, 'kCTFontDescriptorLanguageAttribute')
-export const kCTFontDescriptorMatchingCurrentAssetSize = /* @__PURE__ */ _bind(FW, 'kCTFontDescriptorMatchingCurrentAssetSize')
-export const kCTFontDescriptorMatchingDescriptors = /* @__PURE__ */ _bind(FW, 'kCTFontDescriptorMatchingDescriptors')
-export const kCTFontDescriptorMatchingError = /* @__PURE__ */ _bind(FW, 'kCTFontDescriptorMatchingError')
-export const kCTFontDescriptorMatchingPercentage = /* @__PURE__ */ _bind(FW, 'kCTFontDescriptorMatchingPercentage')
-export const kCTFontDescriptorMatchingResult = /* @__PURE__ */ _bind(FW, 'kCTFontDescriptorMatchingResult')
-export const kCTFontDescriptorMatchingSourceDescriptor = /* @__PURE__ */ _bind(FW, 'kCTFontDescriptorMatchingSourceDescriptor')
-export const kCTFontDescriptorMatchingTotalAssetSize = /* @__PURE__ */ _bind(FW, 'kCTFontDescriptorMatchingTotalAssetSize')
-export const kCTFontDescriptorMatchingTotalDownloadedSize = /* @__PURE__ */ _bind(FW, 'kCTFontDescriptorMatchingTotalDownloadedSize')
+export const kCTFontDescriptorLanguageAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontDescriptorLanguageAttribute',
+)
+
+export const kCTFontDescriptorMatchingCurrentAssetSize = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontDescriptorMatchingCurrentAssetSize',
+)
+
+export const kCTFontDescriptorMatchingDescriptors = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontDescriptorMatchingDescriptors',
+)
+
+export const kCTFontDescriptorMatchingError = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontDescriptorMatchingError',
+)
+
+export const kCTFontDescriptorMatchingPercentage = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontDescriptorMatchingPercentage',
+)
+
+export const kCTFontDescriptorMatchingResult = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontDescriptorMatchingResult',
+)
+
+export const kCTFontDescriptorMatchingSourceDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontDescriptorMatchingSourceDescriptor',
+)
+
+export const kCTFontDescriptorMatchingTotalAssetSize = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontDescriptorMatchingTotalAssetSize',
+)
+
+export const kCTFontDescriptorMatchingTotalDownloadedSize = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontDescriptorMatchingTotalDownloadedSize',
+)
+
 export const kCTFontDesignerNameKey = /* @__PURE__ */ _bind(FW, 'kCTFontDesignerNameKey')
 export const kCTFontDesignerURLNameKey = /* @__PURE__ */ _bind(FW, 'kCTFontDesignerURLNameKey')
 export const kCTFontDisplayNameAttribute = /* @__PURE__ */ _bind(FW, 'kCTFontDisplayNameAttribute')
-export const kCTFontDownloadableAttribute = /* @__PURE__ */ _bind(FW, 'kCTFontDownloadableAttribute')
+export const kCTFontDownloadableAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontDownloadableAttribute',
+)
+
 export const kCTFontDownloadedAttribute = /* @__PURE__ */ _bind(FW, 'kCTFontDownloadedAttribute')
 export const kCTFontEnabledAttribute = /* @__PURE__ */ _bind(FW, 'kCTFontEnabledAttribute')
 export const kCTFontFamilyNameAttribute = /* @__PURE__ */ _bind(FW, 'kCTFontFamilyNameAttribute')
 export const kCTFontFamilyNameKey = /* @__PURE__ */ _bind(FW, 'kCTFontFamilyNameKey')
 export const kCTFontFeatureSampleTextKey = /* @__PURE__ */ _bind(FW, 'kCTFontFeatureSampleTextKey')
-export const kCTFontFeatureSelectorDefaultKey = /* @__PURE__ */ _bind(FW, 'kCTFontFeatureSelectorDefaultKey')
-export const kCTFontFeatureSelectorIdentifierKey = /* @__PURE__ */ _bind(FW, 'kCTFontFeatureSelectorIdentifierKey')
-export const kCTFontFeatureSelectorNameKey = /* @__PURE__ */ _bind(FW, 'kCTFontFeatureSelectorNameKey')
-export const kCTFontFeatureSelectorSettingKey = /* @__PURE__ */ _bind(FW, 'kCTFontFeatureSelectorSettingKey')
-export const kCTFontFeatureSettingsAttribute = /* @__PURE__ */ _bind(FW, 'kCTFontFeatureSettingsAttribute')
-export const kCTFontFeatureTooltipTextKey = /* @__PURE__ */ _bind(FW, 'kCTFontFeatureTooltipTextKey')
-export const kCTFontFeatureTypeExclusiveKey = /* @__PURE__ */ _bind(FW, 'kCTFontFeatureTypeExclusiveKey')
-export const kCTFontFeatureTypeIdentifierKey = /* @__PURE__ */ _bind(FW, 'kCTFontFeatureTypeIdentifierKey')
+export const kCTFontFeatureSelectorDefaultKey = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontFeatureSelectorDefaultKey',
+)
+
+export const kCTFontFeatureSelectorIdentifierKey = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontFeatureSelectorIdentifierKey',
+)
+
+export const kCTFontFeatureSelectorNameKey = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontFeatureSelectorNameKey',
+)
+
+export const kCTFontFeatureSelectorSettingKey = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontFeatureSelectorSettingKey',
+)
+
+export const kCTFontFeatureSettingsAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontFeatureSettingsAttribute',
+)
+
+export const kCTFontFeatureTooltipTextKey = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontFeatureTooltipTextKey',
+)
+
+export const kCTFontFeatureTypeExclusiveKey = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontFeatureTypeExclusiveKey',
+)
+
+export const kCTFontFeatureTypeIdentifierKey = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontFeatureTypeIdentifierKey',
+)
+
 export const kCTFontFeatureTypeNameKey = /* @__PURE__ */ _bind(FW, 'kCTFontFeatureTypeNameKey')
-export const kCTFontFeatureTypeSelectorsKey = /* @__PURE__ */ _bind(FW, 'kCTFontFeatureTypeSelectorsKey')
+export const kCTFontFeatureTypeSelectorsKey = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontFeatureTypeSelectorsKey',
+)
+
 export const kCTFontFeaturesAttribute = /* @__PURE__ */ _bind(FW, 'kCTFontFeaturesAttribute')
-export const kCTFontFixedAdvanceAttribute = /* @__PURE__ */ _bind(FW, 'kCTFontFixedAdvanceAttribute')
+export const kCTFontFixedAdvanceAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontFixedAdvanceAttribute',
+)
+
 export const kCTFontFormatAttribute = /* @__PURE__ */ _bind(FW, 'kCTFontFormatAttribute')
 export const kCTFontFullNameKey = /* @__PURE__ */ _bind(FW, 'kCTFontFullNameKey')
 export const kCTFontLanguagesAttribute = /* @__PURE__ */ _bind(FW, 'kCTFontLanguagesAttribute')
 export const kCTFontLicenseNameKey = /* @__PURE__ */ _bind(FW, 'kCTFontLicenseNameKey')
 export const kCTFontLicenseURLNameKey = /* @__PURE__ */ _bind(FW, 'kCTFontLicenseURLNameKey')
-export const kCTFontMacintoshEncodingsAttribute = /* @__PURE__ */ _bind(FW, 'kCTFontMacintoshEncodingsAttribute')
-export const kCTFontManagerBundleIdentifier = /* @__PURE__ */ _bind(FW, 'kCTFontManagerBundleIdentifier')
+export const kCTFontMacintoshEncodingsAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontMacintoshEncodingsAttribute',
+)
+
+export const kCTFontManagerBundleIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontManagerBundleIdentifier',
+)
+
 export const kCTFontManagerErrorDomain = /* @__PURE__ */ _bind(FW, 'kCTFontManagerErrorDomain')
-export const kCTFontManagerErrorFontURLsKey = /* @__PURE__ */ _bind(FW, 'kCTFontManagerErrorFontURLsKey')
-export const kCTFontManagerRegisteredFontsChangedNotification = /* @__PURE__ */ _bind(FW, 'kCTFontManagerRegisteredFontsChangedNotification')
+export const kCTFontManagerErrorFontURLsKey = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontManagerErrorFontURLsKey',
+)
+
+export const kCTFontManagerRegisteredFontsChangedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontManagerRegisteredFontsChangedNotification',
+)
+
 export const kCTFontManufacturerNameKey = /* @__PURE__ */ _bind(FW, 'kCTFontManufacturerNameKey')
 export const kCTFontMatrixAttribute = /* @__PURE__ */ _bind(FW, 'kCTFontMatrixAttribute')
 export const kCTFontNameAttribute = /* @__PURE__ */ _bind(FW, 'kCTFontNameAttribute')
@@ -475,7 +1073,11 @@ export const kCTFontPriorityNetwork = /* @__PURE__ */ _bind(FW, 'kCTFontPriority
 export const kCTFontPriorityProcess = /* @__PURE__ */ _bind(FW, 'kCTFontPriorityProcess')
 export const kCTFontPrioritySystem = /* @__PURE__ */ _bind(FW, 'kCTFontPrioritySystem')
 export const kCTFontPriorityUser = /* @__PURE__ */ _bind(FW, 'kCTFontPriorityUser')
-export const kCTFontRegistrationScopeAttribute = /* @__PURE__ */ _bind(FW, 'kCTFontRegistrationScopeAttribute')
+export const kCTFontRegistrationScopeAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontRegistrationScopeAttribute',
+)
+
 export const kCTFontSampleTextNameKey = /* @__PURE__ */ _bind(FW, 'kCTFontSampleTextNameKey')
 export const kCTFontSizeAttribute = /* @__PURE__ */ _bind(FW, 'kCTFontSizeAttribute')
 export const kCTFontSlantTrait = /* @__PURE__ */ _bind(FW, 'kCTFontSlantTrait')
@@ -562,74 +1164,246 @@ export const kCTFontTraitsAttribute = /* @__PURE__ */ _bind(FW, 'kCTFontTraitsAt
 export const kCTFontURLAttribute = /* @__PURE__ */ _bind(FW, 'kCTFontURLAttribute')
 export const kCTFontUniqueNameKey = /* @__PURE__ */ _bind(FW, 'kCTFontUniqueNameKey')
 export const kCTFontVariationAttribute = /* @__PURE__ */ _bind(FW, 'kCTFontVariationAttribute')
-export const kCTFontVariationAxesAttribute = /* @__PURE__ */ _bind(FW, 'kCTFontVariationAxesAttribute')
-export const kCTFontVariationAxisDefaultValueKey = /* @__PURE__ */ _bind(FW, 'kCTFontVariationAxisDefaultValueKey')
-export const kCTFontVariationAxisHiddenKey = /* @__PURE__ */ _bind(FW, 'kCTFontVariationAxisHiddenKey')
-export const kCTFontVariationAxisIdentifierKey = /* @__PURE__ */ _bind(FW, 'kCTFontVariationAxisIdentifierKey')
-export const kCTFontVariationAxisMaximumValueKey = /* @__PURE__ */ _bind(FW, 'kCTFontVariationAxisMaximumValueKey')
-export const kCTFontVariationAxisMinimumValueKey = /* @__PURE__ */ _bind(FW, 'kCTFontVariationAxisMinimumValueKey')
+export const kCTFontVariationAxesAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontVariationAxesAttribute',
+)
+
+export const kCTFontVariationAxisDefaultValueKey = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontVariationAxisDefaultValueKey',
+)
+
+export const kCTFontVariationAxisHiddenKey = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontVariationAxisHiddenKey',
+)
+
+export const kCTFontVariationAxisIdentifierKey = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontVariationAxisIdentifierKey',
+)
+
+export const kCTFontVariationAxisMaximumValueKey = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontVariationAxisMaximumValueKey',
+)
+
+export const kCTFontVariationAxisMinimumValueKey = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFontVariationAxisMinimumValueKey',
+)
+
 export const kCTFontVariationAxisNameKey = /* @__PURE__ */ _bind(FW, 'kCTFontVariationAxisNameKey')
 export const kCTFontVendorURLNameKey = /* @__PURE__ */ _bind(FW, 'kCTFontVendorURLNameKey')
 export const kCTFontVersionNameKey = /* @__PURE__ */ _bind(FW, 'kCTFontVersionNameKey')
 export const kCTFontWeightTrait = /* @__PURE__ */ _bind(FW, 'kCTFontWeightTrait')
 export const kCTFontWidthTrait = /* @__PURE__ */ _bind(FW, 'kCTFontWidthTrait')
-export const kCTForegroundColorAttributeName = /* @__PURE__ */ _bind(FW, 'kCTForegroundColorAttributeName')
-export const kCTForegroundColorFromContextAttributeName = /* @__PURE__ */ _bind(FW, 'kCTForegroundColorFromContextAttributeName')
-export const kCTFrameClippingPathsAttributeName = /* @__PURE__ */ _bind(FW, 'kCTFrameClippingPathsAttributeName')
-export const kCTFramePathClippingPathAttributeName = /* @__PURE__ */ _bind(FW, 'kCTFramePathClippingPathAttributeName')
-export const kCTFramePathFillRuleAttributeName = /* @__PURE__ */ _bind(FW, 'kCTFramePathFillRuleAttributeName')
-export const kCTFramePathWidthAttributeName = /* @__PURE__ */ _bind(FW, 'kCTFramePathWidthAttributeName')
-export const kCTFrameProgressionAttributeName = /* @__PURE__ */ _bind(FW, 'kCTFrameProgressionAttributeName')
+export const kCTForegroundColorAttributeName = /* @__PURE__ */ _bind(
+	FW,
+	'kCTForegroundColorAttributeName',
+)
+
+export const kCTForegroundColorFromContextAttributeName = /* @__PURE__ */ _bind(
+	FW,
+	'kCTForegroundColorFromContextAttributeName',
+)
+
+export const kCTFrameClippingPathsAttributeName = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFrameClippingPathsAttributeName',
+)
+
+export const kCTFramePathClippingPathAttributeName = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFramePathClippingPathAttributeName',
+)
+
+export const kCTFramePathFillRuleAttributeName = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFramePathFillRuleAttributeName',
+)
+
+export const kCTFramePathWidthAttributeName = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFramePathWidthAttributeName',
+)
+
+export const kCTFrameProgressionAttributeName = /* @__PURE__ */ _bind(
+	FW,
+	'kCTFrameProgressionAttributeName',
+)
+
 export const kCTGlyphInfoAttributeName = /* @__PURE__ */ _bind(FW, 'kCTGlyphInfoAttributeName')
-export const kCTHorizontalInVerticalFormsAttributeName = /* @__PURE__ */ _bind(FW, 'kCTHorizontalInVerticalFormsAttributeName')
+export const kCTHorizontalInVerticalFormsAttributeName = /* @__PURE__ */ _bind(
+	FW,
+	'kCTHorizontalInVerticalFormsAttributeName',
+)
+
 export const kCTKernAttributeName = /* @__PURE__ */ _bind(FW, 'kCTKernAttributeName')
 export const kCTLanguageAttributeName = /* @__PURE__ */ _bind(FW, 'kCTLanguageAttributeName')
 export const kCTLigatureAttributeName = /* @__PURE__ */ _bind(FW, 'kCTLigatureAttributeName')
-export const kCTParagraphStyleAttributeName = /* @__PURE__ */ _bind(FW, 'kCTParagraphStyleAttributeName')
-export const kCTRubyAnnotationAttributeName = /* @__PURE__ */ _bind(FW, 'kCTRubyAnnotationAttributeName')
-export const kCTRubyAnnotationScaleToFitAttributeName = /* @__PURE__ */ _bind(FW, 'kCTRubyAnnotationScaleToFitAttributeName')
-export const kCTRubyAnnotationSizeFactorAttributeName = /* @__PURE__ */ _bind(FW, 'kCTRubyAnnotationSizeFactorAttributeName')
+export const kCTParagraphStyleAttributeName = /* @__PURE__ */ _bind(
+	FW,
+	'kCTParagraphStyleAttributeName',
+)
+
+export const kCTRubyAnnotationAttributeName = /* @__PURE__ */ _bind(
+	FW,
+	'kCTRubyAnnotationAttributeName',
+)
+
+export const kCTRubyAnnotationScaleToFitAttributeName = /* @__PURE__ */ _bind(
+	FW,
+	'kCTRubyAnnotationScaleToFitAttributeName',
+)
+
+export const kCTRubyAnnotationSizeFactorAttributeName = /* @__PURE__ */ _bind(
+	FW,
+	'kCTRubyAnnotationSizeFactorAttributeName',
+)
+
 export const kCTRunDelegateAttributeName = /* @__PURE__ */ _bind(FW, 'kCTRunDelegateAttributeName')
-export const kCTRunDelegateCurrentVersion = /* @__PURE__ */ _bind(FW, 'kCTRunDelegateCurrentVersion')
+export const kCTRunDelegateCurrentVersion = /* @__PURE__ */ _bind(
+	FW,
+	'kCTRunDelegateCurrentVersion',
+)
+
 export const kCTRunDelegateVersion1 = /* @__PURE__ */ _bind(FW, 'kCTRunDelegateVersion1')
 export const kCTStrokeColorAttributeName = /* @__PURE__ */ _bind(FW, 'kCTStrokeColorAttributeName')
 export const kCTStrokeWidthAttributeName = /* @__PURE__ */ _bind(FW, 'kCTStrokeWidthAttributeName')
 export const kCTSuperscriptAttributeName = /* @__PURE__ */ _bind(FW, 'kCTSuperscriptAttributeName')
-export const kCTTabColumnTerminatorsAttributeName = /* @__PURE__ */ _bind(FW, 'kCTTabColumnTerminatorsAttributeName')
+export const kCTTabColumnTerminatorsAttributeName = /* @__PURE__ */ _bind(
+	FW,
+	'kCTTabColumnTerminatorsAttributeName',
+)
+
 export const kCTTrackingAttributeName = /* @__PURE__ */ _bind(FW, 'kCTTrackingAttributeName')
-export const kCTTypesetterOptionAllowUnboundedLayout = /* @__PURE__ */ _bind(FW, 'kCTTypesetterOptionAllowUnboundedLayout')
-export const kCTTypesetterOptionDisableBidiProcessing = /* @__PURE__ */ _bind(FW, 'kCTTypesetterOptionDisableBidiProcessing')
-export const kCTTypesetterOptionForcedEmbeddingLevel = /* @__PURE__ */ _bind(FW, 'kCTTypesetterOptionForcedEmbeddingLevel')
-export const kCTUnderlineColorAttributeName = /* @__PURE__ */ _bind(FW, 'kCTUnderlineColorAttributeName')
-export const kCTUnderlineStyleAttributeName = /* @__PURE__ */ _bind(FW, 'kCTUnderlineStyleAttributeName')
-export const kCTVerticalFormsAttributeName = /* @__PURE__ */ _bind(FW, 'kCTVerticalFormsAttributeName')
-export const kCTWritingDirectionAttributeName = /* @__PURE__ */ _bind(FW, 'kCTWritingDirectionAttributeName')
-export const kCTWritingDirectionEmbedding = /* @__PURE__ */ _bind(FW, 'kCTWritingDirectionEmbedding')
+export const kCTTypesetterOptionAllowUnboundedLayout = /* @__PURE__ */ _bind(
+	FW,
+	'kCTTypesetterOptionAllowUnboundedLayout',
+)
+
+export const kCTTypesetterOptionDisableBidiProcessing = /* @__PURE__ */ _bind(
+	FW,
+	'kCTTypesetterOptionDisableBidiProcessing',
+)
+
+export const kCTTypesetterOptionForcedEmbeddingLevel = /* @__PURE__ */ _bind(
+	FW,
+	'kCTTypesetterOptionForcedEmbeddingLevel',
+)
+
+export const kCTUnderlineColorAttributeName = /* @__PURE__ */ _bind(
+	FW,
+	'kCTUnderlineColorAttributeName',
+)
+
+export const kCTUnderlineStyleAttributeName = /* @__PURE__ */ _bind(
+	FW,
+	'kCTUnderlineStyleAttributeName',
+)
+
+export const kCTVerticalFormsAttributeName = /* @__PURE__ */ _bind(
+	FW,
+	'kCTVerticalFormsAttributeName',
+)
+
+export const kCTWritingDirectionAttributeName = /* @__PURE__ */ _bind(
+	FW,
+	'kCTWritingDirectionAttributeName',
+)
+
+export const kCTWritingDirectionEmbedding = /* @__PURE__ */ _bind(
+	FW,
+	'kCTWritingDirectionEmbedding',
+)
+
 export const kCTWritingDirectionOverride = /* @__PURE__ */ _bind(FW, 'kCTWritingDirectionOverride')
-export const kCanonicalCompositionOffSelector = /* @__PURE__ */ _bind(FW, 'kCanonicalCompositionOffSelector')
-export const kCanonicalCompositionOnSelector = /* @__PURE__ */ _bind(FW, 'kCanonicalCompositionOnSelector')
-export const kCaseSensitiveLayoutOffSelector = /* @__PURE__ */ _bind(FW, 'kCaseSensitiveLayoutOffSelector')
-export const kCaseSensitiveLayoutOnSelector = /* @__PURE__ */ _bind(FW, 'kCaseSensitiveLayoutOnSelector')
+export const kCanonicalCompositionOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kCanonicalCompositionOffSelector',
+)
+
+export const kCanonicalCompositionOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kCanonicalCompositionOnSelector',
+)
+
+export const kCaseSensitiveLayoutOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kCaseSensitiveLayoutOffSelector',
+)
+
+export const kCaseSensitiveLayoutOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kCaseSensitiveLayoutOnSelector',
+)
+
 export const kCaseSensitiveLayoutType = /* @__PURE__ */ _bind(FW, 'kCaseSensitiveLayoutType')
-export const kCaseSensitiveSpacingOffSelector = /* @__PURE__ */ _bind(FW, 'kCaseSensitiveSpacingOffSelector')
-export const kCaseSensitiveSpacingOnSelector = /* @__PURE__ */ _bind(FW, 'kCaseSensitiveSpacingOnSelector')
+export const kCaseSensitiveSpacingOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kCaseSensitiveSpacingOffSelector',
+)
+
+export const kCaseSensitiveSpacingOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kCaseSensitiveSpacingOnSelector',
+)
+
 export const kCharacterAlternativesType = /* @__PURE__ */ _bind(FW, 'kCharacterAlternativesType')
 export const kCharacterShapeType = /* @__PURE__ */ _bind(FW, 'kCharacterShapeType')
 export const kCircleAnnotationSelector = /* @__PURE__ */ _bind(FW, 'kCircleAnnotationSelector')
 export const kCommonLigaturesOffSelector = /* @__PURE__ */ _bind(FW, 'kCommonLigaturesOffSelector')
 export const kCommonLigaturesOnSelector = /* @__PURE__ */ _bind(FW, 'kCommonLigaturesOnSelector')
-export const kCompatibilityCompositionOffSelector = /* @__PURE__ */ _bind(FW, 'kCompatibilityCompositionOffSelector')
-export const kCompatibilityCompositionOnSelector = /* @__PURE__ */ _bind(FW, 'kCompatibilityCompositionOnSelector')
-export const kContextualAlternatesOffSelector = /* @__PURE__ */ _bind(FW, 'kContextualAlternatesOffSelector')
-export const kContextualAlternatesOnSelector = /* @__PURE__ */ _bind(FW, 'kContextualAlternatesOnSelector')
+export const kCompatibilityCompositionOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kCompatibilityCompositionOffSelector',
+)
+
+export const kCompatibilityCompositionOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kCompatibilityCompositionOnSelector',
+)
+
+export const kContextualAlternatesOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kContextualAlternatesOffSelector',
+)
+
+export const kContextualAlternatesOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kContextualAlternatesOnSelector',
+)
+
 export const kContextualAlternatesType = /* @__PURE__ */ _bind(FW, 'kContextualAlternatesType')
-export const kContextualLigaturesOffSelector = /* @__PURE__ */ _bind(FW, 'kContextualLigaturesOffSelector')
-export const kContextualLigaturesOnSelector = /* @__PURE__ */ _bind(FW, 'kContextualLigaturesOnSelector')
-export const kContextualSwashAlternatesOffSelector = /* @__PURE__ */ _bind(FW, 'kContextualSwashAlternatesOffSelector')
-export const kContextualSwashAlternatesOnSelector = /* @__PURE__ */ _bind(FW, 'kContextualSwashAlternatesOnSelector')
+export const kContextualLigaturesOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kContextualLigaturesOffSelector',
+)
+
+export const kContextualLigaturesOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kContextualLigaturesOnSelector',
+)
+
+export const kContextualSwashAlternatesOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kContextualSwashAlternatesOffSelector',
+)
+
+export const kContextualSwashAlternatesOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kContextualSwashAlternatesOnSelector',
+)
+
 export const kCursiveConnectionType = /* @__PURE__ */ _bind(FW, 'kCursiveConnectionType')
 export const kCursiveSelector = /* @__PURE__ */ _bind(FW, 'kCursiveSelector')
-export const kDecomposeDiacriticsSelector = /* @__PURE__ */ _bind(FW, 'kDecomposeDiacriticsSelector')
+export const kDecomposeDiacriticsSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kDecomposeDiacriticsSelector',
+)
+
 export const kDecorativeBordersSelector = /* @__PURE__ */ _bind(FW, 'kDecorativeBordersSelector')
 export const kDefaultCJKRomanSelector = /* @__PURE__ */ _bind(FW, 'kDefaultCJKRomanSelector')
 export const kDefaultLowerCaseSelector = /* @__PURE__ */ _bind(FW, 'kDefaultLowerCaseSelector')
@@ -644,8 +1418,16 @@ export const kDiacriticsType = /* @__PURE__ */ _bind(FW, 'kDiacriticsType')
 export const kDiagonalFractionsSelector = /* @__PURE__ */ _bind(FW, 'kDiagonalFractionsSelector')
 export const kDiamondAnnotationSelector = /* @__PURE__ */ _bind(FW, 'kDiamondAnnotationSelector')
 export const kDingbatsSelector = /* @__PURE__ */ _bind(FW, 'kDingbatsSelector')
-export const kDiphthongLigaturesOffSelector = /* @__PURE__ */ _bind(FW, 'kDiphthongLigaturesOffSelector')
-export const kDiphthongLigaturesOnSelector = /* @__PURE__ */ _bind(FW, 'kDiphthongLigaturesOnSelector')
+export const kDiphthongLigaturesOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kDiphthongLigaturesOffSelector',
+)
+
+export const kDiphthongLigaturesOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kDiphthongLigaturesOnSelector',
+)
+
 export const kDisplayTextSelector = /* @__PURE__ */ _bind(FW, 'kDisplayTextSelector')
 export const kEngravedTextSelector = /* @__PURE__ */ _bind(FW, 'kEngravedTextSelector')
 export const kExpertCharactersSelector = /* @__PURE__ */ _bind(FW, 'kExpertCharactersSelector')
@@ -688,7 +1470,11 @@ export const kFontDesignerURLName = /* @__PURE__ */ _bind(FW, 'kFontDesignerURLN
 export const kFontDevanagariScript = /* @__PURE__ */ _bind(FW, 'kFontDevanagariScript')
 export const kFontDutchLanguage = /* @__PURE__ */ _bind(FW, 'kFontDutchLanguage')
 export const kFontDzongkhaLanguage = /* @__PURE__ */ _bind(FW, 'kFontDzongkhaLanguage')
-export const kFontEastEuropeanRomanScript = /* @__PURE__ */ _bind(FW, 'kFontEastEuropeanRomanScript')
+export const kFontEastEuropeanRomanScript = /* @__PURE__ */ _bind(
+	FW,
+	'kFontEastEuropeanRomanScript',
+)
+
 export const kFontEnglishLanguage = /* @__PURE__ */ _bind(FW, 'kFontEnglishLanguage')
 export const kFontEsperantoLanguage = /* @__PURE__ */ _bind(FW, 'kFontEsperantoLanguage')
 export const kFontEstonianLanguage = /* @__PURE__ */ _bind(FW, 'kFontEstonianLanguage')
@@ -756,7 +1542,11 @@ export const kFontMalteseLanguage = /* @__PURE__ */ _bind(FW, 'kFontMalteseLangu
 export const kFontManufacturerName = /* @__PURE__ */ _bind(FW, 'kFontManufacturerName')
 export const kFontMarathiLanguage = /* @__PURE__ */ _bind(FW, 'kFontMarathiLanguage')
 export const kFontMicrosoftPlatform = /* @__PURE__ */ _bind(FW, 'kFontMicrosoftPlatform')
-export const kFontMicrosoftStandardScript = /* @__PURE__ */ _bind(FW, 'kFontMicrosoftStandardScript')
+export const kFontMicrosoftStandardScript = /* @__PURE__ */ _bind(
+	FW,
+	'kFontMicrosoftStandardScript',
+)
+
 export const kFontMicrosoftSymbolScript = /* @__PURE__ */ _bind(FW, 'kFontMicrosoftSymbolScript')
 export const kFontMicrosoftUCS4Script = /* @__PURE__ */ _bind(FW, 'kFontMicrosoftUCS4Script')
 export const kFontMoldavianLanguage = /* @__PURE__ */ _bind(FW, 'kFontMoldavianLanguage')
@@ -823,17 +1613,37 @@ export const kFontTibetanScript = /* @__PURE__ */ _bind(FW, 'kFontTibetanScript'
 export const kFontTigrinyaLanguage = /* @__PURE__ */ _bind(FW, 'kFontTigrinyaLanguage')
 export const kFontTradChineseLanguage = /* @__PURE__ */ _bind(FW, 'kFontTradChineseLanguage')
 export const kFontTrademarkName = /* @__PURE__ */ _bind(FW, 'kFontTrademarkName')
-export const kFontTraditionalChineseScript = /* @__PURE__ */ _bind(FW, 'kFontTraditionalChineseScript')
+export const kFontTraditionalChineseScript = /* @__PURE__ */ _bind(
+	FW,
+	'kFontTraditionalChineseScript',
+)
+
 export const kFontTurkishLanguage = /* @__PURE__ */ _bind(FW, 'kFontTurkishLanguage')
 export const kFontTurkmenLanguage = /* @__PURE__ */ _bind(FW, 'kFontTurkmenLanguage')
 export const kFontUighurLanguage = /* @__PURE__ */ _bind(FW, 'kFontUighurLanguage')
 export const kFontUkrainianLanguage = /* @__PURE__ */ _bind(FW, 'kFontUkrainianLanguage')
-export const kFontUnicodeDefaultSemantics = /* @__PURE__ */ _bind(FW, 'kFontUnicodeDefaultSemantics')
+export const kFontUnicodeDefaultSemantics = /* @__PURE__ */ _bind(
+	FW,
+	'kFontUnicodeDefaultSemantics',
+)
+
 export const kFontUnicodePlatform = /* @__PURE__ */ _bind(FW, 'kFontUnicodePlatform')
 export const kFontUnicodeV1_1Semantics = /* @__PURE__ */ _bind(FW, 'kFontUnicodeV1_1Semantics')
-export const kFontUnicodeV2_0BMPOnlySemantics = /* @__PURE__ */ _bind(FW, 'kFontUnicodeV2_0BMPOnlySemantics')
-export const kFontUnicodeV2_0FullCoverageSemantics = /* @__PURE__ */ _bind(FW, 'kFontUnicodeV2_0FullCoverageSemantics')
-export const kFontUnicodeV4_0VariationSequenceSemantics = /* @__PURE__ */ _bind(FW, 'kFontUnicodeV4_0VariationSequenceSemantics')
+export const kFontUnicodeV2_0BMPOnlySemantics = /* @__PURE__ */ _bind(
+	FW,
+	'kFontUnicodeV2_0BMPOnlySemantics',
+)
+
+export const kFontUnicodeV2_0FullCoverageSemantics = /* @__PURE__ */ _bind(
+	FW,
+	'kFontUnicodeV2_0FullCoverageSemantics',
+)
+
+export const kFontUnicodeV4_0VariationSequenceSemantics = /* @__PURE__ */ _bind(
+	FW,
+	'kFontUnicodeV4_0VariationSequenceSemantics',
+)
+
 export const kFontUnicode_FullRepertoire = /* @__PURE__ */ _bind(FW, 'kFontUnicode_FullRepertoire')
 export const kFontUninterpretedScript = /* @__PURE__ */ _bind(FW, 'kFontUninterpretedScript')
 export const kFontUniqueName = /* @__PURE__ */ _bind(FW, 'kFontUniqueName')
@@ -849,19 +1659,47 @@ export const kFormInterrobangOffSelector = /* @__PURE__ */ _bind(FW, 'kFormInter
 export const kFormInterrobangOnSelector = /* @__PURE__ */ _bind(FW, 'kFormInterrobangOnSelector')
 export const kFractionsType = /* @__PURE__ */ _bind(FW, 'kFractionsType')
 export const kFullWidthCJKRomanSelector = /* @__PURE__ */ _bind(FW, 'kFullWidthCJKRomanSelector')
-export const kFullWidthIdeographsSelector = /* @__PURE__ */ _bind(FW, 'kFullWidthIdeographsSelector')
+export const kFullWidthIdeographsSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kFullWidthIdeographsSelector',
+)
+
 export const kFullWidthKanaSelector = /* @__PURE__ */ _bind(FW, 'kFullWidthKanaSelector')
 export const kHalfWidthCJKRomanSelector = /* @__PURE__ */ _bind(FW, 'kHalfWidthCJKRomanSelector')
-export const kHalfWidthIdeographsSelector = /* @__PURE__ */ _bind(FW, 'kHalfWidthIdeographsSelector')
+export const kHalfWidthIdeographsSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kHalfWidthIdeographsSelector',
+)
+
 export const kHalfWidthTextSelector = /* @__PURE__ */ _bind(FW, 'kHalfWidthTextSelector')
-export const kHanjaToHangulAltOneSelector = /* @__PURE__ */ _bind(FW, 'kHanjaToHangulAltOneSelector')
-export const kHanjaToHangulAltThreeSelector = /* @__PURE__ */ _bind(FW, 'kHanjaToHangulAltThreeSelector')
-export const kHanjaToHangulAltTwoSelector = /* @__PURE__ */ _bind(FW, 'kHanjaToHangulAltTwoSelector')
+export const kHanjaToHangulAltOneSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kHanjaToHangulAltOneSelector',
+)
+
+export const kHanjaToHangulAltThreeSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kHanjaToHangulAltThreeSelector',
+)
+
+export const kHanjaToHangulAltTwoSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kHanjaToHangulAltTwoSelector',
+)
+
 export const kHanjaToHangulSelector = /* @__PURE__ */ _bind(FW, 'kHanjaToHangulSelector')
 export const kHideDiacriticsSelector = /* @__PURE__ */ _bind(FW, 'kHideDiacriticsSelector')
 export const kHiraganaToKatakanaSelector = /* @__PURE__ */ _bind(FW, 'kHiraganaToKatakanaSelector')
-export const kHistoricalLigaturesOffSelector = /* @__PURE__ */ _bind(FW, 'kHistoricalLigaturesOffSelector')
-export const kHistoricalLigaturesOnSelector = /* @__PURE__ */ _bind(FW, 'kHistoricalLigaturesOnSelector')
+export const kHistoricalLigaturesOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kHistoricalLigaturesOffSelector',
+)
+
+export const kHistoricalLigaturesOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kHistoricalLigaturesOnSelector',
+)
+
 export const kHojoCharactersSelector = /* @__PURE__ */ _bind(FW, 'kHojoCharactersSelector')
 export const kHyphenToEnDashOffSelector = /* @__PURE__ */ _bind(FW, 'kHyphenToEnDashOffSelector')
 export const kHyphenToEnDashOnSelector = /* @__PURE__ */ _bind(FW, 'kHyphenToEnDashOnSelector')
@@ -872,20 +1710,56 @@ export const kHyphensToEmDashOnSelector = /* @__PURE__ */ _bind(FW, 'kHyphensToE
 export const kIdeographicAltFiveSelector = /* @__PURE__ */ _bind(FW, 'kIdeographicAltFiveSelector')
 export const kIdeographicAltFourSelector = /* @__PURE__ */ _bind(FW, 'kIdeographicAltFourSelector')
 export const kIdeographicAltOneSelector = /* @__PURE__ */ _bind(FW, 'kIdeographicAltOneSelector')
-export const kIdeographicAltThreeSelector = /* @__PURE__ */ _bind(FW, 'kIdeographicAltThreeSelector')
+export const kIdeographicAltThreeSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kIdeographicAltThreeSelector',
+)
+
 export const kIdeographicAltTwoSelector = /* @__PURE__ */ _bind(FW, 'kIdeographicAltTwoSelector')
-export const kIdeographicAlternativesType = /* @__PURE__ */ _bind(FW, 'kIdeographicAlternativesType')
+export const kIdeographicAlternativesType = /* @__PURE__ */ _bind(
+	FW,
+	'kIdeographicAlternativesType',
+)
+
 export const kIdeographicSpacingType = /* @__PURE__ */ _bind(FW, 'kIdeographicSpacingType')
 export const kIlluminatedCapsSelector = /* @__PURE__ */ _bind(FW, 'kIlluminatedCapsSelector')
-export const kInequalityLigaturesOffSelector = /* @__PURE__ */ _bind(FW, 'kInequalityLigaturesOffSelector')
-export const kInequalityLigaturesOnSelector = /* @__PURE__ */ _bind(FW, 'kInequalityLigaturesOnSelector')
+export const kInequalityLigaturesOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kInequalityLigaturesOffSelector',
+)
+
+export const kInequalityLigaturesOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kInequalityLigaturesOnSelector',
+)
+
 export const kInferiorsSelector = /* @__PURE__ */ _bind(FW, 'kInferiorsSelector')
-export const kInitialCapsAndSmallCapsSelector = /* @__PURE__ */ _bind(FW, 'kInitialCapsAndSmallCapsSelector')
+export const kInitialCapsAndSmallCapsSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kInitialCapsAndSmallCapsSelector',
+)
+
 export const kInitialCapsSelector = /* @__PURE__ */ _bind(FW, 'kInitialCapsSelector')
-export const kInternationalSymbolsSelector = /* @__PURE__ */ _bind(FW, 'kInternationalSymbolsSelector')
-export const kInvertedBoxAnnotationSelector = /* @__PURE__ */ _bind(FW, 'kInvertedBoxAnnotationSelector')
-export const kInvertedCircleAnnotationSelector = /* @__PURE__ */ _bind(FW, 'kInvertedCircleAnnotationSelector')
-export const kInvertedRoundedBoxAnnotationSelector = /* @__PURE__ */ _bind(FW, 'kInvertedRoundedBoxAnnotationSelector')
+export const kInternationalSymbolsSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kInternationalSymbolsSelector',
+)
+
+export const kInvertedBoxAnnotationSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kInvertedBoxAnnotationSelector',
+)
+
+export const kInvertedCircleAnnotationSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kInvertedCircleAnnotationSelector',
+)
+
+export const kInvertedRoundedBoxAnnotationSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kInvertedRoundedBoxAnnotationSelector',
+)
+
 export const kItalicCJKRomanType = /* @__PURE__ */ _bind(FW, 'kItalicCJKRomanType')
 export const kJIS1978CharactersSelector = /* @__PURE__ */ _bind(FW, 'kJIS1978CharactersSelector')
 export const kJIS1983CharactersSelector = /* @__PURE__ */ _bind(FW, 'kJIS1983CharactersSelector')
@@ -910,7 +1784,11 @@ export const kJUSTpcDecompositionAction = /* @__PURE__ */ _bind(FW, 'kJUSTpcDeco
 export const kJUSTpcDuctilityAction = /* @__PURE__ */ _bind(FW, 'kJUSTpcDuctilityAction')
 export const kJUSTpcGlyphRepeatAddAction = /* @__PURE__ */ _bind(FW, 'kJUSTpcGlyphRepeatAddAction')
 export const kJUSTpcGlyphStretchAction = /* @__PURE__ */ _bind(FW, 'kJUSTpcGlyphStretchAction')
-export const kJUSTpcUnconditionalAddAction = /* @__PURE__ */ _bind(FW, 'kJUSTpcUnconditionalAddAction')
+export const kJUSTpcUnconditionalAddAction = /* @__PURE__ */ _bind(
+	FW,
+	'kJUSTpcUnconditionalAddAction',
+)
+
 export const kKERNCrossStream = /* @__PURE__ */ _bind(FW, 'kKERNCrossStream')
 export const kKERNCrossStreamResetNote = /* @__PURE__ */ _bind(FW, 'kKERNCrossStreamResetNote')
 export const kKERNCurrentVersion = /* @__PURE__ */ _bind(FW, 'kKERNCurrentVersion')
@@ -932,7 +1810,11 @@ export const kKERNVariation = /* @__PURE__ */ _bind(FW, 'kKERNVariation')
 export const kKERNVertical = /* @__PURE__ */ _bind(FW, 'kKERNVertical')
 export const kKERXActionOffsetMask = /* @__PURE__ */ _bind(FW, 'kKERXActionOffsetMask')
 export const kKERXActionTypeAnchorPoints = /* @__PURE__ */ _bind(FW, 'kKERXActionTypeAnchorPoints')
-export const kKERXActionTypeControlPoints = /* @__PURE__ */ _bind(FW, 'kKERXActionTypeControlPoints')
+export const kKERXActionTypeControlPoints = /* @__PURE__ */ _bind(
+	FW,
+	'kKERXActionTypeControlPoints',
+)
+
 export const kKERXActionTypeCoordinates = /* @__PURE__ */ _bind(FW, 'kKERXActionTypeCoordinates')
 export const kKERXActionTypeMask = /* @__PURE__ */ _bind(FW, 'kKERXActionTypeMask')
 export const kKERXControlPoint = /* @__PURE__ */ _bind(FW, 'kKERXControlPoint')
@@ -970,17 +1852,45 @@ export const kLanguageTagType = /* @__PURE__ */ _bind(FW, 'kLanguageTagType')
 export const kLastFeatureType = /* @__PURE__ */ _bind(FW, 'kLastFeatureType')
 export const kLetterCaseType = /* @__PURE__ */ _bind(FW, 'kLetterCaseType')
 export const kLigaturesType = /* @__PURE__ */ _bind(FW, 'kLigaturesType')
-export const kLineFinalSwashesOffSelector = /* @__PURE__ */ _bind(FW, 'kLineFinalSwashesOffSelector')
+export const kLineFinalSwashesOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kLineFinalSwashesOffSelector',
+)
+
 export const kLineFinalSwashesOnSelector = /* @__PURE__ */ _bind(FW, 'kLineFinalSwashesOnSelector')
-export const kLineInitialSwashesOffSelector = /* @__PURE__ */ _bind(FW, 'kLineInitialSwashesOffSelector')
-export const kLineInitialSwashesOnSelector = /* @__PURE__ */ _bind(FW, 'kLineInitialSwashesOnSelector')
-export const kLinguisticRearrangementOffSelector = /* @__PURE__ */ _bind(FW, 'kLinguisticRearrangementOffSelector')
-export const kLinguisticRearrangementOnSelector = /* @__PURE__ */ _bind(FW, 'kLinguisticRearrangementOnSelector')
-export const kLinguisticRearrangementType = /* @__PURE__ */ _bind(FW, 'kLinguisticRearrangementType')
+export const kLineInitialSwashesOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kLineInitialSwashesOffSelector',
+)
+
+export const kLineInitialSwashesOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kLineInitialSwashesOnSelector',
+)
+
+export const kLinguisticRearrangementOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kLinguisticRearrangementOffSelector',
+)
+
+export const kLinguisticRearrangementOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kLinguisticRearrangementOnSelector',
+)
+
+export const kLinguisticRearrangementType = /* @__PURE__ */ _bind(
+	FW,
+	'kLinguisticRearrangementType',
+)
+
 export const kLogosOffSelector = /* @__PURE__ */ _bind(FW, 'kLogosOffSelector')
 export const kLogosOnSelector = /* @__PURE__ */ _bind(FW, 'kLogosOnSelector')
 export const kLowerCaseNumbersSelector = /* @__PURE__ */ _bind(FW, 'kLowerCaseNumbersSelector')
-export const kLowerCasePetiteCapsSelector = /* @__PURE__ */ _bind(FW, 'kLowerCasePetiteCapsSelector')
+export const kLowerCasePetiteCapsSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kLowerCasePetiteCapsSelector',
+)
+
 export const kLowerCaseSmallCapsSelector = /* @__PURE__ */ _bind(FW, 'kLowerCaseSmallCapsSelector')
 export const kLowerCaseType = /* @__PURE__ */ _bind(FW, 'kLowerCaseType')
 export const kMORTContextualType = /* @__PURE__ */ _bind(FW, 'kMORTContextualType')
@@ -993,7 +1903,11 @@ export const kMORTCurrInsertCountMask = /* @__PURE__ */ _bind(FW, 'kMORTCurrInse
 export const kMORTCurrInsertCountShift = /* @__PURE__ */ _bind(FW, 'kMORTCurrInsertCountShift')
 export const kMORTCurrInsertKashidaLike = /* @__PURE__ */ _bind(FW, 'kMORTCurrInsertKashidaLike')
 export const kMORTCurrJustTableCountMask = /* @__PURE__ */ _bind(FW, 'kMORTCurrJustTableCountMask')
-export const kMORTCurrJustTableCountShift = /* @__PURE__ */ _bind(FW, 'kMORTCurrJustTableCountShift')
+export const kMORTCurrJustTableCountShift = /* @__PURE__ */ _bind(
+	FW,
+	'kMORTCurrJustTableCountShift',
+)
+
 export const kMORTCurrentVersion = /* @__PURE__ */ _bind(FW, 'kMORTCurrentVersion')
 export const kMORTDoInsertionsBefore = /* @__PURE__ */ _bind(FW, 'kMORTDoInsertionsBefore')
 export const kMORTInsertionType = /* @__PURE__ */ _bind(FW, 'kMORTInsertionType')
@@ -1009,7 +1923,11 @@ export const kMORTMarkInsertCountMask = /* @__PURE__ */ _bind(FW, 'kMORTMarkInse
 export const kMORTMarkInsertCountShift = /* @__PURE__ */ _bind(FW, 'kMORTMarkInsertCountShift')
 export const kMORTMarkInsertKashidaLike = /* @__PURE__ */ _bind(FW, 'kMORTMarkInsertKashidaLike')
 export const kMORTMarkJustTableCountMask = /* @__PURE__ */ _bind(FW, 'kMORTMarkJustTableCountMask')
-export const kMORTMarkJustTableCountShift = /* @__PURE__ */ _bind(FW, 'kMORTMarkJustTableCountShift')
+export const kMORTMarkJustTableCountShift = /* @__PURE__ */ _bind(
+	FW,
+	'kMORTMarkJustTableCountShift',
+)
+
 export const kMORTRearrangementType = /* @__PURE__ */ _bind(FW, 'kMORTRearrangementType')
 export const kMORTSwashType = /* @__PURE__ */ _bind(FW, 'kMORTSwashType')
 export const kMORTTag = /* @__PURE__ */ _bind(FW, 'kMORTTag')
@@ -1038,21 +1956,41 @@ export const kMORXCurrentVersion = /* @__PURE__ */ _bind(FW, 'kMORXCurrentVersio
 export const kMORXTag = /* @__PURE__ */ _bind(FW, 'kMORXTag')
 export const kMathSymbolsSelector = /* @__PURE__ */ _bind(FW, 'kMathSymbolsSelector')
 export const kMathematicalExtrasType = /* @__PURE__ */ _bind(FW, 'kMathematicalExtrasType')
-export const kMathematicalGreekOffSelector = /* @__PURE__ */ _bind(FW, 'kMathematicalGreekOffSelector')
-export const kMathematicalGreekOnSelector = /* @__PURE__ */ _bind(FW, 'kMathematicalGreekOnSelector')
+export const kMathematicalGreekOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kMathematicalGreekOffSelector',
+)
+
+export const kMathematicalGreekOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kMathematicalGreekOnSelector',
+)
+
 export const kMonospacedNumbersSelector = /* @__PURE__ */ _bind(FW, 'kMonospacedNumbersSelector')
 export const kMonospacedTextSelector = /* @__PURE__ */ _bind(FW, 'kMonospacedTextSelector')
 export const kNLCCharactersSelector = /* @__PURE__ */ _bind(FW, 'kNLCCharactersSelector')
 export const kNoAlternatesSelector = /* @__PURE__ */ _bind(FW, 'kNoAlternatesSelector')
 export const kNoAnnotationSelector = /* @__PURE__ */ _bind(FW, 'kNoAnnotationSelector')
 export const kNoCJKItalicRomanSelector = /* @__PURE__ */ _bind(FW, 'kNoCJKItalicRomanSelector')
-export const kNoCJKSymbolAlternativesSelector = /* @__PURE__ */ _bind(FW, 'kNoCJKSymbolAlternativesSelector')
+export const kNoCJKSymbolAlternativesSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kNoCJKSymbolAlternativesSelector',
+)
+
 export const kNoFractionsSelector = /* @__PURE__ */ _bind(FW, 'kNoFractionsSelector')
-export const kNoIdeographicAlternativesSelector = /* @__PURE__ */ _bind(FW, 'kNoIdeographicAlternativesSelector')
+export const kNoIdeographicAlternativesSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kNoIdeographicAlternativesSelector',
+)
+
 export const kNoOrnamentsSelector = /* @__PURE__ */ _bind(FW, 'kNoOrnamentsSelector')
 export const kNoRubyKanaSelector = /* @__PURE__ */ _bind(FW, 'kNoRubyKanaSelector')
 export const kNoStyleOptionsSelector = /* @__PURE__ */ _bind(FW, 'kNoStyleOptionsSelector')
-export const kNoStylisticAlternatesSelector = /* @__PURE__ */ _bind(FW, 'kNoStylisticAlternatesSelector')
+export const kNoStylisticAlternatesSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kNoStylisticAlternatesSelector',
+)
+
 export const kNoTransliterationSelector = /* @__PURE__ */ _bind(FW, 'kNoTransliterationSelector')
 export const kNonFinalSwashesOffSelector = /* @__PURE__ */ _bind(FW, 'kNonFinalSwashesOffSelector')
 export const kNonFinalSwashesOnSelector = /* @__PURE__ */ _bind(FW, 'kNonFinalSwashesOnSelector')
@@ -1099,31 +2037,83 @@ export const kPROPTag = /* @__PURE__ */ _bind(FW, 'kPROPTag')
 export const kPROPUseRLPairMask = /* @__PURE__ */ _bind(FW, 'kPROPUseRLPairMask')
 export const kPROPWSDirectionClass = /* @__PURE__ */ _bind(FW, 'kPROPWSDirectionClass')
 export const kPROPZeroReserved = /* @__PURE__ */ _bind(FW, 'kPROPZeroReserved')
-export const kParenthesisAnnotationSelector = /* @__PURE__ */ _bind(FW, 'kParenthesisAnnotationSelector')
+export const kParenthesisAnnotationSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kParenthesisAnnotationSelector',
+)
+
 export const kPartiallyConnectedSelector = /* @__PURE__ */ _bind(FW, 'kPartiallyConnectedSelector')
 export const kPeriodAnnotationSelector = /* @__PURE__ */ _bind(FW, 'kPeriodAnnotationSelector')
-export const kPeriodsToEllipsisOffSelector = /* @__PURE__ */ _bind(FW, 'kPeriodsToEllipsisOffSelector')
-export const kPeriodsToEllipsisOnSelector = /* @__PURE__ */ _bind(FW, 'kPeriodsToEllipsisOnSelector')
+export const kPeriodsToEllipsisOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kPeriodsToEllipsisOffSelector',
+)
+
+export const kPeriodsToEllipsisOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kPeriodsToEllipsisOnSelector',
+)
+
 export const kPiCharactersSelector = /* @__PURE__ */ _bind(FW, 'kPiCharactersSelector')
 export const kPreventOverlapOffSelector = /* @__PURE__ */ _bind(FW, 'kPreventOverlapOffSelector')
 export const kPreventOverlapOnSelector = /* @__PURE__ */ _bind(FW, 'kPreventOverlapOnSelector')
-export const kProportionalCJKRomanSelector = /* @__PURE__ */ _bind(FW, 'kProportionalCJKRomanSelector')
-export const kProportionalIdeographsSelector = /* @__PURE__ */ _bind(FW, 'kProportionalIdeographsSelector')
+export const kProportionalCJKRomanSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kProportionalCJKRomanSelector',
+)
+
+export const kProportionalIdeographsSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kProportionalIdeographsSelector',
+)
+
 export const kProportionalKanaSelector = /* @__PURE__ */ _bind(FW, 'kProportionalKanaSelector')
-export const kProportionalNumbersSelector = /* @__PURE__ */ _bind(FW, 'kProportionalNumbersSelector')
+export const kProportionalNumbersSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kProportionalNumbersSelector',
+)
+
 export const kProportionalTextSelector = /* @__PURE__ */ _bind(FW, 'kProportionalTextSelector')
-export const kQuarterWidthNumbersSelector = /* @__PURE__ */ _bind(FW, 'kQuarterWidthNumbersSelector')
+export const kQuarterWidthNumbersSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kQuarterWidthNumbersSelector',
+)
+
 export const kQuarterWidthTextSelector = /* @__PURE__ */ _bind(FW, 'kQuarterWidthTextSelector')
 export const kRareLigaturesOffSelector = /* @__PURE__ */ _bind(FW, 'kRareLigaturesOffSelector')
 export const kRareLigaturesOnSelector = /* @__PURE__ */ _bind(FW, 'kRareLigaturesOnSelector')
 export const kRebusPicturesOffSelector = /* @__PURE__ */ _bind(FW, 'kRebusPicturesOffSelector')
 export const kRebusPicturesOnSelector = /* @__PURE__ */ _bind(FW, 'kRebusPicturesOnSelector')
-export const kRequiredLigaturesOffSelector = /* @__PURE__ */ _bind(FW, 'kRequiredLigaturesOffSelector')
-export const kRequiredLigaturesOnSelector = /* @__PURE__ */ _bind(FW, 'kRequiredLigaturesOnSelector')
-export const kRomanNumeralAnnotationSelector = /* @__PURE__ */ _bind(FW, 'kRomanNumeralAnnotationSelector')
-export const kRomanizationToHiraganaSelector = /* @__PURE__ */ _bind(FW, 'kRomanizationToHiraganaSelector')
-export const kRomanizationToKatakanaSelector = /* @__PURE__ */ _bind(FW, 'kRomanizationToKatakanaSelector')
-export const kRoundedBoxAnnotationSelector = /* @__PURE__ */ _bind(FW, 'kRoundedBoxAnnotationSelector')
+export const kRequiredLigaturesOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kRequiredLigaturesOffSelector',
+)
+
+export const kRequiredLigaturesOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kRequiredLigaturesOnSelector',
+)
+
+export const kRomanNumeralAnnotationSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kRomanNumeralAnnotationSelector',
+)
+
+export const kRomanizationToHiraganaSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kRomanizationToHiraganaSelector',
+)
+
+export const kRomanizationToKatakanaSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kRomanizationToKatakanaSelector',
+)
+
+export const kRoundedBoxAnnotationSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kRoundedBoxAnnotationSelector',
+)
+
 export const kRubyKanaOffSelector = /* @__PURE__ */ _bind(FW, 'kRubyKanaOffSelector')
 export const kRubyKanaOnSelector = /* @__PURE__ */ _bind(FW, 'kRubyKanaOnSelector')
 export const kRubyKanaSelector = /* @__PURE__ */ _bind(FW, 'kRubyKanaSelector')
@@ -1145,9 +2135,17 @@ export const kSTNoAdvance = /* @__PURE__ */ _bind(FW, 'kSTNoAdvance')
 export const kSTRearrVerbMask = /* @__PURE__ */ _bind(FW, 'kSTRearrVerbMask')
 export const kSTSetMark = /* @__PURE__ */ _bind(FW, 'kSTSetMark')
 export const kSTXHasLigAction = /* @__PURE__ */ _bind(FW, 'kSTXHasLigAction')
-export const kScientificInferiorsSelector = /* @__PURE__ */ _bind(FW, 'kScientificInferiorsSelector')
+export const kScientificInferiorsSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kScientificInferiorsSelector',
+)
+
 export const kShowDiacriticsSelector = /* @__PURE__ */ _bind(FW, 'kShowDiacriticsSelector')
-export const kSimplifiedCharactersSelector = /* @__PURE__ */ _bind(FW, 'kSimplifiedCharactersSelector')
+export const kSimplifiedCharactersSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kSimplifiedCharactersSelector',
+)
+
 export const kSlashToDivideOffSelector = /* @__PURE__ */ _bind(FW, 'kSlashToDivideOffSelector')
 export const kSlashToDivideOnSelector = /* @__PURE__ */ _bind(FW, 'kSlashToDivideOnSelector')
 export const kSlashedZeroOffSelector = /* @__PURE__ */ _bind(FW, 'kSlashedZeroOffSelector')
@@ -1156,52 +2154,180 @@ export const kSmallCapsSelector = /* @__PURE__ */ _bind(FW, 'kSmallCapsSelector'
 export const kSmartQuotesOffSelector = /* @__PURE__ */ _bind(FW, 'kSmartQuotesOffSelector')
 export const kSmartQuotesOnSelector = /* @__PURE__ */ _bind(FW, 'kSmartQuotesOnSelector')
 export const kSmartSwashType = /* @__PURE__ */ _bind(FW, 'kSmartSwashType')
-export const kSquaredLigaturesOffSelector = /* @__PURE__ */ _bind(FW, 'kSquaredLigaturesOffSelector')
+export const kSquaredLigaturesOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kSquaredLigaturesOffSelector',
+)
+
 export const kSquaredLigaturesOnSelector = /* @__PURE__ */ _bind(FW, 'kSquaredLigaturesOnSelector')
 export const kStyleOptionsType = /* @__PURE__ */ _bind(FW, 'kStyleOptionsType')
-export const kStylisticAltEightOffSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltEightOffSelector')
-export const kStylisticAltEightOnSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltEightOnSelector')
-export const kStylisticAltEighteenOffSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltEighteenOffSelector')
-export const kStylisticAltEighteenOnSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltEighteenOnSelector')
-export const kStylisticAltElevenOffSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltElevenOffSelector')
-export const kStylisticAltElevenOnSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltElevenOnSelector')
-export const kStylisticAltFifteenOffSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltFifteenOffSelector')
-export const kStylisticAltFifteenOnSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltFifteenOnSelector')
-export const kStylisticAltFiveOffSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltFiveOffSelector')
+export const kStylisticAltEightOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kStylisticAltEightOffSelector',
+)
+
+export const kStylisticAltEightOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kStylisticAltEightOnSelector',
+)
+
+export const kStylisticAltEighteenOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kStylisticAltEighteenOffSelector',
+)
+
+export const kStylisticAltEighteenOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kStylisticAltEighteenOnSelector',
+)
+
+export const kStylisticAltElevenOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kStylisticAltElevenOffSelector',
+)
+
+export const kStylisticAltElevenOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kStylisticAltElevenOnSelector',
+)
+
+export const kStylisticAltFifteenOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kStylisticAltFifteenOffSelector',
+)
+
+export const kStylisticAltFifteenOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kStylisticAltFifteenOnSelector',
+)
+
+export const kStylisticAltFiveOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kStylisticAltFiveOffSelector',
+)
+
 export const kStylisticAltFiveOnSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltFiveOnSelector')
-export const kStylisticAltFourOffSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltFourOffSelector')
+export const kStylisticAltFourOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kStylisticAltFourOffSelector',
+)
+
 export const kStylisticAltFourOnSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltFourOnSelector')
-export const kStylisticAltFourteenOffSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltFourteenOffSelector')
-export const kStylisticAltFourteenOnSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltFourteenOnSelector')
-export const kStylisticAltNineOffSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltNineOffSelector')
+export const kStylisticAltFourteenOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kStylisticAltFourteenOffSelector',
+)
+
+export const kStylisticAltFourteenOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kStylisticAltFourteenOnSelector',
+)
+
+export const kStylisticAltNineOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kStylisticAltNineOffSelector',
+)
+
 export const kStylisticAltNineOnSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltNineOnSelector')
-export const kStylisticAltNineteenOffSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltNineteenOffSelector')
-export const kStylisticAltNineteenOnSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltNineteenOnSelector')
+export const kStylisticAltNineteenOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kStylisticAltNineteenOffSelector',
+)
+
+export const kStylisticAltNineteenOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kStylisticAltNineteenOnSelector',
+)
+
 export const kStylisticAltOneOffSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltOneOffSelector')
 export const kStylisticAltOneOnSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltOneOnSelector')
-export const kStylisticAltSevenOffSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltSevenOffSelector')
-export const kStylisticAltSevenOnSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltSevenOnSelector')
-export const kStylisticAltSeventeenOffSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltSeventeenOffSelector')
-export const kStylisticAltSeventeenOnSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltSeventeenOnSelector')
+export const kStylisticAltSevenOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kStylisticAltSevenOffSelector',
+)
+
+export const kStylisticAltSevenOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kStylisticAltSevenOnSelector',
+)
+
+export const kStylisticAltSeventeenOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kStylisticAltSeventeenOffSelector',
+)
+
+export const kStylisticAltSeventeenOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kStylisticAltSeventeenOnSelector',
+)
+
 export const kStylisticAltSixOffSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltSixOffSelector')
 export const kStylisticAltSixOnSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltSixOnSelector')
-export const kStylisticAltSixteenOffSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltSixteenOffSelector')
-export const kStylisticAltSixteenOnSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltSixteenOnSelector')
+export const kStylisticAltSixteenOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kStylisticAltSixteenOffSelector',
+)
+
+export const kStylisticAltSixteenOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kStylisticAltSixteenOnSelector',
+)
+
 export const kStylisticAltTenOffSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltTenOffSelector')
 export const kStylisticAltTenOnSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltTenOnSelector')
-export const kStylisticAltThirteenOffSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltThirteenOffSelector')
-export const kStylisticAltThirteenOnSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltThirteenOnSelector')
-export const kStylisticAltThreeOffSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltThreeOffSelector')
-export const kStylisticAltThreeOnSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltThreeOnSelector')
-export const kStylisticAltTwelveOffSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltTwelveOffSelector')
-export const kStylisticAltTwelveOnSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltTwelveOnSelector')
-export const kStylisticAltTwentyOffSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltTwentyOffSelector')
-export const kStylisticAltTwentyOnSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltTwentyOnSelector')
+export const kStylisticAltThirteenOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kStylisticAltThirteenOffSelector',
+)
+
+export const kStylisticAltThirteenOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kStylisticAltThirteenOnSelector',
+)
+
+export const kStylisticAltThreeOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kStylisticAltThreeOffSelector',
+)
+
+export const kStylisticAltThreeOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kStylisticAltThreeOnSelector',
+)
+
+export const kStylisticAltTwelveOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kStylisticAltTwelveOffSelector',
+)
+
+export const kStylisticAltTwelveOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kStylisticAltTwelveOnSelector',
+)
+
+export const kStylisticAltTwentyOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kStylisticAltTwentyOffSelector',
+)
+
+export const kStylisticAltTwentyOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kStylisticAltTwentyOnSelector',
+)
+
 export const kStylisticAltTwoOffSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltTwoOffSelector')
 export const kStylisticAltTwoOnSelector = /* @__PURE__ */ _bind(FW, 'kStylisticAltTwoOnSelector')
 export const kStylisticAlternativesType = /* @__PURE__ */ _bind(FW, 'kStylisticAlternativesType')
-export const kSubstituteVerticalFormsOffSelector = /* @__PURE__ */ _bind(FW, 'kSubstituteVerticalFormsOffSelector')
-export const kSubstituteVerticalFormsOnSelector = /* @__PURE__ */ _bind(FW, 'kSubstituteVerticalFormsOnSelector')
+export const kSubstituteVerticalFormsOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kSubstituteVerticalFormsOffSelector',
+)
+
+export const kSubstituteVerticalFormsOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kSubstituteVerticalFormsOnSelector',
+)
+
 export const kSuperiorsSelector = /* @__PURE__ */ _bind(FW, 'kSuperiorsSelector')
 export const kSwashAlternatesOffSelector = /* @__PURE__ */ _bind(FW, 'kSwashAlternatesOffSelector')
 export const kSwashAlternatesOnSelector = /* @__PURE__ */ _bind(FW, 'kSwashAlternatesOnSelector')
@@ -1218,28 +2344,64 @@ export const kTitlingCapsSelector = /* @__PURE__ */ _bind(FW, 'kTitlingCapsSelec
 export const kTraditionalAltFiveSelector = /* @__PURE__ */ _bind(FW, 'kTraditionalAltFiveSelector')
 export const kTraditionalAltFourSelector = /* @__PURE__ */ _bind(FW, 'kTraditionalAltFourSelector')
 export const kTraditionalAltOneSelector = /* @__PURE__ */ _bind(FW, 'kTraditionalAltOneSelector')
-export const kTraditionalAltThreeSelector = /* @__PURE__ */ _bind(FW, 'kTraditionalAltThreeSelector')
+export const kTraditionalAltThreeSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kTraditionalAltThreeSelector',
+)
+
 export const kTraditionalAltTwoSelector = /* @__PURE__ */ _bind(FW, 'kTraditionalAltTwoSelector')
-export const kTraditionalCharactersSelector = /* @__PURE__ */ _bind(FW, 'kTraditionalCharactersSelector')
-export const kTraditionalNamesCharactersSelector = /* @__PURE__ */ _bind(FW, 'kTraditionalNamesCharactersSelector')
-export const kTranscodingCompositionOffSelector = /* @__PURE__ */ _bind(FW, 'kTranscodingCompositionOffSelector')
-export const kTranscodingCompositionOnSelector = /* @__PURE__ */ _bind(FW, 'kTranscodingCompositionOnSelector')
+export const kTraditionalCharactersSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kTraditionalCharactersSelector',
+)
+
+export const kTraditionalNamesCharactersSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kTraditionalNamesCharactersSelector',
+)
+
+export const kTranscodingCompositionOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kTranscodingCompositionOffSelector',
+)
+
+export const kTranscodingCompositionOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kTranscodingCompositionOnSelector',
+)
+
 export const kTransliterationType = /* @__PURE__ */ _bind(FW, 'kTransliterationType')
 export const kTypographicExtrasType = /* @__PURE__ */ _bind(FW, 'kTypographicExtrasType')
 export const kUnconnectedSelector = /* @__PURE__ */ _bind(FW, 'kUnconnectedSelector')
 export const kUnicodeDecompositionType = /* @__PURE__ */ _bind(FW, 'kUnicodeDecompositionType')
 export const kUpperAndLowerCaseSelector = /* @__PURE__ */ _bind(FW, 'kUpperAndLowerCaseSelector')
 export const kUpperCaseNumbersSelector = /* @__PURE__ */ _bind(FW, 'kUpperCaseNumbersSelector')
-export const kUpperCasePetiteCapsSelector = /* @__PURE__ */ _bind(FW, 'kUpperCasePetiteCapsSelector')
+export const kUpperCasePetiteCapsSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kUpperCasePetiteCapsSelector',
+)
+
 export const kUpperCaseSmallCapsSelector = /* @__PURE__ */ _bind(FW, 'kUpperCaseSmallCapsSelector')
 export const kUpperCaseType = /* @__PURE__ */ _bind(FW, 'kUpperCaseType')
 export const kVerticalFractionsSelector = /* @__PURE__ */ _bind(FW, 'kVerticalFractionsSelector')
 export const kVerticalPositionType = /* @__PURE__ */ _bind(FW, 'kVerticalPositionType')
 export const kVerticalSubstitutionType = /* @__PURE__ */ _bind(FW, 'kVerticalSubstitutionType')
-export const kWordFinalSwashesOffSelector = /* @__PURE__ */ _bind(FW, 'kWordFinalSwashesOffSelector')
+export const kWordFinalSwashesOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kWordFinalSwashesOffSelector',
+)
+
 export const kWordFinalSwashesOnSelector = /* @__PURE__ */ _bind(FW, 'kWordFinalSwashesOnSelector')
-export const kWordInitialSwashesOffSelector = /* @__PURE__ */ _bind(FW, 'kWordInitialSwashesOffSelector')
-export const kWordInitialSwashesOnSelector = /* @__PURE__ */ _bind(FW, 'kWordInitialSwashesOnSelector')
+export const kWordInitialSwashesOffSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kWordInitialSwashesOffSelector',
+)
+
+export const kWordInitialSwashesOnSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kWordInitialSwashesOnSelector',
+)
+
 export const nameFontTableTag = /* @__PURE__ */ _bind(FW, 'nameFontTableTag')
 export const nonGlyphID = /* @__PURE__ */ _bind(FW, 'nonGlyphID')
 export const os2FontTableTag = /* @__PURE__ */ _bind(FW, 'os2FontTableTag')
@@ -1261,7 +2423,11 @@ export const sfntNameRecord = /* @__PURE__ */ _bind(FW, 'sfntNameRecord')
 export const sfntVariationAxis = /* @__PURE__ */ _bind(FW, 'sfntVariationAxis')
 export const sfntVariationHeader = /* @__PURE__ */ _bind(FW, 'sfntVariationHeader')
 export const sizeof_sfntCMapEncoding = /* @__PURE__ */ _bind(FW, 'sizeof_sfntCMapEncoding')
-export const sizeof_sfntCMapExtendedSubHeader = /* @__PURE__ */ _bind(FW, 'sizeof_sfntCMapExtendedSubHeader')
+export const sizeof_sfntCMapExtendedSubHeader = /* @__PURE__ */ _bind(
+	FW,
+	'sizeof_sfntCMapExtendedSubHeader',
+)
+
 export const sizeof_sfntCMapHeader = /* @__PURE__ */ _bind(FW, 'sizeof_sfntCMapHeader')
 export const sizeof_sfntCMapSubHeader = /* @__PURE__ */ _bind(FW, 'sizeof_sfntCMapSubHeader')
 export const sizeof_sfntDescriptorHeader = /* @__PURE__ */ _bind(FW, 'sizeof_sfntDescriptorHeader')

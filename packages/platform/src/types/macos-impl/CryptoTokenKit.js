@@ -7,7 +7,11 @@ export const TKErrorDomain = /* @__PURE__ */ _bind(FW, 'TKErrorDomain')
 export const TKSimpleTLVRecord = /* @__PURE__ */ _bind(FW, 'TKSimpleTLVRecord')
 export const TKSmartCard = /* @__PURE__ */ _bind(FW, 'TKSmartCard')
 export const TKSmartCardATR = /* @__PURE__ */ _bind(FW, 'TKSmartCardATR')
-export const TKSmartCardATRInterfaceGroup = /* @__PURE__ */ _bind(FW, 'TKSmartCardATRInterfaceGroup')
+export const TKSmartCardATRInterfaceGroup = /* @__PURE__ */ _bind(
+	FW,
+	'TKSmartCardATRInterfaceGroup',
+)
+
 export const TKSmartCardPINCharset = /* @__PURE__ */ _bind(FW, 'TKSmartCardPINCharset')
 export const TKSmartCardPINCompletion = /* @__PURE__ */ _bind(FW, 'TKSmartCardPINCompletion')
 export const TKSmartCardPINConfirmation = /* @__PURE__ */ _bind(FW, 'TKSmartCardPINConfirmation')
@@ -20,13 +24,33 @@ export const TKSmartCardSlotManager = /* @__PURE__ */ _bind(FW, 'TKSmartCardSlot
 export const TKSmartCardSlotState = /* @__PURE__ */ _bind(FW, 'TKSmartCardSlotState')
 export const TKSmartCardToken = /* @__PURE__ */ _bind(FW, 'TKSmartCardToken')
 export const TKSmartCardTokenDriver = /* @__PURE__ */ _bind(FW, 'TKSmartCardTokenDriver')
-export const TKSmartCardTokenDriverDelegate = /* @__PURE__ */ _bind(FW, 'TKSmartCardTokenDriverDelegate')
+export const TKSmartCardTokenDriverDelegate = /* @__PURE__ */ _bind(
+	FW,
+	'TKSmartCardTokenDriverDelegate',
+)
+
 export const TKSmartCardTokenSession = /* @__PURE__ */ _bind(FW, 'TKSmartCardTokenSession')
 export const TKSmartCardUserInteraction = /* @__PURE__ */ _bind(FW, 'TKSmartCardUserInteraction')
-export const TKSmartCardUserInteractionDelegate = /* @__PURE__ */ _bind(FW, 'TKSmartCardUserInteractionDelegate')
-export const TKSmartCardUserInteractionForPINOperation = /* @__PURE__ */ _bind(FW, 'TKSmartCardUserInteractionForPINOperation')
-export const TKSmartCardUserInteractionForSecurePINChange = /* @__PURE__ */ _bind(FW, 'TKSmartCardUserInteractionForSecurePINChange')
-export const TKSmartCardUserInteractionForSecurePINVerification = /* @__PURE__ */ _bind(FW, 'TKSmartCardUserInteractionForSecurePINVerification')
+export const TKSmartCardUserInteractionDelegate = /* @__PURE__ */ _bind(
+	FW,
+	'TKSmartCardUserInteractionDelegate',
+)
+
+export const TKSmartCardUserInteractionForPINOperation = /* @__PURE__ */ _bind(
+	FW,
+	'TKSmartCardUserInteractionForPINOperation',
+)
+
+export const TKSmartCardUserInteractionForSecurePINChange = /* @__PURE__ */ _bind(
+	FW,
+	'TKSmartCardUserInteractionForSecurePINChange',
+)
+
+export const TKSmartCardUserInteractionForSecurePINVerification = /* @__PURE__ */ _bind(
+	FW,
+	'TKSmartCardUserInteractionForSecurePINVerification',
+)
+
 export const TKTLVRecord = /* @__PURE__ */ _bind(FW, 'TKTLVRecord')
 export const TKToken = /* @__PURE__ */ _bind(FW, 'TKToken')
 export const TKTokenAuthOperation = /* @__PURE__ */ _bind(FW, 'TKTokenAuthOperation')
@@ -36,14 +60,26 @@ export const TKTokenDriver = /* @__PURE__ */ _bind(FW, 'TKTokenDriver')
 export const TKTokenDriverConfiguration = /* @__PURE__ */ _bind(FW, 'TKTokenDriverConfiguration')
 export const TKTokenDriverDelegate = /* @__PURE__ */ _bind(FW, 'TKTokenDriverDelegate')
 export const TKTokenKeyAlgorithm = /* @__PURE__ */ _bind(FW, 'TKTokenKeyAlgorithm')
-export const TKTokenKeyExchangeParameters = /* @__PURE__ */ _bind(FW, 'TKTokenKeyExchangeParameters')
+export const TKTokenKeyExchangeParameters = /* @__PURE__ */ _bind(
+	FW,
+	'TKTokenKeyExchangeParameters',
+)
+
 export const TKTokenKeychainCertificate = /* @__PURE__ */ _bind(FW, 'TKTokenKeychainCertificate')
 export const TKTokenKeychainContents = /* @__PURE__ */ _bind(FW, 'TKTokenKeychainContents')
 export const TKTokenKeychainItem = /* @__PURE__ */ _bind(FW, 'TKTokenKeychainItem')
 export const TKTokenKeychainKey = /* @__PURE__ */ _bind(FW, 'TKTokenKeychainKey')
 export const TKTokenOperation = /* @__PURE__ */ _bind(FW, 'TKTokenOperation')
-export const TKTokenPasswordAuthOperation = /* @__PURE__ */ _bind(FW, 'TKTokenPasswordAuthOperation')
+export const TKTokenPasswordAuthOperation = /* @__PURE__ */ _bind(
+	FW,
+	'TKTokenPasswordAuthOperation',
+)
+
 export const TKTokenSession = /* @__PURE__ */ _bind(FW, 'TKTokenSession')
 export const TKTokenSessionDelegate = /* @__PURE__ */ _bind(FW, 'TKTokenSessionDelegate')
-export const TKTokenSmartCardPINAuthOperation = /* @__PURE__ */ _bind(FW, 'TKTokenSmartCardPINAuthOperation')
+export const TKTokenSmartCardPINAuthOperation = /* @__PURE__ */ _bind(
+	FW,
+	'TKTokenSmartCardPINAuthOperation',
+)
+
 export const TKTokenWatcher = /* @__PURE__ */ _bind(FW, 'TKTokenWatcher')

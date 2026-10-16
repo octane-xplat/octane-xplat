@@ -1,10 +1,5 @@
 // Package-owned Core Location facade, loaded by the existing macOS native graph.
-import type {
-	Capability,
-	GeolocationImpl,
-	GeolocationPosition,
-	PermissionResult,
-} from './types'
+import type { Capability, GeolocationImpl, GeolocationPosition, PermissionResult } from './types'
 
 declare const XplatGeolocation: {
 	isAvailable(): boolean
@@ -13,16 +8,11 @@ declare const XplatGeolocation: {
 		highAccuracy: boolean,
 		timeout: number,
 		maximumAge: number,
-		completion: (
-			positionJSON: string | null,
-			code: number,
-			message: string,
-		) => void,
+		completion: (positionJSON: string | null, code: number, message: string) => void,
 	): void
 }
 
-const available = () =>
-	typeof XplatGeolocation !== 'undefined' && XplatGeolocation.isAvailable()
+const available = () => typeof XplatGeolocation !== 'undefined' && XplatGeolocation.isAvailable()
 
 const milliseconds = (value: number | undefined, fallback: number) =>
 	value === undefined || Number.isNaN(value) ? fallback : Math.max(0, value)
@@ -31,9 +21,7 @@ const impl: GeolocationImpl = {
 	getCurrentPosition(options) {
 		return new Promise((resolve, reject) => {
 			if (!available()) {
-				reject(
-					Object.assign(new Error('Location host unavailable'), { code: 2 }),
-				)
+				reject(Object.assign(new Error('Location host unavailable'), { code: 2 }))
 
 				return
 			}
@@ -72,9 +60,7 @@ export const geolocation: Capability<GeolocationImpl> = {
 			return 'unsupported'
 		}
 
-		return new Promise<PermissionResult>((resolve) =>
-			XplatGeolocation.ensure(resolve),
-		)
+		return new Promise<PermissionResult>((resolve) => XplatGeolocation.ensure(resolve))
 	},
 	get impl() {
 		return available() ? impl : null

@@ -12,7 +12,11 @@ export const SFSafariExtensionHandler = /* @__PURE__ */ _bind(FW, 'SFSafariExten
 export const SFSafariExtensionHandling = /* @__PURE__ */ _bind(FW, 'SFSafariExtensionHandling')
 export const SFSafariExtensionManager = /* @__PURE__ */ _bind(FW, 'SFSafariExtensionManager')
 export const SFSafariExtensionState = /* @__PURE__ */ _bind(FW, 'SFSafariExtensionState')
-export const SFSafariExtensionViewController = /* @__PURE__ */ _bind(FW, 'SFSafariExtensionViewController')
+export const SFSafariExtensionViewController = /* @__PURE__ */ _bind(
+	FW,
+	'SFSafariExtensionViewController',
+)
+
 export const SFSafariPage = /* @__PURE__ */ _bind(FW, 'SFSafariPage')
 export const SFSafariPageProperties = /* @__PURE__ */ _bind(FW, 'SFSafariPageProperties')
 export const SFSafariServicesVersion = /* @__PURE__ */ _bind(FW, 'SFSafariServicesVersion')

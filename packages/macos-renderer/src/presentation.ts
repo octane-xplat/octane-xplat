@@ -1,7 +1,18 @@
 import type { UniversalRoot } from 'octane/universal/native'
-import { CABasicAnimation, NSAppearance, NSApplication, NSColor, NSEvent, NSNotificationCenter, NSNumber, NSView, NSWindow, NativeClass } from '@octane-xplat/platform/macos'
-import type { NSPoint } from '@octane-xplat/platform/macos'
+import {
+	CABasicAnimation,
+	NSAppearance,
+	NSApplication,
+	NSColor,
+	NSEvent,
+	NSNotificationCenter,
+	NSNumber,
+	NSView,
+	NSWindow,
+	NativeClass,
+} from '@octane-xplat/platform/macos'
 
+import type { NSPoint } from '@octane-xplat/platform/macos'
 
 // Shared surfaces live in the declaring window, independently of its layout.
 // Kept separate from NSPopover and platform-authentic window sheets.
@@ -185,6 +196,7 @@ export function installPresentationBridge(
 		const root =
 			initial.createContentRoot?.(panel) ??
 			createRoot(panel, { fontFamily: fontFamilyForView(owner ?? host) })
+
 		let resolveClosed: (reason?: unknown) => void = () => {}
 		const responder = nativeWindow.firstResponder
 		const previousFocus = truth(responder, 'isFieldEditor') ? responder.delegate : responder
@@ -218,6 +230,7 @@ export function installPresentationBridge(
 
 				const content =
 					Number(panel.subviews?.count ?? 0) > 0 ? panel.subviews.objectAtIndex(0) : undefined
+
 				const fit = content?.documentView?.fittingSize ?? content?.fittingSize ?? panel.fittingSize
 				const full = options.kind === 'lightbox' || options.fullscreen
 				const width = full
@@ -327,14 +340,16 @@ export function installPresentationBridge(
 
 				entry.options = { ...entry.options, ...options }
 				root.render(entry.options.component, entry.options.props ?? {})
-				if ('whenCommitted' in root)
+				if ('whenCommitted' in root) {
 					root.whenCommitted?.(() => {
 						if (!entry.closed) {
 							entry.layout()
 							if (entry.options.modal)
-								nativeWindow.makeFirstResponder(focusables(panel)[0] ?? layer)
+								{nativeWindow.makeFirstResponder(focusables(panel)[0] ?? layer)}
 						}
 					})
+				}
+
 				entry.layout()
 				entry.didRender = true
 				if (hadFocus && entry.options.modal) {

@@ -1,1355 +1,1574 @@
 /// <reference types="@nativescript/objc-node-api" />
 /// <reference path="./Runtime.d.ts" />
 
-declare const NEVPNStatusDidChangeNotification: string;
+declare const NEVPNStatusDidChangeNotification: string
 
-declare const NEDNSProxyErrorDomain: string;
+declare const NEDNSProxyErrorDomain: string
 
-declare const NEVPNConfigurationChangeNotification: string;
+declare const NEVPNConfigurationChangeNotification: string
 
-declare const NETunnelProviderErrorDomain: string;
+declare const NETunnelProviderErrorDomain: string
 
-declare const NEVPNErrorDomain: string;
+declare const NEVPNErrorDomain: string
 
-declare const NEVPNConnectionStartOptionUsername: string;
+declare const NEVPNConnectionStartOptionUsername: string
 
-declare const NEFilterErrorDomain: string;
+declare const NEFilterErrorDomain: string
 
-declare const NEVPNConnectionStartOptionPassword: string;
+declare const NEVPNConnectionStartOptionPassword: string
 
-declare const NEAppProxyErrorDomain: string;
+declare const NEAppProxyErrorDomain: string
 
-declare const NEDNSProxyConfigurationDidChangeNotification: string;
+declare const NEDNSProxyConfigurationDidChangeNotification: string
 
-declare const NEDNSSettingsConfigurationDidChangeNotification: string;
+declare const NEDNSSettingsConfigurationDidChangeNotification: string
 
-declare const NEDNSSettingsErrorDomain: string;
+declare const NEDNSSettingsErrorDomain: string
 
-declare const NEFilterConfigurationDidChangeNotification: string;
+declare const NEFilterConfigurationDidChangeNotification: string
 
 declare const NWUDPSessionState: {
-  Invalid: 0,
-  Waiting: 1,
-  Preparing: 2,
-  Ready: 3,
-  Failed: 4,
-  Cancelled: 5,
-};
+	Invalid: 0
+	Waiting: 1
+	Preparing: 2
+	Ready: 3
+	Failed: 4
+	Cancelled: 5
+}
 
 declare const NWPathStatus: {
-  Invalid: 0,
-  Satisfied: 1,
-  Unsatisfied: 2,
-  Satisfiable: 3,
-};
+	Invalid: 0
+	Satisfied: 1
+	Unsatisfied: 2
+	Satisfiable: 3
+}
 
 declare const NEVPNIKEv2DeadPeerDetectionRate: {
-  None: 0,
-  Low: 1,
-  Medium: 2,
-  High: 3,
-};
+	None: 0
+	Low: 1
+	Medium: 2
+	High: 3
+}
 
 declare const NEVPNIKEAuthenticationMethod: {
-  None: 0,
-  Certificate: 1,
-  SharedSecret: 2,
-};
+	None: 0
+	Certificate: 1
+	SharedSecret: 2
+}
 
 declare const NEVPNStatus: {
-  Invalid: 0,
-  Disconnected: 1,
-  Connecting: 2,
-  Connected: 3,
-  Reasserting: 4,
-  Disconnecting: 5,
-};
+	Invalid: 0
+	Disconnected: 1
+	Connecting: 2
+	Connected: 3
+	Reasserting: 4
+	Disconnecting: 5
+}
 
 declare const NEFilterPacketProviderVerdict: {
-  Allow: 0,
-  Drop: 1,
-  Delay: 2,
-};
+	Allow: 0
+	Drop: 1
+	Delay: 2
+}
 
 declare const NEFilterDataAttribute: {
-  NEFilterDataAttributeHasIPHeader: 1,
-};
+	NEFilterDataAttributeHasIPHeader: 1
+}
 
 declare const NEFilterReportEvent: {
-  NewFlow: 1,
-  DataDecision: 2,
-  FlowClosed: 3,
-  Statistics: 4,
-};
+	NewFlow: 1
+	DataDecision: 2
+	FlowClosed: 3
+	Statistics: 4
+}
 
 declare const NEFilterAction: {
-  Invalid: 0,
-  Allow: 1,
-  Drop: 2,
-  Remediate: 3,
-  FilterData: 4,
-};
+	Invalid: 0
+	Allow: 1
+	Drop: 2
+	Remediate: 3
+	FilterData: 4
+}
 
 declare const NEDNSProxyManagerError: {
-  Invalid: 1,
-  Disabled: 2,
-  Stale: 3,
-  CannotBeRemoved: 4,
-};
+	Invalid: 1
+	Disabled: 2
+	Stale: 3
+	CannotBeRemoved: 4
+}
 
 declare const NEVPNError: {
-  ConfigurationInvalid: 1,
-  ConfigurationDisabled: 2,
-  ConnectionFailed: 3,
-  ConfigurationStale: 4,
-  ConfigurationReadWriteFailed: 5,
-  ConfigurationUnknown: 6,
-};
+	ConfigurationInvalid: 1
+	ConfigurationDisabled: 2
+	ConnectionFailed: 3
+	ConfigurationStale: 4
+	ConfigurationReadWriteFailed: 5
+	ConfigurationUnknown: 6
+}
 
 declare const NETunnelProviderError: {
-  Invalid: 1,
-  Canceled: 2,
-  Failed: 3,
-};
+	Invalid: 1
+	Canceled: 2
+	Failed: 3
+}
 
 declare const NEAppProxyFlowError: {
-  NotConnected: 1,
-  PeerReset: 2,
-  HostUnreachable: 3,
-  InvalidArgument: 4,
-  Aborted: 5,
-  Refused: 6,
-  TimedOut: 7,
-  Internal: 8,
-  DatagramTooLarge: 9,
-  ReadAlreadyPending: 10,
-};
+	NotConnected: 1
+	PeerReset: 2
+	HostUnreachable: 3
+	InvalidArgument: 4
+	Aborted: 5
+	Refused: 6
+	TimedOut: 7
+	Internal: 8
+	DatagramTooLarge: 9
+	ReadAlreadyPending: 10
+}
 
 declare const NEEvaluateConnectionRuleAction: {
-  ConnectIfNeeded: 1,
-  NeverConnect: 2,
-};
+	ConnectIfNeeded: 1
+	NeverConnect: 2
+}
 
 declare const NENetworkRuleProtocol: {
-  Any: 0,
-  TCP: 1,
-  UDP: 2,
-};
+	Any: 0
+	TCP: 1
+	UDP: 2
+}
 
 declare const NETunnelProviderRoutingMethod: {
-  DestinationIP: 1,
-  SourceApplication: 2,
-  NetworkRule: 3,
-};
+	DestinationIP: 1
+	SourceApplication: 2
+	NetworkRule: 3
+}
 
 declare const NEVPNIKEv2EncryptionAlgorithm: {
-  AlgorithmDES: 1,
-  Algorithm3DES: 2,
-  AlgorithmAES128: 3,
-  AlgorithmAES256: 4,
-  AlgorithmAES128GCM: 5,
-  AlgorithmAES256GCM: 6,
-  AlgorithmChaCha20Poly1305: 7,
-};
+	AlgorithmDES: 1
+	Algorithm3DES: 2
+	AlgorithmAES128: 3
+	AlgorithmAES256: 4
+	AlgorithmAES128GCM: 5
+	AlgorithmAES256GCM: 6
+	AlgorithmChaCha20Poly1305: 7
+}
 
 declare const NEFilterManagerError: {
-  Invalid: 1,
-  Disabled: 2,
-  Stale: 3,
-  CannotBeRemoved: 4,
-  PermissionDenied: 5,
-  InternalError: 6,
-};
+	Invalid: 1
+	Disabled: 2
+	Stale: 3
+	CannotBeRemoved: 4
+	PermissionDenied: 5
+	InternalError: 6
+}
 
 declare const NEVPNIKEv2DiffieHellmanGroup: {
-  GroupInvalid: 0,
-  Group1: 1,
-  Group2: 2,
-  Group5: 5,
-  Group14: 14,
-  Group15: 15,
-  Group16: 16,
-  Group17: 17,
-  Group18: 18,
-  Group19: 19,
-  Group20: 20,
-  Group21: 21,
-  Group31: 31,
-};
+	GroupInvalid: 0
+	Group1: 1
+	Group2: 2
+	Group5: 5
+	Group14: 14
+	Group15: 15
+	Group16: 16
+	Group17: 17
+	Group18: 18
+	Group19: 19
+	Group20: 20
+	Group21: 21
+	Group31: 31
+}
 
 declare const NEOnDemandRuleInterfaceType: {
-  Any: 0,
-  Ethernet: 1,
-  WiFi: 2,
-};
+	Any: 0
+	Ethernet: 1
+	WiFi: 2
+}
 
 declare const NEOnDemandRuleAction: {
-  Connect: 1,
-  Disconnect: 2,
-  EvaluateConnection: 3,
-  Ignore: 4,
-};
+	Connect: 1
+	Disconnect: 2
+	EvaluateConnection: 3
+	Ignore: 4
+}
 
 declare const NEProviderStopReason: {
-  None: 0,
-  UserInitiated: 1,
-  ProviderFailed: 2,
-  NoNetworkAvailable: 3,
-  UnrecoverableNetworkChange: 4,
-  ProviderDisabled: 5,
-  AuthenticationCanceled: 6,
-  ConfigurationFailed: 7,
-  IdleTimeout: 8,
-  ConfigurationDisabled: 9,
-  ConfigurationRemoved: 10,
-  Superceded: 11,
-  UserLogout: 12,
-  UserSwitch: 13,
-  ConnectionFailed: 14,
-  Sleep: 15,
-  AppUpdate: 16,
-};
+	None: 0
+	UserInitiated: 1
+	ProviderFailed: 2
+	NoNetworkAvailable: 3
+	UnrecoverableNetworkChange: 4
+	ProviderDisabled: 5
+	AuthenticationCanceled: 6
+	ConfigurationFailed: 7
+	IdleTimeout: 8
+	ConfigurationDisabled: 9
+	ConfigurationRemoved: 10
+	Superceded: 11
+	UserLogout: 12
+	UserSwitch: 13
+	ConnectionFailed: 14
+	Sleep: 15
+	AppUpdate: 16
+}
 
 declare const NEVPNIKEv2TLSVersion: {
-  VersionDefault: 0,
-  Version1_0: 1,
-  Version1_1: 2,
-  Version1_2: 3,
-};
+	VersionDefault: 0
+	Version1_0: 1
+	Version1_1: 2
+	Version1_2: 3
+}
 
 declare const NEVPNIKEv2CertificateType: {
-  RSA: 1,
-  ECDSA256: 2,
-  ECDSA384: 3,
-  ECDSA521: 4,
-  Ed25519: 5,
-};
+	RSA: 1
+	ECDSA256: 2
+	ECDSA384: 3
+	ECDSA521: 4
+	Ed25519: 5
+}
 
 declare const NEFilterManagerGrade: {
-  Firewall: 1,
-  Inspector: 2,
-};
+	Firewall: 1
+	Inspector: 2
+}
 
 declare const NETrafficDirection: {
-  Any: 0,
-  Inbound: 1,
-  Outbound: 2,
-};
+	Any: 0
+	Inbound: 1
+	Outbound: 2
+}
 
 declare const NEFilterReportFrequency: {
-  None: 0,
-  Low: 1,
-  Medium: 2,
-  High: 3,
-};
+	None: 0
+	Low: 1
+	Medium: 2
+	High: 3
+}
 
 declare const NEVPNIKEv2IntegrityAlgorithm: {
-  A96: 1,
-  A160: 2,
-  A256: 3,
-  A384: 4,
-  A512: 5,
-};
+	A96: 1
+	A160: 2
+	A256: 3
+	A384: 4
+	A512: 5
+}
 
 declare const NEDNSProtocol: {
-  Cleartext: 1,
-  TLS: 2,
-  HTTPS: 3,
-};
+	Cleartext: 1
+	TLS: 2
+	HTTPS: 3
+}
 
 declare const NEDNSSettingsManagerError: {
-  Invalid: 1,
-  Disabled: 2,
-  Stale: 3,
-  CannotBeRemoved: 4,
-};
+	Invalid: 1
+	Disabled: 2
+	Stale: 3
+	CannotBeRemoved: 4
+}
 
 declare const NWTCPConnectionState: {
-  Invalid: 0,
-  Connecting: 1,
-  Waiting: 2,
-  Connected: 3,
-  Disconnected: 4,
-  Cancelled: 5,
-};
+	Invalid: 0
+	Connecting: 1
+	Waiting: 2
+	Connected: 3
+	Disconnected: 4
+	Cancelled: 5
+}
 
 declare interface NWTCPConnectionAuthenticationDelegate extends NSObjectProtocol {
-  shouldProvideIdentityForConnection?(connection: NWTCPConnection): boolean;
+	shouldProvideIdentityForConnection?(connection: NWTCPConnection): boolean
 
-  provideIdentityForConnectionCompletionHandler?(connection: NWTCPConnection, completion: (p1: interop.PointerConvertible, p2: NSArray<interop.Object> | Array<interop.Object>) => void): void;
+	provideIdentityForConnectionCompletionHandler?(
+		connection: NWTCPConnection,
+		completion: (
+			p1: interop.PointerConvertible,
+			p2: NSArray<interop.Object> | Array<interop.Object>,
+		) => void,
+	): void
 
-  shouldEvaluateTrustForConnection?(connection: NWTCPConnection): boolean;
+	shouldEvaluateTrustForConnection?(connection: NWTCPConnection): boolean
 
-  evaluateTrustForConnectionPeerCertificateChainCompletionHandler?(connection: NWTCPConnection, peerCertificateChain: NSArray<interop.Object> | Array<interop.Object>, completion: (p1: interop.PointerConvertible) => void): void;
+	evaluateTrustForConnectionPeerCertificateChainCompletionHandler?(
+		connection: NWTCPConnection,
+		peerCertificateChain: NSArray<interop.Object> | Array<interop.Object>,
+		completion: (p1: interop.PointerConvertible) => void,
+	): void
 }
 
-declare class NWTCPConnectionAuthenticationDelegate extends NativeObject implements NWTCPConnectionAuthenticationDelegate {
-}
+declare class NWTCPConnectionAuthenticationDelegate
+	extends NativeObject
+	implements NWTCPConnectionAuthenticationDelegate {}
 
 declare class NWUDPSession extends NSObject {
-  initWithUpgradeForSession(session: NWUDPSession): this;
+	initWithUpgradeForSession(session: NWUDPSession): this
 
-  readonly state: interop.Enum<typeof NWUDPSessionState>;
+	readonly state: interop.Enum<typeof NWUDPSessionState>
 
-  readonly endpoint: NWEndpoint;
+	readonly endpoint: NWEndpoint
 
-  readonly resolvedEndpoint: NWEndpoint;
+	readonly resolvedEndpoint: NWEndpoint
 
-  readonly viable: boolean;
+	readonly viable: boolean
 
-  readonly hasBetterPath: boolean;
+	readonly hasBetterPath: boolean
 
-  readonly currentPath: NWPath;
+	readonly currentPath: NWPath
 
-  tryNextResolvedEndpoint(): void;
+	tryNextResolvedEndpoint(): void
 
-  readonly maximumDatagramLength: number;
+	readonly maximumDatagramLength: number
 
-  setReadHandlerMaxDatagrams(handler: (p1: NSArray<interop.Object> | Array<interop.Object>, p2: NSError) => void | null, maxDatagrams: number): void;
+	setReadHandlerMaxDatagrams(
+		handler: (p1: NSArray<interop.Object> | Array<interop.Object>, p2: NSError) => void | null,
+		maxDatagrams: number,
+	): void
 
-  writeMultipleDatagramsCompletionHandler(datagramArray: NSArray<interop.Object> | Array<interop.Object>, completionHandler: (p1: NSError) => void | null): void;
+	writeMultipleDatagramsCompletionHandler(
+		datagramArray: NSArray<interop.Object> | Array<interop.Object>,
+		completionHandler: (p1: NSError) => void | null,
+	): void
 
-  writeDatagramCompletionHandler(datagram: NSData, completionHandler: (p1: NSError) => void | null): void;
+	writeDatagramCompletionHandler(
+		datagram: NSData,
+		completionHandler: (p1: NSError) => void | null,
+	): void
 
-  cancel(): void;
+	cancel(): void
 
-  isViable(): boolean;
+	isViable(): boolean
 }
 
 declare class NWTCPConnection extends NSObject {
-  initWithUpgradeForConnection(connection: NWTCPConnection): this;
+	initWithUpgradeForConnection(connection: NWTCPConnection): this
 
-  readonly state: interop.Enum<typeof NWTCPConnectionState>;
+	readonly state: interop.Enum<typeof NWTCPConnectionState>
 
-  readonly viable: boolean;
+	readonly viable: boolean
 
-  readonly hasBetterPath: boolean;
+	readonly hasBetterPath: boolean
 
-  readonly endpoint: NWEndpoint;
+	readonly endpoint: NWEndpoint
 
-  readonly connectedPath: NWPath;
+	readonly connectedPath: NWPath
 
-  readonly localAddress: NWEndpoint;
+	readonly localAddress: NWEndpoint
 
-  readonly remoteAddress: NWEndpoint;
+	readonly remoteAddress: NWEndpoint
 
-  readonly txtRecord: NSData;
+	readonly txtRecord: NSData
 
-  readonly error: NSError;
+	readonly error: NSError
 
-  cancel(): void;
+	cancel(): void
 
-  readLengthCompletionHandler(length: number, completion: (p1: NSData, p2: NSError) => void | null): void;
+	readLengthCompletionHandler(
+		length: number,
+		completion: (p1: NSData, p2: NSError) => void | null,
+	): void
 
-  readMinimumLengthMaximumLengthCompletionHandler(minimum: number, maximum: number, completion: (p1: NSData, p2: NSError) => void | null): void;
+	readMinimumLengthMaximumLengthCompletionHandler(
+		minimum: number,
+		maximum: number,
+		completion: (p1: NSData, p2: NSError) => void | null,
+	): void
 
-  writeCompletionHandler(data: NSData, completion: (p1: NSError) => void | null): void;
+	writeCompletionHandler(data: NSData, completion: (p1: NSError) => void | null): void
 
-  writeClose(): void;
+	writeClose(): void
 
-  isViable(): boolean;
+	isViable(): boolean
 }
 
-declare class NEVPNIKEv2SecurityAssociationParameters extends NSObject implements NSSecureCoding, NSCopying {
-  encryptionAlgorithm: interop.Enum<typeof NEVPNIKEv2EncryptionAlgorithm>;
+declare class NEVPNIKEv2SecurityAssociationParameters
+	extends NSObject
+	implements NSSecureCoding, NSCopying
+{
+	encryptionAlgorithm: interop.Enum<typeof NEVPNIKEv2EncryptionAlgorithm>
 
-  integrityAlgorithm: interop.Enum<typeof NEVPNIKEv2IntegrityAlgorithm>;
+	integrityAlgorithm: interop.Enum<typeof NEVPNIKEv2IntegrityAlgorithm>
 
-  diffieHellmanGroup: interop.Enum<typeof NEVPNIKEv2DiffieHellmanGroup>;
+	diffieHellmanGroup: interop.Enum<typeof NEVPNIKEv2DiffieHellmanGroup>
 
-  lifetimeMinutes: number;
+	lifetimeMinutes: number
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class NEVPNProtocolIPSec extends NEVPNProtocol {
-  authenticationMethod: interop.Enum<typeof NEVPNIKEAuthenticationMethod>;
+	authenticationMethod: interop.Enum<typeof NEVPNIKEAuthenticationMethod>
 
-  useExtendedAuthentication: boolean;
+	useExtendedAuthentication: boolean
 
-  sharedSecretReference: NSData;
+	sharedSecretReference: NSData
 
-  localIdentifier: string;
+	localIdentifier: string
 
-  remoteIdentifier: string;
+	remoteIdentifier: string
 }
 
-declare class NETransparentProxyProvider extends NEAppProxyProvider {
-}
+declare class NETransparentProxyProvider extends NEAppProxyProvider {}
 
 declare class NETransparentProxyNetworkSettings extends NETunnelNetworkSettings {
-  get includedNetworkRules(): NSArray;
-  set includedNetworkRules(value: NSArray<interop.Object> | Array<interop.Object>);
+	get includedNetworkRules(): NSArray
+	set includedNetworkRules(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get excludedNetworkRules(): NSArray;
-  set excludedNetworkRules(value: NSArray<interop.Object> | Array<interop.Object>);
+	get excludedNetworkRules(): NSArray
+	set excludedNetworkRules(value: NSArray<interop.Object> | Array<interop.Object>)
 }
 
 declare class NEEvaluateConnectionRule extends NSObject implements NSSecureCoding, NSCopying {
-  initWithMatchDomainsAndAction(domains: NSArray<interop.Object> | Array<interop.Object>, action: interop.Enum<typeof NEEvaluateConnectionRuleAction>): this;
+	initWithMatchDomainsAndAction(
+		domains: NSArray<interop.Object> | Array<interop.Object>,
+		action: interop.Enum<typeof NEEvaluateConnectionRuleAction>,
+	): this
 
-  readonly action: interop.Enum<typeof NEEvaluateConnectionRuleAction>;
+	readonly action: interop.Enum<typeof NEEvaluateConnectionRuleAction>
 
-  readonly matchDomains: NSArray;
+	readonly matchDomains: NSArray
 
-  get useDNSServers(): NSArray;
-  set useDNSServers(value: NSArray<interop.Object> | Array<interop.Object>);
+	get useDNSServers(): NSArray
+	set useDNSServers(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  probeURL: NSURL;
+	probeURL: NSURL
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class NEOnDemandRuleEvaluateConnection extends NEOnDemandRule {
-  get connectionRules(): NSArray;
-  set connectionRules(value: NSArray<interop.Object> | Array<interop.Object>);
+	get connectionRules(): NSArray
+	set connectionRules(value: NSArray<interop.Object> | Array<interop.Object>)
 }
 
-declare class NEOnDemandRuleIgnore extends NEOnDemandRule {
-}
+declare class NEOnDemandRuleIgnore extends NEOnDemandRule {}
 
-declare class NEOnDemandRuleDisconnect extends NEOnDemandRule {
-}
+declare class NEOnDemandRuleDisconnect extends NEOnDemandRule {}
 
 declare class NEPacketTunnelProvider extends NETunnelProvider {
-  startTunnelWithOptionsCompletionHandler(options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null, completionHandler: (p1: NSError) => void | null): void;
+	startTunnelWithOptionsCompletionHandler(
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+		completionHandler: (p1: NSError) => void | null,
+	): void
 
-  stopTunnelWithReasonCompletionHandler(reason: interop.Enum<typeof NEProviderStopReason>, completionHandler: () => void): void;
+	stopTunnelWithReasonCompletionHandler(
+		reason: interop.Enum<typeof NEProviderStopReason>,
+		completionHandler: () => void,
+	): void
 
-  cancelTunnelWithError(error: NSError | null): void;
+	cancelTunnelWithError(error: NSError | null): void
 
-  readonly packetFlow: NEPacketTunnelFlow;
+	readonly packetFlow: NEPacketTunnelFlow
 
-  createTCPConnectionThroughTunnelToEndpointEnableTLSTLSParametersDelegate(remoteEndpoint: NWEndpoint, enableTLS: boolean, TLSParameters: NWTLSParameters | null, delegate: interop.Object | null): NWTCPConnection;
+	createTCPConnectionThroughTunnelToEndpointEnableTLSTLSParametersDelegate(
+		remoteEndpoint: NWEndpoint,
+		enableTLS: boolean,
+		TLSParameters: NWTLSParameters | null,
+		delegate: interop.Object | null,
+	): NWTCPConnection
 
-  createUDPSessionThroughTunnelToEndpointFromEndpoint(remoteEndpoint: NWEndpoint, localEndpoint: NWHostEndpoint | null): NWUDPSession;
+	createUDPSessionThroughTunnelToEndpointFromEndpoint(
+		remoteEndpoint: NWEndpoint,
+		localEndpoint: NWHostEndpoint | null,
+	): NWUDPSession
 }
 
 declare class NEIPv6Route extends NSObject implements NSSecureCoding, NSCopying {
-  initWithDestinationAddressNetworkPrefixLength(address: string, networkPrefixLength: NSNumber): this;
+	initWithDestinationAddressNetworkPrefixLength(
+		address: string,
+		networkPrefixLength: NSNumber,
+	): this
 
-  readonly destinationAddress: string;
+	readonly destinationAddress: string
 
-  readonly destinationNetworkPrefixLength: NSNumber;
+	readonly destinationNetworkPrefixLength: NSNumber
 
-  gatewayAddress: string;
+	gatewayAddress: string
 
-  static defaultRoute(): NEIPv6Route;
+	static defaultRoute(): NEIPv6Route
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class NEIPv4Route extends NSObject implements NSSecureCoding, NSCopying {
-  initWithDestinationAddressSubnetMask(address: string, subnetMask: string): this;
+	initWithDestinationAddressSubnetMask(address: string, subnetMask: string): this
 
-  readonly destinationAddress: string;
+	readonly destinationAddress: string
 
-  readonly destinationSubnetMask: string;
+	readonly destinationSubnetMask: string
 
-  gatewayAddress: string;
+	gatewayAddress: string
 
-  static defaultRoute(): NEIPv4Route;
+	static defaultRoute(): NEIPv4Route
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class NEFilterRule extends NSObject implements NSSecureCoding, NSCopying {
-  initWithNetworkRuleAction(networkRule: NENetworkRule, action: interop.Enum<typeof NEFilterAction>): this;
+	initWithNetworkRuleAction(
+		networkRule: NENetworkRule,
+		action: interop.Enum<typeof NEFilterAction>,
+	): this
 
-  readonly networkRule: NENetworkRule;
+	readonly networkRule: NENetworkRule
 
-  readonly action: interop.Enum<typeof NEFilterAction>;
+	readonly action: interop.Enum<typeof NEFilterAction>
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class NEFilterDataProvider extends NEFilterProvider {
-  handleNewFlow(flow: NEFilterFlow): NEFilterNewFlowVerdict;
+	handleNewFlow(flow: NEFilterFlow): NEFilterNewFlowVerdict
 
-  handleInboundDataFromFlowReadBytesStartOffsetReadBytes(flow: NEFilterFlow, offset: number, readBytes: NSData): NEFilterDataVerdict;
+	handleInboundDataFromFlowReadBytesStartOffsetReadBytes(
+		flow: NEFilterFlow,
+		offset: number,
+		readBytes: NSData,
+	): NEFilterDataVerdict
 
-  handleOutboundDataFromFlowReadBytesStartOffsetReadBytes(flow: NEFilterFlow, offset: number, readBytes: NSData): NEFilterDataVerdict;
+	handleOutboundDataFromFlowReadBytesStartOffsetReadBytes(
+		flow: NEFilterFlow,
+		offset: number,
+		readBytes: NSData,
+	): NEFilterDataVerdict
 
-  handleInboundDataCompleteForFlow(flow: NEFilterFlow): NEFilterDataVerdict;
+	handleInboundDataCompleteForFlow(flow: NEFilterFlow): NEFilterDataVerdict
 
-  handleOutboundDataCompleteForFlow(flow: NEFilterFlow): NEFilterDataVerdict;
+	handleOutboundDataCompleteForFlow(flow: NEFilterFlow): NEFilterDataVerdict
 
-  applySettingsCompletionHandler(settings: NEFilterSettings | null, completionHandler: (p1: NSError) => void | null): void;
+	applySettingsCompletionHandler(
+		settings: NEFilterSettings | null,
+		completionHandler: (p1: NSError) => void | null,
+	): void
 
-  resumeFlowWithVerdict(flow: NEFilterFlow, verdict: NEFilterVerdict): void;
+	resumeFlowWithVerdict(flow: NEFilterFlow, verdict: NEFilterVerdict): void
 
-  updateFlowUsingVerdictForDirection(flow: NEFilterSocketFlow, verdict: NEFilterDataVerdict, direction: interop.Enum<typeof NETrafficDirection>): void;
+	updateFlowUsingVerdictForDirection(
+		flow: NEFilterSocketFlow,
+		verdict: NEFilterDataVerdict,
+		direction: interop.Enum<typeof NETrafficDirection>,
+	): void
 }
 
 declare class NEFilterVerdict extends NSObject implements NSSecureCoding, NSCopying {
-  shouldReport: boolean;
+	shouldReport: boolean
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class NEFilterProvider extends NEProvider {
-  startFilterWithCompletionHandler(completionHandler: (p1: NSError) => void | null): void;
+	startFilterWithCompletionHandler(completionHandler: (p1: NSError) => void | null): void
 
-  stopFilterWithReasonCompletionHandler(reason: interop.Enum<typeof NEProviderStopReason>, completionHandler: () => void): void;
+	stopFilterWithReasonCompletionHandler(
+		reason: interop.Enum<typeof NEProviderStopReason>,
+		completionHandler: () => void,
+	): void
 
-  readonly filterConfiguration: NEFilterProviderConfiguration;
+	readonly filterConfiguration: NEFilterProviderConfiguration
 
-  handleReport(report: NEFilterReport): void;
+	handleReport(report: NEFilterReport): void
 }
 
 declare class NEFilterSocketFlow extends NEFilterFlow implements NSSecureCoding, NSCopying {
-  readonly remoteEndpoint: NWEndpoint;
+	readonly remoteEndpoint: NWEndpoint
 
-  readonly remoteHostname: string;
+	readonly remoteHostname: string
 
-  readonly localEndpoint: NWEndpoint;
+	readonly localEndpoint: NWEndpoint
 
-  readonly socketFamily: number;
+	readonly socketFamily: number
 
-  readonly socketType: number;
+	readonly socketType: number
 
-  readonly socketProtocol: number;
+	readonly socketProtocol: number
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class NEFilterFlow extends NSObject implements NSSecureCoding, NSCopying {
-  readonly URL: NSURL;
+	readonly URL: NSURL
 
-  readonly direction: interop.Enum<typeof NETrafficDirection>;
+	readonly direction: interop.Enum<typeof NETrafficDirection>
 
-  readonly sourceAppAuditToken: NSData;
+	readonly sourceAppAuditToken: NSData
 
-  readonly identifier: NSUUID;
+	readonly identifier: NSUUID
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class NENetworkRule extends NSObject implements NSSecureCoding, NSCopying {
-  initWithDestinationNetworkPrefixProtocol(networkEndpoint: NWHostEndpoint, destinationPrefix: number, protocol: interop.Enum<typeof NENetworkRuleProtocol>): this;
+	initWithDestinationNetworkPrefixProtocol(
+		networkEndpoint: NWHostEndpoint,
+		destinationPrefix: number,
+		protocol: interop.Enum<typeof NENetworkRuleProtocol>,
+	): this
 
-  initWithDestinationHostProtocol(hostEndpoint: NWHostEndpoint, protocol: interop.Enum<typeof NENetworkRuleProtocol>): this;
+	initWithDestinationHostProtocol(
+		hostEndpoint: NWHostEndpoint,
+		protocol: interop.Enum<typeof NENetworkRuleProtocol>,
+	): this
 
-  initWithRemoteNetworkRemotePrefixLocalNetworkLocalPrefixProtocolDirection(remoteNetwork: NWHostEndpoint | null, remotePrefix: number, localNetwork: NWHostEndpoint | null, localPrefix: number, protocol: interop.Enum<typeof NENetworkRuleProtocol>, direction: interop.Enum<typeof NETrafficDirection>): this;
+	initWithRemoteNetworkRemotePrefixLocalNetworkLocalPrefixProtocolDirection(
+		remoteNetwork: NWHostEndpoint | null,
+		remotePrefix: number,
+		localNetwork: NWHostEndpoint | null,
+		localPrefix: number,
+		protocol: interop.Enum<typeof NENetworkRuleProtocol>,
+		direction: interop.Enum<typeof NETrafficDirection>,
+	): this
 
-  readonly matchRemoteEndpoint: NWHostEndpoint;
+	readonly matchRemoteEndpoint: NWHostEndpoint
 
-  readonly matchRemotePrefix: number;
+	readonly matchRemotePrefix: number
 
-  readonly matchLocalNetwork: NWHostEndpoint;
+	readonly matchLocalNetwork: NWHostEndpoint
 
-  readonly matchLocalPrefix: number;
+	readonly matchLocalPrefix: number
 
-  readonly matchProtocol: interop.Enum<typeof NENetworkRuleProtocol>;
+	readonly matchProtocol: interop.Enum<typeof NENetworkRuleProtocol>
 
-  readonly matchDirection: interop.Enum<typeof NETrafficDirection>;
+	readonly matchDirection: interop.Enum<typeof NETrafficDirection>
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class NEDNSOverHTTPSSettings extends NEDNSSettings {
-  serverURL: NSURL;
+	serverURL: NSURL
 }
 
 declare class NEProxySettings extends NSObject implements NSSecureCoding, NSCopying {
-  autoProxyConfigurationEnabled: boolean;
+	autoProxyConfigurationEnabled: boolean
 
-  proxyAutoConfigurationURL: NSURL;
+	proxyAutoConfigurationURL: NSURL
 
-  proxyAutoConfigurationJavaScript: string;
+	proxyAutoConfigurationJavaScript: string
 
-  HTTPEnabled: boolean;
+	HTTPEnabled: boolean
 
-  HTTPServer: NEProxyServer;
+	HTTPServer: NEProxyServer
 
-  HTTPSEnabled: boolean;
+	HTTPSEnabled: boolean
 
-  HTTPSServer: NEProxyServer;
+	HTTPSServer: NEProxyServer
 
-  excludeSimpleHostnames: boolean;
+	excludeSimpleHostnames: boolean
 
-  get exceptionList(): NSArray;
-  set exceptionList(value: NSArray<interop.Object> | Array<interop.Object>);
+	get exceptionList(): NSArray
+	set exceptionList(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get matchDomains(): NSArray;
-  set matchDomains(value: NSArray<interop.Object> | Array<interop.Object>);
+	get matchDomains(): NSArray
+	set matchDomains(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class NEProxyServer extends NSObject implements NSSecureCoding, NSCopying {
-  initWithAddressPort(address: string, port: number): this;
+	initWithAddressPort(address: string, port: number): this
 
-  readonly address: string;
+	readonly address: string
 
-  readonly port: number;
+	readonly port: number
 
-  authenticationRequired: boolean;
+	authenticationRequired: boolean
 
-  username: string;
+	username: string
 
-  password: string;
+	password: string
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class NEDNSProxyProvider extends NEProvider {
-  startProxyWithOptionsCompletionHandler(options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null, completionHandler: (p1: NSError) => void | null): void;
+	startProxyWithOptionsCompletionHandler(
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+		completionHandler: (p1: NSError) => void | null,
+	): void
 
-  stopProxyWithReasonCompletionHandler(reason: interop.Enum<typeof NEProviderStopReason>, completionHandler: () => void): void;
+	stopProxyWithReasonCompletionHandler(
+		reason: interop.Enum<typeof NEProviderStopReason>,
+		completionHandler: () => void,
+	): void
 
-  cancelProxyWithError(error: NSError | null): void;
+	cancelProxyWithError(error: NSError | null): void
 
-  handleNewFlow(flow: NEAppProxyFlow): boolean;
+	handleNewFlow(flow: NEAppProxyFlow): boolean
 
-  handleNewUDPFlowInitialRemoteEndpoint(flow: NEAppProxyUDPFlow, remoteEndpoint: NWEndpoint): boolean;
+	handleNewUDPFlowInitialRemoteEndpoint(
+		flow: NEAppProxyUDPFlow,
+		remoteEndpoint: NWEndpoint,
+	): boolean
 
-  readonly systemDNSSettings: NSArray;
+	readonly systemDNSSettings: NSArray
 }
 
 declare class NEAppRule extends NSObject implements NSSecureCoding, NSCopying {
-  initWithSigningIdentifierDesignatedRequirement(signingIdentifier: string, designatedRequirement: string): this;
+	initWithSigningIdentifierDesignatedRequirement(
+		signingIdentifier: string,
+		designatedRequirement: string,
+	): this
 
-  readonly matchSigningIdentifier: string;
+	readonly matchSigningIdentifier: string
 
-  readonly matchDesignatedRequirement: string;
+	readonly matchDesignatedRequirement: string
 
-  matchPath: string;
+	matchPath: string
 
-  get matchDomains(): NSArray;
-  set matchDomains(value: NSArray<interop.Object> | Array<interop.Object>);
+	get matchDomains(): NSArray
+	set matchDomains(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get matchTools(): NSArray;
-  set matchTools(value: NSArray<interop.Object> | Array<interop.Object>);
+	get matchTools(): NSArray
+	set matchTools(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class NEAppProxyUDPFlow extends NEAppProxyFlow {
-  readDatagramsWithCompletionHandler(completionHandler: (p1: NSArray<interop.Object> | Array<interop.Object>, p2: NSArray<interop.Object> | Array<interop.Object>, p3: NSError) => void | null): void;
+	readDatagramsWithCompletionHandler(
+		completionHandler: (
+			p1: NSArray<interop.Object> | Array<interop.Object>,
+			p2: NSArray<interop.Object> | Array<interop.Object>,
+			p3: NSError,
+		) => void | null,
+	): void
 
-  writeDatagramsSentByEndpointsCompletionHandler(datagrams: NSArray<interop.Object> | Array<interop.Object>, remoteEndpoints: NSArray<interop.Object> | Array<interop.Object>, completionHandler: (p1: NSError) => void | null): void;
+	writeDatagramsSentByEndpointsCompletionHandler(
+		datagrams: NSArray<interop.Object> | Array<interop.Object>,
+		remoteEndpoints: NSArray<interop.Object> | Array<interop.Object>,
+		completionHandler: (p1: NSError) => void | null,
+	): void
 
-  readonly localEndpoint: NWEndpoint;
+	readonly localEndpoint: NWEndpoint
 }
 
 declare class NEAppProxyProviderManager extends NETunnelProviderManager {
-  static loadAllFromPreferencesWithCompletionHandler(completionHandler: (p1: NSArray<interop.Object> | Array<interop.Object>, p2: NSError) => void | null): void;
+	static loadAllFromPreferencesWithCompletionHandler(
+		completionHandler: (
+			p1: NSArray<interop.Object> | Array<interop.Object>,
+			p2: NSError,
+		) => void | null,
+	): void
 }
 
 declare class NETunnelProviderManager extends NEVPNManager {
-  static loadAllFromPreferencesWithCompletionHandler(completionHandler: (p1: NSArray<interop.Object> | Array<interop.Object>, p2: NSError) => void | null): void;
+	static loadAllFromPreferencesWithCompletionHandler(
+		completionHandler: (
+			p1: NSArray<interop.Object> | Array<interop.Object>,
+			p2: NSError,
+		) => void | null,
+	): void
 
-  static forPerAppVPN<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>;
+	static forPerAppVPN<This extends abstract new (...args: any) => any>(
+		this: This,
+	): InstanceType<This>
 
-  copyAppRules(): NSArray;
+	copyAppRules(): NSArray
 
-  readonly routingMethod: interop.Enum<typeof NETunnelProviderRoutingMethod>;
+	readonly routingMethod: interop.Enum<typeof NETunnelProviderRoutingMethod>
 
-  get safariDomains(): NSArray;
-  set safariDomains(value: NSArray<interop.Object> | Array<interop.Object>);
+	get safariDomains(): NSArray
+	set safariDomains(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get mailDomains(): NSArray;
-  set mailDomains(value: NSArray<interop.Object> | Array<interop.Object>);
+	get mailDomains(): NSArray
+	set mailDomains(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get calendarDomains(): NSArray;
-  set calendarDomains(value: NSArray<interop.Object> | Array<interop.Object>);
+	get calendarDomains(): NSArray
+	set calendarDomains(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get contactsDomains(): NSArray;
-  set contactsDomains(value: NSArray<interop.Object> | Array<interop.Object>);
+	get contactsDomains(): NSArray
+	set contactsDomains(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get appRules(): NSArray;
-  set appRules(value: NSArray<interop.Object> | Array<interop.Object>);
+	get appRules(): NSArray
+	set appRules(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get excludedDomains(): NSArray;
-  set excludedDomains(value: NSArray<interop.Object> | Array<interop.Object>);
+	get excludedDomains(): NSArray
+	set excludedDomains(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get associatedDomains(): NSArray;
-  set associatedDomains(value: NSArray<interop.Object> | Array<interop.Object>);
+	get associatedDomains(): NSArray
+	set associatedDomains(value: NSArray<interop.Object> | Array<interop.Object>)
 }
 
 declare class NEAppProxyProvider extends NETunnelProvider {
-  startProxyWithOptionsCompletionHandler(options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null, completionHandler: (p1: NSError) => void | null): void;
+	startProxyWithOptionsCompletionHandler(
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+		completionHandler: (p1: NSError) => void | null,
+	): void
 
-  stopProxyWithReasonCompletionHandler(reason: interop.Enum<typeof NEProviderStopReason>, completionHandler: () => void): void;
+	stopProxyWithReasonCompletionHandler(
+		reason: interop.Enum<typeof NEProviderStopReason>,
+		completionHandler: () => void,
+	): void
 
-  cancelProxyWithError(error: NSError | null): void;
+	cancelProxyWithError(error: NSError | null): void
 
-  handleNewFlow(flow: NEAppProxyFlow): boolean;
+	handleNewFlow(flow: NEAppProxyFlow): boolean
 
-  handleNewUDPFlowInitialRemoteEndpoint(flow: NEAppProxyUDPFlow, remoteEndpoint: NWEndpoint): boolean;
+	handleNewUDPFlowInitialRemoteEndpoint(
+		flow: NEAppProxyUDPFlow,
+		remoteEndpoint: NWEndpoint,
+	): boolean
 }
 
 declare class NETunnelProvider extends NEProvider {
-  handleAppMessageCompletionHandler(messageData: NSData, completionHandler: (p1: NSData) => void | null): void;
+	handleAppMessageCompletionHandler(
+		messageData: NSData,
+		completionHandler: (p1: NSData) => void | null,
+	): void
 
-  setTunnelNetworkSettingsCompletionHandler(tunnelNetworkSettings: NETunnelNetworkSettings | null, completionHandler: (p1: NSError) => void | null): void;
+	setTunnelNetworkSettingsCompletionHandler(
+		tunnelNetworkSettings: NETunnelNetworkSettings | null,
+		completionHandler: (p1: NSError) => void | null,
+	): void
 
-  readonly protocolConfiguration: NEVPNProtocol;
+	readonly protocolConfiguration: NEVPNProtocol
 
-  readonly appRules: NSArray;
+	readonly appRules: NSArray
 
-  readonly routingMethod: interop.Enum<typeof NETunnelProviderRoutingMethod>;
+	readonly routingMethod: interop.Enum<typeof NETunnelProviderRoutingMethod>
 
-  reasserting: boolean;
+	reasserting: boolean
 }
 
 declare class NEAppProxyFlow extends NSObject {
-  openWithLocalEndpointCompletionHandler(localEndpoint: NWHostEndpoint | null, completionHandler: (p1: NSError) => void | null): void;
+	openWithLocalEndpointCompletionHandler(
+		localEndpoint: NWHostEndpoint | null,
+		completionHandler: (p1: NSError) => void | null,
+	): void
 
-  closeReadWithError(error: NSError | null): void;
+	closeReadWithError(error: NSError | null): void
 
-  closeWriteWithError(error: NSError | null): void;
+	closeWriteWithError(error: NSError | null): void
 
-  setMetadata(parameters: NSObject): void;
+	setMetadata(parameters: NSObject): void
 
-  readonly metaData: NEFlowMetaData;
+	readonly metaData: NEFlowMetaData
 
-  networkInterface: NSObject;
+	networkInterface: NSObject
 
-  readonly remoteHostname: string;
+	readonly remoteHostname: string
 }
 
 declare class NEVPNProtocolIKEv2 extends NEVPNProtocolIPSec {
-  deadPeerDetectionRate: interop.Enum<typeof NEVPNIKEv2DeadPeerDetectionRate>;
+	deadPeerDetectionRate: interop.Enum<typeof NEVPNIKEv2DeadPeerDetectionRate>
 
-  serverCertificateIssuerCommonName: string;
+	serverCertificateIssuerCommonName: string
 
-  serverCertificateCommonName: string;
+	serverCertificateCommonName: string
 
-  certificateType: interop.Enum<typeof NEVPNIKEv2CertificateType>;
+	certificateType: interop.Enum<typeof NEVPNIKEv2CertificateType>
 
-  useConfigurationAttributeInternalIPSubnet: boolean;
+	useConfigurationAttributeInternalIPSubnet: boolean
 
-  readonly IKESecurityAssociationParameters: NEVPNIKEv2SecurityAssociationParameters;
+	readonly IKESecurityAssociationParameters: NEVPNIKEv2SecurityAssociationParameters
 
-  readonly childSecurityAssociationParameters: NEVPNIKEv2SecurityAssociationParameters;
+	readonly childSecurityAssociationParameters: NEVPNIKEv2SecurityAssociationParameters
 
-  disableMOBIKE: boolean;
+	disableMOBIKE: boolean
 
-  disableRedirect: boolean;
+	disableRedirect: boolean
 
-  enablePFS: boolean;
+	enablePFS: boolean
 
-  enableRevocationCheck: boolean;
+	enableRevocationCheck: boolean
 
-  strictRevocationCheck: boolean;
+	strictRevocationCheck: boolean
 
-  minimumTLSVersion: interop.Enum<typeof NEVPNIKEv2TLSVersion>;
+	minimumTLSVersion: interop.Enum<typeof NEVPNIKEv2TLSVersion>
 
-  maximumTLSVersion: interop.Enum<typeof NEVPNIKEv2TLSVersion>;
+	maximumTLSVersion: interop.Enum<typeof NEVPNIKEv2TLSVersion>
 
-  mtu: number;
+	mtu: number
 }
 
 declare class NEPacketTunnelFlow extends NSObject {
-  readPacketsWithCompletionHandler(completionHandler: (p1: NSArray<interop.Object> | Array<interop.Object>, p2: NSArray<interop.Object> | Array<interop.Object>) => void): void;
+	readPacketsWithCompletionHandler(
+		completionHandler: (
+			p1: NSArray<interop.Object> | Array<interop.Object>,
+			p2: NSArray<interop.Object> | Array<interop.Object>,
+		) => void,
+	): void
 
-  writePacketsWithProtocols(packets: NSArray<interop.Object> | Array<interop.Object>, protocols: NSArray<interop.Object> | Array<interop.Object>): boolean;
+	writePacketsWithProtocols(
+		packets: NSArray<interop.Object> | Array<interop.Object>,
+		protocols: NSArray<interop.Object> | Array<interop.Object>,
+	): boolean
 
-  readPacketObjectsWithCompletionHandler(completionHandler: (p1: NSArray<interop.Object> | Array<interop.Object>) => void): void;
+	readPacketObjectsWithCompletionHandler(
+		completionHandler: (p1: NSArray<interop.Object> | Array<interop.Object>) => void,
+	): void
 
-  writePacketObjects(packets: NSArray<interop.Object> | Array<interop.Object>): boolean;
+	writePacketObjects(packets: NSArray<interop.Object> | Array<interop.Object>): boolean
 }
 
 declare class NEFlowMetaData extends NSObject implements NSCopying, NSSecureCoding {
-  readonly sourceAppUniqueIdentifier: NSData;
+	readonly sourceAppUniqueIdentifier: NSData
 
-  readonly sourceAppSigningIdentifier: string;
+	readonly sourceAppSigningIdentifier: string
 
-  readonly sourceAppAuditToken: NSData;
+	readonly sourceAppAuditToken: NSData
 
-  readonly filterFlowIdentifier: NSUUID;
+	readonly filterFlowIdentifier: NSUUID
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 declare class NEPacketTunnelNetworkSettings extends NETunnelNetworkSettings {
-  IPv4Settings: NEIPv4Settings;
+	IPv4Settings: NEIPv4Settings
 
-  IPv6Settings: NEIPv6Settings;
+	IPv6Settings: NEIPv6Settings
 
-  tunnelOverheadBytes: NSNumber;
+	tunnelOverheadBytes: NSNumber
 
-  MTU: NSNumber;
+	MTU: NSNumber
 }
 
 declare class NEFilterDataVerdict extends NEFilterVerdict implements NSSecureCoding, NSCopying {
-  statisticsReportFrequency: interop.Enum<typeof NEFilterReportFrequency>;
+	statisticsReportFrequency: interop.Enum<typeof NEFilterReportFrequency>
 
-  static allowVerdict(): NEFilterDataVerdict;
+	static allowVerdict(): NEFilterDataVerdict
 
-  static dropVerdict(): NEFilterDataVerdict;
+	static dropVerdict(): NEFilterDataVerdict
 
-  static dataVerdictWithPassBytesPeekBytes(passBytes: number, peekBytes: number): NEFilterDataVerdict;
+	static dataVerdictWithPassBytesPeekBytes(
+		passBytes: number,
+		peekBytes: number,
+	): NEFilterDataVerdict
 
-  static pauseVerdict(): NEFilterDataVerdict;
+	static pauseVerdict(): NEFilterDataVerdict
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class NEFilterPacketProvider extends NEFilterProvider {
-  packetHandler: (p1: NEFilterPacketContext, p2: NSObject, p3: interop.Enum<typeof NETrafficDirection>, p4: interop.PointerConvertible, p5: number) => interop.Enum<typeof NEFilterPacketProviderVerdict>;
+	packetHandler: (
+		p1: NEFilterPacketContext,
+		p2: NSObject,
+		p3: interop.Enum<typeof NETrafficDirection>,
+		p4: interop.PointerConvertible,
+		p5: number,
+	) => interop.Enum<typeof NEFilterPacketProviderVerdict>
 
-  delayCurrentPacket(context: NEFilterPacketContext): NEPacket;
+	delayCurrentPacket(context: NEFilterPacketContext): NEPacket
 
-  allowPacket(packet: NEPacket): void;
+	allowPacket(packet: NEPacket): void
 }
 
 declare class NEFilterNewFlowVerdict extends NEFilterVerdict implements NSSecureCoding, NSCopying {
-  statisticsReportFrequency: interop.Enum<typeof NEFilterReportFrequency>;
+	statisticsReportFrequency: interop.Enum<typeof NEFilterReportFrequency>
 
-  static allowVerdict(): NEFilterNewFlowVerdict;
+	static allowVerdict(): NEFilterNewFlowVerdict
 
-  static dropVerdict(): NEFilterNewFlowVerdict;
+	static dropVerdict(): NEFilterNewFlowVerdict
 
-  static filterDataVerdictWithFilterInboundPeekInboundBytesFilterOutboundPeekOutboundBytes(filterInbound: boolean, peekInboundBytes: number, filterOutbound: boolean, peekOutboundBytes: number): NEFilterNewFlowVerdict;
+	static filterDataVerdictWithFilterInboundPeekInboundBytesFilterOutboundPeekOutboundBytes(
+		filterInbound: boolean,
+		peekInboundBytes: number,
+		filterOutbound: boolean,
+		peekOutboundBytes: number,
+	): NEFilterNewFlowVerdict
 
-  static pauseVerdict(): NEFilterNewFlowVerdict;
+	static pauseVerdict(): NEFilterNewFlowVerdict
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class NEFilterManager extends NSObject {
-  static sharedManager(): NEFilterManager;
+	static sharedManager(): NEFilterManager
 
-  loadFromPreferencesWithCompletionHandler(completionHandler: (p1: NSError) => void | null): void;
+	loadFromPreferencesWithCompletionHandler(completionHandler: (p1: NSError) => void | null): void
 
-  removeFromPreferencesWithCompletionHandler(completionHandler: (p1: NSError) => void | null): void;
+	removeFromPreferencesWithCompletionHandler(completionHandler: (p1: NSError) => void | null): void
 
-  saveToPreferencesWithCompletionHandler(completionHandler: (p1: NSError) => void | null): void;
+	saveToPreferencesWithCompletionHandler(completionHandler: (p1: NSError) => void | null): void
 
-  localizedDescription: string;
+	localizedDescription: string
 
-  providerConfiguration: NEFilterProviderConfiguration;
+	providerConfiguration: NEFilterProviderConfiguration
 
-  enabled: boolean;
+	enabled: boolean
 
-  grade: interop.Enum<typeof NEFilterManagerGrade>;
+	grade: interop.Enum<typeof NEFilterManagerGrade>
 
-  isEnabled(): boolean;
+	isEnabled(): boolean
 }
 
 declare class NETunnelNetworkSettings extends NSObject implements NSSecureCoding, NSCopying {
-  initWithTunnelRemoteAddress(address: string): this;
+	initWithTunnelRemoteAddress(address: string): this
 
-  readonly tunnelRemoteAddress: string;
+	readonly tunnelRemoteAddress: string
 
-  DNSSettings: NEDNSSettings;
+	DNSSettings: NEDNSSettings
 
-  proxySettings: NEProxySettings;
+	proxySettings: NEProxySettings
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
-declare class NEURLFilter extends NSObject {
-}
+declare class NEURLFilter extends NSObject {}
 
 declare class NEAppProxyTCPFlow extends NEAppProxyFlow {
-  readDataWithCompletionHandler(completionHandler: (p1: NSData, p2: NSError) => void | null): void;
+	readDataWithCompletionHandler(completionHandler: (p1: NSData, p2: NSError) => void | null): void
 
-  writeDataWithCompletionHandler(data: NSData, completionHandler: (p1: NSError) => void | null): void;
+	writeDataWithCompletionHandler(
+		data: NSData,
+		completionHandler: (p1: NSError) => void | null,
+	): void
 
-  readonly remoteEndpoint: NWEndpoint;
+	readonly remoteEndpoint: NWEndpoint
 }
 
 declare class NEFilterProviderConfiguration extends NSObject implements NSSecureCoding, NSCopying {
-  filterBrowsers: boolean;
+	filterBrowsers: boolean
 
-  filterSockets: boolean;
+	filterSockets: boolean
 
-  filterPackets: boolean;
+	filterPackets: boolean
 
-  get vendorConfiguration(): NSDictionary;
-  set vendorConfiguration(value: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>);
+	get vendorConfiguration(): NSDictionary
+	set vendorConfiguration(
+		value: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+	)
 
-  serverAddress: string;
+	serverAddress: string
 
-  username: string;
+	username: string
 
-  organization: string;
+	organization: string
 
-  passwordReference: NSData;
+	passwordReference: NSData
 
-  identityReference: NSData;
+	identityReference: NSData
 
-  filterDataProviderBundleIdentifier: string;
+	filterDataProviderBundleIdentifier: string
 
-  filterPacketProviderBundleIdentifier: string;
+	filterPacketProviderBundleIdentifier: string
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class NEVPNProtocol extends NSObject implements NSCopying, NSSecureCoding {
-  serverAddress: string;
+	serverAddress: string
 
-  username: string;
+	username: string
 
-  passwordReference: NSData;
+	passwordReference: NSData
 
-  identityReference: NSData;
+	identityReference: NSData
 
-  identityData: NSData;
+	identityData: NSData
 
-  identityDataPassword: string;
+	identityDataPassword: string
 
-  disconnectOnSleep: boolean;
+	disconnectOnSleep: boolean
 
-  proxySettings: NEProxySettings;
+	proxySettings: NEProxySettings
 
-  includeAllNetworks: boolean;
+	includeAllNetworks: boolean
 
-  excludeLocalNetworks: boolean;
+	excludeLocalNetworks: boolean
 
-  enforceRoutes: boolean;
+	enforceRoutes: boolean
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 declare class NETransparentProxyManager extends NEVPNManager {
-  static loadAllFromPreferencesWithCompletionHandler(completionHandler: (p1: NSArray<interop.Object> | Array<interop.Object>, p2: NSError) => void | null): void;
+	static loadAllFromPreferencesWithCompletionHandler(
+		completionHandler: (
+			p1: NSArray<interop.Object> | Array<interop.Object>,
+			p2: NSError,
+		) => void | null,
+	): void
 }
 
 declare class NEVPNManager extends NSObject {
-  static sharedManager(): NEVPNManager;
+	static sharedManager(): NEVPNManager
 
-  loadFromPreferencesWithCompletionHandler(completionHandler: (p1: NSError) => void | null): void;
+	loadFromPreferencesWithCompletionHandler(completionHandler: (p1: NSError) => void | null): void
 
-  removeFromPreferencesWithCompletionHandler(completionHandler: (p1: NSError) => void | null): void;
+	removeFromPreferencesWithCompletionHandler(completionHandler: (p1: NSError) => void | null): void
 
-  saveToPreferencesWithCompletionHandler(completionHandler: (p1: NSError) => void | null): void;
+	saveToPreferencesWithCompletionHandler(completionHandler: (p1: NSError) => void | null): void
 
-  setAuthorization(authorization: interop.PointerConvertible): void;
+	setAuthorization(authorization: interop.PointerConvertible): void
 
-  get onDemandRules(): NSArray;
-  set onDemandRules(value: NSArray<interop.Object> | Array<interop.Object>);
+	get onDemandRules(): NSArray
+	set onDemandRules(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  onDemandEnabled: boolean;
+	onDemandEnabled: boolean
 
-  localizedDescription: string;
+	localizedDescription: string
 
-  protocol: NEVPNProtocol;
+	protocol: NEVPNProtocol
 
-  protocolConfiguration: NEVPNProtocol;
+	protocolConfiguration: NEVPNProtocol
 
-  readonly connection: NEVPNConnection;
+	readonly connection: NEVPNConnection
 
-  enabled: boolean;
+	enabled: boolean
 
-  isOnDemandEnabled(): boolean;
+	isOnDemandEnabled(): boolean
 
-  isEnabled(): boolean;
+	isEnabled(): boolean
 }
 
-declare class NEFilterPacketContext extends NSObject {
-}
+declare class NEFilterPacketContext extends NSObject {}
 
 declare class NWBonjourServiceEndpoint extends NWEndpoint {
-  static endpointWithNameTypeDomain<This extends abstract new (...args: any) => any>(this: This, name: string, type: string, domain: string): InstanceType<This>;
+	static endpointWithNameTypeDomain<This extends abstract new (...args: any) => any>(
+		this: This,
+		name: string,
+		type: string,
+		domain: string,
+	): InstanceType<This>
 
-  readonly name: string;
+	readonly name: string
 
-  readonly type: string;
+	readonly type: string
 
-  readonly domain: string;
+	readonly domain: string
 }
 
 declare class NEFilterReport extends NSObject implements NSSecureCoding, NSCopying {
-  readonly flow: NEFilterFlow;
+	readonly flow: NEFilterFlow
 
-  readonly action: interop.Enum<typeof NEFilterAction>;
+	readonly action: interop.Enum<typeof NEFilterAction>
 
-  readonly event: interop.Enum<typeof NEFilterReportEvent>;
+	readonly event: interop.Enum<typeof NEFilterReportEvent>
 
-  readonly bytesInboundCount: number;
+	readonly bytesInboundCount: number
 
-  readonly bytesOutboundCount: number;
+	readonly bytesOutboundCount: number
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class NEProvider extends NSObject {
-  sleepWithCompletionHandler(completionHandler: () => void): void;
+	sleepWithCompletionHandler(completionHandler: () => void): void
 
-  wake(): void;
+	wake(): void
 
-  createTCPConnectionToEndpointEnableTLSTLSParametersDelegate(remoteEndpoint: NWEndpoint, enableTLS: boolean, TLSParameters: NWTLSParameters | null, delegate: interop.Object | null): NWTCPConnection;
+	createTCPConnectionToEndpointEnableTLSTLSParametersDelegate(
+		remoteEndpoint: NWEndpoint,
+		enableTLS: boolean,
+		TLSParameters: NWTLSParameters | null,
+		delegate: interop.Object | null,
+	): NWTCPConnection
 
-  createUDPSessionToEndpointFromEndpoint(remoteEndpoint: NWEndpoint, localEndpoint: NWHostEndpoint | null): NWUDPSession;
+	createUDPSessionToEndpointFromEndpoint(
+		remoteEndpoint: NWEndpoint,
+		localEndpoint: NWHostEndpoint | null,
+	): NWUDPSession
 
-  displayMessageCompletionHandler(message: string, completionHandler: (p1: boolean) => void): void;
+	displayMessageCompletionHandler(message: string, completionHandler: (p1: boolean) => void): void
 
-  static startSystemExtensionMode(): void;
+	static startSystemExtensionMode(): void
 
-  readonly defaultPath: NWPath;
+	readonly defaultPath: NWPath
 }
 
 declare class NEDNSSettingsManager extends NSObject {
-  static sharedManager(): NEDNSSettingsManager;
+	static sharedManager(): NEDNSSettingsManager
 
-  loadFromPreferencesWithCompletionHandler(completionHandler: (p1: NSError) => void | null): void;
+	loadFromPreferencesWithCompletionHandler(completionHandler: (p1: NSError) => void | null): void
 
-  removeFromPreferencesWithCompletionHandler(completionHandler: (p1: NSError) => void | null): void;
+	removeFromPreferencesWithCompletionHandler(completionHandler: (p1: NSError) => void | null): void
 
-  saveToPreferencesWithCompletionHandler(completionHandler: (p1: NSError) => void | null): void;
+	saveToPreferencesWithCompletionHandler(completionHandler: (p1: NSError) => void | null): void
 
-  localizedDescription: string;
+	localizedDescription: string
 
-  dnsSettings: NEDNSSettings;
+	dnsSettings: NEDNSSettings
 
-  get onDemandRules(): NSArray;
-  set onDemandRules(value: NSArray<interop.Object> | Array<interop.Object>);
+	get onDemandRules(): NSArray
+	set onDemandRules(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  readonly enabled: boolean;
+	readonly enabled: boolean
 
-  isEnabled(): boolean;
+	isEnabled(): boolean
 }
 
 declare class NEDNSSettings extends NSObject implements NSSecureCoding, NSCopying {
-  readonly dnsProtocol: interop.Enum<typeof NEDNSProtocol>;
+	readonly dnsProtocol: interop.Enum<typeof NEDNSProtocol>
 
-  initWithServers(servers: NSArray<interop.Object> | Array<interop.Object>): this;
+	initWithServers(servers: NSArray<interop.Object> | Array<interop.Object>): this
 
-  readonly servers: NSArray;
+	readonly servers: NSArray
 
-  get searchDomains(): NSArray;
-  set searchDomains(value: NSArray<interop.Object> | Array<interop.Object>);
+	get searchDomains(): NSArray
+	set searchDomains(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  domainName: string;
+	domainName: string
 
-  get matchDomains(): NSArray;
-  set matchDomains(value: NSArray<interop.Object> | Array<interop.Object>);
+	get matchDomains(): NSArray
+	set matchDomains(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  matchDomainsNoSearch: boolean;
+	matchDomainsNoSearch: boolean
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class NWPath extends NSObject {
-  readonly status: interop.Enum<typeof NWPathStatus>;
+	readonly status: interop.Enum<typeof NWPathStatus>
 
-  readonly expensive: boolean;
+	readonly expensive: boolean
 
-  readonly constrained: boolean;
+	readonly constrained: boolean
 
-  isEqualToPath(path: NWPath): boolean;
+	isEqualToPath(path: NWPath): boolean
 
-  isExpensive(): boolean;
+	isExpensive(): boolean
 
-  isConstrained(): boolean;
+	isConstrained(): boolean
 }
 
 declare class NETunnelProviderProtocol extends NEVPNProtocol {
-  get providerConfiguration(): NSDictionary;
-  set providerConfiguration(value: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>);
+	get providerConfiguration(): NSDictionary
+	set providerConfiguration(
+		value: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+	)
 
-  providerBundleIdentifier: string;
+	providerBundleIdentifier: string
 }
 
 declare class NWTLSParameters extends NSObject {
-  TLSSessionID: NSData;
+	TLSSessionID: NSData
 
-  SSLCipherSuites: NSSet;
+	SSLCipherSuites: NSSet
 
-  minimumSSLProtocolVersion: number;
+	minimumSSLProtocolVersion: number
 
-  maximumSSLProtocolVersion: number;
+	maximumSSLProtocolVersion: number
 }
 
 declare class NEDNSProxyManager extends NSObject {
-  static sharedManager(): NEDNSProxyManager;
+	static sharedManager(): NEDNSProxyManager
 
-  loadFromPreferencesWithCompletionHandler(completionHandler: (p1: NSError) => void | null): void;
+	loadFromPreferencesWithCompletionHandler(completionHandler: (p1: NSError) => void | null): void
 
-  removeFromPreferencesWithCompletionHandler(completionHandler: (p1: NSError) => void | null): void;
+	removeFromPreferencesWithCompletionHandler(completionHandler: (p1: NSError) => void | null): void
 
-  saveToPreferencesWithCompletionHandler(completionHandler: (p1: NSError) => void | null): void;
+	saveToPreferencesWithCompletionHandler(completionHandler: (p1: NSError) => void | null): void
 
-  localizedDescription: string;
+	localizedDescription: string
 
-  providerProtocol: NEDNSProxyProviderProtocol;
+	providerProtocol: NEDNSProxyProviderProtocol
 
-  enabled: boolean;
+	enabled: boolean
 
-  isEnabled(): boolean;
+	isEnabled(): boolean
 }
 
 declare class NEPacket extends NSObject implements NSCopying, NSSecureCoding {
-  initWithDataProtocolFamily(data: NSData, protocolFamily: number): this;
+	initWithDataProtocolFamily(data: NSData, protocolFamily: number): this
 
-  readonly data: NSData;
+	readonly data: NSData
 
-  readonly protocolFamily: number;
+	readonly protocolFamily: number
 
-  readonly direction: interop.Enum<typeof NETrafficDirection>;
+	readonly direction: interop.Enum<typeof NETrafficDirection>
 
-  readonly metadata: NEFlowMetaData;
+	readonly metadata: NEFlowMetaData
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 declare class NETunnelProviderSession extends NEVPNConnection {
-  startTunnelWithOptionsAndReturnError(options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null, error: interop.PointerConvertible): boolean;
+	startTunnelWithOptionsAndReturnError(
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+		error: interop.PointerConvertible,
+	): boolean
 
-  stopTunnel(): void;
+	stopTunnel(): void
 
-  sendProviderMessageReturnErrorResponseHandler(messageData: NSData, error: interop.PointerConvertible, responseHandler: (p1: NSData) => void | null): boolean;
+	sendProviderMessageReturnErrorResponseHandler(
+		messageData: NSData,
+		error: interop.PointerConvertible,
+		responseHandler: (p1: NSData) => void | null,
+	): boolean
 }
 
 declare class NEFilterSettings extends NSObject implements NSSecureCoding, NSCopying {
-  initWithRulesDefaultAction(rules: NSArray<interop.Object> | Array<interop.Object>, defaultAction: interop.Enum<typeof NEFilterAction>): this;
+	initWithRulesDefaultAction(
+		rules: NSArray<interop.Object> | Array<interop.Object>,
+		defaultAction: interop.Enum<typeof NEFilterAction>,
+	): this
 
-  readonly rules: NSArray;
+	readonly rules: NSArray
 
-  readonly defaultAction: interop.Enum<typeof NEFilterAction>;
+	readonly defaultAction: interop.Enum<typeof NEFilterAction>
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
-declare class NEOnDemandRuleConnect extends NEOnDemandRule {
-}
+declare class NEOnDemandRuleConnect extends NEOnDemandRule {}
 
 declare class NEDNSProxyProviderProtocol extends NEVPNProtocol {
-  get providerConfiguration(): NSDictionary;
-  set providerConfiguration(value: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>);
+	get providerConfiguration(): NSDictionary
+	set providerConfiguration(
+		value: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+	)
 
-  providerBundleIdentifier: string;
+	providerBundleIdentifier: string
 }
 
 declare class NWEndpoint extends NSObject implements NSSecureCoding, NSCopying {
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class NEOnDemandRule extends NSObject implements NSSecureCoding, NSCopying {
-  readonly action: interop.Enum<typeof NEOnDemandRuleAction>;
+	readonly action: interop.Enum<typeof NEOnDemandRuleAction>
 
-  get DNSSearchDomainMatch(): NSArray;
-  set DNSSearchDomainMatch(value: NSArray<interop.Object> | Array<interop.Object>);
+	get DNSSearchDomainMatch(): NSArray
+	set DNSSearchDomainMatch(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get DNSServerAddressMatch(): NSArray;
-  set DNSServerAddressMatch(value: NSArray<interop.Object> | Array<interop.Object>);
+	get DNSServerAddressMatch(): NSArray
+	set DNSServerAddressMatch(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  interfaceTypeMatch: interop.Enum<typeof NEOnDemandRuleInterfaceType>;
+	interfaceTypeMatch: interop.Enum<typeof NEOnDemandRuleInterfaceType>
 
-  get SSIDMatch(): NSArray;
-  set SSIDMatch(value: NSArray<interop.Object> | Array<interop.Object>);
+	get SSIDMatch(): NSArray
+	set SSIDMatch(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  probeURL: NSURL;
+	probeURL: NSURL
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class NEIPv6Settings extends NSObject implements NSSecureCoding, NSCopying {
-  initWithAddressesNetworkPrefixLengths(addresses: NSArray<interop.Object> | Array<interop.Object>, networkPrefixLengths: NSArray<interop.Object> | Array<interop.Object>): this;
+	initWithAddressesNetworkPrefixLengths(
+		addresses: NSArray<interop.Object> | Array<interop.Object>,
+		networkPrefixLengths: NSArray<interop.Object> | Array<interop.Object>,
+	): this
 
-  readonly addresses: NSArray;
+	readonly addresses: NSArray
 
-  readonly networkPrefixLengths: NSArray;
+	readonly networkPrefixLengths: NSArray
 
-  get includedRoutes(): NSArray;
-  set includedRoutes(value: NSArray<interop.Object> | Array<interop.Object>);
+	get includedRoutes(): NSArray
+	set includedRoutes(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get excludedRoutes(): NSArray;
-  set excludedRoutes(value: NSArray<interop.Object> | Array<interop.Object>);
+	get excludedRoutes(): NSArray
+	set excludedRoutes(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class NEDNSOverTLSSettings extends NEDNSSettings {
-  serverName: string;
+	serverName: string
 }
 
 declare class NEIPv4Settings extends NSObject implements NSSecureCoding, NSCopying {
-  initWithAddressesSubnetMasks(addresses: NSArray<interop.Object> | Array<interop.Object>, subnetMasks: NSArray<interop.Object> | Array<interop.Object>): this;
+	initWithAddressesSubnetMasks(
+		addresses: NSArray<interop.Object> | Array<interop.Object>,
+		subnetMasks: NSArray<interop.Object> | Array<interop.Object>,
+	): this
 
-  readonly addresses: NSArray;
+	readonly addresses: NSArray
 
-  readonly subnetMasks: NSArray;
+	readonly subnetMasks: NSArray
 
-  get includedRoutes(): NSArray;
-  set includedRoutes(value: NSArray<interop.Object> | Array<interop.Object>);
+	get includedRoutes(): NSArray
+	set includedRoutes(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get excludedRoutes(): NSArray;
-  set excludedRoutes(value: NSArray<interop.Object> | Array<interop.Object>);
+	get excludedRoutes(): NSArray
+	set excludedRoutes(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class NEVPNConnection extends NSObject {
-  startVPNTunnelAndReturnError(error: interop.PointerConvertible): boolean;
+	startVPNTunnelAndReturnError(error: interop.PointerConvertible): boolean
 
-  startVPNTunnelWithOptionsAndReturnError(options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null, error: interop.PointerConvertible): boolean;
+	startVPNTunnelWithOptionsAndReturnError(
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+		error: interop.PointerConvertible,
+	): boolean
 
-  stopVPNTunnel(): void;
+	stopVPNTunnel(): void
 
-  readonly status: interop.Enum<typeof NEVPNStatus>;
+	readonly status: interop.Enum<typeof NEVPNStatus>
 
-  readonly connectedDate: NSDate;
+	readonly connectedDate: NSDate
 
-  readonly manager: NEVPNManager;
+	readonly manager: NEVPNManager
 }
 
 declare class NWHostEndpoint extends NWEndpoint {
-  static endpointWithHostnamePort<This extends abstract new (...args: any) => any>(this: This, hostname: string, port: string): InstanceType<This>;
+	static endpointWithHostnamePort<This extends abstract new (...args: any) => any>(
+		this: This,
+		hostname: string,
+		port: string,
+	): InstanceType<This>
 
-  readonly hostname: string;
+	readonly hostname: string
 
-  readonly port: string;
+	readonly port: string
 }
-

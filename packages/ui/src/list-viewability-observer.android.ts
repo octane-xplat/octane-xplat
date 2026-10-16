@@ -3,7 +3,6 @@ import type { VisibleListRow } from './list-viewability-core'
 import { observeLoadedListPeer, type ListVisibilityObserver } from './list-viewability-runtime'
 import { android } from '@octane-xplat/platform/android'
 
-
 export function observeListViewability(
 	list: any,
 	getState: () => {

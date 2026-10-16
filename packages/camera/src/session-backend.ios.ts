@@ -21,10 +21,28 @@ import type {
 	MovieOutputHandle,
 } from './types'
 
-import { AVCaptureDevice, AVCaptureDeviceDiscoverySession, AVCaptureDeviceInput, AVCaptureMovieFileOutput, AVCaptureSession, AVCaptureVideoPreviewLayer, AVURLAsset, CGPointMake, NSBundle, NSError, NSFileManager, NSNotification, NSNotificationCenter, NSNumber, NSObject, NSOperationQueue, NSURL } from '@octane-xplat/platform/ios'
+import {
+	AVCaptureDevice,
+	AVCaptureDeviceDiscoverySession,
+	AVCaptureDeviceInput,
+	AVCaptureMovieFileOutput,
+	AVCaptureSession,
+	AVCaptureVideoPreviewLayer,
+	AVURLAsset,
+	CGPointMake,
+	NSBundle,
+	NSError,
+	NSFileManager,
+	NSNotification,
+	NSNotificationCenter,
+	NSNumber,
+	NSObject,
+	NSOperationQueue,
+	NSURL,
+} from '@octane-xplat/platform/ios'
+
 import { AVCaptureFileOutputRecordingDelegate } from '@octane-xplat/platform/ios'
 import type { CGAffineTransform, NSObjectProtocol } from '@octane-xplat/platform/ios'
-
 
 // AVAuthorizationStatus numeric values — the ambient const enum cannot be
 // read under verbatimModuleSyntax in every build lane.
@@ -912,10 +930,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 			// it there is no honest mapping, so bail rather than meter the
 			// wrong point.
 			const bounds = layer.bounds
-			const layerPoint = CGPointMake(
-				point.x * bounds.size.width,
-				point.y * bounds.size.height,
-			)
+			const layerPoint = CGPointMake(point.x * bounds.size.width, point.y * bounds.size.height)
 
 			if (typeof layer.captureDevicePointOfInterestForPoint !== 'function') {
 				return

@@ -1,6 +1,5 @@
 /// <reference types="@nativescript/objc-node-api" />
 
-declare const ProximityReaderStubVersionString: interop.Pointer;
+declare const ProximityReaderStubVersionString: interop.Pointer
 
-declare const ProximityReaderStubVersionNumber: number;
-
+declare const ProximityReaderStubVersionNumber: number

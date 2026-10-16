@@ -14,7 +14,8 @@ export function createMobileStageHost(stage: ContentView): StageHost {
 				{ args: request.props },
 				{ title: request.story.title, component: request.component } as any,
 				{ render: (props: any) => ({ ...request, props }) } as any,
-				{}, 'Story',
+				{},
+				'Story',
 			)
 
 			const prepare = (props: Record<string, unknown>): MountRequest => ({
@@ -25,18 +26,31 @@ export function createMobileStageHost(stage: ContentView): StageHost {
 			})
 
 			const root = createNativeScriptRoot(stage)
-			try { root.render(StoryTree as unknown as UniversalComponent, { request: prepare(request.props) }) }
-			catch (error) { root.unmount(); throw error }
+			try {
+				root.render(StoryTree as unknown as UniversalComponent, { request: prepare(request.props) })
+			} catch (error) {
+				root.unmount()
+				throw error
+			}
 
 			let disposed = false
 			return {
 				update(props: Record<string, unknown>) {
-					if (disposed) {return}
-					try { root.render(StoryTree as unknown as UniversalComponent, { request: prepare(props) }) }
-					catch (error) { request.onRenderError(error) }
+					if (disposed) {
+						return
+					}
+
+					try {
+						root.render(StoryTree as unknown as UniversalComponent, { request: prepare(props) })
+					} catch (error) {
+						request.onRenderError(error)
+					}
 				},
 				unmount() {
-					if (disposed) {return}
+					if (disposed) {
+						return
+					}
+
 					disposed = true
 					root.unmount()
 				},

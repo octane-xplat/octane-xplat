@@ -2,15 +2,43 @@ import { _bind } from './_rt.js'
 const FW = '/System/Library/Frameworks/Accounts.framework/Accounts'
 export const ACAccount = /* @__PURE__ */ _bind(FW, 'ACAccount')
 export const ACAccountCredential = /* @__PURE__ */ _bind(FW, 'ACAccountCredential')
-export const ACAccountCredentialRenewResult = /* @__PURE__ */ _bind(FW, 'ACAccountCredentialRenewResult')
+export const ACAccountCredentialRenewResult = /* @__PURE__ */ _bind(
+	FW,
+	'ACAccountCredentialRenewResult',
+)
+
 export const ACAccountStore = /* @__PURE__ */ _bind(FW, 'ACAccountStore')
-export const ACAccountStoreDidChangeNotification = /* @__PURE__ */ _bind(FW, 'ACAccountStoreDidChangeNotification')
+export const ACAccountStoreDidChangeNotification = /* @__PURE__ */ _bind(
+	FW,
+	'ACAccountStoreDidChangeNotification',
+)
+
 export const ACAccountType = /* @__PURE__ */ _bind(FW, 'ACAccountType')
-export const ACAccountTypeIdentifierFacebook = /* @__PURE__ */ _bind(FW, 'ACAccountTypeIdentifierFacebook')
-export const ACAccountTypeIdentifierLinkedIn = /* @__PURE__ */ _bind(FW, 'ACAccountTypeIdentifierLinkedIn')
-export const ACAccountTypeIdentifierSinaWeibo = /* @__PURE__ */ _bind(FW, 'ACAccountTypeIdentifierSinaWeibo')
-export const ACAccountTypeIdentifierTencentWeibo = /* @__PURE__ */ _bind(FW, 'ACAccountTypeIdentifierTencentWeibo')
-export const ACAccountTypeIdentifierTwitter = /* @__PURE__ */ _bind(FW, 'ACAccountTypeIdentifierTwitter')
+export const ACAccountTypeIdentifierFacebook = /* @__PURE__ */ _bind(
+	FW,
+	'ACAccountTypeIdentifierFacebook',
+)
+
+export const ACAccountTypeIdentifierLinkedIn = /* @__PURE__ */ _bind(
+	FW,
+	'ACAccountTypeIdentifierLinkedIn',
+)
+
+export const ACAccountTypeIdentifierSinaWeibo = /* @__PURE__ */ _bind(
+	FW,
+	'ACAccountTypeIdentifierSinaWeibo',
+)
+
+export const ACAccountTypeIdentifierTencentWeibo = /* @__PURE__ */ _bind(
+	FW,
+	'ACAccountTypeIdentifierTencentWeibo',
+)
+
+export const ACAccountTypeIdentifierTwitter = /* @__PURE__ */ _bind(
+	FW,
+	'ACAccountTypeIdentifierTwitter',
+)
+
 export const ACErrorCode = /* @__PURE__ */ _bind(FW, 'ACErrorCode')
 export const ACErrorDomain = /* @__PURE__ */ _bind(FW, 'ACErrorDomain')
 export const ACFacebookAppIdKey = /* @__PURE__ */ _bind(FW, 'ACFacebookAppIdKey')

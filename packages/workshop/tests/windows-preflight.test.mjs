@@ -6,20 +6,38 @@ import { windowsLaunchBlocker, windowsPreflight } from '../src/windows/preflight
 import { workshopDev, workshopDoctor } from '../src/node.mjs'
 
 const roots = []
-afterEach(() => { for (const root of roots.splice(0)) { rmSync(root, { recursive: true, force: true }) } })
+afterEach(() => {
+	for (const root of roots.splice(0)) {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
 
 function consumer({ complete = false, runtime = '0.1.0-alpha.144' } = {}) {
 	const root = mkdtempSync(join(tmpdir(), 'workshop-windows-'))
 	roots.push(root)
-	writeFileSync(join(root, 'package.json'), JSON.stringify({ type: 'module', devDependencies: { '@nativescript/windows': runtime } }))
+	writeFileSync(
+		join(root, 'package.json'),
+		JSON.stringify({ type: 'module', devDependencies: { '@nativescript/windows': runtime } }),
+	)
 
 	// This config must never evaluate during doctor or a blocked launch.
-	writeFileSync(join(root, 'workshop.config.mjs'), 'throw new Error("unexpected config evaluation")')
+	writeFileSync(
+		join(root, 'workshop.config.mjs'),
+		'throw new Error("unexpected config evaluation")',
+	)
+
 	if (complete) {
 		writeFileSync(join(root, 'nativescript.config.ts'), 'export default {}')
 		mkdirSync(join(root, 'App_Resources/Windows'), { recursive: true })
 		writeFileSync(join(root, 'App_Resources/Windows/Package.appxmanifest'), '<Package/>')
-		for (const name of ['@nativescript/windows', '@nativescript/core', '@nativescript-community/octane', '@nativescript/vite', 'nativescript', 'vite']) {
+		for (const name of [
+			'@nativescript/windows',
+			'@nativescript/core',
+			'@nativescript-community/octane',
+			'@nativescript/vite',
+			'nativescript',
+			'vite',
+		]) {
 			const dir = join(root, 'node_modules', name)
 			mkdirSync(dir, { recursive: true })
 			writeFileSync(join(dir, 'package.json'), JSON.stringify({ name, version: '1.0.0' }))
@@ -31,7 +49,10 @@ function consumer({ complete = false, runtime = '0.1.0-alpha.144' } = {}) {
 
 describe('Windows setup evidence (simulated prerequisites, no WinUI runtime)', () => {
 	it('requires a Windows host and skips all machine probes elsewhere', () => {
-		const run = vi.fn(() => { throw new Error('must not execute') })
+		const run = vi.fn(() => {
+			throw new Error('must not execute')
+		})
+
 		const report = windowsPreflight(consumer({ complete: true }), { platform: 'darwin', run })
 		expect(report.status).toBe('remote-host-required')
 		expect(report.executionHost.reachable).toBe(false)
@@ -46,11 +67,13 @@ describe('Windows setup evidence (simulated prerequisites, no WinUI runtime)', (
 		expect(report.status).toBe('missing-prerequisites')
 		expect(report.requirements['.NET SDK >= 10']).toBe(false)
 		expect(report.requirements['Developer Mode (development launch)']).toBe(false)
-		expect(windowsLaunchBlocker(report)).toMatch(/prerequisites missing.*mounting, shell and reload remain unimplemented/)
+		expect(windowsLaunchBlocker(report)).toMatch(
+			/prerequisites missing.*mounting, shell and reload remain unimplemented/,
+		)
 	})
 
 	it('does not claim availability when every prerequisite passes', () => {
-		const run = vi.fn((command) => command === 'dotnet' ? '10.0.100' : '1')
+		const run = vi.fn((command) => (command === 'dotnet' ? '10.0.100' : '1'))
 		const report = windowsPreflight(consumer({ complete: true }), { platform: 'win32', run })
 		expect(Object.values(report.requirements).every(Boolean)).toBe(true)
 		expect(report.status).toBe('unqualified-backend')
@@ -62,16 +85,27 @@ describe('Windows setup evidence (simulated prerequisites, no WinUI runtime)', (
 	})
 
 	it.each(['9.0.100', 'not a version', null])('rejects unsuitable or unreadable SDK %s', (sdk) => {
-		const report = windowsPreflight(consumer({ complete: true }), { platform: 'win32', run: (command) => command === 'dotnet' ? sdk : '1' })
+		const report = windowsPreflight(consumer({ complete: true }), {
+			platform: 'win32',
+			run: (command) => (command === 'dotnet' ? sdk : '1'),
+		})
+
 		expect(report.requirements['.NET SDK >= 10']).toBe(false)
 		expect(report.status).toBe('missing-prerequisites')
 	})
 
-	it.each(['^0.1.0-alpha.144', '~0.1.0-alpha.144', 'latest', 'workspace:*'])('rejects a non-exact runtime declaration %s', (runtime) => {
-		const report = windowsPreflight(consumer({ complete: true, runtime }), { platform: 'win32', run: (command) => command === 'dotnet' ? '10.0.100' : '1' })
-		expect(report.requirements['@nativescript/windows exact version']).toBe(false)
-		expect(report.status).toBe('missing-prerequisites')
-	})
+	it.each(['^0.1.0-alpha.144', '~0.1.0-alpha.144', 'latest', 'workspace:*'])(
+		'rejects a non-exact runtime declaration %s',
+		(runtime) => {
+			const report = windowsPreflight(consumer({ complete: true, runtime }), {
+				platform: 'win32',
+				run: (command) => (command === 'dotnet' ? '10.0.100' : '1'),
+			})
+
+			expect(report.requirements['@nativescript/windows exact version']).toBe(false)
+			expect(report.status).toBe('missing-prerequisites')
+		},
+	)
 
 	it('doctor reports the actual execution host without evaluating consumer configuration', async () => {
 		const log = vi.spyOn(console, 'log').mockImplementation(() => {})
@@ -80,10 +114,14 @@ describe('Windows setup evidence (simulated prerequisites, no WinUI runtime)', (
 			expect(report.targets.windows.executionHost.current).toBe(process.platform)
 			expect(report.targets.windows.qualification).toBe('unverified')
 			expect(report.targets.windows.status).not.toBe('available')
-		} finally { log.mockRestore() }
+		} finally {
+			log.mockRestore()
+		}
 	})
 
 	it('blocks launch before evaluating config or starting a fallback server', async () => {
-		await expect(workshopDev({ cwd: consumer(), target: 'windows' })).rejects.toMatchObject({ name: 'WorkshopUsageError' })
+		await expect(workshopDev({ cwd: consumer(), target: 'windows' })).rejects.toMatchObject({
+			name: 'WorkshopUsageError',
+		})
 	})
 })

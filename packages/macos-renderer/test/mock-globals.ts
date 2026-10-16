@@ -6,10 +6,7 @@ import { stripTypeScriptTypes } from 'node:module'
 // replaces them; restore() puts the original descriptors back.
 export function mockGlobals(entries: Record<string, unknown>) {
 	const originals = Object.fromEntries(
-		Object.keys(entries).map((key) => [
-			key,
-			Object.getOwnPropertyDescriptor(globalThis, key),
-		]),
+		Object.keys(entries).map((key) => [key, Object.getOwnPropertyDescriptor(globalThis, key)]),
 	)
 
 	for (const [key, value] of Object.entries(entries)) {

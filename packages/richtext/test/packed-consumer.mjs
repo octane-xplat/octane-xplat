@@ -24,7 +24,15 @@ const dependencies = {
 	'@nativescript/macos-node-api': '0.4.4-next.2026-08-09-31292056208',
 }
 
-for (const name of ['richtext', 'tiptap', 'lexical', 'platform', 'macos-renderer', 'cli', 'create']) {
+for (const name of [
+	'richtext',
+	'tiptap',
+	'lexical',
+	'platform',
+	'macos-renderer',
+	'cli',
+	'create',
+]) {
 	const dir = join(repo, 'packages', name)
 	const manifest = JSON.parse(await readFile(join(dir, 'package.json'), 'utf8'))
 	run('pnpm', ['pack', '--pack-destination', packs], dir)

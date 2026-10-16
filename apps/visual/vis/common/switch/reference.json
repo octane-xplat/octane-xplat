@@ -1,42 +1,42 @@
 {
-  "runId": "4f9a5709-a687-4b3d-998c-5dc2e3eb5e3f",
-  "revision": "2572b3c5ad2bf177aaa0fe6f866536e3956b74ae",
-  "scenarioHash": "cc74d72ba63268dcb3d186e3b3807ac47c690e191f6f4d5f1ae7dd10f0018c8a",
-  "provenance": "real",
-  "storyId": "switch--unchecked-light",
-  "target": "web",
-  "profile": {
-    "id": "switch-light-96x64@1",
-    "width": 96,
-    "height": 64,
-    "scale": 1,
-    "crop": {
-      "x": 0,
-      "y": 0
-    },
-    "appearance": "light",
-    "format": "png"
-  },
-  "width": 96,
-  "height": 64,
-  "args": {
-    "checked": false,
-    "stageId": "switch--unchecked-light"
-  },
-  "index": 0,
-  "displacement": 0,
-  "runtime": {
-    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
-    "scale": 1,
-    "capture": "Playwright stage screenshot"
-  },
-  "sourceDirty": true,
-  "toolchain": {
-    "nativeCore": "9.1.3",
-    "nativeIOS": "9.1.0",
-    "nativeOctane": "0.2.4",
-    "octane": "0.11.0",
-    "storybook": "10.6.1",
-    "playwright": "1.63.0"
-  }
+	"runId": "4f9a5709-a687-4b3d-998c-5dc2e3eb5e3f",
+	"revision": "2572b3c5ad2bf177aaa0fe6f866536e3956b74ae",
+	"scenarioHash": "cc74d72ba63268dcb3d186e3b3807ac47c690e191f6f4d5f1ae7dd10f0018c8a",
+	"provenance": "real",
+	"storyId": "switch--unchecked-light",
+	"target": "web",
+	"profile": {
+		"id": "switch-light-96x64@1",
+		"width": 96,
+		"height": 64,
+		"scale": 1,
+		"crop": {
+			"x": 0,
+			"y": 0
+		},
+		"appearance": "light",
+		"format": "png"
+	},
+	"width": 96,
+	"height": 64,
+	"args": {
+		"checked": false,
+		"stageId": "switch--unchecked-light"
+	},
+	"index": 0,
+	"displacement": 0,
+	"runtime": {
+		"userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+		"scale": 1,
+		"capture": "Playwright stage screenshot"
+	},
+	"sourceDirty": true,
+	"toolchain": {
+		"nativeCore": "9.1.3",
+		"nativeIOS": "9.1.0",
+		"nativeOctane": "0.2.4",
+		"octane": "0.11.0",
+		"storybook": "10.6.1",
+		"playwright": "1.63.0"
+	}
 }

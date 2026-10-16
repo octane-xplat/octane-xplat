@@ -13,6 +13,10 @@ export const OSLogEntryWithPayload = /* @__PURE__ */ _bind(FW, 'OSLogEntryWithPa
 export const OSLogEnumerator = /* @__PURE__ */ _bind(FW, 'OSLogEnumerator')
 export const OSLogEnumeratorOptions = /* @__PURE__ */ _bind(FW, 'OSLogEnumeratorOptions')
 export const OSLogMessageComponent = /* @__PURE__ */ _bind(FW, 'OSLogMessageComponent')
-export const OSLogMessageComponentArgumentCategory = /* @__PURE__ */ _bind(FW, 'OSLogMessageComponentArgumentCategory')
+export const OSLogMessageComponentArgumentCategory = /* @__PURE__ */ _bind(
+	FW,
+	'OSLogMessageComponentArgumentCategory',
+)
+
 export const OSLogPosition = /* @__PURE__ */ _bind(FW, 'OSLogPosition')
 export const OSLogStore = /* @__PURE__ */ _bind(FW, 'OSLogStore')

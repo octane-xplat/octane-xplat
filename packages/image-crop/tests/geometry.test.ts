@@ -105,10 +105,12 @@ describe('selection geometry', () => {
 			maxHeight: Number.NaN,
 		})
 
-		expect(collapsed).toEqual(constrainCrop(start, size, {
-			maxWidth: Number.NaN,
-			maxHeight: Number.NaN,
-		}))
+		expect(collapsed).toEqual(
+			constrainCrop(start, size, {
+				maxWidth: Number.NaN,
+				maxHeight: Number.NaN,
+			}),
+		)
 
 		expect(Number.isFinite(collapsed.x + collapsed.y + collapsed.width + collapsed.height)).toBe(
 			true,

@@ -661,10 +661,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 						)
 					}
 
-					const recordingStream = new MediaStream([
-						video,
-						...(request.audio ? audio : []),
-					])
+					const recordingStream = new MediaStream([video, ...(request.audio ? audio : [])])
 
 					reservation = (
 						await reserveHostMovie(desktop, {

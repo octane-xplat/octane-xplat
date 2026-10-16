@@ -1,8 +1,18 @@
 import { _bind } from './_rt.js'
-const FW = '/System/Library/Frameworks/MetalPerformanceShadersGraph.framework/MetalPerformanceShadersGraph'
+const FW =
+	'/System/Library/Frameworks/MetalPerformanceShadersGraph.framework/MetalPerformanceShadersGraph'
+
 export const MPSGraph = /* @__PURE__ */ _bind(FW, 'MPSGraph')
-export const MPSGraphConvolution2DOpDescriptor = /* @__PURE__ */ _bind(FW, 'MPSGraphConvolution2DOpDescriptor')
-export const MPSGraphDepthwiseConvolution2DOpDescriptor = /* @__PURE__ */ _bind(FW, 'MPSGraphDepthwiseConvolution2DOpDescriptor')
+export const MPSGraphConvolution2DOpDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MPSGraphConvolution2DOpDescriptor',
+)
+
+export const MPSGraphDepthwiseConvolution2DOpDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MPSGraphDepthwiseConvolution2DOpDescriptor',
+)
+
 export const MPSGraphDevice = /* @__PURE__ */ _bind(FW, 'MPSGraphDevice')
 export const MPSGraphDeviceType = /* @__PURE__ */ _bind(FW, 'MPSGraphDeviceType')
 export const MPSGraphExecutionDescriptor = /* @__PURE__ */ _bind(FW, 'MPSGraphExecutionDescriptor')
@@ -11,13 +21,25 @@ export const MPSGraphOperation = /* @__PURE__ */ _bind(FW, 'MPSGraphOperation')
 export const MPSGraphOptions = /* @__PURE__ */ _bind(FW, 'MPSGraphOptions')
 export const MPSGraphPaddingMode = /* @__PURE__ */ _bind(FW, 'MPSGraphPaddingMode')
 export const MPSGraphPaddingStyle = /* @__PURE__ */ _bind(FW, 'MPSGraphPaddingStyle')
-export const MPSGraphPooling2DOpDescriptor = /* @__PURE__ */ _bind(FW, 'MPSGraphPooling2DOpDescriptor')
-export const MPSGraphPoolingReturnIndicesMode = /* @__PURE__ */ _bind(FW, 'MPSGraphPoolingReturnIndicesMode')
+export const MPSGraphPooling2DOpDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MPSGraphPooling2DOpDescriptor',
+)
+
+export const MPSGraphPoolingReturnIndicesMode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSGraphPoolingReturnIndicesMode',
+)
+
 export const MPSGraphRandomOpDescriptor = /* @__PURE__ */ _bind(FW, 'MPSGraphRandomOpDescriptor')
 export const MPSGraphResizeMode = /* @__PURE__ */ _bind(FW, 'MPSGraphResizeMode')
 export const MPSGraphScatterMode = /* @__PURE__ */ _bind(FW, 'MPSGraphScatterMode')
 export const MPSGraphShapedType = /* @__PURE__ */ _bind(FW, 'MPSGraphShapedType')
 export const MPSGraphTensor = /* @__PURE__ */ _bind(FW, 'MPSGraphTensor')
 export const MPSGraphTensorData = /* @__PURE__ */ _bind(FW, 'MPSGraphTensorData')
-export const MPSGraphTensorNamedDataLayout = /* @__PURE__ */ _bind(FW, 'MPSGraphTensorNamedDataLayout')
+export const MPSGraphTensorNamedDataLayout = /* @__PURE__ */ _bind(
+	FW,
+	'MPSGraphTensorNamedDataLayout',
+)
+
 export const MPSGraphVariableOp = /* @__PURE__ */ _bind(FW, 'MPSGraphVariableOp')

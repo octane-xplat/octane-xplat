@@ -3,24 +3,88 @@ const FW = '/System/Library/Frameworks/Metal.framework/Metal'
 export const MTL4BufferRange = /* @__PURE__ */ _bind(FW, 'MTL4BufferRange')
 export const MTL4CommandQueue = /* @__PURE__ */ _bind(FW, 'MTL4CommandQueue')
 export const MTL4CompilerTaskStatus = /* @__PURE__ */ _bind(FW, 'MTL4CompilerTaskStatus')
-export const MTL4CopySparseBufferMappingOperation = /* @__PURE__ */ _bind(FW, 'MTL4CopySparseBufferMappingOperation')
-export const MTL4CopySparseTextureMappingOperation = /* @__PURE__ */ _bind(FW, 'MTL4CopySparseTextureMappingOperation')
-export const MTL4LogicalToPhysicalColorAttachmentMappingState = /* @__PURE__ */ _bind(FW, 'MTL4LogicalToPhysicalColorAttachmentMappingState')
+export const MTL4CopySparseBufferMappingOperation = /* @__PURE__ */ _bind(
+	FW,
+	'MTL4CopySparseBufferMappingOperation',
+)
+
+export const MTL4CopySparseTextureMappingOperation = /* @__PURE__ */ _bind(
+	FW,
+	'MTL4CopySparseTextureMappingOperation',
+)
+
+export const MTL4LogicalToPhysicalColorAttachmentMappingState = /* @__PURE__ */ _bind(
+	FW,
+	'MTL4LogicalToPhysicalColorAttachmentMappingState',
+)
+
 export const MTL4TimestampHeapEntry = /* @__PURE__ */ _bind(FW, 'MTL4TimestampHeapEntry')
-export const MTL4UpdateSparseBufferMappingOperation = /* @__PURE__ */ _bind(FW, 'MTL4UpdateSparseBufferMappingOperation')
-export const MTL4UpdateSparseTextureMappingOperation = /* @__PURE__ */ _bind(FW, 'MTL4UpdateSparseTextureMappingOperation')
+export const MTL4UpdateSparseBufferMappingOperation = /* @__PURE__ */ _bind(
+	FW,
+	'MTL4UpdateSparseBufferMappingOperation',
+)
+
+export const MTL4UpdateSparseTextureMappingOperation = /* @__PURE__ */ _bind(
+	FW,
+	'MTL4UpdateSparseTextureMappingOperation',
+)
+
 export const MTLAccelerationStructure = /* @__PURE__ */ _bind(FW, 'MTLAccelerationStructure')
-export const MTLAccelerationStructureBoundingBoxGeometryDescriptor = /* @__PURE__ */ _bind(FW, 'MTLAccelerationStructureBoundingBoxGeometryDescriptor')
-export const MTLAccelerationStructureCommandEncoder = /* @__PURE__ */ _bind(FW, 'MTLAccelerationStructureCommandEncoder')
-export const MTLAccelerationStructureDescriptor = /* @__PURE__ */ _bind(FW, 'MTLAccelerationStructureDescriptor')
-export const MTLAccelerationStructureGeometryDescriptor = /* @__PURE__ */ _bind(FW, 'MTLAccelerationStructureGeometryDescriptor')
-export const MTLAccelerationStructureInstanceDescriptor = /* @__PURE__ */ _bind(FW, 'MTLAccelerationStructureInstanceDescriptor')
-export const MTLAccelerationStructureInstanceOptions = /* @__PURE__ */ _bind(FW, 'MTLAccelerationStructureInstanceOptions')
-export const MTLAccelerationStructureMotionInstanceDescriptor = /* @__PURE__ */ _bind(FW, 'MTLAccelerationStructureMotionInstanceDescriptor')
-export const MTLAccelerationStructureSizes = /* @__PURE__ */ _bind(FW, 'MTLAccelerationStructureSizes')
-export const MTLAccelerationStructureTriangleGeometryDescriptor = /* @__PURE__ */ _bind(FW, 'MTLAccelerationStructureTriangleGeometryDescriptor')
-export const MTLAccelerationStructureUsage = /* @__PURE__ */ _bind(FW, 'MTLAccelerationStructureUsage')
-export const MTLAccelerationStructureUserIDInstanceDescriptor = /* @__PURE__ */ _bind(FW, 'MTLAccelerationStructureUserIDInstanceDescriptor')
+export const MTLAccelerationStructureBoundingBoxGeometryDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLAccelerationStructureBoundingBoxGeometryDescriptor',
+)
+
+export const MTLAccelerationStructureCommandEncoder = /* @__PURE__ */ _bind(
+	FW,
+	'MTLAccelerationStructureCommandEncoder',
+)
+
+export const MTLAccelerationStructureDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLAccelerationStructureDescriptor',
+)
+
+export const MTLAccelerationStructureGeometryDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLAccelerationStructureGeometryDescriptor',
+)
+
+export const MTLAccelerationStructureInstanceDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLAccelerationStructureInstanceDescriptor',
+)
+
+export const MTLAccelerationStructureInstanceOptions = /* @__PURE__ */ _bind(
+	FW,
+	'MTLAccelerationStructureInstanceOptions',
+)
+
+export const MTLAccelerationStructureMotionInstanceDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLAccelerationStructureMotionInstanceDescriptor',
+)
+
+export const MTLAccelerationStructureSizes = /* @__PURE__ */ _bind(
+	FW,
+	'MTLAccelerationStructureSizes',
+)
+
+export const MTLAccelerationStructureTriangleGeometryDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLAccelerationStructureTriangleGeometryDescriptor',
+)
+
+export const MTLAccelerationStructureUsage = /* @__PURE__ */ _bind(
+	FW,
+	'MTLAccelerationStructureUsage',
+)
+
+export const MTLAccelerationStructureUserIDInstanceDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLAccelerationStructureUserIDInstanceDescriptor',
+)
+
 export const MTLAllocation = /* @__PURE__ */ _bind(FW, 'MTLAllocation')
 export const MTLArgument = /* @__PURE__ */ _bind(FW, 'MTLArgument')
 export const MTLArgumentBuffersTier = /* @__PURE__ */ _bind(FW, 'MTLArgumentBuffersTier')
@@ -44,11 +108,23 @@ export const MTLBlendOperation = /* @__PURE__ */ _bind(FW, 'MTLBlendOperation')
 export const MTLBlitCommandEncoder = /* @__PURE__ */ _bind(FW, 'MTLBlitCommandEncoder')
 export const MTLBlitOption = /* @__PURE__ */ _bind(FW, 'MTLBlitOption')
 export const MTLBlitPassDescriptor = /* @__PURE__ */ _bind(FW, 'MTLBlitPassDescriptor')
-export const MTLBlitPassSampleBufferAttachmentDescriptor = /* @__PURE__ */ _bind(FW, 'MTLBlitPassSampleBufferAttachmentDescriptor')
-export const MTLBlitPassSampleBufferAttachmentDescriptorArray = /* @__PURE__ */ _bind(FW, 'MTLBlitPassSampleBufferAttachmentDescriptorArray')
+export const MTLBlitPassSampleBufferAttachmentDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLBlitPassSampleBufferAttachmentDescriptor',
+)
+
+export const MTLBlitPassSampleBufferAttachmentDescriptorArray = /* @__PURE__ */ _bind(
+	FW,
+	'MTLBlitPassSampleBufferAttachmentDescriptorArray',
+)
+
 export const MTLBuffer = /* @__PURE__ */ _bind(FW, 'MTLBuffer')
 export const MTLBufferLayoutDescriptor = /* @__PURE__ */ _bind(FW, 'MTLBufferLayoutDescriptor')
-export const MTLBufferLayoutDescriptorArray = /* @__PURE__ */ _bind(FW, 'MTLBufferLayoutDescriptorArray')
+export const MTLBufferLayoutDescriptorArray = /* @__PURE__ */ _bind(
+	FW,
+	'MTLBufferLayoutDescriptorArray',
+)
+
 export const MTLCPUCacheMode = /* @__PURE__ */ _bind(FW, 'MTLCPUCacheMode')
 export const MTLCaptureDescriptor = /* @__PURE__ */ _bind(FW, 'MTLCaptureDescriptor')
 export const MTLCaptureDestination = /* @__PURE__ */ _bind(FW, 'MTLCaptureDestination')
@@ -61,7 +137,11 @@ export const MTLColorWriteMask = /* @__PURE__ */ _bind(FW, 'MTLColorWriteMask')
 export const MTLCommandBuffer = /* @__PURE__ */ _bind(FW, 'MTLCommandBuffer')
 export const MTLCommandBufferDescriptor = /* @__PURE__ */ _bind(FW, 'MTLCommandBufferDescriptor')
 export const MTLCommandBufferEncoderInfo = /* @__PURE__ */ _bind(FW, 'MTLCommandBufferEncoderInfo')
-export const MTLCommandBufferEncoderInfoErrorKey = /* @__PURE__ */ _bind(FW, 'MTLCommandBufferEncoderInfoErrorKey')
+export const MTLCommandBufferEncoderInfoErrorKey = /* @__PURE__ */ _bind(
+	FW,
+	'MTLCommandBufferEncoderInfoErrorKey',
+)
+
 export const MTLCommandBufferError = /* @__PURE__ */ _bind(FW, 'MTLCommandBufferError')
 export const MTLCommandBufferErrorDomain = /* @__PURE__ */ _bind(FW, 'MTLCommandBufferErrorDomain')
 export const MTLCommandBufferErrorOption = /* @__PURE__ */ _bind(FW, 'MTLCommandBufferErrorOption')
@@ -69,47 +149,143 @@ export const MTLCommandBufferStatus = /* @__PURE__ */ _bind(FW, 'MTLCommandBuffe
 export const MTLCommandEncoder = /* @__PURE__ */ _bind(FW, 'MTLCommandEncoder')
 export const MTLCommandEncoderErrorState = /* @__PURE__ */ _bind(FW, 'MTLCommandEncoderErrorState')
 export const MTLCommandQueue = /* @__PURE__ */ _bind(FW, 'MTLCommandQueue')
-export const MTLCommonCounterClipperInvocations = /* @__PURE__ */ _bind(FW, 'MTLCommonCounterClipperInvocations')
-export const MTLCommonCounterClipperPrimitivesOut = /* @__PURE__ */ _bind(FW, 'MTLCommonCounterClipperPrimitivesOut')
-export const MTLCommonCounterComputeKernelInvocations = /* @__PURE__ */ _bind(FW, 'MTLCommonCounterComputeKernelInvocations')
-export const MTLCommonCounterFragmentCycles = /* @__PURE__ */ _bind(FW, 'MTLCommonCounterFragmentCycles')
-export const MTLCommonCounterFragmentInvocations = /* @__PURE__ */ _bind(FW, 'MTLCommonCounterFragmentInvocations')
-export const MTLCommonCounterFragmentsPassed = /* @__PURE__ */ _bind(FW, 'MTLCommonCounterFragmentsPassed')
-export const MTLCommonCounterPostTessellationVertexCycles = /* @__PURE__ */ _bind(FW, 'MTLCommonCounterPostTessellationVertexCycles')
-export const MTLCommonCounterPostTessellationVertexInvocations = /* @__PURE__ */ _bind(FW, 'MTLCommonCounterPostTessellationVertexInvocations')
-export const MTLCommonCounterRenderTargetWriteCycles = /* @__PURE__ */ _bind(FW, 'MTLCommonCounterRenderTargetWriteCycles')
-export const MTLCommonCounterSetStageUtilization = /* @__PURE__ */ _bind(FW, 'MTLCommonCounterSetStageUtilization')
-export const MTLCommonCounterSetStatistic = /* @__PURE__ */ _bind(FW, 'MTLCommonCounterSetStatistic')
-export const MTLCommonCounterSetTimestamp = /* @__PURE__ */ _bind(FW, 'MTLCommonCounterSetTimestamp')
-export const MTLCommonCounterTessellationCycles = /* @__PURE__ */ _bind(FW, 'MTLCommonCounterTessellationCycles')
-export const MTLCommonCounterTessellationInputPatches = /* @__PURE__ */ _bind(FW, 'MTLCommonCounterTessellationInputPatches')
+export const MTLCommonCounterClipperInvocations = /* @__PURE__ */ _bind(
+	FW,
+	'MTLCommonCounterClipperInvocations',
+)
+
+export const MTLCommonCounterClipperPrimitivesOut = /* @__PURE__ */ _bind(
+	FW,
+	'MTLCommonCounterClipperPrimitivesOut',
+)
+
+export const MTLCommonCounterComputeKernelInvocations = /* @__PURE__ */ _bind(
+	FW,
+	'MTLCommonCounterComputeKernelInvocations',
+)
+
+export const MTLCommonCounterFragmentCycles = /* @__PURE__ */ _bind(
+	FW,
+	'MTLCommonCounterFragmentCycles',
+)
+
+export const MTLCommonCounterFragmentInvocations = /* @__PURE__ */ _bind(
+	FW,
+	'MTLCommonCounterFragmentInvocations',
+)
+
+export const MTLCommonCounterFragmentsPassed = /* @__PURE__ */ _bind(
+	FW,
+	'MTLCommonCounterFragmentsPassed',
+)
+
+export const MTLCommonCounterPostTessellationVertexCycles = /* @__PURE__ */ _bind(
+	FW,
+	'MTLCommonCounterPostTessellationVertexCycles',
+)
+
+export const MTLCommonCounterPostTessellationVertexInvocations = /* @__PURE__ */ _bind(
+	FW,
+	'MTLCommonCounterPostTessellationVertexInvocations',
+)
+
+export const MTLCommonCounterRenderTargetWriteCycles = /* @__PURE__ */ _bind(
+	FW,
+	'MTLCommonCounterRenderTargetWriteCycles',
+)
+
+export const MTLCommonCounterSetStageUtilization = /* @__PURE__ */ _bind(
+	FW,
+	'MTLCommonCounterSetStageUtilization',
+)
+
+export const MTLCommonCounterSetStatistic = /* @__PURE__ */ _bind(
+	FW,
+	'MTLCommonCounterSetStatistic',
+)
+
+export const MTLCommonCounterSetTimestamp = /* @__PURE__ */ _bind(
+	FW,
+	'MTLCommonCounterSetTimestamp',
+)
+
+export const MTLCommonCounterTessellationCycles = /* @__PURE__ */ _bind(
+	FW,
+	'MTLCommonCounterTessellationCycles',
+)
+
+export const MTLCommonCounterTessellationInputPatches = /* @__PURE__ */ _bind(
+	FW,
+	'MTLCommonCounterTessellationInputPatches',
+)
+
 export const MTLCommonCounterTimestamp = /* @__PURE__ */ _bind(FW, 'MTLCommonCounterTimestamp')
 export const MTLCommonCounterTotalCycles = /* @__PURE__ */ _bind(FW, 'MTLCommonCounterTotalCycles')
-export const MTLCommonCounterVertexCycles = /* @__PURE__ */ _bind(FW, 'MTLCommonCounterVertexCycles')
-export const MTLCommonCounterVertexInvocations = /* @__PURE__ */ _bind(FW, 'MTLCommonCounterVertexInvocations')
+export const MTLCommonCounterVertexCycles = /* @__PURE__ */ _bind(
+	FW,
+	'MTLCommonCounterVertexCycles',
+)
+
+export const MTLCommonCounterVertexInvocations = /* @__PURE__ */ _bind(
+	FW,
+	'MTLCommonCounterVertexInvocations',
+)
+
 export const MTLCompareFunction = /* @__PURE__ */ _bind(FW, 'MTLCompareFunction')
 export const MTLCompileOptions = /* @__PURE__ */ _bind(FW, 'MTLCompileOptions')
 export const MTLComponentTransform = /* @__PURE__ */ _bind(FW, 'MTLComponentTransform')
 export const MTLComputeCommandEncoder = /* @__PURE__ */ _bind(FW, 'MTLComputeCommandEncoder')
 export const MTLComputePassDescriptor = /* @__PURE__ */ _bind(FW, 'MTLComputePassDescriptor')
-export const MTLComputePassSampleBufferAttachmentDescriptor = /* @__PURE__ */ _bind(FW, 'MTLComputePassSampleBufferAttachmentDescriptor')
-export const MTLComputePassSampleBufferAttachmentDescriptorArray = /* @__PURE__ */ _bind(FW, 'MTLComputePassSampleBufferAttachmentDescriptorArray')
-export const MTLComputePipelineDescriptor = /* @__PURE__ */ _bind(FW, 'MTLComputePipelineDescriptor')
-export const MTLComputePipelineReflection = /* @__PURE__ */ _bind(FW, 'MTLComputePipelineReflection')
+export const MTLComputePassSampleBufferAttachmentDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLComputePassSampleBufferAttachmentDescriptor',
+)
+
+export const MTLComputePassSampleBufferAttachmentDescriptorArray = /* @__PURE__ */ _bind(
+	FW,
+	'MTLComputePassSampleBufferAttachmentDescriptorArray',
+)
+
+export const MTLComputePipelineDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLComputePipelineDescriptor',
+)
+
+export const MTLComputePipelineReflection = /* @__PURE__ */ _bind(
+	FW,
+	'MTLComputePipelineReflection',
+)
+
 export const MTLComputePipelineState = /* @__PURE__ */ _bind(FW, 'MTLComputePipelineState')
 export const MTLCopyAllDevices = /* @__PURE__ */ _bind(FW, 'MTLCopyAllDevices')
-export const MTLCopyAllDevicesWithObserver = /* @__PURE__ */ _bind(FW, 'MTLCopyAllDevicesWithObserver')
+export const MTLCopyAllDevicesWithObserver = /* @__PURE__ */ _bind(
+	FW,
+	'MTLCopyAllDevicesWithObserver',
+)
+
 export const MTLCounter = /* @__PURE__ */ _bind(FW, 'MTLCounter')
 export const MTLCounterErrorDomain = /* @__PURE__ */ _bind(FW, 'MTLCounterErrorDomain')
-export const MTLCounterResultStageUtilization = /* @__PURE__ */ _bind(FW, 'MTLCounterResultStageUtilization')
+export const MTLCounterResultStageUtilization = /* @__PURE__ */ _bind(
+	FW,
+	'MTLCounterResultStageUtilization',
+)
+
 export const MTLCounterResultStatistic = /* @__PURE__ */ _bind(FW, 'MTLCounterResultStatistic')
 export const MTLCounterResultTimestamp = /* @__PURE__ */ _bind(FW, 'MTLCounterResultTimestamp')
 export const MTLCounterSampleBuffer = /* @__PURE__ */ _bind(FW, 'MTLCounterSampleBuffer')
-export const MTLCounterSampleBufferDescriptor = /* @__PURE__ */ _bind(FW, 'MTLCounterSampleBufferDescriptor')
+export const MTLCounterSampleBufferDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLCounterSampleBufferDescriptor',
+)
+
 export const MTLCounterSampleBufferError = /* @__PURE__ */ _bind(FW, 'MTLCounterSampleBufferError')
 export const MTLCounterSamplingPoint = /* @__PURE__ */ _bind(FW, 'MTLCounterSamplingPoint')
 export const MTLCounterSet = /* @__PURE__ */ _bind(FW, 'MTLCounterSet')
-export const MTLCreateSystemDefaultDevice = /* @__PURE__ */ _bind(FW, 'MTLCreateSystemDefaultDevice')
+export const MTLCreateSystemDefaultDevice = /* @__PURE__ */ _bind(
+	FW,
+	'MTLCreateSystemDefaultDevice',
+)
+
 export const MTLCullMode = /* @__PURE__ */ _bind(FW, 'MTLCullMode')
 export const MTLDataType = /* @__PURE__ */ _bind(FW, 'MTLDataType')
 export const MTLDepthClipMode = /* @__PURE__ */ _bind(FW, 'MTLDepthClipMode')
@@ -117,15 +293,47 @@ export const MTLDepthStencilDescriptor = /* @__PURE__ */ _bind(FW, 'MTLDepthSten
 export const MTLDepthStencilState = /* @__PURE__ */ _bind(FW, 'MTLDepthStencilState')
 export const MTLDevice = /* @__PURE__ */ _bind(FW, 'MTLDevice')
 export const MTLDeviceLocation = /* @__PURE__ */ _bind(FW, 'MTLDeviceLocation')
-export const MTLDeviceRemovalRequestedNotification = /* @__PURE__ */ _bind(FW, 'MTLDeviceRemovalRequestedNotification')
-export const MTLDeviceWasAddedNotification = /* @__PURE__ */ _bind(FW, 'MTLDeviceWasAddedNotification')
-export const MTLDeviceWasRemovedNotification = /* @__PURE__ */ _bind(FW, 'MTLDeviceWasRemovedNotification')
-export const MTLDispatchThreadgroupsIndirectArguments = /* @__PURE__ */ _bind(FW, 'MTLDispatchThreadgroupsIndirectArguments')
-export const MTLDispatchThreadsIndirectArguments = /* @__PURE__ */ _bind(FW, 'MTLDispatchThreadsIndirectArguments')
+export const MTLDeviceRemovalRequestedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'MTLDeviceRemovalRequestedNotification',
+)
+
+export const MTLDeviceWasAddedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'MTLDeviceWasAddedNotification',
+)
+
+export const MTLDeviceWasRemovedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'MTLDeviceWasRemovedNotification',
+)
+
+export const MTLDispatchThreadgroupsIndirectArguments = /* @__PURE__ */ _bind(
+	FW,
+	'MTLDispatchThreadgroupsIndirectArguments',
+)
+
+export const MTLDispatchThreadsIndirectArguments = /* @__PURE__ */ _bind(
+	FW,
+	'MTLDispatchThreadsIndirectArguments',
+)
+
 export const MTLDispatchType = /* @__PURE__ */ _bind(FW, 'MTLDispatchType')
-export const MTLDrawIndexedPrimitivesIndirectArguments = /* @__PURE__ */ _bind(FW, 'MTLDrawIndexedPrimitivesIndirectArguments')
-export const MTLDrawPatchIndirectArguments = /* @__PURE__ */ _bind(FW, 'MTLDrawPatchIndirectArguments')
-export const MTLDrawPrimitivesIndirectArguments = /* @__PURE__ */ _bind(FW, 'MTLDrawPrimitivesIndirectArguments')
+export const MTLDrawIndexedPrimitivesIndirectArguments = /* @__PURE__ */ _bind(
+	FW,
+	'MTLDrawIndexedPrimitivesIndirectArguments',
+)
+
+export const MTLDrawPatchIndirectArguments = /* @__PURE__ */ _bind(
+	FW,
+	'MTLDrawPatchIndirectArguments',
+)
+
+export const MTLDrawPrimitivesIndirectArguments = /* @__PURE__ */ _bind(
+	FW,
+	'MTLDrawPrimitivesIndirectArguments',
+)
+
 export const MTLDrawable = /* @__PURE__ */ _bind(FW, 'MTLDrawable')
 export const MTLDynamicLibrary = /* @__PURE__ */ _bind(FW, 'MTLDynamicLibrary')
 export const MTLDynamicLibraryDomain = /* @__PURE__ */ _bind(FW, 'MTLDynamicLibraryDomain')
@@ -133,7 +341,11 @@ export const MTLDynamicLibraryError = /* @__PURE__ */ _bind(FW, 'MTLDynamicLibra
 export const MTLEvent = /* @__PURE__ */ _bind(FW, 'MTLEvent')
 export const MTLFeatureSet = /* @__PURE__ */ _bind(FW, 'MTLFeatureSet')
 export const MTLFence = /* @__PURE__ */ _bind(FW, 'MTLFence')
-export const MTLFloatingPointConversionRoundingMode = /* @__PURE__ */ _bind(FW, 'MTLFloatingPointConversionRoundingMode')
+export const MTLFloatingPointConversionRoundingMode = /* @__PURE__ */ _bind(
+	FW,
+	'MTLFloatingPointConversionRoundingMode',
+)
+
 export const MTLFunction = /* @__PURE__ */ _bind(FW, 'MTLFunction')
 export const MTLFunctionConstant = /* @__PURE__ */ _bind(FW, 'MTLFunctionConstant')
 export const MTLFunctionConstantValues = /* @__PURE__ */ _bind(FW, 'MTLFunctionConstantValues')
@@ -149,23 +361,67 @@ export const MTLHazardTrackingMode = /* @__PURE__ */ _bind(FW, 'MTLHazardTrackin
 export const MTLHeap = /* @__PURE__ */ _bind(FW, 'MTLHeap')
 export const MTLHeapDescriptor = /* @__PURE__ */ _bind(FW, 'MTLHeapDescriptor')
 export const MTLHeapType = /* @__PURE__ */ _bind(FW, 'MTLHeapType')
-export const MTLIOCompressionContextDefaultChunkSize = /* @__PURE__ */ _bind(FW, 'MTLIOCompressionContextDefaultChunkSize')
+export const MTLIOCompressionContextDefaultChunkSize = /* @__PURE__ */ _bind(
+	FW,
+	'MTLIOCompressionContextDefaultChunkSize',
+)
+
 export const MTLIOCompressionMethod = /* @__PURE__ */ _bind(FW, 'MTLIOCompressionMethod')
 export const MTLIndexType = /* @__PURE__ */ _bind(FW, 'MTLIndexType')
-export const MTLIndirectAccelerationStructureInstanceDescriptor = /* @__PURE__ */ _bind(FW, 'MTLIndirectAccelerationStructureInstanceDescriptor')
-export const MTLIndirectAccelerationStructureMotionInstanceDescriptor = /* @__PURE__ */ _bind(FW, 'MTLIndirectAccelerationStructureMotionInstanceDescriptor')
+export const MTLIndirectAccelerationStructureInstanceDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLIndirectAccelerationStructureInstanceDescriptor',
+)
+
+export const MTLIndirectAccelerationStructureMotionInstanceDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLIndirectAccelerationStructureMotionInstanceDescriptor',
+)
+
 export const MTLIndirectCommandBuffer = /* @__PURE__ */ _bind(FW, 'MTLIndirectCommandBuffer')
-export const MTLIndirectCommandBufferDescriptor = /* @__PURE__ */ _bind(FW, 'MTLIndirectCommandBufferDescriptor')
-export const MTLIndirectCommandBufferExecutionRange = /* @__PURE__ */ _bind(FW, 'MTLIndirectCommandBufferExecutionRange')
+export const MTLIndirectCommandBufferDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLIndirectCommandBufferDescriptor',
+)
+
+export const MTLIndirectCommandBufferExecutionRange = /* @__PURE__ */ _bind(
+	FW,
+	'MTLIndirectCommandBufferExecutionRange',
+)
+
 export const MTLIndirectCommandType = /* @__PURE__ */ _bind(FW, 'MTLIndirectCommandType')
 export const MTLIndirectComputeCommand = /* @__PURE__ */ _bind(FW, 'MTLIndirectComputeCommand')
 export const MTLIndirectRenderCommand = /* @__PURE__ */ _bind(FW, 'MTLIndirectRenderCommand')
-export const MTLInstanceAccelerationStructureDescriptor = /* @__PURE__ */ _bind(FW, 'MTLInstanceAccelerationStructureDescriptor')
-export const MTLIntersectionFunctionBufferArguments = /* @__PURE__ */ _bind(FW, 'MTLIntersectionFunctionBufferArguments')
-export const MTLIntersectionFunctionDescriptor = /* @__PURE__ */ _bind(FW, 'MTLIntersectionFunctionDescriptor')
-export const MTLIntersectionFunctionSignature = /* @__PURE__ */ _bind(FW, 'MTLIntersectionFunctionSignature')
-export const MTLIntersectionFunctionTable = /* @__PURE__ */ _bind(FW, 'MTLIntersectionFunctionTable')
-export const MTLIntersectionFunctionTableDescriptor = /* @__PURE__ */ _bind(FW, 'MTLIntersectionFunctionTableDescriptor')
+export const MTLInstanceAccelerationStructureDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLInstanceAccelerationStructureDescriptor',
+)
+
+export const MTLIntersectionFunctionBufferArguments = /* @__PURE__ */ _bind(
+	FW,
+	'MTLIntersectionFunctionBufferArguments',
+)
+
+export const MTLIntersectionFunctionDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLIntersectionFunctionDescriptor',
+)
+
+export const MTLIntersectionFunctionSignature = /* @__PURE__ */ _bind(
+	FW,
+	'MTLIntersectionFunctionSignature',
+)
+
+export const MTLIntersectionFunctionTable = /* @__PURE__ */ _bind(
+	FW,
+	'MTLIntersectionFunctionTable',
+)
+
+export const MTLIntersectionFunctionTableDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLIntersectionFunctionTableDescriptor',
+)
+
 export const MTLLanguageVersion = /* @__PURE__ */ _bind(FW, 'MTLLanguageVersion')
 export const MTLLibrary = /* @__PURE__ */ _bind(FW, 'MTLLibrary')
 export const MTLLibraryError = /* @__PURE__ */ _bind(FW, 'MTLLibraryError')
@@ -175,44 +431,124 @@ export const MTLLinkedFunctions = /* @__PURE__ */ _bind(FW, 'MTLLinkedFunctions'
 export const MTLLoadAction = /* @__PURE__ */ _bind(FW, 'MTLLoadAction')
 export const MTLLogContainer = /* @__PURE__ */ _bind(FW, 'MTLLogContainer')
 export const MTLMapIndirectArguments = /* @__PURE__ */ _bind(FW, 'MTLMapIndirectArguments')
-export const MTLMathFloatingPointFunctions = /* @__PURE__ */ _bind(FW, 'MTLMathFloatingPointFunctions')
+export const MTLMathFloatingPointFunctions = /* @__PURE__ */ _bind(
+	FW,
+	'MTLMathFloatingPointFunctions',
+)
+
 export const MTLMathMode = /* @__PURE__ */ _bind(FW, 'MTLMathMode')
-export const MTLMultisampleDepthResolveFilter = /* @__PURE__ */ _bind(FW, 'MTLMultisampleDepthResolveFilter')
-export const MTLMultisampleStencilResolveFilter = /* @__PURE__ */ _bind(FW, 'MTLMultisampleStencilResolveFilter')
+export const MTLMultisampleDepthResolveFilter = /* @__PURE__ */ _bind(
+	FW,
+	'MTLMultisampleDepthResolveFilter',
+)
+
+export const MTLMultisampleStencilResolveFilter = /* @__PURE__ */ _bind(
+	FW,
+	'MTLMultisampleStencilResolveFilter',
+)
+
 export const MTLMutability = /* @__PURE__ */ _bind(FW, 'MTLMutability')
 export const MTLOrigin = /* @__PURE__ */ _bind(FW, 'MTLOrigin')
 export const MTLPackedFloatQuaternion = /* @__PURE__ */ _bind(FW, 'MTLPackedFloatQuaternion')
-export const MTLParallelRenderCommandEncoder = /* @__PURE__ */ _bind(FW, 'MTLParallelRenderCommandEncoder')
+export const MTLParallelRenderCommandEncoder = /* @__PURE__ */ _bind(
+	FW,
+	'MTLParallelRenderCommandEncoder',
+)
+
 export const MTLPatchType = /* @__PURE__ */ _bind(FW, 'MTLPatchType')
 export const MTLPipelineBufferDescriptor = /* @__PURE__ */ _bind(FW, 'MTLPipelineBufferDescriptor')
-export const MTLPipelineBufferDescriptorArray = /* @__PURE__ */ _bind(FW, 'MTLPipelineBufferDescriptorArray')
+export const MTLPipelineBufferDescriptorArray = /* @__PURE__ */ _bind(
+	FW,
+	'MTLPipelineBufferDescriptorArray',
+)
+
 export const MTLPipelineOption = /* @__PURE__ */ _bind(FW, 'MTLPipelineOption')
 export const MTLPixelFormat = /* @__PURE__ */ _bind(FW, 'MTLPixelFormat')
 export const MTLPointerType = /* @__PURE__ */ _bind(FW, 'MTLPointerType')
-export const MTLPrimitiveAccelerationStructureDescriptor = /* @__PURE__ */ _bind(FW, 'MTLPrimitiveAccelerationStructureDescriptor')
+export const MTLPrimitiveAccelerationStructureDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLPrimitiveAccelerationStructureDescriptor',
+)
+
 export const MTLPrimitiveTopologyClass = /* @__PURE__ */ _bind(FW, 'MTLPrimitiveTopologyClass')
 export const MTLPrimitiveType = /* @__PURE__ */ _bind(FW, 'MTLPrimitiveType')
 export const MTLPurgeableState = /* @__PURE__ */ _bind(FW, 'MTLPurgeableState')
-export const MTLQuadTessellationFactorsHalf = /* @__PURE__ */ _bind(FW, 'MTLQuadTessellationFactorsHalf')
-export const MTLRasterizationRateLayerArray = /* @__PURE__ */ _bind(FW, 'MTLRasterizationRateLayerArray')
-export const MTLRasterizationRateLayerDescriptor = /* @__PURE__ */ _bind(FW, 'MTLRasterizationRateLayerDescriptor')
+export const MTLQuadTessellationFactorsHalf = /* @__PURE__ */ _bind(
+	FW,
+	'MTLQuadTessellationFactorsHalf',
+)
+
+export const MTLRasterizationRateLayerArray = /* @__PURE__ */ _bind(
+	FW,
+	'MTLRasterizationRateLayerArray',
+)
+
+export const MTLRasterizationRateLayerDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLRasterizationRateLayerDescriptor',
+)
+
 export const MTLRasterizationRateMap = /* @__PURE__ */ _bind(FW, 'MTLRasterizationRateMap')
-export const MTLRasterizationRateMapDescriptor = /* @__PURE__ */ _bind(FW, 'MTLRasterizationRateMapDescriptor')
-export const MTLRasterizationRateSampleArray = /* @__PURE__ */ _bind(FW, 'MTLRasterizationRateSampleArray')
+export const MTLRasterizationRateMapDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLRasterizationRateMapDescriptor',
+)
+
+export const MTLRasterizationRateSampleArray = /* @__PURE__ */ _bind(
+	FW,
+	'MTLRasterizationRateSampleArray',
+)
+
 export const MTLReadWriteTextureTier = /* @__PURE__ */ _bind(FW, 'MTLReadWriteTextureTier')
 export const MTLRegion = /* @__PURE__ */ _bind(FW, 'MTLRegion')
 export const MTLRemoveDeviceObserver = /* @__PURE__ */ _bind(FW, 'MTLRemoveDeviceObserver')
 export const MTLRenderCommandEncoder = /* @__PURE__ */ _bind(FW, 'MTLRenderCommandEncoder')
-export const MTLRenderPassAttachmentDescriptor = /* @__PURE__ */ _bind(FW, 'MTLRenderPassAttachmentDescriptor')
-export const MTLRenderPassColorAttachmentDescriptor = /* @__PURE__ */ _bind(FW, 'MTLRenderPassColorAttachmentDescriptor')
-export const MTLRenderPassColorAttachmentDescriptorArray = /* @__PURE__ */ _bind(FW, 'MTLRenderPassColorAttachmentDescriptorArray')
-export const MTLRenderPassDepthAttachmentDescriptor = /* @__PURE__ */ _bind(FW, 'MTLRenderPassDepthAttachmentDescriptor')
+export const MTLRenderPassAttachmentDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLRenderPassAttachmentDescriptor',
+)
+
+export const MTLRenderPassColorAttachmentDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLRenderPassColorAttachmentDescriptor',
+)
+
+export const MTLRenderPassColorAttachmentDescriptorArray = /* @__PURE__ */ _bind(
+	FW,
+	'MTLRenderPassColorAttachmentDescriptorArray',
+)
+
+export const MTLRenderPassDepthAttachmentDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLRenderPassDepthAttachmentDescriptor',
+)
+
 export const MTLRenderPassDescriptor = /* @__PURE__ */ _bind(FW, 'MTLRenderPassDescriptor')
-export const MTLRenderPassSampleBufferAttachmentDescriptor = /* @__PURE__ */ _bind(FW, 'MTLRenderPassSampleBufferAttachmentDescriptor')
-export const MTLRenderPassSampleBufferAttachmentDescriptorArray = /* @__PURE__ */ _bind(FW, 'MTLRenderPassSampleBufferAttachmentDescriptorArray')
-export const MTLRenderPassStencilAttachmentDescriptor = /* @__PURE__ */ _bind(FW, 'MTLRenderPassStencilAttachmentDescriptor')
-export const MTLRenderPipelineColorAttachmentDescriptor = /* @__PURE__ */ _bind(FW, 'MTLRenderPipelineColorAttachmentDescriptor')
-export const MTLRenderPipelineColorAttachmentDescriptorArray = /* @__PURE__ */ _bind(FW, 'MTLRenderPipelineColorAttachmentDescriptorArray')
+export const MTLRenderPassSampleBufferAttachmentDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLRenderPassSampleBufferAttachmentDescriptor',
+)
+
+export const MTLRenderPassSampleBufferAttachmentDescriptorArray = /* @__PURE__ */ _bind(
+	FW,
+	'MTLRenderPassSampleBufferAttachmentDescriptorArray',
+)
+
+export const MTLRenderPassStencilAttachmentDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLRenderPassStencilAttachmentDescriptor',
+)
+
+export const MTLRenderPipelineColorAttachmentDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLRenderPipelineColorAttachmentDescriptor',
+)
+
+export const MTLRenderPipelineColorAttachmentDescriptorArray = /* @__PURE__ */ _bind(
+	FW,
+	'MTLRenderPipelineColorAttachmentDescriptorArray',
+)
+
 export const MTLRenderPipelineDescriptor = /* @__PURE__ */ _bind(FW, 'MTLRenderPipelineDescriptor')
 export const MTLRenderPipelineReflection = /* @__PURE__ */ _bind(FW, 'MTLRenderPipelineReflection')
 export const MTLRenderPipelineState = /* @__PURE__ */ _bind(FW, 'MTLRenderPipelineState')
@@ -220,10 +556,26 @@ export const MTLRenderStages = /* @__PURE__ */ _bind(FW, 'MTLRenderStages')
 export const MTLResource = /* @__PURE__ */ _bind(FW, 'MTLResource')
 export const MTLResourceID = /* @__PURE__ */ _bind(FW, 'MTLResourceID')
 export const MTLResourceOptions = /* @__PURE__ */ _bind(FW, 'MTLResourceOptions')
-export const MTLResourceStateCommandEncoder = /* @__PURE__ */ _bind(FW, 'MTLResourceStateCommandEncoder')
-export const MTLResourceStatePassDescriptor = /* @__PURE__ */ _bind(FW, 'MTLResourceStatePassDescriptor')
-export const MTLResourceStatePassSampleBufferAttachmentDescriptor = /* @__PURE__ */ _bind(FW, 'MTLResourceStatePassSampleBufferAttachmentDescriptor')
-export const MTLResourceStatePassSampleBufferAttachmentDescriptorArray = /* @__PURE__ */ _bind(FW, 'MTLResourceStatePassSampleBufferAttachmentDescriptorArray')
+export const MTLResourceStateCommandEncoder = /* @__PURE__ */ _bind(
+	FW,
+	'MTLResourceStateCommandEncoder',
+)
+
+export const MTLResourceStatePassDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLResourceStatePassDescriptor',
+)
+
+export const MTLResourceStatePassSampleBufferAttachmentDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLResourceStatePassSampleBufferAttachmentDescriptor',
+)
+
+export const MTLResourceStatePassSampleBufferAttachmentDescriptorArray = /* @__PURE__ */ _bind(
+	FW,
+	'MTLResourceStatePassSampleBufferAttachmentDescriptorArray',
+)
+
 export const MTLResourceUsage = /* @__PURE__ */ _bind(FW, 'MTLResourceUsage')
 export const MTLSamplePosition = /* @__PURE__ */ _bind(FW, 'MTLSamplePosition')
 export const MTLSamplerAddressMode = /* @__PURE__ */ _bind(FW, 'MTLSamplerAddressMode')
@@ -240,9 +592,21 @@ export const MTLSharedTextureHandle = /* @__PURE__ */ _bind(FW, 'MTLSharedTextur
 export const MTLSize = /* @__PURE__ */ _bind(FW, 'MTLSize')
 export const MTLSizeAndAlign = /* @__PURE__ */ _bind(FW, 'MTLSizeAndAlign')
 export const MTLSparseTextureMappingMode = /* @__PURE__ */ _bind(FW, 'MTLSparseTextureMappingMode')
-export const MTLSparseTextureRegionAlignmentMode = /* @__PURE__ */ _bind(FW, 'MTLSparseTextureRegionAlignmentMode')
-export const MTLStageInRegionIndirectArguments = /* @__PURE__ */ _bind(FW, 'MTLStageInRegionIndirectArguments')
-export const MTLStageInputOutputDescriptor = /* @__PURE__ */ _bind(FW, 'MTLStageInputOutputDescriptor')
+export const MTLSparseTextureRegionAlignmentMode = /* @__PURE__ */ _bind(
+	FW,
+	'MTLSparseTextureRegionAlignmentMode',
+)
+
+export const MTLStageInRegionIndirectArguments = /* @__PURE__ */ _bind(
+	FW,
+	'MTLStageInRegionIndirectArguments',
+)
+
+export const MTLStageInputOutputDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLStageInputOutputDescriptor',
+)
+
 export const MTLStencilDescriptor = /* @__PURE__ */ _bind(FW, 'MTLStencilDescriptor')
 export const MTLStencilOperation = /* @__PURE__ */ _bind(FW, 'MTLStencilOperation')
 export const MTLStepFunction = /* @__PURE__ */ _bind(FW, 'MTLStepFunction')
@@ -251,10 +615,22 @@ export const MTLStoreAction = /* @__PURE__ */ _bind(FW, 'MTLStoreAction')
 export const MTLStoreActionOptions = /* @__PURE__ */ _bind(FW, 'MTLStoreActionOptions')
 export const MTLStructMember = /* @__PURE__ */ _bind(FW, 'MTLStructMember')
 export const MTLStructType = /* @__PURE__ */ _bind(FW, 'MTLStructType')
-export const MTLTessellationControlPointIndexType = /* @__PURE__ */ _bind(FW, 'MTLTessellationControlPointIndexType')
+export const MTLTessellationControlPointIndexType = /* @__PURE__ */ _bind(
+	FW,
+	'MTLTessellationControlPointIndexType',
+)
+
 export const MTLTessellationFactorFormat = /* @__PURE__ */ _bind(FW, 'MTLTessellationFactorFormat')
-export const MTLTessellationFactorStepFunction = /* @__PURE__ */ _bind(FW, 'MTLTessellationFactorStepFunction')
-export const MTLTessellationPartitionMode = /* @__PURE__ */ _bind(FW, 'MTLTessellationPartitionMode')
+export const MTLTessellationFactorStepFunction = /* @__PURE__ */ _bind(
+	FW,
+	'MTLTessellationFactorStepFunction',
+)
+
+export const MTLTessellationPartitionMode = /* @__PURE__ */ _bind(
+	FW,
+	'MTLTessellationPartitionMode',
+)
+
 export const MTLTexture = /* @__PURE__ */ _bind(FW, 'MTLTexture')
 export const MTLTextureDescriptor = /* @__PURE__ */ _bind(FW, 'MTLTextureDescriptor')
 export const MTLTextureReferenceType = /* @__PURE__ */ _bind(FW, 'MTLTextureReferenceType')
@@ -262,28 +638,72 @@ export const MTLTextureSwizzle = /* @__PURE__ */ _bind(FW, 'MTLTextureSwizzle')
 export const MTLTextureSwizzleChannels = /* @__PURE__ */ _bind(FW, 'MTLTextureSwizzleChannels')
 export const MTLTextureType = /* @__PURE__ */ _bind(FW, 'MTLTextureType')
 export const MTLTextureUsage = /* @__PURE__ */ _bind(FW, 'MTLTextureUsage')
-export const MTLTileRenderPipelineColorAttachmentDescriptor = /* @__PURE__ */ _bind(FW, 'MTLTileRenderPipelineColorAttachmentDescriptor')
-export const MTLTileRenderPipelineColorAttachmentDescriptorArray = /* @__PURE__ */ _bind(FW, 'MTLTileRenderPipelineColorAttachmentDescriptorArray')
-export const MTLTileRenderPipelineDescriptor = /* @__PURE__ */ _bind(FW, 'MTLTileRenderPipelineDescriptor')
+export const MTLTileRenderPipelineColorAttachmentDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLTileRenderPipelineColorAttachmentDescriptor',
+)
+
+export const MTLTileRenderPipelineColorAttachmentDescriptorArray = /* @__PURE__ */ _bind(
+	FW,
+	'MTLTileRenderPipelineColorAttachmentDescriptorArray',
+)
+
+export const MTLTileRenderPipelineDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLTileRenderPipelineDescriptor',
+)
+
 export const MTLTriangleFillMode = /* @__PURE__ */ _bind(FW, 'MTLTriangleFillMode')
-export const MTLTriangleTessellationFactorsHalf = /* @__PURE__ */ _bind(FW, 'MTLTriangleTessellationFactorsHalf')
+export const MTLTriangleTessellationFactorsHalf = /* @__PURE__ */ _bind(
+	FW,
+	'MTLTriangleTessellationFactorsHalf',
+)
+
 export const MTLType = /* @__PURE__ */ _bind(FW, 'MTLType')
-export const MTLVertexAmplificationViewMapping = /* @__PURE__ */ _bind(FW, 'MTLVertexAmplificationViewMapping')
+export const MTLVertexAmplificationViewMapping = /* @__PURE__ */ _bind(
+	FW,
+	'MTLVertexAmplificationViewMapping',
+)
+
 export const MTLVertexAttribute = /* @__PURE__ */ _bind(FW, 'MTLVertexAttribute')
-export const MTLVertexAttributeDescriptor = /* @__PURE__ */ _bind(FW, 'MTLVertexAttributeDescriptor')
-export const MTLVertexAttributeDescriptorArray = /* @__PURE__ */ _bind(FW, 'MTLVertexAttributeDescriptorArray')
-export const MTLVertexBufferLayoutDescriptor = /* @__PURE__ */ _bind(FW, 'MTLVertexBufferLayoutDescriptor')
-export const MTLVertexBufferLayoutDescriptorArray = /* @__PURE__ */ _bind(FW, 'MTLVertexBufferLayoutDescriptorArray')
+export const MTLVertexAttributeDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLVertexAttributeDescriptor',
+)
+
+export const MTLVertexAttributeDescriptorArray = /* @__PURE__ */ _bind(
+	FW,
+	'MTLVertexAttributeDescriptorArray',
+)
+
+export const MTLVertexBufferLayoutDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLVertexBufferLayoutDescriptor',
+)
+
+export const MTLVertexBufferLayoutDescriptorArray = /* @__PURE__ */ _bind(
+	FW,
+	'MTLVertexBufferLayoutDescriptorArray',
+)
+
 export const MTLVertexDescriptor = /* @__PURE__ */ _bind(FW, 'MTLVertexDescriptor')
 export const MTLVertexFormat = /* @__PURE__ */ _bind(FW, 'MTLVertexFormat')
 export const MTLVertexStepFunction = /* @__PURE__ */ _bind(FW, 'MTLVertexStepFunction')
 export const MTLViewport = /* @__PURE__ */ _bind(FW, 'MTLViewport')
 export const MTLVisibilityResultMode = /* @__PURE__ */ _bind(FW, 'MTLVisibilityResultMode')
 export const MTLVisibleFunctionTable = /* @__PURE__ */ _bind(FW, 'MTLVisibleFunctionTable')
-export const MTLVisibleFunctionTableDescriptor = /* @__PURE__ */ _bind(FW, 'MTLVisibleFunctionTableDescriptor')
+export const MTLVisibleFunctionTableDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MTLVisibleFunctionTableDescriptor',
+)
+
 export const MTLWinding = /* @__PURE__ */ _bind(FW, 'MTLWinding')
 export const _MTLAxisAlignedBoundingBox = /* @__PURE__ */ _bind(FW, '_MTLAxisAlignedBoundingBox')
 export const _MTLPackedFloat3 = /* @__PURE__ */ _bind(FW, '_MTLPackedFloat3')
 export const _MTLPackedFloat4x3 = /* @__PURE__ */ _bind(FW, '_MTLPackedFloat4x3')
-export const unnamed_13227377754740722842 = /* @__PURE__ */ _bind(FW, 'unnamed_13227377754740722842')
+export const unnamed_13227377754740722842 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_13227377754740722842',
+)
+
 export const unnamed_9929133997123268838 = /* @__PURE__ */ _bind(FW, 'unnamed_9929133997123268838')

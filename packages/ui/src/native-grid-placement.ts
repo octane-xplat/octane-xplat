@@ -4,7 +4,11 @@ import { gridTrackListToSpec } from './grid-tracks'
 import type { GridTrackList } from './props'
 
 /** Reconcile Grid after both parent renders and independently committed child updates. */
-export function bindNativeGridPlacement(host: any, rows?: GridTrackList, columns?: GridTrackList): () => void {
+export function bindNativeGridPlacement(
+	host: any,
+	rows?: GridTrackList,
+	columns?: GridTrackList,
+): () => void {
 	const watched = new Set<any>()
 	let disposed = false
 	let queued = false

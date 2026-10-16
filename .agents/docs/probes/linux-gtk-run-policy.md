@@ -15,19 +15,19 @@ policy but may never relax one.
 
 ## Declared bounds
 
-| Criterion | Bound | Source |
-| --- | --- | --- |
-| Samples per latency distribution | >= 100 paired monotonic samples | Contract sec. 6 |
-| Signal write to widget update, idle | p95 <= 16 ms | Contract sec. 6 |
-| Signal write to widget update, sustained resize | p95 <= 100 ms | Contract sec. 6 |
-| OS input event to application callback | p95 <= 150 ms | Contract sec. 6 |
-| Reorder commit to corrected hit-testing | p95 <= 100 ms | Contract sec. 6 |
-| `setTimeout(50)` during sustained resize | every sample within [40, 200] ms, >= 100 samples | Contract sec. 6 |
-| OS input during resize (no starvation) | >= 1 injected input | Contract sec. 6 |
-| Mount/unmount cycles to baseline +/-0 | >= 20 cycles, per-cycle ledger | Contract sec. 6 |
-| Close drain window | >= 5000 ms, zero late callbacks / disposed accesses / live sources / residual nodes | Contract sec. 6 |
-| Failure-shutdown bound | <= 5000 ms per deliberate-failure case | **This policy** |
-| Whole-run wall time | <= 1200000 ms (20 min) | **This policy** |
+| Criterion                                       | Bound                                                                               | Source          |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------- | --------------- |
+| Samples per latency distribution                | >= 100 paired monotonic samples                                                     | Contract sec. 6 |
+| Signal write to widget update, idle             | p95 <= 16 ms                                                                        | Contract sec. 6 |
+| Signal write to widget update, sustained resize | p95 <= 100 ms                                                                       | Contract sec. 6 |
+| OS input event to application callback          | p95 <= 150 ms                                                                       | Contract sec. 6 |
+| Reorder commit to corrected hit-testing         | p95 <= 100 ms                                                                       | Contract sec. 6 |
+| `setTimeout(50)` during sustained resize        | every sample within [40, 200] ms, >= 100 samples                                    | Contract sec. 6 |
+| OS input during resize (no starvation)          | >= 1 injected input                                                                 | Contract sec. 6 |
+| Mount/unmount cycles to baseline +/-0           | >= 20 cycles, per-cycle ledger                                                      | Contract sec. 6 |
+| Close drain window                              | >= 5000 ms, zero late callbacks / disposed accesses / live sources / residual nodes | Contract sec. 6 |
+| Failure-shutdown bound                          | <= 5000 ms per deliberate-failure case                                              | **This policy** |
+| Whole-run wall time                             | <= 1200000 ms (20 min)                                                              | **This policy** |
 
 Every latency distribution is measured with a monotonic clock as paired
 start/end records — `signal-latency` uses `startMs`/`endMs`, `input-latency`

@@ -3,40 +3,39 @@
 /// <reference path="./AppKit.d.ts" />
 
 declare class STScreenTimeConfiguration extends NSObject {
-  readonly enforcesChildRestrictions: boolean;
+	readonly enforcesChildRestrictions: boolean
 }
 
 declare class STScreenTimeConfigurationObserver extends NSObject {
-  initWithUpdateQueue(updateQueue: NSObject): this;
+	initWithUpdateQueue(updateQueue: NSObject): this
 
-  startObserving(): void;
+	startObserving(): void
 
-  stopObserving(): void;
+	stopObserving(): void
 
-  readonly configuration: STScreenTimeConfiguration;
+	readonly configuration: STScreenTimeConfiguration
 }
 
 declare class STWebpageController extends NSViewController {
-  suppressUsageRecording: boolean;
+	suppressUsageRecording: boolean
 
-  URL: NSURL;
+	URL: NSURL
 
-  URLIsPlayingVideo: boolean;
+	URLIsPlayingVideo: boolean
 
-  URLIsPictureInPicture: boolean;
+	URLIsPictureInPicture: boolean
 
-  readonly URLIsBlocked: boolean;
+	readonly URLIsBlocked: boolean
 
-  setBundleIdentifierError(bundleIdentifier: string, error: interop.PointerConvertible): boolean;
+	setBundleIdentifierError(bundleIdentifier: string, error: interop.PointerConvertible): boolean
 }
 
 declare class STWebHistory extends NSObject {
-  initWithBundleIdentifierError(bundleIdentifier: string, error: interop.PointerConvertible): this;
+	initWithBundleIdentifierError(bundleIdentifier: string, error: interop.PointerConvertible): this
 
-  deleteHistoryForURL(url: NSURL): void;
+	deleteHistoryForURL(url: NSURL): void
 
-  deleteHistoryDuringInterval(interval: NSDateInterval): void;
+	deleteHistoryDuringInterval(interval: NSDateInterval): void
 
-  deleteAllHistory(): void;
+	deleteAllHistory(): void
 }
-

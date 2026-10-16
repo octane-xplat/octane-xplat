@@ -276,8 +276,12 @@ Web and desktop return zero; this hook does not measure a browser viewport.
 import { Text, View, useKeyboardInset } from '@octane-xplat/ui'
 
 export function KeyboardSpace() {
-  const inset = useKeyboardInset()
-  return <View><Text>Keyboard space: {inset}</Text></View>
+	const inset = useKeyboardInset()
+	return (
+		<View>
+			<Text>Keyboard space: {inset}</Text>
+		</View>
+	)
 }
 ```
 
@@ -294,7 +298,11 @@ Activity and remount it when the Activity changes.
 import { KeyboardAvoiding, TextInput } from '@octane-xplat/ui'
 
 export function MessageForm() {
-  return <KeyboardAvoiding><TextInput placeholder="Message" /></KeyboardAvoiding>
+	return (
+		<KeyboardAvoiding>
+			<TextInput placeholder="Message" />
+		</KeyboardAvoiding>
+	)
 }
 ```
 
@@ -310,11 +318,13 @@ keyboards and partial screen occlusion need application-specific handling.
 import { KeyboardAvoiding, Text, TextInput, useKeyboardInset } from '@octane-xplat/ui'
 
 export function Composer() {
-  const inset = useKeyboardInset()
-  return <KeyboardAvoiding>
-    <Text>Keyboard space: {inset}</Text>
-    <TextInput placeholder="Write a message" />
-  </KeyboardAvoiding>
+	const inset = useKeyboardInset()
+	return (
+		<KeyboardAvoiding>
+			<Text>Keyboard space: {inset}</Text>
+			<TextInput placeholder="Write a message" />
+		</KeyboardAvoiding>
+	)
 }
 ```
 

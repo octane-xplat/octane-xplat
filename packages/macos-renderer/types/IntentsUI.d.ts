@@ -1,6 +1,5 @@
 /// <reference types="@nativescript/objc-node-api" />
 
-declare const IntentsUIVersionString: interop.Pointer;
+declare const IntentsUIVersionString: interop.Pointer
 
-declare const IntentsUIVersionNumber: number;
-
+declare const IntentsUIVersionNumber: number

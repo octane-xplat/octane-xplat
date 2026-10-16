@@ -10,12 +10,14 @@ when its visible text is translated. Keep useful spoken labels and roles.
 import { Pressable, Text, TextInput, VStack } from '@octane-xplat/ui'
 
 export function PackingForm() {
-	return <VStack>
-		<TextInput testID="packing.item-name" accessibilityLabel="Item name" />
-		<Pressable testID="packing.add-item" accessibilityLabel="Add item" accessibilityRole="button">
-			<Text>Add item</Text>
-		</Pressable>
-	</VStack>
+	return (
+		<VStack>
+			<TextInput testID="packing.item-name" accessibilityLabel="Item name" />
+			<Pressable testID="packing.add-item" accessibilityLabel="Add item" accessibilityRole="button">
+				<Text>Add item</Text>
+			</Pressable>
+		</VStack>
+	)
 }
 ```
 
@@ -29,11 +31,19 @@ the same durable item key for rendering and the automation name.
 import { Pressable, Text } from '@octane-xplat/ui'
 
 export function PackingItems(props: { items: { key: string; name: string }[] }) {
-	return <>{props.items.map(item =>
-		<Pressable key={item.key} testID={`packing.item.${item.key}.open`} accessibilityLabel={`Open ${item.name}`}>
-			<Text>{item.name}</Text>
-		</Pressable>
-	)}</>
+	return (
+		<>
+			{props.items.map((item) => (
+				<Pressable
+					key={item.key}
+					testID={`packing.item.${item.key}.open`}
+					accessibilityLabel={`Open ${item.name}`}
+				>
+					<Text>{item.name}</Text>
+				</Pressable>
+			))}
+		</>
+	)
 }
 ```
 
@@ -51,23 +61,25 @@ formatted span, not a separately identifiable OS view.
 import { Button, Overlay, TextInput } from '@octane-xplat/ui'
 
 export function EditOverlay(props: { open: boolean; close: () => void }) {
-	return <Overlay open={props.open} testID="packing.editor">
-		<TextInput testID="packing.editor.name" accessibilityLabel="Item name" />
-		<Button testID="packing.editor.save" label="Save" clickAction={props.close} />
-	</Overlay>
+	return (
+		<Overlay open={props.open} testID="packing.editor">
+			<TextInput testID="packing.editor.name" accessibilityLabel="Item name" />
+			<Button testID="packing.editor.save" label="Save" clickAction={props.close} />
+		</Overlay>
+	)
 }
 ```
 
-| Shared host | Forwarding |
-| --- | --- |
+| Shared host                                             | Forwarding                                            |
+| ------------------------------------------------------- | ----------------------------------------------------- |
 | `View`, `Row`, `Stack`, `HStack`, `VStack`, `Pressable` | Outer host; a scrollable `Stack` targets its scroller |
-| `Text` | Standalone text host; native inline spans excluded |
-| `Button` | Pressable host, or the web anchor when `href` is used |
-| `TextInput`, `TextArea`, `SearchInput` | Editable field, excluding shell and clear button |
-| `Switch` | Interactive track |
-| `ScrollableArea` | Scroller, including the refreshable variant |
-| `VirtualList` | Scroll viewport |
-| `Overlay` | Content host, only while open |
+| `Text`                                                  | Standalone text host; native inline spans excluded    |
+| `Button`                                                | Pressable host, or the web anchor when `href` is used |
+| `TextInput`, `TextArea`, `SearchInput`                  | Editable field, excluding shell and clear button      |
+| `Switch`                                                | Interactive track                                     |
+| `ScrollableArea`                                        | Scroller, including the refreshable variant           |
+| `VirtualList`                                           | Scroll viewport                                       |
+| `Overlay`                                               | Content host, only while open                         |
 
 Other composites, leaf packages, OS subpaths, and desktop renderers are not
 covered by this list merely because their types inherit the optional prop.
@@ -89,12 +101,12 @@ export function NameField() {
 }
 ```
 
-| Target | Mapping | Qualification |
-| --- | --- | --- |
-| iOS simulator, NativeScript core 9.1.3 | UIKit `accessibilityIdentifier` | Actual UIKit hierarchy and Argent 0.27.0 ID replay/input passed |
-| Android emulator, NativeScript core 9.1.3 | Automation identifier in accessibility `resource-id` | Not runtime-qualified in this run: build/device admission unavailable; mapping is source evidence only |
-| Chromium | DOM `data-testid`; existing DOM `id` preserved | DOM lifecycle regression and Argent 0.27.0 ID replay/input passed |
-| AppKit, other desktop renderers, physical devices | No qualification here | Do not assume support |
+| Target                                            | Mapping                                              | Qualification                                                                                          |
+| ------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| iOS simulator, NativeScript core 9.1.3            | UIKit `accessibilityIdentifier`                      | Actual UIKit hierarchy and Argent 0.27.0 ID replay/input passed                                        |
+| Android emulator, NativeScript core 9.1.3         | Automation identifier in accessibility `resource-id` | Not runtime-qualified in this run: build/device admission unavailable; mapping is source evidence only |
+| Chromium                                          | DOM `data-testid`; existing DOM `id` preserved       | DOM lifecycle regression and Argent 0.27.0 ID replay/input passed                                      |
+| AppKit, other desktop renderers, physical devices | No qualification here                                | Do not assume support                                                                                  |
 
 Argent 0.27.0's Chromium tree prefers a DOM `id` over `data-testid` on the same
 element. For the example above, its replay selector is `{id: name-field}`;
@@ -104,7 +116,7 @@ relationships; do not remove them just to change automation precedence.
 
 ```yaml
 steps:
-  - type: {into: {id: name-field}, text: "42"}
+  - type: { into: { id: name-field }, text: '42' }
 ```
 
 For optional AI-agent browser/device control through MCP, use

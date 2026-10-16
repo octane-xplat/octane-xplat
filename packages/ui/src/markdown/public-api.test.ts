@@ -23,7 +23,10 @@ describe('Markdown public parser', () => {
 		'finishes exactly like a full parse: %s',
 		(source) => {
 			const parser = createMarkdownStreamParser()
-			for (const chunk of source) parser.append(chunk)
+			for (const chunk of source) {
+				parser.append(chunk)
+			}
+
 			const final = parser.finish()
 			expect(final).toEqual(parseMdDoc(source))
 			expect(parser.finish()).toBe(final)
@@ -49,8 +52,9 @@ describe('Markdown public parser', () => {
 		expect(lines[0]).toContainEqual({ type: 'comment', start: 0, end: 5 })
 		expect(lines[1]).toContainEqual({ type: 'keyword', start: 0, end: 5 })
 		for (const [index, tokens] of lines.entries()) {
-			for (const token of tokens)
+			for (const token of tokens) {
 				expect(code.split('\n')[index].slice(token.start, token.end)).not.toBe('')
+			}
 		}
 	})
 })

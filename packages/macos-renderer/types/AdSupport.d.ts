@@ -2,12 +2,11 @@
 /// <reference path="./Runtime.d.ts" />
 
 declare class ASIdentifierManager extends NSObject {
-  static sharedManager(): ASIdentifierManager;
+	static sharedManager(): ASIdentifierManager
 
-  readonly advertisingIdentifier: NSUUID;
+	readonly advertisingIdentifier: NSUUID
 
-  readonly advertisingTrackingEnabled: boolean;
+	readonly advertisingTrackingEnabled: boolean
 
-  isAdvertisingTrackingEnabled(): boolean;
+	isAdvertisingTrackingEnabled(): boolean
 }
-

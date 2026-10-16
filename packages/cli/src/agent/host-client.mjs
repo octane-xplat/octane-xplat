@@ -104,7 +104,10 @@ const send = (socketPath, payload, { connectMs = 1500, readMs = 60000 } = {}) =>
 			} catch {
 				finish({
 					ok: false,
-					error: contractError('execution_failure', 'The agent runtime host sent a malformed reply.'),
+					error: contractError(
+						'execution_failure',
+						'The agent runtime host sent a malformed reply.',
+					),
 				})
 			}
 		})
@@ -230,7 +233,12 @@ export async function ensureHost(workspaceRoot, { spawnImpl = spawn } = {}) {
  * started (state-creating commands); without it, absence reports NO_HOST so
  * the caller can answer honestly for its shape.
  */
-export async function callHost(workspaceRoot, method, params, { appId, grants, spawn = false } = {}) {
+export async function callHost(
+	workspaceRoot,
+	method,
+	params,
+	{ appId, grants, spawn = false } = {},
+) {
 	try {
 		const host = spawn ? await ensureHost(workspaceRoot) : await connectHost(workspaceRoot)
 		if (!host) {

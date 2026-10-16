@@ -9,4 +9,4 @@
  *
  * Types only — the compiler lowers JSX before any factory could run.
  */
-export * from 'octane/jsx-runtime';
+export * from 'octane/jsx-runtime'

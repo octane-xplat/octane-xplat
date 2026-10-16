@@ -1,60 +1,192 @@
 import { _bind } from './_rt.js'
 const FW = '/System/Library/Frameworks/MetalPerformanceShaders.framework/MetalPerformanceShaders'
 export const MPSAccelerationStructure = /* @__PURE__ */ _bind(FW, 'MPSAccelerationStructure')
-export const MPSAccelerationStructureGroup = /* @__PURE__ */ _bind(FW, 'MPSAccelerationStructureGroup')
-export const MPSAccelerationStructureStatus = /* @__PURE__ */ _bind(FW, 'MPSAccelerationStructureStatus')
-export const MPSAccelerationStructureUsage = /* @__PURE__ */ _bind(FW, 'MPSAccelerationStructureUsage')
+export const MPSAccelerationStructureGroup = /* @__PURE__ */ _bind(
+	FW,
+	'MPSAccelerationStructureGroup',
+)
+
+export const MPSAccelerationStructureStatus = /* @__PURE__ */ _bind(
+	FW,
+	'MPSAccelerationStructureStatus',
+)
+
+export const MPSAccelerationStructureUsage = /* @__PURE__ */ _bind(
+	FW,
+	'MPSAccelerationStructureUsage',
+)
+
 export const MPSAliasingStrategy = /* @__PURE__ */ _bind(FW, 'MPSAliasingStrategy')
 export const MPSAlphaType = /* @__PURE__ */ _bind(FW, 'MPSAlphaType')
 export const MPSBinaryImageKernel = /* @__PURE__ */ _bind(FW, 'MPSBinaryImageKernel')
-export const MPSBoundingBoxIntersectionTestType = /* @__PURE__ */ _bind(FW, 'MPSBoundingBoxIntersectionTestType')
+export const MPSBoundingBoxIntersectionTestType = /* @__PURE__ */ _bind(
+	FW,
+	'MPSBoundingBoxIntersectionTestType',
+)
+
 export const MPSCNNAdd = /* @__PURE__ */ _bind(FW, 'MPSCNNAdd')
 export const MPSCNNAddGradient = /* @__PURE__ */ _bind(FW, 'MPSCNNAddGradient')
 export const MPSCNNArithmetic = /* @__PURE__ */ _bind(FW, 'MPSCNNArithmetic')
 export const MPSCNNArithmeticGradient = /* @__PURE__ */ _bind(FW, 'MPSCNNArithmeticGradient')
-export const MPSCNNArithmeticGradientState = /* @__PURE__ */ _bind(FW, 'MPSCNNArithmeticGradientState')
+export const MPSCNNArithmeticGradientState = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNArithmeticGradientState',
+)
+
 export const MPSCNNBatchNormalization = /* @__PURE__ */ _bind(FW, 'MPSCNNBatchNormalization')
-export const MPSCNNBatchNormalizationDataSource = /* @__PURE__ */ _bind(FW, 'MPSCNNBatchNormalizationDataSource')
-export const MPSCNNBatchNormalizationFlags = /* @__PURE__ */ _bind(FW, 'MPSCNNBatchNormalizationFlags')
-export const MPSCNNBatchNormalizationGradient = /* @__PURE__ */ _bind(FW, 'MPSCNNBatchNormalizationGradient')
-export const MPSCNNBatchNormalizationGradientNode = /* @__PURE__ */ _bind(FW, 'MPSCNNBatchNormalizationGradientNode')
-export const MPSCNNBatchNormalizationNode = /* @__PURE__ */ _bind(FW, 'MPSCNNBatchNormalizationNode')
-export const MPSCNNBatchNormalizationState = /* @__PURE__ */ _bind(FW, 'MPSCNNBatchNormalizationState')
-export const MPSCNNBatchNormalizationStatistics = /* @__PURE__ */ _bind(FW, 'MPSCNNBatchNormalizationStatistics')
-export const MPSCNNBatchNormalizationStatisticsGradient = /* @__PURE__ */ _bind(FW, 'MPSCNNBatchNormalizationStatisticsGradient')
+export const MPSCNNBatchNormalizationDataSource = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNBatchNormalizationDataSource',
+)
+
+export const MPSCNNBatchNormalizationFlags = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNBatchNormalizationFlags',
+)
+
+export const MPSCNNBatchNormalizationGradient = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNBatchNormalizationGradient',
+)
+
+export const MPSCNNBatchNormalizationGradientNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNBatchNormalizationGradientNode',
+)
+
+export const MPSCNNBatchNormalizationNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNBatchNormalizationNode',
+)
+
+export const MPSCNNBatchNormalizationState = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNBatchNormalizationState',
+)
+
+export const MPSCNNBatchNormalizationStatistics = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNBatchNormalizationStatistics',
+)
+
+export const MPSCNNBatchNormalizationStatisticsGradient = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNBatchNormalizationStatisticsGradient',
+)
+
 export const MPSCNNBinaryConvolution = /* @__PURE__ */ _bind(FW, 'MPSCNNBinaryConvolution')
-export const MPSCNNBinaryConvolutionFlags = /* @__PURE__ */ _bind(FW, 'MPSCNNBinaryConvolutionFlags')
+export const MPSCNNBinaryConvolutionFlags = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNBinaryConvolutionFlags',
+)
+
 export const MPSCNNBinaryConvolutionNode = /* @__PURE__ */ _bind(FW, 'MPSCNNBinaryConvolutionNode')
 export const MPSCNNBinaryConvolutionType = /* @__PURE__ */ _bind(FW, 'MPSCNNBinaryConvolutionType')
 export const MPSCNNBinaryFullyConnected = /* @__PURE__ */ _bind(FW, 'MPSCNNBinaryFullyConnected')
-export const MPSCNNBinaryFullyConnectedNode = /* @__PURE__ */ _bind(FW, 'MPSCNNBinaryFullyConnectedNode')
+export const MPSCNNBinaryFullyConnectedNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNBinaryFullyConnectedNode',
+)
+
 export const MPSCNNBinaryKernel = /* @__PURE__ */ _bind(FW, 'MPSCNNBinaryKernel')
 export const MPSCNNConvolution = /* @__PURE__ */ _bind(FW, 'MPSCNNConvolution')
 export const MPSCNNConvolutionDataSource = /* @__PURE__ */ _bind(FW, 'MPSCNNConvolutionDataSource')
 export const MPSCNNConvolutionDescriptor = /* @__PURE__ */ _bind(FW, 'MPSCNNConvolutionDescriptor')
 export const MPSCNNConvolutionFlags = /* @__PURE__ */ _bind(FW, 'MPSCNNConvolutionFlags')
 export const MPSCNNConvolutionGradient = /* @__PURE__ */ _bind(FW, 'MPSCNNConvolutionGradient')
-export const MPSCNNConvolutionGradientNode = /* @__PURE__ */ _bind(FW, 'MPSCNNConvolutionGradientNode')
-export const MPSCNNConvolutionGradientOption = /* @__PURE__ */ _bind(FW, 'MPSCNNConvolutionGradientOption')
-export const MPSCNNConvolutionGradientState = /* @__PURE__ */ _bind(FW, 'MPSCNNConvolutionGradientState')
-export const MPSCNNConvolutionGradientStateNode = /* @__PURE__ */ _bind(FW, 'MPSCNNConvolutionGradientStateNode')
+export const MPSCNNConvolutionGradientNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNConvolutionGradientNode',
+)
+
+export const MPSCNNConvolutionGradientOption = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNConvolutionGradientOption',
+)
+
+export const MPSCNNConvolutionGradientState = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNConvolutionGradientState',
+)
+
+export const MPSCNNConvolutionGradientStateNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNConvolutionGradientStateNode',
+)
+
 export const MPSCNNConvolutionNode = /* @__PURE__ */ _bind(FW, 'MPSCNNConvolutionNode')
 export const MPSCNNConvolutionTranspose = /* @__PURE__ */ _bind(FW, 'MPSCNNConvolutionTranspose')
-export const MPSCNNConvolutionTransposeGradient = /* @__PURE__ */ _bind(FW, 'MPSCNNConvolutionTransposeGradient')
-export const MPSCNNConvolutionTransposeGradientNode = /* @__PURE__ */ _bind(FW, 'MPSCNNConvolutionTransposeGradientNode')
-export const MPSCNNConvolutionTransposeGradientState = /* @__PURE__ */ _bind(FW, 'MPSCNNConvolutionTransposeGradientState')
-export const MPSCNNConvolutionTransposeGradientStateNode = /* @__PURE__ */ _bind(FW, 'MPSCNNConvolutionTransposeGradientStateNode')
-export const MPSCNNConvolutionTransposeNode = /* @__PURE__ */ _bind(FW, 'MPSCNNConvolutionTransposeNode')
-export const MPSCNNConvolutionWeightsAndBiasesState = /* @__PURE__ */ _bind(FW, 'MPSCNNConvolutionWeightsAndBiasesState')
-export const MPSCNNConvolutionWeightsLayout = /* @__PURE__ */ _bind(FW, 'MPSCNNConvolutionWeightsLayout')
-export const MPSCNNCrossChannelNormalization = /* @__PURE__ */ _bind(FW, 'MPSCNNCrossChannelNormalization')
-export const MPSCNNCrossChannelNormalizationGradient = /* @__PURE__ */ _bind(FW, 'MPSCNNCrossChannelNormalizationGradient')
-export const MPSCNNCrossChannelNormalizationGradientNode = /* @__PURE__ */ _bind(FW, 'MPSCNNCrossChannelNormalizationGradientNode')
-export const MPSCNNCrossChannelNormalizationNode = /* @__PURE__ */ _bind(FW, 'MPSCNNCrossChannelNormalizationNode')
-export const MPSCNNDepthWiseConvolutionDescriptor = /* @__PURE__ */ _bind(FW, 'MPSCNNDepthWiseConvolutionDescriptor')
+export const MPSCNNConvolutionTransposeGradient = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNConvolutionTransposeGradient',
+)
+
+export const MPSCNNConvolutionTransposeGradientNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNConvolutionTransposeGradientNode',
+)
+
+export const MPSCNNConvolutionTransposeGradientState = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNConvolutionTransposeGradientState',
+)
+
+export const MPSCNNConvolutionTransposeGradientStateNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNConvolutionTransposeGradientStateNode',
+)
+
+export const MPSCNNConvolutionTransposeNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNConvolutionTransposeNode',
+)
+
+export const MPSCNNConvolutionWeightsAndBiasesState = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNConvolutionWeightsAndBiasesState',
+)
+
+export const MPSCNNConvolutionWeightsLayout = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNConvolutionWeightsLayout',
+)
+
+export const MPSCNNCrossChannelNormalization = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNCrossChannelNormalization',
+)
+
+export const MPSCNNCrossChannelNormalizationGradient = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNCrossChannelNormalizationGradient',
+)
+
+export const MPSCNNCrossChannelNormalizationGradientNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNCrossChannelNormalizationGradientNode',
+)
+
+export const MPSCNNCrossChannelNormalizationNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNCrossChannelNormalizationNode',
+)
+
+export const MPSCNNDepthWiseConvolutionDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNDepthWiseConvolutionDescriptor',
+)
+
 export const MPSCNNDilatedPoolingMax = /* @__PURE__ */ _bind(FW, 'MPSCNNDilatedPoolingMax')
-export const MPSCNNDilatedPoolingMaxGradient = /* @__PURE__ */ _bind(FW, 'MPSCNNDilatedPoolingMaxGradient')
-export const MPSCNNDilatedPoolingMaxGradientNode = /* @__PURE__ */ _bind(FW, 'MPSCNNDilatedPoolingMaxGradientNode')
+export const MPSCNNDilatedPoolingMaxGradient = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNDilatedPoolingMaxGradient',
+)
+
+export const MPSCNNDilatedPoolingMaxGradientNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNDilatedPoolingMaxGradientNode',
+)
+
 export const MPSCNNDilatedPoolingMaxNode = /* @__PURE__ */ _bind(FW, 'MPSCNNDilatedPoolingMaxNode')
 export const MPSCNNDivide = /* @__PURE__ */ _bind(FW, 'MPSCNNDivide')
 export const MPSCNNDropout = /* @__PURE__ */ _bind(FW, 'MPSCNNDropout')
@@ -63,30 +195,98 @@ export const MPSCNNDropoutGradientNode = /* @__PURE__ */ _bind(FW, 'MPSCNNDropou
 export const MPSCNNDropoutGradientState = /* @__PURE__ */ _bind(FW, 'MPSCNNDropoutGradientState')
 export const MPSCNNDropoutNode = /* @__PURE__ */ _bind(FW, 'MPSCNNDropoutNode')
 export const MPSCNNFullyConnected = /* @__PURE__ */ _bind(FW, 'MPSCNNFullyConnected')
-export const MPSCNNFullyConnectedGradient = /* @__PURE__ */ _bind(FW, 'MPSCNNFullyConnectedGradient')
-export const MPSCNNFullyConnectedGradientNode = /* @__PURE__ */ _bind(FW, 'MPSCNNFullyConnectedGradientNode')
+export const MPSCNNFullyConnectedGradient = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNFullyConnectedGradient',
+)
+
+export const MPSCNNFullyConnectedGradientNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNFullyConnectedGradientNode',
+)
+
 export const MPSCNNFullyConnectedNode = /* @__PURE__ */ _bind(FW, 'MPSCNNFullyConnectedNode')
 export const MPSCNNGradientKernel = /* @__PURE__ */ _bind(FW, 'MPSCNNGradientKernel')
 export const MPSCNNGroupNormalization = /* @__PURE__ */ _bind(FW, 'MPSCNNGroupNormalization')
-export const MPSCNNGroupNormalizationDataSource = /* @__PURE__ */ _bind(FW, 'MPSCNNGroupNormalizationDataSource')
-export const MPSCNNGroupNormalizationGradient = /* @__PURE__ */ _bind(FW, 'MPSCNNGroupNormalizationGradient')
-export const MPSCNNGroupNormalizationGradientNode = /* @__PURE__ */ _bind(FW, 'MPSCNNGroupNormalizationGradientNode')
-export const MPSCNNGroupNormalizationGradientState = /* @__PURE__ */ _bind(FW, 'MPSCNNGroupNormalizationGradientState')
-export const MPSCNNGroupNormalizationNode = /* @__PURE__ */ _bind(FW, 'MPSCNNGroupNormalizationNode')
+export const MPSCNNGroupNormalizationDataSource = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNGroupNormalizationDataSource',
+)
+
+export const MPSCNNGroupNormalizationGradient = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNGroupNormalizationGradient',
+)
+
+export const MPSCNNGroupNormalizationGradientNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNGroupNormalizationGradientNode',
+)
+
+export const MPSCNNGroupNormalizationGradientState = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNGroupNormalizationGradientState',
+)
+
+export const MPSCNNGroupNormalizationNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNGroupNormalizationNode',
+)
+
 export const MPSCNNInstanceNormalization = /* @__PURE__ */ _bind(FW, 'MPSCNNInstanceNormalization')
-export const MPSCNNInstanceNormalizationDataSource = /* @__PURE__ */ _bind(FW, 'MPSCNNInstanceNormalizationDataSource')
-export const MPSCNNInstanceNormalizationGradient = /* @__PURE__ */ _bind(FW, 'MPSCNNInstanceNormalizationGradient')
-export const MPSCNNInstanceNormalizationGradientNode = /* @__PURE__ */ _bind(FW, 'MPSCNNInstanceNormalizationGradientNode')
-export const MPSCNNInstanceNormalizationGradientState = /* @__PURE__ */ _bind(FW, 'MPSCNNInstanceNormalizationGradientState')
-export const MPSCNNInstanceNormalizationNode = /* @__PURE__ */ _bind(FW, 'MPSCNNInstanceNormalizationNode')
+export const MPSCNNInstanceNormalizationDataSource = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNInstanceNormalizationDataSource',
+)
+
+export const MPSCNNInstanceNormalizationGradient = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNInstanceNormalizationGradient',
+)
+
+export const MPSCNNInstanceNormalizationGradientNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNInstanceNormalizationGradientNode',
+)
+
+export const MPSCNNInstanceNormalizationGradientState = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNInstanceNormalizationGradientState',
+)
+
+export const MPSCNNInstanceNormalizationNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNInstanceNormalizationNode',
+)
+
 export const MPSCNNKernel = /* @__PURE__ */ _bind(FW, 'MPSCNNKernel')
-export const MPSCNNLocalContrastNormalization = /* @__PURE__ */ _bind(FW, 'MPSCNNLocalContrastNormalization')
-export const MPSCNNLocalContrastNormalizationGradient = /* @__PURE__ */ _bind(FW, 'MPSCNNLocalContrastNormalizationGradient')
-export const MPSCNNLocalContrastNormalizationGradientNode = /* @__PURE__ */ _bind(FW, 'MPSCNNLocalContrastNormalizationGradientNode')
-export const MPSCNNLocalContrastNormalizationNode = /* @__PURE__ */ _bind(FW, 'MPSCNNLocalContrastNormalizationNode')
+export const MPSCNNLocalContrastNormalization = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNLocalContrastNormalization',
+)
+
+export const MPSCNNLocalContrastNormalizationGradient = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNLocalContrastNormalizationGradient',
+)
+
+export const MPSCNNLocalContrastNormalizationGradientNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNLocalContrastNormalizationGradientNode',
+)
+
+export const MPSCNNLocalContrastNormalizationNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNLocalContrastNormalizationNode',
+)
+
 export const MPSCNNLogSoftMax = /* @__PURE__ */ _bind(FW, 'MPSCNNLogSoftMax')
 export const MPSCNNLogSoftMaxGradient = /* @__PURE__ */ _bind(FW, 'MPSCNNLogSoftMaxGradient')
-export const MPSCNNLogSoftMaxGradientNode = /* @__PURE__ */ _bind(FW, 'MPSCNNLogSoftMaxGradientNode')
+export const MPSCNNLogSoftMaxGradientNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNLogSoftMaxGradientNode',
+)
+
 export const MPSCNNLogSoftMaxNode = /* @__PURE__ */ _bind(FW, 'MPSCNNLogSoftMaxNode')
 export const MPSCNNLoss = /* @__PURE__ */ _bind(FW, 'MPSCNNLoss')
 export const MPSCNNLossDataDescriptor = /* @__PURE__ */ _bind(FW, 'MPSCNNLossDataDescriptor')
@@ -131,23 +331,47 @@ export const MPSCNNNeuronSoftSignNode = /* @__PURE__ */ _bind(FW, 'MPSCNNNeuronS
 export const MPSCNNNeuronTanH = /* @__PURE__ */ _bind(FW, 'MPSCNNNeuronTanH')
 export const MPSCNNNeuronTanHNode = /* @__PURE__ */ _bind(FW, 'MPSCNNNeuronTanHNode')
 export const MPSCNNNeuronType = /* @__PURE__ */ _bind(FW, 'MPSCNNNeuronType')
-export const MPSCNNNormalizationGammaAndBetaState = /* @__PURE__ */ _bind(FW, 'MPSCNNNormalizationGammaAndBetaState')
-export const MPSCNNNormalizationMeanAndVarianceState = /* @__PURE__ */ _bind(FW, 'MPSCNNNormalizationMeanAndVarianceState')
+export const MPSCNNNormalizationGammaAndBetaState = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNNormalizationGammaAndBetaState',
+)
+
+export const MPSCNNNormalizationMeanAndVarianceState = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNNormalizationMeanAndVarianceState',
+)
+
 export const MPSCNNNormalizationNode = /* @__PURE__ */ _bind(FW, 'MPSCNNNormalizationNode')
 export const MPSCNNPooling = /* @__PURE__ */ _bind(FW, 'MPSCNNPooling')
 export const MPSCNNPoolingAverage = /* @__PURE__ */ _bind(FW, 'MPSCNNPoolingAverage')
-export const MPSCNNPoolingAverageGradient = /* @__PURE__ */ _bind(FW, 'MPSCNNPoolingAverageGradient')
-export const MPSCNNPoolingAverageGradientNode = /* @__PURE__ */ _bind(FW, 'MPSCNNPoolingAverageGradientNode')
+export const MPSCNNPoolingAverageGradient = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNPoolingAverageGradient',
+)
+
+export const MPSCNNPoolingAverageGradientNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNPoolingAverageGradientNode',
+)
+
 export const MPSCNNPoolingAverageNode = /* @__PURE__ */ _bind(FW, 'MPSCNNPoolingAverageNode')
 export const MPSCNNPoolingGradient = /* @__PURE__ */ _bind(FW, 'MPSCNNPoolingGradient')
 export const MPSCNNPoolingGradientNode = /* @__PURE__ */ _bind(FW, 'MPSCNNPoolingGradientNode')
 export const MPSCNNPoolingL2Norm = /* @__PURE__ */ _bind(FW, 'MPSCNNPoolingL2Norm')
 export const MPSCNNPoolingL2NormGradient = /* @__PURE__ */ _bind(FW, 'MPSCNNPoolingL2NormGradient')
-export const MPSCNNPoolingL2NormGradientNode = /* @__PURE__ */ _bind(FW, 'MPSCNNPoolingL2NormGradientNode')
+export const MPSCNNPoolingL2NormGradientNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNPoolingL2NormGradientNode',
+)
+
 export const MPSCNNPoolingL2NormNode = /* @__PURE__ */ _bind(FW, 'MPSCNNPoolingL2NormNode')
 export const MPSCNNPoolingMax = /* @__PURE__ */ _bind(FW, 'MPSCNNPoolingMax')
 export const MPSCNNPoolingMaxGradient = /* @__PURE__ */ _bind(FW, 'MPSCNNPoolingMaxGradient')
-export const MPSCNNPoolingMaxGradientNode = /* @__PURE__ */ _bind(FW, 'MPSCNNPoolingMaxGradientNode')
+export const MPSCNNPoolingMaxGradientNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNPoolingMaxGradientNode',
+)
+
 export const MPSCNNPoolingMaxNode = /* @__PURE__ */ _bind(FW, 'MPSCNNPoolingMaxNode')
 export const MPSCNNPoolingNode = /* @__PURE__ */ _bind(FW, 'MPSCNNPoolingNode')
 export const MPSCNNReductionType = /* @__PURE__ */ _bind(FW, 'MPSCNNReductionType')
@@ -156,28 +380,72 @@ export const MPSCNNSoftMaxGradient = /* @__PURE__ */ _bind(FW, 'MPSCNNSoftMaxGra
 export const MPSCNNSoftMaxGradientNode = /* @__PURE__ */ _bind(FW, 'MPSCNNSoftMaxGradientNode')
 export const MPSCNNSoftMaxNode = /* @__PURE__ */ _bind(FW, 'MPSCNNSoftMaxNode')
 export const MPSCNNSpatialNormalization = /* @__PURE__ */ _bind(FW, 'MPSCNNSpatialNormalization')
-export const MPSCNNSpatialNormalizationGradient = /* @__PURE__ */ _bind(FW, 'MPSCNNSpatialNormalizationGradient')
-export const MPSCNNSpatialNormalizationGradientNode = /* @__PURE__ */ _bind(FW, 'MPSCNNSpatialNormalizationGradientNode')
-export const MPSCNNSpatialNormalizationNode = /* @__PURE__ */ _bind(FW, 'MPSCNNSpatialNormalizationNode')
-export const MPSCNNSubPixelConvolutionDescriptor = /* @__PURE__ */ _bind(FW, 'MPSCNNSubPixelConvolutionDescriptor')
+export const MPSCNNSpatialNormalizationGradient = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNSpatialNormalizationGradient',
+)
+
+export const MPSCNNSpatialNormalizationGradientNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNSpatialNormalizationGradientNode',
+)
+
+export const MPSCNNSpatialNormalizationNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNSpatialNormalizationNode',
+)
+
+export const MPSCNNSubPixelConvolutionDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNSubPixelConvolutionDescriptor',
+)
+
 export const MPSCNNSubtract = /* @__PURE__ */ _bind(FW, 'MPSCNNSubtract')
 export const MPSCNNSubtractGradient = /* @__PURE__ */ _bind(FW, 'MPSCNNSubtractGradient')
 export const MPSCNNUpsampling = /* @__PURE__ */ _bind(FW, 'MPSCNNUpsampling')
 export const MPSCNNUpsamplingBilinear = /* @__PURE__ */ _bind(FW, 'MPSCNNUpsamplingBilinear')
-export const MPSCNNUpsamplingBilinearGradient = /* @__PURE__ */ _bind(FW, 'MPSCNNUpsamplingBilinearGradient')
-export const MPSCNNUpsamplingBilinearGradientNode = /* @__PURE__ */ _bind(FW, 'MPSCNNUpsamplingBilinearGradientNode')
-export const MPSCNNUpsamplingBilinearNode = /* @__PURE__ */ _bind(FW, 'MPSCNNUpsamplingBilinearNode')
+export const MPSCNNUpsamplingBilinearGradient = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNUpsamplingBilinearGradient',
+)
+
+export const MPSCNNUpsamplingBilinearGradientNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNUpsamplingBilinearGradientNode',
+)
+
+export const MPSCNNUpsamplingBilinearNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNUpsamplingBilinearNode',
+)
+
 export const MPSCNNUpsamplingGradient = /* @__PURE__ */ _bind(FW, 'MPSCNNUpsamplingGradient')
 export const MPSCNNUpsamplingNearest = /* @__PURE__ */ _bind(FW, 'MPSCNNUpsamplingNearest')
-export const MPSCNNUpsamplingNearestGradient = /* @__PURE__ */ _bind(FW, 'MPSCNNUpsamplingNearestGradient')
-export const MPSCNNUpsamplingNearestGradientNode = /* @__PURE__ */ _bind(FW, 'MPSCNNUpsamplingNearestGradientNode')
+export const MPSCNNUpsamplingNearestGradient = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNUpsamplingNearestGradient',
+)
+
+export const MPSCNNUpsamplingNearestGradientNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNUpsamplingNearestGradientNode',
+)
+
 export const MPSCNNUpsamplingNearestNode = /* @__PURE__ */ _bind(FW, 'MPSCNNUpsamplingNearestNode')
-export const MPSCNNWeightsQuantizationType = /* @__PURE__ */ _bind(FW, 'MPSCNNWeightsQuantizationType')
+export const MPSCNNWeightsQuantizationType = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCNNWeightsQuantizationType',
+)
+
 export const MPSCNNYOLOLoss = /* @__PURE__ */ _bind(FW, 'MPSCNNYOLOLoss')
 export const MPSCNNYOLOLossDescriptor = /* @__PURE__ */ _bind(FW, 'MPSCNNYOLOLossDescriptor')
 export const MPSCNNYOLOLossNode = /* @__PURE__ */ _bind(FW, 'MPSCNNYOLOLossNode')
 export const MPSCommandBuffer = /* @__PURE__ */ _bind(FW, 'MPSCommandBuffer')
-export const MPSCustomKernelArgumentCount = /* @__PURE__ */ _bind(FW, 'MPSCustomKernelArgumentCount')
+export const MPSCustomKernelArgumentCount = /* @__PURE__ */ _bind(
+	FW,
+	'MPSCustomKernelArgumentCount',
+)
+
 export const MPSCustomKernelIndex = /* @__PURE__ */ _bind(FW, 'MPSCustomKernelIndex')
 export const MPSCustomKernelInfo = /* @__PURE__ */ _bind(FW, 'MPSCustomKernelInfo')
 export const MPSCustomKernelSourceInfo = /* @__PURE__ */ _bind(FW, 'MPSCustomKernelSourceInfo')
@@ -191,7 +459,11 @@ export const MPSFColorConversionOptions = /* @__PURE__ */ _bind(FW, 'MPSFColorCo
 export const MPSFloatDataTypeBit = /* @__PURE__ */ _bind(FW, 'MPSFloatDataTypeBit')
 export const MPSFloatDataTypeShift = /* @__PURE__ */ _bind(FW, 'MPSFloatDataTypeShift')
 export const MPSFunctionConstantNone = /* @__PURE__ */ _bind(FW, 'MPSFunctionConstantNone')
-export const MPSFunctionConstantNoneArray = /* @__PURE__ */ _bind(FW, 'MPSFunctionConstantNoneArray')
+export const MPSFunctionConstantNoneArray = /* @__PURE__ */ _bind(
+	FW,
+	'MPSFunctionConstantNoneArray',
+)
+
 export const MPSFunctions_AABB = /* @__PURE__ */ _bind(FW, 'MPSFunctions_AABB')
 export const MPSFunctions_AABB_SDR = /* @__PURE__ */ _bind(FW, 'MPSFunctions_AABB_SDR')
 export const MPSFunctions_AABB_Unbounded = /* @__PURE__ */ _bind(FW, 'MPSFunctions_AABB_Unbounded')
@@ -200,14 +472,22 @@ export const MPSGetImageType = /* @__PURE__ */ _bind(FW, 'MPSGetImageType')
 export const MPSGetPreferredDevice = /* @__PURE__ */ _bind(FW, 'MPSGetPreferredDevice')
 export const MPSHandle = /* @__PURE__ */ _bind(FW, 'MPSHandle')
 export const MPSHeapProvider = /* @__PURE__ */ _bind(FW, 'MPSHeapProvider')
-export const MPSHintTemporaryMemoryHighWaterMark = /* @__PURE__ */ _bind(FW, 'MPSHintTemporaryMemoryHighWaterMark')
+export const MPSHintTemporaryMemoryHighWaterMark = /* @__PURE__ */ _bind(
+	FW,
+	'MPSHintTemporaryMemoryHighWaterMark',
+)
+
 export const MPSImage = /* @__PURE__ */ _bind(FW, 'MPSImage')
 export const MPSImageAdd = /* @__PURE__ */ _bind(FW, 'MPSImageAdd')
 export const MPSImageAllocator = /* @__PURE__ */ _bind(FW, 'MPSImageAllocator')
 export const MPSImageAreaMax = /* @__PURE__ */ _bind(FW, 'MPSImageAreaMax')
 export const MPSImageAreaMin = /* @__PURE__ */ _bind(FW, 'MPSImageAreaMin')
 export const MPSImageArithmetic = /* @__PURE__ */ _bind(FW, 'MPSImageArithmetic')
-export const MPSImageBatchIncrementReadCount = /* @__PURE__ */ _bind(FW, 'MPSImageBatchIncrementReadCount')
+export const MPSImageBatchIncrementReadCount = /* @__PURE__ */ _bind(
+	FW,
+	'MPSImageBatchIncrementReadCount',
+)
+
 export const MPSImageBatchIterate = /* @__PURE__ */ _bind(FW, 'MPSImageBatchIterate')
 export const MPSImageBatchResourceSize = /* @__PURE__ */ _bind(FW, 'MPSImageBatchResourceSize')
 export const MPSImageBatchSynchronize = /* @__PURE__ */ _bind(FW, 'MPSImageBatchSynchronize')
@@ -224,16 +504,32 @@ export const MPSImageDivide = /* @__PURE__ */ _bind(FW, 'MPSImageDivide')
 export const MPSImageEDLines = /* @__PURE__ */ _bind(FW, 'MPSImageEDLines')
 export const MPSImageEdgeMode = /* @__PURE__ */ _bind(FW, 'MPSImageEdgeMode')
 export const MPSImageErode = /* @__PURE__ */ _bind(FW, 'MPSImageErode')
-export const MPSImageEuclideanDistanceTransform = /* @__PURE__ */ _bind(FW, 'MPSImageEuclideanDistanceTransform')
-export const MPSImageFeatureChannelFormat = /* @__PURE__ */ _bind(FW, 'MPSImageFeatureChannelFormat')
+export const MPSImageEuclideanDistanceTransform = /* @__PURE__ */ _bind(
+	FW,
+	'MPSImageEuclideanDistanceTransform',
+)
+
+export const MPSImageFeatureChannelFormat = /* @__PURE__ */ _bind(
+	FW,
+	'MPSImageFeatureChannelFormat',
+)
+
 export const MPSImageFindKeypoints = /* @__PURE__ */ _bind(FW, 'MPSImageFindKeypoints')
 export const MPSImageGaussianBlur = /* @__PURE__ */ _bind(FW, 'MPSImageGaussianBlur')
 export const MPSImageGaussianPyramid = /* @__PURE__ */ _bind(FW, 'MPSImageGaussianPyramid')
 export const MPSImageGuidedFilter = /* @__PURE__ */ _bind(FW, 'MPSImageGuidedFilter')
 export const MPSImageHistogram = /* @__PURE__ */ _bind(FW, 'MPSImageHistogram')
-export const MPSImageHistogramEqualization = /* @__PURE__ */ _bind(FW, 'MPSImageHistogramEqualization')
+export const MPSImageHistogramEqualization = /* @__PURE__ */ _bind(
+	FW,
+	'MPSImageHistogramEqualization',
+)
+
 export const MPSImageHistogramInfo = /* @__PURE__ */ _bind(FW, 'MPSImageHistogramInfo')
-export const MPSImageHistogramSpecification = /* @__PURE__ */ _bind(FW, 'MPSImageHistogramSpecification')
+export const MPSImageHistogramSpecification = /* @__PURE__ */ _bind(
+	FW,
+	'MPSImageHistogramSpecification',
+)
+
 export const MPSImageIntegral = /* @__PURE__ */ _bind(FW, 'MPSImageIntegral')
 export const MPSImageIntegralOfSquares = /* @__PURE__ */ _bind(FW, 'MPSImageIntegralOfSquares')
 export const MPSImageKeypointData = /* @__PURE__ */ _bind(FW, 'MPSImageKeypointData')
@@ -242,7 +538,11 @@ export const MPSImageLanczosScale = /* @__PURE__ */ _bind(FW, 'MPSImageLanczosSc
 export const MPSImageLaplacian = /* @__PURE__ */ _bind(FW, 'MPSImageLaplacian')
 export const MPSImageLaplacianPyramid = /* @__PURE__ */ _bind(FW, 'MPSImageLaplacianPyramid')
 export const MPSImageLaplacianPyramidAdd = /* @__PURE__ */ _bind(FW, 'MPSImageLaplacianPyramidAdd')
-export const MPSImageLaplacianPyramidSubtract = /* @__PURE__ */ _bind(FW, 'MPSImageLaplacianPyramidSubtract')
+export const MPSImageLaplacianPyramidSubtract = /* @__PURE__ */ _bind(
+	FW,
+	'MPSImageLaplacianPyramidSubtract',
+)
+
 export const MPSImageMedian = /* @__PURE__ */ _bind(FW, 'MPSImageMedian')
 export const MPSImageMultiply = /* @__PURE__ */ _bind(FW, 'MPSImageMultiply')
 export const MPSImageNormalizedHistogram = /* @__PURE__ */ _bind(FW, 'MPSImageNormalizedHistogram')
@@ -262,30 +562,79 @@ export const MPSImageScale = /* @__PURE__ */ _bind(FW, 'MPSImageScale')
 export const MPSImageSizeEncodingState = /* @__PURE__ */ _bind(FW, 'MPSImageSizeEncodingState')
 export const MPSImageSobel = /* @__PURE__ */ _bind(FW, 'MPSImageSobel')
 export const MPSImageStatisticsMean = /* @__PURE__ */ _bind(FW, 'MPSImageStatisticsMean')
-export const MPSImageStatisticsMeanAndVariance = /* @__PURE__ */ _bind(FW, 'MPSImageStatisticsMeanAndVariance')
+export const MPSImageStatisticsMeanAndVariance = /* @__PURE__ */ _bind(
+	FW,
+	'MPSImageStatisticsMeanAndVariance',
+)
+
 export const MPSImageStatisticsMinAndMax = /* @__PURE__ */ _bind(FW, 'MPSImageStatisticsMinAndMax')
 export const MPSImageSubtract = /* @__PURE__ */ _bind(FW, 'MPSImageSubtract')
 export const MPSImageTent = /* @__PURE__ */ _bind(FW, 'MPSImageTent')
 export const MPSImageThresholdBinary = /* @__PURE__ */ _bind(FW, 'MPSImageThresholdBinary')
-export const MPSImageThresholdBinaryInverse = /* @__PURE__ */ _bind(FW, 'MPSImageThresholdBinaryInverse')
+export const MPSImageThresholdBinaryInverse = /* @__PURE__ */ _bind(
+	FW,
+	'MPSImageThresholdBinaryInverse',
+)
+
 export const MPSImageThresholdToZero = /* @__PURE__ */ _bind(FW, 'MPSImageThresholdToZero')
-export const MPSImageThresholdToZeroInverse = /* @__PURE__ */ _bind(FW, 'MPSImageThresholdToZeroInverse')
+export const MPSImageThresholdToZeroInverse = /* @__PURE__ */ _bind(
+	FW,
+	'MPSImageThresholdToZeroInverse',
+)
+
 export const MPSImageThresholdTruncate = /* @__PURE__ */ _bind(FW, 'MPSImageThresholdTruncate')
 export const MPSImageTransformProvider = /* @__PURE__ */ _bind(FW, 'MPSImageTransformProvider')
 export const MPSImageTranspose = /* @__PURE__ */ _bind(FW, 'MPSImageTranspose')
 export const MPSImageType = /* @__PURE__ */ _bind(FW, 'MPSImageType')
-export const MPSInstanceAccelerationStructure = /* @__PURE__ */ _bind(FW, 'MPSInstanceAccelerationStructure')
+export const MPSInstanceAccelerationStructure = /* @__PURE__ */ _bind(
+	FW,
+	'MPSInstanceAccelerationStructure',
+)
+
 export const MPSIntegerDivisionParams = /* @__PURE__ */ _bind(FW, 'MPSIntegerDivisionParams')
 export const MPSIntersectionDataType = /* @__PURE__ */ _bind(FW, 'MPSIntersectionDataType')
 export const MPSIntersectionDistance = /* @__PURE__ */ _bind(FW, 'MPSIntersectionDistance')
-export const MPSIntersectionDistancePrimitiveIndex = /* @__PURE__ */ _bind(FW, 'MPSIntersectionDistancePrimitiveIndex')
-export const MPSIntersectionDistancePrimitiveIndexBufferIndex = /* @__PURE__ */ _bind(FW, 'MPSIntersectionDistancePrimitiveIndexBufferIndex')
-export const MPSIntersectionDistancePrimitiveIndexBufferIndexCoordinates = /* @__PURE__ */ _bind(FW, 'MPSIntersectionDistancePrimitiveIndexBufferIndexCoordinates')
-export const MPSIntersectionDistancePrimitiveIndexBufferIndexInstanceIndex = /* @__PURE__ */ _bind(FW, 'MPSIntersectionDistancePrimitiveIndexBufferIndexInstanceIndex')
-export const MPSIntersectionDistancePrimitiveIndexBufferIndexInstanceIndexCoordinates = /* @__PURE__ */ _bind(FW, 'MPSIntersectionDistancePrimitiveIndexBufferIndexInstanceIndexCoordinates')
-export const MPSIntersectionDistancePrimitiveIndexCoordinates = /* @__PURE__ */ _bind(FW, 'MPSIntersectionDistancePrimitiveIndexCoordinates')
-export const MPSIntersectionDistancePrimitiveIndexInstanceIndex = /* @__PURE__ */ _bind(FW, 'MPSIntersectionDistancePrimitiveIndexInstanceIndex')
-export const MPSIntersectionDistancePrimitiveIndexInstanceIndexCoordinates = /* @__PURE__ */ _bind(FW, 'MPSIntersectionDistancePrimitiveIndexInstanceIndexCoordinates')
+export const MPSIntersectionDistancePrimitiveIndex = /* @__PURE__ */ _bind(
+	FW,
+	'MPSIntersectionDistancePrimitiveIndex',
+)
+
+export const MPSIntersectionDistancePrimitiveIndexBufferIndex = /* @__PURE__ */ _bind(
+	FW,
+	'MPSIntersectionDistancePrimitiveIndexBufferIndex',
+)
+
+export const MPSIntersectionDistancePrimitiveIndexBufferIndexCoordinates = /* @__PURE__ */ _bind(
+	FW,
+	'MPSIntersectionDistancePrimitiveIndexBufferIndexCoordinates',
+)
+
+export const MPSIntersectionDistancePrimitiveIndexBufferIndexInstanceIndex = /* @__PURE__ */ _bind(
+	FW,
+	'MPSIntersectionDistancePrimitiveIndexBufferIndexInstanceIndex',
+)
+
+export const MPSIntersectionDistancePrimitiveIndexBufferIndexInstanceIndexCoordinates =
+	/* @__PURE__ */ _bind(
+		FW,
+		'MPSIntersectionDistancePrimitiveIndexBufferIndexInstanceIndexCoordinates',
+	)
+
+export const MPSIntersectionDistancePrimitiveIndexCoordinates = /* @__PURE__ */ _bind(
+	FW,
+	'MPSIntersectionDistancePrimitiveIndexCoordinates',
+)
+
+export const MPSIntersectionDistancePrimitiveIndexInstanceIndex = /* @__PURE__ */ _bind(
+	FW,
+	'MPSIntersectionDistancePrimitiveIndexInstanceIndex',
+)
+
+export const MPSIntersectionDistancePrimitiveIndexInstanceIndexCoordinates = /* @__PURE__ */ _bind(
+	FW,
+	'MPSIntersectionDistancePrimitiveIndexInstanceIndexCoordinates',
+)
+
 export const MPSIntersectionType = /* @__PURE__ */ _bind(FW, 'MPSIntersectionType')
 export const MPSKernel = /* @__PURE__ */ _bind(FW, 'MPSKernel')
 export const MPSKernelOptions = /* @__PURE__ */ _bind(FW, 'MPSKernelOptions')
@@ -293,19 +642,35 @@ export const MPSKeyedUnarchiver = /* @__PURE__ */ _bind(FW, 'MPSKeyedUnarchiver'
 export const MPSLSTMDescriptor = /* @__PURE__ */ _bind(FW, 'MPSLSTMDescriptor')
 export const MPSMatrix = /* @__PURE__ */ _bind(FW, 'MPSMatrix')
 export const MPSMatrixBatchNormalization = /* @__PURE__ */ _bind(FW, 'MPSMatrixBatchNormalization')
-export const MPSMatrixBatchNormalizationGradient = /* @__PURE__ */ _bind(FW, 'MPSMatrixBatchNormalizationGradient')
+export const MPSMatrixBatchNormalizationGradient = /* @__PURE__ */ _bind(
+	FW,
+	'MPSMatrixBatchNormalizationGradient',
+)
+
 export const MPSMatrixBinaryKernel = /* @__PURE__ */ _bind(FW, 'MPSMatrixBinaryKernel')
 export const MPSMatrixCopy = /* @__PURE__ */ _bind(FW, 'MPSMatrixCopy')
 export const MPSMatrixCopyDescriptor = /* @__PURE__ */ _bind(FW, 'MPSMatrixCopyDescriptor')
 export const MPSMatrixCopyOffsets = /* @__PURE__ */ _bind(FW, 'MPSMatrixCopyOffsets')
 export const MPSMatrixCopyToImage = /* @__PURE__ */ _bind(FW, 'MPSMatrixCopyToImage')
-export const MPSMatrixDecompositionCholesky = /* @__PURE__ */ _bind(FW, 'MPSMatrixDecompositionCholesky')
+export const MPSMatrixDecompositionCholesky = /* @__PURE__ */ _bind(
+	FW,
+	'MPSMatrixDecompositionCholesky',
+)
+
 export const MPSMatrixDecompositionLU = /* @__PURE__ */ _bind(FW, 'MPSMatrixDecompositionLU')
-export const MPSMatrixDecompositionStatus = /* @__PURE__ */ _bind(FW, 'MPSMatrixDecompositionStatus')
+export const MPSMatrixDecompositionStatus = /* @__PURE__ */ _bind(
+	FW,
+	'MPSMatrixDecompositionStatus',
+)
+
 export const MPSMatrixDescriptor = /* @__PURE__ */ _bind(FW, 'MPSMatrixDescriptor')
 export const MPSMatrixFindTopK = /* @__PURE__ */ _bind(FW, 'MPSMatrixFindTopK')
 export const MPSMatrixFullyConnected = /* @__PURE__ */ _bind(FW, 'MPSMatrixFullyConnected')
-export const MPSMatrixFullyConnectedGradient = /* @__PURE__ */ _bind(FW, 'MPSMatrixFullyConnectedGradient')
+export const MPSMatrixFullyConnectedGradient = /* @__PURE__ */ _bind(
+	FW,
+	'MPSMatrixFullyConnectedGradient',
+)
+
 export const MPSMatrixLogSoftMax = /* @__PURE__ */ _bind(FW, 'MPSMatrixLogSoftMax')
 export const MPSMatrixLogSoftMaxGradient = /* @__PURE__ */ _bind(FW, 'MPSMatrixLogSoftMaxGradient')
 export const MPSMatrixMultiplication = /* @__PURE__ */ _bind(FW, 'MPSMatrixMultiplication')
@@ -314,7 +679,11 @@ export const MPSMatrixNeuronGradient = /* @__PURE__ */ _bind(FW, 'MPSMatrixNeuro
 export const MPSMatrixOffset = /* @__PURE__ */ _bind(FW, 'MPSMatrixOffset')
 export const MPSMatrixRandom = /* @__PURE__ */ _bind(FW, 'MPSMatrixRandom')
 export const MPSMatrixRandomDistribution = /* @__PURE__ */ _bind(FW, 'MPSMatrixRandomDistribution')
-export const MPSMatrixRandomDistributionDescriptor = /* @__PURE__ */ _bind(FW, 'MPSMatrixRandomDistributionDescriptor')
+export const MPSMatrixRandomDistributionDescriptor = /* @__PURE__ */ _bind(
+	FW,
+	'MPSMatrixRandomDistributionDescriptor',
+)
+
 export const MPSMatrixRandomMTGP32 = /* @__PURE__ */ _bind(FW, 'MPSMatrixRandomMTGP32')
 export const MPSMatrixRandomPhilox = /* @__PURE__ */ _bind(FW, 'MPSMatrixRandomPhilox')
 export const MPSMatrixSoftMax = /* @__PURE__ */ _bind(FW, 'MPSMatrixSoftMax')
@@ -324,41 +693,89 @@ export const MPSMatrixSolveLU = /* @__PURE__ */ _bind(FW, 'MPSMatrixSolveLU')
 export const MPSMatrixSolveTriangular = /* @__PURE__ */ _bind(FW, 'MPSMatrixSolveTriangular')
 export const MPSMatrixSum = /* @__PURE__ */ _bind(FW, 'MPSMatrixSum')
 export const MPSMatrixUnaryKernel = /* @__PURE__ */ _bind(FW, 'MPSMatrixUnaryKernel')
-export const MPSMatrixVectorMultiplication = /* @__PURE__ */ _bind(FW, 'MPSMatrixVectorMultiplication')
+export const MPSMatrixVectorMultiplication = /* @__PURE__ */ _bind(
+	FW,
+	'MPSMatrixVectorMultiplication',
+)
+
 export const MPSNDArray = /* @__PURE__ */ _bind(FW, 'MPSNDArray')
 export const MPSNDArrayAllocator = /* @__PURE__ */ _bind(FW, 'MPSNDArrayAllocator')
 export const MPSNDArrayBinaryKernel = /* @__PURE__ */ _bind(FW, 'MPSNDArrayBinaryKernel')
-export const MPSNDArrayBinaryPrimaryGradientKernel = /* @__PURE__ */ _bind(FW, 'MPSNDArrayBinaryPrimaryGradientKernel')
-export const MPSNDArrayBinarySecondaryGradientKernel = /* @__PURE__ */ _bind(FW, 'MPSNDArrayBinarySecondaryGradientKernel')
+export const MPSNDArrayBinaryPrimaryGradientKernel = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNDArrayBinaryPrimaryGradientKernel',
+)
+
+export const MPSNDArrayBinarySecondaryGradientKernel = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNDArrayBinarySecondaryGradientKernel',
+)
+
 export const MPSNDArrayDescriptor = /* @__PURE__ */ _bind(FW, 'MPSNDArrayDescriptor')
 export const MPSNDArrayGather = /* @__PURE__ */ _bind(FW, 'MPSNDArrayGather')
 export const MPSNDArrayGatherGradient = /* @__PURE__ */ _bind(FW, 'MPSNDArrayGatherGradient')
-export const MPSNDArrayGatherGradientState = /* @__PURE__ */ _bind(FW, 'MPSNDArrayGatherGradientState')
+export const MPSNDArrayGatherGradientState = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNDArrayGatherGradientState',
+)
+
 export const MPSNDArrayGradientState = /* @__PURE__ */ _bind(FW, 'MPSNDArrayGradientState')
-export const MPSNDArrayMatrixMultiplication = /* @__PURE__ */ _bind(FW, 'MPSNDArrayMatrixMultiplication')
+export const MPSNDArrayMatrixMultiplication = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNDArrayMatrixMultiplication',
+)
+
 export const MPSNDArrayMultiaryBase = /* @__PURE__ */ _bind(FW, 'MPSNDArrayMultiaryBase')
-export const MPSNDArrayMultiaryGradientKernel = /* @__PURE__ */ _bind(FW, 'MPSNDArrayMultiaryGradientKernel')
+export const MPSNDArrayMultiaryGradientKernel = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNDArrayMultiaryGradientKernel',
+)
+
 export const MPSNDArrayMultiaryKernel = /* @__PURE__ */ _bind(FW, 'MPSNDArrayMultiaryKernel')
 export const MPSNDArrayOffsets = /* @__PURE__ */ _bind(FW, 'MPSNDArrayOffsets')
 export const MPSNDArraySizes = /* @__PURE__ */ _bind(FW, 'MPSNDArraySizes')
 export const MPSNDArrayStridedSlice = /* @__PURE__ */ _bind(FW, 'MPSNDArrayStridedSlice')
-export const MPSNDArrayStridedSliceGradient = /* @__PURE__ */ _bind(FW, 'MPSNDArrayStridedSliceGradient')
-export const MPSNDArrayUnaryGradientKernel = /* @__PURE__ */ _bind(FW, 'MPSNDArrayUnaryGradientKernel')
+export const MPSNDArrayStridedSliceGradient = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNDArrayStridedSliceGradient',
+)
+
+export const MPSNDArrayUnaryGradientKernel = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNDArrayUnaryGradientKernel',
+)
+
 export const MPSNDArrayUnaryKernel = /* @__PURE__ */ _bind(FW, 'MPSNDArrayUnaryKernel')
 export const MPSNNAdditionGradientNode = /* @__PURE__ */ _bind(FW, 'MPSNNAdditionGradientNode')
 export const MPSNNAdditionNode = /* @__PURE__ */ _bind(FW, 'MPSNNAdditionNode')
 export const MPSNNArithmeticGradientNode = /* @__PURE__ */ _bind(FW, 'MPSNNArithmeticGradientNode')
-export const MPSNNArithmeticGradientStateNode = /* @__PURE__ */ _bind(FW, 'MPSNNArithmeticGradientStateNode')
+export const MPSNNArithmeticGradientStateNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNNArithmeticGradientStateNode',
+)
+
 export const MPSNNBilinearScaleNode = /* @__PURE__ */ _bind(FW, 'MPSNNBilinearScaleNode')
 export const MPSNNBinaryArithmeticNode = /* @__PURE__ */ _bind(FW, 'MPSNNBinaryArithmeticNode')
 export const MPSNNBinaryGradientState = /* @__PURE__ */ _bind(FW, 'MPSNNBinaryGradientState')
-export const MPSNNBinaryGradientStateNode = /* @__PURE__ */ _bind(FW, 'MPSNNBinaryGradientStateNode')
+export const MPSNNBinaryGradientStateNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNNBinaryGradientStateNode',
+)
+
 export const MPSNNCompare = /* @__PURE__ */ _bind(FW, 'MPSNNCompare')
 export const MPSNNComparisonNode = /* @__PURE__ */ _bind(FW, 'MPSNNComparisonNode')
 export const MPSNNComparisonType = /* @__PURE__ */ _bind(FW, 'MPSNNComparisonType')
-export const MPSNNConcatenationGradientNode = /* @__PURE__ */ _bind(FW, 'MPSNNConcatenationGradientNode')
+export const MPSNNConcatenationGradientNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNNConcatenationGradientNode',
+)
+
 export const MPSNNConcatenationNode = /* @__PURE__ */ _bind(FW, 'MPSNNConcatenationNode')
-export const MPSNNConvolutionAccumulatorPrecisionOption = /* @__PURE__ */ _bind(FW, 'MPSNNConvolutionAccumulatorPrecisionOption')
+export const MPSNNConvolutionAccumulatorPrecisionOption = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNNConvolutionAccumulatorPrecisionOption',
+)
+
 export const MPSNNCropAndResizeBilinear = /* @__PURE__ */ _bind(FW, 'MPSNNCropAndResizeBilinear')
 export const MPSNNDefaultPadding = /* @__PURE__ */ _bind(FW, 'MPSNNDefaultPadding')
 export const MPSNNDivisionNode = /* @__PURE__ */ _bind(FW, 'MPSNNDivisionNode')
@@ -369,9 +786,21 @@ export const MPSNNGradientFilterNode = /* @__PURE__ */ _bind(FW, 'MPSNNGradientF
 export const MPSNNGradientState = /* @__PURE__ */ _bind(FW, 'MPSNNGradientState')
 export const MPSNNGradientStateNode = /* @__PURE__ */ _bind(FW, 'MPSNNGradientStateNode')
 export const MPSNNGramMatrixCalculation = /* @__PURE__ */ _bind(FW, 'MPSNNGramMatrixCalculation')
-export const MPSNNGramMatrixCalculationGradient = /* @__PURE__ */ _bind(FW, 'MPSNNGramMatrixCalculationGradient')
-export const MPSNNGramMatrixCalculationGradientNode = /* @__PURE__ */ _bind(FW, 'MPSNNGramMatrixCalculationGradientNode')
-export const MPSNNGramMatrixCalculationNode = /* @__PURE__ */ _bind(FW, 'MPSNNGramMatrixCalculationNode')
+export const MPSNNGramMatrixCalculationGradient = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNNGramMatrixCalculationGradient',
+)
+
+export const MPSNNGramMatrixCalculationGradientNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNNGramMatrixCalculationGradientNode',
+)
+
+export const MPSNNGramMatrixCalculationNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNNGramMatrixCalculationNode',
+)
+
 export const MPSNNGramMatrixCallback = /* @__PURE__ */ _bind(FW, 'MPSNNGramMatrixCallback')
 export const MPSNNGraph = /* @__PURE__ */ _bind(FW, 'MPSNNGraph')
 export const MPSNNGridSample = /* @__PURE__ */ _bind(FW, 'MPSNNGridSample')
@@ -385,15 +814,27 @@ export const MPSNNLossCallback = /* @__PURE__ */ _bind(FW, 'MPSNNLossCallback')
 export const MPSNNLossGradient = /* @__PURE__ */ _bind(FW, 'MPSNNLossGradient')
 export const MPSNNLossGradientNode = /* @__PURE__ */ _bind(FW, 'MPSNNLossGradientNode')
 export const MPSNNMultiaryGradientState = /* @__PURE__ */ _bind(FW, 'MPSNNMultiaryGradientState')
-export const MPSNNMultiaryGradientStateNode = /* @__PURE__ */ _bind(FW, 'MPSNNMultiaryGradientStateNode')
-export const MPSNNMultiplicationGradientNode = /* @__PURE__ */ _bind(FW, 'MPSNNMultiplicationGradientNode')
+export const MPSNNMultiaryGradientStateNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNNMultiaryGradientStateNode',
+)
+
+export const MPSNNMultiplicationGradientNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNNMultiplicationGradientNode',
+)
+
 export const MPSNNMultiplicationNode = /* @__PURE__ */ _bind(FW, 'MPSNNMultiplicationNode')
 export const MPSNNNeuronDescriptor = /* @__PURE__ */ _bind(FW, 'MPSNNNeuronDescriptor')
 export const MPSNNOptimizer = /* @__PURE__ */ _bind(FW, 'MPSNNOptimizer')
 export const MPSNNOptimizerAdam = /* @__PURE__ */ _bind(FW, 'MPSNNOptimizerAdam')
 export const MPSNNOptimizerDescriptor = /* @__PURE__ */ _bind(FW, 'MPSNNOptimizerDescriptor')
 export const MPSNNOptimizerRMSProp = /* @__PURE__ */ _bind(FW, 'MPSNNOptimizerRMSProp')
-export const MPSNNOptimizerStochasticGradientDescent = /* @__PURE__ */ _bind(FW, 'MPSNNOptimizerStochasticGradientDescent')
+export const MPSNNOptimizerStochasticGradientDescent = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNNOptimizerStochasticGradientDescent',
+)
+
 export const MPSNNPad = /* @__PURE__ */ _bind(FW, 'MPSNNPad')
 export const MPSNNPadGradient = /* @__PURE__ */ _bind(FW, 'MPSNNPadGradient')
 export const MPSNNPadGradientNode = /* @__PURE__ */ _bind(FW, 'MPSNNPadGradientNode')
@@ -405,35 +846,103 @@ export const MPSNNReduceColumnMax = /* @__PURE__ */ _bind(FW, 'MPSNNReduceColumn
 export const MPSNNReduceColumnMean = /* @__PURE__ */ _bind(FW, 'MPSNNReduceColumnMean')
 export const MPSNNReduceColumnMin = /* @__PURE__ */ _bind(FW, 'MPSNNReduceColumnMin')
 export const MPSNNReduceColumnSum = /* @__PURE__ */ _bind(FW, 'MPSNNReduceColumnSum')
-export const MPSNNReduceFeatureChannelsAndWeightsMean = /* @__PURE__ */ _bind(FW, 'MPSNNReduceFeatureChannelsAndWeightsMean')
-export const MPSNNReduceFeatureChannelsAndWeightsSum = /* @__PURE__ */ _bind(FW, 'MPSNNReduceFeatureChannelsAndWeightsSum')
-export const MPSNNReduceFeatureChannelsArgumentMax = /* @__PURE__ */ _bind(FW, 'MPSNNReduceFeatureChannelsArgumentMax')
-export const MPSNNReduceFeatureChannelsArgumentMin = /* @__PURE__ */ _bind(FW, 'MPSNNReduceFeatureChannelsArgumentMin')
-export const MPSNNReduceFeatureChannelsMax = /* @__PURE__ */ _bind(FW, 'MPSNNReduceFeatureChannelsMax')
-export const MPSNNReduceFeatureChannelsMean = /* @__PURE__ */ _bind(FW, 'MPSNNReduceFeatureChannelsMean')
-export const MPSNNReduceFeatureChannelsMin = /* @__PURE__ */ _bind(FW, 'MPSNNReduceFeatureChannelsMin')
-export const MPSNNReduceFeatureChannelsSum = /* @__PURE__ */ _bind(FW, 'MPSNNReduceFeatureChannelsSum')
+export const MPSNNReduceFeatureChannelsAndWeightsMean = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNNReduceFeatureChannelsAndWeightsMean',
+)
+
+export const MPSNNReduceFeatureChannelsAndWeightsSum = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNNReduceFeatureChannelsAndWeightsSum',
+)
+
+export const MPSNNReduceFeatureChannelsArgumentMax = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNNReduceFeatureChannelsArgumentMax',
+)
+
+export const MPSNNReduceFeatureChannelsArgumentMin = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNNReduceFeatureChannelsArgumentMin',
+)
+
+export const MPSNNReduceFeatureChannelsMax = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNNReduceFeatureChannelsMax',
+)
+
+export const MPSNNReduceFeatureChannelsMean = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNNReduceFeatureChannelsMean',
+)
+
+export const MPSNNReduceFeatureChannelsMin = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNNReduceFeatureChannelsMin',
+)
+
+export const MPSNNReduceFeatureChannelsSum = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNNReduceFeatureChannelsSum',
+)
+
 export const MPSNNReduceRowMax = /* @__PURE__ */ _bind(FW, 'MPSNNReduceRowMax')
 export const MPSNNReduceRowMean = /* @__PURE__ */ _bind(FW, 'MPSNNReduceRowMean')
 export const MPSNNReduceRowMin = /* @__PURE__ */ _bind(FW, 'MPSNNReduceRowMin')
 export const MPSNNReduceRowSum = /* @__PURE__ */ _bind(FW, 'MPSNNReduceRowSum')
 export const MPSNNReduceUnary = /* @__PURE__ */ _bind(FW, 'MPSNNReduceUnary')
 export const MPSNNReductionColumnMaxNode = /* @__PURE__ */ _bind(FW, 'MPSNNReductionColumnMaxNode')
-export const MPSNNReductionColumnMeanNode = /* @__PURE__ */ _bind(FW, 'MPSNNReductionColumnMeanNode')
+export const MPSNNReductionColumnMeanNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNNReductionColumnMeanNode',
+)
+
 export const MPSNNReductionColumnMinNode = /* @__PURE__ */ _bind(FW, 'MPSNNReductionColumnMinNode')
 export const MPSNNReductionColumnSumNode = /* @__PURE__ */ _bind(FW, 'MPSNNReductionColumnSumNode')
-export const MPSNNReductionFeatureChannelsArgumentMaxNode = /* @__PURE__ */ _bind(FW, 'MPSNNReductionFeatureChannelsArgumentMaxNode')
-export const MPSNNReductionFeatureChannelsArgumentMinNode = /* @__PURE__ */ _bind(FW, 'MPSNNReductionFeatureChannelsArgumentMinNode')
-export const MPSNNReductionFeatureChannelsMaxNode = /* @__PURE__ */ _bind(FW, 'MPSNNReductionFeatureChannelsMaxNode')
-export const MPSNNReductionFeatureChannelsMeanNode = /* @__PURE__ */ _bind(FW, 'MPSNNReductionFeatureChannelsMeanNode')
-export const MPSNNReductionFeatureChannelsMinNode = /* @__PURE__ */ _bind(FW, 'MPSNNReductionFeatureChannelsMinNode')
-export const MPSNNReductionFeatureChannelsSumNode = /* @__PURE__ */ _bind(FW, 'MPSNNReductionFeatureChannelsSumNode')
+export const MPSNNReductionFeatureChannelsArgumentMaxNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNNReductionFeatureChannelsArgumentMaxNode',
+)
+
+export const MPSNNReductionFeatureChannelsArgumentMinNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNNReductionFeatureChannelsArgumentMinNode',
+)
+
+export const MPSNNReductionFeatureChannelsMaxNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNNReductionFeatureChannelsMaxNode',
+)
+
+export const MPSNNReductionFeatureChannelsMeanNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNNReductionFeatureChannelsMeanNode',
+)
+
+export const MPSNNReductionFeatureChannelsMinNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNNReductionFeatureChannelsMinNode',
+)
+
+export const MPSNNReductionFeatureChannelsSumNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNNReductionFeatureChannelsSumNode',
+)
+
 export const MPSNNReductionRowMaxNode = /* @__PURE__ */ _bind(FW, 'MPSNNReductionRowMaxNode')
 export const MPSNNReductionRowMeanNode = /* @__PURE__ */ _bind(FW, 'MPSNNReductionRowMeanNode')
 export const MPSNNReductionRowMinNode = /* @__PURE__ */ _bind(FW, 'MPSNNReductionRowMinNode')
 export const MPSNNReductionRowSumNode = /* @__PURE__ */ _bind(FW, 'MPSNNReductionRowSumNode')
-export const MPSNNReductionSpatialMeanGradientNode = /* @__PURE__ */ _bind(FW, 'MPSNNReductionSpatialMeanGradientNode')
-export const MPSNNReductionSpatialMeanNode = /* @__PURE__ */ _bind(FW, 'MPSNNReductionSpatialMeanNode')
+export const MPSNNReductionSpatialMeanGradientNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNNReductionSpatialMeanGradientNode',
+)
+
+export const MPSNNReductionSpatialMeanNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNNReductionSpatialMeanNode',
+)
+
 export const MPSNNRegularizationType = /* @__PURE__ */ _bind(FW, 'MPSNNRegularizationType')
 export const MPSNNReshape = /* @__PURE__ */ _bind(FW, 'MPSNNReshape')
 export const MPSNNReshapeGradient = /* @__PURE__ */ _bind(FW, 'MPSNNReshapeGradient')
@@ -443,20 +952,36 @@ export const MPSNNResizeBilinear = /* @__PURE__ */ _bind(FW, 'MPSNNResizeBilinea
 export const MPSNNScaleNode = /* @__PURE__ */ _bind(FW, 'MPSNNScaleNode')
 export const MPSNNSlice = /* @__PURE__ */ _bind(FW, 'MPSNNSlice')
 export const MPSNNStateNode = /* @__PURE__ */ _bind(FW, 'MPSNNStateNode')
-export const MPSNNSubtractionGradientNode = /* @__PURE__ */ _bind(FW, 'MPSNNSubtractionGradientNode')
+export const MPSNNSubtractionGradientNode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSNNSubtractionGradientNode',
+)
+
 export const MPSNNSubtractionNode = /* @__PURE__ */ _bind(FW, 'MPSNNSubtractionNode')
 export const MPSNNTrainableNode = /* @__PURE__ */ _bind(FW, 'MPSNNTrainableNode')
 export const MPSNNTrainingStyle = /* @__PURE__ */ _bind(FW, 'MPSNNTrainingStyle')
 export const MPSNNUnaryReductionNode = /* @__PURE__ */ _bind(FW, 'MPSNNUnaryReductionNode')
 export const MPSOffset = /* @__PURE__ */ _bind(FW, 'MPSOffset')
 export const MPSOrigin = /* @__PURE__ */ _bind(FW, 'MPSOrigin')
-export const MPSPolygonAccelerationStructure = /* @__PURE__ */ _bind(FW, 'MPSPolygonAccelerationStructure')
+export const MPSPolygonAccelerationStructure = /* @__PURE__ */ _bind(
+	FW,
+	'MPSPolygonAccelerationStructure',
+)
+
 export const MPSPolygonBuffer = /* @__PURE__ */ _bind(FW, 'MPSPolygonBuffer')
 export const MPSPolygonType = /* @__PURE__ */ _bind(FW, 'MPSPolygonType')
 export const MPSPredicate = /* @__PURE__ */ _bind(FW, 'MPSPredicate')
 export const MPSPurgeableState = /* @__PURE__ */ _bind(FW, 'MPSPurgeableState')
-export const MPSQuadrilateralAccelerationStructure = /* @__PURE__ */ _bind(FW, 'MPSQuadrilateralAccelerationStructure')
-export const MPSRNNBidirectionalCombineMode = /* @__PURE__ */ _bind(FW, 'MPSRNNBidirectionalCombineMode')
+export const MPSQuadrilateralAccelerationStructure = /* @__PURE__ */ _bind(
+	FW,
+	'MPSQuadrilateralAccelerationStructure',
+)
+
+export const MPSRNNBidirectionalCombineMode = /* @__PURE__ */ _bind(
+	FW,
+	'MPSRNNBidirectionalCombineMode',
+)
+
 export const MPSRNNDescriptor = /* @__PURE__ */ _bind(FW, 'MPSRNNDescriptor')
 export const MPSRNNImageInferenceLayer = /* @__PURE__ */ _bind(FW, 'MPSRNNImageInferenceLayer')
 export const MPSRNNMatrixId = /* @__PURE__ */ _bind(FW, 'MPSRNNMatrixId')
@@ -472,20 +997,36 @@ export const MPSRayIntersector = /* @__PURE__ */ _bind(FW, 'MPSRayIntersector')
 export const MPSRayMaskOperator = /* @__PURE__ */ _bind(FW, 'MPSRayMaskOperator')
 export const MPSRayMaskOptions = /* @__PURE__ */ _bind(FW, 'MPSRayMaskOptions')
 export const MPSRayOriginDirection = /* @__PURE__ */ _bind(FW, 'MPSRayOriginDirection')
-export const MPSRayOriginMaskDirectionMaxDistance = /* @__PURE__ */ _bind(FW, 'MPSRayOriginMaskDirectionMaxDistance')
-export const MPSRayOriginMinDistanceDirectionMaxDistance = /* @__PURE__ */ _bind(FW, 'MPSRayOriginMinDistanceDirectionMaxDistance')
+export const MPSRayOriginMaskDirectionMaxDistance = /* @__PURE__ */ _bind(
+	FW,
+	'MPSRayOriginMaskDirectionMaxDistance',
+)
+
+export const MPSRayOriginMinDistanceDirectionMaxDistance = /* @__PURE__ */ _bind(
+	FW,
+	'MPSRayOriginMinDistanceDirectionMaxDistance',
+)
+
 export const MPSRayPackedOriginDirection = /* @__PURE__ */ _bind(FW, 'MPSRayPackedOriginDirection')
 export const MPSRectNoClip = /* @__PURE__ */ _bind(FW, 'MPSRectNoClip')
 export const MPSRegion = /* @__PURE__ */ _bind(FW, 'MPSRegion')
 export const MPSSVGF = /* @__PURE__ */ _bind(FW, 'MPSSVGF')
-export const MPSSVGFDefaultTextureAllocator = /* @__PURE__ */ _bind(FW, 'MPSSVGFDefaultTextureAllocator')
+export const MPSSVGFDefaultTextureAllocator = /* @__PURE__ */ _bind(
+	FW,
+	'MPSSVGFDefaultTextureAllocator',
+)
+
 export const MPSSVGFDenoiser = /* @__PURE__ */ _bind(FW, 'MPSSVGFDenoiser')
 export const MPSSVGFTextureAllocator = /* @__PURE__ */ _bind(FW, 'MPSSVGFTextureAllocator')
 export const MPSScaleTransform = /* @__PURE__ */ _bind(FW, 'MPSScaleTransform')
 export const MPSSetHeapCacheDuration = /* @__PURE__ */ _bind(FW, 'MPSSetHeapCacheDuration')
 export const MPSSize = /* @__PURE__ */ _bind(FW, 'MPSSize')
 export const MPSState = /* @__PURE__ */ _bind(FW, 'MPSState')
-export const MPSStateBatchIncrementReadCount = /* @__PURE__ */ _bind(FW, 'MPSStateBatchIncrementReadCount')
+export const MPSStateBatchIncrementReadCount = /* @__PURE__ */ _bind(
+	FW,
+	'MPSStateBatchIncrementReadCount',
+)
+
 export const MPSStateBatchResourceSize = /* @__PURE__ */ _bind(FW, 'MPSStateBatchResourceSize')
 export const MPSStateBatchSynchronize = /* @__PURE__ */ _bind(FW, 'MPSStateBatchSynchronize')
 export const MPSStateResourceList = /* @__PURE__ */ _bind(FW, 'MPSStateResourceList')
@@ -499,12 +1040,27 @@ export const MPSTemporaryMatrix = /* @__PURE__ */ _bind(FW, 'MPSTemporaryMatrix'
 export const MPSTemporaryNDArray = /* @__PURE__ */ _bind(FW, 'MPSTemporaryNDArray')
 export const MPSTemporaryVector = /* @__PURE__ */ _bind(FW, 'MPSTemporaryVector')
 export const MPSTransformType = /* @__PURE__ */ _bind(FW, 'MPSTransformType')
-export const MPSTriangleAccelerationStructure = /* @__PURE__ */ _bind(FW, 'MPSTriangleAccelerationStructure')
-export const MPSTriangleIntersectionTestType = /* @__PURE__ */ _bind(FW, 'MPSTriangleIntersectionTestType')
+export const MPSTriangleAccelerationStructure = /* @__PURE__ */ _bind(
+	FW,
+	'MPSTriangleAccelerationStructure',
+)
+
+export const MPSTriangleIntersectionTestType = /* @__PURE__ */ _bind(
+	FW,
+	'MPSTriangleIntersectionTestType',
+)
+
 export const MPSUnaryImageKernel = /* @__PURE__ */ _bind(FW, 'MPSUnaryImageKernel')
 export const MPSVector = /* @__PURE__ */ _bind(FW, 'MPSVector')
 export const MPSVectorDescriptor = /* @__PURE__ */ _bind(FW, 'MPSVectorDescriptor')
 export const _MPSAxisAlignedBoundingBox = /* @__PURE__ */ _bind(FW, '_MPSAxisAlignedBoundingBox')
 export const _MPSPackedFloat3 = /* @__PURE__ */ _bind(FW, '_MPSPackedFloat3')
-export const unnamed_14399009591295345580 = /* @__PURE__ */ _bind(FW, 'unnamed_14399009591295345580')
-export const unnamed_15497119726499285559 = /* @__PURE__ */ _bind(FW, 'unnamed_15497119726499285559')
+export const unnamed_14399009591295345580 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_14399009591295345580',
+)
+
+export const unnamed_15497119726499285559 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_15497119726499285559',
+)

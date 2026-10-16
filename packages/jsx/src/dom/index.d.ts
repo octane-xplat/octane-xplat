@@ -5,4 +5,4 @@
  * `jsxImportSource` entry points are `dom/jsx-runtime` and
  * `dom/jsx-dev-runtime`.
  */
-export * from 'octane/jsx-runtime';
+export * from 'octane/jsx-runtime'

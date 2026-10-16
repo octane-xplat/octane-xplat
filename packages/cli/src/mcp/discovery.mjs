@@ -320,7 +320,8 @@ const prerequisiteChecks = [
 				? { status: 'satisfied', detail: run('pnpm', ['--version'])?.trim() }
 				: {
 						status: 'missing',
-						remedy: 'Install pnpm — runtime sessions spawn the app\u2019s toolchain through `pnpm exec`.',
+						remedy:
+							'Install pnpm — runtime sessions spawn the app\u2019s toolchain through `pnpm exec`.',
 					},
 	},
 	{

@@ -3,7 +3,10 @@ import { test } from 'node:test'
 import { runInNewContext } from 'node:vm'
 import { sourceWithoutImports } from './mock-globals.ts'
 
-const source = sourceWithoutImports(new URL('../src/gestures.ts', import.meta.url)).replaceAll('export ', '')
+const source = sourceWithoutImports(new URL('../src/gestures.ts', import.meta.url)).replaceAll(
+	'export ',
+	'',
+)
 
 function fixture() {
 	class Native {

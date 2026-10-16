@@ -11,7 +11,9 @@ export function abortError(): Error {
 }
 
 export function throwIfAborted(signal?: AbortSignalLike): void {
-	if (signal?.aborted) {throw abortError()}
+	if (signal?.aborted) {
+		throw abortError()
+	}
 }
 
 export interface Size {
@@ -21,16 +23,19 @@ export interface Size {
 
 /** Defer until the surface reports a positive size (surface not attached /
  *  zero-size layout → wait, don't init). Aborts via `signal`. */
-export function waitForPositiveSize(
-	measure: () => Size,
-	signal?: AbortSignalLike,
-): Promise<void> {
+export function waitForPositiveSize(measure: () => Size, signal?: AbortSignalLike): Promise<void> {
 	const first = measure()
-	if (first.width > 0 && first.height > 0) {return Promise.resolve()}
+	if (first.width > 0 && first.height > 0) {
+		return Promise.resolve()
+	}
+
 	return new Promise<void>((resolve, reject) => {
 		let timer: ReturnType<typeof setTimeout> | undefined
 		const stop = () => {
-			if (timer !== undefined) {clearTimeout(timer)}
+			if (timer !== undefined) {
+				clearTimeout(timer)
+			}
+
 			signal?.removeEventListener?.('abort', onAbort)
 		}
 
@@ -40,7 +45,10 @@ export function waitForPositiveSize(
 		}
 
 		const poll = () => {
-			if (signal?.aborted) {return onAbort()}
+			if (signal?.aborted) {
+				return onAbort()
+			}
+
 			const size = measure()
 			if (size.width > 0 && size.height > 0) {
 				stop()
@@ -88,13 +96,18 @@ export function wrapInstance(inner: ShaderInstance, attach: AttachLifecycle): Sh
 	let destroyed = false
 	const detach = attach(
 		() => {
-			if (destroyed) {return}
+			if (destroyed) {
+				return
+			}
+
 			hostSuspended = true
 			inner.pause()
 		},
 		() => {
 			hostSuspended = false
-			if (!destroyed && !callerPaused) {inner.resume()}
+			if (!destroyed && !callerPaused) {
+				inner.resume()
+			}
 		},
 	)
 
@@ -108,10 +121,15 @@ export function wrapInstance(inner: ShaderInstance, attach: AttachLifecycle): Sh
 		},
 		resume: () => {
 			callerPaused = false
-			if (!hostSuspended) {inner.resume()}
+			if (!hostSuspended) {
+				inner.resume()
+			}
 		},
 		destroy: () => {
-			if (destroyed) {return}
+			if (destroyed) {
+				return
+			}
+
 			destroyed = true
 			detach()
 			inner.destroy()

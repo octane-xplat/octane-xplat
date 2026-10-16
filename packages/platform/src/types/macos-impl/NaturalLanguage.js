@@ -1,9 +1,25 @@
 import { _bind } from './_rt.js'
 const FW = '/System/Library/Frameworks/NaturalLanguage.framework/NaturalLanguage'
-export const NLContextualEmbeddingAssetsResult = /* @__PURE__ */ _bind(FW, 'NLContextualEmbeddingAssetsResult')
-export const NLContextualEmbeddingKeyLanguages = /* @__PURE__ */ _bind(FW, 'NLContextualEmbeddingKeyLanguages')
-export const NLContextualEmbeddingKeyRevision = /* @__PURE__ */ _bind(FW, 'NLContextualEmbeddingKeyRevision')
-export const NLContextualEmbeddingKeyScripts = /* @__PURE__ */ _bind(FW, 'NLContextualEmbeddingKeyScripts')
+export const NLContextualEmbeddingAssetsResult = /* @__PURE__ */ _bind(
+	FW,
+	'NLContextualEmbeddingAssetsResult',
+)
+
+export const NLContextualEmbeddingKeyLanguages = /* @__PURE__ */ _bind(
+	FW,
+	'NLContextualEmbeddingKeyLanguages',
+)
+
+export const NLContextualEmbeddingKeyRevision = /* @__PURE__ */ _bind(
+	FW,
+	'NLContextualEmbeddingKeyRevision',
+)
+
+export const NLContextualEmbeddingKeyScripts = /* @__PURE__ */ _bind(
+	FW,
+	'NLContextualEmbeddingKeyScripts',
+)
+
 export const NLDistanceType = /* @__PURE__ */ _bind(FW, 'NLDistanceType')
 export const NLEmbedding = /* @__PURE__ */ _bind(FW, 'NLEmbedding')
 export const NLGazetteer = /* @__PURE__ */ _bind(FW, 'NLGazetteer')
@@ -59,7 +75,11 @@ export const NLLanguageTamil = /* @__PURE__ */ _bind(FW, 'NLLanguageTamil')
 export const NLLanguageTelugu = /* @__PURE__ */ _bind(FW, 'NLLanguageTelugu')
 export const NLLanguageThai = /* @__PURE__ */ _bind(FW, 'NLLanguageThai')
 export const NLLanguageTibetan = /* @__PURE__ */ _bind(FW, 'NLLanguageTibetan')
-export const NLLanguageTraditionalChinese = /* @__PURE__ */ _bind(FW, 'NLLanguageTraditionalChinese')
+export const NLLanguageTraditionalChinese = /* @__PURE__ */ _bind(
+	FW,
+	'NLLanguageTraditionalChinese',
+)
+
 export const NLLanguageTurkish = /* @__PURE__ */ _bind(FW, 'NLLanguageTurkish')
 export const NLLanguageUkrainian = /* @__PURE__ */ _bind(FW, 'NLLanguageUkrainian')
 export const NLLanguageUndetermined = /* @__PURE__ */ _bind(FW, 'NLLanguageUndetermined')
@@ -98,7 +118,11 @@ export const NLTagSchemeLanguage = /* @__PURE__ */ _bind(FW, 'NLTagSchemeLanguag
 export const NLTagSchemeLemma = /* @__PURE__ */ _bind(FW, 'NLTagSchemeLemma')
 export const NLTagSchemeLexicalClass = /* @__PURE__ */ _bind(FW, 'NLTagSchemeLexicalClass')
 export const NLTagSchemeNameType = /* @__PURE__ */ _bind(FW, 'NLTagSchemeNameType')
-export const NLTagSchemeNameTypeOrLexicalClass = /* @__PURE__ */ _bind(FW, 'NLTagSchemeNameTypeOrLexicalClass')
+export const NLTagSchemeNameTypeOrLexicalClass = /* @__PURE__ */ _bind(
+	FW,
+	'NLTagSchemeNameTypeOrLexicalClass',
+)
+
 export const NLTagSchemeScript = /* @__PURE__ */ _bind(FW, 'NLTagSchemeScript')
 export const NLTagSchemeSentimentScore = /* @__PURE__ */ _bind(FW, 'NLTagSchemeSentimentScore')
 export const NLTagSchemeTokenType = /* @__PURE__ */ _bind(FW, 'NLTagSchemeTokenType')

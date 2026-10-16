@@ -1,229 +1,229 @@
 {
-  "schema": 1,
-  "results": [
-    {
-      "schema": 1,
-      "runId": "5d19f9fb-6a6a-4724-9a6d-999ac10faaac",
-      "case": "/Users/alec/dev/alloc/worktrees/octane-xplat/lone-harp/octane-xplat/research/hosted-engine/hosted.tsrx",
-      "target": "ios",
-      "host": "NativeScript",
-      "interaction": "gesture-observer-dispatch",
-      "status": "pass",
-      "durationMs": 6060,
-      "assertions": [
-        {
-          "name": "webview document loaded without error",
-          "pass": true,
-          "actual": null,
-          "expected": null
-        },
-        {
-          "name": "webview mounted",
-          "pass": true,
-          "actual": true,
-          "expected": true
-        },
-        {
-          "name": "native\u2192page evaluateJavaScript ping",
-          "pass": true,
-          "actual": true,
-          "expected": true
-        },
-        {
-          "name": "page loaded without script errors",
-          "pass": true,
-          "actual": "[]",
-          "expected": "[]"
-        },
-        {
-          "name": "fixture round-trips through hosted schema",
-          "pass": true,
-          "actual": "{\"content\":[{\"attrs\":{\"createdAt\":\"2026-10-06\",\"priority\":\"high\",\"state\":\"open\",\"taskId\":\"t1\"},\"content\":[{\"content\":[{\"text\":\"Parent task \ud83d\ude80\",\"type\":\"text\"}],\"type\":\"paragraph\"},{\"attrs\":{\"createdAt\":\"2026-10-06\",\"priority\":\"low\",\"state\":\"done\",\"taskId\":\"t2\"},\"content\":[{\"content\":[{\"text\":\"Checklist child\",\"type\":\"text\"}],\"type\":\"paragraph\"},{\"attrs\":{\"createdAt\":\"2026-10-06\",\"priority\":\"med\",\"state\":\"open\",\"taskId\":\"t3\"},\"content\":[{\"content\":[{\"text\":\"Grandchild\",\"type\":\"text\"}],\"type\":\"paragraph\"}],\"type\":\"toggleItem\"}],\"type\":\"toggleItem\"}],\"type\":\"toggleItem\"},{\"attrs\":{\"createdAt\":\"2026-10-07\",\"priority\":\"med\",\"state\":\"open\",\"taskId\":\"t4\"},\"content\":[{\"content\":[{\"text\":\"Second root\",\"type\":\"text\"}],\"type\":\"paragraph\"}],\"type\":\"toggleItem\"}],\"type\":\"doc\"}",
-          "expected": "{\"content\":[{\"attrs\":{\"createdAt\":\"2026-10-06\",\"priority\":\"high\",\"state\":\"open\",\"taskId\":\"t1\"},\"content\":[{\"content\":[{\"text\":\"Parent task \ud83d\ude80\",\"type\":\"text\"}],\"type\":\"paragraph\"},{\"attrs\":{\"createdAt\":\"2026-10-06\",\"priority\":\"low\",\"state\":\"done\",\"taskId\":\"t2\"},\"content\":[{\"content\":[{\"text\":\"Checklist child\",\"type\":\"text\"}],\"type\":\"paragraph\"},{\"attrs\":{\"createdAt\":\"2026-10-06\",\"priority\":\"med\",\"state\":\"open\",\"taskId\":\"t3\"},\"content\":[{\"content\":[{\"text\":\"Grandchild\",\"type\":\"text\"}],\"type\":\"paragraph\"}],\"type\":\"toggleItem\"}],\"type\":\"toggleItem\"}],\"type\":\"toggleItem\"},{\"attrs\":{\"createdAt\":\"2026-10-07\",\"priority\":\"med\",\"state\":\"open\",\"taskId\":\"t4\"},\"content\":[{\"content\":[{\"text\":\"Second root\",\"type\":\"text\"}],\"type\":\"paragraph\"}],\"type\":\"toggleItem\"}],\"type\":\"doc\"}"
-        },
-        {
-          "name": "ProseMirror EditorView mounted in web document",
-          "pass": true,
-          "actual": true,
-          "expected": true
-        },
-        {
-          "name": "transaction edits nested text",
-          "pass": true,
-          "actual": "Grandchild edited",
-          "expected": "Grandchild edited"
-        },
-        {
-          "name": "split produces sibling toggleItems",
-          "pass": true,
-          "actual": 3,
-          "expected": 3
-        },
-        {
-          "name": "split keeps node type",
-          "pass": true,
-          "actual": "toggleItem",
-          "expected": "toggleItem"
-        },
-        {
-          "name": "split divides text at offset",
-          "pass": true,
-          "actual": "[\"Second\",\" root\"]",
-          "expected": "[\"Second\",\" root\"]"
-        },
-        {
-          "name": "indent merges to two root items",
-          "pass": true,
-          "actual": 2,
-          "expected": 2
-        },
-        {
-          "name": "indented node nested under previous sibling",
-          "pass": true,
-          "actual": "toggleItem",
-          "expected": "toggleItem"
-        },
-        {
-          "name": "indented node keeps text",
-          "pass": true,
-          "actual": " root",
-          "expected": " root"
-        },
-        {
-          "name": "outdent restores three root items",
-          "pass": true,
-          "actual": 3,
-          "expected": 3
-        },
-        {
-          "name": "outdented node is a root sibling",
-          "pass": true,
-          "actual": "toggleItem",
-          "expected": "toggleItem"
-        },
-        {
-          "name": "engine undo applied",
-          "pass": true,
-          "actual": true,
-          "expected": true
-        },
-        {
-          "name": "undo restores nested structure",
-          "pass": true,
-          "actual": 2,
-          "expected": 2
-        },
-        {
-          "name": "read-only toggle honored",
-          "pass": true,
-          "actual": false,
-          "expected": false
-        },
-        {
-          "name": "page\u2192native message retrievable",
-          "pass": true,
-          "actual": "{\"kind\":\"probe-notify\",\"seq\":1,\"target\":\"ios\"}",
-          "expected": "{\"kind\":\"probe-notify\",\"seq\":1,\"target\":\"ios\"}"
-        }
-      ],
-      "measurements": {
-        "nativeViewClass": "function WKWebView() { [native code] }",
-        "page env": {
-          "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148",
-          "prosemirrorMounted": false,
-          "windowErrors": []
-        },
-        "push channel": "not-intercepted; outbox drain used",
-        "final document": {
-          "type": "doc",
-          "content": [
-            {
-              "type": "toggleItem",
-              "attrs": {
-                "taskId": "t1",
-                "state": "open",
-                "priority": "high",
-                "createdAt": "2026-10-06"
-              },
-              "content": [
-                {
-                  "type": "paragraph",
-                  "content": [
-                    {
-                      "type": "text",
-                      "text": "Parent task \ud83d\ude80"
-                    }
-                  ]
-                },
-                {
-                  "type": "toggleItem",
-                  "attrs": {
-                    "taskId": "t2",
-                    "state": "done",
-                    "priority": "low",
-                    "createdAt": "2026-10-06"
-                  },
-                  "content": [
-                    {
-                      "type": "paragraph",
-                      "content": [
-                        {
-                          "type": "text",
-                          "text": "Checklist child"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "toggleItem",
-                      "attrs": {
-                        "taskId": "t3",
-                        "state": "open",
-                        "priority": "med",
-                        "createdAt": "2026-10-06"
-                      },
-                      "content": [
-                        {
-                          "type": "paragraph",
-                          "content": [
-                            {
-                              "type": "text",
-                              "text": "Grandchild edited"
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "type": "toggleItem",
-              "attrs": {
-                "taskId": "t4",
-                "state": "open",
-                "priority": "med",
-                "createdAt": "2026-10-07"
-              },
-              "content": [
-                {
-                  "type": "paragraph",
-                  "content": [
-                    {
-                      "type": "text",
-                      "text": "Second root"
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        "final page errors": "[]"
-      },
-      "errors": [],
-      "device": "CF4A9D5B-C905-4EB3-A3CE-EB6BAF30FC4B",
-      "cache": "/Users/alec/dev/alloc/worktrees/octane-xplat/lone-harp/octane-xplat/research/probes/03de75876757224a/build-c10a3271fd889082"
-    }
-  ]
+	"schema": 1,
+	"results": [
+		{
+			"schema": 1,
+			"runId": "5d19f9fb-6a6a-4724-9a6d-999ac10faaac",
+			"case": "/Users/alec/dev/alloc/worktrees/octane-xplat/lone-harp/octane-xplat/research/hosted-engine/hosted.tsrx",
+			"target": "ios",
+			"host": "NativeScript",
+			"interaction": "gesture-observer-dispatch",
+			"status": "pass",
+			"durationMs": 6060,
+			"assertions": [
+				{
+					"name": "webview document loaded without error",
+					"pass": true,
+					"actual": null,
+					"expected": null
+				},
+				{
+					"name": "webview mounted",
+					"pass": true,
+					"actual": true,
+					"expected": true
+				},
+				{
+					"name": "native\u2192page evaluateJavaScript ping",
+					"pass": true,
+					"actual": true,
+					"expected": true
+				},
+				{
+					"name": "page loaded without script errors",
+					"pass": true,
+					"actual": "[]",
+					"expected": "[]"
+				},
+				{
+					"name": "fixture round-trips through hosted schema",
+					"pass": true,
+					"actual": "{\"content\":[{\"attrs\":{\"createdAt\":\"2026-10-06\",\"priority\":\"high\",\"state\":\"open\",\"taskId\":\"t1\"},\"content\":[{\"content\":[{\"text\":\"Parent task \ud83d\ude80\",\"type\":\"text\"}],\"type\":\"paragraph\"},{\"attrs\":{\"createdAt\":\"2026-10-06\",\"priority\":\"low\",\"state\":\"done\",\"taskId\":\"t2\"},\"content\":[{\"content\":[{\"text\":\"Checklist child\",\"type\":\"text\"}],\"type\":\"paragraph\"},{\"attrs\":{\"createdAt\":\"2026-10-06\",\"priority\":\"med\",\"state\":\"open\",\"taskId\":\"t3\"},\"content\":[{\"content\":[{\"text\":\"Grandchild\",\"type\":\"text\"}],\"type\":\"paragraph\"}],\"type\":\"toggleItem\"}],\"type\":\"toggleItem\"}],\"type\":\"toggleItem\"},{\"attrs\":{\"createdAt\":\"2026-10-07\",\"priority\":\"med\",\"state\":\"open\",\"taskId\":\"t4\"},\"content\":[{\"content\":[{\"text\":\"Second root\",\"type\":\"text\"}],\"type\":\"paragraph\"}],\"type\":\"toggleItem\"}],\"type\":\"doc\"}",
+					"expected": "{\"content\":[{\"attrs\":{\"createdAt\":\"2026-10-06\",\"priority\":\"high\",\"state\":\"open\",\"taskId\":\"t1\"},\"content\":[{\"content\":[{\"text\":\"Parent task \ud83d\ude80\",\"type\":\"text\"}],\"type\":\"paragraph\"},{\"attrs\":{\"createdAt\":\"2026-10-06\",\"priority\":\"low\",\"state\":\"done\",\"taskId\":\"t2\"},\"content\":[{\"content\":[{\"text\":\"Checklist child\",\"type\":\"text\"}],\"type\":\"paragraph\"},{\"attrs\":{\"createdAt\":\"2026-10-06\",\"priority\":\"med\",\"state\":\"open\",\"taskId\":\"t3\"},\"content\":[{\"content\":[{\"text\":\"Grandchild\",\"type\":\"text\"}],\"type\":\"paragraph\"}],\"type\":\"toggleItem\"}],\"type\":\"toggleItem\"}],\"type\":\"toggleItem\"},{\"attrs\":{\"createdAt\":\"2026-10-07\",\"priority\":\"med\",\"state\":\"open\",\"taskId\":\"t4\"},\"content\":[{\"content\":[{\"text\":\"Second root\",\"type\":\"text\"}],\"type\":\"paragraph\"}],\"type\":\"toggleItem\"}],\"type\":\"doc\"}"
+				},
+				{
+					"name": "ProseMirror EditorView mounted in web document",
+					"pass": true,
+					"actual": true,
+					"expected": true
+				},
+				{
+					"name": "transaction edits nested text",
+					"pass": true,
+					"actual": "Grandchild edited",
+					"expected": "Grandchild edited"
+				},
+				{
+					"name": "split produces sibling toggleItems",
+					"pass": true,
+					"actual": 3,
+					"expected": 3
+				},
+				{
+					"name": "split keeps node type",
+					"pass": true,
+					"actual": "toggleItem",
+					"expected": "toggleItem"
+				},
+				{
+					"name": "split divides text at offset",
+					"pass": true,
+					"actual": "[\"Second\",\" root\"]",
+					"expected": "[\"Second\",\" root\"]"
+				},
+				{
+					"name": "indent merges to two root items",
+					"pass": true,
+					"actual": 2,
+					"expected": 2
+				},
+				{
+					"name": "indented node nested under previous sibling",
+					"pass": true,
+					"actual": "toggleItem",
+					"expected": "toggleItem"
+				},
+				{
+					"name": "indented node keeps text",
+					"pass": true,
+					"actual": " root",
+					"expected": " root"
+				},
+				{
+					"name": "outdent restores three root items",
+					"pass": true,
+					"actual": 3,
+					"expected": 3
+				},
+				{
+					"name": "outdented node is a root sibling",
+					"pass": true,
+					"actual": "toggleItem",
+					"expected": "toggleItem"
+				},
+				{
+					"name": "engine undo applied",
+					"pass": true,
+					"actual": true,
+					"expected": true
+				},
+				{
+					"name": "undo restores nested structure",
+					"pass": true,
+					"actual": 2,
+					"expected": 2
+				},
+				{
+					"name": "read-only toggle honored",
+					"pass": true,
+					"actual": false,
+					"expected": false
+				},
+				{
+					"name": "page\u2192native message retrievable",
+					"pass": true,
+					"actual": "{\"kind\":\"probe-notify\",\"seq\":1,\"target\":\"ios\"}",
+					"expected": "{\"kind\":\"probe-notify\",\"seq\":1,\"target\":\"ios\"}"
+				}
+			],
+			"measurements": {
+				"nativeViewClass": "function WKWebView() { [native code] }",
+				"page env": {
+					"userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148",
+					"prosemirrorMounted": false,
+					"windowErrors": []
+				},
+				"push channel": "not-intercepted; outbox drain used",
+				"final document": {
+					"type": "doc",
+					"content": [
+						{
+							"type": "toggleItem",
+							"attrs": {
+								"taskId": "t1",
+								"state": "open",
+								"priority": "high",
+								"createdAt": "2026-10-06"
+							},
+							"content": [
+								{
+									"type": "paragraph",
+									"content": [
+										{
+											"type": "text",
+											"text": "Parent task \ud83d\ude80"
+										}
+									]
+								},
+								{
+									"type": "toggleItem",
+									"attrs": {
+										"taskId": "t2",
+										"state": "done",
+										"priority": "low",
+										"createdAt": "2026-10-06"
+									},
+									"content": [
+										{
+											"type": "paragraph",
+											"content": [
+												{
+													"type": "text",
+													"text": "Checklist child"
+												}
+											]
+										},
+										{
+											"type": "toggleItem",
+											"attrs": {
+												"taskId": "t3",
+												"state": "open",
+												"priority": "med",
+												"createdAt": "2026-10-06"
+											},
+											"content": [
+												{
+													"type": "paragraph",
+													"content": [
+														{
+															"type": "text",
+															"text": "Grandchild edited"
+														}
+													]
+												}
+											]
+										}
+									]
+								}
+							]
+						},
+						{
+							"type": "toggleItem",
+							"attrs": {
+								"taskId": "t4",
+								"state": "open",
+								"priority": "med",
+								"createdAt": "2026-10-07"
+							},
+							"content": [
+								{
+									"type": "paragraph",
+									"content": [
+										{
+											"type": "text",
+											"text": "Second root"
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				"final page errors": "[]"
+			},
+			"errors": [],
+			"device": "CF4A9D5B-C905-4EB3-A3CE-EB6BAF30FC4B",
+			"cache": "/Users/alec/dev/alloc/worktrees/octane-xplat/lone-harp/octane-xplat/research/probes/03de75876757224a/build-c10a3271fd889082"
+		}
+	]
 }

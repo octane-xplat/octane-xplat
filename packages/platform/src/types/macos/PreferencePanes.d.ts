@@ -6,68 +6,68 @@ import type { interop } from './objc-runtime'
 
 import { NSObject } from './Runtime'
 
+export declare const NSPrefPaneHelpMenuAnchorKey: string
 
+export declare const NSPrefPaneHelpMenuInfoPListKey: string
 
-export declare const NSPrefPaneHelpMenuAnchorKey: string;
+export declare const NSPrefPaneHelpMenuTitleKey: string
 
-export declare const NSPrefPaneHelpMenuInfoPListKey: string;
+export declare const NSPreferencePaneSwitchToPaneNotification: string
 
-export declare const NSPrefPaneHelpMenuTitleKey: string;
+export declare const NSPreferencePaneCancelUnselectNotification: string
 
-export declare const NSPreferencePaneSwitchToPaneNotification: string;
+export declare const NSPreferencePrefPaneIsAvailableNotification: string
 
-export declare const NSPreferencePaneCancelUnselectNotification: string;
+export declare const NSPreferencePaneDoUnselectNotification: string
 
-export declare const NSPreferencePrefPaneIsAvailableNotification: string;
-
-export declare const NSPreferencePaneDoUnselectNotification: string;
-
-export declare const NSPreferencePaneUpdateHelpMenuNotification: string;
+export declare const NSPreferencePaneUpdateHelpMenuNotification: string
 
 export declare const NSPreferencePaneUnselectReply: {
-  Cancel: 0,
-  Now: 1,
-  Later: 2,
-};
+	Cancel: 0
+	Now: 1
+	Later: 2
+}
 
 export declare class NSPreferencePane extends NSObject {
-  initWithBundle(bundle: NSBundle): this;
+	initWithBundle(bundle: NSBundle): this
 
-  readonly bundle: NSBundle;
+	readonly bundle: NSBundle
 
-  loadMainView(): NSView;
+	loadMainView(): NSView
 
-  mainViewDidLoad(): void;
+	mainViewDidLoad(): void
 
-  readonly mainNibName: string;
+	readonly mainNibName: string
 
-  assignMainView(): void;
+	assignMainView(): void
 
-  willSelect(): void;
+	willSelect(): void
 
-  didSelect(): void;
+	didSelect(): void
 
-  readonly shouldUnselect: interop.Enum<typeof NSPreferencePaneUnselectReply>;
+	readonly shouldUnselect: interop.Enum<typeof NSPreferencePaneUnselectReply>
 
-  replyToShouldUnselect(shouldUnselect: boolean): void;
+	replyToShouldUnselect(shouldUnselect: boolean): void
 
-  willUnselect(): void;
+	willUnselect(): void
 
-  didUnselect(): void;
+	didUnselect(): void
 
-  mainView: NSView;
+	mainView: NSView
 
-  initialKeyView: NSView;
+	initialKeyView: NSView
 
-  firstKeyView: NSView;
+	firstKeyView: NSView
 
-  lastKeyView: NSView;
+	lastKeyView: NSView
 
-  readonly autoSaveTextFields: boolean;
+	readonly autoSaveTextFields: boolean
 
-  readonly selected: boolean;
+	readonly selected: boolean
 
-  updateHelpMenuWithArray(inArrayOfMenuItems: NSArray<interop.Object> | Array<interop.Object> | null): void;
+	updateHelpMenuWithArray(
+		inArrayOfMenuItems: NSArray<interop.Object> | Array<interop.Object> | null,
+	): void
 
-  isSelected(): boolean;
+	isSelected(): boolean
 }

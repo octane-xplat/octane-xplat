@@ -73,7 +73,10 @@ export function maskSource(source) {
 		const ch = source[i]
 		if (ch === '/' && source[i + 1] === '/') {
 			let j = i
-			while (j < n && source[j] !== '\n') {j++}
+			while (j < n && source[j] !== '\n') {
+				j++
+			}
+
 			blank(i, j)
 			i = j
 		} else if (ch === '/' && source[i + 1] === '*') {
@@ -84,9 +87,14 @@ export function maskSource(source) {
 		} else if (ch === "'" || ch === '"') {
 			let j = i + 1
 			while (j < n) {
-				if (source[j] === '\\') {j += 2}
-				else if (source[j] === ch) { j++; break }
-				else {j++}
+				if (source[j] === '\\') {
+					j += 2
+				} else if (source[j] === ch) {
+					j++
+					break
+				} else {
+					j++
+				}
 			}
 
 			j = Math.min(j, n)
@@ -99,17 +107,26 @@ export function maskSource(source) {
 			// blank only the literal text spans.
 			let j = i + 1
 			while (j < n) {
-				if (source[j] === '\\') { blank(j, j + 2); j += 2 }
-				else if (source[j] === '`') { j++; break }
-				else if (source[j] === '$' && source[j + 1] === '{') {
+				if (source[j] === '\\') {
+					blank(j, j + 2)
+					j += 2
+				} else if (source[j] === '`') {
+					j++
+					break
+				} else if (source[j] === '$' && source[j + 1] === '{') {
 					let depth = 1
 					let k = j + 2
 					while (k < n && depth > 0) {
-						if (source[k] === '{') {depth++}
-						else if (source[k] === '}') {depth--}
-						else if (source[k] === "'" || source[k] === '"') {
+						if (source[k] === '{') {
+							depth++
+						} else if (source[k] === '}') {
+							depth--
+						} else if (source[k] === "'" || source[k] === '"') {
 							let q = k + 1
-							while (q < n && source[q] !== source[k]) {q += source[q] === '\\' ? 2 : 1}
+							while (q < n && source[q] !== source[k]) {
+								q += source[q] === '\\' ? 2 : 1
+							}
+
 							k = Math.min(q + 1, n)
 							continue
 						}
@@ -118,7 +135,10 @@ export function maskSource(source) {
 					}
 
 					j = k
-				} else { blank(j, j + 1); j++ }
+				} else {
+					blank(j, j + 1)
+					j++
+				}
 			}
 
 			i = j
@@ -135,10 +155,13 @@ function matchBracket(masked, open, openCh, closeCh) {
 	let depth = 0
 	for (let i = open; i < masked.length; i++) {
 		const ch = masked[i]
-		if (ch === openCh) {depth++}
-		else if (ch === closeCh) {
+		if (ch === openCh) {
+			depth++
+		} else if (ch === closeCh) {
 			depth--
-			if (depth === 0) {return i}
+			if (depth === 0) {
+				return i
+			}
 		}
 	}
 
@@ -150,8 +173,14 @@ function objectFields(masked, source, openBrace, closeBrace) {
 	const fields = new Map()
 	let i = openBrace + 1
 	while (i < closeBrace) {
-		while (i < closeBrace && /[\s,]/.test(masked[i])) {i++}
-		if (i >= closeBrace) {break}
+		while (i < closeBrace && /[\s,]/.test(masked[i])) {
+			i++
+		}
+
+		if (i >= closeBrace) {
+			break
+		}
+
 		const m = /^([A-Za-z_$][\w$]*|'[\s\S]*'|"[\s\S]*"|\d+)\s*:/.exec(masked.slice(i, closeBrace))
 		if (!m) {
 			return { fields, error: `unsupported object syntax near "${masked.slice(i, i + 24).trim()}"` }
@@ -160,7 +189,10 @@ function objectFields(masked, source, openBrace, closeBrace) {
 		const rawKey = m[1]
 		const key =
 			rawKey.startsWith("'") || rawKey.startsWith('"')
-				? source.slice(i, i + m[0].indexOf(':')).trim().slice(1, -1)
+				? source
+						.slice(i, i + m[0].indexOf(':'))
+						.trim()
+						.slice(1, -1)
 				: rawKey
 
 		let v = i + m[0].length
@@ -168,11 +200,17 @@ function objectFields(masked, source, openBrace, closeBrace) {
 		let depth = 0
 		while (v < closeBrace) {
 			const ch = masked[v]
-			if (ch === '{' || ch === '[' || ch === '(') {depth++}
-			else if (ch === '}' || ch === ']' || ch === ')') {
-				if (depth === 0) {break}
+			if (ch === '{' || ch === '[' || ch === '(') {
+				depth++
+			} else if (ch === '}' || ch === ']' || ch === ')') {
+				if (depth === 0) {
+					break
+				}
+
 				depth--
-			} else if (ch === ',' && depth === 0) {break}
+			} else if (ch === ',' && depth === 0) {
+				break
+			}
 
 			v++
 		}
@@ -193,23 +231,47 @@ function literalValue(masked, source, start, end, label, file) {
 		)
 	}
 
-	if (text === '') {fail()}
-	if (text === 'true') {return true}
-	if (text === 'false') {return false}
-	if (text === 'null') {return null}
-	if (/^-?\d+(\.\d+)?$/.test(text)) {return Number(text)}
+	if (text === '') {
+		fail()
+	}
+
+	if (text === 'true') {
+		return true
+	}
+
+	if (text === 'false') {
+		return false
+	}
+
+	if (text === 'null') {
+		return null
+	}
+
+	if (/^-?\d+(\.\d+)?$/.test(text)) {
+		return Number(text)
+	}
+
 	if (/^'[^']*'$/.test(text) || /^"[^"]*"$/.test(text)) {
 		const value = source.slice(start, end).trim().slice(1, -1)
-		if (value.includes('\\')) {fail()}
+		if (value.includes('\\')) {
+			fail()
+		}
+
 		return value
 	}
 
 	// Template literal without interpolation → masked to spaces; reject.
-	if (text.startsWith('`') || text === '') {fail()}
+	if (text.startsWith('`') || text === '') {
+		fail()
+	}
+
 	if (text.startsWith('[')) {
 		const openIdx = masked.indexOf('[', start)
 		const close = matchBracket(masked, openIdx, '[', ']')
-		if (close < 0 || masked.slice(close + 1, end).trim()) {fail()}
+		if (close < 0 || masked.slice(close + 1, end).trim()) {
+			fail()
+		}
+
 		const items = []
 		let seg = openIdx + 1
 		let depth = 0
@@ -222,9 +284,14 @@ function literalValue(masked, source, start, end, label, file) {
 
 		for (let i = openIdx + 1; i < close; i++) {
 			const ch = masked[i]
-			if (ch === '{' || ch === '[' || ch === '(') {depth++}
-			else if (ch === '}' || ch === ']' || ch === ')') {depth--}
-			else if (ch === ',' && depth === 0) { push(i); seg = i + 1 }
+			if (ch === '{' || ch === '[' || ch === '(') {
+				depth++
+			} else if (ch === '}' || ch === ']' || ch === ')') {
+				depth--
+			} else if (ch === ',' && depth === 0) {
+				push(i)
+				seg = i + 1
+			}
 		}
 
 		push(close)
@@ -247,26 +314,43 @@ export function scanStoryFile(source, file) {
 	const exported = new Set()
 	for (const m of masked.matchAll(/export\s*\{([^}]*)\}/g)) {
 		for (const part of m[1].split(',')) {
-			const name = part.trim().split(/\s+as\s+/).pop()?.trim()
-			if (name) {exported.add(name)}
+			const name = part
+				.trim()
+				.split(/\s+as\s+/)
+				.pop()
+				?.trim()
+
+			if (name) {
+				exported.add(name)
+			}
 		}
 	}
 
 	let search = 0
 	for (;;) {
 		const at = masked.indexOf('defineStory', search)
-		if (at === -1) {break}
+		if (at === -1) {
+			break
+		}
+
 		search = at + 'defineStory'.length
 		const before = masked.slice(0, at)
 		const after = masked.slice(at + 'defineStory'.length)
 		// Word-boundary check on both sides.
-		if (/[\w$.]$/.test(before) || /^[\w$]/.test(after)) {continue}
+		if (/[\w$.]$/.test(before) || /^[\w$]/.test(after)) {
+			continue
+		}
 
 		// Binding detection: the statement immediately preceding defineStory
 		// must be `<export>? const|let|var X =` or `export default`; the binding
 		// may also be re-exported later via `export { X }`.
 		let exportName = 'default'
-		const stmtStart = Math.max(before.lastIndexOf(';'), before.lastIndexOf('}'), before.lastIndexOf('{'))
+		const stmtStart = Math.max(
+			before.lastIndexOf(';'),
+			before.lastIndexOf('}'),
+			before.lastIndexOf('{'),
+		)
+
 		const stmt = before.slice(stmtStart + 1)
 		const decl = DECL_RE.exec(stmt)
 		let exportedStory = false
@@ -278,13 +362,18 @@ export function scanStoryFile(source, file) {
 		}
 
 		let i = at + 'defineStory'.length
-		while (i < masked.length && /\s/.test(masked[i])) {i++}
+		while (i < masked.length && /\s/.test(masked[i])) {
+			i++
+		}
+
 		// Generic instantiation: defineStory<Props, State, Fixture>({ … })
 		if (masked[i] === '<') {
 			const closeAngle = matchBracket(masked, i, '<', '>')
 			if (closeAngle !== -1) {
 				i = closeAngle + 1
-				while (i < masked.length && /\s/.test(masked[i])) {i++}
+				while (i < masked.length && /\s/.test(masked[i])) {
+					i++
+				}
 			}
 		}
 
@@ -300,9 +389,17 @@ export function scanStoryFile(source, file) {
 		}
 
 		let j = i + 1
-		while (j < closeParen && /\s/.test(masked[j])) {j++}
+		while (j < closeParen && /\s/.test(masked[j])) {
+			j++
+		}
+
 		if (masked[j] !== '{') {
-			diagnostics.push({ file, exportName, message: 'defineStory options must be an object literal' })
+			diagnostics.push({
+				file,
+				exportName,
+				message: 'defineStory options must be an object literal',
+			})
+
 			continue
 		}
 
@@ -318,7 +415,10 @@ export function scanStoryFile(source, file) {
 		for (const key of ['id', 'title', 'targets', 'capabilities']) {
 			const field = fields.get(key)
 			if (!field) {
-				if (key === 'capabilities') {continue}
+				if (key === 'capabilities') {
+					continue
+				}
+
 				diagnostics.push({ file, exportName, message: `defineStory requires a literal "${key}"` })
 				failed = true
 				continue
@@ -332,10 +432,31 @@ export function scanStoryFile(source, file) {
 			}
 		}
 
-		if (!failed && (typeof story.id !== 'string' || !story.id || typeof story.title !== 'string' || !story.title ||
-			!(story.targets === 'all' || (Array.isArray(story.targets) && story.targets.length > 0 && story.targets.every(t => ALL_TARGETS.includes(t)))) ||
-			!(story.capabilities === undefined || (Array.isArray(story.capabilities) && story.capabilities.every(c => typeof c === 'string' && c.length > 0))))) {
-			diagnostics.push({ file, exportName, message: 'story requires non-empty literal id/title, targets: all or a non-empty target array, and a string capability array' })
+		if (
+			!failed &&
+			(typeof story.id !== 'string' ||
+				!story.id ||
+				typeof story.title !== 'string' ||
+				!story.title ||
+				!(
+					story.targets === 'all' ||
+					(Array.isArray(story.targets) &&
+						story.targets.length > 0 &&
+						story.targets.every((t) => ALL_TARGETS.includes(t)))
+				) ||
+				!(
+					story.capabilities === undefined ||
+					(Array.isArray(story.capabilities) &&
+						story.capabilities.every((c) => typeof c === 'string' && c.length > 0))
+				))
+		) {
+			diagnostics.push({
+				file,
+				exportName,
+				message:
+					'story requires non-empty literal id/title, targets: all or a non-empty target array, and a string capability array',
+			})
+
 			failed = true
 		}
 
@@ -402,7 +523,11 @@ export function discoverStories(root, { include, exclude, target = 'web' } = {})
 				}
 			}
 
-			const applicable = applicableTargets(declared.filter((t) => ALL_TARGETS.includes(t)), file)
+			const applicable = applicableTargets(
+				declared.filter((t) => ALL_TARGETS.includes(t)),
+				file,
+			)
+
 			const required = story.capabilities ?? []
 			const canRun = applicable.includes(target) && required.length === 0
 			const reason = canRun
@@ -410,8 +535,8 @@ export function discoverStories(root, { include, exclude, target = 'web' } = {})
 				: applicable.includes(target) && required.length > 0
 					? `required capabilities are unknown/unqualified on ${target}: ${required.join(', ')}`
 					: applicable.length === 0
-					? `declared targets and the ${storyFileTag(file) ?? 'story'} leaf do not overlap`
-					: `story targets ${applicable.join(', ')}, not ${target}`
+						? `declared targets and the ${storyFileTag(file) ?? 'story'} leaf do not overlap`
+						: `story targets ${applicable.join(', ')}, not ${target}`
 
 			const meta = {
 				id: story.id,

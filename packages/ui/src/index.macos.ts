@@ -289,6 +289,7 @@ export type {
 	IconNameRegistry,
 	IconRegistryProviderProps,
 } from './props'
+
 export const isNative = true as const
 
 // Focus hooks — shared/native leaves; focus modality and landmark cycling

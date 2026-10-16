@@ -5,7 +5,11 @@ export const EKAlarmProximity = /* @__PURE__ */ _bind(FW, 'EKAlarmProximity')
 export const EKAlarmType = /* @__PURE__ */ _bind(FW, 'EKAlarmType')
 export const EKAuthorizationStatus = /* @__PURE__ */ _bind(FW, 'EKAuthorizationStatus')
 export const EKCalendar = /* @__PURE__ */ _bind(FW, 'EKCalendar')
-export const EKCalendarEventAvailabilityMask = /* @__PURE__ */ _bind(FW, 'EKCalendarEventAvailabilityMask')
+export const EKCalendarEventAvailabilityMask = /* @__PURE__ */ _bind(
+	FW,
+	'EKCalendarEventAvailabilityMask',
+)
+
 export const EKCalendarItem = /* @__PURE__ */ _bind(FW, 'EKCalendarItem')
 export const EKCalendarType = /* @__PURE__ */ _bind(FW, 'EKCalendarType')
 export const EKEntityMask = /* @__PURE__ */ _bind(FW, 'EKEntityMask')
@@ -16,7 +20,11 @@ export const EKEvent = /* @__PURE__ */ _bind(FW, 'EKEvent')
 export const EKEventAvailability = /* @__PURE__ */ _bind(FW, 'EKEventAvailability')
 export const EKEventStatus = /* @__PURE__ */ _bind(FW, 'EKEventStatus')
 export const EKEventStore = /* @__PURE__ */ _bind(FW, 'EKEventStore')
-export const EKEventStoreChangedNotification = /* @__PURE__ */ _bind(FW, 'EKEventStoreChangedNotification')
+export const EKEventStoreChangedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'EKEventStoreChangedNotification',
+)
+
 export const EKObject = /* @__PURE__ */ _bind(FW, 'EKObject')
 export const EKParticipant = /* @__PURE__ */ _bind(FW, 'EKParticipant')
 export const EKParticipantRole = /* @__PURE__ */ _bind(FW, 'EKParticipantRole')

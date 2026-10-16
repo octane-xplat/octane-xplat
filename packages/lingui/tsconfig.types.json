@@ -23,11 +23,6 @@
 		],
 		"allowImportingTsExtensions": true
 	},
-	"include": [
-		"src/index.ts",
-		"src/extractor.ts"
-	],
-	"exclude": [
-		"**/*.test.ts"
-	]
+	"include": ["src/index.ts", "src/extractor.ts"],
+	"exclude": ["**/*.test.ts"]
 }

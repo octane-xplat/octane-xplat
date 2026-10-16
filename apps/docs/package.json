@@ -15,18 +15,18 @@
 	},
 	"dependencies": {
 		"@octane-xplat/ui": "workspace:*",
+		"@xplat/demos": "workspace:*",
 		"octane": "0.11.0",
-		"shiki": "4.4.3",
-		"@xplat/demos": "workspace:*"
+		"shiki": "4.4.3"
 	},
 	"devDependencies": {
 		"@octane-xplat/cli": "workspace:*",
 		"@octanejs/vite-plugin": "0.1.61",
 		"@tsrx/typescript-plugin": "0.4.11",
 		"jsdom": "30.1.1",
+		"playwright": "1.63.0",
 		"typescript": "5.9.3",
 		"vite": "8.3.0",
-		"wrangler": "^4.0.0",
-		"playwright": "1.63.0"
+		"wrangler": "^4.0.0"
 	}
 }

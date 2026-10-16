@@ -115,8 +115,17 @@ test('TimePicker production ownership moves its native host between parents and 
 	})
 
 	const api = runInNewContext(
-		['parentReference', 'resolveParentNode', 'canContainView', 'validateTextNesting', 'insert', 'detach', 'destroy'].map(fn).join('\n') +
-			'\n({insert,destroy})',
+		[
+			'parentReference',
+			'resolveParentNode',
+			'canContainView',
+			'validateTextNesting',
+			'insert',
+			'detach',
+			'destroy',
+		]
+			.map(fn)
+			.join('\n') + '\n({insert,destroy})',
 		{
 			VIEW_PARENT_TYPES: new Set(['contentview']),
 			layoutView: (node: any) => node.view,
@@ -285,7 +294,8 @@ test('TimePicker rejects malformed input before mutating effective state or nati
 		'12:60',
 		'12:30:60',
 		'2026-01-01',
-		'10:20junk', '10:20\n',
+		'10:20junk',
+		'10:20\n',
 	]) {
 		assert.throws(() => update({ time: value }), /timepicker/)
 		assert.equal(node.props, previous)
@@ -302,12 +312,15 @@ test('TimePicker rejects malformed input before mutating effective state or nati
 	assert.throws(() => api.timeOfDay('bad'), { name: 'TypeError' })
 })
 
-
 test('TimePicker dropping an explicit creation-time value restores it after native edits', () => {
 	const { node, view, update } = controlFixture()
 	const initial = new Date(node.timePickerDefault)
 	update({ time: initial })
-	view.dateValue = { timeIntervalSince1970: new Date(0, 0, 0, (initial.getHours() + 1) % 24, initial.getMinutes()).getTime() / 1000 }
+	view.dateValue = {
+		timeIntervalSince1970:
+			new Date(0, 0, 0, (initial.getHours() + 1) % 24, initial.getMinutes()).getTime() / 1000,
+	}
+
 	view.callback()
 	assert.notEqual(dateValue(view).getTime(), initial.getTime())
 	update({})

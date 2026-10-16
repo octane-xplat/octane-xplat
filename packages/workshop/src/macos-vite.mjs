@@ -10,14 +10,20 @@ import { discoverStories } from './discover.mjs'
 export function macOSCatalogPlugin({ root, config = {}, catalogFile }) {
 	const generate = (ctx) => {
 		const { entries, diagnostics } = discoverStories(root, { ...config.stories, target: 'macos' })
-		for (const entry of entries) { ctx?.addWatchFile?.(entry.file) }
-		const providers = (config.providerModules ?? []).map((file, i) =>
-			`import * as preset${i} from ${JSON.stringify(resolve(root, file))}`)
+		for (const entry of entries) {
+			ctx?.addWatchFile?.(entry.file)
+		}
 
-		const catalog = entries.map(entry => `{
+		const providers = (config.providerModules ?? []).map(
+			(file, i) => `import * as preset${i} from ${JSON.stringify(resolve(root, file))}`,
+		)
+
+		const catalog = entries.map(
+			(entry) => `{
 			...${JSON.stringify(entry)},
 			${entry.applicable ? `load: () => import(${JSON.stringify(entry.file)})` : ''}
-		}`)
+		}`,
+		)
 
 		const next = `${providers.join('\n')}
 export const catalog = [${catalog.join(',\n')}]

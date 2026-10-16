@@ -13,12 +13,12 @@ There is no shared sheet API at the package root. Each platform entry exports
 its own component and types; import it from the platform subpath in a matching
 platform-suffixed file:
 
-| File suffix | Import | Component |
-| --- | --- | --- |
-| `*.ios.tsx` | `@octane-xplat/sheet/ios` | `SwiftUIBottomSheet` |
+| File suffix     | Import                        | Component             |
+| --------------- | ----------------------------- | --------------------- |
+| `*.ios.tsx`     | `@octane-xplat/sheet/ios`     | `SwiftUIBottomSheet`  |
 | `*.android.tsx` | `@octane-xplat/sheet/android` | `MaterialBottomSheet` |
-| `*.web.tsx` | `@octane-xplat/sheet/web` | `BottomSheet` |
-| `*.macos.tsx` | `@octane-xplat/sheet/macos` | `AppKitSheet` |
+| `*.web.tsx`     | `@octane-xplat/sheet/web`     | `BottomSheet`         |
+| `*.macos.tsx`   | `@octane-xplat/sheet/macos`   | `AppKitSheet`         |
 
 All four share the same core shape — `open` to control visibility,
 `onDismissed`, and a `content` render function:

@@ -2,7 +2,6 @@ import { Application, Utils } from '@nativescript/core'
 import type { HapticPattern, HapticPreset, Haptics, HapticsCapabilities } from './types'
 import { java } from '@octane-xplat/platform/android'
 
-
 declare const XplatPulsarBridge: any
 declare const com: any
 
@@ -111,7 +110,9 @@ export const createHaptics = (): Haptics => {
 
 					const frequency = new java.util.ArrayList()
 					for (const point of pattern.points) {
-						frequency.add(new com.swmansion.pulsar.types.ValuePoint(point.at, point.sharpness ?? 0.5))
+						frequency.add(
+							new com.swmansion.pulsar.types.ValuePoint(point.at, point.sharpness ?? 0.5),
+						)
 					}
 
 					const data = new com.swmansion.pulsar.types.PatternData(

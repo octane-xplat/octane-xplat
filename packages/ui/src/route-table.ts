@@ -66,8 +66,7 @@ export class RouteManifestError extends Error {
 	constructor(issues: RouteDiagnostic | readonly RouteDiagnostic[]) {
 		const list = Array.isArray(issues) ? issues : [issues]
 		super(
-			'invalid route definitions:\n' +
-				list.map((i) => '  ' + formatRouteDiagnostic(i)).join('\n'),
+			'invalid route definitions:\n' + list.map((i) => '  ' + formatRouteDiagnostic(i)).join('\n'),
 		)
 
 		this.name = 'RouteManifestError'
@@ -155,7 +154,7 @@ function bakedLookup(manifest: () => RouteManifest | undefined, name: string) {
 			path: `baked['${name}']`,
 			detail: `baked route '${name}' has no baked data`,
 			expected: "a baked-map entry for every dataMode: 'baked' route",
-			hint: "run `xplat routes` to regenerate, or pass baked data on the manifest",
+			hint: 'run `xplat routes` to regenerate, or pass baked data on the manifest',
 		})
 	}
 }
@@ -355,9 +354,7 @@ export function deriveRouteManifest(
 		if (typeof beforeLoad === 'function') {
 			meta.beforeLoad = beforeLoad
 		} else if (beforeLoad !== undefined) {
-			warnDiagnostic(
-				invalidExport(key, 'beforeLoad', beforeLoad, '(args) => RouteContext | void'),
-			)
+			warnDiagnostic(invalidExport(key, 'beforeLoad', beforeLoad, '(args) => RouteContext | void'))
 		}
 
 		const errorBoundary = mod?.ErrorBoundary
@@ -444,10 +441,7 @@ function bySpecificity(a: RouteMeta, b: RouteMeta): number {
 /** A layout dir wraps only routes nested beneath it ('' is the app shell
  *  and always applies) — a key no route name falls under is dead config,
  *  usually a mistyped path. */
-function warnOnUnmatchedLayouts(
-	layouts: Record<string, any>,
-	routes: readonly RouteMeta[],
-): void {
+function warnOnUnmatchedLayouts(layouts: Record<string, any>, routes: readonly RouteMeta[]): void {
 	for (const dir of Object.keys(layouts)) {
 		if (dir && !routes.some((r) => r.name.startsWith(dir + '/'))) {
 			warnDiagnostic({
@@ -499,9 +493,7 @@ export function defineRoutes<const Specs extends readonly RouteSpec[]>(
 ): RouteManifest & SpecRouteInfo<Specs> {
 	const raw = Array.isArray(input) ? { routes: input } : input
 	const specs =
-		raw && typeof raw === 'object' && 'routes' in raw
-			? (raw as RouteSpecSet).routes
-			: undefined
+		raw && typeof raw === 'object' && 'routes' in raw ? (raw as RouteSpecSet).routes : undefined
 
 	const issues: RouteDiagnostic[] = []
 
@@ -524,7 +516,10 @@ export function defineRoutes<const Specs extends readonly RouteSpec[]>(
 	const firstSpecAt = new Map<string, number>()
 	const self: { m?: RouteManifest } = {}
 
-	if (extra !== undefined && (typeof extra !== 'object' || extra === null || Array.isArray(extra))) {
+	if (
+		extra !== undefined &&
+		(typeof extra !== 'object' || extra === null || Array.isArray(extra))
+	) {
 		issues.push({
 			code: 'route/invalid-spec',
 			path: 'layouts',
@@ -630,10 +625,7 @@ export function defineRoutes<const Specs extends readonly RouteSpec[]>(
 			})
 		}
 
-		if (
-			spec.presentation !== undefined &&
-			!['push', 'modal', 'fade'].includes(spec.presentation)
-		) {
+		if (spec.presentation !== undefined && !['push', 'modal', 'fade'].includes(spec.presentation)) {
 			issues.push({
 				code: 'route/invalid-spec',
 				path: `${at}.presentation`,
@@ -643,11 +635,7 @@ export function defineRoutes<const Specs extends readonly RouteSpec[]>(
 			})
 		}
 
-		if (
-			spec.dataMode !== undefined &&
-			spec.dataMode !== 'live' &&
-			spec.dataMode !== 'baked'
-		) {
+		if (spec.dataMode !== undefined && spec.dataMode !== 'live' && spec.dataMode !== 'baked') {
 			issues.push({
 				code: 'route/invalid-spec',
 				path: `${at}.dataMode`,

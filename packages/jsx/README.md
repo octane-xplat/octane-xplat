@@ -20,12 +20,12 @@ before any `jsx()` factory could run, so these subpaths never execute.
 `./jsx-runtime` and `./jsx-dev-runtime` resolve the same shared contract on
 every target; a `customConditions` setting binds the host element type only:
 
-| `customConditions`    | `HostElement` in refs and host events        |
-| --------------------- | -------------------------------------------- |
-| (none)                | opaque `HostElement` (non-`unknown` marker)  |
-| `["native"]`          | NativeScript `View`                          |
-| `["macos"]`           | bridged AppKit `NSView`                      |
-| `["macos", "native"]` | AppKit `NSView` — `macos` wins               |
+| `customConditions`    | `HostElement` in refs and host events       |
+| --------------------- | ------------------------------------------- |
+| (none)                | opaque `HostElement` (non-`unknown` marker) |
+| `["native"]`          | NativeScript `View`                         |
+| `["macos"]`           | bridged AppKit `NSView`                     |
+| `["macos", "native"]` | AppKit `NSView` — `macos` wins              |
 
 Conditions change host element value types only — never intrinsic
 membership. The shared map carries the 39 NativeScript-baseline tags, the

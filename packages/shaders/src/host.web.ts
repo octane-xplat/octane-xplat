@@ -12,7 +12,14 @@ import {
 	isWebGPUSupported as upstreamIsWebGPUSupported,
 } from 'shaders/js'
 
-import type { CreateShaderOptions, PresetConfig, SharedGpu, ShaderInstance, WebGPUSupportInfo } from './types'
+import type {
+	CreateShaderOptions,
+	PresetConfig,
+	SharedGpu,
+	ShaderInstance,
+	WebGPUSupportInfo,
+} from './types'
+
 import { resolveOptions, throwIfAborted, waitForPositiveSize, wrapInstance } from './shared'
 import type { Size } from './shared'
 
@@ -25,7 +32,10 @@ function measure(canvas: any): Size {
 
 function attachVisibility(hide: () => void, show: () => void): () => void {
 	const doc = (globalThis as any).document
-	if (!doc?.addEventListener) {return () => {}}
+	if (!doc?.addEventListener) {
+		return () => {}
+	}
+
 	const onChange = () => (doc.visibilityState === 'hidden' ? hide() : show())
 	doc.addEventListener('visibilitychange', onChange)
 	return () => doc.removeEventListener('visibilitychange', onChange)
@@ -50,7 +60,9 @@ export async function createShader(
 	return wrapInstance(inner, attachVisibility)
 }
 
-export function createSharedDevice(options?: { powerPreference?: string }): Promise<SharedGpu | null> {
+export function createSharedDevice(options?: {
+	powerPreference?: string
+}): Promise<SharedGpu | null> {
 	return upstreamCreateSharedDevice(options as any)
 }
 
@@ -64,5 +76,7 @@ export function getWebGPUSupport(): Promise<WebGPUSupportInfo> {
 
 export function prefersReducedMotion(): boolean {
 	const matchMedia = (globalThis as any).matchMedia
-	return typeof matchMedia === 'function' ? !!matchMedia('(prefers-reduced-motion: reduce)').matches : false
+	return typeof matchMedia === 'function'
+		? !!matchMedia('(prefers-reduced-motion: reduce)').matches
+		: false
 }

@@ -5,14 +5,7 @@ import { contractError } from '../mcp/contracts/errors.mjs'
 import { AGENT_COMMANDS, findCommand } from './commands.mjs'
 import { commandSchema } from './catalog.mjs'
 import { agentContext, envelopeContext } from './context.mjs'
-import {
-	diagnose,
-	emitJson,
-	EXIT,
-	exitForError,
-	resultFail,
-	resultOk,
-} from './envelope.mjs'
+import { diagnose, emitJson, EXIT, exitForError, resultFail, resultOk } from './envelope.mjs'
 
 import { handlers } from './handlers.mjs'
 import { renderHuman, renderHumanError } from './human.mjs'

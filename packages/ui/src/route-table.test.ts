@@ -636,7 +636,6 @@ describe('defineRoutes', () => {
 	})
 
 	it('rejects malformed spec fields with field paths and expected shapes', () => {
-
 		try {
 			defineRoutes([
 				{ path: 'ok', screen: C('Ok') },
@@ -651,7 +650,6 @@ describe('defineRoutes', () => {
 			])
 
 			expect.unreachable()
-
 		} catch (e) {
 			const err = e as RouteManifestError
 			expect(err.issues.map((i) => i.path)).toEqual([
@@ -670,7 +668,7 @@ describe('defineRoutes', () => {
 		const m = defineRoutes([{ path: 'gone', screen: C('Gone'), dataMode: 'baked' }])
 
 		expect(warn).toHaveBeenCalledWith(expect.stringContaining('route/missing-baked-data'))
-		expect(warn).toHaveBeenCalledWith(expect.stringContaining("routes[0].dataMode"))
+		expect(warn).toHaveBeenCalledWith(expect.stringContaining('routes[0].dataMode'))
 		expect(m.routes[0]!.dataMode).toBe('baked')
 		warn.mockRestore()
 	})

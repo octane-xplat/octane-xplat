@@ -3,4248 +3,4994 @@
 /// <reference path="./AppKit.d.ts" />
 /// <reference path="./QuartzCore.d.ts" />
 
-declare const SCNPhysicsTestSearchModeKey: string;
+declare const SCNPhysicsTestSearchModeKey: string
 
-declare const SCNSceneSourceConvertToYUpKey: string;
+declare const SCNSceneSourceConvertToYUpKey: string
 
-declare const SCNHitTestBackFaceCullingKey: string;
+declare const SCNHitTestBackFaceCullingKey: string
 
-declare const SCNSceneSourceAssetAuthorKey: string;
+declare const SCNSceneSourceAssetAuthorKey: string
 
-declare const SCNModelTransform: string;
+declare const SCNModelTransform: string
 
-declare const SCNLightTypeArea: string;
+declare const SCNLightTypeArea: string
 
-declare const SCNLightShadowFarClippingKey: string;
+declare const SCNLightShadowFarClippingKey: string
 
-declare const SCNLightShadowNearClippingKey: string;
+declare const SCNLightShadowNearClippingKey: string
 
-declare const SCNLightAttenuationFalloffExponentKey: string;
+declare const SCNLightAttenuationFalloffExponentKey: string
 
-declare const SCNLightAttenuationStartKey: string;
+declare const SCNLightAttenuationStartKey: string
 
-declare const SCNPhysicsTestSearchModeAny: string;
+declare const SCNPhysicsTestSearchModeAny: string
 
-declare const SCNPhysicsTestBackfaceCullingKey: string;
+declare const SCNPhysicsTestBackfaceCullingKey: string
 
-declare const SCNPhysicsShapeOptionCollisionMargin: string;
+declare const SCNPhysicsShapeOptionCollisionMargin: string
 
-declare const SCNPhysicsShapeScaleKey: string;
+declare const SCNPhysicsShapeScaleKey: string
 
-declare const SCNPhysicsShapeKeepAsCompoundKey: string;
+declare const SCNPhysicsShapeKeepAsCompoundKey: string
 
-declare const SCNParticlePropertyCharge: string;
+declare const SCNParticlePropertyCharge: string
 
-declare const SCNParticlePropertyLife: string;
+declare const SCNParticlePropertyLife: string
 
-declare const SCNParticlePropertyPosition: string;
+declare const SCNParticlePropertyPosition: string
 
-declare const SCNGeometrySourceSemanticBoneIndices: string;
+declare const SCNGeometrySourceSemanticBoneIndices: string
 
-declare const SCNGeometrySourceSemanticBoneWeights: string;
+declare const SCNGeometrySourceSemanticBoneWeights: string
 
-declare const SCNLightingModelShadowOnly: string;
+declare const SCNLightingModelShadowOnly: string
 
-declare const SCNLightingModelConstant: string;
+declare const SCNLightingModelConstant: string
 
-declare const SCNLightTypeProbe: string;
+declare const SCNLightTypeProbe: string
 
-declare const SCNLightTypeSpot: string;
+declare const SCNLightTypeSpot: string
 
-declare const SCNLightTypeAmbient: string;
+declare const SCNLightTypeAmbient: string
 
-declare const SCNModelViewProjectionTransform: string;
+declare const SCNModelViewProjectionTransform: string
 
-declare const SCNModelViewTransform: string;
+declare const SCNModelViewTransform: string
 
-declare const SCNViewTransform: string;
+declare const SCNViewTransform: string
 
-declare const SCNSceneUpAxisAttributeKey: string;
+declare const SCNSceneUpAxisAttributeKey: string
 
-declare const SCNSceneFrameRateAttributeKey: string;
+declare const SCNSceneFrameRateAttributeKey: string
 
-declare const SCNSceneExportDestinationURL: string;
+declare const SCNSceneExportDestinationURL: string
 
-declare const SCNConsistencyMissingAttributeError: number;
+declare const SCNConsistencyMissingAttributeError: number
 
-declare const SCNConsistencyInvalidCountError: number;
+declare const SCNConsistencyInvalidCountError: number
 
-declare const SCNConsistencyElementTypeErrorKey: string;
+declare const SCNConsistencyElementTypeErrorKey: string
 
-declare const SCNConsistencyElementIDErrorKey: string;
+declare const SCNConsistencyElementIDErrorKey: string
 
-declare const SCNSceneSourceAnimationImportPolicyPlayUsingSceneTimeBase: string;
+declare const SCNSceneSourceAnimationImportPolicyPlayUsingSceneTimeBase: string
 
-declare const SCNSceneSourceAnimationImportPolicyPlayRepeatedly: string;
+declare const SCNSceneSourceAnimationImportPolicyPlayRepeatedly: string
 
-declare const SCNSceneSourceAnimationImportPolicyKey: string;
+declare const SCNSceneSourceAnimationImportPolicyKey: string
 
-declare const SCNSceneSourceConvertUnitsToMetersKey: string;
+declare const SCNSceneSourceConvertUnitsToMetersKey: string
 
-declare const SCNSceneSourceStrictConformanceKey: string;
+declare const SCNSceneSourceStrictConformanceKey: string
 
-declare const SCNSceneSourceCreateNormalsIfAbsentKey: string;
+declare const SCNSceneSourceCreateNormalsIfAbsentKey: string
 
-declare const SCNSceneSourceAssetUnitMeterKey: string;
+declare const SCNSceneSourceAssetUnitMeterKey: string
 
-declare const SCNSceneSourceAssetUnitNameKey: string;
+declare const SCNSceneSourceAssetUnitNameKey: string
 
-declare const SCNSceneSourceAssetUnitKey: string;
+declare const SCNSceneSourceAssetUnitKey: string
 
-declare const SCNSceneSourceAssetContributorsKey: string;
+declare const SCNSceneSourceAssetContributorsKey: string
 
-declare const SCNShaderModifierEntryPointGeometry: string;
+declare const SCNShaderModifierEntryPointGeometry: string
 
-declare const SCNHitTestSortResultsKey: string;
+declare const SCNHitTestSortResultsKey: string
 
-declare const SCNHitTestFirstFoundOnlyKey: string;
+declare const SCNHitTestFirstFoundOnlyKey: string
 
-declare const SCNHitTestOptionIgnoreLightArea: string;
+declare const SCNHitTestOptionIgnoreLightArea: string
 
-declare const SCNHitTestOptionSearchMode: string;
+declare const SCNHitTestOptionSearchMode: string
 
-declare const SCNHitTestOptionCategoryBitMask: string;
+declare const SCNHitTestOptionCategoryBitMask: string
 
-declare const SCNHitTestIgnoreHiddenNodesKey: string;
+declare const SCNHitTestIgnoreHiddenNodesKey: string
 
-declare const SCNHitTestRootNodeKey: string;
+declare const SCNHitTestRootNodeKey: string
 
-declare const SCNHitTestIgnoreChildNodesKey: string;
+declare const SCNHitTestIgnoreChildNodesKey: string
 
-declare const SCNHitTestClipToZRangeKey: string;
+declare const SCNHitTestClipToZRangeKey: string
 
-declare const SCNErrorDomain: string;
+declare const SCNErrorDomain: string
 
-declare const SCNMatrix4Identity: CATransform3D;
+declare const SCNMatrix4Identity: CATransform3D
 
-declare const SCNSceneSourceAnimationImportPolicyDoNotPlay: string;
+declare const SCNSceneSourceAnimationImportPolicyDoNotPlay: string
 
-declare const SCNSceneEndTimeAttributeKey: string;
+declare const SCNSceneEndTimeAttributeKey: string
 
-declare const SCNSceneSourceAssetUpAxisKey: string;
+declare const SCNSceneSourceAssetUpAxisKey: string
 
-declare const SCNDetailedErrorsKey: string;
+declare const SCNDetailedErrorsKey: string
 
-declare const SCNPreferredDeviceKey: string;
+declare const SCNPreferredDeviceKey: string
 
-declare const SCNShaderModifierEntryPointLightingModel: string;
+declare const SCNShaderModifierEntryPointLightingModel: string
 
-declare const SCNPhysicsTestSearchModeAll: string;
+declare const SCNPhysicsTestSearchModeAll: string
 
-declare const SCNParticlePropertyContactPoint: string;
+declare const SCNParticlePropertyContactPoint: string
 
-declare const SCNProgramMappingChannelKey: string;
+declare const SCNProgramMappingChannelKey: string
 
-declare const SCNPhysicsShapeTypeConvexHull: string;
+declare const SCNPhysicsShapeTypeConvexHull: string
 
-declare const SCNPreferLowPowerDeviceKey: string;
+declare const SCNPreferLowPowerDeviceKey: string
 
-declare const SCNSceneSourceLoadingOptionPreserveOriginalTopology: string;
+declare const SCNSceneSourceLoadingOptionPreserveOriginalTopology: string
 
-declare const SCNLightTypeDirectional: string;
+declare const SCNLightTypeDirectional: string
 
-declare const SCNGeometrySourceSemanticTexcoord: string;
+declare const SCNGeometrySourceSemanticTexcoord: string
 
-declare const SCNParticlePropertyAngle: string;
+declare const SCNParticlePropertyAngle: string
 
-declare const SCNGeometrySourceSemanticVertex: string;
+declare const SCNGeometrySourceSemanticVertex: string
 
-declare const SCNLightAttenuationEndKey: string;
+declare const SCNLightAttenuationEndKey: string
 
-declare const SCNSceneSourceAssetDirectoryURLsKey: string;
+declare const SCNSceneSourceAssetDirectoryURLsKey: string
 
-declare const SCNConsistencyMissingElementError: number;
+declare const SCNConsistencyMissingElementError: number
 
-declare const SCNLightingModelLambert: string;
+declare const SCNLightingModelLambert: string
 
-declare const SCNGeometrySourceSemanticNormal: string;
+declare const SCNGeometrySourceSemanticNormal: string
 
-declare const SCNShaderModifierEntryPointSurface: string;
+declare const SCNShaderModifierEntryPointSurface: string
 
-declare const SCNProjectionTransform: string;
+declare const SCNProjectionTransform: string
 
-declare const SCNSceneSourceAnimationImportPolicyPlay: string;
+declare const SCNSceneSourceAnimationImportPolicyPlay: string
 
-declare const SCNGeometrySourceSemanticTangent: string;
+declare const SCNGeometrySourceSemanticTangent: string
 
-declare const SCNNormalTransform: string;
+declare const SCNNormalTransform: string
 
-declare const SCNHitTestBoundingBoxOnlyKey: string;
+declare const SCNHitTestBoundingBoxOnlyKey: string
 
-declare const SCNLightSpotInnerAngleKey: string;
+declare const SCNLightSpotInnerAngleKey: string
 
-declare const SCNConsistencyInvalidArgumentError: number;
+declare const SCNConsistencyInvalidArgumentError: number
 
-declare const SCNParticlePropertyVelocity: string;
+declare const SCNParticlePropertyVelocity: string
 
-declare const SCNSceneSourceAssetAuthoringToolKey: string;
+declare const SCNSceneSourceAssetAuthoringToolKey: string
 
-declare const SCNParticlePropertyContactNormal: string;
+declare const SCNParticlePropertyContactNormal: string
 
-declare const SCNParticlePropertyOpacity: string;
+declare const SCNParticlePropertyOpacity: string
 
-declare const SCNProgramCompilationError: number;
+declare const SCNProgramCompilationError: number
 
-declare const SCNPhysicsTestCollisionBitMaskKey: string;
+declare const SCNPhysicsTestCollisionBitMaskKey: string
 
-declare const SCNConsistencyInvalidURIError: number;
+declare const SCNConsistencyInvalidURIError: number
 
-declare const SCNShaderModifierEntryPointFragment: string;
+declare const SCNShaderModifierEntryPointFragment: string
 
-declare const SCNSceneSourceOverrideAssetURLsKey: string;
+declare const SCNSceneSourceOverrideAssetURLsKey: string
 
-declare const SCNPhysicsShapeTypeBoundingBox: string;
+declare const SCNPhysicsShapeTypeBoundingBox: string
 
-declare const SCNVector4Zero: SCNVector4;
+declare const SCNVector4Zero: SCNVector4
 
-declare const SCNParticlePropertyRotationAxis: string;
+declare const SCNParticlePropertyRotationAxis: string
 
-declare const SCNLightingModelPhysicallyBased: string;
+declare const SCNLightingModelPhysicallyBased: string
 
-declare const SCNSceneSourceUseSafeModeKey: string;
+declare const SCNSceneSourceUseSafeModeKey: string
 
-declare const SCNPhysicsShapeTypeConcavePolyhedron: string;
+declare const SCNPhysicsShapeTypeConcavePolyhedron: string
 
-declare const SCNSceneSourceCheckConsistencyKey: string;
+declare const SCNSceneSourceCheckConsistencyKey: string
 
-declare const SCNParticlePropertyColor: string;
+declare const SCNParticlePropertyColor: string
 
-declare const SCNLightTypeIES: string;
+declare const SCNLightTypeIES: string
 
-declare const SCNParticlePropertySize: string;
+declare const SCNParticlePropertySize: string
 
-declare const SCNParticlePropertyFriction: string;
+declare const SCNParticlePropertyFriction: string
 
-declare const SCNGeometrySourceSemanticEdgeCrease: string;
+declare const SCNGeometrySourceSemanticEdgeCrease: string
 
-declare const SCNLightingModelBlinn: string;
+declare const SCNLightingModelBlinn: string
 
-declare const SCNGeometrySourceSemanticVertexCrease: string;
+declare const SCNGeometrySourceSemanticVertexCrease: string
 
-declare const SCNLightTypeOmni: string;
+declare const SCNLightTypeOmni: string
 
-declare const SCNConsistencyLineNumberErrorKey: string;
+declare const SCNConsistencyLineNumberErrorKey: string
 
-declare const SCNParticlePropertyFrame: string;
+declare const SCNParticlePropertyFrame: string
 
-declare const SCNParticlePropertyFrameRate: string;
+declare const SCNParticlePropertyFrameRate: string
 
-declare const SCNLightSpotOuterAngleKey: string;
+declare const SCNLightSpotOuterAngleKey: string
 
-declare const SCNSceneSourceAssetCreatedDateKey: string;
+declare const SCNSceneSourceAssetCreatedDateKey: string
 
-declare const SCNPhysicsTestSearchModeClosest: string;
+declare const SCNPhysicsTestSearchModeClosest: string
 
-declare const SCNVector3Zero: SCNVector3;
+declare const SCNVector3Zero: SCNVector3
 
-declare const SCNPhysicsShapeTypeKey: string;
+declare const SCNPhysicsShapeTypeKey: string
 
-declare const SCNSceneStartTimeAttributeKey: string;
+declare const SCNSceneStartTimeAttributeKey: string
 
-declare const SCNConsistencyXMLSchemaValidationError: number;
+declare const SCNConsistencyXMLSchemaValidationError: number
 
-declare const SCNLightingModelPhong: string;
+declare const SCNLightingModelPhong: string
 
-declare const SCNParticlePropertyAngularVelocity: string;
+declare const SCNParticlePropertyAngularVelocity: string
 
-declare const SCNParticlePropertyBounce: string;
+declare const SCNParticlePropertyBounce: string
 
-declare const SCNGeometrySourceSemanticColor: string;
+declare const SCNGeometrySourceSemanticColor: string
 
-declare const SCNSceneSourceAssetModifiedDateKey: string;
+declare const SCNSceneSourceAssetModifiedDateKey: string
 
-declare const SCNPreferredRenderingAPIKey: string;
+declare const SCNPreferredRenderingAPIKey: string
 
-declare const SCNSceneSourceFlattenSceneKey: string;
+declare const SCNSceneSourceFlattenSceneKey: string
 
 declare const SCNParticleEvent: {
-  Birth: 0,
-  Death: 1,
-  Collision: 2,
-};
+	Birth: 0
+	Death: 1
+	Collision: 2
+}
 
 declare const SCNFillMode: {
-  Fill: 0,
-  Lines: 1,
-};
+	Fill: 0
+	Lines: 1
+}
 
 declare const SCNCullMode: {
-  Back: 0,
-  Front: 1,
-};
+	Back: 0
+	Front: 1
+}
 
 declare const SCNDebugOptions: {
-  None: 0,
-  ShowPhysicsShapes: 1,
-  ShowBoundingBoxes: 2,
-  ShowLightInfluences: 4,
-  ShowLightExtents: 8,
-  ShowPhysicsFields: 16,
-  ShowWireframe: 32,
-  RenderAsWireframe: 64,
-  ShowSkeletons: 128,
-  ShowCreases: 256,
-  ShowConstraints: 512,
-  ShowCameras: 1024,
-};
+	None: 0
+	ShowPhysicsShapes: 1
+	ShowBoundingBoxes: 2
+	ShowLightInfluences: 4
+	ShowLightExtents: 8
+	ShowPhysicsFields: 16
+	ShowWireframe: 32
+	RenderAsWireframe: 64
+	ShowSkeletons: 128
+	ShowCreases: 256
+	ShowConstraints: 512
+	ShowCameras: 1024
+}
 
 declare const SCNBufferFrequency: {
-  Frame: 0,
-  Node: 1,
-  Shadable: 2,
-};
+	Frame: 0
+	Node: 1
+	Shadable: 2
+}
 
 declare const SCNInteractionMode: {
-  Fly: 0,
-  OrbitTurntable: 1,
-  OrbitAngleMapping: 2,
-  OrbitCenteredArcball: 3,
-  OrbitArcball: 4,
-  Pan: 5,
-  Truck: 6,
-};
+	Fly: 0
+	OrbitTurntable: 1
+	OrbitAngleMapping: 2
+	OrbitCenteredArcball: 3
+	OrbitArcball: 4
+	Pan: 5
+	Truck: 6
+}
 
 declare const SCNReferenceLoadingPolicy: {
-  Immediate: 0,
-  OnDemand: 1,
-};
+	Immediate: 0
+	OnDemand: 1
+}
 
 declare const SCNParticleBirthDirection: {
-  Constant: 0,
-  SurfaceNormal: 1,
-  Random: 2,
-};
+	Constant: 0
+	SurfaceNormal: 1
+	Random: 2
+}
 
 declare const SCNParticleBlendMode: {
-  Additive: 0,
-  Subtract: 1,
-  Multiply: 2,
-  Screen: 3,
-  Alpha: 4,
-  Replace: 5,
-};
+	Additive: 0
+	Subtract: 1
+	Multiply: 2
+	Screen: 3
+	Alpha: 4
+	Replace: 5
+}
 
 declare const SCNParticleSortingMode: {
-  None: 0,
-  ProjectedDepth: 1,
-  Distance: 2,
-  OldestFirst: 3,
-  YoungestFirst: 4,
-};
+	None: 0
+	ProjectedDepth: 1
+	Distance: 2
+	OldestFirst: 3
+	YoungestFirst: 4
+}
 
 declare const SCNBillboardAxis: {
-  X: 1,
-  Y: 2,
-  Z: 4,
-  All: 7,
-};
+	X: 1
+	Y: 2
+	Z: 4
+	All: 7
+}
 
 declare const SCNGeometryPrimitiveType: {
-  Triangles: 0,
-  TriangleStrip: 1,
-  Line: 2,
-  Point: 3,
-  Polygon: 4,
-};
+	Triangles: 0
+	TriangleStrip: 1
+	Line: 2
+	Point: 3
+	Polygon: 4
+}
 
 declare const SCNTransparencyMode: {
-  AOne: 0,
-  RGBZero: 1,
-  SingleLayer: 2,
-  DualLayer: 3,
-  Default: 0,
-};
+	AOne: 0
+	RGBZero: 1
+	SingleLayer: 2
+	DualLayer: 3
+	Default: 0
+}
 
 declare const SCNLightAreaType: {
-  Rectangle: 1,
-  Polygon: 4,
-};
+	Rectangle: 1
+	Polygon: 4
+}
 
 declare const SCNLightProbeUpdateType: {
-  Never: 0,
-  Realtime: 1,
-};
+	Never: 0
+	Realtime: 1
+}
 
 declare const SCNMovabilityHint: {
-  Fixed: 0,
-  Movable: 1,
-};
+	Fixed: 0
+	Movable: 1
+}
 
 declare const SCNSceneSourceStatus: {
-  Error: -1,
-  Parsing: 4,
-  Validating: 8,
-  Processing: 12,
-  Complete: 16,
-};
+	Error: -1
+	Parsing: 4
+	Validating: 8
+	Processing: 12
+	Complete: 16
+}
 
 declare const SCNRenderingAPI: {
-  Metal: 0,
-  OpenGLLegacy: 1,
-  OpenGLCore32: 2,
-  OpenGLCore41: 3,
-};
+	Metal: 0
+	OpenGLLegacy: 1
+	OpenGLCore32: 2
+	OpenGLCore41: 3
+}
 
 declare const SCNAntialiasingMode: {
-  None: 0,
-  Multisampling2X: 1,
-  Multisampling4X: 2,
-  Multisampling8X: 3,
-  Multisampling16X: 4,
-};
+	None: 0
+	Multisampling2X: 1
+	Multisampling4X: 2
+	Multisampling8X: 3
+	Multisampling16X: 4
+}
 
 declare const SCNHitTestSearchMode: {
-  Closest: 0,
-  All: 1,
-  Any: 2,
-};
+	Closest: 0
+	All: 1
+	Any: 2
+}
 
 declare const SCNColorMask: {
-  None: 0,
-  Red: 8,
-  Green: 4,
-  Blue: 2,
-  Alpha: 1,
-  All: 15,
-};
+	None: 0
+	Red: 8
+	Green: 4
+	Blue: 2
+	Alpha: 1
+	All: 15
+}
 
 declare const SCNCameraProjectionDirection: {
-  Vertical: 0,
-  Horizontal: 1,
-};
+	Vertical: 0
+	Horizontal: 1
+}
 
 declare const SCNBlendMode: {
-  Alpha: 0,
-  Add: 1,
-  Subtract: 2,
-  Multiply: 3,
-  Screen: 4,
-  Replace: 5,
-  Max: 6,
-};
+	Alpha: 0
+	Add: 1
+	Subtract: 2
+	Multiply: 3
+	Screen: 4
+	Replace: 5
+	Max: 6
+}
 
 declare const SCNNodeFocusBehavior: {
-  None: 0,
-  Occluding: 1,
-  Focusable: 2,
-};
+	None: 0
+	Occluding: 1
+	Focusable: 2
+}
 
 declare const SCNParticleInputMode: {
-  Life: 0,
-  Distance: 1,
-  OtherProperty: 2,
-};
+	Life: 0
+	Distance: 1
+	OtherProperty: 2
+}
 
 declare const SCNPhysicsFieldScope: {
-  Inside: 0,
-  Outside: 1,
-};
+	Inside: 0
+	Outside: 1
+}
 
 declare const SCNParticleModifierStage: {
-  PreDynamics: 0,
-  PostDynamics: 1,
-  PreCollision: 2,
-  PostCollision: 3,
-};
+	PreDynamics: 0
+	PostDynamics: 1
+	PreCollision: 2
+	PostCollision: 3
+}
 
 declare const SCNLightProbeType: {
-  Irradiance: 0,
-  Radiance: 1,
-};
+	Irradiance: 0
+	Radiance: 1
+}
 
 declare const SCNFilterMode: {
-  None: 0,
-  Nearest: 1,
-  Linear: 2,
-};
+	None: 0
+	Nearest: 1
+	Linear: 2
+}
 
 declare const SCNParticleOrientationMode: {
-  BillboardScreenAligned: 0,
-  BillboardViewAligned: 1,
-  Free: 2,
-  BillboardYAligned: 3,
-};
+	BillboardScreenAligned: 0
+	BillboardViewAligned: 1
+	Free: 2
+	BillboardYAligned: 3
+}
 
 declare const SCNActionTimingMode: {
-  Linear: 0,
-  EaseIn: 1,
-  EaseOut: 2,
-  EaseInEaseOut: 3,
-};
+	Linear: 0
+	EaseIn: 1
+	EaseOut: 2
+	EaseInEaseOut: 3
+}
 
 declare const SCNPhysicsCollisionCategory: {
-  Default: 1,
-  Static: 2,
-  All: -1,
-};
+	Default: 1
+	Static: 2
+	All: -1
+}
 
 declare const SCNShadowMode: {
-  Forward: 0,
-  Deferred: 1,
-  Modulated: 2,
-};
+	Forward: 0
+	Deferred: 1
+	Modulated: 2
+}
 
 declare const SCNWrapMode: {
-  Clamp: 1,
-  Repeat: 2,
-  ClampToBorder: 3,
-  Mirror: 4,
-};
+	Clamp: 1
+	Repeat: 2
+	ClampToBorder: 3
+	Mirror: 4
+}
 
 declare const SCNParticleBirthLocation: {
-  Surface: 0,
-  Volume: 1,
-  Vertex: 2,
-};
+	Surface: 0
+	Volume: 1
+	Vertex: 2
+}
 
 declare const SCNMorpherCalculationMode: {
-  Normalized: 0,
-  Additive: 1,
-};
+	Normalized: 0
+	Additive: 1
+}
 
 declare const SCNPhysicsBodyType: {
-  Static: 0,
-  Dynamic: 1,
-  Kinematic: 2,
-};
+	Static: 0
+	Dynamic: 1
+	Kinematic: 2
+}
 
 declare const SCNTessellationSmoothingMode: {
-  None: 0,
-  PNTriangles: 1,
-  Phong: 2,
-};
+	None: 0
+	PNTriangles: 1
+	Phong: 2
+}
 
 declare const SCNParticleImageSequenceAnimationMode: {
-  Repeat: 0,
-  Clamp: 1,
-  AutoReverse: 2,
-};
+	Repeat: 0
+	Clamp: 1
+	AutoReverse: 2
+}
 
 declare const SCNChamferMode: {
-  Both: 0,
-  Front: 1,
-  Back: 2,
-};
+	Both: 0
+	Front: 1
+	Back: 2
+}
 
 declare class SCNVector3 {
-  constructor(init?: SCNVector3);
-  x: number;
-  y: number;
-  z: number;
+	constructor(init?: SCNVector3)
+	x: number
+	y: number
+	z: number
 }
 
 declare class SCNVector4 {
-  constructor(init?: SCNVector4);
-  x: number;
-  y: number;
-  z: number;
-  w: number;
+	constructor(init?: SCNVector4)
+	x: number
+	y: number
+	z: number
+	w: number
 }
 
-declare function SCNVector3EqualToVector3(a: SCNVector3, b: SCNVector3): boolean;
+declare function SCNVector3EqualToVector3(a: SCNVector3, b: SCNVector3): boolean
 
-declare function SCNVector4EqualToVector4(a: SCNVector4, b: SCNVector4): boolean;
+declare function SCNVector4EqualToVector4(a: SCNVector4, b: SCNVector4): boolean
 
-declare function SCNMatrix4IsIdentity(m: CATransform3D): boolean;
+declare function SCNMatrix4IsIdentity(m: CATransform3D): boolean
 
-declare function SCNMatrix4EqualToMatrix4(a: CATransform3D, b: CATransform3D): boolean;
+declare function SCNMatrix4EqualToMatrix4(a: CATransform3D, b: CATransform3D): boolean
 
-declare function SCNMatrix4MakeRotation(angle: number, x: number, y: number, z: number): CATransform3D;
+declare function SCNMatrix4MakeRotation(
+	angle: number,
+	x: number,
+	y: number,
+	z: number,
+): CATransform3D
 
-declare function SCNMatrix4Scale(m: CATransform3D, sx: number, sy: number, sz: number): CATransform3D;
+declare function SCNMatrix4Scale(
+	m: CATransform3D,
+	sx: number,
+	sy: number,
+	sz: number,
+): CATransform3D
 
-declare function SCNMatrix4Rotate(m: CATransform3D, angle: number, x: number, y: number, z: number): CATransform3D;
+declare function SCNMatrix4Rotate(
+	m: CATransform3D,
+	angle: number,
+	x: number,
+	y: number,
+	z: number,
+): CATransform3D
 
-declare function SCNMatrix4Invert(m: CATransform3D): CATransform3D;
+declare function SCNMatrix4Invert(m: CATransform3D): CATransform3D
 
-declare function SCNMatrix4Mult(a: CATransform3D, b: CATransform3D): CATransform3D;
+declare function SCNMatrix4Mult(a: CATransform3D, b: CATransform3D): CATransform3D
 
-declare function SCNMatrix4ToGLKMatrix4(mat: CATransform3D): _GLKMatrix4;
+declare function SCNMatrix4ToGLKMatrix4(mat: CATransform3D): _GLKMatrix4
 
-declare function SCNMatrix4FromGLKMatrix4(mat: _GLKMatrix4): CATransform3D;
+declare function SCNMatrix4FromGLKMatrix4(mat: _GLKMatrix4): CATransform3D
 
-declare function SCNExportJavaScriptModule(context: JSContext): void;
+declare function SCNExportJavaScriptModule(context: JSContext): void
 
-declare interface SCNAnimationProtocol extends NSObjectProtocol {
-}
+declare interface SCNAnimationProtocol extends NSObjectProtocol {}
 
-declare class SCNAnimationProtocol extends NativeObject implements SCNAnimationProtocol {
-}
+declare class SCNAnimationProtocol extends NativeObject implements SCNAnimationProtocol {}
 
 declare interface SCNBoundingVolume extends NSObjectProtocol {
-  getBoundingBoxMinMax(min: interop.PointerConvertible, max: interop.PointerConvertible): boolean;
+	getBoundingBoxMinMax(min: interop.PointerConvertible, max: interop.PointerConvertible): boolean
 
-  setBoundingBoxMinMax(min: interop.PointerConvertible, max: interop.PointerConvertible): void;
+	setBoundingBoxMinMax(min: interop.PointerConvertible, max: interop.PointerConvertible): void
 
-  getBoundingSphereCenterRadius(center: interop.PointerConvertible, radius: interop.PointerConvertible): boolean;
+	getBoundingSphereCenterRadius(
+		center: interop.PointerConvertible,
+		radius: interop.PointerConvertible,
+	): boolean
 }
 
-declare class SCNBoundingVolume extends NativeObject implements SCNBoundingVolume {
-}
+declare class SCNBoundingVolume extends NativeObject implements SCNBoundingVolume {}
 
 declare interface SCNCameraControllerDelegate extends NSObjectProtocol {
-  cameraInertiaWillStartForController?(cameraController: SCNCameraController): void;
+	cameraInertiaWillStartForController?(cameraController: SCNCameraController): void
 
-  cameraInertiaDidEndForController?(cameraController: SCNCameraController): void;
+	cameraInertiaDidEndForController?(cameraController: SCNCameraController): void
 }
 
-declare class SCNCameraControllerDelegate extends NativeObject implements SCNCameraControllerDelegate {
-}
+declare class SCNCameraControllerDelegate
+	extends NativeObject
+	implements SCNCameraControllerDelegate {}
 
 declare interface SCNCameraControlConfiguration extends NSObjectProtocol {
-  autoSwitchToFreeCamera: boolean;
+	autoSwitchToFreeCamera: boolean
 
-  allowsTranslation: boolean;
+	allowsTranslation: boolean
 
-  flyModeVelocity: number;
+	flyModeVelocity: number
 
-  panSensitivity: number;
+	panSensitivity: number
 
-  truckSensitivity: number;
+	truckSensitivity: number
 
-  rotationSensitivity: number;
+	rotationSensitivity: number
 }
 
-declare class SCNCameraControlConfiguration extends NativeObject implements SCNCameraControlConfiguration {
-}
+declare class SCNCameraControlConfiguration
+	extends NativeObject
+	implements SCNCameraControlConfiguration {}
 
 declare interface SCNProgramDelegate extends NSObjectProtocol {
-  programBindValueForSymbolAtLocationProgramIDRenderer?(program: SCNProgram, symbol: string, location: number, programID: number, renderer: SCNRenderer): boolean;
+	programBindValueForSymbolAtLocationProgramIDRenderer?(
+		program: SCNProgram,
+		symbol: string,
+		location: number,
+		programID: number,
+		renderer: SCNRenderer,
+	): boolean
 
-  programUnbindValueForSymbolAtLocationProgramIDRenderer?(program: SCNProgram, symbol: string, location: number, programID: number, renderer: SCNRenderer): void;
+	programUnbindValueForSymbolAtLocationProgramIDRenderer?(
+		program: SCNProgram,
+		symbol: string,
+		location: number,
+		programID: number,
+		renderer: SCNRenderer,
+	): void
 
-  programHandleError?(program: SCNProgram, error: NSError): void;
+	programHandleError?(program: SCNProgram, error: NSError): void
 
-  programIsOpaque?(program: SCNProgram): boolean;
+	programIsOpaque?(program: SCNProgram): boolean
 }
 
-declare class SCNProgramDelegate extends NativeObject implements SCNProgramDelegate {
-}
+declare class SCNProgramDelegate extends NativeObject implements SCNProgramDelegate {}
 
 declare interface SCNTechniqueSupport extends NSObjectProtocol {
-  technique: SCNTechnique;
+	technique: SCNTechnique
 }
 
-declare class SCNTechniqueSupport extends NativeObject implements SCNTechniqueSupport {
-}
+declare class SCNTechniqueSupport extends NativeObject implements SCNTechniqueSupport {}
 
 declare interface SCNShadable extends NSObjectProtocol {
-  program?: SCNProgram;
+	program?: SCNProgram
 
-  handleBindingOfSymbolUsingBlock?(symbol: string, block: (p1: number, p2: number, p3: SCNNode, p4: SCNRenderer) => void | null): void;
+	handleBindingOfSymbolUsingBlock?(
+		symbol: string,
+		block: (p1: number, p2: number, p3: SCNNode, p4: SCNRenderer) => void | null,
+	): void
 
-  handleUnbindingOfSymbolUsingBlock?(symbol: string, block: (p1: number, p2: number, p3: SCNNode, p4: SCNRenderer) => void | null): void;
+	handleUnbindingOfSymbolUsingBlock?(
+		symbol: string,
+		block: (p1: number, p2: number, p3: SCNNode, p4: SCNRenderer) => void | null,
+	): void
 
-  get shaderModifiers(): NSDictionary | undefined;
-  set shaderModifiers(value: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | undefined);
+	get shaderModifiers(): NSDictionary | undefined
+	set shaderModifiers(
+		value:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| undefined,
+	)
 }
 
-declare class SCNShadable extends NativeObject implements SCNShadable {
-}
+declare class SCNShadable extends NativeObject implements SCNShadable {}
 
 declare interface SCNBufferStream extends NSObjectProtocol {
-  writeBytesLength(bytes: interop.PointerConvertible, length: number): void;
+	writeBytesLength(bytes: interop.PointerConvertible, length: number): void
 }
 
-declare class SCNBufferStream extends NativeObject implements SCNBufferStream {
-}
+declare class SCNBufferStream extends NativeObject implements SCNBufferStream {}
 
 declare interface SCNSceneRenderer extends NSObjectProtocol {
-  scene: SCNScene;
+	scene: SCNScene
 
-  presentSceneWithTransitionIncomingPointOfViewCompletionHandler(scene: SCNScene, transition: SKTransition, pointOfView: SCNNode | null, completionHandler: () => void | null): void;
+	presentSceneWithTransitionIncomingPointOfViewCompletionHandler(
+		scene: SCNScene,
+		transition: SKTransition,
+		pointOfView: SCNNode | null,
+		completionHandler: () => void | null,
+	): void
 
-  sceneTime: number;
+	sceneTime: number
 
-  delegate: SCNSceneRendererDelegate;
+	delegate: SCNSceneRendererDelegate
 
-  hitTestOptions(point: CGPoint, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null): NSArray;
+	hitTestOptions(
+		point: CGPoint,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+	): NSArray
 
-  isNodeInsideFrustumWithPointOfView(node: SCNNode, pointOfView: SCNNode): boolean;
+	isNodeInsideFrustumWithPointOfView(node: SCNNode, pointOfView: SCNNode): boolean
 
-  nodesInsideFrustumWithPointOfView(pointOfView: SCNNode): NSArray;
+	nodesInsideFrustumWithPointOfView(pointOfView: SCNNode): NSArray
 
-  projectPoint(point: SCNVector3): SCNVector3;
+	projectPoint(point: SCNVector3): SCNVector3
 
-  unprojectPoint(point: SCNVector3): SCNVector3;
+	unprojectPoint(point: SCNVector3): SCNVector3
 
-  playing: boolean;
+	playing: boolean
 
-  loops: boolean;
+	loops: boolean
 
-  pointOfView: SCNNode;
+	pointOfView: SCNNode
 
-  autoenablesDefaultLighting: boolean;
+	autoenablesDefaultLighting: boolean
 
-  jitteringEnabled: boolean;
+	jitteringEnabled: boolean
 
-  temporalAntialiasingEnabled: boolean;
+	temporalAntialiasingEnabled: boolean
 
-  prepareObjectShouldAbortBlock(object: interop.Object, block: () => boolean | null): boolean;
+	prepareObjectShouldAbortBlock(object: interop.Object, block: () => boolean | null): boolean
 
-  prepareObjectsWithCompletionHandler(objects: NSArray<interop.Object> | Array<interop.Object>, completionHandler: (p1: boolean) => void | null): void;
+	prepareObjectsWithCompletionHandler(
+		objects: NSArray<interop.Object> | Array<interop.Object>,
+		completionHandler: (p1: boolean) => void | null,
+	): void
 
-  showsStatistics: boolean;
+	showsStatistics: boolean
 
-  debugOptions: interop.Enum<typeof SCNDebugOptions>;
+	debugOptions: interop.Enum<typeof SCNDebugOptions>
 
-  overlaySKScene: SKScene;
+	overlaySKScene: SKScene
 
-  readonly renderingAPI: interop.Enum<typeof SCNRenderingAPI>;
+	readonly renderingAPI: interop.Enum<typeof SCNRenderingAPI>
 
-  readonly context: interop.Pointer;
+	readonly context: interop.Pointer
 
-  readonly currentRenderCommandEncoder: MTLRenderCommandEncoder;
+	readonly currentRenderCommandEncoder: MTLRenderCommandEncoder
 
-  readonly currentRenderPassDescriptor: MTLRenderPassDescriptor;
+	readonly currentRenderPassDescriptor: MTLRenderPassDescriptor
 
-  readonly device: MTLDevice;
+	readonly device: MTLDevice
 
-  readonly colorPixelFormat: interop.Enum<typeof MTLPixelFormat>;
+	readonly colorPixelFormat: interop.Enum<typeof MTLPixelFormat>
 
-  readonly depthPixelFormat: interop.Enum<typeof MTLPixelFormat>;
+	readonly depthPixelFormat: interop.Enum<typeof MTLPixelFormat>
 
-  readonly stencilPixelFormat: interop.Enum<typeof MTLPixelFormat>;
+	readonly stencilPixelFormat: interop.Enum<typeof MTLPixelFormat>
 
-  readonly commandQueue: MTLCommandQueue;
+	readonly commandQueue: MTLCommandQueue
 
-  readonly audioEngine: AVAudioEngine;
+	readonly audioEngine: AVAudioEngine
 
-  readonly audioEnvironmentNode: AVAudioEnvironmentNode;
+	readonly audioEnvironmentNode: AVAudioEnvironmentNode
 
-  audioListener: SCNNode;
+	audioListener: SCNNode
 
-  readonly currentViewport: CGRect;
+	readonly currentViewport: CGRect
 
-  currentTime: number;
+	currentTime: number
 
-  usesReverseZ: boolean;
+	usesReverseZ: boolean
 
-  isPlaying(): boolean;
+	isPlaying(): boolean
 
-  isJitteringEnabled(): boolean;
+	isJitteringEnabled(): boolean
 
-  isTemporalAntialiasingEnabled(): boolean;
+	isTemporalAntialiasingEnabled(): boolean
 }
 
-declare class SCNSceneRenderer extends NativeObject implements SCNSceneRenderer {
-}
+declare class SCNSceneRenderer extends NativeObject implements SCNSceneRenderer {}
 
 declare interface SCNPhysicsContactDelegate extends NSObjectProtocol {
-  physicsWorldDidBeginContact?(world: SCNPhysicsWorld, contact: SCNPhysicsContact): void;
+	physicsWorldDidBeginContact?(world: SCNPhysicsWorld, contact: SCNPhysicsContact): void
 
-  physicsWorldDidUpdateContact?(world: SCNPhysicsWorld, contact: SCNPhysicsContact): void;
+	physicsWorldDidUpdateContact?(world: SCNPhysicsWorld, contact: SCNPhysicsContact): void
 
-  physicsWorldDidEndContact?(world: SCNPhysicsWorld, contact: SCNPhysicsContact): void;
+	physicsWorldDidEndContact?(world: SCNPhysicsWorld, contact: SCNPhysicsContact): void
 }
 
-declare class SCNPhysicsContactDelegate extends NativeObject implements SCNPhysicsContactDelegate {
-}
+declare class SCNPhysicsContactDelegate extends NativeObject implements SCNPhysicsContactDelegate {}
 
 declare interface SCNSceneExportDelegate extends NSObjectProtocol {
-  writeImageWithSceneDocumentURLOriginalImageURL?(image: NSImage, documentURL: NSURL, originalImageURL: NSURL | null): NSURL;
+	writeImageWithSceneDocumentURLOriginalImageURL?(
+		image: NSImage,
+		documentURL: NSURL,
+		originalImageURL: NSURL | null,
+	): NSURL
 }
 
-declare class SCNSceneExportDelegate extends NativeObject implements SCNSceneExportDelegate {
-}
+declare class SCNSceneExportDelegate extends NativeObject implements SCNSceneExportDelegate {}
 
 declare interface SCNActionable extends NSObjectProtocol {
-  runAction(action: SCNAction): void;
+	runAction(action: SCNAction): void
 
-  runActionCompletionHandler(action: SCNAction, block: () => void | null): void;
+	runActionCompletionHandler(action: SCNAction, block: () => void | null): void
 
-  runActionForKey(action: SCNAction, key: string | null): void;
+	runActionForKey(action: SCNAction, key: string | null): void
 
-  runActionForKeyCompletionHandler(action: SCNAction, key: string | null, block: () => void | null): void;
+	runActionForKeyCompletionHandler(
+		action: SCNAction,
+		key: string | null,
+		block: () => void | null,
+	): void
 
-  readonly hasActions: boolean;
+	readonly hasActions: boolean
 
-  actionForKey(key: string): SCNAction;
+	actionForKey(key: string): SCNAction
 
-  removeActionForKey(key: string): void;
+	removeActionForKey(key: string): void
 
-  removeAllActions(): void;
+	removeAllActions(): void
 
-  readonly actionKeys: NSArray;
+	readonly actionKeys: NSArray
 }
 
-declare class SCNActionable extends NativeObject implements SCNActionable {
-}
+declare class SCNActionable extends NativeObject implements SCNActionable {}
 
 declare interface SCNAvoidOccluderConstraintDelegate extends NSObjectProtocol {
-  avoidOccluderConstraintShouldAvoidOccluderForNode?(constraint: SCNAvoidOccluderConstraint, occluder: SCNNode, node: SCNNode): boolean;
+	avoidOccluderConstraintShouldAvoidOccluderForNode?(
+		constraint: SCNAvoidOccluderConstraint,
+		occluder: SCNNode,
+		node: SCNNode,
+	): boolean
 
-  avoidOccluderConstraintDidAvoidOccluderForNode?(constraint: SCNAvoidOccluderConstraint, occluder: SCNNode, node: SCNNode): void;
+	avoidOccluderConstraintDidAvoidOccluderForNode?(
+		constraint: SCNAvoidOccluderConstraint,
+		occluder: SCNNode,
+		node: SCNNode,
+	): void
 }
 
-declare class SCNAvoidOccluderConstraintDelegate extends NativeObject implements SCNAvoidOccluderConstraintDelegate {
-}
+declare class SCNAvoidOccluderConstraintDelegate
+	extends NativeObject
+	implements SCNAvoidOccluderConstraintDelegate {}
 
 declare interface SCNSceneRendererDelegate extends NSObjectProtocol {
-  rendererUpdateAtTime?(renderer: SCNSceneRenderer, time: number): void;
+	rendererUpdateAtTime?(renderer: SCNSceneRenderer, time: number): void
 
-  rendererDidApplyAnimationsAtTime?(renderer: SCNSceneRenderer, time: number): void;
+	rendererDidApplyAnimationsAtTime?(renderer: SCNSceneRenderer, time: number): void
 
-  rendererDidSimulatePhysicsAtTime?(renderer: SCNSceneRenderer, time: number): void;
+	rendererDidSimulatePhysicsAtTime?(renderer: SCNSceneRenderer, time: number): void
 
-  rendererDidApplyConstraintsAtTime?(renderer: SCNSceneRenderer, time: number): void;
+	rendererDidApplyConstraintsAtTime?(renderer: SCNSceneRenderer, time: number): void
 
-  rendererWillRenderSceneAtTime?(renderer: SCNSceneRenderer, scene: SCNScene, time: number): void;
+	rendererWillRenderSceneAtTime?(renderer: SCNSceneRenderer, scene: SCNScene, time: number): void
 
-  rendererDidRenderSceneAtTime?(renderer: SCNSceneRenderer, scene: SCNScene, time: number): void;
+	rendererDidRenderSceneAtTime?(renderer: SCNSceneRenderer, scene: SCNScene, time: number): void
 }
 
-declare class SCNSceneRendererDelegate extends NativeObject implements SCNSceneRendererDelegate {
-}
+declare class SCNSceneRendererDelegate extends NativeObject implements SCNSceneRendererDelegate {}
 
 declare interface SCNNodeRendererDelegate extends NSObjectProtocol {
-  renderNodeRendererArguments?(node: SCNNode, renderer: SCNRenderer, arguments$: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): void;
+	renderNodeRendererArguments?(
+		node: SCNNode,
+		renderer: SCNRenderer,
+		arguments$:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+	): void
 }
 
-declare class SCNNodeRendererDelegate extends NativeObject implements SCNNodeRendererDelegate {
-}
+declare class SCNNodeRendererDelegate extends NativeObject implements SCNNodeRendererDelegate {}
 
 declare interface SCNAnimatable extends NSObjectProtocol {
-  addAnimationForKey(animation: SCNAnimation, key: string | null): void;
+	addAnimationForKey(animation: SCNAnimation, key: string | null): void
 
-  addAnimationPlayerForKey(player: SCNAnimationPlayer, key: string | null): void;
+	addAnimationPlayerForKey(player: SCNAnimationPlayer, key: string | null): void
 
-  removeAllAnimations(): void;
+	removeAllAnimations(): void
 
-  removeAnimationForKey(key: string): void;
+	removeAnimationForKey(key: string): void
 
-  removeAnimationForKeyBlendOutDuration(key: string, duration: number): void;
+	removeAnimationForKeyBlendOutDuration(key: string, duration: number): void
 
-  readonly animationKeys: NSArray;
+	readonly animationKeys: NSArray
 
-  animationPlayerForKey(key: string): SCNAnimationPlayer;
+	animationPlayerForKey(key: string): SCNAnimationPlayer
 
-  removeAnimationForKeyFadeOutDuration(key: string, duration: number): void;
+	removeAnimationForKeyFadeOutDuration(key: string, duration: number): void
 
-  animationForKey(key: string): CAAnimation;
+	animationForKey(key: string): CAAnimation
 
-  pauseAnimationForKey(key: string): void;
+	pauseAnimationForKey(key: string): void
 
-  resumeAnimationForKey(key: string): void;
+	resumeAnimationForKey(key: string): void
 
-  setSpeedForAnimationKey(speed: number, key: string): void;
+	setSpeedForAnimationKey(speed: number, key: string): void
 
-  isAnimationForKeyPaused(key: string): boolean;
+	isAnimationForKeyPaused(key: string): boolean
 }
 
-declare class SCNAnimatable extends NativeObject implements SCNAnimatable {
-}
+declare class SCNAnimatable extends NativeObject implements SCNAnimatable {}
 
-declare class SCNMaterial extends NSObject implements SCNAnimatable, SCNShadable, NSCopying, NSSecureCoding {
-  static material<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>;
+declare class SCNMaterial
+	extends NSObject
+	implements SCNAnimatable, SCNShadable, NSCopying, NSSecureCoding
+{
+	static material<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>
 
-  name: string;
+	name: string
 
-  readonly diffuse: SCNMaterialProperty;
+	readonly diffuse: SCNMaterialProperty
 
-  readonly ambient: SCNMaterialProperty;
+	readonly ambient: SCNMaterialProperty
 
-  readonly specular: SCNMaterialProperty;
+	readonly specular: SCNMaterialProperty
 
-  readonly emission: SCNMaterialProperty;
+	readonly emission: SCNMaterialProperty
 
-  readonly transparent: SCNMaterialProperty;
+	readonly transparent: SCNMaterialProperty
 
-  readonly reflective: SCNMaterialProperty;
+	readonly reflective: SCNMaterialProperty
 
-  readonly multiply: SCNMaterialProperty;
+	readonly multiply: SCNMaterialProperty
 
-  readonly normal: SCNMaterialProperty;
+	readonly normal: SCNMaterialProperty
 
-  readonly displacement: SCNMaterialProperty;
+	readonly displacement: SCNMaterialProperty
 
-  readonly ambientOcclusion: SCNMaterialProperty;
+	readonly ambientOcclusion: SCNMaterialProperty
 
-  readonly selfIllumination: SCNMaterialProperty;
+	readonly selfIllumination: SCNMaterialProperty
 
-  readonly metalness: SCNMaterialProperty;
+	readonly metalness: SCNMaterialProperty
 
-  readonly roughness: SCNMaterialProperty;
+	readonly roughness: SCNMaterialProperty
 
-  readonly clearCoat: SCNMaterialProperty;
+	readonly clearCoat: SCNMaterialProperty
 
-  readonly clearCoatRoughness: SCNMaterialProperty;
+	readonly clearCoatRoughness: SCNMaterialProperty
 
-  readonly clearCoatNormal: SCNMaterialProperty;
+	readonly clearCoatNormal: SCNMaterialProperty
 
-  shininess: number;
+	shininess: number
 
-  transparency: number;
+	transparency: number
 
-  lightingModelName: string;
+	lightingModelName: string
 
-  litPerPixel: boolean;
+	litPerPixel: boolean
 
-  doubleSided: boolean;
+	doubleSided: boolean
 
-  fillMode: interop.Enum<typeof SCNFillMode>;
+	fillMode: interop.Enum<typeof SCNFillMode>
 
-  cullMode: interop.Enum<typeof SCNCullMode>;
+	cullMode: interop.Enum<typeof SCNCullMode>
 
-  transparencyMode: interop.Enum<typeof SCNTransparencyMode>;
+	transparencyMode: interop.Enum<typeof SCNTransparencyMode>
 
-  locksAmbientWithDiffuse: boolean;
+	locksAmbientWithDiffuse: boolean
 
-  writesToDepthBuffer: boolean;
+	writesToDepthBuffer: boolean
 
-  colorBufferWriteMask: interop.Enum<typeof SCNColorMask>;
+	colorBufferWriteMask: interop.Enum<typeof SCNColorMask>
 
-  readsFromDepthBuffer: boolean;
+	readsFromDepthBuffer: boolean
 
-  fresnelExponent: number;
+	fresnelExponent: number
 
-  blendMode: interop.Enum<typeof SCNBlendMode>;
+	blendMode: interop.Enum<typeof SCNBlendMode>
 
-  isLitPerPixel(): boolean;
+	isLitPerPixel(): boolean
 
-  isDoubleSided(): boolean;
+	isDoubleSided(): boolean
 
-  static materialWithMDLMaterial<This extends abstract new (...args: any) => any>(this: This, mdlMaterial: MDLMaterial): InstanceType<This>;
+	static materialWithMDLMaterial<This extends abstract new (...args: any) => any>(
+		this: This,
+		mdlMaterial: MDLMaterial,
+	): InstanceType<This>
 
-  addAnimationForKey(animation: SCNAnimation, key: string | null): void;
+	addAnimationForKey(animation: SCNAnimation, key: string | null): void
 
-  addAnimationPlayerForKey(player: SCNAnimationPlayer, key: string | null): void;
+	addAnimationPlayerForKey(player: SCNAnimationPlayer, key: string | null): void
 
-  removeAllAnimations(): void;
+	removeAllAnimations(): void
 
-  removeAnimationForKey(key: string): void;
+	removeAnimationForKey(key: string): void
 
-  removeAnimationForKeyBlendOutDuration(key: string, duration: number): void;
+	removeAnimationForKeyBlendOutDuration(key: string, duration: number): void
 
-  readonly animationKeys: NSArray;
+	readonly animationKeys: NSArray
 
-  animationPlayerForKey(key: string): SCNAnimationPlayer;
+	animationPlayerForKey(key: string): SCNAnimationPlayer
 
-  removeAnimationForKeyFadeOutDuration(key: string, duration: number): void;
+	removeAnimationForKeyFadeOutDuration(key: string, duration: number): void
 
-  animationForKey(key: string): CAAnimation;
+	animationForKey(key: string): CAAnimation
 
-  pauseAnimationForKey(key: string): void;
+	pauseAnimationForKey(key: string): void
 
-  resumeAnimationForKey(key: string): void;
+	resumeAnimationForKey(key: string): void
 
-  setSpeedForAnimationKey(speed: number, key: string): void;
+	setSpeedForAnimationKey(speed: number, key: string): void
 
-  isAnimationForKeyPaused(key: string): boolean;
+	isAnimationForKeyPaused(key: string): boolean
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 
-  program: SCNProgram;
+	program: SCNProgram
 
-  handleBindingOfSymbolUsingBlock(symbol: string, block: (p1: number, p2: number, p3: SCNNode, p4: SCNRenderer) => void | null): void;
+	handleBindingOfSymbolUsingBlock(
+		symbol: string,
+		block: (p1: number, p2: number, p3: SCNNode, p4: SCNRenderer) => void | null,
+	): void
 
-  handleUnbindingOfSymbolUsingBlock(symbol: string, block: (p1: number, p2: number, p3: SCNNode, p4: SCNRenderer) => void | null): void;
+	handleUnbindingOfSymbolUsingBlock(
+		symbol: string,
+		block: (p1: number, p2: number, p3: SCNNode, p4: SCNRenderer) => void | null,
+	): void
 
-  get shaderModifiers(): NSDictionary;
-  set shaderModifiers(value: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>);
+	get shaderModifiers(): NSDictionary
+	set shaderModifiers(
+		value: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+	)
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 declare class SCNPhysicsField extends NSObject implements NSCopying, NSSecureCoding {
-  strength: number;
+	strength: number
 
-  falloffExponent: number;
+	falloffExponent: number
 
-  minimumDistance: number;
+	minimumDistance: number
 
-  active: boolean;
+	active: boolean
 
-  exclusive: boolean;
+	exclusive: boolean
 
-  halfExtent: SCNVector3;
+	halfExtent: SCNVector3
 
-  usesEllipsoidalExtent: boolean;
+	usesEllipsoidalExtent: boolean
 
-  scope: interop.Enum<typeof SCNPhysicsFieldScope>;
+	scope: interop.Enum<typeof SCNPhysicsFieldScope>
 
-  offset: SCNVector3;
+	offset: SCNVector3
 
-  direction: SCNVector3;
+	direction: SCNVector3
 
-  categoryBitMask: number;
+	categoryBitMask: number
 
-  static dragField(): SCNPhysicsField;
+	static dragField(): SCNPhysicsField
 
-  static vortexField(): SCNPhysicsField;
+	static vortexField(): SCNPhysicsField
 
-  static radialGravityField(): SCNPhysicsField;
+	static radialGravityField(): SCNPhysicsField
 
-  static linearGravityField(): SCNPhysicsField;
+	static linearGravityField(): SCNPhysicsField
 
-  static noiseFieldWithSmoothnessAnimationSpeed(smoothness: number, speed: number): SCNPhysicsField;
+	static noiseFieldWithSmoothnessAnimationSpeed(smoothness: number, speed: number): SCNPhysicsField
 
-  static turbulenceFieldWithSmoothnessAnimationSpeed(smoothness: number, speed: number): SCNPhysicsField;
+	static turbulenceFieldWithSmoothnessAnimationSpeed(
+		smoothness: number,
+		speed: number,
+	): SCNPhysicsField
 
-  static springField(): SCNPhysicsField;
+	static springField(): SCNPhysicsField
 
-  static electricField(): SCNPhysicsField;
+	static electricField(): SCNPhysicsField
 
-  static magneticField(): SCNPhysicsField;
+	static magneticField(): SCNPhysicsField
 
-  static customFieldWithEvaluationBlock(block: (p1: SCNVector3, p2: SCNVector3, p3: number, p4: number, p5: number) => SCNVector3): SCNPhysicsField;
+	static customFieldWithEvaluationBlock(
+		block: (p1: SCNVector3, p2: SCNVector3, p3: number, p4: number, p5: number) => SCNVector3,
+	): SCNPhysicsField
 
-  isActive(): boolean;
+	isActive(): boolean
 
-  isExclusive(): boolean;
+	isExclusive(): boolean
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 declare class SCNCone extends SCNGeometry {
-  static coneWithTopRadiusBottomRadiusHeight<This extends abstract new (...args: any) => any>(this: This, topRadius: number, bottomRadius: number, height: number): InstanceType<This>;
+	static coneWithTopRadiusBottomRadiusHeight<This extends abstract new (...args: any) => any>(
+		this: This,
+		topRadius: number,
+		bottomRadius: number,
+		height: number,
+	): InstanceType<This>
 
-  topRadius: number;
+	topRadius: number
 
-  bottomRadius: number;
+	bottomRadius: number
 
-  height: number;
+	height: number
 
-  radialSegmentCount: number;
+	radialSegmentCount: number
 
-  heightSegmentCount: number;
+	heightSegmentCount: number
 }
 
 declare class SCNPhysicsBehavior extends NSObject implements NSSecureCoding {
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 declare class SCNCameraController extends NSObject {
-  delegate: SCNCameraControllerDelegate;
+	delegate: SCNCameraControllerDelegate
 
-  pointOfView: SCNNode;
+	pointOfView: SCNNode
 
-  interactionMode: interop.Enum<typeof SCNInteractionMode>;
+	interactionMode: interop.Enum<typeof SCNInteractionMode>
 
-  target: SCNVector3;
+	target: SCNVector3
 
-  automaticTarget: boolean;
+	automaticTarget: boolean
 
-  worldUp: SCNVector3;
+	worldUp: SCNVector3
 
-  inertiaEnabled: boolean;
+	inertiaEnabled: boolean
 
-  inertiaFriction: number;
+	inertiaFriction: number
 
-  readonly inertiaRunning: boolean;
+	readonly inertiaRunning: boolean
 
-  minimumVerticalAngle: number;
+	minimumVerticalAngle: number
 
-  maximumVerticalAngle: number;
+	maximumVerticalAngle: number
 
-  minimumHorizontalAngle: number;
+	minimumHorizontalAngle: number
 
-  maximumHorizontalAngle: number;
+	maximumHorizontalAngle: number
 
-  translateInCameraSpaceByXYZ(deltaX: number, deltaY: number, deltaZ: number): void;
+	translateInCameraSpaceByXYZ(deltaX: number, deltaY: number, deltaZ: number): void
 
-  frameNodes(nodes: NSArray<interop.Object> | Array<interop.Object>): void;
+	frameNodes(nodes: NSArray<interop.Object> | Array<interop.Object>): void
 
-  rotateByXY(deltaX: number, deltaY: number): void;
+	rotateByXY(deltaX: number, deltaY: number): void
 
-  rollByAroundScreenPointViewport(delta: number, point: CGPoint, viewport: CGSize): void;
+	rollByAroundScreenPointViewport(delta: number, point: CGPoint, viewport: CGSize): void
 
-  dollyByOnScreenPointViewport(delta: number, point: CGPoint, viewport: CGSize): void;
+	dollyByOnScreenPointViewport(delta: number, point: CGPoint, viewport: CGSize): void
 
-  rollAroundTarget(delta: number): void;
+	rollAroundTarget(delta: number): void
 
-  dollyToTarget(delta: number): void;
+	dollyToTarget(delta: number): void
 
-  clearRoll(): void;
+	clearRoll(): void
 
-  stopInertia(): void;
+	stopInertia(): void
 
-  beginInteractionWithViewport(location: CGPoint, viewport: CGSize): void;
+	beginInteractionWithViewport(location: CGPoint, viewport: CGSize): void
 
-  continueInteractionWithViewportSensitivity(location: CGPoint, viewport: CGSize, sensitivity: number): void;
+	continueInteractionWithViewportSensitivity(
+		location: CGPoint,
+		viewport: CGSize,
+		sensitivity: number,
+	): void
 
-  endInteractionWithViewportVelocity(location: CGPoint, viewport: CGSize, velocity: CGPoint): void;
+	endInteractionWithViewportVelocity(location: CGPoint, viewport: CGSize, velocity: CGPoint): void
 
-  isInertiaRunning(): boolean;
+	isInertiaRunning(): boolean
 }
 
 declare class SCNAudioPlayer extends NSObject {
-  initWithSource(source: SCNAudioSource): this;
+	initWithSource(source: SCNAudioSource): this
 
-  initWithAVAudioNode(audioNode: AVAudioNode): this;
+	initWithAVAudioNode(audioNode: AVAudioNode): this
 
-  static audioPlayerWithSource<This extends abstract new (...args: any) => any>(this: This, source: SCNAudioSource): InstanceType<This>;
+	static audioPlayerWithSource<This extends abstract new (...args: any) => any>(
+		this: This,
+		source: SCNAudioSource,
+	): InstanceType<This>
 
-  static audioPlayerWithAVAudioNode<This extends abstract new (...args: any) => any>(this: This, audioNode: AVAudioNode): InstanceType<This>;
+	static audioPlayerWithAVAudioNode<This extends abstract new (...args: any) => any>(
+		this: This,
+		audioNode: AVAudioNode,
+	): InstanceType<This>
 
-  willStartPlayback: () => void;
+	willStartPlayback: () => void
 
-  didFinishPlayback: () => void;
+	didFinishPlayback: () => void
 
-  readonly audioNode: AVAudioNode;
+	readonly audioNode: AVAudioNode
 
-  readonly audioSource: SCNAudioSource;
+	readonly audioSource: SCNAudioSource
 }
 
 declare class SCNReferenceNode extends SCNNode {
-  initWithURL(referenceURL: NSURL): this;
+	initWithURL(referenceURL: NSURL): this
 
-  initWithCoder(coder: NSCoder): this;
-  initWithCoder(aDecoder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
+	initWithCoder(aDecoder: NSCoder): this
 
-  static referenceNodeWithURL<This extends abstract new (...args: any) => any>(this: This, referenceURL: NSURL): InstanceType<This>;
+	static referenceNodeWithURL<This extends abstract new (...args: any) => any>(
+		this: This,
+		referenceURL: NSURL,
+	): InstanceType<This>
 
-  referenceURL: NSURL;
+	referenceURL: NSURL
 
-  loadingPolicy: interop.Enum<typeof SCNReferenceLoadingPolicy>;
+	loadingPolicy: interop.Enum<typeof SCNReferenceLoadingPolicy>
 
-  load(): void;
+	load(): void
 
-  unload(): void;
+	unload(): void
 
-  readonly loaded: boolean;
+	readonly loaded: boolean
 
-  isLoaded(): boolean;
+	isLoaded(): boolean
 }
 
 declare class SCNPhysicsVehicle extends SCNPhysicsBehavior {
-  static vehicleWithChassisBodyWheels<This extends abstract new (...args: any) => any>(this: This, chassisBody: SCNPhysicsBody, wheels: NSArray<interop.Object> | Array<interop.Object>): InstanceType<This>;
+	static vehicleWithChassisBodyWheels<This extends abstract new (...args: any) => any>(
+		this: This,
+		chassisBody: SCNPhysicsBody,
+		wheels: NSArray<interop.Object> | Array<interop.Object>,
+	): InstanceType<This>
 
-  readonly speedInKilometersPerHour: number;
+	readonly speedInKilometersPerHour: number
 
-  readonly wheels: NSArray;
+	readonly wheels: NSArray
 
-  readonly chassisBody: SCNPhysicsBody;
+	readonly chassisBody: SCNPhysicsBody
 
-  applyEngineForceForWheelAtIndex(value: number, index: number): void;
+	applyEngineForceForWheelAtIndex(value: number, index: number): void
 
-  setSteeringAngleForWheelAtIndex(value: number, index: number): void;
+	setSteeringAngleForWheelAtIndex(value: number, index: number): void
 
-  applyBrakingForceForWheelAtIndex(value: number, index: number): void;
+	applyBrakingForceForWheelAtIndex(value: number, index: number): void
 }
 
 declare class SCNPhysicsBallSocketJoint extends SCNPhysicsBehavior {
-  static jointWithBodyAAnchorABodyBAnchorB<This extends abstract new (...args: any) => any>(this: This, bodyA: SCNPhysicsBody, anchorA: SCNVector3, bodyB: SCNPhysicsBody, anchorB: SCNVector3): InstanceType<This>;
+	static jointWithBodyAAnchorABodyBAnchorB<This extends abstract new (...args: any) => any>(
+		this: This,
+		bodyA: SCNPhysicsBody,
+		anchorA: SCNVector3,
+		bodyB: SCNPhysicsBody,
+		anchorB: SCNVector3,
+	): InstanceType<This>
 
-  static jointWithBodyAnchor<This extends abstract new (...args: any) => any>(this: This, body: SCNPhysicsBody, anchor: SCNVector3): InstanceType<This>;
+	static jointWithBodyAnchor<This extends abstract new (...args: any) => any>(
+		this: This,
+		body: SCNPhysicsBody,
+		anchor: SCNVector3,
+	): InstanceType<This>
 
-  readonly bodyA: SCNPhysicsBody;
+	readonly bodyA: SCNPhysicsBody
 
-  anchorA: SCNVector3;
+	anchorA: SCNVector3
 
-  readonly bodyB: SCNPhysicsBody;
+	readonly bodyB: SCNPhysicsBody
 
-  anchorB: SCNVector3;
+	anchorB: SCNVector3
 }
 
 declare class SCNPhysicsHingeJoint extends SCNPhysicsBehavior {
-  static jointWithBodyAAxisAAnchorABodyBAxisBAnchorB<This extends abstract new (...args: any) => any>(this: This, bodyA: SCNPhysicsBody, axisA: SCNVector3, anchorA: SCNVector3, bodyB: SCNPhysicsBody, axisB: SCNVector3, anchorB: SCNVector3): InstanceType<This>;
+	static jointWithBodyAAxisAAnchorABodyBAxisBAnchorB<
+		This extends abstract new (...args: any) => any,
+	>(
+		this: This,
+		bodyA: SCNPhysicsBody,
+		axisA: SCNVector3,
+		anchorA: SCNVector3,
+		bodyB: SCNPhysicsBody,
+		axisB: SCNVector3,
+		anchorB: SCNVector3,
+	): InstanceType<This>
 
-  static jointWithBodyAxisAnchor<This extends abstract new (...args: any) => any>(this: This, body: SCNPhysicsBody, axis: SCNVector3, anchor: SCNVector3): InstanceType<This>;
+	static jointWithBodyAxisAnchor<This extends abstract new (...args: any) => any>(
+		this: This,
+		body: SCNPhysicsBody,
+		axis: SCNVector3,
+		anchor: SCNVector3,
+	): InstanceType<This>
 
-  readonly bodyA: SCNPhysicsBody;
+	readonly bodyA: SCNPhysicsBody
 
-  axisA: SCNVector3;
+	axisA: SCNVector3
 
-  anchorA: SCNVector3;
+	anchorA: SCNVector3
 
-  readonly bodyB: SCNPhysicsBody;
+	readonly bodyB: SCNPhysicsBody
 
-  axisB: SCNVector3;
+	axisB: SCNVector3
 
-  anchorB: SCNVector3;
+	anchorB: SCNVector3
 }
 
 declare class SCNPhysicsWorld extends NSObject implements NSSecureCoding {
-  gravity: SCNVector3;
+	gravity: SCNVector3
 
-  speed: number;
+	speed: number
 
-  timeStep: number;
+	timeStep: number
 
-  contactDelegate: SCNPhysicsContactDelegate;
+	contactDelegate: SCNPhysicsContactDelegate
 
-  addBehavior(behavior: SCNPhysicsBehavior): void;
+	addBehavior(behavior: SCNPhysicsBehavior): void
 
-  removeBehavior(behavior: SCNPhysicsBehavior): void;
+	removeBehavior(behavior: SCNPhysicsBehavior): void
 
-  removeAllBehaviors(): void;
+	removeAllBehaviors(): void
 
-  readonly allBehaviors: NSArray;
+	readonly allBehaviors: NSArray
 
-  rayTestWithSegmentFromPointToPointOptions(origin: SCNVector3, dest: SCNVector3, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null): NSArray;
+	rayTestWithSegmentFromPointToPointOptions(
+		origin: SCNVector3,
+		dest: SCNVector3,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+	): NSArray
 
-  contactTestBetweenBodyAndBodyOptions(bodyA: SCNPhysicsBody, bodyB: SCNPhysicsBody, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null): NSArray;
+	contactTestBetweenBodyAndBodyOptions(
+		bodyA: SCNPhysicsBody,
+		bodyB: SCNPhysicsBody,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+	): NSArray
 
-  contactTestWithBodyOptions(body: SCNPhysicsBody, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null): NSArray;
+	contactTestWithBodyOptions(
+		body: SCNPhysicsBody,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+	): NSArray
 
-  convexSweepTestWithShapeFromTransformToTransformOptions(shape: SCNPhysicsShape, from: CATransform3D, to: CATransform3D, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null): NSArray;
+	convexSweepTestWithShapeFromTransformToTransformOptions(
+		shape: SCNPhysicsShape,
+		from: CATransform3D,
+		to: CATransform3D,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+	): NSArray
 
-  updateCollisionPairs(): void;
+	updateCollisionPairs(): void
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 declare class SCNPhysicsShape extends NSObject implements NSCopying, NSSecureCoding {
-  static shapeWithGeometryOptions<This extends abstract new (...args: any) => any>(this: This, geometry: SCNGeometry, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null): InstanceType<This>;
+	static shapeWithGeometryOptions<This extends abstract new (...args: any) => any>(
+		this: This,
+		geometry: SCNGeometry,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+	): InstanceType<This>
 
-  static shapeWithNodeOptions<This extends abstract new (...args: any) => any>(this: This, node: SCNNode, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null): InstanceType<This>;
+	static shapeWithNodeOptions<This extends abstract new (...args: any) => any>(
+		this: This,
+		node: SCNNode,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+	): InstanceType<This>
 
-  static shapeWithShapesTransforms<This extends abstract new (...args: any) => any>(this: This, shapes: NSArray<interop.Object> | Array<interop.Object>, transforms: NSArray<interop.Object> | Array<interop.Object> | null): InstanceType<This>;
+	static shapeWithShapesTransforms<This extends abstract new (...args: any) => any>(
+		this: This,
+		shapes: NSArray<interop.Object> | Array<interop.Object>,
+		transforms: NSArray<interop.Object> | Array<interop.Object> | null,
+	): InstanceType<This>
 
-  readonly options: NSDictionary;
+	readonly options: NSDictionary
 
-  readonly sourceObject: interop.Object;
+	readonly sourceObject: interop.Object
 
-  readonly transforms: NSArray;
+	readonly transforms: NSArray
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
-declare class SCNParticleSystem extends NSObject implements NSCopying, NSSecureCoding, SCNAnimatable {
-  static particleSystem<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>;
+declare class SCNParticleSystem
+	extends NSObject
+	implements NSCopying, NSSecureCoding, SCNAnimatable
+{
+	static particleSystem<This extends abstract new (...args: any) => any>(
+		this: This,
+	): InstanceType<This>
 
-  static particleSystemNamedInDirectory<This extends abstract new (...args: any) => any>(this: This, name: string, directory: string | null): InstanceType<This>;
+	static particleSystemNamedInDirectory<This extends abstract new (...args: any) => any>(
+		this: This,
+		name: string,
+		directory: string | null,
+	): InstanceType<This>
 
-  emissionDuration: number;
+	emissionDuration: number
 
-  emissionDurationVariation: number;
+	emissionDurationVariation: number
 
-  idleDuration: number;
+	idleDuration: number
 
-  idleDurationVariation: number;
+	idleDurationVariation: number
 
-  loops: boolean;
+	loops: boolean
 
-  birthRate: number;
+	birthRate: number
 
-  birthRateVariation: number;
+	birthRateVariation: number
 
-  warmupDuration: number;
+	warmupDuration: number
 
-  emitterShape: SCNGeometry;
+	emitterShape: SCNGeometry
 
-  birthLocation: interop.Enum<typeof SCNParticleBirthLocation>;
+	birthLocation: interop.Enum<typeof SCNParticleBirthLocation>
 
-  birthDirection: interop.Enum<typeof SCNParticleBirthDirection>;
+	birthDirection: interop.Enum<typeof SCNParticleBirthDirection>
 
-  spreadingAngle: number;
+	spreadingAngle: number
 
-  emittingDirection: SCNVector3;
+	emittingDirection: SCNVector3
 
-  orientationDirection: SCNVector3;
+	orientationDirection: SCNVector3
 
-  acceleration: SCNVector3;
+	acceleration: SCNVector3
 
-  local: boolean;
+	local: boolean
 
-  particleAngle: number;
+	particleAngle: number
 
-  particleAngleVariation: number;
+	particleAngleVariation: number
 
-  particleVelocity: number;
+	particleVelocity: number
 
-  particleVelocityVariation: number;
+	particleVelocityVariation: number
 
-  particleAngularVelocity: number;
+	particleAngularVelocity: number
 
-  particleAngularVelocityVariation: number;
+	particleAngularVelocityVariation: number
 
-  particleLifeSpan: number;
+	particleLifeSpan: number
 
-  particleLifeSpanVariation: number;
+	particleLifeSpanVariation: number
 
-  systemSpawnedOnDying: SCNParticleSystem;
+	systemSpawnedOnDying: SCNParticleSystem
 
-  systemSpawnedOnCollision: SCNParticleSystem;
+	systemSpawnedOnCollision: SCNParticleSystem
 
-  systemSpawnedOnLiving: SCNParticleSystem;
+	systemSpawnedOnLiving: SCNParticleSystem
 
-  particleImage: interop.Object;
+	particleImage: interop.Object
 
-  imageSequenceColumnCount: number;
+	imageSequenceColumnCount: number
 
-  imageSequenceRowCount: number;
+	imageSequenceRowCount: number
 
-  imageSequenceInitialFrame: number;
+	imageSequenceInitialFrame: number
 
-  imageSequenceInitialFrameVariation: number;
+	imageSequenceInitialFrameVariation: number
 
-  imageSequenceFrameRate: number;
+	imageSequenceFrameRate: number
 
-  imageSequenceFrameRateVariation: number;
+	imageSequenceFrameRateVariation: number
 
-  imageSequenceAnimationMode: interop.Enum<typeof SCNParticleImageSequenceAnimationMode>;
+	imageSequenceAnimationMode: interop.Enum<typeof SCNParticleImageSequenceAnimationMode>
 
-  particleColor: NSColor;
+	particleColor: NSColor
 
-  particleColorVariation: SCNVector4;
+	particleColorVariation: SCNVector4
 
-  particleSize: number;
+	particleSize: number
 
-  particleSizeVariation: number;
+	particleSizeVariation: number
 
-  particleIntensity: number;
+	particleIntensity: number
 
-  particleIntensityVariation: number;
+	particleIntensityVariation: number
 
-  blendMode: interop.Enum<typeof SCNParticleBlendMode>;
+	blendMode: interop.Enum<typeof SCNParticleBlendMode>
 
-  blackPassEnabled: boolean;
+	blackPassEnabled: boolean
 
-  orientationMode: interop.Enum<typeof SCNParticleOrientationMode>;
+	orientationMode: interop.Enum<typeof SCNParticleOrientationMode>
 
-  sortingMode: interop.Enum<typeof SCNParticleSortingMode>;
+	sortingMode: interop.Enum<typeof SCNParticleSortingMode>
 
-  lightingEnabled: boolean;
+	lightingEnabled: boolean
 
-  affectedByGravity: boolean;
+	affectedByGravity: boolean
 
-  affectedByPhysicsFields: boolean;
+	affectedByPhysicsFields: boolean
 
-  particleDiesOnCollision: boolean;
+	particleDiesOnCollision: boolean
 
-  get colliderNodes(): NSArray;
-  set colliderNodes(value: NSArray<interop.Object> | Array<interop.Object>);
+	get colliderNodes(): NSArray
+	set colliderNodes(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  particleMass: number;
+	particleMass: number
 
-  particleMassVariation: number;
+	particleMassVariation: number
 
-  particleBounce: number;
+	particleBounce: number
 
-  particleBounceVariation: number;
+	particleBounceVariation: number
 
-  particleFriction: number;
+	particleFriction: number
 
-  particleFrictionVariation: number;
+	particleFrictionVariation: number
 
-  particleCharge: number;
+	particleCharge: number
 
-  particleChargeVariation: number;
+	particleChargeVariation: number
 
-  dampingFactor: number;
+	dampingFactor: number
 
-  speedFactor: number;
+	speedFactor: number
 
-  stretchFactor: number;
+	stretchFactor: number
 
-  fresnelExponent: number;
+	fresnelExponent: number
 
-  get propertyControllers(): NSDictionary;
-  set propertyControllers(value: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>);
+	get propertyControllers(): NSDictionary
+	set propertyControllers(
+		value: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+	)
 
-  reset(): void;
+	reset(): void
 
-  handleEventForPropertiesWithBlock(event: interop.Enum<typeof SCNParticleEvent>, properties: NSArray<interop.Object> | Array<interop.Object>, block: (p1: interop.PointerConvertible, p2: interop.PointerConvertible, p3: interop.PointerConvertible, p4: number) => void): void;
+	handleEventForPropertiesWithBlock(
+		event: interop.Enum<typeof SCNParticleEvent>,
+		properties: NSArray<interop.Object> | Array<interop.Object>,
+		block: (
+			p1: interop.PointerConvertible,
+			p2: interop.PointerConvertible,
+			p3: interop.PointerConvertible,
+			p4: number,
+		) => void,
+	): void
 
-  addModifierForPropertiesAtStageWithBlock(properties: NSArray<interop.Object> | Array<interop.Object>, stage: interop.Enum<typeof SCNParticleModifierStage>, block: (p1: interop.PointerConvertible, p2: interop.PointerConvertible, p3: number, p4: number, p5: number) => void): void;
+	addModifierForPropertiesAtStageWithBlock(
+		properties: NSArray<interop.Object> | Array<interop.Object>,
+		stage: interop.Enum<typeof SCNParticleModifierStage>,
+		block: (
+			p1: interop.PointerConvertible,
+			p2: interop.PointerConvertible,
+			p3: number,
+			p4: number,
+			p5: number,
+		) => void,
+	): void
 
-  removeModifiersOfStage(stage: interop.Enum<typeof SCNParticleModifierStage>): void;
+	removeModifiersOfStage(stage: interop.Enum<typeof SCNParticleModifierStage>): void
 
-  removeAllModifiers(): void;
+	removeAllModifiers(): void
 
-  isLocal(): boolean;
+	isLocal(): boolean
 
-  isBlackPassEnabled(): boolean;
+	isBlackPassEnabled(): boolean
 
-  isLightingEnabled(): boolean;
+	isLightingEnabled(): boolean
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  addAnimationForKey(animation: SCNAnimation, key: string | null): void;
+	addAnimationForKey(animation: SCNAnimation, key: string | null): void
 
-  addAnimationPlayerForKey(player: SCNAnimationPlayer, key: string | null): void;
+	addAnimationPlayerForKey(player: SCNAnimationPlayer, key: string | null): void
 
-  removeAllAnimations(): void;
+	removeAllAnimations(): void
 
-  removeAnimationForKey(key: string): void;
+	removeAnimationForKey(key: string): void
 
-  removeAnimationForKeyBlendOutDuration(key: string, duration: number): void;
+	removeAnimationForKeyBlendOutDuration(key: string, duration: number): void
 
-  readonly animationKeys: NSArray;
+	readonly animationKeys: NSArray
 
-  animationPlayerForKey(key: string): SCNAnimationPlayer;
+	animationPlayerForKey(key: string): SCNAnimationPlayer
 
-  removeAnimationForKeyFadeOutDuration(key: string, duration: number): void;
+	removeAnimationForKeyFadeOutDuration(key: string, duration: number): void
 
-  animationForKey(key: string): CAAnimation;
+	animationForKey(key: string): CAAnimation
 
-  pauseAnimationForKey(key: string): void;
+	pauseAnimationForKey(key: string): void
 
-  resumeAnimationForKey(key: string): void;
+	resumeAnimationForKey(key: string): void
 
-  setSpeedForAnimationKey(speed: number, key: string): void;
+	setSpeedForAnimationKey(speed: number, key: string): void
 
-  isAnimationForKeyPaused(key: string): boolean;
+	isAnimationForKeyPaused(key: string): boolean
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 }
 
 declare class SCNParticlePropertyController extends NSObject implements NSSecureCoding, NSCopying {
-  static controllerWithAnimation<This extends abstract new (...args: any) => any>(this: This, animation: CAAnimation): InstanceType<This>;
+	static controllerWithAnimation<This extends abstract new (...args: any) => any>(
+		this: This,
+		animation: CAAnimation,
+	): InstanceType<This>
 
-  animation: CAAnimation;
+	animation: CAAnimation
 
-  inputMode: interop.Enum<typeof SCNParticleInputMode>;
+	inputMode: interop.Enum<typeof SCNParticleInputMode>
 
-  inputScale: number;
+	inputScale: number
 
-  inputBias: number;
+	inputBias: number
 
-  inputOrigin: SCNNode;
+	inputOrigin: SCNNode
 
-  inputProperty: string;
+	inputProperty: string
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class SCNLevelOfDetail extends NSObject implements NSCopying, NSSecureCoding {
-  static levelOfDetailWithGeometryScreenSpaceRadius<This extends abstract new (...args: any) => any>(this: This, geometry: SCNGeometry | null, radius: number): InstanceType<This>;
+	static levelOfDetailWithGeometryScreenSpaceRadius<
+		This extends abstract new (...args: any) => any,
+	>(this: This, geometry: SCNGeometry | null, radius: number): InstanceType<This>
 
-  static levelOfDetailWithGeometryWorldSpaceDistance<This extends abstract new (...args: any) => any>(this: This, geometry: SCNGeometry | null, distance: number): InstanceType<This>;
+	static levelOfDetailWithGeometryWorldSpaceDistance<
+		This extends abstract new (...args: any) => any,
+	>(this: This, geometry: SCNGeometry | null, distance: number): InstanceType<This>
 
-  readonly geometry: SCNGeometry;
+	readonly geometry: SCNGeometry
 
-  readonly screenSpaceRadius: number;
+	readonly screenSpaceRadius: number
 
-  readonly worldSpaceDistance: number;
+	readonly worldSpaceDistance: number
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 declare class SCNConstraint extends NSObject implements NSCopying, NSSecureCoding, SCNAnimatable {
-  enabled: boolean;
+	enabled: boolean
 
-  influenceFactor: number;
+	influenceFactor: number
 
-  incremental: boolean;
+	incremental: boolean
 
-  isEnabled(): boolean;
+	isEnabled(): boolean
 
-  isIncremental(): boolean;
+	isIncremental(): boolean
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  addAnimationForKey(animation: SCNAnimation, key: string | null): void;
+	addAnimationForKey(animation: SCNAnimation, key: string | null): void
 
-  addAnimationPlayerForKey(player: SCNAnimationPlayer, key: string | null): void;
+	addAnimationPlayerForKey(player: SCNAnimationPlayer, key: string | null): void
 
-  removeAllAnimations(): void;
+	removeAllAnimations(): void
 
-  removeAnimationForKey(key: string): void;
+	removeAnimationForKey(key: string): void
 
-  removeAnimationForKeyBlendOutDuration(key: string, duration: number): void;
+	removeAnimationForKeyBlendOutDuration(key: string, duration: number): void
 
-  readonly animationKeys: NSArray;
+	readonly animationKeys: NSArray
 
-  animationPlayerForKey(key: string): SCNAnimationPlayer;
+	animationPlayerForKey(key: string): SCNAnimationPlayer
 
-  removeAnimationForKeyFadeOutDuration(key: string, duration: number): void;
+	removeAnimationForKeyFadeOutDuration(key: string, duration: number): void
 
-  animationForKey(key: string): CAAnimation;
+	animationForKey(key: string): CAAnimation
 
-  pauseAnimationForKey(key: string): void;
+	pauseAnimationForKey(key: string): void
 
-  resumeAnimationForKey(key: string): void;
+	resumeAnimationForKey(key: string): void
 
-  setSpeedForAnimationKey(speed: number, key: string): void;
+	setSpeedForAnimationKey(speed: number, key: string): void
 
-  isAnimationForKeyPaused(key: string): boolean;
+	isAnimationForKeyPaused(key: string): boolean
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 }
 
 declare class SCNSkinner extends NSObject implements NSSecureCoding {
-  skeleton: SCNNode;
+	skeleton: SCNNode
 
-  static skinnerWithBaseGeometryBonesBoneInverseBindTransformsBoneWeightsBoneIndices<This extends abstract new (...args: any) => any>(this: This, baseGeometry: SCNGeometry | null, bones: NSArray<interop.Object> | Array<interop.Object>, boneInverseBindTransforms: NSArray<interop.Object> | Array<interop.Object> | null, boneWeights: SCNGeometrySource, boneIndices: SCNGeometrySource): InstanceType<This>;
+	static skinnerWithBaseGeometryBonesBoneInverseBindTransformsBoneWeightsBoneIndices<
+		This extends abstract new (...args: any) => any,
+	>(
+		this: This,
+		baseGeometry: SCNGeometry | null,
+		bones: NSArray<interop.Object> | Array<interop.Object>,
+		boneInverseBindTransforms: NSArray<interop.Object> | Array<interop.Object> | null,
+		boneWeights: SCNGeometrySource,
+		boneIndices: SCNGeometrySource,
+	): InstanceType<This>
 
-  baseGeometry: SCNGeometry;
+	baseGeometry: SCNGeometry
 
-  baseGeometryBindTransform: CATransform3D;
+	baseGeometryBindTransform: CATransform3D
 
-  readonly boneInverseBindTransforms: NSArray;
+	readonly boneInverseBindTransforms: NSArray
 
-  readonly bones: NSArray;
+	readonly bones: NSArray
 
-  readonly boneWeights: SCNGeometrySource;
+	readonly boneWeights: SCNGeometrySource
 
-  readonly boneIndices: SCNGeometrySource;
+	readonly boneIndices: SCNGeometrySource
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 declare class SCNShape extends SCNGeometry {
-  static shapeWithPathExtrusionDepth<This extends abstract new (...args: any) => any>(this: This, path: NSBezierPath | null, extrusionDepth: number): InstanceType<This>;
+	static shapeWithPathExtrusionDepth<This extends abstract new (...args: any) => any>(
+		this: This,
+		path: NSBezierPath | null,
+		extrusionDepth: number,
+	): InstanceType<This>
 
-  path: NSBezierPath;
+	path: NSBezierPath
 
-  extrusionDepth: number;
+	extrusionDepth: number
 
-  chamferMode: interop.Enum<typeof SCNChamferMode>;
+	chamferMode: interop.Enum<typeof SCNChamferMode>
 
-  chamferRadius: number;
+	chamferRadius: number
 
-  chamferProfile: NSBezierPath;
+	chamferProfile: NSBezierPath
 }
 
 declare class SCNText extends SCNGeometry {
-  static textWithStringExtrusionDepth<This extends abstract new (...args: any) => any>(this: This, string: interop.Object | null, extrusionDepth: number): InstanceType<This>;
+	static textWithStringExtrusionDepth<This extends abstract new (...args: any) => any>(
+		this: This,
+		string: interop.Object | null,
+		extrusionDepth: number,
+	): InstanceType<This>
 
-  extrusionDepth: number;
+	extrusionDepth: number
 
-  string: interop.Object;
+	string: interop.Object
 
-  font: NSFont;
+	font: NSFont
 
-  wrapped: boolean;
+	wrapped: boolean
 
-  containerFrame: CGRect;
+	containerFrame: CGRect
 
-  readonly textSize: CGSize;
+	readonly textSize: CGSize
 
-  truncationMode: string;
+	truncationMode: string
 
-  alignmentMode: string;
+	alignmentMode: string
 
-  chamferRadius: number;
+	chamferRadius: number
 
-  chamferSegmentCount: number;
+	chamferSegmentCount: number
 
-  chamferProfile: NSBezierPath;
+	chamferProfile: NSBezierPath
 
-  flatness: number;
+	flatness: number
 
-  isWrapped(): boolean;
+	isWrapped(): boolean
 }
 
 declare class SCNTube extends SCNGeometry {
-  static tubeWithInnerRadiusOuterRadiusHeight<This extends abstract new (...args: any) => any>(this: This, innerRadius: number, outerRadius: number, height: number): InstanceType<This>;
+	static tubeWithInnerRadiusOuterRadiusHeight<This extends abstract new (...args: any) => any>(
+		this: This,
+		innerRadius: number,
+		outerRadius: number,
+		height: number,
+	): InstanceType<This>
 
-  innerRadius: number;
+	innerRadius: number
 
-  outerRadius: number;
+	outerRadius: number
 
-  height: number;
+	height: number
 
-  radialSegmentCount: number;
+	radialSegmentCount: number
 
-  heightSegmentCount: number;
+	heightSegmentCount: number
 }
 
 declare class SCNSphere extends SCNGeometry {
-  static sphereWithRadius<This extends abstract new (...args: any) => any>(this: This, radius: number): InstanceType<This>;
+	static sphereWithRadius<This extends abstract new (...args: any) => any>(
+		this: This,
+		radius: number,
+	): InstanceType<This>
 
-  radius: number;
+	radius: number
 
-  geodesic: boolean;
+	geodesic: boolean
 
-  segmentCount: number;
+	segmentCount: number
 
-  isGeodesic(): boolean;
+	isGeodesic(): boolean
 }
 
 declare class SCNBox extends SCNGeometry {
-  static boxWithWidthHeightLengthChamferRadius<This extends abstract new (...args: any) => any>(this: This, width: number, height: number, length: number, chamferRadius: number): InstanceType<This>;
+	static boxWithWidthHeightLengthChamferRadius<This extends abstract new (...args: any) => any>(
+		this: This,
+		width: number,
+		height: number,
+		length: number,
+		chamferRadius: number,
+	): InstanceType<This>
 
-  width: number;
+	width: number
 
-  height: number;
+	height: number
 
-  length: number;
+	length: number
 
-  chamferRadius: number;
+	chamferRadius: number
 
-  widthSegmentCount: number;
+	widthSegmentCount: number
 
-  heightSegmentCount: number;
+	heightSegmentCount: number
 
-  lengthSegmentCount: number;
+	lengthSegmentCount: number
 
-  chamferSegmentCount: number;
+	chamferSegmentCount: number
 }
 
 declare class SCNPlane extends SCNGeometry {
-  static planeWithWidthHeight<This extends abstract new (...args: any) => any>(this: This, width: number, height: number): InstanceType<This>;
+	static planeWithWidthHeight<This extends abstract new (...args: any) => any>(
+		this: This,
+		width: number,
+		height: number,
+	): InstanceType<This>
 
-  width: number;
+	width: number
 
-  height: number;
+	height: number
 
-  widthSegmentCount: number;
+	widthSegmentCount: number
 
-  heightSegmentCount: number;
+	heightSegmentCount: number
 
-  cornerRadius: number;
+	cornerRadius: number
 
-  cornerSegmentCount: number;
+	cornerSegmentCount: number
 }
 
 declare class SCNPhysicsBody extends NSObject implements NSCopying, NSSecureCoding {
-  static staticBody<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>;
+	static staticBody<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>
 
-  static dynamicBody<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>;
+	static dynamicBody<This extends abstract new (...args: any) => any>(
+		this: This,
+	): InstanceType<This>
 
-  static kinematicBody<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>;
+	static kinematicBody<This extends abstract new (...args: any) => any>(
+		this: This,
+	): InstanceType<This>
 
-  static bodyWithTypeShape<This extends abstract new (...args: any) => any>(this: This, type: interop.Enum<typeof SCNPhysicsBodyType>, shape: SCNPhysicsShape | null): InstanceType<This>;
+	static bodyWithTypeShape<This extends abstract new (...args: any) => any>(
+		this: This,
+		type: interop.Enum<typeof SCNPhysicsBodyType>,
+		shape: SCNPhysicsShape | null,
+	): InstanceType<This>
 
-  type: interop.Enum<typeof SCNPhysicsBodyType>;
+	type: interop.Enum<typeof SCNPhysicsBodyType>
 
-  mass: number;
+	mass: number
 
-  momentOfInertia: SCNVector3;
+	momentOfInertia: SCNVector3
 
-  usesDefaultMomentOfInertia: boolean;
+	usesDefaultMomentOfInertia: boolean
 
-  charge: number;
+	charge: number
 
-  friction: number;
+	friction: number
 
-  restitution: number;
+	restitution: number
 
-  rollingFriction: number;
+	rollingFriction: number
 
-  physicsShape: SCNPhysicsShape;
+	physicsShape: SCNPhysicsShape
 
-  readonly isResting: boolean;
+	readonly isResting: boolean
 
-  allowsResting: boolean;
+	allowsResting: boolean
 
-  velocity: SCNVector3;
+	velocity: SCNVector3
 
-  angularVelocity: SCNVector4;
+	angularVelocity: SCNVector4
 
-  damping: number;
+	damping: number
 
-  angularDamping: number;
+	angularDamping: number
 
-  velocityFactor: SCNVector3;
+	velocityFactor: SCNVector3
 
-  angularVelocityFactor: SCNVector3;
+	angularVelocityFactor: SCNVector3
 
-  categoryBitMask: number;
+	categoryBitMask: number
 
-  collisionBitMask: number;
+	collisionBitMask: number
 
-  contactTestBitMask: number;
+	contactTestBitMask: number
 
-  affectedByGravity: boolean;
+	affectedByGravity: boolean
 
-  applyForceImpulse(direction: SCNVector3, impulse: boolean): void;
+	applyForceImpulse(direction: SCNVector3, impulse: boolean): void
 
-  applyForceAtPositionImpulse(direction: SCNVector3, position: SCNVector3, impulse: boolean): void;
+	applyForceAtPositionImpulse(direction: SCNVector3, position: SCNVector3, impulse: boolean): void
 
-  applyTorqueImpulse(torque: SCNVector4, impulse: boolean): void;
+	applyTorqueImpulse(torque: SCNVector4, impulse: boolean): void
 
-  clearAllForces(): void;
+	clearAllForces(): void
 
-  resetTransform(): void;
+	resetTransform(): void
 
-  setResting(resting: boolean): void;
+	setResting(resting: boolean): void
 
-  continuousCollisionDetectionThreshold: number;
+	continuousCollisionDetectionThreshold: number
 
-  centerOfMassOffset: SCNVector3;
+	centerOfMassOffset: SCNVector3
 
-  linearRestingThreshold: number;
+	linearRestingThreshold: number
 
-  angularRestingThreshold: number;
+	angularRestingThreshold: number
 
-  isAffectedByGravity(): boolean;
+	isAffectedByGravity(): boolean
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 declare class SCNGeometryElement extends NSObject implements NSSecureCoding {
-  static geometryElementWithDataPrimitiveTypePrimitiveCountBytesPerIndex<This extends abstract new (...args: any) => any>(this: This, data: NSData | null, primitiveType: interop.Enum<typeof SCNGeometryPrimitiveType>, primitiveCount: number, bytesPerIndex: number): InstanceType<This>;
+	static geometryElementWithDataPrimitiveTypePrimitiveCountBytesPerIndex<
+		This extends abstract new (...args: any) => any,
+	>(
+		this: This,
+		data: NSData | null,
+		primitiveType: interop.Enum<typeof SCNGeometryPrimitiveType>,
+		primitiveCount: number,
+		bytesPerIndex: number,
+	): InstanceType<This>
 
-  static geometryElementWithBufferPrimitiveTypePrimitiveCountBytesPerIndex<This extends abstract new (...args: any) => any>(this: This, buffer: MTLBuffer, primitiveType: interop.Enum<typeof SCNGeometryPrimitiveType>, primitiveCount: number, bytesPerIndex: number): InstanceType<This>;
+	static geometryElementWithBufferPrimitiveTypePrimitiveCountBytesPerIndex<
+		This extends abstract new (...args: any) => any,
+	>(
+		this: This,
+		buffer: MTLBuffer,
+		primitiveType: interop.Enum<typeof SCNGeometryPrimitiveType>,
+		primitiveCount: number,
+		bytesPerIndex: number,
+	): InstanceType<This>
 
-  readonly data: NSData;
+	readonly data: NSData
 
-  readonly primitiveType: interop.Enum<typeof SCNGeometryPrimitiveType>;
+	readonly primitiveType: interop.Enum<typeof SCNGeometryPrimitiveType>
 
-  readonly primitiveCount: number;
+	readonly primitiveCount: number
 
-  readonly bytesPerIndex: number;
+	readonly bytesPerIndex: number
 
-  primitiveRange: _NSRange;
+	primitiveRange: _NSRange
 
-  pointSize: number;
+	pointSize: number
 
-  minimumPointScreenSpaceRadius: number;
+	minimumPointScreenSpaceRadius: number
 
-  maximumPointScreenSpaceRadius: number;
+	maximumPointScreenSpaceRadius: number
 
-  static geometryElementWithMDLSubmesh<This extends abstract new (...args: any) => any>(this: This, mdlSubMesh: MDLSubmesh): InstanceType<This>;
+	static geometryElementWithMDLSubmesh<This extends abstract new (...args: any) => any>(
+		this: This,
+		mdlSubMesh: MDLSubmesh,
+	): InstanceType<This>
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 declare class SCNGeometrySource extends NSObject implements NSSecureCoding {
-  static geometrySourceWithDataSemanticVectorCountFloatComponentsComponentsPerVectorBytesPerComponentDataOffsetDataStride<This extends abstract new (...args: any) => any>(this: This, data: NSData, semantic: string, vectorCount: number, floatComponents: boolean, componentsPerVector: number, bytesPerComponent: number, offset: number, stride: number): InstanceType<This>;
+	static geometrySourceWithDataSemanticVectorCountFloatComponentsComponentsPerVectorBytesPerComponentDataOffsetDataStride<
+		This extends abstract new (...args: any) => any,
+	>(
+		this: This,
+		data: NSData,
+		semantic: string,
+		vectorCount: number,
+		floatComponents: boolean,
+		componentsPerVector: number,
+		bytesPerComponent: number,
+		offset: number,
+		stride: number,
+	): InstanceType<This>
 
-  static geometrySourceWithVerticesCount<This extends abstract new (...args: any) => any>(this: This, vertices: interop.PointerConvertible, count: number): InstanceType<This>;
+	static geometrySourceWithVerticesCount<This extends abstract new (...args: any) => any>(
+		this: This,
+		vertices: interop.PointerConvertible,
+		count: number,
+	): InstanceType<This>
 
-  static geometrySourceWithNormalsCount<This extends abstract new (...args: any) => any>(this: This, normals: interop.PointerConvertible, count: number): InstanceType<This>;
+	static geometrySourceWithNormalsCount<This extends abstract new (...args: any) => any>(
+		this: This,
+		normals: interop.PointerConvertible,
+		count: number,
+	): InstanceType<This>
 
-  static geometrySourceWithTextureCoordinatesCount<This extends abstract new (...args: any) => any>(this: This, texcoord: interop.PointerConvertible, count: number): InstanceType<This>;
+	static geometrySourceWithTextureCoordinatesCount<This extends abstract new (...args: any) => any>(
+		this: This,
+		texcoord: interop.PointerConvertible,
+		count: number,
+	): InstanceType<This>
 
-  static geometrySourceWithBufferVertexFormatSemanticVertexCountDataOffsetDataStride<This extends abstract new (...args: any) => any>(this: This, buffer: MTLBuffer, vertexFormat: interop.Enum<typeof MTLVertexFormat>, semantic: string, vertexCount: number, offset: number, stride: number): InstanceType<This>;
+	static geometrySourceWithBufferVertexFormatSemanticVertexCountDataOffsetDataStride<
+		This extends abstract new (...args: any) => any,
+	>(
+		this: This,
+		buffer: MTLBuffer,
+		vertexFormat: interop.Enum<typeof MTLVertexFormat>,
+		semantic: string,
+		vertexCount: number,
+		offset: number,
+		stride: number,
+	): InstanceType<This>
 
-  readonly data: NSData;
+	readonly data: NSData
 
-  readonly semantic: string;
+	readonly semantic: string
 
-  readonly vectorCount: number;
+	readonly vectorCount: number
 
-  readonly floatComponents: boolean;
+	readonly floatComponents: boolean
 
-  readonly componentsPerVector: number;
+	readonly componentsPerVector: number
 
-  readonly bytesPerComponent: number;
+	readonly bytesPerComponent: number
 
-  readonly dataOffset: number;
+	readonly dataOffset: number
 
-  readonly dataStride: number;
+	readonly dataStride: number
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
-declare class SCNNode extends NSObject implements NSCopying, NSSecureCoding, SCNAnimatable, SCNActionable, SCNBoundingVolume {
-  static node<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>;
+declare class SCNNode
+	extends NSObject
+	implements NSCopying, NSSecureCoding, SCNAnimatable, SCNActionable, SCNBoundingVolume
+{
+	static node<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>
 
-  static nodeWithGeometry(geometry: SCNGeometry | null): SCNNode;
+	static nodeWithGeometry(geometry: SCNGeometry | null): SCNNode
 
-  clone(): this;
+	clone(): this
 
-  flattenedClone(): this;
+	flattenedClone(): this
 
-  name: string;
+	name: string
 
-  light: SCNLight;
+	light: SCNLight
 
-  camera: SCNCamera;
+	camera: SCNCamera
 
-  geometry: SCNGeometry;
+	geometry: SCNGeometry
 
-  skinner: SCNSkinner;
+	skinner: SCNSkinner
 
-  morpher: SCNMorpher;
+	morpher: SCNMorpher
 
-  transform: CATransform3D;
+	transform: CATransform3D
 
-  readonly worldTransform: CATransform3D;
+	readonly worldTransform: CATransform3D
 
-  position: SCNVector3;
+	position: SCNVector3
 
-  worldPosition: SCNVector3;
+	worldPosition: SCNVector3
 
-  rotation: SCNVector4;
+	rotation: SCNVector4
 
-  orientation: SCNVector4;
+	orientation: SCNVector4
 
-  worldOrientation: SCNVector4;
+	worldOrientation: SCNVector4
 
-  eulerAngles: SCNVector3;
+	eulerAngles: SCNVector3
 
-  scale: SCNVector3;
+	scale: SCNVector3
 
-  pivot: CATransform3D;
+	pivot: CATransform3D
 
-  hidden: boolean;
+	hidden: boolean
 
-  opacity: number;
+	opacity: number
 
-  renderingOrder: number;
+	renderingOrder: number
 
-  castsShadow: boolean;
+	castsShadow: boolean
 
-  movabilityHint: interop.Enum<typeof SCNMovabilityHint>;
+	movabilityHint: interop.Enum<typeof SCNMovabilityHint>
 
-  readonly parentNode: SCNNode;
+	readonly parentNode: SCNNode
 
-  readonly childNodes: NSArray;
+	readonly childNodes: NSArray
 
-  addChildNode(child: SCNNode): void;
+	addChildNode(child: SCNNode): void
 
-  insertChildNodeAtIndex(child: SCNNode, index: number): void;
+	insertChildNodeAtIndex(child: SCNNode, index: number): void
 
-  removeFromParentNode(): void;
+	removeFromParentNode(): void
 
-  replaceChildNodeWith(oldChild: SCNNode, newChild: SCNNode): void;
+	replaceChildNodeWith(oldChild: SCNNode, newChild: SCNNode): void
 
-  childNodeWithNameRecursively(name: string, recursively: boolean): SCNNode;
+	childNodeWithNameRecursively(name: string, recursively: boolean): SCNNode
 
-  childNodesPassingTest(predicate: (p1: SCNNode, p2: interop.PointerConvertible) => boolean): NSArray;
+	childNodesPassingTest(
+		predicate: (p1: SCNNode, p2: interop.PointerConvertible) => boolean,
+	): NSArray
 
-  enumerateChildNodesUsingBlock(block: (p1: SCNNode, p2: interop.PointerConvertible) => void): void;
+	enumerateChildNodesUsingBlock(block: (p1: SCNNode, p2: interop.PointerConvertible) => void): void
 
-  enumerateHierarchyUsingBlock(block: (p1: SCNNode, p2: interop.PointerConvertible) => void): void;
+	enumerateHierarchyUsingBlock(block: (p1: SCNNode, p2: interop.PointerConvertible) => void): void
 
-  convertPositionToNode(position: SCNVector3, node: SCNNode | null): SCNVector3;
+	convertPositionToNode(position: SCNVector3, node: SCNNode | null): SCNVector3
 
-  convertPositionFromNode(position: SCNVector3, node: SCNNode | null): SCNVector3;
+	convertPositionFromNode(position: SCNVector3, node: SCNNode | null): SCNVector3
 
-  convertVectorToNode(vector: SCNVector3, node: SCNNode | null): SCNVector3;
+	convertVectorToNode(vector: SCNVector3, node: SCNNode | null): SCNVector3
 
-  convertVectorFromNode(vector: SCNVector3, node: SCNNode | null): SCNVector3;
+	convertVectorFromNode(vector: SCNVector3, node: SCNNode | null): SCNVector3
 
-  convertTransformToNode(transform: CATransform3D, node: SCNNode | null): CATransform3D;
+	convertTransformToNode(transform: CATransform3D, node: SCNNode | null): CATransform3D
 
-  convertTransformFromNode(transform: CATransform3D, node: SCNNode | null): CATransform3D;
+	convertTransformFromNode(transform: CATransform3D, node: SCNNode | null): CATransform3D
 
-  physicsBody: SCNPhysicsBody;
+	physicsBody: SCNPhysicsBody
 
-  physicsField: SCNPhysicsField;
+	physicsField: SCNPhysicsField
 
-  get constraints(): NSArray;
-  set constraints(value: NSArray<interop.Object> | Array<interop.Object>);
+	get constraints(): NSArray
+	set constraints(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get filters(): NSArray;
-  set filters(value: NSArray<interop.Object> | Array<interop.Object>);
+	get filters(): NSArray
+	set filters(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  readonly presentationNode: SCNNode;
+	readonly presentationNode: SCNNode
 
-  paused: boolean;
+	paused: boolean
 
-  rendererDelegate: SCNNodeRendererDelegate;
+	rendererDelegate: SCNNodeRendererDelegate
 
-  hitTestWithSegmentFromPointToPointOptions(pointA: SCNVector3, pointB: SCNVector3, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null): NSArray;
+	hitTestWithSegmentFromPointToPointOptions(
+		pointA: SCNVector3,
+		pointB: SCNVector3,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+	): NSArray
 
-  categoryBitMask: number;
+	categoryBitMask: number
 
-  isHidden(): boolean;
+	isHidden(): boolean
 
-  isPaused(): boolean;
+	isPaused(): boolean
 
-  static readonly localUp: SCNVector3;
+	static readonly localUp: SCNVector3
 
-  static readonly localRight: SCNVector3;
+	static readonly localRight: SCNVector3
 
-  static readonly localFront: SCNVector3;
+	static readonly localFront: SCNVector3
 
-  readonly worldUp: SCNVector3;
+	readonly worldUp: SCNVector3
 
-  readonly worldRight: SCNVector3;
+	readonly worldRight: SCNVector3
 
-  readonly worldFront: SCNVector3;
+	readonly worldFront: SCNVector3
 
-  lookAt(worldTarget: SCNVector3): void;
+	lookAt(worldTarget: SCNVector3): void
 
-  lookAtUpLocalFront(worldTarget: SCNVector3, worldUp: SCNVector3, localFront: SCNVector3): void;
+	lookAtUpLocalFront(worldTarget: SCNVector3, worldUp: SCNVector3, localFront: SCNVector3): void
 
-  localTranslateBy(translation: SCNVector3): void;
+	localTranslateBy(translation: SCNVector3): void
 
-  localRotateBy(rotation: SCNVector4): void;
+	localRotateBy(rotation: SCNVector4): void
 
-  rotateByAroundTarget(worldRotation: SCNVector4, worldTarget: SCNVector3): void;
+	rotateByAroundTarget(worldRotation: SCNVector4, worldTarget: SCNVector3): void
 
-  simdTransform: simd_float4x4;
+	simdTransform: simd_float4x4
 
-  simdPosition: unknown /* ext vector */;
+	simdPosition: unknown /* ext vector */
 
-  simdRotation: unknown /* ext vector */;
+	simdRotation: unknown /* ext vector */
 
-  simdOrientation: simd_quatf;
+	simdOrientation: simd_quatf
 
-  simdEulerAngles: unknown /* ext vector */;
+	simdEulerAngles: unknown /* ext vector */
 
-  simdScale: unknown /* ext vector */;
+	simdScale: unknown /* ext vector */
 
-  simdPivot: simd_float4x4;
+	simdPivot: simd_float4x4
 
-  simdWorldPosition: unknown /* ext vector */;
+	simdWorldPosition: unknown /* ext vector */
 
-  simdWorldOrientation: simd_quatf;
+	simdWorldOrientation: simd_quatf
 
-  simdWorldTransform: simd_float4x4;
+	simdWorldTransform: simd_float4x4
 
-  simdConvertPositionToNode(position: unknown /* ext vector */, node: SCNNode | null): unknown /* ext vector */;
+	simdConvertPositionToNode(
+		position: unknown /* ext vector */,
+		node: SCNNode | null,
+	): unknown /* ext vector */
 
-  simdConvertPositionFromNode(position: unknown /* ext vector */, node: SCNNode | null): unknown /* ext vector */;
+	simdConvertPositionFromNode(
+		position: unknown /* ext vector */,
+		node: SCNNode | null,
+	): unknown /* ext vector */
 
-  simdConvertVectorToNode(vector: unknown /* ext vector */, node: SCNNode | null): unknown /* ext vector */;
+	simdConvertVectorToNode(
+		vector: unknown /* ext vector */,
+		node: SCNNode | null,
+	): unknown /* ext vector */
 
-  simdConvertVectorFromNode(vector: unknown /* ext vector */, node: SCNNode | null): unknown /* ext vector */;
+	simdConvertVectorFromNode(
+		vector: unknown /* ext vector */,
+		node: SCNNode | null,
+	): unknown /* ext vector */
 
-  simdConvertTransformToNode(transform: simd_float4x4, node: SCNNode | null): simd_float4x4;
+	simdConvertTransformToNode(transform: simd_float4x4, node: SCNNode | null): simd_float4x4
 
-  simdConvertTransformFromNode(transform: simd_float4x4, node: SCNNode | null): simd_float4x4;
+	simdConvertTransformFromNode(transform: simd_float4x4, node: SCNNode | null): simd_float4x4
 
-  static readonly simdLocalUp: unknown /* ext vector */;
+	static readonly simdLocalUp: unknown /* ext vector */
 
-  static readonly simdLocalRight: unknown /* ext vector */;
+	static readonly simdLocalRight: unknown /* ext vector */
 
-  static readonly simdLocalFront: unknown /* ext vector */;
+	static readonly simdLocalFront: unknown /* ext vector */
 
-  readonly simdWorldUp: unknown /* ext vector */;
+	readonly simdWorldUp: unknown /* ext vector */
 
-  readonly simdWorldRight: unknown /* ext vector */;
+	readonly simdWorldRight: unknown /* ext vector */
 
-  readonly simdWorldFront: unknown /* ext vector */;
+	readonly simdWorldFront: unknown /* ext vector */
 
-  simdLookAt(worldTarget: unknown /* ext vector */): void;
+	simdLookAt(worldTarget: unknown /* ext vector */): void
 
-  simdLookAtUpLocalFront(worldTarget: unknown /* ext vector */, worldUp: unknown /* ext vector */, localFront: unknown /* ext vector */): void;
+	simdLookAtUpLocalFront(
+		worldTarget: unknown /* ext vector */,
+		worldUp: unknown /* ext vector */,
+		localFront: unknown /* ext vector */,
+	): void
 
-  simdLocalTranslateBy(translation: unknown /* ext vector */): void;
+	simdLocalTranslateBy(translation: unknown /* ext vector */): void
 
-  simdLocalRotateBy(rotation: simd_quatf): void;
+	simdLocalRotateBy(rotation: simd_quatf): void
 
-  simdRotateByAroundTarget(worldRotation: simd_quatf, worldTarget: unknown /* ext vector */): void;
+	simdRotateByAroundTarget(worldRotation: simd_quatf, worldTarget: unknown /* ext vector */): void
 
-  focusBehavior: interop.Enum<typeof SCNNodeFocusBehavior>;
+	focusBehavior: interop.Enum<typeof SCNNodeFocusBehavior>
 
-  addParticleSystem(system: SCNParticleSystem): void;
+	addParticleSystem(system: SCNParticleSystem): void
 
-  removeAllParticleSystems(): void;
+	removeAllParticleSystems(): void
 
-  removeParticleSystem(system: SCNParticleSystem): void;
+	removeParticleSystem(system: SCNParticleSystem): void
 
-  readonly particleSystems: NSArray;
+	readonly particleSystems: NSArray
 
-  addAudioPlayer(player: SCNAudioPlayer): void;
+	addAudioPlayer(player: SCNAudioPlayer): void
 
-  removeAllAudioPlayers(): void;
+	removeAllAudioPlayers(): void
 
-  removeAudioPlayer(player: SCNAudioPlayer): void;
+	removeAudioPlayer(player: SCNAudioPlayer): void
 
-  readonly audioPlayers: NSArray;
+	readonly audioPlayers: NSArray
 
-  entity: GKEntity;
+	entity: GKEntity
 
-  static nodeWithMDLObject<This extends abstract new (...args: any) => any>(this: This, mdlObject: MDLObject): InstanceType<This>;
+	static nodeWithMDLObject<This extends abstract new (...args: any) => any>(
+		this: This,
+		mdlObject: MDLObject,
+	): InstanceType<This>
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  addAnimationForKey(animation: SCNAnimation, key: string | null): void;
+	addAnimationForKey(animation: SCNAnimation, key: string | null): void
 
-  addAnimationPlayerForKey(player: SCNAnimationPlayer, key: string | null): void;
+	addAnimationPlayerForKey(player: SCNAnimationPlayer, key: string | null): void
 
-  removeAllAnimations(): void;
+	removeAllAnimations(): void
 
-  removeAnimationForKey(key: string): void;
+	removeAnimationForKey(key: string): void
 
-  removeAnimationForKeyBlendOutDuration(key: string, duration: number): void;
+	removeAnimationForKeyBlendOutDuration(key: string, duration: number): void
 
-  readonly animationKeys: NSArray;
+	readonly animationKeys: NSArray
 
-  animationPlayerForKey(key: string): SCNAnimationPlayer;
+	animationPlayerForKey(key: string): SCNAnimationPlayer
 
-  removeAnimationForKeyFadeOutDuration(key: string, duration: number): void;
+	removeAnimationForKeyFadeOutDuration(key: string, duration: number): void
 
-  animationForKey(key: string): CAAnimation;
+	animationForKey(key: string): CAAnimation
 
-  pauseAnimationForKey(key: string): void;
+	pauseAnimationForKey(key: string): void
 
-  resumeAnimationForKey(key: string): void;
+	resumeAnimationForKey(key: string): void
 
-  setSpeedForAnimationKey(speed: number, key: string): void;
+	setSpeedForAnimationKey(speed: number, key: string): void
 
-  isAnimationForKeyPaused(key: string): boolean;
+	isAnimationForKeyPaused(key: string): boolean
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 
-  runAction(action: SCNAction): void;
+	runAction(action: SCNAction): void
 
-  runActionCompletionHandler(action: SCNAction, block: () => void | null): void;
+	runActionCompletionHandler(action: SCNAction, block: () => void | null): void
 
-  runActionForKey(action: SCNAction, key: string | null): void;
+	runActionForKey(action: SCNAction, key: string | null): void
 
-  runActionForKeyCompletionHandler(action: SCNAction, key: string | null, block: () => void | null): void;
+	runActionForKeyCompletionHandler(
+		action: SCNAction,
+		key: string | null,
+		block: () => void | null,
+	): void
 
-  readonly hasActions: boolean;
+	readonly hasActions: boolean
 
-  actionForKey(key: string): SCNAction;
+	actionForKey(key: string): SCNAction
 
-  removeActionForKey(key: string): void;
+	removeActionForKey(key: string): void
 
-  removeAllActions(): void;
+	removeAllActions(): void
 
-  readonly actionKeys: NSArray;
+	readonly actionKeys: NSArray
 
-  getBoundingBoxMinMax(min: interop.PointerConvertible, max: interop.PointerConvertible): boolean;
+	getBoundingBoxMinMax(min: interop.PointerConvertible, max: interop.PointerConvertible): boolean
 
-  setBoundingBoxMinMax(min: interop.PointerConvertible, max: interop.PointerConvertible): void;
+	setBoundingBoxMinMax(min: interop.PointerConvertible, max: interop.PointerConvertible): void
 
-  getBoundingSphereCenterRadius(center: interop.PointerConvertible, radius: interop.PointerConvertible): boolean;
+	getBoundingSphereCenterRadius(
+		center: interop.PointerConvertible,
+		radius: interop.PointerConvertible,
+	): boolean
 }
 
 declare class SCNAction extends NSObject implements NSCopying, NSSecureCoding {
-  duration: number;
+	duration: number
 
-  timingMode: interop.Enum<typeof SCNActionTimingMode>;
+	timingMode: interop.Enum<typeof SCNActionTimingMode>
 
-  timingFunction: (p1: number) => number;
+	timingFunction: (p1: number) => number
 
-  speed: number;
+	speed: number
 
-  reversedAction(): SCNAction;
+	reversedAction(): SCNAction
 
-  static moveByXYZDuration(deltaX: number, deltaY: number, deltaZ: number, duration: number): SCNAction;
+	static moveByXYZDuration(
+		deltaX: number,
+		deltaY: number,
+		deltaZ: number,
+		duration: number,
+	): SCNAction
 
-  static moveByDuration(delta: SCNVector3, duration: number): SCNAction;
+	static moveByDuration(delta: SCNVector3, duration: number): SCNAction
 
-  static moveToDuration(location: SCNVector3, duration: number): SCNAction;
+	static moveToDuration(location: SCNVector3, duration: number): SCNAction
 
-  static rotateByXYZDuration(xAngle: number, yAngle: number, zAngle: number, duration: number): SCNAction;
+	static rotateByXYZDuration(
+		xAngle: number,
+		yAngle: number,
+		zAngle: number,
+		duration: number,
+	): SCNAction
 
-  static rotateToXYZDuration(xAngle: number, yAngle: number, zAngle: number, duration: number): SCNAction;
+	static rotateToXYZDuration(
+		xAngle: number,
+		yAngle: number,
+		zAngle: number,
+		duration: number,
+	): SCNAction
 
-  static rotateToXYZDurationShortestUnitArc(xAngle: number, yAngle: number, zAngle: number, duration: number, shortestUnitArc: boolean): SCNAction;
+	static rotateToXYZDurationShortestUnitArc(
+		xAngle: number,
+		yAngle: number,
+		zAngle: number,
+		duration: number,
+		shortestUnitArc: boolean,
+	): SCNAction
 
-  static rotateByAngleAroundAxisDuration(angle: number, axis: SCNVector3, duration: number): SCNAction;
+	static rotateByAngleAroundAxisDuration(
+		angle: number,
+		axis: SCNVector3,
+		duration: number,
+	): SCNAction
 
-  static rotateToAxisAngleDuration(axisAngle: SCNVector4, duration: number): SCNAction;
+	static rotateToAxisAngleDuration(axisAngle: SCNVector4, duration: number): SCNAction
 
-  static scaleByDuration(scale: number, sec: number): SCNAction;
+	static scaleByDuration(scale: number, sec: number): SCNAction
 
-  static scaleToDuration(scale: number, sec: number): SCNAction;
+	static scaleToDuration(scale: number, sec: number): SCNAction
 
-  static sequence(actions: NSArray<interop.Object> | Array<interop.Object>): SCNAction;
+	static sequence(actions: NSArray<interop.Object> | Array<interop.Object>): SCNAction
 
-  static group(actions: NSArray<interop.Object> | Array<interop.Object>): SCNAction;
+	static group(actions: NSArray<interop.Object> | Array<interop.Object>): SCNAction
 
-  static repeatActionCount(action: SCNAction, count: number): SCNAction;
+	static repeatActionCount(action: SCNAction, count: number): SCNAction
 
-  static repeatActionForever(action: SCNAction): SCNAction;
+	static repeatActionForever(action: SCNAction): SCNAction
 
-  static fadeInWithDuration(sec: number): SCNAction;
+	static fadeInWithDuration(sec: number): SCNAction
 
-  static fadeOutWithDuration(sec: number): SCNAction;
+	static fadeOutWithDuration(sec: number): SCNAction
 
-  static fadeOpacityByDuration(factor: number, sec: number): SCNAction;
+	static fadeOpacityByDuration(factor: number, sec: number): SCNAction
 
-  static fadeOpacityToDuration(opacity: number, sec: number): SCNAction;
+	static fadeOpacityToDuration(opacity: number, sec: number): SCNAction
 
-  static hide(): SCNAction;
+	static hide(): SCNAction
 
-  static unhide(): SCNAction;
+	static unhide(): SCNAction
 
-  static waitForDuration(sec: number): SCNAction;
+	static waitForDuration(sec: number): SCNAction
 
-  static waitForDurationWithRange(sec: number, durationRange: number): SCNAction;
+	static waitForDurationWithRange(sec: number, durationRange: number): SCNAction
 
-  static removeFromParentNode(): SCNAction;
+	static removeFromParentNode(): SCNAction
 
-  static runBlock(block: (p1: SCNNode) => void): SCNAction;
+	static runBlock(block: (p1: SCNNode) => void): SCNAction
 
-  static runBlockQueue(block: (p1: SCNNode) => void, queue: NSObject): SCNAction;
+	static runBlockQueue(block: (p1: SCNNode) => void, queue: NSObject): SCNAction
 
-  static javaScriptActionWithScriptDuration(script: string, seconds: number): SCNAction;
+	static javaScriptActionWithScriptDuration(script: string, seconds: number): SCNAction
 
-  static customActionWithDurationActionBlock(seconds: number, block: (p1: SCNNode, p2: number) => void): SCNAction;
+	static customActionWithDurationActionBlock(
+		seconds: number,
+		block: (p1: SCNNode, p2: number) => void,
+	): SCNAction
 
-  static playAudioSourceWaitForCompletion(source: SCNAudioSource, wait: boolean): SCNAction;
+	static playAudioSourceWaitForCompletion(source: SCNAudioSource, wait: boolean): SCNAction
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 declare class SCNScene extends NSObject implements NSSecureCoding, GKSceneRootNodeType {
-  static scene<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>;
+	static scene<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>
 
-  readonly rootNode: SCNNode;
+	readonly rootNode: SCNNode
 
-  readonly physicsWorld: SCNPhysicsWorld;
+	readonly physicsWorld: SCNPhysicsWorld
 
-  attributeForKey(key: string): interop.Object;
+	attributeForKey(key: string): interop.Object
 
-  setAttributeForKey(attribute: interop.Object | null, key: string): void;
+	setAttributeForKey(attribute: interop.Object | null, key: string): void
 
-  readonly background: SCNMaterialProperty;
+	readonly background: SCNMaterialProperty
 
-  readonly lightingEnvironment: SCNMaterialProperty;
+	readonly lightingEnvironment: SCNMaterialProperty
 
-  static sceneNamed<This extends abstract new (...args: any) => any>(this: This, name: string): InstanceType<This>;
+	static sceneNamed<This extends abstract new (...args: any) => any>(
+		this: This,
+		name: string,
+	): InstanceType<This>
 
-  static sceneNamedInDirectoryOptions<This extends abstract new (...args: any) => any>(this: This, name: string, directory: string | null, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null): InstanceType<This>;
+	static sceneNamedInDirectoryOptions<This extends abstract new (...args: any) => any>(
+		this: This,
+		name: string,
+		directory: string | null,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+	): InstanceType<This>
 
-  static sceneWithURLOptionsError<This extends abstract new (...args: any) => any>(this: This, url: NSURL, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null, error: interop.PointerConvertible): InstanceType<This>;
+	static sceneWithURLOptionsError<This extends abstract new (...args: any) => any>(
+		this: This,
+		url: NSURL,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+		error: interop.PointerConvertible,
+	): InstanceType<This>
 
-  writeToURLOptionsDelegateProgressHandler(url: NSURL, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null, delegate: SCNSceneExportDelegate | null, progressHandler: (p1: number, p2: NSError, p3: interop.PointerConvertible) => void | null): boolean;
+	writeToURLOptionsDelegateProgressHandler(
+		url: NSURL,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+		delegate: SCNSceneExportDelegate | null,
+		progressHandler: (p1: number, p2: NSError, p3: interop.PointerConvertible) => void | null,
+	): boolean
 
-  fogStartDistance: number;
+	fogStartDistance: number
 
-  fogEndDistance: number;
+	fogEndDistance: number
 
-  fogDensityExponent: number;
+	fogDensityExponent: number
 
-  fogColor: interop.Object;
+	fogColor: interop.Object
 
-  wantsScreenSpaceReflection: boolean;
+	wantsScreenSpaceReflection: boolean
 
-  screenSpaceReflectionSampleCount: number;
+	screenSpaceReflectionSampleCount: number
 
-  screenSpaceReflectionMaximumDistance: number;
+	screenSpaceReflectionMaximumDistance: number
 
-  screenSpaceReflectionStride: number;
+	screenSpaceReflectionStride: number
 
-  paused: boolean;
+	paused: boolean
 
-  isPaused(): boolean;
+	isPaused(): boolean
 
-  addParticleSystemWithTransform(system: SCNParticleSystem, transform: CATransform3D): void;
+	addParticleSystemWithTransform(system: SCNParticleSystem, transform: CATransform3D): void
 
-  removeAllParticleSystems(): void;
+	removeAllParticleSystems(): void
 
-  removeParticleSystem(system: SCNParticleSystem): void;
+	removeParticleSystem(system: SCNParticleSystem): void
 
-  readonly particleSystems: NSArray;
+	readonly particleSystems: NSArray
 
-  static sceneWithMDLAsset<This extends abstract new (...args: any) => any>(this: This, mdlAsset: MDLAsset): InstanceType<This>;
+	static sceneWithMDLAsset<This extends abstract new (...args: any) => any>(
+		this: This,
+		mdlAsset: MDLAsset,
+	): InstanceType<This>
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 }
 
 declare class SCNView extends NSView implements SCNSceneRenderer, SCNTechniqueSupport {
-  initWithFrameOptions(frame: CGRect, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null): this;
+	initWithFrameOptions(
+		frame: CGRect,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+	): this
 
-  scene: SCNScene;
+	scene: SCNScene
 
-  rendersContinuously: boolean;
+	rendersContinuously: boolean
 
-  backgroundColor: NSColor;
+	backgroundColor: NSColor
 
-  allowsCameraControl: boolean;
+	allowsCameraControl: boolean
 
-  readonly cameraControlConfiguration: SCNCameraControlConfiguration;
+	readonly cameraControlConfiguration: SCNCameraControlConfiguration
 
-  readonly defaultCameraController: SCNCameraController;
+	readonly defaultCameraController: SCNCameraController
 
-  snapshot(): NSImage;
+	snapshot(): NSImage
 
-  play(sender: interop.Object | null): void;
+	play(sender: interop.Object | null): void
 
-  pause(sender: interop.Object | null): void;
+	pause(sender: interop.Object | null): void
 
-  stop(sender: interop.Object | null): void;
+	stop(sender: interop.Object | null): void
 
-  preferredFramesPerSecond: number;
+	preferredFramesPerSecond: number
 
-  drawableResizesAsynchronously: boolean;
+	drawableResizesAsynchronously: boolean
 
-  openGLContext: NSOpenGLContext;
+	openGLContext: NSOpenGLContext
 
-  antialiasingMode: interop.Enum<typeof SCNAntialiasingMode>;
+	antialiasingMode: interop.Enum<typeof SCNAntialiasingMode>
 
-  pixelFormat: NSOpenGLPixelFormat;
+	pixelFormat: NSOpenGLPixelFormat
 
-  presentSceneWithTransitionIncomingPointOfViewCompletionHandler(scene: SCNScene, transition: SKTransition, pointOfView: SCNNode | null, completionHandler: () => void | null): void;
+	presentSceneWithTransitionIncomingPointOfViewCompletionHandler(
+		scene: SCNScene,
+		transition: SKTransition,
+		pointOfView: SCNNode | null,
+		completionHandler: () => void | null,
+	): void
 
-  sceneTime: number;
+	sceneTime: number
 
-  delegate: SCNSceneRendererDelegate;
+	delegate: SCNSceneRendererDelegate
 
-  hitTestOptions(point: CGPoint, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null): NSArray;
+	hitTestOptions(
+		point: CGPoint,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+	): NSArray
 
-  isNodeInsideFrustumWithPointOfView(node: SCNNode, pointOfView: SCNNode): boolean;
+	isNodeInsideFrustumWithPointOfView(node: SCNNode, pointOfView: SCNNode): boolean
 
-  nodesInsideFrustumWithPointOfView(pointOfView: SCNNode): NSArray;
+	nodesInsideFrustumWithPointOfView(pointOfView: SCNNode): NSArray
 
-  projectPoint(point: SCNVector3): SCNVector3;
+	projectPoint(point: SCNVector3): SCNVector3
 
-  unprojectPoint(point: SCNVector3): SCNVector3;
+	unprojectPoint(point: SCNVector3): SCNVector3
 
-  playing: boolean;
+	playing: boolean
 
-  loops: boolean;
+	loops: boolean
 
-  pointOfView: SCNNode;
+	pointOfView: SCNNode
 
-  autoenablesDefaultLighting: boolean;
+	autoenablesDefaultLighting: boolean
 
-  jitteringEnabled: boolean;
+	jitteringEnabled: boolean
 
-  temporalAntialiasingEnabled: boolean;
+	temporalAntialiasingEnabled: boolean
 
-  prepareObjectShouldAbortBlock(object: interop.Object, block: () => boolean | null): boolean;
+	prepareObjectShouldAbortBlock(object: interop.Object, block: () => boolean | null): boolean
 
-  prepareObjectsWithCompletionHandler(objects: NSArray<interop.Object> | Array<interop.Object>, completionHandler: (p1: boolean) => void | null): void;
+	prepareObjectsWithCompletionHandler(
+		objects: NSArray<interop.Object> | Array<interop.Object>,
+		completionHandler: (p1: boolean) => void | null,
+	): void
 
-  showsStatistics: boolean;
+	showsStatistics: boolean
 
-  debugOptions: interop.Enum<typeof SCNDebugOptions>;
+	debugOptions: interop.Enum<typeof SCNDebugOptions>
 
-  overlaySKScene: SKScene;
+	overlaySKScene: SKScene
 
-  readonly renderingAPI: interop.Enum<typeof SCNRenderingAPI>;
+	readonly renderingAPI: interop.Enum<typeof SCNRenderingAPI>
 
-  readonly context: interop.Pointer;
+	readonly context: interop.Pointer
 
-  readonly currentRenderCommandEncoder: MTLRenderCommandEncoder;
+	readonly currentRenderCommandEncoder: MTLRenderCommandEncoder
 
-  readonly currentRenderPassDescriptor: MTLRenderPassDescriptor;
+	readonly currentRenderPassDescriptor: MTLRenderPassDescriptor
 
-  readonly device: MTLDevice;
+	readonly device: MTLDevice
 
-  readonly colorPixelFormat: interop.Enum<typeof MTLPixelFormat>;
+	readonly colorPixelFormat: interop.Enum<typeof MTLPixelFormat>
 
-  readonly depthPixelFormat: interop.Enum<typeof MTLPixelFormat>;
+	readonly depthPixelFormat: interop.Enum<typeof MTLPixelFormat>
 
-  readonly stencilPixelFormat: interop.Enum<typeof MTLPixelFormat>;
+	readonly stencilPixelFormat: interop.Enum<typeof MTLPixelFormat>
 
-  readonly commandQueue: MTLCommandQueue;
+	readonly commandQueue: MTLCommandQueue
 
-  readonly audioEngine: AVAudioEngine;
+	readonly audioEngine: AVAudioEngine
 
-  readonly audioEnvironmentNode: AVAudioEnvironmentNode;
+	readonly audioEnvironmentNode: AVAudioEnvironmentNode
 
-  audioListener: SCNNode;
+	audioListener: SCNNode
 
-  readonly currentViewport: CGRect;
+	readonly currentViewport: CGRect
 
-  currentTime: number;
+	currentTime: number
 
-  usesReverseZ: boolean;
+	usesReverseZ: boolean
 
-  isPlaying(): boolean;
+	isPlaying(): boolean
 
-  isJitteringEnabled(): boolean;
+	isJitteringEnabled(): boolean
 
-  isTemporalAntialiasingEnabled(): boolean;
+	isTemporalAntialiasingEnabled(): boolean
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 
-  technique: SCNTechnique;
+	technique: SCNTechnique
 }
 
-declare class SCNAnimationPlayer extends NSObject implements SCNAnimatable, NSCopying, NSSecureCoding {
-  static animationPlayerWithAnimation(animation: SCNAnimation): SCNAnimationPlayer;
+declare class SCNAnimationPlayer
+	extends NSObject
+	implements SCNAnimatable, NSCopying, NSSecureCoding
+{
+	static animationPlayerWithAnimation(animation: SCNAnimation): SCNAnimationPlayer
 
-  readonly animation: SCNAnimation;
+	readonly animation: SCNAnimation
 
-  speed: number;
+	speed: number
 
-  blendFactor: number;
+	blendFactor: number
 
-  paused: boolean;
+	paused: boolean
 
-  play(): void;
+	play(): void
 
-  stop(): void;
+	stop(): void
 
-  stopWithBlendOutDuration(duration: number): void;
+	stopWithBlendOutDuration(duration: number): void
 
-  addAnimationForKey(animation: SCNAnimation, key: string | null): void;
+	addAnimationForKey(animation: SCNAnimation, key: string | null): void
 
-  addAnimationPlayerForKey(player: SCNAnimationPlayer, key: string | null): void;
+	addAnimationPlayerForKey(player: SCNAnimationPlayer, key: string | null): void
 
-  removeAllAnimations(): void;
+	removeAllAnimations(): void
 
-  removeAnimationForKey(key: string): void;
+	removeAnimationForKey(key: string): void
 
-  removeAnimationForKeyBlendOutDuration(key: string, duration: number): void;
+	removeAnimationForKeyBlendOutDuration(key: string, duration: number): void
 
-  readonly animationKeys: NSArray;
+	readonly animationKeys: NSArray
 
-  animationPlayerForKey(key: string): SCNAnimationPlayer;
+	animationPlayerForKey(key: string): SCNAnimationPlayer
 
-  removeAnimationForKeyFadeOutDuration(key: string, duration: number): void;
+	removeAnimationForKeyFadeOutDuration(key: string, duration: number): void
 
-  animationForKey(key: string): CAAnimation;
+	animationForKey(key: string): CAAnimation
 
-  pauseAnimationForKey(key: string): void;
+	pauseAnimationForKey(key: string): void
 
-  resumeAnimationForKey(key: string): void;
+	resumeAnimationForKey(key: string): void
 
-  setSpeedForAnimationKey(speed: number, key: string): void;
+	setSpeedForAnimationKey(speed: number, key: string): void
 
-  isAnimationForKeyPaused(key: string): boolean;
+	isAnimationForKeyPaused(key: string): boolean
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
-declare class SCNAnimation extends NSObject implements SCNAnimationProtocol, NSCopying, NSSecureCoding {
-  static animationWithContentsOfURL(animationUrl: NSURL): SCNAnimation;
+declare class SCNAnimation
+	extends NSObject
+	implements SCNAnimationProtocol, NSCopying, NSSecureCoding
+{
+	static animationWithContentsOfURL(animationUrl: NSURL): SCNAnimation
 
-  static animationNamed(animationName: string): SCNAnimation;
+	static animationNamed(animationName: string): SCNAnimation
 
-  static animationWithCAAnimation(caAnimation: CAAnimation): SCNAnimation;
+	static animationWithCAAnimation(caAnimation: CAAnimation): SCNAnimation
 
-  duration: number;
+	duration: number
 
-  keyPath: string;
+	keyPath: string
 
-  timingFunction: SCNTimingFunction;
+	timingFunction: SCNTimingFunction
 
-  blendInDuration: number;
+	blendInDuration: number
 
-  blendOutDuration: number;
+	blendOutDuration: number
 
-  removedOnCompletion: boolean;
+	removedOnCompletion: boolean
 
-  appliedOnCompletion: boolean;
+	appliedOnCompletion: boolean
 
-  repeatCount: number;
+	repeatCount: number
 
-  autoreverses: boolean;
+	autoreverses: boolean
 
-  startDelay: number;
+	startDelay: number
 
-  timeOffset: number;
+	timeOffset: number
 
-  fillsForward: boolean;
+	fillsForward: boolean
 
-  fillsBackward: boolean;
+	fillsBackward: boolean
 
-  usesSceneTimeBase: boolean;
+	usesSceneTimeBase: boolean
 
-  animationDidStart: (p1: SCNAnimation, p2: SCNAnimatable) => void;
+	animationDidStart: (p1: SCNAnimation, p2: SCNAnimatable) => void
 
-  animationDidStop: (p1: SCNAnimation, p2: SCNAnimatable, p3: boolean) => void;
+	animationDidStop: (p1: SCNAnimation, p2: SCNAnimatable, p3: boolean) => void
 
-  get animationEvents(): NSArray;
-  set animationEvents(value: NSArray<interop.Object> | Array<interop.Object>);
+	get animationEvents(): NSArray
+	set animationEvents(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  additive: boolean;
+	additive: boolean
 
-  cumulative: boolean;
+	cumulative: boolean
 
-  isRemovedOnCompletion(): boolean;
+	isRemovedOnCompletion(): boolean
 
-  isAppliedOnCompletion(): boolean;
+	isAppliedOnCompletion(): boolean
 
-  isAdditive(): boolean;
+	isAdditive(): boolean
 
-  isCumulative(): boolean;
+	isCumulative(): boolean
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 declare class SCNTimingFunction extends NSObject implements NSSecureCoding {
-  static functionWithTimingMode(timingMode: interop.Enum<typeof SCNActionTimingMode>): SCNTimingFunction;
+	static functionWithTimingMode(
+		timingMode: interop.Enum<typeof SCNActionTimingMode>,
+	): SCNTimingFunction
 
-  static functionWithCAMediaTimingFunction(caTimingFunction: CAMediaTimingFunction): SCNTimingFunction;
+	static functionWithCAMediaTimingFunction(
+		caTimingFunction: CAMediaTimingFunction,
+	): SCNTimingFunction
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 declare class SCNFloor extends SCNGeometry {
-  static floor<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>;
+	static floor<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>
 
-  reflectivity: number;
+	reflectivity: number
 
-  reflectionFalloffStart: number;
+	reflectionFalloffStart: number
 
-  reflectionFalloffEnd: number;
+	reflectionFalloffEnd: number
 
-  reflectionCategoryBitMask: number;
+	reflectionCategoryBitMask: number
 
-  width: number;
+	width: number
 
-  length: number;
+	length: number
 
-  reflectionResolutionScaleFactor: number;
+	reflectionResolutionScaleFactor: number
 }
 
 declare class SCNPhysicsConeTwistJoint extends SCNPhysicsBehavior {
-  static jointWithBodyAFrameABodyBFrameB<This extends abstract new (...args: any) => any>(this: This, bodyA: SCNPhysicsBody, frameA: CATransform3D, bodyB: SCNPhysicsBody, frameB: CATransform3D): InstanceType<This>;
+	static jointWithBodyAFrameABodyBFrameB<This extends abstract new (...args: any) => any>(
+		this: This,
+		bodyA: SCNPhysicsBody,
+		frameA: CATransform3D,
+		bodyB: SCNPhysicsBody,
+		frameB: CATransform3D,
+	): InstanceType<This>
 
-  static jointWithBodyFrame<This extends abstract new (...args: any) => any>(this: This, body: SCNPhysicsBody, frame: CATransform3D): InstanceType<This>;
+	static jointWithBodyFrame<This extends abstract new (...args: any) => any>(
+		this: This,
+		body: SCNPhysicsBody,
+		frame: CATransform3D,
+	): InstanceType<This>
 
-  readonly bodyA: SCNPhysicsBody;
+	readonly bodyA: SCNPhysicsBody
 
-  frameA: CATransform3D;
+	frameA: CATransform3D
 
-  readonly bodyB: SCNPhysicsBody;
+	readonly bodyB: SCNPhysicsBody
 
-  frameB: CATransform3D;
+	frameB: CATransform3D
 
-  maximumAngularLimit1: number;
+	maximumAngularLimit1: number
 
-  maximumAngularLimit2: number;
+	maximumAngularLimit2: number
 
-  maximumTwistAngle: number;
+	maximumTwistAngle: number
 }
 
 declare class SCNSliderConstraint extends SCNConstraint {
-  static sliderConstraint<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>;
+	static sliderConstraint<This extends abstract new (...args: any) => any>(
+		this: This,
+	): InstanceType<This>
 
-  collisionCategoryBitMask: number;
+	collisionCategoryBitMask: number
 
-  radius: number;
+	radius: number
 
-  offset: SCNVector3;
+	offset: SCNVector3
 }
 
 declare class SCNAvoidOccluderConstraint extends SCNConstraint {
-  static avoidOccluderConstraintWithTarget<This extends abstract new (...args: any) => any>(this: This, target: SCNNode | null): InstanceType<This>;
+	static avoidOccluderConstraintWithTarget<This extends abstract new (...args: any) => any>(
+		this: This,
+		target: SCNNode | null,
+	): InstanceType<This>
 
-  delegate: SCNAvoidOccluderConstraintDelegate;
+	delegate: SCNAvoidOccluderConstraintDelegate
 
-  target: SCNNode;
+	target: SCNNode
 
-  occluderCategoryBitMask: number;
+	occluderCategoryBitMask: number
 
-  bias: number;
+	bias: number
 }
 
 declare class SCNBillboardConstraint extends SCNConstraint {
-  static billboardConstraint<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>;
+	static billboardConstraint<This extends abstract new (...args: any) => any>(
+		this: This,
+	): InstanceType<This>
 
-  freeAxes: interop.Enum<typeof SCNBillboardAxis>;
+	freeAxes: interop.Enum<typeof SCNBillboardAxis>
 }
 
 declare class SCNAccelerationConstraint extends SCNConstraint {
-  static accelerationConstraint<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>;
+	static accelerationConstraint<This extends abstract new (...args: any) => any>(
+		this: This,
+	): InstanceType<This>
 
-  maximumLinearAcceleration: number;
+	maximumLinearAcceleration: number
 
-  maximumLinearVelocity: number;
+	maximumLinearVelocity: number
 
-  decelerationDistance: number;
+	decelerationDistance: number
 
-  damping: number;
+	damping: number
 }
 
 declare class SCNLookAtConstraint extends SCNConstraint {
-  static lookAtConstraintWithTarget<This extends abstract new (...args: any) => any>(this: This, target: SCNNode | null): InstanceType<This>;
+	static lookAtConstraintWithTarget<This extends abstract new (...args: any) => any>(
+		this: This,
+		target: SCNNode | null,
+	): InstanceType<This>
 
-  target: SCNNode;
+	target: SCNNode
 
-  targetOffset: SCNVector3;
+	targetOffset: SCNVector3
 
-  localFront: SCNVector3;
+	localFront: SCNVector3
 
-  worldUp: SCNVector3;
+	worldUp: SCNVector3
 
-  gimbalLockEnabled: boolean;
+	gimbalLockEnabled: boolean
 }
 
 declare class SCNAnimationEvent extends NSObject {
-  static animationEventWithKeyTimeBlock<This extends abstract new (...args: any) => any>(this: This, time: number, eventBlock: (p1: SCNAnimation, p2: interop.Object, p3: boolean) => void): InstanceType<This>;
+	static animationEventWithKeyTimeBlock<This extends abstract new (...args: any) => any>(
+		this: This,
+		time: number,
+		eventBlock: (p1: SCNAnimation, p2: interop.Object, p3: boolean) => void,
+	): InstanceType<This>
 }
 
 declare class SCNTechnique extends NSObject implements SCNAnimatable, NSCopying, NSSecureCoding {
-  static techniqueWithDictionary(dictionary: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): SCNTechnique;
+	static techniqueWithDictionary(
+		dictionary:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+	): SCNTechnique
 
-  static techniqueBySequencingTechniques(techniques: NSArray<interop.Object> | Array<interop.Object>): SCNTechnique;
+	static techniqueBySequencingTechniques(
+		techniques: NSArray<interop.Object> | Array<interop.Object>,
+	): SCNTechnique
 
-  handleBindingOfSymbolUsingBlock(symbol: string, block: (p1: number, p2: number, p3: SCNNode, p4: SCNRenderer) => void | null): void;
+	handleBindingOfSymbolUsingBlock(
+		symbol: string,
+		block: (p1: number, p2: number, p3: SCNNode, p4: SCNRenderer) => void | null,
+	): void
 
-  readonly dictionaryRepresentation: NSDictionary;
+	readonly dictionaryRepresentation: NSDictionary
 
-  objectForKeyedSubscript(key: interop.Object): interop.Object;
+	objectForKeyedSubscript(key: interop.Object): interop.Object
 
-  setObjectForKeyedSubscript(obj: interop.Object | null, key: NSCopying): void;
+	setObjectForKeyedSubscript(obj: interop.Object | null, key: NSCopying): void
 
-  library: MTLLibrary;
+	library: MTLLibrary
 
-  addAnimationForKey(animation: SCNAnimation, key: string | null): void;
+	addAnimationForKey(animation: SCNAnimation, key: string | null): void
 
-  addAnimationPlayerForKey(player: SCNAnimationPlayer, key: string | null): void;
+	addAnimationPlayerForKey(player: SCNAnimationPlayer, key: string | null): void
 
-  removeAllAnimations(): void;
+	removeAllAnimations(): void
 
-  removeAnimationForKey(key: string): void;
+	removeAnimationForKey(key: string): void
 
-  removeAnimationForKeyBlendOutDuration(key: string, duration: number): void;
+	removeAnimationForKeyBlendOutDuration(key: string, duration: number): void
 
-  readonly animationKeys: NSArray;
+	readonly animationKeys: NSArray
 
-  animationPlayerForKey(key: string): SCNAnimationPlayer;
+	animationPlayerForKey(key: string): SCNAnimationPlayer
 
-  removeAnimationForKeyFadeOutDuration(key: string, duration: number): void;
+	removeAnimationForKeyFadeOutDuration(key: string, duration: number): void
 
-  animationForKey(key: string): CAAnimation;
+	animationForKey(key: string): CAAnimation
 
-  pauseAnimationForKey(key: string): void;
+	pauseAnimationForKey(key: string): void
 
-  resumeAnimationForKey(key: string): void;
+	resumeAnimationForKey(key: string): void
 
-  setSpeedForAnimationKey(speed: number, key: string): void;
+	setSpeedForAnimationKey(speed: number, key: string): void
 
-  isAnimationForKeyPaused(key: string): boolean;
+	isAnimationForKeyPaused(key: string): boolean
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
-declare class SCNCamera extends NSObject implements SCNAnimatable, SCNTechniqueSupport, NSCopying, NSSecureCoding {
-  static camera<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>;
+declare class SCNCamera
+	extends NSObject
+	implements SCNAnimatable, SCNTechniqueSupport, NSCopying, NSSecureCoding
+{
+	static camera<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>
 
-  name: string;
+	name: string
 
-  fieldOfView: number;
+	fieldOfView: number
 
-  projectionDirection: interop.Enum<typeof SCNCameraProjectionDirection>;
+	projectionDirection: interop.Enum<typeof SCNCameraProjectionDirection>
 
-  focalLength: number;
+	focalLength: number
 
-  sensorHeight: number;
+	sensorHeight: number
 
-  zNear: number;
+	zNear: number
 
-  zFar: number;
+	zFar: number
 
-  automaticallyAdjustsZRange: boolean;
+	automaticallyAdjustsZRange: boolean
 
-  usesOrthographicProjection: boolean;
+	usesOrthographicProjection: boolean
 
-  orthographicScale: number;
+	orthographicScale: number
 
-  projectionTransform: CATransform3D;
+	projectionTransform: CATransform3D
 
-  projectionTransformWithViewportSize(viewportSize: CGSize): CATransform3D;
+	projectionTransformWithViewportSize(viewportSize: CGSize): CATransform3D
 
-  wantsDepthOfField: boolean;
+	wantsDepthOfField: boolean
 
-  focusDistance: number;
+	focusDistance: number
 
-  focalBlurSampleCount: number;
+	focalBlurSampleCount: number
 
-  fStop: number;
+	fStop: number
 
-  apertureBladeCount: number;
+	apertureBladeCount: number
 
-  motionBlurIntensity: number;
+	motionBlurIntensity: number
 
-  screenSpaceAmbientOcclusionIntensity: number;
+	screenSpaceAmbientOcclusionIntensity: number
 
-  screenSpaceAmbientOcclusionRadius: number;
+	screenSpaceAmbientOcclusionRadius: number
 
-  screenSpaceAmbientOcclusionBias: number;
+	screenSpaceAmbientOcclusionBias: number
 
-  screenSpaceAmbientOcclusionDepthThreshold: number;
+	screenSpaceAmbientOcclusionDepthThreshold: number
 
-  screenSpaceAmbientOcclusionNormalThreshold: number;
+	screenSpaceAmbientOcclusionNormalThreshold: number
 
-  wantsHDR: boolean;
+	wantsHDR: boolean
 
-  exposureOffset: number;
+	exposureOffset: number
 
-  averageGray: number;
+	averageGray: number
 
-  whitePoint: number;
+	whitePoint: number
 
-  wantsExposureAdaptation: boolean;
+	wantsExposureAdaptation: boolean
 
-  exposureAdaptationBrighteningSpeedFactor: number;
+	exposureAdaptationBrighteningSpeedFactor: number
 
-  exposureAdaptationDarkeningSpeedFactor: number;
+	exposureAdaptationDarkeningSpeedFactor: number
 
-  minimumExposure: number;
+	minimumExposure: number
 
-  maximumExposure: number;
+	maximumExposure: number
 
-  bloomThreshold: number;
+	bloomThreshold: number
 
-  bloomIterationCount: number;
+	bloomIterationCount: number
 
-  bloomIterationSpread: number;
+	bloomIterationSpread: number
 
-  bloomIntensity: number;
+	bloomIntensity: number
 
-  bloomBlurRadius: number;
+	bloomBlurRadius: number
 
-  vignettingPower: number;
+	vignettingPower: number
 
-  vignettingIntensity: number;
+	vignettingIntensity: number
 
-  colorFringeStrength: number;
+	colorFringeStrength: number
 
-  colorFringeIntensity: number;
+	colorFringeIntensity: number
 
-  saturation: number;
+	saturation: number
 
-  contrast: number;
+	contrast: number
 
-  grainIntensity: number;
+	grainIntensity: number
 
-  grainScale: number;
+	grainScale: number
 
-  grainIsColored: boolean;
+	grainIsColored: boolean
 
-  whiteBalanceTemperature: number;
+	whiteBalanceTemperature: number
 
-  whiteBalanceTint: number;
+	whiteBalanceTint: number
 
-  readonly colorGrading: SCNMaterialProperty;
+	readonly colorGrading: SCNMaterialProperty
 
-  categoryBitMask: number;
+	categoryBitMask: number
 
-  focalBlurRadius: number;
+	focalBlurRadius: number
 
-  xFov: number;
+	xFov: number
 
-  yFov: number;
+	yFov: number
 
-  aperture: number;
+	aperture: number
 
-  focalSize: number;
+	focalSize: number
 
-  focalDistance: number;
+	focalDistance: number
 
-  static cameraWithMDLCamera<This extends abstract new (...args: any) => any>(this: This, mdlCamera: MDLCamera): InstanceType<This>;
+	static cameraWithMDLCamera<This extends abstract new (...args: any) => any>(
+		this: This,
+		mdlCamera: MDLCamera,
+	): InstanceType<This>
 
-  addAnimationForKey(animation: SCNAnimation, key: string | null): void;
+	addAnimationForKey(animation: SCNAnimation, key: string | null): void
 
-  addAnimationPlayerForKey(player: SCNAnimationPlayer, key: string | null): void;
+	addAnimationPlayerForKey(player: SCNAnimationPlayer, key: string | null): void
 
-  removeAllAnimations(): void;
+	removeAllAnimations(): void
 
-  removeAnimationForKey(key: string): void;
+	removeAnimationForKey(key: string): void
 
-  removeAnimationForKeyBlendOutDuration(key: string, duration: number): void;
+	removeAnimationForKeyBlendOutDuration(key: string, duration: number): void
 
-  readonly animationKeys: NSArray;
+	readonly animationKeys: NSArray
 
-  animationPlayerForKey(key: string): SCNAnimationPlayer;
+	animationPlayerForKey(key: string): SCNAnimationPlayer
 
-  removeAnimationForKeyFadeOutDuration(key: string, duration: number): void;
+	removeAnimationForKeyFadeOutDuration(key: string, duration: number): void
 
-  animationForKey(key: string): CAAnimation;
+	animationForKey(key: string): CAAnimation
 
-  pauseAnimationForKey(key: string): void;
+	pauseAnimationForKey(key: string): void
 
-  resumeAnimationForKey(key: string): void;
+	resumeAnimationForKey(key: string): void
 
-  setSpeedForAnimationKey(speed: number, key: string): void;
+	setSpeedForAnimationKey(speed: number, key: string): void
 
-  isAnimationForKeyPaused(key: string): boolean;
+	isAnimationForKeyPaused(key: string): boolean
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 
-  technique: SCNTechnique;
+	technique: SCNTechnique
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 declare class SCNAudioSource extends NSObject implements NSCopying, NSSecureCoding {
-  initWithFileNamed(name: string): this;
+	initWithFileNamed(name: string): this
 
-  initWithURL(url: NSURL): this;
+	initWithURL(url: NSURL): this
 
-  static audioSourceNamed<This extends abstract new (...args: any) => any>(this: This, fileName: string): InstanceType<This>;
+	static audioSourceNamed<This extends abstract new (...args: any) => any>(
+		this: This,
+		fileName: string,
+	): InstanceType<This>
 
-  positional: boolean;
+	positional: boolean
 
-  volume: number;
+	volume: number
 
-  rate: number;
+	rate: number
 
-  reverbBlend: number;
+	reverbBlend: number
 
-  loops: boolean;
+	loops: boolean
 
-  shouldStream: boolean;
+	shouldStream: boolean
 
-  load(): void;
+	load(): void
 
-  isPositional(): boolean;
+	isPositional(): boolean
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 declare class SCNMaterialProperty extends NSObject implements SCNAnimatable, NSSecureCoding {
-  static materialPropertyWithContents<This extends abstract new (...args: any) => any>(this: This, contents: interop.Object): InstanceType<This>;
+	static materialPropertyWithContents<This extends abstract new (...args: any) => any>(
+		this: This,
+		contents: interop.Object,
+	): InstanceType<This>
 
-  contents: interop.Object;
+	contents: interop.Object
 
-  intensity: number;
+	intensity: number
 
-  minificationFilter: interop.Enum<typeof SCNFilterMode>;
+	minificationFilter: interop.Enum<typeof SCNFilterMode>
 
-  magnificationFilter: interop.Enum<typeof SCNFilterMode>;
+	magnificationFilter: interop.Enum<typeof SCNFilterMode>
 
-  mipFilter: interop.Enum<typeof SCNFilterMode>;
+	mipFilter: interop.Enum<typeof SCNFilterMode>
 
-  contentsTransform: CATransform3D;
+	contentsTransform: CATransform3D
 
-  wrapS: interop.Enum<typeof SCNWrapMode>;
+	wrapS: interop.Enum<typeof SCNWrapMode>
 
-  wrapT: interop.Enum<typeof SCNWrapMode>;
+	wrapT: interop.Enum<typeof SCNWrapMode>
 
-  mappingChannel: number;
+	mappingChannel: number
 
-  textureComponents: interop.Enum<typeof SCNColorMask>;
+	textureComponents: interop.Enum<typeof SCNColorMask>
 
-  maxAnisotropy: number;
+	maxAnisotropy: number
 
-  borderColor: interop.Object;
+	borderColor: interop.Object
 
-  addAnimationForKey(animation: SCNAnimation, key: string | null): void;
+	addAnimationForKey(animation: SCNAnimation, key: string | null): void
 
-  addAnimationPlayerForKey(player: SCNAnimationPlayer, key: string | null): void;
+	addAnimationPlayerForKey(player: SCNAnimationPlayer, key: string | null): void
 
-  removeAllAnimations(): void;
+	removeAllAnimations(): void
 
-  removeAnimationForKey(key: string): void;
+	removeAnimationForKey(key: string): void
 
-  removeAnimationForKeyBlendOutDuration(key: string, duration: number): void;
+	removeAnimationForKeyBlendOutDuration(key: string, duration: number): void
 
-  readonly animationKeys: NSArray;
+	readonly animationKeys: NSArray
 
-  animationPlayerForKey(key: string): SCNAnimationPlayer;
+	animationPlayerForKey(key: string): SCNAnimationPlayer
 
-  removeAnimationForKeyFadeOutDuration(key: string, duration: number): void;
+	removeAnimationForKeyFadeOutDuration(key: string, duration: number): void
 
-  animationForKey(key: string): CAAnimation;
+	animationForKey(key: string): CAAnimation
 
-  pauseAnimationForKey(key: string): void;
+	pauseAnimationForKey(key: string): void
 
-  resumeAnimationForKey(key: string): void;
+	resumeAnimationForKey(key: string): void
 
-  setSpeedForAnimationKey(speed: number, key: string): void;
+	setSpeedForAnimationKey(speed: number, key: string): void
 
-  isAnimationForKeyPaused(key: string): boolean;
+	isAnimationForKeyPaused(key: string): boolean
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
-declare class SCNGeometry extends NSObject implements SCNAnimatable, SCNBoundingVolume, SCNShadable, NSCopying, NSSecureCoding {
-  static geometry<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>;
+declare class SCNGeometry
+	extends NSObject
+	implements SCNAnimatable, SCNBoundingVolume, SCNShadable, NSCopying, NSSecureCoding
+{
+	static geometry<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>
 
-  name: string;
+	name: string
 
-  get materials(): NSArray;
-  set materials(value: NSArray<interop.Object> | Array<interop.Object>);
+	get materials(): NSArray
+	set materials(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  firstMaterial: SCNMaterial;
+	firstMaterial: SCNMaterial
 
-  insertMaterialAtIndex(material: SCNMaterial, index: number): void;
+	insertMaterialAtIndex(material: SCNMaterial, index: number): void
 
-  removeMaterialAtIndex(index: number): void;
+	removeMaterialAtIndex(index: number): void
 
-  replaceMaterialAtIndexWithMaterial(index: number, material: SCNMaterial): void;
+	replaceMaterialAtIndexWithMaterial(index: number, material: SCNMaterial): void
 
-  materialWithName(name: string): SCNMaterial;
+	materialWithName(name: string): SCNMaterial
 
-  static geometryWithSourcesElements<This extends abstract new (...args: any) => any>(this: This, sources: NSArray<interop.Object> | Array<interop.Object>, elements: NSArray<interop.Object> | Array<interop.Object> | null): InstanceType<This>;
+	static geometryWithSourcesElements<This extends abstract new (...args: any) => any>(
+		this: This,
+		sources: NSArray<interop.Object> | Array<interop.Object>,
+		elements: NSArray<interop.Object> | Array<interop.Object> | null,
+	): InstanceType<This>
 
-  readonly geometrySources: NSArray;
+	readonly geometrySources: NSArray
 
-  geometrySourcesForSemantic(semantic: string): NSArray;
+	geometrySourcesForSemantic(semantic: string): NSArray
 
-  readonly geometryElements: NSArray;
+	readonly geometryElements: NSArray
 
-  readonly geometryElementCount: number;
+	readonly geometryElementCount: number
 
-  geometryElementAtIndex(elementIndex: number): SCNGeometryElement;
+	geometryElementAtIndex(elementIndex: number): SCNGeometryElement
 
-  get levelsOfDetail(): NSArray;
-  set levelsOfDetail(value: NSArray<interop.Object> | Array<interop.Object>);
+	get levelsOfDetail(): NSArray
+	set levelsOfDetail(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  tessellator: SCNGeometryTessellator;
+	tessellator: SCNGeometryTessellator
 
-  subdivisionLevel: number;
+	subdivisionLevel: number
 
-  wantsAdaptiveSubdivision: boolean;
+	wantsAdaptiveSubdivision: boolean
 
-  edgeCreasesElement: SCNGeometryElement;
+	edgeCreasesElement: SCNGeometryElement
 
-  edgeCreasesSource: SCNGeometrySource;
+	edgeCreasesSource: SCNGeometrySource
 
-  static geometryWithMDLMesh<This extends abstract new (...args: any) => any>(this: This, mdlMesh: MDLMesh): InstanceType<This>;
+	static geometryWithMDLMesh<This extends abstract new (...args: any) => any>(
+		this: This,
+		mdlMesh: MDLMesh,
+	): InstanceType<This>
 
-  addAnimationForKey(animation: SCNAnimation, key: string | null): void;
+	addAnimationForKey(animation: SCNAnimation, key: string | null): void
 
-  addAnimationPlayerForKey(player: SCNAnimationPlayer, key: string | null): void;
+	addAnimationPlayerForKey(player: SCNAnimationPlayer, key: string | null): void
 
-  removeAllAnimations(): void;
+	removeAllAnimations(): void
 
-  removeAnimationForKey(key: string): void;
+	removeAnimationForKey(key: string): void
 
-  removeAnimationForKeyBlendOutDuration(key: string, duration: number): void;
+	removeAnimationForKeyBlendOutDuration(key: string, duration: number): void
 
-  readonly animationKeys: NSArray;
+	readonly animationKeys: NSArray
 
-  animationPlayerForKey(key: string): SCNAnimationPlayer;
+	animationPlayerForKey(key: string): SCNAnimationPlayer
 
-  removeAnimationForKeyFadeOutDuration(key: string, duration: number): void;
+	removeAnimationForKeyFadeOutDuration(key: string, duration: number): void
 
-  animationForKey(key: string): CAAnimation;
+	animationForKey(key: string): CAAnimation
 
-  pauseAnimationForKey(key: string): void;
+	pauseAnimationForKey(key: string): void
 
-  resumeAnimationForKey(key: string): void;
+	resumeAnimationForKey(key: string): void
 
-  setSpeedForAnimationKey(speed: number, key: string): void;
+	setSpeedForAnimationKey(speed: number, key: string): void
 
-  isAnimationForKeyPaused(key: string): boolean;
+	isAnimationForKeyPaused(key: string): boolean
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 
-  getBoundingBoxMinMax(min: interop.PointerConvertible, max: interop.PointerConvertible): boolean;
+	getBoundingBoxMinMax(min: interop.PointerConvertible, max: interop.PointerConvertible): boolean
 
-  setBoundingBoxMinMax(min: interop.PointerConvertible, max: interop.PointerConvertible): void;
+	setBoundingBoxMinMax(min: interop.PointerConvertible, max: interop.PointerConvertible): void
 
-  getBoundingSphereCenterRadius(center: interop.PointerConvertible, radius: interop.PointerConvertible): boolean;
+	getBoundingSphereCenterRadius(
+		center: interop.PointerConvertible,
+		radius: interop.PointerConvertible,
+	): boolean
 
-  program: SCNProgram;
+	program: SCNProgram
 
-  handleBindingOfSymbolUsingBlock(symbol: string, block: (p1: number, p2: number, p3: SCNNode, p4: SCNRenderer) => void | null): void;
+	handleBindingOfSymbolUsingBlock(
+		symbol: string,
+		block: (p1: number, p2: number, p3: SCNNode, p4: SCNRenderer) => void | null,
+	): void
 
-  handleUnbindingOfSymbolUsingBlock(symbol: string, block: (p1: number, p2: number, p3: SCNNode, p4: SCNRenderer) => void | null): void;
+	handleUnbindingOfSymbolUsingBlock(
+		symbol: string,
+		block: (p1: number, p2: number, p3: SCNNode, p4: SCNRenderer) => void | null,
+	): void
 
-  get shaderModifiers(): NSDictionary;
-  set shaderModifiers(value: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>);
+	get shaderModifiers(): NSDictionary
+	set shaderModifiers(
+		value: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+	)
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 declare class SCNTorus extends SCNGeometry {
-  static torusWithRingRadiusPipeRadius<This extends abstract new (...args: any) => any>(this: This, ringRadius: number, pipeRadius: number): InstanceType<This>;
+	static torusWithRingRadiusPipeRadius<This extends abstract new (...args: any) => any>(
+		this: This,
+		ringRadius: number,
+		pipeRadius: number,
+	): InstanceType<This>
 
-  ringRadius: number;
+	ringRadius: number
 
-  pipeRadius: number;
+	pipeRadius: number
 
-  ringSegmentCount: number;
+	ringSegmentCount: number
 
-  pipeSegmentCount: number;
+	pipeSegmentCount: number
 }
 
 declare class SCNPhysicsSliderJoint extends SCNPhysicsBehavior {
-  static jointWithBodyAAxisAAnchorABodyBAxisBAnchorB<This extends abstract new (...args: any) => any>(this: This, bodyA: SCNPhysicsBody, axisA: SCNVector3, anchorA: SCNVector3, bodyB: SCNPhysicsBody, axisB: SCNVector3, anchorB: SCNVector3): InstanceType<This>;
+	static jointWithBodyAAxisAAnchorABodyBAxisBAnchorB<
+		This extends abstract new (...args: any) => any,
+	>(
+		this: This,
+		bodyA: SCNPhysicsBody,
+		axisA: SCNVector3,
+		anchorA: SCNVector3,
+		bodyB: SCNPhysicsBody,
+		axisB: SCNVector3,
+		anchorB: SCNVector3,
+	): InstanceType<This>
 
-  static jointWithBodyAxisAnchor<This extends abstract new (...args: any) => any>(this: This, body: SCNPhysicsBody, axis: SCNVector3, anchor: SCNVector3): InstanceType<This>;
+	static jointWithBodyAxisAnchor<This extends abstract new (...args: any) => any>(
+		this: This,
+		body: SCNPhysicsBody,
+		axis: SCNVector3,
+		anchor: SCNVector3,
+	): InstanceType<This>
 
-  readonly bodyA: SCNPhysicsBody;
+	readonly bodyA: SCNPhysicsBody
 
-  axisA: SCNVector3;
+	axisA: SCNVector3
 
-  anchorA: SCNVector3;
+	anchorA: SCNVector3
 
-  readonly bodyB: SCNPhysicsBody;
+	readonly bodyB: SCNPhysicsBody
 
-  axisB: SCNVector3;
+	axisB: SCNVector3
 
-  anchorB: SCNVector3;
+	anchorB: SCNVector3
 
-  minimumLinearLimit: number;
+	minimumLinearLimit: number
 
-  maximumLinearLimit: number;
+	maximumLinearLimit: number
 
-  minimumAngularLimit: number;
+	minimumAngularLimit: number
 
-  maximumAngularLimit: number;
+	maximumAngularLimit: number
 
-  motorTargetLinearVelocity: number;
+	motorTargetLinearVelocity: number
 
-  motorMaximumForce: number;
+	motorMaximumForce: number
 
-  motorTargetAngularVelocity: number;
+	motorTargetAngularVelocity: number
 
-  motorMaximumTorque: number;
+	motorMaximumTorque: number
 }
 
-declare class SCNLight extends NSObject implements SCNAnimatable, NSCopying, NSSecureCoding, SCNTechniqueSupport {
-  static light<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>;
+declare class SCNLight
+	extends NSObject
+	implements SCNAnimatable, NSCopying, NSSecureCoding, SCNTechniqueSupport
+{
+	static light<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>
 
-  type: string;
+	type: string
 
-  color: interop.Object;
+	color: interop.Object
 
-  temperature: number;
+	temperature: number
 
-  intensity: number;
+	intensity: number
 
-  name: string;
+	name: string
 
-  castsShadow: boolean;
+	castsShadow: boolean
 
-  shadowColor: interop.Object;
+	shadowColor: interop.Object
 
-  shadowRadius: number;
+	shadowRadius: number
 
-  shadowMapSize: CGSize;
+	shadowMapSize: CGSize
 
-  shadowSampleCount: number;
+	shadowSampleCount: number
 
-  shadowMode: interop.Enum<typeof SCNShadowMode>;
+	shadowMode: interop.Enum<typeof SCNShadowMode>
 
-  shadowBias: number;
+	shadowBias: number
 
-  automaticallyAdjustsShadowProjection: boolean;
+	automaticallyAdjustsShadowProjection: boolean
 
-  maximumShadowDistance: number;
+	maximumShadowDistance: number
 
-  forcesBackFaceCasters: boolean;
+	forcesBackFaceCasters: boolean
 
-  sampleDistributedShadowMaps: boolean;
+	sampleDistributedShadowMaps: boolean
 
-  shadowCascadeCount: number;
+	shadowCascadeCount: number
 
-  shadowCascadeSplittingFactor: number;
+	shadowCascadeSplittingFactor: number
 
-  orthographicScale: number;
+	orthographicScale: number
 
-  zNear: number;
+	zNear: number
 
-  zFar: number;
+	zFar: number
 
-  attenuationStartDistance: number;
+	attenuationStartDistance: number
 
-  attenuationEndDistance: number;
+	attenuationEndDistance: number
 
-  attenuationFalloffExponent: number;
+	attenuationFalloffExponent: number
 
-  spotInnerAngle: number;
+	spotInnerAngle: number
 
-  spotOuterAngle: number;
+	spotOuterAngle: number
 
-  IESProfileURL: NSURL;
+	IESProfileURL: NSURL
 
-  readonly sphericalHarmonicsCoefficients: NSData;
+	readonly sphericalHarmonicsCoefficients: NSData
 
-  probeType: interop.Enum<typeof SCNLightProbeType>;
+	probeType: interop.Enum<typeof SCNLightProbeType>
 
-  probeUpdateType: interop.Enum<typeof SCNLightProbeUpdateType>;
+	probeUpdateType: interop.Enum<typeof SCNLightProbeUpdateType>
 
-  probeExtents: unknown /* ext vector */;
+	probeExtents: unknown /* ext vector */
 
-  probeOffset: unknown /* ext vector */;
+	probeOffset: unknown /* ext vector */
 
-  parallaxCorrectionEnabled: boolean;
+	parallaxCorrectionEnabled: boolean
 
-  parallaxExtentsFactor: unknown /* ext vector */;
+	parallaxExtentsFactor: unknown /* ext vector */
 
-  parallaxCenterOffset: unknown /* ext vector */;
+	parallaxCenterOffset: unknown /* ext vector */
 
-  readonly probeEnvironment: SCNMaterialProperty;
+	readonly probeEnvironment: SCNMaterialProperty
 
-  areaType: interop.Enum<typeof SCNLightAreaType>;
+	areaType: interop.Enum<typeof SCNLightAreaType>
 
-  areaExtents: unknown /* ext vector */;
+	areaExtents: unknown /* ext vector */
 
-  get areaPolygonVertices(): NSArray;
-  set areaPolygonVertices(value: NSArray<interop.Object> | Array<interop.Object>);
+	get areaPolygonVertices(): NSArray
+	set areaPolygonVertices(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  drawsArea: boolean;
+	drawsArea: boolean
 
-  doubleSided: boolean;
+	doubleSided: boolean
 
-  readonly gobo: SCNMaterialProperty;
+	readonly gobo: SCNMaterialProperty
 
-  categoryBitMask: number;
+	categoryBitMask: number
 
-  attributeForKey(key: string): interop.Object;
+	attributeForKey(key: string): interop.Object
 
-  setAttributeForKey(attribute: interop.Object | null, key: string): void;
+	setAttributeForKey(attribute: interop.Object | null, key: string): void
 
-  static lightWithMDLLight<This extends abstract new (...args: any) => any>(this: This, mdlLight: MDLLight): InstanceType<This>;
+	static lightWithMDLLight<This extends abstract new (...args: any) => any>(
+		this: This,
+		mdlLight: MDLLight,
+	): InstanceType<This>
 
-  addAnimationForKey(animation: SCNAnimation, key: string | null): void;
+	addAnimationForKey(animation: SCNAnimation, key: string | null): void
 
-  addAnimationPlayerForKey(player: SCNAnimationPlayer, key: string | null): void;
+	addAnimationPlayerForKey(player: SCNAnimationPlayer, key: string | null): void
 
-  removeAllAnimations(): void;
+	removeAllAnimations(): void
 
-  removeAnimationForKey(key: string): void;
+	removeAnimationForKey(key: string): void
 
-  removeAnimationForKeyBlendOutDuration(key: string, duration: number): void;
+	removeAnimationForKeyBlendOutDuration(key: string, duration: number): void
 
-  readonly animationKeys: NSArray;
+	readonly animationKeys: NSArray
 
-  animationPlayerForKey(key: string): SCNAnimationPlayer;
+	animationPlayerForKey(key: string): SCNAnimationPlayer
 
-  removeAnimationForKeyFadeOutDuration(key: string, duration: number): void;
+	removeAnimationForKeyFadeOutDuration(key: string, duration: number): void
 
-  animationForKey(key: string): CAAnimation;
+	animationForKey(key: string): CAAnimation
 
-  pauseAnimationForKey(key: string): void;
+	pauseAnimationForKey(key: string): void
 
-  resumeAnimationForKey(key: string): void;
+	resumeAnimationForKey(key: string): void
 
-  setSpeedForAnimationKey(speed: number, key: string): void;
+	setSpeedForAnimationKey(speed: number, key: string): void
 
-  isAnimationForKeyPaused(key: string): boolean;
+	isAnimationForKeyPaused(key: string): boolean
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 
-  technique: SCNTechnique;
+	technique: SCNTechnique
 }
 
 declare class SCNRenderer extends NSObject implements SCNSceneRenderer, SCNTechniqueSupport {
-  static rendererWithContextOptions<This extends abstract new (...args: any) => any>(this: This, context: interop.PointerConvertible, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null): InstanceType<This>;
+	static rendererWithContextOptions<This extends abstract new (...args: any) => any>(
+		this: This,
+		context: interop.PointerConvertible,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+	): InstanceType<This>
 
-  static rendererWithDeviceOptions<This extends abstract new (...args: any) => any>(this: This, device: MTLDevice | null, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null): InstanceType<This>;
+	static rendererWithDeviceOptions<This extends abstract new (...args: any) => any>(
+		this: This,
+		device: MTLDevice | null,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+	): InstanceType<This>
 
-  scene: SCNScene;
+	scene: SCNScene
 
-  renderAtTimeViewportCommandBufferPassDescriptor(time: number, viewport: CGRect, commandBuffer: MTLCommandBuffer, renderPassDescriptor: MTLRenderPassDescriptor): void;
+	renderAtTimeViewportCommandBufferPassDescriptor(
+		time: number,
+		viewport: CGRect,
+		commandBuffer: MTLCommandBuffer,
+		renderPassDescriptor: MTLRenderPassDescriptor,
+	): void
 
-  renderAtTime(time: number): void;
+	renderAtTime(time: number): void
 
-  updateAtTime(time: number): void;
+	updateAtTime(time: number): void
 
-  renderWithViewportCommandBufferPassDescriptor(viewport: CGRect, commandBuffer: MTLCommandBuffer, renderPassDescriptor: MTLRenderPassDescriptor): void;
+	renderWithViewportCommandBufferPassDescriptor(
+		viewport: CGRect,
+		commandBuffer: MTLCommandBuffer,
+		renderPassDescriptor: MTLRenderPassDescriptor,
+	): void
 
-  readonly nextFrameTime: number;
+	readonly nextFrameTime: number
 
-  snapshotAtTimeWithSizeAntialiasingMode(time: number, size: CGSize, antialiasingMode: interop.Enum<typeof SCNAntialiasingMode>): NSImage;
+	snapshotAtTimeWithSizeAntialiasingMode(
+		time: number,
+		size: CGSize,
+		antialiasingMode: interop.Enum<typeof SCNAntialiasingMode>,
+	): NSImage
 
-  updateProbesAtTime(lightProbes: NSArray<interop.Object> | Array<interop.Object>, time: number): void;
+	updateProbesAtTime(
+		lightProbes: NSArray<interop.Object> | Array<interop.Object>,
+		time: number,
+	): void
 
-  render(): void;
+	render(): void
 
-  presentSceneWithTransitionIncomingPointOfViewCompletionHandler(scene: SCNScene, transition: SKTransition, pointOfView: SCNNode | null, completionHandler: () => void | null): void;
+	presentSceneWithTransitionIncomingPointOfViewCompletionHandler(
+		scene: SCNScene,
+		transition: SKTransition,
+		pointOfView: SCNNode | null,
+		completionHandler: () => void | null,
+	): void
 
-  sceneTime: number;
+	sceneTime: number
 
-  delegate: SCNSceneRendererDelegate;
+	delegate: SCNSceneRendererDelegate
 
-  hitTestOptions(point: CGPoint, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null): NSArray;
+	hitTestOptions(
+		point: CGPoint,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+	): NSArray
 
-  isNodeInsideFrustumWithPointOfView(node: SCNNode, pointOfView: SCNNode): boolean;
+	isNodeInsideFrustumWithPointOfView(node: SCNNode, pointOfView: SCNNode): boolean
 
-  nodesInsideFrustumWithPointOfView(pointOfView: SCNNode): NSArray;
+	nodesInsideFrustumWithPointOfView(pointOfView: SCNNode): NSArray
 
-  projectPoint(point: SCNVector3): SCNVector3;
+	projectPoint(point: SCNVector3): SCNVector3
 
-  unprojectPoint(point: SCNVector3): SCNVector3;
+	unprojectPoint(point: SCNVector3): SCNVector3
 
-  playing: boolean;
+	playing: boolean
 
-  loops: boolean;
+	loops: boolean
 
-  pointOfView: SCNNode;
+	pointOfView: SCNNode
 
-  autoenablesDefaultLighting: boolean;
+	autoenablesDefaultLighting: boolean
 
-  jitteringEnabled: boolean;
+	jitteringEnabled: boolean
 
-  temporalAntialiasingEnabled: boolean;
+	temporalAntialiasingEnabled: boolean
 
-  prepareObjectShouldAbortBlock(object: interop.Object, block: () => boolean | null): boolean;
+	prepareObjectShouldAbortBlock(object: interop.Object, block: () => boolean | null): boolean
 
-  prepareObjectsWithCompletionHandler(objects: NSArray<interop.Object> | Array<interop.Object>, completionHandler: (p1: boolean) => void | null): void;
+	prepareObjectsWithCompletionHandler(
+		objects: NSArray<interop.Object> | Array<interop.Object>,
+		completionHandler: (p1: boolean) => void | null,
+	): void
 
-  showsStatistics: boolean;
+	showsStatistics: boolean
 
-  debugOptions: interop.Enum<typeof SCNDebugOptions>;
+	debugOptions: interop.Enum<typeof SCNDebugOptions>
 
-  overlaySKScene: SKScene;
+	overlaySKScene: SKScene
 
-  readonly renderingAPI: interop.Enum<typeof SCNRenderingAPI>;
+	readonly renderingAPI: interop.Enum<typeof SCNRenderingAPI>
 
-  readonly context: interop.Pointer;
+	readonly context: interop.Pointer
 
-  readonly currentRenderCommandEncoder: MTLRenderCommandEncoder;
+	readonly currentRenderCommandEncoder: MTLRenderCommandEncoder
 
-  readonly currentRenderPassDescriptor: MTLRenderPassDescriptor;
+	readonly currentRenderPassDescriptor: MTLRenderPassDescriptor
 
-  readonly device: MTLDevice;
+	readonly device: MTLDevice
 
-  readonly colorPixelFormat: interop.Enum<typeof MTLPixelFormat>;
+	readonly colorPixelFormat: interop.Enum<typeof MTLPixelFormat>
 
-  readonly depthPixelFormat: interop.Enum<typeof MTLPixelFormat>;
+	readonly depthPixelFormat: interop.Enum<typeof MTLPixelFormat>
 
-  readonly stencilPixelFormat: interop.Enum<typeof MTLPixelFormat>;
+	readonly stencilPixelFormat: interop.Enum<typeof MTLPixelFormat>
 
-  readonly commandQueue: MTLCommandQueue;
+	readonly commandQueue: MTLCommandQueue
 
-  readonly audioEngine: AVAudioEngine;
+	readonly audioEngine: AVAudioEngine
 
-  readonly audioEnvironmentNode: AVAudioEnvironmentNode;
+	readonly audioEnvironmentNode: AVAudioEnvironmentNode
 
-  audioListener: SCNNode;
+	audioListener: SCNNode
 
-  readonly currentViewport: CGRect;
+	readonly currentViewport: CGRect
 
-  currentTime: number;
+	currentTime: number
 
-  usesReverseZ: boolean;
+	usesReverseZ: boolean
 
-  isPlaying(): boolean;
+	isPlaying(): boolean
 
-  isJitteringEnabled(): boolean;
+	isJitteringEnabled(): boolean
 
-  isTemporalAntialiasingEnabled(): boolean;
+	isTemporalAntialiasingEnabled(): boolean
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 
-  technique: SCNTechnique;
+	technique: SCNTechnique
 }
 
 declare class SCNHitTestResult extends NSObject {
-  readonly node: SCNNode;
+	readonly node: SCNNode
 
-  readonly geometryIndex: number;
+	readonly geometryIndex: number
 
-  readonly faceIndex: number;
+	readonly faceIndex: number
 
-  readonly localCoordinates: SCNVector3;
+	readonly localCoordinates: SCNVector3
 
-  readonly worldCoordinates: SCNVector3;
+	readonly worldCoordinates: SCNVector3
 
-  readonly localNormal: SCNVector3;
+	readonly localNormal: SCNVector3
 
-  readonly worldNormal: SCNVector3;
+	readonly worldNormal: SCNVector3
 
-  readonly modelTransform: CATransform3D;
+	readonly modelTransform: CATransform3D
 
-  readonly boneNode: SCNNode;
+	readonly boneNode: SCNNode
 
-  textureCoordinatesWithMappingChannel(channel: number): CGPoint;
+	textureCoordinatesWithMappingChannel(channel: number): CGPoint
 
-  readonly simdLocalCoordinates: unknown /* ext vector */;
+	readonly simdLocalCoordinates: unknown /* ext vector */
 
-  readonly simdWorldCoordinates: unknown /* ext vector */;
+	readonly simdWorldCoordinates: unknown /* ext vector */
 
-  readonly simdLocalNormal: unknown /* ext vector */;
+	readonly simdLocalNormal: unknown /* ext vector */
 
-  readonly simdWorldNormal: unknown /* ext vector */;
+	readonly simdWorldNormal: unknown /* ext vector */
 
-  readonly simdModelTransform: simd_float4x4;
+	readonly simdModelTransform: simd_float4x4
 }
 
 declare class SCNCylinder extends SCNGeometry {
-  static cylinderWithRadiusHeight<This extends abstract new (...args: any) => any>(this: This, radius: number, height: number): InstanceType<This>;
+	static cylinderWithRadiusHeight<This extends abstract new (...args: any) => any>(
+		this: This,
+		radius: number,
+		height: number,
+	): InstanceType<This>
 
-  radius: number;
+	radius: number
 
-  height: number;
+	height: number
 
-  radialSegmentCount: number;
+	radialSegmentCount: number
 
-  heightSegmentCount: number;
+	heightSegmentCount: number
 }
 
 declare class SCNDistanceConstraint extends SCNConstraint {
-  static distanceConstraintWithTarget<This extends abstract new (...args: any) => any>(this: This, target: SCNNode | null): InstanceType<This>;
+	static distanceConstraintWithTarget<This extends abstract new (...args: any) => any>(
+		this: This,
+		target: SCNNode | null,
+	): InstanceType<This>
 
-  target: SCNNode;
+	target: SCNNode
 
-  minimumDistance: number;
+	minimumDistance: number
 
-  maximumDistance: number;
+	maximumDistance: number
 }
 
 declare class SCNPyramid extends SCNGeometry {
-  static pyramidWithWidthHeightLength<This extends abstract new (...args: any) => any>(this: This, width: number, height: number, length: number): InstanceType<This>;
+	static pyramidWithWidthHeightLength<This extends abstract new (...args: any) => any>(
+		this: This,
+		width: number,
+		height: number,
+		length: number,
+	): InstanceType<This>
 
-  width: number;
+	width: number
 
-  height: number;
+	height: number
 
-  length: number;
+	length: number
 
-  widthSegmentCount: number;
+	widthSegmentCount: number
 
-  heightSegmentCount: number;
+	heightSegmentCount: number
 
-  lengthSegmentCount: number;
+	lengthSegmentCount: number
 }
 
 declare class SCNPhysicsVehicleWheel extends NSObject implements NSCopying, NSSecureCoding {
-  static wheelWithNode<This extends abstract new (...args: any) => any>(this: This, node: SCNNode): InstanceType<This>;
+	static wheelWithNode<This extends abstract new (...args: any) => any>(
+		this: This,
+		node: SCNNode,
+	): InstanceType<This>
 
-  readonly node: SCNNode;
+	readonly node: SCNNode
 
-  suspensionStiffness: number;
+	suspensionStiffness: number
 
-  suspensionCompression: number;
+	suspensionCompression: number
 
-  suspensionDamping: number;
+	suspensionDamping: number
 
-  maximumSuspensionTravel: number;
+	maximumSuspensionTravel: number
 
-  frictionSlip: number;
+	frictionSlip: number
 
-  maximumSuspensionForce: number;
+	maximumSuspensionForce: number
 
-  connectionPosition: SCNVector3;
+	connectionPosition: SCNVector3
 
-  steeringAxis: SCNVector3;
+	steeringAxis: SCNVector3
 
-  axle: SCNVector3;
+	axle: SCNVector3
 
-  radius: number;
+	radius: number
 
-  suspensionRestLength: number;
+	suspensionRestLength: number
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 declare class SCNTransformConstraint extends SCNConstraint {
-  static transformConstraintInWorldSpaceWithBlock<This extends abstract new (...args: any) => any>(this: This, world: boolean, block: (p1: SCNNode, p2: CATransform3D) => CATransform3D): InstanceType<This>;
+	static transformConstraintInWorldSpaceWithBlock<This extends abstract new (...args: any) => any>(
+		this: This,
+		world: boolean,
+		block: (p1: SCNNode, p2: CATransform3D) => CATransform3D,
+	): InstanceType<This>
 
-  static positionConstraintInWorldSpaceWithBlock<This extends abstract new (...args: any) => any>(this: This, world: boolean, block: (p1: SCNNode, p2: SCNVector3) => SCNVector3): InstanceType<This>;
+	static positionConstraintInWorldSpaceWithBlock<This extends abstract new (...args: any) => any>(
+		this: This,
+		world: boolean,
+		block: (p1: SCNNode, p2: SCNVector3) => SCNVector3,
+	): InstanceType<This>
 
-  static orientationConstraintInWorldSpaceWithBlock<This extends abstract new (...args: any) => any>(this: This, world: boolean, block: (p1: SCNNode, p2: SCNVector4) => SCNVector4): InstanceType<This>;
+	static orientationConstraintInWorldSpaceWithBlock<
+		This extends abstract new (...args: any) => any,
+	>(
+		this: This,
+		world: boolean,
+		block: (p1: SCNNode, p2: SCNVector4) => SCNVector4,
+	): InstanceType<This>
 }
 
 declare class SCNTransaction extends NSObject {
-  static begin(): void;
+	static begin(): void
 
-  static commit(): void;
+	static commit(): void
 
-  static flush(): void;
+	static flush(): void
 
-  static lock(): void;
+	static lock(): void
 
-  static unlock(): void;
+	static unlock(): void
 
-  static animationDuration: number;
+	static animationDuration: number
 
-  static animationTimingFunction: CAMediaTimingFunction;
+	static animationTimingFunction: CAMediaTimingFunction
 
-  static disableActions: boolean;
+	static disableActions: boolean
 
-  static completionBlock: () => void;
+	static completionBlock: () => void
 
-  static valueForKey(key: string): interop.Object;
+	static valueForKey(key: string): interop.Object
 
-  static setValueForKey(value: interop.Object | null, key: string): void;
+	static setValueForKey(value: interop.Object | null, key: string): void
 }
 
 declare class SCNProgram extends NSObject implements NSCopying, NSSecureCoding {
-  static program<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>;
+	static program<This extends abstract new (...args: any) => any>(this: This): InstanceType<This>
 
-  vertexShader: string;
+	vertexShader: string
 
-  fragmentShader: string;
+	fragmentShader: string
 
-  tessellationControlShader: string;
+	tessellationControlShader: string
 
-  tessellationEvaluationShader: string;
+	tessellationEvaluationShader: string
 
-  geometryShader: string;
+	geometryShader: string
 
-  vertexFunctionName: string;
+	vertexFunctionName: string
 
-  fragmentFunctionName: string;
+	fragmentFunctionName: string
 
-  handleBindingOfBufferNamedFrequencyUsingBlock(name: string, frequency: interop.Enum<typeof SCNBufferFrequency>, block: (p1: SCNBufferStream, p2: SCNNode, p3: SCNShadable, p4: SCNRenderer) => void): void;
+	handleBindingOfBufferNamedFrequencyUsingBlock(
+		name: string,
+		frequency: interop.Enum<typeof SCNBufferFrequency>,
+		block: (p1: SCNBufferStream, p2: SCNNode, p3: SCNShadable, p4: SCNRenderer) => void,
+	): void
 
-  opaque: boolean;
+	opaque: boolean
 
-  setSemanticForSymbolOptions(semantic: string | null, symbol: string, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null): void;
+	setSemanticForSymbolOptions(
+		semantic: string | null,
+		symbol: string,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+	): void
 
-  semanticForSymbol(symbol: string): string;
+	semanticForSymbol(symbol: string): string
 
-  delegate: SCNProgramDelegate;
+	delegate: SCNProgramDelegate
 
-  library: MTLLibrary;
+	library: MTLLibrary
 
-  isOpaque(): boolean;
+	isOpaque(): boolean
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 declare class SCNGeometryTessellator extends NSObject implements NSCopying, NSSecureCoding {
-  tessellationFactorScale: number;
+	tessellationFactorScale: number
 
-  tessellationPartitionMode: interop.Enum<typeof MTLTessellationPartitionMode>;
+	tessellationPartitionMode: interop.Enum<typeof MTLTessellationPartitionMode>
 
-  adaptive: boolean;
+	adaptive: boolean
 
-  screenSpace: boolean;
+	screenSpace: boolean
 
-  edgeTessellationFactor: number;
+	edgeTessellationFactor: number
 
-  insideTessellationFactor: number;
+	insideTessellationFactor: number
 
-  maximumEdgeLength: number;
+	maximumEdgeLength: number
 
-  smoothingMode: interop.Enum<typeof SCNTessellationSmoothingMode>;
+	smoothingMode: interop.Enum<typeof SCNTessellationSmoothingMode>
 
-  isAdaptive(): boolean;
+	isAdaptive(): boolean
 
-  isScreenSpace(): boolean;
+	isScreenSpace(): boolean
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 // @ts-ignore ClassDecl.tsIgnore
 declare class SCNLayer extends CAOpenGLLayer implements SCNSceneRenderer, SCNTechniqueSupport {
-  scene: SCNScene;
+	scene: SCNScene
 
-  presentSceneWithTransitionIncomingPointOfViewCompletionHandler(scene: SCNScene, transition: SKTransition, pointOfView: SCNNode | null, completionHandler: () => void | null): void;
+	presentSceneWithTransitionIncomingPointOfViewCompletionHandler(
+		scene: SCNScene,
+		transition: SKTransition,
+		pointOfView: SCNNode | null,
+		completionHandler: () => void | null,
+	): void
 
-  sceneTime: number;
+	sceneTime: number
 
-  // @ts-ignore MemberDecl.tsIgnore
-  delegate: SCNSceneRendererDelegate;
+	// @ts-ignore MemberDecl.tsIgnore
+	delegate: SCNSceneRendererDelegate
 
-  hitTestOptions(point: CGPoint, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null): NSArray;
+	hitTestOptions(
+		point: CGPoint,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+	): NSArray
 
-  isNodeInsideFrustumWithPointOfView(node: SCNNode, pointOfView: SCNNode): boolean;
+	isNodeInsideFrustumWithPointOfView(node: SCNNode, pointOfView: SCNNode): boolean
 
-  nodesInsideFrustumWithPointOfView(pointOfView: SCNNode): NSArray;
+	nodesInsideFrustumWithPointOfView(pointOfView: SCNNode): NSArray
 
-  projectPoint(point: SCNVector3): SCNVector3;
+	projectPoint(point: SCNVector3): SCNVector3
 
-  unprojectPoint(point: SCNVector3): SCNVector3;
+	unprojectPoint(point: SCNVector3): SCNVector3
 
-  playing: boolean;
+	playing: boolean
 
-  loops: boolean;
+	loops: boolean
 
-  pointOfView: SCNNode;
+	pointOfView: SCNNode
 
-  autoenablesDefaultLighting: boolean;
+	autoenablesDefaultLighting: boolean
 
-  jitteringEnabled: boolean;
+	jitteringEnabled: boolean
 
-  temporalAntialiasingEnabled: boolean;
+	temporalAntialiasingEnabled: boolean
 
-  prepareObjectShouldAbortBlock(object: interop.Object, block: () => boolean | null): boolean;
+	prepareObjectShouldAbortBlock(object: interop.Object, block: () => boolean | null): boolean
 
-  prepareObjectsWithCompletionHandler(objects: NSArray<interop.Object> | Array<interop.Object>, completionHandler: (p1: boolean) => void | null): void;
+	prepareObjectsWithCompletionHandler(
+		objects: NSArray<interop.Object> | Array<interop.Object>,
+		completionHandler: (p1: boolean) => void | null,
+	): void
 
-  showsStatistics: boolean;
+	showsStatistics: boolean
 
-  debugOptions: interop.Enum<typeof SCNDebugOptions>;
+	debugOptions: interop.Enum<typeof SCNDebugOptions>
 
-  overlaySKScene: SKScene;
+	overlaySKScene: SKScene
 
-  readonly renderingAPI: interop.Enum<typeof SCNRenderingAPI>;
+	readonly renderingAPI: interop.Enum<typeof SCNRenderingAPI>
 
-  readonly context: interop.Pointer;
+	readonly context: interop.Pointer
 
-  readonly currentRenderCommandEncoder: MTLRenderCommandEncoder;
+	readonly currentRenderCommandEncoder: MTLRenderCommandEncoder
 
-  readonly currentRenderPassDescriptor: MTLRenderPassDescriptor;
+	readonly currentRenderPassDescriptor: MTLRenderPassDescriptor
 
-  readonly device: MTLDevice;
+	readonly device: MTLDevice
 
-  readonly colorPixelFormat: interop.Enum<typeof MTLPixelFormat>;
+	readonly colorPixelFormat: interop.Enum<typeof MTLPixelFormat>
 
-  readonly depthPixelFormat: interop.Enum<typeof MTLPixelFormat>;
+	readonly depthPixelFormat: interop.Enum<typeof MTLPixelFormat>
 
-  readonly stencilPixelFormat: interop.Enum<typeof MTLPixelFormat>;
+	readonly stencilPixelFormat: interop.Enum<typeof MTLPixelFormat>
 
-  readonly commandQueue: MTLCommandQueue;
+	readonly commandQueue: MTLCommandQueue
 
-  readonly audioEngine: AVAudioEngine;
+	readonly audioEngine: AVAudioEngine
 
-  readonly audioEnvironmentNode: AVAudioEnvironmentNode;
+	readonly audioEnvironmentNode: AVAudioEnvironmentNode
 
-  audioListener: SCNNode;
+	audioListener: SCNNode
 
-  readonly currentViewport: CGRect;
+	readonly currentViewport: CGRect
 
-  currentTime: number;
+	currentTime: number
 
-  usesReverseZ: boolean;
+	usesReverseZ: boolean
 
-  isPlaying(): boolean;
+	isPlaying(): boolean
 
-  isJitteringEnabled(): boolean;
+	isJitteringEnabled(): boolean
 
-  isTemporalAntialiasingEnabled(): boolean;
+	isTemporalAntialiasingEnabled(): boolean
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 
-  technique: SCNTechnique;
+	technique: SCNTechnique
 }
 
 declare class SCNIKConstraint extends SCNConstraint {
-  initWithChainRootNode(chainRootNode: SCNNode): this;
+	initWithChainRootNode(chainRootNode: SCNNode): this
 
-  static inverseKinematicsConstraintWithChainRootNode<This extends abstract new (...args: any) => any>(this: This, chainRootNode: SCNNode): InstanceType<This>;
+	static inverseKinematicsConstraintWithChainRootNode<
+		This extends abstract new (...args: any) => any,
+	>(this: This, chainRootNode: SCNNode): InstanceType<This>
 
-  readonly chainRootNode: SCNNode;
+	readonly chainRootNode: SCNNode
 
-  targetPosition: SCNVector3;
+	targetPosition: SCNVector3
 
-  setMaxAllowedRotationAngleForJoint(angle: number, node: SCNNode): void;
+	setMaxAllowedRotationAngleForJoint(angle: number, node: SCNNode): void
 
-  maxAllowedRotationAngleForJoint(node: SCNNode): number;
+	maxAllowedRotationAngleForJoint(node: SCNNode): number
 }
 
 declare class SCNSceneSource extends NSObject {
-  static sceneSourceWithURLOptions<This extends abstract new (...args: any) => any>(this: This, url: NSURL, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null): InstanceType<This>;
+	static sceneSourceWithURLOptions<This extends abstract new (...args: any) => any>(
+		this: This,
+		url: NSURL,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+	): InstanceType<This>
 
-  static sceneSourceWithDataOptions<This extends abstract new (...args: any) => any>(this: This, data: NSData, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null): InstanceType<This>;
+	static sceneSourceWithDataOptions<This extends abstract new (...args: any) => any>(
+		this: This,
+		data: NSData,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+	): InstanceType<This>
 
-  initWithURLOptions(url: NSURL, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null): this;
+	initWithURLOptions(
+		url: NSURL,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+	): this
 
-  initWithDataOptions(data: NSData, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null): this;
+	initWithDataOptions(
+		data: NSData,
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+	): this
 
-  readonly url: NSURL;
+	readonly url: NSURL
 
-  readonly data: NSData;
+	readonly data: NSData
 
-  sceneWithOptionsStatusHandler(options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null, statusHandler: (p1: number, p2: interop.Enum<typeof SCNSceneSourceStatus>, p3: NSError, p4: interop.PointerConvertible) => void | null): SCNScene;
+	sceneWithOptionsStatusHandler(
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+		statusHandler: (
+			p1: number,
+			p2: interop.Enum<typeof SCNSceneSourceStatus>,
+			p3: NSError,
+			p4: interop.PointerConvertible,
+		) => void | null,
+	): SCNScene
 
-  sceneWithOptionsError(options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null, error: interop.PointerConvertible): SCNScene;
+	sceneWithOptionsError(
+		options:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+		error: interop.PointerConvertible,
+	): SCNScene
 
-  propertyForKey(key: string): interop.Object;
+	propertyForKey(key: string): interop.Object
 
-  entryWithIdentifierWithClass(uid: string, entryClass: interop.PointerConvertible): interop.Object;
+	entryWithIdentifierWithClass(uid: string, entryClass: interop.PointerConvertible): interop.Object
 
-  identifiersOfEntriesWithClass(entryClass: interop.PointerConvertible): NSArray;
+	identifiersOfEntriesWithClass(entryClass: interop.PointerConvertible): NSArray
 
-  entriesPassingTest(predicate: (p1: interop.Object, p2: string, p3: interop.PointerConvertible) => boolean): NSArray;
+	entriesPassingTest(
+		predicate: (p1: interop.Object, p2: string, p3: interop.PointerConvertible) => boolean,
+	): NSArray
 }
 
 declare class SCNReplicatorConstraint extends SCNConstraint {
-  static replicatorConstraintWithTarget<This extends abstract new (...args: any) => any>(this: This, target: SCNNode | null): InstanceType<This>;
+	static replicatorConstraintWithTarget<This extends abstract new (...args: any) => any>(
+		this: This,
+		target: SCNNode | null,
+	): InstanceType<This>
 
-  target: SCNNode;
+	target: SCNNode
 
-  replicatesOrientation: boolean;
+	replicatesOrientation: boolean
 
-  replicatesPosition: boolean;
+	replicatesPosition: boolean
 
-  replicatesScale: boolean;
+	replicatesScale: boolean
 
-  orientationOffset: SCNVector4;
+	orientationOffset: SCNVector4
 
-  positionOffset: SCNVector3;
+	positionOffset: SCNVector3
 
-  scaleOffset: SCNVector3;
+	scaleOffset: SCNVector3
 }
 
 declare class SCNMorpher extends NSObject implements SCNAnimatable, NSSecureCoding {
-  get targets(): NSArray;
-  set targets(value: NSArray<interop.Object> | Array<interop.Object>);
+	get targets(): NSArray
+	set targets(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  get weights(): NSArray;
-  set weights(value: NSArray<interop.Object> | Array<interop.Object>);
+	get weights(): NSArray
+	set weights(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  setWeightForTargetAtIndex(weight: number, targetIndex: number): void;
+	setWeightForTargetAtIndex(weight: number, targetIndex: number): void
 
-  weightForTargetAtIndex(targetIndex: number): number;
+	weightForTargetAtIndex(targetIndex: number): number
 
-  setWeightForTargetNamed(weight: number, targetName: string): void;
+	setWeightForTargetNamed(weight: number, targetName: string): void
 
-  weightForTargetNamed(targetName: string): number;
+	weightForTargetNamed(targetName: string): number
 
-  calculationMode: interop.Enum<typeof SCNMorpherCalculationMode>;
+	calculationMode: interop.Enum<typeof SCNMorpherCalculationMode>
 
-  unifiesNormals: boolean;
+	unifiesNormals: boolean
 
-  addAnimationForKey(animation: SCNAnimation, key: string | null): void;
+	addAnimationForKey(animation: SCNAnimation, key: string | null): void
 
-  addAnimationPlayerForKey(player: SCNAnimationPlayer, key: string | null): void;
+	addAnimationPlayerForKey(player: SCNAnimationPlayer, key: string | null): void
 
-  removeAllAnimations(): void;
+	removeAllAnimations(): void
 
-  removeAnimationForKey(key: string): void;
+	removeAnimationForKey(key: string): void
 
-  removeAnimationForKeyBlendOutDuration(key: string, duration: number): void;
+	removeAnimationForKeyBlendOutDuration(key: string, duration: number): void
 
-  readonly animationKeys: NSArray;
+	readonly animationKeys: NSArray
 
-  animationPlayerForKey(key: string): SCNAnimationPlayer;
+	animationPlayerForKey(key: string): SCNAnimationPlayer
 
-  removeAnimationForKeyFadeOutDuration(key: string, duration: number): void;
+	removeAnimationForKeyFadeOutDuration(key: string, duration: number): void
 
-  animationForKey(key: string): CAAnimation;
+	animationForKey(key: string): CAAnimation
 
-  pauseAnimationForKey(key: string): void;
+	pauseAnimationForKey(key: string): void
 
-  resumeAnimationForKey(key: string): void;
+	resumeAnimationForKey(key: string): void
 
-  setSpeedForAnimationKey(speed: number, key: string): void;
+	setSpeedForAnimationKey(speed: number, key: string): void
 
-  isAnimationForKeyPaused(key: string): boolean;
+	isAnimationForKeyPaused(key: string): boolean
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 declare class SCNPhysicsContact extends NSObject {
-  readonly nodeA: SCNNode;
+	readonly nodeA: SCNNode
 
-  readonly nodeB: SCNNode;
+	readonly nodeB: SCNNode
 
-  readonly contactPoint: SCNVector3;
+	readonly contactPoint: SCNVector3
 
-  readonly contactNormal: SCNVector3;
+	readonly contactNormal: SCNVector3
 
-  readonly collisionImpulse: number;
+	readonly collisionImpulse: number
 
-  readonly penetrationDistance: number;
+	readonly penetrationDistance: number
 
-  readonly sweepTestFraction: number;
+	readonly sweepTestFraction: number
 }
 
 declare class SCNCapsule extends SCNGeometry {
-  static capsuleWithCapRadiusHeight<This extends abstract new (...args: any) => any>(this: This, capRadius: number, height: number): InstanceType<This>;
+	static capsuleWithCapRadiusHeight<This extends abstract new (...args: any) => any>(
+		this: This,
+		capRadius: number,
+		height: number,
+	): InstanceType<This>
 
-  capRadius: number;
+	capRadius: number
 
-  height: number;
+	height: number
 
-  radialSegmentCount: number;
+	radialSegmentCount: number
 
-  heightSegmentCount: number;
+	heightSegmentCount: number
 
-  capSegmentCount: number;
+	capSegmentCount: number
 }
-

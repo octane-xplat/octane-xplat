@@ -29,7 +29,10 @@ export function sleep(ms, signal) {
 }
 
 /** Poll an HTTP endpoint until it answers 2xx–4xx (server is up). */
-export async function waitForHttp(url, { timeoutMs = 30000, intervalMs = 250, signal, fetchImpl } = {}) {
+export async function waitForHttp(
+	url,
+	{ timeoutMs = 30000, intervalMs = 250, signal, fetchImpl } = {},
+) {
 	const doFetch = fetchImpl ?? fetch
 	const deadline = Date.now() + timeoutMs
 	let lastError
@@ -112,7 +115,10 @@ export function waitForLogMatch(logBuffer, patterns, { timeoutMs, signal, fromSe
 /** First URL printed by a dev server ("➜  Local: http://localhost:5173/"). */
 export function urlFromLogs(logBuffer) {
 	for (const record of logBuffer.read({ limit: 5000 }).records) {
-		const match = record.line.match(/https?:\/\/(?:localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])(?::\d+)?\/?/)
+		const match = record.line.match(
+			/https?:\/\/(?:localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])(?::\d+)?\/?/,
+		)
+
 		if (match) {
 			return match[0]
 		}

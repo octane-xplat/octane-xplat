@@ -12,10 +12,7 @@ export interface FieldError {
 	message: string
 }
 
-export function isUnsettable(
-	definition: StoryDefinition<any, any, any>,
-	key: string,
-): boolean {
+export function isUnsettable(definition: StoryDefinition<any, any, any>, key: string): boolean {
 	const control = definition.controls?.[key] as { allowUnset?: boolean } | undefined
 	if (!control) {
 		return false
@@ -62,7 +59,13 @@ export function applyControlInput(
 	raw: string | boolean | number | typeof UNSET,
 ): { props?: Record<string, unknown>; error?: FieldError } {
 	const control = definition.controls?.[key] as
-		| { type: string; min?: number; max?: number; options?: readonly unknown[]; allowUnset?: boolean }
+		| {
+				type: string
+				min?: number
+				max?: number
+				options?: readonly unknown[]
+				allowUnset?: boolean
+		  }
 		| undefined
 
 	if (!control) {
@@ -97,7 +100,13 @@ export function applyControlInput(
 			return { props: next }
 		}
 		case 'number': {
-			const value = typeof raw === 'number' ? raw : typeof raw === 'string' && raw.trim() === '' ? NaN : Number(raw)
+			const value =
+				typeof raw === 'number'
+					? raw
+					: typeof raw === 'string' && raw.trim() === ''
+						? NaN
+						: Number(raw)
+
 			if (!Number.isFinite(value)) {
 				return { error: { message: `"${key}" needs a finite number` } }
 			}
@@ -117,9 +126,7 @@ export function applyControlInput(
 			if (!(control.options ?? []).some((option) => Object.is(option, raw))) {
 				return {
 					error: {
-						message: `"${key}" must be one of: ${(control.options ?? [])
-							.map(String)
-							.join(', ')}`,
+						message: `"${key}" must be one of: ${(control.options ?? []).map(String).join(', ')}`,
 					},
 				}
 			}

@@ -220,7 +220,8 @@ export const HUMAN_CHECKS: HumanCheck[] = [
 		sense: 'eyes',
 		targets: MEDIA_TARGETS,
 		steps: ['Open the Cached image demo and scroll it off and on screen.'],
-		expect: 'Images reload instantly from cache — the status line reports memory/disk, not network.',
+		expect:
+			'Images reload instantly from cache — the status line reports memory/disk, not network.',
 		demo: 'cached-image',
 	},
 	{

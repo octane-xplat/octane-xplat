@@ -81,7 +81,9 @@ export function parseArgs(command, argv) {
 		const def = declared.get(name)
 		if (!def) {
 			return fail(`Unknown option --${name} for \`xplat ${command.name}\`.`, {
-				recovery: { action: `Run \`xplat ${command.name} --help\` or \`--schema\` for its contract.` },
+				recovery: {
+					action: `Run \`xplat ${command.name} --help\` or \`--schema\` for its contract.`,
+				},
 			})
 		}
 
@@ -120,9 +122,12 @@ export function parseArgs(command, argv) {
 	}
 
 	if (positionals.length > expected.length) {
-		return fail(`Unexpected argument "${positionals[expected.length]}" for \`xplat ${command.name}\`.`, {
-			recovery: { action: `Run \`xplat ${command.name} --help\` for usage.` },
-		})
+		return fail(
+			`Unexpected argument "${positionals[expected.length]}" for \`xplat ${command.name}\`.`,
+			{
+				recovery: { action: `Run \`xplat ${command.name} --help\` for usage.` },
+			},
+		)
 	}
 
 	for (let i = 0; i < expected.length; i++) {

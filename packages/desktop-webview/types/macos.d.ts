@@ -25,18 +25,16 @@ export interface MacOSWebView {
 	/** The app-private recordings directory URL (file://…), created on demand. */
 	movieDirectory(): string | null
 	/** Validate a movie destination before capture; returns the file URL to use. */
-	reserveMoviePath(options: {
-		fileUrl?: string
-		container?: string
-	}): { fileUrl: string } | null
+	reserveMoviePath(options: { fileUrl?: string; container?: string }): { fileUrl: string } | null
 	/** Commit recorded movie bytes atomically; never overwrites. */
 	writeMovieFile(options: { fileUrl: string; base64: string }): { name: string; uri: string } | null
 	/** Append a staged movie chunk; `final` moves it into place atomically and
 	 *  returns the file ref — keeps large recordings off the single-payload path. */
-	writeMovieFileChunk(options: { fileUrl: string; base64: string; final?: boolean }):
-		| { name: string; uri: string }
-		| { ok: boolean }
-		| null
+	writeMovieFileChunk(options: {
+		fileUrl: string
+		base64: string
+		final?: boolean
+	}): { name: string; uri: string } | { ok: boolean } | null
 	movieFileInfo(uri: string): { exists: boolean; fileUrl?: string; size?: number } | null
 	/** Read a stored movie back as base64. */
 	readMovieFile(uri: string): string | null

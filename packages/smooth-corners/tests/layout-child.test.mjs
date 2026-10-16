@@ -1,10 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import {
-	outerLayoutProps,
-	innerLayoutProps,
-	paintedStyle,
-} from '../src/layout-child.ts'
+import { outerLayoutProps, innerLayoutProps, paintedStyle } from '../src/layout-child.ts'
 
 import {
 	outerLayoutProps as outerLayoutPropsWeb,
@@ -109,10 +105,10 @@ test('outer bag mirrors the element box geometry from style', () => {
 })
 
 test('paintedStyle drops margins and keeps the rest', () => {
-	assert.deepEqual(
-		paintedStyle({ width: 10, margin: 4, marginTop: 2, backgroundColor: '#000' }),
-		{ width: 10, backgroundColor: '#000' },
-	)
+	assert.deepEqual(paintedStyle({ width: 10, margin: 4, marginTop: 2, backgroundColor: '#000' }), {
+		width: 10,
+		backgroundColor: '#000',
+	})
 
 	assert.equal(paintedStyle(undefined), undefined)
 	assert.equal(paintedStyleWeb(0), 0)

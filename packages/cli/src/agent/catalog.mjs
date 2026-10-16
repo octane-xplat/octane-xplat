@@ -58,7 +58,8 @@ export function catalogPayload() {
 		envelope: {
 			shape: '{ contractVersion, ok, requestId, context?, data | error }',
 			stdout: 'finite JSON in --json mode; human text otherwise — diagnostics always go to stderr',
-			errorShape: '{ code, message, recovery?, retryable?, context? } — the shared service vocabulary',
+			errorShape:
+				'{ code, message, recovery?, retryable?, context? } — the shared service vocabulary',
 		},
 		exits: {
 			[EXIT.ok]: 'completed (or accepted, once async work exists)',

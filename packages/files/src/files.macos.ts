@@ -63,9 +63,7 @@ function openPanel(accept = '*/*', multiple = false): FileRef[] | null {
 	const extensions = accept
 		.split(',')
 		.map((value) => value.trim().toLowerCase())
-		.flatMap((token) =>
-			token.startsWith('.') ? [token.slice(1)] : (MIME_EXTENSIONS[token] ?? []),
-		)
+		.flatMap((token) => (token.startsWith('.') ? [token.slice(1)] : (MIME_EXTENSIONS[token] ?? [])))
 
 	if (extensions.length) {
 		panel.allowedFileTypes = extensions

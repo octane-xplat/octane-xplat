@@ -35,10 +35,7 @@ export function createLinuxAdapter() {
 				{
 					capability: 'build',
 					status: appCliFile(app, 'linux', 'package.mjs') ? 'supported' : 'unavailable',
-					prerequisites:
-						pnpm.status === 'satisfied'
-							? undefined
-							: [pnpm],
+					prerequisites: pnpm.status === 'satisfied' ? undefined : [pnpm],
 				},
 				{
 					capability: 'launch',
@@ -57,7 +54,11 @@ export function createLinuxAdapter() {
 						blocked ??
 						'Binds a dev process whose command line references the app root; its earlier output stays in the user\u2019s terminal.',
 				},
-				{ capability: 'logs', status: ready ? 'supported' : 'unavailable', detail: blocked ?? undefined },
+				{
+					capability: 'logs',
+					status: ready ? 'supported' : 'unavailable',
+					detail: blocked ?? undefined,
+				},
 			]
 		},
 
@@ -87,7 +88,11 @@ export function createLinuxAdapter() {
 				throw contractError(
 					'prerequisite_missing',
 					'The app does not have @octane-xplat/cli installed — Linux packaging runs through it.',
-					{ recovery: { action: 'Add @octane-xplat/cli to the app\u2019s devDependencies and install.' } },
+					{
+						recovery: {
+							action: 'Add @octane-xplat/cli to the app\u2019s devDependencies and install.',
+						},
+					},
 				)
 			}
 

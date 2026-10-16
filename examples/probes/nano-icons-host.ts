@@ -1,7 +1,13 @@
 /** NativeScript-side inspection: labels stacked inside the icon container. */
 function rgb(color: any): string | undefined {
-	if (!color) {return undefined}
-	if (typeof color.r === 'number') {return `rgb(${color.r}, ${color.g}, ${color.b})`}
+	if (!color) {
+		return undefined
+	}
+
+	if (typeof color.r === 'number') {
+		return `rgb(${color.r}, ${color.g}, ${color.b})`
+	}
+
 	return String(color.hex ?? color)
 }
 

@@ -13,11 +13,20 @@ export default defineConfig({
 			// resolve; the bridge suite substitutes its own mock.
 			{
 				find: /^@nativescript-community\/ui-document-picker$/,
-				replacement: new URL('./tests/stubs/ui-document-picker.ts', import.meta.url)
-					.pathname,
+				replacement: new URL('./tests/stubs/ui-document-picker.ts', import.meta.url).pathname,
 			},
 		],
-		extensions: ['.web.tsrx', '.tsrx', '.web.ts', '.web.tsx', '.ts', '.tsx', '.mjs', '.js', '.json'],
+		extensions: [
+			'.web.tsrx',
+			'.tsrx',
+			'.web.ts',
+			'.web.tsx',
+			'.ts',
+			'.tsx',
+			'.mjs',
+			'.js',
+			'.json',
+		],
 	},
 	test: {
 		include: ['src/**/*.test.{ts,tsx,tsrx}'],

@@ -2,66 +2,65 @@
 /// <reference path="./Runtime.d.ts" />
 
 declare class DDMatchShipmentTrackingNumber extends DDMatch {
-  readonly carrier: string;
+	readonly carrier: string
 
-  readonly trackingNumber: string;
+	readonly trackingNumber: string
 }
 
 declare class DDMatchEmailAddress extends DDMatch {
-  readonly emailAddress: string;
+	readonly emailAddress: string
 
-  readonly label: string;
+	readonly label: string
 }
 
 declare class DDMatchPhoneNumber extends DDMatch {
-  readonly phoneNumber: string;
+	readonly phoneNumber: string
 
-  readonly label: string;
+	readonly label: string
 }
 
 declare class DDMatchLink extends DDMatch {
-  readonly URL: NSURL;
+	readonly URL: NSURL
 }
 
 declare class DDMatchCalendarEvent extends DDMatch {
-  readonly allDay: boolean;
+	readonly allDay: boolean
 
-  readonly startDate: NSDate;
+	readonly startDate: NSDate
 
-  readonly startTimeZone: NSTimeZone;
+	readonly startTimeZone: NSTimeZone
 
-  readonly endDate: NSDate;
+	readonly endDate: NSDate
 
-  readonly endTimeZone: NSTimeZone;
+	readonly endTimeZone: NSTimeZone
 
-  isAllDay(): boolean;
+	isAllDay(): boolean
 }
 
 declare class DDMatchFlightNumber extends DDMatch {
-  readonly airline: string;
+	readonly airline: string
 
-  readonly flightNumber: string;
+	readonly flightNumber: string
 }
 
 declare class DDMatchPostalAddress extends DDMatch {
-  readonly street: string;
+	readonly street: string
 
-  readonly city: string;
+	readonly city: string
 
-  readonly state: string;
+	readonly state: string
 
-  readonly postalCode: string;
+	readonly postalCode: string
 
-  readonly country: string;
+	readonly country: string
 }
 
 declare class DDMatchMoneyAmount extends DDMatch {
-  readonly currency: string;
+	readonly currency: string
 
-  readonly amount: number;
+	readonly amount: number
 }
 
 declare class DDMatch extends NSObject {
-  readonly matchedString: string;
+	readonly matchedString: string
 }
-

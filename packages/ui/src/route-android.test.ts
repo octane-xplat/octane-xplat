@@ -31,7 +31,10 @@ const native = vi.hoisted(() => {
 			this.listeners.set(name, cb)
 		}
 		navigate({ create }: any) {
-			if (this.currentPage) this.backStack.push(this.currentPage)
+			if (this.currentPage) {
+				this.backStack.push(this.currentPage)
+			}
+
 			this.currentPage = create()
 			this.currentPage.frame = this
 			this.listeners.get('navigatedTo')?.()
@@ -202,14 +205,16 @@ it('removing an outlet cancels pending page and modal presentation', async () =>
 	expect(base.modal).toBeNull()
 	unregister()
 	owner.dispose()
-	for (const entry of pending) entry.committed()
+	for (const entry of pending) {
+		entry.committed()
+	}
+
 	expect(frame.currentPage).toBe(base)
 	expect(base.modal).toBeNull()
 	expect(router.currentModalRoute()).toBeNull()
 	expect(owner.entries.getSnapshot()).toHaveLength(0)
 	expect(native.roots).toHaveLength(0)
 })
-
 
 it('returns to the declaring Page when Android commits its forward stack after owner removal', async () => {
 	const { createContentOwner } = await import('./owned-content')

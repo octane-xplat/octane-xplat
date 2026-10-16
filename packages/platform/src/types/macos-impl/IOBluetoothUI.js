@@ -1,18 +1,69 @@
 import { _bind } from './_rt.js'
 const FW = '/System/Library/Frameworks/IOBluetoothUI.framework/IOBluetoothUI'
 export const BluetoothKeyboardReturnType = /* @__PURE__ */ _bind(FW, 'BluetoothKeyboardReturnType')
-export const IOBluetoothAccessibilityIgnoredImageCell = /* @__PURE__ */ _bind(FW, 'IOBluetoothAccessibilityIgnoredImageCell')
-export const IOBluetoothAccessibilityIgnoredTextFieldCell = /* @__PURE__ */ _bind(FW, 'IOBluetoothAccessibilityIgnoredTextFieldCell')
-export const IOBluetoothDeviceSelectorController = /* @__PURE__ */ _bind(FW, 'IOBluetoothDeviceSelectorController')
-export const IOBluetoothGetDeviceSelectorController = /* @__PURE__ */ _bind(FW, 'IOBluetoothGetDeviceSelectorController')
-export const IOBluetoothGetPairingController = /* @__PURE__ */ _bind(FW, 'IOBluetoothGetPairingController')
-export const IOBluetoothObjectPushUIController = /* @__PURE__ */ _bind(FW, 'IOBluetoothObjectPushUIController')
-export const IOBluetoothPairingController = /* @__PURE__ */ _bind(FW, 'IOBluetoothPairingController')
+export const IOBluetoothAccessibilityIgnoredImageCell = /* @__PURE__ */ _bind(
+	FW,
+	'IOBluetoothAccessibilityIgnoredImageCell',
+)
+
+export const IOBluetoothAccessibilityIgnoredTextFieldCell = /* @__PURE__ */ _bind(
+	FW,
+	'IOBluetoothAccessibilityIgnoredTextFieldCell',
+)
+
+export const IOBluetoothDeviceSelectorController = /* @__PURE__ */ _bind(
+	FW,
+	'IOBluetoothDeviceSelectorController',
+)
+
+export const IOBluetoothGetDeviceSelectorController = /* @__PURE__ */ _bind(
+	FW,
+	'IOBluetoothGetDeviceSelectorController',
+)
+
+export const IOBluetoothGetPairingController = /* @__PURE__ */ _bind(
+	FW,
+	'IOBluetoothGetPairingController',
+)
+
+export const IOBluetoothObjectPushUIController = /* @__PURE__ */ _bind(
+	FW,
+	'IOBluetoothObjectPushUIController',
+)
+
+export const IOBluetoothPairingController = /* @__PURE__ */ _bind(
+	FW,
+	'IOBluetoothPairingController',
+)
+
 export const IOBluetoothPasskeyDisplay = /* @__PURE__ */ _bind(FW, 'IOBluetoothPasskeyDisplay')
-export const IOBluetoothServiceBrowserController = /* @__PURE__ */ _bind(FW, 'IOBluetoothServiceBrowserController')
-export const IOBluetoothValidateHardwareWithDescription = /* @__PURE__ */ _bind(FW, 'IOBluetoothValidateHardwareWithDescription')
-export const kIOBluetoothServiceBrowserControllerOptionsAutoStartInquiry = /* @__PURE__ */ _bind(FW, 'kIOBluetoothServiceBrowserControllerOptionsAutoStartInquiry')
-export const kIOBluetoothServiceBrowserControllerOptionsDisconnectWhenDone = /* @__PURE__ */ _bind(FW, 'kIOBluetoothServiceBrowserControllerOptionsDisconnectWhenDone')
-export const kIOBluetoothServiceBrowserControllerOptionsNone = /* @__PURE__ */ _bind(FW, 'kIOBluetoothServiceBrowserControllerOptionsNone')
+export const IOBluetoothServiceBrowserController = /* @__PURE__ */ _bind(
+	FW,
+	'IOBluetoothServiceBrowserController',
+)
+
+export const IOBluetoothValidateHardwareWithDescription = /* @__PURE__ */ _bind(
+	FW,
+	'IOBluetoothValidateHardwareWithDescription',
+)
+
+export const kIOBluetoothServiceBrowserControllerOptionsAutoStartInquiry = /* @__PURE__ */ _bind(
+	FW,
+	'kIOBluetoothServiceBrowserControllerOptionsAutoStartInquiry',
+)
+
+export const kIOBluetoothServiceBrowserControllerOptionsDisconnectWhenDone = /* @__PURE__ */ _bind(
+	FW,
+	'kIOBluetoothServiceBrowserControllerOptionsDisconnectWhenDone',
+)
+
+export const kIOBluetoothServiceBrowserControllerOptionsNone = /* @__PURE__ */ _bind(
+	FW,
+	'kIOBluetoothServiceBrowserControllerOptionsNone',
+)
+
 export const kIOBluetoothUISuccess = /* @__PURE__ */ _bind(FW, 'kIOBluetoothUISuccess')
-export const kIOBluetoothUIUserCanceledErr = /* @__PURE__ */ _bind(FW, 'kIOBluetoothUIUserCanceledErr')
+export const kIOBluetoothUIUserCanceledErr = /* @__PURE__ */ _bind(
+	FW,
+	'kIOBluetoothUIUserCanceledErr',
+)

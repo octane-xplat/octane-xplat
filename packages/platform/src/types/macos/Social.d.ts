@@ -1,10 +1,33 @@
 import type { ACAccount } from './Accounts'
 
-import type { NSEvent, NSMenu, NSPasteboard, NSSharingServicePicker, NSText, NSTextAttachment, NSTextAttachmentCell, NSTextView, NSTextViewDelegate } from './AppKit'
+import type {
+	NSEvent,
+	NSMenu,
+	NSPasteboard,
+	NSSharingServicePicker,
+	NSText,
+	NSTextAttachment,
+	NSTextAttachmentCell,
+	NSTextView,
+	NSTextViewDelegate,
+} from './AppKit'
 
 import type { CGRect } from './CoreFoundation'
 
-import type { NSArray, NSData, NSDictionary, NSError, NSHTTPURLResponse, NSNotification, NSNumber, NSOrthography, NSURL, NSURLRequest, NSUndoManager, _NSRange } from './Foundation'
+import type {
+	NSArray,
+	NSData,
+	NSDictionary,
+	NSError,
+	NSHTTPURLResponse,
+	NSNotification,
+	NSNumber,
+	NSOrthography,
+	NSURL,
+	NSURLRequest,
+	NSUndoManager,
+	_NSRange,
+} from './Foundation'
 
 import type { interop } from './objc-runtime'
 
@@ -12,175 +35,305 @@ import { NSViewController } from './AppKit'
 
 import { NSObject } from './Runtime'
 
+export declare const SLServiceTypeLinkedIn: string
 
+export declare const SLServiceTypeTencentWeibo: string
 
-export declare const SLServiceTypeLinkedIn: string;
+export declare const SLServiceTypeSinaWeibo: string
 
-export declare const SLServiceTypeTencentWeibo: string;
+export declare const SLServiceTypeTwitter: string
 
-export declare const SLServiceTypeSinaWeibo: string;
-
-export declare const SLServiceTypeTwitter: string;
-
-export declare const SLServiceTypeFacebook: string;
+export declare const SLServiceTypeFacebook: string
 
 export declare const SLRequestMethod: {
-  GET: 0,
-  POST: 1,
-  DELETE: 2,
-  PUT: 3,
-};
+	GET: 0
+	POST: 1
+	DELETE: 2
+	PUT: 3
+}
+
+export declare class SLComposeServiceViewController
+	extends NSViewController
+	implements NSTextViewDelegate
+{
+	presentationAnimationDidFinish(): void
+
+	readonly textView: NSTextView
+
+	readonly contentText: string
+
+	placeholder: string
+
+	didSelectPost(): void
+
+	didSelectCancel(): void
+
+	cancel(): void
+
+	isContentValid(): boolean
+
+	validateContent(): void
+
+	charactersRemaining: NSNumber
+
+	textViewClickedOnLinkAtIndex(
+		textView: NSTextView,
+		link: interop.Object,
+		charIndex: number,
+	): boolean
+
+	textViewClickedOnCellInRectAtIndex(
+		textView: NSTextView,
+		cell: NSTextAttachmentCell,
+		cellFrame: CGRect,
+		charIndex: number,
+	): void
+
+	textViewDoubleClickedOnCellInRectAtIndex(
+		textView: NSTextView,
+		cell: NSTextAttachmentCell,
+		cellFrame: CGRect,
+		charIndex: number,
+	): void
+
+	textViewDraggedCellInRectEventAtIndex(
+		view: NSTextView,
+		cell: NSTextAttachmentCell,
+		rect: CGRect,
+		event: NSEvent,
+		charIndex: number,
+	): void
+
+	textViewWritablePasteboardTypesForCellAtIndex(
+		view: NSTextView,
+		cell: NSTextAttachmentCell,
+		charIndex: number,
+	): NSArray
+
+	textViewWriteCellAtIndexToPasteboardType(
+		view: NSTextView,
+		cell: NSTextAttachmentCell,
+		charIndex: number,
+		pboard: NSPasteboard,
+		type: string,
+	): boolean
+
+	textViewWillChangeSelectionFromCharacterRangeToCharacterRange(
+		textView: NSTextView,
+		oldSelectedCharRange: _NSRange,
+		newSelectedCharRange: _NSRange,
+	): _NSRange
+
+	textViewWillChangeSelectionFromCharacterRangesToCharacterRanges(
+		textView: NSTextView,
+		oldSelectedCharRanges: NSArray<interop.Object> | Array<interop.Object>,
+		newSelectedCharRanges: NSArray<interop.Object> | Array<interop.Object>,
+	): NSArray
+
+	textViewShouldChangeTextInRangesReplacementStrings(
+		textView: NSTextView,
+		affectedRanges: NSArray<interop.Object> | Array<interop.Object>,
+		replacementStrings: NSArray<interop.Object> | Array<interop.Object> | null,
+	): boolean
+
+	textViewShouldChangeTypingAttributesToAttributes(
+		textView: NSTextView,
+		oldTypingAttributes:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+		newTypingAttributes:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+	): NSDictionary
+
+	textViewDidChangeSelection(notification: NSNotification): void
+
+	textViewDidChangeTypingAttributes(notification: NSNotification): void
+
+	textViewWillDisplayToolTipForCharacterAtIndex(
+		textView: NSTextView,
+		tooltip: string,
+		characterIndex: number,
+	): string
+
+	textViewCompletionsForPartialWordRangeIndexOfSelectedItem(
+		textView: NSTextView,
+		words: NSArray<interop.Object> | Array<interop.Object>,
+		charRange: _NSRange,
+		index: interop.PointerConvertible,
+	): NSArray
+
+	textViewShouldChangeTextInRangeReplacementString(
+		textView: NSTextView,
+		affectedCharRange: _NSRange,
+		replacementString: string | null,
+	): boolean
+
+	textViewDoCommandBySelector(textView: NSTextView, commandSelector: string): boolean
+
+	textViewShouldSetSpellingStateRange(
+		textView: NSTextView,
+		value: number,
+		affectedCharRange: _NSRange,
+	): number
 
-export declare class SLComposeServiceViewController extends NSViewController implements NSTextViewDelegate {
-  presentationAnimationDidFinish(): void;
+	textViewMenuForEventAtIndex(
+		view: NSTextView,
+		menu: NSMenu,
+		event: NSEvent,
+		charIndex: number,
+	): NSMenu
 
-  readonly textView: NSTextView;
+	textViewWillCheckTextInRangeOptionsTypes(
+		view: NSTextView,
+		range: _NSRange,
+		options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+		checkingTypes: interop.PointerConvertible,
+	): NSDictionary
 
-  readonly contentText: string;
+	textViewDidCheckTextInRangeTypesOptionsResultsOrthographyWordCount(
+		view: NSTextView,
+		range: _NSRange,
+		checkingTypes: number,
+		options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+		results: NSArray<interop.Object> | Array<interop.Object>,
+		orthography: NSOrthography,
+		wordCount: number,
+	): NSArray
 
-  placeholder: string;
+	textViewURLForContentsOfTextAttachmentAtIndex(
+		textView: NSTextView,
+		textAttachment: NSTextAttachment,
+		charIndex: number,
+	): NSURL
 
-  didSelectPost(): void;
+	textViewWillShowSharingServicePickerForItems(
+		textView: NSTextView,
+		servicePicker: NSSharingServicePicker,
+		items: NSArray<interop.Object> | Array<interop.Object>,
+	): NSSharingServicePicker
 
-  didSelectCancel(): void;
+	undoManagerForTextView(view: NSTextView): NSUndoManager
 
-  cancel(): void;
+	textViewShouldUpdateTouchBarItemIdentifiers(
+		textView: NSTextView,
+		identifiers: NSArray<interop.Object> | Array<interop.Object>,
+	): NSArray
 
-  isContentValid(): boolean;
+	textViewCandidatesForSelectedRange(textView: NSTextView, selectedRange: _NSRange): NSArray
 
-  validateContent(): void;
+	textViewCandidatesForSelectedRange(
+		textView: NSTextView,
+		candidates: NSArray<interop.Object> | Array<interop.Object>,
+		selectedRange: _NSRange,
+	): NSArray
 
-  charactersRemaining: NSNumber;
+	textViewShouldSelectCandidateAtIndex(textView: NSTextView, index: number): boolean
 
-  textViewClickedOnLinkAtIndex(textView: NSTextView, link: interop.Object, charIndex: number): boolean;
+	textViewClickedOnLink(textView: NSTextView, link: interop.Object): boolean
 
-  textViewClickedOnCellInRectAtIndex(textView: NSTextView, cell: NSTextAttachmentCell, cellFrame: CGRect, charIndex: number): void;
+	textViewClickedOnCellInRect(
+		textView: NSTextView,
+		cell: NSTextAttachmentCell,
+		cellFrame: CGRect,
+	): void
 
-  textViewDoubleClickedOnCellInRectAtIndex(textView: NSTextView, cell: NSTextAttachmentCell, cellFrame: CGRect, charIndex: number): void;
+	textViewDoubleClickedOnCellInRect(
+		textView: NSTextView,
+		cell: NSTextAttachmentCell,
+		cellFrame: CGRect,
+	): void
 
-  textViewDraggedCellInRectEventAtIndex(view: NSTextView, cell: NSTextAttachmentCell, rect: CGRect, event: NSEvent, charIndex: number): void;
+	textViewDraggedCellInRectEvent(
+		view: NSTextView,
+		cell: NSTextAttachmentCell,
+		rect: CGRect,
+		event: NSEvent,
+	): void
 
-  textViewWritablePasteboardTypesForCellAtIndex(view: NSTextView, cell: NSTextAttachmentCell, charIndex: number): NSArray;
+	textShouldBeginEditing(textObject: NSText): boolean
 
-  textViewWriteCellAtIndexToPasteboardType(view: NSTextView, cell: NSTextAttachmentCell, charIndex: number, pboard: NSPasteboard, type: string): boolean;
+	textShouldEndEditing(textObject: NSText): boolean
 
-  textViewWillChangeSelectionFromCharacterRangeToCharacterRange(textView: NSTextView, oldSelectedCharRange: _NSRange, newSelectedCharRange: _NSRange): _NSRange;
+	textDidBeginEditing(notification: NSNotification): void
 
-  textViewWillChangeSelectionFromCharacterRangesToCharacterRanges(textView: NSTextView, oldSelectedCharRanges: NSArray<interop.Object> | Array<interop.Object>, newSelectedCharRanges: NSArray<interop.Object> | Array<interop.Object>): NSArray;
+	textDidEndEditing(notification: NSNotification): void
 
-  textViewShouldChangeTextInRangesReplacementStrings(textView: NSTextView, affectedRanges: NSArray<interop.Object> | Array<interop.Object>, replacementStrings: NSArray<interop.Object> | Array<interop.Object> | null): boolean;
+	textDidChange(notification: NSNotification): void
 
-  textViewShouldChangeTypingAttributesToAttributes(textView: NSTextView, oldTypingAttributes: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>, newTypingAttributes: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): NSDictionary;
+	isEqual(object: interop.Object): boolean
 
-  textViewDidChangeSelection(notification: NSNotification): void;
+	readonly hash: number
 
-  textViewDidChangeTypingAttributes(notification: NSNotification): void;
+	readonly superclass: interop.Pointer
 
-  textViewWillDisplayToolTipForCharacterAtIndex(textView: NSTextView, tooltip: string, characterIndex: number): string;
+	class(): interop.Pointer
 
-  textViewCompletionsForPartialWordRangeIndexOfSelectedItem(textView: NSTextView, words: NSArray<interop.Object> | Array<interop.Object>, charRange: _NSRange, index: interop.PointerConvertible): NSArray;
+	self(): this
 
-  textViewShouldChangeTextInRangeReplacementString(textView: NSTextView, affectedCharRange: _NSRange, replacementString: string | null): boolean;
+	performSelector(aSelector: string): interop.Object
 
-  textViewDoCommandBySelector(textView: NSTextView, commandSelector: string): boolean;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  textViewShouldSetSpellingStateRange(textView: NSTextView, value: number, affectedCharRange: _NSRange): number;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  textViewMenuForEventAtIndex(view: NSTextView, menu: NSMenu, event: NSEvent, charIndex: number): NSMenu;
+	readonly isProxy: boolean
 
-  textViewWillCheckTextInRangeOptionsTypes(view: NSTextView, range: _NSRange, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>, checkingTypes: interop.PointerConvertible): NSDictionary;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  textViewDidCheckTextInRangeTypesOptionsResultsOrthographyWordCount(view: NSTextView, range: _NSRange, checkingTypes: number, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>, results: NSArray<interop.Object> | Array<interop.Object>, orthography: NSOrthography, wordCount: number): NSArray;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  textViewURLForContentsOfTextAttachmentAtIndex(textView: NSTextView, textAttachment: NSTextAttachment, charIndex: number): NSURL;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  textViewWillShowSharingServicePickerForItems(textView: NSTextView, servicePicker: NSSharingServicePicker, items: NSArray<interop.Object> | Array<interop.Object>): NSSharingServicePicker;
+	respondsToSelector(aSelector: string): boolean
 
-  undoManagerForTextView(view: NSTextView): NSUndoManager;
+	retain(): this
 
-  textViewShouldUpdateTouchBarItemIdentifiers(textView: NSTextView, identifiers: NSArray<interop.Object> | Array<interop.Object>): NSArray;
+	release(): void
 
-  textViewCandidatesForSelectedRange(textView: NSTextView, selectedRange: _NSRange): NSArray;
+	autorelease(): this
 
-  textViewCandidatesForSelectedRange(textView: NSTextView, candidates: NSArray<interop.Object> | Array<interop.Object>, selectedRange: _NSRange): NSArray;
+	retainCount(): number
 
-  textViewShouldSelectCandidateAtIndex(textView: NSTextView, index: number): boolean;
+	readonly zone: interop.Pointer
 
-  textViewClickedOnLink(textView: NSTextView, link: interop.Object): boolean;
+	readonly description: string
 
-  textViewClickedOnCellInRect(textView: NSTextView, cell: NSTextAttachmentCell, cellFrame: CGRect): void;
-
-  textViewDoubleClickedOnCellInRect(textView: NSTextView, cell: NSTextAttachmentCell, cellFrame: CGRect): void;
-
-  textViewDraggedCellInRectEvent(view: NSTextView, cell: NSTextAttachmentCell, rect: CGRect, event: NSEvent): void;
-
-  textShouldBeginEditing(textObject: NSText): boolean;
-
-  textShouldEndEditing(textObject: NSText): boolean;
-
-  textDidBeginEditing(notification: NSNotification): void;
-
-  textDidEndEditing(notification: NSNotification): void;
-
-  textDidChange(notification: NSNotification): void;
-
-  isEqual(object: interop.Object): boolean;
-
-  readonly hash: number;
-
-  readonly superclass: interop.Pointer;
-
-  class(): interop.Pointer;
-
-  self(): this;
-
-  performSelector(aSelector: string): interop.Object;
-
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
-
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
-
-  readonly isProxy: boolean;
-
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
-
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
-
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
-
-  respondsToSelector(aSelector: string): boolean;
-
-  retain(): this;
-
-  release(): void;
-
-  autorelease(): this;
-
-  retainCount(): number;
-
-  readonly zone: interop.Pointer;
-
-  readonly description: string;
-
-  readonly debugDescription: string;
+	readonly debugDescription: string
 }
 
 export declare class SLRequest extends NSObject {
-  static requestForServiceTypeRequestMethodURLParameters(serviceType: string, requestMethod: interop.Enum<typeof SLRequestMethod>, url: NSURL, parameters: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>): SLRequest;
+	static requestForServiceTypeRequestMethodURLParameters(
+		serviceType: string,
+		requestMethod: interop.Enum<typeof SLRequestMethod>,
+		url: NSURL,
+		parameters:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>,
+	): SLRequest
 
-  account: ACAccount;
+	account: ACAccount
 
-  readonly requestMethod: interop.Enum<typeof SLRequestMethod>;
+	readonly requestMethod: interop.Enum<typeof SLRequestMethod>
 
-  readonly URL: NSURL;
+	readonly URL: NSURL
 
-  readonly parameters: NSDictionary;
+	readonly parameters: NSDictionary
 
-  addMultipartDataWithNameTypeFilename(data: NSData, name: string, type: string, filename: string): void;
+	addMultipartDataWithNameTypeFilename(
+		data: NSData,
+		name: string,
+		type: string,
+		filename: string,
+	): void
 
-  addMultipartDataWithNameType(data: NSData, name: string, type: string): void;
+	addMultipartDataWithNameType(data: NSData, name: string, type: string): void
 
-  preparedURLRequest(): NSURLRequest;
+	preparedURLRequest(): NSURLRequest
 
-  performRequestWithHandler(handler: (p1: NSData, p2: NSHTTPURLResponse, p3: NSError) => void): void;
+	performRequestWithHandler(handler: (p1: NSData, p2: NSHTTPURLResponse, p3: NSError) => void): void
 }

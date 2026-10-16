@@ -18,22 +18,27 @@ describe('Item row roles', () => {
 			// @ts-expect-error use label instead of title
 			title: 'Account',
 		}
+
 		const legacyDescription: ItemProps = {
 			// @ts-expect-error use description instead of supportingText
 			supportingText: 'Profile settings',
 		}
+
 		const legacyStartContent: ItemProps = {
 			// @ts-expect-error use startContent instead of leading
 			leading: 'A',
 		}
+
 		const legacyEndContent: ItemProps = {
 			// @ts-expect-error use endContent instead of trailing
 			trailing: '›',
 		}
+
 		const legacyDisabled: ItemProps = {
 			// @ts-expect-error use isDisabled instead of disabled
 			disabled: true,
 		}
+
 		void [legacyTitle, legacyDescription, legacyStartContent, legacyEndContent, legacyDisabled]
 	})
 })

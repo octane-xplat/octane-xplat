@@ -3,7 +3,11 @@ const FW = '/System/Library/Frameworks/CoreSpotlight.framework/CoreSpotlight'
 export const CSCustomAttributeKey = /* @__PURE__ */ _bind(FW, 'CSCustomAttributeKey')
 export const CSIndexErrorCode = /* @__PURE__ */ _bind(FW, 'CSIndexErrorCode')
 export const CSIndexErrorDomain = /* @__PURE__ */ _bind(FW, 'CSIndexErrorDomain')
-export const CSIndexExtensionRequestHandler = /* @__PURE__ */ _bind(FW, 'CSIndexExtensionRequestHandler')
+export const CSIndexExtensionRequestHandler = /* @__PURE__ */ _bind(
+	FW,
+	'CSIndexExtensionRequestHandler',
+)
+
 export const CSLocalizedString = /* @__PURE__ */ _bind(FW, 'CSLocalizedString')
 export const CSMailboxArchive = /* @__PURE__ */ _bind(FW, 'CSMailboxArchive')
 export const CSMailboxDrafts = /* @__PURE__ */ _bind(FW, 'CSMailboxDrafts')
@@ -12,7 +16,11 @@ export const CSMailboxJunk = /* @__PURE__ */ _bind(FW, 'CSMailboxJunk')
 export const CSMailboxSent = /* @__PURE__ */ _bind(FW, 'CSMailboxSent')
 export const CSMailboxTrash = /* @__PURE__ */ _bind(FW, 'CSMailboxTrash')
 export const CSPerson = /* @__PURE__ */ _bind(FW, 'CSPerson')
-export const CSQueryContinuationActionType = /* @__PURE__ */ _bind(FW, 'CSQueryContinuationActionType')
+export const CSQueryContinuationActionType = /* @__PURE__ */ _bind(
+	FW,
+	'CSQueryContinuationActionType',
+)
+
 export const CSSearchQuery = /* @__PURE__ */ _bind(FW, 'CSSearchQuery')
 export const CSSearchQueryErrorCode = /* @__PURE__ */ _bind(FW, 'CSSearchQueryErrorCode')
 export const CSSearchQueryErrorDomain = /* @__PURE__ */ _bind(FW, 'CSSearchQueryErrorDomain')
@@ -21,8 +29,16 @@ export const CSSearchableIndex = /* @__PURE__ */ _bind(FW, 'CSSearchableIndex')
 export const CSSearchableIndexDelegate = /* @__PURE__ */ _bind(FW, 'CSSearchableIndexDelegate')
 export const CSSearchableItem = /* @__PURE__ */ _bind(FW, 'CSSearchableItem')
 export const CSSearchableItemActionType = /* @__PURE__ */ _bind(FW, 'CSSearchableItemActionType')
-export const CSSearchableItemActivityIdentifier = /* @__PURE__ */ _bind(FW, 'CSSearchableItemActivityIdentifier')
-export const CSSearchableItemAttributeSet = /* @__PURE__ */ _bind(FW, 'CSSearchableItemAttributeSet')
+export const CSSearchableItemActivityIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'CSSearchableItemActivityIdentifier',
+)
+
+export const CSSearchableItemAttributeSet = /* @__PURE__ */ _bind(
+	FW,
+	'CSSearchableItemAttributeSet',
+)
+
 export const CSSuggestionKind = /* @__PURE__ */ _bind(FW, 'CSSuggestionKind')
 export const CSUserInteraction = /* @__PURE__ */ _bind(FW, 'CSUserInteraction')
 export const CoreSpotlightVersionNumber = /* @__PURE__ */ _bind(FW, 'CoreSpotlightVersionNumber')

@@ -1,29 +1,73 @@
 import { _bind } from './_rt.js'
 const FW = '/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics'
-export const CGAcquireDisplayFadeReservation = /* @__PURE__ */ _bind(FW, 'CGAcquireDisplayFadeReservation')
+export const CGAcquireDisplayFadeReservation = /* @__PURE__ */ _bind(
+	FW,
+	'CGAcquireDisplayFadeReservation',
+)
+
 export const CGAffineTransformConcat = /* @__PURE__ */ _bind(FW, 'CGAffineTransformConcat')
-export const CGAffineTransformEqualToTransform = /* @__PURE__ */ _bind(FW, 'CGAffineTransformEqualToTransform')
+export const CGAffineTransformEqualToTransform = /* @__PURE__ */ _bind(
+	FW,
+	'CGAffineTransformEqualToTransform',
+)
+
 export const CGAffineTransformIdentity = /* @__PURE__ */ _bind(FW, 'CGAffineTransformIdentity')
 export const CGAffineTransformInvert = /* @__PURE__ */ _bind(FW, 'CGAffineTransformInvert')
 export const CGAffineTransformIsIdentity = /* @__PURE__ */ _bind(FW, 'CGAffineTransformIsIdentity')
 export const CGAffineTransformMake = /* @__PURE__ */ _bind(FW, 'CGAffineTransformMake')
-export const CGAffineTransformMakeRotation = /* @__PURE__ */ _bind(FW, 'CGAffineTransformMakeRotation')
+export const CGAffineTransformMakeRotation = /* @__PURE__ */ _bind(
+	FW,
+	'CGAffineTransformMakeRotation',
+)
+
 export const CGAffineTransformMakeScale = /* @__PURE__ */ _bind(FW, 'CGAffineTransformMakeScale')
-export const CGAffineTransformMakeTranslation = /* @__PURE__ */ _bind(FW, 'CGAffineTransformMakeTranslation')
+export const CGAffineTransformMakeTranslation = /* @__PURE__ */ _bind(
+	FW,
+	'CGAffineTransformMakeTranslation',
+)
+
 export const CGAffineTransformRotate = /* @__PURE__ */ _bind(FW, 'CGAffineTransformRotate')
 export const CGAffineTransformScale = /* @__PURE__ */ _bind(FW, 'CGAffineTransformScale')
 export const CGAffineTransformTranslate = /* @__PURE__ */ _bind(FW, 'CGAffineTransformTranslate')
-export const CGAssociateMouseAndMouseCursorPosition = /* @__PURE__ */ _bind(FW, 'CGAssociateMouseAndMouseCursorPosition')
+export const CGAssociateMouseAndMouseCursorPosition = /* @__PURE__ */ _bind(
+	FW,
+	'CGAssociateMouseAndMouseCursorPosition',
+)
+
 export const CGBeginDisplayConfiguration = /* @__PURE__ */ _bind(FW, 'CGBeginDisplayConfiguration')
 export const CGBitmapContextCreate = /* @__PURE__ */ _bind(FW, 'CGBitmapContextCreate')
 export const CGBitmapContextCreateImage = /* @__PURE__ */ _bind(FW, 'CGBitmapContextCreateImage')
-export const CGBitmapContextCreateWithData = /* @__PURE__ */ _bind(FW, 'CGBitmapContextCreateWithData')
+export const CGBitmapContextCreateWithData = /* @__PURE__ */ _bind(
+	FW,
+	'CGBitmapContextCreateWithData',
+)
+
 export const CGBitmapContextGetAlphaInfo = /* @__PURE__ */ _bind(FW, 'CGBitmapContextGetAlphaInfo')
-export const CGBitmapContextGetBitmapInfo = /* @__PURE__ */ _bind(FW, 'CGBitmapContextGetBitmapInfo')
-export const CGBitmapContextGetBitsPerComponent = /* @__PURE__ */ _bind(FW, 'CGBitmapContextGetBitsPerComponent')
-export const CGBitmapContextGetBitsPerPixel = /* @__PURE__ */ _bind(FW, 'CGBitmapContextGetBitsPerPixel')
-export const CGBitmapContextGetBytesPerRow = /* @__PURE__ */ _bind(FW, 'CGBitmapContextGetBytesPerRow')
-export const CGBitmapContextGetColorSpace = /* @__PURE__ */ _bind(FW, 'CGBitmapContextGetColorSpace')
+export const CGBitmapContextGetBitmapInfo = /* @__PURE__ */ _bind(
+	FW,
+	'CGBitmapContextGetBitmapInfo',
+)
+
+export const CGBitmapContextGetBitsPerComponent = /* @__PURE__ */ _bind(
+	FW,
+	'CGBitmapContextGetBitsPerComponent',
+)
+
+export const CGBitmapContextGetBitsPerPixel = /* @__PURE__ */ _bind(
+	FW,
+	'CGBitmapContextGetBitsPerPixel',
+)
+
+export const CGBitmapContextGetBytesPerRow = /* @__PURE__ */ _bind(
+	FW,
+	'CGBitmapContextGetBytesPerRow',
+)
+
+export const CGBitmapContextGetColorSpace = /* @__PURE__ */ _bind(
+	FW,
+	'CGBitmapContextGetColorSpace',
+)
+
 export const CGBitmapContextGetData = /* @__PURE__ */ _bind(FW, 'CGBitmapContextGetData')
 export const CGBitmapContextGetHeight = /* @__PURE__ */ _bind(FW, 'CGBitmapContextGetHeight')
 export const CGBitmapContextGetWidth = /* @__PURE__ */ _bind(FW, 'CGBitmapContextGetWidth')
@@ -31,26 +75,62 @@ export const CGBitmapInfo = /* @__PURE__ */ _bind(FW, 'CGBitmapInfo')
 export const CGBitmapLayout = /* @__PURE__ */ _bind(FW, 'CGBitmapLayout')
 export const CGBitmapParameters = /* @__PURE__ */ _bind(FW, 'CGBitmapParameters')
 export const CGBlendMode = /* @__PURE__ */ _bind(FW, 'CGBlendMode')
-export const CGCancelDisplayConfiguration = /* @__PURE__ */ _bind(FW, 'CGCancelDisplayConfiguration')
+export const CGCancelDisplayConfiguration = /* @__PURE__ */ _bind(
+	FW,
+	'CGCancelDisplayConfiguration',
+)
+
 export const CGCaptureAllDisplays = /* @__PURE__ */ _bind(FW, 'CGCaptureAllDisplays')
-export const CGCaptureAllDisplaysWithOptions = /* @__PURE__ */ _bind(FW, 'CGCaptureAllDisplaysWithOptions')
+export const CGCaptureAllDisplaysWithOptions = /* @__PURE__ */ _bind(
+	FW,
+	'CGCaptureAllDisplaysWithOptions',
+)
+
 export const CGCaptureOptions = /* @__PURE__ */ _bind(FW, 'CGCaptureOptions')
 export const CGColor = /* @__PURE__ */ _bind(FW, 'CGColor')
 export const CGColorBufferFormat = /* @__PURE__ */ _bind(FW, 'CGColorBufferFormat')
 export const CGColorConversionInfo = /* @__PURE__ */ _bind(FW, 'CGColorConversionInfo')
 export const CGColorConversionInfoCreate = /* @__PURE__ */ _bind(FW, 'CGColorConversionInfoCreate')
-export const CGColorConversionInfoCreateFromList = /* @__PURE__ */ _bind(FW, 'CGColorConversionInfoCreateFromList')
-export const CGColorConversionInfoCreateFromListWithArguments = /* @__PURE__ */ _bind(FW, 'CGColorConversionInfoCreateFromListWithArguments')
-export const CGColorConversionInfoCreateWithOptions = /* @__PURE__ */ _bind(FW, 'CGColorConversionInfoCreateWithOptions')
-export const CGColorConversionInfoGetTypeID = /* @__PURE__ */ _bind(FW, 'CGColorConversionInfoGetTypeID')
-export const CGColorConversionInfoTransformType = /* @__PURE__ */ _bind(FW, 'CGColorConversionInfoTransformType')
+export const CGColorConversionInfoCreateFromList = /* @__PURE__ */ _bind(
+	FW,
+	'CGColorConversionInfoCreateFromList',
+)
+
+export const CGColorConversionInfoCreateFromListWithArguments = /* @__PURE__ */ _bind(
+	FW,
+	'CGColorConversionInfoCreateFromListWithArguments',
+)
+
+export const CGColorConversionInfoCreateWithOptions = /* @__PURE__ */ _bind(
+	FW,
+	'CGColorConversionInfoCreateWithOptions',
+)
+
+export const CGColorConversionInfoGetTypeID = /* @__PURE__ */ _bind(
+	FW,
+	'CGColorConversionInfoGetTypeID',
+)
+
+export const CGColorConversionInfoTransformType = /* @__PURE__ */ _bind(
+	FW,
+	'CGColorConversionInfoTransformType',
+)
+
 export const CGColorCreate = /* @__PURE__ */ _bind(FW, 'CGColorCreate')
 export const CGColorCreateCopy = /* @__PURE__ */ _bind(FW, 'CGColorCreateCopy')
-export const CGColorCreateCopyByMatchingToColorSpace = /* @__PURE__ */ _bind(FW, 'CGColorCreateCopyByMatchingToColorSpace')
+export const CGColorCreateCopyByMatchingToColorSpace = /* @__PURE__ */ _bind(
+	FW,
+	'CGColorCreateCopyByMatchingToColorSpace',
+)
+
 export const CGColorCreateCopyWithAlpha = /* @__PURE__ */ _bind(FW, 'CGColorCreateCopyWithAlpha')
 export const CGColorCreateGenericCMYK = /* @__PURE__ */ _bind(FW, 'CGColorCreateGenericCMYK')
 export const CGColorCreateGenericGray = /* @__PURE__ */ _bind(FW, 'CGColorCreateGenericGray')
-export const CGColorCreateGenericGrayGamma2_2 = /* @__PURE__ */ _bind(FW, 'CGColorCreateGenericGrayGamma2_2')
+export const CGColorCreateGenericGrayGamma2_2 = /* @__PURE__ */ _bind(
+	FW,
+	'CGColorCreateGenericGrayGamma2_2',
+)
+
 export const CGColorCreateGenericRGB = /* @__PURE__ */ _bind(FW, 'CGColorCreateGenericRGB')
 export const CGColorCreateSRGB = /* @__PURE__ */ _bind(FW, 'CGColorCreateSRGB')
 export const CGColorCreateWithPattern = /* @__PURE__ */ _bind(FW, 'CGColorCreateWithPattern')
@@ -60,7 +140,11 @@ export const CGColorGetAlpha = /* @__PURE__ */ _bind(FW, 'CGColorGetAlpha')
 export const CGColorGetColorSpace = /* @__PURE__ */ _bind(FW, 'CGColorGetColorSpace')
 export const CGColorGetComponents = /* @__PURE__ */ _bind(FW, 'CGColorGetComponents')
 export const CGColorGetConstantColor = /* @__PURE__ */ _bind(FW, 'CGColorGetConstantColor')
-export const CGColorGetNumberOfComponents = /* @__PURE__ */ _bind(FW, 'CGColorGetNumberOfComponents')
+export const CGColorGetNumberOfComponents = /* @__PURE__ */ _bind(
+	FW,
+	'CGColorGetNumberOfComponents',
+)
+
 export const CGColorGetPattern = /* @__PURE__ */ _bind(FW, 'CGColorGetPattern')
 export const CGColorGetTypeID = /* @__PURE__ */ _bind(FW, 'CGColorGetTypeID')
 export const CGColorModel = /* @__PURE__ */ _bind(FW, 'CGColorModel')
@@ -71,30 +155,86 @@ export const CGColorSpace = /* @__PURE__ */ _bind(FW, 'CGColorSpace')
 export const CGColorSpaceCopyICCData = /* @__PURE__ */ _bind(FW, 'CGColorSpaceCopyICCData')
 export const CGColorSpaceCopyICCProfile = /* @__PURE__ */ _bind(FW, 'CGColorSpaceCopyICCProfile')
 export const CGColorSpaceCopyName = /* @__PURE__ */ _bind(FW, 'CGColorSpaceCopyName')
-export const CGColorSpaceCopyPropertyList = /* @__PURE__ */ _bind(FW, 'CGColorSpaceCopyPropertyList')
-export const CGColorSpaceCreateCalibratedGray = /* @__PURE__ */ _bind(FW, 'CGColorSpaceCreateCalibratedGray')
-export const CGColorSpaceCreateCalibratedRGB = /* @__PURE__ */ _bind(FW, 'CGColorSpaceCreateCalibratedRGB')
-export const CGColorSpaceCreateDeviceCMYK = /* @__PURE__ */ _bind(FW, 'CGColorSpaceCreateDeviceCMYK')
-export const CGColorSpaceCreateDeviceGray = /* @__PURE__ */ _bind(FW, 'CGColorSpaceCreateDeviceGray')
+export const CGColorSpaceCopyPropertyList = /* @__PURE__ */ _bind(
+	FW,
+	'CGColorSpaceCopyPropertyList',
+)
+
+export const CGColorSpaceCreateCalibratedGray = /* @__PURE__ */ _bind(
+	FW,
+	'CGColorSpaceCreateCalibratedGray',
+)
+
+export const CGColorSpaceCreateCalibratedRGB = /* @__PURE__ */ _bind(
+	FW,
+	'CGColorSpaceCreateCalibratedRGB',
+)
+
+export const CGColorSpaceCreateDeviceCMYK = /* @__PURE__ */ _bind(
+	FW,
+	'CGColorSpaceCreateDeviceCMYK',
+)
+
+export const CGColorSpaceCreateDeviceGray = /* @__PURE__ */ _bind(
+	FW,
+	'CGColorSpaceCreateDeviceGray',
+)
+
 export const CGColorSpaceCreateDeviceRGB = /* @__PURE__ */ _bind(FW, 'CGColorSpaceCreateDeviceRGB')
 export const CGColorSpaceCreateExtended = /* @__PURE__ */ _bind(FW, 'CGColorSpaceCreateExtended')
-export const CGColorSpaceCreateExtendedLinearized = /* @__PURE__ */ _bind(FW, 'CGColorSpaceCreateExtendedLinearized')
+export const CGColorSpaceCreateExtendedLinearized = /* @__PURE__ */ _bind(
+	FW,
+	'CGColorSpaceCreateExtendedLinearized',
+)
+
 export const CGColorSpaceCreateICCBased = /* @__PURE__ */ _bind(FW, 'CGColorSpaceCreateICCBased')
 export const CGColorSpaceCreateIndexed = /* @__PURE__ */ _bind(FW, 'CGColorSpaceCreateIndexed')
 export const CGColorSpaceCreateLab = /* @__PURE__ */ _bind(FW, 'CGColorSpaceCreateLab')
-export const CGColorSpaceCreateLinearized = /* @__PURE__ */ _bind(FW, 'CGColorSpaceCreateLinearized')
+export const CGColorSpaceCreateLinearized = /* @__PURE__ */ _bind(
+	FW,
+	'CGColorSpaceCreateLinearized',
+)
+
 export const CGColorSpaceCreatePattern = /* @__PURE__ */ _bind(FW, 'CGColorSpaceCreatePattern')
-export const CGColorSpaceCreateWithICCData = /* @__PURE__ */ _bind(FW, 'CGColorSpaceCreateWithICCData')
-export const CGColorSpaceCreateWithICCProfile = /* @__PURE__ */ _bind(FW, 'CGColorSpaceCreateWithICCProfile')
+export const CGColorSpaceCreateWithICCData = /* @__PURE__ */ _bind(
+	FW,
+	'CGColorSpaceCreateWithICCData',
+)
+
+export const CGColorSpaceCreateWithICCProfile = /* @__PURE__ */ _bind(
+	FW,
+	'CGColorSpaceCreateWithICCProfile',
+)
+
 export const CGColorSpaceCreateWithName = /* @__PURE__ */ _bind(FW, 'CGColorSpaceCreateWithName')
-export const CGColorSpaceCreateWithPlatformColorSpace = /* @__PURE__ */ _bind(FW, 'CGColorSpaceCreateWithPlatformColorSpace')
-export const CGColorSpaceCreateWithPropertyList = /* @__PURE__ */ _bind(FW, 'CGColorSpaceCreateWithPropertyList')
-export const CGColorSpaceGetBaseColorSpace = /* @__PURE__ */ _bind(FW, 'CGColorSpaceGetBaseColorSpace')
+export const CGColorSpaceCreateWithPlatformColorSpace = /* @__PURE__ */ _bind(
+	FW,
+	'CGColorSpaceCreateWithPlatformColorSpace',
+)
+
+export const CGColorSpaceCreateWithPropertyList = /* @__PURE__ */ _bind(
+	FW,
+	'CGColorSpaceCreateWithPropertyList',
+)
+
+export const CGColorSpaceGetBaseColorSpace = /* @__PURE__ */ _bind(
+	FW,
+	'CGColorSpaceGetBaseColorSpace',
+)
+
 export const CGColorSpaceGetColorTable = /* @__PURE__ */ _bind(FW, 'CGColorSpaceGetColorTable')
-export const CGColorSpaceGetColorTableCount = /* @__PURE__ */ _bind(FW, 'CGColorSpaceGetColorTableCount')
+export const CGColorSpaceGetColorTableCount = /* @__PURE__ */ _bind(
+	FW,
+	'CGColorSpaceGetColorTableCount',
+)
+
 export const CGColorSpaceGetModel = /* @__PURE__ */ _bind(FW, 'CGColorSpaceGetModel')
 export const CGColorSpaceGetName = /* @__PURE__ */ _bind(FW, 'CGColorSpaceGetName')
-export const CGColorSpaceGetNumberOfComponents = /* @__PURE__ */ _bind(FW, 'CGColorSpaceGetNumberOfComponents')
+export const CGColorSpaceGetNumberOfComponents = /* @__PURE__ */ _bind(
+	FW,
+	'CGColorSpaceGetNumberOfComponents',
+)
+
 export const CGColorSpaceGetTypeID = /* @__PURE__ */ _bind(FW, 'CGColorSpaceGetTypeID')
 export const CGColorSpaceIsHDR = /* @__PURE__ */ _bind(FW, 'CGColorSpaceIsHDR')
 export const CGColorSpaceIsWideGamutRGB = /* @__PURE__ */ _bind(FW, 'CGColorSpaceIsWideGamutRGB')
@@ -102,16 +242,40 @@ export const CGColorSpaceModel = /* @__PURE__ */ _bind(FW, 'CGColorSpaceModel')
 export const CGColorSpaceRelease = /* @__PURE__ */ _bind(FW, 'CGColorSpaceRelease')
 export const CGColorSpaceRetain = /* @__PURE__ */ _bind(FW, 'CGColorSpaceRetain')
 export const CGColorSpaceSupportsOutput = /* @__PURE__ */ _bind(FW, 'CGColorSpaceSupportsOutput')
-export const CGColorSpaceUsesExtendedRange = /* @__PURE__ */ _bind(FW, 'CGColorSpaceUsesExtendedRange')
+export const CGColorSpaceUsesExtendedRange = /* @__PURE__ */ _bind(
+	FW,
+	'CGColorSpaceUsesExtendedRange',
+)
+
 export const CGColorSpaceUsesITUR_2100TF = /* @__PURE__ */ _bind(FW, 'CGColorSpaceUsesITUR_2100TF')
-export const CGCompleteDisplayConfiguration = /* @__PURE__ */ _bind(FW, 'CGCompleteDisplayConfiguration')
+export const CGCompleteDisplayConfiguration = /* @__PURE__ */ _bind(
+	FW,
+	'CGCompleteDisplayConfiguration',
+)
+
 export const CGComponent = /* @__PURE__ */ _bind(FW, 'CGComponent')
-export const CGConfigureDisplayFadeEffect = /* @__PURE__ */ _bind(FW, 'CGConfigureDisplayFadeEffect')
-export const CGConfigureDisplayMirrorOfDisplay = /* @__PURE__ */ _bind(FW, 'CGConfigureDisplayMirrorOfDisplay')
+export const CGConfigureDisplayFadeEffect = /* @__PURE__ */ _bind(
+	FW,
+	'CGConfigureDisplayFadeEffect',
+)
+
+export const CGConfigureDisplayMirrorOfDisplay = /* @__PURE__ */ _bind(
+	FW,
+	'CGConfigureDisplayMirrorOfDisplay',
+)
+
 export const CGConfigureDisplayMode = /* @__PURE__ */ _bind(FW, 'CGConfigureDisplayMode')
 export const CGConfigureDisplayOrigin = /* @__PURE__ */ _bind(FW, 'CGConfigureDisplayOrigin')
-export const CGConfigureDisplayStereoOperation = /* @__PURE__ */ _bind(FW, 'CGConfigureDisplayStereoOperation')
-export const CGConfigureDisplayWithDisplayMode = /* @__PURE__ */ _bind(FW, 'CGConfigureDisplayWithDisplayMode')
+export const CGConfigureDisplayStereoOperation = /* @__PURE__ */ _bind(
+	FW,
+	'CGConfigureDisplayStereoOperation',
+)
+
+export const CGConfigureDisplayWithDisplayMode = /* @__PURE__ */ _bind(
+	FW,
+	'CGConfigureDisplayWithDisplayMode',
+)
+
 export const CGConfigureOption = /* @__PURE__ */ _bind(FW, 'CGConfigureOption')
 export const CGContentInfo = /* @__PURE__ */ _bind(FW, 'CGContentInfo')
 export const CGContentToneMappingInfo = /* @__PURE__ */ _bind(FW, 'CGContentToneMappingInfo')
@@ -123,13 +287,25 @@ export const CGContextAddEllipseInRect = /* @__PURE__ */ _bind(FW, 'CGContextAdd
 export const CGContextAddLineToPoint = /* @__PURE__ */ _bind(FW, 'CGContextAddLineToPoint')
 export const CGContextAddLines = /* @__PURE__ */ _bind(FW, 'CGContextAddLines')
 export const CGContextAddPath = /* @__PURE__ */ _bind(FW, 'CGContextAddPath')
-export const CGContextAddQuadCurveToPoint = /* @__PURE__ */ _bind(FW, 'CGContextAddQuadCurveToPoint')
+export const CGContextAddQuadCurveToPoint = /* @__PURE__ */ _bind(
+	FW,
+	'CGContextAddQuadCurveToPoint',
+)
+
 export const CGContextAddRect = /* @__PURE__ */ _bind(FW, 'CGContextAddRect')
 export const CGContextAddRects = /* @__PURE__ */ _bind(FW, 'CGContextAddRects')
 export const CGContextBeginPage = /* @__PURE__ */ _bind(FW, 'CGContextBeginPage')
 export const CGContextBeginPath = /* @__PURE__ */ _bind(FW, 'CGContextBeginPath')
-export const CGContextBeginTransparencyLayer = /* @__PURE__ */ _bind(FW, 'CGContextBeginTransparencyLayer')
-export const CGContextBeginTransparencyLayerWithRect = /* @__PURE__ */ _bind(FW, 'CGContextBeginTransparencyLayerWithRect')
+export const CGContextBeginTransparencyLayer = /* @__PURE__ */ _bind(
+	FW,
+	'CGContextBeginTransparencyLayer',
+)
+
+export const CGContextBeginTransparencyLayerWithRect = /* @__PURE__ */ _bind(
+	FW,
+	'CGContextBeginTransparencyLayerWithRect',
+)
+
 export const CGContextClearRect = /* @__PURE__ */ _bind(FW, 'CGContextClearRect')
 export const CGContextClip = /* @__PURE__ */ _bind(FW, 'CGContextClip')
 export const CGContextClipToMask = /* @__PURE__ */ _bind(FW, 'CGContextClipToMask')
@@ -137,12 +313,36 @@ export const CGContextClipToRect = /* @__PURE__ */ _bind(FW, 'CGContextClipToRec
 export const CGContextClipToRects = /* @__PURE__ */ _bind(FW, 'CGContextClipToRects')
 export const CGContextClosePath = /* @__PURE__ */ _bind(FW, 'CGContextClosePath')
 export const CGContextConcatCTM = /* @__PURE__ */ _bind(FW, 'CGContextConcatCTM')
-export const CGContextConvertPointToDeviceSpace = /* @__PURE__ */ _bind(FW, 'CGContextConvertPointToDeviceSpace')
-export const CGContextConvertPointToUserSpace = /* @__PURE__ */ _bind(FW, 'CGContextConvertPointToUserSpace')
-export const CGContextConvertRectToDeviceSpace = /* @__PURE__ */ _bind(FW, 'CGContextConvertRectToDeviceSpace')
-export const CGContextConvertRectToUserSpace = /* @__PURE__ */ _bind(FW, 'CGContextConvertRectToUserSpace')
-export const CGContextConvertSizeToDeviceSpace = /* @__PURE__ */ _bind(FW, 'CGContextConvertSizeToDeviceSpace')
-export const CGContextConvertSizeToUserSpace = /* @__PURE__ */ _bind(FW, 'CGContextConvertSizeToUserSpace')
+export const CGContextConvertPointToDeviceSpace = /* @__PURE__ */ _bind(
+	FW,
+	'CGContextConvertPointToDeviceSpace',
+)
+
+export const CGContextConvertPointToUserSpace = /* @__PURE__ */ _bind(
+	FW,
+	'CGContextConvertPointToUserSpace',
+)
+
+export const CGContextConvertRectToDeviceSpace = /* @__PURE__ */ _bind(
+	FW,
+	'CGContextConvertRectToDeviceSpace',
+)
+
+export const CGContextConvertRectToUserSpace = /* @__PURE__ */ _bind(
+	FW,
+	'CGContextConvertRectToUserSpace',
+)
+
+export const CGContextConvertSizeToDeviceSpace = /* @__PURE__ */ _bind(
+	FW,
+	'CGContextConvertSizeToDeviceSpace',
+)
+
+export const CGContextConvertSizeToUserSpace = /* @__PURE__ */ _bind(
+	FW,
+	'CGContextConvertSizeToUserSpace',
+)
+
 export const CGContextCopyPath = /* @__PURE__ */ _bind(FW, 'CGContextCopyPath')
 export const CGContextDrawImage = /* @__PURE__ */ _bind(FW, 'CGContextDrawImage')
 export const CGContextDrawLayerAtPoint = /* @__PURE__ */ _bind(FW, 'CGContextDrawLayerAtPoint')
@@ -157,7 +357,11 @@ export const CGContextDrawTiledImage = /* @__PURE__ */ _bind(FW, 'CGContextDrawT
 export const CGContextEOClip = /* @__PURE__ */ _bind(FW, 'CGContextEOClip')
 export const CGContextEOFillPath = /* @__PURE__ */ _bind(FW, 'CGContextEOFillPath')
 export const CGContextEndPage = /* @__PURE__ */ _bind(FW, 'CGContextEndPage')
-export const CGContextEndTransparencyLayer = /* @__PURE__ */ _bind(FW, 'CGContextEndTransparencyLayer')
+export const CGContextEndTransparencyLayer = /* @__PURE__ */ _bind(
+	FW,
+	'CGContextEndTransparencyLayer',
+)
+
 export const CGContextFillEllipseInRect = /* @__PURE__ */ _bind(FW, 'CGContextFillEllipseInRect')
 export const CGContextFillPath = /* @__PURE__ */ _bind(FW, 'CGContextFillPath')
 export const CGContextFillRect = /* @__PURE__ */ _bind(FW, 'CGContextFillRect')
@@ -165,18 +369,34 @@ export const CGContextFillRects = /* @__PURE__ */ _bind(FW, 'CGContextFillRects'
 export const CGContextFlush = /* @__PURE__ */ _bind(FW, 'CGContextFlush')
 export const CGContextGetCTM = /* @__PURE__ */ _bind(FW, 'CGContextGetCTM')
 export const CGContextGetClipBoundingBox = /* @__PURE__ */ _bind(FW, 'CGContextGetClipBoundingBox')
-export const CGContextGetInterpolationQuality = /* @__PURE__ */ _bind(FW, 'CGContextGetInterpolationQuality')
+export const CGContextGetInterpolationQuality = /* @__PURE__ */ _bind(
+	FW,
+	'CGContextGetInterpolationQuality',
+)
+
 export const CGContextGetPathBoundingBox = /* @__PURE__ */ _bind(FW, 'CGContextGetPathBoundingBox')
-export const CGContextGetPathCurrentPoint = /* @__PURE__ */ _bind(FW, 'CGContextGetPathCurrentPoint')
+export const CGContextGetPathCurrentPoint = /* @__PURE__ */ _bind(
+	FW,
+	'CGContextGetPathCurrentPoint',
+)
+
 export const CGContextGetTextMatrix = /* @__PURE__ */ _bind(FW, 'CGContextGetTextMatrix')
 export const CGContextGetTextPosition = /* @__PURE__ */ _bind(FW, 'CGContextGetTextPosition')
 export const CGContextGetTypeID = /* @__PURE__ */ _bind(FW, 'CGContextGetTypeID')
-export const CGContextGetUserSpaceToDeviceSpaceTransform = /* @__PURE__ */ _bind(FW, 'CGContextGetUserSpaceToDeviceSpaceTransform')
+export const CGContextGetUserSpaceToDeviceSpaceTransform = /* @__PURE__ */ _bind(
+	FW,
+	'CGContextGetUserSpaceToDeviceSpaceTransform',
+)
+
 export const CGContextIsPathEmpty = /* @__PURE__ */ _bind(FW, 'CGContextIsPathEmpty')
 export const CGContextMoveToPoint = /* @__PURE__ */ _bind(FW, 'CGContextMoveToPoint')
 export const CGContextPathContainsPoint = /* @__PURE__ */ _bind(FW, 'CGContextPathContainsPoint')
 export const CGContextRelease = /* @__PURE__ */ _bind(FW, 'CGContextRelease')
-export const CGContextReplacePathWithStrokedPath = /* @__PURE__ */ _bind(FW, 'CGContextReplacePathWithStrokedPath')
+export const CGContextReplacePathWithStrokedPath = /* @__PURE__ */ _bind(
+	FW,
+	'CGContextReplacePathWithStrokedPath',
+)
+
 export const CGContextResetClip = /* @__PURE__ */ _bind(FW, 'CGContextResetClip')
 export const CGContextRestoreGState = /* @__PURE__ */ _bind(FW, 'CGContextRestoreGState')
 export const CGContextRetain = /* @__PURE__ */ _bind(FW, 'CGContextRetain')
@@ -184,25 +404,53 @@ export const CGContextRotateCTM = /* @__PURE__ */ _bind(FW, 'CGContextRotateCTM'
 export const CGContextSaveGState = /* @__PURE__ */ _bind(FW, 'CGContextSaveGState')
 export const CGContextScaleCTM = /* @__PURE__ */ _bind(FW, 'CGContextScaleCTM')
 export const CGContextSelectFont = /* @__PURE__ */ _bind(FW, 'CGContextSelectFont')
-export const CGContextSetAllowsAntialiasing = /* @__PURE__ */ _bind(FW, 'CGContextSetAllowsAntialiasing')
-export const CGContextSetAllowsFontSmoothing = /* @__PURE__ */ _bind(FW, 'CGContextSetAllowsFontSmoothing')
-export const CGContextSetAllowsFontSubpixelPositioning = /* @__PURE__ */ _bind(FW, 'CGContextSetAllowsFontSubpixelPositioning')
-export const CGContextSetAllowsFontSubpixelQuantization = /* @__PURE__ */ _bind(FW, 'CGContextSetAllowsFontSubpixelQuantization')
+export const CGContextSetAllowsAntialiasing = /* @__PURE__ */ _bind(
+	FW,
+	'CGContextSetAllowsAntialiasing',
+)
+
+export const CGContextSetAllowsFontSmoothing = /* @__PURE__ */ _bind(
+	FW,
+	'CGContextSetAllowsFontSmoothing',
+)
+
+export const CGContextSetAllowsFontSubpixelPositioning = /* @__PURE__ */ _bind(
+	FW,
+	'CGContextSetAllowsFontSubpixelPositioning',
+)
+
+export const CGContextSetAllowsFontSubpixelQuantization = /* @__PURE__ */ _bind(
+	FW,
+	'CGContextSetAllowsFontSubpixelQuantization',
+)
+
 export const CGContextSetAlpha = /* @__PURE__ */ _bind(FW, 'CGContextSetAlpha')
 export const CGContextSetBlendMode = /* @__PURE__ */ _bind(FW, 'CGContextSetBlendMode')
 export const CGContextSetCMYKFillColor = /* @__PURE__ */ _bind(FW, 'CGContextSetCMYKFillColor')
 export const CGContextSetCMYKStrokeColor = /* @__PURE__ */ _bind(FW, 'CGContextSetCMYKStrokeColor')
-export const CGContextSetCharacterSpacing = /* @__PURE__ */ _bind(FW, 'CGContextSetCharacterSpacing')
+export const CGContextSetCharacterSpacing = /* @__PURE__ */ _bind(
+	FW,
+	'CGContextSetCharacterSpacing',
+)
+
 export const CGContextSetFillColor = /* @__PURE__ */ _bind(FW, 'CGContextSetFillColor')
 export const CGContextSetFillColorSpace = /* @__PURE__ */ _bind(FW, 'CGContextSetFillColorSpace')
-export const CGContextSetFillColorWithColor = /* @__PURE__ */ _bind(FW, 'CGContextSetFillColorWithColor')
+export const CGContextSetFillColorWithColor = /* @__PURE__ */ _bind(
+	FW,
+	'CGContextSetFillColorWithColor',
+)
+
 export const CGContextSetFillPattern = /* @__PURE__ */ _bind(FW, 'CGContextSetFillPattern')
 export const CGContextSetFlatness = /* @__PURE__ */ _bind(FW, 'CGContextSetFlatness')
 export const CGContextSetFont = /* @__PURE__ */ _bind(FW, 'CGContextSetFont')
 export const CGContextSetFontSize = /* @__PURE__ */ _bind(FW, 'CGContextSetFontSize')
 export const CGContextSetGrayFillColor = /* @__PURE__ */ _bind(FW, 'CGContextSetGrayFillColor')
 export const CGContextSetGrayStrokeColor = /* @__PURE__ */ _bind(FW, 'CGContextSetGrayStrokeColor')
-export const CGContextSetInterpolationQuality = /* @__PURE__ */ _bind(FW, 'CGContextSetInterpolationQuality')
+export const CGContextSetInterpolationQuality = /* @__PURE__ */ _bind(
+	FW,
+	'CGContextSetInterpolationQuality',
+)
+
 export const CGContextSetLineCap = /* @__PURE__ */ _bind(FW, 'CGContextSetLineCap')
 export const CGContextSetLineDash = /* @__PURE__ */ _bind(FW, 'CGContextSetLineDash')
 export const CGContextSetLineJoin = /* @__PURE__ */ _bind(FW, 'CGContextSetLineJoin')
@@ -215,36 +463,84 @@ export const CGContextSetRenderingIntent = /* @__PURE__ */ _bind(FW, 'CGContextS
 export const CGContextSetShadow = /* @__PURE__ */ _bind(FW, 'CGContextSetShadow')
 export const CGContextSetShadowWithColor = /* @__PURE__ */ _bind(FW, 'CGContextSetShadowWithColor')
 export const CGContextSetShouldAntialias = /* @__PURE__ */ _bind(FW, 'CGContextSetShouldAntialias')
-export const CGContextSetShouldSmoothFonts = /* @__PURE__ */ _bind(FW, 'CGContextSetShouldSmoothFonts')
-export const CGContextSetShouldSubpixelPositionFonts = /* @__PURE__ */ _bind(FW, 'CGContextSetShouldSubpixelPositionFonts')
-export const CGContextSetShouldSubpixelQuantizeFonts = /* @__PURE__ */ _bind(FW, 'CGContextSetShouldSubpixelQuantizeFonts')
+export const CGContextSetShouldSmoothFonts = /* @__PURE__ */ _bind(
+	FW,
+	'CGContextSetShouldSmoothFonts',
+)
+
+export const CGContextSetShouldSubpixelPositionFonts = /* @__PURE__ */ _bind(
+	FW,
+	'CGContextSetShouldSubpixelPositionFonts',
+)
+
+export const CGContextSetShouldSubpixelQuantizeFonts = /* @__PURE__ */ _bind(
+	FW,
+	'CGContextSetShouldSubpixelQuantizeFonts',
+)
+
 export const CGContextSetStrokeColor = /* @__PURE__ */ _bind(FW, 'CGContextSetStrokeColor')
-export const CGContextSetStrokeColorSpace = /* @__PURE__ */ _bind(FW, 'CGContextSetStrokeColorSpace')
-export const CGContextSetStrokeColorWithColor = /* @__PURE__ */ _bind(FW, 'CGContextSetStrokeColorWithColor')
+export const CGContextSetStrokeColorSpace = /* @__PURE__ */ _bind(
+	FW,
+	'CGContextSetStrokeColorSpace',
+)
+
+export const CGContextSetStrokeColorWithColor = /* @__PURE__ */ _bind(
+	FW,
+	'CGContextSetStrokeColorWithColor',
+)
+
 export const CGContextSetStrokePattern = /* @__PURE__ */ _bind(FW, 'CGContextSetStrokePattern')
 export const CGContextSetTextDrawingMode = /* @__PURE__ */ _bind(FW, 'CGContextSetTextDrawingMode')
 export const CGContextSetTextMatrix = /* @__PURE__ */ _bind(FW, 'CGContextSetTextMatrix')
 export const CGContextSetTextPosition = /* @__PURE__ */ _bind(FW, 'CGContextSetTextPosition')
 export const CGContextShowGlyphs = /* @__PURE__ */ _bind(FW, 'CGContextShowGlyphs')
 export const CGContextShowGlyphsAtPoint = /* @__PURE__ */ _bind(FW, 'CGContextShowGlyphsAtPoint')
-export const CGContextShowGlyphsAtPositions = /* @__PURE__ */ _bind(FW, 'CGContextShowGlyphsAtPositions')
-export const CGContextShowGlyphsWithAdvances = /* @__PURE__ */ _bind(FW, 'CGContextShowGlyphsWithAdvances')
+export const CGContextShowGlyphsAtPositions = /* @__PURE__ */ _bind(
+	FW,
+	'CGContextShowGlyphsAtPositions',
+)
+
+export const CGContextShowGlyphsWithAdvances = /* @__PURE__ */ _bind(
+	FW,
+	'CGContextShowGlyphsWithAdvances',
+)
+
 export const CGContextShowText = /* @__PURE__ */ _bind(FW, 'CGContextShowText')
 export const CGContextShowTextAtPoint = /* @__PURE__ */ _bind(FW, 'CGContextShowTextAtPoint')
-export const CGContextStrokeEllipseInRect = /* @__PURE__ */ _bind(FW, 'CGContextStrokeEllipseInRect')
+export const CGContextStrokeEllipseInRect = /* @__PURE__ */ _bind(
+	FW,
+	'CGContextStrokeEllipseInRect',
+)
+
 export const CGContextStrokeLineSegments = /* @__PURE__ */ _bind(FW, 'CGContextStrokeLineSegments')
 export const CGContextStrokePath = /* @__PURE__ */ _bind(FW, 'CGContextStrokePath')
 export const CGContextStrokeRect = /* @__PURE__ */ _bind(FW, 'CGContextStrokeRect')
-export const CGContextStrokeRectWithWidth = /* @__PURE__ */ _bind(FW, 'CGContextStrokeRectWithWidth')
+export const CGContextStrokeRectWithWidth = /* @__PURE__ */ _bind(
+	FW,
+	'CGContextStrokeRectWithWidth',
+)
+
 export const CGContextSynchronize = /* @__PURE__ */ _bind(FW, 'CGContextSynchronize')
 export const CGContextTranslateCTM = /* @__PURE__ */ _bind(FW, 'CGContextTranslateCTM')
-export const CGConvertColorDataWithFormat = /* @__PURE__ */ _bind(FW, 'CGConvertColorDataWithFormat')
-export const CGCursorIsDrawnInFramebuffer = /* @__PURE__ */ _bind(FW, 'CGCursorIsDrawnInFramebuffer')
+export const CGConvertColorDataWithFormat = /* @__PURE__ */ _bind(
+	FW,
+	'CGConvertColorDataWithFormat',
+)
+
+export const CGCursorIsDrawnInFramebuffer = /* @__PURE__ */ _bind(
+	FW,
+	'CGCursorIsDrawnInFramebuffer',
+)
+
 export const CGCursorIsVisible = /* @__PURE__ */ _bind(FW, 'CGCursorIsVisible')
 export const CGDataConsumer = /* @__PURE__ */ _bind(FW, 'CGDataConsumer')
 export const CGDataConsumerCallbacks = /* @__PURE__ */ _bind(FW, 'CGDataConsumerCallbacks')
 export const CGDataConsumerCreate = /* @__PURE__ */ _bind(FW, 'CGDataConsumerCreate')
-export const CGDataConsumerCreateWithCFData = /* @__PURE__ */ _bind(FW, 'CGDataConsumerCreateWithCFData')
+export const CGDataConsumerCreateWithCFData = /* @__PURE__ */ _bind(
+	FW,
+	'CGDataConsumerCreateWithCFData',
+)
+
 export const CGDataConsumerCreateWithURL = /* @__PURE__ */ _bind(FW, 'CGDataConsumerCreateWithURL')
 export const CGDataConsumerGetTypeID = /* @__PURE__ */ _bind(FW, 'CGDataConsumerGetTypeID')
 export const CGDataConsumerRelease = /* @__PURE__ */ _bind(FW, 'CGDataConsumerRelease')
@@ -252,41 +548,93 @@ export const CGDataConsumerRetain = /* @__PURE__ */ _bind(FW, 'CGDataConsumerRet
 export const CGDataProvider = /* @__PURE__ */ _bind(FW, 'CGDataProvider')
 export const CGDataProviderCopyData = /* @__PURE__ */ _bind(FW, 'CGDataProviderCopyData')
 export const CGDataProviderCreateDirect = /* @__PURE__ */ _bind(FW, 'CGDataProviderCreateDirect')
-export const CGDataProviderCreateSequential = /* @__PURE__ */ _bind(FW, 'CGDataProviderCreateSequential')
-export const CGDataProviderCreateWithCFData = /* @__PURE__ */ _bind(FW, 'CGDataProviderCreateWithCFData')
-export const CGDataProviderCreateWithData = /* @__PURE__ */ _bind(FW, 'CGDataProviderCreateWithData')
-export const CGDataProviderCreateWithFilename = /* @__PURE__ */ _bind(FW, 'CGDataProviderCreateWithFilename')
+export const CGDataProviderCreateSequential = /* @__PURE__ */ _bind(
+	FW,
+	'CGDataProviderCreateSequential',
+)
+
+export const CGDataProviderCreateWithCFData = /* @__PURE__ */ _bind(
+	FW,
+	'CGDataProviderCreateWithCFData',
+)
+
+export const CGDataProviderCreateWithData = /* @__PURE__ */ _bind(
+	FW,
+	'CGDataProviderCreateWithData',
+)
+
+export const CGDataProviderCreateWithFilename = /* @__PURE__ */ _bind(
+	FW,
+	'CGDataProviderCreateWithFilename',
+)
+
 export const CGDataProviderCreateWithURL = /* @__PURE__ */ _bind(FW, 'CGDataProviderCreateWithURL')
-export const CGDataProviderDirectCallbacks = /* @__PURE__ */ _bind(FW, 'CGDataProviderDirectCallbacks')
+export const CGDataProviderDirectCallbacks = /* @__PURE__ */ _bind(
+	FW,
+	'CGDataProviderDirectCallbacks',
+)
+
 export const CGDataProviderGetInfo = /* @__PURE__ */ _bind(FW, 'CGDataProviderGetInfo')
 export const CGDataProviderGetTypeID = /* @__PURE__ */ _bind(FW, 'CGDataProviderGetTypeID')
 export const CGDataProviderRelease = /* @__PURE__ */ _bind(FW, 'CGDataProviderRelease')
 export const CGDataProviderRetain = /* @__PURE__ */ _bind(FW, 'CGDataProviderRetain')
-export const CGDataProviderSequentialCallbacks = /* @__PURE__ */ _bind(FW, 'CGDataProviderSequentialCallbacks')
+export const CGDataProviderSequentialCallbacks = /* @__PURE__ */ _bind(
+	FW,
+	'CGDataProviderSequentialCallbacks',
+)
+
 export const CGDeviceColor = /* @__PURE__ */ _bind(FW, 'CGDeviceColor')
-export const CGDirectDisplayCopyCurrentMetalDevice = /* @__PURE__ */ _bind(FW, 'CGDirectDisplayCopyCurrentMetalDevice')
+export const CGDirectDisplayCopyCurrentMetalDevice = /* @__PURE__ */ _bind(
+	FW,
+	'CGDirectDisplayCopyCurrentMetalDevice',
+)
+
 export const CGDisplayAvailableModes = /* @__PURE__ */ _bind(FW, 'CGDisplayAvailableModes')
-export const CGDisplayBestModeForParameters = /* @__PURE__ */ _bind(FW, 'CGDisplayBestModeForParameters')
-export const CGDisplayBestModeForParametersAndRefreshRate = /* @__PURE__ */ _bind(FW, 'CGDisplayBestModeForParametersAndRefreshRate')
+export const CGDisplayBestModeForParameters = /* @__PURE__ */ _bind(
+	FW,
+	'CGDisplayBestModeForParameters',
+)
+
+export const CGDisplayBestModeForParametersAndRefreshRate = /* @__PURE__ */ _bind(
+	FW,
+	'CGDisplayBestModeForParametersAndRefreshRate',
+)
+
 export const CGDisplayBounds = /* @__PURE__ */ _bind(FW, 'CGDisplayBounds')
 export const CGDisplayCapture = /* @__PURE__ */ _bind(FW, 'CGDisplayCapture')
 export const CGDisplayCaptureWithOptions = /* @__PURE__ */ _bind(FW, 'CGDisplayCaptureWithOptions')
 export const CGDisplayChangeSummaryFlags = /* @__PURE__ */ _bind(FW, 'CGDisplayChangeSummaryFlags')
-export const CGDisplayCopyAllDisplayModes = /* @__PURE__ */ _bind(FW, 'CGDisplayCopyAllDisplayModes')
+export const CGDisplayCopyAllDisplayModes = /* @__PURE__ */ _bind(
+	FW,
+	'CGDisplayCopyAllDisplayModes',
+)
+
 export const CGDisplayCopyColorSpace = /* @__PURE__ */ _bind(FW, 'CGDisplayCopyColorSpace')
 export const CGDisplayCopyDisplayMode = /* @__PURE__ */ _bind(FW, 'CGDisplayCopyDisplayMode')
 export const CGDisplayCreateImage = /* @__PURE__ */ _bind(FW, 'CGDisplayCreateImage')
 export const CGDisplayCreateImageForRect = /* @__PURE__ */ _bind(FW, 'CGDisplayCreateImageForRect')
 export const CGDisplayCurrentMode = /* @__PURE__ */ _bind(FW, 'CGDisplayCurrentMode')
 export const CGDisplayFade = /* @__PURE__ */ _bind(FW, 'CGDisplayFade')
-export const CGDisplayFadeOperationInProgress = /* @__PURE__ */ _bind(FW, 'CGDisplayFadeOperationInProgress')
+export const CGDisplayFadeOperationInProgress = /* @__PURE__ */ _bind(
+	FW,
+	'CGDisplayFadeOperationInProgress',
+)
+
 export const CGDisplayGammaTableCapacity = /* @__PURE__ */ _bind(FW, 'CGDisplayGammaTableCapacity')
 export const CGDisplayGetDrawingContext = /* @__PURE__ */ _bind(FW, 'CGDisplayGetDrawingContext')
 export const CGDisplayHideCursor = /* @__PURE__ */ _bind(FW, 'CGDisplayHideCursor')
-export const CGDisplayIDToOpenGLDisplayMask = /* @__PURE__ */ _bind(FW, 'CGDisplayIDToOpenGLDisplayMask')
+export const CGDisplayIDToOpenGLDisplayMask = /* @__PURE__ */ _bind(
+	FW,
+	'CGDisplayIDToOpenGLDisplayMask',
+)
+
 export const CGDisplayIOServicePort = /* @__PURE__ */ _bind(FW, 'CGDisplayIOServicePort')
 export const CGDisplayIsActive = /* @__PURE__ */ _bind(FW, 'CGDisplayIsActive')
-export const CGDisplayIsAlwaysInMirrorSet = /* @__PURE__ */ _bind(FW, 'CGDisplayIsAlwaysInMirrorSet')
+export const CGDisplayIsAlwaysInMirrorSet = /* @__PURE__ */ _bind(
+	FW,
+	'CGDisplayIsAlwaysInMirrorSet',
+)
+
 export const CGDisplayIsAsleep = /* @__PURE__ */ _bind(FW, 'CGDisplayIsAsleep')
 export const CGDisplayIsBuiltin = /* @__PURE__ */ _bind(FW, 'CGDisplayIsBuiltin')
 export const CGDisplayIsCaptured = /* @__PURE__ */ _bind(FW, 'CGDisplayIsCaptured')
@@ -297,16 +645,28 @@ export const CGDisplayIsOnline = /* @__PURE__ */ _bind(FW, 'CGDisplayIsOnline')
 export const CGDisplayIsStereo = /* @__PURE__ */ _bind(FW, 'CGDisplayIsStereo')
 export const CGDisplayMirrorsDisplay = /* @__PURE__ */ _bind(FW, 'CGDisplayMirrorsDisplay')
 export const CGDisplayMode = /* @__PURE__ */ _bind(FW, 'CGDisplayMode')
-export const CGDisplayModeCopyPixelEncoding = /* @__PURE__ */ _bind(FW, 'CGDisplayModeCopyPixelEncoding')
+export const CGDisplayModeCopyPixelEncoding = /* @__PURE__ */ _bind(
+	FW,
+	'CGDisplayModeCopyPixelEncoding',
+)
+
 export const CGDisplayModeGetHeight = /* @__PURE__ */ _bind(FW, 'CGDisplayModeGetHeight')
-export const CGDisplayModeGetIODisplayModeID = /* @__PURE__ */ _bind(FW, 'CGDisplayModeGetIODisplayModeID')
+export const CGDisplayModeGetIODisplayModeID = /* @__PURE__ */ _bind(
+	FW,
+	'CGDisplayModeGetIODisplayModeID',
+)
+
 export const CGDisplayModeGetIOFlags = /* @__PURE__ */ _bind(FW, 'CGDisplayModeGetIOFlags')
 export const CGDisplayModeGetPixelHeight = /* @__PURE__ */ _bind(FW, 'CGDisplayModeGetPixelHeight')
 export const CGDisplayModeGetPixelWidth = /* @__PURE__ */ _bind(FW, 'CGDisplayModeGetPixelWidth')
 export const CGDisplayModeGetRefreshRate = /* @__PURE__ */ _bind(FW, 'CGDisplayModeGetRefreshRate')
 export const CGDisplayModeGetTypeID = /* @__PURE__ */ _bind(FW, 'CGDisplayModeGetTypeID')
 export const CGDisplayModeGetWidth = /* @__PURE__ */ _bind(FW, 'CGDisplayModeGetWidth')
-export const CGDisplayModeIsUsableForDesktopGUI = /* @__PURE__ */ _bind(FW, 'CGDisplayModeIsUsableForDesktopGUI')
+export const CGDisplayModeIsUsableForDesktopGUI = /* @__PURE__ */ _bind(
+	FW,
+	'CGDisplayModeIsUsableForDesktopGUI',
+)
+
 export const CGDisplayModeRelease = /* @__PURE__ */ _bind(FW, 'CGDisplayModeRelease')
 export const CGDisplayModeRetain = /* @__PURE__ */ _bind(FW, 'CGDisplayModeRetain')
 export const CGDisplayModelNumber = /* @__PURE__ */ _bind(FW, 'CGDisplayModelNumber')
@@ -314,10 +674,22 @@ export const CGDisplayMoveCursorToPoint = /* @__PURE__ */ _bind(FW, 'CGDisplayMo
 export const CGDisplayPixelsHigh = /* @__PURE__ */ _bind(FW, 'CGDisplayPixelsHigh')
 export const CGDisplayPixelsWide = /* @__PURE__ */ _bind(FW, 'CGDisplayPixelsWide')
 export const CGDisplayPrimaryDisplay = /* @__PURE__ */ _bind(FW, 'CGDisplayPrimaryDisplay')
-export const CGDisplayRegisterReconfigurationCallback = /* @__PURE__ */ _bind(FW, 'CGDisplayRegisterReconfigurationCallback')
+export const CGDisplayRegisterReconfigurationCallback = /* @__PURE__ */ _bind(
+	FW,
+	'CGDisplayRegisterReconfigurationCallback',
+)
+
 export const CGDisplayRelease = /* @__PURE__ */ _bind(FW, 'CGDisplayRelease')
-export const CGDisplayRemoveReconfigurationCallback = /* @__PURE__ */ _bind(FW, 'CGDisplayRemoveReconfigurationCallback')
-export const CGDisplayRestoreColorSyncSettings = /* @__PURE__ */ _bind(FW, 'CGDisplayRestoreColorSyncSettings')
+export const CGDisplayRemoveReconfigurationCallback = /* @__PURE__ */ _bind(
+	FW,
+	'CGDisplayRemoveReconfigurationCallback',
+)
+
+export const CGDisplayRestoreColorSyncSettings = /* @__PURE__ */ _bind(
+	FW,
+	'CGDisplayRestoreColorSyncSettings',
+)
+
 export const CGDisplayRotation = /* @__PURE__ */ _bind(FW, 'CGDisplayRotation')
 export const CGDisplayScreenSize = /* @__PURE__ */ _bind(FW, 'CGDisplayScreenSize')
 export const CGDisplaySerialNumber = /* @__PURE__ */ _bind(FW, 'CGDisplaySerialNumber')
@@ -326,22 +698,58 @@ export const CGDisplaySetStereoOperation = /* @__PURE__ */ _bind(FW, 'CGDisplayS
 export const CGDisplayShowCursor = /* @__PURE__ */ _bind(FW, 'CGDisplayShowCursor')
 export const CGDisplayStream = /* @__PURE__ */ _bind(FW, 'CGDisplayStream')
 export const CGDisplayStreamCreate = /* @__PURE__ */ _bind(FW, 'CGDisplayStreamCreate')
-export const CGDisplayStreamCreateWithDispatchQueue = /* @__PURE__ */ _bind(FW, 'CGDisplayStreamCreateWithDispatchQueue')
+export const CGDisplayStreamCreateWithDispatchQueue = /* @__PURE__ */ _bind(
+	FW,
+	'CGDisplayStreamCreateWithDispatchQueue',
+)
+
 export const CGDisplayStreamFrameStatus = /* @__PURE__ */ _bind(FW, 'CGDisplayStreamFrameStatus')
-export const CGDisplayStreamGetRunLoopSource = /* @__PURE__ */ _bind(FW, 'CGDisplayStreamGetRunLoopSource')
+export const CGDisplayStreamGetRunLoopSource = /* @__PURE__ */ _bind(
+	FW,
+	'CGDisplayStreamGetRunLoopSource',
+)
+
 export const CGDisplayStreamGetTypeID = /* @__PURE__ */ _bind(FW, 'CGDisplayStreamGetTypeID')
 export const CGDisplayStreamStart = /* @__PURE__ */ _bind(FW, 'CGDisplayStreamStart')
 export const CGDisplayStreamStop = /* @__PURE__ */ _bind(FW, 'CGDisplayStreamStop')
 export const CGDisplayStreamUpdate = /* @__PURE__ */ _bind(FW, 'CGDisplayStreamUpdate')
-export const CGDisplayStreamUpdateCreateMergedUpdate = /* @__PURE__ */ _bind(FW, 'CGDisplayStreamUpdateCreateMergedUpdate')
-export const CGDisplayStreamUpdateGetDropCount = /* @__PURE__ */ _bind(FW, 'CGDisplayStreamUpdateGetDropCount')
-export const CGDisplayStreamUpdateGetMovedRectsDelta = /* @__PURE__ */ _bind(FW, 'CGDisplayStreamUpdateGetMovedRectsDelta')
-export const CGDisplayStreamUpdateGetRects = /* @__PURE__ */ _bind(FW, 'CGDisplayStreamUpdateGetRects')
-export const CGDisplayStreamUpdateGetTypeID = /* @__PURE__ */ _bind(FW, 'CGDisplayStreamUpdateGetTypeID')
-export const CGDisplayStreamUpdateRectType = /* @__PURE__ */ _bind(FW, 'CGDisplayStreamUpdateRectType')
+export const CGDisplayStreamUpdateCreateMergedUpdate = /* @__PURE__ */ _bind(
+	FW,
+	'CGDisplayStreamUpdateCreateMergedUpdate',
+)
+
+export const CGDisplayStreamUpdateGetDropCount = /* @__PURE__ */ _bind(
+	FW,
+	'CGDisplayStreamUpdateGetDropCount',
+)
+
+export const CGDisplayStreamUpdateGetMovedRectsDelta = /* @__PURE__ */ _bind(
+	FW,
+	'CGDisplayStreamUpdateGetMovedRectsDelta',
+)
+
+export const CGDisplayStreamUpdateGetRects = /* @__PURE__ */ _bind(
+	FW,
+	'CGDisplayStreamUpdateGetRects',
+)
+
+export const CGDisplayStreamUpdateGetTypeID = /* @__PURE__ */ _bind(
+	FW,
+	'CGDisplayStreamUpdateGetTypeID',
+)
+
+export const CGDisplayStreamUpdateRectType = /* @__PURE__ */ _bind(
+	FW,
+	'CGDisplayStreamUpdateRectType',
+)
+
 export const CGDisplaySwitchToMode = /* @__PURE__ */ _bind(FW, 'CGDisplaySwitchToMode')
 export const CGDisplayUnitNumber = /* @__PURE__ */ _bind(FW, 'CGDisplayUnitNumber')
-export const CGDisplayUsesOpenGLAcceleration = /* @__PURE__ */ _bind(FW, 'CGDisplayUsesOpenGLAcceleration')
+export const CGDisplayUsesOpenGLAcceleration = /* @__PURE__ */ _bind(
+	FW,
+	'CGDisplayUsesOpenGLAcceleration',
+)
+
 export const CGDisplayVendorNumber = /* @__PURE__ */ _bind(FW, 'CGDisplayVendorNumber')
 export const CGEnableEventStateCombining = /* @__PURE__ */ _bind(FW, 'CGEnableEventStateCombining')
 export const CGError = /* @__PURE__ */ _bind(FW, 'CGError')
@@ -352,9 +760,21 @@ export const CGEventCreateData = /* @__PURE__ */ _bind(FW, 'CGEventCreateData')
 export const CGEventCreateFromData = /* @__PURE__ */ _bind(FW, 'CGEventCreateFromData')
 export const CGEventCreateKeyboardEvent = /* @__PURE__ */ _bind(FW, 'CGEventCreateKeyboardEvent')
 export const CGEventCreateMouseEvent = /* @__PURE__ */ _bind(FW, 'CGEventCreateMouseEvent')
-export const CGEventCreateScrollWheelEvent = /* @__PURE__ */ _bind(FW, 'CGEventCreateScrollWheelEvent')
-export const CGEventCreateScrollWheelEvent2 = /* @__PURE__ */ _bind(FW, 'CGEventCreateScrollWheelEvent2')
-export const CGEventCreateSourceFromEvent = /* @__PURE__ */ _bind(FW, 'CGEventCreateSourceFromEvent')
+export const CGEventCreateScrollWheelEvent = /* @__PURE__ */ _bind(
+	FW,
+	'CGEventCreateScrollWheelEvent',
+)
+
+export const CGEventCreateScrollWheelEvent2 = /* @__PURE__ */ _bind(
+	FW,
+	'CGEventCreateScrollWheelEvent2',
+)
+
+export const CGEventCreateSourceFromEvent = /* @__PURE__ */ _bind(
+	FW,
+	'CGEventCreateSourceFromEvent',
+)
+
 export const CGEventField = /* @__PURE__ */ _bind(FW, 'CGEventField')
 export const CGEventFilterMask = /* @__PURE__ */ _bind(FW, 'CGEventFilterMask')
 export const CGEventFlags = /* @__PURE__ */ _bind(FW, 'CGEventFlags')
@@ -366,8 +786,16 @@ export const CGEventGetTimestamp = /* @__PURE__ */ _bind(FW, 'CGEventGetTimestam
 export const CGEventGetType = /* @__PURE__ */ _bind(FW, 'CGEventGetType')
 export const CGEventGetTypeID = /* @__PURE__ */ _bind(FW, 'CGEventGetTypeID')
 export const CGEventGetUnflippedLocation = /* @__PURE__ */ _bind(FW, 'CGEventGetUnflippedLocation')
-export const CGEventKeyboardGetUnicodeString = /* @__PURE__ */ _bind(FW, 'CGEventKeyboardGetUnicodeString')
-export const CGEventKeyboardSetUnicodeString = /* @__PURE__ */ _bind(FW, 'CGEventKeyboardSetUnicodeString')
+export const CGEventKeyboardGetUnicodeString = /* @__PURE__ */ _bind(
+	FW,
+	'CGEventKeyboardGetUnicodeString',
+)
+
+export const CGEventKeyboardSetUnicodeString = /* @__PURE__ */ _bind(
+	FW,
+	'CGEventKeyboardSetUnicodeString',
+)
+
 export const CGEventMouseSubtype = /* @__PURE__ */ _bind(FW, 'CGEventMouseSubtype')
 export const CGEventPost = /* @__PURE__ */ _bind(FW, 'CGEventPost')
 export const CGEventPostToPSN = /* @__PURE__ */ _bind(FW, 'CGEventPostToPSN')
@@ -380,22 +808,66 @@ export const CGEventSetSource = /* @__PURE__ */ _bind(FW, 'CGEventSetSource')
 export const CGEventSetTimestamp = /* @__PURE__ */ _bind(FW, 'CGEventSetTimestamp')
 export const CGEventSetType = /* @__PURE__ */ _bind(FW, 'CGEventSetType')
 export const CGEventSourceButtonState = /* @__PURE__ */ _bind(FW, 'CGEventSourceButtonState')
-export const CGEventSourceCounterForEventType = /* @__PURE__ */ _bind(FW, 'CGEventSourceCounterForEventType')
+export const CGEventSourceCounterForEventType = /* @__PURE__ */ _bind(
+	FW,
+	'CGEventSourceCounterForEventType',
+)
+
 export const CGEventSourceCreate = /* @__PURE__ */ _bind(FW, 'CGEventSourceCreate')
 export const CGEventSourceFlagsState = /* @__PURE__ */ _bind(FW, 'CGEventSourceFlagsState')
-export const CGEventSourceGetKeyboardType = /* @__PURE__ */ _bind(FW, 'CGEventSourceGetKeyboardType')
-export const CGEventSourceGetLocalEventsFilterDuringSuppressionState = /* @__PURE__ */ _bind(FW, 'CGEventSourceGetLocalEventsFilterDuringSuppressionState')
-export const CGEventSourceGetLocalEventsSuppressionInterval = /* @__PURE__ */ _bind(FW, 'CGEventSourceGetLocalEventsSuppressionInterval')
-export const CGEventSourceGetPixelsPerLine = /* @__PURE__ */ _bind(FW, 'CGEventSourceGetPixelsPerLine')
-export const CGEventSourceGetSourceStateID = /* @__PURE__ */ _bind(FW, 'CGEventSourceGetSourceStateID')
+export const CGEventSourceGetKeyboardType = /* @__PURE__ */ _bind(
+	FW,
+	'CGEventSourceGetKeyboardType',
+)
+
+export const CGEventSourceGetLocalEventsFilterDuringSuppressionState = /* @__PURE__ */ _bind(
+	FW,
+	'CGEventSourceGetLocalEventsFilterDuringSuppressionState',
+)
+
+export const CGEventSourceGetLocalEventsSuppressionInterval = /* @__PURE__ */ _bind(
+	FW,
+	'CGEventSourceGetLocalEventsSuppressionInterval',
+)
+
+export const CGEventSourceGetPixelsPerLine = /* @__PURE__ */ _bind(
+	FW,
+	'CGEventSourceGetPixelsPerLine',
+)
+
+export const CGEventSourceGetSourceStateID = /* @__PURE__ */ _bind(
+	FW,
+	'CGEventSourceGetSourceStateID',
+)
+
 export const CGEventSourceGetTypeID = /* @__PURE__ */ _bind(FW, 'CGEventSourceGetTypeID')
 export const CGEventSourceGetUserData = /* @__PURE__ */ _bind(FW, 'CGEventSourceGetUserData')
 export const CGEventSourceKeyState = /* @__PURE__ */ _bind(FW, 'CGEventSourceKeyState')
-export const CGEventSourceSecondsSinceLastEventType = /* @__PURE__ */ _bind(FW, 'CGEventSourceSecondsSinceLastEventType')
-export const CGEventSourceSetKeyboardType = /* @__PURE__ */ _bind(FW, 'CGEventSourceSetKeyboardType')
-export const CGEventSourceSetLocalEventsFilterDuringSuppressionState = /* @__PURE__ */ _bind(FW, 'CGEventSourceSetLocalEventsFilterDuringSuppressionState')
-export const CGEventSourceSetLocalEventsSuppressionInterval = /* @__PURE__ */ _bind(FW, 'CGEventSourceSetLocalEventsSuppressionInterval')
-export const CGEventSourceSetPixelsPerLine = /* @__PURE__ */ _bind(FW, 'CGEventSourceSetPixelsPerLine')
+export const CGEventSourceSecondsSinceLastEventType = /* @__PURE__ */ _bind(
+	FW,
+	'CGEventSourceSecondsSinceLastEventType',
+)
+
+export const CGEventSourceSetKeyboardType = /* @__PURE__ */ _bind(
+	FW,
+	'CGEventSourceSetKeyboardType',
+)
+
+export const CGEventSourceSetLocalEventsFilterDuringSuppressionState = /* @__PURE__ */ _bind(
+	FW,
+	'CGEventSourceSetLocalEventsFilterDuringSuppressionState',
+)
+
+export const CGEventSourceSetLocalEventsSuppressionInterval = /* @__PURE__ */ _bind(
+	FW,
+	'CGEventSourceSetLocalEventsSuppressionInterval',
+)
+
+export const CGEventSourceSetPixelsPerLine = /* @__PURE__ */ _bind(
+	FW,
+	'CGEventSourceSetPixelsPerLine',
+)
+
 export const CGEventSourceSetUserData = /* @__PURE__ */ _bind(FW, 'CGEventSourceSetUserData')
 export const CGEventSourceStateID = /* @__PURE__ */ _bind(FW, 'CGEventSourceStateID')
 export const CGEventSuppressionState = /* @__PURE__ */ _bind(FW, 'CGEventSuppressionState')
@@ -410,7 +882,11 @@ export const CGEventTapPlacement = /* @__PURE__ */ _bind(FW, 'CGEventTapPlacemen
 export const CGEventTapPostEvent = /* @__PURE__ */ _bind(FW, 'CGEventTapPostEvent')
 export const CGEventType = /* @__PURE__ */ _bind(FW, 'CGEventType')
 export const CGFont = /* @__PURE__ */ _bind(FW, 'CGFont')
-export const CGFontCanCreatePostScriptSubset = /* @__PURE__ */ _bind(FW, 'CGFontCanCreatePostScriptSubset')
+export const CGFontCanCreatePostScriptSubset = /* @__PURE__ */ _bind(
+	FW,
+	'CGFontCanCreatePostScriptSubset',
+)
+
 export const CGFontCopyFullName = /* @__PURE__ */ _bind(FW, 'CGFontCopyFullName')
 export const CGFontCopyGlyphNameForGlyph = /* @__PURE__ */ _bind(FW, 'CGFontCopyGlyphNameForGlyph')
 export const CGFontCopyPostScriptName = /* @__PURE__ */ _bind(FW, 'CGFontCopyPostScriptName')
@@ -418,12 +894,32 @@ export const CGFontCopyTableForTag = /* @__PURE__ */ _bind(FW, 'CGFontCopyTableF
 export const CGFontCopyTableTags = /* @__PURE__ */ _bind(FW, 'CGFontCopyTableTags')
 export const CGFontCopyVariationAxes = /* @__PURE__ */ _bind(FW, 'CGFontCopyVariationAxes')
 export const CGFontCopyVariations = /* @__PURE__ */ _bind(FW, 'CGFontCopyVariations')
-export const CGFontCreateCopyWithVariations = /* @__PURE__ */ _bind(FW, 'CGFontCreateCopyWithVariations')
-export const CGFontCreatePostScriptEncoding = /* @__PURE__ */ _bind(FW, 'CGFontCreatePostScriptEncoding')
-export const CGFontCreatePostScriptSubset = /* @__PURE__ */ _bind(FW, 'CGFontCreatePostScriptSubset')
-export const CGFontCreateWithDataProvider = /* @__PURE__ */ _bind(FW, 'CGFontCreateWithDataProvider')
+export const CGFontCreateCopyWithVariations = /* @__PURE__ */ _bind(
+	FW,
+	'CGFontCreateCopyWithVariations',
+)
+
+export const CGFontCreatePostScriptEncoding = /* @__PURE__ */ _bind(
+	FW,
+	'CGFontCreatePostScriptEncoding',
+)
+
+export const CGFontCreatePostScriptSubset = /* @__PURE__ */ _bind(
+	FW,
+	'CGFontCreatePostScriptSubset',
+)
+
+export const CGFontCreateWithDataProvider = /* @__PURE__ */ _bind(
+	FW,
+	'CGFontCreateWithDataProvider',
+)
+
 export const CGFontCreateWithFontName = /* @__PURE__ */ _bind(FW, 'CGFontCreateWithFontName')
-export const CGFontCreateWithPlatformFont = /* @__PURE__ */ _bind(FW, 'CGFontCreateWithPlatformFont')
+export const CGFontCreateWithPlatformFont = /* @__PURE__ */ _bind(
+	FW,
+	'CGFontCreateWithPlatformFont',
+)
+
 export const CGFontGetAscent = /* @__PURE__ */ _bind(FW, 'CGFontGetAscent')
 export const CGFontGetCapHeight = /* @__PURE__ */ _bind(FW, 'CGFontGetCapHeight')
 export const CGFontGetDescent = /* @__PURE__ */ _bind(FW, 'CGFontGetDescent')
@@ -449,9 +945,17 @@ export const CGFunctionRelease = /* @__PURE__ */ _bind(FW, 'CGFunctionRelease')
 export const CGFunctionRetain = /* @__PURE__ */ _bind(FW, 'CGFunctionRetain')
 export const CGGesturePhase = /* @__PURE__ */ _bind(FW, 'CGGesturePhase')
 export const CGGetActiveDisplayList = /* @__PURE__ */ _bind(FW, 'CGGetActiveDisplayList')
-export const CGGetDisplayTransferByFormula = /* @__PURE__ */ _bind(FW, 'CGGetDisplayTransferByFormula')
+export const CGGetDisplayTransferByFormula = /* @__PURE__ */ _bind(
+	FW,
+	'CGGetDisplayTransferByFormula',
+)
+
 export const CGGetDisplayTransferByTable = /* @__PURE__ */ _bind(FW, 'CGGetDisplayTransferByTable')
-export const CGGetDisplaysWithOpenGLDisplayMask = /* @__PURE__ */ _bind(FW, 'CGGetDisplaysWithOpenGLDisplayMask')
+export const CGGetDisplaysWithOpenGLDisplayMask = /* @__PURE__ */ _bind(
+	FW,
+	'CGGetDisplaysWithOpenGLDisplayMask',
+)
+
 export const CGGetDisplaysWithPoint = /* @__PURE__ */ _bind(FW, 'CGGetDisplaysWithPoint')
 export const CGGetDisplaysWithRect = /* @__PURE__ */ _bind(FW, 'CGGetDisplaysWithRect')
 export const CGGetEventTapList = /* @__PURE__ */ _bind(FW, 'CGGetEventTapList')
@@ -459,7 +963,11 @@ export const CGGetLastMouseDelta = /* @__PURE__ */ _bind(FW, 'CGGetLastMouseDelt
 export const CGGetOnlineDisplayList = /* @__PURE__ */ _bind(FW, 'CGGetOnlineDisplayList')
 export const CGGlyphDeprecatedEnum = /* @__PURE__ */ _bind(FW, 'CGGlyphDeprecatedEnum')
 export const CGGradient = /* @__PURE__ */ _bind(FW, 'CGGradient')
-export const CGGradientCreateWithColorComponents = /* @__PURE__ */ _bind(FW, 'CGGradientCreateWithColorComponents')
+export const CGGradientCreateWithColorComponents = /* @__PURE__ */ _bind(
+	FW,
+	'CGGradientCreateWithColorComponents',
+)
+
 export const CGGradientCreateWithColors = /* @__PURE__ */ _bind(FW, 'CGGradientCreateWithColors')
 export const CGGradientDrawingOptions = /* @__PURE__ */ _bind(FW, 'CGGradientDrawingOptions')
 export const CGGradientGetTypeID = /* @__PURE__ */ _bind(FW, 'CGGradientGetTypeID')
@@ -471,12 +979,32 @@ export const CGImageByteOrderInfo = /* @__PURE__ */ _bind(FW, 'CGImageByteOrderI
 export const CGImageComponentInfo = /* @__PURE__ */ _bind(FW, 'CGImageComponentInfo')
 export const CGImageCreate = /* @__PURE__ */ _bind(FW, 'CGImageCreate')
 export const CGImageCreateCopy = /* @__PURE__ */ _bind(FW, 'CGImageCreateCopy')
-export const CGImageCreateCopyWithColorSpace = /* @__PURE__ */ _bind(FW, 'CGImageCreateCopyWithColorSpace')
-export const CGImageCreateWithImageInRect = /* @__PURE__ */ _bind(FW, 'CGImageCreateWithImageInRect')
-export const CGImageCreateWithJPEGDataProvider = /* @__PURE__ */ _bind(FW, 'CGImageCreateWithJPEGDataProvider')
+export const CGImageCreateCopyWithColorSpace = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageCreateCopyWithColorSpace',
+)
+
+export const CGImageCreateWithImageInRect = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageCreateWithImageInRect',
+)
+
+export const CGImageCreateWithJPEGDataProvider = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageCreateWithJPEGDataProvider',
+)
+
 export const CGImageCreateWithMask = /* @__PURE__ */ _bind(FW, 'CGImageCreateWithMask')
-export const CGImageCreateWithMaskingColors = /* @__PURE__ */ _bind(FW, 'CGImageCreateWithMaskingColors')
-export const CGImageCreateWithPNGDataProvider = /* @__PURE__ */ _bind(FW, 'CGImageCreateWithPNGDataProvider')
+export const CGImageCreateWithMaskingColors = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageCreateWithMaskingColors',
+)
+
+export const CGImageCreateWithPNGDataProvider = /* @__PURE__ */ _bind(
+	FW,
+	'CGImageCreateWithPNGDataProvider',
+)
+
 export const CGImageGetAlphaInfo = /* @__PURE__ */ _bind(FW, 'CGImageGetAlphaInfo')
 export const CGImageGetBitmapInfo = /* @__PURE__ */ _bind(FW, 'CGImageGetBitmapInfo')
 export const CGImageGetBitsPerComponent = /* @__PURE__ */ _bind(FW, 'CGImageGetBitsPerComponent')
@@ -512,7 +1040,11 @@ export const CGLineJoin = /* @__PURE__ */ _bind(FW, 'CGLineJoin')
 export const CGMainDisplayID = /* @__PURE__ */ _bind(FW, 'CGMainDisplayID')
 export const CGMomentumScrollPhase = /* @__PURE__ */ _bind(FW, 'CGMomentumScrollPhase')
 export const CGMouseButton = /* @__PURE__ */ _bind(FW, 'CGMouseButton')
-export const CGOpenGLDisplayMaskToDisplayID = /* @__PURE__ */ _bind(FW, 'CGOpenGLDisplayMaskToDisplayID')
+export const CGOpenGLDisplayMaskToDisplayID = /* @__PURE__ */ _bind(
+	FW,
+	'CGOpenGLDisplayMaskToDisplayID',
+)
+
 export const CGPDFAccessPermissions = /* @__PURE__ */ _bind(FW, 'CGPDFAccessPermissions')
 export const CGPDFArray = /* @__PURE__ */ _bind(FW, 'CGPDFArray')
 export const CGPDFArrayApplyBlock = /* @__PURE__ */ _bind(FW, 'CGPDFArrayApplyBlock')
@@ -529,14 +1061,38 @@ export const CGPDFArrayGetStream = /* @__PURE__ */ _bind(FW, 'CGPDFArrayGetStrea
 export const CGPDFArrayGetString = /* @__PURE__ */ _bind(FW, 'CGPDFArrayGetString')
 export const CGPDFBox = /* @__PURE__ */ _bind(FW, 'CGPDFBox')
 export const CGPDFContentStream = /* @__PURE__ */ _bind(FW, 'CGPDFContentStream')
-export const CGPDFContentStreamCreateWithPage = /* @__PURE__ */ _bind(FW, 'CGPDFContentStreamCreateWithPage')
-export const CGPDFContentStreamCreateWithStream = /* @__PURE__ */ _bind(FW, 'CGPDFContentStreamCreateWithStream')
-export const CGPDFContentStreamGetResource = /* @__PURE__ */ _bind(FW, 'CGPDFContentStreamGetResource')
-export const CGPDFContentStreamGetStreams = /* @__PURE__ */ _bind(FW, 'CGPDFContentStreamGetStreams')
+export const CGPDFContentStreamCreateWithPage = /* @__PURE__ */ _bind(
+	FW,
+	'CGPDFContentStreamCreateWithPage',
+)
+
+export const CGPDFContentStreamCreateWithStream = /* @__PURE__ */ _bind(
+	FW,
+	'CGPDFContentStreamCreateWithStream',
+)
+
+export const CGPDFContentStreamGetResource = /* @__PURE__ */ _bind(
+	FW,
+	'CGPDFContentStreamGetResource',
+)
+
+export const CGPDFContentStreamGetStreams = /* @__PURE__ */ _bind(
+	FW,
+	'CGPDFContentStreamGetStreams',
+)
+
 export const CGPDFContentStreamRelease = /* @__PURE__ */ _bind(FW, 'CGPDFContentStreamRelease')
 export const CGPDFContentStreamRetain = /* @__PURE__ */ _bind(FW, 'CGPDFContentStreamRetain')
-export const CGPDFContextAddDestinationAtPoint = /* @__PURE__ */ _bind(FW, 'CGPDFContextAddDestinationAtPoint')
-export const CGPDFContextAddDocumentMetadata = /* @__PURE__ */ _bind(FW, 'CGPDFContextAddDocumentMetadata')
+export const CGPDFContextAddDestinationAtPoint = /* @__PURE__ */ _bind(
+	FW,
+	'CGPDFContextAddDestinationAtPoint',
+)
+
+export const CGPDFContextAddDocumentMetadata = /* @__PURE__ */ _bind(
+	FW,
+	'CGPDFContextAddDocumentMetadata',
+)
+
 export const CGPDFContextBeginPage = /* @__PURE__ */ _bind(FW, 'CGPDFContextBeginPage')
 export const CGPDFContextBeginTag = /* @__PURE__ */ _bind(FW, 'CGPDFContextBeginTag')
 export const CGPDFContextClose = /* @__PURE__ */ _bind(FW, 'CGPDFContextClose')
@@ -544,20 +1100,36 @@ export const CGPDFContextCreate = /* @__PURE__ */ _bind(FW, 'CGPDFContextCreate'
 export const CGPDFContextCreateWithURL = /* @__PURE__ */ _bind(FW, 'CGPDFContextCreateWithURL')
 export const CGPDFContextEndPage = /* @__PURE__ */ _bind(FW, 'CGPDFContextEndPage')
 export const CGPDFContextEndTag = /* @__PURE__ */ _bind(FW, 'CGPDFContextEndTag')
-export const CGPDFContextSetDestinationForRect = /* @__PURE__ */ _bind(FW, 'CGPDFContextSetDestinationForRect')
+export const CGPDFContextSetDestinationForRect = /* @__PURE__ */ _bind(
+	FW,
+	'CGPDFContextSetDestinationForRect',
+)
+
 export const CGPDFContextSetIDTree = /* @__PURE__ */ _bind(FW, 'CGPDFContextSetIDTree')
 export const CGPDFContextSetOutline = /* @__PURE__ */ _bind(FW, 'CGPDFContextSetOutline')
-export const CGPDFContextSetPageTagStructureTree = /* @__PURE__ */ _bind(FW, 'CGPDFContextSetPageTagStructureTree')
+export const CGPDFContextSetPageTagStructureTree = /* @__PURE__ */ _bind(
+	FW,
+	'CGPDFContextSetPageTagStructureTree',
+)
+
 export const CGPDFContextSetParentTree = /* @__PURE__ */ _bind(FW, 'CGPDFContextSetParentTree')
 export const CGPDFContextSetURLForRect = /* @__PURE__ */ _bind(FW, 'CGPDFContextSetURLForRect')
 export const CGPDFDataFormat = /* @__PURE__ */ _bind(FW, 'CGPDFDataFormat')
 export const CGPDFDictionary = /* @__PURE__ */ _bind(FW, 'CGPDFDictionary')
 export const CGPDFDictionaryApplyBlock = /* @__PURE__ */ _bind(FW, 'CGPDFDictionaryApplyBlock')
-export const CGPDFDictionaryApplyFunction = /* @__PURE__ */ _bind(FW, 'CGPDFDictionaryApplyFunction')
+export const CGPDFDictionaryApplyFunction = /* @__PURE__ */ _bind(
+	FW,
+	'CGPDFDictionaryApplyFunction',
+)
+
 export const CGPDFDictionaryGetArray = /* @__PURE__ */ _bind(FW, 'CGPDFDictionaryGetArray')
 export const CGPDFDictionaryGetBoolean = /* @__PURE__ */ _bind(FW, 'CGPDFDictionaryGetBoolean')
 export const CGPDFDictionaryGetCount = /* @__PURE__ */ _bind(FW, 'CGPDFDictionaryGetCount')
-export const CGPDFDictionaryGetDictionary = /* @__PURE__ */ _bind(FW, 'CGPDFDictionaryGetDictionary')
+export const CGPDFDictionaryGetDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'CGPDFDictionaryGetDictionary',
+)
+
 export const CGPDFDictionaryGetInteger = /* @__PURE__ */ _bind(FW, 'CGPDFDictionaryGetInteger')
 export const CGPDFDictionaryGetName = /* @__PURE__ */ _bind(FW, 'CGPDFDictionaryGetName')
 export const CGPDFDictionaryGetNumber = /* @__PURE__ */ _bind(FW, 'CGPDFDictionaryGetNumber')
@@ -567,9 +1139,17 @@ export const CGPDFDictionaryGetString = /* @__PURE__ */ _bind(FW, 'CGPDFDictiona
 export const CGPDFDocument = /* @__PURE__ */ _bind(FW, 'CGPDFDocument')
 export const CGPDFDocumentAllowsCopying = /* @__PURE__ */ _bind(FW, 'CGPDFDocumentAllowsCopying')
 export const CGPDFDocumentAllowsPrinting = /* @__PURE__ */ _bind(FW, 'CGPDFDocumentAllowsPrinting')
-export const CGPDFDocumentCreateWithProvider = /* @__PURE__ */ _bind(FW, 'CGPDFDocumentCreateWithProvider')
+export const CGPDFDocumentCreateWithProvider = /* @__PURE__ */ _bind(
+	FW,
+	'CGPDFDocumentCreateWithProvider',
+)
+
 export const CGPDFDocumentCreateWithURL = /* @__PURE__ */ _bind(FW, 'CGPDFDocumentCreateWithURL')
-export const CGPDFDocumentGetAccessPermissions = /* @__PURE__ */ _bind(FW, 'CGPDFDocumentGetAccessPermissions')
+export const CGPDFDocumentGetAccessPermissions = /* @__PURE__ */ _bind(
+	FW,
+	'CGPDFDocumentGetAccessPermissions',
+)
+
 export const CGPDFDocumentGetArtBox = /* @__PURE__ */ _bind(FW, 'CGPDFDocumentGetArtBox')
 export const CGPDFDocumentGetBleedBox = /* @__PURE__ */ _bind(FW, 'CGPDFDocumentGetBleedBox')
 export const CGPDFDocumentGetCatalog = /* @__PURE__ */ _bind(FW, 'CGPDFDocumentGetCatalog')
@@ -577,10 +1157,18 @@ export const CGPDFDocumentGetCropBox = /* @__PURE__ */ _bind(FW, 'CGPDFDocumentG
 export const CGPDFDocumentGetID = /* @__PURE__ */ _bind(FW, 'CGPDFDocumentGetID')
 export const CGPDFDocumentGetInfo = /* @__PURE__ */ _bind(FW, 'CGPDFDocumentGetInfo')
 export const CGPDFDocumentGetMediaBox = /* @__PURE__ */ _bind(FW, 'CGPDFDocumentGetMediaBox')
-export const CGPDFDocumentGetNumberOfPages = /* @__PURE__ */ _bind(FW, 'CGPDFDocumentGetNumberOfPages')
+export const CGPDFDocumentGetNumberOfPages = /* @__PURE__ */ _bind(
+	FW,
+	'CGPDFDocumentGetNumberOfPages',
+)
+
 export const CGPDFDocumentGetOutline = /* @__PURE__ */ _bind(FW, 'CGPDFDocumentGetOutline')
 export const CGPDFDocumentGetPage = /* @__PURE__ */ _bind(FW, 'CGPDFDocumentGetPage')
-export const CGPDFDocumentGetRotationAngle = /* @__PURE__ */ _bind(FW, 'CGPDFDocumentGetRotationAngle')
+export const CGPDFDocumentGetRotationAngle = /* @__PURE__ */ _bind(
+	FW,
+	'CGPDFDocumentGetRotationAngle',
+)
+
 export const CGPDFDocumentGetTrimBox = /* @__PURE__ */ _bind(FW, 'CGPDFDocumentGetTrimBox')
 export const CGPDFDocumentGetTypeID = /* @__PURE__ */ _bind(FW, 'CGPDFDocumentGetTypeID')
 export const CGPDFDocumentGetVersion = /* @__PURE__ */ _bind(FW, 'CGPDFDocumentGetVersion')
@@ -588,7 +1176,11 @@ export const CGPDFDocumentIsEncrypted = /* @__PURE__ */ _bind(FW, 'CGPDFDocument
 export const CGPDFDocumentIsUnlocked = /* @__PURE__ */ _bind(FW, 'CGPDFDocumentIsUnlocked')
 export const CGPDFDocumentRelease = /* @__PURE__ */ _bind(FW, 'CGPDFDocumentRelease')
 export const CGPDFDocumentRetain = /* @__PURE__ */ _bind(FW, 'CGPDFDocumentRetain')
-export const CGPDFDocumentUnlockWithPassword = /* @__PURE__ */ _bind(FW, 'CGPDFDocumentUnlockWithPassword')
+export const CGPDFDocumentUnlockWithPassword = /* @__PURE__ */ _bind(
+	FW,
+	'CGPDFDocumentUnlockWithPassword',
+)
+
 export const CGPDFMarkedContentItem = /* @__PURE__ */ _bind(FW, 'CGPDFMarkedContentItem')
 export const CGPDFObject = /* @__PURE__ */ _bind(FW, 'CGPDFObject')
 export const CGPDFObjectGetType = /* @__PURE__ */ _bind(FW, 'CGPDFObjectGetType')
@@ -598,12 +1190,20 @@ export const CGPDFOperatorTable = /* @__PURE__ */ _bind(FW, 'CGPDFOperatorTable'
 export const CGPDFOperatorTableCreate = /* @__PURE__ */ _bind(FW, 'CGPDFOperatorTableCreate')
 export const CGPDFOperatorTableRelease = /* @__PURE__ */ _bind(FW, 'CGPDFOperatorTableRelease')
 export const CGPDFOperatorTableRetain = /* @__PURE__ */ _bind(FW, 'CGPDFOperatorTableRetain')
-export const CGPDFOperatorTableSetCallback = /* @__PURE__ */ _bind(FW, 'CGPDFOperatorTableSetCallback')
+export const CGPDFOperatorTableSetCallback = /* @__PURE__ */ _bind(
+	FW,
+	'CGPDFOperatorTableSetCallback',
+)
+
 export const CGPDFPage = /* @__PURE__ */ _bind(FW, 'CGPDFPage')
 export const CGPDFPageGetBoxRect = /* @__PURE__ */ _bind(FW, 'CGPDFPageGetBoxRect')
 export const CGPDFPageGetDictionary = /* @__PURE__ */ _bind(FW, 'CGPDFPageGetDictionary')
 export const CGPDFPageGetDocument = /* @__PURE__ */ _bind(FW, 'CGPDFPageGetDocument')
-export const CGPDFPageGetDrawingTransform = /* @__PURE__ */ _bind(FW, 'CGPDFPageGetDrawingTransform')
+export const CGPDFPageGetDrawingTransform = /* @__PURE__ */ _bind(
+	FW,
+	'CGPDFPageGetDrawingTransform',
+)
+
 export const CGPDFPageGetPageNumber = /* @__PURE__ */ _bind(FW, 'CGPDFPageGetPageNumber')
 export const CGPDFPageGetRotationAngle = /* @__PURE__ */ _bind(FW, 'CGPDFPageGetRotationAngle')
 export const CGPDFPageGetTypeID = /* @__PURE__ */ _bind(FW, 'CGPDFPageGetTypeID')
@@ -611,7 +1211,11 @@ export const CGPDFPageRelease = /* @__PURE__ */ _bind(FW, 'CGPDFPageRelease')
 export const CGPDFPageRetain = /* @__PURE__ */ _bind(FW, 'CGPDFPageRetain')
 export const CGPDFScanner = /* @__PURE__ */ _bind(FW, 'CGPDFScanner')
 export const CGPDFScannerCreate = /* @__PURE__ */ _bind(FW, 'CGPDFScannerCreate')
-export const CGPDFScannerGetContentStream = /* @__PURE__ */ _bind(FW, 'CGPDFScannerGetContentStream')
+export const CGPDFScannerGetContentStream = /* @__PURE__ */ _bind(
+	FW,
+	'CGPDFScannerGetContentStream',
+)
+
 export const CGPDFScannerPopArray = /* @__PURE__ */ _bind(FW, 'CGPDFScannerPopArray')
 export const CGPDFScannerPopBoolean = /* @__PURE__ */ _bind(FW, 'CGPDFScannerPopBoolean')
 export const CGPDFScannerPopDictionary = /* @__PURE__ */ _bind(FW, 'CGPDFScannerPopDictionary')
@@ -661,13 +1265,33 @@ export const CGPathApplyWithBlock = /* @__PURE__ */ _bind(FW, 'CGPathApplyWithBl
 export const CGPathCloseSubpath = /* @__PURE__ */ _bind(FW, 'CGPathCloseSubpath')
 export const CGPathContainsPoint = /* @__PURE__ */ _bind(FW, 'CGPathContainsPoint')
 export const CGPathCreateCopy = /* @__PURE__ */ _bind(FW, 'CGPathCreateCopy')
-export const CGPathCreateCopyByDashingPath = /* @__PURE__ */ _bind(FW, 'CGPathCreateCopyByDashingPath')
-export const CGPathCreateCopyByStrokingPath = /* @__PURE__ */ _bind(FW, 'CGPathCreateCopyByStrokingPath')
-export const CGPathCreateCopyByTransformingPath = /* @__PURE__ */ _bind(FW, 'CGPathCreateCopyByTransformingPath')
+export const CGPathCreateCopyByDashingPath = /* @__PURE__ */ _bind(
+	FW,
+	'CGPathCreateCopyByDashingPath',
+)
+
+export const CGPathCreateCopyByStrokingPath = /* @__PURE__ */ _bind(
+	FW,
+	'CGPathCreateCopyByStrokingPath',
+)
+
+export const CGPathCreateCopyByTransformingPath = /* @__PURE__ */ _bind(
+	FW,
+	'CGPathCreateCopyByTransformingPath',
+)
+
 export const CGPathCreateMutable = /* @__PURE__ */ _bind(FW, 'CGPathCreateMutable')
 export const CGPathCreateMutableCopy = /* @__PURE__ */ _bind(FW, 'CGPathCreateMutableCopy')
-export const CGPathCreateMutableCopyByTransformingPath = /* @__PURE__ */ _bind(FW, 'CGPathCreateMutableCopyByTransformingPath')
-export const CGPathCreateWithEllipseInRect = /* @__PURE__ */ _bind(FW, 'CGPathCreateWithEllipseInRect')
+export const CGPathCreateMutableCopyByTransformingPath = /* @__PURE__ */ _bind(
+	FW,
+	'CGPathCreateMutableCopyByTransformingPath',
+)
+
+export const CGPathCreateWithEllipseInRect = /* @__PURE__ */ _bind(
+	FW,
+	'CGPathCreateWithEllipseInRect',
+)
+
 export const CGPathCreateWithRect = /* @__PURE__ */ _bind(FW, 'CGPathCreateWithRect')
 export const CGPathCreateWithRoundedRect = /* @__PURE__ */ _bind(FW, 'CGPathCreateWithRoundedRect')
 export const CGPathDrawingMode = /* @__PURE__ */ _bind(FW, 'CGPathDrawingMode')
@@ -691,20 +1315,40 @@ export const CGPatternRelease = /* @__PURE__ */ _bind(FW, 'CGPatternRelease')
 export const CGPatternRetain = /* @__PURE__ */ _bind(FW, 'CGPatternRetain')
 export const CGPatternTiling = /* @__PURE__ */ _bind(FW, 'CGPatternTiling')
 export const CGPointApplyAffineTransform = /* @__PURE__ */ _bind(FW, 'CGPointApplyAffineTransform')
-export const CGPointCreateDictionaryRepresentation = /* @__PURE__ */ _bind(FW, 'CGPointCreateDictionaryRepresentation')
+export const CGPointCreateDictionaryRepresentation = /* @__PURE__ */ _bind(
+	FW,
+	'CGPointCreateDictionaryRepresentation',
+)
+
 export const CGPointEqualToPoint = /* @__PURE__ */ _bind(FW, 'CGPointEqualToPoint')
-export const CGPointMakeWithDictionaryRepresentation = /* @__PURE__ */ _bind(FW, 'CGPointMakeWithDictionaryRepresentation')
+export const CGPointMakeWithDictionaryRepresentation = /* @__PURE__ */ _bind(
+	FW,
+	'CGPointMakeWithDictionaryRepresentation',
+)
+
 export const CGPointZero = /* @__PURE__ */ _bind(FW, 'CGPointZero')
 export const CGPostKeyboardEvent = /* @__PURE__ */ _bind(FW, 'CGPostKeyboardEvent')
 export const CGPostMouseEvent = /* @__PURE__ */ _bind(FW, 'CGPostMouseEvent')
 export const CGPostScrollWheelEvent = /* @__PURE__ */ _bind(FW, 'CGPostScrollWheelEvent')
-export const CGPreflightListenEventAccess = /* @__PURE__ */ _bind(FW, 'CGPreflightListenEventAccess')
+export const CGPreflightListenEventAccess = /* @__PURE__ */ _bind(
+	FW,
+	'CGPreflightListenEventAccess',
+)
+
 export const CGPreflightPostEventAccess = /* @__PURE__ */ _bind(FW, 'CGPreflightPostEventAccess')
-export const CGPreflightScreenCaptureAccess = /* @__PURE__ */ _bind(FW, 'CGPreflightScreenCaptureAccess')
+export const CGPreflightScreenCaptureAccess = /* @__PURE__ */ _bind(
+	FW,
+	'CGPreflightScreenCaptureAccess',
+)
+
 export const CGRectApplyAffineTransform = /* @__PURE__ */ _bind(FW, 'CGRectApplyAffineTransform')
 export const CGRectContainsPoint = /* @__PURE__ */ _bind(FW, 'CGRectContainsPoint')
 export const CGRectContainsRect = /* @__PURE__ */ _bind(FW, 'CGRectContainsRect')
-export const CGRectCreateDictionaryRepresentation = /* @__PURE__ */ _bind(FW, 'CGRectCreateDictionaryRepresentation')
+export const CGRectCreateDictionaryRepresentation = /* @__PURE__ */ _bind(
+	FW,
+	'CGRectCreateDictionaryRepresentation',
+)
+
 export const CGRectDivide = /* @__PURE__ */ _bind(FW, 'CGRectDivide')
 export const CGRectEqualToRect = /* @__PURE__ */ _bind(FW, 'CGRectEqualToRect')
 export const CGRectGetHeight = /* @__PURE__ */ _bind(FW, 'CGRectGetHeight')
@@ -723,33 +1367,81 @@ export const CGRectIntersectsRect = /* @__PURE__ */ _bind(FW, 'CGRectIntersectsR
 export const CGRectIsEmpty = /* @__PURE__ */ _bind(FW, 'CGRectIsEmpty')
 export const CGRectIsInfinite = /* @__PURE__ */ _bind(FW, 'CGRectIsInfinite')
 export const CGRectIsNull = /* @__PURE__ */ _bind(FW, 'CGRectIsNull')
-export const CGRectMakeWithDictionaryRepresentation = /* @__PURE__ */ _bind(FW, 'CGRectMakeWithDictionaryRepresentation')
+export const CGRectMakeWithDictionaryRepresentation = /* @__PURE__ */ _bind(
+	FW,
+	'CGRectMakeWithDictionaryRepresentation',
+)
+
 export const CGRectNull = /* @__PURE__ */ _bind(FW, 'CGRectNull')
 export const CGRectOffset = /* @__PURE__ */ _bind(FW, 'CGRectOffset')
 export const CGRectStandardize = /* @__PURE__ */ _bind(FW, 'CGRectStandardize')
 export const CGRectUnion = /* @__PURE__ */ _bind(FW, 'CGRectUnion')
 export const CGRectZero = /* @__PURE__ */ _bind(FW, 'CGRectZero')
-export const CGRegisterScreenRefreshCallback = /* @__PURE__ */ _bind(FW, 'CGRegisterScreenRefreshCallback')
+export const CGRegisterScreenRefreshCallback = /* @__PURE__ */ _bind(
+	FW,
+	'CGRegisterScreenRefreshCallback',
+)
+
 export const CGReleaseAllDisplays = /* @__PURE__ */ _bind(FW, 'CGReleaseAllDisplays')
-export const CGReleaseDisplayFadeReservation = /* @__PURE__ */ _bind(FW, 'CGReleaseDisplayFadeReservation')
+export const CGReleaseDisplayFadeReservation = /* @__PURE__ */ _bind(
+	FW,
+	'CGReleaseDisplayFadeReservation',
+)
+
 export const CGReleaseScreenRefreshRects = /* @__PURE__ */ _bind(FW, 'CGReleaseScreenRefreshRects')
 export const CGRenderingBufferProvider = /* @__PURE__ */ _bind(FW, 'CGRenderingBufferProvider')
 export const CGRequestListenEventAccess = /* @__PURE__ */ _bind(FW, 'CGRequestListenEventAccess')
 export const CGRequestPostEventAccess = /* @__PURE__ */ _bind(FW, 'CGRequestPostEventAccess')
-export const CGRequestScreenCaptureAccess = /* @__PURE__ */ _bind(FW, 'CGRequestScreenCaptureAccess')
-export const CGRestorePermanentDisplayConfiguration = /* @__PURE__ */ _bind(FW, 'CGRestorePermanentDisplayConfiguration')
-export const CGScreenRegisterMoveCallback = /* @__PURE__ */ _bind(FW, 'CGScreenRegisterMoveCallback')
-export const CGScreenUnregisterMoveCallback = /* @__PURE__ */ _bind(FW, 'CGScreenUnregisterMoveCallback')
+export const CGRequestScreenCaptureAccess = /* @__PURE__ */ _bind(
+	FW,
+	'CGRequestScreenCaptureAccess',
+)
+
+export const CGRestorePermanentDisplayConfiguration = /* @__PURE__ */ _bind(
+	FW,
+	'CGRestorePermanentDisplayConfiguration',
+)
+
+export const CGScreenRegisterMoveCallback = /* @__PURE__ */ _bind(
+	FW,
+	'CGScreenRegisterMoveCallback',
+)
+
+export const CGScreenUnregisterMoveCallback = /* @__PURE__ */ _bind(
+	FW,
+	'CGScreenUnregisterMoveCallback',
+)
+
 export const CGScreenUpdateMoveDelta = /* @__PURE__ */ _bind(FW, 'CGScreenUpdateMoveDelta')
 export const CGScreenUpdateOperation = /* @__PURE__ */ _bind(FW, 'CGScreenUpdateOperation')
 export const CGScrollEventUnit = /* @__PURE__ */ _bind(FW, 'CGScrollEventUnit')
 export const CGScrollPhase = /* @__PURE__ */ _bind(FW, 'CGScrollPhase')
-export const CGSessionCopyCurrentDictionary = /* @__PURE__ */ _bind(FW, 'CGSessionCopyCurrentDictionary')
-export const CGSetDisplayTransferByByteTable = /* @__PURE__ */ _bind(FW, 'CGSetDisplayTransferByByteTable')
-export const CGSetDisplayTransferByFormula = /* @__PURE__ */ _bind(FW, 'CGSetDisplayTransferByFormula')
+export const CGSessionCopyCurrentDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'CGSessionCopyCurrentDictionary',
+)
+
+export const CGSetDisplayTransferByByteTable = /* @__PURE__ */ _bind(
+	FW,
+	'CGSetDisplayTransferByByteTable',
+)
+
+export const CGSetDisplayTransferByFormula = /* @__PURE__ */ _bind(
+	FW,
+	'CGSetDisplayTransferByFormula',
+)
+
 export const CGSetDisplayTransferByTable = /* @__PURE__ */ _bind(FW, 'CGSetDisplayTransferByTable')
-export const CGSetLocalEventsFilterDuringSuppressionState = /* @__PURE__ */ _bind(FW, 'CGSetLocalEventsFilterDuringSuppressionState')
-export const CGSetLocalEventsSuppressionInterval = /* @__PURE__ */ _bind(FW, 'CGSetLocalEventsSuppressionInterval')
+export const CGSetLocalEventsFilterDuringSuppressionState = /* @__PURE__ */ _bind(
+	FW,
+	'CGSetLocalEventsFilterDuringSuppressionState',
+)
+
+export const CGSetLocalEventsSuppressionInterval = /* @__PURE__ */ _bind(
+	FW,
+	'CGSetLocalEventsSuppressionInterval',
+)
+
 export const CGShading = /* @__PURE__ */ _bind(FW, 'CGShading')
 export const CGShadingCreateAxial = /* @__PURE__ */ _bind(FW, 'CGShadingCreateAxial')
 export const CGShadingCreateRadial = /* @__PURE__ */ _bind(FW, 'CGShadingCreateRadial')
@@ -759,13 +1451,25 @@ export const CGShadingRetain = /* @__PURE__ */ _bind(FW, 'CGShadingRetain')
 export const CGShieldingWindowID = /* @__PURE__ */ _bind(FW, 'CGShieldingWindowID')
 export const CGShieldingWindowLevel = /* @__PURE__ */ _bind(FW, 'CGShieldingWindowLevel')
 export const CGSizeApplyAffineTransform = /* @__PURE__ */ _bind(FW, 'CGSizeApplyAffineTransform')
-export const CGSizeCreateDictionaryRepresentation = /* @__PURE__ */ _bind(FW, 'CGSizeCreateDictionaryRepresentation')
+export const CGSizeCreateDictionaryRepresentation = /* @__PURE__ */ _bind(
+	FW,
+	'CGSizeCreateDictionaryRepresentation',
+)
+
 export const CGSizeEqualToSize = /* @__PURE__ */ _bind(FW, 'CGSizeEqualToSize')
-export const CGSizeMakeWithDictionaryRepresentation = /* @__PURE__ */ _bind(FW, 'CGSizeMakeWithDictionaryRepresentation')
+export const CGSizeMakeWithDictionaryRepresentation = /* @__PURE__ */ _bind(
+	FW,
+	'CGSizeMakeWithDictionaryRepresentation',
+)
+
 export const CGSizeZero = /* @__PURE__ */ _bind(FW, 'CGSizeZero')
 export const CGTextDrawingMode = /* @__PURE__ */ _bind(FW, 'CGTextDrawingMode')
 export const CGTextEncoding = /* @__PURE__ */ _bind(FW, 'CGTextEncoding')
-export const CGUnregisterScreenRefreshCallback = /* @__PURE__ */ _bind(FW, 'CGUnregisterScreenRefreshCallback')
+export const CGUnregisterScreenRefreshCallback = /* @__PURE__ */ _bind(
+	FW,
+	'CGUnregisterScreenRefreshCallback',
+)
+
 export const CGWaitForScreenRefreshRects = /* @__PURE__ */ _bind(FW, 'CGWaitForScreenRefreshRects')
 export const CGWaitForScreenUpdateRects = /* @__PURE__ */ _bind(FW, 'CGWaitForScreenUpdateRects')
 export const CGWarpMouseCursorPosition = /* @__PURE__ */ _bind(FW, 'CGWarpMouseCursorPosition')
@@ -775,12 +1479,24 @@ export const CGWindowLevelForKey = /* @__PURE__ */ _bind(FW, 'CGWindowLevelForKe
 export const CGWindowLevelKey = /* @__PURE__ */ _bind(FW, 'CGWindowLevelKey')
 export const CGWindowListCopyWindowInfo = /* @__PURE__ */ _bind(FW, 'CGWindowListCopyWindowInfo')
 export const CGWindowListCreate = /* @__PURE__ */ _bind(FW, 'CGWindowListCreate')
-export const CGWindowListCreateDescriptionFromArray = /* @__PURE__ */ _bind(FW, 'CGWindowListCreateDescriptionFromArray')
+export const CGWindowListCreateDescriptionFromArray = /* @__PURE__ */ _bind(
+	FW,
+	'CGWindowListCreateDescriptionFromArray',
+)
+
 export const CGWindowListCreateImage = /* @__PURE__ */ _bind(FW, 'CGWindowListCreateImage')
-export const CGWindowListCreateImageFromArray = /* @__PURE__ */ _bind(FW, 'CGWindowListCreateImageFromArray')
+export const CGWindowListCreateImageFromArray = /* @__PURE__ */ _bind(
+	FW,
+	'CGWindowListCreateImageFromArray',
+)
+
 export const CGWindowListOption = /* @__PURE__ */ _bind(FW, 'CGWindowListOption')
 export const CGWindowServerCFMachPort = /* @__PURE__ */ _bind(FW, 'CGWindowServerCFMachPort')
-export const CGWindowServerCreateServerPort = /* @__PURE__ */ _bind(FW, 'CGWindowServerCreateServerPort')
+export const CGWindowServerCreateServerPort = /* @__PURE__ */ _bind(
+	FW,
+	'CGWindowServerCreateServerPort',
+)
+
 export const CGWindowSharingType = /* @__PURE__ */ _bind(FW, 'CGWindowSharingType')
 export const ColorSyncProfile = /* @__PURE__ */ _bind(FW, 'ColorSyncProfile')
 export const _CGDisplayConfigRef = /* @__PURE__ */ _bind(FW, '_CGDisplayConfigRef')
@@ -794,7 +1510,11 @@ export const kCGBitmapByteOrder16Host = /* @__PURE__ */ _bind(FW, 'kCGBitmapByte
 export const kCGBitmapByteOrder32Host = /* @__PURE__ */ _bind(FW, 'kCGBitmapByteOrder32Host')
 export const kCGColorBlack = /* @__PURE__ */ _bind(FW, 'kCGColorBlack')
 export const kCGColorClear = /* @__PURE__ */ _bind(FW, 'kCGColorClear')
-export const kCGColorConversionBlackPointCompensation = /* @__PURE__ */ _bind(FW, 'kCGColorConversionBlackPointCompensation')
+export const kCGColorConversionBlackPointCompensation = /* @__PURE__ */ _bind(
+	FW,
+	'kCGColorConversionBlackPointCompensation',
+)
+
 export const kCGColorConversionTRCSize = /* @__PURE__ */ _bind(FW, 'kCGColorConversionTRCSize')
 export const kCGColorSpaceACESCGLinear = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceACESCGLinear')
 export const kCGColorSpaceAdobeRGB1998 = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceAdobeRGB1998')
@@ -802,27 +1522,67 @@ export const kCGColorSpaceDCIP3 = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceDCIP3'
 export const kCGColorSpaceDisplayP3 = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceDisplayP3')
 export const kCGColorSpaceDisplayP3_HLG = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceDisplayP3_HLG')
 export const kCGColorSpaceDisplayP3_PQ = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceDisplayP3_PQ')
-export const kCGColorSpaceDisplayP3_PQ_EOTF = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceDisplayP3_PQ_EOTF')
-export const kCGColorSpaceExtendedDisplayP3 = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceExtendedDisplayP3')
+export const kCGColorSpaceDisplayP3_PQ_EOTF = /* @__PURE__ */ _bind(
+	FW,
+	'kCGColorSpaceDisplayP3_PQ_EOTF',
+)
+
+export const kCGColorSpaceExtendedDisplayP3 = /* @__PURE__ */ _bind(
+	FW,
+	'kCGColorSpaceExtendedDisplayP3',
+)
+
 export const kCGColorSpaceExtendedGray = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceExtendedGray')
-export const kCGColorSpaceExtendedITUR_2020 = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceExtendedITUR_2020')
-export const kCGColorSpaceExtendedLinearDisplayP3 = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceExtendedLinearDisplayP3')
-export const kCGColorSpaceExtendedLinearGray = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceExtendedLinearGray')
-export const kCGColorSpaceExtendedLinearITUR_2020 = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceExtendedLinearITUR_2020')
-export const kCGColorSpaceExtendedLinearSRGB = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceExtendedLinearSRGB')
+export const kCGColorSpaceExtendedITUR_2020 = /* @__PURE__ */ _bind(
+	FW,
+	'kCGColorSpaceExtendedITUR_2020',
+)
+
+export const kCGColorSpaceExtendedLinearDisplayP3 = /* @__PURE__ */ _bind(
+	FW,
+	'kCGColorSpaceExtendedLinearDisplayP3',
+)
+
+export const kCGColorSpaceExtendedLinearGray = /* @__PURE__ */ _bind(
+	FW,
+	'kCGColorSpaceExtendedLinearGray',
+)
+
+export const kCGColorSpaceExtendedLinearITUR_2020 = /* @__PURE__ */ _bind(
+	FW,
+	'kCGColorSpaceExtendedLinearITUR_2020',
+)
+
+export const kCGColorSpaceExtendedLinearSRGB = /* @__PURE__ */ _bind(
+	FW,
+	'kCGColorSpaceExtendedLinearSRGB',
+)
+
 export const kCGColorSpaceExtendedRange = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceExtendedRange')
 export const kCGColorSpaceExtendedSRGB = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceExtendedSRGB')
 export const kCGColorSpaceGenericCMYK = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceGenericCMYK')
 export const kCGColorSpaceGenericGray = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceGenericGray')
-export const kCGColorSpaceGenericGrayGamma2_2 = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceGenericGrayGamma2_2')
+export const kCGColorSpaceGenericGrayGamma2_2 = /* @__PURE__ */ _bind(
+	FW,
+	'kCGColorSpaceGenericGrayGamma2_2',
+)
+
 export const kCGColorSpaceGenericLab = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceGenericLab')
 export const kCGColorSpaceGenericRGB = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceGenericRGB')
-export const kCGColorSpaceGenericRGBLinear = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceGenericRGBLinear')
+export const kCGColorSpaceGenericRGBLinear = /* @__PURE__ */ _bind(
+	FW,
+	'kCGColorSpaceGenericRGBLinear',
+)
+
 export const kCGColorSpaceGenericXYZ = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceGenericXYZ')
 export const kCGColorSpaceITUR_2020 = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceITUR_2020')
 export const kCGColorSpaceITUR_2020_HLG = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceITUR_2020_HLG')
 export const kCGColorSpaceITUR_2020_PQ = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceITUR_2020_PQ')
-export const kCGColorSpaceITUR_2020_PQ_EOTF = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceITUR_2020_PQ_EOTF')
+export const kCGColorSpaceITUR_2020_PQ_EOTF = /* @__PURE__ */ _bind(
+	FW,
+	'kCGColorSpaceITUR_2020_PQ_EOTF',
+)
+
 export const kCGColorSpaceITUR_2100_HLG = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceITUR_2100_HLG')
 export const kCGColorSpaceITUR_2100_PQ = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceITUR_2100_PQ')
 export const kCGColorSpaceITUR_709 = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceITUR_709')
@@ -831,36 +1591,88 @@ export const kCGColorSpaceLinearSRGB = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceL
 export const kCGColorSpaceROMMRGB = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceROMMRGB')
 export const kCGColorSpaceSRGB = /* @__PURE__ */ _bind(FW, 'kCGColorSpaceSRGB')
 export const kCGColorWhite = /* @__PURE__ */ _bind(FW, 'kCGColorWhite')
-export const kCGDisplayShowDuplicateLowResolutionModes = /* @__PURE__ */ _bind(FW, 'kCGDisplayShowDuplicateLowResolutionModes')
+export const kCGDisplayShowDuplicateLowResolutionModes = /* @__PURE__ */ _bind(
+	FW,
+	'kCGDisplayShowDuplicateLowResolutionModes',
+)
+
 export const kCGDisplayStreamColorSpace = /* @__PURE__ */ _bind(FW, 'kCGDisplayStreamColorSpace')
-export const kCGDisplayStreamDestinationRect = /* @__PURE__ */ _bind(FW, 'kCGDisplayStreamDestinationRect')
-export const kCGDisplayStreamMinimumFrameTime = /* @__PURE__ */ _bind(FW, 'kCGDisplayStreamMinimumFrameTime')
-export const kCGDisplayStreamPreserveAspectRatio = /* @__PURE__ */ _bind(FW, 'kCGDisplayStreamPreserveAspectRatio')
+export const kCGDisplayStreamDestinationRect = /* @__PURE__ */ _bind(
+	FW,
+	'kCGDisplayStreamDestinationRect',
+)
+
+export const kCGDisplayStreamMinimumFrameTime = /* @__PURE__ */ _bind(
+	FW,
+	'kCGDisplayStreamMinimumFrameTime',
+)
+
+export const kCGDisplayStreamPreserveAspectRatio = /* @__PURE__ */ _bind(
+	FW,
+	'kCGDisplayStreamPreserveAspectRatio',
+)
+
 export const kCGDisplayStreamQueueDepth = /* @__PURE__ */ _bind(FW, 'kCGDisplayStreamQueueDepth')
 export const kCGDisplayStreamShowCursor = /* @__PURE__ */ _bind(FW, 'kCGDisplayStreamShowCursor')
 export const kCGDisplayStreamSourceRect = /* @__PURE__ */ _bind(FW, 'kCGDisplayStreamSourceRect')
 export const kCGDisplayStreamYCbCrMatrix = /* @__PURE__ */ _bind(FW, 'kCGDisplayStreamYCbCrMatrix')
-export const kCGDisplayStreamYCbCrMatrix_ITU_R_601_4 = /* @__PURE__ */ _bind(FW, 'kCGDisplayStreamYCbCrMatrix_ITU_R_601_4')
-export const kCGDisplayStreamYCbCrMatrix_ITU_R_709_2 = /* @__PURE__ */ _bind(FW, 'kCGDisplayStreamYCbCrMatrix_ITU_R_709_2')
-export const kCGDisplayStreamYCbCrMatrix_SMPTE_240M_1995 = /* @__PURE__ */ _bind(FW, 'kCGDisplayStreamYCbCrMatrix_SMPTE_240M_1995')
+export const kCGDisplayStreamYCbCrMatrix_ITU_R_601_4 = /* @__PURE__ */ _bind(
+	FW,
+	'kCGDisplayStreamYCbCrMatrix_ITU_R_601_4',
+)
+
+export const kCGDisplayStreamYCbCrMatrix_ITU_R_709_2 = /* @__PURE__ */ _bind(
+	FW,
+	'kCGDisplayStreamYCbCrMatrix_ITU_R_709_2',
+)
+
+export const kCGDisplayStreamYCbCrMatrix_SMPTE_240M_1995 = /* @__PURE__ */ _bind(
+	FW,
+	'kCGDisplayStreamYCbCrMatrix_SMPTE_240M_1995',
+)
+
 export const kCGFontIndexInvalid = /* @__PURE__ */ _bind(FW, 'kCGFontIndexInvalid')
 export const kCGFontIndexMax = /* @__PURE__ */ _bind(FW, 'kCGFontIndexMax')
-export const kCGFontVariationAxisDefaultValue = /* @__PURE__ */ _bind(FW, 'kCGFontVariationAxisDefaultValue')
-export const kCGFontVariationAxisMaxValue = /* @__PURE__ */ _bind(FW, 'kCGFontVariationAxisMaxValue')
-export const kCGFontVariationAxisMinValue = /* @__PURE__ */ _bind(FW, 'kCGFontVariationAxisMinValue')
+export const kCGFontVariationAxisDefaultValue = /* @__PURE__ */ _bind(
+	FW,
+	'kCGFontVariationAxisDefaultValue',
+)
+
+export const kCGFontVariationAxisMaxValue = /* @__PURE__ */ _bind(
+	FW,
+	'kCGFontVariationAxisMaxValue',
+)
+
+export const kCGFontVariationAxisMinValue = /* @__PURE__ */ _bind(
+	FW,
+	'kCGFontVariationAxisMinValue',
+)
+
 export const kCGFontVariationAxisName = /* @__PURE__ */ _bind(FW, 'kCGFontVariationAxisName')
 export const kCGGlyphMax = /* @__PURE__ */ _bind(FW, 'kCGGlyphMax')
-export const kCGPDFContextAccessPermissions = /* @__PURE__ */ _bind(FW, 'kCGPDFContextAccessPermissions')
+export const kCGPDFContextAccessPermissions = /* @__PURE__ */ _bind(
+	FW,
+	'kCGPDFContextAccessPermissions',
+)
+
 export const kCGPDFContextAllowsCopying = /* @__PURE__ */ _bind(FW, 'kCGPDFContextAllowsCopying')
 export const kCGPDFContextAllowsPrinting = /* @__PURE__ */ _bind(FW, 'kCGPDFContextAllowsPrinting')
 export const kCGPDFContextArtBox = /* @__PURE__ */ _bind(FW, 'kCGPDFContextArtBox')
 export const kCGPDFContextAuthor = /* @__PURE__ */ _bind(FW, 'kCGPDFContextAuthor')
 export const kCGPDFContextBleedBox = /* @__PURE__ */ _bind(FW, 'kCGPDFContextBleedBox')
-export const kCGPDFContextCreateLinearizedPDF = /* @__PURE__ */ _bind(FW, 'kCGPDFContextCreateLinearizedPDF')
+export const kCGPDFContextCreateLinearizedPDF = /* @__PURE__ */ _bind(
+	FW,
+	'kCGPDFContextCreateLinearizedPDF',
+)
+
 export const kCGPDFContextCreatePDFA = /* @__PURE__ */ _bind(FW, 'kCGPDFContextCreatePDFA')
 export const kCGPDFContextCreator = /* @__PURE__ */ _bind(FW, 'kCGPDFContextCreator')
 export const kCGPDFContextCropBox = /* @__PURE__ */ _bind(FW, 'kCGPDFContextCropBox')
-export const kCGPDFContextEncryptionKeyLength = /* @__PURE__ */ _bind(FW, 'kCGPDFContextEncryptionKeyLength')
+export const kCGPDFContextEncryptionKeyLength = /* @__PURE__ */ _bind(
+	FW,
+	'kCGPDFContextEncryptionKeyLength',
+)
+
 export const kCGPDFContextKeywords = /* @__PURE__ */ _bind(FW, 'kCGPDFContextKeywords')
 export const kCGPDFContextMediaBox = /* @__PURE__ */ _bind(FW, 'kCGPDFContextMediaBox')
 export const kCGPDFContextOutputIntent = /* @__PURE__ */ _bind(FW, 'kCGPDFContextOutputIntent')
@@ -872,20 +1684,44 @@ export const kCGPDFContextTrimBox = /* @__PURE__ */ _bind(FW, 'kCGPDFContextTrim
 export const kCGPDFContextUserPassword = /* @__PURE__ */ _bind(FW, 'kCGPDFContextUserPassword')
 export const kCGPDFOutlineChildren = /* @__PURE__ */ _bind(FW, 'kCGPDFOutlineChildren')
 export const kCGPDFOutlineDestination = /* @__PURE__ */ _bind(FW, 'kCGPDFOutlineDestination')
-export const kCGPDFOutlineDestinationRect = /* @__PURE__ */ _bind(FW, 'kCGPDFOutlineDestinationRect')
+export const kCGPDFOutlineDestinationRect = /* @__PURE__ */ _bind(
+	FW,
+	'kCGPDFOutlineDestinationRect',
+)
+
 export const kCGPDFOutlineTitle = /* @__PURE__ */ _bind(FW, 'kCGPDFOutlineTitle')
 export const kCGPDFTagPropertyActualText = /* @__PURE__ */ _bind(FW, 'kCGPDFTagPropertyActualText')
-export const kCGPDFTagPropertyAlternativeText = /* @__PURE__ */ _bind(FW, 'kCGPDFTagPropertyAlternativeText')
-export const kCGPDFTagPropertyLanguageText = /* @__PURE__ */ _bind(FW, 'kCGPDFTagPropertyLanguageText')
+export const kCGPDFTagPropertyAlternativeText = /* @__PURE__ */ _bind(
+	FW,
+	'kCGPDFTagPropertyAlternativeText',
+)
+
+export const kCGPDFTagPropertyLanguageText = /* @__PURE__ */ _bind(
+	FW,
+	'kCGPDFTagPropertyLanguageText',
+)
+
 export const kCGPDFTagPropertyTitleText = /* @__PURE__ */ _bind(FW, 'kCGPDFTagPropertyTitleText')
-export const kCGPDFXDestinationOutputProfile = /* @__PURE__ */ _bind(FW, 'kCGPDFXDestinationOutputProfile')
+export const kCGPDFXDestinationOutputProfile = /* @__PURE__ */ _bind(
+	FW,
+	'kCGPDFXDestinationOutputProfile',
+)
+
 export const kCGPDFXInfo = /* @__PURE__ */ _bind(FW, 'kCGPDFXInfo')
 export const kCGPDFXOutputCondition = /* @__PURE__ */ _bind(FW, 'kCGPDFXOutputCondition')
-export const kCGPDFXOutputConditionIdentifier = /* @__PURE__ */ _bind(FW, 'kCGPDFXOutputConditionIdentifier')
+export const kCGPDFXOutputConditionIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'kCGPDFXOutputConditionIdentifier',
+)
+
 export const kCGPDFXOutputIntentSubtype = /* @__PURE__ */ _bind(FW, 'kCGPDFXOutputIntentSubtype')
 export const kCGPDFXRegistryName = /* @__PURE__ */ _bind(FW, 'kCGPDFXRegistryName')
 export const kCGWindowAlpha = /* @__PURE__ */ _bind(FW, 'kCGWindowAlpha')
-export const kCGWindowBackingLocationVideoMemory = /* @__PURE__ */ _bind(FW, 'kCGWindowBackingLocationVideoMemory')
+export const kCGWindowBackingLocationVideoMemory = /* @__PURE__ */ _bind(
+	FW,
+	'kCGWindowBackingLocationVideoMemory',
+)
+
 export const kCGWindowBounds = /* @__PURE__ */ _bind(FW, 'kCGWindowBounds')
 export const kCGWindowIsOnscreen = /* @__PURE__ */ _bind(FW, 'kCGWindowIsOnscreen')
 export const kCGWindowLayer = /* @__PURE__ */ _bind(FW, 'kCGWindowLayer')

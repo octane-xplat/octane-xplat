@@ -1,1 +1,1 @@
-export declare const CoreTransferableVersionNumber: number;
+export declare const CoreTransferableVersionNumber: number

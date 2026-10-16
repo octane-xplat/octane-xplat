@@ -14,37 +14,93 @@ export const GLKMathProject = /* @__PURE__ */ _bind(FW, 'GLKMathProject')
 export const GLKMathUnproject = /* @__PURE__ */ _bind(FW, 'GLKMathUnproject')
 export const GLKMatrix3Identity = /* @__PURE__ */ _bind(FW, 'GLKMatrix3Identity')
 export const GLKMatrix3Invert = /* @__PURE__ */ _bind(FW, 'GLKMatrix3Invert')
-export const GLKMatrix3InvertAndTranspose = /* @__PURE__ */ _bind(FW, 'GLKMatrix3InvertAndTranspose')
+export const GLKMatrix3InvertAndTranspose = /* @__PURE__ */ _bind(
+	FW,
+	'GLKMatrix3InvertAndTranspose',
+)
+
 export const GLKMatrix4Identity = /* @__PURE__ */ _bind(FW, 'GLKMatrix4Identity')
 export const GLKMatrix4Invert = /* @__PURE__ */ _bind(FW, 'GLKMatrix4Invert')
-export const GLKMatrix4InvertAndTranspose = /* @__PURE__ */ _bind(FW, 'GLKMatrix4InvertAndTranspose')
+export const GLKMatrix4InvertAndTranspose = /* @__PURE__ */ _bind(
+	FW,
+	'GLKMatrix4InvertAndTranspose',
+)
+
 export const GLKMatrixStackCreate = /* @__PURE__ */ _bind(FW, 'GLKMatrixStackCreate')
 export const GLKMatrixStackGetMatrix2 = /* @__PURE__ */ _bind(FW, 'GLKMatrixStackGetMatrix2')
 export const GLKMatrixStackGetMatrix3 = /* @__PURE__ */ _bind(FW, 'GLKMatrixStackGetMatrix3')
-export const GLKMatrixStackGetMatrix3Inverse = /* @__PURE__ */ _bind(FW, 'GLKMatrixStackGetMatrix3Inverse')
-export const GLKMatrixStackGetMatrix3InverseTranspose = /* @__PURE__ */ _bind(FW, 'GLKMatrixStackGetMatrix3InverseTranspose')
+export const GLKMatrixStackGetMatrix3Inverse = /* @__PURE__ */ _bind(
+	FW,
+	'GLKMatrixStackGetMatrix3Inverse',
+)
+
+export const GLKMatrixStackGetMatrix3InverseTranspose = /* @__PURE__ */ _bind(
+	FW,
+	'GLKMatrixStackGetMatrix3InverseTranspose',
+)
+
 export const GLKMatrixStackGetMatrix4 = /* @__PURE__ */ _bind(FW, 'GLKMatrixStackGetMatrix4')
-export const GLKMatrixStackGetMatrix4Inverse = /* @__PURE__ */ _bind(FW, 'GLKMatrixStackGetMatrix4Inverse')
-export const GLKMatrixStackGetMatrix4InverseTranspose = /* @__PURE__ */ _bind(FW, 'GLKMatrixStackGetMatrix4InverseTranspose')
+export const GLKMatrixStackGetMatrix4Inverse = /* @__PURE__ */ _bind(
+	FW,
+	'GLKMatrixStackGetMatrix4Inverse',
+)
+
+export const GLKMatrixStackGetMatrix4InverseTranspose = /* @__PURE__ */ _bind(
+	FW,
+	'GLKMatrixStackGetMatrix4InverseTranspose',
+)
+
 export const GLKMatrixStackGetTypeID = /* @__PURE__ */ _bind(FW, 'GLKMatrixStackGetTypeID')
 export const GLKMatrixStackLoadMatrix4 = /* @__PURE__ */ _bind(FW, 'GLKMatrixStackLoadMatrix4')
-export const GLKMatrixStackMultiplyMatrix4 = /* @__PURE__ */ _bind(FW, 'GLKMatrixStackMultiplyMatrix4')
-export const GLKMatrixStackMultiplyMatrixStack = /* @__PURE__ */ _bind(FW, 'GLKMatrixStackMultiplyMatrixStack')
+export const GLKMatrixStackMultiplyMatrix4 = /* @__PURE__ */ _bind(
+	FW,
+	'GLKMatrixStackMultiplyMatrix4',
+)
+
+export const GLKMatrixStackMultiplyMatrixStack = /* @__PURE__ */ _bind(
+	FW,
+	'GLKMatrixStackMultiplyMatrixStack',
+)
+
 export const GLKMatrixStackPop = /* @__PURE__ */ _bind(FW, 'GLKMatrixStackPop')
 export const GLKMatrixStackPush = /* @__PURE__ */ _bind(FW, 'GLKMatrixStackPush')
 export const GLKMatrixStackRotate = /* @__PURE__ */ _bind(FW, 'GLKMatrixStackRotate')
-export const GLKMatrixStackRotateWithVector3 = /* @__PURE__ */ _bind(FW, 'GLKMatrixStackRotateWithVector3')
-export const GLKMatrixStackRotateWithVector4 = /* @__PURE__ */ _bind(FW, 'GLKMatrixStackRotateWithVector4')
+export const GLKMatrixStackRotateWithVector3 = /* @__PURE__ */ _bind(
+	FW,
+	'GLKMatrixStackRotateWithVector3',
+)
+
+export const GLKMatrixStackRotateWithVector4 = /* @__PURE__ */ _bind(
+	FW,
+	'GLKMatrixStackRotateWithVector4',
+)
+
 export const GLKMatrixStackRotateX = /* @__PURE__ */ _bind(FW, 'GLKMatrixStackRotateX')
 export const GLKMatrixStackRotateY = /* @__PURE__ */ _bind(FW, 'GLKMatrixStackRotateY')
 export const GLKMatrixStackRotateZ = /* @__PURE__ */ _bind(FW, 'GLKMatrixStackRotateZ')
 export const GLKMatrixStackScale = /* @__PURE__ */ _bind(FW, 'GLKMatrixStackScale')
-export const GLKMatrixStackScaleWithVector3 = /* @__PURE__ */ _bind(FW, 'GLKMatrixStackScaleWithVector3')
-export const GLKMatrixStackScaleWithVector4 = /* @__PURE__ */ _bind(FW, 'GLKMatrixStackScaleWithVector4')
+export const GLKMatrixStackScaleWithVector3 = /* @__PURE__ */ _bind(
+	FW,
+	'GLKMatrixStackScaleWithVector3',
+)
+
+export const GLKMatrixStackScaleWithVector4 = /* @__PURE__ */ _bind(
+	FW,
+	'GLKMatrixStackScaleWithVector4',
+)
+
 export const GLKMatrixStackSize = /* @__PURE__ */ _bind(FW, 'GLKMatrixStackSize')
 export const GLKMatrixStackTranslate = /* @__PURE__ */ _bind(FW, 'GLKMatrixStackTranslate')
-export const GLKMatrixStackTranslateWithVector3 = /* @__PURE__ */ _bind(FW, 'GLKMatrixStackTranslateWithVector3')
-export const GLKMatrixStackTranslateWithVector4 = /* @__PURE__ */ _bind(FW, 'GLKMatrixStackTranslateWithVector4')
+export const GLKMatrixStackTranslateWithVector3 = /* @__PURE__ */ _bind(
+	FW,
+	'GLKMatrixStackTranslateWithVector3',
+)
+
+export const GLKMatrixStackTranslateWithVector4 = /* @__PURE__ */ _bind(
+	FW,
+	'GLKMatrixStackTranslateWithVector4',
+)
+
 export const GLKMesh = /* @__PURE__ */ _bind(FW, 'GLKMesh')
 export const GLKMeshBuffer = /* @__PURE__ */ _bind(FW, 'GLKMeshBuffer')
 export const GLKMeshBufferAllocator = /* @__PURE__ */ _bind(FW, 'GLKMeshBufferAllocator')
@@ -52,10 +108,26 @@ export const GLKNamedEffect = /* @__PURE__ */ _bind(FW, 'GLKNamedEffect')
 export const GLKQuaternionAngle = /* @__PURE__ */ _bind(FW, 'GLKQuaternionAngle')
 export const GLKQuaternionAxis = /* @__PURE__ */ _bind(FW, 'GLKQuaternionAxis')
 export const GLKQuaternionIdentity = /* @__PURE__ */ _bind(FW, 'GLKQuaternionIdentity')
-export const GLKQuaternionMakeWithMatrix3 = /* @__PURE__ */ _bind(FW, 'GLKQuaternionMakeWithMatrix3')
-export const GLKQuaternionMakeWithMatrix4 = /* @__PURE__ */ _bind(FW, 'GLKQuaternionMakeWithMatrix4')
-export const GLKQuaternionRotateVector3Array = /* @__PURE__ */ _bind(FW, 'GLKQuaternionRotateVector3Array')
-export const GLKQuaternionRotateVector4Array = /* @__PURE__ */ _bind(FW, 'GLKQuaternionRotateVector4Array')
+export const GLKQuaternionMakeWithMatrix3 = /* @__PURE__ */ _bind(
+	FW,
+	'GLKQuaternionMakeWithMatrix3',
+)
+
+export const GLKQuaternionMakeWithMatrix4 = /* @__PURE__ */ _bind(
+	FW,
+	'GLKQuaternionMakeWithMatrix4',
+)
+
+export const GLKQuaternionRotateVector3Array = /* @__PURE__ */ _bind(
+	FW,
+	'GLKQuaternionRotateVector3Array',
+)
+
+export const GLKQuaternionRotateVector4Array = /* @__PURE__ */ _bind(
+	FW,
+	'GLKQuaternionRotateVector4Array',
+)
+
 export const GLKQuaternionSlerp = /* @__PURE__ */ _bind(FW, 'GLKQuaternionSlerp')
 export const GLKReflectionMapEffect = /* @__PURE__ */ _bind(FW, 'GLKReflectionMapEffect')
 export const GLKSkyboxEffect = /* @__PURE__ */ _bind(FW, 'GLKSkyboxEffect')
@@ -65,18 +137,38 @@ export const GLKTextureInfo = /* @__PURE__ */ _bind(FW, 'GLKTextureInfo')
 export const GLKTextureInfoAlphaState = /* @__PURE__ */ _bind(FW, 'GLKTextureInfoAlphaState')
 export const GLKTextureInfoOrigin = /* @__PURE__ */ _bind(FW, 'GLKTextureInfoOrigin')
 export const GLKTextureLoader = /* @__PURE__ */ _bind(FW, 'GLKTextureLoader')
-export const GLKTextureLoaderApplyPremultiplication = /* @__PURE__ */ _bind(FW, 'GLKTextureLoaderApplyPremultiplication')
+export const GLKTextureLoaderApplyPremultiplication = /* @__PURE__ */ _bind(
+	FW,
+	'GLKTextureLoaderApplyPremultiplication',
+)
+
 export const GLKTextureLoaderError = /* @__PURE__ */ _bind(FW, 'GLKTextureLoaderError')
 export const GLKTextureLoaderErrorDomain = /* @__PURE__ */ _bind(FW, 'GLKTextureLoaderErrorDomain')
 export const GLKTextureLoaderErrorKey = /* @__PURE__ */ _bind(FW, 'GLKTextureLoaderErrorKey')
 export const GLKTextureLoaderGLErrorKey = /* @__PURE__ */ _bind(FW, 'GLKTextureLoaderGLErrorKey')
-export const GLKTextureLoaderGenerateMipmaps = /* @__PURE__ */ _bind(FW, 'GLKTextureLoaderGenerateMipmaps')
-export const GLKTextureLoaderGrayscaleAsAlpha = /* @__PURE__ */ _bind(FW, 'GLKTextureLoaderGrayscaleAsAlpha')
-export const GLKTextureLoaderOriginBottomLeft = /* @__PURE__ */ _bind(FW, 'GLKTextureLoaderOriginBottomLeft')
+export const GLKTextureLoaderGenerateMipmaps = /* @__PURE__ */ _bind(
+	FW,
+	'GLKTextureLoaderGenerateMipmaps',
+)
+
+export const GLKTextureLoaderGrayscaleAsAlpha = /* @__PURE__ */ _bind(
+	FW,
+	'GLKTextureLoaderGrayscaleAsAlpha',
+)
+
+export const GLKTextureLoaderOriginBottomLeft = /* @__PURE__ */ _bind(
+	FW,
+	'GLKTextureLoaderOriginBottomLeft',
+)
+
 export const GLKTextureLoaderSRGB = /* @__PURE__ */ _bind(FW, 'GLKTextureLoaderSRGB')
 export const GLKTextureTarget = /* @__PURE__ */ _bind(FW, 'GLKTextureTarget')
 export const GLKVertexAttrib = /* @__PURE__ */ _bind(FW, 'GLKVertexAttrib')
-export const GLKVertexAttributeParametersFromModelIO = /* @__PURE__ */ _bind(FW, 'GLKVertexAttributeParametersFromModelIO')
+export const GLKVertexAttributeParametersFromModelIO = /* @__PURE__ */ _bind(
+	FW,
+	'GLKVertexAttributeParametersFromModelIO',
+)
+
 export const NSStringFromGLKMatrix2 = /* @__PURE__ */ _bind(FW, 'NSStringFromGLKMatrix2')
 export const NSStringFromGLKMatrix3 = /* @__PURE__ */ _bind(FW, 'NSStringFromGLKMatrix3')
 export const NSStringFromGLKMatrix4 = /* @__PURE__ */ _bind(FW, 'NSStringFromGLKMatrix4')
@@ -92,16 +184,48 @@ export const _GLKQuaternion = /* @__PURE__ */ _bind(FW, '_GLKQuaternion')
 export const _GLKVector2 = /* @__PURE__ */ _bind(FW, '_GLKVector2')
 export const _GLKVector3 = /* @__PURE__ */ _bind(FW, '_GLKVector3')
 export const _GLKVector4 = /* @__PURE__ */ _bind(FW, '_GLKVector4')
-export const _GLKVertexAttributeParameters = /* @__PURE__ */ _bind(FW, '_GLKVertexAttributeParameters')
+export const _GLKVertexAttributeParameters = /* @__PURE__ */ _bind(
+	FW,
+	'_GLKVertexAttributeParameters',
+)
+
 export const kGLKModelErrorDomain = /* @__PURE__ */ _bind(FW, 'kGLKModelErrorDomain')
 export const kGLKModelErrorKey = /* @__PURE__ */ _bind(FW, 'kGLKModelErrorKey')
-export const unnamed_10920541310666348545 = /* @__PURE__ */ _bind(FW, 'unnamed_10920541310666348545')
-export const unnamed_12075498946785748348 = /* @__PURE__ */ _bind(FW, 'unnamed_12075498946785748348')
-export const unnamed_12990542358717777996 = /* @__PURE__ */ _bind(FW, 'unnamed_12990542358717777996')
-export const unnamed_13099729933246841413 = /* @__PURE__ */ _bind(FW, 'unnamed_13099729933246841413')
-export const unnamed_13756198831570181614 = /* @__PURE__ */ _bind(FW, 'unnamed_13756198831570181614')
-export const unnamed_17308238690117157823 = /* @__PURE__ */ _bind(FW, 'unnamed_17308238690117157823')
-export const unnamed_18333676802552446883 = /* @__PURE__ */ _bind(FW, 'unnamed_18333676802552446883')
+export const unnamed_10920541310666348545 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_10920541310666348545',
+)
+
+export const unnamed_12075498946785748348 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_12075498946785748348',
+)
+
+export const unnamed_12990542358717777996 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_12990542358717777996',
+)
+
+export const unnamed_13099729933246841413 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_13099729933246841413',
+)
+
+export const unnamed_13756198831570181614 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_13756198831570181614',
+)
+
+export const unnamed_17308238690117157823 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_17308238690117157823',
+)
+
+export const unnamed_18333676802552446883 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_18333676802552446883',
+)
+
 export const unnamed_1987043888548983542 = /* @__PURE__ */ _bind(FW, 'unnamed_1987043888548983542')
 export const unnamed_3431967864741148974 = /* @__PURE__ */ _bind(FW, 'unnamed_3431967864741148974')
 export const unnamed_414461565765460624 = /* @__PURE__ */ _bind(FW, 'unnamed_414461565765460624')

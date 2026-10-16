@@ -15,10 +15,12 @@ export function openModalWithOwner(
 	owner: ContentOwner | null,
 	...[Component, params, options = {}]: Parameters<OpenModal>
 ): ModalHandle {
-	if (owner?.disposed)
+	if (owner?.disposed) {
 		return Object.assign(Promise.reject(new Error('The content outlet has been removed')), {
 			close() {},
 		}) as ModalHandle
+	}
+
 	let closeModal: ((result?: ModalOpenResult) => void) | undefined
 	const handle = new Promise<ModalOpenResult>((resolve, reject) => {
 		const presenter = modalPresenter(owner?.host?.page?.frame ?? Frame.topmost())
@@ -55,6 +57,7 @@ export function openModalWithOwner(
 				finish(result)
 			}
 		}
+
 		closeModal = (result?: ModalOpenResult) => {
 			// closeModal on a never-presented host throws — treat the close as
 			// completing the request either way so the handle always settles.
@@ -74,7 +77,10 @@ export function openModalWithOwner(
 		// showModal takes (viewToShow, options). On Android fullscreen=false is
 		// a centered dialog sized to its content.
 		afterContentCommit(root, () => {
-			if (finished) return
+			if (finished) {
+				return
+			}
+
 			try {
 				presenter.showModal(host, {
 					context: {},

@@ -738,9 +738,7 @@ class CachedQuerySignal<T> implements CachedQuery<T> {
 
 		// Settle-only: the failure lives on the query's error state — an
 		// unawaited verb must not produce an unhandled rejection.
-		return request === undefined
-			? Promise.resolve()
-			: Promise.resolve(request).then(SETTLE, SETTLE)
+		return request === undefined ? Promise.resolve() : Promise.resolve(request).then(SETTLE, SETTLE)
 	}
 
 	/** @internal Fan-out retries inherit the republish mode instead of forcing. */

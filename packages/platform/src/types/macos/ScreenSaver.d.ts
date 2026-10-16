@@ -8,39 +8,40 @@ import { NSBackingStoreType, NSView } from './AppKit'
 
 import { NSUserDefaults } from './Foundation'
 
-
-
 export declare class ScreenSaverView extends NSView {
-  static backingStoreType(): interop.Enum<typeof NSBackingStoreType>;
+	static backingStoreType(): interop.Enum<typeof NSBackingStoreType>
 
-  static performGammaFade(): boolean;
+	static performGammaFade(): boolean
 
-  initWithFrameIsPreview(frame: CGRect, isPreview: boolean): this;
+	initWithFrameIsPreview(frame: CGRect, isPreview: boolean): this
 
-  animationTimeInterval: number;
+	animationTimeInterval: number
 
-  startAnimation(): void;
+	startAnimation(): void
 
-  stopAnimation(): void;
+	stopAnimation(): void
 
-  readonly animating: boolean;
+	readonly animating: boolean
 
-  drawRect(dirtyRect: CGRect): void;
-  drawRect(rect: CGRect): void;
+	drawRect(dirtyRect: CGRect): void
+	drawRect(rect: CGRect): void
 
-  animateOneFrame(): void;
+	animateOneFrame(): void
 
-  readonly hasConfigureSheet: boolean;
+	readonly hasConfigureSheet: boolean
 
-  readonly configureSheet: NSWindow | null;
+	readonly configureSheet: NSWindow | null
 
-  readonly preview: boolean;
+	readonly preview: boolean
 
-  isAnimating(): boolean;
+	isAnimating(): boolean
 
-  isPreview(): boolean;
+	isPreview(): boolean
 }
 
 export declare class ScreenSaverDefaults extends NSUserDefaults {
-  static defaultsForModuleWithName<This extends abstract new (...args: any) => any>(this: This, inModuleName: string): InstanceType<This>;
+	static defaultsForModuleWithName<This extends abstract new (...args: any) => any>(
+		this: This,
+		inModuleName: string,
+	): InstanceType<This>
 }

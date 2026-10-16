@@ -86,7 +86,12 @@ function fixture({ applyProps }: { applyProps?: any } = {}) {
 		NSNotificationCenter: {
 			defaultCenter: {
 				removeObserver: (observer: any) => removedObservers.push(observer),
-				addObserverForNameObjectQueueUsingBlock: (_name: any, view: any, _queue: any, block: any) => {
+				addObserverForNameObjectQueueUsingBlock: (
+					_name: any,
+					view: any,
+					_queue: any,
+					block: any,
+				) => {
 					const observer = { view, block }
 					geometryObservers.push(observer)
 					return observer
@@ -219,6 +224,7 @@ test('portal targets reject a native node owned by another Octane root', () => {
 		topAnchor: { constraintEqualToAnchor() {} },
 		bottomAnchor: { constraintEqualToAnchor() {} },
 	}
+
 	fx.nodeContainersByView.set(target, { nodes: new Map(), children: [] })
 
 	assert.throws(
@@ -491,14 +497,16 @@ for (const type of ['#text', 'span']) {
 				{ op: 'insert', id: 2, parent: 1, before: null },
 			]
 
-			if (op === 'recreate') {commands.push({ op, id: 2, type, props: {} } as any)}
+			if (op === 'recreate') {
+				commands.push({ op, id: 2, type, props: {} } as any)
+			}
+
 			assert.throws(() => fx.validateBatch(fx.container, commands), /contentview.*text-only/)
 			assert.equal(fx.container.nodes.size, 0)
 			assert.deepEqual(fx.factoryCalls, [])
 		})
 	}
 }
-
 
 test('contentview observes real frame changes and ignores callbacks after disposal', () => {
 	const fx = fixture()
@@ -515,7 +523,12 @@ test('contentview observes real frame changes and ignores callbacks after dispos
 })
 
 test('failed contentview creation releases its geometry observer', () => {
-	const fx = fixture({ applyProps: () => { throw new Error('prop failed') } })
+	const fx = fixture({
+		applyProps: () => {
+			throw new Error('prop failed')
+		},
+	})
+
 	assert.throws(() => fx.makeNode(fx.container, 1, 'contentview', {}), /prop failed/)
 	assert.deepEqual(fx.removedObservers, [fx.geometryObservers[0]])
 	fx.geometryObservers[0].block()

@@ -318,18 +318,14 @@ describe('files.readText (android bridge)', () => {
 		const bytes = [...new TextEncoder().encode('a\r\nb\n')]
 		bridge.resolver.openInputStream.mockReturnValue(streamOf(bytes))
 
-		await expect(files.readText({ name: 'doc', uri: 'content://x/doc' })).resolves.toBe(
-			'a\r\nb\n',
-		)
+		await expect(files.readText({ name: 'doc', uri: 'content://x/doc' })).resolves.toBe('a\r\nb\n')
 
 		expect(bridge.resolver.openInputStream).toHaveBeenCalledTimes(1)
 	})
 
 	it('routes file:// refs through the resolver like readBytes', async () => {
 		bridge.resolver.openInputStream.mockReturnValue(streamOf([104, 105]))
-		await expect(files.readText({ name: 'doc', uri: 'file:///data/doc.txt' })).resolves.toBe(
-			'hi',
-		)
+		await expect(files.readText({ name: 'doc', uri: 'file:///data/doc.txt' })).resolves.toBe('hi')
 
 		expect(bridge.resolver.openInputStream).toHaveBeenCalledTimes(1)
 	})

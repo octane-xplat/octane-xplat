@@ -11,7 +11,6 @@ import type {
 
 import { android, java } from '@octane-xplat/platform/android'
 
-
 const PERMISSION = 'android.permission.RECORD_AUDIO'
 // Android cannot distinguish "never asked" from "denied permanently" without
 // tracking it — the leaf remembers whether it has prompted on this install.

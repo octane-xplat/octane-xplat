@@ -1,115 +1,134 @@
 /// <reference types="@nativescript/objc-node-api" />
 /// <reference path="./Runtime.d.ts" />
 
-declare const ACAccountStoreDidChangeNotification: string;
+declare const ACAccountStoreDidChangeNotification: string
 
-declare const ACLinkedInPermissionsKey: string;
+declare const ACLinkedInPermissionsKey: string
 
-declare const ACFacebookAudienceFriends: string;
+declare const ACFacebookAudienceFriends: string
 
-declare const ACFacebookAudienceEveryone: string;
+declare const ACFacebookAudienceEveryone: string
 
-declare const ACAccountTypeIdentifierLinkedIn: string;
+declare const ACAccountTypeIdentifierLinkedIn: string
 
-declare const ACAccountTypeIdentifierFacebook: string;
+declare const ACAccountTypeIdentifierFacebook: string
 
-declare const ACAccountTypeIdentifierTwitter: string;
+declare const ACAccountTypeIdentifierTwitter: string
 
-declare const ACTencentWeiboAppIdKey: string;
+declare const ACTencentWeiboAppIdKey: string
 
-declare const ACFacebookPermissionsKey: string;
+declare const ACFacebookPermissionsKey: string
 
-declare const ACLinkedInAppIdKey: string;
+declare const ACLinkedInAppIdKey: string
 
-declare const ACFacebookAudienceKey: string;
+declare const ACFacebookAudienceKey: string
 
-declare const ACFacebookAudienceOnlyMe: string;
+declare const ACFacebookAudienceOnlyMe: string
 
-declare const ACAccountTypeIdentifierTencentWeibo: string;
+declare const ACAccountTypeIdentifierTencentWeibo: string
 
-declare const ACFacebookAppIdKey: string;
+declare const ACFacebookAppIdKey: string
 
-declare const ACAccountTypeIdentifierSinaWeibo: string;
+declare const ACAccountTypeIdentifierSinaWeibo: string
 
-declare const ACErrorDomain: string;
+declare const ACErrorDomain: string
 
 declare const ACErrorCode: {
-  Unknown: 1,
-  AccountMissingRequiredProperty: 2,
-  AccountAuthenticationFailed: 3,
-  AccountTypeInvalid: 4,
-  AccountAlreadyExists: 5,
-  AccountNotFound: 6,
-  PermissionDenied: 7,
-  AccessInfoInvalid: 8,
-  ClientPermissionDenied: 9,
-  AccessDeniedByProtectionPolicy: 10,
-  CredentialNotFound: 11,
-  FetchCredentialFailed: 12,
-  StoreCredentialFailed: 13,
-  RemoveCredentialFailed: 14,
-  UpdatingNonexistentAccount: 15,
-  InvalidClientBundleID: 16,
-  DeniedByPlugin: 17,
-  CoreDataSaveFailed: 18,
-  FailedSerializingAccountInfo: 19,
-  InvalidCommand: 20,
-  MissingTransportMessageID: 21,
-  CredentialItemNotFound: 22,
-  CredentialItemNotExpired: 23,
-};
+	Unknown: 1
+	AccountMissingRequiredProperty: 2
+	AccountAuthenticationFailed: 3
+	AccountTypeInvalid: 4
+	AccountAlreadyExists: 5
+	AccountNotFound: 6
+	PermissionDenied: 7
+	AccessInfoInvalid: 8
+	ClientPermissionDenied: 9
+	AccessDeniedByProtectionPolicy: 10
+	CredentialNotFound: 11
+	FetchCredentialFailed: 12
+	StoreCredentialFailed: 13
+	RemoveCredentialFailed: 14
+	UpdatingNonexistentAccount: 15
+	InvalidClientBundleID: 16
+	DeniedByPlugin: 17
+	CoreDataSaveFailed: 18
+	FailedSerializingAccountInfo: 19
+	InvalidCommand: 20
+	MissingTransportMessageID: 21
+	CredentialItemNotFound: 22
+	CredentialItemNotExpired: 23
+}
 
 declare const ACAccountCredentialRenewResult: {
-  Renewed: 0,
-  Rejected: 1,
-  Failed: 2,
-};
+	Renewed: 0
+	Rejected: 1
+	Failed: 2
+}
 
 declare class ACAccountStore extends NSObject {
-  readonly accounts: NSArray;
+	readonly accounts: NSArray
 
-  accountWithIdentifier(identifier: string): ACAccount;
+	accountWithIdentifier(identifier: string): ACAccount
 
-  accountTypeWithAccountTypeIdentifier(typeIdentifier: string): ACAccountType;
+	accountTypeWithAccountTypeIdentifier(typeIdentifier: string): ACAccountType
 
-  accountsWithAccountType(accountType: ACAccountType): NSArray;
+	accountsWithAccountType(accountType: ACAccountType): NSArray
 
-  saveAccountWithCompletionHandler(account: ACAccount, completionHandler: (p1: boolean, p2: NSError) => void): void;
+	saveAccountWithCompletionHandler(
+		account: ACAccount,
+		completionHandler: (p1: boolean, p2: NSError) => void,
+	): void
 
-  requestAccessToAccountsWithTypeOptionsCompletion(accountType: ACAccountType, options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>, completion: (p1: boolean, p2: NSError) => void): void;
+	requestAccessToAccountsWithTypeOptionsCompletion(
+		accountType: ACAccountType,
+		options: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object>,
+		completion: (p1: boolean, p2: NSError) => void,
+	): void
 
-  renewCredentialsForAccountCompletion(account: ACAccount, completionHandler: (p1: interop.Enum<typeof ACAccountCredentialRenewResult>, p2: NSError) => void): void;
+	renewCredentialsForAccountCompletion(
+		account: ACAccount,
+		completionHandler: (
+			p1: interop.Enum<typeof ACAccountCredentialRenewResult>,
+			p2: NSError,
+		) => void,
+	): void
 
-  removeAccountWithCompletionHandler(account: ACAccount, completionHandler: (p1: boolean, p2: NSError) => void): void;
+	removeAccountWithCompletionHandler(
+		account: ACAccount,
+		completionHandler: (p1: boolean, p2: NSError) => void,
+	): void
 }
 
 declare class ACAccountCredential extends NSObject {
-  initWithOAuthTokenTokenSecret(token: string, secret: string): this;
+	initWithOAuthTokenTokenSecret(token: string, secret: string): this
 
-  initWithOAuth2TokenRefreshTokenExpiryDate(token: string, refreshToken: string, expiryDate: NSDate): this;
+	initWithOAuth2TokenRefreshTokenExpiryDate(
+		token: string,
+		refreshToken: string,
+		expiryDate: NSDate,
+	): this
 
-  oauthToken: string;
+	oauthToken: string
 }
 
 declare class ACAccountType extends NSObject {
-  readonly accountTypeDescription: string;
+	readonly accountTypeDescription: string
 
-  readonly identifier: string;
+	readonly identifier: string
 
-  readonly accessGranted: boolean;
+	readonly accessGranted: boolean
 }
 
 declare class ACAccount extends NSObject {
-  initWithAccountType(type: ACAccountType): this;
+	initWithAccountType(type: ACAccountType): this
 
-  readonly identifier: string;
+	readonly identifier: string
 
-  accountType: ACAccountType;
+	accountType: ACAccountType
 
-  accountDescription: string;
+	accountDescription: string
 
-  username: string;
+	username: string
 
-  credential: ACAccountCredential;
+	credential: ACAccountCredential
 }
-

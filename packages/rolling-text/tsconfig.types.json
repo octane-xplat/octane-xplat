@@ -22,8 +22,5 @@
 		],
 		"allowImportingTsExtensions": true
 	},
-	"include": [
-		"src/props.ts",
-		"types/index.d.ts"
-	]
+	"include": ["src/props.ts", "types/index.d.ts"]
 }

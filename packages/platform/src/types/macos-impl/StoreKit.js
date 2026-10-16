@@ -1,13 +1,25 @@
 import { _bind } from './_rt.js'
 const FW = '/System/Library/Frameworks/StoreKit.framework/StoreKit'
 export const SKArcadeService = /* @__PURE__ */ _bind(FW, 'SKArcadeService')
-export const SKCloudServiceAuthorizationStatus = /* @__PURE__ */ _bind(FW, 'SKCloudServiceAuthorizationStatus')
-export const SKCloudServiceCapabilitiesDidChangeNotification = /* @__PURE__ */ _bind(FW, 'SKCloudServiceCapabilitiesDidChangeNotification')
+export const SKCloudServiceAuthorizationStatus = /* @__PURE__ */ _bind(
+	FW,
+	'SKCloudServiceAuthorizationStatus',
+)
+
+export const SKCloudServiceCapabilitiesDidChangeNotification = /* @__PURE__ */ _bind(
+	FW,
+	'SKCloudServiceCapabilitiesDidChangeNotification',
+)
+
 export const SKCloudServiceCapability = /* @__PURE__ */ _bind(FW, 'SKCloudServiceCapability')
 export const SKCloudServiceController = /* @__PURE__ */ _bind(FW, 'SKCloudServiceController')
 export const SKDownload = /* @__PURE__ */ _bind(FW, 'SKDownload')
 export const SKDownloadState = /* @__PURE__ */ _bind(FW, 'SKDownloadState')
-export const SKDownloadTimeRemainingUnknown = /* @__PURE__ */ _bind(FW, 'SKDownloadTimeRemainingUnknown')
+export const SKDownloadTimeRemainingUnknown = /* @__PURE__ */ _bind(
+	FW,
+	'SKDownloadTimeRemainingUnknown',
+)
+
 export const SKErrorCode = /* @__PURE__ */ _bind(FW, 'SKErrorCode')
 export const SKErrorDomain = /* @__PURE__ */ _bind(FW, 'SKErrorDomain')
 export const SKMutablePayment = /* @__PURE__ */ _bind(FW, 'SKMutablePayment')
@@ -16,35 +28,98 @@ export const SKPaymentDiscount = /* @__PURE__ */ _bind(FW, 'SKPaymentDiscount')
 export const SKPaymentQueue = /* @__PURE__ */ _bind(FW, 'SKPaymentQueue')
 export const SKPaymentQueueDelegate = /* @__PURE__ */ _bind(FW, 'SKPaymentQueueDelegate')
 export const SKPaymentTransaction = /* @__PURE__ */ _bind(FW, 'SKPaymentTransaction')
-export const SKPaymentTransactionObserver = /* @__PURE__ */ _bind(FW, 'SKPaymentTransactionObserver')
+export const SKPaymentTransactionObserver = /* @__PURE__ */ _bind(
+	FW,
+	'SKPaymentTransactionObserver',
+)
+
 export const SKPaymentTransactionState = /* @__PURE__ */ _bind(FW, 'SKPaymentTransactionState')
 export const SKProduct = /* @__PURE__ */ _bind(FW, 'SKProduct')
 export const SKProductDiscount = /* @__PURE__ */ _bind(FW, 'SKProductDiscount')
-export const SKProductDiscountPaymentMode = /* @__PURE__ */ _bind(FW, 'SKProductDiscountPaymentMode')
+export const SKProductDiscountPaymentMode = /* @__PURE__ */ _bind(
+	FW,
+	'SKProductDiscountPaymentMode',
+)
+
 export const SKProductDiscountType = /* @__PURE__ */ _bind(FW, 'SKProductDiscountType')
 export const SKProductPeriodUnit = /* @__PURE__ */ _bind(FW, 'SKProductPeriodUnit')
-export const SKProductStorePromotionController = /* @__PURE__ */ _bind(FW, 'SKProductStorePromotionController')
-export const SKProductStorePromotionVisibility = /* @__PURE__ */ _bind(FW, 'SKProductStorePromotionVisibility')
+export const SKProductStorePromotionController = /* @__PURE__ */ _bind(
+	FW,
+	'SKProductStorePromotionController',
+)
+
+export const SKProductStorePromotionVisibility = /* @__PURE__ */ _bind(
+	FW,
+	'SKProductStorePromotionVisibility',
+)
+
 export const SKProductSubscriptionPeriod = /* @__PURE__ */ _bind(FW, 'SKProductSubscriptionPeriod')
 export const SKProductsRequest = /* @__PURE__ */ _bind(FW, 'SKProductsRequest')
 export const SKProductsRequestDelegate = /* @__PURE__ */ _bind(FW, 'SKProductsRequestDelegate')
 export const SKProductsResponse = /* @__PURE__ */ _bind(FW, 'SKProductsResponse')
 export const SKReceiptPropertyIsExpired = /* @__PURE__ */ _bind(FW, 'SKReceiptPropertyIsExpired')
 export const SKReceiptPropertyIsRevoked = /* @__PURE__ */ _bind(FW, 'SKReceiptPropertyIsRevoked')
-export const SKReceiptPropertyIsVolumePurchase = /* @__PURE__ */ _bind(FW, 'SKReceiptPropertyIsVolumePurchase')
+export const SKReceiptPropertyIsVolumePurchase = /* @__PURE__ */ _bind(
+	FW,
+	'SKReceiptPropertyIsVolumePurchase',
+)
+
 export const SKReceiptRefreshRequest = /* @__PURE__ */ _bind(FW, 'SKReceiptRefreshRequest')
 export const SKRequest = /* @__PURE__ */ _bind(FW, 'SKRequest')
 export const SKRequestDelegate = /* @__PURE__ */ _bind(FW, 'SKRequestDelegate')
-export const SKStoreProductParameterAdvertisingPartnerToken = /* @__PURE__ */ _bind(FW, 'SKStoreProductParameterAdvertisingPartnerToken')
-export const SKStoreProductParameterAffiliateToken = /* @__PURE__ */ _bind(FW, 'SKStoreProductParameterAffiliateToken')
-export const SKStoreProductParameterCampaignToken = /* @__PURE__ */ _bind(FW, 'SKStoreProductParameterCampaignToken')
-export const SKStoreProductParameterITunesItemIdentifier = /* @__PURE__ */ _bind(FW, 'SKStoreProductParameterITunesItemIdentifier')
-export const SKStoreProductParameterProductIdentifier = /* @__PURE__ */ _bind(FW, 'SKStoreProductParameterProductIdentifier')
-export const SKStoreProductParameterProviderToken = /* @__PURE__ */ _bind(FW, 'SKStoreProductParameterProviderToken')
-export const SKStoreProductViewController = /* @__PURE__ */ _bind(FW, 'SKStoreProductViewController')
-export const SKStoreProductViewControllerDelegate = /* @__PURE__ */ _bind(FW, 'SKStoreProductViewControllerDelegate')
+export const SKStoreProductParameterAdvertisingPartnerToken = /* @__PURE__ */ _bind(
+	FW,
+	'SKStoreProductParameterAdvertisingPartnerToken',
+)
+
+export const SKStoreProductParameterAffiliateToken = /* @__PURE__ */ _bind(
+	FW,
+	'SKStoreProductParameterAffiliateToken',
+)
+
+export const SKStoreProductParameterCampaignToken = /* @__PURE__ */ _bind(
+	FW,
+	'SKStoreProductParameterCampaignToken',
+)
+
+export const SKStoreProductParameterITunesItemIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'SKStoreProductParameterITunesItemIdentifier',
+)
+
+export const SKStoreProductParameterProductIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'SKStoreProductParameterProductIdentifier',
+)
+
+export const SKStoreProductParameterProviderToken = /* @__PURE__ */ _bind(
+	FW,
+	'SKStoreProductParameterProviderToken',
+)
+
+export const SKStoreProductViewController = /* @__PURE__ */ _bind(
+	FW,
+	'SKStoreProductViewController',
+)
+
+export const SKStoreProductViewControllerDelegate = /* @__PURE__ */ _bind(
+	FW,
+	'SKStoreProductViewControllerDelegate',
+)
+
 export const SKStoreReviewController = /* @__PURE__ */ _bind(FW, 'SKStoreReviewController')
 export const SKStorefront = /* @__PURE__ */ _bind(FW, 'SKStorefront')
-export const SKStorefrontCountryCodeDidChangeNotification = /* @__PURE__ */ _bind(FW, 'SKStorefrontCountryCodeDidChangeNotification')
-export const SKStorefrontIdentifierDidChangeNotification = /* @__PURE__ */ _bind(FW, 'SKStorefrontIdentifierDidChangeNotification')
-export const SKTerminateForInvalidReceipt = /* @__PURE__ */ _bind(FW, 'SKTerminateForInvalidReceipt')
+export const SKStorefrontCountryCodeDidChangeNotification = /* @__PURE__ */ _bind(
+	FW,
+	'SKStorefrontCountryCodeDidChangeNotification',
+)
+
+export const SKStorefrontIdentifierDidChangeNotification = /* @__PURE__ */ _bind(
+	FW,
+	'SKStorefrontIdentifierDidChangeNotification',
+)
+
+export const SKTerminateForInvalidReceipt = /* @__PURE__ */ _bind(
+	FW,
+	'SKTerminateForInvalidReceipt',
+)

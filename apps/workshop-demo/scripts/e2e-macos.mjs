@@ -17,7 +17,10 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const appRoot = process.argv[2] ? resolve(process.argv[2]) : fileURLToPath(new URL('..', import.meta.url))
+const appRoot = process.argv[2]
+	? resolve(process.argv[2])
+	: fileURLToPath(new URL('..', import.meta.url))
+
 const storyFile = join(appRoot, 'src/stories/counter.stories.tsrx')
 const originalStory = readFileSync(storyFile, 'utf8')
 
@@ -45,10 +48,15 @@ proc.stdout.on('data', (chunk) => {
 	while ((index = buffer.indexOf('\n')) >= 0) {
 		const line = buffer.slice(0, index).trimEnd()
 		buffer = buffer.slice(index + 1)
-		if (!line) { continue }
+		if (!line) {
+			continue
+		}
+
 		console.log(`  | ${line}`)
 		if (line.startsWith('WORKSHOP_STATE ')) {
-			try { seen.push(JSON.parse(line.slice('WORKSHOP_STATE '.length))) } catch {}
+			try {
+				seen.push(JSON.parse(line.slice('WORKSHOP_STATE '.length)))
+			} catch {}
 		}
 
 		for (const waiter of [...waiters]) {
@@ -95,17 +103,28 @@ let expectedSeq = 0
 let lastDump = 0
 const send = (command) => {
 	proc.stdin.write(`${command}\n`)
-	if (command !== 'close') { ++expectedSeq }
+	if (command !== 'close') {
+		++expectedSeq
+	}
 }
 
 const state = async (command, timeout) => {
-	if (command) { send(command) }
+	if (command) {
+		send(command)
+	}
+
 	while (true) {
 		const line = await next('WORKSHOP_STATE ', timeout)
 		const parsed = JSON.parse(line.slice('WORKSHOP_STATE '.length))
 		const fresh = parsed.d > lastDump
-		if (!fresh) { continue }
-		if (command && parsed.seq !== expectedSeq) { continue }
+		if (!fresh) {
+			continue
+		}
+
+		if (command && parsed.seq !== expectedSeq) {
+			continue
+		}
+
 		lastDump = parsed.d
 		return parsed
 	}
@@ -117,47 +136,71 @@ try {
 
 	send('catalog')
 	const catalog = JSON.parse((await next('WORKSHOP_CATALOG ')).slice('WORKSHOP_CATALOG '.length))
-	const applicable = catalog.filter((e) => e.applicable).map((e) => e.id).sort()
+	const applicable = catalog
+		.filter((e) => e.applicable)
+		.map((e) => e.id)
+		.sort()
+
 	check(
 		'catalog lists macOS-applicable stories',
-		applicable.join(',') === 'counter/async-fixture,counter/basic,counter/static,failing/broken,failing/fixture,isolation/resources,providers/theme',
+		applicable.join(',') ===
+			'counter/async-fixture,counter/basic,counter/static,failing/broken,failing/fixture,isolation/resources,providers/theme',
 		applicable.join(','),
 	)
 
 	const inapplicable = catalog.filter((e) => !e.applicable)
-	check('platform leaves stay in catalog as unsupported', inapplicable.length === 3,
-		inapplicable.map((e) => `${e.id}: ${e.reason}`).join(' | '))
+	check(
+		'platform leaves stay in catalog as unsupported',
+		inapplicable.length === 3,
+		inapplicable.map((e) => `${e.id}: ${e.reason}`).join(' | '),
+	)
 
 	let s = await state('select counter/basic')
-	check('basic mounts through macOS renderer',
-		s.phase === 'ready' && s.props?.step === 1 && s.store?.count === 0 && s.fixture?.account === 'Demo',
-		`${s.phase} props=${JSON.stringify(s.props)} store=${JSON.stringify(s.store)}`)
+	check(
+		'basic mounts through macOS renderer',
+		s.phase === 'ready' &&
+			s.props?.step === 1 &&
+			s.store?.count === 0 &&
+			s.fixture?.account === 'Demo',
+		`${s.phase} props=${JSON.stringify(s.props)} store=${JSON.stringify(s.store)}`,
+	)
 
 	s = await state('press Increment')
 	check('gesture dispatch updates story state', s.store?.count === 1, JSON.stringify(s.store))
 
 	s = await state('control step 5')
-	check('number control applies full props bag', s.props?.step === 5 && s.store?.count === 1,
-		`props=${JSON.stringify(s.props)} store=${JSON.stringify(s.store)}`)
+	check(
+		'number control applies full props bag',
+		s.props?.step === 5 && s.store?.count === 1,
+		`props=${JSON.stringify(s.props)} store=${JSON.stringify(s.store)}`,
+	)
 
 	s = await state('press Increment')
 	check('control affects next interaction', s.store?.count === 6, JSON.stringify(s.store))
 
 	s = await state('control step 99')
-	check('out-of-range input preserves stage value', s.props?.step === 5 && s.errors?.step,
-		`props=${JSON.stringify(s.props)} errors=${JSON.stringify(s.errors)}`)
+	check(
+		'out-of-range input preserves stage value',
+		s.props?.step === 5 && s.errors?.step,
+		`props=${JSON.stringify(s.props)} errors=${JSON.stringify(s.errors)}`,
+	)
 
 	s = await state('unset label')
 	check('Unset removes optional prop', s.props && !('label' in s.props), JSON.stringify(s.props))
 
 	s = await state('reset')
-	check('reset restores defaults and fresh state',
+	check(
+		'reset restores defaults and fresh state',
 		s.phase === 'ready' && s.props?.step === 1 && s.store?.count === 0,
-		`props=${JSON.stringify(s.props)} store=${JSON.stringify(s.store)}`)
+		`props=${JSON.stringify(s.props)} store=${JSON.stringify(s.store)}`,
+	)
 
 	s = await state('select counter/async-fixture', 30_000)
-	check('async fixture resolves before mount',
-		s.phase === 'ready' && s.fixture?.account === 'AsyncAccount', JSON.stringify(s.fixture))
+	check(
+		'async fixture resolves before mount',
+		s.phase === 'ready' && s.fixture?.account === 'AsyncAccount',
+		JSON.stringify(s.fixture),
+	)
 
 	// A pending fixture cancelled by a newer selection must never mount late:
 	// the 600ms async fixture is still in flight when the next select runs.
@@ -169,51 +212,87 @@ try {
 	let lateDeadline = Date.now() + 30_000
 	while (!(s.storyId === 'counter/basic' && s.phase === 'ready')) {
 		s = await state('status', Math.max(1, lateDeadline - Date.now()))
-		if (Date.now() > lateDeadline) { break }
+		if (Date.now() > lateDeadline) {
+			break
+		}
 	}
 
 	const readyDump = s.d
 	lateDeadline = Date.now() + 900
 	while (Date.now() < lateDeadline) {
-		try { await state('status', Math.max(1, lateDeadline - Date.now())) } catch { break }
+		try {
+			await state('status', Math.max(1, lateDeadline - Date.now()))
+		} catch {
+			break
+		}
 	}
 
-	check('late fixture resolution cannot mount after a newer selection',
-		s.storyId === 'counter/basic' && s.phase === 'ready' &&
-			!seen.slice(lateMarker).some((x) => x.storyId === 'counter/async-fixture' && x.phase === 'ready' && x.d > readyDump),
-		`story=${s.storyId} phase=${s.phase}`)
+	check(
+		'late fixture resolution cannot mount after a newer selection',
+		s.storyId === 'counter/basic' &&
+			s.phase === 'ready' &&
+			!seen
+				.slice(lateMarker)
+				.some(
+					(x) => x.storyId === 'counter/async-fixture' && x.phase === 'ready' && x.d > readyDump,
+				),
+		`story=${s.storyId} phase=${s.phase}`,
+	)
 
 	s = await state('select isolation/resources')
-	check('isolation story mounts with providers', s.phase === 'ready', s.phase + ' ' + (s.failure ?? ''))
+	check(
+		'isolation story mounts with providers',
+		s.phase === 'ready',
+		s.phase + ' ' + (s.failure ?? ''),
+	)
 
 	s = await state('press Open owned overlay')
 	check('story opens owned secondary window', s.openWindows === 1, `openWindows=${s.openWindows}`)
 
 	s = await state('press Mutate data')
-	check('fixture mutation propagates', s.fixture?.nested?.label === 'changed', JSON.stringify(s.fixture))
+	check(
+		'fixture mutation propagates',
+		s.fixture?.nested?.label === 'changed',
+		JSON.stringify(s.fixture),
+	)
 
 	s = await state('select counter/basic')
-	check('switching releases owned window', s.openWindows === 0 && s.phase === 'ready',
-		`openWindows=${s.openWindows} phase=${s.phase}`)
+	check(
+		'switching releases owned window',
+		s.openWindows === 0 && s.phase === 'ready',
+		`openWindows=${s.openWindows} phase=${s.phase}`,
+	)
 
 	s = await state('select failing/broken')
-	check('render failure surfaces readable error',
-		s.phase === 'failed' && /render|mount/i.test(s.failure ?? ''), s.failure ?? '')
+	check(
+		'render failure surfaces readable error',
+		s.phase === 'failed' && /render|mount/i.test(s.failure ?? ''),
+		s.failure ?? '',
+	)
 
 	s = await state('select failing/fixture')
-	check('fixture failure surfaces readable error',
-		s.phase === 'failed' && /fixture/i.test(s.failure ?? ''), s.failure ?? '')
+	check(
+		'fixture failure surfaces readable error',
+		s.phase === 'failed' && /fixture/i.test(s.failure ?? ''),
+		s.failure ?? '',
+	)
 
 	s = await state('select counter/basic')
 	check('recovers after failure', s.phase === 'ready' && s.store?.count === 0, s.phase)
 
 	s = await state('select providers/theme')
-	check('provider story mounts', s.phase === 'ready' && s.fixture?.account === 'Provided',
-		`${s.phase} fixture=${JSON.stringify(s.fixture)}`)
+	check(
+		'provider story mounts',
+		s.phase === 'ready' && s.fixture?.account === 'Provided',
+		`${s.phase} fixture=${JSON.stringify(s.fixture)}`,
+	)
 
 	s = await state('select nope/missing')
-	check('missing story shows catalog error, no unrelated mount',
-		s.catalogError !== null && s.phase !== 'ready', `${s.phase} ${s.catalogError}`)
+	check(
+		'missing story shows catalog error, no unrelated mount',
+		s.catalogError !== null && s.phase !== 'ready',
+		`${s.phase} ${s.catalogError}`,
+	)
 
 	s = await state('select counter/basic')
 	check('re-select works after missing id', s.phase === 'ready', s.phase)
@@ -222,8 +301,11 @@ try {
 	check('aux panel toggles', s.panel === 'controls', s.panel)
 
 	s = await state('stage-only on')
-	check('stage-only keeps session mounted', s.stageOnly === true && s.phase === 'ready',
-		`stageOnly=${s.stageOnly} phase=${s.phase}`)
+	check(
+		'stage-only keeps session mounted',
+		s.stageOnly === true && s.phase === 'ready',
+		`stageOnly=${s.stageOnly} phase=${s.phase}`,
+	)
 
 	await state('stage-only off')
 
@@ -237,7 +319,9 @@ try {
 		const deadline = Date.now() + timeout
 		while (Date.now() < deadline) {
 			const next = await state('status', Math.max(1_000, deadline - Date.now()))
-			if (predicate(next)) { return next }
+			if (predicate(next)) {
+				return next
+			}
 		}
 
 		return null
@@ -248,20 +332,33 @@ try {
 	writeFileSync(storyFile, `${originalStory}\n// e2e reload probe\n`)
 	const remounted = await waitFor((x) => x.phase === 'ready' && x.revision > before)
 	const editLatency = Math.round(performance.now() - editStart)
-	check('successful edit remounts selected story',
+	check(
+		'successful edit remounts selected story',
 		remounted !== null && remounted.storyId === 'counter/basic' && remounted.store?.count === 0,
-		remounted ? `phase=${remounted.phase} story=${remounted.storyId} rev=${remounted.revision} warm-edit=${editLatency}ms` : 'no remount observed')
+		remounted
+			? `phase=${remounted.phase} story=${remounted.storyId} rev=${remounted.revision} warm-edit=${editLatency}ms`
+			: 'no remount observed',
+	)
 
 	console.log(`  | warm edit→ready latency: ${editLatency}ms (goal ≤5000ms native)`)
 
 	writeFileSync(storyFile, 'export const Broken = defineStory({ syntax error')
 	const broken = await waitFor((x) => x.phase === 'failed' || x.stale === true)
-	check('bad edit fails honestly', broken !== null && (broken.phase === 'failed' || broken.stale === true),
-		broken ? `phase=${broken.phase} stale=${broken.stale} failure=${broken.failure}` : 'no stale/failed state observed')
+	check(
+		'bad edit fails honestly',
+		broken !== null && (broken.phase === 'failed' || broken.stale === true),
+		broken
+			? `phase=${broken.phase} stale=${broken.stale} failure=${broken.failure}`
+			: 'no stale/failed state observed',
+	)
 
 	writeFileSync(storyFile, originalStory)
 	const healed = await waitFor((x) => x.phase === 'ready')
-	check('corrected edit remounts fresh', healed !== null, healed?.phase ?? 'no ready state observed')
+	check(
+		'corrected edit remounts fresh',
+		healed !== null,
+		healed?.phase ?? 'no ready state observed',
+	)
 
 	send('close')
 	const code = await new Promise((resolve) => {

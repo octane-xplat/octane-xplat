@@ -9,8 +9,11 @@ export function registerRouteContentOwner(stack: string, owner: ContentOwner) {
 	owners.set(stack, entries)
 	return () => {
 		const current = owners.get(stack)?.filter((entry) => entry !== owner) ?? []
-		if (current.length) owners.set(stack, current)
-		else owners.delete(stack)
+		if (current.length) {
+			owners.set(stack, current)
+		} else {
+			owners.delete(stack)
+		}
 	}
 }
 

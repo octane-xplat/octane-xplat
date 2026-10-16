@@ -18,13 +18,13 @@ so do not run it when global changes are prohibited.
 
 ```json
 {
-  "mcpServers": {
-    "argent": {
-      "command": "pnpm",
-      "args": ["dlx", "@swmansion/argent@0.27.0", "mcp"],
-      "env": { "DO_NOT_TRACK": "1" }
-    }
-  }
+	"mcpServers": {
+		"argent": {
+			"command": "pnpm",
+			"args": ["dlx", "@swmansion/argent@0.27.0", "mcp"],
+			"env": { "DO_NOT_TRACK": "1" }
+		}
+	}
 }
 ```
 
@@ -50,12 +50,12 @@ so do not run it when global changes are prohibited.
 
    ```yaml
    steps:
-     - launch: {ios: com.example.packing}
-     - assert: {visible: {text: "Count: 0"}}
-     - tap: {id: counter.increment}
-     - await: {visible: {text: "Count: 1"}, timeout: 5000}
-     - type: {into: {id: message.entry}, text: "42"}
-     - await: {visible: {text: "Message: 42"}, timeout: 5000}
+     - launch: { ios: com.example.packing }
+     - assert: { visible: { text: 'Count: 0' } }
+     - tap: { id: counter.increment }
+     - await: { visible: { text: 'Count: 1' }, timeout: 5000 }
+     - type: { into: { id: message.entry }, text: '42' }
+     - await: { visible: { text: 'Message: 42' }, timeout: 5000 }
    ```
 
    For Android, use `launch: {android: com.example.packing}`. For Chromium,
@@ -64,11 +64,11 @@ so do not run it when global changes are prohibited.
 
 ## Discovery and replay need different services
 
-| Target | Discovery | Replay/input prerequisite |
-| --- | --- | --- |
-| iOS simulator | AX accessibility tree, with native discovery available | App launched through Argent with injected full UIKit hierarchy |
+| Target           | Discovery                                                | Replay/input prerequisite                                                                                |
+| ---------------- | -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| iOS simulator    | AX accessibility tree, with native discovery available   | App launched through Argent with injected full UIKit hierarchy                                           |
 | Android emulator | Argent helper tree, with UiAutomator discovery available | Installed/running Argent Android helper and full helper hierarchy; authenticated emulator gRPC for input |
-| Chromium | DOM through CDP | Running Chromium with a local remote-debugging port and the intended page selected |
+| Chromium         | DOM through CDP                                          | Running Chromium with a local remote-debugging port and the intended page selected                       |
 
 A successful `describe` does not establish replay readiness. iOS replay uses
 injected native views; Android replay requires the helper rather than silently

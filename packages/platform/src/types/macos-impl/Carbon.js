@@ -23,10 +23,18 @@ export const ASGetSourceStyles = /* @__PURE__ */ _bind(FW, 'ASGetSourceStyles')
 export const ASInit = /* @__PURE__ */ _bind(FW, 'ASInit')
 export const ASSetSourceAttributes = /* @__PURE__ */ _bind(FW, 'ASSetSourceAttributes')
 export const ASSetSourceStyles = /* @__PURE__ */ _bind(FW, 'ASSetSourceStyles')
-export const AcquireFirstMatchingEventInQueue = /* @__PURE__ */ _bind(FW, 'AcquireFirstMatchingEventInQueue')
+export const AcquireFirstMatchingEventInQueue = /* @__PURE__ */ _bind(
+	FW,
+	'AcquireFirstMatchingEventInQueue',
+)
+
 export const AddEventTypesToHandler = /* @__PURE__ */ _bind(FW, 'AddEventTypesToHandler')
 export const AlertStdAlertParamRec = /* @__PURE__ */ _bind(FW, 'AlertStdAlertParamRec')
-export const AlertStdCFStringAlertParamRec = /* @__PURE__ */ _bind(FW, 'AlertStdCFStringAlertParamRec')
+export const AlertStdCFStringAlertParamRec = /* @__PURE__ */ _bind(
+	FW,
+	'AlertStdCFStringAlertParamRec',
+)
+
 export const AlertTemplate = /* @__PURE__ */ _bind(FW, 'AlertTemplate')
 export const BasicWindowDescription = /* @__PURE__ */ _bind(FW, 'BasicWindowDescription')
 export const Button = /* @__PURE__ */ _bind(FW, 'Button')
@@ -36,8 +44,16 @@ export const CMPluginHandleSelection = /* @__PURE__ */ _bind(FW, 'CMPluginHandle
 export const CMPluginPostMenuCleanup = /* @__PURE__ */ _bind(FW, 'CMPluginPostMenuCleanup')
 export const CalibratorInfo = /* @__PURE__ */ _bind(FW, 'CalibratorInfo')
 export const CallNextEventHandler = /* @__PURE__ */ _bind(FW, 'CallNextEventHandler')
-export const CheckEventQueueForUserCancel = /* @__PURE__ */ _bind(FW, 'CheckEventQueueForUserCancel')
-export const ContextualMenuInterfaceStruct = /* @__PURE__ */ _bind(FW, 'ContextualMenuInterfaceStruct')
+export const CheckEventQueueForUserCancel = /* @__PURE__ */ _bind(
+	FW,
+	'CheckEventQueueForUserCancel',
+)
+
+export const ContextualMenuInterfaceStruct = /* @__PURE__ */ _bind(
+	FW,
+	'ContextualMenuInterfaceStruct',
+)
+
 export const ControlEditTextSelectionRec = /* @__PURE__ */ _bind(FW, 'ControlEditTextSelectionRec')
 export const ControlFontStyleRec = /* @__PURE__ */ _bind(FW, 'ControlFontStyleRec')
 export const ControlID = /* @__PURE__ */ _bind(FW, 'ControlID')
@@ -56,13 +72,33 @@ export const CreateEvent = /* @__PURE__ */ _bind(FW, 'CreateEvent')
 export const CreateEventWithCGEvent = /* @__PURE__ */ _bind(FW, 'CreateEventWithCGEvent')
 export const CtlCTab = /* @__PURE__ */ _bind(FW, 'CtlCTab')
 export const DRAWHook = /* @__PURE__ */ _bind(FW, 'DRAWHook')
-export const DataBrowserAccessibilityItemInfo = /* @__PURE__ */ _bind(FW, 'DataBrowserAccessibilityItemInfo')
-export const DataBrowserAccessibilityItemInfoV0 = /* @__PURE__ */ _bind(FW, 'DataBrowserAccessibilityItemInfoV0')
-export const DataBrowserAccessibilityItemInfoV1 = /* @__PURE__ */ _bind(FW, 'DataBrowserAccessibilityItemInfoV1')
+export const DataBrowserAccessibilityItemInfo = /* @__PURE__ */ _bind(
+	FW,
+	'DataBrowserAccessibilityItemInfo',
+)
+
+export const DataBrowserAccessibilityItemInfoV0 = /* @__PURE__ */ _bind(
+	FW,
+	'DataBrowserAccessibilityItemInfoV0',
+)
+
+export const DataBrowserAccessibilityItemInfoV1 = /* @__PURE__ */ _bind(
+	FW,
+	'DataBrowserAccessibilityItemInfoV1',
+)
+
 export const DataBrowserCallbacks = /* @__PURE__ */ _bind(FW, 'DataBrowserCallbacks')
 export const DataBrowserCustomCallbacks = /* @__PURE__ */ _bind(FW, 'DataBrowserCustomCallbacks')
-export const DataBrowserListViewColumnDesc = /* @__PURE__ */ _bind(FW, 'DataBrowserListViewColumnDesc')
-export const DataBrowserListViewHeaderDesc = /* @__PURE__ */ _bind(FW, 'DataBrowserListViewHeaderDesc')
+export const DataBrowserListViewColumnDesc = /* @__PURE__ */ _bind(
+	FW,
+	'DataBrowserListViewColumnDesc',
+)
+
+export const DataBrowserListViewHeaderDesc = /* @__PURE__ */ _bind(
+	FW,
+	'DataBrowserListViewHeaderDesc',
+)
+
 export const DataBrowserPropertyDesc = /* @__PURE__ */ _bind(FW, 'DataBrowserPropertyDesc')
 export const DebugPrintEvent = /* @__PURE__ */ _bind(FW, 'DebugPrintEvent')
 export const DebugPrintMainEventQueue = /* @__PURE__ */ _bind(FW, 'DebugPrintMainEventQueue')
@@ -75,50 +111,174 @@ export const DisposeCalibrateUPP = /* @__PURE__ */ _bind(FW, 'DisposeCalibrateUP
 export const DisposeCanCalibrateUPP = /* @__PURE__ */ _bind(FW, 'DisposeCanCalibrateUPP')
 export const DisposeCaretHookUPP = /* @__PURE__ */ _bind(FW, 'DisposeCaretHookUPP')
 export const DisposeControlActionUPP = /* @__PURE__ */ _bind(FW, 'DisposeControlActionUPP')
-export const DisposeControlEditTextValidationUPP = /* @__PURE__ */ _bind(FW, 'DisposeControlEditTextValidationUPP')
+export const DisposeControlEditTextValidationUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeControlEditTextValidationUPP',
+)
+
 export const DisposeControlKeyFilterUPP = /* @__PURE__ */ _bind(FW, 'DisposeControlKeyFilterUPP')
-export const DisposeControlUserPaneActivateUPP = /* @__PURE__ */ _bind(FW, 'DisposeControlUserPaneActivateUPP')
-export const DisposeControlUserPaneDrawUPP = /* @__PURE__ */ _bind(FW, 'DisposeControlUserPaneDrawUPP')
-export const DisposeControlUserPaneFocusUPP = /* @__PURE__ */ _bind(FW, 'DisposeControlUserPaneFocusUPP')
-export const DisposeControlUserPaneHitTestUPP = /* @__PURE__ */ _bind(FW, 'DisposeControlUserPaneHitTestUPP')
-export const DisposeControlUserPaneIdleUPP = /* @__PURE__ */ _bind(FW, 'DisposeControlUserPaneIdleUPP')
-export const DisposeControlUserPaneKeyDownUPP = /* @__PURE__ */ _bind(FW, 'DisposeControlUserPaneKeyDownUPP')
-export const DisposeControlUserPaneTrackingUPP = /* @__PURE__ */ _bind(FW, 'DisposeControlUserPaneTrackingUPP')
-export const DisposeDataBrowserAcceptDragUPP = /* @__PURE__ */ _bind(FW, 'DisposeDataBrowserAcceptDragUPP')
-export const DisposeDataBrowserAddDragItemUPP = /* @__PURE__ */ _bind(FW, 'DisposeDataBrowserAddDragItemUPP')
-export const DisposeDataBrowserDrawItemUPP = /* @__PURE__ */ _bind(FW, 'DisposeDataBrowserDrawItemUPP')
-export const DisposeDataBrowserEditItemUPP = /* @__PURE__ */ _bind(FW, 'DisposeDataBrowserEditItemUPP')
-export const DisposeDataBrowserGetContextualMenuUPP = /* @__PURE__ */ _bind(FW, 'DisposeDataBrowserGetContextualMenuUPP')
-export const DisposeDataBrowserHitTestUPP = /* @__PURE__ */ _bind(FW, 'DisposeDataBrowserHitTestUPP')
-export const DisposeDataBrowserItemAcceptDragUPP = /* @__PURE__ */ _bind(FW, 'DisposeDataBrowserItemAcceptDragUPP')
-export const DisposeDataBrowserItemCompareUPP = /* @__PURE__ */ _bind(FW, 'DisposeDataBrowserItemCompareUPP')
-export const DisposeDataBrowserItemDataUPP = /* @__PURE__ */ _bind(FW, 'DisposeDataBrowserItemDataUPP')
-export const DisposeDataBrowserItemDragRgnUPP = /* @__PURE__ */ _bind(FW, 'DisposeDataBrowserItemDragRgnUPP')
-export const DisposeDataBrowserItemHelpContentUPP = /* @__PURE__ */ _bind(FW, 'DisposeDataBrowserItemHelpContentUPP')
-export const DisposeDataBrowserItemNotificationUPP = /* @__PURE__ */ _bind(FW, 'DisposeDataBrowserItemNotificationUPP')
-export const DisposeDataBrowserItemNotificationWithItemUPP = /* @__PURE__ */ _bind(FW, 'DisposeDataBrowserItemNotificationWithItemUPP')
-export const DisposeDataBrowserItemReceiveDragUPP = /* @__PURE__ */ _bind(FW, 'DisposeDataBrowserItemReceiveDragUPP')
+export const DisposeControlUserPaneActivateUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeControlUserPaneActivateUPP',
+)
+
+export const DisposeControlUserPaneDrawUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeControlUserPaneDrawUPP',
+)
+
+export const DisposeControlUserPaneFocusUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeControlUserPaneFocusUPP',
+)
+
+export const DisposeControlUserPaneHitTestUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeControlUserPaneHitTestUPP',
+)
+
+export const DisposeControlUserPaneIdleUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeControlUserPaneIdleUPP',
+)
+
+export const DisposeControlUserPaneKeyDownUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeControlUserPaneKeyDownUPP',
+)
+
+export const DisposeControlUserPaneTrackingUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeControlUserPaneTrackingUPP',
+)
+
+export const DisposeDataBrowserAcceptDragUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeDataBrowserAcceptDragUPP',
+)
+
+export const DisposeDataBrowserAddDragItemUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeDataBrowserAddDragItemUPP',
+)
+
+export const DisposeDataBrowserDrawItemUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeDataBrowserDrawItemUPP',
+)
+
+export const DisposeDataBrowserEditItemUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeDataBrowserEditItemUPP',
+)
+
+export const DisposeDataBrowserGetContextualMenuUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeDataBrowserGetContextualMenuUPP',
+)
+
+export const DisposeDataBrowserHitTestUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeDataBrowserHitTestUPP',
+)
+
+export const DisposeDataBrowserItemAcceptDragUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeDataBrowserItemAcceptDragUPP',
+)
+
+export const DisposeDataBrowserItemCompareUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeDataBrowserItemCompareUPP',
+)
+
+export const DisposeDataBrowserItemDataUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeDataBrowserItemDataUPP',
+)
+
+export const DisposeDataBrowserItemDragRgnUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeDataBrowserItemDragRgnUPP',
+)
+
+export const DisposeDataBrowserItemHelpContentUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeDataBrowserItemHelpContentUPP',
+)
+
+export const DisposeDataBrowserItemNotificationUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeDataBrowserItemNotificationUPP',
+)
+
+export const DisposeDataBrowserItemNotificationWithItemUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeDataBrowserItemNotificationWithItemUPP',
+)
+
+export const DisposeDataBrowserItemReceiveDragUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeDataBrowserItemReceiveDragUPP',
+)
+
 export const DisposeDataBrowserItemUPP = /* @__PURE__ */ _bind(FW, 'DisposeDataBrowserItemUPP')
-export const DisposeDataBrowserPostProcessDragUPP = /* @__PURE__ */ _bind(FW, 'DisposeDataBrowserPostProcessDragUPP')
-export const DisposeDataBrowserReceiveDragUPP = /* @__PURE__ */ _bind(FW, 'DisposeDataBrowserReceiveDragUPP')
-export const DisposeDataBrowserSelectContextualMenuUPP = /* @__PURE__ */ _bind(FW, 'DisposeDataBrowserSelectContextualMenuUPP')
-export const DisposeDataBrowserTrackingUPP = /* @__PURE__ */ _bind(FW, 'DisposeDataBrowserTrackingUPP')
+export const DisposeDataBrowserPostProcessDragUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeDataBrowserPostProcessDragUPP',
+)
+
+export const DisposeDataBrowserReceiveDragUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeDataBrowserReceiveDragUPP',
+)
+
+export const DisposeDataBrowserSelectContextualMenuUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeDataBrowserSelectContextualMenuUPP',
+)
+
+export const DisposeDataBrowserTrackingUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeDataBrowserTrackingUPP',
+)
+
 export const DisposeDragDrawingUPP = /* @__PURE__ */ _bind(FW, 'DisposeDragDrawingUPP')
 export const DisposeDragInputUPP = /* @__PURE__ */ _bind(FW, 'DisposeDragInputUPP')
-export const DisposeDragReceiveHandlerUPP = /* @__PURE__ */ _bind(FW, 'DisposeDragReceiveHandlerUPP')
+export const DisposeDragReceiveHandlerUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeDragReceiveHandlerUPP',
+)
+
 export const DisposeDragSendDataUPP = /* @__PURE__ */ _bind(FW, 'DisposeDragSendDataUPP')
-export const DisposeDragTrackingHandlerUPP = /* @__PURE__ */ _bind(FW, 'DisposeDragTrackingHandlerUPP')
+export const DisposeDragTrackingHandlerUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeDragTrackingHandlerUPP',
+)
+
 export const DisposeDrawHookUPP = /* @__PURE__ */ _bind(FW, 'DisposeDrawHookUPP')
 export const DisposeEOLHookUPP = /* @__PURE__ */ _bind(FW, 'DisposeEOLHookUPP')
-export const DisposeEditUnicodePostUpdateUPP = /* @__PURE__ */ _bind(FW, 'DisposeEditUnicodePostUpdateUPP')
+export const DisposeEditUnicodePostUpdateUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeEditUnicodePostUpdateUPP',
+)
+
 export const DisposeEventComparatorUPP = /* @__PURE__ */ _bind(FW, 'DisposeEventComparatorUPP')
 export const DisposeEventHandlerUPP = /* @__PURE__ */ _bind(FW, 'DisposeEventHandlerUPP')
-export const DisposeEventLoopIdleTimerUPP = /* @__PURE__ */ _bind(FW, 'DisposeEventLoopIdleTimerUPP')
+export const DisposeEventLoopIdleTimerUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeEventLoopIdleTimerUPP',
+)
+
 export const DisposeEventLoopTimerUPP = /* @__PURE__ */ _bind(FW, 'DisposeEventLoopTimerUPP')
 export const DisposeGetScrapDataUPP = /* @__PURE__ */ _bind(FW, 'DisposeGetScrapDataUPP')
 export const DisposeHMControlContentUPP = /* @__PURE__ */ _bind(FW, 'DisposeHMControlContentUPP')
 export const DisposeHMMenuItemContentUPP = /* @__PURE__ */ _bind(FW, 'DisposeHMMenuItemContentUPP')
-export const DisposeHMMenuTitleContentUPP = /* @__PURE__ */ _bind(FW, 'DisposeHMMenuTitleContentUPP')
+export const DisposeHMMenuTitleContentUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeHMMenuTitleContentUPP',
+)
+
 export const DisposeHMWindowContentUPP = /* @__PURE__ */ _bind(FW, 'DisposeHMWindowContentUPP')
 export const DisposeHighHookUPP = /* @__PURE__ */ _bind(FW, 'DisposeHighHookUPP')
 export const DisposeHitTestHookUPP = /* @__PURE__ */ _bind(FW, 'DisposeHitTestHookUPP')
@@ -133,16 +293,32 @@ export const DisposeNColorChangedUPP = /* @__PURE__ */ _bind(FW, 'DisposeNColorC
 export const DisposeNMUPP = /* @__PURE__ */ _bind(FW, 'DisposeNMUPP')
 export const DisposeNWidthHookUPP = /* @__PURE__ */ _bind(FW, 'DisposeNWidthHookUPP')
 export const DisposeSRCallBackUPP = /* @__PURE__ */ _bind(FW, 'DisposeSRCallBackUPP')
-export const DisposeScrapPromiseKeeperUPP = /* @__PURE__ */ _bind(FW, 'DisposeScrapPromiseKeeperUPP')
+export const DisposeScrapPromiseKeeperUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeScrapPromiseKeeperUPP',
+)
+
 export const DisposeTEClickLoopUPP = /* @__PURE__ */ _bind(FW, 'DisposeTEClickLoopUPP')
 export const DisposeTEDoTextUPP = /* @__PURE__ */ _bind(FW, 'DisposeTEDoTextUPP')
 export const DisposeTEFindWordUPP = /* @__PURE__ */ _bind(FW, 'DisposeTEFindWordUPP')
 export const DisposeTERecalcUPP = /* @__PURE__ */ _bind(FW, 'DisposeTERecalcUPP')
 export const DisposeTSMTEPostUpdateUPP = /* @__PURE__ */ _bind(FW, 'DisposeTSMTEPostUpdateUPP')
 export const DisposeTSMTEPreUpdateUPP = /* @__PURE__ */ _bind(FW, 'DisposeTSMTEPreUpdateUPP')
-export const DisposeTXNActionKeyMapperUPP = /* @__PURE__ */ _bind(FW, 'DisposeTXNActionKeyMapperUPP')
-export const DisposeTXNActionNameMapperUPP = /* @__PURE__ */ _bind(FW, 'DisposeTXNActionNameMapperUPP')
-export const DisposeTXNContextualMenuSetupUPP = /* @__PURE__ */ _bind(FW, 'DisposeTXNContextualMenuSetupUPP')
+export const DisposeTXNActionKeyMapperUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeTXNActionKeyMapperUPP',
+)
+
+export const DisposeTXNActionNameMapperUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeTXNActionNameMapperUPP',
+)
+
+export const DisposeTXNContextualMenuSetupUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeTXNContextualMenuSetupUPP',
+)
+
 export const DisposeTXNFindUPP = /* @__PURE__ */ _bind(FW, 'DisposeTXNFindUPP')
 export const DisposeTXNScrollInfoUPP = /* @__PURE__ */ _bind(FW, 'DisposeTXNScrollInfoUPP')
 export const DisposeTextWidthHookUPP = /* @__PURE__ */ _bind(FW, 'DisposeTextWidthHookUPP')
@@ -155,7 +331,11 @@ export const DisposeURLSystemEventUPP = /* @__PURE__ */ _bind(FW, 'DisposeURLSys
 export const DisposeUserItemUPP = /* @__PURE__ */ _bind(FW, 'DisposeUserItemUPP')
 export const DisposeWidthHookUPP = /* @__PURE__ */ _bind(FW, 'DisposeWidthHookUPP')
 export const DisposeWindowPaintUPP = /* @__PURE__ */ _bind(FW, 'DisposeWindowPaintUPP')
-export const DisposeWindowTitleDrawingUPP = /* @__PURE__ */ _bind(FW, 'DisposeWindowTitleDrawingUPP')
+export const DisposeWindowTitleDrawingUPP = /* @__PURE__ */ _bind(
+	FW,
+	'DisposeWindowTitleDrawingUPP',
+)
+
 export const EOLHook = /* @__PURE__ */ _bind(FW, 'EOLHook')
 export const EnableSecureEventInput = /* @__PURE__ */ _bind(FW, 'EnableSecureEventInput')
 export const EvQEl = /* @__PURE__ */ _bind(FW, 'EvQEl')
@@ -163,13 +343,33 @@ export const EventHotKeyID = /* @__PURE__ */ _bind(FW, 'EventHotKeyID')
 export const EventRecord = /* @__PURE__ */ _bind(FW, 'EventRecord')
 export const EventTypeSpec = /* @__PURE__ */ _bind(FW, 'EventTypeSpec')
 export const FCAddCollection = /* @__PURE__ */ _bind(FW, 'FCAddCollection')
-export const FCAddFontDescriptorToCollection = /* @__PURE__ */ _bind(FW, 'FCAddFontDescriptorToCollection')
+export const FCAddFontDescriptorToCollection = /* @__PURE__ */ _bind(
+	FW,
+	'FCAddFontDescriptorToCollection',
+)
+
 export const FCCopyCollectionNames = /* @__PURE__ */ _bind(FW, 'FCCopyCollectionNames')
-export const FCCopyFontDescriptorsInCollection = /* @__PURE__ */ _bind(FW, 'FCCopyFontDescriptorsInCollection')
-export const FCFontDescriptorCreateWithFontAttributes = /* @__PURE__ */ _bind(FW, 'FCFontDescriptorCreateWithFontAttributes')
-export const FCFontDescriptorCreateWithName = /* @__PURE__ */ _bind(FW, 'FCFontDescriptorCreateWithName')
+export const FCCopyFontDescriptorsInCollection = /* @__PURE__ */ _bind(
+	FW,
+	'FCCopyFontDescriptorsInCollection',
+)
+
+export const FCFontDescriptorCreateWithFontAttributes = /* @__PURE__ */ _bind(
+	FW,
+	'FCFontDescriptorCreateWithFontAttributes',
+)
+
+export const FCFontDescriptorCreateWithName = /* @__PURE__ */ _bind(
+	FW,
+	'FCFontDescriptorCreateWithName',
+)
+
 export const FCRemoveCollection = /* @__PURE__ */ _bind(FW, 'FCRemoveCollection')
-export const FCRemoveFontDescriptorFromCollection = /* @__PURE__ */ _bind(FW, 'FCRemoveFontDescriptorFromCollection')
+export const FCRemoveFontDescriptorFromCollection = /* @__PURE__ */ _bind(
+	FW,
+	'FCRemoveFontDescriptorFromCollection',
+)
+
 export const FPIsFontPanelVisible = /* @__PURE__ */ _bind(FW, 'FPIsFontPanelVisible')
 export const FPShowHideFontPanel = /* @__PURE__ */ _bind(FW, 'FPShowHideFontPanel')
 export const FileTranslationList = /* @__PURE__ */ _bind(FW, 'FileTranslationList')
@@ -178,8 +378,16 @@ export const FileTypeSpec = /* @__PURE__ */ _bind(FW, 'FileTypeSpec')
 export const FindSpecificEventInQueue = /* @__PURE__ */ _bind(FW, 'FindSpecificEventInQueue')
 export const FlushEventQueue = /* @__PURE__ */ _bind(FW, 'FlushEventQueue')
 export const FlushEvents = /* @__PURE__ */ _bind(FW, 'FlushEvents')
-export const FlushEventsMatchingListFromQueue = /* @__PURE__ */ _bind(FW, 'FlushEventsMatchingListFromQueue')
-export const FlushSpecificEventsFromQueue = /* @__PURE__ */ _bind(FW, 'FlushSpecificEventsFromQueue')
+export const FlushEventsMatchingListFromQueue = /* @__PURE__ */ _bind(
+	FW,
+	'FlushEventsMatchingListFromQueue',
+)
+
+export const FlushSpecificEventsFromQueue = /* @__PURE__ */ _bind(
+	FW,
+	'FlushSpecificEventsFromQueue',
+)
+
 export const FontSelectionQDStyle = /* @__PURE__ */ _bind(FW, 'FontSelectionQDStyle')
 export const GetApplicationEventTarget = /* @__PURE__ */ _bind(FW, 'GetApplicationEventTarget')
 export const GetApplicationTextEncoding = /* @__PURE__ */ _bind(FW, 'GetApplicationTextEncoding')
@@ -223,7 +431,11 @@ export const HIContentBorderMetrics = /* @__PURE__ */ _bind(FW, 'HIContentBorder
 export const HIDictionaryWindowShow = /* @__PURE__ */ _bind(FW, 'HIDictionaryWindowShow')
 export const HIGetMousePosition = /* @__PURE__ */ _bind(FW, 'HIGetMousePosition')
 export const HILayoutInfo = /* @__PURE__ */ _bind(FW, 'HILayoutInfo')
-export const HIMouseTrackingGetParameters = /* @__PURE__ */ _bind(FW, 'HIMouseTrackingGetParameters')
+export const HIMouseTrackingGetParameters = /* @__PURE__ */ _bind(
+	FW,
+	'HIMouseTrackingGetParameters',
+)
+
 export const HIObjectAddDelegate = /* @__PURE__ */ _bind(FW, 'HIObjectAddDelegate')
 export const HIObjectCopyClassID = /* @__PURE__ */ _bind(FW, 'HIObjectCopyClassID')
 export const HIObjectCopyDelegates = /* @__PURE__ */ _bind(FW, 'HIObjectCopyDelegates')
@@ -231,7 +443,11 @@ export const HIObjectCreate = /* @__PURE__ */ _bind(FW, 'HIObjectCreate')
 export const HIObjectCreateFromBundle = /* @__PURE__ */ _bind(FW, 'HIObjectCreateFromBundle')
 export const HIObjectDynamicCast = /* @__PURE__ */ _bind(FW, 'HIObjectDynamicCast')
 export const HIObjectFromEventTarget = /* @__PURE__ */ _bind(FW, 'HIObjectFromEventTarget')
-export const HIObjectGetEventHandlerObject = /* @__PURE__ */ _bind(FW, 'HIObjectGetEventHandlerObject')
+export const HIObjectGetEventHandlerObject = /* @__PURE__ */ _bind(
+	FW,
+	'HIObjectGetEventHandlerObject',
+)
+
 export const HIObjectGetEventTarget = /* @__PURE__ */ _bind(FW, 'HIObjectGetEventTarget')
 export const HIObjectIsArchivingIgnored = /* @__PURE__ */ _bind(FW, 'HIObjectIsArchivingIgnored')
 export const HIObjectIsOfClass = /* @__PURE__ */ _bind(FW, 'HIObjectIsOfClass')
@@ -255,7 +471,11 @@ export const HIThemeBackgroundDrawInfo = /* @__PURE__ */ _bind(FW, 'HIThemeBackg
 export const HIThemeBeginFocus = /* @__PURE__ */ _bind(FW, 'HIThemeBeginFocus')
 export const HIThemeBrushCreateCGColor = /* @__PURE__ */ _bind(FW, 'HIThemeBrushCreateCGColor')
 export const HIThemeButtonDrawInfo = /* @__PURE__ */ _bind(FW, 'HIThemeButtonDrawInfo')
-export const HIThemeChasingArrowsDrawInfo = /* @__PURE__ */ _bind(FW, 'HIThemeChasingArrowsDrawInfo')
+export const HIThemeChasingArrowsDrawInfo = /* @__PURE__ */ _bind(
+	FW,
+	'HIThemeChasingArrowsDrawInfo',
+)
+
 export const HIThemeDrawBackground = /* @__PURE__ */ _bind(FW, 'HIThemeDrawBackground')
 export const HIThemeDrawButton = /* @__PURE__ */ _bind(FW, 'HIThemeDrawButton')
 export const HIThemeDrawChasingArrows = /* @__PURE__ */ _bind(FW, 'HIThemeDrawChasingArrows')
@@ -267,14 +487,22 @@ export const HIThemeDrawGroupBox = /* @__PURE__ */ _bind(FW, 'HIThemeDrawGroupBo
 export const HIThemeDrawGrowBox = /* @__PURE__ */ _bind(FW, 'HIThemeDrawGrowBox')
 export const HIThemeDrawHeader = /* @__PURE__ */ _bind(FW, 'HIThemeDrawHeader')
 export const HIThemeDrawMenuBackground = /* @__PURE__ */ _bind(FW, 'HIThemeDrawMenuBackground')
-export const HIThemeDrawMenuBarBackground = /* @__PURE__ */ _bind(FW, 'HIThemeDrawMenuBarBackground')
+export const HIThemeDrawMenuBarBackground = /* @__PURE__ */ _bind(
+	FW,
+	'HIThemeDrawMenuBarBackground',
+)
+
 export const HIThemeDrawMenuItem = /* @__PURE__ */ _bind(FW, 'HIThemeDrawMenuItem')
 export const HIThemeDrawMenuSeparator = /* @__PURE__ */ _bind(FW, 'HIThemeDrawMenuSeparator')
 export const HIThemeDrawMenuTitle = /* @__PURE__ */ _bind(FW, 'HIThemeDrawMenuTitle')
 export const HIThemeDrawPaneSplitter = /* @__PURE__ */ _bind(FW, 'HIThemeDrawPaneSplitter')
 export const HIThemeDrawPlacard = /* @__PURE__ */ _bind(FW, 'HIThemeDrawPlacard')
 export const HIThemeDrawPopupArrow = /* @__PURE__ */ _bind(FW, 'HIThemeDrawPopupArrow')
-export const HIThemeDrawScrollBarDelimiters = /* @__PURE__ */ _bind(FW, 'HIThemeDrawScrollBarDelimiters')
+export const HIThemeDrawScrollBarDelimiters = /* @__PURE__ */ _bind(
+	FW,
+	'HIThemeDrawScrollBarDelimiters',
+)
+
 export const HIThemeDrawSegment = /* @__PURE__ */ _bind(FW, 'HIThemeDrawSegment')
 export const HIThemeDrawSeparator = /* @__PURE__ */ _bind(FW, 'HIThemeDrawSeparator')
 export const HIThemeDrawTab = /* @__PURE__ */ _bind(FW, 'HIThemeDrawTab')
@@ -287,25 +515,57 @@ export const HIThemeDrawTrackTickMarks = /* @__PURE__ */ _bind(FW, 'HIThemeDrawT
 export const HIThemeDrawWindowFrame = /* @__PURE__ */ _bind(FW, 'HIThemeDrawWindowFrame')
 export const HIThemeEndFocus = /* @__PURE__ */ _bind(FW, 'HIThemeEndFocus')
 export const HIThemeFrameDrawInfo = /* @__PURE__ */ _bind(FW, 'HIThemeFrameDrawInfo')
-export const HIThemeGetButtonBackgroundBounds = /* @__PURE__ */ _bind(FW, 'HIThemeGetButtonBackgroundBounds')
-export const HIThemeGetButtonContentBounds = /* @__PURE__ */ _bind(FW, 'HIThemeGetButtonContentBounds')
+export const HIThemeGetButtonBackgroundBounds = /* @__PURE__ */ _bind(
+	FW,
+	'HIThemeGetButtonBackgroundBounds',
+)
+
+export const HIThemeGetButtonContentBounds = /* @__PURE__ */ _bind(
+	FW,
+	'HIThemeGetButtonContentBounds',
+)
+
 export const HIThemeGetButtonShape = /* @__PURE__ */ _bind(FW, 'HIThemeGetButtonShape')
 export const HIThemeGetGrowBoxBounds = /* @__PURE__ */ _bind(FW, 'HIThemeGetGrowBoxBounds')
-export const HIThemeGetMenuBackgroundShape = /* @__PURE__ */ _bind(FW, 'HIThemeGetMenuBackgroundShape')
-export const HIThemeGetScrollBarTrackRect = /* @__PURE__ */ _bind(FW, 'HIThemeGetScrollBarTrackRect')
+export const HIThemeGetMenuBackgroundShape = /* @__PURE__ */ _bind(
+	FW,
+	'HIThemeGetMenuBackgroundShape',
+)
+
+export const HIThemeGetScrollBarTrackRect = /* @__PURE__ */ _bind(
+	FW,
+	'HIThemeGetScrollBarTrackRect',
+)
+
 export const HIThemeGetTabDrawShape = /* @__PURE__ */ _bind(FW, 'HIThemeGetTabDrawShape')
-export const HIThemeGetTabPaneContentShape = /* @__PURE__ */ _bind(FW, 'HIThemeGetTabPaneContentShape')
+export const HIThemeGetTabPaneContentShape = /* @__PURE__ */ _bind(
+	FW,
+	'HIThemeGetTabPaneContentShape',
+)
+
 export const HIThemeGetTabPaneDrawShape = /* @__PURE__ */ _bind(FW, 'HIThemeGetTabPaneDrawShape')
 export const HIThemeGetTabShape = /* @__PURE__ */ _bind(FW, 'HIThemeGetTabShape')
-export const HIThemeGetTextColorForThemeBrush = /* @__PURE__ */ _bind(FW, 'HIThemeGetTextColorForThemeBrush')
+export const HIThemeGetTextColorForThemeBrush = /* @__PURE__ */ _bind(
+	FW,
+	'HIThemeGetTextColorForThemeBrush',
+)
+
 export const HIThemeGetTextDimensions = /* @__PURE__ */ _bind(FW, 'HIThemeGetTextDimensions')
 export const HIThemeGetTrackBounds = /* @__PURE__ */ _bind(FW, 'HIThemeGetTrackBounds')
 export const HIThemeGetTrackDragRect = /* @__PURE__ */ _bind(FW, 'HIThemeGetTrackDragRect')
 export const HIThemeGetTrackLiveValue = /* @__PURE__ */ _bind(FW, 'HIThemeGetTrackLiveValue')
 export const HIThemeGetTrackPartBounds = /* @__PURE__ */ _bind(FW, 'HIThemeGetTrackPartBounds')
 export const HIThemeGetTrackParts = /* @__PURE__ */ _bind(FW, 'HIThemeGetTrackParts')
-export const HIThemeGetTrackThumbPositionFromBounds = /* @__PURE__ */ _bind(FW, 'HIThemeGetTrackThumbPositionFromBounds')
-export const HIThemeGetTrackThumbPositionFromOffset = /* @__PURE__ */ _bind(FW, 'HIThemeGetTrackThumbPositionFromOffset')
+export const HIThemeGetTrackThumbPositionFromBounds = /* @__PURE__ */ _bind(
+	FW,
+	'HIThemeGetTrackThumbPositionFromBounds',
+)
+
+export const HIThemeGetTrackThumbPositionFromOffset = /* @__PURE__ */ _bind(
+	FW,
+	'HIThemeGetTrackThumbPositionFromOffset',
+)
+
 export const HIThemeGetTrackThumbShape = /* @__PURE__ */ _bind(FW, 'HIThemeGetTrackThumbShape')
 export const HIThemeGetUIFontType = /* @__PURE__ */ _bind(FW, 'HIThemeGetUIFontType')
 export const HIThemeGetWindowRegionHit = /* @__PURE__ */ _bind(FW, 'HIThemeGetWindowRegionHit')
@@ -314,16 +574,28 @@ export const HIThemeGrabberDrawInfo = /* @__PURE__ */ _bind(FW, 'HIThemeGrabberD
 export const HIThemeGroupBoxDrawInfo = /* @__PURE__ */ _bind(FW, 'HIThemeGroupBoxDrawInfo')
 export const HIThemeGrowBoxDrawInfo = /* @__PURE__ */ _bind(FW, 'HIThemeGrowBoxDrawInfo')
 export const HIThemeHeaderDrawInfo = /* @__PURE__ */ _bind(FW, 'HIThemeHeaderDrawInfo')
-export const HIThemeHitTestScrollBarArrows = /* @__PURE__ */ _bind(FW, 'HIThemeHitTestScrollBarArrows')
+export const HIThemeHitTestScrollBarArrows = /* @__PURE__ */ _bind(
+	FW,
+	'HIThemeHitTestScrollBarArrows',
+)
+
 export const HIThemeHitTestTrack = /* @__PURE__ */ _bind(FW, 'HIThemeHitTestTrack')
 export const HIThemeMenuBarDrawInfo = /* @__PURE__ */ _bind(FW, 'HIThemeMenuBarDrawInfo')
 export const HIThemeMenuDrawInfo = /* @__PURE__ */ _bind(FW, 'HIThemeMenuDrawInfo')
-export const HIThemeMenuDrawInfoVersionZero = /* @__PURE__ */ _bind(FW, 'HIThemeMenuDrawInfoVersionZero')
+export const HIThemeMenuDrawInfoVersionZero = /* @__PURE__ */ _bind(
+	FW,
+	'HIThemeMenuDrawInfoVersionZero',
+)
+
 export const HIThemeMenuItemDrawInfo = /* @__PURE__ */ _bind(FW, 'HIThemeMenuItemDrawInfo')
 export const HIThemeMenuTitleDrawInfo = /* @__PURE__ */ _bind(FW, 'HIThemeMenuTitleDrawInfo')
 export const HIThemePlacardDrawInfo = /* @__PURE__ */ _bind(FW, 'HIThemePlacardDrawInfo')
 export const HIThemePopupArrowDrawInfo = /* @__PURE__ */ _bind(FW, 'HIThemePopupArrowDrawInfo')
-export const HIThemeScrollBarDelimitersDrawInfo = /* @__PURE__ */ _bind(FW, 'HIThemeScrollBarDelimitersDrawInfo')
+export const HIThemeScrollBarDelimitersDrawInfo = /* @__PURE__ */ _bind(
+	FW,
+	'HIThemeScrollBarDelimitersDrawInfo',
+)
+
 export const HIThemeSegmentDrawInfo = /* @__PURE__ */ _bind(FW, 'HIThemeSegmentDrawInfo')
 export const HIThemeSeparatorDrawInfo = /* @__PURE__ */ _bind(FW, 'HIThemeSeparatorDrawInfo')
 export const HIThemeSetFill = /* @__PURE__ */ _bind(FW, 'HIThemeSetFill')
@@ -331,9 +603,17 @@ export const HIThemeSetStroke = /* @__PURE__ */ _bind(FW, 'HIThemeSetStroke')
 export const HIThemeSetTextFill = /* @__PURE__ */ _bind(FW, 'HIThemeSetTextFill')
 export const HIThemeSplitterDrawInfo = /* @__PURE__ */ _bind(FW, 'HIThemeSplitterDrawInfo')
 export const HIThemeTabDrawInfo = /* @__PURE__ */ _bind(FW, 'HIThemeTabDrawInfo')
-export const HIThemeTabDrawInfoVersionZero = /* @__PURE__ */ _bind(FW, 'HIThemeTabDrawInfoVersionZero')
+export const HIThemeTabDrawInfoVersionZero = /* @__PURE__ */ _bind(
+	FW,
+	'HIThemeTabDrawInfoVersionZero',
+)
+
 export const HIThemeTabPaneDrawInfo = /* @__PURE__ */ _bind(FW, 'HIThemeTabPaneDrawInfo')
-export const HIThemeTabPaneDrawInfoVersionZero = /* @__PURE__ */ _bind(FW, 'HIThemeTabPaneDrawInfoVersionZero')
+export const HIThemeTabPaneDrawInfoVersionZero = /* @__PURE__ */ _bind(
+	FW,
+	'HIThemeTabPaneDrawInfoVersionZero',
+)
+
 export const HIThemeTextInfo = /* @__PURE__ */ _bind(FW, 'HIThemeTextInfo')
 export const HIThemeTickMarkDrawInfo = /* @__PURE__ */ _bind(FW, 'HIThemeTickMarkDrawInfo')
 export const HIThemeTrackDrawInfo = /* @__PURE__ */ _bind(FW, 'HIThemeTrackDrawInfo')
@@ -361,42 +641,150 @@ export const InvokeCalibrateUPP = /* @__PURE__ */ _bind(FW, 'InvokeCalibrateUPP'
 export const InvokeCanCalibrateUPP = /* @__PURE__ */ _bind(FW, 'InvokeCanCalibrateUPP')
 export const InvokeCaretHookUPP = /* @__PURE__ */ _bind(FW, 'InvokeCaretHookUPP')
 export const InvokeControlActionUPP = /* @__PURE__ */ _bind(FW, 'InvokeControlActionUPP')
-export const InvokeControlEditTextValidationUPP = /* @__PURE__ */ _bind(FW, 'InvokeControlEditTextValidationUPP')
+export const InvokeControlEditTextValidationUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeControlEditTextValidationUPP',
+)
+
 export const InvokeControlKeyFilterUPP = /* @__PURE__ */ _bind(FW, 'InvokeControlKeyFilterUPP')
-export const InvokeControlUserPaneActivateUPP = /* @__PURE__ */ _bind(FW, 'InvokeControlUserPaneActivateUPP')
-export const InvokeControlUserPaneDrawUPP = /* @__PURE__ */ _bind(FW, 'InvokeControlUserPaneDrawUPP')
-export const InvokeControlUserPaneFocusUPP = /* @__PURE__ */ _bind(FW, 'InvokeControlUserPaneFocusUPP')
-export const InvokeControlUserPaneHitTestUPP = /* @__PURE__ */ _bind(FW, 'InvokeControlUserPaneHitTestUPP')
-export const InvokeControlUserPaneIdleUPP = /* @__PURE__ */ _bind(FW, 'InvokeControlUserPaneIdleUPP')
-export const InvokeControlUserPaneKeyDownUPP = /* @__PURE__ */ _bind(FW, 'InvokeControlUserPaneKeyDownUPP')
-export const InvokeControlUserPaneTrackingUPP = /* @__PURE__ */ _bind(FW, 'InvokeControlUserPaneTrackingUPP')
-export const InvokeDataBrowserAcceptDragUPP = /* @__PURE__ */ _bind(FW, 'InvokeDataBrowserAcceptDragUPP')
-export const InvokeDataBrowserAddDragItemUPP = /* @__PURE__ */ _bind(FW, 'InvokeDataBrowserAddDragItemUPP')
-export const InvokeDataBrowserDrawItemUPP = /* @__PURE__ */ _bind(FW, 'InvokeDataBrowserDrawItemUPP')
-export const InvokeDataBrowserEditItemUPP = /* @__PURE__ */ _bind(FW, 'InvokeDataBrowserEditItemUPP')
-export const InvokeDataBrowserGetContextualMenuUPP = /* @__PURE__ */ _bind(FW, 'InvokeDataBrowserGetContextualMenuUPP')
+export const InvokeControlUserPaneActivateUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeControlUserPaneActivateUPP',
+)
+
+export const InvokeControlUserPaneDrawUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeControlUserPaneDrawUPP',
+)
+
+export const InvokeControlUserPaneFocusUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeControlUserPaneFocusUPP',
+)
+
+export const InvokeControlUserPaneHitTestUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeControlUserPaneHitTestUPP',
+)
+
+export const InvokeControlUserPaneIdleUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeControlUserPaneIdleUPP',
+)
+
+export const InvokeControlUserPaneKeyDownUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeControlUserPaneKeyDownUPP',
+)
+
+export const InvokeControlUserPaneTrackingUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeControlUserPaneTrackingUPP',
+)
+
+export const InvokeDataBrowserAcceptDragUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeDataBrowserAcceptDragUPP',
+)
+
+export const InvokeDataBrowserAddDragItemUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeDataBrowserAddDragItemUPP',
+)
+
+export const InvokeDataBrowserDrawItemUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeDataBrowserDrawItemUPP',
+)
+
+export const InvokeDataBrowserEditItemUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeDataBrowserEditItemUPP',
+)
+
+export const InvokeDataBrowserGetContextualMenuUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeDataBrowserGetContextualMenuUPP',
+)
+
 export const InvokeDataBrowserHitTestUPP = /* @__PURE__ */ _bind(FW, 'InvokeDataBrowserHitTestUPP')
-export const InvokeDataBrowserItemAcceptDragUPP = /* @__PURE__ */ _bind(FW, 'InvokeDataBrowserItemAcceptDragUPP')
-export const InvokeDataBrowserItemCompareUPP = /* @__PURE__ */ _bind(FW, 'InvokeDataBrowserItemCompareUPP')
-export const InvokeDataBrowserItemDataUPP = /* @__PURE__ */ _bind(FW, 'InvokeDataBrowserItemDataUPP')
-export const InvokeDataBrowserItemDragRgnUPP = /* @__PURE__ */ _bind(FW, 'InvokeDataBrowserItemDragRgnUPP')
-export const InvokeDataBrowserItemHelpContentUPP = /* @__PURE__ */ _bind(FW, 'InvokeDataBrowserItemHelpContentUPP')
-export const InvokeDataBrowserItemNotificationUPP = /* @__PURE__ */ _bind(FW, 'InvokeDataBrowserItemNotificationUPP')
-export const InvokeDataBrowserItemNotificationWithItemUPP = /* @__PURE__ */ _bind(FW, 'InvokeDataBrowserItemNotificationWithItemUPP')
-export const InvokeDataBrowserItemReceiveDragUPP = /* @__PURE__ */ _bind(FW, 'InvokeDataBrowserItemReceiveDragUPP')
+export const InvokeDataBrowserItemAcceptDragUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeDataBrowserItemAcceptDragUPP',
+)
+
+export const InvokeDataBrowserItemCompareUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeDataBrowserItemCompareUPP',
+)
+
+export const InvokeDataBrowserItemDataUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeDataBrowserItemDataUPP',
+)
+
+export const InvokeDataBrowserItemDragRgnUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeDataBrowserItemDragRgnUPP',
+)
+
+export const InvokeDataBrowserItemHelpContentUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeDataBrowserItemHelpContentUPP',
+)
+
+export const InvokeDataBrowserItemNotificationUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeDataBrowserItemNotificationUPP',
+)
+
+export const InvokeDataBrowserItemNotificationWithItemUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeDataBrowserItemNotificationWithItemUPP',
+)
+
+export const InvokeDataBrowserItemReceiveDragUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeDataBrowserItemReceiveDragUPP',
+)
+
 export const InvokeDataBrowserItemUPP = /* @__PURE__ */ _bind(FW, 'InvokeDataBrowserItemUPP')
-export const InvokeDataBrowserPostProcessDragUPP = /* @__PURE__ */ _bind(FW, 'InvokeDataBrowserPostProcessDragUPP')
-export const InvokeDataBrowserReceiveDragUPP = /* @__PURE__ */ _bind(FW, 'InvokeDataBrowserReceiveDragUPP')
-export const InvokeDataBrowserSelectContextualMenuUPP = /* @__PURE__ */ _bind(FW, 'InvokeDataBrowserSelectContextualMenuUPP')
-export const InvokeDataBrowserTrackingUPP = /* @__PURE__ */ _bind(FW, 'InvokeDataBrowserTrackingUPP')
+export const InvokeDataBrowserPostProcessDragUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeDataBrowserPostProcessDragUPP',
+)
+
+export const InvokeDataBrowserReceiveDragUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeDataBrowserReceiveDragUPP',
+)
+
+export const InvokeDataBrowserSelectContextualMenuUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeDataBrowserSelectContextualMenuUPP',
+)
+
+export const InvokeDataBrowserTrackingUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeDataBrowserTrackingUPP',
+)
+
 export const InvokeDragDrawingUPP = /* @__PURE__ */ _bind(FW, 'InvokeDragDrawingUPP')
 export const InvokeDragInputUPP = /* @__PURE__ */ _bind(FW, 'InvokeDragInputUPP')
 export const InvokeDragReceiveHandlerUPP = /* @__PURE__ */ _bind(FW, 'InvokeDragReceiveHandlerUPP')
 export const InvokeDragSendDataUPP = /* @__PURE__ */ _bind(FW, 'InvokeDragSendDataUPP')
-export const InvokeDragTrackingHandlerUPP = /* @__PURE__ */ _bind(FW, 'InvokeDragTrackingHandlerUPP')
+export const InvokeDragTrackingHandlerUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeDragTrackingHandlerUPP',
+)
+
 export const InvokeDrawHookUPP = /* @__PURE__ */ _bind(FW, 'InvokeDrawHookUPP')
 export const InvokeEOLHookUPP = /* @__PURE__ */ _bind(FW, 'InvokeEOLHookUPP')
-export const InvokeEditUnicodePostUpdateUPP = /* @__PURE__ */ _bind(FW, 'InvokeEditUnicodePostUpdateUPP')
+export const InvokeEditUnicodePostUpdateUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeEditUnicodePostUpdateUPP',
+)
+
 export const InvokeEventComparatorUPP = /* @__PURE__ */ _bind(FW, 'InvokeEventComparatorUPP')
 export const InvokeEventHandlerUPP = /* @__PURE__ */ _bind(FW, 'InvokeEventHandlerUPP')
 export const InvokeEventLoopIdleTimerUPP = /* @__PURE__ */ _bind(FW, 'InvokeEventLoopIdleTimerUPP')
@@ -427,8 +815,16 @@ export const InvokeTERecalcUPP = /* @__PURE__ */ _bind(FW, 'InvokeTERecalcUPP')
 export const InvokeTSMTEPostUpdateUPP = /* @__PURE__ */ _bind(FW, 'InvokeTSMTEPostUpdateUPP')
 export const InvokeTSMTEPreUpdateUPP = /* @__PURE__ */ _bind(FW, 'InvokeTSMTEPreUpdateUPP')
 export const InvokeTXNActionKeyMapperUPP = /* @__PURE__ */ _bind(FW, 'InvokeTXNActionKeyMapperUPP')
-export const InvokeTXNActionNameMapperUPP = /* @__PURE__ */ _bind(FW, 'InvokeTXNActionNameMapperUPP')
-export const InvokeTXNContextualMenuSetupUPP = /* @__PURE__ */ _bind(FW, 'InvokeTXNContextualMenuSetupUPP')
+export const InvokeTXNActionNameMapperUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeTXNActionNameMapperUPP',
+)
+
+export const InvokeTXNContextualMenuSetupUPP = /* @__PURE__ */ _bind(
+	FW,
+	'InvokeTXNContextualMenuSetupUPP',
+)
+
 export const InvokeTXNFindUPP = /* @__PURE__ */ _bind(FW, 'InvokeTXNFindUPP')
 export const InvokeTXNScrollInfoUPP = /* @__PURE__ */ _bind(FW, 'InvokeTXNScrollInfoUPP')
 export const InvokeTextWidthHookUPP = /* @__PURE__ */ _bind(FW, 'InvokeTextWidthHookUPP')
@@ -450,7 +846,11 @@ export const KBGetLayoutType = /* @__PURE__ */ _bind(FW, 'KBGetLayoutType')
 export const KCAddAppleSharePassword = /* @__PURE__ */ _bind(FW, 'KCAddAppleSharePassword')
 export const KCAddGenericPassword = /* @__PURE__ */ _bind(FW, 'KCAddGenericPassword')
 export const KCAddInternetPassword = /* @__PURE__ */ _bind(FW, 'KCAddInternetPassword')
-export const KCAddInternetPasswordWithPath = /* @__PURE__ */ _bind(FW, 'KCAddInternetPasswordWithPath')
+export const KCAddInternetPasswordWithPath = /* @__PURE__ */ _bind(
+	FW,
+	'KCAddInternetPasswordWithPath',
+)
+
 export const KCAddItem = /* @__PURE__ */ _bind(FW, 'KCAddItem')
 export const KCChangeSettings = /* @__PURE__ */ _bind(FW, 'KCChangeSettings')
 export const KCCreateKeychain = /* @__PURE__ */ _bind(FW, 'KCCreateKeychain')
@@ -485,33 +885,101 @@ export const NewCalibrateUPP = /* @__PURE__ */ _bind(FW, 'NewCalibrateUPP')
 export const NewCanCalibrateUPP = /* @__PURE__ */ _bind(FW, 'NewCanCalibrateUPP')
 export const NewCaretHookUPP = /* @__PURE__ */ _bind(FW, 'NewCaretHookUPP')
 export const NewControlActionUPP = /* @__PURE__ */ _bind(FW, 'NewControlActionUPP')
-export const NewControlEditTextValidationUPP = /* @__PURE__ */ _bind(FW, 'NewControlEditTextValidationUPP')
+export const NewControlEditTextValidationUPP = /* @__PURE__ */ _bind(
+	FW,
+	'NewControlEditTextValidationUPP',
+)
+
 export const NewControlKeyFilterUPP = /* @__PURE__ */ _bind(FW, 'NewControlKeyFilterUPP')
-export const NewControlUserPaneActivateUPP = /* @__PURE__ */ _bind(FW, 'NewControlUserPaneActivateUPP')
+export const NewControlUserPaneActivateUPP = /* @__PURE__ */ _bind(
+	FW,
+	'NewControlUserPaneActivateUPP',
+)
+
 export const NewControlUserPaneDrawUPP = /* @__PURE__ */ _bind(FW, 'NewControlUserPaneDrawUPP')
 export const NewControlUserPaneFocusUPP = /* @__PURE__ */ _bind(FW, 'NewControlUserPaneFocusUPP')
-export const NewControlUserPaneHitTestUPP = /* @__PURE__ */ _bind(FW, 'NewControlUserPaneHitTestUPP')
+export const NewControlUserPaneHitTestUPP = /* @__PURE__ */ _bind(
+	FW,
+	'NewControlUserPaneHitTestUPP',
+)
+
 export const NewControlUserPaneIdleUPP = /* @__PURE__ */ _bind(FW, 'NewControlUserPaneIdleUPP')
-export const NewControlUserPaneKeyDownUPP = /* @__PURE__ */ _bind(FW, 'NewControlUserPaneKeyDownUPP')
-export const NewControlUserPaneTrackingUPP = /* @__PURE__ */ _bind(FW, 'NewControlUserPaneTrackingUPP')
+export const NewControlUserPaneKeyDownUPP = /* @__PURE__ */ _bind(
+	FW,
+	'NewControlUserPaneKeyDownUPP',
+)
+
+export const NewControlUserPaneTrackingUPP = /* @__PURE__ */ _bind(
+	FW,
+	'NewControlUserPaneTrackingUPP',
+)
+
 export const NewDataBrowserAcceptDragUPP = /* @__PURE__ */ _bind(FW, 'NewDataBrowserAcceptDragUPP')
-export const NewDataBrowserAddDragItemUPP = /* @__PURE__ */ _bind(FW, 'NewDataBrowserAddDragItemUPP')
+export const NewDataBrowserAddDragItemUPP = /* @__PURE__ */ _bind(
+	FW,
+	'NewDataBrowserAddDragItemUPP',
+)
+
 export const NewDataBrowserDrawItemUPP = /* @__PURE__ */ _bind(FW, 'NewDataBrowserDrawItemUPP')
 export const NewDataBrowserEditItemUPP = /* @__PURE__ */ _bind(FW, 'NewDataBrowserEditItemUPP')
-export const NewDataBrowserGetContextualMenuUPP = /* @__PURE__ */ _bind(FW, 'NewDataBrowserGetContextualMenuUPP')
+export const NewDataBrowserGetContextualMenuUPP = /* @__PURE__ */ _bind(
+	FW,
+	'NewDataBrowserGetContextualMenuUPP',
+)
+
 export const NewDataBrowserHitTestUPP = /* @__PURE__ */ _bind(FW, 'NewDataBrowserHitTestUPP')
-export const NewDataBrowserItemAcceptDragUPP = /* @__PURE__ */ _bind(FW, 'NewDataBrowserItemAcceptDragUPP')
-export const NewDataBrowserItemCompareUPP = /* @__PURE__ */ _bind(FW, 'NewDataBrowserItemCompareUPP')
+export const NewDataBrowserItemAcceptDragUPP = /* @__PURE__ */ _bind(
+	FW,
+	'NewDataBrowserItemAcceptDragUPP',
+)
+
+export const NewDataBrowserItemCompareUPP = /* @__PURE__ */ _bind(
+	FW,
+	'NewDataBrowserItemCompareUPP',
+)
+
 export const NewDataBrowserItemDataUPP = /* @__PURE__ */ _bind(FW, 'NewDataBrowserItemDataUPP')
-export const NewDataBrowserItemDragRgnUPP = /* @__PURE__ */ _bind(FW, 'NewDataBrowserItemDragRgnUPP')
-export const NewDataBrowserItemHelpContentUPP = /* @__PURE__ */ _bind(FW, 'NewDataBrowserItemHelpContentUPP')
-export const NewDataBrowserItemNotificationUPP = /* @__PURE__ */ _bind(FW, 'NewDataBrowserItemNotificationUPP')
-export const NewDataBrowserItemNotificationWithItemUPP = /* @__PURE__ */ _bind(FW, 'NewDataBrowserItemNotificationWithItemUPP')
-export const NewDataBrowserItemReceiveDragUPP = /* @__PURE__ */ _bind(FW, 'NewDataBrowserItemReceiveDragUPP')
+export const NewDataBrowserItemDragRgnUPP = /* @__PURE__ */ _bind(
+	FW,
+	'NewDataBrowserItemDragRgnUPP',
+)
+
+export const NewDataBrowserItemHelpContentUPP = /* @__PURE__ */ _bind(
+	FW,
+	'NewDataBrowserItemHelpContentUPP',
+)
+
+export const NewDataBrowserItemNotificationUPP = /* @__PURE__ */ _bind(
+	FW,
+	'NewDataBrowserItemNotificationUPP',
+)
+
+export const NewDataBrowserItemNotificationWithItemUPP = /* @__PURE__ */ _bind(
+	FW,
+	'NewDataBrowserItemNotificationWithItemUPP',
+)
+
+export const NewDataBrowserItemReceiveDragUPP = /* @__PURE__ */ _bind(
+	FW,
+	'NewDataBrowserItemReceiveDragUPP',
+)
+
 export const NewDataBrowserItemUPP = /* @__PURE__ */ _bind(FW, 'NewDataBrowserItemUPP')
-export const NewDataBrowserPostProcessDragUPP = /* @__PURE__ */ _bind(FW, 'NewDataBrowserPostProcessDragUPP')
-export const NewDataBrowserReceiveDragUPP = /* @__PURE__ */ _bind(FW, 'NewDataBrowserReceiveDragUPP')
-export const NewDataBrowserSelectContextualMenuUPP = /* @__PURE__ */ _bind(FW, 'NewDataBrowserSelectContextualMenuUPP')
+export const NewDataBrowserPostProcessDragUPP = /* @__PURE__ */ _bind(
+	FW,
+	'NewDataBrowserPostProcessDragUPP',
+)
+
+export const NewDataBrowserReceiveDragUPP = /* @__PURE__ */ _bind(
+	FW,
+	'NewDataBrowserReceiveDragUPP',
+)
+
+export const NewDataBrowserSelectContextualMenuUPP = /* @__PURE__ */ _bind(
+	FW,
+	'NewDataBrowserSelectContextualMenuUPP',
+)
+
 export const NewDataBrowserTrackingUPP = /* @__PURE__ */ _bind(FW, 'NewDataBrowserTrackingUPP')
 export const NewDragDrawingUPP = /* @__PURE__ */ _bind(FW, 'NewDragDrawingUPP')
 export const NewDragInputUPP = /* @__PURE__ */ _bind(FW, 'NewDragInputUPP')
@@ -552,7 +1020,11 @@ export const NewTSMTEPostUpdateUPP = /* @__PURE__ */ _bind(FW, 'NewTSMTEPostUpda
 export const NewTSMTEPreUpdateUPP = /* @__PURE__ */ _bind(FW, 'NewTSMTEPreUpdateUPP')
 export const NewTXNActionKeyMapperUPP = /* @__PURE__ */ _bind(FW, 'NewTXNActionKeyMapperUPP')
 export const NewTXNActionNameMapperUPP = /* @__PURE__ */ _bind(FW, 'NewTXNActionNameMapperUPP')
-export const NewTXNContextualMenuSetupUPP = /* @__PURE__ */ _bind(FW, 'NewTXNContextualMenuSetupUPP')
+export const NewTXNContextualMenuSetupUPP = /* @__PURE__ */ _bind(
+	FW,
+	'NewTXNContextualMenuSetupUPP',
+)
+
 export const NewTXNFindUPP = /* @__PURE__ */ _bind(FW, 'NewTXNFindUPP')
 export const NewTXNScrollInfoUPP = /* @__PURE__ */ _bind(FW, 'NewTXNScrollInfoUPP')
 export const NewTextWidthHookUPP = /* @__PURE__ */ _bind(FW, 'NewTextWidthHookUPP')
@@ -578,7 +1050,11 @@ export const OSACopyDisplayString = /* @__PURE__ */ _bind(FW, 'OSACopyDisplayStr
 export const OSACopyID = /* @__PURE__ */ _bind(FW, 'OSACopyID')
 export const OSACopyScript = /* @__PURE__ */ _bind(FW, 'OSACopyScript')
 export const OSACopyScriptingDefinition = /* @__PURE__ */ _bind(FW, 'OSACopyScriptingDefinition')
-export const OSACopyScriptingDefinitionFromURL = /* @__PURE__ */ _bind(FW, 'OSACopyScriptingDefinitionFromURL')
+export const OSACopyScriptingDefinitionFromURL = /* @__PURE__ */ _bind(
+	FW,
+	'OSACopyScriptingDefinitionFromURL',
+)
+
 export const OSACopySourceString = /* @__PURE__ */ _bind(FW, 'OSACopySourceString')
 export const OSADisplay = /* @__PURE__ */ _bind(FW, 'OSADisplay')
 export const OSADispose = /* @__PURE__ */ _bind(FW, 'OSADispose')
@@ -591,7 +1067,11 @@ export const OSAGenericToRealID = /* @__PURE__ */ _bind(FW, 'OSAGenericToRealID'
 export const OSAGetActiveProc = /* @__PURE__ */ _bind(FW, 'OSAGetActiveProc')
 export const OSAGetCreateProc = /* @__PURE__ */ _bind(FW, 'OSAGetCreateProc')
 export const OSAGetCurrentDialect = /* @__PURE__ */ _bind(FW, 'OSAGetCurrentDialect')
-export const OSAGetDefaultScriptingComponent = /* @__PURE__ */ _bind(FW, 'OSAGetDefaultScriptingComponent')
+export const OSAGetDefaultScriptingComponent = /* @__PURE__ */ _bind(
+	FW,
+	'OSAGetDefaultScriptingComponent',
+)
+
 export const OSAGetDialectInfo = /* @__PURE__ */ _bind(FW, 'OSAGetDialectInfo')
 export const OSAGetHandler = /* @__PURE__ */ _bind(FW, 'OSAGetHandler')
 export const OSAGetHandlerNames = /* @__PURE__ */ _bind(FW, 'OSAGetHandlerNames')
@@ -601,7 +1081,11 @@ export const OSAGetResumeDispatchProc = /* @__PURE__ */ _bind(FW, 'OSAGetResumeD
 export const OSAGetScriptDataFromURL = /* @__PURE__ */ _bind(FW, 'OSAGetScriptDataFromURL')
 export const OSAGetScriptInfo = /* @__PURE__ */ _bind(FW, 'OSAGetScriptInfo')
 export const OSAGetScriptingComponent = /* @__PURE__ */ _bind(FW, 'OSAGetScriptingComponent')
-export const OSAGetScriptingComponentFromStored = /* @__PURE__ */ _bind(FW, 'OSAGetScriptingComponentFromStored')
+export const OSAGetScriptingComponentFromStored = /* @__PURE__ */ _bind(
+	FW,
+	'OSAGetScriptingComponentFromStored',
+)
+
 export const OSAGetSendProc = /* @__PURE__ */ _bind(FW, 'OSAGetSendProc')
 export const OSAGetSource = /* @__PURE__ */ _bind(FW, 'OSAGetSource')
 export const OSAGetStorageType = /* @__PURE__ */ _bind(FW, 'OSAGetStorageType')
@@ -619,7 +1103,11 @@ export const OSAScriptingComponentName = /* @__PURE__ */ _bind(FW, 'OSAScripting
 export const OSASetActiveProc = /* @__PURE__ */ _bind(FW, 'OSASetActiveProc')
 export const OSASetCreateProc = /* @__PURE__ */ _bind(FW, 'OSASetCreateProc')
 export const OSASetCurrentDialect = /* @__PURE__ */ _bind(FW, 'OSASetCurrentDialect')
-export const OSASetDefaultScriptingComponent = /* @__PURE__ */ _bind(FW, 'OSASetDefaultScriptingComponent')
+export const OSASetDefaultScriptingComponent = /* @__PURE__ */ _bind(
+	FW,
+	'OSASetDefaultScriptingComponent',
+)
+
 export const OSASetDefaultTarget = /* @__PURE__ */ _bind(FW, 'OSASetDefaultTarget')
 export const OSASetHandler = /* @__PURE__ */ _bind(FW, 'OSASetHandler')
 export const OSASetProperty = /* @__PURE__ */ _bind(FW, 'OSASetProperty')
@@ -692,8 +1180,16 @@ export const SRGetProperty = /* @__PURE__ */ _bind(FW, 'SRGetProperty')
 export const SRGetReference = /* @__PURE__ */ _bind(FW, 'SRGetReference')
 export const SRIdle = /* @__PURE__ */ _bind(FW, 'SRIdle')
 export const SRNewLanguageModel = /* @__PURE__ */ _bind(FW, 'SRNewLanguageModel')
-export const SRNewLanguageObjectFromDataFile = /* @__PURE__ */ _bind(FW, 'SRNewLanguageObjectFromDataFile')
-export const SRNewLanguageObjectFromHandle = /* @__PURE__ */ _bind(FW, 'SRNewLanguageObjectFromHandle')
+export const SRNewLanguageObjectFromDataFile = /* @__PURE__ */ _bind(
+	FW,
+	'SRNewLanguageObjectFromDataFile',
+)
+
+export const SRNewLanguageObjectFromHandle = /* @__PURE__ */ _bind(
+	FW,
+	'SRNewLanguageObjectFromHandle',
+)
+
 export const SRNewPath = /* @__PURE__ */ _bind(FW, 'SRNewPath')
 export const SRNewPhrase = /* @__PURE__ */ _bind(FW, 'SRNewPhrase')
 export const SRNewRecognizer = /* @__PURE__ */ _bind(FW, 'SRNewRecognizer')
@@ -701,8 +1197,16 @@ export const SRNewWord = /* @__PURE__ */ _bind(FW, 'SRNewWord')
 export const SROpenRecognitionSystem = /* @__PURE__ */ _bind(FW, 'SROpenRecognitionSystem')
 export const SRProcessBegin = /* @__PURE__ */ _bind(FW, 'SRProcessBegin')
 export const SRProcessEnd = /* @__PURE__ */ _bind(FW, 'SRProcessEnd')
-export const SRPutLanguageObjectIntoDataFile = /* @__PURE__ */ _bind(FW, 'SRPutLanguageObjectIntoDataFile')
-export const SRPutLanguageObjectIntoHandle = /* @__PURE__ */ _bind(FW, 'SRPutLanguageObjectIntoHandle')
+export const SRPutLanguageObjectIntoDataFile = /* @__PURE__ */ _bind(
+	FW,
+	'SRPutLanguageObjectIntoDataFile',
+)
+
+export const SRPutLanguageObjectIntoHandle = /* @__PURE__ */ _bind(
+	FW,
+	'SRPutLanguageObjectIntoHandle',
+)
+
 export const SRReleaseObject = /* @__PURE__ */ _bind(FW, 'SRReleaseObject')
 export const SRRemoveIndexedItem = /* @__PURE__ */ _bind(FW, 'SRRemoveIndexedItem')
 export const SRRemoveLanguageObject = /* @__PURE__ */ _bind(FW, 'SRRemoveLanguageObject')
@@ -730,26 +1234,66 @@ export const SecDisplayCertificateGroup = /* @__PURE__ */ _bind(FW, 'SecDisplayC
 export const SecEditTrust = /* @__PURE__ */ _bind(FW, 'SecEditTrust')
 export const SecEditTrustAsSheet = /* @__PURE__ */ _bind(FW, 'SecEditTrustAsSheet')
 export const SendEventToEventTarget = /* @__PURE__ */ _bind(FW, 'SendEventToEventTarget')
-export const SendEventToEventTargetWithOptions = /* @__PURE__ */ _bind(FW, 'SendEventToEventTargetWithOptions')
-export const SetEventLoopTimerNextFireTime = /* @__PURE__ */ _bind(FW, 'SetEventLoopTimerNextFireTime')
+export const SendEventToEventTargetWithOptions = /* @__PURE__ */ _bind(
+	FW,
+	'SendEventToEventTargetWithOptions',
+)
+
+export const SetEventLoopTimerNextFireTime = /* @__PURE__ */ _bind(
+	FW,
+	'SetEventLoopTimerNextFireTime',
+)
+
 export const SetEventParameter = /* @__PURE__ */ _bind(FW, 'SetEventParameter')
 export const SetEventTime = /* @__PURE__ */ _bind(FW, 'SetEventTime')
 export const SetFontInfoForSelection = /* @__PURE__ */ _bind(FW, 'SetFontInfoForSelection')
 export const SetSystemUIMode = /* @__PURE__ */ _bind(FW, 'SetSystemUIMode')
-export const SetupWindowProxyDragImageRec = /* @__PURE__ */ _bind(FW, 'SetupWindowProxyDragImageRec')
+export const SetupWindowProxyDragImageRec = /* @__PURE__ */ _bind(
+	FW,
+	'SetupWindowProxyDragImageRec',
+)
+
 export const SliderTrackInfo = /* @__PURE__ */ _bind(FW, 'SliderTrackInfo')
 export const StScrpRec = /* @__PURE__ */ _bind(FW, 'StScrpRec')
 export const StandardIconListCellDataRec = /* @__PURE__ */ _bind(FW, 'StandardIconListCellDataRec')
 export const StyleRun = /* @__PURE__ */ _bind(FW, 'StyleRun')
 export const TERec = /* @__PURE__ */ _bind(FW, 'TERec')
 export const TEStyleRec = /* @__PURE__ */ _bind(FW, 'TEStyleRec')
-export const TISCopyCurrentASCIICapableKeyboardInputSource = /* @__PURE__ */ _bind(FW, 'TISCopyCurrentASCIICapableKeyboardInputSource')
-export const TISCopyCurrentASCIICapableKeyboardLayoutInputSource = /* @__PURE__ */ _bind(FW, 'TISCopyCurrentASCIICapableKeyboardLayoutInputSource')
-export const TISCopyCurrentKeyboardInputSource = /* @__PURE__ */ _bind(FW, 'TISCopyCurrentKeyboardInputSource')
-export const TISCopyCurrentKeyboardLayoutInputSource = /* @__PURE__ */ _bind(FW, 'TISCopyCurrentKeyboardLayoutInputSource')
-export const TISCopyInputMethodKeyboardLayoutOverride = /* @__PURE__ */ _bind(FW, 'TISCopyInputMethodKeyboardLayoutOverride')
-export const TISCopyInputSourceForLanguage = /* @__PURE__ */ _bind(FW, 'TISCopyInputSourceForLanguage')
-export const TISCreateASCIICapableInputSourceList = /* @__PURE__ */ _bind(FW, 'TISCreateASCIICapableInputSourceList')
+export const TISCopyCurrentASCIICapableKeyboardInputSource = /* @__PURE__ */ _bind(
+	FW,
+	'TISCopyCurrentASCIICapableKeyboardInputSource',
+)
+
+export const TISCopyCurrentASCIICapableKeyboardLayoutInputSource = /* @__PURE__ */ _bind(
+	FW,
+	'TISCopyCurrentASCIICapableKeyboardLayoutInputSource',
+)
+
+export const TISCopyCurrentKeyboardInputSource = /* @__PURE__ */ _bind(
+	FW,
+	'TISCopyCurrentKeyboardInputSource',
+)
+
+export const TISCopyCurrentKeyboardLayoutInputSource = /* @__PURE__ */ _bind(
+	FW,
+	'TISCopyCurrentKeyboardLayoutInputSource',
+)
+
+export const TISCopyInputMethodKeyboardLayoutOverride = /* @__PURE__ */ _bind(
+	FW,
+	'TISCopyInputMethodKeyboardLayoutOverride',
+)
+
+export const TISCopyInputSourceForLanguage = /* @__PURE__ */ _bind(
+	FW,
+	'TISCopyInputSourceForLanguage',
+)
+
+export const TISCreateASCIICapableInputSourceList = /* @__PURE__ */ _bind(
+	FW,
+	'TISCreateASCIICapableInputSourceList',
+)
+
 export const TISCreateInputSourceList = /* @__PURE__ */ _bind(FW, 'TISCreateInputSourceList')
 export const TISDeselectInputSource = /* @__PURE__ */ _bind(FW, 'TISDeselectInputSource')
 export const TISDisableInputSource = /* @__PURE__ */ _bind(FW, 'TISDisableInputSource')
@@ -758,7 +1302,11 @@ export const TISGetInputSourceProperty = /* @__PURE__ */ _bind(FW, 'TISGetInputS
 export const TISInputSourceGetTypeID = /* @__PURE__ */ _bind(FW, 'TISInputSourceGetTypeID')
 export const TISRegisterInputSource = /* @__PURE__ */ _bind(FW, 'TISRegisterInputSource')
 export const TISSelectInputSource = /* @__PURE__ */ _bind(FW, 'TISSelectInputSource')
-export const TISSetInputMethodKeyboardLayoutOverride = /* @__PURE__ */ _bind(FW, 'TISSetInputMethodKeyboardLayoutOverride')
+export const TISSetInputMethodKeyboardLayoutOverride = /* @__PURE__ */ _bind(
+	FW,
+	'TISSetInputMethodKeyboardLayoutOverride',
+)
+
 export const TSMGetActiveDocument = /* @__PURE__ */ _bind(FW, 'TSMGetActiveDocument')
 export const TSMGetDocumentProperty = /* @__PURE__ */ _bind(FW, 'TSMGetDocumentProperty')
 export const TSMGlyphInfo = /* @__PURE__ */ _bind(FW, 'TSMGlyphInfo')
@@ -818,9 +1366,21 @@ export const app4Evt = /* @__PURE__ */ _bind(FW, 'app4Evt')
 export const app4Mask = /* @__PURE__ */ _bind(FW, 'app4Mask')
 export const appearanceBadBrushIndexErr = /* @__PURE__ */ _bind(FW, 'appearanceBadBrushIndexErr')
 export const appearanceBadCursorIndexErr = /* @__PURE__ */ _bind(FW, 'appearanceBadCursorIndexErr')
-export const appearanceBadTextColorIndexErr = /* @__PURE__ */ _bind(FW, 'appearanceBadTextColorIndexErr')
-export const appearanceProcessNotRegisteredErr = /* @__PURE__ */ _bind(FW, 'appearanceProcessNotRegisteredErr')
-export const appearanceProcessRegisteredErr = /* @__PURE__ */ _bind(FW, 'appearanceProcessRegisteredErr')
+export const appearanceBadTextColorIndexErr = /* @__PURE__ */ _bind(
+	FW,
+	'appearanceBadTextColorIndexErr',
+)
+
+export const appearanceProcessNotRegisteredErr = /* @__PURE__ */ _bind(
+	FW,
+	'appearanceProcessNotRegisteredErr',
+)
+
+export const appearanceProcessRegisteredErr = /* @__PURE__ */ _bind(
+	FW,
+	'appearanceProcessRegisteredErr',
+)
+
 export const appearanceThemeHasNoAccents = /* @__PURE__ */ _bind(FW, 'appearanceThemeHasNoAccents')
 export const appendDITLBottom = /* @__PURE__ */ _bind(FW, 'appendDITLBottom')
 export const appendDITLRight = /* @__PURE__ */ _bind(FW, 'appendDITLRight')
@@ -1042,25 +1602,61 @@ export const enumViewBy = /* @__PURE__ */ _bind(FW, 'enumViewBy')
 export const enumWhere = /* @__PURE__ */ _bind(FW, 'enumWhere')
 export const enumYesterday = /* @__PURE__ */ _bind(FW, 'enumYesterday')
 export const errAEValueOutOfRange = /* @__PURE__ */ _bind(FW, 'errAEValueOutOfRange')
-export const errDataBrowserInvalidPropertyData = /* @__PURE__ */ _bind(FW, 'errDataBrowserInvalidPropertyData')
-export const errDataBrowserInvalidPropertyPart = /* @__PURE__ */ _bind(FW, 'errDataBrowserInvalidPropertyPart')
+export const errDataBrowserInvalidPropertyData = /* @__PURE__ */ _bind(
+	FW,
+	'errDataBrowserInvalidPropertyData',
+)
+
+export const errDataBrowserInvalidPropertyPart = /* @__PURE__ */ _bind(
+	FW,
+	'errDataBrowserInvalidPropertyPart',
+)
+
 export const errDataBrowserItemNotAdded = /* @__PURE__ */ _bind(FW, 'errDataBrowserItemNotAdded')
 export const errDataBrowserItemNotFound = /* @__PURE__ */ _bind(FW, 'errDataBrowserItemNotFound')
 export const errDataBrowserNotConfigured = /* @__PURE__ */ _bind(FW, 'errDataBrowserNotConfigured')
-export const errDataBrowserPropertyNotFound = /* @__PURE__ */ _bind(FW, 'errDataBrowserPropertyNotFound')
-export const errDataBrowserPropertyNotSupported = /* @__PURE__ */ _bind(FW, 'errDataBrowserPropertyNotSupported')
+export const errDataBrowserPropertyNotFound = /* @__PURE__ */ _bind(
+	FW,
+	'errDataBrowserPropertyNotFound',
+)
+
+export const errDataBrowserPropertyNotSupported = /* @__PURE__ */ _bind(
+	FW,
+	'errDataBrowserPropertyNotSupported',
+)
+
 export const errFinderAppFolderProtected = /* @__PURE__ */ _bind(FW, 'errFinderAppFolderProtected')
 export const errFinderBadPackageContents = /* @__PURE__ */ _bind(FW, 'errFinderBadPackageContents')
 export const errFinderBoundsWrong = /* @__PURE__ */ _bind(FW, 'errFinderBoundsWrong')
 export const errFinderCannotPutAway = /* @__PURE__ */ _bind(FW, 'errFinderCannotPutAway')
-export const errFinderCantDeleteImmediately = /* @__PURE__ */ _bind(FW, 'errFinderCantDeleteImmediately')
+export const errFinderCantDeleteImmediately = /* @__PURE__ */ _bind(
+	FW,
+	'errFinderCantDeleteImmediately',
+)
+
 export const errFinderCantMoveSource = /* @__PURE__ */ _bind(FW, 'errFinderCantMoveSource')
 export const errFinderCantMoveToAncestor = /* @__PURE__ */ _bind(FW, 'errFinderCantMoveToAncestor')
-export const errFinderCantMoveToDestination = /* @__PURE__ */ _bind(FW, 'errFinderCantMoveToDestination')
+export const errFinderCantMoveToDestination = /* @__PURE__ */ _bind(
+	FW,
+	'errFinderCantMoveToDestination',
+)
+
 export const errFinderCantOverwrite = /* @__PURE__ */ _bind(FW, 'errFinderCantOverwrite')
-export const errFinderCantUseTrashedItems = /* @__PURE__ */ _bind(FW, 'errFinderCantUseTrashedItems')
-export const errFinderCorruptOpenFolderList = /* @__PURE__ */ _bind(FW, 'errFinderCorruptOpenFolderList')
-export const errFinderFileSharingMustBeOn = /* @__PURE__ */ _bind(FW, 'errFinderFileSharingMustBeOn')
+export const errFinderCantUseTrashedItems = /* @__PURE__ */ _bind(
+	FW,
+	'errFinderCantUseTrashedItems',
+)
+
+export const errFinderCorruptOpenFolderList = /* @__PURE__ */ _bind(
+	FW,
+	'errFinderCorruptOpenFolderList',
+)
+
+export const errFinderFileSharingMustBeOn = /* @__PURE__ */ _bind(
+	FW,
+	'errFinderFileSharingMustBeOn',
+)
+
 export const errFinderIncestuousMove = /* @__PURE__ */ _bind(FW, 'errFinderIncestuousMove')
 export const errFinderIsBusy = /* @__PURE__ */ _bind(FW, 'errFinderIsBusy')
 export const errFinderItemAlreadyInDest = /* @__PURE__ */ _bind(FW, 'errFinderItemAlreadyInDest')
@@ -1068,33 +1664,93 @@ export const errFinderLastReserved = /* @__PURE__ */ _bind(FW, 'errFinderLastRes
 export const errFinderLockedItemsInTrash = /* @__PURE__ */ _bind(FW, 'errFinderLockedItemsInTrash')
 export const errFinderMustBeActive = /* @__PURE__ */ _bind(FW, 'errFinderMustBeActive')
 export const errFinderNoInvisibleFiles = /* @__PURE__ */ _bind(FW, 'errFinderNoInvisibleFiles')
-export const errFinderOnlyLockedItemsInTrash = /* @__PURE__ */ _bind(FW, 'errFinderOnlyLockedItemsInTrash')
-export const errFinderProgramLinkingMustBeOn = /* @__PURE__ */ _bind(FW, 'errFinderProgramLinkingMustBeOn')
-export const errFinderPropertyDoesNotApply = /* @__PURE__ */ _bind(FW, 'errFinderPropertyDoesNotApply')
-export const errFinderPropertyNowWindowBased = /* @__PURE__ */ _bind(FW, 'errFinderPropertyNowWindowBased')
-export const errFinderSharePointsCantInherit = /* @__PURE__ */ _bind(FW, 'errFinderSharePointsCantInherit')
+export const errFinderOnlyLockedItemsInTrash = /* @__PURE__ */ _bind(
+	FW,
+	'errFinderOnlyLockedItemsInTrash',
+)
+
+export const errFinderProgramLinkingMustBeOn = /* @__PURE__ */ _bind(
+	FW,
+	'errFinderProgramLinkingMustBeOn',
+)
+
+export const errFinderPropertyDoesNotApply = /* @__PURE__ */ _bind(
+	FW,
+	'errFinderPropertyDoesNotApply',
+)
+
+export const errFinderPropertyNowWindowBased = /* @__PURE__ */ _bind(
+	FW,
+	'errFinderPropertyNowWindowBased',
+)
+
+export const errFinderSharePointsCantInherit = /* @__PURE__ */ _bind(
+	FW,
+	'errFinderSharePointsCantInherit',
+)
+
 export const errFinderSysFolderProtected = /* @__PURE__ */ _bind(FW, 'errFinderSysFolderProtected')
 export const errFinderUnknownUser = /* @__PURE__ */ _bind(FW, 'errFinderUnknownUser')
-export const errFinderUnsupportedInsidePackages = /* @__PURE__ */ _bind(FW, 'errFinderUnsupportedInsidePackages')
+export const errFinderUnsupportedInsidePackages = /* @__PURE__ */ _bind(
+	FW,
+	'errFinderUnsupportedInsidePackages',
+)
+
 export const errFinderVolumeNotFound = /* @__PURE__ */ _bind(FW, 'errFinderVolumeNotFound')
-export const errFinderWindowMustBeButtonView = /* @__PURE__ */ _bind(FW, 'errFinderWindowMustBeButtonView')
-export const errFinderWindowMustBeIconView = /* @__PURE__ */ _bind(FW, 'errFinderWindowMustBeIconView')
-export const errFinderWindowMustBeListView = /* @__PURE__ */ _bind(FW, 'errFinderWindowMustBeListView')
+export const errFinderWindowMustBeButtonView = /* @__PURE__ */ _bind(
+	FW,
+	'errFinderWindowMustBeButtonView',
+)
+
+export const errFinderWindowMustBeIconView = /* @__PURE__ */ _bind(
+	FW,
+	'errFinderWindowMustBeIconView',
+)
+
+export const errFinderWindowMustBeListView = /* @__PURE__ */ _bind(
+	FW,
+	'errFinderWindowMustBeListView',
+)
+
 export const errFinderWindowNotOpen = /* @__PURE__ */ _bind(FW, 'errFinderWindowNotOpen')
 export const errFinderWindowWrongType = /* @__PURE__ */ _bind(FW, 'errFinderWindowWrongType')
-export const errHMIllegalContentForMaximumState = /* @__PURE__ */ _bind(FW, 'errHMIllegalContentForMaximumState')
-export const errHMIllegalContentForMinimumState = /* @__PURE__ */ _bind(FW, 'errHMIllegalContentForMinimumState')
+export const errHMIllegalContentForMaximumState = /* @__PURE__ */ _bind(
+	FW,
+	'errHMIllegalContentForMaximumState',
+)
+
+export const errHMIllegalContentForMinimumState = /* @__PURE__ */ _bind(
+	FW,
+	'errHMIllegalContentForMinimumState',
+)
+
 export const errKBFailSettingID = /* @__PURE__ */ _bind(FW, 'errKBFailSettingID')
-export const errKBFailSettingTranslationTable = /* @__PURE__ */ _bind(FW, 'errKBFailSettingTranslationTable')
+export const errKBFailSettingTranslationTable = /* @__PURE__ */ _bind(
+	FW,
+	'errKBFailSettingTranslationTable',
+)
+
 export const errKBFailWritePreference = /* @__PURE__ */ _bind(FW, 'errKBFailWritePreference')
 export const errKBIlligalParameters = /* @__PURE__ */ _bind(FW, 'errKBIlligalParameters')
-export const errKBPS2KeyboardNotAvailable = /* @__PURE__ */ _bind(FW, 'errKBPS2KeyboardNotAvailable')
+export const errKBPS2KeyboardNotAvailable = /* @__PURE__ */ _bind(
+	FW,
+	'errKBPS2KeyboardNotAvailable',
+)
+
 export const errNeedsCompositedWindow = /* @__PURE__ */ _bind(FW, 'errNeedsCompositedWindow')
 export const eventAlreadyPostedErr = /* @__PURE__ */ _bind(FW, 'eventAlreadyPostedErr')
 export const eventClassIncorrectErr = /* @__PURE__ */ _bind(FW, 'eventClassIncorrectErr')
 export const eventClassInvalidErr = /* @__PURE__ */ _bind(FW, 'eventClassInvalidErr')
-export const eventDeferAccessibilityEventErr = /* @__PURE__ */ _bind(FW, 'eventDeferAccessibilityEventErr')
-export const eventHandlerAlreadyInstalledErr = /* @__PURE__ */ _bind(FW, 'eventHandlerAlreadyInstalledErr')
+export const eventDeferAccessibilityEventErr = /* @__PURE__ */ _bind(
+	FW,
+	'eventDeferAccessibilityEventErr',
+)
+
+export const eventHandlerAlreadyInstalledErr = /* @__PURE__ */ _bind(
+	FW,
+	'eventHandlerAlreadyInstalledErr',
+)
+
 export const eventHotKeyExistsErr = /* @__PURE__ */ _bind(FW, 'eventHotKeyExistsErr')
 export const eventHotKeyInvalidErr = /* @__PURE__ */ _bind(FW, 'eventHotKeyInvalidErr')
 export const eventInternalErr = /* @__PURE__ */ _bind(FW, 'eventInternalErr')
@@ -1124,33 +1780,81 @@ export const floatSideZoomProc = /* @__PURE__ */ _bind(FW, 'floatSideZoomProc')
 export const floatZoomGrowProc = /* @__PURE__ */ _bind(FW, 'floatZoomGrowProc')
 export const floatZoomProc = /* @__PURE__ */ _bind(FW, 'floatZoomProc')
 export const fontBit = /* @__PURE__ */ _bind(FW, 'fontBit')
-export const fontPanelFontSelectionQDStyleVersionErr = /* @__PURE__ */ _bind(FW, 'fontPanelFontSelectionQDStyleVersionErr')
+export const fontPanelFontSelectionQDStyleVersionErr = /* @__PURE__ */ _bind(
+	FW,
+	'fontPanelFontSelectionQDStyleVersionErr',
+)
+
 export const fontPanelSelectionStyleErr = /* @__PURE__ */ _bind(FW, 'fontPanelSelectionStyleErr')
 export const fontPanelShowErr = /* @__PURE__ */ _bind(FW, 'fontPanelShowErr')
 export const formAlias = /* @__PURE__ */ _bind(FW, 'formAlias')
 export const formCreator = /* @__PURE__ */ _bind(FW, 'formCreator')
 export const formUserPropertyID = /* @__PURE__ */ _bind(FW, 'formUserPropertyID')
 export const gestaltContextualMenuAttr = /* @__PURE__ */ _bind(FW, 'gestaltContextualMenuAttr')
-export const gestaltContextualMenuHasAttributeAndModifierKeys = /* @__PURE__ */ _bind(FW, 'gestaltContextualMenuHasAttributeAndModifierKeys')
-export const gestaltContextualMenuHasUnicodeSupport = /* @__PURE__ */ _bind(FW, 'gestaltContextualMenuHasUnicodeSupport')
-export const gestaltContextualMenuTrapAvailable = /* @__PURE__ */ _bind(FW, 'gestaltContextualMenuTrapAvailable')
-export const gestaltContextualMenuUnusedBit = /* @__PURE__ */ _bind(FW, 'gestaltContextualMenuUnusedBit')
+export const gestaltContextualMenuHasAttributeAndModifierKeys = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltContextualMenuHasAttributeAndModifierKeys',
+)
+
+export const gestaltContextualMenuHasUnicodeSupport = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltContextualMenuHasUnicodeSupport',
+)
+
+export const gestaltContextualMenuTrapAvailable = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltContextualMenuTrapAvailable',
+)
+
+export const gestaltContextualMenuUnusedBit = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltContextualMenuUnusedBit',
+)
+
 export const gestaltKBPS2Keyboards = /* @__PURE__ */ _bind(FW, 'gestaltKBPS2Keyboards')
 export const gestaltKBPS2SetIDToAny = /* @__PURE__ */ _bind(FW, 'gestaltKBPS2SetIDToAny')
-export const gestaltKBPS2SetTranslationTable = /* @__PURE__ */ _bind(FW, 'gestaltKBPS2SetTranslationTable')
+export const gestaltKBPS2SetTranslationTable = /* @__PURE__ */ _bind(
+	FW,
+	'gestaltKBPS2SetTranslationTable',
+)
+
 export const gestaltKeyboardsAttr = /* @__PURE__ */ _bind(FW, 'gestaltKeyboardsAttr')
 export const hAxisOnly = /* @__PURE__ */ _bind(FW, 'hAxisOnly')
 export const hMenuCmd = /* @__PURE__ */ _bind(FW, 'hMenuCmd')
-export const hiArchiveEncodingCompleteErr = /* @__PURE__ */ _bind(FW, 'hiArchiveEncodingCompleteErr')
-export const hiArchiveHIObjectIgnoresArchivingErr = /* @__PURE__ */ _bind(FW, 'hiArchiveHIObjectIgnoresArchivingErr')
+export const hiArchiveEncodingCompleteErr = /* @__PURE__ */ _bind(
+	FW,
+	'hiArchiveEncodingCompleteErr',
+)
+
+export const hiArchiveHIObjectIgnoresArchivingErr = /* @__PURE__ */ _bind(
+	FW,
+	'hiArchiveHIObjectIgnoresArchivingErr',
+)
+
 export const hiArchiveKeyNotAvailableErr = /* @__PURE__ */ _bind(FW, 'hiArchiveKeyNotAvailableErr')
 export const hiArchiveTypeMismatchErr = /* @__PURE__ */ _bind(FW, 'hiArchiveTypeMismatchErr')
-export const hiObjectCannotSubclassSingletonErr = /* @__PURE__ */ _bind(FW, 'hiObjectCannotSubclassSingletonErr')
+export const hiObjectCannotSubclassSingletonErr = /* @__PURE__ */ _bind(
+	FW,
+	'hiObjectCannotSubclassSingletonErr',
+)
+
 export const hiObjectClassExistsErr = /* @__PURE__ */ _bind(FW, 'hiObjectClassExistsErr')
-export const hiObjectClassHasInstancesErr = /* @__PURE__ */ _bind(FW, 'hiObjectClassHasInstancesErr')
-export const hiObjectClassHasSubclassesErr = /* @__PURE__ */ _bind(FW, 'hiObjectClassHasSubclassesErr')
+export const hiObjectClassHasInstancesErr = /* @__PURE__ */ _bind(
+	FW,
+	'hiObjectClassHasInstancesErr',
+)
+
+export const hiObjectClassHasSubclassesErr = /* @__PURE__ */ _bind(
+	FW,
+	'hiObjectClassHasSubclassesErr',
+)
+
 export const hiObjectClassIsAbstractErr = /* @__PURE__ */ _bind(FW, 'hiObjectClassIsAbstractErr')
-export const hiObjectDelegateAlreadyExistsErr = /* @__PURE__ */ _bind(FW, 'hiObjectDelegateAlreadyExistsErr')
+export const hiObjectDelegateAlreadyExistsErr = /* @__PURE__ */ _bind(
+	FW,
+	'hiObjectDelegateAlreadyExistsErr',
+)
+
 export const hiObjectDelegateNotFoundErr = /* @__PURE__ */ _bind(FW, 'hiObjectDelegateNotFoundErr')
 export const hierMenu = /* @__PURE__ */ _bind(FW, 'hierMenu')
 export const highLevelEventMask = /* @__PURE__ */ _bind(FW, 'highLevelEventMask')
@@ -1172,8 +1876,16 @@ export const inZoomOut = /* @__PURE__ */ _bind(FW, 'inZoomOut')
 export const intDrawHook = /* @__PURE__ */ _bind(FW, 'intDrawHook')
 export const intEOLHook = /* @__PURE__ */ _bind(FW, 'intEOLHook')
 export const intHitTestHook = /* @__PURE__ */ _bind(FW, 'intHitTestHook')
-export const intInlineInputTSMTEPostUpdateHook = /* @__PURE__ */ _bind(FW, 'intInlineInputTSMTEPostUpdateHook')
-export const intInlineInputTSMTEPreUpdateHook = /* @__PURE__ */ _bind(FW, 'intInlineInputTSMTEPreUpdateHook')
+export const intInlineInputTSMTEPostUpdateHook = /* @__PURE__ */ _bind(
+	FW,
+	'intInlineInputTSMTEPostUpdateHook',
+)
+
+export const intInlineInputTSMTEPreUpdateHook = /* @__PURE__ */ _bind(
+	FW,
+	'intInlineInputTSMTEPreUpdateHook',
+)
+
 export const intNWidthHook = /* @__PURE__ */ _bind(FW, 'intNWidthHook')
 export const intTextWidthHook = /* @__PURE__ */ _bind(FW, 'intTextWidthHook')
 export const intWidthHook = /* @__PURE__ */ _bind(FW, 'intWidthHook')
@@ -1205,7 +1917,11 @@ export const kAEIgnoreAppEventHandler = /* @__PURE__ */ _bind(FW, 'kAEIgnoreAppE
 export const kAEIgnoreAppPhacHandler = /* @__PURE__ */ _bind(FW, 'kAEIgnoreAppPhacHandler')
 export const kAEIgnoreSysEventHandler = /* @__PURE__ */ _bind(FW, 'kAEIgnoreSysEventHandler')
 export const kAEIgnoreSysPhacHandler = /* @__PURE__ */ _bind(FW, 'kAEIgnoreSysPhacHandler')
-export const kAEIngoreBuiltInEventHandler = /* @__PURE__ */ _bind(FW, 'kAEIngoreBuiltInEventHandler')
+export const kAEIngoreBuiltInEventHandler = /* @__PURE__ */ _bind(
+	FW,
+	'kAEIngoreBuiltInEventHandler',
+)
+
 export const kAEInteractWithAll = /* @__PURE__ */ _bind(FW, 'kAEInteractWithAll')
 export const kAEInteractWithLocal = /* @__PURE__ */ _bind(FW, 'kAEInteractWithLocal')
 export const kAEInteractWithSelf = /* @__PURE__ */ _bind(FW, 'kAEInteractWithSelf')
@@ -1246,8 +1962,16 @@ export const kASComment = /* @__PURE__ */ _bind(FW, 'kASComment')
 export const kASCommentEvent = /* @__PURE__ */ _bind(FW, 'kASCommentEvent')
 export const kASConcatenate = /* @__PURE__ */ _bind(FW, 'kASConcatenate')
 export const kASConsiderReplies = /* @__PURE__ */ _bind(FW, 'kASConsiderReplies')
-export const kASConsiderRepliesConsiderMask = /* @__PURE__ */ _bind(FW, 'kASConsiderRepliesConsiderMask')
-export const kASConsiderRepliesIgnoreMask = /* @__PURE__ */ _bind(FW, 'kASConsiderRepliesIgnoreMask')
+export const kASConsiderRepliesConsiderMask = /* @__PURE__ */ _bind(
+	FW,
+	'kASConsiderRepliesConsiderMask',
+)
+
+export const kASConsiderRepliesIgnoreMask = /* @__PURE__ */ _bind(
+	FW,
+	'kASConsiderRepliesIgnoreMask',
+)
+
 export const kASContains = /* @__PURE__ */ _bind(FW, 'kASContains')
 export const kASCurrentApplication = /* @__PURE__ */ _bind(FW, 'kASCurrentApplication')
 export const kASDefaultMaxHeapSize = /* @__PURE__ */ _bind(FW, 'kASDefaultMaxHeapSize')
@@ -1255,7 +1979,11 @@ export const kASDefaultMaxStackSize = /* @__PURE__ */ _bind(FW, 'kASDefaultMaxSt
 export const kASDefaultMinHeapSize = /* @__PURE__ */ _bind(FW, 'kASDefaultMinHeapSize')
 export const kASDefaultMinStackSize = /* @__PURE__ */ _bind(FW, 'kASDefaultMinStackSize')
 export const kASDefaultPreferredHeapSize = /* @__PURE__ */ _bind(FW, 'kASDefaultPreferredHeapSize')
-export const kASDefaultPreferredStackSize = /* @__PURE__ */ _bind(FW, 'kASDefaultPreferredStackSize')
+export const kASDefaultPreferredStackSize = /* @__PURE__ */ _bind(
+	FW,
+	'kASDefaultPreferredStackSize',
+)
+
 export const kASDivide = /* @__PURE__ */ _bind(FW, 'kASDivide')
 export const kASEndsWith = /* @__PURE__ */ _bind(FW, 'kASEndsWith')
 export const kASEqual = /* @__PURE__ */ _bind(FW, 'kASEqual')
@@ -1278,7 +2006,11 @@ export const kASNot = /* @__PURE__ */ _bind(FW, 'kASNot')
 export const kASNotEqual = /* @__PURE__ */ _bind(FW, 'kASNotEqual')
 export const kASNumberOfSourceStyles = /* @__PURE__ */ _bind(FW, 'kASNumberOfSourceStyles')
 export const kASNumericStrings = /* @__PURE__ */ _bind(FW, 'kASNumericStrings')
-export const kASNumericStringsConsiderMask = /* @__PURE__ */ _bind(FW, 'kASNumericStringsConsiderMask')
+export const kASNumericStringsConsiderMask = /* @__PURE__ */ _bind(
+	FW,
+	'kASNumericStringsConsiderMask',
+)
+
 export const kASNumericStringsIgnoreMask = /* @__PURE__ */ _bind(FW, 'kASNumericStringsIgnoreMask')
 export const kASOr = /* @__PURE__ */ _bind(FW, 'kASOr')
 export const kASPower = /* @__PURE__ */ _bind(FW, 'kASPower')
@@ -1286,43 +2018,99 @@ export const kASPrepositionalSubroutine = /* @__PURE__ */ _bind(FW, 'kASPreposit
 export const kASQuotient = /* @__PURE__ */ _bind(FW, 'kASQuotient')
 export const kASRemainder = /* @__PURE__ */ _bind(FW, 'kASRemainder')
 export const kASScriptEditorSuite = /* @__PURE__ */ _bind(FW, 'kASScriptEditorSuite')
-export const kASSelectCopySourceAttributes = /* @__PURE__ */ _bind(FW, 'kASSelectCopySourceAttributes')
+export const kASSelectCopySourceAttributes = /* @__PURE__ */ _bind(
+	FW,
+	'kASSelectCopySourceAttributes',
+)
+
 export const kASSelectGetAppTerminology = /* @__PURE__ */ _bind(FW, 'kASSelectGetAppTerminology')
-export const kASSelectGetAppTerminologyObsolete = /* @__PURE__ */ _bind(FW, 'kASSelectGetAppTerminologyObsolete')
+export const kASSelectGetAppTerminologyObsolete = /* @__PURE__ */ _bind(
+	FW,
+	'kASSelectGetAppTerminologyObsolete',
+)
+
 export const kASSelectGetHandler = /* @__PURE__ */ _bind(FW, 'kASSelectGetHandler')
 export const kASSelectGetHandlerNames = /* @__PURE__ */ _bind(FW, 'kASSelectGetHandlerNames')
 export const kASSelectGetHandlerObsolete = /* @__PURE__ */ _bind(FW, 'kASSelectGetHandlerObsolete')
 export const kASSelectGetProperty = /* @__PURE__ */ _bind(FW, 'kASSelectGetProperty')
 export const kASSelectGetPropertyNames = /* @__PURE__ */ _bind(FW, 'kASSelectGetPropertyNames')
-export const kASSelectGetPropertyObsolete = /* @__PURE__ */ _bind(FW, 'kASSelectGetPropertyObsolete')
-export const kASSelectGetSourceStyleNames = /* @__PURE__ */ _bind(FW, 'kASSelectGetSourceStyleNames')
+export const kASSelectGetPropertyObsolete = /* @__PURE__ */ _bind(
+	FW,
+	'kASSelectGetPropertyObsolete',
+)
+
+export const kASSelectGetSourceStyleNames = /* @__PURE__ */ _bind(
+	FW,
+	'kASSelectGetSourceStyleNames',
+)
+
 export const kASSelectGetSourceStyles = /* @__PURE__ */ _bind(FW, 'kASSelectGetSourceStyles')
 export const kASSelectGetSysTerminology = /* @__PURE__ */ _bind(FW, 'kASSelectGetSysTerminology')
 export const kASSelectInit = /* @__PURE__ */ _bind(FW, 'kASSelectInit')
 export const kASSelectSetHandler = /* @__PURE__ */ _bind(FW, 'kASSelectSetHandler')
 export const kASSelectSetHandlerObsolete = /* @__PURE__ */ _bind(FW, 'kASSelectSetHandlerObsolete')
 export const kASSelectSetProperty = /* @__PURE__ */ _bind(FW, 'kASSelectSetProperty')
-export const kASSelectSetPropertyObsolete = /* @__PURE__ */ _bind(FW, 'kASSelectSetPropertyObsolete')
-export const kASSelectSetSourceAttributes = /* @__PURE__ */ _bind(FW, 'kASSelectSetSourceAttributes')
+export const kASSelectSetPropertyObsolete = /* @__PURE__ */ _bind(
+	FW,
+	'kASSelectSetPropertyObsolete',
+)
+
+export const kASSelectSetSourceAttributes = /* @__PURE__ */ _bind(
+	FW,
+	'kASSelectSetSourceAttributes',
+)
+
 export const kASSelectSetSourceStyles = /* @__PURE__ */ _bind(FW, 'kASSelectSetSourceStyles')
-export const kASSourceStyleApplicationKeyword = /* @__PURE__ */ _bind(FW, 'kASSourceStyleApplicationKeyword')
+export const kASSourceStyleApplicationKeyword = /* @__PURE__ */ _bind(
+	FW,
+	'kASSourceStyleApplicationKeyword',
+)
+
 export const kASSourceStyleClass = /* @__PURE__ */ _bind(FW, 'kASSourceStyleClass')
 export const kASSourceStyleComment = /* @__PURE__ */ _bind(FW, 'kASSourceStyleComment')
 export const kASSourceStyleDynamicClass = /* @__PURE__ */ _bind(FW, 'kASSourceStyleDynamicClass')
-export const kASSourceStyleDynamicEnumValue = /* @__PURE__ */ _bind(FW, 'kASSourceStyleDynamicEnumValue')
-export const kASSourceStyleDynamicEventName = /* @__PURE__ */ _bind(FW, 'kASSourceStyleDynamicEventName')
-export const kASSourceStyleDynamicParameterName = /* @__PURE__ */ _bind(FW, 'kASSourceStyleDynamicParameterName')
-export const kASSourceStyleDynamicProperty = /* @__PURE__ */ _bind(FW, 'kASSourceStyleDynamicProperty')
+export const kASSourceStyleDynamicEnumValue = /* @__PURE__ */ _bind(
+	FW,
+	'kASSourceStyleDynamicEnumValue',
+)
+
+export const kASSourceStyleDynamicEventName = /* @__PURE__ */ _bind(
+	FW,
+	'kASSourceStyleDynamicEventName',
+)
+
+export const kASSourceStyleDynamicParameterName = /* @__PURE__ */ _bind(
+	FW,
+	'kASSourceStyleDynamicParameterName',
+)
+
+export const kASSourceStyleDynamicProperty = /* @__PURE__ */ _bind(
+	FW,
+	'kASSourceStyleDynamicProperty',
+)
+
 export const kASSourceStyleEnumValue = /* @__PURE__ */ _bind(FW, 'kASSourceStyleEnumValue')
 export const kASSourceStyleEventName = /* @__PURE__ */ _bind(FW, 'kASSourceStyleEventName')
-export const kASSourceStyleLanguageKeyword = /* @__PURE__ */ _bind(FW, 'kASSourceStyleLanguageKeyword')
+export const kASSourceStyleLanguageKeyword = /* @__PURE__ */ _bind(
+	FW,
+	'kASSourceStyleLanguageKeyword',
+)
+
 export const kASSourceStyleLiteral = /* @__PURE__ */ _bind(FW, 'kASSourceStyleLiteral')
 export const kASSourceStyleNormalText = /* @__PURE__ */ _bind(FW, 'kASSourceStyleNormalText')
-export const kASSourceStyleObjectSpecifier = /* @__PURE__ */ _bind(FW, 'kASSourceStyleObjectSpecifier')
+export const kASSourceStyleObjectSpecifier = /* @__PURE__ */ _bind(
+	FW,
+	'kASSourceStyleObjectSpecifier',
+)
+
 export const kASSourceStyleParameterName = /* @__PURE__ */ _bind(FW, 'kASSourceStyleParameterName')
 export const kASSourceStyleProperty = /* @__PURE__ */ _bind(FW, 'kASSourceStyleProperty')
 export const kASSourceStyleString = /* @__PURE__ */ _bind(FW, 'kASSourceStyleString')
-export const kASSourceStyleUncompiledText = /* @__PURE__ */ _bind(FW, 'kASSourceStyleUncompiledText')
+export const kASSourceStyleUncompiledText = /* @__PURE__ */ _bind(
+	FW,
+	'kASSourceStyleUncompiledText',
+)
+
 export const kASSourceStyleUserSymbol = /* @__PURE__ */ _bind(FW, 'kASSourceStyleUserSymbol')
 export const kASStartLogEvent = /* @__PURE__ */ _bind(FW, 'kASStartLogEvent')
 export const kASStartsWith = /* @__PURE__ */ _bind(FW, 'kASStartsWith')
@@ -1339,8 +2127,16 @@ export const kAlertDefaultOKText = /* @__PURE__ */ _bind(FW, 'kAlertDefaultOKTex
 export const kAlertDefaultOtherText = /* @__PURE__ */ _bind(FW, 'kAlertDefaultOtherText')
 export const kAlertFlagsAlertIsMovable = /* @__PURE__ */ _bind(FW, 'kAlertFlagsAlertIsMovable')
 export const kAlertFlagsUseCompositing = /* @__PURE__ */ _bind(FW, 'kAlertFlagsUseCompositing')
-export const kAlertFlagsUseControlHierarchy = /* @__PURE__ */ _bind(FW, 'kAlertFlagsUseControlHierarchy')
-export const kAlertFlagsUseThemeBackground = /* @__PURE__ */ _bind(FW, 'kAlertFlagsUseThemeBackground')
+export const kAlertFlagsUseControlHierarchy = /* @__PURE__ */ _bind(
+	FW,
+	'kAlertFlagsUseControlHierarchy',
+)
+
+export const kAlertFlagsUseThemeBackground = /* @__PURE__ */ _bind(
+	FW,
+	'kAlertFlagsUseThemeBackground',
+)
+
 export const kAlertFlagsUseThemeControls = /* @__PURE__ */ _bind(FW, 'kAlertFlagsUseThemeControls')
 export const kAlertNoteAlert = /* @__PURE__ */ _bind(FW, 'kAlertNoteAlert')
 export const kAlertPlainAlert = /* @__PURE__ */ _bind(FW, 'kAlertPlainAlert')
@@ -1362,36 +2158,64 @@ export const kAppearancePartMetaInactive = /* @__PURE__ */ _bind(FW, 'kAppearanc
 export const kAppearancePartMetaNone = /* @__PURE__ */ _bind(FW, 'kAppearancePartMetaNone')
 export const kAppearancePartPageDownArea = /* @__PURE__ */ _bind(FW, 'kAppearancePartPageDownArea')
 export const kAppearancePartPageLeftArea = /* @__PURE__ */ _bind(FW, 'kAppearancePartPageLeftArea')
-export const kAppearancePartPageRightArea = /* @__PURE__ */ _bind(FW, 'kAppearancePartPageRightArea')
+export const kAppearancePartPageRightArea = /* @__PURE__ */ _bind(
+	FW,
+	'kAppearancePartPageRightArea',
+)
+
 export const kAppearancePartPageUpArea = /* @__PURE__ */ _bind(FW, 'kAppearancePartPageUpArea')
 export const kAppearancePartRightButton = /* @__PURE__ */ _bind(FW, 'kAppearancePartRightButton')
 export const kAppearancePartUpButton = /* @__PURE__ */ _bind(FW, 'kAppearancePartUpButton')
 export const kAppearanceRegionCloseBox = /* @__PURE__ */ _bind(FW, 'kAppearanceRegionCloseBox')
-export const kAppearanceRegionCollapseBox = /* @__PURE__ */ _bind(FW, 'kAppearanceRegionCollapseBox')
+export const kAppearanceRegionCollapseBox = /* @__PURE__ */ _bind(
+	FW,
+	'kAppearanceRegionCollapseBox',
+)
+
 export const kAppearanceRegionContent = /* @__PURE__ */ _bind(FW, 'kAppearanceRegionContent')
 export const kAppearanceRegionDrag = /* @__PURE__ */ _bind(FW, 'kAppearanceRegionDrag')
 export const kAppearanceRegionGrow = /* @__PURE__ */ _bind(FW, 'kAppearanceRegionGrow')
 export const kAppearanceRegionStructure = /* @__PURE__ */ _bind(FW, 'kAppearanceRegionStructure')
 export const kAppearanceRegionTitleBar = /* @__PURE__ */ _bind(FW, 'kAppearanceRegionTitleBar')
-export const kAppearanceRegionTitleProxyIcon = /* @__PURE__ */ _bind(FW, 'kAppearanceRegionTitleProxyIcon')
+export const kAppearanceRegionTitleProxyIcon = /* @__PURE__ */ _bind(
+	FW,
+	'kAppearanceRegionTitleProxyIcon',
+)
+
 export const kAppearanceRegionTitleText = /* @__PURE__ */ _bind(FW, 'kAppearanceRegionTitleText')
-export const kAppearanceRegionToolbarButton = /* @__PURE__ */ _bind(FW, 'kAppearanceRegionToolbarButton')
+export const kAppearanceRegionToolbarButton = /* @__PURE__ */ _bind(
+	FW,
+	'kAppearanceRegionToolbarButton',
+)
+
 export const kAppearanceRegionZoomBox = /* @__PURE__ */ _bind(FW, 'kAppearanceRegionZoomBox')
 export const kAppleLogoCharCode = /* @__PURE__ */ _bind(FW, 'kAppleLogoCharCode')
 export const kAppleLogoUnicode = /* @__PURE__ */ _bind(FW, 'kAppleLogoUnicode')
 export const kAppleScriptSubtype = /* @__PURE__ */ _bind(FW, 'kAppleScriptSubtype')
 export const kApplicationWindowKind = /* @__PURE__ */ _bind(FW, 'kApplicationWindowKind')
 export const kAtSpecifiedOrigin = /* @__PURE__ */ _bind(FW, 'kAtSpecifiedOrigin')
-export const kAvailBoundsChangedForDisplay = /* @__PURE__ */ _bind(FW, 'kAvailBoundsChangedForDisplay')
+export const kAvailBoundsChangedForDisplay = /* @__PURE__ */ _bind(
+	FW,
+	'kAvailBoundsChangedForDisplay',
+)
+
 export const kAvailBoundsChangedForDock = /* @__PURE__ */ _bind(FW, 'kAvailBoundsChangedForDock')
-export const kAvailBoundsChangedForMenuBar = /* @__PURE__ */ _bind(FW, 'kAvailBoundsChangedForMenuBar')
+export const kAvailBoundsChangedForMenuBar = /* @__PURE__ */ _bind(
+	FW,
+	'kAvailBoundsChangedForMenuBar',
+)
+
 export const kBackspaceCharCode = /* @__PURE__ */ _bind(FW, 'kBackspaceCharCode')
 export const kBellCharCode = /* @__PURE__ */ _bind(FW, 'kBellCharCode')
 export const kBulletCharCode = /* @__PURE__ */ _bind(FW, 'kBulletCharCode')
 export const kBulletUnicode = /* @__PURE__ */ _bind(FW, 'kBulletUnicode')
 export const kButtonDialogItem = /* @__PURE__ */ _bind(FW, 'kButtonDialogItem')
 export const kCMActivateTextService = /* @__PURE__ */ _bind(FW, 'kCMActivateTextService')
-export const kCMCopyTextServiceInputModeList = /* @__PURE__ */ _bind(FW, 'kCMCopyTextServiceInputModeList')
+export const kCMCopyTextServiceInputModeList = /* @__PURE__ */ _bind(
+	FW,
+	'kCMCopyTextServiceInputModeList',
+)
+
 export const kCMDeactivateTextService = /* @__PURE__ */ _bind(FW, 'kCMDeactivateTextService')
 export const kCMFixTextService = /* @__PURE__ */ _bind(FW, 'kCMFixTextService')
 export const kCMGetInputModePaletteMenu = /* @__PURE__ */ _bind(FW, 'kCMGetInputModePaletteMenu')
@@ -1419,20 +2243,52 @@ export const kCalibratorNamePrefix = /* @__PURE__ */ _bind(FW, 'kCalibratorNameP
 export const kCautionIcon = /* @__PURE__ */ _bind(FW, 'kCautionIcon')
 export const kCenterOnMainScreen = /* @__PURE__ */ _bind(FW, 'kCenterOnMainScreen')
 export const kCenterOnScreen = /* @__PURE__ */ _bind(FW, 'kCenterOnScreen')
-export const kCharacterPaletteInputMethodClass = /* @__PURE__ */ _bind(FW, 'kCharacterPaletteInputMethodClass')
+export const kCharacterPaletteInputMethodClass = /* @__PURE__ */ _bind(
+	FW,
+	'kCharacterPaletteInputMethodClass',
+)
+
 export const kCheckBoxDialogItem = /* @__PURE__ */ _bind(FW, 'kCheckBoxDialogItem')
 export const kCheckCharCode = /* @__PURE__ */ _bind(FW, 'kCheckCharCode')
 export const kCheckUnicode = /* @__PURE__ */ _bind(FW, 'kCheckUnicode')
 export const kCleanUpAEUT = /* @__PURE__ */ _bind(FW, 'kCleanUpAEUT')
 export const kClearCharCode = /* @__PURE__ */ _bind(FW, 'kClearCharCode')
-export const kColorPickerAppIsColorSyncAware = /* @__PURE__ */ _bind(FW, 'kColorPickerAppIsColorSyncAware')
-export const kColorPickerCallColorProcLive = /* @__PURE__ */ _bind(FW, 'kColorPickerCallColorProcLive')
-export const kColorPickerCanAnimatePalette = /* @__PURE__ */ _bind(FW, 'kColorPickerCanAnimatePalette')
-export const kColorPickerCanModifyPalette = /* @__PURE__ */ _bind(FW, 'kColorPickerCanModifyPalette')
-export const kColorPickerDetachedFromChoices = /* @__PURE__ */ _bind(FW, 'kColorPickerDetachedFromChoices')
+export const kColorPickerAppIsColorSyncAware = /* @__PURE__ */ _bind(
+	FW,
+	'kColorPickerAppIsColorSyncAware',
+)
+
+export const kColorPickerCallColorProcLive = /* @__PURE__ */ _bind(
+	FW,
+	'kColorPickerCallColorProcLive',
+)
+
+export const kColorPickerCanAnimatePalette = /* @__PURE__ */ _bind(
+	FW,
+	'kColorPickerCanAnimatePalette',
+)
+
+export const kColorPickerCanModifyPalette = /* @__PURE__ */ _bind(
+	FW,
+	'kColorPickerCanModifyPalette',
+)
+
+export const kColorPickerDetachedFromChoices = /* @__PURE__ */ _bind(
+	FW,
+	'kColorPickerDetachedFromChoices',
+)
+
 export const kColorPickerDialogIsModal = /* @__PURE__ */ _bind(FW, 'kColorPickerDialogIsModal')
-export const kColorPickerDialogIsMoveable = /* @__PURE__ */ _bind(FW, 'kColorPickerDialogIsMoveable')
-export const kColorPickerInApplicationDialog = /* @__PURE__ */ _bind(FW, 'kColorPickerInApplicationDialog')
+export const kColorPickerDialogIsMoveable = /* @__PURE__ */ _bind(
+	FW,
+	'kColorPickerDialogIsMoveable',
+)
+
+export const kColorPickerInApplicationDialog = /* @__PURE__ */ _bind(
+	FW,
+	'kColorPickerInApplicationDialog',
+)
+
 export const kColorPickerInPickerDialog = /* @__PURE__ */ _bind(FW, 'kColorPickerInPickerDialog')
 export const kColorPickerInSystemDialog = /* @__PURE__ */ _bind(FW, 'kColorPickerInSystemDialog')
 export const kCommandCharCode = /* @__PURE__ */ _bind(FW, 'kCommandCharCode')
@@ -1441,78 +2297,310 @@ export const kControlAddFontSizeMask = /* @__PURE__ */ _bind(FW, 'kControlAddFon
 export const kControlAddToMetaFontMask = /* @__PURE__ */ _bind(FW, 'kControlAddToMetaFontMask')
 export const kControlAutoToggles = /* @__PURE__ */ _bind(FW, 'kControlAutoToggles')
 export const kControlBehaviorCommandMenu = /* @__PURE__ */ _bind(FW, 'kControlBehaviorCommandMenu')
-export const kControlBehaviorMultiValueMenu = /* @__PURE__ */ _bind(FW, 'kControlBehaviorMultiValueMenu')
-export const kControlBehaviorOffsetContents = /* @__PURE__ */ _bind(FW, 'kControlBehaviorOffsetContents')
+export const kControlBehaviorMultiValueMenu = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBehaviorMultiValueMenu',
+)
+
+export const kControlBehaviorOffsetContents = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBehaviorOffsetContents',
+)
+
 export const kControlBehaviorPushbutton = /* @__PURE__ */ _bind(FW, 'kControlBehaviorPushbutton')
-export const kControlBehaviorSingleValueMenu = /* @__PURE__ */ _bind(FW, 'kControlBehaviorSingleValueMenu')
+export const kControlBehaviorSingleValueMenu = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBehaviorSingleValueMenu',
+)
+
 export const kControlBehaviorSticky = /* @__PURE__ */ _bind(FW, 'kControlBehaviorSticky')
 export const kControlBehaviorToggles = /* @__PURE__ */ _bind(FW, 'kControlBehaviorToggles')
-export const kControlBevelButtonAlignBottom = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonAlignBottom')
-export const kControlBevelButtonAlignBottomLeft = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonAlignBottomLeft')
-export const kControlBevelButtonAlignBottomRight = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonAlignBottomRight')
-export const kControlBevelButtonAlignCenter = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonAlignCenter')
-export const kControlBevelButtonAlignLeft = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonAlignLeft')
-export const kControlBevelButtonAlignRight = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonAlignRight')
-export const kControlBevelButtonAlignSysDirection = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonAlignSysDirection')
-export const kControlBevelButtonAlignTextCenter = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonAlignTextCenter')
-export const kControlBevelButtonAlignTextFlushLeft = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonAlignTextFlushLeft')
-export const kControlBevelButtonAlignTextFlushRight = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonAlignTextFlushRight')
-export const kControlBevelButtonAlignTextSysDirection = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonAlignTextSysDirection')
+export const kControlBevelButtonAlignBottom = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonAlignBottom',
+)
+
+export const kControlBevelButtonAlignBottomLeft = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonAlignBottomLeft',
+)
+
+export const kControlBevelButtonAlignBottomRight = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonAlignBottomRight',
+)
+
+export const kControlBevelButtonAlignCenter = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonAlignCenter',
+)
+
+export const kControlBevelButtonAlignLeft = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonAlignLeft',
+)
+
+export const kControlBevelButtonAlignRight = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonAlignRight',
+)
+
+export const kControlBevelButtonAlignSysDirection = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonAlignSysDirection',
+)
+
+export const kControlBevelButtonAlignTextCenter = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonAlignTextCenter',
+)
+
+export const kControlBevelButtonAlignTextFlushLeft = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonAlignTextFlushLeft',
+)
+
+export const kControlBevelButtonAlignTextFlushRight = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonAlignTextFlushRight',
+)
+
+export const kControlBevelButtonAlignTextSysDirection = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonAlignTextSysDirection',
+)
+
 export const kControlBevelButtonAlignTop = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonAlignTop')
-export const kControlBevelButtonAlignTopLeft = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonAlignTopLeft')
-export const kControlBevelButtonAlignTopRight = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonAlignTopRight')
-export const kControlBevelButtonCenterPopupGlyphTag = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonCenterPopupGlyphTag')
-export const kControlBevelButtonContentTag = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonContentTag')
-export const kControlBevelButtonGraphicAlignTag = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonGraphicAlignTag')
-export const kControlBevelButtonGraphicOffsetTag = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonGraphicOffsetTag')
-export const kControlBevelButtonIsMultiValueMenuTag = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonIsMultiValueMenuTag')
+export const kControlBevelButtonAlignTopLeft = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonAlignTopLeft',
+)
+
+export const kControlBevelButtonAlignTopRight = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonAlignTopRight',
+)
+
+export const kControlBevelButtonCenterPopupGlyphTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonCenterPopupGlyphTag',
+)
+
+export const kControlBevelButtonContentTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonContentTag',
+)
+
+export const kControlBevelButtonGraphicAlignTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonGraphicAlignTag',
+)
+
+export const kControlBevelButtonGraphicOffsetTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonGraphicOffsetTag',
+)
+
+export const kControlBevelButtonIsMultiValueMenuTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonIsMultiValueMenuTag',
+)
+
 export const kControlBevelButtonKindTag = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonKindTag')
-export const kControlBevelButtonLargeBevel = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonLargeBevel')
-export const kControlBevelButtonLargeBevelProc = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonLargeBevelProc')
-export const kControlBevelButtonLargeBevelVariant = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonLargeBevelVariant')
-export const kControlBevelButtonLastMenuTag = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonLastMenuTag')
-export const kControlBevelButtonMenuDelayTag = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonMenuDelayTag')
-export const kControlBevelButtonMenuHandleTag = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonMenuHandleTag')
-export const kControlBevelButtonMenuOnBottom = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonMenuOnBottom')
-export const kControlBevelButtonMenuOnRight = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonMenuOnRight')
-export const kControlBevelButtonMenuOnRightVariant = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonMenuOnRightVariant')
-export const kControlBevelButtonMenuRefTag = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonMenuRefTag')
-export const kControlBevelButtonMenuValueTag = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonMenuValueTag')
-export const kControlBevelButtonNormalBevel = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonNormalBevel')
-export const kControlBevelButtonNormalBevelProc = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonNormalBevelProc')
-export const kControlBevelButtonNormalBevelVariant = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonNormalBevelVariant')
-export const kControlBevelButtonOwnedMenuRefTag = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonOwnedMenuRefTag')
-export const kControlBevelButtonPlaceAboveGraphic = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonPlaceAboveGraphic')
-export const kControlBevelButtonPlaceBelowGraphic = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonPlaceBelowGraphic')
-export const kControlBevelButtonPlaceNormally = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonPlaceNormally')
-export const kControlBevelButtonPlaceSysDirection = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonPlaceSysDirection')
-export const kControlBevelButtonPlaceToLeftOfGraphic = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonPlaceToLeftOfGraphic')
-export const kControlBevelButtonPlaceToRightOfGraphic = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonPlaceToRightOfGraphic')
-export const kControlBevelButtonScaleIconTag = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonScaleIconTag')
-export const kControlBevelButtonSmallBevel = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonSmallBevel')
-export const kControlBevelButtonSmallBevelProc = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonSmallBevelProc')
-export const kControlBevelButtonSmallBevelVariant = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonSmallBevelVariant')
-export const kControlBevelButtonTextAlignTag = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonTextAlignTag')
-export const kControlBevelButtonTextOffsetTag = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonTextOffsetTag')
-export const kControlBevelButtonTextPlaceTag = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonTextPlaceTag')
-export const kControlBevelButtonTransformTag = /* @__PURE__ */ _bind(FW, 'kControlBevelButtonTransformTag')
-export const kControlBoundsChangePositionChanged = /* @__PURE__ */ _bind(FW, 'kControlBoundsChangePositionChanged')
-export const kControlBoundsChangeSizeChanged = /* @__PURE__ */ _bind(FW, 'kControlBoundsChangeSizeChanged')
+export const kControlBevelButtonLargeBevel = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonLargeBevel',
+)
+
+export const kControlBevelButtonLargeBevelProc = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonLargeBevelProc',
+)
+
+export const kControlBevelButtonLargeBevelVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonLargeBevelVariant',
+)
+
+export const kControlBevelButtonLastMenuTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonLastMenuTag',
+)
+
+export const kControlBevelButtonMenuDelayTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonMenuDelayTag',
+)
+
+export const kControlBevelButtonMenuHandleTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonMenuHandleTag',
+)
+
+export const kControlBevelButtonMenuOnBottom = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonMenuOnBottom',
+)
+
+export const kControlBevelButtonMenuOnRight = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonMenuOnRight',
+)
+
+export const kControlBevelButtonMenuOnRightVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonMenuOnRightVariant',
+)
+
+export const kControlBevelButtonMenuRefTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonMenuRefTag',
+)
+
+export const kControlBevelButtonMenuValueTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonMenuValueTag',
+)
+
+export const kControlBevelButtonNormalBevel = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonNormalBevel',
+)
+
+export const kControlBevelButtonNormalBevelProc = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonNormalBevelProc',
+)
+
+export const kControlBevelButtonNormalBevelVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonNormalBevelVariant',
+)
+
+export const kControlBevelButtonOwnedMenuRefTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonOwnedMenuRefTag',
+)
+
+export const kControlBevelButtonPlaceAboveGraphic = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonPlaceAboveGraphic',
+)
+
+export const kControlBevelButtonPlaceBelowGraphic = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonPlaceBelowGraphic',
+)
+
+export const kControlBevelButtonPlaceNormally = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonPlaceNormally',
+)
+
+export const kControlBevelButtonPlaceSysDirection = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonPlaceSysDirection',
+)
+
+export const kControlBevelButtonPlaceToLeftOfGraphic = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonPlaceToLeftOfGraphic',
+)
+
+export const kControlBevelButtonPlaceToRightOfGraphic = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonPlaceToRightOfGraphic',
+)
+
+export const kControlBevelButtonScaleIconTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonScaleIconTag',
+)
+
+export const kControlBevelButtonSmallBevel = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonSmallBevel',
+)
+
+export const kControlBevelButtonSmallBevelProc = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonSmallBevelProc',
+)
+
+export const kControlBevelButtonSmallBevelVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonSmallBevelVariant',
+)
+
+export const kControlBevelButtonTextAlignTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonTextAlignTag',
+)
+
+export const kControlBevelButtonTextOffsetTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonTextOffsetTag',
+)
+
+export const kControlBevelButtonTextPlaceTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonTextPlaceTag',
+)
+
+export const kControlBevelButtonTransformTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBevelButtonTransformTag',
+)
+
+export const kControlBoundsChangePositionChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBoundsChangePositionChanged',
+)
+
+export const kControlBoundsChangeSizeChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kControlBoundsChangeSizeChanged',
+)
+
 export const kControlButtonPart = /* @__PURE__ */ _bind(FW, 'kControlButtonPart')
-export const kControlChasingArrowsAnimatingTag = /* @__PURE__ */ _bind(FW, 'kControlChasingArrowsAnimatingTag')
+export const kControlChasingArrowsAnimatingTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlChasingArrowsAnimatingTag',
+)
+
 export const kControlChasingArrowsProc = /* @__PURE__ */ _bind(FW, 'kControlChasingArrowsProc')
-export const kControlCheckBoxAutoToggleProc = /* @__PURE__ */ _bind(FW, 'kControlCheckBoxAutoToggleProc')
-export const kControlCheckBoxCheckedValue = /* @__PURE__ */ _bind(FW, 'kControlCheckBoxCheckedValue')
+export const kControlCheckBoxAutoToggleProc = /* @__PURE__ */ _bind(
+	FW,
+	'kControlCheckBoxAutoToggleProc',
+)
+
+export const kControlCheckBoxCheckedValue = /* @__PURE__ */ _bind(
+	FW,
+	'kControlCheckBoxCheckedValue',
+)
+
 export const kControlCheckBoxMixedValue = /* @__PURE__ */ _bind(FW, 'kControlCheckBoxMixedValue')
 export const kControlCheckBoxPart = /* @__PURE__ */ _bind(FW, 'kControlCheckBoxPart')
 export const kControlCheckBoxProc = /* @__PURE__ */ _bind(FW, 'kControlCheckBoxProc')
-export const kControlCheckBoxUncheckedValue = /* @__PURE__ */ _bind(FW, 'kControlCheckBoxUncheckedValue')
+export const kControlCheckBoxUncheckedValue = /* @__PURE__ */ _bind(
+	FW,
+	'kControlCheckBoxUncheckedValue',
+)
+
 export const kControlClickableMetaPart = /* @__PURE__ */ _bind(FW, 'kControlClickableMetaPart')
 export const kControlClockAMPMPart = /* @__PURE__ */ _bind(FW, 'kControlClockAMPMPart')
-export const kControlClockAbsoluteTimeTag = /* @__PURE__ */ _bind(FW, 'kControlClockAbsoluteTimeTag')
+export const kControlClockAbsoluteTimeTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlClockAbsoluteTimeTag',
+)
+
 export const kControlClockAnimatingTag = /* @__PURE__ */ _bind(FW, 'kControlClockAnimatingTag')
 export const kControlClockDateProc = /* @__PURE__ */ _bind(FW, 'kControlClockDateProc')
-export const kControlClockFlagDisplayOnly = /* @__PURE__ */ _bind(FW, 'kControlClockFlagDisplayOnly')
+export const kControlClockFlagDisplayOnly = /* @__PURE__ */ _bind(
+	FW,
+	'kControlClockFlagDisplayOnly',
+)
+
 export const kControlClockFlagLive = /* @__PURE__ */ _bind(FW, 'kControlClockFlagLive')
 export const kControlClockFlagStandard = /* @__PURE__ */ _bind(FW, 'kControlClockFlagStandard')
 export const kControlClockFontStyleTag = /* @__PURE__ */ _bind(FW, 'kControlClockFontStyleTag')
@@ -1520,31 +2608,83 @@ export const kControlClockHourDayPart = /* @__PURE__ */ _bind(FW, 'kControlClock
 export const kControlClockIsDisplayOnly = /* @__PURE__ */ _bind(FW, 'kControlClockIsDisplayOnly')
 export const kControlClockIsLive = /* @__PURE__ */ _bind(FW, 'kControlClockIsLive')
 export const kControlClockLongDateTag = /* @__PURE__ */ _bind(FW, 'kControlClockLongDateTag')
-export const kControlClockMinuteMonthPart = /* @__PURE__ */ _bind(FW, 'kControlClockMinuteMonthPart')
+export const kControlClockMinuteMonthPart = /* @__PURE__ */ _bind(
+	FW,
+	'kControlClockMinuteMonthPart',
+)
+
 export const kControlClockMonthYearProc = /* @__PURE__ */ _bind(FW, 'kControlClockMonthYearProc')
 export const kControlClockNoFlags = /* @__PURE__ */ _bind(FW, 'kControlClockNoFlags')
 export const kControlClockPart = /* @__PURE__ */ _bind(FW, 'kControlClockPart')
 export const kControlClockSecondYearPart = /* @__PURE__ */ _bind(FW, 'kControlClockSecondYearPart')
 export const kControlClockTimeProc = /* @__PURE__ */ _bind(FW, 'kControlClockTimeProc')
-export const kControlClockTimeSecondsProc = /* @__PURE__ */ _bind(FW, 'kControlClockTimeSecondsProc')
+export const kControlClockTimeSecondsProc = /* @__PURE__ */ _bind(
+	FW,
+	'kControlClockTimeSecondsProc',
+)
+
 export const kControlClockTypeHourMinute = /* @__PURE__ */ _bind(FW, 'kControlClockTypeHourMinute')
-export const kControlClockTypeHourMinuteSecond = /* @__PURE__ */ _bind(FW, 'kControlClockTypeHourMinuteSecond')
-export const kControlClockTypeMonthDayYear = /* @__PURE__ */ _bind(FW, 'kControlClockTypeMonthDayYear')
+export const kControlClockTypeHourMinuteSecond = /* @__PURE__ */ _bind(
+	FW,
+	'kControlClockTypeHourMinuteSecond',
+)
+
+export const kControlClockTypeMonthDayYear = /* @__PURE__ */ _bind(
+	FW,
+	'kControlClockTypeMonthDayYear',
+)
+
 export const kControlClockTypeMonthYear = /* @__PURE__ */ _bind(FW, 'kControlClockTypeMonthYear')
 export const kControlCollectionTagBounds = /* @__PURE__ */ _bind(FW, 'kControlCollectionTagBounds')
-export const kControlCollectionTagCommand = /* @__PURE__ */ _bind(FW, 'kControlCollectionTagCommand')
+export const kControlCollectionTagCommand = /* @__PURE__ */ _bind(
+	FW,
+	'kControlCollectionTagCommand',
+)
+
 export const kControlCollectionTagIDID = /* @__PURE__ */ _bind(FW, 'kControlCollectionTagIDID')
-export const kControlCollectionTagIDSignature = /* @__PURE__ */ _bind(FW, 'kControlCollectionTagIDSignature')
-export const kControlCollectionTagMaximum = /* @__PURE__ */ _bind(FW, 'kControlCollectionTagMaximum')
-export const kControlCollectionTagMinimum = /* @__PURE__ */ _bind(FW, 'kControlCollectionTagMinimum')
+export const kControlCollectionTagIDSignature = /* @__PURE__ */ _bind(
+	FW,
+	'kControlCollectionTagIDSignature',
+)
+
+export const kControlCollectionTagMaximum = /* @__PURE__ */ _bind(
+	FW,
+	'kControlCollectionTagMaximum',
+)
+
+export const kControlCollectionTagMinimum = /* @__PURE__ */ _bind(
+	FW,
+	'kControlCollectionTagMinimum',
+)
+
 export const kControlCollectionTagRefCon = /* @__PURE__ */ _bind(FW, 'kControlCollectionTagRefCon')
 export const kControlCollectionTagTitle = /* @__PURE__ */ _bind(FW, 'kControlCollectionTagTitle')
-export const kControlCollectionTagUnicodeTitle = /* @__PURE__ */ _bind(FW, 'kControlCollectionTagUnicodeTitle')
+export const kControlCollectionTagUnicodeTitle = /* @__PURE__ */ _bind(
+	FW,
+	'kControlCollectionTagUnicodeTitle',
+)
+
 export const kControlCollectionTagValue = /* @__PURE__ */ _bind(FW, 'kControlCollectionTagValue')
-export const kControlCollectionTagVarCode = /* @__PURE__ */ _bind(FW, 'kControlCollectionTagVarCode')
-export const kControlCollectionTagViewSize = /* @__PURE__ */ _bind(FW, 'kControlCollectionTagViewSize')
-export const kControlCollectionTagVisibility = /* @__PURE__ */ _bind(FW, 'kControlCollectionTagVisibility')
-export const kControlColorTableResourceType = /* @__PURE__ */ _bind(FW, 'kControlColorTableResourceType')
+export const kControlCollectionTagVarCode = /* @__PURE__ */ _bind(
+	FW,
+	'kControlCollectionTagVarCode',
+)
+
+export const kControlCollectionTagViewSize = /* @__PURE__ */ _bind(
+	FW,
+	'kControlCollectionTagViewSize',
+)
+
+export const kControlCollectionTagVisibility = /* @__PURE__ */ _bind(
+	FW,
+	'kControlCollectionTagVisibility',
+)
+
+export const kControlColorTableResourceType = /* @__PURE__ */ _bind(
+	FW,
+	'kControlColorTableResourceType',
+)
+
 export const kControlContentAlertIconRes = /* @__PURE__ */ _bind(FW, 'kControlContentAlertIconRes')
 export const kControlContentCGImageRef = /* @__PURE__ */ _bind(FW, 'kControlContentCGImageRef')
 export const kControlContentCIconHandle = /* @__PURE__ */ _bind(FW, 'kControlContentCIconHandle')
@@ -1552,55 +2692,167 @@ export const kControlContentCIconRes = /* @__PURE__ */ _bind(FW, 'kControlConten
 export const kControlContentICON = /* @__PURE__ */ _bind(FW, 'kControlContentICON')
 export const kControlContentICONRes = /* @__PURE__ */ _bind(FW, 'kControlContentICONRes')
 export const kControlContentIconRef = /* @__PURE__ */ _bind(FW, 'kControlContentIconRef')
-export const kControlContentIconSuiteHandle = /* @__PURE__ */ _bind(FW, 'kControlContentIconSuiteHandle')
+export const kControlContentIconSuiteHandle = /* @__PURE__ */ _bind(
+	FW,
+	'kControlContentIconSuiteHandle',
+)
+
 export const kControlContentIconSuiteRes = /* @__PURE__ */ _bind(FW, 'kControlContentIconSuiteRes')
 export const kControlContentMetaPart = /* @__PURE__ */ _bind(FW, 'kControlContentMetaPart')
 export const kControlContentPictHandle = /* @__PURE__ */ _bind(FW, 'kControlContentPictHandle')
 export const kControlContentPictRes = /* @__PURE__ */ _bind(FW, 'kControlContentPictRes')
 export const kControlContentTag = /* @__PURE__ */ _bind(FW, 'kControlContentTag')
 export const kControlContentTextOnly = /* @__PURE__ */ _bind(FW, 'kControlContentTextOnly')
-export const kControlDataBrowserDraggedPart = /* @__PURE__ */ _bind(FW, 'kControlDataBrowserDraggedPart')
-export const kControlDataBrowserEditTextKeyFilterTag = /* @__PURE__ */ _bind(FW, 'kControlDataBrowserEditTextKeyFilterTag')
-export const kControlDataBrowserEditTextValidationProcTag = /* @__PURE__ */ _bind(FW, 'kControlDataBrowserEditTextValidationProcTag')
-export const kControlDataBrowserIncludesFrameAndFocusTag = /* @__PURE__ */ _bind(FW, 'kControlDataBrowserIncludesFrameAndFocusTag')
-export const kControlDataBrowserKeyFilterTag = /* @__PURE__ */ _bind(FW, 'kControlDataBrowserKeyFilterTag')
+export const kControlDataBrowserDraggedPart = /* @__PURE__ */ _bind(
+	FW,
+	'kControlDataBrowserDraggedPart',
+)
+
+export const kControlDataBrowserEditTextKeyFilterTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlDataBrowserEditTextKeyFilterTag',
+)
+
+export const kControlDataBrowserEditTextValidationProcTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlDataBrowserEditTextValidationProcTag',
+)
+
+export const kControlDataBrowserIncludesFrameAndFocusTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlDataBrowserIncludesFrameAndFocusTag',
+)
+
+export const kControlDataBrowserKeyFilterTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlDataBrowserKeyFilterTag',
+)
+
 export const kControlDataBrowserPart = /* @__PURE__ */ _bind(FW, 'kControlDataBrowserPart')
 export const kControlDefProcResourceType = /* @__PURE__ */ _bind(FW, 'kControlDefProcResourceType')
 export const kControlDefProcType = /* @__PURE__ */ _bind(FW, 'kControlDefProcType')
 export const kControlDialogItem = /* @__PURE__ */ _bind(FW, 'kControlDialogItem')
 export const kControlDisabledPart = /* @__PURE__ */ _bind(FW, 'kControlDisabledPart')
-export const kControlDisclosureButtonClosed = /* @__PURE__ */ _bind(FW, 'kControlDisclosureButtonClosed')
-export const kControlDisclosureButtonDisclosed = /* @__PURE__ */ _bind(FW, 'kControlDisclosureButtonDisclosed')
-export const kControlDisclosureTrianglePointDefault = /* @__PURE__ */ _bind(FW, 'kControlDisclosureTrianglePointDefault')
-export const kControlDisclosureTrianglePointLeft = /* @__PURE__ */ _bind(FW, 'kControlDisclosureTrianglePointLeft')
-export const kControlDisclosureTrianglePointRight = /* @__PURE__ */ _bind(FW, 'kControlDisclosureTrianglePointRight')
+export const kControlDisclosureButtonClosed = /* @__PURE__ */ _bind(
+	FW,
+	'kControlDisclosureButtonClosed',
+)
+
+export const kControlDisclosureButtonDisclosed = /* @__PURE__ */ _bind(
+	FW,
+	'kControlDisclosureButtonDisclosed',
+)
+
+export const kControlDisclosureTrianglePointDefault = /* @__PURE__ */ _bind(
+	FW,
+	'kControlDisclosureTrianglePointDefault',
+)
+
+export const kControlDisclosureTrianglePointLeft = /* @__PURE__ */ _bind(
+	FW,
+	'kControlDisclosureTrianglePointLeft',
+)
+
+export const kControlDisclosureTrianglePointRight = /* @__PURE__ */ _bind(
+	FW,
+	'kControlDisclosureTrianglePointRight',
+)
+
 export const kControlDownButtonPart = /* @__PURE__ */ _bind(FW, 'kControlDownButtonPart')
 export const kControlEditTextCFStringTag = /* @__PURE__ */ _bind(FW, 'kControlEditTextCFStringTag')
 export const kControlEditTextCharCount = /* @__PURE__ */ _bind(FW, 'kControlEditTextCharCount')
-export const kControlEditTextFixedTextTag = /* @__PURE__ */ _bind(FW, 'kControlEditTextFixedTextTag')
-export const kControlEditTextInlineInputProc = /* @__PURE__ */ _bind(FW, 'kControlEditTextInlineInputProc')
-export const kControlEditTextInlinePostUpdateProcTag = /* @__PURE__ */ _bind(FW, 'kControlEditTextInlinePostUpdateProcTag')
-export const kControlEditTextInlinePreUpdateProcTag = /* @__PURE__ */ _bind(FW, 'kControlEditTextInlinePreUpdateProcTag')
-export const kControlEditTextInsertCFStringRefTag = /* @__PURE__ */ _bind(FW, 'kControlEditTextInsertCFStringRefTag')
-export const kControlEditTextInsertTextBufferTag = /* @__PURE__ */ _bind(FW, 'kControlEditTextInsertTextBufferTag')
-export const kControlEditTextKeyFilterTag = /* @__PURE__ */ _bind(FW, 'kControlEditTextKeyFilterTag')
-export const kControlEditTextKeyScriptBehaviorTag = /* @__PURE__ */ _bind(FW, 'kControlEditTextKeyScriptBehaviorTag')
+export const kControlEditTextFixedTextTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlEditTextFixedTextTag',
+)
+
+export const kControlEditTextInlineInputProc = /* @__PURE__ */ _bind(
+	FW,
+	'kControlEditTextInlineInputProc',
+)
+
+export const kControlEditTextInlinePostUpdateProcTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlEditTextInlinePostUpdateProcTag',
+)
+
+export const kControlEditTextInlinePreUpdateProcTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlEditTextInlinePreUpdateProcTag',
+)
+
+export const kControlEditTextInsertCFStringRefTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlEditTextInsertCFStringRefTag',
+)
+
+export const kControlEditTextInsertTextBufferTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlEditTextInsertTextBufferTag',
+)
+
+export const kControlEditTextKeyFilterTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlEditTextKeyFilterTag',
+)
+
+export const kControlEditTextKeyScriptBehaviorTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlEditTextKeyScriptBehaviorTag',
+)
+
 export const kControlEditTextLockedTag = /* @__PURE__ */ _bind(FW, 'kControlEditTextLockedTag')
 export const kControlEditTextPart = /* @__PURE__ */ _bind(FW, 'kControlEditTextPart')
-export const kControlEditTextPasswordCFStringTag = /* @__PURE__ */ _bind(FW, 'kControlEditTextPasswordCFStringTag')
-export const kControlEditTextPasswordProc = /* @__PURE__ */ _bind(FW, 'kControlEditTextPasswordProc')
+export const kControlEditTextPasswordCFStringTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlEditTextPasswordCFStringTag',
+)
+
+export const kControlEditTextPasswordProc = /* @__PURE__ */ _bind(
+	FW,
+	'kControlEditTextPasswordProc',
+)
+
 export const kControlEditTextPasswordTag = /* @__PURE__ */ _bind(FW, 'kControlEditTextPasswordTag')
 export const kControlEditTextProc = /* @__PURE__ */ _bind(FW, 'kControlEditTextProc')
-export const kControlEditTextSelectionTag = /* @__PURE__ */ _bind(FW, 'kControlEditTextSelectionTag')
-export const kControlEditTextSingleLineTag = /* @__PURE__ */ _bind(FW, 'kControlEditTextSingleLineTag')
-export const kControlEditTextSpellCheckAsYouTypeTag = /* @__PURE__ */ _bind(FW, 'kControlEditTextSpellCheckAsYouTypeTag')
-export const kControlEditTextSpellCheckingTag = /* @__PURE__ */ _bind(FW, 'kControlEditTextSpellCheckingTag')
+export const kControlEditTextSelectionTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlEditTextSelectionTag',
+)
+
+export const kControlEditTextSingleLineTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlEditTextSingleLineTag',
+)
+
+export const kControlEditTextSpellCheckAsYouTypeTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlEditTextSpellCheckAsYouTypeTag',
+)
+
+export const kControlEditTextSpellCheckingTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlEditTextSpellCheckingTag',
+)
+
 export const kControlEditTextStyleTag = /* @__PURE__ */ _bind(FW, 'kControlEditTextStyleTag')
 export const kControlEditTextTEHandleTag = /* @__PURE__ */ _bind(FW, 'kControlEditTextTEHandleTag')
 export const kControlEditTextTextTag = /* @__PURE__ */ _bind(FW, 'kControlEditTextTextTag')
-export const kControlEditTextValidationProcTag = /* @__PURE__ */ _bind(FW, 'kControlEditTextValidationProcTag')
-export const kControlEditUnicodeTextPasswordProc = /* @__PURE__ */ _bind(FW, 'kControlEditUnicodeTextPasswordProc')
-export const kControlEditUnicodeTextPostUpdateProcTag = /* @__PURE__ */ _bind(FW, 'kControlEditUnicodeTextPostUpdateProcTag')
+export const kControlEditTextValidationProcTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlEditTextValidationProcTag',
+)
+
+export const kControlEditUnicodeTextPasswordProc = /* @__PURE__ */ _bind(
+	FW,
+	'kControlEditUnicodeTextPasswordProc',
+)
+
+export const kControlEditUnicodeTextPostUpdateProcTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlEditUnicodeTextPostUpdateProcTag',
+)
+
 export const kControlEditUnicodeTextProc = /* @__PURE__ */ _bind(FW, 'kControlEditUnicodeTextProc')
 export const kControlEntireControl = /* @__PURE__ */ _bind(FW, 'kControlEntireControl')
 export const kControlFocusNextPart = /* @__PURE__ */ _bind(FW, 'kControlFocusNextPart')
@@ -1608,25 +2860,73 @@ export const kControlFocusNoPart = /* @__PURE__ */ _bind(FW, 'kControlFocusNoPar
 export const kControlFocusPrevPart = /* @__PURE__ */ _bind(FW, 'kControlFocusPrevPart')
 export const kControlFontBigSystemFont = /* @__PURE__ */ _bind(FW, 'kControlFontBigSystemFont')
 export const kControlFontMiniSystemFont = /* @__PURE__ */ _bind(FW, 'kControlFontMiniSystemFont')
-export const kControlFontSmallBoldSystemFont = /* @__PURE__ */ _bind(FW, 'kControlFontSmallBoldSystemFont')
+export const kControlFontSmallBoldSystemFont = /* @__PURE__ */ _bind(
+	FW,
+	'kControlFontSmallBoldSystemFont',
+)
+
 export const kControlFontSmallSystemFont = /* @__PURE__ */ _bind(FW, 'kControlFontSmallSystemFont')
 export const kControlFontStyleTag = /* @__PURE__ */ _bind(FW, 'kControlFontStyleTag')
 export const kControlFontViewSystemFont = /* @__PURE__ */ _bind(FW, 'kControlFontViewSystemFont')
 export const kControlGetsFocusOnClick = /* @__PURE__ */ _bind(FW, 'kControlGetsFocusOnClick')
-export const kControlGroupBoxCheckBoxProc = /* @__PURE__ */ _bind(FW, 'kControlGroupBoxCheckBoxProc')
-export const kControlGroupBoxFontStyleTag = /* @__PURE__ */ _bind(FW, 'kControlGroupBoxFontStyleTag')
-export const kControlGroupBoxFrameRectTag = /* @__PURE__ */ _bind(FW, 'kControlGroupBoxFrameRectTag')
-export const kControlGroupBoxMenuHandleTag = /* @__PURE__ */ _bind(FW, 'kControlGroupBoxMenuHandleTag')
+export const kControlGroupBoxCheckBoxProc = /* @__PURE__ */ _bind(
+	FW,
+	'kControlGroupBoxCheckBoxProc',
+)
+
+export const kControlGroupBoxFontStyleTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlGroupBoxFontStyleTag',
+)
+
+export const kControlGroupBoxFrameRectTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlGroupBoxFrameRectTag',
+)
+
+export const kControlGroupBoxMenuHandleTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlGroupBoxMenuHandleTag',
+)
+
 export const kControlGroupBoxMenuRefTag = /* @__PURE__ */ _bind(FW, 'kControlGroupBoxMenuRefTag')
-export const kControlGroupBoxPopupButtonProc = /* @__PURE__ */ _bind(FW, 'kControlGroupBoxPopupButtonProc')
-export const kControlGroupBoxSecondaryCheckBoxProc = /* @__PURE__ */ _bind(FW, 'kControlGroupBoxSecondaryCheckBoxProc')
-export const kControlGroupBoxSecondaryPopupButtonProc = /* @__PURE__ */ _bind(FW, 'kControlGroupBoxSecondaryPopupButtonProc')
-export const kControlGroupBoxSecondaryTextTitleProc = /* @__PURE__ */ _bind(FW, 'kControlGroupBoxSecondaryTextTitleProc')
-export const kControlGroupBoxTextTitleProc = /* @__PURE__ */ _bind(FW, 'kControlGroupBoxTextTitleProc')
-export const kControlGroupBoxTitleRectTag = /* @__PURE__ */ _bind(FW, 'kControlGroupBoxTitleRectTag')
+export const kControlGroupBoxPopupButtonProc = /* @__PURE__ */ _bind(
+	FW,
+	'kControlGroupBoxPopupButtonProc',
+)
+
+export const kControlGroupBoxSecondaryCheckBoxProc = /* @__PURE__ */ _bind(
+	FW,
+	'kControlGroupBoxSecondaryCheckBoxProc',
+)
+
+export const kControlGroupBoxSecondaryPopupButtonProc = /* @__PURE__ */ _bind(
+	FW,
+	'kControlGroupBoxSecondaryPopupButtonProc',
+)
+
+export const kControlGroupBoxSecondaryTextTitleProc = /* @__PURE__ */ _bind(
+	FW,
+	'kControlGroupBoxSecondaryTextTitleProc',
+)
+
+export const kControlGroupBoxTextTitleProc = /* @__PURE__ */ _bind(
+	FW,
+	'kControlGroupBoxTextTitleProc',
+)
+
+export const kControlGroupBoxTitleRectTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlGroupBoxTitleRectTag',
+)
+
 export const kControlHandlesTracking = /* @__PURE__ */ _bind(FW, 'kControlHandlesTracking')
 export const kControlHasRadioBehavior = /* @__PURE__ */ _bind(FW, 'kControlHasRadioBehavior')
-export const kControlHasSpecialBackground = /* @__PURE__ */ _bind(FW, 'kControlHasSpecialBackground')
+export const kControlHasSpecialBackground = /* @__PURE__ */ _bind(
+	FW,
+	'kControlHasSpecialBackground',
+)
+
 export const kControlIconAlignmentTag = /* @__PURE__ */ _bind(FW, 'kControlIconAlignmentTag')
 export const kControlIconContentTag = /* @__PURE__ */ _bind(FW, 'kControlIconContentTag')
 export const kControlIconNoTrackProc = /* @__PURE__ */ _bind(FW, 'kControlIconNoTrackProc')
@@ -1635,32 +2935,68 @@ export const kControlIconProc = /* @__PURE__ */ _bind(FW, 'kControlIconProc')
 export const kControlIconRefNoTrackProc = /* @__PURE__ */ _bind(FW, 'kControlIconRefNoTrackProc')
 export const kControlIconRefProc = /* @__PURE__ */ _bind(FW, 'kControlIconRefProc')
 export const kControlIconResourceIDTag = /* @__PURE__ */ _bind(FW, 'kControlIconResourceIDTag')
-export const kControlIconSuiteNoTrackProc = /* @__PURE__ */ _bind(FW, 'kControlIconSuiteNoTrackProc')
+export const kControlIconSuiteNoTrackProc = /* @__PURE__ */ _bind(
+	FW,
+	'kControlIconSuiteNoTrackProc',
+)
+
 export const kControlIconSuiteProc = /* @__PURE__ */ _bind(FW, 'kControlIconSuiteProc')
 export const kControlIconTransformTag = /* @__PURE__ */ _bind(FW, 'kControlIconTransformTag')
 export const kControlIdlesWithTimer = /* @__PURE__ */ _bind(FW, 'kControlIdlesWithTimer')
 export const kControlImageWellContentTag = /* @__PURE__ */ _bind(FW, 'kControlImageWellContentTag')
-export const kControlImageWellIsDragDestinationTag = /* @__PURE__ */ _bind(FW, 'kControlImageWellIsDragDestinationTag')
+export const kControlImageWellIsDragDestinationTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlImageWellIsDragDestinationTag',
+)
+
 export const kControlImageWellPart = /* @__PURE__ */ _bind(FW, 'kControlImageWellPart')
 export const kControlImageWellProc = /* @__PURE__ */ _bind(FW, 'kControlImageWellProc')
-export const kControlImageWellTransformTag = /* @__PURE__ */ _bind(FW, 'kControlImageWellTransformTag')
+export const kControlImageWellTransformTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlImageWellTransformTag',
+)
+
 export const kControlInactivePart = /* @__PURE__ */ _bind(FW, 'kControlInactivePart')
 export const kControlIndicatorPart = /* @__PURE__ */ _bind(FW, 'kControlIndicatorPart')
-export const kControlInvertsUpDownValueMeaning = /* @__PURE__ */ _bind(FW, 'kControlInvertsUpDownValueMeaning')
+export const kControlInvertsUpDownValueMeaning = /* @__PURE__ */ _bind(
+	FW,
+	'kControlInvertsUpDownValueMeaning',
+)
+
 export const kControlKeyFilterBlockKey = /* @__PURE__ */ _bind(FW, 'kControlKeyFilterBlockKey')
 export const kControlKeyFilterPassKey = /* @__PURE__ */ _bind(FW, 'kControlKeyFilterPassKey')
 export const kControlKeyFilterTag = /* @__PURE__ */ _bind(FW, 'kControlKeyFilterTag')
-export const kControlKeyScriptBehaviorAllowAnyScript = /* @__PURE__ */ _bind(FW, 'kControlKeyScriptBehaviorAllowAnyScript')
-export const kControlKeyScriptBehaviorPrefersRoman = /* @__PURE__ */ _bind(FW, 'kControlKeyScriptBehaviorPrefersRoman')
-export const kControlKeyScriptBehaviorRequiresRoman = /* @__PURE__ */ _bind(FW, 'kControlKeyScriptBehaviorRequiresRoman')
+export const kControlKeyScriptBehaviorAllowAnyScript = /* @__PURE__ */ _bind(
+	FW,
+	'kControlKeyScriptBehaviorAllowAnyScript',
+)
+
+export const kControlKeyScriptBehaviorPrefersRoman = /* @__PURE__ */ _bind(
+	FW,
+	'kControlKeyScriptBehaviorPrefersRoman',
+)
+
+export const kControlKeyScriptBehaviorRequiresRoman = /* @__PURE__ */ _bind(
+	FW,
+	'kControlKeyScriptBehaviorRequiresRoman',
+)
+
 export const kControlKindBevelButton = /* @__PURE__ */ _bind(FW, 'kControlKindBevelButton')
 export const kControlKindChasingArrows = /* @__PURE__ */ _bind(FW, 'kControlKindChasingArrows')
 export const kControlKindCheckBox = /* @__PURE__ */ _bind(FW, 'kControlKindCheckBox')
 export const kControlKindCheckGroupBox = /* @__PURE__ */ _bind(FW, 'kControlKindCheckGroupBox')
 export const kControlKindClock = /* @__PURE__ */ _bind(FW, 'kControlKindClock')
 export const kControlKindDataBrowser = /* @__PURE__ */ _bind(FW, 'kControlKindDataBrowser')
-export const kControlKindDisclosureButton = /* @__PURE__ */ _bind(FW, 'kControlKindDisclosureButton')
-export const kControlKindDisclosureTriangle = /* @__PURE__ */ _bind(FW, 'kControlKindDisclosureTriangle')
+export const kControlKindDisclosureButton = /* @__PURE__ */ _bind(
+	FW,
+	'kControlKindDisclosureButton',
+)
+
+export const kControlKindDisclosureTriangle = /* @__PURE__ */ _bind(
+	FW,
+	'kControlKindDisclosureTriangle',
+)
+
 export const kControlKindEditText = /* @__PURE__ */ _bind(FW, 'kControlKindEditText')
 export const kControlKindEditUnicodeText = /* @__PURE__ */ _bind(FW, 'kControlKindEditUnicodeText')
 export const kControlKindGroupBox = /* @__PURE__ */ _bind(FW, 'kControlKindGroupBox')
@@ -1670,7 +3006,11 @@ export const kControlKindHIImageView = /* @__PURE__ */ _bind(FW, 'kControlKindHI
 export const kControlKindHIMenuView = /* @__PURE__ */ _bind(FW, 'kControlKindHIMenuView')
 export const kControlKindHIScrollView = /* @__PURE__ */ _bind(FW, 'kControlKindHIScrollView')
 export const kControlKindHISearchField = /* @__PURE__ */ _bind(FW, 'kControlKindHISearchField')
-export const kControlKindHIStandardMenuView = /* @__PURE__ */ _bind(FW, 'kControlKindHIStandardMenuView')
+export const kControlKindHIStandardMenuView = /* @__PURE__ */ _bind(
+	FW,
+	'kControlKindHIStandardMenuView',
+)
+
 export const kControlKindHITextView = /* @__PURE__ */ _bind(FW, 'kControlKindHITextView')
 export const kControlKindIcon = /* @__PURE__ */ _bind(FW, 'kControlKindIcon')
 export const kControlKindImageWell = /* @__PURE__ */ _bind(FW, 'kControlKindImageWell')
@@ -1689,7 +3029,11 @@ export const kControlKindRadioGroup = /* @__PURE__ */ _bind(FW, 'kControlKindRad
 export const kControlKindRelevanceBar = /* @__PURE__ */ _bind(FW, 'kControlKindRelevanceBar')
 export const kControlKindRoundButton = /* @__PURE__ */ _bind(FW, 'kControlKindRoundButton')
 export const kControlKindScrollBar = /* @__PURE__ */ _bind(FW, 'kControlKindScrollBar')
-export const kControlKindScrollingTextBox = /* @__PURE__ */ _bind(FW, 'kControlKindScrollingTextBox')
+export const kControlKindScrollingTextBox = /* @__PURE__ */ _bind(
+	FW,
+	'kControlKindScrollingTextBox',
+)
+
 export const kControlKindSeparator = /* @__PURE__ */ _bind(FW, 'kControlKindSeparator')
 export const kControlKindSignatureApple = /* @__PURE__ */ _bind(FW, 'kControlKindSignatureApple')
 export const kControlKindSlider = /* @__PURE__ */ _bind(FW, 'kControlKindSlider')
@@ -1700,16 +3044,32 @@ export const kControlKindUserPane = /* @__PURE__ */ _bind(FW, 'kControlKindUserP
 export const kControlKindWindowHeader = /* @__PURE__ */ _bind(FW, 'kControlKindWindowHeader')
 export const kControlLabelPart = /* @__PURE__ */ _bind(FW, 'kControlLabelPart')
 export const kControlListBoxAutoSizeProc = /* @__PURE__ */ _bind(FW, 'kControlListBoxAutoSizeProc')
-export const kControlListBoxDoubleClickPart = /* @__PURE__ */ _bind(FW, 'kControlListBoxDoubleClickPart')
-export const kControlListBoxDoubleClickTag = /* @__PURE__ */ _bind(FW, 'kControlListBoxDoubleClickTag')
+export const kControlListBoxDoubleClickPart = /* @__PURE__ */ _bind(
+	FW,
+	'kControlListBoxDoubleClickPart',
+)
+
+export const kControlListBoxDoubleClickTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlListBoxDoubleClickTag',
+)
+
 export const kControlListBoxFontStyleTag = /* @__PURE__ */ _bind(FW, 'kControlListBoxFontStyleTag')
 export const kControlListBoxKeyFilterTag = /* @__PURE__ */ _bind(FW, 'kControlListBoxKeyFilterTag')
 export const kControlListBoxLDEFTag = /* @__PURE__ */ _bind(FW, 'kControlListBoxLDEFTag')
-export const kControlListBoxListHandleTag = /* @__PURE__ */ _bind(FW, 'kControlListBoxListHandleTag')
+export const kControlListBoxListHandleTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlListBoxListHandleTag',
+)
+
 export const kControlListBoxPart = /* @__PURE__ */ _bind(FW, 'kControlListBoxPart')
 export const kControlListBoxProc = /* @__PURE__ */ _bind(FW, 'kControlListBoxProc')
 export const kControlListDescResType = /* @__PURE__ */ _bind(FW, 'kControlListDescResType')
-export const kControlLittleArrowsIncrementValueTag = /* @__PURE__ */ _bind(FW, 'kControlLittleArrowsIncrementValueTag')
+export const kControlLittleArrowsIncrementValueTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlLittleArrowsIncrementValueTag',
+)
+
 export const kControlLittleArrowsProc = /* @__PURE__ */ _bind(FW, 'kControlLittleArrowsProc')
 export const kControlMenuPart = /* @__PURE__ */ _bind(FW, 'kControlMenuPart')
 export const kControlNoContent = /* @__PURE__ */ _bind(FW, 'kControlNoContent')
@@ -1725,68 +3085,244 @@ export const kControlPictureProc = /* @__PURE__ */ _bind(FW, 'kControlPicturePro
 export const kControlPlacardProc = /* @__PURE__ */ _bind(FW, 'kControlPlacardProc')
 export const kControlPopupArrowEastProc = /* @__PURE__ */ _bind(FW, 'kControlPopupArrowEastProc')
 export const kControlPopupArrowNorthProc = /* @__PURE__ */ _bind(FW, 'kControlPopupArrowNorthProc')
-export const kControlPopupArrowOrientationEast = /* @__PURE__ */ _bind(FW, 'kControlPopupArrowOrientationEast')
-export const kControlPopupArrowOrientationNorth = /* @__PURE__ */ _bind(FW, 'kControlPopupArrowOrientationNorth')
-export const kControlPopupArrowOrientationSouth = /* @__PURE__ */ _bind(FW, 'kControlPopupArrowOrientationSouth')
-export const kControlPopupArrowOrientationWest = /* @__PURE__ */ _bind(FW, 'kControlPopupArrowOrientationWest')
-export const kControlPopupArrowSizeNormal = /* @__PURE__ */ _bind(FW, 'kControlPopupArrowSizeNormal')
+export const kControlPopupArrowOrientationEast = /* @__PURE__ */ _bind(
+	FW,
+	'kControlPopupArrowOrientationEast',
+)
+
+export const kControlPopupArrowOrientationNorth = /* @__PURE__ */ _bind(
+	FW,
+	'kControlPopupArrowOrientationNorth',
+)
+
+export const kControlPopupArrowOrientationSouth = /* @__PURE__ */ _bind(
+	FW,
+	'kControlPopupArrowOrientationSouth',
+)
+
+export const kControlPopupArrowOrientationWest = /* @__PURE__ */ _bind(
+	FW,
+	'kControlPopupArrowOrientationWest',
+)
+
+export const kControlPopupArrowSizeNormal = /* @__PURE__ */ _bind(
+	FW,
+	'kControlPopupArrowSizeNormal',
+)
+
 export const kControlPopupArrowSizeSmall = /* @__PURE__ */ _bind(FW, 'kControlPopupArrowSizeSmall')
-export const kControlPopupArrowSmallEastProc = /* @__PURE__ */ _bind(FW, 'kControlPopupArrowSmallEastProc')
-export const kControlPopupArrowSmallNorthProc = /* @__PURE__ */ _bind(FW, 'kControlPopupArrowSmallNorthProc')
-export const kControlPopupArrowSmallSouthProc = /* @__PURE__ */ _bind(FW, 'kControlPopupArrowSmallSouthProc')
-export const kControlPopupArrowSmallWestProc = /* @__PURE__ */ _bind(FW, 'kControlPopupArrowSmallWestProc')
+export const kControlPopupArrowSmallEastProc = /* @__PURE__ */ _bind(
+	FW,
+	'kControlPopupArrowSmallEastProc',
+)
+
+export const kControlPopupArrowSmallNorthProc = /* @__PURE__ */ _bind(
+	FW,
+	'kControlPopupArrowSmallNorthProc',
+)
+
+export const kControlPopupArrowSmallSouthProc = /* @__PURE__ */ _bind(
+	FW,
+	'kControlPopupArrowSmallSouthProc',
+)
+
+export const kControlPopupArrowSmallWestProc = /* @__PURE__ */ _bind(
+	FW,
+	'kControlPopupArrowSmallWestProc',
+)
+
 export const kControlPopupArrowSouthProc = /* @__PURE__ */ _bind(FW, 'kControlPopupArrowSouthProc')
 export const kControlPopupArrowWestProc = /* @__PURE__ */ _bind(FW, 'kControlPopupArrowWestProc')
-export const kControlPopupButtonCheckCurrentTag = /* @__PURE__ */ _bind(FW, 'kControlPopupButtonCheckCurrentTag')
-export const kControlPopupButtonExtraHeightTag = /* @__PURE__ */ _bind(FW, 'kControlPopupButtonExtraHeightTag')
-export const kControlPopupButtonMenuHandleTag = /* @__PURE__ */ _bind(FW, 'kControlPopupButtonMenuHandleTag')
-export const kControlPopupButtonMenuIDTag = /* @__PURE__ */ _bind(FW, 'kControlPopupButtonMenuIDTag')
-export const kControlPopupButtonMenuRefTag = /* @__PURE__ */ _bind(FW, 'kControlPopupButtonMenuRefTag')
-export const kControlPopupButtonOwnedMenuRefTag = /* @__PURE__ */ _bind(FW, 'kControlPopupButtonOwnedMenuRefTag')
+export const kControlPopupButtonCheckCurrentTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlPopupButtonCheckCurrentTag',
+)
+
+export const kControlPopupButtonExtraHeightTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlPopupButtonExtraHeightTag',
+)
+
+export const kControlPopupButtonMenuHandleTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlPopupButtonMenuHandleTag',
+)
+
+export const kControlPopupButtonMenuIDTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlPopupButtonMenuIDTag',
+)
+
+export const kControlPopupButtonMenuRefTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlPopupButtonMenuRefTag',
+)
+
+export const kControlPopupButtonOwnedMenuRefTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlPopupButtonOwnedMenuRefTag',
+)
+
 export const kControlPopupButtonProc = /* @__PURE__ */ _bind(FW, 'kControlPopupButtonProc')
-export const kControlPopupFixedWidthVariant = /* @__PURE__ */ _bind(FW, 'kControlPopupFixedWidthVariant')
-export const kControlPopupUseAddResMenuVariant = /* @__PURE__ */ _bind(FW, 'kControlPopupUseAddResMenuVariant')
-export const kControlPopupUseWFontVariant = /* @__PURE__ */ _bind(FW, 'kControlPopupUseWFontVariant')
-export const kControlPopupVariableWidthVariant = /* @__PURE__ */ _bind(FW, 'kControlPopupVariableWidthVariant')
-export const kControlProgressBarAnimatingTag = /* @__PURE__ */ _bind(FW, 'kControlProgressBarAnimatingTag')
-export const kControlProgressBarIndeterminateTag = /* @__PURE__ */ _bind(FW, 'kControlProgressBarIndeterminateTag')
+export const kControlPopupFixedWidthVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kControlPopupFixedWidthVariant',
+)
+
+export const kControlPopupUseAddResMenuVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kControlPopupUseAddResMenuVariant',
+)
+
+export const kControlPopupUseWFontVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kControlPopupUseWFontVariant',
+)
+
+export const kControlPopupVariableWidthVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kControlPopupVariableWidthVariant',
+)
+
+export const kControlProgressBarAnimatingTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlProgressBarAnimatingTag',
+)
+
+export const kControlProgressBarIndeterminateTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlProgressBarIndeterminateTag',
+)
+
 export const kControlProgressBarProc = /* @__PURE__ */ _bind(FW, 'kControlProgressBarProc')
 export const kControlPropertyPersistent = /* @__PURE__ */ _bind(FW, 'kControlPropertyPersistent')
 export const kControlPushButLeftIconProc = /* @__PURE__ */ _bind(FW, 'kControlPushButLeftIconProc')
-export const kControlPushButRightIconProc = /* @__PURE__ */ _bind(FW, 'kControlPushButRightIconProc')
-export const kControlPushButtonAnimatingTag = /* @__PURE__ */ _bind(FW, 'kControlPushButtonAnimatingTag')
+export const kControlPushButRightIconProc = /* @__PURE__ */ _bind(
+	FW,
+	'kControlPushButRightIconProc',
+)
+
+export const kControlPushButtonAnimatingTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlPushButtonAnimatingTag',
+)
+
 export const kControlPushButtonCancelTag = /* @__PURE__ */ _bind(FW, 'kControlPushButtonCancelTag')
-export const kControlPushButtonContentTag = /* @__PURE__ */ _bind(FW, 'kControlPushButtonContentTag')
-export const kControlPushButtonDefaultTag = /* @__PURE__ */ _bind(FW, 'kControlPushButtonDefaultTag')
-export const kControlPushButtonIconAlignmentTag = /* @__PURE__ */ _bind(FW, 'kControlPushButtonIconAlignmentTag')
-export const kControlPushButtonIconOnLeft = /* @__PURE__ */ _bind(FW, 'kControlPushButtonIconOnLeft')
-export const kControlPushButtonIconOnRight = /* @__PURE__ */ _bind(FW, 'kControlPushButtonIconOnRight')
-export const kControlPushButtonIsTexturedTag = /* @__PURE__ */ _bind(FW, 'kControlPushButtonIsTexturedTag')
+export const kControlPushButtonContentTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlPushButtonContentTag',
+)
+
+export const kControlPushButtonDefaultTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlPushButtonDefaultTag',
+)
+
+export const kControlPushButtonIconAlignmentTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlPushButtonIconAlignmentTag',
+)
+
+export const kControlPushButtonIconOnLeft = /* @__PURE__ */ _bind(
+	FW,
+	'kControlPushButtonIconOnLeft',
+)
+
+export const kControlPushButtonIconOnRight = /* @__PURE__ */ _bind(
+	FW,
+	'kControlPushButtonIconOnRight',
+)
+
+export const kControlPushButtonIsTexturedTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlPushButtonIsTexturedTag',
+)
+
 export const kControlPushButtonProc = /* @__PURE__ */ _bind(FW, 'kControlPushButtonProc')
-export const kControlRadioButtonAutoToggleProc = /* @__PURE__ */ _bind(FW, 'kControlRadioButtonAutoToggleProc')
-export const kControlRadioButtonCheckedValue = /* @__PURE__ */ _bind(FW, 'kControlRadioButtonCheckedValue')
-export const kControlRadioButtonMixedValue = /* @__PURE__ */ _bind(FW, 'kControlRadioButtonMixedValue')
+export const kControlRadioButtonAutoToggleProc = /* @__PURE__ */ _bind(
+	FW,
+	'kControlRadioButtonAutoToggleProc',
+)
+
+export const kControlRadioButtonCheckedValue = /* @__PURE__ */ _bind(
+	FW,
+	'kControlRadioButtonCheckedValue',
+)
+
+export const kControlRadioButtonMixedValue = /* @__PURE__ */ _bind(
+	FW,
+	'kControlRadioButtonMixedValue',
+)
+
 export const kControlRadioButtonPart = /* @__PURE__ */ _bind(FW, 'kControlRadioButtonPart')
 export const kControlRadioButtonProc = /* @__PURE__ */ _bind(FW, 'kControlRadioButtonProc')
-export const kControlRadioButtonUncheckedValue = /* @__PURE__ */ _bind(FW, 'kControlRadioButtonUncheckedValue')
+export const kControlRadioButtonUncheckedValue = /* @__PURE__ */ _bind(
+	FW,
+	'kControlRadioButtonUncheckedValue',
+)
+
 export const kControlRadioGroupPart = /* @__PURE__ */ _bind(FW, 'kControlRadioGroupPart')
 export const kControlRadioGroupProc = /* @__PURE__ */ _bind(FW, 'kControlRadioGroupProc')
 export const kControlRelevanceBarProc = /* @__PURE__ */ _bind(FW, 'kControlRelevanceBarProc')
-export const kControlRoundButtonContentTag = /* @__PURE__ */ _bind(FW, 'kControlRoundButtonContentTag')
-export const kControlRoundButtonLargeSize = /* @__PURE__ */ _bind(FW, 'kControlRoundButtonLargeSize')
-export const kControlRoundButtonNormalSize = /* @__PURE__ */ _bind(FW, 'kControlRoundButtonNormalSize')
+export const kControlRoundButtonContentTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlRoundButtonContentTag',
+)
+
+export const kControlRoundButtonLargeSize = /* @__PURE__ */ _bind(
+	FW,
+	'kControlRoundButtonLargeSize',
+)
+
+export const kControlRoundButtonNormalSize = /* @__PURE__ */ _bind(
+	FW,
+	'kControlRoundButtonNormalSize',
+)
+
 export const kControlRoundButtonSizeTag = /* @__PURE__ */ _bind(FW, 'kControlRoundButtonSizeTag')
 export const kControlScrollBarLiveProc = /* @__PURE__ */ _bind(FW, 'kControlScrollBarLiveProc')
 export const kControlScrollBarProc = /* @__PURE__ */ _bind(FW, 'kControlScrollBarProc')
-export const kControlScrollBarShowsArrowsTag = /* @__PURE__ */ _bind(FW, 'kControlScrollBarShowsArrowsTag')
-export const kControlScrollTextBoxAnimatingTag = /* @__PURE__ */ _bind(FW, 'kControlScrollTextBoxAnimatingTag')
-export const kControlScrollTextBoxAutoScrollAmountTag = /* @__PURE__ */ _bind(FW, 'kControlScrollTextBoxAutoScrollAmountTag')
-export const kControlScrollTextBoxAutoScrollProc = /* @__PURE__ */ _bind(FW, 'kControlScrollTextBoxAutoScrollProc')
-export const kControlScrollTextBoxContentsTag = /* @__PURE__ */ _bind(FW, 'kControlScrollTextBoxContentsTag')
-export const kControlScrollTextBoxDelayBeforeAutoScrollTag = /* @__PURE__ */ _bind(FW, 'kControlScrollTextBoxDelayBeforeAutoScrollTag')
-export const kControlScrollTextBoxDelayBetweenAutoScrollTag = /* @__PURE__ */ _bind(FW, 'kControlScrollTextBoxDelayBetweenAutoScrollTag')
+export const kControlScrollBarShowsArrowsTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlScrollBarShowsArrowsTag',
+)
+
+export const kControlScrollTextBoxAnimatingTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlScrollTextBoxAnimatingTag',
+)
+
+export const kControlScrollTextBoxAutoScrollAmountTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlScrollTextBoxAutoScrollAmountTag',
+)
+
+export const kControlScrollTextBoxAutoScrollProc = /* @__PURE__ */ _bind(
+	FW,
+	'kControlScrollTextBoxAutoScrollProc',
+)
+
+export const kControlScrollTextBoxContentsTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlScrollTextBoxContentsTag',
+)
+
+export const kControlScrollTextBoxDelayBeforeAutoScrollTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlScrollTextBoxDelayBeforeAutoScrollTag',
+)
+
+export const kControlScrollTextBoxDelayBetweenAutoScrollTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlScrollTextBoxDelayBetweenAutoScrollTag',
+)
+
 export const kControlScrollTextBoxProc = /* @__PURE__ */ _bind(FW, 'kControlScrollTextBoxProc')
-export const kControlSearchFieldCancelPart = /* @__PURE__ */ _bind(FW, 'kControlSearchFieldCancelPart')
+export const kControlSearchFieldCancelPart = /* @__PURE__ */ _bind(
+	FW,
+	'kControlSearchFieldCancelPart',
+)
+
 export const kControlSearchFieldMenuPart = /* @__PURE__ */ _bind(FW, 'kControlSearchFieldMenuPart')
 export const kControlSeparatorLineProc = /* @__PURE__ */ _bind(FW, 'kControlSeparatorLineProc')
 export const kControlSizeAuto = /* @__PURE__ */ _bind(FW, 'kControlSizeAuto')
@@ -1798,22 +3334,62 @@ export const kControlSizeTag = /* @__PURE__ */ _bind(FW, 'kControlSizeTag')
 export const kControlSliderDoesNotPoint = /* @__PURE__ */ _bind(FW, 'kControlSliderDoesNotPoint')
 export const kControlSliderHasTickMarks = /* @__PURE__ */ _bind(FW, 'kControlSliderHasTickMarks')
 export const kControlSliderLiveFeedback = /* @__PURE__ */ _bind(FW, 'kControlSliderLiveFeedback')
-export const kControlSliderNonDirectional = /* @__PURE__ */ _bind(FW, 'kControlSliderNonDirectional')
-export const kControlSliderPointsDownOrRight = /* @__PURE__ */ _bind(FW, 'kControlSliderPointsDownOrRight')
-export const kControlSliderPointsUpOrLeft = /* @__PURE__ */ _bind(FW, 'kControlSliderPointsUpOrLeft')
+export const kControlSliderNonDirectional = /* @__PURE__ */ _bind(
+	FW,
+	'kControlSliderNonDirectional',
+)
+
+export const kControlSliderPointsDownOrRight = /* @__PURE__ */ _bind(
+	FW,
+	'kControlSliderPointsDownOrRight',
+)
+
+export const kControlSliderPointsUpOrLeft = /* @__PURE__ */ _bind(
+	FW,
+	'kControlSliderPointsUpOrLeft',
+)
+
 export const kControlSliderProc = /* @__PURE__ */ _bind(FW, 'kControlSliderProc')
-export const kControlSliderReverseDirection = /* @__PURE__ */ _bind(FW, 'kControlSliderReverseDirection')
-export const kControlStaticTextCFStringTag = /* @__PURE__ */ _bind(FW, 'kControlStaticTextCFStringTag')
-export const kControlStaticTextIsMultilineTag = /* @__PURE__ */ _bind(FW, 'kControlStaticTextIsMultilineTag')
+export const kControlSliderReverseDirection = /* @__PURE__ */ _bind(
+	FW,
+	'kControlSliderReverseDirection',
+)
+
+export const kControlStaticTextCFStringTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlStaticTextCFStringTag',
+)
+
+export const kControlStaticTextIsMultilineTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlStaticTextIsMultilineTag',
+)
+
 export const kControlStaticTextProc = /* @__PURE__ */ _bind(FW, 'kControlStaticTextProc')
 export const kControlStaticTextStyleTag = /* @__PURE__ */ _bind(FW, 'kControlStaticTextStyleTag')
-export const kControlStaticTextTextHeightTag = /* @__PURE__ */ _bind(FW, 'kControlStaticTextTextHeightTag')
+export const kControlStaticTextTextHeightTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlStaticTextTextHeightTag',
+)
+
 export const kControlStaticTextTextTag = /* @__PURE__ */ _bind(FW, 'kControlStaticTextTextTag')
 export const kControlStaticTextTruncTag = /* @__PURE__ */ _bind(FW, 'kControlStaticTextTruncTag')
 export const kControlStructureMetaPart = /* @__PURE__ */ _bind(FW, 'kControlStructureMetaPart')
-export const kControlSupportsCalcBestRect = /* @__PURE__ */ _bind(FW, 'kControlSupportsCalcBestRect')
-export const kControlSupportsClickActivation = /* @__PURE__ */ _bind(FW, 'kControlSupportsClickActivation')
-export const kControlSupportsContextualMenus = /* @__PURE__ */ _bind(FW, 'kControlSupportsContextualMenus')
+export const kControlSupportsCalcBestRect = /* @__PURE__ */ _bind(
+	FW,
+	'kControlSupportsCalcBestRect',
+)
+
+export const kControlSupportsClickActivation = /* @__PURE__ */ _bind(
+	FW,
+	'kControlSupportsClickActivation',
+)
+
+export const kControlSupportsContextualMenus = /* @__PURE__ */ _bind(
+	FW,
+	'kControlSupportsContextualMenus',
+)
+
 export const kControlSupportsDataAccess = /* @__PURE__ */ _bind(FW, 'kControlSupportsDataAccess')
 export const kControlSupportsDragAndDrop = /* @__PURE__ */ _bind(FW, 'kControlSupportsDragAndDrop')
 export const kControlSupportsEmbedding = /* @__PURE__ */ _bind(FW, 'kControlSupportsEmbedding')
@@ -1821,7 +3397,11 @@ export const kControlSupportsFlattening = /* @__PURE__ */ _bind(FW, 'kControlSup
 export const kControlSupportsFocus = /* @__PURE__ */ _bind(FW, 'kControlSupportsFocus')
 export const kControlSupportsGetRegion = /* @__PURE__ */ _bind(FW, 'kControlSupportsGetRegion')
 export const kControlSupportsGhosting = /* @__PURE__ */ _bind(FW, 'kControlSupportsGhosting')
-export const kControlSupportsLiveFeedback = /* @__PURE__ */ _bind(FW, 'kControlSupportsLiveFeedback')
+export const kControlSupportsLiveFeedback = /* @__PURE__ */ _bind(
+	FW,
+	'kControlSupportsLiveFeedback',
+)
+
 export const kControlSupportsSetCursor = /* @__PURE__ */ _bind(FW, 'kControlSupportsSetCursor')
 export const kControlTabContentRectTag = /* @__PURE__ */ _bind(FW, 'kControlTabContentRectTag')
 export const kControlTabDirectionEast = /* @__PURE__ */ _bind(FW, 'kControlTabDirectionEast')
@@ -1848,16 +3428,48 @@ export const kControlTabSmallNorthProc = /* @__PURE__ */ _bind(FW, 'kControlTabS
 export const kControlTabSmallProc = /* @__PURE__ */ _bind(FW, 'kControlTabSmallProc')
 export const kControlTabSmallSouthProc = /* @__PURE__ */ _bind(FW, 'kControlTabSmallSouthProc')
 export const kControlTabSmallWestProc = /* @__PURE__ */ _bind(FW, 'kControlTabSmallWestProc')
-export const kControlTemplateResourceType = /* @__PURE__ */ _bind(FW, 'kControlTemplateResourceType')
+export const kControlTemplateResourceType = /* @__PURE__ */ _bind(
+	FW,
+	'kControlTemplateResourceType',
+)
+
 export const kControlThemeTextFontTag = /* @__PURE__ */ _bind(FW, 'kControlThemeTextFontTag')
-export const kControlThemeTextHorizontalFlushTag = /* @__PURE__ */ _bind(FW, 'kControlThemeTextHorizontalFlushTag')
+export const kControlThemeTextHorizontalFlushTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlThemeTextHorizontalFlushTag',
+)
+
 export const kControlThemeTextInfoTag = /* @__PURE__ */ _bind(FW, 'kControlThemeTextInfoTag')
-export const kControlThemeTextTruncationTag = /* @__PURE__ */ _bind(FW, 'kControlThemeTextTruncationTag')
-export const kControlThemeTextVerticalFlushTag = /* @__PURE__ */ _bind(FW, 'kControlThemeTextVerticalFlushTag')
-export const kControlTriangleAutoToggleProc = /* @__PURE__ */ _bind(FW, 'kControlTriangleAutoToggleProc')
-export const kControlTriangleLastValueTag = /* @__PURE__ */ _bind(FW, 'kControlTriangleLastValueTag')
-export const kControlTriangleLeftFacingAutoToggleProc = /* @__PURE__ */ _bind(FW, 'kControlTriangleLeftFacingAutoToggleProc')
-export const kControlTriangleLeftFacingProc = /* @__PURE__ */ _bind(FW, 'kControlTriangleLeftFacingProc')
+export const kControlThemeTextTruncationTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlThemeTextTruncationTag',
+)
+
+export const kControlThemeTextVerticalFlushTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlThemeTextVerticalFlushTag',
+)
+
+export const kControlTriangleAutoToggleProc = /* @__PURE__ */ _bind(
+	FW,
+	'kControlTriangleAutoToggleProc',
+)
+
+export const kControlTriangleLastValueTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlTriangleLastValueTag',
+)
+
+export const kControlTriangleLeftFacingAutoToggleProc = /* @__PURE__ */ _bind(
+	FW,
+	'kControlTriangleLeftFacingAutoToggleProc',
+)
+
+export const kControlTriangleLeftFacingProc = /* @__PURE__ */ _bind(
+	FW,
+	'kControlTriangleLeftFacingProc',
+)
+
 export const kControlTrianglePart = /* @__PURE__ */ _bind(FW, 'kControlTrianglePart')
 export const kControlTriangleProc = /* @__PURE__ */ _bind(FW, 'kControlTriangleProc')
 export const kControlUnicode = /* @__PURE__ */ _bind(FW, 'kControlUnicode')
@@ -1872,61 +3484,193 @@ export const kControlUseModeMask = /* @__PURE__ */ _bind(FW, 'kControlUseModeMas
 export const kControlUseSizeMask = /* @__PURE__ */ _bind(FW, 'kControlUseSizeMask')
 export const kControlUseThemeFontIDMask = /* @__PURE__ */ _bind(FW, 'kControlUseThemeFontIDMask')
 export const kControlUserItemDrawProcTag = /* @__PURE__ */ _bind(FW, 'kControlUserItemDrawProcTag')
-export const kControlUserPaneActivateProcTag = /* @__PURE__ */ _bind(FW, 'kControlUserPaneActivateProcTag')
-export const kControlUserPaneBackgroundProcTag = /* @__PURE__ */ _bind(FW, 'kControlUserPaneBackgroundProcTag')
+export const kControlUserPaneActivateProcTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlUserPaneActivateProcTag',
+)
+
+export const kControlUserPaneBackgroundProcTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlUserPaneBackgroundProcTag',
+)
+
 export const kControlUserPaneDrawProcTag = /* @__PURE__ */ _bind(FW, 'kControlUserPaneDrawProcTag')
-export const kControlUserPaneFocusProcTag = /* @__PURE__ */ _bind(FW, 'kControlUserPaneFocusProcTag')
-export const kControlUserPaneHitTestProcTag = /* @__PURE__ */ _bind(FW, 'kControlUserPaneHitTestProcTag')
+export const kControlUserPaneFocusProcTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlUserPaneFocusProcTag',
+)
+
+export const kControlUserPaneHitTestProcTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlUserPaneHitTestProcTag',
+)
+
 export const kControlUserPaneIdleProcTag = /* @__PURE__ */ _bind(FW, 'kControlUserPaneIdleProcTag')
-export const kControlUserPaneKeyDownProcTag = /* @__PURE__ */ _bind(FW, 'kControlUserPaneKeyDownProcTag')
+export const kControlUserPaneKeyDownProcTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlUserPaneKeyDownProcTag',
+)
+
 export const kControlUserPaneProc = /* @__PURE__ */ _bind(FW, 'kControlUserPaneProc')
-export const kControlUserPaneTrackingProcTag = /* @__PURE__ */ _bind(FW, 'kControlUserPaneTrackingProcTag')
-export const kControlUsesOwningWindowsFontVariant = /* @__PURE__ */ _bind(FW, 'kControlUsesOwningWindowsFontVariant')
+export const kControlUserPaneTrackingProcTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlUserPaneTrackingProcTag',
+)
+
+export const kControlUsesOwningWindowsFontVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kControlUsesOwningWindowsFontVariant',
+)
+
 export const kControlWantsActivate = /* @__PURE__ */ _bind(FW, 'kControlWantsActivate')
 export const kControlWantsIdle = /* @__PURE__ */ _bind(FW, 'kControlWantsIdle')
-export const kControlWindowHeaderIsListHeaderTag = /* @__PURE__ */ _bind(FW, 'kControlWindowHeaderIsListHeaderTag')
+export const kControlWindowHeaderIsListHeaderTag = /* @__PURE__ */ _bind(
+	FW,
+	'kControlWindowHeaderIsListHeaderTag',
+)
+
 export const kControlWindowHeaderProc = /* @__PURE__ */ _bind(FW, 'kControlWindowHeaderProc')
-export const kControlWindowListViewHeaderProc = /* @__PURE__ */ _bind(FW, 'kControlWindowListViewHeaderProc')
-export const kDataBrowserAlwaysExtendSelection = /* @__PURE__ */ _bind(FW, 'kDataBrowserAlwaysExtendSelection')
-export const kDataBrowserAttributeAutoHideScrollBars = /* @__PURE__ */ _bind(FW, 'kDataBrowserAttributeAutoHideScrollBars')
-export const kDataBrowserAttributeColumnViewResizeWindow = /* @__PURE__ */ _bind(FW, 'kDataBrowserAttributeColumnViewResizeWindow')
-export const kDataBrowserAttributeListViewAlternatingRowColors = /* @__PURE__ */ _bind(FW, 'kDataBrowserAttributeListViewAlternatingRowColors')
-export const kDataBrowserAttributeListViewDrawColumnDividers = /* @__PURE__ */ _bind(FW, 'kDataBrowserAttributeListViewDrawColumnDividers')
+export const kControlWindowListViewHeaderProc = /* @__PURE__ */ _bind(
+	FW,
+	'kControlWindowListViewHeaderProc',
+)
+
+export const kDataBrowserAlwaysExtendSelection = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserAlwaysExtendSelection',
+)
+
+export const kDataBrowserAttributeAutoHideScrollBars = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserAttributeAutoHideScrollBars',
+)
+
+export const kDataBrowserAttributeColumnViewResizeWindow = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserAttributeColumnViewResizeWindow',
+)
+
+export const kDataBrowserAttributeListViewAlternatingRowColors = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserAttributeListViewAlternatingRowColors',
+)
+
+export const kDataBrowserAttributeListViewDrawColumnDividers = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserAttributeListViewDrawColumnDividers',
+)
+
 export const kDataBrowserAttributeNone = /* @__PURE__ */ _bind(FW, 'kDataBrowserAttributeNone')
-export const kDataBrowserAttributeReserveGrowBoxSpace = /* @__PURE__ */ _bind(FW, 'kDataBrowserAttributeReserveGrowBoxSpace')
-export const kDataBrowserCheckboxTriState = /* @__PURE__ */ _bind(FW, 'kDataBrowserCheckboxTriState')
+export const kDataBrowserAttributeReserveGrowBoxSpace = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserAttributeReserveGrowBoxSpace',
+)
+
+export const kDataBrowserCheckboxTriState = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserCheckboxTriState',
+)
+
 export const kDataBrowserCheckboxType = /* @__PURE__ */ _bind(FW, 'kDataBrowserCheckboxType')
-export const kDataBrowserClientPropertyFlagsMask = /* @__PURE__ */ _bind(FW, 'kDataBrowserClientPropertyFlagsMask')
-export const kDataBrowserClientPropertyFlagsOffset = /* @__PURE__ */ _bind(FW, 'kDataBrowserClientPropertyFlagsOffset')
-export const kDataBrowserCmdTogglesSelection = /* @__PURE__ */ _bind(FW, 'kDataBrowserCmdTogglesSelection')
+export const kDataBrowserClientPropertyFlagsMask = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserClientPropertyFlagsMask',
+)
+
+export const kDataBrowserClientPropertyFlagsOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserClientPropertyFlagsOffset',
+)
+
+export const kDataBrowserCmdTogglesSelection = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserCmdTogglesSelection',
+)
+
 export const kDataBrowserColumnView = /* @__PURE__ */ _bind(FW, 'kDataBrowserColumnView')
-export const kDataBrowserColumnViewPreviewProperty = /* @__PURE__ */ _bind(FW, 'kDataBrowserColumnViewPreviewProperty')
-export const kDataBrowserContainerAliasIDProperty = /* @__PURE__ */ _bind(FW, 'kDataBrowserContainerAliasIDProperty')
+export const kDataBrowserColumnViewPreviewProperty = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserColumnViewPreviewProperty',
+)
+
+export const kDataBrowserContainerAliasIDProperty = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserContainerAliasIDProperty',
+)
+
 export const kDataBrowserContainerClosed = /* @__PURE__ */ _bind(FW, 'kDataBrowserContainerClosed')
-export const kDataBrowserContainerClosing = /* @__PURE__ */ _bind(FW, 'kDataBrowserContainerClosing')
-export const kDataBrowserContainerIsClosableProperty = /* @__PURE__ */ _bind(FW, 'kDataBrowserContainerIsClosableProperty')
+export const kDataBrowserContainerClosing = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserContainerClosing',
+)
+
+export const kDataBrowserContainerIsClosableProperty = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserContainerIsClosableProperty',
+)
+
 export const kDataBrowserContainerIsOpen = /* @__PURE__ */ _bind(FW, 'kDataBrowserContainerIsOpen')
-export const kDataBrowserContainerIsOpenableProperty = /* @__PURE__ */ _bind(FW, 'kDataBrowserContainerIsOpenableProperty')
-export const kDataBrowserContainerIsSortableProperty = /* @__PURE__ */ _bind(FW, 'kDataBrowserContainerIsSortableProperty')
+export const kDataBrowserContainerIsOpenableProperty = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserContainerIsOpenableProperty',
+)
+
+export const kDataBrowserContainerIsSortableProperty = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserContainerIsSortableProperty',
+)
+
 export const kDataBrowserContainerOpened = /* @__PURE__ */ _bind(FW, 'kDataBrowserContainerOpened')
 export const kDataBrowserContainerSorted = /* @__PURE__ */ _bind(FW, 'kDataBrowserContainerSorted')
-export const kDataBrowserContainerSorting = /* @__PURE__ */ _bind(FW, 'kDataBrowserContainerSorting')
+export const kDataBrowserContainerSorting = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserContainerSorting',
+)
+
 export const kDataBrowserContentHit = /* @__PURE__ */ _bind(FW, 'kDataBrowserContentHit')
 export const kDataBrowserCustomType = /* @__PURE__ */ _bind(FW, 'kDataBrowserCustomType')
-export const kDataBrowserDateTimeDateOnly = /* @__PURE__ */ _bind(FW, 'kDataBrowserDateTimeDateOnly')
-export const kDataBrowserDateTimeRelative = /* @__PURE__ */ _bind(FW, 'kDataBrowserDateTimeRelative')
-export const kDataBrowserDateTimeSecondsToo = /* @__PURE__ */ _bind(FW, 'kDataBrowserDateTimeSecondsToo')
-export const kDataBrowserDateTimeTimeOnly = /* @__PURE__ */ _bind(FW, 'kDataBrowserDateTimeTimeOnly')
+export const kDataBrowserDateTimeDateOnly = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserDateTimeDateOnly',
+)
+
+export const kDataBrowserDateTimeRelative = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserDateTimeRelative',
+)
+
+export const kDataBrowserDateTimeSecondsToo = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserDateTimeSecondsToo',
+)
+
+export const kDataBrowserDateTimeTimeOnly = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserDateTimeTimeOnly',
+)
+
 export const kDataBrowserDateTimeType = /* @__PURE__ */ _bind(FW, 'kDataBrowserDateTimeType')
-export const kDataBrowserDefaultPropertyFlags = /* @__PURE__ */ _bind(FW, 'kDataBrowserDefaultPropertyFlags')
-export const kDataBrowserDoNotTruncateText = /* @__PURE__ */ _bind(FW, 'kDataBrowserDoNotTruncateText')
+export const kDataBrowserDefaultPropertyFlags = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserDefaultPropertyFlags',
+)
+
+export const kDataBrowserDoNotTruncateText = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserDoNotTruncateText',
+)
+
 export const kDataBrowserDragSelect = /* @__PURE__ */ _bind(FW, 'kDataBrowserDragSelect')
 export const kDataBrowserEditMsgClear = /* @__PURE__ */ _bind(FW, 'kDataBrowserEditMsgClear')
 export const kDataBrowserEditMsgCopy = /* @__PURE__ */ _bind(FW, 'kDataBrowserEditMsgCopy')
 export const kDataBrowserEditMsgCut = /* @__PURE__ */ _bind(FW, 'kDataBrowserEditMsgCut')
 export const kDataBrowserEditMsgPaste = /* @__PURE__ */ _bind(FW, 'kDataBrowserEditMsgPaste')
 export const kDataBrowserEditMsgRedo = /* @__PURE__ */ _bind(FW, 'kDataBrowserEditMsgRedo')
-export const kDataBrowserEditMsgSelectAll = /* @__PURE__ */ _bind(FW, 'kDataBrowserEditMsgSelectAll')
+export const kDataBrowserEditMsgSelectAll = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserEditMsgSelectAll',
+)
+
 export const kDataBrowserEditMsgUndo = /* @__PURE__ */ _bind(FW, 'kDataBrowserEditMsgUndo')
 export const kDataBrowserEditStarted = /* @__PURE__ */ _bind(FW, 'kDataBrowserEditStarted')
 export const kDataBrowserEditStopped = /* @__PURE__ */ _bind(FW, 'kDataBrowserEditStopped')
@@ -1935,110 +3679,390 @@ export const kDataBrowserIconType = /* @__PURE__ */ _bind(FW, 'kDataBrowserIconT
 export const kDataBrowserItemAdded = /* @__PURE__ */ _bind(FW, 'kDataBrowserItemAdded')
 export const kDataBrowserItemAnyState = /* @__PURE__ */ _bind(FW, 'kDataBrowserItemAnyState')
 export const kDataBrowserItemDeselected = /* @__PURE__ */ _bind(FW, 'kDataBrowserItemDeselected')
-export const kDataBrowserItemDoubleClicked = /* @__PURE__ */ _bind(FW, 'kDataBrowserItemDoubleClicked')
-export const kDataBrowserItemIsActiveProperty = /* @__PURE__ */ _bind(FW, 'kDataBrowserItemIsActiveProperty')
-export const kDataBrowserItemIsContainerProperty = /* @__PURE__ */ _bind(FW, 'kDataBrowserItemIsContainerProperty')
-export const kDataBrowserItemIsDragTarget = /* @__PURE__ */ _bind(FW, 'kDataBrowserItemIsDragTarget')
-export const kDataBrowserItemIsEditableProperty = /* @__PURE__ */ _bind(FW, 'kDataBrowserItemIsEditableProperty')
-export const kDataBrowserItemIsSelectableProperty = /* @__PURE__ */ _bind(FW, 'kDataBrowserItemIsSelectableProperty')
+export const kDataBrowserItemDoubleClicked = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserItemDoubleClicked',
+)
+
+export const kDataBrowserItemIsActiveProperty = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserItemIsActiveProperty',
+)
+
+export const kDataBrowserItemIsContainerProperty = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserItemIsContainerProperty',
+)
+
+export const kDataBrowserItemIsDragTarget = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserItemIsDragTarget',
+)
+
+export const kDataBrowserItemIsEditableProperty = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserItemIsEditableProperty',
+)
+
+export const kDataBrowserItemIsSelectableProperty = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserItemIsSelectableProperty',
+)
+
 export const kDataBrowserItemIsSelected = /* @__PURE__ */ _bind(FW, 'kDataBrowserItemIsSelected')
 export const kDataBrowserItemNoProperty = /* @__PURE__ */ _bind(FW, 'kDataBrowserItemNoProperty')
 export const kDataBrowserItemNoState = /* @__PURE__ */ _bind(FW, 'kDataBrowserItemNoState')
-export const kDataBrowserItemParentContainerProperty = /* @__PURE__ */ _bind(FW, 'kDataBrowserItemParentContainerProperty')
+export const kDataBrowserItemParentContainerProperty = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserItemParentContainerProperty',
+)
+
 export const kDataBrowserItemRemoved = /* @__PURE__ */ _bind(FW, 'kDataBrowserItemRemoved')
 export const kDataBrowserItemSelected = /* @__PURE__ */ _bind(FW, 'kDataBrowserItemSelected')
-export const kDataBrowserItemSelfIdentityProperty = /* @__PURE__ */ _bind(FW, 'kDataBrowserItemSelfIdentityProperty')
+export const kDataBrowserItemSelfIdentityProperty = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserItemSelfIdentityProperty',
+)
+
 export const kDataBrowserItemsAdd = /* @__PURE__ */ _bind(FW, 'kDataBrowserItemsAdd')
 export const kDataBrowserItemsAssign = /* @__PURE__ */ _bind(FW, 'kDataBrowserItemsAssign')
 export const kDataBrowserItemsRemove = /* @__PURE__ */ _bind(FW, 'kDataBrowserItemsRemove')
 export const kDataBrowserItemsToggle = /* @__PURE__ */ _bind(FW, 'kDataBrowserItemsToggle')
 export const kDataBrowserLatestCallbacks = /* @__PURE__ */ _bind(FW, 'kDataBrowserLatestCallbacks')
-export const kDataBrowserLatestCustomCallbacks = /* @__PURE__ */ _bind(FW, 'kDataBrowserLatestCustomCallbacks')
+export const kDataBrowserLatestCustomCallbacks = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserLatestCustomCallbacks',
+)
+
 export const kDataBrowserListView = /* @__PURE__ */ _bind(FW, 'kDataBrowserListView')
-export const kDataBrowserListViewAppendColumn = /* @__PURE__ */ _bind(FW, 'kDataBrowserListViewAppendColumn')
-export const kDataBrowserListViewDefaultColumnFlags = /* @__PURE__ */ _bind(FW, 'kDataBrowserListViewDefaultColumnFlags')
-export const kDataBrowserListViewLatestHeaderDesc = /* @__PURE__ */ _bind(FW, 'kDataBrowserListViewLatestHeaderDesc')
-export const kDataBrowserListViewMovableColumn = /* @__PURE__ */ _bind(FW, 'kDataBrowserListViewMovableColumn')
-export const kDataBrowserListViewNoGapForIconInHeaderButton = /* @__PURE__ */ _bind(FW, 'kDataBrowserListViewNoGapForIconInHeaderButton')
-export const kDataBrowserListViewSelectionColumn = /* @__PURE__ */ _bind(FW, 'kDataBrowserListViewSelectionColumn')
-export const kDataBrowserListViewSortableColumn = /* @__PURE__ */ _bind(FW, 'kDataBrowserListViewSortableColumn')
-export const kDataBrowserListViewTypeSelectColumn = /* @__PURE__ */ _bind(FW, 'kDataBrowserListViewTypeSelectColumn')
-export const kDataBrowserMetricCellContentInset = /* @__PURE__ */ _bind(FW, 'kDataBrowserMetricCellContentInset')
-export const kDataBrowserMetricDisclosureColumnEdgeInset = /* @__PURE__ */ _bind(FW, 'kDataBrowserMetricDisclosureColumnEdgeInset')
-export const kDataBrowserMetricDisclosureColumnPerDepthGap = /* @__PURE__ */ _bind(FW, 'kDataBrowserMetricDisclosureColumnPerDepthGap')
-export const kDataBrowserMetricDisclosureTriangleAndContentGap = /* @__PURE__ */ _bind(FW, 'kDataBrowserMetricDisclosureTriangleAndContentGap')
-export const kDataBrowserMetricIconAndTextGap = /* @__PURE__ */ _bind(FW, 'kDataBrowserMetricIconAndTextGap')
+export const kDataBrowserListViewAppendColumn = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserListViewAppendColumn',
+)
+
+export const kDataBrowserListViewDefaultColumnFlags = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserListViewDefaultColumnFlags',
+)
+
+export const kDataBrowserListViewLatestHeaderDesc = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserListViewLatestHeaderDesc',
+)
+
+export const kDataBrowserListViewMovableColumn = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserListViewMovableColumn',
+)
+
+export const kDataBrowserListViewNoGapForIconInHeaderButton = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserListViewNoGapForIconInHeaderButton',
+)
+
+export const kDataBrowserListViewSelectionColumn = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserListViewSelectionColumn',
+)
+
+export const kDataBrowserListViewSortableColumn = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserListViewSortableColumn',
+)
+
+export const kDataBrowserListViewTypeSelectColumn = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserListViewTypeSelectColumn',
+)
+
+export const kDataBrowserMetricCellContentInset = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserMetricCellContentInset',
+)
+
+export const kDataBrowserMetricDisclosureColumnEdgeInset = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserMetricDisclosureColumnEdgeInset',
+)
+
+export const kDataBrowserMetricDisclosureColumnPerDepthGap = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserMetricDisclosureColumnPerDepthGap',
+)
+
+export const kDataBrowserMetricDisclosureTriangleAndContentGap = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserMetricDisclosureTriangleAndContentGap',
+)
+
+export const kDataBrowserMetricIconAndTextGap = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserMetricIconAndTextGap',
+)
+
 export const kDataBrowserMetricLast = /* @__PURE__ */ _bind(FW, 'kDataBrowserMetricLast')
-export const kDataBrowserNeverEmptySelectionSet = /* @__PURE__ */ _bind(FW, 'kDataBrowserNeverEmptySelectionSet')
-export const kDataBrowserNoDisjointSelection = /* @__PURE__ */ _bind(FW, 'kDataBrowserNoDisjointSelection')
+export const kDataBrowserNeverEmptySelectionSet = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserNeverEmptySelectionSet',
+)
+
+export const kDataBrowserNoDisjointSelection = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserNoDisjointSelection',
+)
+
 export const kDataBrowserNoItem = /* @__PURE__ */ _bind(FW, 'kDataBrowserNoItem')
 export const kDataBrowserNoView = /* @__PURE__ */ _bind(FW, 'kDataBrowserNoView')
 export const kDataBrowserNothingHit = /* @__PURE__ */ _bind(FW, 'kDataBrowserNothingHit')
 export const kDataBrowserOrderDecreasing = /* @__PURE__ */ _bind(FW, 'kDataBrowserOrderDecreasing')
 export const kDataBrowserOrderIncreasing = /* @__PURE__ */ _bind(FW, 'kDataBrowserOrderIncreasing')
 export const kDataBrowserOrderUndefined = /* @__PURE__ */ _bind(FW, 'kDataBrowserOrderUndefined')
-export const kDataBrowserPopupMenuButtonless = /* @__PURE__ */ _bind(FW, 'kDataBrowserPopupMenuButtonless')
+export const kDataBrowserPopupMenuButtonless = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserPopupMenuButtonless',
+)
+
 export const kDataBrowserPopupMenuType = /* @__PURE__ */ _bind(FW, 'kDataBrowserPopupMenuType')
 export const kDataBrowserProgressBarType = /* @__PURE__ */ _bind(FW, 'kDataBrowserProgressBarType')
-export const kDataBrowserPropertyCheckboxPart = /* @__PURE__ */ _bind(FW, 'kDataBrowserPropertyCheckboxPart')
-export const kDataBrowserPropertyContentPart = /* @__PURE__ */ _bind(FW, 'kDataBrowserPropertyContentPart')
-export const kDataBrowserPropertyDisclosurePart = /* @__PURE__ */ _bind(FW, 'kDataBrowserPropertyDisclosurePart')
-export const kDataBrowserPropertyEnclosingPart = /* @__PURE__ */ _bind(FW, 'kDataBrowserPropertyEnclosingPart')
-export const kDataBrowserPropertyFlagsMask = /* @__PURE__ */ _bind(FW, 'kDataBrowserPropertyFlagsMask')
-export const kDataBrowserPropertyFlagsOffset = /* @__PURE__ */ _bind(FW, 'kDataBrowserPropertyFlagsOffset')
-export const kDataBrowserPropertyIconPart = /* @__PURE__ */ _bind(FW, 'kDataBrowserPropertyIconPart')
-export const kDataBrowserPropertyIsEditable = /* @__PURE__ */ _bind(FW, 'kDataBrowserPropertyIsEditable')
-export const kDataBrowserPropertyIsMutable = /* @__PURE__ */ _bind(FW, 'kDataBrowserPropertyIsMutable')
-export const kDataBrowserPropertyModificationFlags = /* @__PURE__ */ _bind(FW, 'kDataBrowserPropertyModificationFlags')
-export const kDataBrowserPropertyProgressBarPart = /* @__PURE__ */ _bind(FW, 'kDataBrowserPropertyProgressBarPart')
-export const kDataBrowserPropertyRelevanceRankPart = /* @__PURE__ */ _bind(FW, 'kDataBrowserPropertyRelevanceRankPart')
-export const kDataBrowserPropertySliderPart = /* @__PURE__ */ _bind(FW, 'kDataBrowserPropertySliderPart')
-export const kDataBrowserPropertyTextPart = /* @__PURE__ */ _bind(FW, 'kDataBrowserPropertyTextPart')
-export const kDataBrowserRelativeDateTime = /* @__PURE__ */ _bind(FW, 'kDataBrowserRelativeDateTime')
-export const kDataBrowserRelevanceRankType = /* @__PURE__ */ _bind(FW, 'kDataBrowserRelevanceRankType')
+export const kDataBrowserPropertyCheckboxPart = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserPropertyCheckboxPart',
+)
+
+export const kDataBrowserPropertyContentPart = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserPropertyContentPart',
+)
+
+export const kDataBrowserPropertyDisclosurePart = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserPropertyDisclosurePart',
+)
+
+export const kDataBrowserPropertyEnclosingPart = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserPropertyEnclosingPart',
+)
+
+export const kDataBrowserPropertyFlagsMask = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserPropertyFlagsMask',
+)
+
+export const kDataBrowserPropertyFlagsOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserPropertyFlagsOffset',
+)
+
+export const kDataBrowserPropertyIconPart = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserPropertyIconPart',
+)
+
+export const kDataBrowserPropertyIsEditable = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserPropertyIsEditable',
+)
+
+export const kDataBrowserPropertyIsMutable = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserPropertyIsMutable',
+)
+
+export const kDataBrowserPropertyModificationFlags = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserPropertyModificationFlags',
+)
+
+export const kDataBrowserPropertyProgressBarPart = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserPropertyProgressBarPart',
+)
+
+export const kDataBrowserPropertyRelevanceRankPart = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserPropertyRelevanceRankPart',
+)
+
+export const kDataBrowserPropertySliderPart = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserPropertySliderPart',
+)
+
+export const kDataBrowserPropertyTextPart = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserPropertyTextPart',
+)
+
+export const kDataBrowserRelativeDateTime = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserRelativeDateTime',
+)
+
+export const kDataBrowserRelevanceRankType = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserRelevanceRankType',
+)
+
 export const kDataBrowserResetSelection = /* @__PURE__ */ _bind(FW, 'kDataBrowserResetSelection')
-export const kDataBrowserRevealAndCenterInView = /* @__PURE__ */ _bind(FW, 'kDataBrowserRevealAndCenterInView')
+export const kDataBrowserRevealAndCenterInView = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserRevealAndCenterInView',
+)
+
 export const kDataBrowserRevealOnly = /* @__PURE__ */ _bind(FW, 'kDataBrowserRevealOnly')
-export const kDataBrowserRevealWithoutSelecting = /* @__PURE__ */ _bind(FW, 'kDataBrowserRevealWithoutSelecting')
+export const kDataBrowserRevealWithoutSelecting = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserRevealWithoutSelecting',
+)
+
 export const kDataBrowserSelectOnlyOne = /* @__PURE__ */ _bind(FW, 'kDataBrowserSelectOnlyOne')
-export const kDataBrowserSelectionAnchorDown = /* @__PURE__ */ _bind(FW, 'kDataBrowserSelectionAnchorDown')
-export const kDataBrowserSelectionAnchorLeft = /* @__PURE__ */ _bind(FW, 'kDataBrowserSelectionAnchorLeft')
-export const kDataBrowserSelectionAnchorRight = /* @__PURE__ */ _bind(FW, 'kDataBrowserSelectionAnchorRight')
-export const kDataBrowserSelectionAnchorUp = /* @__PURE__ */ _bind(FW, 'kDataBrowserSelectionAnchorUp')
-export const kDataBrowserSelectionSetChanged = /* @__PURE__ */ _bind(FW, 'kDataBrowserSelectionSetChanged')
-export const kDataBrowserSliderDownwardThumb = /* @__PURE__ */ _bind(FW, 'kDataBrowserSliderDownwardThumb')
-export const kDataBrowserSliderPlainThumb = /* @__PURE__ */ _bind(FW, 'kDataBrowserSliderPlainThumb')
+export const kDataBrowserSelectionAnchorDown = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserSelectionAnchorDown',
+)
+
+export const kDataBrowserSelectionAnchorLeft = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserSelectionAnchorLeft',
+)
+
+export const kDataBrowserSelectionAnchorRight = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserSelectionAnchorRight',
+)
+
+export const kDataBrowserSelectionAnchorUp = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserSelectionAnchorUp',
+)
+
+export const kDataBrowserSelectionSetChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserSelectionSetChanged',
+)
+
+export const kDataBrowserSliderDownwardThumb = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserSliderDownwardThumb',
+)
+
+export const kDataBrowserSliderPlainThumb = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserSliderPlainThumb',
+)
+
 export const kDataBrowserSliderType = /* @__PURE__ */ _bind(FW, 'kDataBrowserSliderType')
-export const kDataBrowserSliderUpwardThumb = /* @__PURE__ */ _bind(FW, 'kDataBrowserSliderUpwardThumb')
+export const kDataBrowserSliderUpwardThumb = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserSliderUpwardThumb',
+)
+
 export const kDataBrowserStopTracking = /* @__PURE__ */ _bind(FW, 'kDataBrowserStopTracking')
-export const kDataBrowserTableViewFillHilite = /* @__PURE__ */ _bind(FW, 'kDataBrowserTableViewFillHilite')
-export const kDataBrowserTableViewLastColumn = /* @__PURE__ */ _bind(FW, 'kDataBrowserTableViewLastColumn')
-export const kDataBrowserTableViewMinimalHilite = /* @__PURE__ */ _bind(FW, 'kDataBrowserTableViewMinimalHilite')
-export const kDataBrowserTableViewSelectionColumn = /* @__PURE__ */ _bind(FW, 'kDataBrowserTableViewSelectionColumn')
+export const kDataBrowserTableViewFillHilite = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserTableViewFillHilite',
+)
+
+export const kDataBrowserTableViewLastColumn = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserTableViewLastColumn',
+)
+
+export const kDataBrowserTableViewMinimalHilite = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserTableViewMinimalHilite',
+)
+
+export const kDataBrowserTableViewSelectionColumn = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserTableViewSelectionColumn',
+)
+
 export const kDataBrowserTargetChanged = /* @__PURE__ */ _bind(FW, 'kDataBrowserTargetChanged')
 export const kDataBrowserTextType = /* @__PURE__ */ _bind(FW, 'kDataBrowserTextType')
-export const kDataBrowserTruncateTextAtEnd = /* @__PURE__ */ _bind(FW, 'kDataBrowserTruncateTextAtEnd')
-export const kDataBrowserTruncateTextAtStart = /* @__PURE__ */ _bind(FW, 'kDataBrowserTruncateTextAtStart')
-export const kDataBrowserTruncateTextMiddle = /* @__PURE__ */ _bind(FW, 'kDataBrowserTruncateTextMiddle')
-export const kDataBrowserUniversalPropertyFlags = /* @__PURE__ */ _bind(FW, 'kDataBrowserUniversalPropertyFlags')
-export const kDataBrowserUniversalPropertyFlagsMask = /* @__PURE__ */ _bind(FW, 'kDataBrowserUniversalPropertyFlagsMask')
-export const kDataBrowserUserStateChanged = /* @__PURE__ */ _bind(FW, 'kDataBrowserUserStateChanged')
-export const kDataBrowserUserToggledContainer = /* @__PURE__ */ _bind(FW, 'kDataBrowserUserToggledContainer')
-export const kDataBrowserViewSpecificFlagsMask = /* @__PURE__ */ _bind(FW, 'kDataBrowserViewSpecificFlagsMask')
-export const kDataBrowserViewSpecificFlagsOffset = /* @__PURE__ */ _bind(FW, 'kDataBrowserViewSpecificFlagsOffset')
-export const kDataBrowserViewSpecificPropertyFlags = /* @__PURE__ */ _bind(FW, 'kDataBrowserViewSpecificPropertyFlags')
+export const kDataBrowserTruncateTextAtEnd = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserTruncateTextAtEnd',
+)
+
+export const kDataBrowserTruncateTextAtStart = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserTruncateTextAtStart',
+)
+
+export const kDataBrowserTruncateTextMiddle = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserTruncateTextMiddle',
+)
+
+export const kDataBrowserUniversalPropertyFlags = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserUniversalPropertyFlags',
+)
+
+export const kDataBrowserUniversalPropertyFlagsMask = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserUniversalPropertyFlagsMask',
+)
+
+export const kDataBrowserUserStateChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserUserStateChanged',
+)
+
+export const kDataBrowserUserToggledContainer = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserUserToggledContainer',
+)
+
+export const kDataBrowserViewSpecificFlagsMask = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserViewSpecificFlagsMask',
+)
+
+export const kDataBrowserViewSpecificFlagsOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserViewSpecificFlagsOffset',
+)
+
+export const kDataBrowserViewSpecificPropertyFlags = /* @__PURE__ */ _bind(
+	FW,
+	'kDataBrowserViewSpecificPropertyFlags',
+)
+
 export const kDeepestColorScreen = /* @__PURE__ */ _bind(FW, 'kDeepestColorScreen')
 export const kDefaultColorPickerHeight = /* @__PURE__ */ _bind(FW, 'kDefaultColorPickerHeight')
 export const kDefaultColorPickerWidth = /* @__PURE__ */ _bind(FW, 'kDefaultColorPickerWidth')
 export const kDeleteCharCode = /* @__PURE__ */ _bind(FW, 'kDeleteCharCode')
 export const kDialectBundleResType = /* @__PURE__ */ _bind(FW, 'kDialectBundleResType')
-export const kDialogFlagsHandleMovableModal = /* @__PURE__ */ _bind(FW, 'kDialogFlagsHandleMovableModal')
+export const kDialogFlagsHandleMovableModal = /* @__PURE__ */ _bind(
+	FW,
+	'kDialogFlagsHandleMovableModal',
+)
+
 export const kDialogFlagsUseCompositing = /* @__PURE__ */ _bind(FW, 'kDialogFlagsUseCompositing')
-export const kDialogFlagsUseControlHierarchy = /* @__PURE__ */ _bind(FW, 'kDialogFlagsUseControlHierarchy')
-export const kDialogFlagsUseThemeBackground = /* @__PURE__ */ _bind(FW, 'kDialogFlagsUseThemeBackground')
-export const kDialogFlagsUseThemeControls = /* @__PURE__ */ _bind(FW, 'kDialogFlagsUseThemeControls')
+export const kDialogFlagsUseControlHierarchy = /* @__PURE__ */ _bind(
+	FW,
+	'kDialogFlagsUseControlHierarchy',
+)
+
+export const kDialogFlagsUseThemeBackground = /* @__PURE__ */ _bind(
+	FW,
+	'kDialogFlagsUseThemeBackground',
+)
+
+export const kDialogFlagsUseThemeControls = /* @__PURE__ */ _bind(
+	FW,
+	'kDialogFlagsUseThemeControls',
+)
+
 export const kDialogFontAddFontSizeMask = /* @__PURE__ */ _bind(FW, 'kDialogFontAddFontSizeMask')
-export const kDialogFontAddToMetaFontMask = /* @__PURE__ */ _bind(FW, 'kDialogFontAddToMetaFontMask')
+export const kDialogFontAddToMetaFontMask = /* @__PURE__ */ _bind(
+	FW,
+	'kDialogFontAddToMetaFontMask',
+)
+
 export const kDialogFontNoFontStyle = /* @__PURE__ */ _bind(FW, 'kDialogFontNoFontStyle')
 export const kDialogFontUseAllMask = /* @__PURE__ */ _bind(FW, 'kDialogFontUseAllMask')
 export const kDialogFontUseBackColorMask = /* @__PURE__ */ _bind(FW, 'kDialogFontUseBackColorMask')
@@ -2049,7 +4073,11 @@ export const kDialogFontUseForeColorMask = /* @__PURE__ */ _bind(FW, 'kDialogFon
 export const kDialogFontUseJustMask = /* @__PURE__ */ _bind(FW, 'kDialogFontUseJustMask')
 export const kDialogFontUseModeMask = /* @__PURE__ */ _bind(FW, 'kDialogFontUseModeMask')
 export const kDialogFontUseSizeMask = /* @__PURE__ */ _bind(FW, 'kDialogFontUseSizeMask')
-export const kDialogFontUseThemeFontIDMask = /* @__PURE__ */ _bind(FW, 'kDialogFontUseThemeFontIDMask')
+export const kDialogFontUseThemeFontIDMask = /* @__PURE__ */ _bind(
+	FW,
+	'kDialogFontUseThemeFontIDMask',
+)
+
 export const kDialogWindowKind = /* @__PURE__ */ _bind(FW, 'kDialogWindowKind')
 export const kDiamondCharCode = /* @__PURE__ */ _bind(FW, 'kDiamondCharCode')
 export const kDiamondUnicode = /* @__PURE__ */ _bind(FW, 'kDiamondUnicode')
@@ -2059,8 +4087,16 @@ export const kDigiHubEventClass = /* @__PURE__ */ _bind(FW, 'kDigiHubEventClass'
 export const kDigiHubMusicCD = /* @__PURE__ */ _bind(FW, 'kDigiHubMusicCD')
 export const kDigiHubPictureCD = /* @__PURE__ */ _bind(FW, 'kDigiHubPictureCD')
 export const kDigiHubVideoDVD = /* @__PURE__ */ _bind(FW, 'kDigiHubVideoDVD')
-export const kDoNotActivateAndHandleClick = /* @__PURE__ */ _bind(FW, 'kDoNotActivateAndHandleClick')
-export const kDoNotActivateAndIgnoreClick = /* @__PURE__ */ _bind(FW, 'kDoNotActivateAndIgnoreClick')
+export const kDoNotActivateAndHandleClick = /* @__PURE__ */ _bind(
+	FW,
+	'kDoNotActivateAndHandleClick',
+)
+
+export const kDoNotActivateAndIgnoreClick = /* @__PURE__ */ _bind(
+	FW,
+	'kDoNotActivateAndIgnoreClick',
+)
+
 export const kDocumentWindowClass = /* @__PURE__ */ _bind(FW, 'kDocumentWindowClass')
 export const kDocumentWindowVariantCode = /* @__PURE__ */ _bind(FW, 'kDocumentWindowVariantCode')
 export const kDownArrowCharCode = /* @__PURE__ */ _bind(FW, 'kDownArrowCharCode')
@@ -2073,20 +4109,36 @@ export const kDragActionMove = /* @__PURE__ */ _bind(FW, 'kDragActionMove')
 export const kDragActionNothing = /* @__PURE__ */ _bind(FW, 'kDragActionNothing')
 export const kDragActionPrivate = /* @__PURE__ */ _bind(FW, 'kDragActionPrivate')
 export const kDragBehaviorNone = /* @__PURE__ */ _bind(FW, 'kDragBehaviorNone')
-export const kDragBehaviorZoomBackAnimation = /* @__PURE__ */ _bind(FW, 'kDragBehaviorZoomBackAnimation')
+export const kDragBehaviorZoomBackAnimation = /* @__PURE__ */ _bind(
+	FW,
+	'kDragBehaviorZoomBackAnimation',
+)
+
 export const kDragDarkTranslucency = /* @__PURE__ */ _bind(FW, 'kDragDarkTranslucency')
 export const kDragDarkerTranslucency = /* @__PURE__ */ _bind(FW, 'kDragDarkerTranslucency')
 export const kDragDoNotScaleImage = /* @__PURE__ */ _bind(FW, 'kDragDoNotScaleImage')
 export const kDragFlavorTypeHFS = /* @__PURE__ */ _bind(FW, 'kDragFlavorTypeHFS')
 export const kDragFlavorTypePromiseHFS = /* @__PURE__ */ _bind(FW, 'kDragFlavorTypePromiseHFS')
 export const kDragHasLeftSenderWindow = /* @__PURE__ */ _bind(FW, 'kDragHasLeftSenderWindow')
-export const kDragInsideSenderApplication = /* @__PURE__ */ _bind(FW, 'kDragInsideSenderApplication')
+export const kDragInsideSenderApplication = /* @__PURE__ */ _bind(
+	FW,
+	'kDragInsideSenderApplication',
+)
+
 export const kDragInsideSenderWindow = /* @__PURE__ */ _bind(FW, 'kDragInsideSenderWindow')
 export const kDragOpaqueTranslucency = /* @__PURE__ */ _bind(FW, 'kDragOpaqueTranslucency')
 export const kDragPromisedFlavor = /* @__PURE__ */ _bind(FW, 'kDragPromisedFlavor')
 export const kDragPromisedFlavorFindFile = /* @__PURE__ */ _bind(FW, 'kDragPromisedFlavorFindFile')
-export const kDragPseudoCreatorVolumeOrDirectory = /* @__PURE__ */ _bind(FW, 'kDragPseudoCreatorVolumeOrDirectory')
-export const kDragPseudoFileTypeDirectory = /* @__PURE__ */ _bind(FW, 'kDragPseudoFileTypeDirectory')
+export const kDragPseudoCreatorVolumeOrDirectory = /* @__PURE__ */ _bind(
+	FW,
+	'kDragPseudoCreatorVolumeOrDirectory',
+)
+
+export const kDragPseudoFileTypeDirectory = /* @__PURE__ */ _bind(
+	FW,
+	'kDragPseudoFileTypeDirectory',
+)
+
 export const kDragPseudoFileTypeVolume = /* @__PURE__ */ _bind(FW, 'kDragPseudoFileTypeVolume')
 export const kDragRegionAndImage = /* @__PURE__ */ _bind(FW, 'kDragRegionAndImage')
 export const kDragRegionBegin = /* @__PURE__ */ _bind(FW, 'kDragRegionBegin')
@@ -2094,8 +4146,16 @@ export const kDragRegionDraw = /* @__PURE__ */ _bind(FW, 'kDragRegionDraw')
 export const kDragRegionEnd = /* @__PURE__ */ _bind(FW, 'kDragRegionEnd')
 export const kDragRegionHide = /* @__PURE__ */ _bind(FW, 'kDragRegionHide')
 export const kDragRegionIdle = /* @__PURE__ */ _bind(FW, 'kDragRegionIdle')
-export const kDragStandardDropLocationTrash = /* @__PURE__ */ _bind(FW, 'kDragStandardDropLocationTrash')
-export const kDragStandardDropLocationUnknown = /* @__PURE__ */ _bind(FW, 'kDragStandardDropLocationUnknown')
+export const kDragStandardDropLocationTrash = /* @__PURE__ */ _bind(
+	FW,
+	'kDragStandardDropLocationTrash',
+)
+
+export const kDragStandardDropLocationUnknown = /* @__PURE__ */ _bind(
+	FW,
+	'kDragStandardDropLocationUnknown',
+)
+
 export const kDragStandardTranslucency = /* @__PURE__ */ _bind(FW, 'kDragStandardTranslucency')
 export const kDragTrackingEnterControl = /* @__PURE__ */ _bind(FW, 'kDragTrackingEnterControl')
 export const kDragTrackingEnterHandler = /* @__PURE__ */ _bind(FW, 'kDragTrackingEnterHandler')
@@ -2112,37 +4172,105 @@ export const kEditTextDialogItem = /* @__PURE__ */ _bind(FW, 'kEditTextDialogIte
 export const kEndCharCode = /* @__PURE__ */ _bind(FW, 'kEndCharCode')
 export const kEnterCharCode = /* @__PURE__ */ _bind(FW, 'kEnterCharCode')
 export const kEscapeCharCode = /* @__PURE__ */ _bind(FW, 'kEscapeCharCode')
-export const kEventAccessibleGetAllActionNames = /* @__PURE__ */ _bind(FW, 'kEventAccessibleGetAllActionNames')
-export const kEventAccessibleGetAllAttributeNames = /* @__PURE__ */ _bind(FW, 'kEventAccessibleGetAllAttributeNames')
-export const kEventAccessibleGetAllParameterizedAttributeNames = /* @__PURE__ */ _bind(FW, 'kEventAccessibleGetAllParameterizedAttributeNames')
-export const kEventAccessibleGetChildAtPoint = /* @__PURE__ */ _bind(FW, 'kEventAccessibleGetChildAtPoint')
-export const kEventAccessibleGetFocusedChild = /* @__PURE__ */ _bind(FW, 'kEventAccessibleGetFocusedChild')
-export const kEventAccessibleGetNamedActionDescription = /* @__PURE__ */ _bind(FW, 'kEventAccessibleGetNamedActionDescription')
-export const kEventAccessibleGetNamedAttribute = /* @__PURE__ */ _bind(FW, 'kEventAccessibleGetNamedAttribute')
-export const kEventAccessibleIsNamedAttributeSettable = /* @__PURE__ */ _bind(FW, 'kEventAccessibleIsNamedAttributeSettable')
-export const kEventAccessiblePerformNamedAction = /* @__PURE__ */ _bind(FW, 'kEventAccessiblePerformNamedAction')
-export const kEventAccessibleSetNamedAttribute = /* @__PURE__ */ _bind(FW, 'kEventAccessibleSetNamedAttribute')
+export const kEventAccessibleGetAllActionNames = /* @__PURE__ */ _bind(
+	FW,
+	'kEventAccessibleGetAllActionNames',
+)
+
+export const kEventAccessibleGetAllAttributeNames = /* @__PURE__ */ _bind(
+	FW,
+	'kEventAccessibleGetAllAttributeNames',
+)
+
+export const kEventAccessibleGetAllParameterizedAttributeNames = /* @__PURE__ */ _bind(
+	FW,
+	'kEventAccessibleGetAllParameterizedAttributeNames',
+)
+
+export const kEventAccessibleGetChildAtPoint = /* @__PURE__ */ _bind(
+	FW,
+	'kEventAccessibleGetChildAtPoint',
+)
+
+export const kEventAccessibleGetFocusedChild = /* @__PURE__ */ _bind(
+	FW,
+	'kEventAccessibleGetFocusedChild',
+)
+
+export const kEventAccessibleGetNamedActionDescription = /* @__PURE__ */ _bind(
+	FW,
+	'kEventAccessibleGetNamedActionDescription',
+)
+
+export const kEventAccessibleGetNamedAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kEventAccessibleGetNamedAttribute',
+)
+
+export const kEventAccessibleIsNamedAttributeSettable = /* @__PURE__ */ _bind(
+	FW,
+	'kEventAccessibleIsNamedAttributeSettable',
+)
+
+export const kEventAccessiblePerformNamedAction = /* @__PURE__ */ _bind(
+	FW,
+	'kEventAccessiblePerformNamedAction',
+)
+
+export const kEventAccessibleSetNamedAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kEventAccessibleSetNamedAttribute',
+)
+
 export const kEventAppActivated = /* @__PURE__ */ _bind(FW, 'kEventAppActivated')
-export const kEventAppActiveWindowChanged = /* @__PURE__ */ _bind(FW, 'kEventAppActiveWindowChanged')
-export const kEventAppAvailableWindowBoundsChanged = /* @__PURE__ */ _bind(FW, 'kEventAppAvailableWindowBoundsChanged')
+export const kEventAppActiveWindowChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kEventAppActiveWindowChanged',
+)
+
+export const kEventAppAvailableWindowBoundsChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kEventAppAvailableWindowBoundsChanged',
+)
+
 export const kEventAppDeactivated = /* @__PURE__ */ _bind(FW, 'kEventAppDeactivated')
 export const kEventAppFocusDrawer = /* @__PURE__ */ _bind(FW, 'kEventAppFocusDrawer')
 export const kEventAppFocusMenuBar = /* @__PURE__ */ _bind(FW, 'kEventAppFocusMenuBar')
-export const kEventAppFocusNextDocumentWindow = /* @__PURE__ */ _bind(FW, 'kEventAppFocusNextDocumentWindow')
-export const kEventAppFocusNextFloatingWindow = /* @__PURE__ */ _bind(FW, 'kEventAppFocusNextFloatingWindow')
+export const kEventAppFocusNextDocumentWindow = /* @__PURE__ */ _bind(
+	FW,
+	'kEventAppFocusNextDocumentWindow',
+)
+
+export const kEventAppFocusNextFloatingWindow = /* @__PURE__ */ _bind(
+	FW,
+	'kEventAppFocusNextFloatingWindow',
+)
+
 export const kEventAppFocusToolbar = /* @__PURE__ */ _bind(FW, 'kEventAppFocusToolbar')
 export const kEventAppFrontSwitched = /* @__PURE__ */ _bind(FW, 'kEventAppFrontSwitched')
 export const kEventAppGetDockTileMenu = /* @__PURE__ */ _bind(FW, 'kEventAppGetDockTileMenu')
 export const kEventAppHidden = /* @__PURE__ */ _bind(FW, 'kEventAppHidden')
-export const kEventAppIsEventInInstantMouser = /* @__PURE__ */ _bind(FW, 'kEventAppIsEventInInstantMouser')
+export const kEventAppIsEventInInstantMouser = /* @__PURE__ */ _bind(
+	FW,
+	'kEventAppIsEventInInstantMouser',
+)
+
 export const kEventAppLaunchNotification = /* @__PURE__ */ _bind(FW, 'kEventAppLaunchNotification')
 export const kEventAppLaunched = /* @__PURE__ */ _bind(FW, 'kEventAppLaunched')
 export const kEventAppQuit = /* @__PURE__ */ _bind(FW, 'kEventAppQuit')
 export const kEventAppShown = /* @__PURE__ */ _bind(FW, 'kEventAppShown')
-export const kEventAppSystemUIModeChanged = /* @__PURE__ */ _bind(FW, 'kEventAppSystemUIModeChanged')
+export const kEventAppSystemUIModeChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kEventAppSystemUIModeChanged',
+)
+
 export const kEventAppTerminated = /* @__PURE__ */ _bind(FW, 'kEventAppTerminated')
 export const kEventAppUpdateDockTile = /* @__PURE__ */ _bind(FW, 'kEventAppUpdateDockTile')
-export const kEventAppearanceScrollBarVariantChanged = /* @__PURE__ */ _bind(FW, 'kEventAppearanceScrollBarVariantChanged')
+export const kEventAppearanceScrollBarVariantChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kEventAppearanceScrollBarVariantChanged',
+)
+
 export const kEventAppleEvent = /* @__PURE__ */ _bind(FW, 'kEventAppleEvent')
 export const kEventAttributeMonitored = /* @__PURE__ */ _bind(FW, 'kEventAttributeMonitored')
 export const kEventAttributeNone = /* @__PURE__ */ _bind(FW, 'kEventAttributeNone')
@@ -2169,7 +4297,11 @@ export const kEventClassScrollable = /* @__PURE__ */ _bind(FW, 'kEventClassScrol
 export const kEventClassSearchField = /* @__PURE__ */ _bind(FW, 'kEventClassSearchField')
 export const kEventClassService = /* @__PURE__ */ _bind(FW, 'kEventClassService')
 export const kEventClassSystem = /* @__PURE__ */ _bind(FW, 'kEventClassSystem')
-export const kEventClassTSMDocumentAccess = /* @__PURE__ */ _bind(FW, 'kEventClassTSMDocumentAccess')
+export const kEventClassTSMDocumentAccess = /* @__PURE__ */ _bind(
+	FW,
+	'kEventClassTSMDocumentAccess',
+)
+
 export const kEventClassTablet = /* @__PURE__ */ _bind(FW, 'kEventClassTablet')
 export const kEventClassTextField = /* @__PURE__ */ _bind(FW, 'kEventClassTextField')
 export const kEventClassTextInput = /* @__PURE__ */ _bind(FW, 'kEventClassTextInput')
@@ -2178,16 +4310,32 @@ export const kEventClassToolbarItem = /* @__PURE__ */ _bind(FW, 'kEventClassTool
 export const kEventClassToolbarItemView = /* @__PURE__ */ _bind(FW, 'kEventClassToolbarItemView')
 export const kEventClassVolume = /* @__PURE__ */ _bind(FW, 'kEventClassVolume')
 export const kEventClassWindow = /* @__PURE__ */ _bind(FW, 'kEventClassWindow')
-export const kEventClockDateOrTimeChanged = /* @__PURE__ */ _bind(FW, 'kEventClockDateOrTimeChanged')
-export const kEventComboBoxListItemSelected = /* @__PURE__ */ _bind(FW, 'kEventComboBoxListItemSelected')
+export const kEventClockDateOrTimeChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kEventClockDateOrTimeChanged',
+)
+
+export const kEventComboBoxListItemSelected = /* @__PURE__ */ _bind(
+	FW,
+	'kEventComboBoxListItemSelected',
+)
+
 export const kEventCommandProcess = /* @__PURE__ */ _bind(FW, 'kEventCommandProcess')
 export const kEventCommandUpdateStatus = /* @__PURE__ */ _bind(FW, 'kEventCommandUpdateStatus')
 export const kEventControlActivate = /* @__PURE__ */ _bind(FW, 'kEventControlActivate')
-export const kEventControlAddedSubControl = /* @__PURE__ */ _bind(FW, 'kEventControlAddedSubControl')
+export const kEventControlAddedSubControl = /* @__PURE__ */ _bind(
+	FW,
+	'kEventControlAddedSubControl',
+)
+
 export const kEventControlApplyTextColor = /* @__PURE__ */ _bind(FW, 'kEventControlApplyTextColor')
 export const kEventControlBoundsChanged = /* @__PURE__ */ _bind(FW, 'kEventControlBoundsChanged')
 export const kEventControlClick = /* @__PURE__ */ _bind(FW, 'kEventControlClick')
-export const kEventControlContextualMenuClick = /* @__PURE__ */ _bind(FW, 'kEventControlContextualMenuClick')
+export const kEventControlContextualMenuClick = /* @__PURE__ */ _bind(
+	FW,
+	'kEventControlContextualMenuClick',
+)
+
 export const kEventControlDeactivate = /* @__PURE__ */ _bind(FW, 'kEventControlDeactivate')
 export const kEventControlDispose = /* @__PURE__ */ _bind(FW, 'kEventControlDispose')
 export const kEventControlDragEnter = /* @__PURE__ */ _bind(FW, 'kEventControlDragEnter')
@@ -2195,47 +4343,151 @@ export const kEventControlDragLeave = /* @__PURE__ */ _bind(FW, 'kEventControlDr
 export const kEventControlDragReceive = /* @__PURE__ */ _bind(FW, 'kEventControlDragReceive')
 export const kEventControlDragWithin = /* @__PURE__ */ _bind(FW, 'kEventControlDragWithin')
 export const kEventControlDraw = /* @__PURE__ */ _bind(FW, 'kEventControlDraw')
-export const kEventControlEnabledStateChanged = /* @__PURE__ */ _bind(FW, 'kEventControlEnabledStateChanged')
-export const kEventControlFocusPartChanged = /* @__PURE__ */ _bind(FW, 'kEventControlFocusPartChanged')
-export const kEventControlGetActionProcPart = /* @__PURE__ */ _bind(FW, 'kEventControlGetActionProcPart')
-export const kEventControlGetAutoToggleValue = /* @__PURE__ */ _bind(FW, 'kEventControlGetAutoToggleValue')
-export const kEventControlGetClickActivation = /* @__PURE__ */ _bind(FW, 'kEventControlGetClickActivation')
+export const kEventControlEnabledStateChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kEventControlEnabledStateChanged',
+)
+
+export const kEventControlFocusPartChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kEventControlFocusPartChanged',
+)
+
+export const kEventControlGetActionProcPart = /* @__PURE__ */ _bind(
+	FW,
+	'kEventControlGetActionProcPart',
+)
+
+export const kEventControlGetAutoToggleValue = /* @__PURE__ */ _bind(
+	FW,
+	'kEventControlGetAutoToggleValue',
+)
+
+export const kEventControlGetClickActivation = /* @__PURE__ */ _bind(
+	FW,
+	'kEventControlGetClickActivation',
+)
+
 export const kEventControlGetData = /* @__PURE__ */ _bind(FW, 'kEventControlGetData')
 export const kEventControlGetFocusPart = /* @__PURE__ */ _bind(FW, 'kEventControlGetFocusPart')
-export const kEventControlGetFrameMetrics = /* @__PURE__ */ _bind(FW, 'kEventControlGetFrameMetrics')
-export const kEventControlGetIndicatorDragConstraint = /* @__PURE__ */ _bind(FW, 'kEventControlGetIndicatorDragConstraint')
-export const kEventControlGetNextFocusCandidate = /* @__PURE__ */ _bind(FW, 'kEventControlGetNextFocusCandidate')
-export const kEventControlGetOptimalBounds = /* @__PURE__ */ _bind(FW, 'kEventControlGetOptimalBounds')
+export const kEventControlGetFrameMetrics = /* @__PURE__ */ _bind(
+	FW,
+	'kEventControlGetFrameMetrics',
+)
+
+export const kEventControlGetIndicatorDragConstraint = /* @__PURE__ */ _bind(
+	FW,
+	'kEventControlGetIndicatorDragConstraint',
+)
+
+export const kEventControlGetNextFocusCandidate = /* @__PURE__ */ _bind(
+	FW,
+	'kEventControlGetNextFocusCandidate',
+)
+
+export const kEventControlGetOptimalBounds = /* @__PURE__ */ _bind(
+	FW,
+	'kEventControlGetOptimalBounds',
+)
+
 export const kEventControlGetPartBounds = /* @__PURE__ */ _bind(FW, 'kEventControlGetPartBounds')
 export const kEventControlGetPartRegion = /* @__PURE__ */ _bind(FW, 'kEventControlGetPartRegion')
-export const kEventControlGetScrollToHereStartPoint = /* @__PURE__ */ _bind(FW, 'kEventControlGetScrollToHereStartPoint')
-export const kEventControlGetSizeConstraints = /* @__PURE__ */ _bind(FW, 'kEventControlGetSizeConstraints')
-export const kEventControlGetSubviewForMouseEvent = /* @__PURE__ */ _bind(FW, 'kEventControlGetSubviewForMouseEvent')
-export const kEventControlGhostingFinished = /* @__PURE__ */ _bind(FW, 'kEventControlGhostingFinished')
+export const kEventControlGetScrollToHereStartPoint = /* @__PURE__ */ _bind(
+	FW,
+	'kEventControlGetScrollToHereStartPoint',
+)
+
+export const kEventControlGetSizeConstraints = /* @__PURE__ */ _bind(
+	FW,
+	'kEventControlGetSizeConstraints',
+)
+
+export const kEventControlGetSubviewForMouseEvent = /* @__PURE__ */ _bind(
+	FW,
+	'kEventControlGetSubviewForMouseEvent',
+)
+
+export const kEventControlGhostingFinished = /* @__PURE__ */ _bind(
+	FW,
+	'kEventControlGhostingFinished',
+)
+
 export const kEventControlHiliteChanged = /* @__PURE__ */ _bind(FW, 'kEventControlHiliteChanged')
 export const kEventControlHit = /* @__PURE__ */ _bind(FW, 'kEventControlHit')
 export const kEventControlHitTest = /* @__PURE__ */ _bind(FW, 'kEventControlHitTest')
 export const kEventControlIndicatorMoved = /* @__PURE__ */ _bind(FW, 'kEventControlIndicatorMoved')
 export const kEventControlInitialize = /* @__PURE__ */ _bind(FW, 'kEventControlInitialize')
-export const kEventControlInterceptSubviewClick = /* @__PURE__ */ _bind(FW, 'kEventControlInterceptSubviewClick')
-export const kEventControlInvalidateForSizeChange = /* @__PURE__ */ _bind(FW, 'kEventControlInvalidateForSizeChange')
-export const kEventControlLayoutInfoChanged = /* @__PURE__ */ _bind(FW, 'kEventControlLayoutInfoChanged')
-export const kEventControlOptimalBoundsChanged = /* @__PURE__ */ _bind(FW, 'kEventControlOptimalBoundsChanged')
-export const kEventControlOwningWindowChanged = /* @__PURE__ */ _bind(FW, 'kEventControlOwningWindowChanged')
-export const kEventControlRemovingSubControl = /* @__PURE__ */ _bind(FW, 'kEventControlRemovingSubControl')
+export const kEventControlInterceptSubviewClick = /* @__PURE__ */ _bind(
+	FW,
+	'kEventControlInterceptSubviewClick',
+)
+
+export const kEventControlInvalidateForSizeChange = /* @__PURE__ */ _bind(
+	FW,
+	'kEventControlInvalidateForSizeChange',
+)
+
+export const kEventControlLayoutInfoChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kEventControlLayoutInfoChanged',
+)
+
+export const kEventControlOptimalBoundsChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kEventControlOptimalBoundsChanged',
+)
+
+export const kEventControlOwningWindowChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kEventControlOwningWindowChanged',
+)
+
+export const kEventControlRemovingSubControl = /* @__PURE__ */ _bind(
+	FW,
+	'kEventControlRemovingSubControl',
+)
+
 export const kEventControlSetCursor = /* @__PURE__ */ _bind(FW, 'kEventControlSetCursor')
 export const kEventControlSetData = /* @__PURE__ */ _bind(FW, 'kEventControlSetData')
 export const kEventControlSetFocusPart = /* @__PURE__ */ _bind(FW, 'kEventControlSetFocusPart')
 export const kEventControlSimulateHit = /* @__PURE__ */ _bind(FW, 'kEventControlSimulateHit')
 export const kEventControlTitleChanged = /* @__PURE__ */ _bind(FW, 'kEventControlTitleChanged')
 export const kEventControlTrack = /* @__PURE__ */ _bind(FW, 'kEventControlTrack')
-export const kEventControlTrackingAreaEntered = /* @__PURE__ */ _bind(FW, 'kEventControlTrackingAreaEntered')
-export const kEventControlTrackingAreaExited = /* @__PURE__ */ _bind(FW, 'kEventControlTrackingAreaExited')
-export const kEventControlValueFieldChanged = /* @__PURE__ */ _bind(FW, 'kEventControlValueFieldChanged')
-export const kEventControlVisibilityChanged = /* @__PURE__ */ _bind(FW, 'kEventControlVisibilityChanged')
-export const kEventDataBrowserDrawCustomItem = /* @__PURE__ */ _bind(FW, 'kEventDataBrowserDrawCustomItem')
-export const kEventDelegateGetGroupClasses = /* @__PURE__ */ _bind(FW, 'kEventDelegateGetGroupClasses')
-export const kEventDelegateGetTargetClasses = /* @__PURE__ */ _bind(FW, 'kEventDelegateGetTargetClasses')
+export const kEventControlTrackingAreaEntered = /* @__PURE__ */ _bind(
+	FW,
+	'kEventControlTrackingAreaEntered',
+)
+
+export const kEventControlTrackingAreaExited = /* @__PURE__ */ _bind(
+	FW,
+	'kEventControlTrackingAreaExited',
+)
+
+export const kEventControlValueFieldChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kEventControlValueFieldChanged',
+)
+
+export const kEventControlVisibilityChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kEventControlVisibilityChanged',
+)
+
+export const kEventDataBrowserDrawCustomItem = /* @__PURE__ */ _bind(
+	FW,
+	'kEventDataBrowserDrawCustomItem',
+)
+
+export const kEventDelegateGetGroupClasses = /* @__PURE__ */ _bind(
+	FW,
+	'kEventDelegateGetGroupClasses',
+)
+
+export const kEventDelegateGetTargetClasses = /* @__PURE__ */ _bind(
+	FW,
+	'kEventDelegateGetTargetClasses',
+)
+
 export const kEventDelegateInstalled = /* @__PURE__ */ _bind(FW, 'kEventDelegateInstalled')
 export const kEventDelegateIsGroup = /* @__PURE__ */ _bind(FW, 'kEventDelegateIsGroup')
 export const kEventDelegateRemoved = /* @__PURE__ */ _bind(FW, 'kEventDelegateRemoved')
@@ -2248,13 +4500,25 @@ export const kEventGestureStarted = /* @__PURE__ */ _bind(FW, 'kEventGestureStar
 export const kEventGestureSwipe = /* @__PURE__ */ _bind(FW, 'kEventGestureSwipe')
 export const kEventGetSelectedText = /* @__PURE__ */ _bind(FW, 'kEventGetSelectedText')
 export const kEventHIObjectConstruct = /* @__PURE__ */ _bind(FW, 'kEventHIObjectConstruct')
-export const kEventHIObjectCreatedFromArchive = /* @__PURE__ */ _bind(FW, 'kEventHIObjectCreatedFromArchive')
+export const kEventHIObjectCreatedFromArchive = /* @__PURE__ */ _bind(
+	FW,
+	'kEventHIObjectCreatedFromArchive',
+)
+
 export const kEventHIObjectDestruct = /* @__PURE__ */ _bind(FW, 'kEventHIObjectDestruct')
 export const kEventHIObjectEncode = /* @__PURE__ */ _bind(FW, 'kEventHIObjectEncode')
-export const kEventHIObjectGetInitParameters = /* @__PURE__ */ _bind(FW, 'kEventHIObjectGetInitParameters')
+export const kEventHIObjectGetInitParameters = /* @__PURE__ */ _bind(
+	FW,
+	'kEventHIObjectGetInitParameters',
+)
+
 export const kEventHIObjectInitialize = /* @__PURE__ */ _bind(FW, 'kEventHIObjectInitialize')
 export const kEventHIObjectIsEqual = /* @__PURE__ */ _bind(FW, 'kEventHIObjectIsEqual')
-export const kEventHIObjectPrintDebugInfo = /* @__PURE__ */ _bind(FW, 'kEventHIObjectPrintDebugInfo')
+export const kEventHIObjectPrintDebugInfo = /* @__PURE__ */ _bind(
+	FW,
+	'kEventHIObjectPrintDebugInfo',
+)
+
 export const kEventHighLevelEvent = /* @__PURE__ */ _bind(FW, 'kEventHighLevelEvent')
 export const kEventHotKeyExclusive = /* @__PURE__ */ _bind(FW, 'kEventHotKeyExclusive')
 export const kEventHotKeyNoOptions = /* @__PURE__ */ _bind(FW, 'kEventHotKeyNoOptions')
@@ -2266,7 +4530,11 @@ export const kEventInkText = /* @__PURE__ */ _bind(FW, 'kEventInkText')
 export const kEventKeyModifierFnBit = /* @__PURE__ */ _bind(FW, 'kEventKeyModifierFnBit')
 export const kEventKeyModifierFnMask = /* @__PURE__ */ _bind(FW, 'kEventKeyModifierFnMask')
 export const kEventKeyModifierNumLockBit = /* @__PURE__ */ _bind(FW, 'kEventKeyModifierNumLockBit')
-export const kEventKeyModifierNumLockMask = /* @__PURE__ */ _bind(FW, 'kEventKeyModifierNumLockMask')
+export const kEventKeyModifierNumLockMask = /* @__PURE__ */ _bind(
+	FW,
+	'kEventKeyModifierNumLockMask',
+)
+
 export const kEventLeaveInQueue = /* @__PURE__ */ _bind(FW, 'kEventLeaveInQueue')
 export const kEventLoopIdleTimerIdling = /* @__PURE__ */ _bind(FW, 'kEventLoopIdleTimerIdling')
 export const kEventLoopIdleTimerStarted = /* @__PURE__ */ _bind(FW, 'kEventLoopIdleTimerStarted')
@@ -2276,8 +4544,16 @@ export const kEventMenuBarShown = /* @__PURE__ */ _bind(FW, 'kEventMenuBarShown'
 export const kEventMenuBecomeScrollable = /* @__PURE__ */ _bind(FW, 'kEventMenuBecomeScrollable')
 export const kEventMenuBeginTracking = /* @__PURE__ */ _bind(FW, 'kEventMenuBeginTracking')
 export const kEventMenuCalculateSize = /* @__PURE__ */ _bind(FW, 'kEventMenuCalculateSize')
-export const kEventMenuCeaseToBeScrollable = /* @__PURE__ */ _bind(FW, 'kEventMenuCeaseToBeScrollable')
-export const kEventMenuChangeTrackingMode = /* @__PURE__ */ _bind(FW, 'kEventMenuChangeTrackingMode')
+export const kEventMenuCeaseToBeScrollable = /* @__PURE__ */ _bind(
+	FW,
+	'kEventMenuCeaseToBeScrollable',
+)
+
+export const kEventMenuChangeTrackingMode = /* @__PURE__ */ _bind(
+	FW,
+	'kEventMenuChangeTrackingMode',
+)
+
 export const kEventMenuClosed = /* @__PURE__ */ _bind(FW, 'kEventMenuClosed')
 export const kEventMenuCreateFrameView = /* @__PURE__ */ _bind(FW, 'kEventMenuCreateFrameView')
 export const kEventMenuDispose = /* @__PURE__ */ _bind(FW, 'kEventMenuDispose')
@@ -2310,15 +4586,51 @@ export const kEventParamAEEventClass = /* @__PURE__ */ _bind(FW, 'kEventParamAEE
 export const kEventParamAEEventID = /* @__PURE__ */ _bind(FW, 'kEventParamAEEventID')
 export const kEventParamATSUFontID = /* @__PURE__ */ _bind(FW, 'kEventParamATSUFontID')
 export const kEventParamATSUFontSize = /* @__PURE__ */ _bind(FW, 'kEventParamATSUFontSize')
-export const kEventParamAccessibilityEventQueued = /* @__PURE__ */ _bind(FW, 'kEventParamAccessibilityEventQueued')
-export const kEventParamAccessibleActionDescription = /* @__PURE__ */ _bind(FW, 'kEventParamAccessibleActionDescription')
-export const kEventParamAccessibleActionName = /* @__PURE__ */ _bind(FW, 'kEventParamAccessibleActionName')
-export const kEventParamAccessibleActionNames = /* @__PURE__ */ _bind(FW, 'kEventParamAccessibleActionNames')
-export const kEventParamAccessibleAttributeName = /* @__PURE__ */ _bind(FW, 'kEventParamAccessibleAttributeName')
-export const kEventParamAccessibleAttributeNames = /* @__PURE__ */ _bind(FW, 'kEventParamAccessibleAttributeNames')
-export const kEventParamAccessibleAttributeParameter = /* @__PURE__ */ _bind(FW, 'kEventParamAccessibleAttributeParameter')
-export const kEventParamAccessibleAttributeSettable = /* @__PURE__ */ _bind(FW, 'kEventParamAccessibleAttributeSettable')
-export const kEventParamAccessibleAttributeValue = /* @__PURE__ */ _bind(FW, 'kEventParamAccessibleAttributeValue')
+export const kEventParamAccessibilityEventQueued = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamAccessibilityEventQueued',
+)
+
+export const kEventParamAccessibleActionDescription = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamAccessibleActionDescription',
+)
+
+export const kEventParamAccessibleActionName = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamAccessibleActionName',
+)
+
+export const kEventParamAccessibleActionNames = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamAccessibleActionNames',
+)
+
+export const kEventParamAccessibleAttributeName = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamAccessibleAttributeName',
+)
+
+export const kEventParamAccessibleAttributeNames = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamAccessibleAttributeNames',
+)
+
+export const kEventParamAccessibleAttributeParameter = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamAccessibleAttributeParameter',
+)
+
+export const kEventParamAccessibleAttributeSettable = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamAccessibleAttributeSettable',
+)
+
+export const kEventParamAccessibleAttributeValue = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamAccessibleAttributeValue',
+)
+
 export const kEventParamAccessibleChild = /* @__PURE__ */ _bind(FW, 'kEventParamAccessibleChild')
 export const kEventParamAccessibleObject = /* @__PURE__ */ _bind(FW, 'kEventParamAccessibleObject')
 export const kEventParamAfterDelegates = /* @__PURE__ */ _bind(FW, 'kEventParamAfterDelegates')
@@ -2334,66 +4646,206 @@ export const kEventParamCTFontDescriptor = /* @__PURE__ */ _bind(FW, 'kEventPara
 export const kEventParamCandidateText = /* @__PURE__ */ _bind(FW, 'kEventParamCandidateText')
 export const kEventParamClickActivation = /* @__PURE__ */ _bind(FW, 'kEventParamClickActivation')
 export const kEventParamClickCount = /* @__PURE__ */ _bind(FW, 'kEventParamClickCount')
-export const kEventParamComboBoxListSelectedItemIndex = /* @__PURE__ */ _bind(FW, 'kEventParamComboBoxListSelectedItemIndex')
+export const kEventParamComboBoxListSelectedItemIndex = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamComboBoxListSelectedItemIndex',
+)
+
 export const kEventParamControlAction = /* @__PURE__ */ _bind(FW, 'kEventParamControlAction')
-export const kEventParamControlClickActivationResult = /* @__PURE__ */ _bind(FW, 'kEventParamControlClickActivationResult')
-export const kEventParamControlCurrentOwningWindow = /* @__PURE__ */ _bind(FW, 'kEventParamControlCurrentOwningWindow')
-export const kEventParamControlCurrentPart = /* @__PURE__ */ _bind(FW, 'kEventParamControlCurrentPart')
-export const kEventParamControlDataBuffer = /* @__PURE__ */ _bind(FW, 'kEventParamControlDataBuffer')
-export const kEventParamControlDataBufferSize = /* @__PURE__ */ _bind(FW, 'kEventParamControlDataBufferSize')
+export const kEventParamControlClickActivationResult = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamControlClickActivationResult',
+)
+
+export const kEventParamControlCurrentOwningWindow = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamControlCurrentOwningWindow',
+)
+
+export const kEventParamControlCurrentPart = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamControlCurrentPart',
+)
+
+export const kEventParamControlDataBuffer = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamControlDataBuffer',
+)
+
+export const kEventParamControlDataBufferSize = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamControlDataBufferSize',
+)
+
 export const kEventParamControlDataTag = /* @__PURE__ */ _bind(FW, 'kEventParamControlDataTag')
 export const kEventParamControlDrawDepth = /* @__PURE__ */ _bind(FW, 'kEventParamControlDrawDepth')
-export const kEventParamControlDrawEngraved = /* @__PURE__ */ _bind(FW, 'kEventParamControlDrawEngraved')
-export const kEventParamControlDrawInColor = /* @__PURE__ */ _bind(FW, 'kEventParamControlDrawInColor')
+export const kEventParamControlDrawEngraved = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamControlDrawEngraved',
+)
+
+export const kEventParamControlDrawInColor = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamControlDrawInColor',
+)
+
 export const kEventParamControlFeatures = /* @__PURE__ */ _bind(FW, 'kEventParamControlFeatures')
-export const kEventParamControlFocusEverything = /* @__PURE__ */ _bind(FW, 'kEventParamControlFocusEverything')
-export const kEventParamControlFrameMetrics = /* @__PURE__ */ _bind(FW, 'kEventParamControlFrameMetrics')
+export const kEventParamControlFocusEverything = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamControlFocusEverything',
+)
+
+export const kEventParamControlFrameMetrics = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamControlFrameMetrics',
+)
+
 export const kEventParamControlHit = /* @__PURE__ */ _bind(FW, 'kEventParamControlHit')
-export const kEventParamControlIndicatorDragConstraint = /* @__PURE__ */ _bind(FW, 'kEventParamControlIndicatorDragConstraint')
-export const kEventParamControlIndicatorOffset = /* @__PURE__ */ _bind(FW, 'kEventParamControlIndicatorOffset')
-export const kEventParamControlIndicatorRegion = /* @__PURE__ */ _bind(FW, 'kEventParamControlIndicatorRegion')
+export const kEventParamControlIndicatorDragConstraint = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamControlIndicatorDragConstraint',
+)
+
+export const kEventParamControlIndicatorOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamControlIndicatorOffset',
+)
+
+export const kEventParamControlIndicatorRegion = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamControlIndicatorRegion',
+)
+
 export const kEventParamControlInvalRgn = /* @__PURE__ */ _bind(FW, 'kEventParamControlInvalRgn')
-export const kEventParamControlIsGhosting = /* @__PURE__ */ _bind(FW, 'kEventParamControlIsGhosting')
+export const kEventParamControlIsGhosting = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamControlIsGhosting',
+)
+
 export const kEventParamControlMessage = /* @__PURE__ */ _bind(FW, 'kEventParamControlMessage')
-export const kEventParamControlOptimalBaselineOffset = /* @__PURE__ */ _bind(FW, 'kEventParamControlOptimalBaselineOffset')
-export const kEventParamControlOptimalBounds = /* @__PURE__ */ _bind(FW, 'kEventParamControlOptimalBounds')
-export const kEventParamControlOriginalOwningWindow = /* @__PURE__ */ _bind(FW, 'kEventParamControlOriginalOwningWindow')
+export const kEventParamControlOptimalBaselineOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamControlOptimalBaselineOffset',
+)
+
+export const kEventParamControlOptimalBounds = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamControlOptimalBounds',
+)
+
+export const kEventParamControlOriginalOwningWindow = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamControlOriginalOwningWindow',
+)
+
 export const kEventParamControlParam = /* @__PURE__ */ _bind(FW, 'kEventParamControlParam')
 export const kEventParamControlPart = /* @__PURE__ */ _bind(FW, 'kEventParamControlPart')
-export const kEventParamControlPartAutoRepeats = /* @__PURE__ */ _bind(FW, 'kEventParamControlPartAutoRepeats')
-export const kEventParamControlPartBounds = /* @__PURE__ */ _bind(FW, 'kEventParamControlPartBounds')
-export const kEventParamControlPrefersShape = /* @__PURE__ */ _bind(FW, 'kEventParamControlPrefersShape')
-export const kEventParamControlPreviousPart = /* @__PURE__ */ _bind(FW, 'kEventParamControlPreviousPart')
+export const kEventParamControlPartAutoRepeats = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamControlPartAutoRepeats',
+)
+
+export const kEventParamControlPartBounds = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamControlPartBounds',
+)
+
+export const kEventParamControlPrefersShape = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamControlPrefersShape',
+)
+
+export const kEventParamControlPreviousPart = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamControlPreviousPart',
+)
+
 export const kEventParamControlRef = /* @__PURE__ */ _bind(FW, 'kEventParamControlRef')
 export const kEventParamControlRegion = /* @__PURE__ */ _bind(FW, 'kEventParamControlRegion')
 export const kEventParamControlResult = /* @__PURE__ */ _bind(FW, 'kEventParamControlResult')
-export const kEventParamControlSubControl = /* @__PURE__ */ _bind(FW, 'kEventParamControlSubControl')
+export const kEventParamControlSubControl = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamControlSubControl',
+)
+
 export const kEventParamControlSubview = /* @__PURE__ */ _bind(FW, 'kEventParamControlSubview')
 export const kEventParamControlValue = /* @__PURE__ */ _bind(FW, 'kEventParamControlValue')
-export const kEventParamControlWouldAcceptDrop = /* @__PURE__ */ _bind(FW, 'kEventParamControlWouldAcceptDrop')
+export const kEventParamControlWouldAcceptDrop = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamControlWouldAcceptDrop',
+)
+
 export const kEventParamCurrentBounds = /* @__PURE__ */ _bind(FW, 'kEventParamCurrentBounds')
-export const kEventParamCurrentDockDevice = /* @__PURE__ */ _bind(FW, 'kEventParamCurrentDockDevice')
+export const kEventParamCurrentDockDevice = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamCurrentDockDevice',
+)
+
 export const kEventParamCurrentDockRect = /* @__PURE__ */ _bind(FW, 'kEventParamCurrentDockRect')
-export const kEventParamCurrentMenuTrackingMode = /* @__PURE__ */ _bind(FW, 'kEventParamCurrentMenuTrackingMode')
+export const kEventParamCurrentMenuTrackingMode = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamCurrentMenuTrackingMode',
+)
+
 export const kEventParamCurrentWindow = /* @__PURE__ */ _bind(FW, 'kEventParamCurrentWindow')
-export const kEventParamDataBrowserItemID = /* @__PURE__ */ _bind(FW, 'kEventParamDataBrowserItemID')
-export const kEventParamDataBrowserItemState = /* @__PURE__ */ _bind(FW, 'kEventParamDataBrowserItemState')
-export const kEventParamDataBrowserPropertyID = /* @__PURE__ */ _bind(FW, 'kEventParamDataBrowserPropertyID')
-export const kEventParamDecodingForEditor = /* @__PURE__ */ _bind(FW, 'kEventParamDecodingForEditor')
-export const kEventParamDelegateGroupClasses = /* @__PURE__ */ _bind(FW, 'kEventParamDelegateGroupClasses')
-export const kEventParamDelegateGroupParameters = /* @__PURE__ */ _bind(FW, 'kEventParamDelegateGroupParameters')
+export const kEventParamDataBrowserItemID = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamDataBrowserItemID',
+)
+
+export const kEventParamDataBrowserItemState = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamDataBrowserItemState',
+)
+
+export const kEventParamDataBrowserPropertyID = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamDataBrowserPropertyID',
+)
+
+export const kEventParamDecodingForEditor = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamDecodingForEditor',
+)
+
+export const kEventParamDelegateGroupClasses = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamDelegateGroupClasses',
+)
+
+export const kEventParamDelegateGroupParameters = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamDelegateGroupParameters',
+)
+
 export const kEventParamDelegateTarget = /* @__PURE__ */ _bind(FW, 'kEventParamDelegateTarget')
-export const kEventParamDelegateTargetClasses = /* @__PURE__ */ _bind(FW, 'kEventParamDelegateTargetClasses')
+export const kEventParamDelegateTargetClasses = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamDelegateTargetClasses',
+)
+
 export const kEventParamDeviceColor = /* @__PURE__ */ _bind(FW, 'kEventParamDeviceColor')
 export const kEventParamDeviceDepth = /* @__PURE__ */ _bind(FW, 'kEventParamDeviceDepth')
 export const kEventParamDictionary = /* @__PURE__ */ _bind(FW, 'kEventParamDictionary')
 export const kEventParamDimensions = /* @__PURE__ */ _bind(FW, 'kEventParamDimensions')
 export const kEventParamDirectObject = /* @__PURE__ */ _bind(FW, 'kEventParamDirectObject')
-export const kEventParamDirectionInverted = /* @__PURE__ */ _bind(FW, 'kEventParamDirectionInverted')
-export const kEventParamDisplayChangeFlags = /* @__PURE__ */ _bind(FW, 'kEventParamDisplayChangeFlags')
+export const kEventParamDirectionInverted = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamDirectionInverted',
+)
+
+export const kEventParamDisplayChangeFlags = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamDisplayChangeFlags',
+)
+
 export const kEventParamDisplayDevice = /* @__PURE__ */ _bind(FW, 'kEventParamDisplayDevice')
 export const kEventParamDragRef = /* @__PURE__ */ _bind(FW, 'kEventParamDragRef')
-export const kEventParamEnableMenuForKeyEvent = /* @__PURE__ */ _bind(FW, 'kEventParamEnableMenuForKeyEvent')
+export const kEventParamEnableMenuForKeyEvent = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamEnableMenuForKeyEvent',
+)
+
 export const kEventParamEnabled = /* @__PURE__ */ _bind(FW, 'kEventParamEnabled')
 export const kEventParamEventRef = /* @__PURE__ */ _bind(FW, 'kEventParamEventRef')
 export const kEventParamFMFontFamily = /* @__PURE__ */ _bind(FW, 'kEventParamFMFontFamily')
@@ -2405,17 +4857,33 @@ export const kEventParamGrafPort = /* @__PURE__ */ _bind(FW, 'kEventParamGrafPor
 export const kEventParamHIArchive = /* @__PURE__ */ _bind(FW, 'kEventParamHIArchive')
 export const kEventParamHICommand = /* @__PURE__ */ _bind(FW, 'kEventParamHICommand')
 export const kEventParamHIObjectInstance = /* @__PURE__ */ _bind(FW, 'kEventParamHIObjectInstance')
-export const kEventParamHIViewTrackingArea = /* @__PURE__ */ _bind(FW, 'kEventParamHIViewTrackingArea')
+export const kEventParamHIViewTrackingArea = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamHIViewTrackingArea',
+)
+
 export const kEventParamImageSize = /* @__PURE__ */ _bind(FW, 'kEventParamImageSize')
 export const kEventParamIndex = /* @__PURE__ */ _bind(FW, 'kEventParamIndex')
 export const kEventParamInitCollection = /* @__PURE__ */ _bind(FW, 'kEventParamInitCollection')
 export const kEventParamInitParameters = /* @__PURE__ */ _bind(FW, 'kEventParamInitParameters')
 export const kEventParamInkGestureBounds = /* @__PURE__ */ _bind(FW, 'kEventParamInkGestureBounds')
-export const kEventParamInkGestureHotspot = /* @__PURE__ */ _bind(FW, 'kEventParamInkGestureHotspot')
+export const kEventParamInkGestureHotspot = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamInkGestureHotspot',
+)
+
 export const kEventParamInkGestureKind = /* @__PURE__ */ _bind(FW, 'kEventParamInkGestureKind')
-export const kEventParamInkKeyboardShortcut = /* @__PURE__ */ _bind(FW, 'kEventParamInkKeyboardShortcut')
+export const kEventParamInkKeyboardShortcut = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamInkKeyboardShortcut',
+)
+
 export const kEventParamInkTextRef = /* @__PURE__ */ _bind(FW, 'kEventParamInkTextRef')
-export const kEventParamIsInInstantMouser = /* @__PURE__ */ _bind(FW, 'kEventParamIsInInstantMouser')
+export const kEventParamIsInInstantMouser = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamIsInInstantMouser',
+)
+
 export const kEventParamKeyCode = /* @__PURE__ */ _bind(FW, 'kEventParamKeyCode')
 export const kEventParamKeyMacCharCodes = /* @__PURE__ */ _bind(FW, 'kEventParamKeyMacCharCodes')
 export const kEventParamKeyModifiers = /* @__PURE__ */ _bind(FW, 'kEventParamKeyModifiers')
@@ -2424,12 +4892,24 @@ export const kEventParamKeyboardType = /* @__PURE__ */ _bind(FW, 'kEventParamKey
 export const kEventParamLaunchErr = /* @__PURE__ */ _bind(FW, 'kEventParamLaunchErr')
 export const kEventParamLaunchRefCon = /* @__PURE__ */ _bind(FW, 'kEventParamLaunchRefCon')
 export const kEventParamLineSize = /* @__PURE__ */ _bind(FW, 'kEventParamLineSize')
-export const kEventParamMagnificationAmount = /* @__PURE__ */ _bind(FW, 'kEventParamMagnificationAmount')
+export const kEventParamMagnificationAmount = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamMagnificationAmount',
+)
+
 export const kEventParamMaximumSize = /* @__PURE__ */ _bind(FW, 'kEventParamMaximumSize')
 export const kEventParamMenuCommand = /* @__PURE__ */ _bind(FW, 'kEventParamMenuCommand')
-export const kEventParamMenuCommandKeyBounds = /* @__PURE__ */ _bind(FW, 'kEventParamMenuCommandKeyBounds')
+export const kEventParamMenuCommandKeyBounds = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamMenuCommandKeyBounds',
+)
+
 export const kEventParamMenuContext = /* @__PURE__ */ _bind(FW, 'kEventParamMenuContext')
-export const kEventParamMenuContextHeight = /* @__PURE__ */ _bind(FW, 'kEventParamMenuContextHeight')
+export const kEventParamMenuContextHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamMenuContextHeight',
+)
+
 export const kEventParamMenuDirection = /* @__PURE__ */ _bind(FW, 'kEventParamMenuDirection')
 export const kEventParamMenuDismissed = /* @__PURE__ */ _bind(FW, 'kEventParamMenuDismissed')
 export const kEventParamMenuDrawState = /* @__PURE__ */ _bind(FW, 'kEventParamMenuDrawState')
@@ -2449,7 +4929,11 @@ export const kEventParamMenuRef = /* @__PURE__ */ _bind(FW, 'kEventParamMenuRef'
 export const kEventParamMenuTextBaseline = /* @__PURE__ */ _bind(FW, 'kEventParamMenuTextBaseline')
 export const kEventParamMenuTextBounds = /* @__PURE__ */ _bind(FW, 'kEventParamMenuTextBounds')
 export const kEventParamMenuType = /* @__PURE__ */ _bind(FW, 'kEventParamMenuType')
-export const kEventParamMenuVirtualBottom = /* @__PURE__ */ _bind(FW, 'kEventParamMenuVirtualBottom')
+export const kEventParamMenuVirtualBottom = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamMenuVirtualBottom',
+)
+
 export const kEventParamMenuVirtualTop = /* @__PURE__ */ _bind(FW, 'kEventParamMenuVirtualTop')
 export const kEventParamMinimumSize = /* @__PURE__ */ _bind(FW, 'kEventParamMinimumSize')
 export const kEventParamModalClickResult = /* @__PURE__ */ _bind(FW, 'kEventParamModalClickResult')
@@ -2461,11 +4945,27 @@ export const kEventParamMouseLocation = /* @__PURE__ */ _bind(FW, 'kEventParamMo
 export const kEventParamMouseTrackingRef = /* @__PURE__ */ _bind(FW, 'kEventParamMouseTrackingRef')
 export const kEventParamMouseWheelAxis = /* @__PURE__ */ _bind(FW, 'kEventParamMouseWheelAxis')
 export const kEventParamMouseWheelDelta = /* @__PURE__ */ _bind(FW, 'kEventParamMouseWheelDelta')
-export const kEventParamMouseWheelSmoothHorizontalDelta = /* @__PURE__ */ _bind(FW, 'kEventParamMouseWheelSmoothHorizontalDelta')
-export const kEventParamMouseWheelSmoothVerticalDelta = /* @__PURE__ */ _bind(FW, 'kEventParamMouseWheelSmoothVerticalDelta')
+export const kEventParamMouseWheelSmoothHorizontalDelta = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamMouseWheelSmoothHorizontalDelta',
+)
+
+export const kEventParamMouseWheelSmoothVerticalDelta = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamMouseWheelSmoothVerticalDelta',
+)
+
 export const kEventParamMutableArray = /* @__PURE__ */ _bind(FW, 'kEventParamMutableArray')
-export const kEventParamNewMenuTrackingMode = /* @__PURE__ */ _bind(FW, 'kEventParamNewMenuTrackingMode')
-export const kEventParamNewScrollBarVariant = /* @__PURE__ */ _bind(FW, 'kEventParamNewScrollBarVariant')
+export const kEventParamNewMenuTrackingMode = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamNewMenuTrackingMode',
+)
+
+export const kEventParamNewScrollBarVariant = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamNewScrollBarVariant',
+)
+
 export const kEventParamNextControl = /* @__PURE__ */ _bind(FW, 'kEventParamNextControl')
 export const kEventParamOrigin = /* @__PURE__ */ _bind(FW, 'kEventParamOrigin')
 export const kEventParamOriginalBounds = /* @__PURE__ */ _bind(FW, 'kEventParamOriginalBounds')
@@ -2475,7 +4975,11 @@ export const kEventParamPasteboardRef = /* @__PURE__ */ _bind(FW, 'kEventParamPa
 export const kEventParamPostOptions = /* @__PURE__ */ _bind(FW, 'kEventParamPostOptions')
 export const kEventParamPostTarget = /* @__PURE__ */ _bind(FW, 'kEventParamPostTarget')
 export const kEventParamPreviousBounds = /* @__PURE__ */ _bind(FW, 'kEventParamPreviousBounds')
-export const kEventParamPreviousDockDevice = /* @__PURE__ */ _bind(FW, 'kEventParamPreviousDockDevice')
+export const kEventParamPreviousDockDevice = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamPreviousDockDevice',
+)
+
 export const kEventParamPreviousDockRect = /* @__PURE__ */ _bind(FW, 'kEventParamPreviousDockRect')
 export const kEventParamPreviousWindow = /* @__PURE__ */ _bind(FW, 'kEventParamPreviousWindow')
 export const kEventParamProcessID = /* @__PURE__ */ _bind(FW, 'kEventParamProcessID')
@@ -2486,111 +4990,427 @@ export const kEventParamRgnHandle = /* @__PURE__ */ _bind(FW, 'kEventParamRgnHan
 export const kEventParamRotationAmount = /* @__PURE__ */ _bind(FW, 'kEventParamRotationAmount')
 export const kEventParamScrapRef = /* @__PURE__ */ _bind(FW, 'kEventParamScrapRef')
 export const kEventParamServiceCopyTypes = /* @__PURE__ */ _bind(FW, 'kEventParamServiceCopyTypes')
-export const kEventParamServiceMessageName = /* @__PURE__ */ _bind(FW, 'kEventParamServiceMessageName')
-export const kEventParamServicePasteTypes = /* @__PURE__ */ _bind(FW, 'kEventParamServicePasteTypes')
+export const kEventParamServiceMessageName = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamServiceMessageName',
+)
+
+export const kEventParamServicePasteTypes = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamServicePasteTypes',
+)
+
 export const kEventParamServiceUserData = /* @__PURE__ */ _bind(FW, 'kEventParamServiceUserData')
 export const kEventParamShape = /* @__PURE__ */ _bind(FW, 'kEventParamShape')
 export const kEventParamStartControl = /* @__PURE__ */ _bind(FW, 'kEventParamStartControl')
 export const kEventParamSwipeDirection = /* @__PURE__ */ _bind(FW, 'kEventParamSwipeDirection')
 export const kEventParamSystemUIMode = /* @__PURE__ */ _bind(FW, 'kEventParamSystemUIMode')
 export const kEventParamSystemUIOptions = /* @__PURE__ */ _bind(FW, 'kEventParamSystemUIOptions')
-export const kEventParamTSMDocAccessBaselineDelta = /* @__PURE__ */ _bind(FW, 'kEventParamTSMDocAccessBaselineDelta')
-export const kEventParamTSMDocAccessCharacterCount = /* @__PURE__ */ _bind(FW, 'kEventParamTSMDocAccessCharacterCount')
-export const kEventParamTSMDocAccessEffectiveRange = /* @__PURE__ */ _bind(FW, 'kEventParamTSMDocAccessEffectiveRange')
-export const kEventParamTSMDocAccessLineBounds = /* @__PURE__ */ _bind(FW, 'kEventParamTSMDocAccessLineBounds')
-export const kEventParamTSMDocAccessLockCount = /* @__PURE__ */ _bind(FW, 'kEventParamTSMDocAccessLockCount')
-export const kEventParamTSMDocAccessReplyATSFont = /* @__PURE__ */ _bind(FW, 'kEventParamTSMDocAccessReplyATSFont')
-export const kEventParamTSMDocAccessReplyATSUGlyphSelector = /* @__PURE__ */ _bind(FW, 'kEventParamTSMDocAccessReplyATSUGlyphSelector')
-export const kEventParamTSMDocAccessReplyCTFontRef = /* @__PURE__ */ _bind(FW, 'kEventParamTSMDocAccessReplyCTFontRef')
-export const kEventParamTSMDocAccessReplyCTGlyphInfoRef = /* @__PURE__ */ _bind(FW, 'kEventParamTSMDocAccessReplyCTGlyphInfoRef')
-export const kEventParamTSMDocAccessReplyCharacterRange = /* @__PURE__ */ _bind(FW, 'kEventParamTSMDocAccessReplyCharacterRange')
-export const kEventParamTSMDocAccessReplyCharactersPtr = /* @__PURE__ */ _bind(FW, 'kEventParamTSMDocAccessReplyCharactersPtr')
-export const kEventParamTSMDocAccessReplyFontSize = /* @__PURE__ */ _bind(FW, 'kEventParamTSMDocAccessReplyFontSize')
-export const kEventParamTSMDocAccessRequestedCharacterAttributes = /* @__PURE__ */ _bind(FW, 'kEventParamTSMDocAccessRequestedCharacterAttributes')
-export const kEventParamTSMDocAccessSendCharacterIndex = /* @__PURE__ */ _bind(FW, 'kEventParamTSMDocAccessSendCharacterIndex')
-export const kEventParamTSMDocAccessSendCharacterRange = /* @__PURE__ */ _bind(FW, 'kEventParamTSMDocAccessSendCharacterRange')
-export const kEventParamTSMDocAccessSendCharactersPtr = /* @__PURE__ */ _bind(FW, 'kEventParamTSMDocAccessSendCharactersPtr')
-export const kEventParamTSMDocAccessSendComponentInstance = /* @__PURE__ */ _bind(FW, 'kEventParamTSMDocAccessSendComponentInstance')
-export const kEventParamTSMDocAccessSendRefCon = /* @__PURE__ */ _bind(FW, 'kEventParamTSMDocAccessSendRefCon')
-export const kEventParamTSMSendComponentInstance = /* @__PURE__ */ _bind(FW, 'kEventParamTSMSendComponentInstance')
+export const kEventParamTSMDocAccessBaselineDelta = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTSMDocAccessBaselineDelta',
+)
+
+export const kEventParamTSMDocAccessCharacterCount = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTSMDocAccessCharacterCount',
+)
+
+export const kEventParamTSMDocAccessEffectiveRange = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTSMDocAccessEffectiveRange',
+)
+
+export const kEventParamTSMDocAccessLineBounds = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTSMDocAccessLineBounds',
+)
+
+export const kEventParamTSMDocAccessLockCount = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTSMDocAccessLockCount',
+)
+
+export const kEventParamTSMDocAccessReplyATSFont = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTSMDocAccessReplyATSFont',
+)
+
+export const kEventParamTSMDocAccessReplyATSUGlyphSelector = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTSMDocAccessReplyATSUGlyphSelector',
+)
+
+export const kEventParamTSMDocAccessReplyCTFontRef = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTSMDocAccessReplyCTFontRef',
+)
+
+export const kEventParamTSMDocAccessReplyCTGlyphInfoRef = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTSMDocAccessReplyCTGlyphInfoRef',
+)
+
+export const kEventParamTSMDocAccessReplyCharacterRange = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTSMDocAccessReplyCharacterRange',
+)
+
+export const kEventParamTSMDocAccessReplyCharactersPtr = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTSMDocAccessReplyCharactersPtr',
+)
+
+export const kEventParamTSMDocAccessReplyFontSize = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTSMDocAccessReplyFontSize',
+)
+
+export const kEventParamTSMDocAccessRequestedCharacterAttributes = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTSMDocAccessRequestedCharacterAttributes',
+)
+
+export const kEventParamTSMDocAccessSendCharacterIndex = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTSMDocAccessSendCharacterIndex',
+)
+
+export const kEventParamTSMDocAccessSendCharacterRange = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTSMDocAccessSendCharacterRange',
+)
+
+export const kEventParamTSMDocAccessSendCharactersPtr = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTSMDocAccessSendCharactersPtr',
+)
+
+export const kEventParamTSMDocAccessSendComponentInstance = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTSMDocAccessSendComponentInstance',
+)
+
+export const kEventParamTSMDocAccessSendRefCon = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTSMDocAccessSendRefCon',
+)
+
+export const kEventParamTSMSendComponentInstance = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTSMSendComponentInstance',
+)
+
 export const kEventParamTSMSendRefCon = /* @__PURE__ */ _bind(FW, 'kEventParamTSMSendRefCon')
 export const kEventParamTabletEventType = /* @__PURE__ */ _bind(FW, 'kEventParamTabletEventType')
 export const kEventParamTabletPointRec = /* @__PURE__ */ _bind(FW, 'kEventParamTabletPointRec')
 export const kEventParamTabletPointerRec = /* @__PURE__ */ _bind(FW, 'kEventParamTabletPointerRec')
-export const kEventParamTabletProximityRec = /* @__PURE__ */ _bind(FW, 'kEventParamTabletProximityRec')
-export const kEventParamTextInputGlyphInfoArray = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputGlyphInfoArray')
-export const kEventParamTextInputReplyATSFont = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputReplyATSFont')
-export const kEventParamTextInputReplyAttributedString = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputReplyAttributedString')
-export const kEventParamTextInputReplyCTFontRef = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputReplyCTFontRef')
-export const kEventParamTextInputReplyFMFont = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputReplyFMFont')
-export const kEventParamTextInputReplyFont = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputReplyFont')
-export const kEventParamTextInputReplyGlyphInfoArray = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputReplyGlyphInfoArray')
-export const kEventParamTextInputReplyLeadingEdge = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputReplyLeadingEdge')
-export const kEventParamTextInputReplyLineAscent = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputReplyLineAscent')
-export const kEventParamTextInputReplyLineHeight = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputReplyLineHeight')
-export const kEventParamTextInputReplyMacEncoding = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputReplyMacEncoding')
-export const kEventParamTextInputReplyPoint = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputReplyPoint')
-export const kEventParamTextInputReplyPointSize = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputReplyPointSize')
-export const kEventParamTextInputReplyRegionClass = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputReplyRegionClass')
-export const kEventParamTextInputReplySLRec = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputReplySLRec')
-export const kEventParamTextInputReplyShowHide = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputReplyShowHide')
-export const kEventParamTextInputReplyText = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputReplyText')
-export const kEventParamTextInputReplyTextAngle = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputReplyTextAngle')
-export const kEventParamTextInputReplyTextOffset = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputReplyTextOffset')
-export const kEventParamTextInputSendAttributedString = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputSendAttributedString')
-export const kEventParamTextInputSendClauseRng = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputSendClauseRng')
-export const kEventParamTextInputSendComponentInstance = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputSendComponentInstance')
-export const kEventParamTextInputSendCurrentPoint = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputSendCurrentPoint')
-export const kEventParamTextInputSendDraggingMode = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputSendDraggingMode')
-export const kEventParamTextInputSendFixLen = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputSendFixLen')
-export const kEventParamTextInputSendGlyphInfoArray = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputSendGlyphInfoArray')
-export const kEventParamTextInputSendHiliteRng = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputSendHiliteRng')
-export const kEventParamTextInputSendKeyboardEvent = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputSendKeyboardEvent')
-export const kEventParamTextInputSendLeadingEdge = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputSendLeadingEdge')
-export const kEventParamTextInputSendMouseEvent = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputSendMouseEvent')
-export const kEventParamTextInputSendPinRng = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputSendPinRng')
-export const kEventParamTextInputSendRefCon = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputSendRefCon')
-export const kEventParamTextInputSendReplaceRange = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputSendReplaceRange')
-export const kEventParamTextInputSendSLRec = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputSendSLRec')
-export const kEventParamTextInputSendShowHide = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputSendShowHide')
-export const kEventParamTextInputSendText = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputSendText')
-export const kEventParamTextInputSendTextOffset = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputSendTextOffset')
-export const kEventParamTextInputSendTextServiceEncoding = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputSendTextServiceEncoding')
-export const kEventParamTextInputSendTextServiceMacEncoding = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputSendTextServiceMacEncoding')
-export const kEventParamTextInputSendUpdateRng = /* @__PURE__ */ _bind(FW, 'kEventParamTextInputSendUpdateRng')
+export const kEventParamTabletProximityRec = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTabletProximityRec',
+)
+
+export const kEventParamTextInputGlyphInfoArray = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputGlyphInfoArray',
+)
+
+export const kEventParamTextInputReplyATSFont = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputReplyATSFont',
+)
+
+export const kEventParamTextInputReplyAttributedString = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputReplyAttributedString',
+)
+
+export const kEventParamTextInputReplyCTFontRef = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputReplyCTFontRef',
+)
+
+export const kEventParamTextInputReplyFMFont = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputReplyFMFont',
+)
+
+export const kEventParamTextInputReplyFont = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputReplyFont',
+)
+
+export const kEventParamTextInputReplyGlyphInfoArray = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputReplyGlyphInfoArray',
+)
+
+export const kEventParamTextInputReplyLeadingEdge = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputReplyLeadingEdge',
+)
+
+export const kEventParamTextInputReplyLineAscent = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputReplyLineAscent',
+)
+
+export const kEventParamTextInputReplyLineHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputReplyLineHeight',
+)
+
+export const kEventParamTextInputReplyMacEncoding = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputReplyMacEncoding',
+)
+
+export const kEventParamTextInputReplyPoint = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputReplyPoint',
+)
+
+export const kEventParamTextInputReplyPointSize = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputReplyPointSize',
+)
+
+export const kEventParamTextInputReplyRegionClass = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputReplyRegionClass',
+)
+
+export const kEventParamTextInputReplySLRec = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputReplySLRec',
+)
+
+export const kEventParamTextInputReplyShowHide = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputReplyShowHide',
+)
+
+export const kEventParamTextInputReplyText = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputReplyText',
+)
+
+export const kEventParamTextInputReplyTextAngle = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputReplyTextAngle',
+)
+
+export const kEventParamTextInputReplyTextOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputReplyTextOffset',
+)
+
+export const kEventParamTextInputSendAttributedString = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputSendAttributedString',
+)
+
+export const kEventParamTextInputSendClauseRng = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputSendClauseRng',
+)
+
+export const kEventParamTextInputSendComponentInstance = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputSendComponentInstance',
+)
+
+export const kEventParamTextInputSendCurrentPoint = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputSendCurrentPoint',
+)
+
+export const kEventParamTextInputSendDraggingMode = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputSendDraggingMode',
+)
+
+export const kEventParamTextInputSendFixLen = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputSendFixLen',
+)
+
+export const kEventParamTextInputSendGlyphInfoArray = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputSendGlyphInfoArray',
+)
+
+export const kEventParamTextInputSendHiliteRng = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputSendHiliteRng',
+)
+
+export const kEventParamTextInputSendKeyboardEvent = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputSendKeyboardEvent',
+)
+
+export const kEventParamTextInputSendLeadingEdge = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputSendLeadingEdge',
+)
+
+export const kEventParamTextInputSendMouseEvent = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputSendMouseEvent',
+)
+
+export const kEventParamTextInputSendPinRng = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputSendPinRng',
+)
+
+export const kEventParamTextInputSendRefCon = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputSendRefCon',
+)
+
+export const kEventParamTextInputSendReplaceRange = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputSendReplaceRange',
+)
+
+export const kEventParamTextInputSendSLRec = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputSendSLRec',
+)
+
+export const kEventParamTextInputSendShowHide = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputSendShowHide',
+)
+
+export const kEventParamTextInputSendText = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputSendText',
+)
+
+export const kEventParamTextInputSendTextOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputSendTextOffset',
+)
+
+export const kEventParamTextInputSendTextServiceEncoding = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputSendTextServiceEncoding',
+)
+
+export const kEventParamTextInputSendTextServiceMacEncoding = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputSendTextServiceMacEncoding',
+)
+
+export const kEventParamTextInputSendUpdateRng = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamTextInputSendUpdateRng',
+)
+
 export const kEventParamTextLength = /* @__PURE__ */ _bind(FW, 'kEventParamTextLength')
 export const kEventParamTextSelection = /* @__PURE__ */ _bind(FW, 'kEventParamTextSelection')
 export const kEventParamToolbar = /* @__PURE__ */ _bind(FW, 'kEventParamToolbar')
-export const kEventParamToolbarDisplayMode = /* @__PURE__ */ _bind(FW, 'kEventParamToolbarDisplayMode')
-export const kEventParamToolbarDisplaySize = /* @__PURE__ */ _bind(FW, 'kEventParamToolbarDisplaySize')
+export const kEventParamToolbarDisplayMode = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamToolbarDisplayMode',
+)
+
+export const kEventParamToolbarDisplaySize = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamToolbarDisplaySize',
+)
+
 export const kEventParamToolbarItem = /* @__PURE__ */ _bind(FW, 'kEventParamToolbarItem')
-export const kEventParamToolbarItemConfigData = /* @__PURE__ */ _bind(FW, 'kEventParamToolbarItemConfigData')
-export const kEventParamToolbarItemIdentifier = /* @__PURE__ */ _bind(FW, 'kEventParamToolbarItemIdentifier')
+export const kEventParamToolbarItemConfigData = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamToolbarItemConfigData',
+)
+
+export const kEventParamToolbarItemIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamToolbarItemIdentifier',
+)
+
 export const kEventParamTransactionID = /* @__PURE__ */ _bind(FW, 'kEventParamTransactionID')
 export const kEventParamUnconfirmedRange = /* @__PURE__ */ _bind(FW, 'kEventParamUnconfirmedRange')
 export const kEventParamUnconfirmedText = /* @__PURE__ */ _bind(FW, 'kEventParamUnconfirmedText')
 export const kEventParamUserData = /* @__PURE__ */ _bind(FW, 'kEventParamUserData')
-export const kEventParamViewAttributesDictionary = /* @__PURE__ */ _bind(FW, 'kEventParamViewAttributesDictionary')
+export const kEventParamViewAttributesDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamViewAttributesDictionary',
+)
+
 export const kEventParamViewSize = /* @__PURE__ */ _bind(FW, 'kEventParamViewSize')
-export const kEventParamWindowContentBounds = /* @__PURE__ */ _bind(FW, 'kEventParamWindowContentBounds')
+export const kEventParamWindowContentBounds = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamWindowContentBounds',
+)
+
 export const kEventParamWindowDefPart = /* @__PURE__ */ _bind(FW, 'kEventParamWindowDefPart')
-export const kEventParamWindowDragHiliteFlag = /* @__PURE__ */ _bind(FW, 'kEventParamWindowDragHiliteFlag')
+export const kEventParamWindowDragHiliteFlag = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamWindowDragHiliteFlag',
+)
+
 export const kEventParamWindowFeatures = /* @__PURE__ */ _bind(FW, 'kEventParamWindowFeatures')
 export const kEventParamWindowGrowRect = /* @__PURE__ */ _bind(FW, 'kEventParamWindowGrowRect')
 export const kEventParamWindowModality = /* @__PURE__ */ _bind(FW, 'kEventParamWindowModality')
-export const kEventParamWindowModifiedFlag = /* @__PURE__ */ _bind(FW, 'kEventParamWindowModifiedFlag')
-export const kEventParamWindowMouseLocation = /* @__PURE__ */ _bind(FW, 'kEventParamWindowMouseLocation')
+export const kEventParamWindowModifiedFlag = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamWindowModifiedFlag',
+)
+
+export const kEventParamWindowMouseLocation = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamWindowMouseLocation',
+)
+
 export const kEventParamWindowPartCode = /* @__PURE__ */ _bind(FW, 'kEventParamWindowPartCode')
-export const kEventParamWindowProxyGWorldPtr = /* @__PURE__ */ _bind(FW, 'kEventParamWindowProxyGWorldPtr')
-export const kEventParamWindowProxyImageRgn = /* @__PURE__ */ _bind(FW, 'kEventParamWindowProxyImageRgn')
-export const kEventParamWindowProxyOutlineRgn = /* @__PURE__ */ _bind(FW, 'kEventParamWindowProxyOutlineRgn')
+export const kEventParamWindowProxyGWorldPtr = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamWindowProxyGWorldPtr',
+)
+
+export const kEventParamWindowProxyImageRgn = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamWindowProxyImageRgn',
+)
+
+export const kEventParamWindowProxyOutlineRgn = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamWindowProxyOutlineRgn',
+)
+
 export const kEventParamWindowRef = /* @__PURE__ */ _bind(FW, 'kEventParamWindowRef')
 export const kEventParamWindowRegionCode = /* @__PURE__ */ _bind(FW, 'kEventParamWindowRegionCode')
-export const kEventParamWindowStateChangedFlags = /* @__PURE__ */ _bind(FW, 'kEventParamWindowStateChangedFlags')
-export const kEventParamWindowTitleFullWidth = /* @__PURE__ */ _bind(FW, 'kEventParamWindowTitleFullWidth')
-export const kEventParamWindowTitleTextWidth = /* @__PURE__ */ _bind(FW, 'kEventParamWindowTitleTextWidth')
-export const kEventParamWindowTransitionAction = /* @__PURE__ */ _bind(FW, 'kEventParamWindowTransitionAction')
-export const kEventParamWindowTransitionEffect = /* @__PURE__ */ _bind(FW, 'kEventParamWindowTransitionEffect')
+export const kEventParamWindowStateChangedFlags = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamWindowStateChangedFlags',
+)
+
+export const kEventParamWindowTitleFullWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamWindowTitleFullWidth',
+)
+
+export const kEventParamWindowTitleTextWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamWindowTitleTextWidth',
+)
+
+export const kEventParamWindowTransitionAction = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamWindowTransitionAction',
+)
+
+export const kEventParamWindowTransitionEffect = /* @__PURE__ */ _bind(
+	FW,
+	'kEventParamWindowTransitionEffect',
+)
+
 export const kEventPosToOffset = /* @__PURE__ */ _bind(FW, 'kEventPosToOffset')
 export const kEventPriorityHigh = /* @__PURE__ */ _bind(FW, 'kEventPriorityHigh')
 export const kEventPriorityLow = /* @__PURE__ */ _bind(FW, 'kEventPriorityLow')
@@ -2598,86 +5418,270 @@ export const kEventPriorityStandard = /* @__PURE__ */ _bind(FW, 'kEventPriorityS
 export const kEventProcessCommand = /* @__PURE__ */ _bind(FW, 'kEventProcessCommand')
 export const kEventQueueOptionsNone = /* @__PURE__ */ _bind(FW, 'kEventQueueOptionsNone')
 export const kEventRawKeyDown = /* @__PURE__ */ _bind(FW, 'kEventRawKeyDown')
-export const kEventRawKeyModifiersChanged = /* @__PURE__ */ _bind(FW, 'kEventRawKeyModifiersChanged')
+export const kEventRawKeyModifiersChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kEventRawKeyModifiersChanged',
+)
+
 export const kEventRawKeyRepeat = /* @__PURE__ */ _bind(FW, 'kEventRawKeyRepeat')
 export const kEventRawKeyUp = /* @__PURE__ */ _bind(FW, 'kEventRawKeyUp')
 export const kEventRemoveFromQueue = /* @__PURE__ */ _bind(FW, 'kEventRemoveFromQueue')
 export const kEventScrollableGetInfo = /* @__PURE__ */ _bind(FW, 'kEventScrollableGetInfo')
 export const kEventScrollableInfoChanged = /* @__PURE__ */ _bind(FW, 'kEventScrollableInfoChanged')
 export const kEventScrollableScrollTo = /* @__PURE__ */ _bind(FW, 'kEventScrollableScrollTo')
-export const kEventSearchFieldCancelClicked = /* @__PURE__ */ _bind(FW, 'kEventSearchFieldCancelClicked')
-export const kEventSearchFieldSearchClicked = /* @__PURE__ */ _bind(FW, 'kEventSearchFieldSearchClicked')
+export const kEventSearchFieldCancelClicked = /* @__PURE__ */ _bind(
+	FW,
+	'kEventSearchFieldCancelClicked',
+)
+
+export const kEventSearchFieldSearchClicked = /* @__PURE__ */ _bind(
+	FW,
+	'kEventSearchFieldSearchClicked',
+)
+
 export const kEventServiceCopy = /* @__PURE__ */ _bind(FW, 'kEventServiceCopy')
 export const kEventServiceGetTypes = /* @__PURE__ */ _bind(FW, 'kEventServiceGetTypes')
 export const kEventServicePaste = /* @__PURE__ */ _bind(FW, 'kEventServicePaste')
 export const kEventServicePerform = /* @__PURE__ */ _bind(FW, 'kEventServicePerform')
 export const kEventShowHideBottomWindow = /* @__PURE__ */ _bind(FW, 'kEventShowHideBottomWindow')
-export const kEventSystemDisplayReconfigured = /* @__PURE__ */ _bind(FW, 'kEventSystemDisplayReconfigured')
+export const kEventSystemDisplayReconfigured = /* @__PURE__ */ _bind(
+	FW,
+	'kEventSystemDisplayReconfigured',
+)
+
 export const kEventSystemDisplaysAsleep = /* @__PURE__ */ _bind(FW, 'kEventSystemDisplaysAsleep')
 export const kEventSystemDisplaysAwake = /* @__PURE__ */ _bind(FW, 'kEventSystemDisplaysAwake')
 export const kEventSystemTimeDateChanged = /* @__PURE__ */ _bind(FW, 'kEventSystemTimeDateChanged')
-export const kEventSystemUserSessionActivated = /* @__PURE__ */ _bind(FW, 'kEventSystemUserSessionActivated')
-export const kEventSystemUserSessionDeactivated = /* @__PURE__ */ _bind(FW, 'kEventSystemUserSessionDeactivated')
-export const kEventTSMDocumentAccessGetCharacters = /* @__PURE__ */ _bind(FW, 'kEventTSMDocumentAccessGetCharacters')
-export const kEventTSMDocumentAccessGetCharactersPtr = /* @__PURE__ */ _bind(FW, 'kEventTSMDocumentAccessGetCharactersPtr')
-export const kEventTSMDocumentAccessGetCharactersPtrForLargestBuffer = /* @__PURE__ */ _bind(FW, 'kEventTSMDocumentAccessGetCharactersPtrForLargestBuffer')
-export const kEventTSMDocumentAccessGetFirstRectForRange = /* @__PURE__ */ _bind(FW, 'kEventTSMDocumentAccessGetFirstRectForRange')
-export const kEventTSMDocumentAccessGetFont = /* @__PURE__ */ _bind(FW, 'kEventTSMDocumentAccessGetFont')
-export const kEventTSMDocumentAccessGetGlyphInfo = /* @__PURE__ */ _bind(FW, 'kEventTSMDocumentAccessGetGlyphInfo')
-export const kEventTSMDocumentAccessGetLength = /* @__PURE__ */ _bind(FW, 'kEventTSMDocumentAccessGetLength')
-export const kEventTSMDocumentAccessGetSelectedRange = /* @__PURE__ */ _bind(FW, 'kEventTSMDocumentAccessGetSelectedRange')
-export const kEventTSMDocumentAccessLockDocument = /* @__PURE__ */ _bind(FW, 'kEventTSMDocumentAccessLockDocument')
-export const kEventTSMDocumentAccessUnlockDocument = /* @__PURE__ */ _bind(FW, 'kEventTSMDocumentAccessUnlockDocument')
+export const kEventSystemUserSessionActivated = /* @__PURE__ */ _bind(
+	FW,
+	'kEventSystemUserSessionActivated',
+)
+
+export const kEventSystemUserSessionDeactivated = /* @__PURE__ */ _bind(
+	FW,
+	'kEventSystemUserSessionDeactivated',
+)
+
+export const kEventTSMDocumentAccessGetCharacters = /* @__PURE__ */ _bind(
+	FW,
+	'kEventTSMDocumentAccessGetCharacters',
+)
+
+export const kEventTSMDocumentAccessGetCharactersPtr = /* @__PURE__ */ _bind(
+	FW,
+	'kEventTSMDocumentAccessGetCharactersPtr',
+)
+
+export const kEventTSMDocumentAccessGetCharactersPtrForLargestBuffer = /* @__PURE__ */ _bind(
+	FW,
+	'kEventTSMDocumentAccessGetCharactersPtrForLargestBuffer',
+)
+
+export const kEventTSMDocumentAccessGetFirstRectForRange = /* @__PURE__ */ _bind(
+	FW,
+	'kEventTSMDocumentAccessGetFirstRectForRange',
+)
+
+export const kEventTSMDocumentAccessGetFont = /* @__PURE__ */ _bind(
+	FW,
+	'kEventTSMDocumentAccessGetFont',
+)
+
+export const kEventTSMDocumentAccessGetGlyphInfo = /* @__PURE__ */ _bind(
+	FW,
+	'kEventTSMDocumentAccessGetGlyphInfo',
+)
+
+export const kEventTSMDocumentAccessGetLength = /* @__PURE__ */ _bind(
+	FW,
+	'kEventTSMDocumentAccessGetLength',
+)
+
+export const kEventTSMDocumentAccessGetSelectedRange = /* @__PURE__ */ _bind(
+	FW,
+	'kEventTSMDocumentAccessGetSelectedRange',
+)
+
+export const kEventTSMDocumentAccessLockDocument = /* @__PURE__ */ _bind(
+	FW,
+	'kEventTSMDocumentAccessLockDocument',
+)
+
+export const kEventTSMDocumentAccessUnlockDocument = /* @__PURE__ */ _bind(
+	FW,
+	'kEventTSMDocumentAccessUnlockDocument',
+)
+
 export const kEventTabletPoint = /* @__PURE__ */ _bind(FW, 'kEventTabletPoint')
 export const kEventTabletPointer = /* @__PURE__ */ _bind(FW, 'kEventTabletPointer')
 export const kEventTabletProximity = /* @__PURE__ */ _bind(FW, 'kEventTabletProximity')
 export const kEventTargetDontPropagate = /* @__PURE__ */ _bind(FW, 'kEventTargetDontPropagate')
-export const kEventTargetSendToAllHandlers = /* @__PURE__ */ _bind(FW, 'kEventTargetSendToAllHandlers')
+export const kEventTargetSendToAllHandlers = /* @__PURE__ */ _bind(
+	FW,
+	'kEventTargetSendToAllHandlers',
+)
+
 export const kEventTextAccepted = /* @__PURE__ */ _bind(FW, 'kEventTextAccepted')
 export const kEventTextDidChange = /* @__PURE__ */ _bind(FW, 'kEventTextDidChange')
 export const kEventTextInputFilterText = /* @__PURE__ */ _bind(FW, 'kEventTextInputFilterText')
-export const kEventTextInputGetSelectedText = /* @__PURE__ */ _bind(FW, 'kEventTextInputGetSelectedText')
-export const kEventTextInputIsMouseEventInInlineInputArea = /* @__PURE__ */ _bind(FW, 'kEventTextInputIsMouseEventInInlineInputArea')
+export const kEventTextInputGetSelectedText = /* @__PURE__ */ _bind(
+	FW,
+	'kEventTextInputGetSelectedText',
+)
+
+export const kEventTextInputIsMouseEventInInlineInputArea = /* @__PURE__ */ _bind(
+	FW,
+	'kEventTextInputIsMouseEventInInlineInputArea',
+)
+
 export const kEventTextInputOffsetToPos = /* @__PURE__ */ _bind(FW, 'kEventTextInputOffsetToPos')
 export const kEventTextInputPosToOffset = /* @__PURE__ */ _bind(FW, 'kEventTextInputPosToOffset')
-export const kEventTextInputShowHideBottomWindow = /* @__PURE__ */ _bind(FW, 'kEventTextInputShowHideBottomWindow')
-export const kEventTextInputUnicodeForKeyEvent = /* @__PURE__ */ _bind(FW, 'kEventTextInputUnicodeForKeyEvent')
+export const kEventTextInputShowHideBottomWindow = /* @__PURE__ */ _bind(
+	FW,
+	'kEventTextInputShowHideBottomWindow',
+)
+
+export const kEventTextInputUnicodeForKeyEvent = /* @__PURE__ */ _bind(
+	FW,
+	'kEventTextInputUnicodeForKeyEvent',
+)
+
 export const kEventTextInputUnicodeText = /* @__PURE__ */ _bind(FW, 'kEventTextInputUnicodeText')
-export const kEventTextInputUpdateActiveInputArea = /* @__PURE__ */ _bind(FW, 'kEventTextInputUpdateActiveInputArea')
-export const kEventTextShouldChangeInRange = /* @__PURE__ */ _bind(FW, 'kEventTextShouldChangeInRange')
-export const kEventToolbarBeginMultiChange = /* @__PURE__ */ _bind(FW, 'kEventToolbarBeginMultiChange')
-export const kEventToolbarCreateItemFromDrag = /* @__PURE__ */ _bind(FW, 'kEventToolbarCreateItemFromDrag')
-export const kEventToolbarCreateItemWithIdentifier = /* @__PURE__ */ _bind(FW, 'kEventToolbarCreateItemWithIdentifier')
-export const kEventToolbarDisplayModeChanged = /* @__PURE__ */ _bind(FW, 'kEventToolbarDisplayModeChanged')
-export const kEventToolbarDisplaySizeChanged = /* @__PURE__ */ _bind(FW, 'kEventToolbarDisplaySizeChanged')
+export const kEventTextInputUpdateActiveInputArea = /* @__PURE__ */ _bind(
+	FW,
+	'kEventTextInputUpdateActiveInputArea',
+)
+
+export const kEventTextShouldChangeInRange = /* @__PURE__ */ _bind(
+	FW,
+	'kEventTextShouldChangeInRange',
+)
+
+export const kEventToolbarBeginMultiChange = /* @__PURE__ */ _bind(
+	FW,
+	'kEventToolbarBeginMultiChange',
+)
+
+export const kEventToolbarCreateItemFromDrag = /* @__PURE__ */ _bind(
+	FW,
+	'kEventToolbarCreateItemFromDrag',
+)
+
+export const kEventToolbarCreateItemWithIdentifier = /* @__PURE__ */ _bind(
+	FW,
+	'kEventToolbarCreateItemWithIdentifier',
+)
+
+export const kEventToolbarDisplayModeChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kEventToolbarDisplayModeChanged',
+)
+
+export const kEventToolbarDisplaySizeChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kEventToolbarDisplaySizeChanged',
+)
+
 export const kEventToolbarEndMultiChange = /* @__PURE__ */ _bind(FW, 'kEventToolbarEndMultiChange')
-export const kEventToolbarGetAllowedIdentifiers = /* @__PURE__ */ _bind(FW, 'kEventToolbarGetAllowedIdentifiers')
-export const kEventToolbarGetDefaultIdentifiers = /* @__PURE__ */ _bind(FW, 'kEventToolbarGetDefaultIdentifiers')
-export const kEventToolbarGetSelectableIdentifiers = /* @__PURE__ */ _bind(FW, 'kEventToolbarGetSelectableIdentifiers')
+export const kEventToolbarGetAllowedIdentifiers = /* @__PURE__ */ _bind(
+	FW,
+	'kEventToolbarGetAllowedIdentifiers',
+)
+
+export const kEventToolbarGetDefaultIdentifiers = /* @__PURE__ */ _bind(
+	FW,
+	'kEventToolbarGetDefaultIdentifiers',
+)
+
+export const kEventToolbarGetSelectableIdentifiers = /* @__PURE__ */ _bind(
+	FW,
+	'kEventToolbarGetSelectableIdentifiers',
+)
+
 export const kEventToolbarItemAcceptDrop = /* @__PURE__ */ _bind(FW, 'kEventToolbarItemAcceptDrop')
 export const kEventToolbarItemAdded = /* @__PURE__ */ _bind(FW, 'kEventToolbarItemAdded')
-export const kEventToolbarItemCommandIDChanged = /* @__PURE__ */ _bind(FW, 'kEventToolbarItemCommandIDChanged')
-export const kEventToolbarItemCreateCustomView = /* @__PURE__ */ _bind(FW, 'kEventToolbarItemCreateCustomView')
-export const kEventToolbarItemEnabledStateChanged = /* @__PURE__ */ _bind(FW, 'kEventToolbarItemEnabledStateChanged')
-export const kEventToolbarItemGetPersistentData = /* @__PURE__ */ _bind(FW, 'kEventToolbarItemGetPersistentData')
-export const kEventToolbarItemHelpTextChanged = /* @__PURE__ */ _bind(FW, 'kEventToolbarItemHelpTextChanged')
-export const kEventToolbarItemImageChanged = /* @__PURE__ */ _bind(FW, 'kEventToolbarItemImageChanged')
-export const kEventToolbarItemLabelChanged = /* @__PURE__ */ _bind(FW, 'kEventToolbarItemLabelChanged')
-export const kEventToolbarItemPerformAction = /* @__PURE__ */ _bind(FW, 'kEventToolbarItemPerformAction')
+export const kEventToolbarItemCommandIDChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kEventToolbarItemCommandIDChanged',
+)
+
+export const kEventToolbarItemCreateCustomView = /* @__PURE__ */ _bind(
+	FW,
+	'kEventToolbarItemCreateCustomView',
+)
+
+export const kEventToolbarItemEnabledStateChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kEventToolbarItemEnabledStateChanged',
+)
+
+export const kEventToolbarItemGetPersistentData = /* @__PURE__ */ _bind(
+	FW,
+	'kEventToolbarItemGetPersistentData',
+)
+
+export const kEventToolbarItemHelpTextChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kEventToolbarItemHelpTextChanged',
+)
+
+export const kEventToolbarItemImageChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kEventToolbarItemImageChanged',
+)
+
+export const kEventToolbarItemLabelChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kEventToolbarItemLabelChanged',
+)
+
+export const kEventToolbarItemPerformAction = /* @__PURE__ */ _bind(
+	FW,
+	'kEventToolbarItemPerformAction',
+)
+
 export const kEventToolbarItemRemoved = /* @__PURE__ */ _bind(FW, 'kEventToolbarItemRemoved')
-export const kEventToolbarItemSelectedStateChanged = /* @__PURE__ */ _bind(FW, 'kEventToolbarItemSelectedStateChanged')
-export const kEventToolbarItemViewConfigForMode = /* @__PURE__ */ _bind(FW, 'kEventToolbarItemViewConfigForMode')
-export const kEventToolbarItemViewConfigForSize = /* @__PURE__ */ _bind(FW, 'kEventToolbarItemViewConfigForSize')
-export const kEventToolbarItemViewEnterConfigMode = /* @__PURE__ */ _bind(FW, 'kEventToolbarItemViewEnterConfigMode')
-export const kEventToolbarItemViewExitConfigMode = /* @__PURE__ */ _bind(FW, 'kEventToolbarItemViewExitConfigMode')
-export const kEventToolbarItemWouldAcceptDrop = /* @__PURE__ */ _bind(FW, 'kEventToolbarItemWouldAcceptDrop')
+export const kEventToolbarItemSelectedStateChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kEventToolbarItemSelectedStateChanged',
+)
+
+export const kEventToolbarItemViewConfigForMode = /* @__PURE__ */ _bind(
+	FW,
+	'kEventToolbarItemViewConfigForMode',
+)
+
+export const kEventToolbarItemViewConfigForSize = /* @__PURE__ */ _bind(
+	FW,
+	'kEventToolbarItemViewConfigForSize',
+)
+
+export const kEventToolbarItemViewEnterConfigMode = /* @__PURE__ */ _bind(
+	FW,
+	'kEventToolbarItemViewEnterConfigMode',
+)
+
+export const kEventToolbarItemViewExitConfigMode = /* @__PURE__ */ _bind(
+	FW,
+	'kEventToolbarItemViewExitConfigMode',
+)
+
+export const kEventToolbarItemWouldAcceptDrop = /* @__PURE__ */ _bind(
+	FW,
+	'kEventToolbarItemWouldAcceptDrop',
+)
+
 export const kEventToolbarLayoutChanged = /* @__PURE__ */ _bind(FW, 'kEventToolbarLayoutChanged')
 export const kEventUnicodeForKeyEvent = /* @__PURE__ */ _bind(FW, 'kEventUnicodeForKeyEvent')
 export const kEventUpdateActiveInputArea = /* @__PURE__ */ _bind(FW, 'kEventUpdateActiveInputArea')
 export const kEventVolumeMounted = /* @__PURE__ */ _bind(FW, 'kEventVolumeMounted')
 export const kEventVolumeUnmounted = /* @__PURE__ */ _bind(FW, 'kEventVolumeUnmounted')
 export const kEventWindowActivated = /* @__PURE__ */ _bind(FW, 'kEventWindowActivated')
-export const kEventWindowAttributesChanged = /* @__PURE__ */ _bind(FW, 'kEventWindowAttributesChanged')
+export const kEventWindowAttributesChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kEventWindowAttributesChanged',
+)
+
 export const kEventWindowBoundsChanged = /* @__PURE__ */ _bind(FW, 'kEventWindowBoundsChanged')
 export const kEventWindowBoundsChanging = /* @__PURE__ */ _bind(FW, 'kEventWindowBoundsChanging')
 export const kEventWindowClose = /* @__PURE__ */ _bind(FW, 'kEventWindowClose')
@@ -2687,9 +5691,17 @@ export const kEventWindowCollapse = /* @__PURE__ */ _bind(FW, 'kEventWindowColla
 export const kEventWindowCollapseAll = /* @__PURE__ */ _bind(FW, 'kEventWindowCollapseAll')
 export const kEventWindowCollapsed = /* @__PURE__ */ _bind(FW, 'kEventWindowCollapsed')
 export const kEventWindowCollapsing = /* @__PURE__ */ _bind(FW, 'kEventWindowCollapsing')
-export const kEventWindowColorSpaceChanged = /* @__PURE__ */ _bind(FW, 'kEventWindowColorSpaceChanged')
+export const kEventWindowColorSpaceChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kEventWindowColorSpaceChanged',
+)
+
 export const kEventWindowConstrain = /* @__PURE__ */ _bind(FW, 'kEventWindowConstrain')
-export const kEventWindowContextualMenuSelect = /* @__PURE__ */ _bind(FW, 'kEventWindowContextualMenuSelect')
+export const kEventWindowContextualMenuSelect = /* @__PURE__ */ _bind(
+	FW,
+	'kEventWindowContextualMenuSelect',
+)
+
 export const kEventWindowCursorChange = /* @__PURE__ */ _bind(FW, 'kEventWindowCursorChange')
 export const kEventWindowDeactivated = /* @__PURE__ */ _bind(FW, 'kEventWindowDeactivated')
 export const kEventWindowDefDispose = /* @__PURE__ */ _bind(FW, 'kEventWindowDefDispose')
@@ -2697,13 +5709,21 @@ export const kEventWindowDefDragHilite = /* @__PURE__ */ _bind(FW, 'kEventWindow
 export const kEventWindowDefDrawFrame = /* @__PURE__ */ _bind(FW, 'kEventWindowDefDrawFrame')
 export const kEventWindowDefDrawGrowBox = /* @__PURE__ */ _bind(FW, 'kEventWindowDefDrawGrowBox')
 export const kEventWindowDefDrawPart = /* @__PURE__ */ _bind(FW, 'kEventWindowDefDrawPart')
-export const kEventWindowDefGetGrowImageRegion = /* @__PURE__ */ _bind(FW, 'kEventWindowDefGetGrowImageRegion')
+export const kEventWindowDefGetGrowImageRegion = /* @__PURE__ */ _bind(
+	FW,
+	'kEventWindowDefGetGrowImageRegion',
+)
+
 export const kEventWindowDefGetRegion = /* @__PURE__ */ _bind(FW, 'kEventWindowDefGetRegion')
 export const kEventWindowDefHitTest = /* @__PURE__ */ _bind(FW, 'kEventWindowDefHitTest')
 export const kEventWindowDefInit = /* @__PURE__ */ _bind(FW, 'kEventWindowDefInit')
 export const kEventWindowDefMeasureTitle = /* @__PURE__ */ _bind(FW, 'kEventWindowDefMeasureTitle')
 export const kEventWindowDefModified = /* @__PURE__ */ _bind(FW, 'kEventWindowDefModified')
-export const kEventWindowDefSetupProxyDragImage = /* @__PURE__ */ _bind(FW, 'kEventWindowDefSetupProxyDragImage')
+export const kEventWindowDefSetupProxyDragImage = /* @__PURE__ */ _bind(
+	FW,
+	'kEventWindowDefSetupProxyDragImage',
+)
+
 export const kEventWindowDefStateChanged = /* @__PURE__ */ _bind(FW, 'kEventWindowDefStateChanged')
 export const kEventWindowDispose = /* @__PURE__ */ _bind(FW, 'kEventWindowDispose')
 export const kEventWindowDragCompleted = /* @__PURE__ */ _bind(FW, 'kEventWindowDragCompleted')
@@ -2727,22 +5747,62 @@ export const kEventWindowFocusLost = /* @__PURE__ */ _bind(FW, 'kEventWindowFocu
 export const kEventWindowFocusRelinquish = /* @__PURE__ */ _bind(FW, 'kEventWindowFocusRelinquish')
 export const kEventWindowFocusRestored = /* @__PURE__ */ _bind(FW, 'kEventWindowFocusRestored')
 export const kEventWindowFocusToolbar = /* @__PURE__ */ _bind(FW, 'kEventWindowFocusToolbar')
-export const kEventWindowFullScreenEnterCompleted = /* @__PURE__ */ _bind(FW, 'kEventWindowFullScreenEnterCompleted')
-export const kEventWindowFullScreenEnterStarted = /* @__PURE__ */ _bind(FW, 'kEventWindowFullScreenEnterStarted')
-export const kEventWindowFullScreenExitCompleted = /* @__PURE__ */ _bind(FW, 'kEventWindowFullScreenExitCompleted')
-export const kEventWindowFullScreenExitStarted = /* @__PURE__ */ _bind(FW, 'kEventWindowFullScreenExitStarted')
-export const kEventWindowGetClickActivation = /* @__PURE__ */ _bind(FW, 'kEventWindowGetClickActivation')
-export const kEventWindowGetClickModality = /* @__PURE__ */ _bind(FW, 'kEventWindowGetClickModality')
+export const kEventWindowFullScreenEnterCompleted = /* @__PURE__ */ _bind(
+	FW,
+	'kEventWindowFullScreenEnterCompleted',
+)
+
+export const kEventWindowFullScreenEnterStarted = /* @__PURE__ */ _bind(
+	FW,
+	'kEventWindowFullScreenEnterStarted',
+)
+
+export const kEventWindowFullScreenExitCompleted = /* @__PURE__ */ _bind(
+	FW,
+	'kEventWindowFullScreenExitCompleted',
+)
+
+export const kEventWindowFullScreenExitStarted = /* @__PURE__ */ _bind(
+	FW,
+	'kEventWindowFullScreenExitStarted',
+)
+
+export const kEventWindowGetClickActivation = /* @__PURE__ */ _bind(
+	FW,
+	'kEventWindowGetClickActivation',
+)
+
+export const kEventWindowGetClickModality = /* @__PURE__ */ _bind(
+	FW,
+	'kEventWindowGetClickModality',
+)
+
 export const kEventWindowGetDockTileMenu = /* @__PURE__ */ _bind(FW, 'kEventWindowGetDockTileMenu')
-export const kEventWindowGetFullScreenContentSize = /* @__PURE__ */ _bind(FW, 'kEventWindowGetFullScreenContentSize')
-export const kEventWindowGetGrowImageRegion = /* @__PURE__ */ _bind(FW, 'kEventWindowGetGrowImageRegion')
+export const kEventWindowGetFullScreenContentSize = /* @__PURE__ */ _bind(
+	FW,
+	'kEventWindowGetFullScreenContentSize',
+)
+
+export const kEventWindowGetGrowImageRegion = /* @__PURE__ */ _bind(
+	FW,
+	'kEventWindowGetGrowImageRegion',
+)
+
 export const kEventWindowGetIdealSize = /* @__PURE__ */ _bind(FW, 'kEventWindowGetIdealSize')
-export const kEventWindowGetIdealStandardState = /* @__PURE__ */ _bind(FW, 'kEventWindowGetIdealStandardState')
+export const kEventWindowGetIdealStandardState = /* @__PURE__ */ _bind(
+	FW,
+	'kEventWindowGetIdealStandardState',
+)
+
 export const kEventWindowGetMaximumSize = /* @__PURE__ */ _bind(FW, 'kEventWindowGetMaximumSize')
 export const kEventWindowGetMinimumSize = /* @__PURE__ */ _bind(FW, 'kEventWindowGetMinimumSize')
 export const kEventWindowGetRegion = /* @__PURE__ */ _bind(FW, 'kEventWindowGetRegion')
 export const kEventWindowHandleActivate = /* @__PURE__ */ _bind(FW, 'kEventWindowHandleActivate')
-export const kEventWindowHandleDeactivate = /* @__PURE__ */ _bind(FW, 'kEventWindowHandleDeactivate')
+export const kEventWindowHandleDeactivate = /* @__PURE__ */ _bind(
+	FW,
+	'kEventWindowHandleDeactivate',
+)
+
 export const kEventWindowHidden = /* @__PURE__ */ _bind(FW, 'kEventWindowHidden')
 export const kEventWindowHiding = /* @__PURE__ */ _bind(FW, 'kEventWindowHiding')
 export const kEventWindowHitTest = /* @__PURE__ */ _bind(FW, 'kEventWindowHitTest')
@@ -2756,8 +5816,16 @@ export const kEventWindowProxyEndDrag = /* @__PURE__ */ _bind(FW, 'kEventWindowP
 export const kEventWindowResizeCompleted = /* @__PURE__ */ _bind(FW, 'kEventWindowResizeCompleted')
 export const kEventWindowResizeStarted = /* @__PURE__ */ _bind(FW, 'kEventWindowResizeStarted')
 export const kEventWindowRestoreFromDock = /* @__PURE__ */ _bind(FW, 'kEventWindowRestoreFromDock')
-export const kEventWindowRestoredAfterRelaunch = /* @__PURE__ */ _bind(FW, 'kEventWindowRestoredAfterRelaunch')
-export const kEventWindowSetupProxyDragImage = /* @__PURE__ */ _bind(FW, 'kEventWindowSetupProxyDragImage')
+export const kEventWindowRestoredAfterRelaunch = /* @__PURE__ */ _bind(
+	FW,
+	'kEventWindowRestoredAfterRelaunch',
+)
+
+export const kEventWindowSetupProxyDragImage = /* @__PURE__ */ _bind(
+	FW,
+	'kEventWindowSetupProxyDragImage',
+)
+
 export const kEventWindowSheetClosed = /* @__PURE__ */ _bind(FW, 'kEventWindowSheetClosed')
 export const kEventWindowSheetClosing = /* @__PURE__ */ _bind(FW, 'kEventWindowSheetClosing')
 export const kEventWindowSheetOpened = /* @__PURE__ */ _bind(FW, 'kEventWindowSheetOpened')
@@ -2766,9 +5834,21 @@ export const kEventWindowShowing = /* @__PURE__ */ _bind(FW, 'kEventWindowShowin
 export const kEventWindowShown = /* @__PURE__ */ _bind(FW, 'kEventWindowShown')
 export const kEventWindowStateChanged = /* @__PURE__ */ _bind(FW, 'kEventWindowStateChanged')
 export const kEventWindowTitleChanged = /* @__PURE__ */ _bind(FW, 'kEventWindowTitleChanged')
-export const kEventWindowToolbarSwitchMode = /* @__PURE__ */ _bind(FW, 'kEventWindowToolbarSwitchMode')
-export const kEventWindowTransitionCompleted = /* @__PURE__ */ _bind(FW, 'kEventWindowTransitionCompleted')
-export const kEventWindowTransitionStarted = /* @__PURE__ */ _bind(FW, 'kEventWindowTransitionStarted')
+export const kEventWindowToolbarSwitchMode = /* @__PURE__ */ _bind(
+	FW,
+	'kEventWindowToolbarSwitchMode',
+)
+
+export const kEventWindowTransitionCompleted = /* @__PURE__ */ _bind(
+	FW,
+	'kEventWindowTransitionCompleted',
+)
+
+export const kEventWindowTransitionStarted = /* @__PURE__ */ _bind(
+	FW,
+	'kEventWindowTransitionStarted',
+)
+
 export const kEventWindowUpdateDockTile = /* @__PURE__ */ _bind(FW, 'kEventWindowUpdateDockTile')
 export const kEventWindowZoom = /* @__PURE__ */ _bind(FW, 'kEventWindowZoom')
 export const kEventWindowZoomAll = /* @__PURE__ */ _bind(FW, 'kEventWindowZoomAll')
@@ -2784,53 +5864,141 @@ export const kFitToScreen = /* @__PURE__ */ _bind(FW, 'kFitToScreen')
 export const kFlavorTypeClippingFilename = /* @__PURE__ */ _bind(FW, 'kFlavorTypeClippingFilename')
 export const kFlavorTypeClippingName = /* @__PURE__ */ _bind(FW, 'kFlavorTypeClippingName')
 export const kFlavorTypeDragToTrashOnly = /* @__PURE__ */ _bind(FW, 'kFlavorTypeDragToTrashOnly')
-export const kFlavorTypeFinderNoTrackingBehavior = /* @__PURE__ */ _bind(FW, 'kFlavorTypeFinderNoTrackingBehavior')
-export const kFlavorTypeUnicodeClippingFilename = /* @__PURE__ */ _bind(FW, 'kFlavorTypeUnicodeClippingFilename')
-export const kFlavorTypeUnicodeClippingName = /* @__PURE__ */ _bind(FW, 'kFlavorTypeUnicodeClippingName')
+export const kFlavorTypeFinderNoTrackingBehavior = /* @__PURE__ */ _bind(
+	FW,
+	'kFlavorTypeFinderNoTrackingBehavior',
+)
+
+export const kFlavorTypeUnicodeClippingFilename = /* @__PURE__ */ _bind(
+	FW,
+	'kFlavorTypeUnicodeClippingFilename',
+)
+
+export const kFlavorTypeUnicodeClippingName = /* @__PURE__ */ _bind(
+	FW,
+	'kFlavorTypeUnicodeClippingName',
+)
+
 export const kFloatingWindowClass = /* @__PURE__ */ _bind(FW, 'kFloatingWindowClass')
 export const kFloatingWindowDefinition = /* @__PURE__ */ _bind(FW, 'kFloatingWindowDefinition')
 export const kFontPanelATSUFontIDKey = /* @__PURE__ */ _bind(FW, 'kFontPanelATSUFontIDKey')
 export const kFontPanelAttributeSizesKey = /* @__PURE__ */ _bind(FW, 'kFontPanelAttributeSizesKey')
 export const kFontPanelAttributeTagsKey = /* @__PURE__ */ _bind(FW, 'kFontPanelAttributeTagsKey')
-export const kFontPanelAttributeValuesKey = /* @__PURE__ */ _bind(FW, 'kFontPanelAttributeValuesKey')
+export const kFontPanelAttributeValuesKey = /* @__PURE__ */ _bind(
+	FW,
+	'kFontPanelAttributeValuesKey',
+)
+
 export const kFontPanelAttributesKey = /* @__PURE__ */ _bind(FW, 'kFontPanelAttributesKey')
-export const kFontPanelBackgroundColorAttributeName = /* @__PURE__ */ _bind(FW, 'kFontPanelBackgroundColorAttributeName')
-export const kFontPanelFeatureSelectorsKey = /* @__PURE__ */ _bind(FW, 'kFontPanelFeatureSelectorsKey')
+export const kFontPanelBackgroundColorAttributeName = /* @__PURE__ */ _bind(
+	FW,
+	'kFontPanelBackgroundColorAttributeName',
+)
+
+export const kFontPanelFeatureSelectorsKey = /* @__PURE__ */ _bind(
+	FW,
+	'kFontPanelFeatureSelectorsKey',
+)
+
 export const kFontPanelFeatureTypesKey = /* @__PURE__ */ _bind(FW, 'kFontPanelFeatureTypesKey')
-export const kFontPanelMouseTrackingState = /* @__PURE__ */ _bind(FW, 'kFontPanelMouseTrackingState')
+export const kFontPanelMouseTrackingState = /* @__PURE__ */ _bind(
+	FW,
+	'kFontPanelMouseTrackingState',
+)
+
 export const kFontPanelVariationAxesKey = /* @__PURE__ */ _bind(FW, 'kFontPanelVariationAxesKey')
-export const kFontPanelVariationValuesKey = /* @__PURE__ */ _bind(FW, 'kFontPanelVariationValuesKey')
+export const kFontPanelVariationValuesKey = /* @__PURE__ */ _bind(
+	FW,
+	'kFontPanelVariationValuesKey',
+)
+
 export const kFontSelectionATSUIType = /* @__PURE__ */ _bind(FW, 'kFontSelectionATSUIType')
 export const kFontSelectionCoreTextType = /* @__PURE__ */ _bind(FW, 'kFontSelectionCoreTextType')
-export const kFontSelectionQDStyleVersionZero = /* @__PURE__ */ _bind(FW, 'kFontSelectionQDStyleVersionZero')
+export const kFontSelectionQDStyleVersionZero = /* @__PURE__ */ _bind(
+	FW,
+	'kFontSelectionQDStyleVersionZero',
+)
+
 export const kFontSelectionQDType = /* @__PURE__ */ _bind(FW, 'kFontSelectionQDType')
 export const kFormFeedCharCode = /* @__PURE__ */ _bind(FW, 'kFormFeedCharCode')
 export const kFunctionKeyCharCode = /* @__PURE__ */ _bind(FW, 'kFunctionKeyCharCode')
 export const kGSSSelectGenericToRealID = /* @__PURE__ */ _bind(FW, 'kGSSSelectGenericToRealID')
-export const kGSSSelectGetDefaultScriptingComponent = /* @__PURE__ */ _bind(FW, 'kGSSSelectGetDefaultScriptingComponent')
-export const kGSSSelectGetScriptingComponent = /* @__PURE__ */ _bind(FW, 'kGSSSelectGetScriptingComponent')
-export const kGSSSelectGetScriptingComponentFromStored = /* @__PURE__ */ _bind(FW, 'kGSSSelectGetScriptingComponentFromStored')
+export const kGSSSelectGetDefaultScriptingComponent = /* @__PURE__ */ _bind(
+	FW,
+	'kGSSSelectGetDefaultScriptingComponent',
+)
+
+export const kGSSSelectGetScriptingComponent = /* @__PURE__ */ _bind(
+	FW,
+	'kGSSSelectGetScriptingComponent',
+)
+
+export const kGSSSelectGetScriptingComponentFromStored = /* @__PURE__ */ _bind(
+	FW,
+	'kGSSSelectGetScriptingComponentFromStored',
+)
+
 export const kGSSSelectOutOfRange = /* @__PURE__ */ _bind(FW, 'kGSSSelectOutOfRange')
 export const kGSSSelectRealToGenericID = /* @__PURE__ */ _bind(FW, 'kGSSSelectRealToGenericID')
-export const kGSSSelectSetDefaultScriptingComponent = /* @__PURE__ */ _bind(FW, 'kGSSSelectSetDefaultScriptingComponent')
+export const kGSSSelectSetDefaultScriptingComponent = /* @__PURE__ */ _bind(
+	FW,
+	'kGSSSelectSetDefaultScriptingComponent',
+)
+
 export const kGenericComponentVersion = /* @__PURE__ */ _bind(FW, 'kGenericComponentVersion')
 export const kGetAETE = /* @__PURE__ */ _bind(FW, 'kGetAETE')
 export const kGetAEUT = /* @__PURE__ */ _bind(FW, 'kGetAEUT')
-export const kHIArchiveDecodeSuperclassForUnregisteredObjects = /* @__PURE__ */ _bind(FW, 'kHIArchiveDecodeSuperclassForUnregisteredObjects')
+export const kHIArchiveDecodeSuperclassForUnregisteredObjects = /* @__PURE__ */ _bind(
+	FW,
+	'kHIArchiveDecodeSuperclassForUnregisteredObjects',
+)
+
 export const kHIArchiveDecodingForEditor = /* @__PURE__ */ _bind(FW, 'kHIArchiveDecodingForEditor')
 export const kHIClassOptionSingleton = /* @__PURE__ */ _bind(FW, 'kHIClassOptionSingleton')
-export const kHIComboBoxAutoCompletionAttribute = /* @__PURE__ */ _bind(FW, 'kHIComboBoxAutoCompletionAttribute')
-export const kHIComboBoxAutoDisclosureAttribute = /* @__PURE__ */ _bind(FW, 'kHIComboBoxAutoDisclosureAttribute')
-export const kHIComboBoxAutoSizeListAttribute = /* @__PURE__ */ _bind(FW, 'kHIComboBoxAutoSizeListAttribute')
-export const kHIComboBoxAutoSortAttribute = /* @__PURE__ */ _bind(FW, 'kHIComboBoxAutoSortAttribute')
+export const kHIComboBoxAutoCompletionAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kHIComboBoxAutoCompletionAttribute',
+)
+
+export const kHIComboBoxAutoDisclosureAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kHIComboBoxAutoDisclosureAttribute',
+)
+
+export const kHIComboBoxAutoSizeListAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kHIComboBoxAutoSizeListAttribute',
+)
+
+export const kHIComboBoxAutoSortAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kHIComboBoxAutoSortAttribute',
+)
+
 export const kHIComboBoxDisclosurePart = /* @__PURE__ */ _bind(FW, 'kHIComboBoxDisclosurePart')
 export const kHIComboBoxEditTextPart = /* @__PURE__ */ _bind(FW, 'kHIComboBoxEditTextPart')
-export const kHIComboBoxListPixelHeightTag = /* @__PURE__ */ _bind(FW, 'kHIComboBoxListPixelHeightTag')
-export const kHIComboBoxListPixelWidthTag = /* @__PURE__ */ _bind(FW, 'kHIComboBoxListPixelWidthTag')
+export const kHIComboBoxListPixelHeightTag = /* @__PURE__ */ _bind(
+	FW,
+	'kHIComboBoxListPixelHeightTag',
+)
+
+export const kHIComboBoxListPixelWidthTag = /* @__PURE__ */ _bind(
+	FW,
+	'kHIComboBoxListPixelWidthTag',
+)
+
 export const kHIComboBoxListTag = /* @__PURE__ */ _bind(FW, 'kHIComboBoxListTag')
 export const kHIComboBoxNoAttributes = /* @__PURE__ */ _bind(FW, 'kHIComboBoxNoAttributes')
-export const kHIComboBoxNumVisibleItemsTag = /* @__PURE__ */ _bind(FW, 'kHIComboBoxNumVisibleItemsTag')
-export const kHIComboBoxStandardAttributes = /* @__PURE__ */ _bind(FW, 'kHIComboBoxStandardAttributes')
+export const kHIComboBoxNumVisibleItemsTag = /* @__PURE__ */ _bind(
+	FW,
+	'kHIComboBoxNumVisibleItemsTag',
+)
+
+export const kHIComboBoxStandardAttributes = /* @__PURE__ */ _bind(
+	FW,
+	'kHIComboBoxStandardAttributes',
+)
+
 export const kHICommandAbout = /* @__PURE__ */ _bind(FW, 'kHICommandAbout')
 export const kHICommandAppHelp = /* @__PURE__ */ _bind(FW, 'kHICommandAppHelp')
 export const kHICommandArrangeInFront = /* @__PURE__ */ _bind(FW, 'kHICommandArrangeInFront')
@@ -2838,7 +6006,11 @@ export const kHICommandBringAllToFront = /* @__PURE__ */ _bind(FW, 'kHICommandBr
 export const kHICommandCancel = /* @__PURE__ */ _bind(FW, 'kHICommandCancel')
 export const kHICommandChangeSpelling = /* @__PURE__ */ _bind(FW, 'kHICommandChangeSpelling')
 export const kHICommandCheckSpelling = /* @__PURE__ */ _bind(FW, 'kHICommandCheckSpelling')
-export const kHICommandCheckSpellingAsYouType = /* @__PURE__ */ _bind(FW, 'kHICommandCheckSpellingAsYouType')
+export const kHICommandCheckSpellingAsYouType = /* @__PURE__ */ _bind(
+	FW,
+	'kHICommandCheckSpellingAsYouType',
+)
+
 export const kHICommandClear = /* @__PURE__ */ _bind(FW, 'kHICommandClear')
 export const kHICommandClose = /* @__PURE__ */ _bind(FW, 'kHICommandClose')
 export const kHICommandCloseAll = /* @__PURE__ */ _bind(FW, 'kHICommandCloseAll')
@@ -2846,8 +6018,16 @@ export const kHICommandCloseFile = /* @__PURE__ */ _bind(FW, 'kHICommandCloseFil
 export const kHICommandCopy = /* @__PURE__ */ _bind(FW, 'kHICommandCopy')
 export const kHICommandCustomizeToolbar = /* @__PURE__ */ _bind(FW, 'kHICommandCustomizeToolbar')
 export const kHICommandCut = /* @__PURE__ */ _bind(FW, 'kHICommandCut')
-export const kHICommandCycleToolbarModeLarger = /* @__PURE__ */ _bind(FW, 'kHICommandCycleToolbarModeLarger')
-export const kHICommandCycleToolbarModeSmaller = /* @__PURE__ */ _bind(FW, 'kHICommandCycleToolbarModeSmaller')
+export const kHICommandCycleToolbarModeLarger = /* @__PURE__ */ _bind(
+	FW,
+	'kHICommandCycleToolbarModeLarger',
+)
+
+export const kHICommandCycleToolbarModeSmaller = /* @__PURE__ */ _bind(
+	FW,
+	'kHICommandCycleToolbarModeSmaller',
+)
+
 export const kHICommandFromControl = /* @__PURE__ */ _bind(FW, 'kHICommandFromControl')
 export const kHICommandFromMenu = /* @__PURE__ */ _bind(FW, 'kHICommandFromMenu')
 export const kHICommandFromWindow = /* @__PURE__ */ _bind(FW, 'kHICommandFromWindow')
@@ -2869,20 +6049,48 @@ export const kHICommandPaste = /* @__PURE__ */ _bind(FW, 'kHICommandPaste')
 export const kHICommandPreferences = /* @__PURE__ */ _bind(FW, 'kHICommandPreferences')
 export const kHICommandPrint = /* @__PURE__ */ _bind(FW, 'kHICommandPrint')
 export const kHICommandQuit = /* @__PURE__ */ _bind(FW, 'kHICommandQuit')
-export const kHICommandQuitAndDiscardWindows = /* @__PURE__ */ _bind(FW, 'kHICommandQuitAndDiscardWindows')
-export const kHICommandQuitAndKeepWindows = /* @__PURE__ */ _bind(FW, 'kHICommandQuitAndKeepWindows')
+export const kHICommandQuitAndDiscardWindows = /* @__PURE__ */ _bind(
+	FW,
+	'kHICommandQuitAndDiscardWindows',
+)
+
+export const kHICommandQuitAndKeepWindows = /* @__PURE__ */ _bind(
+	FW,
+	'kHICommandQuitAndKeepWindows',
+)
+
 export const kHICommandRedo = /* @__PURE__ */ _bind(FW, 'kHICommandRedo')
 export const kHICommandRevert = /* @__PURE__ */ _bind(FW, 'kHICommandRevert')
-export const kHICommandRotateFloatingWindowsBackward = /* @__PURE__ */ _bind(FW, 'kHICommandRotateFloatingWindowsBackward')
-export const kHICommandRotateFloatingWindowsForward = /* @__PURE__ */ _bind(FW, 'kHICommandRotateFloatingWindowsForward')
-export const kHICommandRotateWindowsBackward = /* @__PURE__ */ _bind(FW, 'kHICommandRotateWindowsBackward')
-export const kHICommandRotateWindowsForward = /* @__PURE__ */ _bind(FW, 'kHICommandRotateWindowsForward')
+export const kHICommandRotateFloatingWindowsBackward = /* @__PURE__ */ _bind(
+	FW,
+	'kHICommandRotateFloatingWindowsBackward',
+)
+
+export const kHICommandRotateFloatingWindowsForward = /* @__PURE__ */ _bind(
+	FW,
+	'kHICommandRotateFloatingWindowsForward',
+)
+
+export const kHICommandRotateWindowsBackward = /* @__PURE__ */ _bind(
+	FW,
+	'kHICommandRotateWindowsBackward',
+)
+
+export const kHICommandRotateWindowsForward = /* @__PURE__ */ _bind(
+	FW,
+	'kHICommandRotateWindowsForward',
+)
+
 export const kHICommandSave = /* @__PURE__ */ _bind(FW, 'kHICommandSave')
 export const kHICommandSaveAs = /* @__PURE__ */ _bind(FW, 'kHICommandSaveAs')
 export const kHICommandSelectAll = /* @__PURE__ */ _bind(FW, 'kHICommandSelectAll')
 export const kHICommandSelectWindow = /* @__PURE__ */ _bind(FW, 'kHICommandSelectWindow')
 export const kHICommandShowAll = /* @__PURE__ */ _bind(FW, 'kHICommandShowAll')
-export const kHICommandShowCharacterPalette = /* @__PURE__ */ _bind(FW, 'kHICommandShowCharacterPalette')
+export const kHICommandShowCharacterPalette = /* @__PURE__ */ _bind(
+	FW,
+	'kHICommandShowCharacterPalette',
+)
+
 export const kHICommandShowHideFontPanel = /* @__PURE__ */ _bind(FW, 'kHICommandShowHideFontPanel')
 export const kHICommandShowSpellingPanel = /* @__PURE__ */ _bind(FW, 'kHICommandShowSpellingPanel')
 export const kHICommandShowToolbar = /* @__PURE__ */ _bind(FW, 'kHICommandShowToolbar')
@@ -2891,8 +6099,16 @@ export const kHICommandToggleAllToolbars = /* @__PURE__ */ _bind(FW, 'kHICommand
 export const kHICommandToggleFullScreen = /* @__PURE__ */ _bind(FW, 'kHICommandToggleFullScreen')
 export const kHICommandToggleToolbar = /* @__PURE__ */ _bind(FW, 'kHICommandToggleToolbar')
 export const kHICommandUndo = /* @__PURE__ */ _bind(FW, 'kHICommandUndo')
-export const kHICommandWindowListSeparator = /* @__PURE__ */ _bind(FW, 'kHICommandWindowListSeparator')
-export const kHICommandWindowListTerminator = /* @__PURE__ */ _bind(FW, 'kHICommandWindowListTerminator')
+export const kHICommandWindowListSeparator = /* @__PURE__ */ _bind(
+	FW,
+	'kHICommandWindowListSeparator',
+)
+
+export const kHICommandWindowListTerminator = /* @__PURE__ */ _bind(
+	FW,
+	'kHICommandWindowListTerminator',
+)
+
 export const kHICommandZoomWindow = /* @__PURE__ */ _bind(FW, 'kHICommandZoomWindow')
 export const kHICoordSpace72DPIGlobal = /* @__PURE__ */ _bind(FW, 'kHICoordSpace72DPIGlobal')
 export const kHICoordSpaceScreenPixel = /* @__PURE__ */ _bind(FW, 'kHICoordSpaceScreenPixel')
@@ -2904,11 +6120,27 @@ export const kHIDelegateAll = /* @__PURE__ */ _bind(FW, 'kHIDelegateAll')
 export const kHIDelegateBefore = /* @__PURE__ */ _bind(FW, 'kHIDelegateBefore')
 export const kHIDelegateBeforeKey = /* @__PURE__ */ _bind(FW, 'kHIDelegateBeforeKey')
 export const kHIHotKeyModeAllDisabled = /* @__PURE__ */ _bind(FW, 'kHIHotKeyModeAllDisabled')
-export const kHIHotKeyModeAllDisabledExceptUniversalAccess = /* @__PURE__ */ _bind(FW, 'kHIHotKeyModeAllDisabledExceptUniversalAccess')
+export const kHIHotKeyModeAllDisabledExceptUniversalAccess = /* @__PURE__ */ _bind(
+	FW,
+	'kHIHotKeyModeAllDisabledExceptUniversalAccess',
+)
+
 export const kHIHotKeyModeAllEnabled = /* @__PURE__ */ _bind(FW, 'kHIHotKeyModeAllEnabled')
-export const kHIImageViewAutoTransformNone = /* @__PURE__ */ _bind(FW, 'kHIImageViewAutoTransformNone')
-export const kHIImageViewAutoTransformOnDeactivate = /* @__PURE__ */ _bind(FW, 'kHIImageViewAutoTransformOnDeactivate')
-export const kHIImageViewAutoTransformOnDisable = /* @__PURE__ */ _bind(FW, 'kHIImageViewAutoTransformOnDisable')
+export const kHIImageViewAutoTransformNone = /* @__PURE__ */ _bind(
+	FW,
+	'kHIImageViewAutoTransformNone',
+)
+
+export const kHIImageViewAutoTransformOnDeactivate = /* @__PURE__ */ _bind(
+	FW,
+	'kHIImageViewAutoTransformOnDeactivate',
+)
+
+export const kHIImageViewAutoTransformOnDisable = /* @__PURE__ */ _bind(
+	FW,
+	'kHIImageViewAutoTransformOnDisable',
+)
+
 export const kHIImageViewImageTag = /* @__PURE__ */ _bind(FW, 'kHIImageViewImageTag')
 export const kHILayoutBindBottom = /* @__PURE__ */ _bind(FW, 'kHILayoutBindBottom')
 export const kHILayoutBindLeft = /* @__PURE__ */ _bind(FW, 'kHILayoutBindLeft')
@@ -2929,38 +6161,106 @@ export const kHILayoutPositionTop = /* @__PURE__ */ _bind(FW, 'kHILayoutPosition
 export const kHILayoutScaleAbsolute = /* @__PURE__ */ _bind(FW, 'kHILayoutScaleAbsolute')
 export const kHIMenuAppendItem = /* @__PURE__ */ _bind(FW, 'kHIMenuAppendItem')
 export const kHIMenuCenterDirection = /* @__PURE__ */ _bind(FW, 'kHIMenuCenterDirection')
-export const kHIMenuDismissedByActivationChange = /* @__PURE__ */ _bind(FW, 'kHIMenuDismissedByActivationChange')
+export const kHIMenuDismissedByActivationChange = /* @__PURE__ */ _bind(
+	FW,
+	'kHIMenuDismissedByActivationChange',
+)
+
 export const kHIMenuDismissedByAppSwitch = /* @__PURE__ */ _bind(FW, 'kHIMenuDismissedByAppSwitch')
-export const kHIMenuDismissedByCancelMenuTracking = /* @__PURE__ */ _bind(FW, 'kHIMenuDismissedByCancelMenuTracking')
-export const kHIMenuDismissedByFocusChange = /* @__PURE__ */ _bind(FW, 'kHIMenuDismissedByFocusChange')
+export const kHIMenuDismissedByCancelMenuTracking = /* @__PURE__ */ _bind(
+	FW,
+	'kHIMenuDismissedByCancelMenuTracking',
+)
+
+export const kHIMenuDismissedByFocusChange = /* @__PURE__ */ _bind(
+	FW,
+	'kHIMenuDismissedByFocusChange',
+)
+
 export const kHIMenuDismissedByKeyEvent = /* @__PURE__ */ _bind(FW, 'kHIMenuDismissedByKeyEvent')
 export const kHIMenuDismissedByMouseDown = /* @__PURE__ */ _bind(FW, 'kHIMenuDismissedByMouseDown')
 export const kHIMenuDismissedByMouseUp = /* @__PURE__ */ _bind(FW, 'kHIMenuDismissedByMouseUp')
 export const kHIMenuDismissedBySelection = /* @__PURE__ */ _bind(FW, 'kHIMenuDismissedBySelection')
 export const kHIMenuDismissedByTimeout = /* @__PURE__ */ _bind(FW, 'kHIMenuDismissedByTimeout')
-export const kHIMenuDismissedByUserCancel = /* @__PURE__ */ _bind(FW, 'kHIMenuDismissedByUserCancel')
+export const kHIMenuDismissedByUserCancel = /* @__PURE__ */ _bind(
+	FW,
+	'kHIMenuDismissedByUserCancel',
+)
+
 export const kHIMenuLeftDirection = /* @__PURE__ */ _bind(FW, 'kHIMenuLeftDirection')
 export const kHIMenuRightDirection = /* @__PURE__ */ _bind(FW, 'kHIMenuRightDirection')
 export const kHIModalClickAllowEvent = /* @__PURE__ */ _bind(FW, 'kHIModalClickAllowEvent')
 export const kHIModalClickAnnounce = /* @__PURE__ */ _bind(FW, 'kHIModalClickAnnounce')
 export const kHIModalClickIsModal = /* @__PURE__ */ _bind(FW, 'kHIModalClickIsModal')
 export const kHIModalClickRaiseWindow = /* @__PURE__ */ _bind(FW, 'kHIModalClickRaiseWindow')
-export const kHIObjectCustomDataCDEFProcIDKey = /* @__PURE__ */ _bind(FW, 'kHIObjectCustomDataCDEFProcIDKey')
-export const kHIObjectCustomDataClassIDKey = /* @__PURE__ */ _bind(FW, 'kHIObjectCustomDataClassIDKey')
-export const kHIObjectCustomDataDelegateGroupParametersKey = /* @__PURE__ */ _bind(FW, 'kHIObjectCustomDataDelegateGroupParametersKey')
-export const kHIObjectCustomDataParameterNamesKey = /* @__PURE__ */ _bind(FW, 'kHIObjectCustomDataParameterNamesKey')
-export const kHIObjectCustomDataParameterTypesKey = /* @__PURE__ */ _bind(FW, 'kHIObjectCustomDataParameterTypesKey')
-export const kHIObjectCustomDataParameterValuesKey = /* @__PURE__ */ _bind(FW, 'kHIObjectCustomDataParameterValuesKey')
-export const kHIObjectCustomDataSuperClassIDKey = /* @__PURE__ */ _bind(FW, 'kHIObjectCustomDataSuperClassIDKey')
-export const kHIObjectInitParamDescription = /* @__PURE__ */ _bind(FW, 'kHIObjectInitParamDescription')
+export const kHIObjectCustomDataCDEFProcIDKey = /* @__PURE__ */ _bind(
+	FW,
+	'kHIObjectCustomDataCDEFProcIDKey',
+)
+
+export const kHIObjectCustomDataClassIDKey = /* @__PURE__ */ _bind(
+	FW,
+	'kHIObjectCustomDataClassIDKey',
+)
+
+export const kHIObjectCustomDataDelegateGroupParametersKey = /* @__PURE__ */ _bind(
+	FW,
+	'kHIObjectCustomDataDelegateGroupParametersKey',
+)
+
+export const kHIObjectCustomDataParameterNamesKey = /* @__PURE__ */ _bind(
+	FW,
+	'kHIObjectCustomDataParameterNamesKey',
+)
+
+export const kHIObjectCustomDataParameterTypesKey = /* @__PURE__ */ _bind(
+	FW,
+	'kHIObjectCustomDataParameterTypesKey',
+)
+
+export const kHIObjectCustomDataParameterValuesKey = /* @__PURE__ */ _bind(
+	FW,
+	'kHIObjectCustomDataParameterValuesKey',
+)
+
+export const kHIObjectCustomDataSuperClassIDKey = /* @__PURE__ */ _bind(
+	FW,
+	'kHIObjectCustomDataSuperClassIDKey',
+)
+
+export const kHIObjectInitParamDescription = /* @__PURE__ */ _bind(
+	FW,
+	'kHIObjectInitParamDescription',
+)
+
 export const kHIObjectInitParamEventName = /* @__PURE__ */ _bind(FW, 'kHIObjectInitParamEventName')
 export const kHIObjectInitParamEventType = /* @__PURE__ */ _bind(FW, 'kHIObjectInitParamEventType')
 export const kHIObjectInitParamUserName = /* @__PURE__ */ _bind(FW, 'kHIObjectInitParamUserName')
-export const kHIScrollViewOptionsAllowGrow = /* @__PURE__ */ _bind(FW, 'kHIScrollViewOptionsAllowGrow')
-export const kHIScrollViewOptionsDisableSmoothScrolling = /* @__PURE__ */ _bind(FW, 'kHIScrollViewOptionsDisableSmoothScrolling')
-export const kHIScrollViewOptionsFillGrowArea = /* @__PURE__ */ _bind(FW, 'kHIScrollViewOptionsFillGrowArea')
-export const kHIScrollViewOptionsHorizScroll = /* @__PURE__ */ _bind(FW, 'kHIScrollViewOptionsHorizScroll')
-export const kHIScrollViewOptionsVertScroll = /* @__PURE__ */ _bind(FW, 'kHIScrollViewOptionsVertScroll')
+export const kHIScrollViewOptionsAllowGrow = /* @__PURE__ */ _bind(
+	FW,
+	'kHIScrollViewOptionsAllowGrow',
+)
+
+export const kHIScrollViewOptionsDisableSmoothScrolling = /* @__PURE__ */ _bind(
+	FW,
+	'kHIScrollViewOptionsDisableSmoothScrolling',
+)
+
+export const kHIScrollViewOptionsFillGrowArea = /* @__PURE__ */ _bind(
+	FW,
+	'kHIScrollViewOptionsFillGrowArea',
+)
+
+export const kHIScrollViewOptionsHorizScroll = /* @__PURE__ */ _bind(
+	FW,
+	'kHIScrollViewOptionsHorizScroll',
+)
+
+export const kHIScrollViewOptionsVertScroll = /* @__PURE__ */ _bind(
+	FW,
+	'kHIScrollViewOptionsVertScroll',
+)
+
 export const kHIScrollViewPageDown = /* @__PURE__ */ _bind(FW, 'kHIScrollViewPageDown')
 export const kHIScrollViewPageLeft = /* @__PURE__ */ _bind(FW, 'kHIScrollViewPageLeft')
 export const kHIScrollViewPageRight = /* @__PURE__ */ _bind(FW, 'kHIScrollViewPageRight')
@@ -2970,15 +6270,27 @@ export const kHIScrollViewScrollToLeft = /* @__PURE__ */ _bind(FW, 'kHIScrollVie
 export const kHIScrollViewScrollToRight = /* @__PURE__ */ _bind(FW, 'kHIScrollViewScrollToRight')
 export const kHIScrollViewScrollToTop = /* @__PURE__ */ _bind(FW, 'kHIScrollViewScrollToTop')
 export const kHIScrollViewValidOptions = /* @__PURE__ */ _bind(FW, 'kHIScrollViewValidOptions')
-export const kHISearchFieldAttributesCancel = /* @__PURE__ */ _bind(FW, 'kHISearchFieldAttributesCancel')
-export const kHISearchFieldAttributesSearchIcon = /* @__PURE__ */ _bind(FW, 'kHISearchFieldAttributesSearchIcon')
+export const kHISearchFieldAttributesCancel = /* @__PURE__ */ _bind(
+	FW,
+	'kHISearchFieldAttributesCancel',
+)
+
+export const kHISearchFieldAttributesSearchIcon = /* @__PURE__ */ _bind(
+	FW,
+	'kHISearchFieldAttributesSearchIcon',
+)
+
 export const kHISearchFieldNoAttributes = /* @__PURE__ */ _bind(FW, 'kHISearchFieldNoAttributes')
 export const kHISegmentBehaviorMomentary = /* @__PURE__ */ _bind(FW, 'kHISegmentBehaviorMomentary')
 export const kHISegmentBehaviorRadio = /* @__PURE__ */ _bind(FW, 'kHISegmentBehaviorRadio')
 export const kHISegmentBehaviorSticky = /* @__PURE__ */ _bind(FW, 'kHISegmentBehaviorSticky')
 export const kHISegmentBehaviorToggles = /* @__PURE__ */ _bind(FW, 'kHISegmentBehaviorToggles')
 export const kHISegmentNoAttributes = /* @__PURE__ */ _bind(FW, 'kHISegmentNoAttributes')
-export const kHISegmentSendCmdToUserFocus = /* @__PURE__ */ _bind(FW, 'kHISegmentSendCmdToUserFocus')
+export const kHISegmentSendCmdToUserFocus = /* @__PURE__ */ _bind(
+	FW,
+	'kHISegmentSendCmdToUserFocus',
+)
+
 export const kHISegmentedViewKind = /* @__PURE__ */ _bind(FW, 'kHISegmentedViewKind')
 export const kHITextViewClassID = /* @__PURE__ */ _bind(FW, 'kHITextViewClassID')
 export const kHIThemeFocusRingAbove = /* @__PURE__ */ _bind(FW, 'kHIThemeFocusRingAbove')
@@ -2986,46 +6298,126 @@ export const kHIThemeFocusRingBelow = /* @__PURE__ */ _bind(FW, 'kHIThemeFocusRi
 export const kHIThemeFocusRingOnly = /* @__PURE__ */ _bind(FW, 'kHIThemeFocusRingOnly')
 export const kHIThemeFrameListBox = /* @__PURE__ */ _bind(FW, 'kHIThemeFrameListBox')
 export const kHIThemeFrameTextFieldRound = /* @__PURE__ */ _bind(FW, 'kHIThemeFrameTextFieldRound')
-export const kHIThemeFrameTextFieldRoundMini = /* @__PURE__ */ _bind(FW, 'kHIThemeFrameTextFieldRoundMini')
-export const kHIThemeFrameTextFieldRoundSmall = /* @__PURE__ */ _bind(FW, 'kHIThemeFrameTextFieldRoundSmall')
-export const kHIThemeFrameTextFieldSquare = /* @__PURE__ */ _bind(FW, 'kHIThemeFrameTextFieldSquare')
+export const kHIThemeFrameTextFieldRoundMini = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeFrameTextFieldRoundMini',
+)
+
+export const kHIThemeFrameTextFieldRoundSmall = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeFrameTextFieldRoundSmall',
+)
+
+export const kHIThemeFrameTextFieldSquare = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeFrameTextFieldSquare',
+)
+
 export const kHIThemeGroupBoxKindPrimary = /* @__PURE__ */ _bind(FW, 'kHIThemeGroupBoxKindPrimary')
-export const kHIThemeGroupBoxKindPrimaryOpaque = /* @__PURE__ */ _bind(FW, 'kHIThemeGroupBoxKindPrimaryOpaque')
-export const kHIThemeGroupBoxKindSecondary = /* @__PURE__ */ _bind(FW, 'kHIThemeGroupBoxKindSecondary')
-export const kHIThemeGroupBoxKindSecondaryOpaque = /* @__PURE__ */ _bind(FW, 'kHIThemeGroupBoxKindSecondaryOpaque')
+export const kHIThemeGroupBoxKindPrimaryOpaque = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeGroupBoxKindPrimaryOpaque',
+)
+
+export const kHIThemeGroupBoxKindSecondary = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeGroupBoxKindSecondary',
+)
+
+export const kHIThemeGroupBoxKindSecondaryOpaque = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeGroupBoxKindSecondaryOpaque',
+)
+
 export const kHIThemeGrowBoxKindNone = /* @__PURE__ */ _bind(FW, 'kHIThemeGrowBoxKindNone')
 export const kHIThemeGrowBoxKindNormal = /* @__PURE__ */ _bind(FW, 'kHIThemeGrowBoxKindNormal')
 export const kHIThemeGrowBoxSizeNormal = /* @__PURE__ */ _bind(FW, 'kHIThemeGrowBoxSizeNormal')
 export const kHIThemeGrowBoxSizeSmall = /* @__PURE__ */ _bind(FW, 'kHIThemeGrowBoxSizeSmall')
 export const kHIThemeHeaderKindList = /* @__PURE__ */ _bind(FW, 'kHIThemeHeaderKindList')
 export const kHIThemeHeaderKindWindow = /* @__PURE__ */ _bind(FW, 'kHIThemeHeaderKindWindow')
-export const kHIThemeMenuDrawInfoVersionOne = /* @__PURE__ */ _bind(FW, 'kHIThemeMenuDrawInfoVersionOne')
-export const kHIThemeMenuDrawInfoVersionZero = /* @__PURE__ */ _bind(FW, 'kHIThemeMenuDrawInfoVersionZero')
-export const kHIThemeMenuTitleDrawCondensed = /* @__PURE__ */ _bind(FW, 'kHIThemeMenuTitleDrawCondensed')
+export const kHIThemeMenuDrawInfoVersionOne = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeMenuDrawInfoVersionOne',
+)
+
+export const kHIThemeMenuDrawInfoVersionZero = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeMenuDrawInfoVersionZero',
+)
+
+export const kHIThemeMenuTitleDrawCondensed = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeMenuTitleDrawCondensed',
+)
+
 export const kHIThemeOrientationInverted = /* @__PURE__ */ _bind(FW, 'kHIThemeOrientationInverted')
 export const kHIThemeOrientationNormal = /* @__PURE__ */ _bind(FW, 'kHIThemeOrientationNormal')
-export const kHIThemeSegmentAdornmentFocus = /* @__PURE__ */ _bind(FW, 'kHIThemeSegmentAdornmentFocus')
-export const kHIThemeSegmentAdornmentLeadingSeparator = /* @__PURE__ */ _bind(FW, 'kHIThemeSegmentAdornmentLeadingSeparator')
-export const kHIThemeSegmentAdornmentNone = /* @__PURE__ */ _bind(FW, 'kHIThemeSegmentAdornmentNone')
-export const kHIThemeSegmentAdornmentTrailingSeparator = /* @__PURE__ */ _bind(FW, 'kHIThemeSegmentAdornmentTrailingSeparator')
+export const kHIThemeSegmentAdornmentFocus = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeSegmentAdornmentFocus',
+)
+
+export const kHIThemeSegmentAdornmentLeadingSeparator = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeSegmentAdornmentLeadingSeparator',
+)
+
+export const kHIThemeSegmentAdornmentNone = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeSegmentAdornmentNone',
+)
+
+export const kHIThemeSegmentAdornmentTrailingSeparator = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeSegmentAdornmentTrailingSeparator',
+)
+
 export const kHIThemeSegmentKindInset = /* @__PURE__ */ _bind(FW, 'kHIThemeSegmentKindInset')
 export const kHIThemeSegmentKindNormal = /* @__PURE__ */ _bind(FW, 'kHIThemeSegmentKindNormal')
 export const kHIThemeSegmentKindTextured = /* @__PURE__ */ _bind(FW, 'kHIThemeSegmentKindTextured')
-export const kHIThemeSegmentPositionFirst = /* @__PURE__ */ _bind(FW, 'kHIThemeSegmentPositionFirst')
+export const kHIThemeSegmentPositionFirst = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeSegmentPositionFirst',
+)
+
 export const kHIThemeSegmentPositionLast = /* @__PURE__ */ _bind(FW, 'kHIThemeSegmentPositionLast')
-export const kHIThemeSegmentPositionMiddle = /* @__PURE__ */ _bind(FW, 'kHIThemeSegmentPositionMiddle')
+export const kHIThemeSegmentPositionMiddle = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeSegmentPositionMiddle',
+)
+
 export const kHIThemeSegmentPositionOnly = /* @__PURE__ */ _bind(FW, 'kHIThemeSegmentPositionOnly')
 export const kHIThemeSegmentSizeMini = /* @__PURE__ */ _bind(FW, 'kHIThemeSegmentSizeMini')
 export const kHIThemeSegmentSizeNormal = /* @__PURE__ */ _bind(FW, 'kHIThemeSegmentSizeNormal')
 export const kHIThemeSegmentSizeSmall = /* @__PURE__ */ _bind(FW, 'kHIThemeSegmentSizeSmall')
-export const kHIThemeSplitterAdornmentMetal = /* @__PURE__ */ _bind(FW, 'kHIThemeSplitterAdornmentMetal')
-export const kHIThemeSplitterAdornmentNone = /* @__PURE__ */ _bind(FW, 'kHIThemeSplitterAdornmentNone')
+export const kHIThemeSplitterAdornmentMetal = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeSplitterAdornmentMetal',
+)
+
+export const kHIThemeSplitterAdornmentNone = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeSplitterAdornmentNone',
+)
+
 export const kHIThemeTabAdornmentFocus = /* @__PURE__ */ _bind(FW, 'kHIThemeTabAdornmentFocus')
-export const kHIThemeTabAdornmentLeadingSeparator = /* @__PURE__ */ _bind(FW, 'kHIThemeTabAdornmentLeadingSeparator')
+export const kHIThemeTabAdornmentLeadingSeparator = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeTabAdornmentLeadingSeparator',
+)
+
 export const kHIThemeTabAdornmentNone = /* @__PURE__ */ _bind(FW, 'kHIThemeTabAdornmentNone')
-export const kHIThemeTabAdornmentTrailingSeparator = /* @__PURE__ */ _bind(FW, 'kHIThemeTabAdornmentTrailingSeparator')
+export const kHIThemeTabAdornmentTrailingSeparator = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeTabAdornmentTrailingSeparator',
+)
+
 export const kHIThemeTabKindNormal = /* @__PURE__ */ _bind(FW, 'kHIThemeTabKindNormal')
-export const kHIThemeTabPaneAdornmentNormal = /* @__PURE__ */ _bind(FW, 'kHIThemeTabPaneAdornmentNormal')
+export const kHIThemeTabPaneAdornmentNormal = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeTabPaneAdornmentNormal',
+)
+
 export const kHIThemeTabPositionFirst = /* @__PURE__ */ _bind(FW, 'kHIThemeTabPositionFirst')
 export const kHIThemeTabPositionLast = /* @__PURE__ */ _bind(FW, 'kHIThemeTabPositionLast')
 export const kHIThemeTabPositionMiddle = /* @__PURE__ */ _bind(FW, 'kHIThemeTabPositionMiddle')
@@ -3033,35 +6425,115 @@ export const kHIThemeTabPositionOnly = /* @__PURE__ */ _bind(FW, 'kHIThemeTabPos
 export const kHIThemeTabSizeMini = /* @__PURE__ */ _bind(FW, 'kHIThemeTabSizeMini')
 export const kHIThemeTabSizeNormal = /* @__PURE__ */ _bind(FW, 'kHIThemeTabSizeNormal')
 export const kHIThemeTabSizeSmall = /* @__PURE__ */ _bind(FW, 'kHIThemeTabSizeSmall')
-export const kHIThemeTextBoxOptionDontClip = /* @__PURE__ */ _bind(FW, 'kHIThemeTextBoxOptionDontClip')
-export const kHIThemeTextBoxOptionEngraved = /* @__PURE__ */ _bind(FW, 'kHIThemeTextBoxOptionEngraved')
+export const kHIThemeTextBoxOptionDontClip = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeTextBoxOptionDontClip',
+)
+
+export const kHIThemeTextBoxOptionEngraved = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeTextBoxOptionEngraved',
+)
+
 export const kHIThemeTextBoxOptionNone = /* @__PURE__ */ _bind(FW, 'kHIThemeTextBoxOptionNone')
-export const kHIThemeTextBoxOptionStronglyVertical = /* @__PURE__ */ _bind(FW, 'kHIThemeTextBoxOptionStronglyVertical')
-export const kHIThemeTextHorizontalFlushCenter = /* @__PURE__ */ _bind(FW, 'kHIThemeTextHorizontalFlushCenter')
-export const kHIThemeTextHorizontalFlushDefault = /* @__PURE__ */ _bind(FW, 'kHIThemeTextHorizontalFlushDefault')
-export const kHIThemeTextHorizontalFlushLeft = /* @__PURE__ */ _bind(FW, 'kHIThemeTextHorizontalFlushLeft')
-export const kHIThemeTextHorizontalFlushRight = /* @__PURE__ */ _bind(FW, 'kHIThemeTextHorizontalFlushRight')
+export const kHIThemeTextBoxOptionStronglyVertical = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeTextBoxOptionStronglyVertical',
+)
+
+export const kHIThemeTextHorizontalFlushCenter = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeTextHorizontalFlushCenter',
+)
+
+export const kHIThemeTextHorizontalFlushDefault = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeTextHorizontalFlushDefault',
+)
+
+export const kHIThemeTextHorizontalFlushLeft = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeTextHorizontalFlushLeft',
+)
+
+export const kHIThemeTextHorizontalFlushRight = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeTextHorizontalFlushRight',
+)
+
 export const kHIThemeTextInfoVersionOne = /* @__PURE__ */ _bind(FW, 'kHIThemeTextInfoVersionOne')
 export const kHIThemeTextInfoVersionZero = /* @__PURE__ */ _bind(FW, 'kHIThemeTextInfoVersionZero')
-export const kHIThemeTextTruncationDefault = /* @__PURE__ */ _bind(FW, 'kHIThemeTextTruncationDefault')
+export const kHIThemeTextTruncationDefault = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeTextTruncationDefault',
+)
+
 export const kHIThemeTextTruncationEnd = /* @__PURE__ */ _bind(FW, 'kHIThemeTextTruncationEnd')
-export const kHIThemeTextTruncationMiddle = /* @__PURE__ */ _bind(FW, 'kHIThemeTextTruncationMiddle')
+export const kHIThemeTextTruncationMiddle = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeTextTruncationMiddle',
+)
+
 export const kHIThemeTextTruncationNone = /* @__PURE__ */ _bind(FW, 'kHIThemeTextTruncationNone')
-export const kHIThemeTextVerticalFlushBottom = /* @__PURE__ */ _bind(FW, 'kHIThemeTextVerticalFlushBottom')
-export const kHIThemeTextVerticalFlushCenter = /* @__PURE__ */ _bind(FW, 'kHIThemeTextVerticalFlushCenter')
-export const kHIThemeTextVerticalFlushDefault = /* @__PURE__ */ _bind(FW, 'kHIThemeTextVerticalFlushDefault')
-export const kHIThemeTextVerticalFlushTop = /* @__PURE__ */ _bind(FW, 'kHIThemeTextVerticalFlushTop')
+export const kHIThemeTextVerticalFlushBottom = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeTextVerticalFlushBottom',
+)
+
+export const kHIThemeTextVerticalFlushCenter = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeTextVerticalFlushCenter',
+)
+
+export const kHIThemeTextVerticalFlushDefault = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeTextVerticalFlushDefault',
+)
+
+export const kHIThemeTextVerticalFlushTop = /* @__PURE__ */ _bind(
+	FW,
+	'kHIThemeTextVerticalFlushTop',
+)
+
 export const kHIToolbarAutoSavesConfig = /* @__PURE__ */ _bind(FW, 'kHIToolbarAutoSavesConfig')
-export const kHIToolbarCommandPressAction = /* @__PURE__ */ _bind(FW, 'kHIToolbarCommandPressAction')
-export const kHIToolbarDisplayModeDefault = /* @__PURE__ */ _bind(FW, 'kHIToolbarDisplayModeDefault')
-export const kHIToolbarDisplayModeIconAndLabel = /* @__PURE__ */ _bind(FW, 'kHIToolbarDisplayModeIconAndLabel')
-export const kHIToolbarDisplayModeIconOnly = /* @__PURE__ */ _bind(FW, 'kHIToolbarDisplayModeIconOnly')
-export const kHIToolbarDisplayModeLabelOnly = /* @__PURE__ */ _bind(FW, 'kHIToolbarDisplayModeLabelOnly')
-export const kHIToolbarDisplaySizeDefault = /* @__PURE__ */ _bind(FW, 'kHIToolbarDisplaySizeDefault')
+export const kHIToolbarCommandPressAction = /* @__PURE__ */ _bind(
+	FW,
+	'kHIToolbarCommandPressAction',
+)
+
+export const kHIToolbarDisplayModeDefault = /* @__PURE__ */ _bind(
+	FW,
+	'kHIToolbarDisplayModeDefault',
+)
+
+export const kHIToolbarDisplayModeIconAndLabel = /* @__PURE__ */ _bind(
+	FW,
+	'kHIToolbarDisplayModeIconAndLabel',
+)
+
+export const kHIToolbarDisplayModeIconOnly = /* @__PURE__ */ _bind(
+	FW,
+	'kHIToolbarDisplayModeIconOnly',
+)
+
+export const kHIToolbarDisplayModeLabelOnly = /* @__PURE__ */ _bind(
+	FW,
+	'kHIToolbarDisplayModeLabelOnly',
+)
+
+export const kHIToolbarDisplaySizeDefault = /* @__PURE__ */ _bind(
+	FW,
+	'kHIToolbarDisplaySizeDefault',
+)
+
 export const kHIToolbarDisplaySizeNormal = /* @__PURE__ */ _bind(FW, 'kHIToolbarDisplaySizeNormal')
 export const kHIToolbarDisplaySizeSmall = /* @__PURE__ */ _bind(FW, 'kHIToolbarDisplaySizeSmall')
 export const kHIToolbarIsConfigurable = /* @__PURE__ */ _bind(FW, 'kHIToolbarIsConfigurable')
-export const kHIToolbarItemAllowDuplicates = /* @__PURE__ */ _bind(FW, 'kHIToolbarItemAllowDuplicates')
+export const kHIToolbarItemAllowDuplicates = /* @__PURE__ */ _bind(
+	FW,
+	'kHIToolbarItemAllowDuplicates',
+)
+
 export const kHIToolbarItemAnchoredLeft = /* @__PURE__ */ _bind(FW, 'kHIToolbarItemAnchoredLeft')
 export const kHIToolbarItemCantBeRemoved = /* @__PURE__ */ _bind(FW, 'kHIToolbarItemCantBeRemoved')
 export const kHIToolbarItemDisabled = /* @__PURE__ */ _bind(FW, 'kHIToolbarItemDisabled')
@@ -3070,25 +6542,45 @@ export const kHIToolbarItemLabelDisabled = /* @__PURE__ */ _bind(FW, 'kHIToolbar
 export const kHIToolbarItemMutableAttrs = /* @__PURE__ */ _bind(FW, 'kHIToolbarItemMutableAttrs')
 export const kHIToolbarItemNoAttributes = /* @__PURE__ */ _bind(FW, 'kHIToolbarItemNoAttributes')
 export const kHIToolbarItemSelected = /* @__PURE__ */ _bind(FW, 'kHIToolbarItemSelected')
-export const kHIToolbarItemSendCmdToUserFocus = /* @__PURE__ */ _bind(FW, 'kHIToolbarItemSendCmdToUserFocus')
+export const kHIToolbarItemSendCmdToUserFocus = /* @__PURE__ */ _bind(
+	FW,
+	'kHIToolbarItemSendCmdToUserFocus',
+)
+
 export const kHIToolbarItemValidAttrs = /* @__PURE__ */ _bind(FW, 'kHIToolbarItemValidAttrs')
 export const kHIToolbarNoAttributes = /* @__PURE__ */ _bind(FW, 'kHIToolbarNoAttributes')
 export const kHIToolbarValidAttrs = /* @__PURE__ */ _bind(FW, 'kHIToolbarValidAttrs')
-export const kHIToolbarViewDrawBackgroundTag = /* @__PURE__ */ _bind(FW, 'kHIToolbarViewDrawBackgroundTag')
+export const kHIToolbarViewDrawBackgroundTag = /* @__PURE__ */ _bind(
+	FW,
+	'kHIToolbarViewDrawBackgroundTag',
+)
+
 export const kHIToolboxVersionNumber = /* @__PURE__ */ _bind(FW, 'kHIToolboxVersionNumber')
 export const kHITransformDisabled = /* @__PURE__ */ _bind(FW, 'kHITransformDisabled')
 export const kHITransformNone = /* @__PURE__ */ _bind(FW, 'kHITransformNone')
 export const kHITransformSelected = /* @__PURE__ */ _bind(FW, 'kHITransformSelected')
 export const kHIViewAllowsSubviews = /* @__PURE__ */ _bind(FW, 'kHIViewAllowsSubviews')
-export const kHIViewAttributeIsFieldEditor = /* @__PURE__ */ _bind(FW, 'kHIViewAttributeIsFieldEditor')
-export const kHIViewAttributeSendCommandToUserFocus = /* @__PURE__ */ _bind(FW, 'kHIViewAttributeSendCommandToUserFocus')
+export const kHIViewAttributeIsFieldEditor = /* @__PURE__ */ _bind(
+	FW,
+	'kHIViewAttributeIsFieldEditor',
+)
+
+export const kHIViewAttributeSendCommandToUserFocus = /* @__PURE__ */ _bind(
+	FW,
+	'kHIViewAttributeSendCommandToUserFocus',
+)
+
 export const kHIViewAutoToggles = /* @__PURE__ */ _bind(FW, 'kHIViewAutoToggles')
 export const kHIViewClickableMetaPart = /* @__PURE__ */ _bind(FW, 'kHIViewClickableMetaPart')
 export const kHIViewContentAlertIconType = /* @__PURE__ */ _bind(FW, 'kHIViewContentAlertIconType')
 export const kHIViewContentCGImageRef = /* @__PURE__ */ _bind(FW, 'kHIViewContentCGImageRef')
 export const kHIViewContentIconRef = /* @__PURE__ */ _bind(FW, 'kHIViewContentIconRef')
 export const kHIViewContentIconSuiteRef = /* @__PURE__ */ _bind(FW, 'kHIViewContentIconSuiteRef')
-export const kHIViewContentIconTypeAndCreator = /* @__PURE__ */ _bind(FW, 'kHIViewContentIconTypeAndCreator')
+export const kHIViewContentIconTypeAndCreator = /* @__PURE__ */ _bind(
+	FW,
+	'kHIViewContentIconTypeAndCreator',
+)
+
 export const kHIViewContentImageFile = /* @__PURE__ */ _bind(FW, 'kHIViewContentImageFile')
 export const kHIViewContentImageResource = /* @__PURE__ */ _bind(FW, 'kHIViewContentImageResource')
 export const kHIViewContentMetaPart = /* @__PURE__ */ _bind(FW, 'kHIViewContentMetaPart')
@@ -3097,20 +6589,56 @@ export const kHIViewContentNone = /* @__PURE__ */ _bind(FW, 'kHIViewContentNone'
 export const kHIViewContentTextOnly = /* @__PURE__ */ _bind(FW, 'kHIViewContentTextOnly')
 export const kHIViewDisabledPart = /* @__PURE__ */ _bind(FW, 'kHIViewDisabledPart')
 export const kHIViewDoesNotDraw = /* @__PURE__ */ _bind(FW, 'kHIViewDoesNotDraw')
-export const kHIViewDoesNotUseSpecialParts = /* @__PURE__ */ _bind(FW, 'kHIViewDoesNotUseSpecialParts')
+export const kHIViewDoesNotUseSpecialParts = /* @__PURE__ */ _bind(
+	FW,
+	'kHIViewDoesNotUseSpecialParts',
+)
+
 export const kHIViewEntireView = /* @__PURE__ */ _bind(FW, 'kHIViewEntireView')
-export const kHIViewFeatureAllowsSubviews = /* @__PURE__ */ _bind(FW, 'kHIViewFeatureAllowsSubviews')
+export const kHIViewFeatureAllowsSubviews = /* @__PURE__ */ _bind(
+	FW,
+	'kHIViewFeatureAllowsSubviews',
+)
+
 export const kHIViewFeatureAutoToggles = /* @__PURE__ */ _bind(FW, 'kHIViewFeatureAutoToggles')
 export const kHIViewFeatureDoesNotDraw = /* @__PURE__ */ _bind(FW, 'kHIViewFeatureDoesNotDraw')
-export const kHIViewFeatureDoesNotUseSpecialParts = /* @__PURE__ */ _bind(FW, 'kHIViewFeatureDoesNotUseSpecialParts')
-export const kHIViewFeatureGetsFocusOnClick = /* @__PURE__ */ _bind(FW, 'kHIViewFeatureGetsFocusOnClick')
-export const kHIViewFeatureIdlesWithTimer = /* @__PURE__ */ _bind(FW, 'kHIViewFeatureIdlesWithTimer')
+export const kHIViewFeatureDoesNotUseSpecialParts = /* @__PURE__ */ _bind(
+	FW,
+	'kHIViewFeatureDoesNotUseSpecialParts',
+)
+
+export const kHIViewFeatureGetsFocusOnClick = /* @__PURE__ */ _bind(
+	FW,
+	'kHIViewFeatureGetsFocusOnClick',
+)
+
+export const kHIViewFeatureIdlesWithTimer = /* @__PURE__ */ _bind(
+	FW,
+	'kHIViewFeatureIdlesWithTimer',
+)
+
 export const kHIViewFeatureIgnoresClicks = /* @__PURE__ */ _bind(FW, 'kHIViewFeatureIgnoresClicks')
-export const kHIViewFeatureInvertsUpDownValueMeaning = /* @__PURE__ */ _bind(FW, 'kHIViewFeatureInvertsUpDownValueMeaning')
+export const kHIViewFeatureInvertsUpDownValueMeaning = /* @__PURE__ */ _bind(
+	FW,
+	'kHIViewFeatureInvertsUpDownValueMeaning',
+)
+
 export const kHIViewFeatureIsOpaque = /* @__PURE__ */ _bind(FW, 'kHIViewFeatureIsOpaque')
-export const kHIViewFeatureSupportsGhosting = /* @__PURE__ */ _bind(FW, 'kHIViewFeatureSupportsGhosting')
-export const kHIViewFeatureSupportsLiveFeedback = /* @__PURE__ */ _bind(FW, 'kHIViewFeatureSupportsLiveFeedback')
-export const kHIViewFeatureSupportsRadioBehavior = /* @__PURE__ */ _bind(FW, 'kHIViewFeatureSupportsRadioBehavior')
+export const kHIViewFeatureSupportsGhosting = /* @__PURE__ */ _bind(
+	FW,
+	'kHIViewFeatureSupportsGhosting',
+)
+
+export const kHIViewFeatureSupportsLiveFeedback = /* @__PURE__ */ _bind(
+	FW,
+	'kHIViewFeatureSupportsLiveFeedback',
+)
+
+export const kHIViewFeatureSupportsRadioBehavior = /* @__PURE__ */ _bind(
+	FW,
+	'kHIViewFeatureSupportsRadioBehavior',
+)
+
 export const kHIViewFocusNextPart = /* @__PURE__ */ _bind(FW, 'kHIViewFocusNextPart')
 export const kHIViewFocusNoPart = /* @__PURE__ */ _bind(FW, 'kHIViewFocusNoPart')
 export const kHIViewFocusOnAnyControl = /* @__PURE__ */ _bind(FW, 'kHIViewFocusOnAnyControl')
@@ -3122,67 +6650,143 @@ export const kHIViewIdlesWithTimer = /* @__PURE__ */ _bind(FW, 'kHIViewIdlesWith
 export const kHIViewIgnoresClicks = /* @__PURE__ */ _bind(FW, 'kHIViewIgnoresClicks')
 export const kHIViewInactivePart = /* @__PURE__ */ _bind(FW, 'kHIViewInactivePart')
 export const kHIViewIndicatorPart = /* @__PURE__ */ _bind(FW, 'kHIViewIndicatorPart')
-export const kHIViewInvertsUpDownValueMeaning = /* @__PURE__ */ _bind(FW, 'kHIViewInvertsUpDownValueMeaning')
+export const kHIViewInvertsUpDownValueMeaning = /* @__PURE__ */ _bind(
+	FW,
+	'kHIViewInvertsUpDownValueMeaning',
+)
+
 export const kHIViewIsOpaque = /* @__PURE__ */ _bind(FW, 'kHIViewIsOpaque')
 export const kHIViewKindSignatureApple = /* @__PURE__ */ _bind(FW, 'kHIViewKindSignatureApple')
 export const kHIViewMenuContentID = /* @__PURE__ */ _bind(FW, 'kHIViewMenuContentID')
 export const kHIViewNoPart = /* @__PURE__ */ _bind(FW, 'kHIViewNoPart')
-export const kHIViewOffscreenImageUseWindowBackingResolution = /* @__PURE__ */ _bind(FW, 'kHIViewOffscreenImageUseWindowBackingResolution')
+export const kHIViewOffscreenImageUseWindowBackingResolution = /* @__PURE__ */ _bind(
+	FW,
+	'kHIViewOffscreenImageUseWindowBackingResolution',
+)
+
 export const kHIViewOpaqueMetaPart = /* @__PURE__ */ _bind(FW, 'kHIViewOpaqueMetaPart')
-export const kHIViewSendCommandToUserFocus = /* @__PURE__ */ _bind(FW, 'kHIViewSendCommandToUserFocus')
+export const kHIViewSendCommandToUserFocus = /* @__PURE__ */ _bind(
+	FW,
+	'kHIViewSendCommandToUserFocus',
+)
+
 export const kHIViewStructureMetaPart = /* @__PURE__ */ _bind(FW, 'kHIViewStructureMetaPart')
 export const kHIViewSupportsGhosting = /* @__PURE__ */ _bind(FW, 'kHIViewSupportsGhosting')
 export const kHIViewSupportsLiveFeedback = /* @__PURE__ */ _bind(FW, 'kHIViewSupportsLiveFeedback')
-export const kHIViewSupportsRadioBehavior = /* @__PURE__ */ _bind(FW, 'kHIViewSupportsRadioBehavior')
-export const kHIViewValidFeaturesForPanther = /* @__PURE__ */ _bind(FW, 'kHIViewValidFeaturesForPanther')
+export const kHIViewSupportsRadioBehavior = /* @__PURE__ */ _bind(
+	FW,
+	'kHIViewSupportsRadioBehavior',
+)
+
+export const kHIViewValidFeaturesForPanther = /* @__PURE__ */ _bind(
+	FW,
+	'kHIViewValidFeaturesForPanther',
+)
+
 export const kHIViewWindowCloseBoxID = /* @__PURE__ */ _bind(FW, 'kHIViewWindowCloseBoxID')
 export const kHIViewWindowCollapseBoxID = /* @__PURE__ */ _bind(FW, 'kHIViewWindowCollapseBoxID')
 export const kHIViewWindowContentID = /* @__PURE__ */ _bind(FW, 'kHIViewWindowContentID')
 export const kHIViewWindowGrowBoxID = /* @__PURE__ */ _bind(FW, 'kHIViewWindowGrowBoxID')
 export const kHIViewWindowTitleID = /* @__PURE__ */ _bind(FW, 'kHIViewWindowTitleID')
-export const kHIViewWindowToolbarButtonID = /* @__PURE__ */ _bind(FW, 'kHIViewWindowToolbarButtonID')
+export const kHIViewWindowToolbarButtonID = /* @__PURE__ */ _bind(
+	FW,
+	'kHIViewWindowToolbarButtonID',
+)
+
 export const kHIViewWindowToolbarID = /* @__PURE__ */ _bind(FW, 'kHIViewWindowToolbarID')
 export const kHIViewWindowZoomBoxID = /* @__PURE__ */ _bind(FW, 'kHIViewWindowZoomBoxID')
 export const kHIViewZOrderAbove = /* @__PURE__ */ _bind(FW, 'kHIViewZOrderAbove')
 export const kHIViewZOrderBelow = /* @__PURE__ */ _bind(FW, 'kHIViewZOrderBelow')
-export const kHIWindowBackingLocationDefault = /* @__PURE__ */ _bind(FW, 'kHIWindowBackingLocationDefault')
-export const kHIWindowBackingLocationMainMemory = /* @__PURE__ */ _bind(FW, 'kHIWindowBackingLocationMainMemory')
-export const kHIWindowBackingLocationVideoMemory = /* @__PURE__ */ _bind(FW, 'kHIWindowBackingLocationVideoMemory')
+export const kHIWindowBackingLocationDefault = /* @__PURE__ */ _bind(
+	FW,
+	'kHIWindowBackingLocationDefault',
+)
+
+export const kHIWindowBackingLocationMainMemory = /* @__PURE__ */ _bind(
+	FW,
+	'kHIWindowBackingLocationMainMemory',
+)
+
+export const kHIWindowBackingLocationVideoMemory = /* @__PURE__ */ _bind(
+	FW,
+	'kHIWindowBackingLocationVideoMemory',
+)
+
 export const kHIWindowBehaviorStationary = /* @__PURE__ */ _bind(FW, 'kHIWindowBehaviorStationary')
 export const kHIWindowBehaviorTransient = /* @__PURE__ */ _bind(FW, 'kHIWindowBehaviorTransient')
 export const kHIWindowBitAsyncDrag = /* @__PURE__ */ _bind(FW, 'kHIWindowBitAsyncDrag')
 export const kHIWindowBitAutoCalibration = /* @__PURE__ */ _bind(FW, 'kHIWindowBitAutoCalibration')
-export const kHIWindowBitAutoViewDragTracking = /* @__PURE__ */ _bind(FW, 'kHIWindowBitAutoViewDragTracking')
-export const kHIWindowBitCanBeVisibleWithoutLogin = /* @__PURE__ */ _bind(FW, 'kHIWindowBitCanBeVisibleWithoutLogin')
+export const kHIWindowBitAutoViewDragTracking = /* @__PURE__ */ _bind(
+	FW,
+	'kHIWindowBitAutoViewDragTracking',
+)
+
+export const kHIWindowBitCanBeVisibleWithoutLogin = /* @__PURE__ */ _bind(
+	FW,
+	'kHIWindowBitCanBeVisibleWithoutLogin',
+)
+
 export const kHIWindowBitCloseBox = /* @__PURE__ */ _bind(FW, 'kHIWindowBitCloseBox')
 export const kHIWindowBitCollapseBox = /* @__PURE__ */ _bind(FW, 'kHIWindowBitCollapseBox')
 export const kHIWindowBitCompositing = /* @__PURE__ */ _bind(FW, 'kHIWindowBitCompositing')
 export const kHIWindowBitDoesNotCycle = /* @__PURE__ */ _bind(FW, 'kHIWindowBitDoesNotCycle')
 export const kHIWindowBitDoesNotHide = /* @__PURE__ */ _bind(FW, 'kHIWindowBitDoesNotHide')
 export const kHIWindowBitFrameworkScaled = /* @__PURE__ */ _bind(FW, 'kHIWindowBitFrameworkScaled')
-export const kHIWindowBitFullScreenAuxiliary = /* @__PURE__ */ _bind(FW, 'kHIWindowBitFullScreenAuxiliary')
-export const kHIWindowBitFullScreenPrimary = /* @__PURE__ */ _bind(FW, 'kHIWindowBitFullScreenPrimary')
-export const kHIWindowBitHideOnFullScreen = /* @__PURE__ */ _bind(FW, 'kHIWindowBitHideOnFullScreen')
+export const kHIWindowBitFullScreenAuxiliary = /* @__PURE__ */ _bind(
+	FW,
+	'kHIWindowBitFullScreenAuxiliary',
+)
+
+export const kHIWindowBitFullScreenPrimary = /* @__PURE__ */ _bind(
+	FW,
+	'kHIWindowBitFullScreenPrimary',
+)
+
+export const kHIWindowBitHideOnFullScreen = /* @__PURE__ */ _bind(
+	FW,
+	'kHIWindowBitHideOnFullScreen',
+)
+
 export const kHIWindowBitHideOnSuspend = /* @__PURE__ */ _bind(FW, 'kHIWindowBitHideOnSuspend')
-export const kHIWindowBitHighResolutionCapable = /* @__PURE__ */ _bind(FW, 'kHIWindowBitHighResolutionCapable')
+export const kHIWindowBitHighResolutionCapable = /* @__PURE__ */ _bind(
+	FW,
+	'kHIWindowBitHighResolutionCapable',
+)
+
 export const kHIWindowBitIgnoreClicks = /* @__PURE__ */ _bind(FW, 'kHIWindowBitIgnoreClicks')
 export const kHIWindowBitInWindowMenu = /* @__PURE__ */ _bind(FW, 'kHIWindowBitInWindowMenu')
 export const kHIWindowBitLiveResize = /* @__PURE__ */ _bind(FW, 'kHIWindowBitLiveResize')
 export const kHIWindowBitNoActivates = /* @__PURE__ */ _bind(FW, 'kHIWindowBitNoActivates')
 export const kHIWindowBitNoConstrain = /* @__PURE__ */ _bind(FW, 'kHIWindowBitNoConstrain')
 export const kHIWindowBitNoShadow = /* @__PURE__ */ _bind(FW, 'kHIWindowBitNoShadow')
-export const kHIWindowBitNoTexturedContentSeparator = /* @__PURE__ */ _bind(FW, 'kHIWindowBitNoTexturedContentSeparator')
+export const kHIWindowBitNoTexturedContentSeparator = /* @__PURE__ */ _bind(
+	FW,
+	'kHIWindowBitNoTexturedContentSeparator',
+)
+
 export const kHIWindowBitNoTitleBar = /* @__PURE__ */ _bind(FW, 'kHIWindowBitNoTitleBar')
 export const kHIWindowBitNoUpdates = /* @__PURE__ */ _bind(FW, 'kHIWindowBitNoUpdates')
 export const kHIWindowBitOpaqueForEvents = /* @__PURE__ */ _bind(FW, 'kHIWindowBitOpaqueForEvents')
 export const kHIWindowBitResizable = /* @__PURE__ */ _bind(FW, 'kHIWindowBitResizable')
-export const kHIWindowBitRoundBottomBarCorners = /* @__PURE__ */ _bind(FW, 'kHIWindowBitRoundBottomBarCorners')
+export const kHIWindowBitRoundBottomBarCorners = /* @__PURE__ */ _bind(
+	FW,
+	'kHIWindowBitRoundBottomBarCorners',
+)
+
 export const kHIWindowBitSideTitlebar = /* @__PURE__ */ _bind(FW, 'kHIWindowBitSideTitlebar')
 export const kHIWindowBitStandardHandler = /* @__PURE__ */ _bind(FW, 'kHIWindowBitStandardHandler')
 export const kHIWindowBitTextured = /* @__PURE__ */ _bind(FW, 'kHIWindowBitTextured')
-export const kHIWindowBitTexturedSquareCorners = /* @__PURE__ */ _bind(FW, 'kHIWindowBitTexturedSquareCorners')
+export const kHIWindowBitTexturedSquareCorners = /* @__PURE__ */ _bind(
+	FW,
+	'kHIWindowBitTexturedSquareCorners',
+)
+
 export const kHIWindowBitToolbarButton = /* @__PURE__ */ _bind(FW, 'kHIWindowBitToolbarButton')
-export const kHIWindowBitUnifiedTitleAndToolbar = /* @__PURE__ */ _bind(FW, 'kHIWindowBitUnifiedTitleAndToolbar')
+export const kHIWindowBitUnifiedTitleAndToolbar = /* @__PURE__ */ _bind(
+	FW,
+	'kHIWindowBitUnifiedTitleAndToolbar',
+)
+
 export const kHIWindowBitZoomBox = /* @__PURE__ */ _bind(FW, 'kHIWindowBitZoomBox')
 export const kHIWindowCanJoinAllSpaces = /* @__PURE__ */ _bind(FW, 'kHIWindowCanJoinAllSpaces')
 export const kHIWindowDepth32Bit = /* @__PURE__ */ _bind(FW, 'kHIWindowDepth32Bit')
@@ -3191,11 +6795,19 @@ export const kHIWindowDepthFloat = /* @__PURE__ */ _bind(FW, 'kHIWindowDepthFloa
 export const kHIWindowDepthInvalid = /* @__PURE__ */ _bind(FW, 'kHIWindowDepthInvalid')
 export const kHIWindowDragPart = /* @__PURE__ */ _bind(FW, 'kHIWindowDragPart')
 export const kHIWindowExposeHidden = /* @__PURE__ */ _bind(FW, 'kHIWindowExposeHidden')
-export const kHIWindowIgnoreObscuringWindows = /* @__PURE__ */ _bind(FW, 'kHIWindowIgnoreObscuringWindows')
+export const kHIWindowIgnoreObscuringWindows = /* @__PURE__ */ _bind(
+	FW,
+	'kHIWindowIgnoreObscuringWindows',
+)
+
 export const kHIWindowMenuCreator = /* @__PURE__ */ _bind(FW, 'kHIWindowMenuCreator')
 export const kHIWindowMenuWindowTag = /* @__PURE__ */ _bind(FW, 'kHIWindowMenuWindowTag')
 export const kHIWindowMoveToActiveSpace = /* @__PURE__ */ _bind(FW, 'kHIWindowMoveToActiveSpace')
-export const kHIWindowScaleModeFrameworkScaled = /* @__PURE__ */ _bind(FW, 'kHIWindowScaleModeFrameworkScaled')
+export const kHIWindowScaleModeFrameworkScaled = /* @__PURE__ */ _bind(
+	FW,
+	'kHIWindowScaleModeFrameworkScaled',
+)
+
 export const kHIWindowScaleModeMagnified = /* @__PURE__ */ _bind(FW, 'kHIWindowScaleModeMagnified')
 export const kHIWindowScaleModeUnscaled = /* @__PURE__ */ _bind(FW, 'kHIWindowScaleModeUnscaled')
 export const kHIWindowSharingNone = /* @__PURE__ */ _bind(FW, 'kHIWindowSharingNone')
@@ -3211,15 +6823,27 @@ export const kHMBottomSide = /* @__PURE__ */ _bind(FW, 'kHMBottomSide')
 export const kHMCFStringContent = /* @__PURE__ */ _bind(FW, 'kHMCFStringContent')
 export const kHMCFStringLocalizedContent = /* @__PURE__ */ _bind(FW, 'kHMCFStringLocalizedContent')
 export const kHMContentNotProvided = /* @__PURE__ */ _bind(FW, 'kHMContentNotProvided')
-export const kHMContentNotProvidedDontPropagate = /* @__PURE__ */ _bind(FW, 'kHMContentNotProvidedDontPropagate')
+export const kHMContentNotProvidedDontPropagate = /* @__PURE__ */ _bind(
+	FW,
+	'kHMContentNotProvidedDontPropagate',
+)
+
 export const kHMContentProvided = /* @__PURE__ */ _bind(FW, 'kHMContentProvided')
 export const kHMDefaultSide = /* @__PURE__ */ _bind(FW, 'kHMDefaultSide')
 export const kHMDisposeContent = /* @__PURE__ */ _bind(FW, 'kHMDisposeContent')
 export const kHMHelpMenuID = /* @__PURE__ */ _bind(FW, 'kHMHelpMenuID')
 export const kHMHideTagFade = /* @__PURE__ */ _bind(FW, 'kHMHideTagFade')
 export const kHMHideTagImmediately = /* @__PURE__ */ _bind(FW, 'kHMHideTagImmediately')
-export const kHMIllegalContentForMinimumState = /* @__PURE__ */ _bind(FW, 'kHMIllegalContentForMinimumState')
-export const kHMInsideBottomCenterAligned = /* @__PURE__ */ _bind(FW, 'kHMInsideBottomCenterAligned')
+export const kHMIllegalContentForMinimumState = /* @__PURE__ */ _bind(
+	FW,
+	'kHMIllegalContentForMinimumState',
+)
+
+export const kHMInsideBottomCenterAligned = /* @__PURE__ */ _bind(
+	FW,
+	'kHMInsideBottomCenterAligned',
+)
+
 export const kHMInsideBottomLeftCorner = /* @__PURE__ */ _bind(FW, 'kHMInsideBottomLeftCorner')
 export const kHMInsideBottomRightCorner = /* @__PURE__ */ _bind(FW, 'kHMInsideBottomRightCorner')
 export const kHMInsideLeftCenterAligned = /* @__PURE__ */ _bind(FW, 'kHMInsideLeftCenterAligned')
@@ -3233,15 +6857,35 @@ export const kHMLeftTopCorner = /* @__PURE__ */ _bind(FW, 'kHMLeftTopCorner')
 export const kHMMaximumContentIndex = /* @__PURE__ */ _bind(FW, 'kHMMaximumContentIndex')
 export const kHMMinimumContentIndex = /* @__PURE__ */ _bind(FW, 'kHMMinimumContentIndex')
 export const kHMNoContent = /* @__PURE__ */ _bind(FW, 'kHMNoContent')
-export const kHMOutsideBottomCenterAligned = /* @__PURE__ */ _bind(FW, 'kHMOutsideBottomCenterAligned')
+export const kHMOutsideBottomCenterAligned = /* @__PURE__ */ _bind(
+	FW,
+	'kHMOutsideBottomCenterAligned',
+)
+
 export const kHMOutsideBottomLeftAligned = /* @__PURE__ */ _bind(FW, 'kHMOutsideBottomLeftAligned')
-export const kHMOutsideBottomRightAligned = /* @__PURE__ */ _bind(FW, 'kHMOutsideBottomRightAligned')
-export const kHMOutsideBottomScriptAligned = /* @__PURE__ */ _bind(FW, 'kHMOutsideBottomScriptAligned')
+export const kHMOutsideBottomRightAligned = /* @__PURE__ */ _bind(
+	FW,
+	'kHMOutsideBottomRightAligned',
+)
+
+export const kHMOutsideBottomScriptAligned = /* @__PURE__ */ _bind(
+	FW,
+	'kHMOutsideBottomScriptAligned',
+)
+
 export const kHMOutsideLeftBottomAligned = /* @__PURE__ */ _bind(FW, 'kHMOutsideLeftBottomAligned')
 export const kHMOutsideLeftCenterAligned = /* @__PURE__ */ _bind(FW, 'kHMOutsideLeftCenterAligned')
 export const kHMOutsideLeftTopAligned = /* @__PURE__ */ _bind(FW, 'kHMOutsideLeftTopAligned')
-export const kHMOutsideRightBottomAligned = /* @__PURE__ */ _bind(FW, 'kHMOutsideRightBottomAligned')
-export const kHMOutsideRightCenterAligned = /* @__PURE__ */ _bind(FW, 'kHMOutsideRightCenterAligned')
+export const kHMOutsideRightBottomAligned = /* @__PURE__ */ _bind(
+	FW,
+	'kHMOutsideRightBottomAligned',
+)
+
+export const kHMOutsideRightCenterAligned = /* @__PURE__ */ _bind(
+	FW,
+	'kHMOutsideRightCenterAligned',
+)
+
 export const kHMOutsideRightTopAligned = /* @__PURE__ */ _bind(FW, 'kHMOutsideRightTopAligned')
 export const kHMOutsideTopCenterAligned = /* @__PURE__ */ _bind(FW, 'kHMOutsideTopCenterAligned')
 export const kHMOutsideTopLeftAligned = /* @__PURE__ */ _bind(FW, 'kHMOutsideTopLeftAligned')
@@ -3266,9 +6910,21 @@ export const kHelpWindowClass = /* @__PURE__ */ _bind(FW, 'kHelpWindowClass')
 export const kHierarchicalFontMenuOption = /* @__PURE__ */ _bind(FW, 'kHierarchicalFontMenuOption')
 export const kHighLevelEvent = /* @__PURE__ */ _bind(FW, 'kHighLevelEvent')
 export const kHomeCharCode = /* @__PURE__ */ _bind(FW, 'kHomeCharCode')
-export const kIBCarbonRuntimeCantFindNibFile = /* @__PURE__ */ _bind(FW, 'kIBCarbonRuntimeCantFindNibFile')
-export const kIBCarbonRuntimeCantFindObject = /* @__PURE__ */ _bind(FW, 'kIBCarbonRuntimeCantFindObject')
-export const kIBCarbonRuntimeObjectNotOfRequestedType = /* @__PURE__ */ _bind(FW, 'kIBCarbonRuntimeObjectNotOfRequestedType')
+export const kIBCarbonRuntimeCantFindNibFile = /* @__PURE__ */ _bind(
+	FW,
+	'kIBCarbonRuntimeCantFindNibFile',
+)
+
+export const kIBCarbonRuntimeCantFindObject = /* @__PURE__ */ _bind(
+	FW,
+	'kIBCarbonRuntimeCantFindObject',
+)
+
+export const kIBCarbonRuntimeObjectNotOfRequestedType = /* @__PURE__ */ _bind(
+	FW,
+	'kIBCarbonRuntimeObjectNotOfRequestedType',
+)
+
 export const kIMJaTypingMethodKana = /* @__PURE__ */ _bind(FW, 'kIMJaTypingMethodKana')
 export const kIMJaTypingMethodProperty = /* @__PURE__ */ _bind(FW, 'kIMJaTypingMethodProperty')
 export const kIMJaTypingMethodRoman = /* @__PURE__ */ _bind(FW, 'kIMJaTypingMethodRoman')
@@ -3308,7 +6964,11 @@ export const kMenuAppleLogoOutlineGlyph = /* @__PURE__ */ _bind(FW, 'kMenuAppleL
 export const kMenuAttrAutoDisable = /* @__PURE__ */ _bind(FW, 'kMenuAttrAutoDisable')
 export const kMenuAttrCondenseSeparators = /* @__PURE__ */ _bind(FW, 'kMenuAttrCondenseSeparators')
 export const kMenuAttrDoNotCacheImage = /* @__PURE__ */ _bind(FW, 'kMenuAttrDoNotCacheImage')
-export const kMenuAttrDoNotUseUserCommandKeys = /* @__PURE__ */ _bind(FW, 'kMenuAttrDoNotUseUserCommandKeys')
+export const kMenuAttrDoNotUseUserCommandKeys = /* @__PURE__ */ _bind(
+	FW,
+	'kMenuAttrDoNotUseUserCommandKeys',
+)
+
 export const kMenuAttrExcludesMarkColumn = /* @__PURE__ */ _bind(FW, 'kMenuAttrExcludesMarkColumn')
 export const kMenuAttrHidden = /* @__PURE__ */ _bind(FW, 'kMenuAttrHidden')
 export const kMenuAttrUsePencilGlyph = /* @__PURE__ */ _bind(FW, 'kMenuAttrUsePencilGlyph')
@@ -3322,7 +6982,11 @@ export const kMenuColorIconType = /* @__PURE__ */ _bind(FW, 'kMenuColorIconType'
 export const kMenuCommandGlyph = /* @__PURE__ */ _bind(FW, 'kMenuCommandGlyph')
 export const kMenuContextCommandIDSearch = /* @__PURE__ */ _bind(FW, 'kMenuContextCommandIDSearch')
 export const kMenuContextContextualMenu = /* @__PURE__ */ _bind(FW, 'kMenuContextContextualMenu')
-export const kMenuContextDontUpdateEnabled = /* @__PURE__ */ _bind(FW, 'kMenuContextDontUpdateEnabled')
+export const kMenuContextDontUpdateEnabled = /* @__PURE__ */ _bind(
+	FW,
+	'kMenuContextDontUpdateEnabled',
+)
+
 export const kMenuContextDontUpdateIcon = /* @__PURE__ */ _bind(FW, 'kMenuContextDontUpdateIcon')
 export const kMenuContextDontUpdateKey = /* @__PURE__ */ _bind(FW, 'kMenuContextDontUpdateKey')
 export const kMenuContextDontUpdateText = /* @__PURE__ */ _bind(FW, 'kMenuContextDontUpdateText')
@@ -3346,7 +7010,11 @@ export const kMenuDeleteRightGlyph = /* @__PURE__ */ _bind(FW, 'kMenuDeleteRight
 export const kMenuDiamondGlyph = /* @__PURE__ */ _bind(FW, 'kMenuDiamondGlyph')
 export const kMenuDisposeMsg = /* @__PURE__ */ _bind(FW, 'kMenuDisposeMsg')
 export const kMenuDownArrowGlyph = /* @__PURE__ */ _bind(FW, 'kMenuDownArrowGlyph')
-export const kMenuDownwardArrowDashedGlyph = /* @__PURE__ */ _bind(FW, 'kMenuDownwardArrowDashedGlyph')
+export const kMenuDownwardArrowDashedGlyph = /* @__PURE__ */ _bind(
+	FW,
+	'kMenuDownwardArrowDashedGlyph',
+)
+
 export const kMenuDrawItemsMsg = /* @__PURE__ */ _bind(FW, 'kMenuDrawItemsMsg')
 export const kMenuDrawMsg = /* @__PURE__ */ _bind(FW, 'kMenuDrawMsg')
 export const kMenuEisuGlyph = /* @__PURE__ */ _bind(FW, 'kMenuEisuGlyph')
@@ -3354,7 +7022,11 @@ export const kMenuEjectGlyph = /* @__PURE__ */ _bind(FW, 'kMenuEjectGlyph')
 export const kMenuEnterGlyph = /* @__PURE__ */ _bind(FW, 'kMenuEnterGlyph')
 export const kMenuEscapeGlyph = /* @__PURE__ */ _bind(FW, 'kMenuEscapeGlyph')
 export const kMenuEventDontCheckSubmenus = /* @__PURE__ */ _bind(FW, 'kMenuEventDontCheckSubmenus')
-export const kMenuEventIncludeDisabledItems = /* @__PURE__ */ _bind(FW, 'kMenuEventIncludeDisabledItems')
+export const kMenuEventIncludeDisabledItems = /* @__PURE__ */ _bind(
+	FW,
+	'kMenuEventIncludeDisabledItems',
+)
+
 export const kMenuEventQueryOnly = /* @__PURE__ */ _bind(FW, 'kMenuEventQueryOnly')
 export const kMenuF10Glyph = /* @__PURE__ */ _bind(FW, 'kMenuF10Glyph')
 export const kMenuF11Glyph = /* @__PURE__ */ _bind(FW, 'kMenuF11Glyph')
@@ -3391,22 +7063,54 @@ export const kMenuItemAttrDynamic = /* @__PURE__ */ _bind(FW, 'kMenuItemAttrDyna
 export const kMenuItemAttrHidden = /* @__PURE__ */ _bind(FW, 'kMenuItemAttrHidden')
 export const kMenuItemAttrIconDisabled = /* @__PURE__ */ _bind(FW, 'kMenuItemAttrIconDisabled')
 export const kMenuItemAttrIgnoreMeta = /* @__PURE__ */ _bind(FW, 'kMenuItemAttrIgnoreMeta')
-export const kMenuItemAttrIncludeInCmdKeyMatching = /* @__PURE__ */ _bind(FW, 'kMenuItemAttrIncludeInCmdKeyMatching')
-export const kMenuItemAttrNotPreviousAlternate = /* @__PURE__ */ _bind(FW, 'kMenuItemAttrNotPreviousAlternate')
+export const kMenuItemAttrIncludeInCmdKeyMatching = /* @__PURE__ */ _bind(
+	FW,
+	'kMenuItemAttrIncludeInCmdKeyMatching',
+)
+
+export const kMenuItemAttrNotPreviousAlternate = /* @__PURE__ */ _bind(
+	FW,
+	'kMenuItemAttrNotPreviousAlternate',
+)
+
 export const kMenuItemAttrSectionHeader = /* @__PURE__ */ _bind(FW, 'kMenuItemAttrSectionHeader')
 export const kMenuItemAttrSeparator = /* @__PURE__ */ _bind(FW, 'kMenuItemAttrSeparator')
-export const kMenuItemAttrSubmenuParentChoosable = /* @__PURE__ */ _bind(FW, 'kMenuItemAttrSubmenuParentChoosable')
-export const kMenuItemAttrUpdateSingleItem = /* @__PURE__ */ _bind(FW, 'kMenuItemAttrUpdateSingleItem')
+export const kMenuItemAttrSubmenuParentChoosable = /* @__PURE__ */ _bind(
+	FW,
+	'kMenuItemAttrSubmenuParentChoosable',
+)
+
+export const kMenuItemAttrUpdateSingleItem = /* @__PURE__ */ _bind(
+	FW,
+	'kMenuItemAttrUpdateSingleItem',
+)
+
 export const kMenuItemAttrUseVirtualKey = /* @__PURE__ */ _bind(FW, 'kMenuItemAttrUseVirtualKey')
-export const kMenuItemDataAllDataVersionOne = /* @__PURE__ */ _bind(FW, 'kMenuItemDataAllDataVersionOne')
-export const kMenuItemDataAllDataVersionThree = /* @__PURE__ */ _bind(FW, 'kMenuItemDataAllDataVersionThree')
-export const kMenuItemDataAllDataVersionTwo = /* @__PURE__ */ _bind(FW, 'kMenuItemDataAllDataVersionTwo')
+export const kMenuItemDataAllDataVersionOne = /* @__PURE__ */ _bind(
+	FW,
+	'kMenuItemDataAllDataVersionOne',
+)
+
+export const kMenuItemDataAllDataVersionThree = /* @__PURE__ */ _bind(
+	FW,
+	'kMenuItemDataAllDataVersionThree',
+)
+
+export const kMenuItemDataAllDataVersionTwo = /* @__PURE__ */ _bind(
+	FW,
+	'kMenuItemDataAllDataVersionTwo',
+)
+
 export const kMenuItemDataAttributedText = /* @__PURE__ */ _bind(FW, 'kMenuItemDataAttributedText')
 export const kMenuItemDataAttributes = /* @__PURE__ */ _bind(FW, 'kMenuItemDataAttributes')
 export const kMenuItemDataCFString = /* @__PURE__ */ _bind(FW, 'kMenuItemDataCFString')
 export const kMenuItemDataCmdKey = /* @__PURE__ */ _bind(FW, 'kMenuItemDataCmdKey')
 export const kMenuItemDataCmdKeyGlyph = /* @__PURE__ */ _bind(FW, 'kMenuItemDataCmdKeyGlyph')
-export const kMenuItemDataCmdKeyModifiers = /* @__PURE__ */ _bind(FW, 'kMenuItemDataCmdKeyModifiers')
+export const kMenuItemDataCmdKeyModifiers = /* @__PURE__ */ _bind(
+	FW,
+	'kMenuItemDataCmdKeyModifiers',
+)
+
 export const kMenuItemDataCmdVirtualKey = /* @__PURE__ */ _bind(FW, 'kMenuItemDataCmdVirtualKey')
 export const kMenuItemDataCommandID = /* @__PURE__ */ _bind(FW, 'kMenuItemDataCommandID')
 export const kMenuItemDataEnabled = /* @__PURE__ */ _bind(FW, 'kMenuItemDataEnabled')
@@ -3427,7 +7131,11 @@ export const kMenuItemDataTextEncoding = /* @__PURE__ */ _bind(FW, 'kMenuItemDat
 export const kMenuKanaGlyph = /* @__PURE__ */ _bind(FW, 'kMenuKanaGlyph')
 export const kMenuLeftArrowDashedGlyph = /* @__PURE__ */ _bind(FW, 'kMenuLeftArrowDashedGlyph')
 export const kMenuLeftArrowGlyph = /* @__PURE__ */ _bind(FW, 'kMenuLeftArrowGlyph')
-export const kMenuLeftDoubleQuotesJapaneseGlyph = /* @__PURE__ */ _bind(FW, 'kMenuLeftDoubleQuotesJapaneseGlyph')
+export const kMenuLeftDoubleQuotesJapaneseGlyph = /* @__PURE__ */ _bind(
+	FW,
+	'kMenuLeftDoubleQuotesJapaneseGlyph',
+)
+
 export const kMenuNoCommandModifier = /* @__PURE__ */ _bind(FW, 'kMenuNoCommandModifier')
 export const kMenuNoIcon = /* @__PURE__ */ _bind(FW, 'kMenuNoIcon')
 export const kMenuNoModifiers = /* @__PURE__ */ _bind(FW, 'kMenuNoModifiers')
@@ -3447,7 +7155,11 @@ export const kMenuReturnGlyph = /* @__PURE__ */ _bind(FW, 'kMenuReturnGlyph')
 export const kMenuReturnR2LGlyph = /* @__PURE__ */ _bind(FW, 'kMenuReturnR2LGlyph')
 export const kMenuRightArrowDashedGlyph = /* @__PURE__ */ _bind(FW, 'kMenuRightArrowDashedGlyph')
 export const kMenuRightArrowGlyph = /* @__PURE__ */ _bind(FW, 'kMenuRightArrowGlyph')
-export const kMenuRightDoubleQuotesJapaneseGlyph = /* @__PURE__ */ _bind(FW, 'kMenuRightDoubleQuotesJapaneseGlyph')
+export const kMenuRightDoubleQuotesJapaneseGlyph = /* @__PURE__ */ _bind(
+	FW,
+	'kMenuRightDoubleQuotesJapaneseGlyph',
+)
+
 export const kMenuShiftGlyph = /* @__PURE__ */ _bind(FW, 'kMenuShiftGlyph')
 export const kMenuShiftModifier = /* @__PURE__ */ _bind(FW, 'kMenuShiftModifier')
 export const kMenuShrinkIconType = /* @__PURE__ */ _bind(FW, 'kMenuShrinkIconType')
@@ -3473,7 +7185,11 @@ export const kMouseParamsDragInitiation = /* @__PURE__ */ _bind(FW, 'kMouseParam
 export const kMouseParamsProxyIcon = /* @__PURE__ */ _bind(FW, 'kMouseParamsProxyIcon')
 export const kMouseParamsSticky = /* @__PURE__ */ _bind(FW, 'kMouseParamsSticky')
 export const kMouseTrackingClientEvent = /* @__PURE__ */ _bind(FW, 'kMouseTrackingClientEvent')
-export const kMouseTrackingKeyModifiersChanged = /* @__PURE__ */ _bind(FW, 'kMouseTrackingKeyModifiersChanged')
+export const kMouseTrackingKeyModifiersChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kMouseTrackingKeyModifiersChanged',
+)
+
 export const kMouseTrackingMouseDown = /* @__PURE__ */ _bind(FW, 'kMouseTrackingMouseDown')
 export const kMouseTrackingMouseDragged = /* @__PURE__ */ _bind(FW, 'kMouseTrackingMouseDragged')
 export const kMouseTrackingMouseEntered = /* @__PURE__ */ _bind(FW, 'kMouseTrackingMouseEntered')
@@ -3488,7 +7204,11 @@ export const kMouseTrackingUserCancelled = /* @__PURE__ */ _bind(FW, 'kMouseTrac
 export const kMouseUpOutOfSlop = /* @__PURE__ */ _bind(FW, 'kMouseUpOutOfSlop')
 export const kMovableAlertVariantCode = /* @__PURE__ */ _bind(FW, 'kMovableAlertVariantCode')
 export const kMovableAlertWindowClass = /* @__PURE__ */ _bind(FW, 'kMovableAlertWindowClass')
-export const kMovableModalDialogVariantCode = /* @__PURE__ */ _bind(FW, 'kMovableModalDialogVariantCode')
+export const kMovableModalDialogVariantCode = /* @__PURE__ */ _bind(
+	FW,
+	'kMovableModalDialogVariantCode',
+)
+
 export const kMovableModalWindowClass = /* @__PURE__ */ _bind(FW, 'kMovableModalWindowClass')
 export const kNeutralScript = /* @__PURE__ */ _bind(FW, 'kNeutralScript')
 export const kNextWindowGroup = /* @__PURE__ */ _bind(FW, 'kNextWindowGroup')
@@ -3510,20 +7230,36 @@ export const kOSAErrorOffendingObject = /* @__PURE__ */ _bind(FW, 'kOSAErrorOffe
 export const kOSAErrorPartialResult = /* @__PURE__ */ _bind(FW, 'kOSAErrorPartialResult')
 export const kOSAErrorRange = /* @__PURE__ */ _bind(FW, 'kOSAErrorRange')
 export const kOSAFileType = /* @__PURE__ */ _bind(FW, 'kOSAFileType')
-export const kOSAGenericScriptingComponentSubtype = /* @__PURE__ */ _bind(FW, 'kOSAGenericScriptingComponentSubtype')
+export const kOSAGenericScriptingComponentSubtype = /* @__PURE__ */ _bind(
+	FW,
+	'kOSAGenericScriptingComponentSubtype',
+)
+
 export const kOSAModeAlwaysInteract = /* @__PURE__ */ _bind(FW, 'kOSAModeAlwaysInteract')
 export const kOSAModeAugmentContext = /* @__PURE__ */ _bind(FW, 'kOSAModeAugmentContext')
 export const kOSAModeCanInteract = /* @__PURE__ */ _bind(FW, 'kOSAModeCanInteract')
 export const kOSAModeCantSwitchLayer = /* @__PURE__ */ _bind(FW, 'kOSAModeCantSwitchLayer')
 export const kOSAModeCompileIntoContext = /* @__PURE__ */ _bind(FW, 'kOSAModeCompileIntoContext')
-export const kOSAModeDispatchToDirectObject = /* @__PURE__ */ _bind(FW, 'kOSAModeDispatchToDirectObject')
+export const kOSAModeDispatchToDirectObject = /* @__PURE__ */ _bind(
+	FW,
+	'kOSAModeDispatchToDirectObject',
+)
+
 export const kOSAModeDisplayForHumans = /* @__PURE__ */ _bind(FW, 'kOSAModeDisplayForHumans')
 export const kOSAModeDoRecord = /* @__PURE__ */ _bind(FW, 'kOSAModeDoRecord')
 export const kOSAModeDontDefine = /* @__PURE__ */ _bind(FW, 'kOSAModeDontDefine')
-export const kOSAModeDontGetDataForArguments = /* @__PURE__ */ _bind(FW, 'kOSAModeDontGetDataForArguments')
+export const kOSAModeDontGetDataForArguments = /* @__PURE__ */ _bind(
+	FW,
+	'kOSAModeDontGetDataForArguments',
+)
+
 export const kOSAModeDontReconnect = /* @__PURE__ */ _bind(FW, 'kOSAModeDontReconnect')
 export const kOSAModeDontStoreParent = /* @__PURE__ */ _bind(FW, 'kOSAModeDontStoreParent')
-export const kOSAModeFullyQualifyDescriptors = /* @__PURE__ */ _bind(FW, 'kOSAModeFullyQualifyDescriptors')
+export const kOSAModeFullyQualifyDescriptors = /* @__PURE__ */ _bind(
+	FW,
+	'kOSAModeFullyQualifyDescriptors',
+)
+
 export const kOSAModeNeverInteract = /* @__PURE__ */ _bind(FW, 'kOSAModeNeverInteract')
 export const kOSAModeNull = /* @__PURE__ */ _bind(FW, 'kOSAModeNull')
 export const kOSAModePreventGetSource = /* @__PURE__ */ _bind(FW, 'kOSAModePreventGetSource')
@@ -3533,17 +7269,33 @@ export const kOSANullScript = /* @__PURE__ */ _bind(FW, 'kOSANullScript')
 export const kOSARecordedText = /* @__PURE__ */ _bind(FW, 'kOSARecordedText')
 export const kOSAScriptBestType = /* @__PURE__ */ _bind(FW, 'kOSAScriptBestType')
 export const kOSAScriptIsModified = /* @__PURE__ */ _bind(FW, 'kOSAScriptIsModified')
-export const kOSAScriptIsTypeCompiledScript = /* @__PURE__ */ _bind(FW, 'kOSAScriptIsTypeCompiledScript')
-export const kOSAScriptIsTypeScriptContext = /* @__PURE__ */ _bind(FW, 'kOSAScriptIsTypeScriptContext')
+export const kOSAScriptIsTypeCompiledScript = /* @__PURE__ */ _bind(
+	FW,
+	'kOSAScriptIsTypeCompiledScript',
+)
+
+export const kOSAScriptIsTypeScriptContext = /* @__PURE__ */ _bind(
+	FW,
+	'kOSAScriptIsTypeScriptContext',
+)
+
 export const kOSAScriptIsTypeScriptValue = /* @__PURE__ */ _bind(FW, 'kOSAScriptIsTypeScriptValue')
 export const kOSAScriptResourceType = /* @__PURE__ */ _bind(FW, 'kOSAScriptResourceType')
-export const kOSASelectAvailableDialectCodeList = /* @__PURE__ */ _bind(FW, 'kOSASelectAvailableDialectCodeList')
+export const kOSASelectAvailableDialectCodeList = /* @__PURE__ */ _bind(
+	FW,
+	'kOSASelectAvailableDialectCodeList',
+)
+
 export const kOSASelectAvailableDialects = /* @__PURE__ */ _bind(FW, 'kOSASelectAvailableDialects')
 export const kOSASelectCoerceFromDesc = /* @__PURE__ */ _bind(FW, 'kOSASelectCoerceFromDesc')
 export const kOSASelectCoerceToDesc = /* @__PURE__ */ _bind(FW, 'kOSASelectCoerceToDesc')
 export const kOSASelectCompile = /* @__PURE__ */ _bind(FW, 'kOSASelectCompile')
 export const kOSASelectCompileExecute = /* @__PURE__ */ _bind(FW, 'kOSASelectCompileExecute')
-export const kOSASelectComponentSpecificStart = /* @__PURE__ */ _bind(FW, 'kOSASelectComponentSpecificStart')
+export const kOSASelectComponentSpecificStart = /* @__PURE__ */ _bind(
+	FW,
+	'kOSASelectComponentSpecificStart',
+)
+
 export const kOSASelectCopyDisplayString = /* @__PURE__ */ _bind(FW, 'kOSASelectCopyDisplayString')
 export const kOSASelectCopyID = /* @__PURE__ */ _bind(FW, 'kOSASelectCopyID')
 export const kOSASelectCopyScript = /* @__PURE__ */ _bind(FW, 'kOSASelectCopyScript')
@@ -3558,7 +7310,11 @@ export const kOSASelectGetActiveProc = /* @__PURE__ */ _bind(FW, 'kOSASelectGetA
 export const kOSASelectGetCreateProc = /* @__PURE__ */ _bind(FW, 'kOSASelectGetCreateProc')
 export const kOSASelectGetCurrentDialect = /* @__PURE__ */ _bind(FW, 'kOSASelectGetCurrentDialect')
 export const kOSASelectGetDialectInfo = /* @__PURE__ */ _bind(FW, 'kOSASelectGetDialectInfo')
-export const kOSASelectGetResumeDispatchProc = /* @__PURE__ */ _bind(FW, 'kOSASelectGetResumeDispatchProc')
+export const kOSASelectGetResumeDispatchProc = /* @__PURE__ */ _bind(
+	FW,
+	'kOSASelectGetResumeDispatchProc',
+)
+
 export const kOSASelectGetScriptInfo = /* @__PURE__ */ _bind(FW, 'kOSASelectGetScriptInfo')
 export const kOSASelectGetSendProc = /* @__PURE__ */ _bind(FW, 'kOSASelectGetSendProc')
 export const kOSASelectGetSource = /* @__PURE__ */ _bind(FW, 'kOSASelectGetSource')
@@ -3566,12 +7322,20 @@ export const kOSASelectLoad = /* @__PURE__ */ _bind(FW, 'kOSASelectLoad')
 export const kOSASelectLoadExecute = /* @__PURE__ */ _bind(FW, 'kOSASelectLoadExecute')
 export const kOSASelectMakeContext = /* @__PURE__ */ _bind(FW, 'kOSASelectMakeContext')
 export const kOSASelectScriptError = /* @__PURE__ */ _bind(FW, 'kOSASelectScriptError')
-export const kOSASelectScriptingComponentName = /* @__PURE__ */ _bind(FW, 'kOSASelectScriptingComponentName')
+export const kOSASelectScriptingComponentName = /* @__PURE__ */ _bind(
+	FW,
+	'kOSASelectScriptingComponentName',
+)
+
 export const kOSASelectSetActiveProc = /* @__PURE__ */ _bind(FW, 'kOSASelectSetActiveProc')
 export const kOSASelectSetCreateProc = /* @__PURE__ */ _bind(FW, 'kOSASelectSetCreateProc')
 export const kOSASelectSetCurrentDialect = /* @__PURE__ */ _bind(FW, 'kOSASelectSetCurrentDialect')
 export const kOSASelectSetDefaultTarget = /* @__PURE__ */ _bind(FW, 'kOSASelectSetDefaultTarget')
-export const kOSASelectSetResumeDispatchProc = /* @__PURE__ */ _bind(FW, 'kOSASelectSetResumeDispatchProc')
+export const kOSASelectSetResumeDispatchProc = /* @__PURE__ */ _bind(
+	FW,
+	'kOSASelectSetResumeDispatchProc',
+)
+
 export const kOSASelectSetScriptInfo = /* @__PURE__ */ _bind(FW, 'kOSASelectSetScriptInfo')
 export const kOSASelectSetSendProc = /* @__PURE__ */ _bind(FW, 'kOSASelectSetSendProc')
 export const kOSASelectStartRecording = /* @__PURE__ */ _bind(FW, 'kOSASelectStartRecording')
@@ -3588,8 +7352,16 @@ export const kOSASupportsGetSource = /* @__PURE__ */ _bind(FW, 'kOSASupportsGetS
 export const kOSASupportsRecording = /* @__PURE__ */ _bind(FW, 'kOSASupportsRecording')
 export const kOSAUseStandardDispatch = /* @__PURE__ */ _bind(FW, 'kOSAUseStandardDispatch')
 export const kOptionUnicode = /* @__PURE__ */ _bind(FW, 'kOptionUnicode')
-export const kOutputTextInUnicodeEncodingBit = /* @__PURE__ */ _bind(FW, 'kOutputTextInUnicodeEncodingBit')
-export const kOutputTextInUnicodeEncodingMask = /* @__PURE__ */ _bind(FW, 'kOutputTextInUnicodeEncodingMask')
+export const kOutputTextInUnicodeEncodingBit = /* @__PURE__ */ _bind(
+	FW,
+	'kOutputTextInUnicodeEncodingBit',
+)
+
+export const kOutputTextInUnicodeEncodingMask = /* @__PURE__ */ _bind(
+	FW,
+	'kOutputTextInUnicodeEncodingMask',
+)
+
 export const kOverlayWindowClass = /* @__PURE__ */ _bind(FW, 'kOverlayWindowClass')
 export const kPageDownCharCode = /* @__PURE__ */ _bind(FW, 'kPageDownCharCode')
 export const kPageUpCharCode = /* @__PURE__ */ _bind(FW, 'kPageUpCharCode')
@@ -3624,15 +7396,27 @@ export const kSRCantSetDuringRecognition = /* @__PURE__ */ _bind(FW, 'kSRCantSet
 export const kSRCantSetProperty = /* @__PURE__ */ _bind(FW, 'kSRCantSetProperty')
 export const kSRCleanupOnClientExit = /* @__PURE__ */ _bind(FW, 'kSRCleanupOnClientExit')
 export const kSRComponentNotFound = /* @__PURE__ */ _bind(FW, 'kSRComponentNotFound')
-export const kSRDefaultRecognitionSystemID = /* @__PURE__ */ _bind(FW, 'kSRDefaultRecognitionSystemID')
+export const kSRDefaultRecognitionSystemID = /* @__PURE__ */ _bind(
+	FW,
+	'kSRDefaultRecognitionSystemID',
+)
+
 export const kSRDefaultRejectionLevel = /* @__PURE__ */ _bind(FW, 'kSRDefaultRejectionLevel')
 export const kSRDefaultSpeechSource = /* @__PURE__ */ _bind(FW, 'kSRDefaultSpeechSource')
 export const kSREnabled = /* @__PURE__ */ _bind(FW, 'kSREnabled')
 export const kSRExpansionTooDeep = /* @__PURE__ */ _bind(FW, 'kSRExpansionTooDeep')
-export const kSRFeedbackAndListeningModes = /* @__PURE__ */ _bind(FW, 'kSRFeedbackAndListeningModes')
+export const kSRFeedbackAndListeningModes = /* @__PURE__ */ _bind(
+	FW,
+	'kSRFeedbackAndListeningModes',
+)
+
 export const kSRFeedbackNotAvail = /* @__PURE__ */ _bind(FW, 'kSRFeedbackNotAvail')
 export const kSRForegroundOnly = /* @__PURE__ */ _bind(FW, 'kSRForegroundOnly')
-export const kSRHasFeedbackHasListenModes = /* @__PURE__ */ _bind(FW, 'kSRHasFeedbackHasListenModes')
+export const kSRHasFeedbackHasListenModes = /* @__PURE__ */ _bind(
+	FW,
+	'kSRHasFeedbackHasListenModes',
+)
+
 export const kSRHasNoSubItems = /* @__PURE__ */ _bind(FW, 'kSRHasNoSubItems')
 export const kSRIdleRecognizer = /* @__PURE__ */ _bind(FW, 'kSRIdleRecognizer')
 export const kSRInternalError = /* @__PURE__ */ _bind(FW, 'kSRInternalError')
@@ -3659,7 +7443,11 @@ export const kSRNotFinishedWithRejection = /* @__PURE__ */ _bind(FW, 'kSRNotFini
 export const kSRNotImplementedYet = /* @__PURE__ */ _bind(FW, 'kSRNotImplementedYet')
 export const kSRNotListeningState = /* @__PURE__ */ _bind(FW, 'kSRNotListeningState')
 export const kSRNotificationParam = /* @__PURE__ */ _bind(FW, 'kSRNotificationParam')
-export const kSRNotifyRecognitionBeginning = /* @__PURE__ */ _bind(FW, 'kSRNotifyRecognitionBeginning')
+export const kSRNotifyRecognitionBeginning = /* @__PURE__ */ _bind(
+	FW,
+	'kSRNotifyRecognitionBeginning',
+)
+
 export const kSRNotifyRecognitionDone = /* @__PURE__ */ _bind(FW, 'kSRNotifyRecognitionDone')
 export const kSROptional = /* @__PURE__ */ _bind(FW, 'kSROptional')
 export const kSROtherRecAlreadyModal = /* @__PURE__ */ _bind(FW, 'kSROtherRecAlreadyModal')
@@ -3705,14 +7493,26 @@ export const kScrapFlavorTypePicture = /* @__PURE__ */ _bind(FW, 'kScrapFlavorTy
 export const kScrapFlavorTypeSound = /* @__PURE__ */ _bind(FW, 'kScrapFlavorTypeSound')
 export const kScrapFlavorTypeText = /* @__PURE__ */ _bind(FW, 'kScrapFlavorTypeText')
 export const kScrapFlavorTypeTextStyle = /* @__PURE__ */ _bind(FW, 'kScrapFlavorTypeTextStyle')
-export const kScrapFlavorTypeUTF16External = /* @__PURE__ */ _bind(FW, 'kScrapFlavorTypeUTF16External')
+export const kScrapFlavorTypeUTF16External = /* @__PURE__ */ _bind(
+	FW,
+	'kScrapFlavorTypeUTF16External',
+)
+
 export const kScrapFlavorTypeUnicode = /* @__PURE__ */ _bind(FW, 'kScrapFlavorTypeUnicode')
-export const kScrapFlavorTypeUnicodeStyle = /* @__PURE__ */ _bind(FW, 'kScrapFlavorTypeUnicodeStyle')
+export const kScrapFlavorTypeUnicodeStyle = /* @__PURE__ */ _bind(
+	FW,
+	'kScrapFlavorTypeUnicodeStyle',
+)
+
 export const kScrapGetNamedScrap = /* @__PURE__ */ _bind(FW, 'kScrapGetNamedScrap')
 export const kScrapReservedFlavorType = /* @__PURE__ */ _bind(FW, 'kScrapReservedFlavorType')
 export const kScrollBarsAlwaysActive = /* @__PURE__ */ _bind(FW, 'kScrollBarsAlwaysActive')
 export const kScrollBarsSyncWithFocus = /* @__PURE__ */ _bind(FW, 'kScrollBarsSyncWithFocus')
-export const kScrollWindowEraseToPortBackground = /* @__PURE__ */ _bind(FW, 'kScrollWindowEraseToPortBackground')
+export const kScrollWindowEraseToPortBackground = /* @__PURE__ */ _bind(
+	FW,
+	'kScrollWindowEraseToPortBackground',
+)
+
 export const kScrollWindowInvalidate = /* @__PURE__ */ _bind(FW, 'kScrollWindowInvalidate')
 export const kScrollWindowNoOptions = /* @__PURE__ */ _bind(FW, 'kScrollWindowNoOptions')
 export const kShadowDialogVariantCode = /* @__PURE__ */ _bind(FW, 'kShadowDialogVariantCode')
@@ -3725,9 +7525,21 @@ export const kSpaceCharCode = /* @__PURE__ */ _bind(FW, 'kSpaceCharCode')
 export const kSpeechInputMethodClass = /* @__PURE__ */ _bind(FW, 'kSpeechInputMethodClass')
 export const kStandardWindowDefinition = /* @__PURE__ */ _bind(FW, 'kStandardWindowDefinition')
 export const kStaticTextDialogItem = /* @__PURE__ */ _bind(FW, 'kStaticTextDialogItem')
-export const kStdAlertDoNotAnimateOnCancel = /* @__PURE__ */ _bind(FW, 'kStdAlertDoNotAnimateOnCancel')
-export const kStdAlertDoNotAnimateOnDefault = /* @__PURE__ */ _bind(FW, 'kStdAlertDoNotAnimateOnDefault')
-export const kStdAlertDoNotAnimateOnOther = /* @__PURE__ */ _bind(FW, 'kStdAlertDoNotAnimateOnOther')
+export const kStdAlertDoNotAnimateOnCancel = /* @__PURE__ */ _bind(
+	FW,
+	'kStdAlertDoNotAnimateOnCancel',
+)
+
+export const kStdAlertDoNotAnimateOnDefault = /* @__PURE__ */ _bind(
+	FW,
+	'kStdAlertDoNotAnimateOnDefault',
+)
+
+export const kStdAlertDoNotAnimateOnOther = /* @__PURE__ */ _bind(
+	FW,
+	'kStdAlertDoNotAnimateOnOther',
+)
+
 export const kStdAlertDoNotCloseOnHelp = /* @__PURE__ */ _bind(FW, 'kStdAlertDoNotCloseOnHelp')
 export const kStdAlertDoNotDisposeSheet = /* @__PURE__ */ _bind(FW, 'kStdAlertDoNotDisposeSheet')
 export const kStdCFStringAlertVersionOne = /* @__PURE__ */ _bind(FW, 'kStdCFStringAlertVersionOne')
@@ -3735,36 +7547,100 @@ export const kStdCFStringAlertVersionTwo = /* @__PURE__ */ _bind(FW, 'kStdCFStri
 export const kStdCancelItemIndex = /* @__PURE__ */ _bind(FW, 'kStdCancelItemIndex')
 export const kStdOkItemIndex = /* @__PURE__ */ _bind(FW, 'kStdOkItemIndex')
 export const kStopIcon = /* @__PURE__ */ _bind(FW, 'kStopIcon')
-export const kStoredBasicWindowDescriptionID = /* @__PURE__ */ _bind(FW, 'kStoredBasicWindowDescriptionID')
+export const kStoredBasicWindowDescriptionID = /* @__PURE__ */ _bind(
+	FW,
+	'kStoredBasicWindowDescriptionID',
+)
+
 export const kStoredWindowPascalTitleID = /* @__PURE__ */ _bind(FW, 'kStoredWindowPascalTitleID')
 export const kStoredWindowSystemTag = /* @__PURE__ */ _bind(FW, 'kStoredWindowSystemTag')
-export const kStoredWindowTitleCFStringID = /* @__PURE__ */ _bind(FW, 'kStoredWindowTitleCFStringID')
+export const kStoredWindowTitleCFStringID = /* @__PURE__ */ _bind(
+	FW,
+	'kStoredWindowTitleCFStringID',
+)
+
 export const kSupportsFileTranslation = /* @__PURE__ */ _bind(FW, 'kSupportsFileTranslation')
 export const kSupportsScrapTranslation = /* @__PURE__ */ _bind(FW, 'kSupportsScrapTranslation')
 export const kTISCategoryInkInputSource = /* @__PURE__ */ _bind(FW, 'kTISCategoryInkInputSource')
-export const kTISCategoryKeyboardInputSource = /* @__PURE__ */ _bind(FW, 'kTISCategoryKeyboardInputSource')
-export const kTISCategoryPaletteInputSource = /* @__PURE__ */ _bind(FW, 'kTISCategoryPaletteInputSource')
-export const kTISNotifyEnabledKeyboardInputSourcesChanged = /* @__PURE__ */ _bind(FW, 'kTISNotifyEnabledKeyboardInputSourcesChanged')
-export const kTISNotifySelectedKeyboardInputSourceChanged = /* @__PURE__ */ _bind(FW, 'kTISNotifySelectedKeyboardInputSourceChanged')
+export const kTISCategoryKeyboardInputSource = /* @__PURE__ */ _bind(
+	FW,
+	'kTISCategoryKeyboardInputSource',
+)
+
+export const kTISCategoryPaletteInputSource = /* @__PURE__ */ _bind(
+	FW,
+	'kTISCategoryPaletteInputSource',
+)
+
+export const kTISNotifyEnabledKeyboardInputSourcesChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kTISNotifyEnabledKeyboardInputSourcesChanged',
+)
+
+export const kTISNotifySelectedKeyboardInputSourceChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kTISNotifySelectedKeyboardInputSourceChanged',
+)
+
 export const kTISPropertyBundleID = /* @__PURE__ */ _bind(FW, 'kTISPropertyBundleID')
 export const kTISPropertyIconImageURL = /* @__PURE__ */ _bind(FW, 'kTISPropertyIconImageURL')
 export const kTISPropertyIconRef = /* @__PURE__ */ _bind(FW, 'kTISPropertyIconRef')
 export const kTISPropertyInputModeID = /* @__PURE__ */ _bind(FW, 'kTISPropertyInputModeID')
-export const kTISPropertyInputSourceCategory = /* @__PURE__ */ _bind(FW, 'kTISPropertyInputSourceCategory')
+export const kTISPropertyInputSourceCategory = /* @__PURE__ */ _bind(
+	FW,
+	'kTISPropertyInputSourceCategory',
+)
+
 export const kTISPropertyInputSourceID = /* @__PURE__ */ _bind(FW, 'kTISPropertyInputSourceID')
-export const kTISPropertyInputSourceIsASCIICapable = /* @__PURE__ */ _bind(FW, 'kTISPropertyInputSourceIsASCIICapable')
-export const kTISPropertyInputSourceIsEnableCapable = /* @__PURE__ */ _bind(FW, 'kTISPropertyInputSourceIsEnableCapable')
-export const kTISPropertyInputSourceIsEnabled = /* @__PURE__ */ _bind(FW, 'kTISPropertyInputSourceIsEnabled')
-export const kTISPropertyInputSourceIsSelectCapable = /* @__PURE__ */ _bind(FW, 'kTISPropertyInputSourceIsSelectCapable')
-export const kTISPropertyInputSourceIsSelected = /* @__PURE__ */ _bind(FW, 'kTISPropertyInputSourceIsSelected')
-export const kTISPropertyInputSourceLanguages = /* @__PURE__ */ _bind(FW, 'kTISPropertyInputSourceLanguages')
+export const kTISPropertyInputSourceIsASCIICapable = /* @__PURE__ */ _bind(
+	FW,
+	'kTISPropertyInputSourceIsASCIICapable',
+)
+
+export const kTISPropertyInputSourceIsEnableCapable = /* @__PURE__ */ _bind(
+	FW,
+	'kTISPropertyInputSourceIsEnableCapable',
+)
+
+export const kTISPropertyInputSourceIsEnabled = /* @__PURE__ */ _bind(
+	FW,
+	'kTISPropertyInputSourceIsEnabled',
+)
+
+export const kTISPropertyInputSourceIsSelectCapable = /* @__PURE__ */ _bind(
+	FW,
+	'kTISPropertyInputSourceIsSelectCapable',
+)
+
+export const kTISPropertyInputSourceIsSelected = /* @__PURE__ */ _bind(
+	FW,
+	'kTISPropertyInputSourceIsSelected',
+)
+
+export const kTISPropertyInputSourceLanguages = /* @__PURE__ */ _bind(
+	FW,
+	'kTISPropertyInputSourceLanguages',
+)
+
 export const kTISPropertyInputSourceType = /* @__PURE__ */ _bind(FW, 'kTISPropertyInputSourceType')
 export const kTISPropertyLocalizedName = /* @__PURE__ */ _bind(FW, 'kTISPropertyLocalizedName')
-export const kTISPropertyUnicodeKeyLayoutData = /* @__PURE__ */ _bind(FW, 'kTISPropertyUnicodeKeyLayoutData')
+export const kTISPropertyUnicodeKeyLayoutData = /* @__PURE__ */ _bind(
+	FW,
+	'kTISPropertyUnicodeKeyLayoutData',
+)
+
 export const kTISTypeCharacterPalette = /* @__PURE__ */ _bind(FW, 'kTISTypeCharacterPalette')
 export const kTISTypeInk = /* @__PURE__ */ _bind(FW, 'kTISTypeInk')
-export const kTISTypeKeyboardInputMethodModeEnabled = /* @__PURE__ */ _bind(FW, 'kTISTypeKeyboardInputMethodModeEnabled')
-export const kTISTypeKeyboardInputMethodWithoutModes = /* @__PURE__ */ _bind(FW, 'kTISTypeKeyboardInputMethodWithoutModes')
+export const kTISTypeKeyboardInputMethodModeEnabled = /* @__PURE__ */ _bind(
+	FW,
+	'kTISTypeKeyboardInputMethodModeEnabled',
+)
+
+export const kTISTypeKeyboardInputMethodWithoutModes = /* @__PURE__ */ _bind(
+	FW,
+	'kTISTypeKeyboardInputMethodWithoutModes',
+)
+
 export const kTISTypeKeyboardInputMode = /* @__PURE__ */ _bind(FW, 'kTISTypeKeyboardInputMode')
 export const kTISTypeKeyboardLayout = /* @__PURE__ */ _bind(FW, 'kTISTypeKeyboardLayout')
 export const kTISTypeKeyboardViewer = /* @__PURE__ */ _bind(FW, 'kTISTypeKeyboardViewer')
@@ -3773,35 +7649,119 @@ export const kTSM20Version = /* @__PURE__ */ _bind(FW, 'kTSM20Version')
 export const kTSM22Version = /* @__PURE__ */ _bind(FW, 'kTSM22Version')
 export const kTSM23Version = /* @__PURE__ */ _bind(FW, 'kTSM23Version')
 export const kTSM24Version = /* @__PURE__ */ _bind(FW, 'kTSM24Version')
-export const kTSMDocAccessEffectiveRangeAttribute = /* @__PURE__ */ _bind(FW, 'kTSMDocAccessEffectiveRangeAttribute')
-export const kTSMDocAccessEffectiveRangeAttributeBit = /* @__PURE__ */ _bind(FW, 'kTSMDocAccessEffectiveRangeAttributeBit')
-export const kTSMDocAccessFontSizeAttribute = /* @__PURE__ */ _bind(FW, 'kTSMDocAccessFontSizeAttribute')
-export const kTSMDocAccessFontSizeAttributeBit = /* @__PURE__ */ _bind(FW, 'kTSMDocAccessFontSizeAttributeBit')
-export const kTSMDocumentEnabledInputSourcesPropertyTag = /* @__PURE__ */ _bind(FW, 'kTSMDocumentEnabledInputSourcesPropertyTag')
-export const kTSMDocumentInputModePropertyTag = /* @__PURE__ */ _bind(FW, 'kTSMDocumentInputModePropertyTag')
-export const kTSMDocumentInputSourceOverridePropertyTag = /* @__PURE__ */ _bind(FW, 'kTSMDocumentInputSourceOverridePropertyTag')
-export const kTSMDocumentPropertySupportGlyphInfo = /* @__PURE__ */ _bind(FW, 'kTSMDocumentPropertySupportGlyphInfo')
-export const kTSMDocumentPropertyUnicodeInputWindow = /* @__PURE__ */ _bind(FW, 'kTSMDocumentPropertyUnicodeInputWindow')
-export const kTSMDocumentRefconPropertyTag = /* @__PURE__ */ _bind(FW, 'kTSMDocumentRefconPropertyTag')
-export const kTSMDocumentSupportDocumentAccessPropertyTag = /* @__PURE__ */ _bind(FW, 'kTSMDocumentSupportDocumentAccessPropertyTag')
-export const kTSMDocumentSupportGlyphInfoPropertyTag = /* @__PURE__ */ _bind(FW, 'kTSMDocumentSupportGlyphInfoPropertyTag')
-export const kTSMDocumentTSMTEPropertyTag = /* @__PURE__ */ _bind(FW, 'kTSMDocumentTSMTEPropertyTag')
-export const kTSMDocumentTextServicePropertyTag = /* @__PURE__ */ _bind(FW, 'kTSMDocumentTextServicePropertyTag')
-export const kTSMDocumentUnicodeInputWindowPropertyTag = /* @__PURE__ */ _bind(FW, 'kTSMDocumentUnicodeInputWindowPropertyTag')
-export const kTSMDocumentUnicodePropertyTag = /* @__PURE__ */ _bind(FW, 'kTSMDocumentUnicodePropertyTag')
-export const kTSMDocumentUseFloatingWindowPropertyTag = /* @__PURE__ */ _bind(FW, 'kTSMDocumentUseFloatingWindowPropertyTag')
-export const kTSMDocumentWindowLevelPropertyTag = /* @__PURE__ */ _bind(FW, 'kTSMDocumentWindowLevelPropertyTag')
+export const kTSMDocAccessEffectiveRangeAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kTSMDocAccessEffectiveRangeAttribute',
+)
+
+export const kTSMDocAccessEffectiveRangeAttributeBit = /* @__PURE__ */ _bind(
+	FW,
+	'kTSMDocAccessEffectiveRangeAttributeBit',
+)
+
+export const kTSMDocAccessFontSizeAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kTSMDocAccessFontSizeAttribute',
+)
+
+export const kTSMDocAccessFontSizeAttributeBit = /* @__PURE__ */ _bind(
+	FW,
+	'kTSMDocAccessFontSizeAttributeBit',
+)
+
+export const kTSMDocumentEnabledInputSourcesPropertyTag = /* @__PURE__ */ _bind(
+	FW,
+	'kTSMDocumentEnabledInputSourcesPropertyTag',
+)
+
+export const kTSMDocumentInputModePropertyTag = /* @__PURE__ */ _bind(
+	FW,
+	'kTSMDocumentInputModePropertyTag',
+)
+
+export const kTSMDocumentInputSourceOverridePropertyTag = /* @__PURE__ */ _bind(
+	FW,
+	'kTSMDocumentInputSourceOverridePropertyTag',
+)
+
+export const kTSMDocumentPropertySupportGlyphInfo = /* @__PURE__ */ _bind(
+	FW,
+	'kTSMDocumentPropertySupportGlyphInfo',
+)
+
+export const kTSMDocumentPropertyUnicodeInputWindow = /* @__PURE__ */ _bind(
+	FW,
+	'kTSMDocumentPropertyUnicodeInputWindow',
+)
+
+export const kTSMDocumentRefconPropertyTag = /* @__PURE__ */ _bind(
+	FW,
+	'kTSMDocumentRefconPropertyTag',
+)
+
+export const kTSMDocumentSupportDocumentAccessPropertyTag = /* @__PURE__ */ _bind(
+	FW,
+	'kTSMDocumentSupportDocumentAccessPropertyTag',
+)
+
+export const kTSMDocumentSupportGlyphInfoPropertyTag = /* @__PURE__ */ _bind(
+	FW,
+	'kTSMDocumentSupportGlyphInfoPropertyTag',
+)
+
+export const kTSMDocumentTSMTEPropertyTag = /* @__PURE__ */ _bind(
+	FW,
+	'kTSMDocumentTSMTEPropertyTag',
+)
+
+export const kTSMDocumentTextServicePropertyTag = /* @__PURE__ */ _bind(
+	FW,
+	'kTSMDocumentTextServicePropertyTag',
+)
+
+export const kTSMDocumentUnicodeInputWindowPropertyTag = /* @__PURE__ */ _bind(
+	FW,
+	'kTSMDocumentUnicodeInputWindowPropertyTag',
+)
+
+export const kTSMDocumentUnicodePropertyTag = /* @__PURE__ */ _bind(
+	FW,
+	'kTSMDocumentUnicodePropertyTag',
+)
+
+export const kTSMDocumentUseFloatingWindowPropertyTag = /* @__PURE__ */ _bind(
+	FW,
+	'kTSMDocumentUseFloatingWindowPropertyTag',
+)
+
+export const kTSMDocumentWindowLevelPropertyTag = /* @__PURE__ */ _bind(
+	FW,
+	'kTSMDocumentWindowLevelPropertyTag',
+)
+
 export const kTSMTEAutoScroll = /* @__PURE__ */ _bind(FW, 'kTSMTEAutoScroll')
 export const kTSMTEDocumentInterfaceType = /* @__PURE__ */ _bind(FW, 'kTSMTEDocumentInterfaceType')
 export const kTSMTEInterfaceType = /* @__PURE__ */ _bind(FW, 'kTSMTEInterfaceType')
 export const kTSMTESignature = /* @__PURE__ */ _bind(FW, 'kTSMTESignature')
 export const kTSMVersion = /* @__PURE__ */ _bind(FW, 'kTSMVersion')
 export const kTXNAIFFFile = /* @__PURE__ */ _bind(FW, 'kTXNAIFFFile')
-export const kTXNATSUIFontFeaturesAttribute = /* @__PURE__ */ _bind(FW, 'kTXNATSUIFontFeaturesAttribute')
-export const kTXNATSUIFontVariationsAttribute = /* @__PURE__ */ _bind(FW, 'kTXNATSUIFontVariationsAttribute')
+export const kTXNATSUIFontFeaturesAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNATSUIFontFeaturesAttribute',
+)
+
+export const kTXNATSUIFontVariationsAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNATSUIFontVariationsAttribute',
+)
+
 export const kTXNATSUIStyle = /* @__PURE__ */ _bind(FW, 'kTXNATSUIStyle')
 export const kTXNATSUIStyleContinuousBit = /* @__PURE__ */ _bind(FW, 'kTXNATSUIStyleContinuousBit')
-export const kTXNATSUIStyleContinuousMask = /* @__PURE__ */ _bind(FW, 'kTXNATSUIStyleContinuousMask')
+export const kTXNATSUIStyleContinuousMask = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNATSUIStyleContinuousMask',
+)
+
 export const kTXNATSUIStyleSize = /* @__PURE__ */ _bind(FW, 'kTXNATSUIStyleSize')
 export const kTXNActionAlignCenter = /* @__PURE__ */ _bind(FW, 'kTXNActionAlignCenter')
 export const kTXNActionAlignLeft = /* @__PURE__ */ _bind(FW, 'kTXNActionAlignLeft')
@@ -3809,15 +7769,35 @@ export const kTXNActionAlignRight = /* @__PURE__ */ _bind(FW, 'kTXNActionAlignRi
 export const kTXNActionChangeColor = /* @__PURE__ */ _bind(FW, 'kTXNActionChangeColor')
 export const kTXNActionChangeFont = /* @__PURE__ */ _bind(FW, 'kTXNActionChangeFont')
 export const kTXNActionChangeFontFeature = /* @__PURE__ */ _bind(FW, 'kTXNActionChangeFontFeature')
-export const kTXNActionChangeFontVariation = /* @__PURE__ */ _bind(FW, 'kTXNActionChangeFontVariation')
-export const kTXNActionChangeGlyphVariation = /* @__PURE__ */ _bind(FW, 'kTXNActionChangeGlyphVariation')
+export const kTXNActionChangeFontVariation = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNActionChangeFontVariation',
+)
+
+export const kTXNActionChangeGlyphVariation = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNActionChangeGlyphVariation',
+)
+
 export const kTXNActionChangeSize = /* @__PURE__ */ _bind(FW, 'kTXNActionChangeSize')
 export const kTXNActionChangeStyle = /* @__PURE__ */ _bind(FW, 'kTXNActionChangeStyle')
-export const kTXNActionChangeTextPosition = /* @__PURE__ */ _bind(FW, 'kTXNActionChangeTextPosition')
+export const kTXNActionChangeTextPosition = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNActionChangeTextPosition',
+)
+
 export const kTXNActionClear = /* @__PURE__ */ _bind(FW, 'kTXNActionClear')
 export const kTXNActionCountOfAllChanges = /* @__PURE__ */ _bind(FW, 'kTXNActionCountOfAllChanges')
-export const kTXNActionCountOfStyleChanges = /* @__PURE__ */ _bind(FW, 'kTXNActionCountOfStyleChanges')
-export const kTXNActionCountOfTextChanges = /* @__PURE__ */ _bind(FW, 'kTXNActionCountOfTextChanges')
+export const kTXNActionCountOfStyleChanges = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNActionCountOfStyleChanges',
+)
+
+export const kTXNActionCountOfTextChanges = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNActionCountOfTextChanges',
+)
+
 export const kTXNActionCut = /* @__PURE__ */ _bind(FW, 'kTXNActionCut')
 export const kTXNActionDrop = /* @__PURE__ */ _bind(FW, 'kTXNActionDrop')
 export const kTXNActionMove = /* @__PURE__ */ _bind(FW, 'kTXNActionMove')
@@ -3829,14 +7809,26 @@ export const kTXNAlignLeftAction = /* @__PURE__ */ _bind(FW, 'kTXNAlignLeftActio
 export const kTXNAlignRightAction = /* @__PURE__ */ _bind(FW, 'kTXNAlignRightAction')
 export const kTXNAllCountMask = /* @__PURE__ */ _bind(FW, 'kTXNAllCountMask')
 export const kTXNAlwaysWrapAtViewEdgeBit = /* @__PURE__ */ _bind(FW, 'kTXNAlwaysWrapAtViewEdgeBit')
-export const kTXNAlwaysWrapAtViewEdgeMask = /* @__PURE__ */ _bind(FW, 'kTXNAlwaysWrapAtViewEdgeMask')
+export const kTXNAlwaysWrapAtViewEdgeMask = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNAlwaysWrapAtViewEdgeMask',
+)
+
 export const kTXNAutoIndentOff = /* @__PURE__ */ _bind(FW, 'kTXNAutoIndentOff')
 export const kTXNAutoIndentOn = /* @__PURE__ */ _bind(FW, 'kTXNAutoIndentOn')
 export const kTXNAutoIndentStateTag = /* @__PURE__ */ _bind(FW, 'kTXNAutoIndentStateTag')
 export const kTXNAutoScrollBehaviorTag = /* @__PURE__ */ _bind(FW, 'kTXNAutoScrollBehaviorTag')
-export const kTXNAutoScrollInsertionIntoView = /* @__PURE__ */ _bind(FW, 'kTXNAutoScrollInsertionIntoView')
+export const kTXNAutoScrollInsertionIntoView = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNAutoScrollInsertionIntoView',
+)
+
 export const kTXNAutoScrollNever = /* @__PURE__ */ _bind(FW, 'kTXNAutoScrollNever')
-export const kTXNAutoScrollWhenInsertionVisible = /* @__PURE__ */ _bind(FW, 'kTXNAutoScrollWhenInsertionVisible')
+export const kTXNAutoScrollWhenInsertionVisible = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNAutoScrollWhenInsertionVisible',
+)
+
 export const kTXNAutoWrap = /* @__PURE__ */ _bind(FW, 'kTXNAutoWrap')
 export const kTXNBackgroundTypeRGB = /* @__PURE__ */ _bind(FW, 'kTXNBackgroundTypeRGB')
 export const kTXNCenter = /* @__PURE__ */ _bind(FW, 'kTXNCenter')
@@ -3851,8 +7843,16 @@ export const kTXNClearThisControl = /* @__PURE__ */ _bind(FW, 'kTXNClearThisCont
 export const kTXNColorContinuousBit = /* @__PURE__ */ _bind(FW, 'kTXNColorContinuousBit')
 export const kTXNColorContinuousMask = /* @__PURE__ */ _bind(FW, 'kTXNColorContinuousMask')
 export const kTXNCutAction = /* @__PURE__ */ _bind(FW, 'kTXNCutAction')
-export const kTXNDataOptionCharacterEncodingKey = /* @__PURE__ */ _bind(FW, 'kTXNDataOptionCharacterEncodingKey')
-export const kTXNDataOptionDocumentTypeKey = /* @__PURE__ */ _bind(FW, 'kTXNDataOptionDocumentTypeKey')
+export const kTXNDataOptionCharacterEncodingKey = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNDataOptionCharacterEncodingKey',
+)
+
+export const kTXNDataOptionDocumentTypeKey = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNDataOptionDocumentTypeKey',
+)
+
 export const kTXNDecrementTypeSize = /* @__PURE__ */ _bind(FW, 'kTXNDecrementTypeSize')
 export const kTXNDestinationRectKey = /* @__PURE__ */ _bind(FW, 'kTXNDestinationRectKey')
 export const kTXNDisableDragAndDrop = /* @__PURE__ */ _bind(FW, 'kTXNDisableDragAndDrop')
@@ -3861,43 +7861,139 @@ export const kTXNDisableDragAndDropMask = /* @__PURE__ */ _bind(FW, 'kTXNDisable
 export const kTXNDisableDragAndDropTag = /* @__PURE__ */ _bind(FW, 'kTXNDisableDragAndDropTag')
 export const kTXNDisableLayoutAndDraw = /* @__PURE__ */ _bind(FW, 'kTXNDisableLayoutAndDraw')
 export const kTXNDisableLayoutAndDrawTag = /* @__PURE__ */ _bind(FW, 'kTXNDisableLayoutAndDrawTag')
-export const kTXNDisabledFunctionalityErr = /* @__PURE__ */ _bind(FW, 'kTXNDisabledFunctionalityErr')
+export const kTXNDisabledFunctionalityErr = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNDisabledFunctionalityErr',
+)
+
 export const kTXNDoFontSubstitution = /* @__PURE__ */ _bind(FW, 'kTXNDoFontSubstitution')
 export const kTXNDoFontSubstitutionBit = /* @__PURE__ */ _bind(FW, 'kTXNDoFontSubstitutionBit')
 export const kTXNDoFontSubstitutionMask = /* @__PURE__ */ _bind(FW, 'kTXNDoFontSubstitutionMask')
-export const kTXNDoNotInstallDragProcsBit = /* @__PURE__ */ _bind(FW, 'kTXNDoNotInstallDragProcsBit')
-export const kTXNDoNotInstallDragProcsMask = /* @__PURE__ */ _bind(FW, 'kTXNDoNotInstallDragProcsMask')
-export const kTXNDocumentAttributeAuthorKey = /* @__PURE__ */ _bind(FW, 'kTXNDocumentAttributeAuthorKey')
-export const kTXNDocumentAttributeCommentKey = /* @__PURE__ */ _bind(FW, 'kTXNDocumentAttributeCommentKey')
-export const kTXNDocumentAttributeCompanyNameKey = /* @__PURE__ */ _bind(FW, 'kTXNDocumentAttributeCompanyNameKey')
-export const kTXNDocumentAttributeCopyrightKey = /* @__PURE__ */ _bind(FW, 'kTXNDocumentAttributeCopyrightKey')
-export const kTXNDocumentAttributeCreationTimeKey = /* @__PURE__ */ _bind(FW, 'kTXNDocumentAttributeCreationTimeKey')
-export const kTXNDocumentAttributeEditorKey = /* @__PURE__ */ _bind(FW, 'kTXNDocumentAttributeEditorKey')
-export const kTXNDocumentAttributeKeywordsKey = /* @__PURE__ */ _bind(FW, 'kTXNDocumentAttributeKeywordsKey')
-export const kTXNDocumentAttributeModificationTimeKey = /* @__PURE__ */ _bind(FW, 'kTXNDocumentAttributeModificationTimeKey')
-export const kTXNDocumentAttributeSubjectKey = /* @__PURE__ */ _bind(FW, 'kTXNDocumentAttributeSubjectKey')
-export const kTXNDocumentAttributeTitleKey = /* @__PURE__ */ _bind(FW, 'kTXNDocumentAttributeTitleKey')
+export const kTXNDoNotInstallDragProcsBit = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNDoNotInstallDragProcsBit',
+)
+
+export const kTXNDoNotInstallDragProcsMask = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNDoNotInstallDragProcsMask',
+)
+
+export const kTXNDocumentAttributeAuthorKey = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNDocumentAttributeAuthorKey',
+)
+
+export const kTXNDocumentAttributeCommentKey = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNDocumentAttributeCommentKey',
+)
+
+export const kTXNDocumentAttributeCompanyNameKey = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNDocumentAttributeCompanyNameKey',
+)
+
+export const kTXNDocumentAttributeCopyrightKey = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNDocumentAttributeCopyrightKey',
+)
+
+export const kTXNDocumentAttributeCreationTimeKey = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNDocumentAttributeCreationTimeKey',
+)
+
+export const kTXNDocumentAttributeEditorKey = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNDocumentAttributeEditorKey',
+)
+
+export const kTXNDocumentAttributeKeywordsKey = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNDocumentAttributeKeywordsKey',
+)
+
+export const kTXNDocumentAttributeModificationTimeKey = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNDocumentAttributeModificationTimeKey',
+)
+
+export const kTXNDocumentAttributeSubjectKey = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNDocumentAttributeSubjectKey',
+)
+
+export const kTXNDocumentAttributeTitleKey = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNDocumentAttributeTitleKey',
+)
+
 export const kTXNDontCareTypeSize = /* @__PURE__ */ _bind(FW, 'kTXNDontCareTypeSize')
 export const kTXNDontCareTypeStyle = /* @__PURE__ */ _bind(FW, 'kTXNDontCareTypeStyle')
-export const kTXNDontDrawCaretWhenInactive = /* @__PURE__ */ _bind(FW, 'kTXNDontDrawCaretWhenInactive')
-export const kTXNDontDrawCaretWhenInactiveBit = /* @__PURE__ */ _bind(FW, 'kTXNDontDrawCaretWhenInactiveBit')
-export const kTXNDontDrawCaretWhenInactiveMask = /* @__PURE__ */ _bind(FW, 'kTXNDontDrawCaretWhenInactiveMask')
-export const kTXNDontDrawSelectionWhenInactive = /* @__PURE__ */ _bind(FW, 'kTXNDontDrawSelectionWhenInactive')
-export const kTXNDontDrawSelectionWhenInactiveBit = /* @__PURE__ */ _bind(FW, 'kTXNDontDrawSelectionWhenInactiveBit')
-export const kTXNDontDrawSelectionWhenInactiveMask = /* @__PURE__ */ _bind(FW, 'kTXNDontDrawSelectionWhenInactiveMask')
+export const kTXNDontDrawCaretWhenInactive = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNDontDrawCaretWhenInactive',
+)
+
+export const kTXNDontDrawCaretWhenInactiveBit = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNDontDrawCaretWhenInactiveBit',
+)
+
+export const kTXNDontDrawCaretWhenInactiveMask = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNDontDrawCaretWhenInactiveMask',
+)
+
+export const kTXNDontDrawSelectionWhenInactive = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNDontDrawSelectionWhenInactive',
+)
+
+export const kTXNDontDrawSelectionWhenInactiveBit = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNDontDrawSelectionWhenInactiveBit',
+)
+
+export const kTXNDontDrawSelectionWhenInactiveMask = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNDontDrawSelectionWhenInactiveMask',
+)
+
 export const kTXNDrawCaretWhenInactive = /* @__PURE__ */ _bind(FW, 'kTXNDrawCaretWhenInactive')
-export const kTXNDrawCaretWhenInactiveTag = /* @__PURE__ */ _bind(FW, 'kTXNDrawCaretWhenInactiveTag')
+export const kTXNDrawCaretWhenInactiveTag = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNDrawCaretWhenInactiveTag',
+)
+
 export const kTXNDrawGrowIconBit = /* @__PURE__ */ _bind(FW, 'kTXNDrawGrowIconBit')
 export const kTXNDrawGrowIconMask = /* @__PURE__ */ _bind(FW, 'kTXNDrawGrowIconMask')
 export const kTXNDrawItemAllMask = /* @__PURE__ */ _bind(FW, 'kTXNDrawItemAllMask')
 export const kTXNDrawItemScrollbarsBit = /* @__PURE__ */ _bind(FW, 'kTXNDrawItemScrollbarsBit')
 export const kTXNDrawItemScrollbarsMask = /* @__PURE__ */ _bind(FW, 'kTXNDrawItemScrollbarsMask')
-export const kTXNDrawItemTextAndSelectionBit = /* @__PURE__ */ _bind(FW, 'kTXNDrawItemTextAndSelectionBit')
-export const kTXNDrawItemTextAndSelectionMask = /* @__PURE__ */ _bind(FW, 'kTXNDrawItemTextAndSelectionMask')
+export const kTXNDrawItemTextAndSelectionBit = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNDrawItemTextAndSelectionBit',
+)
+
+export const kTXNDrawItemTextAndSelectionMask = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNDrawItemTextAndSelectionMask',
+)
+
 export const kTXNDrawItemTextBit = /* @__PURE__ */ _bind(FW, 'kTXNDrawItemTextBit')
 export const kTXNDrawItemTextMask = /* @__PURE__ */ _bind(FW, 'kTXNDrawItemTextMask')
-export const kTXNDrawSelectionWhenInactive = /* @__PURE__ */ _bind(FW, 'kTXNDrawSelectionWhenInactive')
-export const kTXNDrawSelectionWhenInactiveTag = /* @__PURE__ */ _bind(FW, 'kTXNDrawSelectionWhenInactiveTag')
+export const kTXNDrawSelectionWhenInactive = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNDrawSelectionWhenInactive',
+)
+
+export const kTXNDrawSelectionWhenInactiveTag = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNDrawSelectionWhenInactiveTag',
+)
+
 export const kTXNDropAction = /* @__PURE__ */ _bind(FW, 'kTXNDropAction')
 export const kTXNEnableDragAndDrop = /* @__PURE__ */ _bind(FW, 'kTXNEnableDragAndDrop')
 export const kTXNEnableLayoutAndDraw = /* @__PURE__ */ _bind(FW, 'kTXNEnableLayoutAndDraw')
@@ -3916,7 +8012,11 @@ export const kTXNFontVariationAction = /* @__PURE__ */ _bind(FW, 'kTXNFontVariat
 export const kTXNForceFullJust = /* @__PURE__ */ _bind(FW, 'kTXNForceFullJust')
 export const kTXNFullJust = /* @__PURE__ */ _bind(FW, 'kTXNFullJust')
 export const kTXNHorizontal = /* @__PURE__ */ _bind(FW, 'kTXNHorizontal')
-export const kTXNHorizontalScrollBarRectKey = /* @__PURE__ */ _bind(FW, 'kTXNHorizontalScrollBarRectKey')
+export const kTXNHorizontalScrollBarRectKey = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNHorizontalScrollBarRectKey',
+)
+
 export const kTXNIOPrivilegesTag = /* @__PURE__ */ _bind(FW, 'kTXNIOPrivilegesTag')
 export const kTXNIgnoreCaseBit = /* @__PURE__ */ _bind(FW, 'kTXNIgnoreCaseBit')
 export const kTXNIgnoreCaseMask = /* @__PURE__ */ _bind(FW, 'kTXNIgnoreCaseMask')
@@ -3938,9 +8038,17 @@ export const kTXNMonostyledTextBit = /* @__PURE__ */ _bind(FW, 'kTXNMonostyledTe
 export const kTXNMonostyledTextMask = /* @__PURE__ */ _bind(FW, 'kTXNMonostyledTextMask')
 export const kTXNMoveAction = /* @__PURE__ */ _bind(FW, 'kTXNMoveAction')
 export const kTXNMultipleFrameType = /* @__PURE__ */ _bind(FW, 'kTXNMultipleFrameType')
-export const kTXNMultipleStylesPerTextDocumentResType = /* @__PURE__ */ _bind(FW, 'kTXNMultipleStylesPerTextDocumentResType')
+export const kTXNMultipleStylesPerTextDocumentResType = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNMultipleStylesPerTextDocumentResType',
+)
+
 export const kTXNNoAppleEventHandlersBit = /* @__PURE__ */ _bind(FW, 'kTXNNoAppleEventHandlersBit')
-export const kTXNNoAppleEventHandlersMask = /* @__PURE__ */ _bind(FW, 'kTXNNoAppleEventHandlersMask')
+export const kTXNNoAppleEventHandlersMask = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNNoAppleEventHandlersMask',
+)
+
 export const kTXNNoAutoWrap = /* @__PURE__ */ _bind(FW, 'kTXNNoAutoWrap')
 export const kTXNNoFontVariations = /* @__PURE__ */ _bind(FW, 'kTXNNoFontVariations')
 export const kTXNNoSelectionBit = /* @__PURE__ */ _bind(FW, 'kTXNNoSelectionBit')
@@ -3953,15 +8061,27 @@ export const kTXNPageFrameType = /* @__PURE__ */ _bind(FW, 'kTXNPageFrameType')
 export const kTXNPasteAction = /* @__PURE__ */ _bind(FW, 'kTXNPasteAction')
 export const kTXNPlainTextDocumentType = /* @__PURE__ */ _bind(FW, 'kTXNPlainTextDocumentType')
 export const kTXNQDFontColorAttribute = /* @__PURE__ */ _bind(FW, 'kTXNQDFontColorAttribute')
-export const kTXNQDFontColorAttributeSize = /* @__PURE__ */ _bind(FW, 'kTXNQDFontColorAttributeSize')
+export const kTXNQDFontColorAttributeSize = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNQDFontColorAttributeSize',
+)
+
 export const kTXNQDFontFamilyIDAttribute = /* @__PURE__ */ _bind(FW, 'kTXNQDFontFamilyIDAttribute')
-export const kTXNQDFontFamilyIDAttributeSize = /* @__PURE__ */ _bind(FW, 'kTXNQDFontFamilyIDAttributeSize')
+export const kTXNQDFontFamilyIDAttributeSize = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNQDFontFamilyIDAttributeSize',
+)
+
 export const kTXNQDFontNameAttribute = /* @__PURE__ */ _bind(FW, 'kTXNQDFontNameAttribute')
 export const kTXNQDFontNameAttributeSize = /* @__PURE__ */ _bind(FW, 'kTXNQDFontNameAttributeSize')
 export const kTXNQDFontSizeAttribute = /* @__PURE__ */ _bind(FW, 'kTXNQDFontSizeAttribute')
 export const kTXNQDFontSizeAttributeSize = /* @__PURE__ */ _bind(FW, 'kTXNQDFontSizeAttributeSize')
 export const kTXNQDFontStyleAttribute = /* @__PURE__ */ _bind(FW, 'kTXNQDFontStyleAttribute')
-export const kTXNQDFontStyleAttributeSize = /* @__PURE__ */ _bind(FW, 'kTXNQDFontStyleAttributeSize')
+export const kTXNQDFontStyleAttributeSize = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNQDFontStyleAttributeSize',
+)
+
 export const kTXNQuickTimeDocumentType = /* @__PURE__ */ _bind(FW, 'kTXNQuickTimeDocumentType')
 export const kTXNRTFDocumentType = /* @__PURE__ */ _bind(FW, 'kTXNRTFDocumentType')
 export const kTXNReadOnly = /* @__PURE__ */ _bind(FW, 'kTXNReadOnly')
@@ -3969,15 +8089,31 @@ export const kTXNReadOnlyBit = /* @__PURE__ */ _bind(FW, 'kTXNReadOnlyBit')
 export const kTXNReadOnlyMask = /* @__PURE__ */ _bind(FW, 'kTXNReadOnlyMask')
 export const kTXNReadWrite = /* @__PURE__ */ _bind(FW, 'kTXNReadWrite')
 export const kTXNRefConTag = /* @__PURE__ */ _bind(FW, 'kTXNRefConTag')
-export const kTXNRestartAppleEventHandlersBit = /* @__PURE__ */ _bind(FW, 'kTXNRestartAppleEventHandlersBit')
-export const kTXNRestartAppleEventHandlersMask = /* @__PURE__ */ _bind(FW, 'kTXNRestartAppleEventHandlersMask')
+export const kTXNRestartAppleEventHandlersBit = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNRestartAppleEventHandlersBit',
+)
+
+export const kTXNRestartAppleEventHandlersMask = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNRestartAppleEventHandlersMask',
+)
+
 export const kTXNRichTextFormatData = /* @__PURE__ */ _bind(FW, 'kTXNRichTextFormatData')
 export const kTXNRightTab = /* @__PURE__ */ _bind(FW, 'kTXNRightTab')
 export const kTXNRightToLeft = /* @__PURE__ */ _bind(FW, 'kTXNRightToLeft')
 export const kTXNRunCountBit = /* @__PURE__ */ _bind(FW, 'kTXNRunCountBit')
 export const kTXNRunCountMask = /* @__PURE__ */ _bind(FW, 'kTXNRunCountMask')
-export const kTXNSaveStylesAsSTYLResourceBit = /* @__PURE__ */ _bind(FW, 'kTXNSaveStylesAsSTYLResourceBit')
-export const kTXNSaveStylesAsSTYLResourceMask = /* @__PURE__ */ _bind(FW, 'kTXNSaveStylesAsSTYLResourceMask')
+export const kTXNSaveStylesAsSTYLResourceBit = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNSaveStylesAsSTYLResourceBit',
+)
+
+export const kTXNSaveStylesAsSTYLResourceMask = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNSaveStylesAsSTYLResourceMask',
+)
+
 export const kTXNScrollUnitsInLines = /* @__PURE__ */ _bind(FW, 'kTXNScrollUnitsInLines')
 export const kTXNScrollUnitsInPixels = /* @__PURE__ */ _bind(FW, 'kTXNScrollUnitsInPixels')
 export const kTXNScrollUnitsInViewRects = /* @__PURE__ */ _bind(FW, 'kTXNScrollUnitsInViewRects')
@@ -3991,24 +8127,56 @@ export const kTXNShowWindowMask = /* @__PURE__ */ _bind(FW, 'kTXNShowWindowMask'
 export const kTXNSingleLevelUndoTag = /* @__PURE__ */ _bind(FW, 'kTXNSingleLevelUndoTag')
 export const kTXNSingleLineOnlyBit = /* @__PURE__ */ _bind(FW, 'kTXNSingleLineOnlyBit')
 export const kTXNSingleLineOnlyMask = /* @__PURE__ */ _bind(FW, 'kTXNSingleLineOnlyMask')
-export const kTXNSingleStylePerTextDocumentResType = /* @__PURE__ */ _bind(FW, 'kTXNSingleStylePerTextDocumentResType')
+export const kTXNSingleStylePerTextDocumentResType = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNSingleStylePerTextDocumentResType',
+)
+
 export const kTXNSizeContinuousBit = /* @__PURE__ */ _bind(FW, 'kTXNSizeContinuousBit')
 export const kTXNSizeContinuousMask = /* @__PURE__ */ _bind(FW, 'kTXNSizeContinuousMask')
 export const kTXNStartOffset = /* @__PURE__ */ _bind(FW, 'kTXNStartOffset')
 export const kTXNStyleContinuousBit = /* @__PURE__ */ _bind(FW, 'kTXNStyleContinuousBit')
 export const kTXNStyleContinuousMask = /* @__PURE__ */ _bind(FW, 'kTXNStyleContinuousMask')
-export const kTXNSupportEditCommandProcessing = /* @__PURE__ */ _bind(FW, 'kTXNSupportEditCommandProcessing')
-export const kTXNSupportEditCommandUpdating = /* @__PURE__ */ _bind(FW, 'kTXNSupportEditCommandUpdating')
-export const kTXNSupportFontCommandProcessing = /* @__PURE__ */ _bind(FW, 'kTXNSupportFontCommandProcessing')
-export const kTXNSupportFontCommandUpdating = /* @__PURE__ */ _bind(FW, 'kTXNSupportFontCommandUpdating')
-export const kTXNSupportSpellCheckCommandProcessing = /* @__PURE__ */ _bind(FW, 'kTXNSupportSpellCheckCommandProcessing')
-export const kTXNSupportSpellCheckCommandUpdating = /* @__PURE__ */ _bind(FW, 'kTXNSupportSpellCheckCommandUpdating')
+export const kTXNSupportEditCommandProcessing = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNSupportEditCommandProcessing',
+)
+
+export const kTXNSupportEditCommandUpdating = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNSupportEditCommandUpdating',
+)
+
+export const kTXNSupportFontCommandProcessing = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNSupportFontCommandProcessing',
+)
+
+export const kTXNSupportFontCommandUpdating = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNSupportFontCommandUpdating',
+)
+
+export const kTXNSupportSpellCheckCommandProcessing = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNSupportSpellCheckCommandProcessing',
+)
+
+export const kTXNSupportSpellCheckCommandUpdating = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNSupportSpellCheckCommandUpdating',
+)
+
 export const kTXNSystemDefaultEncoding = /* @__PURE__ */ _bind(FW, 'kTXNSystemDefaultEncoding')
 export const kTXNTabSettingsTag = /* @__PURE__ */ _bind(FW, 'kTXNTabSettingsTag')
 export const kTXNTextData = /* @__PURE__ */ _bind(FW, 'kTXNTextData')
 export const kTXNTextEditStyleFrameType = /* @__PURE__ */ _bind(FW, 'kTXNTextEditStyleFrameType')
 export const kTXNTextEncodingAttribute = /* @__PURE__ */ _bind(FW, 'kTXNTextEncodingAttribute')
-export const kTXNTextEncodingAttributeSize = /* @__PURE__ */ _bind(FW, 'kTXNTextEncodingAttributeSize')
+export const kTXNTextEncodingAttributeSize = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNTextEncodingAttributeSize',
+)
+
 export const kTXNTextFile = /* @__PURE__ */ _bind(FW, 'kTXNTextFile')
 export const kTXNTextInputCountBit = /* @__PURE__ */ _bind(FW, 'kTXNTextInputCountBit')
 export const kTXNTextInputCountMask = /* @__PURE__ */ _bind(FW, 'kTXNTextInputCountMask')
@@ -4024,13 +8192,21 @@ export const kTXNUseBottomline = /* @__PURE__ */ _bind(FW, 'kTXNUseBottomline')
 export const kTXNUseCarbonEvents = /* @__PURE__ */ _bind(FW, 'kTXNUseCarbonEvents')
 export const kTXNUseCurrentSelection = /* @__PURE__ */ _bind(FW, 'kTXNUseCurrentSelection')
 export const kTXNUseEncodingWordRulesBit = /* @__PURE__ */ _bind(FW, 'kTXNUseEncodingWordRulesBit')
-export const kTXNUseEncodingWordRulesMask = /* @__PURE__ */ _bind(FW, 'kTXNUseEncodingWordRulesMask')
+export const kTXNUseEncodingWordRulesMask = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNUseEncodingWordRulesMask',
+)
+
 export const kTXNUseInline = /* @__PURE__ */ _bind(FW, 'kTXNUseInline')
 export const kTXNUseQDforImagingBit = /* @__PURE__ */ _bind(FW, 'kTXNUseQDforImagingBit')
 export const kTXNUseQDforImagingMask = /* @__PURE__ */ _bind(FW, 'kTXNUseQDforImagingMask')
 export const kTXNUseScriptDefaultValue = /* @__PURE__ */ _bind(FW, 'kTXNUseScriptDefaultValue')
 export const kTXNVertical = /* @__PURE__ */ _bind(FW, 'kTXNVertical')
-export const kTXNVerticalScrollBarRectKey = /* @__PURE__ */ _bind(FW, 'kTXNVerticalScrollBarRectKey')
+export const kTXNVerticalScrollBarRectKey = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNVerticalScrollBarRectKey',
+)
+
 export const kTXNViewRectKey = /* @__PURE__ */ _bind(FW, 'kTXNViewRectKey')
 export const kTXNVisibilityTag = /* @__PURE__ */ _bind(FW, 'kTXNVisibilityTag')
 export const kTXNWantHScrollBarBit = /* @__PURE__ */ _bind(FW, 'kTXNWantHScrollBarBit')
@@ -4039,50 +8215,190 @@ export const kTXNWantVScrollBarBit = /* @__PURE__ */ _bind(FW, 'kTXNWantVScrollB
 export const kTXNWantVScrollBarMask = /* @__PURE__ */ _bind(FW, 'kTXNWantVScrollBarMask')
 export const kTXNWillDefaultToATSUIBit = /* @__PURE__ */ _bind(FW, 'kTXNWillDefaultToATSUIBit')
 export const kTXNWillDefaultToATSUIMask = /* @__PURE__ */ _bind(FW, 'kTXNWillDefaultToATSUIMask')
-export const kTXNWillDefaultToCarbonEventBit = /* @__PURE__ */ _bind(FW, 'kTXNWillDefaultToCarbonEventBit')
-export const kTXNWillDefaultToCarbonEventMask = /* @__PURE__ */ _bind(FW, 'kTXNWillDefaultToCarbonEventMask')
+export const kTXNWillDefaultToCarbonEventBit = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNWillDefaultToCarbonEventBit',
+)
+
+export const kTXNWillDefaultToCarbonEventMask = /* @__PURE__ */ _bind(
+	FW,
+	'kTXNWillDefaultToCarbonEventMask',
+)
+
 export const kTXNWordWrapStateTag = /* @__PURE__ */ _bind(FW, 'kTXNWordWrapStateTag')
 export const kTabCharCode = /* @__PURE__ */ _bind(FW, 'kTabCharCode')
 export const kTextService = /* @__PURE__ */ _bind(FW, 'kTextService')
-export const kTextServiceDocumentInterfaceType = /* @__PURE__ */ _bind(FW, 'kTextServiceDocumentInterfaceType')
-export const kTextServiceInputModePropertyTag = /* @__PURE__ */ _bind(FW, 'kTextServiceInputModePropertyTag')
-export const kTextServiceJaTypingMethodPropertyTag = /* @__PURE__ */ _bind(FW, 'kTextServiceJaTypingMethodPropertyTag')
-export const kThemeActiveAlertBackgroundBrush = /* @__PURE__ */ _bind(FW, 'kThemeActiveAlertBackgroundBrush')
+export const kTextServiceDocumentInterfaceType = /* @__PURE__ */ _bind(
+	FW,
+	'kTextServiceDocumentInterfaceType',
+)
+
+export const kTextServiceInputModePropertyTag = /* @__PURE__ */ _bind(
+	FW,
+	'kTextServiceInputModePropertyTag',
+)
+
+export const kTextServiceJaTypingMethodPropertyTag = /* @__PURE__ */ _bind(
+	FW,
+	'kTextServiceJaTypingMethodPropertyTag',
+)
+
+export const kThemeActiveAlertBackgroundBrush = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeActiveAlertBackgroundBrush',
+)
+
 export const kThemeActiveAlertTextColor = /* @__PURE__ */ _bind(FW, 'kThemeActiveAlertTextColor')
-export const kThemeActiveBevelButtonTextColor = /* @__PURE__ */ _bind(FW, 'kThemeActiveBevelButtonTextColor')
-export const kThemeActiveDialogBackgroundBrush = /* @__PURE__ */ _bind(FW, 'kThemeActiveDialogBackgroundBrush')
+export const kThemeActiveBevelButtonTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeActiveBevelButtonTextColor',
+)
+
+export const kThemeActiveDialogBackgroundBrush = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeActiveDialogBackgroundBrush',
+)
+
 export const kThemeActiveDialogTextColor = /* @__PURE__ */ _bind(FW, 'kThemeActiveDialogTextColor')
-export const kThemeActiveDocumentWindowTitleTextColor = /* @__PURE__ */ _bind(FW, 'kThemeActiveDocumentWindowTitleTextColor')
-export const kThemeActiveMenuItemTextColor = /* @__PURE__ */ _bind(FW, 'kThemeActiveMenuItemTextColor')
-export const kThemeActiveModelessDialogBackgroundBrush = /* @__PURE__ */ _bind(FW, 'kThemeActiveModelessDialogBackgroundBrush')
-export const kThemeActiveModelessDialogTextColor = /* @__PURE__ */ _bind(FW, 'kThemeActiveModelessDialogTextColor')
-export const kThemeActiveMovableModalWindowTitleTextColor = /* @__PURE__ */ _bind(FW, 'kThemeActiveMovableModalWindowTitleTextColor')
-export const kThemeActivePlacardTextColor = /* @__PURE__ */ _bind(FW, 'kThemeActivePlacardTextColor')
+export const kThemeActiveDocumentWindowTitleTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeActiveDocumentWindowTitleTextColor',
+)
+
+export const kThemeActiveMenuItemTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeActiveMenuItemTextColor',
+)
+
+export const kThemeActiveModelessDialogBackgroundBrush = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeActiveModelessDialogBackgroundBrush',
+)
+
+export const kThemeActiveModelessDialogTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeActiveModelessDialogTextColor',
+)
+
+export const kThemeActiveMovableModalWindowTitleTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeActiveMovableModalWindowTitleTextColor',
+)
+
+export const kThemeActivePlacardTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeActivePlacardTextColor',
+)
+
 export const kThemeActivePopupArrowBrush = /* @__PURE__ */ _bind(FW, 'kThemeActivePopupArrowBrush')
-export const kThemeActivePopupButtonTextColor = /* @__PURE__ */ _bind(FW, 'kThemeActivePopupButtonTextColor')
-export const kThemeActivePopupLabelTextColor = /* @__PURE__ */ _bind(FW, 'kThemeActivePopupLabelTextColor')
-export const kThemeActivePopupWindowTitleColor = /* @__PURE__ */ _bind(FW, 'kThemeActivePopupWindowTitleColor')
-export const kThemeActivePushButtonTextColor = /* @__PURE__ */ _bind(FW, 'kThemeActivePushButtonTextColor')
-export const kThemeActiveRootMenuTextColor = /* @__PURE__ */ _bind(FW, 'kThemeActiveRootMenuTextColor')
-export const kThemeActiveScrollBarDelimiterBrush = /* @__PURE__ */ _bind(FW, 'kThemeActiveScrollBarDelimiterBrush')
-export const kThemeActiveUtilityWindowBackgroundBrush = /* @__PURE__ */ _bind(FW, 'kThemeActiveUtilityWindowBackgroundBrush')
-export const kThemeActiveUtilityWindowTitleTextColor = /* @__PURE__ */ _bind(FW, 'kThemeActiveUtilityWindowTitleTextColor')
-export const kThemeActiveWindowHeaderTextColor = /* @__PURE__ */ _bind(FW, 'kThemeActiveWindowHeaderTextColor')
-export const kThemeAdornmentArrowDoubleArrow = /* @__PURE__ */ _bind(FW, 'kThemeAdornmentArrowDoubleArrow')
-export const kThemeAdornmentArrowDownArrow = /* @__PURE__ */ _bind(FW, 'kThemeAdornmentArrowDownArrow')
-export const kThemeAdornmentArrowLeftArrow = /* @__PURE__ */ _bind(FW, 'kThemeAdornmentArrowLeftArrow')
-export const kThemeAdornmentArrowRightArrow = /* @__PURE__ */ _bind(FW, 'kThemeAdornmentArrowRightArrow')
+export const kThemeActivePopupButtonTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeActivePopupButtonTextColor',
+)
+
+export const kThemeActivePopupLabelTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeActivePopupLabelTextColor',
+)
+
+export const kThemeActivePopupWindowTitleColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeActivePopupWindowTitleColor',
+)
+
+export const kThemeActivePushButtonTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeActivePushButtonTextColor',
+)
+
+export const kThemeActiveRootMenuTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeActiveRootMenuTextColor',
+)
+
+export const kThemeActiveScrollBarDelimiterBrush = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeActiveScrollBarDelimiterBrush',
+)
+
+export const kThemeActiveUtilityWindowBackgroundBrush = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeActiveUtilityWindowBackgroundBrush',
+)
+
+export const kThemeActiveUtilityWindowTitleTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeActiveUtilityWindowTitleTextColor',
+)
+
+export const kThemeActiveWindowHeaderTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeActiveWindowHeaderTextColor',
+)
+
+export const kThemeAdornmentArrowDoubleArrow = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeAdornmentArrowDoubleArrow',
+)
+
+export const kThemeAdornmentArrowDownArrow = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeAdornmentArrowDownArrow',
+)
+
+export const kThemeAdornmentArrowLeftArrow = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeAdornmentArrowLeftArrow',
+)
+
+export const kThemeAdornmentArrowRightArrow = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeAdornmentArrowRightArrow',
+)
+
 export const kThemeAdornmentArrowUpArrow = /* @__PURE__ */ _bind(FW, 'kThemeAdornmentArrowUpArrow')
 export const kThemeAdornmentDefault = /* @__PURE__ */ _bind(FW, 'kThemeAdornmentDefault')
-export const kThemeAdornmentDrawIndicatorOnly = /* @__PURE__ */ _bind(FW, 'kThemeAdornmentDrawIndicatorOnly')
+export const kThemeAdornmentDrawIndicatorOnly = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeAdornmentDrawIndicatorOnly',
+)
+
 export const kThemeAdornmentFocus = /* @__PURE__ */ _bind(FW, 'kThemeAdornmentFocus')
-export const kThemeAdornmentHeaderButtonLeftNeighborSelected = /* @__PURE__ */ _bind(FW, 'kThemeAdornmentHeaderButtonLeftNeighborSelected')
-export const kThemeAdornmentHeaderButtonNoShadow = /* @__PURE__ */ _bind(FW, 'kThemeAdornmentHeaderButtonNoShadow')
-export const kThemeAdornmentHeaderButtonNoSortArrow = /* @__PURE__ */ _bind(FW, 'kThemeAdornmentHeaderButtonNoSortArrow')
-export const kThemeAdornmentHeaderButtonRightNeighborSelected = /* @__PURE__ */ _bind(FW, 'kThemeAdornmentHeaderButtonRightNeighborSelected')
-export const kThemeAdornmentHeaderButtonShadowOnly = /* @__PURE__ */ _bind(FW, 'kThemeAdornmentHeaderButtonShadowOnly')
-export const kThemeAdornmentHeaderButtonSortUp = /* @__PURE__ */ _bind(FW, 'kThemeAdornmentHeaderButtonSortUp')
-export const kThemeAdornmentHeaderMenuButton = /* @__PURE__ */ _bind(FW, 'kThemeAdornmentHeaderMenuButton')
+export const kThemeAdornmentHeaderButtonLeftNeighborSelected = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeAdornmentHeaderButtonLeftNeighborSelected',
+)
+
+export const kThemeAdornmentHeaderButtonNoShadow = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeAdornmentHeaderButtonNoShadow',
+)
+
+export const kThemeAdornmentHeaderButtonNoSortArrow = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeAdornmentHeaderButtonNoSortArrow',
+)
+
+export const kThemeAdornmentHeaderButtonRightNeighborSelected = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeAdornmentHeaderButtonRightNeighborSelected',
+)
+
+export const kThemeAdornmentHeaderButtonShadowOnly = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeAdornmentHeaderButtonShadowOnly',
+)
+
+export const kThemeAdornmentHeaderButtonSortUp = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeAdornmentHeaderButtonSortUp',
+)
+
+export const kThemeAdornmentHeaderMenuButton = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeAdornmentHeaderMenuButton',
+)
+
 export const kThemeAdornmentNoShadow = /* @__PURE__ */ _bind(FW, 'kThemeAdornmentNoShadow')
 export const kThemeAdornmentNone = /* @__PURE__ */ _bind(FW, 'kThemeAdornmentNone')
 export const kThemeAdornmentRightToLeft = /* @__PURE__ */ _bind(FW, 'kThemeAdornmentRightToLeft')
@@ -4091,7 +8407,11 @@ export const kThemeAlertHeaderFont = /* @__PURE__ */ _bind(FW, 'kThemeAlertHeade
 export const kThemeAlertWindow = /* @__PURE__ */ _bind(FW, 'kThemeAlertWindow')
 export const kThemeAliasArrowCursor = /* @__PURE__ */ _bind(FW, 'kThemeAliasArrowCursor')
 export const kThemeAppearanceFileNameTag = /* @__PURE__ */ _bind(FW, 'kThemeAppearanceFileNameTag')
-export const kThemeAppleGuideCoachmarkBrush = /* @__PURE__ */ _bind(FW, 'kThemeAppleGuideCoachmarkBrush')
+export const kThemeAppleGuideCoachmarkBrush = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeAppleGuideCoachmarkBrush',
+)
+
 export const kThemeApplicationFont = /* @__PURE__ */ _bind(FW, 'kThemeApplicationFont')
 export const kThemeArrow3pt = /* @__PURE__ */ _bind(FW, 'kThemeArrow3pt')
 export const kThemeArrow5pt = /* @__PURE__ */ _bind(FW, 'kThemeArrow5pt')
@@ -4105,84 +8425,304 @@ export const kThemeArrowDown = /* @__PURE__ */ _bind(FW, 'kThemeArrowDown')
 export const kThemeArrowLeft = /* @__PURE__ */ _bind(FW, 'kThemeArrowLeft')
 export const kThemeArrowRight = /* @__PURE__ */ _bind(FW, 'kThemeArrowRight')
 export const kThemeArrowUp = /* @__PURE__ */ _bind(FW, 'kThemeArrowUp')
-export const kThemeBackgroundListViewWindowHeader = /* @__PURE__ */ _bind(FW, 'kThemeBackgroundListViewWindowHeader')
+export const kThemeBackgroundListViewWindowHeader = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBackgroundListViewWindowHeader',
+)
+
 export const kThemeBackgroundMetal = /* @__PURE__ */ _bind(FW, 'kThemeBackgroundMetal')
 export const kThemeBackgroundPlacard = /* @__PURE__ */ _bind(FW, 'kThemeBackgroundPlacard')
-export const kThemeBackgroundSecondaryGroupBox = /* @__PURE__ */ _bind(FW, 'kThemeBackgroundSecondaryGroupBox')
+export const kThemeBackgroundSecondaryGroupBox = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBackgroundSecondaryGroupBox',
+)
+
 export const kThemeBackgroundTabPane = /* @__PURE__ */ _bind(FW, 'kThemeBackgroundTabPane')
-export const kThemeBackgroundWindowHeader = /* @__PURE__ */ _bind(FW, 'kThemeBackgroundWindowHeader')
+export const kThemeBackgroundWindowHeader = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBackgroundWindowHeader',
+)
+
 export const kThemeBevelButton = /* @__PURE__ */ _bind(FW, 'kThemeBevelButton')
 export const kThemeBevelButtonInset = /* @__PURE__ */ _bind(FW, 'kThemeBevelButtonInset')
 export const kThemeBevelButtonLarge = /* @__PURE__ */ _bind(FW, 'kThemeBevelButtonLarge')
 export const kThemeBevelButtonMedium = /* @__PURE__ */ _bind(FW, 'kThemeBevelButtonMedium')
 export const kThemeBevelButtonSmall = /* @__PURE__ */ _bind(FW, 'kThemeBevelButtonSmall')
-export const kThemeBottomInsideArrowPressed = /* @__PURE__ */ _bind(FW, 'kThemeBottomInsideArrowPressed')
-export const kThemeBottomOutsideArrowPressed = /* @__PURE__ */ _bind(FW, 'kThemeBottomOutsideArrowPressed')
+export const kThemeBottomInsideArrowPressed = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBottomInsideArrowPressed',
+)
+
+export const kThemeBottomOutsideArrowPressed = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBottomOutsideArrowPressed',
+)
+
 export const kThemeBottomTrackPressed = /* @__PURE__ */ _bind(FW, 'kThemeBottomTrackPressed')
 export const kThemeBrushActiveAreaFill = /* @__PURE__ */ _bind(FW, 'kThemeBrushActiveAreaFill')
-export const kThemeBrushAlertBackgroundActive = /* @__PURE__ */ _bind(FW, 'kThemeBrushAlertBackgroundActive')
-export const kThemeBrushAlertBackgroundInactive = /* @__PURE__ */ _bind(FW, 'kThemeBrushAlertBackgroundInactive')
-export const kThemeBrushAlternatePrimaryHighlightColor = /* @__PURE__ */ _bind(FW, 'kThemeBrushAlternatePrimaryHighlightColor')
-export const kThemeBrushAppleGuideCoachmark = /* @__PURE__ */ _bind(FW, 'kThemeBrushAppleGuideCoachmark')
+export const kThemeBrushAlertBackgroundActive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushAlertBackgroundActive',
+)
+
+export const kThemeBrushAlertBackgroundInactive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushAlertBackgroundInactive',
+)
+
+export const kThemeBrushAlternatePrimaryHighlightColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushAlternatePrimaryHighlightColor',
+)
+
+export const kThemeBrushAppleGuideCoachmark = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushAppleGuideCoachmark',
+)
+
 export const kThemeBrushBevelActiveDark = /* @__PURE__ */ _bind(FW, 'kThemeBrushBevelActiveDark')
 export const kThemeBrushBevelActiveLight = /* @__PURE__ */ _bind(FW, 'kThemeBrushBevelActiveLight')
-export const kThemeBrushBevelInactiveDark = /* @__PURE__ */ _bind(FW, 'kThemeBrushBevelInactiveDark')
-export const kThemeBrushBevelInactiveLight = /* @__PURE__ */ _bind(FW, 'kThemeBrushBevelInactiveLight')
+export const kThemeBrushBevelInactiveDark = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushBevelInactiveDark',
+)
+
+export const kThemeBrushBevelInactiveLight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushBevelInactiveLight',
+)
+
 export const kThemeBrushBlack = /* @__PURE__ */ _bind(FW, 'kThemeBrushBlack')
-export const kThemeBrushButtonActiveDarkHighlight = /* @__PURE__ */ _bind(FW, 'kThemeBrushButtonActiveDarkHighlight')
-export const kThemeBrushButtonActiveDarkShadow = /* @__PURE__ */ _bind(FW, 'kThemeBrushButtonActiveDarkShadow')
-export const kThemeBrushButtonActiveLightHighlight = /* @__PURE__ */ _bind(FW, 'kThemeBrushButtonActiveLightHighlight')
-export const kThemeBrushButtonActiveLightShadow = /* @__PURE__ */ _bind(FW, 'kThemeBrushButtonActiveLightShadow')
+export const kThemeBrushButtonActiveDarkHighlight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushButtonActiveDarkHighlight',
+)
+
+export const kThemeBrushButtonActiveDarkShadow = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushButtonActiveDarkShadow',
+)
+
+export const kThemeBrushButtonActiveLightHighlight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushButtonActiveLightHighlight',
+)
+
+export const kThemeBrushButtonActiveLightShadow = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushButtonActiveLightShadow',
+)
+
 export const kThemeBrushButtonFaceActive = /* @__PURE__ */ _bind(FW, 'kThemeBrushButtonFaceActive')
-export const kThemeBrushButtonFaceInactive = /* @__PURE__ */ _bind(FW, 'kThemeBrushButtonFaceInactive')
-export const kThemeBrushButtonFacePressed = /* @__PURE__ */ _bind(FW, 'kThemeBrushButtonFacePressed')
-export const kThemeBrushButtonFrameActive = /* @__PURE__ */ _bind(FW, 'kThemeBrushButtonFrameActive')
-export const kThemeBrushButtonFrameInactive = /* @__PURE__ */ _bind(FW, 'kThemeBrushButtonFrameInactive')
-export const kThemeBrushButtonInactiveDarkHighlight = /* @__PURE__ */ _bind(FW, 'kThemeBrushButtonInactiveDarkHighlight')
-export const kThemeBrushButtonInactiveDarkShadow = /* @__PURE__ */ _bind(FW, 'kThemeBrushButtonInactiveDarkShadow')
-export const kThemeBrushButtonInactiveLightHighlight = /* @__PURE__ */ _bind(FW, 'kThemeBrushButtonInactiveLightHighlight')
-export const kThemeBrushButtonInactiveLightShadow = /* @__PURE__ */ _bind(FW, 'kThemeBrushButtonInactiveLightShadow')
-export const kThemeBrushButtonPressedDarkHighlight = /* @__PURE__ */ _bind(FW, 'kThemeBrushButtonPressedDarkHighlight')
-export const kThemeBrushButtonPressedDarkShadow = /* @__PURE__ */ _bind(FW, 'kThemeBrushButtonPressedDarkShadow')
-export const kThemeBrushButtonPressedLightHighlight = /* @__PURE__ */ _bind(FW, 'kThemeBrushButtonPressedLightHighlight')
-export const kThemeBrushButtonPressedLightShadow = /* @__PURE__ */ _bind(FW, 'kThemeBrushButtonPressedLightShadow')
+export const kThemeBrushButtonFaceInactive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushButtonFaceInactive',
+)
+
+export const kThemeBrushButtonFacePressed = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushButtonFacePressed',
+)
+
+export const kThemeBrushButtonFrameActive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushButtonFrameActive',
+)
+
+export const kThemeBrushButtonFrameInactive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushButtonFrameInactive',
+)
+
+export const kThemeBrushButtonInactiveDarkHighlight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushButtonInactiveDarkHighlight',
+)
+
+export const kThemeBrushButtonInactiveDarkShadow = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushButtonInactiveDarkShadow',
+)
+
+export const kThemeBrushButtonInactiveLightHighlight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushButtonInactiveLightHighlight',
+)
+
+export const kThemeBrushButtonInactiveLightShadow = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushButtonInactiveLightShadow',
+)
+
+export const kThemeBrushButtonPressedDarkHighlight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushButtonPressedDarkHighlight',
+)
+
+export const kThemeBrushButtonPressedDarkShadow = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushButtonPressedDarkShadow',
+)
+
+export const kThemeBrushButtonPressedLightHighlight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushButtonPressedLightHighlight',
+)
+
+export const kThemeBrushButtonPressedLightShadow = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushButtonPressedLightShadow',
+)
+
 export const kThemeBrushChasingArrows = /* @__PURE__ */ _bind(FW, 'kThemeBrushChasingArrows')
-export const kThemeBrushDialogBackgroundActive = /* @__PURE__ */ _bind(FW, 'kThemeBrushDialogBackgroundActive')
-export const kThemeBrushDialogBackgroundInactive = /* @__PURE__ */ _bind(FW, 'kThemeBrushDialogBackgroundInactive')
-export const kThemeBrushDocumentWindowBackground = /* @__PURE__ */ _bind(FW, 'kThemeBrushDocumentWindowBackground')
+export const kThemeBrushDialogBackgroundActive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushDialogBackgroundActive',
+)
+
+export const kThemeBrushDialogBackgroundInactive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushDialogBackgroundInactive',
+)
+
+export const kThemeBrushDocumentWindowBackground = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushDocumentWindowBackground',
+)
+
 export const kThemeBrushDragHilite = /* @__PURE__ */ _bind(FW, 'kThemeBrushDragHilite')
 export const kThemeBrushDrawerBackground = /* @__PURE__ */ _bind(FW, 'kThemeBrushDrawerBackground')
-export const kThemeBrushFinderWindowBackground = /* @__PURE__ */ _bind(FW, 'kThemeBrushFinderWindowBackground')
+export const kThemeBrushFinderWindowBackground = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushFinderWindowBackground',
+)
+
 export const kThemeBrushFocusHighlight = /* @__PURE__ */ _bind(FW, 'kThemeBrushFocusHighlight')
-export const kThemeBrushIconLabelBackground = /* @__PURE__ */ _bind(FW, 'kThemeBrushIconLabelBackground')
-export const kThemeBrushIconLabelBackgroundSelected = /* @__PURE__ */ _bind(FW, 'kThemeBrushIconLabelBackgroundSelected')
-export const kThemeBrushListViewBackground = /* @__PURE__ */ _bind(FW, 'kThemeBrushListViewBackground')
-export const kThemeBrushListViewColumnDivider = /* @__PURE__ */ _bind(FW, 'kThemeBrushListViewColumnDivider')
-export const kThemeBrushListViewEvenRowBackground = /* @__PURE__ */ _bind(FW, 'kThemeBrushListViewEvenRowBackground')
-export const kThemeBrushListViewOddRowBackground = /* @__PURE__ */ _bind(FW, 'kThemeBrushListViewOddRowBackground')
-export const kThemeBrushListViewSeparator = /* @__PURE__ */ _bind(FW, 'kThemeBrushListViewSeparator')
-export const kThemeBrushListViewSortColumnBackground = /* @__PURE__ */ _bind(FW, 'kThemeBrushListViewSortColumnBackground')
+export const kThemeBrushIconLabelBackground = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushIconLabelBackground',
+)
+
+export const kThemeBrushIconLabelBackgroundSelected = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushIconLabelBackgroundSelected',
+)
+
+export const kThemeBrushListViewBackground = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushListViewBackground',
+)
+
+export const kThemeBrushListViewColumnDivider = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushListViewColumnDivider',
+)
+
+export const kThemeBrushListViewEvenRowBackground = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushListViewEvenRowBackground',
+)
+
+export const kThemeBrushListViewOddRowBackground = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushListViewOddRowBackground',
+)
+
+export const kThemeBrushListViewSeparator = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushListViewSeparator',
+)
+
+export const kThemeBrushListViewSortColumnBackground = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushListViewSortColumnBackground',
+)
+
 export const kThemeBrushMenuBackground = /* @__PURE__ */ _bind(FW, 'kThemeBrushMenuBackground')
-export const kThemeBrushMenuBackgroundSelected = /* @__PURE__ */ _bind(FW, 'kThemeBrushMenuBackgroundSelected')
-export const kThemeBrushModelessDialogBackgroundActive = /* @__PURE__ */ _bind(FW, 'kThemeBrushModelessDialogBackgroundActive')
-export const kThemeBrushModelessDialogBackgroundInactive = /* @__PURE__ */ _bind(FW, 'kThemeBrushModelessDialogBackgroundInactive')
-export const kThemeBrushMovableModalBackground = /* @__PURE__ */ _bind(FW, 'kThemeBrushMovableModalBackground')
-export const kThemeBrushNotificationWindowBackground = /* @__PURE__ */ _bind(FW, 'kThemeBrushNotificationWindowBackground')
+export const kThemeBrushMenuBackgroundSelected = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushMenuBackgroundSelected',
+)
+
+export const kThemeBrushModelessDialogBackgroundActive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushModelessDialogBackgroundActive',
+)
+
+export const kThemeBrushModelessDialogBackgroundInactive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushModelessDialogBackgroundInactive',
+)
+
+export const kThemeBrushMovableModalBackground = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushMovableModalBackground',
+)
+
+export const kThemeBrushNotificationWindowBackground = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushNotificationWindowBackground',
+)
+
 export const kThemeBrushPassiveAreaFill = /* @__PURE__ */ _bind(FW, 'kThemeBrushPassiveAreaFill')
 export const kThemeBrushPopupArrowActive = /* @__PURE__ */ _bind(FW, 'kThemeBrushPopupArrowActive')
-export const kThemeBrushPopupArrowInactive = /* @__PURE__ */ _bind(FW, 'kThemeBrushPopupArrowInactive')
-export const kThemeBrushPopupArrowPressed = /* @__PURE__ */ _bind(FW, 'kThemeBrushPopupArrowPressed')
-export const kThemeBrushPrimaryHighlightColor = /* @__PURE__ */ _bind(FW, 'kThemeBrushPrimaryHighlightColor')
-export const kThemeBrushScrollBarDelimiterActive = /* @__PURE__ */ _bind(FW, 'kThemeBrushScrollBarDelimiterActive')
-export const kThemeBrushScrollBarDelimiterInactive = /* @__PURE__ */ _bind(FW, 'kThemeBrushScrollBarDelimiterInactive')
-export const kThemeBrushSecondaryHighlightColor = /* @__PURE__ */ _bind(FW, 'kThemeBrushSecondaryHighlightColor')
+export const kThemeBrushPopupArrowInactive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushPopupArrowInactive',
+)
+
+export const kThemeBrushPopupArrowPressed = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushPopupArrowPressed',
+)
+
+export const kThemeBrushPrimaryHighlightColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushPrimaryHighlightColor',
+)
+
+export const kThemeBrushScrollBarDelimiterActive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushScrollBarDelimiterActive',
+)
+
+export const kThemeBrushScrollBarDelimiterInactive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushScrollBarDelimiterInactive',
+)
+
+export const kThemeBrushSecondaryHighlightColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushSecondaryHighlightColor',
+)
+
 export const kThemeBrushSheetBackground = /* @__PURE__ */ _bind(FW, 'kThemeBrushSheetBackground')
-export const kThemeBrushSheetBackgroundOpaque = /* @__PURE__ */ _bind(FW, 'kThemeBrushSheetBackgroundOpaque')
-export const kThemeBrushSheetBackgroundTransparent = /* @__PURE__ */ _bind(FW, 'kThemeBrushSheetBackgroundTransparent')
+export const kThemeBrushSheetBackgroundOpaque = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushSheetBackgroundOpaque',
+)
+
+export const kThemeBrushSheetBackgroundTransparent = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushSheetBackgroundTransparent',
+)
+
 export const kThemeBrushStaticAreaFill = /* @__PURE__ */ _bind(FW, 'kThemeBrushStaticAreaFill')
-export const kThemeBrushToolbarBackground = /* @__PURE__ */ _bind(FW, 'kThemeBrushToolbarBackground')
-export const kThemeBrushUtilityWindowBackgroundActive = /* @__PURE__ */ _bind(FW, 'kThemeBrushUtilityWindowBackgroundActive')
-export const kThemeBrushUtilityWindowBackgroundInactive = /* @__PURE__ */ _bind(FW, 'kThemeBrushUtilityWindowBackgroundInactive')
+export const kThemeBrushToolbarBackground = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushToolbarBackground',
+)
+
+export const kThemeBrushUtilityWindowBackgroundActive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushUtilityWindowBackgroundActive',
+)
+
+export const kThemeBrushUtilityWindowBackgroundInactive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeBrushUtilityWindowBackgroundInactive',
+)
+
 export const kThemeBrushWhite = /* @__PURE__ */ _bind(FW, 'kThemeBrushWhite')
 export const kThemeButtonMixed = /* @__PURE__ */ _bind(FW, 'kThemeButtonMixed')
 export const kThemeButtonOff = /* @__PURE__ */ _bind(FW, 'kThemeButtonOff')
@@ -4197,11 +8737,23 @@ export const kThemeClosedHandCursor = /* @__PURE__ */ _bind(FW, 'kThemeClosedHan
 export const kThemeComboBox = /* @__PURE__ */ _bind(FW, 'kThemeComboBox')
 export const kThemeComboBoxMini = /* @__PURE__ */ _bind(FW, 'kThemeComboBoxMini')
 export const kThemeComboBoxSmall = /* @__PURE__ */ _bind(FW, 'kThemeComboBoxSmall')
-export const kThemeContextualMenuArrowCursor = /* @__PURE__ */ _bind(FW, 'kThemeContextualMenuArrowCursor')
+export const kThemeContextualMenuArrowCursor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeContextualMenuArrowCursor',
+)
+
 export const kThemeControlSoundsMask = /* @__PURE__ */ _bind(FW, 'kThemeControlSoundsMask')
 export const kThemeCopyArrowCursor = /* @__PURE__ */ _bind(FW, 'kThemeCopyArrowCursor')
-export const kThemeCountingDownHandCursor = /* @__PURE__ */ _bind(FW, 'kThemeCountingDownHandCursor')
-export const kThemeCountingUpAndDownHandCursor = /* @__PURE__ */ _bind(FW, 'kThemeCountingUpAndDownHandCursor')
+export const kThemeCountingDownHandCursor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeCountingDownHandCursor',
+)
+
+export const kThemeCountingUpAndDownHandCursor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeCountingUpAndDownHandCursor',
+)
+
 export const kThemeCountingUpHandCursor = /* @__PURE__ */ _bind(FW, 'kThemeCountingUpHandCursor')
 export const kThemeCrossCursor = /* @__PURE__ */ _bind(FW, 'kThemeCrossCursor')
 export const kThemeCurrentPortFont = /* @__PURE__ */ _bind(FW, 'kThemeCurrentPortFont')
@@ -4211,33 +8763,77 @@ export const kThemeDblClickCollapseTag = /* @__PURE__ */ _bind(FW, 'kThemeDblCli
 export const kThemeDefaultAdornment = /* @__PURE__ */ _bind(FW, 'kThemeDefaultAdornment')
 export const kThemeDesktopPatternNameTag = /* @__PURE__ */ _bind(FW, 'kThemeDesktopPatternNameTag')
 export const kThemeDesktopPatternTag = /* @__PURE__ */ _bind(FW, 'kThemeDesktopPatternTag')
-export const kThemeDesktopPictureAliasTag = /* @__PURE__ */ _bind(FW, 'kThemeDesktopPictureAliasTag')
-export const kThemeDesktopPictureAlignmentTag = /* @__PURE__ */ _bind(FW, 'kThemeDesktopPictureAlignmentTag')
+export const kThemeDesktopPictureAliasTag = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeDesktopPictureAliasTag',
+)
+
+export const kThemeDesktopPictureAlignmentTag = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeDesktopPictureAlignmentTag',
+)
+
 export const kThemeDesktopPictureNameTag = /* @__PURE__ */ _bind(FW, 'kThemeDesktopPictureNameTag')
 export const kThemeDialogWindow = /* @__PURE__ */ _bind(FW, 'kThemeDialogWindow')
-export const kThemeDisabledMenuItemTextColor = /* @__PURE__ */ _bind(FW, 'kThemeDisabledMenuItemTextColor')
-export const kThemeDisabledRootMenuTextColor = /* @__PURE__ */ _bind(FW, 'kThemeDisabledRootMenuTextColor')
+export const kThemeDisabledMenuItemTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeDisabledMenuItemTextColor',
+)
+
+export const kThemeDisabledRootMenuTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeDisabledRootMenuTextColor',
+)
+
 export const kThemeDisclosureButton = /* @__PURE__ */ _bind(FW, 'kThemeDisclosureButton')
 export const kThemeDisclosureDown = /* @__PURE__ */ _bind(FW, 'kThemeDisclosureDown')
 export const kThemeDisclosureLeft = /* @__PURE__ */ _bind(FW, 'kThemeDisclosureLeft')
 export const kThemeDisclosureRight = /* @__PURE__ */ _bind(FW, 'kThemeDisclosureRight')
 export const kThemeDisclosureTriangle = /* @__PURE__ */ _bind(FW, 'kThemeDisclosureTriangle')
 export const kThemeDocumentWindow = /* @__PURE__ */ _bind(FW, 'kThemeDocumentWindow')
-export const kThemeDocumentWindowBackgroundBrush = /* @__PURE__ */ _bind(FW, 'kThemeDocumentWindowBackgroundBrush')
+export const kThemeDocumentWindowBackgroundBrush = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeDocumentWindowBackgroundBrush',
+)
+
 export const kThemeDragHiliteBrush = /* @__PURE__ */ _bind(FW, 'kThemeDragHiliteBrush')
 export const kThemeDragSoundDragging = /* @__PURE__ */ _bind(FW, 'kThemeDragSoundDragging')
-export const kThemeDragSoundGrowUtilWindow = /* @__PURE__ */ _bind(FW, 'kThemeDragSoundGrowUtilWindow')
+export const kThemeDragSoundGrowUtilWindow = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeDragSoundGrowUtilWindow',
+)
+
 export const kThemeDragSoundGrowWindow = /* @__PURE__ */ _bind(FW, 'kThemeDragSoundGrowWindow')
 export const kThemeDragSoundMoveAlert = /* @__PURE__ */ _bind(FW, 'kThemeDragSoundMoveAlert')
 export const kThemeDragSoundMoveDialog = /* @__PURE__ */ _bind(FW, 'kThemeDragSoundMoveDialog')
 export const kThemeDragSoundMoveIcon = /* @__PURE__ */ _bind(FW, 'kThemeDragSoundMoveIcon')
-export const kThemeDragSoundMoveUtilWindow = /* @__PURE__ */ _bind(FW, 'kThemeDragSoundMoveUtilWindow')
+export const kThemeDragSoundMoveUtilWindow = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeDragSoundMoveUtilWindow',
+)
+
 export const kThemeDragSoundMoveWindow = /* @__PURE__ */ _bind(FW, 'kThemeDragSoundMoveWindow')
 export const kThemeDragSoundNone = /* @__PURE__ */ _bind(FW, 'kThemeDragSoundNone')
-export const kThemeDragSoundScrollBarArrowDecreasing = /* @__PURE__ */ _bind(FW, 'kThemeDragSoundScrollBarArrowDecreasing')
-export const kThemeDragSoundScrollBarArrowIncreasing = /* @__PURE__ */ _bind(FW, 'kThemeDragSoundScrollBarArrowIncreasing')
-export const kThemeDragSoundScrollBarGhost = /* @__PURE__ */ _bind(FW, 'kThemeDragSoundScrollBarGhost')
-export const kThemeDragSoundScrollBarThumb = /* @__PURE__ */ _bind(FW, 'kThemeDragSoundScrollBarThumb')
+export const kThemeDragSoundScrollBarArrowDecreasing = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeDragSoundScrollBarArrowDecreasing',
+)
+
+export const kThemeDragSoundScrollBarArrowIncreasing = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeDragSoundScrollBarArrowIncreasing',
+)
+
+export const kThemeDragSoundScrollBarGhost = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeDragSoundScrollBarGhost',
+)
+
+export const kThemeDragSoundScrollBarThumb = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeDragSoundScrollBarThumb',
+)
+
 export const kThemeDragSoundSliderGhost = /* @__PURE__ */ _bind(FW, 'kThemeDragSoundSliderGhost')
 export const kThemeDragSoundSliderThumb = /* @__PURE__ */ _bind(FW, 'kThemeDragSoundSliderThumb')
 export const kThemeDrawIndicatorOnly = /* @__PURE__ */ _bind(FW, 'kThemeDrawIndicatorOnly')
@@ -4245,7 +8841,11 @@ export const kThemeDrawerWindow = /* @__PURE__ */ _bind(FW, 'kThemeDrawerWindow'
 export const kThemeEmphasizedSystemFont = /* @__PURE__ */ _bind(FW, 'kThemeEmphasizedSystemFont')
 export const kThemeExamplePictureIDTag = /* @__PURE__ */ _bind(FW, 'kThemeExamplePictureIDTag')
 export const kThemeFinderSoundsMask = /* @__PURE__ */ _bind(FW, 'kThemeFinderSoundsMask')
-export const kThemeFinderWindowBackgroundBrush = /* @__PURE__ */ _bind(FW, 'kThemeFinderWindowBackgroundBrush')
+export const kThemeFinderWindowBackgroundBrush = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeFinderWindowBackgroundBrush',
+)
+
 export const kThemeFocusAdornment = /* @__PURE__ */ _bind(FW, 'kThemeFocusAdornment')
 export const kThemeFocusHighlightBrush = /* @__PURE__ */ _bind(FW, 'kThemeFocusHighlightBrush')
 export const kThemeGrowDown = /* @__PURE__ */ _bind(FW, 'kThemeGrowDown')
@@ -4255,33 +8855,117 @@ export const kThemeGrowUp = /* @__PURE__ */ _bind(FW, 'kThemeGrowUp')
 export const kThemeHighlightColorNameTag = /* @__PURE__ */ _bind(FW, 'kThemeHighlightColorNameTag')
 export const kThemeHighlightColorTag = /* @__PURE__ */ _bind(FW, 'kThemeHighlightColorTag')
 export const kThemeIBeamCursor = /* @__PURE__ */ _bind(FW, 'kThemeIBeamCursor')
-export const kThemeIconLabelBackgroundBrush = /* @__PURE__ */ _bind(FW, 'kThemeIconLabelBackgroundBrush')
+export const kThemeIconLabelBackgroundBrush = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeIconLabelBackgroundBrush',
+)
+
 export const kThemeIconLabelTextColor = /* @__PURE__ */ _bind(FW, 'kThemeIconLabelTextColor')
-export const kThemeInactiveAlertBackgroundBrush = /* @__PURE__ */ _bind(FW, 'kThemeInactiveAlertBackgroundBrush')
-export const kThemeInactiveAlertTextColor = /* @__PURE__ */ _bind(FW, 'kThemeInactiveAlertTextColor')
-export const kThemeInactiveBevelButtonTextColor = /* @__PURE__ */ _bind(FW, 'kThemeInactiveBevelButtonTextColor')
-export const kThemeInactiveDialogBackgroundBrush = /* @__PURE__ */ _bind(FW, 'kThemeInactiveDialogBackgroundBrush')
-export const kThemeInactiveDialogTextColor = /* @__PURE__ */ _bind(FW, 'kThemeInactiveDialogTextColor')
-export const kThemeInactiveDocumentWindowTitleTextColor = /* @__PURE__ */ _bind(FW, 'kThemeInactiveDocumentWindowTitleTextColor')
-export const kThemeInactiveModelessDialogBackgroundBrush = /* @__PURE__ */ _bind(FW, 'kThemeInactiveModelessDialogBackgroundBrush')
-export const kThemeInactiveModelessDialogTextColor = /* @__PURE__ */ _bind(FW, 'kThemeInactiveModelessDialogTextColor')
-export const kThemeInactiveMovableModalWindowTitleTextColor = /* @__PURE__ */ _bind(FW, 'kThemeInactiveMovableModalWindowTitleTextColor')
-export const kThemeInactivePlacardTextColor = /* @__PURE__ */ _bind(FW, 'kThemeInactivePlacardTextColor')
-export const kThemeInactivePopupArrowBrush = /* @__PURE__ */ _bind(FW, 'kThemeInactivePopupArrowBrush')
-export const kThemeInactivePopupButtonTextColor = /* @__PURE__ */ _bind(FW, 'kThemeInactivePopupButtonTextColor')
-export const kThemeInactivePopupLabelTextColor = /* @__PURE__ */ _bind(FW, 'kThemeInactivePopupLabelTextColor')
-export const kThemeInactivePopupWindowTitleColor = /* @__PURE__ */ _bind(FW, 'kThemeInactivePopupWindowTitleColor')
-export const kThemeInactivePushButtonTextColor = /* @__PURE__ */ _bind(FW, 'kThemeInactivePushButtonTextColor')
-export const kThemeInactiveScrollBarDelimiterBrush = /* @__PURE__ */ _bind(FW, 'kThemeInactiveScrollBarDelimiterBrush')
-export const kThemeInactiveUtilityWindowBackgroundBrush = /* @__PURE__ */ _bind(FW, 'kThemeInactiveUtilityWindowBackgroundBrush')
-export const kThemeInactiveUtilityWindowTitleTextColor = /* @__PURE__ */ _bind(FW, 'kThemeInactiveUtilityWindowTitleTextColor')
-export const kThemeInactiveWindowHeaderTextColor = /* @__PURE__ */ _bind(FW, 'kThemeInactiveWindowHeaderTextColor')
+export const kThemeInactiveAlertBackgroundBrush = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeInactiveAlertBackgroundBrush',
+)
+
+export const kThemeInactiveAlertTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeInactiveAlertTextColor',
+)
+
+export const kThemeInactiveBevelButtonTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeInactiveBevelButtonTextColor',
+)
+
+export const kThemeInactiveDialogBackgroundBrush = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeInactiveDialogBackgroundBrush',
+)
+
+export const kThemeInactiveDialogTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeInactiveDialogTextColor',
+)
+
+export const kThemeInactiveDocumentWindowTitleTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeInactiveDocumentWindowTitleTextColor',
+)
+
+export const kThemeInactiveModelessDialogBackgroundBrush = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeInactiveModelessDialogBackgroundBrush',
+)
+
+export const kThemeInactiveModelessDialogTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeInactiveModelessDialogTextColor',
+)
+
+export const kThemeInactiveMovableModalWindowTitleTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeInactiveMovableModalWindowTitleTextColor',
+)
+
+export const kThemeInactivePlacardTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeInactivePlacardTextColor',
+)
+
+export const kThemeInactivePopupArrowBrush = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeInactivePopupArrowBrush',
+)
+
+export const kThemeInactivePopupButtonTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeInactivePopupButtonTextColor',
+)
+
+export const kThemeInactivePopupLabelTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeInactivePopupLabelTextColor',
+)
+
+export const kThemeInactivePopupWindowTitleColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeInactivePopupWindowTitleColor',
+)
+
+export const kThemeInactivePushButtonTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeInactivePushButtonTextColor',
+)
+
+export const kThemeInactiveScrollBarDelimiterBrush = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeInactiveScrollBarDelimiterBrush',
+)
+
+export const kThemeInactiveUtilityWindowBackgroundBrush = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeInactiveUtilityWindowBackgroundBrush',
+)
+
+export const kThemeInactiveUtilityWindowTitleTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeInactiveUtilityWindowTitleTextColor',
+)
+
+export const kThemeInactiveWindowHeaderTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeInactiveWindowHeaderTextColor',
+)
+
 export const kThemeIncDecButton = /* @__PURE__ */ _bind(FW, 'kThemeIncDecButton')
 export const kThemeIncDecButtonMini = /* @__PURE__ */ _bind(FW, 'kThemeIncDecButtonMini')
 export const kThemeIncDecButtonSmall = /* @__PURE__ */ _bind(FW, 'kThemeIncDecButtonSmall')
 export const kThemeIndeterminateBar = /* @__PURE__ */ _bind(FW, 'kThemeIndeterminateBar')
 export const kThemeIndeterminateBarLarge = /* @__PURE__ */ _bind(FW, 'kThemeIndeterminateBarLarge')
-export const kThemeIndeterminateBarMedium = /* @__PURE__ */ _bind(FW, 'kThemeIndeterminateBarMedium')
+export const kThemeIndeterminateBarMedium = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeIndeterminateBarMedium',
+)
+
 export const kThemeIndeterminateBarMini = /* @__PURE__ */ _bind(FW, 'kThemeIndeterminateBarMini')
 export const kThemeLabelFont = /* @__PURE__ */ _bind(FW, 'kThemeLabelFont')
 export const kThemeLargeBevelButton = /* @__PURE__ */ _bind(FW, 'kThemeLargeBevelButton')
@@ -4290,16 +8974,40 @@ export const kThemeLargeProgressBar = /* @__PURE__ */ _bind(FW, 'kThemeLargeProg
 export const kThemeLargeRoundButton = /* @__PURE__ */ _bind(FW, 'kThemeLargeRoundButton')
 export const kThemeLargeTabHeight = /* @__PURE__ */ _bind(FW, 'kThemeLargeTabHeight')
 export const kThemeLargeTabHeightMax = /* @__PURE__ */ _bind(FW, 'kThemeLargeTabHeightMax')
-export const kThemeLeftInsideArrowPressed = /* @__PURE__ */ _bind(FW, 'kThemeLeftInsideArrowPressed')
-export const kThemeLeftOutsideArrowPressed = /* @__PURE__ */ _bind(FW, 'kThemeLeftOutsideArrowPressed')
+export const kThemeLeftInsideArrowPressed = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeLeftInsideArrowPressed',
+)
+
+export const kThemeLeftOutsideArrowPressed = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeLeftOutsideArrowPressed',
+)
+
 export const kThemeLeftTrackPressed = /* @__PURE__ */ _bind(FW, 'kThemeLeftTrackPressed')
 export const kThemeListHeaderButton = /* @__PURE__ */ _bind(FW, 'kThemeListHeaderButton')
-export const kThemeListViewBackgroundBrush = /* @__PURE__ */ _bind(FW, 'kThemeListViewBackgroundBrush')
-export const kThemeListViewSeparatorBrush = /* @__PURE__ */ _bind(FW, 'kThemeListViewSeparatorBrush')
-export const kThemeListViewSortColumnBackgroundBrush = /* @__PURE__ */ _bind(FW, 'kThemeListViewSortColumnBackgroundBrush')
+export const kThemeListViewBackgroundBrush = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeListViewBackgroundBrush',
+)
+
+export const kThemeListViewSeparatorBrush = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeListViewSeparatorBrush',
+)
+
+export const kThemeListViewSortColumnBackgroundBrush = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeListViewSortColumnBackgroundBrush',
+)
+
 export const kThemeListViewTextColor = /* @__PURE__ */ _bind(FW, 'kThemeListViewTextColor')
 export const kThemeMediumBevelButton = /* @__PURE__ */ _bind(FW, 'kThemeMediumBevelButton')
-export const kThemeMediumIndeterminateBar = /* @__PURE__ */ _bind(FW, 'kThemeMediumIndeterminateBar')
+export const kThemeMediumIndeterminateBar = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMediumIndeterminateBar',
+)
+
 export const kThemeMediumProgressBar = /* @__PURE__ */ _bind(FW, 'kThemeMediumProgressBar')
 export const kThemeMediumScrollBar = /* @__PURE__ */ _bind(FW, 'kThemeMediumScrollBar')
 export const kThemeMediumSlider = /* @__PURE__ */ _bind(FW, 'kThemeMediumSlider')
@@ -4314,13 +9022,25 @@ export const kThemeMenuItemAtTop = /* @__PURE__ */ _bind(FW, 'kThemeMenuItemAtTo
 export const kThemeMenuItemCmdKeyFont = /* @__PURE__ */ _bind(FW, 'kThemeMenuItemCmdKeyFont')
 export const kThemeMenuItemFont = /* @__PURE__ */ _bind(FW, 'kThemeMenuItemFont')
 export const kThemeMenuItemHasIcon = /* @__PURE__ */ _bind(FW, 'kThemeMenuItemHasIcon')
-export const kThemeMenuItemHierBackground = /* @__PURE__ */ _bind(FW, 'kThemeMenuItemHierBackground')
+export const kThemeMenuItemHierBackground = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMenuItemHierBackground',
+)
+
 export const kThemeMenuItemHierarchical = /* @__PURE__ */ _bind(FW, 'kThemeMenuItemHierarchical')
 export const kThemeMenuItemMarkFont = /* @__PURE__ */ _bind(FW, 'kThemeMenuItemMarkFont')
 export const kThemeMenuItemNoBackground = /* @__PURE__ */ _bind(FW, 'kThemeMenuItemNoBackground')
 export const kThemeMenuItemPlain = /* @__PURE__ */ _bind(FW, 'kThemeMenuItemPlain')
-export const kThemeMenuItemPopUpBackground = /* @__PURE__ */ _bind(FW, 'kThemeMenuItemPopUpBackground')
-export const kThemeMenuItemScrollDownArrow = /* @__PURE__ */ _bind(FW, 'kThemeMenuItemScrollDownArrow')
+export const kThemeMenuItemPopUpBackground = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMenuItemPopUpBackground',
+)
+
+export const kThemeMenuItemScrollDownArrow = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMenuItemScrollDownArrow',
+)
+
 export const kThemeMenuItemScrollUpArrow = /* @__PURE__ */ _bind(FW, 'kThemeMenuItemScrollUpArrow')
 export const kThemeMenuSelected = /* @__PURE__ */ _bind(FW, 'kThemeMenuSelected')
 export const kThemeMenuSoundsMask = /* @__PURE__ */ _bind(FW, 'kThemeMenuSoundsMask')
@@ -4330,152 +9050,668 @@ export const kThemeMenuTypeHierarchical = /* @__PURE__ */ _bind(FW, 'kThemeMenuT
 export const kThemeMenuTypeInactive = /* @__PURE__ */ _bind(FW, 'kThemeMenuTypeInactive')
 export const kThemeMenuTypePopUp = /* @__PURE__ */ _bind(FW, 'kThemeMenuTypePopUp')
 export const kThemeMenuTypePullDown = /* @__PURE__ */ _bind(FW, 'kThemeMenuTypePullDown')
-export const kThemeMetricBestListHeaderHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricBestListHeaderHeight')
-export const kThemeMetricButtonRoundedHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricButtonRoundedHeight')
-export const kThemeMetricButtonRoundedRecessedHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricButtonRoundedRecessedHeight')
-export const kThemeMetricCheckBoxGlyphHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricCheckBoxGlyphHeight')
+export const kThemeMetricBestListHeaderHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricBestListHeaderHeight',
+)
+
+export const kThemeMetricButtonRoundedHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricButtonRoundedHeight',
+)
+
+export const kThemeMetricButtonRoundedRecessedHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricButtonRoundedRecessedHeight',
+)
+
+export const kThemeMetricCheckBoxGlyphHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricCheckBoxGlyphHeight',
+)
+
 export const kThemeMetricCheckBoxHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricCheckBoxHeight')
 export const kThemeMetricCheckBoxWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricCheckBoxWidth')
-export const kThemeMetricComboBoxLargeBottomShadowOffset = /* @__PURE__ */ _bind(FW, 'kThemeMetricComboBoxLargeBottomShadowOffset')
-export const kThemeMetricComboBoxLargeDisclosureWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricComboBoxLargeDisclosureWidth')
-export const kThemeMetricComboBoxLargeRightShadowOffset = /* @__PURE__ */ _bind(FW, 'kThemeMetricComboBoxLargeRightShadowOffset')
-export const kThemeMetricComboBoxMiniBottomShadowOffset = /* @__PURE__ */ _bind(FW, 'kThemeMetricComboBoxMiniBottomShadowOffset')
-export const kThemeMetricComboBoxMiniDisclosureWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricComboBoxMiniDisclosureWidth')
-export const kThemeMetricComboBoxMiniRightShadowOffset = /* @__PURE__ */ _bind(FW, 'kThemeMetricComboBoxMiniRightShadowOffset')
-export const kThemeMetricComboBoxSmallBottomShadowOffset = /* @__PURE__ */ _bind(FW, 'kThemeMetricComboBoxSmallBottomShadowOffset')
-export const kThemeMetricComboBoxSmallDisclosureWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricComboBoxSmallDisclosureWidth')
-export const kThemeMetricComboBoxSmallRightShadowOffset = /* @__PURE__ */ _bind(FW, 'kThemeMetricComboBoxSmallRightShadowOffset')
-export const kThemeMetricDisclosureButtonHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricDisclosureButtonHeight')
-export const kThemeMetricDisclosureButtonSize = /* @__PURE__ */ _bind(FW, 'kThemeMetricDisclosureButtonSize')
-export const kThemeMetricDisclosureButtonWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricDisclosureButtonWidth')
-export const kThemeMetricDisclosureTriangleHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricDisclosureTriangleHeight')
-export const kThemeMetricDisclosureTriangleWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricDisclosureTriangleWidth')
-export const kThemeMetricEditTextFrameOutset = /* @__PURE__ */ _bind(FW, 'kThemeMetricEditTextFrameOutset')
-export const kThemeMetricEditTextWhitespace = /* @__PURE__ */ _bind(FW, 'kThemeMetricEditTextWhitespace')
+export const kThemeMetricComboBoxLargeBottomShadowOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricComboBoxLargeBottomShadowOffset',
+)
+
+export const kThemeMetricComboBoxLargeDisclosureWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricComboBoxLargeDisclosureWidth',
+)
+
+export const kThemeMetricComboBoxLargeRightShadowOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricComboBoxLargeRightShadowOffset',
+)
+
+export const kThemeMetricComboBoxMiniBottomShadowOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricComboBoxMiniBottomShadowOffset',
+)
+
+export const kThemeMetricComboBoxMiniDisclosureWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricComboBoxMiniDisclosureWidth',
+)
+
+export const kThemeMetricComboBoxMiniRightShadowOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricComboBoxMiniRightShadowOffset',
+)
+
+export const kThemeMetricComboBoxSmallBottomShadowOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricComboBoxSmallBottomShadowOffset',
+)
+
+export const kThemeMetricComboBoxSmallDisclosureWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricComboBoxSmallDisclosureWidth',
+)
+
+export const kThemeMetricComboBoxSmallRightShadowOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricComboBoxSmallRightShadowOffset',
+)
+
+export const kThemeMetricDisclosureButtonHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricDisclosureButtonHeight',
+)
+
+export const kThemeMetricDisclosureButtonSize = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricDisclosureButtonSize',
+)
+
+export const kThemeMetricDisclosureButtonWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricDisclosureButtonWidth',
+)
+
+export const kThemeMetricDisclosureTriangleHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricDisclosureTriangleHeight',
+)
+
+export const kThemeMetricDisclosureTriangleWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricDisclosureTriangleWidth',
+)
+
+export const kThemeMetricEditTextFrameOutset = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricEditTextFrameOutset',
+)
+
+export const kThemeMetricEditTextWhitespace = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricEditTextWhitespace',
+)
+
 export const kThemeMetricFocusRectOutset = /* @__PURE__ */ _bind(FW, 'kThemeMetricFocusRectOutset')
 export const kThemeMetricHSliderHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricHSliderHeight')
-export const kThemeMetricHSliderTickHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricHSliderTickHeight')
-export const kThemeMetricHSliderTickOffset = /* @__PURE__ */ _bind(FW, 'kThemeMetricHSliderTickOffset')
-export const kThemeMetricImageWellThickness = /* @__PURE__ */ _bind(FW, 'kThemeMetricImageWellThickness')
-export const kThemeMetricLargeProgressBarThickness = /* @__PURE__ */ _bind(FW, 'kThemeMetricLargeProgressBarThickness')
-export const kThemeMetricLargeRoundButtonSize = /* @__PURE__ */ _bind(FW, 'kThemeMetricLargeRoundButtonSize')
-export const kThemeMetricLargeTabCapsWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricLargeTabCapsWidth')
+export const kThemeMetricHSliderTickHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricHSliderTickHeight',
+)
+
+export const kThemeMetricHSliderTickOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricHSliderTickOffset',
+)
+
+export const kThemeMetricImageWellThickness = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricImageWellThickness',
+)
+
+export const kThemeMetricLargeProgressBarThickness = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricLargeProgressBarThickness',
+)
+
+export const kThemeMetricLargeRoundButtonSize = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricLargeRoundButtonSize',
+)
+
+export const kThemeMetricLargeTabCapsWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricLargeTabCapsWidth',
+)
+
 export const kThemeMetricLargeTabHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricLargeTabHeight')
-export const kThemeMetricListBoxFrameOutset = /* @__PURE__ */ _bind(FW, 'kThemeMetricListBoxFrameOutset')
-export const kThemeMetricListHeaderHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricListHeaderHeight')
-export const kThemeMetricLittleArrowsHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricLittleArrowsHeight')
-export const kThemeMetricLittleArrowsMiniHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricLittleArrowsMiniHeight')
-export const kThemeMetricLittleArrowsMiniWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricLittleArrowsMiniWidth')
-export const kThemeMetricLittleArrowsSmallHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricLittleArrowsSmallHeight')
-export const kThemeMetricLittleArrowsSmallWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricLittleArrowsSmallWidth')
-export const kThemeMetricLittleArrowsWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricLittleArrowsWidth')
-export const kThemeMetricMenuExcludedMarkColumnWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricMenuExcludedMarkColumnWidth')
-export const kThemeMetricMenuIconTrailingEdgeMargin = /* @__PURE__ */ _bind(FW, 'kThemeMetricMenuIconTrailingEdgeMargin')
+export const kThemeMetricListBoxFrameOutset = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricListBoxFrameOutset',
+)
+
+export const kThemeMetricListHeaderHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricListHeaderHeight',
+)
+
+export const kThemeMetricLittleArrowsHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricLittleArrowsHeight',
+)
+
+export const kThemeMetricLittleArrowsMiniHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricLittleArrowsMiniHeight',
+)
+
+export const kThemeMetricLittleArrowsMiniWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricLittleArrowsMiniWidth',
+)
+
+export const kThemeMetricLittleArrowsSmallHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricLittleArrowsSmallHeight',
+)
+
+export const kThemeMetricLittleArrowsSmallWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricLittleArrowsSmallWidth',
+)
+
+export const kThemeMetricLittleArrowsWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricLittleArrowsWidth',
+)
+
+export const kThemeMetricMenuExcludedMarkColumnWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricMenuExcludedMarkColumnWidth',
+)
+
+export const kThemeMetricMenuIconTrailingEdgeMargin = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricMenuIconTrailingEdgeMargin',
+)
+
 export const kThemeMetricMenuIndentWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricMenuIndentWidth')
-export const kThemeMetricMenuMarkColumnWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricMenuMarkColumnWidth')
+export const kThemeMetricMenuMarkColumnWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricMenuMarkColumnWidth',
+)
+
 export const kThemeMetricMenuMarkIndent = /* @__PURE__ */ _bind(FW, 'kThemeMetricMenuMarkIndent')
-export const kThemeMetricMenuTextLeadingEdgeMargin = /* @__PURE__ */ _bind(FW, 'kThemeMetricMenuTextLeadingEdgeMargin')
-export const kThemeMetricMenuTextTrailingEdgeMargin = /* @__PURE__ */ _bind(FW, 'kThemeMetricMenuTextTrailingEdgeMargin')
-export const kThemeMetricMiniCheckBoxHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricMiniCheckBoxHeight')
-export const kThemeMetricMiniCheckBoxWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricMiniCheckBoxWidth')
-export const kThemeMetricMiniDisclosureButtonHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricMiniDisclosureButtonHeight')
-export const kThemeMetricMiniDisclosureButtonWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricMiniDisclosureButtonWidth')
-export const kThemeMetricMiniHSliderHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricMiniHSliderHeight')
-export const kThemeMetricMiniHSliderMinThumbWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricMiniHSliderMinThumbWidth')
-export const kThemeMetricMiniHSliderTickHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricMiniHSliderTickHeight')
-export const kThemeMetricMiniHSliderTickOffset = /* @__PURE__ */ _bind(FW, 'kThemeMetricMiniHSliderTickOffset')
-export const kThemeMetricMiniPopupButtonHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricMiniPopupButtonHeight')
-export const kThemeMetricMiniPullDownHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricMiniPullDownHeight')
-export const kThemeMetricMiniPushButtonHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricMiniPushButtonHeight')
-export const kThemeMetricMiniRadioButtonHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricMiniRadioButtonHeight')
-export const kThemeMetricMiniRadioButtonWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricMiniRadioButtonWidth')
-export const kThemeMetricMiniTabCapsWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricMiniTabCapsWidth')
-export const kThemeMetricMiniTabFrameOverlap = /* @__PURE__ */ _bind(FW, 'kThemeMetricMiniTabFrameOverlap')
+export const kThemeMetricMenuTextLeadingEdgeMargin = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricMenuTextLeadingEdgeMargin',
+)
+
+export const kThemeMetricMenuTextTrailingEdgeMargin = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricMenuTextTrailingEdgeMargin',
+)
+
+export const kThemeMetricMiniCheckBoxHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricMiniCheckBoxHeight',
+)
+
+export const kThemeMetricMiniCheckBoxWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricMiniCheckBoxWidth',
+)
+
+export const kThemeMetricMiniDisclosureButtonHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricMiniDisclosureButtonHeight',
+)
+
+export const kThemeMetricMiniDisclosureButtonWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricMiniDisclosureButtonWidth',
+)
+
+export const kThemeMetricMiniHSliderHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricMiniHSliderHeight',
+)
+
+export const kThemeMetricMiniHSliderMinThumbWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricMiniHSliderMinThumbWidth',
+)
+
+export const kThemeMetricMiniHSliderTickHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricMiniHSliderTickHeight',
+)
+
+export const kThemeMetricMiniHSliderTickOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricMiniHSliderTickOffset',
+)
+
+export const kThemeMetricMiniPopupButtonHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricMiniPopupButtonHeight',
+)
+
+export const kThemeMetricMiniPullDownHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricMiniPullDownHeight',
+)
+
+export const kThemeMetricMiniPushButtonHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricMiniPushButtonHeight',
+)
+
+export const kThemeMetricMiniRadioButtonHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricMiniRadioButtonHeight',
+)
+
+export const kThemeMetricMiniRadioButtonWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricMiniRadioButtonWidth',
+)
+
+export const kThemeMetricMiniTabCapsWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricMiniTabCapsWidth',
+)
+
+export const kThemeMetricMiniTabFrameOverlap = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricMiniTabFrameOverlap',
+)
+
 export const kThemeMetricMiniTabHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricMiniTabHeight')
 export const kThemeMetricMiniTabOverlap = /* @__PURE__ */ _bind(FW, 'kThemeMetricMiniTabOverlap')
-export const kThemeMetricMiniVSliderMinThumbHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricMiniVSliderMinThumbHeight')
-export const kThemeMetricMiniVSliderTickOffset = /* @__PURE__ */ _bind(FW, 'kThemeMetricMiniVSliderTickOffset')
-export const kThemeMetricMiniVSliderTickWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricMiniVSliderTickWidth')
-export const kThemeMetricMiniVSliderWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricMiniVSliderWidth')
-export const kThemeMetricNormalProgressBarThickness = /* @__PURE__ */ _bind(FW, 'kThemeMetricNormalProgressBarThickness')
-export const kThemeMetricPaneSplitterHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricPaneSplitterHeight')
-export const kThemeMetricPopupButtonHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricPopupButtonHeight')
-export const kThemeMetricPrimaryGroupBoxContentInset = /* @__PURE__ */ _bind(FW, 'kThemeMetricPrimaryGroupBoxContentInset')
-export const kThemeMetricProgressBarShadowOutset = /* @__PURE__ */ _bind(FW, 'kThemeMetricProgressBarShadowOutset')
-export const kThemeMetricProgressBarThickness = /* @__PURE__ */ _bind(FW, 'kThemeMetricProgressBarThickness')
+export const kThemeMetricMiniVSliderMinThumbHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricMiniVSliderMinThumbHeight',
+)
+
+export const kThemeMetricMiniVSliderTickOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricMiniVSliderTickOffset',
+)
+
+export const kThemeMetricMiniVSliderTickWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricMiniVSliderTickWidth',
+)
+
+export const kThemeMetricMiniVSliderWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricMiniVSliderWidth',
+)
+
+export const kThemeMetricNormalProgressBarThickness = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricNormalProgressBarThickness',
+)
+
+export const kThemeMetricPaneSplitterHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricPaneSplitterHeight',
+)
+
+export const kThemeMetricPopupButtonHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricPopupButtonHeight',
+)
+
+export const kThemeMetricPrimaryGroupBoxContentInset = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricPrimaryGroupBoxContentInset',
+)
+
+export const kThemeMetricProgressBarShadowOutset = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricProgressBarShadowOutset',
+)
+
+export const kThemeMetricProgressBarThickness = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricProgressBarThickness',
+)
+
 export const kThemeMetricPullDownHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricPullDownHeight')
-export const kThemeMetricPushButtonHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricPushButtonHeight')
-export const kThemeMetricRadioButtonGlyphHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricRadioButtonGlyphHeight')
-export const kThemeMetricRadioButtonHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricRadioButtonHeight')
-export const kThemeMetricRadioButtonWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricRadioButtonWidth')
-export const kThemeMetricRelevanceIndicatorHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricRelevanceIndicatorHeight')
-export const kThemeMetricResizeControlHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricResizeControlHeight')
+export const kThemeMetricPushButtonHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricPushButtonHeight',
+)
+
+export const kThemeMetricRadioButtonGlyphHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricRadioButtonGlyphHeight',
+)
+
+export const kThemeMetricRadioButtonHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricRadioButtonHeight',
+)
+
+export const kThemeMetricRadioButtonWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricRadioButtonWidth',
+)
+
+export const kThemeMetricRelevanceIndicatorHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricRelevanceIndicatorHeight',
+)
+
+export const kThemeMetricResizeControlHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricResizeControlHeight',
+)
+
 export const kThemeMetricRoundButtonSize = /* @__PURE__ */ _bind(FW, 'kThemeMetricRoundButtonSize')
-export const kThemeMetricRoundTextFieldContentHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricRoundTextFieldContentHeight')
-export const kThemeMetricRoundTextFieldContentInsetBottom = /* @__PURE__ */ _bind(FW, 'kThemeMetricRoundTextFieldContentInsetBottom')
-export const kThemeMetricRoundTextFieldContentInsetLeft = /* @__PURE__ */ _bind(FW, 'kThemeMetricRoundTextFieldContentInsetLeft')
-export const kThemeMetricRoundTextFieldContentInsetRight = /* @__PURE__ */ _bind(FW, 'kThemeMetricRoundTextFieldContentInsetRight')
-export const kThemeMetricRoundTextFieldContentInsetTop = /* @__PURE__ */ _bind(FW, 'kThemeMetricRoundTextFieldContentInsetTop')
-export const kThemeMetricRoundTextFieldContentInsetWithIconLeft = /* @__PURE__ */ _bind(FW, 'kThemeMetricRoundTextFieldContentInsetWithIconLeft')
-export const kThemeMetricRoundTextFieldContentInsetWithIconRight = /* @__PURE__ */ _bind(FW, 'kThemeMetricRoundTextFieldContentInsetWithIconRight')
-export const kThemeMetricRoundTextFieldMiniContentHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricRoundTextFieldMiniContentHeight')
-export const kThemeMetricRoundTextFieldMiniContentInsetBottom = /* @__PURE__ */ _bind(FW, 'kThemeMetricRoundTextFieldMiniContentInsetBottom')
-export const kThemeMetricRoundTextFieldMiniContentInsetLeft = /* @__PURE__ */ _bind(FW, 'kThemeMetricRoundTextFieldMiniContentInsetLeft')
-export const kThemeMetricRoundTextFieldMiniContentInsetRight = /* @__PURE__ */ _bind(FW, 'kThemeMetricRoundTextFieldMiniContentInsetRight')
-export const kThemeMetricRoundTextFieldMiniContentInsetTop = /* @__PURE__ */ _bind(FW, 'kThemeMetricRoundTextFieldMiniContentInsetTop')
-export const kThemeMetricRoundTextFieldMiniContentInsetWithIconLeft = /* @__PURE__ */ _bind(FW, 'kThemeMetricRoundTextFieldMiniContentInsetWithIconLeft')
-export const kThemeMetricRoundTextFieldMiniContentInsetWithIconRight = /* @__PURE__ */ _bind(FW, 'kThemeMetricRoundTextFieldMiniContentInsetWithIconRight')
-export const kThemeMetricRoundTextFieldSmallContentHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricRoundTextFieldSmallContentHeight')
-export const kThemeMetricRoundTextFieldSmallContentInsetBottom = /* @__PURE__ */ _bind(FW, 'kThemeMetricRoundTextFieldSmallContentInsetBottom')
-export const kThemeMetricRoundTextFieldSmallContentInsetLeft = /* @__PURE__ */ _bind(FW, 'kThemeMetricRoundTextFieldSmallContentInsetLeft')
-export const kThemeMetricRoundTextFieldSmallContentInsetRight = /* @__PURE__ */ _bind(FW, 'kThemeMetricRoundTextFieldSmallContentInsetRight')
-export const kThemeMetricRoundTextFieldSmallContentInsetTop = /* @__PURE__ */ _bind(FW, 'kThemeMetricRoundTextFieldSmallContentInsetTop')
-export const kThemeMetricRoundTextFieldSmallContentInsetWithIconLeft = /* @__PURE__ */ _bind(FW, 'kThemeMetricRoundTextFieldSmallContentInsetWithIconLeft')
-export const kThemeMetricRoundTextFieldSmallContentInsetWithIconRight = /* @__PURE__ */ _bind(FW, 'kThemeMetricRoundTextFieldSmallContentInsetWithIconRight')
-export const kThemeMetricScrollBarMinThumbHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricScrollBarMinThumbHeight')
-export const kThemeMetricScrollBarMinThumbWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricScrollBarMinThumbWidth')
-export const kThemeMetricScrollBarOverlap = /* @__PURE__ */ _bind(FW, 'kThemeMetricScrollBarOverlap')
+export const kThemeMetricRoundTextFieldContentHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricRoundTextFieldContentHeight',
+)
+
+export const kThemeMetricRoundTextFieldContentInsetBottom = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricRoundTextFieldContentInsetBottom',
+)
+
+export const kThemeMetricRoundTextFieldContentInsetLeft = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricRoundTextFieldContentInsetLeft',
+)
+
+export const kThemeMetricRoundTextFieldContentInsetRight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricRoundTextFieldContentInsetRight',
+)
+
+export const kThemeMetricRoundTextFieldContentInsetTop = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricRoundTextFieldContentInsetTop',
+)
+
+export const kThemeMetricRoundTextFieldContentInsetWithIconLeft = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricRoundTextFieldContentInsetWithIconLeft',
+)
+
+export const kThemeMetricRoundTextFieldContentInsetWithIconRight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricRoundTextFieldContentInsetWithIconRight',
+)
+
+export const kThemeMetricRoundTextFieldMiniContentHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricRoundTextFieldMiniContentHeight',
+)
+
+export const kThemeMetricRoundTextFieldMiniContentInsetBottom = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricRoundTextFieldMiniContentInsetBottom',
+)
+
+export const kThemeMetricRoundTextFieldMiniContentInsetLeft = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricRoundTextFieldMiniContentInsetLeft',
+)
+
+export const kThemeMetricRoundTextFieldMiniContentInsetRight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricRoundTextFieldMiniContentInsetRight',
+)
+
+export const kThemeMetricRoundTextFieldMiniContentInsetTop = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricRoundTextFieldMiniContentInsetTop',
+)
+
+export const kThemeMetricRoundTextFieldMiniContentInsetWithIconLeft = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricRoundTextFieldMiniContentInsetWithIconLeft',
+)
+
+export const kThemeMetricRoundTextFieldMiniContentInsetWithIconRight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricRoundTextFieldMiniContentInsetWithIconRight',
+)
+
+export const kThemeMetricRoundTextFieldSmallContentHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricRoundTextFieldSmallContentHeight',
+)
+
+export const kThemeMetricRoundTextFieldSmallContentInsetBottom = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricRoundTextFieldSmallContentInsetBottom',
+)
+
+export const kThemeMetricRoundTextFieldSmallContentInsetLeft = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricRoundTextFieldSmallContentInsetLeft',
+)
+
+export const kThemeMetricRoundTextFieldSmallContentInsetRight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricRoundTextFieldSmallContentInsetRight',
+)
+
+export const kThemeMetricRoundTextFieldSmallContentInsetTop = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricRoundTextFieldSmallContentInsetTop',
+)
+
+export const kThemeMetricRoundTextFieldSmallContentInsetWithIconLeft = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricRoundTextFieldSmallContentInsetWithIconLeft',
+)
+
+export const kThemeMetricRoundTextFieldSmallContentInsetWithIconRight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricRoundTextFieldSmallContentInsetWithIconRight',
+)
+
+export const kThemeMetricScrollBarMinThumbHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricScrollBarMinThumbHeight',
+)
+
+export const kThemeMetricScrollBarMinThumbWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricScrollBarMinThumbWidth',
+)
+
+export const kThemeMetricScrollBarOverlap = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricScrollBarOverlap',
+)
+
 export const kThemeMetricScrollBarWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricScrollBarWidth')
-export const kThemeMetricSecondaryGroupBoxContentInset = /* @__PURE__ */ _bind(FW, 'kThemeMetricSecondaryGroupBoxContentInset')
+export const kThemeMetricSecondaryGroupBoxContentInset = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricSecondaryGroupBoxContentInset',
+)
+
 export const kThemeMetricSeparatorSize = /* @__PURE__ */ _bind(FW, 'kThemeMetricSeparatorSize')
-export const kThemeMetricSliderMinThumbHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricSliderMinThumbHeight')
-export const kThemeMetricSliderMinThumbWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricSliderMinThumbWidth')
-export const kThemeMetricSmallCheckBoxHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricSmallCheckBoxHeight')
-export const kThemeMetricSmallCheckBoxWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricSmallCheckBoxWidth')
-export const kThemeMetricSmallDisclosureButtonHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricSmallDisclosureButtonHeight')
-export const kThemeMetricSmallDisclosureButtonWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricSmallDisclosureButtonWidth')
-export const kThemeMetricSmallHSliderHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricSmallHSliderHeight')
-export const kThemeMetricSmallHSliderMinThumbWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricSmallHSliderMinThumbWidth')
-export const kThemeMetricSmallHSliderTickHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricSmallHSliderTickHeight')
-export const kThemeMetricSmallHSliderTickOffset = /* @__PURE__ */ _bind(FW, 'kThemeMetricSmallHSliderTickOffset')
-export const kThemeMetricSmallPaneSplitterHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricSmallPaneSplitterHeight')
-export const kThemeMetricSmallPopupButtonHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricSmallPopupButtonHeight')
-export const kThemeMetricSmallProgressBarShadowOutset = /* @__PURE__ */ _bind(FW, 'kThemeMetricSmallProgressBarShadowOutset')
-export const kThemeMetricSmallProgressBarThickness = /* @__PURE__ */ _bind(FW, 'kThemeMetricSmallProgressBarThickness')
-export const kThemeMetricSmallPullDownHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricSmallPullDownHeight')
-export const kThemeMetricSmallPushButtonHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricSmallPushButtonHeight')
-export const kThemeMetricSmallRadioButtonHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricSmallRadioButtonHeight')
-export const kThemeMetricSmallRadioButtonWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricSmallRadioButtonWidth')
-export const kThemeMetricSmallResizeControlHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricSmallResizeControlHeight')
-export const kThemeMetricSmallScrollBarMinThumbHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricSmallScrollBarMinThumbHeight')
-export const kThemeMetricSmallScrollBarMinThumbWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricSmallScrollBarMinThumbWidth')
-export const kThemeMetricSmallScrollBarWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricSmallScrollBarWidth')
-export const kThemeMetricSmallTabCapsWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricSmallTabCapsWidth')
-export const kThemeMetricSmallTabFrameOverlap = /* @__PURE__ */ _bind(FW, 'kThemeMetricSmallTabFrameOverlap')
+export const kThemeMetricSliderMinThumbHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricSliderMinThumbHeight',
+)
+
+export const kThemeMetricSliderMinThumbWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricSliderMinThumbWidth',
+)
+
+export const kThemeMetricSmallCheckBoxHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricSmallCheckBoxHeight',
+)
+
+export const kThemeMetricSmallCheckBoxWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricSmallCheckBoxWidth',
+)
+
+export const kThemeMetricSmallDisclosureButtonHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricSmallDisclosureButtonHeight',
+)
+
+export const kThemeMetricSmallDisclosureButtonWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricSmallDisclosureButtonWidth',
+)
+
+export const kThemeMetricSmallHSliderHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricSmallHSliderHeight',
+)
+
+export const kThemeMetricSmallHSliderMinThumbWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricSmallHSliderMinThumbWidth',
+)
+
+export const kThemeMetricSmallHSliderTickHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricSmallHSliderTickHeight',
+)
+
+export const kThemeMetricSmallHSliderTickOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricSmallHSliderTickOffset',
+)
+
+export const kThemeMetricSmallPaneSplitterHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricSmallPaneSplitterHeight',
+)
+
+export const kThemeMetricSmallPopupButtonHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricSmallPopupButtonHeight',
+)
+
+export const kThemeMetricSmallProgressBarShadowOutset = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricSmallProgressBarShadowOutset',
+)
+
+export const kThemeMetricSmallProgressBarThickness = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricSmallProgressBarThickness',
+)
+
+export const kThemeMetricSmallPullDownHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricSmallPullDownHeight',
+)
+
+export const kThemeMetricSmallPushButtonHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricSmallPushButtonHeight',
+)
+
+export const kThemeMetricSmallRadioButtonHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricSmallRadioButtonHeight',
+)
+
+export const kThemeMetricSmallRadioButtonWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricSmallRadioButtonWidth',
+)
+
+export const kThemeMetricSmallResizeControlHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricSmallResizeControlHeight',
+)
+
+export const kThemeMetricSmallScrollBarMinThumbHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricSmallScrollBarMinThumbHeight',
+)
+
+export const kThemeMetricSmallScrollBarMinThumbWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricSmallScrollBarMinThumbWidth',
+)
+
+export const kThemeMetricSmallScrollBarWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricSmallScrollBarWidth',
+)
+
+export const kThemeMetricSmallTabCapsWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricSmallTabCapsWidth',
+)
+
+export const kThemeMetricSmallTabFrameOverlap = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricSmallTabFrameOverlap',
+)
+
 export const kThemeMetricSmallTabHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricSmallTabHeight')
 export const kThemeMetricSmallTabOverlap = /* @__PURE__ */ _bind(FW, 'kThemeMetricSmallTabOverlap')
-export const kThemeMetricSmallVSliderMinThumbHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricSmallVSliderMinThumbHeight')
-export const kThemeMetricSmallVSliderTickOffset = /* @__PURE__ */ _bind(FW, 'kThemeMetricSmallVSliderTickOffset')
-export const kThemeMetricSmallVSliderTickWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricSmallVSliderTickWidth')
-export const kThemeMetricSmallVSliderWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricSmallVSliderWidth')
+export const kThemeMetricSmallVSliderMinThumbHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricSmallVSliderMinThumbHeight',
+)
+
+export const kThemeMetricSmallVSliderTickOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricSmallVSliderTickOffset',
+)
+
+export const kThemeMetricSmallVSliderTickWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricSmallVSliderTickWidth',
+)
+
+export const kThemeMetricSmallVSliderWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricSmallVSliderWidth',
+)
+
 export const kThemeMetricTabFrameOverlap = /* @__PURE__ */ _bind(FW, 'kThemeMetricTabFrameOverlap')
-export const kThemeMetricTabIndentOrStyle = /* @__PURE__ */ _bind(FW, 'kThemeMetricTabIndentOrStyle')
+export const kThemeMetricTabIndentOrStyle = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricTabIndentOrStyle',
+)
+
 export const kThemeMetricTabOverlap = /* @__PURE__ */ _bind(FW, 'kThemeMetricTabOverlap')
-export const kThemeMetricTexturedPushButtonHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricTexturedPushButtonHeight')
-export const kThemeMetricTexturedSmallPushButtonHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricTexturedSmallPushButtonHeight')
-export const kThemeMetricTitleBarControlsHeight = /* @__PURE__ */ _bind(FW, 'kThemeMetricTitleBarControlsHeight')
-export const kThemeMetricVSliderTickOffset = /* @__PURE__ */ _bind(FW, 'kThemeMetricVSliderTickOffset')
-export const kThemeMetricVSliderTickWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricVSliderTickWidth')
+export const kThemeMetricTexturedPushButtonHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricTexturedPushButtonHeight',
+)
+
+export const kThemeMetricTexturedSmallPushButtonHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricTexturedSmallPushButtonHeight',
+)
+
+export const kThemeMetricTitleBarControlsHeight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricTitleBarControlsHeight',
+)
+
+export const kThemeMetricVSliderTickOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricVSliderTickOffset',
+)
+
+export const kThemeMetricVSliderTickWidth = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeMetricVSliderTickWidth',
+)
+
 export const kThemeMetricVSliderWidth = /* @__PURE__ */ _bind(FW, 'kThemeMetricVSliderWidth')
 export const kThemeMiniCheckBox = /* @__PURE__ */ _bind(FW, 'kThemeMiniCheckBox')
 export const kThemeMiniIndeterminateBar = /* @__PURE__ */ _bind(FW, 'kThemeMiniIndeterminateBar')
@@ -4502,15 +9738,47 @@ export const kThemePopupButton = /* @__PURE__ */ _bind(FW, 'kThemePopupButton')
 export const kThemePopupButtonMini = /* @__PURE__ */ _bind(FW, 'kThemePopupButtonMini')
 export const kThemePopupButtonNormal = /* @__PURE__ */ _bind(FW, 'kThemePopupButtonNormal')
 export const kThemePopupButtonSmall = /* @__PURE__ */ _bind(FW, 'kThemePopupButtonSmall')
-export const kThemePopupTabCenterOnOffset = /* @__PURE__ */ _bind(FW, 'kThemePopupTabCenterOnOffset')
-export const kThemePopupTabCenterOnWindow = /* @__PURE__ */ _bind(FW, 'kThemePopupTabCenterOnWindow')
-export const kThemePopupTabNormalPosition = /* @__PURE__ */ _bind(FW, 'kThemePopupTabNormalPosition')
+export const kThemePopupTabCenterOnOffset = /* @__PURE__ */ _bind(
+	FW,
+	'kThemePopupTabCenterOnOffset',
+)
+
+export const kThemePopupTabCenterOnWindow = /* @__PURE__ */ _bind(
+	FW,
+	'kThemePopupTabCenterOnWindow',
+)
+
+export const kThemePopupTabNormalPosition = /* @__PURE__ */ _bind(
+	FW,
+	'kThemePopupTabNormalPosition',
+)
+
 export const kThemePopupWindow = /* @__PURE__ */ _bind(FW, 'kThemePopupWindow')
-export const kThemePressedBevelButtonTextColor = /* @__PURE__ */ _bind(FW, 'kThemePressedBevelButtonTextColor')
-export const kThemePressedPlacardTextColor = /* @__PURE__ */ _bind(FW, 'kThemePressedPlacardTextColor')
-export const kThemePressedPopupArrowBrush = /* @__PURE__ */ _bind(FW, 'kThemePressedPopupArrowBrush')
-export const kThemePressedPopupButtonTextColor = /* @__PURE__ */ _bind(FW, 'kThemePressedPopupButtonTextColor')
-export const kThemePressedPushButtonTextColor = /* @__PURE__ */ _bind(FW, 'kThemePressedPushButtonTextColor')
+export const kThemePressedBevelButtonTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemePressedBevelButtonTextColor',
+)
+
+export const kThemePressedPlacardTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemePressedPlacardTextColor',
+)
+
+export const kThemePressedPopupArrowBrush = /* @__PURE__ */ _bind(
+	FW,
+	'kThemePressedPopupArrowBrush',
+)
+
+export const kThemePressedPopupButtonTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemePressedPopupButtonTextColor',
+)
+
+export const kThemePressedPushButtonTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemePressedPushButtonTextColor',
+)
+
 export const kThemeProgressBar = /* @__PURE__ */ _bind(FW, 'kThemeProgressBar')
 export const kThemeProgressBarLarge = /* @__PURE__ */ _bind(FW, 'kThemeProgressBarLarge')
 export const kThemeProgressBarMedium = /* @__PURE__ */ _bind(FW, 'kThemeProgressBarMedium')
@@ -4523,7 +9791,11 @@ export const kThemePushButtonMini = /* @__PURE__ */ _bind(FW, 'kThemePushButtonM
 export const kThemePushButtonNormal = /* @__PURE__ */ _bind(FW, 'kThemePushButtonNormal')
 export const kThemePushButtonSmall = /* @__PURE__ */ _bind(FW, 'kThemePushButtonSmall')
 export const kThemePushButtonTextured = /* @__PURE__ */ _bind(FW, 'kThemePushButtonTextured')
-export const kThemePushButtonTexturedSmall = /* @__PURE__ */ _bind(FW, 'kThemePushButtonTexturedSmall')
+export const kThemePushButtonTexturedSmall = /* @__PURE__ */ _bind(
+	FW,
+	'kThemePushButtonTexturedSmall',
+)
+
 export const kThemeRadioButton = /* @__PURE__ */ _bind(FW, 'kThemeRadioButton')
 export const kThemeRadioButtonMini = /* @__PURE__ */ _bind(FW, 'kThemeRadioButtonMini')
 export const kThemeRadioButtonSmall = /* @__PURE__ */ _bind(FW, 'kThemeRadioButtonSmall')
@@ -4534,8 +9806,16 @@ export const kThemeResizeLeftRightCursor = /* @__PURE__ */ _bind(FW, 'kThemeResi
 export const kThemeResizeRightCursor = /* @__PURE__ */ _bind(FW, 'kThemeResizeRightCursor')
 export const kThemeResizeUpCursor = /* @__PURE__ */ _bind(FW, 'kThemeResizeUpCursor')
 export const kThemeResizeUpDownCursor = /* @__PURE__ */ _bind(FW, 'kThemeResizeUpDownCursor')
-export const kThemeRightInsideArrowPressed = /* @__PURE__ */ _bind(FW, 'kThemeRightInsideArrowPressed')
-export const kThemeRightOutsideArrowPressed = /* @__PURE__ */ _bind(FW, 'kThemeRightOutsideArrowPressed')
+export const kThemeRightInsideArrowPressed = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeRightInsideArrowPressed',
+)
+
+export const kThemeRightOutsideArrowPressed = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeRightOutsideArrowPressed',
+)
+
 export const kThemeRightToLeftAdornment = /* @__PURE__ */ _bind(FW, 'kThemeRightToLeftAdornment')
 export const kThemeRightTrackPressed = /* @__PURE__ */ _bind(FW, 'kThemeRightTrackPressed')
 export const kThemeRoundButton = /* @__PURE__ */ _bind(FW, 'kThemeRoundButton')
@@ -4544,17 +9824,41 @@ export const kThemeRoundButtonLarge = /* @__PURE__ */ _bind(FW, 'kThemeRoundButt
 export const kThemeRoundedBevelButton = /* @__PURE__ */ _bind(FW, 'kThemeRoundedBevelButton')
 export const kThemeSavvyMenuResponse = /* @__PURE__ */ _bind(FW, 'kThemeSavvyMenuResponse')
 export const kThemeScrollBar = /* @__PURE__ */ _bind(FW, 'kThemeScrollBar')
-export const kThemeScrollBarArrowStyleTag = /* @__PURE__ */ _bind(FW, 'kThemeScrollBarArrowStyleTag')
-export const kThemeScrollBarArrowsLowerRight = /* @__PURE__ */ _bind(FW, 'kThemeScrollBarArrowsLowerRight')
+export const kThemeScrollBarArrowStyleTag = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeScrollBarArrowStyleTag',
+)
+
+export const kThemeScrollBarArrowsLowerRight = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeScrollBarArrowsLowerRight',
+)
+
 export const kThemeScrollBarArrowsSingle = /* @__PURE__ */ _bind(FW, 'kThemeScrollBarArrowsSingle')
 export const kThemeScrollBarMedium = /* @__PURE__ */ _bind(FW, 'kThemeScrollBarMedium')
 export const kThemeScrollBarMini = /* @__PURE__ */ _bind(FW, 'kThemeScrollBarMini')
 export const kThemeScrollBarSmall = /* @__PURE__ */ _bind(FW, 'kThemeScrollBarSmall')
 export const kThemeScrollBarThumbNormal = /* @__PURE__ */ _bind(FW, 'kThemeScrollBarThumbNormal')
-export const kThemeScrollBarThumbProportional = /* @__PURE__ */ _bind(FW, 'kThemeScrollBarThumbProportional')
-export const kThemeScrollBarThumbStyleTag = /* @__PURE__ */ _bind(FW, 'kThemeScrollBarThumbStyleTag')
-export const kThemeSelectedMenuItemTextColor = /* @__PURE__ */ _bind(FW, 'kThemeSelectedMenuItemTextColor')
-export const kThemeSelectedRootMenuTextColor = /* @__PURE__ */ _bind(FW, 'kThemeSelectedRootMenuTextColor')
+export const kThemeScrollBarThumbProportional = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeScrollBarThumbProportional',
+)
+
+export const kThemeScrollBarThumbStyleTag = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeScrollBarThumbStyleTag',
+)
+
+export const kThemeSelectedMenuItemTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSelectedMenuItemTextColor',
+)
+
+export const kThemeSelectedRootMenuTextColor = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSelectedRootMenuTextColor',
+)
+
 export const kThemeShadowDialogWindow = /* @__PURE__ */ _bind(FW, 'kThemeShadowDialogWindow')
 export const kThemeSheetWindow = /* @__PURE__ */ _bind(FW, 'kThemeSheetWindow')
 export const kThemeSlider = /* @__PURE__ */ _bind(FW, 'kThemeSlider')
@@ -4563,7 +9867,11 @@ export const kThemeSliderMini = /* @__PURE__ */ _bind(FW, 'kThemeSliderMini')
 export const kThemeSliderSmall = /* @__PURE__ */ _bind(FW, 'kThemeSliderSmall')
 export const kThemeSmallBevelButton = /* @__PURE__ */ _bind(FW, 'kThemeSmallBevelButton')
 export const kThemeSmallCheckBox = /* @__PURE__ */ _bind(FW, 'kThemeSmallCheckBox')
-export const kThemeSmallEmphasizedSystemFont = /* @__PURE__ */ _bind(FW, 'kThemeSmallEmphasizedSystemFont')
+export const kThemeSmallEmphasizedSystemFont = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSmallEmphasizedSystemFont',
+)
+
 export const kThemeSmallRadioButton = /* @__PURE__ */ _bind(FW, 'kThemeSmallRadioButton')
 export const kThemeSmallScrollBar = /* @__PURE__ */ _bind(FW, 'kThemeSmallScrollBar')
 export const kThemeSmallSlider = /* @__PURE__ */ _bind(FW, 'kThemeSmallSlider')
@@ -4585,40 +9893,96 @@ export const kThemeSoundButtonEnter = /* @__PURE__ */ _bind(FW, 'kThemeSoundButt
 export const kThemeSoundButtonExit = /* @__PURE__ */ _bind(FW, 'kThemeSoundButtonExit')
 export const kThemeSoundButtonPress = /* @__PURE__ */ _bind(FW, 'kThemeSoundButtonPress')
 export const kThemeSoundButtonRelease = /* @__PURE__ */ _bind(FW, 'kThemeSoundButtonRelease')
-export const kThemeSoundCancelButtonEnter = /* @__PURE__ */ _bind(FW, 'kThemeSoundCancelButtonEnter')
+export const kThemeSoundCancelButtonEnter = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundCancelButtonEnter',
+)
+
 export const kThemeSoundCancelButtonExit = /* @__PURE__ */ _bind(FW, 'kThemeSoundCancelButtonExit')
-export const kThemeSoundCancelButtonPress = /* @__PURE__ */ _bind(FW, 'kThemeSoundCancelButtonPress')
-export const kThemeSoundCancelButtonRelease = /* @__PURE__ */ _bind(FW, 'kThemeSoundCancelButtonRelease')
+export const kThemeSoundCancelButtonPress = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundCancelButtonPress',
+)
+
+export const kThemeSoundCancelButtonRelease = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundCancelButtonRelease',
+)
+
 export const kThemeSoundCheckboxEnter = /* @__PURE__ */ _bind(FW, 'kThemeSoundCheckboxEnter')
 export const kThemeSoundCheckboxExit = /* @__PURE__ */ _bind(FW, 'kThemeSoundCheckboxExit')
 export const kThemeSoundCheckboxPress = /* @__PURE__ */ _bind(FW, 'kThemeSoundCheckboxPress')
 export const kThemeSoundCheckboxRelease = /* @__PURE__ */ _bind(FW, 'kThemeSoundCheckboxRelease')
 export const kThemeSoundCopyDone = /* @__PURE__ */ _bind(FW, 'kThemeSoundCopyDone')
-export const kThemeSoundDefaultButtonEnter = /* @__PURE__ */ _bind(FW, 'kThemeSoundDefaultButtonEnter')
-export const kThemeSoundDefaultButtonExit = /* @__PURE__ */ _bind(FW, 'kThemeSoundDefaultButtonExit')
-export const kThemeSoundDefaultButtonPress = /* @__PURE__ */ _bind(FW, 'kThemeSoundDefaultButtonPress')
-export const kThemeSoundDefaultButtonRelease = /* @__PURE__ */ _bind(FW, 'kThemeSoundDefaultButtonRelease')
+export const kThemeSoundDefaultButtonEnter = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundDefaultButtonEnter',
+)
+
+export const kThemeSoundDefaultButtonExit = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundDefaultButtonExit',
+)
+
+export const kThemeSoundDefaultButtonPress = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundDefaultButtonPress',
+)
+
+export const kThemeSoundDefaultButtonRelease = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundDefaultButtonRelease',
+)
+
 export const kThemeSoundDialogClose = /* @__PURE__ */ _bind(FW, 'kThemeSoundDialogClose')
 export const kThemeSoundDialogOpen = /* @__PURE__ */ _bind(FW, 'kThemeSoundDialogOpen')
 export const kThemeSoundDisclosureEnter = /* @__PURE__ */ _bind(FW, 'kThemeSoundDisclosureEnter')
 export const kThemeSoundDisclosureExit = /* @__PURE__ */ _bind(FW, 'kThemeSoundDisclosureExit')
 export const kThemeSoundDisclosurePress = /* @__PURE__ */ _bind(FW, 'kThemeSoundDisclosurePress')
-export const kThemeSoundDisclosureRelease = /* @__PURE__ */ _bind(FW, 'kThemeSoundDisclosureRelease')
+export const kThemeSoundDisclosureRelease = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundDisclosureRelease',
+)
+
 export const kThemeSoundDiskEject = /* @__PURE__ */ _bind(FW, 'kThemeSoundDiskEject')
 export const kThemeSoundDiskInsert = /* @__PURE__ */ _bind(FW, 'kThemeSoundDiskInsert')
 export const kThemeSoundDragTargetDrop = /* @__PURE__ */ _bind(FW, 'kThemeSoundDragTargetDrop')
 export const kThemeSoundDragTargetHilite = /* @__PURE__ */ _bind(FW, 'kThemeSoundDragTargetHilite')
-export const kThemeSoundDragTargetUnhilite = /* @__PURE__ */ _bind(FW, 'kThemeSoundDragTargetUnhilite')
+export const kThemeSoundDragTargetUnhilite = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundDragTargetUnhilite',
+)
+
 export const kThemeSoundEmptyTrash = /* @__PURE__ */ _bind(FW, 'kThemeSoundEmptyTrash')
-export const kThemeSoundFinderDragOffIcon = /* @__PURE__ */ _bind(FW, 'kThemeSoundFinderDragOffIcon')
+export const kThemeSoundFinderDragOffIcon = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundFinderDragOffIcon',
+)
+
 export const kThemeSoundFinderDragOnIcon = /* @__PURE__ */ _bind(FW, 'kThemeSoundFinderDragOnIcon')
 export const kThemeSoundLaunchApp = /* @__PURE__ */ _bind(FW, 'kThemeSoundLaunchApp')
-export const kThemeSoundLittleArrowDnPress = /* @__PURE__ */ _bind(FW, 'kThemeSoundLittleArrowDnPress')
-export const kThemeSoundLittleArrowDnRelease = /* @__PURE__ */ _bind(FW, 'kThemeSoundLittleArrowDnRelease')
+export const kThemeSoundLittleArrowDnPress = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundLittleArrowDnPress',
+)
+
+export const kThemeSoundLittleArrowDnRelease = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundLittleArrowDnRelease',
+)
+
 export const kThemeSoundLittleArrowEnter = /* @__PURE__ */ _bind(FW, 'kThemeSoundLittleArrowEnter')
 export const kThemeSoundLittleArrowExit = /* @__PURE__ */ _bind(FW, 'kThemeSoundLittleArrowExit')
-export const kThemeSoundLittleArrowUpPress = /* @__PURE__ */ _bind(FW, 'kThemeSoundLittleArrowUpPress')
-export const kThemeSoundLittleArrowUpRelease = /* @__PURE__ */ _bind(FW, 'kThemeSoundLittleArrowUpRelease')
+export const kThemeSoundLittleArrowUpPress = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundLittleArrowUpPress',
+)
+
+export const kThemeSoundLittleArrowUpRelease = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundLittleArrowUpRelease',
+)
+
 export const kThemeSoundMaskTag = /* @__PURE__ */ _bind(FW, 'kThemeSoundMaskTag')
 export const kThemeSoundMenuClose = /* @__PURE__ */ _bind(FW, 'kThemeSoundMenuClose')
 export const kThemeSoundMenuItemHilite = /* @__PURE__ */ _bind(FW, 'kThemeSoundMenuItemHilite')
@@ -4641,7 +10005,11 @@ export const kThemeSoundResolveAlias = /* @__PURE__ */ _bind(FW, 'kThemeSoundRes
 export const kThemeSoundScrollArrowEnter = /* @__PURE__ */ _bind(FW, 'kThemeSoundScrollArrowEnter')
 export const kThemeSoundScrollArrowExit = /* @__PURE__ */ _bind(FW, 'kThemeSoundScrollArrowExit')
 export const kThemeSoundScrollArrowPress = /* @__PURE__ */ _bind(FW, 'kThemeSoundScrollArrowPress')
-export const kThemeSoundScrollArrowRelease = /* @__PURE__ */ _bind(FW, 'kThemeSoundScrollArrowRelease')
+export const kThemeSoundScrollArrowRelease = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundScrollArrowRelease',
+)
+
 export const kThemeSoundScrollEndOfTrack = /* @__PURE__ */ _bind(FW, 'kThemeSoundScrollEndOfTrack')
 export const kThemeSoundScrollTrackPress = /* @__PURE__ */ _bind(FW, 'kThemeSoundScrollTrackPress')
 export const kThemeSoundSelectItem = /* @__PURE__ */ _bind(FW, 'kThemeSoundSelectItem')
@@ -4653,46 +10021,130 @@ export const kThemeSoundTabPressed = /* @__PURE__ */ _bind(FW, 'kThemeSoundTabPr
 export const kThemeSoundTabRelease = /* @__PURE__ */ _bind(FW, 'kThemeSoundTabRelease')
 export const kThemeSoundTrackFileType = /* @__PURE__ */ _bind(FW, 'kThemeSoundTrackFileType')
 export const kThemeSoundTrackNameTag = /* @__PURE__ */ _bind(FW, 'kThemeSoundTrackNameTag')
-export const kThemeSoundUtilWinCloseEnter = /* @__PURE__ */ _bind(FW, 'kThemeSoundUtilWinCloseEnter')
+export const kThemeSoundUtilWinCloseEnter = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundUtilWinCloseEnter',
+)
+
 export const kThemeSoundUtilWinCloseExit = /* @__PURE__ */ _bind(FW, 'kThemeSoundUtilWinCloseExit')
-export const kThemeSoundUtilWinClosePress = /* @__PURE__ */ _bind(FW, 'kThemeSoundUtilWinClosePress')
-export const kThemeSoundUtilWinCloseRelease = /* @__PURE__ */ _bind(FW, 'kThemeSoundUtilWinCloseRelease')
-export const kThemeSoundUtilWinCollapseEnter = /* @__PURE__ */ _bind(FW, 'kThemeSoundUtilWinCollapseEnter')
-export const kThemeSoundUtilWinCollapseExit = /* @__PURE__ */ _bind(FW, 'kThemeSoundUtilWinCollapseExit')
-export const kThemeSoundUtilWinCollapsePress = /* @__PURE__ */ _bind(FW, 'kThemeSoundUtilWinCollapsePress')
-export const kThemeSoundUtilWinCollapseRelease = /* @__PURE__ */ _bind(FW, 'kThemeSoundUtilWinCollapseRelease')
-export const kThemeSoundUtilWinDragBoundary = /* @__PURE__ */ _bind(FW, 'kThemeSoundUtilWinDragBoundary')
+export const kThemeSoundUtilWinClosePress = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundUtilWinClosePress',
+)
+
+export const kThemeSoundUtilWinCloseRelease = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundUtilWinCloseRelease',
+)
+
+export const kThemeSoundUtilWinCollapseEnter = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundUtilWinCollapseEnter',
+)
+
+export const kThemeSoundUtilWinCollapseExit = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundUtilWinCollapseExit',
+)
+
+export const kThemeSoundUtilWinCollapsePress = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundUtilWinCollapsePress',
+)
+
+export const kThemeSoundUtilWinCollapseRelease = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundUtilWinCollapseRelease',
+)
+
+export const kThemeSoundUtilWinDragBoundary = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundUtilWinDragBoundary',
+)
+
 export const kThemeSoundUtilWinZoomEnter = /* @__PURE__ */ _bind(FW, 'kThemeSoundUtilWinZoomEnter')
 export const kThemeSoundUtilWinZoomExit = /* @__PURE__ */ _bind(FW, 'kThemeSoundUtilWinZoomExit')
 export const kThemeSoundUtilWinZoomPress = /* @__PURE__ */ _bind(FW, 'kThemeSoundUtilWinZoomPress')
-export const kThemeSoundUtilWinZoomRelease = /* @__PURE__ */ _bind(FW, 'kThemeSoundUtilWinZoomRelease')
-export const kThemeSoundUtilWindowActivate = /* @__PURE__ */ _bind(FW, 'kThemeSoundUtilWindowActivate')
+export const kThemeSoundUtilWinZoomRelease = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundUtilWinZoomRelease',
+)
+
+export const kThemeSoundUtilWindowActivate = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundUtilWindowActivate',
+)
+
 export const kThemeSoundUtilWindowClose = /* @__PURE__ */ _bind(FW, 'kThemeSoundUtilWindowClose')
-export const kThemeSoundUtilWindowCollapseDown = /* @__PURE__ */ _bind(FW, 'kThemeSoundUtilWindowCollapseDown')
-export const kThemeSoundUtilWindowCollapseUp = /* @__PURE__ */ _bind(FW, 'kThemeSoundUtilWindowCollapseUp')
+export const kThemeSoundUtilWindowCollapseDown = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundUtilWindowCollapseDown',
+)
+
+export const kThemeSoundUtilWindowCollapseUp = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundUtilWindowCollapseUp',
+)
+
 export const kThemeSoundUtilWindowOpen = /* @__PURE__ */ _bind(FW, 'kThemeSoundUtilWindowOpen')
 export const kThemeSoundUtilWindowZoomIn = /* @__PURE__ */ _bind(FW, 'kThemeSoundUtilWindowZoomIn')
-export const kThemeSoundUtilWindowZoomOut = /* @__PURE__ */ _bind(FW, 'kThemeSoundUtilWindowZoomOut')
+export const kThemeSoundUtilWindowZoomOut = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundUtilWindowZoomOut',
+)
+
 export const kThemeSoundWindowActivate = /* @__PURE__ */ _bind(FW, 'kThemeSoundWindowActivate')
 export const kThemeSoundWindowClose = /* @__PURE__ */ _bind(FW, 'kThemeSoundWindowClose')
 export const kThemeSoundWindowCloseEnter = /* @__PURE__ */ _bind(FW, 'kThemeSoundWindowCloseEnter')
 export const kThemeSoundWindowCloseExit = /* @__PURE__ */ _bind(FW, 'kThemeSoundWindowCloseExit')
 export const kThemeSoundWindowClosePress = /* @__PURE__ */ _bind(FW, 'kThemeSoundWindowClosePress')
-export const kThemeSoundWindowCloseRelease = /* @__PURE__ */ _bind(FW, 'kThemeSoundWindowCloseRelease')
-export const kThemeSoundWindowCollapseDown = /* @__PURE__ */ _bind(FW, 'kThemeSoundWindowCollapseDown')
-export const kThemeSoundWindowCollapseEnter = /* @__PURE__ */ _bind(FW, 'kThemeSoundWindowCollapseEnter')
-export const kThemeSoundWindowCollapseExit = /* @__PURE__ */ _bind(FW, 'kThemeSoundWindowCollapseExit')
-export const kThemeSoundWindowCollapsePress = /* @__PURE__ */ _bind(FW, 'kThemeSoundWindowCollapsePress')
-export const kThemeSoundWindowCollapseRelease = /* @__PURE__ */ _bind(FW, 'kThemeSoundWindowCollapseRelease')
+export const kThemeSoundWindowCloseRelease = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundWindowCloseRelease',
+)
+
+export const kThemeSoundWindowCollapseDown = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundWindowCollapseDown',
+)
+
+export const kThemeSoundWindowCollapseEnter = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundWindowCollapseEnter',
+)
+
+export const kThemeSoundWindowCollapseExit = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundWindowCollapseExit',
+)
+
+export const kThemeSoundWindowCollapsePress = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundWindowCollapsePress',
+)
+
+export const kThemeSoundWindowCollapseRelease = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundWindowCollapseRelease',
+)
+
 export const kThemeSoundWindowCollapseUp = /* @__PURE__ */ _bind(FW, 'kThemeSoundWindowCollapseUp')
-export const kThemeSoundWindowDragBoundary = /* @__PURE__ */ _bind(FW, 'kThemeSoundWindowDragBoundary')
+export const kThemeSoundWindowDragBoundary = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundWindowDragBoundary',
+)
+
 export const kThemeSoundWindowOpen = /* @__PURE__ */ _bind(FW, 'kThemeSoundWindowOpen')
 export const kThemeSoundWindowZoomEnter = /* @__PURE__ */ _bind(FW, 'kThemeSoundWindowZoomEnter')
 export const kThemeSoundWindowZoomExit = /* @__PURE__ */ _bind(FW, 'kThemeSoundWindowZoomExit')
 export const kThemeSoundWindowZoomIn = /* @__PURE__ */ _bind(FW, 'kThemeSoundWindowZoomIn')
 export const kThemeSoundWindowZoomOut = /* @__PURE__ */ _bind(FW, 'kThemeSoundWindowZoomOut')
 export const kThemeSoundWindowZoomPress = /* @__PURE__ */ _bind(FW, 'kThemeSoundWindowZoomPress')
-export const kThemeSoundWindowZoomRelease = /* @__PURE__ */ _bind(FW, 'kThemeSoundWindowZoomRelease')
+export const kThemeSoundWindowZoomRelease = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSoundWindowZoomRelease',
+)
+
 export const kThemeSoundsEnabledTag = /* @__PURE__ */ _bind(FW, 'kThemeSoundsEnabledTag')
 export const kThemeSpecifiedFont = /* @__PURE__ */ _bind(FW, 'kThemeSpecifiedFont')
 export const kThemeSpinningCursor = /* @__PURE__ */ _bind(FW, 'kThemeSpinningCursor')
@@ -4704,10 +10156,18 @@ export const kThemeStatePressedDown = /* @__PURE__ */ _bind(FW, 'kThemeStatePres
 export const kThemeStatePressedUp = /* @__PURE__ */ _bind(FW, 'kThemeStatePressedUp')
 export const kThemeStateRollover = /* @__PURE__ */ _bind(FW, 'kThemeStateRollover')
 export const kThemeStateUnavailable = /* @__PURE__ */ _bind(FW, 'kThemeStateUnavailable')
-export const kThemeStateUnavailableInactive = /* @__PURE__ */ _bind(FW, 'kThemeStateUnavailableInactive')
+export const kThemeStateUnavailableInactive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeStateUnavailableInactive',
+)
+
 export const kThemeSystemFont = /* @__PURE__ */ _bind(FW, 'kThemeSystemFont')
 export const kThemeSystemFontDetail = /* @__PURE__ */ _bind(FW, 'kThemeSystemFontDetail')
-export const kThemeSystemFontDetailEmphasized = /* @__PURE__ */ _bind(FW, 'kThemeSystemFontDetailEmphasized')
+export const kThemeSystemFontDetailEmphasized = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeSystemFontDetailEmphasized',
+)
+
 export const kThemeSystemFontTag = /* @__PURE__ */ _bind(FW, 'kThemeSystemFontTag')
 export const kThemeTabEast = /* @__PURE__ */ _bind(FW, 'kThemeTabEast')
 export const kThemeTabFront = /* @__PURE__ */ _bind(FW, 'kThemeTabFront')
@@ -4716,68 +10176,244 @@ export const kThemeTabFrontUnavailable = /* @__PURE__ */ _bind(FW, 'kThemeTabFro
 export const kThemeTabNonFront = /* @__PURE__ */ _bind(FW, 'kThemeTabNonFront')
 export const kThemeTabNonFrontInactive = /* @__PURE__ */ _bind(FW, 'kThemeTabNonFrontInactive')
 export const kThemeTabNonFrontPressed = /* @__PURE__ */ _bind(FW, 'kThemeTabNonFrontPressed')
-export const kThemeTabNonFrontUnavailable = /* @__PURE__ */ _bind(FW, 'kThemeTabNonFrontUnavailable')
+export const kThemeTabNonFrontUnavailable = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTabNonFrontUnavailable',
+)
+
 export const kThemeTabNorth = /* @__PURE__ */ _bind(FW, 'kThemeTabNorth')
 export const kThemeTabPaneOverlap = /* @__PURE__ */ _bind(FW, 'kThemeTabPaneOverlap')
 export const kThemeTabSouth = /* @__PURE__ */ _bind(FW, 'kThemeTabSouth')
 export const kThemeTabWest = /* @__PURE__ */ _bind(FW, 'kThemeTabWest')
 export const kThemeTextColorAlertActive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorAlertActive')
-export const kThemeTextColorAlertInactive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorAlertInactive')
-export const kThemeTextColorBevelButtonActive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorBevelButtonActive')
-export const kThemeTextColorBevelButtonInactive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorBevelButtonInactive')
-export const kThemeTextColorBevelButtonPressed = /* @__PURE__ */ _bind(FW, 'kThemeTextColorBevelButtonPressed')
-export const kThemeTextColorBevelButtonStickyActive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorBevelButtonStickyActive')
-export const kThemeTextColorBevelButtonStickyInactive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorBevelButtonStickyInactive')
+export const kThemeTextColorAlertInactive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorAlertInactive',
+)
+
+export const kThemeTextColorBevelButtonActive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorBevelButtonActive',
+)
+
+export const kThemeTextColorBevelButtonInactive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorBevelButtonInactive',
+)
+
+export const kThemeTextColorBevelButtonPressed = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorBevelButtonPressed',
+)
+
+export const kThemeTextColorBevelButtonStickyActive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorBevelButtonStickyActive',
+)
+
+export const kThemeTextColorBevelButtonStickyInactive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorBevelButtonStickyInactive',
+)
+
 export const kThemeTextColorBlack = /* @__PURE__ */ _bind(FW, 'kThemeTextColorBlack')
 export const kThemeTextColorDialogActive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorDialogActive')
-export const kThemeTextColorDialogInactive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorDialogInactive')
-export const kThemeTextColorDocumentWindowTitleActive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorDocumentWindowTitleActive')
-export const kThemeTextColorDocumentWindowTitleInactive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorDocumentWindowTitleInactive')
+export const kThemeTextColorDialogInactive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorDialogInactive',
+)
+
+export const kThemeTextColorDocumentWindowTitleActive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorDocumentWindowTitleActive',
+)
+
+export const kThemeTextColorDocumentWindowTitleInactive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorDocumentWindowTitleInactive',
+)
+
 export const kThemeTextColorIconLabel = /* @__PURE__ */ _bind(FW, 'kThemeTextColorIconLabel')
-export const kThemeTextColorIconLabelSelected = /* @__PURE__ */ _bind(FW, 'kThemeTextColorIconLabelSelected')
+export const kThemeTextColorIconLabelSelected = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorIconLabelSelected',
+)
+
 export const kThemeTextColorListView = /* @__PURE__ */ _bind(FW, 'kThemeTextColorListView')
-export const kThemeTextColorMenuItemActive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorMenuItemActive')
-export const kThemeTextColorMenuItemDisabled = /* @__PURE__ */ _bind(FW, 'kThemeTextColorMenuItemDisabled')
-export const kThemeTextColorMenuItemSelected = /* @__PURE__ */ _bind(FW, 'kThemeTextColorMenuItemSelected')
-export const kThemeTextColorModelessDialogActive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorModelessDialogActive')
-export const kThemeTextColorModelessDialogInactive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorModelessDialogInactive')
-export const kThemeTextColorMovableModalWindowTitleActive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorMovableModalWindowTitleActive')
-export const kThemeTextColorMovableModalWindowTitleInactive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorMovableModalWindowTitleInactive')
+export const kThemeTextColorMenuItemActive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorMenuItemActive',
+)
+
+export const kThemeTextColorMenuItemDisabled = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorMenuItemDisabled',
+)
+
+export const kThemeTextColorMenuItemSelected = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorMenuItemSelected',
+)
+
+export const kThemeTextColorModelessDialogActive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorModelessDialogActive',
+)
+
+export const kThemeTextColorModelessDialogInactive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorModelessDialogInactive',
+)
+
+export const kThemeTextColorMovableModalWindowTitleActive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorMovableModalWindowTitleActive',
+)
+
+export const kThemeTextColorMovableModalWindowTitleInactive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorMovableModalWindowTitleInactive',
+)
+
 export const kThemeTextColorNotification = /* @__PURE__ */ _bind(FW, 'kThemeTextColorNotification')
-export const kThemeTextColorPlacardActive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorPlacardActive')
-export const kThemeTextColorPlacardInactive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorPlacardInactive')
-export const kThemeTextColorPlacardPressed = /* @__PURE__ */ _bind(FW, 'kThemeTextColorPlacardPressed')
-export const kThemeTextColorPopupButtonActive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorPopupButtonActive')
-export const kThemeTextColorPopupButtonInactive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorPopupButtonInactive')
-export const kThemeTextColorPopupButtonPressed = /* @__PURE__ */ _bind(FW, 'kThemeTextColorPopupButtonPressed')
-export const kThemeTextColorPopupLabelActive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorPopupLabelActive')
-export const kThemeTextColorPopupLabelInactive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorPopupLabelInactive')
-export const kThemeTextColorPopupWindowTitleActive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorPopupWindowTitleActive')
-export const kThemeTextColorPopupWindowTitleInactive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorPopupWindowTitleInactive')
-export const kThemeTextColorPushButtonActive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorPushButtonActive')
-export const kThemeTextColorPushButtonInactive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorPushButtonInactive')
-export const kThemeTextColorPushButtonPressed = /* @__PURE__ */ _bind(FW, 'kThemeTextColorPushButtonPressed')
-export const kThemeTextColorRootMenuActive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorRootMenuActive')
-export const kThemeTextColorRootMenuDisabled = /* @__PURE__ */ _bind(FW, 'kThemeTextColorRootMenuDisabled')
-export const kThemeTextColorRootMenuSelected = /* @__PURE__ */ _bind(FW, 'kThemeTextColorRootMenuSelected')
+export const kThemeTextColorPlacardActive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorPlacardActive',
+)
+
+export const kThemeTextColorPlacardInactive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorPlacardInactive',
+)
+
+export const kThemeTextColorPlacardPressed = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorPlacardPressed',
+)
+
+export const kThemeTextColorPopupButtonActive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorPopupButtonActive',
+)
+
+export const kThemeTextColorPopupButtonInactive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorPopupButtonInactive',
+)
+
+export const kThemeTextColorPopupButtonPressed = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorPopupButtonPressed',
+)
+
+export const kThemeTextColorPopupLabelActive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorPopupLabelActive',
+)
+
+export const kThemeTextColorPopupLabelInactive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorPopupLabelInactive',
+)
+
+export const kThemeTextColorPopupWindowTitleActive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorPopupWindowTitleActive',
+)
+
+export const kThemeTextColorPopupWindowTitleInactive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorPopupWindowTitleInactive',
+)
+
+export const kThemeTextColorPushButtonActive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorPushButtonActive',
+)
+
+export const kThemeTextColorPushButtonInactive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorPushButtonInactive',
+)
+
+export const kThemeTextColorPushButtonPressed = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorPushButtonPressed',
+)
+
+export const kThemeTextColorRootMenuActive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorRootMenuActive',
+)
+
+export const kThemeTextColorRootMenuDisabled = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorRootMenuDisabled',
+)
+
+export const kThemeTextColorRootMenuSelected = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorRootMenuSelected',
+)
+
 export const kThemeTextColorSystemDetail = /* @__PURE__ */ _bind(FW, 'kThemeTextColorSystemDetail')
-export const kThemeTextColorTabFrontActive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorTabFrontActive')
-export const kThemeTextColorTabFrontInactive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorTabFrontInactive')
-export const kThemeTextColorTabNonFrontActive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorTabNonFrontActive')
-export const kThemeTextColorTabNonFrontInactive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorTabNonFrontInactive')
-export const kThemeTextColorTabNonFrontPressed = /* @__PURE__ */ _bind(FW, 'kThemeTextColorTabNonFrontPressed')
-export const kThemeTextColorUtilityWindowTitleActive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorUtilityWindowTitleActive')
-export const kThemeTextColorUtilityWindowTitleInactive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorUtilityWindowTitleInactive')
+export const kThemeTextColorTabFrontActive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorTabFrontActive',
+)
+
+export const kThemeTextColorTabFrontInactive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorTabFrontInactive',
+)
+
+export const kThemeTextColorTabNonFrontActive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorTabNonFrontActive',
+)
+
+export const kThemeTextColorTabNonFrontInactive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorTabNonFrontInactive',
+)
+
+export const kThemeTextColorTabNonFrontPressed = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorTabNonFrontPressed',
+)
+
+export const kThemeTextColorUtilityWindowTitleActive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorUtilityWindowTitleActive',
+)
+
+export const kThemeTextColorUtilityWindowTitleInactive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorUtilityWindowTitleInactive',
+)
+
 export const kThemeTextColorWhite = /* @__PURE__ */ _bind(FW, 'kThemeTextColorWhite')
-export const kThemeTextColorWindowHeaderActive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorWindowHeaderActive')
-export const kThemeTextColorWindowHeaderInactive = /* @__PURE__ */ _bind(FW, 'kThemeTextColorWindowHeaderInactive')
+export const kThemeTextColorWindowHeaderActive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorWindowHeaderActive',
+)
+
+export const kThemeTextColorWindowHeaderInactive = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTextColorWindowHeaderInactive',
+)
+
 export const kThemeThumbDownward = /* @__PURE__ */ _bind(FW, 'kThemeThumbDownward')
 export const kThemeThumbPlain = /* @__PURE__ */ _bind(FW, 'kThemeThumbPlain')
 export const kThemeThumbPressed = /* @__PURE__ */ _bind(FW, 'kThemeThumbPressed')
 export const kThemeThumbUpward = /* @__PURE__ */ _bind(FW, 'kThemeThumbUpward')
 export const kThemeToolbarFont = /* @__PURE__ */ _bind(FW, 'kThemeToolbarFont')
 export const kThemeTopInsideArrowPressed = /* @__PURE__ */ _bind(FW, 'kThemeTopInsideArrowPressed')
-export const kThemeTopOutsideArrowPressed = /* @__PURE__ */ _bind(FW, 'kThemeTopOutsideArrowPressed')
+export const kThemeTopOutsideArrowPressed = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTopOutsideArrowPressed',
+)
+
 export const kThemeTopTrackPressed = /* @__PURE__ */ _bind(FW, 'kThemeTopTrackPressed')
 export const kThemeTrackActive = /* @__PURE__ */ _bind(FW, 'kThemeTrackActive')
 export const kThemeTrackDisabled = /* @__PURE__ */ _bind(FW, 'kThemeTrackDisabled')
@@ -4785,15 +10421,27 @@ export const kThemeTrackHasFocus = /* @__PURE__ */ _bind(FW, 'kThemeTrackHasFocu
 export const kThemeTrackHideTrack = /* @__PURE__ */ _bind(FW, 'kThemeTrackHideTrack')
 export const kThemeTrackHorizontal = /* @__PURE__ */ _bind(FW, 'kThemeTrackHorizontal')
 export const kThemeTrackInactive = /* @__PURE__ */ _bind(FW, 'kThemeTrackInactive')
-export const kThemeTrackNoScrollBarArrows = /* @__PURE__ */ _bind(FW, 'kThemeTrackNoScrollBarArrows')
+export const kThemeTrackNoScrollBarArrows = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTrackNoScrollBarArrows',
+)
+
 export const kThemeTrackNothingToScroll = /* @__PURE__ */ _bind(FW, 'kThemeTrackNothingToScroll')
 export const kThemeTrackRightToLeft = /* @__PURE__ */ _bind(FW, 'kThemeTrackRightToLeft')
 export const kThemeTrackShowThumb = /* @__PURE__ */ _bind(FW, 'kThemeTrackShowThumb')
-export const kThemeTrackThumbRgnIsNotGhost = /* @__PURE__ */ _bind(FW, 'kThemeTrackThumbRgnIsNotGhost')
+export const kThemeTrackThumbRgnIsNotGhost = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeTrackThumbRgnIsNotGhost',
+)
+
 export const kThemeUserDefinedTag = /* @__PURE__ */ _bind(FW, 'kThemeUserDefinedTag')
 export const kThemeUtilitySideWindow = /* @__PURE__ */ _bind(FW, 'kThemeUtilitySideWindow')
 export const kThemeUtilityWindow = /* @__PURE__ */ _bind(FW, 'kThemeUtilityWindow')
-export const kThemeUtilityWindowTitleFont = /* @__PURE__ */ _bind(FW, 'kThemeUtilityWindowTitleFont')
+export const kThemeUtilityWindowTitleFont = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeUtilityWindowTitleFont',
+)
+
 export const kThemeVariantBaseTintTag = /* @__PURE__ */ _bind(FW, 'kThemeVariantBaseTintTag')
 export const kThemeVariantNameTag = /* @__PURE__ */ _bind(FW, 'kThemeVariantNameTag')
 export const kThemeViewsFont = /* @__PURE__ */ _bind(FW, 'kThemeViewsFont')
@@ -4810,27 +10458,67 @@ export const kThemeWindowHasCollapseBox = /* @__PURE__ */ _bind(FW, 'kThemeWindo
 export const kThemeWindowHasDirty = /* @__PURE__ */ _bind(FW, 'kThemeWindowHasDirty')
 export const kThemeWindowHasFullZoom = /* @__PURE__ */ _bind(FW, 'kThemeWindowHasFullZoom')
 export const kThemeWindowHasGrow = /* @__PURE__ */ _bind(FW, 'kThemeWindowHasGrow')
-export const kThemeWindowHasHorizontalZoom = /* @__PURE__ */ _bind(FW, 'kThemeWindowHasHorizontalZoom')
+export const kThemeWindowHasHorizontalZoom = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeWindowHasHorizontalZoom',
+)
+
 export const kThemeWindowHasTitleText = /* @__PURE__ */ _bind(FW, 'kThemeWindowHasTitleText')
-export const kThemeWindowHasToolbarButton = /* @__PURE__ */ _bind(FW, 'kThemeWindowHasToolbarButton')
+export const kThemeWindowHasToolbarButton = /* @__PURE__ */ _bind(
+	FW,
+	'kThemeWindowHasToolbarButton',
+)
+
 export const kThemeWindowHasVerticalZoom = /* @__PURE__ */ _bind(FW, 'kThemeWindowHasVerticalZoom')
 export const kThemeWindowIsCollapsed = /* @__PURE__ */ _bind(FW, 'kThemeWindowIsCollapsed')
 export const kThemeWindowSoundsMask = /* @__PURE__ */ _bind(FW, 'kThemeWindowSoundsMask')
 export const kThemeWindowTitleFont = /* @__PURE__ */ _bind(FW, 'kThemeWindowTitleFont')
 export const kTiledOnScreen = /* @__PURE__ */ _bind(FW, 'kTiledOnScreen')
 export const kToolbarWindowClass = /* @__PURE__ */ _bind(FW, 'kToolbarWindowClass')
-export const kTrackMouseLocationOptionDontConsumeMouseUp = /* @__PURE__ */ _bind(FW, 'kTrackMouseLocationOptionDontConsumeMouseUp')
-export const kTrackMouseLocationOptionIncludeScrollWheel = /* @__PURE__ */ _bind(FW, 'kTrackMouseLocationOptionIncludeScrollWheel')
-export const kTranslateGetFileTranslationList = /* @__PURE__ */ _bind(FW, 'kTranslateGetFileTranslationList')
-export const kTranslateGetScrapTranslationList = /* @__PURE__ */ _bind(FW, 'kTranslateGetScrapTranslationList')
-export const kTranslateGetScrapTranslationListConsideringData = /* @__PURE__ */ _bind(FW, 'kTranslateGetScrapTranslationListConsideringData')
-export const kTranslateGetTranslatedFilename = /* @__PURE__ */ _bind(FW, 'kTranslateGetTranslatedFilename')
+export const kTrackMouseLocationOptionDontConsumeMouseUp = /* @__PURE__ */ _bind(
+	FW,
+	'kTrackMouseLocationOptionDontConsumeMouseUp',
+)
+
+export const kTrackMouseLocationOptionIncludeScrollWheel = /* @__PURE__ */ _bind(
+	FW,
+	'kTrackMouseLocationOptionIncludeScrollWheel',
+)
+
+export const kTranslateGetFileTranslationList = /* @__PURE__ */ _bind(
+	FW,
+	'kTranslateGetFileTranslationList',
+)
+
+export const kTranslateGetScrapTranslationList = /* @__PURE__ */ _bind(
+	FW,
+	'kTranslateGetScrapTranslationList',
+)
+
+export const kTranslateGetScrapTranslationListConsideringData = /* @__PURE__ */ _bind(
+	FW,
+	'kTranslateGetScrapTranslationListConsideringData',
+)
+
+export const kTranslateGetTranslatedFilename = /* @__PURE__ */ _bind(
+	FW,
+	'kTranslateGetTranslatedFilename',
+)
+
 export const kTranslateIdentifyFile = /* @__PURE__ */ _bind(FW, 'kTranslateIdentifyFile')
 export const kTranslateIdentifyScrap = /* @__PURE__ */ _bind(FW, 'kTranslateIdentifyScrap')
 export const kTranslateTranslateFile = /* @__PURE__ */ _bind(FW, 'kTranslateTranslateFile')
 export const kTranslateTranslateScrap = /* @__PURE__ */ _bind(FW, 'kTranslateTranslateScrap')
-export const kTranslationScrapProgressDialogID = /* @__PURE__ */ _bind(FW, 'kTranslationScrapProgressDialogID')
-export const kTranslatorCanGenerateFilename = /* @__PURE__ */ _bind(FW, 'kTranslatorCanGenerateFilename')
+export const kTranslationScrapProgressDialogID = /* @__PURE__ */ _bind(
+	FW,
+	'kTranslationScrapProgressDialogID',
+)
+
+export const kTranslatorCanGenerateFilename = /* @__PURE__ */ _bind(
+	FW,
+	'kTranslatorCanGenerateFilename',
+)
+
 export const kUIModeAllHidden = /* @__PURE__ */ _bind(FW, 'kUIModeAllHidden')
 export const kUIModeAllSuppressed = /* @__PURE__ */ _bind(FW, 'kUIModeAllSuppressed')
 export const kUIModeContentHidden = /* @__PURE__ */ _bind(FW, 'kUIModeContentHidden')
@@ -4841,9 +10529,21 @@ export const kUIOptionAutoShowMenuBar = /* @__PURE__ */ _bind(FW, 'kUIOptionAuto
 export const kUIOptionDisableAppleMenu = /* @__PURE__ */ _bind(FW, 'kUIOptionDisableAppleMenu')
 export const kUIOptionDisableForceQuit = /* @__PURE__ */ _bind(FW, 'kUIOptionDisableForceQuit')
 export const kUIOptionDisableHide = /* @__PURE__ */ _bind(FW, 'kUIOptionDisableHide')
-export const kUIOptionDisableMenuBarTransparency = /* @__PURE__ */ _bind(FW, 'kUIOptionDisableMenuBarTransparency')
-export const kUIOptionDisableProcessSwitch = /* @__PURE__ */ _bind(FW, 'kUIOptionDisableProcessSwitch')
-export const kUIOptionDisableSessionTerminate = /* @__PURE__ */ _bind(FW, 'kUIOptionDisableSessionTerminate')
+export const kUIOptionDisableMenuBarTransparency = /* @__PURE__ */ _bind(
+	FW,
+	'kUIOptionDisableMenuBarTransparency',
+)
+
+export const kUIOptionDisableProcessSwitch = /* @__PURE__ */ _bind(
+	FW,
+	'kUIOptionDisableProcessSwitch',
+)
+
+export const kUIOptionDisableSessionTerminate = /* @__PURE__ */ _bind(
+	FW,
+	'kUIOptionDisableSessionTerminate',
+)
+
 export const kURLAbortInitiatedEvent = /* @__PURE__ */ _bind(FW, 'kURLAbortInitiatedEvent')
 export const kURLAbortInitiatedMask = /* @__PURE__ */ _bind(FW, 'kURLAbortInitiatedMask')
 export const kURLAbortingState = /* @__PURE__ */ _bind(FW, 'kURLAbortingState')
@@ -4884,7 +10584,11 @@ export const kURLPercentEventMask = /* @__PURE__ */ _bind(FW, 'kURLPercentEventM
 export const kURLPeriodicEvent = /* @__PURE__ */ _bind(FW, 'kURLPeriodicEvent')
 export const kURLPeriodicEventMask = /* @__PURE__ */ _bind(FW, 'kURLPeriodicEventMask')
 export const kURLPropertyChangedEvent = /* @__PURE__ */ _bind(FW, 'kURLPropertyChangedEvent')
-export const kURLPropertyChangedEventMask = /* @__PURE__ */ _bind(FW, 'kURLPropertyChangedEventMask')
+export const kURLPropertyChangedEventMask = /* @__PURE__ */ _bind(
+	FW,
+	'kURLPropertyChangedEventMask',
+)
+
 export const kURLReplaceExistingFlag = /* @__PURE__ */ _bind(FW, 'kURLReplaceExistingFlag')
 export const kURLReservedFlag = /* @__PURE__ */ _bind(FW, 'kURLReservedFlag')
 export const kURLResourceFoundEvent = /* @__PURE__ */ _bind(FW, 'kURLResourceFoundEvent')
@@ -4893,15 +10597,31 @@ export const kURLResourceFoundState = /* @__PURE__ */ _bind(FW, 'kURLResourceFou
 export const kURLResumeDownloadFlag = /* @__PURE__ */ _bind(FW, 'kURLResumeDownloadFlag')
 export const kURLSystemEvent = /* @__PURE__ */ _bind(FW, 'kURLSystemEvent')
 export const kURLSystemEventMask = /* @__PURE__ */ _bind(FW, 'kURLSystemEventMask')
-export const kURLTransactionCompleteEvent = /* @__PURE__ */ _bind(FW, 'kURLTransactionCompleteEvent')
-export const kURLTransactionCompleteEventMask = /* @__PURE__ */ _bind(FW, 'kURLTransactionCompleteEventMask')
-export const kURLTransactionCompleteState = /* @__PURE__ */ _bind(FW, 'kURLTransactionCompleteState')
+export const kURLTransactionCompleteEvent = /* @__PURE__ */ _bind(
+	FW,
+	'kURLTransactionCompleteEvent',
+)
+
+export const kURLTransactionCompleteEventMask = /* @__PURE__ */ _bind(
+	FW,
+	'kURLTransactionCompleteEventMask',
+)
+
+export const kURLTransactionCompleteState = /* @__PURE__ */ _bind(
+	FW,
+	'kURLTransactionCompleteState',
+)
+
 export const kURLUploadFlag = /* @__PURE__ */ _bind(FW, 'kURLUploadFlag')
 export const kURLUploadingEvent = /* @__PURE__ */ _bind(FW, 'kURLUploadingEvent')
 export const kURLUploadingMask = /* @__PURE__ */ _bind(FW, 'kURLUploadingMask')
 export const kURLUploadingState = /* @__PURE__ */ _bind(FW, 'kURLUploadingState')
 export const kUnicodeDocument = /* @__PURE__ */ _bind(FW, 'kUnicodeDocument')
-export const kUnicodeDocumentInterfaceType = /* @__PURE__ */ _bind(FW, 'kUnicodeDocumentInterfaceType')
+export const kUnicodeDocumentInterfaceType = /* @__PURE__ */ _bind(
+	FW,
+	'kUnicodeDocumentInterfaceType',
+)
+
 export const kUnknownLanguage = /* @__PURE__ */ _bind(FW, 'kUnknownLanguage')
 export const kUnknownScript = /* @__PURE__ */ _bind(FW, 'kUnknownScript')
 export const kUpArrowCharCode = /* @__PURE__ */ _bind(FW, 'kUpArrowCharCode')
@@ -5033,66 +10753,162 @@ export const kVK_VolumeDown = /* @__PURE__ */ _bind(FW, 'kVK_VolumeDown')
 export const kVK_VolumeUp = /* @__PURE__ */ _bind(FW, 'kVK_VolumeUp')
 export const kVerticalTabCharCode = /* @__PURE__ */ _bind(FW, 'kVerticalTabCharCode')
 export const kWindowActivationScopeAll = /* @__PURE__ */ _bind(FW, 'kWindowActivationScopeAll')
-export const kWindowActivationScopeIndependent = /* @__PURE__ */ _bind(FW, 'kWindowActivationScopeIndependent')
+export const kWindowActivationScopeIndependent = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowActivationScopeIndependent',
+)
+
 export const kWindowActivationScopeNone = /* @__PURE__ */ _bind(FW, 'kWindowActivationScopeNone')
-export const kWindowAlertPositionMainScreen = /* @__PURE__ */ _bind(FW, 'kWindowAlertPositionMainScreen')
-export const kWindowAlertPositionOnMainScreen = /* @__PURE__ */ _bind(FW, 'kWindowAlertPositionOnMainScreen')
-export const kWindowAlertPositionOnParentWindow = /* @__PURE__ */ _bind(FW, 'kWindowAlertPositionOnParentWindow')
-export const kWindowAlertPositionOnParentWindowScreen = /* @__PURE__ */ _bind(FW, 'kWindowAlertPositionOnParentWindowScreen')
-export const kWindowAlertPositionParentWindow = /* @__PURE__ */ _bind(FW, 'kWindowAlertPositionParentWindow')
-export const kWindowAlertPositionParentWindowScreen = /* @__PURE__ */ _bind(FW, 'kWindowAlertPositionParentWindowScreen')
+export const kWindowAlertPositionMainScreen = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowAlertPositionMainScreen',
+)
+
+export const kWindowAlertPositionOnMainScreen = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowAlertPositionOnMainScreen',
+)
+
+export const kWindowAlertPositionOnParentWindow = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowAlertPositionOnParentWindow',
+)
+
+export const kWindowAlertPositionOnParentWindowScreen = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowAlertPositionOnParentWindowScreen',
+)
+
+export const kWindowAlertPositionParentWindow = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowAlertPositionParentWindow',
+)
+
+export const kWindowAlertPositionParentWindowScreen = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowAlertPositionParentWindowScreen',
+)
+
 export const kWindowAlertProc = /* @__PURE__ */ _bind(FW, 'kWindowAlertProc')
 export const kWindowAsyncDragAttribute = /* @__PURE__ */ _bind(FW, 'kWindowAsyncDragAttribute')
-export const kWindowBoundsChangeOriginChanged = /* @__PURE__ */ _bind(FW, 'kWindowBoundsChangeOriginChanged')
-export const kWindowBoundsChangeSizeChanged = /* @__PURE__ */ _bind(FW, 'kWindowBoundsChangeSizeChanged')
+export const kWindowBoundsChangeOriginChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowBoundsChangeOriginChanged',
+)
+
+export const kWindowBoundsChangeSizeChanged = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowBoundsChangeSizeChanged',
+)
+
 export const kWindowBoundsChangeUserDrag = /* @__PURE__ */ _bind(FW, 'kWindowBoundsChangeUserDrag')
-export const kWindowBoundsChangeUserResize = /* @__PURE__ */ _bind(FW, 'kWindowBoundsChangeUserResize')
+export const kWindowBoundsChangeUserResize = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowBoundsChangeUserResize',
+)
+
 export const kWindowBoundsChangeZoom = /* @__PURE__ */ _bind(FW, 'kWindowBoundsChangeZoom')
-export const kWindowCanBeVisibleWithoutLoginAttribute = /* @__PURE__ */ _bind(FW, 'kWindowCanBeVisibleWithoutLoginAttribute')
+export const kWindowCanBeVisibleWithoutLoginAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowCanBeVisibleWithoutLoginAttribute',
+)
+
 export const kWindowCanCollapse = /* @__PURE__ */ _bind(FW, 'kWindowCanCollapse')
 export const kWindowCanDrawInCurrentPort = /* @__PURE__ */ _bind(FW, 'kWindowCanDrawInCurrentPort')
 export const kWindowCanGetWindowRegion = /* @__PURE__ */ _bind(FW, 'kWindowCanGetWindowRegion')
 export const kWindowCanGrow = /* @__PURE__ */ _bind(FW, 'kWindowCanGrow')
 export const kWindowCanMeasureTitle = /* @__PURE__ */ _bind(FW, 'kWindowCanMeasureTitle')
-export const kWindowCanSetupProxyDragImage = /* @__PURE__ */ _bind(FW, 'kWindowCanSetupProxyDragImage')
+export const kWindowCanSetupProxyDragImage = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowCanSetupProxyDragImage',
+)
+
 export const kWindowCanZoom = /* @__PURE__ */ _bind(FW, 'kWindowCanZoom')
 export const kWindowCascadeOnMainScreen = /* @__PURE__ */ _bind(FW, 'kWindowCascadeOnMainScreen')
-export const kWindowCascadeOnParentWindow = /* @__PURE__ */ _bind(FW, 'kWindowCascadeOnParentWindow')
-export const kWindowCascadeOnParentWindowScreen = /* @__PURE__ */ _bind(FW, 'kWindowCascadeOnParentWindowScreen')
-export const kWindowCascadeStartAtParentWindowScreen = /* @__PURE__ */ _bind(FW, 'kWindowCascadeStartAtParentWindowScreen')
+export const kWindowCascadeOnParentWindow = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowCascadeOnParentWindow',
+)
+
+export const kWindowCascadeOnParentWindowScreen = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowCascadeOnParentWindowScreen',
+)
+
+export const kWindowCascadeStartAtParentWindowScreen = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowCascadeStartAtParentWindowScreen',
+)
+
 export const kWindowCenterMainScreen = /* @__PURE__ */ _bind(FW, 'kWindowCenterMainScreen')
 export const kWindowCenterOnMainScreen = /* @__PURE__ */ _bind(FW, 'kWindowCenterOnMainScreen')
 export const kWindowCenterOnParentWindow = /* @__PURE__ */ _bind(FW, 'kWindowCenterOnParentWindow')
-export const kWindowCenterOnParentWindowScreen = /* @__PURE__ */ _bind(FW, 'kWindowCenterOnParentWindowScreen')
+export const kWindowCenterOnParentWindowScreen = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowCenterOnParentWindowScreen',
+)
+
 export const kWindowCenterParentWindow = /* @__PURE__ */ _bind(FW, 'kWindowCenterParentWindow')
-export const kWindowCenterParentWindowScreen = /* @__PURE__ */ _bind(FW, 'kWindowCenterParentWindowScreen')
+export const kWindowCenterParentWindowScreen = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowCenterParentWindowScreen',
+)
+
 export const kWindowCloseBoxAttribute = /* @__PURE__ */ _bind(FW, 'kWindowCloseBoxAttribute')
 export const kWindowCloseBoxRgn = /* @__PURE__ */ _bind(FW, 'kWindowCloseBoxRgn')
 export const kWindowCollapseBoxAttribute = /* @__PURE__ */ _bind(FW, 'kWindowCollapseBoxAttribute')
 export const kWindowCollapseBoxRgn = /* @__PURE__ */ _bind(FW, 'kWindowCollapseBoxRgn')
 export const kWindowCompositingAttribute = /* @__PURE__ */ _bind(FW, 'kWindowCompositingAttribute')
-export const kWindowConstrainAllowPartial = /* @__PURE__ */ _bind(FW, 'kWindowConstrainAllowPartial')
+export const kWindowConstrainAllowPartial = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowConstrainAllowPartial',
+)
+
 export const kWindowConstrainCalcOnly = /* @__PURE__ */ _bind(FW, 'kWindowConstrainCalcOnly')
 export const kWindowConstrainMayResize = /* @__PURE__ */ _bind(FW, 'kWindowConstrainMayResize')
 export const kWindowConstrainMoveMinimum = /* @__PURE__ */ _bind(FW, 'kWindowConstrainMoveMinimum')
-export const kWindowConstrainMoveRegardlessOfFit = /* @__PURE__ */ _bind(FW, 'kWindowConstrainMoveRegardlessOfFit')
-export const kWindowConstrainStandardOptions = /* @__PURE__ */ _bind(FW, 'kWindowConstrainStandardOptions')
-export const kWindowConstrainUseSpecifiedBounds = /* @__PURE__ */ _bind(FW, 'kWindowConstrainUseSpecifiedBounds')
-export const kWindowConstrainUseTransitionWindow = /* @__PURE__ */ _bind(FW, 'kWindowConstrainUseTransitionWindow')
+export const kWindowConstrainMoveRegardlessOfFit = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowConstrainMoveRegardlessOfFit',
+)
+
+export const kWindowConstrainStandardOptions = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowConstrainStandardOptions',
+)
+
+export const kWindowConstrainUseSpecifiedBounds = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowConstrainUseSpecifiedBounds',
+)
+
+export const kWindowConstrainUseTransitionWindow = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowConstrainUseTransitionWindow',
+)
+
 export const kWindowContentRgn = /* @__PURE__ */ _bind(FW, 'kWindowContentRgn')
 export const kWindowDefHIView = /* @__PURE__ */ _bind(FW, 'kWindowDefHIView')
 export const kWindowDefObjectClass = /* @__PURE__ */ _bind(FW, 'kWindowDefObjectClass')
 export const kWindowDefProcID = /* @__PURE__ */ _bind(FW, 'kWindowDefProcID')
 export const kWindowDefProcPtr = /* @__PURE__ */ _bind(FW, 'kWindowDefProcPtr')
 export const kWindowDefProcType = /* @__PURE__ */ _bind(FW, 'kWindowDefProcType')
-export const kWindowDefSupportsColorGrafPort = /* @__PURE__ */ _bind(FW, 'kWindowDefSupportsColorGrafPort')
+export const kWindowDefSupportsColorGrafPort = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowDefSupportsColorGrafPort',
+)
+
 export const kWindowDefaultPosition = /* @__PURE__ */ _bind(FW, 'kWindowDefaultPosition')
 export const kWindowDefinitionVersionOne = /* @__PURE__ */ _bind(FW, 'kWindowDefinitionVersionOne')
 export const kWindowDefinitionVersionTwo = /* @__PURE__ */ _bind(FW, 'kWindowDefinitionVersionTwo')
 export const kWindowDialogDefProcResID = /* @__PURE__ */ _bind(FW, 'kWindowDialogDefProcResID')
 export const kWindowDocumentDefProcResID = /* @__PURE__ */ _bind(FW, 'kWindowDocumentDefProcResID')
 export const kWindowDocumentProc = /* @__PURE__ */ _bind(FW, 'kWindowDocumentProc')
-export const kWindowDoesNotCycleAttribute = /* @__PURE__ */ _bind(FW, 'kWindowDoesNotCycleAttribute')
+export const kWindowDoesNotCycleAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowDoesNotCycleAttribute',
+)
+
 export const kWindowDragRgn = /* @__PURE__ */ _bind(FW, 'kWindowDragRgn')
 export const kWindowDrawerClosed = /* @__PURE__ */ _bind(FW, 'kWindowDrawerClosed')
 export const kWindowDrawerClosing = /* @__PURE__ */ _bind(FW, 'kWindowDrawerClosing')
@@ -5104,77 +10920,213 @@ export const kWindowEdgeLeft = /* @__PURE__ */ _bind(FW, 'kWindowEdgeLeft')
 export const kWindowEdgeRight = /* @__PURE__ */ _bind(FW, 'kWindowEdgeRight')
 export const kWindowEdgeTop = /* @__PURE__ */ _bind(FW, 'kWindowEdgeTop')
 export const kWindowFadeTransitionEffect = /* @__PURE__ */ _bind(FW, 'kWindowFadeTransitionEffect')
-export const kWindowFloatFullZoomGrowProc = /* @__PURE__ */ _bind(FW, 'kWindowFloatFullZoomGrowProc')
+export const kWindowFloatFullZoomGrowProc = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowFloatFullZoomGrowProc',
+)
+
 export const kWindowFloatFullZoomProc = /* @__PURE__ */ _bind(FW, 'kWindowFloatFullZoomProc')
 export const kWindowFloatGrowProc = /* @__PURE__ */ _bind(FW, 'kWindowFloatGrowProc')
-export const kWindowFloatHorizZoomGrowProc = /* @__PURE__ */ _bind(FW, 'kWindowFloatHorizZoomGrowProc')
+export const kWindowFloatHorizZoomGrowProc = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowFloatHorizZoomGrowProc',
+)
+
 export const kWindowFloatHorizZoomProc = /* @__PURE__ */ _bind(FW, 'kWindowFloatHorizZoomProc')
 export const kWindowFloatProc = /* @__PURE__ */ _bind(FW, 'kWindowFloatProc')
-export const kWindowFloatSideFullZoomGrowProc = /* @__PURE__ */ _bind(FW, 'kWindowFloatSideFullZoomGrowProc')
-export const kWindowFloatSideFullZoomProc = /* @__PURE__ */ _bind(FW, 'kWindowFloatSideFullZoomProc')
+export const kWindowFloatSideFullZoomGrowProc = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowFloatSideFullZoomGrowProc',
+)
+
+export const kWindowFloatSideFullZoomProc = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowFloatSideFullZoomProc',
+)
+
 export const kWindowFloatSideGrowProc = /* @__PURE__ */ _bind(FW, 'kWindowFloatSideGrowProc')
-export const kWindowFloatSideHorizZoomGrowProc = /* @__PURE__ */ _bind(FW, 'kWindowFloatSideHorizZoomGrowProc')
-export const kWindowFloatSideHorizZoomProc = /* @__PURE__ */ _bind(FW, 'kWindowFloatSideHorizZoomProc')
+export const kWindowFloatSideHorizZoomGrowProc = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowFloatSideHorizZoomGrowProc',
+)
+
+export const kWindowFloatSideHorizZoomProc = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowFloatSideHorizZoomProc',
+)
+
 export const kWindowFloatSideProc = /* @__PURE__ */ _bind(FW, 'kWindowFloatSideProc')
-export const kWindowFloatSideVertZoomGrowProc = /* @__PURE__ */ _bind(FW, 'kWindowFloatSideVertZoomGrowProc')
-export const kWindowFloatSideVertZoomProc = /* @__PURE__ */ _bind(FW, 'kWindowFloatSideVertZoomProc')
-export const kWindowFloatVertZoomGrowProc = /* @__PURE__ */ _bind(FW, 'kWindowFloatVertZoomGrowProc')
+export const kWindowFloatSideVertZoomGrowProc = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowFloatSideVertZoomGrowProc',
+)
+
+export const kWindowFloatSideVertZoomProc = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowFloatSideVertZoomProc',
+)
+
+export const kWindowFloatVertZoomGrowProc = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowFloatVertZoomGrowProc',
+)
+
 export const kWindowFloatVertZoomProc = /* @__PURE__ */ _bind(FW, 'kWindowFloatVertZoomProc')
-export const kWindowFrameworkScaledAttribute = /* @__PURE__ */ _bind(FW, 'kWindowFrameworkScaledAttribute')
+export const kWindowFrameworkScaledAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowFrameworkScaledAttribute',
+)
+
 export const kWindowFullZoomAttribute = /* @__PURE__ */ _bind(FW, 'kWindowFullZoomAttribute')
 export const kWindowFullZoomDocumentProc = /* @__PURE__ */ _bind(FW, 'kWindowFullZoomDocumentProc')
-export const kWindowFullZoomGrowDocumentProc = /* @__PURE__ */ _bind(FW, 'kWindowFullZoomGrowDocumentProc')
-export const kWindowGenieTransitionEffect = /* @__PURE__ */ _bind(FW, 'kWindowGenieTransitionEffect')
+export const kWindowFullZoomGrowDocumentProc = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowFullZoomGrowDocumentProc',
+)
+
+export const kWindowGenieTransitionEffect = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowGenieTransitionEffect',
+)
+
 export const kWindowGlobalPortRgn = /* @__PURE__ */ _bind(FW, 'kWindowGlobalPortRgn')
 export const kWindowGroupAttrFixedLevel = /* @__PURE__ */ _bind(FW, 'kWindowGroupAttrFixedLevel')
-export const kWindowGroupAttrHideOnCollapse = /* @__PURE__ */ _bind(FW, 'kWindowGroupAttrHideOnCollapse')
-export const kWindowGroupAttrLayerTogether = /* @__PURE__ */ _bind(FW, 'kWindowGroupAttrLayerTogether')
-export const kWindowGroupAttrMoveTogether = /* @__PURE__ */ _bind(FW, 'kWindowGroupAttrMoveTogether')
-export const kWindowGroupAttrPositionFixed = /* @__PURE__ */ _bind(FW, 'kWindowGroupAttrPositionFixed')
-export const kWindowGroupAttrSelectAsLayer = /* @__PURE__ */ _bind(FW, 'kWindowGroupAttrSelectAsLayer')
+export const kWindowGroupAttrHideOnCollapse = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowGroupAttrHideOnCollapse',
+)
+
+export const kWindowGroupAttrLayerTogether = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowGroupAttrLayerTogether',
+)
+
+export const kWindowGroupAttrMoveTogether = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowGroupAttrMoveTogether',
+)
+
+export const kWindowGroupAttrPositionFixed = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowGroupAttrPositionFixed',
+)
+
+export const kWindowGroupAttrSelectAsLayer = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowGroupAttrSelectAsLayer',
+)
+
 export const kWindowGroupAttrSelectable = /* @__PURE__ */ _bind(FW, 'kWindowGroupAttrSelectable')
-export const kWindowGroupAttrSharedActivation = /* @__PURE__ */ _bind(FW, 'kWindowGroupAttrSharedActivation')
+export const kWindowGroupAttrSharedActivation = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowGroupAttrSharedActivation',
+)
+
 export const kWindowGroupAttrZOrderFixed = /* @__PURE__ */ _bind(FW, 'kWindowGroupAttrZOrderFixed')
 export const kWindowGroupContentsRecurse = /* @__PURE__ */ _bind(FW, 'kWindowGroupContentsRecurse')
-export const kWindowGroupContentsReturnWindows = /* @__PURE__ */ _bind(FW, 'kWindowGroupContentsReturnWindows')
+export const kWindowGroupContentsReturnWindows = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowGroupContentsReturnWindows',
+)
+
 export const kWindowGroupContentsVisible = /* @__PURE__ */ _bind(FW, 'kWindowGroupContentsVisible')
 export const kWindowGroupLevelActive = /* @__PURE__ */ _bind(FW, 'kWindowGroupLevelActive')
 export const kWindowGroupLevelInactive = /* @__PURE__ */ _bind(FW, 'kWindowGroupLevelInactive')
 export const kWindowGroupLevelPromoted = /* @__PURE__ */ _bind(FW, 'kWindowGroupLevelPromoted')
 export const kWindowGrowDocumentProc = /* @__PURE__ */ _bind(FW, 'kWindowGrowDocumentProc')
 export const kWindowGrowRgn = /* @__PURE__ */ _bind(FW, 'kWindowGrowRgn')
-export const kWindowHasRoundBottomBarCornersAttribute = /* @__PURE__ */ _bind(FW, 'kWindowHasRoundBottomBarCornersAttribute')
+export const kWindowHasRoundBottomBarCornersAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowHasRoundBottomBarCornersAttribute',
+)
+
 export const kWindowHasTitleBar = /* @__PURE__ */ _bind(FW, 'kWindowHasTitleBar')
-export const kWindowHideOnFullScreenAttribute = /* @__PURE__ */ _bind(FW, 'kWindowHideOnFullScreenAttribute')
-export const kWindowHideOnSuspendAttribute = /* @__PURE__ */ _bind(FW, 'kWindowHideOnSuspendAttribute')
+export const kWindowHideOnFullScreenAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowHideOnFullScreenAttribute',
+)
+
+export const kWindowHideOnSuspendAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowHideOnSuspendAttribute',
+)
+
 export const kWindowHideTransitionAction = /* @__PURE__ */ _bind(FW, 'kWindowHideTransitionAction')
-export const kWindowHighResolutionCapableAttribute = /* @__PURE__ */ _bind(FW, 'kWindowHighResolutionCapableAttribute')
-export const kWindowHorizZoomDocumentProc = /* @__PURE__ */ _bind(FW, 'kWindowHorizZoomDocumentProc')
-export const kWindowHorizZoomGrowDocumentProc = /* @__PURE__ */ _bind(FW, 'kWindowHorizZoomGrowDocumentProc')
-export const kWindowHorizontalZoomAttribute = /* @__PURE__ */ _bind(FW, 'kWindowHorizontalZoomAttribute')
-export const kWindowIgnoreClicksAttribute = /* @__PURE__ */ _bind(FW, 'kWindowIgnoreClicksAttribute')
-export const kWindowInWindowMenuAttribute = /* @__PURE__ */ _bind(FW, 'kWindowInWindowMenuAttribute')
+export const kWindowHighResolutionCapableAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowHighResolutionCapableAttribute',
+)
+
+export const kWindowHorizZoomDocumentProc = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowHorizZoomDocumentProc',
+)
+
+export const kWindowHorizZoomGrowDocumentProc = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowHorizZoomGrowDocumentProc',
+)
+
+export const kWindowHorizontalZoomAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowHorizontalZoomAttribute',
+)
+
+export const kWindowIgnoreClicksAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowIgnoreClicksAttribute',
+)
+
+export const kWindowInWindowMenuAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowInWindowMenuAttribute',
+)
+
 export const kWindowIsAlert = /* @__PURE__ */ _bind(FW, 'kWindowIsAlert')
 export const kWindowIsCollapsedState = /* @__PURE__ */ _bind(FW, 'kWindowIsCollapsedState')
 export const kWindowIsModal = /* @__PURE__ */ _bind(FW, 'kWindowIsModal')
 export const kWindowIsOpaque = /* @__PURE__ */ _bind(FW, 'kWindowIsOpaque')
-export const kWindowLatentVisibleAppHidden = /* @__PURE__ */ _bind(FW, 'kWindowLatentVisibleAppHidden')
-export const kWindowLatentVisibleCollapsedGroup = /* @__PURE__ */ _bind(FW, 'kWindowLatentVisibleCollapsedGroup')
-export const kWindowLatentVisibleCollapsedOwner = /* @__PURE__ */ _bind(FW, 'kWindowLatentVisibleCollapsedOwner')
+export const kWindowLatentVisibleAppHidden = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowLatentVisibleAppHidden',
+)
+
+export const kWindowLatentVisibleCollapsedGroup = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowLatentVisibleCollapsedGroup',
+)
+
+export const kWindowLatentVisibleCollapsedOwner = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowLatentVisibleCollapsedOwner',
+)
+
 export const kWindowLatentVisibleFloater = /* @__PURE__ */ _bind(FW, 'kWindowLatentVisibleFloater')
-export const kWindowLatentVisibleFullScreen = /* @__PURE__ */ _bind(FW, 'kWindowLatentVisibleFullScreen')
+export const kWindowLatentVisibleFullScreen = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowLatentVisibleFullScreen',
+)
+
 export const kWindowLatentVisibleSuspend = /* @__PURE__ */ _bind(FW, 'kWindowLatentVisibleSuspend')
 export const kWindowLiveResizeAttribute = /* @__PURE__ */ _bind(FW, 'kWindowLiveResizeAttribute')
 export const kWindowMenuIncludeRotate = /* @__PURE__ */ _bind(FW, 'kWindowMenuIncludeRotate')
 export const kWindowMetalAttribute = /* @__PURE__ */ _bind(FW, 'kWindowMetalAttribute')
-export const kWindowMetalNoContentSeparatorAttribute = /* @__PURE__ */ _bind(FW, 'kWindowMetalNoContentSeparatorAttribute')
+export const kWindowMetalNoContentSeparatorAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowMetalNoContentSeparatorAttribute',
+)
+
 export const kWindowModalDialogProc = /* @__PURE__ */ _bind(FW, 'kWindowModalDialogProc')
 export const kWindowModalityAppModal = /* @__PURE__ */ _bind(FW, 'kWindowModalityAppModal')
 export const kWindowModalityNone = /* @__PURE__ */ _bind(FW, 'kWindowModalityNone')
 export const kWindowModalitySystemModal = /* @__PURE__ */ _bind(FW, 'kWindowModalitySystemModal')
 export const kWindowModalityWindowModal = /* @__PURE__ */ _bind(FW, 'kWindowModalityWindowModal')
 export const kWindowMovableAlertProc = /* @__PURE__ */ _bind(FW, 'kWindowMovableAlertProc')
-export const kWindowMovableModalDialogProc = /* @__PURE__ */ _bind(FW, 'kWindowMovableModalDialogProc')
+export const kWindowMovableModalDialogProc = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowMovableModalDialogProc',
+)
+
 export const kWindowMovableModalGrowProc = /* @__PURE__ */ _bind(FW, 'kWindowMovableModalGrowProc')
 export const kWindowMoveTransitionAction = /* @__PURE__ */ _bind(FW, 'kWindowMoveTransitionAction')
 export const kWindowMsgCalculateShape = /* @__PURE__ */ _bind(FW, 'kWindowMsgCalculateShape')
@@ -5185,13 +11137,21 @@ export const kWindowMsgDrawGrowBox = /* @__PURE__ */ _bind(FW, 'kWindowMsgDrawGr
 export const kWindowMsgDrawGrowOutline = /* @__PURE__ */ _bind(FW, 'kWindowMsgDrawGrowOutline')
 export const kWindowMsgDrawInCurrentPort = /* @__PURE__ */ _bind(FW, 'kWindowMsgDrawInCurrentPort')
 export const kWindowMsgGetFeatures = /* @__PURE__ */ _bind(FW, 'kWindowMsgGetFeatures')
-export const kWindowMsgGetGrowImageRegion = /* @__PURE__ */ _bind(FW, 'kWindowMsgGetGrowImageRegion')
+export const kWindowMsgGetGrowImageRegion = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowMsgGetGrowImageRegion',
+)
+
 export const kWindowMsgGetRegion = /* @__PURE__ */ _bind(FW, 'kWindowMsgGetRegion')
 export const kWindowMsgHitTest = /* @__PURE__ */ _bind(FW, 'kWindowMsgHitTest')
 export const kWindowMsgInitialize = /* @__PURE__ */ _bind(FW, 'kWindowMsgInitialize')
 export const kWindowMsgMeasureTitle = /* @__PURE__ */ _bind(FW, 'kWindowMsgMeasureTitle')
 export const kWindowMsgModified = /* @__PURE__ */ _bind(FW, 'kWindowMsgModified')
-export const kWindowMsgSetupProxyDragImage = /* @__PURE__ */ _bind(FW, 'kWindowMsgSetupProxyDragImage')
+export const kWindowMsgSetupProxyDragImage = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowMsgSetupProxyDragImage',
+)
+
 export const kWindowMsgStateChanged = /* @__PURE__ */ _bind(FW, 'kWindowMsgStateChanged')
 export const kWindowNoActivatesAttribute = /* @__PURE__ */ _bind(FW, 'kWindowNoActivatesAttribute')
 export const kWindowNoAttributes = /* @__PURE__ */ _bind(FW, 'kWindowNoAttributes')
@@ -5200,51 +11160,123 @@ export const kWindowNoPosition = /* @__PURE__ */ _bind(FW, 'kWindowNoPosition')
 export const kWindowNoShadowAttribute = /* @__PURE__ */ _bind(FW, 'kWindowNoShadowAttribute')
 export const kWindowNoTitleBarAttribute = /* @__PURE__ */ _bind(FW, 'kWindowNoTitleBarAttribute')
 export const kWindowNoUpdatesAttribute = /* @__PURE__ */ _bind(FW, 'kWindowNoUpdatesAttribute')
-export const kWindowOpaqueForEventsAttribute = /* @__PURE__ */ _bind(FW, 'kWindowOpaqueForEventsAttribute')
+export const kWindowOpaqueForEventsAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowOpaqueForEventsAttribute',
+)
+
 export const kWindowOpaqueRgn = /* @__PURE__ */ _bind(FW, 'kWindowOpaqueRgn')
 export const kWindowOverlayProc = /* @__PURE__ */ _bind(FW, 'kWindowOverlayProc')
 export const kWindowPaintProcOptionsNone = /* @__PURE__ */ _bind(FW, 'kWindowPaintProcOptionsNone')
 export const kWindowPlainDialogProc = /* @__PURE__ */ _bind(FW, 'kWindowPlainDialogProc')
 export const kWindowPropertyPersistent = /* @__PURE__ */ _bind(FW, 'kWindowPropertyPersistent')
 export const kWindowResizableAttribute = /* @__PURE__ */ _bind(FW, 'kWindowResizableAttribute')
-export const kWindowResizeTransitionAction = /* @__PURE__ */ _bind(FW, 'kWindowResizeTransitionAction')
+export const kWindowResizeTransitionAction = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowResizeTransitionAction',
+)
+
 export const kWindowShadowDialogProc = /* @__PURE__ */ _bind(FW, 'kWindowShadowDialogProc')
-export const kWindowSheetAlertDefProcResID = /* @__PURE__ */ _bind(FW, 'kWindowSheetAlertDefProcResID')
+export const kWindowSheetAlertDefProcResID = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowSheetAlertDefProcResID',
+)
+
 export const kWindowSheetAlertProc = /* @__PURE__ */ _bind(FW, 'kWindowSheetAlertProc')
 export const kWindowSheetDefProcResID = /* @__PURE__ */ _bind(FW, 'kWindowSheetDefProcResID')
 export const kWindowSheetProc = /* @__PURE__ */ _bind(FW, 'kWindowSheetProc')
-export const kWindowSheetTransitionEffect = /* @__PURE__ */ _bind(FW, 'kWindowSheetTransitionEffect')
+export const kWindowSheetTransitionEffect = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowSheetTransitionEffect',
+)
+
 export const kWindowShowTransitionAction = /* @__PURE__ */ _bind(FW, 'kWindowShowTransitionAction')
-export const kWindowSideTitlebarAttribute = /* @__PURE__ */ _bind(FW, 'kWindowSideTitlebarAttribute')
+export const kWindowSideTitlebarAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowSideTitlebarAttribute',
+)
+
 export const kWindowSimpleDefProcResID = /* @__PURE__ */ _bind(FW, 'kWindowSimpleDefProcResID')
 export const kWindowSimpleFrameProc = /* @__PURE__ */ _bind(FW, 'kWindowSimpleFrameProc')
 export const kWindowSimpleProc = /* @__PURE__ */ _bind(FW, 'kWindowSimpleProc')
-export const kWindowSlideTransitionEffect = /* @__PURE__ */ _bind(FW, 'kWindowSlideTransitionEffect')
+export const kWindowSlideTransitionEffect = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowSlideTransitionEffect',
+)
+
 export const kWindowStaggerMainScreen = /* @__PURE__ */ _bind(FW, 'kWindowStaggerMainScreen')
 export const kWindowStaggerParentWindow = /* @__PURE__ */ _bind(FW, 'kWindowStaggerParentWindow')
-export const kWindowStaggerParentWindowScreen = /* @__PURE__ */ _bind(FW, 'kWindowStaggerParentWindowScreen')
-export const kWindowStandardDocumentAttributes = /* @__PURE__ */ _bind(FW, 'kWindowStandardDocumentAttributes')
-export const kWindowStandardFloatingAttributes = /* @__PURE__ */ _bind(FW, 'kWindowStandardFloatingAttributes')
-export const kWindowStandardHandlerAttribute = /* @__PURE__ */ _bind(FW, 'kWindowStandardHandlerAttribute')
+export const kWindowStaggerParentWindowScreen = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowStaggerParentWindowScreen',
+)
+
+export const kWindowStandardDocumentAttributes = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowStandardDocumentAttributes',
+)
+
+export const kWindowStandardFloatingAttributes = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowStandardFloatingAttributes',
+)
+
+export const kWindowStandardHandlerAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowStandardHandlerAttribute',
+)
+
 export const kWindowStateTitleChanged = /* @__PURE__ */ _bind(FW, 'kWindowStateTitleChanged')
 export const kWindowStructureRgn = /* @__PURE__ */ _bind(FW, 'kWindowStructureRgn')
 export const kWindowSupportsDragHilite = /* @__PURE__ */ _bind(FW, 'kWindowSupportsDragHilite')
-export const kWindowSupportsGetGrowImageRegion = /* @__PURE__ */ _bind(FW, 'kWindowSupportsGetGrowImageRegion')
+export const kWindowSupportsGetGrowImageRegion = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowSupportsGetGrowImageRegion',
+)
+
 export const kWindowSupportsModifiedBit = /* @__PURE__ */ _bind(FW, 'kWindowSupportsModifiedBit')
-export const kWindowTexturedSquareCornersAttribute = /* @__PURE__ */ _bind(FW, 'kWindowTexturedSquareCornersAttribute')
+export const kWindowTexturedSquareCornersAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowTexturedSquareCornersAttribute',
+)
+
 export const kWindowTitleBarRgn = /* @__PURE__ */ _bind(FW, 'kWindowTitleBarRgn')
 export const kWindowTitleProxyIconRgn = /* @__PURE__ */ _bind(FW, 'kWindowTitleProxyIconRgn')
 export const kWindowTitleTextRgn = /* @__PURE__ */ _bind(FW, 'kWindowTitleTextRgn')
-export const kWindowToolbarButtonAttribute = /* @__PURE__ */ _bind(FW, 'kWindowToolbarButtonAttribute')
+export const kWindowToolbarButtonAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowToolbarButtonAttribute',
+)
+
 export const kWindowToolbarButtonRgn = /* @__PURE__ */ _bind(FW, 'kWindowToolbarButtonRgn')
-export const kWindowUnifiedTitleAndToolbarAttribute = /* @__PURE__ */ _bind(FW, 'kWindowUnifiedTitleAndToolbarAttribute')
+export const kWindowUnifiedTitleAndToolbarAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowUnifiedTitleAndToolbarAttribute',
+)
+
 export const kWindowUpdateRgn = /* @__PURE__ */ _bind(FW, 'kWindowUpdateRgn')
 export const kWindowUtilityDefProcResID = /* @__PURE__ */ _bind(FW, 'kWindowUtilityDefProcResID')
-export const kWindowUtilitySideTitleDefProcResID = /* @__PURE__ */ _bind(FW, 'kWindowUtilitySideTitleDefProcResID')
+export const kWindowUtilitySideTitleDefProcResID = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowUtilitySideTitleDefProcResID',
+)
+
 export const kWindowVertZoomDocumentProc = /* @__PURE__ */ _bind(FW, 'kWindowVertZoomDocumentProc')
-export const kWindowVertZoomGrowDocumentProc = /* @__PURE__ */ _bind(FW, 'kWindowVertZoomGrowDocumentProc')
-export const kWindowVerticalZoomAttribute = /* @__PURE__ */ _bind(FW, 'kWindowVerticalZoomAttribute')
-export const kWindowWantsDisposeAtProcessDeath = /* @__PURE__ */ _bind(FW, 'kWindowWantsDisposeAtProcessDeath')
+export const kWindowVertZoomGrowDocumentProc = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowVertZoomGrowDocumentProc',
+)
+
+export const kWindowVerticalZoomAttribute = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowVerticalZoomAttribute',
+)
+
+export const kWindowWantsDisposeAtProcessDeath = /* @__PURE__ */ _bind(
+	FW,
+	'kWindowWantsDisposeAtProcessDeath',
+)
+
 export const kWindowZoomBoxRgn = /* @__PURE__ */ _bind(FW, 'kWindowZoomBoxRgn')
 export const kWindowZoomTransitionEffect = /* @__PURE__ */ _bind(FW, 'kWindowZoomTransitionEffect')
 export const kZoomAccelerate = /* @__PURE__ */ _bind(FW, 'kZoomAccelerate')
@@ -5253,7 +11285,11 @@ export const kZoomNoAcceleration = /* @__PURE__ */ _bind(FW, 'kZoomNoAcceleratio
 export const kcaddapplesharepassword = /* @__PURE__ */ _bind(FW, 'kcaddapplesharepassword')
 export const kcaddgenericpassword = /* @__PURE__ */ _bind(FW, 'kcaddgenericpassword')
 export const kcaddinternetpassword = /* @__PURE__ */ _bind(FW, 'kcaddinternetpassword')
-export const kcaddinternetpasswordwithpath = /* @__PURE__ */ _bind(FW, 'kcaddinternetpasswordwithpath')
+export const kcaddinternetpasswordwithpath = /* @__PURE__ */ _bind(
+	FW,
+	'kcaddinternetpasswordwithpath',
+)
+
 export const kccreatekeychain = /* @__PURE__ */ _bind(FW, 'kccreatekeychain')
 export const kcunlock = /* @__PURE__ */ _bind(FW, 'kcunlock')
 export const key32BitIcon = /* @__PURE__ */ _bind(FW, 'key32BitIcon')
@@ -5423,7 +11459,11 @@ export const pButtonViewArrangement = /* @__PURE__ */ _bind(FW, 'pButtonViewArra
 export const pByCreationDateArrangement = /* @__PURE__ */ _bind(FW, 'pByCreationDateArrangement')
 export const pByKindArrangement = /* @__PURE__ */ _bind(FW, 'pByKindArrangement')
 export const pByLabelArrangement = /* @__PURE__ */ _bind(FW, 'pByLabelArrangement')
-export const pByModificationDateArrangement = /* @__PURE__ */ _bind(FW, 'pByModificationDateArrangement')
+export const pByModificationDateArrangement = /* @__PURE__ */ _bind(
+	FW,
+	'pByModificationDateArrangement',
+)
+
 export const pByNameArrangement = /* @__PURE__ */ _bind(FW, 'pByNameArrangement')
 export const pBySizeArrangement = /* @__PURE__ */ _bind(FW, 'pBySizeArrangement')
 export const pCallBackNumber = /* @__PURE__ */ _bind(FW, 'pCallBackNumber')
@@ -5754,16 +11794,52 @@ export const typeWindowRegionCode = /* @__PURE__ */ _bind(FW, 'typeWindowRegionC
 export const typeWindowTransitionAction = /* @__PURE__ */ _bind(FW, 'typeWindowTransitionAction')
 export const typeWindowTransitionEffect = /* @__PURE__ */ _bind(FW, 'typeWindowTransitionEffect')
 export const unnamed_1026251145828142037 = /* @__PURE__ */ _bind(FW, 'unnamed_1026251145828142037')
-export const unnamed_12197809861532040615 = /* @__PURE__ */ _bind(FW, 'unnamed_12197809861532040615')
-export const unnamed_12419026022655666172 = /* @__PURE__ */ _bind(FW, 'unnamed_12419026022655666172')
-export const unnamed_14351929984319882480 = /* @__PURE__ */ _bind(FW, 'unnamed_14351929984319882480')
-export const unnamed_15082188277367070764 = /* @__PURE__ */ _bind(FW, 'unnamed_15082188277367070764')
-export const unnamed_15133351549658900064 = /* @__PURE__ */ _bind(FW, 'unnamed_15133351549658900064')
-export const unnamed_15248615777502536500 = /* @__PURE__ */ _bind(FW, 'unnamed_15248615777502536500')
-export const unnamed_15431414133122086623 = /* @__PURE__ */ _bind(FW, 'unnamed_15431414133122086623')
+export const unnamed_12197809861532040615 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_12197809861532040615',
+)
+
+export const unnamed_12419026022655666172 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_12419026022655666172',
+)
+
+export const unnamed_14351929984319882480 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_14351929984319882480',
+)
+
+export const unnamed_15082188277367070764 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_15082188277367070764',
+)
+
+export const unnamed_15133351549658900064 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_15133351549658900064',
+)
+
+export const unnamed_15248615777502536500 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_15248615777502536500',
+)
+
+export const unnamed_15431414133122086623 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_15431414133122086623',
+)
+
 export const unnamed_1619167937236617690 = /* @__PURE__ */ _bind(FW, 'unnamed_1619167937236617690')
-export const unnamed_17417303255892222079 = /* @__PURE__ */ _bind(FW, 'unnamed_17417303255892222079')
-export const unnamed_18406106730759024743 = /* @__PURE__ */ _bind(FW, 'unnamed_18406106730759024743')
+export const unnamed_17417303255892222079 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_17417303255892222079',
+)
+
+export const unnamed_18406106730759024743 = /* @__PURE__ */ _bind(
+	FW,
+	'unnamed_18406106730759024743',
+)
+
 export const unnamed_2304931644965025415 = /* @__PURE__ */ _bind(FW, 'unnamed_2304931644965025415')
 export const unnamed_3572299709375085477 = /* @__PURE__ */ _bind(FW, 'unnamed_3572299709375085477')
 export const unnamed_4244627788791132852 = /* @__PURE__ */ _bind(FW, 'unnamed_4244627788791132852')

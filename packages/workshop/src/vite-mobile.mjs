@@ -8,9 +8,13 @@ const fsUrl = (file) => `/@fs/${file.replaceAll('\\', '/')}`
 
 export function mobileCatalogCode(root, config, target) {
 	const { entries, diagnostics } = discoverStories(root, { ...config.stories, target })
-	const loaders = entries.filter((e) => e.applicable && !diagnostics.length).map((e) =>
-		`${JSON.stringify(e.id)}: (stamp) => stamp === undefined ? import(${JSON.stringify(fsUrl(e.file))}) : import(/* @vite-ignore */ ${JSON.stringify(fsUrl(e.file))} + '?t=' + encodeURIComponent(stamp))`,
-	).join(',\n')
+	const loaders = entries
+		.filter((e) => e.applicable && !diagnostics.length)
+		.map(
+			(e) =>
+				`${JSON.stringify(e.id)}: (stamp) => stamp === undefined ? import(${JSON.stringify(fsUrl(e.file))}) : import(/* @vite-ignore */ ${JSON.stringify(fsUrl(e.file))} + '?t=' + encodeURIComponent(stamp))`,
+		)
+		.join(',\n')
 
 	return `import { catalogDidUpdate } from '@octane-xplat/workshop/mobile'
 export const diagnostics = ${JSON.stringify(diagnostics)}
@@ -23,20 +27,37 @@ if (import.meta.hot) import.meta.hot.accept(next => catalogDidUpdate(next?.catal
 /** Apply AFTER resolving the consumer preset, so this pre hook precedes octane(). */
 export function withWorkshopMobile(config, options = {}) {
 	const target = options.target ?? process.env.XPLAT_WORKSHOP_TARGET
-	if (!target) {return config}
-	if (!['ios', 'android'].includes(target)) {throw new Error('Workshop mobile target must be ios or android')}
+	if (!target) {
+		return config
+	}
+
+	if (!['ios', 'android'].includes(target)) {
+		throw new Error('Workshop mobile target must be ios or android')
+	}
+
 	const root = options.cwd ?? process.cwd()
 	const workshop = options.config ?? JSON.parse(process.env.XPLAT_WORKSHOP_CONFIG ?? '{}')
 	const manifest = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8'))
 	const main = resolve(root, manifest.main ?? 'src/index.ts')
 	const plugin = {
-		name: 'xplat-workshop-mobile', enforce: 'pre',
-		resolveId(id) { if (id === MOBILE_CATALOG_ID) {return id} },
+		name: 'xplat-workshop-mobile',
+		enforce: 'pre',
+		resolveId(id) {
+			if (id === MOBILE_CATALOG_ID) {
+				return id
+			}
+		},
 		load(id) {
-			if (id === MOBILE_CATALOG_ID) {return mobileCatalogCode(root, workshop, target)}
+			if (id === MOBILE_CATALOG_ID) {
+				return mobileCatalogCode(root, workshop, target)
+			}
+
 			// Retain the NativeScript polyfills/dev-session bootstrap; replace
 			// only its consumer entry, without touching the production file.
-			if (id.split('?')[0] !== main) {return}
+			if (id.split('?')[0] !== main) {
+				return
+			}
+
 			const presets = workshop.providerModules ?? []
 			return `import { startWorkshop } from '@octane-xplat/workshop/mobile'
 import { catalog, diagnostics } from ${JSON.stringify(MOBILE_CATALOG_ID)}
@@ -58,9 +79,18 @@ if (import.meta.hot) {
 				// NativeScript's active Vite environment is used directly; no
 				// browser-only client assumption. All consumer source edits
 				// refresh the selected revision, including dependency edits.
-				if (!/\.(?:tsrx|tsx|ts|jsx|js|mjs)$/.test(ctx.file) || ctx.file.includes('/node_modules/')) {return}
+				if (
+					!/\.(?:tsrx|tsx|ts|jsx|js|mjs)$/.test(ctx.file) ||
+					ctx.file.includes('/node_modules/')
+				) {
+					return
+				}
+
 				const catalog = this.environment.moduleGraph.getModuleById(MOBILE_CATALOG_ID)
-				if (!catalog) {return}
+				if (!catalog) {
+					return
+				}
+
 				this.environment.moduleGraph.invalidateModule(catalog)
 				return [catalog]
 			},

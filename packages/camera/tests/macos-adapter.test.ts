@@ -132,10 +132,7 @@ describe('macOS adapter destinations', () => {
 
 	it('accepts a destination inside the private root and starts recording', () => {
 		const target = sink()
-		backend.startCapture(
-			recordRequest('/Library/Application Support/app/take+one.mov'),
-			target,
-		)
+		backend.startCapture(recordRequest('/Library/Application Support/app/take+one.mov'), target)
 
 		expect(target.settled).not.toHaveBeenCalled()
 		expect(host.inner.startRecording).toHaveBeenCalledWith(
@@ -176,26 +173,18 @@ describe('macOS adapter event correlation', () => {
 		// A '+' in the file name: Foundation's absoluteString keeps it
 		// literal while encodeURIComponent would produce %2B — the take must
 		// still correlate and settle.
-		backend.startCapture(
-			recordRequest('/Library/Application Support/app/take+one.mov'),
-			target,
-		)
+		backend.startCapture(recordRequest('/Library/Application Support/app/take+one.mov'), target)
 
 		const url = 'file:///Library/Application%20Support/app/take+one.mov'
 		emit({ type: 'recordingStarted', fileUrl: url, audio: false })
 		expect(target.started).toHaveBeenCalled()
 		emit(clipAt(url))
-		expect(target.settled).toHaveBeenCalledWith(
-			expect.objectContaining({ kind: 'clip' }),
-		)
+		expect(target.settled).toHaveBeenCalledWith(expect.objectContaining({ kind: 'clip' }))
 	})
 
 	it('fails a finalized clip with no usable media', () => {
 		const target = sink()
-		backend.startCapture(
-			recordRequest('/Library/Application Support/app/empty.mov'),
-			target,
-		)
+		backend.startCapture(recordRequest('/Library/Application Support/app/empty.mov'), target)
 
 		const url = 'file:///Library/Application%20Support/app/empty.mov'
 		emit({ type: 'recordingStarted', fileUrl: url, audio: false })

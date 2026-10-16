@@ -4,7 +4,6 @@ import assert from 'node:assert/strict'
 import { NSDatePicker } from '@octane-xplat/platform/macos'
 import { sourceWithoutImports } from './mock-globals.ts'
 
-
 const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 
 const slice = source.slice(
@@ -29,13 +28,16 @@ function fixture() {
 		},
 	})
 
-	const view = { addSubview() {}, leadingAnchor: anchor(), trailingAnchor: anchor(), topAnchor: anchor(), bottomAnchor: anchor() }
+	const view = {
+		addSubview() {},
+		leadingAnchor: anchor(),
+		trailingAnchor: anchor(),
+		topAnchor: anchor(),
+		bottomAnchor: anchor(),
+	}
 
 	const context = runInNewContext(
-		dateFromMillis +
-			'\n' +
-			slice +
-			'\n({ attach: (v, o, c) => attachDatePicker(v, o, c) })',
+		dateFromMillis + '\n' + slice + '\n({ attach: (v, o, c) => attachDatePicker(v, o, c) })',
 		{
 			NSDate: Object.assign(function NSDate() {}, {
 				dateWithTimeIntervalSince1970: (s) => ({ timeIntervalSince1970: s }),

@@ -48,9 +48,7 @@ export const createHaptics = (): Haptics => {
 			// zero-length buzz so each gap lands in a pause slot, advance the
 			// cursor by the emitted pulse length, and clip to the authored
 			// duration envelope.
-			const duration = Number.isFinite(pattern.duration)
-				? Math.max(0, pattern.duration)
-				: null
+			const duration = Number.isFinite(pattern.duration) ? Math.max(0, pattern.duration) : null
 
 			const pulses: number[] = []
 			let cursor = 0

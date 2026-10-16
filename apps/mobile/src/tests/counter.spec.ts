@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import type { View } from '@nativescript/core'
-import { mountXplat, nextRenderPass, tap, viewText, waitUntil } from '@octane-xplat/platform/testing'
+import {
+	mountXplat,
+	nextRenderPass,
+	tap,
+	viewText,
+	waitUntil,
+} from '@octane-xplat/platform/testing'
+
 import { Counter } from '@xplat/demos/Counter.tsrx'
 
 describe('xplat component in a real runtime', () => {
@@ -9,9 +16,7 @@ describe('xplat component in a real runtime', () => {
 
 		const inc = view.getViewById<View>('counter-inc')
 		const dec = view.getViewById<View>('counter-dec')
-		expect(inc && inc.isLoaded, 'counter-inc Pressable resolves to a loaded native view').toBe(
-			true,
-		)
+		expect(inc && inc.isLoaded, 'counter-inc Pressable resolves to a loaded native view').toBe(true)
 
 		expect(
 			viewText(view).some((t) => t.includes('Demo count: 0')),

@@ -32,10 +32,22 @@ export const GKGraphNode2D = /* @__PURE__ */ _bind(FW, 'GKGraphNode2D')
 export const GKGraphNode3D = /* @__PURE__ */ _bind(FW, 'GKGraphNode3D')
 export const GKGridGraph = /* @__PURE__ */ _bind(FW, 'GKGridGraph')
 export const GKGridGraphNode = /* @__PURE__ */ _bind(FW, 'GKGridGraphNode')
-export const GKLinearCongruentialRandomSource = /* @__PURE__ */ _bind(FW, 'GKLinearCongruentialRandomSource')
-export const GKMersenneTwisterRandomSource = /* @__PURE__ */ _bind(FW, 'GKMersenneTwisterRandomSource')
+export const GKLinearCongruentialRandomSource = /* @__PURE__ */ _bind(
+	FW,
+	'GKLinearCongruentialRandomSource',
+)
+
+export const GKMersenneTwisterRandomSource = /* @__PURE__ */ _bind(
+	FW,
+	'GKMersenneTwisterRandomSource',
+)
+
 export const GKMeshGraph = /* @__PURE__ */ _bind(FW, 'GKMeshGraph')
-export const GKMeshGraphTriangulationMode = /* @__PURE__ */ _bind(FW, 'GKMeshGraphTriangulationMode')
+export const GKMeshGraphTriangulationMode = /* @__PURE__ */ _bind(
+	FW,
+	'GKMeshGraphTriangulationMode',
+)
+
 export const GKMinmaxStrategist = /* @__PURE__ */ _bind(FW, 'GKMinmaxStrategist')
 export const GKMonteCarloStrategist = /* @__PURE__ */ _bind(FW, 'GKMonteCarloStrategist')
 export const GKNSPredicateRule = /* @__PURE__ */ _bind(FW, 'GKNSPredicateRule')

@@ -15,11 +15,15 @@ web writes generally require a secure context and a user action.
 import { Pressable, Text, useClipboard } from '@octane-xplat/ui'
 
 export function CopyGreeting() {
-  const { clipboardProps } = useClipboard({
-    getItems: () => 'Hello from Xplat',
-    onCopy: (success) => console.log(success ? 'Copied' : 'Copy unavailable'),
-  })
-  return <Pressable {...clipboardProps}><Text>Copy greeting</Text></Pressable>
+	const { clipboardProps } = useClipboard({
+		getItems: () => 'Hello from Xplat',
+		onCopy: (success) => console.log(success ? 'Copied' : 'Copy unavailable'),
+	})
+	return (
+		<Pressable {...clipboardProps}>
+			<Text>Copy greeting</Text>
+		</Pressable>
+	)
 }
 ```
 
@@ -33,8 +37,8 @@ shows a visible status message.
 import { useClipboard } from '@octane-xplat/ui'
 
 export function CopyController() {
-  const clipboard = useClipboard({ getItems: () => 'Hello' })
-  return clipboard.copy
+	const clipboard = useClipboard({ getItems: () => 'Hello' })
+	return clipboard.copy
 }
 ```
 
@@ -51,12 +55,16 @@ Software-keyboard layout belongs to `useKeyboardInset`, a separate API.
 import { useKeyboard } from '@octane-xplat/ui'
 
 export function KeyButton() {
-  const { keyboardProps, isSupported } = useKeyboard({
-    onKeyDown: (event) => {
-      if (!event.isComposing) console.log(event.key, event.code)
-    },
-  })
-  return <button {...keyboardProps} disabled={!isSupported}>Press a key</button>
+	const { keyboardProps, isSupported } = useKeyboard({
+		onKeyDown: (event) => {
+			if (!event.isComposing) console.log(event.key, event.code)
+		},
+	})
+	return (
+		<button {...keyboardProps} disabled={!isSupported}>
+			Press a key
+		</button>
+	)
 }
 ```
 
@@ -71,10 +79,10 @@ specific event handling in an explicit platform leaf.
 import type { KeyboardEvent } from '@octane-xplat/ui'
 
 export function handleKey(event: KeyboardEvent): void {
-  if (event.key === 'Enter' && !event.isComposing && !event.repeat) {
-    event.preventDefault()
-    event.stopPropagation()
-  }
+	if (event.key === 'Enter' && !event.isComposing && !event.repeat) {
+		event.preventDefault()
+		event.stopPropagation()
+	}
 }
 ```
 
@@ -91,8 +99,8 @@ text-only hook is a bounded subset rather than React Aria's full clipboard API.
 import { useClipboard, useKeyboard } from '@octane-xplat/ui'
 
 export function InteractionControllers() {
-  const keyboard = useKeyboard({ onKeyUp: (event) => console.log(event.code) })
-  const clipboard = useClipboard({ getItems: () => 'Hello' })
-  return { keyboard, copy: clipboard.copy }
+	const keyboard = useKeyboard({ onKeyUp: (event) => console.log(event.code) })
+	const clipboard = useClipboard({ getItems: () => 'Hello' })
+	return { keyboard, copy: clipboard.copy }
 }
 ```

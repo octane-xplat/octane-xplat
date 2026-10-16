@@ -1,54 +1,198 @@
 import { _bind } from './_rt.js'
 const FW = '/System/Library/Frameworks/CoreHaptics.framework/CoreHaptics'
-export const CHHapticAdvancedPatternPlayer = /* @__PURE__ */ _bind(FW, 'CHHapticAdvancedPatternPlayer')
+export const CHHapticAdvancedPatternPlayer = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticAdvancedPatternPlayer',
+)
+
 export const CHHapticDeviceCapability = /* @__PURE__ */ _bind(FW, 'CHHapticDeviceCapability')
 export const CHHapticDynamicParameter = /* @__PURE__ */ _bind(FW, 'CHHapticDynamicParameter')
-export const CHHapticDynamicParameterIDAudioAttackTimeControl = /* @__PURE__ */ _bind(FW, 'CHHapticDynamicParameterIDAudioAttackTimeControl')
-export const CHHapticDynamicParameterIDAudioBrightnessControl = /* @__PURE__ */ _bind(FW, 'CHHapticDynamicParameterIDAudioBrightnessControl')
-export const CHHapticDynamicParameterIDAudioDecayTimeControl = /* @__PURE__ */ _bind(FW, 'CHHapticDynamicParameterIDAudioDecayTimeControl')
-export const CHHapticDynamicParameterIDAudioPanControl = /* @__PURE__ */ _bind(FW, 'CHHapticDynamicParameterIDAudioPanControl')
-export const CHHapticDynamicParameterIDAudioPitchControl = /* @__PURE__ */ _bind(FW, 'CHHapticDynamicParameterIDAudioPitchControl')
-export const CHHapticDynamicParameterIDAudioReleaseTimeControl = /* @__PURE__ */ _bind(FW, 'CHHapticDynamicParameterIDAudioReleaseTimeControl')
-export const CHHapticDynamicParameterIDAudioVolumeControl = /* @__PURE__ */ _bind(FW, 'CHHapticDynamicParameterIDAudioVolumeControl')
-export const CHHapticDynamicParameterIDHapticAttackTimeControl = /* @__PURE__ */ _bind(FW, 'CHHapticDynamicParameterIDHapticAttackTimeControl')
-export const CHHapticDynamicParameterIDHapticDecayTimeControl = /* @__PURE__ */ _bind(FW, 'CHHapticDynamicParameterIDHapticDecayTimeControl')
-export const CHHapticDynamicParameterIDHapticIntensityControl = /* @__PURE__ */ _bind(FW, 'CHHapticDynamicParameterIDHapticIntensityControl')
-export const CHHapticDynamicParameterIDHapticReleaseTimeControl = /* @__PURE__ */ _bind(FW, 'CHHapticDynamicParameterIDHapticReleaseTimeControl')
-export const CHHapticDynamicParameterIDHapticSharpnessControl = /* @__PURE__ */ _bind(FW, 'CHHapticDynamicParameterIDHapticSharpnessControl')
+export const CHHapticDynamicParameterIDAudioAttackTimeControl = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticDynamicParameterIDAudioAttackTimeControl',
+)
+
+export const CHHapticDynamicParameterIDAudioBrightnessControl = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticDynamicParameterIDAudioBrightnessControl',
+)
+
+export const CHHapticDynamicParameterIDAudioDecayTimeControl = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticDynamicParameterIDAudioDecayTimeControl',
+)
+
+export const CHHapticDynamicParameterIDAudioPanControl = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticDynamicParameterIDAudioPanControl',
+)
+
+export const CHHapticDynamicParameterIDAudioPitchControl = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticDynamicParameterIDAudioPitchControl',
+)
+
+export const CHHapticDynamicParameterIDAudioReleaseTimeControl = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticDynamicParameterIDAudioReleaseTimeControl',
+)
+
+export const CHHapticDynamicParameterIDAudioVolumeControl = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticDynamicParameterIDAudioVolumeControl',
+)
+
+export const CHHapticDynamicParameterIDHapticAttackTimeControl = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticDynamicParameterIDHapticAttackTimeControl',
+)
+
+export const CHHapticDynamicParameterIDHapticDecayTimeControl = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticDynamicParameterIDHapticDecayTimeControl',
+)
+
+export const CHHapticDynamicParameterIDHapticIntensityControl = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticDynamicParameterIDHapticIntensityControl',
+)
+
+export const CHHapticDynamicParameterIDHapticReleaseTimeControl = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticDynamicParameterIDHapticReleaseTimeControl',
+)
+
+export const CHHapticDynamicParameterIDHapticSharpnessControl = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticDynamicParameterIDHapticSharpnessControl',
+)
+
 export const CHHapticEngine = /* @__PURE__ */ _bind(FW, 'CHHapticEngine')
-export const CHHapticEngineFinishedAction = /* @__PURE__ */ _bind(FW, 'CHHapticEngineFinishedAction')
+export const CHHapticEngineFinishedAction = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticEngineFinishedAction',
+)
+
 export const CHHapticEngineStoppedReason = /* @__PURE__ */ _bind(FW, 'CHHapticEngineStoppedReason')
 export const CHHapticErrorCode = /* @__PURE__ */ _bind(FW, 'CHHapticErrorCode')
 export const CHHapticEvent = /* @__PURE__ */ _bind(FW, 'CHHapticEvent')
 export const CHHapticEventParameter = /* @__PURE__ */ _bind(FW, 'CHHapticEventParameter')
-export const CHHapticEventParameterIDAttackTime = /* @__PURE__ */ _bind(FW, 'CHHapticEventParameterIDAttackTime')
-export const CHHapticEventParameterIDAudioBrightness = /* @__PURE__ */ _bind(FW, 'CHHapticEventParameterIDAudioBrightness')
-export const CHHapticEventParameterIDAudioPan = /* @__PURE__ */ _bind(FW, 'CHHapticEventParameterIDAudioPan')
-export const CHHapticEventParameterIDAudioPitch = /* @__PURE__ */ _bind(FW, 'CHHapticEventParameterIDAudioPitch')
-export const CHHapticEventParameterIDAudioVolume = /* @__PURE__ */ _bind(FW, 'CHHapticEventParameterIDAudioVolume')
-export const CHHapticEventParameterIDDecayTime = /* @__PURE__ */ _bind(FW, 'CHHapticEventParameterIDDecayTime')
-export const CHHapticEventParameterIDHapticIntensity = /* @__PURE__ */ _bind(FW, 'CHHapticEventParameterIDHapticIntensity')
-export const CHHapticEventParameterIDHapticSharpness = /* @__PURE__ */ _bind(FW, 'CHHapticEventParameterIDHapticSharpness')
-export const CHHapticEventParameterIDReleaseTime = /* @__PURE__ */ _bind(FW, 'CHHapticEventParameterIDReleaseTime')
-export const CHHapticEventParameterIDSustained = /* @__PURE__ */ _bind(FW, 'CHHapticEventParameterIDSustained')
-export const CHHapticEventTypeAudioContinuous = /* @__PURE__ */ _bind(FW, 'CHHapticEventTypeAudioContinuous')
-export const CHHapticEventTypeAudioCustom = /* @__PURE__ */ _bind(FW, 'CHHapticEventTypeAudioCustom')
-export const CHHapticEventTypeHapticContinuous = /* @__PURE__ */ _bind(FW, 'CHHapticEventTypeHapticContinuous')
-export const CHHapticEventTypeHapticTransient = /* @__PURE__ */ _bind(FW, 'CHHapticEventTypeHapticTransient')
+export const CHHapticEventParameterIDAttackTime = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticEventParameterIDAttackTime',
+)
+
+export const CHHapticEventParameterIDAudioBrightness = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticEventParameterIDAudioBrightness',
+)
+
+export const CHHapticEventParameterIDAudioPan = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticEventParameterIDAudioPan',
+)
+
+export const CHHapticEventParameterIDAudioPitch = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticEventParameterIDAudioPitch',
+)
+
+export const CHHapticEventParameterIDAudioVolume = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticEventParameterIDAudioVolume',
+)
+
+export const CHHapticEventParameterIDDecayTime = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticEventParameterIDDecayTime',
+)
+
+export const CHHapticEventParameterIDHapticIntensity = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticEventParameterIDHapticIntensity',
+)
+
+export const CHHapticEventParameterIDHapticSharpness = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticEventParameterIDHapticSharpness',
+)
+
+export const CHHapticEventParameterIDReleaseTime = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticEventParameterIDReleaseTime',
+)
+
+export const CHHapticEventParameterIDSustained = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticEventParameterIDSustained',
+)
+
+export const CHHapticEventTypeAudioContinuous = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticEventTypeAudioContinuous',
+)
+
+export const CHHapticEventTypeAudioCustom = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticEventTypeAudioCustom',
+)
+
+export const CHHapticEventTypeHapticContinuous = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticEventTypeHapticContinuous',
+)
+
+export const CHHapticEventTypeHapticTransient = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticEventTypeHapticTransient',
+)
+
 export const CHHapticParameterAttributes = /* @__PURE__ */ _bind(FW, 'CHHapticParameterAttributes')
 export const CHHapticParameterCurve = /* @__PURE__ */ _bind(FW, 'CHHapticParameterCurve')
-export const CHHapticParameterCurveControlPoint = /* @__PURE__ */ _bind(FW, 'CHHapticParameterCurveControlPoint')
+export const CHHapticParameterCurveControlPoint = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticParameterCurveControlPoint',
+)
+
 export const CHHapticPattern = /* @__PURE__ */ _bind(FW, 'CHHapticPattern')
 export const CHHapticPatternKeyEvent = /* @__PURE__ */ _bind(FW, 'CHHapticPatternKeyEvent')
-export const CHHapticPatternKeyEventDuration = /* @__PURE__ */ _bind(FW, 'CHHapticPatternKeyEventDuration')
-export const CHHapticPatternKeyEventParameters = /* @__PURE__ */ _bind(FW, 'CHHapticPatternKeyEventParameters')
+export const CHHapticPatternKeyEventDuration = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticPatternKeyEventDuration',
+)
+
+export const CHHapticPatternKeyEventParameters = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticPatternKeyEventParameters',
+)
+
 export const CHHapticPatternKeyEventType = /* @__PURE__ */ _bind(FW, 'CHHapticPatternKeyEventType')
-export const CHHapticPatternKeyEventWaveformPath = /* @__PURE__ */ _bind(FW, 'CHHapticPatternKeyEventWaveformPath')
+export const CHHapticPatternKeyEventWaveformPath = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticPatternKeyEventWaveformPath',
+)
+
 export const CHHapticPatternKeyParameter = /* @__PURE__ */ _bind(FW, 'CHHapticPatternKeyParameter')
-export const CHHapticPatternKeyParameterCurve = /* @__PURE__ */ _bind(FW, 'CHHapticPatternKeyParameterCurve')
-export const CHHapticPatternKeyParameterCurveControlPoints = /* @__PURE__ */ _bind(FW, 'CHHapticPatternKeyParameterCurveControlPoints')
-export const CHHapticPatternKeyParameterID = /* @__PURE__ */ _bind(FW, 'CHHapticPatternKeyParameterID')
-export const CHHapticPatternKeyParameterValue = /* @__PURE__ */ _bind(FW, 'CHHapticPatternKeyParameterValue')
+export const CHHapticPatternKeyParameterCurve = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticPatternKeyParameterCurve',
+)
+
+export const CHHapticPatternKeyParameterCurveControlPoints = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticPatternKeyParameterCurveControlPoints',
+)
+
+export const CHHapticPatternKeyParameterID = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticPatternKeyParameterID',
+)
+
+export const CHHapticPatternKeyParameterValue = /* @__PURE__ */ _bind(
+	FW,
+	'CHHapticPatternKeyParameterValue',
+)
+
 export const CHHapticPatternKeyPattern = /* @__PURE__ */ _bind(FW, 'CHHapticPatternKeyPattern')
 export const CHHapticPatternKeyTime = /* @__PURE__ */ _bind(FW, 'CHHapticPatternKeyTime')
 export const CHHapticPatternKeyVersion = /* @__PURE__ */ _bind(FW, 'CHHapticPatternKeyVersion')

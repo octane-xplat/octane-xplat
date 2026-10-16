@@ -348,12 +348,14 @@ test('source-owned content waits for portal commit without reading an empty NSAr
 			commit = callback
 		},
 	}
+
 	const surface = present({
 		createContentRoot: (target: any) => {
 			host = target
 			return content
 		},
 	})
+
 	assert.equal(roots.length, 0)
 	assert.equal(host.items.length, 0)
 	// Match NSArray's bounds behavior, rather than returning undefined.
@@ -361,11 +363,15 @@ test('source-owned content waits for portal commit without reading an empty NSAr
 		get: () => ({
 			count: host.items.length,
 			objectAtIndex(i: number) {
-				if (i >= host.items.length) throw new RangeError('NSArray bounds')
+				if (i >= host.items.length) {
+					throw new RangeError('NSArray bounds')
+				}
+
 				return host.items[i]
 			},
 		}),
 	})
+
 	surface.update({ label: 'Updated' })
 	assert.equal(host.items.length, 0)
 	host.addSubview({
@@ -373,6 +379,7 @@ test('source-owned content waits for portal commit without reading an empty NSAr
 		enabled: true,
 		intrinsicContentSize: { width: 80, height: 40 },
 	})
+
 	commit!()
 	assert.equal(nativeWindow.firstResponder, host.items[0])
 	surface.close()

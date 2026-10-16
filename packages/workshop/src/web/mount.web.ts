@@ -42,7 +42,8 @@ export function createWebStageHost(stageElement: HTMLElement): StageHost {
 				{ args: request.props },
 				{ title: request.story.title, component: request.component } as any,
 				{ render: (props: any) => storyTree({ ...request, props }) } as any,
-				{}, 'Story',
+				{},
+				'Story',
 			)
 
 			const mountPoint = globalThis.document.createElement('div')
@@ -73,7 +74,11 @@ export function createWebStageHost(stageElement: HTMLElement): StageHost {
 					}
 
 					disposed = true
-					try { root.unmount() } finally { mountPoint.remove() }
+					try {
+						root.unmount()
+					} finally {
+						mountPoint.remove()
+					}
 				},
 			}
 		},

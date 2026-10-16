@@ -4,125 +4,125 @@
 
 ### Features
 
-- *(camera)* Shared camera-session movie-capture contract with iOS adapter
-- *(camera)* Record and reopen movies on Android and web
-- *(camera)* Preview and record movies on the Windows WinUI target
-- *(camera)* Record and reopen movies on macOS AppKit and WKWebView
-- *(updates)* Add recoverable next-launch OTA bundle updates
-- *(camera)* Record and reopen movies in the Linux WebKitGTK host
+- _(camera)_ Shared camera-session movie-capture contract with iOS adapter
+- _(camera)_ Record and reopen movies on Android and web
+- _(camera)_ Preview and record movies on the Windows WinUI target
+- _(camera)_ Record and reopen movies on macOS AppKit and WKWebView
+- _(updates)_ Add recoverable next-launch OTA bundle updates
+- _(camera)_ Record and reopen movies in the Linux WebKitGTK host
 
 ### Bug Fixes
 
-- *(ui)* Mark CodeBlock wrap styles web-only in tokens.css
+- _(ui)_ Mark CodeBlock wrap styles web-only in tokens.css
 
 ## [0.13.0] - 2026-10-10
 
 ### Features
 
-- *(dnd-kit)* Add activation distance and drag handles
-- *(ui)* Add VirtualListHandle with scrollToOffset
-- *(rolling-text)* Add @octane-xplat/rolling-text package
+- _(dnd-kit)_ Add activation distance and drag handles
+- _(ui)_ Add VirtualListHandle with scrollToOffset
+- _(rolling-text)_ Add @octane-xplat/rolling-text package
 
 ### Bug Fixes
 
-- *(cli,lint)* Restore bins for link: consumers under pnpm 11
-- *(macos-renderer)* Normalize declarative className values before tokenizing
-- *(dnd-kit)* Close documented-behavior gaps in drag feedback and auto-scroll
-- *(patches)* Resolve # package-imports specifiers in the /ns/m device rewrite
-- *(lottie)* Accept nullable native host ref
-- *(rolling-text)* Avoid Unicode regex literal in native bundle
+- _(cli,lint)_ Restore bins for link: consumers under pnpm 11
+- _(macos-renderer)_ Normalize declarative className values before tokenizing
+- _(dnd-kit)_ Close documented-behavior gaps in drag feedback and auto-scroll
+- _(patches)_ Resolve # package-imports specifiers in the /ns/m device rewrite
+- _(lottie)_ Accept nullable native host ref
+- _(rolling-text)_ Avoid Unicode regex literal in native bundle
 
 ## [0.12.0] - 2026-10-08
 
 ### Features
 
-- *(ui)* Add qualified optional testID hosts
-- *(mobile)* Qualify on-device Vitest lane via @nativescript/unit-test-runner
-- *(testing)* Ship on-device Vitest lane and first mobile contract suite
+- _(ui)_ Add qualified optional testID hosts
+- _(mobile)_ Qualify on-device Vitest lane via @nativescript/unit-test-runner
+- _(testing)_ Ship on-device Vitest lane and first mobile contract suite
 
 ### Bug Fixes
 
-- *(macos-renderer)* Reschedule layout after pin writes inside layout()
-- *(patches)* Preserve compiler anchors during whitespace cleanup
-- *(icons)* Encode macOS SVG sources as base64 data URIs
-- *(macos)* Sign dev host bundle with a stable certificate identity
-- *(macos-renderer)* Make stack layout sync first-responder safe
-- *(patches)* Sync package files before packing
-- *(runtime)* Export Children from universal native entries
-- *(editors)* Align native content lifecycle and explicit format subsets
-- *(macos)* Skip dev bundle signing on hosts without codesign
+- _(macos-renderer)_ Reschedule layout after pin writes inside layout()
+- _(patches)_ Preserve compiler anchors during whitespace cleanup
+- _(icons)_ Encode macOS SVG sources as base64 data URIs
+- _(macos)_ Sign dev host bundle with a stable certificate identity
+- _(macos-renderer)_ Make stack layout sync first-responder safe
+- _(patches)_ Sync package files before packing
+- _(runtime)_ Export Children from universal native entries
+- _(editors)_ Align native content lifecycle and explicit format subsets
+- _(macos)_ Skip dev bundle signing on hosts without codesign
 
 ## [0.11.1] - 2026-10-08
 
 ### Bug Fixes
 
-- *(macos-renderer)* Pin grid/absolute children with constraints, not frame writes
-- *(packages)* Ship entries consumable by NativeScript vendors
-- *(platform)* Use ArrayBuffer-backed web random chunks
-- *(cli)* Launch macOS dev hosts with app name and icon
-- *(macos-renderer)* Match action selector strings to registered ObjC methods
-- *(macos-renderer)* Decode images outside batch apply
-- *(macos-renderer)* Honor secure/enabled state and per-edit events on text controls
-- *(macos-renderer)* Resolve package typecheck failures
-- *(macos-renderer)* Batch sibling layout work, fix margin indices and layout observers
-- *(macos-renderer)* Reset native state when styles and classes are removed
-- *(macos-renderer)* Unwind failed creates and preflight batch commands
-- *(macos-renderer)* Suppress warnings for layout child props
-- *(macos)* Implement CefAppProtocol on the JSC host application
-- *(smooth-corners)* Forward layout props through the platform wrappers
-- *(create)* Publish scaffold subpath export
-- *(lint)* Resolve local DOM-like bindings
-- *(packages)* Bind node's URL class in vite configs
-- *(macos)* Supply standalone effective appearance lifecycle
-- *(macos-renderer)* Honor label wrapping and overflow props
-- *(icons)* Generate renderer-aware JSX types
-- *(macos)* Normalize container layout across input channels
-- *(smooth-corners)* Emit undefined for unset layout props so removals reconcile
+- _(macos-renderer)_ Pin grid/absolute children with constraints, not frame writes
+- _(packages)_ Ship entries consumable by NativeScript vendors
+- _(platform)_ Use ArrayBuffer-backed web random chunks
+- _(cli)_ Launch macOS dev hosts with app name and icon
+- _(macos-renderer)_ Match action selector strings to registered ObjC methods
+- _(macos-renderer)_ Decode images outside batch apply
+- _(macos-renderer)_ Honor secure/enabled state and per-edit events on text controls
+- _(macos-renderer)_ Resolve package typecheck failures
+- _(macos-renderer)_ Batch sibling layout work, fix margin indices and layout observers
+- _(macos-renderer)_ Reset native state when styles and classes are removed
+- _(macos-renderer)_ Unwind failed creates and preflight batch commands
+- _(macos-renderer)_ Suppress warnings for layout child props
+- _(macos)_ Implement CefAppProtocol on the JSC host application
+- _(smooth-corners)_ Forward layout props through the platform wrappers
+- _(create)_ Publish scaffold subpath export
+- _(lint)_ Resolve local DOM-like bindings
+- _(packages)_ Bind node's URL class in vite configs
+- _(macos)_ Supply standalone effective appearance lifecycle
+- _(macos-renderer)_ Honor label wrapping and overflow props
+- _(icons)_ Generate renderer-aware JSX types
+- _(macos)_ Normalize container layout across input channels
+- _(smooth-corners)_ Emit undefined for unset layout props so removals reconcile
 
 ### Refactoring
 
-- *(macos-renderer)* Port .mjs sources to TypeScript
+- _(macos-renderer)_ Port .mjs sources to TypeScript
 
 ## [0.11.0] - 2026-10-07
 
 ### Features
 
-- *(ui)* Emit the macOS types entry with tsrx-typegen
-- *(tiptap)* Accept web-target tiptap extensions via props.web
-- *(lexical)* Complete web editor facade
-- *(files)* Add binary readBytes/writeBytes and qualified export
-- *(platform)* Add OS CSPRNG random service
-- *(recorder)* Add @octane-xplat/recorder leaf for WAV microphone capture
-- *(auth)* Add createHostedAuth — generic hosted sign-in + Bearer session transport
-- *(richtext)* Add structural split/join/indent/outdent commands to the Android surface
-- *(richtext)* Back the iOS leaf with AztecEditor-iOS
-- *(shaders)* Add @octane-xplat/shaders thin adapter
-- *(gif)* Add prefetch() and platform escape bags (expo-image L3/L6)
-- *(ui)* Add Image recyclingKey to blank recycled platform-list cells
-- *(ui)* Give Image a shared contentFit/contentPosition contract and srcset-style multi-source src
-- *(ui)* Add Image placeholder prop with blurhash/thumbhash decode
-- *(ui)* Add Image decoding prop (async default, sync opt-in)
-- *(image,gif)* Unify prefetch contract across the image-engine leaves
-- *(image)* Batch isImageCached + forward decode context on iOS
+- _(ui)_ Emit the macOS types entry with tsrx-typegen
+- _(tiptap)_ Accept web-target tiptap extensions via props.web
+- _(lexical)_ Complete web editor facade
+- _(files)_ Add binary readBytes/writeBytes and qualified export
+- _(platform)_ Add OS CSPRNG random service
+- _(recorder)_ Add @octane-xplat/recorder leaf for WAV microphone capture
+- _(auth)_ Add createHostedAuth — generic hosted sign-in + Bearer session transport
+- _(richtext)_ Add structural split/join/indent/outdent commands to the Android surface
+- _(richtext)_ Back the iOS leaf with AztecEditor-iOS
+- _(shaders)_ Add @octane-xplat/shaders thin adapter
+- _(gif)_ Add prefetch() and platform escape bags (expo-image L3/L6)
+- _(ui)_ Add Image recyclingKey to blank recycled platform-list cells
+- _(ui)_ Give Image a shared contentFit/contentPosition contract and srcset-style multi-source src
+- _(ui)_ Add Image placeholder prop with blurhash/thumbhash decode
+- _(ui)_ Add Image decoding prop (async default, sync opt-in)
+- _(image,gif)_ Unify prefetch contract across the image-engine leaves
+- _(image)_ Batch isImageCached + forward decode context on iOS
 
 ### Bug Fixes
 
-- *(ui)* Repair macOS source defects hidden by the handwritten types entry
-- *(tiptap,lexical)* Apply initial json prop once bridge and host are ready
-- *(files)* Honest export/writeBytes failure and single-flight export
-- *(tiptap)* Import TiptapJSON in native editor facade
-- *(files)* Wrap Android readBytes output in ByteBuffer
-- *(smooth-corners)* Glob test files so node --test resolves them on Node 24
-- *(bamboo)* Import virtual:bamboo.css from the NativeScript entry
-- *(lottie)* Type-guard the iOS stop() call on nativeViewProtected
-- *(ui)* Decode native images to view size, not source size
-- *(probe)* Map deep core subpaths in the mobile host module table
-- *(patches)* Stop treating per-package turbo.json as the dev-server workspace root
-- *(patches)* Restore ui-image 5.x iOS prefetch cacheType and headers
+- _(ui)_ Repair macOS source defects hidden by the handwritten types entry
+- _(tiptap,lexical)_ Apply initial json prop once bridge and host are ready
+- _(files)_ Honest export/writeBytes failure and single-flight export
+- _(tiptap)_ Import TiptapJSON in native editor facade
+- _(files)_ Wrap Android readBytes output in ByteBuffer
+- _(smooth-corners)_ Glob test files so node --test resolves them on Node 24
+- _(bamboo)_ Import virtual:bamboo.css from the NativeScript entry
+- _(lottie)_ Type-guard the iOS stop() call on nativeViewProtected
+- _(ui)_ Decode native images to view size, not source size
+- _(probe)_ Map deep core subpaths in the mobile host module table
+- _(patches)_ Stop treating per-package turbo.json as the dev-server workspace root
+- _(patches)_ Restore ui-image 5.x iOS prefetch cacheType and headers
 
 ### Refactoring
 
-- *(macos)* Convert the AppKit harness to TypeScript
+- _(macos)_ Convert the AppKit harness to TypeScript
 
 ## [0.10.0] - 2026-10-04
 
@@ -132,156 +132,156 @@
 
 ### Features
 
-- *(lexical)* Add @octane-xplat/lexical unified editor facade
-- *(ui)* Add Astryx-aligned component names
-- *(ui)* Standardize field control props
-- *(ui)* Add opt-in chrome stylesheet
-- *(ui)* Add search and token selection components
-- *(ui)* Add cross-platform chat family
-- *(ui)* Add content display components
-- *(ui)* Add Astryx forms and layout primitives
-- *(ui)* Add Astryx search and action controls
-- *(ui)* Add portable date and file entry controls
-- *(ui)* Add Astryx navigation and workspace components
-- *(ui)* Add Astryx overlay and media primitives
-- *(files)* Own FileInput with built-in platform pickers
-- *(table)* Add @octane-xplat/table leaf package
-- *(motion)* Delegate declarative tweens to platform animators
-- *(icons)* Add bundled Iconify rendering for web and mobile
-- *(icons)* Render bundled SVGs on native AppKit
-- *(dnd-kit)* Add shared drag and drop and native sortable lists
-- *(dnd-kit)* Support AppKit drag input and sortable lists
-- *(smooth-corners)* Add @octane-xplat/smooth-corners leaf package
-- *(ui)* Add anchored useLayer primitive
-- *(ui)* Render Windows SVG content with WinUI
-- *(ui)* Position Windows popovers with WinUI coordinates
-- *(charts)* Add @octane-xplat/charts leaf package
-- *(ui)* Strengthen finite-list selector interactions
-- *(motion)* Widen transition vocabulary to upstream shape
-- *(motion)* WhileTap/whileFocus, callbacks, motion.create, useAnimate
-- *(table)* Add interactive DataGrid controls
-- *(motion)* Add bounded declarative drag with native arbitration
-- *(motion)* Add bounded variants and child orchestration
-- *(image-crop)* Add inline cross-platform crop selection
-- *(macos-renderer)* Support contain-fit images and input-transparent layers
-- *(image-crop)* Add AppKit inline selection support
-- *(ui)* Add source-backed cross-platform command palette
-- *(cli)* Add xplat fonts add for cross-platform custom fonts
-- *(cli)* Support fontsource packages and woff inputs in xplat fonts add
-- *(notifications)* Implement native AppKit local delivery
-- *(ui)* Make Markdown streaming-ready with an incremental runtime parser
-- *(create)* Let create scaffold a chosen platform subset
-- *(cli)* Add xplat add <platform> for post-scaffold enablement
-- *(charts)* Render charts with AppKit on macOS
-- *(editors)* Host AppKit facades in local WKWebView
-- *(motion)* Delegate declarative bezier tweens to WAAPI on web
-- *(sheet)* Add accessible web modal behavior
-- *(ui)* Embed WKWebView documents on AppKit
-- *(macos-renderer)* Add internal type coverage
-- *(ui)* Add shared menu choices and nested navigation
-- *(ui)* Match optional segments and terminal catch-alls in route patterns
-- *(ui)* Add shared keyed query cache over query$
-- *(ui)* Add route-level error boundary and loader pending state
-- *(ui)* Add native platform list viewability API
-- *(secure-storage)* Support AppKit with macOS Keychain
-- *(lottie)* Add AppKit playback support
-- *(macos)* Present shared overlays with AppKit lifecycle and focus
+- _(lexical)_ Add @octane-xplat/lexical unified editor facade
+- _(ui)_ Add Astryx-aligned component names
+- _(ui)_ Standardize field control props
+- _(ui)_ Add opt-in chrome stylesheet
+- _(ui)_ Add search and token selection components
+- _(ui)_ Add cross-platform chat family
+- _(ui)_ Add content display components
+- _(ui)_ Add Astryx forms and layout primitives
+- _(ui)_ Add Astryx search and action controls
+- _(ui)_ Add portable date and file entry controls
+- _(ui)_ Add Astryx navigation and workspace components
+- _(ui)_ Add Astryx overlay and media primitives
+- _(files)_ Own FileInput with built-in platform pickers
+- _(table)_ Add @octane-xplat/table leaf package
+- _(motion)_ Delegate declarative tweens to platform animators
+- _(icons)_ Add bundled Iconify rendering for web and mobile
+- _(icons)_ Render bundled SVGs on native AppKit
+- _(dnd-kit)_ Add shared drag and drop and native sortable lists
+- _(dnd-kit)_ Support AppKit drag input and sortable lists
+- _(smooth-corners)_ Add @octane-xplat/smooth-corners leaf package
+- _(ui)_ Add anchored useLayer primitive
+- _(ui)_ Render Windows SVG content with WinUI
+- _(ui)_ Position Windows popovers with WinUI coordinates
+- _(charts)_ Add @octane-xplat/charts leaf package
+- _(ui)_ Strengthen finite-list selector interactions
+- _(motion)_ Widen transition vocabulary to upstream shape
+- _(motion)_ WhileTap/whileFocus, callbacks, motion.create, useAnimate
+- _(table)_ Add interactive DataGrid controls
+- _(motion)_ Add bounded declarative drag with native arbitration
+- _(motion)_ Add bounded variants and child orchestration
+- _(image-crop)_ Add inline cross-platform crop selection
+- _(macos-renderer)_ Support contain-fit images and input-transparent layers
+- _(image-crop)_ Add AppKit inline selection support
+- _(ui)_ Add source-backed cross-platform command palette
+- _(cli)_ Add xplat fonts add for cross-platform custom fonts
+- _(cli)_ Support fontsource packages and woff inputs in xplat fonts add
+- _(notifications)_ Implement native AppKit local delivery
+- _(ui)_ Make Markdown streaming-ready with an incremental runtime parser
+- _(create)_ Let create scaffold a chosen platform subset
+- _(cli)_ Add xplat add <platform> for post-scaffold enablement
+- _(charts)_ Render charts with AppKit on macOS
+- _(editors)_ Host AppKit facades in local WKWebView
+- _(motion)_ Delegate declarative bezier tweens to WAAPI on web
+- _(sheet)_ Add accessible web modal behavior
+- _(ui)_ Embed WKWebView documents on AppKit
+- _(macos-renderer)_ Add internal type coverage
+- _(ui)_ Add shared menu choices and nested navigation
+- _(ui)_ Match optional segments and terminal catch-alls in route patterns
+- _(ui)_ Add shared keyed query cache over query$
+- _(ui)_ Add route-level error boundary and loader pending state
+- _(ui)_ Add native platform list viewability API
+- _(secure-storage)_ Support AppKit with macOS Keychain
+- _(lottie)_ Add AppKit playback support
+- _(macos)_ Present shared overlays with AppKit lifecycle and focus
 
 ### Bug Fixes
 
-- *(ui)* Preserve chat prop boundary after rebase
-- *(ui)* Reconcile navigation props after rebase
-- *(ui)* Migrate overlay consumers to Astryx APIs
-- *(ui)* Use native macOS file picker
-- *(ui)* Reconcile Astryx APIs with current harness and build
-- *(motion)* Monotonic native clock and event-driven iOS reduced motion
-- *(ui)* Ignore Android SafeArea escape props on Windows
-- *(ui)* Retain VisuallyHidden sizing in native styles
-- *(ui)* Use a readable native Code font size
-- *(ui)* Use the native monospace font family
-- *(ui)* Give selection indicators visible geometry
-- *(ui)* Point mobile layers at shared native helpers
-- *(ui)* Restore AppKit platform resolution and hook compilation
-- *(ui)* Narrow peer dependency contract
-- *(windows)* Remove unused UI plugin dependencies
-- *(ui)* Register iOS tap-to-blur target without NativeClass
-- *(ui)* Defer VirtualList estimate renders beyond resize delivery
-- *(table)* Wait for valid native layout before measuring header
-- *(ui)* Preserve controlled date values and validate range presets
-- *(charts)* Adopt useMeasure ref surface from main's bind migration
-- *(motion)* Restore component wiring lost in the bind-to-ref refactor
-- *(ui)* Animate AppKit refs with shared timed and spring playback
-- *(ui)* Filter undefined entries from leaf ref arrays
-- *(platform)* Post native AppKit accessibility announcements
-- *(image-crop)* Use useMeasure ref surface after bind migration
-- *(auth)* Complete AppKit provider and browser session flows
+- _(ui)_ Preserve chat prop boundary after rebase
+- _(ui)_ Reconcile navigation props after rebase
+- _(ui)_ Migrate overlay consumers to Astryx APIs
+- _(ui)_ Use native macOS file picker
+- _(ui)_ Reconcile Astryx APIs with current harness and build
+- _(motion)_ Monotonic native clock and event-driven iOS reduced motion
+- _(ui)_ Ignore Android SafeArea escape props on Windows
+- _(ui)_ Retain VisuallyHidden sizing in native styles
+- _(ui)_ Use a readable native Code font size
+- _(ui)_ Use the native monospace font family
+- _(ui)_ Give selection indicators visible geometry
+- _(ui)_ Point mobile layers at shared native helpers
+- _(ui)_ Restore AppKit platform resolution and hook compilation
+- _(ui)_ Narrow peer dependency contract
+- _(windows)_ Remove unused UI plugin dependencies
+- _(ui)_ Register iOS tap-to-blur target without NativeClass
+- _(ui)_ Defer VirtualList estimate renders beyond resize delivery
+- _(table)_ Wait for valid native layout before measuring header
+- _(ui)_ Preserve controlled date values and validate range presets
+- _(charts)_ Adopt useMeasure ref surface from main's bind migration
+- _(motion)_ Restore component wiring lost in the bind-to-ref refactor
+- _(ui)_ Animate AppKit refs with shared timed and spring playback
+- _(ui)_ Filter undefined entries from leaf ref arrays
+- _(platform)_ Post native AppKit accessibility announcements
+- _(image-crop)_ Use useMeasure ref surface after bind migration
+- _(auth)_ Complete AppKit provider and browser session flows
 - Resolve extracted macOS renderer in leaf typechecks
-- *(windows)* Repair pointer observer ownership and lifecycle
-- *(windows)* Integrate parent-driven percentage sizing
-- *(macos)* Unblock AppKit harness and restore smoke checks
-- *(ui)* Preserve array refs when leaves merge internal and caller refs
-- *(ui)* Defer VirtualList rebuilds after resize delivery
-- *(audio)* Pass null for session deactivation error
-- *(lottie)* Report web animation setup failures
-- *(lottie)* Bind web animation handles on mount
-- *(web)* Close browser support gaps
+- _(windows)_ Repair pointer observer ownership and lifecycle
+- _(windows)_ Integrate parent-driven percentage sizing
+- _(macos)_ Unblock AppKit harness and restore smoke checks
+- _(ui)_ Preserve array refs when leaves merge internal and caller refs
+- _(ui)_ Defer VirtualList rebuilds after resize delivery
+- _(audio)_ Pass null for session deactivation error
+- _(lottie)_ Report web animation setup failures
+- _(lottie)_ Bind web animation handles on mount
+- _(web)_ Close browser support gaps
 - Restore mobile package typechecks
-- *(ui)* Add shared SVG declaration entry
-- *(ui)* Restore platform lint boundaries
-- *(sqlite)* Harden Web database handle lifecycle
-- *(ui)* Restore web modal focus after pointer activation
-- *(ui)* Require accessible names for modal overlays
-- *(platform)* Initialize web app state from visibility
-- *(web)* Qualify optional audio across browsers
-- *(web)* Complete standard ref migration
-- *(ui)* Keep native element types out of published declarations
-- *(table)* Remove duplicate feature type export
-- *(types)* Restore mobile harness validation
-- *(web)* Preserve browser receiver for animation frames
-- *(ui)* Preserve composed array refs through wrappers
-- *(motion)* Preserve descendant pointer click targets
-- *(lint)* Resolve pnpm lint errors
-- *(cli)* Update the lockfile when add or patches apply change deps
-- *(ui)* Build the markdown word-char regex without \p{} literals
-- *(ui)* Keep bare \p{ out of the WORD_CHAR doc comment
-- *(ui)* Normalize JSX children and host native text slots
-- *(cli)* Allow linked-dep roots in xplatNative fs.allow
-- *(ui)* Let Android children draw outside their layout bounds
-- *(cli)* Normalize letter-spacing units for native css
-- *(ui)* Share tooltip layers and audit Astryx parity
-- *(ui)* Reconcile AppKit barrel declarations and packed consumers
-- *(ui)* Coordinate nested layer dismissal across roots
-- *(ui)* Settle VirtualList measurements and preserve AppKit row order
-- *(ui)* Complete bounded date keyboard and locale parity
-- *(ui)* Complete portable layer positioning
-- *(table)* Complete bounded selection and accessibility parity
-- *(ui)* Present macOS command palettes modally and reveal highlights
-- *(ui)* Reconcile parity changes with typed renderer and moved docs
-- *(cli)* Apply the platform extension chain to native dev resolution
-- *(patches)* Resolve /ns/m node_modules URLs against linked-dep roots
-- *(ui)* Draw Android svgviews through a proxied View subclass
-- *(lingui)* Map .tsrx extraction origins to authored lines
-- *(table)* Make native test leaves pass app typecheck
-- *(web)* Own scroll restoration per history entry
-- *(ui)* Respect list lifecycle during viewability
-- *(typecheck)* Make every target program and package check green
-- *(ui)* Share tooltip layers and audit Astryx parity
-- *(ui)* Coordinate nested layer dismissal across roots
-- *(windows)* Restore core input and accessibility contracts
-- *(ui)* Complete bounded date keyboard and locale parity
-- *(ui)* Add macOS query storage leaf backed by memory adapter
-- *(ui)* Declare RouteBoundary and errorBoundaryFor in macOS types
-- *(ui)* Remove duplicated shared re-export block from macOS types
+- _(ui)_ Add shared SVG declaration entry
+- _(ui)_ Restore platform lint boundaries
+- _(sqlite)_ Harden Web database handle lifecycle
+- _(ui)_ Restore web modal focus after pointer activation
+- _(ui)_ Require accessible names for modal overlays
+- _(platform)_ Initialize web app state from visibility
+- _(web)_ Qualify optional audio across browsers
+- _(web)_ Complete standard ref migration
+- _(ui)_ Keep native element types out of published declarations
+- _(table)_ Remove duplicate feature type export
+- _(types)_ Restore mobile harness validation
+- _(web)_ Preserve browser receiver for animation frames
+- _(ui)_ Preserve composed array refs through wrappers
+- _(motion)_ Preserve descendant pointer click targets
+- _(lint)_ Resolve pnpm lint errors
+- _(cli)_ Update the lockfile when add or patches apply change deps
+- _(ui)_ Build the markdown word-char regex without \p{} literals
+- _(ui)_ Keep bare \p{ out of the WORD_CHAR doc comment
+- _(ui)_ Normalize JSX children and host native text slots
+- _(cli)_ Allow linked-dep roots in xplatNative fs.allow
+- _(ui)_ Let Android children draw outside their layout bounds
+- _(cli)_ Normalize letter-spacing units for native css
+- _(ui)_ Share tooltip layers and audit Astryx parity
+- _(ui)_ Reconcile AppKit barrel declarations and packed consumers
+- _(ui)_ Coordinate nested layer dismissal across roots
+- _(ui)_ Settle VirtualList measurements and preserve AppKit row order
+- _(ui)_ Complete bounded date keyboard and locale parity
+- _(ui)_ Complete portable layer positioning
+- _(table)_ Complete bounded selection and accessibility parity
+- _(ui)_ Present macOS command palettes modally and reveal highlights
+- _(ui)_ Reconcile parity changes with typed renderer and moved docs
+- _(cli)_ Apply the platform extension chain to native dev resolution
+- _(patches)_ Resolve /ns/m node_modules URLs against linked-dep roots
+- _(ui)_ Draw Android svgviews through a proxied View subclass
+- _(lingui)_ Map .tsrx extraction origins to authored lines
+- _(table)_ Make native test leaves pass app typecheck
+- _(web)_ Own scroll restoration per history entry
+- _(ui)_ Respect list lifecycle during viewability
+- _(typecheck)_ Make every target program and package check green
+- _(ui)_ Share tooltip layers and audit Astryx parity
+- _(ui)_ Coordinate nested layer dismissal across roots
+- _(windows)_ Restore core input and accessibility contracts
+- _(ui)_ Complete bounded date keyboard and locale parity
+- _(ui)_ Add macOS query storage leaf backed by memory adapter
+- _(ui)_ Declare RouteBoundary and errorBoundaryFor in macOS types
+- _(ui)_ Remove duplicated shared re-export block from macOS types
 
 ### Refactoring
 
 - Migrate first-party layouts to HStack
-- *(ui)* Layer shared field structure
-- *(ui)* Share native overlay foundations with Windows
-- *(ui)* Share native route host helpers across targets
-- *(macos)* Extract renderer into a workspace package
-- *(create)* Split scaffold into a per-target manifest + composer
-- *(macos-renderer)* Port sources to TypeScript
+- _(ui)_ Layer shared field structure
+- _(ui)_ Share native overlay foundations with Windows
+- _(ui)_ Share native route host helpers across targets
+- _(macos)_ Extract renderer into a workspace package
+- _(create)_ Split scaffold into a per-target manifest + composer
+- _(macos-renderer)_ Port sources to TypeScript
 
 ## [0.9.0] - 2026-10-02
 

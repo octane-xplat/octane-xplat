@@ -34,12 +34,7 @@ try {
 		run(`fresh launch ${launch}`, { VIS_WEB_ALTERED: '0', VIS_ROOT: 'vis/web' }, 0)
 	}
 
-	run(
-		'controlled visual change',
-		{ VIS_WEB_ALTERED: '1', VIS_ROOT: 'vis/web' },
-		1,
-		/differ by/,
-	)
+	run('controlled visual change', { VIS_WEB_ALTERED: '1', VIS_ROOT: 'vis/web' }, 1, /differ by/)
 
 	run(
 		'missing baseline',

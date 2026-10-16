@@ -212,39 +212,39 @@ export function Example() {
 }
 ```
 
-| Component                                               | What it is                                                       | Key props                                                                    |
-| ------------------------------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| `TextInput`, `TextArea`                                 | One- and multi-line text entry                                   | `value`, `defaultValue`, `onChange`, `label`, `description`                  |
-| `SearchInput`                                           | Search field with clear button                                   | `value`, `onSubmit`, `hasClear`, `onClear`                                   |
-| `FormLayout`                                            | Arranges labeled fields                                          | `direction`, `defaultOptionality`                                            |
-| `InputGroup`, `InputGroupText`                          | Joins a labeled control with prefix/suffix text                  | `label`, `size`                                                              |
-| `PowerSearch`                                           | Structured field/operator/value filters                          | `config`, `filters`, `onChange`, `components`                                |
+| Component                                               | What it is                                                       | Key props                                                                                     |
+| ------------------------------------------------------- | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `TextInput`, `TextArea`                                 | One- and multi-line text entry                                   | `value`, `defaultValue`, `onChange`, `label`, `description`                                   |
+| `SearchInput`                                           | Search field with clear button                                   | `value`, `onSubmit`, `hasClear`, `onClear`                                                    |
+| `FormLayout`                                            | Arranges labeled fields                                          | `direction`, `defaultOptionality`                                                             |
+| `InputGroup`, `InputGroupText`                          | Joins a labeled control with prefix/suffix text                  | `label`, `size`                                                                               |
+| `PowerSearch`                                           | Structured field/operator/value filters                          | `config`, `filters`, `onChange`, `components`                                                 |
 | `Button`                                                | Labeled action                                                   | `label`, `variant`, `size`, `isDisabled`, `isLoading`, `clickAction`, `onActionError`, `href` |
-| `IconButton`                                            | Icon-only named action                                           | `icon`, `label`, `variant`, `size`                                           |
-| `ButtonGroup`                                           | Connected action row                                             | `label`, `orientation`, `size`, `isDisabled`                                 |
-| `ToggleButton`, `ToggleButtonGroup`                     | Pressed action and toggle group                                  | `isPressed`, `value`, `onChange`, `type`                                     |
-| `ClickableCard`, `SelectableCard`                       | Action/navigation card or controlled selection                   | `label`, `href`, `isSelected`, `onChange`                                    |
-| `MoreMenu`                                              | Icon-only overflow menu for action rows                           | `items`, `label`, `placement`, `alignment`                                   |
-| `DateInput`, `TimeInput`                                | ISO date or wall-clock time fields with adaptive picker surfaces | `value`, `onChange`, `min`, `max`, `presentation`                            |
-| `DateTimeInput`                                         | Combined ISO local date-time field                               | `value`, `onChange`, `min`, `max`, `presentation`                            |
-| `Calendar`                                              | Single-date or inclusive range calendar                          | `mode`, `value`, `numberOfMonths`, `dateConstraints`                         |
-| `DateRangeInput`                                        | Labeled range trigger with calendar and presets                  | `value`, `onChange`, `presets`, `minRangeSpan`, `maxRangeSpan`               |
-| `FileInput`                                             | `@octane-xplat/files` picker with input and dropzone modes       | `value`, `onChange`, `accept`, `isMultiple`, `maxSize`                       |
-| `Switch`                                                | On/off toggle (self-drawn)                                       | `checked`, `defaultChecked`, `onCheckedChange`, `isDisabled`                 |
-| `CheckboxInput`                                         | Self-drawn checkbox                                              | `checked`, `defaultChecked`, `onCheckedChange`, `isDisabled`                 |
-| `CheckboxIndicator`, `CheckIndicator`, `RadioIndicator` | Decorative selection marks                                       | `state`, `size`, `isDisabled`                                                |
-| `CheckboxList`                                          | Self-drawn multi-select list                                     | `options`, `value`, `defaultValue`, `onValueChange`, `isDisabled`            |
-| `RadioList`                                             | Self-drawn radio options                                         | `options`, `value`, `defaultValue`, `onValueChange`, `isDisabled`            |
-| `SegmentedControl`                                      | Inline option segments                                           | `options`, `value`, `defaultValue`, `onValueChange`, `isDisabled`            |
-| `Slider`                                                | Value scrubber (self-drawn)                                      | `value`, `minValue`, `maxValue`, `onValueChange`                             |
-| `Selector`                                              | Single or multiple-option picker                                 | `selectionMode`, `options`, `value`, `onValueChange`, `searchable`            |
-| `MultiSelector`                                         | Multiple-option picker preset                                    | `options`, `value`, `onValueChange`, `searchable`, `isDisabled`               |
-| `Typeahead`                                             | Searchable single selection field                                | `searchSource`, `value`, `onChange`, `hasEntriesOnFocus`                     |
-| `Tokenizer`                                             | Searchable multi-selection token field                           | `searchSource`, `value`, `onChange`, `hasCreate`                             |
-| `Token`                                                 | Removable or interactive entity chip                             | `label`, `color`, `onRemove`, `onClick`, `href`                              |
-| `ComplexSelector`                                       | Field trigger with a custom anchored picker surface              | `value`, `children`, `changeAction`, `variant`                               |
-| `NumberInput`                                           | Numeric entry with bounds; `null` is empty                        | `value`, `defaultValue`, `min`, `max`, `step`, `onValueChange`               |
-| `PinInput`                                              | Fixed-length code/PIN entry                                      | `length`, `onValueChange`, `onComplete`, `secure`                            |
+| `IconButton`                                            | Icon-only named action                                           | `icon`, `label`, `variant`, `size`                                                            |
+| `ButtonGroup`                                           | Connected action row                                             | `label`, `orientation`, `size`, `isDisabled`                                                  |
+| `ToggleButton`, `ToggleButtonGroup`                     | Pressed action and toggle group                                  | `isPressed`, `value`, `onChange`, `type`                                                      |
+| `ClickableCard`, `SelectableCard`                       | Action/navigation card or controlled selection                   | `label`, `href`, `isSelected`, `onChange`                                                     |
+| `MoreMenu`                                              | Icon-only overflow menu for action rows                          | `items`, `label`, `placement`, `alignment`                                                    |
+| `DateInput`, `TimeInput`                                | ISO date or wall-clock time fields with adaptive picker surfaces | `value`, `onChange`, `min`, `max`, `presentation`                                             |
+| `DateTimeInput`                                         | Combined ISO local date-time field                               | `value`, `onChange`, `min`, `max`, `presentation`                                             |
+| `Calendar`                                              | Single-date or inclusive range calendar                          | `mode`, `value`, `numberOfMonths`, `dateConstraints`                                          |
+| `DateRangeInput`                                        | Labeled range trigger with calendar and presets                  | `value`, `onChange`, `presets`, `minRangeSpan`, `maxRangeSpan`                                |
+| `FileInput`                                             | `@octane-xplat/files` picker with input and dropzone modes       | `value`, `onChange`, `accept`, `isMultiple`, `maxSize`                                        |
+| `Switch`                                                | On/off toggle (self-drawn)                                       | `checked`, `defaultChecked`, `onCheckedChange`, `isDisabled`                                  |
+| `CheckboxInput`                                         | Self-drawn checkbox                                              | `checked`, `defaultChecked`, `onCheckedChange`, `isDisabled`                                  |
+| `CheckboxIndicator`, `CheckIndicator`, `RadioIndicator` | Decorative selection marks                                       | `state`, `size`, `isDisabled`                                                                 |
+| `CheckboxList`                                          | Self-drawn multi-select list                                     | `options`, `value`, `defaultValue`, `onValueChange`, `isDisabled`                             |
+| `RadioList`                                             | Self-drawn radio options                                         | `options`, `value`, `defaultValue`, `onValueChange`, `isDisabled`                             |
+| `SegmentedControl`                                      | Inline option segments                                           | `options`, `value`, `defaultValue`, `onValueChange`, `isDisabled`                             |
+| `Slider`                                                | Value scrubber (self-drawn)                                      | `value`, `minValue`, `maxValue`, `onValueChange`                                              |
+| `Selector`                                              | Single or multiple-option picker                                 | `selectionMode`, `options`, `value`, `onValueChange`, `searchable`                            |
+| `MultiSelector`                                         | Multiple-option picker preset                                    | `options`, `value`, `onValueChange`, `searchable`, `isDisabled`                               |
+| `Typeahead`                                             | Searchable single selection field                                | `searchSource`, `value`, `onChange`, `hasEntriesOnFocus`                                      |
+| `Tokenizer`                                             | Searchable multi-selection token field                           | `searchSource`, `value`, `onChange`, `hasCreate`                                              |
+| `Token`                                                 | Removable or interactive entity chip                             | `label`, `color`, `onRemove`, `onClick`, `href`                                               |
+| `ComplexSelector`                                       | Field trigger with a custom anchored picker surface              | `value`, `children`, `changeAction`, `variant`                                                |
+| `NumberInput`                                           | Numeric entry with bounds; `null` is empty                       | `value`, `defaultValue`, `min`, `max`, `step`, `onValueChange`                                |
+| `PinInput`                                              | Fixed-length code/PIN entry                                      | `length`, `onValueChange`, `onComplete`, `secure`                                             |
 
 | `InputRating` | Tappable 1..max rating row | `value`, `max`, `icon`, `onValueChange` |
 | `Chip` | Selectable/removable chip | `selected`, `onSelect`, `onRemove` |
@@ -312,27 +312,27 @@ export function Attachments() {
 
 ## Content
 
-| Component        | What it is                                         | Key props                                              |
-| ---------------- | -------------------------------------------------- | ------------------------------------------------------ |
-| `Card`           | Container with header/footer slots                 | `header`, `footer`                                     |
-| `ClickableCard`  | Named action or link surface                       | `label`, `onPress`, `href`, `isDisabled`               |
-| `SelectableCard` | Controlled checked card                            | `label`, `isSelected`, `onChange`                      |
-| `Alert`          | Inline callout                                     | `tone`, `icon`, `title`                                |
-| `Banner`         | Notice strip with optional dismiss                 | `icon`, `onDismiss`                                    |
-| `EmptyState`     | Empty-state block (icon + title + actions)         | `icon`, `title`, `description`                         |
-| `Badge`          | Inline label chip                                  |                                                        |
-| `Avatar`         | Circular image with text fallback                  | `src`, `fallback`, `size`                              |
-| `AvatarGroup`    | Overlapping avatar row with `+N` overflow          | `max`, `size`                                          |
-| `User`           | Avatar + name/description row                      | `name`, `description`, `src`, `onSelect`               |
-| `Icon`           | Registered icon glyph                              | `name`, `registry`, `size`, `color`, `accessibilityLabel` |
+| Component        | What it is                                         | Key props                                                                                |
+| ---------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `Card`           | Container with header/footer slots                 | `header`, `footer`                                                                       |
+| `ClickableCard`  | Named action or link surface                       | `label`, `onPress`, `href`, `isDisabled`                                                 |
+| `SelectableCard` | Controlled checked card                            | `label`, `isSelected`, `onChange`                                                        |
+| `Alert`          | Inline callout                                     | `tone`, `icon`, `title`                                                                  |
+| `Banner`         | Notice strip with optional dismiss                 | `icon`, `onDismiss`                                                                      |
+| `EmptyState`     | Empty-state block (icon + title + actions)         | `icon`, `title`, `description`                                                           |
+| `Badge`          | Inline label chip                                  |                                                                                          |
+| `Avatar`         | Circular image with text fallback                  | `src`, `fallback`, `size`                                                                |
+| `AvatarGroup`    | Overlapping avatar row with `+N` overflow          | `max`, `size`                                                                            |
+| `User`           | Avatar + name/description row                      | `name`, `description`, `src`, `onSelect`                                                 |
+| `Icon`           | Registered icon glyph                              | `name`, `registry`, `size`, `color`, `accessibilityLabel`                                |
 | `Image`          | Image                                              | `src`, `alt`, `placeholder`, `recyclingKey`, `contentFit`, `contentPosition`, `decoding` |
-| `Thumbnail`      | Square image preview with optional remove action   | `src`, `alt`, `isLoading`, `onPress`, `onRemove`       |
-| `Blockquote`     | Quoted content with optional attribution           | `cite`                                                 |
-| `Code`           | Inline monospace text                              | `color`, `size`                                        |
-| `CodeBlock`      | Syntax-colored code with copy and collapse actions | `code`, `language`, `hasLineNumbers`, `highlightLines` |
-| `Citation`       | Source label or numbered source link               | `source`, `number`, `variant`                          |
-| `Skeleton`       | Loading placeholder block                          | `width`, `height`                                      |
-| `Divider`        | Hairline rule                                      | `orientation`                                          |
+| `Thumbnail`      | Square image preview with optional remove action   | `src`, `alt`, `isLoading`, `onPress`, `onRemove`                                         |
+| `Blockquote`     | Quoted content with optional attribution           | `cite`                                                                                   |
+| `Code`           | Inline monospace text                              | `color`, `size`                                                                          |
+| `CodeBlock`      | Syntax-colored code with copy and collapse actions | `code`, `language`, `hasLineNumbers`, `highlightLines`                                   |
+| `Citation`       | Source label or numbered source link               | `source`, `number`, `variant`                                                            |
+| `Skeleton`       | Loading placeholder block                          | `width`, `height`                                                                        |
+| `Divider`        | Hairline rule                                      | `orientation`                                                                            |
 
 For images on native, prefer the `Image` from `@octane-xplat/image` — same
 name, same props, and it loads through Glide/SDWebImage (sized memory + disk
@@ -407,28 +407,28 @@ registerIndicators({ check: SelectionMark })
 
 ## Disclosure & navigation
 
-| Component                                  | What it is                                               | Key props                                                       |
-| ------------------------------------------ | -------------------------------------------------------- | --------------------------------------------------------------- |
-| `Collapsible`                              | Show/hide a region                                       | `trigger`, `open`, `onOpenChange`                               |
+| Component                                  | What it is                                               | Key props                                                        |
+| ------------------------------------------ | -------------------------------------------------------- | ---------------------------------------------------------------- |
+| `Collapsible`                              | Show/hide a region                                       | `trigger`, `open`, `onOpenChange`                                |
 | `Accordion`                                | List of expanding items                                  | `items`, single key/null or `multiple` key array, `onOpenChange` |
-| `Tabs`                                     | Route-stack switcher with tab panes                      | `tabs`, `selectedKey`, `onSelectionChange`                      |
-| `TabList`, `Tab`, `TabMenu`                | Navigation strip or controlled tab strip + overflow menu | `value`, `onChange`, `role`, `href`, `isDisabled`               |
-| `AppShell`                                 | Top, side, and mobile navigation frame                   | `topNav`, `sideNav`, `banner`, `mobileNav`                      |
-| `TopNav`, `TopNavHeading`, `TopNavItem`    | Top navigation bar and items                             | `heading`, `startContent`, `endContent`, `href`                 |
-| `SideNav`, `SideNavSection`, `SideNavItem` | Collapsible side rail with grouped items                 | `collapsible`, `resizable`, `isSelected`                        |
-| `MobileNav`, `MobileNavToggle`             | Mobile navigation drawer and toggle                      | `isOpen`, `onOpenChange`, `side`, `width`                       |
-| `NavIcon`                                  | Circular icon container for navigation                   | `icon`                                                          |
-| `NavHeadingMenu`, `NavHeadingMenuItem`     | Keyboard-operable heading menu                           | `label`, `description`, `href`, `isDisabled`                    |
-| `Toolbar`                                  | Labeled action row with start/center/end slots           | `label`, `orientation`, `dividers`                              |
-| `OverflowList`                             | Responsive list that collapses excess items              | `overflowRenderer`, `maxVisibleItems`, `onOverflowChange`       |
-| `useResizable`, `ResizeHandle`             | Bounded, optionally persistent panel resizing            | `defaultSize`, `minSize`, `maxSize`, `autoSaveId`               |
-| `Breadcrumbs`                              | Ancestor path trail                                      | `items`, `separator`, `maxVisibleItems`, `overflowMenu`         |
-| `Pagination`                               | Prev/next + windowed page buttons                        | `page`, `pageCount`, `onPageChange`                             |
-| `Stepper`                                  | Multi-step progress/flow control                         | `steps`, `current`, `onStepChange`                              |
-| `NavigationMenu`                           | Simple item-array navigation strip                       | `items`, `horizontal`, `href`                                   |
-| [`CommandPalette`](command-palette.md)     | Searchable commands; mobile search sheet                 | `open`, `items` / `searchSource`, `searchMode`, `onValueChange` |
-| `DropdownMenu`                             | Anchored action menu                                     | `trigger`, `items` / children, `placement`, `isOpen`            |
-| `ContextMenu`                              | Secondary-press action menu                              | `items` / `menu`, `trigger`, `isOpen`, `onOpenChange`           |
+| `Tabs`                                     | Route-stack switcher with tab panes                      | `tabs`, `selectedKey`, `onSelectionChange`                       |
+| `TabList`, `Tab`, `TabMenu`                | Navigation strip or controlled tab strip + overflow menu | `value`, `onChange`, `role`, `href`, `isDisabled`                |
+| `AppShell`                                 | Top, side, and mobile navigation frame                   | `topNav`, `sideNav`, `banner`, `mobileNav`                       |
+| `TopNav`, `TopNavHeading`, `TopNavItem`    | Top navigation bar and items                             | `heading`, `startContent`, `endContent`, `href`                  |
+| `SideNav`, `SideNavSection`, `SideNavItem` | Collapsible side rail with grouped items                 | `collapsible`, `resizable`, `isSelected`                         |
+| `MobileNav`, `MobileNavToggle`             | Mobile navigation drawer and toggle                      | `isOpen`, `onOpenChange`, `side`, `width`                        |
+| `NavIcon`                                  | Circular icon container for navigation                   | `icon`                                                           |
+| `NavHeadingMenu`, `NavHeadingMenuItem`     | Keyboard-operable heading menu                           | `label`, `description`, `href`, `isDisabled`                     |
+| `Toolbar`                                  | Labeled action row with start/center/end slots           | `label`, `orientation`, `dividers`                               |
+| `OverflowList`                             | Responsive list that collapses excess items              | `overflowRenderer`, `maxVisibleItems`, `onOverflowChange`        |
+| `useResizable`, `ResizeHandle`             | Bounded, optionally persistent panel resizing            | `defaultSize`, `minSize`, `maxSize`, `autoSaveId`                |
+| `Breadcrumbs`                              | Ancestor path trail                                      | `items`, `separator`, `maxVisibleItems`, `overflowMenu`          |
+| `Pagination`                               | Prev/next + windowed page buttons                        | `page`, `pageCount`, `onPageChange`                              |
+| `Stepper`                                  | Multi-step progress/flow control                         | `steps`, `current`, `onStepChange`                               |
+| `NavigationMenu`                           | Simple item-array navigation strip                       | `items`, `horizontal`, `href`                                    |
+| [`CommandPalette`](command-palette.md)     | Searchable commands; mobile search sheet                 | `open`, `items` / `searchSource`, `searchMode`, `onValueChange`  |
+| `DropdownMenu`                             | Anchored action menu                                     | `trigger`, `items` / children, `placement`, `isOpen`             |
+| `ContextMenu`                              | Secondary-press action menu                              | `items` / `menu`, `trigger`, `isOpen`, `onOpenChange`            |
 
 `Tabs` hosts named route stacks from `TabSpec`; `TabList` is the smaller
 navigation or page-tab strip for caller-owned content. Use `TabList` without
@@ -470,12 +470,12 @@ export function Example() {
 | `TreeList`                         | Expandable node hierarchy                    | `nodes`, `expandedKeys`, `selectionMode`, `onAction`                    |
 | `Timeline`                         | Vertical event list (dot + connector)        | `items`                                                                 |
 | `ProgressGroup`                    | Stacked labeled `Meter` rows                 | `items`                                                                 |
-| `Meter`                            | Gauge/dash ring (meter role, not progress)   | `value`, `minValue`, `maxValue`, `valueLabel`, `strokeWidth`             |
+| `Meter`                            | Gauge/dash ring (meter role, not progress)   | `value`, `minValue`, `maxValue`, `valueLabel`, `strokeWidth`            |
 | `ProgressBar`                      | Linear determinate or indeterminate progress | `value`, `max`, `label`, `marks`                                        |
 | `MetadataList`, `MetadataListItem` | Aligned label/value details                  | `columns`, `label`, `children`                                          |
 | `StatusDot`                        | Accessible colored status signal             | `variant`, `label`, `isPulsing`, `tooltip`                              |
-| `Timestamp`                        | Localized relative or absolute instant       | `value`, `valueUnit` (numeric values), `format`, `isLive`                |
-| `Timer`                            | Live elapsed duration                        | `startTimeMs` (Unix ms), `format`, `type`, `size`                        |
+| `Timestamp`                        | Localized relative or absolute instant       | `value`, `valueUnit` (numeric values), `format`, `isLive`               |
+| `Timer`                            | Live elapsed duration                        | `startTimeMs` (Unix ms), `format`, `type`, `size`                       |
 | `Outline`                          | Navigable heading outline                    | `items`, `activeId`, `hasScrollOnClick`                                 |
 | `Spinner`                          | Self-drawn loading indicator                 |                                                                         |
 
@@ -496,7 +496,9 @@ export function Example() {
 			columns={[{ key: 'name' }, { key: 'stock' }]}
 			rows={rows}
 			renderCell={({ row, column, rowIndex }) => (
-				<Text>{rowIndex + 1}. {String(row[column.key])}</Text>
+				<Text>
+					{rowIndex + 1}. {String(row[column.key])}
+				</Text>
 			)}
 		/>
 	)
@@ -642,21 +644,21 @@ export function Example() {
 
 ## Overlays
 
-| Component                 | What it is                                        | Key props                                                         |
-| ------------------------- | ------------------------------------------------- | ----------------------------------------------------------------- |
-| `Overlay`                 | Content above the screen                          | `open`, `defaultOpen`, `onDismiss`, `shadeCover`                  |
-| `Popover`                 | Anchored floating content                         | `anchor`, `open`, `defaultOpen`, `placement`, `onDismiss`         |
-| `useLayer`                | Anchored/fixed overlay primitive (hook)           | `mode`, `ref`, `show`, `hide`, `isOpen`, `render`                 |
-| `Tooltip`                 | Pointer hover hint                                | `trigger`, `content`, `openDelay`                                 |
-| `HoverCard`               | Hover or touch-triggered card around its children | `content`, `placement`, `delay`, `touchTrigger`                   |
-| `Dialog`                  | Modal surface with optional header                | `isOpen`, `defaultOpen`, `onOpenChange`, `purpose`, `position`    |
-| `AlertDialog`             | Required-action confirmation dialog               | `isOpen`, `defaultOpen`, `title`, `actionLabel`, `onAction`       |
-| `BottomSheet`             | Declarative in-window bottom sheet                | `isOpen`, `defaultOpen`, `snapPoints`, `onOpenChange`             |
-| `BottomSheetSwitcher`     | Shared host for a set of sheets                   | `activeSheet`, `defaultActiveSheet`, `onActiveSheetChange`        |
-| `Carousel`                | Horizontally scrolling child slides               | `children`, `gap`, `hasButtons`, `hasSnap`, `ref`                 |
-| `Lightbox`                | Fullscreen image or video gallery                 | `media`, `isOpen`, `index`, `onIndexChange`                       |
-| `Toast` / `ToastViewport` | Transient notification card and stack             | `showToast`, `useToast`, `position`, `maxVisible`                 |
-| `Drawer`                  | Edge drawer                                       | `main`, `drawer`, `open`, `defaultOpen`, `onDismiss`              |
+| Component                 | What it is                                        | Key props                                                      |
+| ------------------------- | ------------------------------------------------- | -------------------------------------------------------------- |
+| `Overlay`                 | Content above the screen                          | `open`, `defaultOpen`, `onDismiss`, `shadeCover`               |
+| `Popover`                 | Anchored floating content                         | `anchor`, `open`, `defaultOpen`, `placement`, `onDismiss`      |
+| `useLayer`                | Anchored/fixed overlay primitive (hook)           | `mode`, `ref`, `show`, `hide`, `isOpen`, `render`              |
+| `Tooltip`                 | Pointer hover hint                                | `trigger`, `content`, `openDelay`                              |
+| `HoverCard`               | Hover or touch-triggered card around its children | `content`, `placement`, `delay`, `touchTrigger`                |
+| `Dialog`                  | Modal surface with optional header                | `isOpen`, `defaultOpen`, `onOpenChange`, `purpose`, `position` |
+| `AlertDialog`             | Required-action confirmation dialog               | `isOpen`, `defaultOpen`, `title`, `actionLabel`, `onAction`    |
+| `BottomSheet`             | Declarative in-window bottom sheet                | `isOpen`, `defaultOpen`, `snapPoints`, `onOpenChange`          |
+| `BottomSheetSwitcher`     | Shared host for a set of sheets                   | `activeSheet`, `defaultActiveSheet`, `onActiveSheetChange`     |
+| `Carousel`                | Horizontally scrolling child slides               | `children`, `gap`, `hasButtons`, `hasSnap`, `ref`              |
+| `Lightbox`                | Fullscreen image or video gallery                 | `media`, `isOpen`, `index`, `onIndexChange`                    |
+| `Toast` / `ToastViewport` | Transient notification card and stack             | `showToast`, `useToast`, `position`, `maxVisible`              |
+| `Drawer`                  | Edge drawer                                       | `main`, `drawer`, `open`, `defaultOpen`, `onDismiss`           |
 
 Use `Dialog` for optional or informational modal content and `AlertDialog` when
 the user must choose an action. `BottomSheet` is the shared in-window surface;
@@ -734,20 +736,20 @@ export function Example() {
 Features that need a NativeScript plugin ship as their own
 packages so `@octane-xplat/ui` keeps zero required plugin deps:
 
-| Package                 | Exports                                                              | What it is                                |
-| ----------------------- | -------------------------------------------------------------------- | ----------------------------------------- |
-| `@octane-xplat/pager`   | `Pager`                                                              | Full-page swipe container                 |
-| `@octane-xplat/camera`  | `CameraView`, `createCameraSession`                                  | Camera preview and movie recording        |
-| `@octane-xplat/video`   | `Video`                                                              | Embedded video player                     |
-| `@octane-xplat/gif`     | `AnimatedImage`                                                      | Animated images (GIF/webp)                |
+| Package                 | Exports                                                                                        | What it is                                                                                    |
+| ----------------------- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `@octane-xplat/pager`   | `Pager`                                                                                        | Full-page swipe container                                                                     |
+| `@octane-xplat/camera`  | `CameraView`, `createCameraSession`                                                            | Camera preview and movie recording                                                            |
+| `@octane-xplat/video`   | `Video`                                                                                        | Embedded video player                                                                         |
+| `@octane-xplat/gif`     | `AnimatedImage`                                                                                | Animated images (GIF/webp)                                                                    |
 | `@octane-xplat/image`   | `Image`, `initializeImageCache`, `prefetch`, `evictImage`, `clearImageCaches`, `isImageCached` | Recommended `Image` on native (Glide/SDWebImage via ui-image) — same contract as core `Image` |
-| `@octane-xplat/canvas`  | `Canvas`, `getGPU`                                                   | Canvas/GPU surface (2D, WebGL/WebGPU)     |
-| `@octane-xplat/audio`   | `createAudioPlayer`                                                  | Long-form audio playback                  |
-| `@octane-xplat/haptics` | `createHaptics`                                                      | Capability-aware haptics                  |
-| `@octane-xplat/sounds`  | `createSoundBank`                                                    | Short UI sound effects                    |
-| `@octane-xplat/effects` | `ShaderEffect` (`/ios`, `/android` only)                             | View-effect shaders (Metal stitch / AGSL) |
-| `@octane-xplat/shaders` | `createShader`, `createSharedDevice`, `prefersReducedMotion`         | `shaders` engine on Canvas (WebGPU; iOS/Android experimental) |
-| `@octane-xplat/auth`    | `appleAuth`, `googleAuth`, `AppleSignInButton`, `GoogleSignInButton` | Provider sign-in (Apple / Google SDKs)    |
+| `@octane-xplat/canvas`  | `Canvas`, `getGPU`                                                                             | Canvas/GPU surface (2D, WebGL/WebGPU)                                                         |
+| `@octane-xplat/audio`   | `createAudioPlayer`                                                                            | Long-form audio playback                                                                      |
+| `@octane-xplat/haptics` | `createHaptics`                                                                                | Capability-aware haptics                                                                      |
+| `@octane-xplat/sounds`  | `createSoundBank`                                                                              | Short UI sound effects                                                                        |
+| `@octane-xplat/effects` | `ShaderEffect` (`/ios`, `/android` only)                                                       | View-effect shaders (Metal stitch / AGSL)                                                     |
+| `@octane-xplat/shaders` | `createShader`, `createSharedDevice`, `prefersReducedMotion`                                   | `shaders` engine on Canvas (WebGPU; iOS/Android experimental)                                 |
+| `@octane-xplat/auth`    | `appleAuth`, `googleAuth`, `AppleSignInButton`, `GoogleSignInButton`                           | Provider sign-in (Apple / Google SDKs)                                                        |
 
 See [search, select, and token entry](search-selection.md) for `SearchSource`, `Typeahead`, `Tokenizer`, `Token`, and `ComplexSelector` workflows and platform limits.
 

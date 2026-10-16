@@ -101,21 +101,29 @@ export const badId = defineStory<Props>({
 })
 
 export const reservedWithoutInjection = defineStory<{ state: string }>({
-	id: 't/reserved-static', title: 'T / Reserved static', targets: 'all',
+	id: 't/reserved-static',
+	title: 'T / Reserved static',
+	targets: 'all',
 	component: () => null,
 	// @ts-expect-error — reserved names are forbidden even on static stories
 	args: { state: 'collision' },
 })
 
 export const enumUnion = defineStory<{ tone: 'info' | 'danger' }>({
-	id: 't/enum-union', title: 'T / Enum union', targets: 'all',
-	component: () => null, args: { tone: 'info' },
+	id: 't/enum-union',
+	title: 'T / Enum union',
+	targets: 'all',
+	component: () => null,
+	args: { tone: 'info' },
 	controls: { tone: { type: 'enum', options: ['info', 'danger'] } },
 })
 
 export const invalidEnumUnion = defineStory<{ tone: 'info' | 'danger' }>({
-	id: 't/invalid-enum', title: 'T / Invalid enum', targets: 'all',
-	component: () => null, args: { tone: 'info' },
+	id: 't/invalid-enum',
+	title: 'T / Invalid enum',
+	targets: 'all',
+	component: () => null,
+	args: { tone: 'info' },
 	// @ts-expect-error — enum options must stay inside the prop union
 	controls: { tone: { type: 'enum', options: ['info', 'other'] } },
 })

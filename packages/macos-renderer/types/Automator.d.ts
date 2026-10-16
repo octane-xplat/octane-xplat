@@ -3,223 +3,246 @@
 /// <reference path="./Runtime.d.ts" />
 
 declare const AMLogLevel: {
-  Debug: 0,
-  Info: 1,
-  Warn: 2,
-  Error: 3,
-};
+	Debug: 0
+	Info: 1
+	Warn: 2
+	Error: 3
+}
 
 declare const AMErrorCode: {
-  WorkflowNewerVersion: -100,
-  WorkflowPropertyListInvalid: -101,
-  WorkflowNewerActionVersion: -111,
-  WorkflowOlderActionVersion: -112,
-  WorkflowActionsNotLoaded: -113,
-  WorkflowNoEnabledActions: -114,
-  UserCanceled: -128,
-  NoSuchAction: -200,
-  ActionNotLoadable: -201,
-  ActionArchitectureMismatch: -202,
-  ActionRuntimeMismatch: -203,
-  ActionLoad: -204,
-  ActionLink: -205,
-  ActionApplicationResource: -206,
-  ActionApplicationVersionResource: -207,
-  ActionFileResource: -208,
-  ActionLicenseResource: -209,
-  ActionRequiredActionResource: -210,
-  ActionInitialization: -211,
-  ActionExecution: -212,
-  ActionException: -213,
-  ActionPropertyListInvalid: -214,
-  ActionInsufficientData: -215,
-  ActionIsDeprecated: -216,
-  ActionFailedGatekeeper: -217,
-  ActionSignatureCorrupt: -218,
-  ActionQuarantine: -219,
-  ActionXProtect: -220,
-  ActionMalware: -221,
-  ActionThirdPartyActionsNotAllowed: -222,
-  ActionXPC: -223,
-  ConversionNotPossible: -300,
-  ConversionNoData: -301,
-  ConversionFailed: -302,
-};
+	WorkflowNewerVersion: -100
+	WorkflowPropertyListInvalid: -101
+	WorkflowNewerActionVersion: -111
+	WorkflowOlderActionVersion: -112
+	WorkflowActionsNotLoaded: -113
+	WorkflowNoEnabledActions: -114
+	UserCanceled: -128
+	NoSuchAction: -200
+	ActionNotLoadable: -201
+	ActionArchitectureMismatch: -202
+	ActionRuntimeMismatch: -203
+	ActionLoad: -204
+	ActionLink: -205
+	ActionApplicationResource: -206
+	ActionApplicationVersionResource: -207
+	ActionFileResource: -208
+	ActionLicenseResource: -209
+	ActionRequiredActionResource: -210
+	ActionInitialization: -211
+	ActionExecution: -212
+	ActionException: -213
+	ActionPropertyListInvalid: -214
+	ActionInsufficientData: -215
+	ActionIsDeprecated: -216
+	ActionFailedGatekeeper: -217
+	ActionSignatureCorrupt: -218
+	ActionQuarantine: -219
+	ActionXProtect: -220
+	ActionMalware: -221
+	ActionThirdPartyActionsNotAllowed: -222
+	ActionXPC: -223
+	ConversionNotPossible: -300
+	ConversionNoData: -301
+	ConversionFailed: -302
+}
 
 declare interface AMWorkflowControllerDelegate extends NSObjectProtocol {
-  workflowControllerWillRun?(controller: AMWorkflowController): void;
+	workflowControllerWillRun?(controller: AMWorkflowController): void
 
-  workflowControllerWillStop?(controller: AMWorkflowController): void;
+	workflowControllerWillStop?(controller: AMWorkflowController): void
 
-  workflowControllerDidRun?(controller: AMWorkflowController): void;
+	workflowControllerDidRun?(controller: AMWorkflowController): void
 
-  workflowControllerDidStop?(controller: AMWorkflowController): void;
+	workflowControllerDidStop?(controller: AMWorkflowController): void
 
-  workflowControllerWillRunAction?(controller: AMWorkflowController, action: AMAction): void;
+	workflowControllerWillRunAction?(controller: AMWorkflowController, action: AMAction): void
 
-  workflowControllerDidRunAction?(controller: AMWorkflowController, action: AMAction): void;
+	workflowControllerDidRunAction?(controller: AMWorkflowController, action: AMAction): void
 
-  workflowControllerDidError?(controller: AMWorkflowController, error: NSError): void;
+	workflowControllerDidError?(controller: AMWorkflowController, error: NSError): void
 }
 
-declare class AMWorkflowControllerDelegate extends NativeObject implements AMWorkflowControllerDelegate {
-}
+declare class AMWorkflowControllerDelegate
+	extends NativeObject
+	implements AMWorkflowControllerDelegate {}
 
 declare class AMWorkflowView extends NSView {
-  editable: boolean;
+	editable: boolean
 
-  workflowController: AMWorkflowController;
+	workflowController: AMWorkflowController
 
-  isEditable(): boolean;
+	isEditable(): boolean
 }
 
 declare class AMWorkflowController extends NSController {
-  workflow: AMWorkflow;
+	workflow: AMWorkflow
 
-  workflowView: AMWorkflowView;
+	workflowView: AMWorkflowView
 
-  delegate: AMWorkflowControllerDelegate;
+	delegate: AMWorkflowControllerDelegate
 
-  readonly canRun: boolean;
+	readonly canRun: boolean
 
-  readonly running: boolean;
+	readonly running: boolean
 
-  readonly paused: boolean;
+	readonly paused: boolean
 
-  run(sender: interop.Object): void;
+	run(sender: interop.Object): void
 
-  stop(sender: interop.Object): void;
+	stop(sender: interop.Object): void
 
-  pause(sender: interop.Object): void;
+	pause(sender: interop.Object): void
 
-  step(sender: interop.Object): void;
+	step(sender: interop.Object): void
 
-  reset(sender: interop.Object): void;
+	reset(sender: interop.Object): void
 
-  isRunning(): boolean;
+	isRunning(): boolean
 
-  isPaused(): boolean;
+	isPaused(): boolean
 }
 
 declare class AMWorkflow extends NSObject implements NSCopying {
-  static runWorkflowAtURLWithInputError(fileURL: NSURL, input: interop.Object | null, error: interop.PointerConvertible): interop.Object;
+	static runWorkflowAtURLWithInputError(
+		fileURL: NSURL,
+		input: interop.Object | null,
+		error: interop.PointerConvertible,
+	): interop.Object
 
-  init(): this;
+	init(): this
 
-  initWithContentsOfURLError(fileURL: NSURL, outError: interop.PointerConvertible): this;
+	initWithContentsOfURLError(fileURL: NSURL, outError: interop.PointerConvertible): this
 
-  writeToURLError(fileURL: NSURL, outError: interop.PointerConvertible): boolean;
+	writeToURLError(fileURL: NSURL, outError: interop.PointerConvertible): boolean
 
-  setValueForVariableWithName(value: interop.Object | null, variableName: string): boolean;
+	setValueForVariableWithName(value: interop.Object | null, variableName: string): boolean
 
-  valueForVariableWithName(variableName: string): interop.Object;
+	valueForVariableWithName(variableName: string): interop.Object
 
-  addAction(action: AMAction): void;
+	addAction(action: AMAction): void
 
-  removeAction(action: AMAction): void;
+	removeAction(action: AMAction): void
 
-  insertActionAtIndex(action: AMAction, index: number): void;
+	insertActionAtIndex(action: AMAction, index: number): void
 
-  moveActionAtIndexToIndex(startIndex: number, endIndex: number): void;
+	moveActionAtIndexToIndex(startIndex: number, endIndex: number): void
 
-  readonly fileURL: NSURL;
+	readonly fileURL: NSURL
 
-  readonly actions: NSArray;
+	readonly actions: NSArray
 
-  input: interop.Object;
+	input: interop.Object
 
-  readonly output: interop.Object;
+	readonly output: interop.Object
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class AMShellScriptAction extends AMBundleAction {
-  readonly remapLineEndings: boolean;
+	readonly remapLineEndings: boolean
 
-  readonly inputFieldSeparator: string;
+	readonly inputFieldSeparator: string
 
-  readonly outputFieldSeparator: string;
+	readonly outputFieldSeparator: string
 }
 
 declare class AMBundleAction extends AMAction implements NSCopying, NSSecureCoding {
-  awakeFromBundle(): void;
+	awakeFromBundle(): void
 
-  readonly hasView: boolean;
+	readonly hasView: boolean
 
-  readonly view: NSView;
+	readonly view: NSView
 
-  readonly bundle: NSBundle;
+	readonly bundle: NSBundle
 
-  parameters: NSMutableDictionary;
+	parameters: NSMutableDictionary
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  static readonly supportsSecureCoding: boolean;
+	static readonly supportsSecureCoding: boolean
 
-  encodeWithCoder(coder: NSCoder): void;
+	encodeWithCoder(coder: NSCoder): void
 
-  initWithCoder(coder: NSCoder): this;
+	initWithCoder(coder: NSCoder): this
 }
 
 declare class AMAction extends NSObject {
-  initWithDefinitionFromArchive(dict: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null, archived: boolean): this;
+	initWithDefinitionFromArchive(
+		dict:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+		archived: boolean,
+	): this
 
-  initWithContentsOfURLError(fileURL: NSURL, outError: interop.PointerConvertible): this;
+	initWithContentsOfURLError(fileURL: NSURL, outError: interop.PointerConvertible): this
 
-  readonly name: string;
+	readonly name: string
 
-  readonly ignoresInput: boolean;
+	readonly ignoresInput: boolean
 
-  selectedInputType: string;
+	selectedInputType: string
 
-  selectedOutputType: string;
+	selectedOutputType: string
 
-  progressValue: number;
+	progressValue: number
 
-  runWithInputFromActionError(input: interop.Object | null, anAction: AMAction | null, errorInfo: interop.PointerConvertible): interop.Object;
+	runWithInputFromActionError(
+		input: interop.Object | null,
+		anAction: AMAction | null,
+		errorInfo: interop.PointerConvertible,
+	): interop.Object
 
-  runWithInputError(input: interop.Object | null, error: interop.PointerConvertible): interop.Object;
+	runWithInputError(input: interop.Object | null, error: interop.PointerConvertible): interop.Object
 
-  runAsynchronouslyWithInput(input: interop.Object | null): void;
+	runAsynchronouslyWithInput(input: interop.Object | null): void
 
-  willFinishRunning(): void;
+	willFinishRunning(): void
 
-  didFinishRunningWithError(errorInfo: NSDictionary<interop.Object, interop.Object> | Record<interop.Object, interop.Object> | null): void;
+	didFinishRunningWithError(
+		errorInfo:
+			| NSDictionary<interop.Object, interop.Object>
+			| Record<interop.Object, interop.Object>
+			| null,
+	): void
 
-  finishRunningWithError(error: NSError | null): void;
+	finishRunningWithError(error: NSError | null): void
 
-  output: interop.Object;
+	output: interop.Object
 
-  stop(): void;
+	stop(): void
 
-  reset(): void;
+	reset(): void
 
-  writeToDictionary(dictionary: NSMutableDictionary): void;
+	writeToDictionary(dictionary: NSMutableDictionary): void
 
-  opened(): void;
+	opened(): void
 
-  activated(): void;
+	activated(): void
 
-  closed(): void;
+	closed(): void
 
-  updateParameters(): void;
+	updateParameters(): void
 
-  parametersUpdated(): void;
+	parametersUpdated(): void
 
-  logMessageWithLevelFormat(level: interop.Enum<typeof AMLogLevel>, format: string): void;
+	logMessageWithLevelFormat(level: interop.Enum<typeof AMLogLevel>, format: string): void
 
-  readonly stopped: boolean;
+	readonly stopped: boolean
 
-  isStopped(): boolean;
+	isStopped(): boolean
 }
 
 declare class AMAppleScriptAction extends AMBundleAction {
-  script: OSAScript;
+	script: OSAScript
 }
 
 declare class AMWorkspace extends NSObject {
-  static readonly sharedWorkspace: AMWorkspace;
+	static readonly sharedWorkspace: AMWorkspace
 
-  runWorkflowAtPathWithInputError(path: string, input: interop.Object, error: interop.PointerConvertible): interop.Object;
+	runWorkflowAtPathWithInputError(
+		path: string,
+		input: interop.Object,
+		error: interop.PointerConvertible,
+	): interop.Object
 }
-

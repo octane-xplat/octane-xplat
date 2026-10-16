@@ -6,9 +6,13 @@ vi.mock('@nativescript-community/octane', () => ({
 	createNativeScriptRoot: () => ({
 		render(component: unknown, props: unknown) {
 			driver.renders.push({ component, props })
-			if (driver.fail) {throw new Error('native render failed')}
+			if (driver.fail) {
+				throw new Error('native render failed')
+			}
 		},
-		unmount() { driver.unmounts++ },
+		unmount() {
+			driver.unmounts++
+		},
 	}),
 }))
 
@@ -17,12 +21,22 @@ vi.mock('../src/mobile/tree.mobile.tsrx', () => ({ StoryTree: () => null }))
 // This deliberately does not claim a NativeScript process or OS interaction.
 import { createMobileStageHost } from '../src/mobile/mount.mobile'
 import type { MountRequest } from '../src/session'
-const request = (): MountRequest => ({ story: { id: 'mobile/test', title: 'Mobile / Test' } as any, component: () => null,
-	props: { label: 'old', state: { get: () => 1, set() {}, subscribe() {} } }, providers: [], fixture: {},
-	signal: { aborted: false, addEventListener() {}, removeEventListener() {} }, onRenderError() {},
+const request = (): MountRequest => ({
+	story: { id: 'mobile/test', title: 'Mobile / Test' } as any,
+	component: () => null,
+	props: { label: 'old', state: { get: () => 1, set() {}, subscribe() {} } },
+	providers: [],
+	fixture: {},
+	signal: { aborted: false, addEventListener() {}, removeEventListener() {} },
+	onRenderError() {},
 })
 
-beforeEach(() => { driver.renders = []; driver.unmounts = 0; driver.fail = false })
+beforeEach(() => {
+	driver.renders = []
+	driver.unmounts = 0
+	driver.fail = false
+})
+
 describe('native root ownership seam (object driver)', () => {
 	it('preserves the compiled wrapper and providers/fixture on complete prop replacement', async () => {
 		const r = request()
@@ -31,9 +45,16 @@ describe('native root ownership seam (object driver)', () => {
 		expect(driver.renders[1].component).toBe(driver.renders[0].component)
 		expect(driver.renders[1].props.request.providers).toBe(r.providers)
 		expect(driver.renders[1].props.request.fixture).toBe(r.fixture)
-		expect(driver.renders[1].props.request.props).toEqual({ label: undefined, count: 2, state: r.props.state })
+		expect(driver.renders[1].props.request.props).toEqual({
+			label: undefined,
+			count: 2,
+			state: r.props.state,
+		})
+
 		expect(driver.renders[1].props.request.props.state).toBe(r.props.state)
-		mounted.unmount(); mounted.unmount(); mounted.update({ label: 'late' })
+		mounted.unmount()
+		mounted.unmount()
+		mounted.update({ label: 'late' })
 		expect(driver.unmounts).toBe(1)
 		expect(driver.renders).toHaveLength(2)
 	})

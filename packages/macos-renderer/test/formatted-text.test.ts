@@ -103,13 +103,39 @@ test('formattedstring is viewless and accepts spans only under all five text-bea
 test('logical text hosts reparent, move, remove and dispose through production ownership paths', () => {
 	const noop = () => {}
 	const runtime = runInNewContext(
-		['parentReference', 'resolveParentNode', 'canContainView', 'textContent', 'syncText', 'validateTextNesting', 'detach', 'insert', 'remove', 'destroy'].map(fn).join('\n') + '\n({insert,remove,destroy})',
+		[
+			'parentReference',
+			'resolveParentNode',
+			'canContainView',
+			'textContent',
+			'syncText',
+			'validateTextNesting',
+			'detach',
+			'insert',
+			'remove',
+			'destroy',
+		]
+			.map(fn)
+			.join('\n') + '\n({insert,remove,destroy})',
 		{
 			VIEW_PARENT_TYPES: new Set(),
-			composeAttributedText: (children: any[], _view: any, _props: any, _font: any, _color: any, defaults: any) => children.flatMap((child) => textRuns(child, defaults)).map((run) => run.text).join(''),
+			composeAttributedText: (
+				children: any[],
+				_view: any,
+				_props: any,
+				_font: any,
+				_color: any,
+				defaults: any,
+			) =>
+				children
+					.flatMap((child) => textRuns(child, defaults))
+					.map((run) => run.text)
+					.join(''),
 			fontForFamilyStyle: noop,
 			nativeColor: noop,
-			setLabelText: (parent: any, text: string) => {parent.view.stringValue = text},
+			setLabelText: (parent: any, text: string) => {
+				parent.view.stringValue = text
+			},
 			queueLayoutReconcile: noop,
 			deactivateSizeConstraints: noop,
 			releasePlacementPins: noop,
@@ -120,17 +146,33 @@ test('logical text hosts reparent, move, remove and dispose through production o
 
 	const container: any = { nodes: new Map(), children: [] }
 	const create = (id: number, type: string, props: any = {}) => {
-		const item: any = { ...node(type, props), id, parent: null, container, view: type === 'label' ? { invalidateIntrinsicContentSize: noop } : null }
+		const item: any = {
+			...node(type, props),
+			id,
+			parent: null,
+			container,
+			view: type === 'label' ? { invalidateIntrinsicContentSize: noop } : null,
+		}
+
 		if (item.view) {
-			Object.defineProperty(item.view, 'attributedStringValue', { set(value) {this.stringValue = value} })
+			Object.defineProperty(item.view, 'attributedStringValue', {
+				set(value) {
+					this.stringValue = value
+				},
+			})
 		}
 
 		container.nodes.set(id, item)
 		return item
 	}
 
-	const left = create(1, 'label', { text: 'left' }), right = create(2, 'label', { text: 'right' })
-	const formatted = create(3, 'formattedstring'), a = create(4, 'span', { text: 'A' }), b = create(5, 'span', { text: 'B' })
+	const left = create(1, 'label', { text: 'left' }),
+		right = create(2, 'label', { text: 'right' })
+
+	const formatted = create(3, 'formattedstring'),
+		a = create(4, 'span', { text: 'A' }),
+		b = create(5, 'span', { text: 'B' })
+
 	runtime.insert(container, 1, formatted, null)
 	runtime.insert(container, 3, a, null)
 	runtime.insert(container, 3, b, 4)

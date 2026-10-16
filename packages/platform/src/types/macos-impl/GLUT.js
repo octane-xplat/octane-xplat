@@ -28,12 +28,24 @@ export const _gle_gc = /* @__PURE__ */ _bind(FW, '_gle_gc')
 export const bisecting_plane = /* @__PURE__ */ _bind(FW, 'bisecting_plane')
 export const draw_angle_style_back_cap = /* @__PURE__ */ _bind(FW, 'draw_angle_style_back_cap')
 export const draw_angle_style_front_cap = /* @__PURE__ */ _bind(FW, 'draw_angle_style_front_cap')
-export const draw_binorm_segment_c_and_edge_n = /* @__PURE__ */ _bind(FW, 'draw_binorm_segment_c_and_edge_n')
-export const draw_binorm_segment_c_and_facet_n = /* @__PURE__ */ _bind(FW, 'draw_binorm_segment_c_and_facet_n')
+export const draw_binorm_segment_c_and_edge_n = /* @__PURE__ */ _bind(
+	FW,
+	'draw_binorm_segment_c_and_edge_n',
+)
+
+export const draw_binorm_segment_c_and_facet_n = /* @__PURE__ */ _bind(
+	FW,
+	'draw_binorm_segment_c_and_facet_n',
+)
+
 export const draw_binorm_segment_edge_n = /* @__PURE__ */ _bind(FW, 'draw_binorm_segment_edge_n')
 export const draw_binorm_segment_facet_n = /* @__PURE__ */ _bind(FW, 'draw_binorm_segment_facet_n')
 export const draw_raw_style_end_cap = /* @__PURE__ */ _bind(FW, 'draw_raw_style_end_cap')
-export const draw_round_style_cap_callback = /* @__PURE__ */ _bind(FW, 'draw_round_style_cap_callback')
+export const draw_round_style_cap_callback = /* @__PURE__ */ _bind(
+	FW,
+	'draw_round_style_cap_callback',
+)
+
 export const draw_segment_c_and_edge_n = /* @__PURE__ */ _bind(FW, 'draw_segment_c_and_edge_n')
 export const draw_segment_c_and_facet_n = /* @__PURE__ */ _bind(FW, 'draw_segment_c_and_facet_n')
 export const draw_segment_color = /* @__PURE__ */ _bind(FW, 'draw_segment_color')
@@ -127,7 +139,11 @@ export const glutPopWindow = /* @__PURE__ */ _bind(FW, 'glutPopWindow')
 export const glutPositionWindow = /* @__PURE__ */ _bind(FW, 'glutPositionWindow')
 export const glutPostOverlayRedisplay = /* @__PURE__ */ _bind(FW, 'glutPostOverlayRedisplay')
 export const glutPostRedisplay = /* @__PURE__ */ _bind(FW, 'glutPostRedisplay')
-export const glutPostWindowOverlayRedisplay = /* @__PURE__ */ _bind(FW, 'glutPostWindowOverlayRedisplay')
+export const glutPostWindowOverlayRedisplay = /* @__PURE__ */ _bind(
+	FW,
+	'glutPostWindowOverlayRedisplay',
+)
+
 export const glutPostWindowRedisplay = /* @__PURE__ */ _bind(FW, 'glutPostWindowRedisplay')
 export const glutPushWindow = /* @__PURE__ */ _bind(FW, 'glutPushWindow')
 export const glutRemoveMenuItem = /* @__PURE__ */ _bind(FW, 'glutRemoveMenuItem')
@@ -197,8 +213,16 @@ export const smapConfigureSphereMapMesh = /* @__PURE__ */ _bind(FW, 'smapConfigu
 export const smapCreateSphereMap = /* @__PURE__ */ _bind(FW, 'smapCreateSphereMap')
 export const smapDestroySphereMap = /* @__PURE__ */ _bind(FW, 'smapDestroySphereMap')
 export const smapGenSphereMap = /* @__PURE__ */ _bind(FW, 'smapGenSphereMap')
-export const smapGenSphereMapFromViewTexs = /* @__PURE__ */ _bind(FW, 'smapGenSphereMapFromViewTexs')
-export const smapGenSphereMapWithOneViewTex = /* @__PURE__ */ _bind(FW, 'smapGenSphereMapWithOneViewTex')
+export const smapGenSphereMapFromViewTexs = /* @__PURE__ */ _bind(
+	FW,
+	'smapGenSphereMapFromViewTexs',
+)
+
+export const smapGenSphereMapWithOneViewTex = /* @__PURE__ */ _bind(
+	FW,
+	'smapGenSphereMapWithOneViewTex',
+)
+
 export const smapGenViewTex = /* @__PURE__ */ _bind(FW, 'smapGenViewTex')
 export const smapGenViewTexs = /* @__PURE__ */ _bind(FW, 'smapGenViewTexs')
 export const smapGetContextData = /* @__PURE__ */ _bind(FW, 'smapGetContextData')

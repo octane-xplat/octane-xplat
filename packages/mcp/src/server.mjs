@@ -13,12 +13,7 @@ import { discoverWorkspace } from './discovery.mjs'
 import { registerRuntimeTools } from './runtime/tools.mjs'
 import { registerDocsTools } from './docs.mjs'
 import { registerInspectionTools } from './inspection/service.mjs'
-import {
-	bindApp,
-	buildProjectStatus,
-	resolveSelection,
-	SERVER_NAME,
-} from './status.mjs'
+import { bindApp, buildProjectStatus, resolveSelection, SERVER_NAME } from './status.mjs'
 
 // Lockstep releases bump the manifest; the handshake must follow it.
 const SERVER_VERSION = JSON.parse(
@@ -286,7 +281,9 @@ export function createXplatMcpServer(context) {
 				appInstanceId: z
 					.string()
 					.optional()
-					.describe('Target app instance from xplat_dev_actions; required when several instances are live'),
+					.describe(
+						'Target app instance from xplat_dev_actions; required when several instances are live',
+					),
 				actionId: z.string().describe('Stable action id from the registry'),
 				input: z
 					.record(z.string(), z.unknown())
@@ -299,7 +296,9 @@ export function createXplatMcpServer(context) {
 				requestKey: z
 					.string()
 					.optional()
-					.describe('Idempotence key: a retry with the same key returns the live job instead of re-running'),
+					.describe(
+						'Idempotence key: a retry with the same key returns the live job instead of re-running',
+					),
 			},
 		},
 		async ({ appInstanceId, actionId, input, registryRevision, requestKey }) => {
@@ -339,9 +338,13 @@ export function createXplatMcpServer(context) {
 
 			if (described.job.kind !== 'dev-action') {
 				return fail(
-					contractError('invalid_selection', `Job "${jobId}" is a ${described.job.kind} job, not a dev-action invocation.`, {
-						recovery: { action: 'Use xplat_job_status for other job kinds.' },
-					}),
+					contractError(
+						'invalid_selection',
+						`Job "${jobId}" is a ${described.job.kind} job, not a dev-action invocation.`,
+						{
+							recovery: { action: 'Use xplat_job_status for other job kinds.' },
+						},
+					),
 				)
 			}
 

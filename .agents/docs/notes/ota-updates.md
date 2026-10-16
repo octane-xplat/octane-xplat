@@ -30,7 +30,7 @@
   storage is the normal boot path. The asset extraction consults
   `shouldExtract` (verified in the compiled `AssetExtractor`): the thumb is
   unchanged across restarts of the same install, so files written into
-  `files/app` persist until the *native* package is updated.
+  `files/app` persist until the _native_ package is updated.
 - **iOS** (`@nativescript/ios` 9.1.0, runtime via SwiftPM `ios-spm`):
   generated `platforms/ios/internal/main.m` sets
   `config.BaseDir = [[NSBundle mainBundle] resourcePath]`; the runtime loads
@@ -56,7 +56,7 @@ if ([[NSFileManager defaultManager]
 
 Vite emits `app/bundle.mjs` + `vendor.mjs` + `rolldown-runtime-*.mjs` +
 `package.json` (`"main": "bundle"`). The OTA payload is the whole `app/` dir;
-metadata is compiled into the binary (`__TNSMetadata` section) and is *not*
+metadata is compiled into the binary (`__TNSMetadata` section) and is _not_
 part of the payload — OTA cannot change native surfaces.
 
 ### In-session apply
@@ -74,9 +74,9 @@ part of the payload — OTA cannot change native surfaces.
   exists. Self-restart via `AlarmManager` + `PendingIntent.getActivity` +
   `killProcess` is **BAL-blocked on ColorOS/Android 15+** even with the API-34
   `ActivityOptions.setPendingIntentCreatorBackgroundActivityStartMode(
-  MODE_BACKGROUND_ACTIVITY_START_ALLOWED)` opt-in — the blocked launch log
+MODE_BACKGROUND_ACTIVITY_START_ALLOWED)` opt-in — the blocked launch log
   shows `balAllowedByPiCreator: ALLOW_BAL` but `balAllowedByPiSender: NONE →
-  BAL_BLOCK`; the alarm is delivered by system_server which fails ColorOS's
+BAL_BLOCK`; the alarm is delivered by system_server which fails ColorOS's
   sender check. Production implication: schedule the restart best-effort and
   treat "applied on next launch" as the honest contract, or apply while
   foregrounded and let the user/system restart.
@@ -90,13 +90,13 @@ part of the payload — OTA cannot change native surfaces.
 
 Probe case `research/ota-gate/ota-redirect.ts`, phase file in `files/`:
 
-| Step | Result |
-| --- | --- |
-| Embedded boot | `marker=null`, `currentApp=/data/data/<pkg>/files/app` — PASS |
-| Install (copy `files/app` → staging, append `globalThis.__otaMarker='OTA-BUNDLE-V2'` to `bundle.mjs`, write back over `files/app`) + `killProcess` after alarm | PASS; alarm relaunch BAL-blocked, manual `am start` relaunched |
-| Rebooted process | `__otaMarker === 'OTA-BUNDLE-V2'`, `ota-marker.txt` in live `files/app` — PASS (new code executed from app-private storage) |
-| Second reboot | marker still v2 — payload survives restarts (no re-extract) — PASS |
-| Rollback (restore backup over `files/app`, restart) | `marker=null` on next boot — embedded payload restored — PASS |
+| Step                                                                                                                                                           | Result                                                                                                                      |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Embedded boot                                                                                                                                                  | `marker=null`, `currentApp=/data/data/<pkg>/files/app` — PASS                                                               |
+| Install (copy `files/app` → staging, append `globalThis.__otaMarker='OTA-BUNDLE-V2'` to `bundle.mjs`, write back over `files/app`) + `killProcess` after alarm | PASS; alarm relaunch BAL-blocked, manual `am start` relaunched                                                              |
+| Rebooted process                                                                                                                                               | `__otaMarker === 'OTA-BUNDLE-V2'`, `ota-marker.txt` in live `files/app` — PASS (new code executed from app-private storage) |
+| Second reboot                                                                                                                                                  | marker still v2 — payload survives restarts (no re-extract) — PASS                                                          |
+| Rollback (restore backup over `files/app`, restart)                                                                                                            | `marker=null` on next boot — embedded payload restored — PASS                                                               |
 
 All three phase runs reported `status: pass` from the probe runner on device
 `905d3a9e` (final embedded-restored run `7a5ff0f0`).
@@ -108,12 +108,12 @@ All three phase runs reported `status: pass` from the probe runner on device
 embedded as the app entry. Release mutes JS console → verification read from
 the on-screen status Label via `uiautomator dump`. Full arc completed:
 
-| Boot | UI state |
-| --- | --- |
-| 1 (embedded) | driver copied `files/app` → staging, appended marker, wrote back over `files/app`, armed restart alarm, `killProcess` |
-| 2 | alarm relaunch BAL-blocked (even with API-34 opt-in) → external `am start` → `expect-ota` verified, `__otaMarker=OTA-BUNDLE-V2` |
-| 3+ (repeated) | `expect-ota-persist` — OTA payload survives restarts |
-| after rollback | `done phase=done marker=null` — backup restored over `files/app`, embedded bundle running again |
+| Boot           | UI state                                                                                                                        |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| 1 (embedded)   | driver copied `files/app` → staging, appended marker, wrote back over `files/app`, armed restart alarm, `killProcess`           |
+| 2              | alarm relaunch BAL-blocked (even with API-34 opt-in) → external `am start` → `expect-ota` verified, `__otaMarker=OTA-BUNDLE-V2` |
+| 3+ (repeated)  | `expect-ota-persist` — OTA payload survives restarts                                                                            |
+| after rollback | `done phase=done marker=null` — backup restored over `files/app`, embedded bundle running again                                 |
 
 Note: release builds cannot be seeded via `run-as` — the OTA write must be
 performed by app code (as production OTA does); external verification uses the
@@ -121,13 +121,13 @@ UI tree or a private HTTP/marker channel.
 
 ### iOS — debug build via probe runner (sim B27CF707, iOS 27)
 
-| Step | Result |
-| --- | --- |
-| Embedded boot | `marker=null`, `currentApp=…/Bundle/Application/…/build67061d080a5f6dec.app/app` — PASS (run `f1fcd453`) |
-| Install to `~/Library/Application Support/ota/app` (in-app file copy) | PASS (run `f1fcd453`) |
-| Relaunch with patched `main.m` | `exists=1` → `booting OTA bundle` (main.m NSLog); `CONSOLE LOG: [ota-gate] OTA-BUNDLE-V2 bundle executed`; run `e2a887be` PASS: `currentApp=…/Library/Application Support/ota/app`, marker v2, `booted from app-private dir` |
-| Second reboot (persist) | run `aa976767` PASS — still v2 from `Application Support/ota` |
-| Rollback (delete payload) + relaunch | run `4d82b6cd` PASS — `marker=null`, `currentApp` back to embedded `.app/app` |
+| Step                                                                  | Result                                                                                                                                                                                                                       |
+| --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Embedded boot                                                         | `marker=null`, `currentApp=…/Bundle/Application/…/build67061d080a5f6dec.app/app` — PASS (run `f1fcd453`)                                                                                                                     |
+| Install to `~/Library/Application Support/ota/app` (in-app file copy) | PASS (run `f1fcd453`)                                                                                                                                                                                                        |
+| Relaunch with patched `main.m`                                        | `exists=1` → `booting OTA bundle` (main.m NSLog); `CONSOLE LOG: [ota-gate] OTA-BUNDLE-V2 bundle executed`; run `e2a887be` PASS: `currentApp=…/Library/Application Support/ota/app`, marker v2, `booted from app-private dir` |
+| Second reboot (persist)                                               | run `aa976767` PASS — still v2 from `Application Support/ota`                                                                                                                                                                |
+| Rollback (delete payload) + relaunch                                  | run `4d82b6cd` PASS — `marker=null`, `currentApp` back to embedded `.app/app`                                                                                                                                                |
 
 One failed intermediate run (`21942ca1`) is explained by a data-container
 rotation between runs on the shared sim: the payload+state lived in a stale
@@ -146,12 +146,12 @@ development module graph includes the inspector backend that release binaries
 don't register). Driver logs state files since release mutes NSLog from JS.
 Full arc, all on the release binary:
 
-| Boot | Evidence |
-| --- | --- |
-| 1 | main.m: `exists=0` → embedded path; driver installed payload → `expect-ota` |
-| 2 | `exists=1` → `booting OTA bundle`; `ota-gate-boot.txt: phase=expect-ota marker=OTA-BUNDLE-V2 appDir=…/Application Support/ota/app` |
-| 3 | `exists=1` → OTA again; `phase=expect-ota-persist marker=OTA-BUNDLE-V2` — payload persisted |
-| 4 | `exists=0` (payload deleted at 3) → embedded; `marker=null appDir=…/Bundle/…/app` → `done` |
+| Boot | Evidence                                                                                                                           |
+| ---- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | main.m: `exists=0` → embedded path; driver installed payload → `expect-ota`                                                        |
+| 2    | `exists=1` → `booting OTA bundle`; `ota-gate-boot.txt: phase=expect-ota marker=OTA-BUNDLE-V2 appDir=…/Application Support/ota/app` |
+| 3    | `exists=1` → OTA again; `phase=expect-ota-persist marker=OTA-BUNDLE-V2` — payload persisted                                        |
+| 4    | `exists=0` (payload deleted at 3) → embedded; `marker=null appDir=…/Bundle/…/app` → `done`                                         |
 
 So a **release-configuration** iOS app boots the swapped vite bundle from
 app-private storage, persists it, and falls back when removed — the redirect

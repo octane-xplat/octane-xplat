@@ -2,28 +2,30 @@
 /// <reference path="./Foundation.d.ts" />
 /// <reference path="./AppKit.d.ts" />
 
-declare const FPUIErrorDomain: string;
+declare const FPUIErrorDomain: string
 
 declare const FPUIExtensionErrorCode: {
-  UserCancelled: 0,
-  Failed: 1,
-};
+	UserCancelled: 0
+	Failed: 1
+}
 
 declare class FPUIActionExtensionContext extends NSExtensionContext {
-  readonly domainIdentifier: string;
+	readonly domainIdentifier: string
 
-  completeRequest(): void;
+	completeRequest(): void
 
-  cancelRequestWithError(error: NSError): void;
+	cancelRequestWithError(error: NSError): void
 }
 
 // @ts-ignore ClassDecl.tsIgnore
 declare class FPUIActionExtensionViewController extends NSViewController {
-  // @ts-ignore MemberDecl.tsIgnore
-  readonly extensionContext: FPUIActionExtensionContext;
+	// @ts-ignore MemberDecl.tsIgnore
+	readonly extensionContext: FPUIActionExtensionContext
 
-  prepareForError(error: NSError): void;
+	prepareForError(error: NSError): void
 
-  prepareForActionWithIdentifierItemIdentifiers(actionIdentifier: string, itemIdentifiers: NSArray<interop.Object> | Array<interop.Object>): void;
+	prepareForActionWithIdentifierItemIdentifiers(
+		actionIdentifier: string,
+		itemIdentifiers: NSArray<interop.Object> | Array<interop.Object>,
+	): void
 }
-

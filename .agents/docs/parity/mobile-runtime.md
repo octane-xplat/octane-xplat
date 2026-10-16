@@ -22,9 +22,9 @@ pnpm probe run research/qual-mobile.tsrx --target android \
 	--deps @octane-xplat/auth,@octane-xplat/files --timeout 60000
 ```
 
-| Target | Device | Result | Run ID |
-| --- | --- | --- | --- |
-| iOS | iPhone 17e simulator, iOS 27.0 (`CF4A9D5B-C905-4EB3-A3CE-EB6BAF30FC4B`) | PASS — 41/41 assertions | `d6750e1f-1129-4ca7-ad3d-f27af0e87f20` |
+| Target  | Device                                                                  | Result                  | Run ID                                 |
+| ------- | ----------------------------------------------------------------------- | ----------------------- | -------------------------------------- |
+| iOS     | iPhone 17e simulator, iOS 27.0 (`CF4A9D5B-C905-4EB3-A3CE-EB6BAF30FC4B`) | PASS — 41/41 assertions | `d6750e1f-1129-4ca7-ad3d-f27af0e87f20` |
 | Android | `octane-prime-larkspur` AVD, API 35 google_apis arm64 (`emulator-5556`) | PASS — 41/41 assertions | `d33e7911-ca45-4479-b397-105e9684ea6d` |
 
 Raw runner output:
@@ -34,20 +34,20 @@ Same case build (`06457573c40e7ebb`) produced both results.
 
 ## Matrix — what the case asserted per target
 
-| Seam | Coverage | iOS | Android |
-| --- | --- | --- | --- |
-| Named route push with params | `pushRoute` on the root Frame; `routeFor`, `canGoBack` observed | PASS | PASS |
-| Modal presentation | `presentation: 'modal'` → `currentModalRoute`; `popRoute` dismisses, pushed page survives | PASS | PASS |
-| Pop to base | `popRoute('root')`; `routeFor` null, `canGoBack` false | PASS | PASS |
-| Press → push | `Pressable.onPress` → `pushRoute` via gesture-observer-dispatch | PASS | PASS |
-| Named-stack route store | unregistered `qual-tab` stack push/pop through `swapTabRoutes` | PASS | PASS |
-| `platformQueryStorage` | set/get/remove JSON round-trip incl. non-ASCII | PASS (NSUserDefaults) | PASS (SharedPreferences) |
-| `createHostedAuth` sign-in | stub `HostedAuthFlow` + stub `authSession`; real PKCE (`SecRandomCopyBytes`/`SecureRandom`), state check, `attempt.data` handoff | PASS | PASS |
-| Credential persistence | second client instance restores session — **real** `secureStorage` (Keychain/Keystore plugin) | PASS | PASS |
-| Bearer injection | `auth.fetch` adds `Bearer` on `/api/*`, omits on `/api/auth/*` and foreign origins | PASS | PASS |
-| Refresh | near-expiry token mints once through `flow.refresh` | PASS | PASS |
-| Sign-out | `flow.revoke` sees the session token; fresh client restores `unauthenticated` | PASS | PASS |
-| File upload | `files.writeText` → `readText`/`readBytes` → POST body through authorized transport, byte-exact | PASS (Documents) | PASS (`/data/user/0` app files) |
+| Seam                         | Coverage                                                                                                                         | iOS                   | Android                         |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | --------------------- | ------------------------------- |
+| Named route push with params | `pushRoute` on the root Frame; `routeFor`, `canGoBack` observed                                                                  | PASS                  | PASS                            |
+| Modal presentation           | `presentation: 'modal'` → `currentModalRoute`; `popRoute` dismisses, pushed page survives                                        | PASS                  | PASS                            |
+| Pop to base                  | `popRoute('root')`; `routeFor` null, `canGoBack` false                                                                           | PASS                  | PASS                            |
+| Press → push                 | `Pressable.onPress` → `pushRoute` via gesture-observer-dispatch                                                                  | PASS                  | PASS                            |
+| Named-stack route store      | unregistered `qual-tab` stack push/pop through `swapTabRoutes`                                                                   | PASS                  | PASS                            |
+| `platformQueryStorage`       | set/get/remove JSON round-trip incl. non-ASCII                                                                                   | PASS (NSUserDefaults) | PASS (SharedPreferences)        |
+| `createHostedAuth` sign-in   | stub `HostedAuthFlow` + stub `authSession`; real PKCE (`SecRandomCopyBytes`/`SecureRandom`), state check, `attempt.data` handoff | PASS                  | PASS                            |
+| Credential persistence       | second client instance restores session — **real** `secureStorage` (Keychain/Keystore plugin)                                    | PASS                  | PASS                            |
+| Bearer injection             | `auth.fetch` adds `Bearer` on `/api/*`, omits on `/api/auth/*` and foreign origins                                               | PASS                  | PASS                            |
+| Refresh                      | near-expiry token mints once through `flow.refresh`                                                                              | PASS                  | PASS                            |
+| Sign-out                     | `flow.revoke` sees the session token; fresh client restores `unauthenticated`                                                    | PASS                  | PASS                            |
+| File upload                  | `files.writeText` → `readText`/`readBytes` → POST body through authorized transport, byte-exact                                  | PASS (Documents)      | PASS (`/data/user/0` app files) |
 
 ## Boundaries — what this does **not** prove
 

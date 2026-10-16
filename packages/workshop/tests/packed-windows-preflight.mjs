@@ -16,7 +16,12 @@ mkdirSync(packs)
 
 function run(args, cwd = consumer) {
 	const result = spawnSync('pnpm', args, { cwd, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
-	assert.equal(result.status, 0, `pnpm ${args.join(' ')} failed:\n${result.stdout}\n${result.stderr}`)
+	assert.equal(
+		result.status,
+		0,
+		`pnpm ${args.join(' ')} failed:\n${result.stdout}\n${result.stderr}`,
+	)
+
 	return result.stdout
 }
 
@@ -26,14 +31,33 @@ try {
 		const root = join(repo, 'packages', dir)
 		const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
 		run(['--config.ignore-scripts=true', 'pack', '--pack-destination', packs], root)
-		tarballs[manifest.name] = `file:${join(packs, `${manifest.name.replace('@', '').replace('/', '-')}-${manifest.version}.tgz`)}`
+		tarballs[manifest.name] =
+			`file:${join(packs, `${manifest.name.replace('@', '').replace('/', '-')}-${manifest.version}.tgz`)}`
 	}
 
-	writeFileSync(join(consumer, 'package.json'), JSON.stringify({ name: 'packed-windows-setup', private: true, type: 'module',
-		devDependencies: { '@octane-xplat/workshop': tarballs['@octane-xplat/workshop'], '@octane-xplat/cli': tarballs['@octane-xplat/cli'],
-			'@octanejs/vite-plugin': '0.1.61', vite: '8.3.0', octane: '0.11.0' } }))
+	writeFileSync(
+		join(consumer, 'package.json'),
+		JSON.stringify({
+			name: 'packed-windows-setup',
+			private: true,
+			type: 'module',
+			devDependencies: {
+				'@octane-xplat/workshop': tarballs['@octane-xplat/workshop'],
+				'@octane-xplat/cli': tarballs['@octane-xplat/cli'],
+				'@octanejs/vite-plugin': '0.1.61',
+				vite: '8.3.0',
+				octane: '0.11.0',
+			},
+		}),
+	)
 
-	writeFileSync(join(consumer, 'pnpm-workspace.yaml'), `packages: []\noverrides:\n${Object.entries(tarballs).map(([name, file]) => `  '${name}': '${file}'`).join('\n')}\n`)
+	writeFileSync(
+		join(consumer, 'pnpm-workspace.yaml'),
+		`packages: []\noverrides:\n${Object.entries(tarballs)
+			.map(([name, file]) => `  '${name}': '${file}'`)
+			.join('\n')}\n`,
+	)
+
 	run(['install', '--ignore-scripts'])
 	const require = createRequire(join(consumer, 'package.json'))
 	assert.ok(realpathSync(require.resolve('@octane-xplat/workshop/node')).startsWith(work))
@@ -57,13 +81,32 @@ export const Basic = defineStory({ id: '${id}', title: 'Examples / ${id}', targe
 	assert.equal(list.entries.find((entry) => entry.id === 'native/basic').applicable, true)
 	assert.equal(list.entries.find((entry) => entry.id === 'browser/basic').applicable, false)
 
-	writeFileSync(join(consumer, 'workshop.config.mjs'), 'throw new Error("unexpected config evaluation")')
-	const blocked = spawnSync('pnpm', ['exec', 'xplat', 'workshop', 'dev', '--target', 'windows'], { cwd: consumer, encoding: 'utf8', timeout: 15000 })
+	writeFileSync(
+		join(consumer, 'workshop.config.mjs'),
+		'throw new Error("unexpected config evaluation")',
+	)
+
+	const blocked = spawnSync('pnpm', ['exec', 'xplat', 'workshop', 'dev', '--target', 'windows'], {
+		cwd: consumer,
+		encoding: 'utf8',
+		timeout: 15000,
+	})
+
 	assert.notEqual(blocked.status, 0)
 	assert.equal(blocked.error, undefined)
-	assert.match(blocked.stdout + blocked.stderr, process.platform === 'win32' ? /launch is blocked/ : /real Windows host/)
-	assert.doesNotMatch(blocked.stdout + blocked.stderr, /unexpected config evaluation|WORKSHOP_READY/)
-	console.log('PASS packed external Node CLI: Windows prerequisite status, static target filtering, blocked launch before config evaluation; no WinUI runtime qualification')
+	assert.match(
+		blocked.stdout + blocked.stderr,
+		process.platform === 'win32' ? /launch is blocked/ : /real Windows host/,
+	)
+
+	assert.doesNotMatch(
+		blocked.stdout + blocked.stderr,
+		/unexpected config evaluation|WORKSHOP_READY/,
+	)
+
+	console.log(
+		'PASS packed external Node CLI: Windows prerequisite status, static target filtering, blocked launch before config evaluation; no WinUI runtime qualification',
+	)
 } finally {
 	rmSync(work, { recursive: true, force: true })
 }

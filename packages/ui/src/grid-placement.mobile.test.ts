@@ -199,22 +199,25 @@ it.each(['rootlayout', 'contentview'])(
 	},
 )
 
-it.each([UpdatingPlacement, UpdatingComposite])('tracks reactive authored coordinates and removes explicit placement and spans (%s)', async (component) => {
-	const app = await mount(component, { col: 2, span: 1 })
-	const grid = app.host.children[0]
-	app.root.render(component, { col: 0, span: 2 })
-	await Promise.resolve()
-	expect(grid.children.map((v: any) => [v.row, v.col, v.colSpan])).toEqual([
-		[0, 0, 2],
-		[0, 2, 1],
-	])
+it.each([UpdatingPlacement, UpdatingComposite])(
+	'tracks reactive authored coordinates and removes explicit placement and spans (%s)',
+	async (component) => {
+		const app = await mount(component, { col: 2, span: 1 })
+		const grid = app.host.children[0]
+		app.root.render(component, { col: 0, span: 2 })
+		await Promise.resolve()
+		expect(grid.children.map((v: any) => [v.row, v.col, v.colSpan])).toEqual([
+			[0, 0, 2],
+			[0, 2, 1],
+		])
 
-	app.root.render(component, { col: undefined, span: undefined })
-	await Promise.resolve()
-	expect(grid.children.map((v: any) => [v.row, v.col, v.colSpan])).toEqual([
-		[0, 0, 1],
-		[0, 1, 1],
-	])
+		app.root.render(component, { col: undefined, span: undefined })
+		await Promise.resolve()
+		expect(grid.children.map((v: any) => [v.row, v.col, v.colSpan])).toEqual([
+			[0, 0, 1],
+			[0, 1, 1],
+		])
 
-	app.dispose()
-})
+		app.dispose()
+	},
+)

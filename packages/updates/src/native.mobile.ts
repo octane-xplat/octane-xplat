@@ -3,7 +3,6 @@ import type { Environment } from './client'
 import { java } from '@octane-xplat/platform/android'
 import { NSBundle, NSData, NSFileManager, NSHomeDirectory } from '@octane-xplat/platform/ios'
 
-
 // `Utils.android` is a {} stub in the pinned Windows core build; callers only
 // reach it under the isIOS guard.
 const androidUtils = Utils.android as any

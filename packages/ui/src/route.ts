@@ -135,12 +135,16 @@ const pageContent = new Map<
 	Page,
 	{ frame: Frame; root: { unmount(): void }; phase: 'staged' | 'navigating' | 'committed' }
 >()
+
 const pendingOwnerReturns = new Map<Frame, Set<ContentOwner>>()
 const ownerBases = new WeakMap<ContentOwner, Map<Frame, { page: Page; returning: boolean }>>()
 
 function releasePageContent(page: Page) {
 	const entry = pageContent.get(page)
-	if (!entry) return
+	if (!entry) {
+		return
+	}
+
 	pageContent.delete(page)
 	entry.root.unmount()
 }
@@ -150,24 +154,42 @@ function reconcilePageContent(frame: Frame) {
 		frame.currentPage,
 		...(frame.backStack ?? []).map((entry: any) => entry.resolvedPage ?? entry),
 	])
+
 	for (const [page, entry] of pageContent) {
-		if (entry.frame !== frame) continue
-		if (page === frame.currentPage) entry.phase = 'committed'
-		if (entry.phase === 'committed' && !live.has(page)) releasePageContent(page)
+		if (entry.frame !== frame) {
+			continue
+		}
+
+		if (page === frame.currentPage) {
+			entry.phase = 'committed'
+		}
+
+		if (entry.phase === 'committed' && !live.has(page)) {
+			releasePageContent(page)
+		}
 	}
 }
 
 function returnToOwnerPage(owner: ContentOwner, frame: Frame) {
 	const base = ownerBases.get(owner)?.get(frame)
-	if (!base) return
+	if (!base) {
+		return
+	}
+
 	const pending = pendingOwnerReturns.get(frame) ?? new Set<ContentOwner>()
 	pending.add(owner)
 	pendingOwnerReturns.set(frame, pending)
-	if (base.returning) return
-	const entry = frame.backStack?.find(entry => (entry.resolvedPage ?? entry) === base.page)
+	if (base.returning) {
+		return
+	}
+
+	const entry = frame.backStack?.find((entry) => (entry.resolvedPage ?? entry) === base.page)
 	// Android may not have committed the forward entry yet. Retry from the
 	// Frame's completion event rather than losing the return request.
-	if (!entry) return
+	if (!entry) {
+		return
+	}
+
 	base.returning = true
 	rearmFrameLoaded(frame)
 	frame.goBack(entry)
@@ -175,31 +197,59 @@ function returnToOwnerPage(owner: ContentOwner, frame: Frame) {
 
 function reconcileOwnerReturns(frame: Frame) {
 	const pending = pendingOwnerReturns.get(frame)
-	if (!pending) return
+	if (!pending) {
+		return
+	}
+
 	for (const owner of [...pending]) {
 		const base = ownerBases.get(owner)?.get(frame)
-		if (!base || frame.currentPage === base.page) pending.delete(owner)
-		else returnToOwnerPage(owner, frame)
+		if (!base || frame.currentPage === base.page) {
+			pending.delete(owner)
+		} else {
+			returnToOwnerPage(owner, frame)
+		}
 	}
-	if (!pending.size) pendingOwnerReturns.delete(frame)
+
+	if (!pending.size) {
+		pendingOwnerReturns.delete(frame)
+	}
 }
 
-function createRouteContentRoot(host: GridLayout, owner: ContentOwner | undefined, frame: Frame, page: Page) {
-	if (!owner) return createNativeScriptRoot(host)
+function createRouteContentRoot(
+	host: GridLayout,
+	owner: ContentOwner | undefined,
+	frame: Frame,
+	page: Page,
+) {
+	if (!owner) {
+		return createNativeScriptRoot(host)
+	}
+
 	let bases = ownerBases.get(owner)
-	if (!bases) ownerBases.set(owner, (bases = new Map()))
+	if (!bases) {
+		ownerBases.set(owner, (bases = new Map()))
+	}
+
 	if (!bases.has(frame)) {
 		// Android can attach a Page's views before Frame.currentPage is set.
 		// The mounted outlet supplies its declaring Page even during that gap.
 		const declaringPage = owner.host?.page
-		const basePage = declaringPage && (!declaringPage.frame || declaringPage.frame === frame)
-			? declaringPage : frame.currentPage
-		if (basePage) bases.set(frame, { page: basePage, returning: false })
+		const basePage =
+			declaringPage && (!declaringPage.frame || declaringPage.frame === frame)
+				? declaringPage
+				: frame.currentPage
+
+		if (basePage) {
+			bases.set(frame, { page: basePage, returning: false })
+		}
 	}
+
 	return owner.createRoot(host, () => {
 		const entry = pageContent.get(page)
 		releasePageContent(page)
-		if (entry && entry.phase !== 'staged') returnToOwnerPage(owner, frame)
+		if (entry && entry.phase !== 'staged') {
+			returnToOwnerPage(owner, frame)
+		}
 	})
 }
 
@@ -467,9 +517,15 @@ export function pushRoute(r: TypedRoute): void {
 /** Internal native owner binding used by useNativeRouteNavigator. */
 export function pushRouteWithOwner(owner: ContentOwner | undefined, r: TypedRoute): void {
 	owner ??= routeContentOwner(r.stack)
-	if (owner?.disposed) return
+	if (owner?.disposed) {
+		return
+	}
+
 	const request = navigationRequests.begin(r.stack)
-	if (owner) requestOwners.set(request, owner)
+	if (owner) {
+		requestOwners.set(request, owner)
+	}
+
 	if (metaFor(r.name)?.beforeLoad) {
 		void prepareRoute(r, request)
 		return
@@ -479,7 +535,10 @@ export function pushRouteWithOwner(owner: ContentOwner | undefined, r: TypedRout
 }
 
 function commitRoute(r: Route, request: NavigationRequest): void {
-	if (requestOwners.get(request)?.disposed) return
+	if (requestOwners.get(request)?.disposed) {
+		return
+	}
+
 	if (!request.isCurrent()) {
 		return
 	}
@@ -517,12 +576,7 @@ function commitRoute(r: Route, request: NavigationRequest): void {
 	if (presentation === 'modal') {
 		const presenter = resolveStack(r.stack) ?? resolveStack('root')
 		if (presenter) {
-			pushModal(
-				presenter,
-				{ ...r, presentation },
-				C,
-				requestOwners.get(request),
-			)
+			pushModal(presenter, { ...r, presentation }, C, requestOwners.get(request))
 		} else {
 			warnOnce('modal:' + r.name, {
 				code: 'route/no-presenter',
@@ -607,7 +661,10 @@ function commitRoute(r: Route, request: NavigationRequest): void {
 	page.id = r.name + '-page'
 	page.actionBarHidden = true
 	const head = headFor(r)
-	if (head?.title !== undefined) page.actionBar.title = head.title
+	if (head?.title !== undefined) {
+		page.actionBar.title = head.title
+	}
+
 	pageRoutes.set(page, r)
 	const host = new GridLayout()
 	page.content = host
@@ -615,14 +672,20 @@ function commitRoute(r: Route, request: NavigationRequest): void {
 	const root = createRouteContentRoot(host, owner, frame, page)
 	const entry = { frame, root, phase: 'staged' as 'staged' | 'navigating' | 'committed' }
 	pageContent.set(page, entry)
+
 	;(page as any).on?.('navigatedFrom', (event: any) => {
-		if (event.isBackNavigation) releasePageContent(page)
+		if (event.isBackNavigation) {
+			releasePageContent(page)
+		}
+
 		queueMicrotask(() => reconcilePageContent(frame))
 	})
+
 	;(page as any).on?.('navigatedTo', () => {
 		entry.phase = 'committed'
 		reconcilePageContent(frame)
 	})
+
 	try {
 		root.render(RouteHost as unknown as UniversalComponent, {
 			screen: C,
@@ -631,11 +694,13 @@ function commitRoute(r: Route, request: NavigationRequest): void {
 			boundary: errorBoundaryFor(r.name),
 			route: r,
 		})
+
 		afterContentCommit(root, () => {
 			if (!request.isCurrent() || owner?.disposed) {
 				releasePageContent(page)
 				return
 			}
+
 			try {
 				entry.phase = 'navigating'
 				frame.navigate({
@@ -666,6 +731,7 @@ function pushModal(frame: Frame, r: Route, C: any, owner?: ContentOwner): void {
 				host.closeModal()
 			} catch {}
 		}) ?? createNativeScriptRoot(host)
+
 	const entry = { host, route: r, dismiss: () => {} }
 	entry.dismiss = () => {
 		const i = modalHosts.indexOf(entry)
@@ -719,7 +785,10 @@ function pushModal(frame: Frame, r: Route, C: any, owner?: ContentOwner): void {
 		})
 
 		afterContentCommit(root, () => {
-			if (owner?.disposed || !modalHosts.includes(entry)) return
+			if (owner?.disposed || !modalHosts.includes(entry)) {
+				return
+			}
+
 			try {
 				presenter.showModal(host, {
 					context: {},

@@ -76,7 +76,12 @@ export async function checkContentLifecycle(root: any, nativeWindow: any) {
 		near(host.frame.size.width, 260) &&
 			near(rect(first).origin.x, 200) &&
 			near(rect(first).origin.y, 0),
-		'ContentView reactive size/alignment failed: host=' + describe(host.frame) + ' child=' + describe(rect(first)) + ' bounds=' + describe(host.bounds),
+		'ContentView reactive size/alignment failed: host=' +
+			describe(host.frame) +
+			' child=' +
+			describe(rect(first)) +
+			' bounds=' +
+			describe(host.bounds),
 	)
 
 	debug.pressId('advance-content')
@@ -106,7 +111,10 @@ export async function checkContentLifecycle(root: any, nativeWindow: any) {
 	check(
 		contentRefs.child.current === replacement &&
 			contentEvents.join(',') === 'attach,cleanup,attach',
-		'ContentView replacement refs failed: events=' + contentEvents.join(',') + ' current=' + String(contentRefs.child.current === replacement),
+		'ContentView replacement refs failed: events=' +
+			contentEvents.join(',') +
+			' current=' +
+			String(contentRefs.child.current === replacement),
 	)
 
 	check(

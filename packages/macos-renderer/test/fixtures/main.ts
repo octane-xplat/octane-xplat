@@ -18,8 +18,15 @@ import { checkWrapLifecycle } from './wrap-lifecycle'
 import { checkDockLifecycle } from './dock-lifecycle'
 import { checkContentLifecycle } from './content-lifecycle'
 import App, { childRefs, stackRefs, refEvents, tapEvents } from './App'
-import { NSApplication, NSApplicationActivationPolicy, NSFont, NSStackViewGravity, NSUserInterfaceLayoutOrientation, NSWindow, NSWindowStyleMask } from '@octane-xplat/platform/macos'
-
+import {
+	NSApplication,
+	NSApplicationActivationPolicy,
+	NSFont,
+	NSStackViewGravity,
+	NSUserInterfaceLayoutOrientation,
+	NSWindow,
+	NSWindowStyleMask,
+} from '@octane-xplat/platform/macos'
 
 const app = NSApplication.sharedApplication
 app.setActivationPolicy(NSApplicationActivationPolicy.Regular)
@@ -194,38 +201,89 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
 							}
 
 							const formattedRoot = createMacOSRoot(nativeWindow.contentView)
-							try {await checkFormattedLifecycle(formattedRoot, nativeWindow)} finally {formattedRoot.unmount()}
+							try {
+								await checkFormattedLifecycle(formattedRoot, nativeWindow)
+							} finally {
+								formattedRoot.unmount()
+							}
 
 							const htmlRoot = createMacOSRoot(nativeWindow.contentView)
-							try {await checkHtmlLifecycle(htmlRoot, nativeWindow)} finally {htmlRoot.unmount()}
+							try {
+								await checkHtmlLifecycle(htmlRoot, nativeWindow)
+							} finally {
+								htmlRoot.unmount()
+							}
 
 							const activityRoot = createMacOSRoot(nativeWindow.contentView)
-							try {await checkActivityLifecycle(activityRoot, nativeWindow)} finally {activityRoot.unmount()}
+							try {
+								await checkActivityLifecycle(activityRoot, nativeWindow)
+							} finally {
+								activityRoot.unmount()
+							}
 
 							const dateRoot = createMacOSRoot(nativeWindow.contentView)
-							try {await checkDateLifecycle(dateRoot, nativeWindow)} finally {dateRoot.unmount()}
+							try {
+								await checkDateLifecycle(dateRoot, nativeWindow)
+							} finally {
+								dateRoot.unmount()
+							}
 
 							const listRoot = createMacOSRoot(nativeWindow.contentView)
-							try {await checkListLifecycle(listRoot, nativeWindow)} finally {listRoot.unmount()}
+							try {
+								await checkListLifecycle(listRoot, nativeWindow)
+							} finally {
+								listRoot.unmount()
+							}
 
 							const progressRoot = createMacOSRoot(nativeWindow.contentView)
-							try {await checkProgressLifecycle(progressRoot, nativeWindow)} finally {progressRoot.unmount()}
+							try {
+								await checkProgressLifecycle(progressRoot, nativeWindow)
+							} finally {
+								progressRoot.unmount()
+							}
 
 							const segmentRoot = createMacOSRoot(nativeWindow.contentView)
-							try {await checkSegmentLifecycle(segmentRoot, nativeWindow)} finally {segmentRoot.unmount()}
+							try {
+								await checkSegmentLifecycle(segmentRoot, nativeWindow)
+							} finally {
+								segmentRoot.unmount()
+							}
 
 							const itemRoot = createMacOSRoot(nativeWindow.contentView)
-							try {await checkSegmentItemLifecycle(itemRoot, nativeWindow)} finally {itemRoot.unmount()}
+							try {
+								await checkSegmentItemLifecycle(itemRoot, nativeWindow)
+							} finally {
+								itemRoot.unmount()
+							}
 
 							const timeRoot = createMacOSRoot(nativeWindow.contentView)
-							try {await checkTimeLifecycle(timeRoot, nativeWindow)} finally {timeRoot.unmount()}
+							try {
+								await checkTimeLifecycle(timeRoot, nativeWindow)
+							} finally {
+								timeRoot.unmount()
+							}
+
 							const tabRoot = createMacOSRoot(nativeWindow.contentView)
-							try {await checkTabLifecycle(tabRoot, nativeWindow)} finally {tabRoot.unmount()}
+							try {
+								await checkTabLifecycle(tabRoot, nativeWindow)
+							} finally {
+								tabRoot.unmount()
+							}
+
 							const tabItemsRoot = createMacOSRoot(nativeWindow.contentView)
-							try {await checkImperativeTabLifecycle(tabItemsRoot, nativeWindow)} finally {tabItemsRoot.unmount()}
+							try {
+								await checkImperativeTabLifecycle(tabItemsRoot, nativeWindow)
+							} finally {
+								tabItemsRoot.unmount()
+							}
 
 							const listViewRoot = createMacOSRoot(nativeWindow.contentView)
-							try { await checkListViewLifecycle(listViewRoot, nativeWindow) } finally { listViewRoot.unmount() }
+							try {
+								await checkListViewLifecycle(listViewRoot, nativeWindow)
+							} finally {
+								listViewRoot.unmount()
+							}
+
 							console.log('PACKED_RENDERER_OK')
 						} catch (error) {
 							console.error('PACKED_RENDERER_FAIL: ' + (error as Error).message)

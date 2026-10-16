@@ -73,12 +73,8 @@ test('denial, unavailable, timeout and an unloaded host reject with distinct cod
 	for (const code of [1, 2, 3]) {
 		globals.XplatGeolocation = {
 			isAvailable: () => true,
-			positionTimeoutMaximumAgeCompletion: (
-				_a: any,
-				_b: any,
-				_c: any,
-				done: any,
-			) => done(null, code, 'native error'),
+			positionTimeoutMaximumAgeCompletion: (_a: any, _b: any, _c: any, done: any) =>
+				done(null, code, 'native error'),
 		}
 
 		await assert.rejects(geolocation.impl!.getCurrentPosition(), {

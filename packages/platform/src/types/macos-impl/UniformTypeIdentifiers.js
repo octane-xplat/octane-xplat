@@ -9,14 +9,26 @@ export const UTTypeARReferenceObject = /* @__PURE__ */ _bind(FW, 'UTTypeARRefere
 export const UTTypeAVI = /* @__PURE__ */ _bind(FW, 'UTTypeAVI')
 export const UTTypeAliasFile = /* @__PURE__ */ _bind(FW, 'UTTypeAliasFile')
 export const UTTypeAppleArchive = /* @__PURE__ */ _bind(FW, 'UTTypeAppleArchive')
-export const UTTypeAppleProtectedMPEG4Audio = /* @__PURE__ */ _bind(FW, 'UTTypeAppleProtectedMPEG4Audio')
-export const UTTypeAppleProtectedMPEG4Video = /* @__PURE__ */ _bind(FW, 'UTTypeAppleProtectedMPEG4Video')
+export const UTTypeAppleProtectedMPEG4Audio = /* @__PURE__ */ _bind(
+	FW,
+	'UTTypeAppleProtectedMPEG4Audio',
+)
+
+export const UTTypeAppleProtectedMPEG4Video = /* @__PURE__ */ _bind(
+	FW,
+	'UTTypeAppleProtectedMPEG4Video',
+)
+
 export const UTTypeAppleScript = /* @__PURE__ */ _bind(FW, 'UTTypeAppleScript')
 export const UTTypeApplication = /* @__PURE__ */ _bind(FW, 'UTTypeApplication')
 export const UTTypeApplicationBundle = /* @__PURE__ */ _bind(FW, 'UTTypeApplicationBundle')
 export const UTTypeApplicationExtension = /* @__PURE__ */ _bind(FW, 'UTTypeApplicationExtension')
 export const UTTypeArchive = /* @__PURE__ */ _bind(FW, 'UTTypeArchive')
-export const UTTypeAssemblyLanguageSource = /* @__PURE__ */ _bind(FW, 'UTTypeAssemblyLanguageSource')
+export const UTTypeAssemblyLanguageSource = /* @__PURE__ */ _bind(
+	FW,
+	'UTTypeAssemblyLanguageSource',
+)
+
 export const UTTypeAudio = /* @__PURE__ */ _bind(FW, 'UTTypeAudio')
 export const UTTypeAudiovisualContent = /* @__PURE__ */ _bind(FW, 'UTTypeAudiovisualContent')
 export const UTTypeBMP = /* @__PURE__ */ _bind(FW, 'UTTypeBMP')
@@ -76,7 +88,11 @@ export const UTTypeMountPoint = /* @__PURE__ */ _bind(FW, 'UTTypeMountPoint')
 export const UTTypeMovie = /* @__PURE__ */ _bind(FW, 'UTTypeMovie')
 export const UTTypeOSAScript = /* @__PURE__ */ _bind(FW, 'UTTypeOSAScript')
 export const UTTypeOSAScriptBundle = /* @__PURE__ */ _bind(FW, 'UTTypeOSAScriptBundle')
-export const UTTypeObjectiveCPlusPlusSource = /* @__PURE__ */ _bind(FW, 'UTTypeObjectiveCPlusPlusSource')
+export const UTTypeObjectiveCPlusPlusSource = /* @__PURE__ */ _bind(
+	FW,
+	'UTTypeObjectiveCPlusPlusSource',
+)
+
 export const UTTypeObjectiveCSource = /* @__PURE__ */ _bind(FW, 'UTTypeObjectiveCSource')
 export const UTTypePDF = /* @__PURE__ */ _bind(FW, 'UTTypePDF')
 export const UTTypePHPScript = /* @__PURE__ */ _bind(FW, 'UTTypePHPScript')
@@ -116,7 +132,11 @@ export const UTTypeURL = /* @__PURE__ */ _bind(FW, 'UTTypeURL')
 export const UTTypeURLBookmarkData = /* @__PURE__ */ _bind(FW, 'UTTypeURLBookmarkData')
 export const UTTypeUSD = /* @__PURE__ */ _bind(FW, 'UTTypeUSD')
 export const UTTypeUSDZ = /* @__PURE__ */ _bind(FW, 'UTTypeUSDZ')
-export const UTTypeUTF16ExternalPlainText = /* @__PURE__ */ _bind(FW, 'UTTypeUTF16ExternalPlainText')
+export const UTTypeUTF16ExternalPlainText = /* @__PURE__ */ _bind(
+	FW,
+	'UTTypeUTF16ExternalPlainText',
+)
+
 export const UTTypeUTF16PlainText = /* @__PURE__ */ _bind(FW, 'UTTypeUTF16PlainText')
 export const UTTypeUTF8PlainText = /* @__PURE__ */ _bind(FW, 'UTTypeUTF8PlainText')
 export const UTTypeUTF8TabSeparatedText = /* @__PURE__ */ _bind(FW, 'UTTypeUTF8TabSeparatedText')

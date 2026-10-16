@@ -20,7 +20,7 @@ pnpm add @octane-xplat/shaders
 import { Canvas } from '@octane-xplat/canvas'
 import { createShader } from '@octane-xplat/shaders'
 
-<Canvas
+;<Canvas
 	width={320}
 	height={180}
 	style={{ width: 320, height: 180 }}
@@ -66,13 +66,13 @@ static fallback, reduced-motion still frame, disposal on unmount).
 
 ## Target status
 
-| Target | Status |
-| --- | --- |
-| Web (DOM) | Implemented. Upstream engine on the browser WebGPU canvas; reached ready + submissions in the headless-Chromium spike (SwiftShader). Hardware GPU correctness, sustained lifecycle, and visual output are unverified — a SwiftShader device-loss observed in the spike was reproduced without the library (raw WebGPU loop) and is attributed to the headless backend, not the package. |
-| NativeScript iOS | Implemented, experimental. `@nativescript/canvas` WebGPU (wgpu over Metal). Build/bundle/type verified; device execution pending. |
-| NativeScript Android | Implemented, experimental. Same native route over Vulkan. Build/type verified; device/driver execution pending. |
-| AppKit macOS / desktop native | Explicitly unsupported. Importing the package is inert (no GPU work, no engine load); `createShader` resolves to a no-op instance with `getFailureReason() === 'unsupported'` so fallback handling is identical. |
-| Web code inside a desktop webview | Follows the browser's own WebGPU support; no separate integration. |
+| Target                            | Status                                                                                                                                                                                                                                                                                                                                                                                  |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Web (DOM)                         | Implemented. Upstream engine on the browser WebGPU canvas; reached ready + submissions in the headless-Chromium spike (SwiftShader). Hardware GPU correctness, sustained lifecycle, and visual output are unverified — a SwiftShader device-loss observed in the spike was reproduced without the library (raw WebGPU loop) and is attributed to the headless backend, not the package. |
+| NativeScript iOS                  | Implemented, experimental. `@nativescript/canvas` WebGPU (wgpu over Metal). Build/bundle/type verified; device execution pending.                                                                                                                                                                                                                                                       |
+| NativeScript Android              | Implemented, experimental. Same native route over Vulkan. Build/type verified; device/driver execution pending.                                                                                                                                                                                                                                                                         |
+| AppKit macOS / desktop native     | Explicitly unsupported. Importing the package is inert (no GPU work, no engine load); `createShader` resolves to a no-op instance with `getFailureReason() === 'unsupported'` so fallback handling is identical.                                                                                                                                                                        |
+| Web code inside a desktop webview | Follows the browser's own WebGPU support; no separate integration.                                                                                                                                                                                                                                                                                                                      |
 
 Adapter-owned native defaults: `navigator.gpu` is bound lazily to the
 `@nativescript/canvas` GPU shim on first use (upstream reads it unconditionally);

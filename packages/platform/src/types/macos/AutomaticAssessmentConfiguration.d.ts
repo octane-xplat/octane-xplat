@@ -8,47 +8,46 @@ import { NSObject } from './Runtime'
 
 import { NativeObject } from './objc-runtime'
 
-
-
-export declare const AEAssessmentErrorDomain: string;
+export declare const AEAssessmentErrorDomain: string
 
 export declare const AEAutocorrectMode: {
-  None: 0,
-  Spelling: 1,
-  Punctuation: 2,
-};
+	None: 0
+	Spelling: 1
+	Punctuation: 2
+}
 
 export declare const AEAssessmentErrorCode: {
-  AEAssessmentErrorUnknown: 1,
-};
+	AEAssessmentErrorUnknown: 1
+}
 
 export declare interface AEAssessmentSessionDelegate extends NSObjectProtocol {
-  assessmentSessionDidBegin?(session: AEAssessmentSession): void;
+	assessmentSessionDidBegin?(session: AEAssessmentSession): void
 
-  assessmentSessionFailedToBeginWithError?(session: AEAssessmentSession, error: NSError): void;
+	assessmentSessionFailedToBeginWithError?(session: AEAssessmentSession, error: NSError): void
 
-  assessmentSessionWasInterruptedWithError?(session: AEAssessmentSession, error: NSError): void;
+	assessmentSessionWasInterruptedWithError?(session: AEAssessmentSession, error: NSError): void
 
-  assessmentSessionDidEnd?(session: AEAssessmentSession): void;
+	assessmentSessionDidEnd?(session: AEAssessmentSession): void
 }
 
-export declare class AEAssessmentSessionDelegate extends NativeObject implements AEAssessmentSessionDelegate {
-}
+export declare class AEAssessmentSessionDelegate
+	extends NativeObject
+	implements AEAssessmentSessionDelegate {}
 
 export declare class AEAssessmentConfiguration extends NSObject implements NSCopying {
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 export declare class AEAssessmentSession extends NSObject {
-  delegate: AEAssessmentSessionDelegate;
+	delegate: AEAssessmentSessionDelegate
 
-  readonly active: boolean;
+	readonly active: boolean
 
-  initWithConfiguration(configuration: AEAssessmentConfiguration): this;
+	initWithConfiguration(configuration: AEAssessmentConfiguration): this
 
-  begin(): void;
+	begin(): void
 
-  end(): void;
+	end(): void
 
-  isActive(): boolean;
+	isActive(): boolean
 }

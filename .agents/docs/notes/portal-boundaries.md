@@ -6,17 +6,17 @@ Portals keep content in its declaring Octane tree while another native view
 hosts its pixels. The providers around the mounted outlet determine context;
 the location of an imperative handler does not capture context by itself.
 
-| Boundary | Ownership |
-| --- | --- |
-| Native pushed Pages and route modals | `RouteOutlet` for each stack, or `useNativeRouteNavigator().element` for local scope |
-| Imperative shared sheets | `useImperativeBottomSheet().element` on web, iOS, Android, and macOS |
-| Imperative OS modals | `useImperativeModal().element` on iOS and Android |
-| iOS UITableView / Android RecyclerView | Platform component owns portals into template-created cell hosts |
-| Compiled AppKit tabviewitem / listview renderItem | Compiler wrappers own portals; raw handles/native delegates retain native ownership |
-| AppKit shared Dialog, standalone BottomSheet, Lightbox | Declaring component owns portal content through the common surface presenter |
+| Boundary                                                             | Ownership                                                                                 |
+| -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Native pushed Pages and route modals                                 | `RouteOutlet` for each stack, or `useNativeRouteNavigator().element` for local scope      |
+| Imperative shared sheets                                             | `useImperativeBottomSheet().element` on web, iOS, Android, and macOS                      |
+| Imperative OS modals                                                 | `useImperativeModal().element` on iOS and Android                                         |
+| iOS UITableView / Android RecyclerView                               | Platform component owns portals into template-created cell hosts                          |
+| Compiled AppKit tabviewitem / listview renderItem                    | Compiler wrappers own portals; raw handles/native delegates retain native ownership       |
+| AppKit shared Dialog, standalone BottomSheet, Lightbox               | Declaring component owns portal content through the common surface presenter              |
 | AppKit BottomSheetSwitcher, toast viewport, anchored useLayer popups | Retain their current roots; registry/anchored content needs separate portal qualification |
-| App/bootstrap/independent window trees | Remain Octane roots |
-| Ownerless global services and native routing without an outlet | Retain standalone-root fallback; pass data explicitly |
+| App/bootstrap/independent window trees                               | Remain Octane roots                                                                       |
+| Ownerless global services and native routing without an outlet       | Retain standalone-root fallback; pass data explicitly                                     |
 
 ## Source ownership
 
@@ -29,14 +29,22 @@ presentation. Each handle remains independent when multiple sheets are open.
 import { useImperativeBottomSheet, Button } from '@octane-xplat/ui'
 
 function Picker(props: { close: (value?: string) => void }) {
-    return <Button clickAction={() => props.close('saved')}>Save</Button>
+	return <Button clickAction={() => props.close('saved')}>Save</Button>
 }
 export function Actions() {
-    const sheet = useImperativeBottomSheet()
-    return <>
-        <Button clickAction={() => { void sheet.open(Picker) }}>Choose</Button>
-        {sheet.element}
-    </>
+	const sheet = useImperativeBottomSheet()
+	return (
+		<>
+			<Button
+				clickAction={() => {
+					void sheet.open(Picker)
+				}}
+			>
+				Choose
+			</Button>
+			{sheet.element}
+		</>
+	)
 }
 ```
 
@@ -51,9 +59,9 @@ presents shared sheets in that Frame's currently visible Screen.
 ```ts
 // Internal protocol; standalone roots commit synchronously.
 interface ContentRoot {
-    render(component: unknown, props?: unknown): void
-    unmount(): void
-    whenCommitted(callback: () => void): void
+	render(component: unknown, props?: unknown): void
+	unmount(): void
+	whenCommitted(callback: () => void): void
 }
 ```
 
@@ -69,7 +77,13 @@ above that branch leave with it. Keep app-wide outlets long-lived.
 ```tsx
 import { RouteOutlet, Screen, Text } from '@octane-xplat/ui'
 export function Shell() {
-    return <Screen><RouteOutlet stack="root"><Text>Home</Text></RouteOutlet></Screen>
+	return (
+		<Screen>
+			<RouteOutlet stack="root">
+				<Text>Home</Text>
+			</RouteOutlet>
+		</Screen>
+	)
 }
 ```
 
@@ -82,11 +96,15 @@ infer a local provider around an arbitrary button.
 import { useNativeRouteNavigator } from '@octane-xplat/ui/nativescript'
 import { Button } from '@octane-xplat/ui'
 export function LocalActions() {
-    const navigation = useNativeRouteNavigator('root')
-    return <>
-        <Button clickAction={() => navigation.push({ name: 'settings', params: {} })}>Settings</Button>
-        {navigation.element}
-    </>
+	const navigation = useNativeRouteNavigator('root')
+	return (
+		<>
+			<Button clickAction={() => navigation.push({ name: 'settings', params: {} })}>
+				Settings
+			</Button>
+			{navigation.element}
+		</>
+	)
 }
 ```
 
@@ -106,7 +124,13 @@ driver protocol; the source-owned list wrapper handles `renderItem` content.
 ```tsx
 /** @jsxImportSource @octane-xplat/macos-renderer */
 export function NativeTabs() {
-    return <tabview><tabviewitem title="Home"><label text="Home" /></tabviewitem></tabview>
+	return (
+		<tabview>
+			<tabviewitem title="Home">
+				<label text="Home" />
+			</tabviewitem>
+		</tabview>
+	)
 }
 ```
 
@@ -115,15 +139,15 @@ export function NativeTabs() {
 Maintained native runtime fixtures exercise real NativeScript/AppKit hosts;
 object-driver tests cover ownership and callback contracts separately.
 
-| Fixture | Runtime evidence |
-| --- | --- |
-| `packages/ui/tests/fixtures/owned-boundaries.ios.tsrx` | iOS: 13 assertions covering modal/sheet context, live updates, independent results, list scroll/rebind/replacement, teardown |
-| `packages/ui/tests/fixtures/owned-boundaries.android.tsrx` | Android: same 13 assertions with RecyclerView |
-| `packages/ui/tests/fixtures/owned-routes.ios.tsrx` | iOS: 17 assertions covering route context, hidden Page updates/state retention, modal pop, local ownership, canceled loader, owner teardown, hidden-owner sheet, and UITabBar named Frame routes |
-| `packages/ui/tests/fixtures/owned-routes.android.tsrx` | Android: the same 14 route assertions, including deferred Frame backstack commit during owner teardown |
-| `packages/macos-renderer/test/fixtures/owned-boundaries.macos.tsrx` | AppKit: 13 assertions, including tab handle transfer without remount and list row 80 replacement |
-| `packages/ui/tests/fixtures/owned-surfaces.macos.tsrx` | AppKit: scoped sheets, Dialog, standalone BottomSheet and Lightbox caption context, updates and cleanup; see Silo for actual runtime outcome |
-| `packages/ui/tests/fixtures/owned-boundaries.web.tsrx` | Chromium: 10 assertions covering precommit cancellation, nearest context, updates, independent handles and owner teardown |
+| Fixture                                                             | Runtime evidence                                                                                                                                                                                 |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `packages/ui/tests/fixtures/owned-boundaries.ios.tsrx`              | iOS: 13 assertions covering modal/sheet context, live updates, independent results, list scroll/rebind/replacement, teardown                                                                     |
+| `packages/ui/tests/fixtures/owned-boundaries.android.tsrx`          | Android: same 13 assertions with RecyclerView                                                                                                                                                    |
+| `packages/ui/tests/fixtures/owned-routes.ios.tsrx`                  | iOS: 17 assertions covering route context, hidden Page updates/state retention, modal pop, local ownership, canceled loader, owner teardown, hidden-owner sheet, and UITabBar named Frame routes |
+| `packages/ui/tests/fixtures/owned-routes.android.tsrx`              | Android: the same 14 route assertions, including deferred Frame backstack commit during owner teardown                                                                                           |
+| `packages/macos-renderer/test/fixtures/owned-boundaries.macos.tsrx` | AppKit: 13 assertions, including tab handle transfer without remount and list row 80 replacement                                                                                                 |
+| `packages/ui/tests/fixtures/owned-surfaces.macos.tsrx`              | AppKit: scoped sheets, Dialog, standalone BottomSheet and Lightbox caption context, updates and cleanup; see Silo for actual runtime outcome                                                     |
+| `packages/ui/tests/fixtures/owned-boundaries.web.tsrx`              | Chromium: 10 assertions covering precommit cancellation, nearest context, updates, independent handles and owner teardown                                                                        |
 
 The attempted AppKit registry/toast cutover did not qualify. Publishing
 registrations back into their source tree caused repeated updates; a later

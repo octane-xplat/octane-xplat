@@ -126,6 +126,9 @@ export function registerIcons(record: Record<string, IconGlyph>): void {
 	defaultIconRegistry.registerIcons(record)
 }
 
-export function getIcon(name: string, registry: IconRegistry = defaultIconRegistry): IconGlyph | undefined {
+export function getIcon(
+	name: string,
+	registry: IconRegistry = defaultIconRegistry,
+): IconGlyph | undefined {
 	return registry.getIcon(name)
 }

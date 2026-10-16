@@ -1,6 +1,16 @@
 import {
-	Application, AndroidApplication, Button, ContentView, Frame, GridLayout,
-	Label, Page, ScrollView, StackLayout, TextField, View,
+	Application,
+	AndroidApplication,
+	Button,
+	ContentView,
+	Frame,
+	GridLayout,
+	Label,
+	Page,
+	ScrollView,
+	StackLayout,
+	TextField,
+	View,
 } from '@nativescript/core'
 
 import type { CatalogEntry } from '../catalog'
@@ -10,8 +20,12 @@ import { WorkshopSession } from '../session'
 import { MobileController, mobileShellMode } from './controller'
 import { createMobileStageHost } from './mount.mobile'
 import { android, androidx } from '@octane-xplat/platform/android'
-import { UIKeyCommand, UIKeyModifierFlags, UIMenuElementAttributes, UIViewController } from '@octane-xplat/platform/ios'
-
+import {
+	UIKeyCommand,
+	UIKeyModifierFlags,
+	UIMenuElementAttributes,
+	UIViewController,
+} from '@octane-xplat/platform/ios'
 
 export interface MobileWorkshopOptions {
 	catalog: readonly CatalogEntry[]
@@ -28,7 +42,10 @@ export interface MobileWorkshopRuntime {
 }
 
 let runtime: MobileWorkshopRuntime | undefined
-export function catalogDidUpdate(catalog: readonly CatalogEntry[], diagnostics: readonly { message: string }[] = []): void {
+export function catalogDidUpdate(
+	catalog: readonly CatalogEntry[],
+	diagnostics: readonly { message: string }[] = [],
+): void {
 	runtime?.controller.updateCatalog(catalog, diagnostics)
 }
 
@@ -46,8 +63,14 @@ const CSS = `
 /** A host-native shell. Its stage ContentView is attached once for its lifetime. */
 export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRuntime {
 	const actual: WorkshopTarget = Application.android ? 'android' : 'ios'
-	if (actual !== options.target) {throw new Error(`Workshop target ${options.target} does not match host ${actual}`)}
-	if (runtime) {throw new Error('Dispose the existing workshop before starting another')}
+	if (actual !== options.target) {
+		throw new Error(`Workshop target ${options.target} does not match host ${actual}`)
+	}
+
+	if (runtime) {
+		throw new Error('Dispose the existing workshop before starting another')
+	}
+
 	const page = new Page()
 	page.actionBarHidden = true
 	page.css = CSS
@@ -75,7 +98,12 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
 	controls.className = 'xw-panel'
 	append(body, controls)
 	page.content = root
-	const session = new WorkshopSession({ host: createMobileStageHost(stage), target: actual, globalProviders: options.globalProviders })
+	const session = new WorkshopSession({
+		host: createMobileStageHost(stage),
+		target: actual,
+		globalProviders: options.globalProviders,
+	})
+
 	let opener: Pick<View, 'focus'> | undefined
 	let lastRevision = -1
 	let catalogCollapsed = false
@@ -87,7 +115,10 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
 	// NativeScript's symbol setter index signatures make valid subclasses
 	// structurally incompatible under strictFunctionTypes; constrain the
 	// cast to this native tree insertion boundary.
-	function append(parent: GridLayout | StackLayout, child: GridLayout | StackLayout | Label | Button | ScrollView | ContentView | TextField): void {
+	function append(
+		parent: GridLayout | StackLayout,
+		child: GridLayout | StackLayout | Label | Button | ScrollView | ContentView | TextField,
+	): void {
 		parent.addChild(child as unknown as View)
 	}
 
@@ -105,7 +136,10 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
 		button.accessibilityLabel = text
 		button.className = 'xw-action'
 		button.on(Button.tapEvent, run)
-		if (parent === toolbar) {GridLayout.setColumn(button as unknown as View, toolbar.getChildrenCount())}
+		if (parent === toolbar) {
+			GridLayout.setColumn(button as unknown as View, toolbar.getChildrenCount())
+		}
+
 		append(parent, button)
 		return button
 	}
@@ -124,18 +158,29 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
 	/** One Back/Escape step; false leaves the key to the host/story. */
 	function tryDismiss(): boolean {
 		const dismissed = controller.dismissOverlay()
-		if (!dismissed) {return false}
+		if (!dismissed) {
+			return false
+		}
+
 		layout()
-		if (dismissed === 'panel') {opener?.focus()}
+		if (dismissed === 'panel') {
+			opener?.focus()
+		}
+
 		return true
 	}
 
 	function toggle(panel: 'stories' | 'controls', button: Button): void {
 		opener = button
 		if (mobileShellMode(root.getActualSize().width, root.getActualSize().height) === 'wide') {
-			if (panel === 'stories') {catalogCollapsed = !catalogCollapsed}
-			else {controlsCollapsed = !controlsCollapsed}
-		} else {controller.panel = controller.panel === panel ? null : panel}
+			if (panel === 'stories') {
+				catalogCollapsed = !catalogCollapsed
+			} else {
+				controlsCollapsed = !controlsCollapsed
+			}
+		} else {
+			controller.panel = controller.panel === panel ? null : panel
+		}
 
 		layout()
 	}
@@ -165,7 +210,11 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
 
 	function renderCatalog(): void {
 		const content = new StackLayout()
-		action(content, 'Close Stories', () => { catalogCollapsed = true; closePanel() })
+		action(content, 'Close Stories', () => {
+			catalogCollapsed = true
+			closePanel()
+		})
+
 		const search = new TextField()
 		search.hint = 'Find a story by title or ID'
 		search.accessibilityLabel = 'Search stories'
@@ -175,15 +224,30 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
 		function fill(): void {
 			results.removeChildren()
 			const query = controller.query.toLowerCase()
-			const entries = [...controller.catalog].sort((a, b) => a.title.localeCompare(b.title) || a.id.localeCompare(b.id))
+			const entries = [...controller.catalog].sort(
+				(a, b) => a.title.localeCompare(b.title) || a.id.localeCompare(b.id),
+			)
+
 			function group(prefix: string, items: readonly CatalogEntry[]): void {
 				const groups = new Map<string, CatalogEntry[]>()
 				for (const entry of items) {
 					const depth = prefix ? prefix.split('/').length : 0
-					const tail = entry.title.split('/').map((part) => part.trim()).filter(Boolean).slice(depth).join(' / ')
+					const tail = entry.title
+						.split('/')
+						.map((part) => part.trim())
+						.filter(Boolean)
+						.slice(depth)
+						.join(' / ')
+
 					const separator = tail.indexOf('/')
 					if (separator < 0) {
-						action(results, `${entry.title} (${entry.id})${entry.applicable ? '' : ' — unsupported-by-story'}`, () => { void controller.select(entry.id) })
+						action(
+							results,
+							`${entry.title} (${entry.id})${entry.applicable ? '' : ' — unsupported-by-story'}`,
+							() => {
+								void controller.select(entry.id)
+							},
+						)
 					} else {
 						const name = `${prefix}${prefix ? ' / ' : ''}${tail.slice(0, separator).trim()}`
 						const members = groups.get(name) ?? []
@@ -194,22 +258,41 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
 
 				for (const [name, members] of groups) {
 					action(results, `${collapsedGroups.has(name) ? 'Expand' : 'Collapse'} ${name}`, () => {
-						if (collapsedGroups.has(name)) {collapsedGroups.delete(name)}
-						else {collapsedGroups.add(name)}
+						if (collapsedGroups.has(name)) {
+							collapsedGroups.delete(name)
+						} else {
+							collapsedGroups.add(name)
+						}
 
 						fill()
 					})
 
-					if (query || !collapsedGroups.has(name)) {group(name, members)}
+					if (query || !collapsedGroups.has(name)) {
+						group(name, members)
+					}
 				}
 			}
 
-			group('', entries.filter((e) => `${e.title} ${e.id}`.toLowerCase().includes(query)))
+			group(
+				'',
+				entries.filter((e) => `${e.title} ${e.id}`.toLowerCase().includes(query)),
+			)
 
-			if (!entries.length) {append(results, label('No stories. Add src/counter.stories.tsrx with an exported defineStory declaration.'))}
+			if (!entries.length) {
+				append(
+					results,
+					label(
+						'No stories. Add src/counter.stories.tsrx with an exported defineStory declaration.',
+					),
+				)
+			}
 		}
 
-		search.on(TextField.textChangeEvent, () => { controller.query = search.text; fill() })
+		search.on(TextField.textChangeEvent, () => {
+			controller.query = search.text
+			fill()
+		})
+
 		append(content, search)
 		append(content, results)
 		fill()
@@ -218,10 +301,22 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
 
 	function renderControls(): void {
 		const content = new StackLayout()
-		action(content, 'Close Controls', () => { controlsCollapsed = true; closePanel() })
+		action(content, 'Close Controls', () => {
+			controlsCollapsed = true
+			closePanel()
+		})
+
 		const story = session.currentStory
 		if (story) {
-			append(content, label(story.capabilities?.length ? `Required capabilities: ${story.capabilities.join(', ')}. Permissions are not granted by selection.` : 'Local story'))
+			append(
+				content,
+				label(
+					story.capabilities?.length
+						? `Required capabilities: ${story.capabilities.join(', ')}. Permissions are not granted by selection.`
+						: 'Local story',
+				),
+			)
+
 			for (const [key, control] of Object.entries(story.controls ?? {})) {
 				const spec = control as { type: string; options?: readonly (string | number | boolean)[] }
 				const applied = label(`${key}: ${String(session.currentProps?.[key] ?? 'Unset')}`)
@@ -231,14 +326,18 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
 				const commit = (value: string | number | boolean | typeof UNSET) => {
 					error.text = controller.control(key, value) ?? ''
 					error.accessibilityLabel = error.text
-					if (!error.text) {applied.text = `${key}: ${String(session.currentProps?.[key] ?? 'Unset')}`}
+					if (!error.text) {
+						applied.text = `${key}: ${String(session.currentProps?.[key] ?? 'Unset')}`
+					}
 				}
 
 				if (spec.type === 'boolean') {
 					action(content, `${key}: true`, () => commit(true))
 					action(content, `${key}: false`, () => commit(false))
 				} else if (spec.type === 'enum') {
-					for (const option of spec.options ?? []) {action(content, `${key}: ${String(option)}`, () => commit(option))}
+					for (const option of spec.options ?? []) {
+						action(content, `${key}: ${String(option)}`, () => commit(option))
+					}
 				} else {
 					const field = new TextField()
 					field.text = String(session.currentProps?.[key] ?? '')
@@ -250,7 +349,10 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
 					action(content, `Apply ${key}`, () => commit(field.text))
 				}
 
-				if (isUnsettable(story, key)) {action(content, `Unset ${key}`, () => commit(UNSET))}
+				if (isUnsettable(story, key)) {
+					action(content, `Unset ${key}`, () => commit(UNSET))
+				}
+
 				append(content, error)
 			}
 		}
@@ -258,38 +360,78 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
 		append(content, label('Targets — launch another actual host from the CLI'))
 		for (const target of ['web', 'ios', 'android', 'macos', 'windows', 'linux'] as const) {
 			const selected = controller.catalog.find((e) => e.id === controller.selectedId)
-			append(content, label(`${target}: ${selected && !selected.targets.includes(target) ? 'unsupported-by-story' : 'unqualified backend / separate launch'}${target === actual ? ' (current host)' : ''}`))
+			append(
+				content,
+				label(
+					`${target}: ${selected && !selected.targets.includes(target) ? 'unsupported-by-story' : 'unqualified backend / separate launch'}${target === actual ? ' (current host)' : ''}`,
+				),
+			)
 		}
 
 		append(content, label('Stage settings'))
-		action(content, 'Default background', () => { stage.backgroundColor = '#ffffff' as any })
-		action(content, 'Dark background', () => { stage.backgroundColor = '#242424' as any })
-		action(content, 'Available stage size', () => { stage.width = 'auto'; stage.height = 'auto' })
-		action(content, 'Bounded stage size: 320 × 400', () => { stage.width = 320; stage.height = 400 })
+		action(content, 'Default background', () => {
+			stage.backgroundColor = '#ffffff' as any
+		})
+
+		action(content, 'Dark background', () => {
+			stage.backgroundColor = '#242424' as any
+		})
+
+		action(content, 'Available stage size', () => {
+			stage.width = 'auto'
+			stage.height = 'auto'
+		})
+
+		action(content, 'Bounded stage size: 320 × 400', () => {
+			stage.width = 320
+			stage.height = 400
+		})
+
 		controls.content = content
 	}
 
 	function refresh(): void {
-		if (disposed) {return}
+		if (disposed) {
+			return
+		}
+
 		const snapshot = session.state
 		const entry = controller.catalog.find((e) => e.id === controller.selectedId)
-		status.text = `${actual} · unqualified backend · ${controller.missingId ? `Missing story: ${controller.missingId}` : entry && !entry.applicable ? `${entry.id}: unsupported-by-story` : snapshot.storyId ?? 'Choose a story'} · ${snapshot.phase}${snapshot.stale ? ' · STALE' : ''}${snapshot.failure ? ` · ${snapshot.failure.phase}: ${snapshot.failure.message}` : ''}`
+		status.text = `${actual} · unqualified backend · ${controller.missingId ? `Missing story: ${controller.missingId}` : entry && !entry.applicable ? `${entry.id}: unsupported-by-story` : (snapshot.storyId ?? 'Choose a story')} · ${snapshot.phase}${snapshot.stale ? ' · STALE' : ''}${snapshot.failure ? ` · ${snapshot.failure.phase}: ${snapshot.failure.message}` : ''}`
 		status.accessibilityLabel = status.text
-		if (lastRevision !== snapshot.revision) { lastRevision = snapshot.revision; renderControls() }
+		if (lastRevision !== snapshot.revision) {
+			lastRevision = snapshot.revision
+			renderControls()
+		}
+
 		layout()
 	}
 
-	const controller = new MobileController(session, options.catalog, () => { renderCatalog(); refresh() })
+	const controller = new MobileController(session, options.catalog, () => {
+		renderCatalog()
+		refresh()
+	})
+
 	const storiesButton = action(toolbar, 'Stories', () => toggle('stories', storiesButton))
 	const controlsButton = action(toolbar, 'Controls', () => toggle('controls', controlsButton))
-	action(toolbar, 'Reset', () => { void session.reset() })
-	action(toolbar, 'Stage / Return', () => { controller.stageOnly = !controller.stageOnly; controller.panel = null; layout() })
+	action(toolbar, 'Reset', () => {
+		void session.reset()
+	})
+
+	action(toolbar, 'Stage / Return', () => {
+		controller.stageOnly = !controller.stageOnly
+		controller.panel = null
+		layout()
+	})
+
 	const unsubscribe = session.subscribe(refresh)
 	root.on(View.layoutChangedEvent, layout)
 	const back = (event: any) => {
 		// A story-owned modal keeps OS Back. Shell dismissal takes precedence
 		// only on this page, never in an unrelated navigation root.
-		if (dismissAllowed() && tryDismiss()) { event.cancel = true }
+		if (dismissAllowed() && tryDismiss()) {
+			event.cancel = true
+		}
 	}
 
 	Application.android?.on(AndroidApplication.activityBackPressedEvent, back)
@@ -301,16 +443,25 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
 	// shell dismissed. The listener lives on this page's root view only.
 	function installAndroidDismissal(): () => void {
 		const ViewCompat = androidx?.core?.view?.ViewCompat
-		if (typeof ViewCompat?.addOnUnhandledKeyEventListener !== 'function') {return () => {}}
+		if (typeof ViewCompat?.addOnUnhandledKeyEventListener !== 'function') {
+			return () => {}
+		}
+
 		let attached: android.view.View | undefined
 		let escapeDown = false
 		const listener = new androidx.core.view.ViewCompat.OnUnhandledKeyEventListenerCompat({
 			onUnhandledKeyEvent(_view: android.view.View, event: android.view.KeyEvent): boolean {
-				if (event.getKeyCode() !== android.view.KeyEvent.KEYCODE_ESCAPE) {return false}
+				if (event.getKeyCode() !== android.view.KeyEvent.KEYCODE_ESCAPE) {
+					return false
+				}
+
 				const action = event.getAction()
 				if (action === android.view.KeyEvent.ACTION_DOWN) {
 					// Repeats only dispatch while we hold the press.
-					if (event.getRepeatCount() > 0) {return escapeDown}
+					if (event.getRepeatCount() > 0) {
+						return escapeDown
+					}
+
 					escapeDown = dismissAllowed() && tryDismiss()
 					return escapeDown
 				}
@@ -327,13 +478,19 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
 
 		const attach = () => {
 			const native = root.android as android.view.View | undefined
-			if (!native || attached === native) {return}
+			if (!native || attached === native) {
+				return
+			}
+
 			ViewCompat.addOnUnhandledKeyEventListener(native, listener)
 			attached = native
 		}
 
 		root.on(View.loadedEvent, attach)
-		if (root.isLoaded) {attach()}
+		if (root.isLoaded) {
+			attach()
+		}
+
 		return () => {
 			root.off(View.loadedEvent, attach)
 			if (attached) {
@@ -352,13 +509,24 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
 	// and accessibility-escape paths only.
 	function installIosDismissal(): () => void {
 		const vc = (page as any).ios as UIViewController | undefined
-		if (!vc?.respondsToSelector?.('addKeyCommand:')) {return () => {}}
-		const command = UIKeyCommand.keyCommandWithInputModifierFlagsAction(UIKeyInputEscape, 0 as UIKeyModifierFlags, 'accessibilityPerformEscape')
+		if (!vc?.respondsToSelector?.('addKeyCommand:')) {
+			return () => {}
+		}
+
+		const command = UIKeyCommand.keyCommandWithInputModifierFlagsAction(
+			UIKeyInputEscape,
+			0 as UIKeyModifierFlags,
+			'accessibilityPerformEscape',
+		)
+
 		const previous = page.onAccessibilityPerformEscape
 		// The VoiceOver escape gesture and the key command reach the same
 		// hook; both apply shell dismissal before any earlier handler.
 		page.onAccessibilityPerformEscape = () => {
-			if (dismissAllowed() && tryDismiss()) {return true}
+			if (dismissAllowed() && tryDismiss()) {
+				return true
+			}
+
 			return previous?.() ?? false
 		}
 
@@ -366,7 +534,10 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
 		// UIMenuElementAttributes.Disabled is an ambient const enum, which this
 		// configuration reads only in type position.
 		syncEscapeCommand = () => {
-			command.attributes = controller.panel || controller.stageOnly ? (0 as UIMenuElementAttributes) : (1 as UIMenuElementAttributes)
+			command.attributes =
+				controller.panel || controller.stageOnly
+					? (0 as UIMenuElementAttributes)
+					: (1 as UIMenuElementAttributes)
 		}
 
 		syncEscapeCommand()
@@ -377,13 +548,27 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
 		}
 	}
 
-	const releaseDismissal = Application.ios ? installIosDismissal() : Application.android ? installAndroidDismissal() : () => {}
-	const exit = () => { void runtime?.dispose().catch((error) => console.error('Workshop cleanup requires restart:', error)) }
+	const releaseDismissal = Application.ios
+		? installIosDismissal()
+		: Application.android
+			? installAndroidDismissal()
+			: () => {}
+
+	const exit = () => {
+		void runtime
+			?.dispose()
+			.catch((error) => console.error('Workshop cleanup requires restart:', error))
+	}
+
 	Application.on(Application.exitEvent, exit)
 	runtime = {
-		controller, page,
+		controller,
+		page,
 		async dispose() {
-			if (disposed) {return}
+			if (disposed) {
+				return
+			}
+
 			disposed = true
 			unsubscribe()
 			root.off(View.layoutChangedEvent, layout)
@@ -391,7 +576,10 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
 			Application.android?.off(AndroidApplication.activityBackPressedEvent, back)
 			Application.off(Application.exitEvent, exit)
 			await controller.dispose()
-			if (session.state.phase === 'restart-required') {throw session.state.failure}
+			if (session.state.phase === 'restart-required') {
+				throw session.state.failure
+			}
+
 			runtime = undefined
 		},
 	}
@@ -401,12 +589,19 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
 	const frame = new Frame()
 	frame.navigate({ create: () => page })
 	const entryPoint = { create: () => frame }
-	if (Application.started) {Application.resetRootView(entryPoint)}
-	else {Application.run(entryPoint)}
+	if (Application.started) {
+		Application.resetRootView(entryPoint)
+	} else {
+		Application.run(entryPoint)
+	}
 
-	if (options.diagnostics?.length) {controller.updateCatalog(options.catalog, options.diagnostics)}
-	else if (options.initialStoryId) {void controller.select(options.initialStoryId)}
-	else {controller.panel = 'stories'}
+	if (options.diagnostics?.length) {
+		controller.updateCatalog(options.catalog, options.diagnostics)
+	} else if (options.initialStoryId) {
+		void controller.select(options.initialStoryId)
+	} else {
+		controller.panel = 'stories'
+	}
 
 	return runtime
 }

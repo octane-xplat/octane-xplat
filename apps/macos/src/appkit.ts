@@ -3,9 +3,31 @@ import { announceAppKit } from './accessibility'
 import '@nativescript/macos-node-api'
 import { createMacOSRoot } from '@octane-xplat/macos-renderer'
 import type { UniversalComponent, UniversalRoot } from '@octane-xplat/macos-renderer'
-import { NSApplication, NSApplicationActivationPolicy, NSApplicationDelegate, NSBundle, NSEventMask, NSFileManager, NSObject, NSPanel, NSPasteboard, NSRectEdge, NSScreen, NSSharingServicePicker, NSURL, NSUserDefaults, NSView, NSWindow, NSWindowDelegate, NSWindowOrderingMode, NSWindowStyleMask, NSWorkspace, NativeClass } from '@octane-xplat/platform/macos'
-import type { NSClass } from '@octane-xplat/platform/macos'
+import {
+	NSApplication,
+	NSApplicationActivationPolicy,
+	NSApplicationDelegate,
+	NSBundle,
+	NSEventMask,
+	NSFileManager,
+	NSObject,
+	NSPanel,
+	NSPasteboard,
+	NSRectEdge,
+	NSScreen,
+	NSSharingServicePicker,
+	NSURL,
+	NSUserDefaults,
+	NSView,
+	NSWindow,
+	NSWindowDelegate,
+	NSWindowOrderingMode,
+	NSWindowStyleMask,
+	NSWorkspace,
+	NativeClass,
+} from '@octane-xplat/platform/macos'
 
+import type { NSClass } from '@octane-xplat/platform/macos'
 
 const app = NSApplication.sharedApplication
 
@@ -357,7 +379,17 @@ function installPlatformServices() {
 			pasteboard.clearContents()
 			return Boolean(pasteboard.setStringForType(String(value), 'public.utf8-plain-text'))
 		},
-		shareContent({ text, url, title, file }: { text?: string; url?: string; title?: string; file?: string }) {
+		shareContent({
+			text,
+			url,
+			title,
+			file,
+		}: {
+			text?: string
+			url?: string
+			title?: string
+			file?: string
+		}) {
 			const anchor = services.primaryWindow?.contentView
 			if (!anchor || typeof NSSharingServicePicker === 'undefined') {
 				return 'unavailable'
@@ -523,7 +555,8 @@ function resolveParentWindow(
 
 	if (
 		kind === 'dialog' &&
-		typeof (parentWindow?.beginSheetCompletionHandler ?? (parentWindow as any)?.beginSheet) !== 'function'
+		typeof (parentWindow?.beginSheetCompletionHandler ?? (parentWindow as any)?.beginSheet) !==
+			'function'
 	) {
 		throw new TypeError('openWindow dialog parent must support AppKit sheets')
 	}
@@ -773,7 +806,9 @@ export function openWindow(options: OpenWindowOptions = {}): AppKitWindowControl
 		)
 
 		if (kind === 'dialog') {
-			const beginSheet = parentWindow!.beginSheetCompletionHandler ?? (parentWindow as any).beginSheet
+			const beginSheet =
+				parentWindow!.beginSheetCompletionHandler ?? (parentWindow as any).beginSheet
+
 			beginSheet.call(parentWindow, nativeWindow, null as any)
 		} else if (kind === 'popup') {
 			parentWindow!.addChildWindowOrdered(nativeWindow, NSWindowOrderingMode?.Above ?? 1)

@@ -8,6 +8,7 @@ const transform = tabItemContentRoots().transform
 test('owned-content adapter preserves keys, refs, children, strings and comments', () => {
 	const source =
 		'/** @jsxImportSource @octane-xplat/jsx */\nconst x = <tabview><tabviewitem key="home" ref={ref} title="tabviewitem"><label text="tabviewitem" /></tabviewitem></tabview>\n// <tabviewitem />'
+
 	const { code } = transform(source, '/src/App.macos.tsx')
 	assert.ok(code.startsWith('/** @jsxImportSource @octane-xplat/jsx */'))
 	assert.match(code, /<__Xplat__PortalTabItem key="home" ref=\{ref\} title="tabviewitem">/)
@@ -20,6 +21,7 @@ test('owned-content adapter preserves keys, refs, children, strings and comments
 test('owned-content adapter handles nested tabs and lists and excludes its own implementation', () => {
 	const source =
 		'const x = <tabviewitem><tabview><tabviewitem><listview renderItem={render} /></tabviewitem></tabview></tabviewitem>'
+
 	const { code } = transform(source, '/src/App.tsrx')
 	assert.equal((code.match(/<__Xplat__PortalTabItem>/g) ?? []).length, 2)
 	assert.match(code, /<__Xplat__PortalList renderItem=\{render\}/)
@@ -29,6 +31,7 @@ test('owned-content adapter handles nested tabs and lists and excludes its own i
 		transform('/** @jsxImportSource @octane-xplat/jsx/dom */' + source, '/src/App.tsrx'),
 		null,
 	)
+
 	assert.equal(transform(source, '/packages/macos-renderer/src/portal-components.macos.tsx'), null)
 	assert.equal(transform('const label = "tabviewitem"', '/src/App.tsx'), null)
 	assert.equal(transform(source, '/src/notes.md'), null)
@@ -38,6 +41,7 @@ test('owned-content adapter handles nested tabs and lists and excludes its own i
 test('children attributes and spreads remain ordinary component props without repeated evaluation', () => {
 	const source =
 		'const __Xplat__PortalTabItem = 1; const x = <tabviewitem children={child} {...getProps()} />'
+
 	const { code } = transform(source, '/src/App.tsx')
 	assert.match(code, /children=\{child\}/)
 	assert.match(code, /\.\.\.getProps\(\)/)

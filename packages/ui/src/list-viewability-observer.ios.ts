@@ -3,7 +3,6 @@ import type { VisibleListRow } from './list-viewability-core'
 import { observeLoadedListPeer, type ListVisibilityObserver } from './list-viewability-runtime'
 import { NSIndexPath, NSObject, UIScrollView, UITableView } from '@octane-xplat/platform/ios'
 
-
 type ContentOffsetObserverInstance = NSObject & { callback: (() => void) | null }
 
 export function observeListViewability(
@@ -120,12 +119,7 @@ function contentOffsetObserverClass(): any {
 				exposedMethods: {
 					'observeValueForKeyPath:ofObject:change:context:': {
 						returns: interop.types.void,
-						params: [
-							interop.types.id,
-							interop.types.id,
-							interop.types.id,
-							interop.types.id,
-						],
+						params: [interop.types.id, interop.types.id, interop.types.id, interop.types.id],
 					},
 				},
 			},

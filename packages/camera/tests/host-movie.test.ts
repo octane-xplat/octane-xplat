@@ -147,11 +147,13 @@ describe('host movie transport', () => {
 				[],
 			)
 
-			await expect(openHostMovie(host, {
-				kind: 'nativeFile', resourceId: 'file:///c.mp4', fileUrl: 'file:///c.mp4',
-			})).rejects.toMatchObject({ kind: 'unavailable' })
-
+			await expect(
+				openHostMovie(host, {
+					kind: 'nativeFile',
+					resourceId: 'file:///c.mp4',
+					fileUrl: 'file:///c.mp4',
+				}),
+			).rejects.toMatchObject({ kind: 'unavailable' })
 		},
 	)
-
 })

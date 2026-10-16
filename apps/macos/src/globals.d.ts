@@ -16,7 +16,6 @@ interface ImportMeta {
 	glob<T = unknown>(patterns: string | string[], options?: { eager?: boolean }): Record<string, T>
 }
 
-
 // Vite `define` constants carrying the bundled Geist font (see vite.shared.mjs).
 declare const __XPLAT_GEIST_FONT_BASE64__: string
 declare const __XPLAT_GEIST_FONT_LICENSE__: string

@@ -150,12 +150,7 @@ test('removing margins keeps the host arranged and collapses its constants', () 
 	const x = row('x', 2)
 	const d = row('d', 2, {
 		marginHost: view({ gravity: 2 }),
-		marginConstraints: [
-			{ constant: 4 },
-			{ constant: -4 },
-			{ constant: 4 },
-			{ constant: -4 },
-		],
+		marginConstraints: [{ constant: 4 }, { constant: -4 }, { constant: 4 }, { constant: -4 }],
 	})
 
 	const y = row('y', 2)

@@ -136,9 +136,7 @@ beforeEach(() => {
 	vi.stubGlobal('navigator', {
 		mediaDevices: {
 			getUserMedia: vi.fn(async () => new Stream([track])),
-			enumerateDevices: async () => [
-				{ kind: 'videoinput', deviceId: 'camera-1', label: 'Webcam' },
-			],
+			enumerateDevices: async () => [{ kind: 'videoinput', deviceId: 'camera-1', label: 'Webcam' }],
 		},
 	})
 
@@ -275,10 +273,7 @@ describe('linux WebKitGTK adapter', () => {
 			expect(outcome.error.kind).toBe('storageFailed')
 		}
 
-		expect(hostMovie.remove).toHaveBeenCalledWith(
-			hostMovie.host,
-			'file:///data/media/reserved.mp4',
-		)
+		expect(hostMovie.remove).toHaveBeenCalledWith(hostMovie.host, 'file:///data/media/reserved.mp4')
 
 		await session.dispose()
 	})

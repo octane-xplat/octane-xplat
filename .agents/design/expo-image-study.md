@@ -16,25 +16,25 @@ findings — symptoms, profiling steps, and fixes an app can apply today — see
 
 ## Ranked lessons
 
-| # | Lesson | Verdict | Expected impact |
-| - | ------ | ------- | --------------- |
-| 1 | Decode to the laid-out view size, not the source size | **Adapt** (NS already supports it; we don't use it) | High — this is very likely the feed-jank fix |
-| 2 | A real memory cache (bitmap pool + sized LRU), not NS's 5 MB `LruCache` | **Adapt** (needs Glide/SDWebImage leaf or tuning `useCache`) | High — cache misses mid-scroll = re-decode = jank |
-| 3 | `prefetch()` that warms the *byte/disk* cache, decode deferred to display | **Portable** | High for feed warmup |
-| 4 | `recyclingKey` prop — blank the view when a recycled cell's identity changes | **Applied** (adapted — gated on `src` change too) | Medium; kills stale-image flashes on Android platform lists |
-| 5 | Placeholders as pipeline loaders (blurhash/thumbhash decode into the same cache/target path) | **Adapt** | Medium; fixes the "placeholder vs final" flicker class |
-| 6 | `cachePolicy` as two orthogonal axes (transformed-image cache + original-bytes cache) | **Adapt** | Medium; NS core only exposes `useCache` bool |
-| 7 | `contentFit`/`contentPosition` via matrix math, not platform scaleType | **Applied (adapted)** — computed view-rect, not a drawable matrix | Medium — needed for parity-grade positioning |
-| 8 | Multi-`source` array → closest-pixel-count selection (`srcset` for native) | **Applied** — `src` accepts a `ImageSourceLike[]`; JS picks, engine loads | Low-medium; future-facing |
-| 9 | Gate per-load events on a JS listener flag (`hasImageLoadedListener`) | **Redundant** — the NS driver model is already listener-gated | None; no unconditional hops exist to remove |
-| 10 | `SharedRef`/`useImage`, SF Symbols, `sfEffect`, Live Text, HDR, `webMaxViewportWidth` | **Irrelevant** (confirmed; see verdict note) | Expo/Apple-surface chrome |
+| #   | Lesson                                                                                       | Verdict                                                                   | Expected impact                                             |
+| --- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| 1   | Decode to the laid-out view size, not the source size                                        | **Adapt** (NS already supports it; we don't use it)                       | High — this is very likely the feed-jank fix                |
+| 2   | A real memory cache (bitmap pool + sized LRU), not NS's 5 MB `LruCache`                      | **Adapt** (needs Glide/SDWebImage leaf or tuning `useCache`)              | High — cache misses mid-scroll = re-decode = jank           |
+| 3   | `prefetch()` that warms the _byte/disk_ cache, decode deferred to display                    | **Portable**                                                              | High for feed warmup                                        |
+| 4   | `recyclingKey` prop — blank the view when a recycled cell's identity changes                 | **Applied** (adapted — gated on `src` change too)                         | Medium; kills stale-image flashes on Android platform lists |
+| 5   | Placeholders as pipeline loaders (blurhash/thumbhash decode into the same cache/target path) | **Adapt**                                                                 | Medium; fixes the "placeholder vs final" flicker class      |
+| 6   | `cachePolicy` as two orthogonal axes (transformed-image cache + original-bytes cache)        | **Adapt**                                                                 | Medium; NS core only exposes `useCache` bool                |
+| 7   | `contentFit`/`contentPosition` via matrix math, not platform scaleType                       | **Applied (adapted)** — computed view-rect, not a drawable matrix         | Medium — needed for parity-grade positioning                |
+| 8   | Multi-`source` array → closest-pixel-count selection (`srcset` for native)                   | **Applied** — `src` accepts a `ImageSourceLike[]`; JS picks, engine loads | Low-medium; future-facing                                   |
+| 9   | Gate per-load events on a JS listener flag (`hasImageLoadedListener`)                        | **Redundant** — the NS driver model is already listener-gated             | None; no unconditional hops exist to remove                 |
+| 10  | `SharedRef`/`useImage`, SF Symbols, `sfEffect`, Live Text, HDR, `webMaxViewportWidth`        | **Irrelevant** (confirmed; see verdict note)                              | Expo/Apple-surface chrome                                   |
 
 ## L1 — decode to view size (the headliner)
 
 expo-image never decodes a source larger than the view it will occupy:
 
 - **Android.** The Glide target (`ImageViewWrapperTarget.getSize`) reports the
-  view's *laid-out* size through a copied `SizeDeterminer` that waits for
+  view's _laid-out_ size through a copied `SizeDeterminer` that waits for
   layout before letting the request start — decode doesn't begin until the
   view size is known. A custom `DownsampleStrategy` then computes the scale
   factor from the contentFit math
@@ -77,7 +77,7 @@ bytes, and a bitmap-reuse pool gated on `useCache`. 5 MB holds one or two
 decoded feed images; scrolling evicts entries still on screen → re-decode
 mid-scroll → jank. Glide's defaults (fraction-of-heap LRU + active-resource
 table + `BitmapPool` reuse so decode doesn't allocate) are precisely what a
-feed wants. expo-image adds nothing here except *using* Glide — the lesson is
+feed wants. expo-image adds nothing here except _using_ Glide — the lesson is
 that the engine choice is the fix, and `@nativescript-community/ui-image`
 already bundles **Glide + glide-transformations + okhttp3-integration on
 Android and SDWebImage ≥5.21.3 on iOS** (`packages/image/platforms/android/
@@ -101,7 +101,7 @@ Per our rules this ships as a leaf package (`@octane-xplat/image`), not in
   (`ContentFitDownsampleStrategy`, whose `equals` collapses all
   `CustomDownsampleStrategy` instances — a deliberate fixed-hashCode trick so
   Glide memory-caches across dynamic strategy instances). Prefetch therefore
-  reliably warms Glide's *data* disk cache; the transformed memory entry is
+  reliably warms Glide's _data_ disk cache; the transformed memory entry is
   keyed differently and won't be hit by the display load.
 
 Lesson for xplat: "prefetch = warm the byte cache, decode at display." NS
@@ -138,13 +138,13 @@ on one platform and one list kind:
   `_createImageSourceFromSrc` sets `imageSource = null` for every string `src`
   (`packages/core/ui/image/image-common`). Android does not —
   `org.nativescript.widgets.ImageView.setUri` clears the bitmap only when the
-  URI is *empty*, so a recycled cell keeps drawing the prior item until the
+  URI is _empty_, so a recycled cell keeps drawing the prior item until the
   new fetch resolves (remote `http`, `~/` file, and `res://` srcs all route
   through `setUri`).
 
 **Shipped:** `ImageProps.recyclingKey`; the native `Image` leaf
 (`src/Image.tsrx`) clears `view.imageSource` during render when the key changes
-between binds *and* `src` differs — the src check skips a pointless
+between binds _and_ `src` differs — the src check skips a pointless
 blank-and-reload when a recycled row happens to share the previous item's URL
 (expo blanks on key change alone). Clearing during render lands before the
 sized binding's ref re-issue of `src`, which starts the new load. Pinned by
@@ -167,7 +167,7 @@ placeholder decode rides the same cache keys, targets, and lifecycle; a hash
 placeholder gets `usesPlaceholderContentFit() = false` so it renders with the
 final `contentFit` (avoids the scale mismatch flicker the prop docs warn
 about). Decoders are ~100 lines of pure math and port directly; wiring them
-*behind the image pipeline* is the structural idea worth copying, even if the
+_behind the image pipeline_ is the structural idea worth copying, even if the
 xplat v1 implementation just decodes a hash to an `ImageSource` in JS/native
 and crossfades it in the shared layer.
 
@@ -226,15 +226,15 @@ shows the pressure-release API shape if we ever need it.
 
 ## Application verdicts (applied 2026-10)
 
-| Lesson | Verdict | Why |
-| ------ | ------- | --- |
-| L3 prefetch | **Applied in `@octane-xplat/gif`; rejected for core `Image`** | `getImagePipeline().prefetchToDiskCache()` gives the real "bytes on disk, decode at display" semantic on both engines (Fresco disk cache; SDWebImage disk store). Exported as `prefetch(srcs, options?) → Promise<boolean>`; web warms the HTTP cache through a throwaway `<img>`; macOS resolves `false` (no pipeline). Core `Image` was *not* given a prefetch: NS `ImageCache` keeps a private LRU the `<image>` view never reads, so exposing it would promise warmth that never arrives. |
-| L4 recyclingKey | **Applied — adapted to the two surfaces that actually need it** | The flash is real only where a recycled host keeps its view *and* the platform keeps its bitmap: `UITableView`/`RecyclerView` cells rebind in place (`bind()` diffs the same tree), and Android `setUri` retains the drawable for non-empty URIs while iOS nulls `imageSource` per string `src`. `ImageProps.recyclingKey` clears the bitmap on key+src change (see the L4 section for evidence and the same-src refinement). `VirtualList`/web/macOS re-key rows instead of rebinding, so they intentionally ignore the prop. |
-| L6 cachePolicy | **Adapted — no four-value prop exposed anywhere** | Neither engine surface supports the two orthogonal axes. NS core offers only Android `useCache` (already reachable via `Image`'s `android` escape bag; iOS ignores it). The ui-image `Img` offers a single "bypass" axis (`noCache`: Android evicts the URI then loads; iOS `SDWebImageOptions.FromLoaderOnly`) — still not a per-axis policy. Rather than paper over the missing axes, `AnimatedImage` gained `ios`/`android`/`web` escape bags (the `ImageProps` convention) so `noCache`, `cacheKey`, `decodeWidth`, and friends are reachable as explicitly platform props. |
-| L7 contentFit/contentPosition | **Applied — adapted to a computed view-rect** | Shared `contentFit`/`contentPosition` props with the CSS contract; the stock NS widget owns its draw matrix so a JS matrix is unreachable — the binding measures the box and lays out an inner `stretch="fill"` image to the computed rect instead. Full note in the L7 section. |
-| L8 multi-source | **Applied — `src` accepts `ImageSourceLike[]`** | Closest-pixel-count pick runs in JS after first layout and feeds the sized-decode seam; web emits real `srcset`. Gaps noted in the L8 section (no `sizes`, arrays bypass svgview, macOS takes the first entry). |
-| L9 listener gating | **Redundant — no unconditional hops exist** | `Image` emits no per-load events, and the universal driver attaches native listeners only for supplied `onX` props — prop presence *is* the listener flag. Keep any future `onLoad`/`onError` prop-gated the same way and carry `cacheType` on the payload. |
-| L10 Expo/Apple chrome | **Confirmed irrelevant** | `useImage`/`loadAsync` overlaps the shipped `prefetch` (L3) plus `ImageSource` srcs; SF Symbols already reachable via `sys://` icon names and `iosSymbolEffect`/`iosSymbolScale` through the `ios` escape bag. The rest — `sfEffect`, Live Text, HDR, `useAppleWebpCodec`, web srcset machinery, `decodeFormat` — has no octane contract to express it in. |
+| Lesson                        | Verdict                                                         | Why                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| ----------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| L3 prefetch                   | **Applied in `@octane-xplat/gif`; rejected for core `Image`**   | `getImagePipeline().prefetchToDiskCache()` gives the real "bytes on disk, decode at display" semantic on both engines (Fresco disk cache; SDWebImage disk store). Exported as `prefetch(srcs, options?) → Promise<boolean>`; web warms the HTTP cache through a throwaway `<img>`; macOS resolves `false` (no pipeline). Core `Image` was _not_ given a prefetch: NS `ImageCache` keeps a private LRU the `<image>` view never reads, so exposing it would promise warmth that never arrives.                                                                                   |
+| L4 recyclingKey               | **Applied — adapted to the two surfaces that actually need it** | The flash is real only where a recycled host keeps its view _and_ the platform keeps its bitmap: `UITableView`/`RecyclerView` cells rebind in place (`bind()` diffs the same tree), and Android `setUri` retains the drawable for non-empty URIs while iOS nulls `imageSource` per string `src`. `ImageProps.recyclingKey` clears the bitmap on key+src change (see the L4 section for evidence and the same-src refinement). `VirtualList`/web/macOS re-key rows instead of rebinding, so they intentionally ignore the prop.                                                  |
+| L6 cachePolicy                | **Adapted — no four-value prop exposed anywhere**               | Neither engine surface supports the two orthogonal axes. NS core offers only Android `useCache` (already reachable via `Image`'s `android` escape bag; iOS ignores it). The ui-image `Img` offers a single "bypass" axis (`noCache`: Android evicts the URI then loads; iOS `SDWebImageOptions.FromLoaderOnly`) — still not a per-axis policy. Rather than paper over the missing axes, `AnimatedImage` gained `ios`/`android`/`web` escape bags (the `ImageProps` convention) so `noCache`, `cacheKey`, `decodeWidth`, and friends are reachable as explicitly platform props. |
+| L7 contentFit/contentPosition | **Applied — adapted to a computed view-rect**                   | Shared `contentFit`/`contentPosition` props with the CSS contract; the stock NS widget owns its draw matrix so a JS matrix is unreachable — the binding measures the box and lays out an inner `stretch="fill"` image to the computed rect instead. Full note in the L7 section.                                                                                                                                                                                                                                                                                                |
+| L8 multi-source               | **Applied — `src` accepts `ImageSourceLike[]`**                 | Closest-pixel-count pick runs in JS after first layout and feeds the sized-decode seam; web emits real `srcset`. Gaps noted in the L8 section (no `sizes`, arrays bypass svgview, macOS takes the first entry).                                                                                                                                                                                                                                                                                                                                                                 |
+| L9 listener gating            | **Redundant — no unconditional hops exist**                     | `Image` emits no per-load events, and the universal driver attaches native listeners only for supplied `onX` props — prop presence _is_ the listener flag. Keep any future `onLoad`/`onError` prop-gated the same way and carry `cacheType` on the payload.                                                                                                                                                                                                                                                                                                                     |
+| L10 Expo/Apple chrome         | **Confirmed irrelevant**                                        | `useImage`/`loadAsync` overlaps the shipped `prefetch` (L3) plus `ImageSource` srcs; SF Symbols already reachable via `sys://` icon names and `iosSymbolEffect`/`iosSymbolScale` through the `ios` escape bag. The rest — `sfEffect`, Live Text, HDR, `useAppleWebpCodec`, web srcset machinery, `decodeFormat` — has no octane contract to express it in.                                                                                                                                                                                                                      |
 
 ## L7 — fit/position via matrix
 
@@ -248,7 +248,7 @@ need the matrix approach on Android (`setImageMatrix`) — `scaleType` alone
 can't express it.
 
 **Applied verdict — adapted (2026-10-06, desk-source + object-driver tests).**
-The divergence was real, and worse than "no position control": the *defaults*
+The divergence was real, and worse than "no position control": the _defaults_
 disagreed (web `<img>` = `object-fit: fill`, NS `stretch` = `aspectFit`), and
 `stretch='none'` maps to `UIViewContentMode.TopLeft` on iOS vs centered —
 so even the expressible vocabulary silently diverged. `contentFit` and
@@ -288,7 +288,7 @@ unimplemented).
   selection until the first real layout, picks the closest pixel count
   with expo's `|1 − source/target|` math, re-picks on resize, and hands
   the winning URI to `createSizedImageBinding`'s `update` — so the same
-  first-layout gate covers source selection *and* the L1 decode dims in
+  first-layout gate covers source selection _and_ the L1 decode dims in
   one pipeline, and the computed path passes the semantic fit as the
   decode gate ('none' keeps the full-resolution source; view-sample
   everything else).
@@ -305,7 +305,7 @@ unimplemented).
   emits no load events, and the universal driver only attaches a native
   listener when an `onX` prop is actually supplied (`onX` → `addEventListener`
   in `driver.js`); expo's flag exists because its native module always posts
-  to JS and filters client-side. Prop presence *is* the listener flag here.
+  to JS and filters client-side. Prop presence _is_ the listener flag here.
   If a future image leaf adds `onLoad`/`onError`, keeping them prop-gated is
   the structural default — and put `cacheType` on the payload as noted below.
 - **`onLoad` carries `cacheType`** (`none`/`disk`/`memory`) — cheap and very
@@ -329,7 +329,7 @@ unimplemented).
 ## NativeScript feasibility
 
 Not reusable as code: everything native sits on `ExpoView`/`AppContext`/
-`Record` marshaling. But the *architecture* has no RN-only dependency — the
+`Record` marshaling. But the _architecture_ has no RN-only dependency — the
 image view is prop-in/drawable-out over Glide and SDWebImage, which is exactly
 the shape of a NS plugin:
 

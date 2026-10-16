@@ -16,7 +16,9 @@ async function loadWorkshop(cwd) {
 
 	try {
 		const req = createRequire(join(cwd, 'package.json'))
-		return await import(pathToFileURL(realpathSync(req.resolve('@octane-xplat/workshop/node'))).href)
+		return await import(
+			pathToFileURL(realpathSync(req.resolve('@octane-xplat/workshop/node'))).href
+		)
 	} catch {
 		p.log.error(
 			'@octane-xplat/workshop is not installed — add it with `pnpm add -D @octane-xplat/workshop`',
@@ -85,10 +87,12 @@ const dev = command({
 		target: option({
 			long: 'target',
 			type: optional(string),
-			description: 'Launch target — web | linux | macos | ios | android (default web; some native hosts unqualified)',
+			description:
+				'Launch target — web | linux | macos | ios | android (default web; some native hosts unqualified)',
 		}),
 		device: option({
-			long: 'device', type: optional(string),
+			long: 'device',
+			type: optional(string),
 			description: 'Explicit mobile device ID; no automatic device selection',
 		}),
 		story: option({
@@ -124,6 +128,7 @@ const dev = command({
 
 export const workshop = subcommands({
 	name: 'workshop',
-	description: 'Component workshop — isolated stories (web + Linux + macOS; mobile hosts unqualified)',
+	description:
+		'Component workshop — isolated stories (web + Linux + macOS; mobile hosts unqualified)',
 	cmds: { init, doctor, list, dev },
 })

@@ -73,7 +73,10 @@ const defaultDir = templateArg === 'library' ? 'octane-xplat-library' : 'octane-
 const dir = resolve(positional[0] ?? defaultDir)
 
 if (templateArg === 'library' && targetsIndex !== -1) {
-	console.error('✗ --targets applies to the app template; libraries start with web and native builds')
+	console.error(
+		'✗ --targets applies to the app template; libraries start with web and native builds',
+	)
+
 	process.exit(1)
 }
 

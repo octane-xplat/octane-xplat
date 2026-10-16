@@ -3,7 +3,6 @@ import { RollingText } from '@octane-xplat/rolling-text'
 import { observeReducedMotion, readReducedMotion } from '../src/reduced-motion.macos'
 import { NSView } from '@octane-xplat/platform/macos'
 
-
 function App(props: any) {
 	return (
 		<flexboxlayout flexDirection="column">

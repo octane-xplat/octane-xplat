@@ -173,12 +173,36 @@ export const DOM_CSS_VMIN = /* @__PURE__ */ _bind(FW, 'DOM_CSS_VMIN')
 export const DOM_CSS_VW = /* @__PURE__ */ _bind(FW, 'DOM_CSS_VW')
 export const DOM_DOCUMENT_FRAGMENT_NODE = /* @__PURE__ */ _bind(FW, 'DOM_DOCUMENT_FRAGMENT_NODE')
 export const DOM_DOCUMENT_NODE = /* @__PURE__ */ _bind(FW, 'DOM_DOCUMENT_NODE')
-export const DOM_DOCUMENT_POSITION_CONTAINED_BY = /* @__PURE__ */ _bind(FW, 'DOM_DOCUMENT_POSITION_CONTAINED_BY')
-export const DOM_DOCUMENT_POSITION_CONTAINS = /* @__PURE__ */ _bind(FW, 'DOM_DOCUMENT_POSITION_CONTAINS')
-export const DOM_DOCUMENT_POSITION_DISCONNECTED = /* @__PURE__ */ _bind(FW, 'DOM_DOCUMENT_POSITION_DISCONNECTED')
-export const DOM_DOCUMENT_POSITION_FOLLOWING = /* @__PURE__ */ _bind(FW, 'DOM_DOCUMENT_POSITION_FOLLOWING')
-export const DOM_DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC = /* @__PURE__ */ _bind(FW, 'DOM_DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC')
-export const DOM_DOCUMENT_POSITION_PRECEDING = /* @__PURE__ */ _bind(FW, 'DOM_DOCUMENT_POSITION_PRECEDING')
+export const DOM_DOCUMENT_POSITION_CONTAINED_BY = /* @__PURE__ */ _bind(
+	FW,
+	'DOM_DOCUMENT_POSITION_CONTAINED_BY',
+)
+
+export const DOM_DOCUMENT_POSITION_CONTAINS = /* @__PURE__ */ _bind(
+	FW,
+	'DOM_DOCUMENT_POSITION_CONTAINS',
+)
+
+export const DOM_DOCUMENT_POSITION_DISCONNECTED = /* @__PURE__ */ _bind(
+	FW,
+	'DOM_DOCUMENT_POSITION_DISCONNECTED',
+)
+
+export const DOM_DOCUMENT_POSITION_FOLLOWING = /* @__PURE__ */ _bind(
+	FW,
+	'DOM_DOCUMENT_POSITION_FOLLOWING',
+)
+
+export const DOM_DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC = /* @__PURE__ */ _bind(
+	FW,
+	'DOM_DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC',
+)
+
+export const DOM_DOCUMENT_POSITION_PRECEDING = /* @__PURE__ */ _bind(
+	FW,
+	'DOM_DOCUMENT_POSITION_PRECEDING',
+)
+
 export const DOM_DOCUMENT_TYPE_NODE = /* @__PURE__ */ _bind(FW, 'DOM_DOCUMENT_TYPE_NODE')
 export const DOM_DOM_DELTA_LINE = /* @__PURE__ */ _bind(FW, 'DOM_DOM_DELTA_LINE')
 export const DOM_DOM_DELTA_PAGE = /* @__PURE__ */ _bind(FW, 'DOM_DOM_DELTA_PAGE')
@@ -211,10 +235,22 @@ export const DOM_NODE_INSIDE = /* @__PURE__ */ _bind(FW, 'DOM_NODE_INSIDE')
 export const DOM_NONE = /* @__PURE__ */ _bind(FW, 'DOM_NONE')
 export const DOM_NOTATION_NODE = /* @__PURE__ */ _bind(FW, 'DOM_NOTATION_NODE')
 export const DOM_NUMBER_TYPE = /* @__PURE__ */ _bind(FW, 'DOM_NUMBER_TYPE')
-export const DOM_ORDERED_NODE_ITERATOR_TYPE = /* @__PURE__ */ _bind(FW, 'DOM_ORDERED_NODE_ITERATOR_TYPE')
-export const DOM_ORDERED_NODE_SNAPSHOT_TYPE = /* @__PURE__ */ _bind(FW, 'DOM_ORDERED_NODE_SNAPSHOT_TYPE')
+export const DOM_ORDERED_NODE_ITERATOR_TYPE = /* @__PURE__ */ _bind(
+	FW,
+	'DOM_ORDERED_NODE_ITERATOR_TYPE',
+)
+
+export const DOM_ORDERED_NODE_SNAPSHOT_TYPE = /* @__PURE__ */ _bind(
+	FW,
+	'DOM_ORDERED_NODE_SNAPSHOT_TYPE',
+)
+
 export const DOM_PAGE_RULE = /* @__PURE__ */ _bind(FW, 'DOM_PAGE_RULE')
-export const DOM_PROCESSING_INSTRUCTION_NODE = /* @__PURE__ */ _bind(FW, 'DOM_PROCESSING_INSTRUCTION_NODE')
+export const DOM_PROCESSING_INSTRUCTION_NODE = /* @__PURE__ */ _bind(
+	FW,
+	'DOM_PROCESSING_INSTRUCTION_NODE',
+)
+
 export const DOM_REMOVAL = /* @__PURE__ */ _bind(FW, 'DOM_REMOVAL')
 export const DOM_SHOW_ALL = /* @__PURE__ */ _bind(FW, 'DOM_SHOW_ALL')
 export const DOM_SHOW_ATTRIBUTE = /* @__PURE__ */ _bind(FW, 'DOM_SHOW_ATTRIBUTE')
@@ -227,7 +263,11 @@ export const DOM_SHOW_ELEMENT = /* @__PURE__ */ _bind(FW, 'DOM_SHOW_ELEMENT')
 export const DOM_SHOW_ENTITY = /* @__PURE__ */ _bind(FW, 'DOM_SHOW_ENTITY')
 export const DOM_SHOW_ENTITY_REFERENCE = /* @__PURE__ */ _bind(FW, 'DOM_SHOW_ENTITY_REFERENCE')
 export const DOM_SHOW_NOTATION = /* @__PURE__ */ _bind(FW, 'DOM_SHOW_NOTATION')
-export const DOM_SHOW_PROCESSING_INSTRUCTION = /* @__PURE__ */ _bind(FW, 'DOM_SHOW_PROCESSING_INSTRUCTION')
+export const DOM_SHOW_PROCESSING_INSTRUCTION = /* @__PURE__ */ _bind(
+	FW,
+	'DOM_SHOW_PROCESSING_INSTRUCTION',
+)
+
 export const DOM_SHOW_TEXT = /* @__PURE__ */ _bind(FW, 'DOM_SHOW_TEXT')
 export const DOM_START_TO_END = /* @__PURE__ */ _bind(FW, 'DOM_START_TO_END')
 export const DOM_START_TO_START = /* @__PURE__ */ _bind(FW, 'DOM_START_TO_START')
@@ -236,13 +276,25 @@ export const DOM_STYLE_RULE = /* @__PURE__ */ _bind(FW, 'DOM_STYLE_RULE')
 export const DOM_SUPPORTS_RULE = /* @__PURE__ */ _bind(FW, 'DOM_SUPPORTS_RULE')
 export const DOM_TEXT_NODE = /* @__PURE__ */ _bind(FW, 'DOM_TEXT_NODE')
 export const DOM_UNKNOWN_RULE = /* @__PURE__ */ _bind(FW, 'DOM_UNKNOWN_RULE')
-export const DOM_UNORDERED_NODE_ITERATOR_TYPE = /* @__PURE__ */ _bind(FW, 'DOM_UNORDERED_NODE_ITERATOR_TYPE')
-export const DOM_UNORDERED_NODE_SNAPSHOT_TYPE = /* @__PURE__ */ _bind(FW, 'DOM_UNORDERED_NODE_SNAPSHOT_TYPE')
+export const DOM_UNORDERED_NODE_ITERATOR_TYPE = /* @__PURE__ */ _bind(
+	FW,
+	'DOM_UNORDERED_NODE_ITERATOR_TYPE',
+)
+
+export const DOM_UNORDERED_NODE_SNAPSHOT_TYPE = /* @__PURE__ */ _bind(
+	FW,
+	'DOM_UNORDERED_NODE_SNAPSHOT_TYPE',
+)
+
 export const DOM_VERTICAL = /* @__PURE__ */ _bind(FW, 'DOM_VERTICAL')
 export const DOM_WEBKIT_KEYFRAMES_RULE = /* @__PURE__ */ _bind(FW, 'DOM_WEBKIT_KEYFRAMES_RULE')
 export const DOM_WEBKIT_KEYFRAME_RULE = /* @__PURE__ */ _bind(FW, 'DOM_WEBKIT_KEYFRAME_RULE')
 export const DOM_WEBKIT_REGION_RULE = /* @__PURE__ */ _bind(FW, 'DOM_WEBKIT_REGION_RULE')
-export const NSReadAccessURLDocumentOption = /* @__PURE__ */ _bind(FW, 'NSReadAccessURLDocumentOption')
+export const NSReadAccessURLDocumentOption = /* @__PURE__ */ _bind(
+	FW,
+	'NSReadAccessURLDocumentOption',
+)
+
 export const WKAudiovisualMediaTypes = /* @__PURE__ */ _bind(FW, 'WKAudiovisualMediaTypes')
 export const WKBackForwardList = /* @__PURE__ */ _bind(FW, 'WKBackForwardList')
 export const WKBackForwardListItem = /* @__PURE__ */ _bind(FW, 'WKBackForwardListItem')
@@ -273,14 +325,22 @@ export const WKPreferences = /* @__PURE__ */ _bind(FW, 'WKPreferences')
 export const WKProcessPool = /* @__PURE__ */ _bind(FW, 'WKProcessPool')
 export const WKScriptMessage = /* @__PURE__ */ _bind(FW, 'WKScriptMessage')
 export const WKScriptMessageHandler = /* @__PURE__ */ _bind(FW, 'WKScriptMessageHandler')
-export const WKScriptMessageHandlerWithReply = /* @__PURE__ */ _bind(FW, 'WKScriptMessageHandlerWithReply')
+export const WKScriptMessageHandlerWithReply = /* @__PURE__ */ _bind(
+	FW,
+	'WKScriptMessageHandlerWithReply',
+)
+
 export const WKSecurityOrigin = /* @__PURE__ */ _bind(FW, 'WKSecurityOrigin')
 export const WKSnapshotConfiguration = /* @__PURE__ */ _bind(FW, 'WKSnapshotConfiguration')
 export const WKUIDelegate = /* @__PURE__ */ _bind(FW, 'WKUIDelegate')
 export const WKURLSchemeHandler = /* @__PURE__ */ _bind(FW, 'WKURLSchemeHandler')
 export const WKURLSchemeTask = /* @__PURE__ */ _bind(FW, 'WKURLSchemeTask')
 export const WKUserContentController = /* @__PURE__ */ _bind(FW, 'WKUserContentController')
-export const WKUserInterfaceDirectionPolicy = /* @__PURE__ */ _bind(FW, 'WKUserInterfaceDirectionPolicy')
+export const WKUserInterfaceDirectionPolicy = /* @__PURE__ */ _bind(
+	FW,
+	'WKUserInterfaceDirectionPolicy',
+)
+
 export const WKUserScript = /* @__PURE__ */ _bind(FW, 'WKUserScript')
 export const WKUserScriptInjectionTime = /* @__PURE__ */ _bind(FW, 'WKUserScriptInjectionTime')
 export const WKWebView = /* @__PURE__ */ _bind(FW, 'WKWebView')
@@ -291,13 +351,41 @@ export const WKWebsiteDataStore = /* @__PURE__ */ _bind(FW, 'WKWebsiteDataStore'
 export const WKWebsiteDataTypeCookies = /* @__PURE__ */ _bind(FW, 'WKWebsiteDataTypeCookies')
 export const WKWebsiteDataTypeDiskCache = /* @__PURE__ */ _bind(FW, 'WKWebsiteDataTypeDiskCache')
 export const WKWebsiteDataTypeFetchCache = /* @__PURE__ */ _bind(FW, 'WKWebsiteDataTypeFetchCache')
-export const WKWebsiteDataTypeIndexedDBDatabases = /* @__PURE__ */ _bind(FW, 'WKWebsiteDataTypeIndexedDBDatabases')
-export const WKWebsiteDataTypeLocalStorage = /* @__PURE__ */ _bind(FW, 'WKWebsiteDataTypeLocalStorage')
-export const WKWebsiteDataTypeMemoryCache = /* @__PURE__ */ _bind(FW, 'WKWebsiteDataTypeMemoryCache')
-export const WKWebsiteDataTypeOfflineWebApplicationCache = /* @__PURE__ */ _bind(FW, 'WKWebsiteDataTypeOfflineWebApplicationCache')
-export const WKWebsiteDataTypeServiceWorkerRegistrations = /* @__PURE__ */ _bind(FW, 'WKWebsiteDataTypeServiceWorkerRegistrations')
-export const WKWebsiteDataTypeSessionStorage = /* @__PURE__ */ _bind(FW, 'WKWebsiteDataTypeSessionStorage')
-export const WKWebsiteDataTypeWebSQLDatabases = /* @__PURE__ */ _bind(FW, 'WKWebsiteDataTypeWebSQLDatabases')
+export const WKWebsiteDataTypeIndexedDBDatabases = /* @__PURE__ */ _bind(
+	FW,
+	'WKWebsiteDataTypeIndexedDBDatabases',
+)
+
+export const WKWebsiteDataTypeLocalStorage = /* @__PURE__ */ _bind(
+	FW,
+	'WKWebsiteDataTypeLocalStorage',
+)
+
+export const WKWebsiteDataTypeMemoryCache = /* @__PURE__ */ _bind(
+	FW,
+	'WKWebsiteDataTypeMemoryCache',
+)
+
+export const WKWebsiteDataTypeOfflineWebApplicationCache = /* @__PURE__ */ _bind(
+	FW,
+	'WKWebsiteDataTypeOfflineWebApplicationCache',
+)
+
+export const WKWebsiteDataTypeServiceWorkerRegistrations = /* @__PURE__ */ _bind(
+	FW,
+	'WKWebsiteDataTypeServiceWorkerRegistrations',
+)
+
+export const WKWebsiteDataTypeSessionStorage = /* @__PURE__ */ _bind(
+	FW,
+	'WKWebsiteDataTypeSessionStorage',
+)
+
+export const WKWebsiteDataTypeWebSQLDatabases = /* @__PURE__ */ _bind(
+	FW,
+	'WKWebsiteDataTypeWebSQLDatabases',
+)
+
 export const WKWindowFeatures = /* @__PURE__ */ _bind(FW, 'WKWindowFeatures')
 export const WebActionButtonKey = /* @__PURE__ */ _bind(FW, 'WebActionButtonKey')
 export const WebActionElementKey = /* @__PURE__ */ _bind(FW, 'WebActionElementKey')
@@ -326,32 +414,72 @@ export const WebElementImageRectKey = /* @__PURE__ */ _bind(FW, 'WebElementImage
 export const WebElementImageURLKey = /* @__PURE__ */ _bind(FW, 'WebElementImageURLKey')
 export const WebElementIsSelectedKey = /* @__PURE__ */ _bind(FW, 'WebElementIsSelectedKey')
 export const WebElementLinkLabelKey = /* @__PURE__ */ _bind(FW, 'WebElementLinkLabelKey')
-export const WebElementLinkTargetFrameKey = /* @__PURE__ */ _bind(FW, 'WebElementLinkTargetFrameKey')
+export const WebElementLinkTargetFrameKey = /* @__PURE__ */ _bind(
+	FW,
+	'WebElementLinkTargetFrameKey',
+)
+
 export const WebElementLinkTitleKey = /* @__PURE__ */ _bind(FW, 'WebElementLinkTitleKey')
 export const WebElementLinkURLKey = /* @__PURE__ */ _bind(FW, 'WebElementLinkURLKey')
 export const WebFrame = /* @__PURE__ */ _bind(FW, 'WebFrame')
 export const WebFrameLoadDelegate = /* @__PURE__ */ _bind(FW, 'WebFrameLoadDelegate')
 export const WebFrameView = /* @__PURE__ */ _bind(FW, 'WebFrameView')
 export const WebHistory = /* @__PURE__ */ _bind(FW, 'WebHistory')
-export const WebHistoryAllItemsRemovedNotification = /* @__PURE__ */ _bind(FW, 'WebHistoryAllItemsRemovedNotification')
+export const WebHistoryAllItemsRemovedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'WebHistoryAllItemsRemovedNotification',
+)
+
 export const WebHistoryItem = /* @__PURE__ */ _bind(FW, 'WebHistoryItem')
-export const WebHistoryItemChangedNotification = /* @__PURE__ */ _bind(FW, 'WebHistoryItemChangedNotification')
-export const WebHistoryItemsAddedNotification = /* @__PURE__ */ _bind(FW, 'WebHistoryItemsAddedNotification')
+export const WebHistoryItemChangedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'WebHistoryItemChangedNotification',
+)
+
+export const WebHistoryItemsAddedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'WebHistoryItemsAddedNotification',
+)
+
 export const WebHistoryItemsKey = /* @__PURE__ */ _bind(FW, 'WebHistoryItemsKey')
-export const WebHistoryItemsRemovedNotification = /* @__PURE__ */ _bind(FW, 'WebHistoryItemsRemovedNotification')
-export const WebHistoryLoadedNotification = /* @__PURE__ */ _bind(FW, 'WebHistoryLoadedNotification')
+export const WebHistoryItemsRemovedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'WebHistoryItemsRemovedNotification',
+)
+
+export const WebHistoryLoadedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'WebHistoryLoadedNotification',
+)
+
 export const WebHistorySavedNotification = /* @__PURE__ */ _bind(FW, 'WebHistorySavedNotification')
-export const WebKitErrorBlockedPlugInVersion = /* @__PURE__ */ _bind(FW, 'WebKitErrorBlockedPlugInVersion')
+export const WebKitErrorBlockedPlugInVersion = /* @__PURE__ */ _bind(
+	FW,
+	'WebKitErrorBlockedPlugInVersion',
+)
+
 export const WebKitErrorCannotFindPlugIn = /* @__PURE__ */ _bind(FW, 'WebKitErrorCannotFindPlugIn')
 export const WebKitErrorCannotLoadPlugIn = /* @__PURE__ */ _bind(FW, 'WebKitErrorCannotLoadPlugIn')
-export const WebKitErrorCannotShowMIMEType = /* @__PURE__ */ _bind(FW, 'WebKitErrorCannotShowMIMEType')
+export const WebKitErrorCannotShowMIMEType = /* @__PURE__ */ _bind(
+	FW,
+	'WebKitErrorCannotShowMIMEType',
+)
+
 export const WebKitErrorCannotShowURL = /* @__PURE__ */ _bind(FW, 'WebKitErrorCannotShowURL')
 export const WebKitErrorDomain = /* @__PURE__ */ _bind(FW, 'WebKitErrorDomain')
-export const WebKitErrorFrameLoadInterruptedByPolicyChange = /* @__PURE__ */ _bind(FW, 'WebKitErrorFrameLoadInterruptedByPolicyChange')
+export const WebKitErrorFrameLoadInterruptedByPolicyChange = /* @__PURE__ */ _bind(
+	FW,
+	'WebKitErrorFrameLoadInterruptedByPolicyChange',
+)
+
 export const WebKitErrorJavaUnavailable = /* @__PURE__ */ _bind(FW, 'WebKitErrorJavaUnavailable')
 export const WebKitErrorMIMETypeKey = /* @__PURE__ */ _bind(FW, 'WebKitErrorMIMETypeKey')
 export const WebKitErrorPlugInNameKey = /* @__PURE__ */ _bind(FW, 'WebKitErrorPlugInNameKey')
-export const WebKitErrorPlugInPageURLStringKey = /* @__PURE__ */ _bind(FW, 'WebKitErrorPlugInPageURLStringKey')
+export const WebKitErrorPlugInPageURLStringKey = /* @__PURE__ */ _bind(
+	FW,
+	'WebKitErrorPlugInPageURLStringKey',
+)
+
 export const WebMenuItemPDFActualSize = /* @__PURE__ */ _bind(FW, 'WebMenuItemPDFActualSize')
 export const WebMenuItemPDFAutoSize = /* @__PURE__ */ _bind(FW, 'WebMenuItemPDFAutoSize')
 export const WebMenuItemPDFContinuous = /* @__PURE__ */ _bind(FW, 'WebMenuItemPDFContinuous')
@@ -362,25 +490,73 @@ export const WebMenuItemPDFSinglePage = /* @__PURE__ */ _bind(FW, 'WebMenuItemPD
 export const WebMenuItemPDFZoomIn = /* @__PURE__ */ _bind(FW, 'WebMenuItemPDFZoomIn')
 export const WebMenuItemPDFZoomOut = /* @__PURE__ */ _bind(FW, 'WebMenuItemPDFZoomOut')
 export const WebMenuItemTagCopy = /* @__PURE__ */ _bind(FW, 'WebMenuItemTagCopy')
-export const WebMenuItemTagCopyImageToClipboard = /* @__PURE__ */ _bind(FW, 'WebMenuItemTagCopyImageToClipboard')
-export const WebMenuItemTagCopyLinkToClipboard = /* @__PURE__ */ _bind(FW, 'WebMenuItemTagCopyLinkToClipboard')
+export const WebMenuItemTagCopyImageToClipboard = /* @__PURE__ */ _bind(
+	FW,
+	'WebMenuItemTagCopyImageToClipboard',
+)
+
+export const WebMenuItemTagCopyLinkToClipboard = /* @__PURE__ */ _bind(
+	FW,
+	'WebMenuItemTagCopyLinkToClipboard',
+)
+
 export const WebMenuItemTagCut = /* @__PURE__ */ _bind(FW, 'WebMenuItemTagCut')
-export const WebMenuItemTagDownloadImageToDisk = /* @__PURE__ */ _bind(FW, 'WebMenuItemTagDownloadImageToDisk')
-export const WebMenuItemTagDownloadLinkToDisk = /* @__PURE__ */ _bind(FW, 'WebMenuItemTagDownloadLinkToDisk')
+export const WebMenuItemTagDownloadImageToDisk = /* @__PURE__ */ _bind(
+	FW,
+	'WebMenuItemTagDownloadImageToDisk',
+)
+
+export const WebMenuItemTagDownloadLinkToDisk = /* @__PURE__ */ _bind(
+	FW,
+	'WebMenuItemTagDownloadLinkToDisk',
+)
+
 export const WebMenuItemTagGoBack = /* @__PURE__ */ _bind(FW, 'WebMenuItemTagGoBack')
 export const WebMenuItemTagGoForward = /* @__PURE__ */ _bind(FW, 'WebMenuItemTagGoForward')
-export const WebMenuItemTagIgnoreSpelling = /* @__PURE__ */ _bind(FW, 'WebMenuItemTagIgnoreSpelling')
+export const WebMenuItemTagIgnoreSpelling = /* @__PURE__ */ _bind(
+	FW,
+	'WebMenuItemTagIgnoreSpelling',
+)
+
 export const WebMenuItemTagLearnSpelling = /* @__PURE__ */ _bind(FW, 'WebMenuItemTagLearnSpelling')
-export const WebMenuItemTagLookUpInDictionary = /* @__PURE__ */ _bind(FW, 'WebMenuItemTagLookUpInDictionary')
-export const WebMenuItemTagNoGuessesFound = /* @__PURE__ */ _bind(FW, 'WebMenuItemTagNoGuessesFound')
-export const WebMenuItemTagOpenFrameInNewWindow = /* @__PURE__ */ _bind(FW, 'WebMenuItemTagOpenFrameInNewWindow')
-export const WebMenuItemTagOpenImageInNewWindow = /* @__PURE__ */ _bind(FW, 'WebMenuItemTagOpenImageInNewWindow')
-export const WebMenuItemTagOpenLinkInNewWindow = /* @__PURE__ */ _bind(FW, 'WebMenuItemTagOpenLinkInNewWindow')
-export const WebMenuItemTagOpenWithDefaultApplication = /* @__PURE__ */ _bind(FW, 'WebMenuItemTagOpenWithDefaultApplication')
+export const WebMenuItemTagLookUpInDictionary = /* @__PURE__ */ _bind(
+	FW,
+	'WebMenuItemTagLookUpInDictionary',
+)
+
+export const WebMenuItemTagNoGuessesFound = /* @__PURE__ */ _bind(
+	FW,
+	'WebMenuItemTagNoGuessesFound',
+)
+
+export const WebMenuItemTagOpenFrameInNewWindow = /* @__PURE__ */ _bind(
+	FW,
+	'WebMenuItemTagOpenFrameInNewWindow',
+)
+
+export const WebMenuItemTagOpenImageInNewWindow = /* @__PURE__ */ _bind(
+	FW,
+	'WebMenuItemTagOpenImageInNewWindow',
+)
+
+export const WebMenuItemTagOpenLinkInNewWindow = /* @__PURE__ */ _bind(
+	FW,
+	'WebMenuItemTagOpenLinkInNewWindow',
+)
+
+export const WebMenuItemTagOpenWithDefaultApplication = /* @__PURE__ */ _bind(
+	FW,
+	'WebMenuItemTagOpenWithDefaultApplication',
+)
+
 export const WebMenuItemTagOther = /* @__PURE__ */ _bind(FW, 'WebMenuItemTagOther')
 export const WebMenuItemTagPaste = /* @__PURE__ */ _bind(FW, 'WebMenuItemTagPaste')
 export const WebMenuItemTagReload = /* @__PURE__ */ _bind(FW, 'WebMenuItemTagReload')
-export const WebMenuItemTagSearchInSpotlight = /* @__PURE__ */ _bind(FW, 'WebMenuItemTagSearchInSpotlight')
+export const WebMenuItemTagSearchInSpotlight = /* @__PURE__ */ _bind(
+	FW,
+	'WebMenuItemTagSearchInSpotlight',
+)
+
 export const WebMenuItemTagSearchWeb = /* @__PURE__ */ _bind(FW, 'WebMenuItemTagSearchWeb')
 export const WebMenuItemTagSpellingGuess = /* @__PURE__ */ _bind(FW, 'WebMenuItemTagSpellingGuess')
 export const WebMenuItemTagStop = /* @__PURE__ */ _bind(FW, 'WebMenuItemTagStop')
@@ -389,13 +565,25 @@ export const WebOpenPanelResultListener = /* @__PURE__ */ _bind(FW, 'WebOpenPane
 export const WebPlugInAttributesKey = /* @__PURE__ */ _bind(FW, 'WebPlugInAttributesKey')
 export const WebPlugInBaseURLKey = /* @__PURE__ */ _bind(FW, 'WebPlugInBaseURLKey')
 export const WebPlugInContainerKey = /* @__PURE__ */ _bind(FW, 'WebPlugInContainerKey')
-export const WebPlugInContainingElementKey = /* @__PURE__ */ _bind(FW, 'WebPlugInContainingElementKey')
-export const WebPlugInShouldLoadMainResourceKey = /* @__PURE__ */ _bind(FW, 'WebPlugInShouldLoadMainResourceKey')
+export const WebPlugInContainingElementKey = /* @__PURE__ */ _bind(
+	FW,
+	'WebPlugInContainingElementKey',
+)
+
+export const WebPlugInShouldLoadMainResourceKey = /* @__PURE__ */ _bind(
+	FW,
+	'WebPlugInShouldLoadMainResourceKey',
+)
+
 export const WebPlugInViewFactory = /* @__PURE__ */ _bind(FW, 'WebPlugInViewFactory')
 export const WebPolicyDecisionListener = /* @__PURE__ */ _bind(FW, 'WebPolicyDecisionListener')
 export const WebPolicyDelegate = /* @__PURE__ */ _bind(FW, 'WebPolicyDelegate')
 export const WebPreferences = /* @__PURE__ */ _bind(FW, 'WebPreferences')
-export const WebPreferencesChangedNotification = /* @__PURE__ */ _bind(FW, 'WebPreferencesChangedNotification')
+export const WebPreferencesChangedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'WebPreferencesChangedNotification',
+)
+
 export const WebPreferencesPrivate = /* @__PURE__ */ _bind(FW, 'WebPreferencesPrivate')
 export const WebResource = /* @__PURE__ */ _bind(FW, 'WebResource')
 export const WebResourceLoadDelegate = /* @__PURE__ */ _bind(FW, 'WebResourceLoadDelegate')
@@ -403,12 +591,43 @@ export const WebScriptObject = /* @__PURE__ */ _bind(FW, 'WebScriptObject')
 export const WebUIDelegate = /* @__PURE__ */ _bind(FW, 'WebUIDelegate')
 export const WebUndefined = /* @__PURE__ */ _bind(FW, 'WebUndefined')
 export const WebView = /* @__PURE__ */ _bind(FW, 'WebView')
-export const WebViewDidBeginEditingNotification = /* @__PURE__ */ _bind(FW, 'WebViewDidBeginEditingNotification')
-export const WebViewDidChangeNotification = /* @__PURE__ */ _bind(FW, 'WebViewDidChangeNotification')
-export const WebViewDidChangeSelectionNotification = /* @__PURE__ */ _bind(FW, 'WebViewDidChangeSelectionNotification')
-export const WebViewDidChangeTypingStyleNotification = /* @__PURE__ */ _bind(FW, 'WebViewDidChangeTypingStyleNotification')
-export const WebViewDidEndEditingNotification = /* @__PURE__ */ _bind(FW, 'WebViewDidEndEditingNotification')
+export const WebViewDidBeginEditingNotification = /* @__PURE__ */ _bind(
+	FW,
+	'WebViewDidBeginEditingNotification',
+)
+
+export const WebViewDidChangeNotification = /* @__PURE__ */ _bind(
+	FW,
+	'WebViewDidChangeNotification',
+)
+
+export const WebViewDidChangeSelectionNotification = /* @__PURE__ */ _bind(
+	FW,
+	'WebViewDidChangeSelectionNotification',
+)
+
+export const WebViewDidChangeTypingStyleNotification = /* @__PURE__ */ _bind(
+	FW,
+	'WebViewDidChangeTypingStyleNotification',
+)
+
+export const WebViewDidEndEditingNotification = /* @__PURE__ */ _bind(
+	FW,
+	'WebViewDidEndEditingNotification',
+)
+
 export const WebViewInsertAction = /* @__PURE__ */ _bind(FW, 'WebViewInsertAction')
-export const WebViewProgressEstimateChangedNotification = /* @__PURE__ */ _bind(FW, 'WebViewProgressEstimateChangedNotification')
-export const WebViewProgressFinishedNotification = /* @__PURE__ */ _bind(FW, 'WebViewProgressFinishedNotification')
-export const WebViewProgressStartedNotification = /* @__PURE__ */ _bind(FW, 'WebViewProgressStartedNotification')
+export const WebViewProgressEstimateChangedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'WebViewProgressEstimateChangedNotification',
+)
+
+export const WebViewProgressFinishedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'WebViewProgressFinishedNotification',
+)
+
+export const WebViewProgressStartedNotification = /* @__PURE__ */ _bind(
+	FW,
+	'WebViewProgressStartedNotification',
+)

@@ -244,19 +244,21 @@ export function Actions() {
 
   const AccountName = createContext('Guest')
   const AccountNameProvider: any = AccountName
+  ```
 
 function AccountLabel() {
-	return <Text>{useContext(AccountName)}</Text>
-  }
+return <Text>{useContext(AccountName)}</Text>
+}
 
-  export function AccountPage() {
-      return (
-		<AccountNameProvider value="Avery">
-			<AppKitSheet open content={() => <AccountLabel />} />
-		</AccountNameProvider>
-      )
-  }
-  ```
+export function AccountPage() {
+return (
+<AccountNameProvider value="Avery">
+<AppKitSheet open content={() => <AccountLabel />} />
+</AccountNameProvider>
+)
+}
+
+````
 
 ## Port notes — what carried over
 
@@ -266,34 +268,34 @@ adapted from `@expo/ui` sdk-57 (`ios/BottomSheetView.swift` and
 Attribution headers are retained in the source files.
 
 - iOS: `isPresented` + `onIsPresentedChange`/`onDismiss` event pair, the
-  `fitToContents` PreferenceKey size-reader and `.presentationDetents`
-  branching, the anchor-attached `.sheet`. Slot children became the
-  `content` render fn; `detents`/`customHeight`/`customFraction` map the
-  modifier registry's `presentationDetents` params directly.
+`fitToContents` PreferenceKey size-reader and `.presentationDetents`
+branching, the anchor-attached `.sheet`. Slot children became the
+`content` render fn; `detents`/`customHeight`/`customFraction` map the
+modifier registry's `presentationDetents` params directly.
 - Android: `ModalBottomSheet` + `rememberModalBottomSheetState(
 skipPartiallyExpanded)`, `properties.shouldDismissOnBackPress`,
-  container/content/scrim colors, `ForwardKeyEventsToActivity`. Not
-  ported: imperative `hide`/`expand`/`partialExpand` handles (controlled
-  `open` covers the demo's needs — escalate if a real app needs them),
-  the `dragHandle` slot view, modifier lists, `initialFullyExpanded`,
-  `sheetGesturesEnabled`/`shouldDismissOnClickOutside` (unavailable on
-  the resolved material3).
+container/content/scrim colors, `ForwardKeyEventsToActivity`. Not
+ported: imperative `hide`/`expand`/`partialExpand` handles (controlled
+`open` covers the demo's needs — escalate if a real app needs them),
+the `dragHandle` slot view, modifier lists, `initialFullyExpanded`,
+`sheetGesturesEnabled`/`shouldDismissOnClickOutside` (unavailable on
+the resolved material3).
 
 ## Bridge notes — what this leaf proved
 
 - A hosted subtree survives a window boundary: the same
-  registry + `AndroidView` pattern that embeds a trigger inside a
-  ComposeView also embeds sheet content inside the `ModalBottomSheet`'s
-  separate dialog window, and its `onPress` handlers still reach JS.
+registry + `AndroidView` pattern that embeds a trigger inside a
+ComposeView also embeds sheet content inside the `ModalBottomSheet`'s
+separate dialog window, and its `onPress` handlers still reach JS.
 - `ns build`'s `buildMetadata` gradle task can stay `UP-TO-DATE` and
-  ship stale `com.` package metadata for a newly added plugin — the JS
-  bridge then fails with `Cannot read properties of undefined (reading
+ship stale `com.` package metadata for a newly added plugin — the JS
+bridge then fails with `Cannot read properties of undefined (reading
 '<ClassName>')` even though the classes are in the dex. Rerun
-  `./gradlew app:buildMetadata --rerun-tasks` (in `platforms/android`) or
-  clean to force regeneration.
+`./gradlew app:buildMetadata --rerun-tasks` (in `platforms/android`) or
+clean to force regeneration.
 - The `XplatViewRegistry` pattern is now written twice — context-menu and
-  sheet keep leaf-local copies; that duplication is a data point for the
-  shared-bridge decision rather than a reason to import across leaves.
+sheet keep leaf-local copies; that duplication is a data point for the
+shared-bridge decision rather than a reason to import across leaves.
 
 ## Focus qualification
 
@@ -308,21 +310,21 @@ import { useRef, useState } from 'octane'
 import { BottomSheet } from '@octane-xplat/sheet/web'
 
 function AccountActions() @{
-	const [open, setOpen] = useState(false)
-	const trigger = useRef<HTMLButtonElement | null>(null)
+  const [open, setOpen] = useState(false)
+  const trigger = useRef<HTMLButtonElement | null>(null)
 
-	<>
-		<button ref={trigger} onClick={() => setOpen(true)}>Open actions</button>
-		<BottomSheet
-			open={open}
-			label="Account actions"
-			finalFocusRef={trigger}
-			onDismissed={() => setOpen(false)}
-			content={() => <button onClick={() => setOpen(false)}>Close</button>}
-		/>
-	</>
+  <>
+  	<button ref={trigger} onClick={() => setOpen(true)}>Open actions</button>
+  	<BottomSheet
+  		open={open}
+  		label="Account actions"
+  		finalFocusRef={trigger}
+  		onDismissed={() => setOpen(false)}
+  		content={() => <button onClick={() => setOpen(false)}>Close</button>}
+  	/>
+  </>
 }
-```
+````
 
 When the opener is the shared `Pressable`, use its `ref` prop to retain the
 web element in the same ref. This does not qualify iOS Safari or actual

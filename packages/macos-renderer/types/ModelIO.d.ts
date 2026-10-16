@@ -1,2216 +1,2908 @@
 /// <reference types="@nativescript/objc-node-api" />
 /// <reference path="./Runtime.d.ts" />
 
-declare const MDLVertexAttributeBinormal: string;
+declare const MDLVertexAttributeBinormal: string
 
-declare const MDLVertexAttributeTextureCoordinate: string;
+declare const MDLVertexAttributeTextureCoordinate: string
 
-declare const MDLVertexAttributeOcclusionValue: string;
+declare const MDLVertexAttributeOcclusionValue: string
 
-declare const MDLVertexAttributeNormal: string;
+declare const MDLVertexAttributeNormal: string
 
-declare const MDLVertexAttributeJointWeights: string;
+declare const MDLVertexAttributeJointWeights: string
 
-declare const MDLVertexAttributeJointIndices: string;
+declare const MDLVertexAttributeJointIndices: string
 
-declare const kUTTypeStereolithography: string;
+declare const kUTTypeStereolithography: string
 
-declare const kUTType3dObject: string;
+declare const kUTType3dObject: string
 
-declare const MDLVertexAttributeShadingBasisU: string;
+declare const MDLVertexAttributeShadingBasisU: string
 
-declare const MDLVertexAttributeSubdivisionStencil: string;
+declare const MDLVertexAttributeSubdivisionStencil: string
 
-declare const kUTTypePolygon: string;
+declare const kUTTypePolygon: string
 
-declare const kUTTypeAlembic: string;
+declare const kUTTypeAlembic: string
 
-declare const MDLVertexAttributeShadingBasisV: string;
+declare const MDLVertexAttributeShadingBasisV: string
 
-declare const MDLVertexAttributeColor: string;
+declare const MDLVertexAttributeColor: string
 
-declare const MDLVertexAttributeTangent: string;
+declare const MDLVertexAttributeTangent: string
 
-declare const MDLVertexAttributePosition: string;
+declare const MDLVertexAttributePosition: string
 
-declare const MDLVertexAttributeAnisotropy: string;
+declare const MDLVertexAttributeAnisotropy: string
 
-declare const kUTTypeUniversalSceneDescriptionMobile: string;
+declare const kUTTypeUniversalSceneDescriptionMobile: string
 
-declare const MDLVertexAttributeEdgeCrease: string;
+declare const MDLVertexAttributeEdgeCrease: string
 
-declare const kUTTypeUniversalSceneDescription: string;
+declare const kUTTypeUniversalSceneDescription: string
 
-declare const MDLVertexAttributeBitangent: string;
+declare const MDLVertexAttributeBitangent: string
 
 declare const MDLTransformOpRotationOrder: {
-  XYZ: 1,
-  XZY: 2,
-  YXZ: 3,
-  YZX: 4,
-  ZXY: 5,
-  ZYX: 6,
-};
+	XYZ: 1
+	XZY: 2
+	YXZ: 3
+	YZX: 4
+	ZXY: 5
+	ZYX: 6
+}
 
 declare const MDLTextureChannelEncoding: {
-  UInt8: 1,
-  Uint8: 1,
-  UInt16: 2,
-  Uint16: 2,
-  UInt24: 3,
-  Uint24: 3,
-  UInt32: 4,
-  Uint32: 4,
-  Float16: 258,
-  Float16SR: 770,
-  Float32: 260,
-};
+	UInt8: 1
+	Uint8: 1
+	UInt16: 2
+	Uint16: 2
+	UInt24: 3
+	Uint24: 3
+	UInt32: 4
+	Uint32: 4
+	Float16: 258
+	Float16SR: 770
+	Float32: 260
+}
 
 declare const MDLMaterialFace: {
-  Front: 0,
-  Back: 1,
-  DoubleSided: 2,
-};
+	Front: 0
+	Back: 1
+	DoubleSided: 2
+}
 
 declare const MDLMaterialMipMapFilterMode: {
-  Nearest: 0,
-  Linear: 1,
-};
+	Nearest: 0
+	Linear: 1
+}
 
 declare const MDLMaterialTextureFilterMode: {
-  Nearest: 0,
-  Linear: 1,
-};
+	Nearest: 0
+	Linear: 1
+}
 
 declare const MDLMaterialSemantic: {
-  BaseColor: 0,
-  Subsurface: 1,
-  Metallic: 2,
-  Specular: 3,
-  SpecularExponent: 4,
-  SpecularTint: 5,
-  Roughness: 6,
-  Anisotropic: 7,
-  AnisotropicRotation: 8,
-  Sheen: 9,
-  SheenTint: 10,
-  Clearcoat: 11,
-  ClearcoatGloss: 12,
-  Emission: 13,
-  Bump: 14,
-  Opacity: 15,
-  InterfaceIndexOfRefraction: 16,
-  MaterialIndexOfRefraction: 17,
-  ObjectSpaceNormal: 18,
-  TangentSpaceNormal: 19,
-  Displacement: 20,
-  DisplacementScale: 21,
-  AmbientOcclusion: 22,
-  AmbientOcclusionScale: 23,
-  None: 32768,
-  UserDefined: 32769,
-};
+	BaseColor: 0
+	Subsurface: 1
+	Metallic: 2
+	Specular: 3
+	SpecularExponent: 4
+	SpecularTint: 5
+	Roughness: 6
+	Anisotropic: 7
+	AnisotropicRotation: 8
+	Sheen: 9
+	SheenTint: 10
+	Clearcoat: 11
+	ClearcoatGloss: 12
+	Emission: 13
+	Bump: 14
+	Opacity: 15
+	InterfaceIndexOfRefraction: 16
+	MaterialIndexOfRefraction: 17
+	ObjectSpaceNormal: 18
+	TangentSpaceNormal: 19
+	Displacement: 20
+	DisplacementScale: 21
+	AmbientOcclusion: 22
+	AmbientOcclusionScale: 23
+	None: 32768
+	UserDefined: 32769
+}
 
 declare const MDLAnimatedValueInterpolation: {
-  Constant: 0,
-  Linear: 1,
-};
+	Constant: 0
+	Linear: 1
+}
 
 declare const MDLVertexFormat: {
-  Invalid: 0,
-  PackedBit: 4096,
-  UCharBits: 65536,
-  CharBits: 131072,
-  UCharNormalizedBits: 196608,
-  CharNormalizedBits: 262144,
-  UShortBits: 327680,
-  ShortBits: 393216,
-  UShortNormalizedBits: 458752,
-  ShortNormalizedBits: 524288,
-  UIntBits: 589824,
-  IntBits: 655360,
-  HalfBits: 720896,
-  FloatBits: 786432,
-  UChar: 65537,
-  UChar2: 65538,
-  UChar3: 65539,
-  UChar4: 65540,
-  Char: 131073,
-  Char2: 131074,
-  Char3: 131075,
-  Char4: 131076,
-  UCharNormalized: 196609,
-  UChar2Normalized: 196610,
-  UChar3Normalized: 196611,
-  UChar4Normalized: 196612,
-  CharNormalized: 262145,
-  Char2Normalized: 262146,
-  Char3Normalized: 262147,
-  Char4Normalized: 262148,
-  UShort: 327681,
-  UShort2: 327682,
-  UShort3: 327683,
-  UShort4: 327684,
-  Short: 393217,
-  Short2: 393218,
-  Short3: 393219,
-  Short4: 393220,
-  UShortNormalized: 458753,
-  UShort2Normalized: 458754,
-  UShort3Normalized: 458755,
-  UShort4Normalized: 458756,
-  ShortNormalized: 524289,
-  Short2Normalized: 524290,
-  Short3Normalized: 524291,
-  Short4Normalized: 524292,
-  UInt: 589825,
-  UInt2: 589826,
-  UInt3: 589827,
-  UInt4: 589828,
-  Int: 655361,
-  Int2: 655362,
-  Int3: 655363,
-  Int4: 655364,
-  Half: 720897,
-  Half2: 720898,
-  Half3: 720899,
-  Half4: 720900,
-  Float: 786433,
-  Float2: 786434,
-  Float3: 786435,
-  Float4: 786436,
-  Int1010102Normalized: 659460,
-  UInt1010102Normalized: 593924,
-};
+	Invalid: 0
+	PackedBit: 4096
+	UCharBits: 65536
+	CharBits: 131072
+	UCharNormalizedBits: 196608
+	CharNormalizedBits: 262144
+	UShortBits: 327680
+	ShortBits: 393216
+	UShortNormalizedBits: 458752
+	ShortNormalizedBits: 524288
+	UIntBits: 589824
+	IntBits: 655360
+	HalfBits: 720896
+	FloatBits: 786432
+	UChar: 65537
+	UChar2: 65538
+	UChar3: 65539
+	UChar4: 65540
+	Char: 131073
+	Char2: 131074
+	Char3: 131075
+	Char4: 131076
+	UCharNormalized: 196609
+	UChar2Normalized: 196610
+	UChar3Normalized: 196611
+	UChar4Normalized: 196612
+	CharNormalized: 262145
+	Char2Normalized: 262146
+	Char3Normalized: 262147
+	Char4Normalized: 262148
+	UShort: 327681
+	UShort2: 327682
+	UShort3: 327683
+	UShort4: 327684
+	Short: 393217
+	Short2: 393218
+	Short3: 393219
+	Short4: 393220
+	UShortNormalized: 458753
+	UShort2Normalized: 458754
+	UShort3Normalized: 458755
+	UShort4Normalized: 458756
+	ShortNormalized: 524289
+	Short2Normalized: 524290
+	Short3Normalized: 524291
+	Short4Normalized: 524292
+	UInt: 589825
+	UInt2: 589826
+	UInt3: 589827
+	UInt4: 589828
+	Int: 655361
+	Int2: 655362
+	Int3: 655363
+	Int4: 655364
+	Half: 720897
+	Half2: 720898
+	Half3: 720899
+	Half4: 720900
+	Float: 786433
+	Float2: 786434
+	Float3: 786435
+	Float4: 786436
+	Int1010102Normalized: 659460
+	UInt1010102Normalized: 593924
+}
 
 declare const MDLProbePlacement: {
-  UniformGrid: 0,
-  IrradianceDistribution: 1,
-};
+	UniformGrid: 0
+	IrradianceDistribution: 1
+}
 
 declare const MDLGeometryType: {
-  Points: 0,
-  Lines: 1,
-  Triangles: 2,
-  TriangleStrips: 3,
-  Quads: 4,
-  VariableTopology: 5,
-};
+	Points: 0
+	Lines: 1
+	Triangles: 2
+	TriangleStrips: 3
+	Quads: 4
+	VariableTopology: 5
+}
 
 declare const MDLDataPrecision: {
-  Undefined: 0,
-  Float: 1,
-  Double: 2,
-};
+	Undefined: 0
+	Float: 1
+	Double: 2
+}
 
 declare const MDLIndexBitDepth: {
-  Invalid: 0,
-  UInt8: 8,
-  Uint8: 8,
-  UInt16: 16,
-  Uint16: 16,
-  UInt32: 32,
-  Uint32: 32,
-};
+	Invalid: 0
+	UInt8: 8
+	Uint8: 8
+	UInt16: 16
+	Uint16: 16
+	UInt32: 32
+	Uint32: 32
+}
 
 declare const MDLMaterialPropertyType: {
-  None: 0,
-  String: 1,
-  URL: 2,
-  Texture: 3,
-  Color: 4,
-  Float: 5,
-  Float2: 6,
-  Float3: 7,
-  Float4: 8,
-  Matrix44: 9,
-  Buffer: 10,
-};
+	None: 0
+	String: 1
+	URL: 2
+	Texture: 3
+	Color: 4
+	Float: 5
+	Float2: 6
+	Float3: 7
+	Float4: 8
+	Matrix44: 9
+	Buffer: 10
+}
 
 declare const MDLCameraProjection: {
-  Perspective: 0,
-  Orthographic: 1,
-};
+	Perspective: 0
+	Orthographic: 1
+}
 
 declare const MDLMeshBufferType: {
-  Vertex: 1,
-  Index: 2,
-  Custom: 3,
-};
+	Vertex: 1
+	Index: 2
+	Custom: 3
+}
 
 declare const MDLLightType: {
-  Unknown: 0,
-  Ambient: 1,
-  Directional: 2,
-  Spot: 3,
-  Point: 4,
-  Linear: 5,
-  DiscArea: 6,
-  RectangularArea: 7,
-  SuperElliptical: 8,
-  Photometric: 9,
-  Probe: 10,
-  Environment: 11,
-};
+	Unknown: 0
+	Ambient: 1
+	Directional: 2
+	Spot: 3
+	Point: 4
+	Linear: 5
+	DiscArea: 6
+	RectangularArea: 7
+	SuperElliptical: 8
+	Photometric: 9
+	Probe: 10
+	Environment: 11
+}
 
 declare const MDLMaterialTextureWrapMode: {
-  Clamp: 0,
-  Repeat: 1,
-  Mirror: 2,
-};
+	Clamp: 0
+	Repeat: 1
+	Mirror: 2
+}
 
 declare class MDLVoxelIndexExtent {
-  constructor(init?: MDLVoxelIndexExtent);
-  minimumExtent: unknown /* ext vector */;
-  maximumExtent: unknown /* ext vector */;
+	constructor(init?: MDLVoxelIndexExtent)
+	minimumExtent: unknown /* ext vector */
+	maximumExtent: unknown /* ext vector */
 }
 
 declare class MDLAxisAlignedBoundingBox {
-  constructor(init?: MDLAxisAlignedBoundingBox);
-  maxBounds: unknown /* ext vector */;
-  minBounds: unknown /* ext vector */;
+	constructor(init?: MDLAxisAlignedBoundingBox)
+	maxBounds: unknown /* ext vector */
+	minBounds: unknown /* ext vector */
 }
 
 declare interface MDLMeshBufferZone extends NSObjectProtocol {
-  readonly capacity: number;
+	readonly capacity: number
 
-  readonly allocator: MDLMeshBufferAllocator;
+	readonly allocator: MDLMeshBufferAllocator
 }
 
-declare class MDLMeshBufferZone extends NativeObject implements MDLMeshBufferZone {
-}
+declare class MDLMeshBufferZone extends NativeObject implements MDLMeshBufferZone {}
 
 declare interface MDLLightProbeIrradianceDataSource extends NSObjectProtocol {
-  boundingBox: MDLAxisAlignedBoundingBox;
+	boundingBox: MDLAxisAlignedBoundingBox
 
-  sphericalHarmonicsLevel?: number;
+	sphericalHarmonicsLevel?: number
 
-  sphericalHarmonicsCoefficientsAtPosition?(position: unknown /* ext vector */): NSData;
+	sphericalHarmonicsCoefficientsAtPosition?(position: unknown /* ext vector */): NSData
 }
 
-declare class MDLLightProbeIrradianceDataSource extends NativeObject implements MDLLightProbeIrradianceDataSource {
-}
+declare class MDLLightProbeIrradianceDataSource
+	extends NativeObject
+	implements MDLLightProbeIrradianceDataSource {}
 
-declare interface MDLJointAnimation {
-}
+declare interface MDLJointAnimation {}
 
-declare class MDLJointAnimation extends NativeObject implements MDLJointAnimation {
-}
+declare class MDLJointAnimation extends NativeObject implements MDLJointAnimation {}
 
 declare interface MDLTransformComponent extends MDLComponent {
-  matrix: simd_float4x4;
+	matrix: simd_float4x4
 
-  resetsTransform: boolean;
+	resetsTransform: boolean
 
-  readonly minimumTime: number;
+	readonly minimumTime: number
 
-  readonly maximumTime: number;
+	readonly maximumTime: number
 
-  readonly keyTimes: NSArray;
+	readonly keyTimes: NSArray
 
-  setLocalTransformForTime?(transform: simd_float4x4, time: number): void;
+	setLocalTransformForTime?(transform: simd_float4x4, time: number): void
 
-  setLocalTransform?(transform: simd_float4x4): void;
+	setLocalTransform?(transform: simd_float4x4): void
 
-  localTransformAtTime?(time: number): simd_float4x4;
-
+	localTransformAtTime?(time: number): simd_float4x4
 }
 
 declare class MDLTransformComponent extends NativeObject implements MDLTransformComponent {
-  static globalTransformWithObjectAtTime(object: MDLObject, time: number): simd_float4x4;
+	static globalTransformWithObjectAtTime(object: MDLObject, time: number): simd_float4x4
 }
 
 declare interface MDLNamed {
-  name: string;
+	name: string
 }
 
-declare class MDLNamed extends NativeObject implements MDLNamed {
-}
+declare class MDLNamed extends NativeObject implements MDLNamed {}
 
 declare interface MDLAssetResolver extends NSObjectProtocol {
-  canResolveAssetNamed(name: string): boolean;
+	canResolveAssetNamed(name: string): boolean
 
-  resolveAssetNamed(name: string): NSURL;
+	resolveAssetNamed(name: string): NSURL
 }
 
-declare class MDLAssetResolver extends NativeObject implements MDLAssetResolver {
-}
+declare class MDLAssetResolver extends NativeObject implements MDLAssetResolver {}
 
 declare interface MDLTransformOp {
-  readonly name: string;
+	readonly name: string
 
-  float4x4AtTime(time: number): simd_float4x4;
+	float4x4AtTime(time: number): simd_float4x4
 
-  double4x4AtTime(time: number): simd_double4x4;
+	double4x4AtTime(time: number): simd_double4x4
 
-  IsInverseOp(): boolean;
+	IsInverseOp(): boolean
 }
 
-declare class MDLTransformOp extends NativeObject implements MDLTransformOp {
-}
+declare class MDLTransformOp extends NativeObject implements MDLTransformOp {}
 
-declare interface MDLComponent extends NSObjectProtocol {
-}
+declare interface MDLComponent extends NSObjectProtocol {}
 
-declare class MDLComponent extends NativeObject implements MDLComponent {
-}
+declare class MDLComponent extends NativeObject implements MDLComponent {}
 
 declare interface MDLObjectContainerComponent extends MDLComponent, NSFastEnumeration {
-  addObject(object: MDLObject): void;
+	addObject(object: MDLObject): void
 
-  removeObject(object: MDLObject): void;
+	removeObject(object: MDLObject): void
 
-  objectAtIndexedSubscript(index: number): MDLObject;
+	objectAtIndexedSubscript(index: number): MDLObject
 
-  readonly count: number;
+	readonly count: number
 
-  readonly objects: NSArray;
+	readonly objects: NSArray
 }
 
-declare class MDLObjectContainerComponent extends NativeObject implements MDLObjectContainerComponent {
-}
+declare class MDLObjectContainerComponent
+	extends NativeObject
+	implements MDLObjectContainerComponent {}
 
 // @ts-ignore ProtocolDecl.tsIgnore
 declare interface MDLMeshBuffer extends NSObjectProtocol, NSCopying {
-  fillDataOffset(data: NSData, offset: number): void;
+	fillDataOffset(data: NSData, offset: number): void
 
-  map(): MDLMeshBufferMap;
+	map(): MDLMeshBufferMap
 
-  readonly length: number;
+	readonly length: number
 
-  readonly allocator: MDLMeshBufferAllocator;
+	readonly allocator: MDLMeshBufferAllocator
 
-  // @ts-ignore MemberDecl.tsIgnore
-  readonly zone: MDLMeshBufferZone;
+	// @ts-ignore MemberDecl.tsIgnore
+	readonly zone: MDLMeshBufferZone
 
-  readonly type: interop.Enum<typeof MDLMeshBufferType>;
+	readonly type: interop.Enum<typeof MDLMeshBufferType>
 }
 
 // @ts-ignore ProtocolDecl.tsIgnore
-declare class MDLMeshBuffer extends NativeObject implements MDLMeshBuffer {
-}
+declare class MDLMeshBuffer extends NativeObject implements MDLMeshBuffer {}
 
 declare interface MDLMeshBufferAllocator extends NSObjectProtocol {
-  newZone(capacity: number): MDLMeshBufferZone;
+	newZone(capacity: number): MDLMeshBufferZone
 
-  newZoneForBuffersWithSizeAndType(sizes: NSArray<interop.Object> | Array<interop.Object>, types: NSArray<interop.Object> | Array<interop.Object>): MDLMeshBufferZone;
+	newZoneForBuffersWithSizeAndType(
+		sizes: NSArray<interop.Object> | Array<interop.Object>,
+		types: NSArray<interop.Object> | Array<interop.Object>,
+	): MDLMeshBufferZone
 
-  newBufferType(length: number, type: interop.Enum<typeof MDLMeshBufferType>): MDLMeshBuffer;
+	newBufferType(length: number, type: interop.Enum<typeof MDLMeshBufferType>): MDLMeshBuffer
 
-  newBufferWithDataType(data: NSData, type: interop.Enum<typeof MDLMeshBufferType>): MDLMeshBuffer;
+	newBufferWithDataType(data: NSData, type: interop.Enum<typeof MDLMeshBufferType>): MDLMeshBuffer
 
-  newBufferFromZoneLengthType(zone: MDLMeshBufferZone | null, length: number, type: interop.Enum<typeof MDLMeshBufferType>): MDLMeshBuffer;
+	newBufferFromZoneLengthType(
+		zone: MDLMeshBufferZone | null,
+		length: number,
+		type: interop.Enum<typeof MDLMeshBufferType>,
+	): MDLMeshBuffer
 
-  newBufferFromZoneDataType(zone: MDLMeshBufferZone | null, data: NSData, type: interop.Enum<typeof MDLMeshBufferType>): MDLMeshBuffer;
+	newBufferFromZoneDataType(
+		zone: MDLMeshBufferZone | null,
+		data: NSData,
+		type: interop.Enum<typeof MDLMeshBufferType>,
+	): MDLMeshBuffer
 }
 
-declare class MDLMeshBufferAllocator extends NativeObject implements MDLMeshBufferAllocator {
-}
+declare class MDLMeshBufferAllocator extends NativeObject implements MDLMeshBufferAllocator {}
 
 declare class MDLBundleAssetResolver extends NSObject implements MDLAssetResolver {
-  initWithBundle(path: string): this;
+	initWithBundle(path: string): this
 
-  path: string;
+	path: string
 
-  canResolveAssetNamed(name: string): boolean;
+	canResolveAssetNamed(name: string): boolean
 
-  resolveAssetNamed(name: string): NSURL;
+	resolveAssetNamed(name: string): NSURL
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 }
 
 declare class MDLTextureSampler extends NSObject {
-  texture: MDLTexture;
+	texture: MDLTexture
 
-  hardwareFilter: MDLTextureFilter;
+	hardwareFilter: MDLTextureFilter
 
-  transform: MDLTransform;
+	transform: MDLTransform
 }
 
 declare class MDLStereoscopicCamera extends MDLCamera {
-  interPupillaryDistance: number;
+	interPupillaryDistance: number
 
-  leftVergence: number;
+	leftVergence: number
 
-  rightVergence: number;
+	rightVergence: number
 
-  overlap: number;
+	overlap: number
 
-  readonly leftViewMatrix: simd_float4x4;
+	readonly leftViewMatrix: simd_float4x4
 
-  readonly rightViewMatrix: simd_float4x4;
+	readonly rightViewMatrix: simd_float4x4
 
-  readonly leftProjectionMatrix: simd_float4x4;
+	readonly leftProjectionMatrix: simd_float4x4
 
-  readonly rightProjectionMatrix: simd_float4x4;
+	readonly rightProjectionMatrix: simd_float4x4
 }
 
 declare class MDLPathAssetResolver extends NSObject implements MDLAssetResolver {
-  initWithPath(path: string): this;
+	initWithPath(path: string): this
 
-  path: string;
+	path: string
 
-  canResolveAssetNamed(name: string): boolean;
+	canResolveAssetNamed(name: string): boolean
 
-  resolveAssetNamed(name: string): NSURL;
+	resolveAssetNamed(name: string): NSURL
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 }
 
 declare class MDLTransformStack extends NSObject implements NSCopying, MDLTransformComponent {
-  init(): this;
+	init(): this
 
-  addTranslateOpInverse(animatedValueName: string, inverse: boolean): MDLTransformTranslateOp;
+	addTranslateOpInverse(animatedValueName: string, inverse: boolean): MDLTransformTranslateOp
 
-  addRotateXOpInverse(animatedValueName: string, inverse: boolean): MDLTransformRotateXOp;
+	addRotateXOpInverse(animatedValueName: string, inverse: boolean): MDLTransformRotateXOp
 
-  addRotateYOpInverse(animatedValueName: string, inverse: boolean): MDLTransformRotateYOp;
+	addRotateYOpInverse(animatedValueName: string, inverse: boolean): MDLTransformRotateYOp
 
-  addRotateZOpInverse(animatedValueName: string, inverse: boolean): MDLTransformRotateZOp;
+	addRotateZOpInverse(animatedValueName: string, inverse: boolean): MDLTransformRotateZOp
 
-  addRotateOpOrderInverse(animatedValueName: string, order: interop.Enum<typeof MDLTransformOpRotationOrder>, inverse: boolean): MDLTransformRotateOp;
+	addRotateOpOrderInverse(
+		animatedValueName: string,
+		order: interop.Enum<typeof MDLTransformOpRotationOrder>,
+		inverse: boolean,
+	): MDLTransformRotateOp
 
-  addScaleOpInverse(animatedValueName: string, inverse: boolean): MDLTransformScaleOp;
+	addScaleOpInverse(animatedValueName: string, inverse: boolean): MDLTransformScaleOp
 
-  addMatrixOpInverse(animatedValueName: string, inverse: boolean): MDLTransformMatrixOp;
+	addMatrixOpInverse(animatedValueName: string, inverse: boolean): MDLTransformMatrixOp
 
-  addOrientOpInverse(animatedValueName: string, inverse: boolean): MDLTransformOrientOp;
+	addOrientOpInverse(animatedValueName: string, inverse: boolean): MDLTransformOrientOp
 
-  animatedValueWithName(name: string): MDLAnimatedValue;
+	animatedValueWithName(name: string): MDLAnimatedValue
 
-  float4x4AtTime(time: number): simd_float4x4;
+	float4x4AtTime(time: number): simd_float4x4
 
-  double4x4AtTime(time: number): simd_double4x4;
+	double4x4AtTime(time: number): simd_double4x4
 
-  count(): number;
+	count(): number
 
-  readonly keyTimes: NSArray;
+	readonly keyTimes: NSArray
 
-  readonly transformOps: NSArray;
+	readonly transformOps: NSArray
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  matrix: simd_float4x4;
+	matrix: simd_float4x4
 
-  resetsTransform: boolean;
+	resetsTransform: boolean
 
-  readonly minimumTime: number;
+	readonly minimumTime: number
 
-  readonly maximumTime: number;
+	readonly maximumTime: number
 
-  setLocalTransformForTime(transform: simd_float4x4, time: number): void;
+	setLocalTransformForTime(transform: simd_float4x4, time: number): void
 
-  setLocalTransform(transform: simd_float4x4): void;
+	setLocalTransform(transform: simd_float4x4): void
 
-  localTransformAtTime(time: number): simd_float4x4;
+	localTransformAtTime(time: number): simd_float4x4
 
-  static globalTransformWithObjectAtTime(object: MDLObject, time: number): simd_float4x4;
+	static globalTransformWithObjectAtTime(object: MDLObject, time: number): simd_float4x4
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 }
 
 declare class MDLTransformScaleOp extends NSObject implements MDLTransformOp {
-  readonly name: string;
+	readonly name: string
 
-  readonly animatedValue: MDLAnimatedVector3;
+	readonly animatedValue: MDLAnimatedVector3
 
-  float4x4AtTime(time: number): simd_float4x4;
+	float4x4AtTime(time: number): simd_float4x4
 
-  double4x4AtTime(time: number): simd_double4x4;
+	double4x4AtTime(time: number): simd_double4x4
 
-  IsInverseOp(): boolean;
+	IsInverseOp(): boolean
 }
 
 declare class MDLTransformTranslateOp extends NSObject implements MDLTransformOp {
-  readonly name: string;
+	readonly name: string
 
-  readonly animatedValue: MDLAnimatedVector3;
+	readonly animatedValue: MDLAnimatedVector3
 
-  float4x4AtTime(time: number): simd_float4x4;
+	float4x4AtTime(time: number): simd_float4x4
 
-  double4x4AtTime(time: number): simd_double4x4;
+	double4x4AtTime(time: number): simd_double4x4
 
-  IsInverseOp(): boolean;
+	IsInverseOp(): boolean
 }
 
 declare class MDLTransformRotateOp extends NSObject implements MDLTransformOp {
-  readonly name: string;
+	readonly name: string
 
-  readonly animatedValue: MDLAnimatedVector3;
+	readonly animatedValue: MDLAnimatedVector3
 
-  float4x4AtTime(time: number): simd_float4x4;
+	float4x4AtTime(time: number): simd_float4x4
 
-  double4x4AtTime(time: number): simd_double4x4;
+	double4x4AtTime(time: number): simd_double4x4
 
-  IsInverseOp(): boolean;
+	IsInverseOp(): boolean
 }
 
 declare class MDLNoiseTexture extends MDLTexture {
-  initVectorNoiseWithSmoothnessNameTextureDimensionsChannelEncoding(smoothness: number, name: string | null, textureDimensions: unknown /* ext vector */, channelEncoding: interop.Enum<typeof MDLTextureChannelEncoding>): this;
+	initVectorNoiseWithSmoothnessNameTextureDimensionsChannelEncoding(
+		smoothness: number,
+		name: string | null,
+		textureDimensions: unknown /* ext vector */,
+		channelEncoding: interop.Enum<typeof MDLTextureChannelEncoding>,
+	): this
 
-  initScalarNoiseWithSmoothnessNameTextureDimensionsChannelCountChannelEncodingGrayscale(smoothness: number, name: string | null, textureDimensions: unknown /* ext vector */, channelCount: number, channelEncoding: interop.Enum<typeof MDLTextureChannelEncoding>, grayscale: boolean): this;
+	initScalarNoiseWithSmoothnessNameTextureDimensionsChannelCountChannelEncodingGrayscale(
+		smoothness: number,
+		name: string | null,
+		textureDimensions: unknown /* ext vector */,
+		channelCount: number,
+		channelEncoding: interop.Enum<typeof MDLTextureChannelEncoding>,
+		grayscale: boolean,
+	): this
 
-  initCellularNoiseWithFrequencyNameTextureDimensionsChannelEncoding(frequency: number, name: string | null, textureDimensions: unknown /* ext vector */, channelEncoding: interop.Enum<typeof MDLTextureChannelEncoding>): this;
+	initCellularNoiseWithFrequencyNameTextureDimensionsChannelEncoding(
+		frequency: number,
+		name: string | null,
+		textureDimensions: unknown /* ext vector */,
+		channelEncoding: interop.Enum<typeof MDLTextureChannelEncoding>,
+	): this
 }
 
 declare class MDLSkyCubeTexture extends MDLTexture {
-  initWithNameChannelEncodingTextureDimensionsTurbiditySunElevationUpperAtmosphereScatteringGroundAlbedo(name: string | null, channelEncoding: interop.Enum<typeof MDLTextureChannelEncoding>, textureDimensions: unknown /* ext vector */, turbidity: number, sunElevation: number, upperAtmosphereScattering: number, groundAlbedo: number): this;
+	initWithNameChannelEncodingTextureDimensionsTurbiditySunElevationUpperAtmosphereScatteringGroundAlbedo(
+		name: string | null,
+		channelEncoding: interop.Enum<typeof MDLTextureChannelEncoding>,
+		textureDimensions: unknown /* ext vector */,
+		turbidity: number,
+		sunElevation: number,
+		upperAtmosphereScattering: number,
+		groundAlbedo: number,
+	): this
 
-  initWithNameChannelEncodingTextureDimensionsTurbiditySunElevationSunAzimuthUpperAtmosphereScatteringGroundAlbedo(name: string | null, channelEncoding: interop.Enum<typeof MDLTextureChannelEncoding>, textureDimensions: unknown /* ext vector */, turbidity: number, sunElevation: number, sunAzimuth: number, upperAtmosphereScattering: number, groundAlbedo: number): this;
+	initWithNameChannelEncodingTextureDimensionsTurbiditySunElevationSunAzimuthUpperAtmosphereScatteringGroundAlbedo(
+		name: string | null,
+		channelEncoding: interop.Enum<typeof MDLTextureChannelEncoding>,
+		textureDimensions: unknown /* ext vector */,
+		turbidity: number,
+		sunElevation: number,
+		sunAzimuth: number,
+		upperAtmosphereScattering: number,
+		groundAlbedo: number,
+	): this
 
-  updateTexture(): void;
+	updateTexture(): void
 
-  turbidity: number;
+	turbidity: number
 
-  sunElevation: number;
+	sunElevation: number
 
-  sunAzimuth: number;
+	sunAzimuth: number
 
-  upperAtmosphereScattering: number;
+	upperAtmosphereScattering: number
 
-  groundAlbedo: number;
+	groundAlbedo: number
 
-  horizonElevation: number;
+	horizonElevation: number
 
-  groundColor: interop.Object;
+	groundColor: interop.Object
 
-  gamma: number;
+	gamma: number
 
-  exposure: number;
+	exposure: number
 
-  brightness: number;
+	brightness: number
 
-  contrast: number;
+	contrast: number
 
-  saturation: number;
+	saturation: number
 
-  highDynamicRangeCompression: unknown /* ext vector */;
+	highDynamicRangeCompression: unknown /* ext vector */
 }
 
 declare class MDLCheckerboardTexture extends MDLTexture {
-  initWithDivisionsNameDimensionsChannelCountChannelEncodingColor1Color2(divisions: number, name: string | null, dimensions: unknown /* ext vector */, channelCount: number, channelEncoding: interop.Enum<typeof MDLTextureChannelEncoding>, color1: interop.Object, color2: interop.Object): this;
+	initWithDivisionsNameDimensionsChannelCountChannelEncodingColor1Color2(
+		divisions: number,
+		name: string | null,
+		dimensions: unknown /* ext vector */,
+		channelCount: number,
+		channelEncoding: interop.Enum<typeof MDLTextureChannelEncoding>,
+		color1: interop.Object,
+		color2: interop.Object,
+	): this
 
-  divisions: number;
+	divisions: number
 
-  color1: interop.Object;
+	color1: interop.Object
 
-  color2: interop.Object;
+	color2: interop.Object
 }
 
 declare class MDLURLTexture extends MDLTexture {
-  initWithURLName(URL: NSURL, name: string | null): this;
+	initWithURLName(URL: NSURL, name: string | null): this
 
-  URL: NSURL;
+	URL: NSURL
 }
 
 declare class MDLMesh extends MDLObject {
-  initWithBufferAllocator(bufferAllocator: MDLMeshBufferAllocator | null): this;
+	initWithBufferAllocator(bufferAllocator: MDLMeshBufferAllocator | null): this
 
-  initWithVertexBufferVertexCountDescriptorSubmeshes(vertexBuffer: MDLMeshBuffer, vertexCount: number, descriptor: MDLVertexDescriptor, submeshes: NSArray<interop.Object> | Array<interop.Object>): this;
+	initWithVertexBufferVertexCountDescriptorSubmeshes(
+		vertexBuffer: MDLMeshBuffer,
+		vertexCount: number,
+		descriptor: MDLVertexDescriptor,
+		submeshes: NSArray<interop.Object> | Array<interop.Object>,
+	): this
 
-  initWithVertexBuffersVertexCountDescriptorSubmeshes(vertexBuffers: NSArray<interop.Object> | Array<interop.Object>, vertexCount: number, descriptor: MDLVertexDescriptor, submeshes: NSArray<interop.Object> | Array<interop.Object>): this;
+	initWithVertexBuffersVertexCountDescriptorSubmeshes(
+		vertexBuffers: NSArray<interop.Object> | Array<interop.Object>,
+		vertexCount: number,
+		descriptor: MDLVertexDescriptor,
+		submeshes: NSArray<interop.Object> | Array<interop.Object>,
+	): this
 
-  vertexAttributeDataForAttributeNamed(name: string): MDLVertexAttributeData;
+	vertexAttributeDataForAttributeNamed(name: string): MDLVertexAttributeData
 
-  vertexAttributeDataForAttributeNamedAsFormat(name: string, format: interop.Enum<typeof MDLVertexFormat>): MDLVertexAttributeData;
+	vertexAttributeDataForAttributeNamedAsFormat(
+		name: string,
+		format: interop.Enum<typeof MDLVertexFormat>,
+	): MDLVertexAttributeData
 
-  readonly boundingBox: MDLAxisAlignedBoundingBox;
+	readonly boundingBox: MDLAxisAlignedBoundingBox
 
-  vertexDescriptor: MDLVertexDescriptor;
+	vertexDescriptor: MDLVertexDescriptor
 
-  vertexCount: number;
+	vertexCount: number
 
-  get vertexBuffers(): NSArray;
-  set vertexBuffers(value: NSArray<interop.Object> | Array<interop.Object>);
+	get vertexBuffers(): NSArray
+	set vertexBuffers(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  submeshes: NSMutableArray;
+	submeshes: NSMutableArray
 
-  readonly allocator: MDLMeshBufferAllocator;
+	readonly allocator: MDLMeshBufferAllocator
 
-  addAttributeWithNameFormat(name: string, format: interop.Enum<typeof MDLVertexFormat>): void;
+	addAttributeWithNameFormat(name: string, format: interop.Enum<typeof MDLVertexFormat>): void
 
-  addAttributeWithNameFormatTypeDataStride(name: string, format: interop.Enum<typeof MDLVertexFormat>, type: string, data: NSData, stride: number): void;
+	addAttributeWithNameFormatTypeDataStride(
+		name: string,
+		format: interop.Enum<typeof MDLVertexFormat>,
+		type: string,
+		data: NSData,
+		stride: number,
+	): void
 
-  addAttributeWithNameFormatTypeDataStrideTime(name: string, format: interop.Enum<typeof MDLVertexFormat>, type: string, data: NSData, stride: number, time: number): void;
+	addAttributeWithNameFormatTypeDataStrideTime(
+		name: string,
+		format: interop.Enum<typeof MDLVertexFormat>,
+		type: string,
+		data: NSData,
+		stride: number,
+		time: number,
+	): void
 
-  addNormalsWithAttributeNamedCreaseThreshold(attributeName: string | null, creaseThreshold: number): void;
+	addNormalsWithAttributeNamedCreaseThreshold(
+		attributeName: string | null,
+		creaseThreshold: number,
+	): void
 
-  addTangentBasisForTextureCoordinateAttributeNamedTangentAttributeNamedBitangentAttributeNamed(textureCoordinateAttributeName: string, tangentAttributeName: string, bitangentAttributeName: string | null): void;
+	addTangentBasisForTextureCoordinateAttributeNamedTangentAttributeNamedBitangentAttributeNamed(
+		textureCoordinateAttributeName: string,
+		tangentAttributeName: string,
+		bitangentAttributeName: string | null,
+	): void
 
-  addTangentBasisForTextureCoordinateAttributeNamedNormalAttributeNamedTangentAttributeNamed(textureCoordinateAttributeName: string, normalAttributeName: string, tangentAttributeName: string): void;
+	addTangentBasisForTextureCoordinateAttributeNamedNormalAttributeNamedTangentAttributeNamed(
+		textureCoordinateAttributeName: string,
+		normalAttributeName: string,
+		tangentAttributeName: string,
+	): void
 
-  addOrthTanBasisForTextureCoordinateAttributeNamedNormalAttributeNamedTangentAttributeNamed(textureCoordinateAttributeName: string, normalAttributeName: string, tangentAttributeName: string): void;
+	addOrthTanBasisForTextureCoordinateAttributeNamedNormalAttributeNamedTangentAttributeNamed(
+		textureCoordinateAttributeName: string,
+		normalAttributeName: string,
+		tangentAttributeName: string,
+	): void
 
-  addUnwrappedTextureCoordinatesForAttributeNamed(textureCoordinateAttributeName: string): void;
+	addUnwrappedTextureCoordinatesForAttributeNamed(textureCoordinateAttributeName: string): void
 
-  flipTextureCoordinatesInAttributeNamed(textureCoordinateAttributeName: string): void;
+	flipTextureCoordinatesInAttributeNamed(textureCoordinateAttributeName: string): void
 
-  makeVerticesUnique(): void;
+	makeVerticesUnique(): void
 
-  makeVerticesUniqueAndReturnError(error: interop.PointerConvertible): boolean;
+	makeVerticesUniqueAndReturnError(error: interop.PointerConvertible): boolean
 
-  replaceAttributeNamedWithData(name: string, newData: MDLVertexAttributeData): void;
+	replaceAttributeNamedWithData(name: string, newData: MDLVertexAttributeData): void
 
-  updateAttributeNamedWithData(name: string, newData: MDLVertexAttributeData): void;
+	updateAttributeNamedWithData(name: string, newData: MDLVertexAttributeData): void
 
-  removeAttributeNamed(name: string): void;
+	removeAttributeNamed(name: string): void
 
-  initBoxWithExtentSegmentsInwardNormalsGeometryTypeAllocator(extent: unknown /* ext vector */, segments: unknown /* ext vector */, inwardNormals: boolean, geometryType: interop.Enum<typeof MDLGeometryType>, allocator: MDLMeshBufferAllocator | null): this;
+	initBoxWithExtentSegmentsInwardNormalsGeometryTypeAllocator(
+		extent: unknown /* ext vector */,
+		segments: unknown /* ext vector */,
+		inwardNormals: boolean,
+		geometryType: interop.Enum<typeof MDLGeometryType>,
+		allocator: MDLMeshBufferAllocator | null,
+	): this
 
-  initSphereWithExtentSegmentsInwardNormalsGeometryTypeAllocator(extent: unknown /* ext vector */, segments: unknown /* ext vector */, inwardNormals: boolean, geometryType: interop.Enum<typeof MDLGeometryType>, allocator: MDLMeshBufferAllocator | null): this;
+	initSphereWithExtentSegmentsInwardNormalsGeometryTypeAllocator(
+		extent: unknown /* ext vector */,
+		segments: unknown /* ext vector */,
+		inwardNormals: boolean,
+		geometryType: interop.Enum<typeof MDLGeometryType>,
+		allocator: MDLMeshBufferAllocator | null,
+	): this
 
-  initHemisphereWithExtentSegmentsInwardNormalsCapGeometryTypeAllocator(extent: unknown /* ext vector */, segments: unknown /* ext vector */, inwardNormals: boolean, cap: boolean, geometryType: interop.Enum<typeof MDLGeometryType>, allocator: MDLMeshBufferAllocator | null): this;
+	initHemisphereWithExtentSegmentsInwardNormalsCapGeometryTypeAllocator(
+		extent: unknown /* ext vector */,
+		segments: unknown /* ext vector */,
+		inwardNormals: boolean,
+		cap: boolean,
+		geometryType: interop.Enum<typeof MDLGeometryType>,
+		allocator: MDLMeshBufferAllocator | null,
+	): this
 
-  initCylinderWithExtentSegmentsInwardNormalsTopCapBottomCapGeometryTypeAllocator(extent: unknown /* ext vector */, segments: unknown /* ext vector */, inwardNormals: boolean, topCap: boolean, bottomCap: boolean, geometryType: interop.Enum<typeof MDLGeometryType>, allocator: MDLMeshBufferAllocator | null): this;
+	initCylinderWithExtentSegmentsInwardNormalsTopCapBottomCapGeometryTypeAllocator(
+		extent: unknown /* ext vector */,
+		segments: unknown /* ext vector */,
+		inwardNormals: boolean,
+		topCap: boolean,
+		bottomCap: boolean,
+		geometryType: interop.Enum<typeof MDLGeometryType>,
+		allocator: MDLMeshBufferAllocator | null,
+	): this
 
-  initCapsuleWithExtentCylinderSegmentsHemisphereSegmentsInwardNormalsGeometryTypeAllocator(extent: unknown /* ext vector */, segments: unknown /* ext vector */, hemisphereSegments: number, inwardNormals: boolean, geometryType: interop.Enum<typeof MDLGeometryType>, allocator: MDLMeshBufferAllocator | null): this;
+	initCapsuleWithExtentCylinderSegmentsHemisphereSegmentsInwardNormalsGeometryTypeAllocator(
+		extent: unknown /* ext vector */,
+		segments: unknown /* ext vector */,
+		hemisphereSegments: number,
+		inwardNormals: boolean,
+		geometryType: interop.Enum<typeof MDLGeometryType>,
+		allocator: MDLMeshBufferAllocator | null,
+	): this
 
-  initConeWithExtentSegmentsInwardNormalsCapGeometryTypeAllocator(extent: unknown /* ext vector */, segments: unknown /* ext vector */, inwardNormals: boolean, cap: boolean, geometryType: interop.Enum<typeof MDLGeometryType>, allocator: MDLMeshBufferAllocator | null): this;
+	initConeWithExtentSegmentsInwardNormalsCapGeometryTypeAllocator(
+		extent: unknown /* ext vector */,
+		segments: unknown /* ext vector */,
+		inwardNormals: boolean,
+		cap: boolean,
+		geometryType: interop.Enum<typeof MDLGeometryType>,
+		allocator: MDLMeshBufferAllocator | null,
+	): this
 
-  initPlaneWithExtentSegmentsGeometryTypeAllocator(extent: unknown /* ext vector */, segments: unknown /* ext vector */, geometryType: interop.Enum<typeof MDLGeometryType>, allocator: MDLMeshBufferAllocator | null): this;
+	initPlaneWithExtentSegmentsGeometryTypeAllocator(
+		extent: unknown /* ext vector */,
+		segments: unknown /* ext vector */,
+		geometryType: interop.Enum<typeof MDLGeometryType>,
+		allocator: MDLMeshBufferAllocator | null,
+	): this
 
-  initIcosahedronWithExtentInwardNormalsGeometryTypeAllocator(extent: unknown /* ext vector */, inwardNormals: boolean, geometryType: interop.Enum<typeof MDLGeometryType>, allocator: MDLMeshBufferAllocator | null): this;
+	initIcosahedronWithExtentInwardNormalsGeometryTypeAllocator(
+		extent: unknown /* ext vector */,
+		inwardNormals: boolean,
+		geometryType: interop.Enum<typeof MDLGeometryType>,
+		allocator: MDLMeshBufferAllocator | null,
+	): this
 
-  initMeshBySubdividingMeshSubmeshIndexSubdivisionLevelsAllocator(mesh: MDLMesh, submeshIndex: number, subdivisionLevels: number, allocator: MDLMeshBufferAllocator | null): this;
+	initMeshBySubdividingMeshSubmeshIndexSubdivisionLevelsAllocator(
+		mesh: MDLMesh,
+		submeshIndex: number,
+		subdivisionLevels: number,
+		allocator: MDLMeshBufferAllocator | null,
+	): this
 
-  static newBoxWithDimensionsSegmentsGeometryTypeInwardNormalsAllocator<This extends abstract new (...args: any) => any>(this: This, dimensions: unknown /* ext vector */, segments: unknown /* ext vector */, geometryType: interop.Enum<typeof MDLGeometryType>, inwardNormals: boolean, allocator: MDLMeshBufferAllocator | null): InstanceType<This>;
+	static newBoxWithDimensionsSegmentsGeometryTypeInwardNormalsAllocator<
+		This extends abstract new (...args: any) => any,
+	>(
+		this: This,
+		dimensions: unknown /* ext vector */,
+		segments: unknown /* ext vector */,
+		geometryType: interop.Enum<typeof MDLGeometryType>,
+		inwardNormals: boolean,
+		allocator: MDLMeshBufferAllocator | null,
+	): InstanceType<This>
 
-  static newEllipsoidWithRadiiRadialSegmentsVerticalSegmentsGeometryTypeInwardNormalsHemisphereAllocator<This extends abstract new (...args: any) => any>(this: This, radii: unknown /* ext vector */, radialSegments: number, verticalSegments: number, geometryType: interop.Enum<typeof MDLGeometryType>, inwardNormals: boolean, hemisphere: boolean, allocator: MDLMeshBufferAllocator | null): InstanceType<This>;
+	static newEllipsoidWithRadiiRadialSegmentsVerticalSegmentsGeometryTypeInwardNormalsHemisphereAllocator<
+		This extends abstract new (...args: any) => any,
+	>(
+		this: This,
+		radii: unknown /* ext vector */,
+		radialSegments: number,
+		verticalSegments: number,
+		geometryType: interop.Enum<typeof MDLGeometryType>,
+		inwardNormals: boolean,
+		hemisphere: boolean,
+		allocator: MDLMeshBufferAllocator | null,
+	): InstanceType<This>
 
-  static newCylinderWithHeightRadiiRadialSegmentsVerticalSegmentsGeometryTypeInwardNormalsAllocator<This extends abstract new (...args: any) => any>(this: This, height: number, radii: unknown /* ext vector */, radialSegments: number, verticalSegments: number, geometryType: interop.Enum<typeof MDLGeometryType>, inwardNormals: boolean, allocator: MDLMeshBufferAllocator | null): InstanceType<This>;
+	static newCylinderWithHeightRadiiRadialSegmentsVerticalSegmentsGeometryTypeInwardNormalsAllocator<
+		This extends abstract new (...args: any) => any,
+	>(
+		this: This,
+		height: number,
+		radii: unknown /* ext vector */,
+		radialSegments: number,
+		verticalSegments: number,
+		geometryType: interop.Enum<typeof MDLGeometryType>,
+		inwardNormals: boolean,
+		allocator: MDLMeshBufferAllocator | null,
+	): InstanceType<This>
 
-  static newCapsuleWithHeightRadiiRadialSegmentsVerticalSegmentsHemisphereSegmentsGeometryTypeInwardNormalsAllocator<This extends abstract new (...args: any) => any>(this: This, height: number, radii: unknown /* ext vector */, radialSegments: number, verticalSegments: number, hemisphereSegments: number, geometryType: interop.Enum<typeof MDLGeometryType>, inwardNormals: boolean, allocator: MDLMeshBufferAllocator | null): InstanceType<This>;
+	static newCapsuleWithHeightRadiiRadialSegmentsVerticalSegmentsHemisphereSegmentsGeometryTypeInwardNormalsAllocator<
+		This extends abstract new (...args: any) => any,
+	>(
+		this: This,
+		height: number,
+		radii: unknown /* ext vector */,
+		radialSegments: number,
+		verticalSegments: number,
+		hemisphereSegments: number,
+		geometryType: interop.Enum<typeof MDLGeometryType>,
+		inwardNormals: boolean,
+		allocator: MDLMeshBufferAllocator | null,
+	): InstanceType<This>
 
-  static newEllipticalConeWithHeightRadiiRadialSegmentsVerticalSegmentsGeometryTypeInwardNormalsAllocator<This extends abstract new (...args: any) => any>(this: This, height: number, radii: unknown /* ext vector */, radialSegments: number, verticalSegments: number, geometryType: interop.Enum<typeof MDLGeometryType>, inwardNormals: boolean, allocator: MDLMeshBufferAllocator | null): InstanceType<This>;
+	static newEllipticalConeWithHeightRadiiRadialSegmentsVerticalSegmentsGeometryTypeInwardNormalsAllocator<
+		This extends abstract new (...args: any) => any,
+	>(
+		this: This,
+		height: number,
+		radii: unknown /* ext vector */,
+		radialSegments: number,
+		verticalSegments: number,
+		geometryType: interop.Enum<typeof MDLGeometryType>,
+		inwardNormals: boolean,
+		allocator: MDLMeshBufferAllocator | null,
+	): InstanceType<This>
 
-  static newPlaneWithDimensionsSegmentsGeometryTypeAllocator<This extends abstract new (...args: any) => any>(this: This, dimensions: unknown /* ext vector */, segments: unknown /* ext vector */, geometryType: interop.Enum<typeof MDLGeometryType>, allocator: MDLMeshBufferAllocator | null): InstanceType<This>;
+	static newPlaneWithDimensionsSegmentsGeometryTypeAllocator<
+		This extends abstract new (...args: any) => any,
+	>(
+		this: This,
+		dimensions: unknown /* ext vector */,
+		segments: unknown /* ext vector */,
+		geometryType: interop.Enum<typeof MDLGeometryType>,
+		allocator: MDLMeshBufferAllocator | null,
+	): InstanceType<This>
 
-  static newIcosahedronWithRadiusInwardNormalsGeometryTypeAllocator<This extends abstract new (...args: any) => any>(this: This, radius: number, inwardNormals: boolean, geometryType: interop.Enum<typeof MDLGeometryType>, allocator: MDLMeshBufferAllocator | null): InstanceType<This>;
+	static newIcosahedronWithRadiusInwardNormalsGeometryTypeAllocator<
+		This extends abstract new (...args: any) => any,
+	>(
+		this: This,
+		radius: number,
+		inwardNormals: boolean,
+		geometryType: interop.Enum<typeof MDLGeometryType>,
+		allocator: MDLMeshBufferAllocator | null,
+	): InstanceType<This>
 
-  static newIcosahedronWithRadiusInwardNormalsAllocator<This extends abstract new (...args: any) => any>(this: This, radius: number, inwardNormals: boolean, allocator: MDLMeshBufferAllocator | null): InstanceType<This>;
+	static newIcosahedronWithRadiusInwardNormalsAllocator<
+		This extends abstract new (...args: any) => any,
+	>(
+		this: This,
+		radius: number,
+		inwardNormals: boolean,
+		allocator: MDLMeshBufferAllocator | null,
+	): InstanceType<This>
 
-  static newSubdividedMeshSubmeshIndexSubdivisionLevels<This extends abstract new (...args: any) => any>(this: This, mesh: MDLMesh, submeshIndex: number, subdivisionLevels: number): InstanceType<This>;
+	static newSubdividedMeshSubmeshIndexSubdivisionLevels<
+		This extends abstract new (...args: any) => any,
+	>(this: This, mesh: MDLMesh, submeshIndex: number, subdivisionLevels: number): InstanceType<This>
 
-  generateAmbientOcclusionTextureWithSizeRaysPerSampleAttenuationFactorObjectsToConsiderVertexAttributeNamedMaterialPropertyNamed(textureSize: unknown /* ext vector */, raysPerSample: number, attenuationFactor: number, objectsToConsider: NSArray<interop.Object> | Array<interop.Object>, vertexAttributeName: string, materialPropertyName: string): boolean;
+	generateAmbientOcclusionTextureWithSizeRaysPerSampleAttenuationFactorObjectsToConsiderVertexAttributeNamedMaterialPropertyNamed(
+		textureSize: unknown /* ext vector */,
+		raysPerSample: number,
+		attenuationFactor: number,
+		objectsToConsider: NSArray<interop.Object> | Array<interop.Object>,
+		vertexAttributeName: string,
+		materialPropertyName: string,
+	): boolean
 
-  generateAmbientOcclusionTextureWithQualityAttenuationFactorObjectsToConsiderVertexAttributeNamedMaterialPropertyNamed(bakeQuality: number, attenuationFactor: number, objectsToConsider: NSArray<interop.Object> | Array<interop.Object>, vertexAttributeName: string, materialPropertyName: string): boolean;
+	generateAmbientOcclusionTextureWithQualityAttenuationFactorObjectsToConsiderVertexAttributeNamedMaterialPropertyNamed(
+		bakeQuality: number,
+		attenuationFactor: number,
+		objectsToConsider: NSArray<interop.Object> | Array<interop.Object>,
+		vertexAttributeName: string,
+		materialPropertyName: string,
+	): boolean
 
-  generateAmbientOcclusionVertexColorsWithRaysPerSampleAttenuationFactorObjectsToConsiderVertexAttributeNamed(raysPerSample: number, attenuationFactor: number, objectsToConsider: NSArray<interop.Object> | Array<interop.Object>, vertexAttributeName: string): boolean;
+	generateAmbientOcclusionVertexColorsWithRaysPerSampleAttenuationFactorObjectsToConsiderVertexAttributeNamed(
+		raysPerSample: number,
+		attenuationFactor: number,
+		objectsToConsider: NSArray<interop.Object> | Array<interop.Object>,
+		vertexAttributeName: string,
+	): boolean
 
-  generateAmbientOcclusionVertexColorsWithQualityAttenuationFactorObjectsToConsiderVertexAttributeNamed(bakeQuality: number, attenuationFactor: number, objectsToConsider: NSArray<interop.Object> | Array<interop.Object>, vertexAttributeName: string): boolean;
+	generateAmbientOcclusionVertexColorsWithQualityAttenuationFactorObjectsToConsiderVertexAttributeNamed(
+		bakeQuality: number,
+		attenuationFactor: number,
+		objectsToConsider: NSArray<interop.Object> | Array<interop.Object>,
+		vertexAttributeName: string,
+	): boolean
 
-  generateLightMapTextureWithTextureSizeLightsToConsiderObjectsToConsiderVertexAttributeNamedMaterialPropertyNamed(textureSize: unknown /* ext vector */, lightsToConsider: NSArray<interop.Object> | Array<interop.Object>, objectsToConsider: NSArray<interop.Object> | Array<interop.Object>, vertexAttributeName: string, materialPropertyName: string): boolean;
+	generateLightMapTextureWithTextureSizeLightsToConsiderObjectsToConsiderVertexAttributeNamedMaterialPropertyNamed(
+		textureSize: unknown /* ext vector */,
+		lightsToConsider: NSArray<interop.Object> | Array<interop.Object>,
+		objectsToConsider: NSArray<interop.Object> | Array<interop.Object>,
+		vertexAttributeName: string,
+		materialPropertyName: string,
+	): boolean
 
-  generateLightMapTextureWithQualityLightsToConsiderObjectsToConsiderVertexAttributeNamedMaterialPropertyNamed(bakeQuality: number, lightsToConsider: NSArray<interop.Object> | Array<interop.Object>, objectsToConsider: NSArray<interop.Object> | Array<interop.Object>, vertexAttributeName: string, materialPropertyName: string): boolean;
+	generateLightMapTextureWithQualityLightsToConsiderObjectsToConsiderVertexAttributeNamedMaterialPropertyNamed(
+		bakeQuality: number,
+		lightsToConsider: NSArray<interop.Object> | Array<interop.Object>,
+		objectsToConsider: NSArray<interop.Object> | Array<interop.Object>,
+		vertexAttributeName: string,
+		materialPropertyName: string,
+	): boolean
 
-  generateLightMapVertexColorsWithLightsToConsiderObjectsToConsiderVertexAttributeNamed(lightsToConsider: NSArray<interop.Object> | Array<interop.Object>, objectsToConsider: NSArray<interop.Object> | Array<interop.Object>, vertexAttributeName: string): boolean;
+	generateLightMapVertexColorsWithLightsToConsiderObjectsToConsiderVertexAttributeNamed(
+		lightsToConsider: NSArray<interop.Object> | Array<interop.Object>,
+		objectsToConsider: NSArray<interop.Object> | Array<interop.Object>,
+		vertexAttributeName: string,
+	): boolean
 
-  static meshWithSCNGeometry<This extends abstract new (...args: any) => any>(this: This, scnGeometry: SCNGeometry): InstanceType<This>;
+	static meshWithSCNGeometry<This extends abstract new (...args: any) => any>(
+		this: This,
+		scnGeometry: SCNGeometry,
+	): InstanceType<This>
 
-  static meshWithSCNGeometryBufferAllocator<This extends abstract new (...args: any) => any>(this: This, scnGeometry: SCNGeometry, bufferAllocator: MDLMeshBufferAllocator | null): InstanceType<This>;
+	static meshWithSCNGeometryBufferAllocator<This extends abstract new (...args: any) => any>(
+		this: This,
+		scnGeometry: SCNGeometry,
+		bufferAllocator: MDLMeshBufferAllocator | null,
+	): InstanceType<This>
 }
 
 declare class MDLVertexAttributeData extends NSObject {
-  map: MDLMeshBufferMap;
+	map: MDLMeshBufferMap
 
-  get dataStart(): interop.Pointer;
-  set dataStart(value: interop.PointerConvertible);
+	get dataStart(): interop.Pointer
+	set dataStart(value: interop.PointerConvertible)
 
-  stride: number;
+	stride: number
 
-  format: interop.Enum<typeof MDLVertexFormat>;
+	format: interop.Enum<typeof MDLVertexFormat>
 
-  bufferSize: number;
+	bufferSize: number
 }
 
 declare class MDLSubmeshTopology extends NSObject {
-  initWithSubmesh(submesh: MDLSubmesh): this;
+	initWithSubmesh(submesh: MDLSubmesh): this
 
-  faceTopology: MDLMeshBuffer;
+	faceTopology: MDLMeshBuffer
 
-  faceCount: number;
+	faceCount: number
 
-  vertexCreaseIndices: MDLMeshBuffer;
+	vertexCreaseIndices: MDLMeshBuffer
 
-  vertexCreases: MDLMeshBuffer;
+	vertexCreases: MDLMeshBuffer
 
-  vertexCreaseCount: number;
+	vertexCreaseCount: number
 
-  edgeCreaseIndices: MDLMeshBuffer;
+	edgeCreaseIndices: MDLMeshBuffer
 
-  edgeCreases: MDLMeshBuffer;
+	edgeCreases: MDLMeshBuffer
 
-  edgeCreaseCount: number;
+	edgeCreaseCount: number
 
-  holes: MDLMeshBuffer;
+	holes: MDLMeshBuffer
 
-  holeCount: number;
+	holeCount: number
 }
 
 declare class MDLMaterial extends NSObject implements MDLNamed, NSFastEnumeration {
-  initWithNameScatteringFunction(name: string, scatteringFunction: MDLScatteringFunction): this;
+	initWithNameScatteringFunction(name: string, scatteringFunction: MDLScatteringFunction): this
 
-  setProperty(property: MDLMaterialProperty): void;
+	setProperty(property: MDLMaterialProperty): void
 
-  removeProperty(property: MDLMaterialProperty): void;
+	removeProperty(property: MDLMaterialProperty): void
 
-  propertyNamed(name: string): MDLMaterialProperty;
+	propertyNamed(name: string): MDLMaterialProperty
 
-  propertyWithSemantic(semantic: interop.Enum<typeof MDLMaterialSemantic>): MDLMaterialProperty;
+	propertyWithSemantic(semantic: interop.Enum<typeof MDLMaterialSemantic>): MDLMaterialProperty
 
-  propertiesWithSemantic(semantic: interop.Enum<typeof MDLMaterialSemantic>): NSArray;
+	propertiesWithSemantic(semantic: interop.Enum<typeof MDLMaterialSemantic>): NSArray
 
-  removeAllProperties(): void;
+	removeAllProperties(): void
 
-  resolveTexturesWithResolver(resolver: MDLAssetResolver): void;
+	resolveTexturesWithResolver(resolver: MDLAssetResolver): void
 
-  loadTexturesUsingResolver(resolver: MDLAssetResolver): void;
+	loadTexturesUsingResolver(resolver: MDLAssetResolver): void
 
-  readonly scatteringFunction: MDLScatteringFunction;
+	readonly scatteringFunction: MDLScatteringFunction
 
-  name: string;
+	name: string
 
-  baseMaterial: MDLMaterial;
+	baseMaterial: MDLMaterial
 
-  objectAtIndexedSubscript(idx: number): MDLMaterialProperty;
+	objectAtIndexedSubscript(idx: number): MDLMaterialProperty
 
-  objectForKeyedSubscript(name: string): MDLMaterialProperty;
+	objectForKeyedSubscript(name: string): MDLMaterialProperty
 
-  readonly count: number;
+	readonly count: number
 
-  materialFace: interop.Enum<typeof MDLMaterialFace>;
+	materialFace: interop.Enum<typeof MDLMaterialFace>
 
-  static materialWithSCNMaterial<This extends abstract new (...args: any) => any>(this: This, scnMaterial: SCNMaterial): InstanceType<This>;
+	static materialWithSCNMaterial<This extends abstract new (...args: any) => any>(
+		this: This,
+		scnMaterial: SCNMaterial,
+	): InstanceType<This>
 
-  countByEnumeratingWithStateObjectsCount(state: interop.PointerConvertible, buffer: interop.PointerConvertible, len: number): number;
+	countByEnumeratingWithStateObjectsCount(
+		state: interop.PointerConvertible,
+		buffer: interop.PointerConvertible,
+		len: number,
+	): number
 
-  readonly [Symbol.iterator]: () => Iterator<any>;
-
+	readonly [Symbol.iterator]: () => Iterator<any>
 }
 
 declare class MDLScatteringFunction extends NSObject implements MDLNamed {
-  name: string;
+	name: string
 
-  readonly baseColor: MDLMaterialProperty;
+	readonly baseColor: MDLMaterialProperty
 
-  readonly emission: MDLMaterialProperty;
+	readonly emission: MDLMaterialProperty
 
-  readonly specular: MDLMaterialProperty;
+	readonly specular: MDLMaterialProperty
 
-  readonly materialIndexOfRefraction: MDLMaterialProperty;
+	readonly materialIndexOfRefraction: MDLMaterialProperty
 
-  readonly interfaceIndexOfRefraction: MDLMaterialProperty;
+	readonly interfaceIndexOfRefraction: MDLMaterialProperty
 
-  readonly normal: MDLMaterialProperty;
+	readonly normal: MDLMaterialProperty
 
-  readonly ambientOcclusion: MDLMaterialProperty;
+	readonly ambientOcclusion: MDLMaterialProperty
 
-  readonly ambientOcclusionScale: MDLMaterialProperty;
+	readonly ambientOcclusionScale: MDLMaterialProperty
 }
 
 declare class MDLMaterialPropertyGraph extends MDLMaterialPropertyNode {
-  initWithNodesConnections(nodes: NSArray<interop.Object> | Array<interop.Object>, connections: NSArray<interop.Object> | Array<interop.Object>): this;
+	initWithNodesConnections(
+		nodes: NSArray<interop.Object> | Array<interop.Object>,
+		connections: NSArray<interop.Object> | Array<interop.Object>,
+	): this
 
-  evaluate(): void;
+	evaluate(): void
 
-  readonly nodes: NSArray;
+	readonly nodes: NSArray
 
-  readonly connections: NSArray;
+	readonly connections: NSArray
 }
 
 declare class MDLMaterialPropertyNode extends NSObject implements MDLNamed {
-  initWithInputsOutputsEvaluationFunction(inputs: NSArray<interop.Object> | Array<interop.Object>, outputs: NSArray<interop.Object> | Array<interop.Object>, function$: (p1: MDLMaterialPropertyNode) => void): this;
+	initWithInputsOutputsEvaluationFunction(
+		inputs: NSArray<interop.Object> | Array<interop.Object>,
+		outputs: NSArray<interop.Object> | Array<interop.Object>,
+		function$: (p1: MDLMaterialPropertyNode) => void,
+	): this
 
-  evaluationFunction: (p1: MDLMaterialPropertyNode) => void;
+	evaluationFunction: (p1: MDLMaterialPropertyNode) => void
 
-  readonly inputs: NSArray;
+	readonly inputs: NSArray
 
-  readonly outputs: NSArray;
+	readonly outputs: NSArray
 
-  name: string;
+	name: string
 }
 
 declare class MDLMaterialPropertyConnection extends NSObject implements MDLNamed {
-  initWithOutputInput(output: MDLMaterialProperty, input: MDLMaterialProperty): this;
+	initWithOutputInput(output: MDLMaterialProperty, input: MDLMaterialProperty): this
 
-  readonly output: MDLMaterialProperty | null;
+	readonly output: MDLMaterialProperty | null
 
-  readonly input: MDLMaterialProperty | null;
+	readonly input: MDLMaterialProperty | null
 
-  name: string;
+	name: string
 }
 
 declare class MDLMaterialProperty extends NSObject implements MDLNamed, NSCopying {
-  initWithNameSemantic(name: string, semantic: interop.Enum<typeof MDLMaterialSemantic>): this;
+	initWithNameSemantic(name: string, semantic: interop.Enum<typeof MDLMaterialSemantic>): this
 
-  initWithNameSemanticFloat(name: string, semantic: interop.Enum<typeof MDLMaterialSemantic>, value: number): this;
+	initWithNameSemanticFloat(
+		name: string,
+		semantic: interop.Enum<typeof MDLMaterialSemantic>,
+		value: number,
+	): this
 
-  initWithNameSemanticFloat2(name: string, semantic: interop.Enum<typeof MDLMaterialSemantic>, value: unknown /* ext vector */): this;
+	initWithNameSemanticFloat2(
+		name: string,
+		semantic: interop.Enum<typeof MDLMaterialSemantic>,
+		value: unknown /* ext vector */,
+	): this
 
-  initWithNameSemanticFloat3(name: string, semantic: interop.Enum<typeof MDLMaterialSemantic>, value: unknown /* ext vector */): this;
+	initWithNameSemanticFloat3(
+		name: string,
+		semantic: interop.Enum<typeof MDLMaterialSemantic>,
+		value: unknown /* ext vector */,
+	): this
 
-  initWithNameSemanticFloat4(name: string, semantic: interop.Enum<typeof MDLMaterialSemantic>, value: unknown /* ext vector */): this;
+	initWithNameSemanticFloat4(
+		name: string,
+		semantic: interop.Enum<typeof MDLMaterialSemantic>,
+		value: unknown /* ext vector */,
+	): this
 
-  initWithNameSemanticMatrix4x4(name: string, semantic: interop.Enum<typeof MDLMaterialSemantic>, value: simd_float4x4): this;
+	initWithNameSemanticMatrix4x4(
+		name: string,
+		semantic: interop.Enum<typeof MDLMaterialSemantic>,
+		value: simd_float4x4,
+	): this
 
-  initWithNameSemanticURL(name: string, semantic: interop.Enum<typeof MDLMaterialSemantic>, URL: NSURL | null): this;
+	initWithNameSemanticURL(
+		name: string,
+		semantic: interop.Enum<typeof MDLMaterialSemantic>,
+		URL: NSURL | null,
+	): this
 
-  initWithNameSemanticString(name: string, semantic: interop.Enum<typeof MDLMaterialSemantic>, string: string | null): this;
+	initWithNameSemanticString(
+		name: string,
+		semantic: interop.Enum<typeof MDLMaterialSemantic>,
+		string: string | null,
+	): this
 
-  initWithNameSemanticTextureSampler(name: string, semantic: interop.Enum<typeof MDLMaterialSemantic>, textureSampler: MDLTextureSampler | null): this;
+	initWithNameSemanticTextureSampler(
+		name: string,
+		semantic: interop.Enum<typeof MDLMaterialSemantic>,
+		textureSampler: MDLTextureSampler | null,
+	): this
 
-  initWithNameSemanticColor(name: string, semantic: interop.Enum<typeof MDLMaterialSemantic>, color: interop.Object): this;
+	initWithNameSemanticColor(
+		name: string,
+		semantic: interop.Enum<typeof MDLMaterialSemantic>,
+		color: interop.Object,
+	): this
 
-  setProperties(property: MDLMaterialProperty): void;
+	setProperties(property: MDLMaterialProperty): void
 
-  semantic: interop.Enum<typeof MDLMaterialSemantic>;
+	semantic: interop.Enum<typeof MDLMaterialSemantic>
 
-  type: interop.Enum<typeof MDLMaterialPropertyType>;
+	type: interop.Enum<typeof MDLMaterialPropertyType>
 
-  name: string;
+	name: string
 
-  stringValue: string;
+	stringValue: string
 
-  URLValue: NSURL;
+	URLValue: NSURL
 
-  textureSamplerValue: MDLTextureSampler;
+	textureSamplerValue: MDLTextureSampler
 
-  color: interop.Object;
+	color: interop.Object
 
-  floatValue: number;
+	floatValue: number
 
-  float2Value: unknown /* ext vector */;
+	float2Value: unknown /* ext vector */
 
-  float3Value: unknown /* ext vector */;
+	float3Value: unknown /* ext vector */
 
-  float4Value: unknown /* ext vector */;
+	float4Value: unknown /* ext vector */
 
-  matrix4x4: simd_float4x4;
+	matrix4x4: simd_float4x4
 
-  luminance: number;
+	luminance: number
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class MDLTextureFilter extends NSObject {
-  sWrapMode: interop.Enum<typeof MDLMaterialTextureWrapMode>;
+	sWrapMode: interop.Enum<typeof MDLMaterialTextureWrapMode>
 
-  tWrapMode: interop.Enum<typeof MDLMaterialTextureWrapMode>;
+	tWrapMode: interop.Enum<typeof MDLMaterialTextureWrapMode>
 
-  rWrapMode: interop.Enum<typeof MDLMaterialTextureWrapMode>;
+	rWrapMode: interop.Enum<typeof MDLMaterialTextureWrapMode>
 
-  minFilter: interop.Enum<typeof MDLMaterialTextureFilterMode>;
+	minFilter: interop.Enum<typeof MDLMaterialTextureFilterMode>
 
-  magFilter: interop.Enum<typeof MDLMaterialTextureFilterMode>;
+	magFilter: interop.Enum<typeof MDLMaterialTextureFilterMode>
 
-  mipFilter: interop.Enum<typeof MDLMaterialMipMapFilterMode>;
+	mipFilter: interop.Enum<typeof MDLMaterialMipMapFilterMode>
 }
 
 declare class MDLPhotometricLight extends MDLPhysicallyPlausibleLight {
-  initWithIESProfile(URL: NSURL): this;
+	initWithIESProfile(URL: NSURL): this
 
-  generateSphericalHarmonicsFromLight(sphericalHarmonicsLevel: number): void;
+	generateSphericalHarmonicsFromLight(sphericalHarmonicsLevel: number): void
 
-  generateCubemapFromLight(textureSize: number): void;
+	generateCubemapFromLight(textureSize: number): void
 
-  generateTexture(textureSize: number): MDLTexture;
+	generateTexture(textureSize: number): MDLTexture
 
-  readonly lightCubeMap: MDLTexture;
+	readonly lightCubeMap: MDLTexture
 
-  readonly sphericalHarmonicsLevel: number;
+	readonly sphericalHarmonicsLevel: number
 
-  readonly sphericalHarmonicsCoefficients: NSData;
+	readonly sphericalHarmonicsCoefficients: NSData
 }
 
 declare class MDLPhysicallyPlausibleLight extends MDLLight {
-  setColorByTemperature(temperature: number): void;
+	setColorByTemperature(temperature: number): void
 
-  color: interop.Object;
+	color: interop.Object
 
-  lumens: number;
+	lumens: number
 
-  innerConeAngle: number;
+	innerConeAngle: number
 
-  outerConeAngle: number;
+	outerConeAngle: number
 
-  attenuationStartDistance: number;
+	attenuationStartDistance: number
 
-  attenuationEndDistance: number;
+	attenuationEndDistance: number
 }
 
 declare class MDLCamera extends MDLObject {
-  readonly projectionMatrix: simd_float4x4;
+	readonly projectionMatrix: simd_float4x4
 
-  projection: interop.Enum<typeof MDLCameraProjection>;
+	projection: interop.Enum<typeof MDLCameraProjection>
 
-  frameBoundingBoxSetNearAndFar(boundingBox: MDLAxisAlignedBoundingBox, setNearAndFar: boolean): void;
+	frameBoundingBoxSetNearAndFar(
+		boundingBox: MDLAxisAlignedBoundingBox,
+		setNearAndFar: boolean,
+	): void
 
-  lookAt(focusPosition: unknown /* ext vector */): void;
+	lookAt(focusPosition: unknown /* ext vector */): void
 
-  lookAtFrom(focusPosition: unknown /* ext vector */, cameraPosition: unknown /* ext vector */): void;
+	lookAtFrom(
+		focusPosition: unknown /* ext vector */,
+		cameraPosition: unknown /* ext vector */,
+	): void
 
-  rayToForViewPort(pixel: unknown /* ext vector */, size: unknown /* ext vector */): unknown /* ext vector */;
+	rayToForViewPort(
+		pixel: unknown /* ext vector */,
+		size: unknown /* ext vector */,
+	): unknown /* ext vector */
 
-  nearVisibilityDistance: number;
+	nearVisibilityDistance: number
 
-  farVisibilityDistance: number;
+	farVisibilityDistance: number
 
-  worldToMetersConversionScale: number;
+	worldToMetersConversionScale: number
 
-  barrelDistortion: number;
+	barrelDistortion: number
 
-  fisheyeDistortion: number;
+	fisheyeDistortion: number
 
-  opticalVignetting: number;
+	opticalVignetting: number
 
-  chromaticAberration: number;
+	chromaticAberration: number
 
-  focalLength: number;
+	focalLength: number
 
-  focusDistance: number;
+	focusDistance: number
 
-  fieldOfView: number;
+	fieldOfView: number
 
-  fStop: number;
+	fStop: number
 
-  apertureBladeCount: number;
+	apertureBladeCount: number
 
-  maximumCircleOfConfusion: number;
+	maximumCircleOfConfusion: number
 
-  bokehKernelWithSize(size: unknown /* ext vector */): MDLTexture;
+	bokehKernelWithSize(size: unknown /* ext vector */): MDLTexture
 
-  shutterOpenInterval: number;
+	shutterOpenInterval: number
 
-  sensorVerticalAperture: number;
+	sensorVerticalAperture: number
 
-  sensorAspect: number;
+	sensorAspect: number
 
-  sensorEnlargement: unknown /* ext vector */;
+	sensorEnlargement: unknown /* ext vector */
 
-  sensorShift: unknown /* ext vector */;
+	sensorShift: unknown /* ext vector */
 
-  flash: unknown /* ext vector */;
+	flash: unknown /* ext vector */
 
-  exposureCompression: unknown /* ext vector */;
+	exposureCompression: unknown /* ext vector */
 
-  exposure: unknown /* ext vector */;
+	exposure: unknown /* ext vector */
 
-  static cameraWithSCNCamera<This extends abstract new (...args: any) => any>(this: This, scnCamera: SCNCamera): InstanceType<This>;
+	static cameraWithSCNCamera<This extends abstract new (...args: any) => any>(
+		this: This,
+		scnCamera: SCNCamera,
+	): InstanceType<This>
 }
 
 declare class MDLAsset extends NSObject implements NSCopying, NSFastEnumeration {
-  initWithURL(URL: NSURL): this;
+	initWithURL(URL: NSURL): this
 
-  initWithURLVertexDescriptorBufferAllocator(URL: NSURL | null, vertexDescriptor: MDLVertexDescriptor | null, bufferAllocator: MDLMeshBufferAllocator | null): this;
+	initWithURLVertexDescriptorBufferAllocator(
+		URL: NSURL | null,
+		vertexDescriptor: MDLVertexDescriptor | null,
+		bufferAllocator: MDLMeshBufferAllocator | null,
+	): this
 
-  initWithBufferAllocator(bufferAllocator: MDLMeshBufferAllocator | null): this;
+	initWithBufferAllocator(bufferAllocator: MDLMeshBufferAllocator | null): this
 
-  initWithURLVertexDescriptorBufferAllocatorPreserveTopologyError(URL: NSURL, vertexDescriptor: MDLVertexDescriptor | null, bufferAllocator: MDLMeshBufferAllocator | null, preserveTopology: boolean, error: interop.PointerConvertible): this;
+	initWithURLVertexDescriptorBufferAllocatorPreserveTopologyError(
+		URL: NSURL,
+		vertexDescriptor: MDLVertexDescriptor | null,
+		bufferAllocator: MDLMeshBufferAllocator | null,
+		preserveTopology: boolean,
+		error: interop.PointerConvertible,
+	): this
 
-  exportAssetToURL(URL: NSURL): boolean;
+	exportAssetToURL(URL: NSURL): boolean
 
-  exportAssetToURLError(URL: NSURL, error: interop.PointerConvertible): boolean;
+	exportAssetToURLError(URL: NSURL, error: interop.PointerConvertible): boolean
 
-  objectAtPath(path: string): MDLObject;
+	objectAtPath(path: string): MDLObject
 
-  static canImportFileExtension(extension: string): boolean;
+	static canImportFileExtension(extension: string): boolean
 
-  static canExportFileExtension(extension: string): boolean;
+	static canExportFileExtension(extension: string): boolean
 
-  childObjectsOfClass(objectClass: interop.PointerConvertible): NSArray;
+	childObjectsOfClass(objectClass: interop.PointerConvertible): NSArray
 
-  loadTextures(): void;
+	loadTextures(): void
 
-  boundingBoxAtTime(time: number): MDLAxisAlignedBoundingBox;
+	boundingBoxAtTime(time: number): MDLAxisAlignedBoundingBox
 
-  readonly boundingBox: MDLAxisAlignedBoundingBox;
+	readonly boundingBox: MDLAxisAlignedBoundingBox
 
-  frameInterval: number;
+	frameInterval: number
 
-  startTime: number;
+	startTime: number
 
-  endTime: number;
+	endTime: number
 
-  upAxis: unknown /* ext vector */;
+	upAxis: unknown /* ext vector */
 
-  readonly URL: NSURL;
+	readonly URL: NSURL
 
-  resolver: MDLAssetResolver;
+	resolver: MDLAssetResolver
 
-  readonly bufferAllocator: MDLMeshBufferAllocator;
+	readonly bufferAllocator: MDLMeshBufferAllocator
 
-  readonly vertexDescriptor: MDLVertexDescriptor;
+	readonly vertexDescriptor: MDLVertexDescriptor
 
-  addObject(object: MDLObject): void;
+	addObject(object: MDLObject): void
 
-  removeObject(object: MDLObject): void;
+	removeObject(object: MDLObject): void
 
-  readonly count: number;
+	readonly count: number
 
-  objectAtIndexedSubscript(index: number): MDLObject;
+	objectAtIndexedSubscript(index: number): MDLObject
 
-  objectAtIndex(index: number): MDLObject;
+	objectAtIndex(index: number): MDLObject
 
-  masters: MDLObjectContainerComponent;
+	masters: MDLObjectContainerComponent
 
-  animations: MDLObjectContainerComponent;
+	animations: MDLObjectContainerComponent
 
-  static placeLightProbesWithDensityHeuristicUsingIrradianceDataSource(value: number, type: interop.Enum<typeof MDLProbePlacement>, dataSource: MDLLightProbeIrradianceDataSource): NSArray;
+	static placeLightProbesWithDensityHeuristicUsingIrradianceDataSource(
+		value: number,
+		type: interop.Enum<typeof MDLProbePlacement>,
+		dataSource: MDLLightProbeIrradianceDataSource,
+	): NSArray
 
-  static assetWithSCNScene<This extends abstract new (...args: any) => any>(this: This, scnScene: SCNScene): InstanceType<This>;
+	static assetWithSCNScene<This extends abstract new (...args: any) => any>(
+		this: This,
+		scnScene: SCNScene,
+	): InstanceType<This>
 
-  static assetWithSCNSceneBufferAllocator<This extends abstract new (...args: any) => any>(this: This, scnScene: SCNScene, bufferAllocator: MDLMeshBufferAllocator | null): InstanceType<This>;
+	static assetWithSCNSceneBufferAllocator<This extends abstract new (...args: any) => any>(
+		this: This,
+		scnScene: SCNScene,
+		bufferAllocator: MDLMeshBufferAllocator | null,
+	): InstanceType<This>
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  countByEnumeratingWithStateObjectsCount(state: interop.PointerConvertible, buffer: interop.PointerConvertible, len: number): number;
+	countByEnumeratingWithStateObjectsCount(
+		state: interop.PointerConvertible,
+		buffer: interop.PointerConvertible,
+		len: number,
+	): number
 
-  readonly [Symbol.iterator]: () => Iterator<any>;
-
+	readonly [Symbol.iterator]: () => Iterator<any>
 }
 
 declare class MDLAnimationBindComponent extends NSObject implements NSCopying, MDLComponent {
-  skeleton: MDLSkeleton;
+	skeleton: MDLSkeleton
 
-  jointAnimation: MDLJointAnimation;
+	jointAnimation: MDLJointAnimation
 
-  get jointPaths(): NSArray;
-  set jointPaths(value: NSArray<interop.Object> | Array<interop.Object>);
+	get jointPaths(): NSArray
+	set jointPaths(value: NSArray<interop.Object> | Array<interop.Object>)
 
-  geometryBindTransform: simd_double4x4;
+	geometryBindTransform: simd_double4x4
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 }
 
 declare class MDLPackedJointAnimation extends MDLObject implements NSCopying, MDLJointAnimation {
-  readonly jointPaths: NSArray;
+	readonly jointPaths: NSArray
 
-  readonly translations: MDLAnimatedVector3Array;
+	readonly translations: MDLAnimatedVector3Array
 
-  readonly rotations: MDLAnimatedQuaternionArray;
+	readonly rotations: MDLAnimatedQuaternionArray
 
-  readonly scales: MDLAnimatedVector3Array;
+	readonly scales: MDLAnimatedVector3Array
 
-  initWithNameJointPaths(name: string, jointPaths: NSArray<interop.Object> | Array<interop.Object>): this;
+	initWithNameJointPaths(
+		name: string,
+		jointPaths: NSArray<interop.Object> | Array<interop.Object>,
+	): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class MDLSkeleton extends MDLObject implements NSCopying {
-  readonly jointPaths: NSArray;
+	readonly jointPaths: NSArray
 
-  readonly jointBindTransforms: MDLMatrix4x4Array;
+	readonly jointBindTransforms: MDLMatrix4x4Array
 
-  readonly jointRestTransforms: MDLMatrix4x4Array;
+	readonly jointRestTransforms: MDLMatrix4x4Array
 
-  initWithNameJointPaths(name: string, jointPaths: NSArray<interop.Object> | Array<interop.Object>): this;
+	initWithNameJointPaths(
+		name: string,
+		jointPaths: NSArray<interop.Object> | Array<interop.Object>,
+	): this
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class MDLAnimatedMatrix4x4 extends MDLAnimatedValue {
-  setFloat4x4AtTime(value: simd_float4x4, time: number): void;
+	setFloat4x4AtTime(value: simd_float4x4, time: number): void
 
-  setDouble4x4AtTime(value: simd_double4x4, time: number): void;
+	setDouble4x4AtTime(value: simd_double4x4, time: number): void
 
-  float4x4AtTime(time: number): simd_float4x4;
+	float4x4AtTime(time: number): simd_float4x4
 
-  double4x4AtTime(time: number): simd_double4x4;
+	double4x4AtTime(time: number): simd_double4x4
 
-  resetWithFloat4x4ArrayAtTimesCount(valuesArray: interop.PointerConvertible, timesArray: interop.PointerConvertible, count: number): void;
+	resetWithFloat4x4ArrayAtTimesCount(
+		valuesArray: interop.PointerConvertible,
+		timesArray: interop.PointerConvertible,
+		count: number,
+	): void
 
-  resetWithDouble4x4ArrayAtTimesCount(valuesArray: interop.PointerConvertible, timesArray: interop.PointerConvertible, count: number): void;
+	resetWithDouble4x4ArrayAtTimesCount(
+		valuesArray: interop.PointerConvertible,
+		timesArray: interop.PointerConvertible,
+		count: number,
+	): void
 
-  getFloat4x4ArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number;
+	getFloat4x4ArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number
 
-  getDouble4x4ArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number;
+	getDouble4x4ArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number
 }
 
 declare class MDLAnimatedQuaternion extends MDLAnimatedValue {
-  setFloatQuaternionAtTime(value: simd_quatf, time: number): void;
+	setFloatQuaternionAtTime(value: simd_quatf, time: number): void
 
-  setDoubleQuaternionAtTime(value: simd_quatd, time: number): void;
+	setDoubleQuaternionAtTime(value: simd_quatd, time: number): void
 
-  floatQuaternionAtTime(time: number): simd_quatf;
+	floatQuaternionAtTime(time: number): simd_quatf
 
-  doubleQuaternionAtTime(time: number): simd_quatd;
+	doubleQuaternionAtTime(time: number): simd_quatd
 
-  resetWithFloatQuaternionArrayAtTimesCount(valuesArray: interop.PointerConvertible, timesArray: interop.PointerConvertible, count: number): void;
+	resetWithFloatQuaternionArrayAtTimesCount(
+		valuesArray: interop.PointerConvertible,
+		timesArray: interop.PointerConvertible,
+		count: number,
+	): void
 
-  resetWithDoubleQuaternionArrayAtTimesCount(valuesArray: interop.PointerConvertible, timesArray: interop.PointerConvertible, count: number): void;
+	resetWithDoubleQuaternionArrayAtTimesCount(
+		valuesArray: interop.PointerConvertible,
+		timesArray: interop.PointerConvertible,
+		count: number,
+	): void
 
-  getFloatQuaternionArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number;
+	getFloatQuaternionArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number
 
-  getDoubleQuaternionArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number;
+	getDoubleQuaternionArrayMaxCount(
+		valuesArray: interop.PointerConvertible,
+		maxCount: number,
+	): number
 }
 
 declare class MDLAnimatedVector4 extends MDLAnimatedValue {
-  setFloat4AtTime(value: unknown /* ext vector */, time: number): void;
+	setFloat4AtTime(value: unknown /* ext vector */, time: number): void
 
-  setDouble4AtTime(value: unknown /* ext vector */, time: number): void;
+	setDouble4AtTime(value: unknown /* ext vector */, time: number): void
 
-  float4AtTime(time: number): unknown /* ext vector */;
+	float4AtTime(time: number): unknown /* ext vector */
 
-  double4AtTime(time: number): unknown /* ext vector */;
+	double4AtTime(time: number): unknown /* ext vector */
 
-  resetWithFloat4ArrayAtTimesCount(valuesArray: interop.PointerConvertible, timesArray: interop.PointerConvertible, count: number): void;
+	resetWithFloat4ArrayAtTimesCount(
+		valuesArray: interop.PointerConvertible,
+		timesArray: interop.PointerConvertible,
+		count: number,
+	): void
 
-  resetWithDouble4ArrayAtTimesCount(valuesArray: interop.PointerConvertible, timesArray: interop.PointerConvertible, count: number): void;
+	resetWithDouble4ArrayAtTimesCount(
+		valuesArray: interop.PointerConvertible,
+		timesArray: interop.PointerConvertible,
+		count: number,
+	): void
 
-  getFloat4ArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number;
+	getFloat4ArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number
 
-  getDouble4ArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number;
+	getDouble4ArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number
 }
 
 declare class MDLAnimatedVector2 extends MDLAnimatedValue {
-  setFloat2AtTime(value: unknown /* ext vector */, time: number): void;
+	setFloat2AtTime(value: unknown /* ext vector */, time: number): void
 
-  setDouble2AtTime(value: unknown /* ext vector */, time: number): void;
+	setDouble2AtTime(value: unknown /* ext vector */, time: number): void
 
-  float2AtTime(time: number): unknown /* ext vector */;
+	float2AtTime(time: number): unknown /* ext vector */
 
-  double2AtTime(time: number): unknown /* ext vector */;
+	double2AtTime(time: number): unknown /* ext vector */
 
-  resetWithFloat2ArrayAtTimesCount(valuesArray: interop.PointerConvertible, timesArray: interop.PointerConvertible, count: number): void;
+	resetWithFloat2ArrayAtTimesCount(
+		valuesArray: interop.PointerConvertible,
+		timesArray: interop.PointerConvertible,
+		count: number,
+	): void
 
-  resetWithDouble2ArrayAtTimesCount(valuesArray: interop.PointerConvertible, timesArray: interop.PointerConvertible, count: number): void;
+	resetWithDouble2ArrayAtTimesCount(
+		valuesArray: interop.PointerConvertible,
+		timesArray: interop.PointerConvertible,
+		count: number,
+	): void
 
-  getFloat2ArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number;
+	getFloat2ArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number
 
-  getDouble2ArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number;
+	getDouble2ArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number
 }
 
 declare class MDLAnimatedScalar extends MDLAnimatedValue {
-  setFloatAtTime(value: number, time: number): void;
+	setFloatAtTime(value: number, time: number): void
 
-  setDoubleAtTime(value: number, time: number): void;
+	setDoubleAtTime(value: number, time: number): void
 
-  floatAtTime(time: number): number;
+	floatAtTime(time: number): number
 
-  doubleAtTime(time: number): number;
+	doubleAtTime(time: number): number
 
-  resetWithFloatArrayAtTimesCount(valuesArray: interop.PointerConvertible, timesArray: interop.PointerConvertible, count: number): void;
+	resetWithFloatArrayAtTimesCount(
+		valuesArray: interop.PointerConvertible,
+		timesArray: interop.PointerConvertible,
+		count: number,
+	): void
 
-  resetWithDoubleArrayAtTimesCount(valuesArray: interop.PointerConvertible, timesArray: interop.PointerConvertible, count: number): void;
+	resetWithDoubleArrayAtTimesCount(
+		valuesArray: interop.PointerConvertible,
+		timesArray: interop.PointerConvertible,
+		count: number,
+	): void
 
-  getFloatArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number;
+	getFloatArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number
 
-  getDoubleArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number;
+	getDoubleArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number
 }
 
 declare class MDLAnimatedQuaternionArray extends MDLAnimatedValue {
-  readonly elementCount: number;
+	readonly elementCount: number
 
-  initWithElementCount(arrayElementCount: number): this;
+	initWithElementCount(arrayElementCount: number): this
 
-  setFloatQuaternionArrayCountAtTime(array: interop.PointerConvertible, count: number, time: number): void;
+	setFloatQuaternionArrayCountAtTime(
+		array: interop.PointerConvertible,
+		count: number,
+		time: number,
+	): void
 
-  setDoubleQuaternionArrayCountAtTime(array: interop.PointerConvertible, count: number, time: number): void;
+	setDoubleQuaternionArrayCountAtTime(
+		array: interop.PointerConvertible,
+		count: number,
+		time: number,
+	): void
 
-  getFloatQuaternionArrayMaxCountAtTime(array: interop.PointerConvertible, maxCount: number, time: number): number;
+	getFloatQuaternionArrayMaxCountAtTime(
+		array: interop.PointerConvertible,
+		maxCount: number,
+		time: number,
+	): number
 
-  getDoubleQuaternionArrayMaxCountAtTime(array: interop.PointerConvertible, maxCount: number, time: number): number;
+	getDoubleQuaternionArrayMaxCountAtTime(
+		array: interop.PointerConvertible,
+		maxCount: number,
+		time: number,
+	): number
 
-  resetWithFloatQuaternionArrayCountAtTimesCount(valuesArray: interop.PointerConvertible, valuesCount: number, timesArray: interop.PointerConvertible, timesCount: number): void;
+	resetWithFloatQuaternionArrayCountAtTimesCount(
+		valuesArray: interop.PointerConvertible,
+		valuesCount: number,
+		timesArray: interop.PointerConvertible,
+		timesCount: number,
+	): void
 
-  resetWithDoubleQuaternionArrayCountAtTimesCount(valuesArray: interop.PointerConvertible, valuesCount: number, timesArray: interop.PointerConvertible, timesCount: number): void;
+	resetWithDoubleQuaternionArrayCountAtTimesCount(
+		valuesArray: interop.PointerConvertible,
+		valuesCount: number,
+		timesArray: interop.PointerConvertible,
+		timesCount: number,
+	): void
 
-  getFloatQuaternionArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number;
+	getFloatQuaternionArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number
 
-  getDoubleQuaternionArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number;
+	getDoubleQuaternionArrayMaxCount(
+		valuesArray: interop.PointerConvertible,
+		maxCount: number,
+	): number
 }
 
 declare class MDLAnimatedVector3Array extends MDLAnimatedValue {
-  readonly elementCount: number;
+	readonly elementCount: number
 
-  initWithElementCount(arrayElementCount: number): this;
+	initWithElementCount(arrayElementCount: number): this
 
-  setFloat3ArrayCountAtTime(array: interop.PointerConvertible, count: number, time: number): void;
+	setFloat3ArrayCountAtTime(array: interop.PointerConvertible, count: number, time: number): void
 
-  setDouble3ArrayCountAtTime(array: interop.PointerConvertible, count: number, time: number): void;
+	setDouble3ArrayCountAtTime(array: interop.PointerConvertible, count: number, time: number): void
 
-  getFloat3ArrayMaxCountAtTime(array: interop.PointerConvertible, maxCount: number, time: number): number;
+	getFloat3ArrayMaxCountAtTime(
+		array: interop.PointerConvertible,
+		maxCount: number,
+		time: number,
+	): number
 
-  getDouble3ArrayMaxCountAtTime(array: interop.PointerConvertible, maxCount: number, time: number): number;
+	getDouble3ArrayMaxCountAtTime(
+		array: interop.PointerConvertible,
+		maxCount: number,
+		time: number,
+	): number
 
-  resetWithFloat3ArrayCountAtTimesCount(valuesArray: interop.PointerConvertible, valuesCount: number, timesArray: interop.PointerConvertible, timesCount: number): void;
+	resetWithFloat3ArrayCountAtTimesCount(
+		valuesArray: interop.PointerConvertible,
+		valuesCount: number,
+		timesArray: interop.PointerConvertible,
+		timesCount: number,
+	): void
 
-  resetWithDouble3ArrayCountAtTimesCount(valuesArray: interop.PointerConvertible, valuesCount: number, timesArray: interop.PointerConvertible, timesCount: number): void;
+	resetWithDouble3ArrayCountAtTimesCount(
+		valuesArray: interop.PointerConvertible,
+		valuesCount: number,
+		timesArray: interop.PointerConvertible,
+		timesCount: number,
+	): void
 
-  getFloat3ArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number;
+	getFloat3ArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number
 
-  getDouble3ArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number;
+	getDouble3ArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number
 }
 
 declare class MDLAnimatedScalarArray extends MDLAnimatedValue {
-  readonly elementCount: number;
+	readonly elementCount: number
 
-  initWithElementCount(arrayElementCount: number): this;
+	initWithElementCount(arrayElementCount: number): this
 
-  setFloatArrayCountAtTime(array: interop.PointerConvertible, count: number, time: number): void;
+	setFloatArrayCountAtTime(array: interop.PointerConvertible, count: number, time: number): void
 
-  setDoubleArrayCountAtTime(array: interop.PointerConvertible, count: number, time: number): void;
+	setDoubleArrayCountAtTime(array: interop.PointerConvertible, count: number, time: number): void
 
-  getFloatArrayMaxCountAtTime(array: interop.PointerConvertible, maxCount: number, time: number): number;
+	getFloatArrayMaxCountAtTime(
+		array: interop.PointerConvertible,
+		maxCount: number,
+		time: number,
+	): number
 
-  getDoubleArrayMaxCountAtTime(array: interop.PointerConvertible, maxCount: number, time: number): number;
+	getDoubleArrayMaxCountAtTime(
+		array: interop.PointerConvertible,
+		maxCount: number,
+		time: number,
+	): number
 
-  resetWithFloatArrayCountAtTimesCount(valuesArray: interop.PointerConvertible, valuesCount: number, timesArray: interop.PointerConvertible, timesCount: number): void;
+	resetWithFloatArrayCountAtTimesCount(
+		valuesArray: interop.PointerConvertible,
+		valuesCount: number,
+		timesArray: interop.PointerConvertible,
+		timesCount: number,
+	): void
 
-  resetWithDoubleArrayCountAtTimesCount(valuesArray: interop.PointerConvertible, valuesCount: number, timesArray: interop.PointerConvertible, timesCount: number): void;
+	resetWithDoubleArrayCountAtTimesCount(
+		valuesArray: interop.PointerConvertible,
+		valuesCount: number,
+		timesArray: interop.PointerConvertible,
+		timesCount: number,
+	): void
 
-  getFloatArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number;
+	getFloatArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number
 
-  getDoubleArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number;
+	getDoubleArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number
 }
 
 declare class MDLAnimatedValue extends NSObject implements NSCopying {
-  isAnimated(): boolean;
+	isAnimated(): boolean
 
-  readonly precision: interop.Enum<typeof MDLDataPrecision>;
+	readonly precision: interop.Enum<typeof MDLDataPrecision>
 
-  readonly timeSampleCount: number;
+	readonly timeSampleCount: number
 
-  readonly minimumTime: number;
+	readonly minimumTime: number
 
-  readonly maximumTime: number;
+	readonly maximumTime: number
 
-  interpolation: interop.Enum<typeof MDLAnimatedValueInterpolation>;
+	interpolation: interop.Enum<typeof MDLAnimatedValueInterpolation>
 
-  readonly keyTimes: NSArray;
+	readonly keyTimes: NSArray
 
-  clear(): void;
+	clear(): void
 
-  getTimesMaxCount(timesArray: interop.PointerConvertible, maxCount: number): number;
+	getTimesMaxCount(timesArray: interop.PointerConvertible, maxCount: number): number
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class MDLMatrix4x4Array extends NSObject implements NSCopying {
-  readonly elementCount: number;
+	readonly elementCount: number
 
-  readonly precision: interop.Enum<typeof MDLDataPrecision>;
+	readonly precision: interop.Enum<typeof MDLDataPrecision>
 
-  clear(): void;
+	clear(): void
 
-  initWithElementCount(arrayElementCount: number): this;
+	initWithElementCount(arrayElementCount: number): this
 
-  setFloat4x4ArrayCount(valuesArray: interop.PointerConvertible, count: number): void;
+	setFloat4x4ArrayCount(valuesArray: interop.PointerConvertible, count: number): void
 
-  setDouble4x4ArrayCount(valuesArray: interop.PointerConvertible, count: number): void;
+	setDouble4x4ArrayCount(valuesArray: interop.PointerConvertible, count: number): void
 
-  getFloat4x4ArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number;
+	getFloat4x4ArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number
 
-  getDouble4x4ArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number;
+	getDouble4x4ArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class MDLVertexDescriptor extends NSObject implements NSCopying {
-  initWithVertexDescriptor(vertexDescriptor: MDLVertexDescriptor): this;
+	initWithVertexDescriptor(vertexDescriptor: MDLVertexDescriptor): this
 
-  attributeNamed(name: string): MDLVertexAttribute;
+	attributeNamed(name: string): MDLVertexAttribute
 
-  addOrReplaceAttribute(attribute: MDLVertexAttribute): void;
+	addOrReplaceAttribute(attribute: MDLVertexAttribute): void
 
-  removeAttributeNamed(name: string): void;
+	removeAttributeNamed(name: string): void
 
-  attributes: NSMutableArray;
+	attributes: NSMutableArray
 
-  layouts: NSMutableArray;
+	layouts: NSMutableArray
 
-  reset(): void;
+	reset(): void
 
-  setPackedStrides(): void;
+	setPackedStrides(): void
 
-  setPackedOffsets(): void;
+	setPackedOffsets(): void
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class MDLVertexAttribute extends NSObject implements NSCopying {
-  initWithNameFormatOffsetBufferIndex(name: string, format: interop.Enum<typeof MDLVertexFormat>, offset: number, bufferIndex: number): this;
+	initWithNameFormatOffsetBufferIndex(
+		name: string,
+		format: interop.Enum<typeof MDLVertexFormat>,
+		offset: number,
+		bufferIndex: number,
+	): this
 
-  name: string;
+	name: string
 
-  format: interop.Enum<typeof MDLVertexFormat>;
+	format: interop.Enum<typeof MDLVertexFormat>
 
-  offset: number;
+	offset: number
 
-  bufferIndex: number;
+	bufferIndex: number
 
-  time: number;
+	time: number
 
-  initializationValue: unknown /* ext vector */;
+	initializationValue: unknown /* ext vector */
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class MDLVertexBufferLayout extends NSObject implements NSCopying {
-  initWithStride(stride: number): this;
+	initWithStride(stride: number): this
 
-  stride: number;
+	stride: number
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class MDLMeshBufferZoneDefault extends NSObject implements MDLMeshBufferZone {
-  readonly capacity: number;
+	readonly capacity: number
 
-  readonly allocator: MDLMeshBufferAllocator;
+	readonly allocator: MDLMeshBufferAllocator
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 }
 
 declare class MDLMeshBufferDataAllocator extends NSObject implements MDLMeshBufferAllocator {
-  newZone(capacity: number): MDLMeshBufferZone;
+	newZone(capacity: number): MDLMeshBufferZone
 
-  newZoneForBuffersWithSizeAndType(sizes: NSArray<interop.Object> | Array<interop.Object>, types: NSArray<interop.Object> | Array<interop.Object>): MDLMeshBufferZone;
+	newZoneForBuffersWithSizeAndType(
+		sizes: NSArray<interop.Object> | Array<interop.Object>,
+		types: NSArray<interop.Object> | Array<interop.Object>,
+	): MDLMeshBufferZone
 
-  newBufferType(length: number, type: interop.Enum<typeof MDLMeshBufferType>): MDLMeshBuffer;
+	newBufferType(length: number, type: interop.Enum<typeof MDLMeshBufferType>): MDLMeshBuffer
 
-  newBufferWithDataType(data: NSData, type: interop.Enum<typeof MDLMeshBufferType>): MDLMeshBuffer;
+	newBufferWithDataType(data: NSData, type: interop.Enum<typeof MDLMeshBufferType>): MDLMeshBuffer
 
-  newBufferFromZoneLengthType(zone: MDLMeshBufferZone | null, length: number, type: interop.Enum<typeof MDLMeshBufferType>): MDLMeshBuffer;
+	newBufferFromZoneLengthType(
+		zone: MDLMeshBufferZone | null,
+		length: number,
+		type: interop.Enum<typeof MDLMeshBufferType>,
+	): MDLMeshBuffer
 
-  newBufferFromZoneDataType(zone: MDLMeshBufferZone | null, data: NSData, type: interop.Enum<typeof MDLMeshBufferType>): MDLMeshBuffer;
+	newBufferFromZoneDataType(
+		zone: MDLMeshBufferZone | null,
+		data: NSData,
+		type: interop.Enum<typeof MDLMeshBufferType>,
+	): MDLMeshBuffer
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 }
 
 // @ts-ignore ClassDecl.tsIgnore
 declare class MDLMeshBufferData extends NSObject implements MDLMeshBuffer {
-  initWithTypeLength(type: interop.Enum<typeof MDLMeshBufferType>, length: number): this;
+	initWithTypeLength(type: interop.Enum<typeof MDLMeshBufferType>, length: number): this
 
-  initWithTypeData(type: interop.Enum<typeof MDLMeshBufferType>, data: NSData | null): this;
+	initWithTypeData(type: interop.Enum<typeof MDLMeshBufferType>, data: NSData | null): this
 
-  readonly data: NSData;
+	readonly data: NSData
 
-  fillDataOffset(data: NSData, offset: number): void;
+	fillDataOffset(data: NSData, offset: number): void
 
-  map(): MDLMeshBufferMap;
+	map(): MDLMeshBufferMap
 
-  readonly length: number;
+	readonly length: number
 
-  readonly allocator: MDLMeshBufferAllocator;
+	readonly allocator: MDLMeshBufferAllocator
 
-  // @ts-ignore MemberDecl.tsIgnore
-  readonly zone: MDLMeshBufferZone;
+	// @ts-ignore MemberDecl.tsIgnore
+	readonly zone: MDLMeshBufferZone
 
-  readonly type: interop.Enum<typeof MDLMeshBufferType>;
+	readonly type: interop.Enum<typeof MDLMeshBufferType>
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 }
 
 declare class MDLMeshBufferMap extends NSObject {
-  initWithBytesDeallocator(bytes: interop.PointerConvertible, deallocator: () => void | null): this;
+	initWithBytesDeallocator(bytes: interop.PointerConvertible, deallocator: () => void | null): this
 
-  readonly bytes: interop.Pointer;
+	readonly bytes: interop.Pointer
 }
 
 declare class MDLTransform extends NSObject implements NSCopying, MDLTransformComponent {
-  init(): this;
+	init(): this
 
-  initWithIdentity(): this;
+	initWithIdentity(): this
 
-  initWithTransformComponent(component: MDLTransformComponent): this;
+	initWithTransformComponent(component: MDLTransformComponent): this
 
-  initWithTransformComponentResetsTransform(component: MDLTransformComponent, resetsTransform: boolean): this;
+	initWithTransformComponentResetsTransform(
+		component: MDLTransformComponent,
+		resetsTransform: boolean,
+	): this
 
-  initWithMatrix(matrix: simd_float4x4): this;
+	initWithMatrix(matrix: simd_float4x4): this
 
-  initWithMatrixResetsTransform(matrix: simd_float4x4, resetsTransform: boolean): this;
+	initWithMatrixResetsTransform(matrix: simd_float4x4, resetsTransform: boolean): this
 
-  setIdentity(): void;
+	setIdentity(): void
 
-  translationAtTime(time: number): unknown /* ext vector */;
+	translationAtTime(time: number): unknown /* ext vector */
 
-  rotationAtTime(time: number): unknown /* ext vector */;
+	rotationAtTime(time: number): unknown /* ext vector */
 
-  shearAtTime(time: number): unknown /* ext vector */;
+	shearAtTime(time: number): unknown /* ext vector */
 
-  scaleAtTime(time: number): unknown /* ext vector */;
+	scaleAtTime(time: number): unknown /* ext vector */
 
-  setMatrixForTime(matrix: simd_float4x4, time: number): void;
+	setMatrixForTime(matrix: simd_float4x4, time: number): void
 
-  setTranslationForTime(translation: unknown /* ext vector */, time: number): void;
+	setTranslationForTime(translation: unknown /* ext vector */, time: number): void
 
-  setRotationForTime(rotation: unknown /* ext vector */, time: number): void;
+	setRotationForTime(rotation: unknown /* ext vector */, time: number): void
 
-  setShearForTime(shear: unknown /* ext vector */, time: number): void;
+	setShearForTime(shear: unknown /* ext vector */, time: number): void
 
-  setScaleForTime(scale: unknown /* ext vector */, time: number): void;
+	setScaleForTime(scale: unknown /* ext vector */, time: number): void
 
-  rotationMatrixAtTime(time: number): simd_float4x4;
+	rotationMatrixAtTime(time: number): simd_float4x4
 
-  translation: unknown /* ext vector */;
+	translation: unknown /* ext vector */
 
-  rotation: unknown /* ext vector */;
+	rotation: unknown /* ext vector */
 
-  shear: unknown /* ext vector */;
+	shear: unknown /* ext vector */
 
-  scale: unknown /* ext vector */;
+	scale: unknown /* ext vector */
 
-  copyWithZone(zone: interop.PointerConvertible): interop.Object;
+	copyWithZone(zone: interop.PointerConvertible): interop.Object
 
-  matrix: simd_float4x4;
+	matrix: simd_float4x4
 
-  resetsTransform: boolean;
+	resetsTransform: boolean
 
-  readonly minimumTime: number;
+	readonly minimumTime: number
 
-  readonly maximumTime: number;
+	readonly maximumTime: number
 
-  readonly keyTimes: NSArray;
+	readonly keyTimes: NSArray
 
-  setLocalTransformForTime(transform: simd_float4x4, time: number): void;
+	setLocalTransformForTime(transform: simd_float4x4, time: number): void
 
-  setLocalTransform(transform: simd_float4x4): void;
+	setLocalTransform(transform: simd_float4x4): void
 
-  localTransformAtTime(time: number): simd_float4x4;
+	localTransformAtTime(time: number): simd_float4x4
 
-  static globalTransformWithObjectAtTime(object: MDLObject, time: number): simd_float4x4;
+	static globalTransformWithObjectAtTime(object: MDLObject, time: number): simd_float4x4
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 }
 
 declare class MDLPhysicallyPlausibleScatteringFunction extends MDLScatteringFunction {
-  readonly version: number;
+	readonly version: number
 
-  readonly subsurface: MDLMaterialProperty;
+	readonly subsurface: MDLMaterialProperty
 
-  readonly metallic: MDLMaterialProperty;
+	readonly metallic: MDLMaterialProperty
 
-  readonly specularAmount: MDLMaterialProperty;
+	readonly specularAmount: MDLMaterialProperty
 
-  readonly specularTint: MDLMaterialProperty;
+	readonly specularTint: MDLMaterialProperty
 
-  readonly roughness: MDLMaterialProperty;
+	readonly roughness: MDLMaterialProperty
 
-  readonly anisotropic: MDLMaterialProperty;
+	readonly anisotropic: MDLMaterialProperty
 
-  readonly anisotropicRotation: MDLMaterialProperty;
+	readonly anisotropicRotation: MDLMaterialProperty
 
-  readonly sheen: MDLMaterialProperty;
+	readonly sheen: MDLMaterialProperty
 
-  readonly sheenTint: MDLMaterialProperty;
+	readonly sheenTint: MDLMaterialProperty
 
-  readonly clearcoat: MDLMaterialProperty;
+	readonly clearcoat: MDLMaterialProperty
 
-  readonly clearcoatGloss: MDLMaterialProperty;
+	readonly clearcoatGloss: MDLMaterialProperty
 }
 
 declare class MDLLight extends MDLObject {
-  irradianceAtPoint(point: unknown /* ext vector */): interop.Object;
+	irradianceAtPoint(point: unknown /* ext vector */): interop.Object
 
-  irradianceAtPointColorSpace(point: unknown /* ext vector */, colorSpace: interop.Object): interop.Object;
+	irradianceAtPointColorSpace(
+		point: unknown /* ext vector */,
+		colorSpace: interop.Object,
+	): interop.Object
 
-  lightType: interop.Enum<typeof MDLLightType>;
+	lightType: interop.Enum<typeof MDLLightType>
 
-  colorSpace: string;
+	colorSpace: string
 
-  static lightWithSCNLight<This extends abstract new (...args: any) => any>(this: This, scnLight: SCNLight): InstanceType<This>;
+	static lightWithSCNLight<This extends abstract new (...args: any) => any>(
+		this: This,
+		scnLight: SCNLight,
+	): InstanceType<This>
 }
 
 declare class MDLTransformRotateZOp extends NSObject implements MDLTransformOp {
-  readonly name: string;
+	readonly name: string
 
-  readonly animatedValue: MDLAnimatedScalar;
+	readonly animatedValue: MDLAnimatedScalar
 
-  float4x4AtTime(time: number): simd_float4x4;
+	float4x4AtTime(time: number): simd_float4x4
 
-  double4x4AtTime(time: number): simd_double4x4;
+	double4x4AtTime(time: number): simd_double4x4
 
-  IsInverseOp(): boolean;
+	IsInverseOp(): boolean
 }
 
 declare class MDLNormalMapTexture extends MDLTexture {
-  initByGeneratingNormalMapWithTextureNameSmoothnessContrast(sourceTexture: MDLTexture, name: string | null, smoothness: number, contrast: number): this;
+	initByGeneratingNormalMapWithTextureNameSmoothnessContrast(
+		sourceTexture: MDLTexture,
+		name: string | null,
+		smoothness: number,
+		contrast: number,
+	): this
 }
 
 declare class MDLLightProbe extends MDLLight {
-  initWithReflectiveTextureIrradianceTexture(reflectiveTexture: MDLTexture | null, irradianceTexture: MDLTexture | null): this;
+	initWithReflectiveTextureIrradianceTexture(
+		reflectiveTexture: MDLTexture | null,
+		irradianceTexture: MDLTexture | null,
+	): this
 
-  generateSphericalHarmonicsFromIrradiance(sphericalHarmonicsLevel: number): void;
+	generateSphericalHarmonicsFromIrradiance(sphericalHarmonicsLevel: number): void
 
-  readonly reflectiveTexture: MDLTexture;
+	readonly reflectiveTexture: MDLTexture
 
-  readonly irradianceTexture: MDLTexture;
+	readonly irradianceTexture: MDLTexture
 
-  readonly sphericalHarmonicsLevel: number;
+	readonly sphericalHarmonicsLevel: number
 
-  readonly sphericalHarmonicsCoefficients: NSData;
+	readonly sphericalHarmonicsCoefficients: NSData
 
-  static lightProbeWithTextureSizeForLocationLightsToConsiderObjectsToConsiderReflectiveCubemapIrradianceCubemap(textureSize: number, transform: MDLTransform, lightsToConsider: NSArray<interop.Object> | Array<interop.Object>, objectsToConsider: NSArray<interop.Object> | Array<interop.Object>, reflectiveCubemap: MDLTexture | null, irradianceCubemap: MDLTexture | null): MDLLightProbe;
+	static lightProbeWithTextureSizeForLocationLightsToConsiderObjectsToConsiderReflectiveCubemapIrradianceCubemap(
+		textureSize: number,
+		transform: MDLTransform,
+		lightsToConsider: NSArray<interop.Object> | Array<interop.Object>,
+		objectsToConsider: NSArray<interop.Object> | Array<interop.Object>,
+		reflectiveCubemap: MDLTexture | null,
+		irradianceCubemap: MDLTexture | null,
+	): MDLLightProbe
 }
 
 declare class MDLTexture extends NSObject implements MDLNamed {
-  init(): this;
+	init(): this
 
-  static textureNamed<This extends abstract new (...args: any) => any>(this: This, name: string): InstanceType<This>;
+	static textureNamed<This extends abstract new (...args: any) => any>(
+		this: This,
+		name: string,
+	): InstanceType<This>
 
-  static textureNamedBundle<This extends abstract new (...args: any) => any>(this: This, name: string, bundleOrNil: NSBundle | null): InstanceType<This>;
+	static textureNamedBundle<This extends abstract new (...args: any) => any>(
+		this: This,
+		name: string,
+		bundleOrNil: NSBundle | null,
+	): InstanceType<This>
 
-  static textureNamedAssetResolver<This extends abstract new (...args: any) => any>(this: This, name: string, resolver: MDLAssetResolver): InstanceType<This>;
+	static textureNamedAssetResolver<This extends abstract new (...args: any) => any>(
+		this: This,
+		name: string,
+		resolver: MDLAssetResolver,
+	): InstanceType<This>
 
-  static textureCubeWithImagesNamed<This extends abstract new (...args: any) => any>(this: This, names: NSArray<interop.Object> | Array<interop.Object>): InstanceType<This>;
+	static textureCubeWithImagesNamed<This extends abstract new (...args: any) => any>(
+		this: This,
+		names: NSArray<interop.Object> | Array<interop.Object>,
+	): InstanceType<This>
 
-  static textureCubeWithImagesNamedBundle<This extends abstract new (...args: any) => any>(this: This, names: NSArray<interop.Object> | Array<interop.Object>, bundleOrNil: NSBundle | null): InstanceType<This>;
+	static textureCubeWithImagesNamedBundle<This extends abstract new (...args: any) => any>(
+		this: This,
+		names: NSArray<interop.Object> | Array<interop.Object>,
+		bundleOrNil: NSBundle | null,
+	): InstanceType<This>
 
-  static irradianceTextureCubeWithTextureNameDimensions<This extends abstract new (...args: any) => any>(this: This, texture: MDLTexture, name: string | null, dimensions: unknown /* ext vector */): InstanceType<This>;
+	static irradianceTextureCubeWithTextureNameDimensions<
+		This extends abstract new (...args: any) => any,
+	>(
+		this: This,
+		texture: MDLTexture,
+		name: string | null,
+		dimensions: unknown /* ext vector */,
+	): InstanceType<This>
 
-  static irradianceTextureCubeWithTextureNameDimensionsRoughness<This extends abstract new (...args: any) => any>(this: This, texture: MDLTexture, name: string | null, dimensions: unknown /* ext vector */, roughness: number): InstanceType<This>;
+	static irradianceTextureCubeWithTextureNameDimensionsRoughness<
+		This extends abstract new (...args: any) => any,
+	>(
+		this: This,
+		texture: MDLTexture,
+		name: string | null,
+		dimensions: unknown /* ext vector */,
+		roughness: number,
+	): InstanceType<This>
 
-  initWithDataTopLeftOriginNameDimensionsRowStrideChannelCountChannelEncodingIsCube(pixelData: NSData | null, topLeftOrigin: boolean, name: string | null, dimensions: unknown /* ext vector */, rowStride: number, channelCount: number, channelEncoding: interop.Enum<typeof MDLTextureChannelEncoding>, isCube: boolean): this;
+	initWithDataTopLeftOriginNameDimensionsRowStrideChannelCountChannelEncodingIsCube(
+		pixelData: NSData | null,
+		topLeftOrigin: boolean,
+		name: string | null,
+		dimensions: unknown /* ext vector */,
+		rowStride: number,
+		channelCount: number,
+		channelEncoding: interop.Enum<typeof MDLTextureChannelEncoding>,
+		isCube: boolean,
+	): this
 
-  writeToURL(URL: NSURL): boolean;
+	writeToURL(URL: NSURL): boolean
 
-  writeToURLLevel(URL: NSURL, level: number): boolean;
+	writeToURLLevel(URL: NSURL, level: number): boolean
 
-  writeToURLType(nsurl: NSURL, type: interop.Object): boolean;
+	writeToURLType(nsurl: NSURL, type: interop.Object): boolean
 
-  writeToURLTypeLevel(nsurl: NSURL, type: interop.Object, level: number): boolean;
+	writeToURLTypeLevel(nsurl: NSURL, type: interop.Object, level: number): boolean
 
-  imageFromTexture(): interop.Object;
+	imageFromTexture(): interop.Object
 
-  imageFromTextureAtLevel(level: number): interop.Object;
+	imageFromTextureAtLevel(level: number): interop.Object
 
-  texelDataWithTopLeftOrigin(): NSData;
+	texelDataWithTopLeftOrigin(): NSData
 
-  texelDataWithBottomLeftOrigin(): NSData;
+	texelDataWithBottomLeftOrigin(): NSData
 
-  texelDataWithTopLeftOriginAtMipLevelCreate(level: number, create: boolean): NSData;
+	texelDataWithTopLeftOriginAtMipLevelCreate(level: number, create: boolean): NSData
 
-  texelDataWithBottomLeftOriginAtMipLevelCreate(level: number, create: boolean): NSData;
+	texelDataWithBottomLeftOriginAtMipLevelCreate(level: number, create: boolean): NSData
 
-  readonly dimensions: unknown /* ext vector */;
+	readonly dimensions: unknown /* ext vector */
 
-  readonly rowStride: number;
+	readonly rowStride: number
 
-  readonly channelCount: number;
+	readonly channelCount: number
 
-  readonly mipLevelCount: number;
+	readonly mipLevelCount: number
 
-  readonly channelEncoding: interop.Enum<typeof MDLTextureChannelEncoding>;
+	readonly channelEncoding: interop.Enum<typeof MDLTextureChannelEncoding>
 
-  isCube: boolean;
+	isCube: boolean
 
-  hasAlphaValues: boolean;
+	hasAlphaValues: boolean
 
-  name: string;
+	name: string
 }
 
 declare class MDLTransformRotateXOp extends NSObject implements MDLTransformOp {
-  readonly name: string;
+	readonly name: string
 
-  readonly animatedValue: MDLAnimatedScalar;
+	readonly animatedValue: MDLAnimatedScalar
 
-  float4x4AtTime(time: number): simd_float4x4;
+	float4x4AtTime(time: number): simd_float4x4
 
-  double4x4AtTime(time: number): simd_double4x4;
+	double4x4AtTime(time: number): simd_double4x4
 
-  IsInverseOp(): boolean;
+	IsInverseOp(): boolean
 }
 
 declare class MDLTransformRotateYOp extends NSObject implements MDLTransformOp {
-  readonly name: string;
+	readonly name: string
 
-  readonly animatedValue: MDLAnimatedScalar;
+	readonly animatedValue: MDLAnimatedScalar
 
-  float4x4AtTime(time: number): simd_float4x4;
+	float4x4AtTime(time: number): simd_float4x4
 
-  double4x4AtTime(time: number): simd_double4x4;
+	double4x4AtTime(time: number): simd_double4x4
 
-  IsInverseOp(): boolean;
+	IsInverseOp(): boolean
 }
 
 declare class MDLTransformOrientOp extends NSObject implements MDLTransformOp {
-  readonly name: string;
+	readonly name: string
 
-  readonly animatedValue: MDLAnimatedQuaternion;
+	readonly animatedValue: MDLAnimatedQuaternion
 
-  float4x4AtTime(time: number): simd_float4x4;
+	float4x4AtTime(time: number): simd_float4x4
 
-  double4x4AtTime(time: number): simd_double4x4;
+	double4x4AtTime(time: number): simd_double4x4
 
-  IsInverseOp(): boolean;
+	IsInverseOp(): boolean
 }
 
 declare class MDLAnimatedVector3 extends MDLAnimatedValue {
-  setFloat3AtTime(value: unknown /* ext vector */, time: number): void;
+	setFloat3AtTime(value: unknown /* ext vector */, time: number): void
 
-  setDouble3AtTime(value: unknown /* ext vector */, time: number): void;
+	setDouble3AtTime(value: unknown /* ext vector */, time: number): void
 
-  float3AtTime(time: number): unknown /* ext vector */;
+	float3AtTime(time: number): unknown /* ext vector */
 
-  double3AtTime(time: number): unknown /* ext vector */;
+	double3AtTime(time: number): unknown /* ext vector */
 
-  resetWithFloat3ArrayAtTimesCount(valuesArray: interop.PointerConvertible, timesArray: interop.PointerConvertible, count: number): void;
+	resetWithFloat3ArrayAtTimesCount(
+		valuesArray: interop.PointerConvertible,
+		timesArray: interop.PointerConvertible,
+		count: number,
+	): void
 
-  resetWithDouble3ArrayAtTimesCount(valuesArray: interop.PointerConvertible, timesArray: interop.PointerConvertible, count: number): void;
+	resetWithDouble3ArrayAtTimesCount(
+		valuesArray: interop.PointerConvertible,
+		timesArray: interop.PointerConvertible,
+		count: number,
+	): void
 
-  getFloat3ArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number;
+	getFloat3ArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number
 
-  getDouble3ArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number;
+	getDouble3ArrayMaxCount(valuesArray: interop.PointerConvertible, maxCount: number): number
 }
 
 declare class MDLRelativeAssetResolver extends NSObject implements MDLAssetResolver {
-  initWithAsset(asset: MDLAsset): this;
+	initWithAsset(asset: MDLAsset): this
 
-  asset: MDLAsset | null;
+	asset: MDLAsset | null
 
-  canResolveAssetNamed(name: string): boolean;
+	canResolveAssetNamed(name: string): boolean
 
-  resolveAssetNamed(name: string): NSURL;
+	resolveAssetNamed(name: string): NSURL
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 }
 
 declare class MDLTransformMatrixOp extends NSObject implements MDLTransformOp {
-  readonly name: string;
+	readonly name: string
 
-  readonly animatedValue: MDLAnimatedMatrix4x4;
+	readonly animatedValue: MDLAnimatedMatrix4x4
 
-  float4x4AtTime(time: number): simd_float4x4;
+	float4x4AtTime(time: number): simd_float4x4
 
-  double4x4AtTime(time: number): simd_double4x4;
+	double4x4AtTime(time: number): simd_double4x4
 
-  IsInverseOp(): boolean;
+	IsInverseOp(): boolean
 }
 
 declare class MDLVoxelArray extends MDLObject {
-  initWithAssetDivisionsPatchRadius(asset: MDLAsset, divisions: number, patchRadius: number): this;
+	initWithAssetDivisionsPatchRadius(asset: MDLAsset, divisions: number, patchRadius: number): this
 
-  initWithDataBoundingBoxVoxelExtent(voxelData: NSData, boundingBox: MDLAxisAlignedBoundingBox, voxelExtent: number): this;
+	initWithDataBoundingBoxVoxelExtent(
+		voxelData: NSData,
+		boundingBox: MDLAxisAlignedBoundingBox,
+		voxelExtent: number,
+	): this
 
-  initWithAssetDivisionsInteriorShellsExteriorShellsPatchRadius(asset: MDLAsset, divisions: number, interiorShells: number, exteriorShells: number, patchRadius: number): this;
+	initWithAssetDivisionsInteriorShellsExteriorShellsPatchRadius(
+		asset: MDLAsset,
+		divisions: number,
+		interiorShells: number,
+		exteriorShells: number,
+		patchRadius: number,
+	): this
 
-  initWithAssetDivisionsInteriorNBWidthExteriorNBWidthPatchRadius(asset: MDLAsset, divisions: number, interiorNBWidth: number, exteriorNBWidth: number, patchRadius: number): this;
+	initWithAssetDivisionsInteriorNBWidthExteriorNBWidthPatchRadius(
+		asset: MDLAsset,
+		divisions: number,
+		interiorNBWidth: number,
+		exteriorNBWidth: number,
+		patchRadius: number,
+	): this
 
-  readonly count: number;
+	readonly count: number
 
-  readonly voxelIndexExtent: MDLVoxelIndexExtent;
+	readonly voxelIndexExtent: MDLVoxelIndexExtent
 
-  voxelExistsAtIndexAllowAnyXAllowAnyYAllowAnyZAllowAnyShell(index: unknown /* ext vector */, allowAnyX: boolean, allowAnyY: boolean, allowAnyZ: boolean, allowAnyShell: boolean): boolean;
+	voxelExistsAtIndexAllowAnyXAllowAnyYAllowAnyZAllowAnyShell(
+		index: unknown /* ext vector */,
+		allowAnyX: boolean,
+		allowAnyY: boolean,
+		allowAnyZ: boolean,
+		allowAnyShell: boolean,
+	): boolean
 
-  voxelsWithinExtent(extent: MDLVoxelIndexExtent): NSData;
+	voxelsWithinExtent(extent: MDLVoxelIndexExtent): NSData
 
-  voxelIndices(): NSData;
+	voxelIndices(): NSData
 
-  setVoxelAtIndex(index: unknown /* ext vector */): void;
+	setVoxelAtIndex(index: unknown /* ext vector */): void
 
-  setVoxelsForMeshDivisionsPatchRadius(mesh: MDLMesh, divisions: number, patchRadius: number): void;
+	setVoxelsForMeshDivisionsPatchRadius(mesh: MDLMesh, divisions: number, patchRadius: number): void
 
-  setVoxelsForMeshDivisionsInteriorShellsExteriorShellsPatchRadius(mesh: MDLMesh, divisions: number, interiorShells: number, exteriorShells: number, patchRadius: number): void;
+	setVoxelsForMeshDivisionsInteriorShellsExteriorShellsPatchRadius(
+		mesh: MDLMesh,
+		divisions: number,
+		interiorShells: number,
+		exteriorShells: number,
+		patchRadius: number,
+	): void
 
-  setVoxelsForMeshDivisionsInteriorNBWidthExteriorNBWidthPatchRadius(mesh: MDLMesh, divisions: number, interiorNBWidth: number, exteriorNBWidth: number, patchRadius: number): void;
+	setVoxelsForMeshDivisionsInteriorNBWidthExteriorNBWidthPatchRadius(
+		mesh: MDLMesh,
+		divisions: number,
+		interiorNBWidth: number,
+		exteriorNBWidth: number,
+		patchRadius: number,
+	): void
 
-  unionWithVoxels(voxels: MDLVoxelArray): void;
+	unionWithVoxels(voxels: MDLVoxelArray): void
 
-  intersectWithVoxels(voxels: MDLVoxelArray): void;
+	intersectWithVoxels(voxels: MDLVoxelArray): void
 
-  differenceWithVoxels(voxels: MDLVoxelArray): void;
+	differenceWithVoxels(voxels: MDLVoxelArray): void
 
-  readonly boundingBox: MDLAxisAlignedBoundingBox;
+	readonly boundingBox: MDLAxisAlignedBoundingBox
 
-  indexOfSpatialLocation(location: unknown /* ext vector */): unknown /* ext vector */;
+	indexOfSpatialLocation(location: unknown /* ext vector */): unknown /* ext vector */
 
-  spatialLocationOfIndex(index: unknown /* ext vector */): unknown /* ext vector */;
+	spatialLocationOfIndex(index: unknown /* ext vector */): unknown /* ext vector */
 
-  voxelBoundingBoxAtIndex(index: unknown /* ext vector */): MDLAxisAlignedBoundingBox;
+	voxelBoundingBoxAtIndex(index: unknown /* ext vector */): MDLAxisAlignedBoundingBox
 
-  convertToSignedShellField(): void;
+	convertToSignedShellField(): void
 
-  readonly isValidSignedShellField: boolean;
+	readonly isValidSignedShellField: boolean
 
-  shellFieldInteriorThickness: number;
+	shellFieldInteriorThickness: number
 
-  shellFieldExteriorThickness: number;
+	shellFieldExteriorThickness: number
 
-  coarseMesh(): MDLMesh;
+	coarseMesh(): MDLMesh
 
-  coarseMeshUsingAllocator(allocator: MDLMeshBufferAllocator | null): MDLMesh;
+	coarseMeshUsingAllocator(allocator: MDLMeshBufferAllocator | null): MDLMesh
 
-  meshUsingAllocator(allocator: MDLMeshBufferAllocator | null): MDLMesh;
+	meshUsingAllocator(allocator: MDLMeshBufferAllocator | null): MDLMesh
 }
 
 declare class MDLColorSwatchTexture extends MDLTexture {
-  initWithColorTemperatureGradientFromToColorTemperatureNameTextureDimensions(colorTemperature1: number, colorTemperature2: number, name: string | null, textureDimensions: unknown /* ext vector */): this;
+	initWithColorTemperatureGradientFromToColorTemperatureNameTextureDimensions(
+		colorTemperature1: number,
+		colorTemperature2: number,
+		name: string | null,
+		textureDimensions: unknown /* ext vector */,
+	): this
 
-  initWithColorGradientFromToColorNameTextureDimensions(color1: interop.Object, color2: interop.Object, name: string | null, textureDimensions: unknown /* ext vector */): this;
+	initWithColorGradientFromToColorNameTextureDimensions(
+		color1: interop.Object,
+		color2: interop.Object,
+		name: string | null,
+		textureDimensions: unknown /* ext vector */,
+	): this
 }
 
 declare class MDLObjectContainer extends NSObject implements MDLObjectContainerComponent {
-  addObject(object: MDLObject): void;
+	addObject(object: MDLObject): void
 
-  removeObject(object: MDLObject): void;
+	removeObject(object: MDLObject): void
 
-  objectAtIndexedSubscript(index: number): MDLObject;
+	objectAtIndexedSubscript(index: number): MDLObject
 
-  readonly count: number;
+	readonly count: number
 
-  readonly objects: NSArray;
+	readonly objects: NSArray
 
-  isEqual(object: interop.Object): boolean;
+	isEqual(object: interop.Object): boolean
 
-  readonly hash: number;
+	readonly hash: number
 
-  readonly superclass: interop.Pointer;
+	readonly superclass: interop.Pointer
 
-  class(): interop.Pointer;
+	class(): interop.Pointer
 
-  self(): this;
+	self(): this
 
-  performSelector(aSelector: string): interop.Object;
+	performSelector(aSelector: string): interop.Object
 
-  performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object;
+	performSelectorWithObject(aSelector: string, object: interop.Object): interop.Object
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: interop.Object, object2: interop.Object): interop.Object;
+	performSelectorWithObjectWithObject(
+		aSelector: string,
+		object1: interop.Object,
+		object2: interop.Object,
+	): interop.Object
 
-  readonly isProxy: boolean;
+	readonly isProxy: boolean
 
-  isKindOfClass(aClass: interop.PointerConvertible): boolean;
+	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
-  isMemberOfClass(aClass: interop.PointerConvertible): boolean;
+	isMemberOfClass(aClass: interop.PointerConvertible): boolean
 
-  conformsToProtocol(aProtocol: interop.PointerConvertible): boolean;
+	conformsToProtocol(aProtocol: interop.PointerConvertible): boolean
 
-  respondsToSelector(aSelector: string): boolean;
+	respondsToSelector(aSelector: string): boolean
 
-  retain(): this;
+	retain(): this
 
-  release(): void;
+	release(): void
 
-  autorelease(): this;
+	autorelease(): this
 
-  retainCount(): number;
+	retainCount(): number
 
-  readonly zone: interop.Pointer;
+	readonly zone: interop.Pointer
 
-  readonly description: string;
+	readonly description: string
 
-  readonly debugDescription: string;
+	readonly debugDescription: string
 
-  countByEnumeratingWithStateObjectsCount(state: interop.PointerConvertible, buffer: interop.PointerConvertible, len: number): number;
+	countByEnumeratingWithStateObjectsCount(
+		state: interop.PointerConvertible,
+		buffer: interop.PointerConvertible,
+		len: number,
+	): number
 }
 
 declare class MDLSubmesh extends NSObject implements MDLNamed {
-  initWithNameIndexBufferIndexCountIndexTypeGeometryTypeMaterial(name: string, indexBuffer: MDLMeshBuffer, indexCount: number, indexType: interop.Enum<typeof MDLIndexBitDepth>, geometryType: interop.Enum<typeof MDLGeometryType>, material: MDLMaterial | null): this;
+	initWithNameIndexBufferIndexCountIndexTypeGeometryTypeMaterial(
+		name: string,
+		indexBuffer: MDLMeshBuffer,
+		indexCount: number,
+		indexType: interop.Enum<typeof MDLIndexBitDepth>,
+		geometryType: interop.Enum<typeof MDLGeometryType>,
+		material: MDLMaterial | null,
+	): this
 
-  initWithIndexBufferIndexCountIndexTypeGeometryTypeMaterial(indexBuffer: MDLMeshBuffer, indexCount: number, indexType: interop.Enum<typeof MDLIndexBitDepth>, geometryType: interop.Enum<typeof MDLGeometryType>, material: MDLMaterial | null): this;
+	initWithIndexBufferIndexCountIndexTypeGeometryTypeMaterial(
+		indexBuffer: MDLMeshBuffer,
+		indexCount: number,
+		indexType: interop.Enum<typeof MDLIndexBitDepth>,
+		geometryType: interop.Enum<typeof MDLGeometryType>,
+		material: MDLMaterial | null,
+	): this
 
-  initWithNameIndexBufferIndexCountIndexTypeGeometryTypeMaterialTopology(name: string, indexBuffer: MDLMeshBuffer, indexCount: number, indexType: interop.Enum<typeof MDLIndexBitDepth>, geometryType: interop.Enum<typeof MDLGeometryType>, material: MDLMaterial | null, topology: MDLSubmeshTopology | null): this;
+	initWithNameIndexBufferIndexCountIndexTypeGeometryTypeMaterialTopology(
+		name: string,
+		indexBuffer: MDLMeshBuffer,
+		indexCount: number,
+		indexType: interop.Enum<typeof MDLIndexBitDepth>,
+		geometryType: interop.Enum<typeof MDLGeometryType>,
+		material: MDLMaterial | null,
+		topology: MDLSubmeshTopology | null,
+	): this
 
-  initWithMDLSubmeshIndexTypeGeometryType(submesh: MDLSubmesh, indexType: interop.Enum<typeof MDLIndexBitDepth>, geometryType: interop.Enum<typeof MDLGeometryType>): this;
+	initWithMDLSubmeshIndexTypeGeometryType(
+		submesh: MDLSubmesh,
+		indexType: interop.Enum<typeof MDLIndexBitDepth>,
+		geometryType: interop.Enum<typeof MDLGeometryType>,
+	): this
 
-  readonly indexBuffer: MDLMeshBuffer;
+	readonly indexBuffer: MDLMeshBuffer
 
-  indexBufferAsIndexType(indexType: interop.Enum<typeof MDLIndexBitDepth>): MDLMeshBuffer;
+	indexBufferAsIndexType(indexType: interop.Enum<typeof MDLIndexBitDepth>): MDLMeshBuffer
 
-  readonly indexCount: number;
+	readonly indexCount: number
 
-  readonly indexType: interop.Enum<typeof MDLIndexBitDepth>;
+	readonly indexType: interop.Enum<typeof MDLIndexBitDepth>
 
-  readonly geometryType: interop.Enum<typeof MDLGeometryType>;
+	readonly geometryType: interop.Enum<typeof MDLGeometryType>
 
-  material: MDLMaterial;
+	material: MDLMaterial
 
-  topology: MDLSubmeshTopology;
+	topology: MDLSubmeshTopology
 
-  name: string;
+	name: string
 
-  static submeshWithSCNGeometryElement<This extends abstract new (...args: any) => any>(this: This, scnGeometryElement: SCNGeometryElement): InstanceType<This>;
+	static submeshWithSCNGeometryElement<This extends abstract new (...args: any) => any>(
+		this: This,
+		scnGeometryElement: SCNGeometryElement,
+	): InstanceType<This>
 
-  static submeshWithSCNGeometryElementBufferAllocator<This extends abstract new (...args: any) => any>(this: This, scnGeometryElement: SCNGeometryElement, bufferAllocator: MDLMeshBufferAllocator | null): InstanceType<This>;
+	static submeshWithSCNGeometryElementBufferAllocator<
+		This extends abstract new (...args: any) => any,
+	>(
+		this: This,
+		scnGeometryElement: SCNGeometryElement,
+		bufferAllocator: MDLMeshBufferAllocator | null,
+	): InstanceType<This>
 }
 
 declare class MDLObject extends NSObject implements MDLNamed {
-  readonly components: NSArray;
+	readonly components: NSArray
 
-  setComponentForProtocol(component: MDLComponent, protocol: interop.PointerConvertible): void;
+	setComponentForProtocol(component: MDLComponent, protocol: interop.PointerConvertible): void
 
-  componentConformingToProtocol(protocol: interop.PointerConvertible): MDLComponent;
+	componentConformingToProtocol(protocol: interop.PointerConvertible): MDLComponent
 
-  objectForKeyedSubscript(key: interop.PointerConvertible): MDLComponent;
+	objectForKeyedSubscript(key: interop.PointerConvertible): MDLComponent
 
-  setObjectForKeyedSubscript(obj: MDLComponent | null, key: interop.PointerConvertible): void;
+	setObjectForKeyedSubscript(obj: MDLComponent | null, key: interop.PointerConvertible): void
 
-  parent: MDLObject;
+	parent: MDLObject
 
-  instance: MDLObject;
+	instance: MDLObject
 
-  readonly path: string;
+	readonly path: string
 
-  objectAtPath(path: string): MDLObject;
+	objectAtPath(path: string): MDLObject
 
-  enumerateChildObjectsOfClassRootUsingBlockStopPointer(objectClass: interop.PointerConvertible, root: MDLObject, block: (p1: MDLObject, p2: interop.PointerConvertible) => void, stopPointer: interop.PointerConvertible): void;
+	enumerateChildObjectsOfClassRootUsingBlockStopPointer(
+		objectClass: interop.PointerConvertible,
+		root: MDLObject,
+		block: (p1: MDLObject, p2: interop.PointerConvertible) => void,
+		stopPointer: interop.PointerConvertible,
+	): void
 
-  transform: MDLTransformComponent;
+	transform: MDLTransformComponent
 
-  children: MDLObjectContainerComponent;
+	children: MDLObjectContainerComponent
 
-  hidden: boolean;
+	hidden: boolean
 
-  addChild(child: MDLObject): void;
+	addChild(child: MDLObject): void
 
-  boundingBoxAtTime(time: number): MDLAxisAlignedBoundingBox;
+	boundingBoxAtTime(time: number): MDLAxisAlignedBoundingBox
 
-  static objectWithSCNNode<This extends abstract new (...args: any) => any>(this: This, scnNode: SCNNode): InstanceType<This>;
+	static objectWithSCNNode<This extends abstract new (...args: any) => any>(
+		this: This,
+		scnNode: SCNNode,
+	): InstanceType<This>
 
-  static objectWithSCNNodeBufferAllocator<This extends abstract new (...args: any) => any>(this: This, scnNode: SCNNode, bufferAllocator: MDLMeshBufferAllocator | null): InstanceType<This>;
+	static objectWithSCNNodeBufferAllocator<This extends abstract new (...args: any) => any>(
+		this: This,
+		scnNode: SCNNode,
+		bufferAllocator: MDLMeshBufferAllocator | null,
+	): InstanceType<This>
 
-  name: string;
+	name: string
 }
 
 declare class MDLAreaLight extends MDLPhysicallyPlausibleLight {
-  areaRadius: number;
+	areaRadius: number
 
-  superEllipticPower: unknown /* ext vector */;
+	superEllipticPower: unknown /* ext vector */
 
-  aspect: number;
+	aspect: number
 }
-

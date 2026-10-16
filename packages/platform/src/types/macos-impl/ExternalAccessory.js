@@ -2,15 +2,46 @@ import { _bind } from './_rt.js'
 const FW = '/System/Library/Frameworks/ExternalAccessory.framework/ExternalAccessory'
 export const EAAccessory = /* @__PURE__ */ _bind(FW, 'EAAccessory')
 export const EAAccessoryDelegate = /* @__PURE__ */ _bind(FW, 'EAAccessoryDelegate')
-export const EAAccessoryDidConnectNotification = /* @__PURE__ */ _bind(FW, 'EAAccessoryDidConnectNotification')
-export const EAAccessoryDidDisconnectNotification = /* @__PURE__ */ _bind(FW, 'EAAccessoryDidDisconnectNotification')
+export const EAAccessoryDidConnectNotification = /* @__PURE__ */ _bind(
+	FW,
+	'EAAccessoryDidConnectNotification',
+)
+
+export const EAAccessoryDidDisconnectNotification = /* @__PURE__ */ _bind(
+	FW,
+	'EAAccessoryDidDisconnectNotification',
+)
+
 export const EAAccessoryKey = /* @__PURE__ */ _bind(FW, 'EAAccessoryKey')
 export const EAAccessoryManager = /* @__PURE__ */ _bind(FW, 'EAAccessoryManager')
-export const EABluetoothAccessoryPickerErrorCode = /* @__PURE__ */ _bind(FW, 'EABluetoothAccessoryPickerErrorCode')
-export const EABluetoothAccessoryPickerErrorDomain = /* @__PURE__ */ _bind(FW, 'EABluetoothAccessoryPickerErrorDomain')
+export const EABluetoothAccessoryPickerErrorCode = /* @__PURE__ */ _bind(
+	FW,
+	'EABluetoothAccessoryPickerErrorCode',
+)
+
+export const EABluetoothAccessoryPickerErrorDomain = /* @__PURE__ */ _bind(
+	FW,
+	'EABluetoothAccessoryPickerErrorDomain',
+)
+
 export const EAConnectionIDNone = /* @__PURE__ */ _bind(FW, 'EAConnectionIDNone')
 export const EASession = /* @__PURE__ */ _bind(FW, 'EASession')
-export const EAWiFiUnconfiguredAccessoryBrowserDelegate = /* @__PURE__ */ _bind(FW, 'EAWiFiUnconfiguredAccessoryBrowserDelegate')
-export const EAWiFiUnconfiguredAccessoryBrowserState = /* @__PURE__ */ _bind(FW, 'EAWiFiUnconfiguredAccessoryBrowserState')
-export const EAWiFiUnconfiguredAccessoryConfigurationStatus = /* @__PURE__ */ _bind(FW, 'EAWiFiUnconfiguredAccessoryConfigurationStatus')
-export const EAWiFiUnconfiguredAccessoryProperties = /* @__PURE__ */ _bind(FW, 'EAWiFiUnconfiguredAccessoryProperties')
+export const EAWiFiUnconfiguredAccessoryBrowserDelegate = /* @__PURE__ */ _bind(
+	FW,
+	'EAWiFiUnconfiguredAccessoryBrowserDelegate',
+)
+
+export const EAWiFiUnconfiguredAccessoryBrowserState = /* @__PURE__ */ _bind(
+	FW,
+	'EAWiFiUnconfiguredAccessoryBrowserState',
+)
+
+export const EAWiFiUnconfiguredAccessoryConfigurationStatus = /* @__PURE__ */ _bind(
+	FW,
+	'EAWiFiUnconfiguredAccessoryConfigurationStatus',
+)
+
+export const EAWiFiUnconfiguredAccessoryProperties = /* @__PURE__ */ _bind(
+	FW,
+	'EAWiFiUnconfiguredAccessoryProperties',
+)

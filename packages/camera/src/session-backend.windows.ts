@@ -534,7 +534,11 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 		const message = String(args?.Message ?? args?.message ?? 'Camera capture failed')
 		markReady(false)
 		observer?.availability(false)
-		observer?.interruption('began', /in use|denied|access/i.test(message) ? 'cameraInUse' : 'unknown')
+		observer?.interruption(
+			'began',
+			/in use|denied|access/i.test(message) ? 'cameraInUse' : 'unknown',
+		)
+
 		if (sink) {
 			// The pipeline died under a live take — try to finalize the
 			// partial media instead of discarding it outright. wantStop
@@ -876,7 +880,11 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 		const directory = filePath.slice(0, filePath.lastIndexOf('\\'))
 		const name = filePath.slice(filePath.lastIndexOf('\\') + 1)
 		if (!directory || !name) {
-			throw error('destinationUnavailable', 'startRecording', 'destinationFileUrl is not a file path')
+			throw error(
+				'destinationUnavailable',
+				'startRecording',
+				'destinationFileUrl is not a file path',
+			)
 		}
 
 		const tempPath = String(storage?.ApplicationData?.Current?.TemporaryFolder?.Path ?? '')
@@ -1007,7 +1015,13 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 			const durationMs = (await input.computeDuration()) * 1000
 			const width = await video.getDisplayWidth()
 			const height = await video.getDisplayHeight()
-			return { durationMs, width, height, hasAudio, orientation: 'unspecified' as CameraOrientation }
+			return {
+				durationMs,
+				width,
+				height,
+				hasAudio,
+				orientation: 'unspecified' as CameraOrientation,
+			}
 		} finally {
 			input.dispose()
 		}
@@ -1535,7 +1549,12 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 			try {
 				await toPromise(storage.StorageFile.GetFileFromPathAsync(filePath))
 			} catch (cause) {
-				throw error('unavailable', 'openOutput', `Movie file is missing at ${output.fileUrl}`, cause)
+				throw error(
+					'unavailable',
+					'openOutput',
+					`Movie file is missing at ${output.fileUrl}`,
+					cause,
+				)
 			}
 
 			const handle: MovieOutputHandle = {

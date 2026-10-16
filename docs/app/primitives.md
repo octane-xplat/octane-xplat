@@ -91,15 +91,19 @@ import { Grid, Text, View } from '@octane-xplat/ui'
 import type { LayoutChildProps } from '@octane-xplat/ui'
 
 function Card(props: LayoutChildProps) {
- return <View {...props}><Text>Reserved</Text></View>
+	return (
+		<View {...props}>
+			<Text>Reserved</Text>
+		</View>
+	)
 }
 export function GridExample() {
- return (
-  <Grid columns="*,*,*">
-   <Card row={0} col={0} colSpan={2} />
-   <Text>Next free cell</Text>
-  </Grid>
- )
+	return (
+		<Grid columns="*,*,*">
+			<Card row={0} col={0} colSpan={2} />
+			<Text>Next free cell</Text>
+		</Grid>
+	)
 }
 ```
 
@@ -116,13 +120,13 @@ instead of working on one host and breaking on another.
 import { Grid, Text } from '@octane-xplat/ui'
 
 export function TrackExample() {
- return (
-  <Grid rows="auto,*" columns={['auto', 96, '2*']}>
-   <Text>Header</Text>
-   <Text>Sidebar</Text>
-   <Text>Content</Text>
-  </Grid>
- )
+	return (
+		<Grid rows="auto,*" columns={['auto', 96, '2*']}>
+			<Text>Header</Text>
+			<Text>Sidebar</Text>
+			<Text>Content</Text>
+		</Grid>
+	)
 }
 ```
 
@@ -136,11 +140,11 @@ component in a `.mobile.tsx` file.
 import type { LayoutChildProps } from '@octane-xplat/ui'
 
 export function NativeCard(props: LayoutChildProps) {
- return (
-  <gridlayout row={props.row} col={props.col} rowSpan={props.rowSpan} colSpan={props.colSpan}>
-   <label text="Reserved" />
-  </gridlayout>
- )
+	return (
+		<gridlayout row={props.row} col={props.col} rowSpan={props.rowSpan} colSpan={props.colSpan}>
+			<label text="Reserved" />
+		</gridlayout>
+	)
 }
 ```
 
@@ -154,13 +158,18 @@ import { useState } from 'octane'
 import { Grid, Pressable, Text, View } from '@octane-xplat/ui'
 
 export function LateGridExample() {
- const [show, setShow] = useState(false)
- return (
-  <View>
-   <Pressable onPress={() => setShow(current => !current)}><Text>Toggle extra cell</Text></Pressable>
-   <Grid columns="*,*"><Text>First</Text>{show ? <Text>Extra</Text> : null}</Grid>
-  </View>
- )
+	const [show, setShow] = useState(false)
+	return (
+		<View>
+			<Pressable onPress={() => setShow((current) => !current)}>
+				<Text>Toggle extra cell</Text>
+			</Pressable>
+			<Grid columns="*,*">
+				<Text>First</Text>
+				{show ? <Text>Extra</Text> : null}
+			</Grid>
+		</View>
+	)
 }
 ```
 
@@ -386,8 +395,14 @@ export function ScopedContent() {
 	const scope = getFocusScopeCapabilities()
 	const modality = useFocusVisible()
 	return (
-		<FocusScope contain={scope.contain} autoFocus={scope.autoFocus} restoreFocus={scope.restoreFocus}>
-			<Text>{modality.isSupported ? `Input: ${modality.inputModality}` : 'Focus modality unavailable'}</Text>
+		<FocusScope
+			contain={scope.contain}
+			autoFocus={scope.autoFocus}
+			restoreFocus={scope.restoreFocus}
+		>
+			<Text>
+				{modality.isSupported ? `Input: ${modality.inputModality}` : 'Focus modality unavailable'}
+			</Text>
 		</FocusScope>
 	)
 }
@@ -1191,10 +1206,7 @@ iOS, Android, and macOS — check `capabilities().focusPointOfInterest`
 first, since front cameras are often fixed-focus:
 
 ```tsx
-<CameraView
-	session={session}
-	onTap={(point) => session.focusAtPoint(point)}
-/>
+<CameraView session={session} onTap={(point) => session.focusAtPoint(point)} />
 ```
 
 ```tsx
@@ -1320,12 +1332,14 @@ import { useScrollableArea } from '@octane-xplat/ui'
 export function Details(props: { onScrolled: (atEnd: boolean, event: any) => void }) {
 	const area = useScrollableArea({ axis: 'both' })
 	return (
-		<scrollview {...area.getViewportProps({
-			style: { width: 320, height: 240 },
-			onScroll: (event: any) => {
-				props.onScrolled(area.state.block.atEnd, event)
-			},
-		})}>
+		<scrollview
+			{...area.getViewportProps({
+				style: { width: 320, height: 240 },
+				onScroll: (event: any) => {
+					props.onScrolled(area.state.block.atEnd, event)
+				},
+			})}
+		>
 			<flexboxlayout {...area.getContentProps({ style: { width: 640, height: 480 } })} />
 		</scrollview>
 	)
@@ -1368,7 +1382,9 @@ export function RefreshableRows(props: { loadRows: () => Promise<string[]> }) {
 			</Pressable>
 			<Text accessibilityLabel={status}>{status}</Text>
 			<ScrollableArea label="Rows" height={240}>
-				{rows.map((row, index) => <Text key={index}>{row}</Text>)}
+				{rows.map((row, index) => (
+					<Text key={index}>{row}</Text>
+				))}
 			</ScrollableArea>
 		</View>
 	)
@@ -1524,14 +1540,22 @@ still use separate roots; see the [current boundary inventory](../../.agents/doc
 import { Screen, Button, Text, useImperativeBottomSheet } from '@octane-xplat/ui'
 
 function Picker(props: { params: { title: string }; close: (value?: string) => void }) {
-    return <Button clickAction={() => props.close('saved')}>{props.params.title}</Button>
+	return <Button clickAction={() => props.close('saved')}>{props.params.title}</Button>
 }
 export function SheetAction() {
-    const sheet = useImperativeBottomSheet()
-    return <Screen>
-        <Button clickAction={() => { void sheet.open(Picker, { title: 'Save' }) }}>Open picker</Button>
-        {sheet.element}
-    </Screen>
+	const sheet = useImperativeBottomSheet()
+	return (
+		<Screen>
+			<Button
+				clickAction={() => {
+					void sheet.open(Picker, { title: 'Save' })
+				}}
+			>
+				Open picker
+			</Button>
+			{sheet.element}
+		</Screen>
+	)
 }
 ```
 
@@ -1546,14 +1570,22 @@ import { useImperativeModal } from '@octane-xplat/ui/ios'
 import { Button } from '@octane-xplat/ui'
 
 function Picker(props: { close: (value?: string) => void }) {
-    return <Button clickAction={() => props.close('saved')}>Save</Button>
+	return <Button clickAction={() => props.close('saved')}>Save</Button>
 }
 export function ModalAction() {
-    const modal = useImperativeModal()
-    return <>
-        <Button clickAction={() => { void modal.open(Picker) }}>Open modal</Button>
-        {modal.element}
-    </>
+	const modal = useImperativeModal()
+	return (
+		<>
+			<Button
+				clickAction={() => {
+					void modal.open(Picker)
+				}}
+			>
+				Open modal
+			</Button>
+			{modal.element}
+		</>
+	)
 }
 ```
 

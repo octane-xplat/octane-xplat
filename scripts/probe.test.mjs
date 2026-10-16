@@ -249,6 +249,7 @@ test('native cases reuse host Core for external style property imports', async (
 				"export { View } from '@nativescript/core'",
 			].join('\n'),
 		)
+
 		const config = await nativeCaseConfig(project, 'ios')
 		const result = await build({
 			...config,
@@ -256,9 +257,11 @@ test('native cases reuse host Core for external style property imports', async (
 			logLevel: 'silent',
 			build: { ...config.build, write: false, lib: { entry, formats: ['cjs'] } },
 		})
+
 		const chunk = (Array.isArray(result) ? result : [result])
 			.flatMap((entry) => entry.output)
 			.find((output) => output.type === 'chunk')
+
 		const core = { paddingTopProperty: {}, View: class View {} }
 		const required = []
 		const module = { exports: {} }
@@ -267,6 +270,7 @@ test('native cases reuse host Core for external style property imports', async (
 			assert.equal(id, '@nativescript/core')
 			return core
 		})
+
 		assert.ok(required.length > 0)
 		assert.equal(module.exports.paddingTopProperty, core.paddingTopProperty)
 		assert.equal(module.exports.View, core.View)

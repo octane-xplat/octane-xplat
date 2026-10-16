@@ -11,9 +11,7 @@
 		"skipLibCheck": true,
 		"rootDir": "src",
 		"paths": {
-			"@octane-xplat/ui": [
-				"../ui/types/generated/index.d.ts"
-			]
+			"@octane-xplat/ui": ["../ui/types/generated/index.d.ts"]
 		},
 		"moduleSuffixes": [
 			"",

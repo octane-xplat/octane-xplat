@@ -42,7 +42,7 @@ console.log('create template @octane-xplat/* pins -> ^' + version)
 
 const libraryTemplateFile = 'packages/create/library-template/package.json'
 const libraryTemplate = readFileSync(libraryTemplateFile, 'utf8').replace(
-	/"(@octane-xplat\/[^\"]+)":\s*"[^\"]*"/g,
+	/"(@octane-xplat\/[^"]+)":\s*"[^"]*"/g,
 	`"$1": "^${version}"`,
 )
 

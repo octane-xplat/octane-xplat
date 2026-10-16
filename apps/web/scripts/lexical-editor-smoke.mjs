@@ -36,21 +36,38 @@ try {
 	await input.press('!')
 	await page.waitForFunction(() => window.__lexicalSmoke.changes.some((html) => html.includes('!')))
 	await page.locator('#undo').click()
-	await page.waitForFunction(() => !document.querySelector('#lexical-input')?.textContent?.includes('!'))
+	await page.waitForFunction(
+		() => !document.querySelector('#lexical-input')?.textContent?.includes('!'),
+	)
+
 	await page.locator('#redo').click()
-	await page.waitForFunction(() => document.querySelector('#lexical-input')?.textContent?.includes('!'))
+	await page.waitForFunction(() =>
+		document.querySelector('#lexical-input')?.textContent?.includes('!'),
+	)
 
 	await input.focus()
 	await input.evaluate((element) => element.blur())
-	await page.waitForFunction(() => window.__lexicalSmoke.focus > 0 && window.__lexicalSmoke.blur > 0)
+	await page.waitForFunction(
+		() => window.__lexicalSmoke.focus > 0 && window.__lexicalSmoke.blur > 0,
+	)
+
 	await page.locator('#roundtrip').click()
-	await page.waitForFunction(() => JSON.stringify(window.__lexicalSmoke.json).includes('"type":"badge"'))
+	await page.waitForFunction(() =>
+		JSON.stringify(window.__lexicalSmoke.json).includes('"type":"badge"'),
+	)
+
 	await page.waitForFunction(() => window.__lexicalSmoke.roundTripHTML.includes('data-badge'))
 
 	await page.locator('#external-update').click()
-	await page.waitForFunction(() => document.querySelector('#lexical-input')?.textContent === 'External update')
+	await page.waitForFunction(
+		() => document.querySelector('#lexical-input')?.textContent === 'External update',
+	)
+
 	await page.locator('#toggle-readonly').click()
-	await page.waitForFunction(() => document.querySelector('#lexical-input')?.getAttribute('contenteditable') === 'false')
+	await page.waitForFunction(
+		() => document.querySelector('#lexical-input')?.getAttribute('contenteditable') === 'false',
+	)
+
 	if ((await input.getAttribute('contenteditable')) !== 'false') {
 		throw new Error('Read-only update was not applied')
 	}
@@ -63,12 +80,17 @@ try {
 	await page.locator('#toggle-mount').click()
 	await input.waitFor({ state: 'detached' })
 	await page.locator('#toggle-mount').click()
-	await page.waitForFunction(() => window.__lexicalSmoke.ready === 2 && window.__lexicalSmoke.jsonReady.length === 2)
+	await page.waitForFunction(
+		() => window.__lexicalSmoke.ready === 2 && window.__lexicalSmoke.jsonReady.length === 2,
+	)
+
 	if (pageErrors.length) {
 		throw new Error(`Browser errors: ${pageErrors.join('\n')}`)
 	}
 
-	console.log('[lexical] Chromium PASS: mount, keyboard edit, controlled update, read-only, undo/redo, focus/blur, custom-node JSON/HTML round-trip, and remount')
+	console.log(
+		'[lexical] Chromium PASS: mount, keyboard edit, controlled update, read-only, undo/redo, focus/blur, custom-node JSON/HTML round-trip, and remount',
+	)
 } finally {
 	await browser.close()
 	await server.close()

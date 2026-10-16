@@ -19,7 +19,12 @@ export function RegionPicker() {
 	return (
 		<>
 			<Selector selectionMode="single" options={options} value={region} onValueChange={setRegion} />
-			<Selector selectionMode="multiple" options={options} value={regions} onValueChange={setRegions} />
+			<Selector
+				selectionMode="multiple"
+				options={options}
+				value={regions}
+				onValueChange={setRegions}
+			/>
 		</>
 	)
 }
@@ -45,9 +50,10 @@ const items: MenuOption[] = [
 	{ type: 'link', key: 'settings', label: 'Settings', href: '/settings' },
 	{ type: 'separator', key: 'break' },
 	{
-		type: 'section', key: 'export', label: 'Export', items: [
-			{ type: 'action', key: 'csv', label: 'CSV', onSelect: exportCsv },
-		],
+		type: 'section',
+		key: 'export',
+		label: 'Export',
+		items: [{ type: 'action', key: 'csv', label: 'CSV', onSelect: exportCsv }],
 	},
 ]
 ```
@@ -130,7 +136,7 @@ values and resize dimensions are dips (CSS pixels on web), while `percent()`
 is relative to the resize container.
 
 ```tsx
-<Stack gap={2} />
+;<Stack gap={2} />
 const sidebar = useResizable({
 	defaultSize: pixel(280),
 	maxSize: percent(50, { max: pixel(480) }),
