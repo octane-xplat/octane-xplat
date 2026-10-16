@@ -10,7 +10,7 @@ This section supersedes the October 13 report's current-state conclusions;
 sections below retain the original audit and bounded implementation evidence.
 Reference: Astryx core **0.6.4**, immutable revision
 `ebd939b665361a078015377c0dfe50cc3c1d70a4`. Local source checked: **main
-`b5fa9092fad94371e909353414010c2283f31605`**, not the report's historical
+`a9b31d85603f75bc848f60c4ad65b6697753230e`**, not the report's historical
 `1d7577a0b82dfb7c632c3d7ac7ceaa409b28dd45`. These are local landing facts,
 not npm publication or runtime qualification.
 
@@ -20,13 +20,19 @@ The retained copy was read; its daemon artifact identity was not independently
 retrieved. The focused palette, selection, date and table notes remain useful
 historical evidence, but their earlier Astryx revision does not replace this pin.
 
-**Ownership reconciliation is incomplete.** History search on October 16 could
-read only this employee's record and excluded 2,685 records by access; roster
-inspection was denied. Latest Yvonne, Dahlia, Harriet and Franklin reports were
-therefore unavailable. A blocker was reported to the supervisor. Owner labels
-below identify the responsible scope or reserved work, not a verified new assignee.
-No implementation should be dispatched from this inventory until those reports
-and active owners are reconciled.
+**Ownership reconciliation is incomplete.** A fresh October 16 history search
+(`--project octane-xplat --after 2026-10-12`) scanned only Nora's record and
+excluded **989** records by access. The earlier attempt recorded 2,685 exclusions; this fresh count is scoped
+to the dates above. Neither count establishes owner status.
+The transcript interface permits this employee to read only itself and its
+supervised descendants. Latest Yvonne, Dahlia, Harriet and Franklin reports
+remain unavailable. Granted project-memory searches found older Yvonne feedback
+claims and Harriet's Argent experiment, but no current core-parity ownership
+record; they cannot substitute for those reports. A fresh blocker was reported.
+Owner labels below identify responsible scopes or reserved work, not verified
+new assignees. Before dispatch, the supervisor must supply the four latest
+reports and root-helper identity/status through authorized assignment context
+or a granted pinned file, then reconcile overlaps.
 
 The assignment identifies a current **root-barrel helper task** and a **paused
 UI public API purpose-entrypoint chain**. Both remain reserved; this reconciliation
@@ -57,6 +63,22 @@ capability flag or unsupported comment alone does not prove parity is infeasible
 
 No entire row is newly **resolved**. Resolved subgaps above must not be reopened;
 remaining missing contracts and unqualified behavior must not be hidden by them.
+
+### Recheck evidence and landing boundary
+
+The inspected main `a9b31d85603f75bc848f60c4ad65b6697753230e` adds only the
+previous inventory reconciliation over `b5fa9092fad94371e909353414010c2283f31605`.
+`git diff b5fa9092..a9b31d85 -- packages/ui packages/table packages/lingui`
+is empty. The family-note files are also unchanged across that range.
+Consequently, this recheck does not close another row or imply the helper task
+has landed. Source and referenced historical verification remain distinct.
+
+| Evidence checked on October 16 | Result and boundary                                                                                                                                                                                                                                                                                                                                                                                            |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Local Git ancestry             | Clipboard `1d14d70ab1f69aea6a980e6062c4790ee70c5e47`, purpose entries `490d60af7f27b5c681e98f336dbb2b8c658a126e`, FocusScope discovery `86bbd6c7c49a08b6a5aeee92c0667b066b6e7208`, portal ownership `40e23ec72ebe5bab29a6a54dfc8d956a2c59d6ca`, and theme clarification `ed3603143f7f701ffbcb6a744210f90209661905` are all ancestors of inspected main.                                                        |
+| Clipboard source and impact    | `use-clipboard.ts:6–20,29–43` still requires a text producer and exposes the boolean attempt outcome; pinned upstream `hooks/useClipboard.ts:30–57,84–126` defines the additional transient-state lifecycle. `sem impact useClipboard --file packages/ui/src/use-clipboard.ts --tests` identifies three existing outcome tests in `interaction-contracts.mobile.test.ts:54–82`; tests were located, not rerun. |
+| Inheritance and focus source   | `Button.web.tsrx:19–24` and `Button.tsrx:22–27` still resolve explicit/group/default size. `FocusScope.tsrx:11–13` and `FocusScope.macos.tsrx:10–12` still return all-false capabilities. Source limitations remain actionable; feasibility and OS behavior remain unqualified.                                                                                                                                |
+| Family records                 | [Selection](astryx-parity-select.md), [date follow-up](astryx-parity-date-inputs.md#bounded-keyboard-and-locale-implementation), [palette](astryx-parity-commandpalette.md) and [table follow-through](astryx-parity-table.md#bounded-selection-and-accessibility-follow-through-2026-10-02) retain earlier baselines. Their historical gaps and passes are not new current-revision runtime results.          |
 
 ### Consumer selection and qualification gates
 
