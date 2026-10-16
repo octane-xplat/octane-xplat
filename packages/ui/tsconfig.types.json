@@ -27,6 +27,7 @@
 	},
 	"include": [
 		"src/references.d.ts",
+		"type-support/*.d.ts",
 		"src/vendor/ui-svg/src/index.ts",
 		"src/*.ts",
 		"src/*.tsrx",

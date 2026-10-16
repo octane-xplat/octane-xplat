@@ -33,7 +33,8 @@
 	},
 	"include": [
 		"src/**/*",
-		"../../packages/*/src/**/*.d.ts"
+		"../../packages/*/src/**/*.d.ts",
+		"../../packages/ui/type-support/**/*.d.ts"
 	],
 	"exclude": [
 		"node_modules",
