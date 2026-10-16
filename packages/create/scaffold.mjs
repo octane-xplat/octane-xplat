@@ -107,7 +107,7 @@ const BASE_TYPECHECK = 'xplat typecheck'
 
 // package.json keys every scaffolded app keeps regardless of target set —
 // the targets' `scripts` lists own the rest.
-const BASE_SCRIPTS = ['xplat', 'lint', 'lint:fix']
+const BASE_SCRIPTS = ['xplat', 'lint', 'lint:fix', 'format']
 
 /** Expand `requires` edges, dependencies first. Throws on unknown ids. */
 export function resolveTargets(ids) {
