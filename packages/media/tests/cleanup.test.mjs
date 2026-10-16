@@ -15,29 +15,25 @@ async function load(name, globals) {
 	return exports.media
 }
 
-test('web failed batch and capture reads allocate no orphan object URLs', async () => {
+test('web failed batch and capture ref creation revoke the allocated object URLs', async () => {
 	const created = []
+	const revoked = []
 	let input
 	const media = await load('media.web', {
 		document: { createElement: () => (input = { click() {} }) },
 		navigator: {},
 		URL: {
 			createObjectURL(file) {
+				if (file.bad) {
+					throw new Error('preview failed')
+				}
+
 				created.push(file)
 				return 'blob:test'
 			},
-		},
-		FileReader: class {
-			readAsDataURL(file) {
-				queueMicrotask(() => {
-					if (file.bad) {
-						this.onerror()
-					} else {
-						this.result = 'data:image/jpeg;base64,AA'
-						this.onload()
-					}
-				})
-			}
+			revokeObjectURL(url) {
+				revoked.push(url)
+			},
 		},
 	})
 
@@ -45,12 +41,13 @@ test('web failed batch and capture reads allocate no orphan object URLs', async 
 	input.files = [{ name: 'one.jpg' }, { name: 'two.jpg', bad: true }]
 	input.onchange()
 	await assert.rejects(pending)
-	assert.equal(created.length, 0)
+	assert.equal(created.length, 1)
+	assert.equal(revoked.length, 1)
 	pending = media.capturePhoto()
 	input.files = [{ name: 'bad.jpg', bad: true }]
 	input.onchange()
 	assert.equal(await pending, null)
-	assert.equal(created.length, 0)
+	assert.equal(revoked.length, 1)
 })
 
 test('native failed conversion removes the JPEG created by the current selection', async () => {
@@ -62,8 +59,7 @@ test('native failed conversion removes the JPEG created by the current selection
 		path: { join: (...args) => args.join('/') },
 		ImageSource: {
 			fromAsset: async () => ({
-				saveToFileAsync: async () => true,
-				toBase64StringAsync: async () => {
+				saveToFileAsync: async () => {
 					throw new Error('conversion failed')
 				},
 			}),

@@ -19,13 +19,11 @@ export interface FileRef {
 }
 
 /**
- * Result of `media.pickImage()`: a displayable URI and an upload data URL.
- * Native URIs point to temporary JPEG files; delete them when the preview is
- * no longer needed.
+ * Result of `media.pickImage()`: a file ref usable directly as `Image.src`
+ * and with `files.readBytes()` for upload. Native URIs point to temporary
+ * JPEG files; `files.release()` them when the preview is no longer needed.
  */
-export interface PickedImage extends FileRef {
-	dataUrl: string
-}
+export type PickedImage = FileRef
 
 /**
  * Options for `media.capturePhoto()`. Sizes are device-independent pixels;

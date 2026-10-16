@@ -19,34 +19,34 @@ const image = await media.pickImage() // null when the user cancels
 const shot = await media.capturePhoto()
 ```
 
-Every method returns a `PickedImage` — `FileRef` (`name`, opaque `uri`)
-plus a `dataUrl` you can hand straight to `Image src`. Cancellation
-resolves `null` (or `[]` for `pickImages`), so check the result rather
-than catching. `ensure('camera' | 'photos')` resolves
+Every method returns a `PickedImage` — a `FileRef` (`name`, opaque `uri`)
+you can hand straight to `Image src`, or to `files.readBytes()` for an
+upload body. Cancellation resolves `null` (or `[]` for `pickImages`), so
+check the result rather than catching. `ensure('camera' | 'photos')` resolves
 `'granted' | 'denied' | 'unsupported'`.
 
 ```tsx
 import { useState } from 'octane'
 import { Button, Image } from '@octane-xplat/ui'
 import { media } from '@octane-xplat/media'
+import type { PickedImage } from '@octane-xplat/media'
 import { files } from '@octane-xplat/files'
 
 export function PhotoPicker() {
-	const [preview, setPreview] = useState<string | null>(null)
+	const [preview, setPreview] = useState<PickedImage | null>(null)
 	async function pickPhoto() {
 		const photo = await media.pickImage()
-		if (photo) {
-			try {
-				setPreview(photo.dataUrl)
-			} finally {
-				files.release(photo)
-			}
-		}
+		if (!photo) return
+		// The ref is a file handle — keep it alive while it displays; release
+		// the previous pick once the new one is showing.
+		const previous = preview
+		setPreview(photo)
+		if (previous) files.release(previous)
 	}
 	return (
 		<>
 			<Button clickAction={pickPhoto}>Choose photo</Button>
-			{preview && <Image src={preview} alt="Selected photo" />}
+			{preview && <Image src={preview.uri} alt="Selected photo" />}
 		</>
 	)
 }
@@ -54,8 +54,8 @@ export function PhotoPicker() {
 
 On macOS, call the picker directly from a button. It reads only the selected
 files, keeps their pixel dimensions and aspect ratio, and returns an app-owned
-temporary JPEG plus a matching data URL. Install `@octane-xplat/files` and
-release that JPEG after preview/upload use; a retained data URL stays usable.
+temporary JPEG ref. Install `@octane-xplat/files` and release that JPEG after
+preview/upload use — the ref is dead once released.
 Failed conversion or writing rejects and cleans outputs from that selection.
 Real macOS panel selection is a separate runtime qualification gate.
 
@@ -65,7 +65,7 @@ import { files } from '@octane-xplat/files'
 
 const images = await media.pickImages() // [] on cancel
 try {
-	console.log(images.map((image) => image.dataUrl))
+	console.log(images.map((image) => image.uri))
 } finally {
 	for (const image of images) files.release(image)
 }

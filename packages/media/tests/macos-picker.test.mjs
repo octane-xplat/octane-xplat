@@ -30,7 +30,7 @@ test('macOS empty successful panels return null/[]', async () => {
 	assert.deepEqual(d.events, [])
 })
 
-test('single selection returns a readable app-owned JPEG and matching data URL before source release', async () => {
+test('single selection returns a readable app-owned JPEG before source release', async () => {
 	const d = driver()
 	const selected = d.source('my holiday.heic')
 	d.selections.push({ urls: [selected] })
@@ -38,7 +38,6 @@ test('single selection returns a readable app-owned JPEG and matching data URL b
 	assert.deepEqual(copy(result), {
 		name: 'my holiday.heic',
 		uri: '/temp/octane-image-1.jpg',
-		dataUrl: `data:image/jpeg;base64,${Buffer.from('JPEG:1200x800').toString('base64')}`,
 	})
 
 	assert.deepEqual(
@@ -129,7 +128,6 @@ for (const [name, options, error] of [
 	['partial write', { writeFailure: 2 }, /Could not save/],
 	['write exception', { writeThrow: 2 }, /write threw/],
 	['readback failure', { readFailure: true }, /Could not read/],
-	['data URL conversion failure', { base64Failure: true }, /base64 failure/],
 ]) {
 	test(`macOS ${name} cleans every output in the failed batch`, async () => {
 		const d = driver(options)

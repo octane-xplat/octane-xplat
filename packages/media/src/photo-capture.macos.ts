@@ -49,14 +49,11 @@ export async function capturePhoto(options: CapturePhotoOptions = {}): Promise<P
 			let image: PickedImage | null = null
 			try {
 				if (message) {
-					const value = JSON.parse(message) as Partial<PickedImage>
-					if (
-						typeof value.name === 'string' &&
-						typeof value.uri === 'string' &&
-						typeof value.dataUrl === 'string' &&
-						value.dataUrl.startsWith('data:image/jpeg;base64,')
-					) {
-						image = value as PickedImage
+					const value = JSON.parse(message) as Partial<PickedImage> & { dataUrl?: unknown }
+					if (typeof value.name === 'string' && typeof value.uri === 'string') {
+						// The sheet's reply may still carry a dataUrl payload; the
+						// public ref is only the file handle.
+						image = { name: value.name, uri: value.uri }
 					}
 				}
 			} catch {

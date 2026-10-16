@@ -37,17 +37,15 @@ describe('media (web)', () => {
 		await expect(pending).resolves.toBeNull()
 	})
 
-	it('capture read failures resolve null like the native leaves', async () => {
+	it('capture preview failures resolve null like the native leaves', async () => {
 		const inputs = nextFileInput()
 		vi.stubGlobal(
-			'FileReader',
-			class {
-				onload: ((this: any, ev: any) => void) | null = null
-				onerror: ((this: any, ev: any) => void) | null = null
-				readAsDataURL() {
-					this.onerror?.call(this, new Error('read failed'))
-				}
-			},
+			'URL',
+			Object.assign(function URL() {}, {
+				createObjectURL() {
+					throw new Error('preview failed')
+				},
+			}),
 		)
 
 		const pending = media.capturePhoto()

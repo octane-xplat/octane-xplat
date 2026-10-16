@@ -11,7 +11,7 @@ export function Services() @{
 	const [announcementResult, setAnnouncementResult] = useState('—')
 	const [keychainResult, setKeychainResult] = useState('—')
 	const [imageResult, setImageResult] = useState('—')
-	const [picked, setPicked] = useState<{ name: string; dataUrl: string } | null>(null)
+	const [picked, setPicked] = useState<{ name: string; uri: string } | null>(null)
 	const conn = connectivity.getState()
 	const appState = useAppState()
 	const size = useWindowSize()
@@ -24,13 +24,10 @@ export function Services() @{
 				return
 			}
 
-			try {
-				setPicked({ name: images[0].name, dataUrl: images[0].dataUrl })
-				setImageResult(images.map((image) => image.name).join(', '))
-			} finally {
-				// The preview retains data bytes; it no longer needs the temporary files.
-				for (const image of images) files.release(image)
-			}
+			setPicked({ name: images[0].name, uri: images[0].uri })
+			setImageResult(images.map((image) => image.name).join(', '))
+			// The preview still needs the first pick's file; extras release now.
+			for (const image of images.slice(1)) files.release(image)
 		} catch {
 			setImageResult('Could not read the selection')
 		}
@@ -96,7 +93,7 @@ export function Services() @{
 			</HStack>
 			<Text className="text-sm text-muted">{imageResult}</Text>
 			@if (picked) {
-				<Image src={picked.dataUrl} alt={picked.name} contentFit="contain" className="w-32 h-32" />
+				<Image src={picked.uri} alt={picked.name} contentFit="contain" className="w-32 h-32" />
 			}
 		</View>
 		<View className="sink-section">

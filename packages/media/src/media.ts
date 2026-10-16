@@ -1,7 +1,8 @@
-// Media picking + camera capture — store a temporary JPEG for NativeScript
-// Image and return a data URL for APIs that persist image payloads. Camera
-// capture is stills only: @nativescript/camera presents the OS capture UI
-// (UIImagePickerController on iOS, ACTION_IMAGE_CAPTURE on Android).
+// Media picking + camera capture — returns a temporary-JPEG file ref (the
+// same FileRef `files.readBytes`/`files.release` consume; upload paths read
+// the file, never an inline data URL). Camera capture is stills only:
+// @nativescript/camera presents the OS capture UI (UIImagePickerController
+// on iOS, ACTION_IMAGE_CAPTURE on Android).
 import { isAvailable as isCameraAvailable, takePicture } from '@nativescript/camera'
 
 import { create as createImagePicker } from '@nativescript/imagepicker'
@@ -131,8 +132,7 @@ async function persistImage(source: ImageSource, name: string): Promise<PickedIm
 			throw new Error('Could not save the image to temporary storage')
 		}
 
-		const base64 = await source.toBase64StringAsync('jpeg', 85)
-		return { name, uri, dataUrl: `data:image/jpeg;base64,${base64}` }
+		return { name, uri }
 	} catch (error) {
 		// This operation owns this generated path, including a partial save.
 		try {

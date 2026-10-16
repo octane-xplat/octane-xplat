@@ -56,15 +56,9 @@ function persistSelection(url: any, outputs: string[]): PickedImage {
 			throw new Error('Could not read the saved temporary image')
 		}
 
-		const base64 = readable.base64EncodedStringWithOptions(0)
-		if (!base64) {
-			throw new Error('Could not encode the temporary image data URL')
-		}
-
 		return {
 			name: String(url.lastPathComponent ?? 'image.jpg'),
 			uri,
-			dataUrl: `data:image/jpeg;base64,${base64}`,
 		}
 	} finally {
 		if (scoped) {

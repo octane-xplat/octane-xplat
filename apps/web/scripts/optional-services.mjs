@@ -145,11 +145,12 @@ try {
 		const ref = await window.selection
 		const bytes = await (await fetch(ref.uri)).text()
 		URL.revokeObjectURL(ref.uri)
-		return { name: ref.name, dataUrl: ref.dataUrl.startsWith('data:image/jpeg;base64,'), bytes }
+		return { name: ref.name, blobUri: ref.uri.startsWith('blob:'), noDataUrl: ref.dataUrl === undefined, bytes }
 	})
 
 	assert.equal(selected.name, 'probe.jpg')
-	assert.equal(selected.dataUrl, true)
+	assert.equal(selected.blobUri, true)
+	assert.equal(selected.noDataUrl, true)
 	assert.equal(selected.bytes, 'synthetic file-input payload; never rendered')
 
 	await page.evaluate(async () => {

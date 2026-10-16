@@ -27,7 +27,7 @@ export function Services() @{
 	const [echo, setEcho] = useState<Record<string, string>>({});
 	const [conn, setConn] = useState(connectivity.getState());
 	const [link, setLink] = useState('—');
-	const [picked, setPicked] = useState<{ name: string; dataUrl: string } | null>(null);
+	const [picked, setPicked] = useState<{ name: string; uri: string } | null>(null);
 	const appState = useAppState();
 	const win = useWindowSize();
 	const insets = useSafeAreaInsets();
@@ -193,12 +193,9 @@ export function Services() @{
 				<Pressable className="btn btn-secondary" onPress={() => run('img', async () => {
 					const img = await media.pickImage();
 					if (!img) return 'cancelled';
-					try {
-						setPicked({ name: img.name, dataUrl: img.dataUrl });
-					} finally {
-						files.release(img);
-					}
-
+					const prev = picked;
+					setPicked({ name: img.name, uri: img.uri });
+					if (prev) files.release({ name: prev.name, uri: prev.uri });
 					return img.name;
 				})}>
 					<Text>Pick image</Text>
@@ -208,8 +205,10 @@ export function Services() @{
 					if (permission !== 'granted') return 'camera permission: ' + permission;
 					const img = await media.capturePhoto({ saveToGallery: false });
 					if (!img) return 'capture returned null (camera permission granted)';
-					setPicked({ name: img.name, dataUrl: img.dataUrl });
-					return 'captured ' + img.name + ' (' + img.dataUrl.length + ' chars)';
+					const prevCap = picked;
+					setPicked({ name: img.name, uri: img.uri });
+					if (prevCap) files.release({ name: prevCap.name, uri: prevCap.uri });
+					return 'captured ' + img.name + ' (' + img.uri.length + ' chars)';
 				})}>
 					<Text>Capture photo</Text>
 				</Pressable>
@@ -276,7 +275,7 @@ export function Services() @{
 			</HStack>
 			@if (picked) {
 				<HStack className="gap-3 items-center">
-					<Image src={picked!.dataUrl} style={{ width: 48, height: 48 }} />
+					<Image src={picked!.uri} style={{ width: 48, height: 48 }} />
 					<Text className="text-sm text-muted">{picked!.name}</Text>
 				</HStack>
 			}

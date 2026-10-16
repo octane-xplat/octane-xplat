@@ -40,14 +40,6 @@ export function createDriver({ mediaRoot = defaultRoot, filesRoot, ...options } 
 		width,
 		height,
 		length: 12,
-		base64EncodedStringWithOptions(value) {
-			assert.equal(value, 0)
-			if (options.base64Failure) {
-				throw new Error('base64 failure')
-			}
-
-			return Buffer.from(`JPEG:${width}x${height}`).toString('base64')
-		},
 		isEqualToData(other) {
 			return this === other
 		},

@@ -128,8 +128,7 @@ function verify(image, width, height) {
   check(bitmap.pixelsWide === width && bitmap.pixelsHigh === height, 'pixel dimensions/aspect ratio');
   const bytes = new Uint8Array(interop.bufferFromData(data));
   check(bytes[0] === 255 && bytes[1] === 216, 'JPEG signature');
-  const payload = NSData.alloc().initWithBase64EncodedStringOptions(image.dataUrl.split(',')[1], 0);
-  check(payload.isEqualToData(data), 'file bytes equal data URL');
+  check(image.dataUrl === undefined, 'file handle only — no data URL');
 }
 setTimeout(async () => {
   try {
@@ -190,7 +189,7 @@ setTimeout(async () => {
     const shot = await pendingShot;
     check(shot.name === shotName && shot.uri === shotUri, 'shot fields');
     check(globalThis.__xplatTemporaryFiles.has(shotUri), 'shot registered for release');
-    check(shot.dataUrl.startsWith('data:image/jpeg;base64,'), 'shot data URL prefix');
+    check(shot.dataUrl === undefined, 'shot returns a file handle only');
     const shotBitmap = NSBitmapImageRep.imageRepWithData(NSData.dataWithContentsOfFile(shotUri));
     check(shotBitmap.pixelsWide === 6 && shotBitmap.pixelsHigh === 4, 'shot pixel dimensions');
     const stray = String(manager.temporaryDirectory.URLByAppendingPathComponent('octane-capture-' + NSUUID.UUID().UUIDString + '.jpg').path);

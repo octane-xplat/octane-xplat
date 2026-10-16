@@ -56,8 +56,12 @@ async function load(overrides = {}) {
 const image = {
 	name: 'shot.jpg',
 	uri: '/temp/octane-capture-1.jpg',
+	// The sheet reply still carries the data payload; the leaf strips it —
+	// the public ref is the file handle only.
 	dataUrl: 'data:image/jpeg;base64,AA',
 }
+
+const imageRef = { name: image.name, uri: image.uri }
 
 test('import is passive; gallery save rejects before allocation, permission or UI', async () => {
 	const api = await load()
@@ -88,7 +92,7 @@ test('overlap does not steal ownership; completion disposes and returns JPEG ref
 	assert.equal(await api.capturePhoto(), null)
 	assert.equal(api.hosts.length, 1)
 	api.hosts[0].reply(JSON.stringify(image))
-	assert.deepEqual(JSON.parse(JSON.stringify(await pending)), image)
+	assert.deepEqual(JSON.parse(JSON.stringify(await pending)), imageRef)
 	assert.deepEqual(api.events, ['present', 'dispose'])
 	assert.equal(api.context.__xplatTemporaryFiles.has(image.uri), true)
 	api.hosts[0].reply(JSON.stringify(image))
@@ -185,8 +189,10 @@ test('a host uri outside the temp captures prefix resolves but never registers',
 		dataUrl: 'data:image/jpeg;base64,AA',
 	}
 
+	const foreignRef = { name: foreign.name, uri: foreign.uri }
+
 	api.hosts[0].reply(JSON.stringify(foreign))
-	assert.deepEqual(JSON.parse(JSON.stringify(await pending)), foreign)
+	assert.deepEqual(JSON.parse(JSON.stringify(await pending)), foreignRef)
 	assert.equal(api.context.__xplatTemporaryFiles?.has(foreign.uri) ?? false, false)
 
 	const stray = { ...foreign, uri: '/temp/shot.jpg' }

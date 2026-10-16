@@ -1,5 +1,6 @@
-// Media picking — web leaf. Keep an object URL for previews and a data URL for
-// APIs that persist image payloads. The file input supports multiple photos.
+// Media picking — web leaf. The picked File gets a blob: object URL — a file
+// handle that previews via `Image.src` and uploads via `files.readBytes`;
+// no inline data URL is produced. The file input supports multiple photos.
 import type {
 	CapturePhotoOptions,
 	MediaImpl,
@@ -50,31 +51,11 @@ function selectFiles(multiple: boolean, capture?: 'user' | 'environment'): Promi
 	})
 }
 
-function readDataUrl(file: File): Promise<string> {
-	return new Promise((resolve, reject) => {
-		const reader = new FileReader()
-		reader.onload = () => {
-			if (typeof reader.result === 'string') {
-				resolve(reader.result)
-			} else {
-				reject(new Error('Could not read the selected image'))
-			}
-		}
-
-		reader.onerror = () => reject(reader.error ?? new Error('Could not read the selected image'))
-
-		reader.readAsDataURL(file)
-	})
-}
-
 async function imageRefs(selected: File[]): Promise<PickedImage[]> {
-	// Finish every fallible read before allocating preview URLs. A failed batch
-	// cannot return its successful siblings, so those need no retained previews.
-	const dataUrls = await Promise.all(selected.map(readDataUrl))
 	const refs: PickedImage[] = []
 	try {
-		for (const [index, file] of selected.entries()) {
-			refs.push({ name: file.name, uri: URL.createObjectURL(file), dataUrl: dataUrls[index]! })
+		for (const file of selected) {
+			refs.push({ name: file.name, uri: URL.createObjectURL(file) })
 		}
 
 		return refs

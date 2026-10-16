@@ -502,7 +502,7 @@ const image = await media.capturePhoto({
 
 On macOS AppKit, offer the normal file picker directly from a button. It reads
 only selected files and returns app-owned temporary JPEGs with the original
-pixel dimensions and aspect ratio, plus upload data URLs. No Photos browsing
+pixel dimensions and aspect ratio. No Photos browsing
 or broad photo-library permission is requested. The picker does not depend on
 `ensure('photos')`, which still reports `unsupported` on this target.
 
@@ -514,7 +514,8 @@ export async function chooseImage() {
 	const image = await media.pickImage() // null on cancel
 	if (!image) return null
 	try {
-		return image.dataUrl // Retain the data URL after releasing its temporary file.
+		// Bytes outlive the released temporary file; the uri does not.
+		return await files.readBytes(image)
 	} finally {
 		files.release(image)
 	}
@@ -538,7 +539,8 @@ if (permission === 'granted') {
 	if (image) {
 		try {
 			// Upload before releasing the temporary reference.
-			const response = await fetch('/api/photos', { method: 'POST', body: image.dataUrl })
+			const body = await files.readBytes(image)
+			const response = await fetch('/api/photos', { method: 'POST', body })
 			if (!response.ok) throw new Error('Photo upload failed')
 		} finally {
 			files.release(image)
@@ -567,7 +569,7 @@ export async function readSelection() {
 	try {
 		const images = await media.pickImages()
 		try {
-			return images.map((image) => image.dataUrl)
+			return Promise.all(images.map((image) => files.readBytes(image)))
 		} finally {
 			for (const image of images) files.release(image)
 		}
@@ -598,7 +600,7 @@ single/multiple picks and repeated selection. Packed consumer checks exercise
 the macOS public entries. Real panel interaction remains a separate runtime gate.
 The isolated [AppKit runtime check](../../packages/media/tests/macos-runtime.mjs)
 uses real PNG/JPEG conversion and file IO with an injected panel; it confirms
-dimensions and file/data-URL byte equality without displaying an image.
+dimensions and file-byte round-trips without displaying an image.
 
 ### AppKit still photos
 
