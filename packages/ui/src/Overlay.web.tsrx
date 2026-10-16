@@ -3,6 +3,7 @@ import type { OverlayProps } from './props';
 import { useThemeScheme } from './theme/theme-scheme';
 import { cx } from '@octane-xplat/lib';
 import { isolateModalFocus } from './modal-focus.web';
+import { SizeProvider } from './size-context';
 
 /** Renders an in-window overlay through the DOM renderer's body portal. */
 export function Overlay(props: OverlayProps) @{
@@ -30,7 +31,7 @@ export function Overlay(props: OverlayProps) @{
 					<div className="vx-overlay-shade" onClick={requestDismiss} />
 				}
 				<div ref={panel} data-testid={props.testID} role={props.shadeCover ? 'dialog' : undefined} aria-modal={props.shadeCover ? true : undefined} aria-label={props.shadeCover ? props.accessibilityLabel : undefined} className="vx-overlay-content" onClick={(event: any) => event.stopPropagation()}>
-					{props.children}
+					<SizeProvider value={null}>{props.children}</SizeProvider>
 				</div>
 			</div>,
 			document.body,

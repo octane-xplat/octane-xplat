@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'octane'
 import type { PowerSearchHandle } from './props'
+import { useSize } from './size-context';
 import type { PowerSearchViewProps } from './power-search-view'
 import { SearchInput } from './SearchInput.web.tsrx'
 import { Icon } from './Icon.web.tsrx'
@@ -12,6 +13,7 @@ import { powerSearchTranslate } from './power-search-strings'
 import { cx } from '@octane-xplat/lib'
 
 export function PowerSearchView(props: PowerSearchViewProps) @{
+	const size = useSize(props.size, 'md')
 	const anchor = useRef<any>(null)
 	const inputHandle = useRef<any>(null)
 	const { query, editing, results, internal } = props
@@ -21,7 +23,7 @@ export function PowerSearchView(props: PowerSearchViewProps) @{
 	const Token:any=PowerSearchToken
 	const Editor:any=PowerSearchFilterEditor
 
-	<div id={props.id} ref={(node:any)=>anchor.current=node} className={cx('vx-power-search',`vx-power-search--size-${props.size??'md'}`,props.isDisabled&&'vx-power-search--disabled',props.className)} style={props.style}>
+	<div id={props.id} ref={(node:any)=>anchor.current=node} className={cx('vx-power-search',`vx-power-search--size-${size}`,props.isDisabled&&'vx-power-search--disabled',props.className)} style={props.style}>
 		<div className="vx-power-search-row">
 			{props.startIcon ? typeof props.startIcon==='string' ? <Icon className="vx-power-search-start-icon" name={props.startIcon}/> : props.startIcon : null}
 			{props.filters.map((filter,index)=>{const field=internal.getField(filter.field),operator=internal.getOperator(filter.field,filter.operator);if(!field||!operator)return null;return <Token key={`${filter.field}-${index}`} config={props.config} filter={filter} field={field} operator={operator} maxLength={props.maxTokenLength??40} timezoneID={props.timezoneID} onPress={()=>!props.isReadOnly&&props.onEdit(filter,index)} onRemove={props.isReadOnly?undefined:()=>props.onRemove(index)} isDisabled={props.isDisabled||props.isReadOnly}/>})}

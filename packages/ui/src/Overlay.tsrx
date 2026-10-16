@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'octane';
 import { GridLayout, isAndroid, isIOS } from '@nativescript/core';
 import { createPortal } from './native-portal';
+import { SizeProvider } from './size-context';
 import type { OverlayProps } from './props';
 import { cx } from '@octane-xplat/lib';
 import { applyThemeClasses } from './theme/theme-host';
@@ -77,6 +78,6 @@ export function Overlay(props: OverlayProps) @{
 
 	<>
 		<stacklayout ref={(v: any) => { hostView.current = v; }} style={{ width: 0, height: 0 }} />
-		{open && portalHost ? createPortal(<>{props.children}</>, portalHost) : null}
+		{open && portalHost ? createPortal(<><SizeProvider value={null}>{props.children}</SizeProvider></>, portalHost) : null}
 	</>
 }

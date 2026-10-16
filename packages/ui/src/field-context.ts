@@ -2,6 +2,7 @@ import { createContext, useContext } from 'octane'
 import type { FieldControlProps } from './props'
 import { FormLayoutContext } from './form-layout-context'
 import { InputGroupContext } from './input-group-context'
+import { SizeContext } from './size-context'
 
 export interface FieldContextValue extends FieldControlProps {
 	controlId?: string
@@ -43,6 +44,7 @@ export function useFieldControlProps<
 	const field = useContext(FieldContext)
 	const form = useContext(FormLayoutContext)
 	const group = useContext(InputGroupContext)
+	const inheritedSize = useContext(SizeContext)
 	const status = field?.status ?? props.status
 	const description = field?.description ?? props.description
 	const ownLabel =
@@ -92,7 +94,7 @@ export function useFieldControlProps<
 		isLoading: field?.isLoading ?? props.isLoading,
 		isRequired,
 		isOptional,
-		size: props.size ?? group?.size ?? field?.size,
+		size: props.size ?? group?.size ?? field?.size ?? inheritedSize ?? 'md',
 		inInputGroup: group != null,
 		status,
 		id: props.id ?? field?.controlId,

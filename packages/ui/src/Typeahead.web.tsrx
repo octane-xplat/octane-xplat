@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState, useSyncExternalStore, useId } from 'octane';
 import type { SearchableItem, TypeaheadInputHandle, TypeaheadProps } from "./props";
+import { useSize } from './size-context';
 import { applyEscapeProps } from "./escape-props";
 import { FormField } from './FormField.web.tsrx';
 import { BaseTypeahead } from './BaseTypeahead.web.tsrx';
@@ -26,7 +27,7 @@ function EndLane(props: { lane: BusyIndicatorLane; clear?: any }) @{
  *  token or wrapper enters edit mode (input repopulated with the label);
  *  blur or Escape without a selection restores the token. */
 export function Typeahead<T extends SearchableItem,>(props: TypeaheadProps<T>) @{
-	const size = props.size ?? 'md';
+	const size = useSize(props.size, 'md');
 	const inputId = useId();
 	const inputRef = useRef<HTMLInputElement | null>(null);
 	const inputHandle = useRef<TypeaheadInputHandle | null>(null);

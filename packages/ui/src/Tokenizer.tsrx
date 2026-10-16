@@ -1,6 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useImperativeHandle, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'octane';
 import type { SearchableItem, SearchRequest, SearchSource, TokenizerProps, TypeaheadInputHandle } from "./props";
+import { useSize } from './size-context';
 import type { TypeaheadQueryEntries } from './internal-props';
 import { cx } from "@octane-xplat/lib";
 import { FormField } from './FormField';
@@ -30,7 +31,7 @@ function EndLane(props: { lane: BusyIndicatorLane; endContent?: any; clear?: any
  *  emit, so removal is the token ✕ (and the clear-all lane); truncation is
  *  measured off native layout (`layoutChanged`), not ResizeObserver. */
 export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @{
-	const size = props.size ?? 'md';
+	const size = useSize(props.size, 'md');
 	const inputHandle = useRef<TypeaheadInputHandle | null>(null);
 	const wrapperRef = useRef<any>(null);
 	const laneRef = useRef<any>(null);

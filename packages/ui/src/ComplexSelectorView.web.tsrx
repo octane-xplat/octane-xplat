@@ -1,4 +1,5 @@
 import type { ComplexSelectorViewProps } from './complex-selector-view';
+import { useSize } from './size-context';
 import { cx } from '@octane-xplat/lib';
 import { Popover } from './Popover.web.tsrx';
 import { Icon } from './Icon.web.tsrx';
@@ -7,13 +8,14 @@ import { Tooltip } from './Tooltip.web.tsrx';
 /** Internal resolved presentation, sharing the handle’s host anchor. */
 export function ComplexSelectorView<Value,>(props: ComplexSelectorViewProps<Value>) @{
 	const { open, pending } = props.state;
+	const size = useSize(props.size, 'md');
 	const { triggerId, contentId, anchor } = props;
 	const setOpen = props.onOpenChange;
 	const trigger = <button
 		ref={(el: any) => { anchor.current = el; }}
 		type="button"
 		id={triggerId}
-		className={cx('vx-complex-selector-trigger', `vx-complex-selector-trigger--${props.variant ?? 'input'}`, props.className)}
+		className={cx('vx-complex-selector-trigger', `vx-complex-selector-trigger--${props.variant ?? 'input'}`, `vx-complex-selector--size-${size}`, props.className)}
 		aria-controls={contentId}
 		disabled={props.isDisabled || props.isReadOnly || pending || props.isLoading}
 		aria-label={props.label}

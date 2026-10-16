@@ -5,7 +5,8 @@ import type { InputGroupProps, InputGroupTextProps } from './props';
 import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps } from './escape-props';
 import { FormField } from './FormField';
-import { InputGroupProvider } from './input-group-context';
+import { InputGroupProvider } from './input-group-context'
+import { SizeProvider, useSize } from './size-context';
 
 /** InputGroup — a labeled, visually joined input surface: the `Field`
  *  carries label/description/status; members read `useInputGroup()` and
@@ -14,7 +15,8 @@ import { InputGroupProvider } from './input-group-context';
  *  members through the FieldContext. */
 export function InputGroup(props: InputGroupProps) @{
 	const groupId = useId();
-	const group = { isDisabled: props.isDisabled, size: props.size };
+	const size = useSize(props.size, 'md');
+	const group = { isDisabled: props.isDisabled, size };
 
 	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
@@ -30,22 +32,24 @@ export function InputGroup(props: InputGroupProps) @{
 		isDisabled={props.isDisabled}
 		isRequired={props.isRequired}
 		isOptional={props.isOptional}
-		size={props.size}
+		size={size}
 		labelTooltip={props.labelTooltip}
 		id={props.id}
 		className={props.className}
 		style={props.style}
 	>
 		<InputGroupProvider value={group}>
+		<SizeProvider value={size}>
 			<flexboxlayout
 				ref={forwardedRef}
 				flexDirection="row"
 				alignItems="stretch"
-				className={cx('vx-inputgroup', props.isDisabled && 'vx-inputgroup--disabled', props.status && `vx-inputgroup--status-${props.status.type}`, props.size && `vx-inputgroup--size-${props.size}`)}
+				className={cx('vx-inputgroup', props.isDisabled && 'vx-inputgroup--disabled', props.status && `vx-inputgroup--status-${props.status.type}`, `vx-inputgroup--size-${size}`)}
 				accessibilityState={{ disabled: props.isDisabled } as any}
 			>
 				{props.children}
 			</flexboxlayout>
+		</SizeProvider>
 		</InputGroupProvider>
 	</FormField>
 }

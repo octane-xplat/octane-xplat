@@ -7,6 +7,7 @@ import { cx } from "@octane-xplat/lib";
 import { Pressable } from './Pressable.macos.tsrx';
 import { Popover } from './Popover.macos.tsrx';
 import { useButtonGroup } from './button-group-context';
+import { useSize } from './size-context';
 
 /** Self-drawn dropdown menu — `trigger` plus an anchored item list via
  *  Popover. The same anchored listbox renders on every target (decision
@@ -14,6 +15,7 @@ import { useButtonGroup } from './button-group-context';
 export function DropdownMenu(props: DropdownMenuProps) @{
 	const anchor = useRef<any>(null);
 	const group = useButtonGroup();
+	const size = useSize(props.size ?? group?.size, 'md');
 	const disabled = !!(props.isDisabled || group?.isDisabled);
 	const [internal, setInternal] = useState(props.defaultOpen ?? false);
 	const controlled = props.isOpen !== undefined;
@@ -29,7 +31,7 @@ export function DropdownMenu(props: DropdownMenuProps) @{
 		<Pressable
 			ref={(v: any) => { anchor.current = v; }}
 			id={props.id}
-			className={cx('vx-menu-trigger', props.triggerClassName, group && `vx-button--group-${group.position}`, group?.size && `vx-button--size-${group.size}`, props.className)}
+			className={cx('vx-menu-trigger', props.triggerClassName, group && `vx-button--group-${group.position}`, `vx-button--size-${size}`, props.className)}
 			style={props.style}
 			disabled={disabled}
 			accessibilityLabel={props.accessibilityLabel}

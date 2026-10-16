@@ -1,6 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useMemo, useRef, useState, useSyncExternalStore, useId } from 'octane';
 import type { SearchableItem, TypeaheadInputHandle, TypeaheadProps } from "./props";
+import { useSize } from './size-context';
 import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
 import { FormField } from './FormField';
@@ -28,7 +29,7 @@ function EndLane(props: { lane: BusyIndicatorLane; clear?: any }) @{
  *  wrapper enters edit mode (input repopulated with the label); leaving the
  *  field without selecting restores the token. */
 export function Typeahead<T extends SearchableItem,>(props: TypeaheadProps<T>) @{
-	const size = props.size ?? 'md';
+	const size = useSize(props.size, 'md');
 	const inputId = useId();
 	const inputHandle = useRef<TypeaheadInputHandle | null>(null);
 	const tokenRef = useRef<any>(null);

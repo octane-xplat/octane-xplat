@@ -1,5 +1,6 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'octane';
 import type { TabListProps, TabProps, TabMenuProps, TabMenuOption } from './props';
+import { useSize } from './size-context';
 import { applyEscapeProps } from './escape-props';
 import { Icon } from './Icon.web.tsrx';
 import { Popover } from './Popover.web.tsrx';
@@ -26,7 +27,7 @@ function navIcon(icon: any, size: number) {
  *  tabs pattern. Owns roving-tabindex arrow navigation and horizontal
  *  overflow scrolling with edge fades + arrow affordances. */
 export function TabList(props: TabListProps) @{
-	const size = props.size ?? 'md';
+	const size = useSize(props.size, 'md');
 	const overflow = props.overflow ?? 'auto';
 	const hasScroll = overflow !== 'visible';
 	const isTabList = props.role === 'tablist';

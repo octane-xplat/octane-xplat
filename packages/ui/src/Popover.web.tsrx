@@ -1,4 +1,5 @@
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
+import { SizeProvider } from './size-context';
 import { createPortal, useEffect, useRef, useState } from 'octane';
 import { useThemeScheme } from './theme/theme-scheme';
 import type { PopoverProps } from './props';
@@ -103,7 +104,7 @@ function PopoverLayer(props: PopoverInternalProps & { anchorElement: any }) @{
 				}}
 				{...{ ...props.web, onFocusIn: (event: FocusEvent) => { focusedInside.current = true; (props.web?.onFocusIn as any)?.(event); } }}
 			>
-				<LayerDepthProvider value={dismissal.depth}>{props.children}</LayerDepthProvider>
+				<LayerDepthProvider value={dismissal.depth}><SizeProvider value={null}>{props.children}</SizeProvider></LayerDepthProvider>
 			</div>
 			</div>,
 			document.body,

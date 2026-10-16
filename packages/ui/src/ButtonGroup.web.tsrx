@@ -1,11 +1,13 @@
 import { useEffect, useRef } from 'octane'
 import type { ButtonGroupProps } from './props'
 import { ButtonGroupProvider } from './button-group-context'
+import { SizeProvider, useSize } from './size-context'
 
 export function ButtonGroup(props: ButtonGroupProps) @{
 	const orientation = props.orientation ?? 'horizontal'
+	const size = useSize(props.size, 'md')
 	const groupRef = useRef<any>(null)
-	const value = { orientation, isDisabled: !!props.isDisabled, size: props.size ?? 'md', position: 'only' as const }
+	const value = { orientation, isDisabled: !!props.isDisabled, size, position: 'only' as const }
 	useEffect(() => {
 		const root = groupRef.current
 		if (!root) return
@@ -34,9 +36,11 @@ export function ButtonGroup(props: ButtonGroupProps) @{
 	}
 
 	<ButtonGroupProvider value={value}>
-		<div ref={(node:any)=>groupRef.current=node} id={props.id} role="group" aria-label={props.label} className={['vx-button-group', `vx-button-group--${orientation}`, props.className]} style={props.style} onKeyDown={onKeyDown}>
-			{props.children}
-		</div>
+		<SizeProvider value={size}>
+			<div ref={(node:any)=>groupRef.current=node} id={props.id} role="group" aria-label={props.label} className={['vx-button-group', `vx-button-group--${orientation}`, props.className]} style={props.style} onKeyDown={onKeyDown}>
+				{props.children}
+			</div>
+		</SizeProvider>
 	</ButtonGroupProvider>
 }
 

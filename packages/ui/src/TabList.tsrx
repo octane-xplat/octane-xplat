@@ -1,6 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useContext, useEffect, useMemo, useRef, useState } from 'octane';
 import type { TabListProps, TabProps, TabMenuProps } from './props';
+import { useSize } from './size-context';
 import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
 import { Icon } from './Icon';
@@ -28,7 +29,7 @@ function navIcon(icon: any, size: number) {
  *  composite-widget arrow model on pointer platforms. `role="tablist"`
  *  switches item semantics; the strip itself doesn't gain native grouping. */
 export function TabList(props: TabListProps) @{
-	const size = props.size ?? 'md';
+	const size = useSize(props.size, 'md');
 	const overflow = props.overflow ?? 'auto';
 	const layout = props.layout ?? 'hug';
 	const hasScroll = overflow !== 'visible' && layout !== 'fill';

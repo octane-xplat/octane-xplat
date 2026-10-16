@@ -175,6 +175,7 @@ export type {
 	CheckboxProps,
 	CollapsibleProps,
 	ContextMenuProps,
+	ElementSize,
 	FieldControlProps,
 	FieldControlSize,
 	FieldStatus,
@@ -192,6 +193,8 @@ export type {
 /** Labeled control wrapper, exported under Astryx's component name. */
 export { FormField as Field } from './FormField'
 export { useFieldControl } from './field-context'
+/** Shared element-size cascade (Astryx `SizeContext`/`SizeProvider`/`useSize`). */
+export { SizeContext, SizeProvider, useSize } from './size-context'
 export { FieldGroup } from './FieldGroup'
 /** Form-field arrangement container (Astryx FormLayout). */
 export { FormLayout } from './FormLayout'

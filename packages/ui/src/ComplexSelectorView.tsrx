@@ -1,5 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { ComplexSelectorViewProps } from './complex-selector-view';
+import { useSize } from './size-context';
 import { cx } from '@octane-xplat/lib';
 import { FormField } from './FormField';
 import { Popover } from './Popover';
@@ -10,6 +11,7 @@ import { ActivityIndicator } from './ActivityIndicator.tsrx';
 /** Internal resolved presentation, sharing the handle’s host anchor. */
 export function ComplexSelectorView<Value,>(props: ComplexSelectorViewProps<Value>) @{
 	const { open, pending } = props.state;
+	const size = useSize(props.size, 'md');
 	const { triggerId, contentId, anchor } = props;
 	const setOpen = props.onOpenChange;
 	const content = props.children({
@@ -41,7 +43,7 @@ export function ComplexSelectorView<Value,>(props: ComplexSelectorViewProps<Valu
 
 	const body = <>
 		{props.variant === 'ghost' ? trigger : <flexboxlayout
-			className={cx('vx-complex-selector', `vx-complex-selector--size-${props.size ?? 'md'}`, props.status && `vx-complex-selector--status-${props.status.type}`)}
+			className={cx('vx-complex-selector', `vx-complex-selector--size-${size}`, props.status && `vx-complex-selector--status-${props.status.type}`)}
 			flexDirection="row"
 			alignItems="center"
 		>

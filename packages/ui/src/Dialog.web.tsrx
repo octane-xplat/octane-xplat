@@ -1,4 +1,5 @@
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
+import { SizeProvider } from './size-context';
 import { createPortal, useContext, useEffect, useId, useRef, useState } from 'octane';
 import type { DialogHeaderProps, DialogProps } from './props';
 import { applyEscapeProps } from './escape-props';
@@ -158,7 +159,7 @@ function DialogModal(props: DialogProps) @{
 					{...(purpose === 'required' ? { role: 'alertdialog' } : {})}
 					tabIndex={-1}
 				>
-					<LayerDepthProvider value={dismissal.depth}>{props.children}</LayerDepthProvider>
+					<LayerDepthProvider value={dismissal.depth}><SizeProvider value={null}>{props.children}</SizeProvider></LayerDepthProvider>
 				</dialog>
 			</DialogProvider>
 		</div>

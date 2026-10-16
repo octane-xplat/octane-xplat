@@ -5,6 +5,7 @@ import type { DropdownMenuProps } from "./props";
 import { Pressable } from './Pressable.web.tsrx';
 import { Popover } from './Popover.web.tsrx';
 import { useButtonGroup } from './button-group-context';
+import { useSize } from './size-context';
 
 /** Self-drawn dropdown menu — `trigger` plus an anchored item list via
  *  Popover. The same anchored listbox renders on every target (decision
@@ -14,6 +15,7 @@ export function DropdownMenu(props: DropdownMenuProps) @{
 	const triggerId = useId();
 	const initialFocus = useRef<'first' | 'last' | 'container'>('container');
 	const group = useButtonGroup();
+	const size = useSize(props.size ?? group?.size, 'md');
 	const disabled = !!(props.isDisabled || group?.isDisabled);
 	const [internal, setInternal] = useState(props.defaultOpen ?? false);
 	const controlled = props.isOpen !== undefined;
@@ -30,7 +32,7 @@ export function DropdownMenu(props: DropdownMenuProps) @{
 		<Pressable
 			ref={(e: any) => { anchor.current = e; }}
 			id={props.id ?? triggerId}
-			className={['vx-menu-trigger', props.triggerClassName, group && `vx-button--group-${group.position}`, group?.size && `vx-button--size-${group.size}`, props.className]}
+			className={['vx-menu-trigger', props.triggerClassName, group && `vx-button--group-${group.position}`, `vx-button--size-${size}`, props.className]}
 			style={props.style}
 			disabled={disabled}
 			accessibilityLabel={props.accessibilityLabel}

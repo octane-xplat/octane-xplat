@@ -1,5 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
+import { SizeProvider } from './size-context';
 import { useContext, useEffect, useId, useRef, useState } from 'octane';
 import { GridLayout, isAndroid, isIOS } from '@nativescript/core';
 import { createPortal } from './native-portal';
@@ -79,7 +80,7 @@ function DialogPanel(props: DialogProps & { layerDepth: number }) @{
 			accessibilityRole={purpose === 'required' ? ('alert' as any) : undefined}
 		>
 			<DialogProvider value={{ titleId, isModal: true, requestClose: props.onOpenChange }}>
-				<LayerDepthProvider value={props.layerDepth}>{props.children}</LayerDepthProvider>
+				<LayerDepthProvider value={props.layerDepth}><SizeProvider value={null}>{props.children}</SizeProvider></LayerDepthProvider>
 			</DialogProvider>
 		</flexboxlayout>
 	</gridlayout>

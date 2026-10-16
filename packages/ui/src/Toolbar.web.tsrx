@@ -2,9 +2,7 @@ import { useRef } from 'octane';
 import type { ToolbarProps } from './props';
 import { applyEscapeProps } from './escape-props';
 import { useListFocus } from './list-focus.web.tsrx';
-import { ToolbarSizeContext,
-	ToolbarSizeProvider,
-} from './nav-contexts';
+import { SizeProvider } from './size-context';
 
 const SIZE_MIN: Record<string, number> = { sm: 28, md: 32, lg: 36 };
 
@@ -32,7 +30,7 @@ export function Toolbar(props: ToolbarProps) @{
 	const dividerCls = (props.dividers ?? []).map((d) => 'vx-toolbar--div-' + d);
 	const hasCenter = props.centerContent != null;
 
-	<ToolbarSizeProvider value={size}>
+	<SizeProvider value={size}>
 		<div
 			className={['vx-toolbar', 'vx-toolbar--' + variant, 'vx-toolbar--' + size, ...dividerCls, props.className]}
 			style={props.style}
@@ -66,5 +64,5 @@ export function Toolbar(props: ToolbarProps) @{
 				}
 			</div>
 		</div>
-	</ToolbarSizeProvider>
+	</SizeProvider>
 }

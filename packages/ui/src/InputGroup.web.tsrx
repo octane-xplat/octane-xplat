@@ -5,6 +5,7 @@ import { applyEscapeProps } from './escape-props';
 import { applyWebProps } from './platformProps.web';
 import { FormField } from './FormField.web.tsrx';
 import { InputGroupProvider } from './input-group-context';
+import { SizeProvider, useSize } from './size-context';
 
 /** InputGroup — a labeled, visually joined input surface: the `Field`
  *  carries label/description/status with `isGroupLabel` so the label ids
@@ -15,7 +16,8 @@ export function InputGroup(props: InputGroupProps) @{
 	const labelId = `${groupId}-label`;
 	const descriptionId = props.description != null ? `${groupId}-description` : undefined;
 	const statusId = props.status?.message != null ? `${groupId}-status` : undefined;
-	const group = { isDisabled: props.isDisabled, size: props.size };
+	const size = useSize(props.size, 'md')
+	const group = { isDisabled: props.isDisabled, size };
 
 	const forwardedRef = useMemo(() => refList((e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
@@ -31,7 +33,7 @@ export function InputGroup(props: InputGroupProps) @{
 		isDisabled={props.isDisabled}
 		isRequired={props.isRequired}
 		isOptional={props.isOptional}
-		size={props.size}
+		size={size}
 		labelTooltip={props.labelTooltip}
 		id={props.id}
 		className={props.className}
@@ -39,9 +41,10 @@ export function InputGroup(props: InputGroupProps) @{
 		web={props.web}
 	>
 		<InputGroupProvider value={group}>
+		<SizeProvider value={size}>
 			<div
 				ref={forwardedRef}
-				className={['vx-inputgroup', props.isDisabled ? 'vx-inputgroup--disabled' : undefined, props.status ? `vx-inputgroup--status-${props.status.type}` : undefined, props.size ? `vx-inputgroup--size-${props.size}` : undefined]}
+				className={['vx-inputgroup', props.isDisabled ? 'vx-inputgroup--disabled' : undefined, props.status ? `vx-inputgroup--status-${props.status.type}` : undefined, `vx-inputgroup--size-${size}`]}
 				role="group"
 				aria-labelledby={labelId}
 				aria-describedby={[descriptionId, statusId].filter(Boolean).join(' ') || undefined}
@@ -50,6 +53,7 @@ export function InputGroup(props: InputGroupProps) @{
 			>
 				{props.children}
 			</div>
+		</SizeProvider>
 		</InputGroupProvider>
 	</FormField>
 }

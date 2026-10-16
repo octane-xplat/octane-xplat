@@ -1,5 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
+import { SizeProvider } from './size-context';
 import { useEffect, useRef, useState } from 'octane';
 import { GridLayout, isIOS, Screen } from '@nativescript/core';
 import { createPortal } from './native-portal';
@@ -125,7 +126,7 @@ function PopoverLayer(props: PopoverInternalProps & { anchorView: any; layerDept
 			onLoaded={update}
 			onLayoutChanged={update}
 		>
-			<LayerDepthProvider value={props.layerDepth}>{props.children}</LayerDepthProvider>
+			<LayerDepthProvider value={props.layerDepth}><SizeProvider value={null}>{props.children}</SizeProvider></LayerDepthProvider>
 		</gridlayout>
 	</absolutelayout>
 }

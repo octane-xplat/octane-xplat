@@ -1,5 +1,6 @@
 import { useImperativeHandle, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from 'octane';
 import type { SearchableItem, SearchRequest, SearchSource, TokenizerProps, TypeaheadInputHandle } from "./props";
+import { useSize } from './size-context';
 import type { TypeaheadQueryEntries } from './internal-props';
 import { applyEscapeProps } from "./escape-props";
 import { FormField } from './FormField.web.tsrx';
@@ -31,7 +32,7 @@ function EndLane(props: { lane: BusyIndicatorLane; endContent?: any; clear?: any
  *  token and clears the query; Backspace on an empty input removes the last
  *  token; `hasCreate` offers a "Create \"…\"" entry for unmatched text. */
 export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @{
-	const size = props.size ?? 'md';
+	const size = useSize(props.size, 'md');
 	const inputId = useId();
 	const inputHandle = useRef<TypeaheadInputHandle | null>(null);
 	const wrapperRef = useRef<HTMLDivElement | null>(null);

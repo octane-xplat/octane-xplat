@@ -2,6 +2,7 @@
 import { useContext, useEffect, useMemo, useRef, useState } from 'octane';
 import { GridLayout, Screen, isAndroid, isIOS } from '@nativescript/core';
 import { createPortal } from './native-portal';
+import { SizeProvider } from './size-context';
 import type { BottomSheetProps, BottomSheetSwitcherProps } from './props';
 import {
 	BottomSheetSwitcherContext,
@@ -51,7 +52,7 @@ function sheetHeightDips(height: BottomSheetProps['height'], vh: number): number
 
 /** The sheet's content — rendered in its portal host. */
 function BottomSheetBody(props: { children?: any }) @{
-	<>{props.children}</>
+	<><SizeProvider value={null}>{props.children}</SizeProvider></>
 }
 
 /** One open bottom-sheet host on a RootLayout: theme classes, bottom
@@ -248,7 +249,7 @@ function SwitcherPanel(props: {
 	}, [props.activeSheet, active]);
 
 	<flexboxlayout flexDirection="column" className="vx-bottom-sheet-panel">
-		{active?.props.children}
+		<SizeProvider value={null}>{active?.props.children}</SizeProvider>
 	</flexboxlayout>
 }
 

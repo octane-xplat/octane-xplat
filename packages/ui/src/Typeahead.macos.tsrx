@@ -1,6 +1,7 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useMemo, useRef, useState, useSyncExternalStore, useId } from 'octane';
 import type { SearchableItem, TypeaheadInputHandle, TypeaheadProps } from "./props";
+import { useSize } from './size-context';
 import { cx } from "@octane-xplat/lib";
 import { FormField } from './FormField.macos.tsrx';
 import { BaseTypeahead } from './BaseTypeahead.macos.tsrx';
@@ -28,7 +29,7 @@ function EndLane(props: { lane: BusyIndicatorLane; clear?: any }) @{
  *  a Token with click-to-edit and clear. `disabledMessage` surfaces through
  *  the AppKit tooltip bridge. */
 export function Typeahead<T extends SearchableItem,>(props: TypeaheadProps<T>) @{
-	const size = props.size ?? 'md';
+	const size = useSize(props.size, 'md');
 	const inputId = useId();
 	const inputHandle = useRef<TypeaheadInputHandle | null>(null);
 	const wrapperAnchor = useRef<any>(null);

@@ -1,6 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useEffect, useRef } from 'octane'
 import type { PowerSearchHandle } from './props'
+import { useSize } from './size-context';
 import type { PowerSearchViewProps } from './power-search-view'
 import { SearchInput } from './SearchInput.tsrx'
 import { Icon } from './Icon'
@@ -13,6 +14,7 @@ import { powerSearchTranslate } from './power-search-strings'
 import { cx } from '@octane-xplat/lib'
 
 export function PowerSearchView(props: PowerSearchViewProps) @{
+	const size = useSize(props.size, 'md')
 	const anchor = useRef<any>(null)
 	const inputHandle = useRef<any>(null)
 	const { query, editing, results, internal } = props
@@ -24,7 +26,7 @@ export function PowerSearchView(props: PowerSearchViewProps) @{
 		? props.components?.[internal.getOperator(editing.filter.field, editing.filter.operator ?? '')?.value.type ?? 'string']?.Editor ?? PowerSearchFilterEditor
 		: PowerSearchFilterEditor
 
-	<flexboxlayout id={props.id} className={cx('vx-power-search', `vx-power-search--size-${props.size ?? 'md'}`, props.isDisabled && 'vx-power-search--disabled', props.className)} style={props.style as any} ref={(v:any)=>{anchor.current=v}}>
+	<flexboxlayout id={props.id} className={cx('vx-power-search', `vx-power-search--size-${size}`, props.isDisabled && 'vx-power-search--disabled', props.className)} style={props.style as any} ref={(v:any)=>{anchor.current=v}}>
 		<flexboxlayout className="vx-power-search-row">
 			{props.startIcon ? typeof props.startIcon === 'string' ? <Icon className="vx-power-search-start-icon" name={props.startIcon} /> : props.startIcon : null}
 			{props.filters.map((filter, index) => {

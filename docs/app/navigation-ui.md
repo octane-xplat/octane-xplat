@@ -188,7 +188,8 @@ export function Example() {
 required `label`; on web the component exposes the toolbar landmark and moves
 focus among its controls with the arrow keys. `orientation` sets both the
 layout axis and keyboard direction. `variant` and `dividers` only affect the
-painted chrome.
+painted chrome. `size` sets the row height and the default `size` for controls
+inside the toolbar — a control with its own `size` prop keeps it.
 
 ```tsx
 import { Toolbar, Button, Text } from '@octane-xplat/ui'

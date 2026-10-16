@@ -5,6 +5,7 @@ import { Pressable } from './Pressable.web.tsrx';
 import { ActivityIndicator } from './ActivityIndicator.web.tsrx';
 import { Icon } from './Icon.web.tsrx';
 import { useButtonGroup } from './button-group-context';
+import { useSize } from './size-context';
 import { sanitizeUrl } from './safe-url';
 import { reportActionError } from './action-error';
 
@@ -21,7 +22,7 @@ export function Button(props: ButtonProps) @{
 	const [actionPending, setActionPending] = useState(false);
 	const disabled = !!(props.isDisabled || props.isLoading || group?.isDisabled);
 	const loading = !!(props.isLoading || actionPending);
-	const size = props.size ?? group?.size ?? 'md';
+	const size = useSize(props.size ?? group?.size, 'md');
 	const icon = typeof props.icon === 'string' ? <Icon name={props.icon} /> : props.icon;
 	const labelEl = props.label != null ? <span className="vx-button-label">{props.label}</span> : null;
 	const content = loading

@@ -1,4 +1,5 @@
 import { createContext, useContext } from 'octane'
+import { SizeContext } from './size-context'
 import type {
 	AppShellMobileContextValue,
 	NavHeadingCloseContextValue,
@@ -103,10 +104,9 @@ export function useNavHeadingMenuContext(): NavHeadingMenuContextValue | null {
 
 export type { NavHeadingMenuSize }
 
-/** Toolbar → family children that want the resolved size. This is the
- *  local seam standing in for Astryx's SizeContext until the shared size
- *  context lands with the forms/layout task. */
-export const ToolbarSizeContext = createContext<ToolbarSize | null>(null)
+/** Toolbar → family children that want the resolved size — an alias for the
+ *  shared `SizeContext` (Astryx parity) kept for existing consumers. */
+export const ToolbarSizeContext: typeof SizeContext = SizeContext
 
 export function useToolbarSize(): ToolbarSize | null {
 	return useContext(ToolbarSizeContext)

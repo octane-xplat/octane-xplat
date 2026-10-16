@@ -8,6 +8,7 @@ import { Icon } from './Icon';
 import { Text } from './Text';
 import { Pressable } from './Pressable';
 import { AppShellMobileContext, useAppShellMobile } from './nav-contexts';
+import { SizeProvider } from './size-context';
 
 export { AppShellMobileContext, useAppShellMobile };
 
@@ -68,7 +69,7 @@ export function MobileNav(props: MobileNavProps) @{
 					</flexboxlayout>
 				}
 				<scrollview className="vx-mobilenav-content" flexGrow={1}>
-					<flexboxlayout flexDirection="column">{props.children}</flexboxlayout>
+					<flexboxlayout flexDirection="column"><SizeProvider value={null}>{props.children}</SizeProvider></flexboxlayout>
 				</scrollview>
 			</flexboxlayout>
 		</gridlayout>

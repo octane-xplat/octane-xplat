@@ -5,6 +5,7 @@ import { Button } from './Button.web.tsrx';
 import { Icon } from './Icon.web.tsrx';
 import { Text } from './Text.web.tsrx';
 import { AppShellMobileContext, useAppShellMobile } from './nav-contexts';
+import { SizeProvider } from './size-context';
 
 export { AppShellMobileContext, useAppShellMobile };
 
@@ -135,7 +136,7 @@ export function MobileNav(props: MobileNavProps) @{
 					{typeof props.header === 'string' ? <Text className="vx-mobilenav-heading">{props.header}</Text> : props.header}
 				</div>
 			}
-			<div className="vx-mobilenav-content">{props.children}</div>
+			<div className="vx-mobilenav-content"><SizeProvider value={null}>{props.children}</SizeProvider></div>
 		</div>
 	</dialog>
 }

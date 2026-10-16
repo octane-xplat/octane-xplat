@@ -2,9 +2,7 @@
 import type { ToolbarProps } from './props';
 import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps } from './escape-props';
-import { ToolbarSizeContext,
-	ToolbarSizeProvider,
-} from './nav-contexts';
+import { SizeProvider } from './size-context';
 
 const SIZE_MIN: Record<string, number> = { sm: 28, md: 32, lg: 36 };
 
@@ -18,7 +16,7 @@ export function Toolbar(props: ToolbarProps) @{
 	const hasCenter = props.centerContent != null;
 	const dividerCls = (props.dividers ?? []).map((d) => 'vx-toolbar--div-' + d).join(' ');
 
-	<ToolbarSizeProvider value={size}>
+	<SizeProvider value={size}>
 		<flexboxlayout
 			id={props.id}
 			ref={(v: any) => applyEscapeProps(v, props)}
@@ -53,5 +51,5 @@ export function Toolbar(props: ToolbarProps) @{
 				</flexboxlayout>
 			}
 		</flexboxlayout>
-	</ToolbarSizeProvider>
+	</SizeProvider>
 }

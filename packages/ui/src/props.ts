@@ -760,9 +760,13 @@ export interface FieldStatus {
 	message?: string
 }
 
-/** Shared control size scale for field controls (`'sm' | 'md' | 'lg'`). Drives height, text size, and padding; a `FieldGroup`/`ButtonGroup` context can supply it when the prop is unset.
+/** Shared control size scale for field controls (`'sm' | 'md' | 'lg'`). Drives height, text size, and padding; an enclosing `SizeProvider` (Toolbar/ButtonGroup/InputGroup) or a `Field`/`InputGroup` context can supply it when the prop is unset.
  */
 export type FieldControlSize = 'sm' | 'md' | 'lg'
+
+/** Astryx name for `FieldControlSize` — the shared `'sm' | 'md' | 'lg'` element scale cascaded by `SizeProvider`.
+ */
+export type ElementSize = FieldControlSize
 
 /** How a field status message is placed (Astryx parity):
  *  - `attached`: the message border-merges with the control below it
@@ -4817,6 +4821,9 @@ export interface DropdownMenuProps {
 	accessibilityLabel?: string
 	/** Additional trigger chrome (for example a button class). */
 	triggerClassName?: ClassName
+	/** Trigger size — wins over ButtonGroup membership and inherited `SizeContext`
+	 *  size (Astryx trigger-Button `size`). @default resolved via `useSize` */
+	size?: FieldControlSize
 	/** Additional class for the inherited Popover surface. */
 	menuClassName?: ClassName
 	items?: MenuOption[]
@@ -7283,10 +7290,9 @@ export interface ToolbarProps extends LayoutChildProps {
 	/** Accessible label for the toolbar (aria-label on web). Required —
 	 *  matches upstream's mandatory `label`. */
 	label: string
-	/** Toolbar size — controls row minimum height and the intended size of
-	 *  contained controls. Astryx cascades it to children via SizeContext;
-	 *  this port sets the row height and exposes `useToolbarSize` context
-	 *  for family components (Button etc. do not consume it — sibling seam). */
+	/** Toolbar size — controls row minimum height and cascades to contained
+	 *  controls as their default via the shared `SizeProvider` (Astryx
+	 *  `SizeContext`); an explicit control `size` prop always wins. */
 	size?: ToolbarSize
 	/** Gap between items within each slot, spacing-scale step. */
 	gap?: SpacingStep

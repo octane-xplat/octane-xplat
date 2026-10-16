@@ -1,4 +1,5 @@
 import { LayerDepthContext, LayerDepthProvider } from './layer-dismissal.tsrx';
+import { SizeProvider } from './size-context';
 import { createPortal, useContext, useEffect, useMemo, useRef, useState } from 'octane';
 import type { BottomSheetProps, BottomSheetSwitcherProps } from './props';
 import {
@@ -124,7 +125,7 @@ function BottomSheetLayer(props: {
 			}}
 			{...sheet.web}
 		>
-			<LayerDepthProvider value={layerDepth + 1}>{panel}</LayerDepthProvider>
+			<LayerDepthProvider value={layerDepth + 1}><SizeProvider value={null}>{panel}</SizeProvider></LayerDepthProvider>
 		</div>
 	</div>
 }

@@ -44,6 +44,8 @@ export { AvatarGroup } from './AvatarGroup.macos.tsrx'
 /** Labeled control wrapper, exported under Astryx's component name. */
 export { FormField as Field } from './FormField.macos.tsrx'
 export { useFieldControl } from './field-context'
+/** Shared element-size cascade (Astryx `SizeContext`/`SizeProvider`/`useSize`). */
+export { SizeContext, SizeProvider, useSize } from './size-context'
 export { FieldGroup } from './FieldGroup.macos.tsrx'
 /** Reusable labeled row, exported under Astryx's component name. */
 export { Item } from './Item.macos.tsrx'
@@ -69,7 +71,9 @@ export {
 export { useIndicator } from './use-indicator'
 
 export type {
+	ElementSize,
 	FieldControlProps,
+	FieldControlSize,
 	FieldStatus,
 	FieldStatusType,
 	AbsoluteProps,

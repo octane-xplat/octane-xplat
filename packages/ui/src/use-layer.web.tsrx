@@ -1,4 +1,5 @@
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
+import { SizeProvider } from './size-context';
 import { createPortal, useCallback, useEffect, useId, useRef, useState } from 'octane';
 import type {
 	ContextLayerReturn,
@@ -70,7 +71,7 @@ function FloatingLayer(props: FloatingLayerProps) @{
 					}}
 					{...props.web}
 				>
-					<LayerDepthProvider value={dismissal.depth}>{props.children}</LayerDepthProvider>
+					<LayerDepthProvider value={dismissal.depth}><SizeProvider value={null}>{props.children}</SizeProvider></LayerDepthProvider>
 				</div>
 			</div>,
 			document.body,

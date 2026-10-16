@@ -1,5 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
+import { SizeProvider } from './size-context';
 import { useCallback, useEffect, useId, useRef, useState } from 'octane';
 import { GridLayout } from '@nativescript/core';
 import { createPortal } from './native-portal';
@@ -71,7 +72,7 @@ function FixedLayerSurface(props: FixedSurfaceProps) @{
 			className={cx('vx-popover', props.className)}
 			style={props.style}
 		>
-			<LayerDepthProvider value={props.layerDepth ?? 0}>{props.children}</LayerDepthProvider>
+			<LayerDepthProvider value={props.layerDepth ?? 0}><SizeProvider value={null}>{props.children}</SizeProvider></LayerDepthProvider>
 		</gridlayout>
 	</absolutelayout>
 }
