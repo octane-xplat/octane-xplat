@@ -69,3 +69,38 @@ for (const multiDocument of [false, true]) {
 		)
 	})
 }
+
+test('catalog: specifiers resolve through the workspace catalog', (t) => {
+	const root = mkdtempSync(join(tmpdir(), 'xplat-patches-catalog-'))
+	t.after(() => rmSync(root, { recursive: true, force: true }))
+	const patch = loadPatchManifest()[0]
+	const name = specifierPackage(patch.specifier)
+	const version = patch.specifier.slice(name.length + 1)
+
+	writeFileSync(join(root, 'package.json'), JSON.stringify({ dependencies: { [name]: 'catalog:' } }))
+	writeFileSync(
+		join(root, 'pnpm-workspace.yaml'),
+		stringify({ packages: [], catalog: { [name]: version } }),
+	)
+
+	// No lockfile: the declared side is compared directly — catalog: must read
+	// the pinned version, so the patch is only missing config, not mismatched.
+	assert.notEqual(
+		inspectPatches(root).find((item) => item.specifier === patch.specifier).state,
+		'version-mismatch',
+	)
+
+	// A named catalog resolves the same way.
+	writeFileSync(
+		join(root, 'package.json'),
+		JSON.stringify({ dependencies: { [name]: 'catalog:toolchain' } }),
+	)
+	writeFileSync(
+		join(root, 'pnpm-workspace.yaml'),
+		stringify({ packages: [], catalogs: { toolchain: { [name]: version } } }),
+	)
+	assert.notEqual(
+		inspectPatches(root).find((item) => item.specifier === patch.specifier).state,
+		'version-mismatch',
+	)
+})

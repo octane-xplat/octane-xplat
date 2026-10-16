@@ -97,6 +97,33 @@ const workspaceDeps = (appDir) => {
 	return deps
 }
 
+// pnpm `catalog:` specifiers pin via the workspace yaml, not the dep field
+// itself — substitute the catalog value so version checks see the real pin.
+const resolveCatalogs = (appDir, deps) => {
+	const ws = join(appDir, 'pnpm-workspace.yaml')
+	if (!existsSync(ws)) {
+		return deps
+	}
+
+	const doc = readYamlDoc(ws)
+	const shared = doc?.get('catalog')?.toJSON() ?? {}
+	const named = doc?.get('catalogs')?.toJSON() ?? {}
+	for (const [name, spec] of Object.entries(deps)) {
+		if (spec === 'catalog:' || spec === 'catalog:default') {
+			if (shared[name]) {
+				deps[name] = shared[name]
+			}
+		} else if (spec?.startsWith('catalog:')) {
+			const pinned = named[spec.slice('catalog:'.length)]?.[name]
+			if (pinned) {
+				deps[name] = pinned
+			}
+		}
+	}
+
+	return deps
+}
+
 /** The config file that owns patchedDependencies for this app. */
 const configTarget = (appDir) =>
 	existsSync(join(appDir, 'pnpm-workspace.yaml')) ? 'workspace' : 'packageJson'
@@ -213,10 +240,10 @@ const versionOk = (declared, pinned, resolved) =>
  */
 export const inspectPatches = (appDir) => {
 	appDir = resolve(appDir)
-	const deps = {
+	const deps = resolveCatalogs(appDir, {
 		...workspaceDeps(appDir),
 		...declaredDeps(readJson(join(appDir, 'package.json'))),
-	}
+	})
 
 	const configured = configuredPatches(appDir)
 	const locked = lockfilePatches(appDir)
@@ -314,7 +341,7 @@ export const applyPatches = (appDir, { force = false } = {}) => {
 		return { error: `no package.json in ${appDir}` }
 	}
 
-	const deps = { ...workspaceDeps(appDir), ...declaredDeps(pkg) }
+	const deps = resolveCatalogs(appDir, { ...workspaceDeps(appDir), ...declaredDeps(pkg) })
 	const configured = configuredPatches(appDir)
 	const resolved = lockfileResolvedVersions(appDir)
 	const report = { copied: [], kept: [], conflicts: [], skipped: [] }
