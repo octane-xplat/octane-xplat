@@ -52,8 +52,8 @@
 		"@nativescript-community/octane": "catalog:",
 		"@nativescript/core": "catalog:",
 		"@octane-xplat/macos-renderer": "workspace:*",
-		"@octanejs/vite-plugin": "catalog:octane05",
-		"octane": "catalog:octane05",
+		"@octanejs/vite-plugin": "catalog:",
+		"octane": "catalog:",
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",
 		"vite": "catalog:"

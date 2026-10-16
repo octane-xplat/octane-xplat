@@ -59,8 +59,10 @@ build:packages`, `pnpm build:web`, and the package-test half of `pnpm test`
   `catalog:` (runtime singletons: `octane`, `@nativescript-community/octane`,
   `@nativescript/core`/`types*`; toolchain: `typescript`, `vite`, `vitest`,
   `@octanejs/vite-plugin`, `@tsrx/typescript-plugin`) — dep fields read them
-  via `"catalog:"`. Deliberate splits use named catalogs (`octane05`,
-  `vitest4`); peers keep ranges since consumers supply the version. A second
+  via `"catalog:"`. The one deliberate split uses a named catalog (`vitest4`
+  — `platform` peers pin `vitest <5` for `@nativescript/unit-test-runner` and
+  `visual`'s `@vitest/browser` family must match); peers keep ranges since
+  consumers supply the version. A second
   copy of the community renderer breaks type-level augmentations — e.g.
   `ui/type-support/svg-element.d.ts` only extends the `intrinsics` module it
   resolves.

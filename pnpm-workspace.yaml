@@ -30,12 +30,9 @@ catalog:
   vitest: 5.0.1
   jsdom: 30.1.1
 catalogs:
-  # Legacy renderer pair (octane + the vite-plugin built for it) still used by
-  # context-menu/date-picker/sheet; they must move together.
-  octane05:
-    octane: 0.5.0
-    '@octanejs/vite-plugin': 0.1.60
-  # vitest 4 line used by platform/mobile/visual; the rest of the repo is on 5.
+  # vitest 4 line used by platform/mobile/visual: platform peers pin
+  # vitest <5 alongside @nativescript/unit-test-runner, and visual's
+  # @vitest/browser family must match. The rest of the repo is on 5.
   vitest4:
     vitest: 4.1.11
 # patchedDependencies carries the full served patch set (e.g. both
