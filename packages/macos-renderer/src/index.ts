@@ -6588,7 +6588,7 @@ function reconcileLayoutParent(parent: ElementNode) {
 			return
 		}
 
-		const count = typeof native.count === 'function' ? native.count() : native.count
+		const count = native.count
 		const actual = Array.from({ length: Number(count ?? 0) }, (_, index) =>
 			native.objectAtIndex(index),
 		).filter((view) => views.includes(view))
