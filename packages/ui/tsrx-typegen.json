@@ -90,6 +90,16 @@
 					"source": "src/linux/index.ts",
 					"runtime": ["./src/linux/index.ts"],
 					"types": "./types/generated/linux/index.d.ts"
+				},
+				"./parity": {
+					"source": "src/parity/index.ts",
+					"runtime": ["./src/parity/index.ts"],
+					"types": "./types/generated/parity/index.d.ts"
+				},
+				"./parity/check-helpers": {
+					"source": "src/parity/check-helpers.ts",
+					"runtime": ["./src/parity/check-helpers.ts"],
+					"types": "./types/generated/parity/check-helpers.d.ts"
 				}
 			}
 		}

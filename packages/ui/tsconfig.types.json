@@ -32,6 +32,7 @@
 		"src/*.ts",
 		"src/*.tsrx",
 		"src/*/index.ts",
+		"src/parity/*.ts",
 		"src/*/index.*.ts"
 	],
 	"exclude": ["**/*.test.*"]
