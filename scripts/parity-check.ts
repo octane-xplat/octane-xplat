@@ -1,14 +1,20 @@
 // Parity comparator — reads measured dumps from parity-report/<target>.json
 // (written by apps/web/scripts/parity.mjs, the native sweep step, ...) and
-// evaluates scripts/parity-checks.mjs: per-target invariants plus
-// cross-target `equal` facets.
+// evaluates the per-component check modules co-located with the fixtures:
+// packages/<pkg>/src/<Component>.parity.check.ts. Each module exports a
+// CHECKS array of per-target invariants plus cross-target `equal` facets.
 //
 //   pnpm parity            → require web, iOS, and Android; evaluate every dump present
 //   (write a dump first:   pnpm -F @xplat/web parity)
-import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { existsSync, globSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { CHECKS } from './parity-checks.mjs'
+import { fileURLToPath, pathToFileURL } from 'node:url'
+import type {
+	MeasuredNode,
+	ParityCheck,
+	ParityDump,
+	Resolve,
+} from '@octane-xplat/ui/parity/check-helpers'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const dir = join(root, 'parity-report')
@@ -16,7 +22,16 @@ const NEAR = 0.51
 const OPACITY_NEAR = 0.01
 const REQUIRED_TARGETS = ['web', 'ios', 'android']
 
-const dumps = new Map()
+const CHECKS: ParityCheck[] = []
+for (const file of globSync('packages/*/src/**/*.parity.check.ts', { cwd: root }).sort()) {
+	const mod = (await import(pathToFileURL(join(root, file)).href)) as {
+		CHECKS?: ParityCheck[]
+	}
+
+	CHECKS.push(...(mod.CHECKS ?? []))
+}
+
+const dumps = new Map<string, ParityDump>()
 if (existsSync(dir)) {
 	for (const f of readdirSync(dir)) {
 		if (f.endsWith('.json')) {
@@ -61,20 +76,20 @@ if (targets.length === 0) {
 
 // rgb()/rgba()/hex → canonical '#rrggbb' so 'rgb(59, 130, 246)' and
 // '#3b82f6' compare equal across engines.
-const normalizeColor = (value) => {
+const normalizeColor = (value: string): string | undefined => {
 	const rgb =
 		/^rgba?\(\s*([^,\s)]+)[,\s]+([^,\s)]+)[,\s]+([^,/\s)]+)(?:\s*[,/]\s*([^,\s)]+))?\s*\)$/i.exec(
 			value,
 		)
 
 	if (rgb) {
-		const channel = (part) => {
+		const channel = (part: string) => {
 			const parsed = Number.parseFloat(part)
 			const number = part.endsWith('%') ? (parsed * 255) / 100 : parsed
 			return Math.max(0, Math.min(255, Math.round(number)))
 		}
 
-		const hex = (number) => number.toString(16).padStart(2, '0')
+		const hex = (number: number) => number.toString(16).padStart(2, '0')
 		const channels = [rgb[1], rgb[2], rgb[3]].map((part) => hex(channel(part))).join('')
 		if (rgb[4] === undefined) {
 			return `#${channels}`
@@ -99,7 +114,7 @@ const normalizeColor = (value) => {
 		: `#${expanded}`
 }
 
-const normValue = (v, facet) => {
+const normValue = (v: unknown, facet: string): unknown => {
 	if (typeof v !== 'string') {
 		return v
 	}
@@ -132,7 +147,7 @@ const normValue = (v, facet) => {
 	return v.toLowerCase()
 }
 
-function equalValue(a, b, tolerance = NEAR) {
+function equalValue(a: unknown, b: unknown, tolerance = NEAR): boolean {
 	if (typeof a === 'number' && typeof b === 'number') {
 		return Math.abs(a - b) <= tolerance
 	}
@@ -146,24 +161,26 @@ function equalValue(a, b, tolerance = NEAR) {
 	return a === b
 }
 
-const resolve = (dump, fixture, elements) => (name) => {
-	const cls = elements[name]
-	const node = (dump.cells?.[fixture] ?? []).find((n) => n.classes?.includes(cls))
-	if (!node) {
-		throw new Error(`'.${cls}' not in '${fixture}' dump`)
-	}
+const resolve = (dump: ParityDump, fixture: string, elements: Record<string, string>): Resolve => {
+	return (name) => {
+		const cls = elements[name]
+		const node = (dump.cells?.[fixture] ?? []).find((n) => n.classes?.includes(cls))
+		if (!node) {
+			throw new Error(`'.${cls}' not in '${fixture}' dump`)
+		}
 
-	return node
+		return node
+	}
 }
 
 // check(m, target, dump) — target is the dump file's name ('web', 'ios', ...)
 // so checks can encode intentional divergences using measurements from that target.
 
-const facetOf = (node, path) => {
+const facetOf = (node: MeasuredNode, path: string): unknown => {
 	const parts = path.split('.')
-	let v = node
+	let v: unknown = node
 	for (const p of parts.slice(1)) {
-		v = v?.[p]
+		v = (v as Record<string, unknown> | undefined)?.[p]
 	}
 
 	return v
@@ -171,7 +188,7 @@ const facetOf = (node, path) => {
 
 let pass = 0
 let fail = 0
-const report = (ok, label, detail = '') => {
+const report = (ok: boolean, label: string, detail = '') => {
 	if (ok) {
 		pass++
 	} else {
@@ -183,25 +200,25 @@ const report = (ok, label, detail = '') => {
 
 for (const def of CHECKS) {
 	const applicableTargets = def.targets
-		? targets.filter((target) => def.targets.includes(target))
+		? targets.filter((target) => def.targets!.includes(target))
 		: targets
 
 	const equalityTargets = def.equalTargets
-		? applicableTargets.filter((target) => def.equalTargets.includes(target))
+		? applicableTargets.filter((target) => def.equalTargets!.includes(target))
 		: applicableTargets
 
 	for (const target of applicableTargets) {
-		const dump = dumps.get(target)
+		const dump = dumps.get(target)!
 		if (!dump.cells?.[def.fixture]) {
 			report(false, `${def.fixture} · ${target} · fixture`, 'cell missing from dump')
 			continue
 		}
 
-		let m
+		let m: Resolve
 		try {
 			m = resolve(dump, def.fixture, def.elements)
 		} catch (e) {
-			report(false, `${def.fixture} · ${target} · resolve`, e.message)
+			report(false, `${def.fixture} · ${target} · resolve`, (e as Error).message)
 			continue
 		}
 
@@ -209,7 +226,7 @@ for (const def of CHECKS) {
 		try {
 			rows = def.check(m, target, dump)
 		} catch (e) {
-			report(false, `${def.fixture} · ${target} · check`, e.message)
+			report(false, `${def.fixture} · ${target} · check`, (e as Error).message)
 			continue
 		}
 
@@ -225,8 +242,8 @@ for (const def of CHECKS) {
 			const absoluteTolerance = typeof rule === 'string' ? undefined : rule.tolerance
 			const relativeTolerance = typeof rule === 'string' ? undefined : rule.relativeTolerance
 			const [el] = facet.split('.')
-			const values = equalityTargets.map((t) => {
-				const dump = dumps.get(t)
+			const values = equalityTargets.map((t): [string, unknown] => {
+				const dump = dumps.get(t)!
 				const node = (dump.cells?.[def.fixture] ?? []).find((n) =>
 					n.classes?.includes(def.elements[el]),
 				)

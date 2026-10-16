@@ -288,7 +288,7 @@ a 14pt default gap and reported a document-height mismatch until the bench was
 updated. The full AppKit geometry parity sweep
 now mounts all 104 fixtures and produces a dump — set
 `OCTANE_MACOS_PARITY_FIXTURES=name1,name2` to scope the stage to a subset
-while debugging. `scripts/parity-check.mjs --targets=web,macos` currently
+while debugging. `scripts/parity-check.ts --targets=web,macos` currently
 evaluates 1110 checks; a handful of checks keep `macos` out of `equalTargets`
 where the facet is inherently CSS- or font-metric-driven (stepper/navmenu
 active-item boxes, the command-palette list width). The sweep pins

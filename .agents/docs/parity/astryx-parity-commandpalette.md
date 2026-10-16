@@ -244,9 +244,9 @@ prove iOS/Android native search-sheet behavior.
   palette from a button and reuses Edit/Duplicate/disabled Delete menu items.
   It has no shortcut opener, grouping, async source, history, empty state, or
   picker example. Selection updates the shared `lastMenu` state.
-- [`CommandPaletteFixture`](../../../packages/app/src/parity/fixtures.tsrx) mounts one
+- [`CommandPaletteFixture`](../../../packages/ui/src/CommandPalette.parity.tsrx) mounts one
   static item in an always-open 200×96 panel. The `command-palette-open` check in
-  [`parity-checks.mjs`](../../../scripts/parity-checks.mjs) checks frame/background and
+  [`CommandPalette.parity.check.ts`](../../../packages/ui/src/CommandPalette.parity.check.ts) checks frame/background and
   list width for web/iOS/Android/macOS, not search, keyboard, selection, or
   dismissal. Those definitions are not proof that each target passed now.
 - An exhaustive repository text search found no dedicated maintained

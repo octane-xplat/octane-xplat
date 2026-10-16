@@ -6,7 +6,7 @@ import { VIRTUAL_LIST_BENCH_MODE } from './virtual-list-benchmark-mode'
 // Parity sweep step — pushes the parity route on the root stack, dumps the
 // fixture stage's measured tree via the __xplatParity seam (installed by
 // ParityStage on mount), and writes it to app documents so it can be pulled
-// into parity-report/<target>.json for scripts/parity-check.mjs.
+// into parity-report/<target>.json for scripts/parity-check.ts.
 //
 // Runs only after demosweep's step chain ends (__xplatSweepDone) — pushing
 // a root page mid-sweep corrupts its page lookups. The long timer is the

@@ -455,7 +455,7 @@ export function Example() {
 The `@octane-xplat/ui` root exports these controls on web, iOS, Android, and
 macOS. macOS is experimental. Linux uses the web leaves. The maintained
 component and parity examples are [ComponentsDemo](../../packages/demos/src/ComponentsDemo.tsrx)
-and [the parity fixture](../../packages/app/src/parity/fixtures.tsrx).
+and [the parity fixtures](../../packages/ui/src/Typeahead.parity.tsrx).
 
 ## Try a small demo
 

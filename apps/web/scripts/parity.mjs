@@ -1,5 +1,5 @@
 // Parity dump (web) — serves apps/web/dist, opens /parity, and writes the
-// stage's measured tree to parity-report/web.json for scripts/parity-check.mjs.
+// stage's measured tree to parity-report/web.json for scripts/parity-check.ts.
 // Run after `vite build` (the package script chains it).
 import { chromium } from 'playwright'
 import { spawn } from 'node:child_process'

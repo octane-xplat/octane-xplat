@@ -1,7 +1,9 @@
 import { useEffect } from 'octane';
 import { View, Text } from '@octane-xplat/ui';
-import { FIXTURES } from './fixtures.tsrx';
+import { PARITY_FIXTURES, type ParityFixture } from './index';
 import { installParityDump } from './measure';
+
+const FIXTURES: ParityFixture[] = PARITY_FIXTURES;
 
 const PARITY_BOX_STYLE = { width: 220, height: 64 };
 

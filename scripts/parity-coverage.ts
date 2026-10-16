@@ -1,28 +1,29 @@
 #!/usr/bin/env node
 // Keep the measured parity sample aligned with the shared component exports.
-// The platform barrels are the API source of truth; fixture metadata identifies
-// what is measured, and the groups below make the current unmeasured surface
-// explicit without maintaining a separate coverage document.
-import { readFileSync } from 'node:fs'
+// The platform barrels are the API source of truth; fixture metadata in each
+// <Component>.parity.tsrx identifies what is measured, and the groups below
+// make the current unmeasured surface explicit without maintaining a
+// separate coverage document.
+import { globSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { dirname, join } from 'node:path'
+import { dirname, join, basename } from 'node:path'
 import ts from 'typescript'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
-const errors = []
+const errors: string[] = []
 const ALL_TARGETS = ['web', 'ios', 'android', 'macos']
 const REQUIRED_TARGETS = ['web', 'ios', 'android']
 
 // These renderer-file exports are helpers, not component roots. Every other
 // runtime export from a renderer file needs fixture coverage or a deferral.
 const NON_RENDERABLE = new Map([
-	['showToast', 'Imperative toast service; it is an action, not a component root.'],
-	['useAnimation', 'Hook that returns animation controls; it does not render a component.'],
-	['styled', 'Factory for creating component variants; it is not one fixed component surface.'],
-	['useSafeAreaInsets', 'Hook that reads insets; it does not render a component.'],
-	['useMeasure', 'Hook that reads layout; it does not render a component.'],
-	['useBackInterceptor', 'Hook that registers back behavior; it does not render a component.'],
-	['useStore', 'Hook that subscribes to a store; it does not render a component.'],
+	['useKeyboardInset', 'Hook that reads keyboard geometry; it does not render a component.'],
+	['DropdownMenuContext', 'createContext object; it is not a component root.'],
+	['AppShellMobileContext', 'createContext object; it is not a component root.'],
+	['TopNavRenderContext', 'createContext object; it is not a component root.'],
+	['SideNavRenderContext', 'createContext object; it is not a component root.'],
+	['NavHeadingCloseContext', 'createContext object; it is not a component root.'],
+	['NavHeadingMenuContext', 'createContext object; it is not a component root.'],
 ])
 
 const DEFERRED_GROUPS = [
@@ -30,6 +31,59 @@ const DEFERRED_GROUPS = [
 		reason:
 			'RichTextSpan is an inline FormattedString run, not an independent view. The NativeScript bounds/style dump exposes only its containing RichText label, so there is no comparable per-run frame or resolved style.',
 		components: ['RichTextSpan'],
+	},
+	{
+		reason:
+			'Menu part primitives render only inside their parent menu surface — they have no standalone root view. The dropdown-menu and context-menu fixtures exercise them through the parent.',
+		components: [
+			'DropdownMenuItem',
+			'DropdownMenuLink',
+			'DropdownMenuSection',
+			'DropdownMenuSeparator',
+			'DropdownMenuDivider',
+			'DropdownMenuCheckboxItem',
+			'DropdownMenuRadioGroup',
+			'DropdownMenuRadioItem',
+			'DropdownMenuSubMenu',
+			'ContextMenuItem',
+			'ContextMenuLink',
+			'ContextMenuSection',
+			'ContextMenuSeparator',
+			'ContextMenuDivider',
+			'ContextMenuCheckboxItem',
+			'ContextMenuRadioGroup',
+			'ContextMenuRadioItem',
+			'ContextMenuSubMenu',
+			'BreadcrumbMenuItem',
+			'BreadcrumbMenuLink',
+			'BreadcrumbMenuSection',
+			'BreadcrumbMenuSeparator',
+			'BreadcrumbMenuDivider',
+			'BreadcrumbMenuCheckboxItem',
+			'BreadcrumbMenuRadioGroup',
+			'BreadcrumbMenuRadioItem',
+			'BreadcrumbMenuSubMenu',
+		],
+	},
+	{
+		reason:
+			'Tab strip parts render only inside Tabs — the tabs-second-selected fixture exercises the composite strip.',
+		components: ['TabList', 'Tab', 'TabMenu'],
+	},
+	{
+		reason:
+			'Choice indicators are glyph parts rendered inside their host control (CheckboxInput, RadioList) — they have no standalone root view.',
+		components: ['CheckboxIndicator', 'CheckIndicator', 'RadioIndicator'],
+	},
+	{
+		reason:
+			'BottomSheetSwitcher is an internal part of BottomSheet — the sheet-fixed-frame fixture exercises the host.',
+		components: ['BottomSheetSwitcher'],
+	},
+	{
+		reason:
+			'ToastViewport hosts imperative toasts and has no default visual state to measure.',
+		components: ['ToastViewport'],
 	},
 ]
 
@@ -44,26 +98,26 @@ const DEFERRED_FACETS = [
 	},
 ]
 
-function parse(path, kind = ts.ScriptKind.TS) {
+function parse(path: string, kind = ts.ScriptKind.TS) {
 	return ts.createSourceFile(path, readFileSync(path, 'utf8'), ts.ScriptTarget.Latest, true, kind)
 }
 
-function stringValue(node) {
+function stringValue(node: ts.Node): string | undefined {
 	return ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)
 		? node.text
 		: undefined
 }
 
-function stringArrayValue(node) {
+function stringArrayValue(node: ts.Node): string[] | undefined {
 	if (!ts.isArrayLiteralExpression(node)) {
 		return undefined
 	}
 
 	const values = node.elements.map(stringValue)
-	return values.every((value) => value !== undefined) ? values : undefined
+	return values.every((value) => value !== undefined) ? (values as string[]) : undefined
 }
 
-function property(object, key) {
+function property(object: ts.Expression, key: string) {
 	if (!ts.isObjectLiteralExpression(object)) {
 		return undefined
 	}
@@ -84,7 +138,7 @@ function property(object, key) {
 	return undefined
 }
 
-function arrayDeclaration(path, name, kind) {
+function arrayDeclaration(path: string, name: string, kind: ts.ScriptKind) {
 	const source = parse(path, kind)
 	for (const statement of source.statements) {
 		if (!ts.isVariableStatement(statement)) {
@@ -105,9 +159,9 @@ function arrayDeclaration(path, name, kind) {
 	throw new Error(`${path}: could not find ${name}`)
 }
 
-function exportNames(path) {
+function exportNames(path: string) {
 	const source = parse(path)
-	const names = new Set()
+	const names = new Set<string>()
 	for (const statement of source.statements) {
 		if (ts.isExportAssignment(statement)) {
 			throw new Error(`${path}: parity coverage needs named exports`)
@@ -171,7 +225,7 @@ function exportNames(path) {
 	return names
 }
 
-function packageEntry(packageRoot, condition) {
+function packageEntry(packageRoot: string, condition: string) {
 	const manifestPath = join(packageRoot, 'package.json')
 	const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
 	const entry = manifest.exports?.['.']?.[condition]
@@ -209,30 +263,51 @@ const sharedComponents = new Set(
 	[...sharedRendererExports].filter((name) => !NON_RENDERABLE.has(name)),
 )
 
-const fixturePath = join(root, 'packages/app/src/parity/fixtures.tsrx')
-const fixtures = []
-for (const element of arrayDeclaration(fixturePath, 'FIXTURES', ts.ScriptKind.TSX)) {
-	const name = stringValue(property(element, 'name'))
-	const component = stringValue(property(element, 'component'))
-	if (!name || !component) {
-		errors.push(`${fixturePath}: each fixture needs literal name and component fields`)
-		continue
-	}
+// ---------- fixture discovery: packages/*/src/**/*.parity.tsrx ----------
 
-	fixtures.push({ name, component })
+interface FixtureEntry {
+	name: string
+	component: string
+	file: string
 }
 
-const checksPath = join(root, 'scripts/parity-checks.mjs')
-const checkFixtures = new Set()
-const checkTargetsByFixture = new Map()
-for (const element of arrayDeclaration(checksPath, 'CHECKS', ts.ScriptKind.JS)) {
-	const fixture = stringValue(property(element, 'fixture'))
-	if (fixture) {
+const fixtures: FixtureEntry[] = []
+for (const file of globSync('packages/*/src/**/*.parity.tsrx', { cwd: root })) {
+	const expectedComponent = basename(file).replace(/\.parity\.tsrx$/, '')
+	for (const element of arrayDeclaration(join(root, file), 'PARITY', ts.ScriptKind.TSX)) {
+		const name = stringValue(property(element, 'name'))
+		const component = stringValue(property(element, 'component'))
+		if (!name || !component) {
+			errors.push(`${file}: each fixture needs literal name and component fields`)
+			continue
+		}
+
+		if (component !== expectedComponent) {
+			errors.push(`${file}: fixture '${name}' measures ${component} — keep it in ${component}.parity.tsrx`)
+		}
+
+		fixtures.push({ name, component, file })
+	}
+}
+
+// ---------- check discovery: packages/*/src/**/*.parity.check.ts ----------
+
+const checkFixtures = new Set<string>()
+const checkTargetsByFixture = new Map<string, Set<string>>()
+const checkFileByFixture = new Map<string, string>()
+for (const file of globSync('packages/*/src/**/*.parity.check.ts', { cwd: root })) {
+	for (const element of arrayDeclaration(join(root, file), 'CHECKS', ts.ScriptKind.TS)) {
+		const fixture = stringValue(property(element, 'fixture'))
+		if (!fixture) {
+			continue
+		}
+
 		if (checkFixtures.has(fixture)) {
 			errors.push(`${fixture}: duplicate measured assertion`)
 		}
 
 		checkFixtures.add(fixture)
+		checkFileByFixture.set(fixture, file)
 		const targetsNode = property(element, 'targets')
 		const targets = targetsNode === undefined ? ALL_TARGETS : stringArrayValue(targetsNode)
 		if (
@@ -248,23 +323,34 @@ for (const element of arrayDeclaration(checksPath, 'CHECKS', ts.ScriptKind.JS)) 
 	}
 }
 
-const fixtureNames = new Set()
-const coveredComponents = new Set()
-const requiredTargetComponents = new Set()
+const fixtureNames = new Set<string>()
+const fixtureFileByName = new Map<string, string>()
+const coveredComponents = new Set<string>()
+const requiredTargetComponents = new Set<string>()
 for (const fixture of fixtures) {
 	if (fixtureNames.has(fixture.name)) {
 		errors.push(`duplicate fixture name: ${fixture.name}`)
 	}
 
 	fixtureNames.add(fixture.name)
+	fixtureFileByName.set(fixture.name, fixture.file)
 	if (!sharedComponents.has(fixture.component)) {
 		errors.push(`${fixture.name}: ${fixture.component} is not a shared PascalCase export`)
 	}
 
 	coveredComponents.add(fixture.component)
 	if (!checkFixtures.has(fixture.name)) {
-		errors.push(`${fixture.name}: no measured assertion is registered in ${checksPath}`)
+		errors.push(`${fixture.name}: no measured assertion is registered in ${fixture.component}.parity.check.ts`)
 		continue
+	}
+
+	// The fixture/check pair must share a component file — a check that lives
+	// under another component's file breaks the co-location contract.
+	const checkFile = checkFileByFixture.get(fixture.name)
+	if (checkFile && basename(checkFile).replace(/\.parity\.check\.ts$/, '') !== fixture.component) {
+		errors.push(
+			`${fixture.name}: assertion lives in ${checkFile} — keep it in ${fixture.component}.parity.check.ts`,
+		)
 	}
 
 	const checkTargets = checkTargetsByFixture.get(fixture.name)
@@ -280,11 +366,11 @@ for (const fixture of fixtures) {
 
 for (const fixture of checkFixtures) {
 	if (!fixtureNames.has(fixture)) {
-		errors.push(`${fixture}: assertion exists without a fixture in ${fixturePath}`)
+		errors.push(`${fixture}: assertion exists without a fixture in ${checkFileByFixture.get(fixture)}`)
 	}
 }
 
-const deferredComponents = new Set()
+const deferredComponents = new Set<string>()
 for (const group of DEFERRED_GROUPS) {
 	if (!group.reason.trim()) {
 		errors.push('deferred coverage groups need a reason')
@@ -299,7 +385,7 @@ for (const group of DEFERRED_GROUPS) {
 	}
 }
 
-const deferredFacetComponents = new Set()
+const deferredFacetComponents = new Set<string>()
 for (const group of DEFERRED_FACETS) {
 	if (!group.reason.trim()) {
 		errors.push('deferred parity facets need a reason')

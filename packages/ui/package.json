@@ -152,7 +152,9 @@
 			"linux": "./src/linux/index.ts"
 		},
 		"./theme/tokens.css": "./src/theme/tokens.css",
-		"./theme/chrome.css": "./src/theme/chrome.css"
+		"./theme/chrome.css": "./src/theme/chrome.css",
+		"./parity": "./src/parity/index.ts",
+		"./parity/check-helpers": "./src/parity/check-helpers.ts"
 	},
 	"scripts": {
 		"prepack": "node ../../scripts/sync-ui-barrels.mjs --check && pnpm typegen && tsrx-typegen --pack-check",
