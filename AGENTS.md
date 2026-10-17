@@ -80,6 +80,12 @@ Standing criteria for judgment calls; the critical rules encode the mechanics.
   `https://github.com/octane-xplat/octane-xplat` and `repository.directory` to
   its `packages/<dir>` path. Follow the release reference for the one-time npm
   stub and trusted-publisher setup.
+- Node ≥22.18 runs `.ts` directly via type stripping — in-repo tooling may
+  execute TypeScript source (`node --test`, dev scripts, bin stubs) with no
+  build step. Keep to erasable syntax: no enums, namespaces, or parameter
+  properties. Published packages still emit JavaScript (`dist/`) — Node
+  refuses type stripping inside `node_modules` and consumer runtimes may be
+  older.
 - Put platform divergence at file boundaries. Keep one element vocabulary per
   file, no DOM globals or web-only runtime APIs in shared code, and identical
   exports/public types across platform variants. Keep shared props in `props.ts`.

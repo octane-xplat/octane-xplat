@@ -33,7 +33,7 @@
 		"access": "public"
 	},
 	"scripts": {
-		"start": "node dist/xplat-mcp.js",
+		"start": "node src/xplat-mcp.ts",
 		"build": "vite build",
 		"prepack": "pnpm build",
 		"test": "pnpm build && node --test tests/*.test.mjs",

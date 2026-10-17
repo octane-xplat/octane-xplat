@@ -38,11 +38,11 @@ A one-off run without a devDependency also works:
 pnpm dlx @octane-xplat/mcp --workspace /path/to/app-workspace
 ```
 
-For development inside this repository — `test` and `prepack` run `vite
-build` to emit `dist/`, and `start` expects a build:
+For development inside this repository — `start` runs the TypeScript source
+directly (Node ≥22.18 strips types); `test` and `prepack` run `vite build` so
+the checked and packed surface is the emitted `dist/`:
 
 ```sh
-pnpm --filter @octane-xplat/mcp build
 pnpm --filter @octane-xplat/mcp start -- --workspace <path>
 pnpm --filter @octane-xplat/mcp test
 ```
