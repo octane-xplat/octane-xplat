@@ -569,40 +569,26 @@ body {
 	}
 }
 
-@keyframes palette-fade-out {
-	from {
-		opacity: 1;
-	}
-	to {
-		opacity: 0;
-	}
-}
-
-.palette-backdrop {
-	position: fixed;
-	inset: 0;
-	z-index: 30;
-	display: flex;
-	align-items: flex-start;
-	justify-content: center;
-	padding: 14vh 16px 16px;
-	background-color: rgba(0, 0, 0, 0.4);
+/* The shared CommandPalette layer replaces the hand-rolled .palette-backdrop
+   host; it centers .vx-overlay-content at 15% viewport height by default. */
+.vx-cmdk-layer {
 	animation: palette-fade-in 180ms ease-out both;
 }
 
-.palette-backdrop.closing {
-	pointer-events: none;
-	animation: palette-fade-out 180ms ease-in both;
+.vx-cmdk-layer .vx-overlay-shade {
+	background-color: rgba(0, 0, 0, 0.4);
 }
 
-.dark .palette-backdrop {
+.vx-cmdk-layer.dark .vx-overlay-shade {
 	background-color: rgba(0, 0, 0, 0.5);
 }
 
 .palette {
 	width: 628px;
 	max-width: 100%;
+	padding: 0;
 	overflow: hidden;
+	border-width: 0;
 	background-color: var(--doc-card);
 	border-radius: 30px;
 	corner-shape: squircle;
@@ -611,25 +597,23 @@ body {
 		0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
-.dark .palette {
-	border-color: var(--doc-rule);
+.palette.dark {
 	box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
 }
 
-.palette-head {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
+.palette .vx-cmdk-input-row {
 	gap: 10px;
+	margin-bottom: 0;
 	padding: 18px 20px;
 	border-bottom-width: 0.5px;
 	border-bottom-color: var(--doc-hairline);
 	border-bottom-style: solid;
 }
 
-.palette-input {
-	flex: 1;
+.palette .vx-cmdk-search {
 	min-width: 0;
+	margin-bottom: 0;
+	padding: 0;
 	border: none;
 	outline: none;
 	background-color: transparent;
@@ -640,39 +624,47 @@ body {
 	color: var(--doc-ink);
 }
 
-.palette-input::placeholder {
+.palette .vx-cmdk-search::placeholder {
 	color: var(--doc-dim);
 }
 
-.palette .palette-esc {
-	font-size: 11px;
-	font-weight: 500;
+.palette .vx-input-clear {
+	border: none;
+	background: none;
 	color: var(--doc-dim);
-	border-width: 0.5px;
-	border-color: var(--doc-hairline);
-	border-style: solid;
-	border-radius: 6px;
-	corner-shape: squircle;
-	padding: 1px 6px;
+	font-size: 16px;
+	cursor: pointer;
 }
 
-.palette-list {
-	max-height: 56vh;
-	overflow-y: auto;
+/* Escape and the scrim already dismiss; keep the header as quiet as the
+   esc chip it replaces. */
+.palette .vx-cmdk-cancel {
+	display: none;
+}
+
+.palette .vx-cmdk-status {
+	padding: 6px 20px;
+	font-size: 13px;
+	font-weight: 200;
+	color: var(--doc-dim);
+}
+
+.palette .vx-cmdk-list {
 	padding: 12px;
 }
 
-.palette .hit-group {
+.palette .vx-cmdk-heading {
 	display: block;
 	font-size: 12px;
 	font-weight: 550;
 	color: var(--doc-ink);
+	opacity: 1;
 	padding: 10px 10px 7px;
 }
 
-.hit {
-	display: flex;
+.palette .vx-menu-item {
 	flex-direction: column;
+	align-items: stretch;
 	padding: 7px 10px;
 	border-radius: 12px;
 	corner-shape: squircle;
@@ -680,9 +672,30 @@ body {
 	transition: background-color 250ms ease;
 }
 
-.hit:hover,
-.hit.active {
+.palette .vx-menu-item:hover,
+.palette .vx-menu-item.vx-cmdk-highlighted {
 	background-color: var(--doc-hover);
+}
+
+.palette .vx-cmdk-footer {
+	justify-content: flex-end;
+	padding: 8px 20px 14px;
+	border-top-width: 0.5px;
+	border-top-color: var(--doc-hairline);
+	border-top-style: solid;
+	font-size: 11px;
+	font-weight: 500;
+	color: var(--doc-dim);
+}
+
+.palette .vx-cmdk-footer kbd {
+	font-family: inherit;
+	border-width: 0.5px;
+	border-color: var(--doc-hairline);
+	border-style: solid;
+	border-radius: 6px;
+	corner-shape: squircle;
+	padding: 1px 6px;
 }
 
 .hit-label {
@@ -707,12 +720,6 @@ body {
 
 .palette .hit-snip {
 	margin-top: 3px;
-}
-
-.palette .hit-empty {
-	padding: 20px 14px;
-	font-size: 14px;
-	color: var(--doc-dim);
 }
 
 /* ---------- mobile header + nav sheet ---------- */
@@ -1118,7 +1125,7 @@ body {
 		transition-duration: 0ms;
 	}
 
-	.palette-backdrop {
+	.vx-cmdk-layer {
 		animation-duration: 1ms;
 	}
 }
@@ -1846,8 +1853,8 @@ body {
 		gap: 2px;
 	}
 
-	.palette-backdrop {
-		padding-top: 8vh;
+	.vx-cmdk-layer .vx-overlay-content {
+		top: 8vh;
 	}
 
 	.card {

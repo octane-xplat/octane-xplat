@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'octane';
-import { View, HStack, Text, Pressable, ScrollableArea, useColorScheme, BottomSheet } from '@octane-xplat/ui';
+import { View, HStack, Text, Pressable, ScrollableArea, useColorScheme, BottomSheet, CommandPalette, type CommandPaletteItem, type SearchSource } from '@octane-xplat/ui';
 import { useRoute, pushRoute } from '@octane-xplat/ui/routing';
 import { DOCS, routeForDoc, type DocPage } from './docs';
 import { docPath, GROUPS, INDEX_SLUG } from './doc-meta';
@@ -36,6 +36,35 @@ const HIT_GROUP: Partial<Record<SearchHit['kind'], string>> = {
 	body: 'Content',
 };
 
+/** The palette reports row ids back through onValueChange; the Map resolves
+ *  them to the hit that produced the row. Cleared and repopulated on every
+ *  source call. */
+const paletteHits = new Map<string, SearchHit>();
+
+const paletteItem = (hit: SearchHit, index: number): CommandPaletteItem => {
+	const id = `${hit.kind}-${hit.slug}-${hit.anchor ?? 'doc'}-${index}`;
+	paletteHits.set(id, hit);
+	return {
+		id,
+		label: hit.label,
+		description: hit.snippet,
+		auxiliaryData: { group: HIT_GROUP[hit.kind] ?? 'Guide', hit },
+	};
+};
+
+const DOC_SEARCH: SearchSource<CommandPaletteItem> = {
+	bootstrap() {
+		paletteHits.clear();
+		return DOCS.slice(0, 8).map((d, index) =>
+			paletteItem({ kind: 'page', slug: d.slug, label: d.title, context: 'Guide', score: 0 }, index),
+		);
+	},
+	search(query) {
+		paletteHits.clear();
+		return searchDocs(query).map(paletteItem);
+	},
+};
+
 const THEME_PREFERENCE_KEY = 'xplat-docs-theme';
 
 function readThemePreference(): boolean | null {
@@ -58,13 +87,9 @@ function saveThemePreference(dark: boolean): void {
 export function App() @{
 	const [override, setOverride] = useState<boolean | null>(readThemePreference);
 	const [paletteOpen, setPaletteOpen] = useState(false);
-	const [paletteMounted, setPaletteMounted] = useState(false);
-	const [query, setQuery] = useState('');
-	const [active, setActive] = useState(0);
 	const [leaving, setLeaving] = useState(false);
 	const [menuOpen, setMenuOpen] = useState(false);
 	const navigationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-	const paletteTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const menuTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const scheme = useColorScheme();
 	const dark = override ?? scheme === 'dark';
@@ -73,26 +98,7 @@ export function App() @{
 			closeMenu();
 		}
 
-		if (paletteTimer.current !== null) {
-			clearTimeout(paletteTimer.current);
-			paletteTimer.current = null;
-		}
-
-		setPaletteMounted(true);
 		setPaletteOpen(true);
-	};
-
-	const closePalette = () => {
-		setPaletteOpen(false);
-
-		if (paletteTimer.current !== null) {
-			clearTimeout(paletteTimer.current);
-		}
-
-		paletteTimer.current = setTimeout(() => {
-			paletteTimer.current = null;
-			setPaletteMounted(false);
-		}, 180);
 	};
 
 	const openMenu = () => {
@@ -196,10 +202,6 @@ export function App() @{
 			clearTimeout(navigationTimer.current);
 		}
 
-		if (paletteTimer.current !== null) {
-			clearTimeout(paletteTimer.current);
-		}
-
 		if (menuTimer.current !== null) {
 			clearTimeout(menuTimer.current);
 		}
@@ -215,25 +217,25 @@ export function App() @{
 		return animateConstellation(host, content);
 	}, []);
 
-	// ⌘K/Ctrl+K toggles the palette (resets when already open); '/' opens it
-	// from anywhere outside a text field; Esc closes.
+	// ⌘K/Ctrl+K opens the palette (or re-arms its query when already open);
+	// '/' opens it from anywhere outside a text field. The palette owns
+	// Escape, row navigation, and dismissal.
 	useEffect(() => {
 		const onKey = (e: KeyboardEvent) => {
 			if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
 				e.preventDefault();
 				if (paletteOpen) {
-					setQuery('');
-					setActive(0);
-					(document.getElementById('palette-input') as HTMLInputElement | null)?.focus();
+					// The palette's own clear action resets the query and refocuses the input.
+					const clear = window.document.querySelector<HTMLButtonElement>('.vx-cmdk-layer .vx-input-clear:not(:disabled)');
+					if (clear) {
+						clear.click();
+					} else {
+						(window.document.getElementById('palette-query') as HTMLInputElement | null)?.focus();
+					}
 				} else {
 					openPalette();
 				}
 
-				return;
-			}
-
-			if (e.key === 'Escape' && paletteOpen) {
-				closePalette();
 				return;
 			}
 
@@ -251,60 +253,6 @@ export function App() @{
 		window.addEventListener('keydown', onKey);
 		return () => window.removeEventListener('keydown', onKey);
 	}, [paletteOpen]);
-
-	// Keep the keyboard-active row visible while arrowing through the list.
-	useEffect(() => {
-		document.querySelector('.hit.active')?.scrollIntoView({ block: 'nearest' });
-	}, [active]);
-
-	const hits: SearchHit[] = query.trim()
-		? searchDocs(query)
-		: DOCS.slice(0, 8).map((d) => ({
-			kind: 'page' as const,
-			slug: d.slug,
-			label: d.title,
-			context: 'Guide',
-			score: 0,
-		}));
-
-	const selectHit = (h: SearchHit) => {
-		closePalette();
-		setQuery('');
-		setActive(0);
-		selectDoc(h.slug, h.anchor);
-	};
-
-	const onPaletteKey = (e: KeyboardEvent) => {
-		if (e.key === 'ArrowDown') {
-			e.preventDefault();
-			setActive((a) => (hits.length ? (a + 1) % hits.length : 0));
-		} else if (e.key === 'ArrowUp') {
-			e.preventDefault();
-			setActive((a) => (hits.length ? (a - 1 + hits.length) % hits.length : 0));
-		} else if (e.key === 'Enter') {
-			const h = hits[Math.min(active, hits.length - 1)];
-			if (h) selectHit(h);
-		}
-	};
-
-	// Hit rows interleaved with group headers at each kind boundary.
-	const rows = hits.flatMap((h, i) => {
-		const group = HIT_GROUP[h.kind];
-		const head = group && (i === 0 || hits[i - 1].kind !== h.kind)
-			? [<Text key={`g-${h.kind}`} className="hit-group">{group}</Text>]
-			: [];
-
-		head.push(
-			<div key={`${h.slug}:${h.label}`} className={i === active ? 'hit active' : 'hit'}
-				onClick={() => selectHit(h)} onMouseEnter={() => setActive(i)}>
-				<Text className={h.kind === 'api' ? 'hit-label mono' : 'hit-label'}>{h.label}</Text>
-				{h.context && <Text className="hit-sub">{h.context}</Text>}
-				{h.snippet && <Text className="hit-sub hit-snip">{h.snippet}</Text>}
-			</div>,
-		);
-
-		return head;
-	});
 
 	const renderDoc = (d: DocPage) => (
 		<Pressable key={d.slug} className={d.slug === doc.slug ? 'side-item active' : 'side-item'} onPress={() => selectDoc(d.slug)}>
@@ -424,33 +372,38 @@ export function App() @{
 		>
 			{navTree()}
 		</BottomSheet>
-		{paletteMounted && (
-			<div
-				className={paletteOpen ? 'palette-backdrop' : 'palette-backdrop closing'}
-				aria-hidden={!paletteOpen}
-				onClick={closePalette}
-			>
-				<div className="palette" role="dialog" aria-label="Search docs" onClick={(e: MouseEvent) => e.stopPropagation()}>
-					<div className="palette-head">
-						<View className="nav-icon ic-search" />
-						<input
-							id="palette-input"
-							className="palette-input"
-							placeholder="Search docs…"
-							value={query}
-							onInput={(e) => { setQuery((e.target as HTMLInputElement).value); setActive(0); }}
-							onKeyDown={onPaletteKey}
-							autoFocus
-						/>
-						<Text className="palette-esc">esc</Text>
-					</div>
-					{rows.length ? (
-						<div className="palette-list">{rows}</div>
-					) : (
-						<Text className="hit-empty">No matches for “{query}”</Text>
-					)}
-				</div>
-			</div>
-		)}
+		{/* Search palette — the layer portals to document.body, so it doesn't
+		    inherit .dark from .shell; pass the scheme via className. */}
+		<CommandPalette
+			id="palette"
+			className={dark ? 'palette dark' : 'palette'}
+			open={paletteOpen}
+			onOpenChange={(open) => {
+				if (!open) {
+					setPaletteOpen(false);
+				}
+			}}
+			searchSource={DOC_SEARCH}
+			onValueChange={(id) => {
+				const hit = paletteHits.get(id);
+				if (hit) {
+					selectDoc(hit.slug, hit.anchor);
+				}
+			}}
+			label="Search docs"
+			placeholder="Search docs…"
+			emptySearchText="No matches"
+			maxHeight={520}
+			renderItem={(item) => {
+				const hit = (item.auxiliaryData as { hit?: SearchHit } | undefined)?.hit;
+				return (
+					<>
+						<Text className={hit?.kind === 'api' ? 'hit-label mono' : 'hit-label'}>{item.label}</Text>
+						{hit?.context ? <Text className="hit-sub">{hit.context}</Text> : null}
+						{hit?.snippet ? <Text className="hit-sub hit-snip">{hit.snippet}</Text> : null}
+					</>
+				);
+			}}
+		/>
 	</View>
 }

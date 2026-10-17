@@ -277,26 +277,60 @@ for (const path of walkDocs('../../docs')) {
 }
 
 // Cmd-K palette: open via the global shortcut, query for an API symbol,
-// and select the top hit — it should route to that doc (+anchor).
+// and select the top hit — it should route to that doc (+anchor). The
+// palette is the shared CommandPalette, so its combobox contract is part
+// of this flow's acceptance.
 window.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'k', metaKey: true }))
 await settle()
-const paletteInput = window.document.getElementById('palette-input')
+const paletteInput = window.document.getElementById('palette-query')
 assert('palette opens on cmd-k', Boolean(paletteInput))
+
+assert(
+	'palette input is a combobox over a listbox',
+	paletteInput?.getAttribute('role') === 'combobox' &&
+		paletteInput.getAttribute('aria-expanded') === 'true' &&
+		window.document
+			.getElementById(paletteInput.getAttribute('aria-controls'))
+			?.getAttribute('role') === 'listbox',
+)
+
+assert('palette layer is a modal dialog', Boolean(window.document.querySelector('.vx-cmdk-layer [role="dialog"][aria-modal="true"]')))
 
 paletteInput.value = 'pushRoute'
 paletteInput.dispatchEvent(new window.Event('input', { bubbles: true }))
 await settle()
-const topHit = window.document.querySelector('.hit')
+const topHit = window.document.querySelector('.vx-cmdk-layer [role="option"]')
 assert('search finds api symbols', topHit?.textContent?.includes('pushRoute'))
 
-topHit?.click()
+// Arrow keys highlight via aria-activedescendant; Enter commits.
+paletteInput.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
+await settle()
+const activeDesc = paletteInput.getAttribute('aria-activedescendant')
+assert(
+	'arrow keys drive active-descendant',
+	Boolean(activeDesc) && window.document.getElementById(activeDesc) === topHit,
+)
+
+paletteInput.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
 await settle()
 assert(
 	'palette hit navigates',
-	!window.document.getElementById('palette-input') &&
+	!window.document.getElementById('palette-query') &&
 		window.location.pathname === docPath('navigation') &&
 		root.querySelector('.doc .h1')?.textContent === 'Moving between screens',
 )
+
+// Reopen from the nav row: the click captures the row as the trigger, so
+// Escape both closes the layer and returns focus to it.
+const searchRow = [...root.querySelectorAll('.nav-row')].find((el) => el.textContent?.includes('Search'))
+searchRow?.click()
+await settle()
+assert('palette reopens from nav row', Boolean(window.document.getElementById('palette-query')))
+
+window.document.getElementById('palette-query')?.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+await settle()
+assert('escape closes palette', !window.document.getElementById('palette-query'))
+assert('focus returns to palette trigger', window.document.activeElement === searchRow)
 
 assert('no missing or duplicate child keys', keyDiagnostics.length === 0)
 assert(
