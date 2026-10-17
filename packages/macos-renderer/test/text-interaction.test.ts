@@ -18,6 +18,11 @@ const delegate = source.slice(
 function load() {
 	const nodes = new WeakMap()
 	const context = {
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 		textNodesByView: nodes,
 		actionIdsByView: new WeakMap(),
 		actionHandlers: new Map(),

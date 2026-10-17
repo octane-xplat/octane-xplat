@@ -17,6 +17,11 @@ const warnings: string[] = []
 const reconciles: any[] = []
 
 const { applyProps } = runInNewContext(applyPropsSrc + '\n({ applyProps })', {
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 	isStackLayoutInput: (name) =>
 		['flexDirection', 'gap', 'rowGap', 'columnGap', 'alignItems', 'justifyContent'].includes(name),
 	syncStackLayout: () => {},

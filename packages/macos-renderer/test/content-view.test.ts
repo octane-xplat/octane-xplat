@@ -74,6 +74,11 @@ function fixture(type = 'contentview') {
 			.map(fn)
 			.join('\n') + '\n({insert,remove,destroy,layoutContentChild})',
 		{
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 			contentViewNodesByView: new WeakMap(),
 			disposePressGestures: noop,
 			panHandlersByView: new WeakMap(),

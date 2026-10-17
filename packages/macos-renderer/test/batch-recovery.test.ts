@@ -67,6 +67,11 @@ function fixture({ applyProps }: { applyProps?: any } = {}) {
 	}
 
 	const sandbox = {
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 		validateTextStyle,
 		nextMockActionId: 500,
 		actionHandlers,

@@ -363,7 +363,12 @@ test('validateNodeProps rejects a non-function onCreatingView', () => {
 })
 
 test('placeholder rejects JSX children through the shared nesting rule', () => {
-	const api = runInNewContext(fn('validateTextNesting') + '\n;({validateTextNesting})', {})
+	const api = runInNewContext(fn('validateTextNesting') + '\n;({validateTextNesting})', {
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		})
 	assert.throws(
 		() => api.validateTextNesting('placeholder', 'label'),
 		/content comes from creatingView/,

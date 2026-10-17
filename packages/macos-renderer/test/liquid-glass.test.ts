@@ -169,6 +169,11 @@ test('the host layout dispatches grid placement for the registered node', () => 
 
 test('liquidglass children overlap the implicit cell and honor attached placement', () => {
 	const { layoutGridChildren } = runInNewContext(layout + '\n({ layoutGridChildren })', {
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 		queueMicrotask: undefined,
 	})
 

@@ -182,6 +182,11 @@ test('existing onScroll event shape and latest callback survive replacement and 
 	const start = source.indexOf('function setScrollAction(')
 	const code = source.slice(start, source.indexOf('\nconst layoutHandlers', start))
 	const setScrollAction = runInNewContext(code + '\nsetScrollAction', {
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 		scrollHandlers: new WeakMap(),
 		NSNotificationCenter: globalThis.NSNotificationCenter,
 		NSViewBoundsDidChangeNotification: 'bounds',

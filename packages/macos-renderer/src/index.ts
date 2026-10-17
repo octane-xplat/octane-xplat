@@ -25,6 +25,12 @@ import {
 import { installPresentationBridge } from './presentation'
 import { installAppearanceBridge } from './appearance'
 import { configureScrollAxes, observeScrollGeometry, scrollAxes } from './scroll-view'
+import {
+	layoutMasonChildren,
+	MASON_STYLE_KEYS,
+	masonNaturalSize,
+	releaseMasonNodes,
+} from './mason'
 import { makeListView, updateListView, disposeListView } from './list-view'
 import { validateListProps } from './list-template'
 import { makeWebView, updateWebView, disposeWebView } from './webview'
@@ -288,6 +294,7 @@ const textNodesByView = new WeakMap<object, ElementNode>()
 const panHandlersByView = new WeakMap<object, ((event: PanEvent) => void) | null>()
 const gridLayoutNodesByView = new WeakMap<object, ElementNode>()
 const absoluteLayoutNodesByView = new WeakMap<object, ElementNode>()
+const masonLayoutNodesByView = new WeakMap<object, ElementNode>()
 const rootLayoutNodesByView = new WeakMap<object, ElementNode>()
 const wrapLayoutNodesByView = new WeakMap<object, ElementNode>()
 const dockLayoutNodesByView = new WeakMap<object, ElementNode>()
@@ -742,6 +749,50 @@ class AbsoluteLayoutView extends NSView {
 		super.layout()
 		layoutAbsoluteChildren(absoluteLayoutNodesByView.get(this))
 	}
+}
+
+// Mason-backed host: the Rust layout engine computes descendant frames;
+// children keep their own AppKit views and are pinned like grid/absolute
+// children. Nested masonry nodes participate in the parent's compute.
+class MasonLayoutView extends NSView {
+	static {
+		NativeClass(this)
+	}
+
+	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
+	get intrinsicContentSize() {
+		const size = masonNaturalSize(masonLayoutNodesByView.get(this), layoutView)
+		return size ?? { width: -1, height: -1 }
+	}
+
+	layout() {
+		super.layout()
+		layoutMasonChildren(masonLayoutNodesByView.get(this), layoutView, pinLayoutChild)
+	}
+}
+
+function makeMasonLayout(node: ElementNode) {
+	const view = MasonLayoutView.alloc().initWithFrame({
+		origin: { x: 0, y: 0 },
+		size: { width: 0, height: 0 },
+	})
+
+	view.translatesAutoresizingMaskIntoConstraints = false
+	masonLayoutNodesByView.set(view, node)
+	view.postsFrameChangedNotifications = true
+	node.masonGeometryObserver =
+		NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
+			NSViewFrameDidChangeNotification,
+			view,
+			null,
+			() => {
+				if (masonLayoutNodesByView.get(view) === node) {
+					queueLayoutReconcile(node.container, node)
+				}
+			},
+		)
+
+	return view
 }
 
 // NativeScript 9.1.2/9.1.3 (MIT): LiquidGlassCommon extends GridLayout, so
@@ -1582,6 +1633,7 @@ function syncMarginHost(node: ElementNode) {
 				'docklayout',
 				'wraplayout',
 				'rootlayout',
+				'masonview',
 			].includes(parent.type)
 		) {
 			console.warn('[macos-style] ignored margins on <' + node.type + '> — parent is not a stack')
@@ -1644,6 +1696,7 @@ function setMarginStyle(node: ElementNode, name: string, value: any) {
 			'docklayout',
 			'wraplayout',
 			'rootlayout',
+			'masonview',
 		].includes((node.layoutParent ?? node.parent)?.type ?? '')
 	) {
 		// These parents lay out children manually from props.style — no wrapper needed.
@@ -3817,6 +3870,7 @@ const VIEW_PARENT_TYPES = new Set([
 	'gridlayout',
 	'absolutelayout',
 	'liquidglass',
+	'masonview',
 ])
 
 /** Every type the factory switch below can build. */
@@ -4178,6 +4232,9 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 				break
 			case 'absolutelayout':
 				node.view = makeAbsoluteLayout()
+				break
+			case 'masonview':
+				node.view = makeMasonLayout(node)
 				break
 			case 'tabview':
 				node.view = makeTabView(node)
@@ -4578,6 +4635,7 @@ function setSizeConstraint(node: ElementNode, name: string, value: any) {
 			'docklayout',
 			'wraplayout',
 			'rootlayout',
+			'masonview',
 		].includes((node.layoutParent ?? node.parent)?.type ?? '')
 	) {
 		deactivateSizeConstraints(node)
@@ -4713,7 +4771,12 @@ function syncEdgeInsets(node: ElementNode) {
 		left: edges?.left ?? box?.left ?? klass?.left ?? 0,
 	}
 
-	if (node.type === 'docklayout' || node.type === 'wraplayout' || node.type === 'rootlayout') {
+	if (
+		node.type === 'docklayout' ||
+		node.type === 'wraplayout' ||
+		node.type === 'rootlayout' ||
+		node.type === 'masonview'
+	) {
 		node.dockInsets = insets
 		queueLayoutReconcile(node.container, node)
 	} else {
@@ -4931,13 +4994,17 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			continue
 		} else if (
 			name === 'padding' &&
-			['flexboxlayout', 'stacklayout', 'docklayout', 'wraplayout', 'rootlayout'].includes(node.type)
+			['flexboxlayout', 'stacklayout', 'docklayout', 'wraplayout', 'rootlayout', 'masonview'].includes(
+				node.type,
+			)
 		) {
 			node.stylePaddingBox = parseEdgeInsets(value)
 			syncEdgeInsets(node)
 		} else if (
 			EDGE_INSET_PROPS.has(name) &&
-			['flexboxlayout', 'stacklayout', 'docklayout', 'wraplayout', 'rootlayout'].includes(node.type)
+			['flexboxlayout', 'stacklayout', 'docklayout', 'wraplayout', 'rootlayout', 'masonview'].includes(
+				node.type,
+			)
 		) {
 			const edges = (node.stylePaddingEdges ??= {})
 			for (const edge of EDGE_INSET_PROPS.get(name)!) {
@@ -4957,7 +5024,7 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			setSizeConstraint(node, name, value)
 		} else if (name === 'left' && node.view) {
 			if (
-				['gridlayout', 'liquidglass', 'absolutelayout'].includes(
+				['gridlayout', 'liquidglass', 'absolutelayout', 'masonview'].includes(
 					(node.layoutParent ?? node.parent)?.type ?? '',
 				)
 			) {
@@ -4998,9 +5065,27 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			node.view.layer.borderColor = nativeColor(value).CGColor
 		} else if (MARGIN_SIDES[name] || name === 'margin') {
 			setMarginStyle(node, name, value)
-		} else {
+		} else if (
+			!(
+				(node.type === 'masonview' ||
+					(node.layoutParent ?? node.parent)?.type === 'masonview') &&
+				MASON_STYLE_KEYS.has(name)
+			)
+		) {
 			console.warn('[macos-style] ignored unsupported style.' + name + ' on <' + node.type + '>')
 		}
+	}
+
+	// Mason consumes layout styles through its own style sync; any style apply
+	// on the container or a direct child re-queues its pass.
+	const masonHost =
+		node.type === 'masonview'
+			? node
+			: (node.layoutParent ?? node.parent)?.type === 'masonview'
+				? (node.layoutParent ?? node.parent)
+				: null
+	if (masonHost) {
+		queueLayoutReconcile(node.container, masonHost)
 	}
 
 	node.appliedStyle = next
@@ -5158,7 +5243,8 @@ function applyClassName(node: ElementNode, value: any) {
 		node.type === 'stack' ||
 		node.type === 'scrollview' ||
 		node.type === 'gridlayout' ||
-		node.type === 'liquidglass'
+		node.type === 'liquidglass' ||
+		node.type === 'masonview'
 	) {
 		const gaps: Record<string, number> = {
 			'gap-1': 4,
@@ -6438,6 +6524,18 @@ function applyProps(node: ElementNode, props: PropBag) {
 				}
 
 				break
+			case 'masonview':
+				if (name === 'style') {
+					applyStyle(node, value)
+				} else if (name === 'className') {
+					applyClassName(node, value)
+				} else if (name === 'accessible' || name.startsWith('accessibility')) {
+					applyAccessibility(node, name, value)
+				} else if (name !== 'id' && value !== undefined) {
+					console.warn('[macos-host] ignored masonview prop ' + name)
+				}
+
+				break
 		}
 	}
 
@@ -7112,6 +7210,12 @@ function reconcileLayoutParent(parent: ElementNode) {
 		return
 	}
 
+	if (parent.type === 'masonview') {
+		parent.view?.invalidateIntrinsicContentSize()
+		layoutMasonChildren(parent, layoutView, pinLayoutChild)
+		return
+	}
+
 	const stack = (parent.childHost ?? parent.view) as NSStackView | undefined
 	if (typeof stack?.addViewInGravity !== 'function') {
 		return
@@ -7295,6 +7399,7 @@ function insert(
 					'docklayout',
 					'wraplayout',
 					'rootlayout',
+					'masonview',
 				].includes(parent.type)
 			) {
 				// Re-homing under a manually laid-out parent — release the
@@ -7339,7 +7444,8 @@ function insert(
 				parent.type === 'liquidglass' ||
 				parent.type === 'docklayout' ||
 				parent.type === 'wraplayout' ||
-				parent.type === 'rootlayout'
+				parent.type === 'rootlayout' ||
+				parent.type === 'masonview'
 			) {
 				parentView.addSubview(layoutView(node))
 				layoutView(node).translatesAutoresizingMaskIntoConstraints = false
@@ -7459,6 +7565,8 @@ function remove(container: RootContainer, parentId: UniversalHostParent, node: E
 }
 
 function destroy(node: ElementNode) {
+	releaseMasonNodes(node)
+
 	if (node.type === 'listview' && node.view) {
 		disposeListView(node.view)
 	}
@@ -7548,6 +7656,22 @@ function destroy(node: ElementNode) {
 			dockLayoutNodesByView.delete(node.view)
 		}
 
+		for (const child of node.children.slice()) {
+			detach(node.container, child)
+		}
+	}
+
+	if (node.type === 'masonview') {
+		if (node.masonGeometryObserver) {
+			NSNotificationCenter.defaultCenter.removeObserver(node.masonGeometryObserver)
+			node.masonGeometryObserver = null
+		}
+
+		if (node.view) {
+			masonLayoutNodesByView.delete(node.view)
+		}
+
+		releaseMasonNodes(node)
 		for (const child of node.children.slice()) {
 			detach(node.container, child)
 		}

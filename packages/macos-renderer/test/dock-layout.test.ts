@@ -92,6 +92,11 @@ function fixture() {
 			) +
 			'\n;({insert,remove,destroy,layoutDockChildren,dockNaturalSize,validateNodeProps,applyCommand})',
 		{
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 			dockLayoutNodesByView: new WeakMap(),
 			contentViewNodesByView: new WeakMap(),
 			disposePressGestures: noop,
@@ -343,6 +348,11 @@ test('DockLayout geometry observer releases on disposal and ignores late callbac
 		['makeDockLayout', 'destroy', 'detach', 'releasePlacementPins'].map(fn).join('\n') +
 			'\n;({makeDockLayout,destroy})',
 		{
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 			DockLayoutView: { alloc: () => ({ initWithFrame: () => view }) },
 			dockLayoutNodesByView: map,
 			NSViewFrameDidChangeNotification: 'frame',

@@ -106,6 +106,11 @@ function fixture() {
 			) +
 			'\n;({insert,remove,destroy,layoutRootChildren,rootNaturalSize,validateNodeProps,applyCommand})',
 		{
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 			dockLayoutNodesByView: new WeakMap(),
 			rootLayoutNodesByView: new WeakMap(),
 			contentViewNodesByView: new WeakMap(),
@@ -282,6 +287,11 @@ test('RootLayout geometry observer releases on disposal and ignores late callbac
 		['makeRootLayout', 'destroy', 'detach', 'releasePlacementPins'].map(fn).join('\n') +
 			'\n;({makeRootLayout,destroy})',
 		{
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 			NSUserInterfaceLayoutOrientation: { Horizontal: 0, Vertical: 1 },
 			RootLayoutView: { alloc: () => ({ initWithFrame: () => view }) },
 			rootLayoutNodesByView: map,

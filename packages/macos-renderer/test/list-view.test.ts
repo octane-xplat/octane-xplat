@@ -85,6 +85,11 @@ function fixture() {
 	}
 
 	const api = runInNewContext(source + '\n({makeListView,updateListView,disposeListView,states})', {
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 		NSView: View,
 		NSScrollView: View,
 		NSTableView: View,

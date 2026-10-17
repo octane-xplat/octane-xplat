@@ -32,6 +32,11 @@ const prefix = 'let nextActionId = 1000\nconst DEFAULT_TEXT_LINE_HEIGHT_RATIO = 
 function fixture() {
 	const applied: Record<string, any>[] = []
 	const sandbox = {
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 		applyProps: (_node: any, props: any) => {
 			applied.push(props)
 			Object.assign(_node.props, props)

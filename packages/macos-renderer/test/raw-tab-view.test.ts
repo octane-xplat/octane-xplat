@@ -71,6 +71,11 @@ function fixture() {
 		code +
 			'\n({makeTabView,makeTabItem,syncTabView,syncTabItem,detachTabItem,releaseTabView,releaseTabItem,validateTabProps,flushTabViews,configureTabContentRoots,__tabItemProps})',
 		{
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 			defineUniversalComponent: (_: any, render: any) => render,
 			universalPlan: (_: any, plan: any) => plan,
 			universalValue() {},

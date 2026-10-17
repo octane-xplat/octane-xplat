@@ -44,6 +44,11 @@ function controlFixture() {
 				.join('\n') +
 			'\n({calendarDate,makeDatePicker,notifyDateChange,syncDatePicker,validateNodeProps,applyProps,applyCommand})',
 		{
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 			Date,
 			NSDatePicker: { alloc: () => ({ initWithFrame: () => view }) },
 			NSDate: {
@@ -237,6 +242,11 @@ test('DatePicker production ownership moves its native host between parents and 
 			.map(fn)
 			.join('\n') + '\n({insert,destroy})',
 		{
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 			VIEW_PARENT_TYPES: new Set(['contentview']),
 			layoutView: (node: any) => node.view,
 			arrangedView: (node: any) => node.view,

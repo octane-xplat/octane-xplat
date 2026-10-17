@@ -9,6 +9,11 @@ import { sourceWithoutImports } from './mock-globals.ts'
 const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 
 const context = {
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 	NSObject: class {},
 	NSButton: class {},
 	NSMenuItem: class {},

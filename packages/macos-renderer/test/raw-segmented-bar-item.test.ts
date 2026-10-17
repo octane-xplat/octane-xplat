@@ -44,6 +44,11 @@ function fixture() {
 				.join('\n') +
 			'\n({insert,remove,destroy,applyCommand,validateNodeProps,validateTextNesting,validateBatch})',
 		{
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 			assertSupportedType: noop,
 			validateProxyTree: noop,
 			setControlAction: noop,

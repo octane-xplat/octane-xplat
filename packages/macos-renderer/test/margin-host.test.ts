@@ -87,6 +87,11 @@ function fixture() {
 
 	const parent = { id: 1, type: 'flexboxlayout', children: [], view: stack }
 	const context = {
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 		NSView: { alloc: () => ({ initWithFrame: () => view() }) },
 		NSNotificationCenter: { defaultCenter: center },
 		stackGravity: (_parent, node) => node.view.gravity,

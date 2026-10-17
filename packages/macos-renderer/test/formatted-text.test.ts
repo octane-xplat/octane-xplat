@@ -118,6 +118,11 @@ test('logical text hosts reparent, move, remove and dispose through production o
 			.map(fn)
 			.join('\n') + '\n({insert,remove,destroy})',
 		{
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 			VIEW_PARENT_TYPES: new Set(),
 			composeAttributedText: (
 				children: any[],

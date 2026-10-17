@@ -97,6 +97,11 @@ function fixture() {
 			) +
 			'\n;({insert,remove,destroy,layoutWrapChildren,wrapNaturalSize,validateNodeProps,applyCommand})',
 		{
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 			dockLayoutNodesByView: new WeakMap(),
 			wrapLayoutNodesByView: new WeakMap(),
 			NSUserInterfaceLayoutOrientation: { Horizontal: 0, Vertical: 1 },
@@ -430,6 +435,11 @@ test('WrapLayout geometry observer releases on disposal and ignores late callbac
 			.map(fn)
 			.join('\n') + '\n;({makeWrapLayout,destroy})',
 		{
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 			NSUserInterfaceLayoutOrientation: { Horizontal: 0, Vertical: 1 },
 			WrapLayoutView: { alloc: () => ({ initWithFrame: () => view }) },
 			wrapLayoutNodesByView: map,
@@ -484,6 +494,11 @@ test('WrapLayout flow-axis compression yields to resizing and switches on orient
 	}
 
 	const api = runInNewContext(fn('setWrapSizingPriorities') + '\n;({setWrapSizingPriorities})', {
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 		NSUserInterfaceLayoutOrientation: { Horizontal: 0, Vertical: 1 },
 	})
 
@@ -498,6 +513,11 @@ test('WrapLayout flow-axis compression yields to resizing and switches on orient
 	const stackApi = runInNewContext(
 		fn('setStackChildPriorities') + '\n;({setStackChildPriorities})',
 		{
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 			NSUserInterfaceLayoutOrientation: { Horizontal: 0, Vertical: 1 },
 			nodeClasses: () => [],
 			arrangedView: (child: any) => child.view,

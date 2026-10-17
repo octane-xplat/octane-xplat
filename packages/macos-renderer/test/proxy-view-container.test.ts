@@ -68,6 +68,11 @@ function fixture() {
 				.join('\n') +
 			'\n({insert,remove,destroy,syncProxyProjection,validateProxyTree,projectedViews,reconcileLayoutParent})',
 		{
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 			VIEW_PARENT_TYPES: new Set(['wraplayout', 'contentview', 'proxyviewcontainer']),
 			layoutView: (node: any) => node.view,
 			arrangedView: (node: any) => node.view,

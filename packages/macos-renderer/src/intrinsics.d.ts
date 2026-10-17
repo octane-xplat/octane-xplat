@@ -49,6 +49,7 @@ export namespace JSX {
 		flexboxlayout: Record<string, unknown>
 		gridlayout: Record<string, unknown>
 		absolutelayout: Record<string, unknown>
+		masonview: Record<string, unknown>
 		stacklayout: Record<string, unknown>
 		rootlayout: Record<string, unknown>
 		scrollview: Record<string, unknown>

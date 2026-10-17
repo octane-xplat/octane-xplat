@@ -96,6 +96,11 @@ function view({ orientation } = {}) {
 const inputTransparentViews = new Set()
 
 const sandbox = {
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 	console,
 	inputTransparentViews,
 	NSTextAlignment: { Left: 0, Center: 1, Right: 2 },

@@ -13,6 +13,11 @@ function fixture() {
 			slice('function applyProps(', 'function detach(') +
 			'\n({ applyProps })',
 		{
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 			NSLineBreakMode: modes,
 			DEFAULT_TEXT_LINE_HEIGHT_RATIO: 21 / 16,
 			setSizeConstraint: (node, name, value) => {

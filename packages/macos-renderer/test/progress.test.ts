@@ -53,6 +53,11 @@ function controlFixture() {
 				.join('\n') +
 			'\n({makeProgress,validateNodeProps,applyProps,applyCommand})',
 		{
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 			NSProgressIndicator: { alloc: () => ({ initWithFrame: () => view }) },
 			NSProgressIndicatorStyle: { Bar: 0 },
 			NSControlSize: { Regular: 0 },
@@ -203,6 +208,11 @@ test('Progress production ownership moves its native host between parents and re
 			.map(fn)
 			.join('\n') + '\n({insert,destroy})',
 		{
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 			VIEW_PARENT_TYPES: new Set(['contentview']),
 			layoutView: (node: any) => node.view,
 			arrangedView: (node: any) => node.view,

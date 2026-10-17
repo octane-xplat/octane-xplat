@@ -24,6 +24,11 @@ function fixture() {
 			'({ makeSearchBar, syncSearchBar, notifySearchTextChange, ButtonActionTarget, setTextSubmitAction, droppedPropClears })',
 		].join('\n'),
 		{
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 			NSObject: class {},
 			NSTextViewDelegate: {},
 			NSTextFieldDelegate: {},
@@ -180,7 +185,12 @@ test('SearchBar rejects view, text and projected children in batch preflight', (
 			slice('function validateTextNesting(', 'function insert(') +
 			slice('function validateBatch(', 'function applyCommand(') +
 			'\n({ validateBatch })',
-		{},
+		{
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		},
 	)
 
 	for (const type of ['label', '#text', 'span', 'proxyviewcontainer']) {

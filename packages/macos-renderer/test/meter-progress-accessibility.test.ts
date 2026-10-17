@@ -40,6 +40,11 @@ test('AppKit meter and progressbar roles report range, value, and description', 
 			apply +
 			'\n({ AccessibleStackView, GridLayoutView, applyAccessibility })',
 		{
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 			NSStackView: class {},
 			NSView: class {},
 			NativeClass() {},

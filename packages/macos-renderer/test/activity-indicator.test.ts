@@ -53,6 +53,11 @@ function controlFixture() {
 				.join('\n') +
 			'\n({makeActivityIndicator,validateNodeProps,applyProps,applyCommand})',
 		{
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 			NSProgressIndicator: { alloc: () => ({ initWithFrame: () => view }) },
 			NSProgressIndicatorStyle: { Spinning: 1 },
 			NSControlSize: { Regular: 0 },
@@ -182,6 +187,11 @@ test('ActivityIndicator production ownership moves its native host between paren
 			.map(fn)
 			.join('\n') + '\n({insert,destroy})',
 		{
+		releaseMasonNodes: () => {},
+		layoutMasonChildren: () => {},
+		masonNaturalSize: () => null,
+		MASON_STYLE_KEYS: new Set(),
+		
 			VIEW_PARENT_TYPES: new Set(['contentview']),
 			layoutView: (node: any) => node.view,
 			arrangedView: (node: any) => node.view,

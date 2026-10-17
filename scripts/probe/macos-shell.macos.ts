@@ -52,6 +52,7 @@ function adapter() {
 			appKit.contentView.layoutSubtreeIfNeeded()
 			const view = required(id)
 			const frame = view.frame
+			const alignment = view.alignmentRectForFrame?.(frame)
 			return {
 				text: String(view.stringValue ?? view.string ?? view.title ?? ''),
 				value: String(view.stringValue ?? view.string ?? ''),
@@ -61,6 +62,14 @@ function adapter() {
 							y: Number(frame.origin.y),
 							width: Number(frame.size.width),
 							height: Number(frame.size.height),
+						}
+					: null,
+				alignmentRect: alignment
+					? {
+							x: Number(alignment.origin.x),
+							y: Number(alignment.origin.y),
+							width: Number(alignment.size.width),
+							height: Number(alignment.size.height),
 						}
 					: null,
 			}
