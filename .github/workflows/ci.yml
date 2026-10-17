@@ -11,9 +11,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Fast gates every push/PR runs: lint, repo checks, both typecheck surfaces,
-  # unit tests, web build, package builds, packed-payload checks, and the
-  # packed-consumer/starter verification.
+  # Nightly readiness: deterministic regressions, package integrity, and one
+  # isolated packed web starter. Exhaustive consumers and devices live in stable.yml.
   checks:
     runs-on: ubuntu-latest
     steps:
@@ -41,17 +40,16 @@ jobs:
       - name: Generate declarations before checking consumers
         run: pnpm typegen
 
-      # Advisory only — style findings (xplat/spacing, unknown-class warnings)
-      # shouldn't gate merges; structural coverage lives in "Repo checks".
-      - name: Lint (oxlint + tsrx pass + recipes + css)
-        continue-on-error: true
-        run: pnpm lint
+      # Error-level correctness rules block releases; warning-level style
+      # findings stay advisory. CSS runs once below, recipes in the PR job.
+      - name: Lint code (oxlint + tsrx pass)
+        run: pnpm lint --code-only
 
       # check:decisions is deliberately absent — it mirrors the ledger against
       # the git-scoped Silo DB, which lives on dev machines, not in the checkout.
       - name: Repo checks
         run: >-
-          pnpm check:patches && pnpm check:ui-barrels && pnpm check:css && pnpm check:recipes &&
+          pnpm check:patches && pnpm check:ui-barrels && pnpm check:css &&
           pnpm check:suffix-resolution
 
       - name: Typecheck web
@@ -75,162 +73,49 @@ jobs:
       - name: Prepare packages
         run: pnpm build:packages
 
-      # workshop's test:packed is a Playwright browser journey — excluded
-      # here; it runs locally via `pnpm test:packed`.
-      - name: Check packed declarations and plain TypeScript consumers
-        run: >-
-          pnpm check:pack &&
-          pnpm -r --filter './packages/**' --filter='!@octane-xplat/workshop' --if-present run test:packed
+      - name: Check packed exports and declaration dependencies
+        run: pnpm check:pack
 
-      - name: Check optional service adapters and native tests
-        run: pnpm check:optional-services --no-browser
+      # The Node regression files already run in Test above.
+      - name: Check optional service adapter types
+        run: pnpm check:optional-services --types-only
 
-      # Release-path evidence: packs every publishable package, scaffolds a
-      # starter via the PACKED create bin, installs it against file: tarballs
-      # (no workspace links), then lints/typechecks/builds/doctor-checks the
-      # consumer.
-      - name: Packed consumer + starter verification
-        run: pnpm check:consumer --no-build
+      # Real tarballs, isolated install, plain TypeScript declarations, and
+      # starter web compilation. Full app/library journeys gate stable.
+      - name: Packed web consumer smoke
+        run: pnpm check:consumer --no-build --quick
 
-  # Slow target jobs — release evidence only. They run on main pushes (PRs get
-  # the full `checks` matrix above) because `ns build` costs 20-40 min cold.
-  # Each runs inside the per-target advisory lock so parallel worktree/device
-  # sessions on shared hosts serialize instead of fighting the same simulator.
-  native-ios:
-    runs-on: macos-latest
-    if: github.event_name == 'push'
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          submodules: true
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v5
-        with:
-          node-version: 24
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      # Produces a simulator-debug .app from the packed artifacts and proves
-      # it installs + launches on a booted iPhone sim (simctl install/launch
-      # on an already-booted device — ns run ios reboots and fails).
-      - name: Packed consumer iOS build + simulator smoke
-        run: node scripts/with-target-lock.mjs ios -- node scripts/verify-consumer.mjs --no-build --native ios --smoke-ios
-
-  # Framework regression lane: the apps/mobile on-device Vitest suite runs in
-  # the real NS runtime on a simulator. `ns test` builds the unitTesting
-  # bundle and drives `ns run` inside the per-target advisory lock.
-  native-ios-tests:
-    runs-on: macos-latest
-    if: github.event_name == 'push'
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          submodules: true
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v5
-        with:
-          node-version: 24
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      # Hosted runners still ship Simulator.app, but pinning an explicit
-      # booted device keeps the lane identical to Xcode 27 dev hosts (which
-      # can only target already-booted simulators).
-      - name: Boot an iPhone simulator
-        run: |
-          UDID=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; devs=json.load(sys.stdin)["devices"]; print(next(d["udid"] for rt in devs.values() for d in rt if d["isAvailable"] and "iPhone" in d["name"]))')
-          xcrun simctl boot "$UDID" || true
-          xcrun simctl bootstatus "$UDID" -b
-          echo "SIM_UDID=$UDID" >> "$GITHUB_ENV"
-
-      - name: Generate app routes for the bundle
-        run: pnpm --filter @xplat/app gen
-
-      # The unitTesting bundle's vite build exceeds Node's default 2GB heap
-      # (OOM before emit → the .app has no bundle.js and the worker never
-      # connects). macos runners have ~14GB; give the build headroom.
-      - name: On-device Vitest suite (apps/mobile)
-        run: node scripts/with-target-lock.mjs ios -- pnpm --filter @xplat/mobile test:ios -- --device "$SIM_UDID"
-        env:
-          NODE_OPTIONS: '--max-old-space-size=6144'
-
-  native-android:
+  repo-hygiene:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    if: github.event_name == 'pull_request'
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          submodules: true
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Temurin JDK 21
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 21
-
-      - name: Setup Node
-        uses: actions/setup-node@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
-          cache: pnpm
+      - name: Check recipe structure and documentation links
+        run: node scripts/check-recipes.mjs
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      # Produces a debug .apk from the packed artifacts. Debug-signed artifact
-      # — this is a build check, not Play-store distribution evidence. No
-      # emulator runtime smoke yet (documented gap).
-      - name: Packed consumer Android build
-        run: node scripts/with-target-lock.mjs android -- node scripts/verify-consumer.mjs --no-build --native android
-        env:
-          # ns gates `build` on its doctor check, which requires a working
-          # `emulator` binary — unused by a build-only lane and absent/broken
-          # on hosted ubuntu runners. The gradle build itself is the gate.
-          NS_SKIP_ENV_CHECK: 'true'
-
-  # Final job: records per-job release evidence for THIS sha on every push,
-  # failures included — release.yml's gate turns it into a channel
-  # (all-green → stable, checks-only → nightly, checks-red → nothing). On
-  # pull_request the native jobs are skipped and no evidence is needed, so
-  # the job skips itself.
+  # Completing this workflow releases the nightly and starts stable qualification
+  # independently. Neither path waits for native jobs in this workflow.
   evidence:
     runs-on: ubuntu-latest
-    needs: [checks, native-ios, native-ios-tests, native-android]
+    needs: checks
     if: always() && github.event_name == 'push'
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Record release evidence
-        run: >-
-          node scripts/verify-release-evidence.mjs record
-          --jobs '${{ toJSON(needs) }}'
-          --sha ${{ github.sha }}
-          --run-id ${{ github.run_id }}
-          --out .ci-evidence
-
-      - name: Upload evidence artifact
-        uses: actions/upload-artifact@v6
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v5
         with:
-          name: ci-evidence-${{ github.sha }}
+          node-version: 24
+      - name: Record nightly evidence
+        env:
+          JOB_RESULTS: ${{ toJSON(needs) }}
+        run: >-
+          node scripts/verify-release-evidence.mjs record --track nightly
+          --jobs "$JOB_RESULTS" --sha "$GITHUB_SHA" --run-id "$GITHUB_RUN_ID"
+      - uses: actions/upload-artifact@v6
+        with:
+          name: ci-evidence-nightly-${{ github.sha }}
           path: .ci-evidence/ci-evidence.json
           if-no-files-found: error
           retention-days: 90

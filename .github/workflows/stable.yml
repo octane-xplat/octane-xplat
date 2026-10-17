@@ -1,0 +1,209 @@
+name: Stable CI
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  # A cancelled/failed older CI run must not cancel a newer qualification.
+  group: stable-ci-${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch || github.run_id }}
+  cancel-in-progress: true
+
+env:
+  TESTED_SHA: ${{ github.event.workflow_run.head_sha }}
+
+jobs:
+  # A completed fast CI run supplies nightly readiness for this exact SHA.
+  # Never substitute the current main HEAD after workflow_run starts.
+  checks:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.head_repository.full_name == github.repository
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.TESTED_SHA }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - name: Verify nightly readiness
+        id: evidence
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
+        run: >-
+          node scripts/verify-release-evidence.mjs verify --track nightly
+          --sha "$TESTED_SHA" --run-id "$SOURCE_RUN_ID"
+      - name: Require successful nightly gates
+        if: steps.evidence.outputs.channel != 'nightly'
+        run: exit 1
+
+  stable-checks:
+    runs-on: ubuntu-latest
+    needs: checks
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.TESTED_SHA }}
+          submodules: true
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build:packages
+      # Workshop's Playwright journey remains local; no browser installation.
+      - name: Check declared non-browser packed consumer suites
+        run: pnpm -r --filter './packages/**' --filter='!@octane-xplat/workshop' --if-present run test:packed
+      - name: Verify complete packed app and library starter workflows
+        run: pnpm check:consumer --no-build
+
+  # Device qualification runs after nightly readiness for this exact SHA.
+  # Each runs inside the per-target advisory lock so parallel worktree/device
+  # sessions on shared hosts serialize instead of fighting the same simulator.
+  native-ios:
+    runs-on: macos-latest
+    needs: checks
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ env.TESTED_SHA }}
+          submodules: true
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Produces a simulator-debug .app from the packed artifacts and proves
+      # it installs + launches on a booted iPhone sim (simctl install/launch
+      # on an already-booted device — ns run ios reboots and fails).
+      - name: Packed consumer iOS build + simulator smoke
+        run: node scripts/with-target-lock.mjs ios -- node scripts/verify-consumer.mjs --no-build --native ios --smoke-ios
+
+  # Framework regression lane: the apps/mobile on-device Vitest suite runs in
+  # the real NS runtime on a simulator. `ns test` builds the unitTesting
+  # bundle and drives `ns run` inside the per-target advisory lock.
+  native-ios-tests:
+    runs-on: macos-latest
+    needs: checks
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ env.TESTED_SHA }}
+          submodules: true
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Hosted runners still ship Simulator.app, but pinning an explicit
+      # booted device keeps the lane identical to Xcode 27 dev hosts (which
+      # can only target already-booted simulators).
+      - name: Boot an iPhone simulator
+        run: |
+          UDID=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; devs=json.load(sys.stdin)["devices"]; print(next(d["udid"] for rt in devs.values() for d in rt if d["isAvailable"] and "iPhone" in d["name"]))')
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
+          echo "SIM_UDID=$UDID" >> "$GITHUB_ENV"
+
+      - name: Generate app routes for the bundle
+        run: pnpm --filter @xplat/app gen
+
+      # The unitTesting bundle's vite build exceeds Node's default 2GB heap
+      # (OOM before emit → the .app has no bundle.js and the worker never
+      # connects). macos runners have ~14GB; give the build headroom.
+      - name: On-device Vitest suite (apps/mobile)
+        run: node scripts/with-target-lock.mjs ios -- pnpm --filter @xplat/mobile test:ios -- --device "$SIM_UDID"
+        env:
+          NODE_OPTIONS: '--max-old-space-size=6144'
+
+  native-android:
+    runs-on: ubuntu-latest
+    needs: checks
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ env.TESTED_SHA }}
+          submodules: true
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Temurin JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Produces a debug .apk from the packed artifacts. Debug-signed artifact
+      # — this is a build check, not Play-store distribution evidence. No
+      # emulator runtime smoke yet (documented gap).
+      - name: Packed consumer Android build
+        run: node scripts/with-target-lock.mjs android -- node scripts/verify-consumer.mjs --no-build --native android
+        env:
+          # ns gates `build` on its doctor check, which requires a working
+          # `emulator` binary — unused by a build-only lane and absent/broken
+          # on hosted ubuntu runners. The gradle build itself is the gate.
+          NS_SKIP_ENV_CHECK: 'true'
+
+  evidence:
+    runs-on: ubuntu-latest
+    needs: [checks, stable-checks, native-ios, native-ios-tests, native-android]
+    if: always() && needs.checks.result == 'success'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.TESTED_SHA }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - name: Record stable qualification
+        env:
+          JOB_RESULTS: ${{ toJSON(needs) }}
+          NIGHTLY_RUN_ID: ${{ github.event.workflow_run.id }}
+        run: >-
+          node scripts/verify-release-evidence.mjs record --track stable
+          --jobs "$JOB_RESULTS" --sha "$TESTED_SHA" --run-id "$GITHUB_RUN_ID"
+          --nightly-run-id "$NIGHTLY_RUN_ID"
+      - uses: actions/upload-artifact@v6
+        with:
+          name: ci-evidence-stable-${{ env.TESTED_SHA }}
+          path: .ci-evidence/ci-evidence.json
+          if-no-files-found: error
+          retention-days: 90

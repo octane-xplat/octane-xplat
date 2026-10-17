@@ -4,12 +4,18 @@ on:
   workflow_run:
     workflows:
       - CI
+      - Stable CI
     types:
       - completed
     branches:
       - main
   workflow_dispatch:
     inputs:
+      track:
+        description: Release qualification to require
+        type: choice
+        options: [stable, nightly]
+        default: stable
       version:
         description: Lockstep version override, e.g. 0.7.0 (blank = git-cliff inference)
         required: false
@@ -23,7 +29,14 @@ permissions:
   contents: read
 
 concurrency:
-  group: release
+  # Stable completion must not replace a newer pending nightly, and failed CI
+  # notifications must not displace any qualified publication.
+  group: >-
+    release-${{ github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion != 'success' && github.run_id ||
+      (github.event_name == 'workflow_run' &&
+        (github.event.workflow_run.name == 'CI' && 'nightly' || 'stable') ||
+        inputs.track || 'stable') }}
   cancel-in-progress: false
 
 # git-cliff path filters for the lockstep track: only shipped packages count
@@ -39,11 +52,9 @@ env:
     --exclude-path 'packages/tsrx-typegen/**'
 
 jobs:
-  # Single gate consumed by every downstream job: reads the CI run's recorded
-  # evidence for the tested sha and resolves the release channel — 'stable'
-  # when every required job is green, 'nightly' when checks passed but a
-  # native lane did not, 'none' when checks failed. A red native lane thus
-  # degrades to the prerelease channel instead of holding the release.
+  # Fast CI completion publishes nightly; Stable CI completion publishes stable.
+  # Each event consumes its own evidence for the exact tested SHA. Publishing
+  # stays in this file so npm's trusted-publisher workflow binding stays valid.
   gate:
     name: Resolve release channel
     runs-on: ubuntu-latest
@@ -51,8 +62,9 @@ jobs:
     # produces its own release.
     if: >-
       (github.event_name == 'workflow_run' &&
-        github.event.workflow_run.conclusion != 'cancelled' &&
-        github.event.workflow_run.head_branch == 'main') ||
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.head_branch == 'main' &&
+        github.event.workflow_run.head_repository.full_name == github.repository) ||
       (github.event_name == 'workflow_dispatch' &&
         github.ref == 'refs/heads/main')
     permissions:
@@ -60,6 +72,7 @@ jobs:
       actions: read
     outputs:
       channel: ${{ steps.evidence.outputs.channel }}
+      sha: ${{ steps.evidence.outputs.sha }}
     # The revision CI actually tested — publish must consume evidence for
     # this sha and build the tested code, not whatever main has moved to.
     env:
@@ -68,6 +81,10 @@ jobs:
             github.event.workflow_run.head_sha ||
             github.sha }}
       CI_RUN_ID: ${{ github.event.workflow_run.id || '' }}
+      RELEASE_TRACK: >-
+        ${{ github.event_name == 'workflow_run' &&
+            (github.event.workflow_run.name == 'CI' && 'nightly' || 'stable') ||
+            inputs.track || 'stable' }}
     steps:
       - name: Checkout the tested revision
         uses: actions/checkout@v6
@@ -78,7 +95,15 @@ jobs:
         id: evidence
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: node scripts/verify-release-evidence.mjs verify --sha "$TESTED_SHA" ${CI_RUN_ID:+--run-id "$CI_RUN_ID"}
+        run: |
+          if [ "$RELEASE_TRACK" = stable ] && [ -n "$CI_RUN_ID" ]; then
+            # Stable CI records its triggering push SHA, which can differ from
+            # workflow_run's default-branch head_sha when main advances.
+            node scripts/verify-release-evidence.mjs verify --track stable --run-id "$CI_RUN_ID"
+          else
+            node scripts/verify-release-evidence.mjs verify --track "$RELEASE_TRACK" \
+              --sha "$TESTED_SHA" ${CI_RUN_ID:+--run-id "$CI_RUN_ID"}
+          fi
 
   # Lockstep release: every publishable package except tsrx-typegen ships at
   # the same version. Runs after tsrx-typegen because both jobs commit and
@@ -97,11 +122,7 @@ jobs:
       contents: write
       id-token: write
     env:
-      TESTED_SHA: >-
-        ${{ github.event_name == 'workflow_run' &&
-            github.event.workflow_run.head_sha ||
-            github.sha }}
-      CI_RUN_ID: ${{ github.event.workflow_run.id || '' }}
+      TESTED_SHA: ${{ needs.gate.outputs.sha }}
     steps:
       - name: Checkout the tested revision
         uses: actions/checkout@v6
@@ -145,9 +166,11 @@ jobs:
             echo "should_release=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          echo "should_release=true" >> "$GITHUB_OUTPUT"
-          echo "version=$next_version" >> "$GITHUB_OUTPUT"
-          echo "tag=v$next_version" >> "$GITHUB_OUTPUT"
+          {
+            echo "should_release=true"
+            echo "version=$next_version"
+            echo "tag=v$next_version"
+          } >> "$GITHUB_OUTPUT"
 
       # Check before any version bumps or publishes, reusing successful checks
       # for up to 24 hours. npm still authorizes every actual publish.
@@ -246,17 +269,21 @@ jobs:
       # GitHub prerelease so parallel jobs can't race them.
       - name: Resolve nightly version
         id: nightly
+        if: needs.gate.outputs.channel == 'nightly'
         # `g<sha>` keeps the prerelease identifier alphanumeric — a bare sha
         # prefix can be all digits with a leading zero, which is invalid semver.
         run: echo "version=0.0.0-nightly.g${TESTED_SHA:0:7}" >> "$GITHUB_OUTPUT"
 
       - name: Bump lockstep versions (nightly)
+        if: needs.gate.outputs.channel == 'nightly'
         run: node scripts/bump-versions.mjs "${{ steps.nightly.outputs.version }}"
 
       - name: Publish nightly to npm
+        if: needs.gate.outputs.channel == 'nightly'
         run: pnpm -r --filter '!tsrx-typegen' publish --access public --no-git-checks --provenance --tag nightly
 
       - name: Move the nightly tag and prerelease
+        if: needs.gate.outputs.channel == 'nightly'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -280,11 +307,7 @@ jobs:
       contents: write
       id-token: write
     env:
-      TESTED_SHA: >-
-        ${{ github.event_name == 'workflow_run' &&
-            github.event.workflow_run.head_sha ||
-            github.sha }}
-      CI_RUN_ID: ${{ github.event.workflow_run.id || '' }}
+      TESTED_SHA: ${{ needs.gate.outputs.sha }}
     steps:
       - name: Checkout the tested revision
         uses: actions/checkout@v6
@@ -329,9 +352,11 @@ jobs:
             echo "should_release=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          echo "should_release=true" >> "$GITHUB_OUTPUT"
-          echo "version=$next_version" >> "$GITHUB_OUTPUT"
-          echo "tag=tsrx-typegen-v$next_version" >> "$GITHUB_OUTPUT"
+          {
+            echo "should_release=true"
+            echo "version=$next_version"
+            echo "tag=tsrx-typegen-v$next_version"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Restore trusted-publisher checks
         id: trusted-publishers-cache
@@ -419,27 +444,27 @@ jobs:
       # Nightly channel — npm publish only; the packages job owns the moving
       # `nightly` git tag and GitHub prerelease.
       - name: Bump version (nightly)
+        if: needs.gate.outputs.channel == 'nightly'
         working-directory: packages/tsrx-typegen
         run: npm pkg set version="0.0.0-nightly.g${TESTED_SHA:0:7}"
 
       - name: Publish nightly to npm
+        if: needs.gate.outputs.channel == 'nightly'
         run: pnpm --filter tsrx-typegen publish --access public --no-git-checks --provenance --tag nightly
 
-  # Docs ship continuously: every checks-green CI run on main deploys the docs
-  # site — a red native lane degrades the release to nightly, not the docs.
+  # Docs deploy once per nightly-ready revision, independently of stable lanes.
   docs:
     name: Deploy docs
     needs: gate
     runs-on: ubuntu-latest
-    if: >-
-      needs.gate.outputs.channel == 'stable' ||
-      needs.gate.outputs.channel == 'nightly'
+    if: needs.gate.outputs.channel == 'nightly'
     permissions:
       contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v6
         with:
+          ref: ${{ needs.gate.outputs.sha }}
           submodules: true
 
       - name: Setup pnpm

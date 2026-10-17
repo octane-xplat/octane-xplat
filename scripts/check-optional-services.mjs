@@ -47,29 +47,33 @@ try {
 		console.log(`Optional service ${target} adapter types pass`)
 	}
 
-	execFileSync(
-		process.execPath,
-		[
-			'--test',
-			'packages/platform/tests/auth-session.test.mjs',
-			'packages/media/tests/cleanup.test.mjs',
-			'examples/auth/server-verification.test.mjs',
-			'packages/audio/tests/audio.ios.test.mjs',
-		],
-		{ cwd: root, stdio: 'inherit' },
-	)
+	// CI already runs these files in the workspace/auth suites. Its focused
+	// adapter pass needs only the two typechecks above.
+	if (!process.argv.includes('--types-only')) {
+		execFileSync(
+			process.execPath,
+			[
+				'--test',
+				'packages/platform/tests/auth-session.test.mjs',
+				'packages/media/tests/cleanup.test.mjs',
+				'examples/auth/server-verification.test.mjs',
+				'packages/audio/tests/audio.ios.test.mjs',
+			],
+			{ cwd: root, stdio: 'inherit' },
+		)
 
-	if (!process.argv.includes('--no-browser')) {
-		for (const browser of ['chromium', 'firefox', 'webkit']) {
-			execFileSync(process.execPath, ['apps/web/scripts/optional-services.mjs'], {
-				cwd: root,
-				stdio: 'inherit',
-				env: {
-					...process.env,
-					XPLAT_WEB_BROWSER: browser,
-					XPLAT_WEB_AUDIO_MODE: browser === 'firefox' ? 'metadata' : 'playback',
-				},
-			})
+		if (!process.argv.includes('--no-browser')) {
+			for (const browser of ['chromium', 'firefox', 'webkit']) {
+				execFileSync(process.execPath, ['apps/web/scripts/optional-services.mjs'], {
+					cwd: root,
+					stdio: 'inherit',
+					env: {
+						...process.env,
+						XPLAT_WEB_BROWSER: browser,
+						XPLAT_WEB_AUDIO_MODE: browser === 'firefox' ? 'metadata' : 'playback',
+					},
+				})
+			}
 		}
 	}
 } finally {

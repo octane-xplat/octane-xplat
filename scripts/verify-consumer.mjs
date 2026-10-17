@@ -36,6 +36,8 @@
 //
 // Usage: node scripts/verify-consumer.mjs [--no-build] [--smoke web]
 //        [--native ios,android] [--smoke-ios] [--test-ios] [--test-android] [--keep]
+//        --quick: packed web starter install + plain tsc + dev/prod compilation;
+//                 skips platform enablement and the full app/library checks.
 import assert from 'node:assert/strict'
 import { spawnSync, spawn } from 'node:child_process'
 import {
@@ -64,11 +66,16 @@ const flagValue = (name) => {
 }
 
 const doBuild = !flag('no-build')
+const quick = flag('quick')
 const smokeTargets = (flagValue('smoke') ?? '').split(',').filter(Boolean)
 const nativeTargets = (flagValue('native') ?? '').split(',').filter(Boolean)
 const smokeIos = flag('smoke-ios')
 const testIos = flag('test-ios')
 const testAndroid = flag('test-android')
+assert.ok(
+	!quick || (!nativeTargets.length && !smokeIos && !testIos && !testAndroid),
+	'--quick cannot qualify native builds or device tests; use the full consumer workflow',
+)
 if (testAndroid) {
 	assert.ok(process.env.VERIFY_ANDROID_DEVICE, '--test-android requires VERIFY_ANDROID_DEVICE')
 }
@@ -189,7 +196,14 @@ try {
 	const tarballs = new Map()
 	await gate('pnpm pack — publishable packages produce tarballs', 20 * 60 * 1000, () => {
 		for (const pkg of lockstepPackages(repoRoot)) {
-			const r = run('pnpm', ['pack', '--pack-destination', packDir], join(repoRoot, pkg.dir))
+			// Quick mode consumes the package preparation already performed above
+			// (or by CI with --no-build). CI separately gates every pack:check, so
+			// don't repeat declaration generation and pack validation per tarball.
+			const r = run(
+				'pnpm',
+				[...(quick ? ['--config.ignore-scripts=true'] : []), 'pack', '--pack-destination', packDir],
+				join(repoRoot, pkg.dir),
+			)
 			assert.equal(r.status, 0, `pnpm pack failed for ${pkg.name}`)
 			const expected = join(packDir, tarballName(pkg))
 			assert.ok(existsSync(expected), `expected tarball ${tarballName(pkg)} for ${pkg.name}`)
@@ -202,65 +216,75 @@ try {
 	// ---- scaffold via the packed create bin --------------------------------
 	// Web-only subset: `xplat add ios android` below restores the rest, which
 	// exercises the post-scaffold enablement path on the packed artifacts.
-	await gate('packed create-octane-xplat scaffolds app and library starters', 60 * 1000, () => {
-		const createTarball = tarballs.get('create-octane-xplat')
-		assert.ok(createTarball, 'create-octane-xplat tarball missing')
-		const r = run('tar', ['-xzf', createTarball, '-C', extractDir], work)
-		assert.equal(r.status, 0, 'tar extract failed')
-		const binPath = join(extractDir, 'package', 'index.mjs')
-		assert.ok(existsSync(binPath), 'packed create bin missing')
-		const runResult = run('node', [binPath, appDir, '--no-install', '--targets', 'web'], work)
+	await gate(
+		`packed create-octane-xplat scaffolds ${quick ? 'a web starter' : 'app and library starters'}`,
+		60 * 1000,
+		() => {
+			const createTarball = tarballs.get('create-octane-xplat')
+			assert.ok(createTarball, 'create-octane-xplat tarball missing')
+			const r = run('tar', ['-xzf', createTarball, '-C', extractDir], work)
+			assert.equal(r.status, 0, 'tar extract failed')
+			const binPath = join(extractDir, 'package', 'index.mjs')
+			assert.ok(existsSync(binPath), 'packed create bin missing')
+			const runResult = run('node', [binPath, appDir, '--no-install', '--targets', 'web'], work)
 
-		assert.equal(runResult.status, 0, 'create bin exited nonzero')
-		assert.ok(existsSync(join(appDir, 'package.json')), 'scaffold produced no package.json')
-		assert.ok(existsSync(join(appDir, '.gitignore')), 'scaffold dropped gitignore rename')
-		assert.ok(
-			!existsSync(join(appDir, 'nativescript.config.ts')),
-			'subset scaffold leaked native files',
-		)
+			assert.equal(runResult.status, 0, 'create bin exited nonzero')
+			assert.ok(existsSync(join(appDir, 'package.json')), 'scaffold produced no package.json')
+			assert.ok(existsSync(join(appDir, '.gitignore')), 'scaffold dropped gitignore rename')
+			assert.ok(
+				!existsSync(join(appDir, 'nativescript.config.ts')),
+				'subset scaffold leaked native files',
+			)
+			if (quick) {
+				return
+			}
 
-		const libraryName = '@example/consumer-library'
-		const libraryResult = run(
-			'node',
-			[binPath, libraryDir, '--no-install', '--template', 'library', '--name', libraryName],
-			work,
-		)
+			const libraryName = '@example/consumer-library'
+			const libraryResult = run(
+				'node',
+				[binPath, libraryDir, '--no-install', '--template', 'library', '--name', libraryName],
+				work,
+			)
 
-		assert.equal(libraryResult.status, 0, 'library create bin exited nonzero')
-		const libraryManifest = JSON.parse(readFileSync(join(libraryDir, 'package.json'), 'utf8'))
-		assert.equal(libraryManifest.name, libraryName)
-		assert.ok(libraryManifest.exports['.'].web, 'library starter missed web conditional export')
-		assert.ok(
-			libraryManifest.exports['.'].native,
-			'library starter missed native conditional export',
-		)
+			assert.equal(libraryResult.status, 0, 'library create bin exited nonzero')
+			const libraryManifest = JSON.parse(readFileSync(join(libraryDir, 'package.json'), 'utf8'))
+			assert.equal(libraryManifest.name, libraryName)
+			assert.ok(libraryManifest.exports['.'].web, 'library starter missed web conditional export')
+			assert.ok(
+				libraryManifest.exports['.'].native,
+				'library starter missed native conditional export',
+			)
 
-		assert.ok(
-			libraryManifest.scripts['test:packed'],
-			'library starter missed packed-consumer script',
-		)
+			assert.ok(
+				libraryManifest.scripts['test:packed'],
+				'library starter missed packed-consumer script',
+			)
 
-		assert.ok(
-			existsSync(join(libraryDir, 'src/Badge.tsx')),
-			'library starter missed native component',
-		)
+			assert.ok(
+				existsSync(join(libraryDir, 'src/Badge.tsx')),
+				'library starter missed native component',
+			)
 
-		assert.ok(
-			existsSync(join(libraryDir, 'src/Badge.web.tsx')),
-			'library starter missed web component',
-		)
+			assert.ok(
+				existsSync(join(libraryDir, 'src/Badge.web.tsx')),
+				'library starter missed web component',
+			)
 
-		assert.ok(
-			existsSync(join(libraryDir, 'tests/packed-consumer.mjs')),
-			'library starter missed packed-consumer check',
-		)
+			assert.ok(
+				existsSync(join(libraryDir, 'tests/packed-consumer.mjs')),
+				'library starter missed packed-consumer check',
+			)
 
-		assert.ok(!existsSync(join(libraryDir, 'index.html')), 'library starter leaked app entry files')
-		assert.ok(
-			!existsSync(join(libraryDir, 'nativescript.config.ts')),
-			'library starter leaked app NativeScript configuration',
-		)
-	})
+			assert.ok(
+				!existsSync(join(libraryDir, 'index.html')),
+				'library starter leaked app entry files',
+			)
+			assert.ok(
+				!existsSync(join(libraryDir, 'nativescript.config.ts')),
+				'library starter leaked app NativeScript configuration',
+			)
+		},
+	)
 
 	// ---- repoint @octane-xplat/* at the tarballs ---------------------------
 	const consumerManifestPath = join(appDir, 'package.json')
@@ -347,32 +371,75 @@ try {
 		},
 	)
 
+	await gate('plain TypeScript consumes installed web declarations', 60 * 1000, () => {
+		const source = join(appDir, 'verify-declarations.ts')
+		const config = join(appDir, 'verify-declarations.json')
+		writeFileSync(
+			source,
+			`import { Text, type TextProps } from '@octane-xplat/ui'
+const props: TextProps = { children: 'Packed consumer' }
+void Text
+void props
+`,
+		)
+		writeFileSync(
+			config,
+			JSON.stringify({
+				compilerOptions: {
+					target: 'ESNext',
+					module: 'ESNext',
+					moduleResolution: 'Bundler',
+					customConditions: ['web'],
+					lib: ['ESNext', 'DOM', 'DOM.Iterable'],
+					types: [],
+					strict: true,
+					noEmit: true,
+					skipLibCheck: true,
+					allowImportingTsExtensions: true,
+				},
+				files: ['verify-declarations.ts'],
+			}),
+		)
+		try {
+			const result = run('pnpm', ['exec', 'tsc', '--project', config], appDir)
+			assert.equal(result.status, 0, 'plain TypeScript could not consume packed declarations')
+		} finally {
+			rmSync(source, { force: true })
+			rmSync(config, { force: true })
+		}
+	})
+
 	// ---- xplat add: enable the platforms skipped at scaffold ---------------
-	await gate(
-		'xplat add ios android — post-scaffold enablement on packed CLI',
-		15 * 60 * 1000,
-		() => {
-			const r = run('pnpm', ['exec', 'xplat', 'add', 'ios', 'android'], appDir)
-			assert.equal(r.status, 0, `xplat add exited ${r.status}`)
-			assert.ok(
-				existsSync(join(appDir, 'nativescript.config.ts')),
-				'add produced no nativescript.config.ts',
-			)
+	if (!quick) {
+		await gate(
+			'xplat add ios android — post-scaffold enablement on packed CLI',
+			15 * 60 * 1000,
+			() => {
+				const r = run('pnpm', ['exec', 'xplat', 'add', 'ios', 'android'], appDir)
+				assert.equal(r.status, 0, `xplat add exited ${r.status}`)
+				assert.ok(
+					existsSync(join(appDir, 'nativescript.config.ts')),
+					'add produced no nativescript.config.ts',
+				)
 
-			assert.ok(existsSync(join(appDir, 'App_Resources/iOS')), 'add produced no App_Resources/iOS')
-			assert.ok(
-				existsSync(join(appDir, 'App_Resources/Android')),
-				'add produced no App_Resources/Android',
-			)
+				assert.ok(
+					existsSync(join(appDir, 'App_Resources/iOS')),
+					'add produced no App_Resources/iOS',
+				)
+				assert.ok(
+					existsSync(join(appDir, 'App_Resources/Android')),
+					'add produced no App_Resources/Android',
+				)
 
-			const manifest = JSON.parse(readFileSync(consumerManifestPath, 'utf8'))
-			assert.ok(manifest.devDependencies['@nativescript/ios'], 'add missed @nativescript/ios')
-			assert.ok(
-				manifest.devDependencies['@nativescript/android'],
-				'add missed @nativescript/android',
-			)
-		},
-	)
+				const manifest = JSON.parse(readFileSync(consumerManifestPath, 'utf8'))
+				assert.ok(manifest.devDependencies['@nativescript/ios'], 'add missed @nativescript/ios')
+				assert.ok(
+					manifest.devDependencies['@nativescript/android'],
+					'add missed @nativescript/android',
+				)
+			},
+		)
+	}
 
 	// ---- consumer gates ------------------------------------------------------
 	await gate('installed UI source compiles in the development server', 60 * 1000, () => {
@@ -405,10 +472,14 @@ try {
 	})
 
 	for (const [name, argv] of [
-		['pnpm lint', ['lint']],
-		['pnpm typecheck (web + native)', ['typecheck']],
+		...(!quick
+			? [
+					['pnpm lint', ['lint']],
+					['pnpm typecheck (web + native)', ['typecheck']],
+				]
+			: []),
 		['pnpm build — web bundle from packed ui', ['build']],
-		['pnpm xplat doctor', ['exec', 'xplat', 'doctor']],
+		...(!quick ? [['pnpm xplat doctor', ['exec', 'xplat', 'doctor']]] : []),
 	]) {
 		await gate(name, 10 * 60 * 1000, () => {
 			const r = run('pnpm', argv, appDir)
@@ -416,33 +487,35 @@ try {
 		})
 	}
 
-	await gate(
-		'library starter installs and publishes source with isolated declarations',
-		15 * 60 * 1000,
-		() => {
-			const workspaceFile = join(libraryDir, 'pnpm-workspace.yaml')
-			const overrides = [...tarballs]
-				.map(([name, tarball]) => `  "${name}": file:${tarball}`)
-				.join('\n')
+	if (!quick) {
+		await gate(
+			'library starter installs and publishes source with isolated declarations',
+			15 * 60 * 1000,
+			() => {
+				const workspaceFile = join(libraryDir, 'pnpm-workspace.yaml')
+				const overrides = [...tarballs]
+					.map(([name, tarball]) => `  "${name}": file:${tarball}`)
+					.join('\n')
 
-			writeFileSync(
-				workspaceFile,
-				`${readFileSync(workspaceFile, 'utf8')}\noverrides:\n${overrides}\n`,
-			)
+				writeFileSync(
+					workspaceFile,
+					`${readFileSync(workspaceFile, 'utf8')}\noverrides:\n${overrides}\n`,
+				)
 
-			for (const argv of [
-				['install'],
-				['typegen'],
-				['typecheck'],
-				['lint'],
-				['test'],
-				['test:packed'],
-			]) {
-				const r = run('pnpm', argv, libraryDir)
-				assert.equal(r.status, 0, `library pnpm ${argv.join(' ')} exited ${r.status}`)
-			}
-		},
-	)
+				for (const argv of [
+					['install'],
+					['typegen'],
+					['typecheck'],
+					['lint'],
+					['test'],
+					['test:packed'],
+				]) {
+					const r = run('pnpm', argv, libraryDir)
+					assert.equal(r.status, 0, `library pnpm ${argv.join(' ')} exited ${r.status}`)
+				}
+			},
+		)
+	}
 
 	// ---- optional browser smoke ---------------------------------------------
 	if (smokeTargets.includes('web')) {

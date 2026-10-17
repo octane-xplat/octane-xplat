@@ -495,7 +495,7 @@ consumer's `@octane-xplat/*` deps to `file:` tarballs plus a materialized
 `node_modules/.pnpm-config` (pnpm's `configDependencies` requires exact
 registry semver — a local tarball can't substitute), installs outside the
 workspace, and asserts the resolved packages are real packed payloads before
-running the consumer's own lint/typecheck/build/doctor. Flags: `--no-build`,
+running the consumer's own lint/typecheck/build/doctor. Flags: `--quick`, `--no-build`,
 `--smoke web`, `--native ios,android`, `--smoke-ios`, `--keep`,
 `VERIFY_CONSUMER_DIR`. A `--native` target additionally runs
 `ns build <platform>` inside the consumer; `--smoke-ios` boots an iPhone sim
@@ -507,24 +507,38 @@ and runtime-boot evidence, not signed store distribution.
 pnpm check:consumer --no-build --smoke web
 ```
 
-Slow target jobs run on main pushes only: `native-ios` (macos-latest) and
+The nightly `--quick` path installs a packed web starter, consumes its
+declarations with plain TypeScript, and checks Vite dev/prod compilation. It
+skips native enablement and the full app/library journey. Quick packing reuses
+prepared outputs without rerunning prepack; fast CI runs package preparation
+and `check:pack` before it:
+
+```sh
+pnpm build:packages
+pnpm check:pack
+pnpm check:consumer --no-build --quick
+```
+
+Slow target jobs run in `stable.yml` after fast CI on `main`: `native-ios` (macos-latest) and
 `native-android` (ubuntu-latest with Temurin JDK 21) each wrap their run in
 `scripts/with-target-lock.mjs <target>` — a per-target advisory lock under
 `$TMPDIR/octane-xplat-target-locks/` that serializes native builds and
 simulator/device use across concurrent worktrees and sessions on a shared
 host. Android has no emulator runtime smoke yet.
 
-The final `evidence` job (`needs` the four lane jobs) writes
-`ci-evidence-<sha>.json` recording each required job's result for the tested
-sha and uploads it as workflow artifact `ci-evidence-<sha>`. The required-job
-list lives once in `scripts/release-channel.mjs`.
+Each workflow's `evidence` job writes `ci-evidence.json` and uploads it as
+`ci-evidence-<track>-<sha>`. Required jobs live in
+`scripts/release-channel.mjs`: nightly requires fast `checks`; stable requires
+verified nightly readiness, exhaustive packed consumers, and all native lanes.
+Stable evidence records the original nightly run ID as well as the tested SHA.
 
-`release.yml` publishes only what CI tested: a `gate` job checks out
-`workflow_run.head_sha` (not current main), runs
-`verify-release-evidence.mjs verify` to fetch the matching artifact, and
-resolves a channel — all-green ships stable `vX.Y.Z`, checks-green-only ships
-the npm `nightly` dist-tag, checks-red ships nothing. Downstream jobs consume
-`needs.gate.outputs.channel`; the stable tag push still aborts if
+`release.yml` publishes nightly on fast CI completion and stable on successful
+qualification; neither event republishes the other track. Its gate verifies
+artifact identity, workflow provenance, and latest job results through GitHub.
+Downstream jobs use the verified `sha` and `channel` outputs rather than
+`workflow_run.head_sha`, which can refer to a newer default-branch commit.
+See [release gates](../releases.md) for the coverage boundary and local commands.
+The stable tag push still aborts if
 `TESTED_SHA..origin/main` contains any non-release-bot commit — a moved main
 ships nothing untested.
 `pnpm check:consumer` can run the same packed-consumer path locally before

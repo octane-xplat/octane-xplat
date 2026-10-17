@@ -13,8 +13,11 @@ to answer one question. Windows is excluded from this runner.
 
 ## Web browser end-to-end tests
 
-CI runs web builds, typechecks, unit tests, and packed-consumer checks without
-launching desktop browsers. The longer Playwright coverage runs locally across
+Fast CI runs web builds, typechecks, unit tests, package integrity checks, and
+one packed web consumer smoke without launching desktop browsers. Stable CI
+adds the exhaustive non-browser packed consumers and full app/library starter
+journey. See [release gates](releases.md) for their evidence requirements.
+The longer Playwright coverage runs locally across
 Chromium, Firefox, and WebKit with:
 
 ```sh
@@ -128,9 +131,10 @@ pnpm --filter @xplat/mobile test:android -- --device DEVICE_ID
   identity, resets only that identity on reuse, and verifies its process stops.
   This is a qualification command; configuration alone does not establish an
   Android pass. The mandatory all-package build/pack gates remain intact.
-- CI: the `native-ios-tests` job (main pushes, macos-latest) boots an iPhone
-  sim and runs the apps/mobile suite inside `with-target-lock ios`; the
-  `evidence` job requires it.
+- Stable CI: after nightly readiness passes on `main`, `native-ios-tests`
+  (`stable.yml`, macos-latest) boots an iPhone sim and runs the apps/mobile
+  suite inside `with-target-lock ios`. Stable evidence requires it; nightly
+  publication does not wait for it.
 - `connectTimeout` in `vitest.config.mts` covers `ns run`'s native build on
   first run — cold builds exceed the 120s default.
 - Xcode 27 caveat (this repo's CI lane): Simulator.app is gone, so

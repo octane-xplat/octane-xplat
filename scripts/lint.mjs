@@ -1,11 +1,13 @@
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 
-const recipes = spawnSync(
-	process.execPath,
-	[fileURLToPath(new URL('./check-recipes.mjs', import.meta.url))],
-	{ stdio: 'inherit' },
-)
+// CI runs structural checks separately and keeps recipes in the PR job.
+const codeOnly = process.argv.includes('--code-only')
+const recipes = codeOnly
+	? null
+	: spawnSync(process.execPath, [fileURLToPath(new URL('./check-recipes.mjs', import.meta.url))], {
+			stdio: 'inherit',
+		})
 
 const shouldFix = process.argv.includes('--fix')
 const oxlint = spawnSync('oxlint', shouldFix ? ['--fix'] : [], { stdio: 'inherit' })
@@ -15,11 +17,13 @@ const tsrx = spawnSync(
 	{ stdio: 'inherit' },
 )
 
-const css = spawnSync('node', [fileURLToPath(new URL('./check-css.mjs', import.meta.url))], {
-	stdio: 'inherit',
-})
+const css = codeOnly
+	? null
+	: spawnSync('node', [fileURLToPath(new URL('./check-css.mjs', import.meta.url))], {
+			stdio: 'inherit',
+		})
 
-if (recipes.error) {
+if (recipes?.error) {
 	console.error(recipes.error.message)
 }
 
@@ -31,10 +35,10 @@ if (tsrx.error) {
 	console.error(tsrx.error.message)
 }
 
-if (css.error) {
+if (css?.error) {
 	console.error(css.error.message)
 }
 
-if (recipes.status !== 0 || oxlint.status !== 0 || tsrx.status !== 0 || css.status !== 0) {
+if ([recipes, oxlint, tsrx, css].some((result) => result && result.status !== 0)) {
 	process.exitCode = 1
 }

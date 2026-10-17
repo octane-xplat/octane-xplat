@@ -146,6 +146,10 @@ tcp:5173`. Dev-session mode is activated only by `ns run`'s livesync launch;
   the silent-failure half of the invariants. `check:no-dom` is the older
   standalone regex sweep; `xplat/no-dom-globals` covers it at lint time.
   tsrx suppressions: `xplat-disable[-line|-next-line]` comments.
+  CI invokes `pnpm lint --code-only` so error-level code rules block releases
+  while warning-level findings remain advisory. CSS is a separate blocking
+  repository check; recipe structure runs only in the PR hygiene job. The
+  default local `pnpm lint` still includes both CSS and recipes.
 - Format: `pnpm format` = `oxlint --fix` then `xplat fmt`
   (`packages/cli/src/commands/fmt.mjs`, engine `@octane-xplat/fmt` — in-process
   safe lint fixes → Oxfmt → statement spacing over the pinned tsrx-org/oxc

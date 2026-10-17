@@ -3,25 +3,45 @@
 Paths in code spans refer to the repository root. Read this reference when its
 subject applies to your task; [AGENTS.md](../../AGENTS.md) is the entry point.
 
-Releases are automated: `.github/workflows/release.yml` fires on every
-completed `CI` run on `main` (plus `workflow_dispatch` for manual version
-overrides). A `gate` job reads the run's recorded evidence
-(`scripts/verify-release-evidence.mjs` + `scripts/release-channel.mjs`) and
-classifies the tested sha:
+Releases are automated through `.github/workflows/release.yml`. Nightly
+readiness and stable qualification complete independently:
 
-- **`checks` and every native lane green → `stable`.** `git-cliff`
-  (`cliff.toml`) infers the next version from conventional commits and
-  generates the changelog; the workflow bumps every publishable package to
-  the same version, updates the create templates' `@octane-xplat/*` pins,
-  commits, tags `vX.Y.Z`, `pnpm -r publish`es, and creates the GitHub
-  Release.
-- **`checks` green but a native lane not green → `nightly`.** The lockstep
-  set publishes `0.0.0-nightly.g<sha>` under the npm `nightly` dist-tag and
-  the `nightly` git tag + GitHub prerelease move to the tested sha. Nothing
-  commits to `main`; `latest` is untouched. Every checks-green push ships a
-  nightly — a stable release does not suppress it.
-- **`checks` not green → `none`.** Nothing publishes and the docs deploy
-  skips too.
+| Track   | Evidence workflow                                | Required coverage                                                                                                                                                                                                   | Result                                                                                                                |
+| ------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Nightly | `CI` (`ci.yml`), on PRs and `main` pushes        | Correctness lint, repository integrity, web/mobile types, unit/object-driver and tooling tests, web/package builds, packed exports, adapter types, and one isolated packed web starter                              | A successful `main` run publishes `0.0.0-nightly.g<sha>` under npm's `nightly` tag and updates the GitHub prerelease. |
+| Stable  | `Stable CI` (`stable.yml`), after `CI` on `main` | Verified nightly readiness for the same SHA, declared `test:packed` suites except Workshop's browser suite, the full app/library starter journey, iOS build/simulator smoke, iOS on-device tests, and Android build | A successful qualification permits a versioned release under npm's `latest` tag.                                      |
+
+Nightly publishes without waiting for stable qualification. It does not commit
+to `main` or change `latest`. Stable completion does not republish nightly.
+Recipe structure and documentation links run in the PR-only `repo-hygiene`
+job; they do not determine release eligibility.
+
+To reproduce the two consumer gates locally, prepare packages first. The quick
+gate installs real tarballs outside the workspace, checks their declarations
+with plain TypeScript, and compiles the starter through Vite's development and
+production paths. Quick packing reuses prepared outputs without repeating
+prepack hooks; CI runs `check:pack` before this smoke. The full gate also enables
+iOS/Android and validates the app and library workflows:
+
+```sh
+pnpm build:packages
+pnpm check:consumer --no-build --quick
+pnpm check:consumer --no-build
+```
+
+The release gate verifies `ci-evidence-<track>-<sha>` against GitHub's workflow
+identity and latest job results. Stable evidence also records the originating
+nightly run ID: `workflow_run` itself can reference a newer default-branch
+commit, so the publisher uses the verified artifact SHA. A failed or missing
+required gate cannot promote to that track. Browser journeys remain local and
+are not implied by either release track.
+
+For stable releases, `git-cliff` (`cliff.toml`) infers the next version from
+conventional commits and generates the changelog. The workflow aligns package
+and starter versions, commits, tags `vX.Y.Z`, publishes, and creates the GitHub
+Release. Manual `workflow_dispatch` selects `track` (default `stable`) and
+accepts optional version overrides; it still requires evidence for the exact
+revision. Publishing stays in `release.yml` for the existing npm trust binding.
 
 Publishing is npm **trusted publishing** (OIDC, no tokens) — each package must
 have `octane-xplat/octane-xplat` + `release.yml` configured on npmjs.com; a
