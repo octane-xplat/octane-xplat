@@ -64,7 +64,7 @@ function fixture() {
 	const code = stripTypeScriptTypes(
 		readFileSync(new URL('../src/tab-view.ts', import.meta.url), 'utf8'),
 	)
-		.replace(/^import .*\n/gm, '')
+		.replace(/^import\b[\s\S]*?(?:from\s*)?['"][^'"]*['"];?\s*\n/gm, '')
 		.replace(/export /g, '')
 
 	const api = runInNewContext(
