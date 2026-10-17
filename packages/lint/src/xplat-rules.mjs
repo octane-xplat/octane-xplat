@@ -398,6 +398,13 @@ const WEB_ONLY_OCTANE = new Set([
 	'renderToStream',
 ])
 
+// octane/universal (and /native) re-export these names with real native
+// implementations — only the DOM entry is web-only.
+const isDomOctaneSource = (value) => {
+	const source = String(value ?? '')
+	return /^octane(\/|$)/.test(source) && !/^octane\/universal(\/|$)/.test(source)
+}
+
 export function checkNoWebOnlyApi(program, _src, filename, options) {
 	if (isWebFile(filename) || fileExcluded(filename, options)) {
 		return []
@@ -405,7 +412,7 @@ export function checkNoWebOnlyApi(program, _src, filename, options) {
 
 	const out = []
 	for (const [node, parent] of walk(program)) {
-		if (node.type === 'ImportDeclaration' && /^octane(\/|$)/.test(node.source.value ?? '')) {
+		if (node.type === 'ImportDeclaration' && isDomOctaneSource(node.source.value)) {
 			for (const spec of node.specifiers) {
 				const imported = spec.imported?.name ?? spec.local?.name
 				if (imported && WEB_ONLY_OCTANE.has(imported)) {
@@ -1163,7 +1170,6 @@ const NON_PRESSABLE_PRIMITIVES = new Set([
 	'TextInput',
 	'TextArea',
 	'Drawer',
-	'Link',
 	'NavLink',
 ])
 

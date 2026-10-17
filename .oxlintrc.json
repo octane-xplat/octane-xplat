@@ -10,7 +10,9 @@
 		"packages/motion/types/engine.d.ts",
 		"packages/motion/types/value.d.ts",
 		"**/vendor/**",
-		"packages/lingui/types/**"
+		"packages/lingui/types/**",
+		"packages/platform/src/types/macos*/**",
+		"packages/macos-renderer/types/**"
 	],
 	"jsPlugins": ["./scripts/oxlint-plugin.mjs"],
 	"rules": {
