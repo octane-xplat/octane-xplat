@@ -9,6 +9,7 @@ source before relying on them.
 ## Framework and platform seams
 
 - [Framework notes](framework-notes.md)
+- [MasonKit layout-engine evaluation](masonkit-layout-evaluation.md)
 - [Platform notes](platform-notes.md)
 - [CSS support](css-support-notes.md)
 - [Module resolution](module-resolution-notes.md)
