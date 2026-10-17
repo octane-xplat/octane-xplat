@@ -83,6 +83,47 @@ Observed quirks:
 - `packages/cli/patches/@nativescript-community__octane@0.2.5.patch`:
   container capability hunk (see above).
 
+## Native macOS bridge (verified — lab-experiment)
+
+`packages/macos-renderer` is a custom AppKit/JSC host, not NativeScript, so
+MasonKit's `@nativescript/core`-entangled element layer can't be installed.
+Instead the renderer binds the engine itself: `mason-c` (the crate's C ABI)
+is statically linked into a small ObjC facade dylib
+(`packages/macos-renderer/native/xplatmason/`, built by `build.sh` from the
+`research/nativescript-mason` checkout — not committed; the probe path is
+`XPLAT_MASON_LIB`).
+
+Bridge constraints discovered at runtime:
+
+- The objc bridge only exposes typegen'd members — a `dlopen`'d class's
+  custom selectors are invisible (`objc_getClass` finds the class, member
+  lookup fails, `NSInvocation` marshals bridged class objects as `NSObject`,
+  `objc_msgSend` lacks signature info). Working channel: the dylib publishes
+  a host instance via `NSThread.mainThread.threadDictionary` at `+load`, and
+  JS drives it through `performSelectorWithObjectWithObject('invoke:args:')`.
+- JS functions cannot cross as ObjC blocks (SIGBUS) — no measure callback in
+  v1. Foreign leaves push their AppKit intrinsic/fitting size as min-width/
+  min-height, which clamps content-sized children without blocking grid
+  stretch.
+- `mason_node_destroy` takes the node only (not engine+node); wrong
+  signature crashed in `drop_glue`.
+- Mason's margin fields use `dimension_with_auto` where type 0 is auto —
+  absent margins must be sent as `[length, 0]` or auto margins center
+  children and consume free space.
+- AppKit anchor constraints solve on alignment rects; textfield frames sit
+  ~2pt outside them — probe spacing is measured on `alignmentRect`.
+- `masonview` needed an `applyProps` case (props were silently dropped),
+  `classSpacing` (`gap-*` classes) and `dockInsets` (`padding` style)
+  entries in the class/style handlers.
+
+`pnpm probe run research/mason/mason.macos.tsrx --target macos` — all 7
+assertions pass: flex column stacking, `className="gap-4"` → 16pt, style
+`columnGap:12`, `display:grid` + `1fr 1fr` equal-width columns, foreign
+`<label>` intrinsic measure + placement. Nested `masonview` subtrees recurse
+correctly (records are preorder DFS, 22 floats/node). `mason-ffi.macos.ts`
+is a standalone engine smoke covering dlopen → node/style/compute/layout
+round-trip.
+
 ## Unresolved
 
 - Where mason belongs long-term: opt-in leaf package (`@octane-xplat/mason`,
