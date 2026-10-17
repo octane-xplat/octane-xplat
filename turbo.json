@@ -28,14 +28,14 @@
 		},
 		"build:assets": {
 			"dependsOn": ["^typegen"],
-			"inputs": ["$TURBO_DEFAULT$", "../richtext/build-browser.mjs"],
+			"inputs": ["$TURBO_DEFAULT$", "../richtext/build-browser.ts"],
 			"outputs": ["dist/macos/browser.js", "dist/macos/browser.d.ts"]
 		},
 		"typecheck": {
 			"dependsOn": ["^typegen"],
 			"inputs": [
 				"$TURBO_DEFAULT$",
-				"../../scripts/typecheck.mjs",
+				"../../scripts/typecheck.ts",
 				"../../packages/cli/src/tsconfig-envs.ts"
 			],
 			"outputs": []

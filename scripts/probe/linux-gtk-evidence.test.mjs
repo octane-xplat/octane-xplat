@@ -9,7 +9,7 @@ import {
 	inputTier,
 	pairDurations,
 	parseJsonLines,
-} from './linux-gtk-evidence.mjs'
+} from './linux-gtk-evidence.ts'
 
 test('truncated, empty and non-object evidence is rejected', () => {
 	for (const input of ['', '{"seq":1', 'null', '[]', '{}\n\n{}']) {

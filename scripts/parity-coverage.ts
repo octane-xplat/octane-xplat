@@ -1,4 +1,5 @@
-#!/usr/bin/env node
+// @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
+// @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 // Keep the measured parity sample aligned with the shared component exports.
 // The platform barrels are the API source of truth; fixture metadata in each
 // <Component>.parity.tsrx identifies what is measured, and the groups below
@@ -81,8 +82,7 @@ const DEFERRED_GROUPS = [
 		components: ['BottomSheetSwitcher'],
 	},
 	{
-		reason:
-			'ToastViewport hosts imperative toasts and has no default visual state to measure.',
+		reason: 'ToastViewport hosts imperative toasts and has no default visual state to measure.',
 		components: ['ToastViewport'],
 	},
 ]
@@ -283,7 +283,9 @@ for (const file of globSync('packages/*/src/**/*.parity.tsrx', { cwd: root })) {
 		}
 
 		if (component !== expectedComponent) {
-			errors.push(`${file}: fixture '${name}' measures ${component} — keep it in ${component}.parity.tsrx`)
+			errors.push(
+				`${file}: fixture '${name}' measures ${component} — keep it in ${component}.parity.tsrx`,
+			)
 		}
 
 		fixtures.push({ name, component, file })
@@ -340,7 +342,9 @@ for (const fixture of fixtures) {
 
 	coveredComponents.add(fixture.component)
 	if (!checkFixtures.has(fixture.name)) {
-		errors.push(`${fixture.name}: no measured assertion is registered in ${fixture.component}.parity.check.ts`)
+		errors.push(
+			`${fixture.name}: no measured assertion is registered in ${fixture.component}.parity.check.ts`,
+		)
 		continue
 	}
 
@@ -366,7 +370,9 @@ for (const fixture of fixtures) {
 
 for (const fixture of checkFixtures) {
 	if (!fixtureNames.has(fixture)) {
-		errors.push(`${fixture}: assertion exists without a fixture in ${checkFileByFixture.get(fixture)}`)
+		errors.push(
+			`${fixture}: assertion exists without a fixture in ${checkFileByFixture.get(fixture)}`,
+		)
 	}
 }
 

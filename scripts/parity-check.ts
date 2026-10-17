@@ -1,5 +1,6 @@
+// @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 // Parity comparator — reads measured dumps from parity-report/<target>.json
-// (written by apps/web/scripts/parity.mjs, the native sweep step, ...) and
+// (written by apps/web/scripts/parity.ts, the native sweep step, ...) and
 // evaluates the per-component check modules co-located with the fixtures:
 // packages/<pkg>/src/<Component>.parity.check.ts. Each module exports a
 // CHECKS array of per-target invariants plus cross-target `equal` facets.

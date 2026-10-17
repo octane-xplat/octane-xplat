@@ -194,8 +194,8 @@ web build. The all-package build and pack gates failed in unchanged
 focused consumer used only its nine-package Xplat dependency closure; it is
 not a release-wide packed-consumer pass.
 
-The maintained qualification gate is `scripts/verify-android-tests.mjs`, called
-by `scripts/verify-consumer.mjs --test-android`. Its host tests cover explicit
+The maintained qualification gate is `scripts/verify-android-tests.ts`, called
+by `scripts/verify-consumer.ts --test-android`. Its host tests cover explicit
 selection, boot readiness, disposable identity reuse, assertion failure, zero
 tests, and process teardown. Scaffold specs now include the native filesystem
 bridge, expected assertion failure, subscription/timer cleanup, and automatic

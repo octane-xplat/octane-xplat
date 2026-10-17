@@ -61,7 +61,7 @@
 	},
 	"scripts": {
 		"typegen": "tsrx-typegen --target nano-icons",
-		"typecheck": "node ../../scripts/typecheck.mjs && pnpm exec tsc --noEmit -p tsconfig.build.json",
+		"typecheck": "node ../../scripts/typecheck.ts && pnpm exec tsc --noEmit -p tsconfig.build.json",
 		"test": "pnpm build && node --test tests/*.test.mjs",
 		"prepack": "pnpm build && pnpm typegen && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check",

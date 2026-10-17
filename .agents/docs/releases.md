@@ -46,7 +46,7 @@ revision. Publishing stays in `release.yml` for the existing npm trust binding.
 Publishing is npm **trusted publishing** (OIDC, no tokens) — each package must
 have `octane-xplat/octane-xplat` + `release.yml` configured on npmjs.com; a
 preflight step checks every package before anything ships
-(`scripts/check-trusted-publishers.mjs`). Both release jobs cache successful
+(`scripts/check-trusted-publishers.ts`). Both release jobs cache successful
 checks for 24 hours, scoped to the registry, repository, workflow ref, and job.
 New packages and expired entries always contact npm. The cache stores package
 names and timestamps, never tokens; npm still authorizes every actual publish.
@@ -55,12 +55,12 @@ expires. To force a fresh check inside an OIDC-enabled release job, unset the
 cache path:
 
 ```sh
-TRUSTED_PUBLISHERS_CACHE= node scripts/check-trusted-publishers.mjs
+TRUSTED_PUBLISHERS_CACHE= node scripts/check-trusted-publishers.ts
 ```
 
 ## Add a publishable package
 
-[`scripts/publishable.mjs`](../../scripts/publishable.mjs) discovers every
+[`scripts/publishable.ts`](../../scripts/publishable.ts) discovers every
 direct child of `packages/` with a `package.json` unless its manifest has
 `"private": true`. New publishable packages join the lockstep release
 automatically. Keep fixtures and private workspace tools private.

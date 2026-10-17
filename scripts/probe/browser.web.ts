@@ -1,3 +1,4 @@
+// @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 import { createRoot } from 'octane'
 
 export function browserAdapter(target: 'web' | 'linux') {

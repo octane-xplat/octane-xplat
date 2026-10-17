@@ -43,7 +43,7 @@
 		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check",
 		"test": "node --test tests/*.test.mjs",
-		"typecheck": "node ../../scripts/typecheck.mjs"
+		"typecheck": "node ../../scripts/typecheck.ts"
 	},
 	"dependencies": {
 		"@lisse/core": "0.7.2"

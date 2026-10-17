@@ -124,7 +124,7 @@ void value
 		const check = spawnSync(
 			process.execPath,
 			[
-				join(root, 'packages/tsrx-typegen/src/cli.mjs'),
+				join(root, 'packages/tsrx-typegen/src/cli.ts'),
 				'--project',
 				'tsconfig.types.json',
 				'--check',
@@ -185,7 +185,7 @@ export function readIncluded(value: Included): Included { return value }
 		const staleInput = spawnSync(
 			process.execPath,
 			[
-				join(root, 'packages/tsrx-typegen/src/cli.mjs'),
+				join(root, 'packages/tsrx-typegen/src/cli.ts'),
 				'--project',
 				'tsconfig.types.json',
 				'--check',
@@ -216,7 +216,7 @@ export function readIncluded(value: Included): Included { return value }
 
 		const collision = spawnSync(
 			process.execPath,
-			[join(root, 'packages/tsrx-typegen/src/cli.mjs'), '--project', 'tsconfig.types.json'],
+			[join(root, 'packages/tsrx-typegen/src/cli.ts'), '--project', 'tsconfig.types.json'],
 			{ cwd: packageRoot, encoding: 'utf8' },
 		)
 
@@ -239,7 +239,7 @@ export function readIncluded(value: Included): Included { return value }
 		writeFileSync(lowerSource, "export function caseOnly() { return 'lower' }\n")
 		run(
 			process.execPath,
-			[join(root, 'packages/tsrx-typegen/src/cli.mjs'), '--project', 'tsconfig.types.json'],
+			[join(root, 'packages/tsrx-typegen/src/cli.ts'), '--project', 'tsconfig.types.json'],
 			packageRoot,
 		)
 
@@ -249,7 +249,7 @@ export function readIncluded(value: Included): Included { return value }
 		writeFileSync(upperSource, "export function caseOnly() { return 'upper' }\n")
 		run(
 			process.execPath,
-			[join(root, 'packages/tsrx-typegen/src/cli.mjs'), '--project', 'tsconfig.types.json'],
+			[join(root, 'packages/tsrx-typegen/src/cli.ts'), '--project', 'tsconfig.types.json'],
 			packageRoot,
 		)
 
@@ -295,7 +295,7 @@ export function readIncluded(value: Included): Included { return value }
 		writeFileSync(overrideConfigPath, JSON.stringify(config, null, 2) + '\n')
 		run(
 			process.execPath,
-			[join(root, 'packages/tsrx-typegen/src/cli.mjs'), '--project', 'tsconfig.types.json'],
+			[join(root, 'packages/tsrx-typegen/src/cli.ts'), '--project', 'tsconfig.types.json'],
 			packageRoot,
 		)
 
@@ -322,7 +322,7 @@ export function readIncluded(value: Included): Included { return value }
 		writeFileSync(invalidSource, 'export function Invalid( {\n')
 		const failedTransform = spawnSync(
 			process.execPath,
-			[join(root, 'packages/tsrx-typegen/src/cli.mjs'), '--project', 'tsconfig.types.json'],
+			[join(root, 'packages/tsrx-typegen/src/cli.ts'), '--project', 'tsconfig.types.json'],
 			{ cwd: packageRoot, encoding: 'utf8' },
 		)
 
@@ -351,7 +351,7 @@ export function readIncluded(value: Included): Included { return value }
 
 		const factoryResult = spawnSync(
 			process.execPath,
-			[join(root, 'packages/tsrx-typegen/src/cli.mjs'), '--project', 'tsconfig.types.json'],
+			[join(root, 'packages/tsrx-typegen/src/cli.ts'), '--project', 'tsconfig.types.json'],
 			{ cwd: packageRoot, encoding: 'utf8' },
 		)
 

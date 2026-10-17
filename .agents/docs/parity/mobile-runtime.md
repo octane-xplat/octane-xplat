@@ -74,7 +74,7 @@ Two blockers surfaced and were fixed in scope (both committed):
 1. `packages/files/src/files.ts` — Android `readBytes` passed a Java
    `byte[]` to `ArrayBuffer.from`, which requires `java.nio.ByteBuffer`
    ("Wrong type of argument"). Now wraps with `ByteBuffer.wrap`.
-2. `scripts/probe/mobile-host.mobile.mjs` — the host module map lacked
+2. `scripts/probe/mobile-host.mobile.ts` — the host module map lacked
    Android-only `@nativescript/core` subpaths (`application`,
    `application-settings`, `utils/lazy`) imported by plugin entries such as
    `@nativescript/google-signin/index.android.js`; case bundles crashed at

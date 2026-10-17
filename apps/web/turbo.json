@@ -14,7 +14,7 @@
 				"$TURBO_DEFAULT$",
 				"../tsrx-typegen/src/**",
 				"../../scripts/check-native-dist.mjs",
-				"../../scripts/sync-ui-barrels.mjs"
+				"../../scripts/sync-ui-barrels.ts"
 			],
 			"outputs": ["dist/**", "types/**"]
 		},

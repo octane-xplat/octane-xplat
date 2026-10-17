@@ -51,7 +51,7 @@
 		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",
 		"pack:check": "tsrx-typegen --pack-check",
-		"typecheck": "node ../../scripts/typecheck.mjs"
+		"typecheck": "node ../../scripts/typecheck.ts"
 	},
 	"dependencies": {
 		"@octane-xplat/platform": "workspace:*",

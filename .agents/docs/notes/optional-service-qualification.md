@@ -67,7 +67,7 @@ result. The case runner needed two fixes to reach this evidence: platform
 `.js` extension resolution for plugin mains in native case bundles, and a
 `@nativescript/core/utils` entry in the host module map.
 
-`node scripts/check-optional-services.mjs` (also `pnpm check:optional-services`)
+`node scripts/check-optional-services.ts` (also `pnpm check:optional-services`)
 runs focused web/native adapter typechecks, Node regression tests, and browser
 probes in Chromium, Firefox, and WebKit. Firefox checks metadata readiness;
 Chromium and WebKit also check playback state. Node tests inject OS/backend APIs

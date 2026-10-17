@@ -3,7 +3,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
-import { verifyAndroidTests } from './verify-android-tests.mjs'
+import { verifyAndroidTests } from './verify-android-tests.ts'
 
 function fixture(t, overrides = {}) {
 	const appDir = mkdtempSync(join(tmpdir(), 'xplat-android-gate-'))

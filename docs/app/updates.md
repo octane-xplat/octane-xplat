@@ -155,9 +155,9 @@ sequence with a local fixture server; it does not qualify a hosted deployment.
 
 ```sh
 # From the framework repository, choose your own test device IDs:
-node scripts/with-target-lock.mjs ios -- \
+node scripts/with-target-lock.ts ios -- \
   node packages/updates/tests/native-lifecycle.mjs --target ios --device SIMULATOR_UDID
-node scripts/with-target-lock.mjs android -- \
+node scripts/with-target-lock.ts android -- \
   node packages/updates/tests/native-lifecycle.mjs --target android --device EMULATOR_SERIAL
 ```
 

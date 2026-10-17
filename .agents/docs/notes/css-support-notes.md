@@ -121,7 +121,7 @@ import './app.css'
 
 ## Author-time audit (`pnpm check:css`)
 
-`scripts/check-css.mjs` runs as part of `pnpm lint`: it parses every shared
+`scripts/check-css.ts` runs as part of `pnpm lint`: it parses every shared
 stylesheet (`packages/*/src/**/*.css`, `packages/create/template/src`) and
 errors on any declaration whose property isn't in
 `scripts/ns-css-registry.json` — the `cssName` list extracted from the

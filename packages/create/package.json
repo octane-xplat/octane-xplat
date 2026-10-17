@@ -21,17 +21,18 @@
 		"directory": "packages/create"
 	},
 	"bin": {
-		"create-octane-xplat": "./index.mjs"
+		"create-octane-xplat": "./dist/index.js"
 	},
 	"files": [
-		"index.mjs",
-		"scaffold.mjs",
+		"index.ts",
+		"scaffold.ts",
+		"dist",
 		"template",
 		"library-template"
 	],
 	"type": "module",
 	"exports": {
-		"./scaffold": "./scaffold.mjs"
+		"./scaffold": "./dist/scaffold.js"
 	},
 	"publishConfig": {
 		"exports": {
@@ -39,7 +40,16 @@
 		},
 		"access": "public"
 	},
+	"scripts": {
+		"build": "vite build",
+		"prepack": "pnpm build",
+		"typecheck": "tsc -p tsconfig.json"
+	},
 	"dependencies": {
 		"@clack/prompts": "1.8.1"
+	},
+	"devDependencies": {
+		"@types/node": "24.10.1",
+		"vite": "catalog:"
 	}
 }

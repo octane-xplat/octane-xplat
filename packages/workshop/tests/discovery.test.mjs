@@ -2,7 +2,7 @@ import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { applicableTargets, discoverStories, scanStoryFile } from '../src/discover.mjs'
+import { applicableTargets, discoverStories, scanStoryFile } from '../dist/build/discover.js'
 
 const STORY = `
 import { defineStory } from '@octane-xplat/workshop'

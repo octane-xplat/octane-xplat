@@ -1,4 +1,4 @@
-import { loadSource } from '../../../scripts/load-source.mjs'
+import { loadSource } from '../../../scripts/load-source.ts'
 import assert from 'node:assert/strict'
 import ts from 'typescript'
 import { buildMacOSBarrel } from './macos-barrel.mjs'

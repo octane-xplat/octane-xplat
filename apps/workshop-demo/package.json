@@ -7,7 +7,7 @@
 		"workshop": "xplat workshop dev --target web",
 		"workshop:list": "xplat workshop list",
 		"workshop:doctor": "xplat workshop doctor",
-		"typecheck": "node ../../scripts/typecheck.mjs",
+		"typecheck": "node ../../scripts/typecheck.ts",
 		"test:e2e": "node scripts/e2e-web.mjs",
 		"test:e2e:macos": "node scripts/e2e-macos.mjs",
 		"workshop:macos": "xplat workshop dev --target macos"

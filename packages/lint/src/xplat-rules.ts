@@ -3,7 +3,7 @@
 // Program plus source text and returns {node, message} violations — oxlint
 // produces this AST for .ts/.tsx, and @tsrx/core's parseModule produces the
 // same estree-jsx nodes for .tsrx — so each rule runs in both passes
-// (scripts/oxlint-plugin.mjs and scripts/lint-tsrx.mjs).
+// (scripts/oxlint-plugin.ts and scripts/lint-tsrx.ts).
 //
 // Rule scope follows the platform-file convention: `.web.*` and `.linux.*`
 // files own DOM code; `.mobile/.ios/.android.*`, `apps/mobile`, and

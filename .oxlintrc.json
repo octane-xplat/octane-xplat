@@ -14,7 +14,7 @@
 		"packages/platform/src/types/macos*/**",
 		"packages/macos-renderer/types/**"
 	],
-	"jsPlugins": ["./scripts/oxlint-plugin.mjs"],
+	"jsPlugins": ["./scripts/oxlint-plugin.ts"],
 	"rules": {
 		"curly": "error",
 		"xplat/no-dom-globals": [
@@ -54,7 +54,12 @@
 				"exclude": ["apps/mobile/", "apps/windows/", "packages/cli/test/fixtures/"]
 			}
 		],
-		"xplat/no-ns-deep-import": ["error", { "exclude": ["scripts/probe/mobile-host.mobile.mjs"] }],
+		"xplat/no-ns-deep-import": [
+			"error",
+			{
+				"exclude": ["scripts/probe/mobile-host.mobile.ts"]
+			}
+		],
 		"xplat/platform-subpath-import": "error",
 		"xplat/no-native-dead-style": [
 			"error",

@@ -3,7 +3,7 @@
 // tags one `vX.Y.Z` for the whole lockstep set; tsrx-typegen rides its own
 // `tsrx-typegen-v*` track (cliff.tsrx-typegen.toml). Scoped package names map
 // to packages/<suffix> by repo convention — verified by
-// scripts/publishable.mjs. Unscoped names need an explicit entry; an unknown
+// scripts/publishable.ts. Unscoped names need an explicit entry; an unknown
 // name gets no mapping and an explicit unavailable result, never a guess.
 
 export const RELEASE_REPO = 'https://github.com/octane-xplat/octane-xplat'

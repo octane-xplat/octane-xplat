@@ -1,4 +1,4 @@
-import { loadSource } from '../../../scripts/load-source.mjs'
+import { loadSource } from '../../../scripts/load-source.ts'
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { mkdtempSync, mkdirSync, readdirSync, readFileSync, rmSync } from 'node:fs'

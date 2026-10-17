@@ -62,6 +62,12 @@
 		"../../packages/*/dist",
 		"../../packages/*/types",
 		"../../packages/*/src/build",
-		"../../packages/mcp", "../../packages/cli", "../../packages/lint"
+		"../../packages/mcp",
+		"../../packages/cli",
+		"../../packages/lint",
+		"../../packages/create",
+		"../../packages/tsrx-typegen",
+		"../../packages/*/scripts",
+		"../../packages/richtext/build-browser.ts"
 	]
 }

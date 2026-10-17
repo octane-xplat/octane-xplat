@@ -2,7 +2,7 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { composeTargets } from '../../create/scaffold.mjs'
+import { composeTargets } from '../../create/scaffold.ts'
 
 const dir = process.argv[2] && resolve(process.argv[2])
 if (!dir || existsSync(dir)) {

@@ -21,7 +21,7 @@
 	},
 	"files": [
 		"types",
-		"dist/node",
+		"dist",
 		"src",
 		"MOBILE.md",
 		"!src/**/*.test.*",
@@ -31,7 +31,7 @@
 	"exports": {
 		".": {
 			"types": "./types/generated/index.d.ts",
-			"node": "./dist/node/index.js",
+			"node": "./dist/index.js",
 			"default": "./src/index.ts"
 		},
 		"./web": {
@@ -39,12 +39,12 @@
 			"default": "./src/web/index.web.ts"
 		},
 		"./vite": {
-			"types": "./src/vite.d.ts",
-			"default": "./src/vite.mjs"
+			"types": "./src/build/vite.d.ts",
+			"default": "./dist/build/vite.js"
 		},
 		"./node": {
-			"types": "./src/node.d.ts",
-			"default": "./src/node.mjs"
+			"types": "./src/build/node.d.ts",
+			"default": "./dist/build/node.js"
 		},
 		"./package.json": "./package.json",
 		"./mobile": {
@@ -52,8 +52,8 @@
 			"default": "./src/mobile/index.mobile.ts"
 		},
 		"./vite-mobile": {
-			"types": "./src/vite-mobile.d.ts",
-			"default": "./src/vite-mobile.mjs"
+			"types": "./src/build/vite-mobile.d.ts",
+			"default": "./dist/build/vite-mobile.js"
 		},
 		"./macos": {
 			"types": "./types/generated/macos/index.macos.d.ts",
@@ -65,7 +65,7 @@
 	},
 	"scripts": {
 		"typegen": "tsrx-typegen --target workshop",
-		"typecheck": "node ../../scripts/typecheck.mjs",
+		"typecheck": "node ../../scripts/typecheck.ts",
 		"test": "vitest run && tsrx-tsc --noEmit -p tsconfig.test.json",
 		"test:e2e": "pnpm --filter @xplat/workshop-demo test:e2e",
 		"test:packed": "pnpm build && node tests/packed-consumer.web.mjs",

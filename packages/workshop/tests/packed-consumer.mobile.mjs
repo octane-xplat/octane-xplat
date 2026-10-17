@@ -1,4 +1,4 @@
-import { loadSource } from '../../../scripts/load-source.mjs'
+import { loadSource } from '../../../scripts/load-source.ts'
 /** Packed native compiler/launch configuration checks. Never launches a host. */
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'

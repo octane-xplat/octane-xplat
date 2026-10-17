@@ -13,7 +13,7 @@ import {
 	resolveTargets,
 	targetEnabled,
 	TEMPLATE_DIR,
-} from '../scaffold.mjs'
+} from '../dist/scaffold.js'
 
 const ALL = ['web', 'ios', 'android']
 
@@ -60,7 +60,7 @@ test('web-only scaffold drops patch entries for packages it never installs', (t)
 })
 
 test('every target-owned file exists in the template', async () => {
-	const { targets } = await import('../scaffold.mjs')
+	const { targets } = await import('../dist/scaffold.js')
 	for (const [id, target] of Object.entries(targets)) {
 		for (const rel of target.files) {
 			assert.ok(existsSync(join(TEMPLATE_DIR, rel)), `${id} claims missing file ${rel}`)

@@ -25,13 +25,13 @@ this revision).
 `pnpm lint`, repo checks (patches/css/recipes/decisions/suffix-resolution),
 `typecheck:web` + `typecheck:mobile`, tests, web build, package builds,
 packed-declaration checks, and the harness browser smoke run in the `checks`
-job. `pnpm check:consumer` (`scripts/verify-consumer.mjs`) packs every
+job. `pnpm check:consumer` (`scripts/verify-consumer.ts`) packs every
 publishable package, scaffolds a starter via the packed create bin
 (`--no-install`), installs it against `file:` tarballs outside the workspace,
 and runs the consumer's lint/typecheck/build/doctor plus a browser smoke.
 `--native ios,android` + `--smoke-ios` extend it to `ns build` and a simctl
 install/launch smoke on a booted iPhone sim — the `native-ios`/`native-android`
-CI jobs run that under `scripts/with-target-lock.mjs` (per-target advisory
+CI jobs run that under `scripts/with-target-lock.ts` (per-target advisory
 lock for shared simulators/devices). Debug/simulator artifacts only — no
 signed distribution claims.
 
@@ -54,20 +54,20 @@ Octane compiler chooses platform leaves and renderer/runtime settings.
 
 Releases are automated — `.github/workflows/release.yml` fires on every
 completed `CI` run on `main` and resolves a channel from the recorded
-evidence (`scripts/release-channel.mjs`). All required jobs green → stable:
+evidence (`scripts/release-channel.ts`). All required jobs green → stable:
 git-cliff infers the version, all publishable packages bump in lockstep
-(`scripts/bump-versions.mjs`), CHANGELOG.md gets a generated section, the
+(`scripts/bump-versions.ts`), CHANGELOG.md gets a generated section, the
 commit + `vX.Y.Z` tag push, then `pnpm -r publish` ships via npm trusted
 publishing (OIDC + provenance, no tokens). `checks` green but a native lane
 red → nightly: the set publishes `0.0.0-nightly.g<sha>` under the `nightly`
 dist-tag (every checks-green push ships one — stable does not suppress it)
 and the moving `nightly` git tag + GitHub prerelease track the tested sha.
-A preflight (`scripts/check-trusted-publishers.mjs`) bails before publishing
+A preflight (`scripts/check-trusted-publishers.ts`) bails before publishing
 if any package lacks a trusted-publisher config for this repo + workflow.
 Publication is additionally bound to the tested revision: CI's `evidence`
 job records per-job results into the `ci-evidence-<sha>` artifact, the `gate`
 job checks out `workflow_run.head_sha` and verifies that artifact via
-`scripts/verify-release-evidence.mjs`, and the stable tag push aborts if main
+`scripts/verify-release-evidence.ts`, and the stable tag push aborts if main
 advanced past the tested sha with non-release commits.
 
 `tsrx-typegen` releases on its own `tsrx-typegen-v*` cadence; everything else

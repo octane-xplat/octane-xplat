@@ -1,4 +1,4 @@
-import { checkMacOSMotionConsumer } from '../../../scripts/check-macos-motion-consumer.mjs'
+import { checkMacOSMotionConsumer } from '../../../scripts/check-macos-motion-consumer.ts'
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import {

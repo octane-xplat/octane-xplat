@@ -1,0 +1,773 @@
+#!/usr/bin/env node
+// @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
+// Packed-artifact consumer verification — proves a scaffolded starter app
+// installs, lints, typechecks, and builds against the PACKED packages, not
+// the workspace symlinks. It also checks the packed creator's app and library
+// scaffolds. This is the release-evidence path for `pnpm create octane-xplat`.
+//
+// Phases (each is a gate — the first failure stops the run):
+//   build    generate declarations and required package assets
+//            (skip with --no-build; CI builds earlier in the same job)
+//   pack     pnpm pack every publishable package into <work>/pack
+//   scaffold run the PACKED create-octane-xplat bin for app and library,
+//            then rewrite the app's @octane-xplat/* specifiers (dependencies,
+//            devDependencies, pnpm-workspace.yaml configDependencies) to
+//            file: tarballs
+//   install  pnpm install in the consumer — isolated, outside the workspace
+//   checks   pnpm lint, pnpm typecheck (web + native), pnpm build (web),
+//            pnpm exec xplat doctor; install and check the library starter
+//   smoke    --smoke web: playwright drives `vite preview` of the built app
+//   native   --native ios,android: `ns build <platform>` inside the consumer
+//   sim      --smoke-ios: install + launch the built .app on an iOS sim,
+//            fail on crash or JS error output (debug-simulator artifact —
+//            NOT evidence of signed store distribution)
+//   tests    --test-android: same suite on VERIFY_ANDROID_DEVICE (must be booted);
+//            owns a disposable app identity and stops it after completion
+//            --test-ios: run the scaffolded on-device suite (`ns test ios`)
+//            on a booted iPhone simulator — exercises the packed cli vite
+//            overlay, the packed platform /testing export, scaffolded
+//            specs, and the app's App_Resources ATS exception end to end
+//
+// Env:
+//   VERIFY_CONSUMER_DIR — reuse a work dir instead of a mkdtemp (kept afterwards)
+//   VERIFY_ANDROID_DEVICE — explicitly selected, already-booted Android host for --test-android
+//   VERIFY_IOS_DEVICE — UDID for --test-ios/--smoke-ios device selection
+//   XPLAT_WEB_BROWSERS — comma-separated Playwright engines for --smoke web
+//   PLAYWRIGHT_REQUIRED=0 — downgrade a missing playwright install to a skip
+//
+// Usage: node scripts/verify-consumer.mjs [--no-build] [--smoke web]
+//        [--native ios,android] [--smoke-ios] [--test-ios] [--test-android] [--keep]
+//        --quick: packed web starter install + plain tsc + dev/prod compilation;
+//                 skips platform enablement and the full app/library checks.
+import assert from 'node:assert/strict'
+import { spawnSync, spawn } from 'node:child_process'
+import {
+	existsSync,
+	mkdirSync,
+	mkdtempSync,
+	readFileSync,
+	realpathSync,
+	rmSync,
+	writeFileSync,
+} from 'node:fs'
+
+import { tmpdir } from 'node:os'
+import { dirname, join, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+import { lockstepPackages } from './publishable.ts'
+import { verifyAndroidTests } from './verify-android-tests.ts'
+
+const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
+const args = process.argv.slice(2)
+const flag = (name) => args.includes(`--${name}`)
+const flagValue = (name) => {
+	const index = args.indexOf(`--${name}`)
+	return index >= 0 ? args[index + 1] : undefined
+}
+
+const doBuild = !flag('no-build')
+const quick = flag('quick')
+const smokeTargets = (flagValue('smoke') ?? '').split(',').filter(Boolean)
+const nativeTargets = (flagValue('native') ?? '').split(',').filter(Boolean)
+const smokeIos = flag('smoke-ios')
+const testIos = flag('test-ios')
+const testAndroid = flag('test-android')
+assert.ok(
+	!quick || (!nativeTargets.length && !smokeIos && !testIos && !testAndroid),
+	'--quick cannot qualify native builds or device tests; use the full consumer workflow',
+)
+if (testAndroid) {
+	assert.ok(process.env.VERIFY_ANDROID_DEVICE, '--test-android requires VERIFY_ANDROID_DEVICE')
+}
+
+const keep = flag('keep') || Boolean(process.env.VERIFY_CONSUMER_DIR)
+
+const work = process.env.VERIFY_CONSUMER_DIR
+	? resolve(process.env.VERIFY_CONSUMER_DIR)
+	: mkdtempSync(join(tmpdir(), 'xplat-consumer-'))
+
+const packDir = join(work, 'pack')
+// The dir basename becomes the Xcode project/target name — 'app' would
+// collide with the platforms/ios/<name>/app JS payload dir inside the
+// produced .app (xcodebuild "Multiple commands produce .../app.app/app").
+const appDir = join(work, 'consumer-app')
+const libraryDir = join(work, 'consumer-library')
+const extractDir = join(work, 'create')
+// A reused VERIFY_CONSUMER_DIR may hold a previous attempt's app/scaffold —
+// reset those (the pack dir is rewritten in place anyway).
+for (const dir of [appDir, libraryDir, extractDir]) {
+	rmSync(dir, { recursive: true, force: true })
+}
+
+mkdirSync(packDir, { recursive: true })
+mkdirSync(extractDir, { recursive: true })
+
+const results = []
+const record = (name, ok, detail = '') => {
+	results.push({ name, ok, detail })
+	console.log(`[verify] ${name}: ${ok ? 'OK' : 'FAIL'}${detail ? ` — ${detail}` : ''}`)
+}
+
+function run(command, argv, cwd, env = {}) {
+	const result = spawnSync(command, argv, {
+		cwd,
+		env: { ...process.env, ...env },
+		encoding: 'utf8',
+		maxBuffer: 64 * 1024 * 1024,
+	})
+
+	if (result.stdout) {
+		process.stdout.write(result.stdout)
+	}
+
+	if (result.stderr) {
+		process.stderr.write(result.stderr)
+	}
+
+	if (result.error) {
+		throw result.error
+	}
+
+	// A silent nonzero exit (e.g. a shim spawning a missing binary) is
+	// undebuggable from CI logs — surface the process result itself.
+	if (result.status !== 0) {
+		console.error(
+			`[verify] ${command} ${argv.join(' ')} → status=${result.status} signal=${result.signal} ` +
+				`stdout=${result.stdout?.length ?? 0}B stderr=${result.stderr?.length ?? 0}B`,
+		)
+	}
+
+	return result
+}
+
+async function gate(name, timeoutMs, fn) {
+	let timeout
+	try {
+		const detail = await Promise.race([
+			fn(),
+			new Promise((_, reject) => {
+				timeout = setTimeout(
+					() => reject(new Error(`gate timed out after ${timeoutMs / 60000}m`)),
+					timeoutMs,
+				)
+			}),
+		])
+
+		record(name, true, detail ?? '')
+	} catch (error) {
+		record(name, false, String(error?.message ?? error).split('\n')[0])
+		console.error(`[verify] ${name} failed:`, error)
+		report()
+		console.error(`[verify] work dir kept for inspection: ${work}`)
+		// Drain piped stdout before exiting — process.exit drops queued async
+		// writes, which lost the failing subprocess's output in CI logs.
+		await Promise.all([
+			new Promise((r) => process.stdout.write('', r)),
+			new Promise((r) => process.stderr.write('', r)),
+		])
+
+		process.exit(1)
+	} finally {
+		clearTimeout(timeout)
+	}
+}
+
+function report() {
+	const failed = results.filter((r) => !r.ok)
+	console.log(
+		`\n[verify] ${results.length - failed.length}/${results.length} gates passed` +
+			(failed.length ? ` — FAILED: ${failed.map((f) => f.name).join(', ')}` : ''),
+	)
+}
+
+const tarballName = (pkg) => `${pkg.name.replace(/^@/, '').replace('/', '-')}-${pkg.version}.tgz`
+
+try {
+	// ---- build ------------------------------------------------------------
+	if (doBuild) {
+		await gate('package declarations and assets', 20 * 60 * 1000, () => {
+			const r = run('pnpm', ['build:packages'], repoRoot)
+
+			assert.equal(r.status, 0, 'package preparation failed')
+		})
+	}
+
+	// ---- pack -------------------------------------------------------------
+	const tarballs = new Map()
+	await gate('pnpm pack — publishable packages produce tarballs', 20 * 60 * 1000, () => {
+		for (const pkg of lockstepPackages(repoRoot)) {
+			// Quick mode consumes the package preparation already performed above
+			// (or by CI with --no-build). CI separately gates every pack:check, so
+			// don't repeat declaration generation and pack validation per tarball.
+			const r = run(
+				'pnpm',
+				[...(quick ? ['--config.ignore-scripts=true'] : []), 'pack', '--pack-destination', packDir],
+				join(repoRoot, pkg.dir),
+			)
+			assert.equal(r.status, 0, `pnpm pack failed for ${pkg.name}`)
+			const expected = join(packDir, tarballName(pkg))
+			assert.ok(existsSync(expected), `expected tarball ${tarballName(pkg)} for ${pkg.name}`)
+			tarballs.set(pkg.name, expected)
+		}
+
+		return `${tarballs.size} tarballs`
+	})
+
+	// ---- scaffold via the packed create bin --------------------------------
+	// Web-only subset: `xplat add ios android` below restores the rest, which
+	// exercises the post-scaffold enablement path on the packed artifacts.
+	await gate(
+		`packed create-octane-xplat scaffolds ${quick ? 'a web starter' : 'app and library starters'}`,
+		60 * 1000,
+		() => {
+			const createTarball = tarballs.get('create-octane-xplat')
+			assert.ok(createTarball, 'create-octane-xplat tarball missing')
+			const r = run('tar', ['-xzf', createTarball, '-C', extractDir], work)
+			assert.equal(r.status, 0, 'tar extract failed')
+			const binPath = join(extractDir, 'package', 'index.ts')
+			assert.ok(existsSync(binPath), 'packed create bin missing')
+			const runResult = run('node', [binPath, appDir, '--no-install', '--targets', 'web'], work)
+
+			assert.equal(runResult.status, 0, 'create bin exited nonzero')
+			assert.ok(existsSync(join(appDir, 'package.json')), 'scaffold produced no package.json')
+			assert.ok(existsSync(join(appDir, '.gitignore')), 'scaffold dropped gitignore rename')
+			assert.ok(
+				!existsSync(join(appDir, 'nativescript.config.ts')),
+				'subset scaffold leaked native files',
+			)
+			if (quick) {
+				return
+			}
+
+			const libraryName = '@example/consumer-library'
+			const libraryResult = run(
+				'node',
+				[binPath, libraryDir, '--no-install', '--template', 'library', '--name', libraryName],
+				work,
+			)
+
+			assert.equal(libraryResult.status, 0, 'library create bin exited nonzero')
+			const libraryManifest = JSON.parse(readFileSync(join(libraryDir, 'package.json'), 'utf8'))
+			assert.equal(libraryManifest.name, libraryName)
+			assert.ok(libraryManifest.exports['.'].web, 'library starter missed web conditional export')
+			assert.ok(
+				libraryManifest.exports['.'].native,
+				'library starter missed native conditional export',
+			)
+
+			assert.ok(
+				libraryManifest.scripts['test:packed'],
+				'library starter missed packed-consumer script',
+			)
+
+			assert.ok(
+				existsSync(join(libraryDir, 'src/Badge.tsx')),
+				'library starter missed native component',
+			)
+
+			assert.ok(
+				existsSync(join(libraryDir, 'src/Badge.web.tsx')),
+				'library starter missed web component',
+			)
+
+			assert.ok(
+				existsSync(join(libraryDir, 'tests/packed-consumer.ts')),
+				'library starter missed packed-consumer check',
+			)
+
+			assert.ok(
+				!existsSync(join(libraryDir, 'index.html')),
+				'library starter leaked app entry files',
+			)
+			assert.ok(
+				!existsSync(join(libraryDir, 'nativescript.config.ts')),
+				'library starter leaked app NativeScript configuration',
+			)
+		},
+	)
+
+	// ---- repoint @octane-xplat/* at the tarballs ---------------------------
+	const consumerManifestPath = join(appDir, 'package.json')
+	await gate('consumer manifest rewritten to file: tarballs', 60 * 1000, () => {
+		const manifest = JSON.parse(readFileSync(consumerManifestPath, 'utf8'))
+		let rewritten = 0
+		for (const section of ['dependencies', 'devDependencies']) {
+			for (const dep of Object.keys(manifest[section] ?? {})) {
+				if (!dep.startsWith('@octane-xplat/')) {
+					continue
+				}
+
+				const tarball = tarballs.get(dep)
+				assert.ok(tarball, `no tarball for consumer dep ${dep}`)
+				manifest[section][dep] = `file:${tarball}`
+				rewritten++
+			}
+		}
+
+		writeFileSync(consumerManifestPath, JSON.stringify(manifest, null, 2) + '\n')
+
+		// @octane-xplat/patches travels as a pnpm configDependency — that path
+		// demands an exact registry semver (file: tarballs carry no integrity),
+		// so the packed tarball can't stand in there. Materialize the tarball's
+		// contents into node_modules/.pnpm-config instead and drop the
+		// configDependencies entry; patchedDependencies then resolves the same
+		// files a registry install would produce.
+		const patchesTarball = tarballs.get('@octane-xplat/patches')
+		assert.ok(patchesTarball, 'no tarball for @octane-xplat/patches')
+		const configDir = join(appDir, 'node_modules', '.pnpm-config', '@octane-xplat', 'patches')
+		mkdirSync(configDir, { recursive: true })
+		const untar = run(
+			'tar',
+			['-xzf', patchesTarball, '-C', configDir, '--strip-components=1'],
+			work,
+		)
+
+		assert.equal(untar.status, 0, 'patches tarball extraction failed')
+
+		const workspaceFile = join(appDir, 'pnpm-workspace.yaml')
+		const workspaceYaml = readFileSync(workspaceFile, 'utf8')
+		const updated = workspaceYaml.replace(/\n?configDependencies:\n([ \t]+(?!#)\S[^\n]*\n?)+/, '\n')
+
+		assert.notEqual(updated, workspaceYaml, 'configDependencies rewrite found no entry')
+
+		// Deps can also enter the graph after this gate — xplat add writes
+		// registry specs, and create-octane-xplat is a runtime dep of the packed
+		// CLI outside @octane-xplat/*. Pin every packed tarball via workspace
+		// overrides so late-resolving deps still hit the packed artifacts.
+		const overrides = [...tarballs]
+			.map(([name, tarball]) => `  "${name}": file:${tarball}`)
+			.join('\n')
+
+		writeFileSync(workspaceFile, `${updated}\noverrides:\n${overrides}\n`)
+		return `${rewritten} deps + materialized .pnpm-config`
+	})
+
+	// ---- install ------------------------------------------------------------
+	await gate('pnpm install — consumer resolves registry + packed artifacts', 15 * 60 * 1000, () => {
+		const r = run('pnpm', ['install'], appDir)
+		assert.equal(r.status, 0, 'pnpm install failed')
+	})
+
+	await gate(
+		'installed @octane-xplat/ui is the packed payload, not a workspace link',
+		60 * 1000,
+		() => {
+			const installed = join(appDir, 'node_modules', '@octane-xplat', 'ui')
+			assert.ok(existsSync(installed), '@octane-xplat/ui not installed')
+			const resolved = realpathSync(installed)
+			assert.ok(
+				!resolved.startsWith(join(repoRoot, 'packages')),
+				`ui resolves into the workspace: ${resolved}`,
+			)
+
+			const manifest = JSON.parse(readFileSync(join(installed, 'package.json'), 'utf8'))
+			for (const target of ['web', 'native', 'macos', 'linux']) {
+				const entry = manifest.exports['.'][target]
+				assert.ok(entry.default.startsWith('./src/'), `${target} runtime must use source`)
+				assert.ok(entry.types.endsWith('.d.ts'), `${target} types must use declarations`)
+				assert.ok(existsSync(join(installed, entry.default)), `${target} source missing`)
+				assert.ok(existsSync(join(installed, entry.types)), `${target} declarations missing`)
+			}
+		},
+	)
+
+	await gate('plain TypeScript consumes installed web declarations', 60 * 1000, () => {
+		const source = join(appDir, 'verify-declarations.ts')
+		const config = join(appDir, 'verify-declarations.json')
+		writeFileSync(
+			source,
+			`import { Text, type TextProps } from '@octane-xplat/ui'
+const props: TextProps = { children: 'Packed consumer' }
+void Text
+void props
+`,
+		)
+		writeFileSync(
+			config,
+			JSON.stringify({
+				compilerOptions: {
+					target: 'ESNext',
+					module: 'ESNext',
+					moduleResolution: 'Bundler',
+					customConditions: ['web'],
+					lib: ['ESNext', 'DOM', 'DOM.Iterable'],
+					types: [],
+					strict: true,
+					noEmit: true,
+					skipLibCheck: true,
+					allowImportingTsExtensions: true,
+				},
+				files: ['verify-declarations.ts'],
+			}),
+		)
+		try {
+			const result = run('pnpm', ['exec', 'tsc', '--project', config], appDir)
+			assert.equal(result.status, 0, 'plain TypeScript could not consume packed declarations')
+		} finally {
+			rmSync(source, { force: true })
+			rmSync(config, { force: true })
+		}
+	})
+
+	// ---- xplat add: enable the platforms skipped at scaffold ---------------
+	if (!quick) {
+		await gate(
+			'xplat add ios android — post-scaffold enablement on packed CLI',
+			15 * 60 * 1000,
+			() => {
+				const r = run('pnpm', ['exec', 'xplat', 'add', 'ios', 'android'], appDir)
+				assert.equal(r.status, 0, `xplat add exited ${r.status}`)
+				assert.ok(
+					existsSync(join(appDir, 'nativescript.config.ts')),
+					'add produced no nativescript.config.ts',
+				)
+
+				assert.ok(
+					existsSync(join(appDir, 'App_Resources/iOS')),
+					'add produced no App_Resources/iOS',
+				)
+				assert.ok(
+					existsSync(join(appDir, 'App_Resources/Android')),
+					'add produced no App_Resources/Android',
+				)
+
+				const manifest = JSON.parse(readFileSync(consumerManifestPath, 'utf8'))
+				assert.ok(manifest.devDependencies['@nativescript/ios'], 'add missed @nativescript/ios')
+				assert.ok(
+					manifest.devDependencies['@nativescript/android'],
+					'add missed @nativescript/android',
+				)
+			},
+		)
+	}
+
+	// ---- consumer gates ------------------------------------------------------
+	await gate('installed UI source compiles in the development server', 60 * 1000, () => {
+		const check = join(appDir, 'verify-source-dev.ts')
+		writeFileSync(
+			check,
+			`import assert from 'node:assert/strict'
+import { createServer } from 'vite'
+import { readFileSync, realpathSync } from 'node:fs'
+import { join } from 'node:path'
+const server = await createServer({ server: { middlewareMode: true, watch: null, hmr: false } })
+try {
+  const root = realpathSync('node_modules/@octane-xplat/ui')
+  const file = join(root, 'src/Text.web.tsrx')
+  const source = readFileSync(file, 'utf8')
+  assert.match(source, /@\\{/)
+  const result = await server.transformRequest('/@fs/' + file)
+  assert.ok(result?.code)
+  assert.doesNotMatch(result.code, /@\\{/)
+} finally { await server.close() }
+`,
+		)
+
+		try {
+			const r = run('node', [check], appDir)
+			assert.equal(r.status, 0, 'development transform of installed TSRX failed')
+		} finally {
+			rmSync(check, { force: true })
+		}
+	})
+
+	for (const [name, argv] of [
+		...(!quick
+			? [
+					['pnpm lint', ['lint']],
+					['pnpm typecheck (web + native)', ['typecheck']],
+				]
+			: []),
+		['pnpm build — web bundle from packed ui', ['build']],
+		...(!quick ? [['pnpm xplat doctor', ['exec', 'xplat', 'doctor']]] : []),
+	]) {
+		await gate(name, 10 * 60 * 1000, () => {
+			const r = run('pnpm', argv, appDir)
+			assert.equal(r.status, 0, `${name} exited ${r.status}`)
+		})
+	}
+
+	if (!quick) {
+		await gate(
+			'library starter installs and publishes source with isolated declarations',
+			15 * 60 * 1000,
+			() => {
+				const workspaceFile = join(libraryDir, 'pnpm-workspace.yaml')
+				const overrides = [...tarballs]
+					.map(([name, tarball]) => `  "${name}": file:${tarball}`)
+					.join('\n')
+
+				writeFileSync(
+					workspaceFile,
+					`${readFileSync(workspaceFile, 'utf8')}\noverrides:\n${overrides}\n`,
+				)
+
+				for (const argv of [
+					['install'],
+					['typegen'],
+					['typecheck'],
+					['lint'],
+					['test'],
+					['test:packed'],
+				]) {
+					const r = run('pnpm', argv, libraryDir)
+					assert.equal(r.status, 0, `library pnpm ${argv.join(' ')} exited ${r.status}`)
+				}
+			},
+		)
+	}
+
+	// ---- optional browser smoke ---------------------------------------------
+	if (smokeTargets.includes('web')) {
+		await gate('browser smoke — packed ui renders the starter', 3 * 60 * 1000, async () => {
+			// Grab a free port — stale previews from other runs hold fixed ports.
+			const { createServer } = await import('node:net')
+			const port = await new Promise((resolve) => {
+				const server = createServer()
+				server.listen(0, () => {
+					const p = server.address().port
+					server.close(() => resolve(p))
+				})
+			})
+
+			const preview = spawn(
+				'pnpm',
+				['exec', 'vite', 'preview', '--port', String(port), '--strictPort'],
+				{
+					cwd: appDir,
+					detached: true,
+					stdio: ['ignore', 'pipe', 'pipe'],
+				},
+			)
+
+			let browser
+			let browsers
+			try {
+				await new Promise((resolve, reject) => {
+					const timer = setTimeout(
+						() => reject(new Error('vite preview never printed Local')),
+						30000,
+					)
+
+					preview.stdout.on('data', (chunk) => {
+						if (String(chunk).includes('Local')) {
+							clearTimeout(timer)
+							resolve()
+						}
+					})
+
+					preview.on('error', reject)
+					preview.on('exit', (code) => reject(new Error(`vite preview exited ${code}`)))
+				})
+
+				await new Promise((resolve) => setTimeout(resolve, 500))
+
+				const { createRequire } = await import('node:module')
+				const require = createRequire(join(repoRoot, 'apps/web/package.json'))
+				const playwright = require('playwright')
+				browsers = (process.env.XPLAT_WEB_BROWSERS ?? 'chromium')
+					.split(',')
+					.map((name) => name.trim())
+					.filter(Boolean)
+
+				assert.ok(browsers.length, 'XPLAT_WEB_BROWSERS selected no browser engines')
+				for (const browserName of browsers) {
+					console.log(`[verify] browser smoke (${browserName})`)
+					const browserType = playwright[browserName]
+					assert.ok(browserType, `Unsupported Playwright browser: ${browserName}`)
+					browser = await browserType.launch()
+					try {
+						const page = await browser.newPage()
+						const errors = []
+						page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`))
+						page.on(
+							'console',
+							(m) => m.type() === 'error' && errors.push(`console.error: ${m.text()}`),
+						)
+
+						await page.goto(`http://localhost:${port}`, {
+							waitUntil: 'networkidle',
+							timeout: 30000,
+						})
+
+						await page.waitForSelector('.title', { timeout: 10000 })
+						assert.equal(await page.locator('.title').innerText(), 'octane-xplat')
+						assert.equal(await page.locator('.count').innerText(), '0')
+						await page.click('.btn:has-text("+")')
+						assert.equal(await page.locator('.count').innerText(), '1')
+						assert.equal(errors.length, 0, errors.join('; '))
+					} finally {
+						await browser.close()
+						browser = undefined
+					}
+				}
+			} finally {
+				await browser?.close().catch(() => {})
+				try {
+					process.kill(-preview.pid, 'SIGTERM')
+				} catch {
+					preview.kill('SIGTERM')
+				}
+			}
+
+			return browsers.join(', ')
+		})
+	}
+
+	// ---- optional native builds + iOS sim smoke ------------------------------
+	for (const platform of nativeTargets) {
+		await gate(
+			`ns build ${platform} — packed artifacts produce a native app`,
+			30 * 60 * 1000,
+			() => {
+				const r = run(
+					'pnpm',
+					['exec', 'ns', 'build', platform],
+					appDir,
+					platform === 'android' && process.env.VERIFY_JAVA_HOME
+						? { JAVA_HOME: process.env.VERIFY_JAVA_HOME }
+						: {},
+				)
+
+				assert.equal(r.status, 0, `ns build ${platform} exited ${r.status}`)
+			},
+		)
+	}
+
+	if (smokeIos) {
+		await gate(
+			'iOS simulator smoke — packed build installs, launches, stays alive',
+			5 * 60 * 1000,
+			async () => {
+				const buildDir = join(appDir, 'platforms', 'ios', 'build')
+				assert.ok(existsSync(buildDir), 'no ios build output')
+				const find = run('find', [buildDir, '-name', '*.app', '-type', 'd'], work)
+				const appPath = find.stdout.trim().split('\n').find(Boolean)
+				assert.ok(appPath, 'no .app under platforms/ios/build')
+
+				const list = run('xcrun', ['simctl', 'list', 'devices', 'available', '-j'], work)
+				const sims = Object.values(JSON.parse(list.stdout).devices)
+					.flat()
+					.filter((d) => d.isAvailable && /iPhone/.test(d.name))
+
+				const sim = process.env.VERIFY_IOS_DEVICE
+					? sims.find((d) => d.udid === process.env.VERIFY_IOS_DEVICE)
+					: (sims.find((d) => d.state === 'Booted') ?? sims[0])
+
+				assert.ok(sim, 'no available iPhone simulator matching VERIFY_IOS_DEVICE')
+
+				run('xcrun', ['simctl', 'bootstatus', sim.udid, '-b'], work) // waits; ok if already booted
+				const install = run('xcrun', ['simctl', 'install', sim.udid, appPath], work)
+				assert.equal(install.status, 0, `simctl install failed: ${install.stderr}`)
+
+				const idMatch = readFileSync(join(appDir, 'nativescript.config.ts'), 'utf8').match(
+					/id:\s*'([^']+)'/,
+				)
+
+				assert.ok(idMatch, 'could not read app id from nativescript.config.ts')
+				const bundleId = idMatch[1]
+
+				const launch = run('xcrun', ['simctl', 'launch', sim.udid, bundleId], work)
+				assert.equal(launch.status, 0, `simctl launch failed: ${launch.stderr}`)
+				const pid = Number(launch.stdout.match(/:\s*(\d+)/)?.[1] ?? 0)
+				assert.ok(pid > 0, `no pid in launch output: ${launch.stdout}`)
+
+				// Let the app run, then read its log — fatal/JS-error signatures fail.
+				await new Promise((resolve) => setTimeout(resolve, 12000))
+				const log = run(
+					'xcrun',
+					[
+						'simctl',
+						'spawn',
+						sim.udid,
+						'log',
+						'show',
+						'--last',
+						'20s',
+						'--style',
+						'compact',
+						'--predicate',
+						`processID == ${pid}`,
+					],
+					work,
+				)
+
+				const services = run('xcrun', ['simctl', 'spawn', sim.udid, 'launchctl', 'list'], work)
+				assert.ok(
+					services.stdout.includes(bundleId),
+					'app is not in launchctl list after 12s — it crashed or was killed',
+				)
+
+				assert.ok(
+					!/fatal|Terminating|JavaScript error|JS ERROR|unhandled/i.test(log.stdout),
+					`app log shows an error:\n${log.stdout.slice(-2000)}`,
+				)
+
+				run('xcrun', ['simctl', 'terminate', sim.udid, bundleId], work)
+				return `booted ${sim.name}, pid ${pid}`
+			},
+		)
+	}
+
+	// ---- optional on-device spec suite --------------------------------------
+	if (testIos) {
+		await gate(
+			'ns test ios — scaffolded on-device specs run in the packed app runtime',
+			30 * 60 * 1000,
+			() => {
+				const list = run('xcrun', ['simctl', 'list', 'devices', 'available', '-j'], work)
+				assert.equal(list.status, 0, 'simctl list failed')
+				const sims = Object.values(JSON.parse(list.stdout).devices)
+					.flat()
+					.filter((d) => d.isAvailable && /iPhone/.test(d.name))
+
+				const sim = process.env.VERIFY_IOS_DEVICE
+					? (sims.find((d) => d.udid === process.env.VERIFY_IOS_DEVICE) ?? {
+							udid: process.env.VERIFY_IOS_DEVICE,
+							name: process.env.VERIFY_IOS_DEVICE,
+						})
+					: (sims.find((d) => d.state === 'Booted') ?? sims[0])
+
+				assert.ok(sim, 'no available iPhone simulator')
+
+				// Xcode 27 hosts have no Simulator.app — `ns run` can only target
+				// an already-booted device, so boot here and wait (both are
+				// no-ops when the simulator is already up).
+				run('xcrun', ['simctl', 'boot', sim.udid], work)
+				const boot = run('xcrun', ['simctl', 'bootstatus', sim.udid, '-b'], work)
+				assert.equal(boot.status, 0, `simctl bootstatus failed: ${boot.stderr}`)
+
+				const r = run('pnpm', ['test:ios'], appDir, { NS_DEVICE: sim.udid })
+				assert.equal(r.status, 0, `ns test ios exited ${r.status}`)
+
+				const summary = r.stdout
+					.split('\n')
+					.filter((line) => /Test Files|Tests\s+\d+/.test(line))
+					.join(' ')
+					.trim()
+
+				return `booted ${sim.name}${summary ? ` — ${summary}` : ''}`
+			},
+		)
+	}
+
+	if (testAndroid) {
+		await gate(
+			'ns test android — scaffolded on-device specs run in the packed app runtime',
+			30 * 60 * 1000,
+			() => {
+				return verifyAndroidTests({ appDir, work, device: process.env.VERIFY_ANDROID_DEVICE, run })
+			},
+		)
+	}
+
+	report()
+} finally {
+	// GitHub-hosted runners discard the VM; deleting this install is slower than teardown.
+	if (!keep && process.env.GITHUB_ACTIONS !== 'true') {
+		rmSync(work, { recursive: true, force: true })
+	} else if (keep) {
+		console.log(`[verify] work dir kept at ${work}`)
+	}
+}

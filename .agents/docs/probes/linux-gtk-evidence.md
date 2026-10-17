@@ -20,7 +20,7 @@ Boss deliverable `21b03833-bda7-4b30-b053-65f5d7cfdb93`. The example assumes
 you placed a read-only copy of those files in `research/linux-gtk-proof/evidence/`:
 
 ```sh
-node scripts/probe/linux-gtk-evidence.mjs \
+node scripts/probe/linux-gtk-evidence.ts \
   research/linux-gtk-proof/evidence/run16-proof-log.jsonl \
   research/linux-gtk-proof/evidence/run16-orchestrator.jsonl
 ```
@@ -64,7 +64,7 @@ shape as the retained logs plus the record set declared by the
 `contract-header` and a terminal `run-status`. Assess it with:
 
 ```sh
-node scripts/probe/linux-gtk-evidence.mjs --contract PROOF_JSONL ORCHESTRATOR_JSONL
+node scripts/probe/linux-gtk-evidence.ts --contract PROOF_JSONL ORCHESTRATOR_JSONL
 ```
 
 Exit 0 `pass`, exit 1 `fail`, exit 3 `blocked`, exit 2 unreadable input.

@@ -23,7 +23,7 @@ pnpm exec tsrx-tsc --noEmit -p apps/mobile/tsconfig.json
 
 # tests + seam lint
 pnpm test                                       # vitest
-node scripts/check-no-dom.mjs                   # no DOM globals in native/shared files
+node scripts/check-no-dom.ts                   # no DOM globals in native/shared files
 
 # web
 cd apps/web && pnpm dev                         # dev server :5200

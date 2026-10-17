@@ -197,7 +197,7 @@ const color = select({ web: '#4f46e5', native: '#4338ca', default: '#4f46e5' })
 
 One combined program per package/app — `tsconfig.envs.json` declares file
 claims per environment (`environments.<env>.files|include|exclude`) and
-`scripts/typecheck.mjs` expands the manifest into a single `all.json` under
+`scripts/typecheck.ts` expands the manifest into a single `all.json` under
 `node_modules/.cache/xplat-typecheck/` via the shared presets in
 `packages/cli/src/tsconfig-envs.ts`:
 

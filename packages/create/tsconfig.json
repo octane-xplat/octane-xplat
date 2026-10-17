@@ -1,0 +1,10 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"types": ["node"],
+		"lib": ["ESNext"],
+		"noImplicitAny": false,
+		"useUnknownInCatchVariables": false
+	},
+	"include": ["index.ts", "scaffold.ts"]
+}

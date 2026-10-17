@@ -31,7 +31,7 @@ build:packages`, `pnpm build:web`, and the package-test half of `pnpm test`
   `pnpm typecheck`'s scope.
 - **Package typechecks use one `tsconfig.envs.json` per package** — never
   `tsconfig.<platform>.json`. The manifest declares the checked surface once
-  (`environments.<env>.files|include|exclude`); `scripts/typecheck.mjs`
+  (`environments.<env>.files|include|exclude`); `scripts/typecheck.ts`
   expands the declared environments into **one combined program** using the
   shared presets in `packages/cli/src/tsconfig-envs.ts` (lib / ambient /
   types merged; `jsxImportSource` defaults to `octane` with per-file pragmas
@@ -136,10 +136,10 @@ tcp:5173`. Dev-session mode is activated only by `ns run`'s livesync launch;
   retargeting for installed packages. `prepack` prepares declarations;
   Node tooling and embedded browser documents retain asset builds. See the
   [publish model](notes/toolchain-notes.md#shared-packages-publish-model).
-- Lint: `pnpm lint` = oxlint (JS plugin in `scripts/oxlint-plugin.mjs`) + a
-  `@tsrx/core` companion pass for `.tsrx` (`scripts/lint-tsrx.mjs`) — oxlint
+- Lint: `pnpm lint` = oxlint (JS plugin in `scripts/oxlint-plugin.ts`) + a
+  `@tsrx/core` companion pass for `.tsrx` (`scripts/lint-tsrx.ts`) — oxlint
   can't load custom parsers. Rule checks live once in
-  `scripts/xplat-rules.mjs` and run in both passes; severities/options come
+  `scripts/xplat-rules.ts` and run in both passes; severities/options come
   from `.oxlintrc.json`. The `xplat/*` set enforces the platform-suffix
   boundaries (DOM globals, web-only octane APIs, element vocabularies,
   `@nativescript` imports, NS-dead `style` props, signal naming/runtime) —

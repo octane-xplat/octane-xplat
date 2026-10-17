@@ -3,7 +3,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
-import { checkDecisions, readDocDecisions } from './check-decisions.mjs'
+import { checkDecisions, readDocDecisions } from './check-decisions.ts'
 
 const ledger = `# Decisions
 

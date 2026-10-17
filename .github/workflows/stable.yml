@@ -39,7 +39,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
         run: >-
-          node scripts/verify-release-evidence.mjs verify --track nightly
+          node scripts/verify-release-evidence.ts verify --track nightly
           --sha "$TESTED_SHA" --run-id "$SOURCE_RUN_ID"
       - name: Require successful nightly gates
         if: steps.evidence.outputs.channel != 'nightly'
@@ -95,7 +95,7 @@ jobs:
       # it installs + launches on a booted iPhone sim (simctl install/launch
       # on an already-booted device — ns run ios reboots and fails).
       - name: Packed consumer iOS build + simulator smoke
-        run: node scripts/with-target-lock.mjs ios -- node scripts/verify-consumer.mjs --no-build --native ios --smoke-ios
+        run: node scripts/with-target-lock.ts ios -- node scripts/verify-consumer.ts --no-build --native ios --smoke-ios
 
   # Framework regression lane: the apps/mobile on-device Vitest suite runs in
   # the real NS runtime on a simulator. `ns test` builds the unitTesting
@@ -139,7 +139,7 @@ jobs:
       # (OOM before emit → the .app has no bundle.js and the worker never
       # connects). macos runners have ~14GB; give the build headroom.
       - name: On-device Vitest suite (apps/mobile)
-        run: node scripts/with-target-lock.mjs ios -- pnpm --filter @xplat/mobile test:ios -- --device "$SIM_UDID"
+        run: node scripts/with-target-lock.ts ios -- pnpm --filter @xplat/mobile test:ios -- --device "$SIM_UDID"
         env:
           NODE_OPTIONS: '--max-old-space-size=6144'
 
@@ -175,7 +175,7 @@ jobs:
       # — this is a build check, not Play-store distribution evidence. No
       # emulator runtime smoke yet (documented gap).
       - name: Packed consumer Android build
-        run: node scripts/with-target-lock.mjs android -- node scripts/verify-consumer.mjs --no-build --native android
+        run: node scripts/with-target-lock.ts android -- node scripts/verify-consumer.ts --no-build --native android
         env:
           # ns gates `build` on its doctor check, which requires a working
           # `emulator` binary — unused by a build-only lane and absent/broken
@@ -198,7 +198,7 @@ jobs:
           JOB_RESULTS: ${{ toJSON(needs) }}
           NIGHTLY_RUN_ID: ${{ github.event.workflow_run.id }}
         run: >-
-          node scripts/verify-release-evidence.mjs record --track stable
+          node scripts/verify-release-evidence.ts record --track stable
           --jobs "$JOB_RESULTS" --sha "$TESTED_SHA" --run-id "$GITHUB_RUN_ID"
           --nightly-run-id "$NIGHTLY_RUN_ID"
       - uses: actions/upload-artifact@v6

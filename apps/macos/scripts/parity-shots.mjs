@@ -3,7 +3,7 @@
 // it writes a per-cell geometry sidecar (parity-report/shots/macos/
 // shot-NNN.cells.json) and waits for a window capture to appear at
 // shot-NNN.png — captured externally (Computer Use, screencapture -l, …)
-// at 2x backing scale. scripts/parity-shots-compare.mjs pairs the crops
+// at 2x backing scale. scripts/parity-shots-compare.ts pairs the crops
 // with the web captures.
 import { createInterface } from 'node:readline'
 import { spawn } from 'node:child_process'

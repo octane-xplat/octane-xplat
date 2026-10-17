@@ -46,7 +46,7 @@
 	},
 	"scripts": {
 		"typegen": "tsrx-typegen --target icons",
-		"typecheck": "node ../../scripts/typecheck.mjs",
+		"typecheck": "node ../../scripts/typecheck.ts",
 		"test": "node --test tests/*.test.mjs",
 		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check",

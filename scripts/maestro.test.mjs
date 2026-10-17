@@ -28,7 +28,7 @@ function fixture(t) {
 		apk,
 		app,
 		run(args, env = {}) {
-			return spawnSync(process.execPath, ['scripts/maestro.mjs', ...args], {
+			return spawnSync(process.execPath, ['scripts/maestro.ts', ...args], {
 				encoding: 'utf8',
 				env: { ...process.env, PATH: dir, MAESTRO_TEST_LOG: log, ...env },
 			})

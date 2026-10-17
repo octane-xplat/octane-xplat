@@ -31,7 +31,7 @@ suffixes.
      Runtime branching (`isNative`, `Platform.OS`) swaps values inside one
      file; it cannot change which renderer owns the file or mix `<div>` with
      `<gridlayout>`. Divergent element vocabulary must be a file split.
-2. **No DOM globals in native implementations** — `scripts/check-no-dom.mjs`
+2. **No DOM globals in native implementations** — `scripts/check-no-dom.ts`
    and lint enforce this. The browser-specific module owns `document`,
    `window`, `localStorage`, `HTMLElement`, and other DOM APIs.
 3. **Hooks only in `.tsx`/`.tsrx`.** Plain `.ts` files: no hook calls

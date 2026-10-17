@@ -94,7 +94,7 @@ jobs:
         with:
           node-version: 24
       - name: Check recipe structure and documentation links
-        run: node scripts/check-recipes.mjs
+        run: node scripts/check-recipes.ts
 
   # Completing this workflow releases the nightly and starts stable qualification
   # independently. Neither path waits for native jobs in this workflow.
@@ -111,7 +111,7 @@ jobs:
         env:
           JOB_RESULTS: ${{ toJSON(needs) }}
         run: >-
-          node scripts/verify-release-evidence.mjs record --track nightly
+          node scripts/verify-release-evidence.ts record --track nightly
           --jobs "$JOB_RESULTS" --sha "$GITHUB_SHA" --run-id "$GITHUB_RUN_ID"
       - uses: actions/upload-artifact@v6
         with:

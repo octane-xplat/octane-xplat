@@ -2,9 +2,9 @@ import { mkdtempSync, writeFileSync, mkdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { describe, expect, it } from 'vitest'
-import { withWorkshopMobile, MOBILE_CATALOG_ID, mobileCatalogCode } from '../src/vite-mobile.mjs'
-import { transformMobileRegex } from '../src/mobile-regex.mjs'
-import { mobilePrerequisites, mobileLaunchSpec } from '../src/mobile-node.mjs'
+import { withWorkshopMobile, MOBILE_CATALOG_ID, mobileCatalogCode } from '../dist/build/vite-mobile.js'
+import { transformMobileRegex } from '../dist/build/mobile-regex.js'
+import { mobilePrerequisites, mobileLaunchSpec } from '../dist/build/mobile-node.js'
 
 function consumer() {
 	const root = mkdtempSync(join(tmpdir(), 'workshop-mobile-'))

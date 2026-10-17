@@ -120,11 +120,11 @@ pnpm --filter @xplat/mobile test:android -- --device DEVICE_ID
   template. `xplat add ios`/`android` materializes it for existing
   web-only scaffolds; `ns test android` shares the setup but is unverified
   (lane qualified on iOS only).
-- `node scripts/verify-consumer.mjs --test-ios` runs the scaffolded suite in
+- `node scripts/verify-consumer.ts --test-ios` runs the scaffolded suite in
   a packed consumer (boots/selects an iPhone sim, `VERIFY_IOS_DEVICE` pins a
   UDID) — exercises the packed cli overlay, packed platform `/testing`, and
   the consumer's App_Resources.
-- `node scripts/verify-consumer.mjs --test-android` requires
+- `node scripts/verify-consumer.ts --test-android` requires
   `VERIFY_ANDROID_DEVICE` naming an already-booted, owned/authorized host and
   `adb` on PATH. Reserve `native_builds:1`, `resident_devices:1`, and
   `exclusive:["android:<AVD>"]` around the command. It uses a disposable app

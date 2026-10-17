@@ -1,4 +1,4 @@
-import { loadSource } from '../../../scripts/load-source.mjs'
+import { loadSource } from '../../../scripts/load-source.ts'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 

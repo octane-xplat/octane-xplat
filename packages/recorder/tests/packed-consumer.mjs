@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { loadSource } from '../../../scripts/load-source.mjs'
+import { loadSource } from '../../../scripts/load-source.ts'
 import { pathToFileURL } from 'node:url'
 import { spawnSync } from 'node:child_process'
 import {

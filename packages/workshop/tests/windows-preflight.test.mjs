@@ -2,8 +2,8 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { windowsLaunchBlocker, windowsPreflight } from '../src/windows/preflight.mjs'
-import { workshopDev, workshopDoctor } from '../src/node.mjs'
+import { windowsLaunchBlocker, windowsPreflight } from '../dist/build/windows/preflight.js'
+import { workshopDev, workshopDoctor } from '../dist/build/node.js'
 
 const roots = []
 afterEach(() => {

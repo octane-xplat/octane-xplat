@@ -1,6 +1,6 @@
 // Maintained release-lifecycle regression. Run under the repository target lock:
-// node scripts/with-target-lock.mjs ios -- node packages/updates/tests/native-lifecycle.mjs --target ios --device UDID
-// node scripts/with-target-lock.mjs android -- node packages/updates/tests/native-lifecycle.mjs --target android --device SERIAL
+// node scripts/with-target-lock.ts ios -- node packages/updates/tests/native-lifecycle.mjs --target ios --device UDID
+// node scripts/with-target-lock.ts android -- node packages/updates/tests/native-lifecycle.mjs --target android --device SERIAL
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { createServer } from 'node:http'
@@ -9,8 +9,8 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseArgs } from 'node:util'
 import { zipSync } from 'fflate/browser'
-import { prepare, filesUnder } from '../../../scripts/probe/project.mjs'
-import { command } from '../../../scripts/probe/process.mjs'
+import { prepare, filesUnder } from '../../../scripts/probe/project.ts'
+import { command } from '../../../scripts/probe/process.ts'
 import { initializeUpdates } from '../../cli/src/commands/updates.ts'
 
 const { values } = parseArgs({

@@ -99,9 +99,9 @@ jobs:
           if [ "$RELEASE_TRACK" = stable ] && [ -n "$CI_RUN_ID" ]; then
             # Stable CI records its triggering push SHA, which can differ from
             # workflow_run's default-branch head_sha when main advances.
-            node scripts/verify-release-evidence.mjs verify --track stable --run-id "$CI_RUN_ID"
+            node scripts/verify-release-evidence.ts verify --track stable --run-id "$CI_RUN_ID"
           else
-            node scripts/verify-release-evidence.mjs verify --track "$RELEASE_TRACK" \
+            node scripts/verify-release-evidence.ts verify --track "$RELEASE_TRACK" \
               --sha "$TESTED_SHA" ${CI_RUN_ID:+--run-id "$CI_RUN_ID"}
           fi
 
@@ -180,14 +180,14 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ${{ runner.temp }}/trusted-publishers.json
-          key: trusted-publishers-${{ github.job }}-${{ hashFiles('scripts/check-trusted-publishers.mjs', '.github/workflows/release.yml') }}-${{ github.run_id }}-${{ github.run_attempt }}
+          key: trusted-publishers-${{ github.job }}-${{ hashFiles('scripts/check-trusted-publishers.ts', '.github/workflows/release.yml') }}-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: |
-            trusted-publishers-${{ github.job }}-${{ hashFiles('scripts/check-trusted-publishers.mjs', '.github/workflows/release.yml') }}-
+            trusted-publishers-${{ github.job }}-${{ hashFiles('scripts/check-trusted-publishers.ts', '.github/workflows/release.yml') }}-
 
       - name: Verify npm trusted publishing
         env:
           TRUSTED_PUBLISHERS_CACHE: ${{ runner.temp }}/trusted-publishers.json
-        run: node scripts/check-trusted-publishers.mjs
+        run: node scripts/check-trusted-publishers.ts
 
       - name: Save trusted-publisher checks
         uses: actions/cache/save@v4
@@ -200,7 +200,7 @@ jobs:
 
       - name: Bump lockstep versions
         if: steps.version.outputs.should_release == 'true'
-        run: node scripts/bump-versions.mjs "${{ steps.version.outputs.version }}"
+        run: node scripts/bump-versions.ts "${{ steps.version.outputs.version }}"
 
       - name: Generate changelog
         id: changelog
@@ -276,7 +276,7 @@ jobs:
 
       - name: Bump lockstep versions (nightly)
         if: needs.gate.outputs.channel == 'nightly'
-        run: node scripts/bump-versions.mjs "${{ steps.nightly.outputs.version }}"
+        run: node scripts/bump-versions.ts "${{ steps.nightly.outputs.version }}"
 
       - name: Publish nightly to npm
         if: needs.gate.outputs.channel == 'nightly'
@@ -363,14 +363,14 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ${{ runner.temp }}/trusted-publishers.json
-          key: trusted-publishers-${{ github.job }}-${{ hashFiles('scripts/check-trusted-publishers.mjs', '.github/workflows/release.yml') }}-${{ github.run_id }}-${{ github.run_attempt }}
+          key: trusted-publishers-${{ github.job }}-${{ hashFiles('scripts/check-trusted-publishers.ts', '.github/workflows/release.yml') }}-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: |
-            trusted-publishers-${{ github.job }}-${{ hashFiles('scripts/check-trusted-publishers.mjs', '.github/workflows/release.yml') }}-
+            trusted-publishers-${{ github.job }}-${{ hashFiles('scripts/check-trusted-publishers.ts', '.github/workflows/release.yml') }}-
 
       - name: Verify npm trusted publishing
         env:
           TRUSTED_PUBLISHERS_CACHE: ${{ runner.temp }}/trusted-publishers.json
-        run: node scripts/check-trusted-publishers.mjs tsrx-typegen
+        run: node scripts/check-trusted-publishers.ts tsrx-typegen
 
       - name: Save trusted-publisher checks
         uses: actions/cache/save@v4

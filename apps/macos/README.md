@@ -210,7 +210,7 @@ host through the same scroll sweep, writing `shot-NNN.png` plus a
 driver cannot capture its own window; it signals each pending capture through
 the window title (`title shot-NNN` stdin command), so an external capturer —
 Goddard Computer Use via `get_window_state` — polls the title and writes each
-PNG to the expected path. `node scripts/parity-shots-compare.mjs --diffs` then
+PNG to the expected path. `node scripts/parity-shots-compare.ts --diffs` then
 pairs per-fixture crops by window-space geometry (not shot index, so tab-bar
 and title chrome differences do not bias the result) and ranks fixtures by
 pixel difference. Additional automation stdin commands: `scrolltop <n>`,

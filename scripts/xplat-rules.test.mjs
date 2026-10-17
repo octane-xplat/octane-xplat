@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { parseModule } from '@tsrx/core'
-import { checkNoDomGlobals } from './xplat-rules.mjs'
+import { checkNoDomGlobals } from './xplat-rules.ts'
 
 function violations(source, filename = 'sample.macos.ts') {
 	return checkNoDomGlobals(parseModule(source, filename), source, filename).map(

@@ -4,7 +4,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { checkPackedPackage, verifyPackedPackage } from '../src/pack-check.mjs'
+import { checkPackedPackage, verifyPackedPackage } from '../dist/pack-check.js'
 
 const toolRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const fixtureRoot = resolve(toolRoot, '../typegen-fixture')

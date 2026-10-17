@@ -105,7 +105,7 @@ on an already-booted Android test host. This qualification command requires
 someone else's device. Android remains unverified until the device suite passes.
 
 ```sh
-VERIFY_ANDROID_DEVICE=AUTHORIZED_DEVICE_SERIAL node scripts/verify-consumer.mjs --test-android --keep
+VERIFY_ANDROID_DEVICE=AUTHORIZED_DEVICE_SERIAL node scripts/verify-consumer.ts --test-android --keep
 ```
 
 Replace `AUTHORIZED_DEVICE_SERIAL` with the explicitly authorized test host’s

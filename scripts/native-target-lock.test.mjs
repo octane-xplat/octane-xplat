@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import test from 'node:test'
-import { command, ownedProcess } from './probe/process.mjs'
+import { command, ownedProcess } from './probe/process.ts'
 
 test('native target lock survives interruption until child cleanup finishes', async () => {
 	const directory = await mkdtemp(join(tmpdir(), 'xplat-lock-test-'))

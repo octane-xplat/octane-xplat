@@ -8,7 +8,7 @@ failure-shutdown and whole-run bounds open. This policy fills those without
 altering any contract criterion. It authorizes no runtime execution — Linux VM
 admission is still externally blocked, so the run itself remains held.
 
-The policy is also encoded in `scripts/probe/linux-gtk-evidence.mjs` as
+The policy is also encoded in `scripts/probe/linux-gtk-evidence.ts` as
 `RUN_POLICY`, and `assessContractRun` evaluates evidence against it
 fail-closed. A run may tighten a bound in its declared `contract-header`
 policy but may never relax one.

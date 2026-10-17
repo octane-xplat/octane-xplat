@@ -7,38 +7,67 @@
 			"entrypoints": {
 				".": {
 					"source": "src/index.ts",
-					"runtime": ["./src/index.ts", "./dist/node/index.js"],
-					"types": ["./types/generated/index.d.ts"]
+					"runtime": [
+						"./src/index.ts",
+						"./dist/index.js"
+					],
+					"types": [
+						"./types/generated/index.d.ts"
+					]
 				},
 				"./web": {
 					"source": "src/web/index.web.ts",
-					"runtime": ["./src/web/index.web.ts"],
-					"types": ["./types/generated/web/index.web.d.ts"]
+					"runtime": [
+						"./src/web/index.web.ts"
+					],
+					"types": [
+						"./types/generated/web/index.web.d.ts"
+					]
 				},
 				"./vite": {
 					"source": "src/index.ts",
-					"runtime": ["./src/vite.mjs"],
-					"types": ["./src/vite.d.ts"]
+					"runtime": [
+						"./dist/build/vite.js"
+					],
+					"types": [
+						"./src/build/vite.d.ts"
+					]
 				},
 				"./node": {
 					"source": "src/index.ts",
-					"runtime": ["./src/node.mjs"],
-					"types": ["./src/node.d.ts"]
+					"runtime": [
+						"./dist/build/node.js"
+					],
+					"types": [
+						"./src/build/node.d.ts"
+					]
 				},
 				"./mobile": {
 					"source": "src/mobile/index.mobile.ts",
-					"runtime": ["./src/mobile/index.mobile.ts"],
-					"types": ["./types/generated/mobile/index.mobile.d.ts"]
+					"runtime": [
+						"./src/mobile/index.mobile.ts"
+					],
+					"types": [
+						"./types/generated/mobile/index.mobile.d.ts"
+					]
 				},
 				"./vite-mobile": {
 					"source": "src/index.ts",
-					"runtime": ["./src/vite-mobile.mjs"],
-					"types": ["./src/vite-mobile.d.ts"]
+					"runtime": [
+						"./dist/build/vite-mobile.js"
+					],
+					"types": [
+						"./src/build/vite-mobile.d.ts"
+					]
 				},
 				"./macos": {
 					"source": "src/macos/index.macos.ts",
-					"runtime": ["./src/macos/index.macos.ts"],
-					"types": ["./types/generated/macos/index.macos.d.ts"]
+					"runtime": [
+						"./src/macos/index.macos.ts"
+					],
+					"types": [
+						"./types/generated/macos/index.macos.d.ts"
+					]
 				}
 			}
 		}

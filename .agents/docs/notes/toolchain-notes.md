@@ -367,7 +367,7 @@ pnpm check:pack
 `environments.<env>` declares each target's file set; shared presets supply
 `jsxImportSource`/`moduleSuffixes`/ambient types (`@nativescript/types`
 scoped to native). `tsrx-tsc --noEmit` per target in CI via
-`scripts/typecheck.mjs` / `xplat typecheck`.
+`scripts/typecheck.ts` / `xplat typecheck`.
 See module-resolution.md for the suffix-typing strategy.
 
 ```sh
@@ -488,7 +488,7 @@ Firefox, and WebKit — runs locally via `pnpm test:e2e`; browser downloads
 are too costly in CI. `check:no-dom`
 is the older static sweep; `xplat/no-dom-globals` covers it at lint time.
 
-`scripts/verify-consumer.mjs` (`check:consumer`) is the release-path
+`scripts/verify-consumer.ts` (`check:consumer`) is the release-path
 verification: it `pnpm pack`s every publishable package, scaffolds a starter
 through the PACKED `create-octane-xplat` bin (`--no-install`), rewrites the
 consumer's `@octane-xplat/*` deps to `file:` tarballs plus a materialized
@@ -521,14 +521,14 @@ pnpm check:consumer --no-build --quick
 
 Slow target jobs run in `stable.yml` after fast CI on `main`: `native-ios` (macos-latest) and
 `native-android` (ubuntu-latest with Temurin JDK 21) each wrap their run in
-`scripts/with-target-lock.mjs <target>` — a per-target advisory lock under
+`scripts/with-target-lock.ts <target>` — a per-target advisory lock under
 `$TMPDIR/octane-xplat-target-locks/` that serializes native builds and
 simulator/device use across concurrent worktrees and sessions on a shared
 host. Android has no emulator runtime smoke yet.
 
 Each workflow's `evidence` job writes `ci-evidence.json` and uploads it as
 `ci-evidence-<track>-<sha>`. Required jobs live in
-`scripts/release-channel.mjs`: nightly requires fast `checks`; stable requires
+`scripts/release-channel.ts`: nightly requires fast `checks`; stable requires
 verified nightly readiness, exhaustive packed consumers, and all native lanes.
 Stable evidence records the original nightly run ID as well as the tested SHA.
 

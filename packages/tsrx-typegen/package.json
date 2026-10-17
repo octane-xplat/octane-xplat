@@ -19,14 +19,23 @@
 		"directory": "packages/tsrx-typegen"
 	},
 	"bin": {
-		"tsrx-typegen": "./src/cli.mjs"
+		"tsrx-typegen": "./bin/tsrx-typegen.mjs"
 	},
 	"files": [
-		"src"
+		"src",
+		"dist",
+		"bin"
 	],
 	"type": "module",
 	"scripts": {
-		"test": "node tests/pack-check.mjs && node tests/packed-consumer.mjs"
+		"build": "vite build",
+		"prepack": "pnpm build",
+		"test": "pnpm build && node tests/pack-check.mjs && node tests/packed-consumer.mjs",
+		"typecheck": "tsc -p tsconfig.json"
+	},
+	"devDependencies": {
+		"@types/node": "24.10.1",
+		"vite": "catalog:"
 	},
 	"peerDependencies": {
 		"@tsrx/typescript-plugin": ">=0.4.11 <1",

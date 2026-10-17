@@ -1,3 +1,4 @@
+// @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 /** Host objects stay platform-specific; inspect() returns serializable fields. */
 export interface ProbeContext {
 	target: 'web' | 'ios' | 'android' | 'macos' | 'linux'

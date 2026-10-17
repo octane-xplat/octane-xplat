@@ -152,7 +152,7 @@
 		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",
 		"pack:check": "tsrx-typegen --pack-check",
-		"generate:native-types": "node scripts/generate-native-types.mjs"
+		"generate:native-types": "node scripts/generate-native-types.ts"
 	},
 	"dependencies": {
 		"@nativescript/macos-node-api": "catalog:"

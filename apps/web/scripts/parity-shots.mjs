@@ -2,7 +2,7 @@
 // 640x420 viewport at 2x device scale (matching the AppKit host's window
 // on a Retina display), and captures the stage at stepped scroll offsets.
 // Writes parity-report/shots/web/shot-NNN.png plus manifest.json holding
-// per-cell rects — scripts/parity-shots-compare.mjs pairs these with the
+// per-cell rects — scripts/parity-shots-compare.ts pairs these with the
 // macOS captures. Run after `vite build`.
 import { chromium } from 'playwright'
 import { spawn } from 'node:child_process'
