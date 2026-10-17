@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { createContext, createPortal, useContext, useEffect, useRef, useState } from 'octane'
+import { createContext, useContext, useEffect, useRef, useState } from 'octane'
+import { createPortal } from 'octane/universal/native'
 
 const PortalValue = createContext('Default')
 const PortalValueProvider: any = PortalValue
