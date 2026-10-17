@@ -244,7 +244,6 @@ export function Actions() {
 
   const AccountName = createContext('Guest')
   const AccountNameProvider: any = AccountName
-  ```
 
 function AccountLabel() {
 return <Text>{useContext(AccountName)}</Text>
@@ -258,7 +257,7 @@ return (
 )
 }
 
-````
+  ```
 
 ## Port notes — what carried over
 
@@ -324,7 +323,7 @@ function AccountActions() @{
   	/>
   </>
 }
-````
+```
 
 When the opener is the shared `Pressable`, use its `ref` prop to retain the
 web element in the same ref. This does not qualify iOS Safari or actual
