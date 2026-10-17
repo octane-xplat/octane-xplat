@@ -7,6 +7,10 @@ import * as application from '@nativescript/core/application'
 import * as applicationSettings from '@nativescript/core/application-settings'
 import * as platform from '@nativescript/core/platform'
 import * as uiImage from '@nativescript/core/ui/image'
+import * as cssParser from '@nativescript/core/css/parser'
+import * as editableTextBase from '@nativescript/core/ui/editable-text-base'
+import * as flexboxLayout from '@nativescript/core/ui/layouts/flexbox-layout'
+import * as cssShadow from '@nativescript/core/ui/styling/css-shadow'
 import * as utils from '@nativescript/core/utils'
 import lazy from '@nativescript/core/utils/lazy'
 import * as layoutHelper from '@nativescript/core/utils/layout-helper'
@@ -31,6 +35,12 @@ const modules = {
 	// tns_modules dir that bundled apps don't ship.
 	'@nativescript/core/platform': platform,
 	'@nativescript/core/ui/image': uiImage,
+	// MasonKit-level plugins reach deeper core subpaths (layout/style property
+	// objects that the root barrel doesn't re-export).
+	'@nativescript/core/css/parser': cssParser,
+	'@nativescript/core/ui/editable-text-base': editableTextBase,
+	'@nativescript/core/ui/layouts/flexbox-layout': flexboxLayout,
+	'@nativescript/core/ui/styling/css-shadow': cssShadow,
 	'@nativescript/core/utils': utils,
 	'@nativescript/core/utils/lazy': lazy,
 	'@nativescript/core/utils/layout-helper': layoutHelper,

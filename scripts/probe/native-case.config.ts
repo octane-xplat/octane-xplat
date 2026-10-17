@@ -40,6 +40,8 @@ export default async function nativeCaseConfig(project, target) {
 			__ANDROID__: JSON.stringify(target === 'android'),
 			__IOS__: JSON.stringify(target === 'ios'),
 			__VISIONOS__: 'false',
+			// Plugins with a windows target (masonkit) guard on this global.
+			__WINDOWS__: 'false',
 			__APPLE__: JSON.stringify(target === 'ios'),
 			'global.isAndroid': JSON.stringify(target === 'android'),
 			'global.isIOS': JSON.stringify(target === 'ios'),
