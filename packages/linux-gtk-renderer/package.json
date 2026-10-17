@@ -1,0 +1,54 @@
+{
+	"name": "@octane-xplat/linux-gtk",
+	"version": "0.0.0",
+	"private": true,
+	"description": "Experimental GTK4 renderer for Octane on Linux (GJS universal runtime)",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/octane-xplat/octane-xplat",
+		"directory": "packages/linux-gtk-renderer"
+	},
+	"files": [
+		"src",
+		"LICENSE"
+	],
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./src/index.d.ts",
+			"import": "./src/index.ts",
+			"default": "./src/index.ts"
+		},
+		"./intrinsics": {
+			"types": "./src/intrinsics.d.ts"
+		},
+		"./jsx-runtime": {
+			"types": "./src/jsx-runtime.d.ts"
+		},
+		"./jsx-dev-runtime": {
+			"types": "./src/jsx-runtime.d.ts"
+		},
+		"./host": {
+			"types": "./src/host.d.ts",
+			"import": "./src/host.ts",
+			"default": "./src/host.ts"
+		},
+		"./compat/native-core": "./src/native-core-shim.ts",
+		"./compat/escape-props": "./src/native-escape-props.ts"
+	},
+	"scripts": {
+		"test": "node --test test/build.test.mjs",
+		"typecheck": "tsc --noEmit -p tsconfig.json"
+	},
+	"devDependencies": {
+		"@octane-xplat/cli": "workspace:*",
+		"@octanejs/vite-plugin": "catalog:",
+		"octane": "catalog:",
+		"typescript": "catalog:",
+		"vite": "catalog:"
+	},
+	"peerDependencies": {
+		"octane": ">=0.6.3 <1"
+	}
+}
