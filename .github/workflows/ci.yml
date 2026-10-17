@@ -63,7 +63,10 @@ jobs:
       # @xplat/visual runs browser-mode vitest (Playwright) — excluded here;
       # it runs locally via the same `pnpm test` script.
       - name: Test
-        run: pnpm test --filter='!@xplat/visual'
+        run: >-
+          pnpm exec turbo run test test:native --filter='!@xplat/visual' &&
+          pnpm test:cli && pnpm test:create &&
+          node --test examples/auth/server-verification.test.mjs && pnpm test:scripts
 
       - name: Build web app
         run: pnpm build:web
