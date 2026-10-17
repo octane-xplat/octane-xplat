@@ -1038,6 +1038,9 @@ importers:
       '@clack/prompts':
         specifier: 1.8.1
         version: 1.8.1
+      '@octane-xplat/fmt':
+        specifier: 0.1.0
+        version: 0.1.0
       '@tsrx/core':
         specifier: 0.2.4
         version: 0.2.4
@@ -4650,6 +4653,37 @@ packages:
 
   '@nstudio/nativescript-exoplayer@6.2.0':
     resolution: {integrity: sha512-drZ1YHJciuCtkaWutHGYpzEdP6H1d7OrZusKH7sd1yJyTqx/7boFE49pjbEMS+5q2D4TVcbdBfW2k3tEv1CuUw==}
+
+  '@octane-xplat/fmt-darwin-arm64@0.1.0':
+    resolution: {integrity: sha512-ILEy9xjQc5X9w9njTnqZfmOoXAUJm0+go8LjCNzfv6VoJ2bQ6GqtaArlUH553r/nChTYlyLikwuZ8kHhvyJYhQ==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@octane-xplat/fmt-darwin-x64@0.1.0':
+    resolution: {integrity: sha512-zk57guNNqKQdaozkxvfOZblJQjbLHuiy3qkC63Ooe5cR5+LgZwuHFpW+ApCp1DBPgI0lZfhUdV8wwN3kszyqoA==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@octane-xplat/fmt-linux-x64-gnu@0.1.0':
+    resolution: {integrity: sha512-Xi4Y9o07B+eWiTIjfVnQYaB+TcuCaHqP5I3OczAFbwBJ2aGClzb0thAK2fGGEfLwCFUr9o5x9hOQ/8sEYaLg+A==}
+    cpu: [x64]
+    os: [linux]
+    libc: [glibc]
+
+  '@octane-xplat/fmt-linux-x64-musl@0.1.0':
+    resolution: {integrity: sha512-FfQ7+BwGWxI8Q25iaR8+d5fq+/JZgdhil26GvMbBaaGtwhrElMS39Cwgn5w4gKoQGL7oMoqtKJaWwrlO9OtkRA==}
+    cpu: [x64]
+    os: [linux]
+    libc: [musl]
+
+  '@octane-xplat/fmt-win32-x64@0.1.0':
+    resolution: {integrity: sha512-fxslFnHffqkXvT8AVGfY5Xt1Ej/hgSZRA7hKFV+u9XjJUunwZfDBzb+af+z5NncC08GuUEjBkEWnh8T+HT4eNg==}
+    cpu: [x64]
+    os: [win32]
+
+  '@octane-xplat/fmt@0.1.0':
+    resolution: {integrity: sha512-qwJgl0ZPHBeZ4evrdiP7j0ohSOJb/NqNThw54d+EgxLiqKUlyEzmcrZRSR2CR6UJvix67GwnbKqVZ82eguYQAQ==}
+    engines: {node: '>=18'}
 
   '@octanejs/app-core@0.0.57':
     resolution: {integrity: sha512-VApHue8/rxrgRFsOR32uGGAV4BkM3Npg2FfeQZPevRp/IMA7LgfPv9U6TZO1zlB8YUunUmNU8ch3AOor3IAVhQ==}
@@ -12288,6 +12322,29 @@ snapshots:
       proc-log: 6.1.0
 
   '@nstudio/nativescript-exoplayer@6.2.0': {}
+
+  '@octane-xplat/fmt-darwin-arm64@0.1.0':
+    optional: true
+
+  '@octane-xplat/fmt-darwin-x64@0.1.0':
+    optional: true
+
+  '@octane-xplat/fmt-linux-x64-gnu@0.1.0':
+    optional: true
+
+  '@octane-xplat/fmt-linux-x64-musl@0.1.0':
+    optional: true
+
+  '@octane-xplat/fmt-win32-x64@0.1.0':
+    optional: true
+
+  '@octane-xplat/fmt@0.1.0':
+    optionalDependencies:
+      '@octane-xplat/fmt-darwin-arm64': 0.1.0
+      '@octane-xplat/fmt-darwin-x64': 0.1.0
+      '@octane-xplat/fmt-linux-x64-gnu': 0.1.0
+      '@octane-xplat/fmt-linux-x64-musl': 0.1.0
+      '@octane-xplat/fmt-win32-x64': 0.1.0
 
   '@octanejs/app-core@0.0.57(octane@0.11.0(patch_hash=26a71ee0ff97043f7a8e5624acce4d2d2a3c8b0f6ade790eac59e8f6ece42b04)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(@types/node@20.19.0)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))':
     dependencies:
