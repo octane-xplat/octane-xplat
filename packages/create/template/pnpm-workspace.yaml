@@ -92,8 +92,12 @@ patchedDependencies:
   # auto-placement, notifying Grid when placement props change.
   "@nativescript-community/octane@0.2.4": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript-community__octane@0.2.4.patch
   # Retains the workspace's NativeScript driver fixes when upgrading to 0.2.5 for portal
-  # support: skip undefined property writes, advertise implemented visibility support, carry
-  # Octane callback ref types, and preserve authored Grid row/col/span metadata.
+  # support: a prop dropped from an update's complete prop bag — or set to
+  # `undefined`/`null` — is a removal that restores the documented default
+  # (Property/CssProperty setters get `unsetValue`, plain fields the captured pre-prop
+  # value, `style` keys diff per key); a never-applied `undefined` still skips the write.
+  # Also advertises the implemented visibility capability, carries Octane callback ref
+  # types, and preserves authored Grid row/col/span metadata.
   "@nativescript-community/octane@0.2.5": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript-community__octane@0.2.5.patch
   # octaneServerStrategy's SCRIPT_FILE_RE only covers [jt]sx? — .tsrx edits never emit the
   # deferred ns:hmr-delta broadcast, so component HMR silently never reaches the device.

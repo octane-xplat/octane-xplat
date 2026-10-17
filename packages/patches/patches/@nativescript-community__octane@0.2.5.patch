@@ -1,9 +1,32 @@
 diff --git a/dist/driver.js b/dist/driver.js
-index 8bc563add4cb675a12651184b63805b10224274d..a9aa53799a48d4441b67f2192f8ff09ae8ab6bef 100644
+index 8bc563add4cb675a12651184b63805b10224274d..a10f12af74fd32a630b71811c3f10f9338d63a50 100644
 --- a/dist/driver.js
 +++ b/dist/driver.js
-@@ -100,6 +100,15 @@ function updateProps(node, next) {
-     node.props = { ...node.props, ...next };
+@@ -91,15 +91,34 @@
+     }
+ }
+ /**
+- * `update` carries the host's dynamic-prop snapshot; attributes that were
+- * static in the compiled plan arrive only with `create`. Merge instead of
+- * replace, or a first update would strip a node's static layout props.
++ * `update` carries the host's complete prop bag: a key present in the last
++ * applied bag but absent from the next is a removal, and the view state it
++ * installed returns to the prop's documented default. `undefined` never
++ * crosses the wire (the runtime elides it); `null` is "not supplied" for
++ * props without an explicit nullable contract — both reset through setProp.
+  */
+ function updateProps(node, next) {
++    const dropped = [];
++    for (const name in node.props) {
++        if (node.props[name] != null && !(name in next))
++            dropped.push(name);
++    }
+     applyProps(node, next);
+-    node.props = { ...node.props, ...next };
++    for (const name of dropped) {
++        resetProp(node, node.view, name);
++    }
++    node.props = next;
  }
  function setProp(node, view, name, value) {
 +    // Keep authored placement separate from Grid's computed native coordinates.
@@ -18,19 +41,155 @@ index 8bc563add4cb675a12651184b63805b10224274d..a9aa53799a48d4441b67f2192f8ff09a
      if (name === 'children' || name === 'key' || name === 'ref')
          return;
      // Event props arrive as their own `event` commands.
-@@ -120,6 +129,11 @@ function setProp(node, view, name, value) {
+@@ -113,13 +132,28 @@
+         return;
+     }
+     if (name === 'style') {
+-        applyStyle(view, value);
++        applyStyle(node, view, value);
+         return;
+     }
+     if (name === 'renderItem' && view instanceof ListView) {
          setRenderItem(view, value ?? null, createNativeScriptRoot);
          return;
      }
-+    // `undefined` means "prop not supplied" — skip the write. NativeScript
-+    // native setters coerce it (e.g. editable → ios.userInteractionEnabled =
-+    // NO) leaving dead UI that still has its JS listeners.
-+    if (value === undefined)
++    // `null`/`unsetValue` restore the prop's default rather than writing a
++    // literal null through a native setter. `undefined` is a removal: skip it
++    // when nothing applied (NativeScript setters coerce it badly) and reset
++    // when a real value did.
++    if (value == null || value === unsetValue) {
++        if (value === undefined && node.props[name] == null)
++            return;
++        resetProp(node, view, name);
 +        return;
++    }
++    // Capture the pre-prop value once so a plain (non-Property) field can be
++    // restored when the prop is removed later.
++    const defaults = (node.propDefaults ??= {});
++    if (!(name in defaults))
++        defaults[name] = view[name];
      // Core raises `<name>Change` for a script write exactly as for a user
      // edit; a controlled input must not see its own value come back as one.
      const echo = `${name}Change`;
-@@ -641,7 +655,7 @@ function applyCommand(container, command) {
+@@ -128,6 +162,44 @@
+         node.muted.add(echo);
+     try {
+         view[name] = value;
++    }
++    finally {
++        if (listening)
++            node.muted.delete(echo);
++    }
++}
++/** Restore a removed prop to the value it holds when never supplied. */
++function resetProp(node, view, name) {
++    if (view === null)
++        return;
++    if (name === 'children' || name === 'key' || name === 'ref')
++        return;
++    // `on*` handlers unbind through `event` commands, not props.
++    if (EVENT_PROP.test(name))
++        return;
++    if (name === 'className' || name === 'class') {
++        view.className = unsetValue;
++        return;
++    }
++    if (name === 'style') {
++        applyStyle(node, view, null);
++        return;
++    }
++    if (name === 'renderItem' && view instanceof ListView) {
++        setRenderItem(view, null, createNativeScriptRoot);
++        return;
++    }
++    const echo = `${name}Change`;
++    const listening = node.listeners.has(echo);
++    if (listening)
++        node.muted.add(echo);
++    try {
++        // Property/CssProperty setters consume the sentinel and restore the
++        // declared default. A plain field stores it raw — detect that and
++        // write back the captured pre-prop value instead.
++        view[name] = unsetValue;
++        if (view[name] === unsetValue)
++            view[name] = node.propDefaults?.[name];
+     }
+     finally {
+         if (listening)
+@@ -147,15 +219,67 @@
+             .join(' ');
+     return '';
+ }
+-function applyStyle(view, value) {
+-    if (value == null || value === unsetValue)
+-        return;
++/**
++ * The `style` prop replaces wholesale — a key dropped or nulled since the last
++ * apply resets what it installed (`unsetValue` clears a local CssProperty
++ * value so the cascade can re-apply). String styles are parsed for their
++ * declared names so a later object or removal can reset them.
++ */
++function applyStyle(node, view, value) {
++    const applied = node.styleKeys;
++    node.styleKeys = undefined;
+     if (typeof value === 'string') {
++        clearStyleKeys(view, applied);
+         view.setInlineStyle(value);
++        node.styleKeys = inlineStyleKeys(value);
+         return;
+     }
+-    if (typeof value === 'object')
+-        Object.assign(view.style, value);
++    if (value == null || value === unsetValue || typeof value !== 'object') {
++        clearStyleKeys(view, applied);
++        return;
++    }
++    if (applied !== undefined) {
++        for (const key of applied) {
++            if (!(key in value))
++                unsetStyleKey(view, key);
++        }
++    }
++    for (const [key, nextValue] of Object.entries(value)) {
++        if (nextValue == null)
++            unsetStyleKey(view, key);
++        else
++            view.style[key] = nextValue;
++    }
++    node.styleKeys = new Set(Object.keys(value));
++}
++function clearStyleKeys(view, keys) {
++    if (keys === undefined)
++        return;
++    for (const key of keys)
++        unsetStyleKey(view, key);
++}
++function unsetStyleKey(view, name) {
++    const style = view.style;
++    if (name.startsWith('--')) {
++        style.setUnscopedCssVariable?.(name, unsetValue);
++        return;
++    }
++    style[name] = unsetValue;
++    // A style field outside the CssProperty registry stores the sentinel raw.
++    if (style[name] === unsetValue)
++        style[name] = undefined;
++}
++function inlineStyleKeys(style) {
++    const keys = new Set();
++    for (const declaration of style.split(';')) {
++        const colon = declaration.indexOf(':');
++        if (colon === -1)
++            continue;
++        const name = declaration.slice(0, colon).trim();
++        if (name !== '')
++            keys.add(name.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase()));
++    }
++    return keys;
+ }
+ /** Recompute a text host's `text` from its `#text` children. */
+ function syncText(parent) {
+@@ -641,7 +765,7 @@
  }
  export const nativeScriptDriver = {
      id: NATIVESCRIPT_RENDERER_ID,
