@@ -3,12 +3,26 @@
 Paths in code spans refer to the repository root. Read this reference when its
 subject applies to your task; [AGENTS.md](../../AGENTS.md) is the entry point.
 
-Releases are automated: `.github/workflows/release.yml` fires on every green
-`CI` run on `main` (plus `workflow_dispatch` for manual version overrides).
-`git-cliff` (`cliff.toml`) infers the next version from conventional commits
-and generates the changelog; the workflow bumps every publishable package to
-the same version, updates the create templates' `@octane-xplat/*` pins,
-commits, tags `vX.Y.Z`, `pnpm -r publish`es, and creates the GitHub Release.
+Releases are automated: `.github/workflows/release.yml` fires on every
+completed `CI` run on `main` (plus `workflow_dispatch` for manual version
+overrides). A `gate` job reads the run's recorded evidence
+(`scripts/verify-release-evidence.mjs` + `scripts/release-channel.mjs`) and
+classifies the tested sha:
+
+- **`checks` and every native lane green → `stable`.** `git-cliff`
+  (`cliff.toml`) infers the next version from conventional commits and
+  generates the changelog; the workflow bumps every publishable package to
+  the same version, updates the create templates' `@octane-xplat/*` pins,
+  commits, tags `vX.Y.Z`, `pnpm -r publish`es, and creates the GitHub
+  Release.
+- **`checks` green but a native lane not green → `nightly`.** The lockstep
+  set publishes `0.0.0-nightly.g<sha>` under the npm `nightly` dist-tag and
+  the `nightly` git tag + GitHub prerelease move to the tested sha. Nothing
+  commits to `main`; `latest` is untouched. Every checks-green push ships a
+  nightly — a stable release does not suppress it.
+- **`checks` not green → `none`.** Nothing publishes and the docs deploy
+  skips too.
+
 Publishing is npm **trusted publishing** (OIDC, no tokens) — each package must
 have `octane-xplat/octane-xplat` + `release.yml` configured on npmjs.com; a
 preflight step bails before anything ships if one is missing
@@ -77,8 +91,8 @@ package versions: CI builds, aligns lockstep versions, and publishes them.
 `tsrx-typegen-v*` tags, `packages/tsrx-typegen/CHANGELOG.md`, and only
 `packages/tsrx-typegen/**` commits move its version.
 
-The docs site deploys to Cloudflare Pages on every green `main` CI run
-(same workflow, `docs` job) — `llms.txt` regeneration is automatic.
+The docs site deploys to Cloudflare Pages on every checks-green `main` CI
+run (same workflow, `docs` job) — `llms.txt` regeneration is automatic.
 Manual pre-release task that remains: re-verify `docs/verify/known-limits.md`
 entries stamped older than the releasing version.
 

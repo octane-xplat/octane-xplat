@@ -514,15 +514,18 @@ Slow target jobs run on main pushes only: `native-ios` (macos-latest) and
 simulator/device use across concurrent worktrees and sessions on a shared
 host. Android has no emulator runtime smoke yet.
 
-The final `evidence` job (`needs` the three gate jobs) writes
+The final `evidence` job (`needs` the four lane jobs) writes
 `ci-evidence-<sha>.json` recording each required job's result for the tested
 sha and uploads it as workflow artifact `ci-evidence-<sha>`. The required-job
-list lives once in `scripts/verify-release-evidence.mjs`.
+list lives once in `scripts/release-channel.mjs`.
 
-`release.yml` publishes only what CI tested: both publish jobs check out
-`workflow_run.head_sha` (not current main), run
-`verify-release-evidence.mjs verify` to fetch and assert the matching
-artifact, and abort the tag push if `TESTED_SHA..origin/main` contains any
-non-release-bot commit — a moved main ships nothing untested.
+`release.yml` publishes only what CI tested: a `gate` job checks out
+`workflow_run.head_sha` (not current main), runs
+`verify-release-evidence.mjs verify` to fetch the matching artifact, and
+resolves a channel — all-green ships stable `vX.Y.Z`, checks-green-only ships
+the npm `nightly` dist-tag, checks-red ships nothing. Downstream jobs consume
+`needs.gate.outputs.channel`; the stable tag push still aborts if
+`TESTED_SHA..origin/main` contains any non-release-bot commit — a moved main
+ships nothing untested.
 `pnpm check:consumer` can run the same packed-consumer path locally before
 pushing.

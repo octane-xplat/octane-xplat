@@ -4,6 +4,7 @@ import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
+import { REQUIRED_JOBS, releaseChannel } from './release-channel.mjs'
 
 test('release evidence requires the on-device iOS suite alongside every build gate', () => {
 	const out = mkdtempSync(join(tmpdir(), 'release-evidence-test-'))
@@ -45,4 +46,29 @@ test('release evidence requires the on-device iOS suite alongside every build ga
 	} finally {
 		rmSync(out, { recursive: true, force: true })
 	}
+})
+
+test('release channel: stable needs every required job green, nightly needs only checks', () => {
+	const green = Object.fromEntries(REQUIRED_JOBS.map((job) => [job, 'success']))
+	assert.equal(releaseChannel(green), 'stable')
+	assert.deepEqual(REQUIRED_JOBS, [
+		'checks',
+		'native-ios',
+		'native-ios-tests',
+		'native-android',
+	])
+
+	for (const lane of ['native-ios', 'native-ios-tests', 'native-android']) {
+		for (const result of ['failure', 'cancelled', 'skipped', 'absent']) {
+			const jobs = { ...green, [lane]: result === 'absent' ? undefined : result }
+			assert.equal(releaseChannel(jobs), 'nightly', `${lane}=${result}`)
+		}
+	}
+
+	for (const result of ['failure', 'cancelled', 'skipped', 'absent']) {
+		const jobs = { ...green, checks: result === 'absent' ? undefined : result }
+		assert.equal(releaseChannel(jobs), 'none', `checks=${result}`)
+	}
+	assert.equal(releaseChannel({}), 'none')
+	assert.equal(releaseChannel(undefined), 'none')
 })

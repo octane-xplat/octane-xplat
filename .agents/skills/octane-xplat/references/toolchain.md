@@ -52,17 +52,22 @@ Octane compiler chooses platform leaves and renderer/runtime settings.
 
 ## Publish procedure
 
-Releases are automated — `.github/workflows/release.yml` fires on every green
-`CI` run on `main`: git-cliff infers the version, all publishable packages
-bump in lockstep (`scripts/bump-versions.mjs`), CHANGELOG.md gets a generated
-section, the commit + `vX.Y.Z` tag push, then `pnpm -r publish` ships via npm
-trusted publishing (OIDC + provenance, no tokens). A preflight
-(`scripts/check-trusted-publishers.mjs`) bails before publishing if any
-package lacks a trusted-publisher config for this repo + workflow.
+Releases are automated — `.github/workflows/release.yml` fires on every
+completed `CI` run on `main` and resolves a channel from the recorded
+evidence (`scripts/release-channel.mjs`). All required jobs green → stable:
+git-cliff infers the version, all publishable packages bump in lockstep
+(`scripts/bump-versions.mjs`), CHANGELOG.md gets a generated section, the
+commit + `vX.Y.Z` tag push, then `pnpm -r publish` ships via npm trusted
+publishing (OIDC + provenance, no tokens). `checks` green but a native lane
+red → nightly: the set publishes `0.0.0-nightly.g<sha>` under the `nightly`
+dist-tag (every checks-green push ships one — stable does not suppress it)
+and the moving `nightly` git tag + GitHub prerelease track the tested sha.
+A preflight (`scripts/check-trusted-publishers.mjs`) bails before publishing
+if any package lacks a trusted-publisher config for this repo + workflow.
 Publication is additionally bound to the tested revision: CI's `evidence`
-job records per-job results into the `ci-evidence-<sha>` artifact, both
-publish jobs check out `workflow_run.head_sha` and verify that artifact via
-`scripts/verify-release-evidence.mjs`, and the tag push aborts if main
+job records per-job results into the `ci-evidence-<sha>` artifact, the `gate`
+job checks out `workflow_run.head_sha` and verifies that artifact via
+`scripts/verify-release-evidence.mjs`, and the stable tag push aborts if main
 advanced past the tested sha with non-release commits.
 
 `tsrx-typegen` releases on its own `tsrx-typegen-v*` cadence; everything else

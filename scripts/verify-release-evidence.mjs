@@ -5,11 +5,16 @@
 //             which required jobs ran and their conclusions for THIS sha.
 //             Published as the workflow artifact `ci-evidence-<sha>`.
 //
-//   verify  — runs in release.yml before anything publishes. Locates the
-//             successful CI run that tested the exact revision being released,
-//             downloads its evidence artifact, and fails unless every required
-//             job is present and green. Publishing may never consume evidence
-//             from a different sha — the tested artifacts are the released ones.
+//   verify  — runs in release.yml's `gate` job before anything publishes.
+//             Locates the completed CI run that tested the exact revision
+//             being released, downloads its evidence artifact, and resolves
+//             the release channel (see scripts/release-channel.mjs): 'stable'
+//             when every required job is green, 'nightly' when checks passed
+//             but a native lane did not, 'none' when checks failed. The
+//             channel is written to GITHUB_OUTPUT; the run only fails when
+//             the evidence itself is missing or mismatched. Publishing may
+//             never consume evidence from a different sha — the tested
+//             artifacts are the released ones.
 //
 // Usage:
 //   node scripts/ci-evidence.mjs record --jobs '<json of needs context>' \
@@ -20,9 +25,17 @@
 // verify expects GH_TOKEN/GITHUB_TOKEN in env for `gh api` calls.
 import assert from 'node:assert/strict'
 import { execFileSync, spawnSync } from 'node:child_process'
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
+import {
+	appendFileSync,
+	mkdirSync,
+	mkdtempSync,
+	readFileSync,
+	readdirSync,
+	writeFileSync,
+} from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { REQUIRED_JOBS, releaseChannel } from './release-channel.mjs'
 
 const args = process.argv.slice(2)
 const mode = args[0]
@@ -30,11 +43,6 @@ const value = (name) => {
 	const i = args.indexOf(`--${name}`)
 	return i >= 0 ? args[i + 1] : undefined
 }
-
-// Required CI jobs — keep in sync with the `evidence` job's `needs:` list in
-// .github/workflows/ci.yml. Adding a release check means adding a job AND an
-// entry here so both sides of the contract move together.
-const REQUIRED_JOBS = ['checks', 'native-ios', 'native-ios-tests', 'native-android']
 
 const sha = value('sha') ?? process.env.GITHUB_SHA
 // GITHUB_RUN_ID is only meaningful in record mode (the CI run recording its
@@ -80,30 +88,47 @@ if (mode === 'verify') {
 	assert.ok(repo, 'GITHUB_REPOSITORY required')
 	const gh = (path) => execFileSync('gh', ['api', path], { encoding: 'utf8' })
 
-	let evidenceRunId = runId ? Number(runId) : null
-	if (!evidenceRunId) {
-		// Manual dispatch: find the most recent successful CI run that tested
-		// exactly this sha.
-		const runs = JSON.parse(
-			gh(`repos/${repo}/actions/workflows/ci.yml/runs?head_sha=${sha}&status=success&per_page=1`),
+	const artifactName = `ci-evidence-${sha}`
+	const findArtifact = (id) =>
+		JSON.parse(gh(`repos/${repo}/actions/runs/${id}/artifacts?per_page=100`)).artifacts?.find(
+			(a) => a.name === artifactName,
 		)
 
-		evidenceRunId = runs.workflow_runs?.[0]?.id ?? null
+	let evidenceRunId = runId ? Number(runId) : null
+	let artifact = evidenceRunId ? findArtifact(evidenceRunId) : null
+	if (evidenceRunId) {
+		assert.ok(
+			artifact,
+			`CI run ${evidenceRunId} produced no ${artifactName} artifact — ` +
+				'the tested revision carried no release evidence',
+		)
+	} else {
+		// Manual dispatch: find the most recent completed push run that tested
+		// exactly this sha and carried the evidence artifact. Conclusion may be
+		// failure — a red native lane still publishes through the nightly
+		// channel, so `status=completed` rather than `status=success`.
+		const runs = JSON.parse(
+			gh(
+				`repos/${repo}/actions/workflows/ci.yml/runs?head_sha=${sha}&status=completed&event=push&per_page=10`,
+			),
+		)
+
+		for (const run of runs.workflow_runs ?? []) {
+			artifact = findArtifact(run.id)
+			if (artifact) {
+				evidenceRunId = run.id
+				break
+			}
+		}
 		assert.ok(
 			evidenceRunId,
-			`no successful CI run found for ${sha} — publish only revisions CI tested`,
+			`no completed CI run for ${sha} carried release evidence — ` +
+				'publish only revisions CI tested',
 		)
 	}
 
 	mkdirSync(outDir, { recursive: true })
 	const tmp = mkdtempSync(join(tmpdir(), 'ci-evidence-'))
-	const list = JSON.parse(gh(`repos/${repo}/actions/runs/${evidenceRunId}/artifacts`))
-	const artifact = list.artifacts?.find((a) => a.name === `ci-evidence-${sha}`)
-	assert.ok(
-		artifact,
-		`CI run ${evidenceRunId} produced no ci-evidence-${sha} artifact — ` +
-			'the tested revision carried no release evidence',
-	)
 
 	const zipPath = join(tmp, 'evidence.zip')
 	// gh api streams the zip to stdout — capture it as a raw buffer.
@@ -120,21 +145,19 @@ if (mode === 'verify') {
 
 	assert.equal(evidence.sha, sha, `evidence sha ${evidence.sha} !== release sha ${sha}`)
 	assert.equal(evidence.runId, evidenceRunId, 'evidence was recorded by a different CI run')
-	assert.equal(evidence.status, 'success', `CI evidence status is ${evidence.status}`)
+
+	const channel = releaseChannel(evidence.jobs ?? {})
+	console.log(`release channel: ${channel} — CI run ${evidenceRunId} at ${sha}`)
 	for (const job of REQUIRED_JOBS) {
-		assert.equal(
-			evidence.jobs?.[job],
-			'success',
-			`required CI job ${job} was ${evidence.jobs?.[job] ?? 'absent'} — ` +
-				'publication requires every release check green on the same revision',
-		)
+		console.log(`  ${job}: ${evidence.jobs?.[job] ?? 'absent'}`)
+	}
+	if (channel === 'none') {
+		console.log('the checks job did not pass for this revision — nothing to release')
 	}
 
-	console.log(
-		`release evidence verified: CI run ${evidenceRunId} at ${sha} — ` +
-			REQUIRED_JOBS.join(', ') +
-			' all green',
-	)
+	if (process.env.GITHUB_OUTPUT) {
+		appendFileSync(process.env.GITHUB_OUTPUT, `channel=${channel}\n`)
+	}
 
 	process.exit(0)
 }

@@ -39,28 +39,63 @@ env:
     --exclude-path 'packages/tsrx-typegen/**'
 
 jobs:
+  # Single gate consumed by every downstream job: reads the CI run's recorded
+  # evidence for the tested sha and resolves the release channel — 'stable'
+  # when every required job is green, 'nightly' when checks passed but a
+  # native lane did not, 'none' when checks failed. A red native lane thus
+  # degrades to the prerelease channel instead of holding the release.
+  gate:
+    name: Resolve release channel
+    runs-on: ubuntu-latest
+    # Cancelled CI runs are superseded pushes — skip them; the newer run
+    # produces its own release.
+    if: >-
+      (github.event_name == 'workflow_run' &&
+        github.event.workflow_run.conclusion != 'cancelled' &&
+        github.event.workflow_run.head_branch == 'main') ||
+      (github.event_name == 'workflow_dispatch' &&
+        github.ref == 'refs/heads/main')
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      channel: ${{ steps.evidence.outputs.channel }}
+    # The revision CI actually tested — publish must consume evidence for
+    # this sha and build the tested code, not whatever main has moved to.
+    env:
+      TESTED_SHA: >-
+        ${{ github.event_name == 'workflow_run' &&
+            github.event.workflow_run.head_sha ||
+            github.sha }}
+      CI_RUN_ID: ${{ github.event.workflow_run.id || '' }}
+    steps:
+      - name: Checkout the tested revision
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ env.TESTED_SHA }}
+
+      - name: Verify CI release evidence
+        id: evidence
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/verify-release-evidence.mjs verify --sha "$TESTED_SHA" ${CI_RUN_ID:+--run-id "$CI_RUN_ID"}
+
   # Lockstep release: every publishable package except tsrx-typegen ships at
   # the same version. Runs after tsrx-typegen because both jobs commit and
   # push to main — serializing avoids the non-fast-forward race.
   packages:
     name: Publish @octane-xplat/*
-    needs: tsrx-typegen
+    needs: [gate, tsrx-typegen]
     runs-on: ubuntu-latest
     # always() so a failed typegen run doesn't hold the lockstep release
     # hostage — the rebase-before-push handles ordering regardless.
     if: >-
       always() &&
-      ((github.event_name == 'workflow_run' &&
-        github.event.workflow_run.conclusion == 'success' &&
-        github.event.workflow_run.head_branch == 'main') ||
-      (github.event_name == 'workflow_dispatch' &&
-        github.ref == 'refs/heads/main'))
+      (needs.gate.outputs.channel == 'stable' ||
+        needs.gate.outputs.channel == 'nightly')
     permissions:
       contents: write
       id-token: write
-      actions: read
-    # The revision CI actually tested — publish must consume evidence for
-    # this sha and build the tested code, not whatever main has moved to.
     env:
       TESTED_SHA: >-
         ${{ github.event_name == 'workflow_run' &&
@@ -84,10 +119,12 @@ jobs:
           node-version: 24
 
       - name: Install git-cliff
+        if: needs.gate.outputs.channel == 'stable'
         uses: taiki-e/install-action@git-cliff
 
       - name: Resolve release version
         id: version
+        if: needs.gate.outputs.channel == 'stable'
         env:
           VERSION_OVERRIDE: ${{ github.event.inputs.version || '' }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -114,22 +151,11 @@ jobs:
 
       # Bail before any version bumps or publishes: npm must already trust this
       # workflow for every package, or the lockstep set ships half-released.
+      # Runs for either channel — nightly publishes need the same guarantee.
       - name: Verify npm trusted publishing
-        if: steps.version.outputs.should_release == 'true'
         run: node scripts/check-trusted-publishers.mjs
 
-      # Publication consumes CI evidence recorded for exactly TESTED_SHA —
-      # every required CI release check (lint, typechecks, tests, packed
-      # consumer verification, native iOS/Android builds) must have run
-      # green in the same CI run the artifacts came from.
-      - name: Verify CI release evidence
-        if: steps.version.outputs.should_release == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: node scripts/verify-release-evidence.mjs verify --sha "$TESTED_SHA" ${CI_RUN_ID:+--run-id "$CI_RUN_ID"}
-
       - name: Install dependencies
-        if: steps.version.outputs.should_release == 'true'
         run: pnpm install --frozen-lockfile
 
       - name: Bump lockstep versions
@@ -196,21 +222,46 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release create "${{ steps.version.outputs.tag }}" --title "${{ steps.version.outputs.tag }}" --notes-file .release-notes.md
 
+      # Nightly channel: every checks-green revision publishes a prerelease,
+      # including fully-green pushes, so `@nightly` always tracks the newest
+      # CI-tested main. Nothing commits to main and the `latest` dist-tag is
+      # untouched. This job alone owns the moving `nightly` git tag and
+      # GitHub prerelease so parallel jobs can't race them.
+      - name: Resolve nightly version
+        id: nightly
+        # `g<sha>` keeps the prerelease identifier alphanumeric — a bare sha
+        # prefix can be all digits with a leading zero, which is invalid semver.
+        run: echo "version=0.0.0-nightly.g${TESTED_SHA:0:7}" >> "$GITHUB_OUTPUT"
+
+      - name: Bump lockstep versions (nightly)
+        run: node scripts/bump-versions.mjs "${{ steps.nightly.outputs.version }}"
+
+      - name: Publish nightly to npm
+        run: pnpm -r --filter '!tsrx-typegen' publish --access public --no-git-checks --provenance --tag nightly
+
+      - name: Move the nightly tag and prerelease
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          git tag -f nightly "$TESTED_SHA"
+          git push --force origin refs/tags/nightly
+          gh release delete nightly --yes 2>/dev/null || true
+          gh release create nightly --title nightly --prerelease \
+            --notes "Nightly prerelease of ${TESTED_SHA} — install with \`pnpm add @octane-xplat/<pkg>@nightly\` (published as ${{ steps.nightly.outputs.version }})."
+
   # tsrx-typegen ships on its own cadence — its commits never move the
   # lockstep version, and its releases don't touch the other packages.
   tsrx-typegen:
     name: Publish tsrx-typegen
+    needs: gate
     runs-on: ubuntu-latest
     if: >-
-      (github.event_name == 'workflow_run' &&
-        github.event.workflow_run.conclusion == 'success' &&
-        github.event.workflow_run.head_branch == 'main') ||
-      (github.event_name == 'workflow_dispatch' &&
-        github.ref == 'refs/heads/main')
+      needs.gate.outputs.channel == 'stable' ||
+      needs.gate.outputs.channel == 'nightly'
     permissions:
       contents: write
       id-token: write
-      actions: read
     env:
       TESTED_SHA: >-
         ${{ github.event_name == 'workflow_run' &&
@@ -234,10 +285,12 @@ jobs:
           node-version: 24
 
       - name: Install git-cliff
+        if: needs.gate.outputs.channel == 'stable'
         uses: taiki-e/install-action@git-cliff
 
       - name: Resolve release version
         id: version
+        if: needs.gate.outputs.channel == 'stable'
         env:
           VERSION_OVERRIDE: ${{ github.event.inputs.typegen_version || '' }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -264,19 +317,9 @@ jobs:
           echo "tag=tsrx-typegen-v$next_version" >> "$GITHUB_OUTPUT"
 
       - name: Verify npm trusted publishing
-        if: steps.version.outputs.should_release == 'true'
         run: node scripts/check-trusted-publishers.mjs tsrx-typegen
 
-      # Same contract as the lockstep publish: evidence must exist for the
-      # tested revision, not merely "some CI run succeeded at some point".
-      - name: Verify CI release evidence
-        if: steps.version.outputs.should_release == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: node scripts/verify-release-evidence.mjs verify --sha "$TESTED_SHA" ${CI_RUN_ID:+--run-id "$CI_RUN_ID"}
-
       - name: Install dependencies
-        if: steps.version.outputs.should_release == 'true'
         run: pnpm install --frozen-lockfile
 
       - name: Bump version
@@ -339,17 +382,24 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release create "${{ steps.version.outputs.tag }}" --title "${{ steps.version.outputs.tag }}" --notes-file .release-notes.md
 
-  # Docs ship continuously: every green CI run on main deploys the docs site,
-  # independent of whether a package release happened.
+      # Nightly channel — npm publish only; the packages job owns the moving
+      # `nightly` git tag and GitHub prerelease.
+      - name: Bump version (nightly)
+        working-directory: packages/tsrx-typegen
+        run: npm pkg set version="0.0.0-nightly.g${TESTED_SHA:0:7}"
+
+      - name: Publish nightly to npm
+        run: pnpm --filter tsrx-typegen publish --access public --no-git-checks --provenance --tag nightly
+
+  # Docs ship continuously: every checks-green CI run on main deploys the docs
+  # site — a red native lane degrades the release to nightly, not the docs.
   docs:
     name: Deploy docs
+    needs: gate
     runs-on: ubuntu-latest
     if: >-
-      (github.event_name == 'workflow_run' &&
-        github.event.workflow_run.conclusion == 'success' &&
-        github.event.workflow_run.head_branch == 'main') ||
-      (github.event_name == 'workflow_dispatch' &&
-        github.ref == 'refs/heads/main')
+      needs.gate.outputs.channel == 'stable' ||
+      needs.gate.outputs.channel == 'nightly'
     permissions:
       contents: read
     steps:

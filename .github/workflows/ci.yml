@@ -206,9 +206,11 @@ jobs:
           # on hosted ubuntu runners. The gradle build itself is the gate.
           NS_SKIP_ENV_CHECK: 'true'
 
-  # Final job: records per-job release evidence for THIS sha. On push it must
-  # see every required job green; on pull_request the native jobs are skipped
-  # and no evidence is needed, so the job skips itself.
+  # Final job: records per-job release evidence for THIS sha on every push,
+  # failures included — release.yml's gate turns it into a channel
+  # (all-green → stable, checks-only → nightly, checks-red → nothing). On
+  # pull_request the native jobs are skipped and no evidence is needed, so
+  # the job skips itself.
   evidence:
     runs-on: ubuntu-latest
     needs: [checks, native-ios, native-ios-tests, native-android]
