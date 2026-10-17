@@ -160,8 +160,13 @@ jobs:
       - name: Generate app routes for the bundle
         run: pnpm --filter @xplat/app gen
 
+      # The unitTesting bundle's vite build exceeds Node's default 2GB heap
+      # (OOM before emit → the .app has no bundle.js and the worker never
+      # connects). macos runners have ~14GB; give the build headroom.
       - name: On-device Vitest suite (apps/mobile)
         run: node scripts/with-target-lock.mjs ios -- pnpm --filter @xplat/mobile test:ios -- --device "$SIM_UDID"
+        env:
+          NODE_OPTIONS: '--max-old-space-size=6144'
 
   native-android:
     runs-on: ubuntu-latest
