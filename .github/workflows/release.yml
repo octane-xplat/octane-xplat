@@ -149,11 +149,28 @@ jobs:
           echo "version=$next_version" >> "$GITHUB_OUTPUT"
           echo "tag=v$next_version" >> "$GITHUB_OUTPUT"
 
-      # Bail before any version bumps or publishes: npm must already trust this
-      # workflow for every package, or the lockstep set ships half-released.
+      # Check before any version bumps or publishes, reusing successful checks
+      # for up to 24 hours. npm still authorizes every actual publish.
       # Runs for either channel — nightly publishes need the same guarantee.
+      - name: Restore trusted-publisher checks
+        id: trusted-publishers-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/trusted-publishers.json
+          key: trusted-publishers-${{ github.job }}-${{ hashFiles('scripts/check-trusted-publishers.mjs', '.github/workflows/release.yml') }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            trusted-publishers-${{ github.job }}-${{ hashFiles('scripts/check-trusted-publishers.mjs', '.github/workflows/release.yml') }}-
+
       - name: Verify npm trusted publishing
+        env:
+          TRUSTED_PUBLISHERS_CACHE: ${{ runner.temp }}/trusted-publishers.json
         run: node scripts/check-trusted-publishers.mjs
+
+      - name: Save trusted-publisher checks
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ runner.temp }}/trusted-publishers.json
+          key: ${{ steps.trusted-publishers-cache.outputs.cache-primary-key }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -316,8 +333,25 @@ jobs:
           echo "version=$next_version" >> "$GITHUB_OUTPUT"
           echo "tag=tsrx-typegen-v$next_version" >> "$GITHUB_OUTPUT"
 
+      - name: Restore trusted-publisher checks
+        id: trusted-publishers-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/trusted-publishers.json
+          key: trusted-publishers-${{ github.job }}-${{ hashFiles('scripts/check-trusted-publishers.mjs', '.github/workflows/release.yml') }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            trusted-publishers-${{ github.job }}-${{ hashFiles('scripts/check-trusted-publishers.mjs', '.github/workflows/release.yml') }}-
+
       - name: Verify npm trusted publishing
+        env:
+          TRUSTED_PUBLISHERS_CACHE: ${{ runner.temp }}/trusted-publishers.json
         run: node scripts/check-trusted-publishers.mjs tsrx-typegen
+
+      - name: Save trusted-publisher checks
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ runner.temp }}/trusted-publishers.json
+          key: ${{ steps.trusted-publishers-cache.outputs.cache-primary-key }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile

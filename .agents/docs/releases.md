@@ -25,8 +25,18 @@ classifies the tested sha:
 
 Publishing is npm **trusted publishing** (OIDC, no tokens) — each package must
 have `octane-xplat/octane-xplat` + `release.yml` configured on npmjs.com; a
-preflight step bails before anything ships if one is missing
-(`scripts/check-trusted-publishers.mjs`).
+preflight step checks every package before anything ships
+(`scripts/check-trusted-publishers.mjs`). Both release jobs cache successful
+checks for 24 hours, scoped to the registry, repository, workflow ref, and job.
+New packages and expired entries always contact npm. The cache stores package
+names and timestamps, never tokens; npm still authorizes every actual publish.
+A publisher removed during that window may pass preflight until its entry
+expires. To force a fresh check inside an OIDC-enabled release job, unset the
+cache path:
+
+```sh
+TRUSTED_PUBLISHERS_CACHE= node scripts/check-trusted-publishers.mjs
+```
 
 ## Add a publishable package
 
