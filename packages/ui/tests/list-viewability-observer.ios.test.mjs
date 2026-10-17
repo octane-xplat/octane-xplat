@@ -24,6 +24,11 @@ test('iOS list viewability observer registers lazily without NativeClass', () =>
 		exports: {},
 		interop: { types: { void: {}, id: {} } },
 		require(name) {
+			if (name === '@octane-xplat/platform/ios') {
+				// Names resolve to the injected globals when the lazy
+				// registration path runs.
+				return new Proxy({}, { get: (_, prop) => context[prop] })
+			}
 			assert.equal(name, './list-viewability-runtime')
 			return {
 				observeLoadedListPeer: (_list, getPeer, attach) => attach(getPeer()),
