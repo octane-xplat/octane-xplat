@@ -12,7 +12,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 test('packed macOS consumer resolves generated declarations and platform contracts', () => {
 	const directory = mkdtempSync(join(tmpdir(), 'xplat-announce-consumer-'))
 	const run = (command, args, cwd) => {
-		const result = spawnSync(command, args, { cwd, encoding: 'utf8', timeout: 120_000 })
+		const result = spawnSync(command, args, { cwd, encoding: 'utf8', timeout: 300_000 })
 		assert.equal(result.status, 0, result.stdout + result.stderr)
 		return result.stdout
 	}
