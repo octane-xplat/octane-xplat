@@ -39,5 +39,8 @@ export function mockGlobals(entries: Record<string, unknown>) {
 // imports added for module-scoped native types aren't valid in script eval,
 // and the sandbox injects those names as globals anyway. Strip them.
 export function sourceWithoutImports(url: URL) {
-	return stripTypeScriptTypes(readFileSync(url, 'utf8')).replace(/^import [^\n]*\n/gm, '')
+	return stripTypeScriptTypes(readFileSync(url, 'utf8')).replace(
+		/^import\b[\s\S]*?(?:from\s*)?['"][^'"]*['"];?\s*\n/gm,
+		'',
+	)
 }
