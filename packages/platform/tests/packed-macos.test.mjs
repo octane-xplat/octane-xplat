@@ -18,7 +18,14 @@ test('packed macOS consumer resolves generated declarations and platform contrac
 	}
 
 	const output = run('pnpm', ['pack', '--pack-destination', directory], root)
-	const tarball = output.trim().split('\n').at(-1)
+	// `pnpm pack` runs prepack (typegen + pack-check) whose progress lines can
+	// land after the tarball path — take the last .tgz line, not the last line.
+	const tarball = output
+		.trim()
+		.split('\n')
+		.reverse()
+		.find((line) => line.trim().endsWith('.tgz'))
+	assert.ok(tarball, `no tarball path in pnpm pack output:\n${output}`)
 	const modules = join(directory, 'node_modules/@octane-xplat/platform')
 	mkdirSync(modules, { recursive: true })
 	run('tar', ['-xzf', tarball, '--strip-components=1', '-C', modules], directory)
