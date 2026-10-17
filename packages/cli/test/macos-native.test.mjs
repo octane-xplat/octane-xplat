@@ -3,7 +3,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, symlinkSync, rmSync } from 'node
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
-import { buildMacOSNative, discoverMacOSNative } from '../src/macos/native.mjs'
+import { buildMacOSNative, discoverMacOSNative } from '../dist/macos/native.js'
 
 function fixture(t) {
 	const app = mkdtempSync(join(tmpdir(), 'xplat-native-test-'))

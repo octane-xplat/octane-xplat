@@ -36,16 +36,16 @@
 			"inputs": [
 				"$TURBO_DEFAULT$",
 				"../../scripts/typecheck.mjs",
-				"../../packages/cli/src/tsconfig-envs.mjs"
+				"../../packages/cli/src/tsconfig-envs.ts"
 			],
 			"outputs": []
 		},
 		"test": {
-			"dependsOn": ["^typegen"],
+			"dependsOn": ["^typegen", "^build"],
 			"outputs": []
 		},
 		"test:native": {
-			"dependsOn": ["^typegen"],
+			"dependsOn": ["^typegen", "^build"],
 			"outputs": []
 		},
 		"test:macos": {

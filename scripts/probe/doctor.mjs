@@ -94,7 +94,7 @@ export async function doctor() {
 
 		try {
 			const { inspectJscHost } = await import(
-				join(repo, 'packages/cli/src/macos/jsc-host/runtime.mjs')
+				join(repo, 'packages/cli/src/macos/jsc-host/runtime.ts')
 			)
 
 			targets.macos.issues.push(...inspectJscHost().issues)

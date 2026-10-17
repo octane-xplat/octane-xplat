@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { tmpdir } from 'node:os'
 import test from 'node:test'
-import { inspectMacOSDevConfig, inspectMacOSPackageConfig } from '../src/macos/config.mjs'
+import { inspectMacOSDevConfig, inspectMacOSPackageConfig } from '../dist/macos/config.js'
 
 function project(t) {
 	const root = mkdtempSync(join(tmpdir(), 'xplat-macos-config-'))

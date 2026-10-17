@@ -5,8 +5,8 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import ts from 'typescript'
-import { macOSExecutable } from '../../cli/src/macos/executables.mjs'
-import { hostBundle, hostRoot } from '../../cli/src/macos/jsc-host/runtime.mjs'
+import { macOSExecutable } from '../../cli/src/macos/executables.ts'
+import { hostBundle, hostRoot } from '../../cli/src/macos/jsc-host/runtime.ts'
 
 // Real AppKit/JSC host: NSBitmapImageRep decode, CGBitmapContext scale to
 // ≤100px, premultiplied readback, JS unpremultiply, reference-port encode.

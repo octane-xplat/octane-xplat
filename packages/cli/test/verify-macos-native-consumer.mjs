@@ -64,7 +64,7 @@ await writeFile(
 )
 
 run('pnpm', ['install', '--ignore-scripts'])
-const cli = join(app, 'node_modules/@octane-xplat/cli/src/cli.mjs')
+const cli = join(app, 'node_modules/@octane-xplat/cli/dist/cli.js')
 const doctor = run(process.execPath, [cli, 'doctor'])
 assert.match(doctor, /macOS native leaf toolchain/)
 const built = run(process.execPath, [cli, 'build', '--targets', 'macos'])

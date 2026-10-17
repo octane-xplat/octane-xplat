@@ -137,7 +137,7 @@ creates) installs without its `node_modules/.bin` shims: `xplat` and
 "Already up to date" without re-linking. Restore the shims with:
 
 ```sh
-node node_modules/@octane-xplat/cli/src/link-bins.mjs
+node node_modules/@octane-xplat/cli/src/link-bins.ts
 ```
 
 Run it from the app's `postinstall` (after the hook that creates the link

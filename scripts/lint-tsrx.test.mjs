@@ -10,7 +10,7 @@ import test from 'node:test'
 // stand in for a consumer checkout. A malformed .tsrx reports `path: error`
 // on stderr and fails the run — that line is the signal that a file was
 // collected and linted.
-const lintScript = fileURLToPath(new URL('../packages/lint/src/lint-tsrx.mjs', import.meta.url))
+const lintScript = fileURLToPath(new URL('../packages/lint/src/lint-tsrx.ts', import.meta.url))
 const broken = 'const x = {'
 
 const fixture = (t) => {

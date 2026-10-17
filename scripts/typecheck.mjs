@@ -1,12 +1,12 @@
 // Package typecheck runner — expands tsconfig.envs.json into a single program
 // covering every declared environment's files (the shared expansion lives in
-// packages/cli/src/tsconfig-envs.mjs) and runs tsrx-tsc on it. All platform
+// packages/cli/src/tsconfig-envs.ts) and runs tsrx-tsc on it. All platform
 // module suffixes resolve under one fixed precedence order, extensionless
 // first; per-file @jsxImportSource pragmas pick the renderer.
 // Run from a package directory via its "typecheck" script.
 import { spawnSync } from 'node:child_process'
 import { join } from 'node:path'
-import { expandEnvPrograms, loadEnvManifest } from '../packages/cli/src/tsconfig-envs.mjs'
+import { expandEnvPrograms, loadEnvManifest } from '../packages/cli/src/tsconfig-envs.ts'
 
 const dir = process.cwd()
 const manifest = loadEnvManifest(dir)

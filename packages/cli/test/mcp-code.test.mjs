@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
-import { createCodeService } from '../src/mcp/code-service.mjs'
+import { createCodeService } from '../dist/mcp/code-service.js'
 
 const write = (root, rel, content) => {
 	const path = join(root, rel)

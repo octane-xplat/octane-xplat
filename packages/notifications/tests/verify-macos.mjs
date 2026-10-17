@@ -4,8 +4,8 @@ import { spawnSync } from 'node:child_process'
 import { cp, mkdir, mkdtemp, symlink, writeFile } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/native.mjs'
-import { hostBundle } from '../../cli/src/macos/jsc-host/runtime.mjs'
+import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/native.ts'
+import { hostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
 
 const leaf = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const repo = resolve(leaf, '../..')

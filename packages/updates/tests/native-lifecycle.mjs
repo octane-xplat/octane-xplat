@@ -11,7 +11,7 @@ import { parseArgs } from 'node:util'
 import { zipSync } from 'fflate/browser'
 import { prepare, filesUnder } from '../../../scripts/probe/project.mjs'
 import { command } from '../../../scripts/probe/process.mjs'
-import { initializeUpdates } from '../../cli/src/commands/updates.mjs'
+import { initializeUpdates } from '../../cli/src/commands/updates.ts'
 
 const { values } = parseArgs({
 	options: { target: { type: 'string' }, device: { type: 'string' } },

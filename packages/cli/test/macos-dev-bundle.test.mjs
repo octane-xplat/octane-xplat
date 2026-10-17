@@ -3,7 +3,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'no
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import test from 'node:test'
-import { createMacOSDevBundle } from '../src/macos/dev-bundle.mjs'
+import { createMacOSDevBundle } from '../dist/macos/dev-bundle.js'
 
 function project(t) {
 	const root = mkdtempSync(join(tmpdir(), 'xplat-dev-identity-'))

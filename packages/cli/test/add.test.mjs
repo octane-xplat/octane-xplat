@@ -16,7 +16,7 @@ const TPL = JSON.parse(
 	),
 )
 
-const cli = join(dirname(fileURLToPath(import.meta.url)), '../src/cli.mjs')
+const cli = join(dirname(fileURLToPath(import.meta.url)), '../dist/cli.js')
 
 function scaffold(t, targets) {
 	const dir = mkdtempSync(join(tmpdir(), 'xplat-add-'))

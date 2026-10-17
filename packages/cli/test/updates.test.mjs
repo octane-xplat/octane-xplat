@@ -3,7 +3,7 @@ import { test } from 'node:test'
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { initializeUpdates } from '../src/commands/updates.mjs'
+import { initializeUpdates } from '../dist/commands/updates.js'
 
 test('init resolves the app runtime, preserves edited hooks, and is repeatable', async (t) => {
 	const root = mkdtempSync(join(tmpdir(), 'xplat-updates-init-'))

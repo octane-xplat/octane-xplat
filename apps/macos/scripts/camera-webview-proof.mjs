@@ -3,9 +3,9 @@ import { createServer, build } from 'vite'
 import { mkdir } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { buildMacOSNative, writeNativeBootstrap } from '../../../packages/cli/src/macos/native.mjs'
-import { createMacOSDevBundle } from '../../../packages/cli/src/macos/dev-bundle.mjs'
-import { hostBundle } from '../../../packages/cli/src/macos/jsc-host/runtime.mjs'
+import { buildMacOSNative, writeNativeBootstrap } from '../../../packages/cli/src/macos/native.ts'
+import { createMacOSDevBundle } from '../../../packages/cli/src/macos/dev-bundle.ts'
+import { hostBundle } from '../../../packages/cli/src/macos/jsc-host/runtime.ts'
 
 const appRoot = fileURLToPath(new URL('..', import.meta.url))
 const verifying = process.argv.includes('--verify')

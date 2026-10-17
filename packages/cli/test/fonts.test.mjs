@@ -19,7 +19,7 @@ import {
 	readFontInfo,
 	woff2ToSfnt,
 	woffToSfnt,
-} from '../src/fonts.mjs'
+} from '../dist/fonts.js'
 
 const GEIST = new URL('../../app/src/assets/fonts/Geist-Variable.ttf', import.meta.url).pathname
 // Real @fontsource-variable/inter latin wght face (OFL-1.1) — exercises the

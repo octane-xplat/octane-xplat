@@ -54,6 +54,6 @@
 		"../../packages/*/dist",
 		"../../packages/*/types",
 		"../../packages/*/src/build",
-		"../../packages/mcp"
+		"../../packages/mcp", "../../packages/cli", "../../packages/lint"
 	]
 }

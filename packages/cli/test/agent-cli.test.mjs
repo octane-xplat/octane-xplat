@@ -9,7 +9,7 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import test from 'node:test'
 
-const BIN = fileURLToPath(new URL('../src/cli.mjs', import.meta.url))
+const BIN = fileURLToPath(new URL('../dist/cli.js', import.meta.url))
 
 const run = (args, { cwd = '/', env = {} } = {}) => {
 	try {

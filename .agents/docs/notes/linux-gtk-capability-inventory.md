@@ -31,7 +31,7 @@ Facts the mapping is built on:
   unsuffixed. The GJS host (`packages/cli/src/linux/host/gjs-host.js`) mounts an
   `Adw.ApplicationWindow` + `WebKitWebView`; app code runs inside WebKit, not in
   GJS. The boundary guard allows `{linux, web}` tags in a linux bundle
-  (`packages/cli/src/vite.mjs` `boundaryAllowed`).
+  (`packages/cli/src/vite.ts` `boundaryAllowed`).
 - **The macOS AppKit renderer is the universal-driver precedent.**
   `packages/macos-renderer` implements `UniversalHostDriver`
   (`octane/universal/native`: `prepareBatch`, `getPublicInstance`,
@@ -410,7 +410,7 @@ before its owner can finish; none is permission to shrink scope.
 ## Source anchors
 
 `apps/linux/vite.linux.config.ts`, `apps/linux/package.json`,
-`apps/linux/host/README.md`; `packages/cli/src/targets.mjs`,
+`apps/linux/host/README.md`; `packages/cli/src/targets.ts`,
 `linux/config.mjs`, `linux/package.mjs`, `linux/host/gjs-host.js`,
 `commands/{dev,build,doctor}.mjs`, `vite.mjs` (`xplatBoundary`,
 `boundaryAllowed`); `packages/platform/src/{host-services,host-protocol,

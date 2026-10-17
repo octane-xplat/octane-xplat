@@ -8,7 +8,7 @@ import http from 'node:http'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
-import { xplatDevBridge } from '../src/mcp/dev-bridge.mjs'
+import { xplatDevBridge } from '../dist/mcp/dev-bridge.js'
 
 async function makeBridge(t) {
 	const appRoot = mkdtempSync(join(tmpdir(), 'xplat-bridge-app-'))

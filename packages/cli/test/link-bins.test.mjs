@@ -16,7 +16,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import test from 'node:test'
 
-const linkBins = join(dirname(fileURLToPath(import.meta.url)), '../src/link-bins.mjs')
+const linkBins = join(dirname(fileURLToPath(import.meta.url)), '../dist/link-bins.js')
 
 // A `link:`-installed dep looks exactly like this in the consumer: the package
 // dir is a symlink into the linked checkout and pnpm may have written no .bin

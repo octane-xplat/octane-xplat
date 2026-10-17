@@ -6,8 +6,8 @@ import { cp, mkdir, writeFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import { join } from 'node:path'
 import { build } from 'vite'
-import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/native.mjs'
-import { hostBundle } from '../../cli/src/macos/jsc-host/runtime.mjs'
+import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/native.ts'
+import { hostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
 
 async function consumer(packed, app, source) {
 	const installed = join(app, 'node_modules/@octane-xplat/audio')

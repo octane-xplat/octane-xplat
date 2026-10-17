@@ -1,7 +1,17 @@
 #!/usr/bin/env node
 import { spawnSync } from 'node:child_process'
+import { existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { resolveBin } from '../src/resolve-bin.mjs'
+
+// Prefer the emitted dist/ build (published tarballs); fall back to src/ so
+// in-repo runs work before a build exists (Node ≥22.18 strips types).
+const distEntry = fileURLToPath(new URL('../dist/lint-tsrx.js', import.meta.url))
+const sourceRoot = existsSync(distEntry)
+	? new URL('../dist/', import.meta.url)
+	: new URL('../src/', import.meta.url)
+const ext = sourceRoot.pathname.endsWith('/dist/') ? '.js' : '.ts'
+
+const { resolveBin } = await import(new URL(`resolve-bin${ext}`, sourceRoot).href)
 
 const shouldFix = process.argv.includes('--fix')
 const oxlintBin = resolveBin('oxlint')
@@ -13,7 +23,7 @@ const oxlint = oxlintBin
 
 const tsrx = spawnSync(
 	process.execPath,
-	[fileURLToPath(new URL('../src/lint-tsrx.mjs', import.meta.url))],
+	[fileURLToPath(new URL(`lint-tsrx${ext}`, sourceRoot))],
 	{ stdio: 'inherit' },
 )
 

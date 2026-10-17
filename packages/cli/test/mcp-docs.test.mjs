@@ -4,9 +4,9 @@ import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
-import { createDocsService } from '../src/mcp/docs-service.mjs'
-import { resolveInstallations } from '../src/mcp/docs-binding.mjs'
-import { releaseMapping } from '../src/mcp/release-map.mjs'
+import { createDocsService } from '../dist/mcp/docs-service.js'
+import { resolveInstallations } from '../dist/mcp/docs-binding.js'
+import { releaseMapping } from '../dist/mcp/release-map.js'
 
 const GIT_ENV = {
 	...process.env,

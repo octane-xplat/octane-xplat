@@ -5,12 +5,12 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
 import { createMacOSConfig } from '../vite.shared.mjs'
-import { macOSExecutable } from '../../../packages/cli/src/macos/executables.mjs'
+import { macOSExecutable } from '../../../packages/cli/src/macos/executables.ts'
 import {
 	hostBundle,
 	hostRoot,
 	validateHostBundle,
-} from '../../../packages/cli/src/macos/jsc-host/runtime.mjs'
+} from '../../../packages/cli/src/macos/jsc-host/runtime.ts'
 
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const scratch = resolve(appRoot, '../../research')

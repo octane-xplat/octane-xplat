@@ -13,8 +13,8 @@ import { execFileSync } from 'node:child_process'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import test from 'node:test'
-import { inspectLinuxPackageConfig } from '../src/linux/config.mjs'
-import { packageLinux } from '../src/linux/package.mjs'
+import { inspectLinuxPackageConfig } from '../dist/linux/config.js'
+import { packageLinux } from '../dist/linux/package.js'
 
 function project(t) {
 	const root = mkdtempSync(join(tmpdir(), 'xplat-linux-'))

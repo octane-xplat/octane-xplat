@@ -15,7 +15,7 @@ import {
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { TYPECHECK_ENVIRONMENTS } from '../../cli/src/tsconfig-envs.mjs'
+import { TYPECHECK_ENVIRONMENTS } from '../../cli/src/tsconfig-envs.ts'
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const repoRoot = resolve(packageRoot, '../..')

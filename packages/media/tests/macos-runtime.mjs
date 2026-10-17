@@ -6,8 +6,8 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { deflateSync } from 'node:zlib'
 import ts from 'typescript'
-import { macOSExecutable } from '../../cli/src/macos/executables.mjs'
-import { hostBundle, hostRoot } from '../../cli/src/macos/jsc-host/runtime.mjs'
+import { macOSExecutable } from '../../cli/src/macos/executables.ts'
+import { hostBundle, hostRoot } from '../../cli/src/macos/jsc-host/runtime.ts'
 
 // No panel, window, image view, camera, Photos access or desktop input.
 // Actual AppKit image decoding/JPEG encoding and Foundation IO; the panel and

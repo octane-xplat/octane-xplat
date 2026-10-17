@@ -8,7 +8,7 @@ import { readFile } from 'node:fs/promises'
 import test from 'node:test'
 import vm from 'node:vm'
 import ts from 'typescript'
-import { xplatDevBridge } from '../../cli/src/mcp/dev-bridge.mjs'
+import { xplatDevBridge } from '../../cli/src/mcp/dev-bridge.ts'
 
 // Compile a src module to CJS and evaluate it with a sibling-file resolver,
 // so dev-actions.ts loads dev-bridge.web.ts + dev-actions-schema.ts the way a

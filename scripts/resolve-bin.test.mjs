@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import test from 'node:test'
 
-import { resolveBin } from '../packages/lint/src/resolve-bin.mjs'
+import { resolveBin } from '../packages/lint/src/resolve-bin.ts'
 
 const fixture = (t) => {
 	// module resolution realpaths the anchor — macOS /var -> /private/var

@@ -9,7 +9,7 @@ import {
 	inspectPatches,
 	loadPatchManifest,
 	specifierPackage,
-} from '../src/patches.mjs'
+} from '../dist/patches.js'
 
 for (const multiDocument of [false, true]) {
 	test(`patch inspection reads ${multiDocument ? 'multi-document' : 'single-document'} pnpm lockfiles`, (t) => {
@@ -77,7 +77,10 @@ test('catalog: specifiers resolve through the workspace catalog', (t) => {
 	const name = specifierPackage(patch.specifier)
 	const version = patch.specifier.slice(name.length + 1)
 
-	writeFileSync(join(root, 'package.json'), JSON.stringify({ dependencies: { [name]: 'catalog:' } }))
+	writeFileSync(
+		join(root, 'package.json'),
+		JSON.stringify({ dependencies: { [name]: 'catalog:' } }),
+	)
 	writeFileSync(
 		join(root, 'pnpm-workspace.yaml'),
 		stringify({ packages: [], catalog: { [name]: version } }),

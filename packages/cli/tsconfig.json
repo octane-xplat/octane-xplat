@@ -1,0 +1,13 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"types": ["node"],
+		"lib": ["ESNext"],
+		// Transitional: the .mjs→.ts port left service-layer params untyped and
+		// catch variables untyped (as they were under .mjs). Tighten per file
+		// rather than blocking the port on ~1300 annotations.
+		"noImplicitAny": false,
+		"useUnknownInCatchVariables": false
+	},
+	"include": ["src/**/*.ts", "src/**/*.d.ts"]
+}

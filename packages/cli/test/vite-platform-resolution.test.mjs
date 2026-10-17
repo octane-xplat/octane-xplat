@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, it } from 'node:test'
-import { nativeRelativeResolution } from '../src/vite.mjs'
+import { nativeRelativeResolution } from '../dist/vite.js'
 
 // An unsuffixed relative import must prefer the platform leaf over the shared
 // default — the ns platform resolver only knows .ios/.android, so `./svg`

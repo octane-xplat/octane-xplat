@@ -3,9 +3,9 @@ import { spawn } from 'node:child_process'
 import { mkdir, mkdtemp, symlink, writeFile } from 'node:fs/promises'
 import { resolve, join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { buildMacOSNative, writeNativeBootstrap } from '../../../cli/src/macos/native.mjs'
-import { hostBundle } from '../../../cli/src/macos/jsc-host/runtime.mjs'
-import { macOSExecutable } from '../../../cli/src/macos/executables.mjs'
+import { buildMacOSNative, writeNativeBootstrap } from '../../../cli/src/macos/native.ts'
+import { hostBundle } from '../../../cli/src/macos/jsc-host/runtime.ts'
+import { macOSExecutable } from '../../../cli/src/macos/executables.ts'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const repo = resolve(here, '../../../..')

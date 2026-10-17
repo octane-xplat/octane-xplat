@@ -327,11 +327,11 @@ export async function runTarget(target, args, onResult, signal) {
 			})
 
 			const { buildMacOSNative, writeNativeBootstrap } = await import(
-				join(repo, 'packages/cli/src/macos/native.mjs')
+				join(repo, 'packages/cli/src/macos/native.ts')
 			)
 
 			const { hostBundle, validateHostBundle } = await import(
-				join(repo, 'packages/cli/src/macos/jsc-host/runtime.mjs')
+				join(repo, 'packages/cli/src/macos/jsc-host/runtime.ts')
 			)
 
 			const artifact = await buildMacOSNative(project.root)
@@ -343,7 +343,7 @@ export async function runTarget(target, args, onResult, signal) {
 			// descriptions, keychain identity, media privacy grants) resolve
 			// the same way they do under `xplat dev`.
 			const { createMacOSDevBundle } = await import(
-				join(repo, 'packages/cli/src/macos/dev-bundle.mjs')
+				join(repo, 'packages/cli/src/macos/dev-bundle.ts')
 			)
 
 			const devBundle = await createMacOSDevBundle(project.root, {

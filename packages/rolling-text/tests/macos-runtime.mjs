@@ -5,9 +5,9 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
-import { xplatMacOS } from '../../cli/src/macos/vite.mjs'
-import { macOSExecutable } from '../../cli/src/macos/executables.mjs'
-import { hostBundle, hostRoot, validateHostBundle } from '../../cli/src/macos/jsc-host/runtime.mjs'
+import { xplatMacOS } from '../../cli/src/macos/vite.ts'
+import { macOSExecutable } from '../../cli/src/macos/executables.ts'
+import { hostBundle, hostRoot, validateHostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
 
 const packageRoot = fileURLToPath(new URL('..', import.meta.url))
 const appRoot = fileURLToPath(new URL('../../../apps/macos', import.meta.url))

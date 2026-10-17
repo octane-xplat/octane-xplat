@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
-import { xplatMacOS } from '../../cli/src/macos/vite.mjs'
+import { xplatMacOS } from '../../cli/src/macos/vite.ts'
 
 export async function buildMacOSBarrel(
 	root = resolve(dirname(fileURLToPath(import.meta.url)), '../../../apps/macos'),

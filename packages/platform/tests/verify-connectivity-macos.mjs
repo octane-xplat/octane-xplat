@@ -5,9 +5,9 @@ import { mkdir, mkdtemp, readFile, symlink, writeFile } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import ts from 'typescript'
-import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/native.mjs'
-import { hostBundle } from '../../cli/src/macos/jsc-host/runtime.mjs'
-import { macOSExecutable } from '../../cli/src/macos/executables.mjs'
+import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/native.ts'
+import { hostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
+import { macOSExecutable } from '../../cli/src/macos/executables.ts'
 
 const leaf = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const repo = resolve(leaf, '../..')

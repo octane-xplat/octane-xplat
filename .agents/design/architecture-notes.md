@@ -261,7 +261,7 @@ monorepo shape earns its cost once >1 app or a clean publish boundary exists.
 One `tsconfig.envs.json` per package declares which files each environment
 claims; `scripts/typecheck.mjs` expands it into a single combined program
 using the shared presets (`jsxImportSource`, `lib`, ambient host-globals) in
-`packages/cli/src/tsconfig-envs.mjs` under the fixed all-suffix
+`packages/cli/src/tsconfig-envs.ts` under the fixed all-suffix
 `moduleSuffixes` order (extensionless first). Details in
 [module-resolution](../../docs/platform/module-resolution.md).
 

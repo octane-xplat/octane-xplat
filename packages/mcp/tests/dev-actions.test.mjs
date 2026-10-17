@@ -9,7 +9,7 @@ import { realpathSync } from 'node:fs'
 import { join } from 'node:path'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js'
-import { xplatDevBridge } from '../../cli/src/mcp/dev-bridge.mjs'
+import { xplatDevBridge } from '../../cli/src/mcp/dev-bridge.ts'
 import {
 	actionAvailability,
 	isDevActionAnnouncement,

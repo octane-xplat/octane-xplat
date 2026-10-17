@@ -24,17 +24,27 @@
 	},
 	"files": [
 		"src",
+		"dist",
 		"bin"
 	],
 	"type": "module",
 	"exports": {
-		"./oxlint-plugin": "./src/oxlint-plugin.mjs"
+		"./oxlint-plugin": "./dist/oxlint-plugin.js"
 	},
 	"publishConfig": {
 		"access": "public"
 	},
+	"scripts": {
+		"build": "vite build",
+		"prepack": "pnpm build",
+		"typecheck": "tsc -p tsconfig.json"
+	},
 	"dependencies": {
 		"@tsrx/core": "^0.2.4"
+	},
+	"devDependencies": {
+		"@types/node": "24.10.1",
+		"vite": "catalog:"
 	},
 	"peerDependencies": {
 		"oxlint": ">=1.74.0"

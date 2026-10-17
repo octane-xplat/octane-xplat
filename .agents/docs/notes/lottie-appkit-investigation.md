@@ -46,7 +46,7 @@ keep Swift models/enums/async APIs behind that boundary.
 
 ## Existing bridge and build machinery
 
-`packages/cli/src/macos/native.mjs` discovers transitive installed leaves under
+`packages/cli/src/macos/native.ts` discovers transitive installed leaves under
 `platforms/macos`. It compiles Swift, emits a generated Objective-C header,
 validates public headers and generates combined SDK/leaf metadata. The
 bootstrap loads libraries with `dlopen` before app JavaScript. Both the leaf

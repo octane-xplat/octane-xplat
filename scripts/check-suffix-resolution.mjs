@@ -176,7 +176,7 @@ async function nativeExtensions(platform) {
 	try {
 		process.env.NATIVESCRIPT_BUNDLER_ENV = JSON.stringify({ [platform]: true })
 		const { xplatNative } = await import(
-			pathToFileURL(join(root, 'packages/cli/src/vite.mjs')).href
+			pathToFileURL(join(root, 'packages/cli/src/vite.ts')).href
 		)
 
 		const cfg = await xplatNative('production')

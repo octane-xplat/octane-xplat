@@ -8,8 +8,8 @@ import { readFileSync } from 'node:fs'
 import vm from 'node:vm'
 import ts from 'typescript'
 import { build } from 'vite'
-import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/native.mjs'
-import { hostBundle } from '../../cli/src/macos/jsc-host/runtime.mjs'
+import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/native.ts'
+import { hostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
 
 /** Packed leaf compilation, metadata and real bridge smoke without mic access.
  * Caller reserves native_builds:1. Real microphone qualification is separate. */

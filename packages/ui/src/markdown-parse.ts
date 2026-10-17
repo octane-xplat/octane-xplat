@@ -1,5 +1,5 @@
 // Runtime Markdown parser — emits the same `MdDoc`/`MdNode` AST that
-// `xplat routes` codegen bakes from `marked` (packages/cli/src/markdown.mjs).
+// `xplat routes` codegen bakes from `marked` (packages/cli/src/markdown.ts).
 // The package ships no parser dependency, so this is a hand-written subset
 // covering exactly what the AST can express: ATX and Setext headings,
 // paragraphs, fenced code, flat ordered/unordered lists, blockquotes, and

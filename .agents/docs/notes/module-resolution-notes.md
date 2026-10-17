@@ -199,7 +199,7 @@ One combined program per package/app — `tsconfig.envs.json` declares file
 claims per environment (`environments.<env>.files|include|exclude`) and
 `scripts/typecheck.mjs` expands the manifest into a single `all.json` under
 `node_modules/.cache/xplat-typecheck/` via the shared presets in
-`packages/cli/src/tsconfig-envs.mjs`:
+`packages/cli/src/tsconfig-envs.ts`:
 
 ```jsonc
 // tsconfig.envs.json — environments claim files; the program is shared

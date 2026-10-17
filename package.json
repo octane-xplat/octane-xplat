@@ -33,7 +33,7 @@
 		"typegen": "turbo run typegen",
 		"typegen:watch": "turbo watch typegen --continue always",
 		"postinstall": "pnpm typegen && pnpm --filter @xplat/app exec bamboo codegen",
-		"test:cli": "node --test packages/cli/test/*.test.mjs",
+		"test:cli": "pnpm --filter @octane-xplat/cli build && node --test packages/cli/test/*.test.mjs",
 		"test:create": "node --test packages/create/test/*.test.mjs",
 		"check:consumer": "node scripts/verify-consumer.mjs",
 		"dev:android": "pnpm --filter @xplat/mobile android",

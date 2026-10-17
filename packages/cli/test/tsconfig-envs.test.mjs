@@ -8,7 +8,7 @@ import {
 	expandEnvPrograms,
 	loadEnvManifest,
 	PLATFORM_MODULE_SUFFIXES,
-} from '../src/tsconfig-envs.mjs'
+} from '../dist/tsconfig-envs.js'
 
 const tmp = []
 

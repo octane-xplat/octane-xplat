@@ -7,9 +7,9 @@ import {
 	buildMacOSNative,
 	discoverMacOSNative,
 	writeNativeBootstrap,
-} from '../src/macos/native.mjs'
+} from '../dist/macos/native.js'
 
-import { hostBundle } from '../src/macos/jsc-host/runtime.mjs'
+import { hostBundle } from '../dist/macos/jsc-host/runtime.js'
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
 const scratch = join(repo, 'research')

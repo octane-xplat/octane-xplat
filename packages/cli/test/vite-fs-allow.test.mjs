@@ -3,7 +3,7 @@ import { existsSync, mkdtempSync, mkdirSync, realpathSync, rmSync, writeFileSync
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { afterEach, describe, it } from 'node:test'
-import { linkedDepFsRoots } from '../src/vite.mjs'
+import { linkedDepFsRoots } from '../dist/vite.js'
 
 // The stub mirrors the contract vite's searchForWorkspaceRoot export has:
 // walk up from the dep dir to the nearest dir carrying a workspace marker

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
-import { unwrapCssLayers } from '../src/css-layers.mjs'
+import { unwrapCssLayers } from '../dist/css-layers.js'
 
 describe('unwrapCssLayers', () => {
 	it('removes layer order statements and keeps rules from named layers', () => {

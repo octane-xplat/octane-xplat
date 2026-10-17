@@ -67,7 +67,7 @@ const contentOrigin = url.match(/^[a-z][a-z0-9+.-]*:\/\/[^/]+/i)?.[0] ?? url
 const MIMES = {
 	'.html': 'text/html',
 	'.js': 'text/javascript',
-	'.mjs': 'text/javascript',
+	'.ts': 'text/javascript',
 	'.css': 'text/css',
 	'.json': 'application/json',
 	'.svg': 'image/svg+xml',

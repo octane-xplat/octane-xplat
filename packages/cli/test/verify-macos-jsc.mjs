@@ -3,10 +3,10 @@ import { execFileSync, spawnSync } from 'node:child_process'
 import { cp, mkdtemp, mkdir, symlink, writeFile } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { validateHostBundle } from '../src/macos/jsc-host/runtime.mjs'
+import { validateHostBundle } from '../dist/macos/jsc-host/runtime.js'
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
-const cliPath = process.env.XPLAT_TEST_CLI ?? join(repoRoot, 'packages/cli/src/cli.mjs')
+const cliPath = process.env.XPLAT_TEST_CLI ?? join(repoRoot, 'packages/cli/dist/cli/src/cli.js')
 const scratchRoot = join(repoRoot, 'research')
 await mkdir(scratchRoot, { recursive: true })
 const appRoot = await mkdtemp(join(scratchRoot, 'macos-jsc-fixture-'))

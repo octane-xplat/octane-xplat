@@ -33,7 +33,7 @@ build:packages`, `pnpm build:web`, and the package-test half of `pnpm test`
   `tsconfig.<platform>.json`. The manifest declares the checked surface once
   (`environments.<env>.files|include|exclude`); `scripts/typecheck.mjs`
   expands the declared environments into **one combined program** using the
-  shared presets in `packages/cli/src/tsconfig-envs.mjs` (lib / ambient /
+  shared presets in `packages/cli/src/tsconfig-envs.ts` (lib / ambient /
   types merged; `jsxImportSource` defaults to `octane` with per-file pragmas
   on native/macOS leaves) and runs `tsrx-tsc --noEmit` on it under
   `node_modules/.cache/xplat-typecheck/`. Every program resolves under the
@@ -72,7 +72,7 @@ build:packages`, `pnpm build:web`, and the package-test half of `pnpm test`
   `node_modules/.bin` shims — `xplat`/`xplat-lint` come back `command not
 found` — and reinstalls stay "Already up to date" (GH#16). Heal by
   reinstalling once the path exists (`rm -rf node_modules && pnpm install`)
-  or by running `node node_modules/@octane-xplat/cli/src/link-bins.mjs` from
+  or by running `node node_modules/@octane-xplat/cli/src/link-bins.ts` from
   the app root; wiring that into the consumer's `postinstall` covers fresh
   installs. pnpm 12 re-resolves and is unaffected. `xplat-lint` resolves
   `oxlint` from the app's dep tree, so invoking `bin/lint.mjs` with `node`

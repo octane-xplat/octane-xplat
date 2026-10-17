@@ -16,8 +16,8 @@ import { randomUUID } from 'node:crypto'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/native.mjs'
-import { hostBundle } from '../../cli/src/macos/jsc-host/runtime.mjs'
+import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/native.ts'
+import { hostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
 
 const root = fileURLToPath(new URL('..', import.meta.url))
 const temporary = mkdtempSync(join(tmpdir(), 'xplat-keychain-'))

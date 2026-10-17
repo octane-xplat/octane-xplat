@@ -22,41 +22,49 @@
 		"directory": "packages/cli"
 	},
 	"bin": {
-		"xplat": "./src/cli.mjs"
+		"xplat": "./bin/xplat.mjs"
 	},
 	"files": [
 		"src",
+		"dist",
+		"bin",
 		"patches"
 	],
 	"type": "module",
 	"exports": {
 		"./linux": {
 			"types": "./src/linux/package.d.ts",
-			"default": "./src/linux/package.mjs"
+			"default": "./dist/linux/package.js"
 		},
 		"./macos": {
 			"types": "./src/macos/dev.d.ts",
-			"default": "./src/macos/dev.mjs"
+			"default": "./dist/macos/dev.js"
 		},
 		"./vite": {
 			"types": "./src/vite.d.ts",
-			"default": "./src/vite.mjs"
+			"default": "./dist/vite.js"
 		},
 		"./macos/vite": {
 			"types": "./src/macos/vite.d.ts",
-			"default": "./src/macos/vite.mjs"
+			"default": "./dist/macos/vite.js"
 		},
 		"./mcp/code-service": {
-			"default": "./src/mcp/code-service.mjs"
+			"default": "./dist/mcp/code-service.js"
 		},
 		"./mcp/docs-service": {
-			"default": "./src/mcp/docs-service.mjs"
+			"default": "./dist/mcp/docs-service.js"
 		},
-		"./mcp/*": "./src/mcp/*.mjs",
-		"./mcp/*.mjs": "./src/mcp/*.mjs"
+		"./mcp/*": "./dist/mcp/*.js",
+		"./mcp/*.mjs": "./dist/mcp/*.js"
 	},
 	"publishConfig": {
 		"access": "public"
+	},
+	"scripts": {
+		"build": "vite build",
+		"prepack": "pnpm build",
+		"test": "pnpm build && node --test test/*.test.mjs",
+		"typecheck": "tsc -p tsconfig.json"
 	},
 	"dependencies": {
 		"@alloc/cmd-ts": "0.17.1",
@@ -68,5 +76,9 @@
 		"marked": "18.0.14",
 		"wawoff2": "2.0.1",
 		"yaml": "2.9.1"
+	},
+	"devDependencies": {
+		"@types/node": "24.10.1",
+		"vite": "catalog:"
 	}
 }
