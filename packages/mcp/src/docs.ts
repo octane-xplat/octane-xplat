@@ -2,35 +2,40 @@
 // shared service layer at @octane-xplat/cli/mcp/docs-provider — the CLI's
 // `docs`/`guidance` commands project the same service.
 import { z } from 'zod'
-import { contractError, toContractError } from './contracts/errors.mjs'
-import { PLATFORMS } from './contracts/identity.mjs'
-import { resolveSelection } from './status.mjs'
+import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
+import { contractError, toContractError } from './contracts/errors.ts'
+import { PLATFORMS } from './contracts/identity.ts'
+import { resolveSelection } from './status.ts'
+import type { Respond, Selection, WorkspaceContext } from './context.ts'
+import type { Platform } from '../types/contracts/identity'
 
-export function registerDocsTools(server, context, respond) {
-	const run = (method) => async (args) => {
-		const permission = context.policy.require('workspace')
-		if (!permission.granted) {
-			return respond({ ok: false, error: permission.error })
-		}
+export function registerDocsTools(server: McpServer, context: WorkspaceContext, respond: Respond) {
+	const run =
+		(method: 'search' | 'read' | 'guidance') =>
+		async (args: any): Promise<ReturnType<Respond>> => {
+			const permission = context.policy.require('workspace')
+			if (!permission.granted) {
+				return respond({ ok: false, error: permission.error })
+			}
 
-		const selection = resolveSelection(context)
-		if (selection.state !== 'bound') {
-			return respond({
-				ok: false,
-				error: contractError(
-					selection.state === 'ambiguous' ? 'ambiguous_selection' : 'invalid_selection',
-					'Bind an app with xplat_select_app before retrieving docs.',
-				),
-			})
-		}
+			const selection = resolveSelection(context) as Selection
+			if (selection.state !== 'bound') {
+				return respond({
+					ok: false,
+					error: contractError(
+						selection.state === 'ambiguous' ? 'ambiguous_selection' : 'invalid_selection',
+						'Bind an app with xplat_select_app before retrieving docs.',
+					),
+				})
+			}
 
-		try {
-			const data = await context.docs.serviceFor(selection.app)[method](args)
-			return respond({ ok: true, data })
-		} catch (error) {
-			return respond({ ok: false, error: toContractError(error) })
+			try {
+				const data = await context.docs.serviceFor(selection.app)[method](args)
+				return respond({ ok: true, data })
+			} catch (error) {
+				return respond({ ok: false, error: toContractError(error) })
+			}
 		}
-	}
 
 	server.registerTool(
 		'xplat_docs_search',
@@ -44,7 +49,7 @@ export function registerDocsTools(server, context, respond) {
 					.string()
 					.optional()
 					.describe('Explicit comparison version, visibly outside the installed binding.'),
-				platform: z.enum(PLATFORMS).optional(),
+				platform: z.enum(PLATFORMS as Platform[]).optional(),
 				corpus: z
 					.enum(['guide', 'recipe', 'design-note', 'implementation-note'])
 					.optional()

@@ -1,4 +1,9 @@
 {
 	"extends": "../../tsconfig.base.json",
-	"include": ["src/**/*.d.ts"]
+	"compilerOptions": {
+		"types": ["node"],
+		"lib": ["ESNext"],
+		"allowJs": true
+	},
+	"include": ["src/**/*.ts", "types/**/*.d.ts"]
 }

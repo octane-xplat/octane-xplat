@@ -3,15 +3,15 @@ import { test } from 'node:test'
 import { mkdtempSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { contractError, isContractError, toContractError } from '../src/contracts/errors.mjs'
-import { createCapabilityRegistry } from '../src/contracts/capabilities.mjs'
-import { createPolicyStore } from '../src/contracts/policy.mjs'
-import { createJobRegistry, createSessionRegistry } from '../src/contracts/sessions.mjs'
+import { contractError, isContractError, toContractError } from '../dist/contracts/errors.js'
+import { createCapabilityRegistry } from '../dist/contracts/capabilities.js'
+import { createPolicyStore } from '../dist/contracts/policy.js'
+import { createJobRegistry, createSessionRegistry } from '../dist/contracts/sessions.js'
 import {
 	createEvidenceStore,
 	isOsInputEvidence,
 	TRANSCRIPT_LIMITATION_NOTE,
-} from '../src/contracts/evidence.mjs'
+} from '../dist/contracts/evidence.js'
 
 test('contract errors carry code, message, and the smallest corrective action', () => {
 	const error = contractError('prerequisite_missing', 'adb not found', {

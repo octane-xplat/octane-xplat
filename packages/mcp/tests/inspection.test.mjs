@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { join } from 'node:path'
-import { createWorkspaceContext } from '../src/status.mjs'
-import { createInspectionService } from '../src/inspection/service.mjs'
+import { createWorkspaceContext } from '../dist/status.js'
+import { createInspectionService } from '../dist/inspection/service.js'
 import { makeConsumerApp, makeWorkspace } from './helpers.mjs'
 
 test('inspection gates capture before connecting and refuses stopped, foreign and attached identities', async () => {

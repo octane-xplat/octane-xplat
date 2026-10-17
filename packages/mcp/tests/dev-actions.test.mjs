@@ -16,11 +16,11 @@ import {
 	validateActionDeclaration,
 	validateActionInput,
 	validateActionOutput,
-} from '../src/contracts/actions.mjs'
+} from '../dist/contracts/actions.js'
 
-import { scanBridgeEndpoints } from '../src/actions/bridge.mjs'
-import { createXplatMcpServer } from '../src/server.mjs'
-import { createWorkspaceContext } from '../src/status.mjs'
+import { scanBridgeEndpoints } from '../dist/actions/bridge.js'
+import { createXplatMcpServer } from '../dist/server.js'
+import { createWorkspaceContext } from '../dist/status.js'
 import { makeConsumerApp, makeWorkspace } from './helpers.mjs'
 
 // ---------- contract validators ----------

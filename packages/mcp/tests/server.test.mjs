@@ -5,8 +5,8 @@ import { test } from 'node:test'
 import { join } from 'node:path'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js'
-import { createXplatMcpServer } from '../src/server.mjs'
-import { createWorkspaceContext } from '../src/status.mjs'
+import { createXplatMcpServer } from '../dist/server.js'
+import { createWorkspaceContext } from '../dist/status.js'
 import { makeConsumerApp, makeWorkspace } from './helpers.mjs'
 
 async function connect(root, options = {}) {

@@ -5,8 +5,8 @@ import { join } from 'node:path'
 import { test } from 'node:test'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js'
-import { createWorkspaceContext } from '../src/status.mjs'
-import { createXplatMcpServer } from '../src/server.mjs'
+import { createWorkspaceContext } from '../dist/status.js'
+import { createXplatMcpServer } from '../dist/server.js'
 import { makeWorkspace, makeConsumerApp, writeFile, writeJson } from './helpers.mjs'
 
 test('MCP docs bind each selected pnpm consumer to its installed release and refresh dependency changes', async (t) => {

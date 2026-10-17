@@ -7,8 +7,8 @@ import { join } from 'node:path'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js'
 import { createCodeService } from '@octane-xplat/cli/mcp/code-service'
-import { createXplatMcpServer } from '../src/server.mjs'
-import { createWorkspaceContext } from '../src/status.mjs'
+import { createXplatMcpServer } from '../dist/server.js'
+import { createWorkspaceContext } from '../dist/status.js'
 import { makeConsumerApp, makeWorkspace, writeFile, writeJson } from './helpers.mjs'
 
 async function connect(root, options = {}) {

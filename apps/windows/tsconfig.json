@@ -61,6 +61,7 @@
 		"../../packages/lingui/tests",
 		"../../packages/*/dist",
 		"../../packages/*/types",
-		"../../packages/*/src/build"
+		"../../packages/*/src/build",
+		"../../packages/mcp"
 	]
 }

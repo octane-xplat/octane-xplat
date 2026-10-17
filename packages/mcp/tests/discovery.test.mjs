@@ -6,9 +6,9 @@ import {
 	detectPlatforms,
 	discoverWorkspace,
 	resolveFrameworkBinding,
-} from '../src/discovery.mjs'
+} from '../dist/discovery.js'
 
-import { bindApp, buildProjectStatus, createWorkspaceContext } from '../src/status.mjs'
+import { bindApp, buildProjectStatus, createWorkspaceContext } from '../dist/status.js'
 import { makeConsumerApp, makeWorkspace, writeFile, writeJson } from './helpers.mjs'
 
 test('single consumer app binds as sole-app with detected identity', async () => {

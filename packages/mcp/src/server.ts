@@ -4,20 +4,27 @@
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { z } from 'zod'
-import { contractError, toContractError } from './contracts/errors.mjs'
-import { EVIDENCE_KINDS } from './contracts/evidence.mjs'
-import { PLATFORMS } from './contracts/identity.mjs'
-import { PERMISSION_SCOPES } from './contracts/policy.mjs'
-import { discoverWorkspace } from './discovery.mjs'
-import { registerRuntimeTools } from './runtime/tools.mjs'
-import { registerDocsTools } from './docs.mjs'
-import { registerInspectionTools } from './inspection/service.mjs'
-import { bindApp, buildProjectStatus, resolveSelection, SERVER_NAME } from './status.mjs'
+import { contractError, toContractError } from './contracts/errors.ts'
+import { EVIDENCE_KINDS } from './contracts/evidence.ts'
+import { PLATFORMS } from './contracts/identity.ts'
+import { PERMISSION_SCOPES } from './contracts/policy.ts'
+import { discoverWorkspace } from './discovery.ts'
+import { registerRuntimeTools } from './runtime/tools.ts'
+import { registerDocsTools } from './docs.ts'
+import { registerInspectionTools } from './inspection/service.ts'
+import { bindApp, buildProjectStatus, resolveSelection, SERVER_NAME } from './status.ts'
+import type { Respond, Selection, ToolResponse, WorkspaceContext } from './context.ts'
+import type { ContractError } from '../types/contracts/errors'
+import type { AppRef, Platform, WorkspaceKind } from '../types/contracts/identity'
+import type { PermissionScope } from '../types/contracts/policy'
+import type { EvidenceKind } from '../types/contracts/evidence'
 
 // Lockstep releases bump the manifest; the handshake must follow it.
 const SERVER_VERSION = JSON.parse(
-	readFileSync(new URL('../package.json', import.meta.url), 'utf8'),
+	readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../package.json'), 'utf8'),
 ).version
 
 const INSTRUCTIONS =
@@ -27,18 +34,18 @@ const INSTRUCTIONS =
 	'For runtime work, check xplat_capability_matrix then xplat_targets; xplat_launch starts an owned session as a job and xplat_attach binds a session you already run. ' +
 	'Results always say what was actually checked; a successful build is not proof of behavior.'
 
-const respond = (outcome) => ({
+const respond: Respond = (outcome) => ({
 	structuredContent: outcome,
 	isError: outcome.ok === false,
 	content: [{ type: 'text', text: JSON.stringify(outcome, null, 2) }],
 })
 
-const ok = (data) => respond({ ok: true, data })
-const fail = (error) => respond({ ok: false, error })
+const ok = (data: unknown): ToolResponse => respond({ ok: true, data })
+const fail = (error: ContractError): ToolResponse => respond({ ok: false, error })
 
 /** The bound app for runtime tools — explicit, configured, or sole-app. */
-const boundApp = (context) => {
-	const selection = resolveSelection(context)
+const boundApp = (context: WorkspaceContext): AppRef | null => {
+	const selection = resolveSelection(context) as Selection
 	return selection.state === 'bound' ? selection.app : null
 }
 
@@ -47,7 +54,7 @@ const NO_APP = () =>
 		recovery: { action: 'Bind an app with xplat_select_app first.' },
 	})
 
-export function createXplatMcpServer(context) {
+export function createXplatMcpServer(context: WorkspaceContext) {
 	const server = new McpServer(
 		{ name: SERVER_NAME, version: SERVER_VERSION },
 		{ instructions: INSTRUCTIONS },
@@ -56,7 +63,7 @@ export function createXplatMcpServer(context) {
 	// Wire the policy elicitation channel now that the protocol exists. The
 	// client must advertise elicitation support; without it, grants fall back
 	// to developer-side configuration with an honest recovery message.
-	context.policy.setElicitor(async (scope, reason) => {
+	context.policy.setElicitor(async (scope: PermissionScope, reason: string) => {
 		try {
 			if (!server.server.getClientCapabilities()?.elicitation) {
 				return 'denied'
@@ -83,7 +90,7 @@ export function createXplatMcpServer(context) {
 	// search/read a server-side capability — supported on every platform,
 	// independent of runtime adapters.
 	if (context.code) {
-		for (const platform of PLATFORMS) {
+		for (const platform of PLATFORMS as Platform[]) {
 			context.capabilities.register({
 				platform,
 				describe: () => [
@@ -114,9 +121,10 @@ export function createXplatMcpServer(context) {
 			if (refresh) {
 				context.discovery = discoverWorkspace(context.workspaceRoot)
 				// A previously bound app may have moved or vanished; re-resolve.
-				if (context.boundApp) {
-					const still = context.discovery.apps.find((a) => a.id === context.boundApp.id)
-					context.boundApp = still ?? null
+				const bound = context.boundApp
+				if (bound) {
+					const still = context.discovery.apps.find((a) => a.id === bound.id)
+					context.boundApp = (still ?? null) as AppRef | null
 					context.selectionReason = still ? 'explicit' : null
 				}
 			}
@@ -164,13 +172,16 @@ export function createXplatMcpServer(context) {
 			description:
 				'Per-platform capability matrix: build, launch, logs, UI inspection, screenshot, and interaction are separate capabilities. Unsupported or missing capabilities come with an explanation and a usable alternative when one exists.',
 			inputSchema: {
-				platform: z.enum(PLATFORMS).optional().describe('Limit to one platform'),
+				platform: z
+					.enum(PLATFORMS as Platform[])
+					.optional()
+					.describe('Limit to one platform'),
 			},
 		},
 		async ({ platform }) => {
 			const status = await buildProjectStatus(context)
 			const matrices = platform
-				? status.capabilities.filter((m) => m.platform === platform)
+				? status.capabilities.filter((m: { platform: string }) => m.platform === platform)
 				: status.capabilities
 
 			return ok({ capabilities: matrices })
@@ -183,7 +194,7 @@ export function createXplatMcpServer(context) {
 			description:
 				'Report permission grants and their states. Workspace scope and ordinary runtime actions reuse the task authorization; screenshots require an explicit per-task developer grant checked at action time.',
 			inputSchema: {
-				scope: z.enum(PERMISSION_SCOPES).optional(),
+				scope: z.enum(PERMISSION_SCOPES as PermissionScope[]).optional(),
 			},
 		},
 		async ({ scope }) => {
@@ -364,7 +375,10 @@ export function createXplatMcpServer(context) {
 					.string()
 					.optional()
 					.describe('ISO expiration for retain; omit for manual deletion only'),
-				kind: z.enum(EVIDENCE_KINDS).optional().describe('Filter for list'),
+				kind: z
+					.enum(EVIDENCE_KINDS as EvidenceKind[])
+					.optional()
+					.describe('Filter for list'),
 			},
 		},
 		async ({ op, id, expiresAt, kind }) => {
@@ -378,21 +392,22 @@ export function createXplatMcpServer(context) {
 
 			if (op === 'retain') {
 				const result = context.evidence.retain(id, { expiresAt: expiresAt ?? null })
-				return result.error ? fail(result.error) : ok(result)
+				return 'error' in result ? fail(result.error) : ok(result)
 			}
 
 			const result = context.evidence.delete(id)
-			return result.error ? fail(result.error) : ok(result)
+			return 'error' in result ? fail(result.error) : ok(result)
 		},
 	)
 
 	// Code retrieval (work item C). Results are leads with provenance and
 	// freshness — exact search reads live files, semantic hits are
 	// revalidated against current source before serving.
-	const boundAppForCode = () => {
-		const selection = resolveSelection(context)
+	const boundAppForCode = (): { app: AppRef | null; error?: ContractError } => {
+		const selection = resolveSelection(context) as Selection
 		if (selection.state === 'ambiguous') {
 			return {
+				app: null,
 				error: contractError(
 					'ambiguous_selection',
 					'Several apps are detected — code retrieval targets the bound app and its installed packages, never a guessed one.',
@@ -424,7 +439,7 @@ export function createXplatMcpServer(context) {
 			),
 		)
 
-	const codeResult = (result) => {
+	const codeResult = (result: any): ToolResponse => {
 		if (!result?.status) {
 			return ok(result)
 		}
@@ -456,7 +471,7 @@ export function createXplatMcpServer(context) {
 					.describe('exact = token search over current files; semantic = local index; auto = both'),
 				corpus: z.enum(['app', 'framework', 'all']).optional().describe('Default: all'),
 				platform: z
-					.enum(PLATFORMS)
+					.enum(PLATFORMS as Platform[])
 					.optional()
 					.describe('Include shared files plus files marked for this platform'),
 				package: z.string().optional().describe('Limit the framework corpus to one package'),
@@ -482,7 +497,7 @@ export function createXplatMcpServer(context) {
 				return codeResult(
 					await context.code.search({
 						app,
-						workspaceKind: context.discovery.workspace.kind,
+						workspaceKind: context.discovery.workspace.kind as WorkspaceKind,
 						query,
 						mode,
 						corpus,
@@ -533,7 +548,7 @@ export function createXplatMcpServer(context) {
 				return codeResult(
 					await context.code.read({
 						app,
-						workspaceKind: context.discovery.workspace.kind,
+						workspaceKind: context.discovery.workspace.kind as WorkspaceKind,
 						ref,
 						corpus,
 						package: pkg,

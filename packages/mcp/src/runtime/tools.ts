@@ -3,9 +3,16 @@
 // contracts.
 
 import { z } from 'zod'
-import { PLATFORMS } from '../contracts/identity.mjs'
+import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
+import { PLATFORMS } from '../contracts/identity.ts'
+import type { Respond, WorkspaceContext } from '../context.ts'
+import type { Platform } from '../../types/contracts/identity'
 
-export function registerRuntimeTools(server, context, respond) {
+export function registerRuntimeTools(
+	server: McpServer,
+	context: WorkspaceContext,
+	respond: Respond,
+) {
 	const runtime = context.runtime
 
 	server.registerTool(
@@ -14,7 +21,10 @@ export function registerRuntimeTools(server, context, respond) {
 			description:
 				'Discover launchable targets for the bound app: simulators, emulators, devices and host targets with availability, missing-toolchain reasons, and session busy/ownership state.',
 			inputSchema: {
-				platform: z.enum(PLATFORMS).optional().describe('Limit to one platform'),
+				platform: z
+					.enum(PLATFORMS as Platform[])
+					.optional()
+					.describe('Limit to one platform'),
 			},
 		},
 		async ({ platform }) => {
@@ -31,7 +41,7 @@ export function registerRuntimeTools(server, context, respond) {
 			description:
 				'Build the bound app for one platform as a background job (the same commands `xplat build` runs). Returns a job id — poll xplat_job_status and read output with xplat_logs. Repeating with the same requestKey returns the live job instead of duplicating it.',
 			inputSchema: {
-				platform: z.enum(PLATFORMS),
+				platform: z.enum(PLATFORMS as Platform[]),
 				requestKey: z.string().optional().describe('Idempotence key for retries'),
 			},
 		},
@@ -49,7 +59,7 @@ export function registerRuntimeTools(server, context, respond) {
 			description:
 				'Start an owned development session: bind one app to one target and run the platform dev command as a job. The job completes when readiness is confirmed — a failed launch after a successful build reports accurately, and the session keeps the app alive until xplat_session_end.',
 			inputSchema: {
-				platform: z.enum(PLATFORMS),
+				platform: z.enum(PLATFORMS as Platform[]),
 				targetId: z
 					.string()
 					.optional()
@@ -77,7 +87,7 @@ export function registerRuntimeTools(server, context, respond) {
 			description:
 				'Attach to a compatible development session that is already running — never restarts or terminates it. Reports candidates per platform; attach binds a preserved user-owned session.',
 			inputSchema: {
-				platform: z.enum(PLATFORMS),
+				platform: z.enum(PLATFORMS as Platform[]),
 				targetId: z
 					.string()
 					.optional()

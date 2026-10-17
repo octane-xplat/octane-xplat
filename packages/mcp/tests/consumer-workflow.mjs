@@ -6,8 +6,8 @@ import { readdirSync, readFileSync } from 'node:fs'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js'
 import { createCodeService } from '@octane-xplat/cli/mcp/code-service'
-import { createXplatMcpServer } from '../src/server.mjs'
-import { createWorkspaceContext } from '../src/status.mjs'
+import { createXplatMcpServer } from '../dist/server.js'
+import { createWorkspaceContext } from '../dist/status.js'
 
 const appArgument = process.argv.slice(2).find((arg) => !arg.startsWith('--'))
 if (!appArgument) {

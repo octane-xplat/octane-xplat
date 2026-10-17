@@ -2,13 +2,21 @@
 // shared layer at @octane-xplat/cli/mcp/inspection/service; this file only
 // binds it to MCP tools.
 import { z } from 'zod'
+import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
+import type { Respond, WorkspaceContext } from '../context.ts'
 
-export function registerInspectionTools(server, context, respond) {
+export function registerInspectionTools(
+	server: McpServer,
+	context: WorkspaceContext,
+	respond: Respond,
+) {
 	const control = z.object({ kind: z.enum(['id', 'testID']), name: z.string().min(1).max(200) })
-	const run = (method) => async (args) => {
-		const data = await context.inspection[method](args)
-		return data.error ? respond({ ok: false, error: data.error }) : respond({ ok: true, data })
-	}
+	const run =
+		(method: 'inspect' | 'interact' | 'screenshot') =>
+		async (args: any): Promise<ReturnType<Respond>> => {
+			const data = await context.inspection[method](args)
+			return data.error ? respond({ ok: false, error: data.error }) : respond({ ok: true, data })
+		}
 
 	server.registerTool(
 		'xplat_inspect',

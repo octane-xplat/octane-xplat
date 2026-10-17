@@ -38,9 +38,11 @@ A one-off run without a devDependency also works:
 pnpm dlx @octane-xplat/mcp --workspace /path/to/app-workspace
 ```
 
-For development inside this repository:
+For development inside this repository — `test` and `prepack` run `vite
+build` to emit `dist/`, and `start` expects a build:
 
 ```sh
+pnpm --filter @octane-xplat/mcp build
 pnpm --filter @octane-xplat/mcp start -- --workspace <path>
 pnpm --filter @octane-xplat/mcp test
 ```
@@ -122,12 +124,14 @@ The service layer lives in `packages/cli/src/mcp/` — the `xplat` CLI projects
 the same contracts through its agent commands (`xplat catalog --json` is the
 entry point). `packages/mcp/src/` holds the stdio transport adapter: tool
 registration wraps the shared services, and the published `.d.ts` contract
-surface stays here.
+surface stays here under `types/contracts/`. Sources are TypeScript; `pnpm
+build` emits the runnable ESM to `dist/` (`pnpm test` builds first).
 
 ## Contract surface (`@octane-xplat/mcp/contracts/*`)
 
-Later work packages integrate against these modules; the `.d.ts` files are the
-documented surface and the `.mjs` files carry the runtime values and stores.
+Later work packages integrate against these modules; the `.d.ts` files under
+`types/contracts/` are the documented surface and the compiled `dist/` modules
+carry the runtime values and stores (re-exported from `@octane-xplat/cli`).
 
 - `errors` — `ContractErrorCode` vocabulary (`invalid_selection`,
   `ambiguous_selection`, `permission_denied`, `unsupported_capability`,
@@ -178,7 +182,7 @@ on all six platforms. Adapters (`runtime/adapters/*`) own platform
 mechanics and always spawn the app's own toolchain — `pnpm exec vite`,
 `pnpm exec ns run …`, the app's installed `@octane-xplat/cli` dev entry, or
 its `dev` script — so a session behaves like the app's installed framework
-version. `service.mjs` owns the shared contract behavior: explicit
+version. The shared `runtime/service` module owns the contract behavior: explicit
 app+target binding, `target_busy` contention, job dedupe/cooperative
 cancel, ownership-safe cleanup, bounded logs, and capability-matrix entries.
 

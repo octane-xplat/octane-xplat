@@ -9,30 +9,35 @@
 		"directory": "packages/mcp"
 	},
 	"bin": {
-		"xplat-mcp": "./src/xplat-mcp.mjs"
+		"xplat-mcp": "./dist/xplat-mcp.js"
 	},
 	"files": [
 		"src",
+		"types",
+		"dist",
 		"README.md"
 	],
 	"type": "module",
 	"exports": {
 		"./contracts": {
-			"types": "./src/contracts/index.d.ts",
-			"default": "./src/contracts/index.mjs"
+			"types": "./types/contracts/index.d.ts",
+			"default": "./dist/contracts/index.js"
 		},
 		"./contracts/*": {
-			"types": "./src/contracts/*.d.ts",
-			"default": "./src/contracts/*.mjs"
-		}
+			"types": "./types/contracts/*.d.ts",
+			"default": "./dist/contracts/*.js"
+		},
+		"./package.json": "./package.json"
 	},
 	"publishConfig": {
 		"access": "public"
 	},
 	"scripts": {
-		"start": "node src/xplat-mcp.mjs",
-		"test": "node --test tests/*.test.mjs",
-		"test:consumer": "node tests/consumer-workflow.mjs",
+		"start": "node dist/xplat-mcp.js",
+		"build": "vite build",
+		"prepack": "pnpm build",
+		"test": "pnpm build && node --test tests/*.test.mjs",
+		"test:consumer": "pnpm build && node tests/consumer-workflow.mjs",
 		"typecheck": "tsc -p tsconfig.json"
 	},
 	"dependencies": {
@@ -42,6 +47,8 @@
 		"zod": "4.6.5"
 	},
 	"devDependencies": {
-		"typescript": "catalog:"
+		"@types/node": "20.19.0",
+		"typescript": "catalog:",
+		"vite": "catalog:"
 	}
 }
