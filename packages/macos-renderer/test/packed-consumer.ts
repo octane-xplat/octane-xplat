@@ -6,6 +6,7 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const actionBarOnly = process.argv.includes('--actionbar')
+const liquidGlassOnly = process.argv.includes('--liquidglass')
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const repo = resolve(packageRoot, '../..')
@@ -82,6 +83,8 @@ for (const file of [
 	'actionbar-lifecycle.ts',
 	'Placeholder.macos.tsx',
 	'placeholder-lifecycle.ts',
+	'LiquidGlass.macos.tsx',
+	'liquidglass-lifecycle.ts',
 	'root-lifecycle.ts',
 	'proxy-lifecycle.ts',
 	'wrap-lifecycle.ts',
@@ -105,13 +108,23 @@ if (actionBarOnly) {
 	}
 }
 
+if (liquidGlassOnly) {
+	for (const [source, target] of [
+		['liquidglass-main.ts', 'main.ts'],
+		['LiquidGlassHmr.macos.tsx', 'App.macos.tsx'],
+		['liquidglass-dev-shell.ts', 'dev-shell.ts'],
+	]) {
+		await cp(join(fixture, source), join(app, 'src', target))
+	}
+}
+
 // Keep the contributor example checked by the same independent consumer.
 const ledger = await readFile(join(repo, '.agents/docs/notes/appkit-native-intrinsics.md'), 'utf8')
 const examples = [...ledger.matchAll(/```tsx\n([\s\S]*?)```/g)]
 assert.equal(
 	examples.length,
-	21,
-	'Intrinsic ledger must include checked StackLayout, ContentView, DockLayout, WrapLayout, ProxyViewContainer RootLayout SearchBar FormattedString HtmlView ActivityIndicator DatePicker ListPicker Progress SegmentedBar SegmentedBarItem TimePicker Placeholder and ActionBar examples',
+	22,
+	'Intrinsic ledger must include checked StackLayout, ContentView, DockLayout, WrapLayout, ProxyViewContainer RootLayout SearchBar FormattedString HtmlView ActivityIndicator DatePicker ListPicker Progress SegmentedBar SegmentedBarItem TimePicker Placeholder ActionBar and LiquidGlass examples',
 )
 
 for (const [index, example] of examples.entries()) {
@@ -246,6 +259,8 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 	assert.match(output, /PACKED_RENDERER_OK/)
 	if (actionBarOnly) {
 		assert.match(output, /PACKED_ACTIONBAR_OK/)
+	} else if (liquidGlassOnly) {
+		assert.match(output, /PACKED_LIQUIDGLASS_OK/)
 	} else {
 		assert.match(output, /PACKED_STACKLAYOUT_OK/)
 		assert.match(output, /PACKED_CONTENTVIEW_OK/)
@@ -268,13 +283,16 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 		assert.match(output, /PACKED_TABVIEW_ITEMS_OK/)
 		assert.match(output, /PACKED_ACTIONBAR_OK/)
 		assert.match(output, /PACKED_PLACEHOLDER_OK/)
+		assert.match(output, /PACKED_LIQUIDGLASS_OK/)
 	}
 
 	assert.doesNotMatch(output, /PACKED_RENDERER_FAIL|uncaught render error/)
 	console.log(
 		actionBarOnly
 			? '[packed renderer] ActionBar lifecycle assertions pass'
-			: '[packed renderer] packaged AppKit system fonts and signal updates pass',
+			: liquidGlassOnly
+				? '[packed renderer] LiquidGlass lifecycle assertions pass'
+				: '[packed renderer] packaged AppKit system fonts and signal updates pass',
 	)
 
 	console.log('[packed renderer] verifying retained-root HMR')
@@ -326,6 +344,8 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 		assert.equal(verified, true, devOutput.slice(-5000))
 		if (actionBarOnly) {
 			assert.match(devOutput, /PACKED_ACTIONBAR_HMR_OK/)
+		} else if (liquidGlassOnly) {
+			assert.match(devOutput, /PACKED_LIQUIDGLASS_HMR_OK/)
 		} else {
 			assert.match(devOutput, /PACKED_DOCKLAYOUT_HMR_OK/)
 			assert.match(devOutput, /PACKED_WRAPLAYOUT_HMR_OK/)

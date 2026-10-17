@@ -113,6 +113,9 @@ export default function App() {
 			<rootlayout id="hmr-root" style={{ width: 180, height: 32 }}>
 				<label id="root-revision" text="First revision" />
 			</rootlayout>
+			<liquidglass id="hmr-glass" style={{ width: 180, height: 32 }}>
+				<label id="glass-revision" text="First revision" />
+			</liquidglass>
 			<proxyviewcontainer id="hmr-proxy">
 				<label id="proxy-revision" text="First revision" />
 			</proxyviewcontainer>

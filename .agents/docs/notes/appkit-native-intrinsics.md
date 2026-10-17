@@ -24,10 +24,10 @@ All conditioned native declarations derive from that same map.
 | Controls          | `button`, `switch`, `slider`, `activityindicator`, `datepicker`, `listpicker`, `progress`, `segmentedbar`, `segmentedbaritem`, `timepicker`   | —                                                                                                                                      |
 | Collections       | `listview`, `tabview`, `tabviewitem`                                                                                                          | —                                                                                                                                      |
 | Navigation        | `actionbar`                                                                                                                                   | `actionitem`, `frame`, `navigationbutton`, `page`                                                                                      |
-| Other             | `image`, `scrollview`, `webview`, `placeholder`                                                                                               | `liquidglass`                                                                                                                          |
+| Other             | `image`, `scrollview`, `webview`, `placeholder`, `liquidglass`                                                                                  | —                                                                                                                                      |
 | Shared extensions | —                                                                                                                                             | `animatedimage`, `applesigninbutton`, `cachedimage`, `googlesigninbutton`, `nscanvas`, `pager`, `svgview`, `xplatlottie`, `xplatvideo` |
 
-There are now 34 core factories and 5 missing core hosts. `span` and
+There are now 35 core factories and 4 missing core hosts. `span` and
 `formattedstring` are viewless; their composition checks are described below. The renderer
 also handles `#text` and its historical AppKit-only `stack` name. Neither adds
 a shared core element. Existing factory presence is source evidence, not a
@@ -921,3 +921,52 @@ pnpm --filter @octane-xplat/macos-renderer test:packed -- --actionbar
 
 The default `test:packed` command retains the full intrinsic suite and its
 release criteria. The focused lane does not establish a full-suite pass.
+
+## LiquidGlass host
+
+LiquidGlass keeps the pinned upstream container contract — NativeScript
+`LiquidGlassCommon` extends GridLayout, so children place and size by the same
+rules as `<gridlayout>`: the implicit single cell overlaps siblings, attached
+`row`/`col`/`rowSpan`/`colSpan` indices and track lists apply, and
+horizontal/vertical alignment positions non-stretch children. The AppKit host
+is a plain `NSView` laid out by the shared grid pass; the glass material is an
+`NSVisualEffectView` backdrop subview pinned to the host's edges behind the
+children rather than the children's ancestor. That ordering keeps authored
+child text colors out of AppKit's vibrancy path — effect-view descendants
+render vibrantly, which would silently override shared props. The backdrop
+uses the `UnderWindowBackground` material with behind-window blending: the
+appearance-following analog of iOS's clear glass. Within-window blending is
+not used because it needs content behind the view inside the same window and
+would render no effect in the common empty-window case.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export default function GlassExample() {
+	return (
+		<liquidglass style={{ width: 200, height: 80 }}>
+			<label
+				text="Over glass"
+				horizontalAlignment="center"
+				verticalAlignment="middle"
+				style={{ fontSize: 14 }}
+			/>
+		</liquidglass>
+	)
+}
+```
+
+Maintained unit and packed AppKit checks cover the backdrop's material and
+edge pinning, default overlapping and track-based child placement, alignment,
+style updates, keyed-move identity retention, removal, replacement, parent
+changes, logical refs and callback cleanup, and root teardown of the host,
+backdrop and children. Retained-root HMR keeps the host, backdrop and child
+across a revision. Like `<gridlayout>`, a keyed move appends the moved native
+view instead of restoring the logical sibling order; the shared z-order gap
+is grid-wide, not glass-specific. Runtime `rows`/`columns` acceptance mirrors
+the upstream GridLayout base even though the shared contract declares no
+element props; upstream honors them because `LiquidGlassCommon` is a
+`GridLayout`. The material's rendered appearance is not pixel-qualified, no
+iOS glass `variant`/`tint`/`interactive` settings exist on the shared tag, and
+the inherited common lifecycle/gesture/class/style/accessibility audit,
+mobile execution, OS input and full release gates remain open. This raw-host
+unit changes no recipe workflow.

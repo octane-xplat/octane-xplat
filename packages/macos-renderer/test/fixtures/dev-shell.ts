@@ -57,6 +57,9 @@ let retainedActionBar: any
 let retainedActionBarTitle: any
 let retainedPlaceholder: any
 let retainedPlaceholderContent: any
+let retainedGlass: any
+let retainedGlassChild: any
+let retainedGlassBackdrop: any
 let reloaded = false
 function reload() {
 	const loaded = __hostRunFile(process.env.OCTANE_MACOS_DEV_BUNDLE!)
@@ -97,6 +100,9 @@ function reload() {
 			retainedActionBarTitle = retainedActionBar.subviews.objectAtIndex(0)
 			retainedPlaceholder = debug.findId('hmr-placeholder')
 			retainedPlaceholderContent = retainedPlaceholder.subviews.objectAtIndex(0)
+			retainedGlass = debug.findId('hmr-glass')
+			retainedGlassChild = debug.findId('glass-revision')
+			retainedGlassBackdrop = retainedGlass.subviews.objectAtIndex(0)
 			debug.pressId('increment')
 			setTimeout(() => {
 				if (Number(retainedActivity.alphaValue) === 0) {
@@ -184,6 +190,11 @@ function reload() {
 				debug.findId('hmr-placeholder') === retainedPlaceholder &&
 				retainedPlaceholderContent.superview === retainedPlaceholder &&
 				String(retainedPlaceholderContent.stringValue) === 'First revision' &&
+				debug.findId('hmr-glass') === retainedGlass &&
+				debug.findId('glass-revision') === retainedGlassChild &&
+				retainedGlassChild.superview === retainedGlass &&
+				retainedGlass.subviews.objectAtIndex(0) === retainedGlassBackdrop &&
+				String(retainedGlassChild.stringValue) === 'Second revision' &&
 				label === retainedLabel &&
 				debug.findId('hmr-content') === retainedContent &&
 				revision === retainedChild &&
@@ -243,7 +254,10 @@ function reload() {
 					retainedActionBar.superview ||
 					retainedActionBarTitle.superview ||
 					retainedPlaceholder.superview ||
-					retainedPlaceholderContent.superview
+					retainedPlaceholderContent.superview ||
+					retainedGlass.superview ||
+					retainedGlassChild.superview ||
+					retainedGlassBackdrop.superview
 				) {
 					console.error('PACKED_HMR_FAIL: ContentView teardown retained views')
 					return
@@ -268,6 +282,7 @@ function reload() {
 				console.log('PACKED_TABVIEW_HMR_OK')
 				console.log('PACKED_DATEPICKER_HMR_OK')
 				console.log('PACKED_LISTVIEW_HMR_OK')
+				console.log('PACKED_LIQUIDGLASS_HMR_OK')
 				console.log('PACKED_HMR_OK')
 			} else {
 				console.error('PACKED_HMR_FAIL: view, state, or revised text differs')

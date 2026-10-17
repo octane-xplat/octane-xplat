@@ -102,6 +102,9 @@ import {
 	NSViewBoundsDidChangeNotification,
 	NSViewController,
 	NSViewFrameDidChangeNotification,
+	NSVisualEffectBlendingMode,
+	NSVisualEffectMaterial,
+	NSVisualEffectView,
 	NSWindow,
 	NSWindowDelegate,
 	NSWindowOrderingMode,
@@ -738,6 +741,24 @@ class AbsoluteLayoutView extends NSView {
 	layout() {
 		super.layout()
 		layoutAbsoluteChildren(absoluteLayoutNodesByView.get(this))
+	}
+}
+
+// NativeScript 9.1.2/9.1.3 (MIT): LiquidGlassCommon extends GridLayout, so
+// children follow grid placement and sizing rules. iOS roots them in a
+// UIVisualEffectView content host; Android ships the plain grid. The AppKit
+// host is a plain NSView laid out like <gridlayout>, with the glass material
+// as a backdrop subview pinned behind the children. Keeping children outside
+// the NSVisualEffectView subtree preserves authored text colors — effect-view
+// descendants render vibrantly, which would silently override shared props.
+class LiquidGlassView extends NSView {
+	static {
+		NativeClass(this)
+	}
+
+	layout() {
+		super.layout()
+		layoutGridChildren(gridLayoutNodesByView.get(this))
 	}
 }
 
@@ -1555,6 +1576,7 @@ function syncMarginHost(node: ElementNode) {
 			marginInsetsOf(node) &&
 			![
 				'gridlayout',
+				'liquidglass',
 				'contentview',
 				'actionbar',
 				'docklayout',
@@ -1614,9 +1636,15 @@ function setMarginStyle(node: ElementNode, name: string, value: any) {
 	}
 
 	if (
-		['gridlayout', 'contentview', 'actionbar', 'docklayout', 'wraplayout', 'rootlayout'].includes(
-			(node.layoutParent ?? node.parent)?.type ?? '',
-		)
+		[
+			'gridlayout',
+			'liquidglass',
+			'contentview',
+			'actionbar',
+			'docklayout',
+			'wraplayout',
+			'rootlayout',
+		].includes((node.layoutParent ?? node.parent)?.type ?? '')
 	) {
 		// These parents lay out children manually from props.style — no wrapper needed.
 		queueLayoutReconcile(node.container, node.parent)
@@ -2651,6 +2679,49 @@ function makeAbsoluteLayout() {
 	})
 
 	view.translatesAutoresizingMaskIntoConstraints = false
+	return view
+}
+
+function makeLiquidGlass(node: ElementNode) {
+	const view = LiquidGlassView.alloc().initWithFrame({
+		origin: { x: 0, y: 0 },
+		size: { width: 140, height: 28 },
+	})
+
+	view.translatesAutoresizingMaskIntoConstraints = false
+	// Grid placement is resolved in layout() from current bounds, so a frame
+	// change must queue the same reconcile the other manual hosts perform.
+	view.postsFrameChangedNotifications = true
+	node.glassGeometryObserver =
+		NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
+			NSViewFrameDidChangeNotification,
+			view,
+			null,
+			() => {
+				if (gridLayoutNodesByView.get(view) === node) {
+					queueLayoutReconcile(node.container, node)
+				}
+			},
+		)
+
+	const backdrop = NSVisualEffectView.alloc().initWithFrame({
+		origin: { x: 0, y: 0 },
+		size: { width: 140, height: 28 },
+	})
+
+	// UnderWindowBackground is the platform glass material — the reliable,
+	// appearance-following analog of iOS's clear glass. Within-window blending
+	// needs content behind the view inside the same window and would render no
+	// effect in the common empty-window case.
+	backdrop.material = NSVisualEffectMaterial.UnderWindowBackground
+	backdrop.blendingMode = NSVisualEffectBlendingMode.Behind
+	backdrop.translatesAutoresizingMaskIntoConstraints = false
+	view.addSubview(backdrop)
+	backdrop.leadingAnchor.constraintEqualToAnchor(view.leadingAnchor).active = true
+	backdrop.trailingAnchor.constraintEqualToAnchor(view.trailingAnchor).active = true
+	backdrop.topAnchor.constraintEqualToAnchor(view.topAnchor).active = true
+	backdrop.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor).active = true
+	node.glassBackdrop = backdrop
 	return view
 }
 
@@ -3745,6 +3816,7 @@ const VIEW_PARENT_TYPES = new Set([
 	'scrollview',
 	'gridlayout',
 	'absolutelayout',
+	'liquidglass',
 ])
 
 /** Every type the factory switch below can build. */
@@ -4003,7 +4075,7 @@ function validateNodeProps(type: string, props: PropBag | undefined, baseProps?:
 		throw new Error('[macos-host] dock must be left, top, right or bottom')
 	}
 
-	if (type === 'gridlayout') {
+	if (type === 'gridlayout' || type === 'liquidglass') {
 		// layoutGridChildren parses the track lists on every apply.
 		parseGridTracks(props?.rows)
 		parseGridTracks(props?.columns)
@@ -4100,6 +4172,9 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 				break
 			case 'gridlayout':
 				node.view = makeGridLayout() as unknown as NSView
+				break
+			case 'liquidglass':
+				node.view = makeLiquidGlass(node)
 				break
 			case 'absolutelayout':
 				node.view = makeAbsoluteLayout()
@@ -4237,7 +4312,7 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 			}
 		}
 
-		if (type === 'gridlayout') {
+		if (type === 'gridlayout' || type === 'liquidglass') {
 			gridLayoutNodesByView.set(node.view!, node)
 		}
 
@@ -4496,9 +4571,14 @@ function setSizeConstraint(node: ElementNode, name: string, value: any) {
 	}
 
 	if (
-		['gridlayout', 'absolutelayout', 'docklayout', 'wraplayout', 'rootlayout'].includes(
-			(node.layoutParent ?? node.parent)?.type ?? '',
-		)
+		[
+			'gridlayout',
+			'liquidglass',
+			'absolutelayout',
+			'docklayout',
+			'wraplayout',
+			'rootlayout',
+		].includes((node.layoutParent ?? node.parent)?.type ?? '')
 	) {
 		deactivateSizeConstraints(node)
 		queueLayoutReconcile(node.container, node.parent)
@@ -4674,7 +4754,8 @@ function clearMarginStyle(node: ElementNode, name: string) {
 		insets[MARGIN_SIDES[name]] = 0
 	}
 
-	if ((node.layoutParent ?? node.parent)?.type === 'gridlayout') {
+	const marginParentType = (node.layoutParent ?? node.parent)?.type
+	if (marginParentType === 'gridlayout' || marginParentType === 'liquidglass') {
 		layoutGridChildren(node.layoutParent ?? node.parent ?? undefined)
 		return
 	}
@@ -4738,7 +4819,8 @@ function resetStyle(node: ElementNode, name: string) {
 	} else if (name === 'width' || name === 'height') {
 		setSizeConstraint(node, name, undefined)
 	} else if (name === 'left' || name === 'top' || name === 'right' || name === 'bottom') {
-		if ((node.layoutParent ?? node.parent)?.type === 'gridlayout') {
+		const resetParentType = (node.layoutParent ?? node.parent)?.type
+		if (resetParentType === 'gridlayout' || resetParentType === 'liquidglass') {
 			layoutGridChildren(node.layoutParent ?? node.parent ?? undefined)
 		}
 
@@ -4875,7 +4957,9 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			setSizeConstraint(node, name, value)
 		} else if (name === 'left' && node.view) {
 			if (
-				['gridlayout', 'absolutelayout'].includes((node.layoutParent ?? node.parent)?.type ?? '')
+				['gridlayout', 'liquidglass', 'absolutelayout'].includes(
+					(node.layoutParent ?? node.parent)?.type ?? '',
+				)
 			) {
 				queueLayoutReconcile(node.container, node.parent)
 			}
@@ -5073,7 +5157,8 @@ function applyClassName(node: ElementNode, value: any) {
 		node.type === 'stacklayout' ||
 		node.type === 'stack' ||
 		node.type === 'scrollview' ||
-		node.type === 'gridlayout'
+		node.type === 'gridlayout' ||
+		node.type === 'liquidglass'
 	) {
 		const gaps: Record<string, number> = {
 			'gap-1': 4,
@@ -5730,6 +5815,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 		actionbar: ['horizontalAlignment', 'verticalAlignment'],
 		stacklayout: ['horizontalAlignment', 'verticalAlignment'],
 		gridlayout: ['row', 'col', 'rowSpan', 'colSpan', 'horizontalAlignment', 'verticalAlignment'],
+		liquidglass: ['row', 'col', 'rowSpan', 'colSpan', 'horizontalAlignment', 'verticalAlignment'],
 	}
 
 	for (const [name, value] of Object.entries(props)) {
@@ -5762,7 +5848,11 @@ function applyProps(node: ElementNode, props: PropBag) {
 			continue
 		}
 
-		if (['flexboxlayout', 'stacklayout', 'gridlayout', 'absolutelayout'].includes(node.type)) {
+		if (
+			['flexboxlayout', 'stacklayout', 'gridlayout', 'liquidglass', 'absolutelayout'].includes(
+				node.type,
+			)
+		) {
 			if (['onTouch', 'onLongPress', 'onDoubleTap'].includes(name)) {
 				setPressGesture(node, name)
 				continue
@@ -5871,6 +5961,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 				}
 
 				break
+			case 'liquidglass':
 			case 'gridlayout':
 				if (name === 'style') {
 					applyStyle(node, value)
@@ -5891,7 +5982,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 				} else if (['rows', 'columns'].includes(name)) {
 					queueLayoutReconcile(node.container, node)
 				} else if (value !== undefined) {
-					console.warn('[macos-host] ignored gridlayout prop ' + name)
+					console.warn('[macos-host] ignored ' + node.type + ' prop ' + name)
 				}
 
 				break
@@ -6453,6 +6544,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 	if (
 		[
 			'gridlayout',
+			'liquidglass',
 			'absolutelayout',
 			'contentview',
 			'actionbar',
@@ -6464,6 +6556,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 		queueLayoutReconcile(node.container, node)
 	} else if (
 		node.parent?.type === 'gridlayout' ||
+		node.parent?.type === 'liquidglass' ||
 		node.parent?.type === 'absolutelayout' ||
 		node.parent?.type === 'rootlayout' ||
 		node.parent?.type === 'wraplayout' ||
@@ -6583,6 +6676,7 @@ function syncProxyProjection(parent: ElementNode) {
 	const host = parent.childHost ?? parent.view
 	const manual = [
 		'gridlayout',
+		'liquidglass',
 		'absolutelayout',
 		'contentview',
 		'actionbar',
@@ -7008,7 +7102,7 @@ function reconcileLayoutParent(parent: ElementNode) {
 		return
 	}
 
-	if (parent.type === 'gridlayout') {
+	if (parent.type === 'gridlayout' || parent.type === 'liquidglass') {
 		layoutGridChildren(parent)
 		return
 	}
@@ -7194,6 +7288,7 @@ function insert(
 				[
 					'portalroot',
 					'gridlayout',
+					'liquidglass',
 					'absolutelayout',
 					'contentview',
 					'actionbar',
@@ -7241,6 +7336,7 @@ function insert(
 				queueLayoutReconcile(container, parent)
 			} else if (
 				parent.type === 'gridlayout' ||
+				parent.type === 'liquidglass' ||
 				parent.type === 'docklayout' ||
 				parent.type === 'wraplayout' ||
 				parent.type === 'rootlayout'
@@ -7414,6 +7510,17 @@ function destroy(node: ElementNode) {
 		for (const child of node.children.slice()) {
 			detach(node.container, child)
 		}
+	}
+
+	if (node.type === 'liquidglass') {
+		if (node.glassGeometryObserver) {
+			NSNotificationCenter.defaultCenter.removeObserver(node.glassGeometryObserver)
+			node.glassGeometryObserver = null
+		}
+
+		// The material backdrop is not a node view, so nothing else detaches it.
+		node.glassBackdrop?.removeFromSuperview()
+		node.glassBackdrop = null
 	}
 
 	if (node.type === 'wraplayout') {

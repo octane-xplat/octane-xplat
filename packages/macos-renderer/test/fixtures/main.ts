@@ -19,6 +19,7 @@ import { checkWrapLifecycle } from './wrap-lifecycle'
 import { checkDockLifecycle } from './dock-lifecycle'
 import { checkContentLifecycle } from './content-lifecycle'
 import { checkPlaceholderLifecycle } from './placeholder-lifecycle'
+import { checkLiquidGlassLifecycle } from './liquidglass-lifecycle'
 import App, { childRefs, stackRefs, refEvents, tapEvents } from './App'
 import {
 	NSApplication,
@@ -277,6 +278,13 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
 								await checkTimeLifecycle(timeRoot, nativeWindow)
 							} finally {
 								timeRoot.unmount()
+							}
+
+							const liquidGlassRoot = createMacOSRoot(nativeWindow.contentView)
+							try {
+								await checkLiquidGlassLifecycle(liquidGlassRoot, nativeWindow)
+							} finally {
+								liquidGlassRoot.unmount()
 							}
 
 							const tabRoot = createMacOSRoot(nativeWindow.contentView)
