@@ -1,11 +1,10 @@
-// @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 import { spawnSync } from 'node:child_process'
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, extname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 
 const moduleSpecifierNodes = (ts, sourceFile) => {
-	const nodes = []
+	const nodes: any[] = []
 	const visit = (node) => {
 		if (
 			(ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) &&
@@ -53,8 +52,8 @@ const stringsIn = (value) => {
 const codeTarget = (target) =>
 	(!extname(target) || /\.(?:[cm]?[jt]sx?|tsrx)$/.test(target)) && !/\.d\.[cm]?ts$/.test(target)
 
-function exportBranches(exportsMap, fallbackTypes = []) {
-	const branches = []
+function exportBranches(exportsMap, fallbackTypes: any[] = []) {
+	const branches: any[] = []
 	for (const [subpath, mapping] of Object.entries(exportsMap ?? {})) {
 		const visit = (value, inheritedTypes) => {
 			if (typeof value === 'string') {
@@ -93,7 +92,7 @@ function exportBranches(exportsMap, fallbackTypes = []) {
 }
 
 function packageFiles(root) {
-	const files = []
+	const files: any[] = []
 	const visit = (dir) => {
 		for (const entry of readdirSync(dir, { withFileTypes: true })) {
 			if (entry.name === 'node_modules') {
@@ -233,7 +232,7 @@ function localSourceModule(file, specifier) {
 	return null
 }
 
-function staticRuntimeExports(ts, file, seen = new Set()) {
+function staticRuntimeExports(ts, file, seen: Set<any> = new Set()) {
 	const absolute = resolve(file)
 	if (seen.has(absolute)) {
 		return new Set()
@@ -242,7 +241,7 @@ function staticRuntimeExports(ts, file, seen = new Set()) {
 	seen.add(absolute)
 
 	const source = sourceFile(ts, absolute)
-	const names = new Set()
+	const names = new Set<any>()
 	const addBindingName = (name) => {
 		if (ts.isIdentifier(name)) {
 			names.add(name.text)
@@ -315,7 +314,13 @@ function staticRuntimeExports(ts, file, seen = new Set()) {
 	return names
 }
 
-function compilerExports(ts, program, file, cache = new Map(), pending = new Set()) {
+function compilerExports(
+	ts,
+	program,
+	file,
+	cache: Map<any, any> = new Map(),
+	pending: Set<any> = new Set(),
+) {
 	const absolute = resolve(file)
 	if (cache.has(absolute)) {
 		return cache.get(absolute)
@@ -336,8 +341,8 @@ function compilerExports(ts, program, file, cache = new Map(), pending = new Set
 		return undefined
 	}
 
-	const all = new Set()
-	const values = new Set()
+	const all = new Set<any>()
+	const values = new Set<any>()
 	for (const symbol of checker.getExportsOfModule(module)) {
 		all.add(symbol.name)
 		let resolved = symbol
@@ -356,7 +361,7 @@ function compilerExports(ts, program, file, cache = new Map(), pending = new Set
 	// target's symbols with their original flags — an ambient `declare const`
 	// still reads as a value even though no value binding crosses the edge.
 	// Subtract names whose only export edges are type-only.
-	const typeOnly = new Set()
+	const typeOnly = new Set<any>()
 	for (const statement of source.statements) {
 		if (!ts.isExportDeclaration(statement)) {
 			continue
@@ -518,7 +523,7 @@ function verifyExportMap(ts, packageRoot, files, manifest, exportsMap, failures,
 		return
 	}
 
-	const pairs = []
+	const pairs: any[] = []
 	for (const branch of branches) {
 		if (!branch.types.length) {
 			failures.push(`${branch.subpath} runtime ${branch.runtime} has no types condition`)
@@ -599,7 +604,7 @@ function verifyExportMap(ts, packageRoot, files, manifest, exportsMap, failures,
 }
 
 export function verifyPackedPackage(ts, packageRoot) {
-	const failures = []
+	const failures: any[] = []
 	const manifestPath = join(packageRoot, 'package.json')
 	let manifest
 	try {

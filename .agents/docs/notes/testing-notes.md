@@ -141,13 +141,13 @@ pnpm --dir apps/web test
 
 For a fresh browser runtime pass, start this worktree's server with
 `pnpm --dir apps/web dev --host 127.0.0.1 --port 4327 --strictPort`, then run
-`pnpm exec node apps/web/scripts/data-smoke.mjs http://127.0.0.1:4327`.
+`pnpm exec node apps/web/scripts/data-smoke.ts http://127.0.0.1:4327`.
 The dedicated HTML entry avoids changing the navigation harness. The intentional
 throw is one expected browser `pageerror`; universal native roots instead
 report it to `onUncaughtError` without a dropped-event warning.
 
 For native builds, prepare a fresh directory for each target with
-`pnpm exec node apps/mobile/scripts/prepare-data-probe.mjs research/data-probe-ios`
+`pnpm exec node apps/mobile/scripts/prepare-data-probe.ts research/data-probe-ios`
 (use another directory for Android). It uses this worktree's installed modules
 and app resources, declares only data-probe dependencies, and refuses to overwrite
 an existing directory. From the repository root, build with

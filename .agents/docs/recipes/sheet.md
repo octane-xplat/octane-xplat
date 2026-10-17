@@ -33,4 +33,4 @@ behind the established file suffixes.
 - AC3: [Install and import](../../../docs/platform/sheet.md#install-and-import) and [Bridge notes](../../../docs/platform/sheet.md#bridge-notes--what-this-leaf-proved).
 - AC4: [iOS example](../../../packages/demos/src/NativeSheetDemo.ios.tsrx), [Android example](../../../packages/demos/src/NativeSheetDemo.android.tsrx), [web example](../../../packages/demos/src/NativeSheetDemo.web.tsrx), and [macOS example](../../../packages/demos/src/NativeSheetDemo.macos.tsrx).
 
-- AC5: [Focus qualification](../../../docs/platform/sheet.md#focus-qualification), the maintained [web sheet runtime check](../../../apps/web/scripts/sheet-readiness.mjs), and [input readiness evidence](../notes/input-readiness-notes.md). Native VoiceOver/TalkBack qualification remains an explicit native follow-up.
+- AC5: [Focus qualification](../../../docs/platform/sheet.md#focus-qualification), the maintained [web sheet runtime check](../../../apps/web/scripts/sheet-readiness.ts), and [input readiness evidence](../notes/input-readiness-notes.md). Native VoiceOver/TalkBack qualification remains an explicit native follow-up.

@@ -55,7 +55,7 @@ With the repository and dependencies in `/home/alec/octane-xplat`, run:
 ssh andromeda.local '/usr/local/bin/orb -m octane-linux bash -lc "cd /home/alec/octane-xplat && PATH=/home/alec/.local/share/pnpm/bin:$PATH pnpm --filter @xplat/linux smoke"'
 ```
 
-The maintained [smoke runner](../scripts/smoke.mjs) builds through the CLI and
+The maintained [smoke runner](../scripts/smoke.ts) builds through the CLI and
 runs [handler-driven harness checks](harness-selftest.web.js) inside the real
 GTK WebView under Xvfb. It checks mount/state, textarea growth, routes, virtual
 list mount bounds and empty state, sheets, overlays, and unhandled page errors.

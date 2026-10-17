@@ -5,7 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
-		"build": "vite build && vite build --config vite.demo.config.ts && node scripts/build-llms.mjs",
+		"build": "vite build && vite build --config vite.demo.config.ts && node scripts/build-llms.ts",
 		"typecheck": "tsrx-tsc --noEmit",
 		"test": "node --test *.test.mjs",
 		"deploy": "wrangler pages deploy dist --project-name octane-xplat-docs --branch=main",

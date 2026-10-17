@@ -1,3 +1,4 @@
+// @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 // dev_actions capability reporting: a platform supports discovery/invocation
 // only while a live app instance announces a registry on it. A reachable
 // bridge without an announced instance is partial coverage — the wiring works

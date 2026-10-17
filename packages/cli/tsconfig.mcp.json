@@ -1,0 +1,11 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"types": ["node"],
+		"lib": ["ESNext"],
+		"noImplicitAny": false,
+		"useUnknownInCatchVariables": false,
+		"allowImportingTsExtensions": true
+	},
+	"include": ["src/mcp/**/*.ts", "src/env.ts"]
+}

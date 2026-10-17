@@ -1,5 +1,5 @@
 // Shared doc metadata — imported by src/docs.ts, src/MdDoc.tsrx,
-// src/App.tsrx, and scripts/build-llms.mjs (Node type-strips this file).
+// src/App.tsrx, and scripts/build-llms.ts (Node type-strips this file).
 // Keep it erasable-TS only: no enums, namespaces, or parameter properties.
 
 // docs/ contains reader-facing app guides. Internal implementation and design

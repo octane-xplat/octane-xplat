@@ -26,6 +26,6 @@ and controls its build, HTTPS, routing and cache settings.
 ## Documentation
 
 - AC1: [Preview and publish Web](../../../docs/start/toolchain.md#preview-and-publish-web), the maintained [starter scripts](../../../packages/create/template/package.json) and [Web config](../../../packages/create/template/vite.config.ts), and the [packed-consumer verifier](../../../scripts/verify-consumer.ts).
-- AC2: [Host output, HTTPS and navigation](../../../docs/start/toolchain.md#preview-and-publish-web); the [production browser smoke](../../../apps/web/scripts/smoke.mjs) exercises direct screen links locally. The app's host configuration needs its own deployment check.
+- AC2: [Host output, HTTPS and navigation](../../../docs/start/toolchain.md#preview-and-publish-web); the [production browser smoke](../../../apps/web/scripts/smoke.ts) exercises direct screen links locally. The app's host configuration needs its own deployment check.
 - AC3: [Cache and deployment updates](../../../docs/start/toolchain.md#preview-and-publish-web). No configured public-host deployment is qualified by the repository's local checks.
 - AC4: [Published-site checks](../../../docs/start/toolchain.md#preview-and-publish-web), [Web support boundary](../../../docs/start/spec.md#choose-your-targets), [input evidence](../notes/input-readiness-notes.md), and [optional service qualification](../notes/optional-service-qualification.md).

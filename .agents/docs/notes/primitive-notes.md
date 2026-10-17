@@ -1150,8 +1150,8 @@ The input pass used the same 5,000-row fixture. Web used Playwright mouse-wheel
 events in headless Chromium; iOS used `idb ui swipe` on the simulator; Android
 used `adb shell input swipe` on a physical OnePlus device. These repeatable
 gestures exercise scrolling, but they do not reproduce a physical trackpad's
-momentum or a person's finger movement. Runners: [web](../../../apps/web/scripts/bench-virtual-list-input.mjs)
-and [iOS/Android](../../../apps/mobile/scripts/bench-virtual-list-input.mjs).
+momentum or a person's finger movement. Runners: [web](../../../apps/web/scripts/bench-virtual-list-input.ts)
+and [iOS/Android](../../../apps/mobile/scripts/bench-virtual-list-input.ts).
 
 | Target         | Variable-height run | Max mounted rows |   Geometry gap samples |                                            Input timing |
 | -------------- | ------------------: | ---------------: | ---------------------: | ------------------------------------------------------: |

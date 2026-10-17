@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-// @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 import { existsSync, readdirSync } from 'node:fs'
 import { basename, resolve } from 'node:path'
 import { spawnSync } from 'node:child_process'
@@ -112,7 +111,7 @@ const parseTargets = (value) => {
 	return resolveTargets(ids)
 }
 
-let ids = []
+let ids: string[] = []
 if (templateArg === 'library') {
 	const packageName = nameArg ?? basename(dir)
 	try {

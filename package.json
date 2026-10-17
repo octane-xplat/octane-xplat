@@ -62,11 +62,13 @@
 		"check:optional-services": "node scripts/check-optional-services.ts",
 		"check:pack": "pnpm -r --filter './packages/**' --if-present run pack:check",
 		"smoke:macos": "pnpm --filter @xplat/macos smoke && pnpm --filter @xplat/macos test:animation && pnpm --filter @xplat/macos test:layout-placement && pnpm probe run examples/probes/signals.ts --target macos && pnpm probe run examples/probes/counter.tsrx --target macos && pnpm probe run examples/probes/lottie.macos.tsrx --target macos --deps @octane-xplat/lottie",
-		"test:maestro": "node scripts/maestro.ts"
+		"test:maestro": "node scripts/maestro.ts",
+		"typecheck:scripts": "tsc -p scripts/tsconfig.json"
 	},
 	"devDependencies": {
 		"@tsrx/core": "0.2.4",
 		"@tsrx/typescript-plugin": "catalog:",
+		"@types/node": "24.10.1",
 		"oxfmt": "0.70.0",
 		"oxlint": "1.74.0",
 		"turbo": "2.11.4",

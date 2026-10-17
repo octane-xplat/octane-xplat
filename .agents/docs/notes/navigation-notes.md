@@ -371,7 +371,7 @@ Overlay-to-window promotion for `Sheet`/`Popover` on desktop remains open.
 
 > **Lab (navigation readiness, 2026-09-30, main base `4b43f82d`):**
 > Fresh production Web navigation checks pass 14/14 using
-> `apps/web/scripts/navigation.mjs`; focused router/link tests pass 52/52.
+> `apps/web/scripts/navigation.ts`; focused router/link tests pass 52/52.
 > Reproduced defects included lost guard/loader state after browser history
 > traversal and route registration, absent loader data on direct baked-route
 > entry, malformed URI crashes (including production minification), repeated

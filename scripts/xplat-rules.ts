@@ -1,4 +1,3 @@
-// @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 // Shared checks for the xplat lint rules. Every check takes an ESTree
 // Program plus source text and returns {node, message} violations — oxlint
 // produces this AST for .ts/.tsx, and @tsrx/core's parseModule produces the
@@ -52,7 +51,7 @@ export const fileExcluded = (f, options) =>
 
 // ---------- AST walk ----------
 
-export function* walk(node, parent = null, seen = new Set()) {
+export function* walk(node, parent = null, seen: Set<any> = new Set()) {
 	if (!node || typeof node !== 'object' || typeof node.type !== 'string' || seen.has(node)) {
 		return
 	}
@@ -100,7 +99,7 @@ function* jsxAttributeNodes(program) {
 
 // String literals inside a className-ish expression: 'a', `a`, ['a','b'],
 // {a: cond}, cond && 'a', cond ? 'a' : 'b'.
-const literalStrings = (expr, out = []) => {
+const literalStrings = (expr, out: any[] = []) => {
 	if (!expr) {
 		return out
 	}
@@ -249,7 +248,7 @@ const isReference = (node, parent) => {
 function locallyBoundIdentifiers(program) {
 	const root = { parent: null, bindings: new Set(), functionScope: true }
 	const scopes = new WeakMap()
-	const patternNames = (pattern, out = []) => {
+	const patternNames = (pattern, out: any[] = []) => {
 		if (!pattern) {
 			return out
 		}
@@ -366,7 +365,7 @@ export function checkNoDomGlobals(program, _src, filename, options) {
 		return []
 	}
 
-	const out = []
+	const out: any[] = []
 	const isLocallyBound = locallyBoundIdentifiers(program)
 	for (const [node, parent] of walk(program)) {
 		if (
@@ -411,7 +410,7 @@ export function checkNoWebOnlyApi(program, _src, filename, options) {
 		return []
 	}
 
-	const out = []
+	const out: any[] = []
 	for (const [node, parent] of walk(program)) {
 		if (node.type === 'ImportDeclaration' && isDomOctaneSource(node.source.value)) {
 			for (const spec of node.specifiers) {
@@ -596,7 +595,7 @@ export function checkElementVocabulary(program, _src, filename, options) {
 
 	const web = isWebFile(filename)
 	const native = isNativeFile(filename)
-	const out = []
+	const out: any[] = []
 	for (const [node] of walk(program)) {
 		if (node.type !== 'JSXOpeningElement') {
 			continue
@@ -644,7 +643,7 @@ export function checkNoNativescriptImport(program, _src, filename, options) {
 	}
 
 	const isMacOSRuntimeFile = /(^|\/)(apps\/macos|packages\/macos-renderer)\//.test(norm(filename))
-	const out = []
+	const out: any[] = []
 	for (const [node] of walk(program)) {
 		if (
 			node.type !== 'ImportDeclaration' &&
@@ -678,7 +677,7 @@ export function checkNoNsDeepImport(program, _src, filename, options) {
 		return []
 	}
 
-	const out = []
+	const out: any[] = []
 	for (const [node] of walk(program)) {
 		if (node.type !== 'ImportDeclaration') {
 			continue
@@ -759,7 +758,7 @@ export function checkPlatformSubpathImport(program, _src, filename, options) {
 	}
 
 	const f = norm(filename)
-	const out = []
+	const out: any[] = []
 	for (const [node] of walk(program)) {
 		if (
 			node.type !== 'ImportDeclaration' &&
@@ -802,7 +801,7 @@ export function checkNoTsImportsTsrx(program, _src, filename, options) {
 		return []
 	}
 
-	const out = []
+	const out: any[] = []
 	for (const [node] of walk(program)) {
 		if (node.type !== 'ImportDeclaration') {
 			continue
@@ -860,7 +859,7 @@ export function checkNoNativeDeadStyle(program, _src, filename, options) {
 		return []
 	}
 
-	const out = []
+	const out: any[] = []
 	for (const obj of styleObjects(program)) {
 		for (const prop of obj.properties ?? []) {
 			if (prop.type !== 'Property') {
@@ -918,7 +917,7 @@ export function checkNoLineHeightUnitless(program, _src, filename, options) {
 		return []
 	}
 
-	const out = []
+	const out: any[] = []
 	for (const obj of styleObjects(program)) {
 		for (const prop of obj.properties ?? []) {
 			if (prop.type !== 'Property' || propName(prop.key) !== 'lineHeight') {
@@ -950,7 +949,7 @@ export function checkNoStyleString(program, _src, filename, options) {
 		return []
 	}
 
-	const out = []
+	const out: any[] = []
 	for (const [attr] of jsxAttributeNodes(program)) {
 		if (
 			propName(attr.name) === 'style' &&
@@ -1065,7 +1064,7 @@ export function checkNoUnknownClass(program, _src, filename, options) {
 
 	const known = knownClasses(options?.cssRoot ?? process.cwd())
 	const extra = new Set(options?.allow ?? [])
-	const out = []
+	const out: any[] = []
 	const checkValue = (lit) => {
 		for (const token of String(lit.value).split(/\s+/)) {
 			// Only longer tokens: short ones produce junk near-misses
@@ -1158,7 +1157,7 @@ export function checkSignalDollarSuffix(program, _src, filename, options) {
 		return []
 	}
 
-	const out = []
+	const out: any[] = []
 	for (const [node] of walk(program)) {
 		if (node.type !== 'VariableDeclarator') {
 			continue
@@ -1190,7 +1189,7 @@ export function checkRequireSignalsRuntime(program, _src, filename, options) {
 	}
 
 	let hasSignalsImport = false
-	const reads = []
+	const reads: any[] = []
 	for (const [node] of walk(program)) {
 		if (node.type === 'ImportDeclaration') {
 			const src = node.source?.value
@@ -1276,7 +1275,7 @@ export function checkNoViewOnPress(program, _src, filename, options) {
 		return []
 	}
 
-	const out = []
+	const out: any[] = []
 	for (const [attr, rawTag] of jsxAttributeNodes(program)) {
 		const tag = rawTag?.replace(/^motion\./, '')
 		if (!tag || tag === 'Pressable') {
@@ -1305,7 +1304,7 @@ export function checkNoConsoleDebug(program, _src, filename, options) {
 		return []
 	}
 
-	const out = []
+	const out: any[] = []
 	for (const [node] of walk(program)) {
 		if (
 			node.type === 'CallExpression' &&
@@ -1332,7 +1331,7 @@ export function checkHooksInPlainTs(program, _src, filename, options) {
 		return []
 	}
 
-	const out = []
+	const out: any[] = []
 	const visit = (node, inHook, seen) => {
 		if (!node || typeof node !== 'object' || seen.has(node)) {
 			return
@@ -1431,7 +1430,7 @@ export function checkNoJsxTextBreakers(program, _src, filename, options) {
 		return []
 	}
 
-	const out = []
+	const out: any[] = []
 	for (const [node] of walk(program)) {
 		if (node.type === 'JSXText' && TSRX_TEXT_BREAKERS.test(node.value ?? '')) {
 			const text = (node.value ?? '').trim().slice(0, 40)
@@ -1464,7 +1463,7 @@ export function checkNoRootLogicalRender(program, _src, filename, options) {
 		return []
 	}
 
-	const out = []
+	const out: any[] = []
 	for (const [node] of walk(program)) {
 		if (node.type !== 'JSXCodeBlock') {
 			continue

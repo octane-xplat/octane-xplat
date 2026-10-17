@@ -220,7 +220,7 @@ try {
 	// Execute the same maintained DOM/input acceptance on the packed consumer.
 	const journey = run(
 		process.execPath,
-		[join(repo, 'apps/workshop-demo/scripts/e2e-web.mjs'), url],
+		[join(repo, 'apps/workshop-demo/scripts/e2e-web.ts'), url],
 		repo,
 	)
 

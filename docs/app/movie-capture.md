@@ -335,7 +335,7 @@ runs inside a signed probe bundle carrying camera and microphone usage
 descriptions: on a camera-equipped Mac it exercises the full
 recording assertions, and on a camera-less host it verifies real system
 permission status, capability honesty, preview failure, and recording-admission
-rejection. The [WKWebView camera proof](../../apps/macos/scripts/camera-webview-proof.mjs)
+rejection. The [WKWebView camera proof](../../apps/macos/scripts/camera-webview-proof.ts)
 verifies the host camera service end to end: system media permission status,
 app-private movie storage reserve/commit/reopen/delete, private-root
 containment, and the session backend switching to host storage — all inside a

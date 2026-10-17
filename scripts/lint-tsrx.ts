@@ -1,4 +1,3 @@
-// @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 // Companion lint pass for .tsrx files — oxlint can't load the tsrx parser,
 // so the shared xplat rules (xplat-rules.mjs) run
 // here over @tsrx/core's estree-jsx AST. Severities and rule options come
@@ -43,7 +42,7 @@ const ruleConfig = (name) => {
 }
 
 async function collectTsrxFiles(directory) {
-	const files = []
+	const files: string[] = []
 	const entries = await readdir(directory, { withFileTypes: true })
 	// A nested repository carries its own lint config and conventions — stop
 	// at its boundary instead of re-applying this one. `.git` appears as a

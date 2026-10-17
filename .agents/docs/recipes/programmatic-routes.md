@@ -60,7 +60,7 @@ database, a content directory, or a host framework's own route model.
 - AC3: [precedence and the typing boundary](../../../docs/app/navigation.md#register-routes-from-data)
   and the [Navigation limits row](../../../docs/verify/known-limits.md#navigation).
 - AC4: [Register routes from data](../../../docs/app/navigation.md#register-routes-from-data);
-  web smoke in `apps/web/scripts/smoke.mjs` deep-links `/test/guides/deploy`.
+  web smoke in `apps/web/scripts/smoke.ts` deep-links `/test/guides/deploy`.
 
 - AC5: [Loader and presentation behavior](../../../docs/app/navigation.md#present-a-route-modally)
   and [guard behavior](../../../docs/app/navigation.md#guard-and-document-a-route).

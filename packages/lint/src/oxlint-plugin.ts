@@ -1,4 +1,3 @@
-// @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 // Oxlint JS plugin — xplat rules. Rule logic lives in xplat-rules.mjs so the
 // same checks run on .tsrx through the companion pass (lint-tsrx.mjs);
 // oxlint can't parse .tsrx on its own.
@@ -23,7 +22,7 @@ const wrap = (check) => ({
 			},
 		],
 	},
-	create(context) {
+	create(context: any) {
 		return {
 			'Program:exit'(program) {
 				const options = context.options?.[0]

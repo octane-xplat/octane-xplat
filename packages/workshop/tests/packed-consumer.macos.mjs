@@ -3,7 +3,7 @@
  * Packs real tarballs, installs an external consumer, proves static
  * packaging/type/export lanes and production exclusion, then drives the
  * actual AppKit/JavaScriptCore host offscreen through the maintained
- * stdin automation journey in apps/workshop-demo/scripts/e2e-macos.mjs.
+ * stdin automation journey in apps/workshop-demo/scripts/e2e-macos.ts.
  * Interaction there is recognizer-action dispatch — not OS-synthesized
  * input; screen-reader and IME remain separate qualification gates. */
 import assert from 'node:assert/strict'
@@ -346,7 +346,7 @@ await build({ ...settings, configFile: false })
 		// automation protocol end to end.
 		const journey = run(
 			process.execPath,
-			[join(repo, 'apps/workshop-demo/scripts/e2e-macos.mjs'), consumer],
+			[join(repo, 'apps/workshop-demo/scripts/e2e-macos.ts'), consumer],
 			consumer,
 			{ timeout: 420_000 },
 		)

@@ -252,7 +252,7 @@ export function Example() {
 ## Verification boundaries
 
 The maintained [Chromium fixture](../../apps/web/test/input-readiness.web.tsrx)
-and [runner](../../apps/web/scripts/input-readiness.mjs) exercise real browser
+and [runner](../../apps/web/scripts/input-readiness.ts) exercise real browser
 keyboard typing, selection replacement, controlled callback counts, modal
 focus, accessibility-tree exclusion, and exiting Presence input/reversal.
 Run `pnpm --filter @xplat/web exec node scripts/input-readiness.mjs`.

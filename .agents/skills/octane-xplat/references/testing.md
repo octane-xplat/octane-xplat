@@ -69,7 +69,7 @@ because it asserts native `Page`/`Frame` objects — named pushes themselves
 work through the swap-pane route store and a focused VirtualList probe
 runs there instead; the web twin is a no-op.
 
-## Web smoke (`apps/web/scripts/smoke.mjs`)
+## Web smoke (`apps/web/scripts/smoke.ts`)
 
 `pnpm smoke` = `vite build && node scripts/smoke.mjs` — serves dist via
 `vite preview` and drives headless Chromium. The current script has 66

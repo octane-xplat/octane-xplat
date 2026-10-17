@@ -1,3 +1,4 @@
+// @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 // Tailored agent guidance (plans/octane-xplat-mcp.md: "explains how to
 // discover capabilities, select a target, inspect current source, run and
 // iterate, and qualify verification claims"). Entries are scoped guidance —

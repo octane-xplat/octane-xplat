@@ -151,7 +151,7 @@ interaction assertions in the process log, and accepts `tap`, `press`,
 measurements to `parity-report/macos.json`. From the workspace root,
 `pnpm parity:macos` rebuilds the web and macOS measurements and compares their
 shared fixtures. The sweep compares geometry and selected style values.
-For a focused HMR check, run `node apps/macos/scripts/verify-hmr.mjs` from the
+For a focused HMR check, run `node apps/macos/scripts/verify-hmr.ts` from the
 repository root.
 
 ### Non-visual smoke checks
@@ -202,9 +202,9 @@ The AppKit packaging recipe's AC7 still describes the earlier all-rows list
 fallback. That criterion remains unchanged and is not satisfied by the current
 windowed-list check; its reconciliation belongs to the VirtualList workflow.
 
-Screenshot-led comparison also exists: `node apps/web/scripts/parity-shots.mjs`
+Screenshot-led comparison also exists: `node apps/web/scripts/parity-shots.ts`
 captures the web parity stage in Playwright (640x420 viewport at 2x, ~300pt
-scroll steps) and `node apps/macos/scripts/parity-shots.mjs` drives the AppKit
+scroll steps) and `node apps/macos/scripts/parity-shots.ts` drives the AppKit
 host through the same scroll sweep, writing `shot-NNN.png` plus a
 `shot-NNN.cells.json` sidecar per step under `parity-report/shots/`. The macOS
 driver cannot capture its own window; it signals each pending capture through

@@ -1,4 +1,3 @@
-// @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 // Scaffold manifest + compose/apply shared by create-octane-xplat and the
 // CLI's `xplat add`. template/package.json is the canonical store for app dep
 // versions and script bodies; library-template/package.json owns the library
@@ -26,7 +25,7 @@ export const LIBRARY_TEMPLATE_DIR = join(pkgRoot, 'library-template')
  *  directories copy recursively. `deps`/`devDeps`/`scripts` name keys whose
  *  values come from template/package.json. `typecheck` contributes one clause
  *  to the generated typecheck script. */
-export const targets = {
+export const targets: Record<string, any> = {
 	web: {
 		label: 'Web (Vite)',
 		files: ['index.html', 'vite.config.ts', 'src/main.web.tsrx'],
@@ -112,7 +111,7 @@ const BASE_SCRIPTS = ['xplat', 'lint', 'lint:fix', 'format']
 
 /** Expand `requires` edges, dependencies first. Throws on unknown ids. */
 export function resolveTargets(ids) {
-	const resolved = []
+	const resolved: string[] = []
 	const visit = (id) => {
 		const t = targets[id]
 		if (!t) {
@@ -151,7 +150,7 @@ function ownerOf(path) {
 }
 
 function walk(dir, prefix = '') {
-	const out = []
+	const out: string[] = []
 	for (const name of readdirSync(dir)) {
 		if (name === 'node_modules') {
 			continue
@@ -169,7 +168,7 @@ function walk(dir, prefix = '') {
 }
 
 function pickKeys(source, names, label) {
-	const out = {}
+	const out: Record<string, string> = {}
 	for (const name of names) {
 		if (source[name] === undefined) {
 			throw new Error(`template/package.json has no ${label} entry "${name}"`)
@@ -188,11 +187,11 @@ function pickKeys(source, names, label) {
 export function composeManifest(ids) {
 	const resolved = resolveTargets(ids)
 	const tpl = templateManifest()
-	const manifest = { ...tpl }
+	const manifest: Record<string, any> = { ...tpl }
 
 	for (const section of ['dependencies', 'devDependencies']) {
 		const key = section === 'dependencies' ? 'deps' : 'devDeps'
-		const wanted = new Set()
+		const wanted = new Set<string>()
 		for (const id of resolved) {
 			for (const name of targets[id][key] ?? []) {
 				wanted.add(name)
@@ -220,7 +219,7 @@ export function composeManifest(ids) {
 	}
 
 	const scripts = pickKeys(tpl.scripts ?? {}, [...wantedScripts].sort(), 'script')
-	const typecheck = [BASE_TYPECHECK]
+	const typecheck: string[] = [BASE_TYPECHECK]
 	for (const id of resolved) {
 		if (targets[id].typecheck) {
 			typecheck.push(targets[id].typecheck)
@@ -256,9 +255,9 @@ const patchPkg = (key) => key.replace(/@[^@]+$/, '')
 // Split a pnpm-workspace.yaml into per-package patch blocks (leading comment
 // lines included) so compose can drop entries and apply can transplant them.
 function parsePatchEntries(lines) {
-	const entries = []
+	const entries: any[] = []
 	let inPatches = false
-	let pending = []
+	let pending: string[] = []
 	for (const line of lines) {
 		if (/^\S/.test(line)) {
 			inPatches = line.startsWith('patchedDependencies')
@@ -285,7 +284,7 @@ function parsePatchEntries(lines) {
 /** The pnpm-workspace.yaml a given target set produces. */
 export function composeWorkspaceYaml(ids) {
 	const resolved = new Set(resolveTargets(ids))
-	const drop = new Set()
+	const drop = new Set<string>()
 	for (const [id, t] of Object.entries(targets)) {
 		if (!resolved.has(id)) {
 			for (const name of t.patches ?? []) {
@@ -295,9 +294,9 @@ export function composeWorkspaceYaml(ids) {
 	}
 
 	const lines = readFileSync(join(TEMPLATE_DIR, 'pnpm-workspace.yaml'), 'utf8').split('\n')
-	const out = []
+	const out: string[] = []
 	let inPatches = false
-	let pending = []
+	let pending: string[] = []
 	for (const line of lines) {
 		if (/^\S/.test(line)) {
 			out.push(...pending, line)
@@ -489,7 +488,7 @@ export function targetEnabled(appRoot, id) {
 
 	// ios/android: declared runtime devDep is the canonical signal — App_Resources
 	// alone doesn't reach the bundler config.
-	const manifest = readJson(join(appRoot, 'package.json')) ?? {}
+	const manifest: Record<string, any> = readJson(join(appRoot, 'package.json')) ?? {}
 	const declared = { ...manifest.dependencies, ...manifest.devDependencies }
 	const runtime = { ios: '@nativescript/ios', android: '@nativescript/android' }[id]
 	return runtime ? typeof declared[runtime] === 'string' : false
@@ -544,9 +543,9 @@ function enableNativeInTsconfig(appRoot) {
 export function applyTarget(appRoot, id) {
 	const manifestPath = join(appRoot, 'package.json')
 	const raw = readFileSync(manifestPath, 'utf8')
-	const manifest = JSON.parse(raw)
+	const manifest: Record<string, any> = JSON.parse(raw)
 	const tpl = templateManifest()
-	const report = {
+	const report: Record<string, any> = {
 		enabled: [],
 		already: [],
 		copied: [],

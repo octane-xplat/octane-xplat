@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-// @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 import { createRequire } from 'node:module'
 import { spawnSync } from 'node:child_process'
 import {
@@ -92,7 +91,7 @@ function configuredTargetNames(projectRoot, selectedTarget) {
 		throw new Error(`${path}: ${error.message}`)
 	}
 
-	const targets = config?.targets
+	const targets: Record<string, any> | undefined = config?.targets
 	if (
 		!targets ||
 		typeof targets !== 'object' ||
@@ -184,7 +183,7 @@ function commonDirectory(paths) {
 	}
 
 	const segments = paths.map((path) => resolve(dirname(path)).split(sep))
-	const common = []
+	const common: any[] = []
 	for (let index = 0; segments.every((parts) => parts[index] === segments[0][index]); index += 1) {
 		common.push(segments[0][index])
 	}
@@ -193,8 +192,8 @@ function commonDirectory(paths) {
 }
 
 function sourceDeclarationMap(rootDir, fileNames, extensions, overrides) {
-	const sourceOutputs = new Map()
-	const runtimeByDeclaration = new Map()
+	const sourceOutputs = new Map<any, any>()
+	const runtimeByDeclaration = new Map<any, any>()
 	for (const source of fileNames) {
 		const sourceExtension = extname(source).toLowerCase()
 		if (!Object.hasOwn(extensions, sourceExtension) || /\.d\.[cm]?ts$/i.test(source)) {
@@ -255,7 +254,7 @@ function configOptions(projectRoot, projectArgument, targetArgument) {
 		throw new Error(`${path}: expected a JSON object`)
 	}
 
-	const targets = config.targets ?? {}
+	const targets: Record<string, any> = config.targets ?? {}
 	if (!targets || typeof targets !== 'object' || Array.isArray(targets)) {
 		throw new Error(`${path}: targets must be an object`)
 	}
@@ -311,7 +310,7 @@ function configOptions(projectRoot, projectArgument, targetArgument) {
 			throw new Error(`${path}: target ${selectedName} must declare entrypoints`)
 		}
 
-		for (const [subpath, entry] of Object.entries(selected.entrypoints)) {
+		for (const [subpath, entry] of Object.entries<any>(selected.entrypoints)) {
 			if (
 				!entry ||
 				typeof entry !== 'object' ||
@@ -394,7 +393,7 @@ function configOptions(projectRoot, projectArgument, targetArgument) {
 }
 
 function applyOverrides(ts, projectRoot, outputDir, generated, overrides) {
-	const normalized = new Map()
+	const normalized = new Map<any, any>()
 	for (const [outputPath, sourcePath] of Object.entries(overrides)) {
 		if (typeof sourcePath !== 'string' || !sourcePath) {
 			throw new Error(`override for ${outputPath} must name a source declaration file`)
@@ -430,7 +429,7 @@ function applyOverrides(ts, projectRoot, outputDir, generated, overrides) {
 	return new Set(normalized.keys())
 }
 
-function collectFiles(root, output = []) {
+function collectFiles(root, output: any[] = []) {
 	if (!statSync(root).isDirectory()) {
 		output.push(root)
 		return output
@@ -449,7 +448,7 @@ function collectFiles(root, output = []) {
 }
 
 function moduleSpecifierNodes(ts, sourceFile) {
-	const nodes = []
+	const nodes: any[] = []
 	const visit = (node) => {
 		if (
 			(ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) &&
@@ -491,7 +490,7 @@ function assertNoTsrxModuleReferences(ts, path, text) {
 function rewriteDeclaration(ts, path, outputDir, extensions, generatedFiles, runtimeByDeclaration) {
 	const text = readFileSync(path, 'utf8')
 	const source = ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
-	const edits = []
+	const edits: any[] = []
 	for (const node of moduleSpecifierNodes(ts, source)) {
 		const specifier = node.text
 		if (!specifier.startsWith('.')) {
@@ -611,7 +610,7 @@ function pathInside(root, file) {
 
 function existingOutputPath(outputDir, file) {
 	let current = outputDir
-	const actualParts = []
+	const actualParts: any[] = []
 
 	for (const part of normalize(file).split(sep)) {
 		let entries
@@ -673,7 +672,7 @@ function writeOutput(outputDir, generated, oldFiles, overrideFiles) {
 }
 
 function compareOutput(outputDir, generated, oldFiles, overrideFiles) {
-	const errors = []
+	const errors: any[] = []
 	if (!oldFiles) {
 		errors.push(`missing ${manifestName}; run tsrx-typegen --project <tsconfig> first`)
 	}
@@ -743,7 +742,7 @@ function verifyPublicTypes(projectRoot, generated, outDir, target, sourceOutputs
 	}
 
 	const exportsMap = manifest.publishConfig?.exports ?? manifest.exports
-	const failures = []
+	const failures: any[] = []
 	if (target && exportsMap && typeof exportsMap === 'object') {
 		const configuredSubpaths = new Set(Object.keys(target.entrypoints))
 		for (const [subpath, mapping] of Object.entries(exportsMap)) {
@@ -756,7 +755,7 @@ function verifyPublicTypes(projectRoot, generated, outDir, target, sourceOutputs
 			}
 		}
 
-		for (const [subpath, entry] of Object.entries(target.entrypoints)) {
+		for (const [subpath, entry] of Object.entries<any>(target.entrypoints)) {
 			const mapping = exportsMap[subpath]
 			if (!mapping) {
 				failures.push(

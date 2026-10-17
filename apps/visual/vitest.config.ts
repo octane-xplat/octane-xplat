@@ -1,6 +1,6 @@
-import { sourceIdentity } from './scripts/capture-manifest.mjs'
+import { sourceIdentity } from './scripts/capture-manifest.ts'
 import { dirname, join } from 'node:path'
-import { validateCapture } from './scripts/parity.mjs'
+import { validateCapture } from './scripts/parity.ts'
 import { readFileSync } from 'node:fs'
 import { defineConfig } from 'vitest/config'
 import { playwright } from '@vitest/browser-playwright'

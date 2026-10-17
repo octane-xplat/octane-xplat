@@ -590,7 +590,7 @@ storage guarantee.
 Check denial and cancellation on a fresh test app without resetting an existing
 app's permissions or data. Then capture once after an already-granted permission,
 confirm a non-null result, release it, and verify the app-created preview is gone.
-The [nonvisual browser probe](../../apps/web/scripts/optional-services.mjs) uses a
+The [nonvisual browser probe](../../apps/web/scripts/optional-services.ts) uses a
 synthetic file-input payload and never renders or inspects an image. The
 [cleanup tests](../../packages/media/tests/cleanup.test.mjs) inject read/conversion
 failures; they do not qualify camera hardware or native permission dialogs.

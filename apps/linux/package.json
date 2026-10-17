@@ -4,9 +4,9 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"dev": "pnpm --filter @xplat/app gen && node scripts/dev.mjs",
+		"dev": "pnpm --filter @xplat/app gen && node scripts/dev.ts",
 		"build": "pnpm --filter @xplat/app gen && xplat build --targets linux",
-		"smoke": "node scripts/smoke.mjs",
+		"smoke": "node scripts/smoke.ts",
 		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json"
 	},
 	"dependencies": {

@@ -6,7 +6,7 @@
 	"scripts": {
 		"dev": "wrangler dev",
 		"deploy": "wrangler deploy",
-		"publish:bundle": "node scripts/publish-bundle.mjs",
+		"publish:bundle": "node scripts/publish-bundle.ts",
 		"typecheck": "tsc --noEmit -p tsconfig.json",
 		"test": "node --test *.test.mjs"
 	},

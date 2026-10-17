@@ -8,11 +8,11 @@
 		"build": "pnpm --filter @xplat/app gen && vite build",
 		"preview": "vite preview",
 		"test": "vitest run",
-		"smoke:lexical-editor": "node scripts/lexical-editor-smoke.mjs",
-		"bench:vlist": "pnpm --filter @xplat/app gen && vite build && node scripts/bench-virtual-list.mjs",
-		"smoke": "pnpm --filter @xplat/app gen && vite build && node scripts/smoke.mjs",
-		"sqlite:readiness": "node scripts/sqlite-readiness.mjs",
-		"parity": "vite build && node scripts/parity.mjs",
+		"smoke:lexical-editor": "node scripts/lexical-editor-smoke.ts",
+		"bench:vlist": "pnpm --filter @xplat/app gen && vite build && node scripts/bench-virtual-list.ts",
+		"smoke": "pnpm --filter @xplat/app gen && vite build && node scripts/smoke.ts",
+		"sqlite:readiness": "node scripts/sqlite-readiness.ts",
+		"parity": "vite build && node scripts/parity.ts",
 		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json"
 	},
 	"dependencies": {

@@ -36,7 +36,7 @@ interruption handling.
 ## Documentation
 
 - AC1: [Long-form audio](../../../docs/platform/media-services.md#long-form-audio).
-- AC2: [Long-form audio](../../../docs/platform/media-services.md#long-form-audio). [Two-track probe](../../../packages/app/src/MediaServices.tsrx) and [nonvisual browser checks](../../../apps/web/scripts/optional-services.mjs) exercise advancement and teardown.
+- AC2: [Long-form audio](../../../docs/platform/media-services.md#long-form-audio). [Two-track probe](../../../packages/app/src/MediaServices.tsrx) and [nonvisual browser checks](../../../apps/web/scripts/optional-services.ts) exercise advancement and teardown.
 - AC3: [Long-form audio](../../../docs/platform/media-services.md#long-form-audio) and [integration checks](../../../docs/platform/media-services.md#check-your-integration) cover enabling iOS audio background mode and checking lock-screen/notification metadata and controls. The [two-track probe](../../../packages/app/src/MediaServices.tsrx) provides queue state; [qualification boundaries](../notes/optional-service-qualification.md) separate native runtime checks from setup coverage.
 - AC4: [Long-form audio](../../../docs/platform/media-services.md#long-form-audio) and [integration checks](../../../docs/platform/media-services.md#check-your-integration) cover real audio interruptions and effect/player coexistence. [Qualification boundaries](../notes/optional-service-qualification.md) track pending physical interruption and route measurements.
 - AC5: [Validation status](../../../docs/platform/media-services.md#validation-status).
