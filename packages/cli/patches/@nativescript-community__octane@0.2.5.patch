@@ -223,3 +223,36 @@ index 45a47cbbce199df9635852ca4cdb2849e9bbc83d..d555b50c08276e925132b2be9bb62302
      children?: NativeScriptNode;
  }
  type Overridden = keyof CommonAttributes | keyof OctaneAttributes<unknown> | keyof CommonEvents<unknown>;
+diff --git a/dist/driver.js b/dist/driver.js
+--- a/dist/driver.js
++++ b/dist/driver.js
+@@ -188,6 +188,15 @@
+     }
+     if (parentView instanceof LayoutBase) {
+         parentView.insertChild(view, Math.min(index, parentView.getChildrenCount()));
++        return;
++    }
++    // Custom-layout containers that own their child list without subclassing
++    // LayoutBase (e.g. MasonKit ViewBase — CustomLayoutView → ContainerView).
++    // Plain View/ContainerView lacks insertChild, so this stays a capability
++    // check rather than a catch-all.
++    if (typeof parentView.insertChild === 'function' && typeof parentView.removeChild === 'function') {
++        const count = typeof parentView.getChildrenCount === 'function' ? parentView.getChildrenCount() : index;
++        parentView.insertChild(view, Math.min(index, count));
+         return;
+     }
+     if (parentView instanceof ContentView) {
+@@ -234,6 +243,13 @@
+             parentView.removeChild(view);
+         return;
+     }
++    // Same capability check as addViewChild: custom-layout containers that
++    // aren't LayoutBase subclasses remove children through removeChild.
++    if (typeof parentView.removeChild === 'function' && typeof parentView.insertChild === 'function') {
++        if (view.parent === parentView)
++            parentView.removeChild(view);
++        return;
++    }
+     if (parentView instanceof ContentView) {
+         if (parentView.content === view)
+             parentView.content = CLEARED;

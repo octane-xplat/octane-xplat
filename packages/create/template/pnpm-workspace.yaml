@@ -73,7 +73,9 @@ patchedDependencies:
   # (Property/CssProperty setters get `unsetValue`, plain fields the captured pre-prop
   # value, `style` keys diff per key); a never-applied `undefined` still skips the write.
   # Also advertises the implemented visibility capability, carries Octane callback ref
-  # types, and preserves authored Grid row/col/span metadata.
+  # types, preserves authored Grid row/col/span metadata, and hosts custom-layout
+  # containers (e.g. MasonKit ViewBase) that own child lists via
+  # insertChild/removeChild/getChildrenCount without subclassing LayoutBase.
   "@nativescript-community/octane@0.2.5": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript-community__octane@0.2.5.patch
   # octaneServerStrategy's SCRIPT_FILE_RE only covers [jt]sx? — .tsrx edits never emit the
   # deferred ns:hmr-delta broadcast, so component HMR silently never reaches the device.
