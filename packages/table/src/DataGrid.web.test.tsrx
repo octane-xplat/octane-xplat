@@ -300,7 +300,7 @@ describe('DataGrid selection and row accessibility', () => {
 		const cells = [...document.querySelectorAll('[role="cell"]')].map((cell) => cell.textContent)
 		expect(cells[0]).toBe('[object Object]')
 		expect(cells[1]).toBe('true')
-		expect(cells[2]).toContain('1969')
+		expect(cells[2]).toBe(new Date(0).toString())
 	})
 
 	it.each([[-1, undefined], [101, 100]])('describes manual server pages with total %s', (expected, rowCount) => {
