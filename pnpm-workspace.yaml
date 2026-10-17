@@ -94,6 +94,16 @@ minimumReleaseAgeExclude:
   - '@tsrx/oxc@0.20.0'
   - '@tsrx/core@0.3.2'
   - '@tsrx/typescript-plugin@0.4.11'
+  # same-day releases of our formatter; platform binaries ship together.
+  - '@octane-xplat/fmt@0.1.0'
+  - '@octane-xplat/fmt-darwin-arm64@0.1.0'
+  - '@octane-xplat/fmt-darwin-x64@0.1.0'
+  - '@octane-xplat/fmt-linux-arm64-gnu@0.1.0'
+  - '@octane-xplat/fmt-linux-arm64-musl@0.1.0'
+  - '@octane-xplat/fmt-linux-x64-gnu@0.1.0'
+  - '@octane-xplat/fmt-linux-x64-musl@0.1.0'
+  - '@octane-xplat/fmt-win32-arm64@0.1.0'
+  - '@octane-xplat/fmt-win32-x64@0.1.0'
   - '@nativescript/canvas@3.0.0-alpha.15'
   # Windows spike: prerelease runtime + dev-tag CLI carrying the unreleased
   # windows platform (cli#6065). Exact pins in apps/windows/package.json.
