@@ -23,6 +23,12 @@ export default function App() {
 	const count$ = useSignal$(0)
 	return (
 		<stacklayout>
+			<actionbar
+				id="hmr-actionbar"
+				title={'First revision' + count$.get()}
+				flat={count$.get() > 0}
+				style={{ width: 240, height: 44 }}
+			/>
 			<listview
 				id="hmr-listview"
 				items={['First revision' + count$.get()]}

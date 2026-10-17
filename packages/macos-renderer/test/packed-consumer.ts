@@ -5,6 +5,8 @@ import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+const actionBarOnly = process.argv.includes('--actionbar')
+
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const repo = resolve(packageRoot, '../..')
 const directory = await mkdtemp(join(tmpdir(), 'xplat-macos-renderer-'))
@@ -76,6 +78,8 @@ for (const file of [
 	'formatted-lifecycle.ts',
 	'Search.macos.tsx',
 	'search-lifecycle.ts',
+	'ActionBar.macos.tsx',
+	'actionbar-lifecycle.ts',
 	'Placeholder.macos.tsx',
 	'placeholder-lifecycle.ts',
 	'root-lifecycle.ts',
@@ -91,13 +95,23 @@ for (const file of [
 	await cp(join(fixture, file), join(app, 'src', file))
 }
 
+if (actionBarOnly) {
+	for (const [source, target] of [
+		['actionbar-main.ts', 'main.ts'],
+		['ActionBarHmr.macos.tsx', 'App.macos.tsx'],
+		['actionbar-dev-shell.ts', 'dev-shell.ts'],
+	]) {
+		await cp(join(fixture, source), join(app, 'src', target))
+	}
+}
+
 // Keep the contributor example checked by the same independent consumer.
 const ledger = await readFile(join(repo, '.agents/docs/notes/appkit-native-intrinsics.md'), 'utf8')
 const examples = [...ledger.matchAll(/```tsx\n([\s\S]*?)```/g)]
 assert.equal(
 	examples.length,
-	20,
-	'Intrinsic ledger must include checked StackLayout, ContentView, DockLayout, WrapLayout, ProxyViewContainer RootLayout SearchBar FormattedString HtmlView ActivityIndicator DatePicker ListPicker Progress SegmentedBar SegmentedBarItem TimePicker and Placeholder examples',
+	21,
+	'Intrinsic ledger must include checked StackLayout, ContentView, DockLayout, WrapLayout, ProxyViewContainer RootLayout SearchBar FormattedString HtmlView ActivityIndicator DatePicker ListPicker Progress SegmentedBar SegmentedBarItem TimePicker Placeholder and ActionBar examples',
 )
 
 for (const [index, example] of examples.entries()) {
@@ -230,28 +244,38 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 	await writeFile(join(directory, 'appkit-runtime.log'), output)
 	assert.equal(result.status, 0, output)
 	assert.match(output, /PACKED_RENDERER_OK/)
-	assert.match(output, /PACKED_STACKLAYOUT_OK/)
-	assert.match(output, /PACKED_CONTENTVIEW_OK/)
-	assert.match(output, /PACKED_DOCKLAYOUT_OK/)
-	assert.match(output, /PACKED_WRAPLAYOUT_OK/)
-	assert.match(output, /PACKED_PROXYVIEWCONTAINER_OK/)
-	assert.match(output, /PACKED_ROOTLAYOUT_OK/)
-	assert.match(output, /PACKED_SEARCHBAR_OK/)
-	assert.match(output, /PACKED_FORMATTEDSTRING_OK/)
-	assert.match(output, /PACKED_HTMLVIEW_OK/)
-	assert.match(output, /PACKED_ACTIVITYINDICATOR_OK/)
-	assert.match(output, /PACKED_SEGMENTEDBAR_OK/)
-	assert.match(output, /PACKED_SEGMENTEDBARITEM_OK/)
-	assert.match(output, /PACKED_PROGRESS_OK/)
-	assert.match(output, /PACKED_LISTPICKER_OK/)
-	assert.match(output, /PACKED_DATEPICKER_OK/)
-	assert.match(output, /PACKED_TIMEPICKER_OK/)
-	assert.match(output, /PACKED_LISTVIEW_OK/)
-	assert.match(output, /PACKED_TABVIEW_OK/)
-	assert.match(output, /PACKED_TABVIEW_ITEMS_OK/)
-	assert.match(output, /PACKED_PLACEHOLDER_OK/)
+	if (actionBarOnly) {
+		assert.match(output, /PACKED_ACTIONBAR_OK/)
+	} else {
+		assert.match(output, /PACKED_STACKLAYOUT_OK/)
+		assert.match(output, /PACKED_CONTENTVIEW_OK/)
+		assert.match(output, /PACKED_DOCKLAYOUT_OK/)
+		assert.match(output, /PACKED_WRAPLAYOUT_OK/)
+		assert.match(output, /PACKED_PROXYVIEWCONTAINER_OK/)
+		assert.match(output, /PACKED_ROOTLAYOUT_OK/)
+		assert.match(output, /PACKED_SEARCHBAR_OK/)
+		assert.match(output, /PACKED_FORMATTEDSTRING_OK/)
+		assert.match(output, /PACKED_HTMLVIEW_OK/)
+		assert.match(output, /PACKED_ACTIVITYINDICATOR_OK/)
+		assert.match(output, /PACKED_SEGMENTEDBAR_OK/)
+		assert.match(output, /PACKED_SEGMENTEDBARITEM_OK/)
+		assert.match(output, /PACKED_PROGRESS_OK/)
+		assert.match(output, /PACKED_LISTPICKER_OK/)
+		assert.match(output, /PACKED_DATEPICKER_OK/)
+		assert.match(output, /PACKED_TIMEPICKER_OK/)
+		assert.match(output, /PACKED_LISTVIEW_OK/)
+		assert.match(output, /PACKED_TABVIEW_OK/)
+		assert.match(output, /PACKED_TABVIEW_ITEMS_OK/)
+		assert.match(output, /PACKED_ACTIONBAR_OK/)
+		assert.match(output, /PACKED_PLACEHOLDER_OK/)
+	}
+
 	assert.doesNotMatch(output, /PACKED_RENDERER_FAIL|uncaught render error/)
-	console.log('[packed renderer] packaged AppKit system fonts and signal updates pass')
+	console.log(
+		actionBarOnly
+			? '[packed renderer] ActionBar lifecycle assertions pass'
+			: '[packed renderer] packaged AppKit system fonts and signal updates pass',
+	)
 
 	console.log('[packed renderer] verifying retained-root HMR')
 	const dev = spawn('pnpm', ['exec', 'xplat', 'dev', '--targets', 'macos'], {
@@ -300,24 +324,30 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 		await writeFile(join(directory, 'appkit-hmr.log'), devOutput)
 		assert.ifError(failure)
 		assert.equal(verified, true, devOutput.slice(-5000))
-		assert.match(devOutput, /PACKED_DOCKLAYOUT_HMR_OK/)
-		assert.match(devOutput, /PACKED_WRAPLAYOUT_HMR_OK/)
-		assert.match(devOutput, /PACKED_PROXYVIEWCONTAINER_HMR_OK/)
-		assert.match(devOutput, /PACKED_CONTENTVIEW_HMR_OK/)
-		assert.match(devOutput, /PACKED_ROOTLAYOUT_HMR_OK/)
-		assert.match(devOutput, /PACKED_SEARCHBAR_HMR_OK/)
-		assert.match(devOutput, /PACKED_FORMATTEDSTRING_HMR_OK/)
-		assert.match(devOutput, /PACKED_HTMLVIEW_HMR_OK/)
-		assert.match(devOutput, /PACKED_ACTIVITYINDICATOR_HMR_OK/)
-		assert.match(devOutput, /PACKED_SEGMENTEDBAR_HMR_OK/)
-		assert.match(devOutput, /PACKED_SEGMENTEDBARITEM_HMR_OK/)
-		assert.match(devOutput, /PACKED_PROGRESS_HMR_OK/)
-		assert.match(devOutput, /PACKED_LISTPICKER_HMR_OK/)
-		assert.match(devOutput, /PACKED_DATEPICKER_HMR_OK/)
-		assert.match(devOutput, /PACKED_TIMEPICKER_HMR_OK/)
-		assert.match(devOutput, /PACKED_LISTVIEW_HMR_OK/)
-		assert.match(devOutput, /PACKED_TABVIEW_HMR_OK/)
-		assert.match(devOutput, /PACKED_PLACEHOLDER_HMR_OK/)
+		if (actionBarOnly) {
+			assert.match(devOutput, /PACKED_ACTIONBAR_HMR_OK/)
+		} else {
+			assert.match(devOutput, /PACKED_DOCKLAYOUT_HMR_OK/)
+			assert.match(devOutput, /PACKED_WRAPLAYOUT_HMR_OK/)
+			assert.match(devOutput, /PACKED_PROXYVIEWCONTAINER_HMR_OK/)
+			assert.match(devOutput, /PACKED_CONTENTVIEW_HMR_OK/)
+			assert.match(devOutput, /PACKED_ROOTLAYOUT_HMR_OK/)
+			assert.match(devOutput, /PACKED_SEARCHBAR_HMR_OK/)
+			assert.match(devOutput, /PACKED_FORMATTEDSTRING_HMR_OK/)
+			assert.match(devOutput, /PACKED_HTMLVIEW_HMR_OK/)
+			assert.match(devOutput, /PACKED_ACTIVITYINDICATOR_HMR_OK/)
+			assert.match(devOutput, /PACKED_SEGMENTEDBAR_HMR_OK/)
+			assert.match(devOutput, /PACKED_SEGMENTEDBARITEM_HMR_OK/)
+			assert.match(devOutput, /PACKED_PROGRESS_HMR_OK/)
+			assert.match(devOutput, /PACKED_LISTPICKER_HMR_OK/)
+			assert.match(devOutput, /PACKED_DATEPICKER_HMR_OK/)
+			assert.match(devOutput, /PACKED_TIMEPICKER_HMR_OK/)
+			assert.match(devOutput, /PACKED_LISTVIEW_HMR_OK/)
+			assert.match(devOutput, /PACKED_TABVIEW_HMR_OK/)
+			assert.match(devOutput, /PACKED_ACTIONBAR_HMR_OK/)
+			assert.match(devOutput, /PACKED_PLACEHOLDER_HMR_OK/)
+		}
+
 		assert.doesNotMatch(devOutput, /PACKED_HMR_FAIL|uncaught render error/)
 	} finally {
 		clearTimeout(deadline)

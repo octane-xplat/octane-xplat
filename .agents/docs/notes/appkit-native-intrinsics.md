@@ -23,11 +23,11 @@ All conditioned native declarations derive from that same map.
 | Text input        | `textfield`, `textview`, `searchbar`                                                                                                          | —                                                                                                                                      |
 | Controls          | `button`, `switch`, `slider`, `activityindicator`, `datepicker`, `listpicker`, `progress`, `segmentedbar`, `segmentedbaritem`, `timepicker`   | —                                                                                                                                      |
 | Collections       | `listview`, `tabview`, `tabviewitem`                                                                                                          | —                                                                                                                                      |
-| Navigation        | —                                                                                                                                             | `actionbar`, `actionitem`, `frame`, `navigationbutton`, `page`                                                                         |
+| Navigation        | `actionbar`                                                                                                                                   | `actionitem`, `frame`, `navigationbutton`, `page`                                                                                      |
 | Other             | `image`, `scrollview`, `webview`, `placeholder`                                                                                               | `liquidglass`                                                                                                                          |
 | Shared extensions | —                                                                                                                                             | `animatedimage`, `applesigninbutton`, `cachedimage`, `googlesigninbutton`, `nscanvas`, `pager`, `svgview`, `xplatlottie`, `xplatvideo` |
 
-There are now 33 core factories and 6 missing core hosts. `span` and
+There are now 34 core factories and 5 missing core hosts. `span` and
 `formattedstring` are viewless; their composition checks are described below. The renderer
 also handles `#text` and its historical AppKit-only `stack` name. Neither adds
 a shared core element. Existing factory presence is source evidence, not a
@@ -79,7 +79,7 @@ qualify every surrounding component interaction.
 
 ## Remaining release gates
 
-The 6 missing core hosts and nine missing raw extension hosts remain required.
+The 5 missing core hosts and nine missing raw extension hosts remain required.
 Existing hosts still need the full common contract audit, including lifecycle
 notifications, gesture coverage, visibility/collapse, style coverage, and
 payload normalization. StackLayout's inherited common-contract gaps are part
@@ -885,3 +885,39 @@ native view there — the AppKit host delivers the documented contract
 synchronously. The inherited common gesture/lifecycle/style audit, mobile
 execution, visual parity and the complete release gates remain open. This
 raw-host unit changes no recipe workflow.
+
+## ActionBar host
+
+ActionBar displays `title` until a custom `titleView` is assigned. A JSX child
+occupies that same single slot: inserting another child replaces it, and removing
+an older child preserves its replacement. Removing the current child restores
+the plain title. Custom content centers by default; explicit child alignment and
+size still apply. Removing `flat` restores the host shadow.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export default function BarExample() {
+	return (
+		<actionbar title="Library" flat={true} style={{ width: 240, height: 44 }}>
+			<label text="Custom title" style={{ width: 100, height: 20 }} />
+		</actionbar>
+	)
+}
+```
+
+The macOS ref remains the bar's NSView across title updates and slot changes.
+The packed consumer checks title and titleView updates/removal, JSX replacement,
+centering, sizing, refs, teardown and retained-root HMR. Native titleView values
+must be AppKit NSViews without another host owner. ActionItem, NavigationButton,
+Page and Frame remain separate required units. The inherited common-contract
+audit, mobile execution, OS input and visual parity remain unqualified. This
+unit changes no recipe workflow or JSX selection policy.
+
+Run this host's independent packed runtime and HMR qualification with:
+
+```sh
+pnpm --filter @octane-xplat/macos-renderer test:packed -- --actionbar
+```
+
+The default `test:packed` command retains the full intrinsic suite and its
+release criteria. The focused lane does not establish a full-suite pass.

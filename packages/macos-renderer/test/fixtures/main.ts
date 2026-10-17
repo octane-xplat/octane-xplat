@@ -1,3 +1,4 @@
+import { checkActionBarLifecycle } from './actionbar-lifecycle'
 import { checkListViewLifecycle } from './listview-lifecycle'
 import { checkTabLifecycle, checkImperativeTabLifecycle } from './tab-lifecycle'
 import { checkTimeLifecycle } from './time-lifecycle'
@@ -171,6 +172,13 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
 								await checkPlaceholderLifecycle(placeholderRoot, nativeWindow)
 							} finally {
 								placeholderRoot.unmount()
+							}
+
+							const actionBarRoot = createMacOSRoot(nativeWindow.contentView)
+							try {
+								await checkActionBarLifecycle(actionBarRoot, nativeWindow)
+							} finally {
+								actionBarRoot.unmount()
 							}
 
 							const dockRoot = createMacOSRoot(nativeWindow.contentView)

@@ -190,3 +190,18 @@ const badItemEnabled: SharedJSX.IntrinsicElements['segmentedbaritem'] = { enable
 void segmentItem
 void badItemTitle
 void badItemEnabled
+
+const actionbar: SharedJSX.IntrinsicElements['actionbar'] = {
+	title: 'Title',
+	flat: true,
+	titleView: {},
+	ref: () => {},
+}
+
+// @ts-expect-error flat is boolean
+const badBarFlat: SharedJSX.IntrinsicElements['actionbar'] = { flat: 'yes' }
+// @ts-expect-error titleView requires a host object
+const badBarView: SharedJSX.IntrinsicElements['actionbar'] = { titleView: 'text' }
+void actionbar
+void badBarFlat
+void badBarView

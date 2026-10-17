@@ -53,6 +53,8 @@ let retainedProxyChild: any
 let retainedSearch: any
 let retainedRoot: any
 let retainedRootChild: any
+let retainedActionBar: any
+let retainedActionBarTitle: any
 let retainedPlaceholder: any
 let retainedPlaceholderContent: any
 let reloaded = false
@@ -91,6 +93,8 @@ function reload() {
 			retainedWrapChild = debug.findId('wrap-revision')
 			retainedProxy = debug.findId('hmr-proxy')
 			retainedProxyChild = debug.findId('proxy-revision')
+			retainedActionBar = debug.findId('hmr-actionbar')
+			retainedActionBarTitle = retainedActionBar.subviews.objectAtIndex(0)
 			retainedPlaceholder = debug.findId('hmr-placeholder')
 			retainedPlaceholderContent = retainedPlaceholder.subviews.objectAtIndex(0)
 			debug.pressId('increment')
@@ -173,6 +177,10 @@ function reload() {
 				debug.findId('dock-revision') === retainedDockChild &&
 				retainedDockChild.superview === retainedDock &&
 				String(retainedDockChild.stringValue) === 'Second revision' &&
+				debug.findId('hmr-actionbar') === retainedActionBar &&
+				retainedActionBar.subviews.objectAtIndex(0) === retainedActionBarTitle &&
+				String(retainedActionBarTitle.stringValue) === 'Second revision1' &&
+				Number(retainedActionBar.layer.shadowOpacity) === 0 &&
 				debug.findId('hmr-placeholder') === retainedPlaceholder &&
 				retainedPlaceholderContent.superview === retainedPlaceholder &&
 				String(retainedPlaceholderContent.stringValue) === 'First revision' &&
@@ -232,6 +240,8 @@ function reload() {
 					retainedChild.superview ||
 					retainedDock.superview ||
 					retainedDockChild.superview ||
+					retainedActionBar.superview ||
+					retainedActionBarTitle.superview ||
 					retainedPlaceholder.superview ||
 					retainedPlaceholderContent.superview
 				) {
@@ -243,6 +253,7 @@ function reload() {
 				console.log('PACKED_DOCKLAYOUT_HMR_OK')
 				console.log('PACKED_WRAPLAYOUT_HMR_OK')
 				console.log('PACKED_PROXYVIEWCONTAINER_HMR_OK')
+				console.log('PACKED_ACTIONBAR_HMR_OK')
 				console.log('PACKED_PLACEHOLDER_HMR_OK')
 				console.log('PACKED_ROOTLAYOUT_HMR_OK')
 				console.log('PACKED_SEARCHBAR_HMR_OK')

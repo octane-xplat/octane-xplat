@@ -11,7 +11,7 @@ const fn = (name: string) => {
 	return source.slice(start, source.indexOf('\nfunction ', start + 1))
 }
 
-function fixture() {
+function fixture(type = 'contentview') {
 	const noop = () => {}
 	const anchor = () => ({
 		constraintEqualToAnchorConstant: (_other: any, constant: number) => ({
@@ -46,7 +46,7 @@ function fixture() {
 
 	const parent = {
 		id: 1,
-		type: 'contentview',
+		type,
 		props: {},
 		view: view(),
 		children: [] as any[],
@@ -78,11 +78,12 @@ function fixture() {
 			disposePressGestures: noop,
 			panHandlersByView: new WeakMap(),
 			layoutHandlers: new WeakMap(),
-			VIEW_PARENT_TYPES: new Set(['contentview', 'stacklayout']),
+			VIEW_PARENT_TYPES: new Set(['contentview', 'actionbar', 'stacklayout']),
 			layoutView: (node: any) => node.view,
 			arrangedView: (node: any) => node.marginHost ?? node.view,
 			deactivateSizeConstraints: noop,
 			syncText: noop,
+			syncActionBar: noop,
 			syncScheme: noop,
 			setLayoutAction: noop,
 		},
@@ -224,4 +225,33 @@ test('destroying a retained child releases its native parent and placement pins'
 	assert.equal(a.placementPins, null)
 	assert.ok(pins.every((pin) => !pin.active))
 	assert.equal(fx.parent.contentChild, null)
+})
+
+for (const type of ['contentview', 'actionbar']) {
+	test(type + ' preserves the active slot when older children are removed', () => {
+		const f = fixture(type),
+			a = f.child(2),
+			b = f.child(3)
+
+		f.insert(a)
+		f.insert(b)
+		f.remove(a)
+		assert.equal(f.parent.contentChild, b)
+		assert.equal(a.view.superview, null)
+		assert.equal(b.view.superview, f.parent.view)
+		f.remove(b)
+		assert.equal(f.parent.contentChild, null)
+	})
+}
+
+test('ActionBar custom title content centers naturally and accepts explicit alignment', () => {
+	const f = fixture('actionbar'),
+		a = f.child(2)
+
+	f.insert(a)
+	f.layout()
+	assert.deepEqual(rect(a), [80, 40, 40, 20])
+	a.props = { horizontalAlignment: 'right', verticalAlignment: 'top' }
+	f.layout()
+	assert.deepEqual(rect(a), [160, 0, 40, 20])
 })

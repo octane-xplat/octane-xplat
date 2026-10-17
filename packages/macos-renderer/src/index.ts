@@ -741,6 +741,39 @@ class AbsoluteLayoutView extends NSView {
 	}
 }
 
+// NativeScript ActionBar's title slot: a title label until a view is assigned.
+// The host identity remains stable across both forms of content.
+class ActionBarHost extends NSView {
+	static {
+		NativeClass(this)
+	}
+
+	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
+	get intrinsicContentSize() {
+		const node = contentViewNodesByView.get(this)
+		const child = node?.projectedChildren
+			? node.projectedChildren[0]
+			: (node?.contentChild ?? node?.actionBarDisplay)
+
+		const size = child?.view?.intrinsicContentSize
+		const dimension = (axis: 'width' | 'height') =>
+			Math.max(
+				0,
+				Number(
+					child?.props.style?.[axis] ??
+						(Number(size?.[axis]) >= 0 ? size?.[axis] : child?.view?.fittingSize?.[axis]),
+				) || 0,
+			)
+
+		return { width: dimension('width'), height: Math.max(44, dimension('height')) }
+	}
+
+	layout() {
+		super.layout()
+		syncActionBar(contentViewNodesByView.get(this))
+	}
+}
+
 // A single native slot, with renderer children retained separately so removing
 // a superseded child cannot clear its replacement (NativeScript ContentView).
 class ContentViewHost extends NSView {
@@ -961,6 +994,116 @@ function makeContentView() {
 
 	view.translatesAutoresizingMaskIntoConstraints = false
 	return view
+}
+
+function makeActionBar(node: ElementNode) {
+	const view = ActionBarHost.alloc().initWithFrame({
+		origin: { x: 0, y: 0 },
+		size: { width: 0, height: 44 },
+	})
+
+	view.translatesAutoresizingMaskIntoConstraints = false
+	node.actionBarTitle = makeLabel()
+	node.actionBarTitleViewProp = node.props.titleView
+	node.actionBarExternal = node.props.titleView ?? null
+	return view
+}
+
+function validateActionBarTitleView(node: ElementNode, view: NSView | null | undefined) {
+	if (!view) {
+		return
+	}
+
+	if (view === node.view || node.view?.isDescendantOf?.(view)) {
+		throw new TypeError('AppKit actionbar titleView would cycle the hierarchy')
+	}
+
+	if (ownedRoots.has(view) || (nodeContainersByView.has(view) && view.superview !== node.view)) {
+		throw new TypeError('AppKit actionbar titleView is owned by another Octane host')
+	}
+
+	if (view.superview && view.superview !== node.view) {
+		throw new TypeError('AppKit actionbar titleView already belongs to another host')
+	}
+}
+
+function setActionBarTitleView(node: ElementNode, view: NSView | null | undefined) {
+	validateActionBarTitleView(node, view)
+	node.actionBarTitleViewProp = view
+	const child = node.projectedChildren ? node.projectedChildren[0] : node.contentChild
+	// Assigning the already active JSX title is a no-op in NativeScript.
+	if (child && child.view === view) {
+		node.actionBarExternal = null
+		return
+	}
+
+	node.actionBarExternal = view ?? null
+	if (node.contentChild) {
+		for (const current of node.projectedChildren ?? [node.contentChild]) {
+			releasePlacementPins(current)
+			current.view?.removeFromSuperview()
+		}
+
+		node.contentChild = null
+	}
+}
+
+function syncActionBar(node: ElementNode | undefined) {
+	if (!node?.view) {
+		return
+	}
+
+	const child = node.projectedChildren ? node.projectedChildren[0] : node.contentChild
+	const external = node.actionBarExternal
+	const view = child?.view ?? external ?? node.actionBarTitle
+	if (!child) {
+		validateActionBarTitleView(node, view)
+	}
+
+	const previous = node.actionBarDisplay
+	if (previous?.view !== view) {
+		if (previous) {
+			releasePlacementPins(previous)
+			previous.view.removeFromSuperview()
+		}
+
+		node.actionBarDisplay = null
+	}
+
+	if (view === node.actionBarTitle) {
+		view.stringValue = String(node.props.title ?? '')
+	}
+
+	if (!child) {
+		if (view.superview !== node.view) {
+			node.view.addSubview(view)
+		}
+
+		view.translatesAutoresizingMaskIntoConstraints = false
+		if (!node.actionBarDisplay) {
+			const intrinsic = view.intrinsicContentSize
+			const style: PropBag = {}
+			for (const axis of ['width', 'height']) {
+				if (Number(intrinsic?.[axis]) < 0) {
+					style[axis] = Number(view.frame.size[axis]) || Number(view.fittingSize?.[axis]) || 0
+				}
+			}
+
+			node.actionBarDisplay = { view, props: { style }, container: node.container }
+		}
+
+		layoutContentChild({
+			...node,
+			contentChild: node.actionBarDisplay,
+			projectedChildren: undefined,
+		})
+	} else {
+		layoutContentChild(node)
+	}
+
+	node.view.wantsLayer = true
+	node.view.layer.shadowOpacity = node.props.flat ? 0 : 0.2
+	node.view.layer.shadowRadius = node.props.flat ? 0 : 1
 }
 
 function makePlaceholder(node: ElementNode) {
@@ -1410,7 +1553,14 @@ function syncMarginHost(node: ElementNode) {
 		// Grid children are laid out manually and already honor margins.
 		if (
 			marginInsetsOf(node) &&
-			!['gridlayout', 'contentview', 'docklayout', 'wraplayout', 'rootlayout'].includes(parent.type)
+			![
+				'gridlayout',
+				'contentview',
+				'actionbar',
+				'docklayout',
+				'wraplayout',
+				'rootlayout',
+			].includes(parent.type)
 		) {
 			console.warn('[macos-style] ignored margins on <' + node.type + '> — parent is not a stack')
 		}
@@ -1464,7 +1614,7 @@ function setMarginStyle(node: ElementNode, name: string, value: any) {
 	}
 
 	if (
-		['gridlayout', 'contentview', 'docklayout', 'wraplayout', 'rootlayout'].includes(
+		['gridlayout', 'contentview', 'actionbar', 'docklayout', 'wraplayout', 'rootlayout'].includes(
 			(node.layoutParent ?? node.parent)?.type ?? '',
 		)
 	) {
@@ -3490,8 +3640,12 @@ function layoutContentChild(parent: ElementNode | undefined) {
 	const height = Number(parent.view.bounds.size.height)
 	const style = child.props.style ?? {}
 	const intrinsic = layoutView(child).intrinsicContentSize ?? { width: 0, height: 0 }
-	const horizontal = child.props.horizontalAlignment ?? 'stretch'
-	const vertical = child.props.verticalAlignment ?? 'stretch'
+	const horizontal =
+		child.props.horizontalAlignment ?? (parent.type === 'actionbar' ? 'center' : 'stretch')
+
+	const vertical =
+		child.props.verticalAlignment ?? (parent.type === 'actionbar' ? 'middle' : 'stretch')
+
 	const margins = child.marginInsets ?? {}
 	const axis = (
 		available: number,
@@ -3583,6 +3737,7 @@ const VIEW_PARENT_TYPES = new Set([
 	'wraplayout',
 	'rootlayout',
 	'contentview',
+	'actionbar',
 	'proxyviewcontainer',
 	'stack',
 	'stacklayout',
@@ -3642,6 +3797,10 @@ function assertSupportedType(type: string) {
  *  registrations exist. `baseProps` supplies already-applied props for
  *  update commands so merged-prop rules (e.g. placeholder color) stay exact. */
 function validateNodeProps(type: string, props: PropBag | undefined, baseProps?: PropBag) {
+	if (type === 'actionbar' && props?.titleView != null && !(props.titleView instanceof NSView)) {
+		throw new TypeError('AppKit actionbar titleView must be an AppKit NSView')
+	}
+
 	if (type === 'listview') {
 		validateListProps(props ?? {}, (template) =>
 			template.validate(
@@ -3933,8 +4092,9 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 			case 'docklayout':
 				node.view = makeDockLayout(node)
 				break
+			case 'actionbar':
 			case 'contentview':
-				node.view = makeContentView()
+				node.view = type === 'actionbar' ? makeActionBar(node) : makeContentView()
 				contentViewNodesByView.set(node.view!, node)
 				observeContentGeometry(node)
 				break
@@ -4390,7 +4550,7 @@ function applySizeConstraint(node: ElementNode, name: string) {
 	if (
 		!spec ||
 		!node.view ||
-		['contentview', 'docklayout', 'wraplayout', 'rootlayout'].includes(
+		['contentview', 'actionbar', 'docklayout', 'wraplayout', 'rootlayout'].includes(
 			(node.layoutParent ?? node.parent)?.type ?? '',
 		)
 	) {
@@ -5512,6 +5672,14 @@ function applyProps(node: ElementNode, props: PropBag) {
 		validateNodeProps(node.type, props)
 	}
 
+	if (
+		node.type === 'actionbar' &&
+		'titleView' in props &&
+		node.actionBarTitleViewProp !== props.titleView
+	) {
+		setActionBarTitleView(node, props.titleView)
+	}
+
 	node.props = { ...node.props, ...props }
 	if (
 		node.authoredProps ||
@@ -5559,6 +5727,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 		wraplayout: ['horizontalAlignment', 'verticalAlignment'],
 		docklayout: ['dock', 'horizontalAlignment', 'verticalAlignment'],
 		contentview: ['horizontalAlignment', 'verticalAlignment'],
+		actionbar: ['horizontalAlignment', 'verticalAlignment'],
 		stacklayout: ['horizontalAlignment', 'verticalAlignment'],
 		gridlayout: ['row', 'col', 'rowSpan', 'colSpan', 'horizontalAlignment', 'verticalAlignment'],
 	}
@@ -5625,7 +5794,12 @@ function applyProps(node: ElementNode, props: PropBag) {
 				}
 			// Common styling uses the same reconciliation as ContentView.
 			case 'rootlayout':
+			case 'actionbar':
 			case 'contentview':
+				if (node.type === 'actionbar' && ['title', 'titleView', 'flat'].includes(name)) {
+					continue
+				}
+
 				if (name === 'style') {
 					applyStyle(node, value)
 				} else if (name === 'className') {
@@ -6281,6 +6455,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 			'gridlayout',
 			'absolutelayout',
 			'contentview',
+			'actionbar',
 			'docklayout',
 			'wraplayout',
 			'rootlayout',
@@ -6293,7 +6468,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 		node.parent?.type === 'rootlayout' ||
 		node.parent?.type === 'wraplayout' ||
 		node.parent?.type === 'stacklayout' ||
-		node.parent?.type === 'contentview' ||
+		['contentview', 'actionbar'].includes(node.parent?.type ?? '') ||
 		node.parent?.type === 'docklayout'
 	) {
 		queueLayoutReconcile(node.container, node.parent)
@@ -6345,12 +6520,11 @@ const PROXY_LAYOUT_PROPS = [
 ] as const
 
 function projectedViews(parent: ElementNode): ElementNode[] {
-	const children =
-		parent.type === 'contentview'
-			? parent.contentChild
-				? [parent.contentChild]
-				: []
-			: parent.children
+	const children = ['contentview', 'actionbar'].includes(parent.type ?? '')
+		? parent.contentChild
+			? [parent.contentChild]
+			: []
+		: parent.children
 
 	return children.flatMap((child: ElementNode) => {
 		if (child.props.visibility === 'collapse') {
@@ -6392,7 +6566,7 @@ function releaseProjectedView(node: ElementNode) {
 
 function syncProxyProjection(parent: ElementNode) {
 	const children = projectedViews(parent)
-	if (parent.type === 'contentview' && children.length > 1) {
+	if (['contentview', 'actionbar'].includes(parent.type ?? '') && children.length > 1) {
 		throw new Error(
 			'AppKit <contentview> cannot project multiple ProxyViewContainer layout children',
 		)
@@ -6411,6 +6585,7 @@ function syncProxyProjection(parent: ElementNode) {
 		'gridlayout',
 		'absolutelayout',
 		'contentview',
+		'actionbar',
 		'docklayout',
 		'wraplayout',
 		'rootlayout',
@@ -6577,7 +6752,7 @@ function validateProxyTree(container: RootContainer, commands: readonly Universa
 			if (parent) {
 				const index = parent.children.indexOf(command.before!)
 				parent.children.splice(index < 0 ? parent.children.length : index, 0, command.id)
-				if (parent.type === 'contentview') {
+				if (['contentview', 'actionbar'].includes(parent.type ?? '')) {
 					parent.slot = command.id
 				}
 			}
@@ -6609,7 +6784,11 @@ function validateProxyTree(container: RootContainer, commands: readonly Universa
 	}
 
 	for (const [id, node] of nodes) {
-		if (node.type === 'contentview' && node.slot != null && count(node.slot) > 1) {
+		if (
+			['contentview', 'actionbar'].includes(node.type ?? '') &&
+			node.slot != null &&
+			count(node.slot) > 1
+		) {
 			throw new Error(
 				'AppKit <contentview> cannot project multiple ProxyViewContainer layout children',
 			)
@@ -6666,7 +6845,11 @@ function detach(container: RootContainer, node: ElementNode, preserveTab = false
 		arrangedView(node).removeFromSuperview()
 	}
 
-	if (previousParent?.type === 'contentview' && previousParent.contentChild === node) {
+	if (
+		previousParent &&
+		['contentview', 'actionbar'].includes(previousParent.type) &&
+		previousParent.contentChild === node
+	) {
 		previousParent.contentChild = null
 		previousParent.view!.invalidateIntrinsicContentSize()
 	}
@@ -6766,7 +6949,9 @@ function reconcileLayoutParent(parent: ElementNode) {
 		parent.view?.invalidateIntrinsicContentSize()
 		layoutRootChildren(parent)
 		if (
-			['docklayout', 'contentview', 'wraplayout', 'rootlayout'].includes(parent.parent?.type ?? '')
+			['docklayout', 'contentview', 'actionbar', 'wraplayout', 'rootlayout'].includes(
+				parent.parent?.type ?? '',
+			)
 		) {
 			queueLayoutReconcile(parent.container, parent.parent)
 		}
@@ -6778,7 +6963,9 @@ function reconcileLayoutParent(parent: ElementNode) {
 		parent.view?.invalidateIntrinsicContentSize()
 		layoutWrapChildren(parent)
 		if (
-			['docklayout', 'contentview', 'wraplayout', 'rootlayout'].includes(parent.parent?.type ?? '')
+			['docklayout', 'contentview', 'actionbar', 'wraplayout', 'rootlayout'].includes(
+				parent.parent?.type ?? '',
+			)
 		) {
 			queueLayoutReconcile(parent.container, parent.parent)
 		}
@@ -6790,11 +6977,20 @@ function reconcileLayoutParent(parent: ElementNode) {
 		parent.view?.invalidateIntrinsicContentSize()
 		layoutDockChildren(parent)
 		if (
-			['docklayout', 'contentview', 'wraplayout', 'rootlayout'].includes(parent.parent?.type ?? '')
+			['docklayout', 'contentview', 'actionbar', 'wraplayout', 'rootlayout'].includes(
+				parent.parent?.type ?? '',
+			)
 		) {
 			queueLayoutReconcile(parent.container, parent.parent)
 		}
 
+		return
+	}
+
+	if (parent.type === 'actionbar') {
+		parent.view?.invalidateIntrinsicContentSize()
+		syncActionBar(parent)
+		queueLayoutReconcile(parent.container, parent.parent)
 		return
 	}
 
@@ -6933,6 +7129,7 @@ function insert(
 		[
 			'stacklayout',
 			'contentview',
+			'actionbar',
 			'docklayout',
 			'wraplayout',
 			'rootlayout',
@@ -6966,7 +7163,7 @@ function insert(
 	siblings.splice(index, 0, node)
 	node.parent = parent
 	if (projected) {
-		if (parent?.type === 'contentview') {
+		if (parent && ['contentview', 'actionbar'].includes(parent.type)) {
 			const previous = parent.contentChild
 			if (previous && previous !== node) {
 				for (const child of previous.type === 'proxyviewcontainer'
@@ -6974,6 +7171,10 @@ function insert(
 					: [previous]) {
 					releaseProjectedView(child)
 				}
+			}
+
+			if (parent.type === 'actionbar') {
+				parent.actionBarExternal = null
 			}
 
 			parent.contentChild = node
@@ -6995,6 +7196,7 @@ function insert(
 					'gridlayout',
 					'absolutelayout',
 					'contentview',
+					'actionbar',
 					'docklayout',
 					'wraplayout',
 					'rootlayout',
@@ -7021,11 +7223,15 @@ function insert(
 				layoutView(node).bottomAnchor.constraintEqualToAnchor(parentView.bottomAnchor).active = true
 				applySizeConstraints(node)
 				queueLayoutReconcile(container, parent)
-			} else if (parent.type === 'contentview') {
+			} else if (['contentview', 'actionbar'].includes(parent.type ?? '')) {
 				const previous = parent.contentChild
 				if (previous && previous !== node) {
 					releasePlacementPins(previous)
 					layoutView(previous).removeFromSuperview()
+				}
+
+				if (parent.type === 'actionbar') {
+					parent.actionBarExternal = null
 				}
 
 				parent.contentChild = node
@@ -7135,7 +7341,11 @@ function remove(container: RootContainer, parentId: UniversalHostParent, node: E
 		setLayoutAction(node, node.props?.onLayoutChanged)
 	}
 
-	if (expectedParent?.type === 'contentview' && expectedParent.contentChild === node) {
+	if (
+		expectedParent &&
+		['contentview', 'actionbar'].includes(expectedParent.type) &&
+		expectedParent.contentChild === node
+	) {
 		expectedParent.contentChild = null
 		expectedParent.view!.invalidateIntrinsicContentSize()
 	}
@@ -7238,10 +7448,21 @@ function destroy(node: ElementNode) {
 
 	// Removing an ancestor does not detach its native descendants. Every
 	// destroyed view releases its own edge, including retained ContentView refs.
-	if (node.type === 'contentview') {
+	if (['contentview', 'actionbar'].includes(node.type ?? '')) {
 		if (node.contentGeometryObserver) {
 			NSNotificationCenter.defaultCenter.removeObserver(node.contentGeometryObserver)
 			node.contentGeometryObserver = null
+		}
+
+		if (node.type === 'actionbar') {
+			if (node.actionBarDisplay) {
+				releasePlacementPins(node.actionBarDisplay)
+				node.actionBarDisplay.view.removeFromSuperview()
+			}
+
+			node.actionBarExternal = null
+			node.actionBarDisplay = null
+			node.actionBarTitle = null
 		}
 
 		// Detaching mutates children; iterate a snapshot.
@@ -7438,6 +7659,7 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 					[
 						'stacklayout',
 						'contentview',
+						'actionbar',
 						'docklayout',
 						'wraplayout',
 						'rootlayout',
@@ -7493,6 +7715,7 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 						[
 							'stacklayout',
 							'contentview',
+							'actionbar',
 							'docklayout',
 							'wraplayout',
 							'rootlayout',
@@ -7561,9 +7784,14 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 			// registered — release the previous node instead of orphaning it.
 			const existing = container.nodes.get(command.id)
 			if (
-				['stacklayout', 'contentview', 'docklayout', 'wraplayout', 'rootlayout'].includes(
-					existing?.parent?.type ?? '',
-				) &&
+				[
+					'stacklayout',
+					'contentview',
+					'actionbar',
+					'docklayout',
+					'wraplayout',
+					'rootlayout',
+				].includes(existing?.parent?.type ?? '') &&
 				!typeHasView(command.type) &&
 				command.type !== 'proxyviewcontainer'
 			) {
@@ -7649,6 +7877,7 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 				[
 					'stacklayout',
 					'contentview',
+					'actionbar',
 					'docklayout',
 					'wraplayout',
 					'rootlayout',
