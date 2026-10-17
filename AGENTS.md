@@ -122,6 +122,11 @@ Standing criteria for judgment calls; the critical rules encode the mechanics.
   Conventional Commits. Docs carry conclusions; Silo carries exploration state.
 - `CHANGELOG.md` is generated. Do not edit it during feature/fix work; commit
   messages are the changelog source.
+- PR CI stays lightweight: the `checks` job must not install browser engines
+  (Playwright/Chromium) or run device emulation. Browser-driven tests
+  (`@xplat/visual`, workshop's `test:packed`, `verify-consumer` smoke,
+  `optional-services` browsers) are excluded or flagged there — keep them
+  out of the PR gate and run them locally.
 
 <!-- graft:start -->
 

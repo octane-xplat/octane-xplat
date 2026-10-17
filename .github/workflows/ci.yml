@@ -35,15 +35,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Cache Playwright browsers
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('apps/visual/package.json', 'pnpm-lock.yaml') }}
-
-      - name: Install Playwright Chromium
-        run: apps/visual/node_modules/.bin/playwright install chromium
-
+      # No Playwright/browser install — the checks job stays lightweight
+      # (no device emulation either). Browser-dependent tasks are filtered
+      # out below; they run locally, not in PR gating.
       - name: Generate declarations before checking consumers
         run: pnpm typegen
 
@@ -66,8 +60,10 @@ jobs:
       - name: Typecheck mobile
         run: pnpm typecheck:mobile
 
+      # @xplat/visual runs browser-mode vitest (Playwright) — excluded here;
+      # it runs locally via the same `pnpm test` script.
       - name: Test
-        run: pnpm test
+        run: pnpm test --filter='!@xplat/visual'
 
       - name: Build web app
         run: pnpm build:web
@@ -76,8 +72,12 @@ jobs:
       - name: Prepare packages
         run: pnpm build:packages
 
+      # workshop's test:packed is a Playwright browser journey — excluded
+      # here; it runs locally via `pnpm test:packed`.
       - name: Check packed declarations and plain TypeScript consumers
-        run: pnpm check:pack && pnpm test:packed
+        run: >-
+          pnpm check:pack &&
+          pnpm -r --filter './packages/**' --filter='!@octane-xplat/workshop' --if-present run test:packed
 
       - name: Check optional service adapters and native tests
         run: pnpm check:optional-services --no-browser
