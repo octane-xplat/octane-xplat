@@ -8,7 +8,9 @@ import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
 import test from 'node:test'
 import { build } from 'vite'
-import { xplatLinuxGtk } from '@octane-xplat/cli/linux-gtk/vite'
+// Source import — the published export is '@octane-xplat/cli/linux-gtk/vite'
+// (built dist); the test must not depend on the cli package's build state.
+import { xplatLinuxGtk } from '../../cli/src/linux-gtk/vite.ts'
 
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
 const outDir = join(fixture, 'dist')

@@ -12,6 +12,7 @@
 			".native",
 			".macos",
 			".linux",
+			".gtk",
 			".windows"
 		],
 		"strict": true,

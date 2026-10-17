@@ -48,6 +48,10 @@
 			"types": "./src/macos/vite.d.ts",
 			"default": "./dist/macos/vite.js"
 		},
+		"./linux-gtk/vite": {
+			"types": "./src/linux-gtk/vite.d.ts",
+			"default": "./dist/linux-gtk/vite.js"
+		},
 		"./mcp/code-service": {
 			"default": "./dist/mcp/code-service.js"
 		},

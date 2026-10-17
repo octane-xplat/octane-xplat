@@ -19,7 +19,7 @@ const norm = (f) => f.split('\\').join('/')
 // `foo.linux.test.tsrx` are target-specific files too. Linux's system
 // webview renders DOM, so its leaves may use DOM globals and `ui/web` imports.
 export const isWebFile = (f) => /\.(web|linux)\./.test(norm(f))
-const PLATFORM_SUFFIX = /\.(web|mobile|ios|android|macos|windows|linux)\./
+const PLATFORM_SUFFIX = /\.(web|mobile|ios|android|macos|windows|linux|gtk)\./
 const SOURCE_EXTENSIONS = ['.tsrx', '.tsx', '.mts', '.cts', '.ts', '.cjs', '.jsx', '.ts', '.js']
 const isNativeDefaultFile = (f) => {
 	const file = norm(f)
@@ -38,7 +38,7 @@ const isNativeDefaultFile = (f) => {
 
 export const isNativeFile = (f) =>
 	!isWebFile(f) &&
-	(/\.(mobile|ios|android|macos|windows)\./.test(norm(f)) ||
+	(/\.(mobile|ios|android|macos|windows|gtk)\./.test(norm(f)) ||
 		/(^|\/)apps\/(mobile|windows)\//.test(norm(f)) ||
 		isNativeDefaultFile(f))
 
@@ -1391,10 +1391,11 @@ export function checkHooksInPlainTs(program, _src, filename, options) {
 
 export const NATIVE_PRAGMA = '/** @jsxImportSource @nativescript-community/octane */'
 const MACOS_PRAGMA = '/** @jsxImportSource @octane-xplat/macos-renderer */'
+const GTK_PRAGMA = '/** @jsxImportSource @octane-xplat/linux-gtk */'
 
 // The pragma sets the JSX import source — only files that contain JSX need
 // it. JSX-free native leaves (styled, use-store) omit it by
-// design. .macos leaves carry the AppKit renderer pragma instead.
+// design. .macos leaves carry the AppKit renderer pragma, .gtk the GTK one.
 export function checkNativePragmaFirstLine(program, source, filename, options) {
 	if (
 		!norm(filename).endsWith('.tsrx') ||
@@ -1404,7 +1405,12 @@ export function checkNativePragmaFirstLine(program, source, filename, options) {
 		return []
 	}
 
-	const pragma = norm(filename).includes('.macos.') ? MACOS_PRAGMA : NATIVE_PRAGMA
+	const file = norm(filename)
+	const pragma = file.includes('.gtk.')
+		? GTK_PRAGMA
+		: file.includes('.macos.')
+			? MACOS_PRAGMA
+			: NATIVE_PRAGMA
 	if (source.startsWith(pragma)) {
 		return []
 	}

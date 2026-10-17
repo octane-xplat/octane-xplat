@@ -435,7 +435,7 @@ function nativePlatformExtensions() {
 /** Platform suffixes a module filename can carry. Unsuffixed modules are the
  *  native default — legal in every bundle; only a tag foreign to the target
  *  is a leak. */
-const PLATFORM_TAG = /\.(web|mobile|ios|android|macos|windows|linux)\.[^./\\]+$/
+const PLATFORM_TAG = /\.(web|mobile|ios|android|macos|windows|linux|gtk)\.[^./\\]+$/
 
 const boundaryAllowed = {
 	web: new Set(['web']),
@@ -451,6 +451,9 @@ const boundaryAllowed = {
 	windows: new Set(['windows']),
 	// Linux resolves .linux → .web → unsuffixed, so web leaves are legal there.
 	linux: new Set(['linux', 'web']),
+	// The GTK4/GJS renderer is a distinct target — .linux leaves assume the
+	// webview host (DOM + bridge) and must never resolve into a GTK bundle.
+	gtk: new Set(['gtk']),
 	// Bundle platform unknown (generic native chain): every native tag is
 	// possible — only browser/desktop tags are foreign.
 	native: new Set(['ios', 'android', 'mobile', 'windows']),

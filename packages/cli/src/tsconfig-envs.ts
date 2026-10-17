@@ -37,6 +37,7 @@ export const PLATFORM_MODULE_SUFFIXES = [
 	'.native',
 	'.macos',
 	'.linux',
+	'.gtk',
 	'.windows',
 ]
 
@@ -93,6 +94,18 @@ export const TYPECHECK_ENVIRONMENTS = {
 			lib: ['ESNext', 'DOM', 'DOM.Iterable'],
 		},
 	},
+	// The GTK4/GJS renderer — a native target, not the linux WebKit surface:
+	// .gtk files never see .linux/.web leaves, and the program carries no DOM
+	// lib. jsxImportSource is the renderer package, matching macos.
+	gtk: {
+		compilerOptions: {
+			jsxImportSource: '@octane-xplat/linux-gtk',
+			moduleSuffixes: ['.gtk', ''],
+			customConditions: ['gtk'],
+			lib: ['ESNext'],
+		},
+		ambient: ['../../linux-gtk-renderer/src/host-globals.d.ts'],
+	},
 	windows: {
 		compilerOptions: {
 			jsxImportSource: '@nativescript-community/octane',
@@ -113,6 +126,7 @@ const SUFFIX_ENV = {
 	macos: 'macos',
 	windows: 'windows',
 	linux: 'linux',
+	gtk: 'gtk',
 }
 
 /** Strip // and block comments plus trailing commas so authored tsconfig-style files parse. */

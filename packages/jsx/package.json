@@ -29,6 +29,7 @@
 	"exports": {
 		"./jsx-runtime": {
 			"types": {
+				"gtk": "./src/gtk.d.ts",
 				"macos": "./src/macos.d.ts",
 				"native": "./src/native.d.ts",
 				"default": "./src/jsx-runtime.d.ts"
@@ -36,6 +37,7 @@
 		},
 		"./jsx-dev-runtime": {
 			"types": {
+				"gtk": "./src/gtk.d.ts",
 				"macos": "./src/macos.d.ts",
 				"native": "./src/native.d.ts",
 				"default": "./src/jsx-runtime.d.ts"
@@ -43,6 +45,7 @@
 		},
 		"./intrinsics": {
 			"types": {
+				"gtk": "./src/gtk.d.ts",
 				"macos": "./src/macos.d.ts",
 				"native": "./src/native.d.ts",
 				"default": "./src/intrinsics.d.ts"
