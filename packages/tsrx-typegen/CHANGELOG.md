@@ -1,5 +1,21 @@
 # Changelog
 
+## [tsrx-typegen-v0.3.0] - 2026-10-17
+
+### Breaking Changes
+
+- *(packages)* [**breaking**] Publish source with declaration entrypoints
+
+### Features
+
+- *(toolchain)* Single combined tsconfig program per package/app with fixed platform-suffix order
+
+### Bug Fixes
+
+- *(typegen)* Honor inline type modifiers in pack-check export parity
+- *(tsrx-typegen)* Validate native SDK declaration graphs
+
+
 ## [tsrx-typegen-v0.2.2] - 2026-10-04
 
 ### Bug Fixes
