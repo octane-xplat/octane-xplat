@@ -227,3 +227,53 @@ test('raw CSS imports keep raw text while selecting a platform sibling', async (
 		await server.close()
 	}
 })
+
+for (const platform of ['web', 'ios', 'android', 'macos']) {
+	test(`comma-separated platform targets use OR on ${platform}`, async () => {
+		const root = fixture({
+			'main.js': "import './entry.css'",
+			'entry.css': `@import './imported.css';
+@layer app {
+.before { color: black }
+@platform web, /* either target */ ios, web {
+  .either { color: blue }
+  @platform mobile, macos { .both { color: green } }
+}
+@platform mobile, macos { .group { color: red } }
+.after { color: white }
+}`,
+			'imported.css': '@platform web, ios { .imported { color: blue } }',
+		})
+		const css = await bundle(root, platform)
+		assert.doesNotMatch(css, /@platform/)
+		assert.match(css, /@layer app/)
+		assert.equal(css.includes('.either'), platform === 'web' || platform === 'ios')
+		assert.equal(css.includes('.imported'), platform === 'web' || platform === 'ios')
+		assert.equal(css.includes('.both'), platform === 'ios')
+		assert.equal(css.includes('.group'), platform !== 'web')
+		if (platform === 'web' || platform === 'ios') {
+			assert.equal(css.match(/\.either\s*\{/g).length, 1)
+			assert.ok(css.indexOf('.before') < css.indexOf('.either'))
+			assert.ok(css.indexOf('.either') < css.indexOf('.after'))
+		}
+	})
+}
+
+for (const condition of [
+	'web, typo',
+	'typo, web',
+	',web',
+	'web,',
+	'web,,ios',
+	'',
+	'web ios',
+	'we/* split identifier */b',
+]) {
+	test(`rejects invalid platform list ${JSON.stringify(condition)}`, async () => {
+		const root = fixture({
+			'main.js': "import './entry.css'",
+			'entry.css': `@platform android { @platform ${condition} { .bad { color: red } } }`,
+		})
+		await assert.rejects(bundle(root, 'web'), /Expected @platform/)
+	})
+}

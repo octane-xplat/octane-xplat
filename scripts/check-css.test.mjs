@@ -26,7 +26,7 @@ test('CSS audit excludes web-only files and blocks', () => {
 test('CSS audit validates native blocks with authored line positions', () => {
 	const result = audit({
 		'card.css':
-			'@platform web {\n .card { cursor: pointer }\n}\n@platform ios {\n .card { definitely-not-native: yes }\n}',
+			'@platform web {\n .card { cursor: pointer }\n}\n@platform web, ios {\n .card { definitely-not-native: yes }\n}',
 	})
 	assert.equal(result.status, 1, result.stdout + result.stderr)
 	assert.match(result.stdout, /card\.css:5\s+definitely-not-native/)

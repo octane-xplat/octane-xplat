@@ -3,6 +3,7 @@ import { dirname, isAbsolute, resolve } from 'node:path'
 import postcss, {
 	type Plugin as PostcssPlugin,
 	type Root,
+	type AtRule,
 	type AcceptedPlugin,
 	type ProcessOptions,
 } from 'postcss'
@@ -52,16 +53,23 @@ function matches(condition: string, platform: CssPlatform): boolean {
 }
 
 function filterPlatforms(root: Root, platform: CssPlatform) {
-	// Validate even unreachable nested conditions so typos fail on every target.
+	const conditions = new Map<AtRule, string[]>()
+	// Validate every list, including unreachable nested blocks, before pruning.
 	root.walkAtRules('platform', (rule) => {
-		const condition = rule.params.replace(/\/\*[\s\S]*?\*\//g, '').trim()
-		if (!targets.has(condition) || !rule.nodes) {
-			throw rule.error(`Expected @platform <target> { ... }; targets: ${[...targets].join(', ')}`)
+		const names = rule.params
+			.replace(/\/\*[\s\S]*?\*\//g, ' ')
+			.split(',')
+			.map((name) => name.trim())
+		if (!rule.nodes || names.some((name) => !targets.has(name))) {
+			throw rule.error(
+				`Expected @platform <target>[, <target> ...] { ... }; targets: ${[...targets].join(', ')}`,
+			)
 		}
+		conditions.set(rule, names)
 	})
 	root.walkAtRules('platform', (rule) => {
-		const condition = rule.params.replace(/\/\*[\s\S]*?\*\//g, '').trim()
-		if (matches(condition, platform)) rule.replaceWith(...rule.nodes!)
+		if (conditions.get(rule)!.some((name) => matches(name, platform)))
+			rule.replaceWith(...rule.nodes!)
 		else rule.remove()
 	})
 }

@@ -19,7 +19,7 @@ small platform differences or a separate stylesheet without runtime branches.
 
 - AC1: A web block applies in a browser and is absent from native output; mobile and OS blocks apply only to their matching targets.
 - AC2: CSS imports select one platform sibling with fallback; explicitly composed shared and platform styles remain separate imports.
-- AC3: Nested blocks, media queries, keyframes, and layers retain normal ordering and specificity; invalid targets fail with a source diagnostic.
+- AC3: Comma-separated targets match any listed target; nested blocks require both conditions. Media queries, keyframes, and layers retain normal ordering and specificity; invalid targets and empty list entries fail with a source diagnostic.
 - AC4: Setup preserves existing PostCSS plugins and explains renderer support boundaries.
 
 ## Documentation

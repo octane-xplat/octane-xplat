@@ -14,7 +14,7 @@ writeFileSync(join(root, 'main.js'), "import './card.css'")
 writeFileSync(join(root, 'card.css'), '.card{color:rgb(255,0,0)}')
 writeFileSync(
 	join(root, 'card.web.css'),
-	'.card{color:rgb(0,0,255)} @platform web {.card{padding:11px}} @platform ios {.card{color:red;padding:99px}}',
+	'.card{color:rgb(0,0,255)} @platform ios, web {.card{padding:11px}} @platform ios, android {.card{color:red;padding:99px}}',
 )
 const server = await createServer({
 	configFile: false,

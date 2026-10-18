@@ -191,7 +191,7 @@ import { xplatCss } from '@octane-xplat/cli/vite'
 export default defineConfig({ plugins: [xplatCss('web')] })
 ```
 
-Use one target per block: `web`, `ios`, `android`, `visionos`, `macos`,
+Available targets are `web`, `ios`, `android`, `visionos`, `macos`,
 `windows`, `linux`, or `gtk`. `mobile` groups iOS, Android, and visionOS;
 `native` groups native renderer builds. A browser or DOM webview uses `web`
 even on a phone. GTK uses `gtk`; the `linux` target name is reserved for a
@@ -207,10 +207,24 @@ they do not add stylesheet support to renderers such as AppKit or GTK.
 }
 ```
 
+Separate targets with commas when the same rules should apply to any listed
+target. This card gets the padding on web or iOS. Nest blocks when both
+conditions must match; the inner rule below applies only on iOS.
+
+```css
+@platform web, ios {
+  .card { padding: 20px; }
+
+  @platform mobile {
+    .card { border-radius: 12px; }
+  }
+}
+```
+
 Blocks preserve ordinary CSS order, selector specificity, and cascade layers.
 They may contain media queries, keyframes, or nested platform blocks. Nested
-conditions must all match; unknown names and missing block braces fail the
-build. For a whole stylesheet that differs, use
+conditions must all match. Unknown names, empty list entries, and missing
+block braces fail the build. For a whole stylesheet that differs, use
 [CSS file variants](../platform/module-resolution.md#css-file-variants).
 
 ```css
