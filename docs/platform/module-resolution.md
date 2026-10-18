@@ -76,7 +76,8 @@ import './card.css'
 
 Native Vite presets include CSS selection. For a browser or DOM webview,
 add `xplatCss('web')` to the app's existing Vite plugins. A browser running
-on iOS still uses `web`.
+on iOS still uses `web`. DOM webviews, including the legacy Linux
+WebKitGTK host, select `.web.css`.
 
 ```ts
 import { defineConfig } from 'vite'

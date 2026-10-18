@@ -8,8 +8,9 @@
 // @nativescript/core's cssName registrations (see gen-css-registry.mjs —
 // re-run it on core upgrades).
 //
-// `xplat-web-only` blocks are stripped before auditing — they never reach
-// native (the vite transform removes them). Everything else errors unless
+// Platform blocks are filtered for each native target before auditing, and
+// web/desktop-renderer sheets are excluded. Legacy `xplat-web-only` blocks
+// are also stripped. Remaining declarations error unless
 // it's in DROPPED_INTENTIONAL below — the documented "native ignores this
 // on purpose" set.
 import { parsePlatformCss } from '../packages/cli/src/css-platform.ts'

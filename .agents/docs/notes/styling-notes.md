@@ -373,3 +373,24 @@ post-validation stylesheet projection could remove this adapter. SSR's deferred
 cross-environment stylesheet rewriting is not qualified; platform conditions
 fail explicitly in SSR generation. These are build checks, not mobile runtime
 evidence.
+
+### Qualification on 2026-10-18
+
+The maintained `packages/cli/test/css-platform.test.mjs` checks replacement,
+fallback, explicit composition, `@import`, user aliases, raw and inline
+imports, sibling addition/removal, nested conditions, layers, keyframes,
+invalid syntax, and existing PostCSS configuration. Sibling existence changes
+restart Vite because its import-resolution cache survives module invalidation;
+ordinary stylesheet edits retain Vite's normal CSS HMR.
+
+`apps/web/scripts/platform-css.mjs` verifies actual computed browser styles
+without image capture. An isolated UI probe also passed on web and the iPhone
+18 Pro simulator: web selected `.web.css` and measured blue text with 11px
+padding; iOS selected the shared sheet and measured the iOS color with 13 DIP
+mobile padding. The simulator was shut down after the reserved run. This is
+style application evidence, not OS-input or pixel-parity evidence. Android
+has generated-output coverage; Android, AppKit, GTK, and Windows runtime
+qualification is not claimed. Bamboo has generated-output, native-consumer
+ordering, watch rebuilds, written HTML/manifest references, explicit rejection
+of missing compiler/SSR setup, and packed-declaration checks;
+its platform conditions were not separately exercised on a device.
