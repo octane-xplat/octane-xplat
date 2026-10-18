@@ -71,6 +71,20 @@ build:packages`, `pnpm build:web`, and the package-test half of `pnpm test`
   copy of the community renderer breaks type-level augmentations — e.g.
   `ui/type-support/svg-element.d.ts` only extends the `intrinsics` module it
   resolves.
+- App starters include selected runtime/build dependencies; testing is opt-in
+  with `xplat add testing` or creator `--testing`. The choice is recorded in
+  `xplat.features.testing` so later platform additions also receive tests.
+  The web setup uses jsdom's own `localStorage` through the exposed `jsdom`
+  instance: on Node 26, the host's `window.localStorage` alias returned
+  `undefined` without `--localstorage-file`, breaking the starter's theme
+  preference read. The generated component test passes with the explicit
+  jsdom storage binding; this is host-test setup, not browser runtime evidence.
+- `@octane-xplat/platform` uses `@nativescript/macos-node-api` only as a
+  development dependency to generate/check the macOS SDK declarations. Its
+  published platform sources do not import that package. Actual AppKit hosts
+  own their SDK/runtime dependency; web/mobile consumers must not acquire it
+  through the shared platform package. The platform packed-consumer check
+  asserts that it is absent from the installed graph.
 - Published app/library starters and `xplat doctor`/`upgrade` share
   `packages/create/compatibility.json`. Edit supported external pins there;
   `pnpm sync:compatibility` generates `catalog:xplat` starter references and

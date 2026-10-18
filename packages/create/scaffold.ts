@@ -13,6 +13,7 @@ import {
 
 import { basename, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { parseDocument } from 'yaml'
 import { ensureCompatibilityCatalog } from './compatibility.ts'
 
 const moduleDir = dirname(fileURLToPath(import.meta.url))
@@ -20,6 +21,7 @@ const moduleDir = dirname(fileURLToPath(import.meta.url))
 const pkgRoot = basename(moduleDir) === 'dist' ? join(moduleDir, '..') : moduleDir
 export const TEMPLATE_DIR = join(pkgRoot, 'template')
 export const LIBRARY_TEMPLATE_DIR = join(pkgRoot, 'library-template')
+export const TESTING_TEMPLATE_DIR = join(pkgRoot, 'testing-template')
 
 /** Scaffoldable targets. `files` entries are template-relative paths —
  *  directories copy recursively. `deps`/`devDeps`/`scripts` name keys whose
@@ -36,7 +38,7 @@ export const targets: Record<string, any> = {
 		label: 'iOS (NativeScript)',
 		requires: ['native-shared'],
 		files: ['App_Resources/iOS'],
-		scripts: ['dev:ios', 'test:ios', 'build:ios'],
+		scripts: ['dev:ios', 'build:ios'],
 		devDeps: ['@nativescript/ios'],
 		note: 'needs macOS + Xcode — `pnpm xplat doctor` checks the toolchain',
 	},
@@ -44,7 +46,7 @@ export const targets: Record<string, any> = {
 		label: 'Android (NativeScript)',
 		requires: ['native-shared'],
 		files: ['App_Resources/Android'],
-		scripts: ['dev:android', 'test:android', 'build:android'],
+		scripts: ['dev:android', 'build:android'],
 		devDeps: ['@nativescript/android'],
 		note: 'needs Android SDK + a compatible JDK — `pnpm xplat doctor` checks the toolchain',
 	},
@@ -63,36 +65,17 @@ export const targets: Record<string, any> = {
 			'@nativescript-community/octane',
 			'@nativescript-community/vite-octane',
 		],
-		files: [
-			'nativescript.config.ts',
-			'vite.config.native.mts',
-			'references.d.ts',
-			'src/main.ts',
-			// On-device Vitest lane — `ns test` builds src/test.ts under
-			// --env.unitTesting and runs every src/**/*.spec file on a
-			// simulator/emulator through the upstream runner.
-			'src/test.ts',
-			'src/app.spec.tsrx',
-			'src/native-runtime.spec.ts',
-			'src/failure-reporting.spec.ts',
-			'vitest.config.mts',
-		],
+		files: ['nativescript.config.ts', 'vite.config.native.mts', 'references.d.ts', 'src/main.ts'],
 		deps: [
-			'@nativescript-community/gesturehandler',
 			'@nativescript-community/octane',
-			'@nativescript-community/ui-drawer',
 			'@nativescript/core',
-			'@octane-xplat/effects',
-			'@octane-xplat/image',
 			'@valor/nativescript-websockets',
 		],
 		devDeps: [
 			'@nativescript-community/vite-octane',
 			'@nativescript/types',
-			'@nativescript/unit-test-runner',
 			'@nativescript/vite',
 			'nativescript',
-			'vitest',
 		],
 		typecheck: 'xplat typecheck',
 	},
@@ -326,7 +309,18 @@ export function composeWorkspaceYaml(ids) {
 	}
 
 	out.push(...pending)
-	return out.join('\n')
+	const doc = parseDocument(out.join('\n'))
+	const manifest = composeManifest(ids)
+	const used = new Set([
+		...Object.keys(manifest.dependencies),
+		...Object.keys(manifest.devDependencies),
+	])
+	for (const name of Object.keys(doc.toJS().catalogs?.xplat ?? {})) {
+		if (!used.has(name)) {
+			doc.deleteIn(['catalogs', 'xplat', name])
+		}
+	}
+	return String(doc)
 }
 
 /**
@@ -408,7 +402,7 @@ export function composeTsconfig(ids) {
 }
 
 /** Write a scaffold for `ids` into `dir` (must not exist or be empty). */
-export function composeTargets(ids, dir) {
+export function composeTargets(ids, dir, { testing = false } = {}) {
 	const resolved = new Set(resolveTargets(ids))
 	mkdirSync(dir, { recursive: true })
 
@@ -430,6 +424,9 @@ export function composeTargets(ids, dir) {
 	writeFileSync(join(dir, 'package.json'), JSON.stringify(composeManifest(ids), null, '\t') + '\n')
 	writeFileSync(join(dir, 'pnpm-workspace.yaml'), composeWorkspaceYaml(ids))
 	writeFileSync(join(dir, 'tsconfig.json'), composeTsconfig(ids))
+	if (testing) {
+		applyTesting(dir)
+	}
 	return [...resolved]
 }
 
@@ -495,8 +492,8 @@ export function targetEnabled(appRoot, id) {
 }
 
 /** Copy a template file/dir into the app unless the destination exists. */
-function copyMissing(rel, appRoot, report) {
-	const src = join(TEMPLATE_DIR, rel)
+function copyMissing(rel, appRoot, report, sourceRoot = TEMPLATE_DIR) {
+	const src = join(sourceRoot, rel)
 	const dest = join(appRoot, rel === 'gitignore' ? '.gitignore' : rel)
 	if (existsSync(dest)) {
 		report.skipped.push(rel)
@@ -627,6 +624,110 @@ export function applyTarget(appRoot, id) {
 		const indent = raw.match(/\n(\s+)"/)?.[1] ?? '\t'
 		writeFileSync(manifestPath, JSON.stringify(manifest, null, indent) + '\n')
 	}
+	if (touched && testingEnabled(appRoot)) {
+		report.testing = applyTesting(appRoot)
+	}
 
+	return report
+}
+
+/** Whether this app opted in, including the previously bundled native test lane. */
+export function testingEnabled(appRoot) {
+	const pkg = readJson(join(appRoot, 'package.json'))
+	return (
+		pkg?.xplat?.features?.testing === true ||
+		Boolean(pkg?.devDependencies?.['@nativescript/unit-test-runner'])
+	)
+}
+
+/** Add matching test files, commands and managed pins; keep existing app edits. */
+export function applyTesting(appRoot) {
+	const path = join(appRoot, 'package.json')
+	const before = readFileSync(path, 'utf8')
+	const pkg = JSON.parse(before)
+	const web = targetEnabled(appRoot, 'web')
+	const native = ['ios', 'android'].filter((id) => targetEnabled(appRoot, id))
+	if (!web && !native.length) {
+		throw new Error('Enable web, ios, or android before adding app testing')
+	}
+	const report: Record<string, any> = {
+		enabled: [],
+		already: [],
+		copied: [],
+		skipped: [],
+		scriptsAdded: [],
+		scriptsSkipped: [],
+		depsAdded: [],
+	}
+	const fragments = [
+		...(web
+			? [
+					{
+						id: 'web',
+						files: ['vitest.web.config.mts', 'src/app.web.test.tsx', 'src/test-setup.web.ts'],
+						deps: ['jsdom'],
+						scripts: {
+							test: 'vitest run --config vitest.web.config.mts',
+							'test:web': 'vitest run --config vitest.web.config.mts',
+						},
+					},
+				]
+			: []),
+		...(native.length
+			? [
+					{
+						id: 'native',
+						files: [
+							'vitest.config.mts',
+							'src/test.ts',
+							'src/app.spec.tsrx',
+							'src/native-runtime.spec.ts',
+							'src/failure-reporting.spec.ts',
+						],
+						deps: ['@nativescript/unit-test-runner'],
+						scripts: Object.fromEntries(native.map((id) => [`test:${id}`, `ns test ${id}`])),
+					},
+				]
+			: []),
+	]
+	pkg.devDependencies ??= {}
+	pkg.scripts ??= {}
+	for (const name of ['vitest', ...fragments.flatMap((fragment) => fragment.deps)]) {
+		if (!pkg.devDependencies[name] && !pkg.dependencies?.[name]) {
+			pkg.devDependencies[name] = 'catalog:xplat'
+			report.depsAdded.push(name)
+		}
+	}
+	for (const fragment of fragments) {
+		for (const file of fragment.files) {
+			copyMissing(file, appRoot, report, join(TESTING_TEMPLATE_DIR, fragment.id))
+		}
+
+		for (const [name, script] of Object.entries(fragment.scripts)) {
+			if (pkg.scripts[name] === undefined) {
+				pkg.scripts[name] = script
+				report.scriptsAdded.push(name)
+			} else if (pkg.scripts[name] !== script) {
+				report.scriptsSkipped.push(name)
+			}
+		}
+	}
+	if (
+		report.copied.includes('vitest.web.config.mts') &&
+		!existsSync(join(appRoot, 'vite.config.ts'))
+	) {
+		const file = join(appRoot, 'vitest.web.config.mts')
+		writeFileSync(file, readFileSync(file, 'utf8').replace('./vite.config.ts', './vite.config.mts'))
+	}
+	pkg.xplat ??= {}
+	pkg.xplat.features ??= {}
+	pkg.xplat.features.testing = true
+	const after = JSON.stringify(pkg, null, before.match(/\n(\s+)"/)?.[1] ?? '\t') + '\n'
+	if (after !== before) {
+		writeFileSync(path, after)
+	}
+	ensureCompatibilityCatalog(appRoot, pkg)
+	const changed = after !== before || report.copied.length > 0
+	report[changed ? 'enabled' : 'already'].push('testing')
 	return report
 }

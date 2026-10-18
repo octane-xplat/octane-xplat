@@ -13,6 +13,7 @@ import {
 
 const argv = process.argv.slice(2)
 const noInstall = argv.includes('--no-install')
+const testing = argv.includes('--testing')
 const templateIndex = argv.findIndex((arg) => arg === '--template' || arg.startsWith('--template='))
 const templateValueIndex =
 	templateIndex !== -1 && argv[templateIndex] === '--template' ? templateIndex + 1 : -1
@@ -131,8 +132,7 @@ if (templateArg === 'library') {
 			process.exit(1)
 		}
 	} else if (process.stdout.isTTY) {
-		// Lazy: the extracted tarball has no installed deps — only the interactive
-		// path needs @clack/prompts (verify-consumer runs the bin dep-free).
+		// Non-interactive creation does not need the prompt module.
 		const p = await import('@clack/prompts')
 		p.intro('create-octane-xplat')
 		const picked = await p.multiselect({
@@ -156,7 +156,7 @@ if (templateArg === 'library') {
 		ids = defaultTargets
 	}
 
-	composeTargets(ids, dir)
+	composeTargets(ids, dir, { testing })
 	console.log(
 		`\n✓ scaffolded ${dir} (${[...new Set(resolveTargets(ids))].filter((id) => !targets[id].hidden).join(', ')})`,
 	)

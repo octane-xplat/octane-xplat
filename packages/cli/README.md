@@ -21,6 +21,7 @@ pnpm add -D @octane-xplat/cli
 pnpm xplat dev          # pick available targets
 pnpm xplat dev macos    # single-target shorthand (kind or device id)
 pnpm xplat add ios      # enable a platform skipped at create time
+pnpm xplat add testing  # add tests for the enabled platforms
 pnpm xplat build        # production builds
 pnpm xplat build -t macos # experimental AppKit .app + .dmg (Apple Silicon)
 pnpm xplat build -t linux # experimental GTK/WebKit app directory + tar archive
@@ -49,6 +50,43 @@ pnpm dev:ios
 Linux packaging and its required manifest settings are documented in
 [Package a Linux app](../../docs/platform/linux-package.md). The CLI ships the
 GJS host; Linux users supply the GTK/WebKit system runtime.
+
+## Add app testing
+
+New apps omit test dependencies. Add the setup from your app directory:
+
+```sh
+pnpm xplat add testing
+pnpm test:web
+```
+
+This adds Vitest, configuration, and sample tests for the enabled platforms.
+Web adds jsdom and `test:web`; iOS/Android add NativeScript's test runner and
+`test:ios`/`test:android`. Only scripts for enabled platforms are added. Run a
+phone suite with an explicit device:
+
+```sh
+pnpm test:ios -- --device DEVICE_UDID
+pnpm test:android -- --device DEVICE_SERIAL
+```
+
+The app records the choice in `package.json` as `xplat.features.testing`.
+Adding a platform later includes its test setup. You can also combine additions
+or defer installation:
+
+```sh
+pnpm xplat add ios testing
+pnpm xplat add testing --no-install
+pnpm install
+```
+
+Existing files, dependency specifications, and scripts are preserved. Review
+skipped-file warnings, reconcile custom configuration, and adapt the sample tests
+to your app. Web tests match `src/**/*.web.test.{ts,tsx,tsrx}` through
+`vitest.web.config.mts`; phone specs match `src/**/*.spec.{ts,tsx,tsrx}` through
+`vitest.config.mts` and `src/test.ts`. See the
+[testing guide](../../docs/verify/testing.md#add-automated-tests) for what each
+test environment can verify.
 
 ## Compatible versions
 
@@ -80,7 +118,7 @@ pnpm xplat doctor
 | TypeScript, TSRX compiler peer/editor plugin, declaration generator | Library consumer `peerDependencies` ranges |
 | Vite and Octane/NativeScript Vite integrations | `workspace:`, `link:`, `file:` and `portal:` development dependencies |
 | NativeScript CLI, platform runtimes/types, known starter plugins | User catalogs, custom patch files, unrelated overrides and scripts |
-| Vitest and NativeScript's test runner, when enabled | Application tests and platform qualification |
+| Vitest, jsdom, and NativeScript's test runner, when enabled | Application tests and platform qualification |
 
 Dependencies remain declared in each package. Their exact build/runtime pins
 move to `catalog:xplat` in `pnpm-workspace.yaml`; Windows preview packages use

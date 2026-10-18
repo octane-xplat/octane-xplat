@@ -46,6 +46,7 @@ import {
 	mkdirSync,
 	mkdtempSync,
 	readFileSync,
+	readdirSync,
 	realpathSync,
 	rmSync,
 	writeFileSync,
@@ -54,6 +55,7 @@ import {
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { parseDocument } from 'yaml'
 
 import { lockstepPackages } from './publishable.ts'
 import { verifyAndroidTests } from './verify-android-tests.ts'
@@ -77,6 +79,7 @@ assert.ok(
 	!quick || (!nativeTargets.length && !smokeIos && !testIos && !testAndroid),
 	'--quick cannot qualify native builds or device tests; use the full consumer workflow',
 )
+
 if (testAndroid) {
 	assert.ok(process.env.VERIFY_ANDROID_DEVICE, '--test-android requires VERIFY_ANDROID_DEVICE')
 }
@@ -205,6 +208,7 @@ try {
 				[...(quick ? ['--config.ignore-scripts=true'] : []), 'pack', '--pack-destination', packDir],
 				join(repoRoot, pkg.dir),
 			)
+
 			assert.equal(r.status, 0, `pnpm pack failed for ${pkg.name}`)
 			const expected = join(packDir, tarballName(pkg))
 			assert.ok(existsSync(expected), `expected tarball ${tarballName(pkg)} for ${pkg.name}`)
@@ -223,9 +227,24 @@ try {
 		() => {
 			const createTarball = tarballs.get('create-octane-xplat')
 			assert.ok(createTarball, 'create-octane-xplat tarball missing')
-			const r = run('tar', ['-xzf', createTarball, '-C', extractDir], work)
-			assert.equal(r.status, 0, 'tar extract failed')
-			const binPath = join(extractDir, 'package', 'index.ts')
+			// Install the creator as pnpm create does: its published JavaScript
+			// entry and declared runtime dependencies must work outside the repo.
+			writeFileSync(
+				join(extractDir, 'package.json'),
+				JSON.stringify({
+					private: true,
+					dependencies: { 'create-octane-xplat': `file:${createTarball}` },
+				}),
+			)
+			writeFileSync(
+				join(extractDir, 'pnpm-workspace.yaml'),
+				'nodeLinker: isolated\npackageImportMethod: copy\n',
+			)
+			const install = run('pnpm', ['install', '--ignore-scripts'], extractDir)
+			assert.equal(install.status, 0, 'packed creator install failed')
+			const creator = join(extractDir, 'node_modules/create-octane-xplat')
+			const creatorManifest = JSON.parse(readFileSync(join(creator, 'package.json'), 'utf8'))
+			const binPath = join(creator, creatorManifest.bin['create-octane-xplat'])
 			assert.ok(existsSync(binPath), 'packed create bin missing')
 			const runResult = run('node', [binPath, appDir, '--no-install', '--targets', 'web'], work)
 
@@ -272,7 +291,7 @@ try {
 			)
 
 			assert.ok(
-				existsSync(join(libraryDir, 'tests/packed-consumer.ts')),
+				existsSync(join(libraryDir, 'tests/packed-consumer.mjs')),
 				'library starter missed packed-consumer check',
 			)
 
@@ -335,11 +354,11 @@ try {
 		// registry specs, and create-octane-xplat is a runtime dep of the packed
 		// CLI outside @octane-xplat/*. Pin every packed tarball via workspace
 		// overrides so late-resolving deps still hit the packed artifacts.
-		const overrides = [...tarballs]
-			.map(([name, tarball]) => `  "${name}": file:${tarball}`)
-			.join('\n')
-
-		writeFileSync(workspaceFile, `${updated}\noverrides:\n${overrides}\n`)
+		const workspace = parseDocument(updated)
+		for (const [name, tarball] of tarballs) {
+			workspace.setIn(['overrides', name], `file:${tarball}`)
+		}
+		writeFileSync(workspaceFile, String(workspace))
 		return `${rewritten} deps + materialized .pnpm-config`
 	})
 
@@ -348,6 +367,29 @@ try {
 		const r = run('pnpm', ['install'], appDir)
 		assert.equal(r.status, 0, 'pnpm install failed')
 	})
+
+	await gate(
+		'default web starter omits optional features, test tooling and the macOS SDK',
+		60 * 1000,
+		() => {
+			const installed = readdirSync(join(appDir, 'node_modules', '.pnpm'))
+			for (const name of [
+				'@octane-xplat/effects',
+				'@octane-xplat/image',
+				'@nativescript-community/gesturehandler',
+				'@nativescript-community/ui-drawer',
+				'vitest',
+				'jsdom',
+				'@nativescript/unit-test-runner',
+				'@nativescript/macos-node-api',
+			]) {
+				assert.ok(
+					!installed.some((entry) => entry.startsWith(`${name.replace('/', '+')}@`)),
+					`default app unexpectedly installed ${name}`,
+				)
+			}
+		},
+	)
 
 	await gate(
 		'installed @octane-xplat/ui is the packed payload, not a workspace link',
@@ -412,34 +454,27 @@ void props
 
 	// ---- xplat add: enable the platforms skipped at scaffold ---------------
 	if (!quick) {
-		await gate(
-			'xplat add ios android — post-scaffold enablement on packed CLI',
-			15 * 60 * 1000,
-			() => {
-				const r = run('pnpm', ['exec', 'xplat', 'add', 'ios', 'android'], appDir)
-				assert.equal(r.status, 0, `xplat add exited ${r.status}`)
-				assert.ok(
-					existsSync(join(appDir, 'nativescript.config.ts')),
-					'add produced no nativescript.config.ts',
-				)
+		await gate('xplat add ios android testing — opt-in setup on packed CLI', 15 * 60 * 1000, () => {
+			const r = run('pnpm', ['exec', 'xplat', 'add', 'ios', 'android', 'testing'], appDir)
+			assert.equal(r.status, 0, `xplat add exited ${r.status}`)
+			assert.ok(
+				existsSync(join(appDir, 'nativescript.config.ts')),
+				'add produced no nativescript.config.ts',
+			)
 
-				assert.ok(
-					existsSync(join(appDir, 'App_Resources/iOS')),
-					'add produced no App_Resources/iOS',
-				)
-				assert.ok(
-					existsSync(join(appDir, 'App_Resources/Android')),
-					'add produced no App_Resources/Android',
-				)
+			assert.ok(existsSync(join(appDir, 'App_Resources/iOS')), 'add produced no App_Resources/iOS')
+			assert.ok(
+				existsSync(join(appDir, 'App_Resources/Android')),
+				'add produced no App_Resources/Android',
+			)
 
-				const manifest = JSON.parse(readFileSync(consumerManifestPath, 'utf8'))
-				assert.ok(manifest.devDependencies['@nativescript/ios'], 'add missed @nativescript/ios')
-				assert.ok(
-					manifest.devDependencies['@nativescript/android'],
-					'add missed @nativescript/android',
-				)
-			},
-		)
+			const manifest = JSON.parse(readFileSync(consumerManifestPath, 'utf8'))
+			assert.ok(manifest.devDependencies['@nativescript/ios'], 'add missed @nativescript/ios')
+			assert.ok(
+				manifest.devDependencies['@nativescript/android'],
+				'add missed @nativescript/android',
+			)
+		})
 	}
 
 	// ---- consumer gates ------------------------------------------------------
@@ -477,6 +512,7 @@ try {
 			? [
 					['pnpm lint', ['lint']],
 					['pnpm typecheck (web + native)', ['typecheck']],
+					['pnpm test:web — opt-in component test', ['test:web']],
 				]
 			: []),
 		['pnpm build — web bundle from packed ui', ['build']],
@@ -494,14 +530,28 @@ try {
 			15 * 60 * 1000,
 			() => {
 				const workspaceFile = join(libraryDir, 'pnpm-workspace.yaml')
-				const overrides = [...tarballs]
-					.map(([name, tarball]) => `  "${name}": file:${tarball}`)
-					.join('\n')
-
-				writeFileSync(
-					workspaceFile,
-					`${readFileSync(workspaceFile, 'utf8')}\noverrides:\n${overrides}\n`,
+				const workspace = parseDocument(readFileSync(workspaceFile, 'utf8'))
+				const configDir = join(
+					libraryDir,
+					'node_modules',
+					'.pnpm-config',
+					'@octane-xplat',
+					'patches',
 				)
+				mkdirSync(configDir, { recursive: true })
+				const patchesTarball = tarballs.get('@octane-xplat/patches')
+				assert.ok(patchesTarball, 'no tarball for @octane-xplat/patches')
+				const untar = run(
+					'tar',
+					['-xzf', patchesTarball, '-C', configDir, '--strip-components=1'],
+					work,
+				)
+				assert.equal(untar.status, 0, 'library patches tarball extraction failed')
+				workspace.delete('configDependencies')
+				for (const [name, tarball] of tarballs) {
+					workspace.setIn(['overrides', name], `file:${tarball}`)
+				}
+				writeFileSync(workspaceFile, String(workspace))
 
 				for (const argv of [
 					['install'],

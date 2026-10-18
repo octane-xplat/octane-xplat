@@ -17,12 +17,13 @@ test('quick consumer mode refuses native qualification before creating or resett
 		]) {
 			const result = spawnSync(
 				process.execPath,
-				['scripts/verify-consumer.mjs', '--quick', ...flags],
+				['scripts/verify-consumer.ts', '--quick', ...flags],
 				{
 					encoding: 'utf8',
 					env: { ...process.env, VERIFY_CONSUMER_DIR: work },
 				},
 			)
+
 			assert.notEqual(result.status, 0)
 			assert.match(result.stderr, /--quick cannot qualify native builds or device tests/)
 			assert.equal(existsSync(work), false)

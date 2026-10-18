@@ -38,6 +38,24 @@ Native leaves can explicitly select the same default with
 `/** @jsxImportSource @octane-xplat/jsx */`. Do not replace it with a renderer
 pragma. The facade supplies types; Vite still selects the platform renderer.
 
+## Optional app testing
+
+Add tests for the enabled platforms when needed. This installs the managed
+runners, sample tests, configuration, and scripts; adapt the samples to the app
+and reconcile any reported existing files:
+
+```sh
+pnpm xplat add testing
+pnpm test:web
+pnpm test:ios -- --device DEVICE_UDID
+pnpm test:android -- --device DEVICE_SERIAL
+```
+
+Only commands for enabled platforms are added. Web tests use jsdom; phone
+tests need a selected simulator or device. Report targets actually run and
+distinguish document checks from browser layout or OS input checks. See the
+[testing guide](https://octane-xplat.goddardai.org/verify/testing#add-automated-tests).
+
 ## Stable automation targets
 
 ```tsx

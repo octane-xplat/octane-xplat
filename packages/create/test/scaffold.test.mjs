@@ -1,7 +1,18 @@
 import assert from 'node:assert/strict'
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import {
+	existsSync,
+	mkdirSync,
+	mkdtempSync,
+	readFileSync,
+	renameSync,
+	rmSync,
+	writeFileSync,
+} from 'node:fs'
+
+import { spawnSync } from 'node:child_process'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
+import { fileURLToPath } from 'node:url'
 import test from 'node:test'
 import { managedSpecifier } from '../dist/compatibility.js'
 
@@ -14,6 +25,8 @@ import {
 	resolveTargets,
 	targetEnabled,
 	TEMPLATE_DIR,
+	applyTesting,
+	testingEnabled,
 } from '../dist/scaffold.js'
 
 const ALL = ['web', 'ios', 'android']
@@ -136,21 +149,12 @@ test('ios-only scaffold carries shared native machinery but not android', (t) =>
 
 	assert.equal(manifest.devDependencies['@nativescript/android'], undefined)
 
-	// The on-device test lane ships with the native scaffold: test entry,
-	// vitest config, starter spec, runner deps — but only the ios script.
-	assert.ok(existsSync(join(dir, 'src', 'test.ts')))
-	assert.ok(existsSync(join(dir, 'src', 'app.spec.tsrx')))
-	assert.ok(existsSync(join(dir, 'src', 'native-runtime.spec.ts')))
-	assert.ok(existsSync(join(dir, 'src', 'failure-reporting.spec.ts')))
-	assert.ok(existsSync(join(dir, 'vitest.config.mts')))
-	assert.equal(manifest.scripts['test:ios'], 'ns test ios')
-	assert.equal(manifest.scripts['test:android'], undefined)
-	assert.equal(
-		manifest.devDependencies['@nativescript/unit-test-runner'],
-		TPL.devDependencies['@nativescript/unit-test-runner'],
-	)
-
-	assert.equal(manifest.devDependencies.vitest, TPL.devDependencies.vitest)
+	assert.ok(!existsSync(join(dir, 'src', 'test.ts')))
+	assert.ok(!existsSync(join(dir, 'src', 'app.spec.tsrx')))
+	assert.ok(!existsSync(join(dir, 'vitest.config.mts')))
+	assert.equal(manifest.scripts['test:ios'], undefined)
+	assert.equal(manifest.devDependencies.vitest, undefined)
+	assert.equal(manifest.devDependencies['@nativescript/unit-test-runner'], undefined)
 })
 
 test('resolveTargets expands requires and rejects unknown targets', () => {
@@ -197,7 +201,11 @@ test('applyTarget adds a platform to a web-only app without clobbering edits', (
 	// them so the next `pnpm install` doesn't miss the framework patches.
 	const yaml = readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8')
 	assert.match(yaml, /@nativescript\/core@9\.1\.3/)
-	assert.ok(yaml.includes(`@nativescript-community/octane@${managedSpecifier('@nativescript-community/octane')}`))
+	assert.ok(
+		yaml.includes(
+			`@nativescript-community/octane@${managedSpecifier('@nativescript-community/octane')}`,
+		),
+	)
 	assert.ok(report.patchesAdded)
 })
 
@@ -226,4 +234,130 @@ test('targetEnabled reads sentinels', (t) => {
 	composeTargets(['ios'], native)
 	assert.equal(targetEnabled(native, 'ios'), true)
 	assert.equal(targetEnabled(native, 'web'), false)
+})
+
+test('default apps carry no unused feature plugins or test tooling for any target set', (t) => {
+	for (const ids of [['web'], ['ios'], ['android'], ALL]) {
+		const dir = project(t)
+		composeTargets(ids, dir)
+		const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+		const deps = { ...pkg.dependencies, ...pkg.devDependencies }
+		for (const name of [
+			'@octane-xplat/effects',
+			'@octane-xplat/image',
+			'@nativescript-community/gesturehandler',
+			'@nativescript-community/ui-drawer',
+			'vitest',
+			'@nativescript/unit-test-runner',
+			'jsdom',
+		]) {
+			assert.equal(deps[name], undefined, `${ids}: unexpected ${name}`)
+		}
+
+		assert.equal(testingEnabled(dir), false)
+	}
+})
+
+test('testing opt-in installs web and native setup independently', (t) => {
+	for (const ids of [['web'], ['ios'], ['android'], ALL]) {
+		const dir = project(t)
+		composeTargets(ids, dir, { testing: true })
+		const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+		const web = ids.includes('web')
+		const native = ids.includes('ios') || ids.includes('android')
+		assert.equal(pkg.devDependencies.vitest, 'catalog:xplat')
+		assert.equal(pkg.devDependencies.jsdom, web ? 'catalog:xplat' : undefined)
+		assert.equal(
+			pkg.devDependencies['@nativescript/unit-test-runner'],
+			native ? 'catalog:xplat' : undefined,
+		)
+
+		assert.equal(Boolean(pkg.scripts['test:web']), web)
+		assert.equal(Boolean(pkg.scripts['test:ios']), ids.includes('ios'))
+		assert.equal(Boolean(pkg.scripts['test:android']), ids.includes('android'))
+		assert.equal(existsSync(join(dir, 'src/app.web.test.tsx')), web)
+		assert.equal(existsSync(join(dir, 'src/app.spec.tsrx')), native)
+		assert.equal(existsSync(join(dir, 'vitest.config.mts')), native)
+		assert.equal(testingEnabled(dir), true)
+		assert.match(readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8'), /vitest: 4/)
+	}
+})
+
+test('adding testing keeps user scripts, dependency specs, and existing test files', (t) => {
+	const dir = project(t)
+	composeTargets(['web'], dir)
+	const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+	pkg.scripts.test = 'custom-test'
+	pkg.devDependencies.vitest = 'file:../vitest'
+	writeFileSync(join(dir, 'package.json'), JSON.stringify(pkg, null, '\t') + '\n')
+	writeFileSync(join(dir, 'src/app.web.test.tsx'), '// custom test\n')
+	const report = applyTesting(dir)
+	assert.ok(report.scriptsSkipped.includes('test'))
+	assert.ok(report.skipped.includes('src/app.web.test.tsx'))
+	assert.equal(readFileSync(join(dir, 'src/app.web.test.tsx'), 'utf8'), '// custom test\n')
+	const next = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+	assert.equal(next.scripts.test, 'custom-test')
+	assert.equal(next.devDependencies.vitest, 'file:../vitest')
+	assert.equal(next.scripts['test:web'], 'vitest run --config vitest.web.config.mts')
+	assert.deepEqual(applyTesting(dir).already, ['testing'])
+})
+
+test('adding native or web after opting into testing adds the matching test lane', (t) => {
+	const dir = project(t)
+	composeTargets(['web'], dir, { testing: true })
+	const before = readFileSync(join(dir, 'src/app.web.test.tsx'), 'utf8')
+	applyTarget(dir, 'ios')
+	let pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+	assert.equal(pkg.scripts['test:ios'], 'ns test ios')
+	assert.equal(pkg.scripts['test:android'], undefined)
+	assert.equal(pkg.devDependencies['@nativescript/unit-test-runner'], 'catalog:xplat')
+	assert.equal(readFileSync(join(dir, 'src/app.web.test.tsx'), 'utf8'), before)
+	applyTarget(dir, 'android')
+	pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+	assert.equal(pkg.scripts['test:android'], 'ns test android')
+	const native = project(t)
+	composeTargets(['android'], native, { testing: true })
+	applyTarget(native, 'web')
+	pkg = JSON.parse(readFileSync(join(native, 'package.json'), 'utf8'))
+	assert.equal(pkg.devDependencies.jsdom, 'catalog:xplat')
+	assert.ok(existsSync(join(native, 'src/app.web.test.tsx')))
+})
+
+test('creator --testing includes only the selected platforms and uses the published bin', (t) => {
+	const root = project(t)
+	const dir = join(root, 'app')
+	const result = spawnSync(
+		process.execPath,
+		[
+			fileURLToPath(new URL('../dist/index.js', import.meta.url)),
+			dir,
+			'--targets',
+			'web',
+			'--testing',
+			'--no-install',
+		],
+		{ encoding: 'utf8' },
+	)
+	assert.equal(result.status, 0, result.stderr)
+	const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+	assert.equal(pkg.xplat.features.testing, true)
+	assert.ok(pkg.scripts['test:web'])
+	assert.equal(pkg.devDependencies['@nativescript/unit-test-runner'], undefined)
+})
+
+test('testing reuses an mts Vite config and the enclosing workspace catalog', (t) => {
+	const root = project(t)
+	const dir = join(root, 'apps', 'example')
+	mkdirSync(dir, { recursive: true })
+	composeTargets(['web'], dir)
+	renameSync(join(dir, 'vite.config.ts'), join(dir, 'vite.config.mts'))
+	renameSync(join(dir, 'pnpm-workspace.yaml'), join(root, 'pnpm-workspace.yaml'))
+	applyTesting(dir)
+	assert.match(
+		readFileSync(join(dir, 'vitest.web.config.mts'), 'utf8'),
+		/from '\.\/vite\.config\.mts'/,
+	)
+	assert.ok(!existsSync(join(dir, 'pnpm-workspace.yaml')))
+	assert.match(readFileSync(join(root, 'pnpm-workspace.yaml'), 'utf8'), /vitest: 4/)
+	assert.match(readFileSync(join(root, 'pnpm-workspace.yaml'), 'utf8'), /jsdom: 30/)
 })

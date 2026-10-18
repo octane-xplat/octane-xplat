@@ -166,6 +166,10 @@
 		"@valor/nativescript-websockets": {
 			"version": "2.0.3",
 			"group": "plugin"
+		},
+		"jsdom": {
+			"version": "30.1.1",
+			"group": "testing"
 		}
 	},
 	"profiles": {

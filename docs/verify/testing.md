@@ -37,9 +37,45 @@ in the running app too.
 
 As your app grows, add **automated tests**: code that performs checks for
 you, such as verifying that packing one of two items leaves one remaining.
-Phone scaffolds already include an on-device test lane — keep reading for
-how to use it. There is no browser test runner yet; ask your agent to help
-configure one when you need to repeat those checks automatically.
+The starter keeps test tooling optional. Add the setup below when you want
+to repeat those checks automatically.
+
+## Add automated tests
+
+From your app's folder, run:
+
+```sh
+pnpm xplat add testing
+```
+
+The command installs Vitest, configuration, sample tests, and scripts for your
+enabled platforms. Web adds jsdom, which simulates the browser's document on
+your computer. iOS/Android add NativeScript's test runner, which sends tests to
+your app on a selected simulator or device.
+
+For a web app, run the sample counter check:
+
+```sh
+pnpm test:web
+```
+
+It renders the starter screen, presses its increment button, and checks the
+updated count. Adapt it to your own screen after changing the starter. Add web
+tests under `src/` with names ending in `.web.test.ts`, `.web.test.tsx`, or
+`.web.test.tsrx`. `vitest.web.config.mts` reuses your app's Vite compiler and
+platform settings. These tests check document behavior; try layout, focus, and
+real input in a browser too.
+
+You can enable tests when creating an app instead:
+
+```sh
+pnpm create octane-xplat my-app --targets web,ios --testing
+```
+
+After opting in, adding a platform also adds its test setup. Existing files,
+scripts, and dependency specifications are preserved; review skipped-file
+warnings and ask your agent to reconcile custom configuration before running
+the samples. See below for phone test commands and their limits.
 
 ## Lint and format source
 
@@ -78,8 +114,8 @@ When you are ready to customize rules, follow the
 
 ## Test components on a device
 
-Every scaffolded iOS/Android app carries an on-device test lane: Vitest runs
-on your computer and sends each spec to your app on a simulator, where it
+After `pnpm xplat add testing`, an iOS/Android app has an on-device test lane.
+Vitest runs on your computer and sends each spec to your app on a simulator, where it
 runs inside the real native runtime — the same renderer, native views, and
 services your app uses. A component that misbehaves only on a phone gets
 caught here, not after release.
@@ -129,8 +165,8 @@ mounted and unmounted content — not on internal view classes.
 observers: they prove your handlers are wired, not that the OS would
 deliver the touch — that stays in [Maestro's lane](#automate-phone-journeys).
 The lane is qualified on iOS simulators; Android uses the same setup but is
-not verified yet. Apps scaffolded before this lane existed can
-[add it by hand](#add-the-test-lane-to-an-older-app).
+not verified yet. For older or customized apps, follow
+[the migration notes](#add-the-test-lane-to-an-older-app).
 
 ### Check the packed Android starter
 
@@ -153,33 +189,34 @@ cleanup checks in addition to its component cases.
 
 ### Add the test lane to an older app
 
-Current scaffolds set all of this up; an app created earlier adds the same
-pieces once:
+With a current Xplat CLI installed, use the same setup command. Preview an
+upgrade first if the app uses an older compiler or NativeScript release:
 
-1. Install the runner and its bridge:
+```sh
+pnpm dlx @octane-xplat/cli@latest upgrade --check
+pnpm xplat add testing
+```
 
-   ```sh
-   pnpm add -D @nativescript/unit-test-runner vitest
-   pnpm add @valor/nativescript-websockets
-   ```
+If it reports existing files or scripts, keep your changes and ask your agent
+to compare them with the supplied setup. Native tests need `src/test.ts` and
+`vitest.config.mts` to include the same spec patterns. The app also needs
+`@valor/nativescript-websockets`, which current native starters already include.
+For an older app missing it, install the bridge:
 
-2. Create `src/test.ts` — the entry `ns test` boots instead of your app —
-   and `vitest.config.mts` beside your Vite config. Copy both from the
-   current scaffold template or ask your agent to add them; the scaffold's
-   `src/app.spec.tsrx` is a good first spec.
-3. iOS only: allow the test WebSocket on the loopback address in
-   `App_Resources/iOS/Info.plist`:
+```sh
+pnpm add @valor/nativescript-websockets
+```
 
-   ```xml
-   <key>NSAppTransportSecurity</key>
-   <dict>
-     <key>NSAllowsLocalNetworking</key>
-     <true/>
-   </dict>
-   ```
+On iOS, an older customized `App_Resources/iOS/Info.plist` must allow the local
+test connection. Current iOS starters include this setting:
 
-4. Add the scripts: `"test:ios": "ns test ios"` and
-   `"test:android": "ns test android"`.
+```xml
+<key>NSAppTransportSecurity</key>
+<dict>
+  <key>NSAllowsLocalNetworking</key>
+  <true/>
+</dict>
+```
 
 ## Automate phone journeys
 

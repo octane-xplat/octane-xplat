@@ -70,6 +70,11 @@ If setup stops with “Install didn't finish,” enter `my-app` and run
 can give the error to your agent for help. If the browser cannot connect,
 check that the server is still running and open the address it printed.
 
+The starter includes the packages needed to run and build your selected
+platforms. When you want repeatable component checks, follow
+[add automated tests](../verify/testing.md#add-automated-tests); test runners
+and optional feature packages are added when you need them.
+
 ## Build and check your first flow
 
 Try a packing checklist as your first change. It's small enough to check by

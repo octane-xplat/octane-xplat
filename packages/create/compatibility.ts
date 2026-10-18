@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
-import { basename, dirname, join } from 'node:path'
+import { basename, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseDocument } from 'yaml'
 
@@ -76,7 +76,12 @@ export function projectProfile(pkg: Record<string, any>): string {
 
 /** Add missing pins when enabling a target in an older scaffold. Existing pins stay intact. */
 export function ensureCompatibilityCatalog(appRoot: string, pkg: Record<string, any>) {
-	const path = join(appRoot, 'pnpm-workspace.yaml')
+	let at = resolve(appRoot)
+	while (!existsSync(join(at, 'pnpm-workspace.yaml')) && dirname(at) !== at) {
+		at = dirname(at)
+	}
+	const workspace = existsSync(join(at, 'pnpm-workspace.yaml')) ? at : appRoot
+	const path = join(workspace, 'pnpm-workspace.yaml')
 	const before = existsSync(path) ? readFileSync(path, 'utf8') : ''
 	const doc = parseDocument(before || '{}\n')
 	if (doc.errors.length) {

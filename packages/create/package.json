@@ -30,7 +30,8 @@
 		"compatibility.json",
 		"dist",
 		"template",
-		"library-template"
+		"library-template",
+		"testing-template"
 	],
 	"type": "module",
 	"exports": {

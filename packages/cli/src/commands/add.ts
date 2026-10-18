@@ -6,20 +6,24 @@ import { spawnSync } from 'node:child_process'
 import * as p from '@clack/prompts'
 import {
 	applyTarget,
+	applyTesting,
 	selectableTargets,
 	targetEnabled,
 	targets,
+	testingEnabled,
 } from 'create-octane-xplat/scaffold'
+
+const additions = [...selectableTargets, 'testing']
 
 export const add = command({
 	name: 'add',
 	description:
-		'Enable a platform skipped at create time — copies its files, merges its deps/scripts into package.json, then installs',
+		'Add platforms or opt-in testing — merge files, managed dependencies and scripts, then install',
 	args: {
 		platforms: restPositionals({
 			type: string,
-			displayName: 'platform',
-			description: `Targets to enable: ${selectableTargets.join(', ')}`,
+			displayName: 'feature',
+			description: `Add: ${additions.join(', ')}`,
 		}),
 		noInstall: flag({
 			long: 'no-install',
@@ -35,8 +39,8 @@ export const add = command({
 
 		let ids = args.platforms
 		for (const id of ids) {
-			if (!selectableTargets.includes(id)) {
-				p.log.error(`unknown target "${id}" — expected one of: ${selectableTargets.join(', ')}`)
+			if (!additions.includes(id)) {
+				p.log.error(`unknown target "${id}" — expected one of: ${additions.join(', ')}`)
 
 				process.exit(1)
 			}
@@ -44,23 +48,26 @@ export const add = command({
 
 		if (ids.length === 0) {
 			if (!process.stdout.isTTY) {
-				p.log.error(`usage: xplat add <${selectableTargets.join('|')}> [...]`)
+				p.log.error(`usage: xplat add <${additions.join('|')}> [...]`)
 				process.exit(1)
 			}
 
-			const remaining = selectableTargets.filter((id) => !targetEnabled(cwd, id))
+			const remaining = additions.filter((id) =>
+				id === 'testing' ? !testingEnabled(cwd) : !targetEnabled(cwd, id),
+			)
+
 			if (remaining.length === 0) {
-				p.log.success('All platforms already enabled')
+				p.log.success('All platforms and testing already enabled')
 				return
 			}
 
 			p.intro('xplat add')
 			const picked = await p.multiselect({
-				message: 'Platforms to enable',
+				message: 'Platforms or features to enable',
 				options: remaining.map((id) => ({
 					value: id,
-					label: targets[id].label,
-					hint: targets[id].note,
+					label: id === 'testing' ? 'Testing (Vitest)' : targets[id].label,
+					hint: id === 'testing' ? 'Test setup for the enabled targets' : targets[id].note,
 				})),
 				required: true,
 			})
@@ -72,31 +79,41 @@ export const add = command({
 
 			ids = picked
 		}
+		// Platform additions must land before testing, even for `add testing ios`.
+		ids = [...ids.filter((id) => id !== 'testing'), ...ids.filter((id) => id === 'testing')]
 
 		let anyEnabled = false
 		for (const id of ids) {
-			const report = applyTarget(cwd, id)
+			let report
+			try {
+				report = id === 'testing' ? applyTesting(cwd) : applyTarget(cwd, id)
+			} catch (error) {
+				p.log.error(error.message)
+				process.exitCode = 1
+				return
+			}
+
 			if (report.already.includes(id)) {
 				p.log.info(`${id} is already enabled`)
 				continue
 			}
 
 			anyEnabled = true
-			const visible = report.enabled.filter((t) => !targets[t].hidden)
+			const visible = report.enabled.filter((t) => t === 'testing' || !targets[t].hidden)
 			p.log.success(
 				`enabled ${visible.join(', ')}` +
-					(report.enabled.some((t) => targets[t].hidden) ? ' (+ shared NativeScript setup)' : ''),
+					(report.enabled.some((t) => targets[t]?.hidden) ? ' (+ shared NativeScript setup)' : ''),
 			)
 
-			for (const name of report.scriptsSkipped) {
+			for (const name of [...report.scriptsSkipped, ...(report.testing?.scriptsSkipped ?? [])]) {
 				p.log.warn(`script "${name}" exists with a different command — keeping yours`)
 			}
 
-			for (const rel of report.skipped) {
+			for (const rel of [...report.skipped, ...(report.testing?.skipped ?? [])]) {
 				p.log.warn(`${rel} already exists — skipped`)
 			}
 
-			if (targets[id].note) {
+			if (targets[id]?.note) {
 				p.log.info(targets[id].note)
 			}
 		}
@@ -122,6 +139,6 @@ export const add = command({
 			process.exit(install.status ?? 1)
 		}
 
-		p.log.success('installed — `pnpm xplat dev` lists the new target')
+		p.log.success('installed — use the new scripts in package.json')
 	},
 })

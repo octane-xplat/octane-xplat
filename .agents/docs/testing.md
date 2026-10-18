@@ -114,12 +114,15 @@ pnpm --filter @xplat/mobile test:android -- --device DEVICE_ID
   module re-exports upstream `tap()`/`enterText()`/`waitUntil()` and adds
   `viewText`/`findByTestId` tree queries; dispatch through gesture observers
   proves the observer path, NOT OS hit-testing (that remains Maestro's lane).
-- The scaffold ships the same lane: `src/test.ts`, `vitest.config.mts`, a
-  starter `src/app.spec.tsrx`, `test:ios`/`test:android` scripts, the runner
-  devDeps, and the scoped `NSAllowsLocalNetworking` ATS exception in the iOS
-  template. `xplat add ios`/`android` materializes it for existing
-  web-only scaffolds; `ns test android` shares the setup but is unverified
-  (lane qualified on iOS only).
+- App testing is opt-in: `xplat add testing` or creator `--testing` adds
+  `src/test.ts`, `vitest.config.mts`, a starter `src/app.spec.tsrx`, the
+  selected `test:ios`/`test:android` scripts, and runner devDeps from
+  `packages/create/testing-template/native/`. The iOS platform template
+  already carries the scoped `NSAllowsLocalNetworking` ATS exception.
+  Once testing is enabled, `xplat add ios`/`android` also adds its test setup.
+  `ns test android` shares the setup but is unverified (lane qualified on iOS
+  only). Web testing is separate (`vitest.web.config.mts`, `*.web.test.*`)
+  so DOM tests do not enter the device bundle.
 - `node scripts/verify-consumer.ts --test-ios` runs the scaffolded suite in
   a packed consumer (boots/selects an iPhone sim, `VERIFY_IOS_DEVICE` pins a
   UDID) — exercises the packed cli overlay, packed platform `/testing`, and

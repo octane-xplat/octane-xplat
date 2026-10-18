@@ -1,7 +1,7 @@
 // Compile installed source with the consumer's Octane pipeline; typecheck d.ts separately.
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { mkdtempSync, readdirSync, rmSync, realpathSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdtempSync, readdirSync, rmSync, realpathSync, writeFileSync } from 'node:fs'
 
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
@@ -39,6 +39,12 @@ try {
 
 	const installed = realpathSync(join(modules, 'platform'))
 	assert.ok(installed.startsWith(temporary + '/'), 'consumer uses its installed tarball')
+	const store = join(temporary, 'node_modules/.pnpm')
+	assert.ok(!existsSync(join(temporary, 'node_modules/@nativescript/macos-node-api')))
+	assert.ok(
+		!readdirSync(store).some((name) => name.startsWith('@nativescript+macos-node-api@')),
+		'platform services must not install a macOS host SDK in every app',
+	)
 
 	for (const target of ['native', 'web', 'linux', 'macos']) {
 		const native = target === 'native' || target === 'macos'

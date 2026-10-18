@@ -8,8 +8,6 @@
 		"dev": "vite",
 		"dev:ios": "ns run ios",
 		"dev:android": "ns run android",
-		"test:ios": "ns test ios",
-		"test:android": "ns test android",
 		"build": "vite build",
 		"build:ios": "ns build ios",
 		"build:android": "ns build android",
@@ -19,12 +17,8 @@
 		"format": "xplat fmt"
 	},
 	"dependencies": {
-		"@nativescript-community/gesturehandler": "catalog:xplat",
 		"@nativescript-community/octane": "catalog:xplat",
-		"@nativescript-community/ui-drawer": "catalog:xplat",
 		"@nativescript/core": "catalog:xplat",
-		"@octane-xplat/effects": "catalog:xplat",
-		"@octane-xplat/image": "catalog:xplat",
 		"@octane-xplat/jsx": "catalog:xplat",
 		"@octane-xplat/platform": "catalog:xplat",
 		"@octane-xplat/ui": "catalog:xplat",
@@ -36,7 +30,6 @@
 		"@nativescript/android": "catalog:xplat",
 		"@nativescript/ios": "catalog:xplat",
 		"@nativescript/types": "catalog:xplat",
-		"@nativescript/unit-test-runner": "catalog:xplat",
 		"@nativescript/vite": "catalog:xplat",
 		"@octane-xplat/cli": "catalog:xplat",
 		"@octanejs/vite-plugin": "catalog:xplat",
@@ -44,8 +37,7 @@
 		"@tsrx/typescript-plugin": "catalog:xplat",
 		"nativescript": "catalog:xplat",
 		"typescript": "catalog:xplat",
-		"vite": "catalog:xplat",
-		"vitest": "catalog:xplat"
+		"vite": "catalog:xplat"
 	},
 	"packageManager": "pnpm@11.24.0",
 	"engines": {
