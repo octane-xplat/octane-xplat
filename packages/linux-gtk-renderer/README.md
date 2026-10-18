@@ -20,8 +20,6 @@ path.
 | -------------------------- | ------------------------------------------------------------------- |
 | `.`                        | `gtkDriver`, `createGtkRoot`, `GTK_RENDERER_ID`, `octane/universal/native` re-export |
 | `./host`                   | `runGtkApp` — GtkApplication + window + content box + mounted root    |
-| `./intrinsics`             | JSX intrinsic element types for the `gtk` renderer                  |
-| `./jsx-runtime`            | `@jsxImportSource @octane-xplat/linux-gtk` typing entry             |
 | `./compat/native-core`     | `@nativescript/core` shim for leaves evaluated in a GTK bundle      |
 | `./compat/escape-props`    | escape-props shim                                                   |
 
@@ -38,8 +36,10 @@ unsuffixed native default. `.linux` files belong to the WebKitGTK renderer
 and are unreachable inside a GTK bundle — see the capability inventory for
 why the two suffixes must not collide.
 
-`/** @jsxImportSource @octane-xplat/linux-gtk */` on line 1 of `.gtk.tsx` /
-`.gtk.tsrx` files that contain JSX.
+`/** @jsxImportSource @octane-xplat/jsx */` on line 1 of `.gtk.tsx` /
+`.gtk.tsrx` files that contain JSX — the shared native contract is the JSX
+source for every native target; the `gtk` customConditions entry binds the
+GTK host element type. There is no renderer-owned `jsx-runtime` export.
 
 ## Bundle + run
 

@@ -51,12 +51,7 @@
 				"default": "./src/intrinsics.d.ts"
 			}
 		},
-		"./macos": {
-			"types": "./src/macos.d.ts"
-		},
-		"./gtk": {
-			"types": "./src/gtk.d.ts"
-		},
+
 		"./dom": {
 			"types": "./src/dom/index.d.ts"
 		},

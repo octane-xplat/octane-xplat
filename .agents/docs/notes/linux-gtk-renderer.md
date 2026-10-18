@@ -44,20 +44,19 @@ A first native slice of the GTK4/GJS renderer:
   defaults (complete-bag update contract).
 - **Host** (`src/host.ts`, `./host` export): `runGtkApp(options, mount)` —
   GtkApplication + ApplicationWindow + vertical content box + mounted root.
-- **JSX**: `src/intrinsics.d.ts` and `jsx-runtime`/`jsx-dev-runtime` are thin
-  re-exports of `@octane-xplat/jsx/gtk` — the shared `NativeElements`
-  contract bound to the GTK host element — so
-  `/** @jsxImportSource @octane-xplat/linux-gtk */` resolves the identical
-  membership, prop names, and event surface every platform shares. The
-  driver accepts the contract names (`isEnabled`, `visibility`, `ClassValue`
-  className, `style` string|object, `keyboardType`→`input_purpose`,
-  `scrollBarIndicatorVisible`/`isScrollEnabled`, `maxValue` default 100,
-  `alignSelf`) plus GTK extras not in the contract. Note: the same swap was
-  tried on `macos-renderer` and reverted — `packages/ui`'s `.macos.tsrx`
+- **JSX**: the package ships no `jsx-runtime`/`intrinsics` typing of its
+  own — GTK files use `/** @jsxImportSource @octane-xplat/jsx */` like every
+  native target; the `gtk` customConditions entry in the typecheck env binds
+  the host element type to the GTK widget type (packages/jsx `src/gtk.d.ts`,
+  full `NativeElements` membership). The driver accepts the contract names
+  (`isEnabled`, `visibility`, `ClassValue` className, `style` string|object,
+  `keyboardType`→`input_purpose`, `scrollBarIndicatorVisible`/
+  `isScrollEnabled`, `maxValue` default 100, `alignSelf`) plus GTK extras not
+  in the contract. Note: binding `macos-renderer`'s pragma to the strict
+  shared surface was tried and reverted — `packages/ui`'s `.macos.tsrx`
   leaves pass web `CSSProperties`, `Ref<unknown>`, `'start'` aliases, and
-  AppKit-specific event types that don't fit the shared contract; making
-  `@octane-xplat/macos-renderer`'s pragma strict is a ui reconciliation
-  workstream, not a types-only change.
+  AppKit-specific event types that don't fit the shared contract; that's a
+  ui reconciliation workstream, not a types-only change.
 - **Compat shims**: `compat/native-core`, `compat/escape-props`.
 
 ## The `.gtk` suffix (deviation from the task brief)

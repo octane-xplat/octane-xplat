@@ -20,15 +20,6 @@
 			"import": "./src/index.ts",
 			"default": "./src/index.ts"
 		},
-		"./intrinsics": {
-			"types": "./src/intrinsics.d.ts"
-		},
-		"./jsx-runtime": {
-			"types": "./src/jsx-runtime.d.ts"
-		},
-		"./jsx-dev-runtime": {
-			"types": "./src/jsx-runtime.d.ts"
-		},
 		"./host": {
 			"types": "./src/host.d.ts",
 			"import": "./src/host.ts",

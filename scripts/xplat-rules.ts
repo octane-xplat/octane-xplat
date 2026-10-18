@@ -1391,11 +1391,12 @@ export function checkHooksInPlainTs(program, _src, filename, options) {
 
 export const NATIVE_PRAGMA = '/** @jsxImportSource @nativescript-community/octane */'
 const MACOS_PRAGMA = '/** @jsxImportSource @octane-xplat/macos-renderer */'
-const GTK_PRAGMA = '/** @jsxImportSource @octane-xplat/linux-gtk */'
+const GTK_PRAGMA = '/** @jsxImportSource @octane-xplat/jsx */'
 
 // The pragma sets the JSX import source — only files that contain JSX need
 // it. JSX-free native leaves (styled, use-store) omit it by
-// design. .macos leaves carry the AppKit renderer pragma, .gtk the GTK one.
+// design. .macos leaves carry the AppKit renderer pragma; .gtk leaves use the
+// shared-contract source — the gtk customConditions pick the entry.
 export function checkNativePragmaFirstLine(program, source, filename, options) {
 	if (
 		!norm(filename).endsWith('.tsrx') ||

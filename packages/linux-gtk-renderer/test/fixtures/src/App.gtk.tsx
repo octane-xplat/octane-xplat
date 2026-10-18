@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/linux-gtk */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 
 export function App() {

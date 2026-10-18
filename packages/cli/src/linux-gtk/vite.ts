@@ -38,7 +38,10 @@ export async function xplatLinuxGtk(env, options = {}) {
 							target: 'universal',
 							server: 'unsupported',
 							text: 'host',
-							intrinsics: `${renderer}/intrinsics`,
+							// The shared-contract pragma names the source every
+							// native target uses; renderer selection is the
+							// .gtk include rule, not the pragma.
+							intrinsics: '@octane-xplat/jsx',
 						},
 					},
 					rules: options.rules ?? [{ include: '**/*.{tsx,tsrx}', renderer: 'gtk' }],

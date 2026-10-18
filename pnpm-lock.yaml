@@ -1777,6 +1777,10 @@ importers:
         version: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
 
   packages/linux-gtk-renderer:
+    dependencies:
+      '@octane-xplat/jsx':
+        specifier: workspace:*
+        version: link:../jsx
     devDependencies:
       '@octane-xplat/cli':
         specifier: workspace:*

@@ -96,10 +96,11 @@ export const TYPECHECK_ENVIRONMENTS = {
 	},
 	// The GTK4/GJS renderer — a native target, not the linux WebKit surface:
 	// .gtk files never see .linux/.web leaves, and the program carries no DOM
-	// lib. jsxImportSource is the renderer package, matching macos.
+	// lib. jsxImportSource is the shared native contract; the `gtk` condition
+	// binds the host element type.
 	gtk: {
 		compilerOptions: {
-			jsxImportSource: '@octane-xplat/linux-gtk',
+			jsxImportSource: '@octane-xplat/jsx',
 			moduleSuffixes: ['.gtk', ''],
 			customConditions: ['gtk'],
 			lib: ['ESNext'],
