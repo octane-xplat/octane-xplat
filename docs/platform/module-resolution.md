@@ -67,7 +67,8 @@ precedence over `.web` while the Linux target migrates to the shared contract.
 Stylesheets can use the same replacement rule. Import `./card.css`; on web,
 `card.web.css` replaces it when present. On iOS and Android, the OS suffix
 wins over `.mobile.css`, followed by the unsuffixed file. The files never
-merge automatically.
+merge automatically. visionOS uses the `.ios.css` → `.mobile.css` →
+unsuffixed chain, matching its module fallback.
 
 ```ts
 import './card.css'

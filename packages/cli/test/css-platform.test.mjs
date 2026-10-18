@@ -41,6 +41,7 @@ async function bundle(root, platform) {
 for (const [target, expected] of [
 	['web', 'web'],
 	['ios', 'ios'],
+	['visionos', 'ios'],
 	['android', 'mobile'],
 	['macos', 'default'],
 	['windows', 'default'],
@@ -158,4 +159,71 @@ test('preserves existing PostCSS config and filters inlined imports', async () =
 	const css = await bundle(root, 'web')
 	assert.match(css, /blue/)
 	assert.doesNotMatch(css, /@platform|red/)
+})
+
+test('honors user aliases before CSS sibling selection', async () => {
+	const root = fixture({
+		'main.js': "import '@styles/card.css'",
+		'styles/card.css': '.base { color: black }',
+		'styles/card.web.css': '.web { color: blue }',
+	})
+	const outputs = await build({
+		configFile: false,
+		root,
+		logLevel: 'silent',
+		plugins: [xplatCss('web')],
+		resolve: { alias: { '@styles': join(root, 'styles') } },
+		build: {
+			write: false,
+			lib: { entry: join(root, 'main.js'), formats: ['es'], cssFileName: 'styles' },
+		},
+	})
+	const css = (Array.isArray(outputs) ? outputs : [outputs])
+		.flatMap((output) => output.output)
+		.filter((file) => file.type === 'asset')
+		.map((file) => file.source)
+		.join('\n')
+	assert.match(css, /\.web/)
+	assert.doesNotMatch(css, /\.base/)
+})
+
+test('adding and removing a sibling reselects the dev import', async () => {
+	const root = fixture({ 'main.js': "import './card.css'", 'card.css': '.base { color: black }' })
+	const server = await createServer({
+		configFile: false,
+		root,
+		logLevel: 'silent',
+		plugins: [xplatCss('web')],
+		server: { middlewareMode: true },
+	})
+	try {
+		assert.match((await server.transformRequest('/main.js')).code, /card\.css/)
+		writeFileSync(join(root, 'card.web.css'), '.web { color: blue }')
+		server.watcher.emit('add', join(root, 'card.web.css'))
+		await server.restart()
+		assert.match((await server.transformRequest('/main.js')).code, /card\.web\.css/)
+		rmSync(join(root, 'card.web.css'))
+		server.watcher.emit('unlink', join(root, 'card.web.css'))
+		await server.restart()
+		assert.doesNotMatch((await server.transformRequest('/main.js')).code, /card\.web\.css/)
+	} finally {
+		await server.close()
+	}
+})
+
+test('raw CSS imports keep raw text while selecting a platform sibling', async () => {
+	const root = fixture({ 'card.web.css': '@platform web { .card { color: blue } }' })
+	const server = await createServer({
+		configFile: false,
+		root,
+		logLevel: 'silent',
+		plugins: [xplatCss('web')],
+		server: { middlewareMode: true },
+	})
+	try {
+		const result = await server.transformRequest('/card.web.css?raw')
+		assert.match(result.code, /@platform web/)
+	} finally {
+		await server.close()
+	}
 })

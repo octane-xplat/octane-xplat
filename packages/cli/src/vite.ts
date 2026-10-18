@@ -345,25 +345,27 @@ function nativePlatform() {
 	try {
 		const env = JSON.parse(process.env.NATIVESCRIPT_BUNDLER_ENV ?? '{}')
 		platform =
-			env.platform ?? (env.android ? 'android' : env.ios || env.visionos ? 'ios' : undefined)
+			env.platform ??
+			(env.android ? 'android' : env.visionos ? 'visionos' : env.ios ? 'ios' : undefined)
 	} catch {}
 
 	const args = process.argv.slice(2)
 	if (!platform) {
 		if (
 			args.some(
+				(arg) =>
+					arg === '--visionos' || arg === '--env.visionos' || arg.startsWith('--env.visionos='),
+			)
+		) {
+			platform = 'visionos'
+		} else if (
+			args.some(
 				(arg) => arg === '--android' || arg === '--env.android' || arg.startsWith('--env.android='),
 			)
 		) {
 			platform = 'android'
 		} else if (
-			args.some(
-				(arg) =>
-					arg === '--ios' ||
-					arg === '--env.ios' ||
-					arg.startsWith('--env.ios=') ||
-					arg === '--visionos',
-			)
+			args.some((arg) => arg === '--ios' || arg === '--env.ios' || arg.startsWith('--env.ios='))
 		) {
 			platform = 'ios'
 		} else if (

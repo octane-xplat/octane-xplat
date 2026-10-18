@@ -13,7 +13,8 @@
 		"smoke": "pnpm --filter @xplat/app gen && vite build && node scripts/smoke.ts",
 		"sqlite:readiness": "node scripts/sqlite-readiness.ts",
 		"parity": "vite build && node scripts/parity.ts",
-		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json"
+		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json",
+		"test:platform-css": "node scripts/platform-css.mjs"
 	},
 	"dependencies": {
 		"@octane-xplat/ui": "workspace:*",

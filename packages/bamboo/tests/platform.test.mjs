@@ -19,9 +19,7 @@ import { xplatBamboo } from '../src/vite.ts'
 import { xplatCss } from '@octane-xplat/cli/vite'
 
 const configSource = fileURLToPath(new URL('../src/config.ts', import.meta.url))
-const codegen = fileURLToPath(
-	new URL('../node_modules/@bamboocss/dev/bin.js', import.meta.url),
-)
+const codegen = fileURLToPath(new URL('../node_modules/@bamboocss/dev/bin.js', import.meta.url))
 
 test('generated Bamboo platform conditions compile through the shared CSS pipeline', async () => {
 	const root = realpathSync(mkdtempSync(join(tmpdir(), 'xplat-bamboo-platform-')))
@@ -121,6 +119,62 @@ export const card = css({ padding: '4', _web: { color: 'primary' }, _ios: { colo
 		for (const file of files.filter((file) => file.fileName.endsWith('.map'))) {
 			assert.ok(existsSync(join(root, 'dist', file.fileName)))
 			assert.equal(JSON.parse(readFileSync(join(root, 'dist', file.fileName), 'utf8')).version, 3)
+		}
+		let latestCss = ''
+		const watcher = await build({
+			configFile: false,
+			root,
+			logLevel: 'silent',
+			plugins: [
+				xplatCss('web'),
+				xplatBamboo({ cwd: root, configPath: join(root, 'bamboo.config.ts') }),
+				{
+					name: 'test-written-css',
+					writeBundle(_options, bundle) {
+						latestCss = Object.values(bundle)
+							.filter((file) => file.type === 'asset' && file.fileName.endsWith('.css'))
+							.map((file) => file.source)
+							.join('\n')
+					},
+				},
+			],
+			build: {
+				watch: {},
+				outDir: 'watch-dist',
+				minify: false,
+				lib: { entry: main, formats: ['es'], cssFileName: 'styles' },
+			},
+		})
+		const nextBuild = () =>
+			new Promise((resolve, reject) => {
+				const timeout = setTimeout(() => {
+					watcher.off('event', onEvent)
+					reject(new Error('Bamboo watch build timed out'))
+				}, 10000)
+				function onEvent(event) {
+					if (event.code !== 'END' && event.code !== 'ERROR') return
+					clearTimeout(timeout)
+					watcher.off('event', onEvent)
+					if (event.code === 'ERROR') reject(event.error)
+					else resolve(latestCss)
+				}
+				watcher.on('event', onEvent)
+			})
+		try {
+			assert.match(await nextBuild(), /color: var\(--colors-primary\)/)
+			const rebuilt = nextBuild()
+			writeFileSync(
+				main,
+				readFileSync(main, 'utf8').replace(
+					"_web: { color: 'primary' }",
+					"_web: { color: 'danger' }",
+				),
+			)
+			const css = await rebuilt
+			assert.match(css, /color: var\(--colors-danger\)/)
+			assert.doesNotMatch(css, /@platform|color: var\(--colors-primary\)/)
+		} finally {
+			await watcher.close()
 		}
 	} finally {
 		rmSync(root, { recursive: true, force: true })

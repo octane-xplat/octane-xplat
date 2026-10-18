@@ -8,12 +8,15 @@ export default async function nativeCaseConfig(project, target) {
 	const load = async (name) =>
 		import(pathToFileURL(createRequire(join(project, 'package.json')).resolve(name)).href)
 
-	const [{ octane }, { nativeScriptRenderer }, { xplatBoundary, xplatNative, xplatNodeEnvDefine }] =
-		await Promise.all([
-			load('octane/compiler/vite'),
-			load('@nativescript-community/octane/config'),
-			load('@octane-xplat/cli/vite'),
-		])
+	const [
+		{ octane },
+		{ nativeScriptRenderer },
+		{ xplatCss, xplatBoundary, xplatNative, xplatNodeEnvDefine },
+	] = await Promise.all([
+		load('octane/compiler/vite'),
+		load('@nativescript-community/octane/config'),
+		load('@octane-xplat/cli/vite'),
+	])
 
 	const previousDirectory = process.cwd()
 	let css
@@ -48,6 +51,7 @@ export default async function nativeCaseConfig(project, target) {
 		},
 		plugins: [
 			scratchResolver(project),
+			xplatCss(target),
 			css,
 			xplatBoundary(target),
 			octane({

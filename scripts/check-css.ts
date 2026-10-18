@@ -12,7 +12,7 @@
 // native (the vite transform removes them). Everything else errors unless
 // it's in DROPPED_INTENTIONAL below — the documented "native ignores this
 // on purpose" set.
-import { createRequire } from 'node:module'
+import { parsePlatformCss } from '../packages/cli/src/css-platform.ts'
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join, relative, sep } from 'node:path'
 import { globSync } from 'node:fs'
@@ -44,14 +44,6 @@ const isCustomProp = (p) => p.startsWith('--')
 const WEB_ONLY_BLOCK =
 	/\/\*\s*xplat-web-only:start[\s\S]*?\*\/[\s\S]*?\/\*\s*xplat-web-only:end[\s\S]*?\*\//g
 
-// css-tree is a dependency of @nativescript/core — resolve through that
-// package so the audit runs without adding a root dep.
-const corePkg = createRequire(join(process.cwd(), 'apps/mobile/package.json')).resolve(
-	'@nativescript/core/package.json',
-)
-
-const cssTree = createRequire(corePkg)('css-tree')
-
 const cwd = process.cwd()
 // Vendor trees may include upstream docs and demo styles outside our runtime CSS.
 const FILES = globSync('{packages/*/src,packages/create/template/src}/**/*.css', { cwd }).filter(
@@ -62,6 +54,7 @@ let errors = 0
 let warned = 0
 
 for (const file of FILES) {
+	if (/\.(web|macos|gtk|linux)\.css$/.test(file)) continue
 	const rel = relative(process.cwd(), file)
 	// Strip web-only blocks but preserve line count — reported line
 	// numbers must match the authored file.
@@ -69,34 +62,42 @@ for (const file of FILES) {
 		m.replace(/[^\n]/g, ' '),
 	)
 
-	const ast = cssTree.parse(stripped, { positions: true, filename: rel })
+	const seen = new Set()
+	const targets = /\.ios\.css$/.test(file)
+		? ['ios']
+		: /\.android\.css$/.test(file)
+			? ['android']
+			: /\.windows\.css$/.test(file)
+				? ['windows']
+				: ['ios', 'android', 'windows']
+	for (const target of targets) {
+		const ast = parsePlatformCss(stripped, target, rel)
+		ast.walkDecls((node) => {
+			const prop = node.prop
+			const key = `${node.source?.start?.offset}:${prop}:${node.value}`
+			if (seen.has(key)) return
+			seen.add(key)
+			const loc = node.source?.start ? `${rel}:${node.source.start.line}` : rel
+			if (isCustomProp(prop) || SUPPORTED.has(prop)) {
+				return
+			}
 
-	cssTree.walk(ast, (node) => {
-		if (node.type !== 'Declaration') {
-			return
-		}
+			if (isVendorPrefix(prop) || DROPPED_INTENTIONAL.has(prop)) {
+				console.log(
+					`${loc}  ${prop}  — dropped on native (${DROPPED_INTENTIONAL.get(prop) ?? 'vendor prefix'})`,
+				)
 
-		const prop = node.property
-		const loc = node.loc ? `${rel}:${node.loc.start.line}` : rel
-		if (isCustomProp(prop) || SUPPORTED.has(prop)) {
-			return
-		}
+				warned++
+				return
+			}
 
-		if (isVendorPrefix(prop) || DROPPED_INTENTIONAL.has(prop)) {
 			console.log(
-				`${loc}  ${prop}  — dropped on native (${DROPPED_INTENTIONAL.get(prop) ?? 'vendor prefix'})`,
+				`${loc}  ${prop}: ${node.value} — not in NS's registry; silently dropped on native`,
 			)
 
-			warned++
-			return
-		}
-
-		console.log(
-			`${loc}  ${prop}: ${node.value ? cssTree.generate(node.value) : ''} — not in NS's registry; silently dropped on native`,
-		)
-
-		errors++
-	})
+			errors++
+		})
+	}
 }
 
 if (errors || warned) {
@@ -106,7 +107,7 @@ if (errors || warned) {
 
 if (errors) {
 	console.log(
-		'fix the declaration, wrap the rule in /* xplat-web-only:start/end */, or extend DROPPED_INTENTIONAL with a reason',
+		'fix the declaration, place web rules in @platform web { ... }, or extend DROPPED_INTENTIONAL with a reason',
 	)
 
 	process.exitCode = 1

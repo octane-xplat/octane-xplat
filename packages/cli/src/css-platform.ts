@@ -7,7 +7,7 @@ import postcss, {
 	type ProcessOptions,
 } from 'postcss'
 import loadPostcssConfig from 'postcss-load-config'
-import type { Plugin, UserConfig, ResolverFunction } from 'vite'
+import type { Alias, Plugin, UserConfig, ResolverFunction } from 'vite'
 
 /** Renderer targets accepted by platform CSS selection and `@platform` blocks. */
 export type CssPlatform =
@@ -21,7 +21,7 @@ export type CssPlatform =
 	| 'gtk'
 	| 'native'
 
-const targets = new Set([
+const buildTargets = new Set([
 	'web',
 	'ios',
 	'android',
@@ -31,22 +31,22 @@ const targets = new Set([
 	'linux',
 	'gtk',
 	'native',
-	'mobile',
 ])
+const targets = new Set([...buildTargets, 'mobile'])
 const qualified = /\.(web|ios|android|visionos|mobile|macos|windows|linux|gtk|native)\.css$/
 const cssId = /\.css(?:[?#].*)?$/
 const cleanId = (id: string) => id.split(/[?#]/, 1)[0]
 
 function suffixes(platform: CssPlatform): string[] {
 	if (platform === 'ios' || platform === 'android') return [platform, 'mobile']
-	if (platform === 'visionos') return ['visionos', 'ios', 'mobile']
-	return platform === 'native' ? ['mobile'] : [platform]
+	if (platform === 'visionos') return ['ios', 'mobile']
+	return platform === 'native' ? [] : [platform]
 }
 
 function matches(condition: string, platform: CssPlatform): boolean {
 	return (
 		condition === platform ||
-		(condition === 'mobile' && ['ios', 'android', 'visionos', 'native'].includes(platform)) ||
+		(condition === 'mobile' && ['ios', 'android', 'visionos'].includes(platform)) ||
 		(condition === 'native' && platform !== 'web')
 	)
 }
@@ -99,10 +99,10 @@ export function filterPlatformCss(css: string, platform: CssPlatform, from?: str
  * web apps add `xplatCss('web')` to their Vite plugins.
  */
 export function xplatCss(platform: CssPlatform = 'web'): Plugin {
-	if (!targets.has(platform) || platform === ('mobile' as string))
-		throw new Error(`Unknown CSS build target: ${platform}`)
+	if (!buildTargets.has(platform)) throw new Error(`Unknown CSS build target: ${platform}`)
 	const candidates = new Set<string>()
 	const deferred = new Set<string>()
+	let aliases: readonly Alias[] = []
 	const select = (id: string) => {
 		const file = cleanId(id)
 		if (!file.endsWith('.css') || qualified.test(file)) return id
@@ -136,6 +136,10 @@ export function xplatCss(platform: CssPlatform = 'web'): Plugin {
 					'xplatCss requires the PostCSS transformer; use Lightning CSS for minification instead',
 				)
 			}
+			const configuredAliases = userConfig.resolve?.alias ?? []
+			aliases = Array.isArray(configuredAliases)
+				? [...configuredAliases]
+				: Object.entries(configuredAliases).map(([find, replacement]) => ({ find, replacement }))
 			const configured = userConfig.css?.postcss
 			let settings: { options?: ProcessOptions; plugins?: AcceptedPlugin[] } = {}
 			if (configured && typeof configured === 'object') {
@@ -174,6 +178,30 @@ export function xplatCss(platform: CssPlatform = 'web'): Plugin {
 								importer: string | undefined,
 								options: Parameters<ResolverFunction>[2],
 							) {
+								// The catch-all alias runs ahead of user aliases; honor their
+								// normal first-match mapping before selecting the CSS sibling.
+								for (const alias of aliases) {
+									if (
+										typeof alias.find === 'string'
+											? source !== alias.find && !source.startsWith(alias.find + '/')
+											: !alias.find.test(source)
+									)
+										continue
+									source = source.replace(alias.find, alias.replacement)
+									if (alias.customResolver) {
+										const resolver =
+											typeof alias.customResolver === 'function'
+												? alias.customResolver
+												: alias.customResolver.resolveId
+										const result = await resolver.call(this, source, importer, options)
+										return typeof result === 'string'
+											? select(result)
+											: result && typeof result === 'object'
+												? { ...result, id: select(result.id) }
+												: result
+									}
+									break
+								}
 								const file = cleanId(source)
 								const local =
 									file.startsWith('.') && importer
@@ -213,8 +241,8 @@ export function xplatCss(platform: CssPlatform = 'web'): Plugin {
 		configureServer(server) {
 			const changed = (file: string) => {
 				if (!candidates.has(file)) return
-				server.moduleGraph.invalidateAll()
-				server.ws.send({ type: 'full-reload' })
+				// Vite caches import resolutions separately from transformed modules.
+				void server.restart().catch((error) => server.config.logger.error(String(error)))
 			}
 			server.watcher.on('add', changed).on('unlink', changed)
 			server.httpServer?.once('close', () => {
