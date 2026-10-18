@@ -1,8 +1,8 @@
 diff --git a/dist/driver.js b/dist/driver.js
-index 8bc563add4cb675a12651184b63805b10224274d..a10f12af74fd32a630b71811c3f10f9338d63a50 100644
+index 8bc563a..61ae35e 100644
 --- a/dist/driver.js
 +++ b/dist/driver.js
-@@ -91,15 +91,34 @@
+@@ -91,15 +91,34 @@ function applyProps(node, props) {
      }
  }
  /**
@@ -41,7 +41,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..a10f12af74fd32a630b71811c3f10f93
      if (name === 'children' || name === 'key' || name === 'ref')
          return;
      // Event props arrive as their own `event` commands.
-@@ -113,13 +132,28 @@
+@@ -113,13 +132,28 @@ function setProp(node, view, name, value) {
          return;
      }
      if (name === 'style') {
@@ -71,16 +71,10 @@ index 8bc563add4cb675a12651184b63805b10224274d..a10f12af74fd32a630b71811c3f10f93
      // Core raises `<name>Change` for a script write exactly as for a user
      // edit; a controlled input must not see its own value come back as one.
      const echo = `${name}Change`;
-@@ -128,6 +162,44 @@
-         node.muted.add(echo);
-     try {
-         view[name] = value;
-+    }
-+    finally {
-+        if (listening)
-+            node.muted.delete(echo);
-+    }
-+}
+@@ -134,6 +168,44 @@ function setProp(node, view, name, value) {
+             node.muted.delete(echo);
+     }
+ }
 +/** Restore a removed prop to the value it holds when never supplied. */
 +function resetProp(node, view, name) {
 +    if (view === null)
@@ -113,10 +107,16 @@ index 8bc563add4cb675a12651184b63805b10224274d..a10f12af74fd32a630b71811c3f10f93
 +        view[name] = unsetValue;
 +        if (view[name] === unsetValue)
 +            view[name] = node.propDefaults?.[name];
-     }
-     finally {
-         if (listening)
-@@ -147,15 +219,67 @@
++    }
++    finally {
++        if (listening)
++            node.muted.delete(echo);
++    }
++}
+ // `class`/`className` compose clsx-style on the DOM renderer; join arrays
+ // with spaces so NativeScript's class selectors can match each class.
+ function normalizeClass(value) {
+@@ -147,15 +219,67 @@ function normalizeClass(value) {
              .join(' ');
      return '';
  }
@@ -189,7 +189,37 @@ index 8bc563add4cb675a12651184b63805b10224274d..a10f12af74fd32a630b71811c3f10f93
  }
  /** Recompute a text host's `text` from its `#text` children. */
  function syncText(parent) {
-@@ -641,7 +765,7 @@
+@@ -190,6 +314,15 @@ function addViewChild(parentView, view, index) {
+         parentView.insertChild(view, Math.min(index, parentView.getChildrenCount()));
+         return;
+     }
++    // Custom-layout containers that own their child list without subclassing
++    // LayoutBase (e.g. MasonKit ViewBase — CustomLayoutView → ContainerView).
++    // Plain View/ContainerView lacks insertChild, so this stays a capability
++    // check rather than a catch-all.
++    if (typeof parentView.insertChild === 'function' && typeof parentView.removeChild === 'function') {
++        const count = typeof parentView.getChildrenCount === 'function' ? parentView.getChildrenCount() : index;
++        parentView.insertChild(view, Math.min(index, count));
++        return;
++    }
+     if (parentView instanceof ContentView) {
+         parentView.content = view;
+         return;
+@@ -234,6 +367,13 @@ function removeViewChild(parentView, view) {
+             parentView.removeChild(view);
+         return;
+     }
++    // Same capability check as addViewChild: custom-layout containers that
++    // aren't LayoutBase subclasses remove children through removeChild.
++    if (typeof parentView.removeChild === 'function' && typeof parentView.insertChild === 'function') {
++        if (view.parent === parentView)
++            parentView.removeChild(view);
++        return;
++    }
+     if (parentView instanceof ContentView) {
+         if (parentView.content === view)
+             parentView.content = CLEARED;
+@@ -641,7 +781,7 @@ function applyCommand(container, command) {
  }
  export const nativeScriptDriver = {
      id: NATIVESCRIPT_RENDERER_ID,
@@ -199,7 +229,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..a10f12af74fd32a630b71811c3f10f93
          classify(name) {
              if (!EVENT_PROP.test(name))
 diff --git a/dist/intrinsics.d.ts b/dist/intrinsics.d.ts
-index 45a47cbbce199df9635852ca4cdb2849e9bbc83d..d555b50c08276e925132b2be9bb62302fe0a4228 100644
+index 45a47cb..d555b50 100644
 --- a/dist/intrinsics.d.ts
 +++ b/dist/intrinsics.d.ts
 @@ -24,9 +24,9 @@
@@ -223,36 +253,3 @@ index 45a47cbbce199df9635852ca4cdb2849e9bbc83d..d555b50c08276e925132b2be9bb62302
      children?: NativeScriptNode;
  }
  type Overridden = keyof CommonAttributes | keyof OctaneAttributes<unknown> | keyof CommonEvents<unknown>;
-diff --git a/dist/driver.js b/dist/driver.js
---- a/dist/driver.js
-+++ b/dist/driver.js
-@@ -188,6 +188,15 @@
-     }
-     if (parentView instanceof LayoutBase) {
-         parentView.insertChild(view, Math.min(index, parentView.getChildrenCount()));
-+        return;
-+    }
-+    // Custom-layout containers that own their child list without subclassing
-+    // LayoutBase (e.g. MasonKit ViewBase — CustomLayoutView → ContainerView).
-+    // Plain View/ContainerView lacks insertChild, so this stays a capability
-+    // check rather than a catch-all.
-+    if (typeof parentView.insertChild === 'function' && typeof parentView.removeChild === 'function') {
-+        const count = typeof parentView.getChildrenCount === 'function' ? parentView.getChildrenCount() : index;
-+        parentView.insertChild(view, Math.min(index, count));
-         return;
-     }
-     if (parentView instanceof ContentView) {
-@@ -234,6 +243,13 @@
-             parentView.removeChild(view);
-         return;
-     }
-+    // Same capability check as addViewChild: custom-layout containers that
-+    // aren't LayoutBase subclasses remove children through removeChild.
-+    if (typeof parentView.removeChild === 'function' && typeof parentView.insertChild === 'function') {
-+        if (view.parent === parentView)
-+            parentView.removeChild(view);
-+        return;
-+    }
-     if (parentView instanceof ContentView) {
-         if (parentView.content === view)
-             parentView.content = CLEARED;
