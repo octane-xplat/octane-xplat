@@ -1,5 +1,217 @@
 # Changelog
 
+## [0.15.0] - 2026-10-18
+
+### Breaking Changes
+
+- *(ui)* [**breaking**] Honor field-state and accessibility props on platform switches
+- *(ui)* [**breaking**] Give Button and menu states one spelling each
+- *(ui)* [**breaking**] Align conditioned root exports and published CSS paths
+- *(ui)* [**breaking**] Return typed handles from imperative overlay and window services
+- *(ui)* [**breaking**] Require exclusive content sources and status-typed tool calls
+- *(ui)* [**breaking**] Share keyed identity and selection across Table, TreeList, VirtualList
+- *(ui)* [**breaking**] Separate store snapshots, mutations, and reactive reads
+- *(ui)* [**breaking**] Give platform widgets matching type names
+- *(ui)* [**breaking**] Name shared prop contracts and export matching types
+- *(ui)* [**breaking**] Distinguish theme preference from resolved scheme, type styled variants and icon names
+- *(table)* [**breaking**] Annotate DataGrid example row params for noImplicitAny
+- *(ui)* [**breaking**] Reject duplicate route names with coded diagnostics
+- *(ui)* [**breaking**] Expose typed scroll handles and preserve composed refs
+- *(ui)* [**breaking**] Expose a single Markdown stream parser
+- *(ui)* [**breaking**] Unify layout value space across platforms
+- *(ui)* [**breaking**] Restore documented defaults when props are removed
+- *(ui)* [**breaking**] Tighten public prop types
+- *(ui)* [**breaking**] Move routing, data, markdown, and chat to purpose entrypoints
+- *(ui)* [**breaking**] Scope search cancellation per request
+- *(packages)* [**breaking**] Publish source with declaration entrypoints
+- *(media)* [**breaking**] Return file handles only — drop PickedImage.dataUrl
+
+### Features
+
+- *(jsx)* Add @octane-xplat/jsx shared native type facade
+- *(ui)* Restore portable query APIs and durable storage on macOS
+- *(geolocation)* Support Core Location on native macOS
+- *(motion)* Define bounded whole-word TextMorph semantics
+- *(media)* Select images through the macOS file picker
+- *(media)* Capture still photos in an app-owned macOS sheet
+- *(audio)* Add safe macOS AVPlayer playback
+- *(recorder)* Add safe macOS PCM WAV capture
+- *(sounds)* Qualify bounded AppKit sound playback
+- *(platform)* Add tagged keep-awake service and hook
+- *(lib)* Extract internal shared class-name utility
+- *(cli)* Version-pinned release docs retrieval for the MCP server
+- *(mcp)* Shared MCP contracts for identity, capabilities, permissions, and evidence
+- *(mcp)* Exact code retrieval and optional local semantic index for the MCP server
+- *(mcp)* App-declared development-action registry (package G)
+- *(mcp)* Runtime build/launch/logs/status across all six platforms
+- *(ui)* Collection data hooks — useListData/useTreeData/useAsyncList
+- *(lingui)* Locale utility hooks — useCollator/useListFormatter/useFilter
+- *(ui)* Focus family — useFocus/useFocusRing/useFocusVisible/useFocusWithin/useLandmark + FocusScope
+- *(ui)* GridList + useGridList — interactive 2D cell collection
+- *(ui)* RA utility exports — mergeProps, useKeyboard, useObjectRef, useClipboard, refList/mergedRef, copyText
+- *(mcp)* Connect installed-version documentation retrieval
+- *(macos-renderer)* Implement shared StackLayout intrinsic
+- *(mcp)* Qualify Chromium consumer inspection and input
+- *(macos-renderer)* Implement ContentView single-child lifecycle
+- *(mcp)* Qualify packed Chromium consumer over stdio
+- *(workshop)* Add @octane-xplat/workshop dev package
+- *(workshop)* Launch the Linux GTK/WebKitGTK host
+- *(workshop)* Add unqualified iOS and Android preview adapters
+- *(workshop)* Implement mobile Escape and Back dismissal contract
+- *(workshop)* Qualify the macOS AppKit/JSC workshop target
+- *(nano-icons)* Add shared-preparation icon leaf adapted from react-native-nano-icons
+- *(mcp)* Make @octane-xplat/mcp publishable in the lockstep release
+- *(camera)* Tap-to-focus via focusAtPoint and CameraView onTap (#24)
+- *(nano-icons)* Replace SVG cache adapter with the font pipeline
+- *(share)* Recover file sharing on current main
+- *(platform)* Add storage.flush() with automatic suspend/exit durability
+- *(ui)* Expose shared software keyboard inset hook
+- *(toolchain)* Single combined tsconfig program per package/app with fixed platform-suffix order
+- *(macos-renderer)* Implement DockLayout ordered edge layout
+- *(macos-renderer)* Implement WrapLayout intrinsic with wrapping lifecycle
+- *(ui)* Expose focus/outline capability contracts and split outline discovery
+- *(ui)* Report async Button action failures via onActionError
+- *(macos-renderer)* Implement viewless ProxyViewContainer projection
+- *(cli)* Capture generated macOS SDK typings from objc-metadata-generator
+- *(macos-renderer)* Switch AppKit typings to generated SDK declarations
+- *(ui)* Unify controlled/initial/change roles across inputs and overlays
+- *(ui)* Make field/menu/tab provider and accessibility composition explicit
+- *(macos-renderer)* Implement raw RootLayout host
+- *(macos-renderer)* Implement raw SearchBar host
+- *(macos-renderer)* Implement viewless FormattedString intrinsic
+- *(macos-renderer)* Implement HtmlView intrinsic
+- *(macos-renderer)* Implement ActivityIndicator intrinsic
+- *(macos-renderer)* Implement calendar-date DatePicker intrinsic
+- *(macos-renderer)* Implement and qualify ListPicker intrinsic
+- *(macos-renderer)* Implement and qualify Progress intrinsic
+- *(macos-renderer)* Implement and qualify SegmentedBar intrinsic
+- *(macos-renderer)* Implement and qualify SegmentedBarItem intrinsic
+- *(macos-renderer)* Implement and qualify TimePicker intrinsic
+- *(ui)* Expose awaitable async operations, cancellation, and pagination readiness
+- *(macos-renderer)* Implement raw ListView intrinsic
+- *(macos-renderer)* Implement raw tabview with logical item roots
+- *(cli)* Agent-facing discovery and retrieval commands
+- *(ui)* Add isolated query and icon registries
+- *(ui)* Name render callback contexts
+- *(ui)* Add serializable chat drafts, message data, and follow-latest
+- *(ui)* Normalize interaction events and expose operation outcomes
+- *(ui)* Expose focus and outline capabilities
+- *(ui)* Discriminate selection and menu contracts
+- *(create)* Add Octane Xplat library starter
+- *(camera)* Prefer supported automatic iOS stabilization (#28)
+- *(platform)* Expose platform-native types as explicit subpath modules
+- *(platform)* Generate strict macOS SDK as module-scoped types and split runtime impl
+- *(cli)* Agent-facing session and runtime commands via a per-workspace host
+- *(ui)* Portalize native RootLayout overlays
+- *(ui)* Preserve context through native portals
+- *(macos-renderer)* Support Octane portals
+- *(portals)* Preserve context across native hosts
+- *(macos)* Portal raw tab and list content from its declaring tree
+- *(ui)* Preserve context across owned services and native route boundaries
+- *(cli)* Accept a positional target in xplat dev
+- *(cli)* Resolve pnpm catalog: specifiers in patch version checks
+- *(macos-renderer)* Remote image fetch and placeholder for <image>
+- *(ui)* Port thumbhash encoder (rgbaToThumbHash) into hash-image
+- *(ui)* Export thumbhash encoders from the package root
+- *(ui)* ThumbHashUri — src → thumbhash per platform
+- *(ui)* Align useClipboard with the Astryx clipboard lifecycle
+- *(macos-renderer)* Implement raw Placeholder intrinsic
+- *(ui)* Cascade container size to controls through SizeContext
+- *(macos-renderer)* Implement raw ActionBar intrinsic
+- *(macos-renderer)* Implement raw LiquidGlass intrinsic
+- *(cli)* Add xplat fmt and hand spacing enforcement to the formatter
+- *(create)* Add `format` script to scaffolded apps
+
+### Bug Fixes
+
+- *(platform)* Report and subscribe to native macOS connectivity
+- *(biometrics)* Support Touch ID in macOS AppKit apps
+- *(ui)* Restore macOS text control interaction parity
+- *(richtext)* Apply leaf init once the Android native view exists
+- *(jsx)* Restore cachedimage in the shared extension tag set
+- *(ui)* Deliver AppKit press and swipe callbacks
+- *(media)* Keep AppKit camera permission checks passive
+- *(motion)* Isolate macOS package imports from mobile backends
+- *(push)* Safely expose unavailable macOS backend
+- *(ui)* Restore AppKit scroll viewport refs and geometry
+- *(canvas)* Safely expose unsupported AppKit contexts
+- *(motion)* Observe macOS reduced-motion preference
+- *(motion)* Map AppKit opacity and transform channels
+- *(pager)* Preserve page tracking and host updates
+- *(notifications)* Guard delivery and preserve mobile notification content
+- *(bamboo)* Validate portable config and native CSS adaptation
+- *(auth)* Guard hosted and Google sign-in session races
+- *(platform)* Close deep-link and host-protocol feedback gaps
+- *(context-menu)* Close leaf lifecycle, dismissal, and packaging gaps
+- *(gif,image)* Add windows gif stub and tighten the vendored prefetch batch
+- *(haptics)* Align engine construction, web patterns, and play contracts
+- *(image-crop)* Keep one active gesture and emit finite crops
+- *(files)* Harden pick, read, and cleanup paths
+- *(picker)* Align selection contract and web accessibility across leaves
+- *(effects)* Close wrong-OS, lifecycle, availability, and drift gaps
+- *(charts)* Tolerate bad data and colors; pick the nearest scatter point
+- *(image)* Hold resolved sources, retarget layout listeners, guard decodes
+- *(geolocation)* Add windows stub and clamp invalid accuracy
+- *(date-picker)* Align day semantics, theming, and control across leaves
+- *(canvas)* Fire web onReady once and honor string sizing
+- *(camera)* Close settle, containment, and permission-chain gaps
+- *(media)* Settle permission, picker, and capture paths like siblings
+- *(macos-renderer)* Close stale-prop, margin, scroll, and accessibility gaps
+- *(camera)* Stream host movie files in chunks instead of one base64 payload
+- *(bamboo)* Ship a typed surface for the published exports
+- *(ios)* Repair two Swift compile defects in picker and effects leaves
+- *(media)* Register AppKit still captures for release and qualify the real sheet
+- *(ui)* Name iOS tap-to-blur member after its exposed selector
+- *(camera)* Validate chunked movie transfers and clean owned staging
+- *(rolling-text)* Add AppKit host and settle reduced-motion updates
+- *(lottie)* Widen intrinsic className typing via octane 0.2.4
+- *(platform)* Add .js to import() specifiers in macOS declarations
+- *(cli)* Bind installed tarballs to versioned MCP docs
+- *(workshop)* Report Windows prerequisites and block unqualified launch
+- *(typecheck)* Satisfy the windows program's merged timer globals and Utils stub
+- *(macos-renderer)* Unbind dropped on* props on host updates
+- *(ui)* Preserve composite grid placement and reflow late children
+- *(ui)* Add LiquidGlass blur fallback and opt-in interaction
+- *(lint)* Stop the tsrx pass at nested repository boundaries
+- *(macos-renderer)* Match DockLayout percentage measurement basis
+- *(nano-icons)* Use explicit glyph line heights and satisfy lint
+- *(table)* Annotate DataGrid example rows with the full data type
+- *(ui)* Keep syntax token offsets within each line
+- *(lib)* Allow emitting build with TypeScript extensions disabled
+- *(camera)* Accept unboxed iOS dictionary values (#26)
+- *(camera)* Reset iOS interruption state on teardown (#27)
+- *(ui)* Export SearchRequest from the package root
+- *(macos)* Adapt app and renderer to the strict generated AppKit surface
+- Exclude generated macos types from octane transform; disable ts-ext imports in lib build
+- *(macos-renderer)* Drop ambient SDK tree from the typecheck program
+- *(macos-renderer)* Import native names in packed lifecycle fixtures
+- *(ui)* Keep native element typings internal
+- *(runtime)* Dispose empty DOM provider content
+- *(ui)* Share Android sheet keyboard inset bindings
+- *(native)* Align Pager hooks and probe containers with portals
+- *(cli)* Keep typegen watch running past a broken package
+- *(macos-renderer)* Read NSArray.count as a property
+- *(charts)* Align octane dev dep on the augmented intrinsics copy
+- *(ui)* Wire parity entrypoints into typegen and export types
+- *(create)* Restore scaffold-reproducible tsconfig array formatting
+- *(lint)* Unflag native-portal imports, stale Link entry, generated typings
+- *(platform)* Restore Runtime.d.ts filename casing for case-sensitive checkouts
+- *(platform)* Restore prop-removal resets in the octane 0.2.5 driver patch
+- *(platform)* Add src/ios+android shims for the src-subpath convention
+
+### Refactoring
+
+- *(ui)* Split Select into container and internal SelectView
+- *(ui)* Isolate resolved PowerSearch family presentation
+- *(ui)* Split BaseTypeahead into container and internal BaseTypeaheadView
+- *(ui)* Make ComplexSelector presentation independently renderable
+- *(leaves)* Remove redundant cx helpers
+- *(typecheck)* Replace per-platform tsconfigs with shared tsconfig.envs.json
+- *(macos-renderer)* Move AppKit surface off ambient globals
+- Import platform-native names via @octane-xplat/platform subpaths
+- *(cli)* Own the dev loop — xplat dev <target> replaces per-app shims
+- *(parity)* Co-locate fixtures and checks with their components
+
 ## [0.14.0] - 2026-10-11
 
 ### Features
