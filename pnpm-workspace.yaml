@@ -195,12 +195,11 @@ patchedDependencies:
   # types, and preserves authored Grid row/col/span metadata. Hosts custom-layout containers
   # (e.g. MasonKit ViewBase) that own child lists via
   # insertChild/removeChild/getChildrenCount without subclassing LayoutBase. Additionally,
-  # the masonry cutover:
-  # stacklayout/flexboxlayout/gridlayout/wraplayout/absolutelayout/docklayout resolve to
-  # MasonKit View and scrollview to MasonKit Scroll (plus masonview/masonscroll tags), with
-  # the driver translating NS-shaped container and child props (orientation, rows/columns,
-  # dock edges, grid placement, absolute insets, attached alignment, flex/gap props) into
-  # mason Style writes — including foreign-child leaves via Style.fromView after attach.
+  # the masonry cutover: masonview resolves to MasonKit View and scrollview to MasonKit
+  # Scroll as the only layout containers, with the driver forwarding CSS-shaped props to
+  # mason Style and translating LayoutChildProps sugar (grid row/col/span, dock, edge
+  # insets, attached alignment) into style writes — including foreign-child leaves via
+  # Style.fromView after attach.
   "@nativescript-community/octane@0.2.5": packages/cli/patches/@nativescript-community__octane@0.2.5.patch
   # octaneServerStrategy's SCRIPT_FILE_RE only covers [jt]sx? — .tsrx edits never emit the
   # deferred ns:hmr-delta broadcast, so component HMR silently never reaches the device.

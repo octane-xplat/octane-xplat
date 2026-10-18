@@ -549,12 +549,7 @@ const HTML_ONLY_TAGS = new Set([
 
 // NativeScript views with no HTML counterpart — dead in .web.*.
 const NS_ONLY_TAGS = new Set([
-	'gridlayout',
-	'flexboxlayout',
-	'stacklayout',
-	'absolutelayout',
-	'docklayout',
-	'wraplayout',
+	'masonview',
 	'page',
 	'contentview',
 	'scrollview',

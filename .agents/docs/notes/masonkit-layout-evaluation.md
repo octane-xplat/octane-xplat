@@ -136,21 +136,26 @@ round-trip.
 
 ## Cutover (hard, pre-alpha)
 
-Mason is the only native layout engine — the container intrinsics kept their
-names and changed substrate:
+Mason is the only native layout engine. The vocabulary collapsed to the CSS
+core — `masonview` is the single layout intrinsic on every native target,
+with `scrollview`/`liquidglass` as the chrome-wrapped hosts:
 
 - **macOS**: `packages/macos-renderer/src/mason.ts` registers Mason-backed
-  behaviors for `stacklayout`/`flexboxlayout`/`gridlayout`/`wraplayout`/
-  `absolutelayout`/`docklayout`/`scrollview`/`liquidglass`/`masonview`.
-  `scrollview` keeps `NSScrollView` chrome with a mason document host. The
-  classic NSStackView/manual engines are deleted; `AccessibleHostView`
-  preserves the tap/AX surface on mason containers.
+  behaviors for `masonview`/`scrollview`/`liquidglass` only. `scrollview`
+  keeps `NSScrollView` chrome with a mason document host; `orientation`
+  stays on the builtin scrollview path (`configureScrollAxes`), styleDict
+  re-reads it for flexDirection. The classic NSStackView/manual engines are
+  deleted; `AccessibleHostView` preserves the tap/AX surface on mason
+  containers.
 - **iOS/Android (+Windows runtime)**: `@nativescript-community/octane` patch
-  maps the tags to MasonKit `View`/`Scroll` in `elements.js`, and `driver.js`
-  translates NS-shaped props into `view.style` writes. Foreign children get
-  their leaf style via `Style.fromView` replayed at `attach` — see
-  upstream-limitation rows in `feedback_observations` (no mason style buffer
-  on plain views; no view-level CssProperties on mason's ViewBase).
+  maps `masonview` to MasonKit `View` and `scrollview` to MasonKit `Scroll`
+  in `elements.js`. `driver.js` forwards CSS-shaped props to `view.style`
+  and translates LayoutChildProps sugar (`row`/`col`/`span` → grid lines,
+  `dock`/edges → absolute insets, attached alignment → cross-axis
+  self-align) on the child, replayed at `attach` via `Style.fromView` for
+  foreign leaves — see upstream-limitation rows in `feedback_observations`
+  (no mason style buffer on plain views; no view-level CssProperties on
+  mason's ViewBase).
 - **Web**: unchanged — DOM CSS implements the same model; Mason never runs.
 
 Runtime evidence: `research/mason/mason-cutover.macos.tsrx` — 10/10

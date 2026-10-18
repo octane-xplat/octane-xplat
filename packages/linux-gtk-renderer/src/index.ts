@@ -160,15 +160,10 @@ let applyingDepth = 0
 
 function instantiate(type: string): GtkView {
 	switch (type) {
-		case 'stack':
-		case 'stacklayout':
+		// Pre-mason GTK container — the mason binding (Goddard task
+		// 9c312aa7) replaces this Box mapping with the engine.
+		case 'masonview':
 			return new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 0 })
-		case 'flexboxlayout':
-			return new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 0 })
-		case 'absolutelayout':
-			return new Gtk.Fixed()
-		case 'gridlayout':
-			return new Gtk.Grid()
 		case 'label':
 			return new Gtk.Label({ label: '', xalign: 0 })
 		case 'button':
@@ -424,10 +419,7 @@ const RESET_DEFAULTS: Record<string, Record<string, unknown>> = {
 	progress: { value: 0, maxValue: 100 },
 	activityindicator: { busy: false },
 	scrollview: { orientation: 'vertical', scrollBarIndicatorVisible: true, isScrollEnabled: true },
-	stacklayout: { spacing: 0, orientation: 'vertical' },
-	stack: { spacing: 0, orientation: 'vertical' },
-	flexboxlayout: { spacing: 0, flexDirection: 'row' },
-	gridlayout: { rowSpacing: 0, columnSpacing: 0 },
+	masonview: { spacing: 0, orientation: 'vertical' },
 }
 
 const ALIGN: Record<string, Gtk.Align> = {
@@ -786,9 +778,7 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 	}
 
 	switch (node.type) {
-		case 'stack':
-		case 'stacklayout':
-		case 'flexboxlayout':
+		case 'masonview':
 			if (name === 'spacing' || name === 'gap' || name === 'rowGap' || name === 'columnGap') {
 				view.spacing = Number(value)
 			} else if (name === 'orientation' || name === 'flexDirection') {
@@ -796,18 +786,6 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			} else {
 				warn(`<${node.type}> ignored prop ${name}`)
 			}
-			return
-		case 'gridlayout':
-			if (name === 'rowSpacing') {
-				view.row_spacing = Number(value)
-			} else if (name === 'columnSpacing') {
-				view.column_spacing = Number(value)
-			} else {
-				warn(`<gridlayout> ignored prop ${name}`)
-			}
-			return
-		case 'absolutelayout':
-			warn(`<absolutelayout> ignored prop ${name}`)
 			return
 		case 'label':
 			if (name === 'text' || name === 'value') {

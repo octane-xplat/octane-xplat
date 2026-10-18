@@ -235,7 +235,21 @@ export type Attributes<TElement, Props = object> = OctaneAttributes<TElement> &
 // contract; `HostObject`-typed members carry platform objects (see above).
 // ---------------------------------------------------------------------------
 
-export interface FlexLayoutProps {
+/** The single layout container — CSS layout semantics backed by Mason on
+ *  every native target. `display` selects the algorithm; flex/grid item and
+ *  container props follow their CSS names. Child-role sugar keeps the shared
+ *  LayoutChildProps vocabulary: row/col/rowSpan/colSpan become grid lines,
+ *  left/top/right/bottom and dock become absolute insets, and
+ *  horizontalAlignment/verticalAlignment map to self-alignment on the
+ *  parent's axes. */
+export interface MasonViewProps {
+	display?: 'flex' | 'grid' | 'block' | 'inline' | 'inline-block' | 'inline-flex' | 'inline-grid' | 'none'
+	position?: 'relative' | 'absolute'
+	inset?: number | string
+	left?: number | string
+	top?: number | string
+	right?: number | string
+	bottom?: number | string
 	flexDirection?: 'row' | 'column' | 'row-reverse' | 'column-reverse'
 	flexWrap?: 'nowrap' | 'wrap' | 'wrap-reverse'
 	justifyContent?:
@@ -250,25 +264,37 @@ export interface FlexLayoutProps {
 	gap?: number | string
 	rowGap?: number | string
 	columnGap?: number | string
-}
-
-export interface GridLayoutProps {
-	rows?: string
-	columns?: string
-}
-
-export interface StackLayoutProps {
-	orientation?: 'horizontal' | 'vertical'
-}
-
-export interface WrapLayoutProps {
-	orientation?: 'horizontal' | 'vertical'
-	itemWidth?: number
-	itemHeight?: number
-}
-
-export interface DockLayoutProps {
-	stretchLastChild?: boolean
+	flexGrow?: number
+	flexShrink?: number
+	flexBasis?: number | string
+	alignSelf?: string
+	justifySelf?: string
+	order?: number
+	overflow?: 'visible' | 'hidden' | 'scroll'
+	overflowX?: 'visible' | 'hidden' | 'scroll'
+	overflowY?: 'visible' | 'hidden' | 'scroll'
+	gridTemplateRows?: string
+	gridTemplateColumns?: string
+	gridTemplateAreas?: string
+	gridAutoFlow?: 'row' | 'column' | 'dense' | 'row dense' | 'column dense'
+	gridAutoRows?: string
+	gridAutoColumns?: string
+	gridRow?: string
+	gridColumn?: string
+	gridRowStart?: string | number
+	gridRowEnd?: string | number
+	gridColumnStart?: string | number
+	gridColumnEnd?: string | number
+	gridArea?: string
+	aspectRatio?: number
+	// LayoutChildProps sugar — see the interface doc.
+	row?: number
+	col?: number
+	rowSpan?: number
+	colSpan?: number
+	dock?: 'left' | 'top' | 'right' | 'bottom'
+	horizontalAlignment?: 'left' | 'right' | 'center' | 'stretch'
+	verticalAlignment?: 'top' | 'bottom' | 'middle' | 'center' | 'stretch'
 }
 
 export interface TextBaseProps {
@@ -643,13 +669,8 @@ export interface GoogleSignInButtonProps {
  * `@octane-xplat/jsx/intrinsics`.
  */
 export interface NativeElements<TElement> {
-	// Layouts
-	absolutelayout: Attributes<TElement>
-	docklayout: Attributes<TElement, DockLayoutProps>
-	flexboxlayout: Attributes<TElement, FlexLayoutProps>
-	gridlayout: Attributes<TElement, GridLayoutProps>
-	stacklayout: Attributes<TElement, StackLayoutProps>
-	wraplayout: Attributes<TElement, WrapLayoutProps>
+	// Layout
+	masonview: Attributes<TElement, MasonViewProps>
 	contentview: Attributes<TElement>
 	proxyviewcontainer: Attributes<TElement>
 	rootlayout: Attributes<TElement>

@@ -29,7 +29,7 @@ const SUPPORTED = new Set(registry.properties)
 // Anything else dropped is an ERROR: wrap it in xplat-web-only or fix it.
 const DROPPED_INTENTIONAL = new Map(
 	Object.entries({
-		display: 'element tag owns the layout type on native (flexboxlayout/gridlayout)',
+		display: 'element style owns the layout type on native (masonview display prop)',
 		'border-style': 'native draws a solid border when width+color are set; style is web-only',
 		'grid-area': 'vx-stack overlay on native = all children in cell 0,0 by default',
 		'aspect-ratio': 'no native analog — kept for web-only surfaces',

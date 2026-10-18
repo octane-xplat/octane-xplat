@@ -21,7 +21,7 @@ type SameMembers<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : fa
 export type SharedTags = Tags<JSX.IntrinsicElements>
 type _MembershipParity = Expect<SameMembers<SharedTags, Tags<MacJSX.IntrinsicElements>>>
 
-const coreTag: SharedTags = 'flexboxlayout'
+const coreTag: SharedTags = 'masonview'
 const textNode: SharedTags = '#text'
 const extensionTag: SharedTags = 'svgview'
 const extensionTag2: SharedTags = 'googlesigninbutton'
@@ -97,32 +97,28 @@ const macContent: MacJSX.IntrinsicElements['contentview'] = {
 void sharedContent
 void macContent
 
-// DockLayout retains the shared primitive contract across target conditions.
-const dockProps: JSX.IntrinsicElements['docklayout'] = { stretchLastChild: false }
+// The mason container retains the shared primitive contract across target
+// conditions — CSS layout props and the LayoutChildProps sugar surface.
+const masonProps: JSX.IntrinsicElements['masonview'] = {
+	display: 'grid',
+	gridTemplateColumns: '1fr 2fr',
+}
 const dockChildProps: JSX.IntrinsicElements['label'] = { dock: 'right' }
-void dockProps
+void masonProps
 void dockChildProps
-// @ts-expect-error stretchLastChild accepts only boolean
-const badDockProps: JSX.IntrinsicElements['docklayout'] = { stretchLastChild: 'false' }
+// @ts-expect-error display is a closed union
+const badMasonProps: JSX.IntrinsicElements['masonview'] = { display: 'table' }
 // @ts-expect-error attached dock edges are closed
 const badDockChildProps: JSX.IntrinsicElements['label'] = { dock: 'center' }
-void badDockProps
+void badMasonProps
 void badDockChildProps
 
-const wrapProps: JSX.IntrinsicElements['wraplayout'] = {
-	orientation: 'horizontal',
-	itemWidth: 0,
-	itemHeight: 30,
+const macMasonProps: MacJSX.IntrinsicElements['masonview'] = {
+	flexDirection: 'column',
+	gap: 8,
 }
 
-const macWrapProps: MacJSX.IntrinsicElements['wraplayout'] = {
-	orientation: 'vertical',
-	itemWidth: 30,
-	itemHeight: 0,
-}
-
-void wrapProps
-void macWrapProps
+void macMasonProps
 // @ts-expect-error WrapLayout size is numeric
 const badWrapSize: JSX.IntrinsicElements['wraplayout'] = { itemWidth: '30' }
 // @ts-expect-error WrapLayout direction is closed
