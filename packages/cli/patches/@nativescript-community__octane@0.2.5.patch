@@ -1,8 +1,8 @@
 diff --git a/dist/driver.js b/dist/driver.js
-index 8bc563a..92aa4e3 100644
+index 8bc563a..543556d 100644
 --- a/dist/driver.js
 +++ b/dist/driver.js
-@@ -3,6 +3,7 @@
+@@ -3,6 +3,7 @@ import { createUniversalRoot, } from 'octane/universal/native';
  import { NATIVESCRIPT_RENDERER_ID } from './config.js';
  import { ELEMENTS, EVENT_PROP, eventNameFor, onElementReplaced, } from './elements.js';
  import { releaseListView, setRenderItem, } from './list-view.js';
@@ -10,7 +10,7 @@ index 8bc563a..92aa4e3 100644
  /** `#text` nodes carry no view; the driver folds them into the parent's `text`. */
  const TEXT = '#text';
  /**
-@@ -73,7 +74,10 @@
+@@ -73,7 +74,10 @@ function instantiate(type) {
      if (Element === undefined) {
          throw new Error(`NativeScript driver: <${type}> is not a registered element.`);
      }
@@ -22,7 +22,7 @@ index 8bc563a..92aa4e3 100644
  }
  function applyProps(node, props) {
      if (node.view === null) {
-@@ -91,13 +95,23 @@
+@@ -91,13 +95,23 @@ function applyProps(node, props) {
      }
  }
  /**
@@ -50,7 +50,7 @@ index 8bc563a..92aa4e3 100644
  }
  function setProp(node, view, name, value) {
      if (name === 'children' || name === 'key' || name === 'ref')
-@@ -113,13 +127,42 @@
+@@ -113,13 +127,46 @@ function setProp(node, view, name, value) {
          return;
      }
      if (name === 'style') {
@@ -76,6 +76,10 @@ index 8bc563a..92aa4e3 100644
 +    }
 +    if (MASON_CONTAINER_TAGS.has(node.type))
 +        applyMasonContainerProp(node, view, name, value);
++    if (MASON_STYLE_ONLY_PROPS.has(name) &&
++        (MASON_CONTAINER_TAGS.has(node.type) ||
++            (node.parent !== null && MASON_CONTAINER_TAGS.has(node.parent.type))))
++        warnStyleOnlyProp(node, name);
 +    // `null`/`unsetValue` restore the prop's default rather than writing a
 +    // literal null through a native setter. `undefined` is a removal: skip it
 +    // when nothing applied (NativeScript setters coerce it badly) and reset
@@ -94,7 +98,7 @@ index 8bc563a..92aa4e3 100644
      // Core raises `<name>Change` for a script write exactly as for a user
      // edit; a controlled input must not see its own value come back as one.
      const echo = `${name}Change`;
-@@ -134,6 +177,51 @@
+@@ -134,6 +181,51 @@ function setProp(node, view, name, value) {
              node.muted.delete(echo);
      }
  }
@@ -146,7 +150,7 @@ index 8bc563a..92aa4e3 100644
  // `class`/`className` compose clsx-style on the DOM renderer; join arrays
  // with spaces so NativeScript's class selectors can match each class.
  function normalizeClass(value) {
-@@ -147,16 +235,279 @@
+@@ -147,16 +239,314 @@ function normalizeClass(value) {
              .join(' ');
      return '';
  }
@@ -166,21 +170,33 @@ index 8bc563a..92aa4e3 100644
 +        clearStyleKeys(view, applied);
          view.setInlineStyle(value);
 +        node.styleKeys = inlineStyleKeys(value);
++        return;
++    }
++    if (value == null || value === unsetValue || typeof value !== 'object') {
++        clearStyleKeys(view, applied);
          return;
      }
 -    if (typeof value === 'object')
 -        Object.assign(view.style, value);
-+    if (value == null || value === unsetValue || typeof value !== 'object') {
-+        clearStyleKeys(view, applied);
-+        return;
-+    }
 +    if (applied !== undefined) {
 +        for (const key of applied) {
 +            if (!(key in value))
 +                unsetStyleKey(view, key);
 +        }
 +    }
++    // Mason layout keys target the leaf style under a mason parent —
++    // `view.style` is the NS surface where they land as dead fields. The leaf
++    // style exists only once the parent attaches the view, so entries are
++    // stashed and replayed by applyMasonChildLayout.
++    const parentIsMason = node.parent !== null && MASON_CONTAINER_TAGS.has(node.parent.type);
++    const masonLeaf = parentIsMason ? masonChildStyle(view) : undefined;
 +    for (const [key, nextValue] of Object.entries(value)) {
++        if (MASON_LEAF_STYLE_KEYS.has(key)) {
++            const leafStash = view[MASON_LEAF_STYLE_STASH] ?? (view[MASON_LEAF_STYLE_STASH] = {});
++            leafStash[key] = nextValue == null ? undefined : nextValue;
++            if (masonLeaf !== undefined)
++                masonLeaf[key] = nextValue == null ? undefined : nextValue;
++        }
 +        if (nextValue == null)
 +            unsetStyleKey(view, key);
 +        else
@@ -193,7 +209,7 @@ index 8bc563a..92aa4e3 100644
 +        return;
 +    for (const key of keys)
 +        unsetStyleKey(view, key);
-+}
+ }
 +function unsetStyleKey(view, name) {
 +    const style = view.style;
 +    if (name.startsWith('--')) {
@@ -229,35 +245,47 @@ index 8bc563a..92aa4e3 100644
 +// write is forwarded to the mason Style surface instead.
 +const MASON_CONTAINER_STYLE_PROPS = new Set([
 +    'flexDirection', 'flexWrap', 'justifyContent', 'alignItems', 'alignContent',
-+    'order', 'gap', 'rowGap', 'columnGap', 'display', 'position', 'aspectRatio',
-+    'overflow', 'overflowX', 'overflowY', 'inset', 'left', 'right', 'top',
-+    'bottom', 'gridTemplateRows', 'gridTemplateColumns', 'gridTemplateAreas',
-+    'gridAutoFlow', 'gridAutoRows', 'gridAutoColumns', 'gridRow', 'gridColumn',
-+    'gridRowStart', 'gridRowEnd', 'gridColumnStart', 'gridColumnEnd', 'gridArea',
-+    'alignSelf', 'justifySelf', 'flexGrow', 'flexShrink', 'flexBasis',
++    'gap', 'rowGap', 'columnGap',
 +]);
 +// Child-role props that only matter under a mason parent; stashed on the view
-+// at setProp time and replayed once attach gives the leaf a mason node.
-+// Covers the shared LayoutChildProps sugar (row/col/dock/edges/attached
-+// alignment) and the CSS leaf props an author can set directly.
++// at setProp time and replayed once attach gives the leaf a mason node. This
++// is the shared LayoutChildProps contract — raw CSS keys go through `style`.
 +const MASON_CHILD_PROPS = new Set([
 +    'row', 'col', 'rowSpan', 'colSpan', 'dock', 'left', 'top', 'right',
 +    'bottom', 'horizontalAlignment', 'verticalAlignment', 'flexGrow',
-+    'flexShrink', 'flexBasis', 'alignSelf', 'justifySelf', 'order',
-+    'position', 'inset', 'display', 'overflow', 'overflowX', 'overflowY',
-+    'gridRow', 'gridColumn', 'gridRowStart', 'gridRowEnd', 'gridColumnStart',
-+    'gridColumnEnd', 'gridArea',
++    'flexShrink', 'alignSelf', 'order',
 +]);
 +const MASON_CHILD_STASH = Symbol.for('octane-xplat.mason-child-props');
-+// CSS leaf props forwarded verbatim under a mason parent (subset of the
-+// container set that can appear on a child).
-+const MASON_CHILD_CSS_PROPS = [
-+    'position', 'inset', 'left', 'top', 'right', 'bottom', 'display',
-+    'overflow', 'overflowX', 'overflowY', 'gridRow', 'gridColumn',
-+    'gridRowStart', 'gridRowEnd', 'gridColumnStart', 'gridColumnEnd',
-+    'gridArea', 'alignSelf', 'justifySelf', 'flexGrow', 'flexShrink',
-+    'flexBasis', 'order', 'aspectRatio',
-+];
++const MASON_LEAF_STYLE_STASH = Symbol.for('octane-xplat.mason-leaf-style');
++// LayoutChildProps members that are already CSS leaf styles — forwarded
++// verbatim under a mason parent.
++const MASON_CHILD_CSS_PROPS = ['flexGrow', 'flexShrink', 'alignSelf', 'order'];
++// Mason style keys that must arrive through `style`/`className`. As direct
++// props they land on a dead native field, so the driver warns once per key
++// instead of silently dropping the write.
++const MASON_STYLE_ONLY_PROPS = new Set([
++    'display', 'position', 'inset', 'aspectRatio', 'overflow', 'overflowX',
++    'overflowY', 'flexBasis', 'justifySelf', 'gridTemplateRows',
++    'gridTemplateColumns', 'gridTemplateAreas', 'gridAutoFlow', 'gridAutoRows',
++    'gridAutoColumns', 'gridRow', 'gridColumn', 'gridRowStart', 'gridRowEnd',
++    'gridColumnStart', 'gridColumnEnd', 'gridArea',
++]);
++// Style-bag keys that mason owns — under a mason parent these are written to
++// the child's mason leaf style in addition to the NS style surface.
++const MASON_LEAF_STYLE_KEYS = new Set([
++    ...MASON_STYLE_ONLY_PROPS, 'left', 'top', 'right', 'bottom',
++    'flexGrow', 'flexShrink', 'alignSelf', 'order', 'flexDirection',
++    'flexWrap', 'justifyContent', 'alignItems', 'alignContent', 'gap',
++    'rowGap', 'columnGap',
++]);
++const warnedStyleOnlyProps = new Set();
++function warnStyleOnlyProp(node, name) {
++    const key = node.type + ':' + name;
++    if (warnedStyleOnlyProps.has(key))
++        return;
++    warnedStyleOnlyProps.add(key);
++    console.warn(`[xplat] <${node.type} ${name}=...> is a Mason style key — move it into style={{ ${name}: ... }} or a class.`);
++}
 +
 +/** A mason Style bound to the node's mason leaf — `_styleHelper` on MasonKit's
 + *  own views; for foreign ({N}-native) children, `Style.fromView` binds the
@@ -278,7 +306,7 @@ index 8bc563a..92aa4e3 100644
 +    catch {
 +        return undefined;
 +    }
- }
++}
 +
 +/** NS attached alignment -> CSS self-alignment keyword. */
 +function masonAlignKeyword(value) {
@@ -354,6 +382,13 @@ index 8bc563a..92aa4e3 100644
 +    const props = node.props ?? {};
 +    const stash = view[MASON_CHILD_STASH] ?? {};
 +    const get = (name) => (name in stash ? stash[name] : props[name]);
++    // Authored style-bag keys destined for the leaf — replayed here because
++    // they may have arrived before the leaf existed.
++    const leafStash = view[MASON_LEAF_STYLE_STASH];
++    if (leafStash !== undefined) {
++        for (const key of Object.keys(leafStash))
++            style[key] = leafStash[key];
++    }
 +    // CSS leaf props pass straight through.
 +    for (const name of MASON_CHILD_CSS_PROPS) {
 +        const v = get(name);
@@ -395,13 +430,17 @@ index 8bc563a..92aa4e3 100644
 +            hasEdge = true;
 +        }
 +    }
-+    if (hasEdge && get('position') == null && dock == null) {
++    // `position` arrives only through the authored style bag (styleKeys) —
++    // an authored value wins over the edge/dock sugar's absolute write.
++    const authoredPosition = node.styleKeys != null && node.styleKeys.has('position');
++    if (hasEdge && !authoredPosition && dock == null) {
 +        style.position = 'absolute';
 +        stash.__hadPosition = true;
 +    }
-+    else if (!hasEdge && dock == null && stash.__hadPosition === true && get('position') == null) {
-+        // Edges/dock removed — restore the containing-block position.
-+        style.position = 'static';
++    else if (!hasEdge && dock == null && stash.__hadPosition === true && !authoredPosition) {
++        // Edges/dock removed — restore the containing-block position
++        // ('relative' is the masonview default).
++        style.position = MASON_CONTAINER_TAGS.has(node.type) ? 'relative' : 'static';
 +        stash.__hadPosition = false;
 +    }
 +    // Attached alignment: grid parents consume both axes; flex parents take
@@ -431,7 +470,7 @@ index 8bc563a..92aa4e3 100644
  /** Recompute a text host's `text` from its `#text` children. */
  function syncText(parent) {
      if (parent === null || isPortalTarget(parent))
-@@ -190,6 +541,15 @@
+@@ -190,6 +580,15 @@ function addViewChild(parentView, view, index) {
          parentView.insertChild(view, Math.min(index, parentView.getChildrenCount()));
          return;
      }
@@ -447,21 +486,21 @@ index 8bc563a..92aa4e3 100644
      if (parentView instanceof ContentView) {
          parentView.content = view;
          return;
-@@ -230,6 +590,13 @@
-     if (parentView instanceof LayoutBase) {
-         // `removeChild` throws for a view that is not attached — and `insert`
-         // detaches unconditionally, including nodes that were never attached.
+@@ -234,6 +633,13 @@ function removeViewChild(parentView, view) {
+             parentView.removeChild(view);
+         return;
+     }
++    // Same capability check as addViewChild: custom-layout containers that
++    // aren't LayoutBase subclasses remove children through removeChild.
++    if (typeof parentView.removeChild === 'function' && typeof parentView.insertChild === 'function') {
 +        if (view.parent === parentView)
 +            parentView.removeChild(view);
 +        return;
 +    }
-+    // Same capability check as addViewChild: custom-layout containers that
-+    // aren't LayoutBase subclasses remove children through removeChild.
-+    if (typeof parentView.removeChild === 'function' && typeof parentView.insertChild === 'function') {
-         if (view.parent === parentView)
-             parentView.removeChild(view);
-         return;
-@@ -370,6 +737,13 @@
+     if (parentView instanceof ContentView) {
+         if (parentView.content === view)
+             parentView.content = CLEARED;
+@@ -370,6 +776,13 @@ function attach(container, node) {
          }
      }
      addViewChild(parentView, node.view, index);
@@ -475,7 +514,7 @@ index 8bc563a..92aa4e3 100644
      markTabView(tabViewOwning(node));
  }
  function insert(container, parent, node, before) {
-@@ -548,7 +922,7 @@
+@@ -548,7 +961,7 @@ function preparePortalTarget(context) {
      }
      const target = owner?.node.view ?? suppliedTarget;
      if (!(target instanceof LayoutBase)) {
@@ -484,7 +523,7 @@ index 8bc563a..92aa4e3 100644
      }
      let id = portalTargetIds.get(target);
      if (id === undefined) {
-@@ -641,7 +1015,7 @@
+@@ -641,7 +1054,7 @@ function applyCommand(container, command) {
  }
  export const nativeScriptDriver = {
      id: NATIVESCRIPT_RENDERER_ID,
@@ -506,7 +545,7 @@ index a13bcea..e9988e1 100644
  /**
   * Lowercase tag name -> view constructor. The keys are the JSX tag names of
   * `intrinsics.ts`; an app extends the vocabulary with `registerElement`.
-@@ -28,18 +31,14 @@
+@@ -28,18 +31,14 @@ export function onElementReplaced(listener) {
      };
  }
  const BUILTIN_ELEMENTS = [
@@ -525,7 +564,7 @@ index a13bcea..e9988e1 100644
      ['htmlview', HtmlView],
      ['image', Image],
      ['label', Label],
-@@ -51,13 +50,12 @@
+@@ -51,13 +50,12 @@ const BUILTIN_ELEMENTS = [
      ['progress', Progress],
      ['proxyviewcontainer', ProxyViewContainer],
      ['rootlayout', RootLayout],
@@ -540,7 +579,7 @@ index a13bcea..e9988e1 100644
      ['switch', Switch],
      ['tabview', TabView],
      ['tabviewitem', TabViewItem],
-@@ -65,8 +63,8 @@
+@@ -65,8 +63,8 @@ const BUILTIN_ELEMENTS = [
      ['textview', TextView],
      ['timepicker', TimePicker],
      ['webview', WebView],
@@ -551,7 +590,7 @@ index a13bcea..e9988e1 100644
  for (const [tag, element] of BUILTIN_ELEMENTS)
      registerElement(tag, element);
 diff --git a/dist/intrinsics.d.ts b/dist/intrinsics.d.ts
-index 45a47cb..518892e 100644
+index 45a47cb..0c4d793 100644
 --- a/dist/intrinsics.d.ts
 +++ b/dist/intrinsics.d.ts
 @@ -24,9 +24,9 @@
@@ -566,7 +605,70 @@ index 45a47cb..518892e 100644
  /**
   * The driver assigns every non-event prop onto the view instance, so a JSX
   * attribute is a NativeScript view property rather than a DOM attribute.
-@@ -117,25 +117,21 @@
+@@ -76,12 +76,61 @@ export interface CommonEvents<TInstance> {
+ export type ClassValue = string | boolean | null | undefined | readonly ClassValue[] | {
+     readonly [className: string]: unknown;
+ };
++/** Mason engine style keys accepted through `style`/`className` — under a
++ * masonview parent a child's leaf style consumes them; on a masonview they
++ * are the container's own layout. These are the only way to set raw layout
++ * properties: direct props of the same names are rejected by the driver. */
++export interface MasonStyleProps {
++    display?: string;
++    position?: string;
++    inset?: number | string;
++    left?: number | string;
++    top?: number | string;
++    right?: number | string;
++    bottom?: number | string;
++    direction?: string;
++    boxSizing?: string;
++    flexDirection?: string;
++    flexWrap?: string;
++    justifyContent?: string;
++    justifyItems?: string;
++    justifySelf?: string;
++    alignItems?: string;
++    alignContent?: string;
++    alignSelf?: string;
++    textAlign?: string;
++    gap?: number | string;
++    rowGap?: number | string;
++    columnGap?: number | string;
++    flexGrow?: number;
++    flexShrink?: number;
++    flexBasis?: number | string;
++    order?: number;
++    aspectRatio?: number;
++    overflow?: string;
++    overflowX?: string;
++    overflowY?: string;
++    scrollbarWidth?: number;
++    gridTemplateRows?: string;
++    gridTemplateColumns?: string;
++    gridTemplateAreas?: string;
++    gridAutoFlow?: string;
++    gridAutoRows?: string;
++    gridAutoColumns?: string;
++    gridRow?: string;
++    gridColumn?: string;
++    gridRowStart?: string | number;
++    gridRowEnd?: string | number;
++    gridColumnStart?: string | number;
++    gridColumnEnd?: string | number;
++    gridArea?: string;
++}
+ export interface CommonAttributes {
+     /** Resolved against `app.css`. */
+     className?: ClassValue;
+     class?: ClassValue;
+     /** A string is parsed as inline CSS; an object is assigned onto `view.style`. */
+-    style?: string | Partial<NS.Style>;
++    style?: string | Partial<NS.Style> | MasonStyleProps;
+     /**
+      * Name of the property on a slot-hosting parent (e.g. a drawer's
+      * `mainContent` / `leftDrawer`) this child should be assigned to instead of
+@@ -117,25 +166,21 @@ export interface ListViewAttributes {
  }
  export interface OctaneAttributes<TInstance> {
      key?: string | number;
@@ -593,7 +695,7 @@ index 45a47cb..518892e 100644
      htmlview: Attributes<typeof NS.HtmlView>;
      image: Attributes<typeof NS.Image>;
      label: Attributes<typeof NS.Label>;
-@@ -153,7 +149,6 @@
+@@ -153,7 +198,6 @@ export interface NativeScriptElements {
      segmentedbaritem: Attributes<typeof NS.SegmentedBarItem>;
      slider: Attributes<typeof NS.Slider>;
      span: Attributes<typeof NS.Span>;
@@ -601,7 +703,7 @@ index 45a47cb..518892e 100644
      switch: Attributes<typeof NS.Switch>;
      tabview: Attributes<typeof NS.TabView>;
      tabviewitem: Attributes<typeof NS.TabViewItem>;
-@@ -161,7 +156,8 @@
+@@ -161,7 +205,8 @@ export interface NativeScriptElements {
      textview: Attributes<typeof NS.TextView>;
      timepicker: Attributes<typeof NS.TimePicker>;
      webview: Attributes<typeof NS.WebView>;
