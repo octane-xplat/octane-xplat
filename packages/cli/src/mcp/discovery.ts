@@ -97,7 +97,7 @@ export function detectPlatforms(dir) {
 		platforms.push('macos')
 	}
 
-	if (manifest.xplat?.targets?.linux?.runtime === 'webkitgtk') {
+	if (['webkitgtk', 'gtk'].includes(manifest.xplat?.targets?.linux?.runtime)) {
 		platforms.push('linux')
 	}
 

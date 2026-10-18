@@ -87,7 +87,7 @@ export const dev = command({
 		const all = discoverTargets(cwd)
 		if (all.length === 0) {
 			p.log.error(
-				'No targets found — declare Vite, NativeScript, xplat.targets.macos (AppKit or WKWebView), or xplat.targets.linux (WebKitGTK webview).',
+				'No targets found — declare Vite, NativeScript, xplat.targets.macos (AppKit or WKWebView), or xplat.targets.linux (WebKitGTK webview or GTK4/GJS).',
 			)
 
 			process.exit(1)

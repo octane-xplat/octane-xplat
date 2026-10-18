@@ -7,8 +7,9 @@ export function inspectLinuxPackageConfig(appRoot) {
 	const target = manifest.xplat?.targets?.linux ?? {}
 	const settings = target.package ?? {}
 	const issues = []
-	if (target.runtime !== 'webkitgtk') {
-		issues.push('linux.runtime must be webkitgtk')
+	const runtime = target.runtime
+	if (runtime !== 'webkitgtk' && runtime !== 'gtk') {
+		issues.push('linux.runtime must be webkitgtk or gtk')
 	}
 
 	const { applicationId, productName, executableName } = settings
@@ -49,15 +50,20 @@ export function inspectLinuxPackageConfig(appRoot) {
 		issues.push('linux.package.version (or package version) must be a semantic version')
 	}
 
+	// The URI scheme is the WebKitGTK host's incoming-link surface — required
+	// there. The GTK runtime has no URI handling yet; validate only if the
+	// app declares one.
 	if (
-		typeof scheme !== 'string' ||
-		!/^[a-z][a-z0-9+.-]*$/.test(scheme) ||
-		['http', 'https', 'file', 'data', 'javascript'].includes(scheme)
+		(runtime === 'webkitgtk' || target.host?.scheme !== undefined) &&
+		(typeof scheme !== 'string' ||
+			!/^[a-z][a-z0-9+.-]*$/.test(scheme) ||
+			['http', 'https', 'file', 'data', 'javascript'].includes(scheme))
 	) {
 		issues.push('linux.host.scheme must be a custom lowercase URI scheme')
 	}
 
-	const config = settings.viteConfig ?? 'vite.linux.config.ts'
+	const config =
+		settings.viteConfig ?? (runtime === 'gtk' ? 'vite.gtk.config.ts' : 'vite.linux.config.ts')
 	let viteConfig
 	if (
 		typeof config !== 'string' ||
@@ -72,5 +78,14 @@ export function inspectLinuxPackageConfig(appRoot) {
 		}
 	}
 
-	return { issues, applicationId, productName, executableName, version, scheme, viteConfig }
+	return {
+		issues,
+		runtime,
+		applicationId,
+		productName,
+		executableName,
+		version,
+		scheme,
+		viteConfig,
+	}
 }

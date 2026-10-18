@@ -555,3 +555,8 @@ has been exercised on the Ubuntu 24.04 x86-64 VM on Andromeda; the macOS
 WKWebView stand-in is development evidence only. `xplat dev linux`
 continues to run the app's configured dev script; see the [harness host
 notes](../../apps/linux/host/README.md) for its Vite/GTK loop.
+
+A second, earlier-stage runtime value — `"gtk"` — renders native GTK4 widgets
+through GJS instead of a WebView. It is only usable inside this repository
+today (the renderer package is private and unverified at runtime); see
+[Package a Linux GTK4/GJS app](../platform/linux-gtk.md).

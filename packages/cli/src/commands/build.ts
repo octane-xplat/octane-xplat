@@ -12,7 +12,7 @@ import { generateRoutes } from './routes.ts'
 export const build = command({
 	name: 'build',
 	description:
-		'Build web and NativeScript targets, plus experimental macOS AppKit/WKWebView and Linux webview',
+		'Build web and NativeScript targets, plus experimental macOS AppKit/WKWebView and Linux (WebKitGTK or GTK4/GJS)',
 	args: {
 		release: flag({
 			long: 'release',
@@ -31,7 +31,7 @@ export const build = command({
 		const all = buildTargets(cwd)
 		if (all.length === 0) {
 			p.log.error(
-				'Nothing to build — no web, NativeScript, macOS AppKit/WKWebView, or Linux webview target is declared.',
+				'Nothing to build — no web, NativeScript, macOS AppKit/WKWebView, or Linux target is declared.',
 			)
 
 			process.exit(1)

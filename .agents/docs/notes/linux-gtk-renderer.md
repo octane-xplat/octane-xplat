@@ -58,6 +58,23 @@ A first native slice of the GTK4/GJS renderer:
   AppKit-specific event types that don't fit the shared contract; that's a
   ui reconciliation workstream, not a types-only change.
 - **Compat shims**: `compat/native-core`, `compat/escape-props`.
+- **First-class CLI target** (follow-up change): `xplat.targets.linux.runtime`
+  now accepts `"gtk"` alongside `"webkitgtk"`. `xplat dev`/`xplat build`
+  detect it (`linuxRuntime` in `packages/cli/src/targets.ts`),
+  `inspectLinuxPackageConfig` validates it (identity fields as before;
+  `host.scheme` optional — the GTK host has no URI handling; `viteConfig`
+  defaults to `vite.gtk.config.ts`), and `packageLinux` branches: the GTK
+  path runs the app's `xplatLinuxGtk` Vite config into the staged app
+  directory and emits `app.js` (or any single top-level ESM file), an
+  executable `gjs -m` launcher, `app.json`, `README.txt`, and the usual tar
+  archive. **No host script, desktop entry, or installer ships** — bundle +
+  launcher is the honest minimum; GJS produces no binary, and URI/install
+  surfaces wait on runtime qualification. `xplat dev linux` stays app-owned
+  (`pnpm run dev`). Doctor differentiates the runtime check (GTK only, no
+  WebKitGTK/libsecret/Adwaita typelibs). Public doc:
+  `docs/platform/linux-gtk.md`; recipe: `.agents/docs/recipes/linux-gtk-package.md`.
+  apps/linux (webkitgtk) is unchanged — `gtk` is an alternate runtime value,
+  not a second linux target.
 
 ## The `.gtk` suffix (deviation from the task brief)
 

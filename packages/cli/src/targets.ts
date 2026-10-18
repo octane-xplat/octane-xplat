@@ -33,9 +33,14 @@ export const hasNative = (cwd) => existsSync(`${cwd}/nativescript.config.ts`)
 export const hasMacOS = (cwd) =>
 	readJson(`${cwd}/package.json`)?.xplat?.targets?.macos?.runtime === 'appkit-node-api'
 
-/** The opt-in WebKitGTK webview target currently used by apps/linux. */
-export const hasLinux = (cwd) =>
-	readJson(`${cwd}/package.json`)?.xplat?.targets?.linux?.runtime === 'webkitgtk'
+/** The declared Linux runtime: 'webkitgtk' (webview host, apps/linux) or
+ *  'gtk' (native GTK4/GJS renderer). Any other value is not a linux target. */
+export const linuxRuntime = (cwd) => {
+	const runtime = readJson(`${cwd}/package.json`)?.xplat?.targets?.linux?.runtime
+	return runtime === 'webkitgtk' || runtime === 'gtk' ? runtime : null
+}
+
+export const hasLinux = (cwd) => linuxRuntime(cwd) !== null
 
 /** NativeScript platforms the app declares via its runtime devDeps —
  *  `@nativescript/ios`/`@nativescript/android`/`@nativescript/windows`.
@@ -142,7 +147,7 @@ export function discoverTargets(cwd) {
 		targets.push({
 			kind: 'linux',
 			id: 'linux',
-			name: 'Linux (experimental WebKitGTK webview)',
+			name: `Linux (experimental ${linuxRuntime(cwd) === 'gtk' ? 'GTK4/GJS native' : 'WebKitGTK webview'})`,
 		})
 	}
 
@@ -183,7 +188,7 @@ export function buildTargets(cwd) {
 		t.push({
 			kind: 'linux',
 			id: 'linux',
-			name: 'Linux (experimental WebKitGTK webview)',
+			name: `Linux (experimental ${linuxRuntime(cwd) === 'gtk' ? 'GTK4/GJS native' : 'WebKitGTK webview'})`,
 		})
 	}
 

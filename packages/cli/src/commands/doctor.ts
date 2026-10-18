@@ -319,7 +319,13 @@ export const doctor = command({
 			rows.push(...compatibilityRows)
 			compatibilityFailed = compatibilityRows.some((r) => !r.ok)
 		} catch (error) {
-			row('compatibility', false, error.message, 'fix the package/workspace metadata and rerun xplat doctor')
+			row(
+				'compatibility',
+				false,
+				error.message,
+				'fix the package/workspace metadata and rerun xplat doctor',
+			)
+
 			compatibilityFailed = true
 		}
 		let declarationPackCheckFailed = false
@@ -541,14 +547,18 @@ export const doctor = command({
 			if (process.platform === 'linux') {
 				const runtime = check('gjs', [
 					'-c',
-					`imports.gi.versions.Gtk = '4.0'; imports.gi.versions.Adw = '1'; imports.gi.versions.WebKit = '6.0'; imports.gi.versions.Secret = '1'; const {Gtk, Adw, WebKit, Secret} = imports.gi; if (Gtk.get_major_version() === 4 && Gtk.get_minor_version() < 10) throw new Error('GTK 4.10+ required'); print('GTK ' + Gtk.get_major_version() + '.' + Gtk.get_minor_version() + ', WebKitGTK 6.0, libadwaita, libsecret');`,
+					config.runtime === 'gtk'
+						? `imports.gi.versions.Gtk = '4.0'; const {Gtk} = imports.gi; if (Gtk.get_major_version() === 4 && Gtk.get_minor_version() < 10) throw new Error('GTK 4.10+ required'); print('GTK ' + Gtk.get_major_version() + '.' + Gtk.get_minor_version());`
+						: `imports.gi.versions.Gtk = '4.0'; imports.gi.versions.Adw = '1'; imports.gi.versions.WebKit = '6.0'; imports.gi.versions.Secret = '1'; const {Gtk, Adw, WebKit, Secret} = imports.gi; if (Gtk.get_major_version() === 4 && Gtk.get_minor_version() < 10) throw new Error('GTK 4.10+ required'); print('GTK ' + Gtk.get_major_version() + '.' + Gtk.get_minor_version() + ', WebKitGTK 6.0, libadwaita, libsecret');`,
 				])
 
 				row(
 					'Linux runtime',
 					runtime.ok,
 					runtime.out,
-					'install gjs gir1.2-gtk-4.0 gir1.2-adw-1 gir1.2-webkit-6.0 gir1.2-secret-1 (GTK 4.10+)',
+					config.runtime === 'gtk'
+						? 'install gjs gir1.2-gtk-4.0 (GTK 4.10+)'
+						: 'install gjs gir1.2-gtk-4.0 gir1.2-adw-1 gir1.2-webkit-6.0 gir1.2-secret-1 (GTK 4.10+)',
 				)
 
 				row(
@@ -565,7 +575,9 @@ export const doctor = command({
 					'run in a desktop session or dbus-run-session',
 				)
 			} else {
-				p.log.info('Linux archive can be built here; verify the GJS/WebKitGTK runtime on Linux.')
+				p.log.info(
+					`Linux archive can be built here; verify the ${config.runtime === 'gtk' ? 'GJS/GTK4' : 'GJS/WebKitGTK'} runtime on Linux.`,
+				)
 			}
 		}
 
@@ -663,7 +675,11 @@ export const doctor = command({
 				: summary,
 		)
 
-		if (compatibilityFailed || declarationPackCheckFailed || rows.some((r) => r.name.startsWith('Linux ') && !r.ok)) {
+		if (
+			compatibilityFailed ||
+			declarationPackCheckFailed ||
+			rows.some((r) => r.name.startsWith('Linux ') && !r.ok)
+		) {
 			if (declarationPackCheckOutput) {
 				console.error(declarationPackCheckOutput)
 			}

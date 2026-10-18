@@ -15,6 +15,7 @@ import { tmpdir } from 'node:os'
 import test from 'node:test'
 import { inspectLinuxPackageConfig } from '../dist/linux/config.js'
 import { packageLinux } from '../dist/linux/package.js'
+import { hasLinux, linuxRuntime } from '../dist/targets.js'
 
 function project(t) {
 	const root = mkdtempSync(join(tmpdir(), 'xplat-linux-'))
@@ -47,6 +48,20 @@ function project(t) {
 	writeFileSync(
 		join(root, 'node_modules/vite/build.cjs'),
 		`const fs = require('fs'); const path = require('path'); const out = process.argv[process.argv.indexOf('--outDir') + 1]; fs.mkdirSync(out, {recursive:true}); fs.writeFileSync(path.join(out, 'index.html'), '<h1>Sample</h1>');`,
+	)
+
+	return { root, manifest }
+}
+
+function gtkProject(t) {
+	const { root, manifest } = project(t)
+	manifest.xplat.targets.linux.runtime = 'gtk'
+	delete manifest.xplat.targets.linux.host
+	writeFileSync(join(root, 'package.json'), JSON.stringify(manifest))
+	writeFileSync(join(root, 'vite.gtk.config.ts'), '')
+	writeFileSync(
+		join(root, 'node_modules/vite/build.cjs'),
+		`const fs = require('fs'); const path = require('path'); const out = process.argv[process.argv.indexOf('--outDir') + 1]; fs.mkdirSync(out, {recursive:true}); fs.writeFileSync(path.join(out, 'app.js'), 'import Gtk from "gi://Gtk?version=4.0";');`,
 	)
 
 	return { root, manifest }
@@ -113,4 +128,70 @@ test('failed frontend build preserves previously packaged app', async (t) => {
 	writeFileSync(join(root, 'node_modules/vite/build.cjs'), 'process.exit(1)')
 	await assert.rejects(packageLinux(root))
 	assert.equal(readFileSync(join(result.appDir, 'keep.txt'), 'utf8'), 'previous app')
+})
+
+test('linux target detection accepts gtk and webkitgtk runtimes and rejects others', (t) => {
+	const { root, manifest } = gtkProject(t)
+	assert.equal(linuxRuntime(root), 'gtk')
+	assert.ok(hasLinux(root))
+
+	manifest.xplat.targets.linux.runtime = 'webkitgtk'
+	writeFileSync(join(root, 'package.json'), JSON.stringify(manifest))
+	assert.equal(linuxRuntime(root), 'webkitgtk')
+	assert.ok(hasLinux(root))
+
+	manifest.xplat.targets.linux.runtime = 'qt'
+	writeFileSync(join(root, 'package.json'), JSON.stringify(manifest))
+	assert.equal(linuxRuntime(root), null)
+	assert.ok(!hasLinux(root))
+})
+
+test('GTK config needs no URI scheme and defaults to vite.gtk.config.ts', async (t) => {
+	const { root } = gtkProject(t)
+	const config = inspectLinuxPackageConfig(root)
+	assert.deepEqual(config.issues, [])
+	assert.equal(config.runtime, 'gtk')
+	assert.equal(config.viteConfig, join(root, 'vite.gtk.config.ts'))
+})
+
+test('GTK config still validates a declared URI scheme', async (t) => {
+	const { root, manifest } = gtkProject(t)
+	manifest.xplat.targets.linux.host = { scheme: 'HTTPS' }
+	writeFileSync(join(root, 'package.json'), JSON.stringify(manifest))
+	const config = inspectLinuxPackageConfig(root)
+	assert.equal(config.issues.length, 1)
+	assert.match(config.issues[0], /linux\.host\.scheme/)
+})
+
+test('GTK packaging produces the ESM bundle, gjs -m launcher, and archive', async (t) => {
+	const { root } = gtkProject(t)
+	const { appDir, archive } = await packageLinux(root)
+	assert.ok(existsSync(archive))
+	assert.ok(existsSync(join(appDir, 'app.js')))
+	assert.deepEqual(JSON.parse(readFileSync(join(appDir, 'app.json'), 'utf8')), {
+		applicationId: 'org.example.Sample',
+		productName: 'Sample App',
+		version: '1.2.3',
+	})
+
+	const launcher = readFileSync(join(appDir, 'sample-app'), 'utf8')
+	assert.match(launcher, /exec gjs -m "\$APP_DIR\/app\.js"/)
+	execFileSync('sh', ['-n', join(appDir, 'sample-app')])
+
+	const listing = execFileSync('tar', ['-tzf', archive], { encoding: 'utf8' })
+	assert.ok(listing.includes('sample-app/app.js'))
+	assert.ok(listing.includes('sample-app/sample-app'))
+	assert.ok(!existsSync(join(appDir, 'bundle')))
+	assert.ok(!existsSync(join(appDir, 'host')))
+	assert.ok(!existsSync(join(appDir, 'install.sh')))
+})
+
+test('GTK packaging rejects a build that emits no single ESM bundle', async (t) => {
+	const { root } = gtkProject(t)
+	writeFileSync(
+		join(root, 'node_modules/vite/build.cjs'),
+		`const fs = require('fs'); const path = require('path'); const out = process.argv[process.argv.indexOf('--outDir') + 1]; fs.mkdirSync(out, {recursive:true}); fs.writeFileSync(path.join(out, 'a.js'), ''); fs.writeFileSync(path.join(out, 'b.js'), '');`,
+	)
+
+	await assert.rejects(packageLinux(root), /exactly one ESM bundle/)
 })

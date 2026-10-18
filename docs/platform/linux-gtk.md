@@ -1,0 +1,144 @@
+# Package a Linux GTK4/GJS app
+
+> Package your screens as an experimental Linux app that draws real GTK4
+> widgets — no WebView.
+
+This is an advanced setup guide for an existing app inside this repository.
+Start with [the browser app](../start/toolchain.md#create-and-run) first.
+The **GTK runtime** is the second value of `xplat.targets.linux.runtime`:
+where `"webkitgtk"` shows your web UI inside a system WebView, `"gtk"`
+renders the same components with native GTK4 widgets through the GJS
+JavaScript engine.
+
+The runtime is experimental and early. The renderer package
+(`@octane-xplat/linux-gtk`) is private to this repository — it is not on
+npm — and nothing has been executed under a real GJS/GTK session yet.
+Everything below is verified at build level only. For the qualified webview
+target, see [Package a Linux WebKitGTK app](linux-package.md).
+
+## Configure the app
+
+Add the Linux target to `package.json` with the `gtk` runtime:
+
+```json
+{
+	"version": "1.0.0",
+	"scripts": { "build": "xplat build --targets linux" },
+	"xplat": {
+		"targets": {
+			"linux": {
+				"runtime": "gtk",
+				"package": {
+					"applicationId": "com.example.MyApp",
+					"productName": "My App",
+					"executableName": "my-app",
+					"viteConfig": "vite.gtk.config.ts"
+				}
+			}
+		}
+	}
+}
+```
+
+`applicationId`, `productName`, `executableName`, and `version` follow the
+same rules as the WebKitGTK target; see [its configuration
+reference](linux-package.md#configure-the-app). `viteConfig` defaults to
+`vite.gtk.config.ts`. `host.scheme` is not needed — the GTK host has no
+incoming-link handling yet.
+
+Create `vite.gtk.config.ts` using the CLI's GTK preset:
+
+```ts
+import { xplatLinuxGtk } from '@octane-xplat/cli/linux-gtk/vite'
+
+export default async (env: { mode: string }) => xplatLinuxGtk(env)
+```
+
+The preset registers the `gtk` renderer, resolves `.gtk` files before
+shared ones, keeps `gi://` imports external (the system GTK libraries
+provide them at load time), and emits one ESM file, because `gjs -m`
+executes a single file — code splitting would produce an unloadable
+import. GTK screens use the shared JSX contract; put platform-specific
+variants in `.gtk.tsrx`/`.gtk.tsx` files.
+
+The entry point mounts the app through the renderer's host helper:
+
+```ts
+// src/main.ts
+import { runGtkApp } from '@octane-xplat/linux-gtk/host'
+import { App } from './App.gtk'
+
+export function main(): number {
+	return runGtkApp(
+		{ applicationId: 'com.example.MyApp', title: 'My App' },
+		({ root }) => {
+			root.render(App, {})
+		},
+	)
+}
+
+main()
+```
+
+## Check the runtime
+
+On Ubuntu 24.04, install GJS and the GTK4 introspection data:
+
+```sh
+sudo apt install gjs gir1.2-gtk-4.0
+pnpm exec xplat doctor
+```
+
+`xplat doctor` validates the target configuration and, on a Linux host,
+checks that GJS can load GTK 4.10 or later. A successful build on macOS
+does not prove the Linux runtime works — treat every artifact below as
+unverified until it runs on a real Linux desktop.
+
+## Develop and build
+
+`xplat dev linux` runs the app's own `dev` script, so point it at whatever
+loop you maintain — for example, a Vite build followed by `gjs -m`:
+
+```json
+{ "scripts": { "dev": "vite build -c vite.gtk.config.ts && gjs -m dist/app.js" } }
+```
+
+Build the distributable app with the CLI:
+
+```sh
+pnpm exec xplat build --targets linux
+```
+
+For the example above, output is:
+
+```text
+dist/linux/my-app/                 relocatable app directory
+  app.js                          single-file ESM bundle (gi:// imports stay external)
+  app.json                        app identity
+  my-app                          executable launcher (gjs -m)
+  README.txt                      runtime requirements
+dist/linux/my-app-1.0.0.tar.gz     distribution archive
+```
+
+GJS produces no compiled binary, so the bundle plus launcher is the honest
+minimum: transfer the archive to a Linux machine, extract it, and run the
+launcher:
+
+```sh
+tar -xzf my-app-1.0.0.tar.gz
+./my-app/my-app
+```
+
+The launcher checks that `gjs` is installed and execs the bundled app, so
+it works from any directory without a source checkout, Node, or pnpm.
+
+## What this target does not have yet
+
+- No desktop entry, per-user installer, or URI scheme handling — those are
+  features of the WebKitGTK host, and they land with runtime qualification.
+- No device services (clipboard, secure storage, notifications, files) —
+  the GTK host mounts widgets only.
+- No verified runtime behavior. Driver dispatch, events, and widget mounting
+  are proven at bundle level, not under GJS. See the [renderer status
+  note](../../.agents/docs/notes/linux-gtk-renderer.md) for the current
+  evidence boundary.

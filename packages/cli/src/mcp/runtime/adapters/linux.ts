@@ -10,6 +10,7 @@ import { contractError } from '../../contracts/errors.ts'
 import { spawnManaged } from '../process.ts'
 import {
 	appCliFile,
+	appManifest,
 	assertHost,
 	awaitReady,
 	gitRevision,
@@ -65,13 +66,14 @@ export function createLinuxAdapter() {
 
 		async discoverTargets(app, deps) {
 			const blocked = hostBlock('linux', deps.host)
+			const gtk = appManifest(app).xplat?.targets?.linux?.runtime === 'gtk'
 			return {
 				targets: blocked
 					? []
 					: [
 							{
 								targetId: 'linux',
-								name: 'Linux WebKitGTK webview dev host',
+								name: gtk ? 'Linux GTK4/GJS dev host' : 'Linux WebKitGTK webview dev host',
 								kind: 'host',
 								availability: 'available',
 							},
@@ -118,8 +120,8 @@ export function createLinuxAdapter() {
 			if (!hasScript(app, 'dev')) {
 				throw contractError(
 					'prerequisite_missing',
-					'The app\u2019s package.json has no "dev" script — the Linux webview dev entry is app-owned.',
-					{ recovery: { action: 'Add a "dev" script that starts the WebKitGTK host.' } },
+					'The app\u2019s package.json has no "dev" script — the Linux dev entry is app-owned.',
+					{ recovery: { action: 'Add a "dev" script that starts the Linux host.' } },
 				)
 			}
 
