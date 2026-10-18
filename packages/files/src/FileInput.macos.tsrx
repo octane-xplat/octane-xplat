@@ -79,7 +79,7 @@ function FileInputControl(inputProps: FileInputProps) @{
 
 	useImperativeHandle(props.ref, () => ({ open: pick, native: hostRef.current }), undefined);
 
-	<masonview display="flex" flexDirection="column" className={cx(
+	<masonview flexDirection="column" className={cx(
 			'vx-fileinput',
 			dropzone && 'vx-fileinput--dropzone',
 			isDisabled && 'vx-fileinput--disabled',
@@ -87,11 +87,11 @@ function FileInputControl(inputProps: FileInputProps) @{
 			statusType && `vx-fileinput--status-${statusType}`,
 			props.size && `vx-fileinput--size-${props.size}`,
 			props.className,
-		)} style={props.style}>
+		)} style={{display: "flex", ...(props.style)}}>
 		{files.length ? (
-			<masonview display="flex" flexDirection="column" className="vx-fileinput-list">
+			<masonview flexDirection="column" className="vx-fileinput-list" style={{display: "flex"}}>
 				{files.map((f, i) => (
-					<masonview display="flex" key={`${f.uri}-${i}`} flexDirection="row" alignItems="center" className="vx-fileinput-item">
+					<masonview key={`${f.uri}-${i}`} flexDirection="row" alignItems="center" className="vx-fileinput-item" style={{display: "flex"}}>
 						<Icon name="xplat-upload" size={14} />
 						<label className="vx-fileinput-itemname" text={f.name} />
 						{f.size != null ? <label className="vx-fileinput-itemsize" text={formatFileSize(f.size)} /> : null}
@@ -112,7 +112,7 @@ function FileInputControl(inputProps: FileInputProps) @{
 			accessibilityState={{ disabled: isDisabled, busy: isBusy } as any}
 			onPress={pick}
 		>
-			<masonview display="flex" flexDirection="row" alignItems="center">
+			<masonview flexDirection="row" alignItems="center" style={{display: "flex"}}>
 				<Icon name="xplat-upload" size={14} />
 				<label text={files.length ? 'Choose more files' : 'Choose files'} />
 			</masonview>

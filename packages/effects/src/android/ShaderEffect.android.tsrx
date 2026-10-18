@@ -125,7 +125,7 @@ export function ShaderEffect(props: ShaderEffectProps) @{
 		};
 	}, [props.source, uniformsKey, props.animate]);
 
-	<masonview display="grid" id={props.id} className={props.className} style={props.style} ref={ref}>
+	<masonview id={props.id} className={props.className} style={{display: "grid", ...(props.style)}} ref={ref}>
 		{props.children}
 	</masonview>;
 }

@@ -25,16 +25,16 @@ function Content({ phase = 0 }: { phase?: number }) {
 				: 'flex-row gap-3 items-center justify-start'
 
 	return (
-		<masonview display="flex">
+		<masonview style={{display: "flex"}}>
 			{['props', 'style', 'class'].map((channel) => (
-				<masonview display="flex" key={channel} id={channel} {...(channel === 'props' ? layout : {})} className={channel === 'class' ? classes : ''} style={{ width: '100%', height: 100, ...(channel === 'style' ? layout : {}) }}>
-					<masonview display="flex" id={channel + '-nested'} style={{ width: '50%' }}>
+				<masonview key={channel} id={channel} {...(channel === 'props' ? layout : {})} className={channel === 'class' ? classes : ''} style={{display: "flex", ...({ width: '100%', height: 100, ...(channel === 'style' ? layout : {}) })}}>
+					<masonview id={channel + '-nested'} style={{display: "flex", ...({ width: '50%' })}}>
 						<label text="Nested intrinsic text" />
 					</masonview>
 					<label id={channel + '-text'} text="Intrinsic" />
 				</masonview>
 			))}
-			<masonview display="flex" id="conflict" flexDirection={phase < 3 ? 'column' : undefined} gap={phase < 3 ? 4 : undefined} alignItems={phase < 3 ? 'stretch' : undefined} justifyContent={phase < 3 ? 'start' : undefined} className={phase < 2 ? 'flex-row gap-2 items-center justify-center' : ''} style={{ width: '100%', height: 100, ...(phase === 0 ? layout : {}) }}>
+			<masonview id="conflict" flexDirection={phase < 3 ? 'column' : undefined} gap={phase < 3 ? 4 : undefined} alignItems={phase < 3 ? 'stretch' : undefined} justifyContent={phase < 3 ? 'start' : undefined} className={phase < 2 ? 'flex-row gap-2 items-center justify-center' : ''} style={{display: "flex", ...({ width: '100%', height: 100, ...(phase === 0 ? layout : {}) })}}>
 				<label id="conflict-a" text="A" />
 				<label id="conflict-b" text="B" />
 			</masonview>
@@ -45,13 +45,13 @@ function Content({ phase = 0 }: { phase?: number }) {
 function AbsoluteChannels() {
 	return (
 		<masonview>
-			<masonview style={{ width: '100%', height: 100, flexDirection: 'row', gap: 12 , position: 'absolute', left: 0, top: 0}} display="flex" id="abs-row">
-				<masonview display="flex" id="abs-nested" style={{ width: '50%' }}>
+			<masonview style={{display: "flex", ...({ width: '100%', height: 100, flexDirection: 'row', gap: 12 , position: 'absolute', left: 0, top: 0})}} id="abs-row">
+				<masonview id="abs-nested" style={{display: "flex", ...({ width: '50%' })}}>
 					<label text="Nested" />
 				</masonview>
 				<label id="abs-text" text="Intrinsic" />
 			</masonview>
-			<masonview style={{ width: 120, height: 40, flexDirection: 'row' , position: 'absolute', right: 16, bottom: 12}} display="flex" id="abs-tail">
+			<masonview style={{display: "flex", ...({ width: 120, height: 40, flexDirection: 'row' , position: 'absolute', right: 16, bottom: 12})}} id="abs-tail">
 				<label id="abs-tail-text" text="Tail" />
 			</masonview>
 		</masonview>

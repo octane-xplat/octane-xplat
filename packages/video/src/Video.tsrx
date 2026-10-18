@@ -98,7 +98,7 @@ export function Video(props: VideoProps) @{
 		native: v,
 	});
 
-	<masonview display="grid" gridTemplateRows="1fr" gridTemplateColumns="1fr" id={props.id} className={['vx-layers', 'vx-video', props.className]} style={props.style} {...layoutChildProps(props)} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
+	<masonview id={props.id} className={['vx-layers', 'vx-video', props.className]} style={{display: "grid", gridTemplateRows: "1fr", gridTemplateColumns: "1fr", ...(props.style)}} {...layoutChildProps(props)} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
 		<xplatvideo
 			ref={bindHost}
 			autoplay={props.playing ?? props.autoPlay ?? false}

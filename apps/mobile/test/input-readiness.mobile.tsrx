@@ -36,7 +36,7 @@ export function InputProbe() @{
 	};
 
 	<KeyboardAvoiding>
-		<masonview display="flex" flexDirection="column" style={{ padding: 20, gap: 10 }}>
+		<masonview flexDirection="column" style={{display: "flex", ...({ padding: 20, gap: 10 })}}>
 			<label text="Input readiness probe" fontSize={24} />
 			<label text={'Changes: ' + changes} />
 			<TextInput

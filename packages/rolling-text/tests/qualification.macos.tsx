@@ -6,7 +6,7 @@ import { NSView, NSWorkspace } from '@octane-xplat/platform/macos'
 
 function App(props: any) {
 	return (
-		<masonview display="flex" flexDirection="column">
+		<masonview flexDirection="column" style={{display: "flex"}}>
 			<RollingText {...props} />
 		</masonview>
 	)

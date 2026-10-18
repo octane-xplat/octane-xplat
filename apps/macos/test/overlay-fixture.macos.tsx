@@ -46,7 +46,7 @@ function Content(props: {
 	}
 
 	return (
-		<masonview display="flex">
+		<masonview style={{display: "flex"}}>
 			<textfield id="opener" value="Opener" />
 			{props.viewport !== false && (
 				<ToastViewport position="topStart" maxVisible={2}>

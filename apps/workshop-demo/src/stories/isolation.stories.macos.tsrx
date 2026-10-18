@@ -26,7 +26,7 @@ function Isolated(props: { label?: string; fixture: Fixture }) {
 	const account = useStore(fixture.account)
 	const [local, setLocal] = useState(0)
 	return (
-		<masonview display="flex" flexDirection="column">
+		<masonview flexDirection="column" style={{display: "flex"}}>
 			<Text testID="isolation-value">
 				{props.label ?? 'unset'} / {fixture.nested.label} / {account.name} / {local}
 			</Text>

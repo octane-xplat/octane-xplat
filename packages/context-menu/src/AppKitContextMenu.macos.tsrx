@@ -26,7 +26,7 @@ export function AppKitContextMenu(props: AppKitContextMenuProps) @{
 		)
 	}, [props.items])
 
-	<masonview display="flex" ref={(v: any) => { anchor.current = v }} id={props.id} className={props.className} style={props.style} accessibilityLabel={props.accessibilityLabel}>
+	<masonview ref={(v: any) => { anchor.current = v }} id={props.id} className={props.className} style={{display: "flex", ...(props.style)}} accessibilityLabel={props.accessibilityLabel}>
 		{props.trigger()}
 	</masonview>;
 }

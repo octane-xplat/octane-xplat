@@ -9,7 +9,7 @@ const gpuBeforeMount = getGPU()
 
 // The fallback belongs to the caller and exists before any drawing is attempted.
 export default function UnsupportedCanvas(props: { context?: CanvasContextKind }) @{
-	<masonview display="grid">
+	<masonview style={{display: "grid"}}>
 		<label id="canvas-fallback" text="Static illustration" />
 		<Canvas id="unsupported-canvas" width={80} height={40}
 			context={props.context} onReady={(ready) => received.push(ready)} />

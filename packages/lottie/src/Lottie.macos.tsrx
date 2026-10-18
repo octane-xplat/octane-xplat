@@ -116,5 +116,5 @@ export function Lottie(props: LottieProps) @{
 		else adapter.pause()
 	}, [props.playing])
 
-	<masonview display="flex" ref={(host: any) => host && adapter.mountIn(host)} id={props.id} className={props.className} style={props.style} {...layoutChildProps(props)} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole ?? 'image'} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={props.accessibilityState} />
+	<masonview ref={(host: any) => host && adapter.mountIn(host)} id={props.id} className={props.className} style={{display: "flex", ...(props.style)}} {...layoutChildProps(props)} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole ?? 'image'} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={props.accessibilityState}/>
 }

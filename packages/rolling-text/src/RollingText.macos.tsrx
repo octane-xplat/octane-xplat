@@ -13,11 +13,11 @@ export function RollingText(props: RollingTextProps) @{
 	const { fontSize, fontFamily, fontWeight, color, ...rowStyle } = props.style ?? {}
 	const textStyle = { fontSize, fontFamily, fontWeight, color }
 
-	<masonview display="flex" id={props.id} testID={props.testID ?? ''} ref={(view: any) => {
+	<masonview id={props.id} testID={props.testID ?? ''} ref={(view: any) => {
 			roll.attachRow(view)
-		}} {...layoutChildProps(props)} className={['vx-rolling-text', props.className]} style={rowStyle} flexDirection="row" flexWrap="nowrap" accessible={true} accessibilityRole={'text' as any} accessibilityLabel={roll.label} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
+		}} {...layoutChildProps(props)} className={['vx-rolling-text', props.className]} style={{display: "flex", ...(rowStyle)}} flexDirection="row" flexWrap="nowrap" accessible={true} accessibilityRole={'text' as any} accessibilityLabel={roll.label} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
 		@for (const cell of roll.cells; key cell.id) {
-			<masonview display="flex" ref={roll.attachCell(cell.id)} accessible={false} flexShrink={0}>
+			<masonview ref={roll.attachCell(cell.id)} accessible={false} flexShrink={0} style={{display: "flex"}}>
 				<label
 					text={cell.unit}
 					style={textStyle}

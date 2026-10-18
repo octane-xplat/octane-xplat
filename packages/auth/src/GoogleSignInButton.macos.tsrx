@@ -4,7 +4,7 @@ import type { GoogleSignInButtonProps } from './types'
 
 /** Hosted Google sign-in trigger; Google does not provide an AppKit button. */
 export function GoogleSignInButton(props: GoogleSignInButtonProps) @{
-	<masonview display="flex" id={props.id} className={['vx-button', props.className]} style={props.style} accessibilityRole="button" accessibilityLabel="Sign in with Google" accessibilityState={{ disabled: !!props.disabled }} onTap={props.disabled ? undefined : () => {
+	<masonview id={props.id} className={['vx-button', props.className]} style={{display: "flex", ...(props.style)}} accessibilityRole="button" accessibilityLabel="Sign in with Google" accessibilityState={{ disabled: !!props.disabled }} onTap={props.disabled ? undefined : () => {
 			props.onPress?.()
 			void googleAuth.signIn().then((result) => props.onResult?.(result))
 		}}>

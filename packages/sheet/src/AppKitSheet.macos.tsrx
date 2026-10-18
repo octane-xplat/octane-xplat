@@ -68,7 +68,7 @@ export function AppKitSheet(props: AppKitSheetProps) @{
 	}, [portalTarget])
 
 	<>
-		<masonview display="flex" ref={(v: any) => { anchor.current = v }} id={props.id} />
+		<masonview ref={(v: any) => { anchor.current = v }} id={props.id} style={{display: "flex"}}/>
 		{props.open && portalTarget && props.content
 			? createPortal(<ContentRoot render={props.content} />, portalTarget)
 			: null}
