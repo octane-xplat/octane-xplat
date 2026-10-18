@@ -146,11 +146,15 @@ with `scrollview`/`liquidglass` as the chrome-wrapped hosts:
   stays on the builtin scrollview path (`configureScrollAxes`), styleDict
   re-reads it for flexDirection. The classic NSStackView/manual engines are
   deleted; `AccessibleHostView` preserves the tap/AX surface on mason
-  containers.
+  containers. styleDict reads raw CSS keys from the style bag only — the
+  component contract (flex props, LayoutChildProps sugar) keeps its prop
+  channel, and style-only keys as props warn-and-drop like the mobile driver.
 - **iOS/Android (+Windows runtime)**: `@nativescript-community/octane` patch
   maps `masonview` to MasonKit `View` and `scrollview` to MasonKit `Scroll`
-  in `elements.js`. `driver.js` forwards CSS-shaped props to `view.style`
-  and translates LayoutChildProps sugar (`row`/`col`/`span` → grid lines,
+  in `elements.js`. `driver.js` forwards only the shared component contract
+  (FlexContainerProps + LayoutChildProps sugar) as props — raw CSS keys are
+  style-only and warn-and-drop — and translates LayoutChildProps sugar
+  (`row`/`col`/`span` → grid lines,
   `dock`/edges → absolute insets, attached alignment → cross-axis
   self-align) on the child, replayed at `attach` via `Style.fromView` for
   foreign leaves — see upstream-limitation rows in `feedback_observations`
