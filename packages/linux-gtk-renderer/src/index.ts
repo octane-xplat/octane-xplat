@@ -444,15 +444,19 @@ function syncExpand(node: ElementNode) {
 	// container's host widget, which is itself a box.
 	const hostView = hostViewOf(node.container, node.parent)
 	if (!(hostView instanceof Gtk.Box)) {
+		// flexGrow only maps to box expansion — clear both axes so a move into
+		// a non-box parent doesn't leave stale expand flags.
+		view.set_hexpand(false)
+		view.set_vexpand(false)
 		return
 	}
 	const horizontal = hostView.orientation === Gtk.Orientation.HORIZONTAL
 	const expand = Number(node.flexGrowValue) > 0
-	if (horizontal) {
-		view.set_hexpand(expand)
-	} else {
-		view.set_vexpand(expand)
-	}
+	// Write both axes — a resolved value must never leave a stale expand on
+	// the other axis (orientation flips, or a create-time host guess that a
+	// later insert supersedes).
+	view.set_hexpand(horizontal && expand)
+	view.set_vexpand(!horizontal && expand)
 }
 
 function selectionBounds(view: GtkView): [number, number] {
