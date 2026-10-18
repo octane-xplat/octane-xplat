@@ -236,20 +236,15 @@ export type Attributes<TElement, Props = object> = OctaneAttributes<TElement> &
 // ---------------------------------------------------------------------------
 
 /** The single layout container — CSS layout semantics backed by Mason on
- *  every native target. `display` selects the algorithm; flex/grid item and
- *  container props follow their CSS names. Child-role sugar keeps the shared
- *  LayoutChildProps vocabulary: row/col/rowSpan/colSpan become grid lines,
- *  left/top/right/bottom and dock become absolute insets, and
- *  horizontalAlignment/verticalAlignment map to self-alignment on the
- *  parent's axes. */
+ *  every native target. Raw Mason/CSS style keys (`display`, `position`,
+ *  grid tracks, overflow, insets, …) are style-only: set them through
+ *  `style={{…}}` or `className`, never as direct props. What remains here is
+ *  the shared component contract: flex-container props (FlexContainerProps
+ *  vocabulary) and the LayoutChildProps placement sugar — row/col/rowSpan/
+ *  colSpan become grid lines, left/top/right/bottom and dock become absolute
+ *  insets, and horizontalAlignment/verticalAlignment map to self-alignment
+ *  on the parent's axes. */
 export interface MasonViewProps {
-	display?: 'flex' | 'grid' | 'block' | 'inline' | 'inline-block' | 'inline-flex' | 'inline-grid' | 'none'
-	position?: 'relative' | 'absolute'
-	inset?: number | string
-	left?: number | string
-	top?: number | string
-	right?: number | string
-	bottom?: number | string
 	flexDirection?: 'row' | 'column' | 'row-reverse' | 'column-reverse'
 	flexWrap?: 'nowrap' | 'wrap' | 'wrap-reverse'
 	justifyContent?:
@@ -266,33 +261,18 @@ export interface MasonViewProps {
 	columnGap?: number | string
 	flexGrow?: number
 	flexShrink?: number
-	flexBasis?: number | string
 	alignSelf?: string
-	justifySelf?: string
 	order?: number
-	overflow?: 'visible' | 'hidden' | 'scroll'
-	overflowX?: 'visible' | 'hidden' | 'scroll'
-	overflowY?: 'visible' | 'hidden' | 'scroll'
-	gridTemplateRows?: string
-	gridTemplateColumns?: string
-	gridTemplateAreas?: string
-	gridAutoFlow?: 'row' | 'column' | 'dense' | 'row dense' | 'column dense'
-	gridAutoRows?: string
-	gridAutoColumns?: string
-	gridRow?: string
-	gridColumn?: string
-	gridRowStart?: string | number
-	gridRowEnd?: string | number
-	gridColumnStart?: string | number
-	gridColumnEnd?: string | number
-	gridArea?: string
-	aspectRatio?: number
 	// LayoutChildProps sugar — see the interface doc.
 	row?: number
 	col?: number
 	rowSpan?: number
 	colSpan?: number
 	dock?: 'left' | 'top' | 'right' | 'bottom'
+	left?: number | string
+	top?: number | string
+	right?: number | string
+	bottom?: number | string
 	horizontalAlignment?: 'left' | 'right' | 'center' | 'stretch'
 	verticalAlignment?: 'top' | 'bottom' | 'middle' | 'center' | 'stretch'
 }

@@ -98,16 +98,19 @@ void sharedContent
 void macContent
 
 // The mason container retains the shared primitive contract across target
-// conditions — CSS layout props and the LayoutChildProps sugar surface.
+// conditions — flex-container props and the LayoutChildProps sugar surface.
+// Raw Mason style keys are style-only, so `display` as a prop is an error.
 const masonProps: JSX.IntrinsicElements['masonview'] = {
-	display: 'grid',
-	gridTemplateColumns: '1fr 2fr',
+	flexDirection: 'row',
+	justifyContent: 'space-between',
+	gap: 8,
+	style: { display: 'grid', gridTemplateColumns: '1fr 2fr' },
 }
 const dockChildProps: JSX.IntrinsicElements['label'] = { dock: 'right' }
 void masonProps
 void dockChildProps
-// @ts-expect-error display is a closed union
-const badMasonProps: JSX.IntrinsicElements['masonview'] = { display: 'table' }
+// @ts-expect-error raw Mason style keys are style-only
+const badMasonProps: JSX.IntrinsicElements['masonview'] = { display: 'grid' }
 // @ts-expect-error attached dock edges are closed
 const badDockChildProps: JSX.IntrinsicElements['label'] = { dock: 'center' }
 void badMasonProps
