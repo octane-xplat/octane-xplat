@@ -1,13 +1,5 @@
 import assert from 'node:assert/strict'
-import {
-	existsSync,
-	mkdirSync,
-	mkdtempSync,
-	readFileSync,
-	renameSync,
-	rmSync,
-	writeFileSync,
-} from 'node:fs'
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 
 import { spawnSync } from 'node:child_process'
 import { join } from 'node:path'
@@ -25,8 +17,6 @@ import {
 	resolveTargets,
 	targetEnabled,
 	TEMPLATE_DIR,
-	applyTesting,
-	testingEnabled,
 } from '../dist/scaffold.js'
 
 const ALL = ['web', 'ios', 'android']
@@ -48,9 +38,9 @@ function project(t) {
 	return root
 }
 
-test('composing the full base target set reproduces the template byte-for-byte', (t) => {
+test('composing the full target set reproduces the template byte-for-byte', (t) => {
 	const dir = project(t)
-	composeTargets(ALL, dir, { testing: false })
+	composeTargets(ALL, dir)
 
 	for (const rel of [
 		'package.json',
@@ -256,7 +246,7 @@ test('default apps carry no unused feature plugins for any target set', (t) => {
 			assert.equal(deps[name], undefined, `${ids}: unexpected ${name}`)
 		}
 
-		assert.equal(testingEnabled(dir), true)
+		assert.equal(pkg.xplat, undefined)
 	}
 })
 
@@ -280,20 +270,19 @@ test('default testing includes only enabled platforms with framework-managed ver
 		assert.equal(existsSync(join(dir, 'src/app.web.test.tsx')), web)
 		assert.equal(existsSync(join(dir, 'src/app.spec.tsrx')), native)
 		assert.equal(existsSync(join(dir, 'vitest.config.mts')), native)
-		assert.equal(testingEnabled(dir), true)
 		assert.match(readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8'), /vitest: 4/)
 	}
 })
 
-test('adding testing keeps user scripts, dependency specs, and existing test files', (t) => {
+test('adding a platform keeps user test scripts, dependency specs, and existing test files', (t) => {
 	const dir = project(t)
-	composeTargets(['web'], dir, { testing: false })
+	composeTargets(['ios'], dir)
 	const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
 	pkg.scripts.test = 'custom-test'
 	pkg.devDependencies.vitest = 'file:../vitest'
 	writeFileSync(join(dir, 'package.json'), JSON.stringify(pkg, null, '\t') + '\n')
 	writeFileSync(join(dir, 'src/app.web.test.tsx'), '// custom test\n')
-	const report = applyTesting(dir)
+	const report = applyTarget(dir, 'web')
 	assert.ok(report.scriptsSkipped.includes('test'))
 	assert.ok(report.skipped.includes('src/app.web.test.tsx'))
 	assert.equal(readFileSync(join(dir, 'src/app.web.test.tsx'), 'utf8'), '// custom test\n')
@@ -301,7 +290,7 @@ test('adding testing keeps user scripts, dependency specs, and existing test fil
 	assert.equal(next.scripts.test, 'custom-test')
 	assert.equal(next.devDependencies.vitest, 'file:../vitest')
 	assert.equal(next.scripts['test:web'], 'vitest run --config vitest.web.config.mts')
-	assert.deepEqual(applyTesting(dir).already, ['testing'])
+	assert.deepEqual(applyTarget(dir, 'web').already, ['web'])
 })
 
 test('adding native or web includes its test setup and preserves existing tests', (t) => {
@@ -341,24 +330,7 @@ test('creator includes tests for the selected platforms by default through the p
 	)
 	assert.equal(result.status, 0, result.stderr)
 	const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
-	assert.equal(pkg.xplat.features.testing, true)
+	assert.equal(pkg.devDependencies.vitest, 'catalog:xplat')
 	assert.ok(pkg.scripts['test:web'])
 	assert.equal(pkg.devDependencies['@nativescript/unit-test-runner'], undefined)
-})
-
-test('testing reuses an mts Vite config and the enclosing workspace catalog', (t) => {
-	const root = project(t)
-	const dir = join(root, 'apps', 'example')
-	mkdirSync(dir, { recursive: true })
-	composeTargets(['web'], dir, { testing: false })
-	renameSync(join(dir, 'vite.config.ts'), join(dir, 'vite.config.mts'))
-	renameSync(join(dir, 'pnpm-workspace.yaml'), join(root, 'pnpm-workspace.yaml'))
-	applyTesting(dir)
-	assert.match(
-		readFileSync(join(dir, 'vitest.web.config.mts'), 'utf8'),
-		/from '\.\/vite\.config\.mts'/,
-	)
-	assert.ok(!existsSync(join(dir, 'pnpm-workspace.yaml')))
-	assert.match(readFileSync(join(root, 'pnpm-workspace.yaml'), 'utf8'), /vitest: 4/)
-	assert.match(readFileSync(join(root, 'pnpm-workspace.yaml'), 'utf8'), /jsdom: 30/)
 })

@@ -18,10 +18,10 @@ const TPL = JSON.parse(
 
 const cli = join(dirname(fileURLToPath(import.meta.url)), '../dist/cli.js')
 
-function scaffold(t, targets, options = {}) {
+function scaffold(t, targets) {
 	const dir = mkdtempSync(join(tmpdir(), 'xplat-add-'))
 	t.after(() => rmSync(dir, { recursive: true, force: true }))
-	composeTargets(targets, dir, options)
+	composeTargets(targets, dir)
 	return dir
 }
 
@@ -71,33 +71,9 @@ test('xplat add accepts several platforms in one call', (t) => {
 	)
 })
 
-test('xplat add testing retrofits an older app and is idempotent', (t) => {
-	const dir = scaffold(t, ['web'], { testing: false })
-	const first = run(['add', 'testing', '--no-install'], dir)
-	assert.equal(first.status, 0, first.stderr)
-	assert.match(first.stdout, /enabled testing/)
-	assert.ok(existsSync(join(dir, 'vitest.web.config.mts')))
-	const manifest = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
-	assert.equal(manifest.scripts['test:web'], 'vitest run --config vitest.web.config.mts')
-	assert.equal(manifest.devDependencies['@nativescript/unit-test-runner'], undefined)
-	const before = readFileSync(join(dir, 'package.json'), 'utf8')
-	const second = run(['add', 'testing', '--no-install'], dir)
-	assert.equal(second.status, 0, second.stderr)
-	assert.match(second.stdout, /testing is already enabled/)
-	assert.equal(readFileSync(join(dir, 'package.json'), 'utf8'), before)
-})
-
-test('xplat add enables platforms before testing regardless of argument order', (t) => {
-	const dir = scaffold(t, ['web'], { testing: false })
-	const result = run(['add', 'testing', 'ios', '--no-install'], dir)
-	assert.equal(result.status, 0, result.stderr)
-	const manifest = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
-	assert.equal(manifest.scripts['test:ios'], 'ns test ios')
-	assert.ok(existsSync(join(dir, 'src/app.spec.tsrx')))
-})
-
 test('xplat add rejects unknown targets and bare non-TTY calls', (t) => {
 	const dir = scaffold(t, ['web'])
 	assert.notEqual(run(['add', 'windows'], dir).status, 0)
+	assert.notEqual(run(['add', 'testing'], dir).status, 0)
 	assert.notEqual(run(['add'], dir).status, 0)
 })

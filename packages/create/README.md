@@ -97,13 +97,6 @@ selected simulator or device. The runners are explicit development dependencies
 with framework-managed versions in `catalog:xplat`. Adapt the sample tests to
 your app as you replace the starter screen.
 
-For an older app missing test setup, add it once:
-
-```sh
-pnpm xplat add testing
-```
-
-Existing files and scripts are preserved; review any skipped-file warnings.
 Platforms added later also receive their test setup. The library template
 includes its component tests and publishing checks.
 See [checking an app](../../docs/verify/testing.md#add-automated-tests) for the

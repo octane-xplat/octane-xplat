@@ -61,12 +61,6 @@ tests under `src/` with names ending in `.web.test.ts`, `.web.test.tsx`, or
 platform settings. These tests check document behavior; try layout, focus, and
 real input in a browser too.
 
-If an older app is missing test setup, add it once:
-
-```sh
-pnpm xplat add testing
-```
-
 Adding a platform also adds its test setup. Existing files,
 scripts, and dependency specifications are preserved; review skipped-file
 warnings and ask your agent to reconcile custom configuration before running
@@ -160,8 +154,7 @@ mounted and unmounted content — not on internal view classes.
 observers: they prove your handlers are wired, not that the OS would
 deliver the touch — that stays in [Maestro's lane](#automate-phone-journeys).
 The lane is qualified on iOS simulators; Android uses the same setup but is
-not verified yet. For older or customized apps, follow
-[the migration notes](#add-the-test-lane-to-an-older-app).
+not verified yet.
 
 ### Check the packed Android starter
 
@@ -181,37 +174,6 @@ build must pass before device tests start. The command uses a disposable app
 identity and verifies that its process stops. It preserves ordinary app data.
 The starter includes native bridge, deliberate assertion failure, and repeated
 cleanup checks in addition to its component cases.
-
-### Add the test lane to an older app
-
-With a current Xplat CLI installed, use the same setup command. Preview an
-upgrade first if the app uses an older compiler or NativeScript release:
-
-```sh
-pnpm dlx @octane-xplat/cli@latest upgrade --check
-pnpm xplat add testing
-```
-
-If it reports existing files or scripts, keep your changes and ask your agent
-to compare them with the supplied setup. Native tests need `src/test.ts` and
-`vitest.config.mts` to include the same spec patterns. The app also needs
-`@valor/nativescript-websockets`, which current native starters already include.
-For an older app missing it, install the bridge:
-
-```sh
-pnpm add @valor/nativescript-websockets
-```
-
-On iOS, an older customized `App_Resources/iOS/Info.plist` must allow the local
-test connection. Current iOS starters include this setting:
-
-```xml
-<key>NSAppTransportSecurity</key>
-<dict>
-  <key>NSAllowsLocalNetworking</key>
-  <true/>
-</dict>
-```
 
 ## Automate phone journeys
 

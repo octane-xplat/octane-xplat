@@ -21,7 +21,6 @@ pnpm add -D @octane-xplat/cli
 pnpm xplat dev          # pick available targets
 pnpm xplat dev macos    # single-target shorthand (kind or device id)
 pnpm xplat add ios      # enable a platform skipped at create time
-pnpm xplat add testing  # restore test setup in an older app
 pnpm xplat build        # production builds
 pnpm xplat build -t macos # experimental AppKit .app + .dmg (Apple Silicon)
 pnpm xplat build -t linux # experimental GTK/WebKit app directory + tar archive
@@ -70,19 +69,10 @@ pnpm test:ios -- --device DEVICE_UDID
 pnpm test:android -- --device DEVICE_SERIAL
 ```
 
-Adding a platform later includes its test setup. For an older app missing
-tests, add the setup once:
+Adding a platform later includes its test setup:
 
 ```sh
-pnpm xplat add testing
-```
-
-To review the files before installing dependencies, use `--no-install`, then
-install when ready:
-
-```sh
-pnpm xplat add testing --no-install
-pnpm install
+pnpm xplat add ios
 ```
 
 Existing files, dependency specifications, and scripts are preserved. Review

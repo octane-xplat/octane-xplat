@@ -114,12 +114,12 @@ pnpm --filter @xplat/mobile test:android -- --device DEVICE_ID
   module re-exports upstream `tap()`/`enterText()`/`waitUntil()` and adds
   `viewText`/`findByTestId` tree queries; dispatch through gesture observers
   proves the observer path, NOT OS hit-testing (that remains Maestro's lane).
-- New apps include test setup by default; `xplat add testing` retrofits older apps:
+- New apps include test setup by default:
   `src/test.ts`, `vitest.config.mts`, a starter `src/app.spec.tsrx`, the
   selected `test:ios`/`test:android` scripts, and runner devDeps from
-  `packages/create/testing-template/native/`. The iOS platform template
+  `packages/create/template/`. The iOS platform template
   already carries the scoped `NSAllowsLocalNetworking` ATS exception.
-  `xplat add ios`/`android` also adds its test setup in apps with testing enabled.
+  `xplat add ios`/`android` also adds its matching test setup.
   `ns test android` shares the setup but is unverified (lane qualified on iOS
   only). Web testing is separate (`vitest.web.config.mts`, `*.web.test.*`)
   so DOM tests do not enter the device bundle.
