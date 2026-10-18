@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useEffect, useMemo, useRef, useState } from 'octane';
 import type { ChatMessageData, ChatMessageListProps } from './props';
 import { cx } from '@octane-xplat/lib';
@@ -73,14 +74,14 @@ export function ChatMessageList(props: ChatMessageListProps) @{
 	const gap = props.gap ?? DENSITY_GAP[density];
 
 	<ChatListProvider value={contextValue}>
-		<masonview display="flex" id={props.id} className={cx('vx-chatlist', `vx-chatlist--${density}`, props.className)} style={props.style as any} flexDirection="column" accessibilityLiveRegion={"polite" as any}>
-			<masonview display="flex" ref={(v: any) => { innerRef.current = v; }} className="vx-chatlist-inner" flexDirection="column" flexGrow={1} gap={gap}>
+		<masonview id={props.id} className={cx('vx-chatlist', `vx-chatlist--${density}`, props.className)} style={mergeStyle({display: "flex"}, props.style as any)} flexDirection="column" accessibilityLiveRegion={"polite" as any}>
+			<masonview ref={(v: any) => { innerRef.current = v; }} className="vx-chatlist-inner" flexDirection="column" flexGrow={1} gap={gap} style={{display: "flex"}}>
 				{isLoadingTop ? (
-					<masonview display="flex" className="vx-chatlist-loading" justifyContent="center">
+					<masonview className="vx-chatlist-loading" justifyContent="center" style={{display: "flex"}}>
 						<ActivityIndicator />
 					</masonview>
 				) : null}
-				{props.align !== 'top' ? <masonview display="flex" className="vx-chatlist-spacer" flexGrow={1} /> : null}
+				{props.align !== 'top' ? <masonview className="vx-chatlist-spacer" flexGrow={1} style={{display: "flex"}}/> : null}
 				{hasMessages ? (
 					props.messages!.map((m) =>
 						props.renderMessage ? props.renderMessage(m) : <DefaultMessageRender message={m} />,
@@ -88,7 +89,7 @@ export function ChatMessageList(props: ChatMessageListProps) @{
 				) : hasChildren ? (
 					props.children
 				) : renderable(props.emptyState) ? (
-					<masonview display="flex" className="vx-chatlist-empty" alignItems="center" justifyContent="center" flexGrow={1}>
+					<masonview className="vx-chatlist-empty" alignItems="center" justifyContent="center" flexGrow={1} style={{display: "flex"}}>
 						{props.emptyState}
 					</masonview>
 				) : null}

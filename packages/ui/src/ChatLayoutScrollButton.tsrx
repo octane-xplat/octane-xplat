@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import type { ChatLayoutScrollButtonProps } from './props';
 import { cx } from '@octane-xplat/lib';
 import { Icon } from './Icon';
@@ -13,7 +14,7 @@ export function ChatLayoutScrollButton(props: ChatLayoutScrollButtonProps) @{
 		return null;
 	}
 
-	<masonview display="flex" id={props.id} className={cx('vx-chatscroll-wrap', props.className)} style={props.style as any} justifyContent="center">
+	<masonview id={props.id} className={cx('vx-chatscroll-wrap', props.className)} style={mergeStyle({display: "flex"}, props.style as any)} justifyContent="center">
 		<Pressable
 			className={cx('vx-chatscroll', props.label ? 'vx-chatscroll--expanded' : 'vx-chatscroll--collapsed')}
 			accessibilityRole="button"

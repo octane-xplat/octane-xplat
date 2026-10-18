@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import type { ScreenProps } from "./props";
 import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps } from "./escape-props";
@@ -24,7 +25,7 @@ export function Screen(props: ScreenProps) @{
 		onLoaded={(e: any) => registerRootLayout(e.object)}
 		onUnloaded={(e: any) => unregisterRootLayout(e.object)}
 	>
-		<masonview display="flex" flexDirection="column" className={cx(props.className)} style={props.style as any} ref={(v: any) => { if (v) attachTapToBlur(v); }}>
+		<masonview flexDirection="column" className={cx(props.className)} style={mergeStyle({display: "flex"}, props.style as any)} ref={(v: any) => { if (v) attachTapToBlur(v); }}>
 			{props.children}
 		</masonview>
 	</rootlayout>

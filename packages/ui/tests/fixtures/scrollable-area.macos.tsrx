@@ -90,9 +90,9 @@ function Headless(props: { ref: any; onScroll: (event: any) => void }) {
 	resizeViewport = setViewportSize
 	resizeContent = setContentSize
 	area = useScrollableArea({ axis: 'both' })
-	return <masonview display="flex">
+	return <masonview style={{display: "flex"}}>
 		<scrollview {...area.getViewportProps({ ref: props.ref, onScroll: props.onScroll, style: { width: viewportSize[0], height: viewportSize[1] } })}>
-			<masonview display="flex" {...area.getContentProps({ style: { width: contentSize[0], height: contentSize[1] } })}><label text="Headless content" /></masonview>
+			<masonview {...area.getContentProps({ style: { width: contentSize[0], height: contentSize[1] } })} style={{display: "flex"}}><label text="Headless content" /></masonview>
 		</scrollview>
 	</masonview>
 }

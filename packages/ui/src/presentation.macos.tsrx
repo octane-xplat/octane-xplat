@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { useEffect, useLayoutEffect, useRef, useState } from 'octane'
 import { createPortal } from './native-portal'
 import { useThemeScheme } from './theme/theme-scheme'
@@ -56,7 +57,7 @@ export function usePresentation(isOpen: boolean, component: any, panelProps: any
 
 	useEffect(() => () => { surface.current?.close(); surface.current = null }, [])
 	return <>
-		<masonview display="flex" ref={owner} style={{ width: 0, height: 0 }} />
+		<masonview ref={owner} style={mergeStyle({display: "flex"}, { width: 0, height: 0 })}/>
 		{target ? <SurfaceContent target={target} component={component}
 			panelProps={panelProps} dark={dark} committed={() => surface.current?.update({})} /> : null}
 	</>

@@ -28,7 +28,7 @@ function RefFixture(props: { viewRef?: ViewProps['ref']; inputRef?: Octane.Ref<T
 function ImperativeFixture(props: { ref?: Octane.Ref<{ ready: boolean }> }) @{
 	useImperativeHandle(props.ref, () => ({ ready: true }), [])
 
-	<masonview display="flex" />
+	<masonview style={{display: "flex"}}/>
 }
 
 function MeasuredFixture() @{

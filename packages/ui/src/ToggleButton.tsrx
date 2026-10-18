@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useState } from 'octane'
 import type { ToggleButtonProps, ToggleButtonGroupProps } from './props'
 import { useToggleButtonGroup, ToggleButtonGroupContext } from './toggle-button-group-context'
@@ -54,6 +55,6 @@ export function ToggleButtonGroup(props: ToggleButtonGroupProps) @{
 	const context = { selectedValues: selected, toggle, size: props.size, isDisabled: props.isDisabled }
 
 	<ToggleButtonGroupContext.Provider value={context}>
-		<masonview display="flex" id={props.id} className={cx('vx-toggle-button-group', `vx-button-group--${props.orientation ?? 'horizontal'}`, props.className)} style={props.style as any} accessible={true} accessibilityLabel={props.label}>{props.children}</masonview>
+		<masonview id={props.id} className={cx('vx-toggle-button-group', `vx-button-group--${props.orientation ?? 'horizontal'}`, props.className)} style={mergeStyle({display: "flex"}, props.style as any)} accessible={true} accessibilityLabel={props.label}>{props.children}</masonview>
 	</ToggleButtonGroupContext.Provider>
 }

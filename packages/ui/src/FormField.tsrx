@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useContext, useId } from 'octane'
 import type { FormFieldProps } from "./props";
 import { cx } from "@octane-xplat/lib";
@@ -35,7 +36,7 @@ export function FormField(props: FormFieldProps) @{
 	}
 
 	const labelNode = props.label == null || props.isLabelHidden ? null
-		: <masonview display="flex" className="vx-field-label-row" flexDirection="row" alignItems="center">
+		: <masonview className="vx-field-label-row" flexDirection="row" alignItems="center" style={{display: "flex"}}>
 			<label id={labelId} className="vx-field-label" text={labelText} />
 			{props.labelTooltip != null
 				? <Tooltip trigger={<Pressable className="vx-field-info" accessibilityLabel={'More about ' + props.label} accessibilityHint={props.labelTooltip}><label text="i" /></Pressable>} content={props.labelTooltip} placement="top" />
@@ -54,16 +55,16 @@ export function FormField(props: FormFieldProps) @{
 	const fieldStyle = { ...(props.width != null ? { width: props.width } : {}), ...(props.style as any) }
 
 	@if (isHorizontalLabels) {
-		<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx(rootClass, 'vx-field--hl')} style={fieldStyle}>
-			<masonview display="flex" className="vx-field-hl-label" flexDirection="column">{labelNode}</masonview>
-			<masonview display="flex" className="vx-field-hl-body" flexDirection="column" flexGrow={1}>
+		<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx(rootClass, 'vx-field--hl')} style={mergeStyle({display: "flex"}, fieldStyle)}>
+			<masonview className="vx-field-hl-label" flexDirection="column" style={{display: "flex"}}>{labelNode}</masonview>
+			<masonview className="vx-field-hl-body" flexDirection="column" flexGrow={1} style={{display: "flex"}}>
 				{descriptionNode}
 				<FieldProvider value={fieldContext}>{props.children}</FieldProvider>
 				{statusNode}
 			</masonview>
 		</masonview>
 	} @else {
-		<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={rootClass} style={fieldStyle}>
+		<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={rootClass} style={mergeStyle({display: "flex"}, fieldStyle)}>
 			{labelNode}
 			{descriptionNode}
 			<FieldProvider value={fieldContext}>{props.children}</FieldProvider>

@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useKeyboardInset } from './use-keyboard-inset.tsrx';
 import { useConsumedInsets } from './inset-consumption';
 import { Application } from '@nativescript/core';
@@ -27,7 +28,7 @@ export function KeyboardAvoiding(props: KeyboardAvoidingProps) @{
 		style={props.style as any}
 		ref={(host: any) => { if (host && platformProps) Object.assign(host, platformProps); }}
 	>
-		<masonview display="flex" flexDirection="column" style={paddingBottom ? { paddingBottom } : undefined}>
+		<masonview flexDirection="column" style={mergeStyle({display: "flex"}, paddingBottom ? { paddingBottom } : undefined)}>
 			{props.children}
 		</masonview>
 	</scrollview>

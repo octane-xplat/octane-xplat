@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useMemo, useEffect, useRef, useContext } from 'octane';
 import { refList } from './ref-list'
 import type { FormLayoutProps } from './props';
@@ -34,11 +35,11 @@ export function FormLayout(props: FormLayoutProps) @{
 
 	<FormLayoutProvider value={value}>
 		{direction === 'horizontal' ? (
-			<masonview display="grid" id={props.id} ref={forwardedRef} className={cx('vx-formlayout', 'vx-formlayout--horizontal', props.className)} style={props.style as any} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
+			<masonview id={props.id} ref={forwardedRef} className={cx('vx-formlayout', 'vx-formlayout--horizontal', props.className)} style={mergeStyle({display: "grid"}, props.style as any)} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
 				{props.children}
 			</masonview>
 		) : (
-			<masonview display="flex" id={props.id} ref={forwardedRef2} flexDirection="column" gap={16} className={cx('vx-formlayout', `vx-formlayout--${direction}`, props.className)} style={props.style as any} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
+			<masonview id={props.id} ref={forwardedRef2} flexDirection="column" gap={16} className={cx('vx-formlayout', `vx-formlayout--${direction}`, props.className)} style={mergeStyle({display: "flex"}, props.style as any)} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
 				{props.children}
 			</masonview>
 		)}

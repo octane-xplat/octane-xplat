@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { useEffect, useState } from 'octane';
 import type { TimestampProps, TimestampFormat } from './props';
 import {
@@ -96,9 +97,9 @@ export function Timestamp(props: TimestampProps) @{
 	return lines.length > 0 ? (
 		<HoverCard
 			content={
-				<masonview display="flex" flexDirection="column" style={{ padding: 8, gap: 4 }}>
+				<masonview flexDirection="column" style={mergeStyle({display: "flex"}, { padding: 8, gap: 4 })}>
 					{lines.map((line, i) => (
-						<masonview display="flex" key={i} flexDirection="row" style={{ gap: 8 }}>
+						<masonview key={i} flexDirection="row" style={mergeStyle({display: "flex"}, { gap: 8 })}>
 							{line.label != null ? (
 								<label className="text-sm text-muted" text={line.label} />
 							) : null}

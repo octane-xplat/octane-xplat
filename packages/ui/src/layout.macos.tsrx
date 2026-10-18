@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { useMemo } from 'octane'
 import { refList } from './ref-list'
 import type { AbsoluteProps, GridProps, SpacerProps, StackItemProps, StackProps } from './props'
@@ -8,7 +9,7 @@ import { resolveStackLayout, stackItemStyle } from './stack-layout'
 import { gridTrackListToCss } from './grid-tracks'
 
 export function Grid(props: GridProps) @{
-	<masonview display="grid" gridTemplateRows={gridTrackListToCss(props.rows, 'rows')} gridTemplateColumns={gridTrackListToCss(props.columns, 'columns')} id={props.id} className={props.className} style={props.style}>
+	<masonview id={props.id} className={props.className} style={mergeStyle({display: "grid", gridTemplateRows: gridTrackListToCss(props.rows, 'rows'), gridTemplateColumns: gridTrackListToCss(props.columns, 'columns')}, props.style)}>
 		{props.children}
 	</masonview>
 }
@@ -46,12 +47,12 @@ export function Stack(props: StackProps) @{
 			accessibilityState={props.accessibilityState}
 			accessibilityLiveRegion={props.accessibilityLiveRegion}
 		>
-			<masonview display="flex" flexDirection={layout.flexDirection} justifyContent={layout.justifyContent} alignItems={layout.alignItems} flexWrap={layout.flexWrap} gap={layout.gap}>
+			<masonview flexDirection={layout.flexDirection} justifyContent={layout.justifyContent} alignItems={layout.alignItems} flexWrap={layout.flexWrap} gap={layout.gap} style={{display: "flex"}}>
 				{props.children}
 			</masonview>
 		</scrollview>
 	} @else {
-		<masonview display="flex" id={props.id} ref={forwardedRef} flexDirection={layout.flexDirection} justifyContent={layout.justifyContent} alignItems={layout.alignItems} flexWrap={layout.flexWrap} gap={layout.gap} className={cx('vx-stack', props.className)} style={{ ...(sizingStyle as any), ...(props.style as any) }} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={props.accessibilityState} accessibilityLiveRegion={props.accessibilityLiveRegion}>
+		<masonview id={props.id} ref={forwardedRef} flexDirection={layout.flexDirection} justifyContent={layout.justifyContent} alignItems={layout.alignItems} flexWrap={layout.flexWrap} gap={layout.gap} className={cx('vx-stack', props.className)} style={mergeStyle({display: "flex"}, { ...(sizingStyle as any), ...(props.style as any) })} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={props.accessibilityState} accessibilityLiveRegion={props.accessibilityLiveRegion}>
 			{props.children}
 		</masonview>
 	}
@@ -77,10 +78,10 @@ export function StackItem(props: StackItemProps) @{
 			accessibilityState={props.accessibilityState}
 			accessibilityLiveRegion={props.accessibilityLiveRegion}
 		>
-			<masonview display="flex" flexDirection="column">{props.children}</masonview>
+			<masonview flexDirection="column" style={{display: "flex"}}>{props.children}</masonview>
 		</scrollview>
 	} @else {
-		<masonview display="flex" id={props.id} ref={forwardedRef} className={cx('vx-stackitem', props.className)} style={{ ...(itemStyle as any), ...(props.style as any) }} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={props.accessibilityState} accessibilityLiveRegion={props.accessibilityLiveRegion}>
+		<masonview id={props.id} ref={forwardedRef} className={cx('vx-stackitem', props.className)} style={mergeStyle({display: "flex"}, { ...(itemStyle as any), ...(props.style as any) })} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={props.accessibilityState} accessibilityLiveRegion={props.accessibilityLiveRegion}>
 			{props.children}
 		</masonview>
 	}
@@ -93,5 +94,5 @@ export function Absolute(props: AbsoluteProps) @{
 }
 
 export function Spacer(props: SpacerProps) @{
-	<masonview display="flex" className={cx('vx-spacer flex-1', props.className)} style={props.style} />
+	<masonview className={cx('vx-spacer flex-1', props.className)} style={mergeStyle({display: "flex"}, props.style)}/>
 }

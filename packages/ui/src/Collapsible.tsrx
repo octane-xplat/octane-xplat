@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useState } from 'octane';
 import type { CollapsibleProps } from "./props";
 import { cx } from "@octane-xplat/lib";
@@ -20,7 +21,7 @@ export function Collapsible(props: CollapsibleProps) @{
 		props.onOpenChange?.(next);
 	};
 
-	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-collapsible', open && 'vx-collapsible--open', props.className)} style={props.style as any}>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-collapsible', open && 'vx-collapsible--open', props.className)} style={mergeStyle({display: "flex"}, props.style as any)}>
 		<Pressable
 			className="vx-collapsible-trigger"
 			disabled={props.disabled}
@@ -29,6 +30,6 @@ export function Collapsible(props: CollapsibleProps) @{
 		>
 			{props.trigger}
 		</Pressable>
-		{open ? <masonview display="flex" className="vx-collapsible-content">{props.children}</masonview> : null}
+		{open ? <masonview className="vx-collapsible-content" style={{display: "flex"}}>{props.children}</masonview> : null}
 	</masonview>
 }

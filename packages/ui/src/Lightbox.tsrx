@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useEffect, useRef, useState } from 'octane';
 import { GridLayout } from '@nativescript/core';
 import { createPortal } from './native-portal';
@@ -81,19 +82,19 @@ function LightboxPanel(props: {
 		}
 	};
 
-	<masonview display="grid" gridTemplateRows="1fr" gridTemplateColumns="1fr" ref={(v: any) => {
+	<masonview ref={(v: any) => {
 			stage.current = v;
-		}} className={cx('vx-lightbox', props.className)} width="100%" height="100%" onSwipe={onSwipe} onPan={onStagePan} accessibilityLabel={item?.alt ?? 'Media viewer'}>
+		}} className={cx('vx-lightbox', props.className)} width="100%" height="100%" onSwipe={onSwipe} onPan={onStagePan} accessibilityLabel={item?.alt ?? 'Media viewer'} style={{display: "grid", gridTemplateRows: "1fr", gridTemplateColumns: "1fr"}}>
 		{/* Tap the backdrop edges to close; the centered media eats its own
 		 *  taps through the double-tap zoom. */}
 		{count > 0 && (
-			<masonview display="grid" gridTemplateRows="1fr auto" gridTemplateColumns="1fr" style={{justifySelf: 'stretch', alignSelf: 'stretch'}}>
-				<masonview style={{gridRow: '1', justifySelf: 'stretch', alignSelf: 'stretch'}} display="grid">
+			<masonview style={mergeStyle({display: "grid", gridTemplateRows: "1fr auto", gridTemplateColumns: "1fr"}, {justifySelf: 'stretch', alignSelf: 'stretch'})}>
+				<masonview style={mergeStyle({display: "grid"}, {gridRow: '1', justifySelf: 'stretch', alignSelf: 'stretch'})}>
 					{item != null && (
 						isVideo ? (
 							// No in-package video player — @octane-xplat/video owns the
 							// video widget. Honest fallback: show the alt text.
-							<masonview style={{justifySelf: 'center', alignSelf: 'center'}} display="flex" flexDirection="column" className="vx-lightbox-video-fallback">
+							<masonview style={mergeStyle({display: "flex"}, {justifySelf: 'center', alignSelf: 'center'})} flexDirection="column" className="vx-lightbox-video-fallback">
 								<label className="vx-lightbox-caption" textWrap={true}>
 									{item.alt}
 								</label>
@@ -105,7 +106,7 @@ function LightboxPanel(props: {
 						)
 					)}
 				</masonview>
-				<masonview style={{gridRow: '2'}} display="flex" flexDirection="row" className="vx-lightbox-footer" justifyContent="space-between" alignItems="center">
+				<masonview style={mergeStyle({display: "flex"}, {gridRow: '2'})} flexDirection="row" className="vx-lightbox-footer" justifyContent="space-between" alignItems="center">
 					<Pressable
 						className="vx-lightbox-nav"
 						accessibilityLabel="Previous"
@@ -114,7 +115,7 @@ function LightboxPanel(props: {
 					>
 						<Icon name="xplat-chevron-left" />
 					</Pressable>
-					<masonview display="flex" flexDirection="column" alignItems="center" flexGrow={1}>
+					<masonview flexDirection="column" alignItems="center" flexGrow={1} style={{display: "flex"}}>
 						{count > 1 && <Text className="vx-lightbox-counter">{`${index + 1} of ${count}`}</Text>}
 						{item?.caption != null && (
 							typeof item.caption === 'string' ? (
@@ -124,7 +125,7 @@ function LightboxPanel(props: {
 							)
 						)}
 					</masonview>
-					<masonview display="flex" flexDirection="row" alignItems="center">
+					<masonview flexDirection="row" alignItems="center" style={{display: "flex"}}>
 						<Pressable
 							className="vx-lightbox-nav"
 							accessibilityLabel="Next"
@@ -227,7 +228,7 @@ export function Lightbox(props: LightboxProps) @{
 	useEffect(() => () => shown.current?.lifetime.close(), []);
 
 	<>
-		<masonview display="flex" flexDirection="column" ref={(v: any) => { sentinel.current = v; }} style={{ width: 0, height: 0 }} />
+		<masonview flexDirection="column" ref={(v: any) => { sentinel.current = v; }} style={mergeStyle({display: "flex"}, { width: 0, height: 0 })}/>
 		{props.isOpen && count > 0 && portalHost
 			? createPortal(
 				<LightboxPanel

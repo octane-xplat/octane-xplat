@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useState } from 'octane';
 import { cx } from '@octane-xplat/lib';
 import { TabList, Tab } from './TabList';
@@ -27,14 +28,14 @@ export function Tabs(props: TabsProps) @{
 	const route = useRoute(tab?.stack ?? '');
 	const Screen = route ? screenFor(route.name) : undefined;
 
-	<masonview display="grid" gridTemplateRows="auto 1fr" id={props.id} className={cx(props.className)} style={props.style as any}>
+	<masonview id={props.id} className={cx(props.className)} style={mergeStyle({display: "grid", gridTemplateRows: "auto 1fr"}, props.style as any)}>
 		<TabList className="vx-tabbar" role="tablist" layout="fill" hasDivider
 			 value={selectedKey} onChange={(key) => { setInternal(key); props.onSelectionChange?.(key); props.onSelectedIndexChanged?.(props.tabs.findIndex((t, i) => keyFor(t, i) === key)); }} style={{gridRow: '1'}}>
 			@for (const t of props.tabs; index i; key t.key ?? t.title) {
 				<Tab value={keyFor(t, i)} label={t.title} icon={t.icon} />
 			}
 		</TabList>
-		<masonview display="grid" className={cx('vx-tabpane', route?.presentation === 'fade' ? 'vx-route--fade' : '')} style={{gridRow: '2'}}>
+		<masonview className={cx('vx-tabpane', route?.presentation === 'fade' ? 'vx-route--fade' : '')} style={mergeStyle({display: "grid"}, {gridRow: '2'})}>
 			@if (route && Screen) {
 				<RouteHost
 					screen={Screen}

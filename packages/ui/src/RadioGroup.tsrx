@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useState } from 'octane';
 import type { RadioGroupProps } from "./props";
 import { cx } from "@octane-xplat/lib";
@@ -20,13 +21,13 @@ export function RadioGroup(inputProps: RadioGroupProps) @{
 		props.onValueChange?.(value);
 	};
 
-	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection={props.horizontal ? 'row' : 'column'} className={cx('vx-radio-group', props.horizontal && 'vx-radio-group--row', props.isDisabled && 'vx-radio-group--disabled', props.isReadOnly && 'vx-radio-group--readonly', props.isLoading && 'vx-radio-group--loading', props.status && `vx-radio-group--status-${props.status.type}`, props.size && `vx-radio-group--size-${props.size}`, props.className)} style={props.style as any} accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label} accessibilityHint={props.accessibilityHint} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled }) as any}>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection={props.horizontal ? 'row' : 'column'} className={cx('vx-radio-group', props.horizontal && 'vx-radio-group--row', props.isDisabled && 'vx-radio-group--disabled', props.isReadOnly && 'vx-radio-group--readonly', props.isLoading && 'vx-radio-group--loading', props.status && `vx-radio-group--status-${props.status.type}`, props.size && `vx-radio-group--size-${props.size}`, props.className)} style={mergeStyle({display: "flex"}, props.style as any)} accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label} accessibilityHint={props.accessibilityHint} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled }) as any}>
 		{props.options.map((opt: any) => {
 			const selected = current === opt.value;
 			const disabled = props.isDisabled || opt.isDisabled;
 			const blocked = disabled || isBlocked;
 			return (
-				<masonview display="flex" key={opt.value} className={cx('vx-radio-row', indicatorScope, selected && 'vx-radio--on', disabled && 'vx-radio--disabled', props.isReadOnly && 'vx-radio--readonly')} onTap={blocked ? undefined : () => select(opt.value)}>
+				<masonview key={opt.value} className={cx('vx-radio-row', indicatorScope, selected && 'vx-radio--on', disabled && 'vx-radio--disabled', props.isReadOnly && 'vx-radio--readonly')} onTap={blocked ? undefined : () => select(opt.value)} style={{display: "flex"}}>
 					<Ind state={selected ? 'checked' : 'unchecked'} size={props.size === 'sm' ? 'sm' : 'md'} isDisabled={disabled} />
 					{opt.label != null ? <label className="vx-radio-label" text={opt.label} /> : null}
 				</masonview>

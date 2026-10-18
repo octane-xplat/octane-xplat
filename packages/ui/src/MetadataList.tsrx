@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useState } from 'octane';
 import type { MetadataListProps } from './props';
 import { cx } from '@octane-xplat/lib';
@@ -48,16 +49,16 @@ export function MetadataList(props: MetadataListProps) @{
 	<MetadataListProvider
 		value={{ labelPosition, labelWidth: props.label?.width, orientation }}
 	>
-		<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-metadatalist', props.className)} style={{ flexDirection: 'column', ...(props.style as any) }} flexDirection="column">
+		<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-metadatalist', props.className)} style={mergeStyle({display: "flex"}, { flexDirection: 'column', ...(props.style as any) })} flexDirection="column">
 			{props.title != null ? (
-				<masonview display="flex" className="vx-metadatalist-title" style={{ marginBottom: 12 }}>
+				<masonview className="vx-metadatalist-title" style={mergeStyle({display: "flex"}, { marginBottom: 12 })}>
 					{typeof props.title === 'string' || typeof props.title === 'number'
 						? <label whiteSpace="normal" style={{ fontWeight: 600 }}>{props.title}</label>
 						: props.title}
 				</masonview>
 			) : null}
 			{isHorizontal ? (
-				<masonview display="flex" className="vx-metadatalist-list vx-metadatalist--horizontal" flexDirection="row" flexWrap="wrap" gap={16}>
+				<masonview className="vx-metadatalist-list vx-metadatalist--horizontal" flexDirection="row" flexWrap="wrap" gap={16} style={{display: "flex"}}>
 					{visibleChildren}
 				</masonview>
 			) : (

@@ -35,7 +35,7 @@ export function TextInput(inputProps: TextInputProps) @{
 
 	useImperativeHandle(props.ref, () => ({ focus: () => el.current.focus(), blur: () => blurText(el.current), native: el.current }), []);
 
-	<masonview display="flex" className={cx('vx-input-shell', props.inInputGroup && 'vx-input-shell--ingroup')} flexDirection="row" alignItems="center">
+	<masonview className={cx('vx-input-shell', props.inInputGroup && 'vx-input-shell--ingroup')} flexDirection="row" alignItems="center" style={{display: "flex"}}>
 		<textfield
 			ref={(v: any) => {
 				el.current = v;

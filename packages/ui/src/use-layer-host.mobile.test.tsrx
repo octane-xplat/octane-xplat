@@ -7,7 +7,7 @@ import { useLayer } from './use-layer.tsrx'
 let layer: any
 function Probe(props: { body: string; label: string; surface?: any; onShow?: () => void; onHide?: () => void }) {
 	layer = useLayer({ mode: 'context', onShow: props.onShow, onHide: props.onHide })
-	return <masonview display="flex" flexDirection="column" ref={layer.ref}>{layer.render(props.body, { accessibilityLabel: props.label, ...props.surface })}</masonview>
+	return <masonview flexDirection="column" ref={layer.ref} style={{display: "flex"}}>{layer.render(props.body, { accessibilityLabel: props.label, ...props.surface })}</masonview>
 }
 
 describe('useLayer AppKit host content', () => {

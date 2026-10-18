@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
 import { useContext, useState } from 'octane'
 import type { DialogHeaderProps, DialogProps } from './props'
@@ -10,7 +11,7 @@ import { DialogContext, DialogProvider } from './dialog-context'
 function DialogPanel(props: DialogProps & { dark?: boolean; layerDepth: number }) @{
 	<LayerDepthProvider value={props.layerDepth}>
 		<DialogProvider value={{ titleId: '', isModal: !props.isInline, requestClose: props.onOpenChange }}>
-		<masonview display="flex" flexDirection="column" id={props.id} className={cx('vx-dialog', props.variant === 'fullscreen' && 'vx-dialog--fullscreen', props.dark && 'ns-dark', props.className)} style={{ padding: (props.padding ?? 5) * 4, ...(props.style as any) }}>
+		<masonview flexDirection="column" id={props.id} className={cx('vx-dialog', props.variant === 'fullscreen' && 'vx-dialog--fullscreen', props.dark && 'ns-dark', props.className)} style={mergeStyle({display: "flex"}, { padding: (props.padding ?? 5) * 4, ...(props.style as any) })}>
 			{props.children}
 		</masonview>
 		</DialogProvider>
@@ -57,10 +58,10 @@ export function DialogHeader(props: DialogHeaderProps) @{
 	const ctx = useContext(DialogContext)
 	const requestClose = props.onOpenChange ?? ctx?.requestClose
 
-	<masonview display="flex" flexDirection="column" className={cx('vx-dialog-header', props.className)} style={props.style}>
-		<masonview display="flex" flexDirection="row" alignItems="center">
+	<masonview flexDirection="column" className={cx('vx-dialog-header', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
+		<masonview flexDirection="row" alignItems="center" style={{display: "flex"}}>
 			{props.startContent}
-			<masonview display="flex" flexDirection="column" flexGrow={1} className="vx-dialog-header-text">
+			<masonview flexDirection="column" flexGrow={1} className="vx-dialog-header-text" style={{display: "flex"}}>
 				{props.title != null && <label className="vx-dialog-title">{props.title}</label>}
 				{props.subtitle != null && <label className="vx-dialog-subtitle">{props.subtitle}</label>}
 			</masonview>

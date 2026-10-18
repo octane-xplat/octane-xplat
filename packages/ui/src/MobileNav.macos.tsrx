@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { useContext, useId, useCallback } from 'octane';
 import type { MobileNavProps, MobileNavToggleProps } from './props';
 import { cx } from '@octane-xplat/lib';
@@ -47,16 +48,16 @@ export function MobileNav(props: MobileNavProps) @{
 	@if (!isOpen) {
 		null
 	} @else {
-		<masonview display="grid" id={id} className={cx('vx-mobilenav', 'vx-mobilenav--' + side, 'vx-mobilenav--open', props.className)} style={props.style} accessibilityLabel={props.label ?? (typeof props.header === 'string' ? props.header : 'Navigation')}>
-			<masonview display="flex" className="vx-mobilenav-backdrop" onTap={() => onOpenChange(false)} />
-			<masonview style={{ width , justifySelf: side === 'start' ? 'left' : 'right'}} display="flex" flexDirection="column" className="vx-mobilenav-drawer">
+		<masonview id={id} className={cx('vx-mobilenav', 'vx-mobilenav--' + side, 'vx-mobilenav--open', props.className)} style={mergeStyle({display: "grid"}, props.style)} accessibilityLabel={props.label ?? (typeof props.header === 'string' ? props.header : 'Navigation')}>
+			<masonview className="vx-mobilenav-backdrop" onTap={() => onOpenChange(false)} style={{display: "flex"}}/>
+			<masonview style={mergeStyle({display: "flex"}, { width , justifySelf: side === 'start' ? 'left' : 'right'})} flexDirection="column" className="vx-mobilenav-drawer">
 				@if (props.header != null) {
-					<masonview display="flex" className="vx-mobilenav-header" flexDirection="row" alignItems="center">
+					<masonview className="vx-mobilenav-header" flexDirection="row" alignItems="center" style={{display: "flex"}}>
 						{typeof props.header === 'string' ? <Text className="vx-mobilenav-heading">{props.header}</Text> : props.header}
 					</masonview>
 				}
 				<scrollview className="vx-mobilenav-content" flexGrow={1}>
-					<masonview display="flex" flexDirection="column"><SizeProvider value={null}>{props.children}</SizeProvider></masonview>
+					<masonview flexDirection="column" style={{display: "flex"}}><SizeProvider value={null}>{props.children}</SizeProvider></masonview>
 				</scrollview>
 			</masonview>
 		</masonview>

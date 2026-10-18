@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import type { ActivityIndicatorProps } from './props';
 import { cx } from '@octane-xplat/lib';
 import { applyNativeProps } from './platformProps';
@@ -10,7 +11,7 @@ import { applyNativeProps } from './platformProps';
 export function ActivityIndicator(props: ActivityIndicatorProps) @{
 	if (props.busy === false) return null;
 
-	<masonview display="flex" id={props.id} className={cx('vx-spinner', props.className)} style={props.style as any} ref={(el: any) => {
+	<masonview id={props.id} className={cx('vx-spinner', props.className)} style={mergeStyle({display: "flex"}, props.style as any)} ref={(el: any) => {
 			if (!el) return;
 			applyNativeProps(el, props);
 			el.once('loaded', () => {
@@ -20,5 +21,5 @@ export function ActivityIndicator(props: ActivityIndicatorProps) @{
 					iterations: Number.POSITIVE_INFINITY,
 				});
 			});
-		}} />
+		}}/>
 }

@@ -1,3 +1,4 @@
+import { mergeStyle } from './style-merge'
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
 import { SizeProvider } from './size-context';
 import { createPortal, useContext, useEffect, useId, useRef, useState } from 'octane';
@@ -177,12 +178,9 @@ function DialogInline(props: DialogProps) @{
 				ref={(el: any) => applyEscapeProps(el, props)}
 				id={props.id}
 				className={cx('vx-dialog', 'vx-dialog--inline', props.className)}
-				style={{
-					padding: `${padding}px`,
+				style={mergeStyle({padding: `${padding}px`,
 					width: toPx(props.width) ?? '400px',
-					maxHeight: toPx(props.maxHeight),
-					...(props.style as any),
-				}}
+					maxHeight: toPx(props.maxHeight)}, props.style as any)}
 				role={props.purpose === 'required' ? 'alertdialog' : 'dialog'}
 				aria-label={props.accessibilityLabel}
 				aria-labelledby={props.accessibilityLabel ? undefined : titleId}

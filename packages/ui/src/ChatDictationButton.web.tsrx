@@ -1,3 +1,4 @@
+import { mergeStyle } from './style-merge'
 import type { ChatDictationButtonProps } from './props';
 import { Icon } from './Icon.web.tsrx';
 import { Pressable } from './Pressable.web.tsrx';
@@ -39,7 +40,7 @@ export function ChatDictationButton(props: ChatDictationButtonProps) @{
 	<span
 		id={props.id}
 		className={['vx-chatdict', props.className]}
-		style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', ...(props.style as any) }}
+		style={mergeStyle({position: 'relative', display: 'inline-flex', alignItems: 'center'}, props.style as any)}
 	>
 		{isListening ? (
 			<span

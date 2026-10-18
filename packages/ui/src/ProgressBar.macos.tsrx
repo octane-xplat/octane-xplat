@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import type { ProgressBarProps } from './props';
 import { cx } from '@octane-xplat/lib';
 import { getColorScheme } from './colorScheme.macos';
@@ -27,9 +28,9 @@ export function ProgressBar(props: ProgressBarProps) @{
 	const marks = isIndeterminate ? [] : (props.marks ?? []);
 	const showHead = !isLabelHidden || (!isIndeterminate && hasValueLabel);
 
-	<masonview display="flex" ref={props.ref} id={props.id} className={cx('vx-progressbar', `vx-progressbar--${variant}`, props.className)} style={{ flexDirection: 'column', ...(isDisabled ? { opacity: 0.38 } : {}), ...(props.style as any) }} flexDirection="column" accessibilityRole="progressbar" accessibilityLabel={props.accessibilityLabel ?? props.label} accessibilityValue={isIndeterminate ? undefined : value} accessibilityMinValue={0} accessibilityMaxValue={max} accessibilityValueDescription={isIndeterminate ? 'In progress' : valueText}>
+	<masonview ref={props.ref} id={props.id} className={cx('vx-progressbar', `vx-progressbar--${variant}`, props.className)} style={mergeStyle({display: "flex"}, { flexDirection: 'column', ...(isDisabled ? { opacity: 0.38 } : {}), ...(props.style as any) })} flexDirection="column" accessibilityRole="progressbar" accessibilityLabel={props.accessibilityLabel ?? props.label} accessibilityValue={isIndeterminate ? undefined : value} accessibilityMinValue={0} accessibilityMaxValue={max} accessibilityValueDescription={isIndeterminate ? 'In progress' : valueText}>
 		{showHead ? (
-			<masonview display="flex" flexDirection="row" justifyContent="space-between" className="vx-progressbar-head">
+			<masonview flexDirection="row" justifyContent="space-between" className="vx-progressbar-head" style={{display: "flex"}}>
 				<label className="vx-progressbar-label" whiteSpace="nowrap" style={{ color: textColor(scheme), fontSize: 13 }}>
 					{isLabelHidden ? ' ' : props.label}
 				</label>
@@ -40,13 +41,13 @@ export function ProgressBar(props: ProgressBarProps) @{
 				) : null}
 			</masonview>
 		) : null}
-		<masonview display="grid" className="vx-progressbar-track" height={8} style={{ borderRadius: 4, backgroundColor: scheme === 'dark' ? '#2e2e2e' : '#eaeaea' }}>
-			<masonview style={{ borderRadius: 4, backgroundColor: progressFillColor(variant, scheme) , justifySelf: 'start'}} display="flex" className={cx('vx-progressbar-fill', `vx-progressbar-fill--${variant}`)} width={isIndeterminate ? '40%' : `${pct}%`} />
+		<masonview className="vx-progressbar-track" height={8} style={mergeStyle({display: "grid"}, { borderRadius: 4, backgroundColor: scheme === 'dark' ? '#2e2e2e' : '#eaeaea' })}>
+			<masonview style={mergeStyle({display: "flex"}, { borderRadius: 4, backgroundColor: progressFillColor(variant, scheme) , justifySelf: 'start'})} className={cx('vx-progressbar-fill', `vx-progressbar-fill--${variant}`)} width={isIndeterminate ? '40%' : `${pct}%`}/>
 			{marks.map((mark) => {
 				const markPct = clamp(mark.value, 0, max) / max;
 				return (
-					<masonview display="grid" gridTemplateColumns={`${markPct}fr auto ${1 - markPct}fr`} key={mark.value}>
-						<masonview style={{ backgroundColor: mutedColor(scheme) , gridColumn: '2'}} display="flex" className="vx-progressbar-mark" width={2} height={8} accessibilityLabel={mark.label} />
+					<masonview key={mark.value} style={{display: "grid", gridTemplateColumns: `${markPct}fr auto ${1 - markPct}fr`}}>
+						<masonview style={mergeStyle({display: "flex"}, { backgroundColor: mutedColor(scheme) , gridColumn: '2'})} className="vx-progressbar-mark" width={2} height={8} accessibilityLabel={mark.label}/>
 					</masonview>
 				);
 			})}

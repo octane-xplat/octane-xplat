@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { useContext, useMemo } from 'octane';
 import type { NavHeadingMenuProps, NavHeadingMenuItemProps } from './props';
 import { cx } from '@octane-xplat/lib';
@@ -32,7 +33,7 @@ export function NavHeadingMenu(props: NavHeadingMenuProps) @{
 	const minWidth = props.minWidth != null ? (typeof props.minWidth === 'number' ? props.minWidth : undefined) : MIN_WIDTHS[size];
 
 	<NavHeadingMenuProvider value={ctx}>
-		<masonview display="flex" id={props.id} flexDirection="column" className={cx('vx-navmenu', 'vx-navmenu--' + size, props.className)} style={{ ...(props.style as any), minWidth }}>
+		<masonview id={props.id} flexDirection="column" className={cx('vx-navmenu', 'vx-navmenu--' + size, props.className)} style={mergeStyle({display: "flex"}, { ...(props.style as any), minWidth })}>
 			{props.children}
 		</masonview>
 	</NavHeadingMenuProvider>
@@ -62,11 +63,11 @@ export function NavHeadingMenuItem(props: NavHeadingMenuItemProps) @{
 		accessibilityState={{ disabled: isDisabled }}
 		onPress={activate}
 	>
-		<masonview display="flex" flexDirection="row" alignItems="center" gap={8} flexGrow={1}>
+		<masonview flexDirection="row" alignItems="center" gap={8} flexGrow={1} style={{display: "flex"}}>
 			{props.icon != null ? (
 				typeof props.icon === 'string' ? <Icon name={props.icon} size={16} /> : props.icon
 			) : null}
-			<masonview display="flex" flexDirection="column" flexGrow={1}>
+			<masonview flexDirection="column" flexGrow={1} style={{display: "flex"}}>
 				{typeof props.label === 'string' ? <Text className="vx-navmenu-item-label">{props.label}</Text> : props.label}
 				{props.description != null ? (
 					typeof props.description === 'string' ? <Text className="vx-navmenu-item-desc">{props.description}</Text> : props.description

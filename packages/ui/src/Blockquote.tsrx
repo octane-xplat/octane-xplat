@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { TextSlot } from './text-slot';
 import type { BlockquoteProps } from './props';
 import { cx } from '@octane-xplat/lib';
@@ -8,7 +9,7 @@ import { applyEscapeProps } from './escape-props';
  *  String children render through a label so bare text works; component
  *  children are placed as-is. `cite` renders as a smaller attribution line. */
 export function Blockquote(props: BlockquoteProps) @{
-	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-blockquote', props.className)} style={props.style as any} flexDirection="column">
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-blockquote', props.className)} style={mergeStyle({display: "flex"}, props.style as any)} flexDirection="column">
 		<TextSlot className="vx-blockquote-text">{props.children}</TextSlot>
 		{props.cite != null && props.cite !== false
 			? typeof props.cite === 'string' || typeof props.cite === 'number'

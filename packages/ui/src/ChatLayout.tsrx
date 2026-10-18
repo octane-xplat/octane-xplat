@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useMemo, useRef } from 'octane';
 import type { ChatLayoutProps } from './props';
 import { cx } from '@octane-xplat/lib';
@@ -55,7 +56,7 @@ export function ChatLayout(props: ChatLayoutProps) @{
 	};
 
 	<ChatLayoutProvider value={layoutContext}>
-		<masonview display="grid" id={props.id} className={cx('vx-chatlayout', `vx-chatlayout--${density}`, props.className)} style={props.style as any} flexGrow={1}>
+		<masonview id={props.id} className={cx('vx-chatlayout', `vx-chatlayout--${density}`, props.className)} style={mergeStyle({display: "grid"}, props.style as any)} flexGrow={1}>
 			<scrollview
 				ref={(v: any) => {
 					scrollViewRef.current = v;
@@ -64,9 +65,9 @@ export function ChatLayout(props: ChatLayoutProps) @{
 				className="vx-chatlayout-scroll"
 				orientation="vertical"
 			>
-				<masonview display="flex" ref={(v: any) => { contentWrapRef.current = v; }} className={cx('vx-chatlayout-messages', `vx-chatlayout-messages--${density}`)} flexDirection="column" onLayoutChanged={syncDockInset}>
+				<masonview ref={(v: any) => { contentWrapRef.current = v; }} className={cx('vx-chatlayout-messages', `vx-chatlayout-messages--${density}`)} flexDirection="column" onLayoutChanged={syncDockInset} style={{display: "flex"}}>
 					{showEmpty && props.emptyState != null ? (
-						<masonview display="flex" className="vx-chatlayout-empty" alignItems="center" justifyContent="center" flexGrow={1}>
+						<masonview className="vx-chatlayout-empty" alignItems="center" justifyContent="center" flexGrow={1} style={{display: "flex"}}>
 							{props.emptyState}
 						</masonview>
 					) : (
@@ -74,7 +75,7 @@ export function ChatLayout(props: ChatLayoutProps) @{
 					)}
 				</masonview>
 			</scrollview>
-			<masonview style={{alignSelf: 'end'}} display="flex" ref={(v: any) => {
+			<masonview style={mergeStyle({display: "flex"}, {alignSelf: 'end'})} ref={(v: any) => {
 					dockRef.current = v;
 					v?.on?.('layoutChanged', syncDockInset);
 				}} className="vx-chatlayout-dock" flexDirection="column">
@@ -90,8 +91,8 @@ export function ChatLayout(props: ChatLayoutProps) @{
 				) : (
 					props.scrollButton
 				)}
-				<masonview display="flex" className={cx('vx-chatlayout-dockpad', `vx-chatlayout-dockpad--${density}`)}>
-					<masonview display="flex" className="vx-chatlayout-dockinner">{props.composer}</masonview>
+				<masonview className={cx('vx-chatlayout-dockpad', `vx-chatlayout-dockpad--${density}`)} style={{display: "flex"}}>
+					<masonview className="vx-chatlayout-dockinner" style={{display: "flex"}}>{props.composer}</masonview>
 				</masonview>
 			</masonview>
 		</masonview>

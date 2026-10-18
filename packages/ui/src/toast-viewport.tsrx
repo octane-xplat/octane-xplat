@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useEffect, useId, useMemo, useRef } from 'octane';
 import type { ToastViewportProps } from './props';
 import { ToastViewportProvider, type ToastViewportContextValue } from './toast-context';
@@ -40,6 +41,6 @@ export function ToastViewport(props: ToastViewportProps) @{
 		<ToastViewportProvider value={ctx}>
 			{props.children}
 		</ToastViewportProvider>
-		<masonview display="flex" flexDirection="column" ref={(v: any) => { sentinel.current = v; }} style={{ width: 0, height: 0 }} />
+		<masonview flexDirection="column" ref={(v: any) => { sentinel.current = v; }} style={mergeStyle({display: "flex"}, { width: 0, height: 0 })}/>
 	</>
 }

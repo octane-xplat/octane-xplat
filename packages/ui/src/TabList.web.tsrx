@@ -1,3 +1,4 @@
+import { mergeStyle } from './style-merge'
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'octane';
 import type { TabListProps, TabProps, TabMenuProps, TabMenuOption } from './props';
 import { useSize } from './size-context';
@@ -272,7 +273,7 @@ export function TabMenu(props: TabMenuProps) @{
 			id={props.id}
 			type="button"
 			className={['vx-tab vx-tabmenu-trigger', selected && 'vx-tab--selected', props.className]}
-			style={{ height: SIZE_HEIGHT[ctx.size], ...(props.style as any) }}
+			style={mergeStyle({height: SIZE_HEIGHT[ctx.size]}, props.style as any)}
 			data-tab-menu=""
 			tabIndex={selected ? 0 : -1}
 			aria-haspopup="menu"

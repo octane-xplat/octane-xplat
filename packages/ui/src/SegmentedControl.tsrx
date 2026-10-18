@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useState } from 'octane';
 import type { SegmentedControlProps } from './props';
 import { cx } from '@octane-xplat/lib';
@@ -21,12 +22,12 @@ export function SegmentedControl(inputProps: SegmentedControlProps) @{
 		props.onValueChange?.(value);
 	};
 
-	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx('vx-segmented', props.isDisabled && 'vx-segmented--disabled', props.isReadOnly && 'vx-segmented--readonly', props.isLoading && 'vx-segmented--loading', props.status && `vx-segmented--status-${props.status.type}`, props.size && `vx-segmented--size-${props.size}`, props.className)} style={props.style as any} accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label} accessibilityHint={props.accessibilityHint} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled }) as any}>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx('vx-segmented', props.isDisabled && 'vx-segmented--disabled', props.isReadOnly && 'vx-segmented--readonly', props.isLoading && 'vx-segmented--loading', props.status && `vx-segmented--status-${props.status.type}`, props.size && `vx-segmented--size-${props.size}`, props.className)} style={mergeStyle({display: "flex"}, props.style as any)} accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label} accessibilityHint={props.accessibilityHint} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled }) as any}>
 		{props.options.map((opt: any) => {
 			const selected = current === opt.value;
 			const disabled = props.isDisabled || opt.isDisabled;
 			return (
-				<masonview display="flex" key={opt.value} className={cx('vx-segment', selected && 'vx-segment--on', disabled && 'vx-segment--disabled')} accessibilityState={nativeAccessibilityState({ selected, disabled }) as any} onTap={disabled ? undefined : () => select(opt.value)}>
+				<masonview key={opt.value} className={cx('vx-segment', selected && 'vx-segment--on', disabled && 'vx-segment--disabled')} accessibilityState={nativeAccessibilityState({ selected, disabled }) as any} onTap={disabled ? undefined : () => select(opt.value)} style={{display: "flex"}}>
 					<label className="vx-segment-label" text={opt.label ?? opt.value} />
 				</masonview>
 			);

@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import type { ChatSystemMessageProps } from './props';
 import { cx } from '@octane-xplat/lib';
 import { Separator } from './Separator';
@@ -8,18 +9,18 @@ import { Separator } from './Separator';
 export function ChatSystemMessage(props: ChatSystemMessageProps) @{
 	if (props.variant === 'divider') {
 		return (
-		<masonview display="flex" id={props.id} className={cx('vx-chatsys', 'vx-chatsys--divider', props.className)} style={props.style as any} flexDirection="row" alignItems="center" justifyContent="center">
+		<masonview id={props.id} className={cx('vx-chatsys', 'vx-chatsys--divider', props.className)} style={mergeStyle({display: "flex"}, props.style as any)} flexDirection="row" alignItems="center" justifyContent="center">
 			<Separator className="vx-chatsys-rule" />
-			<masonview display="flex" className="vx-chatsys-content">{props.children}</masonview>
+			<masonview className="vx-chatsys-content" style={{display: "flex"}}>{props.children}</masonview>
 			<Separator className="vx-chatsys-rule" />
 		</masonview>
 		);
 	}
 
 	return (
-		<masonview display="flex" id={props.id} className={cx('vx-chatsys', props.className)} style={props.style as any} flexDirection="row" alignItems="center" justifyContent="center">
-			<masonview display="flex" className="vx-chatsys-content" flexDirection="row" alignItems="center">
-				{props.icon != null ? <masonview display="flex" className="vx-chatsys-icon">{props.icon}</masonview> : null}
+		<masonview id={props.id} className={cx('vx-chatsys', props.className)} style={mergeStyle({display: "flex"}, props.style as any)} flexDirection="row" alignItems="center" justifyContent="center">
+			<masonview className="vx-chatsys-content" flexDirection="row" alignItems="center" style={{display: "flex"}}>
+				{props.icon != null ? <masonview className="vx-chatsys-icon" style={{display: "flex"}}>{props.icon}</masonview> : null}
 				{props.children}
 			</masonview>
 		</masonview>

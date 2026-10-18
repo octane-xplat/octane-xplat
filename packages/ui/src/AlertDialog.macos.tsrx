@@ -34,11 +34,11 @@ export function AlertDialog(props: AlertDialogProps) @{
 			style={props.style}
 			id={props.id}
 		>
-			<masonview display="flex" flexDirection="column" className="vx-alertdialog-title">
+			<masonview flexDirection="column" className="vx-alertdialog-title" style={{display: "flex"}}>
 				<label className="vx-alertdialog-heading">{props.title}</label>
 			</masonview>
 			{props.description != null && (
-				<masonview display="flex" className="vx-alertdialog-desc">
+				<masonview className="vx-alertdialog-desc" style={{display: "flex"}}>
 					{typeof props.description === 'string' ? (
 						<label whiteSpace="normal">{props.description}</label>
 					) : (
@@ -46,7 +46,7 @@ export function AlertDialog(props: AlertDialogProps) @{
 					)}
 				</masonview>
 			)}
-			<masonview display="flex" flexDirection="row" justifyContent="flex-end" className="vx-alertdialog-actions">
+			<masonview flexDirection="row" justifyContent="flex-end" className="vx-alertdialog-actions" style={{display: "flex"}}>
 				<Button
 					className="btn btn-secondary"
 					clickAction={() => requestChange(false)}

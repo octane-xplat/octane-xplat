@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { useState } from 'octane'
 import type { ToggleButtonProps, ToggleButtonGroupProps } from './props'
 import { useToggleButtonGroup, ToggleButtonGroupContext } from './toggle-button-group-context'
@@ -22,5 +23,5 @@ export function ToggleButtonGroup(props: ToggleButtonGroupProps) @{
 	const type=props.type??'single';const selected=new Set(Array.isArray(props.value)?props.value:props.value==null?[]:[props.value])
 	const toggle=(key:string)=>{if(type==='multiple'){const next=new Set(selected);if(next.has(key))next.delete(key);else next.add(key);(props as Extract<ToggleButtonGroupProps,{type:'multiple'}>).onChange([...next])}else (props as Extract<ToggleButtonGroupProps,{type?:'single'}>).onChange(selected.has(key)?null:key)}
 
-	<ToggleButtonGroupContext.Provider value={{selectedValues:selected,toggle,size:props.size,isDisabled:props.isDisabled}}><masonview display="flex" id={props.id} className={cx('vx-toggle-button-group',`vx-button-group--${props.orientation??'horizontal'}`,props.className)} style={props.style} accessibilityLabel={props.label}>{props.children}</masonview></ToggleButtonGroupContext.Provider>
+	<ToggleButtonGroupContext.Provider value={{selectedValues:selected,toggle,size:props.size,isDisabled:props.isDisabled}}><masonview id={props.id} className={cx('vx-toggle-button-group',`vx-button-group--${props.orientation??'horizontal'}`,props.className)} style={mergeStyle({display: "flex"}, props.style)} accessibilityLabel={props.label}>{props.children}</masonview></ToggleButtonGroupContext.Provider>
 }

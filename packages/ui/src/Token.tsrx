@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useMemo } from 'octane'
 import { refList } from './ref-list'
 import { Utils } from '@nativescript/core';
@@ -75,7 +76,7 @@ export function Token(props: TokenProps) @{
 
 	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
-	return <masonview display="flex" ref={forwardedRef} id={props.id} className={classes} style={props.style as any} accessibilityLabel={props.isLabelHidden ? props.label : undefined} accessibilityHint={props.description} accessibilityState={a11yState}>
+	return <masonview ref={forwardedRef} id={props.id} className={classes} style={mergeStyle({display: "flex"}, props.style as any)} accessibilityLabel={props.isLabelHidden ? props.label : undefined} accessibilityHint={props.description} accessibilityState={a11yState}>
 		{content}
 	</masonview>
 }

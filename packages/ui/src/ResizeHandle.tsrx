@@ -85,6 +85,6 @@ export function ResizeHandle(props: ResizeHandleProps) @{
 		onPan={onPan}
 		onPress={onTap}
 	>
-		{props.children ?? <masonview display="flex" className="vx-resize-handle-pill" />}
+		{props.children ?? <masonview className="vx-resize-handle-pill" style={{display: "flex"}}/>}
 	</Pressable>
 }

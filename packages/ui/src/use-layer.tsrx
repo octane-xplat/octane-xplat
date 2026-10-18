@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
 import { useCallback, useEffect, useId, useRef, useState } from 'octane';
 import type {
@@ -16,7 +17,7 @@ import { layerOffset, nativeLayerRTL, positionPopover, resolveLayerAlignment, re
 const host = () => (globalThis as any).__xplatAppKit ?? {};
 
 function LayerPanel(props: { body?: any; className?: any; style?: any; label?: string; layerDepth?: number }) @{
-	<masonview display="flex" flexDirection="column" className={cx('vx-popover', props.className)} style={props.style} accessibilityLabel={props.label}>
+	<masonview flexDirection="column" className={cx('vx-popover', props.className)} style={mergeStyle({display: "flex"}, props.style)} accessibilityLabel={props.label}>
 		<LayerDepthProvider value={props.layerDepth ?? 0}>{props.body}</LayerDepthProvider>
 	</masonview>
 }
@@ -113,7 +114,7 @@ export function useLayer<O extends LayerOptions>(
 			// locates the owning AppKit view for the point anchor.
 			return <>
 				<LayerContentUpdate sync={sync} body={children} surface={props} open={visible} />
-				{fixed && <masonview display="flex" ref={(v: any) => { markerEl.current = v; }} style={{ width: 0, height: 0 }} />}
+				{fixed && <masonview ref={(v: any) => { markerEl.current = v; }} style={mergeStyle({display: "flex"}, { width: 0, height: 0 })}/>}
 			</>;
 		},
 		[fixed, visible, sync],

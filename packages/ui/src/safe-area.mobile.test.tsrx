@@ -124,7 +124,7 @@ describe('KeyboardAvoiding', () => {
 		flushUniversalSync(() => {})
 		await Promise.resolve()
 		expect(keyboard.listeners.size).toBe(0)
-		expect(container.children[0].children[0].props.style).toBeUndefined()
+		expect(container.children[0].children[0].props.style?.paddingBottom).toBeUndefined()
 		root.unmount()
 	})
 })

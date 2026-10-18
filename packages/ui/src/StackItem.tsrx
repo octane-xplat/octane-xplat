@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useMemo } from 'octane'
 import { refList } from './ref-list'
 import type { StackItemProps } from './props';
@@ -33,10 +34,10 @@ export function StackItem(props: StackItemProps) @{
 			onPan={onPan}
 			onSwipe={props.onSwipe}
 		>
-			<masonview display="flex" flexDirection="column">{props.children}</masonview>
+			<masonview flexDirection="column" style={{display: "flex"}}>{props.children}</masonview>
 		</scrollview>
 	} @else {
-		<masonview display="flex" id={props.id} ref={forwardedRef} className={cx('vx-stackitem', props.className)} style={{ ...(itemStyle as any), ...(props.style as any) }} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any} onPan={onPan} onSwipe={props.onSwipe}>
+		<masonview id={props.id} ref={forwardedRef} className={cx('vx-stackitem', props.className)} style={mergeStyle({display: "flex"}, { ...(itemStyle as any), ...(props.style as any) })} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any} onPan={onPan} onSwipe={props.onSwipe}>
 			{props.children}
 		</masonview>
 	}

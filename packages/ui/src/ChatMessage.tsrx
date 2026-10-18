@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useMemo } from 'octane';
 import type { ChatMessageProps } from './props';
 import { cx } from '@octane-xplat/lib';
@@ -23,16 +24,16 @@ export function ChatMessage(props: ChatMessageProps) @{
 	const hasMetadata = renderable(props.metadata) && !isSystem;
 
 	<ChatMessageProvider value={contextValue}>
-		<masonview display="flex" id={props.id} className={cx('vx-chatmsg', `vx-chatmsg--${props.sender}`, `vx-chatmsg--${density}`, props.className)} style={props.style as any} flexDirection="row" justifyContent={isSystem ? 'center' : 'flex-start'} accessibilityLabel={props.accessibilityLabel ?? (!hasName ? `Message from ${props.sender}` : undefined)}>
-			{hasAvatar && !isUser ? <masonview display="flex" className="vx-chatmsg-avatar">{props.avatar}</masonview> : null}
-			<masonview display="flex" className={cx('vx-chatmsg-content', `vx-chatmsg-content--${props.sender}`)} flexDirection="column" flexGrow={1} alignItems={isSystem ? 'center' : isUser ? 'flex-end' : 'flex-start'}>
-				{hasName ? <masonview display="flex" className="vx-chatmsg-name">{props.name}</masonview> : null}
-				<masonview display="flex" className={cx('vx-chatmsg-children', `vx-chatmsg-children--${props.sender}`, `vx-chatmsg-children--${density}`)} flexDirection="column" alignItems={isSystem ? 'center' : isUser ? 'flex-end' : 'flex-start'}>
+		<masonview id={props.id} className={cx('vx-chatmsg', `vx-chatmsg--${props.sender}`, `vx-chatmsg--${density}`, props.className)} style={mergeStyle({display: "flex"}, props.style as any)} flexDirection="row" justifyContent={isSystem ? 'center' : 'flex-start'} accessibilityLabel={props.accessibilityLabel ?? (!hasName ? `Message from ${props.sender}` : undefined)}>
+			{hasAvatar && !isUser ? <masonview className="vx-chatmsg-avatar" style={{display: "flex"}}>{props.avatar}</masonview> : null}
+			<masonview className={cx('vx-chatmsg-content', `vx-chatmsg-content--${props.sender}`)} flexDirection="column" flexGrow={1} alignItems={isSystem ? 'center' : isUser ? 'flex-end' : 'flex-start'} style={{display: "flex"}}>
+				{hasName ? <masonview className="vx-chatmsg-name" style={{display: "flex"}}>{props.name}</masonview> : null}
+				<masonview className={cx('vx-chatmsg-children', `vx-chatmsg-children--${props.sender}`, `vx-chatmsg-children--${density}`)} flexDirection="column" alignItems={isSystem ? 'center' : isUser ? 'flex-end' : 'flex-start'} style={{display: "flex"}}>
 					{props.children}
 				</masonview>
-				{hasMetadata ? <masonview display="flex" className="vx-chatmsg-meta">{props.metadata}</masonview> : null}
+				{hasMetadata ? <masonview className="vx-chatmsg-meta" style={{display: "flex"}}>{props.metadata}</masonview> : null}
 			</masonview>
-			{hasAvatar && isUser ? <masonview display="flex" className="vx-chatmsg-avatar">{props.avatar}</masonview> : null}
+			{hasAvatar && isUser ? <masonview className="vx-chatmsg-avatar" style={{display: "flex"}}>{props.avatar}</masonview> : null}
 		</masonview>
 	</ChatMessageProvider>
 }

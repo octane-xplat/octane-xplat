@@ -29,7 +29,7 @@ export function TextInput(inputProps: TextInputProps) @{
 		get native() { return el.current },
 	}), [])
 
-	<masonview display="flex" className={cx('vx-input-shell', props.inInputGroup && 'vx-input-shell--ingroup')} flexDirection="row" alignItems="center" accessibilityState={{ busy: props.isLoading }}>
+	<masonview className={cx('vx-input-shell', props.inInputGroup && 'vx-input-shell--ingroup')} flexDirection="row" alignItems="center" accessibilityState={{ busy: props.isLoading }} style={{display: "flex"}}>
 		<textfield
 			ref={el}
 			secure={props.secure}

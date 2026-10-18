@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import type { KeyboardAvoidingProps } from './props'
 import { cx } from '@octane-xplat/lib'
 
@@ -9,7 +10,7 @@ import { cx } from '@octane-xplat/lib'
  * @see KeyboardAvoidingProps, useKeyboardInset.
  */
 export function KeyboardAvoiding(props: KeyboardAvoidingProps) @{
-	<masonview display="flex" id={props.id} flexDirection="column" className={cx('vx-keyboard-avoiding', props.className)} style={props.style as any}>
+	<masonview id={props.id} flexDirection="column" className={cx('vx-keyboard-avoiding', props.className)} style={mergeStyle({display: "flex"}, props.style as any)}>
 		{props.children}
 	</masonview>
 }

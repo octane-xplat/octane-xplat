@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useCallback, useEffect, useRef, useState } from 'octane';
 import type { OverflowItem, OverflowListProps } from './props';
 import { cx } from '@octane-xplat/lib';
@@ -100,15 +101,15 @@ export function OverflowList(props: OverflowListProps) @{
 		{/* Hidden measurement copy — a horizontal ScrollView gives children an
 		    unbounded width constraint so each reports its intrinsic width;
 		    the host box is height-0 + hidden so it never paints. */}
-		<masonview display="flex" height={0} visibility="hidden" className="vx-overflowlist-measure">
+		<masonview height={0} visibility="hidden" className="vx-overflowlist-measure" style={{display: "flex"}}>
 			<scrollview orientation="horizontal" scrollBarIndicatorVisible={false}>
-				<masonview display="flex" ref={(v: any) => { measure.current = v; }} flexDirection="row" gap={gap} onLayoutChanged={calculate}>
+				<masonview ref={(v: any) => { measure.current = v; }} flexDirection="row" gap={gap} onLayoutChanged={calculate} style={{display: "flex"}}>
 					{childArray}
-					{measureIndicator != null ? <masonview display="flex" flexDirection="row">{measureIndicator}</masonview> : null}
+					{measureIndicator != null ? <masonview flexDirection="row" style={{display: "flex"}}>{measureIndicator}</masonview> : null}
 				</masonview>
 			</scrollview>
 		</masonview>
-		<masonview display="flex" ref={(v: any) => { container.current = v; if (v) { applyEscapeProps(v, props); v.on?.('layoutChanged', calculate); } }} id={props.id} className={cx('vx-overflowlist', isMultiRow && 'vx-overflowlist--multirow', props.className)} style={{ ...(props.style as any), height: containerHeight }} flexDirection="row" flexWrap={isMultiRow ? 'wrap' : 'nowrap'} alignItems="flex-start" rowGap={isMultiRow ? gap : undefined} gap={gap} onLayoutChanged={calculate}>
+		<masonview ref={(v: any) => { container.current = v; if (v) { applyEscapeProps(v, props); v.on?.('layoutChanged', calculate); } }} id={props.id} className={cx('vx-overflowlist', isMultiRow && 'vx-overflowlist--multirow', props.className)} style={mergeStyle({display: "flex"}, { ...(props.style as any), height: containerHeight })} flexDirection="row" flexWrap={isMultiRow ? 'wrap' : 'nowrap'} alignItems="flex-start" rowGap={isMultiRow ? gap : undefined} gap={gap} onLayoutChanged={calculate}>
 			{collapseFrom === 'start' && hasOverflow ? props.overflowRenderer?.(overflowItems) : null}
 			{visibleItems.map(({ child }) => child)}
 			{collapseFrom === 'end' && hasOverflow ? props.overflowRenderer?.(overflowItems) : null}

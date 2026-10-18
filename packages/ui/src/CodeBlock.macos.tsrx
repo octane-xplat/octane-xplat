@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { useMemo, useState } from 'octane';
 import type { CodeBlockProps } from './props';
 import { cx } from '@octane-xplat/lib';
@@ -37,12 +38,12 @@ export function CodeBlock(props: CodeBlockProps) @{
 	const hasHeader = props.title != null || hasLanguageLabel || hasCopyButton || canCollapse;
 
 	const body = (
-		<masonview display="flex" flexDirection="column" className="vx-codeblock-body" style={{ paddingTop: 8, paddingBottom: 8, paddingLeft: 12, paddingRight: 12 }}>
+		<masonview flexDirection="column" className="vx-codeblock-body" style={mergeStyle({display: "flex"}, { paddingTop: 8, paddingBottom: 8, paddingLeft: 12, paddingRight: 12 })}>
 			{lines.map((line, i) => {
 				const lineNo = i + 1;
 				const isHl = highlighted.has(lineNo);
 				return (
-					<masonview display="flex" key={lineNo} flexDirection="row" style={isHl ? { backgroundColor: scheme === 'dark' ? '#2e2e2e' : '#f0f0f0' } : undefined}>
+					<masonview key={lineNo} flexDirection="row" style={mergeStyle({display: "flex"}, isHl ? { backgroundColor: scheme === 'dark' ? '#2e2e2e' : '#f0f0f0' } : undefined)}>
 						{hasLineNumbers ? (
 							<label
 								text={String(lineNo)}
@@ -68,10 +69,10 @@ export function CodeBlock(props: CodeBlockProps) @{
 		</masonview>
 	);
 
-	<masonview display="flex" id={props.id} className={cx('vx-codeblock', `vx-codeblock--${container}`, props.className)} style={{ flexDirection: 'column', ...(props.style as any) }} flexDirection="column">
+	<masonview id={props.id} className={cx('vx-codeblock', `vx-codeblock--${container}`, props.className)} style={mergeStyle({display: "flex"}, { flexDirection: 'column', ...(props.style as any) })} flexDirection="column">
 		{hasHeader ? (
-			<masonview display="flex" flexDirection="row" justifyContent="space-between" alignItems="center" style={{ paddingTop: 6, paddingBottom: 6, paddingLeft: 12, paddingRight: 12 }}>
-				<masonview display="flex" flexDirection="row" alignItems="center" style={{ gap: 8 }}>
+			<masonview flexDirection="row" justifyContent="space-between" alignItems="center" style={mergeStyle({display: "flex"}, { paddingTop: 6, paddingBottom: 6, paddingLeft: 12, paddingRight: 12 })}>
+				<masonview flexDirection="row" alignItems="center" style={mergeStyle({display: "flex"}, { gap: 8 })}>
 					{props.title != null ? (
 						<label whiteSpace="nowrap" style={{ fontSize, fontWeight: 600, color: textColor(scheme) }}>
 							{props.title}
@@ -83,7 +84,7 @@ export function CodeBlock(props: CodeBlockProps) @{
 						</label>
 					) : null}
 				</masonview>
-				<masonview display="flex" flexDirection="row" alignItems="center" style={{ gap: 4 }}>
+				<masonview flexDirection="row" alignItems="center" style={mergeStyle({display: "flex"}, { gap: 4 })}>
 					{hasCopyButton ? (
 						<Pressable
 							accessibilityRole="button"

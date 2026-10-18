@@ -100,7 +100,7 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn @{
 
 
 	const renderHoverCard = useCallback((children: any, props?: Record<string, any>) => { return layer.render(
-		<masonview display="flex" flexDirection="column" className="vx-hovercard-content" accessibilityLabel={options.label}>
+		<masonview flexDirection="column" className="vx-hovercard-content" accessibilityLabel={options.label} style={{display: "flex"}}>
 						{children}
 					</masonview>,
 		{ placement: props?.placement ?? options.placement ?? 'above', alignment: props?.alignment ?? options.alignment ?? 'center', offset: 8,

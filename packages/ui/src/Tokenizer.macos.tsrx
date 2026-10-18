@@ -20,8 +20,8 @@ function EndLane(props: { lane: BusyIndicatorLane; endContent?: any; clear?: any
 	const isBusy = useSyncExternalStore(props.lane.subscribe, props.lane.getIsBusy);
 	if (!isBusy && props.endContent == null && props.clear == null) return null;
 
-	<masonview display="flex" className="vx-tokenizer-endlane" flexDirection="row" alignItems="center" ref={props.laneRef}>
-		{isBusy ? <masonview display="flex" className="vx-typeahead-spinner"><ActivityIndicator busy={true} /></masonview> : null}
+	<masonview className="vx-tokenizer-endlane" flexDirection="row" alignItems="center" ref={props.laneRef} style={{display: "flex"}}>
+		{isBusy ? <masonview className="vx-typeahead-spinner" style={{display: "flex"}}><ActivityIndicator busy={true} /></masonview> : null}
 		{props.endContent}
 		{props.clear}
 	</masonview>
@@ -198,7 +198,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 				isDisabled={props.isDisabled}
 			/>;
 
-		return <masonview display="flex" key={item.id} className="vx-tokenizer-token" ref={(v: any) => { if (v) tokenEls.current.set(i, v); else tokenEls.current.delete(i); }}>{body}</masonview>;
+		return <masonview key={item.id} className="vx-tokenizer-token" ref={(v: any) => { if (v) tokenEls.current.set(i, v); else tokenEls.current.delete(i); }} style={{display: "flex"}}>{body}</masonview>;
 	});
 
 	const hasClearButton = Boolean(props.hasClear && props.value.length > 0 && !props.isDisabled);
@@ -246,7 +246,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 		: null;
 
 	const truncatedRow = (
-		<masonview display="flex" className={wrapperClass} flexDirection="row" alignItems="center" flexWrap="nowrap" ref={(v: any) => { wrapperRef.current = v; }} onLayoutChanged={measureOverflow} onTap={() => { if (!props.isDisabled) inputHandle.current?.focus(); }} accessibilityState={{ disabled: props.isDisabled } as any}>
+		<masonview className={wrapperClass} flexDirection="row" alignItems="center" flexWrap="nowrap" ref={(v: any) => { wrapperRef.current = v; }} onLayoutChanged={measureOverflow} onTap={() => { if (!props.isDisabled) inputHandle.current?.focus(); }} accessibilityState={{ disabled: props.isDisabled } as any} style={{display: "flex"}}>
 			{startIcon}
 			{tokens}
 			{isTruncated
@@ -259,7 +259,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 	if (isLayerMode) {
 		// The collapsed row anchors the popover; the full field lives inside it.
 		content = <>
-			<masonview display="flex" className={wrapperClass} flexDirection="row" alignItems="center" flexWrap="nowrap" ref={(v: any) => { wrapperRef.current = v; }} onLayoutChanged={measureOverflow} onTap={() => { if (!props.isDisabled) focusEntered(); }} accessibilityState={{ disabled: props.isDisabled } as any}>
+			<masonview className={wrapperClass} flexDirection="row" alignItems="center" flexWrap="nowrap" ref={(v: any) => { wrapperRef.current = v; }} onLayoutChanged={measureOverflow} onTap={() => { if (!props.isDisabled) focusEntered(); }} accessibilityState={{ disabled: props.isDisabled } as any} style={{display: "flex"}}>
 				{startIcon}
 				{tokens}
 				<label ref={(v: any) => { overflowRef.current = v; }} className="vx-tokenizer-overflow" text={overflowCount > 0 ? `+${overflowCount} more` : ''} />
@@ -271,7 +271,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 				onDismiss={collapseSoon}
 				className="vx-tokenizer-layer"
 			>
-				<masonview display="flex" className="vx-tokenizer" flexDirection="row" alignItems="center" flexWrap="wrap">
+				<masonview className="vx-tokenizer" flexDirection="row" alignItems="center" flexWrap="wrap" style={{display: "flex"}}>
 					{startIcon}
 					{tokens}
 					{fieldControls}
@@ -280,7 +280,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 			</Popover>
 		</>;
 	} else {
-		content = <masonview display="flex" className={wrapperClass} flexDirection="row" alignItems="center" flexWrap={isTruncated ? 'nowrap' : 'wrap'} ref={(v: any) => { wrapperRef.current = v; }} onLayoutChanged={measureOverflow} onTap={() => { if (!props.isDisabled) inputHandle.current?.focus(); }} accessibilityState={{ disabled: props.isDisabled } as any}>
+		content = <masonview className={wrapperClass} flexDirection="row" alignItems="center" flexWrap={isTruncated ? 'nowrap' : 'wrap'} ref={(v: any) => { wrapperRef.current = v; }} onLayoutChanged={measureOverflow} onTap={() => { if (!props.isDisabled) inputHandle.current?.focus(); }} accessibilityState={{ disabled: props.isDisabled } as any} style={{display: "flex"}}>
 			{startIcon}
 			{tokens}
 			{isTruncated

@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import type { ChatTokenizedTextProps } from './props';
 import { cx } from '@octane-xplat/lib';
 import { ChatTokenChip } from './chat-tokens.tsrx';
@@ -12,13 +13,13 @@ export function ChatTokenizedText(props: ChatTokenizedTextProps) @{
 	const text = props.children ?? '';
 	if (!text || !props.tokens || props.tokens.length === 0) {
 		return (
-			<masonview display="flex" id={props.id} className={cx('vx-chattext', props.className)} style={props.style as any} flexDirection="row" flexWrap="wrap">
+			<masonview id={props.id} className={cx('vx-chattext', props.className)} style={mergeStyle({display: "flex"}, props.style as any)} flexDirection="row" flexWrap="wrap">
 				<label text={text} />
 			</masonview>
 		);
 	}
 
-	<masonview display="flex" id={props.id} className={cx('vx-chattext', props.className)} style={props.style as any} flexDirection="row" flexWrap="wrap" alignItems="center">
+	<masonview id={props.id} className={cx('vx-chattext', props.className)} style={mergeStyle({display: "flex"}, props.style as any)} flexDirection="row" flexWrap="wrap" alignItems="center">
 		{tokenizeChatText(text, props.tokens).map((part) =>
 			part.kind === 'token' ? (
 				<ChatTokenChip token={part.token} />

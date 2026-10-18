@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { useContext } from 'octane';
 import type { SearchableItem } from './props';
 import type { BaseTypeaheadViewProps } from './typeahead-view';
@@ -21,7 +22,7 @@ export function BaseTypeaheadView<T extends SearchableItem,>(props: BaseTypeahea
 		? props.highlightedIndex
 		: -1;
 
-	<masonview display="flex" flexDirection="column" className={cx('vx-typeahead', props.className)} style={props.style}>
+	<masonview flexDirection="column" className={cx('vx-typeahead', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
 		<textfield
 			ref={(v: any) => {
 				props.inputRef.current = v;
@@ -37,7 +38,7 @@ export function BaseTypeaheadView<T extends SearchableItem,>(props: BaseTypeahea
 			onTextChange={(value: any) => props.onQueryChange(String(value ?? ''))}
 		/>
 		{props.isSearching && busyLane == null
-			? <masonview display="flex" className="vx-typeahead-loading"><ActivityIndicator busy={true} /></masonview>
+			? <masonview className="vx-typeahead-loading" style={{display: "flex"}}><ActivityIndicator busy={true} /></masonview>
 			: null}
 		<Popover
 			anchor={props.anchor}
@@ -45,9 +46,9 @@ export function BaseTypeaheadView<T extends SearchableItem,>(props: BaseTypeahea
 			className="vx-typeahead-dropdown"
 			style={{ width: props.menuWidth }}
 		>
-			<masonview display="flex" className="vx-typeahead-list" flexDirection="column">
+			<masonview className="vx-typeahead-list" flexDirection="column" style={{display: "flex"}}>
 				{props.results.length === 0 && props.hasSearched
-					? <masonview display="flex" className="vx-typeahead-empty"><label text={props.emptyText} /></masonview>
+					? <masonview className="vx-typeahead-empty" style={{display: "flex"}}><label text={props.emptyText} /></masonview>
 					: null}
 				@for (const group of groups; key group.heading ?? 'ungrouped') {
 					{group.heading != null
@@ -57,8 +58,8 @@ export function BaseTypeaheadView<T extends SearchableItem,>(props: BaseTypeahea
 					@for (const item of group.items; index gi; key item.id + '-' + gi) {
 						const index = props.results.indexOf(item);
 						const isSelected = item.id === selectedId && selectedId != null;
-						<masonview display="flex" className={cx('vx-typeahead-option', `vx-typeahead-option--size-${props.size}`, index === activeIndex && 'vx-typeahead-option--highlighted', isSelected && 'vx-typeahead-option--selected')} flexDirection="row" alignItems="center" onTap={() => props.onSelect(item)} accessibilityState={{ selected: isSelected }}>
-							<masonview display="flex" className="vx-typeahead-option-content" flexGrow={1}>
+						<masonview className={cx('vx-typeahead-option', `vx-typeahead-option--size-${props.size}`, index === activeIndex && 'vx-typeahead-option--highlighted', isSelected && 'vx-typeahead-option--selected')} flexDirection="row" alignItems="center" onTap={() => props.onSelect(item)} accessibilityState={{ selected: isSelected }} style={{display: "flex"}}>
+							<masonview className="vx-typeahead-option-content" flexGrow={1} style={{display: "flex"}}>
 								{props.renderItem ? props.renderItem(item) : <TypeaheadItem item={item} />}
 							</masonview>
 							{isSelected ? <label className="vx-typeahead-option-check" text="✓" /> : null}

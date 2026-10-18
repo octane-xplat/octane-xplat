@@ -1,3 +1,4 @@
+import { mergeStyle } from './style-merge'
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
 import { SizeProvider } from './size-context';
 import { createPortal, useCallback, useEffect, useId, useRef, useState } from 'octane';
@@ -168,7 +169,7 @@ export function useLayer<O extends LayerOptions>(
 						dismissOnEscape={options.dismissOnEscape}
 						onDismiss={hide}
 						className={p.className}
-						style={{ positionAnchor: anchorId, ...(p.style as any) }}
+						style={mergeStyle({positionAnchor: anchorId}, p.style as any)}
 						web={web}
 					>
 						{children}

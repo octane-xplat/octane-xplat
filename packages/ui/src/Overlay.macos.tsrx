@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { useState } from 'octane'
 import type { OverlayProps } from './props'
 import { cx } from '@octane-xplat/lib'
@@ -8,7 +9,7 @@ export function Overlay(props: OverlayProps) @{
 	const open = props.open ?? internal
 
 	@if (open) {
-		<masonview display="flex" flexDirection="column" className={cx('vx-overlay', props.className)} style={props.style} accessibilityLabel={props.accessibilityLabel}>
+		<masonview flexDirection="column" className={cx('vx-overlay', props.className)} style={mergeStyle({display: "flex"}, props.style)} accessibilityLabel={props.accessibilityLabel}>
 			{props.children}
 		</masonview>
 	}

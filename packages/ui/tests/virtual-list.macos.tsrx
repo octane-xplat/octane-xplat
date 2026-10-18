@@ -10,8 +10,8 @@ const renderItem = (item: { id: string }, index: number) => <label id={'row-' + 
 export default function ListReorder() @{
 	const [rows, setRows] = useState(items)
 
-	<masonview display="flex" flexDirection="column" style={{ width: 280, height: 240 }}>
-		<masonview display="flex" id="sort" onTap={() => setRows([...rows].reverse())}><label text="Reverse" /></masonview>
+	<masonview flexDirection="column" style={{display: "flex", ...({ width: 280, height: 240 })}}>
+		<masonview id="sort" onTap={() => setRows([...rows].reverse())} style={{display: "flex"}}><label text="Reverse" /></masonview>
 		<VirtualList id="list" style={{ height: 160 }} items={rows} keyExtractor={keyExtractor} renderItem={renderItem} />
 	</masonview>
 }

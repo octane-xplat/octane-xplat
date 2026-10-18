@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { useEffect, useRef, useState } from 'octane';
 import type { PinInputProps, TextInputHandle } from "./props";
 import { cx } from "@octane-xplat/lib";
@@ -44,7 +45,7 @@ export function PinInput(props: PinInputProps) @{
 		}
 	};
 
-	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx('vx-pininput', props.isDisabled && 'vx-pininput--disabled', props.isReadOnly && 'vx-pininput--readonly', props.isLoading && 'vx-pininput--loading', props.status && `vx-pininput--status-${props.status.type}`, props.size && `vx-pininput--size-${props.size}`, props.className)} style={props.style} accessibilityLabel={props.label} accessibilityState={{ disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading }}>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx('vx-pininput', props.isDisabled && 'vx-pininput--disabled', props.isReadOnly && 'vx-pininput--readonly', props.isLoading && 'vx-pininput--loading', props.status && `vx-pininput--status-${props.status.type}`, props.size && `vx-pininput--size-${props.size}`, props.className)} style={mergeStyle({display: "flex"}, props.style)} accessibilityLabel={props.label} accessibilityState={{ disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading }}>
 		@for (const i of Array.from({ length }, (_, k) => k); key i) {
 			<TextInput
 				className="vx-pininput-cell"

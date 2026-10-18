@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useImperativeHandle, useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
 import type { DateInputProps, ISODateString } from './props'
 import { cx } from '@octane-xplat/lib'
@@ -190,7 +191,7 @@ function DateInputControl(inputProps: CoreProps) @{
 	useImperativeHandle(props.ref, () => ({ focus: () => input.current.focus(), blur: () => blurText(input.current), native: input.current }), undefined);
 
 	<>
-		<masonview display="flex" ref={(v: any) => { anchor.current = v }} flexDirection="row" alignItems="center" className={cx(
+		<masonview ref={(v: any) => { anchor.current = v }} flexDirection="row" alignItems="center" className={cx(
 				'vx-dateinput',
 				`vx-dateinput--${surface}`,
 				isDisabled && 'vx-dateinput--disabled',
@@ -199,7 +200,7 @@ function DateInputControl(inputProps: CoreProps) @{
 				props.size && `vx-dateinput--size-${props.size}`,
 				(!isPendingValid) && 'vx-dateinput--invalid',
 				props.className,
-			)} style={props.style as any}>
+			)} style={mergeStyle({display: "flex"}, props.style as any)}>
 			{shellContent}
 		</masonview>
 		{surface === 'popover' ? (

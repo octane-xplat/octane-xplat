@@ -21,7 +21,7 @@ function SignalOwner(props: { initial: number; capture: (value$: ReturnType<type
 }
 
 function SignalInstances(props: { capture: (value$: ReturnType<typeof signal$<number>>) => void }) @{
-	<masonview display="flex" flexDirection="column">
+	<masonview flexDirection="column" style={{display: "flex"}}>
 		<SignalOwner initial={1} capture={props.capture} />
 		<SignalOwner initial={10} capture={props.capture} />
 	</masonview>

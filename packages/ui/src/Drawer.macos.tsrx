@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { useState } from 'octane';
 import type { DrawerProps } from './props';
 import { cx } from '@octane-xplat/lib';
@@ -16,16 +17,16 @@ export function Drawer(props: DrawerProps) @{
 		props.onDismiss?.();
 	};
 
-	<masonview display="grid" id={props.id} ref={(v: any) => applyEscapeProps(v, props)} className={cx('vx-drawer', props.className)} style={props.style}>
-		<masonview display="grid" className="vx-drawer-main">{props.main}</masonview>
+	<masonview id={props.id} ref={(v: any) => applyEscapeProps(v, props)} className={cx('vx-drawer', props.className)} style={mergeStyle({display: "grid"}, props.style)}>
+		<masonview className="vx-drawer-main" style={{display: "grid"}}>{props.main}</masonview>
 		{/* Backdrop + panel are sibling @ifs (a fragment inside @if is not
 		   lowered on this target). Chrome metrics live inline — AppKit has
 		   no CSS layer; keep in step with .vx-drawer-* in tokens.css. */}
 		@if (open) {
-			<masonview display="flex" className="vx-drawer-backdrop" style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)' }} onTap={requestDismiss} />
+			<masonview className="vx-drawer-backdrop" style={mergeStyle({display: "flex"}, { backgroundColor: 'rgba(0, 0, 0, 0.4)' })} onTap={requestDismiss}/>
 		}
 		@if (open) {
-			<masonview display="flex" className="vx-drawer-panel" style={{ width: 280, backgroundColor: '#ffffff' , justifySelf: 'start'}}>{props.drawer}</masonview>
+			<masonview className="vx-drawer-panel" style={mergeStyle({display: "flex"}, { width: 280, backgroundColor: '#ffffff' , justifySelf: 'start'})}>{props.drawer}</masonview>
 		}
 	</masonview>
 }

@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import type { ButtonGroupProps } from './props'
 import { ButtonGroupProvider } from './button-group-context'
 import { SizeProvider, useSize } from './size-context'
@@ -16,7 +17,7 @@ export function ButtonGroup(props: ButtonGroupProps) @{
 
 	<ButtonGroupProvider value={value}>
 		<SizeProvider value={size}>
-			<masonview display="flex" id={props.id} className={cx('vx-button-group', `vx-button-group--${orientation}`, props.className)} style={props.style as any} accessible={true} accessibilityLabel={props.label}>
+			<masonview id={props.id} className={cx('vx-button-group', `vx-button-group--${orientation}`, props.className)} style={mergeStyle({display: "flex"}, props.style as any)} accessible={true} accessibilityLabel={props.label}>
 				{props.children}
 			</masonview>
 		</SizeProvider>

@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { DropdownMenu } from './DropdownMenu.macos.tsrx';
 import type { BreadcrumbProps } from "./props";
 import { cx } from "@octane-xplat/lib";
@@ -13,9 +14,9 @@ export function Breadcrumb(props: BreadcrumbProps) @{
 	const visible = overflow.length ? [props.items[0], ...props.items.slice(props.items.length - limit + 1)] : props.items;
 
 
-	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx('vx-breadcrumb', props.className)} style={props.style}>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx('vx-breadcrumb', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
 		@for (const e of visible.map((item, i) => ({ item, i })); key e.i) {
-			<masonview display="flex" className="vx-breadcrumb-item">
+			<masonview className="vx-breadcrumb-item" style={{display: "flex"}}>
 				{e.i === 1 && (overflow.length > 0 || props.overflowMenu) && <DropdownMenu trigger={<label text="…" />} accessibilityLabel={props.overflowLabel ?? 'More ancestors'} items={overflow.map((item, index) => ({ type: 'action' as const, key: `ancestor-${index}`, label: item.label, onSelect: item.onSelect, isDisabled: !item.onSelect }))}>{props.overflowMenu}</DropdownMenu>}
 				{e.i > 0 ? <label className="vx-breadcrumb-sep" text={sep} /> : null}
 				{e.item.onSelect

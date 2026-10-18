@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useImperativeHandle, useContext, useEffect, useId, useRef, useState } from 'octane'
 import type { ISOTimeString, TimeInputProps } from './props'
 import { cx } from '@octane-xplat/lib'
@@ -123,7 +124,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 	useImperativeHandle(props.ref, () => ({ focus: () => input.current.focus(), blur: () => blurText(input.current), native: input.current }), undefined);
 
 	<>
-		<masonview display="flex" flexDirection="row" alignItems="center" className={cx(
+		<masonview flexDirection="row" alignItems="center" className={cx(
 				'vx-timeinput',
 				`vx-timeinput--${surface}`,
 				isDisabled && 'vx-timeinput--disabled',
@@ -132,7 +133,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 				props.size && `vx-timeinput--size-${props.size}`,
 				!isPendingValid && 'vx-timeinput--invalid',
 				props.className,
-			)} style={props.style as any}>
+			)} style={mergeStyle({display: "flex"}, props.style as any)}>
 			<Pressable
 				className="vx-timeinput-toggle"
 				accessibilityLabel={messages.openTimePicker}

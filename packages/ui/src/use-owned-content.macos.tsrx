@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { useEffect, useLayoutEffect, useMemo, useSyncExternalStore } from 'octane'
 import { createPortal } from './native-portal'
 import { createContentOwner, type ContentOwner, type ContentEntry } from './owned-content'
@@ -14,7 +15,7 @@ function ContentOutlet(props: { owner: ContentOwner }) {
 	const entries = useSyncExternalStore(props.owner.entries.subscribe, props.owner.entries.getSnapshot, props.owner.entries.getSnapshot)
 	useEffect(() => () => props.owner.dispose(), [props.owner])
 	return <>
-		<masonview display="flex" ref={(view: any) => { props.owner.host = view }} style={{ width: 0, height: 0 }} />
+		<masonview ref={(view: any) => { props.owner.host = view }} style={mergeStyle({display: "flex"}, { width: 0, height: 0 })}/>
 		{entries.map(entry => <OwnedEntry key={entry.id} entry={entry} />)}
 	</>
 }

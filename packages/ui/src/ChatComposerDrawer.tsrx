@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useState } from 'octane';
 import type { ChatComposerDrawerProps } from './props';
 import { cx } from '@octane-xplat/lib';
@@ -23,11 +24,11 @@ export function ChatComposerDrawer(props: ChatComposerDrawerProps) @{
 		props.onCollapsedChange?.(next);
 	};
 
-	<masonview display="flex" id={props.id} className={cx('vx-chatdrawer', isCollapsed && 'vx-chatdrawer--collapsed', props.className)} style={props.style as any} flexDirection="column">
+	<masonview id={props.id} className={cx('vx-chatdrawer', isCollapsed && 'vx-chatdrawer--collapsed', props.className)} style={mergeStyle({display: "flex"}, props.style as any)} flexDirection="column">
 		{canCollapse ? (
-			<masonview display="flex" className="vx-chatdrawer-toggle" flexDirection="row" alignItems="center" justifyContent="center" accessibilityRole={nativeAccessibilityRole('button') as any} accessibilityLabel={isCollapsed ? `Expand ${label}` : `Collapse ${label}`} accessibilityState={{ expanded: !isCollapsed } as any} onTap={toggle}>
+			<masonview className="vx-chatdrawer-toggle" flexDirection="row" alignItems="center" justifyContent="center" accessibilityRole={nativeAccessibilityRole('button') as any} accessibilityLabel={isCollapsed ? `Expand ${label}` : `Collapse ${label}`} accessibilityState={{ expanded: !isCollapsed } as any} onTap={toggle} style={{display: "flex"}}>
 				{isCollapsed ? (
-					<masonview display="flex" className="vx-chatdrawer-summary" flexDirection="row" alignItems="center">
+					<masonview className="vx-chatdrawer-summary" flexDirection="row" alignItems="center" style={{display: "flex"}}>
 						{props.collapsedSummary === undefined ? (
 							<>
 								<Badge className="vx-chatdrawer-badge"><label text={`${props.count}`} /></Badge>
@@ -38,12 +39,12 @@ export function ChatComposerDrawer(props: ChatComposerDrawerProps) @{
 						)}
 					</masonview>
 				) : (
-					<masonview display="flex" className="vx-chatdrawer-handle" />
+					<masonview className="vx-chatdrawer-handle" style={{display: "flex"}}/>
 				)}
 			</masonview>
 		) : null}
 		{!(canCollapse && isCollapsed) ? (
-			<masonview display="flex" className="vx-chatdrawer-inner" flexDirection="row" flexWrap="wrap">
+			<masonview className="vx-chatdrawer-inner" flexDirection="row" flexWrap="wrap" style={{display: "flex"}}>
 				{props.children}
 			</masonview>
 		) : null}

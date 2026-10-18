@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useMemo } from 'octane'
 import { refList } from './ref-list'
 import type { FocusScopeCapabilities, FocusScopeProps } from './props';
@@ -31,7 +32,7 @@ export function FocusScope(props: FocusScopeProps) @{
 	if (props.restoreFocus) warnInertFocusScopeFlag('restoreFocus');
 	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
-	<masonview display="flex" id={props.id} ref={forwardedRef} className={cx(props.className)} style={props.style as any} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={props.accessibilityState as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
+	<masonview id={props.id} ref={forwardedRef} className={cx(props.className)} style={mergeStyle({display: "flex"}, props.style as any)} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={props.accessibilityState as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
 		{props.children}
 	</masonview>
 }

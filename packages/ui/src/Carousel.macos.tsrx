@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import type { CarouselProps } from './props'
 import { toChildArray, mapChildren } from './child-array'
 import { spacingStep } from './spacing'
@@ -19,9 +20,9 @@ export function Carousel(props: CarouselProps) @{
 		horizontal={true as any}
 		accessibilityLabel={props.accessibilityLabel ?? props.label}
 	>
-		<masonview display="flex" flexDirection="row" className="vx-carousel-track" style={{ columnGap: gap }}>
+		<masonview flexDirection="row" className="vx-carousel-track" style={mergeStyle({display: "flex"}, { columnGap: gap })}>
 			{mapChildren(items, (child: any, i: number) => (
-				<masonview display="flex" className="vx-carousel-slide" accessibilityLabel={`Slide ${i + 1} of ${count}`}>
+				<masonview className="vx-carousel-slide" accessibilityLabel={`Slide ${i + 1} of ${count}`} style={{display: "flex"}}>
 					{child}
 				</masonview>
 			))}

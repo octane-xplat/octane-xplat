@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import type { AvatarGroupProps } from "./props";
 import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps } from "./escape-props";
@@ -15,12 +16,12 @@ export function AvatarGroup(props: AvatarGroupProps) @{
 	const overflow = children.length - shown.length;
 	const itemStyle = (i: number) => (i === 0 ? undefined : { marginLeft: -size / 3 });
 
-	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx('vx-avatar-group', props.className)} style={props.style as any}>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx('vx-avatar-group', props.className)} style={mergeStyle({display: "flex"}, props.style as any)}>
 		{mapChildren(shown, (child: any, i: number) => (
-			<masonview display="flex" className="vx-avatar-group-item" style={itemStyle(i)}>{child}</masonview>
+			<masonview className="vx-avatar-group-item" style={mergeStyle({display: "flex"}, itemStyle(i))}>{child}</masonview>
 		))}
 		{overflow > 0
-			? <masonview display="flex" className="vx-avatar-group-item" style={itemStyle(shown.length)}><Avatar fallback={`+${overflow}`} size={size} /></masonview>
+			? <masonview className="vx-avatar-group-item" style={mergeStyle({display: "flex"}, itemStyle(shown.length))}><Avatar fallback={`+${overflow}`} size={size} /></masonview>
 			: null}
 	</masonview>
 }

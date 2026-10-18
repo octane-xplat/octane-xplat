@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useImperativeHandle, useEffect, useRef, useState } from 'octane';
 import type { SearchInputProps } from './props';
 import { Icon } from './Icon';
@@ -33,7 +34,7 @@ export function SearchInput(props: SearchInputProps) @{
 
 	useImperativeHandle(props.ref, () => ({ focus: () => el.current.focus(), blur: () => blurText(el.current), native: el.current }), []);
 
-	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx('vx-search', props.isDisabled && 'vx-search--disabled', props.isReadOnly && 'vx-search--readonly', props.isLoading && 'vx-search--loading', props.status && `vx-search--status-${props.status.type}`, props.size && `vx-search--size-${props.size}`, props.className)} style={props.style as any} accessibilityLabel={props.accessibilityLabel ?? props.label} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled }) as any}>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx('vx-search', props.isDisabled && 'vx-search--disabled', props.isReadOnly && 'vx-search--readonly', props.isLoading && 'vx-search--loading', props.status && `vx-search--status-${props.status.type}`, props.size && `vx-search--size-${props.size}`, props.className)} style={mergeStyle({display: "flex"}, props.style as any)} accessibilityLabel={props.accessibilityLabel ?? props.label} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled }) as any}>
 		{props.icon !== false ? <Icon name={props.icon ?? 'xplat-search'} size={16} className="vx-search-icon" /> : null}
 		<textfield
 			testID={props.testID ?? ''}
@@ -52,7 +53,7 @@ export function SearchInput(props: SearchInputProps) @{
 			onBlur={props.onBlur}
 		/>
 		{value !== '' && hasClear && !isBlocked ? (
-			<masonview display="flex" className="vx-search-clear" accessibilityLabel="Clear search" onTap={clear}>
+			<masonview className="vx-search-clear" accessibilityLabel="Clear search" onTap={clear} style={{display: "flex"}}>
 				<Icon name="xplat-clear" size={12} />
 			</masonview>
 		) : null}

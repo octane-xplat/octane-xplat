@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useMemo, useEffect, useImperativeHandle, useRef } from 'octane';
 import { mergedRef } from './ref-list'
 import type { ScrollableAreaHandle, ScrollableAreaProps } from './props';
@@ -103,9 +104,9 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
 				applyEscapeProps(v, props);
 			}), [props.ios, props.android, props.web]);
 
-	<masonview display="grid" ref={(v: any) => {
+	<masonview ref={(v: any) => {
 			if (v?.ios) v.ios.clipsToBounds = true;
-		}} {...layoutChildProps(props)} className={cx('vx-refresh-wrap', props.className)} style={props.style as any}>
+		}} {...layoutChildProps(props)} className={cx('vx-refresh-wrap', props.className)} style={mergeStyle({display: "grid"}, props.style as any)}>
 		<scrollview
 			ref={forwardedRef}
 			id={props.id}
@@ -114,13 +115,13 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
 			orientation="vertical"
 			{...a11y(props)}
 		>
-			<masonview display="flex" flexDirection="column" style={contentPadding(props)}>
+			<masonview flexDirection="column" style={mergeStyle({display: "flex"}, contentPadding(props))}>
 				{props.children}
 			</masonview>
 		</scrollview>
-		<masonview display="flex" ref={(v: any) => {
+		<masonview ref={(v: any) => {
 				indicator.current = v;
-			}} className="vx-refresh" height={REFRESH_HEADER_HEIGHT} translateY={-REFRESH_HEADER_HEIGHT} style={{alignSelf: 'start'}}>
+			}} className="vx-refresh" height={REFRESH_HEADER_HEIGHT} translateY={-REFRESH_HEADER_HEIGHT} style={mergeStyle({display: "flex"}, {alignSelf: 'start'})}>
 			<ActivityIndicator />
 		</masonview>
 	</masonview>
@@ -163,13 +164,10 @@ function ScrollableAreaCore(props: ScrollableAreaProps) @{
 		testID={props.testID ?? ''}
 		{...layoutChildProps(props)}
 		className={cx('vx-scrollable', props.className)}
-		style={{
-			width: props.width as any,
+		style={mergeStyle({width: props.width as any,
 			height: props.height as any,
 			maxWidth: props.maxWidth as any,
-			minHeight: props.minHeight as any,
-			...(props.style as any),
-		}}
+			minHeight: props.minHeight as any}, props.style as any)}
 		orientation={both ? 'vertical' : horizontal ? 'horizontal' : 'vertical'}
 		{...a11y(props)}
 	>
@@ -180,12 +178,12 @@ function ScrollableAreaCore(props: ScrollableAreaProps) @{
 				}}
 				orientation="horizontal"
 			>
-				<masonview display="flex" flexDirection="row" style={contentPadding(props)}>
+				<masonview flexDirection="row" style={mergeStyle({display: "flex"}, contentPadding(props))}>
 					{props.children}
 				</masonview>
 			</scrollview>
 		) : (
-			<masonview display="flex" flexDirection={horizontal ? 'row' : 'column'} style={contentPadding(props)}>
+			<masonview flexDirection={horizontal ? 'row' : 'column'} style={mergeStyle({display: "flex"}, contentPadding(props))}>
 				{props.children}
 			</masonview>
 		)}

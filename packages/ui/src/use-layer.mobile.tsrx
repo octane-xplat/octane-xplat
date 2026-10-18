@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
 import { SizeProvider } from './size-context';
 import { useCallback, useEffect, useId, useRef, useState } from 'octane';
@@ -53,8 +54,8 @@ function FixedLayerSurface(props: FixedSurfaceProps) @{
 	}, [props.ios, props.android]);
 
 	<masonview width="100%" height="100%" className={cx('vx-popover-layer', useThemeScheme() === 'dark' && 'ns-dark')}>
-		{(props.lightDismiss ?? false) && <masonview style={{position: 'absolute'}} display="grid" width="100%" height="100%" backgroundColor={"transparent" as any} className="vx-popover-backdrop" onTap={() => props.onDismiss?.()} />}
-		<masonview display="grid" ref={panelRef} accessibilityLabel={props.accessibilityLabel} className={cx('vx-popover', props.className)} style={[props.style, {position: 'absolute', left: props.x ?? 0, top: props.y ?? 0}]}>
+		{(props.lightDismiss ?? false) && <masonview style={mergeStyle({display: "grid"}, {position: 'absolute'})} width="100%" height="100%" backgroundColor={"transparent" as any} className="vx-popover-backdrop" onTap={() => props.onDismiss?.()}/>}
+		<masonview ref={panelRef} accessibilityLabel={props.accessibilityLabel} className={cx('vx-popover', props.className)} style={mergeStyle({display: "grid"}, [props.style, {position: 'absolute', left: props.x ?? 0, top: props.y ?? 0}])}>
 			<LayerDepthProvider value={props.layerDepth ?? 0}><SizeProvider value={null}>{props.children}</SizeProvider></LayerDepthProvider>
 		</masonview>
 	</masonview>
@@ -102,7 +103,7 @@ function FixedLayerMount(props: FixedSurfaceProps & { open?: boolean }) @{
 	useEffect(() => () => shown.current?.lifetime.close(), []);
 
 	<>
-		<masonview display="flex" flexDirection="column" ref={(v: any) => { sentinel.current = v; }} style={{ width: 0, height: 0 }} />
+		<masonview flexDirection="column" ref={(v: any) => { sentinel.current = v; }} style={mergeStyle({display: "flex"}, { width: 0, height: 0 })}/>
 		{props.open && portalHost
 			? createPortal(
 				<FixedLayerSurface

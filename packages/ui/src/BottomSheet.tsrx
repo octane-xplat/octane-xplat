@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useContext, useEffect, useMemo, useRef, useState } from 'octane';
 import { GridLayout, Screen, isAndroid, isIOS } from '@nativescript/core';
 import { createPortal } from './native-portal';
@@ -208,7 +209,7 @@ export function BottomSheet(props: BottomSheetProps) @{
 	// Zero-size sentinel — the sheet resolves its owning RootLayout from the
 	// declaring component's ancestry.
 	<>
-		<masonview display="flex" flexDirection="column" ref={(v: any) => { sentinel.current = v; }} style={{ width: 0, height: 0 }} />
+		<masonview flexDirection="column" ref={(v: any) => { sentinel.current = v; }} style={mergeStyle({display: "flex"}, { width: 0, height: 0 })}/>
 		{props.sheetId == null && open && portalHost
 			? createPortal(<BottomSheetBody>{props.children}</BottomSheetBody>, portalHost)
 			: null}
@@ -248,7 +249,7 @@ function SwitcherPanel(props: {
 		return () => ctl.detach();
 	}, [props.activeSheet, active]);
 
-	<masonview display="flex" flexDirection="column" className="vx-bottom-sheet-panel">
+	<masonview flexDirection="column" className="vx-bottom-sheet-panel" style={{display: "flex"}}>
 		<SizeProvider value={null}>{active?.props.children}</SizeProvider>
 	</masonview>
 }
@@ -343,7 +344,7 @@ export function BottomSheetSwitcher(props: BottomSheetSwitcherProps) @{
 		<BottomSheetSwitcherProvider value={handle}>
 			{props.children}
 		</BottomSheetSwitcherProvider>
-		<masonview display="flex" flexDirection="column" ref={(v: any) => { sentinel.current = v; }} style={{ width: 0, height: 0 }} />
+		<masonview flexDirection="column" ref={(v: any) => { sentinel.current = v; }} style={mergeStyle({display: "flex"}, { width: 0, height: 0 })}/>
 		{activeId != null && portalHost
 			? createPortal(
 				<SwitcherPanel

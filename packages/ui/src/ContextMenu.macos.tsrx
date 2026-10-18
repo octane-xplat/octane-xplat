@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { MenuData } from './MenuParts.macos.tsrx';
 import { MenuSurface } from './MenuSurface.macos.tsrx';
 import { useRef, useState } from 'octane';
@@ -23,7 +24,7 @@ export function ContextMenu(props: ContextMenuProps) @{
 		props.onOpenChange?.(next);
 	};
 
-	<masonview display="flex" ref={(v: any) => { anchor.current = v; if (v) applyEscapeProps(v, props); }} id={props.id} className={cx('vx-contextmenu', props.className)} style={props.style} onLongPress={(props.isDisabled) ? undefined : () => setOpen(true)}>
+	<masonview ref={(v: any) => { anchor.current = v; if (v) applyEscapeProps(v, props); }} id={props.id} className={cx('vx-contextmenu', props.className)} style={mergeStyle({display: "flex"}, props.style)} onLongPress={(props.isDisabled) ? undefined : () => setOpen(true)}>
 		{props.children}
 		{props.trigger && <Pressable accessibilityLabel={props.accessibilityLabel ?? 'Open actions'} disabled={props.isDisabled} onPress={() => setOpen(!open)}>{props.trigger}</Pressable>}
 		<Popover

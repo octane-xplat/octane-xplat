@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import type { ChatMessageMetadataProps, ChatMessageStatus } from './props';
 import { cx } from '@octane-xplat/lib';
 import { Icon } from './Icon';
@@ -38,13 +39,13 @@ export function ChatMessageMetadata(props: ChatMessageMetadataProps) @{
 	const status = props.status!;
 	const isUser = sender === 'user';
 
-	<masonview display="flex" id={props.id} className={cx('vx-chatmeta', isUser && 'vx-chatmeta--user', props.className)} style={props.style as any} flexDirection="row" alignItems="center" justifyContent={isUser ? 'flex-end' : 'flex-start'}>
-		{hasTimestamp ? <masonview display="flex" className="vx-chatmeta-part">{props.timestamp}</masonview> : null}
+	<masonview id={props.id} className={cx('vx-chatmeta', isUser && 'vx-chatmeta--user', props.className)} style={mergeStyle({display: "flex"}, props.style as any)} flexDirection="row" alignItems="center" justifyContent={isUser ? 'flex-end' : 'flex-start'}>
+		{hasTimestamp ? <masonview className="vx-chatmeta-part" style={{display: "flex"}}>{props.timestamp}</masonview> : null}
 		{hasTimestamp && (hasFooter || hasStatus) ? <label className="vx-chatmeta-sep" text="·" /> : null}
-		{hasFooter ? <masonview display="flex" className="vx-chatmeta-part">{props.footer}</masonview> : null}
+		{hasFooter ? <masonview className="vx-chatmeta-part" style={{display: "flex"}}>{props.footer}</masonview> : null}
 		{hasFooter && hasStatus ? <label className="vx-chatmeta-sep" text="·" /> : null}
 		{hasStatus ? (
-			<masonview display="flex" className={cx('vx-chatmeta-status', `vx-chatmeta-status--${status}`)} flexDirection="row" alignItems="center" accessibilityLabel={`Message ${STATUS_LABEL[status].toLowerCase()}`}>
+			<masonview className={cx('vx-chatmeta-status', `vx-chatmeta-status--${status}`)} flexDirection="row" alignItems="center" accessibilityLabel={`Message ${STATUS_LABEL[status].toLowerCase()}`} style={{display: "flex"}}>
 				<Icon name={STATUS_ICON[status]} size={12} />
 				<label className="vx-chatmeta-status-text" text={STATUS_LABEL[status]} />
 			</masonview>

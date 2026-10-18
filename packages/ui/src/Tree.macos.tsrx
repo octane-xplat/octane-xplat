@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { useMemo, useState } from 'octane';
 import type { Key, Selection, TreeProps, TreeListNode } from "./props";
 import { cx } from "@octane-xplat/lib";
@@ -24,8 +25,8 @@ function TreeRow(props: {
 	const isOpen = props.open.has(node.key);
 	const isSelected = isLeaf && props.selectionMode !== 'none' && isGridListKeySelected(props.selected, node.key);
 
-	<masonview display="flex" className="vx-tree-node">
-		<masonview display="flex" className={cx('vx-tree-row', node.disabled && 'vx-tree-row--disabled', isSelected && 'vx-tree-row--selected')} style={{ paddingLeft: props.depth * 16, ...(node.disabled ? { opacity: 0.5 } : {}) }} onTap={node.disabled ? undefined : () => (isLeaf ? props.press(node) : props.toggle(node))} accessibilityState={{
+	<masonview className="vx-tree-node" style={{display: "flex"}}>
+		<masonview className={cx('vx-tree-row', node.disabled && 'vx-tree-row--disabled', isSelected && 'vx-tree-row--selected')} style={mergeStyle({display: "flex"}, { paddingLeft: props.depth * 16, ...(node.disabled ? { opacity: 0.5 } : {}) })} onTap={node.disabled ? undefined : () => (isLeaf ? props.press(node) : props.toggle(node))} accessibilityState={{
 				disabled: node.disabled || undefined,
 				selected: props.selectionMode !== 'none' && isLeaf ? isSelected : undefined,
 			} as any}>
@@ -70,7 +71,7 @@ export function Tree<T extends TreeListNode = TreeListNode>(props: TreeProps<T>)
 		props.onAction?.(node.key);
 	};
 
-	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-tree', props.className)} style={props.style}>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-tree', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
 		{props.nodes.map((node: T) => (
 			<TreeRow node={node} depth={0} open={open} selected={selected}
 				selectionMode={selectionMode} toggle={toggle} press={press} />

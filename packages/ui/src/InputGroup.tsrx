@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useMemo, useId } from 'octane';
 import { refList } from './ref-list'
 import type { InputGroupProps, InputGroupTextProps } from './props';
@@ -40,7 +41,7 @@ export function InputGroup(props: InputGroupProps) @{
 	>
 		<InputGroupProvider value={group}>
 		<SizeProvider value={size}>
-			<masonview display="flex" ref={forwardedRef} flexDirection="row" alignItems="stretch" className={cx('vx-inputgroup', props.isDisabled && 'vx-inputgroup--disabled', props.status && `vx-inputgroup--status-${props.status.type}`, `vx-inputgroup--size-${size}`)} accessibilityState={{ disabled: props.isDisabled } as any}>
+			<masonview ref={forwardedRef} flexDirection="row" alignItems="stretch" className={cx('vx-inputgroup', props.isDisabled && 'vx-inputgroup--disabled', props.status && `vx-inputgroup--status-${props.status.type}`, `vx-inputgroup--size-${size}`)} accessibilityState={{ disabled: props.isDisabled } as any} style={{display: "flex"}}>
 				{props.children}
 			</masonview>
 		</SizeProvider>
@@ -53,7 +54,7 @@ export function InputGroup(props: InputGroupProps) @{
 export function InputGroupText(props: InputGroupTextProps) @{
 	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
-	<masonview display="flex" id={props.id} ref={forwardedRef} className={cx('vx-inputgroup-text', props.className)} style={props.style as any} justifyContent="center" alignItems="center">
+	<masonview id={props.id} ref={forwardedRef} className={cx('vx-inputgroup-text', props.className)} style={mergeStyle({display: "flex"}, props.style as any)} justifyContent="center" alignItems="center">
 		{typeof props.children === 'string' ? <label text={props.children} /> : props.children}
 	</masonview>
 }

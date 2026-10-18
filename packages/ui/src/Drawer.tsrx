@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useState } from 'octane';
 import type { DrawerProps } from './props';
 import { cx } from '@octane-xplat/lib';
@@ -16,12 +17,12 @@ export function Drawer(props: DrawerProps) @{
 		props.onDismiss?.();
 	};
 
-	<masonview display="grid" id={props.id} ref={(v: any) => applyEscapeProps(v, props)} className={cx('vx-drawer', props.className)} style={props.style as any}>
-		<masonview display="grid" className="vx-drawer-main">{props.main}</masonview>
+	<masonview id={props.id} ref={(v: any) => applyEscapeProps(v, props)} className={cx('vx-drawer', props.className)} style={mergeStyle({display: "grid"}, props.style as any)}>
+		<masonview className="vx-drawer-main" style={{display: "grid"}}>{props.main}</masonview>
 		@if (open) {
 			<>
-				<masonview display="flex" className="vx-drawer-backdrop" onTap={requestDismiss} />
-				<masonview display="flex" className="vx-drawer-panel" style={{justifySelf: 'start'}}>{props.drawer}</masonview>
+				<masonview className="vx-drawer-backdrop" onTap={requestDismiss} style={{display: "flex"}}/>
+				<masonview className="vx-drawer-panel" style={mergeStyle({display: "flex"}, {justifySelf: 'start'})}>{props.drawer}</masonview>
 			</>
 		}
 	</masonview>

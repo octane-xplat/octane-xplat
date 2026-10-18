@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useContext } from 'octane';
 import type { SafeAreaProps } from './props';
 import { cx } from '@octane-xplat/lib';
@@ -22,7 +23,7 @@ export function SafeArea(props: SafeAreaProps) @{
 	const edges = resolveSafeAreaEdges(props.edges, props.ignoreSafeArea);
 	const { applied, provided } = consumeInsets(measured, ancestor, edges);
 
-	<masonview display="flex" id={props.id} ref={(host: any) => applyEscapeProps(host, props)} className={cx('vx-safe-area', props.className)} style={{ ...(props.style as any), paddingTop: applied.top, paddingRight: applied.right, paddingBottom: applied.bottom, paddingLeft: applied.left }}>
+	<masonview id={props.id} ref={(host: any) => applyEscapeProps(host, props)} className={cx('vx-safe-area', props.className)} style={mergeStyle({display: "flex"}, { ...(props.style as any), paddingTop: applied.top, paddingRight: applied.right, paddingBottom: applied.bottom, paddingLeft: applied.left })}>
 		<ConsumedInsetsProvider value={provided}>{props.children}</ConsumedInsetsProvider>
 	</masonview>
 }

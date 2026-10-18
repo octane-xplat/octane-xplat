@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import type { CodeProps } from './props';
 import { cx } from '@octane-xplat/lib';
 import { Text } from './Text.macos.tsrx';
@@ -9,7 +10,7 @@ export function Code(props: CodeProps) @{
 	<Text
 		id={props.id}
 		className={cx('vx-code', props.color === 'secondary' && 'text-muted', props.className)}
-		style={{ fontFamily: 'ui-monospace', ...(props.style as any) }}
+		style={mergeStyle({fontFamily: 'ui-monospace'}, props.style as any)}
 	>
 		{props.children}
 	</Text>

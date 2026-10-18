@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useContext } from 'octane';
 import type { MetadataListItemProps } from './props';
 import { cx } from '@octane-xplat/lib';
@@ -11,7 +12,7 @@ function childContent(children: any, className: string, style?: any) @{
 		return <label className={className} whiteSpace="normal" style={style}>{children}</label>;
 	}
 
-	return <masonview display="flex" className={className} style={style}>{children}</masonview>;
+	return <masonview className={className} style={mergeStyle({display: "flex"}, style)}>{children}</masonview>;
 }
 
 /** One label/value item. 'start' emits two adjacent grid cells (label track,
@@ -23,7 +24,7 @@ export function MetadataListItem(props: MetadataListItemProps) @{
 		(ctx?.labelPosition ?? 'start') === 'top' || ctx?.orientation === 'horizontal';
 
 	const labelRow = (
-		<masonview display="flex" className="vx-metadatalist-label" flexDirection="row" alignItems="center" gap={6} style={ctx?.labelWidth != null ? ({ width: ctx.labelWidth } as any) : undefined}>
+		<masonview className="vx-metadatalist-label" flexDirection="row" alignItems="center" gap={6} style={mergeStyle({display: "flex"}, ctx?.labelWidth != null ? ({ width: ctx.labelWidth } as any) : undefined)}>
 			{isRenderable(props.icon) ? props.icon : null}
 			<label className="vx-metadatalist-label-text" whiteSpace="normal">{props.label}</label>
 		</masonview>
@@ -31,7 +32,7 @@ export function MetadataListItem(props: MetadataListItemProps) @{
 
 	if (isStacked) {
 		return (
-			<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-metadatalist-item', props.className)} style={{ flexDirection: 'column', marginBottom: 8, ...(props.style as any) }} flexDirection="column">
+			<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-metadatalist-item', props.className)} style={mergeStyle({display: "flex"}, { flexDirection: 'column', marginBottom: 8, ...(props.style as any) })} flexDirection="column">
 				{labelRow}
 				{childContent(props.children, 'vx-metadatalist-value')}
 			</masonview>

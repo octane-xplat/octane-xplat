@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { useMemo, useContext } from 'octane'
 import { refList } from './ref-list'
 import type { FormLayoutProps } from './props'
@@ -19,7 +20,7 @@ export function FormLayout(props: FormLayoutProps) @{
 	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
 	<FormLayoutProvider value={value}>
-		<masonview display="flex" id={props.id} ref={forwardedRef} flexDirection={direction === 'horizontal' ? 'row' : 'column'} flexWrap={(direction === 'horizontal' ? 'wrap' : undefined) as any} gap={16} className={cx('vx-formlayout', `vx-formlayout--${direction}`, props.className)} style={props.style} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole} accessibilityHint={props.accessibilityHint}>
+		<masonview id={props.id} ref={forwardedRef} flexDirection={direction === 'horizontal' ? 'row' : 'column'} flexWrap={(direction === 'horizontal' ? 'wrap' : undefined) as any} gap={16} className={cx('vx-formlayout', `vx-formlayout--${direction}`, props.className)} style={mergeStyle({display: "flex"}, props.style)} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole} accessibilityHint={props.accessibilityHint}>
 			{props.children}
 		</masonview>
 	</FormLayoutProvider>

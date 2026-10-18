@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
 import { useEffect, useRef, useState } from 'octane'
 import type { PopoverProps } from './props'
@@ -6,7 +7,7 @@ import { cx } from '@octane-xplat/lib'
 import { useThemeScheme } from './theme/theme-scheme'
 
 function PopoverPanel(props: PopoverProps & { dark: boolean; layerDepth: number }) @{
-	<masonview display="flex" flexDirection="column" className={cx('vx-popover', props.dark && 'ns-dark', props.className)} style={props.style}>
+	<masonview flexDirection="column" className={cx('vx-popover', props.dark && 'ns-dark', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
 		<LayerDepthProvider value={props.layerDepth}>{props.children}</LayerDepthProvider>
 	</masonview>
 }

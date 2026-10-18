@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'octane';
 import type { ChatComposerDraft, ChatComposerInputControl, ChatComposerProps } from './props';
 import { cx } from '@octane-xplat/lib';
@@ -83,35 +84,30 @@ export function ChatComposer(props: ChatComposerProps) @{
 
 	const status = props.status;
 	const statusEl = status ? (
-		<masonview display="flex" className={cx('vx-chatcomposer-status', `vx-chatcomposer-status--${status.type}`, `vx-chatcomposer-status--${statusPosition}`)} flexDirection="row" alignItems="center" accessibilityLiveRegion={(status.type === 'error' ? 'assertive' : 'polite') as any}>
+		<masonview className={cx('vx-chatcomposer-status', `vx-chatcomposer-status--${status.type}`, `vx-chatcomposer-status--${statusPosition}`)} flexDirection="row" alignItems="center" accessibilityLiveRegion={(status.type === 'error' ? 'assertive' : 'polite') as any} style={{display: "flex"}}>
 			<Icon name={status.type === 'error' ? 'xplat-error' : 'xplat-warning'} size={14} />
 			<label className="vx-chatcomposer-statustext" text={status.message ?? ''} />
 		</masonview>
 	) : null;
 
 	<ChatComposerProvider value={composerContext}>
-		<masonview display="flex" id={props.id} className={cx('vx-chatcomposer', `vx-chatcomposer--${density}`, isDisabled && 'vx-chatcomposer--disabled', props.className)} style={props.style as any} flexDirection="column">
+		<masonview id={props.id} className={cx('vx-chatcomposer', `vx-chatcomposer--${density}`, isDisabled && 'vx-chatcomposer--disabled', props.className)} style={mergeStyle({display: "flex"}, props.style as any)} flexDirection="column">
 			{statusPosition === 'top' ? statusEl : null}
 			{props.drawer}
-			<masonview
-				display="flex"
-				className={cx('vx-chatcomposer-body', `vx-chatcomposer-body--${elevation}`, `vx-chatcomposer-body--${density}`)}
-				flexDirection="column"
-				// Tap on empty body space focuses the input (registered control).
-				onTap={() => inputControlRef.current?.focus()}
-			>
+			{/* Tap on empty body space focuses the input (registered control). */}
+			<masonview className={cx('vx-chatcomposer-body', `vx-chatcomposer-body--${elevation}`, `vx-chatcomposer-body--${density}`)} flexDirection="column" onTap={() => inputControlRef.current?.focus()} style={{display: "flex"}}>
 				{props.headerActions || props.headerContext ? (
-					<masonview display="flex" className="vx-chatcomposer-header" flexDirection="row" alignItems="center" justifyContent="space-between">
-						<masonview display="flex" className="vx-chatcomposer-headerleft" flexDirection="row" alignItems="center">{props.headerActions}</masonview>
-						<masonview display="flex" className="vx-chatcomposer-headerright" flexDirection="row" alignItems="center">{props.headerContext}</masonview>
+					<masonview className="vx-chatcomposer-header" flexDirection="row" alignItems="center" justifyContent="space-between" style={{display: "flex"}}>
+						<masonview className="vx-chatcomposer-headerleft" flexDirection="row" alignItems="center" style={{display: "flex"}}>{props.headerActions}</masonview>
+						<masonview className="vx-chatcomposer-headerright" flexDirection="row" alignItems="center" style={{display: "flex"}}>{props.headerContext}</masonview>
 					</masonview>
 				) : null}
-				<masonview display="flex" className="vx-chatcomposer-inputarea" flexDirection="column">
+				<masonview className="vx-chatcomposer-inputarea" flexDirection="column" style={{display: "flex"}}>
 					{props.input ?? <ChatComposerInput />}
 				</masonview>
-				<masonview display="flex" className="vx-chatcomposer-footer" flexDirection="row" alignItems="center" justifyContent="space-between">
-					<masonview display="flex" className="vx-chatcomposer-footerleft" flexDirection="row" alignItems="center">{props.footerActions}</masonview>
-					<masonview display="flex" className="vx-chatcomposer-footerright" flexDirection="row" alignItems="center">
+				<masonview className="vx-chatcomposer-footer" flexDirection="row" alignItems="center" justifyContent="space-between" style={{display: "flex"}}>
+					<masonview className="vx-chatcomposer-footerleft" flexDirection="row" alignItems="center" style={{display: "flex"}}>{props.footerActions}</masonview>
+					<masonview className="vx-chatcomposer-footerright" flexDirection="row" alignItems="center" style={{display: "flex"}}>
 						{props.sendActions}
 						{props.sendButton ?? <ChatSendButton />}
 					</masonview>

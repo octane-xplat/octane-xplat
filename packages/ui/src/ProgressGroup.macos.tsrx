@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import type { ProgressGroupProps } from "./props";
 import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps } from "./escape-props";
@@ -6,9 +7,9 @@ import { Meter } from './macos-extras.macos.tsrx';
 
 /** ProgressGroup — stacked labeled Meter rows. */
 export function ProgressGroup(props: ProgressGroupProps) @{
-	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-progressgroup', props.className)} style={props.style}>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-progressgroup', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
 		@for (const item of props.items; key item.key) {
-			<masonview display="flex" className="vx-progressgroup-row">
+			<masonview className="vx-progressgroup-row" style={{display: "flex"}}>
 				<Meter value={item.value} max={item.max} accessibilityLabel={item.label} />
 				{item.label != null ? <label className="vx-progressgroup-label" text={item.label} /> : null}
 			</masonview>

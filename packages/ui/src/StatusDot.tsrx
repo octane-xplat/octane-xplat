@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useEffect, useRef } from 'octane';
 import type { StatusDotProps } from './props';
 import { cx } from '@octane-xplat/lib';
@@ -56,10 +57,10 @@ export function StatusDot(props: StatusDotProps) @{
 	const showsIcon = isRenderable(props.icon);
 
 	const view = (
-		<masonview display="flex" ref={(v: any) => {
+		<masonview ref={(v: any) => {
 				dot.current = v;
 				applyEscapeProps(v, props);
-			}} id={props.id} className={cx('vx-statusdot', `vx-statusdot--${props.variant}`, props.className)} style={{
+			}} id={props.id} className={cx('vx-statusdot', `vx-statusdot--${props.variant}`, props.className)} style={mergeStyle({display: "flex"}, {
 				width: 8,
 				height: 8,
 				borderRadius: 4,
@@ -67,7 +68,7 @@ export function StatusDot(props: StatusDotProps) @{
 				justifyContent: 'center',
 				alignItems: 'center',
 				...(props.style as any),
-			}} accessible={true} accessibilityRole={nativeAccessibilityRole('image') as any} accessibilityLabel={props.label}>
+			})} accessible={true} accessibilityRole={nativeAccessibilityRole('image') as any} accessibilityLabel={props.label}>
 			{showsIcon ? props.icon : null}
 		</masonview>
 	);

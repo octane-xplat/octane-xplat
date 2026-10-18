@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import type { ChatMessageBubbleProps } from './props';
 import { cx } from '@octane-xplat/lib';
 import { useChatMessageContext } from './chat-context';
@@ -22,22 +23,22 @@ export function ChatMessageBubble(props: ChatMessageBubbleProps) @{
 
 	<>
 		{hasName ? (
-			<masonview display="flex" className={cx('vx-chatbubble-name', `vx-chatbubble-name--${density}`, isUser && 'vx-chatbubble-name--end')} alignSelf={isUser ? 'flex-end' : 'flex-start'}>
+			<masonview className={cx('vx-chatbubble-name', `vx-chatbubble-name--${density}`, isUser && 'vx-chatbubble-name--end')} alignSelf={isUser ? 'flex-end' : 'flex-start'} style={{display: "flex"}}>
 				{props.name}
 			</masonview>
 		) : null}
-		<masonview display="flex" id={props.id} className={cx(
+		<masonview id={props.id} className={cx(
 				'vx-chatbubble',
 				`vx-chatbubble--${variant}`,
 				`vx-chatbubble--${sender}`,
 				`vx-chatbubble--${density}`,
 				props.group && `vx-chatbubble--${props.group}-${isUser ? 'user' : 'assistant'}`,
 				props.className,
-			)} style={{ ...(props.width != null ? { width: props.width } : {}), ...(props.style as any) }} flexDirection="column">
+			)} style={mergeStyle({display: "flex"}, { ...(props.width != null ? { width: props.width } : {}), ...(props.style as any) })} flexDirection="column">
 			{props.children}
 		</masonview>
 		{hasMetadata ? (
-			<masonview display="flex" className={cx('vx-chatbubble-meta', `vx-chatbubble-meta--${density}`, isUser && 'vx-chatbubble-meta--end')} alignSelf={isUser ? 'flex-end' : 'flex-start'}>
+			<masonview className={cx('vx-chatbubble-meta', `vx-chatbubble-meta--${density}`, isUser && 'vx-chatbubble-meta--end')} alignSelf={isUser ? 'flex-end' : 'flex-start'} style={{display: "flex"}}>
 				{props.metadata}
 			</masonview>
 		) : null}

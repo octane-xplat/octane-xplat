@@ -7,7 +7,7 @@ export function Meter(props: MeterProps) @{
 	const max = props.maxValue ?? props.max ?? 100
 	const { max: rangeMax, value } = meterRange(props.value, min, max)
 
-	<masonview display="grid" id={props.id} className={props.className} accessibilityRole="meter" accessibilityLabel={props.accessibilityLabel} accessibilityValue={value} accessibilityMinValue={min} accessibilityMaxValue={rangeMax} accessibilityValueDescription={props.valueLabel ?? `${value} of ${rangeMax}`}>
+	<masonview id={props.id} className={props.className} accessibilityRole="meter" accessibilityLabel={props.accessibilityLabel} accessibilityValue={value} accessibilityMinValue={min} accessibilityMaxValue={rangeMax} accessibilityValueDescription={props.valueLabel ?? `${value} of ${rangeMax}`} style={{display: "grid"}}>
 		<label>
 			{String(value) + ' / ' + String(rangeMax)}
 		</label>

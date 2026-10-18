@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useMemo } from 'octane'
 import { refList } from './ref-list'
 import type { SearchableItem, TypeaheadItemProps } from "./props";
@@ -21,9 +22,9 @@ export function TypeaheadItem<T extends SearchableItem,>(props: TypeaheadItemPro
 
 	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
-	<masonview display="flex" ref={forwardedRef} id={props.id} className={cx('vx-typeahead-item', props.isDisabled && 'vx-typeahead-item--disabled', props.className)} style={props.style as any} flexDirection="row" alignItems="center" accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled }) as any}>
+	<masonview ref={forwardedRef} id={props.id} className={cx('vx-typeahead-item', props.isDisabled && 'vx-typeahead-item--disabled', props.className)} style={mergeStyle({display: "flex"}, props.style as any)} flexDirection="row" alignItems="center" accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled }) as any}>
 		{icon}
-		<masonview display="flex" className="vx-typeahead-item-content" flexDirection="column" flexGrow={1}>
+		<masonview className="vx-typeahead-item-content" flexDirection="column" flexGrow={1} style={{display: "flex"}}>
 			<label className="vx-typeahead-item-label" text={props.item.label} />
 			{props.description ? <label className="vx-typeahead-item-description" text={props.description} /> : null}
 		</masonview>

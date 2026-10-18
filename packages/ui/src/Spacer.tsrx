@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import type { SpacerProps } from './props';
 import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps } from './escape-props';
@@ -9,5 +10,5 @@ import { applyEscapeProps } from './escape-props';
  * @see StackProps.
  */
 export function Spacer(props: SpacerProps) @{
-	<masonview display="flex" flexDirection="column" id={props.id} ref={(view: any) => applyEscapeProps(view, props)} flexGrow={1} className={cx('vx-spacer', props.className)} style={props.style as any} />
+	<masonview flexDirection="column" id={props.id} ref={(view: any) => applyEscapeProps(view, props)} flexGrow={1} className={cx('vx-spacer', props.className)} style={mergeStyle({display: "flex"}, props.style as any)}/>
 }

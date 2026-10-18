@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { useImperativeHandle, useMemo, useRef } from 'octane'
 import type { ScrollableAreaHandle, ScrollableAreaProps } from './props'
 import { layoutChildProps } from './layout-child'
@@ -60,20 +61,17 @@ export function ScrollableArea(props: ScrollableAreaProps) @{
 		{...layoutChildProps(props)}
 		id={props.id}
 		className={props.className}
-		style={{
-			width: props.width,
+		style={mergeStyle({width: props.width,
 			height: props.height,
 			maxWidth: props.maxWidth,
-			minHeight: props.minHeight,
-			...(props.style as any),
-		}}
+			minHeight: props.minHeight}, props.style as any)}
 		accessibilityLabel={props.accessibilityLabel ?? props.label}
 	>
-		<masonview display="flex" {...area.getContentProps()} flexDirection={horizontal ? 'row' : 'column'} style={{
+		<masonview {...area.getContentProps()} flexDirection={horizontal ? 'row' : 'column'} style={mergeStyle({display: "flex"}, {
 				paddingTop: spacingStep(props.paddingBlockStart) ?? spacingStep(props.paddingBlock) ?? padding ?? 0,
 				paddingBottom: spacingStep(props.paddingBlockEnd) ?? spacingStep(props.paddingBlock) ?? padding ?? 0,
 				paddingLeft: spacingStep(props.paddingInlineStart) ?? spacingStep(props.paddingInline) ?? padding ?? 0,
 				paddingRight: spacingStep(props.paddingInlineEnd) ?? spacingStep(props.paddingInline) ?? padding ?? 0,
-			}}>{props.children}</masonview>
+			})}>{props.children}</masonview>
 	</scrollview>
 }

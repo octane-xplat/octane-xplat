@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useMemo } from 'octane'
 import { refList } from './ref-list'
 import type { SectionProps } from './props';
@@ -20,7 +21,7 @@ export function Section(props: SectionProps) @{
 
 	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
-	<masonview display="flex" id={props.id} ref={forwardedRef} className={cx(
+	<masonview id={props.id} ref={forwardedRef} className={cx(
 			'vx-section',
 			`vx-section--${variant}`,
 			dividers.has('top') && 'vx-section--divider-top',
@@ -28,7 +29,7 @@ export function Section(props: SectionProps) @{
 			dividers.has('start') && 'vx-section--divider-start',
 			dividers.has('end') && 'vx-section--divider-end',
 			props.className,
-		)} style={{
+		)} style={mergeStyle({display: "flex"}, {
 			paddingLeft: pInlineStart,
 			paddingRight: pInlineEnd,
 			paddingTop: pBlockStart,
@@ -38,7 +39,7 @@ export function Section(props: SectionProps) @{
 			...(props.maxWidth != null ? { maxWidth: props.maxWidth } : {}),
 			...(props.minHeight != null ? { minHeight: props.minHeight } : {}),
 			...(props.style as any),
-		}} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
+		})} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
 		{props.children}
 	</masonview>
 }

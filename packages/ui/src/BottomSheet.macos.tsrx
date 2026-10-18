@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { useContext, useEffect, useMemo, useRef, useState } from 'octane'
 import type { BottomSheetProps, BottomSheetSwitcherProps } from './props'
 import {
@@ -16,7 +17,7 @@ import { usePresentation, useDetachedPresentation } from './presentation.macos.t
 
 function SheetPanel(props: BottomSheetProps & { dark?: boolean; layerDepth?: number }) @{
 	<LayerDepthProvider value={props.layerDepth ?? 0}>
-	<masonview display="flex" flexDirection="column" id={props.id} className={cx('vx-sheet', 'vx-bottom-sheet', props.dark && 'ns-dark', props.className)} style={props.style}>
+	<masonview flexDirection="column" id={props.id} className={cx('vx-sheet', 'vx-bottom-sheet', props.dark && 'ns-dark', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
 		<label className="vx-sheet-grabber" accessibilityLabel="Drag to resize sheet">―</label>
 		<scrollview>{props.children}</scrollview>
 	</masonview>
@@ -133,6 +134,6 @@ export function BottomSheetSwitcher(props: BottomSheetSwitcherProps) @{
 
 	<BottomSheetSwitcherProvider value={handle}>
 		{props.children}
-		<masonview display="flex" ref={owner} style={{ width: 0, height: 0 }} />
+		<masonview ref={owner} style={mergeStyle({display: "flex"}, { width: 0, height: 0 })}/>
 	</BottomSheetSwitcherProvider>
 }

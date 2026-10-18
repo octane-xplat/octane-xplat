@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useEffect, useRef, useState } from 'octane';
 import type { ThumbnailProps } from './props';
 import { cx } from '@octane-xplat/lib';
@@ -76,12 +77,12 @@ export function Thumbnail(props: ThumbnailProps) @{
 				<Icon name="xplat-doc-image" size={20} />
 			)}
 			{isLoading && props.src != null ? (
-				<masonview display="flex" className="vx-thumbnail-overlay" justifyContent="center" alignItems="center" style={{ width: SIZE, height: SIZE }}>
+				<masonview className="vx-thumbnail-overlay" justifyContent="center" alignItems="center" style={mergeStyle({display: "flex"}, { width: SIZE, height: SIZE })}>
 					<ActivityIndicator busy={true} style={{ width: 16, height: 16 }} />
 				</masonview>
 			) : null}
 			{isRenderable(props.onRemove) ? (
-				<masonview display="grid" horizontalAlignment="right" verticalAlignment="top" width={16} height={16} style={{ margin: 2 }}>
+				<masonview horizontalAlignment="right" verticalAlignment="top" width={16} height={16} style={mergeStyle({display: "grid"}, { margin: 2 })}>
 				<Pressable
 					className={cx(
 						'vx-thumbnail-remove',
@@ -105,7 +106,7 @@ export function Thumbnail(props: ThumbnailProps) @{
 	);
 
 	const content = (
-		<masonview display="grid" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-thumbnail', props.className)} width={SIZE} height={SIZE} style={props.style as any} accessible={true} accessibilityLabel={label} accessibilityRole={nativeAccessibilityRole(isRenderable(props.onPress) ? 'button' : 'image') as any} accessibilityState={nativeAccessibilityState({ disabled: isDisabled }) as any} onTap={isRenderable(props.onPress) && !isDisabled ? () => props.onPress?.() : undefined}>
+		<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-thumbnail', props.className)} width={SIZE} height={SIZE} style={mergeStyle({display: "grid"}, props.style as any)} accessible={true} accessibilityLabel={label} accessibilityRole={nativeAccessibilityRole(isRenderable(props.onPress) ? 'button' : 'image') as any} accessibilityState={nativeAccessibilityState({ disabled: isDisabled }) as any} onTap={isRenderable(props.onPress) && !isDisabled ? () => props.onPress?.() : undefined}>
 			{inner}
 		</masonview>
 	);

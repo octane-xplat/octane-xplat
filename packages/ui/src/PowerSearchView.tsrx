@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useEffect, useRef } from 'octane'
 import type { PowerSearchHandle } from './props'
 import { useSize } from './size-context';
@@ -26,8 +27,8 @@ export function PowerSearchView(props: PowerSearchViewProps) @{
 		? props.components?.[internal.getOperator(editing.filter.field, editing.filter.operator ?? '')?.value.type ?? 'string']?.Editor ?? PowerSearchFilterEditor
 		: PowerSearchFilterEditor
 
-	<masonview display="flex" id={props.id} className={cx('vx-power-search', `vx-power-search--size-${size}`, props.isDisabled && 'vx-power-search--disabled', props.className)} style={props.style as any} ref={(v:any)=>{anchor.current=v}}>
-		<masonview display="flex" className="vx-power-search-row">
+	<masonview id={props.id} className={cx('vx-power-search', `vx-power-search--size-${size}`, props.isDisabled && 'vx-power-search--disabled', props.className)} style={mergeStyle({display: "flex"}, props.style as any)} ref={(v:any)=>{anchor.current=v}}>
+		<masonview className="vx-power-search-row" style={{display: "flex"}}>
 			{props.startIcon ? typeof props.startIcon === 'string' ? <Icon className="vx-power-search-start-icon" name={props.startIcon} /> : props.startIcon : null}
 			{props.filters.map((filter, index) => {
 				const field = internal.getField(filter.field), operator = internal.getOperator(filter.field, filter.operator)
@@ -41,7 +42,7 @@ export function PowerSearchView(props: PowerSearchViewProps) @{
 			{props.hasClear !== false && props.filters.length > 0 ? <Button label="Clear" variant="ghost" clickAction={props.onClear} isDisabled={props.isDisabled} /> : null}
 		</masonview>
 		<Popover anchor={anchor} open={props.suggestionsOpen} placement="bottom" onDismiss={()=>props.onDismiss()} className="vx-power-search-results" style={props.menuWidth ? {width:props.menuWidth} : undefined}>
-			<masonview display="flex" className="vx-power-search-result-list">
+			<masonview className="vx-power-search-result-list" style={{display: "flex"}}>
 				{results.map((item:any)=><Suggestion key={item.id} className="vx-power-search-result" onPress={()=>props.onChoose(item)}><label text={item.label} /></Suggestion>)}
 				{results.length === 0 ? <label className="vx-power-search-empty" text="No results" /> : null}
 			</masonview>

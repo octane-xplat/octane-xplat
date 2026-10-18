@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import type { ToolbarProps } from './props';
 import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps } from './escape-props';
@@ -17,23 +18,23 @@ export function Toolbar(props: ToolbarProps) @{
 	const dividerCls = (props.dividers ?? []).map((d) => 'vx-toolbar--div-' + d).join(' ');
 
 	<SizeProvider value={size}>
-		<masonview display="flex" id={props.id} ref={(v: any) => applyEscapeProps(v, props)} className={cx('vx-toolbar', 'vx-toolbar--' + (props.variant ?? 'transparent'), 'vx-toolbar--' + size, dividerCls, props.className)} style={props.style} accessibilityLabel={props.label}>
+		<masonview id={props.id} ref={(v: any) => applyEscapeProps(v, props)} className={cx('vx-toolbar', 'vx-toolbar--' + (props.variant ?? 'transparent'), 'vx-toolbar--' + size, dividerCls, props.className)} style={mergeStyle({display: "flex"}, props.style)} accessibilityLabel={props.label}>
 			@if (hasCenter && !vertical) {
-				<masonview display="grid" gridTemplateColumns="1fr auto 1fr" className="vx-toolbar-inner" style={{ minHeight: SIZE_MIN[size] }}>
-					<masonview style={{gridColumn: '1'}} display="flex" className="vx-toolbar-slot vx-toolbar-slot--start" alignItems="center" gap={gapPx}>{props.startContent}</masonview>
-					<masonview style={{gridColumn: '2'}} display="flex" className="vx-toolbar-slot vx-toolbar-slot--center" alignItems="center" justifyContent="center" gap={gapPx}>{props.centerContent}</masonview>
-					<masonview style={{gridColumn: '3'}} display="flex" className="vx-toolbar-slot vx-toolbar-slot--end" alignItems="center" justifyContent="flex-end" gap={gapPx}>{props.endContent}</masonview>
+				<masonview className="vx-toolbar-inner" style={mergeStyle({display: "grid", gridTemplateColumns: "1fr auto 1fr"}, { minHeight: SIZE_MIN[size] })}>
+					<masonview style={mergeStyle({display: "flex"}, {gridColumn: '1'})} className="vx-toolbar-slot vx-toolbar-slot--start" alignItems="center" gap={gapPx}>{props.startContent}</masonview>
+					<masonview style={mergeStyle({display: "flex"}, {gridColumn: '2'})} className="vx-toolbar-slot vx-toolbar-slot--center" alignItems="center" justifyContent="center" gap={gapPx}>{props.centerContent}</masonview>
+					<masonview style={mergeStyle({display: "flex"}, {gridColumn: '3'})} className="vx-toolbar-slot vx-toolbar-slot--end" alignItems="center" justifyContent="flex-end" gap={gapPx}>{props.endContent}</masonview>
 				</masonview>
 			} @else {
-				<masonview display="flex" className="vx-toolbar-inner" flexDirection={vertical ? 'column' : 'row'} alignItems={vertical ? 'stretch' : 'center'} justifyContent={vertical || hasCenter ? 'flex-start' : 'space-between'} gap={gapPx} style={{ minHeight: vertical ? undefined : SIZE_MIN[size] }}>
+				<masonview className="vx-toolbar-inner" flexDirection={vertical ? 'column' : 'row'} alignItems={vertical ? 'stretch' : 'center'} justifyContent={vertical || hasCenter ? 'flex-start' : 'space-between'} gap={gapPx} style={mergeStyle({display: "flex"}, { minHeight: vertical ? undefined : SIZE_MIN[size] })}>
 					@if (props.startContent != null) {
-						<masonview display="flex" className="vx-toolbar-slot vx-toolbar-slot--start" flexDirection={vertical ? 'column' : 'row'} alignItems="center" gap={gapPx} flexGrow={props.endContent == null ? 1 : 0}>{props.startContent}</masonview>
+						<masonview className="vx-toolbar-slot vx-toolbar-slot--start" flexDirection={vertical ? 'column' : 'row'} alignItems="center" gap={gapPx} flexGrow={props.endContent == null ? 1 : 0} style={{display: "flex"}}>{props.startContent}</masonview>
 					}
 					@if (props.centerContent != null) {
-						<masonview display="flex" className="vx-toolbar-slot vx-toolbar-slot--center" flexDirection={vertical ? 'column' : 'row'} alignItems="center" justifyContent="center" gap={gapPx} flexGrow={1}>{props.centerContent}</masonview>
+						<masonview className="vx-toolbar-slot vx-toolbar-slot--center" flexDirection={vertical ? 'column' : 'row'} alignItems="center" justifyContent="center" gap={gapPx} flexGrow={1} style={{display: "flex"}}>{props.centerContent}</masonview>
 					}
 					@if (props.endContent != null) {
-						<masonview display="flex" className="vx-toolbar-slot vx-toolbar-slot--end" flexDirection={vertical ? 'column' : 'row'} alignItems="center" justifyContent={vertical ? 'center' : 'flex-end'} gap={gapPx}>{props.endContent}</masonview>
+						<masonview className="vx-toolbar-slot vx-toolbar-slot--end" flexDirection={vertical ? 'column' : 'row'} alignItems="center" justifyContent={vertical ? 'center' : 'flex-end'} gap={gapPx} style={{display: "flex"}}>{props.endContent}</masonview>
 					}
 				</masonview>
 			}

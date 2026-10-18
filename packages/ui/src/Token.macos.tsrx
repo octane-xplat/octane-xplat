@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import type { TokenProps } from "./props";
 import { cx } from "@octane-xplat/lib";
 import { Pressable } from './Pressable.macos.tsrx';
@@ -96,7 +97,7 @@ export function Token(props: TokenProps) @{
 		</Pressable>
 	}
 
-	return <masonview display="flex" id={props.id} className={classes} style={tokenStyle} accessibilityLabel={props.isLabelHidden ? props.label : undefined} accessibilityHint={props.description} accessibilityState={{ disabled: props.isDisabled }}>
+	return <masonview id={props.id} className={classes} style={mergeStyle({display: "flex"}, tokenStyle)} accessibilityLabel={props.isLabelHidden ? props.label : undefined} accessibilityHint={props.description} accessibilityState={{ disabled: props.isDisabled }}>
 		{content}
 	</masonview>
 }

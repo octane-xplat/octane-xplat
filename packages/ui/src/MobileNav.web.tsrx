@@ -1,3 +1,4 @@
+import { mergeStyle } from './style-merge'
 import { useCallback, useContext, useEffect, useId, useRef, useState } from 'octane';
 import type { MobileNavProps, MobileNavToggleProps } from './props';
 import { applyEscapeProps } from './escape-props';
@@ -125,7 +126,7 @@ export function MobileNav(props: MobileNavProps) @{
 		ref={(el: HTMLDialogElement | null) => { dialogRef.current = el; if (el) applyEscapeProps(el, props); }}
 		id={id}
 		className={['vx-mobilenav', 'vx-mobilenav--' + resolvedSide, isOpen && 'vx-mobilenav--open', props.className]}
-		style={{ width: props.width ?? 320, ...(props.style as any) }}
+		style={mergeStyle({width: props.width ?? 320}, props.style as any)}
 		aria-label={ariaLabel}
 		onClick={handleDialogClick}
 		onCancel={handleCancel}

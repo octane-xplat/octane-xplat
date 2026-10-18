@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import type { NavigationMenuProps } from './props';
 import { cx } from '@octane-xplat/lib';
 import { Icon } from './Icon.macos.tsrx';
@@ -11,7 +12,7 @@ import { followHref } from './nav-href';
 export function NavigationMenu(props: NavigationMenuProps) @{
 	const isHorizontal = props.horizontal !== false;
 
-	<masonview display="flex" id={props.id} flexDirection={isHorizontal ? 'row' : 'column'} className={cx('vx-navmenu-strip', !isHorizontal && 'vx-navmenu-strip--vertical', props.className)} style={props.style} accessibilityLabel={props.accessibilityLabel}>
+	<masonview id={props.id} flexDirection={isHorizontal ? 'row' : 'column'} className={cx('vx-navmenu-strip', !isHorizontal && 'vx-navmenu-strip--vertical', props.className)} style={mergeStyle({display: "flex"}, props.style)} accessibilityLabel={props.accessibilityLabel}>
 		@for (const item of props.items; key item.key) {
 			<Pressable
 				className={cx('vx-navmenu-strip-item', item.active && 'vx-navmenu-strip-item--active')}
@@ -24,7 +25,7 @@ export function NavigationMenu(props: NavigationMenuProps) @{
 					if (item.href) followHref(item.href);
 				}}
 			>
-				<masonview display="flex" flexDirection="row" alignItems="center" gap={6}>
+				<masonview flexDirection="row" alignItems="center" gap={6} style={{display: "flex"}}>
 					{item.icon ? <Icon name={item.icon} size={16} /> : null}
 					<Text>{item.label}</Text>
 				</masonview>

@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useContext, useEffect, useMemo, useRef, useState } from 'octane';
 import type { TabListProps, TabProps, TabMenuProps } from './props';
 import { useSize } from './size-context';
@@ -68,7 +69,7 @@ export function TabList(props: TabListProps) @{
 	}, [props.value]);
 
 	const row = (
-		<masonview display="flex" className={cx('vx-tabstrip', props.isFullBleed && 'vx-tabstrip--bleed')} alignItems="flex-end">
+		<masonview className={cx('vx-tabstrip', props.isFullBleed && 'vx-tabstrip--bleed')} alignItems="flex-end" style={{display: "flex"}}>
 			{props.children}
 		</masonview>
 	);
@@ -76,7 +77,7 @@ export function TabList(props: TabListProps) @{
 	const cls = cx('vx-tablist', 'vx-tablist--' + size, layout === 'fill' && 'vx-tablist--fill', props.hasDivider && 'vx-tablist--divided', props.isFullBleed && 'vx-tablist--bleed', props.className);
 
 	<TabListProvider value={ctx}>
-		<masonview display="flex" id={props.id} ref={(v: any) => applyEscapeProps(v, props)} className={cls} style={props.style as any}>
+		<masonview id={props.id} ref={(v: any) => applyEscapeProps(v, props)} className={cls} style={mergeStyle({display: "flex"}, props.style as any)}>
 			@if (hasScroll) {
 				<scrollview orientation="horizontal" ref={(v: any) => { scroller.current = v; }} className="vx-tabstrip-scroll" scrollBarIndicatorVisible={false}>
 					{row}
@@ -116,20 +117,20 @@ export function Tab(props: TabProps) @{
 		id={props.id}
 		ref={(v: any) => { applyEscapeProps(v, props); if (v) (ctx as any)._tabViews?.set(props.value, v); else (ctx as any)._tabViews?.delete(props.value); }}
 		className={cx('vx-tab', isSelected && 'vx-tab--selected', ctx.layout === 'fill' && 'vx-tab--fill', props.className)}
-		style={{ height: SIZE_HEIGHT[ctx.size], ...(props.style as any) }}
+		style={mergeStyle({height: SIZE_HEIGHT[ctx.size]}, props.style as any)}
 		disabled={isDisabled}
 		accessibilityRole={isDisabled ? 'none' : (ctx.pattern === 'tabs' ? 'tab' : 'button')}
 		accessibilityLabel={props.isLabelHidden ? props.label : undefined}
 		accessibilityState={{ disabled: isDisabled, selected: isSelected }}
 		onPress={select}
 	>
-		<masonview display="flex" className="vx-tab-content" flexDirection="column" justifyContent="flex-end" alignItems="center">
-			<masonview display="flex" flexDirection="row" alignItems="center" justifyContent="center" gap={8}>
+		<masonview className="vx-tab-content" flexDirection="column" justifyContent="flex-end" alignItems="center" style={{display: "flex"}}>
+			<masonview flexDirection="row" alignItems="center" justifyContent="center" gap={8} style={{display: "flex"}}>
 				{displayIcon != null ? navIcon(displayIcon, ctx.size === 'lg' ? 18 : ctx.size === 'sm' ? 14 : 16) : null}
 				{showLabel ? <Text className="vx-tab-label">{props.label}</Text> : null}
 				{props.endContent != null ? props.endContent : null}
 			</masonview>
-			<masonview display="flex" className={cx('vx-tab-indicator', isSelected && 'vx-tab-indicator--on')} />
+			<masonview className={cx('vx-tab-indicator', isSelected && 'vx-tab-indicator--on')} style={{display: "flex"}}/>
 		</masonview>
 	</Pressable>
 }
@@ -157,21 +158,21 @@ export function TabMenu(props: TabMenuProps) @{
 			ref={(v: any) => { anchor.current = v; applyEscapeProps(v, props); }}
 			id={props.id}
 			className={cx('vx-tab vx-tabmenu-trigger', selected && 'vx-tab--selected', props.className)}
-			style={{ height: SIZE_HEIGHT[ctx.size], ...(props.style as any) }}
+			style={mergeStyle({height: SIZE_HEIGHT[ctx.size]}, props.style as any)}
 			accessibilityLabel={triggerLabel}
 			accessibilityHint={props.label}
 			onPress={() => setOpen(!open)}
 		>
-			<masonview display="flex" className="vx-tab-content" flexDirection="column" justifyContent="flex-end" alignItems="center">
-				<masonview display="flex" flexDirection="row" alignItems="center" justifyContent="center" gap={4}>
+			<masonview className="vx-tab-content" flexDirection="column" justifyContent="flex-end" alignItems="center" style={{display: "flex"}}>
+				<masonview flexDirection="row" alignItems="center" justifyContent="center" gap={4} style={{display: "flex"}}>
 					<Text className="vx-tab-label">{triggerLabel}</Text>
 					<Icon name={open ? 'xplat-chevron-up' : 'xplat-chevron-down'} size={16} />
 				</masonview>
-				<masonview display="flex" className={cx('vx-tab-indicator', selected && 'vx-tab-indicator--on')} />
+				<masonview className={cx('vx-tab-indicator', selected && 'vx-tab-indicator--on')} style={{display: "flex"}}/>
 			</masonview>
 		</Pressable>
 		<Popover anchor={anchor} open={open} placement="bottom" onDismiss={() => setOpen(false)} className="vx-tabmenu-pop">
-			<masonview display="flex" flexDirection="column" className="vx-tabmenu">
+			<masonview flexDirection="column" className="vx-tabmenu" style={{display: "flex"}}>
 				<Text className="vx-tabmenu-heading">{props.label}</Text>
 				@for (const option of props.options; key option.value) {
 					<Pressable
@@ -179,7 +180,7 @@ export function TabMenu(props: TabMenuProps) @{
 						accessibilityState={{ selected: ctx.value === option.value }}
 						onPress={() => pick(option.value)}
 					>
-						<masonview display="flex" flexDirection="row" alignItems="center" gap={8}>
+						<masonview flexDirection="row" alignItems="center" gap={8} style={{display: "flex"}}>
 							{option.icon != null ? navIcon(option.icon, 16) : null}
 							<Text className="vx-tabmenu-itemcontent">{option.label}</Text>
 							{ctx.value === option.value ? <Icon name="xplat-check" size={16} /> : null}

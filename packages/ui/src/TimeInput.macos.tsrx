@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
 import type { ISOTimeString, TimeInputProps } from './props'
 import { cx } from '@octane-xplat/lib'
@@ -101,7 +102,7 @@ export function TimeInput(inputProps: TimeInputProps) @{
 	const statusText = props.status ? STATUS_TEXT[props.status.type] : null
 
 	const control = (
-		<masonview display="flex" flexDirection="row" alignItems="center" className={cx(
+		<masonview flexDirection="row" alignItems="center" className={cx(
 				'vx-timeinput',
 				'vx-timeinput--typed',
 				isDisabled && 'vx-timeinput--disabled',
@@ -110,7 +111,7 @@ export function TimeInput(inputProps: TimeInputProps) @{
 				props.size && `vx-timeinput--size-${props.size}`,
 				!isPendingValid && 'vx-timeinput--invalid',
 				props.className,
-			)} style={props.style}>
+			)} style={mergeStyle({display: "flex"}, props.style)}>
 			<textfield
 				ref={(v: any) => { input.current = v }}
 				id={inputId}

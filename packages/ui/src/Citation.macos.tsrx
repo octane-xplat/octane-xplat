@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import type { CitationProps } from './props';
 import { cx } from '@octane-xplat/lib';
 import { getColorScheme } from './colorScheme.macos';
@@ -39,7 +40,7 @@ export function Citation(props: CitationProps) @{
 		) : (
 			<>
 				{iconNode != null ? (
-					<masonview display="flex" className="vx-citation-icon" style={{ width: 16, height: 16, borderRadius: 8 }}>
+					<masonview className="vx-citation-icon" style={mergeStyle({display: "flex"}, { width: 16, height: 16, borderRadius: 8 })}>
 						{iconNode}
 					</masonview>
 				) : iconSrc != null ? (
@@ -74,7 +75,7 @@ export function Citation(props: CitationProps) @{
 			{body}
 		</Pressable>
 	) : (
-		<masonview display="flex" {...shared} flexDirection="row" alignItems="center" accessibilityRole="text">
+		<masonview {...shared} flexDirection="row" alignItems="center" accessibilityRole="text" style={{display: "flex"}}>
 			{body}
 		</masonview>
 	);

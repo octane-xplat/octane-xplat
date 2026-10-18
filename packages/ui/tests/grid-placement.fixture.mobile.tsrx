@@ -5,7 +5,7 @@ import { Grid } from '../src/Grid.tsrx';
 import { layoutChildProps } from '../src/layout-child';
 
 function Composite() @{
- <masonview display="grid" id="probe-composite" row={0} col={0} colSpan={2}><label text="composite" /></masonview>
+ <masonview id="probe-composite" row={0} col={0} colSpan={2} style={{display: "grid"}}><label text="composite" /></masonview>
 }
 export function PlacementCase(props: { values: string[] }) @{
  <Grid columns="*,*,*">
@@ -45,7 +45,7 @@ function ProbeChildren() @{
  </>
 }
 export default function GridPlacementProbe() @{
- <masonview display="flex" flexDirection="column">
+ <masonview flexDirection="column" style={{display: "flex"}}>
   <label text="Composite should span two cells; automatic should be in column 2" />
   <Grid columns="*,*,*"><Composite /><label id="probe-auto" text="automatic" /></Grid>
   <Grid columns="*,*"><ProbeChildren /></Grid>
@@ -70,7 +70,7 @@ export async function run(ctx: ProbeContext) {
 }
 
 function ForwardingComposite(props: { col?: number; colSpan?: number }) @{
- <masonview display="grid" {...layoutChildProps(props)}><label text="composite" /></masonview>
+ <masonview {...layoutChildProps(props)} style={{display: "grid"}}><label text="composite" /></masonview>
 }
 export function UpdatingComposite(props: { col?: number; span?: number }) @{
  <Grid columns="*,*,*"><ForwardingComposite col={props.col} colSpan={props.span} /><label text="auto" /></Grid>

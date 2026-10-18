@@ -42,11 +42,11 @@ export function ComplexSelectorView<Value,>(props: ComplexSelectorViewProps<Valu
 	</Pressable>;
 
 	const body = <>
-		{props.variant === 'ghost' ? trigger : <masonview display="flex" className={cx('vx-complex-selector', `vx-complex-selector--size-${size}`, props.status && `vx-complex-selector--status-${props.status.type}`)} flexDirection="row" alignItems="center">
+		{props.variant === 'ghost' ? trigger : <masonview className={cx('vx-complex-selector', `vx-complex-selector--size-${size}`, props.status && `vx-complex-selector--status-${props.status.type}`)} flexDirection="row" alignItems="center" style={{display: "flex"}}>
 			{trigger}
 		</masonview>}
 		<Popover anchor={anchor} open={open} placement={props.placement ?? 'bottom'} alignment={props.alignment ?? 'start'} onDismiss={() => setOpen(false)} className={props.contentClassName} style={props.contentStyle}>
-			<masonview display="grid" id={contentId} accessibilityRole={"dialog" as any}>{content}</masonview>
+			<masonview id={contentId} accessibilityRole={"dialog" as any} style={{display: "grid"}}>{content}</masonview>
 		</Popover>
 	</>;
 

@@ -5,11 +5,11 @@ import { Text } from './Text'
 import { cx } from '@octane-xplat/lib'
 
 function StartContent(props: ItemSlotProps) @{
-	<masonview display="flex" className={cx('vx-item-leading', props.className)}>{props.children}</masonview>
+	<masonview className={cx('vx-item-leading', props.className)} style={{display: "flex"}}>{props.children}</masonview>
 }
 
 function Content(props: ItemSlotProps) @{
-	<masonview display="flex" flexDirection="column" className={cx('vx-item-content', props.className)}>{props.children}</masonview>
+	<masonview flexDirection="column" className={cx('vx-item-content', props.className)} style={{display: "flex"}}>{props.children}</masonview>
 }
 
 function Description(props: ItemSlotProps) @{
@@ -17,7 +17,7 @@ function Description(props: ItemSlotProps) @{
 }
 
 function EndContent(props: ItemSlotProps) @{
-	<masonview display="flex" className={cx('vx-item-trailing', props.className)}>{props.children}</masonview>
+	<masonview className={cx('vx-item-trailing', props.className)} style={{display: "flex"}}>{props.children}</masonview>
 }
 
 function ItemView(props: ItemProps) @{

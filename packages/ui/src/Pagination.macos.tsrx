@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import type { PaginationProps } from "./props";
 import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps } from "./escape-props";
@@ -27,15 +28,15 @@ export function Pagination(props: PaginationProps) @{
 		props.onPageChange?.(p);
 	};
 
-	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" alignItems="center" className={cx('vx-pagination', props.disabled && 'vx-pagination--disabled', props.className)} style={props.style}>
-		<masonview display="flex" className="vx-page-btn" justifyContent="center" alignItems="center" style={{ width: 28, height: 28, borderWidth: 1, borderColor: '#eaeaea', borderRadius: 4 }} onTap={() => go(current - 1)}><label text="‹" /></masonview>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" alignItems="center" className={cx('vx-pagination', props.disabled && 'vx-pagination--disabled', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
+		<masonview className="vx-page-btn" justifyContent="center" alignItems="center" style={mergeStyle({display: "flex"}, { width: 28, height: 28, borderWidth: 1, borderColor: '#eaeaea', borderRadius: 4 })} onTap={() => go(current - 1)}><label text="‹" /></masonview>
 		@for (const e of pages; key e.key) {
 			<>{e.page == null
 				? <label className="vx-page-ellipsis" text="…" />
-				: <masonview display="flex" className={cx('vx-page-btn', e.page === current && 'vx-page-btn--on')} justifyContent="center" alignItems="center" style={{ width: 28, height: 28, borderWidth: 1, borderColor: '#eaeaea', borderRadius: 4, ...(e.page === current ? { backgroundColor: '#171717', borderColor: '#171717', color: '#fafafa' } : {}) }} onTap={() => go(e.page!)}>
+				: <masonview className={cx('vx-page-btn', e.page === current && 'vx-page-btn--on')} justifyContent="center" alignItems="center" style={mergeStyle({display: "flex"}, { width: 28, height: 28, borderWidth: 1, borderColor: '#eaeaea', borderRadius: 4, ...(e.page === current ? { backgroundColor: '#171717', borderColor: '#171717', color: '#fafafa' } : {}) })} onTap={() => go(e.page!)}>
 					<label text={String(e.page)} />
 				</masonview>}</>
 		}
-		<masonview display="flex" className="vx-page-btn" justifyContent="center" alignItems="center" style={{ width: 28, height: 28, borderWidth: 1, borderColor: '#eaeaea', borderRadius: 4 }} onTap={() => go(current + 1)}><label text="›" /></masonview>
+		<masonview className="vx-page-btn" justifyContent="center" alignItems="center" style={mergeStyle({display: "flex"}, { width: 28, height: 28, borderWidth: 1, borderColor: '#eaeaea', borderRadius: 4 })} onTap={() => go(current + 1)}><label text="›" /></masonview>
 	</masonview>
 }

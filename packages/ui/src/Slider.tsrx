@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useCallback, useEffect, useRef, useState } from 'octane';
 import type { PanEvent, SliderProps } from './props';
 import { cx } from '@octane-xplat/lib';
@@ -59,8 +60,8 @@ export function Slider(props: SliderProps) @{
 	});
 
 	<masonview id={props.id} className={cx('vx-slider', props.className)} style={props.style as any} accessibilityRole={nativeAccessibilityRole('adjustable') as any} onPan={onPan} ref={bindHost}>
-		<masonview display="flex" className="vx-slider-track" style={{ width, translateY: trackTop , position: 'absolute'}} />
-		<masonview display="flex" className="vx-slider-fill" style={{ width: ratio * width, translateY: trackTop , position: 'absolute'}} />
-		<masonview display="flex" className="vx-slider-thumb" style={{ translateX: thumbLeft, translateY: thumbTop , position: 'absolute'}} />
+		<masonview className="vx-slider-track" style={mergeStyle({display: "flex"}, { width, translateY: trackTop , position: 'absolute'})}/>
+		<masonview className="vx-slider-fill" style={mergeStyle({display: "flex"}, { width: ratio * width, translateY: trackTop , position: 'absolute'})}/>
+		<masonview className="vx-slider-thumb" style={mergeStyle({display: "flex"}, { translateX: thumbLeft, translateY: thumbTop , position: 'absolute'})}/>
 	</masonview>
 }

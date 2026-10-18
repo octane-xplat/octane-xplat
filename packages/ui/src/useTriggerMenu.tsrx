@@ -47,7 +47,7 @@ function TriggerMenuItems(props: TriggerMenuItemsProps) @{
 	let flatIndex = 0;
 
 	@for (const group of groupChatItems(props.state.items); index groupIndex; key groupIndex) {
-		<masonview display="flex" flexDirection="column">
+		<masonview flexDirection="column" style={{display: "flex"}}>
 			{group.heading ? <label className="vx-chattrig-heading" text={group.heading} /> : null}
 			@for (const item of group.items; key item.id) {
 				const idx = flatIndex++;
@@ -73,7 +73,7 @@ export function ChatTriggerMenuOverlay(props: TriggerMenuOverlayProps) @{
 		onDismiss={props.onDismiss}
 		className="vx-chattrig"
 	>
-		<masonview display="flex" flexDirection="column" accessibilityLabel={props.state.activeTrigger?.menuLabel ?? 'Suggestions'}>
+		<masonview flexDirection="column" accessibilityLabel={props.state.activeTrigger?.menuLabel ?? 'Suggestions'} style={{display: "flex"}}>
 			{props.state.isLoading ? (
 				<label className="vx-chattrig-loading" text={props.state.activeTrigger?.loadingText ?? 'Searching…'} />
 			) : props.state.items.length === 0 && props.state.isActive ? (

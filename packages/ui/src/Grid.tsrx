@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import type { GridProps } from './props';
 import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
@@ -21,9 +22,9 @@ export function Grid(props: GridProps) @{
 	// Mason's grid engine auto-places unpositioned children row-major
 	// (grid-auto-flow); explicit `row`/`col` child props become CSS grid
 	// lines in the driver. No imperative placement pass needed.
-	<masonview display="grid" gridAutoFlow="row" gridTemplateRows={gridTrackListToCss(props.rows, 'rows')} gridTemplateColumns={gridTrackListToCss(props.columns, 'columns')} id={props.id} ref={(view: any) => {
+	<masonview id={props.id} ref={(view: any) => {
 			applyEscapeProps(view, props);
-		}} className={cx('vx-grid', props.className)} style={props.style as any} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
+		}} className={cx('vx-grid', props.className)} style={mergeStyle({display: "grid", gridAutoFlow: "row", gridTemplateRows: gridTrackListToCss(props.rows, 'rows'), gridTemplateColumns: gridTrackListToCss(props.columns, 'columns')}, props.style as any)} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
 		{props.children}
 	</masonview>
 }

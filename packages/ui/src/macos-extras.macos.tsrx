@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import type { HeadingProps, MeterProps } from './props'
 import { cx } from '@octane-xplat/lib'
 import { meterRange } from './meter-math'
@@ -12,14 +13,14 @@ export function Meter(props: MeterProps) @{
 
 	// Track ring via layer chrome; the progress arc itself needs a stroked
 	// CAShapeLayer — not bridged yet, so the ring renders unfilled.
-	<masonview display="flex" id={props.id} className={cx('vx-meter', props.className)} style={{
+	<masonview id={props.id} className={cx('vx-meter', props.className)} style={mergeStyle({display: "flex"}, {
 			width: size,
 			height: size,
 			borderWidth: strokeWidth,
 			borderColor: props.trackColor ?? '#e1ecf7',
 			borderRadius: size / 2,
 			...(props.style as any),
-		}} accessibilityRole="meter" accessibilityLabel={props.accessibilityLabel} accessibilityValue={value} accessibilityMinValue={min} accessibilityMaxValue={rangeMax} accessibilityValueDescription={props.valueLabel ?? `${value} of ${rangeMax}`}>
+		})} accessibilityRole="meter" accessibilityLabel={props.accessibilityLabel} accessibilityValue={value} accessibilityMinValue={min} accessibilityMaxValue={rangeMax} accessibilityValueDescription={props.valueLabel ?? `${value} of ${rangeMax}`}>
 		{props.children}
 	</masonview>
 }

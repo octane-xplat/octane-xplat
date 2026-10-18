@@ -1,3 +1,4 @@
+import { mergeStyle } from './style-merge'
 import { useCallback, useEffect, useRef } from 'octane';
 import type { ToastProps } from './props';
 import { cx } from '@octane-xplat/lib';
@@ -111,7 +112,7 @@ export function Toast(props: ToastProps) @{
 			}}
 			id={props.id}
 			className={cx('vx-toast', `vx-toast--${type}`, props.isExiting && 'vx-toast--exiting', props.className)}
-			style={{ touchAction: 'pan-y', ...(props.style as any) }}
+			style={mergeStyle({touchAction: 'pan-y'}, props.style as any)}
 			role={role}
 			aria-live={type === 'error' ? 'assertive' : 'polite'}
 			tabIndex={0}

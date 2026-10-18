@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import type { PaginationProps } from "./props";
 import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps } from "./escape-props";
@@ -27,17 +28,17 @@ export function Pagination(props: PaginationProps) @{
 		props.onPageChange?.(p);
 	};
 
-	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx('vx-pagination', props.disabled && 'vx-pagination--disabled', props.className)} style={props.style as any}>
-		<masonview display="flex" className="vx-page-btn" onTap={() => go(current - 1)}><label text="‹" /></masonview>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx('vx-pagination', props.disabled && 'vx-pagination--disabled', props.className)} style={mergeStyle({display: "flex"}, props.style as any)}>
+		<masonview className="vx-page-btn" onTap={() => go(current - 1)} style={{display: "flex"}}><label text="‹" /></masonview>
 		@for (const e of pages; key e.key) {
 			@if (e.page == null) {
 				<label className="vx-page-ellipsis" text="…" />
 			} @else {
-				<masonview display="flex" className={cx('vx-page-btn', e.page === current && 'vx-page-btn--on')} onTap={() => go(e.page!)}>
+				<masonview className={cx('vx-page-btn', e.page === current && 'vx-page-btn--on')} onTap={() => go(e.page!)} style={{display: "flex"}}>
 					<label text={String(e.page)} />
 				</masonview>
 			}
 		}
-		<masonview display="flex" className="vx-page-btn" onTap={() => go(current + 1)}><label text="›" /></masonview>
+		<masonview className="vx-page-btn" onTap={() => go(current + 1)} style={{display: "flex"}}><label text="›" /></masonview>
 	</masonview>
 }

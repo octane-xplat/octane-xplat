@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useMemo } from 'octane'
 import { refList } from './ref-list'
 import type { StackProps } from './props';
@@ -47,12 +48,12 @@ export function Stack(props: StackProps) @{
 			onPan={onPan}
 			onSwipe={props.onSwipe}
 		>
-			<masonview display="flex" flexDirection={layout.flexDirection} justifyContent={layout.justifyContent as any} alignItems={layout.alignItems as any} flexWrap={layout.flexWrap as any} gap={layout.gap as any}>
+			<masonview flexDirection={layout.flexDirection} justifyContent={layout.justifyContent as any} alignItems={layout.alignItems as any} flexWrap={layout.flexWrap as any} gap={layout.gap as any} style={{display: "flex"}}>
 				{props.children}
 			</masonview>
 		</scrollview>
 	} @else {
-		<masonview display="flex" id={props.id} testID={props.testID ?? ''} ref={forwardedRef} flexDirection={layout.flexDirection} justifyContent={layout.justifyContent as any} alignItems={layout.alignItems as any} flexWrap={layout.flexWrap as any} gap={layout.gap as any} className={cx('vx-stack', props.className)} style={{ ...(sizingStyle as any), ...(props.style as any) }} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any} onPan={onPan} onSwipe={props.onSwipe}>
+		<masonview id={props.id} testID={props.testID ?? ''} ref={forwardedRef} flexDirection={layout.flexDirection} justifyContent={layout.justifyContent as any} alignItems={layout.alignItems as any} flexWrap={layout.flexWrap as any} gap={layout.gap as any} className={cx('vx-stack', props.className)} style={mergeStyle({display: "flex"}, { ...(sizingStyle as any), ...(props.style as any) })} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any} onPan={onPan} onSwipe={props.onSwipe}>
 			{props.children}
 		</masonview>
 	}

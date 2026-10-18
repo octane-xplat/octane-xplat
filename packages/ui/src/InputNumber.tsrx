@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useState } from 'octane';
 import type { InputNumberProps } from "./props";
 import { useSize } from './size-context';
@@ -31,7 +32,7 @@ export function InputNumber(props: InputNumberProps) @{
 		setValue(clamp((value ?? 0) + dir * (props.step ?? 1)));
 	};
 
-	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-inputnumber', props.isDisabled && 'vx-inputnumber--disabled', props.isReadOnly && 'vx-inputnumber--readonly', props.isLoading && 'vx-inputnumber--loading', props.status && `vx-inputnumber--status-${props.status.type}`, `vx-inputnumber--size-${size}`, props.className)} style={props.style as any} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled }) as any}>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-inputnumber', props.isDisabled && 'vx-inputnumber--disabled', props.isReadOnly && 'vx-inputnumber--readonly', props.isLoading && 'vx-inputnumber--loading', props.status && `vx-inputnumber--status-${props.status.type}`, `vx-inputnumber--size-${size}`, props.className)} style={mergeStyle({display: "flex"}, props.style as any)} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled }) as any}>
 		<Pressable className="vx-inputnumber-step" disabled={isBlocked} onPress={() => stepBy(-1)} accessibilityLabel="Decrement">
 			<label text="−" />
 		</Pressable>

@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from '../style-merge'
 import { useNativeListCells } from '../use-native-list-cells.mobile'
 // Universal hooks import from 'octane' — the compiler retargets them to the
 // nativescript runtime, and the dev server serves them via HTTP-ESM.
@@ -56,7 +57,7 @@ function UITableViewInner(props: {
 }) @{
 	const lv = useRef<any>(null);
 	const renderCell = useCallback(
-		(item: any, index: number) => <masonview display="grid">{props.renderItem(item, index)}</masonview>,
+		(item: any, index: number) => <masonview style={{display: "grid"}}>{props.renderItem(item, index)}</masonview>,
 		[props.renderItem],
 	);
 
@@ -212,11 +213,11 @@ export function UITableView<T>(props: UITableViewProps<T>) @{
 
 	@if (props.items.length > 0) {
 		@if (refreshCapable) {
-			<masonview display="grid" ref={(v: any) => {
+			<masonview ref={(v: any) => {
 					// iOS doesn't clip children — the resting indicator sits
 					// translated above the wrapper's top edge without it.
 					if (v?.ios) v.ios.clipsToBounds = true;
-				}} className={cx('vx-refresh-wrap', props.className)} style={props.style as any}>
+				}} className={cx('vx-refresh-wrap', props.className)} style={mergeStyle({display: "grid"}, props.style as any)}>
 				<MemoListView
 					id={props.id}
 					items={props.items}
@@ -230,7 +231,7 @@ export function UITableView<T>(props: UITableViewProps<T>) @{
 					viewabilityConfig={props.viewabilityConfig}
 					runtime={runtime.current}
 				/>
-				<masonview style={{alignSelf: 'start'}} display="flex" ref={(v: any) => {
+				<masonview style={mergeStyle({display: "flex"}, {alignSelf: 'start'})} ref={(v: any) => {
 						indicator.current = v;
 					}} className="vx-refresh" height={REFRESH_HEADER_HEIGHT} translateY={-REFRESH_HEADER_HEIGHT}>
 					<ActivityIndicator />

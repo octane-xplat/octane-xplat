@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useEffect, useRef } from 'octane';
 import type { ToastProps } from './props';
 import { cx } from '@octane-xplat/lib';
@@ -65,10 +66,10 @@ export function Toast(props: ToastProps) @{
 		return () => view.off?.('pan', onPan);
 	}, []);
 
-	<masonview display="flex" ref={(v: any) => {
+	<masonview ref={(v: any) => {
 			el.current = v;
 			applyEscapeProps(v, props);
-		}} id={props.id} flexDirection="row" alignItems="center" className={cx('vx-toast', `vx-toast--${type}`, props.isExiting && 'vx-toast--exiting', props.className)} style={props.style as any} accessibilityLiveRegion={(type === 'error' ? 'assertive' : 'polite') as any}>
+		}} id={props.id} flexDirection="row" alignItems="center" className={cx('vx-toast', `vx-toast--${type}`, props.isExiting && 'vx-toast--exiting', props.className)} style={mergeStyle({display: "flex"}, props.style as any)} accessibilityLiveRegion={(type === 'error' ? 'assertive' : 'polite') as any}>
 		{props.renderContent ? (
 			props.renderContent({
 				body: props.body,
@@ -80,7 +81,7 @@ export function Toast(props: ToastProps) @{
 			})
 		) : (
 			<>
-				<masonview display="flex" flexDirection="column" className="vx-toast-body" flexGrow={1}>
+				<masonview flexDirection="column" className="vx-toast-body" flexGrow={1} style={{display: "flex"}}>
 					{typeof props.body === 'string' ? (
 						<Text>{props.body}</Text>
 					) : (
@@ -88,7 +89,7 @@ export function Toast(props: ToastProps) @{
 					)}
 				</masonview>
 				{props.endContent != null && (
-					<masonview display="flex" className="vx-toast-end">{props.endContent}</masonview>
+					<masonview className="vx-toast-end" style={{display: "flex"}}>{props.endContent}</masonview>
 				)}
 			</>
 		)}

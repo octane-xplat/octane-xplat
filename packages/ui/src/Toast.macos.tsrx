@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { useCallback, useEffect, useRef } from 'octane'
 import type { ToastProps, ToastContentRenderProps } from './props'
 import { cx } from '@octane-xplat/lib'
@@ -58,9 +59,9 @@ export function Toast(props: ToastProps) @{
 		dismiss: () => dismiss('manual'),
 	}
 
-	<masonview display="flex" flexDirection="row" alignItems="center" id={props.id} ref={view} className={cx('vx-toast', props.type === 'error' && 'vx-toast--error', props.className)} style={{ opacity: props.isExiting ? 0 : 1, ...(props.style as any) }}>
+	<masonview flexDirection="row" alignItems="center" id={props.id} ref={view} className={cx('vx-toast', props.type === 'error' && 'vx-toast--error', props.className)} style={mergeStyle({display: "flex"}, { opacity: props.isExiting ? 0 : 1, ...(props.style as any) })}>
 		{props.renderContent ? props.renderContent(content) : (
-			<masonview display="flex" flexDirection="column" flexGrow={1} className="vx-toast-content">
+			<masonview flexDirection="column" flexGrow={1} className="vx-toast-content" style={{display: "flex"}}>
 				{typeof props.body === 'string' ? <label whiteSpace="normal">{props.body}</label> : props.body}
 				{props.endContent}
 			</masonview>

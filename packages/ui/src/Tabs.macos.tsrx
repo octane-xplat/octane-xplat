@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { createContext, useContext, useState } from 'octane'
 import type { TabSpec, TabsProps } from './props'
 import { cx } from '@octane-xplat/lib'
@@ -37,7 +38,7 @@ export function Tabs(props: TabsProps) @{
 	const presentable = route && !presented.has(route.stack) ? route : null
 	const Screen = presentable ? screenFor(presentable.name) : undefined
 
-	<masonview display="flex" id={props.id} flexDirection="column" className={cx('vx-tabs', props.className)} style={props.style}>
+	<masonview id={props.id} flexDirection="column" className={cx('vx-tabs', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
 		<TabList
 			className="vx-tabbar"
 			role="tablist"
@@ -50,7 +51,7 @@ export function Tabs(props: TabsProps) @{
 				<Tab id={'tab-' + i} value={keyFor(item, i)} label={item.title} icon={item.icon} />
 			}
 		</TabList>
-		<masonview display="flex" flexDirection="column" className="vx-tabpane flex-1">
+		<masonview flexDirection="column" className="vx-tabpane flex-1" style={{display: "flex"}}>
 			@if (presentable && Screen) {
 				<PresentedStacks value={new Set(presented).add(presentable.stack)}>
 					<RouteHost screen={Screen} layouts={layoutsFor(presentable.name)} params={screenParams(presentable)} boundary={errorBoundaryFor(presentable.name)} route={presentable} />

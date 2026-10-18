@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import type { ThumbnailProps } from './props';
 import { cx } from '@octane-xplat/lib';
 import { Icon } from './Icon.macos.tsrx';
@@ -35,12 +36,12 @@ export function Thumbnail(props: ThumbnailProps) @{
 				<Icon name="xplat-doc-image" size={20} />
 			)}
 			{isLoading && props.src != null ? (
-				<masonview display="flex" justifyContent="center" alignItems="center" style={{ width: SIZE, height: SIZE }}>
+				<masonview justifyContent="center" alignItems="center" style={mergeStyle({display: "flex"}, { width: SIZE, height: SIZE })}>
 					<ActivityIndicator busy={true} style={{ width: 16, height: 16 }} />
 				</masonview>
 			) : null}
 			{isRenderable(props.onRemove) ? (
-				<masonview display="flex" className={cx('vx-thumbnail-remove')} horizontalAlignment="right" verticalAlignment="top" width={16} height={16} justifyContent="center" alignItems="center" style={{ borderRadius: 8, margin: 2, backgroundColor: '#0a0a0a' }} accessible={true} accessibilityRole="button" accessibilityLabel="Remove" onTap={() => {
+				<masonview className={cx('vx-thumbnail-remove')} horizontalAlignment="right" verticalAlignment="top" width={16} height={16} justifyContent="center" alignItems="center" style={mergeStyle({display: "flex"}, { borderRadius: 8, margin: 2, backgroundColor: '#0a0a0a' })} accessible={true} accessibilityRole="button" accessibilityLabel="Remove" onTap={() => {
 						if (!isDisabled) {
 							props.onRemove?.();
 						}
@@ -52,7 +53,7 @@ export function Thumbnail(props: ThumbnailProps) @{
 	);
 
 	const content = (
-		<masonview display="grid" id={props.id} className={cx('vx-thumbnail', props.className)} width={SIZE} height={SIZE} style={props.style} accessible={true} accessibilityLabel={label} accessibilityRole={isRenderable(props.onPress) ? 'button' : 'image'} onTap={isRenderable(props.onPress) && !isDisabled ? () => props.onPress?.() : undefined}>
+		<masonview id={props.id} className={cx('vx-thumbnail', props.className)} width={SIZE} height={SIZE} style={mergeStyle({display: "grid"}, props.style)} accessible={true} accessibilityLabel={label} accessibilityRole={isRenderable(props.onPress) ? 'button' : 'image'} onTap={isRenderable(props.onPress) && !isDisabled ? () => props.onPress?.() : undefined}>
 			{inner}
 		</masonview>
 	);

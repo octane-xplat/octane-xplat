@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
 import type { DateTimeInputProps, ISODateString, ISODateTimeString, ISOTimeString } from './props'
 import { cx } from '@octane-xplat/lib'
@@ -191,7 +192,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 	const statusText = props.status ? STATUS_TEXT[props.status.type] : null
 
 	<>
-		<masonview display="flex" ref={(v: any) => { anchor.current = v }} flexDirection="row" alignItems="center" className={cx(
+		<masonview ref={(v: any) => { anchor.current = v }} flexDirection="row" alignItems="center" className={cx(
 				'vx-datetimeinput',
 				'vx-datetimeinput-popover',
 				isDisabled && 'vx-datetimeinput--disabled',
@@ -200,7 +201,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 				props.size && `vx-datetimeinput--size-${props.size}`,
 				(!isDateValid || !isTimeValid) && 'vx-datetimeinput--invalid',
 				props.className,
-			)} style={props.style}>
+			)} style={mergeStyle({display: "flex"}, props.style)}>
 			<Pressable
 				className="vx-datetimeinput-calendartoggle"
 				accessibilityLabel={open === 'calendar' ? messages.closeCalendar : messages.openCalendar}
@@ -272,9 +273,9 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 			<Popover anchor={anchor} open={open === 'times'} onDismiss={() => setOpen(null)} placement="bottom" className="vx-datetimeinput-times">
 				<scrollview className="vx-datetimeinput-timelist" accessibilityHint={!isTimeValid ? messages.invalidTime : undefined}
 				accessibilityLabel={timeLabelText}>
-					<masonview display="flex" flexDirection="column">
+					<masonview flexDirection="column" style={{display: "flex"}}>
 						{timeOptions.map((opt) => (
-							<masonview display="flex" key={opt.time} className={cx('vx-datetimeinput-timeoption', opt.time === (timeDraft ?? valueParts.time) && 'vx-datetimeinput-timeoption--selected')} onTap={() => { commitTime(opt.time); setOpen(null) }}>
+							<masonview key={opt.time} className={cx('vx-datetimeinput-timeoption', opt.time === (timeDraft ?? valueParts.time) && 'vx-datetimeinput-timeoption--selected')} onTap={() => { commitTime(opt.time); setOpen(null) }} style={{display: "flex"}}>
 								<label text={opt.label} />
 							</masonview>
 						))}

@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import type { SearchableItem, TypeaheadItemProps } from "./props";
 import { cx } from "@octane-xplat/lib";
 import { Icon } from './Icon.macos.tsrx';
@@ -16,9 +17,9 @@ export function TypeaheadItem<T extends SearchableItem,>(props: TypeaheadItemPro
 			? <Icon name={props.icon} size={16} />
 			: props.icon;
 
-	<masonview display="flex" id={props.id} className={cx('vx-typeahead-item', props.isDisabled && 'vx-typeahead-item--disabled', props.className)} style={props.style} flexDirection="row" alignItems="center" accessibilityState={{ disabled: props.isDisabled }}>
+	<masonview id={props.id} className={cx('vx-typeahead-item', props.isDisabled && 'vx-typeahead-item--disabled', props.className)} style={mergeStyle({display: "flex"}, props.style)} flexDirection="row" alignItems="center" accessibilityState={{ disabled: props.isDisabled }}>
 		{icon}
-		<masonview display="flex" className="vx-typeahead-item-content" flexDirection="column" flexGrow={1}>
+		<masonview className="vx-typeahead-item-content" flexDirection="column" flexGrow={1} style={{display: "flex"}}>
 			<label className="vx-typeahead-item-label" text={props.item.label} />
 			{props.description ? <label className="vx-typeahead-item-description" text={props.description} style={{ color: '#666666' }} /> : null}
 		</masonview>

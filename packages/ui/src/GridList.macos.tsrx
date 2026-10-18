@@ -59,7 +59,7 @@ export function GridList<T = any>(props: GridListProps<T>) @{
 		props.onSelectionChange?.(next.selection)
 	}
 
-	<masonview display="flex" id={props.id} testID={props.testID ?? ''} ref={forwardedRef} {...layoutChildProps(props)} className={cx('vx-gridlist', isGrid ? undefined : 'vx-gridlist--stack', props.className)} flexDirection="row" flexWrap={isGrid ? 'wrap' : 'nowrap'} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={props.accessibilityState as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
+	<masonview id={props.id} testID={props.testID ?? ''} ref={forwardedRef} {...layoutChildProps(props)} className={cx('vx-gridlist', isGrid ? undefined : 'vx-gridlist--stack', props.className)} flexDirection="row" flexWrap={isGrid ? 'wrap' : 'nowrap'} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={props.accessibilityState as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any} style={{display: "flex"}}>
 		@for (const entry of props.items.map((item, index) => ({ item, index, key: keys[index] })); key entry.key) {
 			<Pressable
 				className={cx(

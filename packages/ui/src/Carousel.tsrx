@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useImperativeHandle, useCallback, useEffect, useRef, useState } from 'octane';
 import type { CarouselHandle, CarouselProps } from './props';
 import { applyEscapeProps } from './escape-props';
@@ -145,7 +146,7 @@ export function Carousel(props: CarouselProps) @{
 		};
 	}, [count, measure, props.hasSnap, offsets]);
 
-	<masonview display="grid" gridTemplateRows="1fr" gridTemplateColumns="1fr" className={cx('vx-carousel', props.className)} style={props.style as any} id={props.id} accessibilityLabel={props.accessibilityLabel ?? props.label}>
+	<masonview className={cx('vx-carousel', props.className)} style={mergeStyle({display: "grid", gridTemplateRows: "1fr", gridTemplateColumns: "1fr"}, props.style as any)} id={props.id} accessibilityLabel={props.accessibilityLabel ?? props.label}>
 		<scrollview
 			ref={(v: any) => {
 				scroller.current = v;
@@ -155,24 +156,24 @@ export function Carousel(props: CarouselProps) @{
 			className="vx-carousel-viewport"
 			scrollBarIndicatorVisible={false}
 		>
-			<masonview display="flex" ref={(v: any) => {
+			<masonview ref={(v: any) => {
 					track.current = v;
-				}} flexDirection="row" className="vx-carousel-track" style={{ columnGap: gap }}>
+				}} flexDirection="row" className="vx-carousel-track" style={mergeStyle({display: "flex"}, { columnGap: gap })}>
 				{mapChildren(items, (child: any, i: number) => (
-					<masonview display="flex" className={cx(
+					<masonview className={cx(
 							'vx-carousel-slide',
 							props.variant === 'proportional' && 'vx-carousel-slide--prop',
-						)} accessibilityLabel={`Slide ${i + 1} of ${count}`}>
+						)} accessibilityLabel={`Slide ${i + 1} of ${count}`} style={{display: "flex"}}>
 						{child}
 					</masonview>
 				))}
 			</masonview>
 		</scrollview>
 		{props.hasEdgeFade && !atStart && (
-			<masonview display="flex" className="vx-carousel-fade vx-carousel-fade-start" isUserInteractionEnabled={false} style={{justifySelf: 'start', alignSelf: 'stretch'}} />
+			<masonview className="vx-carousel-fade vx-carousel-fade-start" isUserInteractionEnabled={false} style={mergeStyle({display: "flex"}, {justifySelf: 'start', alignSelf: 'stretch'})}/>
 		)}
 		{props.hasEdgeFade && !atEnd && (
-			<masonview display="flex" className="vx-carousel-fade vx-carousel-fade-end" isUserInteractionEnabled={false} style={{justifySelf: 'end', alignSelf: 'stretch'}} />
+			<masonview className="vx-carousel-fade vx-carousel-fade-end" isUserInteractionEnabled={false} style={mergeStyle({display: "flex"}, {justifySelf: 'end', alignSelf: 'stretch'})}/>
 		)}
 		{props.hasButtons && (
 			<>

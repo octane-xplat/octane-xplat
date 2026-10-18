@@ -10,7 +10,7 @@ function Measured(props: { values: Array<MeasureBounds | null> }) @{
 	const measurement = useMeasure()
 	props.values.push(measurement.bounds)
 
-	<masonview display="flex" ref={measurement.ref} />
+	<masonview ref={measurement.ref} style={{display: "flex"}}/>
 }
 
 function mountWithHosts(host: (instance: any) => any) {

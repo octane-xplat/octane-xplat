@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useImperativeHandle, useEffect, useMemo, useRef, useState } from 'octane'
 import type { CalendarProps, DateRange, ISODateString } from './props'
 import { cx } from '@octane-xplat/lib'
@@ -163,7 +164,7 @@ export function Calendar(props: CalendarProps) @{
 					: state.isSelected ? messages.selected(dateLabel) : dateLabel
 
 		return (
-			<masonview display="flex" key={day.iso} onTap={state.isDisabled ? undefined : () => pick(day.iso)} className={cx(
+			<masonview key={day.iso} onTap={state.isDisabled ? undefined : () => pick(day.iso)} className={cx(
 					'vx-calendar-day',
 					state.isSelected && 'vx-calendar-day--selected',
 					state.isRangeStart && 'vx-calendar-day--range-start',
@@ -173,14 +174,14 @@ export function Calendar(props: CalendarProps) @{
 					state.isDisabled && 'vx-calendar-day--disabled',
 					day.isToday && 'vx-calendar-day--today',
 					day.isWeekend && 'vx-calendar-day--weekend',
-				)} accessibilityLabel={fullLabel} accessibilityRole={"button" as any} accessibilityState={{ disabled: state.isDisabled, selected: dayCarriesBand(state) || state.isSelected } as any}>
+				)} accessibilityLabel={fullLabel} accessibilityRole={"button" as any} accessibilityState={{ disabled: state.isDisabled, selected: dayCarriesBand(state) || state.isSelected } as any} style={{display: "flex"}}>
 				<label text={String(day.dayOfMonth)} />
 			</masonview>
 		)
 	}
 
-	<masonview display="flex" flexDirection="column" id={props.id} className={cx('vx-calendar', mode === 'range' && 'vx-calendar--range', numberOfMonths === 2 && 'vx-calendar--two-months', props.className)} style={props.style as any}>
-		<masonview display="flex" flexDirection={props.direction === 'rtl' ? 'row-reverse' : 'row'} alignItems="center" className="vx-calendar-header">
+	<masonview flexDirection="column" id={props.id} className={cx('vx-calendar', mode === 'range' && 'vx-calendar--range', numberOfMonths === 2 && 'vx-calendar--two-months', props.className)} style={mergeStyle({display: "flex"}, props.style as any)}>
+		<masonview flexDirection={props.direction === 'rtl' ? 'row-reverse' : 'row'} alignItems="center" className="vx-calendar-header" style={{display: "flex"}}>
 			<Pressable
 				className="vx-calendar-nav vx-calendar-nav--prev"
 				accessibilityLabel={messages.previousMonth}
@@ -201,15 +202,15 @@ export function Calendar(props: CalendarProps) @{
 				<Icon name="xplat-chevron-right" size={16} />
 			</Pressable>
 		</masonview>
-		<masonview display="flex" flexDirection="column" className="vx-calendar-months">
+		<masonview flexDirection="column" className="vx-calendar-months" style={{display: "flex"}}>
 			{months.map((grid) => (
-				<masonview display="flex" key={`${grid.year}-${grid.month}`} flexDirection="column" className="vx-calendar-month">
-					<masonview display="flex" flexDirection={props.direction === 'rtl' ? 'row-reverse' : 'row'} className="vx-calendar-weeknames">
+				<masonview key={`${grid.year}-${grid.month}`} flexDirection="column" className="vx-calendar-month" style={{display: "flex"}}>
+					<masonview flexDirection={props.direction === 'rtl' ? 'row-reverse' : 'row'} className="vx-calendar-weeknames" style={{display: "flex"}}>
 						{props.hasWeekNumbers ? <label className="vx-calendar-weeknumber vx-calendar-weeknumber--head" /> : null}
 						{grid.dayNames.map((name, i) => <label key={i} className="vx-calendar-weekname" text={name} />)}
 					</masonview>
 					{grid.weeks.map((week, w) => (
-						<masonview display="flex" key={w} flexDirection={props.direction === 'rtl' ? 'row-reverse' : 'row'} className="vx-calendar-week">
+						<masonview key={w} flexDirection={props.direction === 'rtl' ? 'row-reverse' : 'row'} className="vx-calendar-week" style={{display: "flex"}}>
 							{props.hasWeekNumbers
 								? <label className="vx-calendar-weeknumber" text={String(plainDateGetWeekNumber(week[0].date))} />
 								: null}

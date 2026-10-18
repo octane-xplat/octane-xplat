@@ -17,8 +17,8 @@ function EndLane(props: { lane: BusyIndicatorLane; clear?: any }) @{
 	const isBusy = useSyncExternalStore(props.lane.subscribe, props.lane.getIsBusy);
 	if (!isBusy && props.clear == null) return null;
 
-	<masonview display="flex" className="vx-typeahead-endlane" flexDirection="row" alignItems="center">
-		{isBusy ? <masonview display="flex" className="vx-typeahead-spinner"><ActivityIndicator busy={true} /></masonview> : null}
+	<masonview className="vx-typeahead-endlane" flexDirection="row" alignItems="center" style={{display: "flex"}}>
+		{isBusy ? <masonview className="vx-typeahead-spinner" style={{display: "flex"}}><ActivityIndicator busy={true} /></masonview> : null}
 		{props.clear}
 	</masonview>
 }
@@ -74,14 +74,14 @@ export function Typeahead<T extends SearchableItem,>(props: TypeaheadProps<T>) @
 						inputHandle.current = h;
 					}, props.ref], [props.ref, props.ios, props.android, props.web]);
 
-	const wrapper = <masonview display="flex" ref={(v: any) => { wrapperAnchor.current = v; }} className={cx(
+	const wrapper = <masonview ref={(v: any) => { wrapperAnchor.current = v; }} className={cx(
 			'vx-typeahead',
 			`vx-typeahead--size-${size}`,
 			props.isDisabled && 'vx-typeahead--disabled',
 			props.status && `vx-typeahead--status-${props.status.type}`,
-		)} flexDirection="row" alignItems="center" onTap={handleWrapperTap} accessibilityState={{ disabled: props.isDisabled }}>
+		)} flexDirection="row" alignItems="center" onTap={handleWrapperTap} accessibilityState={{ disabled: props.isDisabled }} style={{display: "flex"}}>
 		{startIcon}
-		<masonview display="grid" className="vx-typeahead-content" flexGrow={1}>
+		<masonview className="vx-typeahead-content" flexGrow={1} style={{display: "grid"}}>
 			<BusyLaneProvider value={busyLane}>
 				<BaseTypeahead
 					searchSource={props.searchSource}

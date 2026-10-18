@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useImperativeHandle, useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
 import type { DateTimeInputProps, ISODateString, ISODateTimeString, ISOTimeString } from './props'
 import { cx } from '@octane-xplat/lib'
@@ -222,7 +223,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 	useImperativeHandle(props.ref, () => ({ focus: () => dateInput.current.focus(), blur: () => blurText(dateInput.current), native: dateInput.current }), undefined);
 
 	<>
-		<masonview display="flex" ref={(v: any) => { anchor.current = v }} flexDirection="row" alignItems="center" className={cx(
+		<masonview ref={(v: any) => { anchor.current = v }} flexDirection="row" alignItems="center" className={cx(
 				'vx-datetimeinput',
 				`vx-datetimeinput--${surface}`,
 				isDisabled && 'vx-datetimeinput--disabled',
@@ -231,7 +232,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 				props.size && `vx-datetimeinput--size-${props.size}`,
 				(!isDateValid || !isTimeValid) && 'vx-datetimeinput--invalid',
 				props.className,
-			)} style={props.style as any}>
+			)} style={mergeStyle({display: "flex"}, props.style as any)}>
 			{surface === 'sheet' ? (
 				<>
 					<Pressable
@@ -333,9 +334,9 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 			<Popover anchor={anchor} open={open === 'times'} onDismiss={() => setOpen(null)} placement="bottom" className="vx-datetimeinput-times">
 				<scrollview className="vx-datetimeinput-timelist" accessibilityHint={!isTimeValid ? messages.invalidTime : undefined}
 				accessibilityLabel={timeLabelText}>
-					<masonview display="flex" flexDirection="column">
+					<masonview flexDirection="column" style={{display: "flex"}}>
 						{timeOptions.map((opt) => (
-							<masonview display="flex" key={opt.time} className={cx('vx-datetimeinput-timeoption', opt.time === (timeDraft ?? valueParts.time) && 'vx-datetimeinput-timeoption--selected')} accessibilityRole={"button" as any} accessibilityState={{ selected: opt.time === (timeDraft ?? valueParts.time) } as any} onTap={() => { commitTime(opt.time); setOpen(null) }}>
+							<masonview key={opt.time} className={cx('vx-datetimeinput-timeoption', opt.time === (timeDraft ?? valueParts.time) && 'vx-datetimeinput-timeoption--selected')} accessibilityRole={"button" as any} accessibilityState={{ selected: opt.time === (timeDraft ?? valueParts.time) } as any} onTap={() => { commitTime(opt.time); setOpen(null) }} style={{display: "flex"}}>
 								<label text={opt.label} />
 							</masonview>
 						))}
@@ -345,7 +346,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 		) : null}
 		{surface === 'sheet' ? (
 			<BottomSheet isOpen={open === 'sheet'} onOpenChange={(isOpen) => setOpen(isOpen ? 'sheet' : null)} label={props.label ?? props.accessibilityLabel ?? 'Choose a date and time'} height="hug" className="vx-datetimeinput-sheet">
-				<masonview display="flex" flexDirection="column" className="vx-datetimeinput-sheetbody">
+				<masonview flexDirection="column" className="vx-datetimeinput-sheetbody" style={{display: "flex"}}>
 					<Calendar
 						locale={props.locale}
 						direction={props.direction}

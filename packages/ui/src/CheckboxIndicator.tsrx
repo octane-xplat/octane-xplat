@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useMemo } from 'octane'
 import { refList } from './ref-list'
 import type { IndicatorProps } from './props';
@@ -12,7 +13,7 @@ import { applyEscapeProps } from './escape-props';
 export function CheckboxIndicator(props: IndicatorProps<'multiSelection'>) @{
 	const size = props.size ?? 'md';
 	const mark = props.state === 'indeterminate'
-		? <masonview display="flex" className={cx('vx-ind-dash', `vx-ind-dash--${size}`)} />
+		? <masonview className={cx('vx-ind-dash', `vx-ind-dash--${size}`)} style={{display: "flex"}}/>
 		: props.state === 'checked'
 			? <label className={cx('vx-checkbox-check', `vx-ind-check--${size}`)} text="✓" />
 			: null;
@@ -21,12 +22,12 @@ export function CheckboxIndicator(props: IndicatorProps<'multiSelection'>) @{
 
 	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
-	<masonview display="flex" id={props.id} ref={forwardedRef} className={cx(
+	<masonview id={props.id} ref={forwardedRef} className={cx(
 			'vx-checkbox', 'vx-ind-checkbox', `vx-ind-checkbox--${size}`,
 			props.state !== 'unchecked' && `vx-ind-checkbox--${props.state}`,
 			props.isDisabled && 'vx-ind-checkbox--disabled',
 			props.className,
-		)} style={props.style as any} alignItems="center" justifyContent="center">
+		)} style={mergeStyle({display: "flex"}, props.style as any)} alignItems="center" justifyContent="center">
 		{content}
 	</masonview>
 }

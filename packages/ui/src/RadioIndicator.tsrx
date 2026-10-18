@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useMemo } from 'octane'
 import { refList } from './ref-list'
 import type { IndicatorProps } from './props';
@@ -13,17 +14,17 @@ export function RadioIndicator(props: IndicatorProps<'singleSelection'>) @{
 	const content = props.children != null
 		? props.children
 		: props.state === 'checked'
-			? <masonview display="flex" className={cx('vx-radio-dot', 'vx-ind-radio-dot', `vx-ind-radio-dot--${size}`)} />
+			? <masonview className={cx('vx-radio-dot', 'vx-ind-radio-dot', `vx-ind-radio-dot--${size}`)} style={{display: "flex"}}/>
 			: null;
 
 	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
-	<masonview display="flex" id={props.id} ref={forwardedRef} className={cx(
+	<masonview id={props.id} ref={forwardedRef} className={cx(
 			'vx-radio', 'vx-ind-radio', `vx-ind-radio--${size}`,
 			props.state === 'checked' && 'vx-ind-radio--checked',
 			props.isDisabled && 'vx-ind-radio--disabled',
 			props.className,
-		)} style={props.style as any} alignItems="center" justifyContent="center">
+		)} style={mergeStyle({display: "flex"}, props.style as any)} alignItems="center" justifyContent="center">
 		{content}
 	</masonview>
 }

@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
 import type { DateInputProps, ISODateString } from './props'
 import { cx } from '@octane-xplat/lib'
@@ -109,7 +110,7 @@ function DateInputControl(inputProps: DateInputProps) @{
 	const statusText = props.status ? STATUS_TEXT[props.status.type] : null
 
 	<>
-		<masonview display="flex" ref={(v: any) => { anchor.current = v }} flexDirection="row" alignItems="center" className={cx(
+		<masonview ref={(v: any) => { anchor.current = v }} flexDirection="row" alignItems="center" className={cx(
 				'vx-dateinput',
 				'vx-dateinput-popover',
 				isDisabled && 'vx-dateinput--disabled',
@@ -118,7 +119,7 @@ function DateInputControl(inputProps: DateInputProps) @{
 				props.size && `vx-dateinput--size-${props.size}`,
 				!isPendingValid && 'vx-dateinput--invalid',
 				props.className,
-			)} style={props.style}>
+			)} style={mergeStyle({display: "flex"}, props.style)}>
 			<Pressable
 				className="vx-dateinput-toggle"
 				accessibilityLabel={open ? messages.closeCalendar : messages.openCalendar}

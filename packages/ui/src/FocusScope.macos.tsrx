@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { useMemo } from 'octane'
 import { refList } from './ref-list'
 import type { FocusScopeCapabilities, FocusScopeProps } from './props'
@@ -29,7 +30,7 @@ export function FocusScope(props: FocusScopeProps) @{
 	if (props.restoreFocus) warnInertFocusScopeFlag('restoreFocus');
 	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
-	<masonview display="flex" id={props.id} ref={forwardedRef} className={props.className} style={props.style} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole} accessibilityHint={props.accessibilityHint}>
+	<masonview id={props.id} ref={forwardedRef} className={props.className} style={mergeStyle({display: "flex"}, props.style)} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole} accessibilityHint={props.accessibilityHint}>
 		{props.children}
 	</masonview>
 }

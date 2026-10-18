@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { useEffect, useId, useMemo } from 'octane'
 import type { ToastEntry, ToastPosition, ToastViewportProps } from './props'
 import { ToastViewportProvider, type ToastViewportContextValue } from './toast-context'
@@ -17,7 +18,7 @@ function ToastCard(props: { entry: ToastEntry }) @{
 }
 
 function ToastStack(props: { entries: ToastEntry[]; dark?: boolean; className?: any; style?: any }) @{
-	<masonview display="flex" flexDirection="column" className={cx('vx-toast-viewport', props.dark && 'ns-dark', props.className)} style={props.style}>
+	<masonview flexDirection="column" className={cx('vx-toast-viewport', props.dark && 'ns-dark', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
 		{props.entries.map(entry => <ToastCard key={entry.id} entry={entry} />)}
 	</masonview>
 }
@@ -29,7 +30,7 @@ function ToastGroup(props: { entries: ToastEntry[]; position: ToastPosition; ins
 		onDismiss: () => { for (const entry of props.entries) dismissToast(entry.id, 'manual') },
 	})
 
-	<masonview display="flex" ref={owner} style={{ width: 0, height: 0 }} />
+	<masonview ref={owner} style={mergeStyle({display: "flex"}, { width: 0, height: 0 })}/>
 }
 
 export function ToastViewportSurface(props: ToastViewportProps & { viewportId: string }) @{

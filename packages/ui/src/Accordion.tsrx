@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useState } from 'octane';
 import type { AccordionProps } from "./props";
 import { cx } from "@octane-xplat/lib";
@@ -30,7 +31,7 @@ export function Accordion(props: AccordionProps) @{
 		}
 	};
 
-	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-accordion', props.className)} style={props.style as any}>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-accordion', props.className)} style={mergeStyle({display: "flex"}, props.style as any)}>
 		@for (const item of props.items; key item.key) {
 			<Collapsible
 				className="vx-accordion-item"
