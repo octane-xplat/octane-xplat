@@ -132,16 +132,33 @@ adapter those runs proved is the direct ancestor of `src/index.ts`.
   unavailable ("Run this command in a real Linux environment; no macOS
   stand-in is used")
 
-**NOT proven:** nothing about this package was executed under GJS/GTK. No
-Linux host was reachable (the brokered `linux:gtk-proof-vm` reservation was
-granted but the VM was not contactable — OrbStack ssh helper absent). Driver
-command handling, event wiring, widget mounting, and the smoke path below
-are all **unverified at runtime**.
+**Runtime-proven (this package, 2026-10-18):** on an OrbStack Debian 13
+arm64 guest (GJS 1.82.3, GTK 4.18.6 — matching the feasibility stack):
 
-## Smoke path (unverified — run on a Linux host)
+- `xvfb-run gjs -m dist/app.js` opened a real window titled
+  "Octane GTK smoke" 480×320 (confirmed via `xwininfo`), no errors.
+- `src/introspect.ts` (`vite.introspect.config.mjs` entry) mounted the
+  fixture headlessly and printed the realized tree —
+  `GtkBox > GtkBox > GtkLabel + GtkButton(GtkLabel)`.
+- Emitting `clicked` on the GtkButton ran `onPress` → `setState` → a
+  Promise-microtask flush updated the label text to `"Count: 1"` — event
+  wiring and reconciliation verified end-to-end.
+
+Two runtime findings worth keeping: bare `Gtk.*` widget construction
+segfaults without `Gtk.init()` (the `runGtkApp` path gets it free from
+`GtkApplication`), and `gjs -m` exits silently when the module throws before
+any output — run with stderr visible.
+
+**Still NOT proven:** real OS-input dispatch (pointer/keyboard events into
+widgets — only `emit` directly on the widget), Wayland, x86_64, window
+lifecycle edge cases, and anything visual/layout-correctness that requires
+looking at rendered pixels. The full feasibility evidence pipeline
+(`scripts/probe/linux-gtk-*`) remains the deeper qualification path.
+
+## Smoke path (verified 2026-10-18 on OrbStack Debian 13 arm64)
 
 Prerequisites: GJS ≥ 1.80, GTK 4, a graphical session (X11 or Wayland —
-both were exercised in feasibility work; Wayland + x86_64 remain
+`xvfb-run` works for a display-less check; Wayland + x86_64 remain
 unqualified gaps).
 
 1. Build the fixture bundle (any host):
@@ -160,6 +177,12 @@ unqualified gaps).
    Expected: a GTK window titled "Octane GTK smoke" with a counter label
    and an "Increment" button; pressing the button updates the label.
    `runGtkApp` returns `GtkApplication.run`'s exit status.
+
+   For a display-less check, `xvfb-run -a gjs -m dist/app.js` mounts the
+   same window under Xvfb. The introspection entry
+   (`pnpm exec vite build -c vite.introspect.config.mjs`, then
+   `xvfb-run -a gjs -m dist/app.js`) prints the realized widget tree and
+   exercises button-press → setState → label update without any window.
 
 3. `pnpm probe run <case> --target linux` does not yet serve this renderer —
    the probe pipeline targets the WebKitGTK host. A native-GTK probe path
