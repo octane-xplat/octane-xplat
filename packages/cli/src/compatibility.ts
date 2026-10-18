@@ -139,6 +139,21 @@ export function planUpgrade(dir: string): UpgradePlan {
 			pkg.devDependencies['@tsrx/oxc'] = managedSpecifier('@tsrx/oxc', profile)
 			plan.updates.push(`${label}: add @tsrx/oxc compiler peer`)
 		}
+		// The mason layout cutover: the patched NativeScript driver resolves the
+		// container intrinsics to MasonKit views, so every octane-driven app needs
+		// the engine package declared.
+		if (
+			deps['@nativescript-community/octane'] &&
+			!deps['@triniwiz/nativescript-masonkit'] &&
+			!localSpecifier(deps['@nativescript-community/octane'])
+		) {
+			pkg.dependencies ??= {}
+			pkg.dependencies['@triniwiz/nativescript-masonkit'] = managedSpecifier(
+				'@triniwiz/nativescript-masonkit',
+				profile,
+			)
+			plan.updates.push(`${label}: add @triniwiz/nativescript-masonkit mason engine`)
+		}
 
 		for (const section of dependencySections) {
 			for (const [name, declared] of Object.entries(pkg[section] ?? {}) as [string, string][]) {

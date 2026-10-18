@@ -167,6 +167,10 @@
 			"version": "2.0.3",
 			"group": "plugin"
 		},
+		"@triniwiz/nativescript-masonkit": {
+			"version": "1.0.0-beta.110",
+			"group": "runtime"
+		},
 		"jsdom": {
 			"version": "30.1.1",
 			"group": "testing"

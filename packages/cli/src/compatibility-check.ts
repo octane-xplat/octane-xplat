@@ -116,6 +116,20 @@ export function inspectCompatibility(
 			'Octane requires the app to declare @tsrx/oxc',
 		)
 	}
+	// The patched NativeScript driver imports the mason engine for container
+	// layout — apps using it must declare the package.
+	if (
+		declared['@nativescript-community/octane'] &&
+		!declared['@triniwiz/nativescript-masonkit'] &&
+		!local.has('@nativescript-community/octane')
+	) {
+		row(
+			'compatibility mason engine @triniwiz/nativescript-masonkit',
+			false,
+			'the NativeScript driver requires @triniwiz/nativescript-masonkit for container layout',
+			'run pnpm xplat upgrade (or add the catalog pin)',
+		)
+	}
 
 	const queue = Object.keys(declared).map((name) => ({
 		from: dir,
