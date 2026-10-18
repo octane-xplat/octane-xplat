@@ -85,6 +85,7 @@ function makeContext(calls: string[] = []) {
 		applyStyle: noop,
 		applyClassName: noop,
 		applyAccessibility: noop,
+		behaviorOf: () => undefined,
 		isStackLayoutInput: () => false,
 		setPressGesture: noop,
 		setPanAction: noop,

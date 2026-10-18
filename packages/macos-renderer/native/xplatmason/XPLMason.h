@@ -9,6 +9,9 @@
 // -invoke:args: ops:
 //   scale     [NSNumber]                    -> nil
 //   node      []                            -> NSValue(node ptr)
+//   mnode     [NSView]                      -> NSValue(node ptr) leaf whose
+//                                            measure callback reads the view's
+//                                            intrinsic/fitting size
 //   free      [NSValue node]                -> nil
 //   children  [NSValue parent, NSArray kids]-> nil
 //   dirty     [NSValue node]                -> nil

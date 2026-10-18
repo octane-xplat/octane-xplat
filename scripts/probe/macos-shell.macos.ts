@@ -72,6 +72,10 @@ function adapter() {
 							height: Number(alignment.size.height),
 						}
 					: null,
+				superview: view.superview ? String(view.superview.constructor.name) : null,
+				contentHeight: view.documentView
+					? Number(view.documentView.frame?.size?.height ?? 0)
+					: undefined,
 			}
 		},
 		dispose() {

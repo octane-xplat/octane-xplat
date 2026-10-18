@@ -1,4 +1,5 @@
 #import "XPLMason.h"
+#import <AppKit/AppKit.h>
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -9,6 +10,9 @@ extern void *mason_init(void);
 extern void mason_release(void *mason);
 extern void mason_set_device_scale(void *mason, float scale);
 extern void *mason_node_new_node(void *mason, bool anonymous);
+extern void *mason_node_new_node_with_context(
+    void *mason, void *measure_data,
+    long long (*measure)(const void *, float, float, float, float));
 extern void mason_node_destroy(void *node);
 extern void mason_node_set_children(void *mason, void *node, void *const *children,
                                     size_t children_size);
@@ -59,6 +63,47 @@ static void *XPLCollectLayout(const float *ptr, size_t len) {
   }
   XPLLayoutOut = out;
   return NULL;
+}
+
+// Leaf nodes measure live against the AppKit view each engine pass — the
+// context is the retained view pointer (release recorded in XPLMeasureCtx).
+// Mason packs the result as two f32s in an i64 (MeasureOutput::make).
+static long long XPLViewMeasure(const void *ctx, float knownW, float knownH,
+                                float availW, float availH) {
+  NSView *view = (__bridge NSView *)ctx;
+  if (!view) {
+    return 0;
+  }
+  float w, h;
+  NSSize intrinsic = view.intrinsicContentSize;
+  if (intrinsic.width >= 0 && intrinsic.height >= 0) {
+    w = (float)intrinsic.width;
+    h = (float)intrinsic.height;
+  } else {
+    NSSize fit = view.fittingSize;
+    w = (float)fit.width;
+    h = (float)fit.height;
+  }
+  if (!(w >= 0)) {
+    w = 0;
+  }
+  if (!(h >= 0)) {
+    h = 0;
+  }
+  uint32_t wb;
+  uint32_t hb;
+  memcpy(&wb, &w, sizeof(float));
+  memcpy(&hb, &h, sizeof(float));
+  return (long long)(((uint64_t)wb << 32) | (uint64_t)hb);
+}
+
+// node ptr -> retained view context, released when the node is freed.
+static NSMutableDictionary<NSValue *, NSValue *> *XPLMeasureCtx(void) {
+  static NSMutableDictionary<NSValue *, NSValue *> *map;
+  if (!map) {
+    map = [NSMutableDictionary new];
+  }
+  return map;
 }
 
 static signed char XE(NSDictionary *s, NSString *key, NSDictionary<NSString *, NSNumber *> *map) {
@@ -279,8 +324,23 @@ static void XSetStyle(void *engine, void *node, NSDictionary *s) {
   if ([op isEqualToString:@"node"]) {
     return [NSValue valueWithPointer:mason_node_new_node(_engine, false)];
   }
+  if ([op isEqualToString:@"mnode"]) {
+    id view = args[0];
+    void *ctx = (__bridge_retained void *)view;
+    void *node =
+        mason_node_new_node_with_context(_engine, ctx, XPLViewMeasure);
+    NSValue *key = [NSValue valueWithPointer:node];
+    XPLMeasureCtx()[key] = [NSValue valueWithPointer:ctx];
+    return key;
+  }
   if ([op isEqualToString:@"free"]) {
-    mason_node_destroy([args[0] pointerValue]);
+    NSValue *key = args[0];
+    NSValue *ctx = XPLMeasureCtx()[key];
+    if (ctx) {
+      CFRelease([ctx pointerValue]);
+      [XPLMeasureCtx() removeObjectForKey:key];
+    }
+    mason_node_destroy([key pointerValue]);
     return nil;
   }
   if ([op isEqualToString:@"children"]) {

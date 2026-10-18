@@ -25,7 +25,7 @@ import {
 import { installPresentationBridge } from './presentation'
 import { installAppearanceBridge } from './appearance'
 import { configureScrollAxes, observeScrollGeometry, scrollAxes } from './scroll-view'
-import { installMasonElement } from './mason'
+import { installMasonElement, makeMasonHostView } from './mason'
 import { installCompat } from './ns-compat'
 import { makeListView, updateListView, disposeListView } from './list-view'
 import { validateListProps } from './list-template'
@@ -359,6 +359,8 @@ const masonElementRegistration = installMasonElement({
 	applyStyle,
 	applyClassName,
 	applyAccessibility,
+	wireAction: wireViewAction,
+	makeScrollView,
 })
 
 const rootLayoutNodesByView = new WeakMap<object, ElementNode>()
@@ -1359,6 +1361,11 @@ function syncStackLayout(node: ElementNode) {
 	}
 
 	const stack = node.view! as NSStackView
+	// Mason-backed containers own spacing/direction through the engine.
+	if (typeof stack?.addViewInGravity !== 'function') {
+		return
+	}
+
 	const style = node.styleLayout ?? {}
 	const previousOrientation = stack.orientation
 	stack.orientation =
@@ -1491,7 +1498,7 @@ function stackJustifyContent(node: ElementNode) {
 
 function updateCrossAxisConstraints(parent: ElementNode) {
 	const stack = (parent.childHost ?? parent.view) as NSStackView | undefined
-	if (!stack || stack.orientation == null) {
+	if (typeof stack?.addViewInGravity !== 'function' || stack.orientation == null) {
 		return
 	}
 
@@ -1869,7 +1876,7 @@ function moveStackChildren(parent: ElementNode) {
 
 function updateStackDistribution(parent: ElementNode) {
 	const stack = (parent.childHost ?? parent.view) as NSStackView | undefined
-	if (stack?.orientation == null) {
+	if (typeof stack?.addViewInGravity !== 'function' || stack.orientation == null) {
 		return
 	}
 
@@ -1887,7 +1894,7 @@ function updateStackDistribution(parent: ElementNode) {
 
 function setStackChildPriorities(parent: ElementNode, child: ElementNode) {
 	const stack = (parent.childHost ?? parent.view) as NSStackView | undefined
-	if (stack?.orientation == null || !child.view) {
+	if (typeof stack?.addViewInGravity !== 'function' || stack.orientation == null || !child.view) {
 		return
 	}
 
@@ -1912,8 +1919,9 @@ function setStackChildPriorities(parent: ElementNode, child: ElementNode) {
 	}
 }
 
-function makeFlexbox(props: PropBag) {
-	const stack = makeStack(props, AccessibleStackView as unknown as NSClass<NSStackView>)
+/** Wires tap/click handling + the accessibility actionId onto any view —
+ *  shared by stack factories and mason-backed container views. */
+function wireViewAction(view: NSView, props: PropBag): number | undefined {
 	const interactive = typeof props.onTap === 'function' || props.accessibilityRole === 'button'
 
 	// Accessibility props need the AX id too — a 'checkbox'/'link' role or a
@@ -1925,18 +1933,23 @@ function makeFlexbox(props: PropBag) {
 
 	if (actionId !== undefined) {
 		if (interactive) {
-			stack.addGestureRecognizer(
+			view.addGestureRecognizer(
 				configureGesture(
 					NSClickGestureRecognizer.alloc().initWithTargetAction(buttonActionTarget, 'viewPressed:'),
 				),
 			)
 		}
 
-		actionIdsByView.set(stack, actionId)
+		actionIdsByView.set(view, actionId)
 		actionHandlers.set(actionId, null)
 	}
 
-	return { view: stack, actionId }
+	return actionId
+}
+
+function makeFlexbox(props: PropBag) {
+	const stack = makeStack(props, AccessibleStackView as unknown as NSClass<NSStackView>)
+	return { view: stack, actionId: wireViewAction(stack, props) }
 }
 
 function makeLabel(): NSTextField {
@@ -1974,13 +1987,15 @@ function makeButton(props: PropBag) {
 	return { view: button, actionId }
 }
 
-function makeScrollView() {
+function makeScrollView(node: ElementNode) {
 	const scroll = NSScrollView.alloc().initWithFrame({
 		origin: { x: 0, y: 0 },
 		size: { width: 480, height: 320 },
 	})
 
-	const content = makeStack({ flexDirection: 'column' })
+	// The document view is a mason host — the engine sizes it to content and
+	// pins scroll children inside it.
+	const content = makeMasonHostView(node)
 	scroll.hasVerticalScroller = true
 	scroll.drawsBackground = false
 	scroll.borderType = NSBorderType.No
@@ -4210,7 +4225,12 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 	}
 
 	try {
-		switch (type) {
+		const makeBehavior = behaviorOf(type)?.make
+		if (makeBehavior) {
+			// Registered element behaviors own their factory (mason-backed
+			// containers, plugin elements).
+			makeBehavior(node, props)
+		} else switch (type) {
 			case 'stack':
 				node.view = makeStack(props)
 				break
@@ -4317,7 +4337,7 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 				break
 			}
 			case 'scrollview': {
-				const scroll = makeScrollView()
+				const scroll = makeScrollView(node)
 				node.view = scroll.view
 				node.childHost = scroll.childHost
 				break
@@ -5935,6 +5955,9 @@ function applyProps(node: ElementNode, props: PropBag) {
 		}
 
 		if (['flexboxlayout', 'stack', 'stacklayout'].includes(node.type) && isStackLayoutInput(name)) {
+			if (behaviorOf(node.type)?.layout) {
+				queueLayoutReconcile(node.container, node)
+			}
 			continue
 		}
 
@@ -5942,12 +5965,30 @@ function applyProps(node: ElementNode, props: PropBag) {
 			node.type === 'stacklayout' &&
 			['orientation', 'horizontalAlignment', 'verticalAlignment'].includes(name)
 		) {
+			if (behaviorOf(node.type)?.layout) {
+				queueLayoutReconcile(node.container, node)
+			}
 			continue
 		}
 
 		// Attached alignment metadata is retained before the batch inserts
 		// the child; its parent consumes it during layout reconciliation.
-		if (!node.parent && ['dock', 'horizontalAlignment', 'verticalAlignment'].includes(name)) {
+		if (
+			!node.parent &&
+			[
+				'dock',
+				'horizontalAlignment',
+				'verticalAlignment',
+				'row',
+				'col',
+				'rowSpan',
+				'colSpan',
+				'left',
+				'top',
+				'right',
+				'bottom',
+			].includes(name)
+		) {
 			continue
 		}
 
@@ -5979,6 +6020,13 @@ function applyProps(node: ElementNode, props: PropBag) {
 
 				continue
 			}
+		}
+
+		// Registered behaviors first — mason-backed containers consume style/
+		// className/layout props; unhandled names fall through to the builtin
+		// per-type cases (scrollview's own props, stack taps, etc.).
+		if (behaviorOf(node.type)?.applyProp?.(node, name, value)) {
+			continue
 		}
 
 		switch (node.type) {
