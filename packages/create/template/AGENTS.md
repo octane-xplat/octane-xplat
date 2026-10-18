@@ -38,14 +38,13 @@ Native leaves can explicitly select the same default with
 `/** @jsxImportSource @octane-xplat/jsx */`. Do not replace it with a renderer
 pragma. The facade supplies types; Vite still selects the platform renderer.
 
-## Optional app testing
+## App testing
 
-Add tests for the enabled platforms when needed. This installs the managed
-runners, sample tests, configuration, and scripts; adapt the samples to the app
-and reconcile any reported existing files:
+The starter includes managed runners, sample tests, configuration, and scripts
+for its enabled platforms. Adapt the samples to the app and run the relevant
+commands:
 
 ```sh
-pnpm xplat add testing
 pnpm test:web
 pnpm test:ios -- --device DEVICE_UDID
 pnpm test:android -- --device DEVICE_SERIAL

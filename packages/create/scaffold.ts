@@ -401,8 +401,8 @@ export function composeTsconfig(ids) {
 	return JSON.stringify(config, null, '\t') + '\n'
 }
 
-/** Write a scaffold for `ids` into `dir` (must not exist or be empty). */
-export function composeTargets(ids, dir, { testing = false } = {}) {
+/** Write a scaffold with tests for `ids` into `dir` (must not exist or be empty). */
+export function composeTargets(ids, dir, { testing = true } = {}) {
 	const resolved = new Set(resolveTargets(ids))
 	mkdirSync(dir, { recursive: true })
 
@@ -631,7 +631,7 @@ export function applyTarget(appRoot, id) {
 	return report
 }
 
-/** Whether this app opted in, including the previously bundled native test lane. */
+/** Whether this app has testing enabled, including the legacy native test lane. */
 export function testingEnabled(appRoot) {
 	const pkg = readJson(join(appRoot, 'package.json'))
 	return (

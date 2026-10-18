@@ -71,9 +71,9 @@ build:packages`, `pnpm build:web`, and the package-test half of `pnpm test`
   copy of the community renderer breaks type-level augmentations — e.g.
   `ui/type-support/svg-element.d.ts` only extends the `intrinsics` module it
   resolves.
-- App starters include selected runtime/build dependencies; testing is opt-in
-  with `xplat add testing` or creator `--testing`. The choice is recorded in
-  `xplat.features.testing` so later platform additions also receive tests.
+- App starters include runtime/build dependencies and testing for their selected
+  platforms by default. `xplat add testing` retrofits older apps. Test setup is
+  recorded in `xplat.features.testing` so later platform additions receive tests.
   The web setup uses jsdom's own `localStorage` through the exposed `jsdom`
   instance: on Node 26, the host's `window.localStorage` alias returned
   `undefined` without `--localstorage-file`, breaking the starter's theme

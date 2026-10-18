@@ -18,10 +18,10 @@ const TPL = JSON.parse(
 
 const cli = join(dirname(fileURLToPath(import.meta.url)), '../dist/cli.js')
 
-function scaffold(t, targets) {
+function scaffold(t, targets, options = {}) {
 	const dir = mkdtempSync(join(tmpdir(), 'xplat-add-'))
 	t.after(() => rmSync(dir, { recursive: true, force: true }))
-	composeTargets(targets, dir)
+	composeTargets(targets, dir, options)
 	return dir
 }
 
@@ -44,6 +44,8 @@ test('xplat add enables a skipped platform and is idempotent', (t) => {
 	)
 
 	assert.equal(manifest.scripts['dev:ios'], 'ns run ios')
+	assert.equal(manifest.scripts['test:ios'], 'ns test ios')
+	assert.equal(manifest.devDependencies['@nativescript/unit-test-runner'], 'catalog:xplat')
 	assert.equal(manifest.scripts.typecheck, 'xplat typecheck')
 	const tsconfig = JSON.parse(readFileSync(join(dir, 'tsconfig.json'), 'utf8'))
 	assert.ok(tsconfig.files.includes('references.d.ts'))
@@ -69,8 +71,8 @@ test('xplat add accepts several platforms in one call', (t) => {
 	)
 })
 
-test('xplat add testing creates a web test command and is idempotent', (t) => {
-	const dir = scaffold(t, ['web'])
+test('xplat add testing retrofits an older app and is idempotent', (t) => {
+	const dir = scaffold(t, ['web'], { testing: false })
 	const first = run(['add', 'testing', '--no-install'], dir)
 	assert.equal(first.status, 0, first.stderr)
 	assert.match(first.stdout, /enabled testing/)
@@ -86,7 +88,7 @@ test('xplat add testing creates a web test command and is idempotent', (t) => {
 })
 
 test('xplat add enables platforms before testing regardless of argument order', (t) => {
-	const dir = scaffold(t, ['web'])
+	const dir = scaffold(t, ['web'], { testing: false })
 	const result = run(['add', 'testing', 'ios', '--no-install'], dir)
 	assert.equal(result.status, 0, result.stderr)
 	const manifest = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))

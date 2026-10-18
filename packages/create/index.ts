@@ -13,7 +13,6 @@ import {
 
 const argv = process.argv.slice(2)
 const noInstall = argv.includes('--no-install')
-const testing = argv.includes('--testing')
 const templateIndex = argv.findIndex((arg) => arg === '--template' || arg.startsWith('--template='))
 const templateValueIndex =
 	templateIndex !== -1 && argv[templateIndex] === '--template' ? templateIndex + 1 : -1
@@ -156,7 +155,7 @@ if (templateArg === 'library') {
 		ids = defaultTargets
 	}
 
-	composeTargets(ids, dir, { testing })
+	composeTargets(ids, dir)
 	console.log(
 		`\n✓ scaffolded ${dir} (${[...new Set(resolveTargets(ids))].filter((id) => !targets[id].hidden).join(', ')})`,
 	)

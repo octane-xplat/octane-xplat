@@ -21,7 +21,7 @@ pnpm add -D @octane-xplat/cli
 pnpm xplat dev          # pick available targets
 pnpm xplat dev macos    # single-target shorthand (kind or device id)
 pnpm xplat add ios      # enable a platform skipped at create time
-pnpm xplat add testing  # add tests for the enabled platforms
+pnpm xplat add testing  # restore test setup in an older app
 pnpm xplat build        # production builds
 pnpm xplat build -t macos # experimental AppKit .app + .dmg (Apple Silicon)
 pnpm xplat build -t linux # experimental GTK/WebKit app directory + tar archive
@@ -51,17 +51,17 @@ Linux packaging and its required manifest settings are documented in
 [Package a Linux app](../../docs/platform/linux-package.md). The CLI ships the
 GJS host; Linux users supply the GTK/WebKit system runtime.
 
-## Add app testing
+## App testing
 
-New apps omit test dependencies. Add the setup from your app directory:
+New apps include test setup for their enabled platforms, with framework-managed
+runner versions. Run the web tests from your app directory:
 
 ```sh
-pnpm xplat add testing
 pnpm test:web
 ```
 
-This adds Vitest, configuration, and sample tests for the enabled platforms.
-Web adds jsdom and `test:web`; iOS/Android add NativeScript's test runner and
+Vitest, configuration, and sample tests are included by default.
+Web includes jsdom and `test:web`; iOS/Android include NativeScript's test runner and
 `test:ios`/`test:android`. Only scripts for enabled platforms are added. Run a
 phone suite with an explicit device:
 
@@ -70,12 +70,17 @@ pnpm test:ios -- --device DEVICE_UDID
 pnpm test:android -- --device DEVICE_SERIAL
 ```
 
-The app records the choice in `package.json` as `xplat.features.testing`.
-Adding a platform later includes its test setup. You can also combine additions
-or defer installation:
+Adding a platform later includes its test setup. For an older app missing
+tests, add the setup once:
 
 ```sh
-pnpm xplat add ios testing
+pnpm xplat add testing
+```
+
+To review the files before installing dependencies, use `--no-install`, then
+install when ready:
+
+```sh
 pnpm xplat add testing --no-install
 pnpm install
 ```
@@ -124,7 +129,7 @@ Dependencies remain declared in each package. Their exact build/runtime pins
 move to `catalog:xplat` in `pnpm-workspace.yaml`; Windows preview packages use
 `catalog:xplat-windows` so mobile pins cannot replace their snapshot URLs.
 The command adds Octane's missing `@tsrx/oxc` compiler peer, but does not add
-optional test runners or platform runtimes. The manifest also supplies Node's
+undeclared test tools or platform runtimes. The manifest also supplies Node's
 minimum version and the pnpm version; existing app Node engine restrictions
 are preserved.
 

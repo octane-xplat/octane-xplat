@@ -18,7 +18,7 @@ const additions = [...selectableTargets, 'testing']
 export const add = command({
 	name: 'add',
 	description:
-		'Add platforms or opt-in testing — merge files, managed dependencies and scripts, then install',
+		'Add platforms or testing for older apps — merge files, managed dependencies and scripts, then install',
 	args: {
 		platforms: restPositionals({
 			type: string,

@@ -35,22 +35,17 @@ into your agent and ask it to fix the cause, then run the check again.
 These commands don't click buttons or fill in forms, so try those actions
 in the running app too.
 
-As your app grows, add **automated tests**: code that performs checks for
-you, such as verifying that packing one of two items leaves one remaining.
-The starter keeps test tooling optional. Add the setup below when you want
-to repeat those checks automatically.
+The starter includes **automated tests**: code that repeats an action and
+checks the result. Its sample counter test presses increment and checks the
+new value.
+Adapt the sample tests to your screen and add checks as your app grows.
 
 ## Add automated tests
 
-From your app's folder, run:
-
-```sh
-pnpm xplat add testing
-```
-
-The command installs Vitest, configuration, sample tests, and scripts for your
-enabled platforms. Web adds jsdom, which simulates the browser's document on
-your computer. iOS/Android add NativeScript's test runner, which sends tests to
+New apps include Vitest, configuration, sample tests, and scripts for their
+enabled platforms, with framework-managed runner versions. Web includes jsdom,
+which simulates the browser's document on
+your computer. iOS/Android use NativeScript's test runner, which sends tests to
 your app on a selected simulator or device.
 
 For a web app, run the sample counter check:
@@ -66,13 +61,13 @@ tests under `src/` with names ending in `.web.test.ts`, `.web.test.tsx`, or
 platform settings. These tests check document behavior; try layout, focus, and
 real input in a browser too.
 
-You can enable tests when creating an app instead:
+If an older app is missing test setup, add it once:
 
 ```sh
-pnpm create octane-xplat my-app --targets web,ios --testing
+pnpm xplat add testing
 ```
 
-After opting in, adding a platform also adds its test setup. Existing files,
+Adding a platform also adds its test setup. Existing files,
 scripts, and dependency specifications are preserved; review skipped-file
 warnings and ask your agent to reconcile custom configuration before running
 the samples. See below for phone test commands and their limits.
@@ -114,7 +109,7 @@ When you are ready to customize rules, follow the
 
 ## Test components on a device
 
-After `pnpm xplat add testing`, an iOS/Android app has an on-device test lane.
+New iOS/Android apps include an on-device test lane.
 Vitest runs on your computer and sends each spec to your app on a simulator, where it
 runs inside the real native runtime — the same renderer, native views, and
 services your app uses. A component that misbehaves only on a phone gets

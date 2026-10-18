@@ -48,9 +48,9 @@ function project(t) {
 	return root
 }
 
-test('composing the full target set reproduces the template byte-for-byte', (t) => {
+test('composing the full base target set reproduces the template byte-for-byte', (t) => {
 	const dir = project(t)
-	composeTargets(ALL, dir)
+	composeTargets(ALL, dir, { testing: false })
 
 	for (const rel of [
 		'package.json',
@@ -119,11 +119,14 @@ test('web-only scaffold drops native files, deps, and scripts', (t) => {
 		TPL.devDependencies['@octanejs/vite-plugin'],
 	)
 
-	// The on-device test lane is native-only — no runner, specs, or scripts.
+	// Web testing is included without the native runner, specs or scripts.
 	assert.ok(!existsSync(join(dir, 'vitest.config.mts')))
 	assert.ok(!existsSync(join(dir, 'src', 'test.ts')))
 	assert.equal(manifest.scripts['test:ios'], undefined)
-	assert.equal(manifest.devDependencies.vitest, undefined)
+	assert.equal(manifest.devDependencies.vitest, 'catalog:xplat')
+	assert.equal(manifest.devDependencies.jsdom, 'catalog:xplat')
+	assert.equal(manifest.scripts['test:web'], 'vitest run --config vitest.web.config.mts')
+	assert.ok(existsSync(join(dir, 'src/app.web.test.tsx')))
 	assert.equal(manifest.devDependencies['@nativescript/unit-test-runner'], undefined)
 
 	assert.equal(manifest.dependencies['@octane-xplat/ui'], TPL.dependencies['@octane-xplat/ui'])
@@ -149,12 +152,14 @@ test('ios-only scaffold carries shared native machinery but not android', (t) =>
 
 	assert.equal(manifest.devDependencies['@nativescript/android'], undefined)
 
-	assert.ok(!existsSync(join(dir, 'src', 'test.ts')))
-	assert.ok(!existsSync(join(dir, 'src', 'app.spec.tsrx')))
-	assert.ok(!existsSync(join(dir, 'vitest.config.mts')))
-	assert.equal(manifest.scripts['test:ios'], undefined)
-	assert.equal(manifest.devDependencies.vitest, undefined)
-	assert.equal(manifest.devDependencies['@nativescript/unit-test-runner'], undefined)
+	assert.ok(existsSync(join(dir, 'src', 'test.ts')))
+	assert.ok(existsSync(join(dir, 'src', 'app.spec.tsrx')))
+	assert.ok(existsSync(join(dir, 'vitest.config.mts')))
+	assert.equal(manifest.scripts['test:ios'], 'ns test ios')
+	assert.equal(manifest.scripts['test:android'], undefined)
+	assert.equal(manifest.devDependencies.vitest, 'catalog:xplat')
+	assert.equal(manifest.devDependencies['@nativescript/unit-test-runner'], 'catalog:xplat')
+	assert.equal(manifest.devDependencies.jsdom, undefined)
 })
 
 test('resolveTargets expands requires and rejects unknown targets', () => {
@@ -236,7 +241,7 @@ test('targetEnabled reads sentinels', (t) => {
 	assert.equal(targetEnabled(native, 'web'), false)
 })
 
-test('default apps carry no unused feature plugins or test tooling for any target set', (t) => {
+test('default apps carry no unused feature plugins for any target set', (t) => {
 	for (const ids of [['web'], ['ios'], ['android'], ALL]) {
 		const dir = project(t)
 		composeTargets(ids, dir)
@@ -247,21 +252,18 @@ test('default apps carry no unused feature plugins or test tooling for any targe
 			'@octane-xplat/image',
 			'@nativescript-community/gesturehandler',
 			'@nativescript-community/ui-drawer',
-			'vitest',
-			'@nativescript/unit-test-runner',
-			'jsdom',
 		]) {
 			assert.equal(deps[name], undefined, `${ids}: unexpected ${name}`)
 		}
 
-		assert.equal(testingEnabled(dir), false)
+		assert.equal(testingEnabled(dir), true)
 	}
 })
 
-test('testing opt-in installs web and native setup independently', (t) => {
+test('default testing includes only enabled platforms with framework-managed versions', (t) => {
 	for (const ids of [['web'], ['ios'], ['android'], ALL]) {
 		const dir = project(t)
-		composeTargets(ids, dir, { testing: true })
+		composeTargets(ids, dir)
 		const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
 		const web = ids.includes('web')
 		const native = ids.includes('ios') || ids.includes('android')
@@ -285,7 +287,7 @@ test('testing opt-in installs web and native setup independently', (t) => {
 
 test('adding testing keeps user scripts, dependency specs, and existing test files', (t) => {
 	const dir = project(t)
-	composeTargets(['web'], dir)
+	composeTargets(['web'], dir, { testing: false })
 	const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
 	pkg.scripts.test = 'custom-test'
 	pkg.devDependencies.vitest = 'file:../vitest'
@@ -302,9 +304,9 @@ test('adding testing keeps user scripts, dependency specs, and existing test fil
 	assert.deepEqual(applyTesting(dir).already, ['testing'])
 })
 
-test('adding native or web after opting into testing adds the matching test lane', (t) => {
+test('adding native or web includes its test setup and preserves existing tests', (t) => {
 	const dir = project(t)
-	composeTargets(['web'], dir, { testing: true })
+	composeTargets(['web'], dir)
 	const before = readFileSync(join(dir, 'src/app.web.test.tsx'), 'utf8')
 	applyTarget(dir, 'ios')
 	let pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
@@ -316,14 +318,14 @@ test('adding native or web after opting into testing adds the matching test lane
 	pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
 	assert.equal(pkg.scripts['test:android'], 'ns test android')
 	const native = project(t)
-	composeTargets(['android'], native, { testing: true })
+	composeTargets(['android'], native)
 	applyTarget(native, 'web')
 	pkg = JSON.parse(readFileSync(join(native, 'package.json'), 'utf8'))
 	assert.equal(pkg.devDependencies.jsdom, 'catalog:xplat')
 	assert.ok(existsSync(join(native, 'src/app.web.test.tsx')))
 })
 
-test('creator --testing includes only the selected platforms and uses the published bin', (t) => {
+test('creator includes tests for the selected platforms by default through the published bin', (t) => {
 	const root = project(t)
 	const dir = join(root, 'app')
 	const result = spawnSync(
@@ -333,7 +335,6 @@ test('creator --testing includes only the selected platforms and uses the publis
 			dir,
 			'--targets',
 			'web',
-			'--testing',
 			'--no-install',
 		],
 		{ encoding: 'utf8' },
@@ -349,7 +350,7 @@ test('testing reuses an mts Vite config and the enclosing workspace catalog', (t
 	const root = project(t)
 	const dir = join(root, 'apps', 'example')
 	mkdirSync(dir, { recursive: true })
-	composeTargets(['web'], dir)
+	composeTargets(['web'], dir, { testing: false })
 	renameSync(join(dir, 'vite.config.ts'), join(dir, 'vite.config.mts'))
 	renameSync(join(dir, 'pnpm-workspace.yaml'), join(root, 'pnpm-workspace.yaml'))
 	applyTesting(dir)

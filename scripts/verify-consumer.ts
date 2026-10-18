@@ -46,7 +46,6 @@ import {
 	mkdirSync,
 	mkdtempSync,
 	readFileSync,
-	readdirSync,
 	realpathSync,
 	rmSync,
 	writeFileSync,
@@ -369,24 +368,38 @@ try {
 	})
 
 	await gate(
-		'default web starter omits optional features, test tooling and the macOS SDK',
+		'default web starter includes web tests without unused features or the macOS SDK',
 		60 * 1000,
 		() => {
-			const installed = readdirSync(join(appDir, 'node_modules', '.pnpm'))
+			// Read the installed graph without assuming pnpm's store directory layout.
+			const listing = spawnSync('pnpm', ['list', '--depth', 'Infinity', '--json'], {
+				cwd: appDir,
+				encoding: 'utf8',
+				maxBuffer: 64 * 1024 * 1024,
+			})
+			assert.equal(listing.status, 0, listing.stderr || listing.error?.message)
+			const installed = new Set<string>()
+			const visit = (pkg) => {
+				for (const section of ['dependencies', 'devDependencies', 'optionalDependencies']) {
+					for (const [name, dependency] of Object.entries(pkg[section] ?? {})) {
+						installed.add(name)
+						visit(dependency)
+					}
+				}
+			}
+			JSON.parse(listing.stdout).forEach(visit)
 			for (const name of [
 				'@octane-xplat/effects',
 				'@octane-xplat/image',
 				'@nativescript-community/gesturehandler',
 				'@nativescript-community/ui-drawer',
-				'vitest',
-				'jsdom',
 				'@nativescript/unit-test-runner',
 				'@nativescript/macos-node-api',
 			]) {
-				assert.ok(
-					!installed.some((entry) => entry.startsWith(`${name.replace('/', '+')}@`)),
-					`default app unexpectedly installed ${name}`,
-				)
+				assert.ok(!installed.has(name), `default app unexpectedly installed ${name}`)
+			}
+			for (const name of ['vitest', 'jsdom']) {
+				assert.ok(installed.has(name), `default app missed ${name}`)
 			}
 		},
 	)
@@ -454,27 +467,34 @@ void props
 
 	// ---- xplat add: enable the platforms skipped at scaffold ---------------
 	if (!quick) {
-		await gate('xplat add ios android testing — opt-in setup on packed CLI', 15 * 60 * 1000, () => {
-			const r = run('pnpm', ['exec', 'xplat', 'add', 'ios', 'android', 'testing'], appDir)
-			assert.equal(r.status, 0, `xplat add exited ${r.status}`)
-			assert.ok(
-				existsSync(join(appDir, 'nativescript.config.ts')),
-				'add produced no nativescript.config.ts',
-			)
+		await gate(
+			'xplat add ios android — platform and test setup on packed CLI',
+			15 * 60 * 1000,
+			() => {
+				const r = run('pnpm', ['exec', 'xplat', 'add', 'ios', 'android'], appDir)
+				assert.equal(r.status, 0, `xplat add exited ${r.status}`)
+				assert.ok(
+					existsSync(join(appDir, 'nativescript.config.ts')),
+					'add produced no nativescript.config.ts',
+				)
 
-			assert.ok(existsSync(join(appDir, 'App_Resources/iOS')), 'add produced no App_Resources/iOS')
-			assert.ok(
-				existsSync(join(appDir, 'App_Resources/Android')),
-				'add produced no App_Resources/Android',
-			)
+				assert.ok(
+					existsSync(join(appDir, 'App_Resources/iOS')),
+					'add produced no App_Resources/iOS',
+				)
+				assert.ok(
+					existsSync(join(appDir, 'App_Resources/Android')),
+					'add produced no App_Resources/Android',
+				)
 
-			const manifest = JSON.parse(readFileSync(consumerManifestPath, 'utf8'))
-			assert.ok(manifest.devDependencies['@nativescript/ios'], 'add missed @nativescript/ios')
-			assert.ok(
-				manifest.devDependencies['@nativescript/android'],
-				'add missed @nativescript/android',
-			)
-		})
+				const manifest = JSON.parse(readFileSync(consumerManifestPath, 'utf8'))
+				assert.ok(manifest.devDependencies['@nativescript/ios'], 'add missed @nativescript/ios')
+				assert.ok(
+					manifest.devDependencies['@nativescript/android'],
+					'add missed @nativescript/android',
+				)
+			},
+		)
 	}
 
 	// ---- consumer gates ------------------------------------------------------
@@ -512,9 +532,9 @@ try {
 			? [
 					['pnpm lint', ['lint']],
 					['pnpm typecheck (web + native)', ['typecheck']],
-					['pnpm test:web — opt-in component test', ['test:web']],
 				]
 			: []),
+		['pnpm test:web — default component test', ['test:web']],
 		['pnpm build — web bundle from packed ui', ['build']],
 		...(!quick ? [['pnpm xplat doctor', ['exec', 'xplat', 'doctor']]] : []),
 	]) {

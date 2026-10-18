@@ -6,9 +6,9 @@ Related APIs: mountXplat, viewText, findByTestId, tap, enterText, waitUntil, @oc
 
 ## Starting point
 
-An Xplat app scaffolded for iOS or Android. The reader opts into testing with
-`xplat add testing` or creator `--testing`, which adds `src/test.ts`,
-`vitest.config.mts`, a starter spec, and the runner deps. They want repeatable
+An Xplat app scaffolded for iOS or Android. The starter includes `src/test.ts`,
+`vitest.config.mts`, a starter spec, and the runner deps. Older apps use
+`xplat add testing` to add the setup. The reader wants repeatable
 component checks in the real native runtime, plus a maintained
 framework example and an honest report of what the lane proves.
 
@@ -21,7 +21,7 @@ unverified targets.
 
 ## Acceptance criteria
 
-- AC1: A scaffolded app explicitly opts into testing through creation or one setup command, then runs `pnpm test:ios` on a selected simulator; older apps get documented migration steps.
+- AC1: A scaffolded app includes test setup by default and runs `pnpm test:ios` on a selected simulator; older apps get a documented setup command and migration steps.
 - AC2: Mount an Xplat component, drive tap and text entry, and assert on rendered text or testID using the packaged helper — no copying framework internals.
 - AC3: Unmount between specs is automatic; repeated mounts cannot leak subscriptions or delayed work into the next case.
 - AC4: Maintained examples cover a counter, a controlled text input, conditional mounting, and async loading/error states, plus a native runtime/import contract and an explicit failure-reporting expectation.
@@ -31,7 +31,7 @@ unverified targets.
 
 ## Documentation
 
-- AC1: [Enable testing](../../../docs/verify/testing.md#add-automated-tests), [run the lane](../../../docs/verify/testing.md#test-components-on-a-device), [older apps](../../../docs/verify/testing.md#add-the-test-lane-to-an-older-app), [starter spec](../../../packages/create/testing-template/native/src/app.spec.tsrx)
+- AC1: [Starter tests](../../../docs/verify/testing.md#add-automated-tests), [run the lane](../../../docs/verify/testing.md#test-components-on-a-device), [older apps](../../../docs/verify/testing.md#add-the-test-lane-to-an-older-app), [starter spec](../../../packages/create/testing-template/native/src/app.spec.tsrx)
 - AC2: [Spec example](../../../docs/verify/testing.md#test-components-on-a-device), [helper source](../../../packages/platform/src/testing.mobile.ts)
 - AC3: [Cleanup contract](../../../docs/verify/testing.md#test-components-on-a-device), [framework leak checks](../../../apps/mobile/src/tests/leak-check.spec.tsrx)
 - AC4: [Framework suite](../../../apps/mobile/src/tests/counter.spec.ts), [starter spec](../../../packages/create/testing-template/native/src/app.spec.tsrx), [failure reporting](../../../packages/create/testing-template/native/src/failure-reporting.spec.ts), [native bridge](../../../packages/create/testing-template/native/src/native-runtime.spec.ts)

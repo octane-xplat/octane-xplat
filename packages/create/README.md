@@ -77,34 +77,35 @@ The generated app pins pnpm 11.24.0. Its `pnpm-workspace.yaml` loads
 `@octane-xplat/patches` as a `configDependencies` package, making the
 framework patches available during the first install.
 
-Apps start with the runtime and build packages their selected platforms need.
-Tests and feature packages are added when you use them.
+Apps start with the runtime, build packages, and tests their selected platforms
+need. Feature packages are added when you use them.
 
-## Add app tests
+## Run app tests
 
-From an app's folder, add the test setup when you are ready:
+New apps include Vitest, configuration, sample tests, and scripts. From your
+app's folder, run the command for a platform you enabled:
 
 ```sh
-pnpm xplat add testing
 pnpm test:web            # when web is enabled
 pnpm test:ios -- --device DEVICE_UDID  # when iOS is enabled
 pnpm test:android -- --device DEVICE_SERIAL  # when Android is enabled
 ```
 
-The command adds Vitest, configuration, sample tests, and scripts for the
-platforms already enabled. Web tests use jsdom, which simulates a browser's
+Web tests use jsdom, which simulates a browser's
 document on your computer; phone tests use NativeScript's test runner on a
-selected simulator or device. Existing files and scripts are preserved; review
-any skipped-file warnings and adapt the sample tests to your app.
+selected simulator or device. The runners are explicit development dependencies
+with framework-managed versions in `catalog:xplat`. Adapt the sample tests to
+your app as you replace the starter screen.
 
-To include this setup at creation, pass `--testing`:
+For an older app missing test setup, add it once:
 
 ```sh
-pnpm create octane-xplat my-app --targets web,ios --testing
+pnpm xplat add testing
 ```
 
-Platforms added later also receive their test setup once testing is enabled.
-The library template already includes its component tests and publishing checks.
+Existing files and scripts are preserved; review any skipped-file warnings.
+Platforms added later also receive their test setup. The library template
+includes its component tests and publishing checks.
 See [checking an app](../../docs/verify/testing.md#add-automated-tests) for the
 commands, file conventions, and checks that still need a browser or phone.
 
