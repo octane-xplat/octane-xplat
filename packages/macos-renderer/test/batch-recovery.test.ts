@@ -67,8 +67,24 @@ function fixture({ applyProps }: { applyProps?: any } = {}) {
 	}
 
 	const sandbox = {
-		elementBehaviors: new Map(),
-		behaviorOf: () => undefined,
+		elementBehaviors: new Map(
+			[
+				'stack',
+				'stacklayout',
+				'flexboxlayout',
+				'gridlayout',
+				'wraplayout',
+				'absolutelayout',
+				'docklayout',
+				'liquidglass',
+				'scrollview',
+				'masonview',
+			].map((type) => [
+				type,
+				{ make: (node: any) => (node.view = fakeView(type)), layout: () => {} },
+			]),
+		),
+		behaviorOf: (type: string) => sandbox.elementBehaviors.get(type),
 		isManualLayoutParent: (t: string) =>
 			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
 		registerElementType: () => {},

@@ -55,7 +55,7 @@ function fixture() {
 			setControlAction: noop,
 			queueLayoutReconcile: noop,
 			syncText: noop,
-			arrangedView: (node: any) => node.view,
+			layoutView: (node: any) => node.view,
 			VIEW_PARENT_TYPES: new Set(),
 			deactivateSizeConstraints: noop,
 			releasePlacementPins: noop,

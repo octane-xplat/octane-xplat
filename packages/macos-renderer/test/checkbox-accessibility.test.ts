@@ -6,8 +6,8 @@ import { sourceWithoutImports } from './mock-globals.ts'
 const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 
 const stack = source.slice(
-	source.indexOf('class AccessibleStackView'),
-	source.indexOf('// The macOS Slider'),
+	source.indexOf('class AccessibleHostView'),
+	source.indexOf('const masonElementRegistration'),
 )
 
 const apply = source.slice(
@@ -19,8 +19,8 @@ test('AppKit checkbox role/value/help update and disabled controls reject AX pre
 	const ids = new WeakMap()
 	const handlers = new Map()
 	let presses = 0
-	const { AccessibleStackView, applyAccessibility } = runInNewContext(
-		stack + '\n' + apply + '\n({ AccessibleStackView, applyAccessibility })',
+	const { AccessibleHostView, applyAccessibility } = runInNewContext(
+		stack + '\n' + apply + '\n({ AccessibleHostView, applyAccessibility })',
 		{
 		elementBehaviors: new Map(),
 		behaviorOf: () => undefined,
@@ -28,7 +28,7 @@ test('AppKit checkbox role/value/help update and disabled controls reject AX pre
 			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
 		registerElementType: () => {},
 		
-			NSStackView: class {},
+			NSView: class {},
 			NativeClass() {},
 			interop: { types: { bool: 'bool', id: 'id' } },
 			NSNumber: { numberWithDouble: (value) => value },
@@ -42,7 +42,7 @@ test('AppKit checkbox role/value/help update and disabled controls reject AX pre
 		},
 	)
 
-	const view = new AccessibleStackView()
+	const view = new AccessibleHostView()
 	const node = { type: 'flexboxlayout', view, actionId: 1 }
 	ids.set(view, 1)
 	handlers.set(1, () => presses++)

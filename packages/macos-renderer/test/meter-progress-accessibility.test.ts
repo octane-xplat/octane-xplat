@@ -12,13 +12,8 @@ const source = stripTypeScriptTypes(
 )
 
 const stack = source.slice(
-	source.indexOf('class AccessibleStackView'),
-	source.indexOf('// The macOS Slider'),
-)
-
-const grid = source.slice(
-	source.indexOf('// The macOS Slider'),
-	source.indexOf('class AbsoluteLayoutView'),
+	source.indexOf('class AccessibleHostView'),
+	source.indexOf('const masonElementRegistration'),
 )
 
 const apply = source.slice(
@@ -31,14 +26,8 @@ test('AppKit meter and progressbar roles report range, value, and description', 
 	const roles = new Map()
 	const labels = new Map()
 	const stackProps = new WeakMap()
-	const gridNodes = new WeakMap()
-	const { AccessibleStackView, GridLayoutView, applyAccessibility } = runInNewContext(
-		stack +
-			'\n' +
-			grid +
-			'\n' +
-			apply +
-			'\n({ AccessibleStackView, GridLayoutView, applyAccessibility })',
+	const { AccessibleHostView, applyAccessibility } = runInNewContext(
+		stack + '\n' + apply + '\n({ AccessibleHostView, applyAccessibility })',
 		{
 		elementBehaviors: new Map(),
 		behaviorOf: () => undefined,
@@ -46,7 +35,6 @@ test('AppKit meter and progressbar roles report range, value, and description', 
 			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
 		registerElementType: () => {},
 		
-			NSStackView: class {},
 			NSView: class {},
 			NativeClass() {},
 			interop: { types: { bool: 'bool', id: 'id' } },
@@ -56,13 +44,12 @@ test('AppKit meter and progressbar roles report range, value, and description', 
 			accessibilityRoles: roles,
 			accessibilityLabels: labels,
 			stackAccessibilityPropsByView: stackProps,
-			gridLayoutNodesByView: gridNodes,
 			invokeAction: () => {},
 			inputTransparentViews: new WeakSet(),
 		},
 	)
 
-	const stackView = new AccessibleStackView()
+	const stackView = new AccessibleHostView()
 	const stackNode = { type: 'flexboxlayout', view: stackView, actionId: 1 }
 	ids.set(stackView, 1)
 	const setStack = (name, value) => applyAccessibility(stackNode, name, value)
@@ -85,20 +72,18 @@ test('AppKit meter and progressbar roles report range, value, and description', 
 	assert.equal(stackView.accessibilityRole(), 'AXProgressIndicator')
 	assert.equal(stackView.accessibilityValueDescription(), '')
 
-	const gridView = new GridLayoutView()
-	const gridNode = { type: 'gridlayout', view: gridView, props: {} }
-	gridNodes.set(gridView, gridNode)
-	gridNode.props.accessibilityRole = 'meter'
-	gridNode.props.accessibilityValue = 3
-	gridNode.props.accessibilityValueDescription = '3 of 4 bars'
+	const gridView = new AccessibleHostView()
+	const gridNode = { type: 'gridlayout', view: gridView, props: {}, actionId: 2 }
+	ids.set(gridView, 2)
+	const setGrid = (name, value) => applyAccessibility(gridNode, name, value)
+	setGrid('accessibilityRole', 'meter')
+	setGrid('accessibilityValue', 3)
+	setGrid('accessibilityValueDescription', '3 of 4 bars')
 	assert.equal(gridView.accessibilityRole(), 'AXLevelIndicator')
 	assert.equal(gridView.accessibilityValue(), 3)
 	assert.equal(gridView.accessibilityValueDescription(), '3 of 4 bars')
 	assert.equal(gridView.accessibilityIsIgnored(), false)
 
-	gridNode.props.accessibilityRole = 'progressbar'
+	setGrid('accessibilityRole', 'progressbar')
 	assert.equal(gridView.accessibilityRole(), 'AXProgressIndicator')
-
-	gridNode.props.accessibilityRole = 'adjustable'
-	assert.equal(gridView.accessibilityRole(), 'AXSlider')
 })

@@ -22,16 +22,6 @@ const supportedSets = source.slice(
 	source.indexOf('function typeHasView'),
 )
 
-const layout =
-	source.slice(
-		source.indexOf('function marginInsetsOf('),
-		source.indexOf('/** The view a stack should arrange'),
-	) +
-	source.slice(
-		source.indexOf('function layoutLength'),
-		source.indexOf('function performGridAccessibilityAdjustment'),
-	)
-
 class NSView {
 	subviews: any[] = []
 	constraints: any[] = []
@@ -152,10 +142,11 @@ test('a frame change queues the host layout reconcile', () => {
 	assert.deepEqual(calls, [[node.container, node]])
 })
 
-test('the host layout dispatches grid placement for the registered node', () => {
+test('the host layout dispatches to the registered behavior for the node', () => {
 	const context = makeContext()
 	const calls: any[] = []
-	context.layoutGridChildren = (node: any) => calls.push(node)
+	context.behaviorOf = (type: string) =>
+		type === 'liquidglass' ? { layout: (node: any) => calls.push(node) } : undefined
 	const { makeLiquidGlass } = runInNewContext(
 		liquidGlassClass + '\n' + fn('makeLiquidGlass') + '\n;({ makeLiquidGlass })',
 		context,
@@ -167,71 +158,5 @@ test('the host layout dispatches grid placement for the registered node', () => 
 	host.layout()
 	assert.deepEqual(calls, [node])
 })
-
-test('liquidglass children overlap the implicit cell and honor attached placement', () => {
-	const { layoutGridChildren } = runInNewContext(layout + '\n({ layoutGridChildren })', {
-		elementBehaviors: new Map(),
-		behaviorOf: () => undefined,
-		isManualLayoutParent: (t: string) =>
-			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
-		registerElementType: () => {},
-		
-		queueMicrotask: undefined,
-	})
-
-	const anchor = () => ({
-		constraintEqualToAnchorConstant: (_other: any, constant: number) => ({
-			constant,
-			active: false,
-		}),
-		constraintEqualToConstant: (constant: number) => ({ constant, active: false }),
-	})
-
-	const view = (intrinsic = { width: 0, height: 0 }) => ({
-		bounds: { size: { width: 200, height: 100 } },
-		intrinsicContentSize: intrinsic,
-		leadingAnchor: anchor(),
-		topAnchor: anchor(),
-		widthAnchor: anchor(),
-		heightAnchor: anchor(),
-		needsLayout: false,
-	})
-
-	const child = (props: any = {}) => ({ id: 'child', props, view: view() })
-	const parent: any = {
-		id: 'parent',
-		type: 'liquidglass',
-		props: {},
-		view: view(),
-		children: [],
-	}
-
-	const a = child({})
-	const b = child({
-		style: { width: 40, height: 20 },
-		horizontalAlignment: 'right',
-		verticalAlignment: 'bottom',
-	})
-
-	parent.children = [a, b]
-	layoutGridChildren(parent)
-
-	assert.deepEqual(
-		['leading', 'top', 'width', 'height'].map((key) => a.placementPins[key].constant),
-		[0, 0, 200, 100],
-	)
-
-	assert.deepEqual(
-		['leading', 'top', 'width', 'height'].map((key) => b.placementPins[key].constant),
-		[160, 80, 40, 20],
-	)
-
-	const c = child({ row: 1, col: 0 })
-	parent.props = { rows: '50,*', columns: '100,*' }
-	parent.children = [c]
-	layoutGridChildren(parent)
-	assert.deepEqual(
-		['leading', 'top', 'width', 'height'].map((key) => c.placementPins[key].constant),
-		[0, 50, 100, 50],
-	)
-})
+// Implicit-cell overlap + row/col placement now run through Mason;
+// covered by the mason-style translation test and the runtime cutover probe.

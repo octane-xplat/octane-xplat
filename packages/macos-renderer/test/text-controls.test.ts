@@ -107,6 +107,7 @@ function propsHarness() {
 			['flexDirection', 'gap', 'rowGap', 'columnGap', 'alignItems', 'justifyContent'].includes(
 				name,
 			),
+		AccessibleHostView: class {},
 		syncStackLayout: () => {},
 		console: {
 			warn: (message) => warnings.push(message),

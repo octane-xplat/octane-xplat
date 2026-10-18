@@ -9,12 +9,13 @@ const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 const fn = (name: string) => {
 	const start = source.indexOf(`function ${name}(`)
 	assert.ok(start >= 0, name)
-	return source.slice(start, source.indexOf('\nfunction ', start + 1))
+	const rest = source.slice(start)
+	return rest.slice(0, rest.search(/\n(?:export )?(?:function |class |const )/))
 }
 
 const placeholderHostClass = source.slice(
 	source.indexOf('class PlaceholderHostView'),
-	source.indexOf('\nclass DockLayoutView'),
+	source.indexOf('\nclass RootLayoutView'),
 )
 
 class NSView {

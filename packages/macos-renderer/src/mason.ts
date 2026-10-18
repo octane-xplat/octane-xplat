@@ -420,6 +420,41 @@ function styleDict(node: NodeLike): Record<string, any> {
 	// Child-role translation — the layout parent decides which props matter.
 	const lparent = node.layoutParent ?? node.parent
 	if (lparent && MASON_CONTAINERS.has(lparent.type)) {
+		// NS attached alignment props become per-axis self alignment: grid
+		// children own both axes; flex children only the cross axis (main-axis
+		// per-child alignment is a container-level justifyContent concern).
+		const align = (value: any) =>
+			value === 'left' || value === 'top'
+				? 'start'
+				: value === 'right' || value === 'bottom'
+					? 'end'
+					: value === 'center' || value === 'middle'
+						? 'center'
+						: value === 'stretch'
+							? 'stretch'
+							: undefined
+		const hAlign = align(props.horizontalAlignment)
+		const vAlign = align(props.verticalAlignment)
+
+		if (lparent.type === 'gridlayout' || lparent.type === 'liquidglass') {
+			out.justifySelf ??= hAlign
+			out.alignSelf ??= vAlign
+		} else {
+			const row =
+				lparent.type === 'wraplayout'
+					? lparent.props?.orientation !== 'vertical'
+					: lparent.type === 'flexboxlayout'
+						? true
+						: lparent.type === 'scrollview'
+							? lparent.props?.orientation === 'horizontal' || lparent.props?.horizontal === true
+							: lparent.props?.orientation === 'horizontal'
+
+			const cross = row ? vAlign : hAlign
+			if (cross !== undefined) {
+				out.alignSelf ??= cross
+			}
+		}
+
 		switch (lparent.type) {
 			case 'absolutelayout': {
 				out.position ??= 'absolute'
@@ -807,6 +842,9 @@ interface MasonDeps {
 	wireAction: (view: any, props: any) => number | undefined
 	/** NSScrollView chrome around a mason document view, owned by `node`. */
 	makeScrollView: (node: any) => { view: any; childHost: any }
+	/** NSView subclass carrying the shared AX/action surface — container
+	 *  hosts extend it so a tappable stack/grid keeps AX press + roles. */
+	baseView: any
 }
 
 // Structural twin of index.ts's ElementBehavior — declared locally so this
@@ -826,25 +864,30 @@ let deps: MasonDeps | null = null
 
 // Mason-backed host: the Rust engine computes descendant frames; children
 // keep their own AppKit views and are pinned like grid/absolute children.
-// Nested masonview nodes participate in the parent's compute.
-class MasonLayoutView extends NSView {
-	static {
-		NativeClass(this)
-	}
+// Nested masonview nodes participate in the parent's compute. The class is
+// created in installMasonElement so it can extend the renderer's accessible
+// host view (AX press/role + input-transparency hit-testing).
+let MasonLayoutView: any
 
-	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
-	get intrinsicContentSize() {
-		const size = masonNaturalSize(masonLayoutNodesByView.get(this), deps!.layoutView)
-		return size ?? { width: -1, height: -1 }
-	}
+function createMasonLayoutView() {
+	return class MasonLayoutView extends (deps!.baseView ?? NSView) {
+		static {
+			NativeClass(this)
+		}
+		// @ts-ignore ObjC accessor methods satisfy the generated @property member.
+		get intrinsicContentSize() {
+			const size = masonNaturalSize(masonLayoutNodesByView.get(this), deps!.layoutView)
+			return size ?? { width: -1, height: -1 }
+		}
 
-	layout() {
-		super.layout()
-		layoutMasonChildren(
-			masonLayoutNodesByView.get(this),
-			deps!.layoutView,
-			deps!.pinLayoutChild,
-		)
+		layout() {
+			super.layout()
+			layoutMasonChildren(
+				masonLayoutNodesByView.get(this),
+				deps!.layoutView,
+				deps!.pinLayoutChild,
+			)
+		}
 	}
 }
 
@@ -884,6 +927,8 @@ const MASON_LAYOUT_PROPS = new Set([
 	'itemHeight',
 	'stretchLastChild',
 	'dock',
+	'horizontalAlignment',
+	'verticalAlignment',
 	'row',
 	'col',
 	'rowSpan',
@@ -904,6 +949,7 @@ export function makeMasonHostView(node: any): any {
  *  and captures the renderer helpers the behaviors need. */
 export function installMasonElement(next: MasonDeps) {
 	deps = next
+	MasonLayoutView ??= createMasonLayoutView()
 
 	const behavior: ElementBehavior = {
 		container: true,

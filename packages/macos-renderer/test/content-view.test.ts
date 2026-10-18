@@ -8,7 +8,8 @@ const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 
 const fn = (name: string) => {
 	const start = source.indexOf(`function ${name}(`)
-	return source.slice(start, source.indexOf('\nfunction ', start + 1))
+	const rest = source.slice(start)
+	return rest.slice(0, rest.search(/\n(?:export )?(?:function |class |const )/))
 }
 
 function fixture(type = 'contentview') {
@@ -86,7 +87,6 @@ function fixture(type = 'contentview') {
 			layoutHandlers: new WeakMap(),
 			VIEW_PARENT_TYPES: new Set(['contentview', 'actionbar', 'stacklayout']),
 			layoutView: (node: any) => node.view,
-			arrangedView: (node: any) => node.marginHost ?? node.view,
 			deactivateSizeConstraints: noop,
 			syncText: noop,
 			syncActionBar: noop,

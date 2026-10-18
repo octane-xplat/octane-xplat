@@ -88,9 +88,6 @@ import {
 	NSSegmentedControl,
 	NSSegmentSwitchTracking,
 	NSSlider,
-	NSStackView,
-	NSStackViewDistribution,
-	NSStackViewGravity,
 	NSTextAlignment,
 	NSTextField,
 	NSTextFieldCell,
@@ -167,8 +164,7 @@ export interface ElementNode {
 	scrollObserverInstalled: boolean
 	text: string
 	// Per-kind extras: placeholderView, placeholderContent, placeholderCreated,
-	// marginHost, marginConstraints,
-	// crossAxisConstraint, sizeConstraints, placementPins, styleBg, bgSlot,
+	// sizeConstraints, placementPins, styleBg, bgSlot,
 	// layoutObserver, scrollObserver, scheme, textRuns, appliedStyle,
 	// styleFont*/classFont*/propFontSize, stylePaddingBox/Edges, classInsets,
 	// styleRadius, classRadius, classSpacing, classOrientation, ...
@@ -291,7 +287,6 @@ const actionIdsByView = new WeakMap<object, number>()
 const textNodesByView = new WeakMap<object, ElementNode>()
 const panHandlersByView = new WeakMap<object, ((event: PanEvent) => void) | null>()
 const gridLayoutNodesByView = new WeakMap<object, ElementNode>()
-const absoluteLayoutNodesByView = new WeakMap<object, ElementNode>()
 /** Optional per-type behavior — the extension seam for element types that
  *  live outside this file's dispatch switches (masonview today; plugin
  *  elements once the @nativescript/core compat slice lands). */
@@ -350,22 +345,8 @@ const compatInstallation = installCompat({
 	queueLayoutReconcile,
 })
 
-const masonElementRegistration = installMasonElement({
-	registerElementType,
-	layoutView,
-	pinLayoutChild,
-	queueLayoutReconcile,
-	detach,
-	applyStyle,
-	applyClassName,
-	applyAccessibility,
-	wireAction: wireViewAction,
-	makeScrollView,
-})
 
 const rootLayoutNodesByView = new WeakMap<object, ElementNode>()
-const wrapLayoutNodesByView = new WeakMap<object, ElementNode>()
-const dockLayoutNodesByView = new WeakMap<object, ElementNode>()
 const contentViewNodesByView = new WeakMap<object, ElementNode>()
 const placeholderNodesByView = new WeakMap<object, ElementNode>()
 const placeholderContentOwners = new WeakMap<object, ElementNode>()
@@ -590,9 +571,16 @@ class InteractionSecureTextFieldCell extends NSSecureTextFieldCell {
 
 const inputTransparentViews = new WeakSet<object>()
 
-class AccessibleStackView extends NSStackView {
-	// Self-drawn AppKit buttons need a responder so modal decisions can use
-	// the keyboard as well as accessibility actions.
+
+// The macOS Slider uses the grid host as an overlay when no tracks are set.
+
+/** Plain NSView host for interactive containers — tap/keyboard/AX actions
+ *  dispatch through the shared actionId registry. Mason-backed containers
+ *  subclass this so a tappable stack/grid exposes the same accessibility
+ *  surface the old NSStackView host did. */
+class AccessibleHostView extends NSView {
+	// Self-drawn AppKit hosts need a responder so modal decisions can use the
+	// keyboard as well as accessibility actions.
 	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	acceptsFirstResponder() {
 		return typeof actionHandlers.get(actionIdsByView.get(this) ?? -1) === 'function'
@@ -717,107 +705,25 @@ class AccessibleStackView extends NSStackView {
 	}
 
 	accessibilityIsIgnored() {
-		return !accessibilityRoles.has(actionIdsByView.get(this) ?? -1)
+		return actionIdsByView.get(this) === undefined
 	}
 }
 
-// The macOS Slider uses the grid host as an overlay when no tracks are set.
-class GridLayoutView extends NSView {
-	static ObjCExposedMethods = {
-		accessibilityRole: { params: [], returns: interop.types.id },
-		accessibilityLabel: { params: [], returns: interop.types.id },
-		accessibilityValue: { params: [], returns: interop.types.id },
-		accessibilityMinValue: { params: [], returns: interop.types.id },
-		accessibilityMaxValue: { params: [], returns: interop.types.id },
-		accessibilityValueDescription: { params: [], returns: interop.types.id },
-		accessibilityIsIgnored: { params: [], returns: interop.types.bool },
-		accessibilityIsEnabled: { params: [], returns: interop.types.bool },
-		accessibilityPerformIncrement: { params: [], returns: interop.types.bool },
-		accessibilityPerformDecrement: { params: [], returns: interop.types.bool },
-	}
-
-	static {
-		NativeClass(this)
-	}
-
-	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
-	accessibilityRole() {
-		const node = gridLayoutNodesByView.get(this)
-		const role = node?.props.accessibilityRole
-		return role === 'adjustable'
-			? 'AXSlider'
-			: role === 'meter'
-				? 'AXLevelIndicator'
-				: role === 'progressbar'
-					? 'AXProgressIndicator'
-					: 'AXGroup'
-	}
-
-	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
-	accessibilityLabel() {
-		return gridLayoutNodesByView.get(this)?.props.accessibilityLabel ?? ''
-	}
-
-	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
-	accessibilityValue() {
-		return NSNumber.numberWithDouble(
-			Number(gridLayoutNodesByView.get(this)?.props.accessibilityValue ?? 0),
-		)
-	}
-
-	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
-	accessibilityMinValue() {
-		return NSNumber.numberWithDouble(
-			Number(gridLayoutNodesByView.get(this)?.props.accessibilityMinValue ?? 0),
-		)
-	}
-
-	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
-	accessibilityMaxValue() {
-		return NSNumber.numberWithDouble(
-			Number(gridLayoutNodesByView.get(this)?.props.accessibilityMaxValue ?? 100),
-		)
-	}
-
-	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
-	accessibilityValueDescription() {
-		return String(gridLayoutNodesByView.get(this)?.props.accessibilityValueDescription ?? '')
-	}
-
-	accessibilityIsIgnored() {
-		return !gridLayoutNodesByView.get(this)?.props.accessibilityRole
-	}
-
-	accessibilityIsEnabled() {
-		return gridLayoutNodesByView.get(this)?.props.disabled !== true
-	}
-
-	accessibilityPerformIncrement() {
-		return performGridAccessibilityAdjustment(this, 'onAccessibilityIncrement')
-	}
-
-	accessibilityPerformDecrement() {
-		return performGridAccessibilityAdjustment(this, 'onAccessibilityDecrement')
-	}
-
-	layout() {
-		super.layout()
-		layoutGridChildren(gridLayoutNodesByView.get(this))
-	}
-}
-
-// Absolute's host — children position via their own left/top/right/bottom
-// layout-child props; the layout() pass updates parent-anchored constraints.
-class AbsoluteLayoutView extends NSView {
-	static {
-		NativeClass(this)
-	}
-
-	layout() {
-		super.layout()
-		layoutAbsoluteChildren(absoluteLayoutNodesByView.get(this))
-	}
-}
+// Runs below AccessibleHostView so mason container hosts subclass it — class
+// declarations are not hoisted.
+const masonElementRegistration = installMasonElement({
+	registerElementType,
+	layoutView,
+	pinLayoutChild,
+	queueLayoutReconcile,
+	detach,
+	applyStyle,
+	applyClassName,
+	applyAccessibility,
+	wireAction: wireViewAction,
+	makeScrollView,
+	baseView: AccessibleHostView,
+})
 
 // NativeScript 9.1.2/9.1.3 (MIT): LiquidGlassCommon extends GridLayout, so
 // children follow grid placement and sizing rules. iOS roots them in a
@@ -833,7 +739,10 @@ class LiquidGlassView extends NSView {
 
 	layout() {
 		super.layout()
-		layoutGridChildren(gridLayoutNodesByView.get(this))
+		const node = gridLayoutNodesByView.get(this)
+		if (node) {
+			behaviorOf('liquidglass')?.layout?.(node)
+		}
 	}
 }
 
@@ -937,45 +846,7 @@ class PlaceholderHostView extends NSView {
 // Mirrors NativeScript 9.1.2 (MIT): ui/layouts/dock-layout/index.ios.ts
 // and ViewHelper's measurement/alignment rules. Ordered strips need NSView,
 // not NSStackView's single layout axis.
-class DockLayoutView extends NSView {
-	static {
-		NativeClass(this)
-	}
 
-	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
-	get intrinsicContentSize() {
-		return dockNaturalSize(dockLayoutNodesByView.get(this))
-	}
-
-	layout() {
-		super.layout()
-		layoutDockChildren(dockLayoutNodesByView.get(this))
-	}
-}
-
-function makeDockLayout(node: ElementNode) {
-	const view = DockLayoutView.alloc().initWithFrame({
-		origin: { x: 0, y: 0 },
-		size: { width: 0, height: 0 },
-	})
-
-	view.translatesAutoresizingMaskIntoConstraints = false
-	dockLayoutNodesByView.set(view, node)
-	view.postsFrameChangedNotifications = true
-	node.dockGeometryObserver =
-		NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
-			NSViewFrameDidChangeNotification,
-			view,
-			null,
-			() => {
-				if (dockLayoutNodesByView.get(view) === node) {
-					queueLayoutReconcile(node.container, node)
-				}
-			},
-		)
-
-	return view
-}
 
 // NativeScript 9.1.2 (MIT), RootLayoutBase extends GridLayout. The shared
 // rootlayout contract exposes no rows/columns: its implicit single cell
@@ -1021,66 +892,11 @@ function makeRootLayout(node: ElementNode) {
 	return view
 }
 
-class WrapLayoutView extends NSView {
-	static {
-		NativeClass(this)
-	}
-
-	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
-	get intrinsicContentSize() {
-		return wrapNaturalSize(wrapLayoutNodesByView.get(this))
-	}
-
-	layout() {
-		super.layout()
-		layoutWrapChildren(wrapLayoutNodesByView.get(this))
-	}
-}
 
 // Wrapping must be allowed to shrink on its flow axis. A 750-point
 // intrinsic compression priority outranks WindowSizeStayPut (500) and forces
 // the window back to the old row/column length before any reflow can occur.
-function setWrapSizingPriorities(node: ElementNode, view = node.view) {
-	if (!view) {
-		return
-	}
 
-	const vertical = node.props.orientation === 'vertical'
-	view.setContentCompressionResistancePriorityForOrientation(
-		vertical ? 750 : 250,
-		NSUserInterfaceLayoutOrientation.Horizontal,
-	)
-
-	view.setContentCompressionResistancePriorityForOrientation(
-		vertical ? 250 : 750,
-		NSUserInterfaceLayoutOrientation.Vertical,
-	)
-}
-
-function makeWrapLayout(node: ElementNode) {
-	const view = WrapLayoutView.alloc().initWithFrame({
-		origin: { x: 0, y: 0 },
-		size: { width: 0, height: 0 },
-	})
-
-	view.translatesAutoresizingMaskIntoConstraints = false
-	wrapLayoutNodesByView.set(view, node)
-	setWrapSizingPriorities(node, view)
-	view.postsFrameChangedNotifications = true
-	node.wrapGeometryObserver =
-		NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
-			NSViewFrameDidChangeNotification,
-			view,
-			null,
-			() => {
-				if (wrapLayoutNodesByView.get(view) === node) {
-					queueLayoutReconcile(node.container, node)
-				}
-			},
-		)
-
-	return view
-}
 
 function makeContentView() {
 	const view = ContentViewHost.alloc().initWithFrame({
@@ -1314,110 +1130,10 @@ function observeContentGeometry(node: ElementNode) {
 		)
 }
 
-function makeStack(props: PropBag, StackClass: NSClass<NSStackView> = NSStackView) {
-	const stack = StackClass.alloc().initWithFrame({
-		origin: { x: 0, y: 0 },
-		size: { width: 480, height: 320 },
-	})
 
-	stack.orientation =
-		props.flexDirection === 'row'
-			? NSUserInterfaceLayoutOrientation.Horizontal
-			: NSUserInterfaceLayoutOrientation.Vertical
-
-	stack.alignment = stackAlignmentAttribute(stack, props.alignItems ?? 'stretch')
-	stack.distribution = NSStackViewDistribution.GravityAreas
-	stack.spacing = Number(props.gap ?? props.spacing ?? 0)
-	stack.translatesAutoresizingMaskIntoConstraints = false
-	return stack
-}
-
-function stackAlignmentAttribute(view: any, value: string) {
-	const horizontal = view.orientation === NSUserInterfaceLayoutOrientation.Horizontal
-	if (value === 'center') {
-		return horizontal ? NSLayoutAttribute.CenterY : NSLayoutAttribute.CenterX
-	}
-
-	if (value === 'end' || value === 'flex-end') {
-		return horizontal ? NSLayoutAttribute.Bottom : NSLayoutAttribute.Right
-	}
-
-	if (value === 'stretch' || value === 'start' || value === 'flex-start' || value === 'normal') {
-		return horizontal ? NSLayoutAttribute.Top : NSLayoutAttribute.Left
-	}
-
-	if (value === 'baseline' && horizontal) {
-		return NSLayoutAttribute.FirstBaseline
-	}
-
-	return horizontal ? NSLayoutAttribute.Top : NSLayoutAttribute.Left
-}
 
 // Container layout follows the same source order as fonts and padding. Resolve
 // whole channels so an axis-specific gap never overrides a higher-source gap.
-function syncStackLayout(node: ElementNode) {
-	if (!['flexboxlayout', 'stack', 'stacklayout'].includes(node.type)) {
-		return
-	}
-
-	const stack = node.view! as NSStackView
-	// Mason-backed containers own spacing/direction through the engine.
-	if (typeof stack?.addViewInGravity !== 'function') {
-		return
-	}
-
-	const style = node.styleLayout ?? {}
-	const previousOrientation = stack.orientation
-	stack.orientation =
-		node.type === 'stacklayout'
-			? node.props.orientation === 'horizontal'
-				? NSUserInterfaceLayoutOrientation.Horizontal
-				: NSUserInterfaceLayoutOrientation.Vertical
-			: style.flexDirection != null
-				? style.flexDirection === 'row'
-					? NSUserInterfaceLayoutOrientation.Horizontal
-					: NSUserInterfaceLayoutOrientation.Vertical
-				: (node.classOrientation ??
-					(node.props.flexDirection === 'row'
-						? NSUserInterfaceLayoutOrientation.Horizontal
-						: NSUserInterfaceLayoutOrientation.Vertical))
-
-	const gapKey =
-		stack.orientation === NSUserInterfaceLayoutOrientation.Horizontal ? 'columnGap' : 'rowGap'
-
-	stack.spacing = Number(
-		style[gapKey] ??
-			style.gap ??
-			node.classSpacing ??
-			node.props[gapKey] ??
-			node.props.gap ??
-			node.props.spacing ??
-			0,
-	)
-
-	// StackLayout permits different cross-axis alignment for each child.
-	// Disable AppKit's global alignment pins; explicit per-child pins below
-	// keep the layout determined without fighting a required leading pin.
-	stack.alignment =
-		node.type === 'stacklayout'
-			? (NSLayoutAttribute.NotAnAttribute ?? 0)
-			: stackAlignmentAttribute(stack, stackAlignItems(node))
-
-	const justifyContent = stackJustifyContent(node)
-	if (stack.orientation !== previousOrientation || justifyContent !== node.appliedStackJustify) {
-		moveStackChildren(node)
-	}
-
-	node.appliedStackJustify = justifyContent
-	if (node.type === 'stacklayout') {
-		for (const child of node.projectedChildren ?? node.children) {
-			setStackChildPriorities(node, child)
-		}
-	}
-
-	updateStackDistribution(node)
-	updateCrossAxisConstraints(node)
-}
 
 function isStackLayoutInput(name: string) {
 	return ['flexDirection', 'gap', 'rowGap', 'columnGap', 'alignItems', 'justifyContent'].includes(
@@ -1425,166 +1141,8 @@ function isStackLayoutInput(name: string) {
 	)
 }
 
-function stackAlignItems(node: ElementNode) {
-	if (node.styleLayout?.alignItems != null) {
-		return node.styleLayout.alignItems
-	}
 
-	const classes = nodeClasses(node)
-	if (classes.includes('vx-button') || classes.includes('items-center')) {
-		return 'center'
-	}
 
-	if (classes.includes('items-stretch')) {
-		return 'stretch'
-	}
-
-	if (classes.includes('items-baseline')) {
-		return 'baseline'
-	}
-
-	if (classes.includes('items-start')) {
-		return 'start'
-	}
-
-	if (classes.includes('items-end')) {
-		return 'end'
-	}
-
-	return node.props.alignItems ?? 'stretch'
-}
-
-function stackJustifyContent(node: ElementNode) {
-	if (node.type === 'stacklayout') {
-		const alignment =
-			node.props.orientation === 'horizontal'
-				? node.props.horizontalAlignment
-				: node.props.verticalAlignment
-
-		return alignment === 'center' || alignment === 'middle'
-			? 'center'
-			: alignment === 'right' || alignment === 'bottom'
-				? 'end'
-				: 'start'
-	}
-
-	if (node.styleLayout?.justifyContent != null) {
-		return node.styleLayout.justifyContent
-	}
-
-	const classes = nodeClasses(node)
-	if (classes.includes('justify-center')) {
-		return 'center'
-	}
-
-	if (classes.includes('justify-end')) {
-		return 'end'
-	}
-
-	if (classes.includes('justify-start')) {
-		return 'start'
-	}
-
-	if (nodeClasses(node).includes('vx-button')) {
-		return 'center'
-	}
-
-	if (nodeClasses(node).includes('justify-between')) {
-		return 'space-between'
-	}
-
-	return node.props.justifyContent ?? 'start'
-}
-
-function updateCrossAxisConstraints(parent: ElementNode) {
-	const stack = (parent.childHost ?? parent.view) as NSStackView | undefined
-	if (typeof stack?.addViewInGravity !== 'function' || stack.orientation == null) {
-		return
-	}
-
-	const horizontal = stack.orientation === NSUserInterfaceLayoutOrientation.Horizontal
-	const dimension = horizontal ? 'height' : 'width'
-	const alignItems = stackAlignItems(parent)
-	const bothScrollAxes =
-		parent.type === 'scrollview' &&
-		scrollAxes(parent.props).inline &&
-		scrollAxes(parent.props).block
-
-	// Stretch must respect edgeInsets — an unconstrained child would
-	// otherwise span the stack's full cross size, overflowing the padding.
-	const insets = stack.edgeInsets ?? { top: 0, left: 0, bottom: 0, right: 0 }
-	const inset = horizontal ? insets.top + insets.bottom : insets.left + insets.right
-	for (const child of parent.projectedChildren ?? parent.children) {
-		if (child.crossAxisConstraint) {
-			child.crossAxisConstraint.active = false
-		}
-
-		child.crossAxisConstraint = null
-		const childView = arrangedView(child)
-		let childAlignment =
-			parent.type === 'stacklayout'
-				? (child.props[horizontal ? 'verticalAlignment' : 'horizontalAlignment'] ?? 'stretch')
-				: alignItems
-
-		if (
-			parent.type === 'stacklayout' &&
-			childAlignment === 'stretch' &&
-			child.sizeConstraintSpecs?.[dimension]
-		) {
-			childAlignment = horizontal ? 'middle' : 'center'
-		}
-
-		if (childView && parent.type === 'stacklayout' && childAlignment !== 'stretch') {
-			const centered = childAlignment === 'center' || childAlignment === 'middle'
-			const trailing = childAlignment === 'right' || childAlignment === 'bottom'
-			const anchor = horizontal
-				? centered
-					? 'centerYAnchor'
-					: trailing
-						? 'bottomAnchor'
-						: 'topAnchor'
-				: centered
-					? 'centerXAnchor'
-					: trailing
-						? 'trailingAnchor'
-						: 'leadingAnchor'
-
-			const constant = centered
-				? horizontal
-					? (insets.bottom - insets.top) / 2
-					: (insets.left - insets.right) / 2
-				: trailing
-					? -(horizontal ? insets.bottom : insets.right)
-					: horizontal
-						? insets.top
-						: insets.left
-
-			child.crossAxisConstraint = childView[anchor].constraintEqualToAnchorConstant(
-				stack[anchor],
-				constant,
-			)
-
-			child.crossAxisConstraint.active = true
-			continue
-		}
-
-		if (
-			bothScrollAxes ||
-			childAlignment !== 'stretch' ||
-			!childView ||
-			child.sizeConstraintSpecs?.[dimension]
-		) {
-			continue
-		}
-
-		const anchor = horizontal ? 'heightAnchor' : 'widthAnchor'
-		child.crossAxisConstraint = inset
-			? childView[anchor].constraintEqualToAnchorConstant(stack[anchor], -inset)
-			: childView[anchor].constraintEqualToAnchor(stack[anchor])
-
-		child.crossAxisConstraint.active = true
-	}
-}
 
 const MARGIN_SIDES: Record<string, string> = {
 	marginTop: 'top',
@@ -1593,105 +1151,15 @@ const MARGIN_SIDES: Record<string, string> = {
 	marginLeft: 'left',
 }
 
-function marginInsetsOf(node: ElementNode) {
-	const insets = node.marginInsets
-	return insets && (insets.top || insets.right || insets.bottom || insets.left) ? insets : null
-}
-
 function layoutView(node: ElementNode) {
 	return node.textViewport ?? node.view
 }
 
-/** The view a stack should arrange for a child — a margin wrapper when set. */
-function arrangedView(node: ElementNode) {
-	return node.marginHost ?? layoutView(node)
-}
 
-/** NSStackView has no per-child margins, so a margined child is wrapped in a
- *  plain container: the wrapper is the arranged subview and the child pins
- *  inside it with margin-offset anchors. */
-function makeMarginHost(node: ElementNode) {
-	const host = NSView.alloc().initWithFrame({
-		origin: { x: 0, y: 0 },
-		size: { width: 0, height: 0 },
-	})
 
-	host.translatesAutoresizingMaskIntoConstraints = false
-	host.addSubview(layoutView(node))
-	const insets = marginInsetsOf(node)
-	const constraints = [
-		layoutView(node).leadingAnchor.constraintEqualToAnchorConstant(host.leadingAnchor, insets.left),
-		layoutView(node).trailingAnchor.constraintEqualToAnchorConstant(
-			host.trailingAnchor,
-			-insets.right,
-		),
-		layoutView(node).topAnchor.constraintEqualToAnchorConstant(host.topAnchor, insets.top),
-		layoutView(node).bottomAnchor.constraintEqualToAnchorConstant(
-			host.bottomAnchor,
-			-insets.bottom,
-		),
-	]
-
-	for (const constraint of constraints) {
-		constraint.active = true
-	}
-
-	node.marginHost = host
-	node.marginConstraints = constraints
-	return host
-}
 
 /** Wrap/unwrap/re-apply margins on a node that is already arranged inside a
  *  stack. Margins set before insert are materialized there instead. */
-function syncMarginHost(node: ElementNode) {
-	const parent = node.layoutParent ?? node.parent
-	if (!node.view || !parent) {
-		return
-	}
-
-	const stack = (parent.childHost ?? parent.view) as NSStackView | undefined
-	if (typeof stack?.addViewInGravity !== 'function') {
-		// Grid children are laid out manually and already honor margins.
-		if (
-			marginInsetsOf(node) &&
-			![
-				'gridlayout',
-				'liquidglass',
-				'contentview',
-				'actionbar',
-				'docklayout',
-				'wraplayout',
-				'rootlayout',
-			].includes(parent.type) ||
-				isManualLayoutParent(parent.type)
-		) {
-			console.warn('[macos-style] ignored margins on <' + node.type + '> — parent is not a stack')
-		}
-
-		return
-	}
-
-	const insets = marginInsetsOf(node)
-	if (insets && !node.marginHost) {
-		const gravity = stackGravity(parent, node)
-		const index = gravityInsertIndex(parent, node, gravity)
-		stack.removeArrangedSubview(layoutView(node))
-		layoutView(node).removeFromSuperview()
-		const host = makeMarginHost(node)
-		stack.insertViewAtIndexInGravity(host, index, gravity)
-		queueLayoutReconcile(node.container, parent)
-		setLayoutAction(node, node.props?.onLayoutChanged)
-	} else if (node.marginHost) {
-		// Once wrapped, the host stays arranged for the node's lifetime —
-		// unwrapping would detach a first-responder ancestor and end live
-		// editing. Zeroed constants collapse it to the child's frame.
-		const [leading, trailing, top, bottom] = node.marginConstraints
-		leading.constant = insets?.left ?? 0
-		trailing.constant = 0 - (insets?.right ?? 0)
-		top.constant = insets?.top ?? 0
-		bottom.constant = 0 - (insets?.bottom ?? 0)
-	}
-}
 
 function setMarginStyle(node: ElementNode, name: string, value: any) {
 	const points = Number(value)
@@ -1716,208 +1184,20 @@ function setMarginStyle(node: ElementNode, name: string, value: any) {
 		insets[MARGIN_SIDES[name]] = points
 	}
 
-	if (
-		[
-			'gridlayout',
-			'liquidglass',
-			'contentview',
-			'actionbar',
-			'docklayout',
-			'wraplayout',
-			'rootlayout',
-		].includes((node.layoutParent ?? node.parent)?.type ?? '') ||
-		isManualLayoutParent((node.layoutParent ?? node.parent)?.type)
-	) {
-		// These parents lay out children manually from props.style — no wrapper needed.
-		queueLayoutReconcile(node.container, node.parent)
-		return
+	const parent = node.layoutParent ?? node.parent
+	if (isManualLayoutParent(parent?.type)) {
+		queueLayoutReconcile(node.container, parent)
 	}
-
-	syncMarginHost(node)
 }
 
-function stackGravity(parent: ElementNode, child: ElementNode) {
-	const stack = (parent.childHost ?? parent.view) as NSStackView | undefined
-	const horizontal = stack!.orientation === NSUserInterfaceLayoutOrientation.Horizontal
-	const leading = horizontal ? NSStackViewGravity.Leading : NSStackViewGravity.Top
-	const trailing = horizontal ? NSStackViewGravity.Trailing : NSStackViewGravity.Bottom
-	const justifyContent = stackJustifyContent(parent)
-	if (justifyContent === 'center') {
-		return NSStackViewGravity.Center
-	}
 
-	if (justifyContent === 'end' || justifyContent === 'flex-end') {
-		return trailing
-	}
-
-	if (justifyContent === 'space-between') {
-		const index = (parent.projectedChildren ?? parent.children).indexOf(child)
-		if (index === 0) {
-			return leading
-		}
-
-		if (index === (parent.projectedChildren ?? parent.children).length - 1) {
-			return trailing
-		}
-
-		return NSStackViewGravity.Center
-	}
-
-	return leading
-}
-
-/** AppKit insertion indices are local to a gravity area — count the
- *  same-gravity siblings ahead of `node`, not its logical child index.
- *  Shared by stack insertion and margin-host reinsertion. */
-function gravityInsertIndex(parent: ElementNode, node: ElementNode, gravity: number) {
-	let index = 0
-	for (const sibling of parent.projectedChildren ?? parent.children) {
-		if (sibling === node) {
-			break
-		}
-
-		if (sibling.view && stackGravity(parent, sibling) === gravity) {
-			index++
-		}
-	}
-
-	return index
-}
-
-/** Snapshot one gravity area's arranged views. The bridge returns an
- *  NSArray; `count` may be a method or a property depending on interop. */
-function stackViewsInGravity(stack: any, gravity: number) {
-	const views = typeof stack?.viewsInGravity === 'function' ? stack.viewsInGravity(gravity) : null
-	const count = typeof views?.count === 'function' ? views.count() : (views?.count ?? 0)
-	const arrangedViews: any[] = []
-	for (let index = 0; index < count; index++) {
-		arrangedViews.push(views.objectAtIndex(index))
-	}
-
-	return arrangedViews
-}
 
 /** Reconcile one gravity area with the children's desired views. Only
  *  re-parented children land in `moved` — detaching a view that is (or
  *  contains) the first responder ends the active editing session. */
-function syncStackGravityArea(
-	parent: ElementNode,
-	stack: any,
-	gravity: number,
-	moved: Set<ElementNode>,
-) {
-	const desired: ElementNode[] = []
-	for (const child of parent.projectedChildren ?? parent.children) {
-		if (child.view && stackGravity(parent, child) === gravity) {
-			desired.push(child)
-		}
-	}
 
-	const keep = new Set(desired.map((child) => arrangedView(child)))
-	const arrangedViews = stackViewsInGravity(stack, gravity)
-	for (let index = arrangedViews.length - 1; index >= 0; index--) {
-		if (!keep.has(arrangedViews[index])) {
-			stack.removeArrangedSubview(arrangedViews[index])
-			arrangedViews[index].removeFromSuperview()
-			arrangedViews.splice(index, 1)
-		}
-	}
 
-	for (let index = 0; index < desired.length; index++) {
-		const child = desired[index]
-		const view = arrangedView(child)
-		if (arrangedViews[index] === view) {
-			continue
-		}
 
-		const from = arrangedViews.indexOf(view)
-		if (from >= 0) {
-			stack.removeArrangedSubview(view)
-			view.removeFromSuperview()
-			arrangedViews.splice(from, 1)
-		}
-
-		stack.insertViewAtIndexInGravity(view, index, gravity)
-		arrangedViews.splice(index, 0, view)
-		moved.add(child)
-	}
-}
-
-function moveStackChildren(parent: ElementNode) {
-	const stack = (parent.childHost ?? parent.view) as NSStackView | undefined
-	if (typeof stack?.addViewInGravity !== 'function') {
-		return
-	}
-
-	// Diff each gravity area against the live arrangement so unchanged
-	// children are never re-parented — AppKit's endEditingFor: fires when a
-	// first-responder ancestor leaves its superview. Orientation flips keep
-	// identical gravity values (Leading == Top, Trailing == Bottom), so a
-	// pure orientation change is a no-op here.
-	const moved = new Set<ElementNode>()
-	for (const gravity of [
-		NSStackViewGravity.Leading,
-		NSStackViewGravity.Center,
-		NSStackViewGravity.Trailing,
-	]) {
-		syncStackGravityArea(parent, stack, gravity, moved)
-	}
-
-	for (const child of moved) {
-		// Removing a view drops constraints to its old superview, including
-		// percentage dimensions. Reinstall them after reattaching.
-		applySizeConstraints(child)
-		setStackChildPriorities(parent, child)
-	}
-
-	updateStackDistribution(parent)
-	updateCrossAxisConstraints(parent)
-}
-
-function updateStackDistribution(parent: ElementNode) {
-	const stack = (parent.childHost ?? parent.view) as NSStackView | undefined
-	if (typeof stack?.addViewInGravity !== 'function' || stack.orientation == null) {
-		return
-	}
-
-	if (stackJustifyContent(parent) === 'space-between') {
-		stack.distribution = NSStackViewDistribution.EqualSpacing
-		return
-	}
-
-	const grows = (parent.projectedChildren ?? parent.children).some(
-		(child) => child.view && nodeClasses(child).includes('flex-1'),
-	)
-
-	stack.distribution = grows ? NSStackViewDistribution.Fill : NSStackViewDistribution.GravityAreas
-}
-
-function setStackChildPriorities(parent: ElementNode, child: ElementNode) {
-	const stack = (parent.childHost ?? parent.view) as NSStackView | undefined
-	if (typeof stack?.addViewInGravity !== 'function' || stack.orientation == null || !child.view) {
-		return
-	}
-
-	const mainAxis = stack.orientation
-	const grow = nodeClasses(child).includes('flex-1')
-	for (const orientation of [
-		NSUserInterfaceLayoutOrientation.Horizontal,
-		NSUserInterfaceLayoutOrientation.Vertical,
-	]) {
-		// Cross-axis hugging must stay below AppKit's WindowSizeStayPut (500):
-		// along the required contentView→root pin chain, any nested child
-		// hugging higher than 500 outranks the window's own hold and locks the
-		// window at the content's fitting size in that axis.
-		const priority = orientation === mainAxis ? (grow ? 1 : 750) : 250
-		const target = arrangedView(child)
-		target.setContentHuggingPriorityForOrientation(priority, orientation)
-		target.setContentCompressionResistancePriorityForOrientation(750, orientation)
-	}
-
-	if (child.type === 'wraplayout') {
-		setWrapSizingPriorities(child, arrangedView(child))
-	}
-}
 
 /** Wires tap/click handling + the accessibility actionId onto any view —
  *  shared by stack factories and mason-backed container views. */
@@ -1947,10 +1227,6 @@ function wireViewAction(view: NSView, props: PropBag): number | undefined {
 	return actionId
 }
 
-function makeFlexbox(props: PropBag) {
-	const stack = makeStack(props, AccessibleStackView as unknown as NSClass<NSStackView>)
-	return { view: stack, actionId: wireViewAction(stack, props) }
-}
 
 function makeLabel(): NSTextField {
 	const label = NSTextField.alloc().initWithFrame({
@@ -2078,7 +1354,7 @@ const layoutHandlers = new WeakMap<object, () => void>()
  *  arranged view so events keep reporting that view's bounds. */
 function syncLayoutObserver(node: ElementNode) {
 	const observed = node.layoutObservedView
-	if (!observed || observed === arrangedView(node)) {
+	if (!observed || observed === layoutView(node)) {
 		return
 	}
 
@@ -2097,7 +1373,7 @@ function syncLayoutObserver(node: ElementNode) {
  *  view (margin host when present) — the windowed VirtualList leaf measures
  *  rows through it. */
 function setLayoutAction(node: ElementNode, handler: ((event: any) => void) | undefined) {
-	const target = arrangedView(node)
+	const target = layoutView(node)
 	if (!target || node.type === '#text' || node.type === 'span') {
 		return
 	}
@@ -2752,25 +2028,7 @@ function makeSlider(props: PropBag) {
 	return { view: slider, actionId }
 }
 
-function makeGridLayout() {
-	const view = GridLayoutView.alloc().initWithFrame({
-		origin: { x: 0, y: 0 },
-		size: { width: 140, height: 28 },
-	})
 
-	view.translatesAutoresizingMaskIntoConstraints = false
-	return view
-}
-
-function makeAbsoluteLayout() {
-	const view = AbsoluteLayoutView.alloc().initWithFrame({
-		origin: { x: 0, y: 0 },
-		size: { width: 140, height: 28 },
-	})
-
-	view.translatesAutoresizingMaskIntoConstraints = false
-	return view
-}
 
 function makeLiquidGlass(node: ElementNode) {
 	const view = LiquidGlassView.alloc().initWithFrame({
@@ -2855,15 +2113,7 @@ function parseGridTracks(spec: any): GridTrack[] {
 		})
 }
 
-function gridIndex(value: any) {
-	const index = Number(value ?? 0)
-	return Number.isFinite(index) ? Math.max(0, Math.floor(index)) : 0
-}
 
-function gridSpan(value: any) {
-	const span = Number(value ?? 1)
-	return Number.isFinite(span) ? Math.max(1, Math.floor(span)) : 1
-}
 
 function gridAreaIsFree(
 	occupied: Set<string>,
@@ -3150,188 +2400,7 @@ function releasePlacementPins(node: ElementNode) {
 	node.placementPins = null
 }
 
-function layoutGridChildren(parent: ElementNode | undefined) {
-	if (!parent?.view) {
-		return
-	}
 
-	const width = Number(parent.view.bounds.size.width)
-	const height = Number(parent.view.bounds.size.height)
-	const overlayChildren = parent.props.overlayChildren === true
-	const placements = (parent.projectedChildren ?? parent.children)
-		.filter((child) => child.view)
-		.map((child) => ({
-			child,
-			row: overlayChildren ? 0 : child.props.row == null ? null : gridIndex(child.props.row),
-			col: overlayChildren ? 0 : child.props.col == null ? null : gridIndex(child.props.col),
-			rowSpan: overlayChildren ? 1 : gridSpan(child.props.rowSpan),
-			colSpan: overlayChildren ? 1 : gridSpan(child.props.colSpan),
-		}))
-
-	const hasTracks = Boolean(
-		String(parent.props.rows ?? '').trim() || String(parent.props.columns ?? '').trim(),
-	)
-
-	const hasPlacement = placements.some(
-		({ child, row, col, rowSpan, colSpan }) =>
-			(child.props.row != null && row !== 0) ||
-			(child.props.col != null && col !== 0) ||
-			rowSpan !== 1 ||
-			colSpan !== 1,
-	)
-
-	// Preserve overlay behavior for Slider and Stack. Explicit tracks or
-	// non-default cell placement opt into track layout. Configured grids
-	// auto-place children with no row or column using the web renderer's default
-	// row flow, unless the host explicitly requests overlay behavior.
-	if (hasTracks || hasPlacement) {
-		if (!overlayChildren) {
-			autoPlaceGridChildren(parent, placements)
-		}
-
-		const columns = gridAxisTracks(parent.props.columns, placements, 'columns')
-		const rows = gridAxisTracks(parent.props.rows, placements, 'rows')
-		const columnSizes = resolveGridTrackSizes(columns, placements, 'columns', width)
-		const rowSizes = resolveGridTrackSizes(rows, placements, 'rows', height)
-
-		for (const placement of placements) {
-			const { child, row, col, rowSpan, colSpan } = placement
-			const style = child.props.style ?? {}
-			const cellX = trackOffset(columnSizes, col!)
-			const cellTop = trackOffset(rowSizes, row!)
-			const cellWidth = columnSizes.slice(col!, col! + colSpan).reduce((sum, size) => sum + size, 0)
-			const cellHeight = rowSizes.slice(row!, row! + rowSpan).reduce((sum, size) => sum + size, 0)
-			const horizontal = child.props.horizontalAlignment ?? 'stretch'
-			const vertical = child.props.verticalAlignment ?? 'stretch'
-			const intrinsic = layoutView(child).intrinsicContentSize ?? { width: 0, height: 0 }
-			const childWidth =
-				style.width == null
-					? horizontal === 'stretch'
-						? cellWidth
-						: Math.max(0, Number(intrinsic.width ?? 0))
-					: layoutLength(style.width, cellWidth, 0)
-
-			const childHeight =
-				style.height == null
-					? vertical === 'stretch'
-						? cellHeight
-						: Math.max(0, Number(intrinsic.height ?? 0))
-					: layoutLength(style.height, cellHeight, 0)
-
-			let x = cellX
-			if (horizontal === 'center' || horizontal === 'middle') {
-				x += (cellWidth - childWidth) / 2
-			} else if (horizontal === 'right') {
-				x += cellWidth - childWidth
-			}
-
-			const insets = marginInsetsOf(child)
-			x += layoutLength(style.left, cellWidth, 0) + (insets?.left ?? 0)
-
-			let top = cellTop
-			if (vertical === 'middle' || vertical === 'center') {
-				top += (cellHeight - childHeight) / 2
-			} else if (vertical === 'bottom') {
-				top += cellHeight - childHeight
-			}
-
-			top += layoutLength(style.top, cellHeight, 0) + (insets?.top ?? 0)
-			pinLayoutChild(
-				child,
-				parent.view,
-				x,
-				top,
-				Math.max(0, childWidth - (insets?.right ?? 0)),
-				Math.max(0, childHeight - (insets?.bottom ?? 0)),
-			)
-		}
-
-		return
-	}
-
-	for (const { child } of placements) {
-		const style = child.props.style ?? {}
-		const horizontal = child.props.horizontalAlignment ?? 'stretch'
-		const vertical = child.props.verticalAlignment ?? 'stretch'
-		const intrinsic = layoutView(child).intrinsicContentSize ?? { width: 0, height: 0 }
-		const childWidth =
-			style.width == null
-				? horizontal === 'stretch'
-					? width
-					: Math.max(0, Number(intrinsic.width ?? 0))
-				: layoutLength(style.width, width, 0)
-
-		const childHeight =
-			style.height == null
-				? vertical === 'stretch'
-					? height
-					: Math.max(0, Number(intrinsic.height ?? 0))
-				: layoutLength(style.height, height, 0)
-
-		let x = 0
-		if (horizontal === 'center' || horizontal === 'middle') {
-			x = (width - childWidth) / 2
-		} else if (horizontal === 'right') {
-			x = width - childWidth
-		} else if (horizontal === 'left') {
-			x = layoutLength(style.left, width, 0) + Number(style.marginLeft ?? 0)
-		}
-
-		let y = 0
-		if (vertical === 'middle' || vertical === 'center') {
-			y = (height - childHeight) / 2
-		} else if (vertical === 'top') {
-			y = height - childHeight - Number(style.marginTop ?? 0)
-		}
-
-		pinLayoutChild(child, parent.view, x, height - y - childHeight, childWidth, childHeight)
-	}
-}
-
-function layoutAbsoluteChildren(parent: ElementNode | undefined) {
-	if (!parent?.view) {
-		return
-	}
-
-	const width = Number(parent.view.bounds.size.width)
-	const height = Number(parent.view.bounds.size.height)
-
-	for (const child of parent.projectedChildren ?? parent.children) {
-		if (!child.view) {
-			continue
-		}
-
-		const style = child.props.style ?? {}
-		const intrinsic = layoutView(child).intrinsicContentSize ?? { width: 0, height: 0 }
-		const left = layoutLength(child.props.left, width, Number.NaN)
-		const right = layoutLength(child.props.right, width, Number.NaN)
-		const top = layoutLength(child.props.top, height, Number.NaN)
-		const bottom = layoutLength(child.props.bottom, height, Number.NaN)
-		const childWidth =
-			style.width == null
-				? Number.isFinite(left) && Number.isFinite(right)
-					? Math.max(0, width - left - right)
-					: Math.max(0, Number(intrinsic.width ?? 0))
-				: layoutLength(style.width, width, 0)
-
-		const childHeight =
-			style.height == null
-				? Number.isFinite(top) && Number.isFinite(bottom)
-					? Math.max(0, height - top - bottom)
-					: Math.max(0, Number(intrinsic.height ?? 0))
-				: layoutLength(style.height, height, 0)
-
-		const x = Number.isFinite(left) ? left : Number.isFinite(right) ? width - right - childWidth : 0
-
-		const offsetTop = Number.isFinite(top)
-			? top
-			: Number.isFinite(bottom)
-				? height - bottom - childHeight
-				: 0
-
-		pinLayoutChild(child, parent.view, x, offsetTop, childWidth, childHeight)
-	}
-}
 
 // Width/height percentages use the parent's full measured size, not the
 // progressively smaller strip. Explicit lengths are capped by the measure slot
@@ -3370,359 +2439,6 @@ function dockChildSize(
 	)
 }
 
-function dockNaturalSize(parent: ElementNode | undefined) {
-	let width = 0,
-		height = 0,
-		usedWidth = 0,
-		usedHeight = 0
-
-	for (const child of parent?.projectedChildren ?? parent?.children ?? []) {
-		if (!child.view) {
-			continue
-		}
-
-		const margins = child.marginInsets ?? {}
-		const w =
-			dockChildSize(child, 'width', Infinity, Infinity) + (margins.left ?? 0) + (margins.right ?? 0)
-
-		const h =
-			dockChildSize(child, 'height', Infinity, Infinity) +
-			(margins.top ?? 0) +
-			(margins.bottom ?? 0)
-
-		if (['top', 'bottom'].includes(child.props.dock)) {
-			usedHeight += h
-			width = Math.max(width, usedWidth + w)
-			height = Math.max(height, usedHeight)
-		} else {
-			usedWidth += w
-			width = Math.max(width, usedWidth)
-			height = Math.max(height, usedHeight + h)
-		}
-	}
-
-	const padding = parent?.dockInsets ?? {}
-	return {
-		width: width + (padding.left ?? 0) + (padding.right ?? 0),
-		height: height + (padding.top ?? 0) + (padding.bottom ?? 0),
-	}
-}
-
-function layoutDockChildren(parent: ElementNode | undefined) {
-	if (!parent?.view) {
-		return
-	}
-
-	const padding = parent.dockInsets ?? {}
-	const width = Math.max(
-		0,
-		Number(parent.view.bounds.size.width) - (padding.left ?? 0) - (padding.right ?? 0),
-	)
-
-	const height = Math.max(
-		0,
-		Number(parent.view.bounds.size.height) - (padding.top ?? 0) - (padding.bottom ?? 0),
-	)
-
-	let x = padding.left ?? 0,
-		top = padding.top ?? 0,
-		remainingWidth = width,
-		remainingHeight = height
-
-	const children = (parent.projectedChildren ?? parent.children).filter((child) => child.view)
-	for (const [index, child] of children.entries()) {
-		const margins = child.marginInsets ?? {}
-		const ml = margins.left ?? 0,
-			mr = margins.right ?? 0,
-			mt = margins.top ?? 0,
-			mb = margins.bottom ?? 0
-
-		const measuredWidth = dockChildSize(
-			child,
-			'width',
-			remainingWidth,
-			Number(parent.view.bounds.size.width),
-		)
-
-		const measuredHeight = dockChildSize(
-			child,
-			'height',
-			remainingHeight,
-			Number(parent.view.bounds.size.height),
-		)
-
-		const stretch = index === children.length - 1 && parent.props.stretchLastChild !== false
-		let slotX = x,
-			slotTop = top,
-			slotWidth = remainingWidth,
-			slotHeight = remainingHeight
-
-		if (!stretch) {
-			switch (child.props.dock ?? 'left') {
-				case 'top':
-					slotHeight = measuredHeight + mt + mb
-					top += slotHeight
-					remainingHeight = Math.max(0, remainingHeight - slotHeight)
-					break
-				case 'bottom':
-					slotHeight = measuredHeight + mt + mb
-					slotTop += remainingHeight - slotHeight
-					remainingHeight = Math.max(0, remainingHeight - slotHeight)
-					break
-				case 'right':
-					slotWidth = measuredWidth + ml + mr
-					slotX += remainingWidth - slotWidth
-					remainingWidth = Math.max(0, remainingWidth - slotWidth)
-					break
-				default:
-					slotWidth = measuredWidth + ml + mr
-					x += slotWidth
-					remainingWidth = Math.max(0, remainingWidth - slotWidth)
-			}
-		}
-
-		const axis = (
-			slot: number,
-			measured: number,
-			fixed: boolean,
-			alignment: string,
-			start: number,
-			end: number,
-		) => {
-			const space = Math.max(0, slot - start - end)
-			const size = alignment === 'stretch' && !fixed ? space : measured
-			const offset =
-				alignment === 'right' || alignment === 'bottom'
-					? slot - end - size
-					: ['stretch', 'center', 'middle'].includes(alignment)
-						? start + (space - size) / 2
-						: start
-
-			return [offset, size]
-		}
-
-		const [dx, w] = axis(
-			slotWidth,
-			measuredWidth,
-			child.props.style?.width != null || !!child.sizeConstraintSpecs?.width,
-			child.props.horizontalAlignment ?? 'stretch',
-			ml,
-			mr,
-		)
-
-		const [dy, h] = axis(
-			slotHeight,
-			measuredHeight,
-			child.props.style?.height != null || !!child.sizeConstraintSpecs?.height,
-			child.props.verticalAlignment ?? 'stretch',
-			mt,
-			mb,
-		)
-
-		// NativeScript rounds both edges independently.
-		const left = Math.round(slotX + dx),
-			childTop = Math.round(slotTop + dy)
-
-		pinLayoutChild(
-			child,
-			parent.view,
-			left,
-			childTop,
-			Math.round(slotX + dx + w) - left,
-			Math.round(slotTop + dy + h) - childTop,
-		)
-	}
-}
-
-// NativeScript 9.1.2 (MIT): ui/layouts/wrap-layout/index.ios.ts,
-// wrap-layout-common.ts, and ViewHelper's measure/alignment rules. Positive
-// item lengths define slots; nonpositive/absent lengths measure naturally.
-// Measured children and slots remain distinct so fixed children can align.
-function wrapMeasure(parent: ElementNode, width: number, height: number) {
-	const padding = parent.dockInsets ?? {}
-	const availableWidth = Math.max(0, width - (padding.left ?? 0) - (padding.right ?? 0))
-	const availableHeight = Math.max(0, height - (padding.top ?? 0) - (padding.bottom ?? 0))
-	const itemWidth = parent.props.itemWidth > 0 ? parent.props.itemWidth : 0
-	const itemHeight = parent.props.itemHeight > 0 ? parent.props.itemHeight : 0
-	const vertical = parent.props.orientation === 'vertical'
-	const limit = vertical ? availableHeight : availableWidth
-	const lines: { length: number; cross: number; entries: any[] }[] = []
-	for (const child of parent.projectedChildren ?? parent.children) {
-		if (!child.view) {
-			continue
-		}
-
-		const margins = child.marginInsets ?? {}
-		const mx = (margins.left ?? 0) + (margins.right ?? 0)
-		const my = (margins.top ?? 0) + (margins.bottom ?? 0)
-		const fixedWidth = child.props.style?.width != null || !!child.sizeConstraintSpecs?.width
-		const fixedHeight = child.props.style?.height != null || !!child.sizeConstraintSpecs?.height
-		const measuredWidth =
-			itemWidth && !fixedWidth && (child.props.horizontalAlignment ?? 'stretch') === 'stretch'
-				? Math.max(0, itemWidth - mx)
-				: dockChildSize(child, 'width', itemWidth || availableWidth, width)
-
-		const measuredHeight =
-			itemHeight && !fixedHeight && (child.props.verticalAlignment ?? 'stretch') === 'stretch'
-				? Math.max(0, itemHeight - my)
-				: dockChildSize(child, 'height', itemHeight || availableHeight, height)
-
-		const slotWidth = itemWidth || Math.round(measuredWidth + mx)
-		const slotHeight = itemHeight || Math.round(measuredHeight + my)
-		const length = vertical ? slotHeight : slotWidth
-		const cross = vertical ? slotWidth : slotHeight
-		let line = lines[lines.length - 1]
-		if (!line) {
-			line = { length: 0, cross: 0, entries: [] }
-			lines.push(line)
-		}
-
-		if (line.length + length > limit) {
-			// The pinned implementation records both cross lengths when the
-			// first item exceeds the bound; retain that measure behavior.
-			if (!line.entries.length) {
-				line.cross = cross
-			}
-
-			line = { length: 0, cross: 0, entries: [] }
-			lines.push(line)
-		}
-
-		line.entries.push({
-			child,
-			measuredWidth,
-			measuredHeight,
-			slotWidth,
-			slotHeight,
-			fixedWidth,
-			fixedHeight,
-		})
-
-		line.length += length
-		line.cross = Math.max(line.cross, cross)
-	}
-
-	const main = Math.max(0, ...lines.map((line) => line.length))
-	const cross = lines.reduce((sum, line) => sum + line.cross, 0)
-	return {
-		lines,
-		width: (vertical ? cross : main) + (padding.left ?? 0) + (padding.right ?? 0),
-		height: (vertical ? main : cross) + (padding.top ?? 0) + (padding.bottom ?? 0),
-	}
-}
-
-function wrapNaturalSize(parent: ElementNode | undefined) {
-	if (!parent) {
-		return { width: 0, height: 0 }
-	}
-
-	// AppKit asks for intrinsic size before and after assigning a frame. Use
-	// explicit dimensions first, then an assigned main-axis bound; the free
-	// cross axis must stay unbounded so the intrinsic height/width can grow.
-	const vertical = parent.props.orientation === 'vertical'
-	const bound = (axis: 'width' | 'height') => {
-		const spec = parent.sizeConstraintSpecs?.[axis]
-		if (spec?.kind === 'points') {
-			return spec.points
-		}
-
-		const value = Number(parent.view?.bounds.size[axis])
-		return (axis === 'height') === vertical && value > 0 ? value : Infinity
-	}
-
-	const { width, height } = wrapMeasure(parent, bound('width'), bound('height'))
-	return { width, height }
-}
-
-function layoutWrapChildren(parent: ElementNode | undefined) {
-	if (!parent?.view) {
-		return
-	}
-
-	const width = Number(parent.view.bounds.size.width)
-	const height = Number(parent.view.bounds.size.height)
-	const padding = parent.dockInsets ?? {}
-	const vertical = parent.props.orientation === 'vertical'
-	const { lines } = wrapMeasure(parent, width, height)
-	const mainStart = vertical ? (padding.top ?? 0) : (padding.left ?? 0)
-	const mainEnd = vertical ? height - (padding.bottom ?? 0) : width - (padding.right ?? 0)
-	const crossEnd = vertical ? width - (padding.right ?? 0) : height - (padding.bottom ?? 0)
-	let cross = vertical ? (padding.left ?? 0) : (padding.top ?? 0)
-	let main = mainStart
-	let lineIndex = 0
-	for (const entry of lines.flatMap((line) => line.entries)) {
-		const { child, measuredWidth, measuredHeight, slotWidth, slotHeight, fixedWidth, fixedHeight } =
-			entry
-
-		let lineCross = lines[lineIndex]?.cross ?? 0
-		const length = vertical ? slotHeight : slotWidth
-		const first = main === mainStart
-		if (main + length > mainEnd && cross + lineCross <= crossEnd) {
-			main = mainStart
-			if (!first) {
-				cross += lineCross
-			}
-
-			lineIndex++
-			lineCross = lines[first ? lineIndex - 1 : lineIndex]?.cross ?? 0
-		}
-
-		const margins = child.marginInsets ?? {}
-		const axis = (
-			slot: number,
-			measured: number,
-			fixed: boolean,
-			alignment: string,
-			start: number,
-			end: number,
-		) => {
-			const space = Math.max(0, slot - start - end)
-			const size = alignment === 'stretch' && !fixed ? space : measured
-			const offset =
-				alignment === 'right' || alignment === 'bottom'
-					? slot - end - size
-					: ['center', 'middle'].includes(alignment) || (alignment === 'stretch' && fixed)
-						? start + (space - size) / 2
-						: start
-
-			return [offset, size]
-		}
-
-		const [dx, w] = axis(
-			vertical ? lineCross : slotWidth,
-			measuredWidth,
-			fixedWidth,
-			child.props.horizontalAlignment ?? 'stretch',
-			margins.left ?? 0,
-			margins.right ?? 0,
-		)
-
-		const [dy, h] = axis(
-			vertical ? slotHeight : lineCross,
-			measuredHeight,
-			fixedHeight,
-			child.props.verticalAlignment ?? 'stretch',
-			margins.top ?? 0,
-			margins.bottom ?? 0,
-		)
-
-		const x = (vertical ? cross : main) + dx
-		const top = (vertical ? main : cross) + dy
-		// NativeScript leaves an out-of-bounds child at its last frame.
-		if (main < mainEnd && cross < crossEnd) {
-			pinLayoutChild(
-				child,
-				parent.view,
-				Math.round(x),
-				Math.round(top),
-				Math.round(x + w) - Math.round(x),
-				Math.round(top + h) - Math.round(top),
-			)
-		}
-
-		main += vertical ? slotHeight : slotWidth
-	}
-}
 
 function rootNaturalSize(parent: ElementNode | undefined) {
 	let width = 0,
@@ -3761,15 +2477,13 @@ function layoutRootChildren(parent: ElementNode | undefined) {
 		return
 	}
 
-	// Each child receives the whole padded cell. Reuse the established
-	// NativeScript measure/alignment implementation for a final stretching
-	// slot, independently for every child; attached dock metadata has no effect.
+	// Each child receives the whole padded cell.
 	for (const child of parent.projectedChildren ?? parent.children) {
 		if (!child.view) {
 			continue
 		}
 
-		layoutDockChildren({ ...parent, props: {}, projectedChildren: [child] })
+		layoutContentChild({ ...parent, projectedChildren: [child] })
 	}
 
 	// JSX order is also native back-to-front order. Reorder only our own
@@ -3834,13 +2548,14 @@ function layoutContentChild(parent: ElementNode | undefined) {
 		return [offset, size]
 	}
 
+	const pad = parent.dockInsets ?? {}
 	const [x, childWidth] = axis(
 		width,
 		style.width,
 		intrinsic.width,
 		horizontal,
-		margins.left ?? 0,
-		margins.right ?? 0,
+		(margins.left ?? 0) + (pad.left ?? 0),
+		(margins.right ?? 0) + (pad.right ?? 0),
 	)
 
 	const [top, childHeight] = axis(
@@ -3848,27 +2563,11 @@ function layoutContentChild(parent: ElementNode | undefined) {
 		style.height,
 		intrinsic.height,
 		vertical,
-		margins.top ?? 0,
-		margins.bottom ?? 0,
+		(margins.top ?? 0) + (pad.top ?? 0),
+		(margins.bottom ?? 0) + (pad.bottom ?? 0),
 	)
 
 	pinLayoutChild(child, parent.view, x, top, childWidth, childHeight)
-}
-
-function performGridAccessibilityAdjustment(view: any, name: string) {
-	const node = gridLayoutNodesByView.get(view)!
-	const handler = node?.props[name]
-	if (typeof handler !== 'function') {
-		return false
-	}
-
-	try {
-		node!.container.root!.eventScope('discrete', handler)
-		return true
-	} catch (error) {
-		console.error('[macos-event] slider accessibility adjustment failed', error)
-		return false
-	}
 }
 
 class InputImageView extends NSImageView {
@@ -4231,35 +2930,8 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 			// containers, plugin elements).
 			makeBehavior(node, props)
 		} else switch (type) {
-			case 'stack':
-				node.view = makeStack(props)
-				break
-			case 'stacklayout': {
-				const stack = makeFlexbox({
-					...props,
-					// Keep the recognizer ready for a handler added after creation.
-					onTap: props.onTap ?? props.onClick ?? props.onPress ?? (() => {}),
-					flexDirection: props.orientation === 'horizontal' ? 'row' : 'column',
-				})
-
-				node.view = stack.view
-				node.actionId = stack.actionId
-				break
-			}
-			case 'flexboxlayout': {
-				const flexbox = makeFlexbox(props)
-				node.view = flexbox.view
-				node.actionId = flexbox.actionId
-				break
-			}
 			case 'rootlayout':
 				node.view = makeRootLayout(node)
-				break
-			case 'wraplayout':
-				node.view = makeWrapLayout(node)
-				break
-			case 'docklayout':
-				node.view = makeDockLayout(node)
 				break
 			case 'actionbar':
 			case 'contentview':
@@ -4267,14 +2939,8 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 				contentViewNodesByView.set(node.view!, node)
 				observeContentGeometry(node)
 				break
-			case 'gridlayout':
-				node.view = makeGridLayout() as unknown as NSView
-				break
 			case 'liquidglass':
 				node.view = makeLiquidGlass(node)
-				break
-			case 'absolutelayout':
-				node.view = makeAbsoluteLayout()
 				break
 			case 'tabview':
 				node.view = makeTabView(node)
@@ -4415,12 +3081,8 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 			}
 		}
 
-		if (type === 'gridlayout' || type === 'liquidglass') {
+		if (type === 'liquidglass') {
 			gridLayoutNodesByView.set(node.view!, node)
-		}
-
-		if (type === 'absolutelayout') {
-			absoluteLayoutNodesByView.set(node.view!, node)
 		}
 
 		if (type === 'textfield' || type === 'searchbar') {
@@ -4839,8 +3501,7 @@ function syncCornerRadius(node: ElementNode) {
 	view.layer.masksToBounds = radius > 0
 }
 
-// Zero the margin sides a removed style owned, then let the stack unwrap or
-// the grid relayout — marginInsetsOf() returns null once every side is zero.
+// Zero the margin sides a removed style owned and re-queue the mason pass.
 function clearMarginStyle(node: ElementNode, name: string) {
 	const insets = node.marginInsets
 	if (!insets) {
@@ -4853,13 +3514,10 @@ function clearMarginStyle(node: ElementNode, name: string) {
 		insets[MARGIN_SIDES[name]] = 0
 	}
 
-	const marginParentType = (node.layoutParent ?? node.parent)?.type
-	if (marginParentType === 'gridlayout' || marginParentType === 'liquidglass') {
-		layoutGridChildren(node.layoutParent ?? node.parent ?? undefined)
-		return
+	const marginParent = node.layoutParent ?? node.parent
+	if (isManualLayoutParent(marginParent?.type)) {
+		queueLayoutReconcile(node.container, marginParent)
 	}
-
-	syncMarginHost(node)
 }
 
 // A style key present in the last bag but absent or nulled in the new one must
@@ -4918,13 +3576,9 @@ function resetStyle(node: ElementNode, name: string) {
 	} else if (name === 'width' || name === 'height') {
 		setSizeConstraint(node, name, undefined)
 	} else if (name === 'left' || name === 'top' || name === 'right' || name === 'bottom') {
-		const resetParentType = (node.layoutParent ?? node.parent)?.type
-		if (resetParentType === 'gridlayout' || resetParentType === 'liquidglass') {
-			layoutGridChildren(node.layoutParent ?? node.parent ?? undefined)
-		}
-
-		if ((node.layoutParent ?? node.parent)?.type === 'absolutelayout') {
-			layoutAbsoluteChildren(node.layoutParent ?? node.parent ?? undefined)
+		const resetParent = node.layoutParent ?? node.parent
+		if (isManualLayoutParent(resetParent?.type)) {
+			queueLayoutReconcile(node.container, resetParent)
 		}
 	} else if (name === 'translateX' || name === 'translateY') {
 		if (typeof view.layer?.setValueForKeyPath === 'function') {
@@ -5131,7 +3785,9 @@ function applyStyle(node: ElementNode, style: PropBag) {
 	}
 
 	node.appliedStyle = next
-	syncStackLayout(node)
+	if (behaviorOf(node.type)?.layout) {
+		queueLayoutReconcile(node.container, node)
+	}
 }
 
 // `className` composes clsx-style on the DOM renderer and the NativeScript
@@ -5371,7 +4027,9 @@ function applyClassName(node: ElementNode, value: any) {
 			}
 		}
 
-		syncStackLayout(node)
+		if (behaviorOf(node.type)?.layout) {
+			queueLayoutReconcile(node.container, node)
+		}
 
 		syncEdgeInsets(node)
 		syncCornerRadius(node)
@@ -5409,7 +4067,9 @@ function applyClassName(node: ElementNode, value: any) {
 		queueLayoutReconcile(node.container, node.parent)
 	}
 
-	updateStackDistribution(node)
+	if (behaviorOf(node.type)?.layout) {
+		queueLayoutReconcile(node.container, node)
+	}
 }
 
 function textContent(node: ElementNode): string {
@@ -5823,7 +4483,9 @@ function syncTextControlState(node: ElementNode) {
 }
 
 function applyAccessibility(node: ElementNode, name: string, value: any) {
-	if (['flexboxlayout', 'stacklayout'].includes(node.type) && node.actionId !== undefined) {
+	// Every mason-backed container hosts AccessibleHostView, so AX props apply
+	// to any interactive container — not just the old stack/flex hosts.
+	if (node.actionId !== undefined && node.view instanceof AccessibleHostView) {
 		const props = stackAccessibilityPropsByView.get(node.view!) ?? {}
 		stackAccessibilityPropsByView.set(node.view!, { ...props, [name]: value })
 		if (name === 'accessibilityLabel') {
@@ -6056,9 +4718,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 
 				break
 			case 'stack':
-				if (name === 'spacing') {
-					syncStackLayout(node)
-				} else if (name === 'style') {
+				if (name === 'style') {
 					applyStyle(node, value)
 				} else if (name === 'className') {
 					applyClassName(node, value)
@@ -6071,9 +4731,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 				break
 			case 'stacklayout':
 			case 'flexboxlayout':
-				if (name === 'spacing') {
-					syncStackLayout(node)
-				} else if (name === 'style') {
+				if (name === 'style') {
 					applyStyle(node, value)
 				} else if (name === 'className') {
 					applyClassName(node, value)
@@ -6604,12 +5262,6 @@ function applyProps(node: ElementNode, props: PropBag) {
 		}
 	}
 
-	if (
-		node.type === 'stacklayout' ||
-		(['flexboxlayout', 'stack'].includes(node.type) && Object.keys(props).some(isStackLayoutInput))
-	) {
-		syncStackLayout(node)
-	}
 
 	if (node.type === 'webview') {
 		updateWebView(node, props, (height) => {
@@ -6700,9 +5352,6 @@ function applyProps(node: ElementNode, props: PropBag) {
 		queueLayoutReconcile(node.container, node)
 	}
 
-	if (node.type === 'wraplayout') {
-		setWrapSizingPriorities(node)
-	}
 
 	if (
 		[
@@ -6796,20 +5445,15 @@ function projectedViews(parent: ElementNode): ElementNode[] {
 }
 
 function releaseProjectedView(node: ElementNode) {
-	if (node.crossAxisConstraint) {
-		node.crossAxisConstraint.active = false
-	}
-
-	node.crossAxisConstraint = null
 	deactivateSizeConstraints(node)
 	releasePlacementPins(node)
 	const parent = node.layoutParent
 	const view = parent?.childHost ?? parent?.view
-	if (arrangedView(node)?.superview === view) {
-		view?.removeArrangedSubview?.(arrangedView(node))
+	if (layoutView(node)?.superview === view) {
+		view?.removeArrangedSubview?.(layoutView(node))
 	}
 
-	arrangedView(node)?.removeFromSuperview()
+	layoutView(node)?.removeFromSuperview()
 	node.layoutParent = null
 	if (node.authoredProps) {
 		for (const name of PROXY_LAYOUT_PROPS) {
@@ -6877,19 +5521,7 @@ function syncProxyProjection(parent: ElementNode) {
 		}
 
 		child.layoutParent = parent
-		if (
-			['flexboxlayout', 'stack', 'stacklayout'].includes(child.type) &&
-			Object.keys(changes).length
-		) {
-			// Apply container-layout properties to the actual host as well as its
-			// placement metadata. Do not overwrite the authored prop snapshot.
-			syncStackLayout(child)
-		}
-
 		if (manual) {
-			child.marginHost?.removeFromSuperview()
-			child.marginHost = null
-			child.marginConstraints = null
 			if (layoutView(child).superview !== host) {
 				host!.addSubview(layoutView(child))
 			}
@@ -6905,10 +5537,6 @@ function syncProxyProjection(parent: ElementNode) {
 					Number(host!.bounds.size.width),
 					Number(host!.bounds.size.height),
 				)
-			}
-		} else {
-			if (marginInsetsOf(child) && !child.marginHost) {
-				makeMarginHost(child)
 			}
 		}
 
@@ -6932,9 +5560,6 @@ function syncProxyProjection(parent: ElementNode) {
 		}
 	}
 
-	if (!manual) {
-		moveStackChildren(parent)
-	}
 }
 
 /** Simulate logical ownership and ContentView's current slot before applying
@@ -7086,20 +5711,15 @@ function detach(container: RootContainer, node: ElementNode, preserveTab = false
 		siblings.splice(index, 1)
 	}
 
-	if (node.crossAxisConstraint) {
-		node.crossAxisConstraint.active = false
-	}
-
-	node.crossAxisConstraint = null
 	deactivateSizeConstraints(node)
 	releasePlacementPins(node)
 	if (node.view) {
 		const parentView = physicalParent?.childHost ?? physicalParent?.view
-		if (parentView?.removeArrangedSubview && arrangedView(node)?.superview === parentView) {
-			parentView.removeArrangedSubview(arrangedView(node))
+		if (parentView?.removeArrangedSubview && layoutView(node)?.superview === parentView) {
+			parentView.removeArrangedSubview(layoutView(node))
 		}
 
-		arrangedView(node).removeFromSuperview()
+		layoutView(node).removeFromSuperview()
 	}
 
 	if (
@@ -7173,6 +5793,16 @@ function reconcileLayoutParent(parent: ElementNode) {
 		syncProxyProjection(parent)
 	}
 
+	// Registered behaviors own their layout pass — mason-backed containers
+	// (stacklayout, flexboxlayout, gridlayout, wraplayout, absolutelayout,
+	// docklayout, scrollview, liquidglass) never reach the builtin branches.
+	const layoutBehavior = behaviorOf(parent.type)?.layout
+	if (layoutBehavior) {
+		parent.view?.invalidateIntrinsicContentSize()
+		layoutBehavior(parent)
+		return
+	}
+
 	if (parent.type === 'portalroot') {
 		const views = (parent.projectedChildren ?? parent.children)
 			.filter((child) => child.view)
@@ -7216,34 +5846,6 @@ function reconcileLayoutParent(parent: ElementNode) {
 		return
 	}
 
-	if (parent.type === 'wraplayout') {
-		parent.view?.invalidateIntrinsicContentSize()
-		layoutWrapChildren(parent)
-		if (
-			['docklayout', 'contentview', 'actionbar', 'wraplayout', 'rootlayout'].includes(
-				parent.parent?.type ?? '',
-			)
-		) {
-			queueLayoutReconcile(parent.container, parent.parent)
-		}
-
-		return
-	}
-
-	if (parent.type === 'docklayout') {
-		parent.view?.invalidateIntrinsicContentSize()
-		layoutDockChildren(parent)
-		if (
-			['docklayout', 'contentview', 'actionbar', 'wraplayout', 'rootlayout'].includes(
-				parent.parent?.type ?? '',
-			)
-		) {
-			queueLayoutReconcile(parent.container, parent.parent)
-		}
-
-		return
-	}
-
 	if (parent.type === 'actionbar') {
 		parent.view?.invalidateIntrinsicContentSize()
 		syncActionBar(parent)
@@ -7265,34 +5867,6 @@ function reconcileLayoutParent(parent: ElementNode) {
 		return
 	}
 
-	if (parent.type === 'gridlayout' || parent.type === 'liquidglass') {
-		layoutGridChildren(parent)
-		return
-	}
-
-	if (parent.type === 'absolutelayout') {
-		layoutAbsoluteChildren(parent)
-		return
-	}
-
-	const layoutBehavior = behaviorOf(parent.type)?.layout
-	if (layoutBehavior) {
-		parent.view?.invalidateIntrinsicContentSize()
-		layoutBehavior(parent)
-		return
-	}
-
-	const stack = (parent.childHost ?? parent.view) as NSStackView | undefined
-	if (typeof stack?.addViewInGravity !== 'function') {
-		return
-	}
-
-	for (const child of parent.projectedChildren ?? parent.children) {
-		setStackChildPriorities(parent, child)
-	}
-
-	updateStackDistribution(parent)
-	updateCrossAxisConstraints(parent)
 }
 
 function validateTextNesting(parentType: string | undefined, childType: string) {
@@ -7467,14 +6041,7 @@ function insert(
 					'rootlayout',
 				].includes(parent.type) ||
 					isManualLayoutParent(parent.type)
-			) {
-				// Re-homing under a manually laid-out parent — release the
-				// margin wrapper so arrangedView() stops returning the
-				// detached host and the grid cannot keep a ghost view.
-				node.marginHost?.removeFromSuperview()
-				node.marginHost = null
-				node.marginConstraints = null
-			}
+			) {}
 
 			if (parent.type === 'portalroot') {
 				parentView.addSubview(layoutView(node))
@@ -7510,26 +6077,10 @@ function insert(
 				layoutView(node).translatesAutoresizingMaskIntoConstraints = false
 				deactivateSizeConstraints(node)
 				queueLayoutReconcile(container, parent)
-			} else if (parent.type === 'absolutelayout') {
+			} else {
 				parentView.addSubview(layoutView(node))
 				layoutView(node).translatesAutoresizingMaskIntoConstraints = false
-				deactivateSizeConstraints(node)
-				queueLayoutReconcile(container, parent)
-			} else {
-				if (marginInsetsOf(node) && !node.marginHost) {
-					makeMarginHost(node)
-					setLayoutAction(node, node.props?.onLayoutChanged)
-				}
-
-				// AppKit insertion indices are local to a gravity area. Honor the
-				// renderer's before edge instead of appending moved keyed rows.
-				const gravity = stackGravity(parent, node)
-				const arrangedIndex = gravityInsertIndex(parent, node, gravity)
-
-				const stack = parentView as NSStackView
-				stack.insertViewAtIndexInGravity(arrangedView(node), arrangedIndex, gravity)
 				applySizeConstraints(node)
-				queueLayoutReconcile(container, parent)
 			}
 		} else {
 			parentView.addSubview(layoutView(node))
@@ -7582,23 +6133,15 @@ function remove(container: RootContainer, parentId: UniversalHostParent, node: E
 		siblings.splice(index, 1)
 	}
 
-	if (node.crossAxisConstraint) {
-		node.crossAxisConstraint.active = false
-	}
-
-	node.crossAxisConstraint = null
 	deactivateSizeConstraints(node)
 	releasePlacementPins(node)
 	if (node.view) {
 		const parentView = expectedParent?.childHost ?? expectedParent?.view
-		if (parentView?.removeArrangedSubview && arrangedView(node)?.superview === parentView) {
-			parentView.removeArrangedSubview(arrangedView(node))
+		if (parentView?.removeArrangedSubview && layoutView(node)?.superview === parentView) {
+			parentView.removeArrangedSubview(layoutView(node))
 		}
 
 		layoutView(node).removeFromSuperview()
-		node.marginHost?.removeFromSuperview()
-		node.marginHost = null
-		node.marginConstraints = null
 		setLayoutAction(node, node.props?.onLayoutChanged)
 	}
 
@@ -7700,7 +6243,6 @@ function destroy(node: ElementNode) {
 		}
 
 		if (node.view) {
-			wrapLayoutNodesByView.delete(node.view)
 		}
 
 		for (const child of node.children.slice()) {
@@ -7715,7 +6257,6 @@ function destroy(node: ElementNode) {
 		}
 
 		if (node.view) {
-			dockLayoutNodesByView.delete(node.view)
 		}
 
 		for (const child of node.children.slice()) {
@@ -8383,10 +6924,6 @@ function colorValue(color: any, appearance?: any) {
 	}
 }
 
-function stackDirection(view: any) {
-	return view.orientation === NSUserInterfaceLayoutOrientation.Horizontal ? 'row' : 'column'
-}
-
 function parityStyle(node: ElementNode, facets: readonly string[]) {
 	const view = node.view
 	const font = view?.font
@@ -8466,16 +7003,22 @@ function parityStyle(node: ElementNode, facets: readonly string[]) {
 			value = view.alphaValue
 		}
 
-		if (facet === 'flexDirection' && view?.orientation != null) {
-			value = stackDirection(view)
+		if (facet === 'flexDirection') {
+			value =
+				node.props.flexDirection ??
+				(node.props.orientation === 'horizontal'
+					? 'row'
+					: node.props.orientation === 'vertical'
+						? 'column'
+						: undefined)
 		}
 
-		if (facet === 'alignItems' && view?.orientation != null) {
-			value = stackAlignItems(node)
+		if (facet === 'alignItems') {
+			value = node.props.alignItems ?? node.props.style?.alignItems
 		}
 
-		if (facet === 'justifyContent' && view?.distribution != null) {
-			value = stackJustifyContent(node)
+		if (facet === 'justifyContent') {
+			value = node.props.justifyContent ?? node.props.style?.justifyContent
 		}
 
 		if (value !== undefined && value !== null && value !== '') {
