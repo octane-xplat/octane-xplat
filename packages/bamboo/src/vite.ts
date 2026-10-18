@@ -1,5 +1,6 @@
 import { bamboocss, type BambooVitePluginOptions } from '@bamboocss/vite'
 import type { Plugin } from 'vite'
+import { platformOutput } from './platform-output.ts'
 
 function runBeforeNativeCss(plugin: Plugin | undefined, anchor: string) {
 	const hook = plugin?.generateBundle
@@ -112,5 +113,6 @@ export function xplatBamboo({ native = false, ...options }: XplatBambooOptions =
 		})
 	}
 
+	plugins.push(platformOutput())
 	return plugins
 }

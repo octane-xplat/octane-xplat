@@ -856,6 +856,9 @@ importers:
 
   packages/bamboo:
     dependencies:
+      '@ampproject/remapping':
+        specifier: 2.3.0
+        version: 2.3.0
       '@bamboocss/preset-base':
         specifier: 1.56.2
         version: 1.56.2
@@ -865,10 +868,19 @@ importers:
       '@bamboocss/vite':
         specifier: 1.56.2
         version: 1.56.2(vite@8.3.0(@types/node@20.19.0)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      magic-string:
+        specifier: 0.30.21
+        version: 0.30.21
       vite:
         specifier: '>=5'
         version: 8.3.0(@types/node@20.19.0)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
     devDependencies:
+      '@bamboocss/dev':
+        specifier: 1.56.2
+        version: 1.56.2
+      '@octane-xplat/cli':
+        specifier: workspace:*
+        version: link:../cli
       typescript:
         specifier: 'catalog:'
         version: 5.9.3

@@ -347,3 +347,29 @@ The compiler preserves existing inline or file-based PostCSS configuration.
 It requires Vite's PostCSS transformer and fails explicitly if Lightning CSS
 is selected as the transformer; Lightning CSS minification remains compatible.
 The old `xplat-web-only` comments remain supported for existing stylesheets.
+
+
+### Bamboo platform conditions
+
+Bamboo 1.56.2 validates every compiler-owned class against its final stylesheet
+and seals an output digest in `bamboocss:output-finalizer:*`. Removing excluded
+platform rules earlier makes valid platform conditions fail that check.
+Xplat defers only `virtual:bamboo.css` during builds, runs the original
+finalizer unchanged, then filters platform blocks, emits a replacement named
+with a hash of the filtered payload, and updates asset references and source
+maps. Native CSS consumption runs afterward. Dev serving filters directly.
+This preserves upstream missing-rule and changed-output validation rather than
+disabling pruning or introducing dummy declarations.
+
+Evidence: source inspection of Bamboo 1.56.2
+[`prune-static-css.ts`](https://github.com/gajus/bamboocss/blob/1.56.2/packages/vite/src/prune-static-css.ts),
+[`plugin.ts`](https://github.com/gajus/bamboocss/blob/1.56.2/packages/vite/src/plugin.ts),
+and [`css-output-module.ts`](https://github.com/gajus/bamboocss/blob/1.56.2/packages/vite/src/css-output-module.ts),
+plus `packages/bamboo/tests/platform.test.mjs`. Filename and source-map
+adaptation follows the upstream MIT-licensed output adapter's approach.
+The integration is pinned to the named finalizers and must be rechecked on
+Bamboo upgrades. An upstream API for platform-excluded classes or a sanctioned
+post-validation stylesheet projection could remove this adapter. SSR's deferred
+cross-environment stylesheet rewriting is not qualified; platform conditions
+fail explicitly in SSR generation. These are build checks, not mobile runtime
+evidence.

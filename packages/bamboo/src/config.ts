@@ -75,6 +75,21 @@ const portableTheme = {
 	},
 } satisfies Theme
 
+// Compile through the framework CSS pipeline, rather than adding runtime
+// ancestor selectors or selector specificity. These names also generate types.
+const platformConditions = {
+	web: '@platform web',
+	mobile: '@platform mobile',
+	native: '@platform native',
+	ios: '@platform ios',
+	android: '@platform android',
+	visionos: '@platform visionos',
+	macos: '@platform macos',
+	windows: '@platform windows',
+	linux: '@platform linux',
+	gtk: '@platform gtk',
+}
+
 /**
  * Utilities and tokens selected for the CSS subset shared by NativeScript and
  * browsers. This intentionally omits Bamboo's full browser-oriented preset;
@@ -82,6 +97,7 @@ const portableTheme = {
  */
 export const xplatPortablePreset: Preset = {
 	name: '@octane-xplat/bamboo/portable',
+	conditions: platformConditions,
 	utilities: portableUtilities,
 	theme: portableTheme,
 }
@@ -95,6 +111,7 @@ export const xplatPortablePreset: Preset = {
  */
 export const xplatBambooConfig = {
 	preflight: false,
+	conditions: platformConditions,
 	cssVarRoot: ':root, .ns-root',
 	layers: {
 		reset: 'xplat.reset',
@@ -108,5 +125,5 @@ export const xplatBambooConfig = {
 	theme: portableTheme,
 } satisfies Pick<
 	UserConfig,
-	'preflight' | 'cssVarRoot' | 'layers' | 'presets' | 'utilities' | 'theme'
+	'conditions' | 'preflight' | 'cssVarRoot' | 'layers' | 'presets' | 'utilities' | 'theme'
 >

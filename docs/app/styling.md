@@ -281,6 +281,24 @@ import { css } from 'styled-system/css'
 export const cardClass = css({ padding: '4', color: 'text' })
 ```
 
+Use Bamboo's `_web`, `_mobile`, `_native`, or individual target conditions
+for the same build-time selection. These use the `@platform` compiler above;
+keep `xplatCss('web')` in the web Vite config. The portable utility subset
+still applies inside conditions. Bamboo platform conditions currently support
+single renderer builds, not SSR generation.
+
+```ts
+// bamboo-styles.ts
+import { css } from 'styled-system/css'
+
+export const platformCardClass = css({
+  padding: '4',
+  _web: { color: 'primary' },
+  _mobile: { color: 'text' },
+  _ios: { borderRadius: 'lg' },
+})
+```
+
 The harness configuration and [generated utility probe](../../packages/app/src/bamboo-styles.ts)
 show the complete wiring. Native builds still run the xplat CSS checks, but
 arbitrary custom CSS declarations are not rewritten into supported ones; use

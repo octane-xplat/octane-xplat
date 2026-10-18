@@ -20,7 +20,7 @@ import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs'
 import { dirname, join, relative, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { unwrapCssLayers } from './css-layers.ts'
-import { xplatCss, filterPlatformCss } from './css-platform.ts'
+import { xplatCss } from './css-platform.ts'
 import { xplatDevBridge } from './mcp/dev-bridge.ts'
 
 export { xplatCss } from './css-platform.ts'
@@ -147,7 +147,6 @@ function pxToDip() {
 			'',
 		)
 
-		code = filterPlatformCss(code, nativePlatform() ?? 'native', id)
 		code = unwrapCssLayers(code)
 
 		// `@import` inlining reads the target file's raw text — it never
@@ -191,6 +190,9 @@ function pxToDip() {
 		// Per-file pass — covers dev serving where css is transformed
 		// per module (the /ns/m bridge path).
 		transform(code, id) {
+			// Bamboo validates its complete sheet before the output adapter filters it.
+			if (id.split('?')[0].endsWith('virtual:bamboo.css')) return
+
 			if (!id.split('?')[0].endsWith('.css')) {
 				return
 			}

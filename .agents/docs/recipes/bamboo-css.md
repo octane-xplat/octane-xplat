@@ -33,9 +33,13 @@ support ([upstream PR](https://github.com/gajus/bamboocss/pull/125)).
 - AC4: Setup docs explain Vite wiring, CSS import order, `.ts` style calls, and
   the boundary for extending the portable preset.
 
+- AC5: Platform conditions generate types and apply only on matching targets, preserve final output validation, and explain the boundary for nonportable utilities and SSR.
+
 ## Documentation
 
 - AC1: [Styling screens — Use Bamboo CSS utilities](../../../docs/app/styling.md#use-bamboo-css-utilities) and the maintained [harness probe](../../../packages/app/src/bamboo-styles.ts).
 - AC2: [Styling screens — Use Bamboo CSS utilities](../../../docs/app/styling.md#use-bamboo-css-utilities).
 - AC3: [Styling screens — Use Bamboo CSS utilities](../../../docs/app/styling.md#use-bamboo-css-utilities).
 - AC4: [Styling screens — Use Bamboo CSS utilities](../../../docs/app/styling.md#use-bamboo-css-utilities).
+
+- AC5: [Styling screens — Use Bamboo CSS utilities](../../../docs/app/styling.md#use-bamboo-css-utilities) and the maintained [Bamboo platform pipeline test](../../../packages/bamboo/tests/platform.test.mjs).

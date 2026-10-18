@@ -37,4 +37,19 @@ const webPlugins = xplatBamboo()
 const nativePlugins = xplatBamboo({ native: true })
 ```
 
+Platform conditions use the same build-time compiler as ordinary CSS. Add
+`xplatCss('web')` from `@octane-xplat/cli/vite` to web plugins; native presets
+include it. Keep the portable utility subset unless you explicitly extend it.
+SSR generation with platform conditions is currently unsupported.
+
+```ts
+import { css } from './styled-system/css'
+
+const card = css({
+  padding: '4',
+  _web: { color: 'primary' },
+  _mobile: { color: 'text' },
+})
+```
+
 Guide: [Styling screens](../../docs/app/styling.md).

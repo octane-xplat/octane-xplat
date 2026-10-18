@@ -67,21 +67,29 @@ function filterPlatforms(root: Root, platform: CssPlatform) {
 }
 
 /** Compile platform blocks while retaining source positions for diagnostics. */
-export function platformCssPlugin(platform: CssPlatform): PostcssPlugin {
+export function platformCssPlugin(
+	platform: CssPlatform,
+	deferred = new Set<string>(),
+): PostcssPlugin {
 	return {
 		postcssPlugin: 'xplat-platform',
 		Once(root) {
-			filterPlatforms(root, platform)
+			if (![...deferred].some((id) => root.source?.input.file?.endsWith(id)))
+				filterPlatforms(root, platform)
 		},
 	}
 }
 
-/** Filter authored or generated CSS before a target-specific consumer parses it. */
-export function filterPlatformCss(css: string, platform: CssPlatform, from?: string): string {
-	if (!css.includes('@platform')) return css
+/** Parse platform CSS without losing authored declaration positions for audits. */
+export function parsePlatformCss(css: string, platform: CssPlatform, from?: string): Root {
 	const root = postcss.parse(css, { from })
 	filterPlatforms(root, platform)
-	return root.toString()
+	return root
+}
+
+/** Filter authored or generated CSS before a target-specific consumer parses it. */
+export function filterPlatformCss(css: string, platform: CssPlatform, from?: string): string {
+	return css.includes('@platform') ? parsePlatformCss(css, platform, from).toString() : css
 }
 
 /**
@@ -94,6 +102,7 @@ export function xplatCss(platform: CssPlatform = 'web'): Plugin {
 	if (!targets.has(platform) || platform === ('mobile' as string))
 		throw new Error(`Unknown CSS build target: ${platform}`)
 	const candidates = new Set<string>()
+	const deferred = new Set<string>()
 	const select = (id: string) => {
 		const file = cleanId(id)
 		if (!file.endsWith('.css') || qualified.test(file)) return id
@@ -107,6 +116,19 @@ export function xplatCss(platform: CssPlatform = 'web'): Plugin {
 	}
 	return {
 		name: 'xplat-platform-css',
+		api: {
+			platform,
+			defer: (id: string) => deferred.add(id),
+			filter: (css: string, from?: string) => filterPlatformCss(css, platform, from),
+			project(css: string, from: string, previousMap?: string) {
+				const result = postcss([platformCssPlugin(platform)]).process(css, {
+					from,
+					to: from,
+					map: previousMap ? { prev: previousMap, inline: false, annotation: false } : false,
+				})
+				return { css: result.css, map: result.map?.toString() }
+			},
+		},
 		enforce: 'pre',
 		async config(userConfig): Promise<UserConfig> {
 			if (userConfig.css?.transformer === 'lightningcss') {
@@ -134,7 +156,7 @@ export function xplatCss(platform: CssPlatform = 'web'): Plugin {
 			userConfig.css ??= {}
 			userConfig.css.postcss = {
 				...settings.options,
-				plugins: [platformCssPlugin(platform), ...(settings.plugins ?? [])],
+				plugins: [platformCssPlugin(platform, deferred), ...(settings.plugins ?? [])],
 			}
 
 			// Vite's CSS @import resolver uses aliases but bypasses resolveId
@@ -175,7 +197,13 @@ export function xplatCss(platform: CssPlatform = 'web'): Plugin {
 			}
 		},
 		transform(code, id) {
-			if (!cssId.test(id) || !code.includes('@platform')) return
+			if (
+				!cssId.test(id) ||
+				/(?:\?|&)(?:raw|url)(?:&|$)/.test(id) ||
+				!code.includes('@platform') ||
+				[...deferred].some((suffix) => cleanId(id).endsWith(suffix))
+			)
+				return
 			const result = postcss([platformCssPlugin(platform)]).process(code, {
 				from: cleanId(id),
 				map: { inline: false, annotation: false },
