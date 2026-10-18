@@ -28,10 +28,11 @@ function fixture() {
 		source +
 			'\n({ setPressGesture, disposePressGestures, configureGesture, swipeDirection, target, delegate })',
 		{
-		releaseMasonNodes: () => {},
-		layoutMasonChildren: () => {},
-		masonNaturalSize: () => null,
-		MASON_STYLE_KEYS: new Set(),
+		elementBehaviors: new Map(),
+		behaviorOf: () => undefined,
+		isManualLayoutParent: (t: string) =>
+			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+		registerElementType: () => {},
 		
 			NSObject: Native,
 			NSGestureRecognizer: Native,
@@ -214,10 +215,11 @@ function panFixture() {
 			rendererFunction('setAction') +
 			'\n({ setPanAction, setAction, ButtonActionTarget })',
 		{
-		releaseMasonNodes: () => {},
-		layoutMasonChildren: () => {},
-		masonNaturalSize: () => null,
-		MASON_STYLE_KEYS: new Set(),
+		elementBehaviors: new Map(),
+		behaviorOf: () => undefined,
+		isManualLayoutParent: (t: string) =>
+			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+		registerElementType: () => {},
 		
 			NSObject: class {},
 			NSButton: {},
@@ -315,10 +317,11 @@ test('primary press callbacks guard disabled state even when a native action is 
 test('JSC gesture registration makes native callbacks enumerable before registration', () => {
 	let registered
 	const register = runInNewContext(source + '\nregisterGestureClass', {
-		releaseMasonNodes: () => {},
-		layoutMasonChildren: () => {},
-		masonNaturalSize: () => null,
-		MASON_STYLE_KEYS: new Set(),
+		elementBehaviors: new Map(),
+		behaviorOf: () => undefined,
+		isManualLayoutParent: (t: string) =>
+			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+		registerElementType: () => {},
 		
 		NSObject: class {
 			static new() {

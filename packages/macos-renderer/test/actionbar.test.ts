@@ -35,10 +35,11 @@ function fixture() {
 			fn('syncActionBar') +
 			'\n;({syncActionBar,setActionBarTitleView})',
 		{
-		releaseMasonNodes: () => {},
-		layoutMasonChildren: () => {},
-		masonNaturalSize: () => null,
-		MASON_STYLE_KEYS: new Set(),
+		elementBehaviors: new Map(),
+		behaviorOf: () => undefined,
+		isManualLayoutParent: (t: string) =>
+			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+		registerElementType: () => {},
 		
 			ownedRoots: new WeakMap(),
 			nodeContainersByView: new WeakMap(),
@@ -151,10 +152,11 @@ test('a raw view without intrinsic metrics retains its supplied dimensions', () 
 test('ActionBar rejects non-NSView titleView values during prop preflight', () => {
 	class NSView {}
 	const validate = runInNewContext(fn('validateNodeProps') + '\n;validateNodeProps', {
-		releaseMasonNodes: () => {},
-		layoutMasonChildren: () => {},
-		masonNaturalSize: () => null,
-		MASON_STYLE_KEYS: new Set(),
+		elementBehaviors: new Map(),
+		behaviorOf: () => undefined,
+		isManualLayoutParent: (t: string) =>
+			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+		registerElementType: () => {},
 		 NSView })
 	for (const titleView of ['text', {}, true, 5]) {
 		assert.throws(() => validate('actionbar', { titleView }), /titleView must be an AppKit NSView/)

@@ -53,10 +53,11 @@ function fixture() {
 
 	const parent = { id: 1, type: 'flexboxlayout', children: [], view: stack }
 	const moveStackChildren = runInNewContext(program + '\nmoveStackChildren', {
-		releaseMasonNodes: () => {},
-		layoutMasonChildren: () => {},
-		masonNaturalSize: () => null,
-		MASON_STYLE_KEYS: new Set(),
+		elementBehaviors: new Map(),
+		behaviorOf: () => undefined,
+		isManualLayoutParent: (t: string) =>
+			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+		registerElementType: () => {},
 		
 		NSStackViewGravity: { Leading: 1, Top: 1, Center: 2, Trailing: 3, Bottom: 3 },
 		arrangedView: (node) => node.marginHost ?? node.view,

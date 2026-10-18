@@ -102,6 +102,7 @@ test('liquidglass is a supported view-parent type', () => {
 			fn('typeHasView') +
 			fn('assertSupportedType') +
 			'\n;({ SUPPORTED_TYPES, VIEW_PARENT_TYPES, assertSupportedType, typeHasView })',
+		{ elementBehaviors: new Map() },
 	)
 
 	assert.ok(SUPPORTED_TYPES.has('liquidglass'))
@@ -169,10 +170,11 @@ test('the host layout dispatches grid placement for the registered node', () => 
 
 test('liquidglass children overlap the implicit cell and honor attached placement', () => {
 	const { layoutGridChildren } = runInNewContext(layout + '\n({ layoutGridChildren })', {
-		releaseMasonNodes: () => {},
-		layoutMasonChildren: () => {},
-		masonNaturalSize: () => null,
-		MASON_STYLE_KEYS: new Set(),
+		elementBehaviors: new Map(),
+		behaviorOf: () => undefined,
+		isManualLayoutParent: (t: string) =>
+			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+		registerElementType: () => {},
 		
 		queueMicrotask: undefined,
 	})

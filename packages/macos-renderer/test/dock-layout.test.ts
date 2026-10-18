@@ -92,10 +92,11 @@ function fixture() {
 			) +
 			'\n;({insert,remove,destroy,layoutDockChildren,dockNaturalSize,validateNodeProps,applyCommand})',
 		{
-		releaseMasonNodes: () => {},
-		layoutMasonChildren: () => {},
-		masonNaturalSize: () => null,
-		MASON_STYLE_KEYS: new Set(),
+		elementBehaviors: new Map(),
+		behaviorOf: () => undefined,
+		isManualLayoutParent: (t: string) =>
+			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+		registerElementType: () => {},
 		
 			dockLayoutNodesByView: new WeakMap(),
 			contentViewNodesByView: new WeakMap(),
@@ -348,10 +349,11 @@ test('DockLayout geometry observer releases on disposal and ignores late callbac
 		['makeDockLayout', 'destroy', 'detach', 'releasePlacementPins'].map(fn).join('\n') +
 			'\n;({makeDockLayout,destroy})',
 		{
-		releaseMasonNodes: () => {},
-		layoutMasonChildren: () => {},
-		masonNaturalSize: () => null,
-		MASON_STYLE_KEYS: new Set(),
+		elementBehaviors: new Map(),
+		behaviorOf: () => undefined,
+		isManualLayoutParent: (t: string) =>
+			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+		registerElementType: () => {},
 		
 			DockLayoutView: { alloc: () => ({ initWithFrame: () => view }) },
 			dockLayoutNodesByView: map,

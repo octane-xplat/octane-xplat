@@ -39,10 +39,11 @@ function fixture() {
 	const context = runInNewContext(
 		dateFromMillis + '\n' + slice + '\n({ attach: (v, o, c) => attachDatePicker(v, o, c) })',
 		{
-		releaseMasonNodes: () => {},
-		layoutMasonChildren: () => {},
-		masonNaturalSize: () => null,
-		MASON_STYLE_KEYS: new Set(),
+		elementBehaviors: new Map(),
+		behaviorOf: () => undefined,
+		isManualLayoutParent: (t: string) =>
+			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+		registerElementType: () => {},
 		
 			NSDate: Object.assign(function NSDate() {}, {
 				dateWithTimeIntervalSince1970: (s) => ({ timeIntervalSince1970: s }),

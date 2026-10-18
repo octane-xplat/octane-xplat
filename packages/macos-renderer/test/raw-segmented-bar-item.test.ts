@@ -44,10 +44,11 @@ function fixture() {
 				.join('\n') +
 			'\n({insert,remove,destroy,applyCommand,validateNodeProps,validateTextNesting,validateBatch})',
 		{
-		releaseMasonNodes: () => {},
-		layoutMasonChildren: () => {},
-		masonNaturalSize: () => null,
-		MASON_STYLE_KEYS: new Set(),
+		elementBehaviors: new Map(),
+		behaviorOf: () => undefined,
+		isManualLayoutParent: (t: string) =>
+			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+		registerElementType: () => {},
 		
 			assertSupportedType: noop,
 			validateProxyTree: noop,

@@ -55,10 +55,11 @@ function fixture() {
 				.join('\n') +
 			'\n({makeSegmentedBar,validateNodeProps,applyProps,applyCommand})',
 		{
-		releaseMasonNodes: () => {},
-		layoutMasonChildren: () => {},
-		masonNaturalSize: () => null,
-		MASON_STYLE_KEYS: new Set(),
+		elementBehaviors: new Map(),
+		behaviorOf: () => undefined,
+		isManualLayoutParent: (t: string) =>
+			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+		registerElementType: () => {},
 		
 			NSSegmentedControl: {
 				segmentedControlWithLabelsTrackingModeTargetAction: (
@@ -234,10 +235,11 @@ test('SegmentedBar production ownership moves its native host between parents an
 			.map(fn)
 			.join('\n') + '\n({insert,destroy})',
 		{
-		releaseMasonNodes: () => {},
-		layoutMasonChildren: () => {},
-		masonNaturalSize: () => null,
-		MASON_STYLE_KEYS: new Set(),
+		elementBehaviors: new Map(),
+		behaviorOf: () => undefined,
+		isManualLayoutParent: (t: string) =>
+			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+		registerElementType: () => {},
 		
 			VIEW_PARENT_TYPES: new Set(['contentview']),
 			layoutView: (node: any) => node.view,
@@ -306,10 +308,11 @@ test('SegmentedBar selected background style updates and restores the pinned blu
 	const api = runInNewContext(
 		['applyStyle', 'resetStyle'].map(fn).join('\n') + '\n({applyStyle})',
 		{
-		releaseMasonNodes: () => {},
-		layoutMasonChildren: () => {},
-		masonNaturalSize: () => null,
-		MASON_STYLE_KEYS: new Set(),
+		elementBehaviors: new Map(),
+		behaviorOf: () => undefined,
+		isManualLayoutParent: (t: string) =>
+			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+		registerElementType: () => {},
 		
 			nativeColor: (value: any) => value,
 			MARGIN_SIDES: {},

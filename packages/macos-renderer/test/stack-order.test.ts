@@ -56,10 +56,11 @@ function fixture() {
 	const insert = runInNewContext(
 		portalHelpers + gravityIndex + '\n' + detachment + '\n(' + insertion + ')',
 		{
-		releaseMasonNodes: () => {},
-		layoutMasonChildren: () => {},
-		masonNaturalSize: () => null,
-		MASON_STYLE_KEYS: new Set(),
+		elementBehaviors: new Map(),
+		behaviorOf: () => undefined,
+		isManualLayoutParent: (t: string) =>
+			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+		registerElementType: () => {},
 		
 			VIEW_PARENT_TYPES: new Set([
 				'stack',

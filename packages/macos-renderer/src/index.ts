@@ -25,12 +25,8 @@ import {
 import { installPresentationBridge } from './presentation'
 import { installAppearanceBridge } from './appearance'
 import { configureScrollAxes, observeScrollGeometry, scrollAxes } from './scroll-view'
-import {
-	layoutMasonChildren,
-	MASON_STYLE_KEYS,
-	masonNaturalSize,
-	releaseMasonNodes,
-} from './mason'
+import { installMasonElement } from './mason'
+import { installCompat } from './ns-compat'
 import { makeListView, updateListView, disposeListView } from './list-view'
 import { validateListProps } from './list-template'
 import { makeWebView, updateWebView, disposeWebView } from './webview'
@@ -270,7 +266,9 @@ function resolveParentNode(
 }
 
 function canContainView(type: string): boolean {
-	return VIEW_PARENT_TYPES.has(type) || type === 'portalroot'
+	return (
+		VIEW_PARENT_TYPES.has(type) || type === 'portalroot' || behaviorOf(type)?.container === true
+	)
 }
 
 function isPortalTargetView(target: unknown): target is NSView {
@@ -294,7 +292,75 @@ const textNodesByView = new WeakMap<object, ElementNode>()
 const panHandlersByView = new WeakMap<object, ((event: PanEvent) => void) | null>()
 const gridLayoutNodesByView = new WeakMap<object, ElementNode>()
 const absoluteLayoutNodesByView = new WeakMap<object, ElementNode>()
-const masonLayoutNodesByView = new WeakMap<object, ElementNode>()
+/** Optional per-type behavior — the extension seam for element types that
+ *  live outside this file's dispatch switches (masonview today; plugin
+ *  elements once the @nativescript/core compat slice lands). */
+interface ElementBehavior {
+	/** View factory — sets node.view (plus actionId/childHost as needed). */
+	make?: (node: ElementNode, props: PropBag) => void
+	/** Prop dispatch — return true when the prop was consumed. */
+	applyProp?: (node: ElementNode, name: string, value: any) => boolean
+	/** Manual child layout invoked from reconcileLayoutParent and frame
+	 *  changes — implies children get no margin wrapper or size pins. */
+	layout?: (parent: ElementNode) => void
+	/** Teardown — runs at the top of destroy() before generic teardown. */
+	destroy?: (node: ElementNode) => void
+	/** Element hosts view children (VIEW_PARENT_TYPES semantics). */
+	container?: boolean
+	/** Consumes container plumbing styles: padding->dockInsets and the
+	 *  gap-* classSpacing map. */
+	containerStyles?: boolean
+	/** Style keys this element (or its children) consume — suppresses the
+	 *  unsupported-style warning for them. */
+	styleKeys?: ReadonlySet<string>
+}
+
+const elementBehaviors = new Map<string, ElementBehavior>()
+
+function registerElementType(type: string, behavior: ElementBehavior) {
+	elementBehaviors.set(type, behavior)
+}
+
+function behaviorOf(type: string | undefined): ElementBehavior | undefined {
+	return type ? elementBehaviors.get(type) : undefined
+}
+
+/** Parents that position children themselves — child margins and size
+ *  constraints are consumed by the host's own layout pass. */
+function isManualLayoutParent(type: string | undefined) {
+	return (
+		[
+			'gridlayout',
+			'liquidglass',
+			'absolutelayout',
+			'contentview',
+			'actionbar',
+			'docklayout',
+			'wraplayout',
+			'rootlayout',
+		].includes(type ?? '') || behaviorOf(type)?.layout != null
+	)
+}
+
+const compatInstallation = installCompat({
+	registerElementType,
+	applyStyle,
+	applyClassName,
+	applyAccessibility,
+	queueLayoutReconcile,
+})
+
+const masonElementRegistration = installMasonElement({
+	registerElementType,
+	layoutView,
+	pinLayoutChild,
+	queueLayoutReconcile,
+	detach,
+	applyStyle,
+	applyClassName,
+	applyAccessibility,
+})
+
 const rootLayoutNodesByView = new WeakMap<object, ElementNode>()
 const wrapLayoutNodesByView = new WeakMap<object, ElementNode>()
 const dockLayoutNodesByView = new WeakMap<object, ElementNode>()
@@ -749,50 +815,6 @@ class AbsoluteLayoutView extends NSView {
 		super.layout()
 		layoutAbsoluteChildren(absoluteLayoutNodesByView.get(this))
 	}
-}
-
-// Mason-backed host: the Rust layout engine computes descendant frames;
-// children keep their own AppKit views and are pinned like grid/absolute
-// children. Nested masonry nodes participate in the parent's compute.
-class MasonLayoutView extends NSView {
-	static {
-		NativeClass(this)
-	}
-
-	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
-	get intrinsicContentSize() {
-		const size = masonNaturalSize(masonLayoutNodesByView.get(this), layoutView)
-		return size ?? { width: -1, height: -1 }
-	}
-
-	layout() {
-		super.layout()
-		layoutMasonChildren(masonLayoutNodesByView.get(this), layoutView, pinLayoutChild)
-	}
-}
-
-function makeMasonLayout(node: ElementNode) {
-	const view = MasonLayoutView.alloc().initWithFrame({
-		origin: { x: 0, y: 0 },
-		size: { width: 0, height: 0 },
-	})
-
-	view.translatesAutoresizingMaskIntoConstraints = false
-	masonLayoutNodesByView.set(view, node)
-	view.postsFrameChangedNotifications = true
-	node.masonGeometryObserver =
-		NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
-			NSViewFrameDidChangeNotification,
-			view,
-			null,
-			() => {
-				if (masonLayoutNodesByView.get(view) === node) {
-					queueLayoutReconcile(node.container, node)
-				}
-			},
-		)
-
-	return view
 }
 
 // NativeScript 9.1.2/9.1.3 (MIT): LiquidGlassCommon extends GridLayout, so
@@ -1633,8 +1655,8 @@ function syncMarginHost(node: ElementNode) {
 				'docklayout',
 				'wraplayout',
 				'rootlayout',
-				'masonview',
-			].includes(parent.type)
+			].includes(parent.type) ||
+				isManualLayoutParent(parent.type)
 		) {
 			console.warn('[macos-style] ignored margins on <' + node.type + '> — parent is not a stack')
 		}
@@ -1696,8 +1718,8 @@ function setMarginStyle(node: ElementNode, name: string, value: any) {
 			'docklayout',
 			'wraplayout',
 			'rootlayout',
-			'masonview',
-		].includes((node.layoutParent ?? node.parent)?.type ?? '')
+		].includes((node.layoutParent ?? node.parent)?.type ?? '') ||
+		isManualLayoutParent((node.layoutParent ?? node.parent)?.type)
 	) {
 		// These parents lay out children manually from props.style — no wrapper needed.
 		queueLayoutReconcile(node.container, node.parent)
@@ -3870,7 +3892,6 @@ const VIEW_PARENT_TYPES = new Set([
 	'gridlayout',
 	'absolutelayout',
 	'liquidglass',
-	'masonview',
 ])
 
 /** Every type the factory switch below can build. */
@@ -3914,7 +3935,7 @@ function typeHasView(type: string) {
 }
 
 function assertSupportedType(type: string) {
-	if (!SUPPORTED_TYPES.has(type)) {
+	if (!SUPPORTED_TYPES.has(type) && !elementBehaviors.has(type)) {
 		throw new Error('AppKit spike does not support <' + type + '>')
 	}
 }
@@ -3943,7 +3964,9 @@ function validateNodeProps(type: string, props: PropBag | undefined, baseProps?:
 					if (
 						parent &&
 						(typeHasView(child) || child === 'proxyviewcontainer') &&
-						!VIEW_PARENT_TYPES.has(parent)
+						!(
+							VIEW_PARENT_TYPES.has(parent) || behaviorOf(parent)?.container === true
+						)
 					) {
 						throw new TypeError(
 							'[macos-host] listview itemTemplate: <' + parent + '> cannot contain child views',
@@ -4233,9 +4256,6 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 			case 'absolutelayout':
 				node.view = makeAbsoluteLayout()
 				break
-			case 'masonview':
-				node.view = makeMasonLayout(node)
-				break
 			case 'tabview':
 				node.view = makeTabView(node)
 				break
@@ -4337,8 +4357,14 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 			case 'segmentedbaritem':
 			case 'span':
 				break
-			default:
-				throw new Error('AppKit spike does not support <' + type + '>')
+			default: {
+				const behavior = behaviorOf(type)
+				if (!behavior?.make) {
+					throw new Error('AppKit spike does not support <' + type + '>')
+				}
+				behavior.make(node, props)
+				break
+			}
 		}
 
 		if (type === 'textfield' || type === 'textview' || type === 'searchbar') {
@@ -4627,17 +4653,7 @@ function setSizeConstraint(node: ElementNode, name: string, value: any) {
 		specs[name] = spec
 	}
 
-	if (
-		[
-			'gridlayout',
-			'liquidglass',
-			'absolutelayout',
-			'docklayout',
-			'wraplayout',
-			'rootlayout',
-			'masonview',
-		].includes((node.layoutParent ?? node.parent)?.type ?? '')
-	) {
+	if (isManualLayoutParent((node.layoutParent ?? node.parent)?.type)) {
 		deactivateSizeConstraints(node)
 		queueLayoutReconcile(node.container, node.parent)
 		return
@@ -4775,7 +4791,7 @@ function syncEdgeInsets(node: ElementNode) {
 		node.type === 'docklayout' ||
 		node.type === 'wraplayout' ||
 		node.type === 'rootlayout' ||
-		node.type === 'masonview'
+		behaviorOf(node.type)?.containerStyles
 	) {
 		node.dockInsets = insets
 		queueLayoutReconcile(node.container, node)
@@ -4994,16 +5010,22 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			continue
 		} else if (
 			name === 'padding' &&
-			['flexboxlayout', 'stacklayout', 'docklayout', 'wraplayout', 'rootlayout', 'masonview'].includes(
-				node.type,
+			(
+				['flexboxlayout', 'stacklayout', 'docklayout', 'wraplayout', 'rootlayout'].includes(
+					node.type,
+				) ||
+				behaviorOf(node.type)?.containerStyles
 			)
 		) {
 			node.stylePaddingBox = parseEdgeInsets(value)
 			syncEdgeInsets(node)
 		} else if (
 			EDGE_INSET_PROPS.has(name) &&
-			['flexboxlayout', 'stacklayout', 'docklayout', 'wraplayout', 'rootlayout', 'masonview'].includes(
-				node.type,
+			(
+				['flexboxlayout', 'stacklayout', 'docklayout', 'wraplayout', 'rootlayout'].includes(
+					node.type,
+				) ||
+				behaviorOf(node.type)?.containerStyles
 			)
 		) {
 			const edges = (node.stylePaddingEdges ??= {})
@@ -5024,9 +5046,10 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			setSizeConstraint(node, name, value)
 		} else if (name === 'left' && node.view) {
 			if (
-				['gridlayout', 'liquidglass', 'absolutelayout', 'masonview'].includes(
+				['gridlayout', 'liquidglass', 'absolutelayout'].includes(
 					(node.layoutParent ?? node.parent)?.type ?? '',
-				)
+				) ||
+				isManualLayoutParent((node.layoutParent ?? node.parent)?.type)
 			) {
 				queueLayoutReconcile(node.container, node.parent)
 			}
@@ -5067,25 +5090,24 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			setMarginStyle(node, name, value)
 		} else if (
 			!(
-				(node.type === 'masonview' ||
-					(node.layoutParent ?? node.parent)?.type === 'masonview') &&
-				MASON_STYLE_KEYS.has(name)
+				behaviorOf(node.type)?.styleKeys?.has(name) ||
+				behaviorOf((node.layoutParent ?? node.parent)?.type)?.styleKeys?.has(name)
 			)
 		) {
 			console.warn('[macos-style] ignored unsupported style.' + name + ' on <' + node.type + '>')
 		}
 	}
 
-	// Mason consumes layout styles through its own style sync; any style apply
-	// on the container or a direct child re-queues its pass.
-	const masonHost =
-		node.type === 'masonview'
+	// Registered layouts consume style through their own sync; a style apply on
+	// the container or a direct child re-queues its pass.
+	const layoutHost =
+		behaviorOf(node.type)?.layout != null
 			? node
-			: (node.layoutParent ?? node.parent)?.type === 'masonview'
+			: behaviorOf((node.layoutParent ?? node.parent)?.type)?.layout != null
 				? (node.layoutParent ?? node.parent)
 				: null
-	if (masonHost) {
-		queueLayoutReconcile(node.container, masonHost)
+	if (layoutHost) {
+		queueLayoutReconcile(node.container, layoutHost)
 	}
 
 	node.appliedStyle = next
@@ -5244,7 +5266,7 @@ function applyClassName(node: ElementNode, value: any) {
 		node.type === 'scrollview' ||
 		node.type === 'gridlayout' ||
 		node.type === 'liquidglass' ||
-		node.type === 'masonview'
+		behaviorOf(node.type)?.containerStyles
 	) {
 		const gaps: Record<string, number> = {
 			'gap-1': 4,
@@ -6524,18 +6546,13 @@ function applyProps(node: ElementNode, props: PropBag) {
 				}
 
 				break
-			case 'masonview':
-				if (name === 'style') {
-					applyStyle(node, value)
-				} else if (name === 'className') {
-					applyClassName(node, value)
-				} else if (name === 'accessible' || name.startsWith('accessibility')) {
-					applyAccessibility(node, name, value)
-				} else if (name !== 'id' && value !== undefined) {
-					console.warn('[macos-host] ignored masonview prop ' + name)
+			default: {
+				const behavior = behaviorOf(node.type)
+				if (behavior && !behavior.applyProp?.(node, name, value)) {
+					console.warn('[macos-host] ignored ' + node.type + ' prop ' + name)
 				}
-
 				break
+			}
 		}
 	}
 
@@ -7210,9 +7227,10 @@ function reconcileLayoutParent(parent: ElementNode) {
 		return
 	}
 
-	if (parent.type === 'masonview') {
+	const layoutBehavior = behaviorOf(parent.type)?.layout
+	if (layoutBehavior) {
 		parent.view?.invalidateIntrinsicContentSize()
-		layoutMasonChildren(parent, layoutView, pinLayoutChild)
+		layoutBehavior(parent)
 		return
 	}
 
@@ -7399,8 +7417,8 @@ function insert(
 					'docklayout',
 					'wraplayout',
 					'rootlayout',
-					'masonview',
-				].includes(parent.type)
+				].includes(parent.type) ||
+					isManualLayoutParent(parent.type)
 			) {
 				// Re-homing under a manually laid-out parent — release the
 				// margin wrapper so arrangedView() stops returning the
@@ -7439,14 +7457,7 @@ function insert(
 				layoutView(node).translatesAutoresizingMaskIntoConstraints = false
 				deactivateSizeConstraints(node)
 				queueLayoutReconcile(container, parent)
-			} else if (
-				parent.type === 'gridlayout' ||
-				parent.type === 'liquidglass' ||
-				parent.type === 'docklayout' ||
-				parent.type === 'wraplayout' ||
-				parent.type === 'rootlayout' ||
-				parent.type === 'masonview'
-			) {
+			} else if (isManualLayoutParent(parent.type)) {
 				parentView.addSubview(layoutView(node))
 				layoutView(node).translatesAutoresizingMaskIntoConstraints = false
 				deactivateSizeConstraints(node)
@@ -7565,7 +7576,10 @@ function remove(container: RootContainer, parentId: UniversalHostParent, node: E
 }
 
 function destroy(node: ElementNode) {
-	releaseMasonNodes(node)
+	for (const hook of node.destroyHooks ?? []) {
+		hook()
+	}
+	behaviorOf(node.type)?.destroy?.(node)
 
 	if (node.type === 'listview' && node.view) {
 		disposeListView(node.view)
@@ -7661,21 +7675,6 @@ function destroy(node: ElementNode) {
 		}
 	}
 
-	if (node.type === 'masonview') {
-		if (node.masonGeometryObserver) {
-			NSNotificationCenter.defaultCenter.removeObserver(node.masonGeometryObserver)
-			node.masonGeometryObserver = null
-		}
-
-		if (node.view) {
-			masonLayoutNodesByView.delete(node.view)
-		}
-
-		releaseMasonNodes(node)
-		for (const child of node.children.slice()) {
-			detach(node.container, child)
-		}
-	}
 
 	// Removing an ancestor does not detach its native descendants. Every
 	// destroyed view releases its own edge, including retained ContentView refs.

@@ -124,10 +124,11 @@ test('HtmlView updates reconcile content only after font/color sources, preservi
 		reconciles = 0
 
 	const api = runInNewContext(fn('syncHtmlView') + '\n({syncHtmlView})', {
-		releaseMasonNodes: () => {},
-		layoutMasonChildren: () => {},
-		masonNaturalSize: () => null,
-		MASON_STYLE_KEYS: new Set(),
+		elementBehaviors: new Map(),
+		behaviorOf: () => undefined,
+		isManualLayoutParent: (t: string) =>
+			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+		registerElementType: () => {},
 		
 		parseHtmlText: (html: string, defaults: any) => ({ html, defaults }),
 		queueLayoutReconcile: () => reconciles++,
@@ -192,10 +193,11 @@ test('HtmlView production ownership moves its native host between parents and re
 			.map(fn)
 			.join('\n') + '\n({insert,destroy})',
 		{
-		releaseMasonNodes: () => {},
-		layoutMasonChildren: () => {},
-		masonNaturalSize: () => null,
-		MASON_STYLE_KEYS: new Set(),
+		elementBehaviors: new Map(),
+		behaviorOf: () => undefined,
+		isManualLayoutParent: (t: string) =>
+			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+		registerElementType: () => {},
 		
 			VIEW_PARENT_TYPES: new Set(['contentview']),
 			layoutView: (node: any) => node.view,

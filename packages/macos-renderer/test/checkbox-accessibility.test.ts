@@ -22,10 +22,11 @@ test('AppKit checkbox role/value/help update and disabled controls reject AX pre
 	const { AccessibleStackView, applyAccessibility } = runInNewContext(
 		stack + '\n' + apply + '\n({ AccessibleStackView, applyAccessibility })',
 		{
-		releaseMasonNodes: () => {},
-		layoutMasonChildren: () => {},
-		masonNaturalSize: () => null,
-		MASON_STYLE_KEYS: new Set(),
+		elementBehaviors: new Map(),
+		behaviorOf: () => undefined,
+		isManualLayoutParent: (t: string) =>
+			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+		registerElementType: () => {},
 		
 			NSStackView: class {},
 			NativeClass() {},

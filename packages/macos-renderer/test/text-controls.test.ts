@@ -90,10 +90,11 @@ function propsHarness() {
 	const warnings = []
 	const actionHandlers = new Map()
 	const { applyProps } = runInNewContext(propApplication + '\n({ applyProps })', {
-		releaseMasonNodes: () => {},
-		layoutMasonChildren: () => {},
-		masonNaturalSize: () => null,
-		MASON_STYLE_KEYS: new Set(),
+		elementBehaviors: new Map(),
+		behaviorOf: () => undefined,
+		isManualLayoutParent: (t: string) =>
+			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+		registerElementType: () => {},
 		
 		actionHandlers,
 		actionIdsByView: new WeakMap(),
@@ -219,10 +220,11 @@ test('per-edit delegate events fire the change handler while the action fires su
 	const actionIdsByView = new WeakMap()
 	const textNodesByView = new WeakMap()
 	const { ButtonActionTarget } = runInNewContext(targetClass + '\n({ ButtonActionTarget })', {
-		releaseMasonNodes: () => {},
-		layoutMasonChildren: () => {},
-		masonNaturalSize: () => null,
-		MASON_STYLE_KEYS: new Set(),
+		elementBehaviors: new Map(),
+		behaviorOf: () => undefined,
+		isManualLayoutParent: (t: string) =>
+			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+		registerElementType: () => {},
 		
 		NSObject: class {},
 		NativeClass: () => {},

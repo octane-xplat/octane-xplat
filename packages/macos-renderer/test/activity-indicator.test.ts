@@ -53,10 +53,11 @@ function controlFixture() {
 				.join('\n') +
 			'\n({makeActivityIndicator,validateNodeProps,applyProps,applyCommand})',
 		{
-		releaseMasonNodes: () => {},
-		layoutMasonChildren: () => {},
-		masonNaturalSize: () => null,
-		MASON_STYLE_KEYS: new Set(),
+		elementBehaviors: new Map(),
+		behaviorOf: () => undefined,
+		isManualLayoutParent: (t: string) =>
+			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+		registerElementType: () => {},
 		
 			NSProgressIndicator: { alloc: () => ({ initWithFrame: () => view }) },
 			NSProgressIndicatorStyle: { Spinning: 1 },
@@ -187,10 +188,11 @@ test('ActivityIndicator production ownership moves its native host between paren
 			.map(fn)
 			.join('\n') + '\n({insert,destroy})',
 		{
-		releaseMasonNodes: () => {},
-		layoutMasonChildren: () => {},
-		masonNaturalSize: () => null,
-		MASON_STYLE_KEYS: new Set(),
+		elementBehaviors: new Map(),
+		behaviorOf: () => undefined,
+		isManualLayoutParent: (t: string) =>
+			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+		registerElementType: () => {},
 		
 			VIEW_PARENT_TYPES: new Set(['contentview']),
 			layoutView: (node: any) => node.view,

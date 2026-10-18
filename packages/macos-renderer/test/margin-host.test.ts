@@ -87,10 +87,11 @@ function fixture() {
 
 	const parent = { id: 1, type: 'flexboxlayout', children: [], view: stack }
 	const context = {
-		releaseMasonNodes: () => {},
-		layoutMasonChildren: () => {},
-		masonNaturalSize: () => null,
-		MASON_STYLE_KEYS: new Set(),
+		elementBehaviors: new Map(),
+		behaviorOf: () => undefined,
+		isManualLayoutParent: (t: string) =>
+			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+		registerElementType: () => {},
 		
 		NSView: { alloc: () => ({ initWithFrame: () => view() }) },
 		NSNotificationCenter: { defaultCenter: center },

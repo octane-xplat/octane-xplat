@@ -13,7 +13,15 @@
  *  package-native default path; absent the library, masonview children keep
  *  authored geometry only. */
 
-import { NSFileManager, NSScreen, NSThread } from '@octane-xplat/platform/macos'
+import {
+	NativeClass,
+	NSFileManager,
+	NSNotificationCenter,
+	NSScreen,
+	NSThread,
+	NSView,
+	NSViewFrameDidChangeNotification,
+} from '@octane-xplat/platform/macos'
 
 // Element nodes carry open-ended fields; the bridge only needs the shape
 // below. Loose `any` matches the renderer's PropBag style.
@@ -325,6 +333,14 @@ function syncMasonNode(node: NodeLike) {
 		if (!node.masonNode) {
 			return null
 		}
+		// Leaf nodes outlive their masonview destroy path — free the engine
+		// handle through the renderer's per-node teardown hooks.
+		;(node.destroyHooks ??= []).push(() => {
+			if (node.masonNode) {
+				invoke('free', [node.masonNode])
+				node.masonNode = undefined
+			}
+		})
 	}
 
 	const dict = styleDict(node)
@@ -555,4 +571,135 @@ export function releaseMasonNodes(node: NodeLike) {
 	}
 
 	node.masonChildren = undefined
+}
+
+// ---------------------------------------------------------------------------
+// Element seam — `masonview` self-registers via the renderer's behavior
+// registry rather than hard-coded cases in index.ts.
+// ---------------------------------------------------------------------------
+
+interface MasonDeps {
+	registerElementType: (type: string, behavior: ElementBehavior) => void
+	layoutView: (node: any) => any
+	pinLayoutChild: (
+		child: any,
+		parentView: any,
+		x: number,
+		top: number,
+		width: number,
+		height: number,
+	) => void
+	queueLayoutReconcile: (container: any, parent: any) => void
+	detach: (container: any, node: any) => void
+	applyStyle: (node: any, value: any) => void
+	applyClassName: (node: any, value: any) => void
+	applyAccessibility: (node: any, name: string, value: any) => void
+}
+
+// Structural twin of index.ts's ElementBehavior — declared locally so this
+// module doesn't import the renderer for a type it registers into.
+interface ElementBehavior {
+	make?: (node: any, props: any) => void
+	applyProp?: (node: any, name: string, value: any) => boolean
+	layout?: (parent: any) => void
+	destroy?: (node: any) => void
+	container?: boolean
+	containerStyles?: boolean
+	styleKeys?: ReadonlySet<string>
+}
+
+const masonLayoutNodesByView = new WeakMap<object, any>()
+let deps: MasonDeps | null = null
+
+// Mason-backed host: the Rust engine computes descendant frames; children
+// keep their own AppKit views and are pinned like grid/absolute children.
+// Nested masonview nodes participate in the parent's compute.
+class MasonLayoutView extends NSView {
+	static {
+		NativeClass(this)
+	}
+
+	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
+	get intrinsicContentSize() {
+		const size = masonNaturalSize(masonLayoutNodesByView.get(this), deps!.layoutView)
+		return size ?? { width: -1, height: -1 }
+	}
+
+	layout() {
+		super.layout()
+		layoutMasonChildren(
+			masonLayoutNodesByView.get(this),
+			deps!.layoutView,
+			deps!.pinLayoutChild,
+		)
+	}
+}
+
+function makeMasonLayout(node: any) {
+	const view = MasonLayoutView.alloc().initWithFrame({
+		origin: { x: 0, y: 0 },
+		size: { width: 0, height: 0 },
+	})
+
+	view.translatesAutoresizingMaskIntoConstraints = false
+	masonLayoutNodesByView.set(view, node)
+	view.postsFrameChangedNotifications = true
+	node.masonGeometryObserver =
+		NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
+			NSViewFrameDidChangeNotification,
+			view,
+			null,
+			() => {
+				if (masonLayoutNodesByView.get(view) === node) {
+					deps!.queueLayoutReconcile(node.container, node)
+				}
+			},
+		)
+
+	return view
+}
+
+/** Called once by the renderer at module init — registers `masonview` and
+ *  captures the renderer helpers the behavior needs. */
+export function installMasonElement(next: MasonDeps) {
+	deps = next
+	next.registerElementType('masonview', {
+		container: true,
+		containerStyles: true,
+		styleKeys: MASON_STYLE_KEYS,
+		make(node) {
+			node.view = makeMasonLayout(node)
+		},
+		applyProp(node, name, value) {
+			if (name === 'style') {
+				next.applyStyle(node, value)
+				return true
+			}
+			if (name === 'className') {
+				next.applyClassName(node, value)
+				return true
+			}
+			if (name === 'accessible' || name.startsWith('accessibility')) {
+				next.applyAccessibility(node, name, value)
+				return true
+			}
+			return name === 'id' || value === undefined
+		},
+		layout(parent) {
+			layoutMasonChildren(parent, next.layoutView, next.pinLayoutChild)
+		},
+		destroy(node) {
+			if (node.masonGeometryObserver) {
+				NSNotificationCenter.defaultCenter.removeObserver(node.masonGeometryObserver)
+				node.masonGeometryObserver = null
+			}
+			if (node.view) {
+				masonLayoutNodesByView.delete(node.view)
+			}
+			releaseMasonNodes(node)
+			for (const child of node.children.slice()) {
+				next.detach(node.container, child)
+			}
+		},
+	})
 }

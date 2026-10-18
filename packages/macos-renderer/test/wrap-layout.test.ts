@@ -97,10 +97,11 @@ function fixture() {
 			) +
 			'\n;({insert,remove,destroy,layoutWrapChildren,wrapNaturalSize,validateNodeProps,applyCommand})',
 		{
-		releaseMasonNodes: () => {},
-		layoutMasonChildren: () => {},
-		masonNaturalSize: () => null,
-		MASON_STYLE_KEYS: new Set(),
+		elementBehaviors: new Map(),
+		behaviorOf: () => undefined,
+		isManualLayoutParent: (t: string) =>
+			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+		registerElementType: () => {},
 		
 			dockLayoutNodesByView: new WeakMap(),
 			wrapLayoutNodesByView: new WeakMap(),
@@ -435,10 +436,11 @@ test('WrapLayout geometry observer releases on disposal and ignores late callbac
 			.map(fn)
 			.join('\n') + '\n;({makeWrapLayout,destroy})',
 		{
-		releaseMasonNodes: () => {},
-		layoutMasonChildren: () => {},
-		masonNaturalSize: () => null,
-		MASON_STYLE_KEYS: new Set(),
+		elementBehaviors: new Map(),
+		behaviorOf: () => undefined,
+		isManualLayoutParent: (t: string) =>
+			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+		registerElementType: () => {},
 		
 			NSUserInterfaceLayoutOrientation: { Horizontal: 0, Vertical: 1 },
 			WrapLayoutView: { alloc: () => ({ initWithFrame: () => view }) },
@@ -494,10 +496,11 @@ test('WrapLayout flow-axis compression yields to resizing and switches on orient
 	}
 
 	const api = runInNewContext(fn('setWrapSizingPriorities') + '\n;({setWrapSizingPriorities})', {
-		releaseMasonNodes: () => {},
-		layoutMasonChildren: () => {},
-		masonNaturalSize: () => null,
-		MASON_STYLE_KEYS: new Set(),
+		elementBehaviors: new Map(),
+		behaviorOf: () => undefined,
+		isManualLayoutParent: (t: string) =>
+			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+		registerElementType: () => {},
 		
 		NSUserInterfaceLayoutOrientation: { Horizontal: 0, Vertical: 1 },
 	})
@@ -513,10 +516,11 @@ test('WrapLayout flow-axis compression yields to resizing and switches on orient
 	const stackApi = runInNewContext(
 		fn('setStackChildPriorities') + '\n;({setStackChildPriorities})',
 		{
-		releaseMasonNodes: () => {},
-		layoutMasonChildren: () => {},
-		masonNaturalSize: () => null,
-		MASON_STYLE_KEYS: new Set(),
+		elementBehaviors: new Map(),
+		behaviorOf: () => undefined,
+		isManualLayoutParent: (t: string) =>
+			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+		registerElementType: () => {},
 		
 			NSUserInterfaceLayoutOrientation: { Horizontal: 0, Vertical: 1 },
 			nodeClasses: () => [],

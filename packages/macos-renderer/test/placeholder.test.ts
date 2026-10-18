@@ -254,6 +254,8 @@ test('insert attaches the host, fires creatingView once, survives a keyed move',
 	Object.assign(context, {
 		layoutView: (node: any) => node.view,
 		arrangedView: (node: any) => node.view,
+		isManualLayoutParent: (t: string) =>
+			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
 		deactivateSizeConstraints: () => {},
 		releasePlacementPins: () => {},
 		applySizeConstraints: () => {},
@@ -364,10 +366,11 @@ test('validateNodeProps rejects a non-function onCreatingView', () => {
 
 test('placeholder rejects JSX children through the shared nesting rule', () => {
 	const api = runInNewContext(fn('validateTextNesting') + '\n;({validateTextNesting})', {
-		releaseMasonNodes: () => {},
-		layoutMasonChildren: () => {},
-		masonNaturalSize: () => null,
-		MASON_STYLE_KEYS: new Set(),
+		elementBehaviors: new Map(),
+		behaviorOf: () => undefined,
+		isManualLayoutParent: (t: string) =>
+			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+		registerElementType: () => {},
 		})
 	assert.throws(
 		() => api.validateTextNesting('placeholder', 'label'),

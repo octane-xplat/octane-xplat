@@ -13,10 +13,11 @@ function fixture() {
 			slice('function applyProps(', 'function detach(') +
 			'\n({ applyProps })',
 		{
-		releaseMasonNodes: () => {},
-		layoutMasonChildren: () => {},
-		masonNaturalSize: () => null,
-		MASON_STYLE_KEYS: new Set(),
+		elementBehaviors: new Map(),
+		behaviorOf: () => undefined,
+		isManualLayoutParent: (t: string) =>
+			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+		registerElementType: () => {},
 		
 			NSLineBreakMode: modes,
 			DEFAULT_TEXT_LINE_HEIGHT_RATIO: 21 / 16,
