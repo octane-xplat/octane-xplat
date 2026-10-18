@@ -1,8 +1,28 @@
 diff --git a/dist/driver.js b/dist/driver.js
-index 8bc563a..61ae35e 100644
+index 8bc563a..6aa8346 100644
 --- a/dist/driver.js
 +++ b/dist/driver.js
-@@ -91,15 +91,34 @@ function applyProps(node, props) {
+@@ -3,6 +3,7 @@
+ import { NATIVESCRIPT_RENDERER_ID } from './config.js';
+ import { ELEMENTS, EVENT_PROP, eventNameFor, onElementReplaced, } from './elements.js';
+ import { releaseListView, setRenderItem, } from './list-view.js';
++import { Style as MasonStyle } from '@triniwiz/nativescript-masonkit/style';
+ /** `#text` nodes carry no view; the driver folds them into the parent's `text`. */
+ const TEXT = '#text';
+ /**
+@@ -73,7 +74,10 @@
+     if (Element === undefined) {
+         throw new Error(`NativeScript driver: <${type}> is not a registered element.`);
+     }
+-    return new Element();
++    const view = new Element();
++    if (MASON_CONTAINER_TAGS.has(type))
++        applyMasonDefaults(type, view);
++    return view;
+ }
+ function applyProps(node, props) {
+     if (node.view === null) {
+@@ -91,15 +95,34 @@
      }
  }
  /**
@@ -41,7 +61,7 @@ index 8bc563a..61ae35e 100644
      if (name === 'children' || name === 'key' || name === 'ref')
          return;
      // Event props arrive as their own `event` commands.
-@@ -113,13 +132,28 @@ function setProp(node, view, name, value) {
+@@ -113,13 +136,42 @@
          return;
      }
      if (name === 'style') {
@@ -53,6 +73,20 @@ index 8bc563a..61ae35e 100644
          setRenderItem(view, value ?? null, createNativeScriptRoot);
          return;
      }
++    // Mason cutover — record child-role layout props (replayed at attach once
++    // the leaf's mason node exists) and apply live when already parented.
++    if (MASON_CHILD_PROPS.has(name) && view !== null) {
++        const stash = view[MASON_CHILD_STASH] ?? (view[MASON_CHILD_STASH] = {});
++        if (value == null || value === unsetValue)
++            delete stash[name];
++        else
++            stash[name] = value;
++        const parent = node.parent;
++        if (parent !== null && MASON_CONTAINER_TAGS.has(parent.type))
++            applyMasonChildLayout(node, parent);
++    }
++    if (MASON_CONTAINER_TAGS.has(node.type))
++        applyMasonContainerProp(node, view, name, value);
 +    // `null`/`unsetValue` restore the prop's default rather than writing a
 +    // literal null through a native setter. `undefined` is a removal: skip it
 +    // when nothing applied (NativeScript setters coerce it badly) and reset
@@ -71,7 +105,7 @@ index 8bc563a..61ae35e 100644
      // Core raises `<name>Change` for a script write exactly as for a user
      // edit; a controlled input must not see its own value come back as one.
      const echo = `${name}Change`;
-@@ -134,6 +168,44 @@ function setProp(node, view, name, value) {
+@@ -134,6 +186,51 @@
              node.muted.delete(echo);
      }
  }
@@ -79,6 +113,13 @@ index 8bc563a..61ae35e 100644
 +function resetProp(node, view, name) {
 +    if (view === null)
 +        return;
++    // A removed child-role prop drops its stash entry so the replay at attach
++    // doesn't resurrect it.
++    if (MASON_CHILD_PROPS.has(name)) {
++        const stash = view[MASON_CHILD_STASH];
++        if (stash)
++            delete stash[name];
++    }
 +    if (name === 'children' || name === 'key' || name === 'ref')
 +        return;
 +    // `on*` handlers unbind through `event` commands, not props.
@@ -116,7 +157,7 @@ index 8bc563a..61ae35e 100644
  // `class`/`className` compose clsx-style on the DOM renderer; join arrays
  // with spaces so NativeScript's class selectors can match each class.
  function normalizeClass(value) {
-@@ -147,15 +219,67 @@ function normalizeClass(value) {
+@@ -147,16 +244,331 @@
              .join(' ');
      return '';
  }
@@ -157,7 +198,7 @@ index 8bc563a..61ae35e 100644
 +            view.style[key] = nextValue;
 +    }
 +    node.styleKeys = new Set(Object.keys(value));
-+}
+ }
 +function clearStyleKeys(view, keys) {
 +    if (keys === undefined)
 +        return;
@@ -186,10 +227,274 @@ index 8bc563a..61ae35e 100644
 +            keys.add(name.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase()));
 +    }
 +    return keys;
- }
++}
++
++// --- Mason layout cutover ---------------------------------------------------
++// elements.js resolves the container intrinsics to MasonKit views. Their
++// NativeScript-shaped props (orientation, rows/columns, dock, grid row/col,
++// absolute insets, attached alignment) translate into mason Style writes.
++// Dispatch is by node tag, so nothing below re-derives the view's class.
++const MASON_CONTAINER_TAGS = new Set([
++    'stacklayout', 'flexboxlayout', 'gridlayout', 'wraplayout',
++    'absolutelayout', 'docklayout', 'scrollview', 'liquidglass',
++]);
++// Props whose CssProperty is registered on core's layout classes, never on
++// MasonKit's ViewBase — `view.flexDirection` would store a dead field, so the
++// write is forwarded to the mason Style surface instead.
++const MASON_CONTAINER_STYLE_PROPS = new Set([
++    'flexDirection', 'flexWrap', 'justifyContent', 'alignItems', 'alignContent',
++    'order', 'gap', 'rowGap', 'columnGap', 'display', 'position', 'aspectRatio',
++    'overflow', 'overflowX', 'overflowY', 'inset', 'left', 'right', 'top',
++    'bottom', 'gridTemplateRows', 'gridTemplateColumns', 'gridTemplateAreas',
++    'gridAutoFlow', 'gridAutoRows', 'gridAutoColumns', 'gridRow', 'gridColumn',
++    'gridRowStart', 'gridRowEnd', 'gridColumnStart', 'gridColumnEnd', 'gridArea',
++    'alignSelf', 'justifySelf', 'flexGrow', 'flexShrink', 'flexBasis',
++]);
++// Child-role props that only matter under a mason parent; stashed on the view
++// at setProp time and replayed once attach gives the leaf a mason node.
++const MASON_CHILD_PROPS = new Set([
++    'row', 'col', 'rowSpan', 'colSpan', 'dock', 'left', 'top', 'right',
++    'bottom', 'horizontalAlignment', 'verticalAlignment', 'flexGrow',
++    'flexShrink', 'flexBasis', 'alignSelf', 'justifySelf', 'order',
++    'position', 'inset', 'display', 'overflow', 'overflowX', 'overflowY',
++]);
++const MASON_CHILD_STASH = Symbol.for('octane-xplat.mason-child-props');
++
++/** A mason Style bound to the node's mason leaf — `_styleHelper` on MasonKit's
++ *  own views; for foreign ({N}-native) children, `Style.fromView` binds the
++ *  leaf node `nodeForView` creates at insert. Returns undefined until the
++ *  child's native view exists (props are stashed and replayed at attach). */
++function masonChildStyle(view) {
++    if (view === null || view === undefined)
++        return undefined;
++    const helper = view._styleHelper;
++    if (helper !== undefined)
++        return helper;
++    const native = view.nativeViewProtected;
++    if (!native)
++        return undefined;
++    try {
++        return MasonStyle.fromView(view, native);
++    }
++    catch {
++        return undefined;
++    }
++}
++
++/** 'auto,*,2*,40,10%' -> 'auto 1fr 2fr 40px 10%' */
++function nsGridTracksToCss(spec) {
++    return String(spec)
++        .split(',')
++        .map((raw) => {
++            const track = raw.trim();
++            if (track === 'auto')
++                return 'auto';
++            const star = track.match(/^(\d*\.?\d*)\*$/);
++            if (star)
++                return `${star[1] === '' || star[1] === '1' ? '1' : star[1]}fr`;
++            if (track.endsWith('%'))
++                return track;
++            const n = Number(track);
++            return Number.isFinite(n) ? `${n}px` : 'auto';
++        })
++        .join(' ');
++}
++
++/** NS attached alignment -> CSS self-alignment keyword. */
++function masonAlignKeyword(value) {
++    switch (value) {
++        case 'left':
++        case 'top':
++            return 'start';
++        case 'right':
++        case 'bottom':
++            return 'end';
++        case 'center':
++        case 'middle':
++            return 'center';
++        case 'stretch':
++            return 'stretch';
++    }
++    return undefined;
++}
++
++/** Container-role defaults — equivalent to each NS layout's built-in mode. */
++function applyMasonDefaults(type, view) {
++    const style = view.style;
++    switch (type) {
++        case 'stacklayout':
++            style.display = 'flex';
++            style.flexDirection = 'column';
++            break;
++        case 'flexboxlayout':
++            style.display = 'flex';
++            style.flexDirection = 'row';
++            break;
++        case 'gridlayout':
++        case 'liquidglass':
++            style.display = 'grid';
++            break;
++        case 'wraplayout':
++            style.display = 'flex';
++            style.flexWrap = 'wrap';
++            style.flexDirection = 'row';
++            break;
++        case 'scrollview':
++            style.display = 'flex';
++            style.flexDirection = 'column';
++            style.overflowY = 'scroll';
++            style.overflowX = 'hidden';
++            break;
++        default:
++            style.display = 'block';
++            break;
++    }
++    style.alignItems = 'stretch';
++    // Containers establish the containing block for absolute descendants.
++    style.position = 'relative';
++}
++
++/** Container-role prop -> mason style write. Runs for every prop on a mason
++ *  container; returns false when the prop needs no translation. */
++function applyMasonContainerProp(node, view, name, value) {
++    const style = view.style;
++    const unset = value == null || value === unsetValue;
++    if (MASON_CONTAINER_STYLE_PROPS.has(name)) {
++        style[name] = unset ? undefined : value;
++        return;
++    }
++    switch (node.type) {
++        case 'stacklayout':
++            if (name === 'orientation')
++                style.flexDirection = !unset && value === 'horizontal' ? 'row' : 'column';
++            break;
++        case 'wraplayout':
++            if (name === 'orientation')
++                style.flexDirection = !unset && value === 'vertical' ? 'column' : 'row';
++            if (name === 'itemWidth' || name === 'itemHeight') {
++                for (const child of node.children)
++                    applyMasonChildLayout(child, node);
++            }
++            break;
++        case 'gridlayout':
++        case 'liquidglass':
++            if (name === 'rows')
++                style.gridTemplateRows = unset ? 'auto' : nsGridTracksToCss(value);
++            if (name === 'columns')
++                style.gridTemplateColumns = unset ? 'auto' : nsGridTracksToCss(value);
++            break;
++        case 'scrollview': {
++            if (name === 'orientation' || name === 'horizontal') {
++                const horizontal = !unset && (value === 'horizontal' || value === true);
++                style.flexDirection = horizontal ? 'row' : 'column';
++                style.overflowX = horizontal ? 'scroll' : 'hidden';
++                style.overflowY = horizontal ? 'hidden' : 'scroll';
++            }
++            if (name === 'isScrollEnabled') {
++                const enabled = !unset && value !== false;
++                style.overflowX = enabled ? 'scroll' : 'hidden';
++                style.overflowY = enabled ? 'scroll' : 'hidden';
++            }
++            break;
++        }
++        case 'docklayout':
++            if (name === 'stretchLastChild') {
++                for (const child of node.children)
++                    applyMasonChildLayout(child, node);
++            }
++            break;
++    }
++}
++
++/** Child-role placement: recomputed per call from the recorded props, so it
++ *  is safe to replay for every sibling after a dock child inserts. */
++function applyMasonChildLayout(node, parent) {
++    const view = node.view;
++    if (view === null || view === undefined)
++        return;
++    const style = masonChildStyle(view);
++    if (style === undefined)
++        return;
++    const props = node.props ?? {};
++    const stash = view[MASON_CHILD_STASH] ?? {};
++    const tag = parent.type;
++    // Generic CSS-style props carry to the leaf under any mason parent; the
++    // tag-specific blocks below own their own overrides (dock/absolute write
++    // position + insets after this).
++    for (const name of ['position', 'inset', 'display', 'overflow', 'overflowX', 'overflowY']) {
++        const v = stash[name] ?? props[name];
++        if (v != null)
++            style[name] = v;
++    }
++    if (tag === 'gridlayout' || tag === 'liquidglass') {
++        const row = Number(stash.row ?? props.row ?? 0);
++        const col = Number(stash.col ?? props.col ?? 0);
++        const rowSpan = Number(stash.rowSpan ?? props.rowSpan ?? 1);
++        const colSpan = Number(stash.colSpan ?? props.colSpan ?? 1);
++        style.gridRow = `${row + 1}${rowSpan > 1 ? ` / span ${rowSpan}` : ''}`;
++        style.gridColumn = `${col + 1}${colSpan > 1 ? ` / span ${colSpan}` : ''}`;
++        const justify = masonAlignKeyword(stash.horizontalAlignment ?? props.horizontalAlignment);
++        const align = masonAlignKeyword(stash.verticalAlignment ?? props.verticalAlignment);
++        if (justify)
++            style.justifySelf = justify;
++        if (align)
++            style.alignSelf = align;
++    }
++    if (tag === 'absolutelayout') {
++        style.position = 'absolute';
++        for (const edge of ['left', 'top', 'right', 'bottom']) {
++            const v = stash[edge] ?? props[edge];
++            if (v != null)
++                style[edge] = v;
++        }
++    }
++    if (tag === 'docklayout') {
++        const siblings = (parent.children ?? []).filter((s) => s.view !== null);
++        const last = siblings.length > 0 && siblings[siblings.length - 1] === node;
++        const dock = stash.dock ?? props.dock ?? 'left';
++        const fills = dock === 'fill' ||
++            (last && parent.props?.stretchLastChild !== false);
++        style.position = 'absolute';
++        style.left = fills || dock === 'left' || dock === 'top' || dock === 'bottom' ? 0 : undefined;
++        style.right = fills || dock === 'right' || dock === 'top' || dock === 'bottom' ? 0 : undefined;
++        style.top = fills || dock === 'top' || dock === 'left' || dock === 'right' ? 0 : undefined;
++        style.bottom = fills || dock === 'bottom' || dock === 'left' || dock === 'right' ? 0 : undefined;
++    }
++    if (tag === 'wraplayout') {
++        const itemWidth = parent.props?.itemWidth;
++        const itemHeight = parent.props?.itemHeight;
++        if (itemWidth)
++            style.width = itemWidth;
++        if (itemHeight)
++            style.height = itemHeight;
++    }
++    if (['stacklayout', 'flexboxlayout', 'scrollview'].includes(tag)) {
++        // NS attached alignment on a flex row/column is cross-axis self-align.
++        const flexDir = tag === 'scrollview'
++            ? parent.props?.orientation === 'horizontal' || parent.props?.horizontal === true
++                ? 'row'
++                : 'column'
++            : tag === 'flexboxlayout'
++                ? 'row'
++                : parent.props?.orientation === 'horizontal' ? 'row' : 'column';
++        const cross = flexDir === 'row'
++            ? masonAlignKeyword(stash.verticalAlignment ?? props.verticalAlignment)
++            : masonAlignKeyword(stash.horizontalAlignment ?? props.horizontalAlignment);
++        if (cross)
++            style.alignSelf = cross;
++    }
++    // Flex-item props survive on the leaf itself.
++    for (const name of ['flexGrow', 'flexShrink', 'flexBasis', 'alignSelf', 'justifySelf', 'order']) {
++        const v = stash[name] ?? props[name];
++        if (v != null)
++            style[name] = v;
++    }
++}
++
  /** Recompute a text host's `text` from its `#text` children. */
  function syncText(parent) {
-@@ -190,6 +314,15 @@ function addViewChild(parentView, view, index) {
+     if (parent === null || isPortalTarget(parent))
+@@ -190,6 +602,15 @@
          parentView.insertChild(view, Math.min(index, parentView.getChildrenCount()));
          return;
      }
@@ -205,7 +510,7 @@ index 8bc563a..61ae35e 100644
      if (parentView instanceof ContentView) {
          parentView.content = view;
          return;
-@@ -234,6 +367,13 @@ function removeViewChild(parentView, view) {
+@@ -234,6 +655,13 @@
              parentView.removeChild(view);
          return;
      }
@@ -219,7 +524,21 @@ index 8bc563a..61ae35e 100644
      if (parentView instanceof ContentView) {
          if (parentView.content === view)
              parentView.content = CLEARED;
-@@ -641,7 +781,7 @@ function applyCommand(container, command) {
+@@ -370,6 +798,13 @@
+         }
+     }
+     addViewChild(parentView, node.view, index);
++    // The child's mason leaf node exists only once the parent has attached it;
++    // replay placement for every sibling (dock's stretchLastChild depends on
++    // the full sibling list).
++    if (parent !== null && MASON_CONTAINER_TAGS.has(parent.type)) {
++        for (const sibling of childrenOf(container, parent))
++            applyMasonChildLayout(sibling, parent);
++    }
+     markTabView(tabViewOwning(node));
+ }
+ function insert(container, parent, node, before) {
+@@ -641,7 +1076,7 @@
  }
  export const nativeScriptDriver = {
      id: NATIVESCRIPT_RENDERER_ID,
@@ -228,6 +547,70 @@ index 8bc563a..61ae35e 100644
      events: {
          classify(name) {
              if (!EVENT_PROP.test(name))
+diff --git a/dist/elements.js b/dist/elements.js
+index a13bcea..45f8e57 100644
+--- a/dist/elements.js
++++ b/dist/elements.js
+@@ -1,4 +1,7 @@
+-import { AbsoluteLayout, ActionBar, ActionItem, ActivityIndicator, Button, LiquidGlass, ContentView, DatePicker, DockLayout, FlexboxLayout, FormattedString, Frame, GridLayout, HtmlView, Image, Label, ListPicker, ListView, NavigationButton, Page, Placeholder, Progress, ProxyViewContainer, RootLayout, ScrollView, SearchBar, SegmentedBar, SegmentedBarItem, Slider, Span, StackLayout, Switch, TabView, TabViewItem, TextField, TextView, TimePicker, WebView, WrapLayout, } from '@nativescript/core';
++import { ActionBar, ActionItem, ActivityIndicator, Button, LiquidGlass, ContentView, DatePicker, FormattedString, Frame, HtmlView, Image, Label, ListPicker, ListView, NavigationButton, Page, Placeholder, Progress, ProxyViewContainer, RootLayout, SearchBar, SegmentedBar, SegmentedBarItem, Slider, Span, Switch, TabView, TabViewItem, TextField, TextView, TimePicker, WebView, } from '@nativescript/core';
++// Mason cutover: container intrinsics resolve to MasonKit views; the driver
++// translates their NativeScript-shaped props into mason style writes.
++import { View as MasonView, Scroll as MasonScroll } from '@triniwiz/nativescript-masonkit';
+ /**
+  * Lowercase tag name -> view constructor. The keys are the JSX tag names of
+  * `intrinsics.ts`; an app extends the vocabulary with `registerElement`.
+@@ -28,18 +31,18 @@
+     };
+ }
+ const BUILTIN_ELEMENTS = [
+-    ['absolutelayout', AbsoluteLayout],
++    ['absolutelayout', MasonView],
+     ['actionbar', ActionBar],
+     ['actionitem', ActionItem],
+     ['activityindicator', ActivityIndicator],
+     ['button', Button],
+     ['contentview', ContentView],
+     ['datepicker', DatePicker],
+-    ['docklayout', DockLayout],
+-    ['flexboxlayout', FlexboxLayout],
++    ['docklayout', MasonView],
++    ['flexboxlayout', MasonView],
+     ['formattedstring', FormattedString],
+     ['frame', Frame],
+-    ['gridlayout', GridLayout],
++    ['gridlayout', MasonView],
+     ['htmlview', HtmlView],
+     ['image', Image],
+     ['label', Label],
+@@ -51,13 +54,13 @@
+     ['progress', Progress],
+     ['proxyviewcontainer', ProxyViewContainer],
+     ['rootlayout', RootLayout],
+-    ['scrollview', ScrollView],
++    ['scrollview', MasonScroll],
+     ['searchbar', SearchBar],
+     ['segmentedbar', SegmentedBar],
+     ['segmentedbaritem', SegmentedBarItem],
+     ['slider', Slider],
+     ['span', Span],
+-    ['stacklayout', StackLayout],
++    ['stacklayout', MasonView],
+     ['switch', Switch],
+     ['tabview', TabView],
+     ['tabviewitem', TabViewItem],
+@@ -65,8 +68,10 @@
+     ['textview', TextView],
+     ['timepicker', TimePicker],
+     ['webview', WebView],
+-    ['wraplayout', WrapLayout],
++    ['wraplayout', MasonView],
+     ['liquidglass', LiquidGlass],
++    ['masonview', MasonView],
++    ['masonscroll', MasonScroll],
+ ];
+ for (const [tag, element] of BUILTIN_ELEMENTS)
+     registerElement(tag, element);
 diff --git a/dist/intrinsics.d.ts b/dist/intrinsics.d.ts
 index 45a47cb..d555b50 100644
 --- a/dist/intrinsics.d.ts

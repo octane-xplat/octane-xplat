@@ -14,7 +14,8 @@
 	"devDependencies": {
 		"@nativescript-community/octane": "catalog:",
 		"@nativescript/core": "catalog:",
-		"octane": "catalog:"
+		"octane": "catalog:",
+		"@triniwiz/nativescript-masonkit": "1.0.0-beta.110"
 	},
 	"nativescript": {
 		"platforms": {

@@ -126,14 +126,32 @@ round-trip.
 
 ## Unresolved
 
-- Where mason belongs long-term: opt-in leaf package (`@octane-xplat/mason`,
-  decision #51 shape) vs. swapping shared `View`/`ScrollView` native leaves.
-  Foreign-child hosting makes the opt-in path safe to land first.
 - `masontext` vs `<label>`: mason `Text` has its own run/inline model;
   nested `Text`→`Span` mapping is untested.
-- Scroll containers (`masonscroll` vs `scrollview`), ListView embedding,
-  gestures/accessibility props on mason views — unmeasured.
+- ListView embedding, gestures/accessibility props on mason views — unmeasured.
 - Package maturity: beta, single-maintainer, ~daily releases. Version pins
   only; the `platforms/` payload is ~200MB unpacked.
 - Windows: masonkit ships a `windows` platform block (9.1.0 floor) — aligns
   with the windows spike but untested there.
+
+## Cutover (hard, pre-alpha)
+
+Mason is the only native layout engine — the container intrinsics kept their
+names and changed substrate:
+
+- **macOS**: `packages/macos-renderer/src/mason.ts` registers Mason-backed
+  behaviors for `stacklayout`/`flexboxlayout`/`gridlayout`/`wraplayout`/
+  `absolutelayout`/`docklayout`/`scrollview`/`liquidglass`/`masonview`.
+  `scrollview` keeps `NSScrollView` chrome with a mason document host. The
+  classic NSStackView/manual engines are deleted; `AccessibleHostView`
+  preserves the tap/AX surface on mason containers.
+- **iOS/Android (+Windows runtime)**: `@nativescript-community/octane` patch
+  maps the tags to MasonKit `View`/`Scroll` in `elements.js`, and `driver.js`
+  translates NS-shaped props into `view.style` writes. Foreign children get
+  their leaf style via `Style.fromView` replayed at `attach` — see
+  upstream-limitation rows in `feedback_observations` (no mason style buffer
+  on plain views; no view-level CssProperties on mason's ViewBase).
+- **Web**: unchanged — DOM CSS implements the same model; Mason never runs.
+
+Runtime evidence: `research/mason/mason-cutover.macos.tsrx` — 10/10
+assertions across stack/flex/grid/absolute/dock/wrap/liquidglass/scroll.
