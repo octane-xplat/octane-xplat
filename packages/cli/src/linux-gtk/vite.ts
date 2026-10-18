@@ -3,7 +3,7 @@ import { createRequire } from 'node:module'
 import { realpathSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { xplatBoundary, xplatNodeEnvDefine } from '../vite.ts'
+import { xplatBoundary, xplatNodeEnvDefine, xplatCss } from '../vite.ts'
 
 const renderer = '@octane-xplat/linux-gtk'
 
@@ -27,6 +27,7 @@ export async function xplatLinuxGtk(env, options = {}) {
 		root,
 		define: xplatNodeEnvDefine(mode),
 		plugins: [
+			xplatCss('gtk'),
 			xplatBoundary('gtk'),
 			octane({
 				hmr: options.hmr ?? false,

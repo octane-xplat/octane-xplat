@@ -23,9 +23,13 @@ outside this recipe's scope.
 - AC3: The reader can typecheck the shared caller and its .tsrx leaves on web, iOS, Android, and macOS using the documented import and shim conventions.
 - AC4: Existing Linux WebKitGTK apps retain `.linux` precedence over `.web` during migration; new DOM webview frontends use `.web`.
 
+- AC5: CSS imports select one platform sibling with fallback, while explicit imports allow shared-plus-platform composition.
+
 ## Documentation
 
 - AC1: [File variants and resolution order](../../../docs/platform/module-resolution.md#file-variants) and [choosing a variant](../../../docs/platform/module-resolution.md#choosing-a-variant).
 - AC2: [Resolution order](../../../docs/platform/module-resolution.md#file-variants).
 - AC3: [TypeScript, .tsrx shims, and target commands](../../../docs/platform/module-resolution.md#typescript).
 - AC4: [Linux compatibility resolution](../../../docs/platform/module-resolution.md#file-variants) and [experimental Linux target](../../../docs/start/toolchain.md#experimental-linux-target-webkitgtk-webview).
+
+- AC5: [CSS file variants](../../../docs/platform/module-resolution.md#css-file-variants) and the maintained [CSS pipeline tests](../../../packages/cli/test/css-platform.test.mjs).

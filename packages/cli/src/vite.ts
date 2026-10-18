@@ -20,8 +20,10 @@ import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs'
 import { dirname, join, relative, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { unwrapCssLayers } from './css-layers.ts'
+import { xplatCss } from './css-platform.ts'
 import { xplatDevBridge } from './mcp/dev-bridge.ts'
 
+export { xplatCss } from './css-platform.ts'
 export { xplatDevBridge } from './mcp/dev-bridge.ts'
 
 // The toolchain modules (vite, vite-octane, the nativescript renderer)
@@ -771,6 +773,7 @@ export async function xplatNative(env, opts = {}) {
 				decorator: { legacy: true },
 			},
 			plugins: [
+				xplatCss(nativePlatform() ?? 'native'),
 				pxToDip(),
 				nsHmrClientWatchdog(),
 				xplatBoundary(nativePlatform() ?? 'native'),

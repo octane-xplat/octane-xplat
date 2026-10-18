@@ -62,6 +62,39 @@ webview uses `.web`; `.macos` and `.windows` are reserved for native frontends.
 Existing Linux `.linux` overrides remain for compatibility and take
 precedence over `.web` while the Linux target migrates to the shared contract.
 
+## CSS file variants
+
+Stylesheets can use the same replacement rule. Import `./card.css`; on web,
+`card.web.css` replaces it when present. On iOS and Android, the OS suffix
+wins over `.mobile.css`, followed by the unsuffixed file. The files never
+merge automatically.
+
+```ts
+import './card.css'
+```
+
+Native Vite presets include CSS selection. For a browser or DOM webview,
+add `xplatCss('web')` to the app's existing Vite plugins. A browser running
+on iOS still uses `web`.
+
+```ts
+import { defineConfig } from 'vite'
+import { xplatCss } from '@octane-xplat/cli/vite'
+
+export default defineConfig({ plugins: [xplatCss('web')] })
+```
+
+Keep common rules in a separately named file when a platform needs additions.
+Explicit platform filenames stay exact; this web entry loads both files in
+order. CSS `@import` also selects platform siblings, but JavaScript imports
+remain the recommended way to load native stylesheets.
+
+```ts
+// In the web app entry or a .web.ts module:
+import './card.shared.css'
+import './card.web.css'
+```
+
 ## Choosing a variant
 
 - Put the native default in the unsuffixed file. It can use native APIs.

@@ -1,3 +1,4 @@
+export { xplatCss, type CssPlatform } from './css-platform.ts'
 import type { Plugin, UserConfig } from 'vite'
 
 export const nativeExtensions: string[]

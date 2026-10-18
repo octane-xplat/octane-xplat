@@ -3,7 +3,7 @@ import { createRequire } from 'node:module'
 import { realpathSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { xplatBoundary, xplatNodeEnvDefine } from '../vite.ts'
+import { xplatBoundary, xplatNodeEnvDefine, xplatCss } from '../vite.ts'
 
 import { tabItemContentRoots } from './tab-item.ts'
 
@@ -26,6 +26,7 @@ export async function xplatMacOS(env, options = {}) {
 		root,
 		define: xplatNodeEnvDefine(mode),
 		plugins: [
+			xplatCss('macos'),
 			xplatBoundary('macos'),
 			tabItemContentRoots(),
 			octane({

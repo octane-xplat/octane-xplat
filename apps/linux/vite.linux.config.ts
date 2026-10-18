@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite'
 import { octane } from '@octanejs/vite-plugin'
-import { xplatBoundary, xplatNodeEnvDefine } from '@octane-xplat/cli/vite'
+import { xplatCss, xplatBoundary, xplatNodeEnvDefine } from '@octane-xplat/cli/vite'
 import { xplatBamboo } from '@octane-xplat/bamboo/vite'
 import { fileURLToPath } from 'node:url'
 
@@ -8,6 +8,7 @@ const bambooRoot = fileURLToPath(new URL('../../packages/app/', import.meta.url)
 
 export default defineConfig(({ mode }) => ({
 	plugins: [
+		xplatCss('web'),
 		...octane(),
 		xplatBamboo({ cwd: bambooRoot, configPath: `${bambooRoot}bamboo.config.ts` }),
 		xplatBoundary('linux'),
