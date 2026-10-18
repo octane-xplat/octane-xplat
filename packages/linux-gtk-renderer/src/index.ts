@@ -356,7 +356,7 @@ function applyStyleExtras(node: ElementNode, view: GtkView, style: PropBag | nul
 // Type-specific defaults for prop drops — common props reset through
 // resetProp's switch; this table is only the per-tag residue.
 const RESET_DEFAULTS: Record<string, Record<string, unknown>> = {
-	label: { text: '', value: '' },
+	label: { text: '', value: '', xalign: 0, textWrap: false, textOverflow: 'clip', selectable: false },
 	button: { label: '', text: '', title: '' },
 	textfield: { value: '', text: '', placeholder: '', hint: '', secure: false, editable: true },
 	switch: { checked: false },
@@ -364,8 +364,8 @@ const RESET_DEFAULTS: Record<string, Record<string, unknown>> = {
 	progress: { value: 0, maxValue: 1 },
 	activityindicator: { busy: false },
 	scrollview: { orientation: 'vertical' },
-	stacklayout: { spacing: 0 },
-	stack: { spacing: 0 },
+	stacklayout: { spacing: 0, orientation: 'vertical' },
+	stack: { spacing: 0, orientation: 'vertical' },
 	flexboxlayout: { spacing: 0, flexDirection: 'row' },
 	gridlayout: { rowSpacing: 0, columnSpacing: 0 },
 }
@@ -405,26 +405,48 @@ function setOrientation(node: ElementNode, view: GtkView, direction: unknown) {
 		warn(`flexDirection "${String(direction)}" has no GTK equivalent yet — rendering unreversed`)
 	}
 	view.orientation = vertical ? Gtk.Orientation.VERTICAL : Gtk.Orientation.HORIZONTAL
-	// The direction is the expand axis — re-resolve children's flexGrow.
+	// The direction is the expand axis — re-resolve flexGrow across the
+	// subtree (viewless children carry their descendants' expands too).
 	for (const child of node.children) {
-		if (child.flexGrowValue !== undefined) {
-			syncExpand(child)
-		}
+		syncExpandDeep(child)
 	}
 }
 
-/** flexGrow expands along the parent box's orientation. Resolved when the
- *  parent view is known — the prop may arrive before `insert` assigns it. */
+/** Apply fn to every view-bearing node in a logical subtree. */
+function forEachViewNode(node: ElementNode, fn: (n: ElementNode) => void) {
+	if (node.view !== null) {
+		fn(node)
+	}
+	for (const child of node.children) {
+		forEachViewNode(child, fn)
+	}
+}
+
+/** Resolve recorded flexGrow on every view node in a subtree — viewless
+ *  inserts and recreates attach descendants without per-node syncExpand. */
+function syncExpandDeep(node: ElementNode) {
+	forEachViewNode(node, (n) => {
+		if (n.flexGrowValue !== undefined) {
+			syncExpand(n)
+		}
+	})
+}
+
+/** flexGrow expands along the effective parent box's orientation — the
+ *  nearest view ancestor, which may sit above viewless parents. Resolved
+ *  when the parent view is known; the prop may arrive before `insert`. */
 function syncExpand(node: ElementNode) {
 	const view = node.view
 	if (view === null) {
 		return
 	}
-	const parent = node.parent
-	if (parent === null || !(parent.view instanceof Gtk.Box)) {
+	// node.parent === null means root level — hostViewOf resolves the
+	// container's host widget, which is itself a box.
+	const hostView = hostViewOf(node.container, node.parent)
+	if (!(hostView instanceof Gtk.Box)) {
 		return
 	}
-	const horizontal = parent.view.orientation === Gtk.Orientation.HORIZONTAL
+	const horizontal = hostView.orientation === Gtk.Orientation.HORIZONTAL
 	const expand = Number(node.flexGrowValue) > 0
 	if (horizontal) {
 		view.set_hexpand(expand)
@@ -1195,6 +1217,9 @@ function insert(
 	if (node.view === null) {
 		attachViews(container, node)
 		syncText(nearestViewAncestor(node))
+		// flexGrow on view descendants was recorded before the parent
+		// existed — resolve it now.
+		syncExpandDeep(node)
 		return
 	}
 	const parentView = hostViewOf(container, parent)
@@ -1436,13 +1461,9 @@ function setEvent(
 		next = wired.controllers
 	} catch (error) {
 		// A signal name the widget class lacks throws out of connect() —
-		// dropping the listener must not abort the surrounding batch.
+		// dropping the listener must not abort the surrounding batch. Nothing
+		// is recorded yet; an added-but-unconnected controller is inert.
 		warn(`<${node.type}> could not wire event "${type}": ${(error as Error)?.message ?? error}`)
-		for (const controller of next) {
-			try {
-				view.remove_controller(controller)
-			} catch {}
-		}
 		return
 	}
 	if (connections.length) {
@@ -1601,9 +1622,11 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 					detachViews(child)
 					attachViews(container, child)
 				}
+				syncExpandDeep(node)
 			} else {
 				attachViews(container, node)
 				syncText(nearestViewAncestor(node))
+				syncExpandDeep(node)
 			}
 			return
 		}
