@@ -205,3 +205,4 @@
   reload are verified; actual screen-reader and OS IME acceptance is open.
   Web is the current preview target; iOS/Android/macOS/Windows/Linux arrive in later
   packages and surface today as `unqualified-backend` diagnostics.
+| 115 | macOS plugin compatibility comes from a renderer extension seam (element factory/layout/style delegates) plus an NS-core compat slice on `packages/macos-renderer` — not adoption of `@nativescript/macos` | Decided | `@nativescript/macos` has one stale release (9.0.0, Feb 2026) and NS plugins carry no `platforms/macos` native bits anyway, so swapping the proven AppKit/JSC host buys nothing. A compat surface (ViewBase-shaped host, `Style`/`CssProperty` registry, `Observable`) lets pure-JS plugins run on our maintained renderer; native plugins port against our host like `mason-c` did | macos-plugin-compat |
