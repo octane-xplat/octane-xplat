@@ -320,16 +320,21 @@ index 4a6575cb00a6aeecbbb7ac5ccac3268cb10d7f54..ea97dfe6c895bb6b80b0c0403c866630
          // Vite 8 oxc runtime helpers (decorators etc.) — emitted as
          // `/@id/__x00__@oxc-project+runtime@<ver>/helpers/<name>.js`. These are
 diff --git a/hmr/server/websocket-module-specifiers.js b/hmr/server/websocket-module-specifiers.js
-index 74f50a77f48f3873aebf375a29d06b16c29440a3..cc196fb6b92d48179bf8e124ba2a2aa9b13796f9 100644
+index 74f50a77f48f3873aebf375a29d06b16c29440a3..0f06b6dc997118473e4a1ac6d3a3c48432311c71 100644
 --- a/hmr/server/websocket-module-specifiers.js
 +++ b/hmr/server/websocket-module-specifiers.js
-@@ -1,4 +1,4 @@
+@@ -1,8 +1,8 @@
 -import { existsSync, readdirSync, readFileSync, realpathSync } from 'fs';
 +import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from 'fs';
  import * as path from 'path';
  import * as PAT from './constants.js';
  import { getVendorManifest, resolveVendorSpecifier } from '../shared/vendor/registry.js';
-@@ -328,6 +328,60 @@ export function resolveVendorFromCandidate(specifier) {
+-import { getProjectRootPath } from '../../helpers/project.js';
++import { getMonorepoWorkspaceRoot, getProjectRootPath } from '../../helpers/project.js';
+ import { extractRootPackageName, getPackageRuntimeInfo } from '../shared/package-classifier.js';
+ import { getFlavorClientPackages } from '../framework-flavors.js';
+ const ESM_FRAMEWORK_PACKAGE_ROOTS = new Set(['@nativescript/angular', 'nativescript-angular']);
+@@ -328,6 +328,76 @@ export function resolveVendorFromCandidate(specifier) {
      }
      return null;
  }
@@ -339,7 +344,8 @@ index 74f50a77f48f3873aebf375a29d06b16c29440a3..cc196fb6b92d48179bf8e124ba2a2aa9
 + * its workspace layout — consulted when neither the project root nor the
 + * workspace root can anchor a served `/node_modules/` tail:
 + *  - `link:`/`file:`/`portal:` deps keep their own `node_modules` at the real
-+ *    target; a linked package's transitive deps never reach the app's store.
++ *    target; their workspace siblings can own transitive deps too. Reuse the
++ *    bounded workspace scan rather than recursively walking dependency trees.
 + *  - pnpm's isolated virtual store keeps every non-hoisted package under
 + *    `node_modules/.pnpm/<name>@<ver>/node_modules/`.
 + * Importer info is gone from the URL — first hit wins, same as the workspace
@@ -351,9 +357,13 @@ index 74f50a77f48f3873aebf375a29d06b16c29440a3..cc196fb6b92d48179bf8e124ba2a2aa9
 +        return cached;
 +    }
 +    const dirs = [];
++    const seen = new Set();
++    const linkedWorkspaces = new Set();
 +    const pushIfPresent = (dir) => {
-+        if (existsSync(dir))
++        if (!seen.has(dir) && existsSync(dir)) {
++            seen.add(dir);
 +            dirs.push(dir);
++        }
 +    };
 +    const pnpmStore = path.join(projectRoot, 'node_modules', '.pnpm');
 +    try {
@@ -374,8 +384,12 @@ index 74f50a77f48f3873aebf375a29d06b16c29440a3..cc196fb6b92d48179bf8e124ba2a2aa9
 +                    continue;
 +                try {
 +                    const depDir = realpathSync(path.resolve(projectRoot, target));
-+                    if (statSync(depDir).isDirectory())
++                    if (statSync(depDir).isDirectory()) {
 +                        pushIfPresent(path.join(depDir, 'node_modules'));
++                        const workspace = getMonorepoWorkspaceRoot(depDir);
++                        if (workspace)
++                            linkedWorkspaces.add(workspace);
++                    }
 +                }
 +                catch {
 +                }
@@ -384,13 +398,20 @@ index 74f50a77f48f3873aebf375a29d06b16c29440a3..cc196fb6b92d48179bf8e124ba2a2aa9
 +    }
 +    catch {
 +    }
++    // Preserve direct-dependency precedence. Scan each linked workspace once,
++    // using the existing two-level package scan and its per-workspace cache.
++    for (const workspace of linkedWorkspaces) {
++        pushIfPresent(path.join(workspace, 'node_modules'));
++        for (const dir of listWorkspaceNodeModulesDirs(workspace))
++            pushIfPresent(dir);
++    }
 +    depFallbackDirsCache.set(projectRoot, dirs);
 +    return dirs;
 +}
  const workspaceNodeModulesDirsCache = new Map();
  /**
   * `node_modules` dirs that can hold a package the served URL no longer
-@@ -428,6 +482,16 @@ export function resolveCandidateFilePath(candidate, projectRoot, workspaceRoot)
+@@ -428,6 +498,16 @@ export function resolveCandidateFilePath(candidate, projectRoot, workspaceRoot)
              }
          }
      }
@@ -407,14 +428,26 @@ index 74f50a77f48f3873aebf375a29d06b16c29440a3..cc196fb6b92d48179bf8e124ba2a2aa9
      return null;
  }
  /**
-@@ -557,22 +621,17 @@ export function filterExistingNodeModulesTransformCandidates(spec, candidates, p
+@@ -512,8 +592,8 @@ export function rewriteFsAbsoluteToNsM(spec, projectRoot, workspaceRoot) {
+  * `export const X: string = '...'`. Routing through the realpath makes
+  * Vite see a non-`node_modules` path and the TS transform applies.
+  *
+- * App-local candidates whose real path is also app-local are returned
+- * unchanged so existing behaviour is preserved bit-for-bit.
++ * Candidates are returned unchanged only when their URL addresses the file
++ * found. Fallback files need filesystem anchors even inside the app root.
+  */
+ export function filterExistingNodeModulesTransformCandidates(spec, candidates, projectRoot, workspaceRoot) {
+     const cleanedSpec = spec.replace(PAT.QUERY_PATTERN, '');
+@@ -557,22 +637,18 @@ export function filterExistingNodeModulesTransformCandidates(spec, candidates, p
              // through to the existing project/workspace logic.
          }
          if (mapped === null) {
 -            if (!hasDistinctWorkspaceRoot) {
-+            const relFromProject = path.relative(resolvedProjectRoot, resolved);
-+            const insideProjectRoot = relFromProject !== '' && !relFromProject.startsWith('..') && !path.isAbsolute(relFromProject);
-+            if (insideProjectRoot) {
++            const candidatePath = cleanedCandidate.startsWith('/@fs/')
++                ? path.resolve(cleanedCandidate.slice('/@fs'.length))
++                : path.resolve(resolvedProjectRoot, cleanedCandidate.replace(/^\/+/, ''));
++            if (candidatePath === resolved) {
                  mapped = candidate;
              }
              else {
@@ -430,10 +463,10 @@ index 74f50a77f48f3873aebf375a29d06b16c29440a3..cc196fb6b92d48179bf8e124ba2a2aa9
 -                    // hoisted package's `exports` field may refuse.
 -                    mapped = `/@fs${resolved.replace(/\\/g, '/')}${querySuffix}`;
 -                }
-+                // File resolves outside the project root — hoisted workspace
-+                // node_modules, pnpm's `.pnpm` store, or a link:/file:/portal:
-+                // dep's own node_modules. Serve the fs-anchored URL so Vite
-+                // reads it directly; the root-relative URL would miss.
++                // The candidate URL does not address the discovered file. A
++                // fallback may live inside the project (nested link: dependency
++                // or pnpm store) as well as outside it (hoisted dependency).
++                // Anchor the actual path so Vite loads the same file we found.
 +                mapped = `/@fs${resolved.replace(/\\/g, '/')}${querySuffix}`;
              }
          }

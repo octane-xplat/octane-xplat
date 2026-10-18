@@ -66,6 +66,56 @@
   no longer carries those decoding changes; it remains for the unrelated
   resolver, dependency-bundle, and `.mobile` suffix fixes.
 
+### Nested linked dependency URLs
+
+`@nativescript/vite@8.0.17` can find a linked package's private dependency but
+send Vite a URL for a different location. The earlier Xplat fallback patch
+retained `/node_modules/...` whenever the match was inside the app root. For
+an app dependency `auth: link:./framework/packages/auth`, this request found
+`app/framework/packages/auth/node_modules/@fixture/sign-in/common.js` but
+attempted to transform the nonexistent app-root path:
+
+```text
+/ns/m/node_modules/@fixture/sign-in/common
+→ /node_modules/@fixture/sign-in/common.js  (404)
+```
+
+The canonical patch now retains a candidate only when its path identifies the
+file found. Otherwise it emits `/@fs` plus the discovered filesystem path,
+even inside the project root. Query suffixes, platform candidate order,
+hoisted dependencies, and symlink-to-source transforms keep their behavior.
+Direct linked dependencies retain precedence. Their enclosing workspaces are
+discovered through the upstream cached workspace-root helper, then scanned
+once with the existing two-level package scan. This also covers a linked auth
+package depending on a workspace secure-storage package whose private
+`node_modules` owns `@nativescript/secure-storage@4.0.2`:
+
+```text
+app → link:./octane-xplat/packages/auth
+    → workspace @octane-xplat/secure-storage
+    → node_modules/@nativescript/secure-storage/index.android.js
+```
+
+The regression covers pnpm and package.json workspace markers, candidate
+mapping with a query suffix, and HTTP 200 for the explicit Android filename.
+Discovery does not recursively traverse dependency graphs or arbitrary
+directories; it shares the existing per-workspace and per-project caches.
+The fallback search remains first-match because the served URL no longer
+contains the importer; this does not resolve conflicting dependency versions.
+
+Evidence: [the maintained regression](../../../packages/cli/test/vite-node-modules-fallback.test.mjs)
+checks mapping and real Vite loading, including extensionless `/ns/m` HTTP
+requests returning 200 with and without `?v=123`. Its HTTP adapter calls the
+upstream request/transform helpers without starting device/session services.
+Read-only consumer evidence at Opals commit `2d61dfec` records the same HTTP
+404→200 result using an app resolver workaround; device startup was not
+retested. Relay references: `upstream-xplat-015-android-dev-extensionless-plugin-import`
+and `upstream-xplat-015-android-linked-module-url-fix`.
+
+Keep this patch until upstream anchors every transform candidate to the actual
+resolved file, including nested linked dependencies. No Android build or
+device runtime verification is claimed by this regression.
+
 ### Dev-loop troubleshooting
 
 | Symptom                                             | Cause                                                            | Fix                                                                                          |

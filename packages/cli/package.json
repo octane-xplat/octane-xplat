@@ -83,6 +83,7 @@
 		"yaml": "2.9.1"
 	},
 	"devDependencies": {
+		"@nativescript/vite": "8.0.17",
 		"@types/node": "24.10.1",
 		"vite": "catalog:"
 	}
