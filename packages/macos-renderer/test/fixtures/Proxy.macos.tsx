@@ -44,8 +44,8 @@ export default function Proxy() {
 	const phase = phase$.get()
 	const ids = phase >= 3 ? ['b', 'a'] : ['a', 'b']
 	return (
-		<stacklayout>
-			<wraplayout id="proxy-wrap" itemWidth={40} itemHeight={20} style={{ width: 200, height: 40 }}>
+		<masonview display="flex" flexDirection="column">
+			<masonview id="proxy-wrap" itemWidth={40} itemHeight={20} style={{ width: 200, height: 40 }}>
 				<contentview id="proxy-before" style={{ width: 40, height: 20 }} />
 				{phase < 5 ? (
 					<proxyviewcontainer key="logical" id="proxy" ref={refs}>
@@ -70,46 +70,41 @@ export default function Proxy() {
 					<ReturnedGroup />
 				) : null}
 				<contentview id="proxy-after" style={{ width: 40, height: 20 }} />
-			</wraplayout>
-			<wraplayout
-				id="proxy-other"
-				itemWidth={40}
-				itemHeight={20}
-				style={{ width: 100, height: 40 }}
-			>
+			</masonview>
+			<masonview id="proxy-other" itemWidth={40} itemHeight={20} style={{ width: 100, height: 40 }}>
 				{phase === 7 ? <ReturnedGroup /> : null}
-			</wraplayout>
-			<gridlayout id="proxy-grid" rows="30,30" columns="40,40" style={{ width: 80, height: 60 }}>
-				<proxyviewcontainer row={phase === 1 ? 1 : undefined} col={phase === 1 ? 1 : undefined}>
+			</masonview>
+			<masonview display="grid" gridTemplateRows="30px 30px" gridTemplateColumns="40px 40px" id="proxy-grid" style={{ width: 80, height: 60 }}>
+				<proxyviewcontainer style={{gridRow: String((phase === 1 ? 1 : undefined) + 1), gridColumn: String((phase === 1 ? 1 : undefined) + 1)}}>
 					<contentview id="proxy-grid-child" />
 				</proxyviewcontainer>
-				<contentview id="proxy-grid-direct" row={phase === 1 ? 0 : 1} col={0} />
-			</gridlayout>
-			<absolutelayout id="proxy-absolute" style={{ width: 100, height: 40 }}>
-				<proxyviewcontainer left={phase === 1 ? 20 : undefined} top={phase === 1 ? 10 : undefined}>
+				<contentview id="proxy-grid-direct" style={{gridRow: String((phase === 1 ? 0 : 1) + 1), gridColumn: '1'}} />
+			</masonview>
+			<masonview id="proxy-absolute" style={{ width: 100, height: 40 }}>
+				<proxyviewcontainer style={{position: 'absolute', left: phase === 1 ? 20 : undefined, top: phase === 1 ? 10 : undefined}}>
 					<contentview id="proxy-absolute-child" style={{ width: 40, height: 20 }} />
 				</proxyviewcontainer>
-			</absolutelayout>
+			</masonview>
 			<contentview id="proxy-single" style={{ width: 100, height: 30 }}>
 				<proxyviewcontainer>
 					<label id="proxy-single-child" text="Single" />
 				</proxyviewcontainer>
 			</contentview>
-			<docklayout id="proxy-dock" style={{ width: 100, height: 60 }}>
+			<masonview id="proxy-dock" style={{ width: 100, height: 60 }}>
 				<proxyviewcontainer dock={phase === 1 ? 'top' : undefined}>
 					<contentview id="proxy-dock-child" style={{ width: 40, height: 20 }} />
 				</proxyviewcontainer>
 				<contentview id="proxy-dock-rest" />
-			</docklayout>
+			</masonview>
 			<contentview id="proxy-natural">
 				<proxyviewcontainer>
 					<contentview style={{ width: 40, height: 20 }} />
 				</proxyviewcontainer>
 			</contentview>
 			<proxyviewcontainer id="proxy-empty" ref={proxyRefs.empty} />
-			<flexboxlayout id="advance-proxy" onTap={() => phase$.set(phase + 1)}>
+			<masonview display="flex" id="advance-proxy" onTap={() => phase$.set(phase + 1)}>
 				<label text="Advance proxy" />
-			</flexboxlayout>
-		</stacklayout>
+			</masonview>
+		</masonview>
 	)
 }

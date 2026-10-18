@@ -26,7 +26,7 @@ export default function ActionBar() {
 	const phase$ = useSignal$(0)
 	const phase = phase$.get()
 	return (
-		<stacklayout>
+		<masonview display="flex" flexDirection="column">
 			<actionbar id="bar-natural" titleView={naturalTitle} horizontalAlignment="left" />
 			{phase !== 6 ? (
 				<actionbar
@@ -43,9 +43,9 @@ export default function ActionBar() {
 					) : null}
 				</actionbar>
 			) : null}
-			<flexboxlayout id="advance-bar" onTap={() => phase$.set(phase + 1)}>
+			<masonview display="flex" id="advance-bar" onTap={() => phase$.set(phase + 1)}>
 				<label text="Next" />
-			</flexboxlayout>
-		</stacklayout>
+			</masonview>
+		</masonview>
 	)
 }

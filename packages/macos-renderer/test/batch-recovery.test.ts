@@ -68,25 +68,14 @@ function fixture({ applyProps }: { applyProps?: any } = {}) {
 
 	const sandbox = {
 		elementBehaviors: new Map(
-			[
-				'stack',
-				'stacklayout',
-				'flexboxlayout',
-				'gridlayout',
-				'wraplayout',
-				'absolutelayout',
-				'docklayout',
-				'liquidglass',
-				'scrollview',
-				'masonview',
-			].map((type) => [
+			['liquidglass', 'scrollview', 'masonview'].map((type) => [
 				type,
 				{ make: (node: any) => (node.view = fakeView(type)), layout: () => {} },
 			]),
 		),
 		behaviorOf: (type: string) => sandbox.elementBehaviors.get(type),
 		isManualLayoutParent: (t: string) =>
-			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+			['liquidglass','contentview','actionbar','rootlayout','masonview'].includes(t),
 		registerElementType: () => {},
 		
 		validateTextStyle,
@@ -138,11 +127,8 @@ function fixture({ applyProps }: { applyProps?: any } = {}) {
 
 			node.parent = null
 		},
-		makeStack: () => (factoryCalls.push('stack'), fakeView('stack')),
-		makeFlexbox: () => ({ view: fakeView('flexboxlayout') }),
-		makeGridLayout: () => (factoryCalls.push('gridlayout'), fakeView('gridlayout')),
+		makeMasonView: () => (factoryCalls.push('masonview'), fakeView('masonview')),
 		makeContentView: () => (factoryCalls.push('contentview'), fakeView('contentview')),
-		makeAbsoluteLayout: () => fakeView('absolutelayout'),
 		makeLabel: () => fakeView('label'),
 		makeButton: () => (factoryCalls.push('button'), allocAction(fakeView('button'))),
 		makeScrollView: () => ({ view: fakeView('scrollview'), childHost: fakeView('scrollhost') }),
@@ -293,9 +279,10 @@ test('batch validation rejects commands before any apply work', () => {
 	assert.throws(
 		() =>
 			fx.validateBatch(fx.container, [
-				{ op: 'create', id: 2, type: 'gridlayout', props: { rows: '1fr bogus' } },
+				{ op: 'create', id: 2, type: 'masonview', props: {} },
+				{ op: 'insert', id: 2, parent: 9, before: null },
 			]),
-		/unsupported grid track/,
+		/Unknown AppKit parent 9/,
 	)
 
 	assert.throws(
@@ -316,7 +303,7 @@ test('batch validation rejects commands before any apply work', () => {
 test('batch validation accepts references to ids created earlier in the batch', () => {
 	const fx = fixture()
 	fx.validateBatch(fx.container, [
-		{ op: 'create', id: 2, type: 'stack', props: { flexDirection: 'row' } },
+		{ op: 'create', id: 2, type: 'masonview', props: { flexDirection: 'row' } },
 		{ op: 'create', id: 3, type: 'label', props: { text: 'hi' } },
 		{ op: 'insert', id: 3, parent: 2, before: null },
 		{ op: 'insert', id: 2, parent: null, before: null },
@@ -420,24 +407,24 @@ test('recreate rejects a view replacement under a non-container parent', () => {
 	assert.deepEqual(parent.children, [child])
 })
 
-test('stacklayout creates a view and participates in validated parent batches', () => {
+test('masonview creates a view and participates in validated parent batches', () => {
 	const fx = fixture()
-	const stack = fx.makeNode(fx.container, 1, 'stacklayout', { orientation: 'horizontal' })
+	const stack = fx.makeNode(fx.container, 1, 'masonview', { orientation: 'horizontal' })
 	assert.ok(stack.view)
-	assert.equal(stack.type, 'stacklayout')
+	assert.equal(stack.type, 'masonview')
 	assert.doesNotThrow(() =>
 		fx.validateBatch(fx.container, [
-			{ op: 'create', id: 1, type: 'stacklayout', props: {} },
+			{ op: 'create', id: 1, type: 'masonview', props: {} },
 			{ op: 'create', id: 2, type: 'label', props: { text: 'Child' } },
 			{ op: 'insert', id: 2, parent: 1, before: null },
 		]),
 	)
 })
 
-test('invalid stacklayout orientation rejects before allocating any native host', () => {
+test('invalid scrollview orientation rejects before allocating any native host', () => {
 	const fx = fixture()
 	assert.throws(
-		() => fx.makeNode(fx.container, 1, 'stacklayout', { orientation: 'sideways' }),
+		() => fx.makeNode(fx.container, 1, 'scrollview', { orientation: 'sideways' }),
 		/orientation must/,
 	)
 
@@ -445,7 +432,7 @@ test('invalid stacklayout orientation rejects before allocating any native host'
 	assert.throws(
 		() =>
 			fx.validateBatch(fx.container, [
-				{ op: 'create', id: 1, type: 'stacklayout', props: {} },
+				{ op: 'create', id: 1, type: 'scrollview', props: {} },
 				{ op: 'update', id: 1, props: { orientation: 'sideways' } },
 			]),
 		/orientation must/,
@@ -455,12 +442,12 @@ test('invalid stacklayout orientation rejects before allocating any native host'
 })
 
 for (const type of ['#text', 'span']) {
-	test(`stacklayout rejects ${type} children during batch validation`, () => {
+	test(`masonview rejects ${type} children during batch validation`, () => {
 		const fx = fixture()
 		assert.throws(
 			() =>
 				fx.validateBatch(fx.container, [
-					{ op: 'create', id: 1, type: 'stacklayout', props: {} },
+					{ op: 'create', id: 1, type: 'masonview', props: {} },
 					{ op: 'create', id: 2, type, props: {} },
 					{ op: 'insert', id: 2, parent: 1, before: null },
 				]),
@@ -469,10 +456,10 @@ for (const type of ['#text', 'span']) {
 	})
 }
 
-test('destroying stacklayout detaches a retained descendant host', () => {
+test('destroying masonview detaches a retained descendant host', () => {
 	const fx = fixture()
-	const parent = fx.makeNode(fx.container, 1, 'stacklayout', {})
-	const child = fx.makeNode(fx.container, 2, 'stacklayout', {})
+	const parent = fx.makeNode(fx.container, 1, 'masonview', {})
+	const child = fx.makeNode(fx.container, 2, 'masonview', {})
 	parent.children.push(child)
 	child.parent = parent
 	fx.destroy(child)
@@ -480,12 +467,12 @@ test('destroying stacklayout detaches a retained descendant host', () => {
 	assert.equal(parent.children.length, 0)
 })
 
-test('stacklayout validates a recreated text child using parents inserted in the same batch', () => {
+test('masonview validates a recreated text child using parents inserted in the same batch', () => {
 	const fx = fixture()
 	assert.throws(
 		() =>
 			fx.validateBatch(fx.container, [
-				{ op: 'create', id: 1, type: 'stacklayout', props: {} },
+				{ op: 'create', id: 1, type: 'masonview', props: {} },
 				{ op: 'create', id: 2, type: 'label', props: {} },
 				{ op: 'insert', id: 2, parent: 1, before: null },
 				{ op: 'recreate', id: 2, type: 'span', props: {} },
@@ -504,7 +491,7 @@ test('contentview factory and single-slot parent accept the shared intrinsic', (
 			{ op: 'create', id: 1, type: 'contentview', props: {} },
 			{ op: 'create', id: 2, type: 'label', props: {} },
 			{ op: 'insert', id: 2, parent: 1, before: null },
-			{ op: 'recreate', id: 2, type: 'stacklayout', props: {} },
+			{ op: 'recreate', id: 2, type: 'masonview', props: {} },
 		]),
 	)
 })

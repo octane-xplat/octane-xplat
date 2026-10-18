@@ -4,8 +4,8 @@ import { runInNewContext } from 'node:vm'
 import { sourceWithoutImports } from './mock-globals.ts'
 
 // applyProps warns `ignored <type> prop <name>` for any prop outside its
-// per-type whitelist, but left/right/top/bottom are consumed by the PARENT's
-// layoutAbsoluteChildren — the warning fires for props that take effect.
+// per-type whitelist, but LayoutChildProps are consumed by the PARENT's
+// mason child-prop bridge — the warning fires only when no parent claims them.
 const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 
 const applyPropsSrc = source.slice(
@@ -20,12 +20,8 @@ const { applyProps } = runInNewContext(applyPropsSrc + '\n({ applyProps })', {
 		elementBehaviors: new Map(),
 		behaviorOf: () => undefined,
 		isManualLayoutParent: (t: string) =>
-			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+			['masonview','liquidglass','contentview','actionbar','rootlayout'].includes(t),
 		registerElementType: () => {},
-		
-	isStackLayoutInput: (name) =>
-		['flexDirection', 'gap', 'rowGap', 'columnGap', 'alignItems', 'justifyContent'].includes(name),
-	syncStackLayout: () => {},
 	console: { warn: (msg: unknown) => warnings.push(String(msg)) },
 	queueLayoutReconcile: (container: any, parent: any) => reconciles.push(parent),
 	setSizeConstraint: () => {},
@@ -50,28 +46,23 @@ test.beforeEach(() => {
 	reconciles.length = 0
 })
 
-test('absolutelayout child does not warn for left/top/right/bottom under absolutelayout parent', () => {
-	applyProps(node('absolutelayout', 'absolutelayout'), { left: 0, top: 0, right: 0, bottom: 0 })
+test('masonview child does not warn for left/top/right/bottom under masonview parent', () => {
+	applyProps(node('masonview', 'masonview'), { left: 0, top: 0, right: 0, bottom: 0 })
 	assert.deepEqual(ignoredWarnings(), [])
 })
 
-test('flexboxlayout child does not warn for right/bottom under absolutelayout parent', () => {
-	applyProps(node('flexboxlayout', 'absolutelayout'), { right: 0, bottom: 0 })
+test('leaf child does not warn for absolute offsets under masonview parent', () => {
+	applyProps(node('label', 'masonview'), { top: 4, left: 4 })
 	assert.deepEqual(ignoredWarnings(), [])
 })
 
-test('leaf child does not warn for absolute offsets under absolutelayout parent', () => {
-	applyProps(node('label', 'absolutelayout'), { top: 4, left: 4 })
-	assert.deepEqual(ignoredWarnings(), [])
-})
-
-test('grid child props do not warn under gridlayout parent', () => {
-	applyProps(node('label', 'gridlayout'), { row: 0, col: 1 })
+test('grid child props do not warn under masonview parent', () => {
+	applyProps(node('label', 'masonview'), { row: 0, col: 1 })
 	assert.deepEqual(ignoredWarnings(), [])
 })
 
 test('absolute offsets still warn under a parent that cannot consume them', () => {
-	applyProps(node('stack', 'stack'), { top: 4 })
+	applyProps(node('label', 'contentview'), { top: 4 })
 	assert.ok(
 		ignoredWarnings().some((m) => m.includes('top')),
 		'expected a warning naming the dead prop',

@@ -15,13 +15,9 @@ export default function Case() {
 	})
 
 	change = (value) => props$.set(value)
-	return <absolutelayout>
-		<label
-			id="title"
-			{...props$.get()}
-			style={{ width: props$.get().width ?? 120, height: 32, lineHeight: props$.get().lineHeight }}
-		/>
-	</absolutelayout>
+	return <masonview>
+		<label id="title" {...props$.get()} style={{ width: props$.get().width ?? 120, height: 32, lineHeight: props$.get().lineHeight , position: 'absolute'}} />
+	</masonview>
 }
 
 export async function run(ctx: any) {

@@ -35,7 +35,7 @@ function fixture() {
 		elementBehaviors: new Map(),
 		behaviorOf: () => undefined,
 		isManualLayoutParent: (t: string) =>
-			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+			['masonview','liquidglass','contentview','actionbar','rootlayout'].includes(t),
 		registerElementType: () => {},
 		
 		applyProps: (_node: any, props: any) => {
@@ -71,7 +71,7 @@ test('a dropped on* prop clears to undefined on update', () => {
 	const fx = fixture()
 	const onTap = () => {}
 	const onPan = () => {}
-	existingNode(fx.container, 1, 'flexboxlayout', { onTap, onPan, disabled: true })
+	existingNode(fx.container, 1, 'masonview', { onTap, onPan, disabled: true })
 
 	fx.applyCommand(fx.container, { op: 'update', id: 1, props: { disabled: false } })
 
@@ -84,7 +84,7 @@ test('a retained on* prop is not cleared', () => {
 	const fx = fixture()
 	const onTap = () => {}
 	const next = () => {}
-	existingNode(fx.container, 2, 'flexboxlayout', { onTap })
+	existingNode(fx.container, 2, 'masonview', { onTap })
 
 	fx.applyCommand(fx.container, { op: 'update', id: 2, props: { onTap: next } })
 
@@ -93,7 +93,7 @@ test('a retained on* prop is not cleared', () => {
 
 test('non-function stale values do not inject clears', () => {
 	const fx = fixture()
-	existingNode(fx.container, 3, 'flexboxlayout', { onTap: undefined, onLongPress: null, id: 'x' })
+	existingNode(fx.container, 3, 'masonview', { onTap: undefined, onLongPress: null, id: 'x' })
 
 	fx.applyCommand(fx.container, { op: 'update', id: 3, props: { id: 'x' } })
 
@@ -110,8 +110,8 @@ test('control and text event props clear on every element type', () => {
 		['textfield', 'onTextChange'],
 		['textview', 'onTextChange'],
 		['scrollview', 'onScroll'],
-		['gridlayout', 'onPan'],
-		['absolutelayout', 'onSwipe'],
+		['masonview', 'onPan'],
+		['masonview', 'onSwipe'],
 	]
 
 	cases.forEach(([type, prop], index) => {
@@ -176,8 +176,29 @@ test('contentview children keep their alignment clears alongside event clears', 
 // subscribed on the recognizer/action handler.
 const applyPropsSandbox: Record<string, any> = {
 	console,
-	isStackLayoutInput: () => false,
 }
+// Mason prop dispatch in the sandbox mirrors the registered behavior: tap
+// and pan route to their action setters, style/class/a11y consume silently.
+const masonCalls = (key: string) => {
+	const spy: any = (...args: any[]) => spy.calls.push(args)
+	spy.calls = [] as any[][]
+	return (applyPropsSandbox[key] ??= spy)
+}
+const masonPropStub = (node: any, name: string, value: any) => {
+	if (name === 'onTap' || name === 'onClick' || name === 'onPress') {
+		masonCalls('setAction')(node, value)
+		return true
+	}
+	if (name === 'onPan') {
+		masonCalls('setPanAction')(node, value)
+		return true
+	}
+	return true
+}
+applyPropsSandbox.elementBehaviors = new Map([
+	['masonview', { containerStyles: true, applyProp: masonPropStub }],
+])
+applyPropsSandbox.behaviorOf = (t: string) => applyPropsSandbox.elementBehaviors.get(t)
 
 const applyPropsApi = runInNewContext(
 	source.slice(at('function applyProps('), at('\nfunction detach(')) + '\n;({ applyProps })',
@@ -215,9 +236,9 @@ function applyPropsFixture(type: string) {
 }
 
 test('applyProps routes a cleared on* prop to the unbind setters', () => {
-	const { node, applyProps } = applyPropsFixture('flexboxlayout')
+	const { node, applyProps } = applyPropsFixture('masonview')
 	const ctx = applyPropsSandbox
-	// flexboxlayout onTap -> setAction; onPan/onSwipe -> setPanAction;
+	// masonview onTap -> setAction; onPan/onSwipe -> setPanAction;
 	// onTouch/onLongPress/onDoubleTap -> setPressGesture; onLayoutChanged ->
 	// setLayoutAction.
 	applyProps(node, {
@@ -257,7 +278,7 @@ test('applyProps routes cleared control events to their unbind setters', () => {
 // A cleared prop has nothing left to apply — an unhandled name must not warn
 // as "ignored" when it arrives as a removal.
 test('applyProps warns on an unknown value but not on its clear', () => {
-	const { node, applyProps } = applyPropsFixture('flexboxlayout')
+	const { node, applyProps } = applyPropsFixture('contentview')
 	const warnings: any[][] = []
 	applyPropsSandbox.console = { warn: (...args: any[]) => warnings.push(args) }
 	try {

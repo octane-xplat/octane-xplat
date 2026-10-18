@@ -32,7 +32,7 @@ const values = (markup: string, item: any) => (parseListTemplate(markup).render(
 
 test('Builder XML nested tags, case, namespaces, entities and numeric/boolean/style conversion', () => {
 	const template = parseListTemplate(
-		'<StackLayout xmlns="http://schemas.nativescript.org/tns.xsd" orientation="horizontal"><Label text="A &amp; B" maxLines="2" textWrap="false" style="font-size: 20; width: 120" /></StackLayout>',
+		'<MasonView xmlns="http://schemas.nativescript.org/tns.xsd" flexDirection="row"><Label text="A &amp; B" maxLines="2" textWrap="false" style="font-size: 20; width: 120" /></MasonView>',
 	)
 
 	const tags: any[] = []
@@ -42,7 +42,7 @@ test('Builder XML nested tags, case, namespaces, entities and numeric/boolean/st
 	)
 
 	assert.deepEqual(tags, [
-		['stacklayout', { orientation: 'horizontal' }],
+		['masonview', { flexDirection: 'row' }],
 		['label', { text: 'A & B', maxLines: 2, textWrap: false, style: { fontSize: 20, width: 120 } }],
 	])
 
@@ -51,7 +51,7 @@ test('Builder XML nested tags, case, namespaces, entities and numeric/boolean/st
 
 test('Builder binding options preserve path, $value, expressions, named and positional options on rebind', () => {
 	const markup =
-		'<StackLayout><Label text="{{ person.name }}"/><Label text="{{ $value }}"/><Label text="{{ count + 2 }}"/><Label text="{{ sourceProperty=count, expression=count * 3, twoWay=false }}"/><Label text="{{ count, count * 4, false }}"/></StackLayout>'
+		'<MasonView><Label text="{{ person.name }}"/><Label text="{{ $value }}"/><Label text="{{ count + 2 }}"/><Label text="{{ sourceProperty=count, expression=count * 3, twoWay=false }}"/><Label text="{{ count, count * 4, false }}"/></MasonView>'
 
 	const first = values(markup, { person: { name: 'A' }, count: 2 })
 	assert.equal(first[1].text, 'A')

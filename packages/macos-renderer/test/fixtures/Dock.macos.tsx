@@ -25,17 +25,12 @@ export default function Dock() {
 	const phase = phase$.get()
 	const edges = phase >= 3 ? ['left', 'top', 'right', 'bottom'] : ['top', 'right', 'bottom', 'left']
 	return (
-		<stacklayout>
-			<docklayout
-				id="dock"
-				ref={dockRefs.host}
-				stretchLastChild={phase === 1 ? false : undefined}
-				style={{
+		<masonview display="flex" flexDirection="column">
+			<masonview id="dock" ref={dockRefs.host} stretchLastChild={phase === 1 ? false : undefined} style={{
 					width: phase === 1 ? 360 : 300,
 					height: phase === 1 ? 180 : 160,
 					padding: phase < 2 ? 10 : undefined,
-				}}
-			>
+				}}>
 				{edges
 					.filter((id) => phase < 4 || id !== 'right')
 					.map((id) => (
@@ -69,26 +64,26 @@ export default function Dock() {
 						<label id="dock-descendant" text="Fill" style={{ width: 60, height: 18 }} />
 					</contentview>
 				) : phase === 5 ? (
-					<flexboxlayout key="replacement" id="dock-fill" ref={fillRefs}>
+					<masonview display="flex" key="replacement" id="dock-fill" ref={fillRefs}>
 						<label id="dock-descendant" text="Replacement" />
-					</flexboxlayout>
+					</masonview>
 				) : null}
-			</docklayout>
-			<docklayout id="dock-other" style={{ width: 100, height: 80 }}>
+			</masonview>
+			<masonview id="dock-other" style={{ width: 100, height: 80 }}>
 				{phase === 7 ? <Fill /> : null}
-			</docklayout>
-			<docklayout id="percentage-dock" style={{ width: 200, height: 100, padding: 10 }}>
+			</masonview>
+			<masonview id="percentage-dock" style={{ width: 200, height: 100, padding: 10 }}>
 				<contentview id="percentage-edge" dock="left" style={{ width: '50%' }} />
 				<contentview id="percentage-fill" />
-			</docklayout>
-			<docklayout id="natural-dock" stretchLastChild={false}>
+			</masonview>
+			<masonview id="natural-dock" stretchLastChild={false}>
 				<contentview dock="top" style={{ width: 100, height: 10 }} />
 				<contentview dock="left" style={{ width: 30, height: 50 }} />
 				<contentview style={{ width: 40, height: 20 }} />
-			</docklayout>
-			<flexboxlayout id="advance-dock" onTap={() => phase$.set(phase + 1)}>
+			</masonview>
+			<masonview display="flex" id="advance-dock" onTap={() => phase$.set(phase + 1)}>
 				<label text="Advance dock" />
-			</flexboxlayout>
-		</stacklayout>
+			</masonview>
+		</masonview>
 	)
 }

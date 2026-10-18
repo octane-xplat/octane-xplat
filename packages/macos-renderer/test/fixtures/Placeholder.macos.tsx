@@ -38,8 +38,8 @@ export default function Placeholder() {
 	)
 
 	return (
-		<stacklayout>
-			<stacklayout id="ph-left" style={{ width: 240, height: 110 }}>
+		<masonview display="flex" flexDirection="column">
+			<masonview display="flex" flexDirection="column" id="ph-left" style={{ width: 240, height: 110 }}>
 				{(phase >= 2 ? ['tail', 'slot'] : ['slot', 'tail']).map((id) =>
 					id === 'tail' ? (
 						<label key="tail" id="ph-tail" text="tail" style={{ width: 32, height: 20 }} />
@@ -47,14 +47,14 @@ export default function Placeholder() {
 						slot(phase === 5 ? 'b' : 'a')
 					) : null,
 				)}
-			</stacklayout>
+			</masonview>
 			<contentview id="ph-right" style={{ width: 240, height: 60 }}>
 				{phase === 3 ? slot('c') : null}
 			</contentview>
 			<placeholder id="ph-empty" style={{ width: 40, height: 20 }} />
-			<flexboxlayout id="advance-ph" onTap={() => phase$.set(phase + 1)}>
+			<masonview display="flex" id="advance-ph" onTap={() => phase$.set(phase + 1)}>
 				<label text="Advance" />
-			</flexboxlayout>
-		</stacklayout>
+			</masonview>
+		</masonview>
 	)
 }

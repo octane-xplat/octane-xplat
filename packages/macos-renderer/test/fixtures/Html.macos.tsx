@@ -36,8 +36,8 @@ export default function Html() {
 	)
 
 	return (
-		<stacklayout>
-			<stacklayout id="html-left" style={{ width: 240, height: 110 }}>
+		<masonview display="flex" flexDirection="column">
+			<masonview display="flex" flexDirection="column" id="html-left" style={{ width: 240, height: 110 }}>
 				{(phase >= 3 ? ['tail', 'html'] : ['html', 'tail']).map((id) =>
 					id === 'tail' ? (
 						<htmlview key="tail" id="html-tail" html="tail" style={{ width: 200, height: 20 }} />
@@ -45,13 +45,13 @@ export default function Html() {
 						content()
 					) : null,
 				)}
-			</stacklayout>
+			</masonview>
 			<contentview id="html-right" style={{ width: 240, height: 60 }}>
 				{phase === 4 ? content() : null}
 			</contentview>
-			<flexboxlayout id="advance-html" onTap={() => phase$.set(phase + 1)}>
+			<masonview display="flex" id="advance-html" onTap={() => phase$.set(phase + 1)}>
 				<label text="Advance" />
-			</flexboxlayout>
-		</stacklayout>
+			</masonview>
+		</masonview>
 	)
 }

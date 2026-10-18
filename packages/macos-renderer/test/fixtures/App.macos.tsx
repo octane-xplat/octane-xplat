@@ -22,7 +22,7 @@ const stackRef = (view: any) => {
 export default function App() {
 	const count$ = useSignal$(0)
 	return (
-		<stacklayout>
+		<masonview display="flex" flexDirection="column">
 			<actionbar
 				id="hmr-actionbar"
 				title={'First revision' + count$.get()}
@@ -104,12 +104,12 @@ export default function App() {
 			<contentview id="hmr-content" style={{ width: 180, height: 32 }}>
 				<label id="revision" text="First revision" />
 			</contentview>
-			<docklayout id="hmr-dock" style={{ width: 180, height: 32 }}>
+			<masonview id="hmr-dock" style={{ width: 180, height: 32 }}>
 				<label id="dock-revision" text="First revision" />
-			</docklayout>
-			<wraplayout id="hmr-wrap" itemWidth={80} itemHeight={30} style={{ width: 180, height: 60 }}>
+			</masonview>
+			<masonview id="hmr-wrap" itemWidth={80} itemHeight={30} style={{ width: 180, height: 60 }}>
 				<label id="wrap-revision" text="First revision" />
-			</wraplayout>
+			</masonview>
 			<rootlayout id="hmr-root" style={{ width: 180, height: 32 }}>
 				<label id="root-revision" text="First revision" />
 			</rootlayout>
@@ -126,18 +126,12 @@ export default function App() {
 					event.view = NSTextField.labelWithString('First revision')
 				}}
 			/>
-			<stacklayout
-				id="layout"
-				onTap={
+			<masonview display="flex" flexDirection={count$.get() === 1 ? 'horizontal' : undefined === 'horizontal' ? 'row' : 'column'} id="layout" onTap={
 					count$.get() === 1
 						? (event) =>
 								tapEvents.push(event.eventName + ':' + String(event.object === stackRefs[0]))
 						: undefined
-				}
-				ref={stackRef}
-				orientation={count$.get() === 1 ? 'horizontal' : undefined}
-				style={{ width: 240, height: 80, padding: 8 }}
-			>
+				} ref={stackRef} style={{ width: 240, height: 80, padding: 8 }}>
 				{(count$.get() >= 2 ? [] : count$.get() === 1 ? ['c', 'a', 'b'] : ['a', 'b', 'c']).map(
 					(id) => (
 						<label
@@ -151,10 +145,10 @@ export default function App() {
 						/>
 					),
 				)}
-			</stacklayout>
-			<flexboxlayout id="increment" onTap={() => count$.set(count$.get() + 1)}>
+			</masonview>
+			<masonview display="flex" id="increment" onTap={() => count$.set(count$.get() + 1)}>
 				<label text="Increment" />
-			</flexboxlayout>
-		</stacklayout>
+			</masonview>
+		</masonview>
 	)
 }

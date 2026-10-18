@@ -23,8 +23,8 @@ export default function Search() {
 	)
 
 	return (
-		<stacklayout>
-			<stacklayout id="search-parent" style={{ width: 220, height: 120, padding: 10 }}>
+		<masonview display="flex" flexDirection="column">
+			<masonview display="flex" flexDirection="column" id="search-parent" style={{ width: 220, height: 120, padding: 10 }}>
 				{phase < 6
 					? (phase >= 3 ? ['b', 'a'] : ['a', 'b'])
 							.filter((id) => phase < 4 || id !== 'b')
@@ -46,13 +46,13 @@ export default function Search() {
 							)
 					: null}
 				{phase === 7 ? moving() : null}
-			</stacklayout>
+			</masonview>
 			<contentview id="search-other" style={{ width: 220, height: 40 }}>
 				{phase === 6 || phase === 8 ? moving() : null}
 			</contentview>
-			<flexboxlayout id="advance-search" onTap={() => phase$.set(phase + 1)}>
+			<masonview display="flex" id="advance-search" onTap={() => phase$.set(phase + 1)}>
 				<label text="Advance search" />
-			</flexboxlayout>
-		</stacklayout>
+			</masonview>
+		</masonview>
 	)
 }

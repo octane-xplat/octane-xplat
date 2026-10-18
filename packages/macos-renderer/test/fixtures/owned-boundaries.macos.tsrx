@@ -37,13 +37,13 @@ export default function Case() {
 	closeAll = () => setOpen(false)
 	return <Provider value="outside"><Provider value={name}>
 		{open ? <tabviewitem ref={tabRef} title="Owned"><TabContent /></tabviewitem> : null}
-		<stacklayout>
+		<masonview display="flex" flexDirection="column">
 			{open ? <>
 				<tabview id="owned-tabs-left" items={arrays.left} style={{ width: 240, height: 80 }} />
 				<tabview id="owned-tabs-right" items={arrays.right} style={{ width: 240, height: 80 }} />
 				<listview id="owned-list" ref={listRef} items={items} renderItem={renderRow} rowHeight={24} style={{ width: 240, height: 120 }} />
 			</> : null}
-		</stacklayout>
+		</masonview>
 	</Provider></Provider>
 }
 

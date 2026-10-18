@@ -171,20 +171,6 @@ export interface ElementNode {
 	[key: string]: any
 }
 
-/** A `<gridlayout>` child's resolved position after props parsing. */
-interface GridPlacement {
-	child: ElementNode
-	row: number | null
-	col: number | null
-	rowSpan: number
-	colSpan: number
-}
-
-/** One `rows`/`columns` token: `auto`, `Npx`/`N`, `N%`, or `Nfr`/`N*`. */
-interface GridTrack {
-	kind: 'auto' | 'fraction' | 'fixed'
-	value: number
-}
 
 /** Options published through `__xplatAppKit.showAnchoredPopup` (Tooltip/Hoverable). */
 interface PopupOptions {
@@ -324,16 +310,8 @@ function behaviorOf(type: string | undefined): ElementBehavior | undefined {
  *  constraints are consumed by the host's own layout pass. */
 function isManualLayoutParent(type: string | undefined) {
 	return (
-		[
-			'gridlayout',
-			'liquidglass',
-			'absolutelayout',
-			'contentview',
-			'actionbar',
-			'docklayout',
-			'wraplayout',
-			'rootlayout',
-		].includes(type ?? '') || behaviorOf(type)?.layout != null
+		['contentview', 'actionbar', 'rootlayout'].includes(type ?? '') ||
+		behaviorOf(type)?.layout != null
 	)
 }
 
@@ -721,6 +699,8 @@ const masonElementRegistration = installMasonElement({
 	applyClassName,
 	applyAccessibility,
 	wireAction: wireViewAction,
+	setAction,
+	setPanAction,
 	makeScrollView,
 	baseView: AccessibleHostView,
 })
@@ -728,7 +708,7 @@ const masonElementRegistration = installMasonElement({
 // NativeScript 9.1.2/9.1.3 (MIT): LiquidGlassCommon extends GridLayout, so
 // children follow grid placement and sizing rules. iOS roots them in a
 // UIVisualEffectView content host; Android ships the plain grid. The AppKit
-// host is a plain NSView laid out like <gridlayout>, with the glass material
+// host is a plain NSView laid out like a grid, with the glass material
 // as a backdrop subview pinned behind the children. Keeping children outside
 // the NSVisualEffectView subtree preserves authored text colors — effect-view
 // descendants render vibrantly, which would silently override shared props.
@@ -1130,16 +1110,6 @@ function observeContentGeometry(node: ElementNode) {
 		)
 }
 
-
-
-// Container layout follows the same source order as fonts and padding. Resolve
-// whole channels so an axis-specific gap never overrides a higher-source gap.
-
-function isStackLayoutInput(name: string) {
-	return ['flexDirection', 'gap', 'rowGap', 'columnGap', 'alignItems', 'justifyContent'].includes(
-		name,
-	)
-}
 
 
 
@@ -2083,246 +2053,6 @@ function layoutLength(value: any, available: number, fallback: number) {
 	return Number.isFinite(length) ? length : fallback
 }
 
-function parseGridTracks(spec: any): GridTrack[] {
-	if (typeof spec !== 'string' || !spec.trim()) {
-		return []
-	}
-
-	return spec
-		.split(/[\s,]+/)
-		.filter(Boolean)
-		.map((token): GridTrack => {
-			if (token === 'auto') {
-				return { kind: 'auto', value: 0 }
-			}
-
-			const fraction = /^(\d+(?:\.\d+)?|\.\d+)?(?:\*|fr)$/.exec(token)
-			if (fraction) {
-				const weight = Number(fraction[1] || 1)
-				if (weight > 0) {
-					return { kind: 'fraction', value: weight }
-				}
-			}
-
-			const fixed = /^(\d+(?:\.\d+)?|\.\d+)(?:px)?$/.exec(token)
-			if (fixed) {
-				return { kind: 'fixed', value: Number(fixed[1]) }
-			}
-
-			throw new Error('[macos-host] unsupported grid track ' + JSON.stringify(token))
-		})
-}
-
-
-
-function gridAreaIsFree(
-	occupied: Set<string>,
-	row: number,
-	col: number,
-	rowSpan: number,
-	colSpan: number,
-) {
-	for (let currentRow = row; currentRow < row + rowSpan; currentRow++) {
-		for (let currentCol = col; currentCol < col + colSpan; currentCol++) {
-			if (occupied.has(currentRow + ':' + currentCol)) {
-				return false
-			}
-		}
-	}
-
-	return true
-}
-
-function occupyGridArea(
-	occupied: Set<string>,
-	row: number,
-	col: number,
-	rowSpan: number,
-	colSpan: number,
-) {
-	for (let currentRow = row; currentRow < row + rowSpan; currentRow++) {
-		for (let currentCol = col; currentCol < col + colSpan; currentCol++) {
-			occupied.add(currentRow + ':' + currentCol)
-		}
-	}
-}
-
-function autoPlaceGridChildren(parent: ElementNode, placements: GridPlacement[]) {
-	const explicitColumns = parseGridTracks(parent.props.columns).length
-	const placedColumnCount = Math.max(
-		0,
-		...placements
-			.filter((placement) => placement.col != null)
-			.map((placement) => placement.col! + placement.colSpan),
-	)
-
-	const columnCount = Math.max(
-		1,
-		explicitColumns,
-		placedColumnCount,
-		...placements.map((placement) => placement.colSpan),
-	)
-
-	const occupied = new Set<string>()
-	for (const placement of placements) {
-		if (placement.row != null && placement.col != null) {
-			occupyGridArea(occupied, placement.row, placement.col, placement.rowSpan, placement.colSpan)
-		}
-	}
-
-	for (const placement of placements) {
-		if (placement.row == null || placement.col != null) {
-			continue
-		}
-
-		let col = 0
-		while (!gridAreaIsFree(occupied, placement.row, col, placement.rowSpan, placement.colSpan)) {
-			col++
-		}
-
-		placement.col = col
-		occupyGridArea(occupied, placement.row, col, placement.rowSpan, placement.colSpan)
-	}
-
-	for (const placement of placements) {
-		if (placement.col == null || placement.row != null) {
-			continue
-		}
-
-		let row = 0
-		while (!gridAreaIsFree(occupied, row, placement.col, placement.rowSpan, placement.colSpan)) {
-			row++
-		}
-
-		placement.row = row
-		occupyGridArea(occupied, row, placement.col, placement.rowSpan, placement.colSpan)
-	}
-
-	let cursorRow = 0
-	let cursorCol = 0
-	for (const placement of placements) {
-		if (placement.row != null && placement.col != null) {
-			continue
-		}
-
-		while (true) {
-			const availableColumns = Math.max(columnCount, placement.colSpan)
-			if (cursorCol + placement.colSpan > availableColumns) {
-				cursorRow++
-				cursorCol = 0
-				continue
-			}
-
-			if (gridAreaIsFree(occupied, cursorRow, cursorCol, placement.rowSpan, placement.colSpan)) {
-				break
-			}
-
-			cursorCol++
-		}
-
-		placement.row = cursorRow
-		placement.col = cursorCol
-		occupyGridArea(occupied, cursorRow, cursorCol, placement.rowSpan, placement.colSpan)
-		cursorCol += placement.colSpan
-		if (cursorCol >= columnCount) {
-			cursorRow++
-			cursorCol = 0
-		}
-	}
-}
-
-function gridAxisTracks(spec: any, placements: GridPlacement[], axis: 'rows' | 'columns') {
-	const indexKey = axis === 'columns' ? 'col' : 'row'
-	const spanKey = axis === 'columns' ? 'colSpan' : 'rowSpan'
-	const explicit = parseGridTracks(spec)
-	const requiredCount = Math.max(
-		1,
-		...placements.map((placement) => (placement[indexKey] ?? 0) + placement[spanKey]),
-	)
-
-	const tracks = explicit.length
-		? explicit
-		: Array.from({ length: requiredCount }, (): GridTrack => ({ kind: 'auto', value: 0 }))
-
-	while (tracks.length < requiredCount) {
-		tracks.push({ kind: 'auto', value: 0 })
-	}
-
-	return tracks
-}
-
-function gridPreferredSize(child: ElementNode, axis: 'rows' | 'columns', available: number) {
-	const name = axis === 'columns' ? 'width' : 'height'
-	const styled = child.props.style?.[name]
-	if (styled != null) {
-		return Math.max(0, layoutLength(styled, available, 0))
-	}
-
-	const intrinsic = Number(layoutView(child).intrinsicContentSize?.[name] ?? 0)
-	return Number.isFinite(intrinsic) ? Math.max(0, intrinsic) : 0
-}
-
-function resolveGridTrackSizes(
-	tracks: GridTrack[],
-	placements: GridPlacement[],
-	axis: 'rows' | 'columns',
-	available: number,
-) {
-	const sizes = tracks.map((track) => (track.kind === 'fixed' ? track.value : 0))
-	for (const placement of placements) {
-		const start = placement[axis === 'columns' ? 'col' : 'row']!
-		const span = placement[axis === 'columns' ? 'colSpan' : 'rowSpan']
-		const autoTracks: number[] = []
-		let currentSize = 0
-		for (let index = start; index < Math.min(start + span, tracks.length); index++) {
-			currentSize += sizes[index]
-			if (tracks[index].kind === 'auto') {
-				autoTracks.push(index)
-			}
-		}
-
-		if (!autoTracks.length) {
-			continue
-		}
-
-		const preferred = gridPreferredSize(placement.child, axis, available)
-		const extra = Math.max(0, preferred - currentSize) / autoTracks.length
-		for (const index of autoTracks) {
-			sizes[index] += extra
-		}
-	}
-
-	const fixedAndAuto = sizes.reduce(
-		(sum, size, index) => sum + (tracks[index].kind === 'fraction' ? 0 : size),
-		0,
-	)
-
-	const fractionWeight = tracks.reduce(
-		(sum, track) => sum + (track.kind === 'fraction' ? track.value : 0),
-		0,
-	)
-
-	const fractionSize =
-		fractionWeight > 0 ? Math.max(0, available - fixedAndAuto) / fractionWeight : 0
-
-	for (let index = 0; index < tracks.length; index++) {
-		if (tracks[index].kind === 'fraction') {
-			sizes[index] = fractionSize * tracks[index].value
-		}
-	}
-
-	return sizes
-}
-
-function trackOffset(sizes: number[], index: number) {
-	let offset = 0
-	for (let current = 0; current < index; current++) {
-		offset += sizes[current]
-	}
-
-	return offset
-}
-
 /** Pin a grid/absolute child to the rect its parent's layout pass computed.
  *  Children are translates=false views, so Auto Layout owns their frames —
  *  an imperative frame write only holds until the next solve shrinks the
@@ -2593,18 +2323,12 @@ function makeImageView(props: PropBag) {
 
 /** Types whose views arrange child views; mirrors the check in insert(). */
 const VIEW_PARENT_TYPES = new Set([
-	'docklayout',
-	'wraplayout',
 	'rootlayout',
 	'contentview',
 	'actionbar',
 	'proxyviewcontainer',
-	'stack',
-	'stacklayout',
-	'flexboxlayout',
+	'masonview',
 	'scrollview',
-	'gridlayout',
-	'absolutelayout',
 	'liquidglass',
 ])
 
@@ -2838,38 +2562,15 @@ function validateNodeProps(type: string, props: PropBag | undefined, baseProps?:
 	}
 
 	if (
-		['stacklayout', 'wraplayout'].includes(type) &&
+		type === 'scrollview' &&
 		props?.orientation != null &&
 		!['horizontal', 'vertical'].includes(props.orientation)
 	) {
 		throw new Error('[macos-host] ' + type + ' orientation must be horizontal or vertical')
 	}
 
-	if (
-		type === 'docklayout' &&
-		props?.stretchLastChild != null &&
-		typeof props.stretchLastChild !== 'boolean'
-	) {
-		throw new Error('[macos-host] docklayout stretchLastChild must be boolean')
-	}
-
-	if (type === 'wraplayout') {
-		for (const name of ['itemWidth', 'itemHeight']) {
-			const value = props?.[name]
-			if (value != null && (typeof value !== 'number' || !Number.isFinite(value))) {
-				throw new Error('[macos-host] wraplayout ' + name + ' must be a finite number')
-			}
-		}
-	}
-
 	if (props?.dock != null && !['left', 'top', 'right', 'bottom'].includes(props.dock)) {
 		throw new Error('[macos-host] dock must be left, top, right or bottom')
-	}
-
-	if (type === 'gridlayout' || type === 'liquidglass') {
-		// layoutGridChildren parses the track lists on every apply.
-		parseGridTracks(props?.rows)
-		parseGridTracks(props?.columns)
 	}
 
 	if (type === 'textfield' && props?.placeholderTextColor != null) {
@@ -3386,9 +3087,7 @@ function applySizeConstraint(node: ElementNode, name: string) {
 	if (
 		!spec ||
 		!node.view ||
-		['contentview', 'actionbar', 'docklayout', 'wraplayout', 'rootlayout'].includes(
-			(node.layoutParent ?? node.parent)?.type ?? '',
-		)
+		isManualLayoutParent((node.layoutParent ?? node.parent)?.type)
 	) {
 		return
 	}
@@ -3469,12 +3168,7 @@ function syncEdgeInsets(node: ElementNode) {
 		left: edges?.left ?? box?.left ?? klass?.left ?? 0,
 	}
 
-	if (
-		node.type === 'docklayout' ||
-		node.type === 'wraplayout' ||
-		node.type === 'rootlayout' ||
-		behaviorOf(node.type)?.containerStyles
-	) {
+	if (node.type === 'rootlayout' || behaviorOf(node.type)?.containerStyles) {
 		node.dockInsets = insets
 		queueLayoutReconcile(node.container, node)
 	} else {
@@ -3554,13 +3248,13 @@ function resetStyle(node: ElementNode, name: string) {
 		applyThemeColors(node)
 	} else if (
 		name === 'padding' &&
-		['flexboxlayout', 'stacklayout', 'docklayout', 'wraplayout', 'rootlayout'].includes(node.type)
+		(node.type === 'rootlayout' || behaviorOf(node.type)?.containerStyles)
 	) {
 		node.stylePaddingBox = undefined
 		syncEdgeInsets(node)
 	} else if (
 		EDGE_INSET_PROPS.has(name) &&
-		['flexboxlayout', 'stacklayout', 'docklayout', 'wraplayout', 'rootlayout'].includes(node.type)
+		(node.type === 'rootlayout' || behaviorOf(node.type)?.containerStyles)
 	) {
 		for (const edge of EDGE_INSET_PROPS.get(name)!) {
 			delete node.stylePaddingEdges?.[edge]
@@ -3620,11 +3314,6 @@ function applyStyle(node: ElementNode, style: PropBag) {
 	// last apply must reset the native state they installed before the current
 	// values go on — otherwise removed styles linger on the view.
 	const next: PropBag = style ?? {}
-	if (['flexboxlayout', 'stack', 'stacklayout'].includes(node.type)) {
-		node.styleLayout = Object.fromEntries(
-			Object.entries(next).filter(([name]) => isStackLayoutInput(name)),
-		)
-	}
 
 	const prev: PropBag = node.appliedStyle ?? {}
 	for (const name of Object.keys(prev)) {
@@ -3638,10 +3327,7 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			continue
 		}
 
-		if (['flexboxlayout', 'stack', 'stacklayout'].includes(node.type) && isStackLayoutInput(name)) {
-			// Applied together below, after all style inputs have reconciled.
-			continue
-		} else if (name === 'pointerEvents') {
+		if (name === 'pointerEvents') {
 			if (value === 'none') {
 				inputTransparentViews.add(node.view!)
 			} else {
@@ -3684,23 +3370,13 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			continue
 		} else if (
 			name === 'padding' &&
-			(
-				['flexboxlayout', 'stacklayout', 'docklayout', 'wraplayout', 'rootlayout'].includes(
-					node.type,
-				) ||
-				behaviorOf(node.type)?.containerStyles
-			)
+			(node.type === 'rootlayout' || behaviorOf(node.type)?.containerStyles)
 		) {
 			node.stylePaddingBox = parseEdgeInsets(value)
 			syncEdgeInsets(node)
 		} else if (
 			EDGE_INSET_PROPS.has(name) &&
-			(
-				['flexboxlayout', 'stacklayout', 'docklayout', 'wraplayout', 'rootlayout'].includes(
-					node.type,
-				) ||
-				behaviorOf(node.type)?.containerStyles
-			)
+			(node.type === 'rootlayout' || behaviorOf(node.type)?.containerStyles)
 		) {
 			const edges = (node.stylePaddingEdges ??= {})
 			for (const edge of EDGE_INSET_PROPS.get(name)!) {
@@ -3718,15 +3394,12 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			syncCornerRadius(node)
 		} else if ((name === 'width' || name === 'height') && node.view) {
 			setSizeConstraint(node, name, value)
-		} else if (name === 'left' && node.view) {
-			if (
-				['gridlayout', 'liquidglass', 'absolutelayout'].includes(
-					(node.layoutParent ?? node.parent)?.type ?? '',
-				) ||
-				isManualLayoutParent((node.layoutParent ?? node.parent)?.type)
-			) {
-				queueLayoutReconcile(node.container, node.parent)
-			}
+		} else if (
+			name === 'left' &&
+			node.view &&
+			isManualLayoutParent((node.layoutParent ?? node.parent)?.type)
+		) {
+			queueLayoutReconcile(node.container, node.parent)
 		} else if ((name === 'translateX' || name === 'translateY' || name === 'zIndex') && node.view) {
 			node.view.wantsLayer = true
 			const layer = node.view.layer
@@ -3936,11 +3609,7 @@ function applyClassName(node: ElementNode, value: any) {
 	}
 
 	if (
-		node.type === 'flexboxlayout' ||
-		node.type === 'stacklayout' ||
-		node.type === 'stack' ||
 		node.type === 'scrollview' ||
-		node.type === 'gridlayout' ||
 		node.type === 'liquidglass' ||
 		behaviorOf(node.type)?.containerStyles
 	) {
@@ -3965,7 +3634,7 @@ function applyClassName(node: ElementNode, value: any) {
 				node.classOrientation = NSUserInterfaceLayoutOrientation.Vertical
 			}
 
-			if (name === 'vx-toast' && node.type === 'flexboxlayout') {
+			if (name === 'vx-toast' && node.type === 'masonview') {
 				node.classInsets = { top: 12, right: 12, bottom: 12, left: 12 }
 			}
 
@@ -4597,15 +4266,24 @@ function applyProps(node: ElementNode, props: PropBag) {
 	}
 
 	const layoutChildProps: Record<string, readonly string[]> = {
-		absolutelayout: ['left', 'top', 'right', 'bottom'],
 		rootlayout: ['row', 'col', 'rowSpan', 'colSpan', 'horizontalAlignment', 'verticalAlignment'],
-		wraplayout: ['horizontalAlignment', 'verticalAlignment'],
-		docklayout: ['dock', 'horizontalAlignment', 'verticalAlignment'],
 		contentview: ['horizontalAlignment', 'verticalAlignment'],
 		actionbar: ['horizontalAlignment', 'verticalAlignment'],
-		stacklayout: ['horizontalAlignment', 'verticalAlignment'],
-		gridlayout: ['row', 'col', 'rowSpan', 'colSpan', 'horizontalAlignment', 'verticalAlignment'],
+		masonview: [
+			'row',
+			'col',
+			'rowSpan',
+			'colSpan',
+			'dock',
+			'left',
+			'top',
+			'right',
+			'bottom',
+			'horizontalAlignment',
+			'verticalAlignment',
+		],
 		liquidglass: ['row', 'col', 'rowSpan', 'colSpan', 'horizontalAlignment', 'verticalAlignment'],
+		scrollview: ['horizontalAlignment', 'verticalAlignment'],
 	}
 
 	for (const [name, value] of Object.entries(props)) {
@@ -4616,22 +4294,6 @@ function applyProps(node: ElementNode, props: PropBag) {
 			continue
 		}
 
-		if (['flexboxlayout', 'stack', 'stacklayout'].includes(node.type) && isStackLayoutInput(name)) {
-			if (behaviorOf(node.type)?.layout) {
-				queueLayoutReconcile(node.container, node)
-			}
-			continue
-		}
-
-		if (
-			node.type === 'stacklayout' &&
-			['orientation', 'horizontalAlignment', 'verticalAlignment'].includes(name)
-		) {
-			if (behaviorOf(node.type)?.layout) {
-				queueLayoutReconcile(node.container, node)
-			}
-			continue
-		}
 
 		// Attached alignment metadata is retained before the batch inserts
 		// the child; its parent consumes it during layout reconciliation.
@@ -4660,9 +4322,8 @@ function applyProps(node: ElementNode, props: PropBag) {
 		}
 
 		if (
-			['flexboxlayout', 'stacklayout', 'gridlayout', 'liquidglass', 'absolutelayout'].includes(
-				node.type,
-			)
+			['masonview', 'liquidglass'].includes(node.type) ||
+			behaviorOf(node.type)?.containerStyles
 		) {
 			if (['onTouch', 'onLongPress', 'onDoubleTap'].includes(name)) {
 				setPressGesture(node, name)
@@ -4692,14 +4353,6 @@ function applyProps(node: ElementNode, props: PropBag) {
 		}
 
 		switch (node.type) {
-			case 'wraplayout':
-				if (['orientation', 'itemWidth', 'itemHeight'].includes(name)) {
-					continue
-				}
-			case 'docklayout':
-				if (name === 'stretchLastChild') {
-					continue
-				}
 			// Common styling uses the same reconciliation as ContentView.
 			case 'rootlayout':
 			case 'actionbar':
@@ -4717,66 +4370,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 				}
 
 				break
-			case 'stack':
-				if (name === 'style') {
-					applyStyle(node, value)
-				} else if (name === 'className') {
-					applyClassName(node, value)
-				} else if (name === 'id') {
-					continue
-				} else if (value !== undefined) {
-					console.warn('[macos-host] ignored stack prop ' + name)
-				}
-
-				break
-			case 'stacklayout':
-			case 'flexboxlayout':
-				if (name === 'style') {
-					applyStyle(node, value)
-				} else if (name === 'className') {
-					applyClassName(node, value)
-				} else if (name === 'id') {
-					continue
-				} else if (
-					name === 'onTap' ||
-					(node.type === 'stacklayout' && ['onClick', 'onPress'].includes(name))
-				) {
-					const handler =
-						node.type === 'stacklayout'
-							? (node.props.onTap ?? node.props.onClick ?? node.props.onPress)
-							: value
-
-					setAction(
-						node,
-						node.type === 'stacklayout' && typeof handler === 'function'
-							? () => handler({ eventName: 'tap', object: node.view })
-							: handler,
-					)
-				} else if (name === 'onPan') {
-					setPanAction(node, value)
-				} else if (name.startsWith('on') && value == null) {
-					continue
-				} else if (name === 'accessible' || name.startsWith('accessibility')) {
-					applyAccessibility(node, name, value)
-				} else if (
-					[
-						'alignItems',
-						'justifyContent',
-						'flexWrap',
-						'flexGrow',
-						'flexShrink',
-						'alignSelf',
-						'order',
-					].includes(name)
-				) {
-					continue
-				} else if (value !== undefined) {
-					console.warn('[macos-host] ignored flexboxlayout prop ' + name)
-				}
-
-				break
 			case 'liquidglass':
-			case 'gridlayout':
 				if (name === 'style') {
 					applyStyle(node, value)
 				} else if (name === 'className' || name === 'id') {
@@ -4793,26 +4387,8 @@ function applyProps(node: ElementNode, props: PropBag) {
 					continue
 				} else if (name === 'accessible' || name.startsWith('accessibility')) {
 					applyAccessibility(node, name, value)
-				} else if (['rows', 'columns'].includes(name)) {
-					queueLayoutReconcile(node.container, node)
 				} else if (value !== undefined) {
 					console.warn('[macos-host] ignored ' + node.type + ' prop ' + name)
-				}
-
-				break
-			case 'absolutelayout':
-				if (name === 'style') {
-					applyStyle(node, value)
-				} else if (name === 'className' || name === 'id') {
-					continue
-				} else if (name === 'onPan') {
-					setPanAction(node, value)
-				} else if (name.startsWith('on') && value == null) {
-					continue
-				} else if (name === 'accessible' || name.startsWith('accessibility')) {
-					applyAccessibility(node, name, value)
-				} else if (value !== undefined) {
-					console.warn('[macos-host] ignored absolutelayout prop ' + name)
 				}
 
 				break
@@ -5353,28 +4929,20 @@ function applyProps(node: ElementNode, props: PropBag) {
 	}
 
 
+	// A container queues its own subtree; a child of a layout parent also
+	// queues the parent — the two are not exclusive (a masonview nested in a
+	// masonview needs both passes).
 	if (
-		[
-			'gridlayout',
-			'liquidglass',
-			'absolutelayout',
-			'contentview',
-			'actionbar',
-			'docklayout',
-			'wraplayout',
-			'rootlayout',
-		].includes(node.type)
+		['liquidglass', 'contentview', 'actionbar', 'rootlayout'].includes(node.type) ||
+		behaviorOf(node.type)?.layout != null
 	) {
 		queueLayoutReconcile(node.container, node)
-	} else if (
-		node.parent?.type === 'gridlayout' ||
+	}
+	if (
 		node.parent?.type === 'liquidglass' ||
-		node.parent?.type === 'absolutelayout' ||
 		node.parent?.type === 'rootlayout' ||
-		node.parent?.type === 'wraplayout' ||
-		node.parent?.type === 'stacklayout' ||
 		['contentview', 'actionbar'].includes(node.parent?.type ?? '') ||
-		node.parent?.type === 'docklayout'
+		behaviorOf(node.parent?.type)?.layout != null
 	) {
 		queueLayoutReconcile(node.container, node.parent)
 	}
@@ -5384,12 +4952,8 @@ function applyProps(node: ElementNode, props: PropBag) {
 	}
 
 	// Container children also reconcile their own subtree. Their size updates
-	// must still notify the outer DockLayout or WrapLayout.
-	if (
-		node.parent?.type === 'docklayout' ||
-		node.parent?.type === 'wraplayout' ||
-		node.parent?.type === 'rootlayout'
-	) {
+	// must still notify the outer layout parent.
+	if (node.parent?.type === 'rootlayout') {
 		queueLayoutReconcile(node.container, node.parent)
 	}
 
@@ -5481,18 +5045,10 @@ function syncProxyProjection(parent: ElementNode) {
 
 	parent.projectedChildren = children
 	const host = parent.childHost ?? parent.view
-	const manual = [
-		'gridlayout',
-		'liquidglass',
-		'absolutelayout',
-		'contentview',
-		'actionbar',
-		'docklayout',
-		'wraplayout',
-		'rootlayout',
-		'#root',
-		'portalroot',
-	].includes(parent.type)
+	const manual =
+		['liquidglass', 'contentview', 'actionbar', 'rootlayout', '#root', 'portalroot'].includes(
+			parent.type,
+		) || isManualLayoutParent(parent.type)
 
 	for (const child of children) {
 		// Preserve authored values separately from the parent's forwarded values.
@@ -5794,8 +5350,7 @@ function reconcileLayoutParent(parent: ElementNode) {
 	}
 
 	// Registered behaviors own their layout pass — mason-backed containers
-	// (stacklayout, flexboxlayout, gridlayout, wraplayout, absolutelayout,
-	// docklayout, scrollview, liquidglass) never reach the builtin branches.
+	// (masonview, scrollview, liquidglass) never reach the builtin branches.
 	const layoutBehavior = behaviorOf(parent.type)?.layout
 	if (layoutBehavior) {
 		parent.view?.invalidateIntrinsicContentSize()
@@ -5836,9 +5391,7 @@ function reconcileLayoutParent(parent: ElementNode) {
 		parent.view?.invalidateIntrinsicContentSize()
 		layoutRootChildren(parent)
 		if (
-			['docklayout', 'contentview', 'actionbar', 'wraplayout', 'rootlayout'].includes(
-				parent.parent?.type ?? '',
-			)
+			['contentview', 'actionbar', 'rootlayout'].includes(parent.parent?.type ?? '')
 		) {
 			queueLayoutReconcile(parent.container, parent.parent)
 		}
@@ -5856,11 +5409,7 @@ function reconcileLayoutParent(parent: ElementNode) {
 	if (parent.type === 'contentview') {
 		parent.view?.invalidateIntrinsicContentSize()
 		layoutContentChild(parent)
-		if (
-			parent.parent?.type === 'docklayout' ||
-			parent.parent?.type === 'wraplayout' ||
-			parent.parent?.type === 'rootlayout'
-		) {
+		if (parent.parent?.type === 'rootlayout') {
 			queueLayoutReconcile(parent.container, parent.parent)
 		}
 
@@ -5965,11 +5514,9 @@ function insert(
 
 	if (
 		[
-			'stacklayout',
+			'masonview',
 			'contentview',
 			'actionbar',
-			'docklayout',
-			'wraplayout',
 			'rootlayout',
 			'proxyviewcontainer',
 		].includes(parent?.type ?? '') &&
@@ -6031,13 +5578,9 @@ function insert(
 			if (
 				[
 					'portalroot',
-					'gridlayout',
 					'liquidglass',
-					'absolutelayout',
 					'contentview',
 					'actionbar',
-					'docklayout',
-					'wraplayout',
 					'rootlayout',
 				].includes(parent.type) ||
 					isManualLayoutParent(parent.type)
@@ -6236,33 +5779,6 @@ function destroy(node: ElementNode) {
 		node.glassBackdrop = null
 	}
 
-	if (node.type === 'wraplayout') {
-		if (node.wrapGeometryObserver) {
-			NSNotificationCenter.defaultCenter.removeObserver(node.wrapGeometryObserver)
-			node.wrapGeometryObserver = null
-		}
-
-		if (node.view) {
-		}
-
-		for (const child of node.children.slice()) {
-			detach(node.container, child)
-		}
-	}
-
-	if (node.type === 'docklayout') {
-		if (node.dockGeometryObserver) {
-			NSNotificationCenter.defaultCenter.removeObserver(node.dockGeometryObserver)
-			node.dockGeometryObserver = null
-		}
-
-		if (node.view) {
-		}
-
-		for (const child of node.children.slice()) {
-			detach(node.container, child)
-		}
-	}
 
 
 	// Removing an ancestor does not detach its native descendants. Every
@@ -6476,11 +5992,9 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 				validateTextNesting(parent?.type, command.type)
 				if (
 					[
-						'stacklayout',
+						'masonview',
 						'contentview',
 						'actionbar',
-						'docklayout',
-						'wraplayout',
 						'rootlayout',
 						'proxyviewcontainer',
 					].includes(parent?.type ?? '') &&
@@ -6532,11 +6046,9 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 
 					if (
 						[
-							'stacklayout',
+							'masonview',
 							'contentview',
 							'actionbar',
-							'docklayout',
-							'wraplayout',
 							'rootlayout',
 							'proxyviewcontainer',
 						].includes(parent.type) &&
@@ -6604,11 +6116,9 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 			const existing = container.nodes.get(command.id)
 			if (
 				[
-					'stacklayout',
+					'masonview',
 					'contentview',
 					'actionbar',
-					'docklayout',
-					'wraplayout',
 					'rootlayout',
 				].includes(existing?.parent?.type ?? '') &&
 				!typeHasView(command.type) &&
@@ -6694,11 +6204,9 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 			const parent = node.parent
 			if (
 				[
-					'stacklayout',
+					'masonview',
 					'contentview',
 					'actionbar',
-					'docklayout',
-					'wraplayout',
 					'rootlayout',
 					'proxyviewcontainer',
 				].includes(parent?.type ?? '') &&
@@ -8452,7 +7960,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 					pressables: [...container.nodes.values()]
 						.filter(
 							(node) =>
-								node.type === 'flexboxlayout' &&
+								node.type === 'masonview' &&
 								node.actionId !== undefined &&
 								accessibilityRoles.get(node.actionId!) === 'button',
 						)
@@ -8499,7 +8007,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 			pressAccessibilityLabel(label: string) {
 				const node = [...container.nodes.values()].find(
 					(candidate) =>
-						candidate.type === 'flexboxlayout' &&
+						candidate.type === 'masonview' &&
 						candidate.actionId !== undefined &&
 						accessibilityLabels.get(candidate.actionId) === label,
 				)

@@ -24,16 +24,6 @@ export namespace JSX {
 	}
 
 	export interface IntrinsicElements {
-		stack: HostProps & {
-			children?: unknown
-			spacing?: number
-			flexDirection?: 'row' | 'column'
-			gap?: number
-			rowGap?: number
-			columnGap?: number
-			alignItems?: 'start' | 'flex-start' | 'end' | 'flex-end' | 'center' | 'stretch' | 'baseline'
-			justifyContent?: 'start' | 'flex-start' | 'end' | 'flex-end' | 'center' | 'space-between'
-		}
 		label: HostProps & {
 			text?: string | number
 			fontSize?: number
@@ -46,11 +36,7 @@ export namespace JSX {
 			enabled?: boolean
 			onPress?: () => void
 		}
-		flexboxlayout: Record<string, unknown>
-		gridlayout: Record<string, unknown>
-		absolutelayout: Record<string, unknown>
 		masonview: Record<string, unknown>
-		stacklayout: Record<string, unknown>
 		rootlayout: Record<string, unknown>
 		scrollview: Record<string, unknown>
 		textfield: Record<string, unknown>

@@ -64,14 +64,14 @@ export default function Tabs() {
 	)
 
 	return (
-		<stacklayout>
+		<masonview display="flex" flexDirection="column">
 			<tabview id="tabs-empty" />
-			<stacklayout id="tabs-left">{phase !== 4 && phase !== 6 ? content() : null}</stacklayout>
+			<masonview display="flex" flexDirection="column" id="tabs-left">{phase !== 4 && phase !== 6 ? content() : null}</masonview>
 			<contentview id="tabs-right">{phase === 4 ? content() : null}</contentview>
-			<flexboxlayout id="advance-tabs" onTap={() => phase$.set(phase + 1)}>
+			<masonview display="flex" id="advance-tabs" onTap={() => phase$.set(phase + 1)}>
 				<label text="Advance" />
-			</flexboxlayout>
-		</stacklayout>
+			</masonview>
+		</masonview>
 	)
 }
 
@@ -105,7 +105,7 @@ export function ImperativeTabs() {
 			<tabviewitem title="B" ref={imperativeRefs.b}>
 				<label text="B content" />
 			</tabviewitem>
-			<stacklayout>
+			<masonview display="flex" flexDirection="column">
 				<tabview
 					id="tabs-imperative-left"
 					items={arrays$.get().left}
@@ -116,7 +116,7 @@ export function ImperativeTabs() {
 					items={arrays$.get().right}
 					style={{ width: 200, height: 80 }}
 				/>
-			</stacklayout>
+			</masonview>
 		</>
 	)
 }

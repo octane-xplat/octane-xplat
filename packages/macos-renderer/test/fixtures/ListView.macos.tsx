@@ -64,8 +64,8 @@ export default function ListView({ phase }: { phase: number }) {
 	)
 
 	return (
-		<stacklayout>
-			<stacklayout id="listview-left" style={{ width: 260, height: 100 }}>
+		<masonview display="flex" flexDirection="column">
+			<masonview display="flex" flexDirection="column" id="listview-left" style={{ width: 260, height: 100 }}>
 				{(phase === 3 ? ['tail', 'list'] : ['list', 'tail']).map((id) =>
 					id === 'tail' ? (
 						<label key="tail" id="listview-tail" text="tail" style={{ height: 20 }} />
@@ -73,7 +73,7 @@ export default function ListView({ phase }: { phase: number }) {
 						content()
 					) : null,
 				)}
-			</stacklayout>
+			</masonview>
 			<contentview id="listview-right" style={{ width: 260, height: 70 }}>
 				{phase === 4 ? content() : null}
 			</contentview>
@@ -99,6 +99,6 @@ export default function ListView({ phase }: { phase: number }) {
 				itemTemplates={[{ key: 'default', createView: factory }]}
 				style={{ width: 240, height: 40 }}
 			/>
-		</stacklayout>
+		</masonview>
 	)
 }

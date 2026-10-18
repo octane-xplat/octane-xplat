@@ -38,10 +38,10 @@ export default function Progress() {
 	)
 
 	return (
-		<stacklayout>
+		<masonview display="flex" flexDirection="column">
 			<progress id="progress-default" />
 			<progress id="progress-range" {...ranges[phase]} />
-			<stacklayout id="progress-left" style={{ width: 240, height: 110 }}>
+			<masonview display="flex" flexDirection="column" id="progress-left" style={{ width: 240, height: 110 }}>
 				{(phase >= 3 ? ['tail', 'progress'] : ['progress', 'tail']).map((id) =>
 					id === 'tail' ? (
 						<label key="tail" id="progress-tail" text="tail" style={{ width: 32, height: 20 }} />
@@ -49,13 +49,13 @@ export default function Progress() {
 						content()
 					) : null,
 				)}
-			</stacklayout>
+			</masonview>
 			<contentview id="progress-right" style={{ width: 240, height: 60 }}>
 				{phase === 4 ? content() : null}
 			</contentview>
-			<flexboxlayout id="advance-progress" onTap={() => phase$.set(phase + 1)}>
+			<masonview display="flex" id="advance-progress" onTap={() => phase$.set(phase + 1)}>
 				<label text="Advance" />
-			</flexboxlayout>
-		</stacklayout>
+			</masonview>
+		</masonview>
 	)
 }

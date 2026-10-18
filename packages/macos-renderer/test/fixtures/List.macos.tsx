@@ -36,10 +36,10 @@ export default function ListPicker() {
 	)
 
 	return (
-		<stacklayout>
+		<masonview display="flex" flexDirection="column">
 			<listpicker id="list-default" />
 			<listpicker id="list-natural" items={['Natural']} />
-			<stacklayout id="list-left" style={{ width: 240, height: 110 }}>
+			<masonview display="flex" flexDirection="column" id="list-left" style={{ width: 240, height: 110 }}>
 				{(phase >= 3 ? ['tail', 'list'] : ['list', 'tail']).map((id) =>
 					id === 'tail' ? (
 						<label key="tail" id="list-tail" text="tail" style={{ width: 32, height: 20 }} />
@@ -47,13 +47,13 @@ export default function ListPicker() {
 						content()
 					) : null,
 				)}
-			</stacklayout>
+			</masonview>
 			<contentview id="list-right" style={{ width: 240, height: 60 }}>
 				{phase === 4 ? content() : null}
 			</contentview>
-			<flexboxlayout id="advance-list" onTap={() => phase$.set(phase + 1)}>
+			<masonview display="flex" id="advance-list" onTap={() => phase$.set(phase + 1)}>
 				<label text="Advance" />
-			</flexboxlayout>
-		</stacklayout>
+			</masonview>
+		</masonview>
 	)
 }

@@ -208,53 +208,12 @@ export const MASON_STYLE_KEYS = new Set([
 	'bottom',
 ])
 
-/** Intrinsic types laid out by the Mason engine — these all instantiate
- *  MasonLayoutView (scrollview keeps an NSScrollView chrome but mason-lays
- *  its document view). Foreign-forever chrome: rootlayout, contentview,
- *  actionbar, page/frame, lists, tabview, overlays. */
-const MASON_CONTAINERS = new Set([
-	'masonview',
-	'stacklayout',
-	'stack',
-	'flexboxlayout',
-	'gridlayout',
-	'liquidglass',
-	'wraplayout',
-	'absolutelayout',
-	'docklayout',
-	'scrollview',
-])
-
-const GRID_TYPES = new Set(['gridlayout', 'liquidglass'])
-
-/** NS grid track spec ('auto,*', '2*,100', '25%') → CSS grid-template list. */
-function gridTrackList(spec: any): string | undefined {
-	if (spec == null || spec === '') {
-		return undefined
-	}
-
-	const tracks = String(spec)
-		.split(',')
-		.map((token) => {
-			const tok = token.trim()
-			if (tok === '*' || tok === '1*') {
-				return '1fr'
-			}
-
-			const star = tok.match(/^(\d+(?:\.\d+)?)\*$/)
-			if (star) {
-				return star[1] + 'fr'
-			}
-
-			if (tok === 'auto' || tok.endsWith('%')) {
-				return tok
-			}
-
-			const n = Number(tok)
-			return Number.isFinite(n) ? n + 'px' : tok
-		})
-	return tracks.length ? tracks.join(' ') : undefined
-}
+/** Intrinsic types laid out by the Mason engine — masonview is the single
+ *  layout container (scrollview keeps an NSScrollView chrome but mason-lays
+ *  its document view; liquidglass is a grid-backed glass surface).
+ *  Foreign-forever chrome: rootlayout, contentview, actionbar, page/frame,
+ *  lists, tabview, overlays. */
+const MASON_CONTAINERS = new Set(['masonview', 'liquidglass', 'scrollview'])
 
 function edgeBox(value: any): { top: number; left: number; bottom: number; right: number } | null {
 	if (value == null) {
@@ -363,8 +322,9 @@ function styleDict(node: NodeLike): Record<string, any> {
 	}
 
 	for (const key of GRID_STYLE_KEYS) {
-		if (typeof style[key] === 'string') {
-			out[key] = style[key]
+		const value = style[key] ?? props[key]
+		if (typeof value === 'string') {
+			out[key] = value
 		}
 	}
 
@@ -374,40 +334,11 @@ function styleDict(node: NodeLike): Record<string, any> {
 		out.position ??= 'relative'
 	}
 
-	// Container-role defaults + intrinsic prop translation.
+	// Container-role defaults — only the chrome intrinsics carry non-CSS
+	// props; masonview itself takes everything from CSS-shaped props/style.
 	switch (node.type) {
-		case 'stacklayout':
-		case 'stack':
-			out.display ??= 'flex'
-			out.flexDirection ??= props.orientation === 'horizontal' ? 'row' : 'column'
-			out.alignItems ??= 'stretch'
-			break
-		case 'flexboxlayout':
-			out.display ??= 'flex'
-			out.flexDirection ??= 'row'
-			out.alignItems ??= 'stretch'
-			break
-		case 'gridlayout':
-		case 'liquidglass': {
+		case 'liquidglass':
 			out.display ??= 'grid'
-			const rows = gridTrackList(props.rows)
-			const columns = gridTrackList(props.columns)
-			if (rows) {
-				out.gridTemplateRows ??= rows
-			}
-			if (columns) {
-				out.gridTemplateColumns ??= columns
-			}
-			break
-		}
-		case 'wraplayout':
-			out.display ??= 'flex'
-			out.flexWrap ??= 'wrap'
-			out.flexDirection ??= props.orientation === 'vertical' ? 'column' : 'row'
-			break
-		case 'absolutelayout':
-		case 'docklayout':
-			out.display ??= 'block'
 			break
 		case 'scrollview': {
 			out.display ??= 'flex'
@@ -417,12 +348,12 @@ function styleDict(node: NodeLike): Record<string, any> {
 		}
 	}
 
-	// Child-role translation — the layout parent decides which props matter.
+	// Child-role translation — LayoutChildProps sugar under any mason
+	// parent: row/col become grid lines, dock/edges become absolute
+	// insets, attached alignment becomes self-align on the parent's
+	// cross axis (grid parents consume both axes).
 	const lparent = node.layoutParent ?? node.parent
 	if (lparent && MASON_CONTAINERS.has(lparent.type)) {
-		// NS attached alignment props become per-axis self alignment: grid
-		// children own both axes; flex children only the cross axis (main-axis
-		// per-child alignment is a container-level justifyContent concern).
 		const align = (value: any) =>
 			value === 'left' || value === 'top'
 				? 'start'
@@ -436,85 +367,73 @@ function styleDict(node: NodeLike): Record<string, any> {
 		const hAlign = align(props.horizontalAlignment)
 		const vAlign = align(props.verticalAlignment)
 
-		if (lparent.type === 'gridlayout' || lparent.type === 'liquidglass') {
+		// Parent direction/display read through the same prop > style > class
+		// channels the parent's own styleDict uses.
+		const pStyle = lparent.props?.style ?? {}
+		const parentDisplay =
+			lparent.type === 'liquidglass' ? 'grid' : pStyle.display ?? lparent.props?.display
+		if (parentDisplay === 'grid' || parentDisplay === 'inline-grid') {
 			out.justifySelf ??= hAlign
 			out.alignSelf ??= vAlign
-		} else {
-			const row =
-				lparent.type === 'wraplayout'
-					? lparent.props?.orientation !== 'vertical'
-					: lparent.type === 'flexboxlayout'
-						? true
-						: lparent.type === 'scrollview'
-							? lparent.props?.orientation === 'horizontal' || lparent.props?.horizontal === true
-							: lparent.props?.orientation === 'horizontal'
-
-			const cross = row ? vAlign : hAlign
+		} else if (hAlign !== undefined || vAlign !== undefined) {
+			const pDirection =
+				pStyle.flexDirection ??
+				lparent.props?.flexDirection ??
+				(lparent.classOrientation === 0
+					? 'row'
+					: lparent.classOrientation === 1
+						? 'column'
+						: undefined)
+			const parentRow =
+				lparent.type === 'scrollview'
+					? lparent.props?.orientation === 'horizontal' || lparent.props?.horizontal === true
+					: pDirection !== 'column'
+			const cross = parentRow ? vAlign : hAlign
 			if (cross !== undefined) {
 				out.alignSelf ??= cross
 			}
 		}
 
-		switch (lparent.type) {
-			case 'absolutelayout': {
-				out.position ??= 'absolute'
-				for (const [key, edge] of DIM_EDGES) {
-					const dim = autoDim(props[key])
-					if (dim) {
-						;(out.inset ??= {})[edge] = dim
-					}
-				}
-				break
+		if (props.row !== undefined || props.rowSpan !== undefined) {
+			const row = Number(props.row ?? 0)
+			const rowSpan = Number(props.rowSpan ?? 1)
+			out.gridRow ??= `${row + 1}${rowSpan > 1 ? ` / span ${rowSpan}` : ''}`
+		}
+		if (props.col !== undefined || props.colSpan !== undefined) {
+			const col = Number(props.col ?? 0)
+			const colSpan = Number(props.colSpan ?? 1)
+			out.gridColumn ??= `${col + 1}${colSpan > 1 ? ` / span ${colSpan}` : ''}`
+		}
+
+		if (props.dock !== undefined) {
+			const dock = String(props.dock)
+			const inset: Record<string, [number, number]> = {}
+			if (dock === 'left' || dock === 'top' || dock === 'bottom') {
+				inset.left = [1, 0]
 			}
-			case 'docklayout': {
-				out.position ??= 'absolute'
-				const children = (lparent.projectedChildren ?? lparent.children ?? []).filter(
-					(child: NodeLike) => child.view,
-				)
-				const last = children[children.length - 1] === node
-				const dock = String(props.dock ?? 'left')
-				const fills = dock === 'fill' || (last && lparent.props?.stretchLastChild !== false)
-				const inset: Record<string, [number, number]> = {}
-				if (fills) {
-					inset.top = inset.left = inset.right = inset.bottom = [1, 0]
-				} else {
-					if (dock === 'left' || dock === 'top' || dock === 'bottom') {
-						inset.left = [1, 0]
-					}
-					if (dock === 'right' || dock === 'top' || dock === 'bottom') {
-						inset.right = [1, 0]
-					}
-					if (dock === 'top' || dock === 'left' || dock === 'right') {
-						inset.top = [1, 0]
-					}
-					if (dock === 'bottom' || dock === 'left' || dock === 'right') {
-						inset.bottom = [1, 0]
-					}
-				}
-				out.inset = { ...inset, ...(out.inset ?? {}) }
-				break
+			if (dock === 'right' || dock === 'top' || dock === 'bottom') {
+				inset.right = [1, 0]
 			}
-			case 'gridlayout':
-			case 'liquidglass': {
-				const row = Number(props.row ?? 0)
-				const col = Number(props.col ?? 0)
-				const rowSpan = Number(props.rowSpan ?? 1)
-				const colSpan = Number(props.colSpan ?? 1)
-				out.gridRow ??= `${row + 1}${rowSpan > 1 ? ` / span ${rowSpan}` : ''}`
-				out.gridColumn ??= `${col + 1}${colSpan > 1 ? ` / span ${colSpan}` : ''}`
-				break
+			if (dock === 'top' || dock === 'left' || dock === 'right') {
+				inset.top = [1, 0]
 			}
-			case 'wraplayout': {
-				const itemWidth = lparent.props?.itemWidth
-				const itemHeight = lparent.props?.itemHeight
-				if (itemWidth != null) {
-					out.width = autoDim(itemWidth)
-				}
-				if (itemHeight != null) {
-					out.height = autoDim(itemHeight)
-				}
-				break
+			if (dock === 'bottom' || dock === 'left' || dock === 'right') {
+				inset.bottom = [1, 0]
 			}
+			out.inset = { ...inset, ...(out.inset ?? {}) }
+			out.position ??= 'absolute'
+		}
+
+		let hasEdge = false
+		for (const [key, edge] of DIM_EDGES) {
+			const dim = autoDim(props[key])
+			if (dim) {
+				;(out.inset ??= {})[edge] = dim
+				hasEdge = true
+			}
+		}
+		if (hasEdge && props.position === undefined && props.dock === undefined) {
+			out.position ??= 'absolute'
 		}
 	}
 
@@ -840,6 +759,10 @@ interface MasonDeps {
 	applyAccessibility: (node: any, name: string, value: any) => void
 	/** Wires tap/click handlers + accessibility actionId onto a view. */
 	wireAction: (view: any, props: any) => number | undefined
+	/** Tap-action update; undefined clears the binding. */
+	setAction: (node: any, value: any) => void
+	/** Pan/swipe recognizer update; undefined clears the binding. */
+	setPanAction: (node: any, value: any) => void
 	/** NSScrollView chrome around a mason document view, owned by `node`. */
 	makeScrollView: (node: any) => { view: any; childHost: any }
 	/** NSView subclass carrying the shared AX/action surface — container
@@ -919,13 +842,9 @@ function makeMasonLayout(node: any) {
  *  container's layout pass. */
 const MASON_LAYOUT_PROPS = new Set([
 	...MASON_STYLE_KEYS,
-	'orientation',
+	// 'orientation' stays out — the builtin scrollview case owns it
+	// (configureScrollAxes); styleDict re-reads it for flexDirection.
 	'spacing',
-	'rows',
-	'columns',
-	'itemWidth',
-	'itemHeight',
-	'stretchLastChild',
 	'dock',
 	'horizontalAlignment',
 	'verticalAlignment',
@@ -934,6 +853,8 @@ const MASON_LAYOUT_PROPS = new Set([
 	'rowSpan',
 	'colSpan',
 	'flexBasisPercent',
+	'inset',
+	'aspectRatio',
 ])
 
 /** Exported so index.ts's scrollview factory can give the document view a
@@ -970,6 +891,23 @@ export function installMasonElement(next: MasonDeps) {
 			}
 			if (name === 'accessible' || name.startsWith('accessibility')) {
 				next.applyAccessibility(node, name, value)
+				return true
+			}
+			// Gesture/action props dispatch like the old container cases —
+			// the gesture recognizers above run before this for
+			// onTouch/onLongPress/onDoubleTap/onSwipe/disabled.
+			if (name === 'onTap' || name === 'onClick' || name === 'onPress') {
+				const handler = node.props.onTap ?? node.props.onClick ?? node.props.onPress
+				next.setAction(
+					node,
+					typeof handler === 'function'
+						? () => handler({ eventName: 'tap', object: node.view })
+						: value,
+				)
+				return true
+			}
+			if (name === 'onPan') {
+				next.setPanAction(node, value)
 				return true
 			}
 			if (MASON_LAYOUT_PROPS.has(name)) {

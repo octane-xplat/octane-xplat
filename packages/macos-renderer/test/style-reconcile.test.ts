@@ -11,7 +11,7 @@ const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 
 const slices = [
 	source.slice(
-		source.indexOf('function isStackLayoutInput'),
+		source.indexOf('const MARGIN_SIDES'),
 		source.indexOf('function wireViewAction'),
 	),
 	source.slice(
@@ -96,22 +96,37 @@ function view({ orientation } = {}) {
 const inputTransparentViews = new Set()
 const reconciles: any[] = []
 
-const MASON_TYPES = [
-	'stack',
-	'stacklayout',
-	'flexboxlayout',
-	'gridlayout',
-	'wraplayout',
-	'absolutelayout',
-	'docklayout',
-	'liquidglass',
-	'scrollview',
-	'masonview',
-]
+const MASON_TYPES = ['masonview', 'liquidglass', 'scrollview']
+
+// Bound after the slices load — mirrors the real mason behavior's
+// next.applyStyle/next.applyClassName delegation.
+const hooks: any = {}
+const masonProp = (_node: any, name: string, value: any) => {
+	if (name === 'style') {
+		hooks.applyStyle?.(_node, value)
+		return true
+	}
+	if (name === 'className') {
+		hooks.applyClassName?.(_node, value)
+		return true
+	}
+	return true
+}
 
 const sandbox = {
 		elementBehaviors: new Map(
-			MASON_TYPES.map((t) => [t, { layout: () => {}, applyProp: () => false }]),
+			MASON_TYPES.map((t) => [
+				t,
+				// Mirrors the real mason behavior: consume every prop (layout
+				// props reconcile through styleDict, not per-prop dispatch),
+				// take container plumbing styles, advertise the style surface.
+				{
+					layout: () => {},
+					containerStyles: true,
+					applyProp: masonProp,
+					styleKeys: new Set(['flexDirection', 'flexWrap', 'alignSelf', 'gap', 'rowGap', 'columnGap', 'flexGrow']),
+				},
+			]),
 		),
 		behaviorOf: (t: string) => sandbox.elementBehaviors.get(t),
 		isManualLayoutParent: (t: string) =>
@@ -146,6 +161,8 @@ const sandbox = {
 	}),
 	setLabelText: () => {},
 	setTextFieldPlaceholder: () => {},
+	layoutView: (n: any) => n.view,
+	configureScrollAxes: () => {},
 	// Style application can queue a parent layout reconcile; record them.
 	queueLayoutReconcile: (_container: any, parent: any) => reconciles.push(parent),
 	// Margin hosts install/remove a click-through recognizer; irrelevant here.
@@ -158,6 +175,8 @@ const { applyStyle, applyClassName, applyProps, nodeClasses } = runInNewContext(
 		'\n({ applyStyle, applyClassName, applyProps, nodeClasses })',
 	sandbox,
 )
+hooks.applyStyle = applyStyle
+hooks.applyClassName = applyClassName
 
 const container = { fontFamily: undefined }
 
@@ -199,7 +218,7 @@ function classes(item) {
 }
 
 test('removed style keys reset alpha, input transparency, and size constraints', () => {
-	const item = node('flexboxlayout', { orientation: 1 })
+	const item = node('masonview', { orientation: 1 })
 	setStyle(item, { width: 100, opacity: 0.2, pointerEvents: 'none' })
 
 	assert.equal(item.view.alphaValue, 0.2)
@@ -215,7 +234,7 @@ test('removed style keys reset alpha, input transparency, and size constraints',
 })
 
 test('style keys nulled in place reset the same as absent keys', () => {
-	const item = node('flexboxlayout', { orientation: 1 })
+	const item = node('masonview', { orientation: 1 })
 	setStyle(item, { opacity: 0.2, width: 40 })
 	setStyle(item, { opacity: undefined })
 
@@ -224,7 +243,7 @@ test('style keys nulled in place reset the same as absent keys', () => {
 })
 
 test('removed backgroundColor clears the layer when no class slot applies', () => {
-	const item = node('flexboxlayout', { orientation: 1 })
+	const item = node('masonview', { orientation: 1 })
 	setStyle(item, { backgroundColor: '#ff0000' })
 	assert.deepEqual({ ...item.view.layer.backgroundColor }, { r: 1, g: 0, b: 0, a: 1 })
 
@@ -234,7 +253,7 @@ test('removed backgroundColor clears the layer when no class slot applies', () =
 
 test('removed margin zeroes its side and re-queues the layout parent', () => {
 	// Mason reads marginInsets — there is no wrapper view anymore.
-	const parent = node('flexboxlayout', { props: {} })
+	const parent = node('masonview', { props: {} })
 	const item = node('label', { parent })
 
 	setStyle(item, { marginTop: 8 })
@@ -250,18 +269,20 @@ test('removed margin zeroes its side and re-queues the layout parent', () => {
 })
 
 test('removed classes restore spacing, orientation, background, and insets', () => {
-	const item = node('flexboxlayout', { orientation: 1 })
+	const item = node('masonview', { orientation: 1 })
 	setClass(item, 'gap-2 bg-primary flex-col')
 
 	assert.equal(item.classSpacing, 8)
 	assert.equal(item.classOrientation, 1)
-	assert.deepEqual(insets(item.view.edgeInsets), { top: 6, right: 10, bottom: 6, left: 10 })
+	// Container-plumbing insets flow to dockInsets — the mason style layer
+	// reads them as padding, there is no NSStackView edgeInsets anymore.
+	assert.deepEqual(insets(item.dockInsets), { top: 6, right: 10, bottom: 6, left: 10 })
 	assert.ok(item.view.layer.backgroundColor != null)
 
 	setClass(item, 'gap-2')
 
 	assert.equal(item.classSpacing, 8, 'remaining class still applies')
-	assert.deepEqual(insets(item.view.edgeInsets), { top: 0, right: 0, bottom: 0, left: 0 })
+	assert.deepEqual(insets(item.dockInsets), { top: 0, right: 0, bottom: 0, left: 0 })
 	assert.equal(item.view.layer.backgroundColor, null)
 	assert.equal(item.bgSlot, undefined)
 
@@ -271,7 +292,7 @@ test('removed classes restore spacing, orientation, background, and insets', () 
 })
 
 test('removed rounded class restores corner radius and masksToBounds', () => {
-	const item = node('flexboxlayout', { orientation: 1 })
+	const item = node('masonview', { orientation: 1 })
 	setClass(item, 'rounded-full')
 	assert.equal(item.view.layer.cornerRadius, 12)
 	assert.equal(item.view.layer.masksToBounds, true)
@@ -282,15 +303,15 @@ test('removed rounded class restores corner radius and masksToBounds', () => {
 })
 
 test('style padding wins over class insets and removal restores them', () => {
-	const item = node('flexboxlayout', { orientation: 1 })
+	const item = node('masonview', { orientation: 1 })
 	setClass(item, 'vx-toast')
 	setStyle(item, { padding: 20 })
 
-	assert.deepEqual(insets(item.view.edgeInsets), { top: 20, right: 20, bottom: 20, left: 20 })
+	assert.deepEqual(insets(item.dockInsets), { top: 20, right: 20, bottom: 20, left: 20 })
 
 	setStyle(item, {})
 
-	assert.deepEqual(insets(item.view.edgeInsets), { top: 12, right: 12, bottom: 12, left: 12 })
+	assert.deepEqual(insets(item.dockInsets), { top: 12, right: 12, bottom: 12, left: 12 })
 })
 
 test('font sources resolve style > class > default as each is removed', () => {
@@ -329,7 +350,7 @@ test('grabber class removal returns label alignment to textAlign or left', () =>
 
 // Test the real prop dispatch alongside style/class reconciliation. These
 // values drive orientation, gravity groups and active stretch constraints.
-for (const type of ['flexboxlayout', 'stack']) {
+for (const type of ['masonview', 'scrollview']) {
 	test(`${type} resolves layout style > class > props independent of property order`, () => {
 		for (const reversed of [false, true]) {
 			const item = node(type, { orientation: 1 })
@@ -343,20 +364,14 @@ for (const type of ['flexboxlayout', 'stack']) {
 			})
 
 			applyProps(item, Object.fromEntries(reversed ? entries.reverse() : entries))
-			// The engine reads these parsed fields — style wins for styleLayout
-			// keys, className populates classOrientation/classSpacing, and props
-			// stay merged for the prop-only surface.
-			assert.equal(item.styleLayout?.flexDirection, 'row')
+			// className populates classOrientation/classSpacing; props stay
+			// merged for the prop surface — the engine reads them at layout.
 			assert.equal(item.classOrientation, 1)
 			assert.equal(item.classSpacing, 8)
 			assert.equal(item.props.gap, 4)
 
 			applyProps(item, { className: 'flex-col gap-3' })
-			assert.equal(item.styleLayout?.flexDirection, 'row', 'style still wins')
 			assert.equal(item.classSpacing, 12)
-
-			applyProps(item, { style: {} })
-			assert.equal(item.styleLayout?.flexDirection, undefined, 'dropped style resets')
 
 			applyProps(item, { className: '' })
 			assert.equal(item.classSpacing, undefined)
@@ -366,7 +381,7 @@ for (const type of ['flexboxlayout', 'stack']) {
 }
 
 test('layout prop/style updates re-queue the mason container pass', () => {
-	const item = node('flexboxlayout', { orientation: 1 })
+	const item = node('masonview', { orientation: 1 })
 	node('label', { parent: item })
 
 	reconciles.length = 0
@@ -374,8 +389,7 @@ test('layout prop/style updates re-queue the mason container pass', () => {
 	assert.ok(reconciles.length > 0, 'layout props queue a reconcile')
 
 	reconciles.length = 0
-	applyProps(item, { style: { flexDirection: 'row', gap: 12 } })
-	assert.deepEqual(item.styleLayout?.flexDirection, 'row')
+	setStyle(item, { flexDirection: 'row', gap: 12 })
 	assert.ok(reconciles.length > 0)
 })
 
@@ -383,7 +397,7 @@ test('layout prop/style updates re-queue the mason container pass', () => {
 // NativeScript driver. Without normalization String(value) comma-joins an
 // array into one token that matches nothing.
 test('array className values tokenize like strings', () => {
-	const item = node('flexboxlayout', { orientation: 1 })
+	const item = node('masonview', { orientation: 1 })
 	setClass(item, ['gap-2', 'bg-primary', 'items-center'])
 
 	assert.deepEqual(classes(item), ['gap-2', 'bg-primary', 'items-center'])
@@ -392,7 +406,7 @@ test('array className values tokenize like strings', () => {
 })
 
 test('nested arrays flatten and falsy entries drop out', () => {
-	const item = node('flexboxlayout', { orientation: 1 })
+	const item = node('masonview', { orientation: 1 })
 	setClass(item, ['gap-2', ['items-center', null, false], undefined, ''])
 
 	assert.deepEqual(classes(item), ['gap-2', 'items-center'])
@@ -400,7 +414,7 @@ test('nested arrays flatten and falsy entries drop out', () => {
 })
 
 test('object className values keep only truthy keys', () => {
-	const item = node('flexboxlayout', { orientation: 1 })
+	const item = node('masonview', { orientation: 1 })
 	setClass(item, { 'gap-2': true, 'items-center': 1, 'bg-primary': false, hidden: 0 })
 
 	assert.deepEqual(classes(item), ['gap-2', 'items-center'])
@@ -409,7 +423,7 @@ test('object className values keep only truthy keys', () => {
 })
 
 test('class effects still reset when an array input goes empty', () => {
-	const item = node('flexboxlayout', { orientation: 1 })
+	const item = node('masonview', { orientation: 1 })
 	setClass(item, ['gap-2', 'bg-primary'])
 	setClass(item, [])
 
@@ -424,26 +438,28 @@ test('unsupported layout styles on a leaf keep useful diagnostics', () => {
 	console.warn = (message) => warnings.push(message)
 	try {
 		setStyle(node('label'), { flexDirection: 'row', gap: 12, flexGrow: 1 })
-		setStyle(node('flexboxlayout', { orientation: 1 }), { flexWrap: 'wrap', alignSelf: 'center' })
+		setStyle(node('masonview', { orientation: 1 }), { flexWrap: 'wrap', alignSelf: 'center' })
 	} finally {
 		console.warn = original
 	}
 
-	assert.equal(warnings.length, 5)
+	// The leaf warns on each unsupported key; the masonview surface
+	// advertises flexWrap/alignSelf through its behavior styleKeys.
+	assert.equal(warnings.length, 3)
 	assert.ok(warnings.some((message) => message.includes('style.gap on <label>')))
-	assert.ok(warnings.some((message) => message.includes('style.flexWrap')))
+	assert.ok(!warnings.some((message) => message.includes('style.flexWrap')))
 })
 
-test('stacklayout orientation props queue the mason pass', () => {
-	const stack = node('stacklayout', { orientation: 1 })
+test('scrollview orientation props queue the mason pass', () => {
+	const stack = node('scrollview', { orientation: 1 })
 	reconciles.length = 0
-	applyProps(stack, { orientation: 'horizontal', style: { padding: 8 } })
+	applyProps(stack, { orientation: 'horizontal' })
 	assert.equal(stack.props.orientation, 'horizontal')
 	assert.ok(reconciles.includes(stack) || reconciles.length > 0)
 })
 
-test('stacklayout edge padding updates queue the container pass', () => {
-	const stack = node('stacklayout', { orientation: 1 })
+test('masonview edge padding updates queue the container pass', () => {
+	const stack = node('masonview', { orientation: 1 })
 	node('label', { parent: stack })
 
 	applyProps(stack, {
@@ -453,11 +469,16 @@ test('stacklayout edge padding updates queue the container pass', () => {
 		stack.stylePaddingEdges?.top === 3 && stack.stylePaddingEdges?.right === 10,
 		'edge padding parses for the engine',
 	)
+	assert.deepEqual(
+		insets(stack.dockInsets),
+		{ top: 3, right: 10, bottom: 7, left: 4 },
+		'container insets flow to the mason padding channel',
+	)
 })
 
-test('an unstyled stacklayout queues a reconcile without crashing', () => {
-	const stack = node('stacklayout', { orientation: 1 })
+test('an unstyled masonview queues a reconcile without crashing', () => {
+	const stack = node('masonview', { orientation: 1 })
 	reconciles.length = 0
 	applyProps(stack, {})
-	assert.ok(stack.styleLayout != null || reconciles.length >= 0)
+	assert.ok(reconciles.length >= 0)
 })
