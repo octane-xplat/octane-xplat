@@ -34,7 +34,8 @@
 			"types": "./types/*.d.ts"
 		},
 		"./compat/native-core": "./src/native-core-shim.ts",
-		"./compat/escape-props": "./src/native-escape-props.ts"
+		"./compat/escape-props": "./src/native-escape-props.ts",
+		"./compat/ns-core": "./src/ns-compat.ts"
 	},
 	"publishConfig": {
 		"access": "public"
