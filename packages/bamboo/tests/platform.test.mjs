@@ -120,6 +120,30 @@ export const card = css({ padding: '4', _web: { color: 'primary' }, _ios: { colo
 			assert.ok(existsSync(join(root, 'dist', file.fileName)))
 			assert.equal(JSON.parse(readFileSync(join(root, 'dist', file.fileName), 'utf8')).version, 3)
 		}
+		await assert.rejects(
+			build({
+				configFile: false,
+				root,
+				logLevel: 'silent',
+				plugins: [xplatBamboo({ cwd: root, configPath: join(root, 'bamboo.config.ts') })],
+				build: { write: false, lib: { entry: main, formats: ['es'], cssFileName: 'styles' } },
+			}),
+			/platform conditions require xplatCss/,
+		)
+		await assert.rejects(
+			build({
+				configFile: false,
+				root,
+				logLevel: 'silent',
+				plugins: [
+					xplatCss('web'),
+					xplatBamboo({ cwd: root, configPath: join(root, 'bamboo.config.ts') }),
+				],
+				build: { write: false, ssr: main },
+			}),
+			/SSR generation is not supported/,
+		)
+
 		let latestCss = ''
 		const watcher = await build({
 			configFile: false,

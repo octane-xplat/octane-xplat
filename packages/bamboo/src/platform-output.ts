@@ -23,18 +23,20 @@ export function platformOutput(): Plugin {
 			compiler = config.plugins.find((plugin) => plugin.name === 'xplat-platform-css')?.api
 			if (config.command === 'build') compiler?.defer('virtual:bamboo.css')
 		},
-		transform(code, id) {
-			if (!id.split('?')[0].endsWith('virtual:bamboo.css') || !code.includes('@platform')) return
-			if (!compiler)
-				this.error(
-					'@octane-xplat/bamboo: platform conditions require xplatCss(target) from @octane-xplat/cli/vite',
-				)
-			if (ssr || this.environment?.config.build.ssr)
-				this.error(
-					'@octane-xplat/bamboo: platform conditions currently require a single renderer build; SSR generation is not supported',
-				)
+		transform: {
+			order: 'pre',
+			handler(code, id) {
+				if (!id.split('?')[0].endsWith('virtual:bamboo.css') || !code.includes('@platform')) return
+				if (!compiler)
+					this.error(
+						'@octane-xplat/bamboo: platform conditions require xplatCss(target) from @octane-xplat/cli/vite',
+					)
+				if (ssr || this.environment?.config.build.ssr)
+					this.error(
+						'@octane-xplat/bamboo: platform conditions currently require a single renderer build; SSR generation is not supported',
+					)
+			},
 		},
-
 		options: {
 			order: 'post',
 			handler(input) {
