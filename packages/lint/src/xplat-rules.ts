@@ -1292,7 +1292,8 @@ export function checkHooksInPlainTs(program, _src, filename, options) {
 
 // ---------- .tsrx-only checks (run by lint-tsrx.mjs) ----------
 
-export const NATIVE_PRAGMA = '/** @jsxImportSource @nativescript-community/octane */'
+export const NATIVE_PRAGMA = '/** @jsxImportSource @octane-xplat/jsx */'
+const LEGACY_NATIVE_PRAGMA = '/** @jsxImportSource @nativescript-community/octane */'
 
 // The pragma sets the JSX import source — only files that contain JSX need
 // it. JSX-free native leaves (styled, use-store) omit it by
@@ -1306,7 +1307,7 @@ export function checkNativePragmaFirstLine(program, source, filename, options) {
 		return []
 	}
 
-	if (source.startsWith(NATIVE_PRAGMA)) {
+	if (source.startsWith(NATIVE_PRAGMA) || source.startsWith(LEGACY_NATIVE_PRAGMA)) {
 		return []
 	}
 

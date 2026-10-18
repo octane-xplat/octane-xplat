@@ -15,8 +15,10 @@ iOS/Android differences, OS-specific suffixes, and the unsuffixed native default
 
 1. **No npm.** pnpm for everything.
 2. **No DOM globals in shared/native code.** `check:no-dom` enforces it;
-   native leaves must start with `/** @jsxImportSource @nativescript-community/octane */`
-   on line 1 — nothing may precede it, including imports.
+   native leaves must start with `/** @jsxImportSource @octane-xplat/jsx */`
+   on line 1. New apps default to this facade; `.web` JSX files start with
+   `/** @jsxImportSource @octane-xplat/jsx/dom */`. These select types only;
+   the build still selects the existing platform renderer.
 3. **Hooks only in `.tsx`/`.tsrx` inside a renderer include glob.** Plain
    `.ts` helpers don't get hook slotting OR forbidden-global validation —
    a hook imported from a `.ts` file binds a second runtime whose

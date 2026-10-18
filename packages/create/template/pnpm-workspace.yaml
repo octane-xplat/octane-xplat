@@ -133,6 +133,7 @@ catalogs:
     "@octane-xplat/cli": 0.15.0
     "@octane-xplat/effects": 0.15.0
     "@octane-xplat/image": 0.15.0
+    "@octane-xplat/jsx": 0.15.0
     "@octane-xplat/platform": 0.15.0
     "@octane-xplat/ui": 0.15.0
     "@octanejs/vite-plugin": 0.1.61

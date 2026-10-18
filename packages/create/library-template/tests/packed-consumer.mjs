@@ -67,6 +67,7 @@ try {
 			installDirectory(packed, sourceManifest.name, consumer)
 			for (const dependency of [
 				'octane',
+				'@octane-xplat/jsx',
 				'@octane-xplat/ui',
 				...(target === 'native'
 					? ['@nativescript-community/octane', '@nativescript/core', '@nativescript/types']
@@ -105,7 +106,7 @@ void element; void missing; void invalid
 							module: mode === 'bundler' ? 'esnext' : 'nodenext',
 							moduleResolution: mode,
 							jsx: 'react-jsx',
-							jsxImportSource: target === 'native' ? '@nativescript-community/octane' : 'octane',
+							jsxImportSource: target === 'native' ? '@octane-xplat/jsx' : '@octane-xplat/jsx/dom',
 							customConditions: [target],
 							moduleSuffixes: target === 'web' ? ['.web', ''] : ['.mobile', ''],
 						},

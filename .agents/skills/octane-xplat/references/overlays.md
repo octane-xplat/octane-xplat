@@ -31,7 +31,7 @@ a separate root because the service has no declaring component tree. The
 modal host receives its own theme classes (see styling/root-boundaries.md).
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { createContext, useContext } from 'octane'
 import { UIModal } from '@octane-xplat/ui/ios'
 import { Text } from '@octane-xplat/ui'
@@ -58,7 +58,7 @@ export function AccountDetails() {
 For a shared in-window surface, compose `BottomSheet`, `Overlay`, or `Popover`.
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // Details.ios.tsx
 import { UIModal } from '@octane-xplat/ui/ios'
 import { Text } from '@octane-xplat/ui'

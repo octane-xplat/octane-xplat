@@ -44,7 +44,12 @@ build:packages`, `pnpm build:web`, and the package-test half of `pnpm test`
   Every platform is meant to expose the same API surface at the type level, so
   a `src/index.<platform>.ts` barrel that no declared environment checks fails
   the run. `xplat typecheck` applies the same expansion to app manifests and
-  still honors a legacy `tsconfig.native.json` in older scaffolds.
+  still honors a legacy `tsconfig.native.json` in older scaffolds. New app
+  and library templates explicitly select `@octane-xplat/jsx` for shared
+  native typing and `@octane-xplat/jsx/dom` in browser-file pragmas. Their
+  combined programs have opaque native host handles; target conditions bind
+  concrete hosts without changing intrinsic membership. See
+  [the app JSX setup](../../docs/platform/module-resolution.md#typescript).
 - **pnpm, not npm** (user preference). `pnpm-workspace.yaml` carries
   `nodeLinker: isolated` — `@nativescript/vite`'s vendor-manifest code needs it.
   Consequence: every package must declare what it imports (no transitive-dep

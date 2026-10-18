@@ -6,7 +6,7 @@ Needed when a leaf misbehaves, not for normal component use.
 ## Leaf shape
 
 ```tsrx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import type { ViewProps } from '@octane-xplat/ui'
 
 export function Leaf(props: ViewProps) @{
@@ -27,7 +27,7 @@ export function Leaf(props: ViewProps) @{
   and joins; every native leaf normalizes `props.className` through it.
 
 - The `@jsxImportSource` pragma MUST be line 1 — any import/comment before
-  it demotes the file to DOM intrinsics and typecheck explodes.
+  it may select the wrong JSX types in projects with an older default.
 - Hooks import from `'octane'` even on native — the compiler retargets to
   `@nativescript-community/octane`. The native build also aliases
   `octane` → `octane/universal/native` so dep-scanning doesn't vendor the
@@ -36,7 +36,7 @@ export function Leaf(props: ViewProps) @{
   to `UniversalComponent` when passing to `createNativeScriptRoot`.
 
 ```tsrx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // In packages/ui/src: cx is the leaf-local class normalizer.
 import { cx } from './cx'
 import type { ViewProps } from './props'
@@ -65,7 +65,7 @@ Page, modal, sheet host, tab-stack page, and native platform-list cell gets
 its own root.
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // Host.mobile.tsx — the app supplies hostView after creating its native host.
 import { createNativeScriptRoot } from '@nativescript-community/octane'
 import { GridLayout } from '@nativescript/core'

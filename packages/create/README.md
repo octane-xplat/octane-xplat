@@ -16,6 +16,20 @@ With Node.js and pnpm 11.24.0 installed:
 pnpm create octane-xplat my-app
 ```
 
+The starter's `tsconfig.json` selects the shared native JSX types from its
+direct `@octane-xplat/jsx` dependency. Browser JSX leaves select DOM types on
+their first line, as `src/main.web.tsrx` does:
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx/dom */
+export function BrowserMessage() {
+	return <p>Ready</p>
+}
+```
+
+See [platform files and JSX types](https://octane-xplat.goddardai.org/platform/module-resolution#typescript)
+when adding a native or browser implementation.
+
 ## Start a library package
 
 To start a reusable package instead of an app, select the library template:

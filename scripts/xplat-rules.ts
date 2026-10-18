@@ -1389,14 +1389,15 @@ export function checkHooksInPlainTs(program, _src, filename, options) {
 
 // ---------- .tsrx-only checks (run by lint-tsrx.mjs) ----------
 
-export const NATIVE_PRAGMA = '/** @jsxImportSource @nativescript-community/octane */'
+export const NATIVE_PRAGMA = '/** @jsxImportSource @octane-xplat/jsx */'
+const LEGACY_NATIVE_PRAGMA = '/** @jsxImportSource @nativescript-community/octane */'
 const MACOS_PRAGMA = '/** @jsxImportSource @octane-xplat/macos-renderer */'
 const GTK_PRAGMA = '/** @jsxImportSource @octane-xplat/jsx */'
 
 // The pragma sets the JSX import source — only files that contain JSX need
 // it. JSX-free native leaves (styled, use-store) omit it by
-// design. .macos leaves carry the AppKit renderer pragma; .gtk leaves use the
-// shared-contract source — the gtk customConditions pick the entry.
+// design. Existing renderer pragmas remain accepted for older consumers;
+// GTK leaves use the shared facade with the gtk host condition.
 export function checkNativePragmaFirstLine(program, source, filename, options) {
 	if (
 		!norm(filename).endsWith('.tsrx') ||
@@ -1407,12 +1408,12 @@ export function checkNativePragmaFirstLine(program, source, filename, options) {
 	}
 
 	const file = norm(filename)
-	const pragma = file.includes('.gtk.')
+	const legacyPragma = file.includes('.gtk.')
 		? GTK_PRAGMA
 		: file.includes('.macos.')
 			? MACOS_PRAGMA
-			: NATIVE_PRAGMA
-	if (source.startsWith(pragma)) {
+			: LEGACY_NATIVE_PRAGMA
+	if (source.startsWith(NATIVE_PRAGMA) || source.startsWith(legacyPragma)) {
 		return []
 	}
 
@@ -1421,7 +1422,7 @@ export function checkNativePragmaFirstLine(program, source, filename, options) {
 			return [
 				{
 					node: program,
-					message: `Native leaves with JSX must start with '${pragma}' on line 1 — nothing may precede it.`,
+					message: `Native leaves with JSX must start with '${NATIVE_PRAGMA}' on line 1 — nothing may precede it.`,
 				},
 			]
 		}

@@ -22,6 +22,22 @@ pnpm xplat doctor
 pnpm typecheck
 ```
 
+## JSX types
+
+The app's `tsconfig.json` selects shared native JSX types. Browser JSX leaves
+select DOM types on their first line; keep runtime imports from `octane`:
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx/dom */
+export function BrowserMessage() {
+	return <p>Ready</p>
+}
+```
+
+Native leaves can explicitly select the same default with
+`/** @jsxImportSource @octane-xplat/jsx */`. Do not replace it with a renderer
+pragma. The facade supplies types; Vite still selects the platform renderer.
+
 ## Stable automation targets
 
 ```tsx

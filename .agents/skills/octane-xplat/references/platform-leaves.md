@@ -16,10 +16,9 @@ when only that OS differs. There is no generic `.native` or `.desktop`
 filename tier. If an unsuffixed module uses NativeScript APIs and web imports
 it, add a `.web` sibling so the browser build selects that implementation.
 
-Vite's `resolve.extensions` and TypeScript's `moduleSuffixes` implement the same
-order for each target. The `web` and `native` conditions also select package
-`exports` entries; those condition names describe the runtime, not filename
-suffixes.
+Vite selects the active platform at build time. A scaffold's TypeScript program
+checks all variants together with a fixed, extensionless-first suffix order;
+that order does not change the runtime resolver.
 
 ## Rules
 
@@ -57,7 +56,7 @@ deliberately kept off the shared root so `@octane-xplat/ui` exports the same
 names on every target.
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // PackedToggle.ios.tsx
 import { UISwitch } from '@octane-xplat/ui/ios'
 
@@ -82,9 +81,12 @@ navigate('demo/:id', { id: 'counter' })
 
 ## tsconfigs
 
-`tsconfig.base.json` plus per-app variants provide renderer JSX sources,
-include globs, and ambient types (`@nativescript/types` scoped to mobile).
-`tsrx-tsc --noEmit` per target checks `.tsrx` as real TypeScript.
+New apps use one `tsconfig.json` with `jsxImportSource: "@octane-xplat/jsx"`.
+Browser JSX files explicitly select `@octane-xplat/jsx/dom` with a first-line
+pragma. `pnpm typecheck` checks `.tsrx` and every platform variant together.
+A combined program uses opaque native host handles; a target-specific consumer
+can bind concrete handles through `customConditions: ["native"]` or `["macos"]`.
+Conditions bind host types only, never the intrinsic vocabulary.
 
 ## Platform constants
 

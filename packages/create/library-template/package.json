@@ -59,6 +59,7 @@
 		"@nativescript/core": "catalog:xplat",
 		"@nativescript/types": "catalog:xplat",
 		"@octane-xplat/cli": "catalog:xplat",
+		"@octane-xplat/jsx": "catalog:xplat",
 		"@octane-xplat/ui": "catalog:xplat",
 		"@octanejs/vite-plugin": "catalog:xplat",
 		"@tsrx/oxc": "catalog:xplat",
@@ -72,6 +73,7 @@
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",
 		"@nativescript/core": ">=9.1.0 <10",
+		"@octane-xplat/jsx": "^0.15.0",
 		"@octane-xplat/ui": "^0.15.0",
 		"octane": ">=0.6.3 <1"
 	},

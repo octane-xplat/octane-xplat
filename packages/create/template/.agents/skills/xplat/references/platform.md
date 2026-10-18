@@ -61,13 +61,13 @@ import { Scanner } from './parts/Scanner'
 export function ScanScreen() { return <Scanner /> }
 ```
 
-Native JSX files start with the NativeScript pragma on line 1. Import native
+Native JSX files start with the shared JSX facade pragma on line 1. Import native
 APIs from `@nativescript/core`, and read app lifecycle state inside the call
 rather than during module initialization. This example belongs in
 `Status.mobile.tsrx`:
 
 ```tsrx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { Application } from '@nativescript/core'
 import { Pressable, Text } from '@octane-xplat/ui'
 

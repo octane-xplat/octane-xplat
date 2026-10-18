@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { Text, View } from '@octane-xplat/ui'
 import { normalizeBadgeLabel } from './normalizeBadgeLabel'
 import type { BadgeProps } from './props'

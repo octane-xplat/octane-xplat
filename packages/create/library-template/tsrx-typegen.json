@@ -1,7 +1,7 @@
 {
 	"targets": {
 		"octane": {
-			"renderer": "octane",
+			"renderer": "@octane-xplat/jsx",
 			"project": "tsconfig.types.json",
 			"outDir": "types",
 			"entrypoints": {

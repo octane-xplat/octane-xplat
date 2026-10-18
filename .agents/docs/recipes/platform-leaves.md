@@ -2,7 +2,7 @@
 
 ID: platform-leaves
 Targets: web, ios, android, macos, linux
-Related APIs: xplat typecheck, moduleSuffixes, .web.tsrx, .mobile.tsrx, .ios.tsrx, .android.tsrx, .macos.tsrx, .windows.tsrx, .linux.tsrx
+Related APIs: @octane-xplat/jsx, jsxImportSource, xplat typecheck, moduleSuffixes, .web.tsrx, .mobile.tsrx, .ios.tsrx, .android.tsrx, .macos.tsrx, .windows.tsrx, .linux.tsrx
 
 ## Starting point
 

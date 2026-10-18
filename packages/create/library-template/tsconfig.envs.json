@@ -1,5 +1,8 @@
 {
 	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"jsxImportSource": "@octane-xplat/jsx"
+	},
 	"environments": {
 		"web": {
 			"include": ["src/**/*.{ts,tsx,tsrx}"]

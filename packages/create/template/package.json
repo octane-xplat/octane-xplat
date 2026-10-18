@@ -25,6 +25,7 @@
 		"@nativescript/core": "catalog:xplat",
 		"@octane-xplat/effects": "catalog:xplat",
 		"@octane-xplat/image": "catalog:xplat",
+		"@octane-xplat/jsx": "catalog:xplat",
 		"@octane-xplat/platform": "catalog:xplat",
 		"@octane-xplat/ui": "catalog:xplat",
 		"@valor/nativescript-websockets": "catalog:xplat",

@@ -7,7 +7,8 @@
 - Put shared prop contracts in `src/props.ts` and document public exports.
 - The unsuffixed `.tsx` file is the NativeScript implementation. Add a
   `.web.tsx` sibling when browser behavior or markup needs to differ. Native
-  files start with `/** @jsxImportSource @nativescript-community/octane */`.
+  files start with `/** @jsxImportSource @octane-xplat/jsx */`; browser files
+  start with `/** @jsxImportSource @octane-xplat/jsx/dom */`.
 - Keep DOM globals out of native files. Use the shared `@octane-xplat/ui`
   elements when behavior can be shared.
 - Declare every imported package. Runtime plugins belong in `dependencies`;

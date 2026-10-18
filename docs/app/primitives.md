@@ -136,7 +136,7 @@ from a changing prop spread can retain its previous native value. Put this
 component in a `.mobile.tsx` file.
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import type { LayoutChildProps } from '@octane-xplat/ui'
 
 export function NativeCard(props: LayoutChildProps) {
@@ -245,7 +245,7 @@ The [implementation map](#implementation-map) lists more controls and their
 underlying views for readers who need that detail.
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // Settings.ios.tsrx: keep this import in the iOS file.
 import { UISwitch } from '@octane-xplat/ui/ios'
 import { useState } from 'octane'
@@ -271,7 +271,7 @@ visible label, description, and status chrome; the widget picks those states
 up from the field automatically.
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // Settings.ios.tsrx
 import { UISwitch } from '@octane-xplat/ui/ios'
 
@@ -551,7 +551,7 @@ These selectors and modifiers are escape hatches for platform-authentic
 widgets, not shared styling props.
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { PlatformIcon, UITabBar, modifier } from '@octane-xplat/ui/ios'
 import { Text } from '@octane-xplat/ui'
 
@@ -694,7 +694,7 @@ _VirtualList anchor correction and slots verified on web, iOS simulator, and
 Android emulator; native nested-list guard verified on iOS._
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // Items.ios.tsrx
 import { UITableView } from '@octane-xplat/ui/ios'
 import { ScrollableArea, Text } from '@octane-xplat/ui'
@@ -1325,7 +1325,7 @@ measurements alone do not invoke the caller scroll handler. Keep editable childr
 in charge of their editing keys; the hook does not intercept them.
 
 ```tsx
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 // Details.macos.tsx
 import { useScrollableArea } from '@octane-xplat/ui'
 

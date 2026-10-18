@@ -37,3 +37,31 @@ test('a binding in one scope does not hide an unbound reference in another', () 
 		'location',
 	])
 })
+
+for (const [label, module] of [
+	['repository', './xplat-rules.ts'],
+	['published lint', '../packages/lint/src/xplat-rules.ts'],
+]) {
+	test(`${label} accepts facade and legacy native pragmas`, async () => {
+		const { checkNativePragmaFirstLine } = await import(module)
+		const filename = 'Card.mobile.tsrx'
+		const body = 'export function Card() @{ <gridlayout /> }'
+		for (const sourceName of ['@octane-xplat/jsx', '@nativescript-community/octane']) {
+			const source = `/** @jsxImportSource ${sourceName} */\n${body}`
+			assert.deepEqual(
+				checkNativePragmaFirstLine(parseModule(source, filename), source, filename),
+				[],
+			)
+		}
+		for (const prefix of [
+			'',
+			'/** @jsxImportSource @octane-xplat/jsx/dom */\n',
+			'// before\n/** @jsxImportSource @octane-xplat/jsx */\n',
+		]) {
+			const source = prefix + body
+			const failures = checkNativePragmaFirstLine(parseModule(source, filename), source, filename)
+			assert.equal(failures.length, 1)
+			assert.match(failures[0].message, /@octane-xplat\/jsx/)
+		}
+	})
+}

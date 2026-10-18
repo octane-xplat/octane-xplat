@@ -7,8 +7,9 @@
 // lists every platform module suffix in a fixed precedence order
 // (extensionless first) so imports bind the unsuffixed default while each
 // variant file is checked as a program root under that same resolution.
-// Per-file @jsxImportSource pragmas select the renderer; the program default
-// is `octane`, which is what shared and .web/.linux sources already use.
+// Per-file @jsxImportSource pragmas select the JSX vocabulary, not a runtime
+// renderer. Existing manifests retain the `octane` default; facade-based apps
+// explicitly set @octane-xplat/jsx in top-level compilerOptions.
 //
 // TYPECHECK_ENVIRONMENTS keeps the per-platform resolution settings for
 // *consumers* of a packed package (tests/packed-consumer.mjs) — a real
@@ -302,9 +303,9 @@ const LIB_ORDER = ['ESNext', 'DOM', 'DOM.Iterable']
  * Environments no longer select programs — each entry declares the slice of
  * the checked surface it claims (files/include/exclude, plus `types` for
  * host-global packages that slice needs). The generated program unions every
- * declared environment's files, merges lib/customConditions/types across
- * them, and compiles under PLATFORM_MODULE_SUFFIXES. Renderer selection is
- * per-file via @jsxImportSource pragmas; the program default is `octane`.
+ * declared environment's files, merges lib/types across
+ * them, and compiles under PLATFORM_MODULE_SUFFIXES. JSX vocabulary selection is
+ * per-file via @jsxImportSource pragmas; the legacy program default is `octane`.
  * Everything else program-wide (paths, target, a different default
  * jsxImportSource) belongs in the manifest's top-level compilerOptions.
  */

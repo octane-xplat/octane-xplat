@@ -110,21 +110,67 @@ pnpm xplat routes
 
 TypeScript checks that the selected component accepts the options your screen
 gives it. In a created app, run `pnpm typecheck` from the app folder to check
-both the web and phone configurations. If you're using an agent, ask it to
+all platform files in one program. If you're using an agent, ask it to
 fix any errors and run the check again.
 
 The remaining details are for troubleshooting file resolution or maintaining
 the build configuration; you can skip them when that check passes.
 
-The browser and WebView configs resolve `.web` before the unsuffixed fallback.
-The mobile config includes
-`.ios`, `.android`, `.mobile`, and the unsuffixed fallback; the NativeScript
-Vite resolver orders the active OS first at build time. The macOS config uses
-`.macos` before the unsuffixed fallback for AppKit. Keep imports extensionless
-so the resolver can select the right file.
+The build selects the active platform using the resolution order above.
+The scaffold's TypeScript program checks every variant together. Its fixed
+`moduleSuffixes` order starts with the unsuffixed file, so a passing typecheck
+checks the files' contracts, rather than proving runtime platform selection.
+Keep imports extensionless so the build can select the right file.
+
+New apps directly depend on `@octane-xplat/jsx` and select its shared native
+vocabulary in `tsconfig.json`:
 
 ```json
-{ "compilerOptions": { "moduleSuffixes": [".web", ""] } }
+{ "compilerOptions": { "jsx": "preserve", "jsxImportSource": "@octane-xplat/jsx" } }
+```
+
+Put this pragma on the first line of each browser JSX file, such as
+`Card.web.tsx` or `Card.web.tsrx`, to select DOM elements:
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx/dom */
+export function Card() {
+	return <div>Ready</div>
+}
+```
+
+Native JSX files inherit the shared vocabulary, or select it explicitly.
+A renderer-specific pragma overrides the app default, so use the facade:
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export function Card() {
+	return <gridlayout><label text="Ready" /></gridlayout>
+}
+```
+
+The combined program has no platform export condition, so native refs and host
+events use an opaque handle. A separate target-specific consumer program can
+bind NativeScript `View` handles with `native`, or AppKit handles with `macos`.
+Conditions change host types only. These settings add no runtime renderer:
+
+```json
+{ "compilerOptions": { "jsxImportSource": "@octane-xplat/jsx", "customConditions": ["native"] } }
+```
+
+An older `tsconfig.envs.json` app can opt into the facade in its top-level
+compiler options. `xplat typecheck` preserves that selection when combining
+its environments; manifests without an explicit source retain the legacy
+`octane` default:
+
+```json
+{
+  "compilerOptions": { "jsxImportSource": "@octane-xplat/jsx" },
+  "environments": {
+    "web": { "include": ["src/**/*.web.tsx"] },
+    "native": { "include": ["src/**/*.mobile.tsx"] }
+  }
+}
 ```
 
 Plain `tsc` doesn't probe `.tsrx` for extensionless specifiers — the suffix
@@ -154,7 +200,7 @@ project's chain. Upstream emits `['.<platform>', '.native', '']` — no
 iOS/Android/visionOS, so `.mobile` leaves resolve under the build-time check
 too.
 
-In a scaffolded app, run `pnpm typecheck` for its web and native configs.
+In a scaffolded app, run `pnpm typecheck` for its combined program.
 Framework contributors use `pnpm typecheck:web`, `pnpm typecheck:mobile`, and
 `pnpm typecheck:macos` in this repository. The mobile config covers both iOS
 and Android.

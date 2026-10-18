@@ -119,14 +119,22 @@ export function NameField() {
 ```
 
 - `.mobile.tsrx`/`.ios.tsrx`/`.android.tsrx` files and unsuffixed native-default files containing JSX must
-  start with `/** @jsxImportSource @nativescript-community/octane */` on
+  start with `/** @jsxImportSource @octane-xplat/jsx */` on
   line 1 — nothing may precede it:
 
 ```tsrx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { Text } from '@octane-xplat/ui'
 
 export function NativeGreeting() { return <Text>Hello</Text> }
+```
+
+- Browser JSX leaves select DOM types explicitly on line 1. These pragmas
+  select types; the build keeps the existing web and native renderers:
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx/dom */
+export function BrowserGreeting() { return <p>Hello</p> }
 ```
 
 ## Verify

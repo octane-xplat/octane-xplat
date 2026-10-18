@@ -141,7 +141,7 @@ Choose platform widgets when you want the OS's own controls. Import them only
 in the matching platform file. This iOS example belongs in `Preference.ios.tsrx`:
 
 ```tsrx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { UISwitch } from '@octane-xplat/ui/ios'
 
@@ -154,7 +154,7 @@ export function Preference() {
 The Android equivalent belongs in `Preference.android.tsrx`:
 
 ```tsrx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { MaterialSwitch } from '@octane-xplat/ui/android'
 

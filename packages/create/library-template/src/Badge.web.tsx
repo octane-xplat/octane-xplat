@@ -1,4 +1,4 @@
-/** @jsxImportSource octane */
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { Text, View } from '@octane-xplat/ui'
 import { normalizeBadgeLabel } from './normalizeBadgeLabel'
 import type { BadgeProps } from './props'
