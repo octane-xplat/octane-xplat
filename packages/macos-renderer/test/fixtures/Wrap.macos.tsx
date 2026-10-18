@@ -24,7 +24,7 @@ export default function Wrap() {
 	const phase = phase$.get()
 	const ids = phase >= 4 ? ['c', 'a', 'b'] : ['a', 'b', 'c']
 	return (
-		<masonview display="flex" flexDirection="column">
+		<masonview flexDirection="column" style={{display: "flex"}}>
 			<masonview id="wrap" ref={wrapRefs.host} orientation={phase === 1 ? 'vertical' : undefined} itemWidth={phase === 0 || phase === 1 ? 80 : phase === 2 ? 0 : undefined} itemHeight={phase === 0 || phase === 1 ? 30 : phase === 2 ? 0 : undefined} style={{
 					width: phase === 3 ? 100 : 200,
 					height: 100,
@@ -42,7 +42,7 @@ export default function Wrap() {
 						</contentview>
 					))}
 				{phase === 6 ? (
-					<masonview display="flex" key="replacement" id="wrap-moving" ref={refs} style={{ width: 40, height: 20 }}>
+					<masonview key="replacement" id="wrap-moving" ref={refs} style={{display: "flex", ...({ width: 40, height: 20 })}}>
 						<label id="wrap-descendant" text="Replacement" />
 					</masonview>
 				) : phase < 6 || phase === 9 ? (
@@ -84,7 +84,7 @@ export default function Wrap() {
 					}}
 				/>
 			</masonview>
-			<masonview display="flex" id="advance-wrap" onTap={() => phase$.set(phase + 1)}>
+			<masonview id="advance-wrap" onTap={() => phase$.set(phase + 1)} style={{display: "flex"}}>
 				<label text="Advance wrap" />
 			</masonview>
 		</masonview>

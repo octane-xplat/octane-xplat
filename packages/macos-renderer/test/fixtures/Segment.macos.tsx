@@ -48,10 +48,10 @@ export default function SegmentedBar() {
 	)
 
 	return (
-		<masonview display="flex" flexDirection="column">
+		<masonview flexDirection="column" style={{display: "flex"}}>
 			<segmentedbar id="segment-default" />
 			<segmentedbar id="segment-natural" items={[{ title: 'Natural' }]} />
-			<masonview display="flex" flexDirection="column" id="segment-left" style={{ width: 240, height: 110 }}>
+			<masonview flexDirection="column" id="segment-left" style={{display: "flex", ...({ width: 240, height: 110 })}}>
 				{(phase >= 3 ? ['tail', 'segment'] : ['segment', 'tail']).map((id) =>
 					id === 'tail' ? (
 						<label key="tail" id="segment-tail" text="tail" style={{ width: 32, height: 20 }} />
@@ -63,7 +63,7 @@ export default function SegmentedBar() {
 			<contentview id="segment-right" style={{ width: 240, height: 60 }}>
 				{phase === 4 ? content() : null}
 			</contentview>
-			<masonview display="flex" id="advance-segment" onTap={() => phase$.set(phase + 1)}>
+			<masonview id="advance-segment" onTap={() => phase$.set(phase + 1)} style={{display: "flex"}}>
 				<label text="Advance" />
 			</masonview>
 		</masonview>

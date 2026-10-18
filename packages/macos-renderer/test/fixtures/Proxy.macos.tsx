@@ -44,7 +44,7 @@ export default function Proxy() {
 	const phase = phase$.get()
 	const ids = phase >= 3 ? ['b', 'a'] : ['a', 'b']
 	return (
-		<masonview display="flex" flexDirection="column">
+		<masonview flexDirection="column" style={{display: "flex"}}>
 			<masonview id="proxy-wrap" itemWidth={40} itemHeight={20} style={{ width: 200, height: 40 }}>
 				<contentview id="proxy-before" style={{ width: 40, height: 20 }} />
 				{phase < 5 ? (
@@ -74,7 +74,7 @@ export default function Proxy() {
 			<masonview id="proxy-other" itemWidth={40} itemHeight={20} style={{ width: 100, height: 40 }}>
 				{phase === 7 ? <ReturnedGroup /> : null}
 			</masonview>
-			<masonview display="grid" gridTemplateRows="30px 30px" gridTemplateColumns="40px 40px" id="proxy-grid" style={{ width: 80, height: 60 }}>
+			<masonview id="proxy-grid" style={{display: "grid", gridTemplateRows: "30px 30px", gridTemplateColumns: "40px 40px", ...({ width: 80, height: 60 })}}>
 				<proxyviewcontainer style={{gridRow: String((phase === 1 ? 1 : undefined) + 1), gridColumn: String((phase === 1 ? 1 : undefined) + 1)}}>
 					<contentview id="proxy-grid-child" />
 				</proxyviewcontainer>
@@ -102,7 +102,7 @@ export default function Proxy() {
 				</proxyviewcontainer>
 			</contentview>
 			<proxyviewcontainer id="proxy-empty" ref={proxyRefs.empty} />
-			<masonview display="flex" id="advance-proxy" onTap={() => phase$.set(phase + 1)}>
+			<masonview id="advance-proxy" onTap={() => phase$.set(phase + 1)} style={{display: "flex"}}>
 				<label text="Advance proxy" />
 			</masonview>
 		</masonview>

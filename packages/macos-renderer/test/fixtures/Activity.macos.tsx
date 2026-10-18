@@ -26,10 +26,10 @@ export default function Activity() {
 	)
 
 	return (
-		<masonview display="flex" flexDirection="column">
+		<masonview flexDirection="column" style={{display: "flex"}}>
 			<activityindicator id="idle-default" />
 			<activityindicator id="intrinsic-size" busy />
-			<masonview display="flex" flexDirection="column" id="activity-left" style={{ width: 240, height: 110 }}>
+			<masonview flexDirection="column" id="activity-left" style={{display: "flex", ...({ width: 240, height: 110 })}}>
 				{(phase >= 3 ? ['tail', 'activity'] : ['activity', 'tail']).map((id) =>
 					id === 'tail' ? (
 						<label key="tail" id="activity-tail" text="tail" style={{ width: 32, height: 20 }} />
@@ -41,7 +41,7 @@ export default function Activity() {
 			<contentview id="activity-right" style={{ width: 240, height: 60 }}>
 				{phase === 4 ? content() : null}
 			</contentview>
-			<masonview display="flex" id="advance-activity" onTap={() => phase$.set(phase + 1)}>
+			<masonview id="advance-activity" onTap={() => phase$.set(phase + 1)} style={{display: "flex"}}>
 				<label text="Advance" />
 			</masonview>
 		</masonview>

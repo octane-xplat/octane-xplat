@@ -37,7 +37,7 @@ export default function TimePicker() {
 	)
 
 	return (
-		<masonview display="flex" flexDirection="column">
+		<masonview flexDirection="column" style={{display: "flex"}}>
 			<timepicker id="idle-default" />
 			<timepicker
 				id="range-check"
@@ -52,7 +52,7 @@ export default function TimePicker() {
 						})}
 			/>
 			<timepicker id="intrinsic-size" hour={6} minute={15} />
-			<masonview display="flex" flexDirection="column" id="time-left" style={{ width: 240, height: 110 }}>
+			<masonview flexDirection="column" id="time-left" style={{display: "flex", ...({ width: 240, height: 110 })}}>
 				{(phase >= 3 ? ['tail', 'time'] : ['time', 'tail']).map((id) =>
 					id === 'tail' ? (
 						<label key="tail" id="time-tail" text="tail" style={{ width: 32, height: 20 }} />
@@ -64,7 +64,7 @@ export default function TimePicker() {
 			<contentview id="time-right" style={{ width: 240, height: 60 }}>
 				{phase === 4 ? content() : null}
 			</contentview>
-			<masonview display="flex" id="advance-time" onTap={() => phase$.set(phase + 1)}>
+			<masonview id="advance-time" onTap={() => phase$.set(phase + 1)} style={{display: "flex"}}>
 				<label text="Advance" />
 			</masonview>
 		</masonview>

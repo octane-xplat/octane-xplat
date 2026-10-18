@@ -16,7 +16,7 @@ export default function Content() {
 	const phase$ = useSignal$(0)
 	const phase = phase$.get()
 	return (
-		<masonview display="flex" flexDirection="column">
+		<masonview flexDirection="column" style={{display: "flex"}}>
 			<contentview
 				id="content"
 				ref={contentRefs.host}
@@ -33,7 +33,7 @@ export default function Content() {
 						style={phase === 2 ? undefined : { width: 60, height: 20 }}
 					/>
 				) : phase === 4 ? null : (
-					<masonview display="flex" flexDirection="column" key="replacement" id="content-child" ref={contentChildRef}>
+					<masonview flexDirection="column" key="replacement" id="content-child" ref={contentChildRef} style={{display: "flex"}}>
 						<label id="content-descendant" text="Replacement" />
 					</masonview>
 				)}
@@ -46,7 +46,7 @@ export default function Content() {
 			<contentview id="auto-content">
 				<label text="Natural size" style={{ width: 52, height: 18 }} />
 			</contentview>
-			<masonview display="flex" id="advance-content" onTap={() => phase$.set(phase + 1)}>
+			<masonview id="advance-content" onTap={() => phase$.set(phase + 1)} style={{display: "flex"}}>
 				<label text="Advance" />
 			</masonview>
 		</masonview>

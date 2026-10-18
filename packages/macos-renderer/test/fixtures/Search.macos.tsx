@@ -23,8 +23,8 @@ export default function Search() {
 	)
 
 	return (
-		<masonview display="flex" flexDirection="column">
-			<masonview display="flex" flexDirection="column" id="search-parent" style={{ width: 220, height: 120, padding: 10 }}>
+		<masonview flexDirection="column" style={{display: "flex"}}>
+			<masonview flexDirection="column" id="search-parent" style={{display: "flex", ...({ width: 220, height: 120, padding: 10 })}}>
 				{phase < 6
 					? (phase >= 3 ? ['b', 'a'] : ['a', 'b'])
 							.filter((id) => phase < 4 || id !== 'b')
@@ -50,7 +50,7 @@ export default function Search() {
 			<contentview id="search-other" style={{ width: 220, height: 40 }}>
 				{phase === 6 || phase === 8 ? moving() : null}
 			</contentview>
-			<masonview display="flex" id="advance-search" onTap={() => phase$.set(phase + 1)}>
+			<masonview id="advance-search" onTap={() => phase$.set(phase + 1)} style={{display: "flex"}}>
 				<label text="Advance search" />
 			</masonview>
 		</masonview>

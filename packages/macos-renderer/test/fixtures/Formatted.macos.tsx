@@ -54,7 +54,7 @@ export default function Formatted() {
 	)
 
 	return (
-		<masonview display="flex" flexDirection="column">
+		<masonview flexDirection="column" style={{display: "flex"}}>
 			<label id="formatted-parent" text="fallback" style={{ fontSize: 16, width: 240, height: 28 }}>
 				{phase !== 6 && phase < 9 ? content() : null}
 			</label>
@@ -89,7 +89,7 @@ export default function Formatted() {
 			<button id="formatted-other" text="other">
 				{phase >= 9 ? content() : null}
 			</button>
-			<masonview display="flex" id="advance-formatted" onTap={() => phase$.set(phase + 1)}>
+			<masonview id="advance-formatted" onTap={() => phase$.set(phase + 1)} style={{display: "flex"}}>
 				<label text="Advance" />
 			</masonview>
 		</masonview>

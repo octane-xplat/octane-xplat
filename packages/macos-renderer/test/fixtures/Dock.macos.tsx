@@ -25,7 +25,7 @@ export default function Dock() {
 	const phase = phase$.get()
 	const edges = phase >= 3 ? ['left', 'top', 'right', 'bottom'] : ['top', 'right', 'bottom', 'left']
 	return (
-		<masonview display="flex" flexDirection="column">
+		<masonview flexDirection="column" style={{display: "flex"}}>
 			<masonview id="dock" ref={dockRefs.host} stretchLastChild={phase === 1 ? false : undefined} style={{
 					width: phase === 1 ? 360 : 300,
 					height: phase === 1 ? 180 : 160,
@@ -64,7 +64,7 @@ export default function Dock() {
 						<label id="dock-descendant" text="Fill" style={{ width: 60, height: 18 }} />
 					</contentview>
 				) : phase === 5 ? (
-					<masonview display="flex" key="replacement" id="dock-fill" ref={fillRefs}>
+					<masonview key="replacement" id="dock-fill" ref={fillRefs} style={{display: "flex"}}>
 						<label id="dock-descendant" text="Replacement" />
 					</masonview>
 				) : null}
@@ -81,7 +81,7 @@ export default function Dock() {
 				<contentview dock="left" style={{ width: 30, height: 50 }} />
 				<contentview style={{ width: 40, height: 20 }} />
 			</masonview>
-			<masonview display="flex" id="advance-dock" onTap={() => phase$.set(phase + 1)}>
+			<masonview id="advance-dock" onTap={() => phase$.set(phase + 1)} style={{display: "flex"}}>
 				<label text="Advance dock" />
 			</masonview>
 		</masonview>

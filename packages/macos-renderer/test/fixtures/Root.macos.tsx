@@ -24,7 +24,7 @@ export default function Root() {
 	const phase$ = useSignal$(0)
 	const phase = phase$.get()
 	return (
-		<masonview display="flex" flexDirection="column">
+		<masonview flexDirection="column" style={{display: "flex"}}>
 			<rootlayout
 				id="root"
 				ref={rootRefs.host}
@@ -71,7 +71,7 @@ export default function Root() {
 					<contentview id="root-projected" />
 				</proxyviewcontainer>
 			</rootlayout>
-			<masonview display="flex" id="advance-root" onTap={() => phase$.set(phase + 1)}>
+			<masonview id="advance-root" onTap={() => phase$.set(phase + 1)} style={{display: "flex"}}>
 				<label text="Advance root" />
 			</masonview>
 		</masonview>

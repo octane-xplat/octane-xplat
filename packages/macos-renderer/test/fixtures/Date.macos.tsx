@@ -35,10 +35,10 @@ export default function DatePicker() {
 	)
 
 	return (
-		<masonview display="flex" flexDirection="column">
+		<masonview flexDirection="column" style={{display: "flex"}}>
 			<datepicker id="idle-default" />
 			<datepicker id="intrinsic-size" year={2026} month={6} day={15} />
-			<masonview display="flex" flexDirection="column" id="date-left" style={{ width: 240, height: 110 }}>
+			<masonview flexDirection="column" id="date-left" style={{display: "flex", ...({ width: 240, height: 110 })}}>
 				{(phase >= 3 ? ['tail', 'date'] : ['date', 'tail']).map((id) =>
 					id === 'tail' ? (
 						<label key="tail" id="date-tail" text="tail" style={{ width: 32, height: 20 }} />
@@ -50,7 +50,7 @@ export default function DatePicker() {
 			<contentview id="date-right" style={{ width: 240, height: 60 }}>
 				{phase === 4 ? content() : null}
 			</contentview>
-			<masonview display="flex" id="advance-date" onTap={() => phase$.set(phase + 1)}>
+			<masonview id="advance-date" onTap={() => phase$.set(phase + 1)} style={{display: "flex"}}>
 				<label text="Advance" />
 			</masonview>
 		</masonview>

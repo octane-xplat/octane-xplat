@@ -64,8 +64,8 @@ export default function ListView({ phase }: { phase: number }) {
 	)
 
 	return (
-		<masonview display="flex" flexDirection="column">
-			<masonview display="flex" flexDirection="column" id="listview-left" style={{ width: 260, height: 100 }}>
+		<masonview flexDirection="column" style={{display: "flex"}}>
+			<masonview flexDirection="column" id="listview-left" style={{display: "flex", ...({ width: 260, height: 100 })}}>
 				{(phase === 3 ? ['tail', 'list'] : ['list', 'tail']).map((id) =>
 					id === 'tail' ? (
 						<label key="tail" id="listview-tail" text="tail" style={{ height: 20 }} />

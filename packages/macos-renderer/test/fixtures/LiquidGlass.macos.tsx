@@ -24,7 +24,7 @@ export default function Glass() {
 	const phase$ = useSignal$(0)
 	const phase = phase$.get()
 	return (
-		<masonview display="flex" flexDirection="column">
+		<masonview flexDirection="column" style={{display: "flex"}}>
 			<liquidglass
 				id="glass"
 				ref={glassRefs.host}
@@ -65,7 +65,7 @@ export default function Glass() {
 			<liquidglass id="glass-other" style={{ width: 100, height: 40 }}>
 				{phase === 7 ? <Moving /> : null}
 			</liquidglass>
-			<masonview display="flex" id="advance-glass" onTap={() => phase$.set(phase + 1)}>
+			<masonview id="advance-glass" onTap={() => phase$.set(phase + 1)} style={{display: "flex"}}>
 				<label text="Advance glass" />
 			</masonview>
 		</masonview>

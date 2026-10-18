@@ -22,7 +22,7 @@ const stackRef = (view: any) => {
 export default function App() {
 	const count$ = useSignal$(0)
 	return (
-		<masonview display="flex" flexDirection="column">
+		<masonview flexDirection="column" style={{display: "flex"}}>
 			<actionbar
 				id="hmr-actionbar"
 				title={'First revision' + count$.get()}
@@ -126,12 +126,12 @@ export default function App() {
 					event.view = NSTextField.labelWithString('First revision')
 				}}
 			/>
-			<masonview display="flex" flexDirection={count$.get() === 1 ? 'horizontal' : undefined === 'horizontal' ? 'row' : 'column'} id="layout" onTap={
+			<masonview flexDirection={count$.get() === 1 ? 'horizontal' : undefined === 'horizontal' ? 'row' : 'column'} id="layout" onTap={
 					count$.get() === 1
 						? (event) =>
 								tapEvents.push(event.eventName + ':' + String(event.object === stackRefs[0]))
 						: undefined
-				} ref={stackRef} style={{ width: 240, height: 80, padding: 8 }}>
+				} ref={stackRef} style={{display: "flex", ...({ width: 240, height: 80, padding: 8 })}}>
 				{(count$.get() >= 2 ? [] : count$.get() === 1 ? ['c', 'a', 'b'] : ['a', 'b', 'c']).map(
 					(id) => (
 						<label
@@ -146,7 +146,7 @@ export default function App() {
 					),
 				)}
 			</masonview>
-			<masonview display="flex" id="increment" onTap={() => count$.set(count$.get() + 1)}>
+			<masonview id="increment" onTap={() => count$.set(count$.get() + 1)} style={{display: "flex"}}>
 				<label text="Increment" />
 			</masonview>
 		</masonview>

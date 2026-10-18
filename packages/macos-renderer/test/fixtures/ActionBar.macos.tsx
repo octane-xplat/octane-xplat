@@ -26,7 +26,7 @@ export default function ActionBar() {
 	const phase$ = useSignal$(0)
 	const phase = phase$.get()
 	return (
-		<masonview display="flex" flexDirection="column">
+		<masonview flexDirection="column" style={{display: "flex"}}>
 			<actionbar id="bar-natural" titleView={naturalTitle} horizontalAlignment="left" />
 			{phase !== 6 ? (
 				<actionbar
@@ -43,7 +43,7 @@ export default function ActionBar() {
 					) : null}
 				</actionbar>
 			) : null}
-			<masonview display="flex" id="advance-bar" onTap={() => phase$.set(phase + 1)}>
+			<masonview id="advance-bar" onTap={() => phase$.set(phase + 1)} style={{display: "flex"}}>
 				<label text="Next" />
 			</masonview>
 		</masonview>

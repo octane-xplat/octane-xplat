@@ -55,11 +55,13 @@ test('scrollview orientation maps to flexDirection', () => {
 	assert.equal(styleDict(node('scrollview')).position, 'relative')
 })
 
-test('masonview takes CSS props directly with no intrinsic defaults', () => {
+test('masonview takes contract props + style CSS with no intrinsic defaults', () => {
 	const bare = styleDict(node('masonview'))
 	assert.equal(bare.display, undefined)
 	assert.equal(bare.flexDirection, undefined)
-	const dict = styleDict(node('masonview', { display: 'flex', flexDirection: 'row', alignItems: 'stretch' }))
+	const dict = styleDict(
+		node('masonview', { flexDirection: 'row', alignItems: 'stretch', style: { display: 'flex' } }),
+	)
 	assert.equal(dict.display, 'flex')
 	assert.equal(dict.flexDirection, 'row')
 	assert.equal(dict.alignItems, 'stretch')
@@ -85,9 +87,11 @@ test('className-derived spacing/orientation feed the dict', () => {
 test('masonview grid templates pass through as CSS tracks', () => {
 	const dict = styleDict(
 		node('masonview', {
-			display: 'grid',
-			gridTemplateRows: 'auto 1fr 40px',
-			gridTemplateColumns: '1fr 2fr auto 10%',
+			style: {
+				display: 'grid',
+				gridTemplateRows: 'auto 1fr 40px',
+				gridTemplateColumns: '1fr 2fr auto 10%',
+			},
 		}),
 	)
 	assert.equal(dict.display, 'grid')
@@ -96,7 +100,7 @@ test('masonview grid templates pass through as CSS tracks', () => {
 })
 
 test('grid children translate row/col/span to grid lines', () => {
-	const grid = node('masonview', { display: 'grid' })
+	const grid = node('masonview', { style: { display: 'grid' } })
 	const item = node('label', { row: 1, col: 2, colSpan: 2 }, grid)
 	const dict = styleDict(item)
 	assert.equal(dict.gridRow, '2')
@@ -153,7 +157,7 @@ test('scrollview content flows vertically by default', () => {
 })
 
 test('attached alignment becomes self-alignment on the cross axis', () => {
-	const col = node('masonview', { display: 'flex', flexDirection: 'column' })
+	const col = node('masonview', { flexDirection: 'column', style: { display: 'flex' } })
 	const item = node('label', { horizontalAlignment: 'right' }, col)
 	assert.equal(styleDict(item).alignSelf, 'end')
 
@@ -162,7 +166,7 @@ test('attached alignment becomes self-alignment on the cross axis', () => {
 	assert.equal(styleDict(rowItem).alignSelf, 'end')
 
 	// Grid children own both axes.
-	const grid = node('masonview', { display: 'grid' })
+	const grid = node('masonview', { style: { display: 'grid' } })
 	const g = node('label', { horizontalAlignment: 'center', verticalAlignment: 'stretch' }, grid)
 	const gdict = styleDict(g)
 	assert.equal(gdict.justifySelf, 'center')
