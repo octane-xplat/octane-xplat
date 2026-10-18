@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { expect, it, vi } from 'vitest'
 import { createRoot } from 'octane'
 import { App } from './App.tsrx'
