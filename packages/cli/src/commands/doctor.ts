@@ -1,5 +1,7 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 import { command } from '@alloc/cmd-ts'
+import { inspectCompatibility } from '../compatibility-check.ts'
+import { workspaceRoot } from '../compatibility.ts'
 import { execFileSync } from 'node:child_process'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, join, parse, relative, resolve } from 'node:path'
@@ -311,6 +313,15 @@ export const doctor = command({
 		const native = hasNative(cwd)
 		const macos = hasMacOS(cwd)
 		const manifest = readJson(join(cwd, 'package.json')) ?? {}
+		let compatibilityFailed = false
+		try {
+			const compatibilityRows = inspectCompatibility(cwd)
+			rows.push(...compatibilityRows)
+			compatibilityFailed = compatibilityRows.some((r) => !r.ok)
+		} catch (error) {
+			row('compatibility', false, error.message, 'fix the package/workspace metadata and rerun xplat doctor')
+			compatibilityFailed = true
+		}
 		let declarationPackCheckFailed = false
 		let declarationPackCheckOutput = ''
 		if (existsSync(join(cwd, 'tsrx-typegen.json'))) {
@@ -558,7 +569,7 @@ export const doctor = command({
 			}
 		}
 
-		for (const patch of inspectPatches(cwd)) {
+		for (const patch of inspectPatches(workspaceRoot(cwd))) {
 			if (patch.state === 'not-declared' || patch.state === 'not-applicable') {
 				continue
 			}
@@ -639,7 +650,7 @@ export const doctor = command({
 				p.log.success(`${r.name} — ${r.detail || 'ok'}`)
 			} else {
 				bad++
-				p.log.warn(`${r.name} — missing${r.hint ? ` (${r.hint})` : ''}`)
+				p.log.warn(`${r.name} — ${r.detail || 'missing'}${r.hint ? ` (${r.hint})` : ''}`)
 			}
 		}
 
@@ -652,7 +663,7 @@ export const doctor = command({
 				: summary,
 		)
 
-		if (declarationPackCheckFailed || rows.some((r) => r.name.startsWith('Linux ') && !r.ok)) {
+		if (compatibilityFailed || declarationPackCheckFailed || rows.some((r) => r.name.startsWith('Linux ') && !r.ok)) {
 			if (declarationPackCheckOutput) {
 				console.error(declarationPackCheckOutput)
 			}

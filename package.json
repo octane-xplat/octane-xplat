@@ -51,7 +51,7 @@
 		"typecheck:windows": "turbo run typecheck --filter=@xplat/windows",
 		"typecheck:docs": "turbo run typecheck --filter=@xplat/docs",
 		"typecheck": "turbo run typegen && turbo run typecheck --filter='./apps/*'",
-		"check": "pnpm lint && pnpm check:patches && pnpm check:decisions && pnpm check:suffix-resolution && pnpm check:metallib && pnpm check:vendored",
+		"check": "pnpm lint && pnpm check:compatibility && pnpm check:patches && pnpm check:decisions && pnpm check:suffix-resolution && pnpm check:metallib && pnpm check:vendored",
 		"validate": "pnpm check && pnpm typecheck && pnpm test",
 		"smoke:web": "pnpm --filter @xplat/web smoke",
 		"smoke:docs": "pnpm --filter @xplat/docs smoke",
@@ -63,7 +63,9 @@
 		"check:pack": "pnpm -r --filter './packages/**' --if-present run pack:check",
 		"smoke:macos": "pnpm --filter @xplat/macos smoke && pnpm --filter @xplat/macos test:animation && pnpm --filter @xplat/macos test:layout-placement && pnpm probe run examples/probes/signals.ts --target macos && pnpm probe run examples/probes/counter.tsrx --target macos && pnpm probe run examples/probes/lottie.macos.tsrx --target macos --deps @octane-xplat/lottie",
 		"test:maestro": "node scripts/maestro.ts",
-		"typecheck:scripts": "tsc -p scripts/tsconfig.json"
+		"typecheck:scripts": "tsc -p scripts/tsconfig.json",
+		"sync:compatibility": "node scripts/sync-compatibility.ts",
+		"check:compatibility": "node scripts/sync-compatibility.ts --check"
 	},
 	"devDependencies": {
 		"@tsrx/core": "0.2.4",

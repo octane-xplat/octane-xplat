@@ -52,6 +52,16 @@ small web and native TypeScript consumers, and checks both export conditions.
 The package sets `nodeLinker: hoisted` in `pnpm-workspace.yaml` because the
 NativeScript bundler expects a flat dependency tree.
 
+Its `catalog:xplat` build dependencies and patches follow one framework
+compatibility set. Update that set together; consumer `peerDependencies`
+ranges are preserved for you to maintain:
+
+```sh
+pnpm dlx @octane-xplat/cli@latest upgrade --check
+pnpm dlx @octane-xplat/cli@latest upgrade
+pnpm xplat doctor
+```
+
 ## Platform files
 
 `src/Badge.tsx` is the shared iOS and Android implementation. The

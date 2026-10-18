@@ -14,19 +14,6 @@ allowBuilds:
   '@parcel/watcher': true
   nativescript: true
   '@nativescript/core': false
-# Shared version pins — bump these here, every dependency field reads them.
-catalog:
-  octane: 0.11.0
-  '@nativescript-community/octane': 0.2.4
-  '@nativescript-community/vite-octane': 0.2.1
-  '@nativescript/core': 9.1.3
-  '@nativescript/types': 9.1.4
-  '@nativescript/unit-test-runner': 5.0.0
-  typescript: 5.9.3
-  vite: 8.3.0
-  '@octanejs/vite-plugin': 0.1.61
-  '@tsrx/typescript-plugin': 0.4.11
-  vitest: 4.1.11
 # The patch set covers optional leaf deps (tiptap, linkifyjs, …) the starter
 # doesn't install — tolerate entries that apply to nothing.
 allowUnusedPatches: true
@@ -80,17 +67,6 @@ patchedDependencies:
   # device verbatim and the HTTP loader throws `Cannot find module`, deadlocking dev boot
   # before any boot recording can bundle the dep.
   "@nativescript/vite@8.0.17": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript__vite@8.0.17.patch
-  # Driver treats a prop dropped from an update's complete prop bag — or set to
-  # `undefined`/`null` — as a removal and restores the documented default:
-  # Property/CssProperty setters get `unsetValue`, plain fields restore the captured
-  # pre-prop value, and applied `style` keys diff per key. A never-applied `undefined` still
-  # skips the write since NativeScript native setters coerce it (e.g. editable →
-  # ios.userInteractionEnabled = NO). Aligns intrinsic ref types with Octane callback
-  # cleanup and nested arrays with optional entries. Advertises the implemented visibility
-  # capability so committed suspense bodies can be retained while pending. Preserves
-  # authored Grid row/col/span metadata independently of NativeScript defaults and computed
-  # auto-placement, notifying Grid when placement props change.
-  "@nativescript-community/octane@0.2.4": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript-community__octane@0.2.4.patch
   # Retains the workspace's NativeScript driver fixes when upgrading to 0.2.5 for portal
   # support: a prop dropped from an update's complete prop bag — or set to
   # `undefined`/`null` — is a removal that restores the documented default
@@ -140,3 +116,33 @@ patchedDependencies:
   "@nativescript-community/ui-image@5.0.17": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript-community__ui-image@5.0.17.patch
 configDependencies:
   "@octane-xplat/patches": 0.15.0
+catalogs:
+  xplat:
+    "@nativescript-community/gesturehandler": 2.0.45
+    "@nativescript-community/octane": 0.2.5
+    "@nativescript-community/ui-drawer": 0.1.32
+    "@nativescript-community/vite-octane": 0.2.1
+    "@nativescript/android": 9.1.1
+    "@nativescript/core": 9.1.3
+    "@nativescript/ios": 9.1.0
+    "@nativescript/types": 9.1.4
+    "@nativescript/unit-test-runner": 5.0.0
+    "@nativescript/vite": 8.0.17
+    "@octane-xplat/cli": 0.15.0
+    "@octane-xplat/effects": 0.15.0
+    "@octane-xplat/image": 0.15.0
+    "@octane-xplat/platform": 0.15.0
+    "@octane-xplat/ui": 0.15.0
+    "@octanejs/vite-plugin": 0.1.61
+    "@tsrx/oxc": 0.20.0
+    "@tsrx/typescript-plugin": 0.4.11
+    "@valor/nativescript-websockets": 2.0.3
+    nativescript: 9.1.1
+    octane: 0.11.0
+    typescript: 5.9.3
+    vite: 8.3.0
+    vitest: 4.1.11
+overrides:
+  "@nativescript/vite>esbuild": 0.27.7
+  "@nativescript-community/vite-octane>esbuild": 0.27.7
+  vite>esbuild: 0.27.7

@@ -19,32 +19,35 @@
 		"format": "xplat fmt"
 	},
 	"dependencies": {
-		"@nativescript-community/gesturehandler": "2.0.45",
-		"@nativescript-community/octane": "catalog:",
-		"@nativescript-community/ui-drawer": "0.1.32",
-		"@nativescript/core": "catalog:",
-		"@octane-xplat/effects": "^0.15.0",
-		"@octane-xplat/image": "^0.15.0",
-		"@octane-xplat/platform": "^0.15.0",
-		"@octane-xplat/ui": "^0.15.0",
-		"@valor/nativescript-websockets": "2.0.3",
-		"octane": "catalog:"
+		"@nativescript-community/gesturehandler": "catalog:xplat",
+		"@nativescript-community/octane": "catalog:xplat",
+		"@nativescript-community/ui-drawer": "catalog:xplat",
+		"@nativescript/core": "catalog:xplat",
+		"@octane-xplat/effects": "catalog:xplat",
+		"@octane-xplat/image": "catalog:xplat",
+		"@octane-xplat/platform": "catalog:xplat",
+		"@octane-xplat/ui": "catalog:xplat",
+		"@valor/nativescript-websockets": "catalog:xplat",
+		"octane": "catalog:xplat"
 	},
 	"devDependencies": {
-		"@nativescript-community/vite-octane": "catalog:",
-		"@nativescript/android": "9.1.1",
-		"@nativescript/ios": "9.1.0",
-		"@nativescript/types": "catalog:",
-		"@nativescript/unit-test-runner": "catalog:",
-		"@nativescript/vite": "8.0.17",
-		"@octane-xplat/cli": "^0.15.0",
-		"@octanejs/vite-plugin": "catalog:",
-		"@tsrx/oxc": "0.20.0",
-		"@tsrx/typescript-plugin": "catalog:",
-		"nativescript": "9.1.1",
-		"typescript": "catalog:",
-		"vite": "catalog:",
-		"vitest": "catalog:"
+		"@nativescript-community/vite-octane": "catalog:xplat",
+		"@nativescript/android": "catalog:xplat",
+		"@nativescript/ios": "catalog:xplat",
+		"@nativescript/types": "catalog:xplat",
+		"@nativescript/unit-test-runner": "catalog:xplat",
+		"@nativescript/vite": "catalog:xplat",
+		"@octane-xplat/cli": "catalog:xplat",
+		"@octanejs/vite-plugin": "catalog:xplat",
+		"@tsrx/oxc": "catalog:xplat",
+		"@tsrx/typescript-plugin": "catalog:xplat",
+		"nativescript": "catalog:xplat",
+		"typescript": "catalog:xplat",
+		"vite": "catalog:xplat",
+		"vitest": "catalog:xplat"
 	},
-	"packageManager": "pnpm@11.24.0"
+	"packageManager": "pnpm@11.24.0",
+	"engines": {
+		"node": ">=22.18.0"
+	}
 }

@@ -30,6 +30,7 @@ import {
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseDocument, Scalar } from 'yaml'
+import { managedPackage } from '../packages/create/compatibility.ts'
 
 const repo = join(dirname(fileURLToPath(import.meta.url)), '..')
 const CLI_PATCHES = join(repo, 'packages/cli/patches')
@@ -76,6 +77,7 @@ const renderYaml = (file, pathPrefix, header, withConfigDependency = false) => {
 		configDependencies.set(new Scalar(PATCH_PACKAGE_NAME), PATCH_PACKAGE_VERSION)
 
 		doc.set('configDependencies', configDependencies)
+		doc.set('allowUnusedPatches', true)
 	}
 
 	// The starter must declare only patches its own matrix can resolve —
@@ -85,13 +87,18 @@ const renderYaml = (file, pathPrefix, header, withConfigDependency = false) => {
 		if (withConfigDependency && patch.template === false) {
 			continue
 		}
+		const at = patch.specifier.indexOf('@', 1)
+		const pin = managedPackage(patch.specifier.slice(0, at))
+		if (withConfigDependency && pin && pin.version !== patch.specifier.slice(at + 1)) {
+			continue
+		}
 
 		const key = new Scalar(patch.specifier)
 		key.commentBefore = ' ' + wrap(patch.why)
 		map.set(key, `${pathPrefix}/${patch.file}`)
 	}
 
-	doc.set('patchedDependencies', map)
+	doc.set(new Scalar('patchedDependencies'), map)
 	const pair = doc.contents.items.find((i) => i.key?.value === 'patchedDependencies')
 
 	pair.key.commentBefore = ' ' + wrap(header)
@@ -173,6 +180,13 @@ const failures = []
 syncYaml(join(repo, 'pnpm-workspace.yaml'), 'packages/cli/patches', ROOT_HEADER, failures)
 syncYaml(
 	join(TEMPLATE, 'pnpm-workspace.yaml'),
+	`${PATCH_CONFIG_PATH}/patches`,
+	TEMPLATE_HEADER,
+	failures,
+	true,
+)
+syncYaml(
+	join(repo, 'packages/create/library-template/pnpm-workspace.yaml'),
 	`${PATCH_CONFIG_PATH}/patches`,
 	TEMPLATE_HEADER,
 	failures,

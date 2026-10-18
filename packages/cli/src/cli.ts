@@ -13,6 +13,7 @@ import { routes } from './commands/routes.ts'
 import { patches } from './commands/patches.ts'
 import { fonts } from './commands/fonts.ts'
 import { updates } from './commands/updates.ts'
+import { upgrade } from './commands/upgrade.ts'
 import { workshop } from './commands/workshop.ts'
 import { runFmt } from './commands/fmt.ts'
 import { runLint } from './commands/lint.ts'
@@ -60,6 +61,7 @@ if (process.argv[2] && AGENT_HEADS.has(process.argv[2])) {
 			patches,
 			fonts,
 			updates,
+			upgrade,
 			workshop,
 			fmt: command({
 				name: 'fmt',

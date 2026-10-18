@@ -4,14 +4,122 @@ allowBuilds:
   esbuild: true
   '@parcel/watcher': true
   '@nativescript/core': false
-# Shared version pins — bump these here, every dependency field reads them.
-catalog:
-  octane: 0.11.0
-  '@nativescript-community/octane': 0.2.4
-  '@nativescript/core': 9.1.3
-  '@nativescript/types': 9.1.4
-  typescript: 5.9.3
-  vite: 8.3.0
-  '@octanejs/vite-plugin': 0.1.61
-  '@tsrx/typescript-plugin': 0.4.11
-  vitest: 4.1.11
+catalogs:
+  xplat:
+    "@nativescript-community/octane": 0.2.5
+    "@nativescript/core": 9.1.3
+    "@nativescript/types": 9.1.4
+    "@octane-xplat/cli": 0.15.0
+    "@octane-xplat/ui": 0.15.0
+    "@octanejs/vite-plugin": 0.1.61
+    "@tsrx/oxc": 0.20.0
+    "@tsrx/typescript-plugin": 0.4.11
+    octane: 0.11.0
+    tsrx-typegen: 0.2.2
+    typescript: 5.9.3
+    vite: 8.3.0
+    vitest: 4.1.11
+overrides:
+  "@nativescript/vite>esbuild": 0.27.7
+  "@nativescript-community/vite-octane>esbuild": 0.27.7
+  vite>esbuild: 0.27.7
+configDependencies:
+  "@octane-xplat/patches": 0.15.0
+allowUnusedPatches: true
+# Framework patches are supplied by the @octane-xplat/patches config dependency and
+# applied via pnpm patchedDependencies. Managed upstream by @octane-xplat/cli (`xplat
+# patches apply` refreshes, `xplat patches check` verifies); do not edit by hand.
+patchedDependencies:
+  # Published 0.11.0 still ships none of the retained fixes: it adds the document guard
+  # context around installDefaultSignalOwner and reflows the compile.js hook-classification
+  # sites, but every patched feature remains absent upstream. Retains renderer-owned
+  # Children.toArray/map with explicit universal-native re-exports for older runtimes,
+  # universal signal-read tracking and local hooks, root event-error forwarding, the
+  # complete universal imperative-ref lifecycle, the Descriptor declaring-owner reader
+  # fallback, and the signal-owner/enclosingOwner chain so child reads reuse instance
+  # declarations. Verified against the registry 0.11.0 tarball; all hunks re-anchored to the
+  # rewritten compile.js and document-owner call sites. Disposes DOM provider descendants
+  # when children become null or undefined, releasing their refs and effects.
+  octane@0.11.0: node_modules/.pnpm-config/@octane-xplat/patches/patches/octane@0.11.0.patch
+  # Published 9.1.3 ships the #11446 nested-tab-frame lifecycle fix and iOS explicit-size
+  # flex alignment, so those hunks are removed. Retains the unshipped parent-padding
+  # measure-spec fix and Android explicit-size flex alignment, iOS continuous corner
+  # clipping, CSS @layer cascade support, custom Android variable-font weight mapping, and
+  # percentage translate parsing, native view, and animation support. Verified against the
+  # registry 9.1.3 tarball; it has no Windows implementation, so the separate Windows
+  # preview patch remains.
+  "@nativescript/core@9.1.3": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript__core@9.1.3.patch
+  # @nativescript/vite serializes bundled CSS and dev app.css through reworkcss `css`@3.0.0,
+  # which mis-parses @layer into garbage selectors — rules die before reaching
+  # _populateRules. Adds atlayer() covering block and statement forms. Applies to a
+  # transitive dep — no app declares it directly.
+  css@3.0.0: node_modules/.pnpm-config/@octane-xplat/patches/patches/css@3.0.0.patch
+  # Dev-server fixes still missing after @nativescript/vite 8.0.17 added percent decoding
+  # for path-style /ns/m and Vue /ns/sfc requests (NativeScript#11483): collect re-export
+  # specifiers in the .vite/deps rewrite, route /@fs paths outside both roots through /ns/m
+  # (linked checkouts bypass the device transform upstream), and probe the non-active
+  # platform + `native` suffix tags in module candidates. The deps-bundle esbuild passes
+  # ignore vite resolve.alias, so a dep importing bare `octane` bundles the DOM runtime
+  # beside the universal one (hooks crash on boot, octane-xplat#3) — an onResolve plugin
+  # redirects `octane` → `octane/universal/native`. tsconfig-paths and the generated
+  # build-time checker moduleSuffixes also need the `.mobile` tier for iOS/Android/visionOS
+  # so `.mobile` leaves resolve under mapped imports and `ns build`. Served `/node_modules/`
+  # tails now also scan pnpm's `.pnpm` store and `link:`/`file:`/`portal:` dep roots — a
+  # linked package's transitive deps (e.g. @iconify/utils under @octane-xplat/icons) resolve
+  # nowhere else and 404 the dev session. findMonorepoWorkspaceRoot no longer treats a lone
+  # turbo.json as a workspace root — Turborepo's per-package task configs marked apps/* as
+  # roots, masking the real pnpm root so served `/node_modules/` tails never reached the
+  # `.pnpm` store scan and non-hoisted transitive deps like source-map-js 404'd dev boot.
+  # The /ns/m import rewriter now resolves `#`-prefixed package `imports` specifiers through
+  # the importer's own package.json — raw-read node_modules files (e.g. octane's
+  # dist/signals/graph.js importing `#octane/dist/signal-actions/graph`) otherwise reach the
+  # device verbatim and the HTTP loader throws `Cannot find module`, deadlocking dev boot
+  # before any boot recording can bundle the dep.
+  "@nativescript/vite@8.0.17": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript__vite@8.0.17.patch
+  # Retains the workspace's NativeScript driver fixes when upgrading to 0.2.5 for portal
+  # support: a prop dropped from an update's complete prop bag — or set to
+  # `undefined`/`null` — is a removal that restores the documented default
+  # (Property/CssProperty setters get `unsetValue`, plain fields the captured pre-prop
+  # value, `style` keys diff per key); a never-applied `undefined` still skips the write.
+  # Also advertises the implemented visibility capability, carries Octane callback ref
+  # types, and preserves authored Grid row/col/span metadata.
+  "@nativescript-community/octane@0.2.5": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript-community__octane@0.2.5.patch
+  # octaneServerStrategy's SCRIPT_FILE_RE only covers [jt]sx? — .tsrx edits never emit the
+  # deferred ns:hmr-delta broadcast, so component HMR silently never reaches the device.
+  # Also counts open /ns-hmr sockets so the update summary stops reporting recipients=0 for
+  # delivered updates.
+  "@nativescript-community/vite-octane@0.2.1": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript-community__vite-octane@0.2.1.patch
+  # Enables `resolveHiddenExtensions` on the language plugin's typescript facet so
+  # extensionless specifiers (e.g. './Text') probe `.tsrx` after moduleSuffixes — required
+  # for a single extensionless shared barrel to resolve per-platform leaves under tsrx-tsc
+  # and the IDE plugin.
+  "@tsrx/typescript-plugin@0.4.11": node_modules/.pnpm-config/@octane-xplat/patches/patches/@tsrx__typescript-plugin@0.4.11.patch
+  # linkifyjs declares /\p{L}/u and /\p{Emoji}/u as regex literals at module scope;
+  # NativeScript's embedded V8 builds without ICU, so the literals throw SyntaxError at
+  # parse time and poison the whole bundle (any bundled app importing @tiptap/extension-link
+  # dies on boot). Rewrites them as try/catch new RegExp builds with ASCII-range fallbacks —
+  # same behavior where ICU exists, graceful degradation where it doesn't.
+  linkifyjs@4.3.3: node_modules/.pnpm-config/@octane-xplat/patches/patches/linkifyjs@4.3.3.patch
+  # useEditor.ts reads bare process.env.NODE_ENV — no node global exists in the harness
+  # typecheck program. Adds a module-local process declaration for typecheck. (The
+  # './Context' self-import half of the 0.0.51 patch shipped upstream in 0.0.52 via
+  # octanejs/octane#1502.)
+  "@octanejs/tiptap@0.0.52": node_modules/.pnpm-config/@octane-xplat/patches/patches/@octanejs__tiptap@0.0.52.patch
+  # @lexical/link declares a /\p{L}\p{N}/u URL matcher as a regex literal at module scope;
+  # NativeScript's embedded V8 builds without ICU, so the literal throws SyntaxError at
+  # parse time and poisons the whole bundle (any bundled app importing @lexical/link dies on
+  # boot). Same fix as linkifyjs: try/catch new RegExp with an ASCII-range fallback — the
+  # matcher only feeds autolink, which native doesn't use.
+  "@lexical/link@0.51.0": node_modules/.pnpm-config/@octane-xplat/patches/patches/@lexical__link@0.51.0.patch
+  # ui-image 5.x regressed two iOS prefetch behaviors the 4.x line shipped (still present in
+  # 4.6.20): prefetchToCacheType ignores its cacheType argument — SDWebImagePrefetcher's
+  # default context stores to disk+memory either way, so a 'disk' prefetch also decodes and
+  # warms memory, diverging from Android's bytes-only Glide downloadOnly — and
+  # getContextFromOptions drops PrefetchOptions.headers because it never sets
+  # SDWebImageContextDownloadRequestModifier, so prefetch({headers}) silently sends no
+  # headers on iOS while Android's CustomGlideUrl forwards them. Ports upstream's own 4.x
+  # implementation — SDWebImageContextStoreCacheType on the prefetch context plus the
+  # request-modifier branch in getContextFromOptions — and additionally sets
+  # SDWebImageContextOriginalStoreCacheType so a memory prefetch does not spill original
+  # bytes to disk.
+  "@nativescript-community/ui-image@5.0.17": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript-community__ui-image@5.0.17.patch

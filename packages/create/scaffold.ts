@@ -1,7 +1,6 @@
 // Scaffold manifest + compose/apply shared by create-octane-xplat and the
-// CLI's `xplat add`. template/package.json is the canonical store for app dep
-// versions and script bodies; library-template/package.json owns the library
-// starter. The release bump script updates both manifests.
+// CLI's `xplat add`. compatibility.json owns version pins; the generated
+// templates own script bodies and the dependency set for each starter.
 import {
 	cpSync,
 	existsSync,
@@ -14,10 +13,11 @@ import {
 
 import { basename, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { ensureCompatibilityCatalog } from './compatibility.ts'
 
 const moduleDir = dirname(fileURLToPath(import.meta.url))
 // dist/ emit sits one level deeper than the root sources it mirrors.
-const pkgRoot = moduleDir.endsWith('/dist') ? join(moduleDir, '..') : moduleDir
+const pkgRoot = basename(moduleDir) === 'dist' ? join(moduleDir, '..') : moduleDir
 export const TEMPLATE_DIR = join(pkgRoot, 'template')
 export const LIBRARY_TEMPLATE_DIR = join(pkgRoot, 'library-template')
 
@@ -620,6 +620,7 @@ export function applyTarget(appRoot, id) {
 	if (ensurePatchEntries(appRoot, [...report.enabled, ...report.already])) {
 		report.patchesAdded = true
 	}
+	ensureCompatibilityCatalog(appRoot, manifest)
 
 	if (touched) {
 		// Match the file's existing indent so diffs stay minimal.

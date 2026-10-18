@@ -8,6 +8,20 @@ Before writing code, read `.agents/skills/xplat/SKILL.md` (or invoke the
 `xplat` skill). Its invariants are enforced by `pnpm lint` — violations
 usually still compile but silently break on one platform.
 
+## Framework versions
+
+Keep framework/compiler/native tool pins in the supplied `catalog:xplat`.
+Upgrade the version set and patches together, then run the app's checks.
+Within a multi-package workspace, upgrade covers all packages. Preserve
+app-specific dependencies and reconcile custom-patch conflicts before retrying:
+
+```sh
+pnpm dlx @octane-xplat/cli@latest upgrade --check
+pnpm dlx @octane-xplat/cli@latest upgrade
+pnpm xplat doctor
+pnpm typecheck
+```
+
 ## Stable automation targets
 
 ```tsx

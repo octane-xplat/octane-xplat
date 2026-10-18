@@ -3,6 +3,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'no
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import test from 'node:test'
+import { managedSpecifier } from '../dist/compatibility.js'
 
 // Dep values must track the template, not a pinned snapshot — releases bump
 // template/package.json in lockstep.
@@ -19,7 +20,8 @@ const ALL = ['web', 'ios', 'android']
 
 test('published scaffold entry resolves to a built file', () => {
 	const manifest = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'))
-	for (const entry of Object.values(manifest.publishConfig.exports)) {
+	for (const target of Object.values(manifest.publishConfig.exports)) {
+		const entry = typeof target === 'string' ? target : target.default
 		assert.ok(
 			existsSync(new URL(`../${entry}`, import.meta.url)),
 			`missing published entry: ${entry}`,
@@ -195,7 +197,7 @@ test('applyTarget adds a platform to a web-only app without clobbering edits', (
 	// them so the next `pnpm install` doesn't miss the framework patches.
 	const yaml = readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8')
 	assert.match(yaml, /@nativescript\/core@9\.1\.3/)
-	assert.match(yaml, /@nativescript-community\/octane@0\.2\.4/)
+	assert.ok(yaml.includes(`@nativescript-community/octane@${managedSpecifier('@nativescript-community/octane')}`))
 	assert.ok(report.patchesAdded)
 })
 

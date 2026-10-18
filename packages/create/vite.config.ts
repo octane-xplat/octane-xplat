@@ -3,7 +3,7 @@ import { defineConfig } from 'vite'
 export default defineConfig({
 	build: {
 		lib: {
-			entry: ['index.ts', 'scaffold.ts'],
+			entry: ['index.ts', 'scaffold.ts', 'compatibility.ts'],
 			formats: ['es'],
 		},
 		outDir: 'dist',

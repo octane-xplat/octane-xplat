@@ -55,19 +55,19 @@
 		"format": "xplat fmt"
 	},
 	"devDependencies": {
-		"@nativescript-community/octane": "catalog:",
-		"@nativescript/core": "catalog:",
-		"@nativescript/types": "catalog:",
-		"@octane-xplat/cli": "^0.15.0",
-		"@octane-xplat/ui": "^0.15.0",
-		"@octanejs/vite-plugin": "catalog:",
-		"@tsrx/oxc": "0.20.0",
-		"@tsrx/typescript-plugin": "catalog:",
-		"octane": "catalog:",
-		"tsrx-typegen": "^0.2.2",
-		"typescript": "catalog:",
-		"vite": "catalog:",
-		"vitest": "catalog:"
+		"@nativescript-community/octane": "catalog:xplat",
+		"@nativescript/core": "catalog:xplat",
+		"@nativescript/types": "catalog:xplat",
+		"@octane-xplat/cli": "catalog:xplat",
+		"@octane-xplat/ui": "catalog:xplat",
+		"@octanejs/vite-plugin": "catalog:xplat",
+		"@tsrx/oxc": "catalog:xplat",
+		"@tsrx/typescript-plugin": "catalog:xplat",
+		"octane": "catalog:xplat",
+		"tsrx-typegen": "catalog:xplat",
+		"typescript": "catalog:xplat",
+		"vite": "catalog:xplat",
+		"vitest": "catalog:xplat"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",
@@ -83,5 +83,8 @@
 			"optional": true
 		}
 	},
-	"packageManager": "pnpm@11.24.0"
+	"packageManager": "pnpm@11.24.0",
+	"engines": {
+		"node": ">=22.18.0"
+	}
 }

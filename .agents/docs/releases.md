@@ -108,7 +108,12 @@ Before the first automated release:
    repository and workflow before publishing.
 
 3. Add the package to `packages/create/template/package.json` only if newly
-   scaffolded apps need it. The release workflow updates template versions.
+   scaffolded apps need it. Run `pnpm sync:compatibility` after adding a
+   lockstep package; its generated package-name list makes doctor/upgrade
+   recognize it. The release bump regenerates framework/catalog/patch-config
+   pins through the same compatibility manifest. External engine/tool pins
+   change only when explicitly edited in that manifest. Run
+   `pnpm check:compatibility` and `pnpm check:patches` to check both outputs.
 4. Reconcile the package's public setup and usage with its documentation, any
    affected recipes, and maintained examples. Run `pnpm check:recipes` when
    user-facing workflows change.

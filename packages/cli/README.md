@@ -24,7 +24,9 @@ pnpm xplat add ios      # enable a platform skipped at create time
 pnpm xplat build        # production builds
 pnpm xplat build -t macos # experimental AppKit .app + .dmg (Apple Silicon)
 pnpm xplat build -t linux # experimental GTK/WebKit app directory + tar archive
-pnpm xplat doctor       # environment + framework patch check
+pnpm xplat doctor       # environment, installed versions, runtime copies + patches
+pnpm xplat upgrade --check # preview alignment to this CLI's compatibility set
+pnpm xplat upgrade      # align workspace versions and patches, then install
 pnpm xplat typecheck    # web + native tsconfigs
 pnpm xplat lint         # check JS/TS/JSX/TSX + .tsrx (--fix for safe fixes)
 pnpm xplat fmt          # format JS/TS/JSX/TSX + .tsrx in place (--check, --stdin-filepath)
@@ -47,6 +49,79 @@ pnpm dev:ios
 Linux packaging and its required manifest settings are documented in
 [Package a Linux app](../../docs/platform/linux-package.md). The CLI ships the
 GJS host; Linux users supply the GTK/WebKit system runtime.
+
+## Compatible versions
+
+Use one release's compatible package set. To adopt the latest published CLI's
+set, run these from your app directory; a workspace upgrade covers all of its
+packages, including when invoked inside one member:
+
+```sh
+pnpm dlx @octane-xplat/cli@latest upgrade --check
+pnpm dlx @octane-xplat/cli@latest upgrade
+pnpm xplat doctor
+```
+
+`upgrade` uses the **executing CLI's release**, without a separate latest-version
+lookup. Replace `latest` with an exact CLI version to select a release.
+`--check` previews authored file changes, exits `1` when changes are needed,
+and writes nothing. `--no-install` writes the plan for review and leaves the
+install to you:
+
+```sh
+pnpm xplat upgrade --no-install
+pnpm install --no-frozen-lockfile
+pnpm xplat doctor
+```
+
+| Managed together when declared | Kept under application/library ownership |
+| --- | --- |
+| Lockstep Xplat packages, Octane and NativeScript renderers | App-specific libraries and plugins outside the compatibility manifest |
+| TypeScript, TSRX compiler peer/editor plugin, declaration generator | Library consumer `peerDependencies` ranges |
+| Vite and Octane/NativeScript Vite integrations | `workspace:`, `link:`, `file:` and `portal:` development dependencies |
+| NativeScript CLI, platform runtimes/types, known starter plugins | User catalogs, custom patch files, unrelated overrides and scripts |
+| Vitest and NativeScript's test runner, when enabled | Application tests and platform qualification |
+
+Dependencies remain declared in each package. Their exact build/runtime pins
+move to `catalog:xplat` in `pnpm-workspace.yaml`; Windows preview packages use
+`catalog:xplat-windows` so mobile pins cannot replace their snapshot URLs.
+The command adds Octane's missing `@tsrx/oxc` compiler peer, but does not add
+optional test runners or platform runtimes. The manifest also supplies Node's
+minimum version and the pnpm version; existing app Node engine restrictions
+are preserved.
+
+```json
+{
+	"dependencies": { "octane": "catalog:xplat" },
+	"devDependencies": { "@tsrx/oxc": "catalog:xplat" }
+}
+```
+
+Matching patches come from the same release's `@octane-xplat/patches` config
+package. Custom patches and conflicting overrides must be reconciled before
+the plan writes any files. Old user-owned patch mappings remain intact; old
+framework config-package mappings are replaced. A failed install leaves the
+updated files available for review. Fix its error and repeat the install:
+
+```sh
+pnpm install --no-frozen-lockfile
+pnpm xplat doctor
+```
+
+`doctor` checks declarations and the reachable installed dependency graph,
+including export-restricted packages. Managed version failures make it exit
+`1`. A duplicate-runtime error lists physical paths, even when versions match;
+use the package named in the report to find which dependency brought it in:
+
+```sh
+pnpm why octane
+pnpm xplat doctor
+```
+
+These are host checks; run your tests and relevant target builds after an
+upgrade. The shared [compatibility manifest](../create/compatibility.json)
+defines the set. Leaf packages continue to own their internal engine/plugin
+dependencies; those are not hidden in the CLI or indiscriminately overridden.
 
 ## Lint and format
 

@@ -228,9 +228,11 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A -- \
             'packages/*/package.json' \
+            packages/create/compatibility.json \
             packages/create/template/package.json \
             packages/create/library-template/package.json \
             packages/create/template/pnpm-workspace.yaml \
+            packages/create/library-template/pnpm-workspace.yaml \
             CHANGELOG.md
           git commit -m "chore(release): align packages at ${{ steps.version.outputs.version }}"
           # Publishing consumes the tested revision only. If main moved past

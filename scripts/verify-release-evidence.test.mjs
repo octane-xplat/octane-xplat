@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
 import { parse } from 'yaml'
-import { RELEASE_TRACKS, releaseChannel, verifyEvidence } from './release-channel.mjs'
+import { RELEASE_TRACKS, releaseChannel, verifyEvidence } from './release-channel.ts'
 
 const repository = 'octane-xplat/octane-xplat'
 const sha = 'a'.repeat(40)
@@ -96,7 +96,7 @@ test('recording evidence covers the complete job set for its track', () => {
 				const run = spawnSync(
 					process.execPath,
 					[
-						'scripts/verify-release-evidence.mjs',
+						'scripts/verify-release-evidence.ts',
 						'record',
 						'--track',
 						track,
@@ -319,7 +319,7 @@ else {
 			spawnSync(
 				process.execPath,
 				[
-					'scripts/verify-release-evidence.mjs',
+					'scripts/verify-release-evidence.ts',
 					'verify',
 					'--track',
 					'stable',

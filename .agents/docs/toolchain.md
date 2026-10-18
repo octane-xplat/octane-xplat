@@ -66,6 +66,17 @@ build:packages`, `pnpm build:web`, and the package-test half of `pnpm test`
   copy of the community renderer breaks type-level augmentations — e.g.
   `ui/type-support/svg-element.d.ts` only extends the `intrinsics` module it
   resolves.
+- Published app/library starters and `xplat doctor`/`upgrade` share
+  `packages/create/compatibility.json`. Edit supported external pins there;
+  `pnpm sync:compatibility` generates `catalog:xplat` starter references and
+  exact pins, and `pnpm check:compatibility` rejects drift. Existing apps use
+  `pnpm dlx @octane-xplat/cli@<release> upgrade` to adopt that release's pins
+  and patch config package together. Library consumer peer ranges and local
+  workspace/link/file dependencies stay under their owner's control. Windows
+  preview specs use the manifest's Windows profile, never the mobile pins.
+  Doctor inspects the app's reachable installed graph and reports duplicate
+  singleton paths even when their versions agree; these are host checks,
+  not device-runtime qualification.
 - pnpm 11 resolves `link:` dep manifests before the app's `preinstall` hooks
   run: a spec pointing through a path created mid-install (e.g. a consumer's
   sibling-checkout symlink) yields the `node_modules` symlink but no
@@ -87,7 +98,7 @@ found` — and reinstalls stay "Already up to date" (GH#16). Heal by
   point patched files into `node_modules/.pnpm-config/`, so the first install
   has the patches without template copies. The root `pnpm-workspace.yaml`
   references `packages/cli/patches/` directly. `pnpm sync:patches` regenerates
-  both yaml blocks and the config package files from the manifest —
+  root and both starter yaml blocks and the config package files from the manifest —
   `pnpm check:patches` fails on drift. Regenerate a patch via
   `pnpm patch`/`pnpm patch-commit` (writes to the configured path, i.e. the
   canonical dir), then sync + update the manifest entry. Each patch is pinned

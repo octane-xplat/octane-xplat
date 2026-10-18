@@ -63,6 +63,22 @@ The generated app pins pnpm 11.24.0. Its `pnpm-workspace.yaml` loads
 `@octane-xplat/patches` as a `configDependencies` package, making the
 framework patches available during the first install.
 
+App and library starters share the framework's compatible compiler, runtime,
+and tool versions through `catalog:xplat`. To update an existing project,
+preview and apply a published CLI release's set, then check the installed
+packages:
+
+```sh
+pnpm dlx @octane-xplat/cli@latest upgrade --check
+pnpm dlx @octane-xplat/cli@latest upgrade
+pnpm xplat doctor
+```
+
+An upgrade covers the workspace's managed dependencies and patches. Your
+app-specific packages and library consumer peer ranges remain yours. See
+[compatible versions](../cli/README.md#compatible-versions) for local links,
+custom patches, deferred installs, and failure recovery.
+
 Leave the server running while you edit. After stopping it, restart from the
 app directory:
 

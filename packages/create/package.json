@@ -26,17 +26,29 @@
 	"files": [
 		"index.ts",
 		"scaffold.ts",
+		"compatibility.ts",
+		"compatibility.json",
 		"dist",
 		"template",
 		"library-template"
 	],
 	"type": "module",
 	"exports": {
-		"./scaffold": "./dist/scaffold.js"
+		"./scaffold": "./dist/scaffold.js",
+		"./compatibility": {
+			"types": "./compatibility.ts",
+			"default": "./dist/compatibility.js"
+		},
+		"./compatibility.json": "./compatibility.json"
 	},
 	"publishConfig": {
 		"exports": {
-			"./scaffold": "./dist/scaffold.js"
+			"./scaffold": "./dist/scaffold.js",
+			"./compatibility": {
+				"types": "./compatibility.ts",
+				"default": "./dist/compatibility.js"
+			},
+			"./compatibility.json": "./compatibility.json"
 		},
 		"access": "public"
 	},
@@ -46,7 +58,8 @@
 		"typecheck": "tsc -p tsconfig.json"
 	},
 	"dependencies": {
-		"@clack/prompts": "1.8.1"
+		"@clack/prompts": "1.8.1",
+		"yaml": "2.9.1"
 	},
 	"devDependencies": {
 		"@types/node": "24.10.1",

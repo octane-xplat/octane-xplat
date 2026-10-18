@@ -49,7 +49,7 @@ jobs:
       # the git-scoped Silo DB, which lives on dev machines, not in the checkout.
       - name: Repo checks
         run: >-
-          pnpm check:patches && pnpm check:ui-barrels && pnpm check:css &&
+          pnpm check:compatibility && pnpm check:patches && pnpm check:ui-barrels && pnpm check:css &&
           pnpm check:suffix-resolution
 
       - name: Typecheck web

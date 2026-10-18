@@ -6,5 +6,5 @@
 		"noImplicitAny": false,
 		"useUnknownInCatchVariables": false
 	},
-	"include": ["index.ts", "scaffold.ts"]
+	"include": ["index.ts", "scaffold.ts", "compatibility.ts"]
 }

@@ -1,15 +1,17 @@
 #!/usr/bin/env node
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 // Lockstep version bump for the release workflow: sets every publishable
-// package to the same version and repins the create templates' @octane-xplat/*
-// deps plus the app template's @octane-xplat/patches config dependency.
+// package to the same version and regenerates the compatibility manifest and
+// starter pins, including the framework patches config dependency.
 // tsrx-typegen keeps its own cadence and is untouched.
-// Edits are text-level so each file's formatting survives untouched.
+// Package versions use text-level edits; compatibility outputs are generated.
 //
 // Usage: node scripts/bump-versions.ts <version>
 
 import { readFileSync, writeFileSync } from 'node:fs'
 import { lockstepPackages } from './publishable.ts'
+import { compatibility } from '../packages/create/compatibility.ts'
+import { syncCompatibility } from './sync-compatibility.ts'
 
 const version = process.argv[2]?.replace(/^v/, '')
 if (!version || !/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(version)) {
@@ -32,38 +34,6 @@ for (const { name, dir } of lockstepPackages()) {
 	console.log(`${name} -> ${version}`)
 }
 
-const templateFile = 'packages/create/template/package.json'
-const template = readFileSync(templateFile, 'utf8').replace(
-	/"(@octane-xplat\/[^"]+)":\s*"[^"]*"/g,
-	`"$1": "^${version}"`,
-)
-
-writeFileSync(templateFile, template)
-console.log('create template @octane-xplat/* pins -> ^' + version)
-
-const libraryTemplateFile = 'packages/create/library-template/package.json'
-const libraryTemplate = readFileSync(libraryTemplateFile, 'utf8').replace(
-	/"(@octane-xplat\/[^"]+)":\s*"[^"]*"/g,
-	`"$1": "^${version}"`,
-)
-
-writeFileSync(libraryTemplateFile, libraryTemplate)
-console.log('create library template @octane-xplat/* pins -> ^' + version)
-
-const templateWorkspaceFile = 'packages/create/template/pnpm-workspace.yaml'
-const templateWorkspace = readFileSync(templateWorkspaceFile, 'utf8')
-let hasPatchConfigDependency = false
-const nextWorkspace = templateWorkspace.replace(
-	/^([ \t]*["']@octane-xplat\/patches["']:[ \t]*)[^\s#]+(.*)$/m,
-	(_, prefix, suffix) => {
-		hasPatchConfigDependency = true
-		return `${prefix}${version}${suffix}`
-	},
-)
-
-if (!hasPatchConfigDependency) {
-	throw new Error(`${templateWorkspaceFile} is missing @octane-xplat/patches`)
-}
-
-writeFileSync(templateWorkspaceFile, nextWorkspace)
-console.log('create template @octane-xplat/patches config pin -> ' + version)
+compatibility.frameworkVersion = version
+syncCompatibility()
+console.log('compatibility set and starter pins -> ' + version)

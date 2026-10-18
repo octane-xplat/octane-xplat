@@ -208,14 +208,58 @@ are optional instructions for native features and tooling. They are installed
 separately. Ask your agent to use examples that match your app's package
 versions; examples for another framework may need changes.
 
-The starter's `package.json` lists its packages and commands. Its lockfile
-records the versions installed. Keep both, along with the supplied patches.
-The [checked-in package list](../../packages/create/template/package.json) uses
-NativeScript core 9.1.3, CLI 9.1.1, Vite integration 8.0.17, Octane 0.11.0,
-`@nativescript-community/octane` 0.2.4, and
-`@nativescript-community/vite-octane` 0.2.1. The published creator and
-framework workspace can use different versions. Follow your created app's
-files and [patch management instructions](../../packages/cli/README.md) when upgrading.
+The framework supplies a compatible set of package versions. The starter's
+`package.json` lists the packages your app uses; `pnpm-workspace.yaml` stores
+their versions in a named **catalog**, a shared version list. The lockfile
+records what pnpm installed. Keep all three files in Git.
+
+```json
+{
+	"dependencies": { "octane": "catalog:xplat" },
+	"devDependencies": { "@tsrx/oxc": "catalog:xplat" }
+}
+```
+
+### Upgrade framework packages
+
+Run from your app folder. In a workspace containing several packages, an
+upgrade aligns managed dependencies across that whole workspace. Start with
+a committed working app so you can review the changes and return to it.
+Preview the latest published CLI's version set, then apply it:
+
+```sh
+pnpm dlx @octane-xplat/cli@latest upgrade --check
+pnpm dlx @octane-xplat/cli@latest upgrade
+pnpm xplat doctor
+pnpm typecheck
+pnpm build
+```
+
+The preview writes nothing and exits `1` when changes are needed. Applying
+updates the framework packages, compiler, bundler, enabled test/native tools,
+and matching patches, then runs pnpm install. It keeps app-specific packages
+and local links. A custom patch or conflicting override stops the command
+before any file changes; reconcile the named conflict and run it again.
+
+```sh
+pnpm xplat upgrade --check
+```
+
+This shorter command aligns to the CLI already installed in your app; it does
+not look for a newer release. `doctor` checks actual installed versions and
+reports duplicate runtimes, including two physical copies of the same
+version. Continue with your app's tests and target builds; these package checks
+do not prove that the app runs on a phone or desktop.
+
+```sh
+pnpm test                 # if your app has a test script
+pnpm build:ios            # if iOS is configured and its tools are installed
+```
+
+See the [CLI version-management reference](../../packages/cli/README.md#compatible-versions)
+for deferred installs, library peer ranges, Windows preview pins, and
+install-failure recovery. Framework maintainers keep the shared set in the
+[compatibility manifest](../../packages/create/compatibility.json).
 
 ## Build and check
 
