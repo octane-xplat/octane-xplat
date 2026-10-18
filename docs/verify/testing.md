@@ -41,6 +41,41 @@ Phone scaffolds already include an on-device test lane — keep reading for
 how to use it. There is no browser test runner yet; ask your agent to help
 configure one when you need to repeat those checks automatically.
 
+## Lint and format source
+
+The starter's `pnpm lint` runs `xplat lint`: it checks JavaScript, TypeScript,
+and screen files for code patterns that can break across platforms. It does
+not change your source. To check just one folder, pass its path:
+
+```sh
+pnpm lint
+pnpm exec xplat lint src
+```
+
+Use `--fix` to apply safe automatic fixes. The command still fails if errors
+remain, so read its output and correct those findings too. TSRX files run the
+framework's `xplat/*` rules; automatic lint fixes apply to regular
+JavaScript and TypeScript files. Formatting is a separate command:
+
+```sh
+pnpm lint:fix
+pnpm format
+pnpm exec xplat fmt --check
+```
+
+Both lint passes honor `.gitignore`, `.eslintignore`, and the root lint
+config's `ignorePatterns`. They skip build output, symlinks and nested Git
+repositories. New apps need no lint config or separate Oxlint installation.
+For an existing app with the CLI installed, the same commands work directly:
+
+```sh
+pnpm exec xplat lint
+pnpm exec xplat lint --fix
+```
+
+When you are ready to customize rules, follow the
+[project configuration example](../../packages/lint/README.md#project-configuration).
+
 ## Test components on a device
 
 Every scaffolded iOS/Android app carries an on-device test lane: Vitest runs

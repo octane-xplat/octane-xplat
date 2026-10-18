@@ -26,6 +26,7 @@ pnpm xplat build -t macos # experimental AppKit .app + .dmg (Apple Silicon)
 pnpm xplat build -t linux # experimental GTK/WebKit app directory + tar archive
 pnpm xplat doctor       # environment + framework patch check
 pnpm xplat typecheck    # web + native tsconfigs
+pnpm xplat lint         # check JS/TS/JSX/TSX + .tsrx (--fix for safe fixes)
 pnpm xplat fmt          # format JS/TS/JSX/TSX + .tsrx in place (--check, --stdin-filepath)
 pnpm xplat patches apply  # install the framework's pnpm patch set into this app
 pnpm xplat patches check  # verify the patch set is registered and unmodified
@@ -46,6 +47,41 @@ pnpm dev:ios
 Linux packaging and its required manifest settings are documented in
 [Package a Linux app](../../docs/platform/linux-package.md). The CLI ships the
 GJS host; Linux users supply the GTK/WebKit system runtime.
+
+## Lint and format
+
+Run from your app or library directory. Linting uses bundled Oxlint and Xplat
+rules without extra setup; paths restrict both the regular-source and TSRX
+passes. `--fix` applies safe Oxlint fixes to regular source and reports errors
+that still need attention. Formatting is a separate step:
+
+```sh
+pnpm exec xplat lint
+pnpm exec xplat lint src
+pnpm exec xplat lint --fix src
+pnpm exec xplat fmt
+pnpm exec xplat fmt --check
+```
+
+Lint exits `0` when no errors remain, `1` for lint errors, and `2` for command
+or setup failures. Warnings are advisory. Both passes honor `.gitignore`
+(including nested files), `.eslintignore`, and root config `ignorePatterns`,
+skip build output, symlinks and nested repositories, and accept files or
+directories. Shell-expanded file lists work too:
+
+```sh
+pnpm exec xplat lint src/*.ts src/*.tsrx
+```
+
+TSRX runs the `xplat/*` rules through its own parser; Oxlint's built-in rules
+and automatic fixes run on regular JS/TS/JSX/TSX source. A project-root
+`.oxlintrc.json` replaces the bundled preset. See the
+[lint package](../lint/README.md#project-configuration) to retain the preset
+and override individual rules. Existing `xplat-lint` scripts still work:
+
+```sh
+pnpm exec xplat-lint --fix src
+```
 
 ## Agents
 

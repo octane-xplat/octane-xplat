@@ -74,6 +74,7 @@
 		"@alloc/cmd-ts": "0.17.1",
 		"@clack/prompts": "1.8.1",
 		"@octane-xplat/fmt": "0.1.0",
+		"@octane-xplat/lint": "workspace:*",
 		"@tsrx/core": "0.2.4",
 		"create-octane-xplat": "workspace:*",
 		"ignore": "7.0.12",

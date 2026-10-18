@@ -36,7 +36,7 @@
 	},
 	"publishConfig": {
 		"exports": {
-			"./scaffold": "./scaffold.mjs"
+			"./scaffold": "./dist/scaffold.js"
 		},
 		"access": "public"
 	},

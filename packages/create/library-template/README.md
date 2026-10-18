@@ -29,9 +29,19 @@ Run these commands from the package directory:
 ```sh
 pnpm typecheck
 pnpm lint
+pnpm lint:fix
 pnpm test
 pnpm typegen
 pnpm test:packed
+```
+
+Linting uses the CLI's bundled framework defaults. Apply safe lint fixes with
+`lint:fix`; use `format` to format source and `fmt --check` to check formatting
+without changing files:
+
+```sh
+pnpm format
+pnpm exec xplat fmt --check
 ```
 
 The package publishes authored source for the app's bundler to compile.

@@ -13,8 +13,8 @@
 		"build": "vite build",
 		"build:ios": "ns build ios",
 		"build:android": "ns build android",
-		"lint": "xplat-lint",
-		"lint:fix": "xplat-lint --fix",
+		"lint": "xplat lint",
+		"lint:fix": "xplat lint --fix",
 		"typecheck": "xplat typecheck",
 		"format": "xplat fmt"
 	},
@@ -38,12 +38,10 @@
 		"@nativescript/unit-test-runner": "catalog:",
 		"@nativescript/vite": "8.0.17",
 		"@octane-xplat/cli": "^0.15.0",
-		"@octane-xplat/lint": "^0.15.0",
 		"@octanejs/vite-plugin": "catalog:",
 		"@tsrx/oxc": "0.20.0",
 		"@tsrx/typescript-plugin": "catalog:",
 		"nativescript": "9.1.1",
-		"oxlint": "^1.74.0",
 		"typescript": "catalog:",
 		"vite": "catalog:",
 		"vitest": "catalog:"

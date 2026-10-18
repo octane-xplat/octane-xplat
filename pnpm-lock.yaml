@@ -1044,6 +1044,9 @@ importers:
       '@octane-xplat/fmt':
         specifier: 0.1.0
         version: 0.1.0
+      '@octane-xplat/lint':
+        specifier: workspace:*
+        version: link:../lint
       '@tsrx/core':
         specifier: 0.2.4
         version: 0.2.4
@@ -1765,9 +1768,15 @@ importers:
       '@tsrx/core':
         specifier: ^0.2.4
         version: 0.2.4
+      ignore:
+        specifier: 7.0.12
+        version: 7.0.12
       oxlint:
-        specifier: '>=1.74.0'
+        specifier: 1.74.0
         version: 1.74.0(oxlint-tsgolint@7.0.2002)
+      picomatch:
+        specifier: 4.0.7
+        version: 4.0.7
     devDependencies:
       '@types/node':
         specifier: 24.10.1

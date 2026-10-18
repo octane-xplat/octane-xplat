@@ -15,6 +15,8 @@ Pure refactors ordinarily need no recipe change.
 
 Workflows:
 
+- [Lint and format app source](source-quality.md)
+
 - [Develop a component in the workshop](component-workshop.md)
 
 - [Try a shared docs demo](docs-demos.md)

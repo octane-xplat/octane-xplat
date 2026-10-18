@@ -6,7 +6,7 @@ import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import test from 'node:test'
 
-const cli = join(dirname(fileURLToPath(import.meta.url)), '../src/cli.mjs')
+const cli = join(dirname(fileURLToPath(import.meta.url)), '../bin/xplat.mjs')
 const run = (argv, cwd, input) =>
 	spawnSync(process.execPath, [cli, ...argv], { cwd, encoding: 'utf8', input })
 

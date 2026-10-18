@@ -1,5 +1,6 @@
 {
-	"jsPlugins": ["@octane-xplat/lint/oxlint-plugin"],
+	"jsPlugins": ["./dist/oxlint-plugin.js"],
+	"ignorePatterns": [".agents/", "**/*.gen.*"],
 	"rules": {
 		"curly": "error",
 		"xplat/no-dom-globals": "error",

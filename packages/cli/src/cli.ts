@@ -15,6 +15,7 @@ import { fonts } from './commands/fonts.ts'
 import { updates } from './commands/updates.ts'
 import { workshop } from './commands/workshop.ts'
 import { runFmt } from './commands/fmt.ts'
+import { runLint } from './commands/lint.ts'
 
 // Agent-facing commands (catalog/status/app/capabilities/permissions/targets/
 // docs/guidance/code) are dispatched before cmd-ts: their machine contract —
@@ -42,6 +43,8 @@ if (process.argv[2] && AGENT_HEADS.has(process.argv[2])) {
 	// contract (0 clean, 1 check diff, 2 usage/transform/IO error) is a
 	// machine interface editors rely on, and cmd-ts emits 1 for usage errors.
 	process.exitCode = await runFmt(process.argv.slice(3))
+} else if (process.argv[2] === 'lint') {
+	process.exitCode = await runLint(process.argv.slice(3))
 } else {
 	const cli = subcommands({
 		name: 'xplat',
@@ -60,8 +63,13 @@ if (process.argv[2] && AGENT_HEADS.has(process.argv[2])) {
 			workshop,
 			fmt: command({
 				name: 'fmt',
-				description:
-					'Format JS/TS/JSX/TSX and .tsrx in place — run `xplat fmt --help`',
+				description: 'Format JS/TS/JSX/TSX and .tsrx in place — run `xplat fmt --help`',
+				args: {},
+				handler: () => {},
+			}),
+			lint: command({
+				name: 'lint',
+				description: 'Lint JS/TS/JSX/TSX and .tsrx — run `xplat lint --help`',
 				args: {},
 				handler: () => {},
 			}),

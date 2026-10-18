@@ -17,6 +17,16 @@ import {
 
 const ALL = ['web', 'ios', 'android']
 
+test('published scaffold entry resolves to a built file', () => {
+	const manifest = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'))
+	for (const entry of Object.values(manifest.publishConfig.exports)) {
+		assert.ok(
+			existsSync(new URL(`../${entry}`, import.meta.url)),
+			`missing published entry: ${entry}`,
+		)
+	}
+})
+
 function project(t) {
 	const root = mkdtempSync(join(tmpdir(), 'xplat-scaffold-'))
 	t.after(() => rmSync(root, { recursive: true, force: true }))
@@ -83,6 +93,10 @@ test('web-only scaffold drops native files, deps, and scripts', (t) => {
 	assert.equal(manifest.scripts.dev, 'vite')
 	assert.equal(manifest.scripts['dev:ios'], undefined)
 	assert.equal(manifest.scripts.typecheck, 'xplat typecheck')
+	assert.equal(manifest.scripts.lint, 'xplat lint')
+	assert.equal(manifest.scripts['lint:fix'], 'xplat lint --fix')
+	assert.equal(manifest.devDependencies.oxlint, undefined)
+	assert.equal(manifest.devDependencies['@octane-xplat/lint'], undefined)
 	assert.ok(!('dependencies' in manifest && '@nativescript/core' in manifest.dependencies))
 	assert.equal(manifest.devDependencies['@nativescript/ios'], undefined)
 	assert.equal(

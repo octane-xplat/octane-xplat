@@ -228,7 +228,19 @@ these from the app folder for the platforms you have set up:
 | `pnpm build:ios`     | Builds the iOS app; requires the iOS tools.               |
 | `pnpm build:android` | Builds the Android app; requires the Android tools.       |
 | `pnpm typecheck`     | Checks the app's web and phone TypeScript configurations. |
-| `pnpm format`        | Formats JS/TS/JSX/TSX and `.tsrx` files in place.          |
+| `pnpm lint`          | Checks shared code patterns without changing source.      |
+| `pnpm lint:fix`      | Applies safe lint fixes and reports remaining findings.   |
+| `pnpm format`        | Formats JS/TS/JSX/TSX and `.tsrx` files in place.         |
+
+The starter's lint scripts use `xplat lint`, with Oxlint and the framework
+rules included in the CLI. You can also check just your screen folder; the
+[checking guide](../verify/testing.md#lint-and-format-source) explains fixes,
+formatting, and configuration:
+
+```sh
+pnpm exec xplat lint src
+pnpm exec xplat lint --fix src
+```
 
 ### Preview and publish Web
 

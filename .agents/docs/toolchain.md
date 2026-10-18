@@ -75,7 +75,7 @@ found` — and reinstalls stay "Already up to date" (GH#16). Heal by
   or by running `node node_modules/@octane-xplat/cli/src/link-bins.ts` from
   the app root; wiring that into the consumer's `postinstall` covers fresh
   installs. pnpm 12 re-resolves and is unaffected. `xplat-lint` resolves
-  `oxlint` from the app's dep tree, so invoking `bin/lint.mjs` with `node`
+  its owned `oxlint` dependency, so invoking `bin/lint.mjs` with `node`
   directly no longer needs `.bin` on PATH.
 - The framework patch set lives canonically in `packages/cli/patches/`
   (`manifest.json` carries specifier/scope/why/dropWhen per patch) and ships
@@ -150,8 +150,18 @@ tcp:5173`. Dev-session mode is activated only by `ns run`'s livesync launch;
   while warning-level findings remain advisory. CSS is a separate blocking
   repository check; recipe structure runs only in the PR hygiene job. The
   default local `pnpm lint` still includes both CSS and recipes.
+  Consumer apps and libraries use `xplat lint [paths...] [--fix]`; the CLI
+  depends on `@octane-xplat/lint`, which owns Oxlint and the shared file
+  selector for regular source and TSRX. `xplat-lint` is a compatible bin.
+  Starters use the bundled preset without a config or separate lint deps;
+  a root strict-JSON `.oxlintrc.json` replaces it, or extends the package's
+  `config.json` to retain defaults. Both passes use root ignorePatterns,
+  Git/eslint ignores, JSON extends, rule options and file overrides. Config
+  selection is rooted at cwd; nested configs and JS/TS/JSONC configs are
+  unsupported. TSRX checks only `xplat/*` and has no lint autofixes. See the
+  [consumer contract](../../packages/lint/README.md).
 - Format: `pnpm format` = `oxlint --fix` then `xplat fmt`
-  (`packages/cli/src/commands/fmt.mjs`, engine `@octane-xplat/fmt` — in-process
+  (`packages/cli/src/commands/fmt.ts`, engine `@octane-xplat/fmt` — in-process
   safe lint fixes → Oxfmt → statement spacing over the pinned tsrx-org/oxc
   Rust libraries; JS/TS/JSX/TSX and `.tsrx`). The formatter owns blank-line
   spacing, so `xplat/spacing` is no longer a lint rule — lint and fmt do not
