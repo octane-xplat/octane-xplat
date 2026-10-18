@@ -36,7 +36,15 @@ export function runGtkApp(options: GtkAppOptions, mount: (target: GtkAppMount) =
 		application_id: options.applicationId,
 		flags: options.flags ?? Gio.ApplicationFlags.FLAGS_NONE,
 	})
+	// FLAGS_NONE keeps primary-instance semantics — a second launch re-fires
+	// `activate` on the running app. Only mount once; later activations just
+	// re-present the existing window.
+	let mounted: GtkAppMount | null = null
 	app.connect('activate', () => {
+		if (mounted !== null) {
+			mounted.window.present()
+			return
+		}
 		const window = new Gtk.ApplicationWindow({
 			application: app,
 			title: options.title ?? 'Octane App',
@@ -46,7 +54,8 @@ export function runGtkApp(options: GtkAppOptions, mount: (target: GtkAppMount) =
 		const content = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 0 })
 		window.set_child(content)
 		const { root, container } = createGtkRoot(content)
-		mount({ app, window, content, container, root })
+		mounted = { app, window, content, container, root }
+		mount(mounted)
 		window.present()
 	})
 	return app.run(null)

@@ -68,6 +68,11 @@ export interface ElementNode {
 	gridCol: number | null
 	gridRowSpan: number
 	gridColSpan: number
+	/** Recorded `flexGrow` — expand is resolved at attach time, once the
+	 *  parent's orientation is known. */
+	flexGrowValue: unknown
+	/** textfield's `editable` folded into `sensitive` alongside `enabled`. */
+	editableFlag: boolean | undefined
 	/** CSS state owned by the style/className pipeline. */
 	cssClass: string | null
 	cssProvider: Gtk.CssProvider | null
@@ -348,12 +353,14 @@ function applyStyleExtras(node: ElementNode, view: GtkView, style: PropBag | nul
 // dropped between renders must restore their documented default.
 // ---------------------------------------------------------------------------
 
+// Type-specific defaults for prop drops — common props reset through
+// resetProp's switch; this table is only the per-tag residue.
 const RESET_DEFAULTS: Record<string, Record<string, unknown>> = {
 	label: { text: '', value: '' },
-	button: { label: '', text: '', title: '', enabled: true },
-	textfield: { value: '', text: '', placeholder: '', hint: '', enabled: true, secure: false },
-	switch: { checked: false, enabled: true },
-	slider: { value: 0, minValue: 0, maxValue: 100, enabled: true },
+	button: { label: '', text: '', title: '' },
+	textfield: { value: '', text: '', placeholder: '', hint: '', secure: false, editable: true },
+	switch: { checked: false },
+	slider: { value: 0, minValue: 0, maxValue: 100 },
 	progress: { value: 0, maxValue: 1 },
 	activityindicator: { busy: false },
 	scrollview: { orientation: 'vertical' },
@@ -361,7 +368,6 @@ const RESET_DEFAULTS: Record<string, Record<string, unknown>> = {
 	stack: { spacing: 0 },
 	flexboxlayout: { spacing: 0, flexDirection: 'row' },
 	gridlayout: { rowSpacing: 0, columnSpacing: 0 },
-	'*': { className: '', style: undefined },
 }
 
 const ALIGN: Record<string, Gtk.Align> = {
@@ -392,25 +398,34 @@ const A11Y_ROLES: Record<string, number> = {
 	switch: Gtk.AccessibleRole.SWITCH,
 }
 
-function setOrientation(view: GtkView, direction: unknown) {
+function setOrientation(node: ElementNode, view: GtkView, direction: unknown) {
 	const vertical =
 		direction === 'column' || direction === 'vertical' || direction === 'column-reverse'
 	if (direction === 'row-reverse' || direction === 'column-reverse') {
 		warn(`flexDirection "${String(direction)}" has no GTK equivalent yet — rendering unreversed`)
 	}
 	view.orientation = vertical ? Gtk.Orientation.VERTICAL : Gtk.Orientation.HORIZONTAL
+	// The direction is the expand axis — re-resolve children's flexGrow.
+	for (const child of node.children) {
+		if (child.flexGrowValue !== undefined) {
+			syncExpand(child)
+		}
+	}
 }
 
-/** flexGrow expands along the parent box's orientation. */
-function syncExpand(node: ElementNode, grow: unknown) {
+/** flexGrow expands along the parent box's orientation. Resolved when the
+ *  parent view is known — the prop may arrive before `insert` assigns it. */
+function syncExpand(node: ElementNode) {
 	const view = node.view
 	if (view === null) {
 		return
 	}
 	const parent = node.parent
-	const horizontal =
-		parent?.view instanceof Gtk.Box && parent.view.orientation === Gtk.Orientation.HORIZONTAL
-	const expand = Number(grow) > 0
+	if (parent === null || !(parent.view instanceof Gtk.Box)) {
+		return
+	}
+	const horizontal = parent.view.orientation === Gtk.Orientation.HORIZONTAL
+	const expand = Number(node.flexGrowValue) > 0
 	if (horizontal) {
 		view.set_hexpand(expand)
 	} else {
@@ -562,7 +577,9 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			view.set_opacity(Number(value))
 			return
 		case 'enabled':
-			view.set_sensitive(value !== false)
+			view.set_sensitive(
+				value !== false && (node.type !== 'textfield' || node.editableFlag !== false),
+			)
 			return
 		case 'width':
 		case 'height': {
@@ -590,7 +607,37 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			return
 		}
 		case 'flexGrow':
-			syncExpand(node, value)
+			node.flexGrowValue = value
+			syncExpand(node)
+			return
+		// Layout-position props are recorded unconditionally — `create` applies
+		// props before `insert` assigns the parent, so a parent-checked write
+		// would drop mount-time positions. Insert/reattach reads them back.
+		case 'x':
+		case 'left':
+			node.fixedX = Number(value)
+			repositionFixedChild(node)
+			return
+		case 'y':
+		case 'top':
+			node.fixedY = Number(value)
+			repositionFixedChild(node)
+			return
+		case 'row':
+			node.gridRow = Number(value)
+			repositionGridChild(node)
+			return
+		case 'col':
+			node.gridCol = Number(value)
+			repositionGridChild(node)
+			return
+		case 'rowSpan':
+			node.gridRowSpan = Number(value)
+			repositionGridChild(node)
+			return
+		case 'colSpan':
+			node.gridColSpan = Number(value)
+			repositionGridChild(node)
 			return
 		case 'accessibilityLabel': {
 			// GTK4 exposes accessible names through GtkAccessible.update_property —
@@ -624,7 +671,7 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			if (name === 'spacing' || name === 'gap' || name === 'rowGap' || name === 'columnGap') {
 				view.spacing = Number(value)
 			} else if (name === 'orientation' || name === 'flexDirection') {
-				setOrientation(view, value)
+				setOrientation(node, view, value)
 			} else {
 				warn(`<${node.type}> ignored prop ${name}`)
 			}
@@ -647,7 +694,14 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 					view.label = String(value ?? '')
 				}
 			} else if (name === 'xalign' || name === 'textAlignment') {
-				view.xalign = value === 'center' ? 0.5 : value === 'right' ? 1 : 0
+				view.xalign =
+					typeof value === 'number'
+						? Math.max(0, Math.min(1, value))
+						: value === 'center'
+							? 0.5
+							: value === 'right'
+								? 1
+								: 0
 			} else if (name === 'textWrap' || name === 'whiteSpace') {
 				view.wrap = value === true || value === 'normal'
 			} else if (name === 'textOverflow') {
@@ -674,8 +728,10 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			} else if (name === 'secure') {
 				view.visibility = value !== true
 			} else if (name === 'editable') {
-				// Gtk.Entry has no "editable" prop; closest is sensitive.
-				view.sensitive = value !== false
+				// Gtk.Entry has no "editable" prop; combined with `enabled` into
+				// sensitive so neither clobbers the other.
+				node.editableFlag = value !== false
+				view.sensitive = node.editableFlag !== false && node.props.enabled !== false
 			} else {
 				warn(`<textfield> ignored prop ${name}`)
 			}
@@ -715,9 +771,12 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			return
 		case 'progress':
 			if (name === 'value' || name === 'maxValue') {
-				const raw = name === 'value' ? Number(value) : Number(node.props.value ?? 0)
-				const max = name === 'maxValue' ? Number(value) : Number(node.props.maxValue ?? 1)
-				view.set_fraction(Math.max(0, Math.min(1, raw / (max || 1))))
+				// node.props already holds the incoming bag during applyUpdate —
+				// read both operands from it so a paired value+maxValue update
+				// derives the fraction from the same generation.
+				const raw = Number(node.props.value ?? 0)
+				const max = Number(node.props.maxValue ?? 1) || 1
+				view.set_fraction(Math.max(0, Math.min(1, raw / max)))
 			} else {
 				warn(`<progress> ignored prop ${name}`)
 			}
@@ -734,31 +793,6 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			}
 			return
 		default:
-			// Layout-position props on absolutelayout/gridlayout children are
-			// read by the parent at attach/move time, not on the child view.
-			if (
-				node.parent?.view instanceof Gtk.Fixed &&
-				(name === 'x' || name === 'y' || name === 'left' || name === 'top')
-			) {
-				if (name === 'x' || name === 'left') {
-					node.fixedX = Number(value)
-				} else {
-					node.fixedY = Number(value)
-				}
-				node.parent.view.move(view, node.fixedX, node.fixedY)
-				return
-			}
-			if (
-				node.parent?.view instanceof Gtk.Grid &&
-				(name === 'row' || name === 'col' || name === 'rowSpan' || name === 'colSpan')
-			) {
-				if (name === 'row') node.gridRow = Number(value)
-				if (name === 'col') node.gridCol = Number(value)
-				if (name === 'rowSpan') node.gridRowSpan = Number(value)
-				if (name === 'colSpan') node.gridColSpan = Number(value)
-				repositionGridChild(node)
-				return
-			}
 			warn(`<${node.type}> ignored prop ${name}`)
 	}
 }
@@ -769,18 +803,123 @@ function applyProps(node: ElementNode, props: PropBag) {
 	}
 }
 
-/** Restore defaults for props the update dropped — the complete-bag update
- *  contract: a vanished key resets, it does not keep its stale value. */
-function applyUpdate(node: ElementNode, props: PropBag) {
-	const resets = { ...RESET_DEFAULTS['*'], ...RESET_DEFAULTS[node.type] }
-	for (const name of Object.keys(node.props)) {
-		if (name in props || !(name in resets)) {
-			continue
+/** Explicit reset for a dropped prop. setProp skips `undefined`, so resets
+ *  need their own path — every widget state a prop can write gets its
+ *  documented default back here. */
+function resetProp(node: ElementNode, name: string) {
+	const view = node.view
+	if (view === null) {
+		if (name === 'value' || name === 'text') {
+			node.text = ''
+			syncText(nearestViewAncestor(node))
 		}
-		setProp(node, name, resets[name])
+		return
+	}
+	switch (name) {
+		case 'className':
+		case 'class':
+			syncClasses(node, '')
+			return
+		case 'style':
+			syncCss(node, null)
+			applyStyleExtras(node, view, null)
+			return
+		case 'width':
+		case 'height': {
+			const [w, h] = view.get_size_request()
+			view.set_size_request(name === 'width' ? -1 : w, name === 'height' ? -1 : h)
+			return
+		}
+		case 'opacity':
+			view.set_opacity(1)
+			return
+		case 'visible':
+			view.set_visible(true)
+			return
+		case 'enabled':
+			view.set_sensitive(node.type !== 'textfield' || node.editableFlag !== false)
+			return
+		case 'horizontalAlignment':
+		case 'halign':
+			view.set_halign(Gtk.Align.FILL)
+			return
+		case 'verticalAlignment':
+		case 'valign':
+			view.set_valign(Gtk.Align.FILL)
+			return
+		case 'flexGrow':
+			node.flexGrowValue = undefined
+			view.set_hexpand(false)
+			view.set_vexpand(false)
+			return
+		case 'tooltip':
+		case 'tooltipText':
+			view.set_tooltip_text(null)
+			return
+		case 'accessibilityRole':
+			// Gtk.AccessibleRole.AUTOMATIC = 0 — the widget default.
+			view.accessible_role = 0
+			return
+		case 'accessibilityLabel':
+			try {
+				view.update_property?.(Gtk.AccessibleProperty.LABEL, '')
+			} catch {
+				// unmarshalable on this GTK — nothing was applied, nothing to reset
+			}
+			return
+		case 'id':
+		case 'testID':
+		case 'automationText':
+			view.set_name('')
+			return
+		case 'x':
+		case 'left':
+			node.fixedX = 0
+			repositionFixedChild(node)
+			return
+		case 'y':
+		case 'top':
+			node.fixedY = 0
+			repositionFixedChild(node)
+			return
+		case 'row':
+			node.gridRow = null
+			repositionGridChild(node)
+			return
+		case 'col':
+			node.gridCol = null
+			repositionGridChild(node)
+			return
+		case 'rowSpan':
+			node.gridRowSpan = 1
+			repositionGridChild(node)
+			return
+		case 'colSpan':
+			node.gridColSpan = 1
+			repositionGridChild(node)
+			return
+	}
+	// Type-specific documented defaults.
+	const defaults = RESET_DEFAULTS[node.type]
+	if (defaults !== undefined && name in defaults) {
+		setProp(node, name, defaults[name])
+	}
+}
+
+/** Restore defaults for props the update dropped — the complete-bag update
+ *  contract: a vanished key resets, it does not keep its stale value. Only
+ *  keys that ever wrote widget state need a reset entry — ignored props hold
+ *  nothing. */
+function applyUpdate(node: ElementNode, props: PropBag) {
+	const dropped = Object.keys(node.props).filter((name) => !(name in props))
+	// Publish the incoming bag first: prop handlers that read node.props
+	// (progress' value/maxValue pair, textfield's enabled/editable pair) must
+	// see the same generation the update describes.
+	node.props = { ...props }
+	for (const name of dropped) {
+		resetProp(node, name)
 	}
 	applyProps(node, props)
-	node.props = { ...props }
 }
 
 // ---------------------------------------------------------------------------
@@ -819,10 +958,16 @@ function syncText(anchor: ElementNode | null) {
 		}
 	}
 	collect(anchor)
-	if (!found && !anchor.textApplied) {
+	if (!found) {
+		// Last text child left — the element's own text prop owns the label
+		// again, or empty if it was never set.
+		if (anchor.textApplied) {
+			anchor.textApplied = false
+			anchor.view.label = String(anchor.props.text ?? anchor.props.value ?? '')
+		}
 		return
 	}
-	anchor.textApplied = found
+	anchor.textApplied = true
 	anchor.view.label = text
 }
 
@@ -947,6 +1092,16 @@ function insertViewInto(parentView: GtkView, node: ElementNode, view: GtkView, i
 	)
 }
 
+function repositionFixedChild(node: ElementNode) {
+	const parentView = node.parent?.view
+	if (!(parentView instanceof Gtk.Fixed) || node.view === null) {
+		return
+	}
+	if (node.view.get_parent() === parentView) {
+		parentView.move(node.view, node.fixedX, node.fixedY)
+	}
+}
+
 function repositionGridChild(node: ElementNode) {
 	const parentView = node.parent?.view
 	if (!(parentView instanceof Gtk.Grid) || node.view === null) {
@@ -1044,15 +1199,18 @@ function insert(
 	}
 	const parentView = hostViewOf(container, parent)
 	if (parentView instanceof Gtk.ScrolledWindow) {
-		const siblingsViews = viewDescendants(node)
-		if (siblingsViews.length === 0) {
-			parentView.set_child(null)
-		} else {
-			parentView.set_child(node.view)
+		const existing = parentView.get_child?.()
+		if (existing !== null && existing !== undefined && existing !== node.view) {
+			warn('<scrollview> hosts a single view — replacing its current child')
 		}
+		parentView.set_child(node.view)
 		return
 	}
 	insertViewInto(parentView, node, node.view, viewIndexOf(container, parent, node))
+	// flexGrow was recorded before the parent existed — resolve it now.
+	if (node.flexGrowValue !== undefined) {
+		syncExpand(node)
+	}
 }
 
 function resolveParent(container: GtkContainer, parent: UniversalHostParent): ElementNode | null {
@@ -1270,7 +1428,23 @@ function setEvent(
 		return
 	}
 
-	const { connections, controllers: next } = connectEvent(container, node, view, type, listener)
+	let connections: SignalConnection[] = []
+	let next: any[] = []
+	try {
+		const wired = connectEvent(container, node, view, type, listener)
+		connections = wired.connections
+		next = wired.controllers
+	} catch (error) {
+		// A signal name the widget class lacks throws out of connect() —
+		// dropping the listener must not abort the surrounding batch.
+		warn(`<${node.type}> could not wire event "${type}": ${(error as Error)?.message ?? error}`)
+		for (const controller of next) {
+			try {
+				view.remove_controller(controller)
+			} catch {}
+		}
+		return
+	}
 	if (connections.length) {
 		node.listeners.set(type, connections)
 	}
@@ -1330,6 +1504,8 @@ function createNode(container: GtkContainer, id: number, type: string, props: Pr
 		gridCol: null,
 		gridRowSpan: 1,
 		gridColSpan: 1,
+		flexGrowValue: undefined,
+		editableFlag: undefined,
 		cssClass: null,
 		cssProvider: null,
 		cssSignature: '',
@@ -1372,6 +1548,12 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 			node.destroyed = true
 			cancelSelectionSettle(node)
 			disposeListeners(node)
+			// Batches normally remove before destroy — detach defensively so a
+			// destroy without a preceding remove can't leave a parented view or
+			// a stale logical child behind.
+			if (node.parent !== null || container.children.includes(node)) {
+				detach(container, node)
+			}
 			if (node.view !== null && node.cssProvider !== null) {
 				node.view.get_style_context().remove_provider(node.cssProvider)
 			}

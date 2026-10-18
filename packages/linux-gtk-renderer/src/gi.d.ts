@@ -189,6 +189,7 @@ declare module 'gi://Gtk?version=4.0' {
 
 		class ScrolledWindow extends Widget {
 			set_child(child: Widget | null): void
+			get_child(): Widget | null
 			hscrollbar_policy: PolicyType
 			vscrollbar_policy: PolicyType
 			hadjustment: Adjustment

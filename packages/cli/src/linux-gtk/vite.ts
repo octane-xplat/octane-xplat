@@ -58,6 +58,8 @@ export async function xplatLinuxGtk(env, options = {}) {
 				// GJS maps `gi://Gtk?version=4.0` to the installed introspection
 				// data — bundling them is meaningless.
 				external: (id) => id.startsWith('gi://'),
+				// gjs -m executes one file — no code splitting; a second chunk
+				// would be an unloadable import at runtime.
 				output: { codeSplitting: false },
 			},
 		},
