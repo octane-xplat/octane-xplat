@@ -44,11 +44,20 @@ A first native slice of the GTK4/GJS renderer:
   defaults (complete-bag update contract).
 - **Host** (`src/host.ts`, `./host` export): `runGtkApp(options, mount)` —
   GtkApplication + ApplicationWindow + vertical content box + mounted root.
-- **JSX**: `src/intrinsics.d.ts` + `jsx-runtime`/`jsx-dev-runtime` typing
-  entries under `/** @jsxImportSource @octane-xplat/linux-gtk */`;
-  `@octane-xplat/jsx` gained a `gtk` types condition
-  (`packages/jsx/src/gtk.d.ts`) so the shared contract reaches `.gtk`
-  consumers.
+- **JSX**: `src/intrinsics.d.ts` and `jsx-runtime`/`jsx-dev-runtime` are thin
+  re-exports of `@octane-xplat/jsx/gtk` — the shared `NativeElements`
+  contract bound to the GTK host element — so
+  `/** @jsxImportSource @octane-xplat/linux-gtk */` resolves the identical
+  membership, prop names, and event surface every platform shares. The
+  driver accepts the contract names (`isEnabled`, `visibility`, `ClassValue`
+  className, `style` string|object, `keyboardType`→`input_purpose`,
+  `scrollBarIndicatorVisible`/`isScrollEnabled`, `maxValue` default 100,
+  `alignSelf`) plus GTK extras not in the contract. Note: the same swap was
+  tried on `macos-renderer` and reverted — `packages/ui`'s `.macos.tsrx`
+  leaves pass web `CSSProperties`, `Ref<unknown>`, `'start'` aliases, and
+  AppKit-specific event types that don't fit the shared contract; making
+  `@octane-xplat/macos-renderer`'s pragma strict is a ui reconciliation
+  workstream, not a types-only change.
 - **Compat shims**: `compat/native-core`, `compat/escape-props`.
 
 ## The `.gtk` suffix (deviation from the task brief)

@@ -1,15 +1,5 @@
-export { JSX } from './intrinsics.js'
-
-import type { JSX } from './intrinsics.js'
-
-export declare function jsx(type: unknown, props: unknown, key?: unknown): JSX.Element
-export declare function jsxs(type: unknown, props: unknown, key?: unknown): JSX.Element
-export declare function jsxDEV(
-	type: unknown,
-	props: unknown,
-	key?: unknown,
-	isStaticChildren?: boolean,
-	source?: unknown,
-	self?: unknown,
-): JSX.Element
-export declare function Fragment(props: { children?: JSX.Element }): JSX.Element
+// `@jsxImportSource @octane-xplat/linux-gtk` resolves here — the surface is
+// the shared contract's `gtk` entry (`packages/jsx/src/gtk.d.ts`): same
+// NativeElements membership, CommonAttributes/CommonEvents, and factory
+// declarations as every other renderer.
+export { JSX, jsx, jsxs, jsxDEV, Fragment } from '@octane-xplat/jsx/gtk'

@@ -307,13 +307,55 @@ function syncCss(node: ElementNode, style: PropBag | null | undefined) {
 	node.cssProvider.load_from_string(css)
 }
 
+/** clsx-style ClassValue → flat class-name list (the shared contract's
+ *  className composition). */
+function classList(value: unknown, out: string[] = []): string[] {
+	if (typeof value === 'string') {
+		out.push(...value.split(/\s+/).filter(Boolean))
+	} else if (Array.isArray(value)) {
+		for (const entry of value) {
+			classList(entry, out)
+		}
+	} else if (value && typeof value === 'object') {
+		for (const [name, on] of Object.entries(value)) {
+			if (on) {
+				out.push(name)
+			}
+		}
+	}
+	return out
+}
+
+/** `style` accepts a string parsed as inline CSS or an object assigned onto
+ *  the widget's style bag (the shared StyleProps contract). */
+function styleBag(value: unknown): PropBag | null {
+	if (typeof value === 'string') {
+		const bag: PropBag = {}
+		for (const decl of value.split(';')) {
+			const colon = decl.indexOf(':')
+			if (colon === -1) {
+				continue
+			}
+			const key = decl.slice(0, colon).trim()
+			const val = decl.slice(colon + 1).trim()
+			if (!key || !val) {
+				continue
+			}
+			// kebab-case CSS → camelCase prop name
+			bag[key.replace(/-([a-z])/g, (_m, c: string) => c.toUpperCase())] = val
+		}
+		return bag
+	}
+	return value && typeof value === 'object' ? (value as PropBag) : null
+}
+
 function syncClasses(node: ElementNode, value: unknown) {
 	const view = node.view
 	if (view === null) {
 		return
 	}
 
-	const next = typeof value === 'string' ? value.split(/\s+/).filter(Boolean) : []
+	const next = classList(value)
 	for (const name of node.classes) {
 		if (!next.includes(name)) {
 			view.remove_css_class(name)
@@ -356,14 +398,32 @@ function applyStyleExtras(node: ElementNode, view: GtkView, style: PropBag | nul
 // Type-specific defaults for prop drops — common props reset through
 // resetProp's switch; this table is only the per-tag residue.
 const RESET_DEFAULTS: Record<string, Record<string, unknown>> = {
-	label: { text: '', value: '', xalign: 0, textWrap: false, textOverflow: 'clip', selectable: false },
-	button: { label: '', text: '', title: '' },
-	textfield: { value: '', text: '', placeholder: '', hint: '', secure: false, editable: true },
+	label: {
+		text: '',
+		value: '',
+		xalign: 0,
+		textWrap: false,
+		textOverflow: 'clip',
+		selectable: false,
+		maxLines: -1,
+	},
+	button: { label: '', text: '', title: '', formattedText: '', textWrap: false },
+	textfield: {
+		value: '',
+		text: '',
+		placeholder: '',
+		hint: '',
+		secure: false,
+		editable: true,
+		maxLength: 0,
+		keyboardType: 'default',
+		autocorrect: true,
+	},
 	switch: { checked: false },
 	slider: { value: 0, minValue: 0, maxValue: 100 },
-	progress: { value: 0, maxValue: 1 },
+	progress: { value: 0, maxValue: 100 },
 	activityindicator: { busy: false },
-	scrollview: { orientation: 'vertical' },
+	scrollview: { orientation: 'vertical', scrollBarIndicatorVisible: true, isScrollEnabled: true },
 	stacklayout: { spacing: 0, orientation: 'vertical' },
 	stack: { spacing: 0, orientation: 'vertical' },
 	flexboxlayout: { spacing: 0, flexDirection: 'row' },
@@ -383,6 +443,19 @@ const ALIGN: Record<string, Gtk.Align> = {
 	bottom: Gtk.Align.END,
 	center: Gtk.Align.CENTER,
 	baseline: Gtk.Align.BASELINE_FILL,
+}
+
+// Gtk.InputPurpose — the contract's keyboardType values mapped to OS input
+// purpose (drives on-screen keyboards / input methods on mobile-ish hosts).
+const INPUT_PURPOSES: Record<string, number> = {
+	number: Gtk.InputPurpose.NUMBER,
+	integer: Gtk.InputPurpose.DIGITS,
+	digits: Gtk.InputPurpose.DIGITS,
+	phone: Gtk.InputPurpose.PHONE,
+	url: Gtk.InputPurpose.URL,
+	email: Gtk.InputPurpose.EMAIL,
+	password: Gtk.InputPurpose.PASSWORD,
+	pin: Gtk.InputPurpose.PIN,
 }
 
 const A11Y_ROLES: Record<string, number> = {
@@ -592,17 +665,25 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 		case 'class':
 			syncClasses(node, value)
 			return
-		case 'style':
-			syncCss(node, value as PropBag)
-			applyStyleExtras(node, view, value as PropBag)
+		case 'style': {
+			const bag = styleBag(value)
+			syncCss(node, bag)
+			applyStyleExtras(node, view, bag)
 			return
+		}
 		case 'visible':
 			view.set_visible(value !== false)
+			return
+		case 'visibility':
+			// 'hidden' and 'collapse' both unmap; GTK boxes skip invisible
+			// children in allocation, so collapse needs no separate handling.
+			view.set_visible(value === 'visible')
 			return
 		case 'opacity':
 			view.set_opacity(Number(value))
 			return
 		case 'enabled':
+		case 'isEnabled':
 			view.set_sensitive(
 				value !== false && (node.type !== 'textfield' || node.editableFlag !== false),
 			)
@@ -636,6 +717,20 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			node.flexGrowValue = value
 			syncExpand(node)
 			return
+		case 'alignSelf': {
+			// Cross-axis self-alignment inside a box parent.
+			const align = ALIGN[String(value)]
+			const hostView = hostViewOf(node.container, node.parent)
+			if (align === undefined || !(hostView instanceof Gtk.Box)) {
+				return
+			}
+			if (hostView.orientation === Gtk.Orientation.HORIZONTAL) {
+				view.set_valign(align)
+			} else {
+				view.set_halign(align)
+			}
+			return
+		}
 		// Layout-position props are recorded unconditionally — `create` applies
 		// props before `insert` assigns the parent, so a parent-checked write
 		// would drop mount-time positions. Insert/reattach reads them back.
@@ -719,6 +814,17 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 				if (!node.textApplied) {
 					view.label = String(value ?? '')
 				}
+			} else if (name === 'formattedText') {
+				if (typeof value === 'string') {
+					if (!node.textApplied) {
+						view.label = value
+					}
+				} else {
+					warn('<label> formattedText objects need Pango markup — not implemented yet')
+				}
+			} else if (name === 'maxLines') {
+				// Gtk.Label `lines` bounds wrapped/ellipsized text.
+				view.lines = Number(value)
 			} else if (name === 'xalign' || name === 'textAlignment') {
 				view.xalign =
 					typeof value === 'number'
@@ -742,6 +848,18 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 		case 'button':
 			if (name === 'text' || name === 'label' || name === 'title') {
 				view.set_label(String(value ?? ''))
+			} else if (name === 'formattedText') {
+				if (typeof value === 'string') {
+					view.set_label(value)
+				} else {
+					warn('<button> formattedText objects are not implemented yet')
+				}
+			} else if (name === 'textWrap') {
+				// The default child is a Gtk.Label.
+				const child = view.get_child?.()
+				if (child) {
+					child.wrap = Boolean(value)
+				}
 			} else {
 				warn(`<button> ignored prop ${name}`)
 			}
@@ -757,7 +875,21 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 				// Gtk.Entry has no "editable" prop; combined with `enabled` into
 				// sensitive so neither clobbers the other.
 				node.editableFlag = value !== false
-				view.sensitive = node.editableFlag !== false && node.props.enabled !== false
+				view.sensitive =
+					node.editableFlag !== false &&
+					node.props.enabled !== false &&
+					node.props.isEnabled !== false
+			} else if (name === 'maxLength') {
+				view.get_buffer?.().set_max_length?.(Number(value))
+			} else if (name === 'keyboardType') {
+				const purpose = INPUT_PURPOSES[String(value)]
+				if (purpose !== undefined) {
+					view.input_purpose = purpose
+				}
+			} else if (name === 'autocorrect') {
+				// Gtk.InputHints.NO_SPELLCHECK = 2
+				const flags = Number(view.input_hints ?? 0)
+				view.input_hints = value === false ? flags | 2 : flags & ~2
 			} else {
 				warn(`<textfield> ignored prop ${name}`)
 			}
@@ -769,6 +901,18 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 				view.vscrollbar_policy = horizontal
 					? Gtk.PolicyType.NEVER
 					: Gtk.PolicyType.AUTOMATIC
+			} else if (name === 'scrollBarIndicatorVisible') {
+				// Gtk.PolicyType.NEVER hides the indicator on both axes.
+				view.hscrollbar_policy = value === false ? Gtk.PolicyType.NEVER : Gtk.PolicyType.AUTOMATIC
+				view.vscrollbar_policy = value === false ? Gtk.PolicyType.NEVER : Gtk.PolicyType.AUTOMATIC
+			} else if (name === 'isScrollEnabled') {
+				if (value === false) {
+					view.hscrollbar_policy = Gtk.PolicyType.NEVER
+					view.vscrollbar_policy = Gtk.PolicyType.NEVER
+				} else {
+					view.hscrollbar_policy = Gtk.PolicyType.AUTOMATIC
+					view.vscrollbar_policy = Gtk.PolicyType.AUTOMATIC
+				}
 			} else {
 				warn(`<scrollview> ignored prop ${name}`)
 			}
@@ -799,10 +943,12 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			if (name === 'value' || name === 'maxValue') {
 				// node.props already holds the incoming bag during applyUpdate —
 				// read both operands from it so a paired value+maxValue update
-				// derives the fraction from the same generation.
+				// derives the fraction from the same generation. Shared
+				// contract: maxValue defaults to 100; a nonpositive max
+				// displays 0%.
 				const raw = Number(node.props.value ?? 0)
-				const max = Number(node.props.maxValue ?? 1) || 1
-				view.set_fraction(Math.max(0, Math.min(1, raw / max)))
+				const max = Number(node.props.maxValue ?? 100)
+				view.set_fraction(max > 0 ? Math.max(0, Math.min(1, raw / max)) : 0)
 			} else {
 				warn(`<progress> ignored prop ${name}`)
 			}
@@ -863,7 +1009,15 @@ function resetProp(node: ElementNode, name: string) {
 			view.set_visible(true)
 			return
 		case 'enabled':
+		case 'isEnabled':
 			view.set_sensitive(node.type !== 'textfield' || node.editableFlag !== false)
+			return
+		case 'visibility':
+			view.set_visible(true)
+			return
+		case 'alignSelf':
+			view.set_halign(Gtk.Align.FILL)
+			view.set_valign(Gtk.Align.FILL)
 			return
 		case 'horizontalAlignment':
 		case 'halign':

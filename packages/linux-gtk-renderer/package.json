@@ -50,5 +50,8 @@
 	},
 	"peerDependencies": {
 		"octane": ">=0.6.3 <1"
+	},
+	"dependencies": {
+		"@octane-xplat/jsx": "workspace:*"
 	}
 }

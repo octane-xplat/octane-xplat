@@ -47,6 +47,22 @@ declare module 'gi://Gtk?version=4.0' {
 			LABEL: number
 			[key: string]: number
 		}
+		const InputPurpose: {
+			FREE_FORM: number
+			DIGITS: number
+			NUMBER: number
+			PHONE: number
+			URL: number
+			EMAIL: number
+			PASSWORD: number
+			PIN: number
+			[key: string]: number
+		}
+		const InputHints: {
+			NONE: number
+			NO_SPELLCHECK: number
+			[key: string]: number
+		}
 
 		class Widget {
 			connect(signal: string, handler: (...args: any[]) => unknown): number
