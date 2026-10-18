@@ -63,7 +63,7 @@ export async function xplatLinuxGtk(env, options = {}) {
 				external: (id) => id.startsWith('gi://'),
 				// gjs -m executes one file — no code splitting; a second chunk
 				// would be an unloadable import at runtime.
-				output: { codeSplitting: false },
+				output: { inlineDynamicImports: true },
 			},
 		},
 		resolve: {
