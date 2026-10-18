@@ -96,6 +96,7 @@ Workflows:
 - [Keep a session token private](secure-storage.md)
 - [Persist structured data in a local database](local-database.md)
 - [Localize an app with Lingui](localization.md)
+- [Apply platform-specific CSS](platform-styling.md)
 - [Use Bamboo CSS utilities across web and native](bamboo-css.md)
 - [Ship a custom font across web and native](custom-fonts.md)
 - [Add rich text editing](rich-text-editing.md)

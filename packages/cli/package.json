@@ -80,7 +80,9 @@
 		"ignore": "7.0.12",
 		"marked": "18.0.14",
 		"wawoff2": "2.0.1",
-		"yaml": "2.9.1"
+		"yaml": "2.9.1",
+		"postcss": "8.5.28",
+		"postcss-load-config": "6.0.1"
 	},
 	"devDependencies": {
 		"@nativescript/vite": "8.0.17",

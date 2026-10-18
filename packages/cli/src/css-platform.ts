@@ -1,5 +1,12 @@
 import { existsSync } from 'node:fs'
 import { dirname, isAbsolute, resolve } from 'node:path'
+import postcss, {
+	type Plugin as PostcssPlugin,
+	type Root,
+	type AcceptedPlugin,
+	type ProcessOptions,
+} from 'postcss'
+import loadPostcssConfig from 'postcss-load-config'
 import type { Plugin, UserConfig, ResolverFunction } from 'vite'
 
 /** Renderer targets accepted by platform CSS selection and `@platform` blocks. */
@@ -36,8 +43,49 @@ function suffixes(platform: CssPlatform): string[] {
 	return platform === 'native' ? ['mobile'] : [platform]
 }
 
+function matches(condition: string, platform: CssPlatform): boolean {
+	return (
+		condition === platform ||
+		(condition === 'mobile' && ['ios', 'android', 'visionos', 'native'].includes(platform)) ||
+		(condition === 'native' && platform !== 'web')
+	)
+}
+
+function filterPlatforms(root: Root, platform: CssPlatform) {
+	// Validate even unreachable nested conditions so typos fail on every target.
+	root.walkAtRules('platform', (rule) => {
+		const condition = rule.params.replace(/\/\*[\s\S]*?\*\//g, '').trim()
+		if (!targets.has(condition) || !rule.nodes) {
+			throw rule.error(`Expected @platform <target> { ... }; targets: ${[...targets].join(', ')}`)
+		}
+	})
+	root.walkAtRules('platform', (rule) => {
+		const condition = rule.params.replace(/\/\*[\s\S]*?\*\//g, '').trim()
+		if (matches(condition, platform)) rule.replaceWith(...rule.nodes!)
+		else rule.remove()
+	})
+}
+
+/** Compile platform blocks while retaining source positions for diagnostics. */
+export function platformCssPlugin(platform: CssPlatform): PostcssPlugin {
+	return {
+		postcssPlugin: 'xplat-platform',
+		Once(root) {
+			filterPlatforms(root, platform)
+		},
+	}
+}
+
+/** Filter authored or generated CSS before a target-specific consumer parses it. */
+export function filterPlatformCss(css: string, platform: CssPlatform, from?: string): string {
+	if (!css.includes('@platform')) return css
+	const root = postcss.parse(css, { from })
+	filterPlatforms(root, platform)
+	return root.toString()
+}
+
 /**
- * Select platform CSS siblings for the build target.
+ * Select platform CSS siblings and compile build-time `@platform` blocks.
  * CSS suffixes replace the unsuffixed file; they never append to it. Explicit
  * platform filenames stay exact. Native presets include this automatically;
  * web apps add `xplatCss('web')` to their Vite plugins.
@@ -60,7 +108,35 @@ export function xplatCss(platform: CssPlatform = 'web'): Plugin {
 	return {
 		name: 'xplat-platform-css',
 		enforce: 'pre',
-		config(): UserConfig {
+		async config(userConfig): Promise<UserConfig> {
+			if (userConfig.css?.transformer === 'lightningcss') {
+				throw new Error(
+					'xplatCss requires the PostCSS transformer; use Lightning CSS for minification instead',
+				)
+			}
+			const configured = userConfig.css?.postcss
+			let settings: { options?: ProcessOptions; plugins?: AcceptedPlugin[] } = {}
+			if (configured && typeof configured === 'object') {
+				const { plugins, ...options } = configured
+				settings = { options, plugins }
+			} else {
+				try {
+					settings = await loadPostcssConfig(
+						{},
+						typeof configured === 'string' ? configured : (userConfig.root ?? process.cwd()),
+					)
+				} catch (error) {
+					if (!(error instanceof Error) || !error.message.includes('No PostCSS Config found'))
+						throw error
+				}
+			}
+			// Assign rather than return: Vite concatenates plugin arrays on merge.
+			userConfig.css ??= {}
+			userConfig.css.postcss = {
+				...settings.options,
+				plugins: [platformCssPlugin(platform), ...(settings.plugins ?? [])],
+			}
+
 			// Vite's CSS @import resolver uses aliases but bypasses resolveId
 			// plugins. The same alias therefore handles JS imports and @import.
 			return {
@@ -69,6 +145,7 @@ export function xplatCss(platform: CssPlatform = 'web'): Plugin {
 						{
 							find: cssId,
 							replacement: '$&',
+							// Vite 8.3 types this hook synchronously; its alias runner awaits it.
 							customResolver: async function (
 								this: ThisParameterType<ResolverFunction>,
 								source: string,
@@ -96,6 +173,14 @@ export function xplatCss(platform: CssPlatform = 'web'): Plugin {
 					],
 				},
 			}
+		},
+		transform(code, id) {
+			if (!cssId.test(id) || !code.includes('@platform')) return
+			const result = postcss([platformCssPlugin(platform)]).process(code, {
+				from: cleanId(id),
+				map: { inline: false, annotation: false },
+			})
+			return { code: result.css, map: result.map?.toString() ?? null }
 		},
 		configureServer(server) {
 			const changed = (file: string) => {

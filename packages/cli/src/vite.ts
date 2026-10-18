@@ -20,7 +20,7 @@ import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs'
 import { dirname, join, relative, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { unwrapCssLayers } from './css-layers.ts'
-import { xplatCss } from './css-platform.ts'
+import { xplatCss, filterPlatformCss } from './css-platform.ts'
 import { xplatDevBridge } from './mcp/dev-bridge.ts'
 
 export { xplatCss } from './css-platform.ts'
@@ -147,6 +147,7 @@ function pxToDip() {
 			'',
 		)
 
+		code = filterPlatformCss(code, nativePlatform() ?? 'native', id)
 		code = unwrapCssLayers(code)
 
 		// `@import` inlining reads the target file's raw text — it never

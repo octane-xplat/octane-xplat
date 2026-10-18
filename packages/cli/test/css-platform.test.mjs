@@ -103,3 +103,59 @@ test('dev serving selects siblings and preserves inline query imports', async ()
 		await server.close()
 	}
 })
+
+for (const platform of ['web', 'ios', 'android', 'macos', 'windows', 'gtk']) {
+	test(`platform blocks preserve matching rules on ${platform}`, async () => {
+		const root = fixture({
+			'main.js': "import './entry.css'",
+			'entry.css': `@import './imported.css';
+@layer app {
+.card { color: black }
+@platform web { .card { cursor: pointer } @keyframes pulse { to { opacity: 0 } } }
+@platform mobile { @media (min-width: 1px) { .mobile { color: green } } }
+@platform ios { .ios { color: red } }
+@platform native { .native { color: blue } }
+@platform web { @platform ios { .never { color: red } } }
+.card { color: white }
+}`,
+			'imported.css':
+				'@platform web { .imported { user-select: none } } @platform android { .android { color: red } }',
+		})
+		const css = await bundle(root, platform)
+		assert.doesNotMatch(css, /@platform|\.never/)
+		assert.match(css, /@layer app/)
+		assert.ok(css.indexOf('black') < css.indexOf('white'))
+		assert.equal(css.includes('cursor'), platform === 'web')
+		assert.equal(css.includes('@keyframes'), platform === 'web')
+		assert.equal(css.includes('.imported'), platform === 'web')
+		assert.equal(css.includes('.native'), platform !== 'web')
+		assert.equal(css.includes('.mobile'), platform === 'ios' || platform === 'android')
+		assert.equal(css.includes('.ios'), platform === 'ios')
+		assert.equal(css.includes('.android'), platform === 'android')
+	})
+}
+
+test('rejects unknown platform names even inside excluded blocks', async () => {
+	const root = fixture({
+		'main.js': "import './entry.css'",
+		'entry.css': '@platform ios { @platform typo { .bad { color: red } } }',
+	})
+	await assert.rejects(bundle(root, 'web'), /Expected @platform/)
+})
+
+test('rejects platform statements without a block', async () => {
+	const root = fixture({ 'main.js': "import './entry.css'", 'entry.css': '@platform web;' })
+	await assert.rejects(bundle(root, 'web'), /Expected @platform/)
+})
+
+test('preserves existing PostCSS config and filters inlined imports', async () => {
+	const root = fixture({
+		'main.js': "import './entry.css'",
+		'entry.css': '@import "./imported.css";',
+		'imported.css': '@platform web { .card { color: red } }',
+		'postcss.config.cjs': `module.exports = { plugins: [{ postcssPlugin: 'test-color', Declaration(d) { if (d.value === 'red') d.value = 'blue' } }] }`,
+	})
+	const css = await bundle(root, 'web')
+	assert.match(css, /blue/)
+	assert.doesNotMatch(css, /@platform|red/)
+})

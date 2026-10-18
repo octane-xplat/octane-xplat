@@ -321,3 +321,29 @@ export function Example() {
 	)
 }
 ```
+
+## Platform CSS compilation
+
+`xplatCss(target)` selects one platform stylesheet sibling and compiles
+`@platform target { ... }` blocks. Native presets install it before native
+CSS rewriting; browser configs install it explicitly. The PostCSS pass also
+handles rules loaded by CSS `@import`. AppKit and GTK still do not acquire a
+CSS stylesheet engine from this build support.
+
+Vite 8.3.0's CSS `@import` resolver uses a private resolver containing aliases
+and its own file resolver, bypassing ordinary `resolveId` plugins. Xplat uses
+the alias `customResolver` hook so imports from JavaScript and CSS choose the
+same file. This hook is deprecated upstream, and its current declarations omit
+an asynchronous return even though the runtime awaits it; Xplat uses a narrow
+type adapter. Evidence: source inspection of `packages/vite/src/node/idResolver.ts`,
+`packages/vite/src/node/plugins/css.ts`, and `packages/vite/src/types/alias.d.ts`
+in [Vite 8.3.0](https://github.com/vitejs/vite/tree/v8.3.0/packages/vite/src),
+plus `packages/cli/test/css-platform.test.mjs` build and dev-server tests.
+Remove the adapter when the declarations accept async resolvers; replace the
+alias hook when Vite exposes a CSS import resolver extension. This is build
+and dev-server evidence, not native runtime qualification.
+
+The compiler preserves existing inline or file-based PostCSS configuration.
+It requires Vite's PostCSS transformer and fails explicitly if Lightning CSS
+is selected as the transformer; Lightning CSS minification remains compatible.
+The old `xplat-web-only` comments remain supported for existing stylesheets.

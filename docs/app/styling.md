@@ -160,6 +160,69 @@ selector.
 }
 ```
 
+## Style one platform
+
+Keep small differences beside the shared rules with a `@platform` block. This
+card keeps its padding everywhere and gets a pointer cursor only on web.
+Matching blocks disappear around their contents; other blocks and their
+contents are removed during the build.
+
+```css
+.card {
+  padding: 16px;
+}
+
+@platform web {
+  .card {
+    cursor: pointer;
+  }
+}
+```
+
+The native Vite presets enable this automatically. Browser and DOM webview
+configs add `xplatCss('web')` alongside their existing renderer plugins;
+new starters already include it. Keep Vite's default PostCSS transformer.
+Existing PostCSS config plugins still run.
+
+```ts
+import { defineConfig } from 'vite'
+import { xplatCss } from '@octane-xplat/cli/vite'
+
+export default defineConfig({ plugins: [xplatCss('web')] })
+```
+
+Use one target per block: `web`, `ios`, `android`, `visionos`, `macos`,
+`windows`, `linux`, or `gtk`. `mobile` groups iOS, Android, and visionOS;
+`native` groups native renderer builds. A browser or DOM webview uses `web`
+even on a phone. GTK uses `gtk`; the `linux` target name is reserved for a
+native Linux renderer selected explicitly. These conditions select CSS;
+they do not add stylesheet support to renderers such as AppKit or GTK.
+
+```css
+@platform mobile {
+  .card { padding: 20px; }
+}
+@platform ios {
+  .card { border-radius: 12px; }
+}
+```
+
+Blocks preserve ordinary CSS order, selector specificity, and cascade layers.
+They may contain media queries, keyframes, or nested platform blocks. Nested
+conditions must all match; unknown names and missing block braces fail the
+build. For a whole stylesheet that differs, use
+[CSS file variants](../platform/module-resolution.md#css-file-variants).
+
+```css
+@layer app {
+  @platform web {
+    @media (min-width: 800px) {
+      .card { max-width: 640px; }
+    }
+  }
+}
+```
+
 ## Use Bamboo CSS utilities
 
 This is optional; you can keep writing ordinary CSS. **Utilities** are small
