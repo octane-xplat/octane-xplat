@@ -12,26 +12,16 @@ export function Meter(props: MeterProps) @{
 
 	// Track ring via layer chrome; the progress arc itself needs a stroked
 	// CAShapeLayer — not bridged yet, so the ring renders unfilled.
-	<flexboxlayout
-		id={props.id}
-		className={cx('vx-meter', props.className)}
-		style={{
+	<masonview display="flex" id={props.id} className={cx('vx-meter', props.className)} style={{
 			width: size,
 			height: size,
 			borderWidth: strokeWidth,
 			borderColor: props.trackColor ?? '#e1ecf7',
 			borderRadius: size / 2,
 			...(props.style as any),
-		}}
-		accessibilityRole="meter"
-		accessibilityLabel={props.accessibilityLabel}
-		accessibilityValue={value}
-		accessibilityMinValue={min}
-		accessibilityMaxValue={rangeMax}
-		accessibilityValueDescription={props.valueLabel ?? `${value} of ${rangeMax}`}
-	>
+		}} accessibilityRole="meter" accessibilityLabel={props.accessibilityLabel} accessibilityValue={value} accessibilityMinValue={min} accessibilityMaxValue={rangeMax} accessibilityValueDescription={props.valueLabel ?? `${value} of ${rangeMax}`}>
 		{props.children}
-	</flexboxlayout>
+	</masonview>
 }
 
 export function Heading(props: HeadingProps) @{

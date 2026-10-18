@@ -24,13 +24,8 @@ export function Screen(props: ScreenProps) @{
 		onLoaded={(e: any) => registerRootLayout(e.object)}
 		onUnloaded={(e: any) => unregisterRootLayout(e.object)}
 	>
-		<flexboxlayout
-			flexDirection="column"
-			className={cx(props.className)}
-			style={props.style as any}
-			ref={(v: any) => { if (v) attachTapToBlur(v); }}
-		>
+		<masonview display="flex" flexDirection="column" className={cx(props.className)} style={props.style as any} ref={(v: any) => { if (v) attachTapToBlur(v); }}>
 			{props.children}
-		</flexboxlayout>
+		</masonview>
 	</rootlayout>
 }

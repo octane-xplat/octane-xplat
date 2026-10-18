@@ -123,10 +123,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 	useImperativeHandle(props.ref, () => ({ focus: () => input.current.focus(), blur: () => blurText(input.current), native: input.current }), undefined);
 
 	<>
-		<flexboxlayout
-			flexDirection="row"
-			alignItems="center"
-			className={cx(
+		<masonview display="flex" flexDirection="row" alignItems="center" className={cx(
 				'vx-timeinput',
 				`vx-timeinput--${surface}`,
 				isDisabled && 'vx-timeinput--disabled',
@@ -135,9 +132,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 				props.size && `vx-timeinput--size-${props.size}`,
 				!isPendingValid && 'vx-timeinput--invalid',
 				props.className,
-			)}
-			style={props.style as any}
-		>
+			)} style={props.style as any}>
 			<Pressable
 				className="vx-timeinput-toggle"
 				accessibilityLabel={messages.openTimePicker}
@@ -180,7 +175,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 			{statusText != null
 				? <label className={cx('vx-field-icon', `vx-field-icon--${props.status!.type}`)} text={statusText} accessibilityLabel={props.statusVariant === 'tooltip' ? props.status?.message : undefined} />
 				: null}
-		</flexboxlayout>
+		</masonview>
 		{surface === 'sheet' ? (
 			<BottomSheet isOpen={open} onOpenChange={(isOpen) => setOpen(isOpen)} label={props.label ?? props.accessibilityLabel ?? 'Choose a time'} height="hug" className="vx-timeinput-sheet">
 				<TimeWheelPanel

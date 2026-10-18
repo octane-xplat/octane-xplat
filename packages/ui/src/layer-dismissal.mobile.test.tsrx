@@ -11,7 +11,7 @@ import { useHoverCard } from './use-hover-card.tsrx'
 function CardProbe(props: { open: boolean; hide: () => void }) @{
 	const card = useHoverCard({ get isOpen() { return props.open }, onHide: () => props.hide() })
 
-	<flexboxlayout ref={card.ref}>{card.renderHoverCard('Card')}</flexboxlayout>
+	<masonview display="flex" ref={card.ref}>{card.renderHoverCard('Card')}</masonview>
 }
 
 function Entry(props: { active: boolean; dismiss: () => void; children?: any; block?: boolean; focusTarget?: any }) @{

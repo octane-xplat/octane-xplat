@@ -29,7 +29,7 @@ export function TextInput(inputProps: TextInputProps) @{
 		get native() { return el.current },
 	}), [])
 
-	<flexboxlayout className={cx('vx-input-shell', props.inInputGroup && 'vx-input-shell--ingroup')} flexDirection="row" alignItems="center" accessibilityState={{ busy: props.isLoading }}>
+	<masonview display="flex" className={cx('vx-input-shell', props.inInputGroup && 'vx-input-shell--ingroup')} flexDirection="row" alignItems="center" accessibilityState={{ busy: props.isLoading }}>
 		<textfield
 			ref={el}
 			secure={props.secure}
@@ -51,7 +51,7 @@ export function TextInput(inputProps: TextInputProps) @{
 		{props.hasClear && value !== '' && !isBlocked
 		? <Pressable className="vx-input-clear" accessibilityLabel={props.fieldLabel ? `Clear ${props.fieldLabel}` : props.label ? `Clear ${props.label}` : 'Clear input'} onPress={() => { setValue(''); props.onClear?.(); }}><Text>×</Text></Pressable>
 			: null}
-	</flexboxlayout>
+	</masonview>
 }
 
 export function TextArea(inputProps: TextAreaProps) @{

@@ -68,23 +68,15 @@ export function TabList(props: TabListProps) @{
 	}, [props.value]);
 
 	const row = (
-		<flexboxlayout
-			className={cx('vx-tabstrip', props.isFullBleed && 'vx-tabstrip--bleed')}
-			alignItems="flex-end"
-		>
+		<masonview display="flex" className={cx('vx-tabstrip', props.isFullBleed && 'vx-tabstrip--bleed')} alignItems="flex-end">
 			{props.children}
-		</flexboxlayout>
+		</masonview>
 	);
 
 	const cls = cx('vx-tablist', 'vx-tablist--' + size, layout === 'fill' && 'vx-tablist--fill', props.hasDivider && 'vx-tablist--divided', props.isFullBleed && 'vx-tablist--bleed', props.className);
 
 	<TabListProvider value={ctx}>
-		<flexboxlayout
-			id={props.id}
-
-			className={cls}
-			style={props.style}
-		>
+		<masonview display="flex" id={props.id} className={cls} style={props.style}>
 			@if (hasScroll) {
 				<scrollview orientation="horizontal" ref={(v: any) => { scroller.current = v; }} className="vx-tabstrip-scroll" scrollBarIndicatorVisible={false}>
 					{row}
@@ -92,7 +84,7 @@ export function TabList(props: TabListProps) @{
 			} @else {
 				<>{row}</>
 			}
-		</flexboxlayout>
+		</masonview>
 	</TabListProvider>
 }
 
@@ -131,14 +123,14 @@ export function Tab(props: TabProps) @{
 		accessibilityState={{ disabled: isDisabled, selected: isSelected }}
 		onPress={select}
 	>
-		<flexboxlayout className="vx-tab-content" flexDirection="column" justifyContent="flex-end" alignItems="center">
-			<flexboxlayout flexDirection="row" alignItems="center" justifyContent="center" gap={8}>
+		<masonview display="flex" className="vx-tab-content" flexDirection="column" justifyContent="flex-end" alignItems="center">
+			<masonview display="flex" flexDirection="row" alignItems="center" justifyContent="center" gap={8}>
 				{displayIcon != null ? navIcon(displayIcon, ctx.size === 'lg' ? 18 : ctx.size === 'sm' ? 14 : 16) : null}
 				{showLabel ? <Text className="vx-tab-label">{props.label}</Text> : null}
 				{props.endContent != null ? props.endContent : null}
-			</flexboxlayout>
-			<flexboxlayout className={cx('vx-tab-indicator', isSelected && 'vx-tab-indicator--on')} />
-		</flexboxlayout>
+			</masonview>
+			<masonview display="flex" className={cx('vx-tab-indicator', isSelected && 'vx-tab-indicator--on')} />
+		</masonview>
 	</Pressable>
 }
 
@@ -170,16 +162,16 @@ export function TabMenu(props: TabMenuProps) @{
 			accessibilityHint={props.label}
 			onPress={() => setOpen(!open)}
 		>
-			<flexboxlayout className="vx-tab-content" flexDirection="column" justifyContent="flex-end" alignItems="center">
-				<flexboxlayout flexDirection="row" alignItems="center" justifyContent="center" gap={4}>
+			<masonview display="flex" className="vx-tab-content" flexDirection="column" justifyContent="flex-end" alignItems="center">
+				<masonview display="flex" flexDirection="row" alignItems="center" justifyContent="center" gap={4}>
 					<Text className="vx-tab-label">{triggerLabel}</Text>
 					<Icon name={open ? 'xplat-chevron-up' : 'xplat-chevron-down'} size={16} />
-				</flexboxlayout>
-				<flexboxlayout className={cx('vx-tab-indicator', selected && 'vx-tab-indicator--on')} />
-			</flexboxlayout>
+				</masonview>
+				<masonview display="flex" className={cx('vx-tab-indicator', selected && 'vx-tab-indicator--on')} />
+			</masonview>
 		</Pressable>
 		<Popover anchor={anchor} open={open} placement="bottom" onDismiss={() => setOpen(false)} className="vx-tabmenu-pop">
-			<flexboxlayout flexDirection="column" className="vx-tabmenu">
+			<masonview display="flex" flexDirection="column" className="vx-tabmenu">
 				<Text className="vx-tabmenu-heading">{props.label}</Text>
 				@for (const option of props.options; key option.value) {
 					<Pressable
@@ -187,14 +179,14 @@ export function TabMenu(props: TabMenuProps) @{
 						accessibilityState={{ selected: ctx.value === option.value }}
 						onPress={() => pick(option.value)}
 					>
-						<flexboxlayout flexDirection="row" alignItems="center" gap={8}>
+						<masonview display="flex" flexDirection="row" alignItems="center" gap={8}>
 							{option.icon != null ? navIcon(option.icon, 16) : null}
 							<Text className="vx-tabmenu-itemcontent">{option.label}</Text>
 							{ctx.value === option.value ? <Icon name="xplat-check" size={16} /> : null}
-						</flexboxlayout>
+						</masonview>
 					</Pressable>
 				}
-			</flexboxlayout>
+			</masonview>
 		</Popover>
 	</>
 }

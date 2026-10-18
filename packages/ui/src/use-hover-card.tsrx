@@ -10,7 +10,7 @@ function HoverCardPanel(props: { body: any; enter: () => void; exit: () => void 
 	const view = useRef<any>(null);
 	useEffect(() => host().observeHover?.(view.current, { enter: props.enter, exit: props.exit }), [props.enter, props.exit]);
 
-	<flexboxlayout ref={view} flexDirection="column" className="vx-hovercard-content">{props.body}</flexboxlayout>
+	<masonview display="flex" ref={view} flexDirection="column" className="vx-hovercard-content">{props.body}</masonview>
 }
 
 /**

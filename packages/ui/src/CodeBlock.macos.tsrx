@@ -37,19 +37,12 @@ export function CodeBlock(props: CodeBlockProps) @{
 	const hasHeader = props.title != null || hasLanguageLabel || hasCopyButton || canCollapse;
 
 	const body = (
-		<stacklayout
-			className="vx-codeblock-body"
-			style={{ paddingTop: 8, paddingBottom: 8, paddingLeft: 12, paddingRight: 12 }}
-		>
+		<masonview display="flex" flexDirection="column" className="vx-codeblock-body" style={{ paddingTop: 8, paddingBottom: 8, paddingLeft: 12, paddingRight: 12 }}>
 			{lines.map((line, i) => {
 				const lineNo = i + 1;
 				const isHl = highlighted.has(lineNo);
 				return (
-					<flexboxlayout
-						key={lineNo}
-						flexDirection="row"
-						style={isHl ? { backgroundColor: scheme === 'dark' ? '#2e2e2e' : '#f0f0f0' } : undefined}
-					>
+					<masonview display="flex" key={lineNo} flexDirection="row" style={isHl ? { backgroundColor: scheme === 'dark' ? '#2e2e2e' : '#f0f0f0' } : undefined}>
 						{hasLineNumbers ? (
 							<label
 								text={String(lineNo)}
@@ -69,26 +62,16 @@ export function CodeBlock(props: CodeBlockProps) @{
 							whiteSpace={props.isWrapped ? 'normal' : 'nowrap'}
 							style={{ fontFamily: 'ui-monospace', fontSize, color: textColor(scheme) }}
 						/>
-					</flexboxlayout>
+					</masonview>
 				);
 			})}
-		</stacklayout>
+		</masonview>
 	);
 
-	<flexboxlayout
-		id={props.id}
-		className={cx('vx-codeblock', `vx-codeblock--${container}`, props.className)}
-		style={{ flexDirection: 'column', ...(props.style as any) }}
-		flexDirection="column"
-	>
+	<masonview display="flex" id={props.id} className={cx('vx-codeblock', `vx-codeblock--${container}`, props.className)} style={{ flexDirection: 'column', ...(props.style as any) }} flexDirection="column">
 		{hasHeader ? (
-			<flexboxlayout
-				flexDirection="row"
-				justifyContent="space-between"
-				alignItems="center"
-				style={{ paddingTop: 6, paddingBottom: 6, paddingLeft: 12, paddingRight: 12 }}
-			>
-				<flexboxlayout flexDirection="row" alignItems="center" style={{ gap: 8 }}>
+			<masonview display="flex" flexDirection="row" justifyContent="space-between" alignItems="center" style={{ paddingTop: 6, paddingBottom: 6, paddingLeft: 12, paddingRight: 12 }}>
+				<masonview display="flex" flexDirection="row" alignItems="center" style={{ gap: 8 }}>
 					{props.title != null ? (
 						<label whiteSpace="nowrap" style={{ fontSize, fontWeight: 600, color: textColor(scheme) }}>
 							{props.title}
@@ -99,8 +82,8 @@ export function CodeBlock(props: CodeBlockProps) @{
 							{language}
 						</label>
 					) : null}
-				</flexboxlayout>
-				<flexboxlayout flexDirection="row" alignItems="center" style={{ gap: 4 }}>
+				</masonview>
+				<masonview display="flex" flexDirection="row" alignItems="center" style={{ gap: 4 }}>
 					{hasCopyButton ? (
 						<Pressable
 							accessibilityRole="button"
@@ -121,13 +104,13 @@ export function CodeBlock(props: CodeBlockProps) @{
 							<Icon name={isExpanded ? 'xplat-chevron-up' : 'xplat-chevron-down'} size={14} />
 						</Pressable>
 					) : null}
-				</flexboxlayout>
-			</flexboxlayout>
+				</masonview>
+			</masonview>
 		) : null}
 		{collapsed ? null : props.maxHeight != null ? (
 			<scrollview height={props.maxHeight as any}>{body}</scrollview>
 		) : (
 			body
 		)}
-	</flexboxlayout>
+	</masonview>
 }

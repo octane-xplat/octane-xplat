@@ -34,39 +34,13 @@ export function FormLayout(props: FormLayoutProps) @{
 
 	<FormLayoutProvider value={value}>
 		{direction === 'horizontal' ? (
-			<gridlayout
-				id={props.id}
-				ref={forwardedRef}
-				className={cx('vx-formlayout', 'vx-formlayout--horizontal', props.className)}
-				style={props.style as any}
-				accessible={props.accessible}
-				accessibilityLabel={props.accessibilityLabel}
-				accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}
-				accessibilityHint={props.accessibilityHint}
-				accessibilityValue={props.accessibilityValue}
-				accessibilityState={nativeAccessibilityState(props.accessibilityState) as any}
-				accessibilityLiveRegion={props.accessibilityLiveRegion as any}
-			>
+			<masonview display="grid" id={props.id} ref={forwardedRef} className={cx('vx-formlayout', 'vx-formlayout--horizontal', props.className)} style={props.style as any} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
 				{props.children}
-			</gridlayout>
+			</masonview>
 		) : (
-			<flexboxlayout
-				id={props.id}
-				ref={forwardedRef2}
-				flexDirection="column"
-				gap={16}
-				className={cx('vx-formlayout', `vx-formlayout--${direction}`, props.className)}
-				style={props.style as any}
-				accessible={props.accessible}
-				accessibilityLabel={props.accessibilityLabel}
-				accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}
-				accessibilityHint={props.accessibilityHint}
-				accessibilityValue={props.accessibilityValue}
-				accessibilityState={nativeAccessibilityState(props.accessibilityState) as any}
-				accessibilityLiveRegion={props.accessibilityLiveRegion as any}
-			>
+			<masonview display="flex" id={props.id} ref={forwardedRef2} flexDirection="column" gap={16} className={cx('vx-formlayout', `vx-formlayout--${direction}`, props.className)} style={props.style as any} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
 				{props.children}
-			</flexboxlayout>
+			</masonview>
 		)}
 	</FormLayoutProvider>
 }

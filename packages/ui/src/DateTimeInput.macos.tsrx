@@ -191,11 +191,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 	const statusText = props.status ? STATUS_TEXT[props.status.type] : null
 
 	<>
-		<flexboxlayout
-			ref={(v: any) => { anchor.current = v }}
-			flexDirection="row"
-			alignItems="center"
-			className={cx(
+		<masonview display="flex" ref={(v: any) => { anchor.current = v }} flexDirection="row" alignItems="center" className={cx(
 				'vx-datetimeinput',
 				'vx-datetimeinput-popover',
 				isDisabled && 'vx-datetimeinput--disabled',
@@ -204,9 +200,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 				props.size && `vx-datetimeinput--size-${props.size}`,
 				(!isDateValid || !isTimeValid) && 'vx-datetimeinput--invalid',
 				props.className,
-			)}
-			style={props.style}
-		>
+			)} style={props.style}>
 			<Pressable
 				className="vx-datetimeinput-calendartoggle"
 				accessibilityLabel={open === 'calendar' ? messages.closeCalendar : messages.openCalendar}
@@ -258,7 +252,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 			{statusText != null
 				? <label className={cx('vx-field-icon', `vx-field-icon--${props.status!.type}`)} text={statusText} accessibilityLabel={props.statusVariant === 'tooltip' ? props.status?.message : undefined} />
 				: null}
-		</flexboxlayout>
+		</masonview>
 		<Popover anchor={anchor} open={open === 'calendar'} onDismiss={() => setOpen(null)} placement="bottom" className="vx-datetimeinput-popover">
 			<Calendar
 				locale={props.locale}
@@ -278,17 +272,13 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 			<Popover anchor={anchor} open={open === 'times'} onDismiss={() => setOpen(null)} placement="bottom" className="vx-datetimeinput-times">
 				<scrollview className="vx-datetimeinput-timelist" accessibilityHint={!isTimeValid ? messages.invalidTime : undefined}
 				accessibilityLabel={timeLabelText}>
-					<stacklayout>
+					<masonview display="flex" flexDirection="column">
 						{timeOptions.map((opt) => (
-							<flexboxlayout
-								key={opt.time}
-								className={cx('vx-datetimeinput-timeoption', opt.time === (timeDraft ?? valueParts.time) && 'vx-datetimeinput-timeoption--selected')}
-								onTap={() => { commitTime(opt.time); setOpen(null) }}
-							>
+							<masonview display="flex" key={opt.time} className={cx('vx-datetimeinput-timeoption', opt.time === (timeDraft ?? valueParts.time) && 'vx-datetimeinput-timeoption--selected')} onTap={() => { commitTime(opt.time); setOpen(null) }}>
 								<label text={opt.label} />
-							</flexboxlayout>
+							</masonview>
 						))}
-					</stacklayout>
+					</masonview>
 				</scrollview>
 			</Popover>
 		) : null}

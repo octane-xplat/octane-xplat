@@ -4,7 +4,6 @@ import { useLayoutEffect, useMemo, useRef } from 'octane';
 import type { ImageProps, ImageSourceLike } from './props';
 import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps } from './escape-props';
-import { rememberGridChildPlacement } from './grid-placement';
 import { layoutChildProps } from './layout-child';
 import { isSvgSrc, svgSource } from './svg';
 import { createSizedImageBinding } from './image-sizing';
@@ -73,7 +72,7 @@ function applyPlaceholder(view: any, placeholder: string | undefined): void {
  *  `contentFit` maps to stretch for the centered contain/cover/fill cases.
  *  'none'/'scale-down'/positioned content takes the computed path: the
  *  binding measures the host box, computes the CSS content rect, and lays
- *  out an inner fill-stretched <image> inside a clipped absolutelayout —
+ *  out an inner fill-stretched <image> inside a clipped masonry container —
  *  the view-level equivalent of expo's matrix (the stock NS widget owns
  *  its own draw matrix; see image-content-binding.ts).
  *  `src` never goes through JSX: the content binding resolves WHICH source
@@ -195,32 +194,20 @@ export function Image(props: ImageProps) @{
 			accessibilityLabel={props.alt}
 		/>
 	} @else if (computed) {
-		<absolutelayout
-			ref={(v: any) => {
+		<masonview ref={(v: any) => {
 				clipImageHost(v);
-				rememberGridChildPlacement(v, props);
-				if (v) {
+					if (v) {
 					binding.update(v, null, update);
 				}
-			}}
-			id={props.id}
-			{...layoutChildProps(props)}
-			className={cx(props.className)}
-			style={props.style as any}
-		>
-			<image
-				ref={(v: any) => {
+			}} id={props.id} {...layoutChildProps(props)} className={cx(props.className)} style={props.style as any}>
+			<image ref={(v: any) => {
 					imageRef.current = v;
 					applyEscapeProps(v, props);
 					if (v) {
 						binding.update(null, v, update);
 					}
-				}}
-				stretch="fill"
-				loadMode={props.decoding ?? 'async'}
-				accessibilityLabel={props.alt}
-			/>
-		</absolutelayout>
+				}} stretch="fill" loadMode={props.decoding ?? 'async'} accessibilityLabel={props.alt} style={{position: 'absolute'}} />
+		</masonview>
 	} @else {
 		<image
 			ref={(v: any) => {

@@ -10,13 +10,13 @@ function LightboxPanel(props: LightboxProps & { dark?: boolean; layerDepth: numb
 	const item = props.media[props.currentIndex]
 
 	<LayerDepthProvider value={props.layerDepth}>
-	<flexboxlayout flexDirection="column" id={props.id} className={cx('vx-lightbox', props.dark && 'ns-dark', props.className)} style={props.style}>
-		<flexboxlayout flexDirection="row" alignItems="center">
+	<masonview display="flex" flexDirection="column" id={props.id} className={cx('vx-lightbox', props.dark && 'ns-dark', props.className)} style={props.style}>
+		<masonview display="flex" flexDirection="row" alignItems="center">
 			<Button accessibilityLabel="Previous media" isDisabled={props.currentIndex === 0} clickAction={() => props.setIndex(props.currentIndex - 1)}>Previous</Button>
 			<label className="vx-lightbox-counter">{`${props.currentIndex + 1} of ${props.media.length}`}</label>
 			<Button accessibilityLabel="Next media" isDisabled={props.currentIndex === props.media.length - 1} clickAction={() => props.setIndex(props.currentIndex + 1)}>Next</Button>
 			<Button accessibilityLabel="Close lightbox" clickAction={() => props.onOpenChange(false)}>×</Button>
-		</flexboxlayout>
+		</masonview>
 		{item?.type === 'video' ? (
 			<label whiteSpace="normal">{`Video playback is unavailable in the shared macOS lightbox. ${item.alt}`}</label>
 		) : (
@@ -25,7 +25,7 @@ function LightboxPanel(props: LightboxProps & { dark?: boolean; layerDepth: numb
 			</scrollview>
 		)}
 		{item?.caption != null && <label whiteSpace="normal">{item.caption}</label>}
-	</flexboxlayout>
+	</masonview>
 	</LayerDepthProvider>
 }
 

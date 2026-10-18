@@ -16,10 +16,10 @@ import { usePresentation, useDetachedPresentation } from './presentation.macos.t
 
 function SheetPanel(props: BottomSheetProps & { dark?: boolean; layerDepth?: number }) @{
 	<LayerDepthProvider value={props.layerDepth ?? 0}>
-	<flexboxlayout flexDirection="column" id={props.id} className={cx('vx-sheet', 'vx-bottom-sheet', props.dark && 'ns-dark', props.className)} style={props.style}>
+	<masonview display="flex" flexDirection="column" id={props.id} className={cx('vx-sheet', 'vx-bottom-sheet', props.dark && 'ns-dark', props.className)} style={props.style}>
 		<label className="vx-sheet-grabber" accessibilityLabel="Drag to resize sheet">―</label>
 		<scrollview>{props.children}</scrollview>
-	</flexboxlayout>
+	</masonview>
 	</LayerDepthProvider>
 }
 
@@ -133,6 +133,6 @@ export function BottomSheetSwitcher(props: BottomSheetSwitcherProps) @{
 
 	<BottomSheetSwitcherProvider value={handle}>
 		{props.children}
-		<flexboxlayout ref={owner} style={{ width: 0, height: 0 }} />
+		<masonview display="flex" ref={owner} style={{ width: 0, height: 0 }} />
 	</BottomSheetSwitcherProvider>
 }

@@ -56,36 +56,29 @@ export function TimeWheelPanel(props: TimeWheelProps) @{
 		onPick: (v: number) => void,
 	) => (
 		<scrollview className="vx-timewheel-column" accessibilityLabel={label}>
-			<stacklayout>
+			<masonview display="flex" flexDirection="column">
 				{choices.map((c: { value: number; label: string }) => (
-					<flexboxlayout
-						key={c.value}
-						className={cx('vx-timewheel-option', c.value === currentValue && 'vx-timewheel-option--selected')}
-						accessibilityRole={"button" as any}
-						accessibilityState={{ selected: c.value === currentValue } as any}
-						accessibilityLabel={`${label} ${c.label}`}
-						onTap={() => onPick(c.value)}
-					>
+					<masonview display="flex" key={c.value} className={cx('vx-timewheel-option', c.value === currentValue && 'vx-timewheel-option--selected')} accessibilityRole={"button" as any} accessibilityState={{ selected: c.value === currentValue } as any} accessibilityLabel={`${label} ${c.label}`} onTap={() => onPick(c.value)}>
 						<label text={c.label} />
-					</flexboxlayout>
+					</masonview>
 				))}
-			</stacklayout>
+			</masonview>
 		</scrollview>
 	)
 
-	<flexboxlayout flexDirection="column" className="vx-timewheel">
-		<flexboxlayout flexDirection="row" className="vx-timewheel-columns">
+	<masonview display="flex" flexDirection="column" className="vx-timewheel">
+		<masonview display="flex" flexDirection="row" className="vx-timewheel-columns">
 			{column('Hour', hourChoices, hour24, setHour24)}
 			{column('Minute', minuteChoices, minute, setMinute)}
 			{props.hasSeconds ? column('Second', minuteChoices, second, setSecond) : null}
-		</flexboxlayout>
-		<flexboxlayout flexDirection="row" className="vx-timewheel-actions">
+		</masonview>
+		<masonview display="flex" flexDirection="row" className="vx-timewheel-actions">
 			<Pressable className="vx-timewheel-cancel" accessibilityLabel="Cancel" onPress={props.onDismiss}>
 				<label text="Cancel" />
 			</Pressable>
 			<Pressable className="vx-timewheel-done" accessibilityLabel="Done" disabled={!commitValid} accessibilityState={{ disabled: !commitValid } as any} onPress={commit}>
 				<label text="Done" />
 			</Pressable>
-		</flexboxlayout>
-	</flexboxlayout>
+		</masonview>
+	</masonview>
 }

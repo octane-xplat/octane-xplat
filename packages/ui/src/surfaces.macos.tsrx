@@ -4,16 +4,16 @@ import { cx } from '@octane-xplat/lib'
 
 export function Overlay(props: OverlayProps) @{
 	@if (props.open) {
-		<flexboxlayout flexDirection="column" className={cx('vx-overlay', props.className)} style={props.style} accessibilityLabel={props.accessibilityLabel}>
+		<masonview display="flex" flexDirection="column" className={cx('vx-overlay', props.className)} style={props.style} accessibilityLabel={props.accessibilityLabel}>
 			{props.children}
-		</flexboxlayout>
+		</masonview>
 	}
 }
 
 export function Popover(props: PopoverProps) @{
 	@if (props.open) {
-		<flexboxlayout flexDirection="column" className={cx('vx-popover', props.className)} style={props.style}>
+		<masonview display="flex" flexDirection="column" className={cx('vx-popover', props.className)} style={props.style}>
 			{props.children}
-		</flexboxlayout>
+		</masonview>
 	}
 }

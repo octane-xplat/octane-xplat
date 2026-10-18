@@ -56,14 +56,10 @@ export function StatusDot(props: StatusDotProps) @{
 	const showsIcon = isRenderable(props.icon);
 
 	const view = (
-		<flexboxlayout
-			ref={(v: any) => {
+		<masonview display="flex" ref={(v: any) => {
 				dot.current = v;
 				applyEscapeProps(v, props);
-			}}
-			id={props.id}
-			className={cx('vx-statusdot', `vx-statusdot--${props.variant}`, props.className)}
-			style={{
+			}} id={props.id} className={cx('vx-statusdot', `vx-statusdot--${props.variant}`, props.className)} style={{
 				width: 8,
 				height: 8,
 				borderRadius: 4,
@@ -71,13 +67,9 @@ export function StatusDot(props: StatusDotProps) @{
 				justifyContent: 'center',
 				alignItems: 'center',
 				...(props.style as any),
-			}}
-			accessible={true}
-			accessibilityRole={nativeAccessibilityRole('image') as any}
-			accessibilityLabel={props.label}
-		>
+			}} accessible={true} accessibilityRole={nativeAccessibilityRole('image') as any} accessibilityLabel={props.label}>
 			{showsIcon ? props.icon : null}
-		</flexboxlayout>
+		</masonview>
 	);
 
 	return props.tooltip != null

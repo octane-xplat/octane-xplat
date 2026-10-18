@@ -11,11 +11,11 @@ export default function ListGeometry() @{
 	const [rows, setRows] = useState(items)
 
 	<rootlayout>
-		<flexboxlayout id="bounded" flexDirection="column" width={280} height={240}>
+		<masonview display="flex" id="bounded" flexDirection="column" width={280} height={240}>
 			<label id="sort" text="Reverse" height={40} onTap={() => setRows([...rows].reverse())} />
 			<VirtualList id="list" style={{ height: 160 }} items={rows} keyExtractor={keyExtractor} renderItem={renderItem}
 				renderHeader={() => <label id="header" text="Header" height={24} />} />
-		</flexboxlayout>
+		</masonview>
 	</rootlayout>
 }
 

@@ -47,29 +47,19 @@ export function MobileNav(props: MobileNavProps) @{
 	@if (!isOpen) {
 		null
 	} @else {
-		<gridlayout
-			id={id}
-			className={cx('vx-mobilenav', 'vx-mobilenav--' + side, 'vx-mobilenav--open', props.className)}
-			style={props.style}
-			accessibilityLabel={props.label ?? (typeof props.header === 'string' ? props.header : 'Navigation')}
-		>
-			<flexboxlayout className="vx-mobilenav-backdrop" onTap={() => onOpenChange(false)} />
-			<flexboxlayout
-				flexDirection="column"
-				className="vx-mobilenav-drawer"
-				horizontalAlignment={side === 'start' ? 'left' : 'right'}
-				style={{ width }}
-			>
+		<masonview display="grid" id={id} className={cx('vx-mobilenav', 'vx-mobilenav--' + side, 'vx-mobilenav--open', props.className)} style={props.style} accessibilityLabel={props.label ?? (typeof props.header === 'string' ? props.header : 'Navigation')}>
+			<masonview display="flex" className="vx-mobilenav-backdrop" onTap={() => onOpenChange(false)} />
+			<masonview style={{ width , justifySelf: side === 'start' ? 'left' : 'right'}} display="flex" flexDirection="column" className="vx-mobilenav-drawer">
 				@if (props.header != null) {
-					<flexboxlayout className="vx-mobilenav-header" flexDirection="row" alignItems="center">
+					<masonview display="flex" className="vx-mobilenav-header" flexDirection="row" alignItems="center">
 						{typeof props.header === 'string' ? <Text className="vx-mobilenav-heading">{props.header}</Text> : props.header}
-					</flexboxlayout>
+					</masonview>
 				}
 				<scrollview className="vx-mobilenav-content" flexGrow={1}>
-					<flexboxlayout flexDirection="column"><SizeProvider value={null}>{props.children}</SizeProvider></flexboxlayout>
+					<masonview display="flex" flexDirection="column"><SizeProvider value={null}>{props.children}</SizeProvider></masonview>
 				</scrollview>
-			</flexboxlayout>
-		</gridlayout>
+			</masonview>
+		</masonview>
 	}
 }
 

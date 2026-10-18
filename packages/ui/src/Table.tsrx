@@ -20,27 +20,24 @@ export function Table<T extends object = Record<string, any>>(props: TableProps<
 		...(col.align ? { textAlignment: col.align } : {}),
 	});
 
-	<flexboxlayout ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-table', props.className)} style={props.style as any}>
-		<flexboxlayout className="vx-table-head">
+	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-table', props.className)} style={props.style as any}>
+		<masonview display="flex" className="vx-table-head">
 			@for (const col of props.columns; key col.key) {
-				<flexboxlayout className="vx-table-cell vx-table-th" style={cellStyle(col)}>
+				<masonview display="flex" className="vx-table-cell vx-table-th" style={cellStyle(col)}>
 					<label text={col.label ?? String(col.key)} />
-				</flexboxlayout>
+				</masonview>
 			}
-		</flexboxlayout>
+		</masonview>
 		{props.rows.length === 0 && props.empty != null
-			? <flexboxlayout className="vx-table-empty">{props.empty}</flexboxlayout>
+			? <masonview display="flex" className="vx-table-empty">{props.empty}</masonview>
 			: @for (const e of props.rows.map((row, ri) => ({ row, ri })); key String(rowKey(props, e.row, e.ri))) {
-				<flexboxlayout
-					className={cx('vx-table-row', props.onRowPress && 'vx-table-row--pressable')}
-					onTap={props.onRowPress ? () => props.onRowPress!(e.row, e.ri) : undefined}
-				>
+				<masonview display="flex" className={cx('vx-table-row', props.onRowPress && 'vx-table-row--pressable')} onTap={props.onRowPress ? () => props.onRowPress!(e.row, e.ri) : undefined}>
 					@for (const col of props.columns; key col.key) {
-						<flexboxlayout className="vx-table-cell" style={cellStyle(col)}>
+						<masonview display="flex" className="vx-table-cell" style={cellStyle(col)}>
 							{props.renderCell ? props.renderCell({ row: e.row, column: col, rowIndex: e.ri }) : <label text={String((e.row as Record<Key, unknown>)[col.key] ?? '')} />}
-						</flexboxlayout>
+						</masonview>
 					}
-				</flexboxlayout>
+				</masonview>
 			}}
-	</flexboxlayout>
+	</masonview>
 }

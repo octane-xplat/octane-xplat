@@ -28,7 +28,7 @@ function RefFixture(props: { viewRef?: ViewProps['ref']; inputRef?: Octane.Ref<T
 function ImperativeFixture(props: { ref?: Octane.Ref<{ ready: boolean }> }) @{
 	useImperativeHandle(props.ref, () => ({ ready: true }), [])
 
-	<flexboxlayout />
+	<masonview display="flex" />
 }
 
 function MeasuredFixture() @{
@@ -54,7 +54,7 @@ describe('standard component refs on the universal renderer', () => {
 		const ref = { current: null as any }
 		try {
 			flushUniversalSync(() => root.render(AspectRatio, { ratio: 2, ref }))
-			expect(ref.current?.type).toBe('flexboxlayout')
+			expect(ref.current?.type).toBe('masonview')
 			flushUniversalSync(() => root.render(MeasuredFixture, {}))
 		} finally {
 			root.unmount()
@@ -73,7 +73,7 @@ describe('standard component refs on the universal renderer', () => {
 		const callback = vi.fn(() => cleanup)
 		try {
 			flushUniversalSync(() => root.render(RefFixture, { viewRef: view, inputRef: [input, [callback, undefined]] }))
-			expect(view.current?.type).toBe('flexboxlayout')
+			expect(view.current?.type).toBe('masonview')
 			expect(input.current?.native?.type).toBe('textfield')
 			expect(callback).toHaveBeenCalledExactlyOnceWith(input.current)
 			flushUniversalSync(() => root.render(RefFixture, { viewRef: view, inputRef: next }))

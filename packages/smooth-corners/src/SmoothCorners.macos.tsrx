@@ -167,16 +167,10 @@ export function SmoothCorners(props: SmoothCornersProps) @{
 	);
 
 	return (
-		<flexboxlayout {...outerLayoutProps(props)} onLayoutChanged={outerLayout}>
-			<flexboxlayout
-				{...innerLayoutProps(props)}
-				onLayoutChanged={innerLayout}
-				id={props.id}
-				className={props.className}
-				style={paintedStyle(props.style)}
-			>
+		<masonview display="flex" {...outerLayoutProps(props)} onLayoutChanged={outerLayout}>
+			<masonview display="flex" {...innerLayoutProps(props)} onLayoutChanged={innerLayout} id={props.id} className={props.className} style={paintedStyle(props.style)}>
 				{props.children}
-			</flexboxlayout>
-		</flexboxlayout>
+			</masonview>
+		</masonview>
 	);
 }

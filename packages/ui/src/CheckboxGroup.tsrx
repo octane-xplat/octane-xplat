@@ -23,16 +23,7 @@ export function CheckboxGroup(inputProps: CheckboxGroupProps) @{
 
 	const isReadOnly = props.isReadOnly;
 
-	<flexboxlayout
-		ref={(v: any) => applyEscapeProps(v, props)}
-		id={props.id}
-		flexDirection={props.horizontal ? 'row' : 'column'}
-		className={cx('vx-checkbox-group', props.horizontal && 'vx-checkbox-group--row', props.isDisabled && 'vx-checkbox-group--disabled', isReadOnly && 'vx-checkbox-group--readonly', props.isLoading && 'vx-checkbox-group--loading', props.status && `vx-checkbox-group--status-${props.status.type}`, props.size && `vx-checkbox-group--size-${props.size}`, props.className)}
-		style={props.style as any}
-	accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
-		accessibilityHint={props.accessibilityHint}
-		accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled }) as any}
-	>
+	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection={props.horizontal ? 'row' : 'column'} className={cx('vx-checkbox-group', props.horizontal && 'vx-checkbox-group--row', props.isDisabled && 'vx-checkbox-group--disabled', isReadOnly && 'vx-checkbox-group--readonly', props.isLoading && 'vx-checkbox-group--loading', props.status && `vx-checkbox-group--status-${props.status.type}`, props.size && `vx-checkbox-group--size-${props.size}`, props.className)} style={props.style as any} accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label} accessibilityHint={props.accessibilityHint} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled }) as any}>
 		@for (const opt of props.options; key opt.value) {
 			<Checkbox
 				checked={selected.includes(opt.value)}
@@ -42,5 +33,5 @@ export function CheckboxGroup(inputProps: CheckboxGroupProps) @{
 				onCheckedChange={(on: boolean) => toggle(opt.value, on)}
 			/>
 		}
-	</flexboxlayout>
+	</masonview>
 }

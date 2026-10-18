@@ -55,12 +55,7 @@ export function ChatLayout(props: ChatLayoutProps) @{
 	};
 
 	<ChatLayoutProvider value={layoutContext}>
-		<gridlayout
-			id={props.id}
-			className={cx('vx-chatlayout', `vx-chatlayout--${density}`, props.className)}
-			style={props.style as any}
-			flexGrow={1}
-		>
+		<masonview display="grid" id={props.id} className={cx('vx-chatlayout', `vx-chatlayout--${density}`, props.className)} style={props.style as any} flexGrow={1}>
 			<scrollview
 				ref={(v: any) => {
 					scrollViewRef.current = v;
@@ -69,30 +64,20 @@ export function ChatLayout(props: ChatLayoutProps) @{
 				className="vx-chatlayout-scroll"
 				orientation="vertical"
 			>
-				<flexboxlayout
-					ref={(v: any) => { contentWrapRef.current = v; }}
-					className={cx('vx-chatlayout-messages', `vx-chatlayout-messages--${density}`)}
-					flexDirection="column"
-					onLayoutChanged={syncDockInset}
-				>
+				<masonview display="flex" ref={(v: any) => { contentWrapRef.current = v; }} className={cx('vx-chatlayout-messages', `vx-chatlayout-messages--${density}`)} flexDirection="column" onLayoutChanged={syncDockInset}>
 					{showEmpty && props.emptyState != null ? (
-						<flexboxlayout className="vx-chatlayout-empty" alignItems="center" justifyContent="center" flexGrow={1}>
+						<masonview display="flex" className="vx-chatlayout-empty" alignItems="center" justifyContent="center" flexGrow={1}>
 							{props.emptyState}
-						</flexboxlayout>
+						</masonview>
 					) : (
 						props.children
 					)}
-				</flexboxlayout>
+				</masonview>
 			</scrollview>
-			<flexboxlayout
-				ref={(v: any) => {
+			<masonview style={{alignSelf: 'end'}} display="flex" ref={(v: any) => {
 					dockRef.current = v;
 					v?.on?.('layoutChanged', syncDockInset);
-				}}
-				className="vx-chatlayout-dock"
-				flexDirection="column"
-				verticalAlignment="bottom"
-			>
+				}} className="vx-chatlayout-dock" flexDirection="column">
 				{props.scrollButton === undefined ? (
 					<ChatLayoutScrollButton
 						isVisible={scroll.isScrolledUp || newMsgs.hasNewMessages}
@@ -105,10 +90,10 @@ export function ChatLayout(props: ChatLayoutProps) @{
 				) : (
 					props.scrollButton
 				)}
-				<flexboxlayout className={cx('vx-chatlayout-dockpad', `vx-chatlayout-dockpad--${density}`)}>
-					<flexboxlayout className="vx-chatlayout-dockinner">{props.composer}</flexboxlayout>
-				</flexboxlayout>
-			</flexboxlayout>
-		</gridlayout>
+				<masonview display="flex" className={cx('vx-chatlayout-dockpad', `vx-chatlayout-dockpad--${density}`)}>
+					<masonview display="flex" className="vx-chatlayout-dockinner">{props.composer}</masonview>
+				</masonview>
+			</masonview>
+		</masonview>
 	</ChatLayoutProvider>
 }

@@ -125,7 +125,7 @@ describe('native VirtualList scroll and measurement scheduling', () => {
 		const body = nodes.find(node => node.props.className === 'vx-virtual-list-body')
 		expect(body.props.style.height).toBe(96)
 		const cells = nodes.filter(node => String(node.props.className).split(' ').includes('vx-virtual-list-row'))
-		expect(cells.map(node => node.props.top)).toEqual([0, 32, 64])
+		expect(cells.map(node => node.props.style?.top)).toEqual([0, 32, 64])
 	})
 
 	it('re-reads row geometry after an invalid screen-sized layout event', async () => {
@@ -138,7 +138,7 @@ describe('native VirtualList scroll and measurement scheduling', () => {
 		cell.isLayoutValid = true
 		measure('row-r0', 32, false)
 		await vi.advanceTimersByTimeAsync(32)
-		const second = collect(container.children).find(node => node.props.top === 32)
+		const second = collect(container.children).find(node => node.props.style?.top === 32)
 		expect(second).toBeDefined()
 	})
 

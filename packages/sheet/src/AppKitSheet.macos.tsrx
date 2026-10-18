@@ -68,7 +68,7 @@ export function AppKitSheet(props: AppKitSheetProps) @{
 	}, [portalTarget])
 
 	<>
-		<flexboxlayout ref={(v: any) => { anchor.current = v }} id={props.id} />
+		<masonview display="flex" ref={(v: any) => { anchor.current = v }} id={props.id} />
 		{props.open && portalTarget && props.content
 			? createPortal(<ContentRoot render={props.content} />, portalTarget)
 			: null}

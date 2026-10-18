@@ -48,20 +48,13 @@ export function TopNav(props: TopNavProps) @{
 	const hasCenter = props.centerContent != null;
 
 	@if (renderMode === 'mobile-bar') {
-		<flexboxlayout
-			id={props.id}
-			flexDirection="row"
-			alignItems="center"
-			className={cx('vx-topnav', 'vx-topnav--mobilebar', props.className)}
-			style={props.style}
-			accessibilityLabel={label}
-		>
+		<masonview display="flex" id={props.id} flexDirection="row" alignItems="center" className={cx('vx-topnav', 'vx-topnav--mobilebar', props.className)} style={props.style} accessibilityLabel={label}>
 			{props.heading}
-			<flexboxlayout className="vx-topnav-mobilebar-end" flexDirection="row" alignItems="center" flexGrow={1} justifyContent="flex-end">
+			<masonview display="flex" className="vx-topnav-mobilebar-end" flexDirection="row" alignItems="center" flexGrow={1} justifyContent="flex-end">
 				{props.endContent}
-			</flexboxlayout>
+			</masonview>
 			<MobileNavToggle />
-		</flexboxlayout>
+		</masonview>
 	} @else {
 		@if (renderMode === 'drawer') {
 			<MobileNav label={label} className={cx('vx-topnav', 'vx-topnav--drawer', props.className)} style={props.style}>
@@ -73,51 +66,38 @@ export function TopNav(props: TopNavProps) @{
 			</MobileNav>
 		} @else {
 			@if (hasCenter) {
-				<gridlayout
-					columns="*,auto,*"
-					id={props.id}
-					className={cx('vx-topnav', 'vx-topnav--grid', props.className)}
-					style={props.style}
-					accessibilityLabel={label}
-				>
+				<masonview display="grid" gridTemplateColumns="1fr auto 1fr" id={props.id} className={cx('vx-topnav', 'vx-topnav--grid', props.className)} style={props.style} accessibilityLabel={label}>
 					<TopNavSlotProvider value="start">
-						<flexboxlayout col={0} flexDirection="row" alignItems="center" className="vx-topnav-start">
+						<masonview display="flex" col={0} flexDirection="row" alignItems="center" className="vx-topnav-start">
 							{props.heading}
 							{startContent}
-						</flexboxlayout>
+						</masonview>
 					</TopNavSlotProvider>
 					<TopNavSlotProvider value="center">
-						<flexboxlayout col={1} flexDirection="row" alignItems="center" justifyContent="center" className="vx-topnav-center">
+						<masonview display="flex" col={1} flexDirection="row" alignItems="center" justifyContent="center" className="vx-topnav-center">
 							{props.centerContent}
-						</flexboxlayout>
+						</masonview>
 					</TopNavSlotProvider>
 					<TopNavSlotProvider value="end">
-						<flexboxlayout col={2} flexDirection="row" alignItems="center" justifyContent="flex-end" className="vx-topnav-end">
+						<masonview display="flex" col={2} flexDirection="row" alignItems="center" justifyContent="flex-end" className="vx-topnav-end">
 							{props.endContent}
-						</flexboxlayout>
+						</masonview>
 					</TopNavSlotProvider>
-				</gridlayout>
+				</masonview>
 			} @else {
-				<flexboxlayout
-					id={props.id}
-					flexDirection="row"
-					alignItems="center"
-					className={cx('vx-topnav', props.className)}
-					style={props.style}
-					accessibilityLabel={label}
-				>
+				<masonview display="flex" id={props.id} flexDirection="row" alignItems="center" className={cx('vx-topnav', props.className)} style={props.style} accessibilityLabel={label}>
 					<TopNavSlotProvider value="start">
-						<flexboxlayout flexDirection="row" alignItems="center" flexGrow={1} className="vx-topnav-start">
+						<masonview display="flex" flexDirection="row" alignItems="center" flexGrow={1} className="vx-topnav-start">
 							{props.heading}
 							{startContent}
-						</flexboxlayout>
+						</masonview>
 					</TopNavSlotProvider>
 					<TopNavSlotProvider value="end">
-						<flexboxlayout flexDirection="row" alignItems="center" justifyContent="flex-end" className="vx-topnav-end">
+						<masonview display="flex" flexDirection="row" alignItems="center" justifyContent="flex-end" className="vx-topnav-end">
 							{props.endContent}
-						</flexboxlayout>
+						</masonview>
 					</TopNavSlotProvider>
-				</flexboxlayout>
+				</masonview>
 			}
 		}
 	}
@@ -160,17 +140,11 @@ export function TopNavHeading(props: TopNavHeadingProps) @{
 
 	const logo = props.logo != null ? (
 		<Pressable disabled={!props.headingHref} accessibilityLabel={props.logoLabel} onPress={() => activate(props.headingHref)}>
-			<flexboxlayout className="vx-topnav-heading-logo">{props.logo}</flexboxlayout>
+			<masonview display="flex" className="vx-topnav-heading-logo">{props.logo}</masonview>
 		</Pressable>
 	) : null;
 
-	<flexboxlayout
-		id={props.id}
-		flexDirection="row"
-		alignItems="center"
-		className={cx('vx-topnav-heading', props.className)}
-		style={props.style}
-	>
+	<masonview display="flex" id={props.id} flexDirection="row" alignItems="center" className={cx('vx-topnav-heading', props.className)} style={props.style}>
 		{headerIsTrigger ? (
 			<Pressable
 				ref={(v: any) => { anchor.current = v; }}
@@ -178,16 +152,16 @@ export function TopNavHeading(props: TopNavHeadingProps) @{
 				onPress={() => setMenuOpen(!menuOpen)}
 				accessibilityLabel={props.heading ?? props.logoLabel}
 			>
-				<flexboxlayout flexDirection="row" alignItems="center" gap={8}>
+				<masonview display="flex" flexDirection="row" alignItems="center" gap={8}>
 					{logo}
-					<flexboxlayout flexDirection="column">{lines}</flexboxlayout>
+					<masonview display="flex" flexDirection="column">{lines}</masonview>
 					<Icon name="xplat-chevron-down" size={16} />
-				</flexboxlayout>
+				</masonview>
 			</Pressable>
 		) : (
 			<>
 				{logo}
-				<flexboxlayout flexDirection="column">{lines}</flexboxlayout>
+				<masonview display="flex" flexDirection="column">{lines}</masonview>
 			</>
 		)}
 		{hasMenu && !headerIsTrigger ? (
@@ -206,7 +180,7 @@ export function TopNavHeading(props: TopNavHeadingProps) @{
 				{props.menu}
 			</Popover>
 		</NavHeadingCloseProvider>
-	</flexboxlayout>
+	</masonview>
 }
 
 /** TopNavItem — one nav link in the bar. Native leaf: Pressable rows;
@@ -234,10 +208,10 @@ export function TopNavItem(props: TopNavItemProps) @{
 		accessibilityState={{ disabled: isDisabled, selected: props.isSelected }}
 		onPress={activate}
 	>
-		<flexboxlayout flexDirection="row" alignItems="center" gap={6}>
-			{props.icon != null ? <flexboxlayout className="vx-topnav-item-icon">{navIcon(props.icon)}</flexboxlayout> : null}
+		<masonview display="flex" flexDirection="row" alignItems="center" gap={6}>
+			{props.icon != null ? <masonview display="flex" className="vx-topnav-item-icon">{navIcon(props.icon)}</masonview> : null}
 			{props.isIconOnly ? null : (props.children ?? <Text className="vx-topnav-item-label">{props.label}</Text>)}
-		</flexboxlayout>
+		</masonview>
 	</Pressable>
 }
 
@@ -261,25 +235,25 @@ export function TopNavMenu(props: TopNavMenuProps) @{
 			style={props.style}
 			onPress={() => setOpen(!open)}
 		>
-			<flexboxlayout flexDirection="row" alignItems="center" gap={4}>
+			<masonview display="flex" flexDirection="row" alignItems="center" gap={4}>
 				<Text className="vx-topnav-item-label">{props.label}</Text>
 				<Icon name={open ? 'xplat-chevron-up' : 'xplat-chevron-down'} size={16} />
-			</flexboxlayout>
+			</masonview>
 		</Pressable>
 		<Popover anchor={anchor} open={open} placement="bottom" onDismiss={() => setOpen(false)} className="vx-topnavmenu-pop">
-			<flexboxlayout flexDirection="column" className="vx-topnavmenu">
+			<masonview display="flex" flexDirection="column" className="vx-topnavmenu">
 				@for (const item of props.items; key item.title) {
 					<Pressable className="vx-topnavmenu-item" onPress={() => pick(item)}>
-						<flexboxlayout flexDirection="row" alignItems="center" gap={8}>
-							{item.icon != null ? <flexboxlayout className="vx-topnavmenu-item-icon">{navIcon(item.icon)}</flexboxlayout> : null}
-							<flexboxlayout flexDirection="column" flexGrow={1}>
+						<masonview display="flex" flexDirection="row" alignItems="center" gap={8}>
+							{item.icon != null ? <masonview display="flex" className="vx-topnavmenu-item-icon">{navIcon(item.icon)}</masonview> : null}
+							<masonview display="flex" flexDirection="column" flexGrow={1}>
 								<Text className="vx-topnavmenu-item-title">{item.title}</Text>
 								{item.description != null ? <Text className="vx-topnavmenu-item-desc">{item.description}</Text> : null}
-							</flexboxlayout>
-						</flexboxlayout>
+							</masonview>
+						</masonview>
 					</Pressable>
 				}
-			</flexboxlayout>
+			</masonview>
 		</Popover>
 	</>
 }
@@ -303,16 +277,16 @@ export function TopNavMegaMenu(props: TopNavMegaMenuProps) @{
 			style={props.style}
 			onPress={() => setOpenTracked(!open)}
 		>
-			<flexboxlayout flexDirection="row" alignItems="center" gap={4}>
+			<masonview display="flex" flexDirection="row" alignItems="center" gap={4}>
 				<Text className="vx-topnav-item-label">{props.label}</Text>
 				<Icon name={open ? 'xplat-chevron-up' : 'xplat-chevron-down'} size={16} />
-			</flexboxlayout>
+			</masonview>
 		</Pressable>
 		<Popover anchor={anchor} open={open} placement="bottom" onDismiss={() => setOpenTracked(false)} className="vx-topnavmegamenu-pop">
-			<flexboxlayout flexDirection="row" className="vx-topnavmegamenu">
-				<flexboxlayout flexDirection="column" className="vx-topnavmegamenu-items">{props.items}</flexboxlayout>
-				{props.featured != null ? <flexboxlayout className="vx-topnavmegamenu-featured">{props.featured}</flexboxlayout> : null}
-			</flexboxlayout>
+			<masonview display="flex" flexDirection="row" className="vx-topnavmegamenu">
+				<masonview display="flex" flexDirection="column" className="vx-topnavmegamenu-items">{props.items}</masonview>
+				{props.featured != null ? <masonview display="flex" className="vx-topnavmegamenu-featured">{props.featured}</masonview> : null}
+			</masonview>
 		</Popover>
 	</>
 }
@@ -332,27 +306,22 @@ export function TopNavMegaMenuItem(props: TopNavMegaMenuItemProps) @{
 		accessibilityRole="link"
 		onPress={activate}
 	>
-		<flexboxlayout flexDirection="row" alignItems="center" gap={8}>
-			{props.icon != null ? <flexboxlayout className="vx-topnavmegamenu-item-icon">{navIcon(props.icon, 20)}</flexboxlayout> : null}
-			<flexboxlayout flexDirection="column" flexGrow={1}>
+		<masonview display="flex" flexDirection="row" alignItems="center" gap={8}>
+			{props.icon != null ? <masonview display="flex" className="vx-topnavmegamenu-item-icon">{navIcon(props.icon, 20)}</masonview> : null}
+			<masonview display="flex" flexDirection="column" flexGrow={1}>
 				<Text className="vx-topnavmegamenu-item-title">{props.title}</Text>
 				{props.description != null ? <Text className="vx-topnavmegamenu-item-desc">{props.description}</Text> : null}
-			</flexboxlayout>
-		</flexboxlayout>
+			</masonview>
+		</masonview>
 	</Pressable>
 }
 
 /** TopNavMegaMenuFeaturedCard — the marketing card inside a mega menu's
  *  featured panel. */
 export function TopNavMegaMenuFeaturedCard(props: TopNavMegaMenuFeaturedCardProps) @{
-	<flexboxlayout
-		id={props.id}
-		flexDirection="column"
-		className={cx('vx-topnavmegamenu-card', props.className)}
-		style={props.style}
-	>
+	<masonview display="flex" id={props.id} flexDirection="column" className={cx('vx-topnavmegamenu-card', props.className)} style={props.style}>
 		{props.image != null ? <Image src={props.image} className="vx-topnavmegamenu-card-image" /> : null}
-		<flexboxlayout flexDirection="column" className="vx-topnavmegamenu-card-body">
+		<masonview display="flex" flexDirection="column" className="vx-topnavmegamenu-card-body">
 			<Text className="vx-topnavmegamenu-card-title">{props.title}</Text>
 			{props.description != null ? <Text className="vx-topnavmegamenu-card-desc">{props.description}</Text> : null}
 			{props.linkHref != null && props.linkLabel != null ? (
@@ -361,6 +330,6 @@ export function TopNavMegaMenuFeaturedCard(props: TopNavMegaMenuFeaturedCardProp
 				</Pressable>
 			) : null}
 			{props.children}
-		</flexboxlayout>
-	</flexboxlayout>
+		</masonview>
+	</masonview>
 }

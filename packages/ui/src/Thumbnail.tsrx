@@ -76,17 +76,12 @@ export function Thumbnail(props: ThumbnailProps) @{
 				<Icon name="xplat-doc-image" size={20} />
 			)}
 			{isLoading && props.src != null ? (
-				<flexboxlayout
-					className="vx-thumbnail-overlay"
-					justifyContent="center"
-					alignItems="center"
-					style={{ width: SIZE, height: SIZE }}
-				>
+				<masonview display="flex" className="vx-thumbnail-overlay" justifyContent="center" alignItems="center" style={{ width: SIZE, height: SIZE }}>
 					<ActivityIndicator busy={true} style={{ width: 16, height: 16 }} />
-				</flexboxlayout>
+				</masonview>
 			) : null}
 			{isRenderable(props.onRemove) ? (
-				<gridlayout horizontalAlignment="right" verticalAlignment="top" width={16} height={16} style={{ margin: 2 }}>
+				<masonview display="grid" horizontalAlignment="right" verticalAlignment="top" width={16} height={16} style={{ margin: 2 }}>
 				<Pressable
 					className={cx(
 						'vx-thumbnail-remove',
@@ -104,27 +99,15 @@ export function Thumbnail(props: ThumbnailProps) @{
 				>
 					<Icon name="xplat-clear" size={10} />
 				</Pressable>
-				</gridlayout>
+				</masonview>
 			) : null}
 		</>
 	);
 
 	const content = (
-		<gridlayout
-			ref={(v: any) => applyEscapeProps(v, props)}
-			id={props.id}
-			className={cx('vx-thumbnail', props.className)}
-			width={SIZE}
-			height={SIZE}
-			style={props.style as any}
-			accessible={true}
-			accessibilityLabel={label}
-			accessibilityRole={nativeAccessibilityRole(isRenderable(props.onPress) ? 'button' : 'image') as any}
-			accessibilityState={nativeAccessibilityState({ disabled: isDisabled }) as any}
-			onTap={isRenderable(props.onPress) && !isDisabled ? () => props.onPress?.() : undefined}
-		>
+		<masonview display="grid" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-thumbnail', props.className)} width={SIZE} height={SIZE} style={props.style as any} accessible={true} accessibilityLabel={label} accessibilityRole={nativeAccessibilityRole(isRenderable(props.onPress) ? 'button' : 'image') as any} accessibilityState={nativeAccessibilityState({ disabled: isDisabled }) as any} onTap={isRenderable(props.onPress) && !isDisabled ? () => props.onPress?.() : undefined}>
 			{inner}
-		</gridlayout>
+		</masonview>
 	);
 
 	return props.label != null ? (

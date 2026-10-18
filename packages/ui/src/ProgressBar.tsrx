@@ -98,15 +98,9 @@ export function ProgressBar(props: ProgressBarProps) @{
 
 	const forwardedRef = useMemo(() => refList((v: any) => applyEscapeProps(v, props), props.ref), [props.ref, props.ios, props.android, props.web]);
 
-	<flexboxlayout
-		ref={forwardedRef}
-		id={props.id}
-		className={cx('vx-progressbar', `vx-progressbar--${variant}`, props.className)}
-		style={{ flexDirection: 'column', ...(isDisabled ? { opacity: 0.38 } : {}), ...(props.style as any) }}
-		flexDirection="column"
-	>
+	<masonview display="flex" ref={forwardedRef} id={props.id} className={cx('vx-progressbar', `vx-progressbar--${variant}`, props.className)} style={{ flexDirection: 'column', ...(isDisabled ? { opacity: 0.38 } : {}), ...(props.style as any) }} flexDirection="column">
 		{showHead ? (
-			<flexboxlayout flexDirection="row" justifyContent="space-between" className="vx-progressbar-head">
+			<masonview display="flex" flexDirection="row" justifyContent="space-between" className="vx-progressbar-head">
 				<label
 					className="vx-progressbar-label"
 					whiteSpace="nowrap"
@@ -123,53 +117,25 @@ export function ProgressBar(props: ProgressBarProps) @{
 						{valueText}
 					</label>
 				) : null}
-			</flexboxlayout>
+			</masonview>
 		) : null}
-		<gridlayout
-			ref={(v: any) => {
+		<masonview display="grid" ref={(v: any) => {
 				track.current = v;
-			}}
-			className="vx-progressbar-track"
-			height={8}
-			accessible={props.accessible}
-			accessibilityRole={nativeAccessibilityRole('progressbar') as any}
-			accessibilityLabel={props.accessibilityLabel ?? props.label}
-			accessibilityValue={isIndeterminate ? undefined : valueText}
-			accessibilityHint={props.accessibilityHint}
-			style={{ borderRadius: 4 }}
-		>
-			<flexboxlayout
-				ref={(v: any) => {
-					fill.current = v;
-				}}
-				className={cx('vx-progressbar-fill', `vx-progressbar-fill--${variant}`)}
-				horizontalAlignment="left"
-				width={isIndeterminate ? '40%' : `${pct}%`}
-				style={{
+			}} className="vx-progressbar-track" height={8} accessible={props.accessible} accessibilityRole={nativeAccessibilityRole('progressbar') as any} accessibilityLabel={props.accessibilityLabel ?? props.label} accessibilityValue={isIndeterminate ? undefined : valueText} accessibilityHint={props.accessibilityHint} style={{ borderRadius: 4 }}>
+			<masonview style={[{
 					borderRadius: 4,
 					backgroundColor: nativeColor(progressFillColor(variant, scheme)),
-				}}
-			/>
+				}, {justifySelf: 'start'}]} display="flex" ref={(v: any) => {
+					fill.current = v;
+				}} className={cx('vx-progressbar-fill', `vx-progressbar-fill--${variant}`)} width={isIndeterminate ? '40%' : `${pct}%`} />
 			{marks.map((mark) => {
 				const markPct = clamp(mark.value, 0, max) / max;
 				return (
-					<gridlayout
-						key={mark.value}
-						columns={`${markPct}*,auto,${1 - markPct}*`}
-						isPassThroughParentEnabled={true}
-					>
-						<flexboxlayout
-							col={1}
-							className="vx-progressbar-mark"
-							width={2}
-							height={8}
-							accessibilityLabel={mark.label}
-							accessibilityRole={nativeAccessibilityRole('none') as any}
-							style={{ backgroundColor: nativeColor(mutedColor(scheme)) }}
-						/>
-					</gridlayout>
+					<masonview display="grid" gridTemplateColumns={`${markPct}fr auto ${1 - markPct}fr`} key={mark.value} isPassThroughParentEnabled={true}>
+						<masonview style={{ backgroundColor: nativeColor(mutedColor(scheme)) , gridColumn: '2'}} display="flex" className="vx-progressbar-mark" width={2} height={8} accessibilityLabel={mark.label} accessibilityRole={nativeAccessibilityRole('none') as any} />
+					</masonview>
 				);
 			})}
-		</gridlayout>
-	</flexboxlayout>
+		</masonview>
+	</masonview>
 }

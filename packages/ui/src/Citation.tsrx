@@ -44,9 +44,9 @@ export function Citation(props: CitationProps) @{
 		) : (
 			<>
 				{iconNode != null ? (
-					<flexboxlayout className="vx-citation-icon" style={{ width: 16, height: 16, borderRadius: 8 }}>
+					<masonview display="flex" className="vx-citation-icon" style={{ width: 16, height: 16, borderRadius: 8 }}>
 						{iconNode}
-					</flexboxlayout>
+					</masonview>
 				) : iconSrc != null ? (
 					<image src={iconSrc} className="vx-citation-icon" style={{ width: 16, height: 16, borderRadius: 8 }} />
 				) : null}
@@ -82,18 +82,10 @@ export function Citation(props: CitationProps) @{
 			{body}
 		</Pressable>
 	) : (
-		<flexboxlayout
-			ref={(v: any) => applyEscapeProps(v, props)}
-			id={props.id}
-			className={cls}
-			style={{ flexDirection: 'row', alignItems: 'center', gap: 4, ...(props.style as any) }}
-			flexDirection="row"
-			alignItems="center"
-			accessibilityLabel={
+		<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cls} style={{ flexDirection: 'row', alignItems: 'center', gap: 4, ...(props.style as any) }} flexDirection="row" alignItems="center" accessibilityLabel={
 				variant === 'number' ? `Citation ${props.number}` : `${source.title ?? 'Citation'} ${props.number}`
-			}
-		>
+			}>
 			{body}
-		</flexboxlayout>
+		</masonview>
 	);
 }

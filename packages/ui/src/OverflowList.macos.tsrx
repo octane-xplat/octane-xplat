@@ -100,29 +100,18 @@ export function OverflowList(props: OverflowListProps) @{
 		{/* Hidden measurement copy — a horizontal ScrollView gives children an
 		    unbounded width constraint so each reports its intrinsic width;
 		    the host box is height-0 + hidden so it never paints. */}
-		<flexboxlayout height={0} visibility="hidden" className="vx-overflowlist-measure">
+		<masonview display="flex" height={0} visibility="hidden" className="vx-overflowlist-measure">
 			<scrollview orientation="horizontal" scrollBarIndicatorVisible={false}>
-				<flexboxlayout ref={(v: any) => { measure.current = v; }} flexDirection="row" gap={gap} onLayoutChanged={calculate}>
+				<masonview display="flex" ref={(v: any) => { measure.current = v; }} flexDirection="row" gap={gap} onLayoutChanged={calculate}>
 					{childArray}
-					{measureIndicator != null ? <flexboxlayout flexDirection="row">{measureIndicator}</flexboxlayout> : null}
-				</flexboxlayout>
+					{measureIndicator != null ? <masonview display="flex" flexDirection="row">{measureIndicator}</masonview> : null}
+				</masonview>
 			</scrollview>
-		</flexboxlayout>
-		<flexboxlayout
-			ref={(v: any) => { container.current = v; if (v) { v.on?.('layoutChanged', calculate); } }}
-			id={props.id}
-			className={cx('vx-overflowlist', isMultiRow && 'vx-overflowlist--multirow', props.className)}
-			style={{ ...(props.style as any), height: containerHeight }}
-			flexDirection="row"
-			flexWrap={isMultiRow ? 'wrap' : 'nowrap'}
-			alignItems="flex-start"
-			rowGap={isMultiRow ? gap : undefined}
-			gap={gap}
-			onLayoutChanged={calculate}
-		>
+		</masonview>
+		<masonview display="flex" ref={(v: any) => { container.current = v; if (v) { v.on?.('layoutChanged', calculate); } }} id={props.id} className={cx('vx-overflowlist', isMultiRow && 'vx-overflowlist--multirow', props.className)} style={{ ...(props.style as any), height: containerHeight }} flexDirection="row" flexWrap={isMultiRow ? 'wrap' : 'nowrap'} alignItems="flex-start" rowGap={isMultiRow ? gap : undefined} gap={gap} onLayoutChanged={calculate}>
 			{collapseFrom === 'start' && hasOverflow ? props.overflowRenderer?.(overflowItems) : null}
 			{visibleItems.map(({ child }) => child)}
 			{collapseFrom === 'end' && hasOverflow ? props.overflowRenderer?.(overflowItems) : null}
-		</flexboxlayout>
+		</masonview>
 	</>
 }

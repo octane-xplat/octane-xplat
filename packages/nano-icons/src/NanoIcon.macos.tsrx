@@ -63,26 +63,15 @@ function MacGlyphLayers(props: NanoIconProps & { glyphMap: NanoGlyphMap }) {
 	const family = props.glyphMap.m.f;
 
 	return (
-		<absolutelayout
-			id={props.id}
-			className={props.className}
-			style={{ width, height: size }}
-			ref={(el: any) => applyHostProps(el, props)}
-		>
+		<masonview id={props.id} className={props.className} style={{ width, height: size }} ref={(el: any) => applyHostProps(el, props)}>
 			{layers.map(([codepoint, srcColor], i) => (
-				<label
-					key={i}
-					id={props.id ? props.id + ':layer-' + i : undefined}
-					{...({ left: 0, top: 0, accessible: false } as Record<string, unknown>)}
-					text={getChar(codepoint)}
-					style={{
+				<label key={i} id={props.id ? props.id + ':layer-' + i : undefined} {...({ left: 0, top: 0, accessible: false } as Record<string, unknown>)} text={getChar(codepoint)} style={[{
 						fontFamily: family,
 						fontSize: size,
 						color: layerColor(resolveColor(i, srcColor)),
-					}}
-				/>
+					}, {position: 'absolute'}]} />
 			))}
-		</absolutelayout>
+		</masonview>
 	);
 }
 

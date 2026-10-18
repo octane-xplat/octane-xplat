@@ -5,15 +5,8 @@ import { applyEscapeProps } from "./escape-props";
 
 /** FieldGroup — labeled group of related fields. */
 export function FieldGroup(props: FieldGroupProps) @{
-	<flexboxlayout
-		ref={(v: any) => applyEscapeProps(v, props)}
-		id={props.id}
-		className={cx('vx-fieldgroup', props.className)}
-		style={props.style}
-		accessibilityRole="group"
-		accessibilityLabel={props.label}
-	>
+	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-fieldgroup', props.className)} style={props.style} accessibilityRole="group" accessibilityLabel={props.label}>
 		{props.label != null ? <label className="vx-fieldgroup-label" text={props.label} /> : null}
 		{props.children}
-	</flexboxlayout>
+	</masonview>
 }

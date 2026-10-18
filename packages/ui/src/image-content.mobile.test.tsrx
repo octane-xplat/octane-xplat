@@ -45,15 +45,15 @@ describe('native Image — contentFit fast path (L7)', () => {
 
 	it('routes none/scale-down/positioned content through the computed wrapper', () => {
 		const none = render({ src: 'x', contentFit: 'none' }).host
-		expect(none.type).toBe('absolutelayout')
+		expect(none.type).toBe('masonview')
 		const inner = none.children[0] as any
 		expect(inner.type).toBe('image')
 		expect(inner.props.stretch).toBe('fill')
 
 		const scaleDown = render({ src: 'x', contentFit: 'scale-down' }).host
-		expect(scaleDown.type).toBe('absolutelayout')
+		expect(scaleDown.type).toBe('masonview')
 		const positioned = render({ src: 'x', contentFit: 'cover', contentPosition: 'top left' }).host
-		expect(positioned.type).toBe('absolutelayout')
+		expect(positioned.type).toBe('masonview')
 		// fill ignores position — the rect is always the whole box
 		const filled = render({ src: 'x', contentFit: 'fill', contentPosition: 'top left' }).host
 		expect(filled.type).toBe('image')

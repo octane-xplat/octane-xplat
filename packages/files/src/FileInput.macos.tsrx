@@ -79,9 +79,7 @@ function FileInputControl(inputProps: FileInputProps) @{
 
 	useImperativeHandle(props.ref, () => ({ open: pick, native: hostRef.current }), undefined);
 
-	<flexboxlayout
-		flexDirection="column"
-		className={cx(
+	<masonview display="flex" flexDirection="column" className={cx(
 			'vx-fileinput',
 			dropzone && 'vx-fileinput--dropzone',
 			isDisabled && 'vx-fileinput--disabled',
@@ -89,22 +87,20 @@ function FileInputControl(inputProps: FileInputProps) @{
 			statusType && `vx-fileinput--status-${statusType}`,
 			props.size && `vx-fileinput--size-${props.size}`,
 			props.className,
-		)}
-		style={props.style}
-	>
+		)} style={props.style}>
 		{files.length ? (
-			<flexboxlayout flexDirection="column" className="vx-fileinput-list">
+			<masonview display="flex" flexDirection="column" className="vx-fileinput-list">
 				{files.map((f, i) => (
-					<flexboxlayout key={`${f.uri}-${i}`} flexDirection="row" alignItems="center" className="vx-fileinput-item">
+					<masonview display="flex" key={`${f.uri}-${i}`} flexDirection="row" alignItems="center" className="vx-fileinput-item">
 						<Icon name="xplat-upload" size={14} />
 						<label className="vx-fileinput-itemname" text={f.name} />
 						{f.size != null ? <label className="vx-fileinput-itemsize" text={formatFileSize(f.size)} /> : null}
 						{!isDisabled && !isBusy
 							? <Pressable className="vx-fileinput-itemremove" accessibilityLabel={`Remove ${f.name}`} onPress={() => removeAt(i)}><label text="×" /></Pressable>
 							: null}
-					</flexboxlayout>
+					</masonview>
 				))}
-			</flexboxlayout>
+			</masonview>
 		) : null}
 		<Pressable
 			ref={(v: any) => { hostRef.current = v; }}
@@ -116,10 +112,10 @@ function FileInputControl(inputProps: FileInputProps) @{
 			accessibilityState={{ disabled: isDisabled, busy: isBusy } as any}
 			onPress={pick}
 		>
-			<flexboxlayout flexDirection="row" alignItems="center">
+			<masonview display="flex" flexDirection="row" alignItems="center">
 				<Icon name="xplat-upload" size={14} />
 				<label text={files.length ? 'Choose more files' : 'Choose files'} />
-			</flexboxlayout>
+			</masonview>
 		</Pressable>
 		{files.length > 0 && !isDisabled && !isBusy
 			? <Pressable className="vx-fileinput-clear" accessibilityLabel={`Clear ${props.fieldLabel ?? props.label ?? 'files'}`} onPress={() => { setValidationErrors([]); fireChange([]) }}><label text="×" /></Pressable>
@@ -130,7 +126,7 @@ function FileInputControl(inputProps: FileInputProps) @{
 		{statusMessage && props.statusVariant !== 'tooltip'
 			? <label className={cx('vx-field-status', `vx-field-status--${statusType}`)} text={statusMessage} />
 			: null}
-	</flexboxlayout>
+	</masonview>
 }
 
 /**

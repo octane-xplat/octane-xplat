@@ -13,16 +13,9 @@ export function CheckIndicator(props: IndicatorProps<'singleSelection'>) @{
 	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
 	@if (props.children != null) {
-		<flexboxlayout
-			id={props.id}
-			ref={forwardedRef}
-			className={cx('vx-ind-check-slot', `vx-ind-check-slot--${size}`, props.className)}
-			style={props.style}
-			alignItems="center"
-			justifyContent="center"
-		>
+		<masonview display="flex" id={props.id} ref={forwardedRef} className={cx('vx-ind-check-slot', `vx-ind-check-slot--${size}`, props.className)} style={props.style} alignItems="center" justifyContent="center">
 			{props.children}
-		</flexboxlayout>
+		</masonview>
 	} @else if (props.state === 'checked') {
 		<label
 			id={props.id}

@@ -49,14 +49,9 @@ export function AppKitDatePicker(props: AppKitDatePickerProps) @{
 		handle.current?.update(options())
 	})
 
-	<flexboxlayout
-		ref={(v: any) => { anchor.current = v }}
-		id={props.id}
-		className={props.className}
-		style={{
+	<masonview display="flex" ref={(v: any) => { anchor.current = v }} id={props.id} className={props.className} style={{
 			minWidth: 240,
 			minHeight: props.pickerStyle === 'graphical' ? 300 : 26,
 			...props.style,
-		}}
-	/>;
+		}} />;
 }

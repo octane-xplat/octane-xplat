@@ -35,12 +35,12 @@ export function FormField(props: FormFieldProps) @{
 	}
 
 	const labelNode = props.label == null || props.isLabelHidden ? null
-		: <flexboxlayout className="vx-field-label-row" flexDirection="row" alignItems="center">
+		: <masonview display="flex" className="vx-field-label-row" flexDirection="row" alignItems="center">
 			<label id={labelId} className="vx-field-label" text={labelText} />
 			{props.labelTooltip != null
 				? <Tooltip trigger={<Pressable className="vx-field-info" accessibilityLabel={'More about ' + props.label} accessibilityHint={props.labelTooltip}><label text="i" /></Pressable>} content={props.labelTooltip} placement="top" />
 				: null}
-		</flexboxlayout>
+		</masonview>
 
 	const descriptionNode = props.description != null && !props.isLabelHidden
 		? <label id={descriptionId} className="vx-field-description" text={props.description} />
@@ -54,20 +54,20 @@ export function FormField(props: FormFieldProps) @{
 	const fieldStyle = { ...(props.width != null ? { width: props.width } : {}), ...(props.style as any) }
 
 	@if (isHorizontalLabels) {
-		<flexboxlayout ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx(rootClass, 'vx-field--hl')} style={fieldStyle}>
-			<flexboxlayout className="vx-field-hl-label" flexDirection="column">{labelNode}</flexboxlayout>
-			<flexboxlayout className="vx-field-hl-body" flexDirection="column" flexGrow={1}>
+		<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx(rootClass, 'vx-field--hl')} style={fieldStyle}>
+			<masonview display="flex" className="vx-field-hl-label" flexDirection="column">{labelNode}</masonview>
+			<masonview display="flex" className="vx-field-hl-body" flexDirection="column" flexGrow={1}>
 				{descriptionNode}
 				<FieldProvider value={fieldContext}>{props.children}</FieldProvider>
 				{statusNode}
-			</flexboxlayout>
-		</flexboxlayout>
+			</masonview>
+		</masonview>
 	} @else {
-		<flexboxlayout ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={rootClass} style={fieldStyle}>
+		<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={rootClass} style={fieldStyle}>
 			{labelNode}
 			{descriptionNode}
 			<FieldProvider value={fieldContext}>{props.children}</FieldProvider>
 			{statusNode}
-		</flexboxlayout>
+		</masonview>
 	}
 }

@@ -30,12 +30,7 @@ export function Accordion(props: AccordionProps) @{
 		}
 	};
 
-	<flexboxlayout
-		ref={(v: any) => applyEscapeProps(v, props)}
-		id={props.id}
-		className={cx('vx-accordion', props.className)}
-		style={props.style}
-	>
+	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-accordion', props.className)} style={props.style}>
 		@for (const item of props.items; key item.key) {
 			<Collapsible
 				className="vx-accordion-item"
@@ -47,5 +42,5 @@ export function Accordion(props: AccordionProps) @{
 				{item.content}
 			</Collapsible>
 		}
-	</flexboxlayout>
+	</masonview>
 }

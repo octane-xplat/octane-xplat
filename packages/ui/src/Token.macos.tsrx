@@ -96,14 +96,7 @@ export function Token(props: TokenProps) @{
 		</Pressable>
 	}
 
-	return <flexboxlayout
-		id={props.id}
-		className={classes}
-		style={tokenStyle}
-		accessibilityLabel={props.isLabelHidden ? props.label : undefined}
-		accessibilityHint={props.description}
-		accessibilityState={{ disabled: props.isDisabled }}
-	>
+	return <masonview display="flex" id={props.id} className={classes} style={tokenStyle} accessibilityLabel={props.isLabelHidden ? props.label : undefined} accessibilityHint={props.description} accessibilityState={{ disabled: props.isDisabled }}>
 		{content}
-	</flexboxlayout>
+	</masonview>
 }

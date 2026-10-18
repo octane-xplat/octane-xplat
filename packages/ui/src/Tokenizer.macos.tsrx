@@ -20,11 +20,11 @@ function EndLane(props: { lane: BusyIndicatorLane; endContent?: any; clear?: any
 	const isBusy = useSyncExternalStore(props.lane.subscribe, props.lane.getIsBusy);
 	if (!isBusy && props.endContent == null && props.clear == null) return null;
 
-	<flexboxlayout className="vx-tokenizer-endlane" flexDirection="row" alignItems="center" ref={props.laneRef}>
-		{isBusy ? <flexboxlayout className="vx-typeahead-spinner"><ActivityIndicator busy={true} /></flexboxlayout> : null}
+	<masonview display="flex" className="vx-tokenizer-endlane" flexDirection="row" alignItems="center" ref={props.laneRef}>
+		{isBusy ? <masonview display="flex" className="vx-typeahead-spinner"><ActivityIndicator busy={true} /></masonview> : null}
 		{props.endContent}
 		{props.clear}
-	</flexboxlayout>
+	</masonview>
 }
 
 /** Multi-select field: Token chips + a BaseTypeahead input. Native leaf —
@@ -198,11 +198,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 				isDisabled={props.isDisabled}
 			/>;
 
-		return <flexboxlayout
-			key={item.id}
-			className="vx-tokenizer-token"
-			ref={(v: any) => { if (v) tokenEls.current.set(i, v); else tokenEls.current.delete(i); }}
-		>{body}</flexboxlayout>;
+		return <masonview display="flex" key={item.id} className="vx-tokenizer-token" ref={(v: any) => { if (v) tokenEls.current.set(i, v); else tokenEls.current.delete(i); }}>{body}</masonview>;
 	});
 
 	const hasClearButton = Boolean(props.hasClear && props.value.length > 0 && !props.isDisabled);
@@ -250,42 +246,24 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 		: null;
 
 	const truncatedRow = (
-		<flexboxlayout
-			className={wrapperClass}
-			flexDirection="row"
-			alignItems="center"
-			flexWrap="nowrap"
-			ref={(v: any) => { wrapperRef.current = v; }}
-			onLayoutChanged={measureOverflow}
-			onTap={() => { if (!props.isDisabled) inputHandle.current?.focus(); }}
-			accessibilityState={{ disabled: props.isDisabled } as any}
-		>
+		<masonview display="flex" className={wrapperClass} flexDirection="row" alignItems="center" flexWrap="nowrap" ref={(v: any) => { wrapperRef.current = v; }} onLayoutChanged={measureOverflow} onTap={() => { if (!props.isDisabled) inputHandle.current?.focus(); }} accessibilityState={{ disabled: props.isDisabled } as any}>
 			{startIcon}
 			{tokens}
 			{isTruncated
 				? <label ref={(v: any) => { overflowRef.current = v; }} className="vx-tokenizer-overflow" text={overflowCount > 0 ? `+${overflowCount} more` : ''} />
 				: null}
-		</flexboxlayout>
+		</masonview>
 	);
 
 	let content: any;
 	if (isLayerMode) {
 		// The collapsed row anchors the popover; the full field lives inside it.
 		content = <>
-			<flexboxlayout
-				className={wrapperClass}
-				flexDirection="row"
-				alignItems="center"
-				flexWrap="nowrap"
-				ref={(v: any) => { wrapperRef.current = v; }}
-				onLayoutChanged={measureOverflow}
-				onTap={() => { if (!props.isDisabled) focusEntered(); }}
-				accessibilityState={{ disabled: props.isDisabled } as any}
-			>
+			<masonview display="flex" className={wrapperClass} flexDirection="row" alignItems="center" flexWrap="nowrap" ref={(v: any) => { wrapperRef.current = v; }} onLayoutChanged={measureOverflow} onTap={() => { if (!props.isDisabled) focusEntered(); }} accessibilityState={{ disabled: props.isDisabled } as any}>
 				{startIcon}
 				{tokens}
 				<label ref={(v: any) => { overflowRef.current = v; }} className="vx-tokenizer-overflow" text={overflowCount > 0 ? `+${overflowCount} more` : ''} />
-			</flexboxlayout>
+			</masonview>
 			<Popover
 				anchor={{ current: wrapperRef.current }}
 				open={layerOpen}
@@ -293,25 +271,16 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 				onDismiss={collapseSoon}
 				className="vx-tokenizer-layer"
 			>
-				<flexboxlayout className="vx-tokenizer" flexDirection="row" alignItems="center" flexWrap="wrap">
+				<masonview display="flex" className="vx-tokenizer" flexDirection="row" alignItems="center" flexWrap="wrap">
 					{startIcon}
 					{tokens}
 					{fieldControls}
 					<EndLane lane={busyLane} endContent={props.endContent} clear={clearButton} laneRef={(v: any) => { laneRef.current = v; }} />
-				</flexboxlayout>
+				</masonview>
 			</Popover>
 		</>;
 	} else {
-		content = <flexboxlayout
-			className={wrapperClass}
-			flexDirection="row"
-			alignItems="center"
-			flexWrap={isTruncated ? 'nowrap' : 'wrap'}
-			ref={(v: any) => { wrapperRef.current = v; }}
-			onLayoutChanged={measureOverflow}
-			onTap={() => { if (!props.isDisabled) inputHandle.current?.focus(); }}
-			accessibilityState={{ disabled: props.isDisabled } as any}
-		>
+		content = <masonview display="flex" className={wrapperClass} flexDirection="row" alignItems="center" flexWrap={isTruncated ? 'nowrap' : 'wrap'} ref={(v: any) => { wrapperRef.current = v; }} onLayoutChanged={measureOverflow} onTap={() => { if (!props.isDisabled) inputHandle.current?.focus(); }} accessibilityState={{ disabled: props.isDisabled } as any}>
 			{startIcon}
 			{tokens}
 			{isTruncated
@@ -319,7 +288,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 				: null}
 			{fieldControls}
 			<EndLane lane={busyLane} endContent={props.endContent} clear={clearButton} laneRef={(v: any) => { laneRef.current = v; }} />
-		</flexboxlayout>;
+		</masonview>;
 	}
 
 	<FormField

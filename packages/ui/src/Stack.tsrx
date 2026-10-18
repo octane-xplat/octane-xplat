@@ -7,7 +7,7 @@ import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } f
 import { resolveStackLayout } from './stack-layout';
 import { usePan } from './pan';
 
-/** Astryx flow Stack — flexboxlayout in `direction`, `hAlign`/`vAlign`
+/** Astryx flow Stack — a flex masonview in `direction`, `hAlign`/`vAlign`
  *  mapped to main/cross axes, spacing-step gap/padding (steps × 4 dips).
  *  Children that need to overlap belong in `Absolute` instead.
  *  `isScrollable` hosts the flow inside a ScrollView — NS layouts can't
@@ -47,39 +47,13 @@ export function Stack(props: StackProps) @{
 			onPan={onPan}
 			onSwipe={props.onSwipe}
 		>
-			<flexboxlayout
-				flexDirection={layout.flexDirection}
-				justifyContent={layout.justifyContent as any}
-				alignItems={layout.alignItems as any}
-				flexWrap={layout.flexWrap as any}
-				gap={layout.gap as any}
-			>
+			<masonview display="flex" flexDirection={layout.flexDirection} justifyContent={layout.justifyContent as any} alignItems={layout.alignItems as any} flexWrap={layout.flexWrap as any} gap={layout.gap as any}>
 				{props.children}
-			</flexboxlayout>
+			</masonview>
 		</scrollview>
 	} @else {
-		<flexboxlayout
-			id={props.id}
-			testID={props.testID ?? ''}
-			ref={forwardedRef}
-			flexDirection={layout.flexDirection}
-			justifyContent={layout.justifyContent as any}
-			alignItems={layout.alignItems as any}
-			flexWrap={layout.flexWrap as any}
-			gap={layout.gap as any}
-			className={cx('vx-stack', props.className)}
-			style={{ ...(sizingStyle as any), ...(props.style as any) }}
-			accessible={props.accessible}
-			accessibilityLabel={props.accessibilityLabel}
-			accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}
-			accessibilityHint={props.accessibilityHint}
-			accessibilityValue={props.accessibilityValue}
-			accessibilityState={nativeAccessibilityState(props.accessibilityState) as any}
-			accessibilityLiveRegion={props.accessibilityLiveRegion as any}
-			onPan={onPan}
-			onSwipe={props.onSwipe}
-		>
+		<masonview display="flex" id={props.id} testID={props.testID ?? ''} ref={forwardedRef} flexDirection={layout.flexDirection} justifyContent={layout.justifyContent as any} alignItems={layout.alignItems as any} flexWrap={layout.flexWrap as any} gap={layout.gap as any} className={cx('vx-stack', props.className)} style={{ ...(sizingStyle as any), ...(props.style as any) }} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any} onPan={onPan} onSwipe={props.onSwipe}>
 			{props.children}
-		</flexboxlayout>
+		</masonview>
 	}
 }

@@ -9,5 +9,5 @@ import { applyEscapeProps } from './escape-props';
  * @see StackProps.
  */
 export function Spacer(props: SpacerProps) @{
-	<stacklayout id={props.id} ref={(view: any) => applyEscapeProps(view, props)} flexGrow={1} className={cx('vx-spacer', props.className)} style={props.style as any} />
+	<masonview display="flex" flexDirection="column" id={props.id} ref={(view: any) => applyEscapeProps(view, props)} flexGrow={1} className={cx('vx-spacer', props.className)} style={props.style as any} />
 }

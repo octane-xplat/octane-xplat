@@ -41,11 +41,11 @@ describe('GridList (universal renderer)', () => {
 		})
 
 		const grid = container.children[0]
-		expect(grid.type).toBe('flexboxlayout')
+		expect(grid.type).toBe('masonview')
 		expect(grid.props.flexWrap).toBe('wrap')
 		const rows = grid.children
 		expect(rows.length).toBe(3)
-		expect(rows[0].type).toBe('flexboxlayout')
+		expect(rows[0].type).toBe('masonview')
 
 		container.dispatchEvent(rows[0], 'tap', {})
 		expect(onAction).toHaveBeenCalledWith('a')

@@ -94,7 +94,7 @@ function Headless(props: any) @{
 	area = useScrollableArea({ axis: props.axis })
 
 	<scrollview {...area.getViewportProps({ ref: props.ref, onScroll: props.onScroll, onLayoutChanged: props.onLayoutChanged })}>
-		<flexboxlayout {...area.getContentProps({ onLayoutChanged: props.onContentLayoutChanged })} />
+		<masonview display="flex" {...area.getContentProps({ onLayoutChanged: props.onContentLayoutChanged })} />
 	</scrollview>
 }
 

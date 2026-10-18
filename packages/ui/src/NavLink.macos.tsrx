@@ -19,6 +19,6 @@ export function NavLink(props: NavLinkProps) @{
 		accessibilityRole="link"
 		onPress={() => pushRoute(props.route)}
 	>
-		<flexboxlayout flexDirection="row">{props.children}</flexboxlayout>
+		<masonview display="flex" flexDirection="row">{props.children}</masonview>
 	</Pressable>
 }

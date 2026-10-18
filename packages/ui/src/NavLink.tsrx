@@ -22,6 +22,6 @@ export function NavLink(props: NavLinkProps) @{
 		className={cx(props.className, active ? props.activeClassName : undefined)}
 		onPress={() => pushRoute(props.route)}
 	>
-		<flexboxlayout flexDirection="row">{props.children}</flexboxlayout>
+		<masonview display="flex" flexDirection="row">{props.children}</masonview>
 	</Pressable>
 }

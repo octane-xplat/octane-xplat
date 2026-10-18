@@ -15,18 +15,12 @@ export function AvatarGroup(props: AvatarGroupProps) @{
 	const overflow = children.length - shown.length;
 	const itemStyle = (i: number) => (i === 0 ? undefined : { marginLeft: -size / 3 });
 
-	<flexboxlayout
-		ref={(v: any) => applyEscapeProps(v, props)}
-		id={props.id}
-		flexDirection="row"
-		className={cx('vx-avatar-group', props.className)}
-		style={props.style}
-	>
+	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx('vx-avatar-group', props.className)} style={props.style}>
 		{mapChildren(shown, (child: any, i: number) => (
-			<flexboxlayout className="vx-avatar-group-item" style={itemStyle(i)}>{child}</flexboxlayout>
+			<masonview display="flex" className="vx-avatar-group-item" style={itemStyle(i)}>{child}</masonview>
 		))}
 		{overflow > 0
-			? <flexboxlayout className="vx-avatar-group-item" style={itemStyle(shown.length)}><Avatar fallback={`+${overflow}`} size={size} /></flexboxlayout>
+			? <masonview display="flex" className="vx-avatar-group-item" style={itemStyle(shown.length)}><Avatar fallback={`+${overflow}`} size={size} /></masonview>
 			: null}
-	</flexboxlayout>
+	</masonview>
 }

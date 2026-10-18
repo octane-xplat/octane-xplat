@@ -67,25 +67,6 @@ export function parseGridTrackList(
 	return tracks
 }
 
-/** Canonical host track string — comma-joined tokens padded with 'auto'
- *  up to `minTracks`, or undefined when the spec declares no tracks. */
-export function gridTrackListToSpec(
-	spec: GridTrackList | undefined,
-	axis: 'rows' | 'columns',
-	minTracks = 0,
-): string | undefined {
-	const tracks = parseGridTrackList(spec, axis)
-	if (!tracks.length && !minTracks) {
-		return undefined
-	}
-
-	while (tracks.length < minTracks) {
-		tracks.push('auto')
-	}
-
-	return tracks.join(',')
-}
-
 /** CSS grid-template value for the bounded grammar, or undefined when the
  *  spec declares no tracks. */
 export function gridTrackListToCss(

@@ -103,14 +103,9 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
 				applyEscapeProps(v, props);
 			}), [props.ios, props.android, props.web]);
 
-	<gridlayout
-		ref={(v: any) => {
+	<masonview display="grid" ref={(v: any) => {
 			if (v?.ios) v.ios.clipsToBounds = true;
-		}}
-		{...layoutChildProps(props)}
-		className={cx('vx-refresh-wrap', props.className)}
-		style={props.style as any}
-	>
+		}} {...layoutChildProps(props)} className={cx('vx-refresh-wrap', props.className)} style={props.style as any}>
 		<scrollview
 			ref={forwardedRef}
 			id={props.id}
@@ -119,26 +114,20 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
 			orientation="vertical"
 			{...a11y(props)}
 		>
-			<flexboxlayout flexDirection="column" style={contentPadding(props)}>
+			<masonview display="flex" flexDirection="column" style={contentPadding(props)}>
 				{props.children}
-			</flexboxlayout>
+			</masonview>
 		</scrollview>
-		<flexboxlayout
-			ref={(v: any) => {
+		<masonview display="flex" ref={(v: any) => {
 				indicator.current = v;
-			}}
-			className="vx-refresh"
-			verticalAlignment="top"
-			height={REFRESH_HEADER_HEIGHT}
-			translateY={-REFRESH_HEADER_HEIGHT}
-		>
+			}} className="vx-refresh" height={REFRESH_HEADER_HEIGHT} translateY={-REFRESH_HEADER_HEIGHT} style={{alignSelf: 'start'}}>
 			<ActivityIndicator />
-		</flexboxlayout>
-	</gridlayout>
+		</masonview>
+	</masonview>
 }
 
 /** Scroll viewport (Astryx `ScrollableArea`). NativeScript's ScrollView
- *  hosts exactly one child, so children wrap in a content flexboxlayout —
+ *  hosts exactly one child, so children wrap in a content masonview —
  *  the padding + content box lives there. `axis: 'both'` nests a
  *  horizontal scroller inside the vertical one (NS has no two-axis
  *  ScrollView). `overscroll`/`stickyContainment`/`isFullBleed` are web
@@ -191,17 +180,14 @@ function ScrollableAreaCore(props: ScrollableAreaProps) @{
 				}}
 				orientation="horizontal"
 			>
-				<flexboxlayout flexDirection="row" style={contentPadding(props)}>
+				<masonview display="flex" flexDirection="row" style={contentPadding(props)}>
 					{props.children}
-				</flexboxlayout>
+				</masonview>
 			</scrollview>
 		) : (
-			<flexboxlayout
-				flexDirection={horizontal ? 'row' : 'column'}
-				style={contentPadding(props)}
-			>
+			<masonview display="flex" flexDirection={horizontal ? 'row' : 'column'} style={contentPadding(props)}>
 				{props.children}
-			</flexboxlayout>
+			</masonview>
 		)}
 	</scrollview>
 }

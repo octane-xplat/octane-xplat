@@ -73,28 +73,22 @@ export function SideNav(props: SideNavProps) @{
 	const drawerFooter = props.footer != null || props.footerIcons != null;
 
 	@if (renderMode === 'topbar') {
-		<flexboxlayout
-			id={props.id}
-			flexDirection="row"
-			alignItems="center"
-			className={cx('vx-sidenav', 'vx-sidenav--topbar', props.className)}
-			style={props.style}
-		>
+		<masonview display="flex" id={props.id} flexDirection="row" alignItems="center" className={cx('vx-sidenav', 'vx-sidenav--topbar', props.className)} style={props.style}>
 			{props.header}
-			<flexboxlayout className="vx-sidenav-topbar-icons" flexDirection="row" alignItems="center" justifyContent="flex-end" flexGrow={1}>
+			<masonview display="flex" className="vx-sidenav-topbar-icons" flexDirection="row" alignItems="center" justifyContent="flex-end" flexGrow={1}>
 				{props.footerIcons}
-			</flexboxlayout>
-		</flexboxlayout>
+			</masonview>
+		</masonview>
 	} @else {
 		@if (renderMode === 'drawer') {
 			<MobileNav header={props.header} id={props.id} className={cx('vx-sidenav', 'vx-sidenav--drawer', props.className)} style={props.style}>
 				{props.topContent}
 				{props.children}
 				{drawerFooter ? (
-					<flexboxlayout className="vx-sidenav-drawerfooter" flexDirection="column">
+					<masonview display="flex" className="vx-sidenav-drawerfooter" flexDirection="column">
 						{props.footer}
-						{props.footerIcons != null ? <flexboxlayout className="vx-sidenav-drawericons" flexDirection="row">{props.footerIcons}</flexboxlayout> : null}
-					</flexboxlayout>
+						{props.footerIcons != null ? <masonview display="flex" className="vx-sidenav-drawericons" flexDirection="row">{props.footerIcons}</masonview> : null}
+					</masonview>
 				) : null}
 			</MobileNav>
 		} @else {
@@ -103,41 +97,35 @@ export function SideNav(props: SideNavProps) @{
 					{props.topContent}
 					{props.children}
 					{drawerFooter ? (
-						<flexboxlayout className="vx-sidenav-drawerfooter" flexDirection="column">
+						<masonview display="flex" className="vx-sidenav-drawerfooter" flexDirection="column">
 							{props.footer}
-							{props.footerIcons != null ? <flexboxlayout className="vx-sidenav-drawericons" flexDirection="row">{props.footerIcons}</flexboxlayout> : null}
-						</flexboxlayout>
+							{props.footerIcons != null ? <masonview display="flex" className="vx-sidenav-drawericons" flexDirection="row">{props.footerIcons}</masonview> : null}
+						</masonview>
 					) : null}
 				</>
 			} @else {
 				<SideNavCollapseProvider value={isCollapsible ? collapseState : null}>
-					<gridlayout className="vx-sidenav-shell" style={{ width: collapsed ? COLLAPSED_RAIL_WIDTH : resizeConfig ? resizableHook.size : undefined }}>
-						<flexboxlayout
-							id={props.id}
-							flexDirection="column"
-							className={cx('vx-sidenav', collapsed && 'vx-sidenav--collapsed', props.className)}
-							style={props.style}
-							accessibilityLabel={props.label ?? 'Side navigation'}
-						>
+					<masonview display="grid" className="vx-sidenav-shell" style={{ width: collapsed ? COLLAPSED_RAIL_WIDTH : resizeConfig ? resizableHook.size : undefined }}>
+						<masonview display="flex" id={props.id} flexDirection="column" className={cx('vx-sidenav', collapsed && 'vx-sidenav--collapsed', props.className)} style={props.style} accessibilityLabel={props.label ?? 'Side navigation'}>
 							{props.header != null || props.topContent != null ? (
-								<flexboxlayout className={cx('vx-sidenav-stickytop', collapsed && 'vx-sidenav-stickytop--collapsed')} flexDirection="column">
+								<masonview display="flex" className={cx('vx-sidenav-stickytop', collapsed && 'vx-sidenav-stickytop--collapsed')} flexDirection="column">
 									{props.header}
-									{props.topContent != null ? <flexboxlayout className="vx-sidenav-topcontent" flexDirection="column">{props.topContent}</flexboxlayout> : null}
-								</flexboxlayout>
+									{props.topContent != null ? <masonview display="flex" className="vx-sidenav-topcontent" flexDirection="column">{props.topContent}</masonview> : null}
+								</masonview>
 							) : null}
 							<scrollview className="vx-sidenav-scrollable" flexGrow={1}>
-								<flexboxlayout flexDirection="column">{props.children}</flexboxlayout>
+								<masonview display="flex" flexDirection="column">{props.children}</masonview>
 							</scrollview>
 							{props.footer != null || props.footerIcons != null || (isCollapsible && cfg?.hasButton !== false) ? (
-								<flexboxlayout className={cx('vx-sidenav-stickybottom', collapsed && 'vx-sidenav-stickybottom--collapsed')} flexDirection="column">
+								<masonview display="flex" className={cx('vx-sidenav-stickybottom', collapsed && 'vx-sidenav-stickybottom--collapsed')} flexDirection="column">
 									{props.footer}
-									<flexboxlayout className={cx('vx-sidenav-footerrow', collapsed && 'vx-sidenav-footerrow--collapsed')} flexDirection={collapsed ? 'column' : 'row'} alignItems="center" justifyContent="flex-end">
+									<masonview display="flex" className={cx('vx-sidenav-footerrow', collapsed && 'vx-sidenav-footerrow--collapsed')} flexDirection={collapsed ? 'column' : 'row'} alignItems="center" justifyContent="flex-end">
 										{isCollapsible && cfg?.hasButton !== false ? <SideNavCollapseButton /> : null}
 										{props.footerIcons}
-									</flexboxlayout>
-								</flexboxlayout>
+									</masonview>
+								</masonview>
 							) : null}
-						</flexboxlayout>
+						</masonview>
 						{showResizeHandle ? (
 							<ResizeHandle
 								direction="horizontal"
@@ -147,7 +135,7 @@ export function SideNav(props: SideNavProps) @{
 								resizable={resizableHook.props}
 							/>
 						) : null}
-					</gridlayout>
+					</masonview>
 				</SideNavCollapseProvider>
 			}
 		}
@@ -156,16 +144,16 @@ export function SideNav(props: SideNavProps) @{
 
 /** SideNavSection — titled group of items inside the scrollable area. */
 export function SideNavSection(props: SideNavSectionProps) @{
-	<flexboxlayout id={props.id} flexDirection="column" className={cx('vx-sidenav-section', props.className)} style={props.style}>
-		<flexboxlayout className={cx('vx-sidenav-section-head', props.isHeaderHidden && 'vx-visually-hidden')} flexDirection="row" alignItems="center" justifyContent="space-between">
-			<flexboxlayout className="vx-sidenav-section-title-group" flexDirection="column">
+	<masonview display="flex" id={props.id} flexDirection="column" className={cx('vx-sidenav-section', props.className)} style={props.style}>
+		<masonview display="flex" className={cx('vx-sidenav-section-head', props.isHeaderHidden && 'vx-visually-hidden')} flexDirection="row" alignItems="center" justifyContent="space-between">
+			<masonview display="flex" className="vx-sidenav-section-title-group" flexDirection="column">
 				<Text className="vx-sidenav-section-title">{props.title}</Text>
 				{props.subtitle != null ? <Text className="vx-sidenav-section-subtitle">{props.subtitle}</Text> : null}
-			</flexboxlayout>
+			</masonview>
 			{props.endContent}
-		</flexboxlayout>
-		<flexboxlayout className="vx-sidenav-section-items" flexDirection="column">{props.children}</flexboxlayout>
-	</flexboxlayout>
+		</masonview>
+		<masonview display="flex" className="vx-sidenav-section-items" flexDirection="column">{props.children}</masonview>
+	</masonview>
 }
 
 /** SideNavHeading — identity block at the top of the rail. */
@@ -184,13 +172,7 @@ export function SideNavHeading(props: SideNavHeadingProps) @{
 		if (href) followHref(href);
 	};
 
-	<flexboxlayout
-		id={props.id}
-		flexDirection="row"
-		alignItems="center"
-		className={cx('vx-sidenav-heading', headerIsTrigger && 'vx-sidenav-heading--button', collapsed && 'vx-sidenav-heading--collapsed', props.className)}
-		style={props.style}
-	>
+	<masonview display="flex" id={props.id} flexDirection="row" alignItems="center" className={cx('vx-sidenav-heading', headerIsTrigger && 'vx-sidenav-heading--button', collapsed && 'vx-sidenav-heading--collapsed', props.className)} style={props.style}>
 		{headerIsTrigger ? (
 			<Pressable
 				ref={(v: any) => { anchor.current = v; }}
@@ -199,18 +181,18 @@ export function SideNavHeading(props: SideNavHeadingProps) @{
 				accessibilityLabel={props.heading}
 				accessibilityHint="Open heading menu"
 			>
-				<flexboxlayout flexDirection="row" alignItems="center" gap={8} flexGrow={1}>
-					{props.icon != null ? <flexboxlayout className="vx-sidenav-heading-icon">{navIcon(props.icon, 20)}</flexboxlayout> : null}
-					<flexboxlayout flexDirection="column" flexGrow={1}>
+				<masonview display="flex" flexDirection="row" alignItems="center" gap={8} flexGrow={1}>
+					{props.icon != null ? <masonview display="flex" className="vx-sidenav-heading-icon">{navIcon(props.icon, 20)}</masonview> : null}
+					<masonview display="flex" flexDirection="column" flexGrow={1}>
 						<Text className="vx-sidenav-heading-title">{props.heading}</Text>
-					</flexboxlayout>
+					</masonview>
 					<Icon name="xplat-chevron-down" size={16} />
-				</flexboxlayout>
+				</masonview>
 			</Pressable>
 		) : (
 			<>
-				{props.icon != null ? <flexboxlayout className="vx-sidenav-heading-icon">{navIcon(props.icon, 20)}</flexboxlayout> : null}
-				<flexboxlayout flexDirection="column" flexGrow={1}>
+				{props.icon != null ? <masonview display="flex" className="vx-sidenav-heading-icon">{navIcon(props.icon, 20)}</masonview> : null}
+				<masonview display="flex" flexDirection="column" flexGrow={1}>
 					{props.superheading ? (
 						<Pressable disabled={!props.superheadingHref} onPress={() => activateHeading(props.superheadingHref)}>
 							<Text className="vx-sidenav-heading-super">{props.superheading}</Text>
@@ -224,7 +206,7 @@ export function SideNavHeading(props: SideNavHeadingProps) @{
 							<Text className="vx-sidenav-heading-sub">{props.subheading}</Text>
 						</Pressable>
 					) : null}
-				</flexboxlayout>
+				</masonview>
 			</>
 		)}
 		{hasMenu && !headerIsTrigger ? (
@@ -243,7 +225,7 @@ export function SideNavHeading(props: SideNavHeadingProps) @{
 				{props.menu}
 			</Popover>
 		</NavHeadingCloseProvider>
-	</flexboxlayout>
+	</masonview>
 }
 
 /** SideNavItem — one nav row. Native leaf: Pressable rows; `href` routes
@@ -288,8 +270,8 @@ export function SideNavItem(props: SideNavItemProps) @{
 		activate();
 	};
 
-	<flexboxlayout id={props.id} flexDirection="column" className={cx('vx-sidenav-item', props.className)} style={props.style}>
-		<flexboxlayout className="vx-sidenav-item-row" flexDirection="row" alignItems="center" ref={(v: any) => { if (railCollapsed) anchor.current = v; }}>
+	<masonview display="flex" id={props.id} flexDirection="column" className={cx('vx-sidenav-item', props.className)} style={props.style}>
+		<masonview display="flex" className="vx-sidenav-item-row" flexDirection="row" alignItems="center" ref={(v: any) => { if (railCollapsed) anchor.current = v; }}>
 			<Pressable
 				className={cx('vx-sidenav-item-main', 'vx-sidenav-item--' + size, props.isSelected && 'vx-sidenav-item--selected', isDisabled && 'vx-sidenav-item--disabled', railCollapsed && 'vx-sidenav-item--rail')}
 				style={{ minHeight: ITEM_HEIGHT[size] }}
@@ -299,11 +281,11 @@ export function SideNavItem(props: SideNavItemProps) @{
 				accessibilityState={{ disabled: isDisabled, selected: props.isSelected }}
 				onPress={pressMain}
 			>
-				<flexboxlayout flexDirection="row" alignItems="center" gap={8} flexGrow={1}>
-					{displayIcon != null ? <flexboxlayout className="vx-sidenav-item-icon">{navIcon(displayIcon, size === 'lg' ? 18 : size === 'sm' ? 14 : 16)}</flexboxlayout> : null}
+				<masonview display="flex" flexDirection="row" alignItems="center" gap={8} flexGrow={1}>
+					{displayIcon != null ? <masonview display="flex" className="vx-sidenav-item-icon">{navIcon(displayIcon, size === 'lg' ? 18 : size === 'sm' ? 14 : 16)}</masonview> : null}
 					{!railCollapsed ? <Text className="vx-sidenav-item-label" flexGrow={1}>{props.label}</Text> : null}
-					{!railCollapsed && props.endContent != null ? <flexboxlayout className="vx-sidenav-item-end">{props.endContent}</flexboxlayout> : null}
-				</flexboxlayout>
+					{!railCollapsed && props.endContent != null ? <masonview display="flex" className="vx-sidenav-item-end">{props.endContent}</masonview> : null}
+				</masonview>
 			</Pressable>
 			{hasChildren && itemCfg != null && !railCollapsed ? (
 				<Pressable
@@ -314,17 +296,17 @@ export function SideNavItem(props: SideNavItemProps) @{
 					<Icon name={childrenCollapsed ? 'xplat-chevron-right' : 'xplat-chevron-down'} size={16} />
 				</Pressable>
 			) : null}
-			{!railCollapsed && props.actions != null ? <flexboxlayout className="vx-sidenav-item-actions" flexDirection="row">{props.actions}</flexboxlayout> : null}
-		</flexboxlayout>
+			{!railCollapsed && props.actions != null ? <masonview display="flex" className="vx-sidenav-item-actions" flexDirection="row">{props.actions}</masonview> : null}
+		</masonview>
 		{hasChildren && !railCollapsed && !childrenCollapsed ? (
-			<flexboxlayout className="vx-sidenav-item-children" flexDirection="column" style={{ paddingLeft: 24 }}>{props.children}</flexboxlayout>
+			<masonview display="flex" className="vx-sidenav-item-children" flexDirection="column" style={{ paddingLeft: 24 }}>{props.children}</masonview>
 		) : null}
 		{railCollapsed && hasChildren ? (
 			<Popover anchor={anchor} open={flyoutOpen} placement="right" onDismiss={() => setFlyoutOpen(false)} className="vx-sidenav-flyout">
-				<flexboxlayout className="vx-sidenav-flyout-list" flexDirection="column">{props.children}</flexboxlayout>
+				<masonview display="flex" className="vx-sidenav-flyout-list" flexDirection="column">{props.children}</masonview>
 			</Popover>
 		) : null}
-	</flexboxlayout>
+	</masonview>
 }
 
 /** SideNavCollapseButton — chevron control bound to the nearest

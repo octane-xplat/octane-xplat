@@ -24,24 +24,19 @@ function TreeRow(props: {
 	const isOpen = props.open.has(node.key);
 	const isSelected = isLeaf && props.selectionMode !== 'none' && isGridListKeySelected(props.selected, node.key);
 
-	<flexboxlayout className="vx-tree-node">
-		<flexboxlayout
-			className={cx('vx-tree-row', node.disabled && 'vx-tree-row--disabled', isSelected && 'vx-tree-row--selected')}
-			style={{ paddingLeft: props.depth * 16, ...(node.disabled ? { opacity: 0.5 } : {}) }}
-			onTap={node.disabled ? undefined : () => (isLeaf ? props.press(node) : props.toggle(node))}
-			accessibilityState={{
+	<masonview display="flex" className="vx-tree-node">
+		<masonview display="flex" className={cx('vx-tree-row', node.disabled && 'vx-tree-row--disabled', isSelected && 'vx-tree-row--selected')} style={{ paddingLeft: props.depth * 16, ...(node.disabled ? { opacity: 0.5 } : {}) }} onTap={node.disabled ? undefined : () => (isLeaf ? props.press(node) : props.toggle(node))} accessibilityState={{
 				disabled: node.disabled || undefined,
 				selected: props.selectionMode !== 'none' && isLeaf ? isSelected : undefined,
-			} as any}
-		>
+			} as any}>
 			<label className="vx-tree-caret" style={{ width: 14, marginLeft: 4 }} text={isLeaf ? '' : (isOpen ? '▾' : '▸')} />
 			<label className="vx-tree-label" text={node.label ?? String(node.key)} />
-		</flexboxlayout>
+		</masonview>
 		{isOpen && kids.map((kid: TreeListNode) => (
 			<TreeRow node={kid} depth={props.depth + 1} open={props.open} selected={props.selected}
 				selectionMode={props.selectionMode} toggle={props.toggle} press={props.press} />
 		))}
-	</flexboxlayout>
+	</masonview>
 }
 
 /** TreeList — recursive indent + collapse. `expandedKeys`/`onExpandedChange`
@@ -75,10 +70,10 @@ export function Tree<T extends TreeListNode = TreeListNode>(props: TreeProps<T>)
 		props.onAction?.(node.key);
 	};
 
-	<flexboxlayout ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-tree', props.className)} style={props.style}>
+	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-tree', props.className)} style={props.style}>
 		{props.nodes.map((node: T) => (
 			<TreeRow node={node} depth={0} open={open} selected={selected}
 				selectionMode={selectionMode} toggle={toggle} press={press} />
 		))}
-	</flexboxlayout>
+	</masonview>
 }

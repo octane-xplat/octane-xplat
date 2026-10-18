@@ -113,48 +113,25 @@ export function Outline(props: OutlineProps) @{
 		settle(id);
 	};
 
-	<flexboxlayout
-		ref={(v: any) => {
+	<masonview display="flex" ref={(v: any) => {
 			navRef.current = v;
 			applyEscapeProps(v, props);
-		}}
-		id={props.id}
-		className={cx('vx-outline', `vx-outline--${density}`, props.className)}
-		style={{ flexDirection: 'column', ...(props.style as any) }}
-		flexDirection="column"
-		accessible={true}
-		accessibilityRole={nativeAccessibilityRole('none') as any}
-		accessibilityLabel={label}
-	>
+		}} id={props.id} className={cx('vx-outline', `vx-outline--${density}`, props.className)} style={{ flexDirection: 'column', ...(props.style as any) }} flexDirection="column" accessible={true} accessibilityRole={nativeAccessibilityRole('none') as any} accessibilityLabel={label}>
 		{items.map((item) => {
 			const isActive = item.id === activeId;
 			return (
-				<flexboxlayout
-					key={item.id}
-					className={cx('vx-outline-item', isActive && 'vx-outline-item--active')}
-					flexDirection="row"
-					alignItems="center"
-					style={{
+				<masonview display="flex" key={item.id} className={cx('vx-outline-item', isActive && 'vx-outline-item--active')} flexDirection="row" alignItems="center" style={{
 						paddingLeft: 8 + (item.level - 1) * 12,
 						paddingTop: density === 'compact' ? 4 : 8,
 						paddingBottom: density === 'compact' ? 4 : 8,
-					}}
-					accessible={true}
-					accessibilityRole={nativeAccessibilityRole('button') as any}
-					accessibilityLabel={item.label}
-					accessibilityState={nativeAccessibilityState({ selected: isActive }) as any}
-					onTap={() => activate(item.id)}
-				>
-					<flexboxlayout
-						className="vx-outline-item-bar"
-						style={{
+					}} accessible={true} accessibilityRole={nativeAccessibilityRole('button') as any} accessibilityLabel={item.label} accessibilityState={nativeAccessibilityState({ selected: isActive }) as any} onTap={() => activate(item.id)}>
+					<masonview display="flex" className="vx-outline-item-bar" style={{
 							width: 2,
 							height: 16,
 							borderRadius: 1,
 							backgroundColor: isActive ? nativeColor(accentColor(scheme)) : nativeColor('transparent'),
 							marginRight: 8,
-						}}
-					/>
+						}} />
 					<label
 						className="vx-outline-item-label"
 						whiteSpace="normal"
@@ -162,8 +139,8 @@ export function Outline(props: OutlineProps) @{
 					>
 						{item.label}
 					</label>
-				</flexboxlayout>
+				</masonview>
 			);
 		})}
-	</flexboxlayout>
+	</masonview>
 }

@@ -84,6 +84,6 @@ export function ResizeHandle(props: ResizeHandleProps) @{
 		accessibilityValue={resizable ? String(Math.round(resizable._size)) : undefined}
 		onPress={onTap}
 	>
-		{props.children ?? <flexboxlayout className="vx-resize-handle-pill" />}
+		{props.children ?? <masonview display="flex" className="vx-resize-handle-pill" />}
 	</Pressable>
 }

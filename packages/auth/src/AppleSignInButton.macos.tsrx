@@ -25,10 +25,5 @@ export function AppleSignInButton(props: AppleSignInButtonProps) @{
 
 	useEffect(() => { handle.current?.update(!!props.disabled) })
 
-	<flexboxlayout
-		ref={(view: any) => { anchor.current = view }}
-		id={props.id}
-		className={props.className}
-		style={{ width: 240, height: 44, ...props.style }}
-	/>;
+	<masonview display="flex" ref={(view: any) => { anchor.current = view }} id={props.id} className={props.className} style={{ width: 240, height: 44, ...props.style }} />;
 }

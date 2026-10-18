@@ -10,11 +10,7 @@ import { applyNativeProps } from './platformProps';
 export function ActivityIndicator(props: ActivityIndicatorProps) @{
 	if (props.busy === false) return null;
 
-	<flexboxlayout
-		id={props.id}
-		className={cx('vx-spinner', props.className)}
-		style={props.style as any}
-		ref={(el: any) => {
+	<masonview display="flex" id={props.id} className={cx('vx-spinner', props.className)} style={props.style as any} ref={(el: any) => {
 			if (!el) return;
 			applyNativeProps(el, props);
 			el.once('loaded', () => {
@@ -24,6 +20,5 @@ export function ActivityIndicator(props: ActivityIndicatorProps) @{
 					iterations: Number.POSITIVE_INFINITY,
 				});
 			});
-		}}
-	/>
+		}} />
 }

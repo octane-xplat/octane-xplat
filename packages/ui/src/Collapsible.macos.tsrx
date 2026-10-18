@@ -20,12 +20,7 @@ export function Collapsible(props: CollapsibleProps) @{
 		props.onOpenChange?.(next);
 	};
 
-	<flexboxlayout
-		ref={(v: any) => applyEscapeProps(v, props)}
-		id={props.id}
-		className={cx('vx-collapsible', open && 'vx-collapsible--open', props.className)}
-		style={props.style}
-	>
+	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-collapsible', open && 'vx-collapsible--open', props.className)} style={props.style}>
 		<Pressable
 			className="vx-collapsible-trigger"
 			disabled={props.disabled}
@@ -34,6 +29,6 @@ export function Collapsible(props: CollapsibleProps) @{
 		>
 			{props.trigger}
 		</Pressable>
-		{open ? <flexboxlayout className="vx-collapsible-content">{props.children}</flexboxlayout> : null}
-	</flexboxlayout>
+		{open ? <masonview display="flex" className="vx-collapsible-content">{props.children}</masonview> : null}
+	</masonview>
 }

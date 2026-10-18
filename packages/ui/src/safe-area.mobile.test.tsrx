@@ -56,7 +56,7 @@ function mount(component: any, props: any) {
 	return { container, root }
 }
 
-// SafeArea renders a single flexboxlayout whose style carries the padding;
+// SafeArea renders a single masonview whose style carries the padding;
 // the context provider introduces no host node, so children[0] is the
 // nested wrapper or leaf.
 const pads = (host: any) => ({

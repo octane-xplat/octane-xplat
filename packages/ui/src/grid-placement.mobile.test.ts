@@ -7,11 +7,13 @@ import {
 	UpdatingPlacement,
 	UpdatingComposite,
 } from '../tests/grid-placement.fixture.mobile.tsrx'
+import { masonStyleOf } from '../tests/masonkit-mock'
 
 // The compiler, scheduler and installed driver are real; native host views
 // are substituted. This does not establish device layout or hit-testing.
 vi.mock('@nativescript/core', () => {
 	class View {
+		nativeViewProtected = {}
 		coordinates = new Map<string, number>()
 		get row() {
 			return this.coordinates.get('row') ?? 0
@@ -128,26 +130,24 @@ async function mount(component: any, props: any) {
 	}
 }
 
-it('preserves raw and composite root coordinates, explicit zero and spans beside automatic children', async () => {
+it('writes explicit placement as grid lines and leaves automatic children unpositioned', async () => {
 	const app = await mount(PlacementCase, { values: ['a', 'b'] })
 	const grid = app.host.children[0]
-	expect(grid.children.map((v: any) => [v.row, v.col])).toEqual([
-		[0, 0],
-		[0, 0],
-		[0, 2],
-		[1, 0],
-	])
+	const writes = grid.children.map((v: any) => ({
+		row: masonStyleOf(v)?.__writes.gridRow,
+		col: masonStyleOf(v)?.__writes.gridColumn,
+	}))
+	// row={0} col={0} -> '1'; the composite child carries colSpan={2} ->
+	// '1 / span 2'; auto-flow children keep no explicit lines.
+	expect(writes[0]).toEqual({ row: '1', col: '1' })
+	expect(writes[1]).toEqual({ row: '1', col: '1 / span 2' })
+	expect(writes[2].row).toBeUndefined()
+	expect(writes[2].col).toBeUndefined()
 
-	expect(grid.children[1].colSpan).toBe(2)
 	app.root.render(PlacementCase, { values: ['b', 'a', 'c'] })
 	await Promise.resolve()
-	expect(grid.children.map((v: any) => [v.row, v.col])).toEqual([
-		[0, 0],
-		[0, 0],
-		[0, 2],
-		[1, 0],
-		[1, 1],
-	])
+	expect(grid.children.length).toBe(5)
+	expect(masonStyleOf(grid.children[4])?.__writes.gridRow).toBeUndefined()
 
 	app.dispose()
 	expect(app.container.nodes.size).toBe(0)
@@ -165,16 +165,12 @@ it('reflows child-owned late insertion, removal and keyed reorder without rerend
 	const a = grid.children[0]
 	flushUniversalSync(() => update(['b', 'a', 'c']))
 	await Promise.resolve()
-	expect(grid.children.map((v: any) => [v.text, v.row, v.col])).toEqual([
-		['b', 0, 0],
-		['a', 0, 1],
-		['c', 1, 0],
-	])
+	expect(grid.children.map((v: any) => v.text)).toEqual(['b', 'a', 'c'])
 
 	expect(grid.children[1]).toBe(a)
 	flushUniversalSync(() => update(['c']))
 	await Promise.resolve()
-	expect(grid.children.map((v: any) => [v.text, v.row, v.col])).toEqual([['c', 0, 0]])
+	expect(grid.children.map((v: any) => v.text)).toEqual(['c'])
 	const insert = Object.getPrototypeOf(grid).insertChild
 	flushUniversalSync(() => update(['d', 'c']))
 	app.dispose()
@@ -199,24 +195,26 @@ it.each(['rootlayout', 'contentview'])(
 	},
 )
 
-it.each([UpdatingPlacement, UpdatingComposite])(
+it.each([
+	[UpdatingPlacement, '1'],
+	[UpdatingComposite, 'auto'],
+])(
 	'tracks reactive authored coordinates and removes explicit placement and spans (%s)',
-	async (component) => {
+	async (component, rowLine) => {
 		const app = await mount(component, { col: 2, span: 1 })
 		const grid = app.host.children[0]
 		app.root.render(component, { col: 0, span: 2 })
 		await Promise.resolve()
-		expect(grid.children.map((v: any) => [v.row, v.col, v.colSpan])).toEqual([
-			[0, 0, 2],
-			[0, 2, 1],
-		])
+		expect(masonStyleOf(grid.children[0])?.__writes.gridRow).toBe(rowLine)
+		expect(masonStyleOf(grid.children[0])?.__writes.gridColumn).toBe('1 / span 2')
+		expect(masonStyleOf(grid.children[1])?.__writes.gridColumn).toBeUndefined()
 
 		app.root.render(component, { col: undefined, span: undefined })
 		await Promise.resolve()
-		expect(grid.children.map((v: any) => [v.row, v.col, v.colSpan])).toEqual([
-			[0, 0, 1],
-			[0, 1, 1],
-		])
+		// Removed sugar resets to 'auto' — a stale '1 / span 2' would linger.
+		// UpdatingPlacement still authors row={0}, so its row line stays '1'.
+		expect(masonStyleOf(grid.children[0])?.__writes.gridRow).toBe(rowLine)
+		expect(masonStyleOf(grid.children[0])?.__writes.gridColumn).toBe('auto')
 
 		app.dispose()
 	},

@@ -6,9 +6,9 @@ import { cx } from '@octane-xplat/lib'
 import { useThemeScheme } from './theme/theme-scheme'
 
 function PopoverPanel(props: PopoverProps & { dark: boolean; layerDepth: number }) @{
-	<flexboxlayout flexDirection="column" className={cx('vx-popover', props.dark && 'ns-dark', props.className)} style={props.style}>
+	<masonview display="flex" flexDirection="column" className={cx('vx-popover', props.dark && 'ns-dark', props.className)} style={props.style}>
 		<LayerDepthProvider value={props.layerDepth}>{props.children}</LayerDepthProvider>
-	</flexboxlayout>
+	</masonview>
 }
 
 /** The AppKit bridge hosts a separate root in an anchored NSPopover. */

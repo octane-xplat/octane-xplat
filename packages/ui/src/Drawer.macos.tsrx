@@ -16,21 +16,16 @@ export function Drawer(props: DrawerProps) @{
 		props.onDismiss?.();
 	};
 
-	<gridlayout
-		id={props.id}
-		ref={(v: any) => applyEscapeProps(v, props)}
-		className={cx('vx-drawer', props.className)}
-		style={props.style}
-	>
-		<gridlayout className="vx-drawer-main">{props.main}</gridlayout>
+	<masonview display="grid" id={props.id} ref={(v: any) => applyEscapeProps(v, props)} className={cx('vx-drawer', props.className)} style={props.style}>
+		<masonview display="grid" className="vx-drawer-main">{props.main}</masonview>
 		{/* Backdrop + panel are sibling @ifs (a fragment inside @if is not
 		   lowered on this target). Chrome metrics live inline — AppKit has
 		   no CSS layer; keep in step with .vx-drawer-* in tokens.css. */}
 		@if (open) {
-			<flexboxlayout className="vx-drawer-backdrop" style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)' }} onTap={requestDismiss} />
+			<masonview display="flex" className="vx-drawer-backdrop" style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)' }} onTap={requestDismiss} />
 		}
 		@if (open) {
-			<flexboxlayout className="vx-drawer-panel" horizontalAlignment="left" style={{ width: 280, backgroundColor: '#ffffff' }}>{props.drawer}</flexboxlayout>
+			<masonview display="flex" className="vx-drawer-panel" style={{ width: 280, backgroundColor: '#ffffff' , justifySelf: 'start'}}>{props.drawer}</masonview>
 		}
-	</gridlayout>
+	</masonview>
 }

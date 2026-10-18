@@ -101,10 +101,7 @@ export function TimeInput(inputProps: TimeInputProps) @{
 	const statusText = props.status ? STATUS_TEXT[props.status.type] : null
 
 	const control = (
-		<flexboxlayout
-			flexDirection="row"
-			alignItems="center"
-			className={cx(
+		<masonview display="flex" flexDirection="row" alignItems="center" className={cx(
 				'vx-timeinput',
 				'vx-timeinput--typed',
 				isDisabled && 'vx-timeinput--disabled',
@@ -113,9 +110,7 @@ export function TimeInput(inputProps: TimeInputProps) @{
 				props.size && `vx-timeinput--size-${props.size}`,
 				!isPendingValid && 'vx-timeinput--invalid',
 				props.className,
-			)}
-			style={props.style}
-		>
+			)} style={props.style}>
 			<textfield
 				ref={(v: any) => { input.current = v }}
 				id={inputId}
@@ -136,7 +131,7 @@ export function TimeInput(inputProps: TimeInputProps) @{
 			{statusText != null
 				? <label className={cx('vx-field-icon', `vx-field-icon--${props.status!.type}`)} text={statusText} accessibilityLabel={props.statusVariant === 'tooltip' ? props.status?.message : undefined} />
 				: null}
-		</flexboxlayout>
+		</masonview>
 	)
 
 	<>

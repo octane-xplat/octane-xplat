@@ -22,26 +22,13 @@ export function InputRating(inputProps: InputRatingProps) @{
 		props.onValueChange?.(n);
 	};
 
-	<flexboxlayout
-		ref={(v: any) => applyEscapeProps(v, props)}
-		id={props.id}
-		flexDirection="row"
-		className={cx('vx-rating', props.isDisabled && 'vx-rating--disabled', props.isReadOnly && 'vx-rating--readonly', props.isLoading && 'vx-rating--loading', props.status && `vx-rating--status-${props.status.type}`, props.size && `vx-rating--size-${props.size}`, props.className)}
-		style={props.style}
-		accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
-		accessibilityHint={props.accessibilityHint}
-		accessibilityState={{ disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' }}
-	>
+	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx('vx-rating', props.isDisabled && 'vx-rating--disabled', props.isReadOnly && 'vx-rating--readonly', props.isLoading && 'vx-rating--loading', props.status && `vx-rating--status-${props.status.type}`, props.size && `vx-rating--size-${props.size}`, props.className)} style={props.style} accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label} accessibilityHint={props.accessibilityHint} accessibilityState={{ disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' }}>
 		@for (const score of Array.from({ length: max }, (_, i) => i + 1); key score) {
-			<flexboxlayout
-				className={cx('vx-rating-cell', score <= value && 'vx-rating-cell--on')}
-				style={{ width: 24, padding: 2 }}
-				onTap={isBlocked ? undefined : () => setValue(score)}
-			>
+			<masonview display="flex" className={cx('vx-rating-cell', score <= value && 'vx-rating-cell--on')} style={{ width: 24, padding: 2 }} onTap={isBlocked ? undefined : () => setValue(score)}>
 				{props.icon
 					? <Icon name={props.icon} />
 					: <label className="vx-rating-glyph" style={{ fontSize: 20, color: score <= value ? '#171717' : '#eaeaea' }} text="★" />}
-			</flexboxlayout>
+			</masonview>
 		}
-	</flexboxlayout>
+	</masonview>
 }

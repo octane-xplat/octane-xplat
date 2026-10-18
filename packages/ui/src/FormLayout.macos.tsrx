@@ -19,19 +19,8 @@ export function FormLayout(props: FormLayoutProps) @{
 	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
 	<FormLayoutProvider value={value}>
-		<flexboxlayout
-			id={props.id}
-			ref={forwardedRef}
-			flexDirection={direction === 'horizontal' ? 'row' : 'column'}
-			flexWrap={(direction === 'horizontal' ? 'wrap' : undefined) as any}
-			gap={16}
-			className={cx('vx-formlayout', `vx-formlayout--${direction}`, props.className)}
-			style={props.style}
-			accessibilityLabel={props.accessibilityLabel}
-			accessibilityRole={props.accessibilityRole}
-			accessibilityHint={props.accessibilityHint}
-		>
+		<masonview display="flex" id={props.id} ref={forwardedRef} flexDirection={direction === 'horizontal' ? 'row' : 'column'} flexWrap={(direction === 'horizontal' ? 'wrap' : undefined) as any} gap={16} className={cx('vx-formlayout', `vx-formlayout--${direction}`, props.className)} style={props.style} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole} accessibilityHint={props.accessibilityHint}>
 			{props.children}
-		</flexboxlayout>
+		</masonview>
 	</FormLayoutProvider>
 }

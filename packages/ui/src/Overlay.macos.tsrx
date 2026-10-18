@@ -8,8 +8,8 @@ export function Overlay(props: OverlayProps) @{
 	const open = props.open ?? internal
 
 	@if (open) {
-		<flexboxlayout flexDirection="column" className={cx('vx-overlay', props.className)} style={props.style} accessibilityLabel={props.accessibilityLabel}>
+		<masonview display="flex" flexDirection="column" className={cx('vx-overlay', props.className)} style={props.style} accessibilityLabel={props.accessibilityLabel}>
 			{props.children}
-		</flexboxlayout>
+		</masonview>
 	}
 }

@@ -1,7 +1,6 @@
 import { isAndroid, isIOS, ScrollView } from '@nativescript/core'
 import type { NativeModifier, Role } from './props'
 import { applyNativeModifiers } from './apply-native-modifiers.native'
-import { rememberGridChildPlacement } from './grid-placement'
 
 /** Android ViewGroups clip every child to the child's own layout bounds
  *  (`clipChildren`) and to the padding box (`clipToPadding`) — the DOM and
@@ -37,7 +36,6 @@ export function applyEscapeProps(
 		return
 	}
 
-	rememberGridChildPlacement(view, props)
 
 	if (isAndroid) {
 		view.on?.('loaded', () => unclipAndroidContainer(view))

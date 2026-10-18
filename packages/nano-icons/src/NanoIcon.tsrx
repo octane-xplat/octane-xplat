@@ -45,34 +45,15 @@ function NanoGlyphLayers(props: NanoIconProps & { glyphMap: NanoGlyphMap }) @{
 	const width = (adv / props.glyphMap.m.u) * size;
 	const family = props.glyphMap.m.f;
 
-	<absolutelayout
-		id={props.id}
-		className={props.className}
-		accessible={!!props.label}
-		accessibilityRole={props.label ? AccessibilityRole.Image : undefined}
-		accessibilityLabel={props.label}
-		rotate={((props.rotate ?? 0) * 90) % 360}
-		scaleX={props.hFlip ? -1 : 1}
-		scaleY={props.vFlip ? -1 : 1}
-		style={{ width, height: size }}
-		ref={(el: any) => applyPlatformBag(el, props)}
-	>
+	<masonview id={props.id} className={props.className} accessible={!!props.label} accessibilityRole={props.label ? AccessibilityRole.Image : undefined} accessibilityLabel={props.label} rotate={((props.rotate ?? 0) * 90) % 360} scaleX={props.hFlip ? -1 : 1} scaleY={props.vFlip ? -1 : 1} style={{ width, height: size }} ref={(el: any) => applyPlatformBag(el, props)}>
 		{layers.map(([codepoint, srcColor], i) => (
-			<label
-				key={i}
-				id={props.id ? props.id + ':layer-' + i : undefined}
-				left={0}
-				top={0}
-				accessible={false}
-				text={getChar(codepoint)}
-				style={{
+			<label key={i} id={props.id ? props.id + ':layer-' + i : undefined} accessible={false} text={getChar(codepoint)} style={[{
 					fontFamily: family,
 					fontSize: size,
 					color: layerColor(resolveColor(i, srcColor)) as any,
-				}}
-			/>
+				}, {position: 'absolute', left: 0, top: 0}]} />
 		))}
-	</absolutelayout>
+	</masonview>
 }
 
 /**

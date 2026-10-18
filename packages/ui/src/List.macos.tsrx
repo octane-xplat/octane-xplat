@@ -19,33 +19,22 @@ export function List(props: ListProps) @{
 		listStyle === 'decimal'
 			? <label className={cx('vx-list-marker', 'vx-list-marker--number')} text={`${start + index}.`} />
 			: listStyle === 'disc'
-				? <flexboxlayout className={cx('vx-list-marker', 'vx-list-marker--disc')}><flexboxlayout className="vx-list-marker-dot" /></flexboxlayout>
+				? <masonview display="flex" className={cx('vx-list-marker', 'vx-list-marker--disc')}><masonview display="flex" className="vx-list-marker-dot" /></masonview>
 				: listStyle === 'circle'
-					? <flexboxlayout className={cx('vx-list-marker', 'vx-list-marker--circle')}><flexboxlayout className="vx-list-marker-circle" /></flexboxlayout>
+					? <masonview display="flex" className={cx('vx-list-marker', 'vx-list-marker--circle')}><masonview display="flex" className="vx-list-marker-circle" /></masonview>
 					: null
 
 	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
 	<ListProvider value={contextValue}>
-		<flexboxlayout
-			id={props.id}
-			ref={forwardedRef}
-			flexDirection="column"
-			className={cx('vx-list', `vx-list--density-${density}`, props.hasDividers && 'vx-list--dividers', props.className)}
-			style={props.style}
-			accessibilityLabel={props.accessibilityLabel}
-		>
-			{props.header != null ? <flexboxlayout className="vx-list-header">{props.header}</flexboxlayout> : null}
+		<masonview display="flex" id={props.id} ref={forwardedRef} flexDirection="column" className={cx('vx-list', `vx-list--density-${density}`, props.hasDividers && 'vx-list--dividers', props.className)} style={props.style} accessibilityLabel={props.accessibilityLabel}>
+			{props.header != null ? <masonview display="flex" className="vx-list-header">{props.header}</masonview> : null}
 			{mapChildren(items, (child: any, index: number) => (
-				<flexboxlayout
-					className={cx('vx-list-row', props.hasDividers && index < items.length - 1 && 'vx-list-row--divider')}
-					flexDirection="row"
-					alignItems="stretch"
-				>
+				<masonview display="flex" className={cx('vx-list-row', props.hasDividers && index < items.length - 1 && 'vx-list-row--divider')} flexDirection="row" alignItems="stretch">
 					{markerFor(index)}
-					<flexboxlayout flexGrow={1} style={{ minWidth: 0 }}>{child}</flexboxlayout>
-				</flexboxlayout>
+					<masonview display="flex" flexGrow={1} style={{ minWidth: 0 }}>{child}</masonview>
+				</masonview>
 			))}
-		</flexboxlayout>
+		</masonview>
 	</ListProvider>
 }

@@ -6,10 +6,5 @@ import { applyEscapeProps } from "./escape-props";
 /** Skeleton — placeholder block while content loads. Sizing via
  *  `width`/`height` or the app's `vx-skeleton` styling. */
 export function Skeleton(props: SkeletonProps) @{
-	<flexboxlayout
-		ref={(v: any) => applyEscapeProps(v, props)}
-		id={props.id}
-		className={cx('vx-skeleton', props.className)}
-		style={{ ...(props.style as any), width: props.width, height: props.height }}
-	/>
+	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-skeleton', props.className)} style={{ ...(props.style as any), width: props.width, height: props.height }} />
 }

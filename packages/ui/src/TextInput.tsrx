@@ -35,7 +35,7 @@ export function TextInput(inputProps: TextInputProps) @{
 
 	useImperativeHandle(props.ref, () => ({ focus: () => el.current.focus(), blur: () => blurText(el.current), native: el.current }), []);
 
-	<flexboxlayout className={cx('vx-input-shell', props.inInputGroup && 'vx-input-shell--ingroup')} flexDirection="row" alignItems="center">
+	<masonview display="flex" className={cx('vx-input-shell', props.inInputGroup && 'vx-input-shell--ingroup')} flexDirection="row" alignItems="center">
 		<textfield
 			ref={(v: any) => {
 				el.current = v;
@@ -63,5 +63,5 @@ export function TextInput(inputProps: TextInputProps) @{
 		{props.hasClear && value !== '' && !isBlocked
 			? <Pressable className="vx-input-clear" accessibilityLabel="Clear input" onPress={clear}><label text="×" /></Pressable>
 			: null}
-	</flexboxlayout>
+	</masonview>
 }

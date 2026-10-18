@@ -246,8 +246,7 @@ export function Image(props: ImageProps) @{
 	};
 
 	@if (computed) {
-		<absolutelayout
-			ref={(v: any) => {
+		<masonview ref={(v: any) => {
 				hostRef.current = v;
 				if (v && isIOS && v.ios) {
 					// cover/positioned rects must clip at the component box (iOS
@@ -258,28 +257,14 @@ export function Image(props: ImageProps) @{
 				if (v) {
 					binding.update(imageRef.current, v);
 				}
-			}}
-			id={props.id}
-			className={props.className as any}
-			style={props.style as any}
-			{...layoutChildAttrs(props)}
-		>
-			<cachedimage
-				ref={(v: any) => {
+			}} id={props.id} className={props.className as any} style={props.style as any} {...layoutChildAttrs(props)}>
+			<cachedimage ref={(v: any) => {
 					attach(v);
 					if (v) {
 						binding.update(v, hostRef.current);
 					}
-				}}
-				stretch="fill"
-				failureImageUri={props.failureImage}
-				headers={props.headers}
-				noCache={props.cachePolicy === 'none'}
-				progressiveRenderingEnabled={props.progressive}
-				fadeDuration={props.fadeDuration}
-				accessibilityLabel={props.alt}
-			/>
-		</absolutelayout>
+				}} stretch="fill" failureImageUri={props.failureImage} headers={props.headers} noCache={props.cachePolicy === 'none'} progressiveRenderingEnabled={props.progressive} fadeDuration={props.fadeDuration} accessibilityLabel={props.alt} style={{position: 'absolute'}} />
+		</masonview>
 	} @else {
 		<cachedimage
 			ref={(v: any) => {

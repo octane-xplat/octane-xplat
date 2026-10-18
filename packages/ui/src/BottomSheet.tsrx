@@ -208,7 +208,7 @@ export function BottomSheet(props: BottomSheetProps) @{
 	// Zero-size sentinel — the sheet resolves its owning RootLayout from the
 	// declaring component's ancestry.
 	<>
-		<stacklayout ref={(v: any) => { sentinel.current = v; }} style={{ width: 0, height: 0 }} />
+		<masonview display="flex" flexDirection="column" ref={(v: any) => { sentinel.current = v; }} style={{ width: 0, height: 0 }} />
 		{props.sheetId == null && open && portalHost
 			? createPortal(<BottomSheetBody>{props.children}</BottomSheetBody>, portalHost)
 			: null}
@@ -248,9 +248,9 @@ function SwitcherPanel(props: {
 		return () => ctl.detach();
 	}, [props.activeSheet, active]);
 
-	<flexboxlayout flexDirection="column" className="vx-bottom-sheet-panel">
+	<masonview display="flex" flexDirection="column" className="vx-bottom-sheet-panel">
 		<SizeProvider value={null}>{active?.props.children}</SizeProvider>
-	</flexboxlayout>
+	</masonview>
 }
 
 /** Shared host for a set of BottomSheet panels (Astryx
@@ -343,7 +343,7 @@ export function BottomSheetSwitcher(props: BottomSheetSwitcherProps) @{
 		<BottomSheetSwitcherProvider value={handle}>
 			{props.children}
 		</BottomSheetSwitcherProvider>
-		<stacklayout ref={(v: any) => { sentinel.current = v; }} style={{ width: 0, height: 0 }} />
+		<masonview display="flex" flexDirection="column" ref={(v: any) => { sentinel.current = v; }} style={{ width: 0, height: 0 }} />
 		{activeId != null && portalHost
 			? createPortal(
 				<SwitcherPanel

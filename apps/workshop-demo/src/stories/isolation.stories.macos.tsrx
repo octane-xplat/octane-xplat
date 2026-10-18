@@ -26,7 +26,7 @@ function Isolated(props: { label?: string; fixture: Fixture }) {
 	const account = useStore(fixture.account)
 	const [local, setLocal] = useState(0)
 	return (
-		<flexboxlayout flexDirection="column">
+		<masonview display="flex" flexDirection="column">
 			<Text testID="isolation-value">
 				{props.label ?? 'unset'} / {fixture.nested.label} / {account.name} / {local}
 			</Text>
@@ -48,7 +48,7 @@ function Isolated(props: { label?: string; fixture: Fixture }) {
 			>
 				<Text>Open owned overlay</Text>
 			</Pressable>
-		</flexboxlayout>
+		</masonview>
 	)
 }
 

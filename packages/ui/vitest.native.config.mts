@@ -59,6 +59,18 @@ export default defineConfig({
 				find: /^@nativescript-community\/octane$/,
 				replacement: 'octane/universal/native',
 			},
+			// The mason layout plugin evaluates platform globals (__ANDROID__/
+			// __APPLE__) and touches native APIs at import — substitute a
+			// recording fake that exposes the _styleHelper + Style.fromView
+			// surfaces the patched driver calls.
+			{
+				find: /^@triniwiz\/nativescript-masonkit\/style$/,
+				replacement: new URL('./tests/masonkit-mock.ts', import.meta.url).pathname,
+			},
+			{
+				find: /^@triniwiz\/nativescript-masonkit$/,
+				replacement: new URL('./tests/masonkit-mock.ts', import.meta.url).pathname,
+			},
 		],
 		extensions: NATIVE_EXTS,
 	},

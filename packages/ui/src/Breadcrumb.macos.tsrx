@@ -13,21 +13,15 @@ export function Breadcrumb(props: BreadcrumbProps) @{
 	const visible = overflow.length ? [props.items[0], ...props.items.slice(props.items.length - limit + 1)] : props.items;
 
 
-	<flexboxlayout
-		ref={(v: any) => applyEscapeProps(v, props)}
-		id={props.id}
-		flexDirection="row"
-		className={cx('vx-breadcrumb', props.className)}
-		style={props.style}
-	>
+	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx('vx-breadcrumb', props.className)} style={props.style}>
 		@for (const e of visible.map((item, i) => ({ item, i })); key e.i) {
-			<flexboxlayout className="vx-breadcrumb-item">
+			<masonview display="flex" className="vx-breadcrumb-item">
 				{e.i === 1 && (overflow.length > 0 || props.overflowMenu) && <DropdownMenu trigger={<label text="…" />} accessibilityLabel={props.overflowLabel ?? 'More ancestors'} items={overflow.map((item, index) => ({ type: 'action' as const, key: `ancestor-${index}`, label: item.label, onSelect: item.onSelect, isDisabled: !item.onSelect }))}>{props.overflowMenu}</DropdownMenu>}
 				{e.i > 0 ? <label className="vx-breadcrumb-sep" text={sep} /> : null}
 				{e.item.onSelect
 					? <label className="vx-breadcrumb-link" text={e.item.label} onTap={e.item.onSelect} />
 					: <label className="vx-breadcrumb-text" text={e.item.label} />}
-			</flexboxlayout>
+			</masonview>
 		}
-	</flexboxlayout>
+	</masonview>
 }

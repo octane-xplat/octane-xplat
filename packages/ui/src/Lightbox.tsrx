@@ -81,60 +81,31 @@ function LightboxPanel(props: {
 		}
 	};
 
-	<gridlayout
-		ref={(v: any) => {
+	<masonview display="grid" gridTemplateRows="1fr" gridTemplateColumns="1fr" ref={(v: any) => {
 			stage.current = v;
-		}}
-		className={cx('vx-lightbox', props.className)}
-		rows="*"
-		columns="*"
-		width="100%"
-		height="100%"
-		onSwipe={onSwipe}
-		onPan={onStagePan}
-		accessibilityLabel={item?.alt ?? 'Media viewer'}
-	>
+		}} className={cx('vx-lightbox', props.className)} width="100%" height="100%" onSwipe={onSwipe} onPan={onStagePan} accessibilityLabel={item?.alt ?? 'Media viewer'}>
 		{/* Tap the backdrop edges to close; the centered media eats its own
 		 *  taps through the double-tap zoom. */}
 		{count > 0 && (
-			<gridlayout
-				rows="*,auto"
-				columns="*"
-				verticalAlignment="stretch"
-				horizontalAlignment="stretch"
-			>
-				<gridlayout row={0} verticalAlignment="stretch" horizontalAlignment="stretch">
+			<masonview display="grid" gridTemplateRows="1fr auto" gridTemplateColumns="1fr" style={{justifySelf: 'stretch', alignSelf: 'stretch'}}>
+				<masonview style={{gridRow: '1', justifySelf: 'stretch', alignSelf: 'stretch'}} display="grid">
 					{item != null && (
 						isVideo ? (
 							// No in-package video player — @octane-xplat/video owns the
 							// video widget. Honest fallback: show the alt text.
-							<flexboxlayout
-								flexDirection="column"
-								className="vx-lightbox-video-fallback"
-								verticalAlignment="middle"
-								horizontalAlignment="center"
-							>
+							<masonview style={{justifySelf: 'center', alignSelf: 'center'}} display="flex" flexDirection="column" className="vx-lightbox-video-fallback">
 								<label className="vx-lightbox-caption" textWrap={true}>
 									{item.alt}
 								</label>
-							</flexboxlayout>
+							</masonview>
 						) : (
-							<image
-								ref={(v: any) => {
+							<image ref={(v: any) => {
 									imgView.current = v;
-								}}
-								src={item.src}
-								stretch="aspectFit"
-								className="vx-lightbox-media"
-								verticalAlignment="middle"
-								horizontalAlignment="center"
-								accessibilityLabel={item.alt}
-								onDoubleTap={props.hasZoom ? toggleZoom : undefined}
-							/>
+								}} src={item.src} stretch="aspectFit" className="vx-lightbox-media" accessibilityLabel={item.alt} onDoubleTap={props.hasZoom ? toggleZoom : undefined} style={{justifySelf: 'center', alignSelf: 'center'}} />
 						)
 					)}
-				</gridlayout>
-				<flexboxlayout row={1} flexDirection="row" className="vx-lightbox-footer" justifyContent="space-between" alignItems="center">
+				</masonview>
+				<masonview style={{gridRow: '2'}} display="flex" flexDirection="row" className="vx-lightbox-footer" justifyContent="space-between" alignItems="center">
 					<Pressable
 						className="vx-lightbox-nav"
 						accessibilityLabel="Previous"
@@ -143,7 +114,7 @@ function LightboxPanel(props: {
 					>
 						<Icon name="xplat-chevron-left" />
 					</Pressable>
-					<flexboxlayout flexDirection="column" alignItems="center" flexGrow={1}>
+					<masonview display="flex" flexDirection="column" alignItems="center" flexGrow={1}>
 						{count > 1 && <Text className="vx-lightbox-counter">{`${index + 1} of ${count}`}</Text>}
 						{item?.caption != null && (
 							typeof item.caption === 'string' ? (
@@ -152,8 +123,8 @@ function LightboxPanel(props: {
 								item.caption
 							)
 						)}
-					</flexboxlayout>
-					<flexboxlayout flexDirection="row" alignItems="center">
+					</masonview>
+					<masonview display="flex" flexDirection="row" alignItems="center">
 						<Pressable
 							className="vx-lightbox-nav"
 							accessibilityLabel="Next"
@@ -169,11 +140,11 @@ function LightboxPanel(props: {
 						>
 							<Icon name="xplat-close" />
 						</Pressable>
-					</flexboxlayout>
-				</flexboxlayout>
-			</gridlayout>
+					</masonview>
+				</masonview>
+			</masonview>
 		)}
-	</gridlayout>
+	</masonview>
 }
 
 /** Full-screen media viewer (Astryx `Lightbox`), native leaf — a dedicated
@@ -256,7 +227,7 @@ export function Lightbox(props: LightboxProps) @{
 	useEffect(() => () => shown.current?.lifetime.close(), []);
 
 	<>
-		<stacklayout ref={(v: any) => { sentinel.current = v; }} style={{ width: 0, height: 0 }} />
+		<masonview display="flex" flexDirection="column" ref={(v: any) => { sentinel.current = v; }} style={{ width: 0, height: 0 }} />
 		{props.isOpen && count > 0 && portalHost
 			? createPortal(
 				<LightboxPanel

@@ -60,22 +60,6 @@ export function NativeEditor(props: HostProps) {
 	)
 
 	return (
-		<flexboxlayout
-			id={props.id}
-			className={props.className}
-			style={props.style}
-			row={props.row}
-			col={props.col}
-			rowSpan={props.rowSpan}
-			colSpan={props.colSpan}
-			dock={props.dock}
-			left={props.left}
-			top={props.top}
-			flexGrow={props.flexGrow}
-			flexShrink={props.flexShrink}
-			alignSelf={props.alignSelf}
-			order={props.order}
-			ref={attach}
-		/>
+		<masonview display="flex" id={props.id} className={props.className} style={props.style} row={props.row} col={props.col} rowSpan={props.rowSpan} colSpan={props.colSpan} dock={props.dock} left={props.left} top={props.top} flexGrow={props.flexGrow} flexShrink={props.flexShrink} alignSelf={props.alignSelf} order={props.order} ref={attach} />
 	)
 }

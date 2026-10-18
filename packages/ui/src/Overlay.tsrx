@@ -77,7 +77,7 @@ export function Overlay(props: OverlayProps) @{
 	useEffect(() => () => shown.current?.lifetime.close(), []);
 
 	<>
-		<stacklayout ref={(v: any) => { hostView.current = v; }} style={{ width: 0, height: 0 }} />
+		<masonview display="flex" flexDirection="column" ref={(v: any) => { hostView.current = v; }} style={{ width: 0, height: 0 }} />
 		{open && portalHost ? createPortal(<><SizeProvider value={null}>{props.children}</SizeProvider></>, portalHost) : null}
 	</>
 }

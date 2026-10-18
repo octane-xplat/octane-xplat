@@ -21,16 +21,9 @@ export function HoverCard(props: HoverCardProps) @{
 	});
 
 	<>
-		<flexboxlayout
-			id={props.id}
-			ref={card.ref}
-			className={cx('vx-hovercard-trigger', props.className)}
-			style={props.style as any}
-			ios={props.ios as any}
-			android={props.android as any}
-		>
+		<masonview display="flex" id={props.id} ref={card.ref} className={cx('vx-hovercard-trigger', props.className)} style={props.style as any} ios={props.ios as any} android={props.android as any}>
 			{props.children}
-		</flexboxlayout>
+		</masonview>
 		{card.renderHoverCard(props.content, { className: props.className })}
 	</>
 }

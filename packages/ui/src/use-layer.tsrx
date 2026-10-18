@@ -16,14 +16,9 @@ import { layerOffset, nativeLayerRTL, positionPopover, resolveLayerAlignment, re
 const host = () => (globalThis as any).__xplatAppKit ?? {};
 
 function LayerPanel(props: { body?: any; className?: any; style?: any; label?: string; layerDepth?: number }) @{
-	<flexboxlayout
-		flexDirection="column"
-		className={cx('vx-popover', props.className)}
-		style={props.style}
-		accessibilityLabel={props.label}
-	>
+	<masonview display="flex" flexDirection="column" className={cx('vx-popover', props.className)} style={props.style} accessibilityLabel={props.label}>
 		<LayerDepthProvider value={props.layerDepth ?? 0}>{props.body}</LayerDepthProvider>
-	</flexboxlayout>
+	</masonview>
 }
 
 function LayerContentUpdate(props: { sync: () => void; body: any; surface?: ContextRenderProps | FixedRenderProps; open: boolean }) @{
@@ -118,7 +113,7 @@ export function useLayer<O extends LayerOptions>(
 			// locates the owning AppKit view for the point anchor.
 			return <>
 				<LayerContentUpdate sync={sync} body={children} surface={props} open={visible} />
-				{fixed && <flexboxlayout ref={(v: any) => { markerEl.current = v; }} style={{ width: 0, height: 0 }} />}
+				{fixed && <masonview display="flex" ref={(v: any) => { markerEl.current = v; }} style={{ width: 0, height: 0 }} />}
 			</>;
 		},
 		[fixed, visible, sync],

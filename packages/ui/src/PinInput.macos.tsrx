@@ -44,7 +44,7 @@ export function PinInput(props: PinInputProps) @{
 		}
 	};
 
-	<flexboxlayout ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx('vx-pininput', props.isDisabled && 'vx-pininput--disabled', props.isReadOnly && 'vx-pininput--readonly', props.isLoading && 'vx-pininput--loading', props.status && `vx-pininput--status-${props.status.type}`, props.size && `vx-pininput--size-${props.size}`, props.className)} style={props.style} accessibilityLabel={props.label} accessibilityState={{ disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading }}>
+	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx('vx-pininput', props.isDisabled && 'vx-pininput--disabled', props.isReadOnly && 'vx-pininput--readonly', props.isLoading && 'vx-pininput--loading', props.status && `vx-pininput--status-${props.status.type}`, props.size && `vx-pininput--size-${props.size}`, props.className)} style={props.style} accessibilityLabel={props.label} accessibilityState={{ disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading }}>
 		@for (const i of Array.from({ length }, (_, k) => k); key i) {
 			<TextInput
 				className="vx-pininput-cell"
@@ -58,5 +58,5 @@ export function PinInput(props: PinInputProps) @{
 				ref={(h: TextInputHandle | null) => { handles.current[i] = h; }}
 			/>
 		}
-	</flexboxlayout>
+	</masonview>
 }

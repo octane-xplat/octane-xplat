@@ -11,27 +11,14 @@ import { layoutChildProps } from './layout-child'
 export function RollingText(props: RollingTextProps) @{
 	const roll = useRollingText(props)
 
-	<flexboxlayout
-		id={props.id}
-		testID={props.testID ?? ''}
-		ref={(view: any) => {
+	<masonview display="flex" id={props.id} testID={props.testID ?? ''} ref={(view: any) => {
 			applyEscapeProps(view, props)
 			roll.attachRow(view)
-		}}
-		{...layoutChildProps(props)}
-		className={['vx-rolling-text', props.className]}
-		style={props.style}
-		flexDirection="row"
-		flexWrap="nowrap"
-		accessible={true}
-		accessibilityRole={'text' as any}
-		accessibilityLabel={roll.label}
-		accessibilityLiveRegion={props.accessibilityLiveRegion as any}
-	>
+		}} {...layoutChildProps(props)} className={['vx-rolling-text', props.className]} style={props.style} flexDirection="row" flexWrap="nowrap" accessible={true} accessibilityRole={'text' as any} accessibilityLabel={roll.label} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
 		@for (const cell of roll.cells; key cell.id) {
-			<flexboxlayout ref={roll.attachCell(cell.id)} accessible={false} flexShrink={0}>
+			<masonview display="flex" ref={roll.attachCell(cell.id)} accessible={false} flexShrink={0}>
 				<label text={cell.unit} maxLines={1} accessible={false} />
-			</flexboxlayout>
+			</masonview>
 		}
-	</flexboxlayout>
+	</masonview>
 }

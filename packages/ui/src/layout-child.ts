@@ -7,7 +7,7 @@ const FLEX_ALIGN: Record<string, string> = { start: 'flex-start', end: 'flex-end
 /** NativeScript reads these attributes from each child view during parent
  *  layout. Values are forwarded with NativeScript's own property names.
  *  The flex-container props (justifyContent/alignItems/flexWrap/gap) land on
- *  the host flexboxlayout itself — its own attributes, not child metadata. */
+ *  the host masonview itself — its own attributes, not child metadata. */
 export function layoutChildProps(props: LayoutChildProps & Partial<FlexContainerProps>) {
 	// Dynamic prop snapshots retain omitted keys; explicitly clear placement.
 	const result: Record<string, any> = {

@@ -37,12 +37,7 @@ export function Tabs(props: TabsProps) @{
 	const presentable = route && !presented.has(route.stack) ? route : null
 	const Screen = presentable ? screenFor(presentable.name) : undefined
 
-	<flexboxlayout
-		id={props.id}
-		flexDirection="column"
-		className={cx('vx-tabs', props.className)}
-		style={props.style}
-	>
+	<masonview display="flex" id={props.id} flexDirection="column" className={cx('vx-tabs', props.className)} style={props.style}>
 		<TabList
 			className="vx-tabbar"
 			role="tablist"
@@ -55,7 +50,7 @@ export function Tabs(props: TabsProps) @{
 				<Tab id={'tab-' + i} value={keyFor(item, i)} label={item.title} icon={item.icon} />
 			}
 		</TabList>
-		<flexboxlayout flexDirection="column" className="vx-tabpane flex-1">
+		<masonview display="flex" flexDirection="column" className="vx-tabpane flex-1">
 			@if (presentable && Screen) {
 				<PresentedStacks value={new Set(presented).add(presentable.stack)}>
 					<RouteHost screen={Screen} layouts={layoutsFor(presentable.name)} params={screenParams(presentable)} boundary={errorBoundaryFor(presentable.name)} route={presentable} />
@@ -63,6 +58,6 @@ export function Tabs(props: TabsProps) @{
 			} @else {
 				<>{tab?.render()}</>
 			}
-		</flexboxlayout>
-	</flexboxlayout>
+		</masonview>
+	</masonview>
 }

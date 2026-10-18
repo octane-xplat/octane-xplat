@@ -30,27 +30,27 @@ export function SelectView(props: SelectViewProps) @{
 			{!props.isReadOnly ? <label className="vx-select-caret" text="▾" /> : null}
 		</Pressable>
 		<Popover anchor={anchor} open={props.open} placement={props.placement ?? 'bottom'} onDismiss={() => props.onOpenChange(false)} className="vx-menu">
-			{props.searchable ? <flexboxlayout className="vx-select-search-row" flexDirection="row">
+			{props.searchable ? <masonview display="flex" className="vx-select-search-row" flexDirection="row">
 				<FieldProvider value={null}><TextInput id={props.id ? `${props.id}-search` : undefined} className="vx-select-search" value={props.query} placeholder={props.searchPlaceholder ?? 'Search…'} accessibilityLabel="Search options" ref={(handle: any) => { search.current = handle; if (!handle || didFocus.current) return; didFocus.current = true; handle.focus() }} onChange={props.onQueryChange} /></FieldProvider>
 				{props.query ? <Pressable className="vx-select-search-clear" accessibilityLabel="Clear search" onPress={() => { props.onQueryChange(''); search.current?.focus?.() }}><label text="×" /></Pressable> : null}
-			</flexboxlayout> : null}
+			</masonview> : null}
 			{props.multiple && props.hasSelectAll ? <Pressable id={props.id ? `${props.id}-select-all` : undefined} className="vx-select-all" disabled={props.pending || !props.enabled.length} accessibilityLabel={`${props.selectAllLabel ?? 'Select all'}, ${props.selectAllState}`} onPress={props.onSelectAll}><MultiInd state={props.selectAllState} /><label text={props.selectAllLabel ?? 'Select all'} /></Pressable> : null}
 			<label className="vx-select-feedback" text={props.announcement} accessibilityLiveRegion={'polite' as any} />
 			<scrollview height={Math.min(props.maxMenuHeight ?? 280, Math.max(40, props.shown.length * 56 + props.groups.length * 24))}>
-				<flexboxlayout className="vx-menu-list vx-select-list" flexDirection="column">
+				<masonview display="flex" className="vx-menu-list vx-select-list" flexDirection="column">
 					{!props.shown.length && !busy ? <label className="vx-select-empty" text={props.emptyText} /> : null}
 					@for (const group of props.groups; index gi; key gi) {
-						<flexboxlayout flexDirection="column">
+						<masonview display="flex" flexDirection="column">
 							{group.heading != null ? <label className="vx-select-group" text={group.heading} /> : null}
 							@for (const option of group.options; key option.value) {
-								<flexboxlayout id={props.id ? `${props.id}-option-${option.value}` : undefined} className={cx('vx-menu-item', 'vx-select-option', props.selected.includes(option.value) && 'vx-select-option--on', option.isDisabled && 'vx-menu-item--disabled')} flexDirection="row" onTap={() => props.onPick(option)} accessibilityRole={nativeAccessibilityRole('button') as any} accessibilityLabel={`${option.label ?? option.value}${option.description ? ', ' + option.description : ''}${props.selected.includes(option.value) ? ', Selected' : ''}${option.isDisabled ? ', Disabled' : ''}`} accessibilityState={nativeAccessibilityState({ selected: props.selected.includes(option.value), disabled: option.isDisabled || props.pending }) as any}>
-									<flexboxlayout className="vx-select-check">{props.multiple ? <MultiInd state={props.selected.includes(option.value) ? 'checked' : 'unchecked'} isDisabled={option.isDisabled} /> : <CheckInd state={props.selected.includes(option.value) ? 'checked' : 'unchecked'} isDisabled={option.isDisabled} />}</flexboxlayout>
-									<flexboxlayout flexDirection="column"><label className="vx-menu-item-label" text={option.label ?? option.value} />{option.description ? <label className="vx-select-description" text={option.description} /> : null}</flexboxlayout>
-								</flexboxlayout>
+								<masonview display="flex" id={props.id ? `${props.id}-option-${option.value}` : undefined} className={cx('vx-menu-item', 'vx-select-option', props.selected.includes(option.value) && 'vx-select-option--on', option.isDisabled && 'vx-menu-item--disabled')} flexDirection="row" onTap={() => props.onPick(option)} accessibilityRole={nativeAccessibilityRole('button') as any} accessibilityLabel={`${option.label ?? option.value}${option.description ? ', ' + option.description : ''}${props.selected.includes(option.value) ? ', Selected' : ''}${option.isDisabled ? ', Disabled' : ''}`} accessibilityState={nativeAccessibilityState({ selected: props.selected.includes(option.value), disabled: option.isDisabled || props.pending }) as any}>
+									<masonview display="flex" className="vx-select-check">{props.multiple ? <MultiInd state={props.selected.includes(option.value) ? 'checked' : 'unchecked'} isDisabled={option.isDisabled} /> : <CheckInd state={props.selected.includes(option.value) ? 'checked' : 'unchecked'} isDisabled={option.isDisabled} />}</masonview>
+									<masonview display="flex" flexDirection="column"><label className="vx-menu-item-label" text={option.label ?? option.value} />{option.description ? <label className="vx-select-description" text={option.description} /> : null}</masonview>
+								</masonview>
 							}
-						</flexboxlayout>
+						</masonview>
 					}
-				</flexboxlayout>
+				</masonview>
 			</scrollview>
 		</Popover>
 	</>

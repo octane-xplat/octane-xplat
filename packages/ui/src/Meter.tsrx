@@ -35,18 +35,10 @@ export function Meter(props: MeterProps) @{
 	const color = props.color ?? '#3376cc';
 	const trackColor = props.trackColor ?? '#e1ecf7';
 
-	<gridlayout
-		id={props.id}
-		className={cx('vx-meter', props.className)}
-		style={{ width: size, height: size, ...(props.style as any) }}
-		accessible={true}
-		accessibilityRole={nativeAccessibilityRole('meter')}
-		accessibilityLabel={props.accessibilityLabel}
-		accessibilityValue={props.valueLabel ?? `${value} of ${rangeMax}`}
-	>
+	<masonview display="grid" id={props.id} className={cx('vx-meter', props.className)} style={{ width: size, height: size, ...(props.style as any) }} accessible={true} accessibilityRole={nativeAccessibilityRole('meter')} accessibilityLabel={props.accessibilityLabel} accessibilityValue={props.valueLabel ?? `${value} of ${rangeMax}`}>
 		<svgview src={ringSvg(size, strokeWidth, ratio, color, trackColor)} stretch="aspectFit" style={{ width: size, height: size }} />
-		<gridlayout horizontalAlignment="center" verticalAlignment="middle">
+		<masonview display="grid" style={{justifySelf: 'center', alignSelf: 'center'}}>
 			{props.children}
-		</gridlayout>
-	</gridlayout>
+		</masonview>
+	</masonview>
 }

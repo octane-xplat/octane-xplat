@@ -8,34 +8,20 @@ import { Separator } from './Separator';
 export function ChatSystemMessage(props: ChatSystemMessageProps) @{
 	if (props.variant === 'divider') {
 		return (
-		<flexboxlayout
-			id={props.id}
-			className={cx('vx-chatsys', 'vx-chatsys--divider', props.className)}
-			style={props.style as any}
-			flexDirection="row"
-			alignItems="center"
-			justifyContent="center"
-		>
+		<masonview display="flex" id={props.id} className={cx('vx-chatsys', 'vx-chatsys--divider', props.className)} style={props.style as any} flexDirection="row" alignItems="center" justifyContent="center">
 			<Separator className="vx-chatsys-rule" />
-			<flexboxlayout className="vx-chatsys-content">{props.children}</flexboxlayout>
+			<masonview display="flex" className="vx-chatsys-content">{props.children}</masonview>
 			<Separator className="vx-chatsys-rule" />
-		</flexboxlayout>
+		</masonview>
 		);
 	}
 
 	return (
-		<flexboxlayout
-			id={props.id}
-			className={cx('vx-chatsys', props.className)}
-			style={props.style as any}
-			flexDirection="row"
-			alignItems="center"
-			justifyContent="center"
-		>
-			<flexboxlayout className="vx-chatsys-content" flexDirection="row" alignItems="center">
-				{props.icon != null ? <flexboxlayout className="vx-chatsys-icon">{props.icon}</flexboxlayout> : null}
+		<masonview display="flex" id={props.id} className={cx('vx-chatsys', props.className)} style={props.style as any} flexDirection="row" alignItems="center" justifyContent="center">
+			<masonview display="flex" className="vx-chatsys-content" flexDirection="row" alignItems="center">
+				{props.icon != null ? <masonview display="flex" className="vx-chatsys-icon">{props.icon}</masonview> : null}
 				{props.children}
-			</flexboxlayout>
-		</flexboxlayout>
+			</masonview>
+		</masonview>
 	);
 }

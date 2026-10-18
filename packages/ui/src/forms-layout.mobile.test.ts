@@ -57,7 +57,7 @@ function findByClass(node: any, cls: string): any {
 }
 
 describe('native flow Stack', () => {
-	it('renders flexboxlayout with direction + gap + alignment attrs', () => {
+	it('renders a mason flex container with direction + gap + alignment attrs', () => {
 		const { container, root } = mount(Stack as any, {
 			direction: 'horizontal',
 			hAlign: 'end',
@@ -66,7 +66,7 @@ describe('native flow Stack', () => {
 		})
 
 		const view = container.children[0]
-		expect(view.type).toBe('flexboxlayout')
+		expect(view.type).toBe('masonview')
 		expect(view.props.flexDirection).toBe('row')
 		expect(view.props.justifyContent).toBe('flex-end')
 		expect(view.props.alignItems).toBe('center')
@@ -133,11 +133,11 @@ describe('native layout leaves', () => {
 describe('native FormLayout + InputGroup', () => {
 	it('vertical stays a column flex; horizontal becomes a grid', () => {
 		const a = mount(FormLayout as any)
-		expect(a.container.children[0].type).toBe('flexboxlayout')
+		expect(a.container.children[0].type).toBe('masonview')
 		a.root.unmount()
 
 		const b = mount(FormLayout as any, { direction: 'horizontal' })
-		expect(b.container.children[0].type).toBe('gridlayout')
+		expect(b.container.children[0].type).toBe('masonview')
 		b.root.unmount()
 	})
 
@@ -194,7 +194,7 @@ describe('native indicators + list', () => {
 		})
 
 		const list = container.children[0]
-		expect(list.type).toBe('flexboxlayout')
+		expect(list.type).toBe('masonview')
 		root.unmount()
 	})
 

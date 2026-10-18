@@ -16,18 +16,11 @@ export function TypeaheadItem<T extends SearchableItem,>(props: TypeaheadItemPro
 			? <Icon name={props.icon} size={16} />
 			: props.icon;
 
-	<flexboxlayout
-		id={props.id}
-		className={cx('vx-typeahead-item', props.isDisabled && 'vx-typeahead-item--disabled', props.className)}
-		style={props.style}
-		flexDirection="row"
-		alignItems="center"
-		accessibilityState={{ disabled: props.isDisabled }}
-	>
+	<masonview display="flex" id={props.id} className={cx('vx-typeahead-item', props.isDisabled && 'vx-typeahead-item--disabled', props.className)} style={props.style} flexDirection="row" alignItems="center" accessibilityState={{ disabled: props.isDisabled }}>
 		{icon}
-		<flexboxlayout className="vx-typeahead-item-content" flexDirection="column" flexGrow={1}>
+		<masonview display="flex" className="vx-typeahead-item-content" flexDirection="column" flexGrow={1}>
 			<label className="vx-typeahead-item-label" text={props.item.label} />
 			{props.description ? <label className="vx-typeahead-item-description" text={props.description} style={{ color: '#666666' }} /> : null}
-		</flexboxlayout>
-	</flexboxlayout>
+		</masonview>
+	</masonview>
 }

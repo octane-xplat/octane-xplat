@@ -39,9 +39,9 @@ export function Citation(props: CitationProps) @{
 		) : (
 			<>
 				{iconNode != null ? (
-					<flexboxlayout className="vx-citation-icon" style={{ width: 16, height: 16, borderRadius: 8 }}>
+					<masonview display="flex" className="vx-citation-icon" style={{ width: 16, height: 16, borderRadius: 8 }}>
 						{iconNode}
-					</flexboxlayout>
+					</masonview>
 				) : iconSrc != null ? (
 					<image src={iconSrc} style={{ width: 16, height: 16, borderRadius: 8 }} />
 				) : null}
@@ -74,8 +74,8 @@ export function Citation(props: CitationProps) @{
 			{body}
 		</Pressable>
 	) : (
-		<flexboxlayout {...shared} flexDirection="row" alignItems="center" accessibilityRole="text">
+		<masonview display="flex" {...shared} flexDirection="row" alignItems="center" accessibilityRole="text">
 			{body}
-		</flexboxlayout>
+		</masonview>
 	);
 }

@@ -22,35 +22,24 @@ export function ChatMessageBubble(props: ChatMessageBubbleProps) @{
 
 	<>
 		{hasName ? (
-			<flexboxlayout
-				className={cx('vx-chatbubble-name', `vx-chatbubble-name--${density}`, isUser && 'vx-chatbubble-name--end')}
-				alignSelf={isUser ? 'flex-end' : 'flex-start'}
-			>
+			<masonview display="flex" className={cx('vx-chatbubble-name', `vx-chatbubble-name--${density}`, isUser && 'vx-chatbubble-name--end')} alignSelf={isUser ? 'flex-end' : 'flex-start'}>
 				{props.name}
-			</flexboxlayout>
+			</masonview>
 		) : null}
-		<flexboxlayout
-			id={props.id}
-			className={cx(
+		<masonview display="flex" id={props.id} className={cx(
 				'vx-chatbubble',
 				`vx-chatbubble--${variant}`,
 				`vx-chatbubble--${sender}`,
 				`vx-chatbubble--${density}`,
 				props.group && `vx-chatbubble--${props.group}-${isUser ? 'user' : 'assistant'}`,
 				props.className,
-			)}
-			style={{ ...(props.width != null ? { width: props.width } : {}), ...(props.style as any) }}
-			flexDirection="column"
-		>
+			)} style={{ ...(props.width != null ? { width: props.width } : {}), ...(props.style as any) }} flexDirection="column">
 			{props.children}
-		</flexboxlayout>
+		</masonview>
 		{hasMetadata ? (
-			<flexboxlayout
-				className={cx('vx-chatbubble-meta', `vx-chatbubble-meta--${density}`, isUser && 'vx-chatbubble-meta--end')}
-				alignSelf={isUser ? 'flex-end' : 'flex-start'}
-			>
+			<masonview display="flex" className={cx('vx-chatbubble-meta', `vx-chatbubble-meta--${density}`, isUser && 'vx-chatbubble-meta--end')} alignSelf={isUser ? 'flex-end' : 'flex-start'}>
 				{props.metadata}
-			</flexboxlayout>
+			</masonview>
 		) : null}
 	</>
 }

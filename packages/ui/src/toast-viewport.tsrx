@@ -40,6 +40,6 @@ export function ToastViewport(props: ToastViewportProps) @{
 		<ToastViewportProvider value={ctx}>
 			{props.children}
 		</ToastViewportProvider>
-		<stacklayout ref={(v: any) => { sentinel.current = v; }} style={{ width: 0, height: 0 }} />
+		<masonview display="flex" flexDirection="column" ref={(v: any) => { sentinel.current = v; }} style={{ width: 0, height: 0 }} />
 	</>
 }

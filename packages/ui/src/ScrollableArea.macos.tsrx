@@ -69,15 +69,11 @@ export function ScrollableArea(props: ScrollableAreaProps) @{
 		}}
 		accessibilityLabel={props.accessibilityLabel ?? props.label}
 	>
-		<flexboxlayout
-			{...area.getContentProps()}
-			flexDirection={horizontal ? 'row' : 'column'}
-			style={{
+		<masonview display="flex" {...area.getContentProps()} flexDirection={horizontal ? 'row' : 'column'} style={{
 				paddingTop: spacingStep(props.paddingBlockStart) ?? spacingStep(props.paddingBlock) ?? padding ?? 0,
 				paddingBottom: spacingStep(props.paddingBlockEnd) ?? spacingStep(props.paddingBlock) ?? padding ?? 0,
 				paddingLeft: spacingStep(props.paddingInlineStart) ?? spacingStep(props.paddingInline) ?? padding ?? 0,
 				paddingRight: spacingStep(props.paddingInlineEnd) ?? spacingStep(props.paddingInline) ?? padding ?? 0,
-			}}
-		>{props.children}</flexboxlayout>
+			}}>{props.children}</masonview>
 	</scrollview>
 }

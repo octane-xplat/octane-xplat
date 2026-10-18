@@ -5,9 +5,9 @@ import { NSView } from '@octane-xplat/platform/macos'
 
 function App(props: any) {
 	return (
-		<flexboxlayout flexDirection="column">
+		<masonview display="flex" flexDirection="column">
 			<RollingText {...props} />
-		</flexboxlayout>
+		</masonview>
 	)
 }
 

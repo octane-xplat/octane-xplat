@@ -591,56 +591,43 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		onLoaded={scheduleViewport}
 		onScroll={onScroll}
 	>
-		<flexboxlayout flexDirection="column" className={cx('vx-virtual-list-content')} ref={(view: any) => observeLayout('content', view, onContentLayout)}>
+		<masonview display="flex" flexDirection="column" className={cx('vx-virtual-list-content')} ref={(view: any) => observeLayout('content', view, onContentLayout)}>
 			{props.renderHeader ? (
-				<flexboxlayout
-					flexDirection="column"
-					className="vx-virtual-list-header"
-					flexShrink={0}
-					ref={(view: any) => observeLayout('header', view, onHeaderLayout)}
-				>
+				<masonview display="flex" flexDirection="column" className="vx-virtual-list-header" flexShrink={0} ref={(view: any) => observeLayout('header', view, onHeaderLayout)}>
 					{props.renderHeader()}
-				</flexboxlayout>
+				</masonview>
 			) : null}
 			{entries.length === 0 ? (
 				props.renderEmpty ? (
-					<flexboxlayout flexDirection="column" className="vx-virtual-list-empty">
+					<masonview display="flex" flexDirection="column" className="vx-virtual-list-empty">
 						{props.renderEmpty()}
-					</flexboxlayout>
+					</masonview>
 				) : null
 			) : (
-				<absolutelayout className="vx-virtual-list-body" style={{ height: contentHeight, flexShrink: 0 }}>
+				<masonview className="vx-virtual-list-body" style={{ height: contentHeight, flexShrink: 0 }}>
 					@for (const cell of cells; key cell.id) {
-						<flexboxlayout
-							ref={cellCallback(cell.id)}
-							flexDirection="column"
-							className={cell.entry ? 'vx-virtual-list-cell vx-virtual-list-row' : 'vx-virtual-list-cell'}
-							visibility={cell.entry ? 'visible' : 'collapse'}
-							left={0}
-							top={cell.top}
-							width={contentWidthRef.current || viewportWidthRef.current || '100%'}
-						>
+						<masonview style={{position: 'absolute', left: 0, top: cell.top}} display="flex" ref={cellCallback(cell.id)} flexDirection="column" className={cell.entry ? 'vx-virtual-list-cell vx-virtual-list-row' : 'vx-virtual-list-cell'} visibility={cell.entry ? 'visible' : 'collapse'} width={contentWidthRef.current || viewportWidthRef.current || '100%'}>
 							@for (const entry of cell.rows; key entry.rowKey) {
 								<>
-									<flexboxlayout flexDirection="column" className="vx-virtual-list-item">
+									<masonview display="flex" flexDirection="column" className="vx-virtual-list-item">
 										{props.renderItem(entry.item, entry.index)}
-									</flexboxlayout>
+									</masonview>
 									{hasSeparator && entry.index < entries.length - 1 ? (
-										<flexboxlayout flexDirection="column" className="vx-virtual-list-separator">
+										<masonview display="flex" flexDirection="column" className="vx-virtual-list-separator">
 											{props.renderSeparator?.()}
-										</flexboxlayout>
+										</masonview>
 									) : null}
 								</>
 							}
-						</flexboxlayout>
+						</masonview>
 					}
-				</absolutelayout>
+				</masonview>
 			)}
 			{props.renderFooter ? (
-				<flexboxlayout flexDirection="column" className="vx-virtual-list-footer" flexShrink={0}>
+				<masonview display="flex" flexDirection="column" className="vx-virtual-list-footer" flexShrink={0}>
 					{props.renderFooter()}
-				</flexboxlayout>
+				</masonview>
 			) : null}
-		</flexboxlayout>
+		</masonview>
 	</scrollview>
 }

@@ -50,35 +50,20 @@ export function ListItem(props: ListItemProps) @{
 
 	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
-	<flexboxlayout
-		id={props.id}
-		ref={forwardedRef}
-		flexDirection="row"
-		alignItems="center"
-		className={cx(
+	<masonview display="flex" id={props.id} ref={forwardedRef} flexDirection="row" alignItems="center" className={cx(
 			'vx-listitem',
 			`vx-listitem--density-${density}`,
 			interactive && 'vx-listitem--interactive',
 			props.isDisabled && 'vx-listitem--disabled',
 			props.isSelected && 'vx-listitem--selected',
 			props.className,
-		)}
-		style={props.style as any}
-		onTap={interactive && !props.isDisabled ? activate : undefined}
-		accessible={props.accessible ?? (interactive ? true : undefined)}
-		accessibilityLabel={props.accessibilityLabel}
-		accessibilityRole={nativeAccessibilityRole(props.accessibilityRole ?? (props.href != null ? 'link' : props.onPress != null ? 'button' : 'text')) as any}
-		accessibilityHint={props.accessibilityHint}
-		accessibilityValue={props.accessibilityValue}
-		accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled, selected: props.isSelected }) as any}
-		accessibilityLiveRegion={props.accessibilityLiveRegion as any}
-	>
-		{props.startContent != null ? <flexboxlayout className="vx-listitem-start">{props.startContent}</flexboxlayout> : null}
-		<flexboxlayout flexDirection="column" flexGrow={1} className="vx-listitem-body" style={{ minWidth: 0 }}>
+		)} style={props.style as any} onTap={interactive && !props.isDisabled ? activate : undefined} accessible={props.accessible ?? (interactive ? true : undefined)} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole ?? (props.href != null ? 'link' : props.onPress != null ? 'button' : 'text')) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled, selected: props.isSelected }) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
+		{props.startContent != null ? <masonview display="flex" className="vx-listitem-start">{props.startContent}</masonview> : null}
+		<masonview display="flex" flexDirection="column" flexGrow={1} className="vx-listitem-body" style={{ minWidth: 0 }}>
 			{labelNode}
 			{descriptionNode}
 			{props.children}
-		</flexboxlayout>
-		{props.endContent != null ? <flexboxlayout className="vx-listitem-end">{props.endContent}</flexboxlayout> : null}
-	</flexboxlayout>
+		</masonview>
+		{props.endContent != null ? <masonview display="flex" className="vx-listitem-end">{props.endContent}</masonview> : null}
+	</masonview>
 }

@@ -3,12 +3,7 @@ import type { ScreenProps } from './props'
 import { cx } from '@octane-xplat/lib'
 
 export function Screen(props: ScreenProps) @{
-	<flexboxlayout
-		id={props.id}
-		flexDirection="column"
-		className={cx('vx-screen', props.className)}
-		style={props.style}
-	>
+	<masonview display="flex" id={props.id} flexDirection="column" className={cx('vx-screen', props.className)} style={props.style}>
 		{props.children}
-	</flexboxlayout>
+	</masonview>
 }

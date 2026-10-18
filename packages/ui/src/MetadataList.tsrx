@@ -48,29 +48,18 @@ export function MetadataList(props: MetadataListProps) @{
 	<MetadataListProvider
 		value={{ labelPosition, labelWidth: props.label?.width, orientation }}
 	>
-		<flexboxlayout
-			ref={(v: any) => applyEscapeProps(v, props)}
-			id={props.id}
-			className={cx('vx-metadatalist', props.className)}
-			style={{ flexDirection: 'column', ...(props.style as any) }}
-			flexDirection="column"
-		>
+		<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-metadatalist', props.className)} style={{ flexDirection: 'column', ...(props.style as any) }} flexDirection="column">
 			{props.title != null ? (
-				<flexboxlayout className="vx-metadatalist-title" style={{ marginBottom: 12 }}>
+				<masonview display="flex" className="vx-metadatalist-title" style={{ marginBottom: 12 }}>
 					{typeof props.title === 'string' || typeof props.title === 'number'
 						? <label whiteSpace="normal" style={{ fontWeight: 600 }}>{props.title}</label>
 						: props.title}
-				</flexboxlayout>
+				</masonview>
 			) : null}
 			{isHorizontal ? (
-				<flexboxlayout
-					className="vx-metadatalist-list vx-metadatalist--horizontal"
-					flexDirection="row"
-					flexWrap="wrap"
-					gap={16}
-				>
+				<masonview display="flex" className="vx-metadatalist-list vx-metadatalist--horizontal" flexDirection="row" flexWrap="wrap" gap={16}>
 					{visibleChildren}
-				</flexboxlayout>
+				</masonview>
 			) : (
 				<Grid columns={gridColumns(columns, isStacked)} className="vx-metadatalist-list">
 					{visibleChildren}
@@ -89,6 +78,6 @@ export function MetadataList(props: MetadataListProps) @{
 					</label>
 				</Pressable>
 			) : null}
-		</flexboxlayout>
+		</masonview>
 	</MetadataListProvider>
 }

@@ -16,18 +16,13 @@ export function Drawer(props: DrawerProps) @{
 		props.onDismiss?.();
 	};
 
-	<gridlayout
-		id={props.id}
-		ref={(v: any) => applyEscapeProps(v, props)}
-		className={cx('vx-drawer', props.className)}
-		style={props.style as any}
-	>
-		<gridlayout className="vx-drawer-main">{props.main}</gridlayout>
+	<masonview display="grid" id={props.id} ref={(v: any) => applyEscapeProps(v, props)} className={cx('vx-drawer', props.className)} style={props.style as any}>
+		<masonview display="grid" className="vx-drawer-main">{props.main}</masonview>
 		@if (open) {
 			<>
-				<flexboxlayout className="vx-drawer-backdrop" onTap={requestDismiss} />
-				<flexboxlayout className="vx-drawer-panel" horizontalAlignment="left">{props.drawer}</flexboxlayout>
+				<masonview display="flex" className="vx-drawer-backdrop" onTap={requestDismiss} />
+				<masonview display="flex" className="vx-drawer-panel" style={{justifySelf: 'start'}}>{props.drawer}</masonview>
 			</>
 		}
-	</gridlayout>
+	</masonview>
 }

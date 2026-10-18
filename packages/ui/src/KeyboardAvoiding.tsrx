@@ -9,12 +9,7 @@ import { cx } from '@octane-xplat/lib'
  * @see KeyboardAvoidingProps, useKeyboardInset.
  */
 export function KeyboardAvoiding(props: KeyboardAvoidingProps) @{
-	<flexboxlayout
-		id={props.id}
-		flexDirection="column"
-		className={cx('vx-keyboard-avoiding', props.className)}
-		style={props.style as any}
-	>
+	<masonview display="flex" id={props.id} flexDirection="column" className={cx('vx-keyboard-avoiding', props.className)} style={props.style as any}>
 		{props.children}
-	</flexboxlayout>
+	</masonview>
 }

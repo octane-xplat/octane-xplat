@@ -27,23 +27,17 @@ export function Pagination(props: PaginationProps) @{
 		props.onPageChange?.(p);
 	};
 
-	<flexboxlayout
-		ref={(v: any) => applyEscapeProps(v, props)}
-		id={props.id}
-		flexDirection="row"
-		className={cx('vx-pagination', props.disabled && 'vx-pagination--disabled', props.className)}
-		style={props.style as any}
-	>
-		<flexboxlayout className="vx-page-btn" onTap={() => go(current - 1)}><label text="‹" /></flexboxlayout>
+	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx('vx-pagination', props.disabled && 'vx-pagination--disabled', props.className)} style={props.style as any}>
+		<masonview display="flex" className="vx-page-btn" onTap={() => go(current - 1)}><label text="‹" /></masonview>
 		@for (const e of pages; key e.key) {
 			@if (e.page == null) {
 				<label className="vx-page-ellipsis" text="…" />
 			} @else {
-				<flexboxlayout className={cx('vx-page-btn', e.page === current && 'vx-page-btn--on')} onTap={() => go(e.page!)}>
+				<masonview display="flex" className={cx('vx-page-btn', e.page === current && 'vx-page-btn--on')} onTap={() => go(e.page!)}>
 					<label text={String(e.page)} />
-				</flexboxlayout>
+				</masonview>
 			}
 		}
-		<flexboxlayout className="vx-page-btn" onTap={() => go(current + 1)}><label text="›" /></flexboxlayout>
-	</flexboxlayout>
+		<masonview display="flex" className="vx-page-btn" onTap={() => go(current + 1)}><label text="›" /></masonview>
+	</masonview>
 }

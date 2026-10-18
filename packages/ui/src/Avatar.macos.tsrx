@@ -11,15 +11,9 @@ export function Avatar(props: AvatarProps) @{
 	const size = props.size ?? 32;
 	const box = { width: size, height: size, borderRadius: size / 2 };
 
-	<flexboxlayout
-		ref={(v: any) => applyEscapeProps(v, props)}
-		id={props.id}
-		className={cx('vx-avatar', props.className)}
-		style={{ ...(props.style as any), ...(box as any) }}
-		accessibilityLabel={props.alt}
-	>
+	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-avatar', props.className)} style={{ ...(props.style as any), ...(box as any) }} accessibilityLabel={props.alt}>
 		{props.src
 			? <Image className="vx-avatar-img" src={props.src} alt={props.alt} style={{ width: size, height: size, borderRadius: size / 2 }} />
 			: <label className="vx-avatar-fallback" text={props.fallback ?? ''} />}
-	</flexboxlayout>
+	</masonview>
 }

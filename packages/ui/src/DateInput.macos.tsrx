@@ -109,11 +109,7 @@ function DateInputControl(inputProps: DateInputProps) @{
 	const statusText = props.status ? STATUS_TEXT[props.status.type] : null
 
 	<>
-		<flexboxlayout
-			ref={(v: any) => { anchor.current = v }}
-			flexDirection="row"
-			alignItems="center"
-			className={cx(
+		<masonview display="flex" ref={(v: any) => { anchor.current = v }} flexDirection="row" alignItems="center" className={cx(
 				'vx-dateinput',
 				'vx-dateinput-popover',
 				isDisabled && 'vx-dateinput--disabled',
@@ -122,9 +118,7 @@ function DateInputControl(inputProps: DateInputProps) @{
 				props.size && `vx-dateinput--size-${props.size}`,
 				!isPendingValid && 'vx-dateinput--invalid',
 				props.className,
-			)}
-			style={props.style}
-		>
+			)} style={props.style}>
 			<Pressable
 				className="vx-dateinput-toggle"
 				accessibilityLabel={open ? messages.closeCalendar : messages.openCalendar}
@@ -153,7 +147,7 @@ function DateInputControl(inputProps: DateInputProps) @{
 			{statusText != null
 				? <label className={cx('vx-field-icon', `vx-field-icon--${props.status!.type}`)} text={statusText} accessibilityLabel={props.statusVariant === 'tooltip' ? props.status?.message : undefined} />
 				: null}
-		</flexboxlayout>
+		</masonview>
 		<Popover anchor={anchor} open={open} onDismiss={() => setOpen(false)} placement="bottom" className="vx-dateinput-popover">
 			<Calendar
 				locale={props.locale}

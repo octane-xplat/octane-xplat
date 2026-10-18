@@ -26,8 +26,8 @@ export function PowerSearchView(props: PowerSearchViewProps) @{
 		? props.components?.[internal.getOperator(editing.filter.field, editing.filter.operator ?? '')?.value.type ?? 'string']?.Editor ?? PowerSearchFilterEditor
 		: PowerSearchFilterEditor
 
-	<flexboxlayout id={props.id} className={cx('vx-power-search', `vx-power-search--size-${size}`, props.isDisabled && 'vx-power-search--disabled', props.className)} style={props.style as any} ref={(v:any)=>{anchor.current=v}}>
-		<flexboxlayout className="vx-power-search-row">
+	<masonview display="flex" id={props.id} className={cx('vx-power-search', `vx-power-search--size-${size}`, props.isDisabled && 'vx-power-search--disabled', props.className)} style={props.style as any} ref={(v:any)=>{anchor.current=v}}>
+		<masonview display="flex" className="vx-power-search-row">
 			{props.startIcon ? typeof props.startIcon === 'string' ? <Icon className="vx-power-search-start-icon" name={props.startIcon} /> : props.startIcon : null}
 			{props.filters.map((filter, index) => {
 				const field = internal.getField(filter.field), operator = internal.getOperator(filter.field, filter.operator)
@@ -39,16 +39,16 @@ export function PowerSearchView(props: PowerSearchViewProps) @{
 			{props.resultCount != null ? <label className="vx-power-search-count" accessibilityLiveRegion={'polite' as any} text={String(props.resultCount)} /> : null}
 			{props.endContent}
 			{props.hasClear !== false && props.filters.length > 0 ? <Button label="Clear" variant="ghost" clickAction={props.onClear} isDisabled={props.isDisabled} /> : null}
-		</flexboxlayout>
+		</masonview>
 		<Popover anchor={anchor} open={props.suggestionsOpen} placement="bottom" onDismiss={()=>props.onDismiss()} className="vx-power-search-results" style={props.menuWidth ? {width:props.menuWidth} : undefined}>
-			<flexboxlayout className="vx-power-search-result-list">
+			<masonview display="flex" className="vx-power-search-result-list">
 				{results.map((item:any)=><Suggestion key={item.id} className="vx-power-search-result" onPress={()=>props.onChoose(item)}><label text={item.label} /></Suggestion>)}
 				{results.length === 0 ? <label className="vx-power-search-empty" text="No results" /> : null}
-			</flexboxlayout>
+			</masonview>
 		</Popover>
 		<Popover anchor={anchor} open={!!editing} placement="bottom" onDismiss={()=>props.onCancel()} className="vx-power-search-edit">
 			{editing ? <Editor config={props.config} filter={editing.filter} mode={editing.index<0?'create':'edit'} onSave={props.onSave} onCancel={()=>props.onCancel()} saveButtonLabel={props.popoverSaveButtonLabel} isReadOnly={props.isReadOnly} timezoneID={props.timezoneID} /> : null}
 		</Popover>
 		{status?.message ? <label className={cx('vx-power-search-status', `vx-power-search-status--${status.type}`, `vx-power-search-status--${props.statusVariant ?? 'attached'}`)} text={status.message} /> : null}
-	</flexboxlayout>
+	</masonview>
 }

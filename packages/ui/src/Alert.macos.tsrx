@@ -18,12 +18,7 @@ export function Alert(props: AlertProps) @{
 	const tone = props.tone ?? 'info';
 	const toneColor = TONE_BORDER[tone] ?? '#171717';
 
-	<flexboxlayout
-		ref={(v: any) => applyEscapeProps(v, props)}
-		id={props.id}
-		flexDirection="row"
-		className={cx('vx-alert', 'vx-alert--' + tone, props.className)}
-		style={{
+	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx('vx-alert', 'vx-alert--' + tone, props.className)} style={{
 			borderWidth: 1,
 			borderTopWidth: 1,
 			borderColor: toneColor,
@@ -31,12 +26,11 @@ export function Alert(props: AlertProps) @{
 			borderRadius: 6,
 			borderTopLeftRadius: 6,
 			...(props.style as any),
-		}}
-	>
+		}}>
 		{props.icon ? <Icon name={props.icon} className="vx-alert-icon" /> : null}
-		<flexboxlayout className="vx-alert-body">
+		<masonview display="flex" className="vx-alert-body">
 			{props.title != null ? <label className="vx-alert-title" text={props.title} /> : null}
 			{props.children}
-		</flexboxlayout>
-	</flexboxlayout>
+		</masonview>
+	</masonview>
 }

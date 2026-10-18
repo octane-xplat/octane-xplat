@@ -23,25 +23,11 @@ export function ChatComposerDrawer(props: ChatComposerDrawerProps) @{
 		props.onCollapsedChange?.(next);
 	};
 
-	<flexboxlayout
-		id={props.id}
-		className={cx('vx-chatdrawer', isCollapsed && 'vx-chatdrawer--collapsed', props.className)}
-		style={props.style as any}
-		flexDirection="column"
-	>
+	<masonview display="flex" id={props.id} className={cx('vx-chatdrawer', isCollapsed && 'vx-chatdrawer--collapsed', props.className)} style={props.style as any} flexDirection="column">
 		{canCollapse ? (
-			<flexboxlayout
-				className="vx-chatdrawer-toggle"
-				flexDirection="row"
-				alignItems="center"
-				justifyContent="center"
-				accessibilityRole={nativeAccessibilityRole('button') as any}
-				accessibilityLabel={isCollapsed ? `Expand ${label}` : `Collapse ${label}`}
-				accessibilityState={{ expanded: !isCollapsed } as any}
-				onTap={toggle}
-			>
+			<masonview display="flex" className="vx-chatdrawer-toggle" flexDirection="row" alignItems="center" justifyContent="center" accessibilityRole={nativeAccessibilityRole('button') as any} accessibilityLabel={isCollapsed ? `Expand ${label}` : `Collapse ${label}`} accessibilityState={{ expanded: !isCollapsed } as any} onTap={toggle}>
 				{isCollapsed ? (
-					<flexboxlayout className="vx-chatdrawer-summary" flexDirection="row" alignItems="center">
+					<masonview display="flex" className="vx-chatdrawer-summary" flexDirection="row" alignItems="center">
 						{props.collapsedSummary === undefined ? (
 							<>
 								<Badge className="vx-chatdrawer-badge"><label text={`${props.count}`} /></Badge>
@@ -50,16 +36,16 @@ export function ChatComposerDrawer(props: ChatComposerDrawerProps) @{
 						) : (
 							props.collapsedSummary
 						)}
-					</flexboxlayout>
+					</masonview>
 				) : (
-					<flexboxlayout className="vx-chatdrawer-handle" />
+					<masonview display="flex" className="vx-chatdrawer-handle" />
 				)}
-			</flexboxlayout>
+			</masonview>
 		) : null}
 		{!(canCollapse && isCollapsed) ? (
-			<flexboxlayout className="vx-chatdrawer-inner" flexDirection="row" flexWrap="wrap">
+			<masonview display="flex" className="vx-chatdrawer-inner" flexDirection="row" flexWrap="wrap">
 				{props.children}
-			</flexboxlayout>
+			</masonview>
 		) : null}
-	</flexboxlayout>
+	</masonview>
 }

@@ -17,10 +17,10 @@ function EndLane(props: { lane: BusyIndicatorLane; clear?: any }) @{
 	const isBusy = useSyncExternalStore(props.lane.subscribe, props.lane.getIsBusy);
 	if (!isBusy && props.clear == null) return null;
 
-	<flexboxlayout className="vx-typeahead-endlane" flexDirection="row" alignItems="center">
-		{isBusy ? <flexboxlayout className="vx-typeahead-spinner"><ActivityIndicator busy={true} /></flexboxlayout> : null}
+	<masonview display="flex" className="vx-typeahead-endlane" flexDirection="row" alignItems="center">
+		{isBusy ? <masonview display="flex" className="vx-typeahead-spinner"><ActivityIndicator busy={true} /></masonview> : null}
 		{props.clear}
-	</flexboxlayout>
+	</masonview>
 }
 
 /** Single-selection search-as-you-type field. macOS leaf: the AppKit
@@ -74,21 +74,14 @@ export function Typeahead<T extends SearchableItem,>(props: TypeaheadProps<T>) @
 						inputHandle.current = h;
 					}, props.ref], [props.ref, props.ios, props.android, props.web]);
 
-	const wrapper = <flexboxlayout
-		ref={(v: any) => { wrapperAnchor.current = v; }}
-		className={cx(
+	const wrapper = <masonview display="flex" ref={(v: any) => { wrapperAnchor.current = v; }} className={cx(
 			'vx-typeahead',
 			`vx-typeahead--size-${size}`,
 			props.isDisabled && 'vx-typeahead--disabled',
 			props.status && `vx-typeahead--status-${props.status.type}`,
-		)}
-		flexDirection="row"
-		alignItems="center"
-		onTap={handleWrapperTap}
-		accessibilityState={{ disabled: props.isDisabled }}
-	>
+		)} flexDirection="row" alignItems="center" onTap={handleWrapperTap} accessibilityState={{ disabled: props.isDisabled }}>
 		{startIcon}
-		<gridlayout className="vx-typeahead-content" flexGrow={1}>
+		<masonview display="grid" className="vx-typeahead-content" flexGrow={1}>
 			<BusyLaneProvider value={busyLane}>
 				<BaseTypeahead
 					searchSource={props.searchSource}
@@ -120,14 +113,14 @@ export function Typeahead<T extends SearchableItem,>(props: TypeaheadProps<T>) @
 					className="vx-typeahead-token"
 				/>
 				: null}
-		</gridlayout>
+		</masonview>
 		<EndLane
 			lane={busyLane}
 			clear={props.hasClear !== false && props.value && !props.isDisabled
 				? <Pressable className="vx-input-clear" accessibilityLabel="Clear selection" onPress={handleClear}><label text="×" /></Pressable>
 				: null}
 		/>
-	</flexboxlayout>;
+	</masonview>;
 
 	<FormField
 		id={props.id}

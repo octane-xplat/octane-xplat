@@ -38,7 +38,7 @@ function PortalContextFixture() @{
 
 	<AccountNameProvider value={name}>
 		<rootlayout>
-			<gridlayout>
+			<masonview display="grid">
 				<Pressable testID="portal.update" onPress={() => setName('after')}>
 					<Text>Update context</Text>
 				</Pressable>
@@ -58,7 +58,7 @@ function PortalContextFixture() @{
 						/>
 					</>
 				}
-			</gridlayout>
+			</masonview>
 		</rootlayout>
 	</AccountNameProvider>
 }

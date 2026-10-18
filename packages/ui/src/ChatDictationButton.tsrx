@@ -23,25 +23,14 @@ export function ChatDictationButton(props: ChatDictationButtonProps) @{
 	const accessibleLabel =
 		props.label ?? (isListening ? 'Stop dictation' : 'Start dictation');
 
-	<stacklayout
-		id={props.id}
-		className={cx('vx-chatdict', props.className)}
-		style={props.style as any}
-	>
+	<masonview display="flex" flexDirection="column" id={props.id} className={cx('vx-chatdict', props.className)} style={props.style as any}>
 		{isListening ? (
-			<flexboxlayout
-				className="vx-chatdict-bars"
-				flexDirection="row"
-				alignItems="center"
-				justifyContent="center"
-				horizontalAlignment="center"
-				verticalAlignment="middle"
-			>
+			<masonview display="flex" className="vx-chatdict-bars" flexDirection="row" alignItems="center" justifyContent="center" horizontalAlignment="center" verticalAlignment="middle">
 				{bands.slice(0, BAR_COUNT).map((level) => {
 					const scale = 0.08 + Math.min(Math.pow(level / 0.2, 0.5), 1) * 0.92;
-					return <flexboxlayout className="vx-chatdict-bar" scaleY={scale} />;
+					return <masonview display="flex" className="vx-chatdict-bar" scaleY={scale} />;
 				})}
-			</flexboxlayout>
+			</masonview>
 		) : null}
 		<Pressable
 			className={cx('vx-chatdict-btn', `vx-chatdict-btn--${size}`)}
@@ -52,5 +41,5 @@ export function ChatDictationButton(props: ChatDictationButtonProps) @{
 		>
 			{isListening ? null : <Icon name="xplat-mic" size={size === 'sm' ? 16 : 18} />}
 		</Pressable>
-	</stacklayout>
+	</masonview>
 }

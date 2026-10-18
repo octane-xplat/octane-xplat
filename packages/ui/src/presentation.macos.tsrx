@@ -56,7 +56,7 @@ export function usePresentation(isOpen: boolean, component: any, panelProps: any
 
 	useEffect(() => () => { surface.current?.close(); surface.current = null }, [])
 	return <>
-		<flexboxlayout ref={owner} style={{ width: 0, height: 0 }} />
+		<masonview display="flex" ref={owner} style={{ width: 0, height: 0 }} />
 		{target ? <SurfaceContent target={target} component={component}
 			panelProps={panelProps} dark={dark} committed={() => surface.current?.update({})} /> : null}
 	</>

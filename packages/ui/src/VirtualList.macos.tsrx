@@ -422,49 +422,37 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		onScroll={onScroll}
 		onLayoutChanged={onScrollViewLayout}
 	>
-		<flexboxlayout flexDirection="column">
+		<masonview display="flex" flexDirection="column">
 			@if (props.renderHeader) {
-				<flexboxlayout
-					className="vx-virtual-list-header"
-					flexDirection="column"
-					onLayoutChanged={onHeaderLayout}
-				>
+				<masonview display="flex" className="vx-virtual-list-header" flexDirection="column" onLayoutChanged={onHeaderLayout}>
 					{props.renderHeader()}
-				</flexboxlayout>
+				</masonview>
 			}
 			@if (entries.length === 0) {
 				@if (props.renderEmpty) {
-					<flexboxlayout className="vx-virtual-list-empty" flexDirection="column">
+					<masonview display="flex" className="vx-virtual-list-empty" flexDirection="column">
 						{props.renderEmpty()}
-					</flexboxlayout>
+					</masonview>
 				}
 			} @else {
-				<flexboxlayout flexDirection="column">
-					<flexboxlayout
-						className="vx-virtual-list-spacer"
-						style={{ height: range.top }}
-						ref={(view: any) => {
+				<masonview display="flex" flexDirection="column">
+					<masonview display="flex" className="vx-virtual-list-spacer" style={{ height: range.top }} ref={(view: any) => {
 							topSpacerRef.current = view
-						}}
-					/>
+						}} />
 					@for (const entry of visibleEntries; key entry.rowKey) {
-						<flexboxlayout
-							flexDirection="column"
-							className="vx-virtual-list-row"
-							onLayoutChanged={(event: AppKitLayoutEvent) => onRowLayout(entry, event)}
-						>
+						<masonview display="flex" flexDirection="column" className="vx-virtual-list-row" onLayoutChanged={(event: AppKitLayoutEvent) => onRowLayout(entry, event)}>
 							{props.renderItem(entry.item, entry.index)}
 							{hasSeparator && entry.index < entries.length - 1 ? props.renderSeparator?.() : null}
-						</flexboxlayout>
+						</masonview>
 					}
-					<flexboxlayout className="vx-virtual-list-spacer" style={{ height: range.bottom }} />
-				</flexboxlayout>
+					<masonview display="flex" className="vx-virtual-list-spacer" style={{ height: range.bottom }} />
+				</masonview>
 			}
 			@if (props.renderFooter) {
-				<flexboxlayout className="vx-virtual-list-footer" flexDirection="column">
+				<masonview display="flex" className="vx-virtual-list-footer" flexDirection="column">
 					{props.renderFooter()}
-				</flexboxlayout>
+				</masonview>
 			}
-		</flexboxlayout>
+		</masonview>
 	</scrollview>;
 }

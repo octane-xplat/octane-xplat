@@ -10,14 +10,7 @@ import { applyEscapeProps } from './escape-props'
 export function VisuallyHidden(props: VisuallyHiddenProps) @{
 	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
-	<flexboxlayout
-		id={props.id}
-		ref={forwardedRef}
-		className="vx-visually-hidden"
-		accessibilityLabel={props.accessibilityLabel}
-		accessibilityRole={props.accessibilityRole}
-		accessibilityHint={props.accessibilityHint}
-	>
+	<masonview display="flex" id={props.id} ref={forwardedRef} className="vx-visually-hidden" accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole} accessibilityHint={props.accessibilityHint}>
 		{props.children}
-	</flexboxlayout>
+	</masonview>
 }

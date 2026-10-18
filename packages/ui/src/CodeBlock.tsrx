@@ -97,17 +97,12 @@ export function CodeBlock(props: CodeBlockProps) @{
 	const hasHeader = props.title != null || hasLanguageLabel || hasCopyButton || canCollapse;
 
 	const body = (
-		<stacklayout className="vx-codeblock-body" style={{ paddingTop: 8, paddingBottom: 8, paddingLeft: 12, paddingRight: 12 }}>
+		<masonview display="flex" flexDirection="column" className="vx-codeblock-body" style={{ paddingTop: 8, paddingBottom: 8, paddingLeft: 12, paddingRight: 12 }}>
 			{lines.map((line, i) => {
 				const lineNo = i + 1;
 				const isHl = highlighted.has(lineNo);
 				return (
-					<flexboxlayout
-						key={lineNo}
-						flexDirection="row"
-						className={cx('vx-codeblock-line', isHl && 'vx-codeblock-line--highlighted')}
-					style={isHl ? { backgroundColor: nativeColor(scheme === 'dark' ? '#2e2e2e' : '#f0f0f0') } : undefined}
-					>
+					<masonview display="flex" key={lineNo} flexDirection="row" className={cx('vx-codeblock-line', isHl && 'vx-codeblock-line--highlighted')} style={isHl ? { backgroundColor: nativeColor(scheme === 'dark' ? '#2e2e2e' : '#f0f0f0') } : undefined}>
 						{hasLineNumbers ? (
 							<label
 								className="vx-codeblock-gutter"
@@ -125,34 +120,22 @@ export function CodeBlock(props: CodeBlockProps) @{
 							fontSize={fontSize}
 							wrap={isWrapped}
 						/>
-					</flexboxlayout>
+					</masonview>
 				);
 			})}
-		</stacklayout>
+		</masonview>
 	);
 
-	<flexboxlayout
-		ref={(v: any) => applyEscapeProps(v, props)}
-		id={props.id}
-		className={cx(
+	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx(
 			'vx-codeblock',
 			`vx-codeblock--${container}`,
 			`vx-codeblock--${size}`,
 			collapsed && 'vx-codeblock--collapsed',
 			props.className,
-		)}
-		style={{ flexDirection: 'column', ...(props.style as any) }}
-		flexDirection="column"
-	>
+		)} style={{ flexDirection: 'column', ...(props.style as any) }} flexDirection="column">
 		{hasHeader ? (
-			<flexboxlayout
-				className="vx-codeblock-header"
-				flexDirection="row"
-				justifyContent="space-between"
-				alignItems="center"
-				style={{ paddingTop: 6, paddingBottom: 6, paddingLeft: 12, paddingRight: 12 }}
-			>
-				<flexboxlayout flexDirection="row" alignItems="center" style={{ gap: 8 }}>
+			<masonview display="flex" className="vx-codeblock-header" flexDirection="row" justifyContent="space-between" alignItems="center" style={{ paddingTop: 6, paddingBottom: 6, paddingLeft: 12, paddingRight: 12 }}>
+				<masonview display="flex" flexDirection="row" alignItems="center" style={{ gap: 8 }}>
 					{props.title != null ? (
 						<label
 							className="vx-codeblock-title"
@@ -171,8 +154,8 @@ export function CodeBlock(props: CodeBlockProps) @{
 							{language}
 						</label>
 					) : null}
-				</flexboxlayout>
-				<flexboxlayout flexDirection="row" alignItems="center" style={{ gap: 4 }}>
+				</masonview>
+				<masonview display="flex" flexDirection="row" alignItems="center" style={{ gap: 4 }}>
 					{hasCopyButton ? (
 						<Pressable
 							className="vx-codeblock-copy"
@@ -196,13 +179,13 @@ export function CodeBlock(props: CodeBlockProps) @{
 							<Icon name={isExpanded ? 'xplat-chevron-up' : 'xplat-chevron-down'} size={14} />
 						</Pressable>
 					) : null}
-				</flexboxlayout>
-			</flexboxlayout>
+				</masonview>
+			</masonview>
 		) : null}
 		{collapsed ? null : props.maxHeight != null ? (
 			<scrollview height={props.maxHeight as any}>{body}</scrollview>
 		) : (
 			body
 		)}
-	</flexboxlayout>
+	</masonview>
 }

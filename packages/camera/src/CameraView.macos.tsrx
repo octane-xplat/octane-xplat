@@ -76,20 +76,5 @@ export function CameraView(props: CameraViewProps) @{
 
 	useEffect(() => observePreviewTap(host.current, props.onTap), [props.onTap])
 
-	<gridlayout
-		ref={bindHost}
-		id={props.id}
-		rows="*"
-		columns="*"
-		className={['vx-layers', 'vx-cameraview', props.className]}
-		style={{ backgroundColor: '#000000', ...props.style }}
-		{...layoutChildProps(props)}
-		accessible={props.accessible}
-		accessibilityLabel={props.accessibilityLabel}
-		accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}
-		accessibilityHint={props.accessibilityHint}
-		accessibilityValue={props.accessibilityValue}
-		accessibilityState={nativeAccessibilityState(props.accessibilityState) as any}
-		accessibilityLiveRegion={props.accessibilityLiveRegion as any}
-	/>
+	<masonview display="grid" gridTemplateRows="1fr" gridTemplateColumns="1fr" ref={bindHost} id={props.id} className={['vx-layers', 'vx-cameraview', props.className]} style={{ backgroundColor: '#000000', ...props.style }} {...layoutChildProps(props)} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any} />
 }

@@ -70,12 +70,12 @@ let layer: any = null
 function Probe(props: { fixed?: boolean }) {
 	layer = useLayer({ mode: props.fixed ? 'fixed' : 'context' })
 	return (
-		<stacklayout>
+		<masonview display="flex" flexDirection="column">
 			{layer.render(
-				<gridlayout />,
+				<masonview display="grid" />,
 				props.fixed ? { x: 10, y: 20 } : { placement: 'below' },
 			)}
-		</stacklayout>
+		</masonview>
 	)
 }
 

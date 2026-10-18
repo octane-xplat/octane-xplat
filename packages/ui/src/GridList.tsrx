@@ -10,7 +10,7 @@ import { layoutChildProps } from './layout-child'
 import { refList } from './ref-list'
 
 /** GridList native leaf — same props as web. Cells are Pressables in a
- *  wrapping flexboxlayout (`columns` gives each cell a percentage width);
+ *  wrapping masonview (`columns` gives each cell a percentage width);
  *  arrow-key navigation and roving tabindex are web-only by platform
  *  nature. Tap activates onAction and toggles selection per the shared
  *  grid-list-selection mapping (no Shift-range on touch). */
@@ -59,22 +59,7 @@ export function GridList<T = any>(props: GridListProps<T>) @{
 		props.onSelectionChange?.(next.selection)
 	}
 
-	<flexboxlayout
-		id={props.id}
-		testID={props.testID ?? ''}
-		ref={forwardedRef}
-		{...layoutChildProps(props)}
-		className={cx('vx-gridlist', isGrid ? undefined : 'vx-gridlist--stack', props.className)}
-		flexDirection="row"
-		flexWrap={isGrid ? 'wrap' : 'nowrap'}
-		accessible={props.accessible}
-		accessibilityLabel={props.accessibilityLabel}
-		accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}
-		accessibilityHint={props.accessibilityHint}
-		accessibilityValue={props.accessibilityValue}
-		accessibilityState={props.accessibilityState as any}
-		accessibilityLiveRegion={props.accessibilityLiveRegion as any}
-	>
+	<masonview display="flex" id={props.id} testID={props.testID ?? ''} ref={forwardedRef} {...layoutChildProps(props)} className={cx('vx-gridlist', isGrid ? undefined : 'vx-gridlist--stack', props.className)} flexDirection="row" flexWrap={isGrid ? 'wrap' : 'nowrap'} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={props.accessibilityState as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
 		@for (const entry of props.items.map((item, index) => ({ item, index, key: keys[index] })); key entry.key) {
 			<Pressable
 				className={cx(
@@ -100,5 +85,5 @@ export function GridList<T = any>(props: GridListProps<T>) @{
 			</Pressable>
 		}
 		{props.items.length === 0 && props.renderEmpty ? props.renderEmpty() : null}
-	</flexboxlayout>
+	</masonview>
 }

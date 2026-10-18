@@ -36,7 +36,7 @@ export function InputProbe() @{
 	};
 
 	<KeyboardAvoiding>
-		<flexboxlayout flexDirection="column" style={{ padding: 20, gap: 10 }}>
+		<masonview display="flex" flexDirection="column" style={{ padding: 20, gap: 10 }}>
 			<label text="Input readiness probe" fontSize={24} />
 			<label text={'Changes: ' + changes} />
 			<TextInput
@@ -53,6 +53,6 @@ export function InputProbe() @{
 			<button text="Blur input" onTap={() => { input.current.blur(); setTimeout(() => dump('after blur'), 300); }} />
 			<button text="Reset input" onTap={() => { setValue('hello'); setChanges(0); }} />
 			<button text="Inspect input" onTap={() => dump('inspect')} />
-		</flexboxlayout>
+		</masonview>
 	</KeyboardAvoiding>
 }

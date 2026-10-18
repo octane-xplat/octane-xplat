@@ -12,14 +12,7 @@ import { followHref } from './nav-href';
 export function NavigationMenu(props: NavigationMenuProps) @{
 	const isHorizontal = props.horizontal !== false;
 
-	<flexboxlayout
-		ref={(v: any) => applyEscapeProps(v, props)}
-		id={props.id}
-		flexDirection={isHorizontal ? 'row' : 'column'}
-		className={cx('vx-navmenu-strip', !isHorizontal && 'vx-navmenu-strip--vertical', props.className)}
-		style={props.style as any}
-		accessibilityLabel={props.accessibilityLabel}
-	>
+	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection={isHorizontal ? 'row' : 'column'} className={cx('vx-navmenu-strip', !isHorizontal && 'vx-navmenu-strip--vertical', props.className)} style={props.style as any} accessibilityLabel={props.accessibilityLabel}>
 		@for (const item of props.items; key item.key) {
 			<Pressable
 				className={cx('vx-navmenu-strip-item', item.active && 'vx-navmenu-strip-item--active')}
@@ -32,11 +25,11 @@ export function NavigationMenu(props: NavigationMenuProps) @{
 					if (item.href) followHref(item.href);
 				}}
 			>
-				<flexboxlayout flexDirection="row" alignItems="center" gap={6}>
+				<masonview display="flex" flexDirection="row" alignItems="center" gap={6}>
 					{item.icon ? <Icon name={item.icon} size={16} /> : null}
 					<Text>{item.label}</Text>
-				</flexboxlayout>
+				</masonview>
 			</Pressable>
 		}
-	</flexboxlayout>
+	</masonview>
 }

@@ -22,12 +22,7 @@ export function SafeArea(props: SafeAreaProps) @{
 	const edges = resolveSafeAreaEdges(props.edges, props.ignoreSafeArea);
 	const { applied, provided } = consumeInsets(measured, ancestor, edges);
 
-	<flexboxlayout
-		id={props.id}
-		ref={(host: any) => applyEscapeProps(host, props)}
-		className={cx('vx-safe-area', props.className)}
-		style={{ ...(props.style as any), paddingTop: applied.top, paddingRight: applied.right, paddingBottom: applied.bottom, paddingLeft: applied.left }}
-	>
+	<masonview display="flex" id={props.id} ref={(host: any) => applyEscapeProps(host, props)} className={cx('vx-safe-area', props.className)} style={{ ...(props.style as any), paddingTop: applied.top, paddingRight: applied.right, paddingBottom: applied.bottom, paddingLeft: applied.left }}>
 		<ConsumedInsetsProvider value={provided}>{props.children}</ConsumedInsetsProvider>
-	</flexboxlayout>
+	</masonview>
 }

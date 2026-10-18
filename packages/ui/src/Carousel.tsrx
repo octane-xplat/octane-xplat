@@ -145,14 +145,7 @@ export function Carousel(props: CarouselProps) @{
 		};
 	}, [count, measure, props.hasSnap, offsets]);
 
-	<gridlayout
-		className={cx('vx-carousel', props.className)}
-		style={props.style as any}
-		id={props.id}
-		rows="*"
-		columns="*"
-		accessibilityLabel={props.accessibilityLabel ?? props.label}
-	>
+	<masonview display="grid" gridTemplateRows="1fr" gridTemplateColumns="1fr" className={cx('vx-carousel', props.className)} style={props.style as any} id={props.id} accessibilityLabel={props.accessibilityLabel ?? props.label}>
 		<scrollview
 			ref={(v: any) => {
 				scroller.current = v;
@@ -162,42 +155,24 @@ export function Carousel(props: CarouselProps) @{
 			className="vx-carousel-viewport"
 			scrollBarIndicatorVisible={false}
 		>
-			<flexboxlayout
-				ref={(v: any) => {
+			<masonview display="flex" ref={(v: any) => {
 					track.current = v;
-				}}
-				flexDirection="row"
-				className="vx-carousel-track"
-				style={{ columnGap: gap }}
-			>
+				}} flexDirection="row" className="vx-carousel-track" style={{ columnGap: gap }}>
 				{mapChildren(items, (child: any, i: number) => (
-					<flexboxlayout
-						className={cx(
+					<masonview display="flex" className={cx(
 							'vx-carousel-slide',
 							props.variant === 'proportional' && 'vx-carousel-slide--prop',
-						)}
-						accessibilityLabel={`Slide ${i + 1} of ${count}`}
-					>
+						)} accessibilityLabel={`Slide ${i + 1} of ${count}`}>
 						{child}
-					</flexboxlayout>
+					</masonview>
 				))}
-			</flexboxlayout>
+			</masonview>
 		</scrollview>
 		{props.hasEdgeFade && !atStart && (
-			<flexboxlayout
-				className="vx-carousel-fade vx-carousel-fade-start"
-				verticalAlignment="stretch"
-				horizontalAlignment="left"
-				isUserInteractionEnabled={false}
-			/>
+			<masonview display="flex" className="vx-carousel-fade vx-carousel-fade-start" isUserInteractionEnabled={false} style={{justifySelf: 'start', alignSelf: 'stretch'}} />
 		)}
 		{props.hasEdgeFade && !atEnd && (
-			<flexboxlayout
-				className="vx-carousel-fade vx-carousel-fade-end"
-				verticalAlignment="stretch"
-				horizontalAlignment="right"
-				isUserInteractionEnabled={false}
-			/>
+			<masonview display="flex" className="vx-carousel-fade vx-carousel-fade-end" isUserInteractionEnabled={false} style={{justifySelf: 'end', alignSelf: 'stretch'}} />
 		)}
 		{props.hasButtons && (
 			<>
@@ -219,5 +194,5 @@ export function Carousel(props: CarouselProps) @{
 				</Pressable>
 			</>
 		)}
-	</gridlayout>
+	</masonview>
 }

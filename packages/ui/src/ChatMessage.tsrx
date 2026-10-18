@@ -23,32 +23,16 @@ export function ChatMessage(props: ChatMessageProps) @{
 	const hasMetadata = renderable(props.metadata) && !isSystem;
 
 	<ChatMessageProvider value={contextValue}>
-		<flexboxlayout
-			id={props.id}
-			className={cx('vx-chatmsg', `vx-chatmsg--${props.sender}`, `vx-chatmsg--${density}`, props.className)}
-			style={props.style as any}
-			flexDirection="row"
-			justifyContent={isSystem ? 'center' : 'flex-start'}
-			accessibilityLabel={props.accessibilityLabel ?? (!hasName ? `Message from ${props.sender}` : undefined)}
-		>
-			{hasAvatar && !isUser ? <flexboxlayout className="vx-chatmsg-avatar">{props.avatar}</flexboxlayout> : null}
-			<flexboxlayout
-				className={cx('vx-chatmsg-content', `vx-chatmsg-content--${props.sender}`)}
-				flexDirection="column"
-				flexGrow={1}
-				alignItems={isSystem ? 'center' : isUser ? 'flex-end' : 'flex-start'}
-			>
-				{hasName ? <flexboxlayout className="vx-chatmsg-name">{props.name}</flexboxlayout> : null}
-				<flexboxlayout
-					className={cx('vx-chatmsg-children', `vx-chatmsg-children--${props.sender}`, `vx-chatmsg-children--${density}`)}
-					flexDirection="column"
-					alignItems={isSystem ? 'center' : isUser ? 'flex-end' : 'flex-start'}
-				>
+		<masonview display="flex" id={props.id} className={cx('vx-chatmsg', `vx-chatmsg--${props.sender}`, `vx-chatmsg--${density}`, props.className)} style={props.style as any} flexDirection="row" justifyContent={isSystem ? 'center' : 'flex-start'} accessibilityLabel={props.accessibilityLabel ?? (!hasName ? `Message from ${props.sender}` : undefined)}>
+			{hasAvatar && !isUser ? <masonview display="flex" className="vx-chatmsg-avatar">{props.avatar}</masonview> : null}
+			<masonview display="flex" className={cx('vx-chatmsg-content', `vx-chatmsg-content--${props.sender}`)} flexDirection="column" flexGrow={1} alignItems={isSystem ? 'center' : isUser ? 'flex-end' : 'flex-start'}>
+				{hasName ? <masonview display="flex" className="vx-chatmsg-name">{props.name}</masonview> : null}
+				<masonview display="flex" className={cx('vx-chatmsg-children', `vx-chatmsg-children--${props.sender}`, `vx-chatmsg-children--${density}`)} flexDirection="column" alignItems={isSystem ? 'center' : isUser ? 'flex-end' : 'flex-start'}>
 					{props.children}
-				</flexboxlayout>
-				{hasMetadata ? <flexboxlayout className="vx-chatmsg-meta">{props.metadata}</flexboxlayout> : null}
-			</flexboxlayout>
-			{hasAvatar && isUser ? <flexboxlayout className="vx-chatmsg-avatar">{props.avatar}</flexboxlayout> : null}
-		</flexboxlayout>
+				</masonview>
+				{hasMetadata ? <masonview display="flex" className="vx-chatmsg-meta">{props.metadata}</masonview> : null}
+			</masonview>
+			{hasAvatar && isUser ? <masonview display="flex" className="vx-chatmsg-avatar">{props.avatar}</masonview> : null}
+		</masonview>
 	</ChatMessageProvider>
 }

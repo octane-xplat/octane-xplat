@@ -96,16 +96,16 @@ export function Timestamp(props: TimestampProps) @{
 	return lines.length > 0 ? (
 		<HoverCard
 			content={
-				<flexboxlayout flexDirection="column" style={{ padding: 8, gap: 4 }}>
+				<masonview display="flex" flexDirection="column" style={{ padding: 8, gap: 4 }}>
 					{lines.map((line, i) => (
-						<flexboxlayout key={i} flexDirection="row" style={{ gap: 8 }}>
+						<masonview display="flex" key={i} flexDirection="row" style={{ gap: 8 }}>
 							{line.label != null ? (
 								<label className="text-sm text-muted" text={line.label} />
 							) : null}
 							<label className="text-sm" text={line.value} />
-						</flexboxlayout>
+						</masonview>
 					))}
-				</flexboxlayout>
+				</masonview>
 			}
 			placement="above"
 		>

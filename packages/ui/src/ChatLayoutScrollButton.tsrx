@@ -13,12 +13,7 @@ export function ChatLayoutScrollButton(props: ChatLayoutScrollButtonProps) @{
 		return null;
 	}
 
-	<flexboxlayout
-		id={props.id}
-		className={cx('vx-chatscroll-wrap', props.className)}
-		style={props.style as any}
-		justifyContent="center"
-	>
+	<masonview display="flex" id={props.id} className={cx('vx-chatscroll-wrap', props.className)} style={props.style as any} justifyContent="center">
 		<Pressable
 			className={cx('vx-chatscroll', props.label ? 'vx-chatscroll--expanded' : 'vx-chatscroll--collapsed')}
 			accessibilityRole="button"
@@ -28,5 +23,5 @@ export function ChatLayoutScrollButton(props: ChatLayoutScrollButtonProps) @{
 			<Icon name="xplat-chevron-down" size={16} />
 			{props.label ? <label className="vx-chatscroll-label" text={props.label} /> : null}
 		</Pressable>
-	</flexboxlayout>
+	</masonview>
 }

@@ -12,20 +12,13 @@ export function ChatTokenizedText(props: ChatTokenizedTextProps) @{
 	const text = props.children ?? '';
 	if (!text || !props.tokens || props.tokens.length === 0) {
 		return (
-			<flexboxlayout id={props.id} className={cx('vx-chattext', props.className)} style={props.style as any} flexDirection="row" flexWrap="wrap">
+			<masonview display="flex" id={props.id} className={cx('vx-chattext', props.className)} style={props.style as any} flexDirection="row" flexWrap="wrap">
 				<label text={text} />
-			</flexboxlayout>
+			</masonview>
 		);
 	}
 
-	<flexboxlayout
-		id={props.id}
-		className={cx('vx-chattext', props.className)}
-		style={props.style as any}
-		flexDirection="row"
-		flexWrap="wrap"
-		alignItems="center"
-	>
+	<masonview display="flex" id={props.id} className={cx('vx-chattext', props.className)} style={props.style as any} flexDirection="row" flexWrap="wrap" alignItems="center">
 		{tokenizeChatText(text, props.tokens).map((part) =>
 			part.kind === 'token' ? (
 				<ChatTokenChip token={part.token} />
@@ -33,5 +26,5 @@ export function ChatTokenizedText(props: ChatTokenizedTextProps) @{
 				<label text={part.text} textWrap={true} />
 			),
 		)}
-	</flexboxlayout>
+	</masonview>
 }

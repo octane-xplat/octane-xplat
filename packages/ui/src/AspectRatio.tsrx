@@ -21,36 +21,19 @@ export function AspectRatio(props: AspectRatioProps) @{
 
 	const hostRef = useMemo(() => refList((view: any) => applyEscapeProps(view, props), ref, props.ref), [ref, props.ref, props.ios, props.android, props.web])
 
-	<flexboxlayout
-		id={props.id}
-		ref={hostRef}
-		className={cx(
+	<masonview display="flex" id={props.id} ref={hostRef} className={cx(
 			'vx-aspectratio',
 			`vx-aspectratio-fit-${fit}`,
 			ellipse && 'vx-aspectratio--ellipse',
 			props.className,
-		)}
-		style={{
+		)} style={{
 			width: '100%',
 			...(derivedHeight !== undefined ? { height: derivedHeight } : {}),
 			...(ellipse ? { borderRadius: '50%' as any } : {}),
 			...(props.style as any),
-		}}
-		accessible={props.accessible}
-		accessibilityLabel={props.accessibilityLabel}
-		accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}
-		accessibilityHint={props.accessibilityHint}
-		accessibilityValue={props.accessibilityValue}
-		accessibilityState={nativeAccessibilityState(props.accessibilityState) as any}
-		accessibilityLiveRegion={props.accessibilityLiveRegion as any}
-	>
-		<flexboxlayout
-			className="vx-aspectratio-content"
-			justifyContent={(fit !== 'cover' ? 'center' : undefined) as any}
-			alignItems={(fit !== 'cover' ? 'center' : undefined) as any}
-			style={{ flexGrow: 1 }}
-		>
+		}} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
+		<masonview display="flex" className="vx-aspectratio-content" justifyContent={(fit !== 'cover' ? 'center' : undefined) as any} alignItems={(fit !== 'cover' ? 'center' : undefined) as any} style={{ flexGrow: 1 }}>
 			{props.children}
-		</flexboxlayout>
-	</flexboxlayout>
+		</masonview>
+	</masonview>
 }

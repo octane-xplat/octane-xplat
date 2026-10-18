@@ -10,6 +10,6 @@ import { Pressable } from './Pressable';
  */
 export function Link(props: LinkProps) @{
 	<Pressable id={props.id} accessibilityRole={props.accessibilityRole ?? 'link'} className={props.className} style={props.style} onPress={() => { props.onPress?.(); Utils.openUrl(props.href); }}>
-		<flexboxlayout flexDirection="row">{props.children}</flexboxlayout>
+		<masonview display="flex" flexDirection="row">{props.children}</masonview>
 	</Pressable>
 }

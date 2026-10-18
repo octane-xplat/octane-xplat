@@ -14,7 +14,7 @@ function ContentOutlet(props: { owner: ContentOwner }) {
 	const entries = useSyncExternalStore(props.owner.entries.subscribe, props.owner.entries.getSnapshot, props.owner.entries.getSnapshot)
 	useEffect(() => () => props.owner.dispose(), [props.owner])
 	return <>
-		<flexboxlayout ref={(view: any) => { props.owner.host = view }} style={{ width: 0, height: 0 }} />
+		<masonview display="flex" ref={(view: any) => { props.owner.host = view }} style={{ width: 0, height: 0 }} />
 		{entries.map(entry => <OwnedEntry key={entry.id} entry={entry} />)}
 	</>
 }

@@ -41,23 +41,23 @@ export function AlertDialog(props: AlertDialogProps) @{
 			ios={props.ios}
 			android={props.android}
 		>
-			<flexboxlayout flexDirection="column" className="vx-alertdialog-title">
+			<masonview display="flex" flexDirection="column" className="vx-alertdialog-title">
 				{typeof props.title === 'string' ? (
 					<label className="vx-alertdialog-heading" textWrap={true}>{props.title}</label>
 				) : (
 					props.title
 				)}
-			</flexboxlayout>
+			</masonview>
 			{props.description != null && (
-				<flexboxlayout className="vx-alertdialog-desc">
+				<masonview display="flex" className="vx-alertdialog-desc">
 					{typeof props.description === 'string' ? (
 						<Text>{props.description}</Text>
 					) : (
 						props.description
 					)}
-				</flexboxlayout>
+				</masonview>
 			)}
-			<flexboxlayout flexDirection="row" justifyContent="flex-end" className="vx-alertdialog-actions">
+			<masonview display="flex" flexDirection="row" justifyContent="flex-end" className="vx-alertdialog-actions">
 				<Button
 					className="btn btn-secondary"
 					clickAction={() => requestChange(false)}
@@ -72,7 +72,7 @@ export function AlertDialog(props: AlertDialogProps) @{
 				>
 					{props.actionLabel}
 				</Button>
-			</flexboxlayout>
+			</masonview>
 		</Dialog>
 	);
 }

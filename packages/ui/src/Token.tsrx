@@ -75,15 +75,7 @@ export function Token(props: TokenProps) @{
 
 	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
-	return <flexboxlayout
-		ref={forwardedRef}
-		id={props.id}
-		className={classes}
-		style={props.style as any}
-		accessibilityLabel={props.isLabelHidden ? props.label : undefined}
-		accessibilityHint={props.description}
-		accessibilityState={a11yState}
-	>
+	return <masonview display="flex" ref={forwardedRef} id={props.id} className={classes} style={props.style as any} accessibilityLabel={props.isLabelHidden ? props.label : undefined} accessibilityHint={props.description} accessibilityState={a11yState}>
 		{content}
-	</flexboxlayout>
+	</masonview>
 }

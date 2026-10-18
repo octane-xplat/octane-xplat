@@ -19,13 +19,9 @@ export function ChatTokenChip(props: { token: ChatComposerToken; className?: any
 
 	const variant = token.variant ?? 'neutral';
 
-	<flexboxlayout
-		className={cx('vx-chat-token', `vx-chattoken--${variant}`, props.className)}
-		flexDirection="row"
-		alignItems="center"
-	>
+	<masonview display="flex" className={cx('vx-chat-token', `vx-chattoken--${variant}`, props.className)} flexDirection="row" alignItems="center">
 		{token.icon ? <Icon name={token.icon} size={12} /> : null}
 		<label className="vx-chattoken-label" text={typeof token.label === 'string' ? token.label : ''} textWrap={false} />
 		{typeof token.label === 'string' ? null : token.label}
-	</flexboxlayout>
+	</masonview>
 }

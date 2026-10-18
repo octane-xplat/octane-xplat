@@ -73,26 +73,14 @@ export function ChatMessageList(props: ChatMessageListProps) @{
 	const gap = props.gap ?? DENSITY_GAP[density];
 
 	<ChatListProvider value={contextValue}>
-		<flexboxlayout
-			id={props.id}
-			className={cx('vx-chatlist', `vx-chatlist--${density}`, props.className)}
-			style={props.style as any}
-			flexDirection="column"
-			accessibilityLiveRegion={"polite" as any}
-		>
-			<flexboxlayout
-				ref={(v: any) => { innerRef.current = v; }}
-				className="vx-chatlist-inner"
-				flexDirection="column"
-				flexGrow={1}
-				gap={gap}
-			>
+		<masonview display="flex" id={props.id} className={cx('vx-chatlist', `vx-chatlist--${density}`, props.className)} style={props.style as any} flexDirection="column" accessibilityLiveRegion={"polite" as any}>
+			<masonview display="flex" ref={(v: any) => { innerRef.current = v; }} className="vx-chatlist-inner" flexDirection="column" flexGrow={1} gap={gap}>
 				{isLoadingTop ? (
-					<flexboxlayout className="vx-chatlist-loading" justifyContent="center">
+					<masonview display="flex" className="vx-chatlist-loading" justifyContent="center">
 						<ActivityIndicator />
-					</flexboxlayout>
+					</masonview>
 				) : null}
-				{props.align !== 'top' ? <flexboxlayout className="vx-chatlist-spacer" flexGrow={1} /> : null}
+				{props.align !== 'top' ? <masonview display="flex" className="vx-chatlist-spacer" flexGrow={1} /> : null}
 				{hasMessages ? (
 					props.messages!.map((m) =>
 						props.renderMessage ? props.renderMessage(m) : <DefaultMessageRender message={m} />,
@@ -100,11 +88,11 @@ export function ChatMessageList(props: ChatMessageListProps) @{
 				) : hasChildren ? (
 					props.children
 				) : renderable(props.emptyState) ? (
-					<flexboxlayout className="vx-chatlist-empty" alignItems="center" justifyContent="center" flexGrow={1}>
+					<masonview display="flex" className="vx-chatlist-empty" alignItems="center" justifyContent="center" flexGrow={1}>
 						{props.emptyState}
-					</flexboxlayout>
+					</masonview>
 				) : null}
-			</flexboxlayout>
-		</flexboxlayout>
+			</masonview>
+		</masonview>
 	</ChatListProvider>
 }

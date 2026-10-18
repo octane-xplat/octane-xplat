@@ -166,7 +166,7 @@ export interface PlatformIconChoice {
 }
 
 /** Flex-container props shared by View/Row/Pressable — RN vocabulary, applied
- *  to the host flexboxlayout natively and the element's style on web.
+ *  to the host masonview natively and the element's style on web.
  *  `gap` is a dip number (px on web); NS supports it on FlexboxLayout only
  *  (GridLayout has no gap). */
 export interface FlexContainerProps {
@@ -10472,7 +10472,7 @@ export interface ListItemProps extends AccessibilityProps {
  *  Not virtualized (that's `VirtualList`, which stays 1D): items render
  *  eagerly into a CSS grid on web (`role="grid"` > `role="row"` >
  *  `role="gridcell"`, roving tabindex, arrows move by measured column
- *  count) and a wrapping flexboxlayout of Pressable cells on native.
+ *  count) and a wrapping masonry flex container of Pressable cells on native.
  *  Selection mirrors RA: `selectionMode` gates it, `selectedKeys` is the
  *  controlled form (`'all' | Iterable<Key>`), `onAction` fires on
  *  activation whether or not selection is enabled.

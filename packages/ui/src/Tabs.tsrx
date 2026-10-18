@@ -27,21 +27,14 @@ export function Tabs(props: TabsProps) @{
 	const route = useRoute(tab?.stack ?? '');
 	const Screen = route ? screenFor(route.name) : undefined;
 
-	<gridlayout rows="auto,*" id={props.id} className={cx(props.className)} style={props.style as any}>
-		<TabList
-			row={0}
-			className="vx-tabbar"
-			role="tablist"
-			layout="fill"
-			hasDivider
-			value={selectedKey}
-			onChange={(key) => { setInternal(key); props.onSelectionChange?.(key); props.onSelectedIndexChanged?.(props.tabs.findIndex((t, i) => keyFor(t, i) === key)); }}
-		>
+	<masonview display="grid" gridTemplateRows="auto 1fr" id={props.id} className={cx(props.className)} style={props.style as any}>
+		<TabList className="vx-tabbar" role="tablist" layout="fill" hasDivider
+			 value={selectedKey} onChange={(key) => { setInternal(key); props.onSelectionChange?.(key); props.onSelectedIndexChanged?.(props.tabs.findIndex((t, i) => keyFor(t, i) === key)); }} style={{gridRow: '1'}}>
 			@for (const t of props.tabs; index i; key t.key ?? t.title) {
 				<Tab value={keyFor(t, i)} label={t.title} icon={t.icon} />
 			}
 		</TabList>
-		<gridlayout row={1} className={cx('vx-tabpane', route?.presentation === 'fade' ? 'vx-route--fade' : '')}>
+		<masonview display="grid" className={cx('vx-tabpane', route?.presentation === 'fade' ? 'vx-route--fade' : '')} style={{gridRow: '2'}}>
 			@if (route && Screen) {
 				<RouteHost
 					screen={Screen}
@@ -53,6 +46,6 @@ export function Tabs(props: TabsProps) @{
 			} @else {
 				<>{tab?.render()}</>
 			}
-		</gridlayout>
-	</gridlayout>
+		</masonview>
+	</masonview>
 }

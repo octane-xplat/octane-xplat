@@ -27,11 +27,8 @@ export function KeyboardAvoiding(props: KeyboardAvoidingProps) @{
 		style={props.style as any}
 		ref={(host: any) => { if (host && platformProps) Object.assign(host, platformProps); }}
 	>
-		<flexboxlayout
-			flexDirection="column"
-			style={paddingBottom ? { paddingBottom } : undefined}
-		>
+		<masonview display="flex" flexDirection="column" style={paddingBottom ? { paddingBottom } : undefined}>
 			{props.children}
-		</flexboxlayout>
+		</masonview>
 	</scrollview>
 }

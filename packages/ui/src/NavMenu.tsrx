@@ -32,15 +32,9 @@ export function NavHeadingMenu(props: NavHeadingMenuProps) @{
 	const minWidth = props.minWidth != null ? (typeof props.minWidth === 'number' ? props.minWidth : undefined) : MIN_WIDTHS[size];
 
 	<NavHeadingMenuProvider value={ctx}>
-		<flexboxlayout
-			ref={(v: any) => applyEscapeProps(v, props)}
-			id={props.id}
-			flexDirection="column"
-			className={cx('vx-navmenu', 'vx-navmenu--' + size, props.className)}
-			style={{ ...(props.style as any), minWidth }}
-		>
+		<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="column" className={cx('vx-navmenu', 'vx-navmenu--' + size, props.className)} style={{ ...(props.style as any), minWidth }}>
 			{props.children}
-		</flexboxlayout>
+		</masonview>
 	</NavHeadingMenuProvider>
 }
 
@@ -68,16 +62,16 @@ export function NavHeadingMenuItem(props: NavHeadingMenuItemProps) @{
 		accessibilityState={{ disabled: isDisabled }}
 		onPress={activate}
 	>
-		<flexboxlayout flexDirection="row" alignItems="center" gap={8} flexGrow={1}>
+		<masonview display="flex" flexDirection="row" alignItems="center" gap={8} flexGrow={1}>
 			{props.icon != null ? (
 				typeof props.icon === 'string' ? <Icon name={props.icon} size={16} /> : props.icon
 			) : null}
-			<flexboxlayout flexDirection="column" flexGrow={1}>
+			<masonview display="flex" flexDirection="column" flexGrow={1}>
 				{typeof props.label === 'string' ? <Text className="vx-navmenu-item-label">{props.label}</Text> : props.label}
 				{props.description != null ? (
 					typeof props.description === 'string' ? <Text className="vx-navmenu-item-desc">{props.description}</Text> : props.description
 				) : null}
-			</flexboxlayout>
-		</flexboxlayout>
+			</masonview>
+		</masonview>
 	</Pressable>
 }

@@ -8,14 +8,7 @@ import { Icon } from './Icon';
  *  SideNavHeading). Display-only — the `icon` prop takes an element or a
  *  registered icon name. */
 export function NavIcon(props: NavIconProps) @{
-	<flexboxlayout
-		ref={(v: any) => applyEscapeProps(v, props)}
-		id={props.id}
-		className={cx('vx-navicon', props.className)}
-		style={props.style as any}
-		justifyContent="center"
-		alignItems="center"
-	>
+	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-navicon', props.className)} style={props.style as any} justifyContent="center" alignItems="center">
 		{typeof props.icon === 'string' ? <Icon name={props.icon} size={16} /> : props.icon}
-	</flexboxlayout>
+	</masonview>
 }

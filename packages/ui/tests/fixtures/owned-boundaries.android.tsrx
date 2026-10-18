@@ -20,7 +20,7 @@ function Value(props: { id: string; prefix?: string }) {
 }
 
 function Content(props: { params: { id: string }; close: (value?: unknown) => void }) {
-	return <gridlayout style={{ height: 100 }}><Value id={props.params.id} /></gridlayout>
+	return <masonview display="grid" style={{ height: 100 }}><Value id={props.params.id} /></masonview>
 }
 
 const renderRow = (item: any) => <Value id={'owned-row-' + item.id} prefix={item.text + ': '} />

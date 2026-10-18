@@ -180,7 +180,7 @@ function PagerInner(props: PagerProps) @{
 	/>
 	{portalCells.map((cell) =>
 		createPortal(
-			<gridlayout>{cell.renderItem?.(cell.item, cell.index)}</gridlayout>,
+			<masonview display="grid">{cell.renderItem?.(cell.item, cell.index)}</masonview>,
 			cell.host,
 		),
 	)}

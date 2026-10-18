@@ -14,7 +14,7 @@ import { OverflowList } from '../src/OverflowList.tsrx'
 export function Rows(props: any) @{
 	const items = toChildArray(props.children);
 
-	<stacklayout id="rows">{mapChildren(items, (child: any) => <stacklayout>{child}</stacklayout>)}</stacklayout>
+	<masonview display="flex" flexDirection="column" id="rows">{mapChildren(items, (child: any) => <masonview display="flex" flexDirection="column">{child}</masonview>)}</masonview>
 }
 
 export function OrdinaryChildren() @{
@@ -27,14 +27,14 @@ export function ChangingChildren(props: any) @{
 
 
 export function CollectionLeaves(props: any) @{
-	<stacklayout>
+	<masonview display="flex" flexDirection="column">
 		<List id="list" listStyle="decimal" start={props.start}><label text="First"/><label text="Second"/></List>
 		<AvatarGroup id="avatars" max={props.max}><Avatar fallback="AA"/><Avatar fallback="BB"/><Avatar fallback="CC"/></AvatarGroup>
 		<Kbd id="key">{'Ctrl '}{props.keyName}</Kbd>
 		<Kbd id="wrapped-key"><label text="Wrapped"/></Kbd>
 		<Button>{props.keyName}</Button>
 		<Blockquote id="quote">{'Quoted '}{props.keyName}</Blockquote>
-	</stacklayout>
+	</masonview>
 }
 
 export	const ChildContext = createContext('default')
@@ -53,11 +53,11 @@ export function OwnedChildren(props: any) @{
 
 
 export function OtherCollections() @{
-	<stacklayout>
+	<masonview display="flex" flexDirection="column">
 		<Carousel id="carousel"><label text="slide1"/><label text="slide2"/></Carousel>
 		<MetadataList id="metadata" maxNumOfItems={1}><label text="meta1"/><label text="meta2"/></MetadataList>
 		<OverflowList id="overflow"><label text="tool1"/><label text="tool2"/></OverflowList>
-	</stacklayout>
+	</masonview>
 }
 
 export function LimitedChildren(props: any) @{

@@ -4,49 +4,49 @@ import { NSWindow } from '@octane-xplat/platform/macos'
 
 function Panel() {
 	return (
-		<flexboxlayout id="panel" left={10} top={12} bottom={18} style={{ width: 268 }}>
-			<flexboxlayout id="header" style={{ height: 44 }}>
+		<masonview display="flex" id="panel" left={10} top={12} bottom={18} style={{ width: 268 }}>
+			<masonview display="flex" id="header" style={{ height: 44 }}>
 				<label text="Panel header" />
-			</flexboxlayout>
+			</masonview>
 			<scrollview id="scroll" className="flex-1">
-				<flexboxlayout>
+				<masonview display="flex">
 					{Array.from({ length: 30 }, (_, index) => (
 						<label key={index} text={'Row ' + index} style={{ height: 32 }} />
 					))}
-				</flexboxlayout>
+				</masonview>
 			</scrollview>
-			<flexboxlayout id="footer" style={{ height: 36 }}>
+			<masonview display="flex" id="footer" style={{ height: 36 }}>
 				<label text="Panel footer" />
-			</flexboxlayout>
-		</flexboxlayout>
+			</masonview>
+		</masonview>
 	)
 }
 
 function AbsolutePanel() {
 	return (
-		<absolutelayout id="container">
-			<Panel />
-		</absolutelayout>
+		<masonview id="container">
+			<Panel style={{position: 'absolute'}} />
+		</masonview>
 	)
 }
 
 function GridPanel() {
 	return (
-		<gridlayout id="container" rows="12 1* 18" columns="10 268 1*">
-			<flexboxlayout id="panel" row={1} col={1}>
-				<flexboxlayout id="header" style={{ height: 44 }}>
+		<masonview display="grid" gridTemplateRows="auto" gridTemplateColumns="auto" id="container">
+			<masonview style={{gridRow: '2', gridColumn: '2'}} display="flex" id="panel">
+				<masonview display="flex" id="header" style={{ height: 44 }}>
 					<label text="Panel header" />
-				</flexboxlayout>
+				</masonview>
 				<scrollview id="scroll" className="flex-1">
-					<flexboxlayout>
+					<masonview display="flex">
 						<label text="Scrollable rows" style={{ height: 960 }} />
-					</flexboxlayout>
+					</masonview>
 				</scrollview>
-				<flexboxlayout id="footer" style={{ height: 36 }}>
+				<masonview display="flex" id="footer" style={{ height: 36 }}>
 					<label text="Panel footer" />
-				</flexboxlayout>
-			</flexboxlayout>
-		</gridlayout>
+				</masonview>
+			</masonview>
+		</masonview>
 	)
 }
 

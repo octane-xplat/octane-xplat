@@ -19,7 +19,7 @@ const events: PanEvent[] = []
 function PanHost() @{
 	const onPan = usePan((event) => events.push(event))
 
-	<flexboxlayout id="pan-host" onPan={onPan} />
+	<masonview display="flex" id="pan-host" onPan={onPan} />
 }
 
 function mountPanHost() {

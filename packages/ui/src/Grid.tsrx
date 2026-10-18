@@ -1,10 +1,8 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useEffect, useRef } from 'octane';
 import type { GridProps } from './props';
 import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
-import { bindNativeGridPlacement } from './native-grid-placement';
-import { gridTrackListToSpec } from './grid-tracks';
+import { gridTrackListToCss } from './grid-tracks';
 
 let warnedAboutGap = false;
 
@@ -14,38 +12,18 @@ let warnedAboutGap = false;
  * @see GridProps for the track grammar, diagnostics, and an example; LayoutChildProps for placement.
  */
 export function Grid(props: GridProps) @{
-	const grid = useRef<any>(null);
 	const deprecatedGap = (props as GridProps & { gap?: number | string }).gap;
 	if (deprecatedGap != null && !warnedAboutGap) {
 		warnedAboutGap = true;
 		console.warn('[Grid] gap was removed; use child margins');
 	}
 
-	useEffect(() => {
-		const host = grid.current;
-		if (!host) return;
-
-		return bindNativeGridPlacement(host, props.rows, props.columns);
-	}, [props.children, props.rows, props.columns]);
-
-	<gridlayout
-		id={props.id}
-		ref={(view: any) => {
-			grid.current = view;
+	// Mason's grid engine auto-places unpositioned children row-major
+	// (grid-auto-flow); explicit `row`/`col` child props become CSS grid
+	// lines in the driver. No imperative placement pass needed.
+	<masonview display="grid" gridAutoFlow="row" gridTemplateRows={gridTrackListToCss(props.rows, 'rows')} gridTemplateColumns={gridTrackListToCss(props.columns, 'columns')} id={props.id} ref={(view: any) => {
 			applyEscapeProps(view, props);
-		}}
-		rows={gridTrackListToSpec(props.rows, 'rows')}
-		columns={gridTrackListToSpec(props.columns, 'columns')}
-		className={cx('vx-grid', props.className)}
-		style={props.style as any}
-		accessible={props.accessible}
-		accessibilityLabel={props.accessibilityLabel}
-		accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}
-		accessibilityHint={props.accessibilityHint}
-		accessibilityValue={props.accessibilityValue}
-		accessibilityState={nativeAccessibilityState(props.accessibilityState) as any}
-		accessibilityLiveRegion={props.accessibilityLiveRegion as any}
-	>
+		}} className={cx('vx-grid', props.className)} style={props.style as any} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
 		{props.children}
-	</gridlayout>
+	</masonview>
 }

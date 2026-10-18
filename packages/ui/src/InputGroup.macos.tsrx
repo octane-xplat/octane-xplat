@@ -37,15 +37,9 @@ export function InputGroup(props: InputGroupProps) @{
 	>
 		<InputGroupProvider value={group}>
 		<SizeProvider value={size}>
-			<flexboxlayout
-				ref={forwardedRef}
-				flexDirection="row"
-				alignItems="stretch"
-				className={cx('vx-inputgroup', props.isDisabled && 'vx-inputgroup--disabled', props.status && `vx-inputgroup--status-${props.status.type}`, `vx-inputgroup--size-${size}`)}
-				accessibilityState={{ disabled: props.isDisabled } as any}
-			>
+			<masonview display="flex" ref={forwardedRef} flexDirection="row" alignItems="stretch" className={cx('vx-inputgroup', props.isDisabled && 'vx-inputgroup--disabled', props.status && `vx-inputgroup--status-${props.status.type}`, `vx-inputgroup--size-${size}`)} accessibilityState={{ disabled: props.isDisabled } as any}>
 				{props.children}
-			</flexboxlayout>
+			</masonview>
 		</SizeProvider>
 		</InputGroupProvider>
 	</FormField>
@@ -54,14 +48,7 @@ export function InputGroup(props: InputGroupProps) @{
 export function InputGroupText(props: InputGroupTextProps) @{
 	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
-	<flexboxlayout
-		id={props.id}
-		ref={forwardedRef}
-		className={cx('vx-inputgroup-text', props.className)}
-		style={props.style}
-		justifyContent="center"
-		alignItems="center"
-	>
+	<masonview display="flex" id={props.id} ref={forwardedRef} className={cx('vx-inputgroup-text', props.className)} style={props.style} justifyContent="center" alignItems="center">
 		{typeof props.children === 'string' ? <label text={props.children} /> : props.children}
-	</flexboxlayout>
+	</masonview>
 }

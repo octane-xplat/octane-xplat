@@ -38,28 +38,16 @@ export function ChatMessageMetadata(props: ChatMessageMetadataProps) @{
 	const status = props.status!;
 	const isUser = sender === 'user';
 
-	<flexboxlayout
-		id={props.id}
-		className={cx('vx-chatmeta', isUser && 'vx-chatmeta--user', props.className)}
-		style={props.style as any}
-		flexDirection="row"
-		alignItems="center"
-		justifyContent={isUser ? 'flex-end' : 'flex-start'}
-	>
-		{hasTimestamp ? <flexboxlayout className="vx-chatmeta-part">{props.timestamp}</flexboxlayout> : null}
+	<masonview display="flex" id={props.id} className={cx('vx-chatmeta', isUser && 'vx-chatmeta--user', props.className)} style={props.style as any} flexDirection="row" alignItems="center" justifyContent={isUser ? 'flex-end' : 'flex-start'}>
+		{hasTimestamp ? <masonview display="flex" className="vx-chatmeta-part">{props.timestamp}</masonview> : null}
 		{hasTimestamp && (hasFooter || hasStatus) ? <label className="vx-chatmeta-sep" text="·" /> : null}
-		{hasFooter ? <flexboxlayout className="vx-chatmeta-part">{props.footer}</flexboxlayout> : null}
+		{hasFooter ? <masonview display="flex" className="vx-chatmeta-part">{props.footer}</masonview> : null}
 		{hasFooter && hasStatus ? <label className="vx-chatmeta-sep" text="·" /> : null}
 		{hasStatus ? (
-			<flexboxlayout
-				className={cx('vx-chatmeta-status', `vx-chatmeta-status--${status}`)}
-				flexDirection="row"
-				alignItems="center"
-				accessibilityLabel={`Message ${STATUS_LABEL[status].toLowerCase()}`}
-			>
+			<masonview display="flex" className={cx('vx-chatmeta-status', `vx-chatmeta-status--${status}`)} flexDirection="row" alignItems="center" accessibilityLabel={`Message ${STATUS_LABEL[status].toLowerCase()}`}>
 				<Icon name={STATUS_ICON[status]} size={12} />
 				<label className="vx-chatmeta-status-text" text={STATUS_LABEL[status]} />
-			</flexboxlayout>
+			</masonview>
 		) : null}
-	</flexboxlayout>
+	</masonview>
 }

@@ -70,65 +70,49 @@ export function Chart(props: ChartProps) @{
 	const tipLeft = cursor && scene ? Math.min(Math.max(0, cursor.px - tipWidth / 2), Math.max(0, scene.width - tipWidth)) : 0;
 	const tipTop = cursor ? cursor.py - 30 : 0;
 
-	<flexboxlayout
-		id={props.id}
-		className={props.className}
-		style={{ flexDirection: 'column', ...props.style }}
-		accessible={props.accessibilityLabel != null}
-		accessibilityRole={'image'}
-		accessibilityLabel={props.accessibilityLabel}
-	>
+	<masonview display="flex" id={props.id} className={props.className} style={{ flexDirection: 'column', ...props.style }} accessible={props.accessibilityLabel != null} accessibilityRole={'image'} accessibilityLabel={props.accessibilityLabel}>
 		@if (legend === 'top' && scene) {
-			<flexboxlayout flexDirection="row" flexWrap="wrap" style={{ paddingBottom: 4 }}>
+			<masonview display="flex" flexDirection="row" flexWrap="wrap" style={{ paddingBottom: 4 }}>
 				{scene.legend.map((item) => (
-					<flexboxlayout flexDirection="row" alignItems="center" style={{ marginRight: 12 }}>
-						<flexboxlayout style={{ width: 10, height: 10, borderRadius: 2, backgroundColor: item.color, marginRight: 4 }} />
+					<masonview display="flex" flexDirection="row" alignItems="center" style={{ marginRight: 12 }}>
+						<masonview display="flex" style={{ width: 10, height: 10, borderRadius: 2, backgroundColor: item.color, marginRight: 4 }} />
 						<label text={item.text} style={{ fontSize: 11 }} />
-					</flexboxlayout>
+					</masonview>
 				))}
-			</flexboxlayout>
+			</masonview>
 		}
-		<gridlayout
-			ref={measure.ref}
-			style={{
+		<masonview display="grid" ref={measure.ref} style={{
 				width: props.width,
 				height: props.height ?? (props.aspectRatio && w > 0 ? w / props.aspectRatio : undefined),
 				flexGrow: 1,
-			}}
-		>
+			}}>
 			<image id={props.id ? props.id + '-image' : undefined} src={imageSource} style={{ width: w, height: h }} accessibilityLabel="" />
-			<flexboxlayout id={props.id ? props.id + '-tap' : undefined} style={{ width: w, height: h }} onTap={interactive ? onTap : undefined}>	
-				<absolutelayout
-					id={props.id ? props.id + '-overlay' : undefined}
-					style={{ width: w, height: h }}
-				>
+			<masonview display="flex" id={props.id ? props.id + '-tap' : undefined} style={{ width: w, height: h }} onTap={interactive ? onTap : undefined}>	
+				<masonview id={props.id ? props.id + '-overlay' : undefined} style={{ width: w, height: h }}>
 					{scene?.labels.map((l) => (
-						<label
-							text={l.text}
-							{...{ left: l.x, top: l.y }} style={{ width: l.width, fontSize: 10, opacity: 0.7, textAlign: l.align === 'center' ? 'center' : l.align === 'end' ? 'right' : 'left' }}
-						/>
+						<label text={l.text} {...{ left: l.x, top: l.y }} style={{ width: l.width, fontSize: 10, opacity: 0.7, textAlign: l.align === 'center' ? 'center' : l.align === 'end' ? 'right' : 'left' , position: 'absolute'}} />
 					))}
 					@if (cursor && props.crosshair && !scene?.pie && plot) {
-						<flexboxlayout left={cursor.px - 0.5} top={plot.y} style={{ width: 1, height: plot.height, backgroundColor: '#8a8a8a' }} />
+						<masonview style={{ width: 1, height: plot.height, backgroundColor: '#8a8a8a' , position: 'absolute', left: cursor.px - 0.5, top: plot.y}} display="flex" />
 					}
 					@if (cursor && (props.crosshair || props.tooltip)) {
-						<flexboxlayout left={cursor.px - 4} top={cursor.py - 4} style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: dotColor ?? '#4e79a7' }} />
+						<masonview style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: dotColor ?? '#4e79a7' , position: 'absolute', left: cursor.px - 4, top: cursor.py - 4}} display="flex" />
 					}
 					@if (cursor && props.tooltip && tipText) {
-						<label id={props.id ? props.id + '-tooltip' : undefined} text={tipText} {...{ left: tipLeft, top: tipTop < 0 ? cursor.py + 12 : tipTop }} style={{ width: tipWidth, height: 24, backgroundColor: 'rgba(20,20,20,0.88)', borderRadius: 4, color: '#ffffff', fontSize: 11, textAlign: 'center' }} />
+						<label id={props.id ? props.id + '-tooltip' : undefined} text={tipText} {...{ left: tipLeft, top: tipTop < 0 ? cursor.py + 12 : tipTop }} style={{ width: tipWidth, height: 24, backgroundColor: 'rgba(20,20,20,0.88)', borderRadius: 4, color: '#ffffff', fontSize: 11, textAlign: 'center' , position: 'absolute'}} />
 					}
-				</absolutelayout>
-			</flexboxlayout>
-		</gridlayout>
+				</masonview>
+			</masonview>
+		</masonview>
 		@if (legend === 'bottom' && scene) {
-			<flexboxlayout flexDirection="row" flexWrap="wrap" style={{ paddingTop: 4 }}>
+			<masonview display="flex" flexDirection="row" flexWrap="wrap" style={{ paddingTop: 4 }}>
 				{scene.legend.map((item) => (
-					<flexboxlayout flexDirection="row" alignItems="center" style={{ marginRight: 12 }}>
-						<flexboxlayout style={{ width: 10, height: 10, borderRadius: 2, backgroundColor: item.color, marginRight: 4 }} />
+					<masonview display="flex" flexDirection="row" alignItems="center" style={{ marginRight: 12 }}>
+						<masonview display="flex" style={{ width: 10, height: 10, borderRadius: 2, backgroundColor: item.color, marginRight: 4 }} />
 						<label text={item.text} style={{ fontSize: 11 }} />
-					</flexboxlayout>
+					</masonview>
 				))}
-			</flexboxlayout>
+			</masonview>
 		}
-	</flexboxlayout>
+	</masonview>
 }

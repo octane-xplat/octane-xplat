@@ -8,18 +8,12 @@ import { applyEscapeProps } from './escape-props';
  *  String children render through a label so bare text works; component
  *  children are placed as-is. `cite` renders as a smaller attribution line. */
 export function Blockquote(props: BlockquoteProps) @{
-	<flexboxlayout
-		ref={(v: any) => applyEscapeProps(v, props)}
-		id={props.id}
-		className={cx('vx-blockquote', props.className)}
-		style={props.style as any}
-		flexDirection="column"
-	>
+	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-blockquote', props.className)} style={props.style as any} flexDirection="column">
 		<TextSlot className="vx-blockquote-text">{props.children}</TextSlot>
 		{props.cite != null && props.cite !== false
 			? typeof props.cite === 'string' || typeof props.cite === 'number'
 				? <label className="vx-blockquote-cite" whiteSpace="normal">{props.cite}</label>
 				: props.cite
 			: null}
-	</flexboxlayout>
+	</masonview>
 }

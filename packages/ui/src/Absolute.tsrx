@@ -9,19 +9,7 @@ import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } f
  * @see AbsoluteProps.
  */
 export function Absolute(props: AbsoluteProps) @{
-	<absolutelayout
-		id={props.id}
-		ref={(view: any) => applyEscapeProps(view, props)}
-		className={cx('vx-absolute', props.className)}
-		style={props.style as any}
-		accessible={props.accessible}
-		accessibilityLabel={props.accessibilityLabel}
-		accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}
-		accessibilityHint={props.accessibilityHint}
-		accessibilityValue={props.accessibilityValue}
-		accessibilityState={nativeAccessibilityState(props.accessibilityState) as any}
-		accessibilityLiveRegion={props.accessibilityLiveRegion as any}
-	>
+	<masonview id={props.id} ref={(view: any) => applyEscapeProps(view, props)} className={cx('vx-absolute', props.className)} style={props.style as any} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
 		{props.children}
-	</absolutelayout>
+	</masonview>
 }

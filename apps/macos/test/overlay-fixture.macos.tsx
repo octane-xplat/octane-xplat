@@ -46,7 +46,7 @@ function Content(props: {
 	}
 
 	return (
-		<flexboxlayout>
+		<masonview display="flex">
 			<textfield id="opener" value="Opener" />
 			{props.viewport !== false && (
 				<ToastViewport position="topStart" maxVisible={2}>
@@ -71,7 +71,7 @@ function Content(props: {
 			{hooks.dialog.element}
 			{hooks.alert.element}
 			{hooks.lightbox.element}
-		</flexboxlayout>
+		</masonview>
 	)
 }
 

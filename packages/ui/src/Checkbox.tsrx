@@ -22,19 +22,8 @@ export function Checkbox(inputProps: CheckboxProps) @{
 		props.onCheckedChange?.(next);
 	};
 
-	<flexboxlayout
-		ref={(v: any) => applyEscapeProps(v, props)}
-		id={props.id}
-		className={cx('vx-checkbox-row', indicatorScope, checked && 'vx-checkbox--on', props.isDisabled && 'vx-checkbox--disabled', props.isReadOnly && 'vx-checkbox--readonly', props.isLoading && 'vx-checkbox--loading', props.status && `vx-checkbox--status-${props.status.type}`, props.size && `vx-checkbox--size-${props.size}`, props.className)}
-		style={props.style as any}
-		accessibilityRole={nativeAccessibilityRole('checkbox') as any}
-	accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
-	accessibilityHint={props.accessibilityHint}
-		accessibilityValue={props.indeterminate ? 'Partially selected' : undefined}
-		accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled, checked: props.indeterminate ? undefined : checked }) as any}
-		onTap={isBlocked ? undefined : toggle}
-	>
+	<masonview display="flex" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-checkbox-row', indicatorScope, checked && 'vx-checkbox--on', props.isDisabled && 'vx-checkbox--disabled', props.isReadOnly && 'vx-checkbox--readonly', props.isLoading && 'vx-checkbox--loading', props.status && `vx-checkbox--status-${props.status.type}`, props.size && `vx-checkbox--size-${props.size}`, props.className)} style={props.style as any} accessibilityRole={nativeAccessibilityRole('checkbox') as any} accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label} accessibilityHint={props.accessibilityHint} accessibilityValue={props.indeterminate ? 'Partially selected' : undefined} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled, checked: props.indeterminate ? undefined : checked }) as any} onTap={isBlocked ? undefined : toggle}>
 		<Ind state={indState} size={props.size === 'sm' ? 'sm' : 'md'} isDisabled={props.isDisabled} />
 		{props.label != null ? <label className="vx-checkbox-label" text={props.label} /> : null}
-	</flexboxlayout>
+	</masonview>
 }

@@ -58,16 +58,9 @@ export function Slider(props: SliderProps) @{
 		}
 	});
 
-	<absolutelayout
-		id={props.id}
-		className={cx('vx-slider', props.className)}
-		style={props.style as any}
-		accessibilityRole={nativeAccessibilityRole('adjustable') as any}
-		onPan={onPan}
-		ref={bindHost}
-	>
-		<flexboxlayout className="vx-slider-track" style={{ width, translateY: trackTop }} />
-		<flexboxlayout className="vx-slider-fill" style={{ width: ratio * width, translateY: trackTop }} />
-		<flexboxlayout className="vx-slider-thumb" style={{ translateX: thumbLeft, translateY: thumbTop }} />
-	</absolutelayout>
+	<masonview id={props.id} className={cx('vx-slider', props.className)} style={props.style as any} accessibilityRole={nativeAccessibilityRole('adjustable') as any} onPan={onPan} ref={bindHost}>
+		<masonview display="flex" className="vx-slider-track" style={{ width, translateY: trackTop , position: 'absolute'}} />
+		<masonview display="flex" className="vx-slider-fill" style={{ width: ratio * width, translateY: trackTop , position: 'absolute'}} />
+		<masonview display="flex" className="vx-slider-thumb" style={{ translateX: thumbLeft, translateY: thumbTop , position: 'absolute'}} />
+	</masonview>
 }

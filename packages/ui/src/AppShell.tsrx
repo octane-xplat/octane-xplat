@@ -106,37 +106,30 @@ export function AppShell(props: AppShellProps) @{
 	const contentPad = props.contentPadding != null ? props.contentPadding * 4 : 0;
 
 	<AppShellMobileProvider value={mobileContextValue}>
-		<gridlayout
-			ref={(v: any) => applyEscapeProps(v, props)}
-			id={props.id}
-			rows="auto,*"
-			className={cx('vx-appshell', 'vx-appshell--' + variant, isFill ? 'vx-appshell--fill' : 'vx-appshell--auto', props.className)}
-			style={props.style as any}
-			onLayoutChanged={onShellLayout}
-		>
-			<flexboxlayout row={0} flexDirection="column" className="vx-appshell-header">
-				{hasBanner ? <flexboxlayout className="vx-appshell-banner">{props.banner}</flexboxlayout> : null}
+		<masonview display="grid" gridTemplateRows="auto 1fr" ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-appshell', 'vx-appshell--' + variant, isFill ? 'vx-appshell--fill' : 'vx-appshell--auto', props.className)} style={props.style as any} onLayoutChanged={onShellLayout}>
+			<masonview style={{gridRow: '1'}} display="flex" flexDirection="column" className="vx-appshell-header">
+				{hasBanner ? <masonview display="flex" className="vx-appshell-banner">{props.banner}</masonview> : null}
 				{topNavContent}
 				{shouldShowAutoToggle && !hasTopNav && hasSideNav ? (
-					<flexboxlayout className="vx-appshell-mobilebar" flexDirection="row" alignItems="center" accessibilityLabel="Mobile navigation">
+					<masonview display="flex" className="vx-appshell-mobilebar" flexDirection="row" alignItems="center" accessibilityLabel="Mobile navigation">
 						<SideNavRenderProvider value="topbar">{props.sideNav}</SideNavRenderProvider>
 						<MobileNavToggle />
-					</flexboxlayout>
+					</masonview>
 				) : null}
-			</flexboxlayout>
-			<gridlayout row={1} columns={showSideNavInline ? 'auto,*' : '*'} className="vx-appshell-middle">
+			</masonview>
+			<masonview display="grid" gridTemplateColumns={showSideNavInline ? 'auto 1fr' : '1fr'} style={[props.style, { gridRow: '2' }]} className="vx-appshell-middle">
 				{showSideNavInline ? (
-					<flexboxlayout col={0} flexDirection="column" className={cx('vx-appshell-sidenav', 'vx-appshell-sidenav--' + variant)}>
+					<masonview style={{gridColumn: '1'}} display="flex" flexDirection="column" className={cx('vx-appshell-sidenav', 'vx-appshell-sidenav--' + variant)}>
 						{props.sideNav}
-					</flexboxlayout>
+					</masonview>
 				) : null}
-				<flexboxlayout col={showSideNavInline ? 1 : 0} flexDirection="column" className="vx-appshell-content" style={{ padding: contentPad }}>
+				<masonview style={{ padding: contentPad , gridColumn: String((showSideNavInline ? 1 : 0) + 1)}} display="flex" flexDirection="column" className="vx-appshell-content">
 					{props.children}
-				</flexboxlayout>
-			</gridlayout>
+				</masonview>
+			</masonview>
 			{/* Drawer overlay — last grid child paints on top of the shell. */}
 			{isBelowBreakpoint && !mobileNavDisabled ? (
-				<gridlayout row={0} rowSpan={2} col={0} className="vx-appshell-drawerhost">
+				<masonview display="grid" row={0} rowSpan={2} col={0} className="vx-appshell-drawerhost">
 					{mobileNavEnabled && mobileNavConfigContent != null ? mobileNavConfigContent : null}
 					{mobileNavConfigContent == null ? (
 						<>
@@ -150,8 +143,8 @@ export function AppShell(props: AppShellProps) @{
 							) : null}
 						</>
 					) : null}
-				</gridlayout>
+				</masonview>
 			) : null}
-		</gridlayout>
+		</masonview>
 	</AppShellMobileProvider>
 }

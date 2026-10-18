@@ -21,7 +21,7 @@ export function BaseTypeaheadView<T extends SearchableItem,>(props: BaseTypeahea
 		? props.highlightedIndex
 		: -1;
 
-	<flexboxlayout flexDirection="column" className={cx('vx-typeahead', props.className)} style={props.style}>
+	<masonview display="flex" flexDirection="column" className={cx('vx-typeahead', props.className)} style={props.style}>
 		<textfield
 			ref={(v: any) => {
 				props.inputRef.current = v;
@@ -37,7 +37,7 @@ export function BaseTypeaheadView<T extends SearchableItem,>(props: BaseTypeahea
 			onTextChange={(value: any) => props.onQueryChange(String(value ?? ''))}
 		/>
 		{props.isSearching && busyLane == null
-			? <flexboxlayout className="vx-typeahead-loading"><ActivityIndicator busy={true} /></flexboxlayout>
+			? <masonview display="flex" className="vx-typeahead-loading"><ActivityIndicator busy={true} /></masonview>
 			: null}
 		<Popover
 			anchor={props.anchor}
@@ -45,9 +45,9 @@ export function BaseTypeaheadView<T extends SearchableItem,>(props: BaseTypeahea
 			className="vx-typeahead-dropdown"
 			style={{ width: props.menuWidth }}
 		>
-			<flexboxlayout className="vx-typeahead-list" flexDirection="column">
+			<masonview display="flex" className="vx-typeahead-list" flexDirection="column">
 				{props.results.length === 0 && props.hasSearched
-					? <flexboxlayout className="vx-typeahead-empty"><label text={props.emptyText} /></flexboxlayout>
+					? <masonview display="flex" className="vx-typeahead-empty"><label text={props.emptyText} /></masonview>
 					: null}
 				@for (const group of groups; key group.heading ?? 'ungrouped') {
 					{group.heading != null
@@ -57,21 +57,15 @@ export function BaseTypeaheadView<T extends SearchableItem,>(props: BaseTypeahea
 					@for (const item of group.items; index gi; key item.id + '-' + gi) {
 						const index = props.results.indexOf(item);
 						const isSelected = item.id === selectedId && selectedId != null;
-						<flexboxlayout
-							className={cx('vx-typeahead-option', `vx-typeahead-option--size-${props.size}`, index === activeIndex && 'vx-typeahead-option--highlighted', isSelected && 'vx-typeahead-option--selected')}
-							flexDirection="row"
-							alignItems="center"
-							onTap={() => props.onSelect(item)}
-							accessibilityState={{ selected: isSelected }}
-						>
-							<flexboxlayout className="vx-typeahead-option-content" flexGrow={1}>
+						<masonview display="flex" className={cx('vx-typeahead-option', `vx-typeahead-option--size-${props.size}`, index === activeIndex && 'vx-typeahead-option--highlighted', isSelected && 'vx-typeahead-option--selected')} flexDirection="row" alignItems="center" onTap={() => props.onSelect(item)} accessibilityState={{ selected: isSelected }}>
+							<masonview display="flex" className="vx-typeahead-option-content" flexGrow={1}>
 								{props.renderItem ? props.renderItem(item) : <TypeaheadItem item={item} />}
-							</flexboxlayout>
+							</masonview>
 							{isSelected ? <label className="vx-typeahead-option-check" text="✓" /> : null}
-						</flexboxlayout>
+						</masonview>
 					}
 				}
-			</flexboxlayout>
+			</masonview>
 		</Popover>
-	</flexboxlayout>
+	</masonview>
 }

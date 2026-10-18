@@ -283,12 +283,7 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 		setTimeout(emitChange, 0);
 	};
 
-	<flexboxlayout
-		id={props.id}
-		className={cx('vx-chatinput', isDisabled && 'vx-chatinput--disabled', props.className)}
-		style={props.style as any}
-		flexDirection="column"
-	>
+	<masonview display="flex" id={props.id} className={cx('vx-chatinput', isDisabled && 'vx-chatinput--disabled', props.className)} style={props.style as any} flexDirection="column">
 		<ChatTriggerMenuOverlay
 			state={triggerMenu.state}
 			anchor={triggerMenu.anchor}
@@ -296,9 +291,9 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 			selectItem={triggerMenu.selectItem}
 		/>
 		{tokens.length > 0 ? (
-			<flexboxlayout className="vx-chatinput-tokens" flexDirection="row" flexWrap="wrap">
+			<masonview display="flex" className="vx-chatinput-tokens" flexDirection="row" flexWrap="wrap">
 				{tokens.map((t) => (
-					<flexboxlayout className="vx-chatinput-tokenwrap" flexDirection="row" alignItems="center">
+					<masonview display="flex" className="vx-chatinput-tokenwrap" flexDirection="row" alignItems="center">
 						<ChatTokenChip token={t.token} />
 						<label
 							className="vx-chatinput-tokremove"
@@ -306,9 +301,9 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 							accessibilityLabel="Remove token"
 							onTap={() => removeToken(t.id)}
 						/>
-					</flexboxlayout>
+					</masonview>
 				))}
-			</flexboxlayout>
+			</masonview>
 		) : null}
 		<textview
 			ref={(v: any) => {
@@ -344,13 +339,13 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 				}, 0);
 			}}
 		/>
-	</flexboxlayout>
+	</masonview>
 }
 
 /** Token chip element — renders the chip; on native tokens live in the
  *  composer chip row rather than inline in the text. */
 export function ChatComposerTokenElement(props: ChatComposerTokenElementProps) @{
-	<flexboxlayout id={props.id} className={cx('vx-chattoken-el', props.className)} style={props.style as any}>
+	<masonview display="flex" id={props.id} className={cx('vx-chattoken-el', props.className)} style={props.style as any}>
 		<ChatTokenChip token={props.token} />
-	</flexboxlayout>
+	</masonview>
 }

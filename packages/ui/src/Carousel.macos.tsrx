@@ -19,15 +19,12 @@ export function Carousel(props: CarouselProps) @{
 		horizontal={true as any}
 		accessibilityLabel={props.accessibilityLabel ?? props.label}
 	>
-		<flexboxlayout flexDirection="row" className="vx-carousel-track" style={{ columnGap: gap }}>
+		<masonview display="flex" flexDirection="row" className="vx-carousel-track" style={{ columnGap: gap }}>
 			{mapChildren(items, (child: any, i: number) => (
-				<flexboxlayout
-					className="vx-carousel-slide"
-					accessibilityLabel={`Slide ${i + 1} of ${count}`}
-				>
+				<masonview display="flex" className="vx-carousel-slide" accessibilityLabel={`Slide ${i + 1} of ${count}`}>
 					{child}
-				</flexboxlayout>
+				</masonview>
 			))}
-		</flexboxlayout>
+		</masonview>
 	</scrollview>
 }

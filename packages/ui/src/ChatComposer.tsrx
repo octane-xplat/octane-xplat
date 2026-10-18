@@ -83,50 +83,41 @@ export function ChatComposer(props: ChatComposerProps) @{
 
 	const status = props.status;
 	const statusEl = status ? (
-		<flexboxlayout
-			className={cx('vx-chatcomposer-status', `vx-chatcomposer-status--${status.type}`, `vx-chatcomposer-status--${statusPosition}`)}
-			flexDirection="row"
-			alignItems="center"
-			accessibilityLiveRegion={(status.type === 'error' ? 'assertive' : 'polite') as any}
-		>
+		<masonview display="flex" className={cx('vx-chatcomposer-status', `vx-chatcomposer-status--${status.type}`, `vx-chatcomposer-status--${statusPosition}`)} flexDirection="row" alignItems="center" accessibilityLiveRegion={(status.type === 'error' ? 'assertive' : 'polite') as any}>
 			<Icon name={status.type === 'error' ? 'xplat-error' : 'xplat-warning'} size={14} />
 			<label className="vx-chatcomposer-statustext" text={status.message ?? ''} />
-		</flexboxlayout>
+		</masonview>
 	) : null;
 
 	<ChatComposerProvider value={composerContext}>
-		<flexboxlayout
-			id={props.id}
-			className={cx('vx-chatcomposer', `vx-chatcomposer--${density}`, isDisabled && 'vx-chatcomposer--disabled', props.className)}
-			style={props.style as any}
-			flexDirection="column"
-		>
+		<masonview display="flex" id={props.id} className={cx('vx-chatcomposer', `vx-chatcomposer--${density}`, isDisabled && 'vx-chatcomposer--disabled', props.className)} style={props.style as any} flexDirection="column">
 			{statusPosition === 'top' ? statusEl : null}
 			{props.drawer}
-			<flexboxlayout
+			<masonview
+				display="flex"
 				className={cx('vx-chatcomposer-body', `vx-chatcomposer-body--${elevation}`, `vx-chatcomposer-body--${density}`)}
 				flexDirection="column"
 				// Tap on empty body space focuses the input (registered control).
 				onTap={() => inputControlRef.current?.focus()}
 			>
 				{props.headerActions || props.headerContext ? (
-					<flexboxlayout className="vx-chatcomposer-header" flexDirection="row" alignItems="center" justifyContent="space-between">
-						<flexboxlayout className="vx-chatcomposer-headerleft" flexDirection="row" alignItems="center">{props.headerActions}</flexboxlayout>
-						<flexboxlayout className="vx-chatcomposer-headerright" flexDirection="row" alignItems="center">{props.headerContext}</flexboxlayout>
-					</flexboxlayout>
+					<masonview display="flex" className="vx-chatcomposer-header" flexDirection="row" alignItems="center" justifyContent="space-between">
+						<masonview display="flex" className="vx-chatcomposer-headerleft" flexDirection="row" alignItems="center">{props.headerActions}</masonview>
+						<masonview display="flex" className="vx-chatcomposer-headerright" flexDirection="row" alignItems="center">{props.headerContext}</masonview>
+					</masonview>
 				) : null}
-				<flexboxlayout className="vx-chatcomposer-inputarea" flexDirection="column">
+				<masonview display="flex" className="vx-chatcomposer-inputarea" flexDirection="column">
 					{props.input ?? <ChatComposerInput />}
-				</flexboxlayout>
-				<flexboxlayout className="vx-chatcomposer-footer" flexDirection="row" alignItems="center" justifyContent="space-between">
-					<flexboxlayout className="vx-chatcomposer-footerleft" flexDirection="row" alignItems="center">{props.footerActions}</flexboxlayout>
-					<flexboxlayout className="vx-chatcomposer-footerright" flexDirection="row" alignItems="center">
+				</masonview>
+				<masonview display="flex" className="vx-chatcomposer-footer" flexDirection="row" alignItems="center" justifyContent="space-between">
+					<masonview display="flex" className="vx-chatcomposer-footerleft" flexDirection="row" alignItems="center">{props.footerActions}</masonview>
+					<masonview display="flex" className="vx-chatcomposer-footerright" flexDirection="row" alignItems="center">
 						{props.sendActions}
 						{props.sendButton ?? <ChatSendButton />}
-					</flexboxlayout>
-				</flexboxlayout>
-			</flexboxlayout>
+					</masonview>
+				</masonview>
+			</masonview>
 			{statusPosition === 'bottom' ? statusEl : null}
-		</flexboxlayout>
+		</masonview>
 	</ChatComposerProvider>
 }

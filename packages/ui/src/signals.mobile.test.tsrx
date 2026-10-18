@@ -21,10 +21,10 @@ function SignalOwner(props: { initial: number; capture: (value$: ReturnType<type
 }
 
 function SignalInstances(props: { capture: (value$: ReturnType<typeof signal$<number>>) => void }) @{
-	<stacklayout>
+	<masonview display="flex" flexDirection="column">
 		<SignalOwner initial={1} capture={props.capture} />
 		<SignalOwner initial={10} capture={props.capture} />
-	</stacklayout>
+	</masonview>
 }
 
 function LocalSignal(props: { capture: (value$: ReturnType<typeof useSignal$<number>>) => void }) @{

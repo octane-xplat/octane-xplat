@@ -33,9 +33,9 @@ export function DrawerLayout(props: DrawerLayoutProps) @{
 		className={cx('vx-drawer', props.className)}
 		style={props.style as any}
 	>
-		<gridlayout hostSlot="mainContent">{props.main}</gridlayout>
+		<masonview display="grid" hostSlot="mainContent">{props.main}</masonview>
 		@if (props.drawer != null) {
-			<gridlayout hostSlot="leftDrawer">{props.drawer}</gridlayout>
+			<masonview display="grid" hostSlot="leftDrawer">{props.drawer}</masonview>
 		}
 	</drawer>
 }

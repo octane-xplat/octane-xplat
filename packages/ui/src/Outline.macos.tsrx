@@ -27,48 +27,30 @@ export function Outline(props: OutlineProps) @{
 		props.onNavigateEnd?.(id);
 	};
 
-	<flexboxlayout
-		id={props.id}
-		className={cx('vx-outline', `vx-outline--${density}`, props.className)}
-		style={{ flexDirection: 'column', ...(props.style as any) }}
-		flexDirection="column"
-		accessibilityRole="list"
-		accessibilityLabel={label}
-	>
+	<masonview display="flex" id={props.id} className={cx('vx-outline', `vx-outline--${density}`, props.className)} style={{ flexDirection: 'column', ...(props.style as any) }} flexDirection="column" accessibilityRole="list" accessibilityLabel={label}>
 		{items.map((item) => {
 			const isActive = item.id === activeId;
 			return (
-				<flexboxlayout
-					key={item.id}
-					className={cx('vx-outline-item', isActive && 'vx-outline-item--active')}
-					flexDirection="row"
-					alignItems="center"
-					style={{
+				<masonview display="flex" key={item.id} className={cx('vx-outline-item', isActive && 'vx-outline-item--active')} flexDirection="row" alignItems="center" style={{
 						paddingLeft: 8 + (item.level - 1) * 12,
 						paddingTop: density === 'compact' ? 4 : 8,
 						paddingBottom: density === 'compact' ? 4 : 8,
-					}}
-					accessibilityRole="button"
-					accessibilityLabel={item.label}
-					onTap={() => activate(item.id)}
-				>
-					<flexboxlayout
-						style={{
+					}} accessibilityRole="button" accessibilityLabel={item.label} onTap={() => activate(item.id)}>
+					<masonview display="flex" style={{
 							width: 2,
 							height: 16,
 							borderRadius: 1,
 							backgroundColor: isActive ? accentColor(scheme) : 'transparent',
 							marginRight: 8,
-						}}
-					/>
+						}} />
 					<label
 						whiteSpace="normal"
 						style={{ fontSize: 13, color: isActive ? textColor(scheme) : mutedColor(scheme) }}
 					>
 						{item.label}
 					</label>
-				</flexboxlayout>
+				</masonview>
 			);
 		})}
-	</flexboxlayout>
+	</masonview>
 }

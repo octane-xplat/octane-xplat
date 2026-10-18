@@ -41,13 +41,9 @@ export function StatusDot(props: StatusDotProps) @{
 		};
 	}, [props.isPulsing]);
 
-	<flexboxlayout
-		ref={(v: any) => {
+	<masonview display="flex" ref={(v: any) => {
 			dot.current = v;
-		}}
-		id={props.id}
-		className={cx('vx-statusdot', `vx-statusdot--${props.variant}`, props.className)}
-		style={{
+		}} id={props.id} className={cx('vx-statusdot', `vx-statusdot--${props.variant}`, props.className)} style={{
 			width: 8,
 			height: 8,
 			borderRadius: 4,
@@ -55,11 +51,7 @@ export function StatusDot(props: StatusDotProps) @{
 			justifyContent: 'center',
 			alignItems: 'center',
 			...(props.style as any),
-		}}
-		accessible={true}
-		accessibilityRole="image"
-		accessibilityLabel={props.label}
-	>
+		}} accessible={true} accessibilityRole="image" accessibilityLabel={props.label}>
 		{isRenderable(props.icon) ? props.icon : null}
-	</flexboxlayout>
+	</masonview>
 }

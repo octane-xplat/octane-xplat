@@ -13,11 +13,5 @@ export function Canvas(props: CanvasProps) @{
 		props.onReady?.({ canvas, context: null });
 	}, []);
 
-	<gridlayout
-		id={props.id}
-		className={props.className}
-		style={props.style}
-		width={props.width}
-		height={props.height}
-	/>;
+	<masonview display="grid" id={props.id} className={props.className} style={props.style} width={props.width} height={props.height} />;
 }

@@ -17,9 +17,9 @@ function ToastCard(props: { entry: ToastEntry }) @{
 }
 
 function ToastStack(props: { entries: ToastEntry[]; dark?: boolean; className?: any; style?: any }) @{
-	<flexboxlayout flexDirection="column" className={cx('vx-toast-viewport', props.dark && 'ns-dark', props.className)} style={props.style}>
+	<masonview display="flex" flexDirection="column" className={cx('vx-toast-viewport', props.dark && 'ns-dark', props.className)} style={props.style}>
 		{props.entries.map(entry => <ToastCard key={entry.id} entry={entry} />)}
-	</flexboxlayout>
+	</masonview>
 }
 
 function ToastGroup(props: { entries: ToastEntry[]; position: ToastPosition; inset?: ToastViewportProps['inset']; className?: any; style?: any }) @{
@@ -29,7 +29,7 @@ function ToastGroup(props: { entries: ToastEntry[]; position: ToastPosition; ins
 		onDismiss: () => { for (const entry of props.entries) dismissToast(entry.id, 'manual') },
 	})
 
-	<flexboxlayout ref={owner} style={{ width: 0, height: 0 }} />
+	<masonview display="flex" ref={owner} style={{ width: 0, height: 0 }} />
 }
 
 export function ToastViewportSurface(props: ToastViewportProps & { viewportId: string }) @{

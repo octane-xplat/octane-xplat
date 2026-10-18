@@ -52,29 +52,12 @@ function FixedLayerSurface(props: FixedSurfaceProps) @{
 		applyNativeProps(panelRef.current, props);
 	}, [props.ios, props.android]);
 
-	<absolutelayout
-		width="100%"
-		height="100%"
-		className={cx('vx-popover-layer', useThemeScheme() === 'dark' && 'ns-dark')}
-	>
-		{(props.lightDismiss ?? false) && <gridlayout
-			width="100%"
-			height="100%"
-			backgroundColor={"transparent" as any}
-			className="vx-popover-backdrop"
-			onTap={() => props.onDismiss?.()}
-		/>}
-		<gridlayout
-			ref={panelRef}
-			left={props.x ?? 0}
-			top={props.y ?? 0}
-			accessibilityLabel={props.accessibilityLabel}
-			className={cx('vx-popover', props.className)}
-			style={props.style}
-		>
+	<masonview width="100%" height="100%" className={cx('vx-popover-layer', useThemeScheme() === 'dark' && 'ns-dark')}>
+		{(props.lightDismiss ?? false) && <masonview style={{position: 'absolute'}} display="grid" width="100%" height="100%" backgroundColor={"transparent" as any} className="vx-popover-backdrop" onTap={() => props.onDismiss?.()} />}
+		<masonview display="grid" ref={panelRef} accessibilityLabel={props.accessibilityLabel} className={cx('vx-popover', props.className)} style={[props.style, {position: 'absolute', left: props.x ?? 0, top: props.y ?? 0}]}>
 			<LayerDepthProvider value={props.layerDepth ?? 0}><SizeProvider value={null}>{props.children}</SizeProvider></LayerDepthProvider>
-		</gridlayout>
-	</absolutelayout>
+		</masonview>
+	</masonview>
 }
 
 /** Mounts the fixed-position layer on the enclosing RootLayout. */
@@ -119,7 +102,7 @@ function FixedLayerMount(props: FixedSurfaceProps & { open?: boolean }) @{
 	useEffect(() => () => shown.current?.lifetime.close(), []);
 
 	<>
-		<stacklayout ref={(v: any) => { sentinel.current = v; }} style={{ width: 0, height: 0 }} />
+		<masonview display="flex" flexDirection="column" ref={(v: any) => { sentinel.current = v; }} style={{ width: 0, height: 0 }} />
 		{props.open && portalHost
 			? createPortal(
 				<FixedLayerSurface

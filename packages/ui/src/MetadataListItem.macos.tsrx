@@ -10,7 +10,7 @@ function childContent(children: any, className: string, style?: any) @{
 		return <label className={className} whiteSpace="normal" style={style}>{children}</label>;
 	}
 
-	return <flexboxlayout className={className} style={style}>{children}</flexboxlayout>;
+	return <masonview display="flex" className={className} style={style}>{children}</masonview>;
 }
 
 /** One label/value item — macOS leaf matching the mobile structure. */
@@ -20,29 +20,20 @@ export function MetadataListItem(props: MetadataListItemProps) @{
 		(ctx?.labelPosition ?? 'start') === 'top' || ctx?.orientation === 'horizontal';
 
 	const labelRow = (
-		<flexboxlayout
-			className="vx-metadatalist-label"
-			flexDirection="row"
-			style={ctx?.labelWidth != null ? { width: ctx.labelWidth } : undefined}
-		>
+		<masonview display="flex" className="vx-metadatalist-label" flexDirection="row" style={ctx?.labelWidth != null ? { width: ctx.labelWidth } : undefined}>
 			{isRenderable(props.icon) ? props.icon : null}
 			<label className="vx-metadatalist-label-text text-sm text-muted" whiteSpace="normal">
 				{props.label}
 			</label>
-		</flexboxlayout>
+		</masonview>
 	);
 
 	if (isStacked) {
 		return (
-			<flexboxlayout
-				id={props.id}
-				className={cx('vx-metadatalist-item', props.className)}
-				style={{ flexDirection: 'column', marginBottom: 8, ...(props.style as any) }}
-				flexDirection="column"
-			>
+			<masonview display="flex" id={props.id} className={cx('vx-metadatalist-item', props.className)} style={{ flexDirection: 'column', marginBottom: 8, ...(props.style as any) }} flexDirection="column">
 				{labelRow}
 				{childContent(props.children, 'vx-metadatalist-value')}
-			</flexboxlayout>
+			</masonview>
 		);
 	}
 
