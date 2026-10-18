@@ -53,7 +53,7 @@
 	"scripts": {
 		"test:native": "vitest run --config vitest.native.config.mts",
 		"typegen": "tsc -p tsconfig.types.json",
-		"build:assets": "node ../richtext/build-browser.mjs",
+		"build:assets": "node ../richtext/build-browser.ts",
 		"prepack": "pnpm build:assets && pnpm typegen"
 	},
 	"dependencies": {
