@@ -86,6 +86,16 @@ jobs:
             (github.event.workflow_run.name == 'CI' && 'nightly' || 'stable') ||
             inputs.track || 'stable' }}
     steps:
+      - name: Require nightly tag credential
+        if: env.RELEASE_TRACK == 'nightly'
+        env:
+          GH_TOKEN: ${{ secrets.NIGHTLY_RELEASE_TOKEN }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::Set NIGHTLY_RELEASE_TOKEN with Contents: write and Workflows: write for this repository; see .agents/docs/releases.md."
+            exit 1
+          fi
+
       - name: Checkout the tested revision
         uses: actions/checkout@v6
         with:
@@ -287,11 +297,16 @@ jobs:
       - name: Move the nightly tag and prerelease
         if: needs.gate.outputs.channel == 'nightly'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.NIGHTLY_RELEASE_TOKEN }}
         run: |
           set -euo pipefail
           git tag -f nightly "$TESTED_SHA"
-          git push --force origin refs/tags/nightly
+          # Bypass checkout's GITHUB_TOKEN header and credential helper for
+          # this push: tagging workflow changes requires Workflows: write.
+          git -c http.https://github.com/.extraheader= \
+            -c credential.helper= \
+            -c 'credential.helper=!gh auth git-credential' \
+            push --force origin refs/tags/nightly
           gh release delete nightly --yes 2>/dev/null || true
           gh release create nightly --title nightly --prerelease \
             --notes "Nightly prerelease of ${TESTED_SHA} — install with \`pnpm add @octane-xplat/<pkg>@nightly\` (published as ${{ steps.nightly.outputs.version }})."

@@ -16,6 +16,23 @@ to `main` or change `latest`. Stable completion does not republish nightly.
 Recipe structure and documentation links run in the PR-only `repo-hygiene`
 job; they do not determine release eligibility.
 
+Nightly GitHub tagging requires the `NIGHTLY_RELEASE_TOKEN` repository secret.
+Create a fine-grained personal access token limited to
+`octane-xplat/octane-xplat`, with **Contents: write** and **Workflows: write**,
+then store it using GitHub CLI's hidden prompt:
+
+```sh
+gh secret set NIGHTLY_RELEASE_TOKEN --repo octane-xplat/octane-xplat
+```
+
+The release gate checks that the secret is present before either nightly npm
+publisher runs. The token authenticates only the nightly tag/prerelease step;
+its Git push overrides checkout's persisted credential for that command. The
+default `GITHUB_TOKEN` cannot gain `workflows` permission through YAML, and
+GitHub can reject tagging a tested commit that changes workflow files. See
+[GitHub's additional-permissions guidance](https://docs.github.com/en/actions/tutorials/authenticate-with-github_token#granting-additional-permissions).
+This credential is separate from npm's OIDC trusted publishing below.
+
 To reproduce the two consumer gates locally, prepare packages first. The quick
 gate installs real tarballs outside the workspace, checks their declarations
 with plain TypeScript, and compiles the starter through Vite's development and
