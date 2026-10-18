@@ -1,5 +1,5 @@
 diff --git a/dist/driver.js b/dist/driver.js
-index 8bc563a..6aa8346 100644
+index 8bc563a..92aa4e3 100644
 --- a/dist/driver.js
 +++ b/dist/driver.js
 @@ -3,6 +3,7 @@
@@ -22,7 +22,7 @@ index 8bc563a..6aa8346 100644
  }
  function applyProps(node, props) {
      if (node.view === null) {
-@@ -91,15 +95,34 @@
+@@ -91,13 +95,23 @@
      }
  }
  /**
@@ -49,19 +49,8 @@ index 8bc563a..6aa8346 100644
 +    node.props = next;
  }
  function setProp(node, view, name, value) {
-+    // Keep authored placement separate from Grid's computed native coordinates.
-+    // NativeScript does not retain a setter write equal to its default (row/col 0).
-+    if (name === 'row' || name === 'col' || name === 'rowSpan' || name === 'colSpan') {
-+        const key = Symbol.for('octane-xplat.grid-placement');
-+        const placement = view[key] ?? (view[key] = {});
-+        if (value == null || value === unsetValue) delete placement[name];
-+        else placement[name] = value;
-+        view.notify({ eventName: 'xplatGridPlacementChange', object: view });
-+    }
      if (name === 'children' || name === 'key' || name === 'ref')
-         return;
-     // Event props arrive as their own `event` commands.
-@@ -113,13 +136,42 @@
+@@ -113,13 +127,42 @@
          return;
      }
      if (name === 'style') {
@@ -77,10 +66,10 @@ index 8bc563a..6aa8346 100644
 +    // the leaf's mason node exists) and apply live when already parented.
 +    if (MASON_CHILD_PROPS.has(name) && view !== null) {
 +        const stash = view[MASON_CHILD_STASH] ?? (view[MASON_CHILD_STASH] = {});
-+        if (value == null || value === unsetValue)
-+            delete stash[name];
-+        else
-+            stash[name] = value;
++        // Removal writes an explicit tombstone — `in stash` marks the slot
++        // authoritative so the replay below doesn't resurrect stale
++        // node.props values while updateProps is still merging.
++        stash[name] = value == null || value === unsetValue ? undefined : value;
 +        const parent = node.parent;
 +        if (parent !== null && MASON_CONTAINER_TAGS.has(parent.type))
 +            applyMasonChildLayout(node, parent);
@@ -105,7 +94,7 @@ index 8bc563a..6aa8346 100644
      // Core raises `<name>Change` for a script write exactly as for a user
      // edit; a controlled input must not see its own value come back as one.
      const echo = `${name}Change`;
-@@ -134,6 +186,51 @@
+@@ -134,6 +177,51 @@
              node.muted.delete(echo);
      }
  }
@@ -118,7 +107,7 @@ index 8bc563a..6aa8346 100644
 +    if (MASON_CHILD_PROPS.has(name)) {
 +        const stash = view[MASON_CHILD_STASH];
 +        if (stash)
-+            delete stash[name];
++            stash[name] = undefined;
 +    }
 +    if (name === 'children' || name === 'key' || name === 'ref')
 +        return;
@@ -157,7 +146,7 @@ index 8bc563a..6aa8346 100644
  // `class`/`className` compose clsx-style on the DOM renderer; join arrays
  // with spaces so NativeScript's class selectors can match each class.
  function normalizeClass(value) {
-@@ -147,16 +244,331 @@
+@@ -147,16 +235,279 @@
              .join(' ');
      return '';
  }
@@ -198,7 +187,7 @@ index 8bc563a..6aa8346 100644
 +            view.style[key] = nextValue;
 +    }
 +    node.styleKeys = new Set(Object.keys(value));
- }
++}
 +function clearStyleKeys(view, keys) {
 +    if (keys === undefined)
 +        return;
@@ -230,14 +219,11 @@ index 8bc563a..6aa8346 100644
 +}
 +
 +// --- Mason layout cutover ---------------------------------------------------
-+// elements.js resolves the container intrinsics to MasonKit views. Their
-+// NativeScript-shaped props (orientation, rows/columns, dock, grid row/col,
-+// absolute insets, attached alignment) translate into mason Style writes.
-+// Dispatch is by node tag, so nothing below re-derives the view's class.
-+const MASON_CONTAINER_TAGS = new Set([
-+    'stacklayout', 'flexboxlayout', 'gridlayout', 'wraplayout',
-+    'absolutelayout', 'docklayout', 'scrollview', 'liquidglass',
-+]);
++// masonview is the single layout intrinsic — all layout is expressed in CSS
++// props (display/flex/grid/position), forwarded onto the node's mason Style.
++// scrollview stays the platform scroll shell (MasonKit Scroll). Dispatch is
++// by node tag, so nothing below re-derives the view's class.
++const MASON_CONTAINER_TAGS = new Set(['masonview', 'scrollview']);
 +// Props whose CssProperty is registered on core's layout classes, never on
 +// MasonKit's ViewBase — `view.flexDirection` would store a dead field, so the
 +// write is forwarded to the mason Style surface instead.
@@ -252,13 +238,26 @@ index 8bc563a..6aa8346 100644
 +]);
 +// Child-role props that only matter under a mason parent; stashed on the view
 +// at setProp time and replayed once attach gives the leaf a mason node.
++// Covers the shared LayoutChildProps sugar (row/col/dock/edges/attached
++// alignment) and the CSS leaf props an author can set directly.
 +const MASON_CHILD_PROPS = new Set([
 +    'row', 'col', 'rowSpan', 'colSpan', 'dock', 'left', 'top', 'right',
 +    'bottom', 'horizontalAlignment', 'verticalAlignment', 'flexGrow',
 +    'flexShrink', 'flexBasis', 'alignSelf', 'justifySelf', 'order',
 +    'position', 'inset', 'display', 'overflow', 'overflowX', 'overflowY',
++    'gridRow', 'gridColumn', 'gridRowStart', 'gridRowEnd', 'gridColumnStart',
++    'gridColumnEnd', 'gridArea',
 +]);
 +const MASON_CHILD_STASH = Symbol.for('octane-xplat.mason-child-props');
++// CSS leaf props forwarded verbatim under a mason parent (subset of the
++// container set that can appear on a child).
++const MASON_CHILD_CSS_PROPS = [
++    'position', 'inset', 'left', 'top', 'right', 'bottom', 'display',
++    'overflow', 'overflowX', 'overflowY', 'gridRow', 'gridColumn',
++    'gridRowStart', 'gridRowEnd', 'gridColumnStart', 'gridColumnEnd',
++    'gridArea', 'alignSelf', 'justifySelf', 'flexGrow', 'flexShrink',
++    'flexBasis', 'order', 'aspectRatio',
++];
 +
 +/** A mason Style bound to the node's mason leaf — `_styleHelper` on MasonKit's
 + *  own views; for foreign ({N}-native) children, `Style.fromView` binds the
@@ -279,26 +278,7 @@ index 8bc563a..6aa8346 100644
 +    catch {
 +        return undefined;
 +    }
-+}
-+
-+/** 'auto,*,2*,40,10%' -> 'auto 1fr 2fr 40px 10%' */
-+function nsGridTracksToCss(spec) {
-+    return String(spec)
-+        .split(',')
-+        .map((raw) => {
-+            const track = raw.trim();
-+            if (track === 'auto')
-+                return 'auto';
-+            const star = track.match(/^(\d*\.?\d*)\*$/);
-+            if (star)
-+                return `${star[1] === '' || star[1] === '1' ? '1' : star[1]}fr`;
-+            if (track.endsWith('%'))
-+                return track;
-+            const n = Number(track);
-+            return Number.isFinite(n) ? `${n}px` : 'auto';
-+        })
-+        .join(' ');
-+}
+ }
 +
 +/** NS attached alignment -> CSS self-alignment keyword. */
 +function masonAlignKeyword(value) {
@@ -321,33 +301,11 @@ index 8bc563a..6aa8346 100644
 +/** Container-role defaults — equivalent to each NS layout's built-in mode. */
 +function applyMasonDefaults(type, view) {
 +    const style = view.style;
-+    switch (type) {
-+        case 'stacklayout':
-+            style.display = 'flex';
-+            style.flexDirection = 'column';
-+            break;
-+        case 'flexboxlayout':
-+            style.display = 'flex';
-+            style.flexDirection = 'row';
-+            break;
-+        case 'gridlayout':
-+        case 'liquidglass':
-+            style.display = 'grid';
-+            break;
-+        case 'wraplayout':
-+            style.display = 'flex';
-+            style.flexWrap = 'wrap';
-+            style.flexDirection = 'row';
-+            break;
-+        case 'scrollview':
-+            style.display = 'flex';
-+            style.flexDirection = 'column';
-+            style.overflowY = 'scroll';
-+            style.overflowX = 'hidden';
-+            break;
-+        default:
-+            style.display = 'block';
-+            break;
++    if (type === 'scrollview') {
++        style.display = 'flex';
++        style.flexDirection = 'column';
++        style.overflowY = 'scroll';
++        style.overflowX = 'hidden';
 +    }
 +    style.alignItems = 'stretch';
 +    // Containers establish the containing block for absolute descendants.
@@ -363,51 +321,29 @@ index 8bc563a..6aa8346 100644
 +        style[name] = unset ? undefined : value;
 +        return;
 +    }
-+    switch (node.type) {
-+        case 'stacklayout':
-+            if (name === 'orientation')
-+                style.flexDirection = !unset && value === 'horizontal' ? 'row' : 'column';
-+            break;
-+        case 'wraplayout':
-+            if (name === 'orientation')
-+                style.flexDirection = !unset && value === 'vertical' ? 'column' : 'row';
-+            if (name === 'itemWidth' || name === 'itemHeight') {
-+                for (const child of node.children)
-+                    applyMasonChildLayout(child, node);
-+            }
-+            break;
-+        case 'gridlayout':
-+        case 'liquidglass':
-+            if (name === 'rows')
-+                style.gridTemplateRows = unset ? 'auto' : nsGridTracksToCss(value);
-+            if (name === 'columns')
-+                style.gridTemplateColumns = unset ? 'auto' : nsGridTracksToCss(value);
-+            break;
-+        case 'scrollview': {
-+            if (name === 'orientation' || name === 'horizontal') {
-+                const horizontal = !unset && (value === 'horizontal' || value === true);
-+                style.flexDirection = horizontal ? 'row' : 'column';
-+                style.overflowX = horizontal ? 'scroll' : 'hidden';
-+                style.overflowY = horizontal ? 'hidden' : 'scroll';
-+            }
-+            if (name === 'isScrollEnabled') {
-+                const enabled = !unset && value !== false;
-+                style.overflowX = enabled ? 'scroll' : 'hidden';
-+                style.overflowY = enabled ? 'scroll' : 'hidden';
-+            }
-+            break;
++    if (node.type === 'scrollview') {
++        if (name === 'orientation' || name === 'horizontal') {
++            const horizontal = !unset && (value === 'horizontal' || value === true);
++            style.flexDirection = horizontal ? 'row' : 'column';
++            style.overflowX = horizontal ? 'scroll' : 'hidden';
++            style.overflowY = horizontal ? 'hidden' : 'scroll';
 +        }
-+        case 'docklayout':
-+            if (name === 'stretchLastChild') {
-+                for (const child of node.children)
-+                    applyMasonChildLayout(child, node);
-+            }
-+            break;
++        if (name === 'isScrollEnabled') {
++            const enabled = !unset && value !== false;
++            style.overflowX = enabled ? 'scroll' : 'hidden';
++            style.overflowY = enabled ? 'scroll' : 'hidden';
++        }
 +    }
 +}
 +
 +/** Child-role placement: recomputed per call from the recorded props, so it
-+ *  is safe to replay for every sibling after a dock child inserts. */
++ *  is safe to replay for every sibling after an insert. Sugar props map onto
++ *  CSS leaf style — under any mason parent, not per tag:
++ *   - row/col/rowSpan/colSpan -> grid lines (zero-based -> one-based)
++ *   - dock / left/top/right/bottom -> position absolute + insets
++ *   - attached alignment -> self-align on the parent's cross axis (grid
++ *     parents consume both axes)
++ *   - the remaining entries are the CSS props themselves, passed through. */
 +function applyMasonChildLayout(node, parent) {
 +    const view = node.view;
 +    if (view === null || view === undefined)
@@ -417,84 +353,85 @@ index 8bc563a..6aa8346 100644
 +        return;
 +    const props = node.props ?? {};
 +    const stash = view[MASON_CHILD_STASH] ?? {};
-+    const tag = parent.type;
-+    // Generic CSS-style props carry to the leaf under any mason parent; the
-+    // tag-specific blocks below own their own overrides (dock/absolute write
-+    // position + insets after this).
-+    for (const name of ['position', 'inset', 'display', 'overflow', 'overflowX', 'overflowY']) {
-+        const v = stash[name] ?? props[name];
++    const get = (name) => (name in stash ? stash[name] : props[name]);
++    // CSS leaf props pass straight through.
++    for (const name of MASON_CHILD_CSS_PROPS) {
++        const v = get(name);
 +        if (v != null)
 +            style[name] = v;
 +    }
-+    if (tag === 'gridlayout' || tag === 'liquidglass') {
-+        const row = Number(stash.row ?? props.row ?? 0);
-+        const col = Number(stash.col ?? props.col ?? 0);
-+        const rowSpan = Number(stash.rowSpan ?? props.rowSpan ?? 1);
-+        const colSpan = Number(stash.colSpan ?? props.colSpan ?? 1);
-+        style.gridRow = `${row + 1}${rowSpan > 1 ? ` / span ${rowSpan}` : ''}`;
-+        style.gridColumn = `${col + 1}${colSpan > 1 ? ` / span ${colSpan}` : ''}`;
-+        const justify = masonAlignKeyword(stash.horizontalAlignment ?? props.horizontalAlignment);
-+        const align = masonAlignKeyword(stash.verticalAlignment ?? props.verticalAlignment);
-+        if (justify)
-+            style.justifySelf = justify;
-+        if (align)
-+            style.alignSelf = align;
++    // Grid sugar -> grid lines. 'auto' resets when a sugar prop is removed —
++    // the stash entry is already gone by the time this replays.
++    const row = get('row'), col = get('col');
++    const rowSpan = get('rowSpan'), colSpan = get('colSpan');
++    if (stash.__sugarGrid === true || row != null || rowSpan != null || col != null || colSpan != null) {
++        style.gridRow = row != null || rowSpan != null
++            ? `${Number(row ?? 0) + 1}${Number(rowSpan) > 1 ? ` / span ${rowSpan}` : ''}`
++            : 'auto';
++        style.gridColumn = col != null || colSpan != null
++            ? `${Number(col ?? 0) + 1}${Number(colSpan) > 1 ? ` / span ${colSpan}` : ''}`
++            : 'auto';
++        stash.__sugarGrid = row != null || rowSpan != null || col != null || colSpan != null;
 +    }
-+    if (tag === 'absolutelayout') {
++    // Dock + edge sugar -> absolute insets.
++    const dock = get('dock');
++    if (dock != null) {
 +        style.position = 'absolute';
-+        for (const edge of ['left', 'top', 'right', 'bottom']) {
-+            const v = stash[edge] ?? props[edge];
-+            if (v != null)
-+                style[edge] = v;
++        if (dock === 'left' || dock === 'top' || dock === 'bottom')
++            style.left = 0;
++        if (dock === 'right' || dock === 'top' || dock === 'bottom')
++            style.right = 0;
++        if (dock === 'top' || dock === 'left' || dock === 'right')
++            style.top = 0;
++        if (dock === 'bottom' || dock === 'left' || dock === 'right')
++            style.bottom = 0;
++        stash.__hadPosition = true;
++    }
++    let hasEdge = false;
++    for (const edge of ['left', 'top', 'right', 'bottom']) {
++        const v = get(edge);
++        if (v != null) {
++            style[edge] = v;
++            hasEdge = true;
 +        }
 +    }
-+    if (tag === 'docklayout') {
-+        const siblings = (parent.children ?? []).filter((s) => s.view !== null);
-+        const last = siblings.length > 0 && siblings[siblings.length - 1] === node;
-+        const dock = stash.dock ?? props.dock ?? 'left';
-+        const fills = dock === 'fill' ||
-+            (last && parent.props?.stretchLastChild !== false);
++    if (hasEdge && get('position') == null && dock == null) {
 +        style.position = 'absolute';
-+        style.left = fills || dock === 'left' || dock === 'top' || dock === 'bottom' ? 0 : undefined;
-+        style.right = fills || dock === 'right' || dock === 'top' || dock === 'bottom' ? 0 : undefined;
-+        style.top = fills || dock === 'top' || dock === 'left' || dock === 'right' ? 0 : undefined;
-+        style.bottom = fills || dock === 'bottom' || dock === 'left' || dock === 'right' ? 0 : undefined;
++        stash.__hadPosition = true;
 +    }
-+    if (tag === 'wraplayout') {
-+        const itemWidth = parent.props?.itemWidth;
-+        const itemHeight = parent.props?.itemHeight;
-+        if (itemWidth)
-+            style.width = itemWidth;
-+        if (itemHeight)
-+            style.height = itemHeight;
++    else if (!hasEdge && dock == null && stash.__hadPosition === true && get('position') == null) {
++        // Edges/dock removed — restore the containing-block position.
++        style.position = 'static';
++        stash.__hadPosition = false;
 +    }
-+    if (['stacklayout', 'flexboxlayout', 'scrollview'].includes(tag)) {
-+        // NS attached alignment on a flex row/column is cross-axis self-align.
-+        const flexDir = tag === 'scrollview'
-+            ? parent.props?.orientation === 'horizontal' || parent.props?.horizontal === true
-+                ? 'row'
-+                : 'column'
-+            : tag === 'flexboxlayout'
-+                ? 'row'
-+                : parent.props?.orientation === 'horizontal' ? 'row' : 'column';
-+        const cross = flexDir === 'row'
-+            ? masonAlignKeyword(stash.verticalAlignment ?? props.verticalAlignment)
-+            : masonAlignKeyword(stash.horizontalAlignment ?? props.horizontalAlignment);
-+        if (cross)
-+            style.alignSelf = cross;
-+    }
-+    // Flex-item props survive on the leaf itself.
-+    for (const name of ['flexGrow', 'flexShrink', 'flexBasis', 'alignSelf', 'justifySelf', 'order']) {
-+        const v = stash[name] ?? props[name];
-+        if (v != null)
-+            style[name] = v;
++    // Attached alignment: grid parents consume both axes; flex parents take
++    // cross-axis self-align only (main-axis alignment is container-level).
++    const horizontal = masonAlignKeyword(get('horizontalAlignment'));
++    const vertical = masonAlignKeyword(get('verticalAlignment'));
++    if (horizontal || vertical) {
++        const parentStyle = parent.view?.style;
++        const display = parentStyle?.display;
++        if (display === 'grid' || display === 'inline-grid') {
++            if (horizontal)
++                style.justifySelf = horizontal;
++            if (vertical)
++                style.alignSelf = vertical;
++        }
++        else {
++            const dir = parent.type === 'scrollview'
++                ? parentStyle?.flexDirection ?? 'column'
++                : parentStyle?.flexDirection ?? 'row';
++            const cross = dir === 'row' ? vertical : horizontal;
++            if (cross)
++                style.alignSelf = cross;
++        }
 +    }
 +}
 +
  /** Recompute a text host's `text` from its `#text` children. */
  function syncText(parent) {
      if (parent === null || isPortalTarget(parent))
-@@ -190,6 +602,15 @@
+@@ -190,6 +541,15 @@
          parentView.insertChild(view, Math.min(index, parentView.getChildrenCount()));
          return;
      }
@@ -510,21 +447,21 @@ index 8bc563a..6aa8346 100644
      if (parentView instanceof ContentView) {
          parentView.content = view;
          return;
-@@ -234,6 +655,13 @@
-             parentView.removeChild(view);
-         return;
-     }
-+    // Same capability check as addViewChild: custom-layout containers that
-+    // aren't LayoutBase subclasses remove children through removeChild.
-+    if (typeof parentView.removeChild === 'function' && typeof parentView.insertChild === 'function') {
+@@ -230,6 +590,13 @@
+     if (parentView instanceof LayoutBase) {
+         // `removeChild` throws for a view that is not attached — and `insert`
+         // detaches unconditionally, including nodes that were never attached.
 +        if (view.parent === parentView)
 +            parentView.removeChild(view);
 +        return;
 +    }
-     if (parentView instanceof ContentView) {
-         if (parentView.content === view)
-             parentView.content = CLEARED;
-@@ -370,6 +798,13 @@
++    // Same capability check as addViewChild: custom-layout containers that
++    // aren't LayoutBase subclasses remove children through removeChild.
++    if (typeof parentView.removeChild === 'function' && typeof parentView.insertChild === 'function') {
+         if (view.parent === parentView)
+             parentView.removeChild(view);
+         return;
+@@ -370,6 +737,13 @@
          }
      }
      addViewChild(parentView, node.view, index);
@@ -538,7 +475,16 @@ index 8bc563a..6aa8346 100644
      markTabView(tabViewOwning(node));
  }
  function insert(container, parent, node, before) {
-@@ -641,7 +1076,7 @@
+@@ -548,7 +922,7 @@
+     }
+     const target = owner?.node.view ?? suppliedTarget;
+     if (!(target instanceof LayoutBase)) {
+-        throw new TypeError(`NativeScript driver: a <${target.typeName}> view cannot host portal children; target a layout (e.g. rootlayout, gridlayout).`);
++        throw new TypeError(`NativeScript driver: a <${target.typeName}> view cannot host portal children; target a layout (e.g. rootlayout, masonview).`);
+     }
+     let id = portalTargetIds.get(target);
+     if (id === undefined) {
+@@ -641,7 +1015,7 @@
  }
  export const nativeScriptDriver = {
      id: NATIVESCRIPT_RENDERER_ID,
@@ -548,7 +494,7 @@ index 8bc563a..6aa8346 100644
          classify(name) {
              if (!EVENT_PROP.test(name))
 diff --git a/dist/elements.js b/dist/elements.js
-index a13bcea..45f8e57 100644
+index a13bcea..e9988e1 100644
 --- a/dist/elements.js
 +++ b/dist/elements.js
 @@ -1,4 +1,7 @@
@@ -560,12 +506,11 @@ index a13bcea..45f8e57 100644
  /**
   * Lowercase tag name -> view constructor. The keys are the JSX tag names of
   * `intrinsics.ts`; an app extends the vocabulary with `registerElement`.
-@@ -28,18 +31,18 @@
+@@ -28,18 +31,14 @@
      };
  }
  const BUILTIN_ELEMENTS = [
 -    ['absolutelayout', AbsoluteLayout],
-+    ['absolutelayout', MasonView],
      ['actionbar', ActionBar],
      ['actionitem', ActionItem],
      ['activityindicator', ActivityIndicator],
@@ -574,16 +519,13 @@ index a13bcea..45f8e57 100644
      ['datepicker', DatePicker],
 -    ['docklayout', DockLayout],
 -    ['flexboxlayout', FlexboxLayout],
-+    ['docklayout', MasonView],
-+    ['flexboxlayout', MasonView],
      ['formattedstring', FormattedString],
      ['frame', Frame],
 -    ['gridlayout', GridLayout],
-+    ['gridlayout', MasonView],
      ['htmlview', HtmlView],
      ['image', Image],
      ['label', Label],
-@@ -51,13 +54,13 @@
+@@ -51,13 +50,12 @@
      ['progress', Progress],
      ['proxyviewcontainer', ProxyViewContainer],
      ['rootlayout', RootLayout],
@@ -595,24 +537,21 @@ index a13bcea..45f8e57 100644
      ['slider', Slider],
      ['span', Span],
 -    ['stacklayout', StackLayout],
-+    ['stacklayout', MasonView],
      ['switch', Switch],
      ['tabview', TabView],
      ['tabviewitem', TabViewItem],
-@@ -65,8 +68,10 @@
+@@ -65,8 +63,8 @@
      ['textview', TextView],
      ['timepicker', TimePicker],
      ['webview', WebView],
 -    ['wraplayout', WrapLayout],
-+    ['wraplayout', MasonView],
      ['liquidglass', LiquidGlass],
 +    ['masonview', MasonView],
-+    ['masonscroll', MasonScroll],
  ];
  for (const [tag, element] of BUILTIN_ELEMENTS)
      registerElement(tag, element);
 diff --git a/dist/intrinsics.d.ts b/dist/intrinsics.d.ts
-index 45a47cb..d555b50 100644
+index 45a47cb..518892e 100644
 --- a/dist/intrinsics.d.ts
 +++ b/dist/intrinsics.d.ts
 @@ -24,9 +24,9 @@
@@ -627,7 +566,7 @@ index 45a47cb..d555b50 100644
  /**
   * The driver assigns every non-event prop onto the view instance, so a JSX
   * attribute is a NativeScript view property rather than a DOM attribute.
-@@ -117,7 +117,7 @@ export interface ListViewAttributes {
+@@ -117,25 +117,21 @@
  }
  export interface OctaneAttributes<TInstance> {
      key?: string | number;
@@ -636,3 +575,39 @@ index 45a47cb..d555b50 100644
      children?: NativeScriptNode;
  }
  type Overridden = keyof CommonAttributes | keyof OctaneAttributes<unknown> | keyof CommonEvents<unknown>;
+ /** Props of a JSX tag backed by a `@nativescript/core`-style view class; the type to use for app-registered tags. */
+ export type Attributes<TClass extends abstract new (...args: never[]) => unknown> = Omit<ViewProperties<InstanceType<TClass>> & DerivedEvents<TClass, InstanceType<TClass>>, Overridden> & CommonAttributes & CommonEvents<InstanceType<TClass>> & OctaneAttributes<InstanceType<TClass>>;
+ export interface NativeScriptElements {
+-    absolutelayout: Attributes<typeof NS.AbsoluteLayout>;
+     actionbar: Attributes<typeof NS.ActionBar>;
+     actionitem: Attributes<typeof NS.ActionItem>;
+     activityindicator: Attributes<typeof NS.ActivityIndicator>;
+     button: Attributes<typeof NS.Button>;
+     contentview: Attributes<typeof NS.ContentView>;
+     datepicker: Attributes<typeof NS.DatePicker>;
+-    docklayout: Attributes<typeof NS.DockLayout>;
+-    flexboxlayout: Attributes<typeof NS.FlexboxLayout>;
+     formattedstring: Attributes<typeof NS.FormattedString>;
+     frame: Attributes<typeof NS.Frame>;
+-    gridlayout: Attributes<typeof NS.GridLayout>;
+     htmlview: Attributes<typeof NS.HtmlView>;
+     image: Attributes<typeof NS.Image>;
+     label: Attributes<typeof NS.Label>;
+@@ -153,7 +149,6 @@
+     segmentedbaritem: Attributes<typeof NS.SegmentedBarItem>;
+     slider: Attributes<typeof NS.Slider>;
+     span: Attributes<typeof NS.Span>;
+-    stacklayout: Attributes<typeof NS.StackLayout>;
+     switch: Attributes<typeof NS.Switch>;
+     tabview: Attributes<typeof NS.TabView>;
+     tabviewitem: Attributes<typeof NS.TabViewItem>;
+@@ -161,7 +156,8 @@
+     textview: Attributes<typeof NS.TextView>;
+     timepicker: Attributes<typeof NS.TimePicker>;
+     webview: Attributes<typeof NS.WebView>;
+-    wraplayout: Attributes<typeof NS.WrapLayout>;
++    /** The single layout container — CSS layout props on a MasonKit view. */
++    masonview: any;
+     /** iOS 26 glass surface (plain layout elsewhere); behaves as a GridLayout. */
+     liquidglass: Attributes<typeof NS.LiquidGlass>;
+ }
