@@ -97,28 +97,28 @@ const macContent: MacJSX.IntrinsicElements['contentview'] = {
 void sharedContent
 void macContent
 
-// The mason container retains the shared primitive contract across target
-// conditions — flex-container props and the LayoutChildProps sugar surface.
-// Raw Mason style keys are style-only, so `display` as a prop is an error.
+// The mason intrinsic carries zero layout props — every layout semantic is
+// CSS through `style`/`className`, matching web. Component-level sugar lives
+// on component props and compiles to these style keys before render.
 const masonProps: JSX.IntrinsicElements['masonview'] = {
-	flexDirection: 'row',
-	justifyContent: 'space-between',
-	gap: 8,
-	style: { display: 'grid', gridTemplateColumns: '1fr 2fr' },
+	style: {
+		display: 'grid',
+		gridTemplateColumns: '1fr 2fr',
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		gap: 8,
+	},
 }
-const dockChildProps: JSX.IntrinsicElements['label'] = { dock: 'right' }
 void masonProps
-void dockChildProps
-// @ts-expect-error raw Mason style keys are style-only
-const badMasonProps: JSX.IntrinsicElements['masonview'] = { display: 'grid' }
-// @ts-expect-error attached dock edges are closed
-const badDockChildProps: JSX.IntrinsicElements['label'] = { dock: 'center' }
+// @ts-expect-error no layout props on the intrinsic — style only
+const badMasonProps: JSX.IntrinsicElements['masonview'] = { flexDirection: 'row' }
+// @ts-expect-error attached placement sugar is not an intrinsic prop
+const badDockChildProps: JSX.IntrinsicElements['label'] = { dock: 'right' }
 void badMasonProps
 void badDockChildProps
 
 const macMasonProps: MacJSX.IntrinsicElements['masonview'] = {
-	flexDirection: 'column',
-	gap: 8,
+	style: { display: 'flex', flexDirection: 'column', gap: 8 },
 }
 
 void macMasonProps
@@ -131,8 +131,6 @@ void badWrapOrientation
 
 // Viewless macOS hosts expose logical identity, never an NSView facade.
 const macProxy: MacJSX.IntrinsicElements['proxyviewcontainer'] = {
-	row: 1,
-	dock: 'right',
 	ref: [
 		(element) => {
 			if (element) {

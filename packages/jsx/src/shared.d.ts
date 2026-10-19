@@ -159,22 +159,6 @@ export interface CommonAttributes {
 	 * of being added as a regular layout child.
 	 */
 	hostSlot?: string
-	row?: number | string
-	col?: number | string
-	rowSpan?: number | string
-	colSpan?: number | string
-	dock?: 'top' | 'right' | 'bottom' | 'left'
-	left?: number | string
-	top?: number | string
-	right?: number | string
-	bottom?: number | string
-	flexGrow?: number | string
-	flexShrink?: number | string
-	flexWrapBefore?: boolean | string
-	alignSelf?: 'auto' | 'flex-start' | 'flex-end' | 'center' | 'baseline' | 'stretch'
-	order?: number | string
-	horizontalAlignment?: 'left' | 'center' | 'right' | 'stretch'
-	verticalAlignment?: 'top' | 'middle' | 'bottom' | 'stretch'
 	visibility?: 'visible' | 'hidden' | 'collapse'
 	accessible?: boolean
 	accessibilityLabel?: string
@@ -236,46 +220,13 @@ export type Attributes<TElement, Props = object> = OctaneAttributes<TElement> &
 // ---------------------------------------------------------------------------
 
 /** The single layout container — CSS layout semantics backed by Mason on
- *  every native target. Raw Mason/CSS style keys (`display`, `position`,
- *  grid tracks, overflow, insets, …) are style-only: set them through
- *  `style={{…}}` or `className`, never as direct props. What remains here is
- *  the shared component contract: flex-container props (FlexContainerProps
- *  vocabulary) and the LayoutChildProps placement sugar — row/col/rowSpan/
- *  colSpan become grid lines, left/top/right/bottom and dock become absolute
- *  insets, and horizontalAlignment/verticalAlignment map to self-alignment
- *  on the parent's axes. */
-export interface MasonViewProps {
-	flexDirection?: 'row' | 'column' | 'row-reverse' | 'column-reverse'
-	flexWrap?: 'nowrap' | 'wrap' | 'wrap-reverse'
-	justifyContent?:
-		| 'flex-start'
-		| 'flex-end'
-		| 'center'
-		| 'space-between'
-		| 'space-around'
-		| 'space-evenly'
-	alignItems?: 'flex-start' | 'flex-end' | 'center' | 'baseline' | 'stretch'
-	alignContent?: 'flex-start' | 'flex-end' | 'center' | 'space-between' | 'space-around' | 'stretch'
-	gap?: number | string
-	rowGap?: number | string
-	columnGap?: number | string
-	flexGrow?: number
-	flexShrink?: number
-	alignSelf?: string
-	order?: number
-	// LayoutChildProps sugar — see the interface doc.
-	row?: number
-	col?: number
-	rowSpan?: number
-	colSpan?: number
-	dock?: 'left' | 'top' | 'right' | 'bottom'
-	left?: number | string
-	top?: number | string
-	right?: number | string
-	bottom?: number | string
-	horizontalAlignment?: 'left' | 'right' | 'center' | 'stretch'
-	verticalAlignment?: 'top' | 'bottom' | 'middle' | 'center' | 'stretch'
-}
+ *  every native target. ALL layout is expressed through `style`/`className`
+ *  (the `MasonStyleProps` surface): display, position, grid tracks, flex
+ *  configuration, insets — the DOM-style channel web uses. No layout prop
+ *  exists here; the drivers warn and drop former prop names. Components keep
+ *  their semantic APIs (`direction`, `hAlign`, `row`, `dock`, …) and
+ *  translate them internally, exactly as the web targets do. */
+export interface MasonViewProps {}
 
 export interface TextBaseProps {
 	text?: string | number
