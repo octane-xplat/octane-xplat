@@ -46,6 +46,12 @@ the discovery/retrieval subset plus the web session journey — build, launch,
 session/job polling, logs, inspect, dom-event and os-input interaction,
 capture gating, dev-action discovery/invocation, and ownership-safe cleanup —
 through the installed `xplat` bin and its per-workspace runtime host.
+The [agent CLI skill guide](../../skills/octane-xplat/references/cli.md) teaches
+that path using installed help/schema for command details: selection and
+version-bound retrieval (AC1), jobs/readiness/logs (AC2), inspection and state
+assertions (AC3), declared actions (AC4), and evidence/ownership-safe cleanup
+(AC5). It preserves the capability and evidence boundaries in AC6 rather than
+claiming these instructions qualify additional targets.
 Session ACs on the five non-web targets remain MCP-covered; the agent lane
 asserts honest `unsupported_capability`/prerequisite errors rather than a
 full-device qualification.

@@ -58,6 +58,11 @@ export function PackingStatus() {
 
 ## Read for the current task
 
+Use the [CLI workflow](references/cli.md) when discovering app context or
+operating the app through `xplat`. Exact syntax lives in installed `--help`;
+agent commands also provide `--schema`, and `catalog --json` supplies structured
+discovery. The skill teaches how to choose and combine them.
+
 Read the relevant topic, then follow deeper links only when their stated
 question applies. Read canonical docs in addition to this skill whenever the
 task needs API details, prerequisites, migration instructions, or platform
@@ -65,6 +70,7 @@ limitations. Do not load the entire reference tree by default.
 
 | Task                                               | Start here                                                                                                                                       |
 | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Discover or operate the installed CLI              | [CLI workflow](references/cli.md)                                                                                                                |
 | Create, run, or upgrade an app                     | [Getting started](references/getting-started.md)                                                                                                 |
 | Choose/use a component                             | [Primitives](references/primitives.md)                                                                                                           |
 | Implement/debug a native leaf                      | [Driver semantics](references/primitives/driver-semantics.md)                                                                                    |
@@ -81,19 +87,10 @@ limitations. Do not load the entire reference tree by default.
 
 For app work, start with [public guides](../../../docs/README.md), declarations
 for the installed package version, and the app's own instructions. Use
-[installed-version retrieval](../../../packages/cli/README.md#agents) when
-available; it reports missing snapshots and conflicts instead of silently
-substituting latest docs.
-
-```sh
-pnpm xplat status --json
-# Bind the intended app if status reports no or ambiguous selection:
-pnpm xplat app select APP_ID
-pnpm xplat guidance
-pnpm xplat docs search "navigation"
-# Use the exact ref returned by search:
-pnpm xplat docs read --ref DOC_REF
-```
+[installed-version context retrieval](references/cli.md#bind-the-app-and-retrieve-context)
+when available; it reports missing snapshots and conflicts instead of silently
+substituting latest docs. Use installed help and schemas for command contracts
+rather than copying flags from another framework version.
 
 Repository contributors also read [AGENTS.md](../../../AGENTS.md) and its
 applicable references. `packages/app`/`packages/demos` and `apps/*` are proving
