@@ -155,8 +155,8 @@ export function PackingToggle() {
 
 ## Conventions
 
-- `className` composes with each leaf's own `vx-*` class; use `cx()` for
-  native class composition.
+- `className` composes with each leaf's own `vx-*` class. Pass arrays directly
+  to the JSX prop, for example `className={['vx-view', props.className]}`.
 - `id` sets the element id — probes find views by it (`getViewById` on
   native, DOM id on web).
 - Pan events normalize to `{x,y,dx,dy,vx,vy,state,target}` and swipe events
