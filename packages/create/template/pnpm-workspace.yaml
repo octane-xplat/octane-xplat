@@ -136,9 +136,7 @@ configDependencies:
   "@octane-xplat/patches": 0.15.0
 catalogs:
   xplat:
-    "@nativescript-community/gesturehandler": 2.0.45
     "@nativescript-community/octane": 0.2.5
-    "@nativescript-community/ui-drawer": 0.1.32
     "@nativescript-community/vite-octane": 0.2.1
     "@nativescript/android": 9.1.1
     "@nativescript/core": 9.1.3
@@ -147,15 +145,15 @@ catalogs:
     "@nativescript/unit-test-runner": 5.0.0
     "@nativescript/vite": 8.0.17
     "@octane-xplat/cli": 0.15.0
-    "@octane-xplat/effects": 0.15.0
-    "@octane-xplat/image": 0.15.0
+    "@octane-xplat/jsx": 0.15.0
     "@octane-xplat/platform": 0.15.0
     "@octane-xplat/ui": 0.15.0
     "@octanejs/vite-plugin": 0.1.61
+    "@triniwiz/nativescript-masonkit": 1.0.0-beta.110
     "@tsrx/oxc": 0.20.0
     "@tsrx/typescript-plugin": 0.4.11
-    "@triniwiz/nativescript-masonkit": 1.0.0-beta.110
     "@valor/nativescript-websockets": 2.0.3
+    jsdom: 30.1.1
     nativescript: 9.1.1
     octane: 0.11.0
     typescript: 5.9.3

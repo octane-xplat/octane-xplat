@@ -10,6 +10,7 @@ catalogs:
     "@nativescript/core": 9.1.3
     "@nativescript/types": 9.1.4
     "@octane-xplat/cli": 0.15.0
+    "@octane-xplat/jsx": 0.15.0
     "@octane-xplat/ui": 0.15.0
     "@octanejs/vite-plugin": 0.1.61
     "@tsrx/oxc": 0.20.0

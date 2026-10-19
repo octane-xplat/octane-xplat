@@ -51,6 +51,7 @@ const cacheScope = JSON.stringify([
 	process.env.GITHUB_WORKFLOW_REF,
 	process.env.GITHUB_JOB,
 ])
+
 const now = Date.now()
 const maxAge = 24 * 60 * 60 * 1000
 let checked = {}
@@ -70,12 +71,16 @@ if (cacheFile) {
 }
 
 const pending = selected.filter(({ name }) => {
-	if (!Object.hasOwn(checked, name)) return true
+	if (!Object.hasOwn(checked, name)) {
+		return true
+	}
 	console.log(`ok: ${name} has a trusted publisher (cached)`)
 	return false
 })
 
-if (!pending.length) process.exit(0)
+if (!pending.length) {
+	process.exit(0)
+}
 
 const url = new URL(requestUrl)
 url.searchParams.set('audience', `npm:${new URL(registry).hostname}`)
