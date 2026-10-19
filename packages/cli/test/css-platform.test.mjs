@@ -16,6 +16,7 @@ function fixture(files) {
 	}
 	return root
 }
+
 afterEach(() =>
 	temporary.splice(0).forEach((root) => rmSync(root, { recursive: true, force: true })),
 )
@@ -57,8 +58,9 @@ for (const [target, expected] of [
 		})
 		const css = await bundle(root, target)
 		assert.match(css, new RegExp(`\\.${expected}\\s*\\{`))
-		for (const name of ['web', 'ios', 'mobile', 'default'].filter((name) => name !== expected))
+		for (const name of ['web', 'ios', 'mobile', 'default'].filter((name) => name !== expected)) {
 			assert.ok(!css.includes(`.${name} {`), css)
+		}
 	})
 }
 

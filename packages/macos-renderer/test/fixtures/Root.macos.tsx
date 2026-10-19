@@ -25,7 +25,12 @@ export default function Root() {
 	const phase$ = useSignal$(0)
 	const phase = phase$.get()
 	return (
-		<masonview style={{flexDirection: "column", ...({display: "flex"})}}>
+		<masonview
+			style={{
+				flexDirection: 'column',
+				display: 'flex',
+			}}
+		>
 			<rootlayout
 				id="root"
 				ref={rootRefs.host}
@@ -34,7 +39,15 @@ export default function Root() {
 				{(phase >= 3 ? ['b', 'a'] : ['a', 'b'])
 					.filter((id) => phase < 4 || id !== 'b')
 					.map((id) => (
-						<contentview key={id} id={'root-' + id} style={phase === 1 ? { width: 40, height: 20, margin: 5, justifySelf: 'end', alignSelf: 'end' } : undefined}>
+						<contentview
+							key={id}
+							id={'root-' + id}
+							style={
+								phase === 1
+									? { width: 40, height: 20, margin: 5, justifySelf: 'end', alignSelf: 'end' }
+									: undefined
+							}
+						>
 							<label id={'root-text-' + id} text={phase === 1 ? 'Updated ' + id : id} />
 						</contentview>
 					))}
@@ -62,11 +75,11 @@ export default function Root() {
 			</rootlayout>
 			<rootlayout id="root-percent" style={{ width: 200, height: 80, padding: 10 }}>
 				<contentview id="root-percent-child" style={{ width: '50%', height: '50%' }} />
-				<proxyviewcontainer style={{gridRow: '8', gridColumn: '10'}}>
+				<proxyviewcontainer style={{ gridRow: '8', gridColumn: '10' }}>
 					<contentview id="root-projected" />
 				</proxyviewcontainer>
 			</rootlayout>
-			<masonview id="advance-root" onTap={() => phase$.set(phase + 1)} style={{display: "flex"}}>
+			<masonview id="advance-root" onTap={() => phase$.set(phase + 1)} style={{ display: 'flex' }}>
 				<label text="Advance root" />
 			</masonview>
 		</masonview>

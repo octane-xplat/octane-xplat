@@ -171,7 +171,6 @@ export interface ElementNode {
 	[key: string]: any
 }
 
-
 /** Options published through `__xplatAppKit.showAnchoredPopup` (Tooltip/Hoverable). */
 interface PopupOptions {
 	anchor?: NSView
@@ -322,7 +321,6 @@ const compatInstallation = installCompat({
 	applyAccessibility,
 	queueLayoutReconcile,
 })
-
 
 const rootLayoutNodesByView = new WeakMap<object, ElementNode>()
 const contentViewNodesByView = new WeakMap<object, ElementNode>()
@@ -548,7 +546,6 @@ class InteractionSecureTextFieldCell extends NSSecureTextFieldCell {
 }
 
 const inputTransparentViews = new WeakSet<object>()
-
 
 // The macOS Slider uses the grid host as an overlay when no tracks are set.
 
@@ -827,7 +824,6 @@ class PlaceholderHostView extends NSView {
 // and ViewHelper's measurement/alignment rules. Ordered strips need NSView,
 // not NSStackView's single layout axis.
 
-
 // NativeScript 9.1.2 (MIT), RootLayoutBase extends GridLayout. The shared
 // rootlayout contract exposes no rows/columns: its implicit single cell
 // overlaps all children, including nonzero attached indices clamped to it.
@@ -872,11 +868,9 @@ function makeRootLayout(node: ElementNode) {
 	return view
 }
 
-
 // Wrapping must be allowed to shrink on its flow axis. A 750-point
 // intrinsic compression priority outranks WindowSizeStayPut (500) and forces
 // the window back to the old row/column length before any reflow can occur.
-
 
 function makeContentView() {
 	const view = ContentViewHost.alloc().initWithFrame({
@@ -1110,10 +1104,6 @@ function observeContentGeometry(node: ElementNode) {
 		)
 }
 
-
-
-
-
 const MARGIN_SIDES: Record<string, string> = {
 	marginTop: 'top',
 	marginRight: 'right',
@@ -1124,9 +1114,6 @@ const MARGIN_SIDES: Record<string, string> = {
 function layoutView(node: ElementNode) {
 	return node.textViewport ?? node.view
 }
-
-
-
 
 /** Wrap/unwrap/re-apply margins on a node that is already arranged inside a
  *  stack. Margins set before insert are materialized there instead. */
@@ -1160,14 +1147,9 @@ function setMarginStyle(node: ElementNode, name: string, value: any) {
 	}
 }
 
-
-
 /** Reconcile one gravity area with the children's desired views. Only
  *  re-parented children land in `moved` — detaching a view that is (or
  *  contains) the first responder ends the active editing session. */
-
-
-
 
 /** Wires tap/click handling + the accessibility actionId onto any view —
  *  shared by stack factories and mason-backed container views. */
@@ -1196,7 +1178,6 @@ function wireViewAction(view: NSView, props: PropBag): number | undefined {
 
 	return actionId
 }
-
 
 function makeLabel(): NSTextField {
 	const label = NSTextField.alloc().initWithFrame({
@@ -1998,8 +1979,6 @@ function makeSlider(props: PropBag) {
 	return { view: slider, actionId }
 }
 
-
-
 function makeLiquidGlass(node: ElementNode) {
 	const view = LiquidGlassView.alloc().initWithFrame({
 		origin: { x: 0, y: 0 },
@@ -2130,8 +2109,6 @@ function releasePlacementPins(node: ElementNode) {
 	node.placementPins = null
 }
 
-
-
 // Width/height percentages use the parent's full measured size, not the
 // progressively smaller strip. Explicit lengths are capped by the measure slot
 // (NativeScript ViewHelper.getMeasureSpec); margins consume additional space.
@@ -2168,7 +2145,6 @@ function dockChildSize(
 		Math.min(desired != null || spec ? available : Math.max(0, available - margin), length),
 	)
 }
-
 
 function rootNaturalSize(parent: ElementNode | undefined) {
 	let width = 0,
@@ -2402,9 +2378,7 @@ function validateNodeProps(type: string, props: PropBag | undefined, baseProps?:
 					if (
 						parent &&
 						(typeHasView(child) || child === 'proxyviewcontainer') &&
-						!(
-							VIEW_PARENT_TYPES.has(parent) || behaviorOf(parent)?.container === true
-						)
+						!(VIEW_PARENT_TYPES.has(parent) || behaviorOf(parent)?.container === true)
 					) {
 						throw new TypeError(
 							'[macos-host] listview itemTemplate: <' + parent + '> cannot contain child views',
@@ -2630,127 +2604,130 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 			// Registered element behaviors own their factory (mason-backed
 			// containers, plugin elements).
 			makeBehavior(node, props)
-		} else switch (type) {
-			case 'rootlayout':
-				node.view = makeRootLayout(node)
-				break
-			case 'actionbar':
-			case 'contentview':
-				node.view = type === 'actionbar' ? makeActionBar(node) : makeContentView()
-				contentViewNodesByView.set(node.view!, node)
-				observeContentGeometry(node)
-				break
-			case 'liquidglass':
-				node.view = makeLiquidGlass(node)
-				break
-			case 'tabview':
-				node.view = makeTabView(node)
-				break
-			case 'tabviewitem':
-				makeTabItem(node)
-				break
-			case 'segmentedbar': {
-				const control = makeSegmentedBar(node)
-				node.view = control.view
-				node.actionId = control.actionId
-				break
-			}
-			case 'listview':
-				node.view = makeListView({
-					createRoot: (host) => createMacOSRoot(host, { fontFamily: container.fontFamily }),
-					releaseOwnedRoot: (host) => ownedRoots.get(host)?.unmount(),
-					color: nativeColor,
-				}) as AppKitView
-
-				break
-			case 'listpicker': {
-				const control = makeListPicker(node)
-				node.view = control.view
-				node.actionId = control.actionId
-				break
-			}
-			case 'timepicker': {
-				const control = makeTimePicker(node)
-				node.view = control.view
-				node.actionId = control.actionId
-				break
-			}
-			case 'datepicker': {
-				const control = makeDatePicker(node)
-				node.view = control.view
-				node.actionId = control.actionId
-				break
-			}
-			case 'progress':
-				node.view = makeProgress()
-				break
-			case 'activityindicator':
-				node.view = makeActivityIndicator()
-				break
-			case 'htmlview':
-				node.view = makeLabel()
-				// @ts-ignore selectable is writable on NSTextView; generated decl marks it readonly.
-				node.view.selectable = true
-				break
-			case 'label':
-				node.view = makeLabel()
-				break
-			case '#text':
-				break
-			case 'button': {
-				const button = makeButton(props)
-				node.view = button.view
-				node.actionId = button.actionId
-				break
-			}
-			case 'scrollview': {
-				const scroll = makeScrollView(node)
-				node.view = scroll.view
-				node.childHost = scroll.childHost
-				break
-			}
-			case 'searchbar':
-				node.view = makeSearchBar()
-				break
-			case 'textfield':
-				node.view = makeTextField(props) as unknown as NSView
-				break
-			case 'textview':
-				node.view = makeTextField(props, true) as unknown as NSView
-				break
-			case 'switch': {
-				const control = makeSwitch(props)
-				node.view = control.view
-				node.actionId = control.actionId
-				break
-			}
-			case 'slider': {
-				const control = makeSlider(props)
-				node.view = control.view
-				node.actionId = control.actionId
-				break
-			}
-			case 'webview':
-				node.view = makeWebView()
-				break
-			case 'image':
-				node.view = makeImageView(props)
-				break
-			case 'placeholder':
-				node.view = makePlaceholder(node)
-				break
-			case 'proxyviewcontainer':
-			case 'formattedstring':
-			case 'segmentedbaritem':
-			case 'span':
-				break
-			default: {
-				const behavior = behaviorOf(type)
-				if (!behavior?.make) {
-					throw new Error('AppKit spike does not support <' + type + '>')
+		} else {
+			switch (type) {
+				case 'rootlayout':
+					node.view = makeRootLayout(node)
+					break
+				case 'actionbar':
+				case 'contentview':
+					node.view = type === 'actionbar' ? makeActionBar(node) : makeContentView()
+					contentViewNodesByView.set(node.view!, node)
+					observeContentGeometry(node)
+					break
+				case 'liquidglass':
+					node.view = makeLiquidGlass(node)
+					break
+				case 'tabview':
+					node.view = makeTabView(node)
+					break
+				case 'tabviewitem':
+					makeTabItem(node)
+					break
+				case 'segmentedbar': {
+					const control = makeSegmentedBar(node)
+					node.view = control.view
+					node.actionId = control.actionId
+					break
 				}
-				behavior.make(node, props)
-				break
+				case 'listview':
+					node.view = makeListView({
+						createRoot: (host) => createMacOSRoot(host, { fontFamily: container.fontFamily }),
+						releaseOwnedRoot: (host) => ownedRoots.get(host)?.unmount(),
+						color: nativeColor,
+					}) as AppKitView
+
+					break
+				case 'listpicker': {
+					const control = makeListPicker(node)
+					node.view = control.view
+					node.actionId = control.actionId
+					break
+				}
+				case 'timepicker': {
+					const control = makeTimePicker(node)
+					node.view = control.view
+					node.actionId = control.actionId
+					break
+				}
+				case 'datepicker': {
+					const control = makeDatePicker(node)
+					node.view = control.view
+					node.actionId = control.actionId
+					break
+				}
+				case 'progress':
+					node.view = makeProgress()
+					break
+				case 'activityindicator':
+					node.view = makeActivityIndicator()
+					break
+				case 'htmlview':
+					node.view = makeLabel()
+					// @ts-ignore selectable is writable on NSTextView; generated decl marks it readonly.
+					node.view.selectable = true
+					break
+				case 'label':
+					node.view = makeLabel()
+					break
+				case '#text':
+					break
+				case 'button': {
+					const button = makeButton(props)
+					node.view = button.view
+					node.actionId = button.actionId
+					break
+				}
+				case 'scrollview': {
+					const scroll = makeScrollView(node)
+					node.view = scroll.view
+					node.childHost = scroll.childHost
+					break
+				}
+				case 'searchbar':
+					node.view = makeSearchBar()
+					break
+				case 'textfield':
+					node.view = makeTextField(props) as unknown as NSView
+					break
+				case 'textview':
+					node.view = makeTextField(props, true) as unknown as NSView
+					break
+				case 'switch': {
+					const control = makeSwitch(props)
+					node.view = control.view
+					node.actionId = control.actionId
+					break
+				}
+				case 'slider': {
+					const control = makeSlider(props)
+					node.view = control.view
+					node.actionId = control.actionId
+					break
+				}
+				case 'webview':
+					node.view = makeWebView()
+					break
+				case 'image':
+					node.view = makeImageView(props)
+					break
+				case 'placeholder':
+					node.view = makePlaceholder(node)
+					break
+				case 'proxyviewcontainer':
+				case 'formattedstring':
+				case 'segmentedbaritem':
+				case 'span':
+					break
+				default: {
+					const behavior = behaviorOf(type)
+					if (!behavior?.make) {
+						throw new Error('AppKit spike does not support <' + type + '>')
+					}
+
+					behavior.make(node, props)
+					break
+				}
 			}
 		}
 
@@ -3084,11 +3061,7 @@ function applySizeConstraint(node: ElementNode, name: string) {
 	}
 
 	const spec = node.sizeConstraintSpecs?.[name]
-	if (
-		!spec ||
-		!node.view ||
-		isManualLayoutParent((node.layoutParent ?? node.parent)?.type)
-	) {
+	if (!spec || !node.view || isManualLayoutParent((node.layoutParent ?? node.parent)?.type)) {
 		return
 	}
 
@@ -4294,7 +4267,6 @@ function applyProps(node: ElementNode, props: PropBag) {
 			continue
 		}
 
-
 		// Attached alignment metadata is retained before the batch inserts
 		// the child; its parent consumes it during layout reconciliation.
 		if (
@@ -4833,11 +4805,11 @@ function applyProps(node: ElementNode, props: PropBag) {
 				if (behavior && !behavior.applyProp?.(node, name, value)) {
 					console.warn('[macos-host] ignored ' + node.type + ' prop ' + name)
 				}
+
 				break
 			}
 		}
 	}
-
 
 	if (node.type === 'webview') {
 		updateWebView(node, props, (height) => {
@@ -4927,7 +4899,6 @@ function applyProps(node: ElementNode, props: PropBag) {
 		configureScrollAxes(node)
 		queueLayoutReconcile(node.container, node)
 	}
-
 
 	// A container queues its own subtree; a child of a layout parent also
 	// queues the parent — the two are not exclusive (a masonview nested in a
@@ -5115,7 +5086,6 @@ function syncProxyProjection(parent: ElementNode) {
 			}
 		}
 	}
-
 }
 
 /** Simulate logical ownership and ContentView's current slot before applying
@@ -5390,9 +5360,7 @@ function reconcileLayoutParent(parent: ElementNode) {
 	if (parent.type === 'rootlayout') {
 		parent.view?.invalidateIntrinsicContentSize()
 		layoutRootChildren(parent)
-		if (
-			['contentview', 'actionbar', 'rootlayout'].includes(parent.parent?.type ?? '')
-		) {
+		if (['contentview', 'actionbar', 'rootlayout'].includes(parent.parent?.type ?? '')) {
 			queueLayoutReconcile(parent.container, parent.parent)
 		}
 
@@ -5415,7 +5383,6 @@ function reconcileLayoutParent(parent: ElementNode) {
 
 		return
 	}
-
 }
 
 function validateTextNesting(parentType: string | undefined, childType: string) {
@@ -5513,13 +5480,9 @@ function insert(
 	}
 
 	if (
-		[
-			'masonview',
-			'contentview',
-			'actionbar',
-			'rootlayout',
-			'proxyviewcontainer',
-		].includes(parent?.type ?? '') &&
+		['masonview', 'contentview', 'actionbar', 'rootlayout', 'proxyviewcontainer'].includes(
+			parent?.type ?? '',
+		) &&
 		!node.view &&
 		node.type !== 'proxyviewcontainer'
 	) {
@@ -5576,15 +5539,12 @@ function insert(
 	if (node.view) {
 		if (parent) {
 			if (
-				[
-					'portalroot',
-					'liquidglass',
-					'contentview',
-					'actionbar',
-					'rootlayout',
-				].includes(parent.type) ||
-					isManualLayoutParent(parent.type)
-			) {}
+				['portalroot', 'liquidglass', 'contentview', 'actionbar', 'rootlayout'].includes(
+					parent.type,
+				) ||
+				isManualLayoutParent(parent.type)
+			) {
+			}
 
 			if (parent.type === 'portalroot') {
 				parentView.addSubview(layoutView(node))
@@ -5778,8 +5738,6 @@ function destroy(node: ElementNode) {
 		node.glassBackdrop?.removeFromSuperview()
 		node.glassBackdrop = null
 	}
-
-
 
 	// Removing an ancestor does not detach its native descendants. Every
 	// destroyed view releases its own edge, including retained ContentView refs.
@@ -5991,13 +5949,9 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 				const parent = parentNode(parentId)
 				validateTextNesting(parent?.type, command.type)
 				if (
-					[
-						'masonview',
-						'contentview',
-						'actionbar',
-						'rootlayout',
-						'proxyviewcontainer',
-					].includes(parent?.type ?? '') &&
+					['masonview', 'contentview', 'actionbar', 'rootlayout', 'proxyviewcontainer'].includes(
+						parent?.type ?? '',
+					) &&
 					!typeHasView(command.type) &&
 					command.type !== 'proxyviewcontainer'
 				) {
@@ -6045,13 +5999,9 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 					}
 
 					if (
-						[
-							'masonview',
-							'contentview',
-							'actionbar',
-							'rootlayout',
-							'proxyviewcontainer',
-						].includes(parent.type) &&
+						['masonview', 'contentview', 'actionbar', 'rootlayout', 'proxyviewcontainer'].includes(
+							parent.type,
+						) &&
 						!typeHasView(entry.type) &&
 						entry.type !== 'proxyviewcontainer'
 					) {
@@ -6115,12 +6065,9 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 			// registered — release the previous node instead of orphaning it.
 			const existing = container.nodes.get(command.id)
 			if (
-				[
-					'masonview',
-					'contentview',
-					'actionbar',
-					'rootlayout',
-				].includes(existing?.parent?.type ?? '') &&
+				['masonview', 'contentview', 'actionbar', 'rootlayout'].includes(
+					existing?.parent?.type ?? '',
+				) &&
 				!typeHasView(command.type) &&
 				command.type !== 'proxyviewcontainer'
 			) {
@@ -6203,13 +6150,9 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 
 			const parent = node.parent
 			if (
-				[
-					'masonview',
-					'contentview',
-					'actionbar',
-					'rootlayout',
-					'proxyviewcontainer',
-				].includes(parent?.type ?? '') &&
+				['masonview', 'contentview', 'actionbar', 'rootlayout', 'proxyviewcontainer'].includes(
+					parent?.type ?? '',
+				) &&
 				!typeHasView(command.type) &&
 				command.type !== 'proxyviewcontainer'
 			) {

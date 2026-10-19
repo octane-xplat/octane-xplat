@@ -37,10 +37,25 @@ export default function ListPicker() {
 	)
 
 	return (
-		<masonview style={{flexDirection: "column", ...({display: "flex"})}}>
+		<masonview
+			style={{
+				flexDirection: 'column',
+				display: 'flex',
+			}}
+		>
 			<listpicker id="list-default" />
 			<listpicker id="list-natural" items={['Natural']} />
-			<masonview id="list-left" style={mergeStyle({flexDirection: "column"}, {display: "flex", ...({ width: 240, height: 110 })})}>
+			<masonview
+				id="list-left"
+				style={mergeStyle(
+					{ flexDirection: 'column' },
+					{
+						display: 'flex',
+						width: 240,
+						height: 110,
+					},
+				)}
+			>
 				{(phase >= 3 ? ['tail', 'list'] : ['list', 'tail']).map((id) =>
 					id === 'tail' ? (
 						<label key="tail" id="list-tail" text="tail" style={{ width: 32, height: 20 }} />
@@ -52,7 +67,7 @@ export default function ListPicker() {
 			<contentview id="list-right" style={{ width: 240, height: 60 }}>
 				{phase === 4 ? content() : null}
 			</contentview>
-			<masonview id="advance-list" onTap={() => phase$.set(phase + 1)} style={{display: "flex"}}>
+			<masonview id="advance-list" onTap={() => phase$.set(phase + 1)} style={{ display: 'flex' }}>
 				<label text="Advance" />
 			</masonview>
 		</masonview>

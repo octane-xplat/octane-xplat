@@ -39,10 +39,25 @@ export default function Progress() {
 	)
 
 	return (
-		<masonview style={{flexDirection: "column", ...({display: "flex"})}}>
+		<masonview
+			style={{
+				flexDirection: 'column',
+				display: 'flex',
+			}}
+		>
 			<progress id="progress-default" />
 			<progress id="progress-range" {...ranges[phase]} />
-			<masonview id="progress-left" style={mergeStyle({flexDirection: "column"}, {display: "flex", ...({ width: 240, height: 110 })})}>
+			<masonview
+				id="progress-left"
+				style={mergeStyle(
+					{ flexDirection: 'column' },
+					{
+						display: 'flex',
+						width: 240,
+						height: 110,
+					},
+				)}
+			>
 				{(phase >= 3 ? ['tail', 'progress'] : ['progress', 'tail']).map((id) =>
 					id === 'tail' ? (
 						<label key="tail" id="progress-tail" text="tail" style={{ width: 32, height: 20 }} />
@@ -54,7 +69,11 @@ export default function Progress() {
 			<contentview id="progress-right" style={{ width: 240, height: 60 }}>
 				{phase === 4 ? content() : null}
 			</contentview>
-			<masonview id="advance-progress" onTap={() => phase$.set(phase + 1)} style={{display: "flex"}}>
+			<masonview
+				id="advance-progress"
+				onTap={() => phase$.set(phase + 1)}
+				style={{ display: 'flex' }}
+			>
 				<label text="Advance" />
 			</masonview>
 		</masonview>

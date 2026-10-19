@@ -17,16 +17,38 @@ export default function Content() {
 	const phase$ = useSignal$(0)
 	const phase = phase$.get()
 	return (
-		<masonview style={{flexDirection: "column", ...({display: "flex"})}}>
+		<masonview
+			style={{
+				flexDirection: 'column',
+				display: 'flex',
+			}}
+		>
 			<contentview
 				id="content"
 				ref={contentRefs.host}
 				style={{ width: phase === 1 ? 260 : 200, height: 80 }}
 			>
 				{phase < 3 ? (
-					<label key="first" id="content-child" ref={contentChildRef} text={phase === 1 ? 'Updated content' : 'Initial content'} style={{alignSelf: phase === 2 ? undefined : phase === 1 ? 'end' : 'center', ...(phase === 2 ? undefined : { width: 60, height: 20 })}}/>
+					<label
+						key="first"
+						id="content-child"
+						ref={contentChildRef}
+						text={phase === 1 ? 'Updated content' : 'Initial content'}
+						style={{
+							alignSelf: phase === 2 ? undefined : phase === 1 ? 'end' : 'center',
+							...(phase === 2 ? undefined : { width: 60, height: 20 }),
+						}}
+					/>
 				) : phase === 4 ? null : (
-					<masonview key="replacement" id="content-child" ref={contentChildRef} style={{flexDirection: "column", ...({display: "flex"})}}>
+					<masonview
+						key="replacement"
+						id="content-child"
+						ref={contentChildRef}
+						style={{
+							flexDirection: 'column',
+							display: 'flex',
+						}}
+					>
 						<label id="content-descendant" text="Replacement" />
 					</masonview>
 				)}
@@ -39,7 +61,11 @@ export default function Content() {
 			<contentview id="auto-content">
 				<label text="Natural size" style={{ width: 52, height: 18 }} />
 			</contentview>
-			<masonview id="advance-content" onTap={() => phase$.set(phase + 1)} style={{display: "flex"}}>
+			<masonview
+				id="advance-content"
+				onTap={() => phase$.set(phase + 1)}
+				style={{ display: 'flex' }}
+			>
 				<label text="Advance" />
 			</masonview>
 		</masonview>

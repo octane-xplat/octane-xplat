@@ -37,8 +37,23 @@ export default function Html() {
 	)
 
 	return (
-		<masonview style={{flexDirection: "column", ...({display: "flex"})}}>
-			<masonview id="html-left" style={mergeStyle({flexDirection: "column"}, {display: "flex", ...({ width: 240, height: 110 })})}>
+		<masonview
+			style={{
+				flexDirection: 'column',
+				display: 'flex',
+			}}
+		>
+			<masonview
+				id="html-left"
+				style={mergeStyle(
+					{ flexDirection: 'column' },
+					{
+						display: 'flex',
+						width: 240,
+						height: 110,
+					},
+				)}
+			>
 				{(phase >= 3 ? ['tail', 'html'] : ['html', 'tail']).map((id) =>
 					id === 'tail' ? (
 						<htmlview key="tail" id="html-tail" html="tail" style={{ width: 200, height: 20 }} />
@@ -50,7 +65,7 @@ export default function Html() {
 			<contentview id="html-right" style={{ width: 240, height: 60 }}>
 				{phase === 4 ? content() : null}
 			</contentview>
-			<masonview id="advance-html" onTap={() => phase$.set(phase + 1)} style={{display: "flex"}}>
+			<masonview id="advance-html" onTap={() => phase$.set(phase + 1)} style={{ display: 'flex' }}>
 				<label text="Advance" />
 			</masonview>
 		</masonview>

@@ -5,7 +5,12 @@ import { NSView } from '@octane-xplat/platform/macos'
 
 function App(props: any) {
 	return (
-		<masonview style={{flexDirection: "column", ...({display: "flex"})}}>
+		<masonview
+			style={{
+				flexDirection: 'column',
+				display: 'flex',
+			}}
+		>
 			<RollingText {...props} />
 		</masonview>
 	)

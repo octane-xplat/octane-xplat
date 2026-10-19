@@ -5,18 +5,39 @@ import { NSWindow } from '@octane-xplat/platform/macos'
 
 function Panel() {
 	return (
-		<masonview id="panel" style={mergeStyle({left: 10, top: 12, bottom: 18, position: 'absolute'}, {display: "flex", ...({ width: 268 })})}>
-			<masonview id="header" style={{display: "flex", ...({ height: 44 })}}>
+		<masonview
+			id="panel"
+			style={mergeStyle(
+				{ left: 10, top: 12, bottom: 18, position: 'absolute' },
+				{
+					display: 'flex',
+					width: 268,
+				},
+			)}
+		>
+			<masonview
+				id="header"
+				style={{
+					display: 'flex',
+					height: 44,
+				}}
+			>
 				<label text="Panel header" />
 			</masonview>
 			<scrollview id="scroll" className="flex-1">
-				<masonview style={{display: "flex"}}>
+				<masonview style={{ display: 'flex' }}>
 					{Array.from({ length: 30 }, (_, index) => (
 						<label key={index} text={'Row ' + index} style={{ height: 32 }} />
 					))}
 				</masonview>
 			</scrollview>
-			<masonview id="footer" style={{display: "flex", ...({ height: 36 })}}>
+			<masonview
+				id="footer"
+				style={{
+					display: 'flex',
+					height: 36,
+				}}
+			>
 				<label text="Panel footer" />
 			</masonview>
 		</masonview>
@@ -26,24 +47,46 @@ function Panel() {
 function AbsolutePanel() {
 	return (
 		<masonview id="container">
-			<Panel style={{position: 'absolute'}} />
+			<Panel style={{ position: 'absolute' }} />
 		</masonview>
 	)
 }
 
 function GridPanel() {
 	return (
-		<masonview id="container" style={{display: "grid", gridTemplateRows: "auto", gridTemplateColumns: "auto"}}>
-			<masonview style={{display: "flex", ...({gridRow: '2', gridColumn: '2'})}} id="panel">
-				<masonview id="header" style={{display: "flex", ...({ height: 44 })}}>
+		<masonview
+			id="container"
+			style={{ display: 'grid', gridTemplateRows: 'auto', gridTemplateColumns: 'auto' }}
+		>
+			<masonview
+				style={{
+					display: 'flex',
+					gridRow: '2',
+					gridColumn: '2',
+				}}
+				id="panel"
+			>
+				<masonview
+					id="header"
+					style={{
+						display: 'flex',
+						height: 44,
+					}}
+				>
 					<label text="Panel header" />
 				</masonview>
 				<scrollview id="scroll" className="flex-1">
-					<masonview style={{display: "flex"}}>
+					<masonview style={{ display: 'flex' }}>
 						<label text="Scrollable rows" style={{ height: 960 }} />
 					</masonview>
 				</scrollview>
-				<masonview id="footer" style={{display: "flex", ...({ height: 36 })}}>
+				<masonview
+					id="footer"
+					style={{
+						display: 'flex',
+						height: 36,
+					}}
+				>
 					<label text="Panel footer" />
 				</masonview>
 			</masonview>

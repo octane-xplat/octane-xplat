@@ -47,7 +47,8 @@ export default function SortableExample() {
 					offsetRef.current = top()
 				}}
 			>
-				<masonview onLayoutChanged={() => {
+				<masonview
+					onLayoutChanged={() => {
 						const scroll = scrollRef.current
 						if (
 							initialized.current ||
@@ -72,7 +73,12 @@ export default function SortableExample() {
 						scroll.reflectScrolledClipView(scroll.contentView)
 						measure.ref(scroll.contentView)
 						offsetRef.current = top()
-					}} style={{flexDirection: "column", ...({display: "flex"})}}>
+					}}
+					style={{
+						flexDirection: 'column',
+						display: 'flex',
+					}}
+				>
 					<SortableList
 						items={items}
 						onReorder={setItems}

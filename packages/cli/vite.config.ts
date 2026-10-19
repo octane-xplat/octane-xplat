@@ -7,9 +7,7 @@ import { defineConfig } from 'vite'
 export default defineConfig({
 	build: {
 		lib: {
-			entry: globSync('src/**/*.ts').filter(
-				(f) => !f.endsWith('.d.ts') && !f.includes('.test.'),
-			),
+			entry: globSync('src/**/*.ts').filter((f) => !f.endsWith('.d.ts') && !f.includes('.test.')),
 			formats: ['es'],
 		},
 		outDir: 'dist',
@@ -21,7 +19,8 @@ export default defineConfig({
 			// empty .js is not a module to consumers' tsc.
 			treeshake: false,
 			external: (id) =>
-				/^node:/.test(id) || (!id.startsWith('.') && !id.startsWith('/') && !id.endsWith('.ts')),
+				id.startsWith('node:') ||
+				(!id.startsWith('.') && !id.startsWith('/') && !id.endsWith('.ts')),
 			output: {
 				preserveModules: true,
 				preserveModulesRoot: 'src',
@@ -39,9 +38,11 @@ export default defineConfig({
 				const restore = (dir: string) => {
 					for (const entry of readdirSync(dir, { withFileTypes: true })) {
 						const p = join(dir, entry.name)
-						if (entry.isDirectory()) restore(p)
-						else if (entry.name.endsWith('.js') && statSync(p).size === 0)
+						if (entry.isDirectory()) {
+							restore(p)
+						} else if (entry.name.endsWith('.js') && statSync(p).size === 0) {
 							writeFileSync(p, 'export {}\n')
+						}
 					}
 				}
 				restore('dist')

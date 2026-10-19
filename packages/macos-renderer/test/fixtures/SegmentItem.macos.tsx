@@ -28,8 +28,13 @@ export default function SegmentItems() {
 	)
 
 	return (
-		<masonview style={{flexDirection: "column", ...({display: "flex"})}}>
-			<segmentedbar id="item-natural" style={{alignSelf: 'start'}}>
+		<masonview
+			style={{
+				flexDirection: 'column',
+				display: 'flex',
+			}}
+		>
+			<segmentedbar id="item-natural" style={{ alignSelf: 'start' }}>
 				<segmentedbaritem title={phase === 0 ? 'A' : 'A much longer segment title'} />
 			</segmentedbar>
 			<segmentedbar id="item-bar" selectedIndex={1} style={{ width: 220, height: 32 }}>
@@ -57,7 +62,7 @@ export default function SegmentItems() {
 			<contentview style={{ width: 220, height: 40 }}>
 				<segmentedbar id="item-other">{phase === 5 ? item() : null}</segmentedbar>
 			</contentview>
-			<masonview id="advance-item" onTap={() => phase$.set(phase + 1)} style={{display: "flex"}}>
+			<masonview id="advance-item" onTap={() => phase$.set(phase + 1)} style={{ display: 'flex' }}>
 				<label text="Advance items" />
 			</masonview>
 		</masonview>

@@ -39,8 +39,23 @@ export default function Placeholder() {
 	)
 
 	return (
-		<masonview style={{flexDirection: "column", ...({display: "flex"})}}>
-			<masonview id="ph-left" style={mergeStyle({flexDirection: "column"}, {display: "flex", ...({ width: 240, height: 110 })})}>
+		<masonview
+			style={{
+				flexDirection: 'column',
+				display: 'flex',
+			}}
+		>
+			<masonview
+				id="ph-left"
+				style={mergeStyle(
+					{ flexDirection: 'column' },
+					{
+						display: 'flex',
+						width: 240,
+						height: 110,
+					},
+				)}
+			>
 				{(phase >= 2 ? ['tail', 'slot'] : ['slot', 'tail']).map((id) =>
 					id === 'tail' ? (
 						<label key="tail" id="ph-tail" text="tail" style={{ width: 32, height: 20 }} />
@@ -53,7 +68,7 @@ export default function Placeholder() {
 				{phase === 3 ? slot('c') : null}
 			</contentview>
 			<placeholder id="ph-empty" style={{ width: 40, height: 20 }} />
-			<masonview id="advance-ph" onTap={() => phase$.set(phase + 1)} style={{display: "flex"}}>
+			<masonview id="advance-ph" onTap={() => phase$.set(phase + 1)} style={{ display: 'flex' }}>
 				<label text="Advance" />
 			</masonview>
 		</masonview>

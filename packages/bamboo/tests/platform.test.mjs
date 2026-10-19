@@ -10,6 +10,7 @@ import {
 	writeFileSync,
 	rmSync,
 } from 'node:fs'
+
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -30,16 +31,19 @@ test('generated Bamboo platform conditions compile through the shared CSS pipeli
 			`import { xplatBambooConfig } from ${JSON.stringify(configSource)};
 export default { ...xplatBambooConfig, include: ['src/**/*.ts'], outdir: 'src/styled-system' }`,
 		)
+
 		writeFileSync(
 			join(root, 'src/main.ts'),
 			`import 'virtual:bamboo.css';
 import { css } from './styled-system/css';
 export const card = css({ padding: '4', _web: { color: 'primary' }, _ios: { color: 'danger' }, _mobile: { borderRadius: 'lg' } });`,
 		)
+
 		const generated = spawnSync(process.execPath, [codegen, 'codegen'], {
 			cwd: root,
 			encoding: 'utf8',
 		})
+
 		assert.equal(generated.status, 0, generated.stdout + generated.stderr)
 		for (const target of ['web', 'ios', 'android']) {
 			let nativeCss = undefined
@@ -75,25 +79,31 @@ export const card = css({ padding: '4', _web: { color: 'primary' }, _ios: { colo
 					lib: { entry: join(root, 'src/main.ts'), formats: ['es'], cssFileName: 'styles' },
 				},
 			})
+
 			const files = (Array.isArray(outputs) ? outputs : [outputs]).flatMap(
 				(output) => output.output,
 			)
+
 			const css = files
 				.filter((file) => file.type === 'asset' && file.fileName.endsWith('.css'))
 				.map((file) => file.source)
 				.join('\n')
+
 			assert.doesNotMatch(css, /@platform/)
-			if (target !== 'web')
+			if (target !== 'web') {
 				assert.equal(
 					nativeCss.replace(/\/\*\$vite\$:\d+\*\//g, ''),
 					css,
 					'native consumer sees final filtered CSS',
 				)
+			}
+
 			assert.equal(css.includes('color: var(--colors-primary)'), target === 'web', css)
 			assert.equal(css.includes('color: var(--colors-danger)'), target === 'ios', css)
 			assert.equal(css.includes('border-radius:'), target !== 'web', css)
 			assert.match(css, /padding:/)
 		}
+
 		writeFileSync(join(root, 'index.html'), '<script type="module" src="/src/main.ts"></script>')
 		const main = join(root, 'src/main.ts')
 		writeFileSync(main, readFileSync(main, 'utf8') + '\nglobalThis.card = card;')
@@ -107,6 +117,7 @@ export const card = css({ padding: '4', _web: { color: 'primary' }, _ios: { colo
 			],
 			build: { outDir: 'dist', minify: false, sourcemap: true, manifest: true },
 		})
+
 		const files = written.output
 		const sheets = files.filter((file) => file.type === 'asset' && file.fileName.endsWith('.css'))
 		assert.equal(sheets.length, 1)
@@ -120,6 +131,7 @@ export const card = css({ padding: '4', _web: { color: 'primary' }, _ios: { colo
 			assert.ok(existsSync(join(root, 'dist', file.fileName)))
 			assert.equal(JSON.parse(readFileSync(join(root, 'dist', file.fileName), 'utf8')).version, 3)
 		}
+
 		await assert.rejects(
 			build({
 				configFile: false,
@@ -130,6 +142,7 @@ export const card = css({ padding: '4', _web: { color: 'primary' }, _ios: { colo
 			}),
 			/platform conditions require xplatCss/,
 		)
+
 		await assert.rejects(
 			build({
 				configFile: false,
@@ -169,6 +182,7 @@ export const card = css({ padding: '4', _web: { color: 'primary' }, _ios: { colo
 				lib: { entry: main, formats: ['es'], cssFileName: 'styles' },
 			},
 		})
+
 		const nextBuild = () =>
 			new Promise((resolve, reject) => {
 				const timeout = setTimeout(() => {
@@ -176,14 +190,20 @@ export const card = css({ padding: '4', _web: { color: 'primary' }, _ios: { colo
 					reject(new Error('Bamboo watch build timed out'))
 				}, 10000)
 				function onEvent(event) {
-					if (event.code !== 'END' && event.code !== 'ERROR') return
+					if (event.code !== 'END' && event.code !== 'ERROR') {
+						return
+					}
 					clearTimeout(timeout)
 					watcher.off('event', onEvent)
-					if (event.code === 'ERROR') reject(event.error)
-					else resolve(latestCss)
+					if (event.code === 'ERROR') {
+						reject(event.error)
+					} else {
+						resolve(latestCss)
+					}
 				}
 				watcher.on('event', onEvent)
 			})
+
 		try {
 			assert.match(await nextBuild(), /color: var\(--colors-primary\)/)
 			const rebuilt = nextBuild()
@@ -194,6 +214,7 @@ export const card = css({ padding: '4', _web: { color: 'primary' }, _ios: { colo
 					"_web: { color: 'danger' }",
 				),
 			)
+
 			const css = await rebuilt
 			assert.match(css, /color: var\(--colors-danger\)/)
 			assert.doesNotMatch(css, /@platform|color: var\(--colors-primary\)/)

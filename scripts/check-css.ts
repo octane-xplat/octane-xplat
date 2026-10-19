@@ -55,7 +55,10 @@ let errors = 0
 let warned = 0
 
 for (const file of FILES) {
-	if (/\.(web|macos|gtk|linux)\.css$/.test(file)) continue
+	if (/\.(web|macos|gtk|linux)\.css$/.test(file)) {
+		continue
+	}
+
 	const rel = relative(process.cwd(), file)
 	// Strip web-only blocks but preserve line count — reported line
 	// numbers must match the authored file.
@@ -64,19 +67,22 @@ for (const file of FILES) {
 	)
 
 	const seen = new Set()
-	const targets = /\.ios\.css$/.test(file)
+	const targets = file.endsWith('.ios.css')
 		? ['ios']
-		: /\.android\.css$/.test(file)
+		: file.endsWith('.android.css')
 			? ['android']
-			: /\.windows\.css$/.test(file)
+			: file.endsWith('.windows.css')
 				? ['windows']
 				: ['ios', 'android', 'windows']
+
 	for (const target of targets) {
 		const ast = parsePlatformCss(stripped, target, rel)
 		ast.walkDecls((node) => {
 			const prop = node.prop
 			const key = `${node.source?.start?.offset}:${prop}:${node.value}`
-			if (seen.has(key)) return
+			if (seen.has(key)) {
+				return
+			}
 			seen.add(key)
 			const loc = node.source?.start ? `${rel}:${node.source.start.line}` : rel
 			if (isCustomProp(prop) || SUPPORTED.has(prop)) {

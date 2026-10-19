@@ -7,7 +7,10 @@ import { test } from 'node:test'
 function audit(files) {
 	const root = mkdtempSync(join(process.cwd(), 'packages/create/template/src/css-audit-'))
 	try {
-		for (const [name, css] of Object.entries(files)) writeFileSync(join(root, name), css)
+		for (const [name, css] of Object.entries(files)) {
+			writeFileSync(join(root, name), css)
+		}
+
 		return spawnSync(process.execPath, ['scripts/check-css.ts'], { encoding: 'utf8' })
 	} finally {
 		rmSync(root, { recursive: true, force: true })

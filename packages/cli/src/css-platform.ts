@@ -7,6 +7,7 @@ import postcss, {
 	type AcceptedPlugin,
 	type ProcessOptions,
 } from 'postcss'
+
 import loadPostcssConfig from 'postcss-load-config'
 import type { Alias, Plugin, UserConfig, ResolverFunction } from 'vite'
 
@@ -33,14 +34,19 @@ const buildTargets = new Set([
 	'gtk',
 	'native',
 ])
+
 const targets = new Set([...buildTargets, 'mobile'])
 const qualified = /\.(web|ios|android|visionos|mobile|macos|windows|linux|gtk|native)\.css$/
 const cssId = /\.css(?:[?#].*)?$/
 const cleanId = (id: string) => id.split(/[?#]/, 1)[0]
 
 function suffixes(platform: CssPlatform): string[] {
-	if (platform === 'ios' || platform === 'android') return [platform, 'mobile']
-	if (platform === 'visionos') return ['ios', 'mobile']
+	if (platform === 'ios' || platform === 'android') {
+		return [platform, 'mobile']
+	}
+	if (platform === 'visionos') {
+		return ['ios', 'mobile']
+	}
 	return platform === 'native' ? [] : [platform]
 }
 
@@ -68,9 +74,11 @@ function filterPlatforms(root: Root, platform: CssPlatform) {
 		conditions.set(rule, names)
 	})
 	root.walkAtRules('platform', (rule) => {
-		if (conditions.get(rule)!.some((name) => matches(name, platform)))
+		if (conditions.get(rule)!.some((name) => matches(name, platform))) {
 			rule.replaceWith(...rule.nodes!)
-		else rule.remove()
+		} else {
+			rule.remove()
+		}
 	})
 }
 
@@ -82,8 +90,9 @@ export function platformCssPlugin(
 	return {
 		postcssPlugin: 'xplat-platform',
 		Once(root) {
-			if (![...deferred].some((id) => root.source?.input.file?.endsWith(id)))
+			if (![...deferred].some((id) => root.source?.input.file?.endsWith(id))) {
 				filterPlatforms(root, platform)
+			}
 		},
 	}
 }
@@ -107,18 +116,24 @@ export function filterPlatformCss(css: string, platform: CssPlatform, from?: str
  * web apps add `xplatCss('web')` to their Vite plugins.
  */
 export function xplatCss(platform: CssPlatform = 'web'): Plugin {
-	if (!buildTargets.has(platform)) throw new Error(`Unknown CSS build target: ${platform}`)
+	if (!buildTargets.has(platform)) {
+		throw new Error(`Unknown CSS build target: ${platform}`)
+	}
 	const candidates = new Set<string>()
 	const deferred = new Set<string>()
 	let aliases: readonly Alias[] = []
 	const select = (id: string) => {
 		const file = cleanId(id)
-		if (!file.endsWith('.css') || qualified.test(file)) return id
+		if (!file.endsWith('.css') || qualified.test(file)) {
+			return id
+		}
 		const choices = [
 			...suffixes(platform).map((suffix) => file.slice(0, -4) + `.${suffix}.css`),
 			file,
 		]
-		for (const choice of choices) candidates.add(choice)
+		for (const choice of choices) {
+			candidates.add(choice)
+		}
 		const selected = choices.find((choice) => existsSync(choice))
 		return selected ? selected + id.slice(file.length) : id
 	}
@@ -160,8 +175,9 @@ export function xplatCss(platform: CssPlatform = 'web'): Plugin {
 						typeof configured === 'string' ? configured : (userConfig.root ?? process.cwd()),
 					)
 				} catch (error) {
-					if (!(error instanceof Error) || !error.message.includes('No PostCSS Config found'))
+					if (!(error instanceof Error) || !error.message.includes('No PostCSS Config found')) {
 						throw error
+					}
 				}
 			}
 			// Assign rather than return: Vite concatenates plugin arrays on merge.
@@ -193,14 +209,17 @@ export function xplatCss(platform: CssPlatform = 'web'): Plugin {
 										typeof alias.find === 'string'
 											? source !== alias.find && !source.startsWith(alias.find + '/')
 											: !alias.find.test(source)
-									)
+									) {
 										continue
+									}
+
 									source = source.replace(alias.find, alias.replacement)
 									if (alias.customResolver) {
 										const resolver =
 											typeof alias.customResolver === 'function'
 												? alias.customResolver
 												: alias.customResolver.resolveId
+
 										const result = await resolver.call(this, source, importer, options)
 										return typeof result === 'string'
 											? select(result)
@@ -208,6 +227,7 @@ export function xplatCss(platform: CssPlatform = 'web'): Plugin {
 												? { ...result, id: select(result.id) }
 												: result
 									}
+
 									break
 								}
 								const file = cleanId(source)
@@ -219,7 +239,9 @@ export function xplatCss(platform: CssPlatform = 'web'): Plugin {
 											: undefined
 								if (local) {
 									const selected = select(local + source.slice(file.length))
-									if (existsSync(cleanId(selected))) return selected
+									if (existsSync(cleanId(selected))) {
+										return selected
+									}
 								}
 								const resolved = await this.resolve(source, importer, {
 									...options,
@@ -238,8 +260,9 @@ export function xplatCss(platform: CssPlatform = 'web'): Plugin {
 				/(?:\?|&)(?:raw|url)(?:&|$)/.test(id) ||
 				!code.includes('@platform') ||
 				[...deferred].some((suffix) => cleanId(id).endsWith(suffix))
-			)
+			) {
 				return
+			}
 			const result = postcss([platformCssPlugin(platform)]).process(code, {
 				from: cleanId(id),
 				map: { inline: false, annotation: false },
@@ -248,7 +271,9 @@ export function xplatCss(platform: CssPlatform = 'web'): Plugin {
 		},
 		configureServer(server) {
 			const changed = (file: string) => {
-				if (!candidates.has(file)) return
+				if (!candidates.has(file)) {
+					return
+				}
 				// Vite caches import resolutions separately from transformed modules.
 				void server.restart().catch((error) => server.config.logger.error(String(error)))
 			}
