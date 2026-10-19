@@ -50,7 +50,7 @@ export function TabList(props: TabListProps) @{
 			_tabViews: views,
 		}),
 		[props.value, props.onChange, size, layout, props.role],
-	) as any;
+	)
 
 	// Keep the selected tab visible when the value or the scroller changes.
 	useEffect(() => {
@@ -115,7 +115,7 @@ export function Tab(props: TabProps) @{
 
 	<Pressable
 		id={props.id}
-		ref={(v: any) => { applyEscapeProps(v, props); if (v) (ctx as any)._tabViews?.set(props.value, v); else (ctx as any)._tabViews?.delete(props.value); }}
+		ref={(v: any) => { applyEscapeProps(v, props); if (v) ctx?._tabViews?.set(props.value, v); else ctx?._tabViews?.delete(props.value); }}
 		className={cx('vx-tab', isSelected && 'vx-tab--selected', ctx.layout === 'fill' && 'vx-tab--fill', props.className)}
 		style={mergeStyle({height: SIZE_HEIGHT[ctx.size]}, props.style)}
 		disabled={isDisabled}

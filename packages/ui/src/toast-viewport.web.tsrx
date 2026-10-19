@@ -67,9 +67,9 @@ export function ToastViewportSurface(props: {
 	useEffect(() => {
 		const el = viewport.current;
 		if (!el || props.isTopLayer === false) return;
-		if (typeof (el as any).showPopover === 'function') {
+		if (typeof el.showPopover === 'function') {
 			try {
-				(el as any).showPopover();
+				el.showPopover();
 			} catch {
 				/* already showing */
 			}
@@ -145,7 +145,7 @@ export function ToastViewportSurface(props: {
 			role={mine.length ? 'region' : undefined}
 			aria-label={mine.length ? 'Notifications' : undefined}
 			tabIndex={mine.length ? -1 : undefined}
-			{...(props.isTopLayer === false ? {} : { popover: 'manual' as any })}
+			{...(props.isTopLayer === false ? {} : { popover: 'manual' } as Record<string, unknown>)}
 		>
 			{POSITIONS.map((pos, i) => {
 				const list = buckets[i];

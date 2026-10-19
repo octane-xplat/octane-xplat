@@ -119,7 +119,8 @@ export function Slider(props: SliderProps) @{
 			return
 		}
 
-		const width = Number((event.target as any)?.bounds?.size?.width ?? (event.target as any)?.frame?.size?.width ?? 0)
+		const target = event.target as { bounds?: { size?: { width?: number } }; frame?: { size?: { width?: number } } } | undefined
+		const width = Number(target?.bounds?.size?.width ?? target?.frame?.size?.width ?? 0)
 		if (!drag.current || !width) {return}
 		if (event.state === 'moved') {
 			const next = Math.min(max, Math.max(min, drag.current.value0 + (event.dx / width) * (max - min)))

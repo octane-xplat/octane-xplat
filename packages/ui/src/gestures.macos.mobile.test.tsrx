@@ -13,7 +13,7 @@ it('AppKit Pressable forwards gestures, balances cancellation and suppresses dis
 	}
 
 	try {
-		root.render(Pressable as any, props)
+		root.render(Pressable, props)
 		flushUniversalSync(() => {})
 		const host = container.children[0]
 		container.dispatchEvent(host, 'tap', {}); container.dispatchEvent(host, 'longPress', {}); container.dispatchEvent(host, 'doubleTap', {})
@@ -26,7 +26,7 @@ it('AppKit Pressable forwards gestures, balances cancellation and suppresses dis
 		}
 
 		expect(props.onPan).toHaveBeenCalledWith({ x: 40, y: 5, dx: 40, dy: 5, vx: 3, vy: 2, state: 'ended', target: host })
-		root.render(Pressable as any, { ...props, disabled: true })
+		root.render(Pressable, { ...props, disabled: true })
 		flushUniversalSync(() => {})
 		for (const name of ['tap', 'longPress', 'doubleTap', 'touch', 'pan', 'swipe']) {
 			expect(() => container.dispatchEvent(host, name, {})).toThrow('no')
@@ -34,7 +34,7 @@ it('AppKit Pressable forwards gestures, balances cancellation and suppresses dis
 
 		expect(host.props.disabled).toBe(true)
 		expect(host.props.accessibilityState.disabled).toBe(true)
-		root.render(Pressable as any, props)
+		root.render(Pressable, props)
 		flushUniversalSync(() => {})
 		container.dispatchEvent(host, 'tap', {})
 		expect(props.onPress).toHaveBeenCalledTimes(2)
@@ -48,7 +48,7 @@ it('AppKit View retains pan normalization and forwards swipe without changing it
 	const root = createUniversalRoot(container, createObjectDriver('nativescript'))
 	const onPan = vi.fn(), onSwipe = vi.fn()
 	try {
-		root.render(View as any, { onPan, onSwipe })
+		root.render(View, { onPan, onSwipe })
 		flushUniversalSync(() => {})
 		const host = container.children[0]
 		container.dispatchEvent(host, 'pan', { deltaX: 0, deltaY: 0, state: 0, view: host })

@@ -43,8 +43,8 @@ function CarouselImpl(props: CarouselProps) @{
 	const slideOffsets = useCallback((): number[] => {
 		const t = track.current;
 		if (!t) return [];
-		return Array.from(t.children as any).map(
-			(c: any) => (c as HTMLElement).offsetLeft - (t as HTMLElement).offsetLeft,
+		return Array.from(t.children).map(
+			(c) => (c as HTMLElement).offsetLeft - (t as HTMLElement).offsetLeft,
 		);
 	}, []);
 

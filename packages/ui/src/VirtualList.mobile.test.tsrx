@@ -59,7 +59,7 @@ async function mount(viewportWidth = 100, itemRenderer = renderItem, extraProps:
 
 	const root = createUniversalRoot(container, driver)
 	roots.push(root)
-	root.render(VirtualList as any, { items, keyExtractor, renderItem: itemRenderer, ...extraProps })
+	root.render(VirtualList, { items, keyExtractor, renderItem: itemRenderer, ...extraProps })
 	const scroll: any = container.children[0]
 	scroll.verticalOffset = 0
 	scroll.getActualSize = () => ({ width: viewportWidth, height: 200 })
@@ -118,7 +118,7 @@ describe('native VirtualList scroll and measurement scheduling', () => {
 
 	it('updates positioned rows and body height when all rows remain in the same visible range', async () => {
 		const { root, container, measure } = await mount()
-		root.render(VirtualList as any, { items: items.slice(0, 3), keyExtractor, renderItem })
+		root.render(VirtualList, { items: items.slice(0, 3), keyExtractor, renderItem })
 		for (let index = 0; index < 3; index++) measure('row-r' + index, 32)
 		await vi.advanceTimersByTimeAsync(32)
 		const nodes = collect(container.children)
@@ -205,7 +205,7 @@ describe('native VirtualList scroll and measurement scheduling', () => {
 		await vi.advanceTimersByTimeAsync(32)
 		measure('row-r5', 120)
 		const replacement = items.map((item, index) => index === 5 ? { ...item } : item)
-		root.render(VirtualList as any, { items: replacement, keyExtractor, renderItem })
+		root.render(VirtualList, { items: replacement, keyExtractor, renderItem })
 		// The replacement has its own current geometry; the queued 120-height result is obsolete.
 		measure('row-r5', 48, false)
 		await vi.advanceTimersByTimeAsync(32)
@@ -271,7 +271,7 @@ describe('native VirtualList scroll and measurement scheduling', () => {
 		container.dispatchEvent(row, 'tap', { object: row })
 		expect(findRow().props.text).toBe('r10:1')
 		const prepended = [{ id: 'prepended' }, ...items]
-		root.render(VirtualList as any, { items: prepended, keyExtractor, renderItem: renderStatefulItem })
+		root.render(VirtualList, { items: prepended, keyExtractor, renderItem: renderStatefulItem })
 		await vi.advanceTimersByTimeAsync(32)
 		expect(scroll.verticalOffset).toBe(528)
 		expect(findRow()).toBe(row)

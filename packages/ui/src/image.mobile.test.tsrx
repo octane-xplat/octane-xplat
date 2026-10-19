@@ -26,7 +26,7 @@ describe('native Image sized decode', () => {
 	it('defers src until first layout, issues decode dims in device px, and re-issues per the stretch gate', () => {
 		const container = createObjectContainer('nativescript')
 		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
-		root.render(Image as any, { src: 'res://feed/photo.jpg' })
+		root.render(Image, { src: 'res://feed/photo.jpg' })
 		const host = container.children[0] as any
 		expect(host.type).toBe('image')
 		// The leaf owns src imperatively — the driver never saw it.
@@ -43,7 +43,7 @@ describe('native Image sized decode', () => {
 		host.getMeasuredHeight = () => 200
 		host.stretch = 'aspectFit'
 
-		root.render(Image as any, { src: 'res://feed/photo.jpg', id: 'rebind' })
+		root.render(Image, { src: 'res://feed/photo.jpg', id: 'rebind' })
 		expect(host.src).toBe('res://feed/photo.jpg')
 		expect(host.decodeWidth).toEqual({ value: 300, unit: 'px' })
 		expect(host.decodeHeight).toEqual({ value: 200, unit: 'px' })
@@ -58,7 +58,7 @@ describe('native Image sized decode', () => {
 		layoutCb!()
 		expect(host.decodeWidth).toEqual({ value: 600, unit: 'px' })
 
-		root.render(Image as any, { src: 'res://feed/other.jpg' })
+		root.render(Image, { src: 'res://feed/other.jpg' })
 		expect(host.src).toBe('res://feed/other.jpg')
 		expect(host.decodeWidth).toEqual({ value: 900, unit: 'px' })
 		root.unmount()
@@ -68,13 +68,13 @@ describe('native Image sized decode', () => {
 		const container = createObjectContainer('nativescript')
 		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
 
-		root.render(Image as any, { src: 'res://feed/photo.jpg' })
+		root.render(Image, { src: 'res://feed/photo.jpg' })
 		expect((container.children[0] as any).props.loadMode).toBe('async')
 
-		root.render(Image as any, { src: 'res://feed/photo.jpg', decoding: 'sync' })
+		root.render(Image, { src: 'res://feed/photo.jpg', decoding: 'sync' })
 		expect((container.children[0] as any).props.loadMode).toBe('sync')
 
-		root.render(Image as any, { src: 'res://feed/photo.jpg', decoding: 'async' })
+		root.render(Image, { src: 'res://feed/photo.jpg', decoding: 'async' })
 		expect((container.children[0] as any).props.loadMode).toBe('async')
 		root.unmount()
 	})

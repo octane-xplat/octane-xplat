@@ -31,7 +31,7 @@ describe('GridList (universal renderer)', () => {
 		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
 		const onAction = vi.fn()
 		const onSelectionChange = vi.fn()
-		root.render(GridList as any, {
+		root.render(GridList, {
 			items,
 			keyExtractor: (item: any) => item.id,
 			renderItem: (item: any) => item.name,
@@ -61,7 +61,7 @@ describe('GridList (universal renderer)', () => {
 		const container = createObjectContainer('nativescript')
 		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
 		const onAction = vi.fn()
-		root.render(GridList as any, {
+		root.render(GridList, {
 			items,
 			keyExtractor: (item: any) => item.id,
 			renderItem: (item: any) => item.name,
@@ -81,7 +81,7 @@ describe('GridList (universal renderer)', () => {
 	it('useGridList reports keyboard navigation unsupported with an inert prop bag', () => {
 		const container = createObjectContainer('nativescript')
 		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
-		root.render(Probe as any, { columns: 2 })
+		root.render(Probe, { columns: 2 })
 		expect(captured.gridRef).toBeDefined()
 		expect(captured.isSupported).toBe(false)
 		expect(captured.gridProps).toEqual({})

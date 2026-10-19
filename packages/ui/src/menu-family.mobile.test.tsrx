@@ -40,7 +40,7 @@ describe('native menu action contracts (object driver)', () => {
 
 		const row = (id: string) => all(container).find((node) => node.props?.id === id)
 		try {
-			root.render(DataSurface as any, { items, closeMenu: close })
+			root.render(DataSurface, { items, closeMenu: close })
 			flushUniversalSync(() => {})
 			await vi.waitFor(() => expect(row('check')).toBeTruthy())
 			expect(row('check').props.accessibilityRole).toBe('checkbox')
@@ -52,7 +52,7 @@ describe('native menu action contracts (object driver)', () => {
 			expect(disabled).not.toHaveBeenCalled()
 			flushUniversalSync(() => container.dispatchEvent(row('old'), 'tap', {}))
 			expect(radio).toHaveBeenCalledWith('old'); expect(close).toHaveBeenCalledTimes(1)
-			root.render(DataSurface as any, { items: [{ ...items[0], value: true }], closeMenu: close })
+			root.render(DataSurface, { items: [{ ...items[0], value: true }], closeMenu: close })
 			flushUniversalSync(() => {})
 			await vi.waitFor(() => expect(row('check').props.accessibilityState).toBe('checked'))
 		} finally { root.unmount(); flushUniversalSync(() => {}) }
@@ -63,7 +63,7 @@ describe('native menu action contracts (object driver)', () => {
 		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
 		orphanCaught.error = undefined
 		try {
-			root.render(OrphanItem as any, {})
+			root.render(OrphanItem, {})
 			flushUniversalSync(() => {})
 			expect(String(orphanCaught.error)).toContain('requires a menu')
 		} finally { try { root.unmount() } catch {} }
@@ -74,7 +74,7 @@ describe('native menu action contracts (object driver)', () => {
 		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
 		const back = vi.fn()
 		try {
-			root.render(DataSurface as any, { items: [], closeMenu: vi.fn(), closeLevel: back, label: 'Move' })
+			root.render(DataSurface, { items: [], closeMenu: vi.fn(), closeLevel: back, label: 'Move' })
 			flushUniversalSync(() => {})
 			const button = () => all(container).find((node) => node.props?.accessibilityLabel === 'Back to parent menu')
 			await vi.waitFor(() => expect(button()).toBeTruthy())
@@ -107,7 +107,7 @@ it('keeps AppKit anchors and nested menu ownership across separate popup roots',
 	const root = createUniversalRoot(container, createObjectDriver('nativescript'))
 	const pick = vi.fn(), close = vi.fn()
 	try {
-		root.render(MacMenu as any, { isOpen: true, trigger: 'Actions', onOpenChange: close, items: [{ type: 'submenu', key: 'move', label: 'Move', items: [{ type: 'action', key: 'target', label: 'Target', onSelect: pick }] }] })
+		root.render(MacMenu, { isOpen: true, trigger: 'Actions', onOpenChange: close, items: [{ type: 'submenu', key: 'move', label: 'Move', items: [{ type: 'action', key: 'target', label: 'Target', onSelect: pick }] }] })
 		flushUniversalSync(() => {})
 		await vi.waitFor(() => expect(popups).toHaveLength(1))
 		expect(show.mock.calls[0][0].anchor).toBeTruthy()

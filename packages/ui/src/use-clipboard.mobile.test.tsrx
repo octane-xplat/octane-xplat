@@ -33,7 +33,7 @@ const Probe = (props: { options?: UseClipboardOptions }) => @{
 const renderClipboard = (options?: UseClipboardOptions) => {
 	const container = createObjectContainer('nativescript')
 	const root = createUniversalRoot(container, createObjectDriver('nativescript'))
-	flushUniversalAct(() => root.render(Probe as any, { options }))
+	flushUniversalAct(() => root.render(Probe, { options }))
 	return root
 }
 

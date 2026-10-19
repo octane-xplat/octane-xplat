@@ -490,7 +490,7 @@ export function addBackInterceptor(_fn: () => boolean): () => void {
 // module's state resets but its popstate listener must not duplicate —
 // the handler delegates through a slot so a reloaded module graph swaps
 // in fresh closures instead of double-settling.
-const host = window as any
+const host = window as Record<string, any>
 host.__octaneXplatPopstate = () => {
 	navigationRequests.invalidate('history')
 	saveScroll()

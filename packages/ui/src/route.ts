@@ -411,7 +411,7 @@ function ensureBackWired(): void {
 	}
 
 	backWired = true
-	const app = Application as any
+	const app = Application as unknown as Record<string, any>
 	app.__octaneXplatBackPress = (e: { cancel: boolean }) => {
 		for (let i = backInterceptors.length - 1; i >= 0; i--) {
 			if (backInterceptors[i]()) {
@@ -765,7 +765,7 @@ function pushModal(frame: Frame, r: Route, C: any, owner?: ContentOwner): void {
 			...r.params,
 			...contextFor(r),
 			_pushed: true,
-			close: () => (host as any).closeModal?.(),
+			close: () => (host as { closeModal?(): void }).closeModal?.(),
 		}
 
 		if (Object.prototype.hasOwnProperty.call(r, 'loaderData')) {
@@ -823,7 +823,7 @@ export function popRoute(stack = 'root'): void {
 		// isn't guaranteed to run — the route store can't gate on it.
 		modal.dismiss()
 
-		;(modal.host as any).closeModal?.()
+		;(modal.host as { closeModal?(): void }).closeModal?.()
 		return
 	}
 

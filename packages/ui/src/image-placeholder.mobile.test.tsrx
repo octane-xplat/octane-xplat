@@ -39,7 +39,7 @@ const BLURHASH = 'blurhash:LEHV6nWB2yk8pyo0adR*.7kCMdnj'
 function mount(props: any) {
 	const container = createObjectContainer('nativescript')
 	const root = createUniversalRoot(container, createObjectDriver('nativescript'))
-	root.render(Image as any, props)
+	root.render(Image, props)
 	flushUniversalSync(() => {})
 	return { container, root, host: container.children[0] as any }
 }
@@ -74,7 +74,7 @@ describe('native Image placeholder (study L5)', () => {
 		// cleared and isLoading is already true when src is written again.
 		host.imageSource = null
 		host.isLoading = true
-		root.render(Image as any, { src: 'https://x/b.png', placeholder: BLURHASH })
+		root.render(Image, { src: 'https://x/b.png', placeholder: BLURHASH })
 		flushUniversalSync(() => {})
 
 		// The binding issued the new src and its afterIssue hook repainted the

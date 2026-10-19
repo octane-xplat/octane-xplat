@@ -26,7 +26,7 @@ import { Image } from './Image.tsrx'
 function render(props: any) {
 	const container = createObjectContainer('nativescript')
 	const root = createUniversalRoot(container, createObjectDriver('nativescript'))
-	root.render(Image as any, props)
+	root.render(Image, props)
 	return { container, root, host: container.children[0] as any }
 }
 
@@ -77,7 +77,7 @@ describe('native Image — multi-source selection (L8)', () => {
 		host.getActualSize = () => ({ width: 200, height: 200 })
 		host.getMeasuredWidth = () => 600
 		host.getMeasuredHeight = () => 600
-		root.render(Image as any, { src: sources })
+		root.render(Image, { src: sources })
 		expect(host.src).toBe('https://img.example/p-800.jpg')
 		expect(host.decodeWidth).toEqual({ value: 600, unit: 'px' })
 	})

@@ -20,7 +20,7 @@ describe('native text input', () => {
 	it('seeds defaultValue, keeps user edits internally, and reports the new string', async () => {
 		const { container, root } = setup()
 		const change = vi.fn()
-		root.render(TextInput as any, { defaultValue: 'seed', onChange: change })
+		root.render(TextInput, { defaultValue: 'seed', onChange: change })
 		const field = container.children[0].children[0]
 		await vi.waitFor(() => expect(field.text).toBe('seed'))
 		container.dispatchEvent(field, 'textChange', { object: field, value: 'seed-x' })
@@ -32,7 +32,7 @@ describe('native text input', () => {
 	it('controlled value wins over defaultValue and reports edits without self-applying', async () => {
 		const { container, root } = setup()
 		const change = vi.fn()
-		root.render(TextInput as any, { value: 'owned', defaultValue: 'ignored', onChange: change })
+		root.render(TextInput, { value: 'owned', defaultValue: 'ignored', onChange: change })
 		const field = container.children[0].children[0]
 		await vi.waitFor(() => expect(field.text).toBe('owned'))
 		container.dispatchEvent(field, 'textChange', { object: field, value: 'edited' })
@@ -45,7 +45,7 @@ describe('native text input', () => {
 		const { container, root } = setup()
 		const change = vi.fn()
 		const cleared = vi.fn()
-		root.render(TextInput as any, { defaultValue: 'seed', hasClear: true, onChange: change, onClear: cleared })
+		root.render(TextInput, { defaultValue: 'seed', hasClear: true, onChange: change, onClear: cleared })
 		const shell = container.children[0]
 		const field = shell.children[0]
 		await vi.waitFor(() => expect(shell.children.length).toBe(2))
@@ -64,7 +64,7 @@ describe('native boolean inputs', () => {
 	it('Switch seeds defaultChecked and toggles internally', () => {
 		const { container, root } = setup()
 		const change = vi.fn()
-		root.render(Switch as any, { defaultChecked: true, onCheckedChange: change })
+		root.render(Switch, { defaultChecked: true, onCheckedChange: change })
 		const host = container.children[0]
 		expect(host.props.accessibilityState).toBe('checked')
 		container.dispatchEvent(host, 'tap', {})
@@ -76,7 +76,7 @@ describe('native boolean inputs', () => {
 	it('Switch controlled checked wins and stays caller-owned', () => {
 		const { container, root } = setup()
 		const change = vi.fn()
-		root.render(Switch as any, { checked: true, defaultChecked: false, onCheckedChange: change })
+		root.render(Switch, { checked: true, defaultChecked: false, onCheckedChange: change })
 		const host = container.children[0]
 		expect(host.props.accessibilityState).toBe('checked')
 		container.dispatchEvent(host, 'tap', {})
@@ -88,7 +88,7 @@ describe('native boolean inputs', () => {
 	it('Checkbox seeds defaultChecked and toggles internally', () => {
 		const { container, root } = setup()
 		const change = vi.fn()
-		root.render(Checkbox as any, { defaultChecked: true, onCheckedChange: change })
+		root.render(Checkbox, { defaultChecked: true, onCheckedChange: change })
 		const host = container.children[0]
 		expect(host.props.accessibilityState).toBe('checked')
 		container.dispatchEvent(host, 'tap', {})
@@ -100,7 +100,7 @@ describe('native boolean inputs', () => {
 	it('Checkbox indeterminate resolves to checked on toggle', () => {
 		const { container, root } = setup()
 		const change = vi.fn()
-		root.render(Checkbox as any, { indeterminate: true, onCheckedChange: change })
+		root.render(Checkbox, { indeterminate: true, onCheckedChange: change })
 		const host = container.children[0]
 		container.dispatchEvent(host, 'tap', {})
 		expect(change).toHaveBeenLastCalledWith(true)
@@ -117,7 +117,7 @@ describe('native choices', () => {
 			{ value: 'b', label: 'B' },
 		]
 
-		root.render(RadioGroup as any, { defaultValue: 'b', options, onValueChange: change })
+		root.render(RadioGroup, { defaultValue: 'b', options, onValueChange: change })
 		const group = container.children[0]
 		expect(String(group.children[1].props.className)).toContain('vx-radio--on')
 		container.dispatchEvent(group.children[0], 'tap', {})
@@ -135,7 +135,7 @@ describe('native choices', () => {
 			{ value: 'b', label: 'B' },
 		]
 
-		root.render(RadioGroup as any, { value: 'b', defaultValue: 'a', options, onValueChange: change })
+		root.render(RadioGroup, { value: 'b', defaultValue: 'a', options, onValueChange: change })
 		const group = container.children[0]
 		expect(String(group.children[1].props.className)).toContain('vx-radio--on')
 		container.dispatchEvent(group.children[0], 'tap', {})
@@ -149,7 +149,7 @@ describe('native overlay surfaces', () => {
 	it('Drawer seeds defaultOpen and closes itself on backdrop tap', () => {
 		const { container, root } = setup()
 		const dismiss = vi.fn()
-		root.render(Drawer as any, { defaultOpen: true, onDismiss: dismiss, main: 'Main', drawer: 'Drawer' })
+		root.render(Drawer, { defaultOpen: true, onDismiss: dismiss, main: 'Main', drawer: 'Drawer' })
 		const host = container.children[0]
 		expect(host.children.length).toBe(3)
 		container.dispatchEvent(host.children[1], 'tap', {})

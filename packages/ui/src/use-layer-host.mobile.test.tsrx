@@ -18,12 +18,12 @@ describe('useLayer AppKit host content', () => {
 		vi.stubGlobal('__xplatAppKit', { showLayer })
 		const root = createUniversalRoot(createObjectContainer('nativescript'), createObjectDriver('nativescript'))
 		try {
-			root.render(Probe as any, { body: 'first', label: 'First' })
+			root.render(Probe, { body: 'first', label: 'First' })
 			flushUniversalSync(() => {})
 			layer.show()
 			await vi.waitFor(() => expect(layer.isOpen).toBe(true))
 			expect(showLayer.mock.calls[0][0].props.body).toBe('first')
-			root.render(Probe as any, { body: 'second', layerDepth: 1, label: 'Second' })
+			root.render(Probe, { body: 'second', layerDepth: 1, label: 'Second' })
 			flushUniversalSync(() => {})
 			await vi.waitFor(() => expect(popup.update.mock.calls.at(-1)?.[0]).toEqual({ body: 'second', layerDepth: 1, label: 'Second', className: undefined, style: undefined }))
 			expect(showLayer).toHaveBeenCalledTimes(1)
@@ -45,12 +45,12 @@ describe('AppKit layer geometry contract', () => {
 		const root = createUniversalRoot(createObjectContainer('nativescript'), createObjectDriver('nativescript'))
 		const anchor = { left: 100, top: 100, width: 200, height: 40 }, panel = { width: 80, height: 50 }, viewport = { left: 0, top: 0, width: 800, height: 600 }
 		try {
-			root.render(Probe as any, { body: 'Body', label: 'Layer', surface: { placement: 'below', alignment: 'end', offset: 12 } })
+			root.render(Probe, { body: 'Body', label: 'Layer', surface: { placement: 'below', alignment: 'end', offset: 12 } })
 			flushUniversalSync(() => {})
 			layer.show()
 			await vi.waitFor(() => expect(showLayer).toHaveBeenCalledTimes(1))
 			expect((showLayer.mock.calls[0] as any)[0].position(anchor, panel, viewport)).toEqual({ left: 220, top: 152, placement: 'bottom' })
-			root.render(Probe as any, { body: 'Body', label: 'Layer', surface: { positioning: 'custom', style: { left: 25, top: 30 }, offset: 'unsupported' } })
+			root.render(Probe, { body: 'Body', label: 'Layer', surface: { positioning: 'custom', style: { left: 25, top: 30 }, offset: 'unsupported' } })
 			flushUniversalSync(() => {})
 			await vi.waitFor(() => expect(popup.update).toHaveBeenCalled())
 			expect(popup.update.mock.calls.at(-1)?.[1].position(anchor, panel, viewport)).toEqual({ left: 25, top: 30 })
@@ -66,7 +66,7 @@ describe('AppKit imperative layer lifecycle', () => {
 		vi.stubGlobal('__xplatAppKit', { showLayer })
 		const root = createUniversalRoot(createObjectContainer('nativescript'), createObjectDriver('nativescript'))
 		try {
-			root.render(Probe as any, { body: 'Body', label: 'Layer', onShow, onHide }); flushUniversalSync(() => {})
+			root.render(Probe, { body: 'Body', label: 'Layer', onShow, onHide }); flushUniversalSync(() => {})
 			layer.show(); layer.show()
 			await vi.waitFor(() => expect(layer.isOpen).toBe(true))
 			expect(showLayer).toHaveBeenCalledTimes(1)
@@ -83,7 +83,7 @@ describe('AppKit imperative layer lifecycle', () => {
 		vi.stubGlobal('__xplatAppKit', { showLayer: () => null })
 		const root = createUniversalRoot(createObjectContainer('nativescript'), createObjectDriver('nativescript'))
 		try {
-			root.render(Probe as any, { body: 'Body', label: 'Layer', onShow }); flushUniversalSync(() => {})
+			root.render(Probe, { body: 'Body', label: 'Layer', onShow }); flushUniversalSync(() => {})
 			layer.show(); flushUniversalSync(() => {})
 			expect(layer.isOpen).toBe(false)
 			expect(onShow).not.toHaveBeenCalled()

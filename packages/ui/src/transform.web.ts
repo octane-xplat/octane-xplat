@@ -48,5 +48,5 @@ export function writeTransformProp(el: HTMLElement, prop: string, value: number)
 		return
 	}
 
-	;(el.style as any)[prop] = value
+	;(el.style as unknown as Record<string, unknown>)[prop] = value
 }

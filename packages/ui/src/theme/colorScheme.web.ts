@@ -10,13 +10,13 @@ type HostTransport = {
 const hostTransport = () =>
 	typeof window === 'undefined'
 		? null
-		: (((window as any).__xplatHostTransport as HostTransport | undefined) ?? null)
+		: (((window as Record<string, any>).__xplatHostTransport as HostTransport | undefined) ?? null)
 
 let hostedScheme: ColorScheme =
 	typeof window === 'undefined'
 		? 'light'
-		: ((window as any).__xplatHostSnapshot?.colorScheme ??
-			(window as any).__xplatColorScheme ??
+		: ((window as Record<string, any>).__xplatHostSnapshot?.colorScheme ??
+			(window as Record<string, any>).__xplatColorScheme ??
 			'light')
 
 function getSystemScheme(): ColorScheme {

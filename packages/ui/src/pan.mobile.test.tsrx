@@ -25,7 +25,7 @@ function PanHost() @{
 function mountPanHost() {
 	const container = createObjectContainer('nativescript')
 	const root = createUniversalRoot(container, createObjectDriver('nativescript'))
-	root.render(PanHost as any, {})
+	root.render(PanHost, {})
 	return { container, root, host: container.children[0] }
 }
 

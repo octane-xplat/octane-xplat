@@ -1,4 +1,3 @@
-import { appKitHost, hostGlobal } from './host-bridge'
 const transformPaths: Record<string, string> = {
 	translateX: 'transform.translation.x',
 	translateY: 'transform.translation.y',
@@ -10,7 +9,7 @@ const transformPaths: Record<string, string> = {
 
 export function readReducedMotion(): boolean {
 	return Boolean(
-		hostGlobal('NSWorkspace')?.sharedWorkspace?.accessibilityDisplayShouldReduceMotion,
+		(globalThis as Record<string, any>).NSWorkspace?.sharedWorkspace?.accessibilityDisplayShouldReduceMotion,
 	)
 }
 
@@ -25,7 +24,7 @@ export function writeAnimatedProperty(view: any, property: string, value: number
 	if (path) {
 		view.wantsLayer = true
 		// Explicit per-frame samples must not acquire implicit CA interpolation.
-		const transaction = hostGlobal('CATransaction')
+		const transaction = (globalThis as Record<string, any>).CATransaction
 		transaction.begin()
 		try {
 			transaction.setDisableActions(true)

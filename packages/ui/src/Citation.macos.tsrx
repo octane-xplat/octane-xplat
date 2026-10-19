@@ -60,7 +60,7 @@ export function Citation(props: CitationProps) @{
 	const shared = {
 		id: props.id,
 		className: cls,
-		style: { flexDirection: 'row', alignItems: 'center', gap: 4, ...styleRecord(props.style) } as any,
+		style: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 4, ...styleRecord(props.style) },
 		accessibilityLabel:
 			variant === 'number' ? `Citation ${props.number}` : `${source.title ?? 'Citation'} ${props.number}`,
 	};

@@ -35,7 +35,7 @@ describe('focus hooks (universal renderer)', () => {
 		const onWithin = vi.fn()
 		const onFocus = vi.fn()
 		const onBlur = vi.fn()
-		root.render(Probe as any, { onFocus, onBlur, onChange, onWithin })
+		root.render(Probe, { onFocus, onBlur, onChange, onWithin })
 
 		expect(captured.focusVisible).toEqual({ isFocusVisible: false, inputModality: 'unknown', isSupported: false })
 		expect(captured.ring.isFocused).toBe(false)
@@ -70,7 +70,7 @@ describe('focus hooks (universal renderer)', () => {
 		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
 		const container = createObjectContainer('nativescript')
 		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
-		root.render(FocusScope as any, {
+		root.render(FocusScope, {
 			contain: true,
 			autoFocus: true,
 			restoreFocus: true,

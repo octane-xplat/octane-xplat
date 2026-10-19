@@ -90,13 +90,13 @@ async function mount(props: Record<string, unknown>) {
 	const container = createNativeScriptContainer(host)
 	const root = createUniversalRoot(container, nativeScriptDriver)
 	container.root = root
-	root.render(PropRemoval as any, props)
+	root.render(PropRemoval, props)
 	const label = (host.children[0] as any).children[0]
 	return {
 		host,
 		label,
 		rerender: (next: Record<string, unknown>) =>
-			flushUniversalSync(() => root.render(PropRemoval as any, next)),
+			flushUniversalSync(() => root.render(PropRemoval, next)),
 		release: () => {
 			root.unmount()
 			releaseNativeScriptContainer(container)

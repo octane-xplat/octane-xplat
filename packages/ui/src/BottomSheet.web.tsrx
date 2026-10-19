@@ -1,5 +1,6 @@
 import { SheetContent } from './sheet-content'
 import { LayerDepthContext, LayerDepthProvider } from './layer-dismissal.tsrx'
+import { styleRecord } from './style-merge'
 import { SizeProvider } from './size-context'
 import { createPortal, useContext, useEffect, useMemo, useRef, useState } from 'octane'
 import type { BottomSheetProps, BottomSheetSwitcherProps } from './props'
@@ -130,7 +131,7 @@ function BottomSheetLayer(props: {
 			aria-modal={hasScrim ? true : undefined}
 			aria-label={sheet.label}
 			style={{
-				...(sheet as any).style,
+				...styleRecord(sheet.style),
 				...sheetHeightStyle(sheet.height, snapPoints.length),
 				// Parked below the viewport until the gesture controller slides
 				// the panel in (attachSheetDetents owns transform from then on).

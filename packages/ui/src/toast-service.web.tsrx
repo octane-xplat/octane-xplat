@@ -1,4 +1,5 @@
 import { useCallback, useContext } from 'octane';
+import type { ComponentBody } from 'octane'
 import { createRoot } from 'octane';
 import type { ShowToastFn, ToastOptions } from './props';
 import { ToastViewportContext } from './toast-context';
@@ -23,7 +24,7 @@ function ensureFallbackViewport(): void {
 	container.setAttribute('data-xplat-toast-fallback', '');
 	document.body.appendChild(container);
 	registerToastViewport(FALLBACK_TOAST_VIEWPORT);
-	createRoot(container).render(ToastViewportSurface as any, {
+	createRoot(container).render(ToastViewportSurface as unknown as ComponentBody, {
 		viewportId: FALLBACK_TOAST_VIEWPORT,
 		position: 'bottomEnd',
 		maxVisible: 5,

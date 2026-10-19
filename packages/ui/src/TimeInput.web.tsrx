@@ -197,7 +197,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 	const openNativePicker = () => {
 		if (isDisabled) return
 		input.current?.focus?.()
-		try { (input.current as any)?.showPicker?.() } catch {}
+		try { (input.current)?.showPicker?.() } catch {}
 	}
 
 	const iconButton = (

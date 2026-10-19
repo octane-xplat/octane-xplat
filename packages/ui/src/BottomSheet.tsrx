@@ -1,6 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { mergeStyle } from './style-merge'
 import { SheetContent } from './sheet-content'
+import type { PercentLengthType } from '@nativescript/core'
 import { useContext, useEffect, useMemo, useRef, useState } from 'octane'
 import { GridLayout, Screen, isAndroid, isIOS } from '@nativescript/core'
 import { createPortal } from './native-portal'
@@ -24,6 +25,13 @@ import { normalizeSnapPoints } from './sheet-snap'
 import { createKeyboardOverlayHost, keyboardOverlayAnimation } from './keyboard-overlay-host'
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal'
 import { attachTapToBlur } from './tap-to-blur'
+
+interface ToastOwner {
+	hasChild?(v: any): boolean
+	getPopupIndex?(v: any): number
+	removeChild?(v: any): void
+	close?(v: any): Promise<unknown> | void
+}
 
 const screenVh = () => Screen.mainScreen.heightDIPs
 
@@ -204,7 +212,7 @@ export function BottomSheet(props: BottomSheetProps) @{
 		const enter = attachBottomSheetHost(panel, props, lifetime, () => {
 			// User dismissal goes through RootLayout close → 'closed' →
 			// lifetime reports dismissed → onOpenChange(false).
-			const owner = host.parent as any
+			const owner = host.parent as ToastOwner | undefined
 			owner?.close?.(host)?.catch?.((error: unknown) => {
 				console.error('[BottomSheet] close failed', error)
 			})
@@ -279,7 +287,7 @@ function SwitcherPanel(props: {
 		// Size for this sheet: largest stop or the height budget.
 		host.height = detents.length
 			? detents[detents.length - 1] * screenVh()
-			: ((sheetHeightDips(active.props.height, screenVh()) ?? undefined) as any)
+			: (sheetHeightDips(active.props.height, screenVh()) ?? undefined) as PercentLengthType
 
 		host.accessibilityLabel = active.props.label
 		ctl.enter()

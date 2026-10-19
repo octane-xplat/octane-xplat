@@ -38,7 +38,7 @@ export function characterCount(str: string): number {
 		return 0
 	}
 
-	const Segmenter = (Intl as any).Segmenter
+	const Segmenter = Intl.Segmenter
 	if (typeof Segmenter === 'function') {
 		const segmenter = new Segmenter(undefined, { granularity: 'grapheme' })
 		let count = 0

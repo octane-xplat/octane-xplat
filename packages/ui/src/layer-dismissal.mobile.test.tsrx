@@ -79,8 +79,8 @@ describe('portable cross-root layer ownership', () => {
 			updated = vi.fn()
 
 		try {
-			inner.render(AtDepth as any, { depth: 1, dismiss: closeInner })
-			outer.render(Entry as any, { active: true, dismiss: closeOuter })
+			inner.render(AtDepth, { depth: 1, dismiss: closeInner })
+			outer.render(Entry, { active: true, dismiss: closeOuter })
 			flushUniversalSync(() => {})
 			await vi.waitFor(() => {
 				escape()
@@ -88,7 +88,7 @@ describe('portable cross-root layer ownership', () => {
 			})
 
 			expect(closeOuter).not.toHaveBeenCalled()
-			inner.render(AtDepth as any, { depth: 1, dismiss: updated })
+			inner.render(AtDepth, { depth: 1, dismiss: updated })
 			flushUniversalSync(() => {})
 			await vi.waitFor(() => {
 				escape()
@@ -129,8 +129,8 @@ describe('portable cross-root layer ownership', () => {
 			dismiss = vi.fn()
 
 		try {
-			outer.render(Entry as any, { active: true, dismiss })
-			inner.render(AtDepth as any, { depth: 1, dismiss })
+			outer.render(Entry, { active: true, dismiss })
+			inner.render(AtDepth, { depth: 1, dismiss })
 			flushUniversalSync(() => {})
 			await vi.waitFor(() => expect(handler).toBeTypeOf('function'))
 			expect(
@@ -162,19 +162,19 @@ describe('portable cross-root layer ownership', () => {
 			dismiss = vi.fn()
 
 		try {
-			outer.render(Entry as any, { active: true, dismiss, focusTarget: { focus: lowerFocus } })
-			inner.render(Entry as any, { active: true, dismiss, focusTarget: { focus: upperFocus } })
+			outer.render(Entry, { active: true, dismiss, focusTarget: { focus: lowerFocus } })
+			inner.render(Entry, { active: true, dismiss, focusTarget: { focus: upperFocus } })
 			flushUniversalSync(() => {})
 			await vi.waitFor(() => {
 				escape()
 				expect(dismiss).toHaveBeenCalled()
 			})
 
-			outer.render(Entry as any, { active: false, dismiss, focusTarget: { focus: lowerFocus } })
+			outer.render(Entry, { active: false, dismiss, focusTarget: { focus: lowerFocus } })
 			flushUniversalSync(() => {})
 			await new Promise((resolve) => setTimeout(resolve, 0))
 			expect(lowerFocus).not.toHaveBeenCalled()
-			inner.render(Entry as any, { active: false, dismiss, focusTarget: { focus: upperFocus } })
+			inner.render(Entry, { active: false, dismiss, focusTarget: { focus: upperFocus } })
 			flushUniversalSync(() => {})
 			await vi.waitFor(() => expect(upperFocus).toHaveBeenCalledTimes(1))
 		} finally {
@@ -194,18 +194,18 @@ describe('portable cross-root layer ownership', () => {
 		vi.stubGlobal('__xplatAppKit', { showLayer: show })
 		const root = freshRoot()
 		try {
-			root.render(CardProbe as any, { open: true, hide })
+			root.render(CardProbe, { open: true, hide })
 			flushUniversalSync(() => {})
 			await vi.waitFor(() => expect(show).toHaveBeenCalledTimes(1))
 			escape()
 			expect(hide).toHaveBeenCalledTimes(1)
 			expect(close).not.toHaveBeenCalled()
-			root.render(CardProbe as any, { open: true, hide: updated })
+			root.render(CardProbe, { open: true, hide: updated })
 			flushUniversalSync(() => {})
 			escape()
 			expect(updated).toHaveBeenCalledTimes(1)
 			expect(close).not.toHaveBeenCalled()
-			root.render(CardProbe as any, { open: false, hide: updated })
+			root.render(CardProbe, { open: false, hide: updated })
 			flushUniversalSync(() => {})
 			await vi.waitFor(() => expect(close).toHaveBeenCalledTimes(1))
 			expect(updated).toHaveBeenCalledTimes(1)
@@ -231,14 +231,14 @@ describe('portable cross-root layer ownership', () => {
 
 		const root = freshRoot()
 		try {
-			root.render(Popover as any, { open: true, anchor: { current: {} }, onDismiss: dismiss })
+			root.render(Popover, { open: true, anchor: { current: {} }, onDismiss: dismiss })
 			flushUniversalSync(() => {})
 			await vi.waitFor(() => expect(popupOptions?.props.layerDepth).toBe(1))
-			root.render(Popover as any, { open: false, anchor: { current: {} }, onDismiss: dismiss })
+			root.render(Popover, { open: false, anchor: { current: {} }, onDismiss: dismiss })
 			flushUniversalSync(() => {})
 			await vi.waitFor(() => expect(close).toHaveBeenCalledTimes(1))
 			expect(dismiss).not.toHaveBeenCalled()
-			root.render(Popover as any, { open: true, anchor: { current: {} }, onDismiss: dismiss })
+			root.render(Popover, { open: true, anchor: { current: {} }, onDismiss: dismiss })
 			flushUniversalSync(() => {})
 			await new Promise((resolve) => setTimeout(resolve, 0))
 			popup.closed = true

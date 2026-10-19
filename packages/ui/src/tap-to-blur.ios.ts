@@ -111,9 +111,9 @@ function iosDetach() {
 function appWindow() {
 	const scenes = UIApplication.sharedApplication.connectedScenes
 	// connectedScenes is an NSSet — `allObjects` marshals to a JS array.
-	for (const scene of (scenes as any).allObjects ?? []) {
+	for (const scene of scenes.allObjects ?? []) {
 		if (scene instanceof UIWindowScene) {
-			for (const w of (scene.windows as any)?.allObjects ?? scene.windows ?? []) {
+			for (const w of (scene.windows as unknown as { allObjects?: UIWindow[] })?.allObjects ?? scene.windows ?? []) {
 				if (w.isKeyWindow) {
 					return w
 				}

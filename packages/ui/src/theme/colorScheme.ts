@@ -14,7 +14,7 @@ export function getColorScheme(): ColorScheme {
 	// primary window isn't guaranteed during early boot — fall back.
 	return (
 		Application.primaryWindow?.systemAppearance?.() ??
-		(Application as any).systemAppearance?.() ??
+		Application.systemAppearance?.() ??
 		'light'
 	)
 }

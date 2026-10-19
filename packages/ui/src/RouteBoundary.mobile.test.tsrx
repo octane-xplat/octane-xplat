@@ -45,7 +45,7 @@ function Host(props: { boundary?: any; which?: 'fine' | 'boom' | 'maybe' }) @{
 function mount(which: 'fine' | 'boom' | 'maybe', boundary?: any) {
 	const container = createObjectContainer('nativescript')
 	const root = createUniversalRoot(container, createObjectDriver('nativescript'))
-	root.render(Host as any, { which, boundary })
+	root.render(Host, { which, boundary })
 	return container
 }
 

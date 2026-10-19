@@ -88,6 +88,13 @@ function relayoutBucket(bucket: ToastEntry[]) {
 	}
 }
 
+interface ToastOwner {
+	hasChild?(v: any): boolean
+	getPopupIndex?(v: any): number
+	removeChild?(v: any): void
+	close?(v: any): Promise<unknown> | void
+}
+
 function detach(entry: ToastEntry) {
 	const cur = hosts.get(entry.id)
 	if (!cur) return
@@ -95,7 +102,7 @@ function detach(entry: ToastEntry) {
 	if (cur.timer) clearTimeout(cur.timer)
 	cur.unbindTheme()
 	cur.root.unmount?.()
-	const owner = cur.host.parent as any
+	const owner = cur.host.parent as ToastOwner | undefined
 	if (owner?.hasChild?.(cur.host)) {
 		if (typeof owner.getPopupIndex === 'function' && owner.getPopupIndex(cur.host) === -1) {
 			owner.removeChild?.(cur.host)

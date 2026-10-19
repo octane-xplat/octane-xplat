@@ -24,7 +24,7 @@ describe.each([
 		const { container, root } = createRoot()
 		const change = vi.fn()
 		flushUniversalSync(() =>
-			root.render(Switch as any, {
+			root.render(Switch, {
 				checked: false,
 				onCheckedChange: change,
 				isDisabled: true,
@@ -46,7 +46,7 @@ describe.each([
 		// isDisabled maps to the host's enabled flag; a disabled OS widget
 		// reports the state instead of toggling.
 		flushUniversalSync(() =>
-			root.render(Switch as any, { checked: false, onCheckedChange: change, isDisabled: false, isReadOnly: true }),
+			root.render(Switch, { checked: false, onCheckedChange: change, isDisabled: false, isReadOnly: true }),
 		)
 
 		expect(host.props.isEnabled).toBe(true)
@@ -64,7 +64,7 @@ describe.each([
 	it('delivers checked and onCheckedChange unchanged when enabled', () => {
 		const { container, root } = createRoot()
 		const change = vi.fn()
-		flushUniversalSync(() => root.render(Switch as any, { checked: true, onCheckedChange: change }))
+		flushUniversalSync(() => root.render(Switch, { checked: true, onCheckedChange: change }))
 		const host = container.children[0]
 		expect(host.props.checked).toBe(true)
 		expect(host.props.isEnabled).toBe(true)

@@ -12,7 +12,7 @@ export function styled<P extends { className?: ClassName }, V extends Record<str
 	function Styled(props: P & StyledVariantSelection<V>) @{
 		const { classes, rest } = resolveStyledClasses(def, props);
 
-		<Base {...rest} className={classes as any} />
+		<Base {...rest} className={classes} />
 	}
 
 	return Styled;

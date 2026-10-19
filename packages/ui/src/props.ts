@@ -7357,6 +7357,9 @@ export interface TabListContextValue {
 	size: TabListSize
 	layout: TabListLayout
 	pattern: TabListPattern
+	/** Internal plumbing — the strip's registered tab views for
+	 *  scroll-selected-into-view. */
+	_tabViews?: Map<string, unknown>
 }
 
 /** Standalone tab strip (Astryx `TabList`) — children are `Tab`/`TabMenu`; `value`+`onChange` own selection by the tab's `value`. `layout` picks hug/fill, `hasDivider` the bottom rail, `role="tablist"` selects the WAI-ARIA tabs pattern (else it's a nav landmark), `overflow` controls strip overflow (`auto` resolves to `scroll`).

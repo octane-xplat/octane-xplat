@@ -40,8 +40,8 @@ it('compiled hook readers update independently across roots and unsubscribe on u
 		b: number[] = []
 
 	try {
-		first.render(Reader as any, { values: a })
-		second.render(Reader as any, { values: b })
+		first.render(Reader, { values: a })
+		second.render(Reader, { values: b })
 		flushUniversalSync(() => {})
 		await vi.waitFor(() => expect(subscriptions.size).toBe(2))
 		flushUniversalSync(() => subscriptions.forEach((listener) => listener(240)))

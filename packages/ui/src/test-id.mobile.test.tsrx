@@ -27,14 +27,14 @@ describe('automation identity binding (renderer evidence, not OS qualification)'
 		const container = createObjectContainer('nativescript')
 		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
 		const props = { id: 'legacy', accessibilityLabel: 'Open item', accessibilityRole: 'button' }
-		root.render(ActionWithChild as any, { ...props, testID: 'item.a.open' })
+		root.render(ActionWithChild, { ...props, testID: 'item.a.open' })
 		const host = container.children[0]
 		expect(host.props.testID).toBe('item.a.open')
 		expect(host.children[0].props.testID).toBe('child.action')
-		root.render(ActionWithChild as any, { ...props, testID: 'item.b.open' })
+		root.render(ActionWithChild, { ...props, testID: 'item.b.open' })
 		expect(container.children[0]).toBe(host)
 		expect(host.props.testID).toBe('item.b.open')
-		root.render(ActionWithChild as any, props)
+		root.render(ActionWithChild, props)
 		expect(host.props.testID).toBe('')
 		expect(host.props.id).toBe('legacy')
 		expect(host.props.accessibilityLabel).toBe('Open item')
@@ -46,7 +46,7 @@ describe('automation identity binding (renderer evidence, not OS qualification)'
 	it.each([View, Stack])('assigns container identity only to its host', (Component) => {
 		const container = createObjectContainer('nativescript')
 		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
-		root.render(ContainerWithChild as any, { Component })
+		root.render(ContainerWithChild, { Component })
 		expect(nodes(container.children).map((node) => node.props.testID).filter(Boolean)).toEqual(['parent', 'child'])
 		root.unmount()
 	})
@@ -54,7 +54,7 @@ describe('automation identity binding (renderer evidence, not OS qualification)'
 	it.each([TextInput, SearchInput])('targets the editable field rather than the input shell', (Component) => {
 		const container = createObjectContainer('nativescript')
 		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
-		root.render(Component as any, { testID: 'entry', icon: false, hasClear: false })
+		root.render(Component, { testID: 'entry', icon: false, hasClear: false })
 		const identified = nodes(container.children).filter((node) => node.props.testID)
 		expect(identified).toHaveLength(1)
 		expect(identified[0].type).toBe('textfield')

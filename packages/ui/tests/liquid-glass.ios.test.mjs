@@ -125,6 +125,6 @@ test('component registers the adapter and defaults interaction off while keeping
 	assert.match(leaf, /registerElement\('liquidglass', LiquidGlassView\)/)
 	assert.match(leaf, /interactive: props\.interactive \?\? false/)
 	assert.match(leaf, /applyEscapeProps\(v, props\)/)
-	assert.match(leaf, /layoutChildProps\(props\)/)
+	assert.match(leaf, /layoutChildProps\(props/)
 	assert.match(leaf, /\{props\.children\}/)
 })

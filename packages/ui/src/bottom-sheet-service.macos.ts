@@ -1,5 +1,5 @@
 import { type ContentOwner } from './owned-content'
-import { appKitHost, hostGlobal } from './host-bridge'
+import { appKitHost } from './host-bridge'
 import { ImperativeSheetPanel } from './bottom-sheet-panel.macos.tsrx'
 import type {
 	BottomSheetHandle,

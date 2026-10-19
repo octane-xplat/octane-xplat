@@ -45,7 +45,7 @@ function mount(props: any = {}) {
 	const container = createObjectContainer('nativescript')
 	const root = createUniversalRoot(container, createObjectDriver('nativescript'))
 	roots.push(root)
-	root.render(PinInput as any, props)
+	root.render(PinInput, props)
 	flushUniversalSync(() => {})
 	const fields = (): any[] => {
 		const found: any[] = []

@@ -13,7 +13,7 @@ describe('native meter accessibility', () => {
 	it('reports the meter fallback role with a human-readable value', () => {
 		const container = createObjectContainer('nativescript')
 		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
-		root.render(Meter as any, {
+		root.render(Meter, {
 			value: 6,
 			minValue: 0,
 			maxValue: 10,
@@ -31,7 +31,7 @@ describe('native meter accessibility', () => {
 	it('describes the clamped range value by default', () => {
 		const container = createObjectContainer('nativescript')
 		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
-		root.render(Meter as any, { value: 500, minValue: 100, maxValue: 400 })
+		root.render(Meter, { value: 500, minValue: 100, maxValue: 400 })
 		const host = container.children[0]
 		expect(host.props.accessibilityValue).toBe('400 of 400')
 		root.unmount()

@@ -69,11 +69,11 @@ describe('native controlled input writes', () => {
 				})
 			}
 
-			root.render(Component as any, { value: 'hello', onChange: change, ref, icon: false })
+			root.render(Component, { value: 'hello', onChange: change, ref, icon: false })
 			await vi.waitFor(() => expect(text).toBe('hello'))
 			expect(change).not.toHaveBeenCalled()
 			expect(selection).toEqual([2, 4])
-			root.render(Component as any, { value: 'x', onChange: change, ref, icon: false })
+			root.render(Component, { value: 'x', onChange: change, ref, icon: false })
 			await vi.waitFor(() => expect(text).toBe('x'))
 			expect(change).not.toHaveBeenCalled()
 			expect(selection).toEqual([1, 1])

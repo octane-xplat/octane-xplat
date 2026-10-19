@@ -22,6 +22,12 @@ const active = new Set<ActiveSheet>()
 
 /** The most recently opened sheet's host view — for harness asserts (view
  *  identity beats tree search; the owning rootlayout may unload/reload). */
+interface ToastOwner {
+	hasChild?(v: any): boolean
+	getPopupIndex?(v: any): number
+	removeChild?(v: any): void
+	close?(v: any): Promise<unknown> | void
+}
 export function bottomSheetHost(): GridLayout | null {
 	return [...active].pop()?.host ?? null
 }
@@ -105,7 +111,7 @@ export function openBottomSheetWithOwner(
 			unbindTheme()
 			detents.detach()
 			root.unmount?.()
-			const owner = host.parent as any
+			const owner = host.parent as ToastOwner | undefined
 			if (owner?.hasChild?.(host) && !closing) {
 				if (owner.getPopupIndex?.(host) === -1) {
 					owner.removeChild?.(host)

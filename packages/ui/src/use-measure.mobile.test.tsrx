@@ -32,7 +32,7 @@ it('reports bounds relative to the app surface origin, not the screen', () => {
 	})
 
 	const values: Array<MeasureBounds | null> = []
-	flushUniversalSync(() => root.render(Measured as any, { values }))
+	flushUniversalSync(() => root.render(Measured, { values }))
 	root.unmount()
 	expect(values.at(-1)).toEqual({ x: 10, y: 20, width: 200, height: 100 })
 })
@@ -40,7 +40,7 @@ it('reports bounds relative to the app surface origin, not the screen', () => {
 it('stays null until the host can report a usable layout', () => {
 	const { root } = mountWithHosts((instance) => instance)
 	const values: Array<MeasureBounds | null> = []
-	flushUniversalSync(() => root.render(Measured as any, { values }))
+	flushUniversalSync(() => root.render(Measured, { values }))
 	root.unmount()
 	expect(values.length).toBeGreaterThan(0)
 	expect(values.every((b) => b === null)).toBe(true)

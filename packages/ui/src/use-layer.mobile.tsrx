@@ -54,7 +54,7 @@ function FixedLayerSurface(props: FixedSurfaceProps) @{
 	}, [props.ios, props.android]);
 
 	<masonview width="100%" height="100%" className={cx('vx-popover-layer', useThemeScheme() === 'dark' && 'ns-dark')}>
-		{(props.lightDismiss ?? false) && <masonview style={mergeStyle({display: "grid"}, {position: 'absolute'})} width="100%" height="100%" backgroundColor={"transparent" as any} className="vx-popover-backdrop" onTap={() => props.onDismiss?.()}/>}
+		{(props.lightDismiss ?? false) && <masonview style={mergeStyle({display: "grid"}, {position: 'absolute'})} width="100%" height="100%" backgroundColor="transparent" className="vx-popover-backdrop" onTap={() => props.onDismiss?.()}/>}
 		<masonview ref={panelRef} accessibilityLabel={props.accessibilityLabel} className={cx('vx-popover', props.className)} style={mergeStyle({display: "grid"}, [props.style, {position: 'absolute', left: props.x ?? 0, top: props.y ?? 0}])}>
 			<LayerDepthProvider value={props.layerDepth ?? 0}><SizeProvider value={null}>{props.children}</SizeProvider></LayerDepthProvider>
 		</masonview>

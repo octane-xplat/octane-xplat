@@ -97,7 +97,7 @@ describe('useLayer (mobile)', () => {
 		freshOwner()
 		const container = createObjectContainer('nativescript')
 		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
-		root.render(Probe as any, { fixed: true })
+		root.render(Probe, { fixed: true })
 		flushUniversalSync(() => {})
 
 		expect(layer.ref).toBeUndefined()
@@ -122,7 +122,7 @@ describe('useLayer (mobile)', () => {
 		freshOwner()
 		const container = createObjectContainer('nativescript')
 		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
-		root.render(Probe as any, { fixed: false })
+		root.render(Probe, { fixed: false })
 		flushUniversalSync(() => {})
 
 		expect(typeof layer.ref).toBe('function')

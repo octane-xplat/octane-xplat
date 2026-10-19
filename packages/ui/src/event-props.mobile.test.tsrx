@@ -41,7 +41,7 @@ describe('event-prop freshness on the universal renderer', () => {
 		let bump: (() => void) | undefined
 		try {
 			flushUniversalSync(() =>
-				root.render(CounterButton as any, { seen, capture: (b: () => void) => (bump = b) }),
+				root.render(CounterButton, { seen, capture: (b: () => void) => (bump = b) }),
 			)
 
 			const host = container.children[0]
@@ -60,14 +60,14 @@ describe('event-prop freshness on the universal renderer', () => {
 		const seen: string[] = []
 		try {
 			flushUniversalSync(() =>
-				root.render(SwapButton as any, { label: 'a', onTap: () => seen.push('a') }),
+				root.render(SwapButton, { label: 'a', onTap: () => seen.push('a') }),
 			)
 
 			const host = container.children[0]
 			flushUniversalSync(() => container.dispatchEvent(host, 'tap', {}))
 			container.commits.length = 0
 			flushUniversalSync(() =>
-				root.render(SwapButton as any, { label: 'b', onTap: () => seen.push('b') }),
+				root.render(SwapButton, { label: 'b', onTap: () => seen.push('b') }),
 			)
 
 			// Only the handler closure changed — same listener id, same event
@@ -89,11 +89,11 @@ describe('event-prop freshness on the universal renderer', () => {
 		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
 		const seen: string[] = []
 		try {
-			flushUniversalSync(() => root.render(MaybeButton as any, { onTap: () => seen.push('x') }))
+			flushUniversalSync(() => root.render(MaybeButton, { onTap: () => seen.push('x') }))
 			const host = container.children[0]
 			flushUniversalSync(() => container.dispatchEvent(host, 'tap', {}))
 			container.commits.length = 0
-			flushUniversalSync(() => root.render(MaybeButton as any, {}))
+			flushUniversalSync(() => root.render(MaybeButton, {}))
 			expect(
 				updateCommits(container).filter(
 					(command: any) => command.op === 'event' && command.listener === null,
@@ -111,7 +111,7 @@ describe('event-prop freshness on the universal renderer', () => {
 		const container = createObjectContainer('nativescript')
 		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
 		const seen: string[] = []
-		flushUniversalSync(() => root.render(MaybeButton as any, { onTap: () => seen.push('x') }))
+		flushUniversalSync(() => root.render(MaybeButton, { onTap: () => seen.push('x') }))
 		const host = container.children[0]
 		root.unmount()
 		expect(container.children).toEqual([])

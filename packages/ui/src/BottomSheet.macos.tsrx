@@ -186,7 +186,7 @@ export function BottomSheetSwitcher(props: BottomSheetSwitcherProps) @{
 				return {
 					isOpen: active != null,
 					panelProps: {
-						...(sheet as any),
+						...sheet,
 						layerDepth: dismissal.depth,
 						className: cx(props.className, sheet?.className),
 						style: { ...styleRecord(props.style), ...styleRecord(sheet?.style) },
