@@ -31,6 +31,7 @@
 		"@octane-xplat/share": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"@octane-xplat/video": "workspace:*",
+		"@triniwiz/nativescript-masonkit": "1.0.0-beta.110",
 		"@valor/nativescript-websockets": "2.0.3",
 		"@xplat/app": "workspace:*",
 		"@xplat/demos": "workspace:*",
@@ -46,7 +47,6 @@
 		"@octanejs/vite-plugin": "catalog:",
 		"nativescript": "9.1.2-dev.2026-09-24-36031892256",
 		"typescript": "catalog:",
-		"vite": "catalog:",
-		"@triniwiz/nativescript-masonkit": "1.0.0-beta.110"
+		"vite": "catalog:"
 	}
 }
