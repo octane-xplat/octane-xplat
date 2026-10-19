@@ -83,7 +83,7 @@
 		"@nativescript/core": "catalog:",
 		"@octanejs/vite-plugin": "catalog:",
 		"@tsrx/typescript-plugin": "catalog:",
-		"@types/node": "20.19.0",
+		"@types/node": "24.10.1",
 		"@types/svg2ttf": "5.0.3",
 		"octane": "catalog:",
 		"tsrx-typegen": "workspace:*",
