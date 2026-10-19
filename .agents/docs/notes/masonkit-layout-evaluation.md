@@ -146,20 +146,20 @@ with `scrollview`/`liquidglass` as the chrome-wrapped hosts:
   stays on the builtin scrollview path (`configureScrollAxes`), styleDict
   re-reads it for flexDirection. The classic NSStackView/manual engines are
   deleted; `AccessibleHostView` preserves the tap/AX surface on mason
-  containers. styleDict reads raw CSS keys from the style bag only — the
-  component contract (flex props, LayoutChildProps sugar) keeps its prop
-  channel, and style-only keys as props warn-and-drop like the mobile driver.
+  containers. styleDict reads ALL CSS layout keys from the style bag only —
+  every former layout-prop name warns-and-drops, matching the mobile driver.
 - **iOS/Android (+Windows runtime)**: `@nativescript-community/octane` patch
   maps `masonview` to MasonKit `View` and `scrollview` to MasonKit `Scroll`
-  in `elements.js`. `driver.js` forwards only the shared component contract
-  (FlexContainerProps + LayoutChildProps sugar) as props — raw CSS keys are
-  style-only and warn-and-drop — and translates LayoutChildProps sugar
-  (`row`/`col`/`span` → grid lines,
-  `dock`/edges → absolute insets, attached alignment → cross-axis
-  self-align) on the child, replayed at `attach` via `Style.fromView` for
-  foreign leaves — see upstream-limitation rows in `feedback_observations`
-  (no mason style buffer on plain views; no view-level CssProperties on
-  mason's ViewBase).
+  in `elements.js`. `driver.js` has no layout-prop channel at all: every
+  former prop name (contract props, LayoutChildProps sugar, raw CSS keys)
+  warns-and-drops, and all CSS semantics arrive through the `style` bag.
+  Style-bag keys on a mason child route to the child's mason leaf via
+  `Style.fromView`, stashed pre-attach and replayed at `attach` — see
+  upstream-limitation rows in `feedback_observations` (no mason style buffer
+  on plain views; no view-level CssProperties on mason's ViewBase).
+  Component-level sugar (`row`/`col`/`span`, `dock`, edges, alignment, flex
+  props) is translated to CSS in `packages/ui/src/layout-child.ts`, identical
+  in spirit to `layout-child.web.ts`.
 - **Web**: unchanged — DOM CSS implements the same model; Mason never runs.
 
 Runtime evidence: `research/mason/mason-cutover.macos.tsrx` — 10/10
