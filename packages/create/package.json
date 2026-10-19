@@ -34,10 +34,10 @@
 	],
 	"type": "module",
 	"exports": {
-		"./scaffold": "./dist/scaffold.js",
+		"./scaffold": "./scaffold.ts",
 		"./compatibility": {
 			"types": "./compatibility.ts",
-			"default": "./dist/compatibility.js"
+			"default": "./compatibility.ts"
 		},
 		"./compatibility.json": "./compatibility.json"
 	},
