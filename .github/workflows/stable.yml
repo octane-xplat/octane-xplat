@@ -125,6 +125,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # apps/mobile's vite config imports @octane-xplat/cli/vite, which resolves
+      # to cli's dist — build the package closure before ns test runs vite.
+      - run: pnpm build:packages
+
       # Hosted runners still ship Simulator.app, but pinning an explicit
       # booted device keeps the lane identical to Xcode 27 dev hosts (which
       # can only target already-booted simulators).
