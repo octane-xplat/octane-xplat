@@ -1,20 +1,23 @@
 import type { RichTextEditorProps } from './types'
+import { mergeStyle, type StyleProp } from './style-merge'
 
 /** Parent-layout metadata translated to the CSS style bag on the host view —
  *  the driver drops layout keys passed as props; the style channel routes to
  *  the child's mason leaf (stashed pre-attach, replayed at attach). */
 export function layoutChildProps(
 	props: RichTextEditorProps,
-	baseStyle = props.style,
-): { style: Record<string, any> } {
-	const style: Record<string, any> = { ...(typeof baseStyle === 'object' ? baseStyle : {}) }
+	baseStyle: StyleProp = props.style,
+) {
+	const style: Record<string, any> = {}
 	if (props.row !== undefined) {
-		style.gridRow = `${Number(props.row) + 1} / span ${props.rowSpan ?? 1}`
+		const row = typeof props.row === 'number' ? props.row + 1 : props.row
+		style.gridRow = `${row}${props.rowSpan != null && Number(props.rowSpan) > 1 ? ` / span ${props.rowSpan}` : ''}`
 	} else if (props.rowSpan !== undefined) {
 		style.gridRow = `span ${props.rowSpan}`
 	}
 	if (props.col !== undefined) {
-		style.gridColumn = `${Number(props.col) + 1} / span ${props.colSpan ?? 1}`
+		const col = typeof props.col === 'number' ? props.col + 1 : props.col
+		style.gridColumn = `${col}${props.colSpan != null && Number(props.colSpan) > 1 ? ` / span ${props.colSpan}` : ''}`
 	} else if (props.colSpan !== undefined) {
 		style.gridColumn = `span ${props.colSpan}`
 	}
@@ -44,5 +47,5 @@ export function layoutChildProps(
 	if ((props.left !== undefined || props.top !== undefined) && props.dock === undefined) {
 		style.position = style.position ?? 'absolute'
 	}
-	return { style }
+	return { style: mergeStyle(style, baseStyle) }
 }

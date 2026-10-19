@@ -1,11 +1,12 @@
 import type { CameraViewProps } from './props'
 import { isIOS } from '@nativescript/core'
+import { mergeStyle } from './style-merge'
 
 /** NativeScript reads layout fields from a child view during parent layout. */
 export function layoutChildProps(
 	props: CameraViewProps,
-	baseStyle = props.style,
-): { style: Record<string, any> } {
+	baseStyle: Record<string, any> | string | undefined = props.style,
+) {
 	const style: Record<string, any> = { ...(typeof baseStyle === 'object' ? baseStyle : {}) }
 	if (props.row !== undefined) {
 		style.gridRow = `${props.row + 1} / span ${props.rowSpan ?? 1}`
@@ -43,7 +44,7 @@ export function layoutChildProps(
 	if ((props.left !== undefined || props.top !== undefined) && props.dock === undefined) {
 		style.position = style.position ?? 'absolute'
 	}
-	return { style }
+	return { style: typeof baseStyle === 'string' ? mergeStyle(style, baseStyle) : style }
 }
 
 export function applyEscapeProps(view: any, props: { ios?: any; android?: any }): void {
