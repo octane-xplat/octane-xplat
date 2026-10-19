@@ -5,9 +5,11 @@ import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 
 // The mason cutover makes styleDict the contract every mason container
-// shares: CSS-shaped props pass through, and LayoutChildProps sugar
-// (row/col/span, dock, edges, attached alignment) translates into the
-// engine's style surface here — this is where parity lives or dies.
+// shares: the `style` bag carries all CSS layout (flex, grid lines, insets,
+// self-alignment — components translate their props to these keys before
+// render). Parent-direction-dependent sugar (attached alignment) never
+// reached the engine correctly anyway; now the parent-aware translation
+// lives in the component layer.
 let source = readFileSync(new URL('../src/mason.ts', import.meta.url), 'utf8')
 source = source.replace(/import\s*\{[\s\S]*?\}\s*from\s*'[^']*';?/g, '')
 source = stripTypeScriptTypes(source).replaceAll('export ', '')
@@ -55,24 +57,27 @@ test('scrollview orientation maps to flexDirection', () => {
 	assert.equal(styleDict(node('scrollview')).position, 'relative')
 })
 
-test('masonview takes contract props + style CSS with no intrinsic defaults', () => {
+test('masonview takes style CSS with no intrinsic defaults or layout props', () => {
 	const bare = styleDict(node('masonview'))
 	assert.equal(bare.display, undefined)
 	assert.equal(bare.flexDirection, undefined)
+	// All layout semantics arrive through `style` — the intrinsic has no
+	// layout-prop surface.
 	const dict = styleDict(
-		node('masonview', { flexDirection: 'row', alignItems: 'stretch', style: { display: 'flex' } }),
+		node('masonview', { style: { display: 'flex', flexDirection: 'row', alignItems: 'stretch' } }),
 	)
 	assert.equal(dict.display, 'flex')
 	assert.equal(dict.flexDirection, 'row')
 	assert.equal(dict.alignItems, 'stretch')
 })
 
-test('flex gap prop and gap styles become length dims — never auto', () => {
-	const byProp = styleDict(node('masonview', { gap: '8' }))
-	assert.deepEqual(byProp.gapRow, [0, 8])
-	assert.deepEqual(byProp.gapColumn, [0, 8])
-	const byStyle = styleDict(node('masonview', { style: { rowGap: 5 } }))
+test('gap styles become length dims — never auto', () => {
+	const byStyle = styleDict(node('masonview', { style: { gap: '8', rowGap: 5 } }))
 	assert.deepEqual(byStyle.gapRow, [0, 5])
+	assert.deepEqual(byStyle.gapColumn, [0, 8])
+	const bare = styleDict(node('masonview', { style: { gap: '8' } }))
+	assert.deepEqual(bare.gapRow, [0, 8])
+	assert.deepEqual(bare.gapColumn, [0, 8])
 })
 
 test('className-derived spacing/orientation feed the dict', () => {
@@ -99,25 +104,36 @@ test('masonview grid templates pass through as CSS tracks', () => {
 	assert.equal(dict.gridTemplateColumns, '1fr 2fr auto 10%')
 })
 
-test('grid children translate row/col/span to grid lines', () => {
+test('grid children carry authored grid lines through style', () => {
 	const grid = node('masonview', { style: { display: 'grid' } })
-	const item = node('label', { row: 1, col: 2, colSpan: 2 }, grid)
+	// Components emit CSS grid lines directly — the renderer reads the style
+	// bag, never translated props.
+	const item = node('label', { style: { gridRow: '2', gridColumn: '3 / span 2' } }, grid)
 	const dict = styleDict(item)
 	assert.equal(dict.gridRow, '2')
 	assert.equal(dict.gridColumn, '3 / span 2')
 })
 
-test('masonview children with edge props are absolute with inset dims', () => {
+test('masonview children with edge styles become inset dims', () => {
 	const host = node('masonview')
-	const item = node('label', { left: 10, top: 20, right: 5, bottom: 4 }, host)
+	const item = node(
+		'label',
+		{ style: { position: 'absolute', left: 10, top: 20, right: 5, bottom: 4 } },
+		host,
+	)
 	const dict = styleDict(item)
 	assert.equal(dict.position, 'absolute')
 	assert.deepEqual(dict.inset, { left: [1, 10], right: [1, 5], top: [1, 20], bottom: [1, 4] })
 })
 
-test('masonview child dock left pins the left edge', () => {
+test('a docked-left child pins three edges through style insets', () => {
 	const host = node('masonview')
-	const item = node('label', { dock: 'left' }, host)
+	// dock="left" compiles to absolute positioning + left/top/bottom insets.
+	const item = node(
+		'label',
+		{ style: { position: 'absolute', left: 0, top: 0, bottom: 0 } },
+		host,
+	)
 	const dict = styleDict(item)
 	assert.equal(dict.position, 'absolute')
 	assert.deepEqual(dict.inset.left, [1, 0])
@@ -156,18 +172,14 @@ test('scrollview content flows vertically by default', () => {
 	assert.equal(dict.display, 'flex')
 })
 
-test('attached alignment becomes self-alignment on the cross axis', () => {
-	const col = node('masonview', { flexDirection: 'column', style: { display: 'flex' } })
-	const item = node('label', { horizontalAlignment: 'right' }, col)
+test('self-alignment keys pass through the style bag on both axes', () => {
+	const col = node('masonview', { style: { display: 'flex', flexDirection: 'column' } })
+	const item = node('label', { style: { alignSelf: 'end' } }, col)
 	assert.equal(styleDict(item).alignSelf, 'end')
-
-	const row = node('masonview', { flexDirection: 'row' })
-	const rowItem = node('label', { verticalAlignment: 'bottom' }, row)
-	assert.equal(styleDict(rowItem).alignSelf, 'end')
 
 	// Grid children own both axes.
 	const grid = node('masonview', { style: { display: 'grid' } })
-	const g = node('label', { horizontalAlignment: 'center', verticalAlignment: 'stretch' }, grid)
+	const g = node('label', { style: { justifySelf: 'center', alignSelf: 'stretch' } }, grid)
 	const gdict = styleDict(g)
 	assert.equal(gdict.justifySelf, 'center')
 	assert.equal(gdict.alignSelf, 'stretch')

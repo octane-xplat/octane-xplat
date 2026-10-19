@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { mergeStyle } from './style-merge'
 import { useSignal$ } from 'octane/signals/client'
 
 export const searchRefs = { host: { current: null as any }, secondary: { current: null as any } }
@@ -23,8 +24,8 @@ export default function Search() {
 	)
 
 	return (
-		<masonview flexDirection="column" style={{display: "flex"}}>
-			<masonview flexDirection="column" id="search-parent" style={{display: "flex", ...({ width: 220, height: 120, padding: 10 })}}>
+		<masonview style={{flexDirection: "column", ...({display: "flex"})}}>
+			<masonview id="search-parent" style={mergeStyle({flexDirection: "column"}, {display: "flex", ...({ width: 220, height: 120, padding: 10 })})}>
 				{phase < 6
 					? (phase >= 3 ? ['b', 'a'] : ['a', 'b'])
 							.filter((id) => phase < 4 || id !== 'b')

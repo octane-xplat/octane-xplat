@@ -32,7 +32,7 @@ const values = (markup: string, item: any) => (parseListTemplate(markup).render(
 
 test('Builder XML nested tags, case, namespaces, entities and numeric/boolean/style conversion', () => {
 	const template = parseListTemplate(
-		'<MasonView xmlns="http://schemas.nativescript.org/tns.xsd" flexDirection="row"><Label text="A &amp; B" maxLines="2" textWrap="false" style="font-size: 20; width: 120" /></MasonView>',
+		'<MasonView xmlns="http://schemas.nativescript.org/tns.xsd" style="display: flex; flex-direction: row"><Label text="A &amp; B" maxLines="2" textWrap="false" style="font-size: 20; width: 120" /></MasonView>',
 	)
 
 	const tags: any[] = []
@@ -41,8 +41,10 @@ test('Builder XML nested tags, case, namespaces, entities and numeric/boolean/st
 		() => {},
 	)
 
+	// Layout attrs are style-only — `flexDirection` as an XML attribute is an
+	// undeclared-prop error under the strict contract.
 	assert.deepEqual(tags, [
-		['masonview', { flexDirection: 'row' }],
+		['masonview', { style: { display: 'flex', flexDirection: 'row' } }],
 		['label', { text: 'A & B', maxLines: 2, textWrap: false, style: { fontSize: 20, width: 120 } }],
 	])
 

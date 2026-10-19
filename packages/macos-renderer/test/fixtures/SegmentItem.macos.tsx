@@ -28,8 +28,8 @@ export default function SegmentItems() {
 	)
 
 	return (
-		<masonview flexDirection="column" style={{display: "flex"}}>
-			<segmentedbar id="item-natural" horizontalAlignment="left">
+		<masonview style={{flexDirection: "column", ...({display: "flex"})}}>
+			<segmentedbar id="item-natural" style={{alignSelf: 'start'}}>
 				<segmentedbaritem title={phase === 0 ? 'A' : 'A much longer segment title'} />
 			</segmentedbar>
 			<segmentedbar id="item-bar" selectedIndex={1} style={{ width: 220, height: 32 }}>

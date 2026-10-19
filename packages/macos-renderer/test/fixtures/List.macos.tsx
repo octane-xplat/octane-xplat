@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { mergeStyle } from './style-merge'
 import { useSignal$ } from 'octane/signals/client'
 
 export const listRef = { current: null as any }
@@ -36,10 +37,10 @@ export default function ListPicker() {
 	)
 
 	return (
-		<masonview flexDirection="column" style={{display: "flex"}}>
+		<masonview style={{flexDirection: "column", ...({display: "flex"})}}>
 			<listpicker id="list-default" />
 			<listpicker id="list-natural" items={['Natural']} />
-			<masonview flexDirection="column" id="list-left" style={{display: "flex", ...({ width: 240, height: 110 })}}>
+			<masonview id="list-left" style={mergeStyle({flexDirection: "column"}, {display: "flex", ...({ width: 240, height: 110 })})}>
 				{(phase >= 3 ? ['tail', 'list'] : ['list', 'tail']).map((id) =>
 					id === 'tail' ? (
 						<label key="tail" id="list-tail" text="tail" style={{ width: 32, height: 20 }} />

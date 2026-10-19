@@ -26,8 +26,8 @@ export default function ActionBar() {
 	const phase$ = useSignal$(0)
 	const phase = phase$.get()
 	return (
-		<masonview flexDirection="column" style={{display: "flex"}}>
-			<actionbar id="bar-natural" titleView={naturalTitle} horizontalAlignment="left" />
+		<masonview style={{flexDirection: "column", ...({display: "flex"})}}>
+			<actionbar id="bar-natural" titleView={naturalTitle}/>
 			{phase !== 6 ? (
 				<actionbar
 					key={phase === 5 ? 'replacement' : 'first'}

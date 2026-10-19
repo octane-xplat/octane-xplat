@@ -3,7 +3,7 @@ import { useSignal$ } from 'octane/signals/client'
 export default function App() {
 	const count$ = useSignal$(0)
 	return (
-		<masonview flexDirection="column" style={{display: "flex"}}>
+		<masonview style={{flexDirection: "column", ...({display: "flex"})}}>
 			<actionbar
 				id="hmr-actionbar"
 				title={'First revision' + count$.get()}

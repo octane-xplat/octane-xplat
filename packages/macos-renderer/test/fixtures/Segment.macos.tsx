@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { mergeStyle } from './style-merge'
 import { useSignal$ } from 'octane/signals/client'
 
 export const segmentRef = { current: null as any }
@@ -48,10 +49,10 @@ export default function SegmentedBar() {
 	)
 
 	return (
-		<masonview flexDirection="column" style={{display: "flex"}}>
+		<masonview style={{flexDirection: "column", ...({display: "flex"})}}>
 			<segmentedbar id="segment-default" />
 			<segmentedbar id="segment-natural" items={[{ title: 'Natural' }]} />
-			<masonview flexDirection="column" id="segment-left" style={{display: "flex", ...({ width: 240, height: 110 })}}>
+			<masonview id="segment-left" style={mergeStyle({flexDirection: "column"}, {display: "flex", ...({ width: 240, height: 110 })})}>
 				{(phase >= 3 ? ['tail', 'segment'] : ['segment', 'tail']).map((id) =>
 					id === 'tail' ? (
 						<label key="tail" id="segment-tail" text="tail" style={{ width: 32, height: 20 }} />

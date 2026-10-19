@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { mergeStyle } from './style-merge'
 import { useSignal$ } from 'octane/signals/client'
 
 export const progressRef = { current: null as any }
@@ -38,10 +39,10 @@ export default function Progress() {
 	)
 
 	return (
-		<masonview flexDirection="column" style={{display: "flex"}}>
+		<masonview style={{flexDirection: "column", ...({display: "flex"})}}>
 			<progress id="progress-default" />
 			<progress id="progress-range" {...ranges[phase]} />
-			<masonview flexDirection="column" id="progress-left" style={{display: "flex", ...({ width: 240, height: 110 })}}>
+			<masonview id="progress-left" style={mergeStyle({flexDirection: "column"}, {display: "flex", ...({ width: 240, height: 110 })})}>
 				{(phase >= 3 ? ['tail', 'progress'] : ['progress', 'tail']).map((id) =>
 					id === 'tail' ? (
 						<label key="tail" id="progress-tail" text="tail" style={{ width: 32, height: 20 }} />

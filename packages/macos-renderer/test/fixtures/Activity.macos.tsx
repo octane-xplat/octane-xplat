@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { mergeStyle } from './style-merge'
 import { useSignal$ } from 'octane/signals/client'
 
 export const activityRef = { current: null as any }
@@ -26,10 +27,10 @@ export default function Activity() {
 	)
 
 	return (
-		<masonview flexDirection="column" style={{display: "flex"}}>
+		<masonview style={{flexDirection: "column", ...({display: "flex"})}}>
 			<activityindicator id="idle-default" />
 			<activityindicator id="intrinsic-size" busy />
-			<masonview flexDirection="column" id="activity-left" style={{display: "flex", ...({ width: 240, height: 110 })}}>
+			<masonview id="activity-left" style={mergeStyle({flexDirection: "column"}, {display: "flex", ...({ width: 240, height: 110 })})}>
 				{(phase >= 3 ? ['tail', 'activity'] : ['activity', 'tail']).map((id) =>
 					id === 'tail' ? (
 						<label key="tail" id="activity-tail" text="tail" style={{ width: 32, height: 20 }} />

@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { mergeStyle } from './style-merge'
 import { useSignal$ } from 'octane/signals/client'
 
 export const rootRefs = { host: { current: null as any }, child: { current: null as any } }
@@ -24,7 +25,7 @@ export default function Root() {
 	const phase$ = useSignal$(0)
 	const phase = phase$.get()
 	return (
-		<masonview flexDirection="column" style={{display: "flex"}}>
+		<masonview style={{flexDirection: "column", ...({display: "flex"})}}>
 			<rootlayout
 				id="root"
 				ref={rootRefs.host}
@@ -33,13 +34,7 @@ export default function Root() {
 				{(phase >= 3 ? ['b', 'a'] : ['a', 'b'])
 					.filter((id) => phase < 4 || id !== 'b')
 					.map((id) => (
-						<contentview
-							key={id}
-							id={'root-' + id}
-							horizontalAlignment={phase === 1 ? 'right' : undefined}
-							verticalAlignment={phase === 1 ? 'bottom' : undefined}
-							style={phase === 1 ? { width: 40, height: 20, margin: 5 } : undefined}
-						>
+						<contentview key={id} id={'root-' + id} style={phase === 1 ? { width: 40, height: 20, margin: 5, justifySelf: 'end', alignSelf: 'end' } : undefined}>
 							<label id={'root-text-' + id} text={phase === 1 ? 'Updated ' + id : id} />
 						</contentview>
 					))}
@@ -67,7 +62,7 @@ export default function Root() {
 			</rootlayout>
 			<rootlayout id="root-percent" style={{ width: 200, height: 80, padding: 10 }}>
 				<contentview id="root-percent-child" style={{ width: '50%', height: '50%' }} />
-				<proxyviewcontainer row={7} col={9}>
+				<proxyviewcontainer style={{gridRow: '8', gridColumn: '10'}}>
 					<contentview id="root-projected" />
 				</proxyviewcontainer>
 			</rootlayout>

@@ -5,22 +5,6 @@ const common = {
 	style: 'value',
 	id: 'value',
 	hostSlot: 'value',
-	row: 'value',
-	col: 'value',
-	rowSpan: 'value',
-	colSpan: 'value',
-	dock: 'value',
-	left: 'value',
-	top: 'value',
-	right: 'value',
-	bottom: 'value',
-	flexGrow: 'value',
-	flexShrink: 'value',
-	flexWrapBefore: 'boolean',
-	alignSelf: 'value',
-	order: 'value',
-	horizontalAlignment: 'value',
-	verticalAlignment: 'value',
 	visibility: 'value',
 	accessible: 'boolean',
 	accessibilityLabel: 'value',
@@ -53,23 +37,8 @@ const common = {
 }
 
 export const templateProps: Record<string, Record<string, string>> = {
-	masonview: {
-		...common,
-		// Component-contract props only — raw Mason style keys arrive through
-		// `style`, matching shared.d.ts MasonViewProps.
-		flexDirection: 'value',
-		flexWrap: 'value',
-		justifyContent: 'value',
-		alignItems: 'value',
-		alignContent: 'value',
-		gap: 'value',
-		rowGap: 'value',
-		columnGap: 'value',
-		flexGrow: 'number',
-		flexShrink: 'number',
-		alignSelf: 'value',
-		order: 'number',
-	},
+	// All layout flows through `style`/`className` — no layout props.
+	masonview: { ...common },
 	contentview: { ...common },
 	proxyviewcontainer: { ...common },
 	rootlayout: { ...common },

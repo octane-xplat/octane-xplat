@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { mergeStyle } from './style-merge'
 import { useSignal$ } from 'octane/signals/client'
 
 export const dateRef = { current: null as any }
@@ -35,10 +36,10 @@ export default function DatePicker() {
 	)
 
 	return (
-		<masonview flexDirection="column" style={{display: "flex"}}>
+		<masonview style={{flexDirection: "column", ...({display: "flex"})}}>
 			<datepicker id="idle-default" />
 			<datepicker id="intrinsic-size" year={2026} month={6} day={15} />
-			<masonview flexDirection="column" id="date-left" style={{display: "flex", ...({ width: 240, height: 110 })}}>
+			<masonview id="date-left" style={mergeStyle({flexDirection: "column"}, {display: "flex", ...({ width: 240, height: 110 })})}>
 				{(phase >= 3 ? ['tail', 'date'] : ['date', 'tail']).map((id) =>
 					id === 'tail' ? (
 						<label key="tail" id="date-tail" text="tail" style={{ width: 32, height: 20 }} />

@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { mergeStyle } from './style-merge'
 import { useSignal$ } from 'octane/signals/client'
 import { NSTextField } from '@octane-xplat/platform/macos'
 
@@ -38,8 +39,8 @@ export default function Placeholder() {
 	)
 
 	return (
-		<masonview flexDirection="column" style={{display: "flex"}}>
-			<masonview flexDirection="column" id="ph-left" style={{display: "flex", ...({ width: 240, height: 110 })}}>
+		<masonview style={{flexDirection: "column", ...({display: "flex"})}}>
+			<masonview id="ph-left" style={mergeStyle({flexDirection: "column"}, {display: "flex", ...({ width: 240, height: 110 })})}>
 				{(phase >= 2 ? ['tail', 'slot'] : ['slot', 'tail']).map((id) =>
 					id === 'tail' ? (
 						<label key="tail" id="ph-tail" text="tail" style={{ width: 32, height: 20 }} />

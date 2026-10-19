@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { mergeStyle } from './style-merge'
 import { useSignal$ } from 'octane/signals/client'
 
 export const htmlRef = { current: null as any }
@@ -36,8 +37,8 @@ export default function Html() {
 	)
 
 	return (
-		<masonview flexDirection="column" style={{display: "flex"}}>
-			<masonview flexDirection="column" id="html-left" style={{display: "flex", ...({ width: 240, height: 110 })}}>
+		<masonview style={{flexDirection: "column", ...({display: "flex"})}}>
+			<masonview id="html-left" style={mergeStyle({flexDirection: "column"}, {display: "flex", ...({ width: 240, height: 110 })})}>
 				{(phase >= 3 ? ['tail', 'html'] : ['html', 'tail']).map((id) =>
 					id === 'tail' ? (
 						<htmlview key="tail" id="html-tail" html="tail" style={{ width: 200, height: 20 }} />

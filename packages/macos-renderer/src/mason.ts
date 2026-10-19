@@ -132,29 +132,21 @@ function specDim(spec: { kind: string; points?: number; multiplier?: number } | 
 	return [1, spec.points ?? 0]
 }
 
-// Keys also accepted as direct props — the shared component contract
-// (FlexContainerProps + the LayoutChildProps CSS members). Everything else in
-// the mason style surface is style-only: it reads `props.style`, never
-// `props`, matching the drivers' warn-and-drop behavior.
-const ENUM_PROP_KEYS = new Set([
-	'flexDirection',
-	'flexWrap',
-	'alignItems',
-	'alignSelf',
-	'alignContent',
-	'justifyContent',
-])
-
 const ENUM_STYLE_KEYS = new Set([
-	...ENUM_PROP_KEYS,
 	'display',
 	'position',
 	'direction',
+	'flexDirection',
+	'flexWrap',
 	'overflow',
 	'overflowX',
 	'overflowY',
+	'alignItems',
+	'alignSelf',
+	'alignContent',
 	'justifyItems',
 	'justifySelf',
+	'justifyContent',
 	'textAlign',
 	'boxSizing',
 	'gridAutoFlow',
@@ -177,10 +169,9 @@ const DIM_EDGES = [
 	['bottom', 'bottom'],
 ]
 
-const NUMBER_PROP_KEYS = new Set(['flexGrow', 'flexShrink'])
-
 const NUMBER_STYLE_KEYS = new Set([
-	...NUMBER_PROP_KEYS,
+	'flexGrow',
+	'flexShrink',
 	'aspectRatio',
 	'scrollbarWidth',
 ])
@@ -255,7 +246,7 @@ function styleDict(node: NodeLike): Record<string, any> {
 	const out: Record<string, any> = {}
 
 	for (const key of ENUM_STYLE_KEYS) {
-		const value = ENUM_PROP_KEYS.has(key) ? (style[key] ?? props[key]) : style[key]
+		const value = style[key]
 		if (typeof value === 'string') {
 			out[key] = value
 		}
@@ -271,6 +262,7 @@ function styleDict(node: NodeLike): Record<string, any> {
 	}
 
 	for (const [from, to] of DIM_AUTO_KEYS) {
+		// width/height/min*/max* stay legit view props; flexBasis is style-only.
 		const value = from === 'flexBasis' ? style[from] : (style[from] ?? props[from])
 		out[to] = autoDim(value) ?? specDim(node.sizeConstraintSpecs?.[to])
 	}
@@ -304,7 +296,7 @@ function styleDict(node: NodeLike): Record<string, any> {
 		}
 	}
 
-	const gap = lenDim(style.gap ?? props.gap) ?? lenDim(props.spacing)
+	const gap = lenDim(style.gap) ?? lenDim(props.spacing)
 	const rowGap = lenDim(style.rowGap) ?? gap
 	const columnGap = lenDim(style.columnGap) ?? gap
 	const classGap = node.classSpacing != null ? ([0, node.classSpacing] as [number, number]) : null
@@ -321,7 +313,7 @@ function styleDict(node: NodeLike): Record<string, any> {
 	}
 
 	for (const key of NUMBER_STYLE_KEYS) {
-		const value = NUMBER_PROP_KEYS.has(key) ? (style[key] ?? props[key]) : style[key]
+		const value = style[key]
 		if (typeof value === 'number') {
 			out[key] = value
 		}
@@ -355,97 +347,6 @@ function styleDict(node: NodeLike): Record<string, any> {
 			const horizontal = props.orientation === 'horizontal' || props.horizontal === true
 			out.flexDirection ??= horizontal ? 'row' : 'column'
 			break
-		}
-	}
-
-	// Child-role translation — LayoutChildProps sugar under any mason
-	// parent: row/col become grid lines, dock/edges become absolute
-	// insets, attached alignment becomes self-align on the parent's
-	// cross axis (grid parents consume both axes).
-	const lparent = node.layoutParent ?? node.parent
-	if (lparent && MASON_CONTAINERS.has(lparent.type)) {
-		const align = (value: any) =>
-			value === 'left' || value === 'top'
-				? 'start'
-				: value === 'right' || value === 'bottom'
-					? 'end'
-					: value === 'center' || value === 'middle'
-						? 'center'
-						: value === 'stretch'
-							? 'stretch'
-							: undefined
-		const hAlign = align(props.horizontalAlignment)
-		const vAlign = align(props.verticalAlignment)
-
-		// Parent direction/display read through the same prop > style > class
-		// channels the parent's own styleDict uses.
-		const pStyle = lparent.props?.style ?? {}
-		const parentDisplay =
-			lparent.type === 'liquidglass' ? 'grid' : pStyle.display
-		if (parentDisplay === 'grid' || parentDisplay === 'inline-grid') {
-			out.justifySelf ??= hAlign
-			out.alignSelf ??= vAlign
-		} else if (hAlign !== undefined || vAlign !== undefined) {
-			const pDirection =
-				pStyle.flexDirection ??
-				lparent.props?.flexDirection ??
-				(lparent.classOrientation === 0
-					? 'row'
-					: lparent.classOrientation === 1
-						? 'column'
-						: undefined)
-			const parentRow =
-				lparent.type === 'scrollview'
-					? lparent.props?.orientation === 'horizontal' || lparent.props?.horizontal === true
-					: pDirection !== 'column'
-			const cross = parentRow ? vAlign : hAlign
-			if (cross !== undefined) {
-				out.alignSelf ??= cross
-			}
-		}
-
-		if (props.row !== undefined || props.rowSpan !== undefined) {
-			const row = Number(props.row ?? 0)
-			const rowSpan = Number(props.rowSpan ?? 1)
-			out.gridRow ??= `${row + 1}${rowSpan > 1 ? ` / span ${rowSpan}` : ''}`
-		}
-		if (props.col !== undefined || props.colSpan !== undefined) {
-			const col = Number(props.col ?? 0)
-			const colSpan = Number(props.colSpan ?? 1)
-			out.gridColumn ??= `${col + 1}${colSpan > 1 ? ` / span ${colSpan}` : ''}`
-		}
-
-		if (props.dock !== undefined) {
-			const dock = String(props.dock)
-			const inset: Record<string, [number, number]> = {}
-			if (dock === 'left' || dock === 'top' || dock === 'bottom') {
-				inset.left = [1, 0]
-			}
-			if (dock === 'right' || dock === 'top' || dock === 'bottom') {
-				inset.right = [1, 0]
-			}
-			if (dock === 'top' || dock === 'left' || dock === 'right') {
-				inset.top = [1, 0]
-			}
-			if (dock === 'bottom' || dock === 'left' || dock === 'right') {
-				inset.bottom = [1, 0]
-			}
-			out.inset = { ...inset, ...(out.inset ?? {}) }
-			out.position ??= 'absolute'
-		}
-
-		let hasEdge = false
-		for (const [key, edge] of DIM_EDGES) {
-			const dim = autoDim(props[key])
-			if (dim) {
-				;(out.inset ??= {})[edge] = dim
-				hasEdge = true
-			}
-		}
-		// `position` is style-only; an authored value already sits in `out`
-		// via ENUM_STYLE_KEYS, so `??=` respects it.
-		if (hasEdge && props.dock === undefined) {
-			out.position ??= 'absolute'
 		}
 	}
 
@@ -850,51 +751,38 @@ function makeMasonLayout(node: any) {
 	return view
 }
 
-/** Props that feed the mason style surface — any update re-runs the
- *  container's layout pass. Only the shared component contract remains:
- *  FlexContainerProps + sizing + the LayoutChildProps sugar. Raw style keys
- *  are style-only (see MASON_STYLE_ONLY_KEYS). */
+/** Props that still legitimately re-run the container's layout pass — view
+ *  sizing plus legacy chrome names. Every layout/style key lives in `style`
+ *  now (see MASON_STYLE_ONLY_KEYS). */
 const MASON_LAYOUT_PROPS = new Set([
-	...ENUM_PROP_KEYS,
-	...NUMBER_PROP_KEYS,
-	'order',
-	'gap',
-	'rowGap',
-	'columnGap',
 	'width',
 	'height',
 	'minWidth',
 	'minHeight',
 	'maxWidth',
 	'maxHeight',
-	// LayoutChildProps sugar.
-	'dock',
-	'left',
-	'top',
-	'right',
-	'bottom',
-	'horizontalAlignment',
-	'verticalAlignment',
-	'row',
-	'col',
-	'rowSpan',
-	'colSpan',
 	// 'orientation' stays out — the builtin scrollview case owns it
 	// (configureScrollAxes); styleDict re-reads it for flexDirection.
 	'spacing',
 	'flexBasisPercent',
 ])
 
-/** Style keys that must arrive through `style`/`className` — as direct props
- *  they would land on a dead native field, so the behavior warns once per key
- *  and consumes the write. */
-const MASON_STYLE_ONLY_KEYS = new Set<string>()
-for (const key of MASON_STYLE_KEYS) {
-	if (!MASON_LAYOUT_PROPS.has(key)) {
-		MASON_STYLE_ONLY_KEYS.add(key)
-	}
+/** Former prop names that must now arrive through `style`/`className` — as
+ *  direct props they would land on a dead field, so the behavior warns once
+ *  per key and consumes the write. */
+const MASON_STYLE_ONLY_KEYS = new Set<string>([
+	...MASON_STYLE_KEYS,
+	'inset',
+	// The pre-cutover prop vocabulary — contract props and sugar alike.
+	'flexDirection', 'flexWrap', 'justifyContent', 'alignItems', 'alignContent',
+	'gap', 'rowGap', 'columnGap', 'flexGrow', 'flexShrink', 'alignSelf', 'order',
+	'row', 'col', 'rowSpan', 'colSpan', 'dock', 'horizontalAlignment',
+	'verticalAlignment', 'flexWrapBefore', 'stretchLastChild', 'itemWidth',
+	'itemHeight', 'rows', 'columns',
+])
+for (const key of MASON_LAYOUT_PROPS) {
+	MASON_STYLE_ONLY_KEYS.delete(key)
 }
-MASON_STYLE_ONLY_KEYS.add('inset')
 const warnedStyleOnlyProps = new Set<string>()
 
 /** Exported so index.ts's scrollview factory can give the document view a

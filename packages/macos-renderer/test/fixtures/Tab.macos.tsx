@@ -64,9 +64,9 @@ export default function Tabs() {
 	)
 
 	return (
-		<masonview flexDirection="column" style={{display: "flex"}}>
+		<masonview style={{flexDirection: "column", ...({display: "flex"})}}>
 			<tabview id="tabs-empty" />
-			<masonview flexDirection="column" id="tabs-left" style={{display: "flex"}}>{phase !== 4 && phase !== 6 ? content() : null}</masonview>
+			<masonview id="tabs-left" style={{flexDirection: "column", ...({display: "flex"})}}>{phase !== 4 && phase !== 6 ? content() : null}</masonview>
 			<contentview id="tabs-right">{phase === 4 ? content() : null}</contentview>
 			<masonview id="advance-tabs" onTap={() => phase$.set(phase + 1)} style={{display: "flex"}}>
 				<label text="Advance" />
@@ -105,7 +105,7 @@ export function ImperativeTabs() {
 			<tabviewitem title="B" ref={imperativeRefs.b}>
 				<label text="B content" />
 			</tabviewitem>
-			<masonview flexDirection="column" style={{display: "flex"}}>
+			<masonview style={{flexDirection: "column", ...({display: "flex"})}}>
 				<tabview
 					id="tabs-imperative-left"
 					items={arrays$.get().left}

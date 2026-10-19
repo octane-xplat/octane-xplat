@@ -54,7 +54,7 @@ export default function Formatted() {
 	)
 
 	return (
-		<masonview flexDirection="column" style={{display: "flex"}}>
+		<masonview style={{flexDirection: "column", ...({display: "flex"})}}>
 			<label id="formatted-parent" text="fallback" style={{ fontSize: 16, width: 240, height: 28 }}>
 				{phase !== 6 && phase < 9 ? content() : null}
 			</label>

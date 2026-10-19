@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { mergeStyle } from './style-merge'
 import { useSignal$ } from 'octane/signals/client'
 
 export const timeRef = { current: null as any }
@@ -37,7 +38,7 @@ export default function TimePicker() {
 	)
 
 	return (
-		<masonview flexDirection="column" style={{display: "flex"}}>
+		<masonview style={{flexDirection: "column", ...({display: "flex"})}}>
 			<timepicker id="idle-default" />
 			<timepicker
 				id="range-check"
@@ -52,7 +53,7 @@ export default function TimePicker() {
 						})}
 			/>
 			<timepicker id="intrinsic-size" hour={6} minute={15} />
-			<masonview flexDirection="column" id="time-left" style={{display: "flex", ...({ width: 240, height: 110 })}}>
+			<masonview id="time-left" style={mergeStyle({flexDirection: "column"}, {display: "flex", ...({ width: 240, height: 110 })})}>
 				{(phase >= 3 ? ['tail', 'time'] : ['time', 'tail']).map((id) =>
 					id === 'tail' ? (
 						<label key="tail" id="time-tail" text="tail" style={{ width: 32, height: 20 }} />

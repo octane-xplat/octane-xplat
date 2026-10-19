@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { mergeStyle } from './style-merge'
 import { useSignal$ } from 'octane/signals/client'
 import { NSTextField } from '@octane-xplat/platform/macos'
 
@@ -22,7 +23,7 @@ const stackRef = (view: any) => {
 export default function App() {
 	const count$ = useSignal$(0)
 	return (
-		<masonview flexDirection="column" style={{display: "flex"}}>
+		<masonview style={{flexDirection: "column", ...({display: "flex"})}}>
 			<actionbar
 				id="hmr-actionbar"
 				title={'First revision' + count$.get()}
@@ -107,7 +108,7 @@ export default function App() {
 			<masonview id="hmr-dock" style={{ width: 180, height: 32 }}>
 				<label id="dock-revision" text="First revision" />
 			</masonview>
-			<masonview id="hmr-wrap" itemWidth={80} itemHeight={30} style={{ width: 180, height: 60 }}>
+			<masonview id="hmr-wrap" style={{ width: 180, height: 60, display: 'flex', flexWrap: 'wrap' }}>
 				<label id="wrap-revision" text="First revision" />
 			</masonview>
 			<rootlayout id="hmr-root" style={{ width: 180, height: 32 }}>
@@ -126,23 +127,15 @@ export default function App() {
 					event.view = NSTextField.labelWithString('First revision')
 				}}
 			/>
-			<masonview flexDirection={count$.get() === 1 ? 'horizontal' : undefined === 'horizontal' ? 'row' : 'column'} id="layout" onTap={
+			<masonview id="layout" onTap={
 					count$.get() === 1
 						? (event) =>
 								tapEvents.push(event.eventName + ':' + String(event.object === stackRefs[0]))
 						: undefined
-				} ref={stackRef} style={{display: "flex", ...({ width: 240, height: 80, padding: 8 })}}>
+				} ref={stackRef} style={mergeStyle({flexDirection: count$.get() === 1 ? 'row' : 'column'}, {display: "flex", width: 240, height: 80, padding: 8})}>
 				{(count$.get() >= 2 ? [] : count$.get() === 1 ? ['c', 'a', 'b'] : ['a', 'b', 'c']).map(
 					(id) => (
-						<label
-							key={id}
-							id={id}
-							ref={childRefs[id]}
-							text={id}
-							horizontalAlignment={id === 'a' ? 'center' : 'left'}
-							verticalAlignment={id === 'a' ? 'middle' : 'top'}
-							style={{ width: 40, height: 16 }}
-						/>
+						<label key={id} id={id} ref={childRefs[id]} text={id} style={{ width: 40, height: 16, alignSelf: id === 'a' ? 'center' : 'start' }}/>
 					),
 				)}
 			</masonview>

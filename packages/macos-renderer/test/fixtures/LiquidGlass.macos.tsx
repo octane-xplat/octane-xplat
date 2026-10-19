@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { mergeStyle } from './style-merge'
 import { useSignal$ } from 'octane/signals/client'
 
 export const glassRefs = { host: { current: null as any }, child: { current: null as any } }
@@ -24,7 +25,7 @@ export default function Glass() {
 	const phase$ = useSignal$(0)
 	const phase = phase$.get()
 	return (
-		<masonview flexDirection="column" style={{display: "flex"}}>
+		<masonview style={{flexDirection: "column", ...({display: "flex"})}}>
 			<liquidglass
 				id="glass"
 				ref={glassRefs.host}
@@ -33,13 +34,7 @@ export default function Glass() {
 				{(phase >= 3 ? ['b', 'a'] : ['a', 'b'])
 					.filter((id) => phase < 4 || id !== 'b')
 					.map((id) => (
-						<contentview
-							key={id}
-							id={'glass-' + id}
-							horizontalAlignment={phase === 1 ? 'right' : undefined}
-							verticalAlignment={phase === 1 ? 'bottom' : undefined}
-							style={phase === 1 ? { width: 40, height: 20, margin: 5 } : undefined}
-						>
+						<contentview key={id} id={'glass-' + id} style={phase === 1 ? { width: 40, height: 20, margin: 5, justifySelf: 'end', alignSelf: 'end' } : undefined}>
 							<label id={'glass-text-' + id} text={phase === 1 ? 'Updated ' + id : id} />
 						</contentview>
 					))}
@@ -59,8 +54,8 @@ export default function Glass() {
 				) : null}
 			</liquidglass>
 			<liquidglass id="glass-tracks" style={{ width: 160, height: 60 }}>
-				<contentview id="glass-fill" row={0} col={0} style={{ width: 80, height: 30 }} />
-				<contentview id="glass-cell" row={1} col={1} style={{ width: 30, height: 10 }} />
+				<contentview id="glass-fill" style={{gridRow: '1', gridColumn: '1', ...({ width: 80, height: 30 })}}/>
+				<contentview id="glass-cell" style={{gridRow: '2', gridColumn: '2', ...({ width: 30, height: 10 })}}/>
 			</liquidglass>
 			<liquidglass id="glass-other" style={{ width: 100, height: 40 }}>
 				{phase === 7 ? <Moving /> : null}
