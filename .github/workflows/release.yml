@@ -496,8 +496,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # turbo so the declared workspace dep graph builds first — the docs
+      # vite config imports @octane-xplat/cli/vite, which resolves to dist/.
       - name: Build docs site
-        run: pnpm --filter @xplat/docs build
+        run: pnpm exec turbo run build --filter=@xplat/docs
 
       - name: Deploy to Cloudflare Pages
         run: pnpm --filter @xplat/docs exec wrangler pages deploy dist --project-name octane-xplat-docs --branch=main

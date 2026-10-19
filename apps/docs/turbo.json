@@ -1,0 +1,11 @@
+{
+	"$schema": "https://turborepo.dev/schema.json",
+	"extends": ["//"],
+	"tasks": {
+		// The vite config imports @octane-xplat/cli/vite, which resolves to
+		// cli/dist — build dependencies first so a fresh checkout works.
+		"build": {
+			"dependsOn": ["^typegen", "^build"]
+		}
+	}
+}
