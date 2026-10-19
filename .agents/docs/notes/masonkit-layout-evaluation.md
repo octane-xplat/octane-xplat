@@ -276,6 +276,16 @@ Both variants need a compatible scroll-host contract before native recycling
 benefits can be measured. See the [versioned evidence](../evidence/recycling-list-2026-10-19.json).
 This finding does not qualify gestures, screen readers, or release performance.
 
+Upstream capability request: [triniwiz/nativescript-mason#132](https://github.com/triniwiz/nativescript-mason/issues/132).
+Current main `7acf7b4174ab8b10a3d74f1a76e0292197562e08` still exposes no
+public offset/seek API in `Scroll`'s JS/type surface (source evidence only).
+The request leaves naming open: Xplat must adapt its legacy ScrollView-shaped
+assumptions to a supported MasonKit port. Required capabilities are logical-unit
+offsets, immediate/animated seeks, and native movement notifications with sound
+teardown. An integration check must seek outside the initial window and verify
+that the destination's actual frame aligns with the viewport; finding a mounted
+row alone is insufficient.
+
 ## Native macOS bridge (verified — lab-experiment)
 
 `packages/macos-renderer` is a custom AppKit/JSC host, not NativeScript, so
