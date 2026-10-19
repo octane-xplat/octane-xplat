@@ -105,16 +105,12 @@ and package integration. Keep execution status and measurements in Silo's
 
 ### Workspace qualification prerequisite
 
-The frozen pnpm `11.24.0` install fails while applying the pinned
-`@nativescript-community/octane@0.2.5` patch, including with a clean virtual store
-and an isolated content store. This prevents preparing the Xplat native probes;
-it is not evidence against the native keyboard APIs.
-
-The checked-in patch contains sequential sections for `dist/driver.js`.
-Applying it to the pristine registry package with `patch --forward`, then emitting
-one forward diff per file, produces a candidate accepted by an isolated pnpm
-install. Its resulting driver and intrinsic declarations are byte-identical to
-the sequentially patched files. No repository patch repair or workaround has
-been adopted. The candidate and reproduction remain in the temporary research
-directory; the experiment record owns their execution evidence. Qualification
-requires a repaired frozen install before continuing the native investigation.
+The original pinned `@nativescript-community/octane@0.2.5` patch contained
+sequential sections for `dist/driver.js` and failed a frozen pnpm `11.24.0`
+install, including with a clean virtual store and an isolated content store.
+It is now normalized to one forward diff per file. The workspace and isolated
+consumer installs accept the normalized patch; the installed driver and
+intrinsic declarations are byte-identical to sequential application of the
+original patch to the pristine registry package. This repairs patch packaging
+without changing renderer behavior. Preserve this format when regenerating the
+patch until the underlying fixes ship upstream and the patch can be removed.
