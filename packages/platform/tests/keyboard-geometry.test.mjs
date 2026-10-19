@@ -1,8 +1,20 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { keyboardBottomOverlap, keyboardAvoidancePadding } from '../src/keyboard-geometry.ts'
+import {
+	keyboardBottomOverlap,
+	keyboardBottomDisplacement,
+	keyboardAvoidancePadding,
+} from '../src/keyboard-geometry.ts'
 
 const rect = (x, y, width, height) => ({ x, y, width, height })
+
+test('sticky movement can exceed control height while viewport overlap stays bounded', () => {
+	const host = rect(0, 752, 400, 48),
+		keyboard = rect(0, 500, 400, 300)
+	assert.equal(keyboardBottomOverlap(host, keyboard), 48)
+	assert.equal(keyboardBottomDisplacement(host, keyboard), 300)
+	assert.equal(keyboardBottomDisplacement(rect(0, 100, 400, 48), keyboard), 0)
+})
 
 test('bottom overlap is relative to the host rather than the main screen', () => {
 	const keyboard = rect(0, 500, 400, 300)
@@ -23,7 +35,8 @@ test('floating or narrow occlusions do not become full-width bottom padding', ()
 })
 
 test('physical resizing and consumed safe-area/ancestor space are counted once', () => {
-	const padding = (hostOverlap, extra = {}) => keyboardAvoidancePadding({ windowInset: 300, hostOverlap, ...extra })
+	const padding = (hostOverlap, extra = {}) =>
+		keyboardAvoidancePadding({ windowInset: 300, hostOverlap, ...extra })
 	assert.equal(padding(300, { consumedSafeArea: 34 }), 266)
 	assert.equal(padding(266, { consumedSafeArea: 34 }), 266)
 	assert.equal(padding(200, { consumedSafeArea: 34 }), 200)

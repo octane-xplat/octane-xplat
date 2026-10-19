@@ -100,6 +100,11 @@
 					"source": "src/parity/check-helpers.ts",
 					"runtime": ["./src/parity/check-helpers.ts"],
 					"types": "./types/generated/parity/check-helpers.d.ts"
+				},
+				"./nativescript/keyboard": {
+					"source": "src/nativescript/keyboard.ts",
+					"runtime": ["./src/nativescript/keyboard.ts"],
+					"types": "./types/generated/nativescript/keyboard.d.ts"
 				}
 			}
 		}

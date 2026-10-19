@@ -29,6 +29,7 @@
 		"@octane-xplat/image-crop",
 		"@octane-xplat/intersection-observer",
 		"@octane-xplat/jsx",
+		"@octane-xplat/keyboard",
 		"@octane-xplat/lexical",
 		"@octane-xplat/lib",
 		"@octane-xplat/lingui",

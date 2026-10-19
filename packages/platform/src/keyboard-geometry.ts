@@ -23,6 +23,16 @@ export function keyboardBottomOverlap(
 	host: KeyboardRect | null,
 	frame: KeyboardRect | null,
 ): number {
+	const displacement = keyboardBottomDisplacement(host, frame)
+	return displacement > 0 ? Math.min(host!.height, displacement) : 0
+}
+
+/** Distance needed to place a bottom-anchored control above a docked keyboard.
+ * Unlike viewport overlap, this can exceed the control's own height. @internal */
+export function keyboardBottomDisplacement(
+	host: KeyboardRect | null,
+	frame: KeyboardRect | null,
+): number {
 	if (!isKeyboardRect(host) || !isKeyboardRect(frame) || !host.width || !frame.height) {
 		return 0
 	}
@@ -37,7 +47,7 @@ export function keyboardBottomOverlap(
 		return 0
 	}
 
-	return Math.max(0, Math.min(host.height, bottom - Math.max(host.y, frame.y)))
+	return Math.max(0, bottom - frame.y)
 }
 
 /** Account for both physical host resizing and space already provided upstream.

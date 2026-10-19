@@ -1,0 +1,76 @@
+{
+	"name": "@octane-xplat/keyboard",
+	"version": "0.16.0",
+	"description": "Window-scoped software keyboard tracking and native movement for Octane Xplat",
+	"keywords": [
+		"android",
+		"cross-platform",
+		"ios",
+		"keyboard",
+		"nativescript",
+		"octane",
+		"xplat"
+	],
+	"license": "MIT",
+	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/keyboard",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/octane-xplat/octane-xplat",
+		"directory": "packages/keyboard"
+	},
+	"type": "module",
+	"files": [
+		"src",
+		"types",
+		"UPSTREAM.md",
+		"!src/**/*.test.*",
+		"!src/**/*.spec.*"
+	],
+	"exports": {
+		".": {
+			"types": "./types/index.d.ts",
+			"default": "./src/index.ts"
+		}
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"typegen": "tsc -p tsconfig.types.json",
+		"typecheck": "node ../../scripts/typecheck.ts",
+		"test": "vitest run",
+		"test:motion:ios": "node ../../scripts/probe.ts run tests/fixtures/motion.ios.tsrx --target ios",
+		"test:motion:android": "node ../../scripts/probe.ts run tests/fixtures/motion.android.tsrx --target android",
+		"test:interactive:ios": "node ../../scripts/probe.ts run tests/fixtures/interactive.ios.tsrx --target ios",
+		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
+		"pack:check": "tsrx-typegen --pack-check"
+	},
+	"dependencies": {
+		"@octane-xplat/platform": "workspace:*",
+		"@octane-xplat/ui": "workspace:*"
+	},
+	"devDependencies": {
+		"@nativescript-community/octane": "catalog:",
+		"@nativescript/core": "catalog:",
+		"@octanejs/vite-plugin": "catalog:",
+		"@octane-xplat/jsx": "workspace:*",
+		"octane": "catalog:",
+		"tsrx-typegen": "workspace:*",
+		"typescript": "catalog:",
+		"vite": "catalog:",
+		"vitest": "catalog:"
+	},
+	"peerDependencies": {
+		"@nativescript-community/octane": ">=0.2.1 <1",
+		"@nativescript/core": ">=9.1.0 <10",
+		"octane": ">=0.11.0 <1"
+	},
+	"peerDependenciesMeta": {
+		"@nativescript-community/octane": {
+			"optional": true
+		},
+		"@nativescript/core": {
+			"optional": true
+		}
+	}
+}

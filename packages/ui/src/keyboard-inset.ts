@@ -1,10 +1,17 @@
 import { Application, Utils } from '@nativescript/core'
 import { android } from '@octane-xplat/platform/android'
 import { NSNotificationCenter, NSOperationQueue } from '@octane-xplat/platform/ios'
-import { keyboardBottomOverlap, isKeyboardRect } from '@octane-xplat/platform/keyboard-geometry'
+import {
+	keyboardBottomOverlap,
+	keyboardBottomDisplacement,
+	isKeyboardRect,
+} from '@octane-xplat/platform/keyboard-geometry'
+
 import type { KeyboardRect } from '@octane-xplat/platform/keyboard-geometry'
 import { keyboardWindows, unknownKeyboardState } from '@octane-xplat/platform/keyboard-state'
 import type { KeyboardWindowState } from '@octane-xplat/platform/keyboard-state'
+import { leaseKeyboardProperty } from '@octane-xplat/platform/keyboard-property'
+import type { KeyboardWindowSource } from '@octane-xplat/platform/keyboard-registry'
 
 const unscopedIosWindow = {}
 let iosFrame: any
@@ -171,7 +178,10 @@ const observeAndroid = (decor: any, notify: (value: KeyboardWindowState) => void
 
 // The fallback is inert until a window has readers. Controller activation can
 // replace observation without taking ownership of the readers' resize leases.
-keyboardWindows.install((window, publish) => {
+export const observeKeyboardDestination: KeyboardWindowSource<KeyboardWindowState> = (
+	window,
+	publish,
+) => {
 	if (Application.ios) {
 		return observeIos(window, publish)
 	}
@@ -180,7 +190,9 @@ keyboardWindows.install((window, publish) => {
 	}
 	publish(unknownKeyboardState())
 	return () => {}
-}, 'fallback')
+}
+
+keyboardWindows.install(observeKeyboardDestination, 'fallback')
 
 const resizeLeases = new Map<any, { count: number; previous: number; adjusted: number }>()
 
@@ -254,6 +266,14 @@ const resolveWindow = (host?: any): { key?: object; resizeWindow?: any } => {
 		return { key, resizeWindow: key === decor ? window : undefined }
 	}
 	return {}
+}
+
+const inactiveKeyboardState = unknownKeyboardState()
+
+/** @internal Read cached state without observing or taking a resize lease. */
+export function keyboardSnapshotForHost(host: any): KeyboardWindowState {
+	const key = resolveWindow(host).key
+	return key ? keyboardWindows.getSnapshot(key) : inactiveKeyboardState
 }
 
 /** Internal window-following subscription. Geometry uses the supplied host's
@@ -404,7 +424,7 @@ export function subscribeKeyboardInset(notify: (inset: number) => void, host?: a
 
 /** Remaining bottom occlusion of this host after physical native resizing.
  * @internal Unknown native geometry is not inferred from a window mode flag. */
-export function keyboardHostOverlap(host: any, state: KeyboardWindowState): number {
+const keyboardHostBounds = (host: any, translationY = 0): KeyboardRect | null => {
 	const native = host?.nativeViewProtected ?? host?.ios ?? host?.android
 	let bounds: KeyboardRect | null = null
 	if (Application.ios && native?.window && native.bounds) {
@@ -422,112 +442,90 @@ export function keyboardHostOverlap(host: any, state: KeyboardWindowState): numb
 			}
 		}
 	}
-	return keyboardBottomOverlap(bounds, state.currentFrame ?? state.targetFrame)
+	return bounds ? { ...bounds, y: bounds.y - translationY } : null
 }
 
-const androidBindings = new WeakMap<object, { hosts: Map<any, number>; offset: number }>()
+export function keyboardHostOverlap(
+	host: any,
+	state: KeyboardWindowState,
+	translationY = 0,
+): number {
+	return keyboardBottomOverlap(
+		keyboardHostBounds(host, translationY),
+		state.currentFrame ?? state.targetFrame,
+	)
+}
 
-/** Lift a bottom-anchored overlay host above the software keyboard.
- *  iOS: a shared UIKeyboardWillChangeFrame observer tracks the inset and
- *  translateY shifts the host — reliable on popup views regardless of how
- *  the RootLayout passes margins through. The current inset is applied at
- *  attachment time so hosts opened over an already-visible keyboard still lift.
- *  Android: when the window runs `adjustResize` (KeyboardAvoiding sets it)
- *  the RootLayout resizes and the host follows on its own; otherwise the
- *  decor view's IME inset supplies the lift. Returns an unbind that
- *  restores the transform — call it when the host detaches. */
+/** @internal Full lift for a bottom-anchored control, independent of its height. */
+export function keyboardHostDisplacement(
+	host: any,
+	state: KeyboardWindowState,
+	translationY = 0,
+): number {
+	return keyboardBottomDisplacement(
+		keyboardHostBounds(host, translationY),
+		state.currentFrame ?? state.targetFrame,
+	)
+}
+
+type BottomBinding = { count: number; release(): void }
+const bottomBindings = new WeakMap<object, BottomBinding>()
+
+/** Follow actual host overlap in its own window. Native frames update the
+ * property directly; destination-only sources retain discrete compatibility.
+ * Observation never replaces a foreign decor inset listener. @internal */
 export function bindBottomInsetToKeyboard(host: any): () => void {
-	if (Application.ios) {
-		const off = subscribeKeyboardInset((value) => {
-			host.translateY = -value
-		}, host)
+	let binding = bottomBindings.get(host)
+	if (!binding) {
+		const property = leaseKeyboardProperty(
+			() => Number(host.translateY) || 0,
+			(value) => {
+				host.translateY = value
+			},
+		)
 
-		let active = true
-		return () => {
-			if (!active) {
-				return
-			}
-			active = false
-			off()
-			host.translateY = 0
-		}
-	}
-
-	if (Application.android) {
-		const nativeWindow = Application.android.foregroundActivity?.getWindow()
-		if (!nativeWindow) {
-			return () => {}
-		}
-
-		const params = (globalThis as any).android?.view?.WindowManager?.LayoutParams
-		if (!params) {
-			return () => {}
-		}
-
-		// adjustResize resizes the RootLayout for us — an extra offset would
-		// double-lift the host.
-		if (
-			(nativeWindow.getAttributes().softInputMode & params.SOFT_INPUT_MASK_ADJUST) ===
-			params.SOFT_INPUT_ADJUST_RESIZE
-		) {
-			return () => {}
-		}
-
-		const coreView = (globalThis as any).androidx?.core?.view
-		const ViewCompat = coreView?.ViewCompat
-		const WindowInsetsCompat = coreView?.WindowInsetsCompat
-		const OnApplyWindowInsetsListener = coreView?.OnApplyWindowInsetsListener
-		if (!ViewCompat || !WindowInsetsCompat || !OnApplyWindowInsetsListener) {
-			return () => {}
-		}
-
-		const decorView = nativeWindow.getDecorView()
-		let entry = androidBindings.get(decorView)
-		if (!entry) {
-			const created = { hosts: new Map<any, number>(), offset: 0 }
-			const listener = new OnApplyWindowInsetsListener({
-				onApplyWindowInsets: (_view: any, insets: any) => {
-					const ime = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
-					const nav = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
-					created.offset = -Utils.layout.toDeviceIndependentPixels(Math.max(0, ime - nav))
-					for (const boundHost of created.hosts.keys()) {
-						boundHost.translateY = created.offset
-					}
-
-					return insets
+		let off: () => void
+		try {
+			off = subscribeKeyboardState(
+				(state) => {
+					const binding = state.bindingFrame
+						? { ...state, currentFrame: state.bindingFrame }
+						: state
+					property.set(-keyboardHostDisplacement(host, binding, property.offset))
 				},
-			})
-
-			entry = created
-			androidBindings.set(decorView, entry)
-			ViewCompat.setOnApplyWindowInsetsListener(decorView, listener)
-			ViewCompat.requestApplyInsets?.(decorView)
+				host,
+				false,
+			)
+		} catch (error) {
+			property.release()
+			throw error
 		}
 
-		const binding = entry
-		binding.hosts.set(host, (binding.hosts.get(host) ?? 0) + 1)
-		host.translateY = binding.offset
-		let released = false
-		return () => {
-			if (released) {
-				return
-			}
-
-			released = true
-			const count = binding.hosts.get(host) ?? 0
-			if (count > 1) {
-				binding.hosts.set(host, count - 1)
-			} else {
-				binding.hosts.delete(host)
-				host.translateY = 0
-			}
-
-			if (!binding.hosts.size) {
-				androidBindings.delete(decorView)
-				ViewCompat.setOnApplyWindowInsetsListener(decorView, null)
-			}
+		binding = {
+			count: 0,
+			release() {
+				try {
+					off()
+				} finally {
+					property.release()
+				}
+			},
 		}
+
+		bottomBindings.set(host, binding)
 	}
-
-	return () => {}
+	const owned = binding
+	owned.count++
+	let active = true
+	return () => {
+		if (!active) {
+			return
+		}
+		active = false
+		if (--owned.count) {
+			return
+		}
+		bottomBindings.delete(host)
+		owned.release()
+	}
 }

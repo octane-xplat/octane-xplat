@@ -160,6 +160,10 @@
 		"./parity/check-helpers": {
 			"types": "./types/generated/parity/check-helpers.d.ts",
 			"default": "./src/parity/check-helpers.ts"
+		},
+		"./nativescript/keyboard": {
+			"types": "./types/generated/nativescript/keyboard.d.ts",
+			"native": "./src/nativescript/keyboard.ts"
 		}
 	},
 	"scripts": {

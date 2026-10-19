@@ -1,14 +1,9 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { mergeStyle } from './style-merge'
-import { useCallback, useContext, useEffect, useState } from 'octane'
+import { useCallback, useContext, useEffect, useRef, useState } from 'octane'
 import { Application } from '@nativescript/core'
 import { cx } from '@octane-xplat/lib'
-import {
-	keyboardAvoidancePadding,
-	keyboardBottomOverlap,
-} from '@octane-xplat/platform/keyboard-geometry'
-
-import { keyboardHostOverlap, subscribeKeyboardState } from './keyboard-inset'
+import type { KeyboardAvoidanceBinding } from './keyboard-avoidance'
+import { bindKeyboardAvoidance } from './keyboard-avoidance'
 import { KeyboardAvoidanceContext, KeyboardAvoidanceProvider } from './keyboard-avoidance-context'
 import { useConsumedInsets } from './inset-consumption'
 import type { KeyboardAvoidingProps } from './props'
@@ -17,11 +12,12 @@ export function KeyboardAvoiding(props: KeyboardAvoidingProps) @{
 	const enabled = props.enabled ?? true
 	const [host, setHost] = useState<any>(null)
 	const attach = useCallback((next: any) => setHost(next), [])
-	const [measurement, setMeasurement] = useState<{
+	const [content, setContent] = useState<any>(null)
+	const attachContent = useCallback((next: any) => setContent(next), [])
+	const [provided, setProvided] = useState<{
 		window?: object
-		inset: number
-		overlap: number
-	}>({ inset: 0, overlap: 0 })
+		bottom: number
+	}>({ bottom: 0 })
 
 	const consumed = useConsumedInsets()
 	const ancestor = useContext(KeyboardAvoidanceContext)
@@ -32,41 +28,38 @@ export function KeyboardAvoiding(props: KeyboardAvoidingProps) @{
 		}
 	}, [host, platformProps])
 
+	const options = useRef({
+		safeBottom: consumed.bottom,
+		ancestorWindow: ancestor.window,
+		ancestorBottom: ancestor.bottom,
+		offset: props.keyboardVerticalOffset,
+	})
+
+	options.current = {
+		safeBottom: consumed.bottom,
+		ancestorWindow: ancestor.window,
+		ancestorBottom: ancestor.bottom,
+		offset: props.keyboardVerticalOffset,
+	}
+
+	const binding = useRef<KeyboardAvoidanceBinding | null>(null)
 	useEffect(() => {
-		if (!enabled || !host) {
-			setMeasurement({ inset: 0, overlap: 0 })
+		if (!enabled || !host || !content) {
+			setProvided({ bottom: 0 })
 			return
 		}
 
-		return subscribeKeyboardState((state, window) => {
-			const overlap = keyboardHostOverlap(host, state)
-			// The numeric Android hook excludes system bars for compatibility.
-			// A host drawing through those bars still needs its full actual overlap.
-			const inset = Math.max(
-				state.inset,
-				keyboardBottomOverlap(state.windowRect, state.currentFrame ?? state.targetFrame),
-			)
+		const own = bindKeyboardAvoidance(host, content, () => options.current, setProvided)
+		binding.current = own
+		return () => {
+			binding.current = null
+			own()
+		}
+	}, [enabled, host, content])
 
-			setMeasurement((previous) =>
-				previous.window === window && previous.inset === inset && previous.overlap === overlap
-					? previous
-					: { window, inset, overlap },
-			)
-		}, host)
-	}, [enabled, host])
-
-	const inherited = ancestor.window === measurement.window ? ancestor.bottom : 0
-	const paddingBottom = enabled
-		? keyboardAvoidancePadding({
-				windowInset: measurement.inset,
-				hostOverlap: measurement.overlap,
-				consumedSafeArea: consumed.bottom,
-				ancestorAvoidance: inherited,
-				offset: props.keyboardVerticalOffset,
-			})
-		: 0
-
-	const provided = { window: measurement.window, bottom: inherited + paddingBottom }
+	useEffect(() => {
+		binding.current?.update()
+	}, [consumed.bottom, ancestor.window, ancestor.bottom, props.keyboardVerticalOffset])
 
 	<scrollview
 		id={props.id}
@@ -75,7 +68,7 @@ export function KeyboardAvoiding(props: KeyboardAvoidingProps) @{
 		ref={attach}
 	>
 		<KeyboardAvoidanceProvider value={provided}>
-			<masonview style={mergeStyle({ display: "flex", flexDirection: "column" }, paddingBottom ? { paddingBottom } : undefined)}>
+			<masonview style={{ display: "flex", flexDirection: "column" }} ref={attachContent}>
 				{props.children}
 			</masonview>
 		</KeyboardAvoidanceProvider>

@@ -1,0 +1,24 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"environments": {
+		"native": {
+			"include": [
+				"src/**/*.ts",
+				"src/**/*.tsrx",
+				"examples/**/*.tsrx",
+				"tests/fixtures/**/*.tsrx",
+				"types/index.d.ts"
+			]
+		},
+		"web": {
+			"files": [
+				"src/index.ts"
+			]
+		},
+		"macos": {
+			"files": [
+				"src/index.ts"
+			]
+		}
+	}
+}
