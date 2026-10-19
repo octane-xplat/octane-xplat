@@ -866,13 +866,11 @@ export function checkNoNativeDeadStyle(program, _src, filename, options) {
 			const strVal =
 				val?.type === 'Literal' && typeof val.value === 'string' ? val.value : undefined
 
-			if (key === 'position' && /^(absolute|fixed|sticky)$/.test(strVal ?? '')) {
-				const alt =
-					strVal === 'absolute'
-						? 'use the <Absolute> primitive'
-						: 'overlays go through Overlay/Modal services, not positioning'
-
-				out.push({ node: prop, message: `position: '${strVal}' does not exist on native — ${alt}` })
+			if (key === 'position' && /^(fixed|sticky)$/.test(strVal ?? '')) {
+				out.push({
+					node: prop,
+					message: `position: '${strVal}' does not exist on native — overlays go through Overlay/Modal services, not positioning`,
+				})
 			} else if (
 				/^margin(Left|Right|Top|Bottom)?$/.test(key ?? '') &&
 				/\bauto\b/.test(strVal ?? '')

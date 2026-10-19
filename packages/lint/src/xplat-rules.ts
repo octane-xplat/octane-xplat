@@ -19,7 +19,7 @@ const norm = (f) => f.split('\\').join('/')
 // `foo.linux.test.tsrx` are target-specific files too. Linux's system
 // webview renders DOM, so its leaves may use DOM globals and `ui/web` imports.
 export const isWebFile = (f) => /\.(web|linux)\./.test(norm(f))
-const PLATFORM_SUFFIX = /\.(web|mobile|ios|android|macos|windows|linux)\./
+const PLATFORM_SUFFIX = /\.(web|mobile|ios|android|macos|windows|linux|gtk)\./
 const SOURCE_EXTENSIONS = ['.tsrx', '.tsx', '.mts', '.cts', '.ts', '.cjs', '.jsx', '.ts', '.js']
 const isNativeDefaultFile = (f) => {
 	const file = norm(f)
@@ -38,7 +38,7 @@ const isNativeDefaultFile = (f) => {
 
 export const isNativeFile = (f) =>
 	!isWebFile(f) &&
-	(/\.(mobile|ios|android|windows)\./.test(norm(f)) ||
+	(/\.(mobile|ios|android|macos|windows|gtk)\./.test(norm(f)) ||
 		/(^|\/)apps\/(mobile|windows)\//.test(norm(f)) ||
 		isNativeDefaultFile(f))
 
@@ -575,7 +575,12 @@ const NS_ONLY_TAGS = new Set([
 	'canvasview',
 	'svgview',
 	'drawer',
+	'liquidglass',
+	'liquidglasscontainer',
+	'pager',
 	'placeholder',
+	'xplatvideo',
+	'cameraplus',
 ])
 
 export function checkElementVocabulary(program, _src, filename, options) {
@@ -632,7 +637,7 @@ export function checkNoNativescriptImport(program, _src, filename, options) {
 		return []
 	}
 
-	const isMacOSAppFile = /(^|\/)apps\/macos\//.test(norm(filename))
+	const isMacOSRuntimeFile = /(^|\/)(apps\/macos|packages\/macos-renderer)\//.test(norm(filename))
 	const out: any[] = []
 	for (const [node] of walk(program)) {
 		if (
@@ -644,7 +649,7 @@ export function checkNoNativescriptImport(program, _src, filename, options) {
 		}
 
 		const source = node.source?.value
-		const isMacOSRuntimeImport = isMacOSAppFile && source === '@nativescript/macos-node-api'
+		const isMacOSRuntimeImport = isMacOSRuntimeFile && source === '@nativescript/macos-node-api'
 		if (
 			typeof source === 'string' &&
 			/^@(nativescript|nativescript-community)\//.test(source) &&
@@ -696,6 +701,87 @@ export function checkNoNsDeepImport(program, _src, filename, options) {
 	return out
 }
 
+// @octane-xplat/ui subpaths gate platform-authentic components: /ios and
+// /android resolve only under the `native` export condition, /web only
+// under `web`. `/nativescript` is for NativeScript integration plumbing. Importing
+// one from a shared (or wrong-platform) file fails the other platform's build
+// on purpose — the import must live in a platform-specific module. `.mobile`
+// files may
+// import ui/ios + ui/android, but only for specifiers that load safely on both
+// platforms; module-top platform-only APIs belong in .ios/.android leaves.
+const PLATFORM_SUBPATHS = [
+	{
+		spec: '@octane-xplat/ui/ios',
+		ok: (f) => /\.(ios|mobile)\./.test(f),
+		leaf: '.ios.* or .mobile.*',
+	},
+	{
+		spec: '@octane-xplat/ui/android',
+		ok: (f) => /\.(android|mobile)\./.test(f),
+		leaf: '.android.* or .mobile.*',
+	},
+	{
+		spec: '@octane-xplat/ui/windows',
+		ok: (f) => /\.windows\./.test(f),
+		leaf: '.windows.*',
+	},
+	{
+		spec: '@octane-xplat/ui/nativescript',
+		ok: (f) => isNativeFile(f),
+		leaf: 'a native default module or .mobile.* leaf',
+	},
+	{
+		spec: '@octane-xplat/ui/macos',
+		ok: (f) => /\.macos\./.test(f),
+		leaf: '.macos.*',
+	},
+	{
+		spec: '@octane-xplat/ui/linux',
+		ok: (f) => /\.linux\./.test(f),
+		leaf: '.linux.*',
+	},
+	{
+		spec: '@octane-xplat/ui/web',
+		ok: (f) => isWebFile(f),
+		leaf: '.web.*',
+	},
+]
+
+export function checkPlatformSubpathImport(program, _src, filename, options) {
+	if (isConfigFile(filename) || fileExcluded(filename, options)) {
+		return []
+	}
+
+	const f = norm(filename)
+	const out: any[] = []
+	for (const [node] of walk(program)) {
+		if (
+			node.type !== 'ImportDeclaration' &&
+			node.type !== 'ExportNamedDeclaration' &&
+			node.type !== 'ExportAllDeclaration'
+		) {
+			continue
+		}
+
+		const source = node.source?.value
+		if (typeof source !== 'string') {
+			continue
+		}
+
+		const base = source.split('?')[0].replace(/\/+$/, '')
+		for (const rule of PLATFORM_SUBPATHS) {
+			if (base === rule.spec && !rule.ok(f)) {
+				out.push({
+					node: node.source,
+					message: `'${source}' resolves only on its own platform — importing it here fails the other platform's build. Move the import into a ${rule.leaf} leaf.`,
+				})
+			}
+		}
+	}
+
+	return out
+}
+
 // Only shared .ts files are flagged: platform leaves (.mobile.ts/.web.ts)
 // importing .tsrx is the normal leaf pattern — the bundler owns both.
 export function checkNoTsImportsTsrx(program, _src, filename, options) {
@@ -716,7 +802,19 @@ export function checkNoTsImportsTsrx(program, _src, filename, options) {
 			continue
 		}
 
-		if (typeof node.source?.value === 'string' && node.source.value.endsWith('.tsrx')) {
+		// Type-only imports emit no module edge — `import type` and
+		// specifier-level `type` markers can never reach the consumer's
+		// runtime graph.
+		const specifiers = node.specifiers ?? []
+		const typeOnly =
+			node.importKind === 'type' ||
+			(specifiers.length > 0 && specifiers.every((s) => s.importKind === 'type'))
+
+		if (
+			!typeOnly &&
+			typeof node.source?.value === 'string' &&
+			node.source.value.endsWith('.tsrx')
+		) {
 			out.push({
 				node: node.source,
 				message: `'.ts' modules can't import '.tsrx' — the consumer gets an untransformed module. JSX-free leaves must stay .ts.`,
@@ -743,7 +841,6 @@ function* styleObjects(program) {
 }
 
 const DEAD_STYLE_PROPS = {
-	zIndex: `zIndex is inert on native — paint order follows document order`,
 	float: `float is unsupported on native — use flex rows`,
 	boxShadow: `boxShadow is inert on native — use the shadow-{n} utility class`,
 	transition: `CSS transitions don't exist on native — use the animation facade or @keyframes classes`,
@@ -769,13 +866,11 @@ export function checkNoNativeDeadStyle(program, _src, filename, options) {
 			const strVal =
 				val?.type === 'Literal' && typeof val.value === 'string' ? val.value : undefined
 
-			if (key === 'position' && /^(absolute|fixed|sticky)$/.test(strVal ?? '')) {
-				const alt =
-					strVal === 'absolute'
-						? 'use the <Absolute> primitive'
-						: 'overlays go through Overlay/Modal services, not positioning'
-
-				out.push({ node: prop, message: `position: '${strVal}' does not exist on native — ${alt}` })
+			if (key === 'position' && /^(fixed|sticky)$/.test(strVal ?? '')) {
+				out.push({
+					node: prop,
+					message: `position: '${strVal}' does not exist on native — overlays go through Overlay/Modal services, not positioning`,
+				})
 			} else if (
 				/^margin(Left|Right|Top|Bottom)?$/.test(key ?? '') &&
 				/\bauto\b/.test(strVal ?? '')
@@ -1289,10 +1384,13 @@ export function checkHooksInPlainTs(program, _src, filename, options) {
 
 export const NATIVE_PRAGMA = '/** @jsxImportSource @octane-xplat/jsx */'
 const LEGACY_NATIVE_PRAGMA = '/** @jsxImportSource @nativescript-community/octane */'
+const MACOS_PRAGMA = '/** @jsxImportSource @octane-xplat/macos-renderer */'
+const GTK_PRAGMA = '/** @jsxImportSource @octane-xplat/jsx */'
 
 // The pragma sets the JSX import source — only files that contain JSX need
 // it. JSX-free native leaves (styled, use-store) omit it by
-// design.
+// design. Existing renderer pragmas remain accepted for older consumers;
+// GTK leaves use the shared facade with the gtk host condition.
 export function checkNativePragmaFirstLine(program, source, filename, options) {
 	if (
 		!norm(filename).endsWith('.tsrx') ||
@@ -1302,7 +1400,13 @@ export function checkNativePragmaFirstLine(program, source, filename, options) {
 		return []
 	}
 
-	if (source.startsWith(NATIVE_PRAGMA) || source.startsWith(LEGACY_NATIVE_PRAGMA)) {
+	const file = norm(filename)
+	const legacyPragma = file.includes('.gtk.')
+		? GTK_PRAGMA
+		: file.includes('.macos.')
+			? MACOS_PRAGMA
+			: LEGACY_NATIVE_PRAGMA
+	if (source.startsWith(NATIVE_PRAGMA) || source.startsWith(legacyPragma)) {
 		return []
 	}
 
@@ -1396,6 +1500,7 @@ export const XPLAT_CHECKS = {
 	'element-vocabulary': checkElementVocabulary,
 	'no-nativescript-import': checkNoNativescriptImport,
 	'no-ns-deep-import': checkNoNsDeepImport,
+	'platform-subpath-import': checkPlatformSubpathImport,
 	'no-native-dead-style': checkNoNativeDeadStyle,
 	'no-line-height-unitless': checkNoLineHeightUnitless,
 	'no-style-string': checkNoStyleString,
