@@ -61,19 +61,19 @@ const listTemplates: import('@octane-xplat/jsx/jsx-runtime').JSX.IntrinsicElemen
 };
 void listTemplates;
 const tree = (
-	<flexboxlayout className="row" style={{ padding: 4 }} flexDirection="row">
+	<masonview className="row" style={{ padding: 4, flexDirection: 'row' }}>
 		<label text="hi" whiteSpace="nowrap" />
 		<label><formattedstring fontFamily="system-ui" fontSize={18} color="#ff0000" backgroundColor="#ffffff" ref={(element) => { void element; return () => {} }}><span text="Rich" fontWeight="bold"><span text="nested" /></span></formattedstring></label>
 		<button isEnabled={false} onTap={(event) => void event.object} />
 		<scrollview orientation="horizontal" />
-		<wraplayout orientation="vertical" itemWidth={0} itemHeight={30}><label text="Item" /></wraplayout>
+		<masonview style={{ flexDirection: 'column' }}><label text="Item" /></masonview>
 		<tabview selectedIndex={0} onSelectedIndexChange={(event) => { const index: number = event.value; void index }} onSelectedIndexChanged={(event) => void event.newIndex}><tabviewitem title="Home" iconSource="res://Home" ref={(element) => { void element; return () => {} }}><label text="Content" /></tabviewitem></tabview>
-		<rootlayout ref={(view) => { void view; return () => {} }} style={{ padding: 8 }}><label horizontalAlignment="right" text="Overlay" /><contentview /></rootlayout>
-		<docklayout stretchLastChild={false}><label dock="right" text="Side" /></docklayout>
-		<proxyviewcontainer row={1} ref={(element) => { void element; return () => {} }}><label text="Projected" /></proxyviewcontainer>
+		<rootlayout ref={(view) => { void view; return () => {} }} style={{ padding: 8 }}><label text="Overlay" style={{ justifySelf: 'end' }} /><contentview /></rootlayout>
+		<masonview><label text="Side" style={{ marginLeft: 'auto' }} /></masonview>
+		<proxyviewcontainer ref={(element) => { void element; return () => {} }}><label text="Projected" /></proxyviewcontainer>
 		<contentview id="single" style={{ width: 100, height: 40 }}
 			ref={(view) => { void view; return () => {} }}>
-			<label text="Content" horizontalAlignment="center" verticalAlignment="middle" />
+			<label text="Content" style={{ textAlign: 'center' }} />
 		</contentview>
 		<listpicker items={["First", null, 42]} selectedIndex={1} onSelectedIndexChange={(event) => { const index: number = event.value; void index; void event.object }} ref={(view) => {void view; return () => {}}} />
 		<timepicker time="10:30:59" hour={10} minute={30} minHour={9} minMinute={15} maxHour={17} maxMinute={45} onTimeChange={(event) => { const value: Date = event.value; const old: Date | undefined = event.oldValue; void value; void old; void event.object }} ref={(view) => { void view; return () => {} }} />
@@ -87,7 +87,7 @@ const tree = (
 		<textfield hint="name" onTextChange={(event) => void event.value} />
 		<listview items={[1, 2]} renderItem={(item) => <label text={String(item)} />} />
 		<svgview src="<svg />" stretch="aspectFit" />
-		<gridlayout hostSlot="mainContent" />
+		<masonview hostSlot="mainContent" />
 		<cachedimage src="a.png" failureImageUri="f.png" noCache />
 		<xplatvideo src="v.mp4" onFinished={() => {}} />
 		<nscanvas onReady={() => {}} />
@@ -96,7 +96,7 @@ const tree = (
 		<animatedimage src="g.gif" />
 		<applesigninbutton onTap={() => {}} />
 		<googlesigninbutton onTap={() => {}} />
-	</flexboxlayout>
+	</masonview>
 )
 void tree
 
@@ -170,18 +170,18 @@ const badSearchHandler = <searchbar onTextChange={(value: string) => { void valu
 void badSearchText
 void badSearchPlaceholder
 void badSearchHandler
-// @ts-expect-error WrapLayout item size is numeric
-const badWrapSize = <wraplayout itemWidth="30" />
-// @ts-expect-error WrapLayout orientation is closed
-const badWrapOrientation = <wraplayout orientation="diagonal" />
-void badWrapSize
-void badWrapOrientation
-// @ts-expect-error DockLayout primitive contract rejects strings
-const badDock = <docklayout stretchLastChild="false" />
-// @ts-expect-error DockLayout edges are closed
+// @ts-expect-error removed layout containers are not in the contract
+const badFlex = <flexboxlayout />
+// @ts-expect-error layout props moved into the style bag — row is not a prop
+const badRow = <masonview row="1" />
+void badFlex
+void badRow
+// @ts-expect-error dock is not a prop — positioning lives in the style bag
 const badEdge = <label dock="center" />
-void badDock
+// @ts-expect-error removed props reject even on kept elements
+const badStretch = <masonview stretchLastChild={false} />
 void badEdge
+void badStretch
 `
 
 // Module augmentation through the intrinsics entry must reach the contract.
