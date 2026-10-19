@@ -148,3 +148,9 @@ patchedDependencies:
   # kills `ns build android` before toolchain checks. Resolve catalog specifiers through the
   # installed package's manifest, reusing the existing tgz-branch mechanism.
   "@nativescript/doctor@2.0.18": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript__doctor@2.0.18.patch
+  # list/index.ios.js assigns `ObjCProtocols = [MasonListDelegate]` at module scope.
+  # MasonListDelegate is declared in Mason-Swift.h, which the app's metadata generation does
+  # not surface as a runtime global — importing masonkit on iOS throws `MasonListDelegate is
+  # not defined` during bundle eval and kills the app at boot. Guard the binding; actual
+  # List delegate conformance when the protocol is absent is a separate gap.
+  "@triniwiz/nativescript-masonkit@1.0.0-beta.110": node_modules/.pnpm-config/@octane-xplat/patches/patches/@triniwiz__nativescript-masonkit@1.0.0-beta.110.patch

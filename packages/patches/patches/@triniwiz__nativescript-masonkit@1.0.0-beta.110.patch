@@ -1,0 +1,13 @@
+diff --git a/list/index.ios.js b/list/index.ios.js
+index d683fa030ea4adb1b442405458055256319e0adc..97f1953ffbc8ca9e809953c2024e17cd32beb1bb 100644
+--- a/list/index.ios.js
++++ b/list/index.ios.js
+@@ -42,7 +42,7 @@ var ListDelegateImpl = (function (_super) {
+             });
+         }
+     };
+-    ListDelegateImpl.ObjCProtocols = [MasonListDelegate];
++    ListDelegateImpl.ObjCProtocols = typeof MasonListDelegate !== "undefined" ? [MasonListDelegate] : [];
+     return ListDelegateImpl;
+ }(NSObject));
+ const listState_ = Symbol('[[listState]]');
