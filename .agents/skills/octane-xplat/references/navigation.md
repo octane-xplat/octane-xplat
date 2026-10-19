@@ -34,11 +34,32 @@ popRoute('root')
   pushes — call `popRoute(props._stack)` / `goBack({ into: props._stack })`
   to pop the stack that pushed you. Web route params are URL-backed.
 
-Each pushed native `Page` currently has its own Octane root. Route params and
-`Route.context` are passed as screen props, but providers from the app shell do
-not reach the pushed screen. Preserving those providers requires a
-router-owned portal outlet that can render the registered screen from an
-owning tree.
+Native Pages and route modals preserve the providers around a mounted
+`RouteOutlet` for their stack. Keep that outlet in the long-lived shell;
+removing it releases owned Pages and pending loads. The handler's location
+alone does not capture a screen-local provider. Without an outlet, routing
+uses a standalone root and needs params or a subscribed store.
+
+```tsx
+import { createContext } from 'octane'
+import { RouteOutlet, Screen, Text } from '@octane-xplat/ui'
+
+const Account = createContext('Guest')
+export function AppShell() {
+	return (
+		<Account value="Avery">
+			<Screen>
+				<RouteOutlet stack="root">
+					<Text>Home</Text>
+				</RouteOutlet>
+			</Screen>
+		</Account>
+	)
+}
+```
+
+For screen-local ownership, use the scoped NativeScript navigator described in
+[the route provider guide](../../../../docs/app/navigation.md#preserve-providers-across-native-pages).
 
 ```tsx
 import { Text, Pressable } from '@octane-xplat/ui'
@@ -164,8 +185,9 @@ export default function Help() {
 - Shared `Tabs` renders a fixed tab row and swaps one pane; it does not host
   a Frame. `UITabBar` from the iOS subpath uses NativeScript `TabView` and
   registers a `Frame` for each `TabSpec` with a stack.
-- Pushed `Page`s host their own Octane root — never shared context with
-  the presenter (decision #9).
+- Pushed Pages stay in the mounted route outlet's tree. A Page in the
+  backstack retains local state and receives provider updates; popping it
+  releases its portal. Ownerless navigation retains the standalone-root fallback.
 - **`Frame.topmost()` is unreliable once nested frames exist** (Android:
   innermost). `getStack('root')` resolves the window root Frame — never
   `topmost()`.
@@ -240,8 +262,9 @@ export function Destination({ stack }: { stack?: string }) {
 ## Modal routes and modal primitives
 
 Route files may use `+modal` or `pushRoute({ presentation: 'modal', ... })`.
-Native presents a separate root and web overlays the previous history entry.
-These routes pass data as props because context does not cross roots.
+Native presents a separate host whose content belongs to the mounted route
+outlet, when present. Web overlays the previous history entry. Use params for
+destination data; provider inheritance follows the outlet ownership above.
 
 ```ts
 pushRoute({ stack: 'root', name: 'help', presentation: 'modal', params: { topic: 'packing' } })

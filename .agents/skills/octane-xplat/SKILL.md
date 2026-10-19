@@ -29,9 +29,13 @@ iOS/Android differences, OS-specific suffixes, and the unsuffixed native default
 5. **Prop types live in `packages/ui/src/props.ts`** — the single source
    for both platform leaves and the published `.d.ts`. New/changed props
    go there, not inline.
-6. **Cross-root state uses module-scope stores** (`useSyncExternalStore`).
-   A class or context on one root never reaches another root (pushed
-   pages, modals, sheets are separate trees on native).
+6. **Subscribe to shared state and preserve content ownership.** Declarative
+   surfaces preserve providers through portals. Native routes use the providers
+   around a mounted `RouteOutlet`; scoped imperative services use those around
+   their returned element. Ownerless global services and routes without an
+   outlet retain standalone roots: pass explicit data or use subscribed
+   module-scope stores there. See `references/overlays.md` and
+   `references/navigation.md` for ownership and lifetime examples.
    - **Reads subscribe or they go stale.** The universal renderer retains
      unchanged-prop children, so every non-signal store reader calls
      `useStore(store)` (`createStore`/`useStore` are exported from
@@ -73,18 +77,18 @@ their stated question or condition applies; reading a topic does not require
 loading its folder or every linked page. Topic guides cover the usual path;
 nested references supply narrower platform, advanced, or implementation detail.
 
-| Task                                    | Read                                                                                |
-| --------------------------------------- | ----------------------------------------------------------------------------------- |
-| Set up / run / build                    | `references/getting-started.md`                                                     |
-| Use or add a component                  | `references/primitives.md` (+ `primitives/driver-semantics.md` for how leaves bind) |
-| Platform file layout, suffixes, imports | `references/platform-leaves.md`                                                     |
+| Task                                    | Read                                                                                                                                              |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Set up / run / build                    | `references/getting-started.md`                                                                                                                   |
+| Use or add a component                  | `references/primitives.md` (+ `primitives/driver-semantics.md` for how leaves bind)                                                               |
+| Platform file layout, suffixes, imports | `references/platform-leaves.md`                                                                                                                   |
 | Styles, tokens, dark mode               | `references/styling.md`; token definitions: `references/styling/tokens.md`; styles across separate roots: `references/styling/root-boundaries.md` |
-| navigate/goBack, stacks, routes         | `references/navigation.md` (+ `navigation/native-frames.md` for Frame internals)    |
-| Modal / sheet / overlay                 | `references/overlays.md`                                                            |
-| storage, theme, animation, gestures     | `references/services.md`                                                            |
-| Probe harness, sweeps, smoke            | `references/testing.md`                                                             |
-| Builds, releases, npm publish           | `references/toolchain.md`                                                           |
-| What's broken/unverified                | `references/known-limits.md` — **read this before promising behavior**              |
+| navigate/goBack, stacks, routes         | `references/navigation.md` (+ `navigation/native-frames.md` for Frame internals)                                                                  |
+| Modal / sheet / overlay                 | `references/overlays.md`                                                                                                                          |
+| storage, theme, animation, gestures     | `references/services.md`                                                                                                                          |
+| Probe harness, sweeps, smoke            | `references/testing.md`                                                                                                                           |
+| Builds, releases, npm publish           | `references/toolchain.md`                                                                                                                         |
+| What's broken/unverified                | `references/known-limits.md` — **read this before promising behavior**                                                                            |
 
 ## Orientation
 

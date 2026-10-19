@@ -86,9 +86,10 @@ Keep it when refreshing the patch until core provides an equivalent. See the
 
 ## Root creation
 
-`createNativeScriptRoot(hostView).render(Component, props)` — each pushed
-Page, modal, sheet host, tab-stack page, and native platform-list cell gets
-its own root.
+`createNativeScriptRoot(hostView).render(Component, props)` creates an
+independent root. Use it for bootstrap or intentionally independent content;
+framework-owned surfaces, list cells, and routes with an outlet use portals
+instead. Do not replace their content owners with new roots.
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
@@ -106,8 +107,9 @@ export function mountContent(hostView: GridLayout) {
 }
 ```
 
-Roots share NOTHING (no context, no store) — cross-root state goes through
-module-scope stores, and each root applies its own theme class.
+Independent roots do not inherit providers, but can subscribe to the same
+module-scope store. A portal keeps its source providers while rendering in
+another host. Native host theme classes still need explicit application.
 
 ```tsx
 import { Text } from '@octane-xplat/ui'
@@ -154,7 +156,9 @@ trip.update((state) => ({ ...state, packed: state.packed + 1 }))
 
 - `Page` = the nav unit. `page.actionBarHidden = true`, `page.id` set for
   probes.
-- `TabViewItem` content is a plain native view — the driver can't parent
-  reconciled children into `<tabviewitem>`; each pane is a `GridLayout`
-  hosting its own root (or a `Frame` whose page roots on a `GridLayout`
-  child for stack panes).
+- Platform tab panes and list cells preserve source context through owned
+  portals. Manually constructing a native host does not automatically create
+  that ownership; use the maintained components or the documented owner protocol.
+
+See [portal ownership](../../../../docs/notes/portal-boundaries.md) for the
+current boundary inventory and [overlays](../overlays.md) for scoped services.

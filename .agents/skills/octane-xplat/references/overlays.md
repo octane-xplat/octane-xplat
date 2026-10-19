@@ -26,8 +26,8 @@ export function BagDetails() {
 `close(result)` scoped to that instance. Declarative children and
 `component` + `params` content of `UIModal` and `MaterialDialog` portal from
 their declaring Octane tree into the system modal host, preserving context
-and live context updates. Imperative `openModal(Component, params)` still uses
-a separate root because the service has no declaring component tree. The
+and live context updates. Global `openModal(Component, params)` uses a separate root; the scoped hook
+below supplies source ownership when providers are needed. The
 modal host receives its own theme classes (see styling/root-boundaries.md).
 
 ```tsx
@@ -55,7 +55,7 @@ export function AccountDetails() {
 }
 ```
 
-For a shared in-window surface, compose `BottomSheet`, `Overlay`, or `Popover`.
+Use the OS modal only when platform chrome is intended:
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
@@ -72,21 +72,77 @@ export function Details() {
 }
 ```
 
-## Context stops at native overlay roots
+## Preserve providers with scoped services
 
-Shared `Dialog`/`BottomSheet`/`Overlay` and the platform modal widgets mount a
-**separate Octane root on native** — `useContext` inside overlay content does
-not see the presenter's providers, and reading context in the new root does
-not recover them. Theme classes are forwarded; app context is not. Pass
-values in as props, or read a module-scope store that each root subscribes
-to. Declarative overlays render through a DOM portal on web and retain the
-declaring context (imperative services like `openBottomSheet` mount their
-own root on every target) — write to the stricter native rule so both
-behave.
+On iOS/Android, declarative `Dialog`, `BottomSheet`, `Overlay`, `Popover`,
+and OS modal content portal from their declaring tree. For imperative sheets,
+use `useImperativeBottomSheet` and keep its returned `element` mounted below
+all required providers. Removing the owner closes its owned content; a removed
+owner cannot reopen it. The hook does not capture providers merely because
+an event handler calls it.
 
-## `openSheet(Component, props)` / `closeSheet()`
+```tsx
+import { useImperativeBottomSheet, Button, Text } from '@octane-xplat/ui'
 
-`openBottomSheet(Component, props)` is the current shared service name.
+function Picker(props: { close: (value?: string) => void }) {
+	return <Button clickAction={() => props.close('saved')}>Save</Button>
+}
+export function Actions() {
+	const sheet = useImperativeBottomSheet()
+	return (
+		<>
+			<Text>Choose a bag</Text>
+			<Button
+				clickAction={() => {
+					void sheet.open(Picker)
+				}}
+			>
+				Choose
+			</Button>
+			{sheet.element}
+		</>
+	)
+}
+```
+
+OS modals have a corresponding scoped hook. Use it in a matching platform file
+and render its element under the providers the modal needs.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+// ModalActions.ios.tsx
+import { useImperativeModal } from '@octane-xplat/ui/ios'
+import { Button, Text } from '@octane-xplat/ui'
+
+function Details() {
+	return <Text>Trip details</Text>
+}
+export function ModalActions() {
+	const modal = useImperativeModal()
+	return (
+		<>
+			<Button
+				clickAction={() => {
+					void modal.open(Details)
+				}}
+			>
+				Details
+			</Button>
+			{modal.element}
+		</>
+	)
+}
+```
+
+For platform-specific exceptions, including macOS registry/toast/layer paths,
+read the [current ownership inventory](../../../docs/notes/portal-boundaries.md).
+Theme inheritance is a separate host concern; see
+[theme across hosts](styling/root-boundaries.md).
+
+## Ownerless `openBottomSheet` / `closeBottomSheet`
+
+Use global `openBottomSheet(Component, props)` when content does not need the
+caller's providers. This ownerless service keeps a standalone root on each target.
 Native mounts a bottom-docked host in `RootLayout`; web creates a portal
 layer under `document.body` and renders the component in its own Octane root.
 The web backdrop dismisses the sheet, and the returned `BottomSheetHandle` —
