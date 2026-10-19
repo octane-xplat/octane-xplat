@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { useMemo, useRef, useState } from 'octane';
 import { appKitImageSource } from './svg-image.macos';
 import { useMeasure } from '@octane-xplat/ui';
@@ -72,9 +73,9 @@ export function Chart(props: ChartProps) @{
 
 	<masonview id={props.id} className={props.className} style={{display: "flex", ...({ flexDirection: 'column', ...props.style })}} accessible={props.accessibilityLabel != null} accessibilityRole={'image'} accessibilityLabel={props.accessibilityLabel}>
 		@if (legend === 'top' && scene) {
-			<masonview flexDirection="row" flexWrap="wrap" style={{display: "flex", ...({ paddingBottom: 4 })}}>
+			<masonview style={mergeStyle({flexDirection: "row", flexWrap: "wrap"}, {display: "flex", ...({ paddingBottom: 4 })})}>
 				{scene.legend.map((item) => (
-					<masonview flexDirection="row" alignItems="center" style={{display: "flex", ...({ marginRight: 12 })}}>
+					<masonview style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex", ...({ marginRight: 12 })})}>
 						<masonview style={{display: "flex", ...({ width: 10, height: 10, borderRadius: 2, backgroundColor: item.color, marginRight: 4 })}}/>
 						<label text={item.text} style={{ fontSize: 11 }} />
 					</masonview>
@@ -105,9 +106,9 @@ export function Chart(props: ChartProps) @{
 			</masonview>
 		</masonview>
 		@if (legend === 'bottom' && scene) {
-			<masonview flexDirection="row" flexWrap="wrap" style={{display: "flex", ...({ paddingTop: 4 })}}>
+			<masonview style={mergeStyle({flexDirection: "row", flexWrap: "wrap"}, {display: "flex", ...({ paddingTop: 4 })})}>
 				{scene.legend.map((item) => (
-					<masonview flexDirection="row" alignItems="center" style={{display: "flex", ...({ marginRight: 12 })}}>
+					<masonview style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex", ...({ marginRight: 12 })})}>
 						<masonview style={{display: "flex", ...({ width: 10, height: 10, borderRadius: 2, backgroundColor: item.color, marginRight: 4 })}}/>
 						<label text={item.text} style={{ fontSize: 11 }} />
 					</masonview>

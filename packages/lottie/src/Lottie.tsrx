@@ -148,7 +148,6 @@ export function Lottie(props: LottieProps) @{
 		ref={bindHost}
 		id={props.id}
 		className={[props.className]}
-		style={props.style}
 		{...layoutChildProps(props)}
 		loop={props.loop ?? false}
 		accessible={props.accessible}

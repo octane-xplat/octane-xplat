@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useMemo, useRef, useState } from 'octane';
 import { AccessibilityRole, Color } from '@nativescript/core';
 import { useMeasure } from '@octane-xplat/ui';
@@ -106,9 +107,9 @@ export function Chart(props: ChartProps) @{
 
 	<masonview id={props.id} className={props.className} style={{display: "flex", ...({ flexDirection: 'column', ...props.style })}} accessible={props.accessibilityLabel != null} accessibilityRole={AccessibilityRole.Image} accessibilityLabel={props.accessibilityLabel}>
 		@if (legend === 'top' && scene) {
-			<masonview flexDirection="row" flexWrap="wrap" style={{display: "flex", ...({ paddingBottom: 4 })}}>
+			<masonview style={mergeStyle({flexDirection: "row", flexWrap: "wrap"}, {display: "flex", ...({ paddingBottom: 4 })})}>
 				{scene.legend.map((item) => (
-					<masonview flexDirection="row" alignItems="center" style={{display: "flex", ...({ marginRight: 12 })}}>
+					<masonview style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex", ...({ marginRight: 12 })})}>
 						<contentview style={{ width: 10, height: 10, borderRadius: 2, backgroundColor: safeColor(item.color, 'transparent'), marginRight: 4 }} />
 						<label text={item.text} style={{ fontSize: 11 }} />
 					</masonview>
@@ -132,16 +133,16 @@ export function Chart(props: ChartProps) @{
 					<contentview width={8} height={8} borderRadius={4} backgroundColor={safeColor(dotColor, '#4e79a7')} style={{position: 'absolute', left: cursor.px - 4, top: cursor.py - 4}} />
 				}
 				@if (cursor && props.tooltip && tipText) {
-					<masonview style={{display: "flex", ...({position: 'absolute', left: tipLeft, top: tipTop < 0 ? cursor.py + 12 : tipTop})}} backgroundColor={new Color('rgba(20,20,20,0.88)')} borderRadius={4} paddingTop={2} paddingBottom={2} paddingLeft={6} paddingRight={6}>
+					<masonview style={{display: "flex", position: 'absolute', left: tipLeft, top: tipTop < 0 ? cursor.py + 12 : tipTop, paddingTop: 2, paddingBottom: 2, paddingLeft: 6, paddingRight: 6}}>
 						<label text={tipText} color={new Color('#ffffff')} style={{ fontSize: 11 }} />
 					</masonview>
 				}
 			</masonview>
 		</masonview>
 		@if (legend === 'bottom' && scene) {
-			<masonview flexDirection="row" flexWrap="wrap" style={{display: "flex", ...({ paddingTop: 4 })}}>
+			<masonview style={mergeStyle({flexDirection: "row", flexWrap: "wrap"}, {display: "flex", ...({ paddingTop: 4 })})}>
 				{scene.legend.map((item) => (
-					<masonview flexDirection="row" alignItems="center" style={{display: "flex", ...({ marginRight: 12 })}}>
+					<masonview style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex", ...({ marginRight: 12 })})}>
 						<contentview style={{ width: 10, height: 10, borderRadius: 2, backgroundColor: safeColor(item.color, 'transparent'), marginRight: 4 }} />
 						<label text={item.text} style={{ fontSize: 11 }} />
 					</masonview>

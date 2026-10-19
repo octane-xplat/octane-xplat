@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import type { RollingTextProps } from './props'
 import { useRollingText } from './use-rolling.tsrx'
 import { layoutChildProps } from './layout-child'
@@ -15,9 +16,9 @@ export function RollingText(props: RollingTextProps) @{
 
 	<masonview id={props.id} testID={props.testID ?? ''} ref={(view: any) => {
 			roll.attachRow(view)
-		}} {...layoutChildProps(props)} className={['vx-rolling-text', props.className]} style={{display: "flex", ...(rowStyle)}} flexDirection="row" flexWrap="nowrap" accessible={true} accessibilityRole={'text' as any} accessibilityLabel={roll.label} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
+		}} {...layoutChildProps(props, mergeStyle({flexDirection: "row", flexWrap: "nowrap"}, {display: "flex", ...(rowStyle)}))} className={['vx-rolling-text', props.className]} accessible={true} accessibilityRole={'text' as any} accessibilityLabel={roll.label} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
 		@for (const cell of roll.cells; key cell.id) {
-			<masonview ref={roll.attachCell(cell.id)} accessible={false} flexShrink={0} style={{display: "flex"}}>
+			<masonview ref={roll.attachCell(cell.id)} accessible={false} style={mergeStyle({flexShrink: 0}, {display: "flex"})}>
 				<label
 					text={cell.unit}
 					style={textStyle}

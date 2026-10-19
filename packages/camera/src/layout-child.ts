@@ -2,27 +2,34 @@ import type { CameraViewProps } from './props'
 import { isIOS } from '@nativescript/core'
 
 /** NativeScript reads layout fields from a child view during parent layout. */
-export function layoutChildProps(props: CameraViewProps): Record<string, any> {
-	const result: Record<string, any> = {}
-	for (const key of [
-		'row',
-		'col',
-		'rowSpan',
-		'colSpan',
-		'dock',
-		'left',
-		'top',
-		'flexGrow',
-		'flexShrink',
-		'alignSelf',
-		'order',
-	] as const) {
+export function layoutChildProps(props: CameraViewProps): { style: Record<string, any> } {
+	const style: Record<string, any> = { ...(typeof props.style === 'object' ? props.style : {}) }
+	if (props.row !== undefined) {
+		style.gridRow = `${props.row + 1} / span ${props.rowSpan ?? 1}`
+	} else if (props.rowSpan !== undefined) {
+		style.gridRow = `span ${props.rowSpan}`
+	}
+	if (props.col !== undefined) {
+		style.gridColumn = `${props.col + 1} / span ${props.colSpan ?? 1}`
+	} else if (props.colSpan !== undefined) {
+		style.gridColumn = `span ${props.colSpan}`
+	}
+	if (props.dock !== undefined) {
+		style.position = style.position ?? 'absolute'
+		if (props.dock === 'left' || props.dock === 'top' || props.dock === 'bottom') { style.left = style.left ?? 0 }
+		if (props.dock === 'right' || props.dock === 'top' || props.dock === 'bottom') { style.right = style.right ?? 0 }
+		if (props.dock === 'top' || props.dock === 'left' || props.dock === 'right') { style.top = style.top ?? 0 }
+		if (props.dock === 'bottom' || props.dock === 'left' || props.dock === 'right') { style.bottom = style.bottom ?? 0 }
+	}
+	for (const key of ['left', 'top', 'flexGrow', 'flexShrink', 'alignSelf', 'order'] as const) {
 		if (props[key] !== undefined) {
-			result[key] = props[key]
+			style[key] = props[key]
 		}
 	}
-
-	return result
+	if ((props.left !== undefined || props.top !== undefined) && props.dock === undefined) {
+		style.position = style.position ?? 'absolute'
+	}
+	return { style }
 }
 
 export function applyEscapeProps(view: any, props: { ios?: any; android?: any }): void {

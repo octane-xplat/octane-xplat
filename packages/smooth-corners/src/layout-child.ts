@@ -37,93 +37,82 @@ export function paintedStyle(style: any) {
 	return next
 }
 
-// Whitelisted by the AppKit flexboxlayout prop handler — safe to emit even
-// as `undefined`, which is how removals propagate: the hosts merge update
-// bags over the node's recorded props, so a vanished key would keep its
-// stale value and parent layouts would never see the removal.
-const CHILD_PROPS_ALWAYS = [
-	'row',
-	'col',
-	'rowSpan',
-	'colSpan',
-	'left',
-	'top',
-	'horizontalAlignment',
-	'verticalAlignment',
-	'flexGrow',
-	'flexShrink',
-	'alignSelf',
-	'order',
-] as const
-
-// Not whitelisted on the AppKit host (the prop-warning gap, GH#9/#10) —
-// emitted only when set so a bare SmoothCorners does not warn every mount.
-const CHILD_PROPS_IF_SET = ['dock', 'right', 'bottom'] as const
-
-/** Parent-layout metadata — must land on the OUTER wrapper, the node the
- *  parent layout reads as its child. Values forward under the host's own
- *  attribute names. */
+/** Parent-layout metadata translated to CSS on the OUTER wrapper — the node
+ *  the parent layout reads as its child. Placement sugar compiles to the
+ *  same style keys as the shared layout-child helper; the box-geometry
+ *  keys (size/margins) mirror out of `style` since parent layouts read the
+ *  child's own box. */
 export function outerLayoutProps(props: LayoutChildProps & { style?: any }) {
-	const result: Record<string, any> = {}
-	for (const key of CHILD_PROPS_ALWAYS) {
-		result[key] = props[key]
+	const style: Record<string, any> = {}
+	if (props.row !== undefined) {
+		style.gridRow = `${props.row + 1} / span ${props.rowSpan ?? 1}`
+	} else if (props.rowSpan !== undefined) {
+		style.gridRow = `span ${props.rowSpan}`
 	}
-
-	for (const key of CHILD_PROPS_IF_SET) {
+	if (props.col !== undefined) {
+		style.gridColumn = `${props.col + 1} / span ${props.colSpan ?? 1}`
+	} else if (props.colSpan !== undefined) {
+		style.gridColumn = `span ${props.colSpan}`
+	}
+	if (props.dock !== undefined) {
+		style.position = 'absolute'
+		if (props.dock === 'left' || props.dock === 'top' || props.dock === 'bottom') style.left = 0
+		if (props.dock === 'right' || props.dock === 'top' || props.dock === 'bottom') style.right = 0
+		if (props.dock === 'top' || props.dock === 'left' || props.dock === 'right') style.top = 0
+		if (props.dock === 'bottom' || props.dock === 'left' || props.dock === 'right') style.bottom = 0
+	}
+	if (props.left !== undefined) {
+		style.left = props.left
+		style.position = style.position ?? 'absolute'
+	}
+	if (props.top !== undefined) {
+		style.top = props.top
+		style.position = style.position ?? 'absolute'
+	}
+	for (const key of ['flexGrow', 'flexShrink', 'alignSelf', 'order'] as const) {
 		if (props[key] !== undefined) {
-			result[key] = props[key]
+			style[key] = props[key]
 		}
 	}
 
 	const source = props.style && typeof props.style === 'object' ? props.style : {}
-	const style: Record<string, any> = {}
 	for (const key of OUTER_STYLE_KEYS) {
 		if (source[key] !== undefined) {
 			style[key] = source[key]
 		}
 	}
 
-	// Explicit undefined clears a previously mirrored geometry bag on update.
-	result.style = Object.keys(style).length > 0 ? style : undefined
-	return result
+	return { style }
 }
 
-/** Flex-container props — land on the INNER host that owns the children.
- *  Used by the macOS leaf (inner flexboxlayout); the native leaf's inner
- *  gridlayout has no flex vocabulary and does not consume these. */
+/** Flex-container props — the INNER host's CSS layout style. Used by the
+ *  macOS leaf (inner masonview); shared Stack-style props compile to the
+ *  same style keys as on web. */
 export function innerLayoutProps(
 	props: FlexContainerProps & Pick<SmoothCornersProps, 'flexDirection'>,
 ) {
-	const result: Record<string, any> = {}
-	// Explicit undefined so removals propagate through the merge-style update.
-	result.flexDirection = props.flexDirection
-	result.justifyContent =
-		props.justifyContent === undefined
-			? undefined
-			: (FLEX_JUSTIFY[props.justifyContent] ?? props.justifyContent)
-
-	result.alignItems =
-		props.alignItems === undefined ? undefined : (FLEX_ALIGN[props.alignItems] ?? props.alignItems)
-
-	result.flexWrap =
-		props.flexWrap === undefined
-			? undefined
-			: props.flexWrap === true
-				? 'wrap'
-				: props.flexWrap === false
-					? 'nowrap'
-					: props.flexWrap
-
-	result.gap = props.gap
-	// rowGap/columnGap have no AppKit stack equivalent and are not whitelisted
-	// — emit only when set, matching the child-prop treatment above.
+	const style: Record<string, any> = {}
+	if (props.flexDirection !== undefined) {
+		style.flexDirection = props.flexDirection
+	}
+	if (props.justifyContent !== undefined) {
+		style.justifyContent = FLEX_JUSTIFY[props.justifyContent] ?? props.justifyContent
+	}
+	if (props.alignItems !== undefined) {
+		style.alignItems = FLEX_ALIGN[props.alignItems] ?? props.alignItems
+	}
+	if (props.flexWrap !== undefined) {
+		style.flexWrap =
+			props.flexWrap === true ? 'wrap' : props.flexWrap === false ? 'nowrap' : props.flexWrap
+	}
+	if (props.gap !== undefined) {
+		style.gap = props.gap
+	}
 	if (props.rowGap !== undefined) {
-		result.rowGap = props.rowGap
+		style.rowGap = props.rowGap
 	}
-
 	if (props.columnGap !== undefined) {
-		result.columnGap = props.columnGap
+		style.columnGap = props.columnGap
 	}
-
-	return result
+	return { style }
 }

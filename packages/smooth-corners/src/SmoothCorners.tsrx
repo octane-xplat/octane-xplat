@@ -57,7 +57,7 @@ export function SmoothCorners(props: SmoothCornersProps) @{
 	useEffect(() => apply());
 
 	return (
-		<masonview ref={bindOuter.current} {...outerLayoutProps(props)} style={{display: "grid"}}>
+		<masonview ref={bindOuter.current} style={{display: "grid", ...outerLayoutProps(props).style}}>
 			<masonview ref={bindInner.current} id={props.id} className={props.className} style={{display: "grid", ...(paintedStyle(props.style))}}>
 				{props.children}
 			</masonview>

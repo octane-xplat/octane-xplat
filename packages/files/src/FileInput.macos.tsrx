@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { useRef, useImperativeHandle, useId, useState } from 'octane'
 import { Field as FormField, Icon, Pressable, useFieldControl } from '@octane-xplat/ui'
 import type { FileInputFile, FileInputProps } from './props'
@@ -79,7 +80,7 @@ function FileInputControl(inputProps: FileInputProps) @{
 
 	useImperativeHandle(props.ref, () => ({ open: pick, native: hostRef.current }), undefined);
 
-	<masonview flexDirection="column" className={cx(
+	<masonview className={cx(
 			'vx-fileinput',
 			dropzone && 'vx-fileinput--dropzone',
 			isDisabled && 'vx-fileinput--disabled',
@@ -87,11 +88,11 @@ function FileInputControl(inputProps: FileInputProps) @{
 			statusType && `vx-fileinput--status-${statusType}`,
 			props.size && `vx-fileinput--size-${props.size}`,
 			props.className,
-		)} style={{display: "flex", ...(props.style)}}>
+		)} style={mergeStyle({flexDirection: "column"}, {display: "flex", ...(props.style)})}>
 		{files.length ? (
-			<masonview flexDirection="column" className="vx-fileinput-list" style={{display: "flex"}}>
+			<masonview className="vx-fileinput-list" style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 				{files.map((f, i) => (
-					<masonview key={`${f.uri}-${i}`} flexDirection="row" alignItems="center" className="vx-fileinput-item" style={{display: "flex"}}>
+					<masonview key={`${f.uri}-${i}`} className="vx-fileinput-item" style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
 						<Icon name="xplat-upload" size={14} />
 						<label className="vx-fileinput-itemname" text={f.name} />
 						{f.size != null ? <label className="vx-fileinput-itemsize" text={formatFileSize(f.size)} /> : null}
@@ -112,7 +113,7 @@ function FileInputControl(inputProps: FileInputProps) @{
 			accessibilityState={{ disabled: isDisabled, busy: isBusy } as any}
 			onPress={pick}
 		>
-			<masonview flexDirection="row" alignItems="center" style={{display: "flex"}}>
+			<masonview style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
 				<Icon name="xplat-upload" size={14} />
 				<label text={files.length ? 'Choose more files' : 'Choose files'} />
 			</masonview>

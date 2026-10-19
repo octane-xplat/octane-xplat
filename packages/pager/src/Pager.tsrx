@@ -161,7 +161,6 @@ function PagerInner(props: PagerProps) @{
 		id={props.id}
 		{...layoutChildProps(props)}
 		className={['vx-pager', props.className]}
-		style={props.style}
 		onItemLoading={bindCell}
 		onItemDisposing={disposeCell}
 		onSelectedIndexChange={(args: any) => {
