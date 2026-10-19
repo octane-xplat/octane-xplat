@@ -19,12 +19,17 @@ export function Grid(props: GridProps) @{
 		console.warn('[Grid] gap was removed; use child margins');
 	}
 
+	const rowTracks = gridTrackListToCss(props.rows, 'rows');
+	const columnTracks = gridTrackListToCss(props.columns, 'columns');
+
+	// Omitted tracks belong to the CSS cascade. Do not emit undefined style
+	// entries: the driver's deferred Mason replay would clear class tracks.
 	// Mason's grid engine auto-places unpositioned children row-major
 	// (grid-auto-flow); explicit `row`/`col` child props become CSS grid
 	// lines in the driver. No imperative placement pass needed.
 	<masonview id={props.id} ref={(view: any) => {
 			applyEscapeProps(view, props);
-		}} className={cx('vx-grid', props.className)} style={mergeStyle({display: "grid", gridAutoFlow: "row", gridTemplateRows: gridTrackListToCss(props.rows, 'rows'), gridTemplateColumns: gridTrackListToCss(props.columns, 'columns')}, props.style as any)} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
+		}} className={cx('vx-grid', props.className)} style={mergeStyle({display: "grid", gridAutoFlow: "row", ...(rowTracks ? { gridTemplateRows: rowTracks } : {}), ...(columnTracks ? { gridTemplateColumns: columnTracks } : {})}, props.style as any)} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
 		{props.children}
 	</masonview>
 }

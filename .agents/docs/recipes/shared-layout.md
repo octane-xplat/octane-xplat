@@ -22,7 +22,7 @@ the behavior differences between DOM and NativeScript.
 - AC3: `Center`, `Section`, and `AspectRatio` provide their documented layout on web and native, with platform limits stated for inline centering and native measurement.
 - AC4: `FormLayout` arranges labeled fields, nested layouts inherit omitted `defaultOptionality` while explicit child values take precedence, and `InputGroup` associates one group label with prefix/suffix content and its input; neither is an HTML form submission API.
 
-- AC5: Grid preserves explicit zero-based placement and spans on composite roots, flows automatic cells, and reflows reactive insertion/removal/reorder. State the NativeScript patch requirement and evidence limits.
+- AC5: Grid documents intrinsic track minimums and the explicit bounded-track CSS option, preserves explicit zero-based placement and spans on composite roots, flows automatic cells, and reflows reactive insertion/removal/reorder. State the NativeScript patch requirement and evidence limits.
 
 ## Documentation
 
@@ -31,4 +31,4 @@ the behavior differences between DOM and NativeScript.
 - AC3: [Layout component index](../../../docs/app/components.md#layout) and maintained [LayoutDemo](../../../packages/demos/src/LayoutDemo.tsrx).
 - AC4: [Grouped fields](../../../docs/app/primitives.md#grouped-fields) and maintained [ComponentsDemo](../../../packages/demos/src/ComponentsDemo.tsrx).
 
-- AC5: [Grid placement](../../../docs/app/primitives.md#grid-placement) and maintained [Grid driver fixture](../../../packages/ui/tests/grid-placement.fixture.mobile.tsrx).
+- AC5: [Grid placement](../../../docs/app/primitives.md#grid-placement), [native Screen/Grid width regression](../../../apps/mobile/src/tests/screen-grid-width.spec.tsrx), and maintained [Grid driver fixture](../../../packages/ui/tests/grid-placement.fixture.mobile.tsrx).

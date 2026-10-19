@@ -6,6 +6,7 @@ import {
 	SlotCase,
 	UpdatingPlacement,
 	UpdatingComposite,
+	TrackStyleCase,
 } from '../tests/grid-placement.fixture.mobile.tsrx'
 import { masonStyleOf } from '../tests/masonkit-mock'
 
@@ -220,3 +221,25 @@ it.each([
 		app.dispose()
 	},
 )
+
+it.each([
+	{ columns: undefined, template: undefined, expected: undefined },
+	{ columns: '*', template: undefined, expected: '1fr' },
+	{ columns: undefined, template: 'minmax(0,1fr)', expected: 'minmax(0,1fr)' },
+])('preserves CSS ownership of omitted tracks through nested Mason attach (%j)', async ({ columns, template, expected }) => {
+	const app = await mount(TrackStyleCase, { columns, template })
+	try {
+		const grid = app.host.children[0].children[0]
+		const style = masonStyleOf(grid)!
+		expect(style.gridTemplateRows).toBe('auto 1fr')
+		if (expected === undefined) {
+			// Writing undefined would be replayed after attachment and erase a
+			// class-authored template, even after NS restores its CSS cascade.
+			expect(style.__writes).not.toHaveProperty('gridTemplateColumns')
+		} else {
+			expect(style.gridTemplateColumns).toBe(expected)
+		}
+	} finally {
+		app.dispose()
+	}
+})

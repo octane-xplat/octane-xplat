@@ -70,6 +70,140 @@ Observed quirks:
   different class — text children need `textContent` props or mason
   `TextNode`s, not bare JSX strings.
 
+## Nested Grid intrinsic-width investigation (2026-10-19)
+
+**Status: Screen root/frame mismatch confirmed by the consumer task; native
+Screen root-fill correction prepared here. Grid retains its existing intrinsic
+minimum semantics.** Relay:
+`upstream-xplat-016-android-capture-grid-width-overflow`. Do not change the
+shared star-track contract on this evidence alone.
+
+The consumer reported a 343.38dp Screen containing a 438.77dp stage Grid and
+same-cell layers on Android before a camera mounted. These are relayed device
+measurements; this investigation did not use a device, desktop, or images.
+The framework revision examined is `14952bb0` (v0.16.0), with the canonical
+renderer 0.2.5 patches and MasonKit `1.0.0-beta.110`.
+
+### Pinned source findings
+
+- Native `Grid.tsrx` and `Grid.web.tsrx` both use `gridTrackListToCss`:
+  `*` becomes `1fr`. A zero-minimum track would change the current intrinsic
+  sizing contract on both platforms. `minmax(...)` is outside the public
+  `rows`/`columns` grammar.
+- Native `Screen.tsrx` puts an auto-sized Mason flex column inside a
+  NativeScript RootLayout. The class/style props apply to the inner column.
+  Its native frame fitting the RootLayout does not establish the width the
+  engine used to compute descendants.
+- MasonKit beta.110's published `gitHead` is
+  `bcb27d01f89231223e2f527533ff5b8981101e0a`; its
+  [Cargo manifest](https://github.com/triniwiz/nativescript-mason/blob/bcb27d01f89231223e2f527533ff5b8981101e0a/Cargo.toml)
+  pins Taffy `c806bc36`. Verify the actual archive: the source-fetch tool
+  returned beta.119 content even when asked for beta.110 or its gitHead.
+- Android
+  [View.onMeasure](https://github.com/triniwiz/nativescript-mason/blob/bcb27d01f89231223e2f527533ff5b8981101e0a/packages/nativescript-masonkit/src-native/mason-android/masonkit/src/main/java/org/nativescript/mason/masonkit/View.kt#L274)
+  passes both EXACTLY and AT_MOST sizes as definite **available space** to
+  the engine. This is not a known/style width. Its `onLayout` applies the
+  cached computed descendant frames rather than recomputing against the
+  final native frame. This boundary merits testing; the mapping alone does
+  not prove that it caused the consumer's overflow.
+- Android's foreign-view
+  [Node.measureFunc](https://github.com/triniwiz/nativescript-mason/blob/bcb27d01f89231223e2f527533ff5b8981101e0a/packages/nativescript-masonkit/src-native/mason-android/masonkit/src/main/java/org/nativescript/mason/masonkit/Node.kt#L334)
+  maps both negative intrinsic available widths (MinContent `-1` and
+  MaxContent `-2`) to UNSPECIFIED for MATCH_PARENT layout params when width
+  is unknown; WRAP_CONTENT also uses UNSPECIFIED. Foreign NativeScript
+  Labels can therefore report the same unwrapped width for both requests.
+  Wrapping at a later definite width does not establish a correct intrinsic
+  minimum. The consumer's actual label layout params and intrinsic return
+  values still need runtime verification.
+
+### Host-engine evidence
+
+A temporary Rust probe in `research/grid-width/probe/` runs the exact Taffy
+fork without Android, NativeScript, or a renderer mock. It models the inner
+column → stage Grid → same-cell home/sheet → flex shell → camera Grid →
+80%-wide centered panel with 24dp padding and a measured text leaf. The
+synthetic text callback reports 390.77dp max-content and either 390.77dp or
+85dp min-content, and wraps when given a definite width. **390.77dp is an
+input derived from the reported overflow hypothesis, not an independently
+measured text width.** Height is synthetic too; this is not a consumer replay.
+
+At available width 343.38dp, with rounding disabled:
+
+| Root style width | Text min-content | Columns at both Grids | Computed root/stage | Home/sheet/camera |
+| --- | --- | --- | --- | --- |
+| auto | 390.77 or 85 | `1fr` or `minmax(0,1fr)` | 438.77 / 438.77 | 438.77 |
+| 343.38 | 390.77 | `1fr` | 343.38 / 343.38 | 438.77 |
+| 343.38 | 85 | `1fr` | 343.38 / 343.38 | 343.38 |
+| 343.38 | 390.77 or 85 | `minmax(0,1fr)` | 343.38 / 343.38 | 343.38 |
+
+Adding stage `width:100%` or `min-width:0` did not alter these results.
+All 32 combinations asserted the expected root and layer widths and passed
+on the host. The corrected min-content callback was exercised in the trace;
+correcting text alone did not constrain the auto root in this model.
+
+### Relayed native causal evidence and correction scope
+
+The owning Android task reported a repeated UI-timer matrix on CPH2551:
+
+| Control | Native root frame | Measured/computed root | Stage | Home/sheet | Permission panel |
+| --- | --- | --- | --- | --- | --- |
+| Baseline | 343.3846 | 438.7692 | 438.7692 | 438.7692 | 350.7692 |
+| Root width 100% | 343.3846 | 343.3846 | 343.3846 | 438.7692 | 350.7692 |
+| Root width 100%, zero-min columns at both Grids | 343.3846 | 343.3846 | 343.3846 | 343.3846 | 274.4615 |
+
+Restoring original styles restored the overflow. With the collapsed note's
+Mason `display:none` and the permission panel's Mason `display:none`, the
+auto root computed 200dp; keeping permission while removing home kept
+438.7692dp. Removing permission as well reduced it to the 136dp grab pill.
+This isolates the permission subtree's intrinsic contribution independently
+of home. These are relayed runtime results, not executions of this branch's
+new test or a measurement of the label callbacks.
+
+A second framework correction omits undeclared native Grid track style
+entries, matching web. Previously an omitted `columns` emitted
+`gridTemplateColumns:undefined`; the canonical renderer stashed and replayed
+it into the Mason helper after attachment, potentially clearing a class's
+template. The nested-driver regression failed before this correction and
+passed afterward. Declared stars still emit `1fr`; no global track semantics
+changed. Changing existing declared tracks to stylesheet ownership during a
+live update is outside this regression's coverage.
+
+The framework correction gives Screen's inner Mason root a low-priority
+`width:100%` CSS default through `vx-screen-content`. This makes its computed
+width follow the RootLayout frame; authored class/style widths still take
+precedence. It is scoped to native Screen and does not change Grid tracks,
+user minimum widths, or all Mason roots. Keep it while the Mason Android root
+bridge distinguishes available space from the exact native frame; reassess
+against a dependency update that honors that boundary itself.
+
+The remaining Grid-cell overflow is an intrinsic-minimum constraint: `1fr`
+can grow to its contents' minimum. Native foreign-label measurement may
+inflate that minimum; its MinContent/MaxContent callbacks are not yet traced.
+Consumers needing bounded layers can use `grid-template-columns:
+minmax(0,1fr)` through a class, omitting `columns` so the class owns that axis.
+Use it at both nested Grids. The native control used direct Mason style
+writes; it did not verify the class-authored example on a device.
+
+[`screen-grid-width.spec.tsrx`](../../../../apps/mobile/src/tests/screen-grid-width.spec.tsrx)
+adds Android regression coverage for root computed/frame equality and nested
+bounded layers. Device execution remains owned by the consumer task. The
+existing `shared-layout` recipe now covers the documented bounded-track
+option; the existing LayoutDemo's ordinary content does not require a change.
+
+For diagnostics, compare cached engine width
+`nativeViewProtected.getNode().getComputedWidth()` with native `getWidth()`
+and `getMeasuredWidth()` (physical pixels). Avoid `computedWidthSafe()`, which
+prefers content width and fallbacks, and `layoutFlat()`, which refreshes state.
+
+### Separate visibility limitation
+
+The consumer task also verified that NativeScript `visibility=collapse`
+produced a zero native frame while the note's Mason node still computed
+438.7692dp. Setting the Mason helper's `display:none` made its computed width
+zero. This is a separate renderer/engine visibility issue; the Screen width
+correction does not resolve it. Do not use collapse as evidence that an
+intrinsic contributor was removed from the engine tree.
+
 ## Harness changes made for the evaluation
 
 - `scripts/probe/mobile-host.mobile.mjs`: `modules` map gained

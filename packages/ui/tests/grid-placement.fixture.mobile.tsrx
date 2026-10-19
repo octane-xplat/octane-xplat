@@ -76,3 +76,12 @@ function ForwardingComposite(props: { col?: number; colSpan?: number }) @{
 export function UpdatingComposite(props: { col?: number; span?: number }) @{
  <Grid columns="*,*,*"><ForwardingComposite col={props.col} colSpan={props.span} /><label text="auto" /></Grid>
 }
+
+// Nested so the real driver's deferred Mason leaf replay is exercised.
+export function TrackStyleCase(props: { columns?: string; template?: string }) @{
+ <masonview style={{ display: 'flex' }}>
+  <Grid className="bounded-grid" rows="auto,*" columns={props.columns} style={props.template ? { gridTemplateColumns: props.template } : undefined}>
+   <label text="track content" />
+  </Grid>
+ </masonview>
+}
