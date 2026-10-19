@@ -19,6 +19,7 @@ framework; the app-building guides for downstream users live in `docs/`.
 
 ## Working records
 
+- [Software keyboard handling](keyboard.md) — native movement and focused-input feasibility boundaries.
 - [Implementation notes](notes/README.md) — current implementation observations and evidence.
 - [Recipes](recipes/README.md) — internal workflow specifications and coverage contracts.
 - [Platform parity records](parity/README.md) — parity coverage and platform investigations.
