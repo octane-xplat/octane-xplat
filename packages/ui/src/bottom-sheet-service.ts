@@ -7,7 +7,7 @@ import { currentRootLayoutFor, topRootLayout } from './root-layout'
 import { applyThemeClasses } from './theme/theme-host'
 import { normalizeSnapPoints } from './sheet-snap'
 import { attachSheetDetents } from './sheet-detents'
-import { bindBottomInsetToKeyboard } from './keyboard-inset'
+import { createKeyboardOverlayHost, keyboardOverlayAnimation } from './keyboard-overlay-host'
 import { attachTapToBlur } from './tap-to-blur'
 import { Screen } from '@nativescript/core'
 
@@ -59,30 +59,30 @@ export function openBottomSheetWithOwner(
 			return
 		}
 
-		const host = new GridLayout()
-		const unbindTheme = applyThemeClasses(host, 'vx-sheet-host vx-bottom-sheet-host')
+		const { host, panel, bindKeyboard } = createKeyboardOverlayHost()
+		const unbindTheme = applyThemeClasses(panel, 'vx-sheet-host vx-bottom-sheet-host')
 		host.horizontalAlignment = 'stretch'
 		host.verticalAlignment = 'bottom'
-		host.accessibilityLabel = options.label ?? ''
-		const root = owner?.createRoot(host, () => closeSheet?.()) ?? createNativeScriptRoot(host)
+		panel.accessibilityLabel = options.label ?? ''
+		const root = owner?.createRoot(panel, () => closeSheet?.()) ?? createNativeScriptRoot(panel)
 		// Detents own enter/slide-out — the RootLayout animation always
 		// lands translateY at 0, so it's skipped while gestures attach.
 		const detentFractions = options.snapPoints?.length
 			? normalizeSnapPoints(options.snapPoints, Screen.mainScreen.heightDIPs)
 			: []
 
-		const detents = attachSheetDetents(host, detentFractions, () => finish(), {
+		const detents = attachSheetDetents(panel, detentFractions, () => finish(), {
 			swipeOnly: !detentFractions.length,
 		})
 
 		if (detentFractions.length) {
-			host.height = detentFractions[detentFractions.length - 1] * Screen.mainScreen.heightDIPs
+			panel.height = detentFractions[detentFractions.length - 1] * Screen.mainScreen.heightDIPs
 		}
 
 		// Lift the host above the software keyboard — bottom-anchored sheets
 		// hosting inputs (e.g. the demo 'In sheet' todo add row) are covered
 		// otherwise.
-		const unbindKeyboard = bindBottomInsetToKeyboard(host)
+		const unbindKeyboard = bindKeyboard()
 		attachTapToBlur(host)
 
 		let finished = false
@@ -135,8 +135,10 @@ export function openBottomSheetWithOwner(
 		active.add(entry)
 		root.render(Component as unknown as UniversalComponent, { params, close: finish })
 
-		const openOptions =
-			(options.hasScrim ?? true) ? { shadeCover: { opacity: 0.4, tapToClose: true } } : undefined
+		const openOptions = {
+			animation: keyboardOverlayAnimation(),
+			...((options.hasScrim ?? true) ? { shadeCover: { opacity: 0.4, tapToClose: true } } : {}),
+		}
 
 		afterContentCommit(root, () => {
 			if (finished) {

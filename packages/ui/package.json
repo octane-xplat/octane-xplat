@@ -180,7 +180,11 @@
 		"test:chat:android": "node ../../scripts/probe.ts run tests/fixtures/chat.android.tsrx --target android",
 		"test:chat:macos": "node ../../scripts/probe.ts run tests/fixtures/chat.macos.tsrx --target macos",
 		"test:chat:short:web": "node ../../scripts/probe.ts run tests/fixtures/chat-short.web.tsrx --target web",
-		"test:chat:external:web": "node ../../scripts/probe.ts run tests/fixtures/chat-external.web.tsrx --target web"
+		"test:chat:external:web": "node ../../scripts/probe.ts run tests/fixtures/chat-external.web.tsrx --target web",
+		"test:overlay-keyboard:web": "node ../../scripts/probe.ts run tests/fixtures/overlay-keyboard.web.tsrx --target web",
+		"test:overlay-keyboard:ios": "node ../../scripts/probe.ts run tests/fixtures/overlay-keyboard.ios.tsrx --target ios",
+		"test:overlay-keyboard:android": "node ../../scripts/probe.ts run tests/fixtures/overlay-keyboard.android.tsrx --target android",
+		"test:overlay-keyboard:macos": "node ../../scripts/probe.ts run tests/fixtures/overlay-keyboard.macos.tsrx --deps @octane-xplat/sheet --target macos"
 	},
 	"dependencies": {
 		"@octane-xplat/lib": "workspace:*",

@@ -26,6 +26,11 @@ behind the established file suffixes.
 
 - AC5: Modal keyboard focus stays in the presented content and returns to the trigger on dismissal; native VoiceOver/TalkBack navigation is qualified separately from view-tree mappings.
 
+- AC6: With an already-open phone keyboard, hosted input keeps usable bounds
+  and clears the keyboard through native detent/presentation changes. The
+  dismissal callback can explicitly restore the app-owned editing target.
+  Native presentation owns window avoidance; frame/OS-input limits are explicit.
+
 ## Documentation
 
 - AC1: [Install and import](../../../docs/platform/sheet.md#install-and-import) and maintained target-specific examples in `packages/demos/src/NativeSheetDemo.*.tsrx`. Public JSX imports are checked by the [packed consumer](../../../packages/sheet/tests/packed-consumer.mjs).
@@ -34,3 +39,5 @@ behind the established file suffixes.
 - AC4: [iOS example](../../../packages/demos/src/NativeSheetDemo.ios.tsrx), [Android example](../../../packages/demos/src/NativeSheetDemo.android.tsrx), [web example](../../../packages/demos/src/NativeSheetDemo.web.tsrx), and [macOS example](../../../packages/demos/src/NativeSheetDemo.macos.tsrx).
 
 - AC5: [Focus qualification](../../../docs/platform/sheet.md#focus-qualification), the maintained [web sheet runtime check](../../../apps/web/scripts/sheet-readiness.ts), and [input readiness evidence](../notes/input-readiness-notes.md). Native VoiceOver/TalkBack qualification remains an explicit native follow-up.
+
+- AC6: [Return to editing](../../../docs/platform/sheet.md#return-to-editing-after-closing), maintained [iOS demo](../../../packages/demos/src/NativeSheetDemo.ios.tsrx), [Android demo](../../../packages/demos/src/NativeSheetDemo.android.tsrx), and the [keyboard qualification note](../keyboard.md#native-overlay-transform-ownership). Maintained [SwiftUI](../../../packages/sheet/tests/fixtures/keyboard.ios.tsrx) and [Compose](../../../packages/sheet/tests/fixtures/keyboard.android.tsrx) journeys check hosted input geometry and explicit editing return. Compose additionally checks fresh window state across repeated presentation. These do not establish physical keyboard or screen-reader behavior.

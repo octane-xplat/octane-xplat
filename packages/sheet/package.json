@@ -47,7 +47,10 @@
 		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",
 		"pack:check": "tsrx-typegen --pack-check",
-		"typegen": "tsc -p tsconfig.types.json"
+		"typegen": "tsc -p tsconfig.types.json",
+		"test:host-lifecycle": "node --test tests/native-host-lifecycle.android.test.mjs",
+		"test:keyboard:ios": "node ../../scripts/probe.ts run tests/fixtures/keyboard.ios.tsrx --deps @octane-xplat/sheet --target ios",
+		"test:keyboard:android": "node ../../scripts/probe.ts run tests/fixtures/keyboard.android.tsrx --deps @octane-xplat/sheet --target android"
 	},
 	"dependencies": {
 		"@nativescript/jetpack-compose": "1.0.0-beta.0",

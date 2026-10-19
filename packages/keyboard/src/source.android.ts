@@ -47,7 +47,17 @@ export const observeKeyboardMotion: KeyboardWindowSource<KeyboardWindowState> = 
 		helper.setFocusable(false)
 		helper.setClickable(false)
 		decor.addView(helper, new android.view.ViewGroup.LayoutParams(0, 0))
-		scope.defer(() => decor.removeView(helper))
+		scope.defer(() => {
+			const remove = () => {
+				if (helper.getParent() === decor) {
+					decor.removeView(helper)
+				}
+			}
+			// A reader may release from a child's native detach callback. Android
+			// is still iterating decor children then; removing one corrupts that walk.
+			setTimeout(remove, 0)
+		})
+
 		const type = core.WindowInsetsCompat.Type
 		const dip = Utils.layout.toDeviceIndependentPixels
 		let targetInset = 0

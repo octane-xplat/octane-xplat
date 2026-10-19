@@ -38,8 +38,10 @@ configureLayerKeys(() => {
 	}
 })
 
-export function captureLayerFocus(getTarget?: () => any): () => void {
-	const owner = (globalThis as any).NSApplication?.sharedApplication?.keyWindow
+export function captureLayerFocus(getTarget?: () => any, host?: any): () => void {
+	const owner =
+		(host?.nativeViewProtected ?? host)?.window ??
+		(globalThis as any).NSApplication?.sharedApplication?.keyWindow
 	const responder = owner?.firstResponder
 	return () => {
 		const target = getTarget?.()

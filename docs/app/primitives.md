@@ -1648,6 +1648,35 @@ export function Example() {
 }
 ```
 
+### Keep drafts when switching panels
+
+Each `sheetId` has a separate editing lifetime inside the shared presentation.
+Keep drafts in your screen's state to retain them when switching between panels.
+This lets a name editor and an email editor use their own controls and values.
+
+```tsx
+import { useState } from 'octane'
+import { BottomSheet, BottomSheetSwitcher, Button, Screen, TextInput } from '@octane-xplat/ui'
+
+export function ContactEditors() {
+	const [active, setActive] = useState<string | null>(null)
+	const [name, setName] = useState('')
+	const [email, setEmail] = useState('')
+	return <Screen>
+		<Button clickAction={() => setActive('name')}>Edit name</Button>
+		<Button clickAction={() => setActive('email')}>Edit email</Button>
+		<BottomSheetSwitcher activeSheet={active} onActiveSheetChange={setActive}>
+			<BottomSheet sheetId="name" label="Edit name">
+				<TextInput value={name} onChange={setName} />
+			</BottomSheet>
+			<BottomSheet sheetId="email" label="Edit email">
+				<TextInput value={email} onChange={setEmail} keyboardType="email" />
+			</BottomSheet>
+		</BottomSheetSwitcher>
+	</Screen>
+}
+```
+
 ### Close nested layers one at a time
 
 Put a menu or hover card inside a dialog when it belongs to that dialog's
@@ -1676,8 +1705,9 @@ retain their declaring component context.
 
 iOS/Android retain RootLayout's platform back behavior; there is no shared
 hardware Escape listener on those targets. A platform back close may remove
-the native host before the controlled callback is accepted. Focus return there
-uses an explicit `finalFocusRef` when available; it is not a keyboard focus trap.
+the native host before the controlled callback is accepted. Mobile surfaces do
+not provide a native keyboard focus trap. For software-keyboard positioning and
+editing-focus return, see the [sheet form and focus example](software-keyboard.md#edit-a-form-in-a-sheet).
 On AppKit, shared modal surfaces manage native focus and nested Escape
 dismissal; physical OS keyboard delivery remains unverified.
 

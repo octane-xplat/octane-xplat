@@ -92,6 +92,10 @@ export function createOverlayLifetime(
 		},
 		open(options?: any, afterOpen?: () => void | Promise<void>) {
 			const failed = (error: unknown) => {
+				if (released) {
+					detach()
+					return
+				}
 				report('open', error)
 				release(false)
 				detach()

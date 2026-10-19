@@ -15,6 +15,7 @@ const state = vi.hoisted(() => ({
 	open: null as any,
 	cleanup: [] as any[],
 	enter: vi.fn(),
+	detentOptions: [] as any[],
 }))
 
 vi.mock('./native-portal', () => ({
@@ -27,11 +28,22 @@ vi.mock('./native-portal', () => ({
 vi.mock('@nativescript/core', () => ({
 	isIOS: false,
 	isAndroid: false,
-	Screen: { mainScreen: { scale: 1 } },
+	Screen: { mainScreen: { scale: 1, heightDIPs: 800 } },
 	GridLayout: class {
 		className = ''
 		style = {}
 		parent: any
+		children: any[] = []
+		addChild(child: any) {
+			this.children.push(child)
+			child.parent = this
+		}
+		getChildAt(index: number) {
+			return this.children[index]
+		}
+		getChildrenCount() {
+			return this.children.length
+		}
 		handlers = new Map<string, Set<() => void>>()
 		constructor() {
 			state.hosts.push(this)
@@ -78,8 +90,11 @@ vi.mock('./theme/theme-host', () => ({
 }))
 
 vi.mock('./keyboard-inset', () => ({
-	bindBottomInsetToKeyboard: () => {
-		const off = vi.fn()
+	bindBottomInsetToKeyboard: (host: any) => {
+		host.translateY = -300
+		const off = vi.fn(() => {
+			host.translateY = 0
+		})
 		state.cleanup.push(off)
 		return off
 	},
@@ -94,10 +109,17 @@ vi.mock('./tap-to-blur', () => ({
 }))
 
 vi.mock('./sheet-detents', () => ({
-	attachSheetDetents: () => {
+	attachSheetDetents: (host: any, detents: any, _close: any, options: any) => {
+		state.detentOptions.push({ detents, options })
 		const off = vi.fn()
 		state.cleanup.push(off)
-		return { detach: off, enter: state.enter }
+		return {
+			detach: off,
+			enter: () => {
+				host.translateY = detents.length ? 240 : 0
+				state.enter()
+			},
+		}
 	},
 }))
 
@@ -144,11 +166,13 @@ beforeEach(() => {
 	state.cleanup.length = 0
 	state.subscriptions.clear()
 	state.enter.mockClear()
+	state.detentOptions.length = 0
 	state.open = null
 	state.owner = {
 		children: new Set(),
 		popups: new Set(),
 		open: vi.fn((host: any) => {
+			host.translateY = 0
 			state.owner.children.add(host)
 			state.owner.popups.add(host)
 			host.parent = state.owner
@@ -197,12 +221,20 @@ describe.each([
 		const dismiss = vi.fn()
 		const { root } = mount(Component, { onDismiss: dismiss, detents: [0.5, 1] }, mapProps)
 		await settle()
-		expect(state.portals.some((portal) => portal.target === state.hosts[0])).toBe(true)
+		expect(
+			state.portals.some(
+				(portal) =>
+					portal.target ===
+					(Component === BottomSheet ? state.hosts[0].getChildAt(0).getChildAt(0) : state.hosts[0]),
+			),
+		).toBe(true)
 		root.unmount()
 		await settle()
 		expect(state.owner.children.size).toBe(0)
 		expect(state.roots).toHaveLength(0)
-		expect(state.portals.at(-1)?.target).toBe(state.hosts[0])
+		expect(state.portals.at(-1)?.target).toBe(
+			Component === BottomSheet ? state.hosts[0].getChildAt(0).getChildAt(0) : state.hosts[0],
+		)
 		expect(state.subscriptions.size).toBe(0)
 		expect(dismiss).not.toHaveBeenCalled()
 		for (const off of state.cleanup) {
@@ -306,6 +338,7 @@ describe.each([
 		await settle()
 		fail(new Error('old open'))
 		await settle()
+		expect(error).not.toHaveBeenCalled()
 		expect(state.owner.children.size).toBe(1)
 		expect(state.roots).toHaveLength(0)
 		error.mockRestore()
@@ -338,4 +371,28 @@ it('Overlay replaces theme subscriptions when content or classes update', async 
 	render({ open: false })
 	await settle()
 	expect(state.subscriptions.size).toBe(0)
+})
+
+it('standalone snap points enable detents instead of silently selecting swipe-only mode', async () => {
+	mount(BottomSheet, { snapPoints: [0.5, 0.8], label: 'Detents' }, (p) => ({
+		...p,
+		isOpen: p.open,
+	}))
+	await settle()
+	expect(state.detentOptions.at(-1)?.detents).toEqual([0.5, 0.8])
+	expect(state.detentOptions.at(-1)?.options.swipeOnly).toBe(false)
+})
+
+it('isolates RootLayout resets, keyboard movement and detent transforms', async () => {
+	mount(BottomSheet, { snapPoints: [0.5, 0.8], label: 'Independent transforms' }, (p) => ({
+		...p,
+		isOpen: p.open,
+	}))
+	await settle()
+	const outer = state.hosts[0],
+		keyboard = outer.getChildAt(0),
+		panel = keyboard.getChildAt(0)
+	expect(outer.translateY).toBe(0)
+	expect(keyboard.translateY).toBe(-300)
+	expect(panel.translateY).toBe(240)
 })

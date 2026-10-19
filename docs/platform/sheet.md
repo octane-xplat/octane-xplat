@@ -204,6 +204,62 @@ export function Actions() {
 - `onPresentedChange` (iOS) reports platform-side presentation state with
   Expo's echo suppression.
 
+## Return to editing after closing
+
+The platform presenter owns its sheet's keyboard layout. Keep editing controls
+inside `content`, and choose where editing resumes in `onDismissed`. The input
+ref supplies a `focus()` operation. This example returns to the draft outside
+the sheet after the native dismissal finishes.
+
+```tsx
+/** @jsxImportSource @nativescript-community/octane */
+import { useRef, useState } from 'octane'
+import { Button, TextInput, View } from '@octane-xplat/ui'
+import type { TextInputHandle } from '@octane-xplat/ui'
+import { SwiftUIBottomSheet } from '@octane-xplat/sheet/ios'
+
+export function EditorSheet() {
+	const [open, setOpen] = useState(false)
+	const editing = useRef<TextInputHandle | null>(null)
+	return <View>
+		<TextInput ref={editing} placeholder="Draft outside the sheet" />
+		<Button clickAction={() => setOpen(true)}>Edit in a sheet</Button>
+		<SwiftUIBottomSheet open={open} detents={['medium', 'large']}
+			onDismissed={() => { setOpen(false); editing.current?.focus() }}
+			content={() => <View>
+				<TextInput placeholder="Message in the sheet" />
+				<Button clickAction={() => setOpen(false)}>Done</Button>
+			</View>}
+		/>
+	</View>
+}
+```
+
+Android calls `onDismissed` when a swipe, scrim tap, or Back asks the app to
+close its dialog. Use one close-and-focus function for that callback and your
+own Done action. The return target belongs to the screen that opened it.
+
+```tsx
+/** @jsxImportSource @nativescript-community/octane */
+import { Button, TextInput, View } from '@octane-xplat/ui'
+import type { TextInputHandle } from '@octane-xplat/ui'
+import { MaterialBottomSheet } from '@octane-xplat/sheet/android'
+
+export function AndroidEditorSheet({ open, close, editing }: {
+	open: boolean
+	close: () => void
+	editing: { current: TextInputHandle | null }
+}) {
+	const finish = () => { close(); editing.current?.focus() }
+	return <MaterialBottomSheet open={open} onDismissed={finish}
+		content={() => <View>
+			<TextInput placeholder="Message in the sheet" />
+			<Button clickAction={finish}>Done</Button>
+		</View>}
+	/>
+}
+```
+
 ## Platform behavior
 
 - **iOS** — `.sheet(isPresented:)` with `detents`
@@ -304,7 +360,7 @@ dismissal, styling, and trigger restoration pass the maintained Playwright
 runtime check in Chromium, Firefox, and WebKit. Keep a ref to the opener and
 pass it as `finalFocusRef` so focus returns reliably after pointer input:
 
-```tsx
+```tsrx
 import { useRef, useState } from 'octane'
 import { BottomSheet } from '@octane-xplat/sheet/web'
 
@@ -327,7 +383,8 @@ function AccountActions() @{
 
 When the opener is the shared `Pressable`, use its `ref` prop to retain the
 web element in the same ref. This does not qualify iOS Safari or actual
-screen-reader navigation. Native modal VoiceOver/TalkBack navigation and
-return focus also remain unverified. See
+screen-reader navigation. Native modal VoiceOver/TalkBack navigation and physical keyboard navigation
+remain unverified. The explicit editing-focus callback above is qualified
+separately from those accessibility and OS-input behaviors. See
 [text-entry guidance](../app/text-entry.md#release-and-restore-focus) and
 [input readiness evidence](../../.agents/docs/notes/input-readiness-notes.md).

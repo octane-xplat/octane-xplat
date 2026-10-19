@@ -368,3 +368,53 @@ export function PanelConversation({ panelHeight = 0 }: { panelHeight?: number })
 	</ChatLayout>
 }
 ```
+
+## Edit a form in a sheet
+
+A shared `BottomSheet` keeps keyboard movement separate from its entrance and
+snap positions. Use `KeyboardAwareScrollView` inside a long sheet form so fields
+can scroll into the remaining visible area. The form measures its actual host
+instead of adding the same keyboard space again.
+
+```tsx
+import { useState } from 'octane'
+import { KeyboardAwareScrollView } from '@octane-xplat/keyboard'
+import { BottomSheet, Button, Screen, TextInput } from '@octane-xplat/ui'
+
+export function SheetForm() {
+	const [open, setOpen] = useState(false)
+	return <Screen>
+		<Button clickAction={() => setOpen(true)}>Edit contact</Button>
+		<BottomSheet isOpen={open} onOpenChange={setOpen}
+			label="Edit contact" snapPoints={['50%', '90%']}>
+			<KeyboardAwareScrollView clearance={12}>
+				<TextInput placeholder="Name" />
+				<TextInput placeholder="Email" keyboardType="email" />
+			</KeyboardAwareScrollView>
+		</BottomSheet>
+	</Screen>
+}
+```
+
+Shared mobile sheets and dialogs return focus to the editing control captured
+in their declaring window when it is still attached. Supply `finalFocusRef` to
+choose another target. Focus return does not establish screen-reader behavior;
+VoiceOver and TalkBack require their own checks.
+
+```tsx
+import { useRef, useState } from 'octane'
+import { BottomSheet, Button, Screen, TextInput } from '@octane-xplat/ui'
+
+export function ReturnToSearch() {
+	const [open, setOpen] = useState(false)
+	const search = useRef<any>(null)
+	return <Screen>
+		<TextInput ref={search} placeholder="Search contacts" />
+		<Button clickAction={() => setOpen(true)}>Edit contact</Button>
+		<BottomSheet isOpen={open} onOpenChange={setOpen}
+			label="Edit contact" finalFocusRef={search}>
+			<TextInput placeholder="Name" />
+		</BottomSheet>
+	</Screen>
+}
+```

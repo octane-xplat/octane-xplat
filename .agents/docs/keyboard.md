@@ -456,3 +456,64 @@ range/anchors and composer changes with neutral software-keyboard behavior.
 These journeys use programmatic focus/scroll and geometry; they do not establish
 OS typing, hit-testing, or production frame pacing. Policy branches and native
 notification/property cleanup also have focused unit coverage.
+
+## Native overlay transform ownership
+
+NativeScript Core9.1.3 RootLayout resets translateX/translateY, scale and rotation
+in both applyDefaultState and its enter animation, even when enterFrom only
+specifies opacity. Source: NativeScript9.1.3
+`packages/core/ui/layouts/root-layout/root-layout-common.ts` (applyInitialState,
+applyDefaultState, getEnterAnimation), inspected through the pinned opensrc
+checkout. These methods are not changed by Xplat's Core patch. RootLayout owns these host
+animation properties.
+
+RootLayout-backed sheets/dialogs therefore use separate containers for the
+RootLayout presentation, keyboard translation, and panel detents/content. The
+keyboard lease never shares the RootLayout or detent translation property.
+The local composition can be simplified only if the host's animation/reset
+contract gains independent property ownership. Native OS sheet presenters remain
+responsible for their own window layout; the keyboard service measures the
+actual host window instead of assuming a full-screen application viewport.
+
+Standalone sheets previously selected swipe-only mode even with snap points.
+The native attachment now enables detents when stops are supplied. A translated
+panel reserves the portion outside its current stop inside the content area,
+keeping bottom controls inside the stop. Detent completion is ignored after
+teardown; fallback timers are scoped to the attachment and canceled at release.
+
+Whole-overlay keyboard padding can collapse an input under constrained sheet
+layout. Runtime clearance assertions therefore require usable control height,
+and keyboard movement uses its own transform layer. Current geometry checks use
+public SDK bounds and programmatic focus; they do not establish pixel parity or
+OS gesture/frame-pacing guarantees.
+
+Mobile layer focus capture is scoped to the declaring UIWindow or Android decor.
+Restoration skips detached inputs and inactive native owners; an explicit
+finalFocusRef uses the target's focus method. The switcher retains its original
+focus-return scope while replacing panel content. No text is read and no native
+input delegate is replaced.
+
+SwiftUI sheet qualification on iOS27 with Core9.1.3 and swift-ui4.0.2 passed
+usable hosted input, native keyboard clearance through an observed one-to-two
+detent change, controlled dismissal and explicit
+editing-focus return through onDismissed. Default dismissal did not restore the
+previous editing responder; the maintained app pattern owns that choice. This
+preserves platform-native dismissal policy without introducing another observer
+or adding a UI dependency to the native sheet leaf.
+
+Compose-hosted NativeScript content now follows Android native attachment rather
+than remaining loaded for the lifetime of the declaring component. Detach clears
+keyboard/focus geometry, and a subsequent dialog attachment resolves a fresh
+window owner. Last-reader cleanup disarms callbacks immediately; removal of the
+owned zero-size motion helper runs after the native callback returns. Removing
+it inside ViewGroup's detach walk corrupts that walk on the qualified API35 host.
+Repeated partial/full presentations cover unload, neutral detached state, fresh
+geometry timestamps, and changed dialog identity. This does not qualify
+interactive dismissal or older Android versions.
+
+Maintained overlay journeys live in `packages/ui/tests/fixtures/overlay-keyboard.*`
+(`test:overlay-keyboard:*`). Native sheet journeys live in
+`packages/sheet/tests/fixtures/keyboard.*` (`test:keyboard:*`). Run these locally
+with reserved devices; they remain outside the lightweight PR gate. AppKit's
+shared sheet is a layer in its owner window; closing detaches content rather
+than closing that window. Its optional native sheet uses a separate sheet window.

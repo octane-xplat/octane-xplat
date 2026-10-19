@@ -14,6 +14,7 @@ export function useLayerDismissal(options: {
 	isPresent?(): boolean
 	restoreFocus?: boolean
 	getFocusTarget?(): any
+	getHost?(): any
 }) {
 	const depth = useContext(LayerDepthContext)
 	const latest = useRef(options)
@@ -33,9 +34,17 @@ export function useLayerDismissal(options: {
 			wasActive.current = true
 		}
 
-		const restore = captureLayerFocus(() => latest.current.getFocusTarget?.())
-		const remove = registerLayer({ token: token.current, depth,
-			get behavior() { return latest.current.behavior ?? 'close' },
+		const restore = captureLayerFocus(
+			() => latest.current.getFocusTarget?.(),
+			latest.current.getHost?.(),
+		)
+
+		const remove = registerLayer({
+			token: token.current,
+			depth,
+			get behavior() {
+				return latest.current.behavior ?? 'close'
+			},
 			dismiss: () => latest.current.dismiss(),
 			contains: (target) => latest.current.contains?.(target) ?? false,
 			isPresent: () => latest.current.active && (latest.current.isPresent?.() ?? true),

@@ -15,7 +15,7 @@ configureLayerKeys(() => {
 	}
 })
 
-export function captureLayerFocus(getTarget?: () => any): () => void {
+export function captureLayerFocus(getTarget?: () => any, _host?: any): () => void {
 	const initial = document.activeElement as HTMLElement | null
 	return () => {
 		const target = getTarget?.() ?? initial

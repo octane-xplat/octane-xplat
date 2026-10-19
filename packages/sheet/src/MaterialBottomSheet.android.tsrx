@@ -1,9 +1,19 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { bindNativeHostAttachment } from './native-host-lifecycle.android'
 import { registerElement } from '@nativescript-community/octane'
 import type { Attributes } from '@nativescript-community/octane/intrinsics'
-import { ComposeDataDriver, JetpackCompose, registerJetpackCompose } from '@nativescript/jetpack-compose'
+import {
+	ComposeDataDriver,
+	JetpackCompose,
+	registerJetpackCompose,
+} from '@nativescript/jetpack-compose'
+
 import { Application, GridLayout } from '@nativescript/core'
-import { createPortal as createUniversalPortal, type UniversalRenderable } from 'octane/universal/native'
+import {
+	createPortal as createUniversalPortal,
+	type UniversalRenderable,
+} from 'octane/universal/native'
+
 import { useEffect, useRef, useState } from 'octane'
 import type { MaterialBottomSheetProps } from './android/types'
 
@@ -16,15 +26,16 @@ declare module '@nativescript-community/octane/intrinsics' {
 }
 
 registerElement('xplatandroidsheet', JetpackCompose)
-registerJetpackCompose('xplat-material-sheet', (owner: any) =>
-	new ComposeDataDriver(new com.octanexplat.sheet.XplatSheetProvider(), owner),
+registerJetpackCompose(
+	'xplat-material-sheet',
+	(owner: any) => new ComposeDataDriver(new com.octanexplat.sheet.XplatSheetProvider(), owner),
 )
 
 // Dash-free ids — the registry keys feed the provider's AndroidView factory.
 let seq = 0
 
 function ContentRoot(props: { render: () => any }) @{
-	<>{props.render()}</>;
+	<>{props.render()}</>
 }
 
 function createPortal(children: unknown, target: unknown) {
@@ -44,11 +55,13 @@ export function MaterialBottomSheet(props: MaterialBottomSheetProps) @{
 		const host = new GridLayout()
 		// See context-menu: _setupAsRootView needs a real Context on Android.
 
-		const context = (Application.android as any).foregroundActivity ?? (Application.android as any).startActivity
+		const context =
+			(Application.android as any).foregroundActivity ?? (Application.android as any).startActivity
+
 		const nativeHost = host as any
 
 		nativeHost._setupAsRootView(context)
-		nativeHost.callLoaded()
+		const releaseAttachment = bindNativeHostAttachment(nativeHost)
 		com.octanexplat.sheet.XplatViewRegistry.register(contentId.current, host.android)
 		// Gate contentId on registration — AndroidView's factory resolves the
 		// host once contentId arrives in updateData.
@@ -56,7 +69,7 @@ export function MaterialBottomSheet(props: MaterialBottomSheetProps) @{
 
 		return () => {
 			com.octanexplat.sheet.XplatViewRegistry.unregister(contentId.current)
-			nativeHost.callUnloaded?.()
+			releaseAttachment()
 			nativeHost.removeChildren?.()
 		}
 	}, [])
@@ -88,5 +101,5 @@ export function MaterialBottomSheet(props: MaterialBottomSheetProps) @{
 		{props.content && portalHost
 			? createPortal(<ContentRoot render={props.content} />, portalHost)
 			: null}
-	</>;
+	</>
 }

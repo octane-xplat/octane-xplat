@@ -144,6 +144,12 @@ export function TripPreview() {
 
 - AC9: On macOS, bounded scrolling supports block, inline, and both axes; viewport refs replace and clear, headless overflow/edge state follows layout changes, and app-owned refresh exposes a named action with pending and result feedback. Pull-to-refresh and physical keyboard/trackpad qualification remain explicit boundaries.
 
+- AC10: Shared phone sheets and bottom dialogs keep usable editing controls
+  clear of an already-open keyboard. Detent and entrance transforms have separate
+  ownership; panel swaps preserve the presentation and retire old editing state.
+  Dismissal during keyboard movement releases bindings and restores eligible
+  editing focus, with actual OS input qualified separately.
+
 ## Documentation
 
 - AC1: The [AppKit normal-barrel fixture](../../../packages/ui/tests/macos-barrel.mjs) and [packed consumer](../../../packages/ui/tests/packed-consumer.mjs) check public import and declaration boundaries; they do not establish OS rendering or input. [Surface selection](../../../docs/app/primitives.md#when-a-screen-needs-more), [anchored useLayer layers](../../../docs/app/primitives.md#anchor-a-layer-to-an-element), [conditional BottomSheet example](../../../docs/app/primitives.md#own-temporary-surfaces), and maintained [Overlay demo](../../../packages/demos/src/OverlayDemo.tsrx).
@@ -165,3 +171,5 @@ Windows is not added to this recipe’s supported targets.
 - AC7: [Anchored layers](../../../docs/app/primitives.md#anchor-a-layer-to-an-element), maintained [layer example](../../../examples/probes/layer.tsrx), [web ownership regressions](../../../packages/ui/src/use-layer.web.test.tsrx), [geometry tests](../../../packages/ui/src/popover-position.test.ts), [Chromium CSS-length regression](../../../packages/ui/tests/layer-position.web.mjs), and [AppKit layer bridge tests](../../../packages/macos-renderer/test/layer.test.ts). These tests distinguish numeric geometry and lifecycle evidence from physical OS input.
 
 - AC9: [macOS scrolling and refresh](../../../docs/app/primitives.md#macos-scrolling-and-refresh), [maintained macOS demo](../../../packages/demos/src/ScrollBoxDemo.macos.tsrx), [ref/callback/geometry component tests](../../../packages/ui/src/scrollable-area-appkit.mobile.test.tsrx), [renderer geometry tests](../../../packages/macos-renderer/test/scroll-view.test.ts), and [AppKit host assertions](../../../packages/ui/tests/fixtures/scrollable-area.macos.tsrx) (`pnpm --filter @octane-xplat/ui test:scroll:macos`). These establish lifecycle and geometry behavior; real AppKit trackpad/keyboard input remains unqualified.
+
+- AC10: [Sheet forms and focus](../../../docs/app/software-keyboard.md#edit-a-form-in-a-sheet), [draft ownership](../../../docs/app/primitives.md#keep-drafts-when-switching-panels), and [native keyboard ownership](../keyboard.md#native-overlay-transform-ownership). Maintained [overlay journeys](../../../packages/ui/tests/fixtures/overlay-keyboard.ios.tsrx) cover mobile window geometry and lifecycle, with browser editing-state/focus and AppKit content-ownership counterparts; these are programmatic journeys, not OS-input qualification.

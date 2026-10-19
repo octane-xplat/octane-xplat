@@ -1,4 +1,5 @@
 import { FlexboxLayout, Screen, type View } from '@nativescript/core'
+import { leaseKeyboardProperty } from '@octane-xplat/platform/keyboard-property'
 import {
 	DETENT_FLICK_VELOCITY,
 	detentOffset,
@@ -63,6 +64,21 @@ export function attachSheetDetents(
 	 *  height (or on a downward fling). */
 	const panelHeight = () => host.getActualSize?.().height || host.height || 0
 	const dismissible = () => options.dismissible !== false
+	// The translated-away part is outside the visible stop. Reserve it inside
+	// the panel so bottom controls stay inside the current detent's viewport.
+	const contentInset = leaseKeyboardProperty(
+		() => Number(host.paddingBottom) || 0,
+		(value) => {
+			host.paddingBottom = value
+		},
+	)
+	const updateContentInset = (offset: number) => {
+		if (!swipeOnly) {
+			contentInset.set(Math.max(0, offset))
+		}
+	}
+	let active = true
+	const timers = new Set<ReturnType<typeof setTimeout>>()
 	let cur = 0
 
 	host.verticalAlignment = 'bottom'
@@ -86,15 +102,25 @@ export function attachSheetDetents(
 	let lastT = 0
 
 	const animateTo = (value: number, then?: () => void) => {
-		const done = host.animate?.({ translate: { x: 0, y: value }, duration: SNAP_MS })
-		if (!then) {
-			return
+		const complete = () => {
+			if (!active) {
+				return
+			}
+			options.onOffset?.(value, vh())
+			then?.()
 		}
-
+		updateContentInset(value)
+		const done = host.animate?.({ translate: { x: 0, y: value }, duration: SNAP_MS })
 		if (done?.then) {
-			done.then(() => then())
+			// A closing presentation can cancel an in-flight entrance/snap.
+			void done.then(complete, () => {})
 		} else {
-			setTimeout(then, SNAP_MS)
+			const timer = setTimeout(() => {
+				timers.delete(timer)
+				complete()
+			}, SNAP_MS)
+
+			timers.add(timer)
 		}
 	}
 
@@ -163,6 +189,7 @@ export function attachSheetDetents(
 		lastT = now
 		const next = Math.min(Math.max(ty0 + (e.deltaY - dy0), 0), vh())
 		host.translateY = next
+		updateContentInset(next)
 		options.onOffset?.(next, vh())
 	}
 
@@ -170,6 +197,9 @@ export function attachSheetDetents(
 
 	return {
 		enter: () => {
+			if (!active) {
+				return
+			}
 			if (swipeOnly) {
 				host.translateY = vh()
 				animateTo(0)
@@ -183,6 +213,15 @@ export function attachSheetDetents(
 			animateTo(detentOffset(sorted, cur, vh()))
 		},
 		detach: () => {
+			if (!active) {
+				return
+			}
+			active = false
+			for (const timer of timers) {
+				clearTimeout(timer)
+			}
+			timers.clear()
+			contentInset.release()
 			grabber.off('pan', onPan)
 			if (grabber.parent === host) {
 				host.removeChild?.(grabber)

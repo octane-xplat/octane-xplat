@@ -3142,8 +3142,9 @@ export interface BottomSheetProps {
 	purpose?: DialogPurpose
 	/** Identifies this sheet to its enclosing `BottomSheetSwitcher`. */
 	sheetId?: string
-	/** Element to focus when the sheet closes (web focus semantics —
-	 *  `{current}`-style object; native ignores). */
+	/** Element to focus when the sheet closes (`{current}`-style object).
+	 * Native hosts call the target's focus method when available; supply this
+	 * explicitly when a native input should regain editing focus. */
 	finalFocusRef?: { current: HostElement | null }
 	className?: ClassName
 	style?: StyleProp
