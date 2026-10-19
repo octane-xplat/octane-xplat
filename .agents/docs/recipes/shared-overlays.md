@@ -173,3 +173,7 @@ Windows is not added to this recipe’s supported targets.
 - AC9: [macOS scrolling and refresh](../../../docs/app/primitives.md#macos-scrolling-and-refresh), [maintained macOS demo](../../../packages/demos/src/ScrollBoxDemo.macos.tsrx), [ref/callback/geometry component tests](../../../packages/ui/src/scrollable-area-appkit.mobile.test.tsrx), [renderer geometry tests](../../../packages/macos-renderer/test/scroll-view.test.ts), and [AppKit host assertions](../../../packages/ui/tests/fixtures/scrollable-area.macos.tsrx) (`pnpm --filter @octane-xplat/ui test:scroll:macos`). These establish lifecycle and geometry behavior; real AppKit trackpad/keyboard input remains unqualified.
 
 - AC10: [Sheet forms and focus](../../../docs/app/software-keyboard.md#edit-a-form-in-a-sheet), [draft ownership](../../../docs/app/primitives.md#keep-drafts-when-switching-panels), and [native keyboard ownership](../keyboard.md#native-overlay-transform-ownership). Maintained [overlay journeys](../../../packages/ui/tests/fixtures/overlay-keyboard.ios.tsrx) cover mobile window geometry and lifecycle, with browser editing-state/focus and AppKit content-ownership counterparts; these are programmatic journeys, not OS-input qualification.
+
+[Final keyboard qualification](../keyboard.md#final-workflow-qualification) separates
+OS touch/typing in shared overlays from programmatic native-sheet, desktop, and
+browser evidence. Physical keyboard and screen-reader navigation are not implied.

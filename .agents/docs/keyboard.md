@@ -517,3 +517,45 @@ Maintained overlay journeys live in `packages/ui/tests/fixtures/overlay-keyboard
 with reserved devices; they remain outside the lightweight PR gate. AppKit's
 shared sheet is a layer in its owner window; closing detaches content rather
 than closing that window. Its optional native sheet uses a separate sheet window.
+
+## Final workflow qualification
+
+The maintained OS-input runner uses simulator HID through `idb` on iOS and
+`adb shell input` on Android. It locates the fixture's accessible controls,
+taps their reported bounds, and types known test strings. The fixture separately
+asserts native selection, input visibility, sticky geometry, sheet editing, and
+focus return. No image analysis or synthesized component event dispatch is used
+for these assertions. Reserve and boot a dedicated device before running it;
+Android SDK platform-tools must be on PATH for Android. The iOS runner uses
+the host's `idb` CLI with AX-identifier `ui wait`/`ui describe` and
+`ui tap --api hid` support; a build without those commands is insufficient.
+
+```sh
+pnpm --filter @octane-xplat/keyboard test:os-input --target ios --device IOS_UDID
+pnpm --filter @octane-xplat/keyboard test:os-input --target android --device ANDROID_SERIAL
+```
+
+| Target | Runtime evidence | Limits |
+| --- | --- | --- |
+| iOS27 simulator | Six OS touch/typing assertions across a keyboard-aware form, sticky control and shared sheet; maintained focus/scroll/motion/chat/overlay journeys; SwiftUI hosted input through an observed native detent-set change | First observed transition remains destination-only until endpoint calibration. No hardware-keyboard, VoiceOver, arbitrary floating-keyboard avoidance, older-OS or production frame-pacing qualification |
+| Android API35 emulator | Six OS touch/typing assertions for the same shared workflow; focus/scroll/motion/chat/overlay journeys; repeated Compose dialog attachment publishes fresh geometry and neutral detached state | Interactive keyboard tracking stays false/unqualified. No older-API, TalkBack, hardware-keyboard or production frame-pacing qualification |
+| Browser | Maintained form/focus/sticky neutral behavior, chat history/stream/composer/panel logic, and overlay editing/focus lifetime | Software-keyboard state remains neutral; desktop browser runs do not qualify mobile Safari/Chrome keyboard behavior |
+| AppKit | Ordinary input/scroll ownership, chat reading anchors/composer range, shared panel replacement and optional native-sheet content lifecycle | Software-keyboard state remains neutral; actual trackpad/hardware-keyboard and accessibility navigation remain separate |
+| Linux / Windows | Packed public API checks under each condition and both TypeScript resolver modes; dependent typechecks | These checks do not establish runtime keyboard workflows; Windows remains experimental |
+
+Packed consumers copy actual platform/UI/keyboard tarballs and check the shared
+public contracts under web, native/iOS, native/Android, macOS, Linux and Windows
+conditions, each with Bundler and NodeNext resolution. Existing avoidance and
+hardware-key APIs coexist with the new software-keyboard service. Chat policy
+and panel-height types are included, with invalid policies required to fail.
+
+```sh
+pnpm --filter @octane-xplat/keyboard test:packed
+pnpm --filter @octane-xplat/ui test:native
+```
+
+The native UI suite has 40 Node tests and 283 component tests across 64
+files. Focused keyboard tests cover 39 cases, including immediate Android callback
+shutdown with deferred helper removal. These are lifecycle/logic tests; the
+OS-input runner supplies the separate hit-testing and typing evidence. Browser
+and device journeys stay outside the lightweight PR gate.

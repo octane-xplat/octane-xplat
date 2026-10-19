@@ -41,3 +41,7 @@ behind the established file suffixes.
 - AC5: [Focus qualification](../../../docs/platform/sheet.md#focus-qualification), the maintained [web sheet runtime check](../../../apps/web/scripts/sheet-readiness.ts), and [input readiness evidence](../notes/input-readiness-notes.md). Native VoiceOver/TalkBack qualification remains an explicit native follow-up.
 
 - AC6: [Return to editing](../../../docs/platform/sheet.md#return-to-editing-after-closing), maintained [iOS demo](../../../packages/demos/src/NativeSheetDemo.ios.tsrx), [Android demo](../../../packages/demos/src/NativeSheetDemo.android.tsrx), and the [keyboard qualification note](../keyboard.md#native-overlay-transform-ownership). Maintained [SwiftUI](../../../packages/sheet/tests/fixtures/keyboard.ios.tsrx) and [Compose](../../../packages/sheet/tests/fixtures/keyboard.android.tsrx) journeys check hosted input geometry and explicit editing return. Compose additionally checks fresh window state across repeated presentation. These do not establish physical keyboard or screen-reader behavior.
+
+[Final keyboard qualification](../keyboard.md#final-workflow-qualification) separates
+OS touch/typing in shared overlays from programmatic native-sheet, desktop, and
+browser evidence. Physical keyboard and screen-reader navigation are not implied.

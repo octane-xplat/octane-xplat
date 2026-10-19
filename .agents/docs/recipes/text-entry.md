@@ -45,3 +45,9 @@ and submit dispatch distinct from text changes. Multiline action Return uses
 `done`/`send`; other Return actions remain newlines. The fixture dispatches
 commands directly, so it does not qualify real keyboards, composition,
 assistive navigation, or the complete modal and form criteria.
+
+The maintained [OS-input journey](../../../packages/keyboard/tests/fixtures/os-input.ios.tsrx)
+and its Android counterpart exercise touch, typing, observed selection, sticky
+clearance, and shared-sheet editing/focus return. See [qualification and commands](../keyboard.md#final-workflow-qualification).
+This narrow journey does not establish the composition, controlled middle-edit,
+physical-keyboard, or accessibility criteria above.
