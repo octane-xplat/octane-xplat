@@ -1,5 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useCallback, useContext, useEffect, useRef, useState } from 'octane'
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'octane'
+import { refList } from './ref-list'
 import { Application } from '@nativescript/core'
 import { cx } from '@octane-xplat/lib'
 import type { KeyboardAvoidanceBinding } from './keyboard-avoidance'
@@ -12,6 +13,8 @@ export function KeyboardAvoiding(props: KeyboardAvoidingProps) @{
 	const enabled = props.enabled ?? true
 	const [host, setHost] = useState<any>(null)
 	const attach = useCallback((next: any) => setHost(next), [])
+
+	const forwardedRef = useMemo(() => refList(attach, props.ref), [attach, props.ref])
 	const [content, setContent] = useState<any>(null)
 	const attachContent = useCallback((next: any) => setContent(next), [])
 	const [provided, setProvided] = useState<{
@@ -65,7 +68,7 @@ export function KeyboardAvoiding(props: KeyboardAvoidingProps) @{
 		id={props.id}
 		className={cx('vx-keyboard-avoiding', props.className)}
 		style={props.style as any}
-		ref={attach}
+		ref={forwardedRef}
 	>
 		<KeyboardAvoidanceProvider value={provided}>
 			<masonview style={{ display: "flex", flexDirection: "column" }} ref={attachContent}>

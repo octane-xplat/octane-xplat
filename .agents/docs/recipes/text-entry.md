@@ -2,7 +2,7 @@
 
 ID: text-entry
 Targets: web, ios, android, macos
-Related APIs: Field, FormLayout, InputGroup, InputGroupText, TextInput, TextArea, SearchInput, NumberInput, TextInputHandle, KeyboardAvoiding, useKeyboardInset, KeyboardProvider, KeyboardController, label, description, isDisabled, isReadOnly, isRequired, isOptional, size, status, isLoading, hasClear, onChange, onValueChange, onSubmit, Sheet, Overlay
+Related APIs: Field, FormLayout, InputGroup, InputGroupText, TextInput, TextArea, SearchInput, NumberInput, TextInputHandle, KeyboardAvoiding, useKeyboardInset, KeyboardProvider, KeyboardController, FocusedInputController, KeyboardAwareScrollView, KeyboardScrollController, label, description, isDisabled, isReadOnly, isRequired, isOptional, size, status, isLoading, hasClear, onChange, onValueChange, onSubmit, Sheet, Overlay
 
 ## Starting point
 
@@ -30,7 +30,7 @@ space through form and overlay lifecycles.
 - AC1: [Control a field](../../../docs/app/text-entry.md#control-a-field) and [editing and submission](../../../docs/app/text-entry.md#preserve-editing-and-submit-deliberately).
 - AC2: [Editing and submission](../../../docs/app/text-entry.md#preserve-editing-and-submit-deliberately) and [verification boundaries](../../../docs/app/text-entry.md#verification-boundaries).
 - AC3: [Field names](../../../docs/app/text-entry.md#control-a-field), [reusable rows](../../../docs/app/primitives.md#reusable-rows), and [Q15](../../design/open-questions.md#later--finer).
-- AC4: [Release and restore focus](../../../docs/app/text-entry.md#release-and-restore-focus), [native frame tracking](../../../docs/app/software-keyboard.md), and the maintained [motion example](../../../packages/keyboard/examples/KeyboardMotionDemo.tsrx).
+- AC4: [Release and restore focus](../../../docs/app/text-entry.md#release-and-restore-focus), [native frame tracking](../../../docs/app/software-keyboard.md), [focused-input scrolling](../../../docs/app/software-keyboard.md#keep-the-editing-field-visible), the maintained [form example](../../../packages/keyboard/examples/KeyboardFormDemo.tsrx), and the maintained [motion example](../../../packages/keyboard/examples/KeyboardMotionDemo.tsrx).
 - AC5: [Modal focus](../../../docs/app/text-entry.md#release-and-restore-focus), [retained exit lifecycle](../../../docs/app/animation-gestures.md#retain-content-through-exit), and [verification boundaries](../../../docs/app/text-entry.md#verification-boundaries).
 - AC7: [Read software keyboard space](../../../docs/app/text-entry.md#read-software-keyboard-space), the maintained [keyboard-space example](../../../packages/ui/examples/KeyboardSpaceDemo.tsrx), [subscription tests](../../../packages/ui/tests/keyboard-inset.test.mjs), the [compiled cross-root hook test](../../../packages/ui/src/use-keyboard-inset.mobile.test.tsrx), and [packed consumers](../../../packages/ui/tests/packed-consumer.mjs).
 - AC6: [Building screens: grouped fields](../../../docs/app/primitives.md#grouped-fields) and the maintained [ComponentsDemo](../../../packages/demos/src/ComponentsDemo.tsrx).

@@ -165,3 +165,81 @@ export function refreshEditingGeometry(host: object) {
 	FocusedInputController.recheck(host)
 }
 ```
+
+## Keep the editing field visible
+
+Use `KeyboardAwareScrollView` for a long form. It combines native keyboard space
+with the smallest scroll needed to expose the focused control. When a multiline
+control is too tall to fit, it follows the available insertion rectangle. Keep
+one scroll wrapper around the form; the component already supplies avoidance.
+
+```tsx
+import { KeyboardAwareScrollView } from '@octane-xplat/keyboard'
+import { Field, TextInput, TextArea } from '@octane-xplat/ui'
+
+export function ContactForm() {
+	return <KeyboardAwareScrollView clearance={12} extraScrollSpace={40}>
+		<Field label="Email"><TextInput keyboardType="email" /></Field>
+		<Field label="Message"><TextArea placeholder="How can we help?" /></Field>
+	</KeyboardAwareScrollView>
+}
+```
+
+`clearance` is the requested visible gap. `extraScrollSpace` creates additional
+bottom scroll range while the native keyboard is open; it is independent of
+clearance. Existing `keyboardVerticalOffset` keeps its padding meaning. On web
+and macOS, the component uses an ordinary vertical scroll viewport and focus
+geometry, with neutral software-keyboard behavior. Browser text fields use their
+box because the browser does not expose their insertion rectangle.
+
+```tsx
+import { KeyboardAwareScrollView } from '@octane-xplat/keyboard'
+
+export function FormViewport({ children }: { children?: unknown }) {
+	return <KeyboardAwareScrollView
+		clearance={12}
+		extraScrollSpace={40}
+		keyboardVerticalOffset={0}
+	>{children}</KeyboardAwareScrollView>
+}
+```
+
+By default a manual scroll pauses enforcement until focus or selection changes.
+This lets a reader inspect another part of the form. Call the mounted binding's
+`recheck()` after validation or to resume explicitly. Choose `manualScroll="follow"`
+only when the editing position should stay visible during manual scrolling.
+Keyboard close preserves the position by default. Opt-in restoration returns
+only offsets still owned by the binding; manual scrolling clears that history.
+
+```tsx
+import { useRef } from 'octane'
+import { KeyboardAwareScrollView } from '@octane-xplat/keyboard'
+import type { KeyboardScrollBinding } from '@octane-xplat/keyboard'
+import { Button, TextInput } from '@octane-xplat/ui'
+
+export function RecheckedForm() {
+	const scrolling = useRef<KeyboardScrollBinding | null>(null)
+	return <KeyboardAwareScrollView
+		manualScroll="pause"
+		keyboardClose="preserve"
+		ref={binding => { scrolling.current = binding }}
+	>
+		<TextInput placeholder="Message" />
+		<Button clickAction={() => scrolling.current?.recheck()}>Show editing field</Button>
+	</KeyboardAwareScrollView>
+}
+```
+
+For an existing platform viewport, bind `KeyboardScrollController` directly.
+Supply the mounted NativeScript scroll view, DOM scroll element, or AppKit
+scroll view. This form adjusts existing range; your viewport owns its padding
+and keyboard avoidance. Release the binding when the viewport is removed.
+
+```ts
+import { KeyboardScrollController } from '@octane-xplat/keyboard'
+
+export function attachFormViewport(host: object) {
+	const binding = KeyboardScrollController.bind(host, { clearance: 12 })
+	return () => binding.release()
+}
+```

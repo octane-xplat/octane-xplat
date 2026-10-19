@@ -342,3 +342,41 @@ UIKit and Android maintained modal journeys each passed13 assertions, including
 subscription after native focus was already established and identity invalidation
 on dismissal. These cover NativeScript Page modal hosts, not every platform
 sheet/detent implementation.
+
+## Focused-input scrolling
+
+The keyboard leaf's `KeyboardAwareScrollView` combines existing native
+`KeyboardAvoiding` range with focused-input geometry. Browser/AppKit variants
+use the existing `ScrollableArea`. UI's compatible forwarded host ref allows
+this integration without UI depending on the leaf. `KeyboardScrollController`
+binds an existing vertical viewport; no policy writes occur outside that
+viewport's focused-input scroll chain. Nested ranges are consumed nearest-first.
+
+Clearance controls visibility, extraScrollSpace controls extra open-keyboard
+range, and keyboardVerticalOffset retains existing padding semantics. The policy
+uses caret geometry only when the full input cannot fit. Unknown caret geometry
+falls back to the input box. Bounds and available range constrain movement;
+floating-keyboard occlusion is not synthesized into a bottom inset.
+
+Manual gestures pause automatic scrolling by default until focus/selection
+changes or explicit recheck; follow is opt-in. Close preserves position by
+default. Opt-in restore compares the current SDK offset with the last owned
+offset, restores only matching values, and clamps to the current native range.
+Manual gestures discard restoration history. Release preserves the position.
+
+Nonvisual long-form checks passed on iOS27 and Android API35: field clearance,
+validation displacement without focus transfer, oversized multiline caret
+visibility, and stable visible rechecks. Browser checks cover viewport clearance,
+validation, synthetic manual-scroll pause, and explicit resume. These are
+programmatic focus/geometry journeys, not OS typing/manual-gesture evidence.
+
+AppKit's retained scroll fixture passed3 checks after sizing its content against
+the measured420-point viewport: initial visibility, validation-driven scrolling,
+and stable explicit recheck. The first fixture's assumed static content extent
+did not establish the expected scroll delta; its timeout remains in research.
+
+Maintained journeys live in `packages/keyboard/tests/fixtures/scroll.*.tsrx`;
+`KeyboardFormDemo.tsrx` shows the public form workflow. Nested range allocation,
+manual pause/resume, restoration after blur, and cleanup have unit coverage.
+OS manual gestures, nested native scroll interaction, and full modal-form journeys
+remain separate qualification work.

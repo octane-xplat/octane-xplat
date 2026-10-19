@@ -12,3 +12,7 @@ export declare const KeyboardProvider: UniversalComponent<KeyboardProviderProps>
 export declare const KeyboardController: SoftwareKeyboardController
 /** Focus/selection geometry without collecting text contents. */
 export declare const FocusedInputController: FocusedInputService
+
+export type * from './scroll-types.js'
+export declare const KeyboardScrollController: import('./scroll-types.js').KeyboardScrollService
+export declare const KeyboardAwareScrollView: UniversalComponent<import('./props.js').KeyboardAwareScrollViewProps>

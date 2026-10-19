@@ -2036,6 +2036,8 @@ export interface SafeAreaProps {
  * @see useKeyboardInset for reading the raw inset.
  */
 export interface KeyboardAvoidingProps {
+	/** Underlying platform host; cleared on removal. */
+	ref?: Octane.Ref<HostElement>
 	className?: ClassName
 	style?: StyleProp
 	children?: Renderable

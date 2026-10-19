@@ -115,3 +115,22 @@ export function observeEditing(host: object) {
 
 See the [focused-input guide](../../docs/app/software-keyboard.md#read-focused-input-geometry)
 for capability limits, selection units, and immediate rechecks.
+
+Use `KeyboardAwareScrollView` for long forms. It exposes the focused field or
+caret with minimal scrolling, pauses after manual scrolling by default, and
+provides a binding ref for explicit visibility rechecks.
+
+```tsx
+import { KeyboardAwareScrollView } from '@octane-xplat/keyboard'
+import { Field, TextInput } from '@octane-xplat/ui'
+
+export function LongForm() {
+	return <KeyboardAwareScrollView clearance={12} extraScrollSpace={40}>
+		<Field label="Message"><TextInput placeholder="Write a message" /></Field>
+	</KeyboardAwareScrollView>
+}
+```
+
+The [form guide](../../docs/app/software-keyboard.md#keep-the-editing-field-visible)
+explains scroll policies and the [maintained form example](./examples/KeyboardFormDemo.tsrx)
+shows an explicit recheck.

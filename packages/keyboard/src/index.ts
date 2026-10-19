@@ -4,3 +4,7 @@ export type * from './focus-types'
 export { KeyboardProvider } from './Provider.tsrx'
 export type * from './types'
 export type * from './props'
+
+export { KeyboardScrollController } from './scroll-controller'
+export { KeyboardAwareScrollView } from './KeyboardAwareScrollView.tsrx'
+export type * from './scroll-types'

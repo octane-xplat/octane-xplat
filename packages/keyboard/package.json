@@ -47,7 +47,11 @@
 		"test:focus:web": "node ../../scripts/probe.ts run tests/fixtures/focus.web.tsrx --target web",
 		"test:focus:ios": "node ../../scripts/probe.ts run tests/fixtures/focus.ios.tsrx --target ios",
 		"test:focus:android": "node ../../scripts/probe.ts run tests/fixtures/focus.android.tsrx --target android",
-		"test:focus:macos": "node ../../scripts/probe.ts run tests/fixtures/focus.macos.tsrx --target macos"
+		"test:focus:macos": "node ../../scripts/probe.ts run tests/fixtures/focus.macos.tsrx --target macos",
+		"test:scroll:web": "node ../../scripts/probe.ts run tests/fixtures/scroll.web.tsrx --target web",
+		"test:scroll:ios": "node ../../scripts/probe.ts run tests/fixtures/scroll.ios.tsrx --target ios",
+		"test:scroll:android": "node ../../scripts/probe.ts run tests/fixtures/scroll.android.tsrx --target android",
+		"test:scroll:macos": "node ../../scripts/probe.ts run tests/fixtures/scroll.macos.tsrx --target macos"
 	},
 	"dependencies": {
 		"@octane-xplat/platform": "workspace:*",
