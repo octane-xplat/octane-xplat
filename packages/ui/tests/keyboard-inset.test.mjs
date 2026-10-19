@@ -4,6 +4,7 @@ import test from 'node:test'
 import vm from 'node:vm'
 import ts from 'typescript'
 import { createKeyboardWindowRegistry } from '../../platform/src/keyboard-registry.ts'
+import * as geometry from '../../platform/src/keyboard-geometry.ts'
 
 // Host doubles prove subscription/state logic, not OS keyboard delivery.
 const compiled = ts.transpile(
@@ -14,10 +15,19 @@ const compiled = ts.transpile(
 	},
 )
 
+const cgRect = (y = 0, height = 300, x = 0, width = 400) => ({ origin: { x, y }, size: { width, height } })
+const iosWindow = (top = 0, height = 800, width = 400) => ({
+	bounds: cgRect(0, height, 0, width),
+	screen: { coordinateSpace: {} },
+	convertRectFromCoordinateSpace: (value) => ({ ...value, origin: { ...value.origin, y: value.origin.y - top } }),
+})
+
 function load(application, globals = {}) {
+	if (application.ios) application.ios.window ??= iosWindow()
 	const keyboardWindows = createKeyboardWindowRegistry(() => ({ inset: 0 }))
 	const context = vm.createContext({
 		exports: {},
+		Array: class extends Array { static create(_type, length) { return Array(length).fill(0) } },
 		require: (specifier) => {
 			switch (specifier) {
 				case '@nativescript/core':
@@ -29,8 +39,10 @@ function load(application, globals = {}) {
 					return { android: globals.android }
 				case '@octane-xplat/platform/ios':
 					return globals
+				case '@octane-xplat/platform/keyboard-geometry':
+					return geometry
 				case '@octane-xplat/platform/keyboard-state':
-					return { keyboardWindows }
+					return { keyboardWindows, unknownKeyboardState: () => ({ inset: 0, windowRect: null, currentFrame: null, targetFrame: null, source: 'unknown' }) }
 				default:
 					throw new Error(`Unexpected module: ${specifier}`)
 			}
@@ -76,7 +88,7 @@ test('iOS shares frames, applies current inset to late consumers, hides and rele
 
 	const off1 = api.subscribeKeyboardInset((value) => first.push(value))
 	const frame = (raw) => callback({ userInfo: { objectForKey: () => raw } })
-	frame({ CGRectValue: { origin: { y: 500 } } })
+	frame({ CGRectValue: cgRect(500) })
 	const off2 = api.subscribeKeyboardInset((value) => second.push(value))
 	const unbind = api.bindBottomInsetToKeyboard(host)
 	assert.equal(added, 1)
@@ -84,10 +96,10 @@ test('iOS shares frames, applies current inset to late consumers, hides and rele
 	assert.deepEqual(second, [300])
 	off1()
 	assert.equal(removed, 0)
-	frame({ CGRectValue: () => ({ origin: { y: 600 } }) })
+	frame({ CGRectValue: () => cgRect(600) })
 	assert.deepEqual(first, [0, 300])
 	assert.deepEqual(second, [300, 200])
-	frame({ origin: { y: 800 } })
+	frame(cgRect(800))
 	assert.equal(Math.abs(host.translateY), 0)
 	assert.equal(second.at(-1), 0)
 	off2()
@@ -140,16 +152,16 @@ test('host-bound iOS readers release detached windows and rebind on load or wind
 			listeners: () => [...events.values()].reduce((count, set) => count + set.size, 0),
 		}
 	}
-	const aWindow = {},
-		bWindow = {},
-		cWindow = {}
+	const aWindow = iosWindow(),
+		bWindow = iosWindow(),
+		cWindow = iosWindow()
 	const a = host(aWindow),
 		b = host(bWindow),
 		first = [],
 		second = []
 	const offA = api.subscribeKeyboardInset((value) => first.push(value), a)
 	const offB = api.subscribeKeyboardInset((value) => second.push(value), b)
-	const frame = (y) => callback({ userInfo: { objectForKey: () => ({ origin: { y } }) } })
+	const frame = (y) => callback({ userInfo: { objectForKey: () => cgRect(y) } })
 	frame(500)
 	assert.equal(added, 1)
 	assert.equal(first.at(-1), 300)
@@ -178,8 +190,8 @@ test('host-bound iOS readers release detached windows and rebind on load or wind
 })
 
 test('default iOS readers follow key-window changes instead of retaining the launch window', () => {
-	const first = {},
-		second = {},
+	const first = iosWindow(),
+		second = iosWindow(),
 		tokens = new Set()
 	const application = { ios: { window: first, nativeApp: { keyWindow: first } } }
 	const api = load(application, {
@@ -204,7 +216,7 @@ test('default iOS readers follow key-window changes instead of retaining the lau
 	const frame = (y) =>
 		[...tokens]
 			.filter((token) => token.name === 'frame')
-			.forEach((token) => token.listener({ userInfo: { objectForKey: () => ({ origin: { y } }) } }))
+			.forEach((token) => token.listener({ userInfo: { objectForKey: () => cgRect(y) } }))
 	frame(500)
 	assert.equal(api.registry.getSnapshot(first).inset, 300)
 	application.ios.nativeApp.keyWindow = second
@@ -222,7 +234,7 @@ test('default iOS readers follow key-window changes instead of retaining the lau
 	assert.equal(tokens.size, 0)
 })
 
-function androidHost(compat = true, initialIme = 620) {
+function androidHost(compat = true, initialIme = 620, geometry = {}) {
 	let mode = 0x21,
 		ime = initialIme,
 		added = 0,
@@ -240,6 +252,10 @@ function androidHost(compat = true, initialIme = 620) {
 	}
 
 	const decor = {
+		getWidth: () => geometry.width ?? 800,
+		getHeight: () => geometry.height ?? 1600,
+		getLocationOnScreen: (xy) => { xy[0] = 0; xy[1] = 0 },
+		getWindowVisibleDisplayFrame: (rect) => { rect.bottom = geometry.visibleBottom ?? (1600 - Math.max(20, ime)) },
 		getViewTreeObserver: () => tree,
 		insets: () => ({ getInsets: (type) => ({ bottom: type === 'ime' ? ime : 20 }) }),
 	}
@@ -267,6 +283,7 @@ function androidHost(compat = true, initialIme = 620) {
 	}
 	const api = load(application, {
 		android: {
+			graphics: { Rect: class {} },
 			view: {
 				WindowManager: {
 					LayoutParams: { SOFT_INPUT_MASK_ADJUST: 0xf0, SOFT_INPUT_ADJUST_RESIZE: 0x10 },
@@ -522,4 +539,119 @@ test('Android sheet hosts share the top-level AndroidX inset listener until the 
 	off2()
 	assert.equal(writes.length, 2)
 	assert.equal(writes[1], null)
+})
+
+function iosGeometryHost(window = iosWindow()) {
+	let callback
+	const api = load({ ios: { window } }, {
+		NSNotificationCenter: { defaultCenter: {
+			addObserverForNameObjectQueueUsingBlock: (_n, _o, _q, listener) => { callback = listener; return {} },
+			removeObserver() {},
+		} },
+		NSOperationQueue: { mainQueue: {} },
+		UIKeyboardWillChangeFrameNotification: 'frame', UIKeyboardFrameEndUserInfoKey: 'end',
+	})
+	return { api, window, frame: (frame, screen) => callback({ object: screen, userInfo: { objectForKey: () => frame } }) }
+}
+
+test('iOS converts destination frames into each window and remeasures on rotation', () => {
+	const host = iosGeometryHost(iosWindow(100, 600)), values = []
+	const off = host.api.subscribeKeyboardInset((value) => values.push(value))
+	host.frame(cgRect(500))
+	assert.equal(values.at(-1), 200)
+	let state = host.api.registry.getSnapshot(host.window)
+	assert.equal(state.targetFrame.y, 400)
+	assert.equal(state.currentFrame, null)
+	assert.equal(state.source, 'destination')
+	host.window.bounds = cgRect(0, 400, 0, 800)
+	host.frame(cgRect(400, 300, 0, 800))
+	assert.equal(values.at(-1), 100)
+	host.frame(cgRect(250, 200, 100, 200))
+	state = host.api.registry.getSnapshot(host.window)
+	assert.equal(state.inset, 0)
+	assert.equal(state.targetFrame.width, 200)
+	off()
+})
+
+test('iOS reads an already-open public guide without treating the hidden safe-area strip as a keyboard', () => {
+	const window = iosWindow(), guide = { layoutFrame: cgRect(500) }
+	window.rootViewController = { view: {
+		keyboardLayoutGuide: guide, safeAreaInsets: { bottom: 34 },
+		convertRectToView: (rect) => rect,
+	} }
+	const { api } = iosGeometryHost(window), values = []
+	const off = api.subscribeKeyboardInset((value) => values.push(value))
+	assert.equal(values.at(-1), 300)
+	off()
+	guide.layoutFrame = cgRect(766, 34)
+	const offHidden = api.subscribeKeyboardInset((value) => values.push(value))
+	assert.equal(values.at(-1), 0)
+	offHidden()
+})
+
+test('iOS ignores another display and measures a presented host below the same window', () => {
+	const { api, window, frame } = iosGeometryHost(), values = []
+	const off = api.subscribeKeyboardInset((value) => values.push(value))
+	frame(cgRect(500), { coordinateSpace: {} })
+	assert.equal(values.at(-1), 0)
+	frame(cgRect(500), window.screen)
+	frame(cgRect(300), { coordinateSpace: {} })
+	assert.equal(values.at(-1), 300)
+	const native = {
+		window, bounds: cgRect(0, 500, 0, 360),
+		convertRectToView: () => cgRect(100, 500, 20, 360),
+	}
+	assert.equal(api.keyboardHostOverlap({ ios: native }, api.registry.getSnapshot(window)), 100)
+	native.convertRectToView = () => cgRect(100, 400, 20, 360)
+	assert.equal(api.keyboardHostOverlap({ ios: native }, api.registry.getSnapshot(window)), 0)
+	off()
+})
+
+test('Android measures visible geometry rather than assuming an adjustResize flag shrank the host', () => {
+	const geometry = { height: 1600, visibleBottom: 980 }
+	const host = androidHost(true, 620, geometry)
+	const off = host.api.subscribeKeyboardInset(() => {})
+	const native = {
+		getRootView: () => host.decor,
+		getLocationOnScreen: (xy) => { xy[0] = 0; xy[1] = 0 },
+		getWidth: () => 800, getHeight: () => geometry.height,
+	}
+	const state = () => host.api.registry.getSnapshot(host.decor)
+	assert.equal(state().inset, 300)
+	assert.equal(host.api.keyboardHostOverlap({ android: native }, state()), 310)
+	geometry.height = 980
+	host.layout(620)
+	assert.equal(host.api.keyboardHostOverlap({ android: native }, state()), 0)
+	assert.equal(state().inset, 300)
+	off()
+})
+
+test('a failed initial native measurement releases its observer before a later attachment', () => {
+	let added = 0, removed = 0
+	const window = iosWindow()
+	window.rootViewController = { view: {
+		keyboardLayoutGuide: { layoutFrame: cgRect(500) },
+		safeAreaInsets: { bottom: 34 },
+		convertRectToView() { throw new Error('bridge measurement failed') },
+	} }
+	const sessions = new Map()
+	const session = { state: 'attached', ios: { uiWindow: window }, on: (name, listener) => sessions.set(name, listener), off: (name) => sessions.delete(name) }
+	const api = load({ ios: { window }, activeWindow: session }, {
+		NSNotificationCenter: { defaultCenter: {
+			addObserverForNameObjectQueueUsingBlock: () => { added++; return {} },
+			removeObserver: () => removed++,
+		} },
+		NSOperationQueue: { mainQueue: {} },
+		UIKeyboardWillChangeFrameNotification: 'frame', UIKeyboardFrameEndUserInfoKey: 'end',
+	})
+	assert.throws(() => api.subscribeKeyboardInset(() => {}), /bridge measurement failed/)
+	assert.equal(removed, 1)
+	assert.equal(sessions.size, 0)
+	window.rootViewController.view.convertRectToView = (rect) => rect
+	const values = [], off = api.subscribeKeyboardInset((value) => values.push(value))
+	assert.equal(values.at(-1), 300)
+	off()
+	assert.equal(added, 2)
+	assert.equal(removed, 2)
+	assert.equal(sessions.size, 0)
 })

@@ -2015,10 +2015,12 @@ export interface SafeAreaProps {
 
 /** Keyboard-avoidance wrapper (shared root API, decisions #46/#69): a
  *  scrollable column that keeps its contents above the software keyboard.
- *  iOS pads below the contents by the measured keyboard inset; Android
- *  leases `adjustResize` for the activity window while mounted. A bottom
- *  inset an enclosing `SafeArea` already consumed is subtracted — the two
- *  never double-count. Targets without a software keyboard (web, macOS)
+ *  Mobile hosts pad only their remaining bottom overlap. Android also leases
+ *  `adjustResize` for the owning Activity window while mounted; a resized
+ *  host needs no duplicate keyboard padding. Safe-area space and avoidance
+ *  already supplied by ancestors in the same window are consumed once.
+ *  Floating/narrow keyboards do not produce full-width bottom padding.
+ *  Targets without a software keyboard (web, macOS)
  *  keep the neutral column wrapper and accept `enabled`/
  *  `keyboardVerticalOffset` as inert props.
  *

@@ -6,9 +6,9 @@ presentations. It does not establish a new public API or runtime support claim.
 
 ## Existing contract
 
-The mobile wrapper supplies an iOS scroll container with bottom padding and an
-Android resize lease. Its offset adds space while the keyboard is open; it is
-not a screen-to-window coordinate conversion. Web and desktop retain a neutral
+The mobile wrapper supplies a scroll container with padding for remaining host
+overlap and an Android resize lease. Its offset adds space while the keyboard
+is open; it is not a screen-to-window coordinate conversion. Web and desktop retain a neutral
 wrapper. See [the implementation](../../packages/ui/src/KeyboardAvoiding.mobile.tsrx)
 and [the public props](../../packages/ui/src/props.ts).
 
@@ -22,17 +22,26 @@ export function Form() {
 }
 ```
 
-The inset observer currently measures an iOS destination frame against the main
-screen. Inset readers share a synchronous registry keyed by native window and
+The iOS observer converts each destination frame from its notification screen
+into the owning window. Full-width bottom overlap supplies the numeric inset;
+floating/narrow rectangles remain geometry without becoming full-width padding.
+The public keyboard guide supplies already-open geometry when available, with
+its hidden safe-area strip excluded. This follows Apple's
+[coordinate-space guidance](https://developer.apple.com/documentation/uikit/uiresponder/keyboardframeenduserinfokey).
+Inset readers share a synchronous registry keyed by native window and
 follow NativeScript's `NativeWindow` attach/detach/close lifecycle. The registry
 replays available state, rejects callbacks from replaced sources, and releases
 observation with its final reader. Host-bound readers use their own window;
 unbound hooks follow the active window. Android resize leases are separately
 reference-counted and preserve subsequent foreign mode changes. These leases
-survive observation-source replacement. Overlay
+survive observation-source replacement. Android measures the visible display
+frame relative to its own decor root; host compensation uses the actual remaining
+overlap, independently of the mode flag. Safe-area and ancestor compensation
+cap the remaining demand rather than subtracting physical resize again. Overlay
 bindings separately observe AndroidX insets and skip translation when the window
-declares `adjustResize`. Those mechanisms do not establish actual host overlap
-or synchronized movement in edge-to-edge and presentation windows. Source:
+declares `adjustResize`; that legacy overlay path is pending presentation
+integration. Destination-only compatibility observations do not establish
+synchronized movement. Source:
 [keyboard-inset](../../packages/ui/src/keyboard-inset.ts).
 
 ```ts
@@ -109,6 +118,17 @@ bookkeeping, not actual Activity recreation or presentation-window geometry.
 Native iOS and Android probes also verified that the compatibility hook receives
 an opening inset, renders it in a native label, and clears it after hiding the
 keyboard. Actual Activity recreation remains a separate runtime qualification.
+
+Host-overlap probes passed on the same iOS and Android targets. The iOS host
+ended at y=874 with a keyboard destination at y=546; its requested 8-point offset
+produced 336 points of padding. Android's resized host started at y=24 and had
+height 357px, ending exactly at the visible viewport bottom y=381. It received
+only the requested 8-dip offset while the compatibility hook retained its raw
+235-dip value. A separate renderer regression covers a host whose geometric
+overlap includes system-bar space omitted by that numeric compatibility value.
+These checks do not qualify alternate navigation modes or native presentation
+windows. An attempted fixed-height Android fixture remained constrained by
+native layout; it did not establish an unresized presentation host.
 
 The iOS probe ran on iPhone 18 Pro / iOS 27.0 with NativeScript core `9.1.3`,
 Octane `0.11.0`, and the patched native renderer `0.2.5`. A simulator HID tap at

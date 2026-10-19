@@ -1,12 +1,59 @@
 import { Application, Utils } from '@nativescript/core'
 import { android } from '@octane-xplat/platform/android'
-import { NSNotificationCenter, NSOperationQueue, UIScreen } from '@octane-xplat/platform/ios'
-import { keyboardWindows } from '@octane-xplat/platform/keyboard-state'
+import { NSNotificationCenter, NSOperationQueue } from '@octane-xplat/platform/ios'
+import { keyboardBottomOverlap, isKeyboardRect } from '@octane-xplat/platform/keyboard-geometry'
+import type { KeyboardRect } from '@octane-xplat/platform/keyboard-geometry'
+import { keyboardWindows, unknownKeyboardState } from '@octane-xplat/platform/keyboard-state'
+import type { KeyboardWindowState } from '@octane-xplat/platform/keyboard-state'
 
 const unscopedIosWindow = {}
-let inset = 0
+let iosFrame: any
+const iosFrames = new Map<object, any>()
 let observer: any = null
-const iosReaders = new Set<(value: number) => void>()
+const iosReaders = new Set<() => void>()
+const refreshFallback = new Map<object, () => void>()
+
+const fromCGRect = (value: any): KeyboardRect | null => {
+	const rect = value && {
+		x: value.origin?.x,
+		y: value.origin?.y,
+		width: value.size?.width,
+		height: value.size?.height,
+	}
+	return isKeyboardRect(rect) ? rect : null
+}
+
+const readIosState = (window: any): KeyboardWindowState => {
+	const windowRect = fromCGRect(window.bounds)
+	let targetFrame: KeyboardRect | null = null
+	const frame = iosFrames.get(window.screen) ?? iosFrame
+	if (frame) {
+		const screen = window.screen
+		// Since iOS 16.1 the notification identifies its screen. Another display's
+		// keyboard must not affect this window.
+		targetFrame = fromCGRect(
+			screen?.coordinateSpace && window.convertRectFromCoordinateSpace
+				? window.convertRectFromCoordinateSpace(frame, screen.coordinateSpace)
+				: window.convertRectFromWindow?.(frame, null),
+		)
+	} else {
+		const root = window.rootViewController?.view
+		const guide = root?.keyboardLayoutGuide
+		const frame = guide?.layoutFrame
+		// A hidden keyboard guide includes the bottom safe area. Do not report
+		// that strip as an open keyboard, and do not mutate the host's guide.
+		if (frame && frame.size.height > (root.safeAreaInsets?.bottom ?? 0) + 1) {
+			targetFrame = fromCGRect(root.convertRectToView(frame, window))
+		}
+	}
+	return {
+		inset: keyboardBottomOverlap(windowRect, targetFrame),
+		windowRect,
+		currentFrame: null,
+		targetFrame,
+		source: targetFrame ? 'destination' : 'unknown',
+	}
+}
 
 const wireIos = () => {
 	if (observer) {
@@ -20,66 +67,118 @@ const wireIos = () => {
 			const raw = note.userInfo.objectForKey(UIKeyboardFrameEndUserInfoKey)
 			const boxed = raw?.CGRectValue
 			const frame = typeof boxed === 'function' ? raw.CGRectValue() : (boxed ?? raw)
-			inset = Math.max(
-				0,
-				UIScreen.mainScreen.bounds.size.height -
-					(frame?.origin?.y ?? UIScreen.mainScreen.bounds.size.height),
-			)
+			if (note.object?.coordinateSpace) {
+				iosFrames.set(note.object, frame)
+			} else {
+				iosFrame = frame
+			}
 			const readers = [...iosReaders]
 			for (const read of readers) {
-				read(inset)
+				read()
 			}
 		},
 	)
 }
 
-const observeIos = (notify: (value: number) => void) => {
-	iosReaders.add(notify)
-	wireIos()
-	notify(inset)
-	return () => {
-		iosReaders.delete(notify)
+const observeIos = (window: object, notify: (value: KeyboardWindowState) => void) => {
+	const read = () => notify(readIosState(window))
+	iosReaders.add(read)
+	refreshFallback.set(window, read)
+	const release = () => {
+		refreshFallback.delete(window)
+		iosReaders.delete(read)
 		if (!iosReaders.size && observer) {
 			NSNotificationCenter.defaultCenter.removeObserver(observer)
 			observer = null
-			inset = 0
+			iosFrame = undefined
+			iosFrames.clear()
 		}
 	}
+	try {
+		wireIos()
+		read()
+	} catch (error) {
+		release()
+		throw error
+	}
+	return release
 }
 
-const observeAndroid = (decor: any, notify: (value: number) => void) => {
+const nativeLocation = (view: any): { x: number; y: number } | null => {
+	if (!view?.getLocationOnScreen || !(Array as any).create) {
+		return null
+	}
+	const xy = (Array as any).create('int', 2)
+	view.getLocationOnScreen(xy)
+	return { x: xy[0], y: xy[1] }
+}
+
+const readAndroidGeometry = (decor: any, ime: number) => {
+	const dip = Utils.layout.toDeviceIndependentPixels
+	const width = dip(decor.getWidth?.() ?? 0),
+		height = dip(decor.getHeight?.() ?? 0)
+	const windowRect = width > 0 && height > 0 ? { x: 0, y: 0, width, height } : null
+	let targetFrame: KeyboardRect | null = null
+	const location = nativeLocation(decor)
+	if (windowRect && location && android.graphics?.Rect && decor.getWindowVisibleDisplayFrame) {
+		const visible = new android.graphics.Rect()
+		decor.getWindowVisibleDisplayFrame(visible)
+		// This is the OS-visible viewport, independent of softInputMode. If the
+		// host actually resized, its bottom already stops at this edge.
+		const top = dip(visible.bottom - location.y)
+		if (ime > 0 && top > 0) {
+			targetFrame = { x: 0, y: top, width, height: dip(ime) }
+		}
+	}
+	return { windowRect, targetFrame }
+}
+
+const observeAndroid = (decor: any, notify: (value: KeyboardWindowState) => void) => {
 	const core = (globalThis as any).androidx?.core?.view
 	const read = () => {
 		const insets = core?.ViewCompat?.getRootWindowInsets(decor)
 		const type = core?.WindowInsetsCompat?.Type
 		const ime = type ? (insets?.getInsets(type.ime()).bottom ?? 0) : 0
 		const nav = type ? (insets?.getInsets(type.systemBars()).bottom ?? 0) : 0
-		notify(Utils.layout.toDeviceIndependentPixels(Math.max(0, ime - nav)))
+		const geometry = readAndroidGeometry(decor, ime)
+		notify({
+			inset: Utils.layout.toDeviceIndependentPixels(Math.max(0, ime - nav)),
+			...geometry,
+			currentFrame: null,
+			source: insets ? 'destination' : 'unknown',
+		})
 	}
 	const listener = new android.view.ViewTreeObserver.OnGlobalLayoutListener({
 		onGlobalLayout: read,
 	})
 	decor.getViewTreeObserver().addOnGlobalLayoutListener(listener)
-	read()
-	return () => {
+	refreshFallback.set(decor, read)
+	const release = () => {
+		refreshFallback.delete(decor)
 		const tree = decor.getViewTreeObserver()
 		if (tree.isAlive()) {
 			tree.removeOnGlobalLayoutListener(listener)
 		}
 	}
+	try {
+		read()
+	} catch (error) {
+		release()
+		throw error
+	}
+	return release
 }
 
 // The fallback is inert until a window has readers. Controller activation can
 // replace observation without taking ownership of the readers' resize leases.
 keyboardWindows.install((window, publish) => {
-	const notify = (value: number) => publish({ inset: value })
 	if (Application.ios) {
-		return observeIos(notify)
+		return observeIos(window, publish)
 	}
 	if (Application.android) {
-		return observeAndroid(window, notify)
+		return observeAndroid(window, publish)
 	}
-	notify(0)
+	publish(unknownKeyboardState())
 	return () => {}
 }, 'fallback')
 
@@ -157,8 +256,13 @@ const resolveWindow = (host?: any): { key?: object; resizeWindow?: any } => {
 	return {}
 }
 
-/** Internal window-following subscription shared by hooks and host bindings. */
-export function subscribeKeyboardInset(notify: (inset: number) => void, host?: any): () => void {
+/** Internal window-following subscription. Geometry uses the supplied host's
+ * actual native window. resize=false is reserved for read-only bindings. */
+export function subscribeKeyboardState(
+	notify: (state: KeyboardWindowState, windowKey?: object) => void,
+	host?: any,
+	resize = true,
+): () => void {
 	let key: object | undefined
 	let initialized = false
 	let active = true
@@ -199,18 +303,24 @@ export function subscribeKeyboardInset(notify: (inset: number) => void, host?: a
 		}
 		const next = resolveWindow(host)
 		if (initialized && next.key === key) {
+			if (key) {
+				refreshFallback.get(key)?.()
+				notify(keyboardWindows.getSnapshot(key), key)
+			}
+
 			return
 		}
 		disconnect()
 		initialized = true
 		key = next.key
 		if (!key) {
-			notify(0)
+			notify(unknownKeyboardState())
 			return
 		}
-		releaseLease = acquireResize(next.resizeWindow)
+		releaseLease = resize ? acquireResize(next.resizeWindow) : () => {}
 		try {
-			releaseSource = keyboardWindows.subscribe(key, (state) => notify(state.inset))
+			const owner = key
+			releaseSource = keyboardWindows.subscribe(owner, (state) => notify(state, owner))
 		} catch (error) {
 			disconnect()
 			throw error
@@ -223,7 +333,7 @@ export function subscribeKeyboardInset(notify: (inset: number) => void, host?: a
 		disconnect()
 		key = undefined
 		initialized = false
-		notify(0)
+		notify(unknownKeyboardState())
 	}
 	const sessionDetached = (event: any) => {
 		const owner = event?.window ?? event?.object
@@ -240,7 +350,14 @@ export function subscribeKeyboardInset(notify: (inset: number) => void, host?: a
 		releaseSession()
 		unloaded()
 	}
-	rebind()
+	try {
+		rebind()
+	} catch (error) {
+		active = false
+		releaseSession()
+		disconnect()
+		throw error
+	}
 	Application.on?.(Application.resumeEvent, rebind)
 	Application.on?.('primaryWindowChanged', rebind)
 	Application.on?.('windowOpen', rebind)
@@ -277,6 +394,35 @@ export function subscribeKeyboardInset(notify: (inset: number) => void, host?: a
 		releaseSession()
 		disconnect()
 	}
+}
+
+/** Internal numeric compatibility adapter. Android values retain the raw IME
+ * inset minus system bars, including when the host is already resized. */
+export function subscribeKeyboardInset(notify: (inset: number) => void, host?: any): () => void {
+	return subscribeKeyboardState((state) => notify(state.inset), host)
+}
+
+/** Remaining bottom occlusion of this host after physical native resizing.
+ * @internal Unknown native geometry is not inferred from a window mode flag. */
+export function keyboardHostOverlap(host: any, state: KeyboardWindowState): number {
+	const native = host?.nativeViewProtected ?? host?.ios ?? host?.android
+	let bounds: KeyboardRect | null = null
+	if (Application.ios && native?.window && native.bounds) {
+		bounds = fromCGRect(native.convertRectToView(native.bounds, native.window))
+	} else if (Application.android && native) {
+		const location = nativeLocation(native)
+		const origin = nativeLocation(native.getRootView?.())
+		if (location && origin) {
+			const dip = Utils.layout.toDeviceIndependentPixels
+			bounds = {
+				x: dip(location.x - origin.x),
+				y: dip(location.y - origin.y),
+				width: dip(native.getWidth()),
+				height: dip(native.getHeight()),
+			}
+		}
+	}
+	return keyboardBottomOverlap(bounds, state.currentFrame ?? state.targetFrame)
 }
 
 const androidBindings = new WeakMap<object, { hosts: Map<any, number>; offset: number }>()

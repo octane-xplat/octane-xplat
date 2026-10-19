@@ -182,13 +182,16 @@ export function Example() {
 }
 ```
 
-`KeyboardAvoiding` adds keyboard space on iOS and requests Android window
-resize. `keyboardVerticalOffset` holds contents extra dips above the
+`KeyboardAvoiding` adds only the keyboard space its own host still needs.
+It requests Android window resize and measures the remaining overlap, so
+a resized host receives no duplicate keyboard padding.
+`keyboardVerticalOffset` holds contents extra dips above the
 keyboard's top edge — the height of a composer bar that sits inside the
 wrapper, for example — and `enabled={false}` keeps the layout wrapper with
 no avoidance subscription or resize lease. When the wrapper sits inside a
-`SafeArea`, the bottom inset that wrapper already applied is subtracted
-from the keyboard inset so the two never double-count. Bottom-anchored
+`SafeArea`, the bottom space that wrapper already applied counts toward
+avoidance. Nested avoidance wrappers in the same native window also share
+that space. Floating keyboards do not add full-width bottom padding. Bottom-anchored
 native shared sheets also account for the keyboard;
 the Android inset fallback converts physical pixels into layout dips. Check
 the last field with the software keyboard open, including a sheet opened
@@ -269,7 +272,9 @@ runtime evidence and exact remaining cases belong in
 
 Use `useKeyboardInset()` when a composer needs a numeric keyboard height,
 for example to choose a sheet's height. The value is in device-independent
-pixels (points on iOS). Mount the reader before opening the keyboard on iOS.
+pixels (points on iOS). On iOS, a reader can measure an already-open keyboard
+through the public keyboard guide when available. Older hosts without that
+guide need a reader mounted before the keyboard opens.
 Web and desktop return zero; this hook does not measure a browser viewport.
 
 ```tsx
@@ -312,11 +317,12 @@ actual Activity replacement still needs separate device qualification.
 
 `KeyboardAvoiding` uses the same native subscription — pass
 `enabled={false}` there or `useKeyboardInset({ enabled: false })` here to
-leave it inactive. On iOS it adds space
-below its contents; Android lets the window resize. iOS readers and bound
+leave it inactive. It adds space below its contents only for remaining host
+overlap, after native resizing and ancestor avoidance. iOS readers and bound
 bottom overlays share the latest frame while at least one stays mounted.
-After all detach, the observer and cached frame are released. Floating
-keyboards and partial screen occlusion need application-specific handling.
+After all detach, the observer and cached frame are released. Floating or
+narrow iOS keyboards report a zero bottom inset; keeping a specific field clear
+of a floating keyboard needs a rectangle-based visibility check.
 
 ```tsx
 import { KeyboardAvoiding, Text, TextInput, useKeyboardInset } from '@octane-xplat/ui'
