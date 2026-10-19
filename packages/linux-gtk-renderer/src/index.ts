@@ -383,6 +383,65 @@ function applyStyleExtras(node: ElementNode, view: GtkView, style: PropBag | nul
 		view.set_opacity(1)
 	}
 	node.appliedOpacity = source.opacity
+
+	// Layout keys arrive through the style bag now — the Gtk.Box shim consumes
+	// the subset it can express until the mason binding lands (task
+	// 9c312aa7-2cdb-46c7-ae0e-110f5ece0e37).
+	if (node.type === 'masonview') {
+		if (source.flexDirection != null) {
+			setOrientation(node, view, source.flexDirection)
+		}
+		const spacing = source.gap ?? source.rowGap ?? source.columnGap
+		if (spacing != null) {
+			view.spacing = Number(spacing) || 0
+		}
+	}
+	// flexGrow clearing must be unconditional — an absent key means the expand
+	// was removed, and syncExpand resets both axes when the value is falsy.
+	node.flexGrowValue = source.flexGrow
+	syncExpand(node)
+	if (source.alignSelf != null) {
+		const align = ALIGN[String(source.alignSelf)]
+		const hostView = hostViewOf(node.container, node.parent)
+		if (align !== undefined && hostView instanceof Gtk.Box) {
+			if (hostView.orientation === Gtk.Orientation.HORIZONTAL) {
+				view.set_valign(align)
+			} else {
+				view.set_halign(align)
+			}
+		}
+	}
+	if (source.justifySelf != null) {
+		const align = ALIGN[String(source.justifySelf)]
+		if (align !== undefined) {
+			view.set_halign(align)
+		}
+	}
+	if (source.left != null) {
+		node.fixedX = Number(source.left)
+		repositionFixedChild(node)
+	}
+	if (source.top != null) {
+		node.fixedY = Number(source.top)
+		repositionFixedChild(node)
+	}
+	// CSS grid lines — '2' or '2 / span 3' — map onto the recorded grid slots.
+	const gridLine = (v: unknown): [number, number] | null => {
+		const m = /^\s*(\d+)(?:\s*\/\s*span\s*(\d+))?/.exec(String(v ?? ''))
+		return m ? [Number(m[1]) - 1, Number(m[2] ?? 1)] : null
+	}
+	const grow = gridLine(source.gridRow)
+	if (grow) {
+		node.gridRow = grow[0]
+		node.gridRowSpan = grow[1]
+		repositionGridChild(node)
+	}
+	const gcol = gridLine(source.gridColumn)
+	if (gcol) {
+		node.gridCol = gcol[0]
+		node.gridColSpan = gcol[1]
+		repositionGridChild(node)
+	}
 }
 
 // ---------------------------------------------------------------------------
