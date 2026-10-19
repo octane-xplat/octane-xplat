@@ -48,8 +48,9 @@ that order does not change the runtime resolver.
 the root barrel — decision #69). Keep an OS-only import
 in its matching `.ios` or `.android` file. A `.mobile` file may import a
 cross-platform native API only when that import loads safely on both iOS and
-Android. The package's `/native` subpath is NativeScript integration plumbing,
-not a filename suffix; `/web` resolves only under web/Linux conditions.
+Android. The package's `/nativescript` subpath is NativeScript integration plumbing,
+not a filename suffix; `/web` has a `web` export condition; Linux host presets choose their
+conditions separately. Check the export map rather than guessing subpaths.
 `/macos` and `/linux` carry AppKit- and GTK-only contracts (for example
 `useOutlineFromView` on `/macos`, `LinuxWindowHandle` on `/linux`) that are
 deliberately kept off the shared root so `@octane-xplat/ui` exports the same
@@ -67,16 +68,17 @@ export function PackedToggle() {
 
 ## The barrel rule
 
-`exports` wildcards (`"./*": "./src/*"`) do NOT extension-resolve — a deep
-import like `@octane-xplat/ui/theme/tokens.css` works (exact file), but
-`@xplat/app/platform/nav` may fail at the bundler. **Import platform services
-through the package barrel** (`import { navigate } from '@xplat/app'`), which
-re-exports the target implementation.
+Import from a package's declared entrypoint; a source-tree path is not a
+public API. Conditional exports select the platform implementation. For example,
+router operations live on `/routing` and stores on `/data`; `@xplat/app` is
+repository harness code, not a consumer dependency.
 
 ```ts
-import { navigate } from '@xplat/app'
+import { pushRoute } from '@octane-xplat/ui/routing'
+import { createStore } from '@octane-xplat/ui/data'
 
-navigate('demo/:id', { id: 'counter' })
+const packed = createStore(0)
+pushRoute({ stack: 'root', name: 'help', params: {} })
 ```
 
 ## tsconfigs

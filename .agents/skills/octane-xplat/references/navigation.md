@@ -7,11 +7,7 @@ shared `Tabs` is a self-drawn row and one swapped pane. Platform-authentic
 `UITabBar`/`BottomNavigationView` components live in the native subpaths.
 
 ```ts
-import { pushRoute, popRoute, registerScreens } from '@octane-xplat/ui/routing'
-import { navigate, goBack } from '@xplat/app'
-
-navigate('demo/:id', { id: 'counter' }, { into: 'demos' })
-goBack({ into: 'demos' })
+import { pushRoute, popRoute } from '@octane-xplat/ui/routing'
 pushRoute({ stack: 'root', name: 'demo/:id', params: { id: 'counter' } })
 popRoute('root')
 ```
@@ -31,7 +27,7 @@ popRoute('root')
   Native reads the registered frame's `currentPage` on iOS and router state on Android;
   web reads the URL store.
 - Pushed native screens get `_stack` injected into props on named-stack
-  pushes — call `popRoute(props._stack)` / `goBack({ into: props._stack })`
+  pushes — call `popRoute(props._stack)`
   to pop the stack that pushed you. Web route params are URL-backed.
 
 Native Pages and route modals preserve the providers around a mounted
@@ -63,7 +59,7 @@ For screen-local ownership, use the scoped NativeScript navigator described in
 
 ```tsx
 import { Text, Pressable } from '@octane-xplat/ui'
-import { useRoute } from '@octane-xplat/ui/routing'
+import { useRoute, popRoute } from '@octane-xplat/ui/routing'
 
 export function PushedScreen({ _stack = 'root' }: { _stack?: string }) {
 	const route = useRoute(_stack)
@@ -119,6 +115,8 @@ root stack, unknown screen name, or non-Frame root.
 Keep params to scalars for parity — the web leaf serializes into the URL.
 
 ```ts
+import { pushRoute } from '@octane-xplat/ui/routing'
+
 pushRoute({ stack: 'root', name: 'demo/:id', params: { id: 'counter', from: 'home' } })
 ```
 
@@ -140,16 +138,16 @@ const manifest = deriveRouteManifest(files)
 registerRoutes(manifest)
 ```
 
-- `app/demo/[id].tsrx` → route `demo/:id` — `navigate('demo/:id', {id})`;
+- `app/demo/[id].tsrx` → route `demo/:id`;
   `[param]` → `:param`. `app/foo/index.tsrx` → `foo`.
 - `app/_layout.tsrx` → `layouts['']` — the shell the entry renders
   (`export const App = routes.layouts['']` in `index.ts`). Not a route.
 - `app/settings.web.tsrx` → web-only route (skipped by the mobile glob).
 - Component pick: `default` → `screen` → single function export —
   `ErrorBoundary` is reserved (never the screen).
-- Params arrive as props (native: pushed root's props; web: path segments
-  - query). Route names are `string` — literal typing awaits routes.d.ts
-    codegen.
+- Params arrive as screen props (native objects; browser path/query values).
+  Generated route types register on `AppRoutes`, so names and params are checked
+  at `pushRoute`/`NavLink` callsites once the app schema is registered.
 - A route may export `loader(params)` — pushed commits await it; the screen
   mounts holding `data` or `error`. Direct-URL/history hydration mounts the
   screen first with `pending: true`, then lands the result.
@@ -162,7 +160,7 @@ registerRoutes(manifest)
 
 ```tsx
 // app/detail.tsrx — a route file's render boundary.
-import type { RouteErrorBoundaryProps } from '@octane-xplat/ui'
+import { Text, type RouteErrorBoundaryProps } from '@octane-xplat/ui'
 
 export function ErrorBoundary(props: RouteErrorBoundaryProps) {
 	return <Text>{`Route failed: ${String(props.error)}`}</Text>
@@ -179,6 +177,46 @@ export default function Help() {
 	return <Text>Pack essentials first.</Text>
 }
 ```
+
+## Generate or define typed routes
+
+For app file routes, regenerate entries and declarations with `xplat routes`.
+The CLI also runs generation during dev, build, and typecheck; do not hand-edit
+its generated files.
+
+```sh
+pnpm exec xplat routes
+```
+
+For a package or programmatic route set, use `defineRoutes` and register its
+inferred params on `AppRoutes`. Without a schema contribution, names remain
+open strings. Keep each route source under its own augmentation member.
+
+```tsx
+import { Text } from '@octane-xplat/ui'
+import {
+	defineRoutes,
+	registerRoutes,
+	pushRoute,
+	type ManifestRouteParams,
+} from '@octane-xplat/ui/routing'
+
+function Guide(props: { slug: string }) {
+	return <Text>{props.slug}</Text>
+}
+const manifest = defineRoutes({ routes: [{ path: 'docs/:slug', screen: Guide }] })
+declare module '@octane-xplat/ui' {
+	interface AppRoutes {
+		guides: ManifestRouteParams<typeof manifest>
+	}
+}
+registerRoutes(manifest)
+pushRoute({ stack: 'root', name: 'docs/:slug', params: { slug: 'packing' } })
+```
+
+Read [the navigation guide](../../../../docs/app/navigation.md) for guards,
+loaders, redirects, baked data, deep links, and schema composition. Use its
+current contracts rather than inferring them from a harness route manifest.
 
 ## Native model
 
@@ -267,6 +305,8 @@ outlet, when present. Web overlays the previous history entry. Use params for
 destination data; provider inheritance follows the outlet ownership above.
 
 ```ts
+import { pushRoute } from '@octane-xplat/ui/routing'
+
 pushRoute({ stack: 'root', name: 'help', presentation: 'modal', params: { topic: 'packing' } })
 ```
 

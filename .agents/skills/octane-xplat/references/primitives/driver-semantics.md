@@ -135,10 +135,10 @@ literally identical element bails.
 Consequence: a bare module-store read (`store.getSnapshot()`) in a child refreshes
 on web but goes **stale on native**. The portable rule: **every component
 that reads shared state subscribes** — `useStore(store)` /
-`useStore(store, select)` from `@octane-xplat/ui` (over
+`useStore(store, select)` from `@octane-xplat/ui/data` (over
 `useSyncExternalStore`; a subscriber is marked dirty and always re-runs).
 `createStore(initial)` makes a minimal `{getSnapshot,set,update,subscribe}` store.
-Pinned by `packages/ui/src/store.mobile.test.ts` + `store.web.test.tsrx`.
+Pinned by `packages/ui/src/store.mobile.test.tsrx` + `store.web.test.tsrx`.
 
 ```tsx
 import { Text } from '@octane-xplat/ui'

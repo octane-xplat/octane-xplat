@@ -4,7 +4,8 @@ Import the shared surface from `@octane-xplat/ui`. Shared components use
 platform leaves behind the same import; platform-authentic widgets use the
 conditional `@octane-xplat/ui/ios`, `/android`, or `/web` subpaths. Those
 subpaths resolve only for their target, so keep imports in a matching
-platform-suffixed file (or a native file guarded by the matching OS branch).
+platform-suffixed file. A runtime branch does not prevent an incompatible
+static import from loading.
 
 ```tsx
 import { HStack, Text } from '@octane-xplat/ui'
@@ -25,31 +26,10 @@ use these shared prop contracts where applicable.
 
 ## Shared surface
 
-These names are exported from the root package on web and native, including
-`KeyboardAvoiding` (native leaves own OS keyboard events; web
-keeps the wrapper layout without keyboard avoidance, macOS is an inert column). This inventory follows the current
-`index.web.ts` and unsuffixed native-default `index.ts` barrels.
-
-```tsx
-import { KeyboardAvoiding, TextInput } from '@octane-xplat/ui'
-
-export function Notes() {
-	return (
-		<KeyboardAvoiding>
-			<TextInput label="Packing notes" />
-		</KeyboardAvoiding>
-	)
-}
-```
-
-| Area                 | Shared exports                                                                                   |
-| -------------------- | ------------------------------------------------------------------------------------------------ |
-| Layout               | `View`, `VStack`, `HStack`, `Grid`, `Stack`, `Absolute`, `Spacer`, `Screen`                      |
-| Text and media       | `Text`, `RichText`, `RichTextSpan`, `Heading`, `Image`, `Icon`, `Meter`, `Spinner`               |
-| Interaction          | `Pressable`, `Link`, `NavLink`, `Switch`, `Slider`, `Tabs`, `Drawer`                             |
-| Inputs and scrolling | `TextInput`, `TextArea`, `ScrollableArea`, `SafeArea`; `KeyboardAvoiding` (web = layout wrapper) |
-| Overlays             | `Overlay`, `Popover`, `BottomSheet`, `openBottomSheet`, `closeBottomSheet`, `showToast`          |
-| Styling and state    | `styled`, `useAnimation`, `useStore`, theme and color-scheme APIs                                |
+Use the [component guide](../../../../docs/app/components.md) to choose a
+component, and the public declarations/export map for exact names and props.
+State and routing operations have dedicated `/data` and `/routing` entrypoints;
+visual components stay at the root.
 
 `Switch`, `Slider`, `Spinner`, `Tabs`, and `Drawer` are
 self-drawn shared components: their shared props produce the same component
@@ -84,18 +64,10 @@ export function Controls() {
 The OS widget is the value of these exports. They are intentionally absent
 from the shared root barrel.
 
-| Import                     | Current exports                                                                                                                                           |
-| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@octane-xplat/ui/ios`     | `UISwitch`, `UISlider`, `UIActivityIndicatorView`, `UITableView`, `UITabBar`, `UIModal`, `openModal`, `SideDrawer`, `LiquidGlass`, `LiquidGlassContainer` |
-| `@octane-xplat/ui/android` | `MaterialSwitch`, `SeekBar`, `CircularProgressIndicator`, `RecyclerView`, `BottomNavigationView`, `MaterialDialog`, `openModal`, `DrawerLayout`           |
-| `@octane-xplat/ui/web`     | `HoverCard`, `Tooltip` (compat re-export — the shared root barrel carries them too)                                                                       |
-
-These conditional exports include the platform-authentic names
-`UISwitch`/`MaterialSwitch`, `UITableView`/`RecyclerView`,
-`UITabBar`/`BottomNavigationView`, `UIModal`/`MaterialDialog`,
-`SideDrawer`/`DrawerLayout`, and iOS `LiquidGlass`. Platform subpaths are
-deliberate exits from the same-pixels shared contract; use a matching
-`.ios`/`.android`/`.web` file or an explicit platform branch.
+Choose an OS subpath when platform chrome is the intended behavior. The
+[platform widgets guide](../../../../docs/app/primitives.md) and package export
+map own the complete inventory; import only names declared by that subpath.
+For example, an iOS switch belongs in an `.ios` leaf:
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
@@ -123,8 +95,8 @@ export function PackingToggle() {
 - **Removing a prop restores its default.** A prop that disappears between
   renders — or is passed `undefined`/`null` — resets to the value it holds
   when never supplied (per-key inside `style` too), on web, iOS, Android,
-  and macOS. `null` is never an explicit neutral: pass `''`, `0`, or
-  `false` when the documented default isn't the value you want.
+  and macOS. A nullable API may explicitly give `null` a meaning; otherwise
+  pass `''`, `0`, or `false` when the default is not the value you want.
 - **`on*` props re-commit every render** — inline closures always read
   current state. A listener you attach yourself (`view.on('pan', fn)` in an
   effect or ref callback) binds once at mount and keeps the mount-render

@@ -115,8 +115,9 @@ native. Both sides' dead rules are expected.
 ## styled()
 
 `styled(Base, { base?, variants? })` → component taking Base's props plus
-each variant name as a boolean flag → composes `className`. Verified: the
-variant prop composes `bg-danger` + `extra` classes on native.
+boolean flags for class variants or option-name unions for enumerated
+variants. `defaultVariants` selects omitted values; classes compose with the
+base component and the caller's `className`.
 
 ```tsx
 import { styled, Pressable, Text } from '@octane-xplat/ui'
