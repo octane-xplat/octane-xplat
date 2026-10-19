@@ -1,5 +1,13 @@
 # Changelog
 
+## [tsrx-typegen-v0.3.1] - 2026-10-19
+
+### Refactoring
+
+- *(toolchain)* Port remaining Node tooling from .mjs to .ts
+- *(scripts,apps)* Port app-level Node tooling to .ts; unmark lint/create/tsrx-typegen
+
+
 ## [tsrx-typegen-v0.3.0] - 2026-10-17
 
 ### Breaking Changes
