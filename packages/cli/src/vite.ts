@@ -777,7 +777,14 @@ export async function xplatNative(env, opts = {}) {
 			// (debug = !!process.env.DEBUG || isDevMode) so this define can never
 			// disagree with its replace()/optimizeDeps substitutions on the
 			// same key.
-			define: xplatNodeEnvDefine(process.env.DEBUG ? 'development' : mode),
+			define: {
+				...xplatNodeEnvDefine(process.env.DEBUG ? 'development' : mode),
+				// @triniwiz/nativescript-masonkit reads __WINDOWS__ at module
+				// scope; upstream's vite define set covers __IOS__/__ANDROID__/
+				// __VISIONOS__/__APPLE__ but not __WINDOWS__, so the bare read
+				// throws during bundle eval on iOS/Android.
+				__WINDOWS__: 'false',
+			},
 			oxc: {
 				// NativeScript modules use TypeScript's legacy decorators. Oxc's
 				// default emits decorator syntax the native JS runtime cannot parse.
