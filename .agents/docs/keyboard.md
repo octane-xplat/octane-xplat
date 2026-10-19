@@ -67,15 +67,16 @@ renderer-specific workarounds are not an Octane integration strategy.
 
 ## Feasibility boundaries
 
-These are candidate mechanisms, not commitments. Native rows require a running
-Xplat host before architectural decisions or public guarantees.
+These are mechanisms examined in the initial probes, not guarantees for final
+components. [Decision #119](../design/software-keyboard.md) defines ownership;
+each behavior still needs its own maintained coverage and runtime qualification.
 
 | Target | Candidate geometry and focus | Candidate movement | Evidence and limits |
 | --- | --- | --- | --- |
 | Web | Visual viewport and element bounds; focus and selection offsets | Viewport events and scroll host updates | Desktop Chromium API probe passed; no software keyboard observed. Viewport shrink also has non-keyboard causes. A textarea selection offset is not a caret rectangle. |
-| iOS | Convert keyboard and input/caret bounds into the owning window; `UITextInput` selection geometry | Public keyboard layout guide/native binding, or measured notification timing with demonstrated limits | Upstream source only. NativeScript binding, interruptions, interactive tracking, already-open mounting, floating keyboards, and presentation windows remain unverified. |
-| Android | Resolve the actual host/dialog window; IME/system insets, focused input layout and selection | Native inset-animation callbacks plus actual resize accounting | Upstream source only. Bridge availability, edge-to-edge, navigation modes, dialog ownership, API-level behavior, and interactive dismissal remain unverified. |
-| macOS | AppKit focus and input geometry need a separate host investigation | Preserve neutral software-keyboard behavior until a supported mechanism is demonstrated | No mobile keyboard behavior is inferred from AppKit or hardware-key events. Runtime feasibility remains unverified. |
+| iOS | Keyboard frame conversion into the owning window; native input/caret bounds | Public keyboard-guide constraint and presentation-layer samples through a NativeScript display-link target | Native probe passed: actual software-keyboard frames, caret geometry, opening presentation samples and simulator touch delivery. Interruptions, interactive tracking, already-open attachment, floating keyboards, and presentation windows remain unverified. |
+| Android | IME/system insets for the actual decor root; focused input layout and selection | AndroidX inset-animation callbacks subclassed through NativeScript | Native probe passed on API 35: callback phases and input geometry. Edge-to-edge variants, navigation modes, dialogs, other API levels, interactive dismissal, full close completion and OS touch remain unverified. |
+| macOS | AppKit native responder/field-editor geometry | Retain neutral software-keyboard behavior | Native probe passed: zero inset and an 18-point caret. This is not a mobile keyboard implementation or OS input qualification. |
 
 NativeScript core `9.1.3` exposes the iOS native scroll view, but its
 `scrollableHeight` derives from content size minus bounds and does not include
@@ -99,9 +100,32 @@ The existing inset host-double suite passed 6/6 tests. It establishes shared
 observer/lease bookkeeping and existing numeric conversions, not native frame
 delivery, actual viewport resizing, OS input, hit-testing, or animation quality.
 
-Native runtime qualification is still required before choosing service ownership
-and package integration. Keep execution status and measurements in Silo's
-`software-keyboard-controller` topic; temporary cases live in `research/`.
+The iOS probe ran on iPhone 18 Pro / iOS 27.0 with NativeScript core `9.1.3`,
+Octane `0.11.0`, and the patched native renderer `0.2.5`. A simulator HID tap at
+the accessibility-reported input center produced native touch down/up events.
+The source recorded a keyboard destination at y=546, height=328, and 383.3ms
+duration; 148 display-link samples included 20 distinct presentation positions.
+The native caret measured 2 × 16 points. This establishes the bridge and opening
+movement; no Xplat animation component or interactive dismissal was tested.
+Waiting only for the guide's destination frame initially ended the case before
+presentation movement could be measured; the stronger case waits for the
+presentation layer to reach the destination and requires intermediate positions.
+
+The Android probe ran on a task-owned Google APIs arm64 API 35 emulator. Its IME
+inset was 259px, system bars 24px, and decor size 320 × 640px. Preparation,
+start, movement and completion callbacks were observed, including ten movement
+samples. Native input layout supplied caret coordinates. Focus was requested
+programmatically; the case did not wait for the entire closing animation or
+exercise OS touch, dialog roots, or alternate navigation configurations.
+
+The AppKit/JSC probe retained a zero software-keyboard inset and queried an
+18-point native caret after making its field first responder. That establishes
+desktop input geometry access, not software-keyboard or OS input support.
+
+Keep execution status and measurements in Silo's `software-keyboard-controller`
+topic; temporary cases live in `research/`. No screenshots or recordings were
+captured or inspected for these probes. All owned virtual devices were stopped
+before their resource reservations ended.
 
 ### Workspace qualification prerequisite
 

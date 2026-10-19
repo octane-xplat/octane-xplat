@@ -16,6 +16,7 @@ start at the [public docs](../../docs/README.md).
 
 ## Proposals and design research
 
+- [Software keyboard ownership](software-keyboard.md) — window state, native tracking, and compatibility boundaries.
 - [UI API design audit](ui-api/README.md) — proposed public surface and approved design directions.
 - [Charts package](charts.md)
 - [Command palette plan](command-palette-plan.md)
