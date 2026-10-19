@@ -77,12 +77,12 @@ export function Thumbnail(props: ThumbnailProps) @{
 				<Icon name="xplat-doc-image" size={20} />
 			)}
 			{isLoading && props.src != null ? (
-				<masonview className="vx-thumbnail-overlay" justifyContent="center" alignItems="center" style={mergeStyle({display: "flex"}, { width: SIZE, height: SIZE })}>
+				<masonview className="vx-thumbnail-overlay" style={mergeStyle({justifyContent: "center", alignItems: "center"}, mergeStyle({display: "flex"}, { width: SIZE, height: SIZE }))}>
 					<ActivityIndicator busy={true} style={{ width: 16, height: 16 }} />
 				</masonview>
 			) : null}
 			{isRenderable(props.onRemove) ? (
-				<masonview horizontalAlignment="right" verticalAlignment="top" width={16} height={16} style={mergeStyle({display: "grid"}, { margin: 2 })}>
+				<masonview width={16} height={16} style={mergeStyle({justifySelf: 'end', alignSelf: 'start'}, mergeStyle({display: "grid"}, { margin: 2 }))}>
 				<Pressable
 					className={cx(
 						'vx-thumbnail-remove',

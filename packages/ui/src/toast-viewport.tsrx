@@ -41,6 +41,6 @@ export function ToastViewport(props: ToastViewportProps) @{
 		<ToastViewportProvider value={ctx}>
 			{props.children}
 		</ToastViewportProvider>
-		<masonview flexDirection="column" ref={(v: any) => { sentinel.current = v; }} style={mergeStyle({display: "flex"}, { width: 0, height: 0 })}/>
+		<masonview ref={(v: any) => { sentinel.current = v; }} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { width: 0, height: 0 }))}/>
 	</>
 }

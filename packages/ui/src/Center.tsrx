@@ -15,7 +15,7 @@ export function Center(props: CenterProps) @{
 
 	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
-	<masonview id={props.id} ref={forwardedRef} flexDirection="row" justifyContent={(axis !== 'vertical' ? 'center' : undefined) as any} alignItems={(axis !== 'horizontal' ? 'center' : undefined) as any} className={cx('vx-center', props.className)} style={mergeStyle({display: "flex"}, {
+	<masonview id={props.id} ref={forwardedRef} className={cx('vx-center', props.className)} style={mergeStyle({flexDirection: "row", justifyContent: (axis !== 'vertical' ? 'center' : undefined) as any, alignItems: (axis !== 'horizontal' ? 'center' : undefined) as any}, mergeStyle({display: "flex"}, {
 			...(spacingPx(props.paddingInlineStart ?? props.paddingInline ?? props.padding) !== undefined ? { paddingLeft: spacingPx(props.paddingInlineStart ?? props.paddingInline ?? props.padding) } : {}),
 			...(spacingPx(props.paddingInlineEnd ?? props.paddingInline ?? props.padding) !== undefined ? { paddingRight: spacingPx(props.paddingInlineEnd ?? props.paddingInline ?? props.padding) } : {}),
 			...(spacingPx(props.paddingBlockStart ?? props.paddingBlock ?? props.padding) !== undefined ? { paddingTop: spacingPx(props.paddingBlockStart ?? props.paddingBlock ?? props.padding) } : {}),
@@ -25,7 +25,7 @@ export function Center(props: CenterProps) @{
 			...(props.maxWidth != null ? { maxWidth: props.maxWidth } : {}),
 			...(props.minHeight != null ? { minHeight: props.minHeight } : {}),
 			...(props.style as any),
-		})} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
+		}))} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
 		{props.children}
 	</masonview>
 }

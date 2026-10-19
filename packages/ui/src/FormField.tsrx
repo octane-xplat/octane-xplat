@@ -36,7 +36,7 @@ export function FormField(props: FormFieldProps) @{
 	}
 
 	const labelNode = props.label == null || props.isLabelHidden ? null
-		: <masonview className="vx-field-label-row" flexDirection="row" alignItems="center" style={{display: "flex"}}>
+		: <masonview className="vx-field-label-row" style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
 			<label id={labelId} className="vx-field-label" text={labelText} />
 			{props.labelTooltip != null
 				? <Tooltip trigger={<Pressable className="vx-field-info" accessibilityLabel={'More about ' + props.label} accessibilityHint={props.labelTooltip}><label text="i" /></Pressable>} content={props.labelTooltip} placement="top" />
@@ -55,9 +55,9 @@ export function FormField(props: FormFieldProps) @{
 	const fieldStyle = { ...(props.width != null ? { width: props.width } : {}), ...(props.style as any) }
 
 	@if (isHorizontalLabels) {
-		<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx(rootClass, 'vx-field--hl')} style={mergeStyle({display: "flex"}, fieldStyle)}>
-			<masonview className="vx-field-hl-label" flexDirection="column" style={{display: "flex"}}>{labelNode}</masonview>
-			<masonview className="vx-field-hl-body" flexDirection="column" flexGrow={1} style={{display: "flex"}}>
+		<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx(rootClass, 'vx-field--hl')} style={mergeStyle({flexDirection: "row"}, mergeStyle({display: "flex"}, fieldStyle))}>
+			<masonview className="vx-field-hl-label" style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>{labelNode}</masonview>
+			<masonview className="vx-field-hl-body" style={mergeStyle({flexDirection: "column", flexGrow: 1}, {display: "flex"})}>
 				{descriptionNode}
 				<FieldProvider value={fieldContext}>{props.children}</FieldProvider>
 				{statusNode}

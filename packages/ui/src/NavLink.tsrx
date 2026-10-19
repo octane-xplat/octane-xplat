@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import type { NavLinkProps } from './props';
 import { Pressable } from './Pressable';
 import { pushRoute, useRoute } from './route';
@@ -22,6 +23,6 @@ export function NavLink(props: NavLinkProps) @{
 		className={cx(props.className, active ? props.activeClassName : undefined)}
 		onPress={() => pushRoute(props.route)}
 	>
-		<masonview flexDirection="row" style={{display: "flex"}}>{props.children}</masonview>
+		<masonview style={mergeStyle({flexDirection: "row"}, {display: "flex"})}>{props.children}</masonview>
 	</Pressable>
 }

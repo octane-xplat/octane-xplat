@@ -20,7 +20,7 @@ export function Carousel(props: CarouselProps) @{
 		horizontal={true as any}
 		accessibilityLabel={props.accessibilityLabel ?? props.label}
 	>
-		<masonview flexDirection="row" className="vx-carousel-track" style={mergeStyle({display: "flex"}, { columnGap: gap })}>
+		<masonview className="vx-carousel-track" style={mergeStyle({flexDirection: "row"}, mergeStyle({display: "flex"}, { columnGap: gap }))}>
 			{mapChildren(items, (child: any, i: number) => (
 				<masonview className="vx-carousel-slide" accessibilityLabel={`Slide ${i + 1} of ${count}`} style={{display: "flex"}}>
 					{child}

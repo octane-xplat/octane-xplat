@@ -36,12 +36,12 @@ export function Thumbnail(props: ThumbnailProps) @{
 				<Icon name="xplat-doc-image" size={20} />
 			)}
 			{isLoading && props.src != null ? (
-				<masonview justifyContent="center" alignItems="center" style={mergeStyle({display: "flex"}, { width: SIZE, height: SIZE })}>
+				<masonview style={mergeStyle({justifyContent: "center", alignItems: "center"}, mergeStyle({display: "flex"}, { width: SIZE, height: SIZE }))}>
 					<ActivityIndicator busy={true} style={{ width: 16, height: 16 }} />
 				</masonview>
 			) : null}
 			{isRenderable(props.onRemove) ? (
-				<masonview className={cx('vx-thumbnail-remove')} horizontalAlignment="right" verticalAlignment="top" width={16} height={16} justifyContent="center" alignItems="center" style={mergeStyle({display: "flex"}, { borderRadius: 8, margin: 2, backgroundColor: '#0a0a0a' })} accessible={true} accessibilityRole="button" accessibilityLabel="Remove" onTap={() => {
+				<masonview className={cx('vx-thumbnail-remove')} width={16} height={16} style={mergeStyle({justifySelf: 'end', alignSelf: 'start', justifyContent: "center", alignItems: "center"}, mergeStyle({display: "flex"}, { borderRadius: 8, margin: 2, backgroundColor: '#0a0a0a' }))} accessible={true} accessibilityRole="button" accessibilityLabel="Remove" onTap={() => {
 						if (!isDisabled) {
 							props.onRemove?.();
 						}

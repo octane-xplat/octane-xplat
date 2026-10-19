@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { expect, it } from 'vitest'
 import { signal$ } from 'octane/signals'
 import { useSignal$ } from 'octane/signals/client'
@@ -21,7 +22,7 @@ function SignalOwner(props: { initial: number; capture: (value$: ReturnType<type
 }
 
 function SignalInstances(props: { capture: (value$: ReturnType<typeof signal$<number>>) => void }) @{
-	<masonview flexDirection="column" style={{display: "flex"}}>
+	<masonview style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 		<SignalOwner initial={1} capture={props.capture} />
 		<SignalOwner initial={10} capture={props.capture} />
 	</masonview>

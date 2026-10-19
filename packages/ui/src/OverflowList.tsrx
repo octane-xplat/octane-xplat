@@ -103,13 +103,13 @@ export function OverflowList(props: OverflowListProps) @{
 		    the host box is height-0 + hidden so it never paints. */}
 		<masonview height={0} visibility="hidden" className="vx-overflowlist-measure" style={{display: "flex"}}>
 			<scrollview orientation="horizontal" scrollBarIndicatorVisible={false}>
-				<masonview ref={(v: any) => { measure.current = v; }} flexDirection="row" gap={gap} onLayoutChanged={calculate} style={{display: "flex"}}>
+				<masonview ref={(v: any) => { measure.current = v; }} onLayoutChanged={calculate} style={mergeStyle({flexDirection: "row", gap: gap}, {display: "flex"})}>
 					{childArray}
-					{measureIndicator != null ? <masonview flexDirection="row" style={{display: "flex"}}>{measureIndicator}</masonview> : null}
+					{measureIndicator != null ? <masonview style={mergeStyle({flexDirection: "row"}, {display: "flex"})}>{measureIndicator}</masonview> : null}
 				</masonview>
 			</scrollview>
 		</masonview>
-		<masonview ref={(v: any) => { container.current = v; if (v) { applyEscapeProps(v, props); v.on?.('layoutChanged', calculate); } }} id={props.id} className={cx('vx-overflowlist', isMultiRow && 'vx-overflowlist--multirow', props.className)} style={mergeStyle({display: "flex"}, { ...(props.style as any), height: containerHeight })} flexDirection="row" flexWrap={isMultiRow ? 'wrap' : 'nowrap'} alignItems="flex-start" rowGap={isMultiRow ? gap : undefined} gap={gap} onLayoutChanged={calculate}>
+		<masonview ref={(v: any) => { container.current = v; if (v) { applyEscapeProps(v, props); v.on?.('layoutChanged', calculate); } }} id={props.id} className={cx('vx-overflowlist', isMultiRow && 'vx-overflowlist--multirow', props.className)} style={mergeStyle({flexDirection: "row", flexWrap: isMultiRow ? 'wrap' : 'nowrap', alignItems: "flex-start", rowGap: isMultiRow ? gap : undefined, gap: gap}, mergeStyle({display: "flex"}, { ...(props.style as any), height: containerHeight }))} onLayoutChanged={calculate}>
 			{collapseFrom === 'start' && hasOverflow ? props.overflowRenderer?.(overflowItems) : null}
 			{visibleItems.map(({ child }) => child)}
 			{collapseFrom === 'end' && hasOverflow ? props.overflowRenderer?.(overflowItems) : null}

@@ -24,7 +24,7 @@ export function RadioIndicator(props: IndicatorProps<'singleSelection'>) @{
 			props.state === 'checked' && 'vx-ind-radio--checked',
 			props.isDisabled && 'vx-ind-radio--disabled',
 			props.className,
-		)} style={mergeStyle({display: "flex"}, props.style as any)} alignItems="center" justifyContent="center">
+		)} style={mergeStyle({alignItems: "center", justifyContent: "center"}, mergeStyle({display: "flex"}, props.style as any))}>
 		{content}
 	</masonview>
 }

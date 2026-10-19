@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useState } from 'octane';
 import type { AlertDialogProps } from './props';
 import { Dialog } from './Dialog';
@@ -41,7 +42,7 @@ export function AlertDialog(props: AlertDialogProps) @{
 			ios={props.ios}
 			android={props.android}
 		>
-			<masonview flexDirection="column" className="vx-alertdialog-title" style={{display: "flex"}}>
+			<masonview className="vx-alertdialog-title" style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 				{typeof props.title === 'string' ? (
 					<label className="vx-alertdialog-heading" textWrap={true}>{props.title}</label>
 				) : (
@@ -57,7 +58,7 @@ export function AlertDialog(props: AlertDialogProps) @{
 					)}
 				</masonview>
 			)}
-			<masonview flexDirection="row" justifyContent="flex-end" className="vx-alertdialog-actions" style={{display: "flex"}}>
+			<masonview className="vx-alertdialog-actions" style={mergeStyle({flexDirection: "row", justifyContent: "flex-end"}, {display: "flex"})}>
 				<Button
 					className="btn btn-secondary"
 					clickAction={() => requestChange(false)}

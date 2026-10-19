@@ -22,24 +22,5 @@ export function WebView(props: WebViewProps) @{
 		get native() { return view.current },
 	}), [])
 
-	<webview
-		ref={view}
-		id={props.id}
-		{...layoutChildProps(props)}
-		className={cx('vx-webview', props.className)}
-		style={props.style}
-		src={props.src}
-		html={props.html}
-		scrollEnabled={props.scrollEnabled}
-		matchContents={props.matchContents}
-		onLoad={props.onLoad}
-		onError={props.onError}
-		onLayoutContent={props.onLayoutContent}
-		accessible={props.accessible}
-		accessibilityLabel={props.accessibilityLabel}
-		accessibilityRole={props.accessibilityRole}
-		accessibilityHint={props.accessibilityHint}
-		accessibilityValue={props.accessibilityValue}
-		accessibilityState={props.accessibilityState}
-	/>
+	<webview ref={view} id={props.id} {...layoutChildProps(props, props.style)} className={cx('vx-webview', props.className)} src={props.src} html={props.html} scrollEnabled={props.scrollEnabled} matchContents={props.matchContents} onLoad={props.onLoad} onError={props.onError} onLayoutContent={props.onLayoutContent} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={props.accessibilityState}/>
 }

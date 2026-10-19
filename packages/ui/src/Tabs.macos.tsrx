@@ -38,7 +38,7 @@ export function Tabs(props: TabsProps) @{
 	const presentable = route && !presented.has(route.stack) ? route : null
 	const Screen = presentable ? screenFor(presentable.name) : undefined
 
-	<masonview id={props.id} flexDirection="column" className={cx('vx-tabs', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
+	<masonview id={props.id} className={cx('vx-tabs', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style))}>
 		<TabList
 			className="vx-tabbar"
 			role="tablist"
@@ -51,7 +51,7 @@ export function Tabs(props: TabsProps) @{
 				<Tab id={'tab-' + i} value={keyFor(item, i)} label={item.title} icon={item.icon} />
 			}
 		</TabList>
-		<masonview flexDirection="column" className="vx-tabpane flex-1" style={{display: "flex"}}>
+		<masonview className="vx-tabpane flex-1" style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 			@if (presentable && Screen) {
 				<PresentedStacks value={new Set(presented).add(presentable.stack)}>
 					<RouteHost screen={Screen} layouts={layoutsFor(presentable.name)} params={screenParams(presentable)} boundary={errorBoundaryFor(presentable.name)} route={presentable} />

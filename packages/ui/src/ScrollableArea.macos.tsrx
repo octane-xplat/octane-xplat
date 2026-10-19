@@ -56,22 +56,15 @@ export function ScrollableArea(props: ScrollableAreaProps) @{
 	const handle = useMemo(() => scrollableAreaHandle(viewport), [])
 	useImperativeHandle(props.ref, () => handle, [props.ref])
 
-	<scrollview
-		{...area.getViewportProps({ ref: viewport })}
-		{...layoutChildProps(props)}
-		id={props.id}
-		className={props.className}
-		style={mergeStyle({width: props.width,
+	<scrollview {...area.getViewportProps({ ref: viewport })} {...layoutChildProps(props, mergeStyle({width: props.width,
 			height: props.height,
 			maxWidth: props.maxWidth,
-			minHeight: props.minHeight}, props.style as any)}
-		accessibilityLabel={props.accessibilityLabel ?? props.label}
-	>
-		<masonview {...area.getContentProps()} flexDirection={horizontal ? 'row' : 'column'} style={mergeStyle({display: "flex"}, {
+			minHeight: props.minHeight}, props.style as any))} id={props.id} className={props.className} accessibilityLabel={props.accessibilityLabel ?? props.label}>
+		<masonview {...area.getContentProps()} style={mergeStyle({flexDirection: horizontal ? 'row' : 'column'}, mergeStyle({display: "flex"}, {
 				paddingTop: spacingStep(props.paddingBlockStart) ?? spacingStep(props.paddingBlock) ?? padding ?? 0,
 				paddingBottom: spacingStep(props.paddingBlockEnd) ?? spacingStep(props.paddingBlock) ?? padding ?? 0,
 				paddingLeft: spacingStep(props.paddingInlineStart) ?? spacingStep(props.paddingInline) ?? padding ?? 0,
 				paddingRight: spacingStep(props.paddingInlineEnd) ?? spacingStep(props.paddingInline) ?? padding ?? 0,
-			})}>{props.children}</masonview>
+			}))}>{props.children}</masonview>
 	</scrollview>
 }

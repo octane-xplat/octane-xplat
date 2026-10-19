@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import type { ItemComponent, ItemProps, ItemSlotProps } from './props'
 import { Pressable } from './Pressable.macos.tsrx'
 import { Text } from './Text.macos.tsrx'
@@ -9,7 +10,7 @@ function StartContent(props: ItemSlotProps) @{
 }
 
 function Content(props: ItemSlotProps) @{
-	<masonview flexDirection="column" className={cx('vx-item-content', props.className)} style={{display: "flex"}}>{props.children}</masonview>
+	<masonview className={cx('vx-item-content', props.className)} style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>{props.children}</masonview>
 }
 
 function Description(props: ItemSlotProps) @{

@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { useImperativeHandle, useRef, useState } from 'octane'
 import type { TextAreaProps, TextInputProps } from './props'
 import { cx } from '@octane-xplat/lib'
@@ -29,7 +30,7 @@ export function TextInput(inputProps: TextInputProps) @{
 		get native() { return el.current },
 	}), [])
 
-	<masonview className={cx('vx-input-shell', props.inInputGroup && 'vx-input-shell--ingroup')} flexDirection="row" alignItems="center" accessibilityState={{ busy: props.isLoading }} style={{display: "flex"}}>
+	<masonview className={cx('vx-input-shell', props.inInputGroup && 'vx-input-shell--ingroup')} accessibilityState={{ busy: props.isLoading }} style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
 		<textfield
 			ref={el}
 			secure={props.secure}

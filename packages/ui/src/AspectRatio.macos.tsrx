@@ -24,7 +24,7 @@ export function AspectRatio(props: AspectRatioProps) @{
 			...(ellipse ? { borderRadius: '50%' as any } : {}),
 			...(props.style as any),
 		})} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole} accessibilityHint={props.accessibilityHint}>
-		<masonview className="vx-aspectratio-content" justifyContent={(fit !== 'cover' ? 'center' : undefined) as any} alignItems={(fit !== 'cover' ? 'center' : undefined) as any} style={mergeStyle({display: "flex"}, { flexGrow: 1 })}>
+		<masonview className="vx-aspectratio-content" style={mergeStyle({justifyContent: (fit !== 'cover' ? 'center' : undefined) as any, alignItems: (fit !== 'cover' ? 'center' : undefined) as any}, mergeStyle({display: "flex"}, { flexGrow: 1 }))}>
 			{props.children}
 		</masonview>
 	</masonview>

@@ -15,7 +15,7 @@ export function Center(props: CenterProps) @{
 
 	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
-	<masonview id={props.id} ref={forwardedRef} flexDirection="row" justifyContent={(axis !== 'vertical' ? 'center' : undefined) as any} alignItems={(axis !== 'horizontal' ? 'center' : undefined) as any} className={cx('vx-center', props.className)} style={mergeStyle({display: "flex"}, {
+	<masonview id={props.id} ref={forwardedRef} className={cx('vx-center', props.className)} style={mergeStyle({flexDirection: "row", justifyContent: (axis !== 'vertical' ? 'center' : undefined) as any, alignItems: (axis !== 'horizontal' ? 'center' : undefined) as any}, mergeStyle({display: "flex"}, {
 			...(spacingPx(props.paddingInlineStart ?? props.paddingInline) ?? pad) !== undefined ? { paddingLeft: (spacingPx(props.paddingInlineStart ?? props.paddingInline) ?? pad) } : {},
 			...(spacingPx(props.paddingInlineEnd ?? props.paddingInline) ?? pad) !== undefined ? { paddingRight: (spacingPx(props.paddingInlineEnd ?? props.paddingInline) ?? pad) } : {},
 			...(spacingPx(props.paddingBlockStart ?? props.paddingBlock) ?? pad) !== undefined ? { paddingTop: (spacingPx(props.paddingBlockStart ?? props.paddingBlock) ?? pad) } : {},
@@ -25,7 +25,7 @@ export function Center(props: CenterProps) @{
 			...(props.maxWidth != null ? { maxWidth: props.maxWidth } : {}),
 			...(props.minHeight != null ? { minHeight: props.minHeight } : {}),
 			...(props.style as any),
-		})} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole} accessibilityHint={props.accessibilityHint}>
+		}))} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole} accessibilityHint={props.accessibilityHint}>
 		{props.children}
 	</masonview>
 }

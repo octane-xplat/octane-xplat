@@ -50,9 +50,9 @@ export function TopNav(props: TopNavProps) @{
 	const hasCenter = props.centerContent != null;
 
 	@if (renderMode === 'mobile-bar') {
-		<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" alignItems="center" className={cx('vx-topnav', 'vx-topnav--mobilebar', props.className)} style={mergeStyle({display: "flex"}, props.style as any)} accessibilityLabel={label}>
+		<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-topnav', 'vx-topnav--mobilebar', props.className)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style as any))} accessibilityLabel={label}>
 			{props.heading}
-			<masonview className="vx-topnav-mobilebar-end" flexDirection="row" alignItems="center" flexGrow={1} justifyContent="flex-end" style={{display: "flex"}}>
+			<masonview className="vx-topnav-mobilebar-end" style={mergeStyle({flexDirection: "row", alignItems: "center", flexGrow: 1, justifyContent: "flex-end"}, {display: "flex"})}>
 				{props.endContent}
 			</masonview>
 			<MobileNavToggle />
@@ -70,32 +70,32 @@ export function TopNav(props: TopNavProps) @{
 			@if (hasCenter) {
 				<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-topnav', 'vx-topnav--grid', props.className)} style={mergeStyle({display: "grid", gridTemplateColumns: "1fr auto 1fr"}, props.style as any)} accessibilityLabel={label}>
 					<TopNavSlotProvider value="start">
-						<masonview col={0} flexDirection="row" alignItems="center" className="vx-topnav-start" style={{display: "flex"}}>
+						<masonview className="vx-topnav-start" style={mergeStyle({flexDirection: "row", alignItems: "center", gridColumn: '1'}, {display: "flex"})}>
 							{props.heading}
 							{startContent}
 						</masonview>
 					</TopNavSlotProvider>
 					<TopNavSlotProvider value="center">
-						<masonview col={1} flexDirection="row" alignItems="center" justifyContent="center" className="vx-topnav-center" style={{display: "flex"}}>
+						<masonview className="vx-topnav-center" style={mergeStyle({flexDirection: "row", alignItems: "center", justifyContent: "center", gridColumn: '2'}, {display: "flex"})}>
 							{props.centerContent}
 						</masonview>
 					</TopNavSlotProvider>
 					<TopNavSlotProvider value="end">
-						<masonview col={2} flexDirection="row" alignItems="center" justifyContent="flex-end" className="vx-topnav-end" style={{display: "flex"}}>
+						<masonview className="vx-topnav-end" style={mergeStyle({flexDirection: "row", alignItems: "center", justifyContent: "flex-end", gridColumn: '3'}, {display: "flex"})}>
 							{props.endContent}
 						</masonview>
 					</TopNavSlotProvider>
 				</masonview>
 			} @else {
-				<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" alignItems="center" className={cx('vx-topnav', props.className)} style={mergeStyle({display: "flex"}, props.style as any)} accessibilityLabel={label}>
+				<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-topnav', props.className)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style as any))} accessibilityLabel={label}>
 					<TopNavSlotProvider value="start">
-						<masonview flexDirection="row" alignItems="center" flexGrow={1} className="vx-topnav-start" style={{display: "flex"}}>
+						<masonview className="vx-topnav-start" style={mergeStyle({flexDirection: "row", alignItems: "center", flexGrow: 1}, {display: "flex"})}>
 							{props.heading}
 							{startContent}
 						</masonview>
 					</TopNavSlotProvider>
 					<TopNavSlotProvider value="end">
-						<masonview flexDirection="row" alignItems="center" justifyContent="flex-end" className="vx-topnav-end" style={{display: "flex"}}>
+						<masonview className="vx-topnav-end" style={mergeStyle({flexDirection: "row", alignItems: "center", justifyContent: "flex-end"}, {display: "flex"})}>
 							{props.endContent}
 						</masonview>
 					</TopNavSlotProvider>
@@ -146,7 +146,7 @@ export function TopNavHeading(props: TopNavHeadingProps) @{
 		</Pressable>
 	) : null;
 
-	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" alignItems="center" className={cx('vx-topnav-heading', props.className)} style={mergeStyle({display: "flex"}, props.style as any)}>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-topnav-heading', props.className)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style as any))}>
 		{headerIsTrigger ? (
 			<Pressable
 				ref={(v: any) => { anchor.current = v; }}
@@ -154,16 +154,16 @@ export function TopNavHeading(props: TopNavHeadingProps) @{
 				onPress={() => setMenuOpen(!menuOpen)}
 				accessibilityLabel={props.heading ?? props.logoLabel}
 			>
-				<masonview flexDirection="row" alignItems="center" gap={8} style={{display: "flex"}}>
+				<masonview style={mergeStyle({flexDirection: "row", alignItems: "center", gap: 8}, {display: "flex"})}>
 					{logo}
-					<masonview flexDirection="column" style={{display: "flex"}}>{lines}</masonview>
+					<masonview style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>{lines}</masonview>
 					<Icon name="xplat-chevron-down" size={16} />
 				</masonview>
 			</Pressable>
 		) : (
 			<>
 				{logo}
-				<masonview flexDirection="column" style={{display: "flex"}}>{lines}</masonview>
+				<masonview style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>{lines}</masonview>
 			</>
 		)}
 		{hasMenu && !headerIsTrigger ? (
@@ -210,7 +210,7 @@ export function TopNavItem(props: TopNavItemProps) @{
 		accessibilityState={{ disabled: isDisabled, selected: props.isSelected }}
 		onPress={activate}
 	>
-		<masonview flexDirection="row" alignItems="center" gap={6} style={{display: "flex"}}>
+		<masonview style={mergeStyle({flexDirection: "row", alignItems: "center", gap: 6}, {display: "flex"})}>
 			{props.icon != null ? <masonview className="vx-topnav-item-icon" style={{display: "flex"}}>{navIcon(props.icon)}</masonview> : null}
 			{props.isIconOnly ? null : (props.children ?? <Text className="vx-topnav-item-label">{props.label}</Text>)}
 		</masonview>
@@ -237,18 +237,18 @@ export function TopNavMenu(props: TopNavMenuProps) @{
 			style={props.style}
 			onPress={() => setOpen(!open)}
 		>
-			<masonview flexDirection="row" alignItems="center" gap={4} style={{display: "flex"}}>
+			<masonview style={mergeStyle({flexDirection: "row", alignItems: "center", gap: 4}, {display: "flex"})}>
 				<Text className="vx-topnav-item-label">{props.label}</Text>
 				<Icon name={open ? 'xplat-chevron-up' : 'xplat-chevron-down'} size={16} />
 			</masonview>
 		</Pressable>
 		<Popover anchor={anchor} open={open} placement="bottom" onDismiss={() => setOpen(false)} className="vx-topnavmenu-pop">
-			<masonview flexDirection="column" className="vx-topnavmenu" style={{display: "flex"}}>
+			<masonview className="vx-topnavmenu" style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 				@for (const item of props.items; key item.title) {
 					<Pressable className="vx-topnavmenu-item" onPress={() => pick(item)}>
-						<masonview flexDirection="row" alignItems="center" gap={8} style={{display: "flex"}}>
+						<masonview style={mergeStyle({flexDirection: "row", alignItems: "center", gap: 8}, {display: "flex"})}>
 							{item.icon != null ? <masonview className="vx-topnavmenu-item-icon" style={{display: "flex"}}>{navIcon(item.icon)}</masonview> : null}
-							<masonview flexDirection="column" flexGrow={1} style={{display: "flex"}}>
+							<masonview style={mergeStyle({flexDirection: "column", flexGrow: 1}, {display: "flex"})}>
 								<Text className="vx-topnavmenu-item-title">{item.title}</Text>
 								{item.description != null ? <Text className="vx-topnavmenu-item-desc">{item.description}</Text> : null}
 							</masonview>
@@ -279,14 +279,14 @@ export function TopNavMegaMenu(props: TopNavMegaMenuProps) @{
 			style={props.style}
 			onPress={() => setOpenTracked(!open)}
 		>
-			<masonview flexDirection="row" alignItems="center" gap={4} style={{display: "flex"}}>
+			<masonview style={mergeStyle({flexDirection: "row", alignItems: "center", gap: 4}, {display: "flex"})}>
 				<Text className="vx-topnav-item-label">{props.label}</Text>
 				<Icon name={open ? 'xplat-chevron-up' : 'xplat-chevron-down'} size={16} />
 			</masonview>
 		</Pressable>
 		<Popover anchor={anchor} open={open} placement="bottom" onDismiss={() => setOpenTracked(false)} className="vx-topnavmegamenu-pop">
-			<masonview flexDirection="row" className="vx-topnavmegamenu" style={{display: "flex"}}>
-				<masonview flexDirection="column" className="vx-topnavmegamenu-items" style={{display: "flex"}}>{props.items}</masonview>
+			<masonview className="vx-topnavmegamenu" style={mergeStyle({flexDirection: "row"}, {display: "flex"})}>
+				<masonview className="vx-topnavmegamenu-items" style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>{props.items}</masonview>
 				{props.featured != null ? <masonview className="vx-topnavmegamenu-featured" style={{display: "flex"}}>{props.featured}</masonview> : null}
 			</masonview>
 		</Popover>
@@ -308,9 +308,9 @@ export function TopNavMegaMenuItem(props: TopNavMegaMenuItemProps) @{
 		accessibilityRole="link"
 		onPress={activate}
 	>
-		<masonview flexDirection="row" alignItems="center" gap={8} style={{display: "flex"}}>
+		<masonview style={mergeStyle({flexDirection: "row", alignItems: "center", gap: 8}, {display: "flex"})}>
 			{props.icon != null ? <masonview className="vx-topnavmegamenu-item-icon" style={{display: "flex"}}>{navIcon(props.icon, 20)}</masonview> : null}
-			<masonview flexDirection="column" flexGrow={1} style={{display: "flex"}}>
+			<masonview style={mergeStyle({flexDirection: "column", flexGrow: 1}, {display: "flex"})}>
 				<Text className="vx-topnavmegamenu-item-title">{props.title}</Text>
 				{props.description != null ? <Text className="vx-topnavmegamenu-item-desc">{props.description}</Text> : null}
 			</masonview>
@@ -321,9 +321,9 @@ export function TopNavMegaMenuItem(props: TopNavMegaMenuItemProps) @{
 /** TopNavMegaMenuFeaturedCard — the marketing card inside a mega menu's
  *  featured panel. */
 export function TopNavMegaMenuFeaturedCard(props: TopNavMegaMenuFeaturedCardProps) @{
-	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="column" className={cx('vx-topnavmegamenu-card', props.className)} style={mergeStyle({display: "flex"}, props.style as any)}>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-topnavmegamenu-card', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style as any))}>
 		{props.image != null ? <Image src={props.image} className="vx-topnavmegamenu-card-image" /> : null}
-		<masonview flexDirection="column" className="vx-topnavmegamenu-card-body" style={{display: "flex"}}>
+		<masonview className="vx-topnavmegamenu-card-body" style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 			<Text className="vx-topnavmegamenu-card-title">{props.title}</Text>
 			{props.description != null ? <Text className="vx-topnavmegamenu-card-desc">{props.description}</Text> : null}
 			{props.linkHref != null && props.linkLabel != null ? (

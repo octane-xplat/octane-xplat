@@ -9,7 +9,7 @@ import { applyEscapeProps } from "./escape-props";
 export function Stepper(props: StepperProps) @{
 	const current = props.current ?? 0;
 
-	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx('vx-stepper', props.className)} style={mergeStyle({display: "flex"}, props.style as any)}>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-stepper', props.className)} style={mergeStyle({flexDirection: "row"}, mergeStyle({display: "flex"}, props.style as any))}>
 		@for (const e of props.steps.map((step, i) => ({ step, i })); key e.step.key) {
 			<masonview className="vx-stepper-cell" style={{display: "flex"}}>
 				{e.i > 0 ? <masonview className={cx('vx-stepper-line', (e.i <= current) && 'vx-stepper-line--done')} style={{display: "flex"}}/> : null}

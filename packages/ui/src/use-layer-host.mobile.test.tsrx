@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { describe, expect, it, vi } from 'vitest'
 import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
 // Exercise the AppKit/default leaf with the object driver and a host bridge.
@@ -7,7 +8,7 @@ import { useLayer } from './use-layer.tsrx'
 let layer: any
 function Probe(props: { body: string; label: string; surface?: any; onShow?: () => void; onHide?: () => void }) {
 	layer = useLayer({ mode: 'context', onShow: props.onShow, onHide: props.onHide })
-	return <masonview flexDirection="column" ref={layer.ref} style={{display: "flex"}}>{layer.render(props.body, { accessibilityLabel: props.label, ...props.surface })}</masonview>
+	return <masonview ref={layer.ref} style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>{layer.render(props.body, { accessibilityLabel: props.label, ...props.surface })}</masonview>
 }
 
 describe('useLayer AppKit host content', () => {

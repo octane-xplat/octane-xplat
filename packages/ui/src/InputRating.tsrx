@@ -23,7 +23,7 @@ export function InputRating(inputProps: InputRatingProps) @{
 		props.onValueChange?.(n);
 	};
 
-	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx('vx-rating', props.isDisabled && 'vx-rating--disabled', props.isReadOnly && 'vx-rating--readonly', props.isLoading && 'vx-rating--loading', props.status && `vx-rating--status-${props.status.type}`, props.size && `vx-rating--size-${props.size}`, props.className)} style={mergeStyle({display: "flex"}, props.style as any)} accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label} accessibilityHint={props.accessibilityHint} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled }) as any}>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-rating', props.isDisabled && 'vx-rating--disabled', props.isReadOnly && 'vx-rating--readonly', props.isLoading && 'vx-rating--loading', props.status && `vx-rating--status-${props.status.type}`, props.size && `vx-rating--size-${props.size}`, props.className)} style={mergeStyle({flexDirection: "row"}, mergeStyle({display: "flex"}, props.style as any))} accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label} accessibilityHint={props.accessibilityHint} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled }) as any}>
 		@for (const score of Array.from({ length: max }, (_, i) => i + 1); key score) {
 			<masonview className={cx('vx-rating-cell', score <= value && 'vx-rating-cell--on')} onTap={isBlocked ? undefined : () => setValue(score)} style={{display: "flex"}}>
 				{props.icon ? <Icon name={props.icon} /> : <label className="vx-rating-glyph" text="★" />}

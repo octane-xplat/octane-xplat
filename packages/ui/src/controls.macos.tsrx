@@ -67,15 +67,15 @@ export function Checkbox(inputProps: CheckboxProps) @{
 		props.onCheckedChange?.(next)
 	}
 
-	<masonview id={props.id} flexDirection="row" alignItems="center" gap={props.label == null ? 0 : 8} className={cx('vx-checkbox-row', checked && 'vx-checkbox--on', props.isDisabled && 'vx-checkbox--disabled', props.isReadOnly && 'vx-checkbox--readonly', props.isLoading && 'vx-checkbox--loading', props.status && `vx-checkbox--status-${props.status.type}`, props.size && `vx-checkbox--size-${props.size}`, props.className)} style={mergeStyle({display: "flex"}, { opacity: props.isDisabled ? 0.5 : 1, ...(props.style as any) })} accessibilityRole="checkbox" accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label} accessibilityHint={props.accessibilityHint} accessibilityValue={props.indeterminate ? 'Partially selected' : undefined} accessibilityState={{ checked: props.indeterminate ? 'mixed' : checked, disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' }} onTap={isBlocked ? undefined : toggle}>
-		<masonview className="vx-checkbox" alignItems="center" justifyContent="center" style={mergeStyle({display: "flex"}, {
+	<masonview id={props.id} className={cx('vx-checkbox-row', checked && 'vx-checkbox--on', props.isDisabled && 'vx-checkbox--disabled', props.isReadOnly && 'vx-checkbox--readonly', props.isLoading && 'vx-checkbox--loading', props.status && `vx-checkbox--status-${props.status.type}`, props.size && `vx-checkbox--size-${props.size}`, props.className)} style={mergeStyle({flexDirection: "row", alignItems: "center", gap: props.label == null ? 0 : 8}, mergeStyle({display: "flex"}, { opacity: props.isDisabled ? 0.5 : 1, ...(props.style as any) }))} accessibilityRole="checkbox" accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label} accessibilityHint={props.accessibilityHint} accessibilityValue={props.indeterminate ? 'Partially selected' : undefined} accessibilityState={{ checked: props.indeterminate ? 'mixed' : checked, disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' }} onTap={isBlocked ? undefined : toggle}>
+		<masonview className="vx-checkbox" style={mergeStyle({alignItems: "center", justifyContent: "center"}, mergeStyle({display: "flex"}, {
 				width: 20,
 				height: 20,
 				borderWidth: 1,
 				borderColor: marked ? colors.primary : colors.border,
 				borderRadius: 6,
 				...(marked ? { backgroundColor: colors.primary } : {}),
-			})}>
+			}))}>
 			{marked ? <Text className="vx-checkbox-check" style={{ fontFamily: 'system-ui', fontSize: 14, lineHeight: '20px', color: colors.onPrimary }}>{props.indeterminate ? '−' : '✓'}</Text> : null}
 		</masonview>
 		{props.label != null ? <Text className="vx-checkbox-label">{props.label}</Text> : null}
@@ -93,14 +93,14 @@ export function Switch(inputProps: SwitchProps) @{
 		props.onCheckedChange?.(!checked)
 	}
 
-	<masonview id={props.id} flexDirection="row" justifyContent={checked ? 'end' : 'start'} alignItems="center" className={cx('vx-switch', checked && 'vx-switch--on', props.isDisabled && 'vx-switch--disabled', props.isReadOnly && 'vx-switch--readonly', props.isLoading && 'vx-switch--loading', props.status && `vx-switch--status-${props.status.type}`, props.size && `vx-switch--size-${props.size}`, props.className)} style={mergeStyle({display: "flex"}, {
+	<masonview id={props.id} className={cx('vx-switch', checked && 'vx-switch--on', props.isDisabled && 'vx-switch--disabled', props.isReadOnly && 'vx-switch--readonly', props.isLoading && 'vx-switch--loading', props.status && `vx-switch--status-${props.status.type}`, props.size && `vx-switch--size-${props.size}`, props.className)} style={mergeStyle({flexDirection: "row", justifyContent: checked ? 'end' : 'start', alignItems: "center"}, mergeStyle({display: "flex"}, {
 			width: 48,
 			height: 28,
 			padding: 3,
 			borderRadius: 14,
 			backgroundColor: checked ? colors.primary : colors.border,
 			...(props.style as any),
-		})} accessibilityRole="switch" accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label} accessibilityHint={props.accessibilityHint} accessibilityState={{ checked, disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' }} onTap={isBlocked ? undefined : toggle}>
+		}))} accessibilityRole="switch" accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label} accessibilityHint={props.accessibilityHint} accessibilityState={{ checked, disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' }} onTap={isBlocked ? undefined : toggle}>
 		<masonview className="vx-switch-thumb" style={mergeStyle({display: "flex"}, { width: 22, height: 22, borderRadius: 11, backgroundColor: colors.surface })}/>
 	</masonview>
 }

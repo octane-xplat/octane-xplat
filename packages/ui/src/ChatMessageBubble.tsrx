@@ -23,7 +23,7 @@ export function ChatMessageBubble(props: ChatMessageBubbleProps) @{
 
 	<>
 		{hasName ? (
-			<masonview className={cx('vx-chatbubble-name', `vx-chatbubble-name--${density}`, isUser && 'vx-chatbubble-name--end')} alignSelf={isUser ? 'flex-end' : 'flex-start'} style={{display: "flex"}}>
+			<masonview className={cx('vx-chatbubble-name', `vx-chatbubble-name--${density}`, isUser && 'vx-chatbubble-name--end')} style={mergeStyle({alignSelf: isUser ? 'flex-end' : 'flex-start'}, {display: "flex"})}>
 				{props.name}
 			</masonview>
 		) : null}
@@ -34,11 +34,11 @@ export function ChatMessageBubble(props: ChatMessageBubbleProps) @{
 				`vx-chatbubble--${density}`,
 				props.group && `vx-chatbubble--${props.group}-${isUser ? 'user' : 'assistant'}`,
 				props.className,
-			)} style={mergeStyle({display: "flex"}, { ...(props.width != null ? { width: props.width } : {}), ...(props.style as any) })} flexDirection="column">
+			)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { ...(props.width != null ? { width: props.width } : {}), ...(props.style as any) }))}>
 			{props.children}
 		</masonview>
 		{hasMetadata ? (
-			<masonview className={cx('vx-chatbubble-meta', `vx-chatbubble-meta--${density}`, isUser && 'vx-chatbubble-meta--end')} alignSelf={isUser ? 'flex-end' : 'flex-start'} style={{display: "flex"}}>
+			<masonview className={cx('vx-chatbubble-meta', `vx-chatbubble-meta--${density}`, isUser && 'vx-chatbubble-meta--end')} style={mergeStyle({alignSelf: isUser ? 'flex-end' : 'flex-start'}, {display: "flex"})}>
 				{props.metadata}
 			</masonview>
 		) : null}

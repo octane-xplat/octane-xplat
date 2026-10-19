@@ -180,8 +180,8 @@ export function Calendar(props: CalendarProps) @{
 		)
 	}
 
-	<masonview flexDirection="column" id={props.id} className={cx('vx-calendar', mode === 'range' && 'vx-calendar--range', numberOfMonths === 2 && 'vx-calendar--two-months', props.className)} style={mergeStyle({display: "flex"}, props.style as any)}>
-		<masonview flexDirection={props.direction === 'rtl' ? 'row-reverse' : 'row'} alignItems="center" className="vx-calendar-header" style={{display: "flex"}}>
+	<masonview id={props.id} className={cx('vx-calendar', mode === 'range' && 'vx-calendar--range', numberOfMonths === 2 && 'vx-calendar--two-months', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style as any))}>
+		<masonview className="vx-calendar-header" style={mergeStyle({flexDirection: props.direction === 'rtl' ? 'row-reverse' : 'row', alignItems: "center"}, {display: "flex"})}>
 			<Pressable
 				className="vx-calendar-nav vx-calendar-nav--prev"
 				accessibilityLabel={messages.previousMonth}
@@ -191,7 +191,7 @@ export function Calendar(props: CalendarProps) @{
 			>
 				<Icon name="xplat-chevron-left" size={16} />
 			</Pressable>
-			<label className="vx-calendar-title" text={monthYearLabel} flexGrow={1} textAlignment="center" />
+			<label className="vx-calendar-title" text={monthYearLabel} textAlignment="center" style={{flexGrow: 1}}/>
 			<Pressable
 				className="vx-calendar-nav vx-calendar-nav--next"
 				accessibilityLabel={messages.nextMonth}
@@ -202,15 +202,15 @@ export function Calendar(props: CalendarProps) @{
 				<Icon name="xplat-chevron-right" size={16} />
 			</Pressable>
 		</masonview>
-		<masonview flexDirection="column" className="vx-calendar-months" style={{display: "flex"}}>
+		<masonview className="vx-calendar-months" style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 			{months.map((grid) => (
-				<masonview key={`${grid.year}-${grid.month}`} flexDirection="column" className="vx-calendar-month" style={{display: "flex"}}>
-					<masonview flexDirection={props.direction === 'rtl' ? 'row-reverse' : 'row'} className="vx-calendar-weeknames" style={{display: "flex"}}>
+				<masonview key={`${grid.year}-${grid.month}`} className="vx-calendar-month" style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
+					<masonview className="vx-calendar-weeknames" style={mergeStyle({flexDirection: props.direction === 'rtl' ? 'row-reverse' : 'row'}, {display: "flex"})}>
 						{props.hasWeekNumbers ? <label className="vx-calendar-weeknumber vx-calendar-weeknumber--head" /> : null}
 						{grid.dayNames.map((name, i) => <label key={i} className="vx-calendar-weekname" text={name} />)}
 					</masonview>
 					{grid.weeks.map((week, w) => (
-						<masonview key={w} flexDirection={props.direction === 'rtl' ? 'row-reverse' : 'row'} className="vx-calendar-week" style={{display: "flex"}}>
+						<masonview key={w} className="vx-calendar-week" style={mergeStyle({flexDirection: props.direction === 'rtl' ? 'row-reverse' : 'row'}, {display: "flex"})}>
 							{props.hasWeekNumbers
 								? <label className="vx-calendar-weeknumber" text={String(plainDateGetWeekNumber(week[0].date))} />
 								: null}

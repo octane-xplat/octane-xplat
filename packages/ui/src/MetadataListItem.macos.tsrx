@@ -21,7 +21,7 @@ export function MetadataListItem(props: MetadataListItemProps) @{
 		(ctx?.labelPosition ?? 'start') === 'top' || ctx?.orientation === 'horizontal';
 
 	const labelRow = (
-		<masonview className="vx-metadatalist-label" flexDirection="row" style={mergeStyle({display: "flex"}, ctx?.labelWidth != null ? { width: ctx.labelWidth } : undefined)}>
+		<masonview className="vx-metadatalist-label" style={mergeStyle({flexDirection: "row"}, mergeStyle({display: "flex"}, ctx?.labelWidth != null ? { width: ctx.labelWidth } : undefined))}>
 			{isRenderable(props.icon) ? props.icon : null}
 			<label className="vx-metadatalist-label-text text-sm text-muted" whiteSpace="normal">
 				{props.label}
@@ -31,7 +31,7 @@ export function MetadataListItem(props: MetadataListItemProps) @{
 
 	if (isStacked) {
 		return (
-			<masonview id={props.id} className={cx('vx-metadatalist-item', props.className)} style={mergeStyle({display: "flex"}, { flexDirection: 'column', marginBottom: 8, ...(props.style as any) })} flexDirection="column">
+			<masonview id={props.id} className={cx('vx-metadatalist-item', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { flexDirection: 'column', marginBottom: 8, ...(props.style as any) }))}>
 				{labelRow}
 				{childContent(props.children, 'vx-metadatalist-value')}
 			</masonview>

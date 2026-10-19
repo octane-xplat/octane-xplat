@@ -39,7 +39,7 @@ export function FormLayout(props: FormLayoutProps) @{
 				{props.children}
 			</masonview>
 		) : (
-			<masonview id={props.id} ref={forwardedRef2} flexDirection="column" gap={16} className={cx('vx-formlayout', `vx-formlayout--${direction}`, props.className)} style={mergeStyle({display: "flex"}, props.style as any)} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
+			<masonview id={props.id} ref={forwardedRef2} className={cx('vx-formlayout', `vx-formlayout--${direction}`, props.className)} style={mergeStyle({flexDirection: "column", gap: 16}, mergeStyle({display: "flex"}, props.style as any))} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
 				{props.children}
 			</masonview>
 		)}

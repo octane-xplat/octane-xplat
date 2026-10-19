@@ -423,25 +423,25 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		onScroll={onScroll}
 		onLayoutChanged={onScrollViewLayout}
 	>
-		<masonview flexDirection="column" style={{display: "flex"}}>
+		<masonview style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 			@if (props.renderHeader) {
-				<masonview className="vx-virtual-list-header" flexDirection="column" onLayoutChanged={onHeaderLayout} style={{display: "flex"}}>
+				<masonview className="vx-virtual-list-header" onLayoutChanged={onHeaderLayout} style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 					{props.renderHeader()}
 				</masonview>
 			}
 			@if (entries.length === 0) {
 				@if (props.renderEmpty) {
-					<masonview className="vx-virtual-list-empty" flexDirection="column" style={{display: "flex"}}>
+					<masonview className="vx-virtual-list-empty" style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 						{props.renderEmpty()}
 					</masonview>
 				}
 			} @else {
-				<masonview flexDirection="column" style={{display: "flex"}}>
+				<masonview style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 					<masonview className="vx-virtual-list-spacer" style={mergeStyle({display: "flex"}, { height: range.top })} ref={(view: any) => {
 							topSpacerRef.current = view
 						}}/>
 					@for (const entry of visibleEntries; key entry.rowKey) {
-						<masonview flexDirection="column" className="vx-virtual-list-row" onLayoutChanged={(event: AppKitLayoutEvent) => onRowLayout(entry, event)} style={{display: "flex"}}>
+						<masonview className="vx-virtual-list-row" onLayoutChanged={(event: AppKitLayoutEvent) => onRowLayout(entry, event)} style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 							{props.renderItem(entry.item, entry.index)}
 							{hasSeparator && entry.index < entries.length - 1 ? props.renderSeparator?.() : null}
 						</masonview>
@@ -450,7 +450,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 				</masonview>
 			}
 			@if (props.renderFooter) {
-				<masonview className="vx-virtual-list-footer" flexDirection="column" style={{display: "flex"}}>
+				<masonview className="vx-virtual-list-footer" style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 					{props.renderFooter()}
 				</masonview>
 			}

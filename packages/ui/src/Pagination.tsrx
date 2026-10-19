@@ -28,7 +28,7 @@ export function Pagination(props: PaginationProps) @{
 		props.onPageChange?.(p);
 	};
 
-	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx('vx-pagination', props.disabled && 'vx-pagination--disabled', props.className)} style={mergeStyle({display: "flex"}, props.style as any)}>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-pagination', props.disabled && 'vx-pagination--disabled', props.className)} style={mergeStyle({flexDirection: "row"}, mergeStyle({display: "flex"}, props.style as any))}>
 		<masonview className="vx-page-btn" onTap={() => go(current - 1)} style={{display: "flex"}}><label text="‹" /></masonview>
 		@for (const e of pages; key e.key) {
 			@if (e.page == null) {

@@ -78,7 +78,7 @@ export function Overlay(props: OverlayProps) @{
 	useEffect(() => () => shown.current?.lifetime.close(), []);
 
 	<>
-		<masonview flexDirection="column" ref={(v: any) => { hostView.current = v; }} style={mergeStyle({display: "flex"}, { width: 0, height: 0 })}/>
+		<masonview ref={(v: any) => { hostView.current = v; }} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { width: 0, height: 0 }))}/>
 		{open && portalHost ? createPortal(<><SizeProvider value={null}>{props.children}</SizeProvider></>, portalHost) : null}
 	</>
 }

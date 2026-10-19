@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import type { NavLinkProps } from './props';
 import { Pressable } from './Pressable.macos.tsrx';
 import { pushRoute, useRoute } from './route.macos';
@@ -19,6 +20,6 @@ export function NavLink(props: NavLinkProps) @{
 		accessibilityRole="link"
 		onPress={() => pushRoute(props.route)}
 	>
-		<masonview flexDirection="row" style={{display: "flex"}}>{props.children}</masonview>
+		<masonview style={mergeStyle({flexDirection: "row"}, {display: "flex"})}>{props.children}</masonview>
 	</Pressable>
 }

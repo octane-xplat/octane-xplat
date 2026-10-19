@@ -55,7 +55,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 	useImperativeHandle(props.ref, () => ({ focus: () => {}, blur: () => {}, native: hostRef.current }), undefined);
 
 	<>
-		<masonview flexDirection="row" alignItems="center" className={cx(
+		<masonview className={cx(
 				'vx-daterangeinput',
 				isDisabled && 'vx-daterangeinput--disabled',
 				isBusy && 'vx-daterangeinput--loading',
@@ -63,7 +63,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 				props.size && `vx-daterangeinput--size-${props.size}`,
 				open && 'vx-daterangeinput--open',
 				props.className,
-			)} style={mergeStyle({display: "flex"}, props.style as any)}>
+			)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style as any))}>
 			<Pressable
 				id={inputId}
 				className={cx('vx-daterangeinput-trigger', !shown && 'vx-daterangeinput-trigger--placeholder')}
@@ -74,7 +74,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 				ref={(v: any) => { hostRef.current = v; }}
 				onPress={() => { if (!isDisabled && !isBusy) setOpen(!open) }}
 			>
-				<masonview flexDirection="row" alignItems="center" style={{display: "flex"}}>
+				<masonview style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
 					<Icon name="xplat-calendar" size={16} />
 					<label className="vx-daterangeinput-text" text={displayText || 'Select a date range'} />
 				</masonview>
@@ -87,10 +87,10 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 				: null}
 		</masonview>
 		<BottomSheet isOpen={open} onOpenChange={(isOpen) => setOpen(isOpen)} label={props.label ?? props.accessibilityLabel ?? 'Choose a date range'} height="hug" className="vx-daterangeinput-sheet">
-			<masonview flexDirection="column" className="vx-daterangeinput-dialog" style={{display: "flex"}}>
+			<masonview className="vx-daterangeinput-dialog" style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 				{props.presets?.length ? (
 					<scrollview className="vx-daterangeinput-presets" accessibilityLabel="Presets">
-						<masonview flexDirection="column" style={{display: "flex"}}>
+						<masonview style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 							{props.presets.map((preset, index) => (
 								<masonview key={preset.label} id={`${inputId}-preset-${index}`} onTap={() => { if (!isPresetDisabled(preset)) selectRange(preset.getRange()) }} className={cx('vx-daterangeinput-preset', isSelectedPreset(preset) && 'vx-daterangeinput-preset--selected')} accessibilityRole={"button" as any} isEnabled={!isPresetDisabled(preset)} accessibilityState={{ selected: isSelectedPreset(preset), disabled: isPresetDisabled(preset) } as any} style={{display: "flex"}}>
 									<label text={preset.label} />

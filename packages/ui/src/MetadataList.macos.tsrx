@@ -43,7 +43,7 @@ export function MetadataList(props: MetadataListProps) @{
 	<MetadataListProvider
 		value={{ labelPosition, labelWidth: props.label?.width, orientation }}
 	>
-		<masonview id={props.id} className={cx('vx-metadatalist', props.className)} style={mergeStyle({display: "flex"}, { flexDirection: 'column', ...(props.style as any) })} flexDirection="column">
+		<masonview id={props.id} className={cx('vx-metadatalist', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { flexDirection: 'column', ...(props.style as any) }))}>
 			{props.title != null ? (
 				<masonview style={mergeStyle({display: "flex"}, { marginBottom: 12 })}>
 					{typeof props.title === 'string' || typeof props.title === 'number'
@@ -52,7 +52,7 @@ export function MetadataList(props: MetadataListProps) @{
 				</masonview>
 			) : null}
 			{isHorizontal ? (
-				<masonview className="flex-row" flexDirection="row" gap={16} style={{display: "flex"}}>
+				<masonview className="flex-row" style={mergeStyle({flexDirection: "row", gap: 16}, {display: "flex"})}>
 					{visibleChildren}
 				</masonview>
 			) : (

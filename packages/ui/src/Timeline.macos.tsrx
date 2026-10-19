@@ -13,7 +13,7 @@ export function Timeline(props: TimelineProps) @{
 				{/* rail/dot/line metrics are CSS on web — inline equivalents
 				   here (AppKit has no style layer); keep in step with
 				   .vx-timeline-* */}
-				<masonview className="vx-timeline-rail" style={mergeStyle({display: "flex"}, { width: 20 })} alignItems="center">
+				<masonview className="vx-timeline-rail" style={mergeStyle({alignItems: "center"}, mergeStyle({display: "flex"}, { width: 20 }))}>
 					<masonview className="vx-timeline-dot" style={mergeStyle({display: "flex"}, { width: 10, height: 10, borderRadius: 5, backgroundColor: '#171717' })}>{e.item.icon ? <Icon name={e.item.icon} /> : null}</masonview>
 					{e.i < props.items.length - 1 ? <masonview className="vx-timeline-line flex-1" style={mergeStyle({display: "flex"}, { width: 1, backgroundColor: '#d4d4d4' })}/> : null}
 				</masonview>

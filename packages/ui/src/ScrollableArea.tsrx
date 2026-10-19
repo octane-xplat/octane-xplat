@@ -106,7 +106,7 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
 
 	<masonview ref={(v: any) => {
 			if (v?.ios) v.ios.clipsToBounds = true;
-		}} {...layoutChildProps(props)} className={cx('vx-refresh-wrap', props.className)} style={mergeStyle({display: "grid"}, props.style as any)}>
+		}} {...layoutChildProps(props, mergeStyle({display: "grid"}, props.style as any))} className={cx('vx-refresh-wrap', props.className)}>
 		<scrollview
 			ref={forwardedRef}
 			id={props.id}
@@ -115,7 +115,7 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
 			orientation="vertical"
 			{...a11y(props)}
 		>
-			<masonview flexDirection="column" style={mergeStyle({display: "flex"}, contentPadding(props))}>
+			<masonview style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, contentPadding(props)))}>
 				{props.children}
 			</masonview>
 		</scrollview>
@@ -158,19 +158,10 @@ function ScrollableAreaCore(props: ScrollableAreaProps) @{
 				applyEscapeProps(v, props);
 			}), [props.ios, props.android, props.web]);
 
-	<scrollview
-		ref={forwardedRef}
-		id={props.id}
-		testID={props.testID ?? ''}
-		{...layoutChildProps(props)}
-		className={cx('vx-scrollable', props.className)}
-		style={mergeStyle({width: props.width as any,
+	<scrollview ref={forwardedRef} id={props.id} testID={props.testID ?? ''} {...layoutChildProps(props, mergeStyle({width: props.width as any,
 			height: props.height as any,
 			maxWidth: props.maxWidth as any,
-			minHeight: props.minHeight as any}, props.style as any)}
-		orientation={both ? 'vertical' : horizontal ? 'horizontal' : 'vertical'}
-		{...a11y(props)}
-	>
+			minHeight: props.minHeight as any}, props.style as any))} className={cx('vx-scrollable', props.className)} orientation={both ? 'vertical' : horizontal ? 'horizontal' : 'vertical'} {...a11y(props)}>
 		{both ? (
 			<scrollview
 				ref={(v: any) => {
@@ -178,12 +169,12 @@ function ScrollableAreaCore(props: ScrollableAreaProps) @{
 				}}
 				orientation="horizontal"
 			>
-				<masonview flexDirection="row" style={mergeStyle({display: "flex"}, contentPadding(props))}>
+				<masonview style={mergeStyle({flexDirection: "row"}, mergeStyle({display: "flex"}, contentPadding(props)))}>
 					{props.children}
 				</masonview>
 			</scrollview>
 		) : (
-			<masonview flexDirection={horizontal ? 'row' : 'column'} style={mergeStyle({display: "flex"}, contentPadding(props))}>
+			<masonview style={mergeStyle({flexDirection: horizontal ? 'row' : 'column'}, mergeStyle({display: "flex"}, contentPadding(props)))}>
 				{props.children}
 			</masonview>
 		)}

@@ -51,16 +51,16 @@ export function ListItem(props: ListItemProps) @{
 
 	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
-	<masonview id={props.id} ref={forwardedRef} flexDirection="row" alignItems="center" className={cx(
+	<masonview id={props.id} ref={forwardedRef} className={cx(
 			'vx-listitem',
 			`vx-listitem--density-${density}`,
 			interactive && 'vx-listitem--interactive',
 			props.isDisabled && 'vx-listitem--disabled',
 			props.isSelected && 'vx-listitem--selected',
 			props.className,
-		)} style={mergeStyle({display: "flex"}, props.style as any)} onTap={interactive && !props.isDisabled ? activate : undefined} accessible={props.accessible ?? (interactive ? true : undefined)} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole ?? (props.href != null ? 'link' : props.onPress != null ? 'button' : 'text')) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled, selected: props.isSelected }) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
+		)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style as any))} onTap={interactive && !props.isDisabled ? activate : undefined} accessible={props.accessible ?? (interactive ? true : undefined)} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole ?? (props.href != null ? 'link' : props.onPress != null ? 'button' : 'text')) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled, selected: props.isSelected }) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
 		{props.startContent != null ? <masonview className="vx-listitem-start" style={{display: "flex"}}>{props.startContent}</masonview> : null}
-		<masonview flexDirection="column" flexGrow={1} className="vx-listitem-body" style={mergeStyle({display: "flex"}, { minWidth: 0 })}>
+		<masonview className="vx-listitem-body" style={mergeStyle({flexDirection: "column", flexGrow: 1}, mergeStyle({display: "flex"}, { minWidth: 0 }))}>
 			{labelNode}
 			{descriptionNode}
 			{props.children}

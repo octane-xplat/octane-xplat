@@ -284,7 +284,7 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 		setTimeout(emitChange, 0);
 	};
 
-	<masonview id={props.id} className={cx('vx-chatinput', isDisabled && 'vx-chatinput--disabled', props.className)} style={mergeStyle({display: "flex"}, props.style as any)} flexDirection="column">
+	<masonview id={props.id} className={cx('vx-chatinput', isDisabled && 'vx-chatinput--disabled', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style as any))}>
 		<ChatTriggerMenuOverlay
 			state={triggerMenu.state}
 			anchor={triggerMenu.anchor}
@@ -292,9 +292,9 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 			selectItem={triggerMenu.selectItem}
 		/>
 		{tokens.length > 0 ? (
-			<masonview className="vx-chatinput-tokens" flexDirection="row" flexWrap="wrap" style={{display: "flex"}}>
+			<masonview className="vx-chatinput-tokens" style={mergeStyle({flexDirection: "row", flexWrap: "wrap"}, {display: "flex"})}>
 				{tokens.map((t) => (
-					<masonview className="vx-chatinput-tokenwrap" flexDirection="row" alignItems="center" style={{display: "flex"}}>
+					<masonview className="vx-chatinput-tokenwrap" style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
 						<ChatTokenChip token={t.token} />
 						<label
 							className="vx-chatinput-tokremove"

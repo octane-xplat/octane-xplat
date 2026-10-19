@@ -24,9 +24,9 @@ export function ChatDictationButton(props: ChatDictationButtonProps) @{
 	const accessibleLabel =
 		props.label ?? (isListening ? 'Stop dictation' : 'Start dictation');
 
-	<masonview flexDirection="column" id={props.id} className={cx('vx-chatdict', props.className)} style={mergeStyle({display: "flex"}, props.style as any)}>
+	<masonview id={props.id} className={cx('vx-chatdict', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style as any))}>
 		{isListening ? (
-			<masonview className="vx-chatdict-bars" flexDirection="row" alignItems="center" justifyContent="center" horizontalAlignment="center" verticalAlignment="middle" style={{display: "flex"}}>
+			<masonview className="vx-chatdict-bars" style={mergeStyle({flexDirection: 'row', alignItems: 'center', justifyContent: 'center', alignSelf: 'center'}, {display: 'flex'})}>
 				{bands.slice(0, BAR_COUNT).map((level) => {
 					const scale = 0.08 + Math.min(Math.pow(level / 0.2, 0.5), 1) * 0.92;
 					return <masonview className="vx-chatdict-bar" scaleY={scale} style={{display: "flex"}}/>;

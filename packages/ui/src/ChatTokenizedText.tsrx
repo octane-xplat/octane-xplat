@@ -13,13 +13,13 @@ export function ChatTokenizedText(props: ChatTokenizedTextProps) @{
 	const text = props.children ?? '';
 	if (!text || !props.tokens || props.tokens.length === 0) {
 		return (
-			<masonview id={props.id} className={cx('vx-chattext', props.className)} style={mergeStyle({display: "flex"}, props.style as any)} flexDirection="row" flexWrap="wrap">
+			<masonview id={props.id} className={cx('vx-chattext', props.className)} style={mergeStyle({flexDirection: "row", flexWrap: "wrap"}, mergeStyle({display: "flex"}, props.style as any))}>
 				<label text={text} />
 			</masonview>
 		);
 	}
 
-	<masonview id={props.id} className={cx('vx-chattext', props.className)} style={mergeStyle({display: "flex"}, props.style as any)} flexDirection="row" flexWrap="wrap" alignItems="center">
+	<masonview id={props.id} className={cx('vx-chattext', props.className)} style={mergeStyle({flexDirection: "row", flexWrap: "wrap", alignItems: "center"}, mergeStyle({display: "flex"}, props.style as any))}>
 		{tokenizeChatText(text, props.tokens).map((part) =>
 			part.kind === 'token' ? (
 				<ChatTokenChip token={part.token} />

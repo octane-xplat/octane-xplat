@@ -21,19 +21,12 @@ registerElement('liquidglass', LiquidGlassView);
  *  Glass touch tracking is opt-in to avoid the reported child interception path.
  *  Explicit interactive glass with children still needs device qualification. */
 export function LiquidGlass(props: LiquidGlassProps) @{
-	<liquidglass
-		id={props.id}
-		ref={(v: any) => applyEscapeProps(v, props)}
-		{...layoutChildProps(props)}
-		iosGlassEffect={{
+	<liquidglass id={props.id} ref={(v: any) => applyEscapeProps(v, props)} {...layoutChildProps(props, props.style as any)} iosGlassEffect={{
 			variant: props.variant ?? 'regular',
 			interactive: props.interactive ?? false,
 			tint: props.tint,
 			animateChangeDuration: props.animateChangeDuration,
-		}}
-		className={cx('vx-glass', props.variant === 'clear' ? 'vx-glass--clear' : undefined, props.className)}
-		style={props.style as any}
-	>
+		}} className={cx('vx-glass', props.variant === 'clear' ? 'vx-glass--clear' : undefined, props.className)}>
 		{props.children}
 	</liquidglass>
 }

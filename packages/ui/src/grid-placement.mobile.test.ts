@@ -197,7 +197,7 @@ it.each(['rootlayout', 'contentview'])(
 
 it.each([
 	[UpdatingPlacement, '1'],
-	[UpdatingComposite, 'auto'],
+	[UpdatingComposite, undefined],
 ])(
 	'tracks reactive authored coordinates and removes explicit placement and spans (%s)',
 	async (component, rowLine) => {
@@ -211,10 +211,11 @@ it.each([
 
 		app.root.render(component, { col: undefined, span: undefined })
 		await Promise.resolve()
-		// Removed sugar resets to 'auto' — a stale '1 / span 2' would linger.
-		// UpdatingPlacement still authors row={0}, so its row line stays '1'.
+		// Removal clears the leaf write — a stale '1 / span 2' would linger.
+		// UpdatingPlacement still authors row={0}, so its row line stays '1';
+		// the composite emits no row at all, so its last write is undefined.
 		expect(masonStyleOf(grid.children[0])?.__writes.gridRow).toBe(rowLine)
-		expect(masonStyleOf(grid.children[0])?.__writes.gridColumn).toBe('auto')
+		expect(masonStyleOf(grid.children[0])?.__writes.gridColumn).toBeUndefined()
 
 		app.dispose()
 	},

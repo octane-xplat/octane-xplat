@@ -6,7 +6,7 @@ import { Icon } from './Icon.macos.tsrx';
 
 /** Circular icon container for navigation headers. Display-only. */
 export function NavIcon(props: NavIconProps) @{
-	<masonview id={props.id} className={cx('vx-navicon', props.className)} style={mergeStyle({display: "flex"}, props.style)} justifyContent="center" alignItems="center">
+	<masonview id={props.id} className={cx('vx-navicon', props.className)} style={mergeStyle({justifyContent: "center", alignItems: "center"}, mergeStyle({display: "flex"}, props.style))}>
 		{typeof props.icon === 'string' ? <Icon name={props.icon} size={16} /> : props.icon}
 	</masonview>
 }

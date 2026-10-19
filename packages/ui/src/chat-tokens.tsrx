@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import type { ChatComposerToken, ChatComposerTokenCustom } from './props';
 import { cx } from '@octane-xplat/lib';
 import { Icon } from './Icon';
@@ -19,7 +20,7 @@ export function ChatTokenChip(props: { token: ChatComposerToken; className?: any
 
 	const variant = token.variant ?? 'neutral';
 
-	<masonview className={cx('vx-chat-token', `vx-chattoken--${variant}`, props.className)} flexDirection="row" alignItems="center" style={{display: "flex"}}>
+	<masonview className={cx('vx-chat-token', `vx-chattoken--${variant}`, props.className)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
 		{token.icon ? <Icon name={token.icon} size={12} /> : null}
 		<label className="vx-chattoken-label" text={typeof token.label === 'string' ? token.label : ''} textWrap={false} />
 		{typeof token.label === 'string' ? null : token.label}

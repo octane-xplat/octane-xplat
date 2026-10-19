@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { useState } from 'octane'
 import type { AlertDialogProps } from './props'
 import { Dialog } from './Dialog.macos.tsrx'
@@ -34,7 +35,7 @@ export function AlertDialog(props: AlertDialogProps) @{
 			style={props.style}
 			id={props.id}
 		>
-			<masonview flexDirection="column" className="vx-alertdialog-title" style={{display: "flex"}}>
+			<masonview className="vx-alertdialog-title" style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 				<label className="vx-alertdialog-heading">{props.title}</label>
 			</masonview>
 			{props.description != null && (
@@ -46,7 +47,7 @@ export function AlertDialog(props: AlertDialogProps) @{
 					)}
 				</masonview>
 			)}
-			<masonview flexDirection="row" justifyContent="flex-end" className="vx-alertdialog-actions" style={{display: "flex"}}>
+			<masonview className="vx-alertdialog-actions" style={mergeStyle({flexDirection: "row", justifyContent: "flex-end"}, {display: "flex"})}>
 				<Button
 					className="btn btn-secondary"
 					clickAction={() => requestChange(false)}

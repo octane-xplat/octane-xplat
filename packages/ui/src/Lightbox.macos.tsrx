@@ -11,8 +11,8 @@ function LightboxPanel(props: LightboxProps & { dark?: boolean; layerDepth: numb
 	const item = props.media[props.currentIndex]
 
 	<LayerDepthProvider value={props.layerDepth}>
-	<masonview flexDirection="column" id={props.id} className={cx('vx-lightbox', props.dark && 'ns-dark', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
-		<masonview flexDirection="row" alignItems="center" style={{display: "flex"}}>
+	<masonview id={props.id} className={cx('vx-lightbox', props.dark && 'ns-dark', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style))}>
+		<masonview style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
 			<Button accessibilityLabel="Previous media" isDisabled={props.currentIndex === 0} clickAction={() => props.setIndex(props.currentIndex - 1)}>Previous</Button>
 			<label className="vx-lightbox-counter">{`${props.currentIndex + 1} of ${props.media.length}`}</label>
 			<Button accessibilityLabel="Next media" isDisabled={props.currentIndex === props.media.length - 1} clickAction={() => props.setIndex(props.currentIndex + 1)}>Next</Button>

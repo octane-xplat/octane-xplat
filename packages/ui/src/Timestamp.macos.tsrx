@@ -97,9 +97,9 @@ export function Timestamp(props: TimestampProps) @{
 	return lines.length > 0 ? (
 		<HoverCard
 			content={
-				<masonview flexDirection="column" style={mergeStyle({display: "flex"}, { padding: 8, gap: 4 })}>
+				<masonview style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { padding: 8, gap: 4 }))}>
 					{lines.map((line, i) => (
-						<masonview key={i} flexDirection="row" style={mergeStyle({display: "flex"}, { gap: 8 })}>
+						<masonview key={i} style={mergeStyle({flexDirection: "row"}, mergeStyle({display: "flex"}, { gap: 8 }))}>
 							{line.label != null ? (
 								<label className="text-sm text-muted" text={line.label} />
 							) : null}

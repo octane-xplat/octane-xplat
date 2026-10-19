@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { useMemo, useState } from 'octane'
 import type { ISOTimeString } from './props'
 import { cx } from '@octane-xplat/lib'
@@ -56,7 +57,7 @@ export function TimeWheelPanel(props: TimeWheelProps) @{
 		onPick: (v: number) => void,
 	) => (
 		<scrollview className="vx-timewheel-column" accessibilityLabel={label}>
-			<masonview flexDirection="column" style={{display: "flex"}}>
+			<masonview style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 				{choices.map((c: { value: number; label: string }) => (
 					<masonview key={c.value} className={cx('vx-timewheel-option', c.value === currentValue && 'vx-timewheel-option--selected')} accessibilityRole={"button" as any} accessibilityState={{ selected: c.value === currentValue } as any} accessibilityLabel={`${label} ${c.label}`} onTap={() => onPick(c.value)} style={{display: "flex"}}>
 						<label text={c.label} />
@@ -66,13 +67,13 @@ export function TimeWheelPanel(props: TimeWheelProps) @{
 		</scrollview>
 	)
 
-	<masonview flexDirection="column" className="vx-timewheel" style={{display: "flex"}}>
-		<masonview flexDirection="row" className="vx-timewheel-columns" style={{display: "flex"}}>
+	<masonview className="vx-timewheel" style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
+		<masonview className="vx-timewheel-columns" style={mergeStyle({flexDirection: "row"}, {display: "flex"})}>
 			{column('Hour', hourChoices, hour24, setHour24)}
 			{column('Minute', minuteChoices, minute, setMinute)}
 			{props.hasSeconds ? column('Second', minuteChoices, second, setSecond) : null}
 		</masonview>
-		<masonview flexDirection="row" className="vx-timewheel-actions" style={{display: "flex"}}>
+		<masonview className="vx-timewheel-actions" style={mergeStyle({flexDirection: "row"}, {display: "flex"})}>
 			<Pressable className="vx-timewheel-cancel" accessibilityLabel="Cancel" onPress={props.onDismiss}>
 				<label text="Cancel" />
 			</Pressable>

@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from '../src/style-merge'
 import { useState } from 'octane'
 import { VirtualList } from '../src/VirtualList'
 import type { ProbeContext } from '../../../scripts/probe/context'
@@ -11,7 +12,7 @@ export default function ListGeometry() @{
 	const [rows, setRows] = useState(items)
 
 	<rootlayout>
-		<masonview id="bounded" flexDirection="column" width={280} height={240} style={{display: "flex"}}>
+		<masonview id="bounded" width={280} height={240} style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 			<label id="sort" text="Reverse" height={40} onTap={() => setRows([...rows].reverse())} />
 			<VirtualList id="list" style={{ height: 160 }} items={rows} keyExtractor={keyExtractor} renderItem={renderItem}
 				renderHeader={() => <label id="header" text="Header" height={24} />} />

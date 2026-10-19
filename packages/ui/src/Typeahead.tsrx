@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useMemo, useRef, useState, useSyncExternalStore, useId } from 'octane';
 import type { SearchableItem, TypeaheadInputHandle, TypeaheadProps } from "./props";
 import { useSize } from './size-context';
@@ -18,7 +19,7 @@ function EndLane(props: { lane: BusyIndicatorLane; clear?: any }) @{
 	const isBusy = useSyncExternalStore(props.lane.subscribe, props.lane.getIsBusy);
 	if (!isBusy && props.clear == null) return null;
 
-	<masonview className="vx-typeahead-endlane" flexDirection="row" alignItems="center" style={{display: "flex"}}>
+	<masonview className="vx-typeahead-endlane" style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
 		{isBusy ? <masonview className="vx-typeahead-spinner" style={{display: "flex"}}><ActivityIndicator busy={true} /></masonview> : null}
 		{props.clear}
 	</masonview>
@@ -107,9 +108,9 @@ export function Typeahead<T extends SearchableItem,>(props: TypeaheadProps<T>) @
 				`vx-typeahead--size-${size}`,
 				props.isDisabled && 'vx-typeahead--disabled',
 				props.status && `vx-typeahead--status-${props.status.type}`,
-			)} flexDirection="row" alignItems="center" onTap={handleWrapperTap} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled }) as any} style={{display: "flex"}}>
+			)} onTap={handleWrapperTap} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled }) as any} style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
 			{startIcon}
-			<masonview className="vx-typeahead-content" flexGrow={1} style={{display: "grid"}}>
+			<masonview className="vx-typeahead-content" style={mergeStyle({flexGrow: 1}, {display: "grid"})}>
 				<BusyLaneProvider value={busyLane}>
 					<BaseTypeahead
 						searchSource={props.searchSource}

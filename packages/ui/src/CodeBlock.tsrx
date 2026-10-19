@@ -98,12 +98,12 @@ export function CodeBlock(props: CodeBlockProps) @{
 	const hasHeader = props.title != null || hasLanguageLabel || hasCopyButton || canCollapse;
 
 	const body = (
-		<masonview flexDirection="column" className="vx-codeblock-body" style={mergeStyle({display: "flex"}, { paddingTop: 8, paddingBottom: 8, paddingLeft: 12, paddingRight: 12 })}>
+		<masonview className="vx-codeblock-body" style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { paddingTop: 8, paddingBottom: 8, paddingLeft: 12, paddingRight: 12 }))}>
 			{lines.map((line, i) => {
 				const lineNo = i + 1;
 				const isHl = highlighted.has(lineNo);
 				return (
-					<masonview key={lineNo} flexDirection="row" className={cx('vx-codeblock-line', isHl && 'vx-codeblock-line--highlighted')} style={mergeStyle({display: "flex"}, isHl ? { backgroundColor: nativeColor(scheme === 'dark' ? '#2e2e2e' : '#f0f0f0') } : undefined)}>
+					<masonview key={lineNo} className={cx('vx-codeblock-line', isHl && 'vx-codeblock-line--highlighted')} style={mergeStyle({flexDirection: "row"}, mergeStyle({display: "flex"}, isHl ? { backgroundColor: nativeColor(scheme === 'dark' ? '#2e2e2e' : '#f0f0f0') } : undefined))}>
 						{hasLineNumbers ? (
 							<label
 								className="vx-codeblock-gutter"
@@ -133,10 +133,10 @@ export function CodeBlock(props: CodeBlockProps) @{
 			`vx-codeblock--${size}`,
 			collapsed && 'vx-codeblock--collapsed',
 			props.className,
-		)} style={mergeStyle({display: "flex"}, { flexDirection: 'column', ...(props.style as any) })} flexDirection="column">
+		)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { flexDirection: 'column', ...(props.style as any) }))}>
 		{hasHeader ? (
-			<masonview className="vx-codeblock-header" flexDirection="row" justifyContent="space-between" alignItems="center" style={mergeStyle({display: "flex"}, { paddingTop: 6, paddingBottom: 6, paddingLeft: 12, paddingRight: 12 })}>
-				<masonview flexDirection="row" alignItems="center" style={mergeStyle({display: "flex"}, { gap: 8 })}>
+			<masonview className="vx-codeblock-header" style={mergeStyle({flexDirection: "row", justifyContent: "space-between", alignItems: "center"}, mergeStyle({display: "flex"}, { paddingTop: 6, paddingBottom: 6, paddingLeft: 12, paddingRight: 12 }))}>
+				<masonview style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, { gap: 8 }))}>
 					{props.title != null ? (
 						<label
 							className="vx-codeblock-title"
@@ -156,7 +156,7 @@ export function CodeBlock(props: CodeBlockProps) @{
 						</label>
 					) : null}
 				</masonview>
-				<masonview flexDirection="row" alignItems="center" style={mergeStyle({display: "flex"}, { gap: 4 })}>
+				<masonview style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, { gap: 4 }))}>
 					{hasCopyButton ? (
 						<Pressable
 							className="vx-codeblock-copy"

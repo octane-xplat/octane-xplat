@@ -18,7 +18,7 @@ function ToastCard(props: { entry: ToastEntry }) @{
 }
 
 function ToastStack(props: { entries: ToastEntry[]; dark?: boolean; className?: any; style?: any }) @{
-	<masonview flexDirection="column" className={cx('vx-toast-viewport', props.dark && 'ns-dark', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
+	<masonview className={cx('vx-toast-viewport', props.dark && 'ns-dark', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style))}>
 		{props.entries.map(entry => <ToastCard key={entry.id} entry={entry} />)}
 	</masonview>
 }

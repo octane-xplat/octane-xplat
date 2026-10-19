@@ -3,5 +3,5 @@ import { mergeStyle } from './style-merge'
 import type { SafeAreaProps } from './props'
 
 export function SafeArea(props: SafeAreaProps) @{
-	<masonview flexDirection="column" className={props.className} style={mergeStyle({display: "flex"}, props.style)}>{props.children}</masonview>
+	<masonview className={props.className} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style))}>{props.children}</masonview>
 }

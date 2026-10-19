@@ -158,7 +158,7 @@ export function Carousel(props: CarouselProps) @{
 		>
 			<masonview ref={(v: any) => {
 					track.current = v;
-				}} flexDirection="row" className="vx-carousel-track" style={mergeStyle({display: "flex"}, { columnGap: gap })}>
+				}} className="vx-carousel-track" style={mergeStyle({flexDirection: "row"}, mergeStyle({display: "flex"}, { columnGap: gap }))}>
 				{mapChildren(items, (child: any, i: number) => (
 					<masonview className={cx(
 							'vx-carousel-slide',

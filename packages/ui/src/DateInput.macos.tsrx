@@ -110,7 +110,7 @@ function DateInputControl(inputProps: DateInputProps) @{
 	const statusText = props.status ? STATUS_TEXT[props.status.type] : null
 
 	<>
-		<masonview ref={(v: any) => { anchor.current = v }} flexDirection="row" alignItems="center" className={cx(
+		<masonview ref={(v: any) => { anchor.current = v }} className={cx(
 				'vx-dateinput',
 				'vx-dateinput-popover',
 				isDisabled && 'vx-dateinput--disabled',
@@ -119,7 +119,7 @@ function DateInputControl(inputProps: DateInputProps) @{
 				props.size && `vx-dateinput--size-${props.size}`,
 				!isPendingValid && 'vx-dateinput--invalid',
 				props.className,
-			)} style={mergeStyle({display: "flex"}, props.style)}>
+			)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style))}>
 			<Pressable
 				className="vx-dateinput-toggle"
 				accessibilityLabel={open ? messages.closeCalendar : messages.openCalendar}

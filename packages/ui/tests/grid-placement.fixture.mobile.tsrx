@@ -1,15 +1,16 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from '../src/style-merge'
 import { useState } from 'octane';
 import type { ProbeContext } from '../../../scripts/probe/context';
 import { Grid } from '../src/Grid.tsrx';
 import { layoutChildProps } from '../src/layout-child';
 
 function Composite() @{
- <masonview id="probe-composite" row={0} col={0} colSpan={2} style={{display: "grid"}}><label text="composite" /></masonview>
+ <masonview id="probe-composite" style={mergeStyle({gridRow: '1', gridColumn: '1 / span 2'}, {display: "grid"})}><label text="composite" /></masonview>
 }
 export function PlacementCase(props: { values: string[] }) @{
  <Grid columns="*,*,*">
-  <label row={0} col={0} text="raw" />
+  <label text="raw" style={{gridRow: '1', gridColumn: '1'}}/>
   <Composite />
   @for (const value of props.values; key value) { <label text={value} /> }
  </Grid>
@@ -33,7 +34,7 @@ export function SlotCase(props: { type: string; visible: boolean }) @{
 }
 
 export function UpdatingPlacement(props: { col?: number; span?: number }) @{
- <Grid columns="*,*,*"><label row={0} col={props.col} colSpan={props.span} text="moving" /><label text="auto" /></Grid>
+ <Grid columns="*,*,*"><label text="moving" style={{gridRow: '1', gridColumn: props.col == null ? undefined : `${Number(props.col) + 1}${Number(props.span) > 1 ? ` / span ${Number(props.span)}` : ''}`}}/><label text="auto" /></Grid>
 }
 
 // Optional device diagnostic; Node assertions above are the maintained regression lane.
@@ -45,7 +46,7 @@ function ProbeChildren() @{
  </>
 }
 export default function GridPlacementProbe() @{
- <masonview flexDirection="column" style={{display: "flex"}}>
+ <masonview style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
   <label text="Composite should span two cells; automatic should be in column 2" />
   <Grid columns="*,*,*"><Composite /><label id="probe-auto" text="automatic" /></Grid>
   <Grid columns="*,*"><ProbeChildren /></Grid>
@@ -70,7 +71,7 @@ export async function run(ctx: ProbeContext) {
 }
 
 function ForwardingComposite(props: { col?: number; colSpan?: number }) @{
- <masonview {...layoutChildProps(props)} style={{display: "grid"}}><label text="composite" /></masonview>
+ <masonview {...layoutChildProps(props, {display: "grid"})}><label text="composite" /></masonview>
 }
 export function UpdatingComposite(props: { col?: number; span?: number }) @{
  <Grid columns="*,*,*"><ForwardingComposite col={props.col} colSpan={props.span} /><label text="auto" /></Grid>

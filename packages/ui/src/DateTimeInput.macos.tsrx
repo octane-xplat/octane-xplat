@@ -192,7 +192,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 	const statusText = props.status ? STATUS_TEXT[props.status.type] : null
 
 	<>
-		<masonview ref={(v: any) => { anchor.current = v }} flexDirection="row" alignItems="center" className={cx(
+		<masonview ref={(v: any) => { anchor.current = v }} className={cx(
 				'vx-datetimeinput',
 				'vx-datetimeinput-popover',
 				isDisabled && 'vx-datetimeinput--disabled',
@@ -201,7 +201,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 				props.size && `vx-datetimeinput--size-${props.size}`,
 				(!isDateValid || !isTimeValid) && 'vx-datetimeinput--invalid',
 				props.className,
-			)} style={mergeStyle({display: "flex"}, props.style)}>
+			)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style))}>
 			<Pressable
 				className="vx-datetimeinput-calendartoggle"
 				accessibilityLabel={open === 'calendar' ? messages.closeCalendar : messages.openCalendar}
@@ -273,7 +273,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 			<Popover anchor={anchor} open={open === 'times'} onDismiss={() => setOpen(null)} placement="bottom" className="vx-datetimeinput-times">
 				<scrollview className="vx-datetimeinput-timelist" accessibilityHint={!isTimeValid ? messages.invalidTime : undefined}
 				accessibilityLabel={timeLabelText}>
-					<masonview flexDirection="column" style={{display: "flex"}}>
+					<masonview style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 						{timeOptions.map((opt) => (
 							<masonview key={opt.time} className={cx('vx-datetimeinput-timeoption', opt.time === (timeDraft ?? valueParts.time) && 'vx-datetimeinput-timeoption--selected')} onTap={() => { commitTime(opt.time); setOpen(null) }} style={{display: "flex"}}>
 								<label text={opt.label} />

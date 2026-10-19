@@ -48,8 +48,8 @@ function PaletteBody<T extends CommandPaletteItem>(props: { options: CommandPale
 	}, [state.results]);
 
 	<LayerDepthProvider value={props.depth}>
-	<masonview flexDirection="column" className={cx('vx-commandpalette', props.options.className)} style={mergeStyle({display: "flex"}, { ...(options.width != null ? { width: options.width } : {}), ...(options.style as any) })} id={props.options.id} accessibilityLabel={props.options.label ?? 'Command palette'}>
-		<masonview flexDirection="row" className="vx-cmdk-input-row" style={{display: "flex"}}>
+	<masonview className={cx('vx-commandpalette', props.options.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { ...(options.width != null ? { width: options.width } : {}), ...(options.style as any) }))} id={props.options.id} accessibilityLabel={props.options.label ?? 'Command palette'}>
+		<masonview className="vx-cmdk-input-row" style={mergeStyle({flexDirection: "row"}, {display: "flex"})}>
 			<textfield ref={(view: any) => { input.current = view; }} id={`${options.id ?? 'command-palette'}-query`} className="vx-cmdk-search" accessibilityLabel={options.label ?? 'Command palette'} placeholder={options.placeholder ?? 'Search commands…'} value={state.query} onTextChange={controller.search} />
 			<Pressable id={`${props.options.id ?? 'command-palette'}-clear`} onPress={() => props.controller.search('')} accessibilityLabel="Clear search"><label text="Clear" /></Pressable>
 			<Pressable id={`${props.options.id ?? 'command-palette'}-cancel`} onPress={props.controller.close} accessibilityLabel="Cancel"><label text="Cancel" /></Pressable>
@@ -57,15 +57,15 @@ function PaletteBody<T extends CommandPaletteItem>(props: { options: CommandPale
 		<label id={`${props.options.id ?? 'command-palette'}-status`} className="vx-cmdk-status" text={state.status === 'loading' ? props.options.loadingText ?? 'Loading…' : state.status === 'error' ? props.options.errorText ?? 'Could not load commands. Try again.' : state.status === 'ready' && !state.results.length ? state.query.trim() ? props.options.emptySearchText ?? 'No results' : props.options.emptyBootstrapText ?? 'Type to search' : ''} />
 		{state.status === 'error' ? <Pressable onPress={() => props.controller.search(state.query)} accessibilityLabel="Retry"><label text="Retry" /></Pressable> : null}
 		<scrollview className="vx-cmdk-list" style={{ height: options.maxHeight ?? 320 }}>
-			<masonview flexDirection="column" className="vx-menu-list" style={{display: "flex"}}>
+			<masonview className="vx-menu-list" style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 				@for (const group of groups; index gi; key group.heading ?? gi) {
-					<masonview flexDirection="column" accessibilityLabel={group.heading ?? undefined} style={{display: "flex"}}>
+					<masonview accessibilityLabel={group.heading ?? undefined} style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 						{group.heading != null ? <label className="vx-cmdk-heading" text={group.heading} /> : null}
 						@for (const item of group.items; key item.id) {
 							<Pressable ref={(view: any) => { if (view) rows.current.set(item.id, view); else rows.current.delete(item.id); }} id={`${props.options.id ?? 'command-palette'}-item-${item.id}`} className={cx('vx-menu-item', item.disabled && 'vx-menu-item--disabled', item.id === state.highlighted && 'vx-cmdk-highlighted')} disabled={item.disabled} accessibilityLabel={item.label} accessibilityState={{ disabled: item.disabled, selected: item.id === state.selected }} onPress={() => props.controller.select(item.id)}>
 								{props.options.renderItem ? props.options.renderItem(item, item.id === state.selected) : <>
 									{item.icon ? <Icon name={item.icon} /> : null}
-									<masonview flexDirection="column" className="vx-cmdk-item-content" style={{display: "flex"}}><label className="vx-menu-item-label" text={item.label} />{item.description ? <label className="vx-cmdk-description" text={item.description} /> : null}</masonview>
+									<masonview className="vx-cmdk-item-content" style={mergeStyle({flexDirection: "column"}, {display: "flex"})}><label className="vx-menu-item-label" text={item.label} />{item.description ? <label className="vx-cmdk-description" text={item.description} /> : null}</masonview>
 									{item.shortcut ? <label className="vx-cmdk-shortcut" text={item.shortcut} /> : null}
 								</>}
 							</Pressable>

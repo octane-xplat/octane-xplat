@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { useEffect, useRef } from 'octane'
 import { useThemeScheme } from './theme/theme-scheme'
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
@@ -13,7 +14,7 @@ export function ImperativeSheetPanel(props: { component: any; params: any; close
 	useEffect(() => { (globalThis as any).__xplatAppKit?.setSurfaceAppearance?.(view.current, dark) }, [dark])
 
 	<LayerDepthProvider value={dismissal.depth}>
-	<masonview flexDirection="column" ref={view} className={cx('vx-sheet', 'vx-bottom-sheet', dark && 'ns-dark')} style={{display: "flex"}}>
+	<masonview ref={view} className={cx('vx-sheet', 'vx-bottom-sheet', dark && 'ns-dark')} style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 		<label className="vx-sheet-grabber" accessibilityLabel="Drag to resize sheet">―</label>
 		<scrollview><{props.component} params={props.params} close={props.close} /></scrollview>
 	</masonview>

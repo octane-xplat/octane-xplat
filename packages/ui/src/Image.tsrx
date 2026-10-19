@@ -188,7 +188,6 @@ export function Image(props: ImageProps) @{
 			id={props.id}
 			{...layoutChildProps(props)}
 			className={cx(props.className)}
-			style={props.style as any}
 			src={svg}
 			stretch={fit === 'none' ? 'none' : contentFitToStretch(fit === 'scale-down' ? 'contain' : fit)}
 			accessibilityLabel={props.alt}
@@ -199,7 +198,7 @@ export function Image(props: ImageProps) @{
 					if (v) {
 					binding.update(v, null, update);
 				}
-			}} id={props.id} {...layoutChildProps(props)} className={cx(props.className)} style={props.style as any}>
+			}} id={props.id} {...layoutChildProps(props, props.style as any)} className={cx(props.className)}>
 			<image ref={(v: any) => {
 					imageRef.current = v;
 					applyEscapeProps(v, props);
@@ -209,21 +208,12 @@ export function Image(props: ImageProps) @{
 				}} stretch="fill" loadMode={props.decoding ?? 'async'} accessibilityLabel={props.alt} style={{position: 'absolute'}} />
 		</masonview>
 	} @else {
-		<image
-			ref={(v: any) => {
+		<image ref={(v: any) => {
 				imageRef.current = v;
 				applyEscapeProps(v, props);
 				if (v) {
 					binding.update(v, v, update);
 				}
-			}}
-			id={props.id}
-			{...layoutChildProps(props)}
-			className={cx(props.className)}
-			style={props.style as any}
-			stretch={contentFitToStretch(fit)}
-			loadMode={props.decoding ?? 'async'}
-			accessibilityLabel={props.alt}
-		/>
+			}} id={props.id} {...layoutChildProps(props, props.style as any)} className={cx(props.className)} stretch={contentFitToStretch(fit)} loadMode={props.decoding ?? 'async'} accessibilityLabel={props.alt}/>
 	}
 }

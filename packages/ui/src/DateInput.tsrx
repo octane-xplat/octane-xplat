@@ -191,7 +191,7 @@ function DateInputControl(inputProps: CoreProps) @{
 	useImperativeHandle(props.ref, () => ({ focus: () => input.current.focus(), blur: () => blurText(input.current), native: input.current }), undefined);
 
 	<>
-		<masonview ref={(v: any) => { anchor.current = v }} flexDirection="row" alignItems="center" className={cx(
+		<masonview ref={(v: any) => { anchor.current = v }} className={cx(
 				'vx-dateinput',
 				`vx-dateinput--${surface}`,
 				isDisabled && 'vx-dateinput--disabled',
@@ -200,7 +200,7 @@ function DateInputControl(inputProps: CoreProps) @{
 				props.size && `vx-dateinput--size-${props.size}`,
 				(!isPendingValid) && 'vx-dateinput--invalid',
 				props.className,
-			)} style={mergeStyle({display: "flex"}, props.style as any)}>
+			)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style as any))}>
 			{shellContent}
 		</masonview>
 		{surface === 'popover' ? (

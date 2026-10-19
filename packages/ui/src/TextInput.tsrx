@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useImperativeHandle, useEffect, useRef, useState } from 'octane';
 import type { TextInputProps } from "./props";
 import { cx } from "@octane-xplat/lib";
@@ -35,7 +36,7 @@ export function TextInput(inputProps: TextInputProps) @{
 
 	useImperativeHandle(props.ref, () => ({ focus: () => el.current.focus(), blur: () => blurText(el.current), native: el.current }), []);
 
-	<masonview className={cx('vx-input-shell', props.inInputGroup && 'vx-input-shell--ingroup')} flexDirection="row" alignItems="center" style={{display: "flex"}}>
+	<masonview className={cx('vx-input-shell', props.inInputGroup && 'vx-input-shell--ingroup')} style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
 		<textfield
 			ref={(v: any) => {
 				el.current = v;

@@ -75,7 +75,7 @@ export function Citation(props: CitationProps) @{
 			{body}
 		</Pressable>
 	) : (
-		<masonview {...shared} flexDirection="row" alignItems="center" accessibilityRole="text" style={{display: "flex"}}>
+		<masonview {...shared} accessibilityRole="text" style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
 			{body}
 		</masonview>
 	);

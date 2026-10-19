@@ -42,7 +42,7 @@ describe('GridList (universal renderer)', () => {
 
 		const grid = container.children[0]
 		expect(grid.type).toBe('masonview')
-		expect(grid.props.flexWrap).toBe('wrap')
+		expect(grid.props.style?.flexWrap).toBe('wrap')
 		const rows = grid.children
 		expect(rows.length).toBe(3)
 		expect(rows[0].type).toBe('masonview')
@@ -71,7 +71,7 @@ describe('GridList (universal renderer)', () => {
 		})
 
 		const rows = container.children[0].children
-		expect(container.children[0].props.flexWrap).toBe('nowrap')
+		expect(container.children[0].props.style?.flexWrap).toBe('nowrap')
 		expect(rows[1].props.accessibilityState).toBe('disabled')
 		expect(() => container.dispatchEvent(rows[1], 'tap', {})).toThrow('no "tap" listener')
 		expect(onAction).not.toHaveBeenCalled()

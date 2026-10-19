@@ -28,7 +28,7 @@ export function KeyboardAvoiding(props: KeyboardAvoidingProps) @{
 		style={props.style as any}
 		ref={(host: any) => { if (host && platformProps) Object.assign(host, platformProps); }}
 	>
-		<masonview flexDirection="column" style={mergeStyle({display: "flex"}, paddingBottom ? { paddingBottom } : undefined)}>
+		<masonview style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, paddingBottom ? { paddingBottom } : undefined))}>
 			{props.children}
 		</masonview>
 	</scrollview>

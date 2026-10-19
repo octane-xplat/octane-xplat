@@ -223,7 +223,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 	useImperativeHandle(props.ref, () => ({ focus: () => dateInput.current.focus(), blur: () => blurText(dateInput.current), native: dateInput.current }), undefined);
 
 	<>
-		<masonview ref={(v: any) => { anchor.current = v }} flexDirection="row" alignItems="center" className={cx(
+		<masonview ref={(v: any) => { anchor.current = v }} className={cx(
 				'vx-datetimeinput',
 				`vx-datetimeinput--${surface}`,
 				isDisabled && 'vx-datetimeinput--disabled',
@@ -232,7 +232,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 				props.size && `vx-datetimeinput--size-${props.size}`,
 				(!isDateValid || !isTimeValid) && 'vx-datetimeinput--invalid',
 				props.className,
-			)} style={mergeStyle({display: "flex"}, props.style as any)}>
+			)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style as any))}>
 			{surface === 'sheet' ? (
 				<>
 					<Pressable
@@ -334,7 +334,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 			<Popover anchor={anchor} open={open === 'times'} onDismiss={() => setOpen(null)} placement="bottom" className="vx-datetimeinput-times">
 				<scrollview className="vx-datetimeinput-timelist" accessibilityHint={!isTimeValid ? messages.invalidTime : undefined}
 				accessibilityLabel={timeLabelText}>
-					<masonview flexDirection="column" style={{display: "flex"}}>
+					<masonview style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 						{timeOptions.map((opt) => (
 							<masonview key={opt.time} className={cx('vx-datetimeinput-timeoption', opt.time === (timeDraft ?? valueParts.time) && 'vx-datetimeinput-timeoption--selected')} accessibilityRole={"button" as any} accessibilityState={{ selected: opt.time === (timeDraft ?? valueParts.time) } as any} onTap={() => { commitTime(opt.time); setOpen(null) }} style={{display: "flex"}}>
 								<label text={opt.label} />
@@ -346,7 +346,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 		) : null}
 		{surface === 'sheet' ? (
 			<BottomSheet isOpen={open === 'sheet'} onOpenChange={(isOpen) => setOpen(isOpen ? 'sheet' : null)} label={props.label ?? props.accessibilityLabel ?? 'Choose a date and time'} height="hug" className="vx-datetimeinput-sheet">
-				<masonview flexDirection="column" className="vx-datetimeinput-sheetbody" style={{display: "flex"}}>
+				<masonview className="vx-datetimeinput-sheetbody" style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 					<Calendar
 						locale={props.locale}
 						direction={props.direction}

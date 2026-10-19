@@ -13,7 +13,7 @@ import { followHref } from './nav-href';
 export function NavigationMenu(props: NavigationMenuProps) @{
 	const isHorizontal = props.horizontal !== false;
 
-	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection={isHorizontal ? 'row' : 'column'} className={cx('vx-navmenu-strip', !isHorizontal && 'vx-navmenu-strip--vertical', props.className)} style={mergeStyle({display: "flex"}, props.style as any)} accessibilityLabel={props.accessibilityLabel}>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-navmenu-strip', !isHorizontal && 'vx-navmenu-strip--vertical', props.className)} style={mergeStyle({flexDirection: isHorizontal ? 'row' : 'column'}, mergeStyle({display: "flex"}, props.style as any))} accessibilityLabel={props.accessibilityLabel}>
 		@for (const item of props.items; key item.key) {
 			<Pressable
 				className={cx('vx-navmenu-strip-item', item.active && 'vx-navmenu-strip-item--active')}
@@ -26,7 +26,7 @@ export function NavigationMenu(props: NavigationMenuProps) @{
 					if (item.href) followHref(item.href);
 				}}
 			>
-				<masonview flexDirection="row" alignItems="center" gap={6} style={{display: "flex"}}>
+				<masonview style={mergeStyle({flexDirection: "row", alignItems: "center", gap: 6}, {display: "flex"})}>
 					{item.icon ? <Icon name={item.icon} size={16} /> : null}
 					<Text>{item.label}</Text>
 				</masonview>

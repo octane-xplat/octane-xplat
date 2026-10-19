@@ -67,19 +67,19 @@ describe('native flow Stack', () => {
 
 		const view = container.children[0]
 		expect(view.type).toBe('masonview')
-		expect(view.props.flexDirection).toBe('row')
-		expect(view.props.justifyContent).toBe('flex-end')
-		expect(view.props.alignItems).toBe('center')
-		expect(view.props.gap).toBe(8)
+		expect(view.props.style?.flexDirection).toBe('row')
+		expect(view.props.style?.justifyContent).toBe('flex-end')
+		expect(view.props.style?.alignItems).toBe('center')
+		expect(view.props.style?.gap).toBe(8)
 		root.unmount()
 	})
 
 	it('vertical is the default; justify/align map to main/cross', () => {
 		const { container, root } = mount(VStack as any, { vAlign: 'end', hAlign: 'center' })
 		const view = container.children[0]
-		expect(view.props.flexDirection).toBe('column')
-		expect(view.props.justifyContent).toBe('flex-end')
-		expect(view.props.alignItems).toBe('center')
+		expect(view.props.style?.flexDirection).toBe('column')
+		expect(view.props.style?.justifyContent).toBe('flex-end')
+		expect(view.props.style?.alignItems).toBe('center')
 		root.unmount()
 	})
 
@@ -103,9 +103,9 @@ describe('native layout leaves', () => {
 	it('Center centers both axes on a row flex', () => {
 		const { container, root } = mount(Center as any)
 		const view = container.children[0]
-		expect(view.props.flexDirection).toBe('row')
-		expect(view.props.justifyContent).toBe('center')
-		expect(view.props.alignItems).toBe('center')
+		expect(view.props.style?.flexDirection).toBe('row')
+		expect(view.props.style?.justifyContent).toBe('center')
+		expect(view.props.style?.alignItems).toBe('center')
 		root.unmount()
 	})
 

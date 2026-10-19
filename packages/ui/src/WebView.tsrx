@@ -70,19 +70,11 @@ export function WebView(props: WebViewProps) @{
 				native: el.current,
 			}), []);
 
-	<webview
-		ref={(v: any) => {
+	<webview ref={(v: any) => {
 				el.current = v;
 			if (!v) return;
 			applyEscapeProps(v, props);
-		}}
-		id={props.id}
-		{...layoutChildProps(props)}
-		className={cx('vx-webview', props.className)}
-		style={props.style as any}
-		src={props.html !== undefined ? props.html : props.src}
-		onLoaded={() => applyNativeScrollEnabled(el.current, props.scrollEnabled)}
-		onLoadFinished={(e: any) => {
+		}} id={props.id} {...layoutChildProps(props, props.style as any)} className={cx('vx-webview', props.className)} src={props.html !== undefined ? props.html : props.src} onLoaded={() => applyNativeScrollEnabled(el.current, props.scrollEnabled)} onLoadFinished={(e: any) => {
 			applyNativeScrollEnabled(e.object ?? el.current, props.scrollEnabled)
 			if (e.error) props.onError?.({ url: e.url, error: e.error });
 			else {
@@ -90,13 +82,5 @@ export function WebView(props: WebViewProps) @{
 				reportContentLayout(e.object ?? el.current, props);
 				props.onLoad?.({ url: e.url });
 			}
-		}}
-		accessible={props.accessible}
-		accessibilityLabel={props.accessibilityLabel}
-		accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}
-		accessibilityHint={props.accessibilityHint}
-		accessibilityValue={props.accessibilityValue}
-		accessibilityState={nativeAccessibilityState(props.accessibilityState) as any}
-		accessibilityLiveRegion={props.accessibilityLiveRegion as any}
-	/>
+		}} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}/>
 }

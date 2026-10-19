@@ -45,7 +45,7 @@ export function PinInput(props: PinInputProps) @{
 		}
 	};
 
-	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx('vx-pininput', props.isDisabled && 'vx-pininput--disabled', props.isReadOnly && 'vx-pininput--readonly', props.isLoading && 'vx-pininput--loading', props.status && `vx-pininput--status-${props.status.type}`, props.size && `vx-pininput--size-${props.size}`, props.className)} style={mergeStyle({display: "flex"}, props.style)} accessibilityLabel={props.label} accessibilityState={{ disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading }}>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-pininput', props.isDisabled && 'vx-pininput--disabled', props.isReadOnly && 'vx-pininput--readonly', props.isLoading && 'vx-pininput--loading', props.status && `vx-pininput--status-${props.status.type}`, props.size && `vx-pininput--size-${props.size}`, props.className)} style={mergeStyle({flexDirection: "row"}, mergeStyle({display: "flex"}, props.style))} accessibilityLabel={props.label} accessibilityState={{ disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading }}>
 		@for (const i of Array.from({ length }, (_, k) => k); key i) {
 			<TextInput
 				className="vx-pininput-cell"

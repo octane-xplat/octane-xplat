@@ -103,7 +103,7 @@ function FixedLayerMount(props: FixedSurfaceProps & { open?: boolean }) @{
 	useEffect(() => () => shown.current?.lifetime.close(), []);
 
 	<>
-		<masonview flexDirection="column" ref={(v: any) => { sentinel.current = v; }} style={mergeStyle({display: "flex"}, { width: 0, height: 0 })}/>
+		<masonview ref={(v: any) => { sentinel.current = v; }} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { width: 0, height: 0 }))}/>
 		{props.open && portalHost
 			? createPortal(
 				<FixedLayerSurface

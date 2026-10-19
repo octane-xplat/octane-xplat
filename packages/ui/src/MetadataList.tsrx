@@ -49,7 +49,7 @@ export function MetadataList(props: MetadataListProps) @{
 	<MetadataListProvider
 		value={{ labelPosition, labelWidth: props.label?.width, orientation }}
 	>
-		<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-metadatalist', props.className)} style={mergeStyle({display: "flex"}, { flexDirection: 'column', ...(props.style as any) })} flexDirection="column">
+		<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-metadatalist', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { flexDirection: 'column', ...(props.style as any) }))}>
 			{props.title != null ? (
 				<masonview className="vx-metadatalist-title" style={mergeStyle({display: "flex"}, { marginBottom: 12 })}>
 					{typeof props.title === 'string' || typeof props.title === 'number'
@@ -58,7 +58,7 @@ export function MetadataList(props: MetadataListProps) @{
 				</masonview>
 			) : null}
 			{isHorizontal ? (
-				<masonview className="vx-metadatalist-list vx-metadatalist--horizontal" flexDirection="row" flexWrap="wrap" gap={16} style={{display: "flex"}}>
+				<masonview className="vx-metadatalist-list vx-metadatalist--horizontal" style={mergeStyle({flexDirection: "row", flexWrap: "wrap", gap: 16}, {display: "flex"})}>
 					{visibleChildren}
 				</masonview>
 			) : (

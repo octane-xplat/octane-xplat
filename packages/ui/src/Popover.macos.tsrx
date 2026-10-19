@@ -7,7 +7,7 @@ import { cx } from '@octane-xplat/lib'
 import { useThemeScheme } from './theme/theme-scheme'
 
 function PopoverPanel(props: PopoverProps & { dark: boolean; layerDepth: number }) @{
-	<masonview flexDirection="column" className={cx('vx-popover', props.dark && 'ns-dark', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
+	<masonview className={cx('vx-popover', props.dark && 'ns-dark', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style))}>
 		<LayerDepthProvider value={props.layerDepth}>{props.children}</LayerDepthProvider>
 	</masonview>
 }

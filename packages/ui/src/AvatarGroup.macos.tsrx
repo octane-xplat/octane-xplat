@@ -16,7 +16,7 @@ export function AvatarGroup(props: AvatarGroupProps) @{
 	const overflow = children.length - shown.length;
 	const itemStyle = (i: number) => (i === 0 ? undefined : { marginLeft: -size / 3 });
 
-	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx('vx-avatar-group', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-avatar-group', props.className)} style={mergeStyle({flexDirection: "row"}, mergeStyle({display: "flex"}, props.style))}>
 		{mapChildren(shown, (child: any, i: number) => (
 			<masonview className="vx-avatar-group-item" style={mergeStyle({display: "flex"}, itemStyle(i))}>{child}</masonview>
 		))}

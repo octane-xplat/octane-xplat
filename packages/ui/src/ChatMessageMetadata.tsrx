@@ -39,13 +39,13 @@ export function ChatMessageMetadata(props: ChatMessageMetadataProps) @{
 	const status = props.status!;
 	const isUser = sender === 'user';
 
-	<masonview id={props.id} className={cx('vx-chatmeta', isUser && 'vx-chatmeta--user', props.className)} style={mergeStyle({display: "flex"}, props.style as any)} flexDirection="row" alignItems="center" justifyContent={isUser ? 'flex-end' : 'flex-start'}>
+	<masonview id={props.id} className={cx('vx-chatmeta', isUser && 'vx-chatmeta--user', props.className)} style={mergeStyle({flexDirection: "row", alignItems: "center", justifyContent: isUser ? 'flex-end' : 'flex-start'}, mergeStyle({display: "flex"}, props.style as any))}>
 		{hasTimestamp ? <masonview className="vx-chatmeta-part" style={{display: "flex"}}>{props.timestamp}</masonview> : null}
 		{hasTimestamp && (hasFooter || hasStatus) ? <label className="vx-chatmeta-sep" text="·" /> : null}
 		{hasFooter ? <masonview className="vx-chatmeta-part" style={{display: "flex"}}>{props.footer}</masonview> : null}
 		{hasFooter && hasStatus ? <label className="vx-chatmeta-sep" text="·" /> : null}
 		{hasStatus ? (
-			<masonview className={cx('vx-chatmeta-status', `vx-chatmeta-status--${status}`)} flexDirection="row" alignItems="center" accessibilityLabel={`Message ${STATUS_LABEL[status].toLowerCase()}`} style={{display: "flex"}}>
+			<masonview className={cx('vx-chatmeta-status', `vx-chatmeta-status--${status}`)} accessibilityLabel={`Message ${STATUS_LABEL[status].toLowerCase()}`} style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
 				<Icon name={STATUS_ICON[status]} size={12} />
 				<label className="vx-chatmeta-status-text" text={STATUS_LABEL[status]} />
 			</masonview>

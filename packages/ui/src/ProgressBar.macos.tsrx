@@ -28,9 +28,9 @@ export function ProgressBar(props: ProgressBarProps) @{
 	const marks = isIndeterminate ? [] : (props.marks ?? []);
 	const showHead = !isLabelHidden || (!isIndeterminate && hasValueLabel);
 
-	<masonview ref={props.ref} id={props.id} className={cx('vx-progressbar', `vx-progressbar--${variant}`, props.className)} style={mergeStyle({display: "flex"}, { flexDirection: 'column', ...(isDisabled ? { opacity: 0.38 } : {}), ...(props.style as any) })} flexDirection="column" accessibilityRole="progressbar" accessibilityLabel={props.accessibilityLabel ?? props.label} accessibilityValue={isIndeterminate ? undefined : value} accessibilityMinValue={0} accessibilityMaxValue={max} accessibilityValueDescription={isIndeterminate ? 'In progress' : valueText}>
+	<masonview ref={props.ref} id={props.id} className={cx('vx-progressbar', `vx-progressbar--${variant}`, props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { flexDirection: 'column', ...(isDisabled ? { opacity: 0.38 } : {}), ...(props.style as any) }))} accessibilityRole="progressbar" accessibilityLabel={props.accessibilityLabel ?? props.label} accessibilityValue={isIndeterminate ? undefined : value} accessibilityMinValue={0} accessibilityMaxValue={max} accessibilityValueDescription={isIndeterminate ? 'In progress' : valueText}>
 		{showHead ? (
-			<masonview flexDirection="row" justifyContent="space-between" className="vx-progressbar-head" style={{display: "flex"}}>
+			<masonview className="vx-progressbar-head" style={mergeStyle({flexDirection: "row", justifyContent: "space-between"}, {display: "flex"})}>
 				<label className="vx-progressbar-label" whiteSpace="nowrap" style={{ color: textColor(scheme), fontSize: 13 }}>
 					{isLabelHidden ? ' ' : props.label}
 				</label>

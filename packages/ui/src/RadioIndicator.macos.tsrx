@@ -17,7 +17,7 @@ export function RadioIndicator(props: IndicatorProps<'singleSelection'>) @{
 
 	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
-	<masonview id={props.id} ref={forwardedRef} className={cx('vx-radio', 'vx-ind-radio', `vx-ind-radio--${size}`, props.state === 'checked' && 'vx-ind-radio--checked', props.isDisabled && 'vx-ind-radio--disabled', props.className)} style={mergeStyle({display: "flex"}, props.style)} alignItems="center" justifyContent="center">
+	<masonview id={props.id} ref={forwardedRef} className={cx('vx-radio', 'vx-ind-radio', `vx-ind-radio--${size}`, props.state === 'checked' && 'vx-ind-radio--checked', props.isDisabled && 'vx-ind-radio--disabled', props.className)} style={mergeStyle({alignItems: "center", justifyContent: "center"}, mergeStyle({display: "flex"}, props.style))}>
 		{content}
 	</masonview>
 }

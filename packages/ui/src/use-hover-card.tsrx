@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useLayer } from './use-layer';
 import { useCallback, useEffect, useRef, useState } from 'octane';
 import type { HoverCardOptions, HoverCardReturn } from './props';
@@ -10,7 +11,7 @@ function HoverCardPanel(props: { body: any; enter: () => void; exit: () => void 
 	const view = useRef<any>(null);
 	useEffect(() => host().observeHover?.(view.current, { enter: props.enter, exit: props.exit }), [props.enter, props.exit]);
 
-	<masonview ref={view} flexDirection="column" className="vx-hovercard-content" style={{display: "flex"}}>{props.body}</masonview>
+	<masonview ref={view} className="vx-hovercard-content" style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>{props.body}</masonview>
 }
 
 /**

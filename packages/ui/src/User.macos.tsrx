@@ -8,7 +8,7 @@ import { Avatar } from './Avatar.macos.tsrx';
 /** User — avatar + name/description row. `onSelect` makes the row
  *  tappable. */
 export function User(props: UserProps) @{
-	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx('vx-user', props.onSelect && 'vx-user--pressable', props.className)} style={mergeStyle({display: "flex"}, props.style)} onTap={props.onSelect}>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-user', props.onSelect && 'vx-user--pressable', props.className)} style={mergeStyle({flexDirection: "row"}, mergeStyle({display: "flex"}, props.style))} onTap={props.onSelect}>
 		<Avatar src={props.src} fallback={props.fallback} alt={props.name} size={props.size} />
 		<masonview className="vx-user-body" style={{display: "flex"}}>
 			{props.name != null ? <label className="vx-user-name" text={props.name} /> : null}

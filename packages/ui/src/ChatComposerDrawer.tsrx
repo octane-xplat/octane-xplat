@@ -24,11 +24,11 @@ export function ChatComposerDrawer(props: ChatComposerDrawerProps) @{
 		props.onCollapsedChange?.(next);
 	};
 
-	<masonview id={props.id} className={cx('vx-chatdrawer', isCollapsed && 'vx-chatdrawer--collapsed', props.className)} style={mergeStyle({display: "flex"}, props.style as any)} flexDirection="column">
+	<masonview id={props.id} className={cx('vx-chatdrawer', isCollapsed && 'vx-chatdrawer--collapsed', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style as any))}>
 		{canCollapse ? (
-			<masonview className="vx-chatdrawer-toggle" flexDirection="row" alignItems="center" justifyContent="center" accessibilityRole={nativeAccessibilityRole('button') as any} accessibilityLabel={isCollapsed ? `Expand ${label}` : `Collapse ${label}`} accessibilityState={{ expanded: !isCollapsed } as any} onTap={toggle} style={{display: "flex"}}>
+			<masonview className="vx-chatdrawer-toggle" accessibilityRole={nativeAccessibilityRole('button') as any} accessibilityLabel={isCollapsed ? `Expand ${label}` : `Collapse ${label}`} accessibilityState={{ expanded: !isCollapsed } as any} onTap={toggle} style={mergeStyle({flexDirection: "row", alignItems: "center", justifyContent: "center"}, {display: "flex"})}>
 				{isCollapsed ? (
-					<masonview className="vx-chatdrawer-summary" flexDirection="row" alignItems="center" style={{display: "flex"}}>
+					<masonview className="vx-chatdrawer-summary" style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
 						{props.collapsedSummary === undefined ? (
 							<>
 								<Badge className="vx-chatdrawer-badge"><label text={`${props.count}`} /></Badge>
@@ -44,7 +44,7 @@ export function ChatComposerDrawer(props: ChatComposerDrawerProps) @{
 			</masonview>
 		) : null}
 		{!(canCollapse && isCollapsed) ? (
-			<masonview className="vx-chatdrawer-inner" flexDirection="row" flexWrap="wrap" style={{display: "flex"}}>
+			<masonview className="vx-chatdrawer-inner" style={mergeStyle({flexDirection: "row", flexWrap: "wrap"}, {display: "flex"})}>
 				{props.children}
 			</masonview>
 		) : null}

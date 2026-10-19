@@ -11,7 +11,7 @@ import { DialogContext, DialogProvider } from './dialog-context'
 function DialogPanel(props: DialogProps & { dark?: boolean; layerDepth: number }) @{
 	<LayerDepthProvider value={props.layerDepth}>
 		<DialogProvider value={{ titleId: '', isModal: !props.isInline, requestClose: props.onOpenChange }}>
-		<masonview flexDirection="column" id={props.id} className={cx('vx-dialog', props.variant === 'fullscreen' && 'vx-dialog--fullscreen', props.dark && 'ns-dark', props.className)} style={mergeStyle({display: "flex"}, { padding: (props.padding ?? 5) * 4, ...(props.style as any) })}>
+		<masonview id={props.id} className={cx('vx-dialog', props.variant === 'fullscreen' && 'vx-dialog--fullscreen', props.dark && 'ns-dark', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { padding: (props.padding ?? 5) * 4, ...(props.style as any) }))}>
 			{props.children}
 		</masonview>
 		</DialogProvider>
@@ -58,10 +58,10 @@ export function DialogHeader(props: DialogHeaderProps) @{
 	const ctx = useContext(DialogContext)
 	const requestClose = props.onOpenChange ?? ctx?.requestClose
 
-	<masonview flexDirection="column" className={cx('vx-dialog-header', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
-		<masonview flexDirection="row" alignItems="center" style={{display: "flex"}}>
+	<masonview className={cx('vx-dialog-header', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style))}>
+		<masonview style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
 			{props.startContent}
-			<masonview flexDirection="column" flexGrow={1} className="vx-dialog-header-text" style={{display: "flex"}}>
+			<masonview className="vx-dialog-header-text" style={mergeStyle({flexDirection: "column", flexGrow: 1}, {display: "flex"})}>
 				{props.title != null && <label className="vx-dialog-title">{props.title}</label>}
 				{props.subtitle != null && <label className="vx-dialog-subtitle">{props.subtitle}</label>}
 			</masonview>

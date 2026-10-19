@@ -83,7 +83,7 @@ export function Citation(props: CitationProps) @{
 			{body}
 		</Pressable>
 	) : (
-		<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cls} style={mergeStyle({display: "flex"}, { flexDirection: 'row', alignItems: 'center', gap: 4, ...(props.style as any) })} flexDirection="row" alignItems="center" accessibilityLabel={
+		<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cls} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, { flexDirection: 'row', alignItems: 'center', gap: 4, ...(props.style as any) }))} accessibilityLabel={
 				variant === 'number' ? `Citation ${props.number}` : `${source.title ?? 'Citation'} ${props.number}`
 			}>
 			{body}

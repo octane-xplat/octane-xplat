@@ -9,7 +9,7 @@ export function Overlay(props: OverlayProps) @{
 	const open = props.open ?? internal
 
 	@if (open) {
-		<masonview flexDirection="column" className={cx('vx-overlay', props.className)} style={mergeStyle({display: "flex"}, props.style)} accessibilityLabel={props.accessibilityLabel}>
+		<masonview className={cx('vx-overlay', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style))} accessibilityLabel={props.accessibilityLabel}>
 			{props.children}
 		</masonview>
 	}

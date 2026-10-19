@@ -69,7 +69,7 @@ export function Toast(props: ToastProps) @{
 	<masonview ref={(v: any) => {
 			el.current = v;
 			applyEscapeProps(v, props);
-		}} id={props.id} flexDirection="row" alignItems="center" className={cx('vx-toast', `vx-toast--${type}`, props.isExiting && 'vx-toast--exiting', props.className)} style={mergeStyle({display: "flex"}, props.style as any)} accessibilityLiveRegion={(type === 'error' ? 'assertive' : 'polite') as any}>
+		}} id={props.id} className={cx('vx-toast', `vx-toast--${type}`, props.isExiting && 'vx-toast--exiting', props.className)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style as any))} accessibilityLiveRegion={(type === 'error' ? 'assertive' : 'polite') as any}>
 		{props.renderContent ? (
 			props.renderContent({
 				body: props.body,
@@ -81,7 +81,7 @@ export function Toast(props: ToastProps) @{
 			})
 		) : (
 			<>
-				<masonview flexDirection="column" className="vx-toast-body" flexGrow={1} style={{display: "flex"}}>
+				<masonview className="vx-toast-body" style={mergeStyle({flexDirection: "column", flexGrow: 1}, {display: "flex"})}>
 					{typeof props.body === 'string' ? (
 						<Text>{props.body}</Text>
 					) : (

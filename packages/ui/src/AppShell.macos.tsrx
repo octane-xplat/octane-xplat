@@ -107,11 +107,11 @@ export function AppShell(props: AppShellProps) @{
 
 	<AppShellMobileProvider value={mobileContextValue}>
 		<masonview id={props.id} className={cx('vx-appshell', 'vx-appshell--' + variant, isFill ? 'vx-appshell--fill' : 'vx-appshell--auto', props.className)} style={mergeStyle({display: "grid", gridTemplateRows: "auto 1fr"}, props.style)} onLayoutChanged={onShellLayout}>
-			<masonview style={mergeStyle({display: "flex"}, {gridRow: '1'})} flexDirection="column" className="vx-appshell-header">
+			<masonview style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, {gridRow: '1'}))} className="vx-appshell-header">
 				{hasBanner ? <masonview className="vx-appshell-banner" style={{display: "flex"}}>{props.banner}</masonview> : null}
 				{topNavContent}
 				{shouldShowAutoToggle && !hasTopNav && hasSideNav ? (
-					<masonview className="vx-appshell-mobilebar" flexDirection="row" alignItems="center" accessibilityLabel="Mobile navigation" style={{display: "flex"}}>
+					<masonview className="vx-appshell-mobilebar" accessibilityLabel="Mobile navigation" style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
 						<SideNavRenderProvider value="topbar">{props.sideNav}</SideNavRenderProvider>
 						<MobileNavToggle />
 					</masonview>
@@ -119,17 +119,17 @@ export function AppShell(props: AppShellProps) @{
 			</masonview>
 			<masonview style={mergeStyle({display: "grid", gridTemplateColumns: showSideNavInline ? 'auto 1fr' : '1fr'}, [props.style, { gridRow: '2' }])} className="vx-appshell-middle">
 				{showSideNavInline ? (
-					<masonview style={mergeStyle({display: "flex"}, {gridColumn: '1'})} flexDirection="column" className={cx('vx-appshell-sidenav', 'vx-appshell-sidenav--' + variant)}>
+					<masonview style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, {gridColumn: '1'}))} className={cx('vx-appshell-sidenav', 'vx-appshell-sidenav--' + variant)}>
 						{props.sideNav}
 					</masonview>
 				) : null}
-				<masonview style={mergeStyle({display: "flex"}, { padding: contentPad , gridColumn: String((showSideNavInline ? 1 : 0) + 1)})} flexDirection="column" className="vx-appshell-content">
+				<masonview style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { padding: contentPad , gridColumn: String((showSideNavInline ? 1 : 0) + 1)}))} className="vx-appshell-content">
 					{props.children}
 				</masonview>
 			</masonview>
 			{/* Drawer overlay — last grid child paints on top of the shell. */}
 			{isBelowBreakpoint && !mobileNavDisabled ? (
-				<masonview row={0} rowSpan={2} col={0} className="vx-appshell-drawerhost" style={{display: "grid"}}>
+				<masonview className="vx-appshell-drawerhost" style={mergeStyle({gridRow: '1 / span 2', gridColumn: '1'}, {display: "grid"})}>
 					{mobileNavEnabled && mobileNavConfigContent != null ? mobileNavConfigContent : null}
 					{mobileNavConfigContent == null ? (
 						<>

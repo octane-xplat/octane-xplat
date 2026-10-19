@@ -99,9 +99,9 @@ export function ProgressBar(props: ProgressBarProps) @{
 
 	const forwardedRef = useMemo(() => refList((v: any) => applyEscapeProps(v, props), props.ref), [props.ref, props.ios, props.android, props.web]);
 
-	<masonview ref={forwardedRef} id={props.id} className={cx('vx-progressbar', `vx-progressbar--${variant}`, props.className)} style={mergeStyle({display: "flex"}, { flexDirection: 'column', ...(isDisabled ? { opacity: 0.38 } : {}), ...(props.style as any) })} flexDirection="column">
+	<masonview ref={forwardedRef} id={props.id} className={cx('vx-progressbar', `vx-progressbar--${variant}`, props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { flexDirection: 'column', ...(isDisabled ? { opacity: 0.38 } : {}), ...(props.style as any) }))}>
 		{showHead ? (
-			<masonview flexDirection="row" justifyContent="space-between" className="vx-progressbar-head" style={{display: "flex"}}>
+			<masonview className="vx-progressbar-head" style={mergeStyle({flexDirection: "row", justifyContent: "space-between"}, {display: "flex"})}>
 				<label
 					className="vx-progressbar-label"
 					whiteSpace="nowrap"
@@ -132,7 +132,7 @@ export function ProgressBar(props: ProgressBarProps) @{
 			{marks.map((mark) => {
 				const markPct = clamp(mark.value, 0, max) / max;
 				return (
-					<masonview key={mark.value} isPassThroughParentEnabled={true} style={{display: "grid", gridTemplateColumns: `${markPct}fr auto ${1 - markPct}fr`}}>
+					<masonview key={mark.value} style={{display: "grid", gridTemplateColumns: `${markPct}fr auto ${1 - markPct}fr`}}>
 						<masonview style={mergeStyle({display: "flex"}, { backgroundColor: nativeColor(mutedColor(scheme)) , gridColumn: '2'})} className="vx-progressbar-mark" width={2} height={8} accessibilityLabel={mark.label} accessibilityRole={nativeAccessibilityRole('none') as any}/>
 					</masonview>
 				);

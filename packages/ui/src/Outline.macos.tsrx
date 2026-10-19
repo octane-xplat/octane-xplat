@@ -28,15 +28,15 @@ export function Outline(props: OutlineProps) @{
 		props.onNavigateEnd?.(id);
 	};
 
-	<masonview id={props.id} className={cx('vx-outline', `vx-outline--${density}`, props.className)} style={mergeStyle({display: "flex"}, { flexDirection: 'column', ...(props.style as any) })} flexDirection="column" accessibilityRole="list" accessibilityLabel={label}>
+	<masonview id={props.id} className={cx('vx-outline', `vx-outline--${density}`, props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { flexDirection: 'column', ...(props.style as any) }))} accessibilityRole="list" accessibilityLabel={label}>
 		{items.map((item) => {
 			const isActive = item.id === activeId;
 			return (
-				<masonview key={item.id} className={cx('vx-outline-item', isActive && 'vx-outline-item--active')} flexDirection="row" alignItems="center" style={mergeStyle({display: "flex"}, {
+				<masonview key={item.id} className={cx('vx-outline-item', isActive && 'vx-outline-item--active')} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, {
 						paddingLeft: 8 + (item.level - 1) * 12,
 						paddingTop: density === 'compact' ? 4 : 8,
 						paddingBottom: density === 'compact' ? 4 : 8,
-					})} accessibilityRole="button" accessibilityLabel={item.label} onTap={() => activate(item.id)}>
+					}))} accessibilityRole="button" accessibilityLabel={item.label} onTap={() => activate(item.id)}>
 					<masonview style={mergeStyle({display: "flex"}, {
 							width: 2,
 							height: 16,

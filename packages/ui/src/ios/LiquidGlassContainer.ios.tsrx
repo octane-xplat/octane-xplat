@@ -27,7 +27,6 @@ export function LiquidGlassContainer(props: LiquidGlassContainerProps) @{
 		{...layoutChildProps(props)}
 		iosGlassEffect={{ spacing: props.spacing ?? 8 }}
 		className={cx('vx-glass-container', props.className)}
-		style={props.style as any}
 	>
 		{props.children}
 	</liquidglasscontainer>

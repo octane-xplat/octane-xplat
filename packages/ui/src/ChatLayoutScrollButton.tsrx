@@ -14,7 +14,7 @@ export function ChatLayoutScrollButton(props: ChatLayoutScrollButtonProps) @{
 		return null;
 	}
 
-	<masonview id={props.id} className={cx('vx-chatscroll-wrap', props.className)} style={mergeStyle({display: "flex"}, props.style as any)} justifyContent="center">
+	<masonview id={props.id} className={cx('vx-chatscroll-wrap', props.className)} style={mergeStyle({justifyContent: "center"}, mergeStyle({display: "flex"}, props.style as any))}>
 		<Pressable
 			className={cx('vx-chatscroll', props.label ? 'vx-chatscroll--expanded' : 'vx-chatscroll--collapsed')}
 			accessibilityRole="button"

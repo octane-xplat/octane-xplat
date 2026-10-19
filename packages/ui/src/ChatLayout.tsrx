@@ -56,7 +56,7 @@ export function ChatLayout(props: ChatLayoutProps) @{
 	};
 
 	<ChatLayoutProvider value={layoutContext}>
-		<masonview id={props.id} className={cx('vx-chatlayout', `vx-chatlayout--${density}`, props.className)} style={mergeStyle({display: "grid"}, props.style as any)} flexGrow={1}>
+		<masonview id={props.id} className={cx('vx-chatlayout', `vx-chatlayout--${density}`, props.className)} style={mergeStyle({flexGrow: 1}, mergeStyle({display: "grid"}, props.style as any))}>
 			<scrollview
 				ref={(v: any) => {
 					scrollViewRef.current = v;
@@ -65,9 +65,9 @@ export function ChatLayout(props: ChatLayoutProps) @{
 				className="vx-chatlayout-scroll"
 				orientation="vertical"
 			>
-				<masonview ref={(v: any) => { contentWrapRef.current = v; }} className={cx('vx-chatlayout-messages', `vx-chatlayout-messages--${density}`)} flexDirection="column" onLayoutChanged={syncDockInset} style={{display: "flex"}}>
+				<masonview ref={(v: any) => { contentWrapRef.current = v; }} className={cx('vx-chatlayout-messages', `vx-chatlayout-messages--${density}`)} onLayoutChanged={syncDockInset} style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 					{showEmpty && props.emptyState != null ? (
-						<masonview className="vx-chatlayout-empty" alignItems="center" justifyContent="center" flexGrow={1} style={{display: "flex"}}>
+						<masonview className="vx-chatlayout-empty" style={mergeStyle({alignItems: "center", justifyContent: "center", flexGrow: 1}, {display: "flex"})}>
 							{props.emptyState}
 						</masonview>
 					) : (
@@ -75,10 +75,10 @@ export function ChatLayout(props: ChatLayoutProps) @{
 					)}
 				</masonview>
 			</scrollview>
-			<masonview style={mergeStyle({display: "flex"}, {alignSelf: 'end'})} ref={(v: any) => {
+			<masonview style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, {alignSelf: 'end'}))} ref={(v: any) => {
 					dockRef.current = v;
 					v?.on?.('layoutChanged', syncDockInset);
-				}} className="vx-chatlayout-dock" flexDirection="column">
+				}} className="vx-chatlayout-dock">
 				{props.scrollButton === undefined ? (
 					<ChatLayoutScrollButton
 						isVisible={scroll.isScrolledUp || newMsgs.hasNewMessages}

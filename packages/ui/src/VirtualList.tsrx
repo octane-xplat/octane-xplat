@@ -569,52 +569,35 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 
 	const style = { ...(props.style as any), minHeight: (props.style as any)?.minHeight ?? 0 }
 
-	<scrollview
-		ref={(view: any) => {
+	<scrollview ref={(view: any) => {
 			scrollRef.current = view
 			observeLayout('viewport', view, scheduleViewport)
 			if (view) scheduleViewport()
 			if (view) applyEscapeProps(view, props)
-		}}
-		id={props.id}
-		testID={props.testID ?? ''}
-		{...layoutChildProps(props)}
-		className={cx('vx-virtual-list', props.className)}
-		style={style}
-		orientation="vertical"
-		accessible={props.accessible}
-		accessibilityLabel={props.accessibilityLabel}
-		accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}
-		accessibilityHint={props.accessibilityHint}
-		accessibilityValue={props.accessibilityValue}
-		accessibilityState={nativeAccessibilityState(props.accessibilityState) as any}
-		accessibilityLiveRegion={props.accessibilityLiveRegion as any}
-		onLoaded={scheduleViewport}
-		onScroll={onScroll}
-	>
-		<masonview flexDirection="column" className={cx('vx-virtual-list-content')} ref={(view: any) => observeLayout('content', view, onContentLayout)} style={{display: "flex"}}>
+		}} id={props.id} testID={props.testID ?? ''} {...layoutChildProps(props, style)} className={cx('vx-virtual-list', props.className)} orientation="vertical" accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any} onLoaded={scheduleViewport} onScroll={onScroll}>
+		<masonview className={cx('vx-virtual-list-content')} ref={(view: any) => observeLayout('content', view, onContentLayout)} style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 			{props.renderHeader ? (
-				<masonview flexDirection="column" className="vx-virtual-list-header" flexShrink={0} ref={(view: any) => observeLayout('header', view, onHeaderLayout)} style={{display: "flex"}}>
+				<masonview className="vx-virtual-list-header" ref={(view: any) => observeLayout('header', view, onHeaderLayout)} style={mergeStyle({flexDirection: "column", flexShrink: 0}, {display: "flex"})}>
 					{props.renderHeader()}
 				</masonview>
 			) : null}
 			{entries.length === 0 ? (
 				props.renderEmpty ? (
-					<masonview flexDirection="column" className="vx-virtual-list-empty" style={{display: "flex"}}>
+					<masonview className="vx-virtual-list-empty" style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 						{props.renderEmpty()}
 					</masonview>
 				) : null
 			) : (
 				<masonview className="vx-virtual-list-body" style={{ height: contentHeight, flexShrink: 0 }}>
 					@for (const cell of cells; key cell.id) {
-						<masonview style={mergeStyle({display: "flex"}, {position: 'absolute', left: 0, top: cell.top})} ref={cellCallback(cell.id)} flexDirection="column" className={cell.entry ? 'vx-virtual-list-cell vx-virtual-list-row' : 'vx-virtual-list-cell'} visibility={cell.entry ? 'visible' : 'collapse'} width={contentWidthRef.current || viewportWidthRef.current || '100%'}>
+						<masonview style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, {position: 'absolute', left: 0, top: cell.top}))} ref={cellCallback(cell.id)} className={cell.entry ? 'vx-virtual-list-cell vx-virtual-list-row' : 'vx-virtual-list-cell'} visibility={cell.entry ? 'visible' : 'collapse'} width={contentWidthRef.current || viewportWidthRef.current || '100%'}>
 							@for (const entry of cell.rows; key entry.rowKey) {
 								<>
-									<masonview flexDirection="column" className="vx-virtual-list-item" style={{display: "flex"}}>
+									<masonview className="vx-virtual-list-item" style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 										{props.renderItem(entry.item, entry.index)}
 									</masonview>
 									{hasSeparator && entry.index < entries.length - 1 ? (
-										<masonview flexDirection="column" className="vx-virtual-list-separator" style={{display: "flex"}}>
+										<masonview className="vx-virtual-list-separator" style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 											{props.renderSeparator?.()}
 										</masonview>
 									) : null}
@@ -625,7 +608,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 				</masonview>
 			)}
 			{props.renderFooter ? (
-				<masonview flexDirection="column" className="vx-virtual-list-footer" flexShrink={0} style={{display: "flex"}}>
+				<masonview className="vx-virtual-list-footer" style={mergeStyle({flexDirection: "column", flexShrink: 0}, {display: "flex"})}>
 					{props.renderFooter()}
 				</masonview>
 			) : null}

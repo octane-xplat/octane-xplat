@@ -74,30 +74,13 @@ export function Text(props: TextProps) @{
 	};
 
 	@if (inText) {
-		<span ref={(v: any) => applyEscapeProps(v, props)} className={cx(props.className)} style={textStyle} {...layoutChildProps(props)}>
+		<span ref={(v: any) => applyEscapeProps(v, props)} className={cx(props.className)} {...layoutChildProps(props, textStyle)}>
 			{props.children}
 		</span>
 	} @else {
-		<label
-			id={props.id}
-			testID={props.testID ?? ''}
-			ref={(v: any) => applyEscapeProps(v, props)}
-			{...layoutChildProps(props)}
-			className={cx(props.className)}
-			style={textStyle}
-			maxLines={props.numberOfLines ?? 0}
-			// NS Label renders single-line unless whiteSpace asks to wrap;
-			// web text wraps freely — 'normal' matches web (0 = unlimited lines).
-			whiteSpace={props.ellipsize ? 'nowrap' : 'normal'}
-			textOverflow={props.ellipsize ? 'ellipsis' : undefined}
-			accessible={props.accessible}
-			accessibilityLabel={props.accessibilityLabel}
-			accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}
-			accessibilityHint={props.accessibilityHint}
-			accessibilityValue={props.accessibilityValue}
-			accessibilityState={nativeAccessibilityState(props.accessibilityState) as any}
-			accessibilityLiveRegion={props.accessibilityLiveRegion as any}
-		>
+		// NS Label renders single-line unless whiteSpace asks to wrap; web text
+		// wraps freely — 'normal' matches web (0 unlimited lines).
+		<label id={props.id} testID={props.testID ?? ''} ref={(v: any) => applyEscapeProps(v, props)} {...layoutChildProps(props, textStyle)} className={cx(props.className)} maxLines={props.numberOfLines ?? 0} whiteSpace={props.ellipsize ? 'nowrap' : 'normal'} textOverflow={props.ellipsize ? 'ellipsis' : undefined} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
 			<TextScope>{props.children}</TextScope>
 		</label>
 	}

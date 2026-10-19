@@ -50,14 +50,14 @@ export function MobileNav(props: MobileNavProps) @{
 	} @else {
 		<masonview id={id} className={cx('vx-mobilenav', 'vx-mobilenav--' + side, 'vx-mobilenav--open', props.className)} style={mergeStyle({display: "grid"}, props.style)} accessibilityLabel={props.label ?? (typeof props.header === 'string' ? props.header : 'Navigation')}>
 			<masonview className="vx-mobilenav-backdrop" onTap={() => onOpenChange(false)} style={{display: "flex"}}/>
-			<masonview style={mergeStyle({display: "flex"}, { width , justifySelf: side === 'start' ? 'left' : 'right'})} flexDirection="column" className="vx-mobilenav-drawer">
+			<masonview style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { width , justifySelf: side === 'start' ? 'left' : 'right'}))} className="vx-mobilenav-drawer">
 				@if (props.header != null) {
-					<masonview className="vx-mobilenav-header" flexDirection="row" alignItems="center" style={{display: "flex"}}>
+					<masonview className="vx-mobilenav-header" style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
 						{typeof props.header === 'string' ? <Text className="vx-mobilenav-heading">{props.header}</Text> : props.header}
 					</masonview>
 				}
-				<scrollview className="vx-mobilenav-content" flexGrow={1}>
-					<masonview flexDirection="column" style={{display: "flex"}}><SizeProvider value={null}>{props.children}</SizeProvider></masonview>
+				<scrollview className="vx-mobilenav-content" style={{flexGrow: 1}}>
+					<masonview style={mergeStyle({flexDirection: "column"}, {display: "flex"})}><SizeProvider value={null}>{props.children}</SizeProvider></masonview>
 				</scrollview>
 			</masonview>
 		</masonview>

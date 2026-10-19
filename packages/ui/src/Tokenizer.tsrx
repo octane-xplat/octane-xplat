@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useImperativeHandle, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'octane';
 import type { SearchableItem, SearchRequest, SearchSource, TokenizerProps, TypeaheadInputHandle } from "./props";
 import { useSize } from './size-context';
@@ -19,7 +20,7 @@ function EndLane(props: { lane: BusyIndicatorLane; endContent?: any; clear?: any
 	const isBusy = useSyncExternalStore(props.lane.subscribe, props.lane.getIsBusy);
 	if (!isBusy && props.endContent == null && props.clear == null) return null;
 
-	<masonview className="vx-tokenizer-endlane" flexDirection="row" alignItems="center" ref={props.laneRef} style={{display: "flex"}}>
+	<masonview className="vx-tokenizer-endlane" ref={props.laneRef} style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
 		{isBusy ? <masonview className="vx-typeahead-spinner" style={{display: "flex"}}><ActivityIndicator busy={true} /></masonview> : null}
 		{props.endContent}
 		{props.clear}
@@ -245,7 +246,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 		: null;
 
 	const truncatedRow = (
-		<masonview className={wrapperClass} flexDirection="row" alignItems="center" flexWrap="nowrap" ref={(v: any) => { wrapperRef.current = v; }} onLayoutChanged={measureOverflow} onTap={() => { if (!props.isDisabled) inputHandle.current?.focus(); }} accessibilityState={{ disabled: props.isDisabled } as any} style={{display: "flex"}}>
+		<masonview className={wrapperClass} ref={(v: any) => { wrapperRef.current = v; }} onLayoutChanged={measureOverflow} onTap={() => { if (!props.isDisabled) inputHandle.current?.focus(); }} accessibilityState={{ disabled: props.isDisabled } as any} style={mergeStyle({flexDirection: "row", alignItems: "center", flexWrap: "nowrap"}, {display: "flex"})}>
 			{startIcon}
 			{tokens}
 			{isTruncated
@@ -258,7 +259,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 	if (isLayerMode) {
 		// The collapsed row anchors the popover; the full field lives inside it.
 		content = <>
-			<masonview className={wrapperClass} flexDirection="row" alignItems="center" flexWrap="nowrap" ref={(v: any) => { wrapperRef.current = v; }} onLayoutChanged={measureOverflow} onTap={() => { if (!props.isDisabled) focusEntered(); }} accessibilityState={{ disabled: props.isDisabled } as any} style={{display: "flex"}}>
+			<masonview className={wrapperClass} ref={(v: any) => { wrapperRef.current = v; }} onLayoutChanged={measureOverflow} onTap={() => { if (!props.isDisabled) focusEntered(); }} accessibilityState={{ disabled: props.isDisabled } as any} style={mergeStyle({flexDirection: "row", alignItems: "center", flexWrap: "nowrap"}, {display: "flex"})}>
 				{startIcon}
 				{tokens}
 				<label ref={(v: any) => { overflowRef.current = v; }} className="vx-tokenizer-overflow" text={overflowCount > 0 ? `+${overflowCount} more` : ''} />
@@ -270,7 +271,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 				onDismiss={collapseSoon}
 				className="vx-tokenizer-layer"
 			>
-				<masonview className="vx-tokenizer" flexDirection="row" alignItems="center" flexWrap="wrap" style={{display: "flex"}}>
+				<masonview className="vx-tokenizer" style={mergeStyle({flexDirection: "row", alignItems: "center", flexWrap: "wrap"}, {display: "flex"})}>
 					{startIcon}
 					{tokens}
 					{fieldControls}
@@ -279,7 +280,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 			</Popover>
 		</>;
 	} else {
-		content = <masonview className={wrapperClass} flexDirection="row" alignItems="center" flexWrap={isTruncated ? 'nowrap' : 'wrap'} ref={(v: any) => { wrapperRef.current = v; }} onLayoutChanged={measureOverflow} onTap={() => { if (!props.isDisabled) inputHandle.current?.focus(); }} accessibilityState={{ disabled: props.isDisabled } as any} style={{display: "flex"}}>
+		content = <masonview className={wrapperClass} ref={(v: any) => { wrapperRef.current = v; }} onLayoutChanged={measureOverflow} onTap={() => { if (!props.isDisabled) inputHandle.current?.focus(); }} accessibilityState={{ disabled: props.isDisabled } as any} style={mergeStyle({flexDirection: "row", alignItems: "center", flexWrap: isTruncated ? 'nowrap' : 'wrap'}, {display: "flex"})}>
 			{startIcon}
 			{tokens}
 			{isTruncated

@@ -59,9 +59,9 @@ export function Toast(props: ToastProps) @{
 		dismiss: () => dismiss('manual'),
 	}
 
-	<masonview flexDirection="row" alignItems="center" id={props.id} ref={view} className={cx('vx-toast', props.type === 'error' && 'vx-toast--error', props.className)} style={mergeStyle({display: "flex"}, { opacity: props.isExiting ? 0 : 1, ...(props.style as any) })}>
+	<masonview id={props.id} ref={view} className={cx('vx-toast', props.type === 'error' && 'vx-toast--error', props.className)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, { opacity: props.isExiting ? 0 : 1, ...(props.style as any) }))}>
 		{props.renderContent ? props.renderContent(content) : (
-			<masonview flexDirection="column" flexGrow={1} className="vx-toast-content" style={{display: "flex"}}>
+			<masonview className="vx-toast-content" style={mergeStyle({flexDirection: "column", flexGrow: 1}, {display: "flex"})}>
 				{typeof props.body === 'string' ? <label whiteSpace="normal">{props.body}</label> : props.body}
 				{props.endContent}
 			</masonview>

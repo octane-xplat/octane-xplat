@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { Utils } from '@nativescript/core';
 import type { LinkProps } from './props';
 import { Pressable } from './Pressable';
@@ -10,6 +11,6 @@ import { Pressable } from './Pressable';
  */
 export function Link(props: LinkProps) @{
 	<Pressable id={props.id} accessibilityRole={props.accessibilityRole ?? 'link'} className={props.className} style={props.style} onPress={() => { props.onPress?.(); Utils.openUrl(props.href); }}>
-		<masonview flexDirection="row" style={{display: "flex"}}>{props.children}</masonview>
+		<masonview style={mergeStyle({flexDirection: "row"}, {display: "flex"})}>{props.children}</masonview>
 	</Pressable>
 }

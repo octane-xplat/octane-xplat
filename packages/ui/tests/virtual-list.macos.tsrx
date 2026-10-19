@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from '../src/style-merge'
 import { useState } from 'octane'
 import { VirtualList } from '../src/VirtualList.macos.tsrx'
 import type { ProbeContext } from '../../../scripts/probe/context'
@@ -10,7 +11,7 @@ const renderItem = (item: { id: string }, index: number) => <label id={'row-' + 
 export default function ListReorder() @{
 	const [rows, setRows] = useState(items)
 
-	<masonview flexDirection="column" style={{display: "flex", ...({ width: 280, height: 240 })}}>
+	<masonview style={mergeStyle({flexDirection: "column"}, {display: "flex", ...({ width: 280, height: 240 })})}>
 		<masonview id="sort" onTap={() => setRows([...rows].reverse())} style={{display: "flex"}}><label text="Reverse" /></masonview>
 		<VirtualList id="list" style={{ height: 160 }} items={rows} keyExtractor={keyExtractor} renderItem={renderItem} />
 	</masonview>

@@ -17,7 +17,7 @@ import { usePresentation, useDetachedPresentation } from './presentation.macos.t
 
 function SheetPanel(props: BottomSheetProps & { dark?: boolean; layerDepth?: number }) @{
 	<LayerDepthProvider value={props.layerDepth ?? 0}>
-	<masonview flexDirection="column" id={props.id} className={cx('vx-sheet', 'vx-bottom-sheet', props.dark && 'ns-dark', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
+	<masonview id={props.id} className={cx('vx-sheet', 'vx-bottom-sheet', props.dark && 'ns-dark', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style))}>
 		<label className="vx-sheet-grabber" accessibilityLabel="Drag to resize sheet">―</label>
 		<scrollview>{props.children}</scrollview>
 	</masonview>
