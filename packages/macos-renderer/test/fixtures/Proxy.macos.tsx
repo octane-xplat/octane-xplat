@@ -91,8 +91,8 @@ export default function Proxy() {
 			>
 				<proxyviewcontainer
 					style={{
-						gridRow: String((phase === 1 ? 1 : undefined) + 1),
-						gridColumn: String((phase === 1 ? 1 : undefined) + 1),
+						gridRow: String(phase === 1 ? 2 : 1),
+						gridColumn: String(phase === 1 ? 2 : 1),
 					}}
 				>
 					<contentview id="proxy-grid-child" />

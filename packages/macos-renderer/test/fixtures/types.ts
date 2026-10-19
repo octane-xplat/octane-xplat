@@ -27,15 +27,19 @@ createMacOSRoot(host, { fontFamily: 7 })
 // @ts-expect-error face weights must be numbers
 registerFontFamily('Test', [{ weight: 'bold', descriptor }])
 
-const dock: SharedJSX.IntrinsicElements['docklayout'] = { stretchLastChild: false }
-const dockChild: SharedJSX.IntrinsicElements['label'] = { dock: 'bottom' }
-void dock
-void dockChild
-// @ts-expect-error primitive prop accepts boolean only
-const invalidDock: SharedJSX.IntrinsicElements['docklayout'] = { stretchLastChild: 'false' }
-// @ts-expect-error attached edge vocabulary is closed
+const mason: SharedJSX.IntrinsicElements['masonview'] = {
+	style: { display: 'grid', gridTemplateRows: '40px 40px' },
+}
+const masonChild: SharedJSX.IntrinsicElements['label'] = {
+	style: { gridRow: 2, gridColumn: 1 },
+}
+void mason
+void masonChild
+// @ts-expect-error removed layout containers are not in the contract
+const invalidLayout: SharedJSX.IntrinsicElements['docklayout'] = { stretchLastChild: 'false' }
+// @ts-expect-error dock is not a prop — positioning lives in the style bag
 const invalidDockChild: SharedJSX.IntrinsicElements['label'] = { dock: 'center' }
-void invalidDock
+void invalidLayout
 void invalidDockChild
 
 const rootLayout: SharedJSX.IntrinsicElements['rootlayout'] = {

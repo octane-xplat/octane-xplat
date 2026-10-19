@@ -93,6 +93,7 @@ for (const file of [
 	'main.ts',
 	'dev-shell.ts',
 	'types.ts',
+	'style-merge.ts',
 	'globals.d.ts',
 ]) {
 	await cp(join(fixture, file), join(app, 'src', file))
@@ -124,7 +125,7 @@ const examples = [...ledger.matchAll(/```tsx\n([\s\S]*?)```/g)]
 assert.equal(
 	examples.length,
 	22,
-	'Intrinsic ledger must include checked StackLayout, ContentView, DockLayout, WrapLayout, ProxyViewContainer RootLayout SearchBar FormattedString HtmlView ActivityIndicator DatePicker ListPicker Progress SegmentedBar SegmentedBarItem TimePicker Placeholder ActionBar and LiquidGlass examples',
+	'Intrinsic ledger must include checked MasonView, ContentView, dock/wrap emulation, ProxyViewContainer, RootLayout, SearchBar, FormattedString, HtmlView, ActivityIndicator, DatePicker, ListPicker, Progress, SegmentedBar, SegmentedBarItem, TimePicker, Placeholder, ActionBar and LiquidGlass examples',
 )
 
 for (const [index, example] of examples.entries()) {

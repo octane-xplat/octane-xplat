@@ -18,7 +18,7 @@ All conditioned native declarations derive from that same map.
 
 | Family            | Existing AppKit factories                                                                                                                     | Missing raw AppKit hosts                                                                                                               |
 | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Layout            | `absolutelayout`, `flexboxlayout`, `gridlayout`, `stacklayout`, `contentview`, `docklayout`, `wraplayout`, `proxyviewcontainer`, `rootlayout` | —                                                                                                                                      |
+| Layout            | `masonview`, `contentview`, `proxyviewcontainer`, `rootlayout`                                                                                 | —                                                                                                                                      |
 | Text              | `label`, `span`, `formattedstring`, `htmlview`                                                                                                | —                                                                                                                                      |
 | Text input        | `textfield`, `textview`, `searchbar`                                                                                                          | —                                                                                                                                      |
 | Controls          | `button`, `switch`, `slider`, `activityindicator`, `datepicker`, `listpicker`, `progress`, `segmentedbar`, `segmentedbaritem`, `timepicker`   | —                                                                                                                                      |
@@ -38,22 +38,25 @@ failed during implementation, without a retained commit or submission result.
 The current inventory therefore supersedes the assessment that the whole
 runtime-parity assignment had finished.
 
-## StackLayout host
+## MasonView host
 
-The new host uses AppKit's NSStackView. Its default direction is vertical and
-its default gap is zero. Updating or removing `orientation` reuses the same
-native view; removing it restores vertical layout. Padding and child cross-axis
-alignment use Auto Layout constraints. A fixed-size child with stretch
-alignment centers on the cross axis, matching NativeScript's layout helper.
+MasonView is the single native layout container: an AppKit `NSView` whose
+children are placed by the Mason engine from `style`/`className` (the shared
+CSS surface — `display`, `position`, grid tracks, flex configuration, insets).
+Former layout tags (`stacklayout`, `flexboxlayout`, `gridlayout`,
+`docklayout`, `wraplayout`, `absolutelayout`) and the attached layout props
+(`row`, `col`, `dock`, `left`, `top`, `orientation`, `horizontalAlignment`,
+`verticalAlignment`) were removed from the contract; components express the
+same semantics through CSS-shaped styles.
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export default function Example() {
 	return (
-		<stacklayout orientation="horizontal" style={{ width: 240, height: 80, padding: 8 }}>
-			<label text="First" verticalAlignment="middle" style={{ width: 40, height: 16 }} />
-			<label text="Second" verticalAlignment="top" style={{ width: 40, height: 16 }} />
-		</stacklayout>
+		<masonview style={{ width: 240, height: 80, padding: 8, flexDirection: 'row' }}>
+			<label text="First" style={{ width: 40, height: 16, alignSelf: 'center' }} />
+			<label text="Second" style={{ width: 40, height: 16, alignSelf: 'start' }} />
+		</masonview>
 	)
 }
 ```
@@ -105,21 +108,19 @@ import { useSignal$ } from 'octane/signals/client'
 export default function ContentExample() {
 	const visible$ = useSignal$(true)
 	return (
-		<stacklayout>
+		<masonview>
 			<contentview style={{ width: 200, height: 80 }}>
 				{visible$.get() ? (
 					<label
 						text="Content"
-						horizontalAlignment="center"
-						verticalAlignment="middle"
-						style={{ width: 60, height: 20 }}
+						style={{ width: 60, height: 20, alignSelf: 'center', justifySelf: 'center' }}
 					/>
 				) : null}
 			</contentview>
-			<flexboxlayout onTap={() => visible$.set(!visible$.get())}>
+			<masonview onTap={() => visible$.set(!visible$.get())}>
 				<label text="Toggle" />
-			</flexboxlayout>
-		</stacklayout>
+			</masonview>
+		</masonview>
 	)
 }
 ```
@@ -134,26 +135,25 @@ These checks qualify its single-child lifecycle, not every inherited common
 prop, event or style. No fresh mobile execution, OS input, visual analysis or
 full native parity is claimed.
 
-## DockLayout host
+## Dock semantics under Mason
 
-DockLayout places children in their JSX order. Each child consumes a strip at
-its `dock` edge; the default edge is left. The final child receives the remaining
-rectangle by default. Set `stretchLastChild={false}` to dock it normally.
-Removing that prop restores stretching. Fixed child dimensions and alignment
-still apply inside each strip, including the final rectangle. Padding and
-margins reduce the space available to children.
+The standalone dock host is gone; docking is a style composition. An edge
+docks by absolute position with three zero insets; remaining children fill
+what docked siblings leave. The shared `Dock` component performs this
+translation — authored JSX stays semantic while the raw surface stays
+CSS-only.
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export default function DockExample() {
 	return (
-		<docklayout style={{ width: 300, height: 160, padding: 10 }}>
-			<label dock="top" text="Header" style={{ height: 20 }} />
-			<label dock="right" text="Side" style={{ width: 40 }} />
-			<contentview>
+		<masonview style={{ width: 300, height: 160, padding: 10, position: 'relative' }}>
+			<label text="Header" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 20 }} />
+			<label text="Side" style={{ position: 'absolute', top: 20, right: 0, bottom: 0, width: 40 }} />
+			<contentview style={{ marginLeft: 0 }}>
 				<label text="Remaining space" />
 			</contentview>
-		</docklayout>
+		</masonview>
 	)
 }
 ```
@@ -166,31 +166,26 @@ keeps the canonical shared types; it does not qualify the inherited common
 contract gaps or full native parity. No mobile, visual or OS-input evidence is
 provided.
 
-## WrapLayout host
+## Wrap semantics under Mason
 
-WrapLayout places items left to right and starts a new row when the next item
-exceeds the available width. Set `orientation="vertical"` to fill columns from
-top to bottom instead. Positive item dimensions define equal slots; nonpositive or
-removed dimensions use each child's measured size. Removing orientation
-restores horizontal layout. Padding, margins, fixed child sizes and alignment
-apply within those slots.
+The standalone wrap host is gone; wrapping is `flexWrap` on a `masonview`.
+Items flow left to right and break to a new line when they exceed the
+available width; `flexDirection: 'column'` fills columns instead. Child sizes
+come from each child's own style.
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export default function WrapExample() {
 	return (
-		<wraplayout
-			orientation="vertical"
-			itemWidth={80}
-			itemHeight={40}
-			style={{ width: 200, height: 100, padding: 10 }}
+		<masonview
+			style={{ flexDirection: 'column', flexWrap: 'wrap', width: 200, height: 100, padding: 10 }}
 		>
-			<label text="First" style={{ width: 40, height: 20 }} />
+			<label text="First" style={{ width: 80, height: 40 }} />
 			<label text="Second" />
 			<contentview>
 				<label text="Third" />
 			</contentview>
-		</wraplayout>
+		</masonview>
 	)
 }
 ```
@@ -206,22 +201,29 @@ and OS input remain unqualified.
 ## ProxyViewContainer logical host
 
 ProxyViewContainer groups children without adding a native view. Its children
-participate directly in the nearest parent layout, in JSX order. Attached
-layout properties such as `row`, `col`, `dock`, `left` and `top` reach those
-children; a child's explicit value takes precedence. Removing a forwarded
-property restores the child's own value or the layout default. ContentView
-still accepts only one projected layout child; group multiple children in a
-layout before putting them in ContentView.
+participate directly in the nearest parent layout, in JSX order. Placement
+styles on each child (`gridRow`, `gridColumn`, `position`, insets) apply to
+those children; a child's explicit value wins. ContentView still accepts only
+one projected layout child; group multiple children in a `masonview` before
+putting them in ContentView.
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export default function ProxyExample() {
 	return (
-		<gridlayout rows="40,40" columns="100,100" style={{ width: 200, height: 80 }}>
-			<proxyviewcontainer row={1} col={1}>
-				<label text="Projected into the second cell" />
+		<masonview
+			style={{
+				display: 'grid',
+				gridTemplateRows: '40px 40px',
+				gridTemplateColumns: '100px 100px',
+				width: 200,
+				height: 80,
+			}}
+		>
+			<proxyviewcontainer>
+				<label text="Projected into the second cell" style={{ gridRow: 2, gridColumn: 2 }} />
 			</proxyviewcontainer>
-		</gridlayout>
+		</masonview>
 	)
 }
 ```
@@ -269,9 +271,7 @@ export default function RootExample() {
 		<rootlayout style={{ width: 200, height: 80, padding: 10 }}>
 			<label text="Background" />
 			<contentview
-				horizontalAlignment="right"
-				verticalAlignment="bottom"
-				style={{ width: 40, height: 20 }}
+				style={{ width: 40, height: 20, justifySelf: 'end', alignSelf: 'end' }}
 			>
 				<label text="Above" />
 			</contentview>
@@ -305,7 +305,7 @@ import { useSignal$ } from 'octane/signals/client'
 export default function SearchExample() {
 	const query$ = useSignal$('')
 	return (
-		<stacklayout>
+		<masonview style={{ flexDirection: 'column' }}>
 			<searchbar
 				text={query$.get()}
 				hint="Find items"
@@ -313,7 +313,7 @@ export default function SearchExample() {
 				onSubmit={() => console.log(query$.get())}
 				style={{ width: 240, height: 28 }}
 			/>
-		</stacklayout>
+		</masonview>
 	)
 }
 ```
@@ -372,12 +372,12 @@ Supply content through `html`, with no JSX children.
 /** @jsxImportSource @octane-xplat/jsx */
 export default function HtmlExample() {
 	return (
-		<stacklayout>
+		<masonview style={{ flexDirection: 'column' }}>
 			<htmlview
 				html="<b>Hello</b> &amp; welcome"
 				style={{ fontSize: 20, color: '#2563eb', width: 240, height: 40 }}
 			/>
-		</stacklayout>
+		</masonview>
 	)
 }
 ```
@@ -407,10 +407,10 @@ import { useSignal$ } from 'octane/signals/client'
 export default function ActivityExample() {
 	const busy$ = useSignal$(true)
 	return (
-		<stacklayout>
+		<masonview style={{ flexDirection: 'column' }}>
 			<activityindicator busy={busy$.get()} style={{ width: 24, height: 24 }} />
 			<button text="Stop" onTap={() => busy$.set(false)} />
-		</stacklayout>
+		</masonview>
 	)
 }
 ```
@@ -443,14 +443,14 @@ import { useSignal$ } from 'octane/signals/client'
 export default function DateExample() {
 	const date$ = useSignal$(new Date(2026, 4, 10))
 	return (
-		<stacklayout>
+		<masonview style={{ flexDirection: 'column' }}>
 			<datepicker
 				date={date$.get()}
 				minDate={new Date(2026, 4, 1)}
 				maxDate={new Date(2026, 4, 31)}
 				onDateChange={(event) => date$.set(event.value)}
 			/>
-		</stacklayout>
+		</masonview>
 	)
 }
 ```
@@ -484,13 +484,13 @@ import { useSignal$ } from 'octane/signals/client'
 export default function ListExample() {
 	const selected$ = useSignal$(0)
 	return (
-		<stacklayout>
+		<masonview style={{ flexDirection: 'column' }}>
 			<listpicker
 				items={['Small', 'Medium', 'Large']}
 				selectedIndex={selected$.get()}
 				onSelectedIndexChange={(event) => selected$.set(event.value)}
 			/>
-		</stacklayout>
+		</masonview>
 	)
 }
 ```
@@ -521,10 +521,10 @@ import { useSignal$ } from 'octane/signals/client'
 export default function ProgressExample() {
 	const value$ = useSignal$(25)
 	return (
-		<stacklayout>
+		<masonview style={{ flexDirection: 'column' }}>
 			<progress value={value$.get()} maxValue={100} style={{ width: 240, height: 16 }} />
 			<button text="Complete" onTap={() => value$.set(100)} />
-		</stacklayout>
+		</masonview>
 	)
 }
 ```
@@ -562,14 +562,14 @@ import { useSignal$ } from 'octane/signals/client'
 export default function SegmentExample() {
 	const selected$ = useSignal$(0)
 	return (
-		<stacklayout>
+		<masonview style={{ flexDirection: 'column' }}>
 			<segmentedbar
 				items={[{ title: 'Day' }, { title: 'Week' }]}
 				selectedIndex={selected$.get()}
 				style={{ selectedBackgroundColor: '#2563eb', width: 240, height: 32 }}
 				onSelectedIndexChange={(event) => selected$.set(event.value)}
 			/>
-		</stacklayout>
+		</masonview>
 	)
 }
 ```
@@ -606,13 +606,13 @@ import { useSignal$ } from 'octane/signals/client'
 export default function SegmentItemExample() {
 	const title$ = useSignal$('Day')
 	return (
-		<stacklayout>
+		<masonview style={{ flexDirection: 'column' }}>
 			<segmentedbar selectedIndex={0} style={{ width: 240, height: 32 }}>
 				<segmentedbaritem title={title$.get()} />
 				<segmentedbaritem title="Week" />
 			</segmentedbar>
 			<button text="Rename" onTap={() => title$.set('Today')} />
-		</stacklayout>
+		</masonview>
 	)
 }
 ```
@@ -646,7 +646,7 @@ import { useSignal$ } from 'octane/signals/client'
 export default function TimeExample() {
 	const time$ = useSignal$(new Date(0, 0, 0, 10, 30))
 	return (
-		<stacklayout>
+		<masonview style={{ flexDirection: 'column' }}>
 			<timepicker
 				time={time$.get()}
 				minHour={9}
@@ -655,7 +655,7 @@ export default function TimeExample() {
 				maxMinute={45}
 				onTimeChange={(event) => time$.set(event.value)}
 			/>
-		</stacklayout>
+		</masonview>
 	)
 }
 ```
@@ -738,7 +738,7 @@ declare function createCellHost(): HostObject
 const xml: ListViewProps<HostObject> = {
 	items: [{ person: { name: 'Ada' }, count: 2 }],
 	itemTemplate:
-		'<StackLayout><Label text="{{ person.name }}"/><Label text="{{ count + 1 }}"/></StackLayout>',
+		'<MasonView><Label text="{{ person.name }}"/><Label text="{{ count + 1 }}"/></MasonView>',
 }
 const factory: ListViewProps<HostObject> = {
 	items: ['Ada'],
@@ -855,7 +855,7 @@ import { NSTextField } from '@octane-xplat/platform/macos'
 
 export default function PlaceholderExample() {
 	return (
-		<stacklayout>
+		<masonview style={{ flexDirection: 'column' }}>
 			<placeholder
 				style={{ width: 200, height: 24 }}
 				onCreatingView={(event) => {
@@ -863,7 +863,7 @@ export default function PlaceholderExample() {
 					event.view = field
 				}}
 			/>
-		</stacklayout>
+		</masonview>
 	)
 }
 ```
@@ -924,11 +924,10 @@ release criteria. The focused lane does not establish a full-suite pass.
 
 ## LiquidGlass host
 
-LiquidGlass keeps the pinned upstream container contract — NativeScript
-`LiquidGlassCommon` extends GridLayout, so children place and size by the same
-rules as `<gridlayout>`: the implicit single cell overlaps siblings, attached
-`row`/`col`/`rowSpan`/`colSpan` indices and track lists apply, and
-horizontal/vertical alignment positions non-stretch children. The AppKit host
+LiquidGlass keeps a single overlapping cell under the Mason model — children
+place and size by style: the implicit cell overlaps siblings, `gridRow`/
+`gridColumn`/`gridRowStart`-family and track styles apply, and self-alignment
+positions non-stretch children. The AppKit host
 is a plain `NSView` laid out by the shared grid pass; the glass material is an
 `NSVisualEffectView` backdrop subview pinned to the host's edges behind the
 children rather than the children's ancestor. That ordering keeps authored
@@ -946,9 +945,7 @@ export default function GlassExample() {
 		<liquidglass style={{ width: 200, height: 80 }}>
 			<label
 				text="Over glass"
-				horizontalAlignment="center"
-				verticalAlignment="middle"
-				style={{ fontSize: 14 }}
+				style={{ fontSize: 14, justifySelf: 'center', alignSelf: 'center' }}
 			/>
 		</liquidglass>
 	)
@@ -960,12 +957,9 @@ edge pinning, default overlapping and track-based child placement, alignment,
 style updates, keyed-move identity retention, removal, replacement, parent
 changes, logical refs and callback cleanup, and root teardown of the host,
 backdrop and children. Retained-root HMR keeps the host, backdrop and child
-across a revision. Like `<gridlayout>`, a keyed move appends the moved native
+across a revision. A keyed move appends the moved native
 view instead of restoring the logical sibling order; the shared z-order gap
-is grid-wide, not glass-specific. Runtime `rows`/`columns` acceptance mirrors
-the upstream GridLayout base even though the shared contract declares no
-element props; upstream honors them because `LiquidGlassCommon` is a
-`GridLayout`. The material's rendered appearance is not pixel-qualified, no
+is mason-wide, not glass-specific. The material's rendered appearance is not pixel-qualified, no
 iOS glass `variant`/`tint`/`interactive` settings exist on the shared tag, and
 the inherited common lifecycle/gesture/class/style/accessibility audit,
 mobile execution, OS input and full release gates remain open. This raw-host
