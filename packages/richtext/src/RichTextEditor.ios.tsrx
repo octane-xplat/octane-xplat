@@ -3,11 +3,8 @@ import { useImperativeHandle, useCallback, useEffect, useRef } from 'octane'
 import { View } from '@nativescript/core'
 import { registerElement } from '@nativescript-community/octane'
 import type { Attributes } from '@nativescript-community/octane/intrinsics'
-import type {
-	RichTextEditorHandle,
-	RichTextEditorProps,
-	RichTextFormat,
-} from './types'
+import type { RichTextEditorHandle, RichTextEditorProps, RichTextFormat } from './types'
+import { layoutChildProps } from './layout-child'
 
 /** `XplatAztecEditorView` arrives through the leaf's
  *  `platforms/ios/src` Swift facade over `Aztec.TextView` — there are no
@@ -52,7 +49,7 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 
 	// Stable identity — an inline closure re-fires ref(null)/ref(v) per
 	// render, which would bounce host.current around the effects below.
-	useImperativeHandle(props.ref, () => handle(editor()), []);
+	useImperativeHandle(props.ref, () => handle(editor()), [])
 
 	const bindHost = useCallback((v: any) => {
 		host.current = v
@@ -62,17 +59,22 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 
 	const emitChange = () => {
 		const e = editor()
-		if (!e || applyingValue.current) return
+		if (!e || applyingValue.current) {
+			return
+		}
+
 		clearTimeout(emitTimer.current)
 		emitTimer.current = setTimeout(() => {
 			const current = editor()
-			if (!current || applyingValue.current) return
+			if (!current || applyingValue.current) {
+				return
+			}
+
 			const html = current.getHTML()
 			lastEmitted.current = html
 			props.onChange?.(html)
 		}, 150)
 	}
-
 
 	const handle = (e: any): RichTextEditorHandle => ({
 		getHTML: () => e.getHTML(),
@@ -86,9 +88,14 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 			}
 		},
 		apply: (format: RichTextFormat) => {
-			if (format === 'link') throw new RangeError('Use linkTo(url, anchor) to apply a link')
+			if (format === 'link') {
+				throw new RangeError('Use linkTo(url, anchor) to apply a link')
+			}
+
 			if (UNSUPPORTED.has(format) || !e.applyFormat(format)) {
-				throw new RangeError(`[richtext] apply('${format}') is not supported by the iOS Aztec surface`)
+				throw new RangeError(
+					`[richtext] apply('${format}') is not supported by the iOS Aztec surface`,
+				)
 			}
 
 			emitChange()
@@ -107,22 +114,34 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 		redo: () => e.redo(),
 		split: () => {
 			const ok = Boolean(e.split())
-			if (ok) emitChange()
+			if (ok) {
+				emitChange()
+			}
+
 			return ok
 		},
 		join: () => {
 			const ok = Boolean(e.join())
-			if (ok) emitChange()
+			if (ok) {
+				emitChange()
+			}
+
 			return ok
 		},
 		indent: () => {
 			const ok = Boolean(e.indent())
-			if (ok) emitChange()
+			if (ok) {
+				emitChange()
+			}
+
 			return ok
 		},
 		outdent: () => {
 			const ok = Boolean(e.outdent())
-			if (ok) emitChange()
+			if (ok) {
+				emitChange()
+			}
+
 			return ok
 		},
 		canIndent: () => Boolean(e.canIndent()),
@@ -135,7 +154,9 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 
 	useEffect(() => {
 		const e = editor()
-		if (!e) return
+		if (!e) {
+			return
+		}
 
 		e.onTextChange = () => emitChange()
 		e.onSelectionChange = (start: number, end: number, active: any) => {
@@ -151,7 +172,10 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 		e.onFocus = () => props.onFocus?.()
 		e.onBlur = () => props.onBlur?.()
 
-		if (props.placeholder !== undefined) e.placeholder = props.placeholder
+		if (props.placeholder !== undefined) {
+			e.placeholder = props.placeholder
+		}
+
 		e.editable = props.editable !== false
 
 		if (props.value !== undefined) {
@@ -163,9 +187,14 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 			}
 		}
 
-		if (props.autofocus) e.focus()
+		if (props.autofocus) {
+			e.focus()
+		}
 
-		if (props.ios) Object.assign(e, props.ios)
+		if (props.ios) {
+			Object.assign(e, props.ios)
+		}
+
 		props.onReady?.()
 
 		return () => {
@@ -182,8 +211,14 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 	// external reset (Aztec-iOS setHTML is non-undoable, matching Android).
 	useEffect(() => {
 		const e = editor()
-		if (!e || props.value === undefined) return
-		if (props.value === lastEmitted.current) return
+		if (!e || props.value === undefined) {
+			return
+		}
+
+		if (props.value === lastEmitted.current) {
+			return
+		}
+
 		applyingValue.current = true
 		try {
 			e.setHTML(props.value)
@@ -194,29 +229,22 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 
 	useEffect(() => {
 		const e = editor()
-		if (e) e.editable = props.editable !== false
+		if (e) {
+			e.editable = props.editable !== false
+		}
 	}, [props.editable])
 
 	useEffect(() => {
 		const e = editor()
-		if (e && props.placeholder !== undefined) e.placeholder = props.placeholder
+		if (e && props.placeholder !== undefined) {
+			e.placeholder = props.placeholder
+		}
 	}, [props.placeholder])
 
 	<xplatrichtext
 		ref={bindHost}
 		id={props.id}
 		className={props.className}
-		style={props.style}
-		row={props.row}
-		col={props.col}
-		rowSpan={props.rowSpan}
-		colSpan={props.colSpan}
-		dock={props.dock}
-		left={props.left}
-		top={props.top}
-		flexGrow={props.flexGrow}
-		flexShrink={props.flexShrink}
-		alignSelf={props.alignSelf}
-		order={props.order}
-	/>;
+		{...layoutChildProps(props)}
+	/>
 }

@@ -1,11 +1,16 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { describe, expect, it, vi } from 'vitest'
-import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
+import {
+	createObjectContainer,
+	createObjectDriver,
+	createUniversalRoot,
+	flushUniversalSync,
+} from 'octane/universal/native'
 
 vi.mock('@nativescript/core', () => ({ GridLayout: class {}, isIOS: false, isAndroid: true }))
 vi.mock('@nativescript-community/ui-pager', () => ({ Pager: class {} }))
 vi.mock('@nativescript-community/octane', async (original) => ({
-	...await original<any>(),
+	...(await original<any>()),
 	NATIVESCRIPT_RENDERER_ID: 'nativescript',
 	registerElement() {},
 	createNativeScriptRoot: vi.fn(),
@@ -18,7 +23,12 @@ function mount() {
 	const container = createObjectContainer('nativescript')
 	const driver = createObjectDriver('nativescript')
 	const root = createUniversalRoot(container, driver)
-	return { container, root, render: (extra: any = {}) => flushUniversalSync(() => root.render(Pager, { ...props, ...extra })) }
+	return {
+		container,
+		root,
+		render: (extra: any = {}) =>
+			flushUniversalSync(() => root.render(Pager, { ...props, ...extra })),
+	}
 }
 
 describe('native pager', () => {
@@ -26,8 +36,8 @@ describe('native pager', () => {
 		const { root, container, render } = mount()
 		const onPageChange = vi.fn()
 		try {
-			render({ page: 0, onPageChange });
-			render({ page: 2, onPageChange });
+			render({ page: 0, onPageChange })
+			render({ page: 2, onPageChange })
 			await vi.waitFor(() => expect((container.children[0] as any).selectedIndex).toBe(2))
 			const host = container.children[0]
 			container.dispatchEvent(host, 'selectedIndexChange', { value: 2 })
@@ -35,7 +45,9 @@ describe('native pager', () => {
 			container.dispatchEvent(host, 'selectedIndexChange', { value: 1 })
 			container.dispatchEvent(host, 'selectedIndexChange', { value: 1 })
 			expect(onPageChange).toHaveBeenCalledExactlyOnceWith(1)
-		} finally { root.unmount() }
+		} finally {
+			root.unmount()
+		}
 	})
 
 	it.each([
@@ -52,10 +64,25 @@ describe('native pager', () => {
 		try {
 			render()
 			render({ [key]: value })
-			const expected = key === 'accessibilityRole' ? 'header' : key === 'accessibilityState' ? 'disabled' : value
-			expect(container.children[0].props[key]).toEqual(expected)
+			// `row` is layout sugar — it lands as `gridRow` in the style bag, not
+			// as an element prop.
+			const childProps = container.children[0].props
+			const got = key === 'row' ? childProps.style?.gridRow : childProps[key]
+			const expected =
+				key === 'row'
+					? '3 / span 1'
+					: key === 'accessibilityRole'
+						? 'header'
+						: key === 'accessibilityState'
+							? 'disabled'
+							: value
+
+			expect(got).toEqual(expected)
 			render()
-			expect(container.children[0].props[key]).toBeUndefined()
-		} finally { root.unmount() }
+			const afterProps = container.children[0].props
+			expect(key === 'row' ? afterProps.style?.gridRow : afterProps[key]).toBeUndefined()
+		} finally {
+			root.unmount()
+		}
 	})
 })

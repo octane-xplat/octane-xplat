@@ -2,8 +2,11 @@ import type { CameraViewProps } from './props'
 import { isIOS } from '@nativescript/core'
 
 /** NativeScript reads layout fields from a child view during parent layout. */
-export function layoutChildProps(props: CameraViewProps): { style: Record<string, any> } {
-	const style: Record<string, any> = { ...(typeof props.style === 'object' ? props.style : {}) }
+export function layoutChildProps(
+	props: CameraViewProps,
+	baseStyle = props.style,
+): { style: Record<string, any> } {
+	const style: Record<string, any> = { ...(typeof baseStyle === 'object' ? baseStyle : {}) }
 	if (props.row !== undefined) {
 		style.gridRow = `${props.row + 1} / span ${props.rowSpan ?? 1}`
 	} else if (props.rowSpan !== undefined) {
@@ -16,10 +19,21 @@ export function layoutChildProps(props: CameraViewProps): { style: Record<string
 	}
 	if (props.dock !== undefined) {
 		style.position = style.position ?? 'absolute'
-		if (props.dock === 'left' || props.dock === 'top' || props.dock === 'bottom') { style.left = style.left ?? 0 }
-		if (props.dock === 'right' || props.dock === 'top' || props.dock === 'bottom') { style.right = style.right ?? 0 }
-		if (props.dock === 'top' || props.dock === 'left' || props.dock === 'right') { style.top = style.top ?? 0 }
-		if (props.dock === 'bottom' || props.dock === 'left' || props.dock === 'right') { style.bottom = style.bottom ?? 0 }
+		if (props.dock === 'left' || props.dock === 'top' || props.dock === 'bottom') {
+			style.left = style.left ?? 0
+		}
+
+		if (props.dock === 'right' || props.dock === 'top' || props.dock === 'bottom') {
+			style.right = style.right ?? 0
+		}
+
+		if (props.dock === 'top' || props.dock === 'left' || props.dock === 'right') {
+			style.top = style.top ?? 0
+		}
+
+		if (props.dock === 'bottom' || props.dock === 'left' || props.dock === 'right') {
+			style.bottom = style.bottom ?? 0
+		}
 	}
 	for (const key of ['left', 'top', 'flexGrow', 'flexShrink', 'alignSelf', 'order'] as const) {
 		if (props[key] !== undefined) {

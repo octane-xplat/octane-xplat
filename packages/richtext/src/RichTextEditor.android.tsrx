@@ -1,13 +1,18 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useImperativeHandle, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'octane'
+import {
+	useImperativeHandle,
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useRef,
+	useState,
+} from 'octane'
+
 import { View } from '@nativescript/core'
 import { registerElement } from '@nativescript-community/octane'
 import type { Attributes } from '@nativescript-community/octane/intrinsics'
-import type {
-	RichTextEditorHandle,
-	RichTextEditorProps,
-	RichTextFormat,
-} from './types'
+import type { RichTextEditorHandle, RichTextEditorProps, RichTextFormat } from './types'
+import { layoutChildProps } from './layout-child'
 
 /** `org.wordpress.aztec` arrives through the leaf's aar — there are no
  *  generated typings for it, so every touch goes through `as any` at one
@@ -66,21 +71,25 @@ export const supported = true
 
 /** Active formats at the selection, mapped back to facade spellings. */
 const activeFormats = (editor: any): RichTextFormat[] => {
-	const styles = editor.getAppliedStyles(
-		editor.getSelectionStart(),
-		editor.getSelectionEnd(),
-	)
+	const styles = editor.getAppliedStyles(editor.getSelectionStart(), editor.getSelectionEnd())
 
 	const count = styles?.size?.() ?? 0
 	const active = new Set<any>()
-	for (let i = 0; i < count; i++) active.add(styles.get(i))
+	for (let i = 0; i < count; i++) {
+		active.add(styles.get(i))
+	}
 
 	const out: RichTextFormat[] = []
 	for (const [name, get] of AZTEC_OF) {
-		if (active.has(get())) out.push(name)
+		if (active.has(get())) {
+			out.push(name)
+		}
 	}
 
-	if (active.has(aztec.AztecTextFormat.FORMAT_LINK)) out.push('link')
+	if (active.has(aztec.AztecTextFormat.FORMAT_LINK)) {
+		out.push('link')
+	}
+
 	return out
 }
 
@@ -101,13 +110,18 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 
 	// The handle fires only once the native editor exists — before that a
 	// consumer gets null, not a stub that throws on every method.
-	useImperativeHandle<RichTextEditorHandle | null>(props.ref, () => (nativeView ? handle : null), [nativeView]);
+	useImperativeHandle<RichTextEditorHandle | null>(props.ref, () => (nativeView ? handle : null), [
+		nativeView,
+	])
 
 	const bindHost = useCallback((v: any) => {
 		loadedOff.current?.()
 		loadedOff.current = null
 		host.current = v
-		if (!v) return
+		if (!v) {
+			return
+		}
+
 		if (v.android) {
 			setNativeView(v.android)
 			return
@@ -117,7 +131,9 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 		// `.android` arrives with `loaded`; subscribe until it does.
 		const onLoaded = () => {
 			const e = editor()
-			if (e) setNativeView(e)
+			if (e) {
+				setNativeView(e)
+			}
 		}
 
 		v.on('loaded', onLoaded)
@@ -128,8 +144,14 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 
 	const setEditable = (next: boolean) => {
 		const e = editor()
-		if (!e) return
-		if (keyListener.current == null) keyListener.current = e.getKeyListener()
+		if (!e) {
+			return
+		}
+
+		if (keyListener.current == null) {
+			keyListener.current = e.getKeyListener()
+		}
+
 		if (next) {
 			e.setKeyListener(keyListener.current)
 			e.setFocusable(true)
@@ -143,9 +165,9 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 
 	const showKeyboard = (e: any) => {
 		try {
-			const imm = e.getContext().getSystemService(
-				(globalThis as any).android.content.Context.INPUT_METHOD_SERVICE,
-			)
+			const imm = e
+				.getContext()
+				.getSystemService((globalThis as any).android.content.Context.INPUT_METHOD_SERVICE)
 
 			imm?.showSoftInput(e, androidView.inputmethod.InputMethodManager.SHOW_IMPLICIT)
 		} catch {}
@@ -153,11 +175,17 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 
 	const emitChange = () => {
 		const e = editor()
-		if (!e || applyingValue.current) return
+		if (!e || applyingValue.current) {
+			return
+		}
+
 		clearTimeout(emitTimer.current)
 		emitTimer.current = setTimeout(() => {
 			const current = editor()
-			if (!current || applyingValue.current) return
+			if (!current || applyingValue.current) {
+				return
+			}
+
 			const html = current.toPlainHtml(false)
 			lastEmitted.current = html
 			props.onChange?.(html)
@@ -170,7 +198,10 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 		getHTML: () => editor()?.toPlainHtml(false) ?? '',
 		setHTML: (html: string) => {
 			const e = editor()
-			if (!e) return
+			if (!e) {
+				return
+			}
+
 			applyingValue.current = true
 			try {
 				e.fromHtml(html, true)
@@ -180,33 +211,53 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 			}
 		},
 		apply: (format: RichTextFormat) => {
-			if (format === 'link') throw new RangeError('Use linkTo(url, anchor) to apply a link')
-			if (!FORMATS[format]) throw new RangeError(`[richtext] Unsupported format: ${format}`)
+			if (format === 'link') {
+				throw new RangeError('Use linkTo(url, anchor) to apply a link')
+			}
+
+			if (!FORMATS[format]) {
+				throw new RangeError(`[richtext] Unsupported format: ${format}`)
+			}
+
 			const e = editor()
-			if (!e) return
+			if (!e) {
+				return
+			}
+
 			e.toggleFormatting(formatOf(format))
 			emitChange()
 		},
 		linkTo: (url: string, anchor?: string) => {
 			const e = editor()
-			if (!e) return
+			if (!e) {
+				return
+			}
+
 			e.link(url, anchor ?? url, false)
 			emitChange()
 		},
 		removeLink: () => {
 			const e = editor()
-			if (!e) return
+			if (!e) {
+				return
+			}
+
 			e.removeLink()
 			emitChange()
 		},
 		isActive: (format: RichTextFormat) => {
 			const e = editor()
-			if (!e) return false
+			if (!e) {
+				return false
+			}
+
 			const applied = e.getAppliedStyles(e.getSelectionStart(), e.getSelectionEnd())
 			const count = applied?.size?.() ?? 0
 			const target = formatOf(format)
 			for (let i = 0; i < count; i++) {
-				if (applied.get(i) === target) return true
+				if (applied.get(i) === target) {
+					return true
+				}
 			}
 
 			return false
@@ -215,15 +266,27 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 		redo: () => editor()?.redo(),
 		split: () => {
 			const e = editor()
-			if (!e) return false
+			if (!e) {
+				return false
+			}
+
 			const selStart = e.getSelectionStart()
 			const selEnd = e.getSelectionEnd()
-			if (selStart < 0 || selEnd < 0) return false
+			if (selStart < 0 || selEnd < 0) {
+				return false
+			}
+
 			const start = Math.min(selStart, selEnd)
 			const end = Math.max(selStart, selEnd)
 			const text = e.getText()
-			if (end > String(text).length) return false
-			if (end > start) text.delete(start, end)
+			if (end > String(text).length) {
+				return false
+			}
+
+			if (end > start) {
+				text.delete(start, end)
+			}
+
 			text.insert(start, '\n')
 			e.setSelection(start + 1)
 			emitChange()
@@ -231,12 +294,21 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 		},
 		join: () => {
 			const e = editor()
-			if (!e) return false
+			if (!e) {
+				return false
+			}
+
 			const start = e.getSelectionStart()
-			if (start <= 0 || e.getSelectionEnd() !== start) return false
+			if (start <= 0 || e.getSelectionEnd() !== start) {
+				return false
+			}
+
 			const text = e.getText()
 			const s = String(text)
-			if (start > s.length || s.charAt(start - 1) !== '\n') return false
+			if (start > s.length || s.charAt(start - 1) !== '\n') {
+				return false
+			}
+
 			text.delete(start - 1, start)
 			e.setSelection(start - 1)
 			emitChange()
@@ -244,14 +316,20 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 		},
 		indent: () => {
 			const e = editor()
-			if (!e || !e.isIndentAvailable()) return false
+			if (!e || !e.isIndentAvailable()) {
+				return false
+			}
+
 			e.indent()
 			emitChange()
 			return true
 		},
 		outdent: () => {
 			const e = editor()
-			if (!e || !e.isOutdentAvailable()) return false
+			if (!e || !e.isOutdentAvailable()) {
+				return false
+			}
+
 			e.outdent()
 			emitChange()
 			return true
@@ -260,7 +338,10 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 		canOutdent: () => Boolean(editor()?.isOutdentAvailable()),
 		focus: () => {
 			const e = editor()
-			if (!e) return
+			if (!e) {
+				return
+			}
+
 			e.requestFocus()
 			showKeyboard(e)
 		},
@@ -279,7 +360,10 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 	// call back into a dead component.
 	useLayoutEffect(() => {
 		const e = nativeView
-		if (!e || !aztec) return
+		if (!e || !aztec) {
+			return
+		}
+
 		let alive = true
 
 		e.setOnSelectionChangedListener(
@@ -300,7 +384,9 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 			beforeTextChanged: () => {},
 			onTextChanged: () => {},
 			afterTextChanged: () => {
-				if (alive) emitChange()
+				if (alive) {
+					emitChange()
+				}
 			},
 		})
 
@@ -309,12 +395,17 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 		e.setOnFocusChangeListener(
 			new androidView.View.OnFocusChangeListener({
 				onFocusChange: (_v: any, focused: boolean) => {
-					if (alive) (focused ? props.onFocus?.() : props.onBlur?.())
+					if (alive) {
+						focused ? props.onFocus?.() : props.onBlur?.()
+					}
 				},
 			}),
 		)
 
-		if (props.placeholder !== undefined) e.setHint(props.placeholder)
+		if (props.placeholder !== undefined) {
+			e.setHint(props.placeholder)
+		}
+
 		setEditable(props.editable !== false)
 
 		if (props.value !== undefined) {
@@ -331,7 +422,10 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 			showKeyboard(e)
 		}
 
-		if (props.android) Object.assign(e, props.android)
+		if (props.android) {
+			Object.assign(e, props.android)
+		}
+
 		props.onReady?.()
 
 		return () => {
@@ -348,8 +442,14 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 	// external reset (and resets Aztec's undo stack, like PM setContent).
 	useEffect(() => {
 		const e = editor()
-		if (!e || props.value === undefined) return
-		if (props.value === lastEmitted.current) return
+		if (!e || props.value === undefined) {
+			return
+		}
+
+		if (props.value === lastEmitted.current) {
+			return
+		}
+
 		applyingValue.current = true
 		try {
 			e.fromHtml(props.value, true)
@@ -364,24 +464,15 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 
 	useEffect(() => {
 		const e = editor()
-		if (e && props.placeholder !== undefined) e.setHint(props.placeholder)
+		if (e && props.placeholder !== undefined) {
+			e.setHint(props.placeholder)
+		}
 	}, [props.placeholder])
 
 	<xplatrichtext
 		ref={bindHost}
 		id={props.id}
 		className={props.className}
-		style={props.style}
-		row={props.row}
-		col={props.col}
-		rowSpan={props.rowSpan}
-		colSpan={props.colSpan}
-		dock={props.dock}
-		left={props.left}
-		top={props.top}
-		flexGrow={props.flexGrow}
-		flexShrink={props.flexShrink}
-		alignSelf={props.alignSelf}
-		order={props.order}
-	/>;
+		{...layoutChildProps(props)}
+	/>
 }

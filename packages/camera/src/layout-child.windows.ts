@@ -5,8 +5,11 @@ import type { CameraViewProps } from './props'
  *  branch. Pure helpers are re-declared here to keep divergence at the file
  *  boundary. */
 
-export function layoutChildProps(props: CameraViewProps): Record<string, any> {
-	const result: Record<string, any> = {}
+export function layoutChildProps(
+	props: CameraViewProps,
+	baseStyle = props.style,
+): Record<string, any> {
+	const result: Record<string, any> = { style: baseStyle }
 	for (const key of [
 		'row',
 		'col',
