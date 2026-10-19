@@ -10,14 +10,14 @@ export default function FocusProbe() @{
 	removeArea = () => setShowArea(false)
 
 	<scrollview id="focus-root">
-		<stacklayout>
+		<masonview style={{ display: 'flex', flexDirection: 'column' }}>
 			<label id="focus-validation" text="Validation" className="focus-validation" />
 			<textfield id="focus-field" text="A😀B" className="focus-field" />
 			@if (showArea) {
 				<textview id="focus-area" text={'first\nsecond\nthird'} className="focus-area" />
 			}
 			<label text="Scrollable form" className="focus-spacer" />
-		</stacklayout>
+		</masonview>
 	</scrollview>
 }
 

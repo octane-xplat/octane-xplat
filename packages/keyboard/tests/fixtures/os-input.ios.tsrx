@@ -17,18 +17,18 @@ export default function OsInputJourney() @{
 	show = setOpen
 
 	<Screen>
-		<gridlayout rows="*,auto" id="os-input-root">
+		<masonview id="os-input-root" style={{ display: 'grid', gridTemplateRows: '1fr auto' }}>
 			<KeyboardAwareScrollView id="os-input-scroll" clearance={12} extraScrollSpace={32}>
-				<stacklayout>
+				<masonview style={{ display: 'flex', flexDirection: 'column' }}>
 					<label text="Keyboard input qualification" className="os-input-leading" />
 					<textfield id="os-form-field" hint="Type form verification" className="os-input-field" />
 					<label text="Form history" className="os-input-history" />
-				</stacklayout>
+				</masonview>
 			</KeyboardAwareScrollView>
-			<KeyboardStickyView row={1} id="os-sticky" className="os-input-field">
+			<KeyboardStickyView id="os-sticky" className="os-input-field" style={{ gridRowStart: 2 }}>
 				<label text="Sticky action" />
 			</KeyboardStickyView>
-		</gridlayout>
+		</masonview>
 		<BottomSheet isOpen={open} onOpenChange={setOpen} label="Input qualification" height="hug">
 			<textfield id="os-sheet-field" hint="Type sheet verification" className="os-input-field" />
 		</BottomSheet>

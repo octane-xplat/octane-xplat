@@ -5,14 +5,17 @@ import type { ProbeContext } from '../../../../scripts/probe/context'
 
 import './motion.css'
 
-
 export default function InteractiveProbe() {
 	return (
 		<KeyboardAvoiding id="avoidance-host">
-			<stacklayout>
-				<textfield id="keyboard-field" hint="Keyboard feasibility" className="keyboard-motion-field" />
+			<masonview style={{ display: 'flex', flexDirection: 'column' }}>
+				<textfield
+					id="keyboard-field"
+					hint="Keyboard feasibility"
+					className="keyboard-motion-field"
+				/>
 				<label text="Drag down to dismiss" className="keyboard-motion-longContent" />
-			</stacklayout>
+			</masonview>
 		</KeyboardAvoiding>
 	)
 }

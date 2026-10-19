@@ -16,14 +16,14 @@ export default function FocusProbe() @{
 	removeArea = () => setShow(false)
 
 	<scrollview id="focus-root">
-		<stacklayout>
+		<masonview style={{ display: 'flex', flexDirection: 'column' }}>
 			<label text="Validation" style={{ height: validation }} />
 			<textfield id="focus-field" className="focus-field" />
 			@if (show) {
 				<textview id="focus-area" style={{ height }} />
 			}
 			<label text="Scrollable form" className="focus-spacer" />
-		</stacklayout>
+		</masonview>
 	</scrollview>
 }
 
@@ -35,6 +35,7 @@ export async function run(ctx: ProbeContext) {
 
 	const snapshots: any[] = []
 	field.stringValue = 'A😀B'
+
 	;(area.documentView ?? area).string = 'first\nsecond\nthird'
 	const off = FocusedInputController.subscribe(root, (value) => snapshots.push(value))
 	ctx.onCleanup(off)

@@ -13,9 +13,9 @@ import './motion.css'
 
 export default function MotionProbe() {
 	return (
-		<gridlayout rows="*,auto" id="keyboard-probe-root">
+		<masonview id="keyboard-probe-root" style={{ display: 'grid', gridTemplateRows: '1fr auto' }}>
 			<KeyboardAvoiding id="avoidance-host" keyboardVerticalOffset={8}>
-				<stacklayout>
+				<masonview style={{ display: 'flex', flexDirection: 'column' }}>
 					<textfield
 						id="keyboard-field"
 						hint="Keyboard feasibility"
@@ -26,12 +26,16 @@ export default function MotionProbe() {
 						text={'first\nsecond\nthird'}
 						className="keyboard-motion-area"
 					/>
-				</stacklayout>
+				</masonview>
 			</KeyboardAvoiding>
-			<stacklayout id="movement-host" row={1} className="keyboard-motion-follower">
+			<masonview
+				id="movement-host"
+				className="keyboard-motion-follower"
+				style={{ display: 'flex', flexDirection: 'column', gridRowStart: 2 }}
+			>
 				<label text="Keyboard follower" />
-			</stacklayout>
-		</gridlayout>
+			</masonview>
+		</masonview>
 	)
 }
 

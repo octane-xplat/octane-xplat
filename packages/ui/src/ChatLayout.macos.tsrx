@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'octane'
 import { bindChatKeyboard } from './chat-keyboard'
 import type { ChatKeyboardBinding } from './chat-keyboard-types'
@@ -94,44 +95,44 @@ export function ChatLayout(props: ChatLayoutProps) @{
 	const showEmpty = !hasVisibleContent(props.children)
 
 	<ChatLayoutProvider value={layoutContext}>
-		<flexboxlayout
+		<masonview
 			id={props.id}
 			ref={attachRoot}
 			className={cx('vx-chatlayout', `vx-chatlayout--${density}`, props.className)}
-			style={props.style}
-			flexDirection="column"
+			style={mergeStyle({ display: 'flex', flexDirection: 'column' }, props.style)}
 		>
 			<scrollview
 				ref={attachViewport}
 				className="vx-chatlayout-scroll"
 				orientation="vertical"
-				flexGrow={1}
-				flexShrink={1}
+				style={{ flexGrow: 1, flexShrink: 1 }}
 			>
-				<flexboxlayout
+				<masonview
 					ref={attachContent}
 					className={cx('vx-chatlayout-messages', `vx-chatlayout-messages--${density}`)}
-					flexDirection="column"
+					style={{ display: 'flex', flexDirection: 'column' }}
 				>
 					{showEmpty && props.emptyState != null ? (
-						<flexboxlayout
+						<masonview
 							className="vx-chatlayout-empty"
-							alignItems="center"
-							justifyContent="center"
-							flexGrow={1}
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								flexGrow: 1,
+							}}
 						>
 							{props.emptyState}
-						</flexboxlayout>
+						</masonview>
 					) : (
 						props.children
 					)}
-				</flexboxlayout>
+				</masonview>
 			</scrollview>
-			<flexboxlayout
+			<masonview
 				ref={attachDock}
 				className="vx-chatlayout-dock"
-				flexDirection="column"
-				flexShrink={0}
+				style={{ display: 'flex', flexDirection: 'column', flexShrink: 0 }}
 			>
 				{props.scrollButton === undefined ? (
 					<ChatLayoutScrollButton
@@ -145,10 +146,15 @@ export function ChatLayout(props: ChatLayoutProps) @{
 				) : (
 					props.scrollButton
 				)}
-				<flexboxlayout className={cx('vx-chatlayout-dockpad', `vx-chatlayout-dockpad--${density}`)}>
-					<flexboxlayout className="vx-chatlayout-dockinner">{props.composer}</flexboxlayout>
-				</flexboxlayout>
-			</flexboxlayout>
-		</flexboxlayout>
+				<masonview
+					className={cx('vx-chatlayout-dockpad', `vx-chatlayout-dockpad--${density}`)}
+					style={{ display: 'flex' }}
+				>
+					<masonview className="vx-chatlayout-dockinner" style={{ display: 'flex' }}>
+						{props.composer}
+					</masonview>
+				</masonview>
+			</masonview>
+		</masonview>
 	</ChatLayoutProvider>
 }

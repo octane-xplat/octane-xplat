@@ -16,23 +16,23 @@ export default function StickyProbe() @{
 	enable = setEnabled
 	remove = () => setShow(false)
 
-	<gridlayout rows="*,auto" id="sticky-root">
-		<stacklayout row={0}>
+	<masonview id="sticky-root" style={{ display: 'grid', gridTemplateRows: '1fr auto' }}>
+		<masonview style={{ display: 'flex', flexDirection: 'column', gridRowStart: 1 }}>
 			<textfield id="sticky-field" text="Sticky keyboard control" />
-		</stacklayout>
+		</masonview>
 		@if (show) {
 			<KeyboardStickyView
 				id="sticky-host"
-				row={1}
 				openOffset={openOffset}
 				closedOffset={2}
 				enabled={enabled}
 				className="sticky-control"
+				style={{ gridRowStart: 2 }}
 			>
 				<label id="sticky-content" text="Composer" />
 			</KeyboardStickyView>
 		}
-	</gridlayout>
+	</masonview>
 }
 
 export async function run(ctx: ProbeContext) {
@@ -49,13 +49,13 @@ export async function run(ctx: ProbeContext) {
 		height: host?.getActualSize?.().height,
 	})
 
-
 	const states: any[] = []
 	const off = KeyboardController.onMove(root, (state) => {
 		states.push(state)
 		ctx.record('latest keyboard', state)
 		ctx.record('latest translation', host.translateY)
 	})
+
 	ctx.onCleanup(off)
 	await ctx.waitFor(() => Math.abs(host.translateY + 2) < 1)
 	ctx.assert('sticky wrapper renders its content', !!ctx.find('sticky-content'), true)

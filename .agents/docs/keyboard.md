@@ -518,6 +518,17 @@ with reserved devices; they remain outside the lightweight PR gate. AppKit's
 shared sheet is a layer in its owner window; closing detaches content rather
 than closing that window. Its optional native sheet uses a separate sheet window.
 
+## Rebase integration boundary
+
+The runtime measurements below were recorded before main's Mason layout cutover.
+Rebase integration preserves the Mason container/style vocabulary and repeats
+unit, declaration, dependent type, and packed public-contract checks. Those checks
+do not requalify native OS input or scrolling on the new layout engine. In
+particular, the focused-input adapters identify platform scroll owners through
+UIKit/Android scroll APIs; MasonKit beta.110 supplies its own scroll host. Repeat
+the maintained native focus/scroll/chat and OS-input journeys before attributing
+the earlier runtime results to Mason-backed hosts.
+
 ## Final workflow qualification
 
 The maintained OS-input runner uses simulator HID through `idb` on iOS and

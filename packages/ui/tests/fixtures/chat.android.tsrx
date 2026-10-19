@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { mergeStyle } from '../../src/style-merge'
 import { useState } from 'octane'
 import { ChatLayout, ChatMessageList, useChatLayoutContext } from '@octane-xplat/ui/chat'
 import type { ChatMessageData } from '@octane-xplat/ui/chat'
@@ -53,14 +54,20 @@ export default function ChatProbe() @{
 		keyboardFollow={follow}
 		bottomPanelHeight={panelHeight}
 		composer={
-			<stacklayout>
+			<masonview style={{ display: 'flex', flexDirection: 'column' }}>
 				<TextInput id="chat-field" defaultValue="Composer" style={{ height: composerHeight }} />
 				{panelHeight > 0 ? (
-					<stacklayout id="chat-panel" style={{ height: panelHeight }}>
+					<masonview
+						id="chat-panel"
+						style={mergeStyle(
+							{ display: 'flex', flexDirection: 'column' },
+							{ height: panelHeight },
+						)}
+					>
 						<label text="Custom panel" />
-					</stacklayout>
+					</masonview>
 				) : null}
-			</stacklayout>
+			</masonview>
 		}
 	>
 		<ContextCheck />
