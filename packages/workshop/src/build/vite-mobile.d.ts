@@ -1,5 +1,5 @@
 import type { UserConfig } from 'vite'
-import type { WorkshopConfig } from '../types/generated/contract.js'
+import type { WorkshopConfig } from '../../types/generated/contract.js'
 /** Preserves the consumer config and prepends the native workshop's pre HMR hook. */
 export declare function withWorkshopMobile(
 	config: UserConfig,

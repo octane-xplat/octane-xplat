@@ -14,7 +14,9 @@ async function fixture(t) {
 	const cache = join(directory, 'cache.json')
 	const requests = join(directory, 'requests.jsonl')
 	const preload = join(directory, 'fetch.mjs')
-	await writeFile(preload, `
+	await writeFile(
+		preload,
+		`
 		import { appendFileSync } from 'node:fs'
 		globalThis.fetch = async (url) => {
 			appendFileSync(process.env.TEST_REQUESTS, JSON.stringify(String(url)) + '\\n')
@@ -25,29 +27,36 @@ async function fixture(t) {
 				? Response.json({ message: 'publisher missing' }, { status: 403 })
 				: Response.json({ token: 'test-npm-secret' })
 		}
-	`)
+	`,
+	)
 	return {
 		cache,
 		async run(packages = ['tsrx-typegen'], env = {}) {
 			await writeFile(requests, '')
-			const result = await execute(process.execPath, [
-				'--import', preload, resolve('scripts/check-trusted-publishers.mjs'), ...packages,
-			], {
-				env: {
-					...process.env,
-					ACTIONS_ID_TOKEN_REQUEST_URL: 'https://oidc.invalid/token',
-					ACTIONS_ID_TOKEN_REQUEST_TOKEN: 'test-request-secret',
-					NPM_CONFIG_REGISTRY: 'https://registry.npmjs.org',
-					GITHUB_REPOSITORY: 'octane-xplat/octane-xplat',
-					GITHUB_WORKFLOW_REF: 'octane-xplat/octane-xplat/.github/workflows/release.yml@refs/heads/main',
-					GITHUB_JOB: 'packages',
-					TRUSTED_PUBLISHERS_CACHE: cache,
-					TEST_REQUESTS: requests,
-					TEST_FAIL: '',
-					...env,
+			const result = await execute(
+				process.execPath,
+				['--import', preload, resolve('scripts/check-trusted-publishers.ts'), ...packages],
+				{
+					env: {
+						...process.env,
+						ACTIONS_ID_TOKEN_REQUEST_URL: 'https://oidc.invalid/token',
+						ACTIONS_ID_TOKEN_REQUEST_TOKEN: 'test-request-secret',
+						NPM_CONFIG_REGISTRY: 'https://registry.npmjs.org',
+						GITHUB_REPOSITORY: 'octane-xplat/octane-xplat',
+						GITHUB_WORKFLOW_REF:
+							'octane-xplat/octane-xplat/.github/workflows/release.yml@refs/heads/main',
+						GITHUB_JOB: 'packages',
+						TRUSTED_PUBLISHERS_CACHE: cache,
+						TEST_REQUESTS: requests,
+						TEST_FAIL: '',
+						...env,
+					},
 				},
-			})
-			return { ...result, requests: (await readFile(requests, 'utf8')).trim().split('\n').filter(Boolean) }
+			)
+			return {
+				...result,
+				requests: (await readFile(requests, 'utf8')).trim().split('\n').filter(Boolean),
+			}
 		},
 	}
 }
@@ -65,7 +74,10 @@ test('successful checks are reused per package without storing tokens or renewin
 	const added = await f.run(['tsrx-typegen', '@octane-xplat/ui'])
 	assert.equal(added.requests.length, 2)
 	assert.match(added.requests[1], /%40octane-xplat%2Fui/)
-	assert.equal(JSON.parse(await readFile(f.cache, 'utf8')).checked['tsrx-typegen'], JSON.parse(saved).checked['tsrx-typegen'])
+	assert.equal(
+		JSON.parse(await readFile(f.cache, 'utf8')).checked['tsrx-typegen'],
+		JSON.parse(saved).checked['tsrx-typegen'],
+	)
 })
 
 test('expired, future, malformed, and differently scoped cache entries require npm checks', async (t) => {
@@ -97,7 +109,10 @@ test('failed exchanges do not save successful results, and omitting the cache fo
 	await assert.rejects(readFile(f.cache), { code: 'ENOENT' })
 	await f.run()
 	const saved = await readFile(f.cache, 'utf8')
-	await assert.rejects(f.run(['tsrx-typegen', '@octane-xplat/ui'], { TEST_FAIL: '1' }), /publisher missing/)
+	await assert.rejects(
+		f.run(['tsrx-typegen', '@octane-xplat/ui'], { TEST_FAIL: '1' }),
+		/publisher missing/,
+	)
 	assert.equal(await readFile(f.cache, 'utf8'), saved)
 	assert.equal((await f.run(undefined, { TRUSTED_PUBLISHERS_CACHE: '' })).requests.length, 2)
 })

@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { parseModule } from '@tsrx/core'
-import { tabItemContentRoots } from './tab-item.ts'
+import { tabItemContentRoots } from '../src/macos/tab-item.ts'
 
 const transform = tabItemContentRoots().transform
 

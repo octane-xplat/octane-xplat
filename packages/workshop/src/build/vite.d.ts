@@ -1,5 +1,5 @@
 import type { Plugin } from 'vite'
-import type { WorkshopConfig } from '../types/generated/contract.js'
+import type { WorkshopConfig } from '../../types/generated/contract.js'
 
 export interface XplatWorkshopOptions {
 	cwd?: string

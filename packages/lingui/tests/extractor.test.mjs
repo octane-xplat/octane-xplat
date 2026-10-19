@@ -20,6 +20,8 @@ const linguiBin = fileURLToPath(
 
 test('lingui extract finds messages in .tsrx via tsrxExtractor', () => {
 	mkdirSync(scopeDir, { recursive: true })
+	// survives between runs — remove a stale link before recreating
+	rmSync(`${scopeDir}/lingui`, { recursive: true, force: true })
 	symlinkSync(pkgDir, `${scopeDir}/lingui`, 'junction')
 	mkdirSync(`${fixture}/locales`, { recursive: true })
 	try {

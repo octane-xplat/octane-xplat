@@ -37,6 +37,8 @@ export default defineConfig({
 			'**/*.android.test.*',
 			'**/*.macos.test.*',
 			'**/packages/motion/**',
+			// packages/cli tests are node:test files run by `pnpm test:cli`.
+			'**/packages/cli/**',
 		],
 	},
 })

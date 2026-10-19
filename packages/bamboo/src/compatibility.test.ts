@@ -52,7 +52,9 @@ describe('portable config compatibility', () => {
 
 describe('native plugin compatibility', () => {
 	it('leaves web plugins alone when native anchors are absent', () => {
-		expect(xplatBamboo()).toEqual([])
+		// platform-output ships unconditionally — inert without the xplatCss
+		// platform compiler; no NativeScript adapters land on a web build.
+		expect(xplatBamboo().map((plugin) => plugin.name)).toEqual(['xplat-bamboo:platform-output'])
 	})
 
 	it.each([undefined, null, {}, { order: 'post' }])(

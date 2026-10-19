@@ -9,6 +9,7 @@ import {
 	symlinkSync,
 	writeFileSync,
 } from 'node:fs'
+
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -29,7 +30,7 @@ function run(command, args, cwd) {
 // Expect-error assertions fail if the program silently falls back to DOM or any.
 const native = `
 import type { HostElement } from '@octane-xplat/jsx/jsx-runtime'
-export const tree = <gridlayout><label text="Ready" ref={view => {
+export const tree = <masonview><label text="Ready" ref={view => {
  const host: HostElement | null = view
  // @ts-expect-error the combined program deliberately has an opaque host
  view?.getViewById('child')
@@ -39,7 +40,7 @@ export const tree = <gridlayout><label text="Ready" ref={view => {
  // @ts-expect-error host events do not expose DOM nodes
  const dom: HTMLElement = event.object
  void host; void dom
-}} /></gridlayout>
+}} /></masonview>
 // @ts-expect-error DOM vocabulary is not native
 const dom = <div />
 // @ts-expect-error wrong native property type
@@ -48,21 +49,23 @@ const bad = <label whiteSpace="invalid" />
 const extra = <label inventedProp="no" />
 void dom; void bad; void extra
 `
+
 const dom = `/** @jsxImportSource @octane-xplat/jsx/dom */
 export const tree = <div><button onClick={event => {
  const element: HTMLButtonElement = event.currentTarget
  void element
 }}>Ready</button></div>
 // @ts-expect-error native vocabulary is not DOM
-const native = <gridlayout />
+const native = <masonview />
 // @ts-expect-error native text property is not a DOM button property
 const bad = <button text="Ready" />
 void native; void bad
 `
+
 const concreteNative = `
 import type { View } from '@nativescript/core/ui/core/view/index.js'
 import type { HostElement } from '@octane-xplat/jsx/jsx-runtime'
-export const tree = <gridlayout ref={view => {
+export const tree = <masonview ref={view => {
  const native: View | null = view
  const host: HostElement | null = native
  view?.getViewById('child')
