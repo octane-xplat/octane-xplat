@@ -1,0 +1,12 @@
+{
+	"$schema": "https://turborepo.dev/schema.json",
+	"extends": ["//"],
+	"tasks": {
+		// The tests exercise dist/ — a single turbo-scheduled build is the only
+		// writer; in-script builds raced dependents' builds on the same dir.
+		"test": {
+			"dependsOn": ["build", "^typegen", "^build"],
+			"outputs": []
+		}
+	}
+}

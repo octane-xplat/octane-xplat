@@ -67,7 +67,7 @@
 	"scripts": {
 		"build": "vite build",
 		"prepack": "pnpm build",
-		"test": "pnpm build && node --test test/*.test.mjs",
+		"test": "node --test test/*.test.mjs test/*.test.ts",
 		"typecheck": "tsc -p tsconfig.json"
 	},
 	"dependencies": {

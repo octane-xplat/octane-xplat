@@ -44,7 +44,7 @@
 		"prepack": "pnpm typegen",
 		"test:packed": "node tests/packed-consumer.mjs",
 		"typegen": "tsc -p tsconfig.types.json",
-		"test": "pnpm --filter @octane-xplat/cli build && node --test tests/platform.test.mjs"
+		"test": "node --test tests/platform.test.mjs"
 	},
 	"dependencies": {
 		"@bamboocss/preset-base": "1.56.2",
