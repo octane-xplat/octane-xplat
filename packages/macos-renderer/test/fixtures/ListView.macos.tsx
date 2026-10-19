@@ -104,7 +104,7 @@ export default function ListView({ phase }: { phase: number }) {
 					phase === 2 ? [] : [{ person: { name: phase === 0 ? 'First' : 'Second' }, count: 3 }]
 				}
 				itemTemplate={
-					'<StackLayout orientation="horizontal"><Label text="{{ person.name }}"/><Label text="{{ count + 2 }}"/></StackLayout>'
+					'<MasonView style="display: flex; flex-direction: row"><Label text="{{ person.name }}"/><Label text="{{ count + 2 }}"/></MasonView>'
 				}
 				style={{ width: 240, height: 40 }}
 			/>

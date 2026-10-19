@@ -10,17 +10,20 @@ Needed when a leaf misbehaves, not for normal component use.
 import type { ViewProps } from '@octane-xplat/ui'
 
 export function Leaf(props: ViewProps) @{
-  <flexboxlayout id={props.id}>{props.children}</flexboxlayout>
+  <masonview id={props.id} style={{ display: 'flex', flexDirection: 'column' }}>{props.children}</masonview>
 }
 ```
 
 - **Never host reconciled children on `contentview`** (or `Page`, a
   ContentView): `addViewChild` assigns each child to `.content`, so every
   sibling but the last is silently dropped. Multi-child leaves use
-  `flexboxlayout`; imperative `createNativeScriptRoot` hosts use a
+  `masonview`; imperative `createNativeScriptRoot` hosts use a
   `GridLayout` child (children fill + stack — single-child layout is
   unchanged). `UITableView`/`RecyclerView` cells are driver-owned ContentViews
-  — each platform subpath leaf wraps `renderItem` output in a `gridlayout`.
+  — each platform subpath leaf wraps `renderItem` output in a `masonview`.
+- **All layout lives in `style`/`className`** — `masonview` takes zero
+  layout props; `flexDirection`/`row`/`dock`/etc. warn and drop. Component
+  sugar translates through `layoutChildProps` before reaching the intrinsic.
 - **`className` must reach intrinsics as a space-joined string** — the
   driver applies it via `String(value)`, so a raw array arrives
   comma-joined ("a,b") and matches nothing. `cx()` (`src/cx.ts`) flattens
@@ -42,7 +45,7 @@ import { cx } from './cx'
 import type { ViewProps } from './props'
 
 export function ClassifiedLeaf(props: ViewProps) @{
-  <flexboxlayout className={cx('vx-view', props.className)}>{props.children}</flexboxlayout>
+  <masonview className={cx('vx-view', props.className)}>{props.children}</masonview>
 }
 ```
 

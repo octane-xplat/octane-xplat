@@ -5,11 +5,11 @@ import type { ProbeContext } from '../../scripts/probe/context'
 const events: [string, number, number][] = []
 
 export default function TouchSequence() {
-	return <stackLayout id="probe-touch" touch={(event: TouchGestureEventData) => {
+	return <masonview id="probe-touch" touch={(event: TouchGestureEventData) => {
 		events.push([event.action, event.getX(), event.getY()])
 	}}>
 		<label text="Touch sequence target" />
-	</stackLayout>
+	</masonview>
 }
 
 export async function run(ctx: ProbeContext) {

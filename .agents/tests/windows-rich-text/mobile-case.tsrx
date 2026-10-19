@@ -6,11 +6,11 @@ import type {ProbeContext} from '../../../scripts/probe/context'
 const styled$=signal$(true);
 const word$=signal$('bold');const show$=signal$(true);const reverse$=signal$(false);
 export default function RichTextProbe() @{
- <stacklayout>
+ <masonview style={{ display: "flex", flexDirection: "column" }}>
   <Text id="rich" style={{width:280,fontSize:18}}>{'First run '}@if(show$.get()) {<Text style={styled$.get()?{fontWeight:'bold'}:{fontStyle:'italic'}}>{word$.get()}<Text style={{fontStyle:'italic'}}> deep</Text>{' tail'}</Text>}{' end'}</Text>
   <label id="ordered"><span text={reverse$.get()?'B':'A'}/>{' / '}<span text={reverse$.get()?'A':'B'} fontWeight="bold"/></label>
   <label id="explicit"><formattedstring><span text="First run "/><span text="bold run" fontWeight="bold"/></formattedstring></label>
- </stacklayout>
+ </masonview>
 }
 
 const combined=(view:any)=>view.formattedText?.toString()??view.text;

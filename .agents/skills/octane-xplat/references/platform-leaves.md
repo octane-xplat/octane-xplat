@@ -29,7 +29,7 @@ that order does not change the runtime resolver.
      let the resolver pick — never name a platform suffix in a shared import.
      Runtime branching (`isNative`, `Platform.OS`) swaps values inside one
      file; it cannot change which renderer owns the file or mix `<div>` with
-     `<gridlayout>`. Divergent element vocabulary must be a file split.
+     `<masonview>`. Divergent element vocabulary must be a file split.
 2. **No DOM globals in native implementations** — `scripts/check-no-dom.ts`
    and lint enforce this. The browser-specific module owns `document`,
    `window`, `localStorage`, `HTMLElement`, and other DOM APIs.

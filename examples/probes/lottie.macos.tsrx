@@ -66,7 +66,7 @@ export default function AppKitLottieProbe() {
 	setMounted = updateMounted
 	handle = useRef<LottieHandle | null>(null)
 
-	return <flexboxlayout style={{ width: 160, height: 160 }}>
+	return <masonview style={{ display: "flex", width: 160, height: 160 }}>
 		{mounted ? <Lottie
 			id="appkit-lottie"
 			style={{ width: 120, height: 120 }}
@@ -85,7 +85,7 @@ export default function AppKitLottieProbe() {
 			onEnded={() => endedCount++}
 			onError={(event) => { errorMessage = event.message }}
 		/> : <label id="appkit-lottie-unmounted">unmounted</label>}
-	</flexboxlayout>
+	</masonview>
 }
 
 export async function run(ctx: ProbeContext) {

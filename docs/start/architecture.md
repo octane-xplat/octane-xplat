@@ -153,7 +153,7 @@ A screen decides what to show, what to save, and where to go next. It can
 use shared components, state, and services.
 
 Keep browser-specific objects such as `document`, NativeScript view names
-such as `gridlayout`, and direct OS calls in platform files. That lets a
+such as `masonview`, and direct OS calls in platform files. That lets a
 shared screen run without needing those objects on every platform.
 [Building screens](../app/primitives.md) shows the everyday components.
 

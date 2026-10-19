@@ -180,7 +180,7 @@ A renderer-specific pragma overrides the app default, so use the facade:
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export function Card() {
-	return <gridlayout><label text="Ready" /></gridlayout>
+	return <masonview><label text="Ready" /></masonview>
 }
 ```
 

@@ -12,7 +12,7 @@ export function changeRichText(stage: number) {
 }
 
 export function WindowsUICase() @{
-	<stacklayout>
+	<masonview style={{ display: "flex", flexDirection: "column" }}>
 		<Text id="mixed" style={{width:280,fontSize:18}}>{'First run '}
 			@if (show$.get()) {<Text style={styled$.get()?{fontWeight:'bold'}:{fontStyle:'italic'}}>{word$.get()}</Text>}
 			{' end'}
@@ -22,7 +22,7 @@ export function WindowsUICase() @{
 			@for (const name of order$.get(); key name) {<Part name={name}/>}
 		</Text>
 		<label id="explicit" width={280} fontSize={18}><formattedstring><span text="First run "/><span text="bold run" fontWeight="bold"/></formattedstring></label>
-	</stacklayout>
+	</masonview>
 }
 
 function Part(props: {name:string}) @{

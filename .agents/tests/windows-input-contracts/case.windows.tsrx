@@ -50,7 +50,7 @@ export function WindowsUICase() @{
 		return () => { clearInterval(timer); for (const id of Object.keys(handles)) handles[id] = null }
 	}, [])
 
-	<stacklayout>
+	<masonview style={{ display: "flex", flexDirection: "column" }}>
 		@if (visible) {
 			<TextInput value={ordinary} onChange={(value) => { setOrdinary(value); event('ordinary', 'change', value) }}
 				placeholder="Different placeholder" accessibilityLabel={name}
@@ -70,5 +70,5 @@ export function WindowsUICase() @{
 		@for (const value of ['initial', 'inherit', 'unset', 'revert']; key value) {
 			<TextInput {value} accessibilityLabel={'Literal ' + value} />
 		}
-	</stacklayout>
+	</masonview>
 }
