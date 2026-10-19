@@ -20,13 +20,27 @@ A first native slice of the GTK4/GJS renderer:
   Handles `create`, `update`, `insert`/`move`, `remove`, `destroy`,
   `event`, `visibility`, `recreate`, `ensure-public-instance`. Rejects
   foreign-renderer batches before mutation.
-- **Intrinsics implemented**: `stacklayout`/`stack`, `flexboxlayout`,
-  `absolutelayout` (Gtk.Fixed + `x`/`y`/`left`/`top`), `gridlayout`
-  (Gtk.Grid + `row`/`col`/`rowSpan`/`colSpan`), `label`, `button`,
+- **Intrinsics implemented**: `masonview` — the single layout container;
+  all layout semantics arrive through the `style`/`className` bag
+  (MasonStyleProps) after the style-only cutover — `label`, `button`,
   `scrollview`, `textfield`, `switch`, `slider`, `progress`,
   `activityindicator`; viewless `#text`, `span`, `formattedstring`,
   `contentview`, `proxyviewcontainer`, `rootlayout`. Unknown tags throw at
-  create; unwired `on*` props warn once.
+  create; unwired `on*` props warn once. Direct layout props on `masonview`
+  or Mason-parented children warn once and are consumed.
+- **Layout engine** (`src/mason.ts` + `native/xplatmason/`): `masonview`
+  binds mason-c through the `XplatMason` GI typelib — GJS has no plain-C
+  FFI, so a small facade (engine/node handles as `guint64`, JSON style
+  dict, `GBytes` layout records) statically links `libmason_c.a` and is
+  scanned into a typelib by `native/xplatmason/build.sh`. A custom
+  `Gtk.LayoutManager` runs the engine inside GTK's measure/allocate
+  passes; leaf children measure their widgets live via mason's
+  `mason_node_new_node_with_context` callback (the GTK mirror of the
+  macOS `XPLViewMeasure` intrinsic-size read). Without the typelib,
+  `masonview` warns once and falls back to the `Gtk.Box` emulation.
+  The style dict matches macOS except `margin`/`padding`, which GTK's
+  measure/allocate channel already folds into leaf measures and child
+  allocations (px-only there — percentage/auto is a gap).
 - **Events**: tap/click/press → `clicked` on buttons / `Gtk.GestureClick`
   released elsewhere; doubletap (n_press===2 filter), longpress
   (GestureLongPress), focus/blur (EventControllerFocus), loaded/unloaded
@@ -132,6 +146,26 @@ adapter those runs proved is the direct ancestor of `src/index.ts`.
   unavailable ("Run this command in a real Linux environment; no macOS
   stand-in is used")
 
+**Runtime-proven (mason binding, this change):** driver command handling
+and the Mason layout path ran under real GJS 1.90.1 + GTK 4.24.1 (Homebrew,
+macOS — GJS and GTK are the genuine libraries; the host OS differs from the
+Linux target). `test/mason.test.mjs` builds `test/fixtures/src/mason-smoke.ts`
+and drives `gtkDriver` batches headlessly: `masonview` instantiates the
+`XplatMasonView` host, children attach via `insert_before`, a row of two
+labels computes `alpha` at its measured text width and `beta` flex-grown,
+`flexDirection:column` restacks, and `destroy` frees engine nodes. The ABI
+itself was exercised function-by-function in GJS before the driver pass
+(handle marshalling, `guint64[]` children, JSON styles, `GBytes` records,
+the leaf `gtk_widget_measure` callback). The Gtk.Box fallback is
+deliberately retained for typelib-absent builds.
+
+**NOT proven:** driver event wiring, widget mounting, and the interactive
+smoke path below remain unverified — the headless pass exercised layout,
+not input. Nothing ran on a Linux host yet (the brokered
+`linux:gtk-proof-vm` reservation was granted but the VM was not
+contactable — OrbStack ssh helper absent). GJS versions between 1.82.3
+(evidence base) and 1.90.1 (verified) may drift on `imports.gi` details.
+
 **Runtime-proven (this package, 2026-10-18):** on an OrbStack Debian 13
 arm64 guest (GJS 1.82.3, GTK 4.18.6 — matching the feasibility stack):
 
@@ -204,10 +238,16 @@ unqualified gaps).
 - `accessibilityLabel` is wired through a guarded `update_property` call —
   the GTK4 varargs entry point may not marshal from GJS; expect the
   once-per-label warning until the GtkAccessible row is qualified.
-- `flexDirection` `*-reverse` renders unreversed (warns). Asymmetric
-  `rowGap`/`columnGap` collapse to `spacing`. `justifyContent`/`alignItems`
-  are typed but unimplemented. Gtk.Grid auto-placement appends downward —
-  it is not the NS gridlayout algorithm.
+- `flexDirection` `*-reverse` renders unreversed under the Box fallback
+  (warns); under Mason the engine handles it. The fallback collapses
+  asymmetric `rowGap`/`columnGap` to `spacing` and cannot express
+  `justifyContent`/`alignItems` — the engine owns all four when present.
+- Mason leaf nodes measure `gtk_widget_measure` once per axis per pass and
+  ignore the engine's `known`/`avail` constraint args — wrapped text and
+  for-size-dependent natural sizes are approximate (documented gap, v1).
+- `margin`/`padding` reach the engine through the widget's CSS box, not
+  the style dict — px-only; `margin: auto` and percentage values have no
+  GTK CSS equivalent inside Mason subtrees.
 - Text only folds into `label`/`button`; `#text` under other containers is
   dropped from the widget tree (logical node retained).
 - `<scrollview>` mounts a single child — the shared scrollable contract
@@ -216,6 +256,9 @@ unqualified gaps).
   templates/mount-template ops are unadvertised and unhandled.
 - The `native` boundary set does not include `gtk` — `.gtk` leaves are
   foreign in generic native (NativeScript) bundles. Deliberate.
-- Layout is GTK-native sizing (size-request/halign/expand/CSS), not the
-  Mason workstream's engine — per the task constraint, layout stays behind
-  the renderer seam.
+- The Mason binding needs the gitignored build artifacts
+  (`native/xplatmason/build.sh` output) plus `GI_TYPELIB_PATH` or
+  `XPLAT_MASON_TYPELIB` at run time; without them `masonview` runs the
+  `Gtk.Box` emulation with a once warn. `build.sh` stamps the absolute
+  `.so` path into the typelib — fine for in-tree dev, wrong shape for a
+  system install.
