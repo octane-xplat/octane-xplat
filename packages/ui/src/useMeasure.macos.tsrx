@@ -22,7 +22,7 @@ export function useMeasure(options: UseMeasureOptions = {}): MeasureResult {
 
 		update()
 		if (!view || !observe) return
-		const appKit = globalThis as any
+		const appKit = globalThis as Record<string, any>
 		const center = appKit.NSNotificationCenter.defaultCenter
 		const observers: any[] = []
 		let ancestor = view

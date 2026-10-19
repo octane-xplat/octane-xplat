@@ -1,4 +1,5 @@
 import { Application } from '@nativescript/core'
+import { hostGlobal } from './host-bridge'
 
 /** Announce search status through the active native accessibility service. */
 export function announceCommandPalette(view: any, message: string): void {
@@ -7,9 +8,8 @@ export function announceCommandPalette(view: any, message: string): void {
 	}
 
 	if (Application.ios) {
-		const native = globalThis as any
-		native.UIAccessibilityPostNotification?.(
-			native.UIAccessibilityAnnouncementNotification,
+		hostGlobal('UIAccessibilityPostNotification')?.(
+			hostGlobal('UIAccessibilityAnnouncementNotification'),
 			message,
 		)
 	} else {

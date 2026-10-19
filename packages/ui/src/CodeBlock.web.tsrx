@@ -111,7 +111,7 @@ export function CodeBlock(props: CodeBlockProps) @{
 			return;
 		}
 
-		return applyHighlightRangesChunked(el, tokenLines as any);
+		return applyHighlightRangesChunked(el, tokenLines);
 	}, [useRanges, collapsed, tokenLines]);
 
 	const hasHeader =

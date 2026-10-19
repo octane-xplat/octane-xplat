@@ -1,4 +1,5 @@
-import { defineUniversalComponent, universalComponent } from 'octane/universal/native';
+import { defineUniversalComponent, universalComponent } from 'octane/universal/native'
+import type { UniversalComponent } from 'octane/universal';
 import type { ClassName, StyledDef, StyledVariant, StyledVariantSelection } from './props';
 import { resolveStyledClasses } from './styled-variants';
 
@@ -29,7 +30,7 @@ export function styled<P extends { className?: ClassName }, V extends Record<str
 	function Styled(props: P & StyledVariantSelection<V>) {
 		const { classes, rest } = resolveStyledClasses(def, props);
 		rest.className = classes;
-		return universalComponent('nativescript', Base as any, rest);
+		return universalComponent('nativescript', Base as unknown as UniversalComponent<any>, rest);
 	}
 
 	return defineUniversalComponent('nativescript', Styled);

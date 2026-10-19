@@ -4,7 +4,7 @@ import { hostGlobal } from './host-bridge'
 // AppKit has a process-local key monitor; touch targets have no shared
 // hardware Escape API. Platform back remains owned by RootLayout.
 configureLayerKeys(() => {
-	const native = globalThis as any
+	const native = globalThis as Record<string, any>
 	const events = native.NSEvent
 	const token = events?.addLocalMonitorForEventsMatchingMaskHandler?.(
 		native.NSEventMask?.KeyDown ?? 1024,

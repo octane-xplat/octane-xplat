@@ -7,7 +7,7 @@
 // hence the raw CGContext path.
 import { rgbaToThumbHashUri, thumbHashTargetSize, unpremultiplyRGBA } from './hash-image'
 
-const host = globalThis as any
+const host = globalThis as Record<string, any>
 
 // kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast — R,G,B,A bytes.
 const BITMAP_INFO_RGBA_PREMULTIPLIED = 16385

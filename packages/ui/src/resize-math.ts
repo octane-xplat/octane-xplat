@@ -37,11 +37,11 @@ export function percent(
 }
 
 export function isPixelSize(v: unknown): v is ResizablePixelSize {
-	return typeof v === 'object' && v !== null && (v as any).type === 'pixel'
+	return typeof v === 'object' && v !== null && (v as { type?: unknown }).type === 'pixel'
 }
 
 export function isPercentSize(v: unknown): v is ResizablePercentSize {
-	return typeof v === 'object' && v !== null && (v as any).type === 'percent'
+	return typeof v === 'object' && v !== null && (v as { type?: unknown }).type === 'percent'
 }
 
 /**

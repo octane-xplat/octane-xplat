@@ -13,7 +13,7 @@ const stretchProperty = new Property<SVGView, string>({
 })
 
 const stretches: Record<string, number> = { none: 0, fill: 1, aspectFit: 2, aspectFill: 3 }
-const windows = () => globalThis as any
+const windows = () => globalThis as Record<string, any>
 
 function sourceUri(source: string): string {
 	if (source.startsWith('~/')) {

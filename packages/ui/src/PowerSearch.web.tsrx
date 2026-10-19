@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'octane'
-import type { PowerSearchConfig, PowerSearchProps, PowerSearchFilter, PowerSearchFilterFor, PartialFilter } from './props'
+import type { PowerSearchConfig, PowerSearchProps, PowerSearchFilter, PowerSearchFilterFor, PartialFilter , PowerSearchItem} from './props'
 import { createInternalConfig, createPowerSearchSource } from './power-search-config'
 import { PowerSearchView } from './PowerSearchView.web.tsrx'
 
@@ -9,7 +9,7 @@ export function PowerSearch<C extends PowerSearchConfig = PowerSearchConfig>(pro
 	const [open,setOpen] = useState(false)
 	const internal = useMemo(()=>createInternalConfig(props.config),[props.config])
 	const source = useMemo(()=>createPowerSearchSource(internal,props.maxSearchResults??10),[internal,props.maxSearchResults])
-	const results=(source.search(query) as any[]).slice(0,props.maxSearchResults??10)
+	const results=(source.search(query) as PowerSearchItem[]).slice(0,props.maxSearchResults??10)
 	const choose=(item:any)=>{const field=internal.getField(item.auxiliaryData?.fieldKey??item.id);if(!field)return;setEditing({filter:{field:field.key,operator:item.auxiliaryData?.operatorKey??field.defaultOperator,value:item.auxiliaryData?.filterValue},index:-1});setOpen(false)}
 	const save=(filter:PowerSearchFilter|null)=>{if(!editing)return;if(filter){const next=[...props.filters], type=editing.index<0?'add':'edit', index=editing.index<0?next.length:editing.index;if(type==='add')next.push(filter as PowerSearchFilterFor<C>);else next[index]=filter as PowerSearchFilterFor<C>;props.onChange(next,type,index)}setEditing(null);setQuery('')}
 

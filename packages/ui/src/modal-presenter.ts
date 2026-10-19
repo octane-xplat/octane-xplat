@@ -15,10 +15,10 @@ export function modalPresenter(
 		return null
 	}
 
-	const page = frame.currentPage as any
+	const page = frame.currentPage
 	if (page && page.isLoaded && page.frame === frame) {
 		return page
 	}
 
-	return (frame as any).isLoaded ? frame : null
+	return frame.isLoaded ? frame : null
 }

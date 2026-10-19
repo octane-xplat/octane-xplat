@@ -5,7 +5,7 @@ export function bindCommandPaletteKeys(
 	autoFocus: boolean,
 	queryChanged: (query: string) => void,
 ): () => void {
-	const native = globalThis as any
+	const native = globalThis as Record<string, any>
 	const owner = input.window
 	if (autoFocus) {
 		owner?.makeFirstResponder?.(input)

@@ -22,7 +22,7 @@ export function useNativeListCells(renderItem: (item: any, index: number) => any
 	const latest = useRef({ renderItem, items })
 	latest.current = { renderItem, items }
 	const pool = useMemo(() => {
-		const cells = new Map<CellHost, { root: ContentRoot; index: number; item: any; renderItem: typeof renderItem }>()
+		const cells = new Map<CellHost, { root: ContentRoot; index: number; item: any; renderItem: typeof renderItem | null }>()
 		let closed = false
 		const render = (cell: ReturnType<typeof cells.get>) => {
 			if (!cell || closed) return
@@ -42,7 +42,7 @@ export function useNativeListCells(renderItem: (item: any, index: number) => any
 				if (!(host instanceof CellHost)) args.view = host = new CellHost()
 				let cell = cells.get(host)
 				if (!cell) {
-					cell = { root: content.owner.createRoot(host), index: args.index, item: undefined, renderItem: null as any }
+					cell = { root: content.owner.createRoot(host), index: args.index, item: undefined, renderItem: null! }
 					cells.set(host, cell)
 					host.releaseContent = () => {
 						cell!.root.unmount()
@@ -51,7 +51,7 @@ export function useNativeListCells(renderItem: (item: any, index: number) => any
 					}
 				}
 
-				if (cell.index !== args.index) cell.renderItem = null as any
+				if (cell.index !== args.index) cell.renderItem = null!
 				cell.index = args.index
 				render(cell)
 			},

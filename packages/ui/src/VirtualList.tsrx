@@ -27,8 +27,8 @@ function sameSize(a: number, b: number) {
 }
 
 function scheduleListFrame(callback: () => void): () => void {
-	const requestFrame = (globalThis as any).requestAnimationFrame
-	const cancelFrame = (globalThis as any).cancelAnimationFrame
+	const requestFrame = hostGlobal('requestAnimationFrame')
+	const cancelFrame = hostGlobal('cancelAnimationFrame')
 	if (typeof requestFrame !== 'function' || typeof cancelFrame !== 'function') {
 		const timer = setTimeout(callback, 16)
 		return () => clearTimeout(timer)

@@ -291,9 +291,9 @@ function trackFrame(frame: Frame, stack: string): void {
 		// detached on unload never re-attach: real taps die while notify()
 		// probes still dispatch. onLoaded() early-returns when the flag is
 		// already set, so forcing the load pass is free on the normal path.
-		const page = frame.currentPage as any
+		const page = frame.currentPage
 		if (page && page.isLoaded === false) {
-			page.callLoaded?.()
+			;(page as any).callLoaded?.()
 		}
 
 		emit()
@@ -315,7 +315,7 @@ function resolveStack(stack: string): Frame | undefined {
  *  _processNextNavigationEntry). callLoaded is idempotent once the flag
  *  holds, so run it before every navigate/goBack on a registered frame. */
 function rearmFrameLoaded(frame: Frame): void {
-	if (!(frame as any).isLoaded) {
+	if (!frame.isLoaded) {
 		;(frame as any).callLoaded?.()
 	}
 }
@@ -673,7 +673,7 @@ function commitRoute(r: Route, request: NavigationRequest): void {
 	const entry = { frame, root, phase: 'staged' as 'staged' | 'navigating' | 'committed' }
 	pageContent.set(page, entry)
 
-	;(page as any).on?.('navigatedFrom', (event: any) => {
+	;page.on?.('navigatedFrom', (event: any) => {
 		if (event.isBackNavigation) {
 			releasePageContent(page)
 		}
@@ -681,7 +681,7 @@ function commitRoute(r: Route, request: NavigationRequest): void {
 		queueMicrotask(() => reconcilePageContent(frame))
 	})
 
-	;(page as any).on?.('navigatedTo', () => {
+	;page.on?.('navigatedTo', () => {
 		entry.phase = 'committed'
 		reconcilePageContent(frame)
 	})

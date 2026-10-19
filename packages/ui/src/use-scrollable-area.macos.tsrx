@@ -56,8 +56,8 @@ export function useScrollableArea<TElement = HostElement>(
 		contentCaller.current.onLayoutChanged?.(event)
 	}, [measure])
 
-	const viewportRefs = useRef({ caller: undefined as any, refs: refList(bindViewport) })
-	const contentRefs = useRef({ caller: undefined as any, refs: refList(bindContent) })
+	const viewportRefs = useRef({ caller: undefined as { current?: any } | undefined, refs: refList(bindViewport) })
+	const contentRefs = useRef({ caller: undefined as { current?: any } | undefined, refs: refList(bindContent) })
 
 	useLayoutEffect(() => { measure() }, [axis, measure])
 

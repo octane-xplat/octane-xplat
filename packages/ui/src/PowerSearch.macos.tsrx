@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useMemo, useState } from 'octane'
-import type { PowerSearchConfig, PowerSearchProps, PowerSearchFilter, PowerSearchFilterFor, PartialFilter } from './props'
+import type { PowerSearchConfig, PowerSearchProps, PowerSearchFilter, PowerSearchFilterFor, PartialFilter , PowerSearchItem} from './props'
 import { SearchInput } from './controls.macos.tsrx'
 import { Button } from './controls.macos.tsrx'
 import { PowerSearchToken } from './PowerSearchToken.macos.tsrx'
@@ -14,7 +14,7 @@ export function PowerSearch<C extends PowerSearchConfig = PowerSearchConfig>(pro
 	const [open, setOpen] = useState(false)
 	const internal = useMemo(() => createInternalConfig(props.config), [props.config])
 	const source = useMemo(() => createPowerSearchSource(internal, props.maxSearchResults ?? 10), [internal, props.maxSearchResults])
-	const results = (source.search(query) as any[]).slice(0, props.maxSearchResults ?? 10)
+	const results = (source.search(query) as PowerSearchItem[]).slice(0, props.maxSearchResults ?? 10)
 	const chooseField = (item:any) => {
 		const field = internal.getField(item.auxiliaryData?.fieldKey ?? item.id)
 		if (!field) return

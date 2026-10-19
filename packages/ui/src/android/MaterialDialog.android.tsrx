@@ -87,7 +87,7 @@ export function MaterialDialog(props: MaterialDialogProps) @{
 		instance.host.removeChildren?.();
 	}, []);
 
-	const Component = props.component as any;
+	const Component = props.component
 	const content = Component
 		? <Component {...(props.params ?? {})} />
 		: <>{props.children}</>;

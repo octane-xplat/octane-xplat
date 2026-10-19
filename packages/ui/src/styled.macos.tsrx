@@ -1,4 +1,5 @@
 import { defineUniversalComponent, universalComponent } from 'octane/universal/native'
+import type { UniversalComponent } from 'octane/universal'
 import type { ClassName, StyledDef, StyledVariant, StyledVariantSelection } from './props'
 import { resolveStyledClasses } from './styled-variants'
 import { cx } from '@octane-xplat/lib'
@@ -11,7 +12,7 @@ export function styled<P extends { className?: ClassName }, V extends Record<str
 	function Styled(props: P & StyledVariantSelection<V>) {
 		const { classes, rest } = resolveStyledClasses(def, props)
 		rest.className = cx(classes)
-		return universalComponent('macos', Base as any, rest)
+		return universalComponent('macos', Base as unknown as UniversalComponent<any>, rest)
 	}
 
 	return defineUniversalComponent('macos', Styled)

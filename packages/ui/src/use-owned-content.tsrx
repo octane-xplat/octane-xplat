@@ -8,7 +8,7 @@ function OwnedEntry(props: { key?: number; entry: ContentEntry }) {
 	const entry = props.entry
 	const Component = entry.component
 	useLayoutEffect(() => { entry.committed() }, [entry])
-	return createPortal(<Component {...entry.props} />, entry.target as any)
+	return createPortal(<Component {...entry.props} />, entry.target)
 }
 
 function ContentOutlet(props: { owner: ContentOwner }) {

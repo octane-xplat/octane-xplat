@@ -129,7 +129,9 @@ export function BottomSheetSwitcher(props: BottomSheetSwitcherProps) @{
 					existing &&
 					Object.keys(existing.props).length === Object.keys(spec.props).length &&
 					Object.keys(spec.props).every(
-						(key) => (existing.props as any)[key] === (spec.props as any)[key],
+						(key) =>
+							(existing.props as unknown as Record<string, unknown>)[key] ===
+							(spec.props as unknown as Record<string, unknown>)[key],
 					)
 				) {
 					return
