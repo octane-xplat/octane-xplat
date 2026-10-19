@@ -9,9 +9,14 @@
  *  runner's device shim). Specs keep using the upstream interaction/wait
  *  helpers — tap, enterText, waitUntil, nextRenderPass — directly; this
  *  module adds only what the upstream runner cannot know about. */
-import { ContentView, type View, type ViewBase } from '@nativescript/core'
+import { ContentView, GestureTypes, type View, type ViewBase } from '@nativescript/core'
 import { renderNativeScriptApp } from '@nativescript-community/octane'
-import { enterText, mount } from '@nativescript/unit-test-runner/testing'
+import {
+	enterText,
+	mount,
+	nextRenderPass,
+	tap as upstreamTap,
+} from '@nativescript/unit-test-runner/testing'
 import { onTestFinished } from 'vitest'
 
 // The upstream spec surface, re-exported so spec files need one import site.
@@ -23,10 +28,29 @@ export {
 	longPress,
 	nextRenderPass,
 	returnPress,
-	tap,
 	waitForLayout,
 	waitUntil,
 } from '@nativescript/unit-test-runner/testing'
+
+/** Upstream `tap()` dispatches the `tap` event — MasonKit views remap `tap`
+ *  onto their `click` channel (masonNativeEventName), so on a masonview host
+ *  nothing listens for `tap` and the dispatch is a no-op. A tap is a click;
+ *  notify `click` as well when the view carries no `tap` listeners of its own. */
+export async function tap(view: Parameters<typeof upstreamTap>[0]): Promise<void> {
+	await upstreamTap(view)
+	if (view.hasListeners?.('tap')) {
+		return
+	}
+	view.notify({
+		eventName: 'click',
+		object: view,
+		view,
+		type: GestureTypes.tap,
+		ios: undefined,
+		android: undefined,
+	})
+	await nextRenderPass()
+}
 
 export type {
 	Mounted,
