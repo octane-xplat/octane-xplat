@@ -135,8 +135,9 @@ const CSS_DIVERGENCES = [
  * (b) warns once per file on declarations NS silently ignores, so the
  * divergence is loud at build time.
  */
-function pxToDip() {
+export function pxToDip() {
 	const warned = new Set()
+	let isBuild = false
 	const process = (code, id, warn) => {
 		// Framework authors mark web-only rule blocks — overlays, popovers,
 		// dialog modals render through RootLayout/showModal natively, so
@@ -187,11 +188,16 @@ function pxToDip() {
 	return {
 		name: 'xplat-native-css',
 		enforce: 'pre',
+		configResolved(config) {
+			isBuild = config.command === 'build'
+		},
 		// Per-file pass — covers dev serving where css is transformed
 		// per module (the /ns/m bridge path).
 		transform(code, id) {
 			// Bamboo validates its complete sheet before the output adapter filters it.
-			if (id.split('?')[0].endsWith('virtual:bamboo.css')) return
+			if (isBuild && id.split('?')[0].endsWith('virtual:bamboo.css')) {
+				return
+			}
 
 			if (!id.split('?')[0].endsWith('.css')) {
 				return

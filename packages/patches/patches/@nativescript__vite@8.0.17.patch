@@ -107,6 +107,43 @@ index a05696b679b3feecd1bafa267de44b59db559162..06648067a3fcf7f8c74437a82b94ec01
      }
      return ['.native', ''];
  }
+diff --git a/hmr/helpers/ast-normalizer.js b/hmr/helpers/ast-normalizer.js
+index c6113c74247db616609b87d7f365c4d4c199c934..73651a1fd1892555cc5dd57bcefb9e93d30516b6 100644
+--- a/hmr/helpers/ast-normalizer.js
++++ b/hmr/helpers/ast-normalizer.js
+@@ -86,9 +86,10 @@ export function astNormalizeModuleImportsAndHelpers(code, opts) {
+         // path (e.g. `html-entities` when not in optimizeDeps) — those must be
+         // rewritten to the bare id (see below), not removed; removing them
+         // left consumer bindings undefined (`decode is not defined`).
++        // User virtual stylesheets must reach the native CSS registration route.
+         // Exemption: oxc runtime helper virtuals are real servable URLs that
+         // downstream passes preserve/origin-prefix — keep them here too.
+-        const isViteVirtual = (src) => !!src && (/\0/.test(src) || /__x00__/.test(src)) && !src.includes('__x00__@oxc-project+runtime');
++        const isViteVirtual = (src) => !!src && (/\0/.test(src) || /__x00__/.test(src)) && !src.includes('__x00__@oxc-project+runtime') && !/\.(css|scss|sass|less|styl|stylus)(?:[?#]|$)/i.test(src);
+         const realIdPrefixed = (src) => {
+             if (!src || !src.startsWith('/@id/'))
+                 return null;
+diff --git a/hmr/server/css-device-module.js b/hmr/server/css-device-module.js
+index 0d7cd968eac690a85411cf3d6a24323a3d3a3992..98094d6ccfb918d00249d8087aebdd994b64244d 100644
+--- a/hmr/server/css-device-module.js
++++ b/hmr/server/css-device-module.js
+@@ -41,4 +41,15 @@ export function buildCssRegisterSnippet(tag, cssText) {
+ export function buildCssRegisterSnippetFromVar(tag, varName) {
+     return buildRegisterCall(JSON.stringify(tag), varName);
+ }
++/** Bridge only plugin-provided virtual stylesheets; file CSS has its own hot-update path. */
++export function virtualCssUpdates(payload) {
++    if (payload?.type !== 'update') return [];
++    return (payload.updates || []).flatMap((update) => {
++        if (update.type !== 'css-update' && update.type !== 'js-update') return [];
++        let spec = update.path?.split(/[?#]/)[0];
++        if (spec?.startsWith('\0')) spec = '/@id/' + spec.replace(/\0/g, '__x00__');
++        if (!spec?.startsWith('/@id/__x00__') || !CSS_MODULE_RE.test(spec)) return [];
++        return [{ type: 'css-update', path: '/ns/m' + spec, acceptedPath: '/ns/m' + spec, tag: spec, timestamp: update.timestamp }];
++    });
++}
+ //# sourceMappingURL=css-device-module.js.map
+\ No newline at end of file
 diff --git a/hmr/server/deps-bundle.js b/hmr/server/deps-bundle.js
 index 8f2fa15556244f7ef811b5e2ea0fc6a19bab74d3..80137262ec46d347d39a7ee12d66d649b5f909f5 100644
 --- a/hmr/server/deps-bundle.js
@@ -166,11 +203,41 @@ index 71574c48f655183af0c9601b020fd1febd63ccb3..0061d9c9e9fe9c6034576eae8449831d
      if (!imports.length) {
          return code;
      }
+diff --git a/hmr/server/process-code-for-device.js b/hmr/server/process-code-for-device.js
+index c71d457806a8add919f7e2368e7ebc349bd908e7..998eb268ed0db1200f8b5ce30fc7da211125406f 100644
+--- a/hmr/server/process-code-for-device.js
++++ b/hmr/server/process-code-for-device.js
+@@ -1,3 +1,4 @@
++import { CSS_MODULE_RE } from './css-device-module.js';
+ // Device code-transform: cleans Vite/framework noise out of a served module,
+ // injects NativeScript build globals + the process.env shim, normalizes
+ // imports/helpers for the on-device ESM runtime, and collects an importer's
+@@ -451,13 +452,13 @@ function processCodeForDevice(code, isVitePreBundled, preserveVendorImports = fa
+     // Unlike other virtual ids these are real, servable dev-server URLs returning
+     // self-contained ESM — stripping them leaves `_decorate`/`_decorateMetadata`
+     // undefined at runtime. They're origin-prefixed for the device in rewriteImports.
+-    result = result.replace(/import\s+[^;]+\s+from\s+["']\/@id\/(?!__x00__@oxc-project\+runtime)[^"']*["'];?\s*/g, '');
++    result = result.replace(/import\s+[^;]+\s+from\s+["'](\/@id\/(?!__x00__@oxc-project\+runtime)[^"']*)["'];?\s*/g, (statement, spec) => CSS_MODULE_RE.test(spec) ? statement : '');
+     // Also remove side-effect only virtual id imports like: import "/@id/__x00__vite/dynamic-import-helper.js";
+     // These can slip through and cause the NativeScript runtime to attempt resolving
+     // a non-existent physical file (e.g. /@id/__x00__vite/dynamic-import-helper.js) leading to
+     // module not found crashes during HMR evaluation.
+     if (/^[\t ]*import\s+["']\/@id\/[^"']+["'];?\s*$/m.test(result)) {
+-        result = result.replace(/^[\t ]*import\s+["']\/@id\/[^"']+["'];?\s*$/gm, '');
++        result = result.replace(/^[\t ]*import\s+["'](\/@id\/[^"']+)["'];?\s*$/gm, (statement, spec) => CSS_MODULE_RE.test(spec) ? statement : '');
+         // Inject a lightweight marker comment (harmless if left in output) so devs can confirm rewrite took place when viewing streamed artifact.
+         result = `// [hmr-sanitize] stripped virtual /@id/ side-effect imports\n${result}`;
+     }
 diff --git a/hmr/server/rewrite-imports.js b/hmr/server/rewrite-imports.js
-index 4a6575cb00a6aeecbbb7ac5ccac3268cb10d7f54..ea97dfe6c895bb6b80b0c0403c86663046c65496 100644
+index 4a6575cb00a6aeecbbb7ac5ccac3268cb10d7f54..2876cf3694c278249b9db182e2f89df34cc464f3 100644
 --- a/hmr/server/rewrite-imports.js
 +++ b/hmr/server/rewrite-imports.js
-@@ -12,7 +12,93 @@ import { resolveAngularCoreHmrImportSource, rewriteAngularEntryRegisterOnly } fr
+@@ -1,3 +1,4 @@
++import { CSS_MODULE_RE } from './css-device-module.js';
+ // THE SINGLE import-rewrite function — used everywhere for consistency. Maps a
+ // served module's specifiers to device-reachable forms: the unified /ns/core
+ // bridge, /ns/m node_modules + app modules, /ns/sfc for Vue, vendor bare specs,
+@@ -12,7 +13,93 @@ import { resolveAngularCoreHmrImportSource, rewriteAngularEntryRegisterOnly } fr
  import { isNativeScriptCoreModule, isNativeScriptPluginModule, normalizeNativeScriptCoreSpecifier, normalizeNodeModulesSpecifier, resolveNodeModulesPackageBoundary, resolveVendorRouting, rewriteFsAbsoluteToNsM, shouldPreserveBareRuntimePluginSubpathImport } from './websocket-module-specifiers.js';
  import { ensureDynamicHmrImportHelper } from './websocket-served-module-helpers.js';
  import { collectMixedRuntimePluginHttpRootPackages, findDependencyFileName, getProjectRelativeImportPath, isApplicationImport, normalizeImportPath, stripToProjectRelative, toAppModuleBaseId, toNodeModulesHttpModuleId } from './device-transform-helpers.js';
@@ -264,7 +331,7 @@ index 4a6575cb00a6aeecbbb7ac5ccac3268cb10d7f54..ea97dfe6c895bb6b80b0c0403c866630
  export function prepareAngularEntryForDevice(code, importerPath, sfcFileMap, depFileMap, projectRoot, verbose = false, outputDirOverrideRel, httpOrigin, resolveVendorAsHttp = false) {
      const rewrittenCode = rewriteImports(code, importerPath, sfcFileMap, depFileMap, projectRoot, verbose, outputDirOverrideRel, httpOrigin, resolveVendorAsHttp);
      return rewriteAngularEntryRegisterOnly(rewrittenCode, resolveAngularCoreHmrImportSource(rewrittenCode, httpOrigin));
-@@ -236,6 +322,19 @@ export function rewriteImports(code, importerPath, sfcFileMap, depFileMap, proje
+@@ -236,6 +323,19 @@ export function rewriteImports(code, importerPath, sfcFileMap, depFileMap, proje
              }
              return `${prefix}${stub}${suffix}`;
          }
@@ -284,7 +351,7 @@ index 4a6575cb00a6aeecbbb7ac5ccac3268cb10d7f54..ea97dfe6c895bb6b80b0c0403c866630
          spec = normalizeNativeScriptCoreSpecifier(spec);
          // Pull `/@fs/<abs-path>` URLs back into the `/ns/m/` pipeline so they
          // hit our CJS/UMD-wrapping handler. Vite emits `/@fs/...` for any
-@@ -253,11 +352,29 @@ export function rewriteImports(code, importerPath, sfcFileMap, depFileMap, proje
+@@ -253,17 +353,39 @@ export function rewriteImports(code, importerPath, sfcFileMap, depFileMap, proje
                  }
                  return `${prefix}${rewritten}${suffix}`;
              }
@@ -319,6 +386,16 @@ index 4a6575cb00a6aeecbbb7ac5ccac3268cb10d7f54..ea97dfe6c895bb6b80b0c0403c866630
          }
          // Vite 8 oxc runtime helpers (decorators etc.) — emitted as
          // `/@id/__x00__@oxc-project+runtime@<ver>/helpers/<name>.js`. These are
+         // real dev-server URLs serving self-contained ESM, so just origin-prefix
+         // them for the device; no /ns/m wrapping needed (processCodeForDevice
+         // exempts them from the generic /@id/ strip for the same reason).
++        // User virtual CSS needs native compilation/registration, never the DOM module.
++        if (spec.startsWith('/@id/') && CSS_MODULE_RE.test(spec)) {
++            return `${prefix}${httpOriginSafe || ''}/ns/m${spec}${suffix}`;
++        }
+         if (spec.startsWith('/@id/__x00__@oxc-project+runtime')) {
+             if (httpOriginSafe) {
+                 return `${prefix}${httpOriginSafe}${spec}${suffix}`;
 diff --git a/hmr/server/websocket-module-specifiers.js b/hmr/server/websocket-module-specifiers.js
 index 74f50a77f48f3873aebf375a29d06b16c29440a3..0f06b6dc997118473e4a1ac6d3a3c48432311c71 100644
 --- a/hmr/server/websocket-module-specifiers.js
@@ -508,6 +585,80 @@ index a11fbd5d24579cdf572a91f70cb06561bfa43cd0..c887334efce2c2f6cf85c75082761094
          }
      }
      return null;
+diff --git a/hmr/server/websocket-ns-m.js b/hmr/server/websocket-ns-m.js
+index 63b5d9a4886d8da03b8e7deac8a16d53347ea5d7..0f92b3377e6d697f5e5c9eafad130d9579078d93 100644
+--- a/hmr/server/websocket-ns-m.js
++++ b/hmr/server/websocket-ns-m.js
+@@ -97,7 +97,7 @@ export function registerNsModuleServerRoute(server, options) {
+             // internal virtual modules (e.g., \0nsvite:nsconfig-json for
+             // ~/package.json) that don't exist on disk and must NOT run
+             // through the device post-processing pipeline below.
+-            if (spec.startsWith('/@id/')) {
++            if (spec.startsWith('/@id/') && !CSS_MODULE_RE.test(spec)) {
+                 try {
+                     // First try Vite's transform pipeline directly
+                     const vr = await sharedTransformRequest(spec);
+@@ -157,8 +157,21 @@ export function registerNsModuleServerRoute(server, options) {
+                     // Workspace css outside the vite root must be anchored to /@fs or
+                     // `?inline` is denied and the DOM css module (__vite__updateStyle)
+                     // is served instead.
+-                    const inlineSpec = resolveFsAnchoredSpec(spec, serverRoot, monorepoWorkspaceRoot) || spec;
+-                    const inlineRes = await sharedTransformRequest(`${inlineSpec}?inline`);
++                    const inlineSpec = spec.startsWith('/@id/')
++                        ? spec.slice('/@id/'.length).replace(/__x00__/g, '\0')
++                        : resolveFsAnchoredSpec(spec, serverRoot, monorepoWorkspaceRoot) || spec;
++                    // Keep the canonical sheet's watch edges and CSS HMR boundary alive.
++                    // The inline variant alone is not the node stylesheet plugins reload.
++                    const virtualCss = spec.startsWith('/@id/');
++                    // Plugin reloads can invalidate only the canonical sheet, not its
++                    // inline sibling or the NativeScript transform-result TTL cache.
++                    const compileCss = virtualCss ? (url) => server.transformRequest(url) : sharedTransformRequest;
++                    if (virtualCss) {
++                        await compileCss(inlineSpec);
++                        const inlineModule = server.moduleGraph.getModuleById(`${inlineSpec}?inline`);
++                        if (inlineModule) server.moduleGraph.invalidateModule(inlineModule);
++                    }
++                    const inlineRes = await compileCss(`${inlineSpec}?inline`);
+                     const inlineCode = inlineRes?.code || '';
+                     // `?inline` output is `export default "<compiled css>"`.
+                     const m = inlineCode.match(/export\s+default\s+("(?:[^"\\]|\\.)*")\s*;?/s);
+@@ -168,7 +181,14 @@ export function registerNsModuleServerRoute(server, options) {
+                             css = JSON.parse(m[1]);
+                         }
+                         catch { }
+-                        css = normalizeCssForDevice(css);
++                        css = normalizeCssForDevice(css) || '/* empty stylesheet */';
++                        // HMR fetches adapted text through this same compiler and tag.
++                        if (urlObj.searchParams.has('direct')) {
++                            res.setHeader('Content-Type', 'text/css; charset=utf-8');
++                            res.statusCode = 200;
++                            res.end(css);
++                            return;
++                        }
+                         const out = `// [ns:m][css] ${spec}\n` + `const __ns_css_text__ = ${JSON.stringify(css)};\n` + buildCssRegisterSnippetFromVar(spec, '__ns_css_text__') + `export default __ns_css_text__;\n`;
+                         res.statusCode = 200;
+                         res.end(out);
+@@ -181,7 +201,10 @@ export function registerNsModuleServerRoute(server, options) {
+                     if (verbose)
+                         console.warn('[ns:m][css] inline compile failed', spec, cssErr?.message);
+                 }
+-                // Fall through to default handling if inline compile produced nothing.
++                // Never send raw CSS or a DOM injection module to the native loader.
++                res.statusCode = 500;
++                res.end('throw new Error(' + JSON.stringify('[ns:m] CSS compilation failed: ' + spec) + ');');
++                return;
+             }
+             // Queue and dedupe transformRequest calls so heavy app graphs do not
+             // overwhelm Vite with concurrent work. Slow-transform warnings start only
+@@ -503,6 +526,8 @@ export function registerNsModuleServerRoute(server, options) {
+                                     continue;
+                                 }
+                                 else if (u.pathname.startsWith('/ns/m')) {
++                                    // The CSS route synthesizes a default string export after compilation.
++                                    if (CSS_MODULE_RE.test(u.pathname)) continue;
+                                     // Resolve the import target through the SAME
+                                     // canonical pipeline the /ns/m route itself uses
+                                     // (websocket-ns-m-request.ts) instead of a third
 diff --git a/hmr/server/websocket-served-module-helpers.js b/hmr/server/websocket-served-module-helpers.js
 index b9e3ab67eb4ae7c9b12bc4b02b9aa3660d712644..f857f4a5a5956af229e447ed04bf1a52a90c6399 100644
 --- a/hmr/server/websocket-served-module-helpers.js
@@ -532,3 +683,27 @@ index b9e3ab67eb4ae7c9b12bc4b02b9aa3660d712644..f857f4a5a5956af229e447ed04bf1a52
              .map((node) => ({
              start: node.start,
              end: node.end,
+diff --git a/hmr/server/websocket.js b/hmr/server/websocket.js
+index e6a14437f8990e2c631f23eb8db21aa0b28b5759..2b9fb450511b6e114b6e7e7ac8a48831b4a09dc9 100644
+--- a/hmr/server/websocket.js
++++ b/hmr/server/websocket.js
+@@ -1,3 +1,5 @@
++import { virtualCssUpdates } from './css-device-module.js';
++import { buildCssUpdatesMessage } from './css-update-message.js';
+ import { readFileSync } from 'fs';
+ import { WebSocketServer } from 'ws';
+ import * as path from 'path';
+@@ -341,6 +343,13 @@ function createHmrWebSocketPlugin(opts, strategy) {
+                         // to reach the device, since they drive the
+                         // in-place `ɵɵreplaceMetadata` template-swap path.
+                         // Filter the relay to those.
++                        const cssUpdates = virtualCssUpdates(normalized);
++                        if (cssUpdates.length) {
++                            const message = JSON.stringify(buildCssUpdatesMessage(server, cssUpdates));
++                            wss?.clients.forEach((client) => {
++                                if (client?.readyState === 1) client.send(message);
++                            });
++                        }
+                         if (normalized.type !== 'custom')
+                             return;
+                         // Root-component guard. Analog's in-place

@@ -179,7 +179,12 @@ patchedDependencies:
   # importer's own package.json — raw-read node_modules files (e.g. octane's
   # dist/signals/graph.js importing `#octane/dist/signal-actions/graph`) otherwise reach the
   # device verbatim and the HTTP loader throws `Cannot find module`, deadlocking dev boot
-  # before any boot recording can bundle the dep.
+  # before any boot recording can bundle the dep. NativeScript#11551: preserve user virtual
+  # stylesheet imports while retaining browser-helper filtering, route virtual CSS through
+  # the native inline compiler/registration path before the generic virtual-module shortcut,
+  # and relay Vite virtual stylesheet updates as tagged native CSS updates through the same
+  # adapted-text endpoint. Empty sheets clear previous rules; CSS compilation failures
+  # return HTTP 500 instead of raw CSS.
   "@nativescript/vite@8.0.17": packages/cli/patches/@nativescript__vite@8.0.17.patch
   # Driver treats a prop dropped from an update's complete prop bag — or set to
   # `undefined`/`null` — as a removal and restores the documented default:

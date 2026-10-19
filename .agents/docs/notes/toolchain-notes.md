@@ -593,3 +593,64 @@ The stable tag push still aborts if
 ships nothing untested.
 `pnpm check:consumer` can run the same packed-consumer path locally before
 pushing.
+
+## Temporary native virtual stylesheet patch (NativeScript #11551)
+
+The canonical `@nativescript/vite@8.0.17` patch repairs plugin-provided virtual
+stylesheet delivery in HTTP dev, including Bamboo 1.56.2. Upstream
+[NativeScript #11551](https://github.com/NativeScript/NativeScript/issues/11551)
+tracks the limitation. Registry latest was 8.0.19 when checked; its source still
+contained the broad virtual-import removal and virtual-response shortcut.
+This record describes HTTP and host-executed registration evidence, not device
+layout qualification.
+
+Several stages need to agree: the AST normalizer and later import sanitizer
+preserve stylesheet imports while retaining browser-helper filtering; the
+rewriter routes their URLs through `/ns/m`; that route decodes Vite's virtual
+ID and compiles CSS before its generic virtual-module shortcut. A bare
+stylesheet request returns JavaScript calling `__NS_REGISTER_CSS__`, with a
+pending-registration fallback. Compilation failures return HTTP 500 rather
+than raw CSS or DOM injection JavaScript.
+
+The framework's native CSS adapter now processes Bamboo during dev, after its
+load-time validation. Build handling still defers Bamboo until emitted assets,
+after Bamboo's output validation. The existing platform filter, `px` to `dip`
+conversion, letter-spacing normalization, and layer unwrapping remain in use.
+This patch does not change core cascade-layer support or diagnose app-specific
+safe-area/overflow behavior.
+
+Native HTTP loading also transforms the canonical virtual stylesheet to retain
+its watch edges and CSS HMR boundary, then uses `?inline` for the registered
+text. The WebSocket bridge maps Vite virtual stylesheet updates (raw null IDs
+or encoded URLs) to `ns:css-updates`. Those fetch adapted text from the same
+`/ns/m` compiler with `direct=1` and retain the initial registration tag. An
+empty sheet becomes a harmless comment so the existing tagged remove/add
+client path clears deleted rules without replacing global `app.css`.
+
+`packages/cli/test/vite-virtual-css.test.mjs` starts real Vite HTTP serving with
+the installed NativeScript route and a minimal virtual CSS plugin. It checks
+imports, registration JavaScript, queued registration, native units/platform
+filtering/layer conversion, Vite reload payloads, adapted HMR responses, the
+actual client handler's tagged replacement with a host API double, empty
+sheets, ordinary file CSS updates, compilation failure, and build deferral.
+Virtual reload coverage invalidates only the canonical sheet while retaining
+NativeScript's 60-second transform cache: native CSS compilation bypasses that
+extra cache and invalidates the inline sibling so plugin-only reloads cannot
+serve stale rules.
+Bamboo's existing platform build test also checks generated sheets. These
+checks do not establish `/ns-hmr` device transport or measured native bounds.
+No Android device was available. A full frozen install failed on the existing
+`@nativescript-community/octane@0.2.5` patch, including with an isolated store;
+focused CLI/Bamboo installs succeeded. Native device smoke and dependent
+package checks remain unqualified until that baseline install issue is resolved.
+
+Distribution follows the existing patch manifest: copies ship in
+`@octane-xplat/cli` and `@octane-xplat/patches`; starter yaml and the root lockfile
+are synchronized. Existing apps adopt a future framework release's canonical
+patch through the normal upgrade/patch workflow. No app-specific plugin or
+Opals edit is required. No release was published for this change.
+
+Remove these virtual-stylesheet hunks when a published NativeScript Vite
+version preserves the imports, compiles virtual CSS into native registration,
+and delivers tagged CSS HMR with these regressions passing. Keep the other
+canonical patch hunks until their independent removal conditions are met.
