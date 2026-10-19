@@ -1,5 +1,86 @@
 # Changelog
 
+## [0.16.0] - 2026-10-19
+
+### Breaking Changes
+
+- *(macos)* [**breaking**] All container intrinsics backed by Mason
+- *(cli)* [**breaking**] Declare @triniwiz/nativescript-masonkit for octane apps
+- *(leaves)* [**breaking**] Emit masonview + CSS props, drop layout aliases
+- *(macos)* [**breaking**] Masonview is the only layout host intrinsic
+- *(patch)* [**breaking**] Collapse mason registration to masonview + scrollview
+- *(intrinsics)* [**breaking**] Masonview replaces the NS layout tag set
+- *(ui)* [**breaking**] Emit mason style through the style prop via mergeStyle
+- *(intrinsics)* [**breaking**] Masonview drops raw style keys
+- *(patch)* [**breaking**] Style-only Mason keys + leaf-style routing
+- *(macos)* [**breaking**] Style-only Mason keys on masonview
+- *(leaves)* [**breaking**] Move mason style props into style
+- *(ui)* [**breaking**] Move all intrinsic layout to the style channel
+- *(packages)* [**breaking**] Leaf packages emit layout through style too
+- *(driver)* [**breaking**] Remove the layout-prop channel from the octane patch
+- *(macos)* [**breaking**] Style-only layout surface on the AppKit renderer
+- *(jsx)* [**breaking**] Zero layout props on the shared intrinsic surface
+
+### Features
+
+- *(linux-gtk-renderer)* GTK4/GJS universal driver for native Linux widgets
+- *(cli)* Register the .gtk platform suffix and xplatLinuxGtk preset
+- *(linux-gtk-renderer)* Bind JSX surface to the shared @octane-xplat/jsx contract
+- *(cli)* Add bundled lint command with optional fixes
+- *(cli)* Manage framework dependency compatibility
+- *(native)* Host custom-layout plugin containers in the octane driver patch
+- *(macos)* Masonview backed by the Mason engine via mason-c
+- *(macos)* @nativescript/core compat slice for plugin elements
+- *(cli)* Register the GTK4/GJS runtime as a linux target
+- *(create)* Keep app starters minimal with opt-in testing
+- *(cli)* Resolve platform-specific CSS files
+- *(cli)* Compile build-time platform CSS blocks
+- *(bamboo)* Add build-time platform conditions
+- *(cli)* Support comma-separated platform CSS targets
+- *(native)* Container intrinsics backed by MasonKit on iOS/Android/Windows
+- *(gtk)* Route style-bag layout keys into the Box shim
+- *(gtk)* Bind mason-c via a GI typelib facade
+- *(gtk)* Run masonview layout through the Mason engine
+
+### Bug Fixes
+
+- *(editors)* Use TypeScript browser asset build script
+- *(linux-gtk-renderer)* Apply mount-time layout props and harden prop resets
+- *(linux-gtk-renderer)* Reset layout/orientation props and resolve expand deep
+- *(linux-gtk-renderer)* Write both expand axes when resolving flexGrow
+- *(cli)* Use inlineDynamicImports for the single-file GJS bundle
+- *(create)* Align scaffold JSX typing with shared facades
+- *(create)* Raise Android template compile SDK to 36
+- *(create)* Include app testing by default
+- *(create)* Select DOM JSX types in starter web test
+- *(cli)* Anchor native dev transforms to nested dependency files
+- *(bamboo)* Reject unsupported platform configurations early
+- *(cli)* Register virtual stylesheets in native dev and HMR
+- *(patch)* Regenerate octane 0.2.5 patch with unified driver diff
+- *(patch)* Resync lockfile hash and patch metadata after rebase
+- *(lint)* Accept mason absolute positioning and sync the published rules copy
+- *(leaves)* Route layout metadata through the style bag
+- *(deps)* Unify @types/node pins to dedupe octane runtime copies
+- *(tests)* Repair stale references and runner wiring
+- *(tests)* Stop concurrent vite builds racing cli's dist during tests
+- *(create)* Resolve scaffold/compatibility exports from source in-repo
+- *(cli)* Only check the app-resolved copy in the compatibility scan
+- *(patches)* Teach @nativescript/doctor to resolve pnpm catalog specifiers
+- *(cli)* Define __WINDOWS__ in the native vite config
+- *(patches)* Guard masonkit's iOS list delegate protocol binding
+- *(testing)* Dispatch click alongside tap for MasonKit hosts
+
+### Refactoring
+
+- *(mcp)* Port the transport adapter to TypeScript
+- *(cli,lint)* Port Node tooling source from .mjs to .ts
+- *(toolchain)* Port remaining Node tooling from .mjs to .ts
+- *(scripts,apps)* Port app-level Node tooling to .ts; unmark lint/create/tsrx-typegen
+- *(linux-gtk-renderer)* Use @octane-xplat/jsx as the pragma source
+- *(macos)* Element-behavior registry seam; masonview self-registers
+- *(create)* Remove unreleased testing setup command
+- *(macos)* Remove the classic layout engines
+
 ## [0.15.0] - 2026-10-18
 
 ### Breaking Changes
