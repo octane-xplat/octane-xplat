@@ -181,8 +181,24 @@ can grow to its contents' minimum. Native foreign-label measurement may
 inflate that minimum; its MinContent/MaxContent callbacks are not yet traced.
 Consumers needing bounded layers can use `grid-template-columns:
 minmax(0,1fr)` through a class, omitting `columns` so the class owns that axis.
-Use it at both nested Grids. The native control used direct Mason style
-writes; it did not verify the class-authored example on a device.
+Use it at both nested Grids.
+
+The consumer investigation subsequently verified the compiled consumer source on
+physical Android after a normal `pnpm build:android`. The consumer carried
+this Grid omitted-track correction, set `captureScreen` width to 100% in its
+static `.style.ts` class, and supplied `minmax(0,1fr)` through static classes
+at both Grids with their `columns` props omitted. No inspector style mutation
+was used for this pass. Root/stage/home/sheet measured 343.3846dp, the panel
+274.4615dp, and both text labels 226.7692dp. Native helper getters confirmed
+the bounded columns at both Grids. Two coordinate camera-open/swipe-dismiss
+cycles passed, with home remaining 343.3846dp; the original installed app
+code was restored afterward.
+
+This is a relayed consumer-source device pass of the Grid correction and
+consumer constraints. The consumer's explicit Screen width differs from
+this branch's `vx-screen-content` default. It is not a device execution of
+the maintained regression fixture or of the upstream Screen class change.
+Foreign-label callbacks remain untraced.
 
 [`screen-grid-width.spec.tsrx`](../../../../apps/mobile/src/tests/screen-grid-width.spec.tsrx)
 adds Android regression coverage for root computed/frame equality and nested
