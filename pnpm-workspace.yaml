@@ -169,11 +169,22 @@ patchedDependencies:
   # turbo.json as a workspace root — Turborepo's per-package task configs marked apps/* as
   # roots, masking the real pnpm root so served `/node_modules/` tails never reached the
   # `.pnpm` store scan and non-hoisted transitive deps like source-map-js 404'd dev boot.
-  # The /ns/m import rewriter now resolves `#`-prefixed package `imports` specifiers through
-  # the importer's own package.json — raw-read node_modules files (e.g. octane's
+  # Linked dependency fallbacks also discover each linked package's enclosing workspace and
+  # reuse the cached, bounded workspace node_modules scan so transitive workspace siblings
+  # (auth to secure-storage to a private native plugin) resolve without the consumer
+  # supplying that workspace root. Transform candidates now keep root-relative URLs only
+  # when they identify the discovered file; nested linked-dependency and pnpm-store matches
+  # inside the app root use their actual filesystem paths, preserving query suffixes. The
+  # /ns/m import rewriter now resolves `#`-prefixed package `imports` specifiers through the
+  # importer's own package.json — raw-read node_modules files (e.g. octane's
   # dist/signals/graph.js importing `#octane/dist/signal-actions/graph`) otherwise reach the
   # device verbatim and the HTTP loader throws `Cannot find module`, deadlocking dev boot
-  # before any boot recording can bundle the dep.
+  # before any boot recording can bundle the dep. NativeScript#11551: preserve user virtual
+  # stylesheet imports while retaining browser-helper filtering, route virtual CSS through
+  # the native inline compiler/registration path before the generic virtual-module shortcut,
+  # and relay Vite virtual stylesheet updates as tagged native CSS updates through the same
+  # adapted-text endpoint. Empty sheets clear previous rules; CSS compilation failures
+  # return HTTP 500 instead of raw CSS.
   "@nativescript/vite@8.0.17": packages/cli/patches/@nativescript__vite@8.0.17.patch
   # Driver treats a prop dropped from an update's complete prop bag — or set to
   # `undefined`/`null` — as a removal and restores the documented default:
@@ -196,10 +207,10 @@ patchedDependencies:
   # (e.g. MasonKit ViewBase) that own child lists via
   # insertChild/removeChild/getChildrenCount without subclassing LayoutBase. Additionally,
   # the masonry cutover: masonview resolves to MasonKit View and scrollview to MasonKit
-  # Scroll as the only layout containers, with the driver forwarding CSS-shaped props to
-  # mason Style and translating LayoutChildProps sugar (grid row/col/span, dock, edge
-  # insets, attached alignment) into style writes — including foreign-child leaves via
-  # Style.fromView after attach.
+  # Scroll as the only layout containers, with zero layout props — every former prop name
+  # warns-and-drops and all CSS semantics arrive through the style bag; style keys on a
+  # mason child route to its leaf (stashed pre-attach, replayed at attach) via
+  # Style.fromView.
   "@nativescript-community/octane@0.2.5": packages/cli/patches/@nativescript-community__octane@0.2.5.patch
   # octaneServerStrategy's SCRIPT_FILE_RE only covers [jt]sx? — .tsrx edits never emit the
   # deferred ns:hmr-delta broadcast, so component HMR silently never reaches the device.
