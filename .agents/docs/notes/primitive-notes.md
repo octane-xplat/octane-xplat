@@ -1455,25 +1455,29 @@ contract changed. Chromium's research-only variant reduced row mounts and DOM
 construction by about 94% in the fixed-height fixture, with overlapping seek
 readiness timings; this does not establish better frame pacing.
 
-The iOS isolated host built and installed with Octane 0.11.0,
-`@nativescript-community/octane` 0.2.5, NativeScript Core 9.1.3, and the workspace's
-MasonKit beta.110 setup, but failed before loading the case. Scoped simulator
-logs first reported `__WINDOWS__ is not defined`; adding a false define only to
-the disposable host config and rebuilding exposed `MasonListDelegate is not
-defined` during host vendor-module evaluation. The case config already defines
-the Windows flag; the generated host is a separate bundle. The missing native
-protocol's cause has not been isolated to an upstream package. No fake protocol
-or framework workaround was shipped. The host must initialize with the matching
-plugin/runtime before an iOS comparative pass can be claimed. See the
-[evidence and runtime limits](../evidence/recycling-list-2026-10-19.json).
+The initial native attempts failed before the case: the iOS host lacked the
+`__WINDOWS__` define and MasonKit metadata, and Android's Static Binding
+Generator could not find `MasonKit ListView.Listener`. The follow-through
+identified a local integration omission: Xplat's renderer patch imports MasonKit,
+but the isolated host exposed it only as a devDependency. Both host manifests
+now include beta.110 as a runtime dependency, and `xplatNative()` folds the
+Windows flag. Both targets built and loaded actual rows after those repairs.
 
-Android's isolated case compiled, but host assembly stopped in NativeScript's
-Static Binding Generator: `Class not found
-org.nativescript.mason.masonkit.ListView.Listener`. A direct Gradle diagnostic
-confirmed that failure; the SDK XML warning in the shortened runner log was not
-established as the cause. No list assertion ran on the intended physical target.
-The missing plugin class was not faked or bypassed. Both native comparisons remain
-unqualified until the host/plugin setup is repaired and actual cases execute.
+The probe also needed MasonKit's event path: its `tap` aliases to an Observable
+`click` listener rather than a core gesture observer. The runner now supports
+both paths, rejects unloaded targets, and labels the mechanism
+`event-handler-dispatch`. This remains synthesized input. See the
+[host/plugin integration record](masonkit-layout-evaluation.md#native-host-integration-correction-2026-10-19)
+and [historical and follow-through evidence](../evidence/recycling-list-2026-10-19.json).
+
+The repaired iOS and Android comparisons then exposed a list integration failure:
+`scrollview` maps to MasonKit `Scroll`, which has no `verticalOffset` or
+`scrollToVerticalOffset`, while the current native `VirtualList` expects them.
+The runtime also lacks its iOS-specific `setContentOffsetAnimated` alternative.
+All four trials per target activate row state and balance cleanup but cannot
+complete forward seeks. Those partial trials establish no native recycling
+performance benefit. The native scroll contract needs repair before a public
+`RecyclingList` can be qualified; changing the row lifecycle does not solve it.
 
 ## Appendix: verified driver semantics
 

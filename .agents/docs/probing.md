@@ -87,8 +87,10 @@ ctx.onCleanup(() => console.log('Case finished'))
 
 `inspect` reports text, value, and host geometry when available. Coordinates
 and units belong to the actual host; they are not a cross-platform pixel
-comparison. `press` dispatches the DOM click or native action/gesture handler.
-Results label that mechanism. A passing handler probe does not prove OS input,
+comparison. `press` dispatches the DOM click or native action handler. On
+iOS/Android the target must be loaded; the runner uses a core tap observer or
+MasonKit’s registered click listener. Results label this
+`event-handler-dispatch`. A passing handler probe does not prove OS input,
 hit-testing, keyboard behavior, or accessibility navigation.
 
 ```ts

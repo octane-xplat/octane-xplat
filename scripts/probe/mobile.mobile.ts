@@ -4,6 +4,7 @@ import { Application, Frame, GestureTypes, Page } from '@nativescript/core'
 import { renderNativeScriptApp } from '@nativescript-community/octane'
 
 import { dispatchScrub } from './touch.ts'
+import { dispatchPress } from './press.ts'
 
 installGestureHandler()
 
@@ -36,7 +37,7 @@ export function mobileAdapter() {
 	return {
 		host: { page, frame },
 		identity: 'NativeScript',
-		interaction: 'gesture-observer-dispatch',
+		interaction: 'event-handler-dispatch',
 		onError(report) {
 			reportError = report
 		},
@@ -51,15 +52,7 @@ export function mobileAdapter() {
 		},
 		find,
 		press(id) {
-			const view = required(id)
-			const observers = view.getGestureObservers?.(1) ?? []
-			if (!view.isLoaded || !observers.length) {
-				throw new Error('Probe view has no loaded tap observer: ' + id)
-			}
-
-			for (const observer of observers) {
-				observer.callback.call(observer.context, { eventName: 'tap', object: view })
-			}
+			dispatchPress(required(id))
 		},
 		scrub(id, points) {
 			return dispatchScrub(required(id), points, GestureTypes.touch)

@@ -65,6 +65,15 @@ task to run before asserting the settled value. Its cooperative scheduler may
 yield after its time budget, so flushing only promises can leave a query pending.
 For universal tests, flush the renderer after that host task.
 
+The iOS/Android probe host includes MasonKit because the locally patched
+renderer imports it for container layout. Keep native host plugins in runtime
+`dependencies`: JavaScript resolution from a devDependency does not include the
+plugin binaries in `ns prepare`. See the [host integration contract](../../../../.agents/docs/notes/masonkit-layout-evaluation.md#native-host-integration-correction-2026-10-19).
+
+The isolated runner’s `ctx.press(id)` supports loaded core tap observers and
+MasonKit’s click listener (its tap alias). It reports `event-handler-dispatch`;
+this remains synthesized input, not OS input or hit-testing.
+
 ```ts
 import { flushUniversalSync } from 'octane/universal/native'
 

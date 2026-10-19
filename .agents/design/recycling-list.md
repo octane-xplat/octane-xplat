@@ -149,8 +149,9 @@ Do not publish until all of these hold:
    and maintained example, affected recipes/skill guidance, parity tracking where
    applicable, and package/dependent typechecks accompany any eventual API.
 
-The current task adds research records only. No public workflow or recipe
-behavior changes until the candidate is implemented and qualified.
+The investigation keeps the candidate private. Host/plugin and probe-dispatch
+repairs support its evaluation; no public list API or row-lifecycle behavior
+changes until the candidate is implemented and qualified.
 
 ## Measured result: construction falls, publication remains gated
 
@@ -182,16 +183,30 @@ construction, not item-specific subscriptions or data work.
 The existing 11 web/layout/pool and 19 native object-driver tests also passed;
 those native tests exercise the existing implementation, not device recycling.
 
-The iOS simulator host built and installed but failed during vendor-module
-initialization, first on an undefined Windows flag and then on a missing
-`MasonListDelegate` after a probe-only config override. The Android case compiled,
-but its host build failed in NativeScript's Static Binding Generator on missing
-`org.nativescript.mason.masonkit.ListView.Listener`. Neither target executed a
-list assertion. The owned iOS simulator was shut down. These are host blockers,
-not comparative list results; their upstream cause is not established.
+The initial native attempts failed before the case: iOS was missing the host's
+Windows flag and MasonKit metadata, while Android's binding generator could not
+find a MasonKit class. The follow-through repaired the host runtime dependency
+graph and compile-time flag, then added MasonKit's click-listener dispatch to the
+probe. Both native hosts now build and load actual rows. Details and attribution
+are in the [MasonKit integration record](../docs/notes/masonkit-layout-evaluation.md#native-host-integration-correction-2026-10-19).
 
-The research recommendation is supported by source and Chromium construction
-evidence, while publication remains gated. Repair the matching native host/plugin
-setup, repeat the comparative cases, and qualify the remaining lifecycle/input
-and release-performance gates before exporting `RecyclingList`. A successful
-native build alone would not satisfy those gates.
+A repeat Chromium run passes 145 assertions (including aggregate trial
+completion) with the same construction counts: 204 versus 12 row mounts and
+3,060 versus 180 host elements. Readiness p95 remains overlapping (windowed
+19.3/9.5 ms; recycling 14.0/13.8 ms). These are debug/development polling
+measurements, not frame pacing or a consistent latency advantage.
+
+The repaired iOS and Android runs activate row actions and balance mounts and
+effects on disposal in both variants. All four trials per target fail to
+complete forward seeks. Runtime inspection confirms that the mapped MasonKit `Scroll` lacks
+`verticalOffset`, `scrollToVerticalOffset`, and the native
+`setContentOffsetAnimated` alternative used by the current `VirtualList`.
+An initially mounted row can satisfy an early seek without proving that the
+viewport moved. Partial trials are therefore excluded from the performance
+comparison.
+
+The recommendation remains to retain `VirtualList` and investigate a distinct
+`RecyclingList`. Repair the native scroll-host contract, repeat full comparative
+trials, then qualify the remaining lifecycle/input and release-performance gates
+before exporting the candidate. The host repair establishes real startup and
+handler behavior; it does not establish native scrolling or recycling benefits.

@@ -2,7 +2,7 @@
 	"schema": "xplat.recycling-list-investigation.v1",
 	"date": "2026-10-19",
 	"baselineCommit": "e6a98fd6fe3385b7063c936baf4e4f0ec64eeb13",
-	"status": "investigation complete; public API remains conditional on native evidence and lifecycle qualification",
+	"status": "host/plugin and synthesized press integration repaired; native comparisons fail because the scroll host does not implement the list contract",
 	"scope": "Annotation 1: preserve VirtualList and investigate a separate recycling-aware list",
 	"fixture": {
 		"items": 500,
@@ -294,5 +294,750 @@
 		"No long-session heap/native memory, physical gestures, focused-editor, screen-reader, variable-height, changed-type, or A-to-B-to-A async qualification",
 		"Identity-aware state in the probe is private per-row logic; no public recycling hook has been implemented",
 		"No native comparative pass until the host actually executes the case"
-	]
+	],
+	"nativeEvidenceStage": "Historical attempts before host/plugin repairs; see followThrough for current runs",
+	"followThrough": {
+		"scope": "Annotation 1: repair native host/plugin integration and repeat comparisons",
+		"baseCommit": "b0aab8abb",
+		"repairs": [
+			"Declare and fingerprint MasonKit beta.110 as an isolated-host runtime dependency required by Xplat's renderer patch",
+			"Move the mobile app's existing MasonKit pin from devDependencies to dependencies",
+			"Fold __WINDOWS__ false in xplatNative host builds, without the temporary research preload",
+			"Dispatch loaded core tap observers or MasonKit Observable click listeners in the probe; reject missing/unloaded handlers"
+		],
+		"fixtureChanges": [
+			"Read descendant text through platform-specific helpers; native inspect itself reads one host",
+			"Wait for the actual loaded press handler and retain host geometry/scroll-method diagnostics",
+			"Record each failed trial and dispose before trying the next variant; final aggregate assertion still fails the case"
+		],
+		"temporaryProbeSha256": {
+			"research/recycling-list/prepare.py": "1c99a44f40b0b77c897ba3387afaf21b8221f573b9707c41170d0ff9a71a2664",
+			"research/recycling-list/pool.ts": "ea53e87df836ea19e8f42b2a2639efd3bc420f95672de1cada4ac269d2e92a4b",
+			"research/recycling-list/experiment.tsrx": "3ba39041264c4d887a906e0b410b87c92df1e492ee54b6359f216fc494117ae8",
+			"research/recycling-list/hosts.ts": "36b57c46f11dd14b5a6486ba38347b59a3535646585c2c8d4784542c03def428",
+			"research/recycling-list/hosts.web.ts": "9483ab5ed89e8d699381ca38283485ac8db184d99973c12157e71f28da301e10"
+		},
+		"web": {
+			"schema": 1,
+			"runId": "8b195da7-fc0d-4310-bc26-1a4db8bc3b2c",
+			"target": "web",
+			"host": "Chromium",
+			"interaction": "dom-dispatch",
+			"status": "pass",
+			"durationMs": 9202,
+			"measurements": {
+				"windowed-1792450442983-action-host": {
+					"frame": {
+						"x": 8,
+						"y": 44,
+						"width": 320,
+						"height": 18
+					},
+					"scrollPort": {
+						"type": "HTMLDivElement",
+						"verticalOffset": null,
+						"scrollToVerticalOffset": "undefined",
+						"nativeSetContentOffsetAnimated": "undefined"
+					},
+					"ancestorPath": "HTMLDivElement",
+					"allAncestorsLoaded": null
+				},
+				"windowed-1792450442983": {
+					"mode": "windowed",
+					"initial": {
+						"mounts": 12,
+						"unmounts": 5,
+						"hostsAdded": 180,
+						"renders": 22,
+						"activeEffects": 7,
+						"effectStarts": 12,
+						"effectStops": 5,
+						"safeLeaks": 0,
+						"obsoleteRejected": 0,
+						"unsafeReassignments": 0
+					},
+					"afterScroll": {
+						"mounts": 204,
+						"unmounts": 194,
+						"hostsAdded": 3060,
+						"renders": 292,
+						"activeEffects": 10,
+						"effectStarts": 204,
+						"effectStops": 194,
+						"safeLeaks": 0,
+						"obsoleteRejected": 0,
+						"unsafeReassignments": 0
+					},
+					"registeredMax": 10,
+					"seekReadyP50Ms": 8.800000000745058,
+					"seekReadyP95Ms": 19.300000000745058,
+					"durationMs": 1551.5999999977648,
+					"samples": [
+						15, 14.699999999254942, 8, 9.199999999254942, 8.899999998509884, 11.100000001490116,
+						8.600000001490116, 8.099999997764826, 7.899999998509884, 8.399999998509884,
+						8.399999998509884, 8.200000002980232, 8.699999999254942, 8.399999998509884,
+						20.400000002235174, 10.899999998509884, 8, 8.800000000745058, 13, 19.300000000745058,
+						7.800000000745058, 9.599999997764826, 9.399999998509884, 8.399999998509884
+					]
+				},
+				"windowed-1792450442983-prepend-drift": 0,
+				"windowed-1792450442983-cleanup": {
+					"mounts": 217,
+					"unmounts": 217,
+					"hostsAdded": 3255,
+					"renders": 332,
+					"activeEffects": 0,
+					"effectStarts": 217,
+					"effectStops": 217,
+					"safeLeaks": 0,
+					"obsoleteRejected": 1,
+					"unsafeReassignments": 0
+				},
+				"recycling-1792450445273-action-host": {
+					"frame": {
+						"x": 8,
+						"y": 44,
+						"width": 320,
+						"height": 18
+					},
+					"scrollPort": {
+						"type": "HTMLDivElement",
+						"verticalOffset": null,
+						"scrollToVerticalOffset": "undefined",
+						"nativeSetContentOffsetAnimated": "undefined"
+					},
+					"ancestorPath": "HTMLDivElement",
+					"allAncestorsLoaded": null
+				},
+				"recycling-1792450445273": {
+					"mode": "recycling",
+					"initial": {
+						"mounts": 12,
+						"unmounts": 0,
+						"hostsAdded": 180,
+						"renders": 27,
+						"activeEffects": 7,
+						"effectStarts": 12,
+						"effectStops": 5,
+						"safeLeaks": 0,
+						"obsoleteRejected": 0,
+						"unsafeReassignments": 0
+					},
+					"afterScroll": {
+						"mounts": 12,
+						"unmounts": 0,
+						"hostsAdded": 180,
+						"renders": 351,
+						"activeEffects": 10,
+						"effectStarts": 204,
+						"effectStops": 194,
+						"safeLeaks": 0,
+						"obsoleteRejected": 0,
+						"unsafeReassignments": 192
+					},
+					"registeredMax": 11,
+					"seekReadyP50Ms": 7.900000002235174,
+					"seekReadyP95Ms": 14,
+					"durationMs": 1531.1000000014901,
+					"samples": [
+						8.399999998509884, 8, 7.600000001490116, 19.200000002980232, 7.400000002235174, 7.5,
+						7.799999997019768, 13.900000002235174, 8.400000002235174, 7.900000002235174,
+						7.699999999254942, 7.199999999254942, 7.800000000745058, 13.899999998509884,
+						8.199999999254942, 7.599999997764826, 7.399999998509884, 7.5, 7.899999998509884,
+						13.099999997764826, 8.199999999254942, 7.400000002235174, 14, 10.5
+					]
+				},
+				"recycling-1792450445273-prepend-drift": 0,
+				"recycling-1792450445273-cleanup": {
+					"mounts": 25,
+					"unmounts": 25,
+					"hostsAdded": 375,
+					"renders": 401,
+					"activeEffects": 0,
+					"effectStarts": 217,
+					"effectStops": 217,
+					"safeLeaks": 0,
+					"obsoleteRejected": 1,
+					"unsafeReassignments": 192
+				},
+				"recycling-1792450447540-action-host": {
+					"frame": {
+						"x": 8,
+						"y": 44,
+						"width": 320,
+						"height": 18
+					},
+					"scrollPort": {
+						"type": "HTMLDivElement",
+						"verticalOffset": null,
+						"scrollToVerticalOffset": "undefined",
+						"nativeSetContentOffsetAnimated": "undefined"
+					},
+					"ancestorPath": "HTMLDivElement",
+					"allAncestorsLoaded": null
+				},
+				"recycling-1792450447540": {
+					"mode": "recycling",
+					"initial": {
+						"mounts": 12,
+						"unmounts": 0,
+						"hostsAdded": 180,
+						"renders": 27,
+						"activeEffects": 7,
+						"effectStarts": 12,
+						"effectStops": 5,
+						"safeLeaks": 0,
+						"obsoleteRejected": 0,
+						"unsafeReassignments": 0
+					},
+					"afterScroll": {
+						"mounts": 12,
+						"unmounts": 0,
+						"hostsAdded": 180,
+						"renders": 351,
+						"activeEffects": 10,
+						"effectStarts": 204,
+						"effectStops": 194,
+						"safeLeaks": 0,
+						"obsoleteRejected": 0,
+						"unsafeReassignments": 192
+					},
+					"registeredMax": 11,
+					"seekReadyP50Ms": 7.700000002980232,
+					"seekReadyP95Ms": 13.800000000745058,
+					"durationMs": 1528,
+					"samples": [
+						7.5, 8, 7.699999999254942, 19, 7.600000001490116, 13.799999997019768, 8, 7.5,
+						7.400000002235174, 8, 7.5, 13.800000000745058, 8.699999999254942, 7.700000002980232,
+						8.199999999254942, 7.300000000745058, 7.699999999254942, 7.199999999254942,
+						7.600000001490116, 13.700000002980232, 7.599999997764826, 8, 7.600000001490116,
+						7.800000000745058
+					]
+				},
+				"recycling-1792450447540-prepend-drift": 0,
+				"recycling-1792450447540-cleanup": {
+					"mounts": 25,
+					"unmounts": 25,
+					"hostsAdded": 375,
+					"renders": 401,
+					"activeEffects": 0,
+					"effectStarts": 217,
+					"effectStops": 217,
+					"safeLeaks": 0,
+					"obsoleteRejected": 1,
+					"unsafeReassignments": 192
+				},
+				"windowed-1792450449800-action-host": {
+					"frame": {
+						"x": 8,
+						"y": 44,
+						"width": 320,
+						"height": 18
+					},
+					"scrollPort": {
+						"type": "HTMLDivElement",
+						"verticalOffset": null,
+						"scrollToVerticalOffset": "undefined",
+						"nativeSetContentOffsetAnimated": "undefined"
+					},
+					"ancestorPath": "HTMLDivElement",
+					"allAncestorsLoaded": null
+				},
+				"windowed-1792450449800": {
+					"mode": "windowed",
+					"initial": {
+						"mounts": 12,
+						"unmounts": 5,
+						"hostsAdded": 180,
+						"renders": 22,
+						"activeEffects": 7,
+						"effectStarts": 12,
+						"effectStops": 5,
+						"safeLeaks": 0,
+						"obsoleteRejected": 0,
+						"unsafeReassignments": 0
+					},
+					"afterScroll": {
+						"mounts": 204,
+						"unmounts": 194,
+						"hostsAdded": 3060,
+						"renders": 292,
+						"activeEffects": 10,
+						"effectStarts": 204,
+						"effectStops": 194,
+						"safeLeaks": 0,
+						"obsoleteRejected": 0,
+						"unsafeReassignments": 0
+					},
+					"registeredMax": 10,
+					"seekReadyP50Ms": 8.200000002980232,
+					"seekReadyP95Ms": 9.5,
+					"durationMs": 1501.3999999985099,
+					"samples": [
+						9.399999998509884, 8.600000001490116, 7.199999999254942, 14.5, 8.199999999254942,
+						9.199999999254942, 8.099999997764826, 8.599999997764826, 7.800000000745058,
+						7.599999997764826, 8.799999997019768, 7.699999999254942, 8.200000002980232,
+						8.199999999254942, 9.5, 7.5, 9.399999998509884, 8.800000000745058, 8.100000001490116,
+						7.699999999254942, 8.199999999254942, 8.5, 7.300000000745058, 9
+					]
+				},
+				"windowed-1792450449800-prepend-drift": 0,
+				"windowed-1792450449800-cleanup": {
+					"mounts": 217,
+					"unmounts": 217,
+					"hostsAdded": 3255,
+					"renders": 332,
+					"activeEffects": 0,
+					"effectStarts": 217,
+					"effectStops": 217,
+					"safeLeaks": 0,
+					"obsoleteRejected": 1,
+					"unsafeReassignments": 0
+				}
+			},
+			"assertions": {
+				"total": 145,
+				"passed": 145,
+				"failures": []
+			},
+			"errors": []
+		},
+		"ios": {
+			"schema": 1,
+			"runId": "a4f34331-dd1d-4c63-97cd-c03cb4c511ef",
+			"target": "ios",
+			"host": "NativeScript",
+			"interaction": "event-handler-dispatch",
+			"status": "fail",
+			"durationMs": 22153,
+			"measurements": {
+				"windowed-1792450661597-action-host": {
+					"clickListener": true,
+					"frame": {
+						"x": 352,
+						"y": 586,
+						"width": 320,
+						"height": 20.5
+					},
+					"scrollPort": {
+						"type": "Scroll",
+						"verticalOffset": null,
+						"scrollToVerticalOffset": "undefined",
+						"nativeSetContentOffsetAnimated": "undefined"
+					},
+					"ancestorPath": "View / View / View / View / View / View / Scroll / Page / Frame",
+					"allAncestorsLoaded": true
+				},
+				"windowed-1792450661597-trial-failure": {
+					"mode": "windowed",
+					"message": "Probe waitFor timed out",
+					"counts": {
+						"mounts": 13,
+						"unmounts": 0,
+						"hostsAdded": 195,
+						"renders": 14,
+						"activeEffects": 13,
+						"effectStarts": 13,
+						"effectStops": 0,
+						"safeLeaks": 0,
+						"obsoleteRejected": 0,
+						"unsafeReassignments": 0
+					},
+					"seekSamples": [0.05999999848427251]
+				},
+				"windowed-1792450661597-failure-cleanup": {
+					"mounts": 13,
+					"unmounts": 13,
+					"hostsAdded": 195,
+					"renders": 14,
+					"activeEffects": 0,
+					"effectStarts": 13,
+					"effectStops": 13,
+					"safeLeaks": 0,
+					"obsoleteRejected": 0,
+					"unsafeReassignments": 0
+				},
+				"recycling-1792450667079-action-host": {
+					"clickListener": true,
+					"frame": {
+						"x": 352,
+						"y": 586,
+						"width": 320,
+						"height": 20.5
+					},
+					"scrollPort": {
+						"type": "Scroll",
+						"verticalOffset": null,
+						"scrollToVerticalOffset": "undefined",
+						"nativeSetContentOffsetAnimated": "undefined"
+					},
+					"ancestorPath": "View / View / View / View / View / View / Scroll / Page / Frame",
+					"allAncestorsLoaded": true
+				},
+				"recycling-1792450667079-trial-failure": {
+					"mode": "recycling",
+					"message": "Probe waitFor timed out",
+					"counts": {
+						"mounts": 13,
+						"unmounts": 0,
+						"hostsAdded": 195,
+						"renders": 14,
+						"activeEffects": 13,
+						"effectStarts": 13,
+						"effectStops": 0,
+						"safeLeaks": 0,
+						"obsoleteRejected": 0,
+						"unsafeReassignments": 0
+					},
+					"seekSamples": [0.22000000171829015]
+				},
+				"recycling-1792450667079-failure-cleanup": {
+					"mounts": 13,
+					"unmounts": 13,
+					"hostsAdded": 195,
+					"renders": 14,
+					"activeEffects": 0,
+					"effectStarts": 13,
+					"effectStops": 13,
+					"safeLeaks": 0,
+					"obsoleteRejected": 0,
+					"unsafeReassignments": 0
+				},
+				"recycling-1792450672565-action-host": {
+					"clickListener": true,
+					"frame": {
+						"x": 352,
+						"y": 586,
+						"width": 320,
+						"height": 20.5
+					},
+					"scrollPort": {
+						"type": "Scroll",
+						"verticalOffset": null,
+						"scrollToVerticalOffset": "undefined",
+						"nativeSetContentOffsetAnimated": "undefined"
+					},
+					"ancestorPath": "View / View / View / View / View / View / Scroll / Page / Frame",
+					"allAncestorsLoaded": true
+				},
+				"recycling-1792450672565-trial-failure": {
+					"mode": "recycling",
+					"message": "Probe waitFor timed out",
+					"counts": {
+						"mounts": 13,
+						"unmounts": 0,
+						"hostsAdded": 195,
+						"renders": 14,
+						"activeEffects": 13,
+						"effectStarts": 13,
+						"effectStops": 0,
+						"safeLeaks": 0,
+						"obsoleteRejected": 0,
+						"unsafeReassignments": 0
+					},
+					"seekSamples": [0.03300000025774352]
+				},
+				"recycling-1792450672565-failure-cleanup": {
+					"mounts": 13,
+					"unmounts": 13,
+					"hostsAdded": 195,
+					"renders": 14,
+					"activeEffects": 0,
+					"effectStarts": 13,
+					"effectStops": 13,
+					"safeLeaks": 0,
+					"obsoleteRejected": 0,
+					"unsafeReassignments": 0
+				},
+				"windowed-1792450678074-action-host": {
+					"clickListener": true,
+					"frame": {
+						"x": 352,
+						"y": 586,
+						"width": 320,
+						"height": 20.5
+					},
+					"scrollPort": {
+						"type": "Scroll",
+						"verticalOffset": null,
+						"scrollToVerticalOffset": "undefined",
+						"nativeSetContentOffsetAnimated": "undefined"
+					},
+					"ancestorPath": "View / View / View / View / View / View / Scroll / Page / Frame",
+					"allAncestorsLoaded": true
+				},
+				"windowed-1792450678074-trial-failure": {
+					"mode": "windowed",
+					"message": "Probe waitFor timed out",
+					"counts": {
+						"mounts": 13,
+						"unmounts": 0,
+						"hostsAdded": 195,
+						"renders": 14,
+						"activeEffects": 13,
+						"effectStarts": 13,
+						"effectStops": 0,
+						"safeLeaks": 0,
+						"obsoleteRejected": 0,
+						"unsafeReassignments": 0
+					},
+					"seekSamples": [0.012000000424450263]
+				},
+				"windowed-1792450678074-failure-cleanup": {
+					"mounts": 13,
+					"unmounts": 13,
+					"hostsAdded": 195,
+					"renders": 14,
+					"activeEffects": 0,
+					"effectStarts": 13,
+					"effectStops": 13,
+					"safeLeaks": 0,
+					"obsoleteRejected": 0,
+					"unsafeReassignments": 0
+				}
+			},
+			"assertions": {
+				"total": 17,
+				"passed": 16,
+				"failures": [
+					{
+						"name": "all four comparison trials complete",
+						"pass": false,
+						"actual": 4,
+						"expected": 0
+					}
+				]
+			},
+			"errors": [
+				{
+					"message": "Assertion failed: all four comparison trials complete"
+				}
+			]
+		},
+		"android": {
+			"schema": 1,
+			"runId": "16d61cdc-ee77-4935-b296-0946ffa48d97",
+			"target": "android",
+			"host": "NativeScript",
+			"interaction": "event-handler-dispatch",
+			"status": "fail",
+			"durationMs": 24164,
+			"measurements": {
+				"windowed-1792450508913-action-host": {
+					"clickListener": true,
+					"frame": {
+						"x": 0,
+						"y": 72,
+						"width": 320,
+						"height": 16.615384615384617
+					},
+					"scrollPort": {
+						"type": "Scroll",
+						"verticalOffset": null,
+						"scrollToVerticalOffset": "undefined",
+						"nativeSetContentOffsetAnimated": "undefined"
+					},
+					"ancestorPath": "View / View / View / View / View / View / Scroll / Page / Frame",
+					"allAncestorsLoaded": true
+				},
+				"windowed-1792450508913-trial-failure": {
+					"mode": "windowed",
+					"message": "Probe waitFor timed out",
+					"counts": {
+						"mounts": 31,
+						"unmounts": 15,
+						"hostsAdded": 465,
+						"renders": 32,
+						"activeEffects": 16,
+						"effectStarts": 31,
+						"effectStops": 15,
+						"safeLeaks": 0,
+						"obsoleteRejected": 0,
+						"unsafeReassignments": 0
+					},
+					"seekSamples": [0.09600003249943256]
+				},
+				"windowed-1792450508913-failure-cleanup": {
+					"mounts": 31,
+					"unmounts": 31,
+					"hostsAdded": 465,
+					"renders": 32,
+					"activeEffects": 0,
+					"effectStarts": 31,
+					"effectStops": 31,
+					"safeLeaks": 0,
+					"obsoleteRejected": 0,
+					"unsafeReassignments": 0
+				},
+				"recycling-1792450514847-action-host": {
+					"clickListener": true,
+					"frame": {
+						"x": 0,
+						"y": 72,
+						"width": 320,
+						"height": 16.615384615384617
+					},
+					"scrollPort": {
+						"type": "Scroll",
+						"verticalOffset": null,
+						"scrollToVerticalOffset": "undefined",
+						"nativeSetContentOffsetAnimated": "undefined"
+					},
+					"ancestorPath": "View / View / View / View / View / View / Scroll / Page / Frame",
+					"allAncestorsLoaded": true
+				},
+				"recycling-1792450514847-trial-failure": {
+					"mode": "recycling",
+					"message": "Probe waitFor timed out",
+					"counts": {
+						"mounts": 31,
+						"unmounts": 7,
+						"hostsAdded": 465,
+						"renders": 41,
+						"activeEffects": 16,
+						"effectStarts": 31,
+						"effectStops": 15,
+						"safeLeaks": 0,
+						"obsoleteRejected": 0,
+						"unsafeReassignments": 0
+					},
+					"seekSamples": [0.8980000275187194]
+				},
+				"recycling-1792450514847-failure-cleanup": {
+					"mounts": 31,
+					"unmounts": 31,
+					"hostsAdded": 465,
+					"renders": 41,
+					"activeEffects": 0,
+					"effectStarts": 31,
+					"effectStops": 31,
+					"safeLeaks": 0,
+					"obsoleteRejected": 0,
+					"unsafeReassignments": 0
+				},
+				"recycling-1792450520868-action-host": {
+					"clickListener": true,
+					"frame": {
+						"x": 0,
+						"y": 72,
+						"width": 320,
+						"height": 16.615384615384617
+					},
+					"scrollPort": {
+						"type": "Scroll",
+						"verticalOffset": null,
+						"scrollToVerticalOffset": "undefined",
+						"nativeSetContentOffsetAnimated": "undefined"
+					},
+					"ancestorPath": "View / View / View / View / View / View / Scroll / Page / Frame",
+					"allAncestorsLoaded": true
+				},
+				"recycling-1792450520868-trial-failure": {
+					"mode": "recycling",
+					"message": "Probe waitFor timed out",
+					"counts": {
+						"mounts": 31,
+						"unmounts": 7,
+						"hostsAdded": 465,
+						"renders": 41,
+						"activeEffects": 16,
+						"effectStarts": 31,
+						"effectStops": 15,
+						"safeLeaks": 0,
+						"obsoleteRejected": 0,
+						"unsafeReassignments": 0
+					},
+					"seekSamples": [0.06000004941597581]
+				},
+				"recycling-1792450520868-failure-cleanup": {
+					"mounts": 31,
+					"unmounts": 31,
+					"hostsAdded": 465,
+					"renders": 41,
+					"activeEffects": 0,
+					"effectStarts": 31,
+					"effectStops": 31,
+					"safeLeaks": 0,
+					"obsoleteRejected": 0,
+					"unsafeReassignments": 0
+				},
+				"windowed-1792450526889-action-host": {
+					"clickListener": true,
+					"frame": {
+						"x": 0,
+						"y": 72,
+						"width": 320,
+						"height": 16.615384615384617
+					},
+					"scrollPort": {
+						"type": "Scroll",
+						"verticalOffset": null,
+						"scrollToVerticalOffset": "undefined",
+						"nativeSetContentOffsetAnimated": "undefined"
+					},
+					"ancestorPath": "View / View / View / View / View / View / Scroll / Page / Frame",
+					"allAncestorsLoaded": true
+				},
+				"windowed-1792450526889-trial-failure": {
+					"mode": "windowed",
+					"message": "Probe waitFor timed out",
+					"counts": {
+						"mounts": 31,
+						"unmounts": 15,
+						"hostsAdded": 465,
+						"renders": 32,
+						"activeEffects": 16,
+						"effectStarts": 31,
+						"effectStops": 15,
+						"safeLeaks": 0,
+						"obsoleteRejected": 0,
+						"unsafeReassignments": 0
+					},
+					"seekSamples": [0.07599999662488699]
+				},
+				"windowed-1792450526889-failure-cleanup": {
+					"mounts": 31,
+					"unmounts": 31,
+					"hostsAdded": 465,
+					"renders": 32,
+					"activeEffects": 0,
+					"effectStarts": 31,
+					"effectStops": 31,
+					"safeLeaks": 0,
+					"obsoleteRejected": 0,
+					"unsafeReassignments": 0
+				}
+			},
+			"assertions": {
+				"total": 17,
+				"passed": 16,
+				"failures": [
+					{
+						"name": "all four comparison trials complete",
+						"pass": false,
+						"actual": 4,
+						"expected": 0
+					}
+				]
+			},
+			"errors": [
+				{
+					"message": "Assertion failed: all four comparison trials complete"
+				}
+			]
+		},
+		"conclusion": "Both native hosts execute real row actions. Both list variants fail forward seek completion with the mapped MasonKit Scroll missing verticalOffset, scrollToVerticalOffset and the native setContentOffsetAnimated alternative. Initially mounted rows are not evidence of movement. Partial trials are not performance benchmarks; no native recycling benefit has been established.",
+		"verification": {
+			"hostAndPressRegressionTests": {
+				"passed": 5,
+				"command": "node --test scripts/probe-press.test.mjs scripts/probe/project.test.mjs"
+			},
+			"cliBuild": "passed",
+			"cliOwnTypecheck": "passed",
+			"cliAndDependentsTypecheck": "blocked by existing UI declaration generation: Drawer constructors have distinct NativeScript Core ViewBase private _onLoadedCalled declarations",
+			"recipeStructureAndLinks": "passed; same ctx.press API and maintained counter example; no recipe criteria changed",
+			"imagesOrOsInput": "not used",
+			"ownedSimulatorAfterRun": "Shutdown"
+		}
+	}
 }

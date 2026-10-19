@@ -131,7 +131,7 @@ setInterval(async () => {
 					schema: 1,
 					...control,
 					host: 'NativeScript',
-					interaction: 'gesture-observer-dispatch',
+					interaction: 'event-handler-dispatch',
 					status: 'fail',
 					assertions: [],
 					measurements: {},

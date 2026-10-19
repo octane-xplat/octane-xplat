@@ -236,9 +236,45 @@ intrinsic contributor was removed from the engine tree.
 - `scripts/probe/native-case.config.mjs`: `__WINDOWS__: false` define —
   masonkit guards on it.
 - `apps/mobile/package.json`: `@triniwiz/nativescript-masonkit@1.0.0-beta.110`
-  devDependency (chosen over beta.118: ≥7-day publish-age rule).
+  runtime dependency (originally a devDependency; corrected during the
+  recycling comparison below). beta.110 was chosen over beta.118 under the
+  ≥7-day publish-age rule.
 - `packages/cli/patches/@nativescript-community__octane@0.2.5.patch`:
   container capability hunk (see above).
+
+## Native host integration correction (2026-10-19)
+
+The local `@nativescript-community/octane@0.2.5` patch imports MasonKit from
+`elements.js` and `driver.js` for container layout. This is Xplat's patched
+behavior, not an undeclared import in the published upstream renderer. Native
+hosts must declare MasonKit as a runtime dependency so NativeScript includes its
+binaries and metadata; resolving its JavaScript from a devDependency is
+insufficient. The mobile app and isolated probe host now declare beta.110 in
+`dependencies`, and the probe fingerprints the plugin's native artifacts.
+
+MasonKit beta.110 also reads `__WINDOWS__`. The standalone case config already
+folded this flag, but the separately built host did not. `xplatNative()` now
+sets it to `false` for iOS/Android host bundles. This supplies a compile-time
+target flag; it does not mock a native protocol or class. Keep this integration
+contract when upgrading the renderer patch or MasonKit.
+
+MasonKit beta.110 aliases `tap` to a native `click` event and registers the
+callback with core's Observable as `click`; it does not populate
+`getGestureObservers(1)`. The isolated probe now dispatches either core tap
+observers or that registered click listener, while rejecting unloaded and
+handler-free views. This is handler evidence, not native hit-testing.
+
+The follow-through executed four ABBA trials on an iPad Air M4 simulator and
+CPH2551 Android device. Both targets passed 16 row-action/content/disposal
+assertions and failed the aggregate completion assertion: every trial stalled
+on the second forward seek. Runtime inspection showed MasonKit `Scroll` without
+`verticalOffset`, `scrollToVerticalOffset`, or native
+`setContentOffsetAnimated`. These are the methods `VirtualList` currently
+expects; Xplat's `scrollview` remapping did not supply an equivalent port.
+The first seek only found an already mounted row, so it does not prove movement.
+Both variants need a compatible scroll-host contract before native recycling
+benefits can be measured. See the [versioned evidence](../evidence/recycling-list-2026-10-19.json).
+This finding does not qualify gestures, screen readers, or release performance.
 
 ## Native macOS bridge (verified — lab-experiment)
 
