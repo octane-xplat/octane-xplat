@@ -93,6 +93,9 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24
+          # No pnpm in this job — disable v5's auto package-manager cache,
+          # which would otherwise invoke pnpm for the detected lockfile.
+          package-manager-cache: false
       - name: Check recipe structure and documentation links
         run: node scripts/check-recipes.ts
 
@@ -107,6 +110,9 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24
+          # No pnpm in this job — disable v5's auto package-manager cache,
+          # which would otherwise invoke pnpm for the detected lockfile.
+          package-manager-cache: false
       - name: Record nightly evidence
         env:
           JOB_RESULTS: ${{ toJSON(needs) }}

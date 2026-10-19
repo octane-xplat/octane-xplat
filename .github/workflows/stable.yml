@@ -33,6 +33,9 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24
+          # No pnpm in this job — disable v5's auto package-manager cache,
+          # which would otherwise invoke pnpm for the detected lockfile.
+          package-manager-cache: false
       - name: Verify nightly readiness
         id: evidence
         env:
@@ -193,6 +196,9 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24
+          # No pnpm in this job — disable v5's auto package-manager cache,
+          # which would otherwise invoke pnpm for the detected lockfile.
+          package-manager-cache: false
       - name: Record stable qualification
         env:
           JOB_RESULTS: ${{ toJSON(needs) }}
