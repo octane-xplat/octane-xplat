@@ -47,10 +47,12 @@ jobs:
 
       # check:decisions is deliberately absent — it mirrors the ledger against
       # the git-scoped Silo DB, which lives on dev machines, not in the checkout.
-      # cli's package exports point at dist/ — the suffix-resolution probe
-      # executes the real apps/web vite config, which imports cli/vite.
-      - name: Build cli for repo-check probes
-        run: pnpm --filter @octane-xplat/cli build
+      # Package exports point at dist/ — repo-check probes execute the real
+      # app vite configs and every `xplat` bin call loads the dist closure.
+      # This is the same task as "Prepare packages" below; the second run is
+      # a turbo cache hit.
+      - name: Prepare packages for repo checks
+        run: pnpm build:packages
 
       - name: Repo checks
         run: >-
