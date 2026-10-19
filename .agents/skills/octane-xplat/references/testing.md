@@ -1,148 +1,98 @@
-# Testing the harness
+# Choose checks for the behavior changed
 
-For repository investigation, use [single-case probing](../../../../docs/verify/probing.md): `pnpm probe doctor`
-and `pnpm probe run examples/probes/counter.tsrx --target web --watch`.
+## Consumer apps
+
+The starter includes managed tests for enabled platforms. Run web tests locally;
+phone tests require a selected simulator/device and the native toolchain. Follow
+[app testing](../../../../docs/verify/testing.md#add-automated-tests) when adapting
+the samples or adding a target.
+
+```sh
+pnpm test:web
+pnpm test:ios -- --device DEVICE_UDID
+pnpm test:android -- --device DEVICE_SERIAL
+```
+
+Give meaningful controls and asserted state stable semantic `testID` values.
+Use durable item keys, preserve useful spoken labels/roles, and verify forwarding
+through composite components. Supported hosts and mappings are listed in the
+[test identifiers guide](../../../../docs/verify/test-identifiers.md); a prop in
+an inherited interface alone does not prove target support.
+
+```tsx
+import { Button } from '@octane-xplat/ui'
+
+export function AddItem() {
+	return <Button testID="packing.add-item" label="Add item" accessibilityLabel="Add item" />
+}
+```
+
+## Framework investigations
+
+Use an isolated probe for a single case. Research probes are temporary;
+promote behavior that must remain correct into maintained tests. The runner
+supports web, iOS, Android, macOS, and Linux, not Windows. Read
+[probing](../../../../docs/verify/probing.md) for target-specific prerequisites.
 
 ```sh
 pnpm probe doctor
 pnpm probe run examples/probes/counter.tsrx --target web --watch
 ```
 
-Keep harness edits and catalog sweeps for broader regression coverage.
+Choose the narrowest maintained layer that can establish the claim:
 
-## Layers
+| Layer                    | Repository command                                           | Evidence boundary                                                        |
+| ------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------------------ |
+| Package types            | `pnpm exec turbo run typecheck --filter=...@octane-xplat/ui` | Types for the touched package and dependents; no runtime claim           |
+| Shared/native unit tests | `pnpm --filter @octane-xplat/ui test:native`                 | Node and compiled object-driver regressions; no OS host/input claim      |
+| DOM seam check           | `pnpm check:no-dom`                                          | Forbidden DOM usage in native/shared code                                |
+| Web harness smoke        | `pnpm smoke:web`                                             | Browser behavior covered by the local smoke script                       |
+| Packed starter           | `pnpm check:consumer --no-build --quick`                     | Prepared tarballs, isolated install, declarations, and compilation       |
+| Optional adapters        | `pnpm check:optional-services --types-only`                  | Adapter types; the full command additionally needs browser prerequisites |
+| Native probe/device test | Probe runner or maintained `ns test` suite                   | Only the assertions and target actually executed                         |
 
-| Layer               | Command                                                | What it proves                                                                                                                                                          |
-| ------------------- | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Typecheck           | `tsrx-tsc --noEmit -p apps/{web,mobile}/tsconfig.json` | .tsrx typechecks per target                                                                                                                                             |
-| Unit                | `pnpm test`                                            | vitest — web config (`*.test.*` + `*.web.test.*`, DOM renderer via jsdom) then `packages/ui` `test:native` (`*.mobile.test.*`, universal runtime via the object driver) |
-| Seam lint           | `node scripts/check-no-dom.ts`                        | no DOM globals in native/shared                                                                                                                                         |
-| Web smoke           | `cd apps/web && pnpm smoke`                            | build + Playwright Chromium smoke, 67 assertions including the bundled SQLite worker/WASM round-trip; CI also runs the built bundle in Firefox and WebKit               |
-| Optional services   | `pnpm check:optional-services`                         | Web/mobile adapter types, service regressions, and a nonvisual Chromium integration probe; CI runs this gate                                                            |
-| Packed web consumer | `pnpm check:consumer --no-build --smoke web`           | scaffolds and builds against packed artifacts; CI runs the starter smoke in Chromium, Firefox, and WebKit                                                               |
-| iOS                 | build + install + launch → read sim log                | Check the named `[assert]` results emitted by the current harness sweep                                                                                                 |
-| Android             | build + install + launch → logcat `I JS`               | Base probes; the nested-Frame sweep is gated                                                                                                                            |
+PR `checks` excludes browser engines, browser-driven suites, and device
+emulation. Do not infer their success from green CI. See
+[release validation](../../../docs/releases.md) for nightly/stable coverage and
+[contributor testing](../../../docs/testing.md) for fixture ownership and commands.
 
-## The probe harness (`apps/mobile/src/index.ts`)
+## Input, lifecycle, and runtime evidence
 
-Timer-scheduled probes fire synthesized gestures/notifications at views:
+Calling registered gesture observers or `view.notify` establishes handler
+behavior; it does not establish coordinate hit-testing or OS input. Assert
+rendered content and state rather than render counts. Await the relevant
+mount/navigation/attach condition; do not mask lifecycle races with larger fixed
+delays. A stale detached view can still accept a synthetic notification.
 
-- `fireGesture(view, type, name, args)` — calls registered gesture
-  observers directly (tap=1, pan=8, swipe=16...). NOT coordinate taps —
-  it exercises the observer path, not hit-testing.
-- `view.notify({eventName:'selectedIndexChanged',...})` for property
-  events (tab switch, switch toggle, `textChange` on inputs).
-- `find(id)` → `thePage.getViewById(id)`; `collect`/`texts` walk view trees.
-- Content asserts: `[assert] name: OK|FAIL` — the pass count is the signal.
-
-```ts
-// In apps/mobile/src/index.ts: fireGesture is the local probe helper above.
-import type { Page, View } from '@nativescript/core'
-
-function probeTap(page: Page) {
-	const target = page.getViewById<View>('add-item')
-	if (target) fireGesture(target, 1, 'tap', {})
-}
-```
-
-```ts
-// Property-event dispatch on an already mounted native input.
-import type { TextField } from '@nativescript/core'
-
-function probeTextChange(input: TextField) {
-	input.text = 'Carry-on'
-	input.notify({ eventName: 'textChange', object: input })
-}
-```
-
-**Probes race lifecycle constantly** — the failure mode is always "view
-exists but native attach/settle hasn't landed". Fixes are polling, not
-bigger timeouts (see the demosweep's `waitFor`).
-
-## The demos sweep (`platform/demosweep.ts`)
-
-Drives the app and proof catalogs: switches to Apps or Test, opens each
-entry in its stack, checks rendered content, then goes back. The sweep also
-covers a sheet-hosted demo, overlay/popover/toast behavior, controls, and
-other primitive seams. The nested-Frame sweep remains gated off Android
-because it asserts native `Page`/`Frame` objects — named pushes themselves
-work through the swap-pane route store and a focused VirtualList probe
-runs there instead; the web twin is a no-op.
-
-## Web smoke (`apps/web/scripts/smoke.ts`)
-
-`pnpm smoke` = `vite build && node scripts/smoke.mjs` — serves dist via
-`vite preview` and drives headless Chromium. The current script has 66
-assertions covering mount/state, Pressable role/name and pointer/keyboard
-activation, motion retargeting and cancellation, pan
-release velocity and cancellation, retained Presence identity, routes and
-tabs, sheet and overlay portals, services, proof-stack navigation, and browser
-errors. It also loads the shipped Lottie Web leaf into SVG and waits for
-playback completion. The sheet check asserts the real panel mounts and the backdrop
-dismisses it.
-
-**Selectors:** `Pressable` renders `div[role="button"]` — use
-`[role="button"]:has-text("X")`, not `button`.
+Use role/name locators for browser controls and qualified IDs for repeated
+journeys. A semantic button is not necessarily a DOM `<button>`.
 
 ```js
-// In a Playwright test with an established page fixture.
+// Playwright test with an established page fixture.
 await page.getByRole('button', { name: 'Add', exact: true }).click()
 ```
 
-## Release-build verification
+Launching a process without fatal logs is a startup check, not release feature
+verification. Release checks must assert the behavior being claimed using
+observable state/results; debug log disappearance alone is inconclusive.
+Report source/build, object-driver, browser, and device evidence separately,
+including target and any unavailable checks. Do not claim pixel parity or OS
+accessibility from handler dispatch or typechecking.
 
-Debug-only signals vanish in release (console.log doesn't reach NSLog on
-release iOS). Release verification = process alive + zero fatal exceptions
-in the platform log. The one release-only bug we caught:
-`RootLayout.open()` unhandled rejection — see overlays.md.
+## End-to-end journeys
 
-## Universal-renderer unit tests (`vitest.native.config.mts`)
-
-`packages/ui/src/*.mobile.test.*` run the REAL compiled leaves against
-octane's host-neutral object driver (`createUniversalRoot` +
-`createObjectDriver` from `octane/universal/native`) — no
-`@nativescript/core`, no sim. The config compiles under the nativescript
-renderer + aliases `octane` AND `@nativescript-community/octane` to
-`octane/universal/native` (the driver index isn't node-loadable). Uses the
-raw `octane` plugin from `octane/compiler/vite` with `ssr: false` — vitest
-transforms through the SSR pipeline and the renderer is
-`server:'unsupported'`; the app-level plugin wrapper doesn't forward `ssr`.
-Scheduler/retention semantics get pinned there (see `store.mobile.test.ts`).
-
-```ts
-import {
-	createObjectContainer,
-	createObjectDriver,
-	createUniversalRoot,
-} from 'octane/universal/native'
-
-const container = createObjectContainer()
-const root = createUniversalRoot(container, createObjectDriver())
-// Render a compiled component through root.render(Component, props) in a test.
-root.unmount()
-```
-
-## Adding a probe
-
-1. Give the target view an `id` (probe lookup works by id).
-2. Fire the gesture/notify at the view — never assume coordinates.
-3. Assert on **view-tree content** (`texts(page)`), not render calls —
-   lifecycle ≠ content (the empty-Cell lesson).
-4. Poll for async lifecycle (navigatedTo, attach) — fixed timers flake.
-
-## Maestro mobile journeys
-
-Recommend [Maestro](../../../../docs/verify/maestro.md) for Android/iOS
-end-to-end tests; no NativeScript plugin is needed. Follow the
-[agent testing guidance](../../../docs/testing.md#mobile-end-to-end-tests-with-maestro)
-for device ownership, selectors, waits, artifact privacy, and evidence reporting.
-Use unique visible text until native ID mappings are qualified on both targets.
+Follow the [Maestro guide](../../../../docs/verify/maestro.md) and its current
+qualification limits for iOS/Android journeys. The managed fixture avoids the
+self-driving harness timers. Choose a device explicitly and follow the
+[device ownership guidance](../../../docs/testing.md#mobile-end-to-end-tests-with-maestro).
 
 ```sh
-pnpm test:maestro --target ios --device DEVICE_ID
-pnpm test:maestro --target android --device DEVICE_ID
+pnpm test:maestro --target ios --device DEVICE_UDID
+pnpm test:maestro --target android --device DEVICE_SERIAL
 ```
 
-The isolated fixture avoids the mobile harness's self-driving timers. Its
-counter flow is maintained, but Android/iOS Maestro runtime qualification
-is still pending; do not infer a pass from object-driver tests.
+For agent-driven browser/device interaction, use the optional
+[Argent recipe](../../../../docs/verify/argent.md) within its qualified scope.
+Neither tool establishes untested targets, physical devices, or arbitrary input
+behavior by implication. Only capture or inspect visual artifacts when the task
+and project instructions authorize that evidence.
