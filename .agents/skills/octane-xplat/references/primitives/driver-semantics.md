@@ -61,6 +61,29 @@ export function ClassifiedLeaf(props: ViewProps) @{
   checked — a `document` in a helper slips through (that's what
   `check:no-dom` catches).
 
+## Removing props and inline styles
+
+The patched native driver receives the complete next prop bag, including
+static props. Do not merge update bags: a missing key removes its previous
+value. A never-applied `undefined` skips the setter; dropped/nullish values
+reset registered properties with `unsetValue` and ordinary fields with their
+captured original values. Style objects replace their authored keys; removing
+an inline override restores matching class CSS.
+
+```tsx
+import { View } from '@octane-xplat/ui'
+
+export function Preview({ expanded }: { expanded: boolean }) {
+  return <View className="preview" style={expanded ? { width: 240 } : undefined} />
+}
+// With expanded=false, width comes from the matching .preview class again.
+```
+
+The core 9.1 CSS refresh uses an isolated private hook, not a public reset API.
+Keep it when refreshing the patch until core provides an equivalent. See the
+[implementation note](../../../../docs/notes/primitive-notes.md) and
+[upstream PR #14](https://github.com/nativescript-community/octane/pull/14).
+
 ## Root creation
 
 `createNativeScriptRoot(hostView).render(Component, props)` — each pushed

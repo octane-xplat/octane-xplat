@@ -854,14 +854,38 @@ interface TextAreaProps extends TextInputProps {
   earlier ones (pushed-page header HStack measured at the full root height,
   dead under the content View's overlap). The leaf renders one flexbox
   wrapper; app children are never direct rootlayout children.
-- **Omitted props must not write `undefined`** (decision #40): the driver's
-  `setProp` returns early on `undefined`. NS coerces `undefined` through
-  native setters — `editable={undefined}` became `userInteractionEnabled=NO`:
-  the field rendered with listeners but could never become first responder
-  (real taps and `becomeFirstResponder()` both failed while AX tree looked
-  normal). The current field-control contract derives native editability from
+- **Never-applied `undefined` must not reach native setters** (decision #40).
+  NativeScript coerces it — `editable={undefined}` became
+  `userInteractionEnabled=NO`, leaving a field with listeners that could not
+  become first responder. The patched `@nativescript-community/octane@0.2.5`
+  driver reconciles complete next-prop bags, including static props: dropped
+  keys and explicit `undefined`/`null` reset previously applied values.
+  Registered Property/CssProperty setters receive `unsetValue`; ordinary
+  fields restore their captured pre-prop values without receiving the sentinel.
+  Style objects replace authored keys, and removing an inline value restores
+  matching class CSS.
+
+  ```tsx
+  import { View } from '@octane-xplat/ui'
+
+  export function Preview({ expanded }: { expanded: boolean }) {
+    return <View className="preview" style={expanded ? { width: 240 } : undefined} />
+  }
+  // When expanded becomes false, the matching .preview width applies again.
+  ```
+
+  Generic removal/cascade work is tracked in
+  [upstream PR #14](https://github.com/nativescript-community/octane/pull/14).
+  Core 9.1 has no public single-key CSS refresh: the local patch isolates
+  `_cssState.onChange()` after clearing a local key. CSS variables use public
+  `removeUnscopedCssVariable`; string key tracking uses core's CSS parser.
+  This update is covered by installed-driver tests with mocked native hosts
+  (`packages/ui/src/prop-removal.mobile.test.ts`), not fresh device evidence.
+  Keep the separate Mason integration when removing upstreamed hunks.
+- The current field-control contract derives native editability from
   `isDisabled` and `isReadOnly`, and always passes a boolean to the native
   view; `editable` is an implementation detail rather than a public prop.
+
 - **Verify interaction with real input, not `notify()`**: `view.notify({tap})`
   delivers events without hit-testing — taps "worked" on views that were dead
   (stale JS node, `loaded=false`, no recognizers) or physically unreachable.

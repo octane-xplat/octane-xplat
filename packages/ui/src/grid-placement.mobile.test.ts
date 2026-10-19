@@ -16,10 +16,16 @@ import {
 	UpdatingComposite,
 	TrackStyleCase,
 } from '../tests/grid-placement.fixture.mobile.tsrx'
+
 import { masonStyleOf } from '../tests/masonkit-mock'
 
 // The compiler, scheduler and installed driver are real; native host views
 // are substituted. This does not establish device layout or hit-testing.
+vi.mock('@nativescript/core/ui/core/properties', () => ({
+	_getProperties: () => [],
+	_getStyleProperties: () => [],
+}))
+
 vi.mock('@nativescript/core', () => {
 	class View {
 		nativeViewProtected = {}

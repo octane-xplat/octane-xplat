@@ -1,8 +1,26 @@
+diff --git a/dist/driver.d.ts b/dist/driver.d.ts
+index 80e30299c44e889e3a066ce2c9a8feb6b7ceaa42..b17dc120c5c00ba4be701233fb95b6d2b3eb72d9 100644
+--- a/dist/driver.d.ts
++++ b/dist/driver.d.ts
+@@ -14,6 +14,9 @@ interface HostNode {
+     readonly muted: Set<string>;
+     /** Whether this node's `text` has been driven by `#text` children. */
+     textApplied: boolean;
++    readonly propDefaults: Map<string, unknown>;
++    readonly styleDefaults: Map<string, unknown>;
++    styleKeys: Set<string>;
+ }
+ /**
+  * A command `parent`: a host node id's node, the root container (`null`), or a
 diff --git a/dist/driver.js b/dist/driver.js
-index 8bc563add4cb675a12651184b63805b10224274d..a8ea8974e4ba4f4bcb53f3c3022e3e204d6d9c46 100644
+index 8bc563add4cb675a12651184b63805b10224274d..fd48a63d5e07a4288c22f22e0f8ad7053d05705f 100644
 --- a/dist/driver.js
 +++ b/dist/driver.js
-@@ -3,6 +3,7 @@ import { createUniversalRoot, } from 'octane/universal/native';
+@@ -1,8 +1,11 @@
++import { cssTreeParse } from '@nativescript/core/css/css-tree-parser';
++import { _getProperties, _getStyleProperties, } from '@nativescript/core/ui/core/properties';
+ import { ActionBar, ContentView, FormattedString, LayoutBase, ListView, Span, TabView, TabViewItem, TextBase, View, unsetValue, } from '@nativescript/core';
+ import { createUniversalRoot, } from 'octane/universal/native';
  import { NATIVESCRIPT_RENDERER_ID } from './config.js';
  import { ELEMENTS, EVENT_PROP, eventNameFor, onElementReplaced, } from './elements.js';
  import { releaseListView, setRenderItem, } from './list-view.js';
@@ -10,7 +28,17 @@ index 8bc563add4cb675a12651184b63805b10224274d..a8ea8974e4ba4f4bcb53f3c3022e3e20
  /** `#text` nodes carry no view; the driver folds them into the parent's `text`. */
  const TEXT = '#text';
  /**
-@@ -73,7 +74,10 @@ function instantiate(type) {
+@@ -62,6 +65,9 @@ function createNode(container, id, type, props) {
+         listeners: new Map(),
+         muted: new Set(),
+         textApplied: false,
++        propDefaults: new Map(),
++        styleDefaults: new Map(),
++        styleKeys: new Set(),
+     };
+     if (node.view !== null)
+         viewOwners.set(node.view, { container, node });
+@@ -73,7 +79,10 @@ function instantiate(type) {
      if (Element === undefined) {
          throw new Error(`NativeScript driver: <${type}> is not a registered element.`);
      }
@@ -22,35 +50,44 @@ index 8bc563add4cb675a12651184b63805b10224274d..a8ea8974e4ba4f4bcb53f3c3022e3e20
  }
  function applyProps(node, props) {
      if (node.view === null) {
-@@ -91,13 +95,23 @@ function applyProps(node, props) {
+@@ -90,14 +99,14 @@ function applyProps(node, props) {
+             setProp(node, node.view, name, props[name]);
      }
  }
- /**
+-/**
 - * `update` carries the host's dynamic-prop snapshot; attributes that were
 - * static in the compiled plan arrive only with `create`. Merge instead of
 - * replace, or a first update would strip a node's static layout props.
-+ * `update` carries the host's complete prop bag: a key present in the last
-+ * applied bag but absent from the next is a removal, and the view state it
-+ * installed returns to the prop's documented default. `undefined` never
-+ * crosses the wire (the runtime elides it); `null` is "not supplied" for
-+ * props without an explicit nullable contract — both reset through setProp.
-  */
+- */
++/** `update` is the complete next bag, including the plan's static props. */
  function updateProps(node, next) {
-+    const dropped = [];
-+    for (const name in node.props) {
-+        if (node.props[name] != null && !(name in next))
-+            dropped.push(name);
++    for (const name of Object.keys(node.props)) {
++        if (!Object.hasOwn(next, name) && node.view !== null)
++            setProp(node, node.view, name, undefined);
 +    }
      applyProps(node, next);
 -    node.props = { ...node.props, ...next };
-+    for (const name of dropped) {
-+        resetProp(node, node.view, name);
-+    }
 +    node.props = next;
  }
  function setProp(node, view, name, value) {
      if (name === 'children' || name === 'key' || name === 'ref')
-@@ -113,13 +127,36 @@ function setProp(node, view, name, value) {
+@@ -105,6 +114,15 @@ function setProp(node, view, name, value) {
+     // Event props arrive as their own `event` commands.
+     if (EVENT_PROP.test(name))
+         return;
++    if (value === undefined &&
++        !node.propDefaults.has(name) &&
++        (name !== 'style' || node.styleKeys.size === 0))
++        return;
++    if (value != null &&
++        value !== unsetValue &&
++        name !== 'style' &&
++        !node.propDefaults.has(name))
++        node.propDefaults.set(name, view[name]);
+     if (name === 'className' || name === 'class') {
+         view.className =
+             value == null || value === unsetValue
+@@ -113,13 +131,31 @@ function setProp(node, view, name, value) {
          return;
      }
      if (name === 'style') {
@@ -70,128 +107,105 @@ index 8bc563add4cb675a12651184b63805b10224274d..a8ea8974e4ba4f4bcb53f3c3022e3e20
 +        (MASON_CONTAINER_TAGS.has(node.type) ||
 +            (node.parent !== null && MASON_CONTAINER_TAGS.has(node.parent.type))))
 +        warnStyleOnlyProp(node, name);
-+    // `null`/`unsetValue` restore the prop's default rather than writing a
-+    // literal null through a native setter. `undefined` is a removal: skip it
-+    // when nothing applied (NativeScript setters coerce it badly) and reset
-+    // when a real value did.
++    // Never forward nullish values to coercing native setters. A never-applied
++    // prop has nothing to restore, including when its initial value is undefined.
++    const target = view;
 +    if (value == null || value === unsetValue) {
-+        if (value === undefined && node.props[name] == null)
++        if (!node.propDefaults.has(name))
 +            return;
-+        resetProp(node, view, name);
-+        return;
++        value = isRegisteredProperty(view, name)
++            ? unsetValue
++            : node.propDefaults.get(name);
 +    }
-+    // Capture the pre-prop value once so a plain (non-Property) field can be
-+    // restored when the prop is removed later.
-+    const defaults = (node.propDefaults ??= {});
-+    if (!(name in defaults))
-+        defaults[name] = view[name];
      // Core raises `<name>Change` for a script write exactly as for a user
      // edit; a controlled input must not see its own value come back as one.
      const echo = `${name}Change`;
-@@ -134,6 +171,44 @@ function setProp(node, view, name, value) {
-             node.muted.delete(echo);
+@@ -127,7 +163,10 @@ function setProp(node, view, name, value) {
+     if (listening)
+         node.muted.add(echo);
+     try {
+-        view[name] = value;
++        target[name] = value;
++        if (value === unsetValue &&
++            _getStyleProperties().some((p) => p.name === name))
++            refreshCss(view);
      }
- }
-+/** Restore a removed prop to the value it holds when never supplied. */
-+function resetProp(node, view, name) {
-+    if (view === null)
-+        return;
-+    if (name === 'children' || name === 'key' || name === 'ref')
-+        return;
-+    // `on*` handlers unbind through `event` commands, not props.
-+    if (EVENT_PROP.test(name))
-+        return;
-+    if (name === 'className' || name === 'class') {
-+        view.className = unsetValue;
-+        return;
-+    }
-+    if (name === 'style') {
-+        applyStyle(node, view, null);
-+        return;
-+    }
-+    if (name === 'renderItem' && view instanceof ListView) {
-+        setRenderItem(view, null, createNativeScriptRoot);
-+        return;
-+    }
-+    const echo = `${name}Change`;
-+    const listening = node.listeners.has(echo);
-+    if (listening)
-+        node.muted.add(echo);
-+    try {
-+        // Property/CssProperty setters consume the sentinel and restore the
-+        // declared default. A plain field stores it raw — detect that and
-+        // write back the captured pre-prop value instead.
-+        view[name] = unsetValue;
-+        if (view[name] === unsetValue)
-+            view[name] = node.propDefaults?.[name];
-+    }
-+    finally {
-+        if (listening)
-+            node.muted.delete(echo);
-+    }
-+}
- // `class`/`className` compose clsx-style on the DOM renderer; join arrays
- // with spaces so NativeScript's class selectors can match each class.
- function normalizeClass(value) {
-@@ -147,16 +222,223 @@ function normalizeClass(value) {
+     finally {
+         if (listening)
+@@ -147,16 +186,241 @@ function normalizeClass(value) {
              .join(' ');
      return '';
  }
 -function applyStyle(view, value) {
 -    if (value == null || value === unsetValue)
 -        return;
-+/**
-+ * The `style` prop replaces wholesale — a key dropped or nulled since the last
-+ * apply resets what it installed (`unsetValue` clears a local CssProperty
-+ * value so the cascade can re-apply). String styles are parsed for their
-+ * declared names so a later object or removal can reset them.
-+ */
++/** Match the actual registered setter, not merely a globally registered name. */
++function isRegisteredProperty(view, name) {
++    let prototype = view;
++    while (prototype !== null) {
++        const descriptor = Object.getOwnPropertyDescriptor(prototype, name);
++        if (descriptor !== undefined) {
++            return (_getProperties().some((property) => property.name === name && property.set === descriptor.set) ||
++                (_getStyleProperties().some((property) => property.name === name) &&
++                    descriptor.set !== undefined &&
++                    name in view.style));
++        }
++        prototype = Object.getPrototypeOf(prototype);
++    }
++    return false;
++}
++/** Core discards the cascaded value when a local value occupies its slot. */
++function refreshCss(view) {
++    // No public single-key refresh exists in core 9.1. setInlineStyle only writes
++    // declarations; the recursive _onCssStateChange would also touch descendants.
++    view._cssState?.onChange();
++}
++/** Replace authored keys; clearing a local CssProperty must restore class CSS. */
 +function applyStyle(node, view, value) {
-+    const applied = node.styleKeys;
-+    node.styleKeys = undefined;
++    const style = view.style;
++    const next = typeof value === 'string'
++        ? inlineStyleKeys(value)
++        : value !== null && typeof value === 'object' && value !== unsetValue
++            ? new Set(Object.keys(value))
++            : new Set();
++    for (const key of node.styleKeys) {
++        if (!next.has(key))
++            unsetStyleKey(node, view, key);
++    }
++    for (const key of next) {
++        if (!node.styleDefaults.has(key))
++            node.styleDefaults.set(key, style[key]);
++    }
      if (typeof value === 'string') {
-+        clearStyleKeys(view, applied);
          view.setInlineStyle(value);
-+        node.styleKeys = inlineStyleKeys(value);
-+        return;
 +    }
-+    if (value == null || value === unsetValue || typeof value !== 'object') {
-+        clearStyleKeys(view, applied);
-+        return;
-+    }
-+    if (applied !== undefined) {
-+        for (const key of applied) {
-+            if (!(key in value))
-+                unsetStyleKey(view, key);
++    else if (value !== null &&
++        typeof value === 'object' &&
++        value !== unsetValue) {
++        // Mason layout keys target the leaf style under a mason parent —
++        // `view.style` is the NS surface where they land as dead fields. The leaf
++        // style exists only once the parent attaches the view, so entries are
++        // stashed and replayed by applyMasonChildLayout.
++        const parentIsMason = node.parent !== null && MASON_CONTAINER_TAGS.has(node.parent.type);
++        const masonLeaf = parentIsMason ? masonChildStyle(view) : undefined;
++        for (const key of next) {
++            const entry = value[key];
++            if (MASON_LEAF_STYLE_KEYS.has(key)) {
++                const leafStash = view[MASON_LEAF_STYLE_STASH] ?? (view[MASON_LEAF_STYLE_STASH] = {});
++                leafStash[key] = entry == null ? undefined : entry;
++                if (masonLeaf !== undefined)
++                    masonLeaf[key] = entry == null ? undefined : entry;
++            }
++
++            if (entry == null || entry === unsetValue)
++                unsetStyleKey(node, view, key);
++            else
++                style[key] = entry;
 +        }
 +    }
-+    // Mason layout keys target the leaf style under a mason parent —
-+    // `view.style` is the NS surface where they land as dead fields. The leaf
-+    // style exists only once the parent attaches the view, so entries are
-+    // stashed and replayed by applyMasonChildLayout.
-+    const parentIsMason = node.parent !== null && MASON_CONTAINER_TAGS.has(node.parent.type);
-+    const masonLeaf = parentIsMason ? masonChildStyle(view) : undefined;
-+    for (const [key, nextValue] of Object.entries(value)) {
-+        if (MASON_LEAF_STYLE_KEYS.has(key)) {
-+            const leafStash = view[MASON_LEAF_STYLE_STASH] ?? (view[MASON_LEAF_STYLE_STASH] = {});
-+            leafStash[key] = nextValue == null ? undefined : nextValue;
-+            if (masonLeaf !== undefined)
-+                masonLeaf[key] = nextValue == null ? undefined : nextValue;
-+        }
-+        if (nextValue == null)
-+            unsetStyleKey(view, key);
-+        else
-+            view.style[key] = nextValue;
-+    }
-+    node.styleKeys = new Set(Object.keys(value));
++    node.styleKeys = next;
 +}
-+function clearStyleKeys(view, keys) {
-+    if (keys === undefined)
-+        return;
-+    for (const key of keys)
-+        unsetStyleKey(view, key);
-+}
-+function unsetStyleKey(view, name) {
++function unsetStyleKey(node, view, name) {
 +    // Forget removed authored values before any later sibling attachment can
 +    // replay them. Reset the leaf first so the NS cascade can restore CSS.
 +    const leafStash = view[MASON_LEAF_STYLE_STASH];
@@ -203,23 +217,26 @@ index 8bc563add4cb675a12651184b63805b10224274d..a8ea8974e4ba4f4bcb53f3c3022e3e20
 +    }
 +    const style = view.style;
 +    if (name.startsWith('--')) {
-+        style.setUnscopedCssVariable?.(name, unsetValue);
-+        return;
++        view.style.removeUnscopedCssVariable(name);
 +    }
-+    style[name] = unsetValue;
-+    // A style field outside the CssProperty registry stores the sentinel raw.
-+    if (style[name] === unsetValue)
-+        style[name] = undefined;
++    else {
++        const registered = _getStyleProperties().some((p) => p.name === name || p.cssLocalName === name);
++        style[name] = registered ? unsetValue : node.styleDefaults.get(name);
++    }
++    refreshCss(view);
 +}
 +function inlineStyleKeys(style) {
 +    const keys = new Set();
-+    for (const declaration of style.split(';')) {
-+        const colon = declaration.indexOf(':');
-+        if (colon === -1)
-+            continue;
-+        const name = declaration.slice(0, colon).trim();
-+        if (name !== '')
-+            keys.add(name.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase()));
++    const sheet = cssTreeParse(`local { ${style} }`, undefined);
++    for (const rule of sheet.stylesheet.rules) {
++        for (const declaration of rule.declarations ?? []) {
++            if (declaration.type !== 'declaration')
++                continue;
++            const name = declaration.property;
++            keys.add(name.startsWith('--')
++                ? name
++                : name.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase()));
++        }
 +    }
 +    return keys;
 +}
@@ -346,10 +363,10 @@ index 8bc563add4cb675a12651184b63805b10224274d..a8ea8974e4ba4f4bcb53f3c3022e3e20
 +function applyMasonChildLayout(node, parent) {
 +    const view = node.view;
 +    if (view === null || view === undefined)
-+        return;
+         return;
 +    const style = masonChildStyle(view);
 +    if (style === undefined)
-         return;
++        return;
 +    const leafStash = view[MASON_LEAF_STYLE_STASH];
 +    if (leafStash !== undefined) {
 +        for (const key of Object.keys(leafStash))
@@ -362,7 +379,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..a8ea8974e4ba4f4bcb53f3c3022e3e20
  /** Recompute a text host's `text` from its `#text` children. */
  function syncText(parent) {
      if (parent === null || isPortalTarget(parent))
-@@ -190,6 +472,15 @@ function addViewChild(parentView, view, index) {
+@@ -190,6 +454,15 @@ function addViewChild(parentView, view, index) {
          parentView.insertChild(view, Math.min(index, parentView.getChildrenCount()));
          return;
      }
@@ -378,7 +395,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..a8ea8974e4ba4f4bcb53f3c3022e3e20
      if (parentView instanceof ContentView) {
          parentView.content = view;
          return;
-@@ -234,6 +525,13 @@ function removeViewChild(parentView, view) {
+@@ -234,6 +507,13 @@ function removeViewChild(parentView, view) {
              parentView.removeChild(view);
          return;
      }
@@ -392,7 +409,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..a8ea8974e4ba4f4bcb53f3c3022e3e20
      if (parentView instanceof ContentView) {
          if (parentView.content === view)
              parentView.content = CLEARED;
-@@ -370,6 +668,13 @@ function attach(container, node) {
+@@ -370,6 +650,13 @@ function attach(container, node) {
          }
      }
      addViewChild(parentView, node.view, index);
@@ -406,7 +423,17 @@ index 8bc563add4cb675a12651184b63805b10224274d..a8ea8974e4ba4f4bcb53f3c3022e3e20
      markTabView(tabViewOwning(node));
  }
  function insert(container, parent, node, before) {
-@@ -548,7 +853,7 @@ function preparePortalTarget(context) {
+@@ -480,6 +767,9 @@ function recreateView(container, node) {
+     viewOwners.set(view, { container, node });
+     node.view = view;
+     node.textApplied = false;
++    node.propDefaults.clear();
++    node.styleDefaults.clear();
++    node.styleKeys.clear();
+     applyProps(node, node.props);
+     for (const [type, handler] of node.listeners)
+         view.on(type, handler);
+@@ -548,7 +838,7 @@ function preparePortalTarget(context) {
      }
      const target = owner?.node.view ?? suppliedTarget;
      if (!(target instanceof LayoutBase)) {
@@ -415,7 +442,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..a8ea8974e4ba4f4bcb53f3c3022e3e20
      }
      let id = portalTargetIds.get(target);
      if (id === undefined) {
-@@ -641,7 +946,7 @@ function applyCommand(container, command) {
+@@ -641,7 +931,7 @@ function applyCommand(container, command) {
  }
  export const nativeScriptDriver = {
      id: NATIVESCRIPT_RENDERER_ID,
@@ -482,10 +509,11 @@ index a13bcea75176146f58f047be1d9c7b0cdda1120a..e9988e174d0b89dcd70220d3014ca6b9
  for (const [tag, element] of BUILTIN_ELEMENTS)
      registerElement(tag, element);
 diff --git a/dist/intrinsics.d.ts b/dist/intrinsics.d.ts
-index 45a47cbbce199df9635852ca4cdb2849e9bbc83d..668c9209192b12be4cafbf126e15df9360fb2fc5 100644
+index 45a47cbbce199df9635852ca4cdb2849e9bbc83d..76b8d7eaa5ff448a03fae07cbf8f0a733b9fc803 100644
 --- a/dist/intrinsics.d.ts
 +++ b/dist/intrinsics.d.ts
-@@ -24,9 +24,10 @@
+@@ -23,10 +23,11 @@
+  * ```
   */
  import type * as NS from '@nativescript/core';
 +import type { CSSProperties } from 'octane/jsx-runtime';
@@ -498,7 +526,7 @@ index 45a47cbbce199df9635852ca4cdb2849e9bbc83d..668c9209192b12be4cafbf126e15df93
  /**
   * The driver assigns every non-event prop onto the view instance, so a JSX
   * attribute is a NativeScript view property rather than a DOM attribute.
-@@ -76,34 +76,80 @@ export interface CommonEvents<TInstance> {
+@@ -76,12 +77,61 @@ export interface CommonEvents<TInstance> {
  export type ClassValue = string | boolean | null | undefined | readonly ClassValue[] | {
      readonly [className: string]: unknown;
  };
@@ -561,26 +589,15 @@ index 45a47cbbce199df9635852ca4cdb2849e9bbc83d..668c9209192b12be4cafbf126e15df93
      /**
       * Name of the property on a slot-hosting parent (e.g. a drawer's
       * `mainContent` / `leftDrawer`) this child should be assigned to instead of
-      * being added as a regular layout child.
+@@ -89,21 +139,18 @@ export interface CommonAttributes {
       */
      hostSlot?: string;
-+    /**
-+     * ARIA-shaped accessibility values; shared components emit plain strings
-+     * through the escape-props helpers rather than the NativeScript enums.
-+     */
-+    accessibilityRole?: string;
-+    accessibilityState?: string;
-+    accessibilityLiveRegion?: string;
-+    /** Platform escape bags — applied onto the native view by the leaf's
-+     *  applyEscapeProps, not by the driver. */
-+    ios?: Record<string, unknown>;
-+    android?: Record<string, unknown>;
-+    windows?: Record<string, unknown>;
-+    macos?: Record<string, unknown>;
--    /**
+     /**
 -     * Attached layout properties. The layout modules register these on `View` at
 -     * runtime, so they are absent from the `@nativescript/core` class typings.
--     */
++     * ARIA-shaped accessibility values; shared components emit plain strings
++     * through the escape-props helpers rather than the NativeScript enums.
+      */
 -    row?: number | string;
 -    col?: number | string;
 -    rowSpan?: number | string;
@@ -593,10 +610,19 @@ index 45a47cbbce199df9635852ca4cdb2849e9bbc83d..668c9209192b12be4cafbf126e15df93
 -    flexWrapBefore?: boolean | string;
 -    alignSelf?: 'auto' | 'flex-start' | 'flex-end' | 'center' | 'baseline' | 'stretch';
 -    order?: number | string;
++    accessibilityRole?: string;
++    accessibilityState?: string;
++    accessibilityLiveRegion?: string;
++    /** Platform escape bags — applied onto the native view by the leaf's
++     *  applyEscapeProps, not by the driver. */
++    ios?: Record<string, unknown>;
++    android?: Record<string, unknown>;
++    windows?: Record<string, unknown>;
++    macos?: Record<string, unknown>;
  }
  export interface ListViewAttributes {
      /**
-@@ -117,25 +150,21 @@ export interface ListViewAttributes {
+@@ -117,25 +164,21 @@ export interface ListViewAttributes {
  }
  export interface OctaneAttributes<TInstance> {
      key?: string | number;
@@ -623,7 +649,7 @@ index 45a47cbbce199df9635852ca4cdb2849e9bbc83d..668c9209192b12be4cafbf126e15df93
      htmlview: Attributes<typeof NS.HtmlView>;
      image: Attributes<typeof NS.Image>;
      label: Attributes<typeof NS.Label>;
-@@ -153,7 +182,6 @@ export interface NativeScriptElements {
+@@ -153,7 +196,6 @@ export interface NativeScriptElements {
      segmentedbaritem: Attributes<typeof NS.SegmentedBarItem>;
      slider: Attributes<typeof NS.Slider>;
      span: Attributes<typeof NS.Span>;
@@ -631,7 +657,7 @@ index 45a47cbbce199df9635852ca4cdb2849e9bbc83d..668c9209192b12be4cafbf126e15df93
      switch: Attributes<typeof NS.Switch>;
      tabview: Attributes<typeof NS.TabView>;
      tabviewitem: Attributes<typeof NS.TabViewItem>;
-@@ -161,7 +189,8 @@ export interface NativeScriptElements {
+@@ -161,7 +203,8 @@ export interface NativeScriptElements {
      textview: Attributes<typeof NS.TextView>;
      timepicker: Attributes<typeof NS.TimePicker>;
      webview: Attributes<typeof NS.WebView>;

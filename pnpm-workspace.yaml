@@ -202,17 +202,20 @@ patchedDependencies:
   # `undefined`/`null` — is a removal that restores the documented default
   # (Property/CssProperty setters get `unsetValue`, plain fields the captured pre-prop
   # value, `style` keys diff per key); a never-applied `undefined` still skips the write.
-  # Also advertises the implemented visibility capability, carries Octane callback ref
-  # types, and preserves authored Grid row/col/span metadata. Hosts custom-layout containers
-  # (e.g. MasonKit ViewBase) that own child lists via
-  # insertChild/removeChild/getChildrenCount without subclassing LayoutBase. Additionally,
-  # the masonry cutover: masonview resolves to MasonKit View and scrollview to MasonKit
-  # Scroll as the only layout containers, with zero layout props — every former prop name
-  # warns-and-drops and all CSS semantics arrive through the style bag; style keys on a
-  # mason child route to its leaf (stashed pre-attach, replayed at attach) via
-  # Style.fromView. Removing an authored Mason style key also deletes its deferred replay
-  # entry and resets the current leaf before NativeScript restores CSS, preventing later
-  # sibling attachments from resurrecting removed tracks.
+  # Synced with PR #14: registered setters are identified before resetting (ordinary fields
+  # never receive the sentinel), inline removal refreshes matching class CSS through the
+  # isolated core 9.1 `_cssState.onChange` hook, CSS variables use public removal, strings
+  # use the core CSS parser, and replacement views capture fresh defaults. Also advertises
+  # the implemented visibility capability, carries Octane callback ref types, and preserves
+  # authored Grid row/col/span metadata. Hosts custom-layout containers (e.g. MasonKit
+  # ViewBase) that own child lists via insertChild/removeChild/getChildrenCount without
+  # subclassing LayoutBase. Additionally, the masonry cutover: masonview resolves to
+  # MasonKit View and scrollview to MasonKit Scroll as the only layout containers, with zero
+  # layout props — every former prop name warns-and-drops and all CSS semantics arrive
+  # through the style bag; style keys on a mason child route to its leaf (stashed
+  # pre-attach, replayed at attach) via Style.fromView. Removing an authored Mason style key
+  # also deletes its deferred replay entry and resets the current leaf before NativeScript
+  # restores CSS, preventing later sibling attachments from resurrecting removed tracks.
   "@nativescript-community/octane@0.2.5": packages/cli/patches/@nativescript-community__octane@0.2.5.patch
   # octaneServerStrategy's SCRIPT_FILE_RE only covers [jt]sx? — .tsrx edits never emit the
   # deferred ns:hmr-delta broadcast, so component HMR silently never reaches the device.

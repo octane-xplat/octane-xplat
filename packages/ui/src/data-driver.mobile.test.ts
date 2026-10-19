@@ -4,6 +4,11 @@ import { Retained } from '../tests/data-lifecycle.fixture.mobile.tsrx'
 
 // Only the NativeScript host objects are substituted. The installed driver,
 // compiler output, scheduler, events, and visibility commands are real.
+vi.mock('@nativescript/core/ui/core/properties', () => ({
+	_getProperties: () => [],
+	_getStyleProperties: () => [],
+}))
+
 vi.mock('@nativescript/core', () => {
 	class View {
 		visibility = 'visible'
