@@ -407,7 +407,11 @@ test('argument validation happens before any host is spawned', () => {
 test('runtime build flows through the host: job, logs, evidence, idle exit', () => {
 	const root = makeWorkspace('hostrun')
 	makeLinkedApp(root)
-	const env = { XPLAT_AGENT_HOST_IDLE_MS: '600' }
+	// Wider than the 600ms minimum: the job-status polling keeps the host up,
+	// but once the job is terminal the logs/session/evidence reads are
+	// sequential process spawns — on a slow CI box that sequence can exceed a
+	// tight idle window and the host exits before the reads land.
+	const env = { XPLAT_AGENT_HOST_IDLE_MS: '3000' }
 
 	const started = json(
 		run(['runtime', 'build', '--platform', 'web', '--project', root, '--json'], { env }),
@@ -440,7 +444,7 @@ test('runtime build flows through the host: job, logs, evidence, idle exit', () 
 
 	// Idle exit: once nothing is live the host shuts down on its own timer.
 	// (Polling would reset that timer — wait once, then check.)
-	Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 1600)
+	Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 4000)
 	const after = json(run(['session', 'list', '--project', root, '--json'], { env }))
 	assert.equal(after.data.host.state, 'absent')
 })
