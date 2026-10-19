@@ -130,7 +130,8 @@ function entryCode(config, target, story, packageDir, root) {
 		)
 		.join(', ')
 
-	const shellCss = fsUrl(join(packageDir, 'web', 'shell.css'))
+	// Both src/build and dist/build resolve the shipped runtime source here.
+	const shellCss = fsUrl(join(packageDir, '../../src/web/shell.css'))
 
 	return `import { catalog, loadStory, diagnostics } from ${JSON.stringify(CATALOG_ID)}
 import { startWorkshop } from '@octane-xplat/workshop/web'

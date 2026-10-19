@@ -215,6 +215,13 @@ The target menu lists all six real host statuses without simulating a host.
 pnpm exec xplat workshop dev --target web --story counter/basic
 ```
 
+The browser chrome follows the system light/dark preference and existing app
+theme tokens. Selection, hover and keyboard focus remain distinct; narrow
+windows wrap toolbar actions instead of hiding them. Chrome adds no animation
+and keeps the specimen's default background and text colors separate. Native
+shells retain platform controls and focus indicators. Their presentation changes
+still need actual-host verification.
+
 ## Save and reload
 
 Saving component or story source remounts the selected story with its default

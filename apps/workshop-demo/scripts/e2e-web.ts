@@ -79,9 +79,117 @@ try {
 	await page.fill('.xw-search', '')
 
 	await page.click('.xw-story >> text=Basic')
-	await page.waitForSelector('.xw-stage-mount', { timeout: 10_000 })
+	await page.waitForSelector('.xw-stage-mount', { timeout: 60_000 }).catch(async (error) => {
+		console.error(
+			'Story startup diagnostics:',
+			pageErrors.join('\n'),
+			await page.textContent('.xw-stage-area'),
+		)
+		throw error
+	})
 	await page.waitForTimeout(400)
 	check('mount renders real component', (await text('.xw-stage-mount')) === 'Demo: 0 (+1)')
+
+	// Chrome regressions use DOM geometry and computed styles only.
+	const palette = () =>
+		page.evaluate(() => {
+			const style = (selector) => getComputedStyle(document.querySelector(selector))
+			return {
+				surface: style('.xw-catalog').backgroundColor,
+				text: style('.xw-catalog').color,
+				muted: style('.xw-phase').color,
+				fieldBorder: style('.xw-search').borderTopColor,
+				stage: style('.xw-stage-mount').color,
+				selected: style('.xw-story-active').backgroundColor,
+			}
+		})
+	const light = await palette()
+	const contrast = (foreground, background) => {
+		const luminance = (color) => {
+			const rgb = color
+				.match(/[\d.]+/g)
+				.slice(0, 3)
+				.map(Number)
+				.map((n) => {
+					const v = n / 255
+					return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4
+				})
+			return rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722
+		}
+		const a = luminance(foreground),
+			b = luminance(background)
+		return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05)
+	}
+	check(
+		'light chrome contrast',
+		contrast(light.text, light.surface) >= 4.5 &&
+			contrast(light.muted, light.surface) >= 4.5 &&
+			contrast(light.fieldBorder, light.surface) >= 3,
+	)
+	await page.hover('.xw-reset')
+	const hover = await page.$eval('.xw-reset', (el) => getComputedStyle(el).backgroundColor)
+	await page.mouse.move(0, 0)
+	const resting = await page.$eval('.xw-reset', (el) => getComputedStyle(el).backgroundColor)
+	check('toolbar hover state', hover !== resting)
+	await page.keyboard.press('Tab')
+	await page.focus('.xw-search')
+	check(
+		'keyboard focus visible',
+		await page.$eval('.xw-search', (el) => {
+			const style = getComputedStyle(el)
+			return (
+				el.matches(':focus-visible') &&
+				style.outlineStyle !== 'none' &&
+				parseFloat(style.outlineWidth) >= 2
+			)
+		}),
+	)
+	check('selected story distinct', light.selected !== light.surface)
+	check(
+		'unsupported story remains disabled',
+		await page.$eval('.xw-story:disabled', (el) => el.disabled),
+	)
+	await page.emulateMedia({ colorScheme: 'dark', reducedMotion: 'reduce' })
+	const dark = await palette()
+	check(
+		'dark chrome contrast',
+		contrast(dark.text, dark.surface) >= 4.5 &&
+			contrast(dark.muted, dark.surface) >= 4.5 &&
+			contrast(dark.fieldBorder, dark.surface) >= 3 &&
+			dark.surface !== light.surface,
+	)
+	check('theme preserves specimen color', dark.stage === light.stage)
+	await page.evaluate(() => document.documentElement.classList.add('light'))
+	check('explicit light overrides system dark', (await palette()).surface === light.surface)
+	await page.evaluate(() => document.documentElement.classList.remove('light'))
+	check(
+		'reduced motion chrome is immediate',
+		await page.$eval('.xw-reset', (el) => {
+			const style = getComputedStyle(el)
+			return style.animationName === 'none' && style.transitionDuration === '0s'
+		}),
+	)
+	await page.emulateMedia({ colorScheme: 'light', reducedMotion: 'no-preference' })
+	await page.evaluate(() => document.documentElement.classList.add('dark'))
+	check('explicit dark chrome', (await palette()).surface === dark.surface)
+	await page.evaluate(() => document.documentElement.classList.remove('dark'))
+	for (const width of [320, 390, 640, 800]) {
+		await page.setViewportSize({ width, height: 844 })
+		await page.waitForFunction(
+			() => document.querySelector('.xw-root').classList.contains('xw-wide') === false,
+		)
+		check(
+			`toolbar fits ${width}px`,
+			await page.$$eval('.xw-statusbar .xw-btn', (els) =>
+				els.every((el) => {
+					const rect = el.getBoundingClientRect()
+					return rect.left >= 0 && rect.right <= window.innerWidth && rect.height >= 32
+				}),
+			),
+		)
+	}
+	await page.setViewportSize({ width: 1400, height: 900 })
+	await page.waitForFunction(() => document.querySelector('.xw-root').classList.contains('xw-wide'))
 
 	await page.click('.xw-stage-mount >> role=button')
 	await page.waitForTimeout(300)

@@ -50,14 +50,23 @@ export function catalogDidUpdate(
 }
 
 const CSS = `
-.xw-toolbar { padding: 8; background-color: #eeeeee; }
-.xw-panel { padding: 12; background-color: #f5f5f5; }
-.xw-status { padding: 8; }
-.xw-error { color: #a01818; }
-.xw-action { margin: 4; min-height: 44; }
-.xw-action:highlighted { background-color: #cdddf0; }
-.xw-action:focus { border-color: #175cd3; border-width: 2; }
-.xw-field { margin-bottom: 8; min-height: 44; }
+.xw-toolbar { padding: 6; background-color: var(--color-surface, #ffffff); border-bottom-width: 1; border-color: var(--color-border, #e5e5e5); }
+.xw-panel { padding: 12; background-color: var(--color-surface, #ffffff); }
+.xw-label { color: var(--color-text, #171717); margin-bottom: 8; font-size: 13; }
+.xw-status { padding: 10 12; color: var(--color-text-secondary, #525252); background-color: var(--color-surface-secondary, #f5f5f5); font-size: 12; }
+.xw-error { color: var(--color-danger, #b91c1c); }
+.xw-action { margin: 4; padding: 8; min-height: 44; font-size: 13; border-radius: 6; border-width: 1; border-color: var(--color-border-strong, #737373); color: var(--color-text, #171717); background-color: var(--color-surface, #ffffff); }
+.xw-action:highlighted, .xw-action-active { background-color: var(--color-surface-secondary, #e5e5e5); border-color: var(--color-primary, #171717); }
+.xw-action:focus { border-color: var(--color-primary, #171717); border-width: 2; }
+.xw-action:disabled { color: var(--color-text-secondary, #525252); opacity: 0.6; }
+.xw-field { margin-bottom: 8; padding: 8; min-height: 44; border-radius: 6; border-width: 1; border-color: var(--color-border-strong, #737373); color: var(--color-text, #171717); background-color: var(--color-surface, #ffffff); }
+.xw-field:focus { border-color: var(--color-primary, #171717); border-width: 2; }
+.ns-dark .xw-toolbar, .ns-dark .xw-panel, .ns-dark .xw-action, .ns-dark .xw-field { background-color: var(--color-surface, #171717); color: var(--color-text, #fafafa); border-color: var(--color-border-strong, #737373); }
+.ns-dark .xw-label { color: var(--color-text, #fafafa); }
+.ns-dark .xw-status { background-color: var(--color-surface-secondary, #0a0a0a); color: var(--color-text-secondary, #a3a3a3); }
+.ns-dark .xw-error { color: var(--color-danger, #f87171); }
+.ns-dark .xw-action:highlighted, .ns-dark .xw-action-active { background-color: var(--color-surface-secondary, #404040); border-color: var(--color-primary, #fafafa); }
+.ns-dark .xw-action:focus, .ns-dark .xw-field:focus { border-color: var(--color-primary, #fafafa); }
 `
 
 /** A host-native shell. Its stage ContentView is attached once for its lifetime. */
@@ -125,6 +134,7 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
 	function label(text: string): Label {
 		const view = new Label()
 		view.text = text
+		view.className = 'xw-label'
 		view.textWrap = true
 		view.accessibilityLabel = text
 		return view
@@ -189,7 +199,16 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
 		const size = root.getActualSize()
 		storiesButton.visibility = controller.stageOnly ? 'collapse' : 'visible'
 		controlsButton.visibility = controller.stageOnly ? 'collapse' : 'visible'
-		toolbar.columns = controller.stageOnly ? '0,0,*,*' : '*,*,*,*'
+		const narrow = size.width < 400 && !controller.stageOnly
+		toolbar.rows = narrow ? 'auto,auto' : 'auto'
+		toolbar.columns = controller.stageOnly ? '0,0,*,*' : narrow ? '*,*' : '*,*,*,*'
+		for (let index = 0; index < toolbar.getChildrenCount(); index++) {
+			const child = toolbar.getChildAt(index)
+			GridLayout.setRow(child, narrow ? Math.floor(index / 2) : 0)
+			GridLayout.setColumn(child, narrow ? index % 2 : index)
+		}
+		storiesButton.className = `xw-action${controller.panel === 'stories' || (mobileShellMode(size.width, size.height) === 'wide' && !catalogCollapsed) ? ' xw-action-active' : ''}`
+		controlsButton.className = `xw-action${controller.panel === 'controls' || (mobileShellMode(size.width, size.height) === 'wide' && !controlsCollapsed) ? ' xw-action-active' : ''}`
 		const wide = mobileShellMode(size.width, size.height) === 'wide' && !controller.stageOnly
 		body.columns = wide ? `${catalogCollapsed ? 0 : 240},*,${controlsCollapsed ? 0 : 280}` : '*,0,0'
 		GridLayout.setColumn(stage as unknown as View, wide ? 1 : 0)
@@ -247,7 +266,7 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
 							() => {
 								void controller.select(entry.id)
 							},
-						)
+						).className = `xw-action${entry.id === controller.selectedId ? ' xw-action-active' : ''}`
 					} else {
 						const name = `${prefix}${prefix ? ' / ' : ''}${tail.slice(0, separator).trim()}`
 						const members = groups.get(name) ?? []

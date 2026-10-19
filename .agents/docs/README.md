@@ -19,6 +19,8 @@ framework; the app-building guides for downstream users live in `docs/`.
 
 ## Working records
 
+- [Workshop chrome](workshop-chrome.md) — presentation boundaries, references and verification limits.
+
 - [Software keyboard handling](keyboard.md) — native movement and focused-input feasibility boundaries.
 - [Implementation notes](notes/README.md) — current implementation observations and evidence.
 - [Recipes](recipes/README.md) — internal workflow specifications and coverage contracts.

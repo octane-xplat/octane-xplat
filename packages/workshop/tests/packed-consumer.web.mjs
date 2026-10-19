@@ -225,7 +225,9 @@ try {
 	)
 
 	process.stdout.write(journey)
-	console.log('PASS packed browser journey (32 DOM/input checks, no screenshots)')
+	console.log(
+		'PASS packed browser journey (maintained DOM/input and chrome checks, no screenshots)',
+	)
 
 	const page = await browser.newPage()
 	// A story or component edit must never reset the page: the shell writes

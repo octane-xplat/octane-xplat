@@ -166,6 +166,7 @@ export function startMacOSWorkshop({ bundleFile, initialStoryId = null, offscree
 
 	window.title = 'Octane Xplat workshop — macOS (qualification preview)'
 	window.releasedWhenClosed = false
+	window.minSize = { width: 320, height: 360 }
 	const content = window.contentView
 	const stage = NSView.alloc().initWithFrame(rect(0, 0, 600, 600))
 	content.addSubview(stage)
@@ -190,6 +191,7 @@ export function startMacOSWorkshop({ bundleFile, initialStoryId = null, offscree
 		const view = NSButton.alloc().initWithFrame(rect(0, 0, 100, 30))
 		view.title = title
 		view.bezelStyle = NSBezelStyle.Rounded
+		view.font = NSFont.systemFontOfSize(13)
 		setAXLabel(view, title)
 		view.target = actions
 		view.action = 'invoke:'
@@ -200,6 +202,8 @@ export function startMacOSWorkshop({ bundleFile, initialStoryId = null, offscree
 
 	const label = (parent, text) => {
 		const view = NSTextField.labelWithString(text)
+		view.font = NSFont.systemFontOfSize(13)
+		view.textColor = NSColor.labelColor
 		setAXLabel(view, text)
 		parent.addSubview(view)
 		return view
@@ -208,7 +212,10 @@ export function startMacOSWorkshop({ bundleFile, initialStoryId = null, offscree
 	const scroll = () => {
 		const view = NSScrollView.alloc().initWithFrame(rect(0, 0, 240, 600))
 		view.hasVerticalScroller = true
-		view.hasHorizontalScroller = false
+		view.hasHorizontalScroller = true
+		view.autohidesScrollers = true
+		view.drawsBackground = true
+		view.backgroundColor = NSColor.controlBackgroundColor
 		const body = NSView.alloc().initWithFrame(rect(0, 0, 240, 600))
 		view.documentView = body
 		content.addSubview(view)
@@ -220,6 +227,9 @@ export function startMacOSWorkshop({ bundleFile, initialStoryId = null, offscree
 	const controls = scroll()
 	const title = label(content, 'Choose a story')
 	const status = label(content, 'discovered')
+	title.font = NSFont.boldSystemFontOfSize(14)
+	status.font = NSFont.systemFontOfSize(12)
+	status.textColor = NSColor.secondaryLabelColor
 	const storiesButton = button(content, 'Stories', () => toggle('stories', storiesButton))
 	const controlsButton = button(content, 'Controls', () => toggle('controls', controlsButton))
 	const resetButton = button(content, 'Reset', () => {
@@ -292,6 +302,7 @@ export function startMacOSWorkshop({ bundleFile, initialStoryId = null, offscree
 				void controller.select(entry.id)
 			})
 
+			item.__workshopStoryId = entry.id
 			frame(item, 8, height - 80 - i * 38, 224, 32)
 			catalog.nodes.push(item)
 		})
@@ -353,6 +364,7 @@ export function startMacOSWorkshop({ bundleFile, initialStoryId = null, offscree
 			frame(input, 8, y - 34, 224, 30)
 			controls.nodes.push(input)
 			const error = label(controls.body, controller.errors[key] ?? '')
+			error.textColor = NSColor.systemRedColor
 			error.__workshopKey = key
 			frame(error, 8, y - 62, 224, 24)
 			controls.nodes.push(error)
@@ -383,20 +395,42 @@ export function startMacOSWorkshop({ bundleFile, initialStoryId = null, offscree
 			}
 		}
 
+		const narrow = width < 480
+		const footer = narrow ? 88 : 48
 		// Compact panels reserve space rather than cover an interactive stage.
 		const left = showCatalog ? Math.min(240, width * 0.45) : 0
 		const right = showControls ? Math.min(240, width * 0.45) : 0
-		frame(catalog.view, 0, 48, left, height - 118)
-		frame(controls.view, width - right, 48, right, height - 118)
-		frame(stage, left + 8, 48, width - left - right - 16, height - 118)
-		frame(errorCover, left + 8, 48, width - left - right - 16, height - 118)
-		frame(errorLabel, 8, Math.max(0, (height - 118) / 2 - 20), width - left - right - 32, 40)
+		frame(catalog.view, 0, footer, left, height - footer - 70)
+		frame(controls.view, width - right, footer, right, height - footer - 70)
+		frame(stage, left + 8, footer, width - left - right - 16, height - footer - 70)
+		frame(errorCover, left + 8, footer, width - left - right - 16, height - footer - 70)
+		frame(
+			errorLabel,
+			8,
+			Math.max(0, (height - footer - 70) / 2 - 20),
+			width - left - right - 32,
+			40,
+		)
 		frame(title, 8, height - 30, width - 16, 24)
 		frame(status, 8, height - 64, width - 16, 28)
-		frame(storiesButton, 8, 8, 95, 32)
-		frame(controlsButton, 108, 8, 95, 32)
+		frame(storiesButton, 8, narrow ? 48 : 8, narrow ? (width - 24) / 2 : 95, 32)
+		frame(
+			controlsButton,
+			narrow ? width / 2 + 4 : 108,
+			narrow ? 48 : 8,
+			narrow ? (width - 24) / 2 : 95,
+			32,
+		)
 		frame(resetButton, width - 100, 8, 92, 32)
-		frame(hideButton, width - 230, 8, 125, 32)
+		frame(hideButton, narrow ? 8 : width - 230, 8, narrow ? width - 116 : 125, 32)
+		storiesButton.state = showCatalog ? 1 : 0
+		controlsButton.state = showControls ? 1 : 0
+		for (const node of catalog.nodes) {
+			if (node.__workshopStoryId) {
+				node.bezelColor =
+					node.__workshopStoryId === controller.selectedId ? NSColor.controlAccentColor : null
+			}
+		}
 		hideButton.title = controller.stageOnly ? 'Return to workshop' : 'Stage only'
 	}
 
