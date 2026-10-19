@@ -36,6 +36,23 @@ function helpText(command) {
 
 	usage.push('[options]')
 	out.push(`Usage: ${usage.join(' ')}`, '')
+	out.push(`Effect: ${command.effect}`)
+	out.push(`Required scopes: ${command.permissions.join(', ') || 'none'}`)
+	out.push(
+		`Context: ${command.context === 'app' ? 'bound app' : command.context === 'workspace' ? 'workspace' : 'no project required'}`,
+	)
+	out.push(`Result: ${command.output.description}`, '')
+	if (command.name === 'catalog') {
+		out.push(
+			'Discovery:',
+			'  commands: agent commands with flags, effects, permissions, output kinds, and errors.',
+			'  orchestration: other implemented commands; use their --help for exact syntax.',
+			'  planned: advertised future commands, not executable commands.',
+			'  The catalog describes this CLI version; it does not inspect live app readiness.',
+			'  Use `xplat status --json`, `xplat capabilities --json`, and `xplat targets --json` for that.',
+			'',
+		)
+	}
 	if (command.positionals.length) {
 		out.push('Arguments:')
 		for (const p of command.positionals) {
@@ -54,7 +71,14 @@ function helpText(command) {
 					? ''
 					: ` <${f.type === 'integer' ? 'int' : 'value'}>`
 
-		out.push(`  --${f.flag}${meta}  ${f.desc ?? ''}`)
+		const constraints = [
+			f.default !== undefined ? `default: ${f.default}` : null,
+			f.min !== undefined ? `min: ${f.min}` : null,
+			f.max !== undefined ? `max: ${f.max}` : null,
+		].filter(Boolean)
+		out.push(
+			`  --${f.flag}${meta}  ${f.desc ?? ''}${constraints.length ? ` (${constraints.join(', ')})` : ''}`,
+		)
 	}
 
 	out.push('  --help  Show this help')
@@ -65,6 +89,10 @@ function helpText(command) {
 		}
 	}
 
+	out.push(
+		'',
+		`Run \`xplat ${command.name} --schema\` for the machine-readable contract without executing the command.`,
+	)
 	if (command.mcpTool) {
 		out.push('', `MCP tool equivalent: ${command.mcpTool}`)
 	}

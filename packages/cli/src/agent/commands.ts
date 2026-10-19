@@ -47,7 +47,8 @@ export const AGENT_COMMANDS = [
 		name: 'catalog',
 		path: ['catalog'],
 		mcpTool: null,
-		summary: 'Machine-readable catalog of every command, its effects, permissions, and output kind',
+		summary:
+			'Discover agent command contracts, other implemented commands, and planned commands for this CLI version',
 		effect: 'read',
 		permissions: [],
 		context: 'none',
@@ -848,6 +849,24 @@ export const PLANNED_COMMANDS = [{ name: 'query', mcpTool: null, status: 'planne
 
 /** Existing orchestration commands — unchanged, human-oriented. */
 export const LEGACY_COMMANDS = [
+	{
+		name: 'upgrade',
+		effect: 'mutate-workspace',
+		output: 'human',
+		summary: 'Inspect or apply the compatible framework version and managed patch set',
+	},
+	{
+		name: 'fmt',
+		effect: 'mutate-workspace',
+		output: 'human',
+		summary: 'Format source in place; --check reports differences without writing',
+	},
+	{
+		name: 'lint',
+		effect: 'mutate-workspace',
+		output: 'human',
+		summary: 'Check source correctness; --fix applies available fixes',
+	},
 	{
 		name: 'dev',
 		effect: 'orchestrate',

@@ -1,7 +1,8 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 // Descriptor-driven argv parsing for agent commands. `--json`, `--schema`,
-// and `--help` are intercepted before any validation so they work everywhere
-// — including outside a project. Every parse failure is an explicit
+// and `--help` are usable outside a project. Help bypasses required
+// positional arguments while supplied options still undergo parsing.
+// Every parse failure is an explicit
 // invalid_selection error (exit 2), never a stack or a partial run.
 import { contractError } from '../mcp/contracts/errors.ts'
 
@@ -104,6 +105,10 @@ export function parseArgs(command, argv) {
 		}
 
 		values[def.key ?? def.flag] = value
+	}
+
+	if (help) {
+		return { values, help }
 	}
 
 	// Descriptor defaults.

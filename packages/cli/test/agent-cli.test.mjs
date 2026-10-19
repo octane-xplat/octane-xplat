@@ -116,6 +116,21 @@ test('catalog emits the machine-readable contract without a project', () => {
 		assert.ok(names.includes(expected), `missing ${expected}`)
 	}
 
+	for (const name of ['upgrade', 'fmt', 'lint']) {
+		const command = data.orchestration.find((entry) => entry.name === name)
+		assert.ok(command, `missing orchestration command ${name}`)
+		assert.equal(command.status, 'implemented')
+		assert.equal(command.output, 'human')
+	}
+	const help = run(['--help'])
+	assert.equal(help.code, 0)
+	const executableHeads = [...help.stdout.matchAll(/^- ([a-z-]+) -/gm)].map((m) => m[1])
+	assert.ok(executableHeads.length > 0)
+	const catalogHeads = new Set([
+		...data.commands.map((entry) => entry.command.split(' ')[0]),
+		...data.orchestration.map((entry) => entry.name),
+	])
+	assert.deepEqual([...catalogHeads].sort(), executableHeads.sort())
 	assert.ok(data.planned.every((p) => p.status === 'planned'))
 	assert.equal(data.exits[2], 'invalid input or ambiguous selection')
 	assert.equal(data.errorExit.ambiguous_selection, 2)
@@ -142,6 +157,37 @@ test('help renders without a project and group help lists members', () => {
 	const usage = run(['targets', '--help'])
 	assert.equal(usage.code, 0)
 	assert.match(usage.stdout, /Usage: xplat targets/)
+})
+
+test('every agent command offers help without required inputs or a project', () => {
+	const { data } = json(run(['catalog', '--json']))
+	for (const command of data.commands) {
+		const out = run([...command.command.split(' '), '--help'])
+		assert.equal(out.code, 0, `${command.command}: ${out.stderr}`)
+		assert.ok(out.stdout.includes(`Usage: xplat ${command.command}`))
+	}
+})
+
+test('command help explains discovery and execution context without a project', () => {
+	const catalog = run(['catalog', '--help'])
+	assert.equal(catalog.code, 0)
+	assert.match(catalog.stdout, /no project required/)
+	assert.match(catalog.stdout, /orchestration:.*--help/)
+	assert.match(catalog.stdout, /planned:.*not executable/)
+	assert.match(catalog.stdout, /does not inspect live app readiness/)
+
+	const build = run(['runtime', 'build', '--help'])
+	assert.equal(build.code, 0)
+	assert.match(build.stdout, /Effect: orchestrate/)
+	assert.match(build.stdout, /Required scopes: runtime-actions/)
+	assert.match(build.stdout, /Context: bound app/)
+	assert.match(build.stdout, /accepted job record/)
+	assert.match(build.stdout, /xplat runtime build --schema/)
+
+	const search = run(['code', 'search', '--help'])
+	assert.equal(search.code, 0)
+	assert.match(search.stdout, /default: auto/)
+	assert.match(search.stdout, /min: 1, max: 50/)
 })
 
 test('unknown commands and flags fail with invalid_selection exit 2', () => {
