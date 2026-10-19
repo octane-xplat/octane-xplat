@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { createMacOSRoot, type UniversalComponent } from '@octane-xplat/macos-renderer'
 import { NSWindow } from '@octane-xplat/platform/macos'
 
@@ -34,7 +35,7 @@ function Content({ phase = 0 }: { phase?: number }) {
 					<label id={channel + '-text'} text="Intrinsic" />
 				</masonview>
 			))}
-			<masonview id="conflict" flexDirection={phase < 3 ? 'column' : undefined} gap={phase < 3 ? 4 : undefined} alignItems={phase < 3 ? 'stretch' : undefined} justifyContent={phase < 3 ? 'start' : undefined} className={phase < 2 ? 'flex-row gap-2 items-center justify-center' : ''} style={{display: "flex", ...({ width: '100%', height: 100, ...(phase === 0 ? layout : {}) })}}>
+			<masonview id="conflict" className={phase < 2 ? 'flex-row gap-2 items-center justify-center' : ''} style={mergeStyle({flexDirection: phase < 3 ? 'column' : undefined, gap: phase < 3 ? 4 : undefined, alignItems: phase < 3 ? 'stretch' : undefined, justifyContent: phase < 3 ? 'start' : undefined}, {display: "flex", ...({ width: '100%', height: 100, ...(phase === 0 ? layout : {}) })})}>
 				<label id="conflict-a" text="A" />
 				<label id="conflict-b" text="B" />
 			</masonview>

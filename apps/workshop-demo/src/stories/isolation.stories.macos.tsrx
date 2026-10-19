@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { createContext, useContext, useState } from 'octane'
 import { Pressable, Text, openWindow } from '@octane-xplat/ui'
 import { createStore, useStore, type Store } from '@octane-xplat/ui/data'
@@ -26,7 +27,7 @@ function Isolated(props: { label?: string; fixture: Fixture }) {
 	const account = useStore(fixture.account)
 	const [local, setLocal] = useState(0)
 	return (
-		<masonview flexDirection="column" style={{display: "flex"}}>
+		<masonview style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 			<Text testID="isolation-value">
 				{props.label ?? 'unset'} / {fixture.nested.label} / {account.name} / {local}
 			</Text>

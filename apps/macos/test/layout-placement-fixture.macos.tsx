@@ -1,10 +1,11 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { mergeStyle } from './style-merge'
 import { createMacOSRoot, type UniversalComponent } from '@octane-xplat/macos-renderer'
 import { NSWindow } from '@octane-xplat/platform/macos'
 
 function Panel() {
 	return (
-		<masonview id="panel" left={10} top={12} bottom={18} style={{display: "flex", ...({ width: 268 })}}>
+		<masonview id="panel" style={mergeStyle({left: 10, top: 12, bottom: 18, position: 'absolute'}, {display: "flex", ...({ width: 268 })})}>
 			<masonview id="header" style={{display: "flex", ...({ height: 44 })}}>
 				<label text="Panel header" />
 			</masonview>

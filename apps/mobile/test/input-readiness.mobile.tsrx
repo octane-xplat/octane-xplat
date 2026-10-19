@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { mergeStyle } from './style-merge'
 import { useRef, useState } from 'octane';
 import { TextInput } from '../../../packages/ui/src/TextInput.tsrx';
 import { TextArea } from '../../../packages/ui/src/TextArea.tsrx';
@@ -36,7 +37,7 @@ export function InputProbe() @{
 	};
 
 	<KeyboardAvoiding>
-		<masonview flexDirection="column" style={{display: "flex", ...({ padding: 20, gap: 10 })}}>
+		<masonview style={mergeStyle({flexDirection: "column"}, {display: "flex", ...({ padding: 20, gap: 10 })})}>
 			<label text="Input readiness probe" fontSize={24} />
 			<label text={'Changes: ' + changes} />
 			<TextInput
