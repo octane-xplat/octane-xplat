@@ -118,6 +118,12 @@ Standing criteria for judgment calls; the critical rules encode the mechanics.
   record coverage separately from verification in Silo and run
   `pnpm check:recipes`. Never weaken criteria to conceal a limitation. Report
   affected recipes and remaining gaps at handoff, or why none is affected.
+- When public APIs or documented behavior change, review the affected guidance
+  in [the Octane skill](.agents/skills/octane-xplat/SKILL.md), including its
+  references, examples, limitations, and links. Update stale information in the
+  same change. Add guidance when it changes an agent's decisions or prevents a
+  consequential mistake; preserve task-based progressive disclosure using the
+  [skill maintenance guidance](.agents/docs/documentation.md#octane-skill-maintenance).
 - Log meaningful expectation mismatches in Silo's `feedback_observations` when
   they happen; keep reports local and preserve the original expectation. See
   [local feedback](.agents/docs/exploration.md#local-framework-feedback).

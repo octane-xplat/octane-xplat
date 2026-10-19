@@ -117,6 +117,45 @@ docs. A link to another example does not replace the paragraph's snippet.
 Review API explanations paragraph by paragraph: is the usage shown, is the
 code valid, and is this how we recommend writing it?
 
+## Octane skill maintenance
+
+The [Octane skill](../skills/octane-xplat/SKILL.md) distills the guidance an
+agent needs to build correctly with the framework. When public APIs or
+documented behavior change, review the affected skill content, including
+references, examples, limitations, and links. Update anything that becomes
+stale in the same change. Review is mandatory; an edit is needed only when the
+guidance needs to change.
+
+Add information when it changes how an agent chooses an API, implements a
+supported pattern, satisfies a prerequisite, or avoids a consequential mistake.
+A new export alone does not require skill prose. Keep exhaustive API facts
+beside declarations or in public documentation; keep investigation history and
+evidence in internal records and Silo. The skill carries the actionable
+conclusion and links to detail when needed.
+
+Maintain three levels of task-based progressive disclosure:
+
+| Location | Purpose | Content |
+| --- | --- | --- |
+| `SKILL.md` | Orient and route | Scope, broadly applicable constraints, and links labeled by when to read them. |
+| `references/<topic>.md` | Support the current task | Recommended approach, minimal examples, prerequisites, and relevant limitations. |
+| `references/<topic>/<detail>.md` | Resolve a narrower question | Platform details, advanced cases, and internals needed for particular work. |
+
+Read by relevance, not by directory. Every reference must be reachable from
+`SKILL.md` or a relevant parent reference, with a link label or adjacent text
+that explains the task, question, or condition that warrants reading it.
+Reading a topic does not require loading all its subpages. For example,
+`references/navigation.md` covers ordinary navigation; it routes to
+`references/navigation/native-frames.md` when native Frame internals matter.
+
+Keep required prerequisites and meaningful limitations beside the guidance
+they qualify. Progressive disclosure must not hide information needed to use
+an API correctly. Update or replace existing guidance before adding another
+section; avoid duplicating detail across levels. Split a page when it serves
+distinct tasks that readers can load independently, rather than enforcing an
+arbitrary line limit. Keep skill maintenance policy here so consumer agents
+do not need to load contributor instructions.
+
 ## Declaration comments
 
 Every public export reachable from a package barrel — components, prop

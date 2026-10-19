@@ -68,12 +68,17 @@ export function PackingStatus() {
 
 ## References — read what the task touches
 
+Read only the references needed for the current task. Follow deeper links when
+their stated question or condition applies; reading a topic does not require
+loading its folder or every linked page. Topic guides cover the usual path;
+nested references supply narrower platform, advanced, or implementation detail.
+
 | Task                                    | Read                                                                                |
 | --------------------------------------- | ----------------------------------------------------------------------------------- |
 | Set up / run / build                    | `references/getting-started.md`                                                     |
 | Use or add a component                  | `references/primitives.md` (+ `primitives/driver-semantics.md` for how leaves bind) |
 | Platform file layout, suffixes, imports | `references/platform-leaves.md`                                                     |
-| Styles, tokens, dark mode               | `references/styling.md` (+ `styling/tokens.md`, `styling/root-boundaries.md`)       |
+| Styles, tokens, dark mode               | `references/styling.md`; token definitions: `references/styling/tokens.md`; styles across separate roots: `references/styling/root-boundaries.md` |
 | navigate/goBack, stacks, routes         | `references/navigation.md` (+ `navigation/native-frames.md` for Frame internals)    |
 | Modal / sheet / overlay                 | `references/overlays.md`                                                            |
 | storage, theme, animation, gestures     | `references/services.md`                                                            |
@@ -88,8 +93,10 @@ export function PackingStatus() {
 - `packages/app` — the harness app exercising every seam (not a product).
 - `packages/demos` — 10 demo screens used as navigation/store payloads.
 - `apps/web`, `apps/mobile` — the two entry shells + their vite configs.
-- `docs/` — the full design record (decisions ledger, exploration notes).
-  References here are distilled for use; `docs/` is the why.
+- `docs/` — reader-facing app-building guides.
+- `.agents/docs/` — internal implementation guidance and notes;
+  `.agents/design/` — design decisions, proposals, and research. Skill
+  references distill the guidance needed to act; internal records explain why.
 
 ## Report framework expectation mismatches
 
@@ -128,6 +135,6 @@ submission.
 
 ## Confidence marks
 
-Findings in `docs/` carry evidence types: `desk-source` (read upstream
+Internal findings carry evidence types: `desk-source` (read upstream
 code) vs `lab-experiment` (measured on a running target). When reporting
 what works, match the mark — don't upgrade desk-source claims to tested.
