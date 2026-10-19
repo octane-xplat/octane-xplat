@@ -20,9 +20,9 @@ export function PackingRow() {
 }
 ```
 
-**Prop types live in `packages/ui/src/props.ts`** — the source for shared
-component leaves and published declarations. Platform subpath widgets also
-use these shared prop contracts where applicable.
+**For UI contributors**, shared component prop contracts live in
+`packages/ui/src/props.ts` and feed published declarations. Consumer app
+components own their own props; do not edit framework internals to define them.
 
 ## Shared surface
 
@@ -51,9 +51,11 @@ export function Controls() {
 			<Slider value={50} onValueChange={console.log} />
 			<Spinner />
 			<TextInput label="Bag name" />
-			<Drawer open={false}>
-				<TextInput label="Packing notes" />
-			</Drawer>
+			<Drawer
+				open={false}
+				main={<TextInput label="Packing notes" />}
+				drawer={<TextInput label="Drawer notes" />}
+			/>
 		</>
 	)
 }

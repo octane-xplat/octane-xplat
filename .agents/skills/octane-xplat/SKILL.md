@@ -1,144 +1,127 @@
 ---
 name: octane-xplat
-description: Build, test, and ship a single Octane codebase that targets web (DOM renderer) plus iOS/Android via NativeScript and @nativescript-community/octane — primitives, platform leaves, styling, navigation, overlays, services, testing, toolchain, and publish model. Use when writing or reviewing app code, adding components/screens, debugging platform divergences, or publishing @octane-xplat/ui.
+description: Build or review Octane Xplat apps and framework components across web and NativeScript iOS/Android, with explicit experimental desktop guidance. Use for shared UI, platform leaves, styling, navigation, state, testing, and framework packaging.
 ---
 
 # Octane Cross-Platform Framework
 
-One Octane codebase, three targets: **web** (Octane DOM renderer) and
-**iOS/Android** (NativeScript via `@nativescript-community/octane`'s
-universal-runtime driver over `@nativescript/core`). Platform divergence
-lives at **file boundaries** — `.web` for browser code, `.mobile` for shared
-iOS/Android differences, OS-specific suffixes, and the unsuffixed native default.
+Build shared screens with Octane and `@octane-xplat/ui`. Web uses the DOM
+renderer; iOS/Android use NativeScript through `@nativescript-community/octane`.
+Desktop hosts are experimental; choose the actual host before reusing a
+platform example. Platform divergence belongs at file boundaries.
 
-## The rules that can't bend
+## Core constraints
 
-1. **No npm.** pnpm for everything.
-2. **No DOM globals in shared/native code.** `check:no-dom` enforces it;
-   native leaves must start with `/** @jsxImportSource @octane-xplat/jsx */`
-   on line 1. New apps default to this facade; `.web` JSX files start with
-   `/** @jsxImportSource @octane-xplat/jsx/dom */`. These select types only;
-   the build still selects the existing platform renderer.
-3. **Hooks only in `.tsx`/`.tsrx` inside a renderer include glob.** Plain
-   `.ts` helpers don't get hook slotting OR forbidden-global validation —
-   a hook imported from a `.ts` file binds a second runtime whose
-   dispatcher never runs. In `.tsrx`, effects infer deps from closure
-   reads; an effect that only writes needs explicit deps.
-4. **Static styles = `className`; dynamic = `style` objects.** No inline
-   string styles, no `<style>` tags.
-5. **Prop types live in `packages/ui/src/props.ts`** — the single source
-   for both platform leaves and the published `.d.ts`. New/changed props
-   go there, not inline.
-6. **Subscribe to shared state and preserve content ownership.** Declarative
-   surfaces preserve providers through portals. Native routes use the providers
-   around a mounted `RouteOutlet`; scoped imperative services use those around
-   their returned element. Ownerless global services and routes without an
-   outlet retain standalone roots: pass explicit data or use subscribed
-   module-scope stores there. See `references/overlays.md` and
-   `references/navigation.md` for ownership and lifetime examples.
-   - **Reads subscribe or they go stale.** The universal renderer retains
-     unchanged-prop children, so every non-signal store reader calls
-     `useStore(store)` (`createStore`/`useStore` are exported from
-     `@octane-xplat/ui/data`, not the root barrel) — `store.getSnapshot()`
-     is a one-time read.
-   - **Signal reads are enabled per module, not per file graph.** A module
-     that calls `.get()` during render needs a runtime import from a
-     signals entry (`octane/signals`, `/client`, or `/server`) — a named
-     import like `signal$`/`useSignal$` satisfies it; the bare
-     `import 'octane/signals'` is only needed when the module otherwise
-     imports no signals API. A `$` suffix, a type-only import, or a handle
-     imported from another file do not enable it. Keep signal-backed names
-     suffixed `$`.
-7. **The unsuffixed module is the native default.** Add a `.web.ts` sibling
-   when browser code imports a native-only module; use `.mobile.ts` for a
-   shared iOS/Android override and `.ios.ts`/`.android.ts` for OS-only code.
+- Use pnpm for project commands. Declare every imported dependency; repository
+  workspace dependencies use `"workspace:*"`.
+- Keep one Octane runtime per app. Hooks belong in `.tsx`/`.tsrx` inside the
+  renderer include glob. Keep runtime imports from `octane`; the native preset
+  retargets them. In `.tsrx`, effect dependencies are inferred from closure reads;
+  an effect that only writes needs explicit dependencies.
+- Keep one intrinsic vocabulary per file, with no DOM globals in shared/native
+  implementations. Import unsuffixed basenames so the resolver selects the leaf.
+  The unsuffixed file is the native default; `.web`, `.mobile`, and OS suffixes
+  provide overrides. See [platform leaves](references/platform-leaves.md).
+- New apps default to the shared `@octane-xplat/jsx` types. An explicit native
+  pragma selects that same facade; browser intrinsic files select
+  `@octane-xplat/jsx/dom`. Put a JSX pragma first when present. Types do not select
+  the renderer; retain the app's Vite presets.
+- Use CSS/`className` for static styles and style objects for dynamic styles.
+  Native authored layout uses `masonview` with layout in the style channel;
+  shared components translate their semantic layout props. See
+  [styling](references/styling.md) before authoring raw leaves.
+- Subscribe at each reader of non-signal module state. `createStore` and
+  `useStore` come from `@octane-xplat/ui/data`; a bare `getSnapshot()` read does
+  not subscribe. Universal rendering retains unchanged-prop children.
+- A module reading a signal's `.get()` during render needs a runtime import from
+  `octane/signals`, `octane/signals/client`, or `octane/signals/server`. A named
+  signals import suffices; use a bare import when otherwise importing only a
+  handle from another module. Type-only imports and `$` names do not enable
+  tracking. Keep signal-backed names suffixed `$`.
+- Declarative surfaces preserve providers through portals. Native routes inherit
+  providers around their mounted route outlet; scoped imperative services use
+  providers around their returned element. Ownerless calls retain standalone
+  roots. Native host theme inheritance is a separate concern; read the relevant
+  ownership reference below.
 
 ```tsx
-import { useSyncExternalStore } from 'octane'
 import { Text } from '@octane-xplat/ui'
-import { createStore } from '@octane-xplat/ui/data'
+import { createStore, useStore } from '@octane-xplat/ui/data'
 
 const packedCount = createStore(0)
 export function PackingStatus() {
-	const count = useSyncExternalStore(
-		packedCount.subscribe,
-		packedCount.getSnapshot,
-		packedCount.getSnapshot,
-	)
+	const count = useStore(packedCount)
 	return <Text>{count} packed</Text>
 }
-// Call packedCount.set(nextCount) from an app action to publish a change.
+// An app action publishes an update with packedCount.set(nextCount).
 ```
 
-## References — read what the task touches
+## Read for the current task
 
-Read only the references needed for the current task. Follow deeper links when
-their stated question or condition applies; reading a topic does not require
-loading its folder or every linked page. Topic guides cover the usual path;
-nested references supply narrower platform, advanced, or implementation detail.
+Read the relevant topic, then follow deeper links only when their stated
+question applies. Read canonical docs in addition to this skill whenever the
+task needs API details, prerequisites, migration instructions, or platform
+limitations. Do not load the entire reference tree by default.
 
-| Task                                    | Read                                                                                                                                              |
-| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Set up / run / build                    | `references/getting-started.md`                                                                                                                   |
-| Use or add a component                  | `references/primitives.md` (+ `primitives/driver-semantics.md` for how leaves bind)                                                               |
-| Platform file layout, suffixes, imports | `references/platform-leaves.md`                                                                                                                   |
-| Styles, tokens, dark mode               | `references/styling.md`; token definitions: `references/styling/tokens.md`; styles across separate roots: `references/styling/root-boundaries.md` |
-| navigate/goBack, stacks, routes         | `references/navigation.md` (+ `navigation/native-frames.md` for Frame internals)                                                                  |
-| Modal / sheet / overlay                 | `references/overlays.md`                                                                                                                          |
-| storage, theme, animation, gestures     | `references/services.md`                                                                                                                          |
-| Probe harness, sweeps, smoke            | `references/testing.md`                                                                                                                           |
-| Builds, releases, npm publish           | `references/toolchain.md`                                                                                                                         |
-| What's broken/unverified                | `references/known-limits.md` — **read this before promising behavior**                                                                            |
+| Task                                               | Start here                                                                                                                                       |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Create, run, or upgrade an app                     | [Getting started](references/getting-started.md)                                                                                                 |
+| Choose/use a component                             | [Primitives](references/primitives.md)                                                                                                           |
+| Implement/debug a native leaf                      | [Driver semantics](references/primitives/driver-semantics.md)                                                                                    |
+| Platform filenames, imports, JSX types             | [Platform leaves](references/platform-leaves.md)                                                                                                 |
+| CSS, tokens, themes                                | [Styling](references/styling.md); [token definitions](references/styling/tokens.md); [theme across hosts](references/styling/root-boundaries.md) |
+| Routes, stacks, loaders                            | [Navigation](references/navigation.md); [Frame internals](references/navigation/native-frames.md) only for native stack debugging                |
+| Dialogs, sheets, overlays                          | [Overlays and ownership](references/overlays.md)                                                                                                 |
+| Device services, animation, gestures, localization | [Services](references/services.md)                                                                                                               |
+| App tests or framework probes                      | [Testing](references/testing.md)                                                                                                                 |
+| Package validation or framework publishing         | [Toolchain](references/toolchain.md)                                                                                                             |
+| Promise support or assess a workaround             | [Limits and evidence](references/known-limits.md) before making the claim                                                                        |
 
-## Orientation
+## Canonical documentation and scope
 
-- `packages/ui` — the framework (`@octane-xplat/ui` on npm): primitives,
-  `styled()`, stacks, routes, theme.
-- `packages/app` — the harness app exercising every seam (not a product).
-- `packages/demos` — 10 demo screens used as navigation/store payloads.
-- `apps/web`, `apps/mobile` — the two entry shells + their vite configs.
-- `docs/` — reader-facing app-building guides.
-- `.agents/docs/` — internal implementation guidance and notes;
-  `.agents/design/` — design decisions, proposals, and research. Skill
-  references distill the guidance needed to act; internal records explain why.
+For app work, start with [public guides](../../../docs/README.md), declarations
+for the installed package version, and the app's own instructions. Use
+[installed-version retrieval](../../../packages/cli/README.md#agents) when
+available; it reports missing snapshots and conflicts instead of silently
+substituting latest docs.
 
-## Report framework expectation mismatches
-
-While using Octane Xplat in a consumer app, record meaningful mismatches that
-block the task, cause rework, require a workaround, or cost investigation.
-Capture what you expected and why before investigating further; keep the
-observed result and evidence separate from later diagnosis. Record one report
-per distinct observation without deduplicating other agents' reports. A
-confirmed framework bug is not required.
-
-Use the observation shape from `xplat feedback`: `goal`, `expected`,
-`expectation_basis`, `actual`, `target`, and `impact`; `evidence` and
-`workaround` are optional.
-Targets are `web`, `ios`, `android`, `macos`, `linux`, `windows`, or
-`unknown`; impacts are `blocked`, `rework`, `investigation`, or `surprise`.
-
-```json
-{
-	"goal": "Render a saved packing count",
-	"expected": "A shared-state update appears in each screen",
-	"expectation_basis": "The store subscription guide",
-	"actual": "The second screen retained its earlier count",
-	"target": "ios",
-	"impact": "investigation"
-}
+```sh
+pnpm xplat status --json
+# Bind the intended app if status reports no or ambiguous selection:
+pnpm xplat app select APP_ID
+pnpm xplat guidance
+pnpm xplat docs search "navigation"
+# Use the exact ref returned by search:
+pnpm xplat docs read --ref DOC_REF
 ```
 
-Use that observation shape when the task or project instructions provide a
-feedback destination. Follow those instructions for local Silo routing; a
-consumer app's Silo may not be shared with the framework repository. Do not
-assume a local write is centrally visible. Keep reports concise and omit
-secrets, credentials, private application data, repository URLs, and absolute
-paths. The `xplat feedback` command submits to its configured endpoint
-immediately, so invoke it only when the task explicitly authorizes external
-submission.
+Repository contributors also read [AGENTS.md](../../../AGENTS.md) and its
+applicable references. `packages/app`/`packages/demos` and `apps/*` are proving
+harnesses; they are not consumer dependencies. Internal guidance lives in
+[.agents/docs](../../docs/README.md), decisions in
+[.agents/design](../../design/README.md). When extending the framework:
 
-## Confidence marks
+- Keep shared UI prop contracts in `packages/ui/src/props.ts`; an app component
+  owns its own props. Platform variants expose identical names and public types.
+- Preserve parity and the normalization contract. Prefer Astryx naming/behavior,
+  with React Aria as fallback. Update the relevant parity record when equivalents
+  change; see [architecture](../../docs/architecture.md).
+- UI takes no new dependencies or peers. Features with external engine/plugin
+  cost or a separate host lifecycle belong in leaf packages; pure dependency-free
+  UI stays in UI. Follow the repository's current decision criteria.
+- Run the touched-package/dependents typecheck. For public workflow changes,
+  reconcile recipes, docs, maintained examples, and Silo coverage; run
+  `pnpm check:recipes`. Follow [documentation coverage](../../docs/documentation.md).
+- Verify and record upstream limitations and local workarounds using
+  [upstream guidance](../../docs/upstream-limitations.md). Report actual targets
+  and evidence; source/build success does not qualify OS input or pixel parity.
 
-Internal findings carry evidence types: `desk-source` (read upstream
-code) vs `lab-experiment` (measured on a running target). When reporting
-what works, match the mark — don't upgrade desk-source claims to tested.
+## Framework expectation mismatches
+
+Record meaningful mismatches that block work, cause rework, or cost investigation.
+Preserve the original expectation and its basis separately from observed behavior
+and later diagnosis. Use the project's supplied feedback destination and
+[local feedback contract](../../docs/exploration.md#local-framework-feedback);
+consumer Silo data is not automatically shared with this repository. Omit secrets
+and private application data. `xplat feedback` submits externally immediately:
+invoke it only when external submission is explicitly authorized.

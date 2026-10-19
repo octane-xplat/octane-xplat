@@ -25,14 +25,11 @@ component layer; design tokens are CSS custom properties.
 4. **Utility classes are a shared vocabulary** (`flex-1`, `gap-4`,
    `bg-primary`, `text-onprimary`...) — the curated shared set lives in
    `packages/ui/src/theme/tokens.css`; app-only selectors live in
-   `packages/app/src/app.css`. See docs/css-support-matrix.md for what
-   NativeScript actually honors.
-   - **Do not add Tailwind** (web `@tailwindcss/vite` or native
-     `@nativescript/tailwind`): blocked on
-     [NativeScript/tailwind#226](https://github.com/NativeScript/tailwind/issues/226) —
-     its stale allowlist strips core-supported props incl. `gap`, deletes all
-     `@media`, and rewrites `invisible`→`collapse`, so the same class
-     silently diverges across targets.
+   `packages/app/src/app.css`. Read the [styling guide](../../../../docs/app/styling.md) for supported
+   composition and the [CSS notes](../../../docs/notes/css-support-notes.md)
+   when investigating native property support.
+   Prefer the existing pipeline; adding another utility/CSS engine requires
+   proving the same rules work on each intended target.
 5. Per-platform selector hooks exist: `.ns-root`, `.ns-ios`, `.ns-android`,
    `.ns-dark`, `.ns-light`, `.ns-landscape`, `.ns-modal` on native ≈
    `:root`/`.dark` on web.
@@ -62,9 +59,9 @@ hosts, read [driver semantics](primitives/driver-semantics.md#leaf-shape).
 ## Tokens
 
 CSS vars (`--color-primary` etc.) in `packages/ui/src/theme/tokens.css` —
-imported once by the app entry. Values resolve at **app stylesheet scope**:
-`getCssVariable('--color-primary')` returns the same value inside every
-native root. See `styling/tokens.md` for the inventory.
+imported once by the app entry. Load the required structural stylesheet in each app entry. Read
+[token definitions](styling/tokens.md) when adding or overriding tokens; native
+host classes still need separate application across host boundaries.
 
 ```ts
 // Import once in the app entry.
@@ -75,8 +72,10 @@ import '@octane-xplat/ui/theme/tokens.css'
   normalization and layout rules components rely on, and omitting it breaks
   geometry. `chrome.css` is the optional decoration layer (default colors,
   borders, fonts); import it after `tokens.css`, before the app's own CSS.
-- **Use JS `import` for stylesheets.** CSS `@import` bypasses the native
-  preset's px-to-DIP rewrite, so rules pulled in that way land unscaled.
+- **Prefer JS stylesheet imports.** Platform CSS selection and build-time
+  conditions belong to the configured preset. See
+  [CSS variants](../../../../docs/platform/module-resolution.md#css-file-variants)
+  before relying on browser-only transforms or import ordering.
 - The experimental macOS AppKit renderer supports a smaller set of named
   styles — check `docs/verify/known-limits.md` before promising a property.
 
@@ -114,20 +113,33 @@ native. Both sides' dead rules are expected.
 
 ## styled()
 
-`styled(Base, { base?, variants? })` → component taking Base's props plus
-boolean flags for class variants or option-name unions for enumerated
-variants. `defaultVariants` selects omitted values; classes compose with the
-base component and the caller's `className`.
+The factory supports boolean class variants and option-name variants, with
+`defaultVariants` for omitted selections. The public declarations define the
+inferred variant props; this example defines a boolean variant.
+
+```ts
+import { styled, Pressable } from '@octane-xplat/ui'
+
+export const DangerButton = styled(Pressable, {
+	base: 'trip-button',
+	variants: { danger: 'bg-danger' },
+})
+```
+
+The v0.16.0 native factory declaration returns a callable with a required
+second `context` argument, which the shared JSX facade rejects as a JSX tag.
+Until that contract is corrected, compose classes on a shared component rather
+than casting away the mismatch. This is a declaration check, not a runtime
+failure claim; see the [native factory note](../../../docs/notes/styled-jsx-contract.md).
 
 ```tsx
-import { styled, Pressable, Text } from '@octane-xplat/ui'
+import { Pressable, Text } from '@octane-xplat/ui'
 
-const DangerButton = styled(Pressable, { base: 'trip-button', variants: { danger: 'bg-danger' } })
 export function Remove() {
 	return (
-		<DangerButton danger className="extra">
+		<Pressable className="trip-button bg-danger extra">
 			<Text>Remove</Text>
-		</DangerButton>
+		</Pressable>
 	)
 }
 ```

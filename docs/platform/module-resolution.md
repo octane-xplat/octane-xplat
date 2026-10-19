@@ -54,6 +54,7 @@ their platform's own views. The selection order is:
 | macOS WKWebView                   | `.web` → unsuffixed                 |
 | Windows (when configured)         | `.windows` → unsuffixed             |
 | Windows WebView (when configured) | `.web` → unsuffixed                 |
+| Linux GTK4/GJS native             | `.gtk` → unsuffixed                 |
 | Linux WebKitGTK (legacy)          | `.linux` → `.web` → unsuffixed      |
 
 There is no general `.native` or `.desktop` filename tier. Native code goes in
@@ -180,7 +181,11 @@ A renderer-specific pragma overrides the app default, so use the facade:
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export function Card() {
-	return <masonview><label text="Ready" /></masonview>
+	return (
+		<masonview style={{ display: 'grid' }}>
+			<label text="Ready" />
+		</masonview>
+	)
 }
 ```
 
@@ -200,11 +205,11 @@ its environments; manifests without an explicit source retain the legacy
 
 ```json
 {
-  "compilerOptions": { "jsxImportSource": "@octane-xplat/jsx" },
-  "environments": {
-    "web": { "include": ["src/**/*.web.tsx"] },
-    "native": { "include": ["src/**/*.mobile.tsx"] }
-  }
+	"compilerOptions": { "jsxImportSource": "@octane-xplat/jsx" },
+	"environments": {
+		"web": { "include": ["src/**/*.web.tsx"] },
+		"native": { "include": ["src/**/*.mobile.tsx"] }
+	}
 }
 ```
 

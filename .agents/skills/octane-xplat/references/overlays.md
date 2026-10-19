@@ -30,31 +30,6 @@ and live context updates. Global `openModal(Component, params)` uses a separate 
 below supplies source ownership when providers are needed. The
 modal host receives its own theme classes (see styling/root-boundaries.md).
 
-```tsx
-/** @jsxImportSource @octane-xplat/jsx */
-import { createContext, useContext } from 'octane'
-import { UIModal } from '@octane-xplat/ui/ios'
-import { Text } from '@octane-xplat/ui'
-
-const AccountContext = createContext('Guest')
-const AccountContextProvider: any = AccountContext
-function AccountName(props: { label: string }) {
-	return (
-		<Text>
-			{props.label}: {useContext(AccountContext)}
-		</Text>
-	)
-}
-
-export function AccountDetails() {
-	return (
-		<AccountContextProvider value="Avery">
-			<UIModal open component={AccountName} params={{ label: 'Account' }} />
-		</AccountContextProvider>
-	)
-}
-```
-
 Use the OS modal only when platform chrome is intended:
 
 ```tsx

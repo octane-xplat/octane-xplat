@@ -986,6 +986,11 @@ tradeoffs.
 
 ## Preserve providers across native Pages
 
+The v0.16.0 shared native JSX facade rejects Octane provider callables with
+TS2786; this is a [declaration limitation](../../.agents/docs/notes/styled-jsx-contract.md#context-providers),
+not evidence that route provider ownership fails at runtime. The example below
+explains the ownership pattern and encounters that diagnostic under the facade.
+
 A provider shares a value, such as the signed-in account, with components
 below it. Place `RouteOutlet` inside those providers in your long-lived app
 shell. On iOS and Android, pushed Pages and route modals then stay in that

@@ -37,23 +37,21 @@ alone does not capture a screen-local provider. Without an outlet, routing
 uses a standalone root and needs params or a subscribed store.
 
 ```tsx
-import { createContext } from 'octane'
 import { RouteOutlet, Screen, Text } from '@octane-xplat/ui'
 
-const Account = createContext('Guest')
 export function AppShell() {
 	return (
-		<Account value="Avery">
-			<Screen>
-				<RouteOutlet stack="root">
-					<Text>Home</Text>
-				</RouteOutlet>
-			</Screen>
-		</Account>
+		<Screen>
+			<RouteOutlet stack="root">
+				<Text>Home</Text>
+			</RouteOutlet>
+		</Screen>
 	)
 }
 ```
 
+Wrap this shell in the app's providers; v0.16.0 provider callables have a
+[shared-facade typing limitation](../../../docs/notes/styled-jsx-contract.md#context-providers).
 For screen-local ownership, use the scoped NativeScript navigator described in
 [the route provider guide](../../../../docs/app/navigation.md#preserve-providers-across-native-pages).
 
@@ -134,7 +132,7 @@ import { deriveRouteManifest, registerRoutes } from '@octane-xplat/ui/routing'
 
 // routes.web.ts — the glob belongs in a Vite app module.
 const files = import.meta.glob('./app/**/*.tsrx', { eager: true })
-const manifest = deriveRouteManifest(files)
+const manifest = deriveRouteManifest(files, ['web'])
 registerRoutes(manifest)
 ```
 

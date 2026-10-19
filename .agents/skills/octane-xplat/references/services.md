@@ -48,9 +48,8 @@ export function Appearance() {
 - Web: `matchMedia('(prefers-color-scheme: dark)')` + change listener.
 - Native: `Application.systemAppearance()` (falls back during early boot —
   the primary window isn't guaranteed yet) + appearance-change events.
-- Manual override lives in app state (`override ?? scheme`), applied as
-  `dark ns-dark` on the app root — see styling/root-boundaries.md for the
-  cross-root rule.
+- Manual overrides use the shared theme preference APIs; see
+  [theme across hosts](styling/root-boundaries.md) for a subscribed example.
 
 ## Animation — `useAnimation(initial, prop)`
 
@@ -67,8 +66,20 @@ export function MovingCard() {
 	return (
 		<>
 			<View ref={x.ref} />
-			<Button clickAction={() => x.to(80, { duration: 300 })}>Move</Button>
-			<Button clickAction={() => x.spring(0, { damping: 14, stiffness: 120 })}>Return</Button>
+			<Button
+				clickAction={() => {
+					void x.to(80, { duration: 300 })
+				}}
+			>
+				Move
+			</Button>
+			<Button
+				clickAction={() => {
+					void x.spring(0, { damping: 14, stiffness: 120 })
+				}}
+			>
+				Return
+			</Button>
 		</>
 	)
 }
@@ -77,8 +88,9 @@ export function MovingCard() {
 - `ref` is a leaf `ref` prop target — forwards to the intrinsic's `ref`,
   the tween writes the view directly (no re-render per frame).
 - Web: rAF tween writes `el.style`. Native: writes the NS view property.
-- Verified: `anim settled` assert on both (native timing is looser — probe
-  tolerances account).
+- Qualify animation timing and cancellation on the actual target; see
+  [animation and gestures](../../../../docs/app/animation-gestures.md) for the
+  current contract rather than treating a historical harness assert as a guarantee.
 
 ## Gestures
 
@@ -103,9 +115,9 @@ export function GestureArea() {
 }
 ```
 
-## nav / sheet / overlay / route / stacks twins
+## Locate the owning package
 
-Covered in navigation.md + overlays.md. App-owned twins include `nav`,
+Read [navigation](navigation.md) and [overlays](overlays.md) for UI ownership. App-owned twins include `nav`,
 `sheet`, `overlay`, and `demosweep` (probe) under `packages/app`; capability
 twins such as `storage`, connectivity, files, and system bars live under
 `packages/platform`. In `packages/ui`, keep `stacks`, `route`, `anim`,
@@ -115,7 +127,8 @@ twins such as `storage`, connectivity, files, and system bars live under
 
 1. `packages/platform/src/foo.ts` (native default) +
    `foo.web.ts` (implementation or
-   explicit no-op stub + log) — same export names.
+   documented unsupported result) — same export names and public types.
+   Silent no-ops are not a substitute for platform parity.
 2. Export through the package barrel (deep specifiers don't
    extension-resolve).
 3. If it touches a DOM global on web — fine, web leaf is DOM territory;
@@ -133,10 +146,12 @@ only; no `<Trans>`/`I18nProvider`. Guide: docs/app/localization.md, decision #85
 
 ```ts
 // Startup .ts module: Vite loads the app's compiled catalog modules.
-import { initLingui, catalogsFromGlob, setLocale } from '@octane-xplat/lingui'
+import { initLingui, catalogsFromGlob, setLocale, type CatalogModule } from '@octane-xplat/lingui'
 
 await initLingui({
-	catalogs: catalogsFromGlob(import.meta.glob('../locales/*/messages.ts', { query: '?lingui' })),
+	catalogs: catalogsFromGlob(
+		import.meta.glob<CatalogModule>('../locales/*/messages.ts', { query: '?lingui' }),
+	),
 	fallback: 'en',
 })
 await setLocale('fr')
@@ -152,3 +167,13 @@ export function PackedLabel() {
 	return <Text>{i18n._('Packed')}</Text>
 }
 ```
+
+## Choose a capability and handle availability
+
+Read the [platform services guide](../../../../docs/platform/platform-services.md)
+for current capabilities, permissions, and target behavior. Media, storage
+engines, and plugin-backed services may live in leaf packages rather than the
+platform barrel. Select the owning package from its guide and export map;
+do not infer support from a similarly named browser API. For adding new
+framework services, apply the dependency and lifecycle criteria in
+[architecture](../../../docs/architecture.md).

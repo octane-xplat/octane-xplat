@@ -35,8 +35,9 @@ export function Leaf(props: ViewProps) @{
   `@nativescript-community/octane`. The native build also aliases
   `octane` → `octane/universal/native` so dep-scanning doesn't vendor the
   DOM runtime.
-- `component X` declarations type as `() => Element` in .ts files — cast
-  to `UniversalComponent` when passing to `createNativeScriptRoot`.
+- For a compiled component typed as returning the facade's opaque JSX value,
+  use `renderNativeScriptApp` at an intentional bootstrap boundary; it owns the
+  component-brand typing seam instead of requiring an app-level cast.
 
 ```tsrx
 /** @jsxImportSource @octane-xplat/jsx */
@@ -49,7 +50,7 @@ export function ClassifiedLeaf(props: ViewProps) @{
 }
 ```
 
-## Driver-owned machinery (upstream, since ns-octane 0.2.1)
+## Driver-owned machinery
 
 - `renderItem` on `<listview>` → real recycling cells used by the
   `UITableView`/`RecyclerView` platform subpath components.
@@ -86,7 +87,7 @@ Keep it when refreshing the patch until core provides an equivalent. See the
 
 ## Root creation
 
-`createNativeScriptRoot(hostView).render(Component, props)` creates an
+`createNativeScriptRoot(hostView)` creates an
 independent root. Use it for bootstrap or intentionally independent content;
 framework-owned surfaces, list cells, and routes with an outlet use portals
 instead. Do not replace their content owners with new roots.
@@ -94,15 +95,14 @@ instead. Do not replace their content owners with new roots.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 // Host.mobile.tsx — the app supplies hostView after creating its native host.
-import { createNativeScriptRoot } from '@nativescript-community/octane'
+import { renderNativeScriptApp } from '@nativescript-community/octane'
 import { GridLayout } from '@nativescript/core'
 
 function Content() {
 	return <label text="Trip details" />
 }
 export function mountContent(hostView: GridLayout) {
-	const root = createNativeScriptRoot(hostView)
-	root.render(Content, {})
+	const root = renderNativeScriptApp(hostView, Content, {})
 	return () => root.unmount()
 }
 ```

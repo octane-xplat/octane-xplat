@@ -8,7 +8,9 @@ it:
 - **Web:** `.web.*` → unsuffixed.
 - **iOS:** `.ios.*` → `.mobile.*` → unsuffixed.
 - **Android:** `.android.*` → `.mobile.*` → unsuffixed.
-- **macOS / Windows:** `.macos.*` / `.windows.*` → unsuffixed.
+- **macOS / Windows native:** `.macos.*` / `.windows.*` → unsuffixed.
+- **Linux GTK:** `.gtk.*` → unsuffixed (GTK4/GJS host).
+- **Linux DOM webview:** `.linux.*` → `.web.*` → unsuffixed (legacy WebKitGTK host).
 
 Use `.web` for browser-specific APIs or markup, `.mobile` when iOS and Android
 share an implementation that differs from the native default, and an OS suffix
@@ -19,6 +21,14 @@ it, add a `.web` sibling so the browser build selects that implementation.
 Vite selects the active platform at build time. A scaffold's TypeScript program
 checks all variants together with a fixed, extensionless-first suffix order;
 that order does not change the runtime resolver.
+
+Choose the actual renderer before adding a desktop variant. Desktop hosts are
+experimental; native GTK and DOM webviews are different targets. Read
+[GTK setup](../../../../docs/platform/linux-gtk.md),
+[macOS native](../../../../docs/platform/macos-native.md), or
+[Windows setup](../../../../docs/platform/windows-setup.md) for host boundaries.
+The [module-resolution guide](../../../../docs/platform/module-resolution.md)
+explains the common suffix and JSX contract.
 
 ## Rules
 
@@ -92,14 +102,10 @@ Conditions bind host types only, never the intrinsic vocabulary.
 
 ## Platform constants
 
-No `import.meta.env.PLATFORM`. On NativeScript, `__ANDROID__`/`__IOS__`/
-`__DEV__` are compile-time literals (ns-vite `define`); declare them in
-`apps/mobile/types/globals.d.ts` before use. `Application.android != null`
-is the equivalent runtime check (what we currently use). Web has only stock
-`import.meta.env`. Inline platform branches in shared files violate the
-boundary rule — but a leaf-resolved flag is fine: `@octane-xplat/ui` exports
+Do not invent `import.meta.env.PLATFORM`. Use file variants for OS APIs and
+intrinsics. A leaf-resolved flag can select shared values: `@octane-xplat/ui` exports
 `isNative` (`true` on iOS/Android, `false` on web) for render-time conditional
-JSX/props; OS-level divergence belongs in `.ios`/`.android` files, not
+shared component props; OS-level divergence belongs in `.ios`/`.android` files, not
 `isAndroid` branches in shared code.
 
 ```tsx
