@@ -270,3 +270,9 @@ patchedDependencies:
   # SDWebImageContextOriginalStoreCacheType so a memory prefetch does not spill original
   # bytes to disk.
   "@nativescript-community/ui-image@5.0.17": packages/cli/patches/@nativescript-community__ui-image@5.0.17.patch
+  # @nativescript/doctor's Android runtime check reads the app's raw devDependencies
+  # specifier and npm dist-tag resolves anything that isn't a semver range — a pnpm
+  # `catalog:` pin throws 'The determined Android runtime version ... is not valid' and
+  # kills `ns build android` before toolchain checks. Resolve catalog specifiers through the
+  # installed package's manifest, reusing the existing tgz-branch mechanism.
+  "@nativescript/doctor@2.0.18": packages/cli/patches/@nativescript__doctor@2.0.18.patch
