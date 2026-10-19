@@ -314,3 +314,25 @@ test('doctor permits omitted optional tools but reports missing required managed
 	install(vendor, 'octane', managedSpecifier('octane'))
 	assert.ok(inspectCompatibility(root, tools).every((row) => row.ok))
 })
+
+test('a private nested copy of a managed package is not the app contract', (t) => {
+	const root = project(t, {
+		dependencies: {
+			octane: managedSpecifier('octane'),
+			'@tsrx/oxc': managedSpecifier('@tsrx/oxc'),
+			typescript: managedSpecifier('typescript'),
+			nativescript: managedSpecifier('nativescript'),
+		},
+	})
+	install(root, 'octane', managedSpecifier('octane'))
+	install(root, '@tsrx/oxc', managedSpecifier('@tsrx/oxc'))
+	install(root, 'typescript', managedSpecifier('typescript'))
+	// nativescript pins its own typescript — installed nested because it
+	// conflicts with the app's copy; the version contract covers only the
+	// copy the app itself resolves.
+	const nativescript = install(root, 'nativescript', managedSpecifier('nativescript'), {
+		dependencies: { typescript: '5.7.3' },
+	})
+	install(nativescript, 'typescript', '5.7.3')
+	assert.ok(inspectCompatibility(root, tools).every((row) => row.ok))
+})

@@ -168,11 +168,17 @@ export function inspectCompatibility(
 
 		if (managed && !local.has(name) && !checked.has(`${name}:${location}`)) {
 			checked.add(`${name}:${location}`)
-			row(
-				`compatibility installed ${identity}`,
-				dependency.version === managed.version,
-				`${dependency.version} at ${relative(dir, location) || '.'}; expected ${managed.version}`,
-			)
+			// Only the app-resolved copy carries the version contract (plus
+			// singletons, where every physical copy matters) — a private nested
+			// copy pinned by an upstream package (e.g. nativescript's own
+			// typescript) is that package's implementation detail.
+			if (from === dir || managed.singleton) {
+				row(
+					`compatibility installed ${identity}`,
+					dependency.version === managed.version,
+					`${dependency.version} at ${relative(dir, location) || '.'}; expected ${managed.version}`,
+				)
+			}
 		}
 
 		if (visited.has(location)) {
