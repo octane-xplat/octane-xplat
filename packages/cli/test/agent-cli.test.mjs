@@ -31,6 +31,10 @@ const run = (args, { cwd = '/', env = {} } = {}) => {
 }
 
 const json = (out) => {
+	assert.ok(
+		out.stdout.trim().length > 0,
+		`xplat produced no stdout (exit ${out.code}): ${out.stderr.trim()}`,
+	)
 	const parsed = JSON.parse(out.stdout)
 	assert.equal(parsed.contractVersion, 1)
 	assert.match(parsed.requestId, /^req-/)
