@@ -13,7 +13,7 @@
 		"typecheck:macos": "turbo run typecheck --filter=@xplat/macos",
 		"lint": "node scripts/lint.ts",
 		"lint:fix": "node scripts/lint.ts --fix",
-		"format": "oxlint --fix && node packages/cli/src/cli.ts fmt",
+		"format": "node packages/cli/src/cli.ts fmt",
 		"check:recipes": "node scripts/check-recipes.ts",
 		"sync:patches": "node scripts/sync-patches.ts",
 		"sync:ui-barrels": "node scripts/sync-ui-barrels.ts",
