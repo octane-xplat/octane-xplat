@@ -117,3 +117,51 @@ export function inspectNativeHost(host: object) {
 	}
 }
 ```
+
+## Read focused-input geometry
+
+Use `FocusedInputController` in a platform integration to observe the editing
+control, its bounds, the insertion point at the selection end, and its vertical
+scroll ancestors. The subscription follows layout changes even when focus stays
+on the same field. It reads geometry and selection offsets without collecting
+text. Release it when your host is removed.
+
+```ts
+import { FocusedInputController } from '@octane-xplat/keyboard'
+
+export function observeEditing(host: object) {
+	return FocusedInputController.subscribe(host, state => {
+		console.log(state.inputRect, state.caretRect, state.selection)
+	})
+}
+```
+
+Coordinates use the host window's device-independent layout units; scroll owners
+are ordered from the nearest viewport outward. Selection positions use UTF-16
+offsets. UIKit and AppKit expose native insertion rectangles. Android exposes
+an insertion-line rectangle rather than the cursor drawable. Ordinary browser
+inputs expose their box and available selection offsets; their caret rectangle
+is `null`. Content-editable browser elements use a native collapsed Range when
+it has a measurable rectangle. Check the capability before relying on a caret.
+
+```ts
+import { FocusedInputController } from '@octane-xplat/keyboard'
+
+export function inspectCaret(host: object) {
+	const state = FocusedInputController.getSnapshot(host)
+	return { rect: state.caretRect, precision: state.capabilities.caretBounds }
+}
+```
+
+Cached reads do not start observation. An active subscription can request an
+immediate geometry recheck after changing validation or field layout. Unsupported
+hosts return `null` geometry and false capabilities. Focus tracking works
+independently of the software keyboard, including desktop editing.
+
+```ts
+import { FocusedInputController } from '@octane-xplat/keyboard'
+
+export function refreshEditingGeometry(host: object) {
+	FocusedInputController.recheck(host)
+}
+```

@@ -270,6 +270,11 @@ const resolveWindow = (host?: any): { key?: object; resizeWindow?: any } => {
 
 const inactiveKeyboardState = unknownKeyboardState()
 
+/** @internal Resolve a supplied host's actual window without observing it. */
+export function keyboardWindowForHost(host: any): object | undefined {
+	return resolveWindow(host).key
+}
+
 /** @internal Read cached state without observing or taking a resize lease. */
 export function keyboardSnapshotForHost(host: any): KeyboardWindowState {
 	const key = resolveWindow(host).key

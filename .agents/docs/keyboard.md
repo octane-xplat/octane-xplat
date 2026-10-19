@@ -314,3 +314,31 @@ intrinsic declarations are byte-identical to sequential application of the
 original patch to the pristine registry package. This repairs patch packaging
 without changing renderer behavior. Preserve this format when regenerating the
 patch until the underlying fixes ship upstream and the patch can be removed.
+
+## Focused-input geometry integration
+
+The optional keyboard leaf owns a focus source independent of keyboard movement.
+The SDK-free platform registry shares one source per actual window (per Document
+in browsers, because WindowProxy identity survives navigation). Final-reader
+cleanup releases display links, timers, DOM frame requests, and multicast native
+listeners. Host detach, window replacement, and document suspension invalidate
+the cached identity. No source reads input text or replaces an editing delegate.
+
+Public `FocusedInputController` exposes cached reads, scoped subscriptions, and
+an explicit active-reader recheck. Geometry is in device-independent window
+coordinates, scroll owners are nearest-first, and selection offsets use UTF-16.
+UIKit/AppKit report native insertion rectangles; Android reports an insertion
+line from Layout, without claiming cursor-drawable precision. Browser ordinary
+inputs report box/selection only; contentEditable uses a collapsed native Range.
+
+Maintained `packages/keyboard/tests/fixtures/focus.*.tsrx` journeys cover selection,
+validation displacement, multiline growth, detachment, and cleanup. Nonvisual
+qualification on Chromium, iOS27, Android API35, and AppKit verifies native
+geometry, rather than handler dispatch. This establishes programmatic focus and
+selection; it does not establish actual OS typing, IME composition, arbitrary
+transformed scroll ancestors, or Windows/Linux runtime support.
+
+UIKit and Android maintained modal journeys each passed13 assertions, including
+subscription after native focus was already established and identity invalidation
+on dismissal. These cover NativeScript Page modal hosts, not every platform
+sheet/detent implementation.

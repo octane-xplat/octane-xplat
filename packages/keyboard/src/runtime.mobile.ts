@@ -10,15 +10,23 @@ import {
 import { observeKeyboardMotion } from './source'
 import type { KeyboardRuntime } from './runtime-types'
 import { leaseKeyboardViewport } from './viewport'
+import { focusRuntime } from './focus-runtime'
 
 export const keyboardRuntime: KeyboardRuntime = {
 	activate() {
-		const offViewport = installKeyboardViewportAdapter(leaseKeyboardViewport)
+		const offFocus = focusRuntime.activate()
+		let offViewport = () => {}
 		let offSource: () => void
 		try {
+			offViewport = installKeyboardViewportAdapter(leaseKeyboardViewport)
 			offSource = keyboardWindows.install(observeKeyboardMotion ?? observeKeyboardDestination)
 		} catch (error) {
-			offViewport()
+			try {
+				offViewport()
+			} finally {
+				offFocus()
+			}
+
 			throw error
 		}
 		let active = true
@@ -30,7 +38,11 @@ export const keyboardRuntime: KeyboardRuntime = {
 			try {
 				offSource()
 			} finally {
-				offViewport()
+				try {
+					offViewport()
+				} finally {
+					offFocus()
+				}
 			}
 		}
 	},

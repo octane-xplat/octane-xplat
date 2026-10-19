@@ -13,6 +13,7 @@
 	},
 	"include": [
 		"src/types.ts",
-		"src/props.ts"
+		"src/props.ts",
+		"src/focus-types.ts"
 	]
 }

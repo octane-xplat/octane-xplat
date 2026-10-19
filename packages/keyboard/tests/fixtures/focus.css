@@ -1,0 +1,7 @@
+.focus-field { height: 48px; }
+.focus-area { height: 100px; }
+.focus-spacer { height: 1000px; }
+.focus-validation { height: 0; }
+
+.focus-web-root { height: 240px; overflow-y: auto; }
+.focus-web-spacer { height: 1000px; }

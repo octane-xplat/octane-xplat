@@ -97,3 +97,21 @@ export function readHost(host: object) {
 The [maintained example](./examples/KeyboardMotionDemo.tsrx) uses the shared UI API.
 Native layout and presentation limits are recorded in the framework's
 [software keyboard notes](../../.agents/docs/keyboard.md).
+
+`FocusedInputController` observes input identity, selection, input/caret bounds,
+and scroll ancestors independently of keyboard motion. Coordinates use the
+owning window. Caret precision is explicit; browser text fields expose box
+bounds without a caret rectangle. Release subscriptions when the host is removed.
+
+```ts
+import { FocusedInputController } from '@octane-xplat/keyboard'
+
+export function observeEditing(host: object) {
+	return FocusedInputController.subscribe(host, state => {
+		console.log(state.inputRect, state.capabilities.caretBounds)
+	})
+}
+```
+
+See the [focused-input guide](../../docs/app/software-keyboard.md#read-focused-input-geometry)
+for capability limits, selection units, and immediate rechecks.

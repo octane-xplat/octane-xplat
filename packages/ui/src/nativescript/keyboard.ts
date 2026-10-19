@@ -3,6 +3,7 @@
 export {
 	subscribeKeyboardState,
 	keyboardSnapshotForHost,
+	keyboardWindowForHost,
 	keyboardHostOverlap,
 	keyboardHostDisplacement,
 	observeKeyboardDestination,

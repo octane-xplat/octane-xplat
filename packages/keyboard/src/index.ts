@@ -1,4 +1,6 @@
 export { KeyboardController } from './controller'
+export { FocusedInputController } from './focused-input'
+export type * from './focus-types'
 export { KeyboardProvider } from './Provider.tsrx'
 export type * from './types'
 export type * from './props'
