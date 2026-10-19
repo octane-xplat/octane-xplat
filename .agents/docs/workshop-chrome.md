@@ -38,3 +38,17 @@ geometry at 320, 390, 640 and 800 pixels, alongside the existing story behavior
 checks. The packed consumer runs the same journey. No image evidence is needed.
 Native source/type/build checks do not prove OS focus, hit-testing, theme changes
 or visual parity. Keep actual-host and screen-reader/IME gates explicit.
+
+Run these checks from the repository root after changing chrome. The browser
+journey uses DOM, input and computed styles without capturing images; the
+packed mobile check compiles consumer entries without launching a device.
+
+```sh
+pnpm exec turbo run typecheck --filter=...@octane-xplat/workshop
+pnpm --filter @octane-xplat/workshop test
+pnpm --filter @xplat/workshop-demo test:e2e
+pnpm --filter @octane-xplat/workshop test:packed
+pnpm --filter @octane-xplat/workshop test:packed:mobile
+pnpm check:recipes
+pnpm check:css
+```

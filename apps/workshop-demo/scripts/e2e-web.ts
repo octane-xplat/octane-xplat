@@ -87,6 +87,7 @@ try {
 		)
 		throw error
 	})
+
 	await page.waitForTimeout(400)
 	check('mount renders real component', (await text('.xw-stage-mount')) === 'Demo: 0 (+1)')
 
@@ -103,6 +104,7 @@ try {
 				selected: style('.xw-story-active').backgroundColor,
 			}
 		})
+
 	const light = await palette()
 	const contrast = (foreground, background) => {
 		const luminance = (color) => {
@@ -120,12 +122,14 @@ try {
 			b = luminance(background)
 		return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05)
 	}
+
 	check(
 		'light chrome contrast',
 		contrast(light.text, light.surface) >= 4.5 &&
 			contrast(light.muted, light.surface) >= 4.5 &&
 			contrast(light.fieldBorder, light.surface) >= 3,
 	)
+
 	await page.hover('.xw-reset')
 	const hover = await page.$eval('.xw-reset', (el) => getComputedStyle(el).backgroundColor)
 	await page.mouse.move(0, 0)
@@ -144,11 +148,13 @@ try {
 			)
 		}),
 	)
+
 	check('selected story distinct', light.selected !== light.surface)
 	check(
 		'unsupported story remains disabled',
 		await page.$eval('.xw-story:disabled', (el) => el.disabled),
 	)
+
 	await page.emulateMedia({ colorScheme: 'dark', reducedMotion: 'reduce' })
 	const dark = await palette()
 	check(
@@ -158,6 +164,7 @@ try {
 			contrast(dark.fieldBorder, dark.surface) >= 3 &&
 			dark.surface !== light.surface,
 	)
+
 	check('theme preserves specimen color', dark.stage === light.stage)
 	await page.evaluate(() => document.documentElement.classList.add('light'))
 	check('explicit light overrides system dark', (await palette()).surface === light.surface)
@@ -169,6 +176,7 @@ try {
 			return style.animationName === 'none' && style.transitionDuration === '0s'
 		}),
 	)
+
 	await page.emulateMedia({ colorScheme: 'light', reducedMotion: 'no-preference' })
 	await page.evaluate(() => document.documentElement.classList.add('dark'))
 	check('explicit dark chrome', (await palette()).surface === dark.surface)
@@ -178,6 +186,7 @@ try {
 		await page.waitForFunction(
 			() => document.querySelector('.xw-root').classList.contains('xw-wide') === false,
 		)
+
 		check(
 			`toolbar fits ${width}px`,
 			await page.$$eval('.xw-statusbar .xw-btn', (els) =>
@@ -188,6 +197,7 @@ try {
 			),
 		)
 	}
+
 	await page.setViewportSize({ width: 1400, height: 900 })
 	await page.waitForFunction(() => document.querySelector('.xw-root').classList.contains('xw-wide'))
 
