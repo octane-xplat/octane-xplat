@@ -29,7 +29,7 @@
 		"./compat/escape-props": "./src/native-escape-props.ts"
 	},
 	"scripts": {
-		"test": "node --test test/build.test.mjs",
+		"test": "node --test test/build.test.mjs test/mason.test.mjs",
 		"typecheck": "tsc --noEmit -p tsconfig.json"
 	},
 	"devDependencies": {

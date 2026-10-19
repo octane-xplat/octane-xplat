@@ -73,6 +73,16 @@ declare module 'gi://Gtk?version=4.0' {
 			get_next_sibling(): Widget | null
 			insert_before(parent: Widget, sibling: Widget | null): void
 			insert_after(parent: Widget, sibling: Widget | null): void
+			set_layout_manager(manager: LayoutManager): void
+			measure(
+				orientation: Orientation,
+				forSize: number,
+			): [number, number, number, number]
+			size_allocate(
+				allocation: { x: number; y: number; width: number; height: number },
+				baseline: number,
+			): void
+			queue_resize(): void
 			add_controller(controller: EventController): void
 			remove_controller(controller: EventController): void
 			add_css_class(name: string): void
@@ -212,6 +222,10 @@ declare module 'gi://Gtk?version=4.0' {
 			vadjustment: Adjustment
 		}
 
+		class LayoutManager {
+			[key: string]: any
+		}
+
 		class EventController {
 			[key: string]: any
 		}
@@ -286,6 +300,25 @@ declare module 'gi://GLib' {
 		const FileTest: { EXISTS: number; IS_DIR: number }
 	}
 	export default GLib
+}
+declare module 'gi://Gdk?version=4.0' {
+	namespace Gdk {
+		class Rectangle {
+			constructor(fields?: { x?: number; y?: number; width?: number; height?: number })
+			x: number
+			y: number
+			width: number
+			height: number
+		}
+	}
+	export default Gdk
+}
+declare module 'gi://GObject' {
+	namespace GObject {
+		/** GJS type registration — returns a constructible GObject class. */
+		function registerClass(meta: any, klass?: any): any
+	}
+	export default GObject
 }
 declare module 'gi://Gio' {
 	namespace Gio {

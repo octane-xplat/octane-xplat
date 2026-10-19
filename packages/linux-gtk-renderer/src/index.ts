@@ -11,6 +11,15 @@
 // reads must be inlined by the build (xplatLinuxGtk does).
 import Gtk from 'gi://Gtk?version=4.0'
 import GLib from 'gi://GLib'
+import {
+	bindMasonView,
+	isMasonHostView,
+	isMasonView,
+	makeMasonView,
+	masonAvailable,
+	queueMasonLayout,
+	releaseMasonNodes,
+} from './mason.js'
 import { createUniversalRoot } from 'octane/universal/native'
 import type {
 	UniversalEventListenerDescriptor,
@@ -80,6 +89,10 @@ export interface ElementNode {
 	classes: string[]
 	/** True once this label/button's text has been written. */
 	textApplied: boolean
+	/** Engine handle when this node participates in a Mason subtree. */
+	masonNode?: number
+	/** Last children order pushed to the engine — set_children deltas. */
+	masonChildren?: ElementNode[]
 	destroyed: boolean
 	[key: string]: any
 }
@@ -149,6 +162,61 @@ function warnOnce(key: string, message: string) {
 	}
 }
 
+/** Prop names that only exist as pre-cutover layout vocabulary — inside a
+ *  Mason subtree they land on a dead field, so the driver warns once per
+ *  (element, prop) pair and consumes the write (macOS parity contract). */
+const MASON_CHILD_STYLE_ONLY_PROPS = new Set([
+	'x',
+	'y',
+	'left',
+	'top',
+	'row',
+	'col',
+	'rowSpan',
+	'colSpan',
+	'flexGrow',
+	'flexShrink',
+	'alignSelf',
+	'justifySelf',
+	'horizontalAlignment',
+	'halign',
+	'verticalAlignment',
+	'valign',
+])
+
+const MASON_CONTAINER_STYLE_ONLY_PROPS = new Set([
+	'orientation',
+	'spacing',
+	'gap',
+	'rowGap',
+	'columnGap',
+	'flexDirection',
+	'flexWrap',
+	'justifyContent',
+	'alignItems',
+	'alignContent',
+	'flexBasis',
+	'rows',
+	'columns',
+	'dock',
+	'flexWrapBefore',
+	'stretchLastChild',
+	'itemWidth',
+	'itemHeight',
+])
+
+const warnedStyleOnlyProps = new Set<string>()
+
+function warnStyleOnly(node: ElementNode, name: string) {
+	const key = `${node.type}:${name}`
+	if (!warnedStyleOnlyProps.has(key)) {
+		warnedStyleOnlyProps.add(key)
+		warn(
+			`<${node.type} ${name}=...> is a Mason style key — move it into style={{ ${name}: ... }} or a class.`,
+		)
+	}
+}
+
 /** Events arriving mid-apply (e.g. Gtk signals fired by attachment) defer a
  *  microtask so they dispatch after commit — same ordering guard as the NS
  *  driver's applyingDepth. */
@@ -160,10 +228,14 @@ let applyingDepth = 0
 
 function instantiate(type: string): GtkView {
 	switch (type) {
-		// Pre-mason GTK container — the mason binding (Goddard task
-		// 9c312aa7) replaces this Box mapping with the engine.
+		// The real layout engine when the XplatMason typelib is loadable —
+		// a Gtk.Widget + custom Gtk.LayoutManager driven by mason-c. The
+		// Gtk.Box fallback keeps the shim's emulation for builds without
+		// the native artifact (see src/mason.ts module note).
 		case 'masonview':
-			return new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 0 })
+			return masonAvailable()
+				? makeMasonView()
+				: new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 0 })
 		case 'label':
 			return new Gtk.Label({ label: '', xalign: 0 })
 		case 'button':
@@ -384,9 +456,17 @@ function applyStyleExtras(node: ElementNode, view: GtkView, style: PropBag | nul
 	}
 	node.appliedOpacity = source.opacity
 
-	// Layout keys arrive through the style bag now — the Gtk.Box shim consumes
-	// the subset it can express until the mason binding lands (task
-	// 9c312aa7-2cdb-46c7-ae0e-110f5ece0e37).
+	// Inside a Mason subtree the engine owns layout — the keys below are
+	// consumed by the style dict in src/mason.ts during the next
+	// measure/allocate pass, so the Gtk.Box emulation must not also apply
+	// them. queue_resize re-runs GTK's layout pipeline on the host.
+	if (isMasonHostView(hostViewOf(node.container, node.parent)) || isMasonHostView(view)) {
+		queueMasonLayout(view)
+		return
+	}
+
+	// Layout keys arrive through the style bag — the Gtk.Box shim consumes
+	// the subset it can express when the engine isn't backing this subtree.
 	if (node.type === 'masonview') {
 		if (source.flexDirection != null) {
 			setOrientation(node, view, source.flexDirection)
@@ -708,6 +788,20 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			node.text = String(value ?? '')
 			syncText(nearestViewAncestor(node))
 		}
+		return
+	}
+
+	// Inside a Mason subtree the style channel owns layout vocabulary —
+	// direct props hit a dead field. Warn once and consume the write.
+	if (
+		isMasonHostView(hostViewOf(node.container, node.parent)) &&
+		MASON_CHILD_STYLE_ONLY_PROPS.has(name)
+	) {
+		warnStyleOnly(node, name)
+		return
+	}
+	if (isMasonHostView(view) && MASON_CONTAINER_STYLE_ONLY_PROPS.has(name)) {
+		warnStyleOnly(node, name)
 		return
 	}
 
@@ -1119,6 +1213,11 @@ function resetProp(node: ElementNode, name: string) {
 	// Type-specific documented defaults.
 	const defaults = RESET_DEFAULTS[node.type]
 	if (defaults !== undefined && name in defaults) {
+		// A dropped style-only prop needs no reset under the engine —
+		// routing it through setProp would fire the deprecation warn.
+		if (isMasonHostView(view) && MASON_CONTAINER_STYLE_ONLY_PROPS.has(name)) {
+			return
+		}
 		setProp(node, name, defaults[name])
 	}
 }
@@ -1247,6 +1346,17 @@ function viewChildAt(parentView: GtkView, index: number): Gtk.Widget | null {
 /** Insert one view into a parent widget at a flattened index. `node` is the
  *  logical child that owns the view (for placement props). */
 function insertViewInto(parentView: GtkView, node: ElementNode, view: GtkView, index: number) {
+	if (isMasonHostView(parentView)) {
+		// Mason children parent directly on the host widget — the layout
+		// manager assigns rects. Align/expand defaults must be the GTK
+		// ones so nothing shrinks the engine's allocation.
+		view.set_halign(Gtk.Align.FILL)
+		view.set_valign(Gtk.Align.FILL)
+		view.set_hexpand(false)
+		view.set_vexpand(false)
+		view.insert_before(parentView, viewChildAt(parentView, index))
+		return
+	}
 	if (parentView instanceof Gtk.Box) {
 		// GTK4 box order is child order. There is no insert-before, so prepend
 		// for index 0 and insert after the previous sibling otherwise.
@@ -1427,6 +1537,10 @@ function insert(
 		return
 	}
 	insertViewInto(parentView, node, node.view, viewIndexOf(container, parent, node))
+	// A new child changes the host's measure — ask GTK to re-run the pass.
+	if (isMasonHostView(parentView)) {
+		queueMasonLayout(parentView)
+	}
 	// flexGrow was recorded before the parent existed — resolve it now.
 	if (node.flexGrowValue !== undefined) {
 		syncExpand(node)
@@ -1700,10 +1814,11 @@ function expect(container: GtkContainer, id: number): ElementNode {
 }
 
 function createNode(container: GtkContainer, id: number, type: string, props: PropBag): ElementNode {
+	const view = VIEWLESS.has(type) ? null : instantiate(type)
 	const node: ElementNode = {
 		id,
 		type,
-		view: VIEWLESS.has(type) ? null : instantiate(type),
+		view,
 		text: '',
 		props,
 		parent: null,
@@ -1728,6 +1843,11 @@ function createNode(container: GtkContainer, id: number, type: string, props: Pr
 		classes: [],
 		textApplied: false,
 		destroyed: false,
+	}
+	if (view !== null && isMasonView(view)) {
+		// The layout manager's vfuncs resolve the logical node from the
+		// widget — link them before props land so style writes find it.
+		bindMasonView(view, node)
 	}
 	applyProps(node, props)
 	return node
@@ -1764,6 +1884,7 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 			node.destroyed = true
 			cancelSelectionSettle(node)
 			disposeListeners(node)
+			releaseMasonNodes(node)
 			// Batches normally remove before destroy — detach defensively so a
 			// destroy without a preceding remove can't leave a parented view or
 			// a stale logical child behind.
@@ -1793,6 +1914,7 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 			disposeListeners(node)
 			node.muted.clear()
 			detachViews(node)
+			releaseMasonNodes(node)
 			node.view = VIEWLESS.has(command.type) ? null : instantiate(command.type)
 			node.type = command.type
 			node.textApplied = false
@@ -1804,6 +1926,9 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 			node.appliedHeight = undefined
 			node.appliedOpacity = undefined
 			node.props = command.props
+			if (node.view !== null && isMasonHostView(node.view)) {
+				bindMasonView(node.view, node)
+			}
 			applyProps(node, command.props)
 			if (node.view !== null) {
 				const parentView = hostViewOf(container, node.parent)
