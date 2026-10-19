@@ -14,19 +14,19 @@ export function Leaf(props: ViewProps) @{
 }
 ```
 
-- **Never host reconciled children on `contentview`** (or `Page`, a
-  ContentView): `addViewChild` assigns each child to `.content`, so every
-  sibling but the last is silently dropped. Multi-child leaves use
-  `masonview`; imperative `createNativeScriptRoot` hosts use a
-  `GridLayout` child (children fill + stack — single-child layout is
-  unchanged). `UITableView`/`RecyclerView` cells are driver-owned ContentViews
-  — each platform subpath leaf wraps `renderItem` output in a `masonview`.
-- **All layout lives in `style`/`className`** — `masonview` takes zero
-  layout props; `flexDirection`/`row`/`dock`/etc. warn and drop. Component
-  sugar translates through `layoutChildProps` before reaching the intrinsic.
+- **Use `masonview` for authored native layout.** The former JSX tags
+  `flexboxlayout`, `gridlayout`, `stacklayout`, `absolutelayout`, `docklayout`,
+  and `wraplayout` are absent from the shared intrinsic contract. Layout keys
+  belong in `style` or CSS classes; former layout attributes warn and drop.
+  Shared component props such as `row`, `col`, and `gap` remain component APIs
+  and are translated internally; do not forward them as raw intrinsic props.
+- **Do not host reconciled siblings directly on `contentview` or `Page`.**
+  They have one content slot. Use a multi-child layout host. Existing imperative
+  NativeScript `GridLayout` host construction is separate from the authored
+  JSX vocabulary; it does not make `<gridlayout>` a supported JSX tag.
 - **`className` must reach intrinsics as a space-joined string** — the
   driver applies it via `String(value)`, so a raw array arrives
-  comma-joined ("a,b") and matches nothing. `cx()` (`src/cx.ts`) flattens
+  comma-joined ("a,b") and matches nothing. `cx()` from `@octane-xplat/lib` flattens
   and joins; every native leaf normalizes `props.className` through it.
 
 - The `@jsxImportSource` pragma MUST be line 1 — any import/comment before
@@ -40,12 +40,12 @@ export function Leaf(props: ViewProps) @{
 
 ```tsrx
 /** @jsxImportSource @octane-xplat/jsx */
-// In packages/ui/src: cx is the leaf-local class normalizer.
-import { cx } from './cx'
-import type { ViewProps } from './props'
+// Contributor example: props remain shared between platform leaves.
+import { cx } from '@octane-xplat/lib'
+import type { ViewProps } from '@octane-xplat/ui'
 
 export function ClassifiedLeaf(props: ViewProps) @{
-  <masonview className={cx('vx-view', props.className)}>{props.children}</masonview>
+  <masonview className={cx('vx-view', props.className)} style={{ display: 'flex', flexDirection: 'column' }}>{props.children}</masonview>
 }
 ```
 

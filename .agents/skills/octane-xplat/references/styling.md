@@ -1,8 +1,9 @@
 # Styling
 
 One CSS pipeline, both targets: authored classes → PostCSS/lightningcss →
-CSS vars + utility classes → NativeScript's CSS engine applies the subset it
-supports, DOM gets the whole thing. The `vx-*` class namespace is the
+CSS vars + utility classes. Native layout uses the Mason engine through the
+patched driver; DOM layout uses browser CSS. Platform style support still needs
+qualification; sharing a CSS property name does not establish parity. The `vx-*` class namespace is the
 component layer; design tokens are CSS custom properties.
 
 ```css
@@ -35,6 +36,28 @@ component layer; design tokens are CSS custom properties.
 5. Per-platform selector hooks exist: `.ns-root`, `.ns-ios`, `.ns-android`,
    `.ns-dark`, `.ns-light`, `.ns-landscape`, `.ns-modal` on native ≈
    `:root`/`.dark` on web.
+
+## Native layout styles
+
+Raw native layout uses `masonview`. Put CSS layout keys in its style bag or
+classes, rather than attributes such as `flexDirection`, `rows`, or `row`.
+Component-level layout props remain supported and are translated by their leaves.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+// Columns.mobile.tsx — raw host example, not shared DOM JSX.
+export function Columns() {
+	return (
+		<masonview style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+			<label text="Bag" style={{ gridColumn: '1' }} />
+			<label text="Packed" style={{ gridColumn: '2' }} />
+		</masonview>
+	)
+}
+```
+
+For driver work and the distinction between JSX tags and imperative native
+hosts, read [driver semantics](primitives/driver-semantics.md#leaf-shape).
 
 ## Tokens
 
