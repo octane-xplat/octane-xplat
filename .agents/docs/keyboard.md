@@ -23,7 +23,13 @@ export function Form() {
 ```
 
 The inset observer currently measures an iOS destination frame against the main
-screen. Android inset readers share a foreground-Activity resize lease; overlay
+screen. Inset readers share a synchronous registry keyed by native window and
+follow NativeScript's `NativeWindow` attach/detach/close lifecycle. The registry
+replays available state, rejects callbacks from replaced sources, and releases
+observation with its final reader. Host-bound readers use their own window;
+unbound hooks follow the active window. Android resize leases are separately
+reference-counted and preserve subsequent foreign mode changes. These leases
+survive observation-source replacement. Overlay
 bindings separately observe AndroidX insets and skip translation when the window
 declares `adjustResize`. Those mechanisms do not establish actual host overlap
 or synchronized movement in edge-to-edge and presentation windows. Source:
@@ -96,9 +102,13 @@ available; the Virtual Keyboard API and a textarea caret-rectangle operation
 were absent. This establishes ordinary browser focus/scroll geometry only.
 No images were captured or inspected.
 
-The existing inset host-double suite passed 6/6 tests. It establishes shared
-observer/lease bookkeeping and existing numeric conversions, not native frame
-delivery, actual viewport resizing, OS input, hit-testing, or animation quality.
+Maintained registry and host-double tests cover shared readers, separate windows,
+late attachment, disabled hooks, replacement, NativeWindow detach/attach/close,
+stale callbacks, source rollback, and final cleanup. They establish lifecycle
+bookkeeping, not actual Activity recreation or presentation-window geometry.
+Native iOS and Android probes also verified that the compatibility hook receives
+an opening inset, renders it in a native label, and clears it after hiding the
+keyboard. Actual Activity recreation remains a separate runtime qualification.
 
 The iOS probe ran on iPhone 18 Pro / iOS 27.0 with NativeScript core `9.1.3`,
 Octane `0.11.0`, and the patched native renderer `0.2.5`. A simulator HID tap at

@@ -13,8 +13,8 @@ import type { UseKeyboardInsetOptions } from './props'
  * inset support is absent, resize avoidance still runs but the value stays zero.
  * Returns zero on web and desktop. Mount before opening the keyboard on iOS;
  * an already-visible frame is retained only while a reader or overlay is bound.
- * Native subscriptions are released on unmount. Activity replacement requires
- * remounting the consumer. Floating keyboards are not an occlusion measurement.
+ * Native subscriptions are released on unmount. Activity resume rebinds to the
+ * current foreground window. Floating keyboards are not an occlusion measurement.
  * `{ enabled: false }` reads 0 without subscribing — no iOS frame observer or
  * Android resize lease runs while disabled.
  * @example

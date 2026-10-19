@@ -291,8 +291,8 @@ insets are available. Without AndroidX inset support, resizing still runs
 but the number stays zero. A resized window already
 avoids the keyboard: do not add this number again as bottom padding. Readers
 share ownership, and the last reader restores the prior `softInputMode` only
-if another owner has not changed it. Mount the reader in the foreground
-Activity and remount it when the Activity changes.
+if another owner has not changed it. If Android resumes a different Activity
+(a native screen with its own window), the reader rebinds automatically.
 
 ```tsx
 import { KeyboardAvoiding, TextInput } from '@octane-xplat/ui'
@@ -305,6 +305,10 @@ export function MessageForm() {
 	)
 }
 ```
+
+The maintained [keyboard-space example](../../packages/ui/examples/KeyboardSpaceDemo.tsrx)
+includes a tracking toggle. Subscription tests cover window changes and cleanup;
+actual Activity replacement still needs separate device qualification.
 
 `KeyboardAvoiding` uses the same native subscription — pass
 `enabled={false}` there or `useKeyboardInset({ enabled: false })` here to

@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import test from 'node:test'
 import vm from 'node:vm'
 import ts from 'typescript'
+import { createKeyboardWindowRegistry } from '../../platform/src/keyboard-registry.ts'
 
 // Host doubles prove subscription/state logic, not OS keyboard delivery.
 const compiled = ts.transpile(
@@ -14,6 +15,7 @@ const compiled = ts.transpile(
 )
 
 function load(application, globals = {}) {
+	const keyboardWindows = createKeyboardWindowRegistry(() => ({ inset: 0 }))
 	const context = vm.createContext({
 		exports: {},
 		require: (specifier) => {
@@ -27,6 +29,8 @@ function load(application, globals = {}) {
 					return { android: globals.android }
 				case '@octane-xplat/platform/ios':
 					return globals
+				case '@octane-xplat/platform/keyboard-state':
+					return { keyboardWindows }
 				default:
 					throw new Error(`Unexpected module: ${specifier}`)
 			}
@@ -35,7 +39,7 @@ function load(application, globals = {}) {
 	})
 
 	vm.runInContext(compiled, context)
-	return context.exports
+	return Object.assign(context.exports, { registry: keyboardWindows })
 }
 
 test('iOS shares frames, applies current inset to late consumers, hides and releases the final observer', () => {
@@ -97,9 +101,130 @@ test('iOS shares frames, applies current inset to late consumers, hides and rele
 	assert.equal(removed, 2)
 })
 
-function androidHost(compat = true) {
+test('host-bound iOS readers release detached windows and rebind on load or window changes', () => {
+	let callback,
+		added = 0,
+		removed = 0
+	const api = load(
+		{ ios: {} },
+		{
+			NSNotificationCenter: {
+				defaultCenter: {
+					addObserverForNameObjectQueueUsingBlock: (_name, _object, _queue, listener) => {
+						callback = listener
+						added++
+						return {}
+					},
+					removeObserver: () => removed++,
+				},
+			},
+			NSOperationQueue: { mainQueue: {} },
+			UIKeyboardWillChangeFrameNotification: 'frame',
+			UIKeyboardFrameEndUserInfoKey: 'end',
+			UIScreen: { mainScreen: { bounds: { size: { height: 800 } } } },
+		},
+	)
+	const host = (window) => {
+		const events = new Map()
+		return {
+			ios: { window },
+			isLoaded: true,
+			on: (name, listener) => {
+				if (!events.has(name)) {
+					events.set(name, new Set())
+				}
+				events.get(name).add(listener)
+			},
+			off: (name, listener) => events.get(name)?.delete(listener),
+			emit: (name) => events.get(name)?.forEach((listener) => listener()),
+			listeners: () => [...events.values()].reduce((count, set) => count + set.size, 0),
+		}
+	}
+	const aWindow = {},
+		bWindow = {},
+		cWindow = {}
+	const a = host(aWindow),
+		b = host(bWindow),
+		first = [],
+		second = []
+	const offA = api.subscribeKeyboardInset((value) => first.push(value), a)
+	const offB = api.subscribeKeyboardInset((value) => second.push(value), b)
+	const frame = (y) => callback({ userInfo: { objectForKey: () => ({ origin: { y } }) } })
+	frame(500)
+	assert.equal(added, 1)
+	assert.equal(first.at(-1), 300)
+	assert.equal(second.at(-1), 300)
+	b.isLoaded = false
+	b.emit('unloaded')
+	frame(600)
+	assert.equal(first.at(-1), 200)
+	assert.equal(second.at(-1), 0)
+	assert.equal(api.registry.getSnapshot(bWindow).inset, 0)
+	b.ios.window = cWindow
+	b.isLoaded = true
+	b.emit('loaded')
+	assert.equal(second.at(-1), 200)
+	b.ios.window = aWindow
+	b.emit('layoutChanged')
+	assert.equal(api.registry.getSnapshot(cWindow).inset, 0)
+	assert.equal(added, 1)
+	offA()
+	assert.equal(removed, 0)
+	offB()
+	offB()
+	assert.equal(removed, 1)
+	assert.equal(a.listeners(), 0)
+	assert.equal(b.listeners(), 0)
+})
+
+test('default iOS readers follow key-window changes instead of retaining the launch window', () => {
+	const first = {},
+		second = {},
+		tokens = new Set()
+	const application = { ios: { window: first, nativeApp: { keyWindow: first } } }
+	const api = load(application, {
+		NSNotificationCenter: {
+			defaultCenter: {
+				addObserverForNameObjectQueueUsingBlock: (name, _object, _queue, listener) => {
+					const token = { name, listener }
+					tokens.add(token)
+					return token
+				},
+				removeObserver: (token) => tokens.delete(token),
+			},
+		},
+		NSOperationQueue: { mainQueue: {} },
+		UIKeyboardWillChangeFrameNotification: 'frame',
+		UIKeyboardFrameEndUserInfoKey: 'end',
+		UIWindowDidBecomeKeyNotification: 'key',
+		UIScreen: { mainScreen: { bounds: { size: { height: 800 } } } },
+	})
+	const values = []
+	const off = api.subscribeKeyboardInset((value) => values.push(value))
+	const frame = (y) =>
+		[...tokens]
+			.filter((token) => token.name === 'frame')
+			.forEach((token) => token.listener({ userInfo: { objectForKey: () => ({ origin: { y } }) } }))
+	frame(500)
+	assert.equal(api.registry.getSnapshot(first).inset, 300)
+	application.ios.nativeApp.keyWindow = second
+	const activeTokens = [...tokens]
+	for (const token of activeTokens) {
+		if (token.name === 'key') {
+			token.listener()
+		}
+	}
+	frame(600)
+	assert.equal(api.registry.getSnapshot(first).inset, 0)
+	assert.equal(api.registry.getSnapshot(second).inset, 200)
+	assert.equal(values.at(-1), 200)
+	off()
+	assert.equal(tokens.size, 0)
+})
+
+function androidHost(compat = true, initialIme = 620) {
 	let mode = 0x21,
-		ime = 620,
+		ime = initialIme,
 		added = 0,
 		removed = 0,
 		callback
@@ -114,7 +239,10 @@ function androidHost(compat = true) {
 		removeOnGlobalLayoutListener: () => removed++,
 	}
 
-	const decor = { getViewTreeObserver: () => tree }
+	const decor = {
+		getViewTreeObserver: () => tree,
+		insets: () => ({ getInsets: (type) => ({ bottom: type === 'ime' ? ime : 20 }) }),
+	}
 	const window = {
 		getAttributes: () => ({ softInputMode: mode }),
 		setSoftInputMode: (value) => {
@@ -124,43 +252,60 @@ function androidHost(compat = true) {
 		getDecorView: () => decor,
 	}
 
-	const api = load(
-		{ android: { foregroundActivity: { getWindow: () => window } } },
-		{
-			android: {
-				view: {
-					WindowManager: {
-						LayoutParams: { SOFT_INPUT_MASK_ADJUST: 0xf0, SOFT_INPUT_ADJUST_RESIZE: 0x10 },
-					},
-					ViewTreeObserver: {
-						OnGlobalLayoutListener: class {
-							constructor(value) {
-								Object.assign(this, value)
-							}
-						},
+	const events = new Map()
+	const application = {
+		android: {
+			foregroundActivity: { getWindow: () => window },
+			on: (name, listener) => {
+				if (!events.has(name)) {
+					events.set(name, new Set())
+				}
+				events.get(name).add(listener)
+			},
+			off: (name, listener) => events.get(name)?.delete(listener),
+		},
+	}
+	const api = load(application, {
+		android: {
+			view: {
+				WindowManager: {
+					LayoutParams: { SOFT_INPUT_MASK_ADJUST: 0xf0, SOFT_INPUT_ADJUST_RESIZE: 0x10 },
+				},
+				ViewTreeObserver: {
+					OnGlobalLayoutListener: class {
+						constructor(value) {
+							Object.assign(this, value)
+						}
 					},
 				},
 			},
-			androidx: compat
-				? {
-						core: {
-							view: {
-								ViewCompat: {
-									getRootWindowInsets: () => ({
-										getInsets: (type) => ({ bottom: type === 'ime' ? ime : 20 }),
-									}),
-								},
-								WindowInsetsCompat: { Type: { ime: () => 'ime', systemBars: () => 'bars' } },
-							},
-						},
-					}
-				: undefined,
 		},
-	)
+		androidx: compat
+			? {
+					core: {
+						view: {
+							ViewCompat: {
+								getRootWindowInsets: (view) => view.insets(),
+							},
+							WindowInsetsCompat: { Type: { ime: () => 'ime', systemBars: () => 'bars' } },
+						},
+					},
+				}
+			: undefined,
+	})
 
 	return {
 		api,
+		application,
+		window,
+		decor,
 		writes,
+		resume: (next) => {
+			application.android.foregroundActivity = { getWindow: () => next }
+			events.get('activityResumed')?.forEach((listener) => listener())
+		},
+		listenerCount: () =>
+			[...events.values()].reduce((count, listeners) => count + listeners.size, 0),
 		layout: (value) => {
 			ime = value
 			callback()
@@ -203,6 +348,105 @@ test('Android cleanup preserves a newer external softInputMode owner', () => {
 	off()
 	assert.deepEqual(host.writes, [0x11])
 	assert.deepEqual(host.counts(), [1, 1])
+})
+
+test('Android readers rebind to a replacement Activity without remounting', () => {
+	const first = androidHost(),
+		second = androidHost(true, 420),
+		values = []
+	const off = first.api.subscribeKeyboardInset((value) => values.push(value))
+	first.resume(second.window)
+	assert.deepEqual(values, [300, 200])
+	assert.deepEqual(first.writes, [0x11, 0x21])
+	assert.deepEqual(first.counts(), [1, 1])
+	assert.deepEqual(second.writes, [0x11])
+	first.layout(0)
+	assert.equal(values.at(-1), 200)
+	second.layout(220)
+	assert.equal(values.at(-1), 100)
+	off()
+	off()
+	assert.deepEqual(second.counts(), [1, 1])
+	assert.deepEqual(second.writes, [0x11, 0x21])
+	assert.equal(first.listenerCount(), 0)
+})
+
+test('Android resize ownership survives observation-driver replacement', () => {
+	const host = androidHost(),
+		values = []
+	const off = host.api.subscribeKeyboardInset((value) => values.push(value))
+	let delayed,
+		stopped = 0
+	const remove = host.api.registry.install((window, publish) => {
+		assert.equal(window, host.decor)
+		delayed = publish
+		publish({ inset: 400 })
+		return () => stopped++
+	})
+	assert.deepEqual(host.writes, [0x11])
+	assert.deepEqual(host.counts(), [1, 1])
+	assert.equal(values.at(-1), 400)
+	host.layout(0)
+	assert.equal(values.at(-1), 400)
+	remove()
+	assert.equal(stopped, 1)
+	assert.deepEqual(host.writes, [0x11])
+	assert.deepEqual(host.counts(), [2, 1])
+	assert.equal(values.at(-1), 0)
+	delayed({ inset: 999 })
+	assert.equal(values.at(-1), 0)
+	off()
+	assert.deepEqual(host.writes, [0x11, 0x21])
+	assert.deepEqual(host.counts(), [2, 2])
+})
+
+test('NativeScript window sessions release detached surfaces and resume on their replacement', () => {
+	const first = androidHost(),
+		next = androidHost(true, 420),
+		values = []
+	const events = new Map()
+	const session = {
+		state: 'attached',
+		android: { activity: { getWindow: () => first.window } },
+		on: (name, listener) => {
+			if (!events.has(name)) {
+				events.set(name, new Set())
+			}
+			events.get(name).add(listener)
+		},
+		off: (name, listener) => events.get(name)?.delete(listener),
+	}
+	const emit = (name) => events.get(name)?.forEach((listener) => listener({ window: session }))
+	first.application.activeWindow = session
+	const off = first.api.subscribeKeyboardInset((value) => values.push(value))
+	assert.equal(values.at(-1), 300)
+	session.state = 'detached'
+	session.android = undefined
+	emit('detached')
+	assert.equal(values.at(-1), 0)
+	assert.deepEqual(first.counts(), [1, 1])
+	assert.deepEqual(first.writes, [0x11, 0x21])
+	first.resume(next.window)
+	assert.equal(values.at(-1), 0)
+	assert.deepEqual(next.counts(), [0, 0])
+	session.state = 'attached'
+	session.android = { activity: { getWindow: () => next.window } }
+	emit('attached')
+	assert.equal(values.at(-1), 200)
+	assert.deepEqual(next.counts(), [1, 0])
+	session.state = 'closed'
+	emit('close')
+	assert.equal(values.at(-1), 0)
+	assert.deepEqual(next.counts(), [1, 1])
+	assert.deepEqual(next.writes, [0x11, 0x21])
+	assert.equal(
+		[...events.values()].reduce((count, set) => count + set.size, 0),
+		0,
+	)
+	next.layout(0)
+	assert.equal(values.at(-1), 0)
+	off()
+	assert.equal(first.listenerCount(), 0)
 })
 
 test('unsupported host emits zero without touching native APIs', () => {
