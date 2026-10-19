@@ -9,6 +9,8 @@ import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } f
 import { useListContext } from './list-context';
 import { pushDeepLink } from './route';
 
+interface DelegateTarget { notify?(event?: any): void; click?(): void; focus?(): void }
+
 /** ListItem — a `List` row: marker (from context) + startContent +
  *  label/description + endContent. `onPress`/`href` make the row
  *  interactive; `delegateRef` forwards a surface tap to a nested control
@@ -28,7 +30,7 @@ export function ListItem(props: ListItemProps) @{
 		}
 
 		if (props.delegateRef?.current != null) {
-			const target = props.delegateRef.current as any;
+			const target = props.delegateRef.current as DelegateTarget;
 			target.notify?.({ eventName: 'tap', object: target });
 			target.click?.();
 			target.focus?.();
@@ -58,7 +60,7 @@ export function ListItem(props: ListItemProps) @{
 			props.isDisabled && 'vx-listitem--disabled',
 			props.isSelected && 'vx-listitem--selected',
 			props.className,
-		)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style as any))} onTap={interactive && !props.isDisabled ? activate : undefined} accessible={props.accessible ?? (interactive ? true : undefined)} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole ?? (props.href != null ? 'link' : props.onPress != null ? 'button' : 'text')) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled, selected: props.isSelected }) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
+		)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style))} onTap={interactive && !props.isDisabled ? activate : undefined} accessible={props.accessible ?? (interactive ? true : undefined)} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole ?? (props.href != null ? 'link' : props.onPress != null ? 'button' : 'text'))} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled, selected: props.isSelected })} accessibilityLiveRegion={props.accessibilityLiveRegion}>
 		{props.startContent != null ? <masonview className="vx-listitem-start" style={{display: "flex"}}>{props.startContent}</masonview> : null}
 		<masonview className="vx-listitem-body" style={mergeStyle({flexDirection: "column", flexGrow: 1}, mergeStyle({display: "flex"}, { minWidth: 0 }))}>
 			{labelNode}

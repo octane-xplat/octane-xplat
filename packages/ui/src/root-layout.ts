@@ -110,6 +110,6 @@ export function findInRootLayouts(id: string): any {
 		}
 	}
 
-	const rl = getRootLayout() as any
+	const rl = getRootLayout()
 	return rl ? walk(rl) : null
 }

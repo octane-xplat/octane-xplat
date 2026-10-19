@@ -9,5 +9,5 @@ import { applyEscapeProps } from "./escape-props";
 export function Separator(props: SeparatorProps) @{
 	const vertical = props.orientation === 'vertical';
 
-	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-separator', vertical ? 'vx-separator--v' : 'vx-separator--h', props.className)} style={mergeStyle({display: "flex"}, props.style as any)}/>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-separator', vertical ? 'vx-separator--v' : 'vx-separator--h', props.className)} style={mergeStyle({display: "flex"}, props.style)}/>
 }

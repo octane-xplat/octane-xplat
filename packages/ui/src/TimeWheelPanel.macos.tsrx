@@ -59,7 +59,7 @@ export function TimeWheelPanel(props: TimeWheelProps) @{
 		<scrollview className="vx-timewheel-column" accessibilityLabel={label}>
 			<masonview style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 				{choices.map((c: { value: number; label: string }) => (
-					<masonview key={c.value} className={cx('vx-timewheel-option', c.value === currentValue && 'vx-timewheel-option--selected')} accessibilityRole={"button" as any} accessibilityState={{ selected: c.value === currentValue } as any} accessibilityLabel={`${label} ${c.label}`} onTap={() => onPick(c.value)} style={{display: "flex"}}>
+					<masonview key={c.value} className={cx('vx-timewheel-option', c.value === currentValue && 'vx-timewheel-option--selected')} accessibilityRole="button" accessibilityState={{ selected: c.value === currentValue }} accessibilityLabel={`${label} ${c.label}`} onTap={() => onPick(c.value)} style={{display: "flex"}}>
 						<label text={c.label} />
 					</masonview>
 				))}
@@ -77,7 +77,7 @@ export function TimeWheelPanel(props: TimeWheelProps) @{
 			<Pressable className="vx-timewheel-cancel" accessibilityLabel="Cancel" onPress={props.onDismiss}>
 				<label text="Cancel" />
 			</Pressable>
-			<Pressable className="vx-timewheel-done" accessibilityLabel="Done" disabled={!commitValid} accessibilityState={{ disabled: !commitValid } as any} onPress={commit}>
+			<Pressable className="vx-timewheel-done" accessibilityLabel="Done" disabled={!commitValid} accessibilityState={{ disabled: !commitValid }} onPress={commit}>
 				<label text="Done" />
 			</Pressable>
 		</masonview>

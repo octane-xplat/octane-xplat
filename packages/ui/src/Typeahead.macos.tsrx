@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
 import { useMemo, useRef, useState, useSyncExternalStore, useId } from 'octane';
 import type { SearchableItem, TypeaheadInputHandle, TypeaheadProps } from "./props";
 import { useSize } from './size-context';
@@ -139,7 +139,7 @@ export function Typeahead<T extends SearchableItem,>(props: TypeaheadProps<T>) @
 		labelTooltip={props.labelTooltip}
 		size={size}
 		className={props.className}
-		style={{ ...(props.width != null ? { width: props.width } : {}), ...(props.style as any) }}
+		style={{ ...(props.width != null ? { width: props.width } : {}), ...styleRecord(props.style) }}
 	>
 		{showsDisabledMessage
 			? <Tooltip trigger={wrapper} content={props.disabledMessage} placement="top" />

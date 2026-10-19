@@ -77,7 +77,7 @@ export function Timestamp(props: TimestampProps) @{
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}
 		className={cx('vx-timestamp', roleClasses, props.className)}
-		style={props.style as any}
+		style={props.style}
 		text={text}
 		accessibilityLabel={relative ? absoluteLabel : undefined}
 	/>

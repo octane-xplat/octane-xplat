@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { mergeStyle } from './style-merge'
+import { appKitHost, hostGlobal } from './host-bridge'
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
 import { useEffect, useRef, useState } from 'octane'
 import type { PopoverProps } from './props'
@@ -32,7 +33,7 @@ export function Popover(props: PopoverProps) @{
 		if (!open) { close(); return }
 		const panelProps = { ...props, dark, layerDepth: dismissal.depth }
 		if (popup.current && !popup.current.closed) { popup.current.update(panelProps); return }
-		const bridge = (globalThis as any).__xplatAppKit
+		const bridge = appKitHost() ?? {}
 		popup.current = bridge?.showAnchoredPopup?.({
 			anchor: props.anchor?.current,
 			placement: props.placement ?? 'bottom',

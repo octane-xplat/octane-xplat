@@ -1,4 +1,5 @@
 import type { SkeletonProps } from "./props";
+import { styleRecord } from './style-merge'
 import { applyEscapeProps } from "./escape-props";
 
 /** Skeleton — placeholder block while content loads. Sizing via
@@ -10,6 +11,6 @@ export function Skeleton(props: SkeletonProps) @{
 		id={props.id}
 		aria-busy="true"
 		className={['vx-skeleton', props.className]}
-		style={{ ...(props.style as any), width: props.width, height: props.height }}
+		style={{ ...styleRecord(props.style), width: props.width, height: props.height }}
 	/>
 }

@@ -1,4 +1,5 @@
 import { useMemo, useId } from 'octane';
+import { styleRecord } from './style-merge'
 import { refList } from './ref-list'
 import type { ListProps } from './props';
 import { applyEscapeProps } from './escape-props';
@@ -35,7 +36,7 @@ export function List(props: ListProps) @{
 			className={listClass}
 			style={{
 				...(isOrdered ? { counterReset: `vx-list ${start - 1}` } : {}),
-				...(props.style as any),
+				...styleRecord(props.style),
 			}}
 			start={isOrdered && start !== 1 ? start : undefined}
 			role="list"

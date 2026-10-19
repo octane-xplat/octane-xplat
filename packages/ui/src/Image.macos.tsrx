@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useMemo } from 'octane'
+import { styleRecord } from './style-merge'
 import { appKitImageSource } from './svg-image.macos'
 import { hashToPngBase64 } from './hash-image'
 import type { ImageProps } from './props'
@@ -33,7 +34,7 @@ export function Image(props: ImageProps) @{
 	// fetches take no decode-mode hint.
 	const style = {
 		objectFit: props.contentFit ?? 'cover',
-		...(props.style as any),
+		...styleRecord(props.style),
 	}
 
 	<image

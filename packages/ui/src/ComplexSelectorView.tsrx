@@ -1,5 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
+import { nativeAccessibilityState } from './escape-props'
 import type { ComplexSelectorViewProps } from './complex-selector-view';
 import { useSize } from './size-context';
 import { cx } from '@octane-xplat/lib';
@@ -33,12 +34,12 @@ export function ComplexSelectorView<Value,>(props: ComplexSelectorViewProps<Valu
 		accessibilityLabel={props.label}
 		accessibilityHint={props.description}
 		accessibilityRole="button"
-		accessibilityState={{ expanded: open, disabled: props.isDisabled || pending } as any}
+		accessibilityState={{ expanded: open, disabled: props.isDisabled || pending }}
 		onPress={() => setOpen(!open)}
 	>
 		{typeof props.startIcon === 'string' ? <Icon name={props.startIcon} size={16} /> : props.startIcon}
 		<label className={cx('vx-complex-selector-value', props.triggerLabel == null && props.value == null && 'vx-complex-selector-placeholder')}
-			text={(props.triggerLabel as any) ?? (props.value == null ? (props.placeholder as any) ?? '' : String(props.value))} />
+			text={typeof props.triggerLabel === 'string' ? props.triggerLabel : (props.value == null ? (typeof props.placeholder === 'string' ? props.placeholder : '') : String(props.value))} />
 		{props.isLoading || pending ? <ActivityIndicator busy={true} /> : null}
 	</Pressable>;
 
@@ -47,7 +48,7 @@ export function ComplexSelectorView<Value,>(props: ComplexSelectorViewProps<Valu
 			{trigger}
 		</masonview>}
 		<Popover anchor={anchor} open={open} placement={props.placement ?? 'bottom'} alignment={props.alignment ?? 'start'} onDismiss={() => setOpen(false)} className={props.contentClassName} style={props.contentStyle}>
-			<masonview id={contentId} accessibilityRole={"dialog" as any} style={{display: "grid"}}>{content}</masonview>
+			<masonview id={contentId} accessibilityRole="dialog" style={{display: "grid"}}>{content}</masonview>
 		</Popover>
 	</>;
 
@@ -68,7 +69,7 @@ export function ComplexSelectorView<Value,>(props: ComplexSelectorViewProps<Valu
 		labelTooltip={props.labelTooltip}
 		size={props.size}
 		className={props.className}
-		style={{ ...(props.width != null ? { width: props.width } : {}), ...(props.style as any) }}
+		style={{ ...(props.width != null ? { width: props.width } : {}), ...styleRecord(props.style) }}
 	>
 		{body}
 	</FormField>

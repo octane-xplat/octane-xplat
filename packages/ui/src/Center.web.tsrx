@@ -1,4 +1,5 @@
 import { useMemo } from 'octane'
+import { styleRecord } from './style-merge'
 import { refList } from './ref-list'
 import type { CenterProps } from './props';
 import { applyEscapeProps } from './escape-props';
@@ -35,7 +36,7 @@ export function Center(props: CenterProps) @{
 			...(props.height != null ? { height: props.height } : {}),
 			...(props.maxWidth != null ? { maxWidth: props.maxWidth } : {}),
 			...(props.minHeight != null ? { minHeight: props.minHeight } : {}),
-			...(props.style as any),
+			...styleRecord(props.style),
 		}}
 		role={props.accessibilityRole}
 		aria-label={props.accessibilityLabel}

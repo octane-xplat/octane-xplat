@@ -12,7 +12,7 @@ export function CircularProgressIndicator(props: CircularProgressIndicatorProps)
 	<activityindicator
 		id={props.id}
 		className={cx(props.className)}
-		style={props.style as any}
+		style={props.style}
 		busy={props.busy ?? true}
 		ref={(el: any) => applyNativeProps(el, props)}
 	/>

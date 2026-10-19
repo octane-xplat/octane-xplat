@@ -1,4 +1,5 @@
 import { pushDeepLink } from './route.macos'
+import { appKitHost, hostGlobal } from './host-bridge'
 
 /** AppKit leaf — app-relative hrefs go to the route table (its
  *  `pushDeepLink` reports no match state, so the split is by shape):
@@ -9,7 +10,7 @@ export function followHref(href: string): void {
 	}
 
 	if (/^[a-z][a-z0-9+.-]*:/i.test(href)) {
-		const open = (globalThis as any).__xplatAppKitOpenWindow
+		const open = hostGlobal('__xplatAppKitOpenWindow')
 		if (typeof open === 'function') {
 			open({ url: href })
 		}

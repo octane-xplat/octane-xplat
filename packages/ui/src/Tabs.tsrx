@@ -28,7 +28,7 @@ export function Tabs(props: TabsProps) @{
 	const route = useRoute(tab?.stack ?? '');
 	const Screen = route ? screenFor(route.name) : undefined;
 
-	<masonview id={props.id} className={cx(props.className)} style={mergeStyle({display: "grid", gridTemplateRows: "auto 1fr"}, props.style as any)}>
+	<masonview id={props.id} className={cx(props.className)} style={mergeStyle({display: "grid", gridTemplateRows: "auto 1fr"}, props.style)}>
 		<TabList className="vx-tabbar" role="tablist" layout="fill" hasDivider
 			 value={selectedKey} onChange={(key) => { setInternal(key); props.onSelectionChange?.(key); props.onSelectedIndexChanged?.(props.tabs.findIndex((t, i) => keyFor(t, i) === key)); }} style={{gridRow: '1'}}>
 			@for (const t of props.tabs; index i; key t.key ?? t.title) {

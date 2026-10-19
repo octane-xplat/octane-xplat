@@ -117,7 +117,7 @@ export function Tab(props: TabProps) @{
 		id={props.id}
 		ref={(v: any) => { if (v) (ctx as any)._tabViews?.set(props.value, v); else (ctx as any)._tabViews?.delete(props.value); }}
 		className={cx('vx-tab', isSelected && 'vx-tab--selected', ctx.layout === 'fill' && 'vx-tab--fill', props.className)}
-		style={mergeStyle({height: SIZE_HEIGHT[ctx.size]}, props.style as any)}
+		style={mergeStyle({height: SIZE_HEIGHT[ctx.size]}, props.style)}
 		disabled={isDisabled}
 		accessibilityRole={isDisabled ? 'none' : (ctx.pattern === 'tabs' ? 'tab' : 'button')}
 		accessibilityLabel={props.isLabelHidden ? props.label : undefined}
@@ -158,7 +158,7 @@ export function TabMenu(props: TabMenuProps) @{
 			ref={(v: any) => { anchor.current = v; }}
 			id={props.id}
 			className={cx('vx-tab vx-tabmenu-trigger', selected && 'vx-tab--selected', props.className)}
-			style={mergeStyle({height: SIZE_HEIGHT[ctx.size]}, props.style as any)}
+			style={mergeStyle({height: SIZE_HEIGHT[ctx.size]}, props.style)}
 			accessibilityLabel={triggerLabel}
 			accessibilityHint={props.label}
 			onPress={() => setOpen(!open)}

@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
 import { useEffect, useRef } from 'octane';
 import type { StatusDotProps } from './props';
 import { cx } from '@octane-xplat/lib';
@@ -51,7 +51,7 @@ export function StatusDot(props: StatusDotProps) @{
 			backgroundColor: statusDotColor(props.variant, scheme),
 			justifyContent: 'center',
 			alignItems: 'center',
-			...(props.style as any),
+			...styleRecord(props.style),
 		})} accessible={true} accessibilityRole="image" accessibilityLabel={props.label}>
 		{isRenderable(props.icon) ? props.icon : null}
 	</masonview>

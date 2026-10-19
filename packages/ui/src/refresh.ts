@@ -1,4 +1,5 @@
 import { isIOS } from '@nativescript/core'
+import { appKitHost, hostGlobal } from './host-bridge'
 import { REFRESH_HEADER_HEIGHT, dampenPull } from './refresh-metrics'
 
 export interface RefreshConfig {
@@ -31,7 +32,7 @@ const DOCK_ANIM_MS = 180
 /* UIEdgeInsetsMake is a UIKit inline function — reach it through
  * globalThis so nothing references NS globals at module scope. */
 function makeInsets(top: number, left: number, bottom: number, right: number) {
-	const make = (globalThis as any).UIEdgeInsetsMake
+	const make = hostGlobal('UIEdgeInsetsMake')
 	if (make) {
 		return make(top, left, bottom, right)
 	}
@@ -133,7 +134,7 @@ export function createPullToRefresh(host: RefreshHost): RefreshController {
 			)
 		}
 
-		const UIView = (globalThis as any).UIView
+		const UIView = hostGlobal('UIView')
 		if (UIView?.animateWithDurationAnimations) {
 			UIView.animateWithDurationAnimations(DOCK_ANIM_MS / 1000, apply)
 		} else {

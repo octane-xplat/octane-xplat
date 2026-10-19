@@ -1,4 +1,5 @@
 import { configureLayerKeys, dispatchLayerKey } from './layer-stack'
+import { hostGlobal } from './host-bridge'
 
 // AppKit has a process-local key monitor; touch targets have no shared
 // hardware Escape API. Platform back remains owned by RootLayout.
@@ -41,7 +42,7 @@ configureLayerKeys(() => {
 export function captureLayerFocus(getTarget?: () => any, host?: any): () => void {
 	const owner =
 		(host?.nativeViewProtected ?? host)?.window ??
-		(globalThis as any).NSApplication?.sharedApplication?.keyWindow
+		hostGlobal('NSApplication')?.sharedApplication?.keyWindow
 	const responder = owner?.firstResponder
 	return () => {
 		const target = getTarget?.()

@@ -3,6 +3,7 @@
 // token types, thresholds, and output shapes). Pure string/regex work: safe
 // on every target.
 import type { CodeToken, SyntaxToken, TokenLine } from './props'
+import { appKitHost, hostGlobal } from './host-bridge'
 export type { SyntaxToken, TokenLine } from './props'
 
 type LangDef = {
@@ -291,7 +292,7 @@ export const SYNC_TOKENIZE_THRESHOLD = 2000
 const ASYNC_CHUNK_SIZE = 800
 
 async function yieldToMain(): Promise<void> {
-	const scheduler = (globalThis as any).scheduler
+	const scheduler = hostGlobal('scheduler')
 	if (typeof scheduler?.yield === 'function') {
 		return scheduler.yield()
 	}

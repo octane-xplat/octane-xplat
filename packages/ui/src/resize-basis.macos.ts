@@ -1,4 +1,5 @@
 import type { ResizableBasisSource } from './resize-state'
+import { appKitHost, hostGlobal } from './host-bridge'
 
 /** AppKit basis — the `containerRef` view's frame when supplied, else the
  *  host window's size via the bridge when it reports one. */
@@ -12,7 +13,7 @@ export const macosBasisSource: ResizableBasisSource = {
 			return v != null && v > 0 ? v : null
 		}
 
-		const host = (globalThis as any).__xplatAppKit?.getWindowSize?.()
+		const host = appKitHost()?.getWindowSize?.()
 		if (host) {
 			return direction === 'horizontal' ? host.width : host.height
 		}

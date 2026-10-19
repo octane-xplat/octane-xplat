@@ -4,7 +4,7 @@ import { useMemo, useId } from 'octane';
 import { refList } from './ref-list'
 import type { InputGroupProps, InputGroupTextProps } from './props';
 import { cx } from '@octane-xplat/lib';
-import { applyEscapeProps } from './escape-props';
+import { applyEscapeProps, nativeAccessibilityState} from './escape-props';
 import { FormField } from './FormField';
 import { InputGroupProvider } from './input-group-context'
 import { SizeProvider, useSize } from './size-context';
@@ -41,7 +41,7 @@ export function InputGroup(props: InputGroupProps) @{
 	>
 		<InputGroupProvider value={group}>
 		<SizeProvider value={size}>
-			<masonview ref={forwardedRef} className={cx('vx-inputgroup', props.isDisabled && 'vx-inputgroup--disabled', props.status && `vx-inputgroup--status-${props.status.type}`, `vx-inputgroup--size-${size}`)} accessibilityState={{ disabled: props.isDisabled } as any} style={mergeStyle({flexDirection: "row", alignItems: "stretch"}, {display: "flex"})}>
+			<masonview ref={forwardedRef} className={cx('vx-inputgroup', props.isDisabled && 'vx-inputgroup--disabled', props.status && `vx-inputgroup--status-${props.status.type}`, `vx-inputgroup--size-${size}`)} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled })} style={mergeStyle({flexDirection: "row", alignItems: "stretch"}, {display: "flex"})}>
 				{props.children}
 			</masonview>
 		</SizeProvider>
@@ -54,7 +54,7 @@ export function InputGroup(props: InputGroupProps) @{
 export function InputGroupText(props: InputGroupTextProps) @{
 	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
-	<masonview id={props.id} ref={forwardedRef} className={cx('vx-inputgroup-text', props.className)} style={mergeStyle({justifyContent: "center", alignItems: "center"}, mergeStyle({display: "flex"}, props.style as any))}>
+	<masonview id={props.id} ref={forwardedRef} className={cx('vx-inputgroup-text', props.className)} style={mergeStyle({justifyContent: "center", alignItems: "center"}, mergeStyle({display: "flex"}, props.style))}>
 		{typeof props.children === 'string' ? <label text={props.children} /> : props.children}
 	</masonview>
 }

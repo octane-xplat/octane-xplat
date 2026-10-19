@@ -31,7 +31,7 @@ export function DrawerLayout(props: DrawerLayoutProps) @{
 		id={props.id}
 		ref={(d: any) => { host.current = d; applyEscapeProps(d, props); }}
 		className={cx('vx-drawer', props.className)}
-		style={props.style as any}
+		style={props.style}
 	>
 		<masonview hostSlot="mainContent" style={{display: "grid"}}>{props.main}</masonview>
 		@if (props.drawer != null) {

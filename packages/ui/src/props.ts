@@ -540,6 +540,10 @@ export interface AccessibilityProps {
 		/** Toggle-button pressed state — `aria-pressed` on web; reported as
 		 *  checked/unchecked where the platform a11y model has no pressed. */
 		pressed?: boolean
+		expanded?: boolean
+		busy?: boolean
+		invalid?: boolean
+		required?: boolean
 	}
 	accessibilityLiveRegion?: 'none' | 'polite' | 'assertive'
 }
@@ -644,6 +648,10 @@ export interface TextProps extends LayoutChildProps, TestIDProps {
 		/** Toggle-button pressed state — `aria-pressed` on web; reported as
 		 *  checked/unchecked where the platform a11y model has no pressed. */
 		pressed?: boolean
+		expanded?: boolean
+		busy?: boolean
+		invalid?: boolean
+		required?: boolean
 	}
 	accessibilityLiveRegion?: 'none' | 'polite' | 'assertive'
 	/** Platform-specific properties are applied after shared props. */
@@ -734,6 +742,10 @@ export interface PressableProps extends LayoutChildProps, FlexContainerProps, Te
 		/** Toggle-button pressed state — `aria-pressed` on web; reported as
 		 *  checked/unchecked where the platform a11y model has no pressed. */
 		pressed?: boolean
+		expanded?: boolean
+		busy?: boolean
+		invalid?: boolean
+		required?: boolean
 	}
 	accessibilityLiveRegion?: 'none' | 'polite' | 'assertive'
 	/** Platform-specific properties are applied after shared props. */

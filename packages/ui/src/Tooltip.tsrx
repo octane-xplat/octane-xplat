@@ -1,10 +1,11 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useEffect, useRef } from 'octane'
+import { appKitHost, hostGlobal } from './host-bridge'
 import type { TooltipProps } from './props'
 import { cx } from '@octane-xplat/lib'
 import { View } from './View'
 
-const host = () => (globalThis as any).__xplatAppKit ?? {}
+const host = () => appKitHost() ?? {}
 
 function TooltipPanel(props: { body?: any; className?: any; style?: any }) @{
 	<View className={cx('vx-tooltip', props.className)} style={props.style}>

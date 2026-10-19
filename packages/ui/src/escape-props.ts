@@ -89,6 +89,9 @@ export function nativeAccessibilityState(state?: {
 	selected?: boolean
 	checked?: boolean
 	pressed?: boolean
+	/** ARIA keys with no NS counterpart (busy, expanded, invalid, …) are
+	 *  accepted and ignored — the enum reports the strongest mapped state. */
+	[key: string]: boolean | undefined
 }): string | undefined {
 	if (state?.disabled) {
 		return 'disabled'

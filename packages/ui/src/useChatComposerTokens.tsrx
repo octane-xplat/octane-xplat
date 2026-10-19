@@ -10,6 +10,14 @@ export { isCustomToken };
  *  ChatComposerInput installs: `{ insertTokenAtCaret, expandTokenToText }`.
  *  The hook owns only the portal-style record list (`tokenPortals` carries
  *  token entries; `span` is the chip's host marker, not a DOM node). */
+/** The native composer's editable host — installed by ChatComposerInput
+ *  (`insertTokenAtCaret`/`expandTokenToText`/`hasToken`). */
+interface ComposerTokenHost {
+	insertTokenAtCaret?(token: any, id?: string): string | undefined
+	expandTokenToText?(token: any): void
+	hasToken?(id: string): boolean
+}
+
 export function useChatComposerTokens({
 	editableRef,
 	onEmitChange,
@@ -18,7 +26,7 @@ export function useChatComposerTokens({
 
 	const insertToken = useCallback(
 		(token: any): string | undefined => {
-			const host = editableRef.current as any;
+			const host = editableRef.current as ComposerTokenHost | null | undefined;
 			const id = `token-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
 			const record = { id, span: null, token };
 			setTokenPortals((prev) => [...prev, record]);
@@ -32,7 +40,7 @@ export function useChatComposerTokens({
 		(id: string) => {
 			const portal = tokenPortals.find((p) => p.id === id);
 			if (!portal) return;
-			(editableRef.current as any)?.expandTokenToText?.(portal.token);
+			(editableRef.current as ComposerTokenHost | null | undefined)?.expandTokenToText?.(portal.token);
 			setTokenPortals((prev) => prev.filter((p) => p.id !== id));
 			onEmitChange();
 		},
@@ -46,7 +54,7 @@ export function useChatComposerTokens({
 
 	const cleanupPortals = useCallback(() => {
 		setTokenPortals((prev) =>
-			prev.filter((p) => (editableRef.current as any)?.hasToken?.(p.id) ?? true),
+			prev.filter((p) => (editableRef.current as ComposerTokenHost | null | undefined)?.hasToken?.(p.id) ?? true),
 		);
 	}, [editableRef]);
 

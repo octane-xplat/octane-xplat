@@ -1,4 +1,5 @@
 import { useMemo, useRef } from 'octane';
+import { styleRecord } from './style-merge'
 import { refList } from './ref-list'
 import type { StackProps } from './props';
 import { applyEscapeProps } from './escape-props';
@@ -26,8 +27,8 @@ export function Stack(props: StackProps) @{
 			flexDirection: layout.flexDirection,
 			justifyContent: layout.justifyContent,
 			alignItems: layout.alignItems,
-			...(stackWebStyle as any)(layout, props),
-			...(props.style as any),
+			...stackWebStyle(layout, props),
+			...styleRecord(props.style),
 		}}
 		role={props.accessibilityRole}
 		aria-label={props.accessibilityLabel}

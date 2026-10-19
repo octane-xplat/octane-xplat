@@ -15,7 +15,7 @@ import { usePan } from './pan';
 export function View(props: ViewProps) @{
 	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
-	<masonview id={props.id} testID={props.testID ?? ''} {...layoutChildProps(props, mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style as any)))} ref={forwardedRef} className={cx(props.className)} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any} onPan={usePan(props.onPan)} onSwipe={props.onSwipe}>
+	<masonview id={props.id} testID={props.testID ?? ''} {...layoutChildProps(props, mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style)))} ref={forwardedRef} className={cx(props.className)} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState)} accessibilityLiveRegion={props.accessibilityLiveRegion} onPan={usePan(props.onPan)} onSwipe={props.onSwipe}>
 		{props.children}
 	</masonview>
 }

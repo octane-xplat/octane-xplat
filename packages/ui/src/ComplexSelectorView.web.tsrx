@@ -1,4 +1,5 @@
 import type { ComplexSelectorViewProps } from './complex-selector-view';
+import { styleRecord } from './style-merge'
 import { useSize } from './size-context';
 import { cx } from '@octane-xplat/lib';
 import { Popover } from './Popover.web.tsrx';
@@ -50,7 +51,7 @@ export function ComplexSelectorView<Value,>(props: ComplexSelectorViewProps<Valu
 	const popup = <Popover anchor={anchor} open={open} placement={props.placement ?? 'bottom'} alignment={props.alignment ?? 'start'} onDismiss={() => setOpen(false)} className={props.contentClassName} style={props.contentStyle}>{content}</Popover>;
 	if (props.variant === 'ghost') return <>{trigger}{popup}</>;
 
-	<div id={props.id} className={cx('vx-field', props.status && `vx-field--${props.status.type}`, props.statusVariant === 'detached' && 'vx-field--status-detached', props.isDisabled && 'vx-field--disabled', props.className)} style={{ ...(props.width != null ? { width: props.width } : {}), ...(props.style as any) }}>
+	<div id={props.id} className={cx('vx-field', props.status && `vx-field--${props.status.type}`, props.statusVariant === 'detached' && 'vx-field--status-detached', props.isDisabled && 'vx-field--disabled', props.className)} style={{ ...(props.width != null ? { width: props.width } : {}), ...styleRecord(props.style) }}>
 		{labelWithTooltip}
 		{props.description && !props.isLabelHidden ? <div className="vx-field-description">{props.description}</div> : null}
 		{trigger}

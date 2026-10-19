@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { mergeStyle } from './style-merge'
+import { appKitHost, hostGlobal } from './host-bridge'
 import { useEffect, useRef } from 'octane'
 import { useThemeScheme } from './theme/theme-scheme'
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
@@ -11,7 +12,7 @@ export function ImperativeSheetPanel(props: { component: any; params: any; close
 	const dark = useThemeScheme() === 'dark'
 	const dismissal = useLayerDismissal({ active: true, dismiss: () => props.close('closed'), restoreFocus: false })
 	const view = useRef<any>(null)
-	useEffect(() => { (globalThis as any).__xplatAppKit?.setSurfaceAppearance?.(view.current, dark) }, [dark])
+	useEffect(() => { appKitHost()?.setSurfaceAppearance?.(view.current, dark) }, [dark])
 
 	<LayerDepthProvider value={dismissal.depth}>
 	<masonview ref={view} className={cx('vx-sheet', 'vx-bottom-sheet', dark && 'ns-dark')} style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>

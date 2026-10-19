@@ -50,7 +50,7 @@ export function MobileNav(props: MobileNavProps) @{
 	@if (!isOpen) {
 		null
 	} @else {
-		<masonview ref={(v: any) => applyEscapeProps(v, props)} id={id} className={cx('vx-mobilenav', 'vx-mobilenav--' + side, 'vx-mobilenav--open', props.className)} style={mergeStyle({display: "grid"}, props.style as any)} accessibilityLabel={props.label ?? (typeof props.header === 'string' ? props.header : 'Navigation')}>
+		<masonview ref={(v: any) => applyEscapeProps(v, props)} id={id} className={cx('vx-mobilenav', 'vx-mobilenav--' + side, 'vx-mobilenav--open', props.className)} style={mergeStyle({display: "grid"}, props.style)} accessibilityLabel={props.label ?? (typeof props.header === 'string' ? props.header : 'Navigation')}>
 			<masonview className="vx-mobilenav-backdrop" onTap={() => onOpenChange(false)} style={{display: "flex"}}/>
 			<masonview style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { width , justifySelf: side === 'start' ? 'left' : 'right'}))} className="vx-mobilenav-drawer">
 				@if (props.header != null) {

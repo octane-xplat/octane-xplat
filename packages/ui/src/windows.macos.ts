@@ -1,4 +1,5 @@
 import type { OpenWindowOptions, WindowHandle } from './props'
+import { appKitHost, hostGlobal } from './host-bridge'
 
 // The handles this module minted, keyed to the host controller each wraps —
 // `parent` accepts a `WindowHandle` and forwards its controller to the
@@ -10,7 +11,7 @@ let seq = 0
  *  (`__xplatAppKitOpenWindow`). Returns `null` when the host has no window
  *  service; invalid options (bad `kind`, a closed `parent`) throw. */
 export function openWindow(options: OpenWindowOptions = {}): WindowHandle | null {
-	const open = (globalThis as any).__xplatAppKitOpenWindow
+	const open = hostGlobal('__xplatAppKitOpenWindow')
 	if (typeof open !== 'function') {
 		console.warn('[octane-xplat] Window creation is unsupported by the current AppKit host.')
 		return null

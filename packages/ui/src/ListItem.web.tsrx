@@ -1,9 +1,12 @@
 import { useMemo } from 'octane'
+import { styleRecord } from './style-merge'
 import { refList } from './ref-list'
 import type { ListItemProps } from './props';
 import { applyEscapeProps } from './escape-props';
 import { applyWebProps } from './platformProps.web';
 import { useListContext } from './list-context';
+
+interface DelegateTarget { notify?(event?: any): void; click?(): void; focus?(): void }
 
 /** ListItem — a `List` row rendered as `<li>`: marker (context-driven) +
  *  startContent + label/description stack + endContent. `onPress`/`href`
@@ -24,8 +27,8 @@ export function ListItem(props: ListItemProps) @{
 		// already landed on something interactive inside the row.
 		const target = e.target;
 		if (target?.closest?.('a,button,input,textarea,select,[role]')) { return; }
-		(props.delegateRef.current as any).click?.();
-		(props.delegateRef.current as any).focus?.();
+		(props.delegateRef.current as DelegateTarget | null | undefined)?.click?.();
+		(props.delegateRef.current as DelegateTarget | null | undefined)?.focus?.();
 	};
 
 	const marker =
@@ -70,7 +73,7 @@ export function ListItem(props: ListItemProps) @{
 				marginInlineStart: 'calc(-1 * min(var(--vx-item-inset-inline, 0px), var(--vx-container-padding-inline-start, 0px)))',
 				marginInlineEnd: 'calc(-1 * min(var(--vx-item-inset-inline, 0px), var(--vx-container-padding-inline-end, 0px)))',
 			} : {}),
-			...(props.style as any),
+			...styleRecord(props.style),
 		}}
 		aria-selected={props.isSelected || undefined}
 		aria-disabled={props.isDisabled || undefined}

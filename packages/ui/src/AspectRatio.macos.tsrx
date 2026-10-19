@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
 import { useMemo } from 'octane'
 import { refList } from './ref-list'
 import type { AspectRatioProps } from './props'
@@ -21,10 +21,10 @@ export function AspectRatio(props: AspectRatioProps) @{
 	<masonview id={props.id} ref={hostRef} className={cx('vx-aspectratio', `vx-aspectratio-fit-${fit}`, ellipse && 'vx-aspectratio--ellipse', props.className)} style={mergeStyle({display: "flex"}, {
 			width: '100%',
 			...(derivedHeight !== undefined ? { height: derivedHeight } : {}),
-			...(ellipse ? { borderRadius: '50%' as any } : {}),
-			...(props.style as any),
+			...(ellipse ? { borderRadius: '50%' } : {}),
+			...styleRecord(props.style),
 		})} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole} accessibilityHint={props.accessibilityHint}>
-		<masonview className="vx-aspectratio-content" style={mergeStyle({justifyContent: (fit !== 'cover' ? 'center' : undefined) as any, alignItems: (fit !== 'cover' ? 'center' : undefined) as any}, mergeStyle({display: "flex"}, { flexGrow: 1 }))}>
+		<masonview className="vx-aspectratio-content" style={mergeStyle({justifyContent: (fit !== 'cover' ? 'center' : undefined), alignItems: (fit !== 'cover' ? 'center' : undefined)}, mergeStyle({display: "flex"}, { flexGrow: 1 }))}>
 			{props.children}
 		</masonview>
 	</masonview>

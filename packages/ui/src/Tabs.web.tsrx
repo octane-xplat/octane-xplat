@@ -1,4 +1,5 @@
 import { createContext, useContext, useId, useState } from 'octane';
+import { styleRecord } from './style-merge'
 import type { TabSpec, TabsProps } from './props';
 import { TabList, Tab } from './TabList.web.tsrx';
 
@@ -97,7 +98,7 @@ export function Tabs(props: TabsProps) @{
 		</PresentedStacks>
 	}
 	@else {
-	<div id={props.id} className={['vx-tabs', props.className]} style={{ ...((props.style as any)?.height != null ? { flex: 'none' } : {}), ...(props.style as any) }}>
+	<div id={props.id} className={['vx-tabs', props.className]} style={{ ...(styleRecord(props.style)?.height != null ? { flex: 'none' } : {}), ...styleRecord(props.style) }}>
 		<TabList
 			className="vx-tabbar"
 			role="tablist"

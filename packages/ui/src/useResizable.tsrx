@@ -69,8 +69,8 @@ export function useResizable(config: UseResizableSingleConfig | UseResizableMult
 	);
 
 	// Observe the basis for changes and re-measure.
-	const containerRef = (config as any).containerRef;
-	const direction = (config as any).direction ?? 'horizontal';
+	const containerRef = config.containerRef;
+	const direction = config.direction ?? 'horizontal';
 	useEffect(() => {
 		const remeasure = () => {
 			for (const machine of state.current!.machines.values()) {

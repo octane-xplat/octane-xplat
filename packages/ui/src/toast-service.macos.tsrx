@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useCallback, useContext } from 'octane'
+import { appKitHost, hostGlobal } from './host-bridge'
 import type { ShowToastFn, ToastOptions } from './props'
 import { ToastViewportContext } from './toast-context'
 import { FALLBACK_TOAST_VIEWPORT, dismissToast, pushToast, registerToastViewport, toastHandleFor, toastOnViewport, toastStore } from './toast-store'
@@ -9,7 +10,7 @@ let fallback: any = null
 
 function ensureFallbackViewport(): void {
 	if (fallback && !fallback.closed) return
-	const present = (globalThis as any).__xplatAppKit?.presentSurface
+	const present = appKitHost()?.presentSurface
 	if (!present) throw new Error('AppKit host has no toast presenter')
 	const unregister = registerToastViewport(FALLBACK_TOAST_VIEWPORT)
 	try {

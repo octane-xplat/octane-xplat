@@ -54,7 +54,7 @@ export function Token(props: TokenProps) @{
 		props.className,
 	);
 
-	const a11yState = nativeAccessibilityState({ disabled: props.isDisabled }) as any;
+	const a11yState = nativeAccessibilityState({ disabled: props.isDisabled });
 
 	if (interactive) {
 		return <Pressable
@@ -76,7 +76,7 @@ export function Token(props: TokenProps) @{
 
 	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
-	return <masonview ref={forwardedRef} id={props.id} className={classes} style={mergeStyle({display: "flex"}, props.style as any)} accessibilityLabel={props.isLabelHidden ? props.label : undefined} accessibilityHint={props.description} accessibilityState={a11yState}>
+	return <masonview ref={forwardedRef} id={props.id} className={classes} style={mergeStyle({display: "flex"}, props.style)} accessibilityLabel={props.isLabelHidden ? props.label : undefined} accessibilityHint={props.description} accessibilityState={a11yState}>
 		{content}
 	</masonview>
 }

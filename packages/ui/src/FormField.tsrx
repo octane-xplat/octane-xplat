@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
 import { useContext, useId } from 'octane'
 import type { FormFieldProps } from "./props";
 import { cx } from "@octane-xplat/lib";
@@ -52,7 +52,7 @@ export function FormField(props: FormFieldProps) @{
 		: null
 
 	const rootClass = cx('vx-field', status && `vx-field--${status.type}`, `vx-field--status-${statusVariant}`, props.isDisabled && 'vx-field--disabled', props.isReadOnly && 'vx-field--readonly', props.isLoading && 'vx-field--loading', props.size && `vx-field--size-${props.size}`, props.className)
-	const fieldStyle = { ...(props.width != null ? { width: props.width } : {}), ...(props.style as any) }
+	const fieldStyle = { ...(props.width != null ? { width: props.width } : {}), ...styleRecord(props.style) }
 
 	@if (isHorizontalLabels) {
 		<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx(rootClass, 'vx-field--hl')} style={mergeStyle({flexDirection: "row"}, mergeStyle({display: "flex"}, fieldStyle))}>

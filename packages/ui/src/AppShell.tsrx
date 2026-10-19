@@ -107,7 +107,7 @@ export function AppShell(props: AppShellProps) @{
 	const contentPad = props.contentPadding != null ? props.contentPadding * 4 : 0;
 
 	<AppShellMobileProvider value={mobileContextValue}>
-		<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-appshell', 'vx-appshell--' + variant, isFill ? 'vx-appshell--fill' : 'vx-appshell--auto', props.className)} style={mergeStyle({display: "grid", gridTemplateRows: "auto 1fr"}, props.style as any)} onLayoutChanged={onShellLayout}>
+		<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-appshell', 'vx-appshell--' + variant, isFill ? 'vx-appshell--fill' : 'vx-appshell--auto', props.className)} style={mergeStyle({display: "grid", gridTemplateRows: "auto 1fr"}, props.style)} onLayoutChanged={onShellLayout}>
 			<masonview style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, {gridRow: '1'}))} className="vx-appshell-header">
 				{hasBanner ? <masonview className="vx-appshell-banner" style={{display: "flex"}}>{props.banner}</masonview> : null}
 				{topNavContent}

@@ -18,7 +18,7 @@ export function Toolbar(props: ToolbarProps) @{
 	const dividerCls = (props.dividers ?? []).map((d) => 'vx-toolbar--div-' + d).join(' ');
 
 	<SizeProvider value={size}>
-		<masonview id={props.id} ref={(v: any) => applyEscapeProps(v, props)} className={cx('vx-toolbar', 'vx-toolbar--' + (props.variant ?? 'transparent'), 'vx-toolbar--' + size, dividerCls, props.className)} style={mergeStyle({display: "flex"}, props.style as any)} accessibilityLabel={props.label}>
+		<masonview id={props.id} ref={(v: any) => applyEscapeProps(v, props)} className={cx('vx-toolbar', 'vx-toolbar--' + (props.variant ?? 'transparent'), 'vx-toolbar--' + size, dividerCls, props.className)} style={mergeStyle({display: "flex"}, props.style)} accessibilityLabel={props.label}>
 			@if (hasCenter && !vertical) {
 				<masonview className="vx-toolbar-inner" style={mergeStyle({display: "grid", gridTemplateColumns: "1fr auto 1fr"}, { minHeight: SIZE_MIN[size] })}>
 					<masonview style={mergeStyle({alignItems: "center", gap: gapPx}, mergeStyle({display: "flex"}, {gridColumn: '1'}))} className="vx-toolbar-slot vx-toolbar-slot--start">{props.startContent}</masonview>

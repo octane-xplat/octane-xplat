@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
 import type { BlockquoteProps } from './props';
 import { cx } from '@octane-xplat/lib';
 
@@ -7,8 +7,8 @@ import { cx } from '@octane-xplat/lib';
  *  host has no CSS layer for the blockquote rule, so the inline-start bar
  *  comes from the background strip view next to the content column. */
 export function Blockquote(props: BlockquoteProps) @{
-	<masonview id={props.id} className={cx('vx-blockquote', props.className)} style={mergeStyle({flexDirection: "row"}, mergeStyle({display: "flex"}, { flexDirection: 'row', gap: 12, ...(props.style as any) }))}>
-		<masonview style={mergeStyle({display: "flex"}, { width: 2, backgroundColor: (props.style as any)?.borderLeftColor ?? '#3f3f46', alignSelf: 'stretch' })}/>
+	<masonview id={props.id} className={cx('vx-blockquote', props.className)} style={mergeStyle({flexDirection: "row"}, mergeStyle({display: "flex"}, { flexDirection: 'row', gap: 12, ...styleRecord(props.style) }))}>
+		<masonview style={mergeStyle({display: "flex"}, { width: 2, backgroundColor: styleRecord(props.style)?.borderLeftColor ?? '#3f3f46', alignSelf: 'stretch' })}/>
 		<masonview style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { flexGrow: 1 }))}>
 			{typeof props.children === 'string' || typeof props.children === 'number'
 				? <label className="vx-blockquote-text text-muted" whiteSpace="normal">{props.children}</label>

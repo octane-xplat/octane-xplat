@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
 import type { MeterProps } from './props';
 import { cx } from '@octane-xplat/lib';
 import { meterRange } from './meter-math';
@@ -36,7 +36,7 @@ export function Meter(props: MeterProps) @{
 	const color = props.color ?? '#3376cc';
 	const trackColor = props.trackColor ?? '#e1ecf7';
 
-	<masonview id={props.id} className={cx('vx-meter', props.className)} style={mergeStyle({display: "grid"}, { width: size, height: size, ...(props.style as any) })} accessible={true} accessibilityRole={nativeAccessibilityRole('meter')} accessibilityLabel={props.accessibilityLabel} accessibilityValue={props.valueLabel ?? `${value} of ${rangeMax}`}>
+	<masonview id={props.id} className={cx('vx-meter', props.className)} style={mergeStyle({display: "grid"}, { width: size, height: size, ...styleRecord(props.style) })} accessible={true} accessibilityRole={nativeAccessibilityRole('meter')} accessibilityLabel={props.accessibilityLabel} accessibilityValue={props.valueLabel ?? `${value} of ${rangeMax}`}>
 		<svgview src={ringSvg(size, strokeWidth, ratio, color, trackColor)} stretch="aspectFit" style={{ width: size, height: size }} />
 		<masonview style={mergeStyle({display: "grid"}, {justifySelf: 'center', alignSelf: 'center'})}>
 			{props.children}

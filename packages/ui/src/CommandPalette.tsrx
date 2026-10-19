@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { mergeStyle } from './style-merge'
+import { mergeStyle , styleRecord} from './style-merge'
 import { useEffect, useMemo, useRef } from 'octane';
 import type { CommandPaletteItem, CommandPaletteProps } from './props';
 import { createCommandPaletteController } from './command-palette-state';
@@ -28,7 +28,7 @@ function PaletteBody<T extends CommandPaletteItem>(props: { options: CommandPale
 		announceCommandPalette(statusView.current, message);
 	}, [state.status, state.query, state.results]);
 
-	<masonview className={cx('vx-commandpalette', props.options.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { width: props.options.width ?? Screen.mainScreen.widthDIPs * 0.9, ...(props.options.style as any) }))} id={props.options.id} accessibilityLabel={props.options.label ?? 'Command palette'}>
+	<masonview className={cx('vx-commandpalette', props.options.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { width: props.options.width ?? Screen.mainScreen.widthDIPs * 0.9, ...styleRecord(props.options.style) }))} id={props.options.id} accessibilityLabel={props.options.label ?? 'Command palette'}>
 		<masonview className="vx-cmdk-input-row" style={mergeStyle({flexDirection: "row"}, {display: "flex"})}>
 			<TextInput id={`${props.options.id ?? 'command-palette'}-query`} className="vx-cmdk-search" label={props.options.label ?? 'Command palette'} accessibilityLabel={props.options.label ?? 'Command palette'} placeholder={props.options.placeholder ?? 'Search commands…'} value={state.query} onChange={props.controller.search} onSubmit={() => props.controller.search(state.query)} returnKeyType="search" hasClear={false} />
 			<button id={`${props.options.id ?? 'command-palette'}-clear`} text="Clear" onTap={() => props.controller.search('')} accessibilityLabel="Clear search" />

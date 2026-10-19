@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
+import { appKitHost, hostGlobal } from './host-bridge'
 import type { CitationProps } from './props';
 import { cx } from '@octane-xplat/lib';
 import { getColorScheme } from './colorScheme.macos';
@@ -59,7 +60,7 @@ export function Citation(props: CitationProps) @{
 	const shared = {
 		id: props.id,
 		className: cls,
-		style: { flexDirection: 'row', alignItems: 'center', gap: 4, ...(props.style as any) } as any,
+		style: { flexDirection: 'row', alignItems: 'center', gap: 4, ...styleRecord(props.style) } as any,
 		accessibilityLabel:
 			variant === 'number' ? `Citation ${props.number}` : `${source.title ?? 'Citation'} ${props.number}`,
 	};
@@ -69,7 +70,7 @@ export function Citation(props: CitationProps) @{
 			{...shared}
 			accessibilityRole="link"
 			onPress={() => {
-				(globalThis as any).__xplatAppKit?.openUrl?.(href);
+				appKitHost()?.openUrl?.(href);
 			}}
 		>
 			{body}

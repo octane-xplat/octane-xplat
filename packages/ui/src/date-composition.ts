@@ -12,6 +12,6 @@ export function hasDateComposition(
 	}
 
 	const editable = view?.android?.getText?.()
-	const composing = (globalThis as any).android?.view?.inputmethod?.BaseInputConnection
+	const composing = globalThis.android?.view?.inputmethod?.BaseInputConnection
 	return !!editable && !!composing && composing.getComposingSpanStart(editable) >= 0
 }

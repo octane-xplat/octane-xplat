@@ -50,7 +50,7 @@ export function Button(props: ButtonProps) @{
 			return;
 		}
 
-		if (action && typeof (action as any).then === 'function') {
+		if (action && typeof action.then === 'function') {
 			setActionPending(true);
 			Promise.resolve(action).then(
 				() => setActionPending(false),

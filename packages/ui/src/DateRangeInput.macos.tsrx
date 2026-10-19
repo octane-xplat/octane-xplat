@@ -71,7 +71,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 				disabled={isDisabled || isBusy}
 				accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
 				accessibilityHint={props.accessibilityHint}
-				accessibilityState={{ disabled: isDisabled, busy: isBusy } as any}
+				accessibilityState={{ disabled: isDisabled, busy: isBusy }}
 				ref={(v: any) => { hostRef.current = v; }}
 				onPress={() => { if (!isDisabled && !isBusy) setOpen(!open) }}
 			>
@@ -93,7 +93,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 					<scrollview className="vx-daterangeinput-presets" accessibilityLabel="Presets">
 						<masonview style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 							{props.presets.map((preset, index) => (
-								<masonview key={preset.label} id={`${inputId}-preset-${index}`} onTap={() => { if (!isPresetDisabled(preset)) selectRange(preset.getRange()) }} className={cx('vx-daterangeinput-preset', isSelectedPreset(preset) && 'vx-daterangeinput-preset--selected')} accessibilityRole={"button" as any} isEnabled={!isPresetDisabled(preset)} accessibilityState={{ selected: isSelectedPreset(preset), disabled: isPresetDisabled(preset) } as any} style={{display: "flex"}}>
+								<masonview key={preset.label} id={`${inputId}-preset-${index}`} onTap={() => { if (!isPresetDisabled(preset)) selectRange(preset.getRange()) }} className={cx('vx-daterangeinput-preset', isSelectedPreset(preset) && 'vx-daterangeinput-preset--selected')} accessibilityRole="button" isEnabled={!isPresetDisabled(preset)} accessibilityState={{ selected: isSelectedPreset(preset), disabled: isPresetDisabled(preset) }} style={{display: "flex"}}>
 									<label text={preset.label} />
 								</masonview>
 							))}

@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
 import { useMemo } from 'octane'
 import { refList } from './ref-list'
 import type { AbsoluteProps, GridProps, SpacerProps, StackItemProps, StackProps } from './props'
@@ -37,7 +37,7 @@ export function Stack(props: StackProps) @{
 			id={props.id}
 			ref={forwardedRef}
 			className={cx('vx-stack', 'vx-stack--scroll', props.className)}
-			style={{ ...(sizingStyle as any), ...(props.style as any) }}
+			style={{ ...(sizingStyle), ...styleRecord(props.style) }}
 			orientation={layout.flexDirection === 'row' ? 'horizontal' : 'vertical'}
 			accessible={props.accessible}
 			accessibilityLabel={props.accessibilityLabel}
@@ -52,7 +52,7 @@ export function Stack(props: StackProps) @{
 			</masonview>
 		</scrollview>
 	} @else {
-		<masonview id={props.id} ref={forwardedRef} className={cx('vx-stack', props.className)} style={mergeStyle({flexDirection: layout.flexDirection, justifyContent: layout.justifyContent, alignItems: layout.alignItems, flexWrap: layout.flexWrap, gap: layout.gap}, mergeStyle({display: "flex"}, { ...(sizingStyle as any), ...(props.style as any) }))} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={props.accessibilityState} accessibilityLiveRegion={props.accessibilityLiveRegion}>
+		<masonview id={props.id} ref={forwardedRef} className={cx('vx-stack', props.className)} style={mergeStyle({flexDirection: layout.flexDirection, justifyContent: layout.justifyContent, alignItems: layout.alignItems, flexWrap: layout.flexWrap, gap: layout.gap}, mergeStyle({display: "flex"}, { ...(sizingStyle), ...styleRecord(props.style) }))} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={props.accessibilityState} accessibilityLiveRegion={props.accessibilityLiveRegion}>
 			{props.children}
 		</masonview>
 	}
@@ -68,7 +68,7 @@ export function StackItem(props: StackItemProps) @{
 			id={props.id}
 			ref={forwardedRef}
 			className={cx('vx-stackitem', props.className)}
-			style={{ ...(itemStyle as any), ...(props.style as any) }}
+			style={{ ...(itemStyle), ...styleRecord(props.style) }}
 			orientation="vertical"
 			accessible={props.accessible}
 			accessibilityLabel={props.accessibilityLabel}
@@ -81,7 +81,7 @@ export function StackItem(props: StackItemProps) @{
 			<masonview style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>{props.children}</masonview>
 		</scrollview>
 	} @else {
-		<masonview id={props.id} ref={forwardedRef} className={cx('vx-stackitem', props.className)} style={mergeStyle({display: "flex"}, { ...(itemStyle as any), ...(props.style as any) })} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={props.accessibilityState} accessibilityLiveRegion={props.accessibilityLiveRegion}>
+		<masonview id={props.id} ref={forwardedRef} className={cx('vx-stackitem', props.className)} style={mergeStyle({display: "flex"}, { ...(itemStyle), ...styleRecord(props.style) })} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={props.accessibilityState} accessibilityLiveRegion={props.accessibilityLiveRegion}>
 			{props.children}
 		</masonview>
 	}

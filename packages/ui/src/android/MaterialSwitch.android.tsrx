@@ -31,14 +31,14 @@ export function MaterialSwitch(inputProps: MaterialSwitchProps) @{
 		id={props.id}
 		testID={props.testID ?? ''}
 		className={cx(props.className)}
-		style={props.style as any}
+		style={props.style}
 		checked={props.checked}
 		isEnabled={!props.isDisabled}
 		isUserInteractionEnabled={!props.isReadOnly}
-		accessibilityRole={nativeAccessibilityRole('switch') as any}
+		accessibilityRole={nativeAccessibilityRole('switch')}
 		accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
 		accessibilityHint={props.accessibilityHint}
-		accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled }) as any}
+		accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled })}
 		onCheckedChange={(e: any) => {
 			// Assistive activation can still fire on a non-interactive view —
 			// revert so `isReadOnly` means the value truly cannot change.

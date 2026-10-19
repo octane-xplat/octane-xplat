@@ -1,5 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { mergeStyle } from './style-merge'
+import { nativeAccessibilityState } from './escape-props'
 import { useImperativeHandle, useEffect, useMemo, useRef, useState } from 'octane'
 import type { CalendarProps, DateRange, ISODateString } from './props'
 import { cx } from '@octane-xplat/lib'
@@ -174,18 +175,18 @@ export function Calendar(props: CalendarProps) @{
 					state.isDisabled && 'vx-calendar-day--disabled',
 					day.isToday && 'vx-calendar-day--today',
 					day.isWeekend && 'vx-calendar-day--weekend',
-				)} accessibilityLabel={fullLabel} accessibilityRole={"button" as any} accessibilityState={{ disabled: state.isDisabled, selected: dayCarriesBand(state) || state.isSelected } as any} style={{display: "flex"}}>
+				)} accessibilityLabel={fullLabel} accessibilityRole="button" accessibilityState={nativeAccessibilityState({ disabled: state.isDisabled, selected: dayCarriesBand(state) || state.isSelected })} style={{display: "flex"}}>
 				<label text={String(day.dayOfMonth)} />
 			</masonview>
 		)
 	}
 
-	<masonview id={props.id} className={cx('vx-calendar', mode === 'range' && 'vx-calendar--range', numberOfMonths === 2 && 'vx-calendar--two-months', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style as any))}>
+	<masonview id={props.id} className={cx('vx-calendar', mode === 'range' && 'vx-calendar--range', numberOfMonths === 2 && 'vx-calendar--two-months', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style))}>
 		<masonview className="vx-calendar-header" style={mergeStyle({flexDirection: props.direction === 'rtl' ? 'row-reverse' : 'row', alignItems: "center"}, {display: "flex"})}>
 			<Pressable
 				className="vx-calendar-nav vx-calendar-nav--prev"
 				accessibilityLabel={messages.previousMonth}
-				accessibilityState={{ disabled: !bounds.canNavigatePrevious } as any}
+				accessibilityState={{ disabled: !bounds.canNavigatePrevious }}
 				disabled={!bounds.canNavigatePrevious}
 				onPress={() => bounds.canNavigatePrevious && setBaseMonth(monthStart(plainDateAddMonths(baseMonth, -1)))}
 			>
@@ -195,7 +196,7 @@ export function Calendar(props: CalendarProps) @{
 			<Pressable
 				className="vx-calendar-nav vx-calendar-nav--next"
 				accessibilityLabel={messages.nextMonth}
-				accessibilityState={{ disabled: !bounds.canNavigateNext } as any}
+				accessibilityState={{ disabled: !bounds.canNavigateNext }}
 				disabled={!bounds.canNavigateNext}
 				onPress={() => bounds.canNavigateNext && setBaseMonth(monthStart(plainDateAddMonths(baseMonth, 1)))}
 			>
@@ -220,6 +221,6 @@ export function Calendar(props: CalendarProps) @{
 				</masonview>
 			))}
 		</masonview>
-		<label className="vx-calendar-live" text={announcement} accessibilityLiveRegion={"polite" as any} visibility={announcement ? 'visible' : 'collapse'} />
+		<label className="vx-calendar-live" text={announcement} accessibilityLiveRegion="polite" visibility={announcement ? 'visible' : 'collapse'} />
 	</masonview>
 }

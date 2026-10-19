@@ -146,7 +146,7 @@ export function Carousel(props: CarouselProps) @{
 		};
 	}, [count, measure, props.hasSnap, offsets]);
 
-	<masonview className={cx('vx-carousel', props.className)} style={mergeStyle({display: "grid", gridTemplateRows: "1fr", gridTemplateColumns: "1fr"}, props.style as any)} id={props.id} accessibilityLabel={props.accessibilityLabel ?? props.label}>
+	<masonview className={cx('vx-carousel', props.className)} style={mergeStyle({display: "grid", gridTemplateRows: "1fr", gridTemplateColumns: "1fr"}, props.style)} id={props.id} accessibilityLabel={props.accessibilityLabel ?? props.label}>
 		<scrollview
 			ref={(v: any) => {
 				scroller.current = v;

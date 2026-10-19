@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
 import { SizeProvider } from './size-context'
 import { useContext, useEffect, useId, useRef, useState } from 'octane'
@@ -33,7 +33,7 @@ function DialogPanel(props: DialogProps & { layerDepth: number }) @{
 				'vx-dialog',
 				isFullscreen && 'vx-dialog--fullscreen',
 				props.className,
-			)} width={isFullscreen ? '100%' : undefined} height={isFullscreen ? '100%' : undefined} accessible={true} accessibilityLabel={props.accessibilityLabel} accessibilityRole={purpose === 'required' ? ('alert' as any) : undefined} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, [{
+			)} width={isFullscreen ? '100%' : undefined} height={isFullscreen ? '100%' : undefined} accessible={true} accessibilityLabel={props.accessibilityLabel} accessibilityRole={purpose === 'required' ? 'alert' : undefined} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, [{
 				padding,
 				width: typeof props.width === 'number' ? props.width : isFullscreen ? '100%' : undefined,
 				height: isFullscreen ? '100%' : undefined,
@@ -42,7 +42,7 @@ function DialogPanel(props: DialogProps & { layerDepth: number }) @{
 				marginRight: typeof pos?.end === 'number' ? pos.end : undefined,
 				marginTop: typeof pos?.top === 'number' ? pos.top : undefined,
 				marginBottom: typeof pos?.bottom === 'number' ? pos.bottom : undefined,
-				...(props.style as any),
+				...styleRecord(props.style),
 			}, {justifySelf: 
 				isFullscreen
 					? 'stretch'
@@ -74,7 +74,7 @@ function DialogInline(props: DialogProps) @{
 	const titleId = useId()
 	const padding = spacingStep(props.padding ?? 5) ?? 20
 
-	<masonview className={cx('vx-dialog', 'vx-dialog--inline', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { padding, width: typeof props.width === 'number' ? props.width : undefined, ...(props.style as any) }))} accessibilityLabel={props.accessibilityLabel}>
+	<masonview className={cx('vx-dialog', 'vx-dialog--inline', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { padding, width: typeof props.width === 'number' ? props.width : undefined, ...styleRecord(props.style) }))} accessibilityLabel={props.accessibilityLabel}>
 		<DialogProvider value={{ titleId, isModal: false, requestClose: props.onOpenChange }}>
 			{props.children}
 		</DialogProvider>
@@ -202,7 +202,7 @@ export function DialogHeader(props: DialogHeaderProps) @{
 	const ctx = useContext(DialogContext) // provider membership supplies the title id on web and the shared close request.
 	const requestClose = props.onOpenChange ?? ctx?.requestClose
 
-	<masonview className={cx('vx-dialog-header', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style as any))} id={props.id}>
+	<masonview className={cx('vx-dialog-header', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style))} id={props.id}>
 		<masonview style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
 			{props.startContent != null && <masonview className="vx-dialog-header-start" style={{display: "flex"}}>{props.startContent}</masonview>}
 			<masonview className="vx-dialog-header-text" style={mergeStyle({flexDirection: "column", flexGrow: 1}, {display: "flex"})}>

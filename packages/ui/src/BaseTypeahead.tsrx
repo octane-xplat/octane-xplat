@@ -74,8 +74,8 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 	const anchorView = () => props.anchorRef?.current ?? inputRef.current;
 
 	const showLayer = () => {
-		const size2 = (anchorView() as any)?.getActualSize?.();
-		if (size2?.width > 0) setAnchorWidth(size2.width);
+		const size2 = (anchorView() as { getActualSize?(): { width?: number; height?: number } | undefined } | null | undefined)?.getActualSize?.();
+		const anchorW = size2?.width; if (anchorW != null && anchorW > 0) setAnchorWidth(anchorW);
 		setOpen(true);
 		props.onOpenChange?.(true);
 	};

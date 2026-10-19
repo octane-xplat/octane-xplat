@@ -1,5 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { describe, expect, it, vi } from 'vitest'
+import { hostGlobal } from './host-bridge'
 import {
 	createObjectContainer,
 	createObjectDriver,
@@ -133,7 +134,7 @@ describe('portable cross-root layer ownership', () => {
 			flushUniversalSync(() => {})
 			await vi.waitFor(() => expect(handler).toBeTypeOf('function'))
 			expect(
-				(globalThis as any).NSEvent.addLocalMonitorForEventsMatchingMaskHandler,
+				hostGlobal('NSEvent')?.addLocalMonitorForEventsMatchingMaskHandler,
 			).toHaveBeenCalledTimes(1)
 
 			const marked = { keyCode: 53, window: { firstResponder: { hasMarkedText: () => true } } }

@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
 import { useContext } from 'octane';
 import type { MetadataListItemProps } from './props';
 import { cx } from '@octane-xplat/lib';
@@ -24,7 +24,7 @@ export function MetadataListItem(props: MetadataListItemProps) @{
 		(ctx?.labelPosition ?? 'start') === 'top' || ctx?.orientation === 'horizontal';
 
 	const labelRow = (
-		<masonview className="vx-metadatalist-label" style={mergeStyle({flexDirection: "row", alignItems: "center", gap: 6}, mergeStyle({display: "flex"}, ctx?.labelWidth != null ? ({ width: ctx.labelWidth } as any) : undefined))}>
+		<masonview className="vx-metadatalist-label" style={mergeStyle({flexDirection: "row", alignItems: "center", gap: 6}, mergeStyle({display: "flex"}, ctx?.labelWidth != null ? { width: ctx.labelWidth } : undefined))}>
 			{isRenderable(props.icon) ? props.icon : null}
 			<label className="vx-metadatalist-label-text" whiteSpace="normal">{props.label}</label>
 		</masonview>
@@ -32,7 +32,7 @@ export function MetadataListItem(props: MetadataListItemProps) @{
 
 	if (isStacked) {
 		return (
-			<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-metadatalist-item', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { flexDirection: 'column', marginBottom: 8, ...(props.style as any) }))}>
+			<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-metadatalist-item', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { flexDirection: 'column', marginBottom: 8, ...styleRecord(props.style) }))}>
 				{labelRow}
 				{childContent(props.children, 'vx-metadatalist-value')}
 			</masonview>

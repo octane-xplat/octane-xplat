@@ -11,7 +11,7 @@ import { applyNativeProps } from './platformProps';
 export function ActivityIndicator(props: ActivityIndicatorProps) @{
 	if (props.busy === false) return null;
 
-	<masonview id={props.id} className={cx('vx-spinner', props.className)} style={mergeStyle({display: "flex"}, props.style as any)} ref={(el: any) => {
+	<masonview id={props.id} className={cx('vx-spinner', props.className)} style={mergeStyle({display: "flex"}, props.style)} ref={(el: any) => {
 			if (!el) return;
 			applyNativeProps(el, props);
 			el.once('loaded', () => {

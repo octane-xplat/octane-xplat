@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
+import type { PercentLengthType } from '@nativescript/core'
 import { useMemo, useState } from 'octane';
 import type { CodeBlockProps } from './props';
 import { cx } from '@octane-xplat/lib';
@@ -69,7 +70,7 @@ export function CodeBlock(props: CodeBlockProps) @{
 		</masonview>
 	);
 
-	<masonview id={props.id} className={cx('vx-codeblock', `vx-codeblock--${container}`, props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { flexDirection: 'column', ...(props.style as any) }))}>
+	<masonview id={props.id} className={cx('vx-codeblock', `vx-codeblock--${container}`, props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { flexDirection: 'column', ...styleRecord(props.style) }))}>
 		{hasHeader ? (
 			<masonview style={mergeStyle({flexDirection: "row", justifyContent: "space-between", alignItems: "center"}, mergeStyle({display: "flex"}, { paddingTop: 6, paddingBottom: 6, paddingLeft: 12, paddingRight: 12 }))}>
 				<masonview style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, { gap: 8 }))}>
@@ -109,7 +110,7 @@ export function CodeBlock(props: CodeBlockProps) @{
 			</masonview>
 		) : null}
 		{collapsed ? null : props.maxHeight != null ? (
-			<scrollview height={props.maxHeight as any}>{body}</scrollview>
+			<scrollview height={props.maxHeight as PercentLengthType}>{body}</scrollview>
 		) : (
 			body
 		)}

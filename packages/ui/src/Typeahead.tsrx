@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
 import { useMemo, useRef, useState, useSyncExternalStore, useId } from 'octane';
 import type { SearchableItem, TypeaheadInputHandle, TypeaheadProps } from "./props";
 import { useSize } from './size-context';
@@ -96,7 +96,7 @@ export function Typeahead<T extends SearchableItem,>(props: TypeaheadProps<T>) @
 		labelTooltip={props.labelTooltip}
 		size={size}
 		className={props.className}
-		style={{ ...(props.width != null ? { width: props.width } : {}), ...(props.style as any) }}
+		style={{ ...(props.width != null ? { width: props.width } : {}), ...styleRecord(props.style) }}
 		ios={props.ios}
 		android={props.android}
 	>
@@ -108,7 +108,7 @@ export function Typeahead<T extends SearchableItem,>(props: TypeaheadProps<T>) @
 				`vx-typeahead--size-${size}`,
 				props.isDisabled && 'vx-typeahead--disabled',
 				props.status && `vx-typeahead--status-${props.status.type}`,
-			)} onTap={handleWrapperTap} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled }) as any} style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
+			)} onTap={handleWrapperTap} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled })} style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
 			{startIcon}
 			<masonview className="vx-typeahead-content" style={mergeStyle({flexGrow: 1}, {display: "grid"})}>
 				<BusyLaneProvider value={busyLane}>

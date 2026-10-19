@@ -22,7 +22,7 @@ export function TypeaheadItem<T extends SearchableItem,>(props: TypeaheadItemPro
 
 	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
-	<masonview ref={forwardedRef} id={props.id} className={cx('vx-typeahead-item', props.isDisabled && 'vx-typeahead-item--disabled', props.className)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style as any))} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled }) as any}>
+	<masonview ref={forwardedRef} id={props.id} className={cx('vx-typeahead-item', props.isDisabled && 'vx-typeahead-item--disabled', props.className)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style))} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled })}>
 		{icon}
 		<masonview className="vx-typeahead-item-content" style={mergeStyle({flexDirection: "column", flexGrow: 1}, {display: "flex"})}>
 			<label className="vx-typeahead-item-label" text={props.item.label} />

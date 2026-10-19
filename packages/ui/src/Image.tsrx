@@ -198,7 +198,7 @@ export function Image(props: ImageProps) @{
 					if (v) {
 					binding.update(v, null, update);
 				}
-			}} id={props.id} {...layoutChildProps(props, props.style as any)} className={cx(props.className)}>
+			}} id={props.id} {...layoutChildProps(props, props.style)} className={cx(props.className)}>
 			<image ref={(v: any) => {
 					imageRef.current = v;
 					applyEscapeProps(v, props);
@@ -214,6 +214,6 @@ export function Image(props: ImageProps) @{
 				if (v) {
 					binding.update(v, v, update);
 				}
-			}} id={props.id} {...layoutChildProps(props, props.style as any)} className={cx(props.className)} stretch={contentFitToStretch(fit)} loadMode={props.decoding ?? 'async'} accessibilityLabel={props.alt}/>
+			}} id={props.id} {...layoutChildProps(props, props.style)} className={cx(props.className)} stretch={contentFitToStretch(fit)} loadMode={props.decoding ?? 'async'} accessibilityLabel={props.alt}/>
 	}
 }

@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
 import { useMemo } from 'octane'
 import { refList } from './ref-list'
 import type { SectionProps } from './props';
@@ -38,8 +38,8 @@ export function Section(props: SectionProps) @{
 			...(props.height != null ? { height: props.height } : {}),
 			...(props.maxWidth != null ? { maxWidth: props.maxWidth } : {}),
 			...(props.minHeight != null ? { minHeight: props.minHeight } : {}),
-			...(props.style as any),
-		})} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
+			...styleRecord(props.style),
+		})} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState)} accessibilityLiveRegion={props.accessibilityLiveRegion}>
 		{props.children}
 	</masonview>
 }

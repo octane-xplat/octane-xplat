@@ -1,4 +1,5 @@
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
+import { styleRecord } from './style-merge'
 import { SizeProvider } from './size-context';
 import { createPortal, useEffect, useRef, useState } from 'octane';
 import { useThemeScheme } from './theme/theme-scheme';
@@ -95,14 +96,14 @@ function PopoverLayer(props: PopoverInternalProps & { anchorElement: any }) @{
 				ref={panelRef}
 				className={cx('vx-popover', props.className)}
 				style={{
-					...(props.style as any),
+					...styleRecord(props.style),
 					position: 'fixed',
 					top: position.top,
 					left: position.left,
 					zIndex: 1,
 					pointerEvents: 'auto',
 				}}
-				{...{ ...props.web, onFocusIn: (event: FocusEvent) => { focusedInside.current = true; (props.web?.onFocusIn as any)?.(event); } }}
+				{...{ ...props.web, onFocusIn: (event: FocusEvent) => { focusedInside.current = true; { const r = props.web?.onFocusIn; if (typeof r === 'function') r(event); } } }}
 			>
 				<LayerDepthProvider value={dismissal.depth}><SizeProvider value={null}>{props.children}</SizeProvider></LayerDepthProvider>
 			</div>

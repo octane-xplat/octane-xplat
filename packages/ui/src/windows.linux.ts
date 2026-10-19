@@ -5,13 +5,14 @@
 // seam, per #59). The client assigns the id so the controller is available
 // synchronously. Unbridged dev degrades to the web window path.
 import type { OpenWindowOptions, WindowHandle } from './props'
+import { appKitHost, hostGlobal } from './host-bridge'
 import { openWebWindow } from './windows.web'
 
 /** LinuxWindowHandle is the shared `WindowHandle` — retitled through the
  *  host bridge. Retained as the `/linux` subpath's former export name. */
 export type LinuxWindowHandle = WindowHandle
 
-const bridge = () => (globalThis as any).__xplatBridge
+const bridge = () => hostGlobal('__xplatBridge')
 let seq = 0
 
 export function openWindow(options: OpenWindowOptions = {}): WindowHandle | null {
@@ -35,7 +36,7 @@ export function openWindow(options: OpenWindowOptions = {}): WindowHandle | null
 		resolveClosed()
 	}
 
-	const off = bridge().on('windows', 'closed', (wid: unknown) => {
+	const off = bridge()?.on('windows', 'closed', (wid: unknown) => {
 		if (wid === id) {
 			off()
 			finish()

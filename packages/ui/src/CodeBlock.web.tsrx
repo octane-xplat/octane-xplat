@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'octane';
+import { styleRecord } from './style-merge'
 import type { CodeBlockProps } from './props';
 import { applyEscapeProps } from './escape-props';
 import { Icon } from './Icon.web.tsrx';
@@ -118,7 +119,7 @@ export function CodeBlock(props: CodeBlockProps) @{
 
 	const rootStyle = {
 		width: width === 'fit-content' ? 'fit-content' : width,
-		...(props.style as any),
+		...styleRecord(props.style),
 	};
 
 	<div

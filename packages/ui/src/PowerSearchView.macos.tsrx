@@ -37,7 +37,7 @@ export function PowerSearchView(props: PowerSearchViewProps) @{
 				return <Token key={`${filter.field}-${index}`} config={props.config} filter={filter} field={field} operator={operator} maxLength={props.maxTokenLength ?? 40} timezoneID={props.timezoneID} onPress={()=>!props.isReadOnly && props.onEdit(filter,index)} onRemove={props.isReadOnly ? undefined : ()=>props.onRemove(index)} isDisabled={props.isDisabled || props.isReadOnly} />
 			})}
 			<SearchInput ref={(h:any)=>inputHandle.current=h} className="vx-power-search-input" value={query} placeholder={props.placeholder ?? powerSearchTranslate('@astryx.powersearch.placeholder')} onChange={props.onQueryChange} onFocus={props.onInputFocus} onBlur={props.onBlur} isDisabled={props.isDisabled} isReadOnly={props.isReadOnly} isLoading={props.isLoading} description={props.disabledMessage} hasClear={false} accessibilityLabel={props.label ?? 'Search'} />
-			{props.resultCount != null ? <label className="vx-power-search-count" accessibilityLiveRegion={'polite' as any} text={String(props.resultCount)} /> : null}
+			{props.resultCount != null ? <label className="vx-power-search-count" accessibilityLiveRegion={'polite'} text={String(props.resultCount)} /> : null}
 			{props.endContent}
 			{props.hasClear !== false && props.filters.length > 0 ? <Button label="Clear" variant="ghost" clickAction={props.onClear} isDisabled={props.isDisabled} /> : null}
 		</masonview>

@@ -211,7 +211,7 @@ export function RecyclerView<T>(props: RecyclerViewProps<T>) @{
 
 	@if (props.items.length > 0) {
 		@if (refreshCapable) {
-			<masonview className={cx('vx-refresh-wrap', props.className)} style={mergeStyle({display: "grid"}, props.style as any)}>
+			<masonview className={cx('vx-refresh-wrap', props.className)} style={mergeStyle({display: "grid"}, props.style)}>
 				<MemoListView
 					id={props.id}
 					items={props.items}

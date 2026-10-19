@@ -1,5 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { mergeStyle } from './style-merge'
+import { nativeAccessibilityState } from './escape-props'
 import { useRef, useImperativeHandle, useContext, useId, useState } from 'octane'
 import type { DateRange, DateRangeInputProps } from './props'
 import { cx } from '@octane-xplat/lib'
@@ -63,14 +64,14 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 				props.size && `vx-daterangeinput--size-${props.size}`,
 				open && 'vx-daterangeinput--open',
 				props.className,
-			)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style as any))}>
+			)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style))}>
 			<Pressable
 				id={inputId}
 				className={cx('vx-daterangeinput-trigger', !shown && 'vx-daterangeinput-trigger--placeholder')}
 				disabled={isDisabled || isBusy}
 				accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
 				accessibilityHint={props.accessibilityHint}
-				accessibilityState={{ disabled: isDisabled, busy: isBusy } as any}
+				accessibilityState={{ disabled: isDisabled, busy: isBusy }}
 				ref={(v: any) => { hostRef.current = v; }}
 				onPress={() => { if (!isDisabled && !isBusy) setOpen(!open) }}
 			>
@@ -92,7 +93,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 					<scrollview className="vx-daterangeinput-presets" accessibilityLabel="Presets">
 						<masonview style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 							{props.presets.map((preset, index) => (
-								<masonview key={preset.label} id={`${inputId}-preset-${index}`} onTap={() => { if (!isPresetDisabled(preset)) selectRange(preset.getRange()) }} className={cx('vx-daterangeinput-preset', isSelectedPreset(preset) && 'vx-daterangeinput-preset--selected')} accessibilityRole={"button" as any} isEnabled={!isPresetDisabled(preset)} accessibilityState={{ selected: isSelectedPreset(preset), disabled: isPresetDisabled(preset) } as any} style={{display: "flex"}}>
+								<masonview key={preset.label} id={`${inputId}-preset-${index}`} onTap={() => { if (!isPresetDisabled(preset)) selectRange(preset.getRange()) }} className={cx('vx-daterangeinput-preset', isSelectedPreset(preset) && 'vx-daterangeinput-preset--selected')} accessibilityRole="button" isEnabled={!isPresetDisabled(preset)} accessibilityState={nativeAccessibilityState({ selected: isSelectedPreset(preset), disabled: isPresetDisabled(preset) })} style={{display: "flex"}}>
 									<label text={preset.label} />
 								</masonview>
 							))}

@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
 import { useContext } from 'octane';
 import type { MetadataListItemProps } from './props';
 import { cx } from '@octane-xplat/lib';
@@ -31,7 +31,7 @@ export function MetadataListItem(props: MetadataListItemProps) @{
 
 	if (isStacked) {
 		return (
-			<masonview id={props.id} className={cx('vx-metadatalist-item', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { flexDirection: 'column', marginBottom: 8, ...(props.style as any) }))}>
+			<masonview id={props.id} className={cx('vx-metadatalist-item', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { flexDirection: 'column', marginBottom: 8, ...styleRecord(props.style) }))}>
 				{labelRow}
 				{childContent(props.children, 'vx-metadatalist-value')}
 			</masonview>

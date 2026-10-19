@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
 import { useImperativeHandle, useEffect, useRef, useState } from 'octane';
 import type { TextInputProps } from "./props";
 import { cx } from "@octane-xplat/lib";
@@ -46,11 +46,11 @@ export function TextInput(inputProps: TextInputProps) @{
 			id={props.id}
 			testID={props.testID ?? ''}
 			className={cx('vx-input', props.isDisabled && 'vx-input--disabled', props.isReadOnly && 'vx-input--readonly', props.isLoading && 'vx-input--loading', props.status && `vx-input--status-${props.status.type}`, props.size && `vx-input--size-${props.size}`, props.inInputGroup && 'vx-input--ingroup', props.className)}
-			style={{ ...(props.style as any), ...(props.placeholderTextColor ? { placeholderColor: props.placeholderTextColor } : {}) }}
+			style={mergeStyle(styleRecord(props.style), props.placeholderTextColor ? { placeholderColor: props.placeholderTextColor } : {})}
 			hint={props.placeholder}
 			accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
 			accessibilityHint={props.accessibilityHint}
-			accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled }) as any}
+			accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled })}
 			secure={props.secure}
 			keyboardType={props.keyboardType === 'default' ? undefined : props.keyboardType}
 			returnKeyType={props.returnKeyType}

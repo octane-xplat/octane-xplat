@@ -158,7 +158,7 @@ function DateInputControl(inputProps: CoreProps) @{
 					editable={!isDisabled && !isBusy}
 					accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
 					accessibilityHint={!isPendingValid ? messages.invalidDate : props.accessibilityHint}
-					accessibilityState={nativeAccessibilityState({ disabled: isDisabled, busy: isBusy, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' || !isPendingValid } as any) as any}
+					accessibilityState={nativeAccessibilityState({ disabled: isDisabled, busy: isBusy, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' || !isPendingValid })}
 					onTextChange={handleTextChange}
 					onBlur={commitPending}
 					onReturnPress={commitPending}
@@ -200,7 +200,7 @@ function DateInputControl(inputProps: CoreProps) @{
 				props.size && `vx-dateinput--size-${props.size}`,
 				(!isPendingValid) && 'vx-dateinput--invalid',
 				props.className,
-			)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style as any))}>
+			)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style))}>
 			{shellContent}
 		</masonview>
 		{surface === 'popover' ? (

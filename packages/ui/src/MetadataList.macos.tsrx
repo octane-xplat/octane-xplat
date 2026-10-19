@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
 import { useState } from 'octane';
 import type { MetadataListProps } from './props';
 import { cx } from '@octane-xplat/lib';
@@ -43,7 +43,7 @@ export function MetadataList(props: MetadataListProps) @{
 	<MetadataListProvider
 		value={{ labelPosition, labelWidth: props.label?.width, orientation }}
 	>
-		<masonview id={props.id} className={cx('vx-metadatalist', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { flexDirection: 'column', ...(props.style as any) }))}>
+		<masonview id={props.id} className={cx('vx-metadatalist', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { flexDirection: 'column', ...styleRecord(props.style) }))}>
 			{props.title != null ? (
 				<masonview style={mergeStyle({display: "flex"}, { marginBottom: 12 })}>
 					{typeof props.title === 'string' || typeof props.title === 'number'

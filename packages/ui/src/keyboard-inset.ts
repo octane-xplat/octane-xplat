@@ -142,7 +142,7 @@ const readAndroidGeometry = (decor: any, ime: number) => {
 }
 
 const observeAndroid = (decor: any, notify: (value: KeyboardWindowState) => void) => {
-	const core = (globalThis as any).androidx?.core?.view
+	const core = globalThis.androidx?.core?.view
 	const read = () => {
 		const insets = core?.ViewCompat?.getRootWindowInsets(decor)
 		const type = core?.WindowInsetsCompat?.Type
@@ -198,7 +198,7 @@ keyboardWindows.install(observeKeyboardDestination, 'fallback')
 const resizeLeases = new Map<any, { count: number; previous: number; adjusted: number }>()
 
 const acquireResize = (window: any) => {
-	const params = (globalThis as any).android?.view?.WindowManager?.LayoutParams
+		const params = globalThis.android?.view?.WindowManager?.LayoutParams
 	if (!window || !params) {
 		return () => {}
 	}
@@ -255,7 +255,7 @@ const resolveWindow = (host?: any): { key?: object; resizeWindow?: any } => {
 		return { key }
 	}
 	if (Application.android) {
-		if (!(globalThis as any).android?.view?.WindowManager?.LayoutParams) {
+		if (!globalThis.android?.view?.WindowManager?.LayoutParams) {
 			return {}
 		}
 

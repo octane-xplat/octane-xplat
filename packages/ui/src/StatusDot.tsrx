@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
 import { useEffect, useRef } from 'octane';
 import type { StatusDotProps } from './props';
 import { cx } from '@octane-xplat/lib';
@@ -67,8 +67,8 @@ export function StatusDot(props: StatusDotProps) @{
 				backgroundColor: nativeColor(statusDotColor(props.variant, scheme)),
 				justifyContent: 'center',
 				alignItems: 'center',
-				...(props.style as any),
-			})} accessible={true} accessibilityRole={nativeAccessibilityRole('image') as any} accessibilityLabel={props.label}>
+				...styleRecord(props.style),
+			})} accessible={true} accessibilityRole={nativeAccessibilityRole('image')} accessibilityLabel={props.label}>
 			{showsIcon ? props.icon : null}
 		</masonview>
 	);

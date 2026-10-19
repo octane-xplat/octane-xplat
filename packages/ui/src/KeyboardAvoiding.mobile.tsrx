@@ -67,7 +67,7 @@ export function KeyboardAvoiding(props: KeyboardAvoidingProps) @{
 	<scrollview
 		id={props.id}
 		className={cx('vx-keyboard-avoiding', props.className)}
-		style={props.style as any}
+		style={props.style}
 		ref={forwardedRef}
 	>
 		<KeyboardAvoidanceProvider value={provided}>

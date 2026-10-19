@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
+import { appKitHost, hostGlobal } from './host-bridge'
 import { useCallback, useEffect, useRef } from 'octane'
 import type { ToastProps, ToastContentRenderProps } from './props'
 import { cx } from '@octane-xplat/lib'
@@ -46,7 +47,7 @@ export function Toast(props: ToastProps) @{
 			timer = setTimeout(tick, paused ? 100 : Math.min(100, Math.max(0, remaining)))
 		}
 
-		const detach = (globalThis as any).__xplatAppKit?.observeHover?.(view.current, {
+		const detach = appKitHost()?.observeHover?.(view.current, {
 			enter: () => { hovered = true }, exit: () => { hovered = false },
 		})
 
@@ -59,7 +60,7 @@ export function Toast(props: ToastProps) @{
 		dismiss: () => dismiss('manual'),
 	}
 
-	<masonview id={props.id} ref={view} className={cx('vx-toast', props.type === 'error' && 'vx-toast--error', props.className)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, { opacity: props.isExiting ? 0 : 1, ...(props.style as any) }))}>
+	<masonview id={props.id} ref={view} className={cx('vx-toast', props.type === 'error' && 'vx-toast--error', props.className)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, { opacity: props.isExiting ? 0 : 1, ...styleRecord(props.style) }))}>
 		{props.renderContent ? props.renderContent(content) : (
 			<masonview className="vx-toast-content" style={mergeStyle({flexDirection: "column", flexGrow: 1}, {display: "flex"})}>
 				{typeof props.body === 'string' ? <label whiteSpace="normal">{props.body}</label> : props.body}

@@ -1,4 +1,5 @@
 import { useContext } from 'octane';
+import { styleRecord } from './style-merge'
 import type { SafeAreaProps } from './props';
 import { useSafeAreaInsets } from './safeAreaInsets.web.tsrx';
 import {
@@ -26,7 +27,7 @@ export function SafeArea(props: SafeAreaProps) @{
 		id={props.id}
 		ref={(node: any) => applyWebProps(node, props.web)}
 		className={['vx-safe-area', props.className]}
-		style={{ ...(props.style as any), paddingTop: applied.top, paddingRight: applied.right, paddingBottom: applied.bottom, paddingLeft: applied.left }}
+		style={{ ...styleRecord(props.style), paddingTop: applied.top, paddingRight: applied.right, paddingBottom: applied.bottom, paddingLeft: applied.left }}
 	>
 		<ConsumedInsetsProvider value={provided}>{props.children}</ConsumedInsetsProvider>
 	</div>

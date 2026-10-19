@@ -1,4 +1,5 @@
 import { useMemo, useEffect, useImperativeHandle, useRef } from 'octane';
+import { styleRecord } from './style-merge'
 import { refList } from './ref-list'
 import type { ScrollableAreaHandle, ScrollableAreaProps } from './props';
 import type { RefreshConfig, RefreshController } from './refresh.web';
@@ -132,7 +133,7 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
 	const viewportStyle = typeof viewport.style === 'object' ? viewport.style : undefined;
 	const contentStyle = typeof content.style === 'object' ? content.style : undefined;
 
-	<div {...layoutChildProps(props, { ...(props.style as any) })} className={['vx-refresh-wrap', props.className]}>
+	<div {...layoutChildProps(props, { ...styleRecord(props.style) })} className={['vx-refresh-wrap', props.className]}>
 		<div
 			ref={(el: any) => {
 				indicator.current = el;
@@ -190,7 +191,7 @@ function ScrollableAreaCore(props: ScrollableAreaProps) @{
 
 	const { ref: viewportRef, ...viewport } = area.getViewportProps();
 	const { ref: contentRef, ...content } = area.getContentProps();
-	const outer = layoutChildProps(props, { ...(props.style as any) });
+	const outer = layoutChildProps(props, { ...styleRecord(props.style) });
 
 	const viewportEl = useRef<HTMLElement | null>(null);
 	const handle = useMemo(() => scrollableAreaHandle(viewportEl), []);

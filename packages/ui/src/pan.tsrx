@@ -28,7 +28,7 @@ function panVelocity(e: any, state: number, trackerRef: { current: any }): { vx:
 	// velocity. Feed those events to the platform tracker and convert px/sec to
 	// the dip/sec units used by deltaX/deltaY.
 	const motionEvent = e.android?.current;
-	const velocityTrackerClass = (globalThis as any).android?.view?.VelocityTracker;
+	const velocityTrackerClass = globalThis.android?.view?.VelocityTracker;
 	if (!motionEvent || !velocityTrackerClass) {
 		return { vx: 0, vy: 0 };
 	}
@@ -56,7 +56,7 @@ function nativePanState(e: any): number {
 	if (!motionEvent) return e.state;
 
 	const action = motionEvent.getActionMasked?.();
-	const actionCancel = (globalThis as any).android?.view?.MotionEvent?.ACTION_CANCEL ?? 3;
+	const actionCancel = globalThis.android?.view?.MotionEvent?.ACTION_CANCEL ?? 3;
 	// NativeScript Android reports ACTION_CANCEL as `ended`; the MotionEvent
 	// preserves the distinction needed by the shared pan contract.
 	return action === actionCancel ? 0 : e.state;

@@ -1,9 +1,10 @@
 import { useSyncExternalStore } from 'octane'
+import { appKitHost, hostGlobal } from './host-bridge'
 import type { ColorScheme } from './props'
 
 let unsubscribeAppearance: (() => void) | undefined
 const listeners = new Set<() => void>()
-const host = () => (globalThis as any).__xplatAppKit
+const host = () => appKitHost() ?? {}
 
 function getSystemScheme(): ColorScheme {
 	return host()?.getColorScheme?.() === 'dark' ? 'dark' : 'light'

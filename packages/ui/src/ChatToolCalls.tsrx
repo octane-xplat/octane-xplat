@@ -6,7 +6,7 @@ import { cx } from '@octane-xplat/lib';
 import { Icon } from './Icon';
 import { Badge } from './Badge';
 import { ActivityIndicator } from './ActivityIndicator.tsrx';
-import { nativeAccessibilityRole } from './escape-props';
+import { nativeAccessibilityRole, nativeAccessibilityState} from './escape-props';
 
 const STATUS_ICON: Record<ChatToolCallStatus, string | null> = {
 	pending: 'xplat-clock',
@@ -34,7 +34,7 @@ function CallRow(props: { call: ChatToolCallItem }) @{
 	const [isDetailOpen, setIsDetailOpen] = useState(false);
 
 	const row = (
-		<masonview className={cx('vx-chattools-row', hasDetail && 'vx-chattools-row--toggle')} accessibilityRole={hasDetail ? (nativeAccessibilityRole('button') as any) : undefined} accessibilityState={hasDetail ? { expanded: isDetailOpen } as any : undefined} onTap={hasDetail ? () => setIsDetailOpen((v) => !v) : undefined} style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
+		<masonview className={cx('vx-chattools-row', hasDetail && 'vx-chattools-row--toggle')} accessibilityRole={hasDetail ? (nativeAccessibilityRole('button')) : undefined} accessibilityState={hasDetail ? nativeAccessibilityState({ expanded: isDetailOpen }) : undefined} onTap={hasDetail ? () => setIsDetailOpen((v) => !v) : undefined} style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
 			<masonview className={cx('vx-chattools-status', `vx-chattools-status--${status}`)} accessibilityLabel={statusAnnouncement(status, call.errorMessage)} style={{display: "flex"}}>
 				{status === 'running' || status === 'pending' ? (
 					<ActivityIndicator />
@@ -97,7 +97,7 @@ export function ChatToolCalls(props: ChatToolCallsProps) @{
 
 	if (props.calls.length === 1) {
 		return (
-			<masonview id={props.id} className={cx('vx-chattools', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style as any))}>
+			<masonview id={props.id} className={cx('vx-chattools', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style))}>
 				<CallRow call={props.calls[0]} />
 			</masonview>
 		);
@@ -106,8 +106,8 @@ export function ChatToolCalls(props: ChatToolCallsProps) @{
 	const latest = props.calls[props.calls.length - 1];
 	const latestStatus = latest.status ?? 'complete';
 
-	<masonview id={props.id} className={cx('vx-chattools', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style as any))}>
-		<masonview className="vx-chattools-header" accessibilityRole={nativeAccessibilityRole('button') as any} accessibilityState={{ expanded: isExpanded } as any} onTap={toggle} style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
+	<masonview id={props.id} className={cx('vx-chattools', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style))}>
+		<masonview className="vx-chattools-header" accessibilityRole={nativeAccessibilityRole('button')} accessibilityState={nativeAccessibilityState({ expanded: isExpanded })} onTap={toggle} style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
 			{isExpanded ? (
 				<>
 					<masonview className="vx-chattools-status" style={{display: "flex"}}><Icon name="xplat-wrench" size={14} /></masonview>

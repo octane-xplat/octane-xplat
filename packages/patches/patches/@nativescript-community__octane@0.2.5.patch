@@ -485,9 +485,10 @@ diff --git a/dist/intrinsics.d.ts b/dist/intrinsics.d.ts
 index 45a47cbbce199df9635852ca4cdb2849e9bbc83d..668c9209192b12be4cafbf126e15df9360fb2fc5 100644
 --- a/dist/intrinsics.d.ts
 +++ b/dist/intrinsics.d.ts
-@@ -24,9 +24,9 @@
+@@ -24,9 +24,10 @@
   */
  import type * as NS from '@nativescript/core';
++import type { CSSProperties } from 'octane/jsx-runtime';
  export type NativeScriptNode = unknown;
 -type Ref<TInstance> = ((instance: TInstance | null) => void) | {
 +type Ref<TInstance> = ((instance: TInstance | null) => void | (() => void)) | {
@@ -497,7 +498,7 @@ index 45a47cbbce199df9635852ca4cdb2849e9bbc83d..668c9209192b12be4cafbf126e15df93
  /**
   * The driver assigns every non-event prop onto the view instance, so a JSX
   * attribute is a NativeScript view property rather than a DOM attribute.
-@@ -76,34 +76,67 @@ export interface CommonEvents<TInstance> {
+@@ -76,34 +76,80 @@ export interface CommonEvents<TInstance> {
  export type ClassValue = string | boolean | null | undefined | readonly ClassValue[] | {
      readonly [className: string]: unknown;
  };
@@ -556,13 +557,26 @@ index 45a47cbbce199df9635852ca4cdb2849e9bbc83d..668c9209192b12be4cafbf126e15df93
      class?: ClassValue;
      /** A string is parsed as inline CSS; an object is assigned onto `view.style`. */
 -    style?: string | Partial<NS.Style>;
-+    style?: string | Partial<NS.Style> | MasonStyleProps;
++    style?: string | Partial<NS.Style> | MasonStyleProps | CSSProperties;
      /**
       * Name of the property on a slot-hosting parent (e.g. a drawer's
       * `mainContent` / `leftDrawer`) this child should be assigned to instead of
       * being added as a regular layout child.
       */
      hostSlot?: string;
++    /**
++     * ARIA-shaped accessibility values; shared components emit plain strings
++     * through the escape-props helpers rather than the NativeScript enums.
++     */
++    accessibilityRole?: string;
++    accessibilityState?: string;
++    accessibilityLiveRegion?: string;
++    /** Platform escape bags — applied onto the native view by the leaf's
++     *  applyEscapeProps, not by the driver. */
++    ios?: Record<string, unknown>;
++    android?: Record<string, unknown>;
++    windows?: Record<string, unknown>;
++    macos?: Record<string, unknown>;
 -    /**
 -     * Attached layout properties. The layout modules register these on `View` at
 -     * runtime, so they are absent from the `@nativescript/core` class typings.

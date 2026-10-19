@@ -29,7 +29,7 @@ function headingEl(container: Element | Document, id: string): HTMLElement | nul
 		return container.getElementById(id);
 	}
 
-	const escaped = (globalThis as any).CSS?.escape ? CSS.escape(id) : id.replace(/"/g, '\\"');
+	const escaped = typeof CSS !== 'undefined' && typeof CSS.escape === 'function' ? CSS.escape(id) : id.replace(/"/g, '\\"');
 	return container.querySelector(`[id="${escaped}"]`) as HTMLElement | null;
 }
 

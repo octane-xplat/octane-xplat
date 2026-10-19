@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
 import { useMemo } from 'octane'
 import { refList } from './ref-list'
 import type { IndicatorProps } from './props'
@@ -22,7 +22,7 @@ export function CheckIndicator(props: IndicatorProps<'singleSelection'>) @{
 			id={props.id}
 			ref={forwardedRef}
 			className={cx('vx-ind-check', `vx-ind-check--${size}`, props.isDisabled && 'vx-ind-check--disabled', props.className)}
-			style={props.style as any}
+			style={styleRecord(props.style)}
 			text="✓"
 		/>
 	} @else {

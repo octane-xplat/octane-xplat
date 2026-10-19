@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
 import { useEffect, useRef, useState } from 'octane';
 import type { OutlineProps } from './props';
 import { cx } from '@octane-xplat/lib';
@@ -117,7 +117,7 @@ export function Outline(props: OutlineProps) @{
 	<masonview ref={(v: any) => {
 			navRef.current = v;
 			applyEscapeProps(v, props);
-		}} id={props.id} className={cx('vx-outline', `vx-outline--${density}`, props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { flexDirection: 'column', ...(props.style as any) }))} accessible={true} accessibilityRole={nativeAccessibilityRole('none') as any} accessibilityLabel={label}>
+		}} id={props.id} className={cx('vx-outline', `vx-outline--${density}`, props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { flexDirection: 'column', ...styleRecord(props.style) }))} accessible={true} accessibilityRole={nativeAccessibilityRole('none')} accessibilityLabel={label}>
 		{items.map((item) => {
 			const isActive = item.id === activeId;
 			return (
@@ -125,7 +125,7 @@ export function Outline(props: OutlineProps) @{
 						paddingLeft: 8 + (item.level - 1) * 12,
 						paddingTop: density === 'compact' ? 4 : 8,
 						paddingBottom: density === 'compact' ? 4 : 8,
-					}))} accessible={true} accessibilityRole={nativeAccessibilityRole('button') as any} accessibilityLabel={item.label} accessibilityState={nativeAccessibilityState({ selected: isActive }) as any} onTap={() => activate(item.id)}>
+					}))} accessible={true} accessibilityRole={nativeAccessibilityRole('button')} accessibilityLabel={item.label} accessibilityState={nativeAccessibilityState({ selected: isActive })} onTap={() => activate(item.id)}>
 					<masonview className="vx-outline-item-bar" style={mergeStyle({display: "flex"}, {
 							width: 2,
 							height: 16,

@@ -1,5 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useColorScheme } from './theme/colorScheme';
+import { styleRecord } from './style-merge'
 import type { CodeProps } from './props';
 import { cx } from '@octane-xplat/lib';
 import { Text } from './Text';
@@ -20,7 +21,7 @@ export function Code(props: CodeProps) @{
 	<Text
 		id={props.id}
 		className={cx('vx-code', props.color === 'secondary' && 'vx-color-secondary', props.className)}
-		style={{ fontFamily: 'monospace', ...(colorStyle as any), ...(props.style as any) }}
+		style={{ fontFamily: 'monospace', ...(colorStyle), ...styleRecord(props.style) }}
 	>
 		{props.children}
 	</Text>

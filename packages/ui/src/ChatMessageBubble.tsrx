@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
 import type { ChatMessageBubbleProps } from './props';
 import { cx } from '@octane-xplat/lib';
 import { useChatMessageContext } from './chat-context';
@@ -34,7 +34,7 @@ export function ChatMessageBubble(props: ChatMessageBubbleProps) @{
 				`vx-chatbubble--${density}`,
 				props.group && `vx-chatbubble--${props.group}-${isUser ? 'user' : 'assistant'}`,
 				props.className,
-			)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { ...(props.width != null ? { width: props.width } : {}), ...(props.style as any) }))}>
+			)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { ...(props.width != null ? { width: props.width } : {}), ...styleRecord(props.style) }))}>
 			{props.children}
 		</masonview>
 		{hasMetadata ? (

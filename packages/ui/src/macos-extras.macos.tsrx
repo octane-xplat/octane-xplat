@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
 import type { HeadingProps, MeterProps } from './props'
 import { cx } from '@octane-xplat/lib'
 import { meterRange } from './meter-math'
@@ -19,7 +19,7 @@ export function Meter(props: MeterProps) @{
 			borderWidth: strokeWidth,
 			borderColor: props.trackColor ?? '#e1ecf7',
 			borderRadius: size / 2,
-			...(props.style as any),
+			...styleRecord(props.style),
 		})} accessibilityRole="meter" accessibilityLabel={props.accessibilityLabel} accessibilityValue={value} accessibilityMinValue={min} accessibilityMaxValue={rangeMax} accessibilityValueDescription={props.valueLabel ?? `${value} of ${rangeMax}`}>
 		{props.children}
 	</masonview>
@@ -31,7 +31,7 @@ export function Heading(props: HeadingProps) @{
 	<label
 		id={props.id}
 		className={cx('vx-heading', `vx-h${level}`, props.className)}
-		style={props.style as any}
+		style={styleRecord(props.style)}
 		accessibilityRole="heading"
 	>
 		{props.children}

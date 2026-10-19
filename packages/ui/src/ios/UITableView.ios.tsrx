@@ -217,7 +217,7 @@ export function UITableView<T>(props: UITableViewProps<T>) @{
 					// iOS doesn't clip children — the resting indicator sits
 					// translated above the wrapper's top edge without it.
 					if (v?.ios) v.ios.clipsToBounds = true;
-				}} className={cx('vx-refresh-wrap', props.className)} style={mergeStyle({display: "grid"}, props.style as any)}>
+				}} className={cx('vx-refresh-wrap', props.className)} style={mergeStyle({display: "grid"}, props.style)}>
 				<MemoListView
 					id={props.id}
 					items={props.items}

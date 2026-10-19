@@ -1,4 +1,5 @@
 import { useCallback, useContext, useMemo, useRef } from 'octane';
+import { styleRecord } from './style-merge'
 import type { NavHeadingMenuProps, NavHeadingMenuItemProps } from './props';
 import { applyEscapeProps } from './escape-props';
 import { Icon } from './Icon.web.tsrx';
@@ -74,7 +75,7 @@ export function NavHeadingMenu(props: NavHeadingMenuProps) @{
 		[closeMenu, size],
 	);
 
-	const inlineStyle = props.minWidth != null ? { ...(props.style as any), minWidth: props.minWidth } : props.style;
+	const inlineStyle = props.minWidth != null ? { ...styleRecord(props.style), minWidth: props.minWidth } : props.style;
 
 	<NavHeadingMenuProvider value={ctx}>
 		<div

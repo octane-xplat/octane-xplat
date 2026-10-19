@@ -232,7 +232,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 				props.size && `vx-datetimeinput--size-${props.size}`,
 				(!isDateValid || !isTimeValid) && 'vx-datetimeinput--invalid',
 				props.className,
-			)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style as any))}>
+			)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style))}>
 			{surface === 'sheet' ? (
 				<>
 					<Pressable
@@ -274,7 +274,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 						editable={!isDisabled && !isBusy}
 						accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
 						accessibilityHint={!isDateValid ? messages.invalidDate : props.accessibilityHint}
-						accessibilityState={nativeAccessibilityState({ disabled: isDisabled, busy: isBusy, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' || !isDateValid } as any) as any}
+						accessibilityState={nativeAccessibilityState({ disabled: isDisabled, busy: isBusy, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' || !isDateValid })}
 						onTextChange={handleDateChange}
 						onBlur={commitDatePending}
 						onReturnPress={commitDatePending}
@@ -288,7 +288,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 						editable={!isDisabled && !isBusy}
 						accessibilityHint={!isTimeValid ? messages.invalidTime : undefined}
 						accessibilityLabel={timeLabelText}
-						accessibilityState={nativeAccessibilityState({ disabled: isDisabled, invalid: !isTimeValid } as any) as any}
+						accessibilityState={nativeAccessibilityState({ disabled: isDisabled, invalid: !isTimeValid })}
 						onTextChange={handleTimeChange}
 						onBlur={commitTimePending}
 						onReturnPress={commitTimePending}
@@ -336,7 +336,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 				accessibilityLabel={timeLabelText}>
 					<masonview style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 						{timeOptions.map((opt) => (
-							<masonview key={opt.time} className={cx('vx-datetimeinput-timeoption', opt.time === (timeDraft ?? valueParts.time) && 'vx-datetimeinput-timeoption--selected')} accessibilityRole={"button" as any} accessibilityState={{ selected: opt.time === (timeDraft ?? valueParts.time) } as any} onTap={() => { commitTime(opt.time); setOpen(null) }} style={{display: "flex"}}>
+							<masonview key={opt.time} className={cx('vx-datetimeinput-timeoption', opt.time === (timeDraft ?? valueParts.time) && 'vx-datetimeinput-timeoption--selected')} accessibilityRole="button" accessibilityState={nativeAccessibilityState({ selected: opt.time === (timeDraft ?? valueParts.time) })} onTap={() => { commitTime(opt.time); setOpen(null) }} style={{display: "flex"}}>
 								<label text={opt.label} />
 							</masonview>
 						))}

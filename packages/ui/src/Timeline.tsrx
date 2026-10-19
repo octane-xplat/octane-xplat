@@ -7,7 +7,7 @@ import { Icon } from './Icon';
 
 /** Timeline — vertical event list: dot + connector + content per item. */
 export function Timeline(props: TimelineProps) @{
-	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-timeline', props.className)} style={mergeStyle({display: "flex"}, props.style as any)}>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-timeline', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
 		@for (const e of props.items.map((item, i) => ({ item, i })); key e.item.key) {
 			<masonview className="vx-timeline-item" style={{display: "flex"}}>
 				<masonview className="vx-timeline-rail" style={{display: "flex"}}>

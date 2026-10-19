@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'octane';
+import { styleRecord } from './style-merge'
 import { useLayer } from './use-layer';
 import { View } from './View.web.tsrx';
 import type { TooltipProps } from './props';
@@ -147,7 +148,7 @@ export function Tooltip(props: TooltipProps) @{
 			alignment: 'start',
 			offset: 8,
 			className: cx('vx-tooltip', props.contentClassName),
-			style: { pointerEvents: 'none', ...(props.contentStyle as any) },
+			style: { pointerEvents: 'none', ...styleRecord(props.contentStyle) },
 			accessibilityRole: 'tooltip',
 		})}
 	</View>

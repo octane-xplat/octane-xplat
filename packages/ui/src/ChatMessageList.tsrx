@@ -76,7 +76,7 @@ export function ChatMessageList(props: ChatMessageListProps) @{
 	const gap = props.gap ?? DENSITY_GAP[density];
 
 	<ChatListProvider value={contextValue}>
-		<masonview id={props.id} className={cx('vx-chatlist', `vx-chatlist--${density}`, props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style as any))} accessibilityLiveRegion={"polite" as any}>
+		<masonview id={props.id} className={cx('vx-chatlist', `vx-chatlist--${density}`, props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style))} accessibilityLiveRegion="polite">
 			<masonview ref={(v: any) => { innerRef.current = v; }} className="vx-chatlist-inner" style={mergeStyle({flexDirection: "column", flexGrow: 1, gap: gap}, {display: "flex"})}>
 				{isLoadingTop ? (
 					<masonview className="vx-chatlist-loading" style={mergeStyle({justifyContent: "center"}, {display: "flex"})}>

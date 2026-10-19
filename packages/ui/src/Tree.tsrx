@@ -29,7 +29,7 @@ function TreeRow(props: {
 		<masonview className={cx('vx-tree-row', node.disabled && 'vx-tree-row--disabled', isSelected && 'vx-tree-row--selected')} style={mergeStyle({display: "flex"}, { paddingLeft: props.depth * 16 })} onTap={node.disabled ? undefined : () => (isLeaf ? props.press(node) : props.toggle(node))} accessibilityState={nativeAccessibilityState({
 				disabled: node.disabled || undefined,
 				selected: props.selectionMode !== 'none' && isLeaf ? isSelected : undefined,
-			}) as any}>
+			})}>
 			<label className="vx-tree-caret" text={isLeaf ? '' : (isOpen ? '▾' : '▸')} />
 			<label className="vx-tree-label" text={node.label ?? String(node.key)} />
 		</masonview>
@@ -71,7 +71,7 @@ export function Tree<T extends TreeListNode = TreeListNode>(props: TreeProps<T>)
 		props.onAction?.(node.key);
 	};
 
-	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-tree', props.className)} style={mergeStyle({display: "flex"}, props.style as any)}>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-tree', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
 		{props.nodes.map((node: T) => (
 			<TreeRow node={node} depth={0} open={open} selected={selected}
 				selectionMode={selectionMode} toggle={toggle} press={press} />

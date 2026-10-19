@@ -1,4 +1,5 @@
 import { useContext, useEffect } from 'octane';
+import { styleRecord } from './style-merge'
 import type { SearchableItem } from './props';
 import type { BaseTypeaheadViewProps } from './typeahead-view';
 import { applyEscapeProps } from './escape-props';
@@ -90,7 +91,7 @@ export function BaseTypeaheadView<T extends SearchableItem,>(props: BaseTypeahea
 			type="text"
 			role="combobox"
 			className={['vx-typeahead-input', `vx-typeahead-input--size-${props.size}`, props.isDisabled ? 'vx-typeahead-input--disabled' : undefined, props.inputClassName, props.className]}
-			style={{ ...(props.style as any), ...(props.inputStyle as any) }}
+			style={{ ...styleRecord(props.style), ...styleRecord(props.inputStyle) }}
 			aria-expanded={props.open}
 			aria-controls={props.listboxId}
 			aria-activedescendant={props.open && activeIndex >= 0 ? itemId(activeIndex) : undefined}

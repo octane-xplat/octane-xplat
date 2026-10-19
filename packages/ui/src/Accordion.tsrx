@@ -31,7 +31,7 @@ export function Accordion(props: AccordionProps) @{
 		}
 	};
 
-	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-accordion', props.className)} style={mergeStyle({display: "flex"}, props.style as any)}>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-accordion', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
 		@for (const item of props.items; key item.key) {
 			<Collapsible
 				className="vx-accordion-item"

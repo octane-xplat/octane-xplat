@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
 import { useImperativeHandle, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'octane';
 import type { SearchableItem, SearchRequest, SearchSource, TokenizerProps, TypeaheadInputHandle } from "./props";
 import { useSize } from './size-context';
@@ -247,7 +247,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 		: null;
 
 	const truncatedRow = (
-		<masonview className={wrapperClass} ref={(v: any) => { wrapperRef.current = v; }} onLayoutChanged={measureOverflow} onTap={() => { if (!props.isDisabled) inputHandle.current?.focus(); }} accessibilityState={{ disabled: props.isDisabled } as any} style={mergeStyle({flexDirection: "row", alignItems: "center", flexWrap: "nowrap"}, {display: "flex"})}>
+		<masonview className={wrapperClass} ref={(v: any) => { wrapperRef.current = v; }} onLayoutChanged={measureOverflow} onTap={() => { if (!props.isDisabled) inputHandle.current?.focus(); }} accessibilityState={{ disabled: props.isDisabled }} style={mergeStyle({flexDirection: "row", alignItems: "center", flexWrap: "nowrap"}, {display: "flex"})}>
 			{startIcon}
 			{tokens}
 			{isTruncated
@@ -260,7 +260,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 	if (isLayerMode) {
 		// The collapsed row anchors the popover; the full field lives inside it.
 		content = <>
-			<masonview className={wrapperClass} ref={(v: any) => { wrapperRef.current = v; }} onLayoutChanged={measureOverflow} onTap={() => { if (!props.isDisabled) focusEntered(); }} accessibilityState={{ disabled: props.isDisabled } as any} style={mergeStyle({flexDirection: "row", alignItems: "center", flexWrap: "nowrap"}, {display: "flex"})}>
+			<masonview className={wrapperClass} ref={(v: any) => { wrapperRef.current = v; }} onLayoutChanged={measureOverflow} onTap={() => { if (!props.isDisabled) focusEntered(); }} accessibilityState={{ disabled: props.isDisabled }} style={mergeStyle({flexDirection: "row", alignItems: "center", flexWrap: "nowrap"}, {display: "flex"})}>
 				{startIcon}
 				{tokens}
 				<label ref={(v: any) => { overflowRef.current = v; }} className="vx-tokenizer-overflow" text={overflowCount > 0 ? `+${overflowCount} more` : ''} />
@@ -281,7 +281,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 			</Popover>
 		</>;
 	} else {
-		content = <masonview className={wrapperClass} ref={(v: any) => { wrapperRef.current = v; }} onLayoutChanged={measureOverflow} onTap={() => { if (!props.isDisabled) inputHandle.current?.focus(); }} accessibilityState={{ disabled: props.isDisabled } as any} style={mergeStyle({flexDirection: "row", alignItems: "center", flexWrap: isTruncated ? 'nowrap' : 'wrap'}, {display: "flex"})}>
+		content = <masonview className={wrapperClass} ref={(v: any) => { wrapperRef.current = v; }} onLayoutChanged={measureOverflow} onTap={() => { if (!props.isDisabled) inputHandle.current?.focus(); }} accessibilityState={{ disabled: props.isDisabled }} style={mergeStyle({flexDirection: "row", alignItems: "center", flexWrap: isTruncated ? 'nowrap' : 'wrap'}, {display: "flex"})}>
 			{startIcon}
 			{tokens}
 			{isTruncated
@@ -307,7 +307,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 		labelTooltip={props.labelTooltip}
 		size={size}
 		className={props.className}
-		style={{ ...(props.width != null ? { width: props.width } : {}), ...(props.style as any) }}
+		style={{ ...(props.width != null ? { width: props.width } : {}), ...styleRecord(props.style) }}
 	>
 		{props.isDisabled && props.disabledMessage ? <Tooltip trigger={content} content={props.disabledMessage} placement="top" /> : content}
 	</FormField>

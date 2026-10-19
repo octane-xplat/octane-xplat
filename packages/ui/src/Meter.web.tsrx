@@ -21,7 +21,7 @@ export function Meter(props: MeterProps) @{
 	<div
 		id={props.id}
 		className={['vx-meter', props.className]}
-		style={mergeStyle({display: 'grid', placeItems: 'center', position: 'relative', width: size, height: size}, props.style as any)}
+		style={mergeStyle({display: 'grid', placeItems: 'center', position: 'relative', width: size, height: size}, props.style)}
 		role="meter progressbar"
 		aria-label={props.accessibilityLabel}
 		aria-valuemin={rangeMin}

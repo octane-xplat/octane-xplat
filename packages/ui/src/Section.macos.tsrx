@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
 import { useMemo } from 'octane'
 import { refList } from './ref-list'
 import type { SectionProps } from './props'
@@ -34,7 +34,7 @@ export function Section(props: SectionProps) @{
 			...(props.height != null ? { height: props.height } : {}),
 			...(props.maxWidth != null ? { maxWidth: props.maxWidth } : {}),
 			...(props.minHeight != null ? { minHeight: props.minHeight } : {}),
-			...(props.style as any),
+			...styleRecord(props.style),
 		})} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole} accessibilityHint={props.accessibilityHint}>
 		{props.children}
 	</masonview>

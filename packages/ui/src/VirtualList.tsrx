@@ -1,5 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
+import { appKitHost, hostGlobal } from './host-bridge'
 import { useEffect, useImperativeHandle, useMemo, useRef, useState } from 'octane'
 import type { Key, VirtualListProps, VirtualListScrollOptions } from './props'
 import { defaultItemKey } from './list-data'
@@ -279,7 +280,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 			scrollOffsetRef.current = target
 			if (sameSize(target, nativeOffset)) return
 			const nativeView = view.nativeViewProtected
-			const makePoint = (globalThis as any).CGPointMake
+			const makePoint = hostGlobal('CGPointMake')
 			if (typeof nativeView?.setContentOffsetAnimated === 'function' && typeof makePoint === 'function') {
 				const current = nativeView.contentOffset
 				nativeView.setContentOffsetAnimated(makePoint(current.x, target), false)
@@ -305,7 +306,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		cancelAnchorRestore()
 		const target = Math.max(0, offset)
 		const nativeView = view.nativeViewProtected
-		const makePoint = (globalThis as any).CGPointMake
+		const makePoint = hostGlobal('CGPointMake')
 		if (typeof nativeView?.setContentOffsetAnimated === 'function' && typeof makePoint === 'function') {
 			const current = nativeView.contentOffset
 			nativeView.setContentOffsetAnimated(makePoint(current.x, target), animated)
@@ -567,14 +568,14 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		}
 	}, [cells])
 
-	const style = { ...(props.style as any), minHeight: (props.style as any)?.minHeight ?? 0 }
+	const style = { ...styleRecord(props.style), minHeight: styleRecord(props.style)?.minHeight ?? 0 }
 
 	<scrollview ref={(view: any) => {
 			scrollRef.current = view
 			observeLayout('viewport', view, scheduleViewport)
 			if (view) scheduleViewport()
 			if (view) applyEscapeProps(view, props)
-		}} id={props.id} testID={props.testID ?? ''} {...layoutChildProps(props, style)} className={cx('vx-virtual-list', props.className)} orientation="vertical" accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any} onLoaded={scheduleViewport} onScroll={onScroll}>
+		}} id={props.id} testID={props.testID ?? ''} {...layoutChildProps(props, style)} className={cx('vx-virtual-list', props.className)} orientation="vertical" accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState)} accessibilityLiveRegion={props.accessibilityLiveRegion} onLoaded={scheduleViewport} onScroll={onScroll}>
 		<masonview className={cx('vx-virtual-list-content')} ref={(view: any) => observeLayout('content', view, onContentLayout)} style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 			{props.renderHeader ? (
 				<masonview className="vx-virtual-list-header" ref={(view: any) => observeLayout('header', view, onHeaderLayout)} style={mergeStyle({flexDirection: "column", flexShrink: 0}, {display: "flex"})}>

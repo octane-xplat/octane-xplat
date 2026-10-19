@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { SheetContent } from './sheet-content'
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
 import { useContext, useEffect, useMemo, useRef, useState } from 'octane'
 import type { BottomSheetProps, BottomSheetSwitcherProps } from './props'
 import {
@@ -187,7 +187,7 @@ export function BottomSheetSwitcher(props: BottomSheetSwitcherProps) @{
 						...(sheet as any),
 						layerDepth: dismissal.depth,
 						className: cx(props.className, sheet?.className),
-						style: { ...(props.style as any), ...(sheet?.style as any) },
+						style: { ...styleRecord(props.style), ...styleRecord(sheet?.style) },
 						id: props.id ?? sheet?.id,
 					},
 					options: {

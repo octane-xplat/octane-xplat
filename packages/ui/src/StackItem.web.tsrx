@@ -1,4 +1,5 @@
 import type { StackItemProps } from './props';
+import { styleRecord } from './style-merge'
 import { applyEscapeProps } from './escape-props';
 import { applyWebProps } from './platformProps.web';
 import { useMemo, useRef } from 'octane';
@@ -23,8 +24,8 @@ export function StackItem(props: StackItemProps) @{
 		style={{
 			minWidth: 0,
 			minHeight: 0,
-			...(stackItemStyle as any)(props),
-			...(props.style as any),
+			...stackItemStyle(props),
+			...styleRecord(props.style),
 		}}
 		role={props.accessibilityRole}
 		aria-label={props.accessibilityLabel}

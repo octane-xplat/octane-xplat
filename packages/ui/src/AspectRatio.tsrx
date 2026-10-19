@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
 import { useMemo } from 'octane'
 import { refList } from './ref-list'
 import type { AspectRatioProps } from './props';
@@ -30,10 +30,10 @@ export function AspectRatio(props: AspectRatioProps) @{
 		)} style={mergeStyle({display: "flex"}, {
 			width: '100%',
 			...(derivedHeight !== undefined ? { height: derivedHeight } : {}),
-			...(ellipse ? { borderRadius: '50%' as any } : {}),
-			...(props.style as any),
-		})} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
-		<masonview className="vx-aspectratio-content" style={mergeStyle({justifyContent: (fit !== 'cover' ? 'center' : undefined) as any, alignItems: (fit !== 'cover' ? 'center' : undefined) as any}, mergeStyle({display: "flex"}, { flexGrow: 1 }))}>
+			...(ellipse ? { borderRadius: '50%' } : {}),
+			...styleRecord(props.style),
+		})} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState)} accessibilityLiveRegion={props.accessibilityLiveRegion}>
+		<masonview className="vx-aspectratio-content" style={mergeStyle({justifyContent: (fit !== 'cover' ? 'center' : undefined), alignItems: (fit !== 'cover' ? 'center' : undefined)}, mergeStyle({display: "flex"}, { flexGrow: 1 }))}>
 			{props.children}
 		</masonview>
 	</masonview>

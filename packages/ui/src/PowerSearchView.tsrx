@@ -27,7 +27,7 @@ export function PowerSearchView(props: PowerSearchViewProps) @{
 		? props.components?.[internal.getOperator(editing.filter.field, editing.filter.operator ?? '')?.value.type ?? 'string']?.Editor ?? PowerSearchFilterEditor
 		: PowerSearchFilterEditor
 
-	<masonview id={props.id} className={cx('vx-power-search', `vx-power-search--size-${size}`, props.isDisabled && 'vx-power-search--disabled', props.className)} style={mergeStyle({display: "flex"}, props.style as any)} ref={(v:any)=>{anchor.current=v}}>
+	<masonview id={props.id} className={cx('vx-power-search', `vx-power-search--size-${size}`, props.isDisabled && 'vx-power-search--disabled', props.className)} style={mergeStyle({display: "flex"}, props.style)} ref={(v:any)=>{anchor.current=v}}>
 		<masonview className="vx-power-search-row" style={{display: "flex"}}>
 			{props.startIcon ? typeof props.startIcon === 'string' ? <Icon className="vx-power-search-start-icon" name={props.startIcon} /> : props.startIcon : null}
 			{props.filters.map((filter, index) => {
@@ -37,7 +37,7 @@ export function PowerSearchView(props: PowerSearchViewProps) @{
 				return <Token key={`${filter.field}-${index}`} config={props.config} filter={filter} field={field} operator={operator} maxLength={props.maxTokenLength ?? 40} timezoneID={props.timezoneID} onPress={()=>!props.isReadOnly && props.onEdit(filter,index)} onRemove={props.isReadOnly ? undefined : ()=>props.onRemove(index)} isDisabled={props.isDisabled || props.isReadOnly} />
 			})}
 			<SearchInput ref={(h:any)=>inputHandle.current=h} className="vx-power-search-input" value={query} placeholder={props.placeholder ?? powerSearchTranslate('@astryx.powersearch.placeholder')} onChange={props.onQueryChange} onFocus={props.onInputFocus} onBlur={props.onBlur} isDisabled={props.isDisabled} isReadOnly={props.isReadOnly} isLoading={props.isLoading} description={props.disabledMessage} hasClear={false} accessibilityLabel={props.label ?? 'Search'} />
-			{props.resultCount != null ? <label className="vx-power-search-count" accessibilityLiveRegion={'polite' as any} text={String(props.resultCount)} /> : null}
+			{props.resultCount != null ? <label className="vx-power-search-count" accessibilityLiveRegion={'polite'} text={String(props.resultCount)} /> : null}
 			{props.endContent}
 			{props.hasClear !== false && props.filters.length > 0 ? <Button label="Clear" variant="ghost" clickAction={props.onClear} isDisabled={props.isDisabled} /> : null}
 		</masonview>

@@ -59,7 +59,7 @@ export function ScrollableArea(props: ScrollableAreaProps) @{
 	<scrollview {...area.getViewportProps({ ref: viewport })} {...layoutChildProps(props, mergeStyle({width: props.width,
 			height: props.height,
 			maxWidth: props.maxWidth,
-			minHeight: props.minHeight}, props.style as any))} id={props.id} className={props.className} accessibilityLabel={props.accessibilityLabel ?? props.label}>
+			minHeight: props.minHeight}, props.style))} id={props.id} className={props.className} accessibilityLabel={props.accessibilityLabel ?? props.label}>
 		<masonview {...area.getContentProps()} style={mergeStyle({flexDirection: horizontal ? 'row' : 'column'}, mergeStyle({display: "flex"}, {
 				paddingTop: spacingStep(props.paddingBlockStart) ?? spacingStep(props.paddingBlock) ?? padding ?? 0,
 				paddingBottom: spacingStep(props.paddingBlockEnd) ?? spacingStep(props.paddingBlock) ?? padding ?? 0,

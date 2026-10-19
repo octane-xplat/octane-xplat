@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { mergeStyle } from './style-merge'
+import { appKitHost, hostGlobal } from './host-bridge'
 import { useEffect, useLayoutEffect, useRef, useState } from 'octane'
 import { createPortal } from './native-portal'
 import { useThemeScheme } from './theme/theme-scheme'
@@ -36,7 +37,7 @@ export function usePresentation(isOpen: boolean, component: any, panelProps: any
 		const next = { ...resolved.options, component: current.component, props: { ...resolved.panelProps, dark: current.dark }, dark: current.dark }
 		if (surface.current && !surface.current.closed) surface.current.update(next)
 		else {
-			const present = (globalThis as any).__xplatAppKit?.presentSurface
+			const present = appKitHost()?.presentSurface
 			if (!present) throw new Error('AppKit host has no shared surface presenter')
 			surface.current = present({ ...next, owner: owner.current,
 				// Declarative content renders directly below this hook. Publishing
@@ -83,7 +84,7 @@ export function useDetachedPresentation(isOpen: boolean, component: any, panelPr
 		const next = { ...resolved.options, component: current.component, props: { ...resolved.panelProps, dark: current.dark }, dark: current.dark }
 		if (surface.current && !surface.current.closed) surface.current.update(next)
 		else {
-			const present = (globalThis as any).__xplatAppKit?.presentSurface
+			const present = appKitHost()?.presentSurface
 			if (!present) throw new Error('AppKit host has no shared surface presenter')
 			surface.current = present({ ...next, owner: owner.current, onDismiss: () => {
 				const current = latest.current

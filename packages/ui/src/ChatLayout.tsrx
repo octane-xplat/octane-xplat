@@ -113,7 +113,7 @@ export function ChatLayout(props: ChatLayoutProps) @{
 			id={props.id}
 			ref={attachRoot}
 			className={cx('vx-chatlayout', `vx-chatlayout--${density}`, props.className)}
-			style={mergeStyle({ display: "grid", flexGrow: 1 }, props.style as any)}
+			style={mergeStyle({ display: "grid", flexGrow: 1 }, props.style)}
 		>
 			<scrollview ref={attachViewport} className="vx-chatlayout-scroll" orientation="vertical">
 				<masonview

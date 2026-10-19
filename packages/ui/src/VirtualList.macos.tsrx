@@ -303,7 +303,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		}
 
 		if (props.id) {
-			const published = ((globalThis as any).__xplatVlistOffsets ??= {} as Record<string, number>)
+			const published = ((globalThis as Record<string, any>).__xplatVlistOffsets ??= {} as Record<string, number>)
 			published[props.id] = nextOffset
 		}
 

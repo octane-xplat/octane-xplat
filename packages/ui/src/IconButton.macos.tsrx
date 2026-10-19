@@ -21,7 +21,7 @@ export function IconButton(props: IconButtonProps) @{
 			return
 		}
 
-		if (action && typeof (action as any).then === 'function') {
+		if (action && typeof action.then === 'function') {
 			setPending(true)
 			Promise.resolve(action).then(
 				() => setPending(false),

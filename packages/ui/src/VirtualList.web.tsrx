@@ -1,4 +1,5 @@
 import { useEffect, useImperativeHandle, useMemo, useRef, useState } from 'octane'
+import { styleRecord } from './style-merge'
 import type { Key, VirtualListProps, VirtualListScrollOptions } from './props'
 import { defaultItemKey } from './list-data'
 import {
@@ -400,8 +401,8 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 	}, [cells])
 
 	const style = {
-		...(props.style as any),
-		minHeight: (props.style as any)?.minHeight ?? 0,
+		...styleRecord(props.style),
+		minHeight: styleRecord(props.style)?.minHeight ?? 0,
 		overflowY: 'auto',
 		overflowX: 'hidden',
 		overflowAnchor: 'none',

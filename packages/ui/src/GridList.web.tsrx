@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from 'octane';
+import { styleRecord } from './style-merge'
 import { refList } from './ref-list';
 import type { GridListProps } from './props';
 import { defaultItemKey, type Key, type Selection } from './list-data';
@@ -77,7 +78,7 @@ export function GridList<T = any>(props: GridListProps<T>) @{
 		].filter(Boolean).join(' ')}
 		style={{
 			...(props.columns ? { gridTemplateColumns: `repeat(${props.columns}, minmax(0, 1fr))` } : {}),
-			...(props.style as any),
+			...styleRecord(props.style),
 		}}
 		role="grid"
 		aria-label={props.accessibilityLabel}

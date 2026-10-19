@@ -1,11 +1,12 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { mergeStyle } from './style-merge'
+import { appKitHost, hostGlobal } from './host-bridge'
 import { useLayer } from './use-layer';
 import { useCallback, useEffect, useRef, useState } from 'octane';
 import type { HoverCardOptions, HoverCardReturn } from './props';
 import { cx } from '@octane-xplat/lib';
 
-const host = () => (globalThis as any).__xplatAppKit ?? {};
+const host = () => appKitHost() ?? {};
 
 function HoverCardPanel(props: { body: any; enter: () => void; exit: () => void }) @{
 	const view = useRef<any>(null);

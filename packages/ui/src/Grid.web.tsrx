@@ -1,4 +1,5 @@
 import type { GridProps } from './props';
+import { styleRecord } from './style-merge'
 import { applyEscapeProps } from './escape-props';
 import { gridTrackListToCss } from './grid-tracks';
 
@@ -18,7 +19,7 @@ export function Grid(props: GridProps) @{
 		id={props.id}
 		className={['vx-grid', props.className]}
 		style={{
-			...(props.style as any),
+			...styleRecord(props.style),
 			...(rowTracks ? { gridTemplateRows: rowTracks } : {}),
 			...(columnTracks ? { gridTemplateColumns: columnTracks } : {}),
 		}}

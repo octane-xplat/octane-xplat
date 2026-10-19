@@ -10,5 +10,5 @@ import { applyEscapeProps } from './escape-props';
  * @see StackProps.
  */
 export function Spacer(props: SpacerProps) @{
-	<masonview id={props.id} ref={(view: any) => applyEscapeProps(view, props)} className={cx('vx-spacer', props.className)} style={mergeStyle({flexDirection: "column", flexGrow: 1}, mergeStyle({display: "flex"}, props.style as any))}/>
+	<masonview id={props.id} ref={(view: any) => applyEscapeProps(view, props)} className={cx('vx-spacer', props.className)} style={mergeStyle({flexDirection: "column", flexGrow: 1}, mergeStyle({display: "flex"}, props.style))}/>
 }

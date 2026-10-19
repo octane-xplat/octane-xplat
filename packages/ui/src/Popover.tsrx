@@ -107,7 +107,7 @@ function PopoverLayer(props: PopoverInternalProps & { anchorView: any; layerDept
 
 	<masonview width="100%" height="100%" className={cx('vx-popover-layer', useThemeScheme() === 'dark' && 'ns-dark')}>
 		{(props.dismissOnOutsideTap ?? true) && <masonview style={mergeStyle({display: "grid"}, {position: 'absolute'})} width="100%" height="100%" backgroundColor={"transparent" as any} className="vx-popover-backdrop" onTap={dismiss}/>}
-		<masonview ref={panelRef} opacity={settled ? 1 : 0} className={cx('vx-popover', props.className)} onLoaded={update} onLayoutChanged={update} style={mergeStyle({display: "grid"}, [props.style as any, {position: 'absolute', left: position?.left ?? 0, top: position?.top ?? 0}])}>
+		<masonview ref={panelRef} opacity={settled ? 1 : 0} className={cx('vx-popover', props.className)} onLoaded={update} onLayoutChanged={update} style={mergeStyle({display: "grid"}, [props.style, {position: 'absolute', left: position?.left ?? 0, top: position?.top ?? 0}])}>
 			<LayerDepthProvider value={props.layerDepth}><SizeProvider value={null}>{props.children}</SizeProvider></LayerDepthProvider>
 		</masonview>
 	</masonview>

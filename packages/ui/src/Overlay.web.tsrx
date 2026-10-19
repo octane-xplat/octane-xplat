@@ -1,4 +1,5 @@
 import { createPortal, useEffect, useRef, useState } from 'octane';
+import { styleRecord } from './style-merge'
 import type { OverlayProps } from './props';
 import { useThemeScheme } from './theme/theme-scheme';
 import { cx } from '@octane-xplat/lib';
@@ -26,7 +27,7 @@ export function Overlay(props: OverlayProps) @{
 
 	@if (open) {
 		<>{createPortal(
-			<div ref={layer} className={cx('vx-overlay', dark && 'dark', props.className)} style={{ ...(props.style as any), position: 'fixed', inset: 0 }} {...(props.web as any)}>
+			<div ref={layer} className={cx('vx-overlay', dark && 'dark', props.className)} style={{ ...styleRecord(props.style), position: 'fixed', inset: 0 }} {...(props.web)}>
 				@if (props.shadeCover) {
 					<div className="vx-overlay-shade" onClick={requestDismiss} />
 				}

@@ -58,4 +58,13 @@ export function mergeStyle(
 	return [prefix, ...strings].filter(Boolean).join(';')
 }
 
+/** The object half of a `style` value, for sites that merge keys into a
+ *  bag: object styles pass through; strings/arrays yield `{}` — spreading a
+ *  string style would emit per-character index keys, so it is normalized
+ *  away rather than junked into the bag. Forward `style` verbatim (or use
+ *  `mergeStyle`) when the string form must survive. */
+export function styleRecord(style: StyleInput): Record<string, any> {
+	return typeof style === 'object' && style !== null && !Array.isArray(style) ? style : {}
+}
+
 export type { StyleProp }

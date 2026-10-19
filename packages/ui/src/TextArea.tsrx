@@ -1,5 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useImperativeHandle, useEffect, useRef, useState } from 'octane';
+import { mergeStyle } from './style-merge'
+import { styleRecord } from './style-merge'
 import { Utils } from '@nativescript/core';
 import type { TextAreaProps } from "./props";
 import { cx } from "@octane-xplat/lib";
@@ -29,7 +31,7 @@ export function TextArea(inputProps: TextAreaProps) @{
 
 	const fit = (v: any) => {
 		if (!v) return;
-		if ((props.style as any)?.height != null) return; // explicit height wins
+		if (styleRecord(props.style)?.height != null) return; // explicit height wins
 		const line = lineDip(v);
 		const rows = props.rows ?? (props.autoGrow ? 1 : 3);
 		v.style.minHeight = rows * line;
@@ -61,11 +63,11 @@ export function TextArea(inputProps: TextAreaProps) @{
 			applyEscapeProps(v, props);
 		}}
 		className={cx('vx-textarea', props.isDisabled && 'vx-textarea--disabled', props.isReadOnly && 'vx-textarea--readonly', props.isLoading && 'vx-textarea--loading', props.status && `vx-textarea--status-${props.status.type}`, props.size && `vx-textarea--size-${props.size}`, props.className)}
-		style={{ ...(props.style as any), ...(props.placeholderTextColor ? { placeholderColor: props.placeholderTextColor } : {}) }}
+		style={mergeStyle(styleRecord(props.style), props.placeholderTextColor ? { placeholderColor: props.placeholderTextColor } : {})}
 		hint={props.placeholder}
 	accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
 		accessibilityHint={props.accessibilityHint}
-		accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled }) as any}
+		accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled })}
 		keyboardType={props.keyboardType === 'default' ? undefined : props.keyboardType}
 		returnKeyType={props.returnKeyType}
 		isEnabled={!props.isDisabled}

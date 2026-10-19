@@ -21,7 +21,7 @@ export function Table<T extends object = Record<string, any>>(props: TableProps<
 		...(col.align ? { textAlignment: col.align } : {}),
 	});
 
-	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-table', props.className)} style={mergeStyle({display: "flex"}, props.style as any)}>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-table', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
 		<masonview className="vx-table-head" style={{display: "flex"}}>
 			@for (const col of props.columns; key col.key) {
 				<masonview className="vx-table-cell vx-table-th" style={mergeStyle({display: "flex"}, cellStyle(col))}>

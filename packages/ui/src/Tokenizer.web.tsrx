@@ -1,4 +1,5 @@
 import { useImperativeHandle, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from 'octane';
+import { styleRecord } from './style-merge'
 import type { SearchableItem, SearchRequest, SearchSource, TokenizerProps, TypeaheadInputHandle } from "./props";
 import { useSize } from './size-context';
 import type { TypeaheadQueryEntries } from './internal-props';
@@ -366,7 +367,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 		labelTooltip={props.labelTooltip}
 		size={size}
 		className={props.className}
-		style={{ ...(props.width != null ? { width: props.width } : {}), ...(props.style as any) }}
+		style={{ ...(props.width != null ? { width: props.width } : {}), ...styleRecord(props.style) }}
 		web={props.web}
 	>
 		<>

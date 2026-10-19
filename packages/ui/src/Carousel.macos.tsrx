@@ -17,7 +17,7 @@ export function Carousel(props: CarouselProps) @{
 		id={props.id}
 		className={cx('vx-carousel', props.className)}
 		style={props.style}
-		horizontal={true as any}
+		horizontal={true}
 		accessibilityLabel={props.accessibilityLabel ?? props.label}
 	>
 		<masonview className="vx-carousel-track" style={mergeStyle({flexDirection: "row"}, mergeStyle({display: "flex"}, { columnGap: gap }))}>

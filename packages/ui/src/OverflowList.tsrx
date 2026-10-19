@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
 import { useCallback, useEffect, useRef, useState } from 'octane';
 import type { OverflowItem, OverflowListProps } from './props';
 import { cx } from '@octane-xplat/lib';
@@ -109,7 +109,7 @@ export function OverflowList(props: OverflowListProps) @{
 				</masonview>
 			</scrollview>
 		</masonview>
-		<masonview ref={(v: any) => { container.current = v; if (v) { applyEscapeProps(v, props); v.on?.('layoutChanged', calculate); } }} id={props.id} className={cx('vx-overflowlist', isMultiRow && 'vx-overflowlist--multirow', props.className)} style={mergeStyle({flexDirection: "row", flexWrap: isMultiRow ? 'wrap' : 'nowrap', alignItems: "flex-start", rowGap: isMultiRow ? gap : undefined, gap: gap}, mergeStyle({display: "flex"}, { ...(props.style as any), height: containerHeight }))} onLayoutChanged={calculate}>
+		<masonview ref={(v: any) => { container.current = v; if (v) { applyEscapeProps(v, props); v.on?.('layoutChanged', calculate); } }} id={props.id} className={cx('vx-overflowlist', isMultiRow && 'vx-overflowlist--multirow', props.className)} style={mergeStyle({flexDirection: "row", flexWrap: isMultiRow ? 'wrap' : 'nowrap', alignItems: "flex-start", rowGap: isMultiRow ? gap : undefined, gap: gap}, mergeStyle({display: "flex"}, { ...styleRecord(props.style), height: containerHeight }))} onLayoutChanged={calculate}>
 			{collapseFrom === 'start' && hasOverflow ? props.overflowRenderer?.(overflowItems) : null}
 			{visibleItems.map(({ child }) => child)}
 			{collapseFrom === 'end' && hasOverflow ? props.overflowRenderer?.(overflowItems) : null}

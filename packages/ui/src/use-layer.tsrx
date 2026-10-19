@@ -1,5 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord} from './style-merge'
+import { appKitHost, hostGlobal } from './host-bridge'
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
 import { useCallback, useEffect, useId, useRef, useState } from 'octane';
 import type {
@@ -14,7 +15,7 @@ import type {
 import { cx } from '@octane-xplat/lib';
 import { layerOffset, nativeLayerRTL, positionPopover, resolveLayerAlignment, resolveLayerSide } from './popover-position';
 
-const host = () => (globalThis as any).__xplatAppKit ?? {};
+const host = () => appKitHost() ?? {};
 
 function LayerPanel(props: { body?: any; className?: any; style?: any; label?: string; layerDepth?: number }) @{
 	<masonview className={cx('vx-popover', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style))} accessibilityLabel={props.label}>
@@ -61,8 +62,8 @@ export function useLayer<O extends LayerOptions>(
 		const p = (surface ?? {}) as ContextRenderProps;
 		if (fixed || p.positioning === 'custom') {
 			const fx = surface as FixedRenderProps | undefined;
-			const x = fixed ? fx?.x ?? 0 : (p.style as any)?.left ?? 0;
-			const y = fixed ? fx?.y ?? 0 : (p.style as any)?.top ?? 0;
+			const x = fixed ? fx?.x ?? 0 : styleRecord(p.style)?.left ?? 0;
+			const y = fixed ? fx?.y ?? 0 : styleRecord(p.style)?.top ?? 0;
 			if (!Number.isFinite(x) || !Number.isFinite(y)) throw new TypeError('macOS custom layer left/top require finite window points');
 			return { left: x, top: y };
 		}

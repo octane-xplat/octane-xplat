@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useEffect, useRef, useState } from 'octane';
+import { styleRecord } from './style-merge'
 import type { TimerProps } from './props';
 import {
 	elapsedMilliseconds,
@@ -55,7 +56,7 @@ export function Timer(props: TimerProps) @{
 	<label
 		id={props.id}
 		className={cx('vx-timer', roleClasses, props.className)}
-		style={props.style as any}
+		style={styleRecord(props.style)}
 		text={text}
 		accessibilityValue={dateTime}
 	/>

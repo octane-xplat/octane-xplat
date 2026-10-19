@@ -25,7 +25,7 @@ export function ChatMessage(props: ChatMessageProps) @{
 	const hasMetadata = renderable(props.metadata) && !isSystem;
 
 	<ChatMessageProvider value={contextValue}>
-		<masonview ref={markChatRow} id={props.id} className={cx('vx-chatmsg', `vx-chatmsg--${props.sender}`, `vx-chatmsg--${density}`, props.className)} style={mergeStyle({flexDirection: "row", justifyContent: isSystem ? 'center' : 'flex-start'}, mergeStyle({display: "flex"}, props.style as any))} accessibilityLabel={props.accessibilityLabel ?? (!hasName ? `Message from ${props.sender}` : undefined)}>
+		<masonview ref={markChatRow} id={props.id} className={cx('vx-chatmsg', `vx-chatmsg--${props.sender}`, `vx-chatmsg--${density}`, props.className)} style={mergeStyle({flexDirection: "row", justifyContent: isSystem ? 'center' : 'flex-start'}, mergeStyle({display: "flex"}, props.style))} accessibilityLabel={props.accessibilityLabel ?? (!hasName ? `Message from ${props.sender}` : undefined)}>
 			{hasAvatar && !isUser ? <masonview className="vx-chatmsg-avatar" style={{display: "flex"}}>{props.avatar}</masonview> : null}
 			<masonview className={cx('vx-chatmsg-content', `vx-chatmsg-content--${props.sender}`)} style={mergeStyle({flexDirection: "column", flexGrow: 1, alignItems: isSystem ? 'center' : isUser ? 'flex-end' : 'flex-start'}, {display: "flex"})}>
 				{hasName ? <masonview className="vx-chatmsg-name" style={{display: "flex"}}>{props.name}</masonview> : null}

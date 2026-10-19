@@ -133,7 +133,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 				props.size && `vx-timeinput--size-${props.size}`,
 				!isPendingValid && 'vx-timeinput--invalid',
 				props.className,
-			)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style as any))}>
+			)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style))}>
 			<Pressable
 				className="vx-timeinput-toggle"
 				accessibilityLabel={messages.openTimePicker}
@@ -152,7 +152,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 					editable={!isDisabled && !isBusy}
 					accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
 					accessibilityHint={!isPendingValid ? messages.invalidTime : props.accessibilityHint}
-					accessibilityState={nativeAccessibilityState({ disabled: isDisabled, busy: isBusy, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' || !isPendingValid } as any) as any}
+					accessibilityState={nativeAccessibilityState({ disabled: isDisabled, busy: isBusy, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' || !isPendingValid })}
 					onTextChange={handleTextChange}
 					onBlur={commitPending}
 					onReturnPress={commitPending}

@@ -38,7 +38,7 @@ export function InputGroup(props: InputGroupProps) @{
 	>
 		<InputGroupProvider value={group}>
 		<SizeProvider value={size}>
-			<masonview ref={forwardedRef} className={cx('vx-inputgroup', props.isDisabled && 'vx-inputgroup--disabled', props.status && `vx-inputgroup--status-${props.status.type}`, `vx-inputgroup--size-${size}`)} accessibilityState={{ disabled: props.isDisabled } as any} style={mergeStyle({flexDirection: "row", alignItems: "stretch"}, {display: "flex"})}>
+			<masonview ref={forwardedRef} className={cx('vx-inputgroup', props.isDisabled && 'vx-inputgroup--disabled', props.status && `vx-inputgroup--status-${props.status.type}`, `vx-inputgroup--size-${size}`)} accessibilityState={{ disabled: props.isDisabled }} style={mergeStyle({flexDirection: "row", alignItems: "stretch"}, {display: "flex"})}>
 				{props.children}
 			</masonview>
 		</SizeProvider>

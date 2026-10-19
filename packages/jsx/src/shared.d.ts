@@ -15,6 +15,7 @@
  * host platform object are projected through the named `HostObject`-family
  * types below so the dependency stays at one chokepoint.
  */
+import type { CSSProperties } from 'octane/jsx-runtime'
 
 /** JSX renderable — what a JSX expression types as and what `children` accepts. */
 export type NativeNode = unknown
@@ -151,7 +152,7 @@ export interface CommonAttributes {
 	/** Alias for `className`. */
 	class?: ClassValue
 	/** A string is parsed as inline CSS; an object is assigned onto the view's style bag. */
-	style?: string | StyleProps
+	style?: string | StyleProps | CSSProperties
 	id?: string
 	/**
 	 * Name of the property on a slot-hosting parent (e.g. a drawer's

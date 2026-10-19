@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { mergeStyle } from './style-merge'
+import { mergeStyle , styleRecord} from './style-merge'
+import { appKitHost, hostGlobal } from './host-bridge'
 import { useMemo } from 'octane';
 import type { CommandPaletteItem, CommandPaletteProps } from './props';
 import { createCommandPaletteController } from './command-palette-state';
@@ -48,7 +49,7 @@ function PaletteBody<T extends CommandPaletteItem>(props: { options: CommandPale
 	}, [state.results]);
 
 	<LayerDepthProvider value={props.depth}>
-	<masonview className={cx('vx-commandpalette', props.options.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { ...(options.width != null ? { width: options.width } : {}), ...(options.style as any) }))} id={props.options.id} accessibilityLabel={props.options.label ?? 'Command palette'}>
+	<masonview className={cx('vx-commandpalette', props.options.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { ...(options.width != null ? { width: options.width } : {}), ...styleRecord(options.style) }))} id={props.options.id} accessibilityLabel={props.options.label ?? 'Command palette'}>
 		<masonview className="vx-cmdk-input-row" style={mergeStyle({flexDirection: "row"}, {display: "flex"})}>
 			<textfield ref={(view: any) => { input.current = view; }} id={`${options.id ?? 'command-palette'}-query`} className="vx-cmdk-search" accessibilityLabel={options.label ?? 'Command palette'} placeholder={options.placeholder ?? 'Search commands…'} value={state.query} onTextChange={controller.search} />
 			<Pressable id={`${props.options.id ?? 'command-palette'}-clear`} onPress={() => props.controller.search('')} accessibilityLabel="Clear search"><label text="Clear" /></Pressable>
@@ -90,7 +91,7 @@ export function CommandPalette<T extends CommandPaletteItem>(options: CommandPal
 	const dismissal = useLayerDismissal({ get active() { return state.open; }, isPresent: () => !!sheet.current, dismiss: controller.close });
 	useEffect(() => {
 		if (!state.open) return;
-		sheet.current = (globalThis as any).__xplatAppKit?.presentSheet?.(anchor.current, {
+		sheet.current = appKitHost()?.presentSheet?.(anchor.current, {
 			component: PaletteBody, props: { options, controller, depth: dismissal.depth },
 			minWidth: typeof options.width === 'number' ? options.width : 480,
 			onDismissed: controller.close,

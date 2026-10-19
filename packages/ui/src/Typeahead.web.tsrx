@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState, useSyncExternalStore, useId } from 'octane';
+import { styleRecord } from './style-merge'
 import type { SearchableItem, TypeaheadInputHandle, TypeaheadProps } from "./props";
 import { useSize } from './size-context';
 import { applyEscapeProps } from "./escape-props";
@@ -193,7 +194,7 @@ export function Typeahead<T extends SearchableItem,>(props: TypeaheadProps<T>) @
 		labelTooltip={props.labelTooltip}
 		size={size}
 		className={props.className}
-		style={{ ...(props.width != null ? { width: props.width } : {}), ...(props.style as any) }}
+		style={{ ...(props.width != null ? { width: props.width } : {}), ...styleRecord(props.style) }}
 		web={props.web}
 	>
 		{showsDisabledMessage

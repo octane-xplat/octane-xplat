@@ -29,7 +29,7 @@ function TreeRow(props: {
 		<masonview className={cx('vx-tree-row', node.disabled && 'vx-tree-row--disabled', isSelected && 'vx-tree-row--selected')} style={mergeStyle({display: "flex"}, { paddingLeft: props.depth * 16, ...(node.disabled ? { opacity: 0.5 } : {}) })} onTap={node.disabled ? undefined : () => (isLeaf ? props.press(node) : props.toggle(node))} accessibilityState={{
 				disabled: node.disabled || undefined,
 				selected: props.selectionMode !== 'none' && isLeaf ? isSelected : undefined,
-			} as any}>
+			}}>
 			<label className="vx-tree-caret" style={{ width: 14, marginLeft: 4 }} text={isLeaf ? '' : (isOpen ? '▾' : '▸')} />
 			<label className="vx-tree-label" text={node.label ?? String(node.key)} />
 		</masonview>

@@ -8,6 +8,8 @@ import { applyEscapeProps } from './escape-props'
 import { useListContext } from './list-context'
 import { pushDeepLink } from './route'
 
+interface DelegateTarget { notify?(event?: any): void; click?(): void; focus?(): void }
+
 /** ListItem — a `List` row: marker + startContent + label/description +
  *  endContent. `onPress`/`href` interactive; `href` resolves through the
  *  deep-link table (external open has no AppKit analog here). */
@@ -19,7 +21,7 @@ export function ListItem(props: ListItemProps) @{
 		if (props.isDisabled) { return }
 		if (props.onPress != null) { props.onPress(); return }
 		if (props.delegateRef?.current != null) {
-			const target = props.delegateRef.current as any
+			const target = props.delegateRef.current as DelegateTarget
 			target.notify?.({ eventName: 'tap', object: target })
 			target.click?.()
 			target.focus?.()

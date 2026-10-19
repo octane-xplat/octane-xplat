@@ -4,7 +4,7 @@ import { useMemo } from 'octane'
 import { refList } from './ref-list'
 import type { FocusScopeCapabilities, FocusScopeProps } from './props';
 import { cx } from '@octane-xplat/lib';
-import { applyEscapeProps } from './escape-props';
+import { applyEscapeProps, nativeAccessibilityState, nativeAccessibilityRole} from './escape-props';
 
 /** Which `FocusScope` behavior flags this target honors — none on native;
  *  keyboard focus containment is a web convention, so the flags are inert
@@ -32,7 +32,7 @@ export function FocusScope(props: FocusScopeProps) @{
 	if (props.restoreFocus) warnInertFocusScopeFlag('restoreFocus');
 	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
-	<masonview id={props.id} ref={forwardedRef} className={cx(props.className)} style={mergeStyle({display: "flex"}, props.style as any)} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={props.accessibilityState as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
+	<masonview id={props.id} ref={forwardedRef} className={cx(props.className)} style={mergeStyle({display: "flex"}, props.style)} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState)} accessibilityLiveRegion={props.accessibilityLiveRegion}>
 		{props.children}
 	</masonview>
 }

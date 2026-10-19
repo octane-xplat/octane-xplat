@@ -106,7 +106,7 @@ export function Thumbnail(props: ThumbnailProps) @{
 	);
 
 	const content = (
-		<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-thumbnail', props.className)} width={SIZE} height={SIZE} style={mergeStyle({display: "grid"}, props.style as any)} accessible={true} accessibilityLabel={label} accessibilityRole={nativeAccessibilityRole(isRenderable(props.onPress) ? 'button' : 'image') as any} accessibilityState={nativeAccessibilityState({ disabled: isDisabled }) as any} onTap={isRenderable(props.onPress) && !isDisabled ? () => props.onPress?.() : undefined}>
+		<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-thumbnail', props.className)} width={SIZE} height={SIZE} style={mergeStyle({display: "grid"}, props.style)} accessible={true} accessibilityLabel={label} accessibilityRole={nativeAccessibilityRole(isRenderable(props.onPress) ? 'button' : 'image')} accessibilityState={nativeAccessibilityState({ disabled: isDisabled })} onTap={isRenderable(props.onPress) && !isDisabled ? () => props.onPress?.() : undefined}>
 			{inner}
 		</masonview>
 	);

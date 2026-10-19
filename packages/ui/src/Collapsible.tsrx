@@ -21,7 +21,7 @@ export function Collapsible(props: CollapsibleProps) @{
 		props.onOpenChange?.(next);
 	};
 
-	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-collapsible', open && 'vx-collapsible--open', props.className)} style={mergeStyle({display: "flex"}, props.style as any)}>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-collapsible', open && 'vx-collapsible--open', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
 		<Pressable
 			className="vx-collapsible-trigger"
 			disabled={props.disabled}

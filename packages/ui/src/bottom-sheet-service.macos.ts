@@ -1,4 +1,5 @@
 import { type ContentOwner } from './owned-content'
+import { appKitHost, hostGlobal } from './host-bridge'
 import { ImperativeSheetPanel } from './bottom-sheet-panel.macos.tsrx'
 import type {
 	BottomSheetHandle,
@@ -55,7 +56,7 @@ export function openBottomSheetWithOwner(
 		active.add(entry)
 		closeSheet = entry.finish
 		try {
-			const present = (globalThis as any).__xplatAppKit?.presentSurface
+			const present = appKitHost()?.presentSurface
 			if (!present) {
 				throw new Error('AppKit host has no shared sheet presenter')
 			}

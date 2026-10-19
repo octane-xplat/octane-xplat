@@ -1,4 +1,4 @@
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'octane';
 import type { TabListProps, TabProps, TabMenuProps, TabMenuOption } from './props';
 import { useSize } from './size-context';
@@ -165,7 +165,7 @@ export function TabList(props: TabListProps) @{
 		@if (isTabList) {
 			<div ref={attachRoot} id={props.id} className={cls} style={props.style} role="presentation" onKeyDown={handleKeyDown} onFocus={handleFocus}>{inner}</div>
 		} @else {
-			<nav ref={attachRoot} id={props.id} className={cls} style={props.style as any} role={props.role} aria-label={props.role ? undefined : label} onKeyDown={handleKeyDown} onFocus={handleFocus}>{inner}</nav>
+			<nav ref={attachRoot} id={props.id} className={cls} style={props.style} role={props.role} aria-label={props.role ? undefined : label} onKeyDown={handleKeyDown} onFocus={handleFocus}>{inner}</nav>
 		}
 	</TabListProvider>
 }
@@ -200,7 +200,7 @@ export function Tab(props: TabProps) @{
 		id: props.id,
 		'data-tab-value': props.value,
 		className: ['vx-tab', isSelected && 'vx-tab--selected', ctx.layout === 'fill' && 'vx-tab--fill', props.className],
-		style: { height: SIZE_HEIGHT[ctx.size], ...(props.style as any) },
+		style: { height: SIZE_HEIGHT[ctx.size], ...styleRecord(props.style) },
 		tabIndex: isDisabled ? -1 : isSelected ? 0 : -1,
 		'aria-label': props.isLabelHidden ? props.label : undefined,
 		'aria-disabled': isDisabled || undefined,
@@ -273,7 +273,7 @@ export function TabMenu(props: TabMenuProps) @{
 			id={props.id}
 			type="button"
 			className={['vx-tab vx-tabmenu-trigger', selected && 'vx-tab--selected', props.className]}
-			style={mergeStyle({height: SIZE_HEIGHT[ctx.size]}, props.style as any)}
+			style={mergeStyle({height: SIZE_HEIGHT[ctx.size]}, props.style)}
 			data-tab-menu=""
 			tabIndex={selected ? 0 : -1}
 			aria-haspopup="menu"

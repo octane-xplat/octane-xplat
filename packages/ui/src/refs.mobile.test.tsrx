@@ -1,5 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { describe, expect, it, vi } from 'vitest'
+import { nativeAccessibilityState, nativeAccessibilityRole } from './escape-props'
 import { useImperativeHandle, useMemo, useRef } from 'octane'
 import { useMeasure } from './useMeasure.tsrx'
 import {

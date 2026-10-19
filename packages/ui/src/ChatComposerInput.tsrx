@@ -284,7 +284,7 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 		setTimeout(emitChange, 0);
 	};
 
-	<masonview id={props.id} className={cx('vx-chatinput', isDisabled && 'vx-chatinput--disabled', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style as any))}>
+	<masonview id={props.id} className={cx('vx-chatinput', isDisabled && 'vx-chatinput--disabled', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style))}>
 		<ChatTriggerMenuOverlay
 			state={triggerMenu.state}
 			anchor={triggerMenu.anchor}
@@ -346,7 +346,7 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 /** Token chip element — renders the chip; on native tokens live in the
  *  composer chip row rather than inline in the text. */
 export function ChatComposerTokenElement(props: ChatComposerTokenElementProps) @{
-	<masonview id={props.id} className={cx('vx-chattoken-el', props.className)} style={mergeStyle({display: "flex"}, props.style as any)}>
+	<masonview id={props.id} className={cx('vx-chattoken-el', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
 		<ChatTokenChip token={props.token} />
 	</masonview>
 }

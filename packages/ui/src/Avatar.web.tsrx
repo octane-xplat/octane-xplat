@@ -1,4 +1,5 @@
 import type { AvatarProps } from "./props";
+import { styleRecord } from './style-merge'
 import { applyEscapeProps } from "./escape-props";
 
 /** Avatar — circular image with a text fallback when `src` is absent.
@@ -13,7 +14,7 @@ export function Avatar(props: AvatarProps) @{
 		ref={(e: any) => applyEscapeProps(e, props)}
 		id={props.id}
 		className={['vx-avatar', props.className]}
-		style={{ ...(props.style as any), ...(box as any) }}
+		style={{ ...styleRecord(props.style), ...(box) }}
 		role="img"
 		aria-label={props.alt}
 	>

@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
 import { useEffect, useState } from 'octane';
 import type { TimestampProps, TimestampFormat } from './props';
 import {
@@ -88,7 +88,7 @@ export function Timestamp(props: TimestampProps) @{
 		<label
 			id={props.id}
 			className={cx('vx-timestamp', roleClasses, props.className)}
-			style={props.style as any}
+			style={styleRecord(props.style)}
 			text={text}
 			accessibilityLabel={relative ? absoluteLabel : undefined}
 		/>

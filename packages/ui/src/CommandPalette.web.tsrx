@@ -1,4 +1,5 @@
 import { useEffect, useId, useMemo, useRef } from 'octane';
+import { styleRecord } from './style-merge'
 import type { CommandPaletteItem, CommandPaletteProps } from './props';
 import { Overlay } from './Overlay.web.tsrx';
 import { Icon } from './Icon.web.tsrx';
@@ -28,7 +29,7 @@ export function CommandPalette<T extends CommandPaletteItem>(props: CommandPalet
 	<Overlay accessibilityLabel={props.label ?? 'Command palette'} open={state.open} shadeCover={true} onDismiss={controller.close} className="vx-cmdk-layer">
 		<div
 			className={['vx-commandpalette', props.className]}
-			style={{ ...(props.width != null ? { width: props.width } : {}), ...(props.style as any) }}
+			style={{ ...(props.width != null ? { width: props.width } : {}), ...styleRecord(props.style) }}
 			id={props.id}
 			role="group"
 			aria-label={props.label ?? 'Command palette'}

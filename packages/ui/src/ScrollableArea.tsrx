@@ -55,11 +55,11 @@ const a11y = (props: ScrollableAreaProps) => ({
 	// `label` is the Astryx contract; `accessibilityLabel` still wins when
 	// both are given.
 	accessibilityLabel: props.accessibilityLabel ?? props.label,
-	accessibilityRole: nativeAccessibilityRole(props.accessibilityRole) as any,
+	accessibilityRole: nativeAccessibilityRole(props.accessibilityRole),
 	accessibilityHint: props.accessibilityHint,
 	accessibilityValue: props.accessibilityValue,
-	accessibilityState: nativeAccessibilityState(props.accessibilityState) as any,
-	accessibilityLiveRegion: props.accessibilityLiveRegion as any,
+	accessibilityState: nativeAccessibilityState(props.accessibilityState),
+	accessibilityLiveRegion: props.accessibilityLiveRegion,
 });
 
 /** Pull-enabled variant — the grid wrapper hosts the scroller plus the
@@ -106,7 +106,7 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
 
 	<masonview ref={(v: any) => {
 			if (v?.ios) v.ios.clipsToBounds = true;
-		}} {...layoutChildProps(props, mergeStyle({display: "grid"}, props.style as any))} className={cx('vx-refresh-wrap', props.className)}>
+		}} {...layoutChildProps(props, mergeStyle({display: "grid"}, props.style))} className={cx('vx-refresh-wrap', props.className)}>
 		<scrollview
 			ref={forwardedRef}
 			id={props.id}
@@ -158,10 +158,10 @@ function ScrollableAreaCore(props: ScrollableAreaProps) @{
 				applyEscapeProps(v, props);
 			}), [props.ios, props.android, props.web]);
 
-	<scrollview ref={forwardedRef} id={props.id} testID={props.testID ?? ''} {...layoutChildProps(props, mergeStyle({width: props.width as any,
-			height: props.height as any,
-			maxWidth: props.maxWidth as any,
-			minHeight: props.minHeight as any}, props.style as any))} className={cx('vx-scrollable', props.className)} orientation={both ? 'vertical' : horizontal ? 'horizontal' : 'vertical'} {...a11y(props)}>
+	<scrollview ref={forwardedRef} id={props.id} testID={props.testID ?? ''} {...layoutChildProps(props, mergeStyle({width: props.width,
+			height: props.height,
+			maxWidth: props.maxWidth,
+			minHeight: props.minHeight}, props.style))} className={cx('vx-scrollable', props.className)} orientation={both ? 'vertical' : horizontal ? 'horizontal' : 'vertical'} {...a11y(props)}>
 		{both ? (
 			<scrollview
 				ref={(v: any) => {

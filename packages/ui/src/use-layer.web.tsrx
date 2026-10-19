@@ -1,4 +1,4 @@
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
 import { SizeProvider } from './size-context';
 import { createPortal, useCallback, useEffect, useId, useRef, useState } from 'octane';
@@ -68,7 +68,7 @@ function FloatingLayer(props: FloatingLayerProps) @{
 						...(props.x != null && { left: props.x }),
 						zIndex: 1,
 						pointerEvents: 'auto',
-						...(props.style as any),
+						...styleRecord(props.style),
 					}}
 					{...props.web}
 				>
@@ -169,7 +169,7 @@ export function useLayer<O extends LayerOptions>(
 						dismissOnEscape={options.dismissOnEscape}
 						onDismiss={hide}
 						className={p.className}
-						style={mergeStyle({positionAnchor: anchorId}, p.style as any)}
+						style={mergeStyle({positionAnchor: anchorId}, p.style)}
 						web={web}
 					>
 						{children}

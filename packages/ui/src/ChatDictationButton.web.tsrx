@@ -40,7 +40,7 @@ export function ChatDictationButton(props: ChatDictationButtonProps) @{
 	<span
 		id={props.id}
 		className={['vx-chatdict', props.className]}
-		style={mergeStyle({position: 'relative', display: 'inline-flex', alignItems: 'center'}, props.style as any)}
+		style={mergeStyle({position: 'relative', display: 'inline-flex', alignItems: 'center'}, props.style)}
 	>
 		{isListening ? (
 			<span

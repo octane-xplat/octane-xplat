@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
 import type { TokenProps } from "./props";
 import { cx } from "@octane-xplat/lib";
 import { Pressable } from './Pressable.macos.tsrx';
@@ -70,7 +70,7 @@ export function Token(props: TokenProps) @{
 		props.className,
 	);
 
-	const tokenStyle = {
+	const tokenStyle: Record<string, any> = {
 		flexDirection: 'row',
 		alignItems: 'center',
 		backgroundColor: bg,
@@ -78,7 +78,7 @@ export function Token(props: TokenProps) @{
 		paddingLeft: 8,
 		paddingRight: 8,
 		opacity: props.isDisabled ? 0.5 : 1,
-		...(props.style as any),
+		...styleRecord(props.style),
 	};
 
 	if (interactive) {

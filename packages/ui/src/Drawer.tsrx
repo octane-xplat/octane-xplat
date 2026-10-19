@@ -17,7 +17,7 @@ export function Drawer(props: DrawerProps) @{
 		props.onDismiss?.();
 	};
 
-	<masonview id={props.id} ref={(v: any) => applyEscapeProps(v, props)} className={cx('vx-drawer', props.className)} style={mergeStyle({display: "grid"}, props.style as any)}>
+	<masonview id={props.id} ref={(v: any) => applyEscapeProps(v, props)} className={cx('vx-drawer', props.className)} style={mergeStyle({display: "grid"}, props.style)}>
 		<masonview className="vx-drawer-main" style={{display: "grid"}}>{props.main}</masonview>
 		@if (open) {
 			<>

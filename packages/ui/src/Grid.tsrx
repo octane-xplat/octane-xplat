@@ -29,7 +29,7 @@ export function Grid(props: GridProps) @{
 	// lines in the driver. No imperative placement pass needed.
 	<masonview id={props.id} ref={(view: any) => {
 			applyEscapeProps(view, props);
-		}} className={cx('vx-grid', props.className)} style={mergeStyle({display: "grid", gridAutoFlow: "row", ...(rowTracks ? { gridTemplateRows: rowTracks } : {}), ...(columnTracks ? { gridTemplateColumns: columnTracks } : {})}, props.style as any)} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
+		}} className={cx('vx-grid', props.className)} style={mergeStyle({display: "grid", gridAutoFlow: "row", ...(rowTracks ? { gridTemplateRows: rowTracks } : {}), ...(columnTracks ? { gridTemplateColumns: columnTracks } : {})}, props.style)} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState)} accessibilityLiveRegion={props.accessibilityLiveRegion}>
 		{props.children}
 	</masonview>
 }

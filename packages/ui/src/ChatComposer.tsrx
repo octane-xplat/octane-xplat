@@ -84,14 +84,14 @@ export function ChatComposer(props: ChatComposerProps) @{
 
 	const status = props.status;
 	const statusEl = status ? (
-		<masonview className={cx('vx-chatcomposer-status', `vx-chatcomposer-status--${status.type}`, `vx-chatcomposer-status--${statusPosition}`)} accessibilityLiveRegion={(status.type === 'error' ? 'assertive' : 'polite') as any} style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
+		<masonview className={cx('vx-chatcomposer-status', `vx-chatcomposer-status--${status.type}`, `vx-chatcomposer-status--${statusPosition}`)} accessibilityLiveRegion={(status.type === 'error' ? 'assertive' : 'polite')} style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
 			<Icon name={status.type === 'error' ? 'xplat-error' : 'xplat-warning'} size={14} />
 			<label className="vx-chatcomposer-statustext" text={status.message ?? ''} />
 		</masonview>
 	) : null;
 
 	<ChatComposerProvider value={composerContext}>
-		<masonview id={props.id} className={cx('vx-chatcomposer', `vx-chatcomposer--${density}`, isDisabled && 'vx-chatcomposer--disabled', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style as any))}>
+		<masonview id={props.id} className={cx('vx-chatcomposer', `vx-chatcomposer--${density}`, isDisabled && 'vx-chatcomposer--disabled', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style))}>
 			{statusPosition === 'top' ? statusEl : null}
 			{props.drawer}
 			{/* Tap on empty body space focuses the input (registered control). */}

@@ -34,12 +34,12 @@ export function useChatStreamScroll({
 	}, [])
 
 	const bottomOffset = useCallback(() => {
-		const el = chatHost.scroll(scrollRef.current) as any
+		const el = chatHost.scroll(scrollRef.current)
 		return el ? Math.max(0, el.scrollableHeight ?? 0) : 0
 	}, [scrollRef])
 
 	const jumpToBottom = useCallback(() => {
-		const el = chatHost.scroll(scrollRef.current) as any
+		const el = chatHost.scroll(scrollRef.current)
 		if (!el?.scrollToVerticalOffset) {
 			return
 		}
@@ -54,7 +54,7 @@ export function useChatStreamScroll({
 			setLocked(true)
 			setIsScrolledUp(false)
 			initialFillPendingRef.current = false
-			const el = chatHost.scroll(scrollRef.current) as any
+			const el = chatHost.scroll(scrollRef.current)
 			if (!el?.scrollToVerticalOffset) {
 				return
 			}
@@ -68,7 +68,7 @@ export function useChatStreamScroll({
 
 	const scrollToMessage = useCallback(
 		(el: any) => {
-			const container = chatHost.scroll(scrollRef.current) as any
+			const container = chatHost.scroll(scrollRef.current)
 			if (!container?.scrollToVerticalOffset || !el) {
 				return
 			}
@@ -112,7 +112,7 @@ export function useChatStreamScroll({
 			return
 		}
 
-		const el = chatHost.scroll(scrollRef.current) as any
+			const el = chatHost.scroll(scrollRef.current)
 		if (!el?.scrollToVerticalOffset) {
 			return
 		}
@@ -131,7 +131,7 @@ export function useChatStreamScroll({
 	}, [enabled, followLatest, scrollRef, jumpToBottom, bottomOffset])
 
 	useEffect(() => {
-		const el = chatHost.scroll(scrollRef.current) as any
+		const el = chatHost.scroll(scrollRef.current)
 		if (!el?.on || !enabled) {
 			return
 		}

@@ -174,7 +174,7 @@ export function Calendar(props: CalendarProps) @{
 					state.isDisabled && 'vx-calendar-day--disabled',
 					day.isToday && 'vx-calendar-day--today',
 					day.isWeekend && 'vx-calendar-day--weekend',
-				)} accessibilityLabel={fullLabel} accessibilityRole={"button" as any} accessibilityState={{ disabled: state.isDisabled, selected: dayCarriesBand(state) || state.isSelected } as any} style={{display: "flex"}}>
+				)} accessibilityLabel={fullLabel} accessibilityRole="button" accessibilityState={{ disabled: state.isDisabled, selected: dayCarriesBand(state) || state.isSelected }} style={{display: "flex"}}>
 				<label text={String(day.dayOfMonth)} />
 			</masonview>
 		)
@@ -185,7 +185,7 @@ export function Calendar(props: CalendarProps) @{
 			<Pressable
 				className="vx-calendar-nav vx-calendar-nav--prev"
 				accessibilityLabel={messages.previousMonth}
-				accessibilityState={{ disabled: !bounds.canNavigatePrevious } as any}
+				accessibilityState={{ disabled: !bounds.canNavigatePrevious }}
 				disabled={!bounds.canNavigatePrevious}
 				onPress={() => bounds.canNavigatePrevious && setBaseMonth(monthStart(plainDateAddMonths(baseMonth, -1)))}
 			>
@@ -195,7 +195,7 @@ export function Calendar(props: CalendarProps) @{
 			<Pressable
 				className="vx-calendar-nav vx-calendar-nav--next"
 				accessibilityLabel={messages.nextMonth}
-				accessibilityState={{ disabled: !bounds.canNavigateNext } as any}
+				accessibilityState={{ disabled: !bounds.canNavigateNext }}
 				disabled={!bounds.canNavigateNext}
 				onPress={() => bounds.canNavigateNext && setBaseMonth(monthStart(plainDateAddMonths(baseMonth, 1)))}
 			>

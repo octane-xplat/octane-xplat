@@ -36,7 +36,7 @@ export function Icon(props: IconProps) @{
 				id={props.id}
 				className={cx(props.className)}
 				text={glyph.font.glyph}
-				style={{ fontFamily: glyph.font.family, fontSize: size, color: props.color as any }}
+				style={{ fontFamily: glyph.font.family, fontSize: size, color: props.color }}
 				accessible={accessible}
 				accessibilityLabel={props.accessibilityLabel}
 				ref={(el: any) => applyNativeProps(el, props)}
@@ -71,7 +71,7 @@ export function Icon(props: IconProps) @{
 						id={props.id}
 						className={cx(props.className)}
 						text={glyph.text}
-						style={{ fontSize: size, color: props.color as any }}
+						style={{ fontSize: size, color: props.color }}
 						accessible={accessible}
 						accessibilityLabel={props.accessibilityLabel}
 						ref={(el: any) => applyNativeProps(el, props)}

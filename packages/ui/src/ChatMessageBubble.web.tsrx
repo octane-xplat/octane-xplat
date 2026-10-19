@@ -1,4 +1,5 @@
 import type { ChatMessageBubbleProps } from './props';
+import { styleRecord } from './style-merge'
 import { useChatMessageContext } from './chat-context';
 
 const renderable = (v: any) => v != null && v !== false && v !== true;
@@ -38,7 +39,7 @@ export function ChatMessageBubble(props: ChatMessageBubbleProps) @{
 				...(props.width != null
 					? { width: props.width, maxWidth: 'none' }
 					: {}),
-				...(props.style as any),
+				...styleRecord(props.style),
 			}}
 		>
 			{props.children}

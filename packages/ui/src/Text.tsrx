@@ -1,5 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { createContext, useContext } from 'octane';
+import { styleRecord } from './style-merge'
 import { Application } from '@nativescript/core';
 import type { TextProps } from "./props";
 import { cx } from "@octane-xplat/lib";
@@ -30,7 +31,7 @@ function TextScope(props: { children?: any }) {
  */
 export function Text(props: TextProps) @{
 	const inText = useContext(InText);
-	const fontWeightValue = String((props.style as any)?.fontWeight ?? '').toLowerCase();
+	const fontWeightValue = String(styleRecord(props.style)?.fontWeight ?? '').toLowerCase();
 	const namedWeights: Record<string, number> = {
 		normal: 400,
 		bold: 700,
@@ -47,21 +48,21 @@ export function Text(props: TextProps) @{
 		? Number(fontWeightValue)
 		: namedWeights[fontWeightValue];
 
-	const lineHeight = (props.style as any)?.lineHeight;
+	const lineHeight = styleRecord(props.style)?.lineHeight;
 	// UIFontDescriptor resolves variable fonts to the regular axis default on
 	// iOS. Set wght explicitly so CSS fontWeight selects the matching instance.
 	const textStyle = {
-		...(props.style as any),
+		...styleRecord(props.style),
 		...((Application.ios || Application.android) &&
 		typeof lineHeight === 'number' &&
 		Number.isFinite(lineHeight) &&
 		lineHeight > 0 &&
-		(props.style as any)?.height == null &&
-		(props.style as any)?.minHeight == null
+		styleRecord(props.style)?.height == null &&
+		styleRecord(props.style)?.minHeight == null
 			? { minHeight: lineHeight }
 			: {}),
 		...(Application.ios &&
-		(props.style as any)?.fontVariationSettings == null &&
+		styleRecord(props.style)?.fontVariationSettings == null &&
 		fontWeight !== undefined &&
 		fontWeight >= 100 &&
 		fontWeight <= 900
@@ -80,7 +81,7 @@ export function Text(props: TextProps) @{
 	} @else {
 		// NS Label renders single-line unless whiteSpace asks to wrap; web text
 		// wraps freely — 'normal' matches web (0 unlimited lines).
-		<label id={props.id} testID={props.testID ?? ''} ref={(v: any) => applyEscapeProps(v, props)} {...layoutChildProps(props, textStyle)} className={cx(props.className)} maxLines={props.numberOfLines ?? 0} whiteSpace={props.ellipsize ? 'nowrap' : 'normal'} textOverflow={props.ellipsize ? 'ellipsis' : undefined} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
+		<label id={props.id} testID={props.testID ?? ''} ref={(v: any) => applyEscapeProps(v, props)} {...layoutChildProps(props, textStyle)} className={cx(props.className)} maxLines={props.numberOfLines ?? 0} whiteSpace={props.ellipsize ? 'nowrap' : 'normal'} textOverflow={props.ellipsize ? 'ellipsis' : undefined} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState)} accessibilityLiveRegion={props.accessibilityLiveRegion}>
 			<TextScope>{props.children}</TextScope>
 		</label>
 	}

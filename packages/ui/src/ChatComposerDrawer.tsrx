@@ -4,7 +4,7 @@ import { useState } from 'octane';
 import type { ChatComposerDrawerProps } from './props';
 import { cx } from '@octane-xplat/lib';
 import { Badge } from './Badge';
-import { nativeAccessibilityRole } from './escape-props';
+import { nativeAccessibilityRole, nativeAccessibilityState} from './escape-props';
 
 /** Collapsible drawer panel for a chat composer — attachments, context
  *  chips, previews. With `count`, a toggle row renders the collapsed
@@ -24,9 +24,9 @@ export function ChatComposerDrawer(props: ChatComposerDrawerProps) @{
 		props.onCollapsedChange?.(next);
 	};
 
-	<masonview id={props.id} className={cx('vx-chatdrawer', isCollapsed && 'vx-chatdrawer--collapsed', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style as any))}>
+	<masonview id={props.id} className={cx('vx-chatdrawer', isCollapsed && 'vx-chatdrawer--collapsed', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style))}>
 		{canCollapse ? (
-			<masonview className="vx-chatdrawer-toggle" accessibilityRole={nativeAccessibilityRole('button') as any} accessibilityLabel={isCollapsed ? `Expand ${label}` : `Collapse ${label}`} accessibilityState={{ expanded: !isCollapsed } as any} onTap={toggle} style={mergeStyle({flexDirection: "row", alignItems: "center", justifyContent: "center"}, {display: "flex"})}>
+			<masonview className="vx-chatdrawer-toggle" accessibilityRole={nativeAccessibilityRole('button')} accessibilityLabel={isCollapsed ? `Expand ${label}` : `Collapse ${label}`} accessibilityState={nativeAccessibilityState({ expanded: !isCollapsed })} onTap={toggle} style={mergeStyle({flexDirection: "row", alignItems: "center", justifyContent: "center"}, {display: "flex"})}>
 				{isCollapsed ? (
 					<masonview className="vx-chatdrawer-summary" style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
 						{props.collapsedSummary === undefined ? (

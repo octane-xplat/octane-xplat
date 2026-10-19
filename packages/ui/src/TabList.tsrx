@@ -77,7 +77,7 @@ export function TabList(props: TabListProps) @{
 	const cls = cx('vx-tablist', 'vx-tablist--' + size, layout === 'fill' && 'vx-tablist--fill', props.hasDivider && 'vx-tablist--divided', props.isFullBleed && 'vx-tablist--bleed', props.className);
 
 	<TabListProvider value={ctx}>
-		<masonview id={props.id} ref={(v: any) => applyEscapeProps(v, props)} className={cls} style={mergeStyle({display: "flex"}, props.style as any)}>
+		<masonview id={props.id} ref={(v: any) => applyEscapeProps(v, props)} className={cls} style={mergeStyle({display: "flex"}, props.style)}>
 			@if (hasScroll) {
 				<scrollview orientation="horizontal" ref={(v: any) => { scroller.current = v; }} className="vx-tabstrip-scroll" scrollBarIndicatorVisible={false}>
 					{row}
@@ -117,7 +117,7 @@ export function Tab(props: TabProps) @{
 		id={props.id}
 		ref={(v: any) => { applyEscapeProps(v, props); if (v) (ctx as any)._tabViews?.set(props.value, v); else (ctx as any)._tabViews?.delete(props.value); }}
 		className={cx('vx-tab', isSelected && 'vx-tab--selected', ctx.layout === 'fill' && 'vx-tab--fill', props.className)}
-		style={mergeStyle({height: SIZE_HEIGHT[ctx.size]}, props.style as any)}
+		style={mergeStyle({height: SIZE_HEIGHT[ctx.size]}, props.style)}
 		disabled={isDisabled}
 		accessibilityRole={isDisabled ? 'none' : (ctx.pattern === 'tabs' ? 'tab' : 'button')}
 		accessibilityLabel={props.isLabelHidden ? props.label : undefined}
@@ -158,7 +158,7 @@ export function TabMenu(props: TabMenuProps) @{
 			ref={(v: any) => { anchor.current = v; applyEscapeProps(v, props); }}
 			id={props.id}
 			className={cx('vx-tab vx-tabmenu-trigger', selected && 'vx-tab--selected', props.className)}
-			style={mergeStyle({height: SIZE_HEIGHT[ctx.size]}, props.style as any)}
+			style={mergeStyle({height: SIZE_HEIGHT[ctx.size]}, props.style)}
 			accessibilityLabel={triggerLabel}
 			accessibilityHint={props.label}
 			onPress={() => setOpen(!open)}

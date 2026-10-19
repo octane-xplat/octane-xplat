@@ -29,7 +29,7 @@ export function Section(props: SectionProps) @{
 		ref={forwardedRef}
 		className={['vx-section', `vx-section--${variant}`, props.className]}
 		style={mergeStyle({marginInlineStart: 'calc(-1 * var(--vx-container-padding-inline-start, 0px))',
-			marginInlineEnd: 'calc(-1 * var(--vx-container-padding-inline-end, 0px))'}, props.style as any)}
+			marginInlineEnd: 'calc(-1 * var(--vx-container-padding-inline-end, 0px))'}, props.style)}
 		role={props.accessibilityRole}
 		aria-label={props.accessibilityLabel}
 		aria-hidden={props.accessible === false ? true : undefined}

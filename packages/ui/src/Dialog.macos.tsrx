@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { mergeStyle } from './style-merge'
+import { mergeStyle, styleRecord } from './style-merge'
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
 import { useContext, useState } from 'octane'
 import type { DialogHeaderProps, DialogProps } from './props'
@@ -11,7 +11,7 @@ import { DialogContext, DialogProvider } from './dialog-context'
 function DialogPanel(props: DialogProps & { dark?: boolean; layerDepth: number }) @{
 	<LayerDepthProvider value={props.layerDepth}>
 		<DialogProvider value={{ titleId: '', isModal: !props.isInline, requestClose: props.onOpenChange }}>
-		<masonview id={props.id} className={cx('vx-dialog', props.variant === 'fullscreen' && 'vx-dialog--fullscreen', props.dark && 'ns-dark', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { padding: (props.padding ?? 5) * 4, ...(props.style as any) }))}>
+		<masonview id={props.id} className={cx('vx-dialog', props.variant === 'fullscreen' && 'vx-dialog--fullscreen', props.dark && 'ns-dark', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { padding: (props.padding ?? 5) * 4, ...styleRecord(props.style) }))}>
 			{props.children}
 		</masonview>
 		</DialogProvider>

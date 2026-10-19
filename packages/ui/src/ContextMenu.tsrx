@@ -24,7 +24,7 @@ export function ContextMenu(props: ContextMenuProps) @{
 		props.onOpenChange?.(next);
 	};
 
-	<masonview ref={(v: any) => { anchor.current = v; if (v) applyEscapeProps(v, props); }} id={props.id} className={cx('vx-contextmenu', props.className)} style={mergeStyle({display: "flex"}, props.style as any)} onLongPress={(props.isDisabled) ? undefined : () => setOpen(true)}>
+	<masonview ref={(v: any) => { anchor.current = v; if (v) applyEscapeProps(v, props); }} id={props.id} className={cx('vx-contextmenu', props.className)} style={mergeStyle({display: "flex"}, props.style)} onLongPress={(props.isDisabled) ? undefined : () => setOpen(true)}>
 		{props.children}
 		{props.trigger && <Pressable accessibilityLabel={props.accessibilityLabel ?? 'Open actions'} disabled={props.isDisabled} onPress={() => setOpen(!open)}>{props.trigger}</Pressable>}
 		<Popover

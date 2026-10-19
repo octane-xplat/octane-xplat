@@ -8,7 +8,7 @@ import { layoutChildProps } from './layout-child';
  * how to parent FormattedString → Span, while each run writes its text
  * directly because Span is not a TextBase host for #text children. */
 export function RichText(props: RichTextProps) @{
-	<label id={props.id} ref={(el: any) => applyEscapeProps(el, props)} {...layoutChildProps(props, props.style as any)} className={cx('vx-rich-text', props.className)} whiteSpace="normal">
+	<label id={props.id} ref={(el: any) => applyEscapeProps(el, props)} {...layoutChildProps(props, props.style)} className={cx('vx-rich-text', props.className)} whiteSpace="normal">
 		<formattedstring>{props.children}</formattedstring>
 	</label>
 }
@@ -27,7 +27,7 @@ export function RichTextSpan(props: RichTextSpanProps) @{
 	<span
 		text={runText(props)}
 		className={cx(props.className)}
-		style={props.style as any}
+		style={props.style}
 		onLinkTap={props.onPress}
 	/>
 }
