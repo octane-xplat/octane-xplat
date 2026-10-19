@@ -1444,6 +1444,37 @@ checks remain outstanding; object-driver results are not on-device evidence.
 Q30 remains open. FlashList and LegendList informed the ownership/positioning
 strategy; no React Native package or new UI dependency was introduced.
 
+### Recycling lifecycle investigation (2026-10-19)
+
+The [RecyclingList investigation](../../design/recycling-list.md) compares a
+separate row-recycling lifecycle with the existing item-keyed `VirtualList`.
+The [versioned source study](../../references/prior-art/recycling-lists.md)
+covers LegendList 3.6.0, FlashList 2.3.3, RecyclerListView 4.2.3, Vue Virtual
+Scroller 3.0.5, Flutter, and AndroidX. No public list API or existing row-state
+contract changed. Chromium's research-only variant reduced row mounts and DOM
+construction by about 94% in the fixed-height fixture, with overlapping seek
+readiness timings; this does not establish better frame pacing.
+
+The iOS isolated host built and installed with Octane 0.11.0,
+`@nativescript-community/octane` 0.2.5, NativeScript Core 9.1.3, and the workspace's
+MasonKit beta.110 setup, but failed before loading the case. Scoped simulator
+logs first reported `__WINDOWS__ is not defined`; adding a false define only to
+the disposable host config and rebuilding exposed `MasonListDelegate is not
+defined` during host vendor-module evaluation. The case config already defines
+the Windows flag; the generated host is a separate bundle. The missing native
+protocol's cause has not been isolated to an upstream package. No fake protocol
+or framework workaround was shipped. The host must initialize with the matching
+plugin/runtime before an iOS comparative pass can be claimed. See the
+[evidence and runtime limits](../evidence/recycling-list-2026-10-19.json).
+
+Android's isolated case compiled, but host assembly stopped in NativeScript's
+Static Binding Generator: `Class not found
+org.nativescript.mason.masonkit.ListView.Listener`. A direct Gradle diagnostic
+confirmed that failure; the SDK XML warning in the shortened runner log was not
+established as the cause. No list assertion ran on the intended physical target.
+The missing plugin class was not faked or bypassed. Both native comparisons remain
+unqualified until the host/plugin setup is repaired and actual cases execute.
+
 ## Appendix: verified driver semantics
 
 Substrate pass findings — the mechanics that constrain everything above.

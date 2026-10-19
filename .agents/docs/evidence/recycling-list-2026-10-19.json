@@ -1,0 +1,298 @@
+{
+	"schema": "xplat.recycling-list-investigation.v1",
+	"date": "2026-10-19",
+	"baselineCommit": "e6a98fd6fe3385b7063c936baf4e4f0ec64eeb13",
+	"status": "investigation complete; public API remains conditional on native evidence and lifecycle qualification",
+	"scope": "Annotation 1: preserve VirtualList and investigate a separate recycling-aware list",
+	"fixture": {
+		"items": 500,
+		"types": 2,
+		"rowHeight": 96,
+		"viewportHeight": 288,
+		"initialViewportWidth": 320,
+		"finalViewportWidth": 280,
+		"webHostsPerRow": 15,
+		"steps": 24,
+		"rowsPerStep": 8,
+		"trialOrder": ["windowed", "recycling", "recycling", "windowed"],
+		"settleAfterStepMs": 40,
+		"input": "programmed key/index seeks; no OS gestures",
+		"candidateChanges": [
+			"nested key changes from item rowKey to physical cell id",
+			"spare slots retain their last item subtree",
+			"render callback receives active assignment state"
+		],
+		"sharedMechanics": [
+			"size index",
+			"size estimates",
+			"anchor correction",
+			"scroll scheduling",
+			"positioning",
+			"eight spare host cap"
+		],
+		"stateExercise": "Dispatch the first row action to set local state to 1, recycle away, assert new item state is 0, and invoke retired callbacks that would write 42 if not cancelled/guarded."
+	},
+	"temporaryProbeSha256": {
+		"research/recycling-list/prepare.py": "1c99a44f40b0b77c897ba3387afaf21b8221f573b9707c41170d0ff9a71a2664",
+		"research/recycling-list/pool.ts": "ea53e87df836ea19e8f42b2a2639efd3bc420f95672de1cada4ac269d2e92a4b",
+		"research/recycling-list/experiment.tsrx": "d59da3783a227ee525950937c3a07883b79ad2b9af94a933af8a23cde719927b",
+		"research/recycling-list/hosts.ts": "c0edbb58126479b05349cb6bf54a51f0687ed3641ca34e2334129d4c063fa395",
+		"research/recycling-list/hosts.web.ts": "d6cb46f17cd3e7430596df6fb50ce5e64a2f1d609dae45614c3120b19c7dad82"
+	},
+	"runtimeVersions": {
+		"octane": "0.11.0",
+		"@nativescript-community/octane": "0.2.5",
+		"@nativescript/core": "9.1.3"
+	},
+	"web": {
+		"status": "pass",
+		"host": "Chromium",
+		"interaction": "dom-dispatch",
+		"assertions": 144,
+		"errors": [],
+		"runId": "bc91a722-b716-4e87-93ac-ca0212fe5473",
+		"trials": [
+			{
+				"mode": "windowed",
+				"initial": {
+					"mounts": 12,
+					"unmounts": 5,
+					"hostsAdded": 180,
+					"renders": 22,
+					"activeEffects": 7,
+					"effectStarts": 12,
+					"effectStops": 5,
+					"safeLeaks": 0,
+					"obsoleteRejected": 0,
+					"unsafeReassignments": 0
+				},
+				"afterScroll": {
+					"mounts": 204,
+					"unmounts": 194,
+					"hostsAdded": 3060,
+					"renders": 292,
+					"activeEffects": 10,
+					"effectStarts": 204,
+					"effectStops": 194,
+					"safeLeaks": 0,
+					"obsoleteRejected": 0,
+					"unsafeReassignments": 0
+				},
+				"registeredMax": 10,
+				"seekReadyP50Ms": 7.900000002235174,
+				"seekReadyP95Ms": 14.300000000745058,
+				"durationMs": 1530.699999999255,
+				"samples": [
+					9.800000000745058, 9.399999998509884, 8.300000000745058, 19.5, 7.899999998509884,
+					9.099999997764826, 8.100000001490116, 7.900000002235174, 7.800000000745058, 7.5,
+					7.899999998509884, 7.699999999254942, 8.100000001490116, 14.300000000745058, 8,
+					7.699999999254942, 7.199999999254942, 7.699999999254942, 6.800000000745058,
+					12.900000002235174, 7.800000000745058, 7.599999997764826, 7.600000001490116,
+					14.099999997764826
+				],
+				"prependDrift": 0,
+				"cleanup": {
+					"mounts": 217,
+					"unmounts": 217,
+					"hostsAdded": 3255,
+					"renders": 332,
+					"activeEffects": 0,
+					"effectStarts": 217,
+					"effectStops": 217,
+					"safeLeaks": 0,
+					"obsoleteRejected": 1,
+					"unsafeReassignments": 0
+				}
+			},
+			{
+				"mode": "recycling",
+				"initial": {
+					"mounts": 12,
+					"unmounts": 0,
+					"hostsAdded": 180,
+					"renders": 27,
+					"activeEffects": 7,
+					"effectStarts": 12,
+					"effectStops": 5,
+					"safeLeaks": 0,
+					"obsoleteRejected": 0,
+					"unsafeReassignments": 0
+				},
+				"afterScroll": {
+					"mounts": 12,
+					"unmounts": 0,
+					"hostsAdded": 180,
+					"renders": 351,
+					"activeEffects": 10,
+					"effectStarts": 204,
+					"effectStops": 194,
+					"safeLeaks": 0,
+					"obsoleteRejected": 0,
+					"unsafeReassignments": 192
+				},
+				"registeredMax": 11,
+				"seekReadyP50Ms": 7.699999999254942,
+				"seekReadyP95Ms": 17,
+				"durationMs": 1531.800000000745,
+				"samples": [
+					7.900000002235174, 7.399999998509884, 8.399999998509884, 18.900000002235174,
+					7.199999999254942, 14.200000002980232, 7.600000001490116, 7.699999999254942, 7.5,
+					7.199999999254942, 8.099999997764826, 14.199999999254942, 7.5, 8.300000000745058,
+					8.100000001490116, 8.300000000745058, 7.100000001490116, 7.400000002235174,
+					7.200000002980232, 13.399999998509884, 7.200000002980232, 7, 7.300000000745058, 17
+				],
+				"prependDrift": 0,
+				"cleanup": {
+					"mounts": 25,
+					"unmounts": 25,
+					"hostsAdded": 375,
+					"renders": 401,
+					"activeEffects": 0,
+					"effectStarts": 217,
+					"effectStops": 217,
+					"safeLeaks": 0,
+					"obsoleteRejected": 1,
+					"unsafeReassignments": 192
+				}
+			},
+			{
+				"mode": "recycling",
+				"initial": {
+					"mounts": 12,
+					"unmounts": 0,
+					"hostsAdded": 180,
+					"renders": 27,
+					"activeEffects": 7,
+					"effectStarts": 12,
+					"effectStops": 5,
+					"safeLeaks": 0,
+					"obsoleteRejected": 0,
+					"unsafeReassignments": 0
+				},
+				"afterScroll": {
+					"mounts": 12,
+					"unmounts": 0,
+					"hostsAdded": 180,
+					"renders": 351,
+					"activeEffects": 10,
+					"effectStarts": 204,
+					"effectStops": 194,
+					"safeLeaks": 0,
+					"obsoleteRejected": 0,
+					"unsafeReassignments": 192
+				},
+				"registeredMax": 11,
+				"seekReadyP50Ms": 7.599999997764826,
+				"seekReadyP95Ms": 13.900000002235174,
+				"durationMs": 1497.0999999977648,
+				"samples": [
+					7.599999997764826, 6.899999998509884, 7.599999997764826, 18.5, 8.100000001490116,
+					7.400000002235174, 6.800000000745058, 13.699999999254942, 8.199999999254942,
+					7.599999997764826, 7.100000001490116, 12, 6.699999999254942, 13.900000002235174,
+					7.399999998509884, 7.400000002235174, 7.199999999254942, 13.899999998509884,
+					7.200000002980232, 7.899999998509884, 7.699999999254942, 8, 7.5, 7.599999997764826
+				],
+				"prependDrift": 0,
+				"cleanup": {
+					"mounts": 25,
+					"unmounts": 25,
+					"hostsAdded": 375,
+					"renders": 401,
+					"activeEffects": 0,
+					"effectStarts": 217,
+					"effectStops": 217,
+					"safeLeaks": 0,
+					"obsoleteRejected": 1,
+					"unsafeReassignments": 192
+				}
+			},
+			{
+				"mode": "windowed",
+				"initial": {
+					"mounts": 12,
+					"unmounts": 5,
+					"hostsAdded": 180,
+					"renders": 22,
+					"activeEffects": 7,
+					"effectStarts": 12,
+					"effectStops": 5,
+					"safeLeaks": 0,
+					"obsoleteRejected": 0,
+					"unsafeReassignments": 0
+				},
+				"afterScroll": {
+					"mounts": 204,
+					"unmounts": 194,
+					"hostsAdded": 3060,
+					"renders": 292,
+					"activeEffects": 10,
+					"effectStarts": 204,
+					"effectStops": 194,
+					"safeLeaks": 0,
+					"obsoleteRejected": 0,
+					"unsafeReassignments": 0
+				},
+				"registeredMax": 10,
+				"seekReadyP50Ms": 7.800000000745058,
+				"seekReadyP95Ms": 13.800000000745058,
+				"durationMs": 1500.8999999985099,
+				"samples": [
+					7.900000002235174, 8.399999998509884, 7.099999997764826, 17.900000002235174,
+					6.899999998509884, 8, 7.399999998509884, 13.800000000745058, 8.099999997764826,
+					7.800000000745058, 7, 6.899999998509884, 7.399999998509884, 13.400000002235174, 7.5,
+					7.100000001490116, 7.699999999254942, 13.400000002235174, 7.899999998509884,
+					7.800000000745058, 7.199999999254942, 13.5, 7.600000001490116, 7.699999999254942
+				],
+				"prependDrift": 0,
+				"cleanup": {
+					"mounts": 217,
+					"unmounts": 217,
+					"hostsAdded": 3255,
+					"renders": 332,
+					"activeEffects": 0,
+					"effectStarts": 217,
+					"effectStops": 217,
+					"safeLeaks": 0,
+					"obsoleteRejected": 1,
+					"unsafeReassignments": 0
+				}
+			}
+		]
+	},
+	"native": {
+		"ios": {
+			"status": "blocked before case startup",
+			"listAssertions": 0,
+			"observedFailures": [
+				"Generated host initialization failed: __WINDOWS__ is not defined",
+				"After a probe-only false define and successful rebuild/reinstall, host initialization failed: MasonListDelegate is not defined"
+			],
+			"workaround": "False Windows define applied only to the disposable host config; no production fix or fabricated native classes",
+			"target": "iPad Air 13-inch M4 simulator; owned and shut down after attempt",
+			"runnerStatus": "Cancelled after confirming host startup exceptions; zero case assertions"
+		},
+		"android": {
+			"status": "blocked at host build",
+			"listAssertions": 0,
+			"observedFailure": "NativeScript Static Binding Generator: Class not found org.nativescript.mason.masonkit.ListView.Listener",
+			"target": "CPH2551 physical device intended; no runtime comparison executed",
+			"caseCompilation": "Vite case compilation completed; native host assembly failed",
+			"workaround": "Generated-host false Windows define applied only in the research runner process; missing native class was not faked or bypassed"
+		}
+	},
+	"verification": {
+		"maintainedWebLayoutPoolTests": 11,
+		"maintainedNativeObjectDriverTests": 19,
+		"proposalTypeScript": "tsc passes",
+		"localMarkdownLinks": "checked",
+		"ownedSimulatorAfterAttempt": "Shutdown"
+	},
+	"limits": [
+		"Developer-mode Chromium and debug native probe hosts; not release benchmarks",
+		"Readiness samples measure polling for a mounted item, not target alignment or compositor presentation",
+		"More component renders can accompany fewer mounts; no consistent wall-time improvement established",
+		"No long-session heap/native memory, physical gestures, focused-editor, screen-reader, variable-height, changed-type, or A-to-B-to-A async qualification",
+		"Identity-aware state in the probe is private per-row logic; no public recycling hook has been implemented",
+		"No native comparative pass until the host actually executes the case"
+	]
+}

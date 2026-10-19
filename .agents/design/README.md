@@ -25,6 +25,7 @@ start at the [public docs](../../docs/README.md).
 - [expo-image study](expo-image-study.md)
 - [iOS editor backing surface](ios-editor-backing-surface.md)
 - [Linux GTK feasibility review](linux-gtk-feasibility-review.md)
+- [RecyclingList lifecycle and performance investigation](recycling-list.md)
 - [macOS plugin compatibility](macos-plugin-compat.md)
 - [Select implementation plan](select-implementation-plan.md)
 - [Smooth corners package](smooth-corners.md)
