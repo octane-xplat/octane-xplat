@@ -1,4 +1,4 @@
-import type { KeyboardAvoidingProps } from '@octane-xplat/ui'
+import type { KeyboardAvoidingProps, ViewProps } from '@octane-xplat/ui'
 /** Shared tracking for existing keyboard consumers. Native observers start with
  * the first window reader and stop with the last. Web/desktop are neutral.
  * @example
@@ -24,4 +24,14 @@ export interface KeyboardAwareScrollViewProps extends Omit<KeyboardAvoidingProps
 	keyboardClose?: 'preserve' | 'restore'
 	/** Mounted visibility binding; null on cleanup. */
 	ref?: (binding: import('./scroll-types').KeyboardScrollBinding | null) => void
+}
+
+/** Translate a control independently of surrounding layout as the native keyboard moves. */
+export interface KeyboardStickyViewProps extends ViewProps {
+	/** Disabled keeps its ordinary layout and releases native movement. @default true */
+	enabled?: boolean
+	/** Additional upward offset while open, in dips. @default 0 */
+	openOffset?: number
+	/** Upward offset while closed, in dips. @default 0 */
+	closedOffset?: number
 }

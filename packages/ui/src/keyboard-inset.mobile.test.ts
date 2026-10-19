@@ -15,6 +15,9 @@ vi.mock('@nativescript/core', () => ({
 	Utils: { layout: { toDeviceIndependentPixels: (px: number) => px / 2 } },
 }))
 
+vi.mock('./keyboard-host-bounds', async () => await import('./keyboard-host-bounds.android'))
+vi.mock('@octane-xplat/platform/android', () => ({ android: {} }))
+
 import { keyboardWindows } from '@octane-xplat/platform/keyboard-state'
 import { bindBottomInsetToKeyboard } from './keyboard-inset'
 

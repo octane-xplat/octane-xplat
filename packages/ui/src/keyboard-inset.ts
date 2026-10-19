@@ -1,3 +1,4 @@
+import { measureKeyboardHost } from './keyboard-host-bounds'
 import { Application, Utils } from '@nativescript/core'
 import { android } from '@octane-xplat/platform/android'
 import { NSNotificationCenter, NSOperationQueue } from '@octane-xplat/platform/ios'
@@ -430,23 +431,7 @@ export function subscribeKeyboardInset(notify: (inset: number) => void, host?: a
 /** Remaining bottom occlusion of this host after physical native resizing.
  * @internal Unknown native geometry is not inferred from a window mode flag. */
 const keyboardHostBounds = (host: any, translationY = 0): KeyboardRect | null => {
-	const native = host?.nativeViewProtected ?? host?.ios ?? host?.android
-	let bounds: KeyboardRect | null = null
-	if (Application.ios && native?.window && native.bounds) {
-		bounds = fromCGRect(native.convertRectToView(native.bounds, native.window))
-	} else if (Application.android && native) {
-		const location = nativeLocation(native)
-		const origin = nativeLocation(native.getRootView?.())
-		if (location && origin) {
-			const dip = Utils.layout.toDeviceIndependentPixels
-			bounds = {
-				x: dip(location.x - origin.x),
-				y: dip(location.y - origin.y),
-				width: dip(native.getWidth()),
-				height: dip(native.getHeight()),
-			}
-		}
-	}
+	const bounds = measureKeyboardHost(host)
 	return bounds ? { ...bounds, y: bounds.y - translationY } : null
 }
 
@@ -470,6 +455,7 @@ export function keyboardHostDisplacement(
 	return keyboardBottomDisplacement(
 		keyboardHostBounds(host, translationY),
 		state.currentFrame ?? state.targetFrame,
+		state.windowRect,
 	)
 }
 

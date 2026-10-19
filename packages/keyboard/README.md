@@ -134,3 +134,22 @@ export function LongForm() {
 The [form guide](../../docs/app/software-keyboard.md#keep-the-editing-field-visible)
 explains scroll policies and the [maintained form example](./examples/KeyboardFormDemo.tsrx)
 shows an explicit recheck.
+
+`KeyboardStickyView` translates a bottom control independently of surrounding
+layout on supported native hosts. Existing transforms compose with its owned
+vertical channel; disabling releases that channel. Browser and desktop keep a
+neutral View.
+
+```tsx
+import { KeyboardStickyView } from '@octane-xplat/keyboard'
+import { TextInput } from '@octane-xplat/ui'
+
+export function Composer() {
+	return <KeyboardStickyView openOffset={8}>
+		<TextInput placeholder="Write a message" />
+	</KeyboardStickyView>
+}
+```
+
+Place it at the screen's bottom. See the [sticky guide](../../docs/app/software-keyboard.md#keep-a-composer-beside-the-keyboard)
+and [maintained composer](./examples/KeyboardComposerDemo.tsrx).

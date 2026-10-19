@@ -44,6 +44,24 @@ function load(application, globals = {}) {
 		},
 		require: (specifier) => {
 			switch (specifier) {
+				case './keyboard-host-bounds': {
+					const suffix = application.ios ? '.ios' : application.android ? '.android' : ''
+					const source = readFileSync(
+						new URL(`../src/keyboard-host-bounds${suffix}.ts`, import.meta.url),
+						'utf8',
+					)
+
+					const adapter = vm.createContext({ ...context, exports: {} })
+					vm.runInContext(
+						ts.transpile(source, {
+							module: ts.ModuleKind.CommonJS,
+							target: ts.ScriptTarget.ES2022,
+						}),
+						adapter,
+					)
+
+					return adapter.exports
+				}
 				case '@nativescript/core':
 					return {
 						Application: application,

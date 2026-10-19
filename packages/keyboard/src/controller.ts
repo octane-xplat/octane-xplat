@@ -5,7 +5,7 @@ import { observeKeyboardViewport } from '@octane-xplat/platform/keyboard-viewpor
 import type { KeyboardViewportLease } from '@octane-xplat/platform/keyboard-viewport'
 import type { KeyboardWindowState } from '@octane-xplat/platform/keyboard-state'
 import { keyboardRuntime } from './runtime'
-import type { KeyboardBindingOptions } from './binding-types'
+import type { KeyboardBindingOptions, KeyboardHostBinding } from './binding-types'
 import type { KeyboardSnapshot, SoftwareKeyboardController } from './types'
 
 const snapshots = new WeakMap<KeyboardWindowState, KeyboardSnapshot>()
@@ -66,10 +66,18 @@ const observeState = (host: object, listener: (state: KeyboardWindowState) => vo
 const observe = (host: object, listener: (state: KeyboardSnapshot) => void) =>
 	observeState(host, (state) => listener(snapshot(state)))
 
+const validateBindingOptions = (options: KeyboardBindingOptions) => {
+	for (const value of [options.openOffset, options.closedOffset, options.consumedBottom]) {
+		if (value !== undefined && !Number.isFinite(value)) {
+			throw new RangeError('Keyboard offsets must be finite')
+		}
+	}
+}
+
 type Binding = {
 	lease: KeyboardPropertyLease
 	viewport: KeyboardViewportLease
-	owners: KeyboardBindingOptions[]
+	owners: { read(): KeyboardBindingOptions }[]
 	state?: KeyboardWindowState
 	openExtent: number
 	off: () => void
@@ -79,10 +87,11 @@ const bindings = new WeakMap<object, Binding>()
 
 const apply = (host: object, binding: Binding) => {
 	const measured = binding.state,
-		options = binding.owners.at(-1)
+		options = binding.owners.at(-1)?.read()
 	if (!measured || !options) {
 		return
 	}
+	validateBindingOptions(options)
 	const state = measured.bindingFrame
 		? { ...measured, currentFrame: measured.bindingFrame }
 		: measured
@@ -107,7 +116,7 @@ const apply = (host: object, binding: Binding) => {
 	const overlap = keyboardRuntime.overlap(host, state, binding.lease.offset)
 	const budget = Math.max(
 		0,
-		Math.max(state.inset, current) - Math.max(0, options.consumedBottom ?? 0),
+		Math.max(state.inset, current, overlap) - Math.max(0, options.consumedBottom ?? 0),
 	)
 	binding.lease.set(-Math.min(overlap, budget) - extra)
 	if (current === 0 && target === 0) {
@@ -157,21 +166,23 @@ export const KeyboardController: SoftwareKeyboardController = {
 }
 
 /** @internal Bind only framework-owned native movement hosts. */
-export function bindKeyboardHost(host: object, options: KeyboardBindingOptions = {}): () => void {
-	if (options.enabled === false) {
-		return () => {}
+export function bindKeyboardHost(
+	host: object,
+	options: KeyboardBindingOptions | (() => KeyboardBindingOptions) = {},
+): KeyboardHostBinding {
+	const read = typeof options === 'function' ? options : () => options
+	const initial = read()
+	const inert = () => Object.assign(() => {}, { update() {} })
+	if (initial.enabled === false) {
+		return inert()
 	}
-	for (const value of [options.openOffset, options.closedOffset, options.consumedBottom]) {
-		if (value !== undefined && !Number.isFinite(value)) {
-			throw new RangeError('Keyboard offsets must be finite')
-		}
-	}
+	validateBindingOptions(initial)
 	let binding = bindings.get(host)
-	const owned = { ...options }
+	const owned = { read }
 	if (!binding) {
 		const property = keyboardRuntime.property(host)
 		if (!property) {
-			return () => {}
+			return inert()
 		}
 
 		binding = {
@@ -201,7 +212,7 @@ export function bindKeyboardHost(host: object, options: KeyboardBindingOptions =
 	}
 	const entry = binding
 	let active = true
-	return () => {
+	const release = () => {
 		if (!active) {
 			return
 		}
@@ -222,4 +233,11 @@ export function bindKeyboardHost(host: object, options: KeyboardBindingOptions =
 			}
 		}
 	}
+	return Object.assign(release, {
+		update() {
+			if (active) {
+				apply(host, entry)
+			}
+		},
+	})
 }

@@ -243,3 +243,44 @@ export function attachFormViewport(host: object) {
 	return () => binding.release()
 }
 ```
+
+## Keep a composer beside the keyboard
+
+Use `KeyboardStickyView` for a bottom control that should move independently of
+surrounding layout. Place it at the bottom of your screen. Native movement
+composes with its existing vertical translation and leaves other transforms
+alone. It measures host overlap, so a host already resized above the keyboard
+receives no second keyboard displacement.
+
+```tsx
+import { KeyboardStickyView } from '@octane-xplat/keyboard'
+import { Field, TextInput, View } from '@octane-xplat/ui'
+
+export function Composer() {
+	return <View flexGrow={1}>
+		<View flexGrow={1} />
+		<KeyboardStickyView openOffset={8} closedOffset={0}>
+			<Field label="Message"><TextInput placeholder="Write a message" /></Field>
+		</KeyboardStickyView>
+	</View>
+}
+```
+
+Offsets are additional upward distances in layout units; a negative offset moves
+downward. Open and closed offsets interpolate with available measured movement.
+Changing offsets retains the running window observer. Disabling or removing the
+component releases its owned translation, preserving newer application writes.
+Browsers, desktop hosts, and unsupported movement adapters keep an ordinary View;
+the offsets have no effect there. Native destination-only fallback and the iOS
+first-transition limit described above also apply to sticky movement.
+
+```tsx
+import { KeyboardStickyView } from '@octane-xplat/keyboard'
+import { TextInput } from '@octane-xplat/ui'
+
+export function PausedComposer() {
+	return <KeyboardStickyView enabled={false} openOffset={8}>
+		<TextInput placeholder="Write a message" />
+	</KeyboardStickyView>
+}
+```

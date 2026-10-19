@@ -16,3 +16,5 @@ export declare const FocusedInputController: FocusedInputService
 export type * from './scroll-types.js'
 export declare const KeyboardScrollController: import('./scroll-types.js').KeyboardScrollService
 export declare const KeyboardAwareScrollView: UniversalComponent<import('./props.js').KeyboardAwareScrollViewProps>
+
+export declare const KeyboardStickyView: UniversalComponent<import('./props.js').KeyboardStickyViewProps>

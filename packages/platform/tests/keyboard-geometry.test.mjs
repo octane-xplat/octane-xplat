@@ -47,3 +47,13 @@ test('physical resizing and consumed safe-area/ancestor space are counted once',
 	assert.equal(padding(10, { offset: -20 }), 0)
 	assert.equal(keyboardAvoidancePadding({ windowInset: 0, hostOverlap: 300, offset: 12 }), 0)
 })
+
+test('window-visible coverage supports transformed hosts without accepting floating occlusion', () => {
+	const window = rect(0, 0, 400, 800)
+	const transformed = rect(-40, 764, 480, 48)
+	const keyboard = rect(0, 500, 400, 300)
+	assert.equal(keyboardBottomDisplacement(transformed, keyboard, window), 312)
+	assert.equal(keyboardBottomDisplacement(transformed, keyboard), 0)
+	assert.equal(keyboardBottomDisplacement(transformed, rect(80, 500, 240, 300), window), 0)
+	assert.equal(keyboardBottomDisplacement(rect(450, 700, 80, 48), keyboard, window), 0)
+})

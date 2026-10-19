@@ -32,6 +32,7 @@ export function keyboardBottomOverlap(
 export function keyboardBottomDisplacement(
 	host: KeyboardRect | null,
 	frame: KeyboardRect | null,
+	window?: KeyboardRect | null,
 ): number {
 	if (!isKeyboardRect(host) || !isKeyboardRect(frame) || !host.width || !frame.height) {
 		return 0
@@ -39,10 +40,16 @@ export function keyboardBottomDisplacement(
 
 	const bottom = host.y + host.height
 	const tolerance = 1
+	const left = window ? Math.max(host.x, window.x) : host.x
+	const right = window
+		? Math.min(host.x + host.width, window.x + window.width)
+		: host.x + host.width
+	const visibleBottom = window ? Math.min(bottom, window.y + window.height) : bottom
 	if (
-		frame.x > host.x + tolerance ||
-		frame.x + frame.width < host.x + host.width - tolerance ||
-		frame.y + frame.height < bottom - tolerance
+		right <= left ||
+		frame.x > left + tolerance ||
+		frame.x + frame.width < right - tolerance ||
+		frame.y + frame.height < visibleBottom - tolerance
 	) {
 		return 0
 	}

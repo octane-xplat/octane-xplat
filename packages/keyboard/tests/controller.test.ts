@@ -168,6 +168,36 @@ describe('keyboard controller', () => {
 		release()
 	})
 
+	it('updates offsets and consumed space without replacing a running source', () => {
+		mock.state = frame(800, 800, 'idle')
+		const host = { translateY: 0, bottom: 800 }
+		let options = { openOffset: 10, closedOffset: 2, consumedBottom: 34 }
+		const release = bindKeyboardHost(host, () => options)
+		expect(host.translateY).toBe(-2)
+		emit(frame(650, 500))
+		expect(host.translateY).toBe(-156)
+		options = { openOffset: 20, closedOffset: 2, consumedBottom: 200 }
+		release.update()
+		expect(host.translateY).toBe(-111)
+		expect(mock.activations).toBe(1)
+		expect(mock.readers.size).toBe(1)
+		emit(frame(500, 500, 'end'))
+		expect(host.translateY).toBe(-120)
+		release()
+		expect(host.translateY).toBe(0)
+		release.update()
+		expect(host.translateY).toBe(0)
+	})
+
+	it('fully clears occlusion when a baseline transform extends below the window', () => {
+		mock.state = frame(500, 500, 'end')
+		const host = { translateY: 12, bottom: 800 }
+		const release = bindKeyboardHost(host, { openOffset: 8 })
+		expect(host.translateY).toBe(-308)
+		release()
+		expect(host.translateY).toBe(12)
+	})
+
 	it('releases activation when adapter attachment fails', () => {
 		mock.throwSubscribe = true
 		expect(() => KeyboardController.onMove({}, () => {})).toThrow('attachment failed')

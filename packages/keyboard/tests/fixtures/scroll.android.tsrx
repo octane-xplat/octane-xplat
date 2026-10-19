@@ -74,11 +74,23 @@ export async function run(ctx: ProbeContext) {
 	ctx.assert('validation movement is corrected without focus transfer', visible(), true)
 	area.focus()
 	await ctx.waitFor(() => values.at(-1)?.input === (area.ios ?? area.android))
-	area.height = 500
-	await ctx.waitFor(() => values.at(-1)?.inputRect.height > 490)
+	area.height = 1000
+	await ctx.waitFor(() => values.at(-1)?.inputRect.height > 990)
 	binding!.recheck()
 	await ctx.waitFor(visible)
 	ctx.assert('oversized multiline caret remains exposed', visible(), true)
+	ctx.assert(
+		'mobile barrel selects the avoidance scroll wrapper',
+		String(root.className).includes('vx-keyboard-avoiding'),
+		true,
+	)
+
+	ctx.assert(
+		'extra scroll space contributes native content range',
+		Number(root.content.paddingBottom) >= 39,
+		true,
+	)
+
 	const before = root.verticalOffset
 	binding!.recheck()
 	await ctx.waitFor(visible)

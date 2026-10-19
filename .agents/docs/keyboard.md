@@ -380,3 +380,36 @@ Maintained journeys live in `packages/keyboard/tests/fixtures/scroll.*.tsrx`;
 manual pause/resume, restoration after blur, and cleanup have unit coverage.
 OS manual gestures, nested native scroll interaction, and full modal-form journeys
 remain separate qualification work.
+
+## Keyboard-sticky controls
+
+The keyboard leaf's `KeyboardStickyView` uses an owned numeric translation lease
+independent of surrounding layout. A live policy read updates open/closed
+offsets, consumed safe-area/avoidance budgets, and style changes without replacing
+the per-window keyboard observer. Removing or disabling the component releases
+its own translation and preserves newer foreign property writes. Web and desktop
+variants retain an ordinary View and consume no native tracking resources.
+
+Host geometry uses UIKit converted bounds and Android public View matrices.
+Keyboard coverage is tested against the host's visible window region so a scaled
+host extending beyond the window still follows a full-width docked keyboard.
+Pure geometry tests retain rejection of floating/narrow occlusions. The movement
+budget also accommodates a baseline transform below the window; this corner is
+covered by property/geometry tests rather than a separate OS gesture journey.
+
+A public component qualification exposed an export mistake: explicit `.tsrx`
+barrel paths selected the neutral component on mobile. Extensionless exports
+now permit the existing platform resolution order to select `.mobile.tsrx`. This
+also corrects the prior focused-input scroll export. Earlier mobile form checks
+exercised focus scrolling through ScrollableArea; the retained mobile fixtures
+now additionally assert the avoidance wrapper and extra native scroll range.
+This is an Xplat export error, not an upstream runtime limitation.
+
+Android API35 passed8 sticky checks (content, closed/open offsets, calibrated
+source retention during option changes, disable/re-enable, horizontal transform
+preservation, unmount and final-reader cleanup) and6 corrected mobile-form
+checks. Browser neutral sticky checks passed3. iOS27 passed the same8 sticky checks and6 corrected mobile-form checks.
+Artifacts are `ios-sticky-v3.log`, `android-sticky-v3.log`,
+`ios-scroll-mobile-v3.log`, and `android-scroll-mobile-v3.log` in
+`research/keyboard-feasibility/`. No test here establishes production
+frame pacing, arbitrary transformed ancestor behavior, or floating keyboards.

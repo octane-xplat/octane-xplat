@@ -51,7 +51,10 @@
 		"test:scroll:web": "node ../../scripts/probe.ts run tests/fixtures/scroll.web.tsrx --target web",
 		"test:scroll:ios": "node ../../scripts/probe.ts run tests/fixtures/scroll.ios.tsrx --target ios",
 		"test:scroll:android": "node ../../scripts/probe.ts run tests/fixtures/scroll.android.tsrx --target android",
-		"test:scroll:macos": "node ../../scripts/probe.ts run tests/fixtures/scroll.macos.tsrx --target macos"
+		"test:scroll:macos": "node ../../scripts/probe.ts run tests/fixtures/scroll.macos.tsrx --target macos",
+		"test:sticky:web": "node ../../scripts/probe.ts run tests/fixtures/sticky.web.tsrx --target web",
+		"test:sticky:ios": "node ../../scripts/probe.ts run tests/fixtures/sticky.ios.tsrx --target ios",
+		"test:sticky:android": "node ../../scripts/probe.ts run tests/fixtures/sticky.android.tsrx --target android"
 	},
 	"dependencies": {
 		"@octane-xplat/platform": "workspace:*",

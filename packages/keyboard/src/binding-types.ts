@@ -11,3 +11,6 @@ export interface KeyboardBindingOptions {
 	 * Actual native resizing is measured separately. @default 0 */
 	consumedBottom?: number
 }
+
+/** @internal Options can change without replacing the shared window source. */
+export type KeyboardHostBinding = (() => void) & { update(): void }
