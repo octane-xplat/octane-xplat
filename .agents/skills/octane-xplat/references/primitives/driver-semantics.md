@@ -75,7 +75,7 @@ an inline override restores matching class CSS.
 import { View } from '@octane-xplat/ui'
 
 export function Preview({ expanded }: { expanded: boolean }) {
-  return <View className="preview" style={expanded ? { width: 240 } : undefined} />
+	return <View className="preview" style={expanded ? { width: 240 } : undefined} />
 }
 // With expanded=false, width comes from the matching .preview class again.
 ```
