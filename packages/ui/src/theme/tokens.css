@@ -1919,6 +1919,30 @@
 		position: relative;
 		overflow: hidden;
 	}
+	.vx-chatlayout--selfscroll {
+		overflow-y: auto;
+		overscroll-behavior: contain;
+	}
+	.vx-chatlayout--external {
+		overflow: visible;
+	}
+	.vx-chatlayout-messages {
+		flex: 1 0 auto;
+	}
+	.vx-chatlayout-dock {
+		flex-shrink: 0;
+		z-index: 1;
+	}
+	.vx-chatlayout-dock--sticky {
+		position: sticky;
+		bottom: 0;
+	}
+	.vx-chatlayout-dock--fixed {
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+	}
 	.vx-chatpaste-preview {
 		overflow: hidden;
 	}

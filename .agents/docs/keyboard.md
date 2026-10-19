@@ -413,3 +413,46 @@ Artifacts are `ios-sticky-v3.log`, `android-sticky-v3.log`,
 `ios-scroll-mobile-v3.log`, and `android-scroll-mobile-v3.log` in
 `research/keyboard-feasibility/`. No test here establishes production
 frame pacing, arbitrary transformed ancestor behavior, or floating keyboards.
+
+## Chat coordination
+
+ChatLayout coordinates existing stream-follow intent with keyboard motion using
+one end test and a private viewport control. Keyboard policy defaults to
+when-at-end; never leaves scrolling unchanged, and always follows from history.
+Composer avoidance remains active independently of scroll policy. Shared live
+controls avoid relying on an Octane render during native movement.
+
+Data rows use stable IDs, with object identity retained for the existing id-optional
+API. History anchoring measures the first retained visible row after descendant
+layout settles. Same-offset layout notifications do not overwrite the anchor.
+UIKit/Android use the qualified window-bounds adapters rather than assuming a
+scroll-relative helper reports visible window coordinates. Browser spring
+integration retains a fractional position so rounded scrollTop cannot stall it
+several pixels before the end.
+
+The AppKit renderer's grid overlay measures non-stretched children using
+intrinsicContentSize (`packages/macos-renderer/src/index.ts`, layoutGridChildren).
+The chat dock measured zero while its editing field measured96 points in the
+runtime probe. ChatLayout's macOS leaf therefore uses a flexing viewport and an
+in-flow dock. This local composition avoids depending on an intrinsic grid
+measurement fix; reevaluate it if that renderer contract changes. AppKit's
+unflipped document also changes its normalized top offset when its range grows
+without moving NSClipView's origin. Anchoring corrects the retained window pixel;
+viewport layout notifications remain distinct from user scroll notifications.
+
+Matching custom-panel space is part of the dock height, not an added spacer.
+Mobile compensation is dockHeight + max(keyboardDisplacement - panelHeight, 0).
+The application renders the panel inside composer and supplies its actual height.
+This does not add a keyboard toolbar, panel lifecycle, or dismissal API.
+
+Chat regression journeys are maintained under `packages/ui/tests/fixtures/chat*`
+and run through the UI package's test:chat:* scripts outside the lightweight PR
+gate. Browser coverage includes long history, streamed row growth, prepend
+identity/pixel anchoring, arrival actions, composer growth, short conversations,
+disabled following, and external fixed-composer range. Mobile journeys cover
+keyboard clearance, when-at-end and always policies, history, prepend, streaming,
+composer growth, and matching panel handoff. AppKit covers ordinary long-chat
+range/anchors and composer changes with neutral software-keyboard behavior.
+These journeys use programmatic focus/scroll and geometry; they do not establish
+OS typing, hit-testing, or production frame pacing. Policy branches and native
+notification/property cleanup also have focused unit coverage.

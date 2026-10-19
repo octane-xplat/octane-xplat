@@ -19,7 +19,10 @@ storage, network requests, and upload handling.
   send or persist.
 - Keep streaming output in view while the user is at the bottom, and make new
   messages discoverable after the user scrolls away.
-- Load older history without firing duplicate requests while one is pending.
+- Load older history without firing duplicate requests while one is pending,
+  preserving the retained reading row.
+- Keep the composer clear of the phone keyboard; follow keyboard movement only
+  according to an explicit policy and count matching custom-panel space once.
 - Report target-specific limits for file input, speech recognition, and rich
   token editing.
 
@@ -121,8 +124,8 @@ import {
 } from '@octane-xplat/ui/chat'
 
 const messages: ChatMessageData[] = [
-	{ sender: 'system', content: <Text>Conversation started</Text> },
-	{ sender: 'assistant', content: <Text>Welcome to your trip chat.</Text> },
+	{ id: 'started', sender: 'system', content: <Text>Conversation started</Text> },
+	{ id: 'welcome', sender: 'assistant', content: <Text>Welcome to your trip chat.</Text> },
 ]
 
 // loadOlder belongs to your app and updates its message collection.
@@ -130,6 +133,7 @@ export function Conversation({ loadOlder }: { loadOlder: () => Promise<void> }) 
 	return (
 		<ChatLayout
 			followLatest
+			keyboardFollow="when-at-end"
 			composer={<ChatComposer onSend={(text) => console.log(text)} onCancel={() => {}} />}
 		>
 			<ChatMessageList messages={messages} scrollToTopAction={loadOlder} />
@@ -137,6 +141,13 @@ export function Conversation({ loadOlder }: { loadOlder: () => Promise<void> }) 
 	)
 }
 ```
+
+## Keyboard movement and reading anchors
+
+Follow the [conversation guide](../../../docs/app/software-keyboard.md#keep-a-conversation-steady)
+for policy examples and matching custom-panel space. Keep message IDs stable
+when prepending history. The maintained ChatDemo uses the default policy; the
+UI chat fixtures qualify native keyboard geometry and retained reading pixels.
 
 ## Acceptance criteria
 
@@ -158,6 +169,14 @@ export function Conversation({ loadOlder }: { loadOlder: () => Promise<void> }) 
   public names and prop types for web, iOS, Android, macOS, Linux's
   web-backed entry, and the Windows app's shared TypeScript entry.
 
+- AC7: Native keyboard opening/closing clears the composer, respects
+  `keyboardFollow` (`never`, `always`, or default `when-at-end`), and accounts for
+  composer and matching custom-panel heights once. Web/macOS have neutral
+  software-keyboard behavior.
+- AC8: Reading history retains the same row and visible position across prepend,
+  streaming below the reader, and composer growth. Short conversations remain
+  usable, and resumed end-follow tracks growth.
+
 ## Documentation
 
 - AC1: [Chat API inventory and portable event/file contract](../../../docs/app/components.md#chat), plus the maintained [ChatDemo](../../../packages/demos/src/ChatDemo.tsrx).
@@ -166,3 +185,6 @@ export function Conversation({ loadOlder }: { loadOlder: () => Promise<void> }) 
 - AC4: [ChatMessageList contract](../../../docs/app/components.md#chat), its `scrollToTopAction` prop documentation, and this recipe's [data-driven example](#compose-triggers-and-tokens).
 - AC5: [Portable Chat deviations](../../../docs/app/components.md#chat). Native paste/file delivery and speech recognition are unsupported; file paste and dictation therefore have no native verification.
 - AC6: The [chat barrel](../../../packages/ui/src/chat/index.ts) shares the family across targets; [macOS](../../../packages/ui/package.json) resolves the same entry through its `./chat` condition. Linux uses the web entry. The [Windows app TypeScript map](../../../apps/windows/tsconfig.json) resolves the shared entry; Windows runtime checks render explicit message slots and token chips, but deferred text, composer actions, and accessibility remain blocked; see [Windows support boundary](../../design/windows-notes.md#current-support-boundary). Windows is not a supported target of this recipe.
+
+- AC7: [Conversation keyboard guide](../../../docs/app/software-keyboard.md#keep-a-conversation-steady), [ChatDemo](../../../packages/demos/src/ChatDemo.tsrx), and maintained [iOS chat fixture](../../../packages/ui/tests/fixtures/chat.ios.tsrx).
+- AC8: [Conversation keyboard guide](../../../docs/app/software-keyboard.md#keep-a-conversation-steady), [browser fixture](../../../packages/ui/tests/fixtures/chat.web.tsrx), and [AppKit fixture](../../../packages/ui/tests/fixtures/chat.macos.tsrx).

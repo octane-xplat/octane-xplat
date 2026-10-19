@@ -284,3 +284,87 @@ export function PausedComposer() {
 	</KeyboardStickyView>
 }
 ```
+
+## Keep a conversation steady
+
+Use `ChatLayout` for a conversation with a docked composer. The default
+`keyboardFollow="when-at-end"` keeps the latest message in view when the keyboard
+moves, provided the reader was already at the bottom. Scrolling up to read
+history pauses following. Composer growth and streaming respect that choice.
+The composer still clears the keyboard when following is paused.
+
+```tsx
+import { ChatComposer, ChatLayout, ChatMessageList } from '@octane-xplat/ui/chat'
+import type { ChatMessageData } from '@octane-xplat/ui/chat'
+
+const messages: ChatMessageData[] = [
+	{ id: 'welcome', sender: 'assistant', content: 'Where would you like to go?' },
+]
+
+export function Conversation() {
+	return <ChatLayout
+		keyboardFollow="when-at-end"
+		composer={<ChatComposer onSend={text => console.log(text)} />}
+	>
+		<ChatMessageList messages={messages} />
+	</ChatLayout>
+}
+```
+
+Choose `keyboardFollow="never"` to prevent keyboard movement from scrolling the
+conversation, or `"always"` to return to the end even from history. This option
+controls keyboard-driven scrolling. `followLatest={false}` separately disables
+automatic following of new content. Browser and desktop keyboard movement is
+neutral; ordinary scrolling and composer-size changes still work.
+
+```tsx
+import { ChatComposer, ChatLayout, ChatMessageList } from '@octane-xplat/ui/chat'
+
+export function ManualConversation() {
+	return <ChatLayout
+		keyboardFollow="never"
+		followLatest={false}
+		composer={<ChatComposer onSend={text => console.log(text)} />}
+	>
+		<ChatMessageList messages={[]} />
+	</ChatLayout>
+}
+```
+
+Give data-driven messages stable, unique `id` values when loading older history.
+Prepending retained messages preserves the visible reading row. Without an ID,
+keep the same message objects; replacing them creates new row identities. With
+JSX children, give each retained `ChatMessage` a stable key.
+
+```ts
+import type { ChatMessageData } from '@octane-xplat/ui/chat'
+
+export function prependHistory(older: ChatMessageData[], current: ChatMessageData[]) {
+	return [...older, ...current]
+}
+```
+
+For an emoji or attachment panel, render it inside the composer and pass its
+actual height as `bottomPanelHeight`, in layout units. That height is already
+part of the composer; it is not extra padding. On mobile, the panel replaces
+that much keyboard space. Matching the current keyboard height allows the
+keyboard to close without shifting the composer or conversation end. Your app
+owns showing the panel and dismissing the editing field. Destination-only
+tracking and the first iOS transition limit above still apply.
+
+```tsx
+import { View, TextInput } from '@octane-xplat/ui'
+import { ChatLayout, ChatMessageList } from '@octane-xplat/ui/chat'
+
+export function PanelConversation({ panelHeight = 0 }: { panelHeight?: number }) {
+	return <ChatLayout
+		bottomPanelHeight={panelHeight}
+		composer={<View>
+			<TextInput placeholder="Write a message" />
+			{panelHeight > 0 ? <View style={{ height: panelHeight }} /> : null}
+		</View>}
+	>
+		<ChatMessageList messages={[]} />
+	</ChatLayout>
+}
+```

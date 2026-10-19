@@ -592,7 +592,7 @@ export function Example() {
 
 | Component                                                                                                                               | What it is                                                            | Key props                                                     |
 | --------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------- |
-| `ChatLayout`, `ChatLayoutScrollButton`                                                                                                  | Scrollable conversation, docked composer, and return-to-bottom action | `composer`, `emptyState`, `scrollRef`, `density`              |
+| `ChatLayout`, `ChatLayoutScrollButton`                                                                                                  | Scrollable conversation, docked composer, and return-to-bottom action | `composer`, `keyboardFollow`, `bottomPanelHeight`, `scrollRef`, `density`              |
 | `ChatMessageList`                                                                                                                       | Density-aware message column with empty state and load-older callback | `density`, `gap`, `align`, `scrollToTopAction`, `isStreaming` |
 | `ChatMessage`, `ChatMessageBubble`                                                                                                      | Sender alignment/context and filled or ghost bubble                   | `sender`, `name`, `avatar`, `variant`, `group`, `metadata`    |
 | `ChatMessageMetadata`, `ChatSystemMessage`                                                                                              | Timestamp/status row and centered conversation notices                | `timestamp`, `status`, `variant`, `icon`                      |
@@ -611,8 +611,9 @@ file-drop event, and native speech recognition reports unsupported. Top-load
 detection uses an `IntersectionObserver` sentinel on web and a scroll-position
 check on native. New-message tracking uses `ResizeObserver` on web and
 `layoutChanged` on native. The Linux entry uses the web leaves; the AppKit
-entry exports the Chat family through its shared implementation and uses the
-native text-input behavior.
+entry uses AppKit scroll geometry and native text-input behavior.
+See [keyboard-following conversations](software-keyboard.md#keep-a-conversation-steady)
+for keyboard policies and history anchoring.
 Windows resolves the shared `index.ts` through its app TypeScript mapping;
 its Chat runtime has not been exercised separately.
 

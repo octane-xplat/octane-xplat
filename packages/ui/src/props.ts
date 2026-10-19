@@ -6346,6 +6346,7 @@ export type ChatMessageSender = 'user' | 'assistant' | 'system'
  * @see ChatMessageListProps.messages — the data-driven form.
  */
 export interface ChatMessageData {
+	/** Stable unique identity for history anchoring. Omitted ids use object identity. */
 	id?: string
 	sender: ChatMessageSender
 	content: Renderable
@@ -6980,10 +6981,10 @@ export interface ChatTokenizedTextProps {
  *  bottom behind a blur strip, scroll-to-bottom button above it. Without
  *  `scrollRef` the layout root is the scroller (sticky dock); with an
  *  external scroll container ref the dock floats fixed above the page and
- *  the scroll hooks target that container. On native the dock is an overlay
- *  at the bottom of the layout (no backdrop blur — NS has no
- *  backdrop-filter), and `scrollRef` attaches to the layout's own ScrollView
- *  (it is populated by the layout, so callers can hand it to the hooks). */
+ *  the scroll hooks target that container. On iOS/Android the dock overlays
+ *  the layout bottom. macOS keeps the dock in flow beneath a flexing viewport.
+ *  Native targets have no backdrop blur; `scrollRef` is populated with the
+ *  layout's own scroll viewport so callers can hand it to the hooks. */
 export interface ChatLayoutProps {
 	className?: ClassName
 	style?: StyleProp
@@ -7003,6 +7004,14 @@ export interface ChatLayoutProps {
 	ios?: PlatformProps
 	android?: PlatformProps
 	web?: PlatformProps
+	/** Follow keyboard movement always, only from the conversation end, or never.
+	 * This controls scrolling; the composer still avoids the keyboard. Web and
+	 * desktop keep neutral software-keyboard behavior. @default 'when-at-end' */
+	keyboardFollow?: 'never' | 'always' | 'when-at-end'
+	/** Height of a custom panel already rendered inside composer. Match the panel's
+	 * actual height in device-independent layout units so keyboard/panel space
+	 * is counted once. Must be finite and nonnegative. @default 0 */
+	bottomPanelHeight?: number
 }
 
 /** The floating 'scroll to bottom' pill rendered by `ChatLayout` — `isVisible` toggles it, `label` expands it, `onPress` scrolls.
@@ -7066,6 +7075,8 @@ export interface UseChatStreamScrollReturn {
 /** Options for `useChatNewMessages` — `isLocked` (locked scroll means new arrivals don't flag) and `onResize` fired on content height changes.
  */
 export interface UseChatNewMessagesOptions {
+	/** Optional containing viewport: preserve retained message rows during prepend. */
+	scrollRef?: { current?: HostElement | null }
 	/** When the scroll is locked, new arrivals don't flag — the user is
 	 *  already at the bottom. */
 	isLocked: boolean

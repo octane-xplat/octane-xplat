@@ -1,4 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { chatMessageKey, markChatRow } from './chat-scroll-state'
+import { chatHost } from './chat-scroll-host'
 import { mergeStyle } from './style-merge'
 import { useEffect, useMemo, useRef, useState } from 'octane';
 import type { ChatMessageData, ChatMessageListProps } from './props';
@@ -46,7 +48,7 @@ export function ChatMessageList(props: ChatMessageListProps) @{
 	// Scroll-to-top: the scroller's 'scroll' event replaces the web
 	// sentinel's IntersectionObserver.
 	useEffect(() => {
-		const scroller = layoutContext?.scrollContainerRef?.current as any;
+		const scroller = chatHost.scroll(layoutContext?.scrollContainerRef?.current);
 		const action = props.scrollToTopAction;
 		if (!action || !scroller?.on) return;
 		const onScroll = () => {
@@ -83,9 +85,11 @@ export function ChatMessageList(props: ChatMessageListProps) @{
 				) : null}
 				{props.align !== 'top' ? <masonview className="vx-chatlist-spacer" style={mergeStyle({flexGrow: 1}, {display: "flex"})}/> : null}
 				{hasMessages ? (
-					props.messages!.map((m) =>
-						props.renderMessage ? props.renderMessage(m) : <DefaultMessageRender message={m} />,
-					)
+					props.messages!.map((m) => (
+						<masonview key={chatMessageKey(m)} ref={markChatRow} className="vx-chatlist-message" style={{ display: "flex", flexDirection: "column" }}>
+							{props.renderMessage ? props.renderMessage(m) : <DefaultMessageRender message={m} />}
+						</masonview>
+					))
 				) : hasChildren ? (
 					props.children
 				) : renderable(props.emptyState) ? (

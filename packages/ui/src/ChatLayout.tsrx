@@ -1,18 +1,29 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { mergeStyle } from './style-merge'
-import { useMemo, useRef } from 'octane';
-import type { ChatLayoutProps } from './props';
-import { cx } from '@octane-xplat/lib';
-import { useChatStreamScroll } from './useChatStreamScroll.tsrx';
-import { useChatNewMessages } from './useChatNewMessages.tsrx';
-import { ChatLayoutScrollButton } from './ChatLayoutScrollButton.tsrx';
-import { ChatLayoutProvider } from './chat-context';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'octane'
+import { bindChatKeyboard } from './chat-keyboard'
+import type { ChatKeyboardBinding } from './chat-keyboard-types'
+import { checkChatPanelHeight } from './chat-keyboard-types'
+import { KeyboardAvoidanceContext } from './keyboard-avoidance-context'
+import { ConsumedInsetsContext } from './inset-consumption'
+import type { ChatLayoutProps } from './props'
+import { cx } from '@octane-xplat/lib'
+import { useChatStreamScroll } from './useChatStreamScroll.tsrx'
+import { useChatNewMessages } from './useChatNewMessages.tsrx'
+import { ChatLayoutScrollButton } from './ChatLayoutScrollButton.tsrx'
+import { ChatLayoutProvider } from './chat-context'
 
 const hasVisibleContent = (children: any): boolean => {
-	if (children == null || children === false || children === true) return false;
-	if (Array.isArray(children)) return children.some(hasVisibleContent);
-	return true;
-};
+	if (children == null || children === false || children === true) {
+		return false
+	}
+
+	if (Array.isArray(children)) {
+		return children.some(hasVisibleContent)
+	}
+
+	return true
+}
 
 /** Page-style chat shell on native: a ScrollView for the message area with
  *  the composer dock overlaid at the bottom (grid overlay — NS has no
@@ -21,53 +32,100 @@ const hasVisibleContent = (children: any): boolean => {
  *  (style it via .vx-chatlayout-dockpad). `scrollRef` is populated with the
  *  layout's ScrollView — there is no external page scroller on native. */
 export function ChatLayout(props: ChatLayoutProps) @{
-	const scrollViewRef = useRef<any>(null);
-	const dockRef = useRef<any>(null);
-	const contentWrapRef = useRef<any>(null);
+	const scrollViewRef = useRef<any>(null)
+	const [root, setRoot] = useState<any>(null)
+	const [viewport, setViewport] = useState<any>(null)
+	const [dock, setDock] = useState<any>(null)
+	const [content, setContent] = useState<any>(null)
+	const attachRoot = useCallback((view: any) => setRoot(view), [])
+	const attachDock = useCallback((view: any) => setDock(view), [])
+	const attachContent = useCallback((view: any) => setContent(view), [])
+	const attachViewport = useCallback(
+		(view: any) => {
+			scrollViewRef.current = view
+			if (props.scrollRef) {
+				props.scrollRef.current = view
+			}
+
+			setViewport(view)
+		},
+		[props.scrollRef],
+	)
+
+	const safe = useContext(ConsumedInsetsContext)
+	const ancestor = useContext(KeyboardAvoidanceContext)
+	checkChatPanelHeight(props.bottomPanelHeight)
+	const options = useRef({
+		keyboardFollow: props.keyboardFollow,
+		bottomPanelHeight: props.bottomPanelHeight,
+		safeBottom: safe.bottom,
+		ancestorWindow: ancestor.window,
+		ancestorBottom: ancestor.bottom,
+	})
+
+	options.current = {
+		keyboardFollow: props.keyboardFollow,
+		bottomPanelHeight: props.bottomPanelHeight,
+		safeBottom: safe.bottom,
+		ancestorWindow: ancestor.window,
+		ancestorBottom: ancestor.bottom,
+	}
+
+	const binding = useRef<ChatKeyboardBinding | null>(null)
+	useEffect(() => {
+		if (!root || !viewport || !dock || !content) {
+			return
+		}
+
+		const own = bindChatKeyboard(root, viewport, dock, content, () => options.current)
+		binding.current = own
+		return () => {
+			binding.current = null
+			own()
+		}
+	}, [root, viewport, dock, content])
+
+	useEffect(() => {
+		binding.current?.update()
+	}, [props.keyboardFollow, props.bottomPanelHeight, safe.bottom, ancestor.window, ancestor.bottom])
 
 	// Expose the scroller through the caller's scrollRef (in/out handle).
-	const scrollContainerRef = props.scrollRef ?? scrollViewRef;
-	const followLatest = props.followLatest ?? true;
+	const scrollContainerRef = props.scrollRef ?? scrollViewRef
+	const followLatest = props.followLatest ?? true
 
-	const scroll = useChatStreamScroll({ scrollRef: scrollContainerRef, followLatest });
+	const scroll = useChatStreamScroll({ scrollRef: scrollContainerRef, followLatest })
 	const newMsgs = useChatNewMessages({
 		isLocked: scroll.isLocked,
+		scrollRef: scrollContainerRef,
 		onResize: scroll.scrollIfLocked,
-	});
+	})
 
 	const layoutContext = useMemo(
 		() => ({ scrollContainerRef, contentRef: newMsgs.contentRef }),
 		[scrollContainerRef, newMsgs.contentRef],
-	);
+	)
 
-	const density = props.density ?? 'balanced';
-	const showEmpty = !hasVisibleContent(props.children);
-
-	// Keep the last message above the dock overlay: the dock's measured
-	// height becomes bottom padding on the scroll content.
-	const syncDockInset = () => {
-		const dock = dockRef.current;
-		const content = contentWrapRef.current;
-		if (!dock || !content) return;
-		const h = dock.getActualSize?.().height ?? 0;
-		if (h > 0 && content.style?.paddingBottom !== h) {
-			content.style = { ...content.style, paddingBottom: h };
-		}
-	};
+	const density = props.density ?? 'balanced'
+	const showEmpty = !hasVisibleContent(props.children)
 
 	<ChatLayoutProvider value={layoutContext}>
-		<masonview id={props.id} className={cx('vx-chatlayout', `vx-chatlayout--${density}`, props.className)} style={mergeStyle({flexGrow: 1}, mergeStyle({display: "grid"}, props.style as any))}>
-			<scrollview
-				ref={(v: any) => {
-					scrollViewRef.current = v;
-					if (props.scrollRef) props.scrollRef.current = v;
-				}}
-				className="vx-chatlayout-scroll"
-				orientation="vertical"
-			>
-				<masonview ref={(v: any) => { contentWrapRef.current = v; }} className={cx('vx-chatlayout-messages', `vx-chatlayout-messages--${density}`)} onLayoutChanged={syncDockInset} style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
+		<masonview
+			id={props.id}
+			ref={attachRoot}
+			className={cx('vx-chatlayout', `vx-chatlayout--${density}`, props.className)}
+			style={mergeStyle({ display: "grid", flexGrow: 1 }, props.style as any)}
+		>
+			<scrollview ref={attachViewport} className="vx-chatlayout-scroll" orientation="vertical">
+				<masonview
+					ref={attachContent}
+					className={cx('vx-chatlayout-messages', `vx-chatlayout-messages--${density}`)}
+					style={{ display: "flex", flexDirection: "column" }}
+				>
 					{showEmpty && props.emptyState != null ? (
-						<masonview className="vx-chatlayout-empty" style={mergeStyle({alignItems: "center", justifyContent: "center", flexGrow: 1}, {display: "flex"})}>
+						<masonview
+							className="vx-chatlayout-empty"
+							style={{ display: "flex", alignItems: "center", justifyContent: "center", flexGrow: 1 }}
+						>
 							{props.emptyState}
 						</masonview>
 					) : (
@@ -75,24 +133,25 @@ export function ChatLayout(props: ChatLayoutProps) @{
 					)}
 				</masonview>
 			</scrollview>
-			<masonview style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, {alignSelf: 'end'}))} ref={(v: any) => {
-					dockRef.current = v;
-					v?.on?.('layoutChanged', syncDockInset);
-				}} className="vx-chatlayout-dock">
+			<masonview
+				ref={attachDock}
+				className="vx-chatlayout-dock"
+				style={{ display: "flex", flexDirection: "column", alignSelf: "end" }}
+			>
 				{props.scrollButton === undefined ? (
 					<ChatLayoutScrollButton
 						isVisible={scroll.isScrolledUp || newMsgs.hasNewMessages}
 						label={newMsgs.hasNewMessages ? 'New messages' : undefined}
 						onPress={() => {
-							newMsgs.dismiss();
-							scroll.scrollToBottom();
+							newMsgs.dismiss()
+							scroll.scrollToBottom()
 						}}
 					/>
 				) : (
 					props.scrollButton
 				)}
-				<masonview className={cx('vx-chatlayout-dockpad', `vx-chatlayout-dockpad--${density}`)} style={{display: "flex"}}>
-					<masonview className="vx-chatlayout-dockinner" style={{display: "flex"}}>{props.composer}</masonview>
+				<masonview className={cx('vx-chatlayout-dockpad', `vx-chatlayout-dockpad--${density}`)} style={{ display: "flex" }}>
+					<masonview className="vx-chatlayout-dockinner" style={{ display: "flex" }}>{props.composer}</masonview>
 				</masonview>
 			</masonview>
 		</masonview>
