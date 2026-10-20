@@ -216,6 +216,8 @@ patchedDependencies:
   # pre-attach, replayed at attach) via Style.fromView. Removing an authored Mason style key
   # also deletes its deferred replay entry and resets the current leaf before NativeScript
   # restores CSS, preventing later sibling attachments from resurrecting removed tracks.
+  # Re-exports Octane's ClassValue unchanged and stringifies truthy numeric class values
+  # while omitting 0 and NaN, matching Octane 0.11.
   "@nativescript-community/octane@0.2.5": packages/cli/patches/@nativescript-community__octane@0.2.5.patch
   # octaneServerStrategy's SCRIPT_FILE_RE only covers [jt]sx? — .tsrx edits never emit the
   # deferred ns:hmr-delta broadcast, so component HMR silently never reaches the device.

@@ -7,7 +7,7 @@
  * The `native`-conditioned View binding is asserted in selfcheck.mobile.ts —
  * shared-file rules keep `@nativescript/*` imports out of this file.
  */
-import type { Attributes, HostElement, JSX, NativeElements, Ref } from '../src/jsx-runtime.js'
+import type { Attributes, ClassValue, HostElement, JSX, NativeElements, Ref } from '../src/jsx-runtime.js'
 
 import type { HostElement as MacHostElement, JSX as MacJSX } from '../src/macos.js'
 import type { NativeElements as IntrinsicsElements } from '../src/intrinsics.js'
@@ -441,3 +441,11 @@ void tabs
 void tabItem
 void badTabs
 void badTabContent
+
+// Class composition follows upstream, including numeric conditions.
+import type { ClassValue as OctaneClassValue } from 'octane/jsx-runtime'
+type _ClassValueParity = Expect<SameMembers<ClassValue, OctaneClassValue>>
+declare const count: number
+const composedClasses: ClassValue = ['card', count && 'active', [42, 0, NaN]] as const
+const numericClasses: JSX.IntrinsicElements['masonview'] = { className: composedClasses }
+void numericClasses

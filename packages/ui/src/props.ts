@@ -1,4 +1,4 @@
-import type { CSSProperties, Octane } from 'octane/jsx-runtime'
+import type { ClassValue, CSSProperties, Octane } from 'octane/jsx-runtime'
 
 /** Shared prop/type contract — the single source of truth for the public
  *  API surface. Platform leaves import these types so prop shapes cannot
@@ -6,16 +6,8 @@ import type { CSSProperties, Octane } from 'octane/jsx-runtime'
  *  declarations from its public entrypoints and component leaves. The Octane
  *  import is type-only; shared contracts stay platform-agnostic. */
 
-/** Space-separated class names or a clsx-style class value (strings, nested
- *  arrays, keyed objects) applied to the host. Booleans and nullish entries
- *  are ignored. Numeric class values are excluded for cross-platform parity. */
-export type ClassName =
-	| string
-	| boolean
-	| null
-	| undefined
-	| readonly ClassName[]
-	| { readonly [className: string]: unknown }
+/** Octane's class composition contract, shared unchanged across platforms. */
+export type { ClassValue } from 'octane/jsx-runtime'
 
 /** Dynamic inline styles — a camelCase CSS property object (numbers are dips)
  *  or an inline CSS string. Static styles belong in `className`. */
@@ -235,7 +227,7 @@ export type GridTrackList = string | readonly GridTrack[]
  *  ```
  *  @see GridTrackList for the track grammar, LayoutChildProps for placement. */
 export interface GridProps extends AccessibilityProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
 	rows?: GridTrackList
@@ -318,7 +310,7 @@ export interface StackSizeProps {
  *  StackItemProps for per-child overrides, AbsoluteProps for overlap. */
 export interface StackProps
 	extends StackPaddingProps, StackSizeProps, AccessibilityProps, TestIDProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
 	ios?: PlatformProps
@@ -363,7 +355,7 @@ export type StackItemSize = 'static' | 'fill'
  *  ```
  *  @see StackProps */
 export interface StackItemProps extends AccessibilityProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
 	ios?: PlatformProps
@@ -431,7 +423,7 @@ export interface VStackProps extends Omit<StackProps, 'direction' | 'hAlign' | '
  * @see StackProps for flow layout, GridProps for tracks.
  */
 export interface AbsoluteProps extends AccessibilityProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
 	ios?: PlatformProps
@@ -455,7 +447,7 @@ export interface AbsoluteProps extends AccessibilityProps {
  * ```
  * @see GlassConfig, LiquidGlassContainerProps. */
 export interface LiquidGlassProps extends LayoutChildProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
 	id?: string
@@ -486,7 +478,7 @@ export interface LiquidGlassProps extends LayoutChildProps {
  * ```
  * @see LiquidGlassProps, GlassConfig. */
 export interface LiquidGlassContainerProps extends LayoutChildProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
 	id?: string
@@ -512,7 +504,7 @@ export interface LiquidGlassContainerProps extends LayoutChildProps {
  * @see StackProps
  */
 export interface SpacerProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	ios?: PlatformProps
 	android?: PlatformProps
@@ -569,7 +561,7 @@ export interface AccessibilityProps {
  */
 export interface ViewProps
 	extends LayoutChildProps, FlexContainerProps, AccessibilityProps, TestIDProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
 	id?: string
@@ -587,7 +579,7 @@ export interface ViewProps
  */
 export interface RowProps
 	extends LayoutChildProps, FlexContainerProps, AccessibilityProps, TestIDProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
 	id?: string
@@ -637,7 +629,7 @@ export type Role =
  * @see HeadingProps, RichTextProps.
  */
 export interface TextProps extends LayoutChildProps, TestIDProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
 	id?: string
@@ -681,7 +673,7 @@ export interface TextProps extends LayoutChildProps, TestIDProps {
  * ```
  * @see RichTextSpanProps, TextProps. */
 export interface RichTextProps extends LayoutChildProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
 	id?: string
@@ -697,7 +689,7 @@ export interface RichTextProps extends LayoutChildProps {
  * native-safe escape hatch; a single string child is also accepted.
  * @see RichTextProps for the enclosing container and a composition example. */
 export interface RichTextSpanProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
 	text?: string
@@ -721,7 +713,7 @@ export interface RichTextSpanProps {
  * @see ButtonProps, PanEvent.
  */
 export interface PressableProps extends LayoutChildProps, FlexContainerProps, TestIDProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
 	id?: string
@@ -838,7 +830,7 @@ export interface FieldControlProps {
  * @see FieldControlProps for the field vocabulary, TextAreaProps for multi-line, SearchInputProps for search.
  */
 export interface TextInputProps extends FieldControlProps, TestIDProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Controlled text — pair with `onChange`. */
@@ -912,7 +904,7 @@ export interface TextAreaProps extends Omit<TextInputProps, 'hasClear' | 'onClea
  * ```
  * @see TextInputProps. */
 export interface SearchInputProps extends FieldControlProps, TestIDProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Controlled text — pair with `onChange`. */
@@ -1067,7 +1059,7 @@ export interface DateLocaleProps {
 }
 
 interface CalendarBaseProps extends DateLocaleProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Receives `{ navigateTo }` for imperative month navigation. */
@@ -1216,7 +1208,7 @@ export type DateRangeInputStatusType = FieldStatusType
  * @see CalendarProps, DateRangeInputProps, InputPresentation.
  */
 export interface DateInputProps extends FieldControlProps, DateLocaleProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	accessibilityLabel?: string
@@ -1263,7 +1255,7 @@ export interface DateInputProps extends FieldControlProps, DateLocaleProps {
  * @see DateInputProps, InputPresentation.
  */
 export interface TimeInputProps extends FieldControlProps, DateLocaleProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	accessibilityLabel?: string
@@ -1305,7 +1297,7 @@ export interface TimeInputProps extends FieldControlProps, DateLocaleProps {
  * @see DateInputProps, TimeInputProps.
  */
 export interface DateTimeInputProps extends FieldControlProps, DateLocaleProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	accessibilityLabel?: string
@@ -1360,7 +1352,7 @@ export interface DateTimeInputProps extends FieldControlProps, DateLocaleProps {
  * @see DateRange, DateRangePreset, CalendarProps.
  */
 export interface DateRangeInputProps extends FieldControlProps, DateLocaleProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	accessibilityLabel?: string
@@ -1454,7 +1446,7 @@ export interface PlatformListHandle {
  * @see VirtualListProps for the shared virtualized list.
  */
 export interface PlatformListProps<T = unknown> extends RefreshProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	items: T[]
@@ -1546,7 +1538,7 @@ export interface UseScrollableAreaOptions {
  *  `HostElement` when the caller does not need host-specific ref typing. */
 export interface UseScrollableAreaViewportProps<TElement = HostElement> {
 	ref: Octane.Ref<TElement>
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	onScroll?: ScrollableAreaEventHandler
 	onLayoutChanged?: ScrollableAreaEventHandler
@@ -1566,7 +1558,7 @@ export interface UseScrollableAreaViewportProps<TElement = HostElement> {
 /** Props returned for the observed content box by `useScrollableArea`. */
 export interface UseScrollableAreaContentProps<TElement = HostElement> {
 	ref: Octane.Ref<TElement>
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	onLayoutChanged?: ScrollableAreaEventHandler
 	role?: string
@@ -1642,7 +1634,7 @@ export interface ScrollableAreaHandle {
  */
 export interface ScrollableAreaProps
 	extends LayoutChildProps, AccessibilityProps, RefreshProps, TestIDProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Logical axis or axes where scrolling is allowed. @default 'block' */
@@ -1725,7 +1717,7 @@ export interface VirtualListHandle {
  */
 export interface VirtualListProps<T = unknown>
 	extends LayoutChildProps, AccessibilityProps, TestIDProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Ref to a platform-neutral scroll handle. It is cleared on unmount. */
@@ -1778,7 +1770,7 @@ export interface WebViewContentSize {
 }
 
 interface WebViewBaseProps extends LayoutChildProps, AccessibilityProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** After each successful document load (web `load`; native
@@ -1927,7 +1919,7 @@ export type ImageDecoding = 'async' | 'sync'
  * @see ImageSourceLike, ImageContentFit, ImageContentPosition.
  */
 export interface ImageProps extends LayoutChildProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** A single source — `res://name`, `~/bundle-path`, file path, remote
@@ -1986,7 +1978,7 @@ export interface ImageProps extends LayoutChildProps {
  * ```
  */
 export interface ScreenProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
 	/** Platform-specific properties are applied after shared props. */
@@ -2013,7 +2005,7 @@ export type SafeAreaEdge = 'top' | 'right' | 'bottom' | 'left'
  * @see KeyboardAvoidingProps, useSafeAreaInsets.
  */
 export interface SafeAreaProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
 	/** Safe-area edges this container consumes as padding — defaults to all
@@ -2057,7 +2049,7 @@ export interface SafeAreaProps {
 export interface KeyboardAvoidingProps {
 	/** Underlying platform host; cleared on removal. */
 	ref?: Octane.Ref<HostElement>
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
 	/** Set false to keep the layout wrapper without avoidance — no inset
@@ -2090,7 +2082,7 @@ export interface UseKeyboardInsetOptions {
  * ```
  */
 export interface DrawerProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	main?: Renderable
@@ -2123,7 +2115,7 @@ export type DrawerLayoutProps = PlatformWidgetProps<DrawerProps>
  * @see PlatformSwitchProps.
  */
 export interface SwitchProps extends FieldControlProps, TestIDProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Optional explicit accessible name override for the switch. */
@@ -2160,7 +2152,7 @@ export interface SwitchProps extends FieldControlProps, TestIDProps {
  * @see SwitchProps for the self-drawn shared switch.
  */
 export interface PlatformSwitchProps extends TestIDProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Controlled checked state — pair with `onCheckedChange`. */
@@ -2201,7 +2193,7 @@ export type MaterialSwitchProps = PlatformWidgetProps<PlatformSwitchProps>
  * ```
  */
 export interface ActivityIndicatorProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	busy?: boolean
@@ -2231,7 +2223,7 @@ export type CircularProgressIndicatorProps = PlatformWidgetProps<ActivityIndicat
  * @see ProgressBarProps for task progress.
  */
 export interface MeterProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	children?: Renderable
@@ -2263,7 +2255,7 @@ export interface MeterProps {
  * ```
  */
 export interface SliderProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	value: number
@@ -2344,7 +2336,7 @@ export type IconName = keyof IconNameRegistry extends never
  * @see IconRegistry, IconGlyph, IconName.
  */
 export interface IconProps {
-	className?: ClassName
+	className?: ClassValue
 	id?: string
 	/** Registered icon identifier — a built-in `xplat-*` name or a name
 	 *  registered through `registerIcon`/`registerIcons`. An unregistered
@@ -2413,7 +2405,7 @@ export interface IconRegistryProviderProps {
  * @see TextProps.
  */
 export interface HeadingProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
 	id?: string
@@ -2449,7 +2441,7 @@ export interface OverlayProps extends TestIDProps {
 	onDismiss?: () => void
 	/** Enables a RootLayout shade that dismisses when tapped. */
 	shadeCover?: boolean
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
 	ios?: PlatformProps
@@ -2507,7 +2499,7 @@ export interface PopoverProps {
 	 *  native focus target. Defaults to the anchor on web. */
 	finalFocusRef?: { current: HostElement | null }
 	onDismiss?: () => void
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
 	ios?: PlatformProps
@@ -2577,7 +2569,7 @@ export interface ContextRenderProps {
 	accessibilityLabel?: string
 	/** ARIA role on web (e.g. 'tooltip', 'dialog'). */
 	accessibilityRole?: string
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	ios?: PlatformProps
 	android?: PlatformProps
@@ -2592,7 +2584,7 @@ export interface FixedRenderProps {
 	y: number
 	accessibilityLabel?: string
 	accessibilityRole?: string
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	ios?: PlatformProps
 	android?: PlatformProps
@@ -2688,7 +2680,7 @@ export interface HoverCardProps {
 	isOpen?: boolean
 	/** Show on mount (still dismissible). */
 	isDefaultOpen?: boolean
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	ios?: PlatformProps
 	android?: PlatformProps
@@ -2770,13 +2762,13 @@ export interface TooltipProps {
 	trigger: Renderable
 	content: Renderable
 	/** Styling for the tooltip panel inside the popover. */
-	contentClassName?: ClassName
+	contentClassName?: ClassValue
 	contentStyle?: StyleProp
 	openDelay?: number
 	closeDelay?: number
 	placement?: PopoverPlacement
 	disabled?: boolean
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	ios?: PlatformProps
 	android?: PlatformProps
@@ -2930,7 +2922,7 @@ export interface ToastViewportProps {
 	 *  dialogs). Set false when rendering inside a dialog. @default true */
 	isTopLayer?: boolean
 	children?: Renderable
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	ios?: PlatformProps
@@ -2961,7 +2953,7 @@ export interface ToastProps {
 	/** Called with the reason when the toast requests dismissal. */
 	onDismiss?: (reason: ToastDismissReason) => void
 	renderContent?: ToastContentRenderFn
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	ios?: PlatformProps
@@ -3165,7 +3157,7 @@ export interface BottomSheetProps {
 	 * Native hosts call the target's focus method when available; supply this
 	 * explicitly when a native input should regain editing focus. */
 	finalFocusRef?: { current: HostElement | null }
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	ios?: PlatformProps
@@ -3203,7 +3195,7 @@ export interface BottomSheetSwitcherProps {
 	hasScrim?: boolean
 	/** The `BottomSheet` children, each with a `sheetId`. */
 	children?: Renderable
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	ios?: PlatformProps
@@ -3318,7 +3310,7 @@ export interface DialogProps extends AccessibilityProps {
 	 *  dialog opened on web/AppKit. `{current}`-style ref; touch targets call
 	 *  its focus method when available. */
 	finalFocusRef?: { current: HostElement | null }
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	ios?: PlatformProps
@@ -3348,7 +3340,7 @@ export interface DialogHeaderProps {
 	endContentEdgeCompensation?: 'inline' | 'block' | 'all'
 	/** Hairline under the header. @default true */
 	hasDivider?: boolean
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	ios?: PlatformProps
@@ -3423,7 +3415,7 @@ export interface AlertDialogProps {
 	isInline?: boolean
 	/** Element to focus on close. `{current}`-style ref; web semantics. */
 	finalFocusRef?: { current: HostElement | null }
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	ios?: PlatformProps
@@ -3505,7 +3497,7 @@ export interface CarouselProps extends AccessibilityProps {
 	hasSnap?: boolean
 	/** Receives the imperative handle. */
 	ref?: Octane.Ref<CarouselHandle>
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	ios?: PlatformProps
@@ -3563,7 +3555,7 @@ export interface LightboxProps {
 	/** Element to focus on close; defaults to the element focused when the
 	 *  lightbox opened. `{current}`-style ref; web semantics. */
 	finalFocusRef?: { current: HostElement | null }
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	ios?: PlatformProps
@@ -3651,7 +3643,7 @@ export interface TabSpec {
  * @see TabSpec, TabListProps for a standalone strip, PlatformTabsProps for the OS tab bars.
  */
 export interface TabsProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	tabs: readonly TabSpec[]
@@ -3810,7 +3802,7 @@ export interface LinkProps {
 	accessibilityRole?: 'link' | 'menuitem'
 	/** Runs when the user activates the link, before navigation. */
 	onPress?: () => void
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
 }
@@ -3831,7 +3823,7 @@ export interface NavLinkProps {
 	 *  outside the schema assert to `TypedRoute`. */
 	route: TypedRoute
 	activeClassName?: string
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
 }
@@ -4434,7 +4426,7 @@ export interface ButtonProps extends Omit<PressableProps, 'disabled' | 'onPress'
  * @see AccordionProps for a labelled multi-section form.
  */
 export interface CollapsibleProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	trigger?: Renderable
@@ -4475,7 +4467,7 @@ export interface AccordionItemSpec {
  * @see AccordionItemSpec, CollapsibleProps.
  */
 export interface AccordionBaseProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	items: AccordionItemSpec[]
@@ -4514,7 +4506,7 @@ export type AccordionProps = AccordionSingleProps | AccordionMultipleProps
  * @see CheckboxGroupProps (`CheckboxList`) for multi-choice lists.
  */
 export interface CheckboxProps extends FieldControlProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Controlled checked state — pair with `onCheckedChange`. */
@@ -4562,7 +4554,7 @@ export interface RadioOption {
  * @see SegmentedControlProps, SelectProps (`Selector`).
  */
 export interface RadioGroupProps extends FieldControlProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	options: RadioOption[]
@@ -4600,7 +4592,7 @@ export interface RadioGroupProps extends FieldControlProps {
  * @see RadioGroupProps (`RadioList`).
  */
 export interface SegmentedControlProps extends FieldControlProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	options: RadioOption[]
@@ -4722,7 +4714,7 @@ export type MenuItem = MenuOption
 export interface MenuItemProps {
 	id?: string
 	ref?: Octane.Ref<HostElement>
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	label: Renderable
 	/** Registered icon name — see `registerIcon`. */
@@ -4779,7 +4771,7 @@ export interface MenuRadioGroupProps {
  */
 export interface MenuSeparatorProps {
 	id?: string
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 }
 
@@ -4836,7 +4828,7 @@ export interface MenuSurfaceProps {
  * @see MenuItem, MenuOption, ContextMenuProps.
  */
 export interface DropdownMenuProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Anchor content rendered inside the trigger Pressable. */
@@ -4844,12 +4836,12 @@ export interface DropdownMenuProps {
 	/** Accessible trigger name when there is no visible text. */
 	accessibilityLabel?: string
 	/** Additional trigger chrome (for example a button class). */
-	triggerClassName?: ClassName
+	triggerClassName?: ClassValue
 	/** Trigger size — wins over ButtonGroup membership and inherited `SizeContext`
 	 *  size (Astryx trigger-Button `size`). @default resolved via `useSize` */
 	size?: FieldControlSize
 	/** Additional class for the inherited Popover surface. */
-	menuClassName?: ClassName
+	menuClassName?: ClassValue
 	items?: MenuOption[]
 	children?: Renderable
 	/** Caller-owned visibility; onOpenChange requests do not replace this value. */
@@ -4892,7 +4884,7 @@ export interface ContextMenuProps extends Omit<DropdownMenuProps, 'children'> {
  * ```
  */
 export interface BadgeProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	children?: Renderable
@@ -4912,7 +4904,7 @@ export interface BadgeProps {
  * ```
  */
 export interface SeparatorProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	orientation?: 'horizontal' | 'vertical'
@@ -4932,7 +4924,7 @@ export interface SeparatorProps {
  * ```
  */
 export interface SkeletonProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	width?: number
@@ -4954,7 +4946,7 @@ export interface SkeletonProps {
  * @see AvatarGroupProps, UserProps.
  */
 export interface AvatarProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	src?: string
@@ -4981,7 +4973,7 @@ export interface AvatarProps {
  * @see AvatarProps.
  */
 export interface AvatarGroupProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	children?: Renderable
@@ -5010,7 +5002,7 @@ export interface AvatarGroupProps {
  * @see FieldControlProps — standalone controls carry the same vocabulary inline.
  */
 export interface FormFieldProps extends FieldControlProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** ID of the single control associated with this field's label. */
@@ -5047,7 +5039,7 @@ export interface FormFieldProps extends FieldControlProps {
  * @see FormFieldProps (`Field`).
  */
 export interface FieldGroupProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	label?: string
@@ -5072,7 +5064,7 @@ export interface FieldGroupProps {
  * @see ItemComponent for the slot composition, ListItemProps for list-context rows.
  */
 export interface ItemProps extends AccessibilityProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Primary row text or rich content. */
@@ -5091,7 +5083,7 @@ export interface ItemProps extends AccessibilityProps {
 /** Props of the `Item` slot components (`Item.StartContent`/`Content`/`Description`/`EndContent`) — `className` plus children.
  */
 export interface ItemSlotProps {
-	className?: ClassName
+	className?: ClassValue
 	children?: Renderable
 }
 
@@ -5117,7 +5109,7 @@ export interface ItemComponent {
  * ```
  */
 export interface InputNumberProps extends FieldControlProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Controlled number; `null` is the explicit empty value. */
@@ -5146,7 +5138,7 @@ export interface InputNumberProps extends FieldControlProps {
  * ```
  */
 export interface PinInputProps extends FieldControlProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	length?: number
@@ -5192,7 +5184,7 @@ export interface SelectOption {
  * @see SelectOption, MultiSelectorProps — `MultiSelector` is the multi-select preset.
  */
 export interface SelectBaseProps extends FieldControlProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	options: SelectOption[]
@@ -5370,7 +5362,7 @@ export type TypeaheadKeyDownHandler = (event: TypeaheadKeyEvent) => void
 export interface BaseTypeaheadProps<
 	T extends SearchableItem = SearchableItem,
 > extends FieldControlProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	/** Element id applied to the input itself. */
 	id?: string
@@ -5417,7 +5409,7 @@ export interface BaseTypeaheadProps<
 	onBlur?: () => void
 	ref?: Octane.Ref<TypeaheadInputHandle>
 	/** Class/style applied to the input element only. */
-	inputClassName?: ClassName
+	inputClassName?: ClassValue
 	inputStyle?: StyleProp
 	accessibilityLabel?: string
 	ios?: PlatformProps
@@ -5442,7 +5434,7 @@ export interface BaseTypeaheadProps<
 export interface TypeaheadProps<
 	T extends SearchableItem = SearchableItem,
 > extends FieldControlProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Accessible label — required by Astryx; kept required here. */
@@ -5480,7 +5472,7 @@ export interface TypeaheadProps<
 /** Default result-row content for the Typeahead family — `item`, optional leading `icon`/`description`, `isDisabled`, presentational `group` label. Swap via `renderItem` on `BaseTypeahead`/`Typeahead`/`Tokenizer`.
  */
 export interface TypeaheadItemProps<T extends SearchableItem = SearchableItem> {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	item: T
@@ -5531,7 +5523,7 @@ export type TokenSize = FieldControlSize
  * @see TokenizerProps — a field of editable tokens.
  */
 export interface TokenProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	label: string
@@ -5606,7 +5598,7 @@ export interface TokenizerHandle {
 export interface TokenizerProps<
 	T extends SearchableItem = SearchableItem,
 > extends FieldControlProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	label: string
@@ -5712,7 +5704,7 @@ export interface ComplexSelectorHandle {
  * @see ComplexSelectorRenderProps for the children context, ComplexSelectorHandle.
  */
 export interface ComplexSelectorProps<Value> extends FieldControlProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	label: string
@@ -5737,7 +5729,7 @@ export interface ComplexSelectorProps<Value> extends FieldControlProps {
 	alignment?: 'start' | 'center' | 'end'
 	ref?: Octane.Ref<ComplexSelectorHandle>
 	onOpenChange?: (open: boolean) => void
-	contentClassName?: ClassName
+	contentClassName?: ClassValue
 	contentStyle?: StyleProp
 	ios?: PlatformProps
 	android?: PlatformProps
@@ -5754,7 +5746,7 @@ export interface ComplexSelectorProps<Value> extends FieldControlProps {
  * ```
  */
 export interface InputRatingProps extends FieldControlProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	value?: number
@@ -5785,7 +5777,7 @@ export interface InputRatingProps extends FieldControlProps {
  * @see CheckboxProps (`CheckboxInput`), RadioGroupProps.
  */
 export interface CheckboxGroupProps extends FieldControlProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	options: RadioOption[]
@@ -5825,7 +5817,7 @@ export interface BreadcrumbItem {
  * @see BreadcrumbItem.
  */
 export interface BreadcrumbProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	items: BreadcrumbItem[]
@@ -5851,7 +5843,7 @@ export interface BreadcrumbProps {
  * ```
  */
 export interface PaginationProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	page: number
@@ -5888,7 +5880,7 @@ export interface StepperStep {
  * @see StepperStep.
  */
 export interface StepperProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	steps: StepperStep[]
@@ -5927,7 +5919,7 @@ export interface NavigationMenuItem {
  * @see NavigationMenuItem.
  */
 export interface NavigationMenuProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	items: NavigationMenuItem[]
@@ -5973,7 +5965,7 @@ export interface CommandPaletteItem extends SearchableItem {
  * @see CommandPaletteItem, CommandPaletteMenuItem, SearchSource.
  */
 export interface CommandPaletteProps<T extends CommandPaletteItem = CommandPaletteItem> {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Controlled visibility. Defaults to false. */
@@ -6048,7 +6040,7 @@ export interface TableCellRenderProps<T extends object = Record<string, unknown>
  * @see TableColumn, TableCellRenderProps; VirtualListProps for large datasets.
  */
 export interface TableProps<T extends object = Record<string, unknown>> {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	columns: readonly TableColumn<keyof T & Key>[]
@@ -6090,7 +6082,7 @@ export interface TimelineItem {
  * @see TimelineItem.
  */
 export interface TimelineProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	items: TimelineItem[]
@@ -6129,7 +6121,7 @@ export interface TreeListNode {
  * @see TreeListNode, useTreeData for the store-backed form.
  */
 export interface TreeProps<T extends TreeListNode = TreeListNode> {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	nodes: readonly T[]
@@ -6169,7 +6161,7 @@ export interface TreeProps<T extends TreeListNode = TreeListNode> {
  * @see BannerProps, EmptyProps.
  */
 export interface AlertProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	tone?: 'info' | 'success' | 'warning' | 'error'
@@ -6198,7 +6190,7 @@ export interface AlertProps {
  * ```
  */
 export interface CardProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	header?: Renderable
@@ -6227,7 +6219,7 @@ export interface CardProps {
  * ```
  */
 export interface ChipProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	children?: Renderable
@@ -6251,7 +6243,7 @@ export interface ChipProps {
  * ```
  */
 export interface KbdProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	children?: Renderable
@@ -6272,7 +6264,7 @@ export interface KbdProps {
  * ```
  */
 export interface EmptyProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Registered icon name — see `registerIcon`. */
@@ -6296,7 +6288,7 @@ export interface EmptyProps {
  * @see AlertProps.
  */
 export interface BannerProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Registered icon name — see `registerIcon`. */
@@ -6319,7 +6311,7 @@ export interface BannerProps {
  * @see AvatarProps.
  */
 export interface UserProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	name?: string
@@ -6344,7 +6336,7 @@ export interface UserProps {
  * @see MeterProps, ProgressBarProps.
  */
 export interface ProgressGroupProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	items: { key: string; label?: string; value: number; max?: number }[]
@@ -6417,7 +6409,7 @@ export type ChatMessageStatus = 'sending' | 'sent' | 'delivered' | 'read' | 'err
  * @see ChatMessageBubbleProps, ChatMessageListProps.
  */
 export interface ChatMessageProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	sender: ChatMessageSender
@@ -6445,7 +6437,7 @@ export type ChatMessageBubbleVariant = 'filled' | 'ghost'
  *  enclosing ChatMessage. `group` tightens sender-side corners for
  *  consecutive bubbles; `width` replaces the default max-width cap. */
 export interface ChatMessageBubbleProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	children?: Renderable
@@ -6466,7 +6458,7 @@ export interface ChatMessageBubbleProps {
 /** Composable metadata row: timestamp · footer · status. Renders nothing
  *  when all three are absent. */
 export interface ChatMessageMetadataProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	timestamp?: Renderable
@@ -6484,7 +6476,7 @@ export type ChatSystemMessageVariant = 'default' | 'divider'
 /** Centered system/notice row — date separators, "conversation started".
  *  `divider` draws hairlines on both sides of the text. */
 export interface ChatSystemMessageProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	children?: Renderable
@@ -6517,7 +6509,7 @@ export interface ChatSystemMessageProps {
  * @see ChatMessageProps, ChatLayoutProps — the layout owns auto-scroll.
  */
 export interface ChatMessageListProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	children?: Renderable
@@ -6592,7 +6584,7 @@ export type ChatToolCallItem = ChatToolCallItemBase &
  * @see ChatToolCallItem — `status` gates which fields render.
  */
 export interface ChatToolCallsProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	calls: ChatToolCallItem[]
@@ -6833,7 +6825,7 @@ export interface ChatComposerContextValue {
  *  for inserted tokens; serialization matches, mid-text token positions are
  *  approximated by recorded insertion offsets. */
 export interface ChatComposerInputProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Exposes the imperative handle through a standard Octane ref. */
@@ -6877,7 +6869,7 @@ export interface ChatComposerInputProps {
 /** Props for `ChatComposerTokenElement` — renders one `ChatComposerToken` chip (`token` is required).
  */
 export interface ChatComposerTokenElementProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	token: ChatComposerToken
@@ -6889,7 +6881,7 @@ export interface ChatComposerTokenElementProps {
 /** Collapsible drawer above the composer input — attachments/context chips.
  *  With `count`, a collapse toggle renders the badge+label summary. */
 export interface ChatComposerDrawerProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	children?: Renderable
@@ -6907,7 +6899,7 @@ export interface ChatComposerDrawerProps {
 /** Circular send/stop toggle. Reads ChatComposerContext by default; every
  *  context-derived value is prop-overridable for standalone use. */
 export interface ChatSendButtonProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	isStopShown?: boolean
@@ -6943,7 +6935,7 @@ export interface ChatSendButtonProps {
  * @see ChatComposerProps slots and useChatComposerContext.
  */
 export interface ChatComposerProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Send action — called with the serialized draft text. */
@@ -6985,7 +6977,7 @@ export interface ChatComposerProps {
 /** Renders serialized message text with token values replaced by their
  *  chips — share one token table between input and display. */
 export interface ChatTokenizedTextProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	children?: string
@@ -7006,7 +6998,7 @@ export interface ChatTokenizedTextProps {
  *  Native targets have no backdrop blur; `scrollRef` is populated with the
  *  layout's own scroll viewport so callers can hand it to the hooks. */
 export interface ChatLayoutProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	children?: Renderable
@@ -7037,7 +7029,7 @@ export interface ChatLayoutProps {
 /** The floating 'scroll to bottom' pill rendered by `ChatLayout` — `isVisible` toggles it, `label` expands it, `onPress` scrolls.
  */
 export interface ChatLayoutScrollButtonProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	isVisible: boolean
@@ -7215,7 +7207,7 @@ export interface UseChatDictationReturn extends UseSpeechRecognitionReturn {}
  * @see useChatDictation — pass its return as `dictation`.
  */
 export interface ChatDictationButtonProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	dictation: UseSpeechRecognitionReturn
@@ -7279,7 +7271,7 @@ export type NavLinkComponentType = ElementType
  * ```
  */
 export interface NavIconProps extends LayoutChildProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Icon content inside the circular container — an element or a
@@ -7312,7 +7304,7 @@ export type ToolbarVariant = 'transparent' | 'section' | 'muted'
  * @see ToolbarSize, ToolbarVariant.
  */
 export interface ToolbarProps extends LayoutChildProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Content aligned to the start (left in LTR). */
@@ -7383,7 +7375,7 @@ export interface TabListContextValue {
  * @see TabProps, TabMenuProps, TabsProps for the strip+panels component.
  */
 export interface TabListProps extends LayoutChildProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** The currently selected tab value. */
@@ -7420,7 +7412,7 @@ export interface TabListProps extends LayoutChildProps {
  * @see TabListProps.
  */
 export interface TabProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Unique value matched against TabList `value`. */
@@ -7465,7 +7457,7 @@ export interface TabMenuOption {
 /** Overflow menu trigger inside a TabList — opens a dropdown of extra
  *  options; the selected option's label becomes the trigger text. */
 export interface TabMenuProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Trigger label when no option is selected + the dropdown heading. */
@@ -7536,7 +7528,7 @@ export interface AppShellMobileContextValue {
  * @see MobileNavConfig, TopNavProps, SideNavProps.
  */
 export interface AppShellProps extends LayoutChildProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	variant?: AppShellVariant
@@ -7587,7 +7579,7 @@ export type TopNavSlot = 'start' | 'center' | 'end'
  * @see TopNavHeadingProps, TopNavItemProps, AppShellProps.
  */
 export interface TopNavProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Heading slot — typically `TopNavHeading`. */
@@ -7612,7 +7604,7 @@ export interface TopNavProps {
  * @see TopNavProps, NavHeadingMenuProps.
  */
 export interface TopNavHeadingProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Logo element before the heading (e.g. `NavIcon`). */
@@ -7640,7 +7632,7 @@ export interface TopNavHeadingProps {
  * @see TopNavProps.
  */
 export interface TopNavItemProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	href?: string
@@ -7686,7 +7678,7 @@ export interface TopNavMenuItemData {
  * @see TopNavMenuItemData — the data form; `TopNavMegaMenu` for a composed panel.
  */
 export interface TopNavMenuProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	label: string
@@ -7703,7 +7695,7 @@ export interface TopNavMenuProps {
 /** A `TopNav` trigger that opens a wide mega-menu — `items` (`TopNavMegaMenuItem` children or custom content), `featured` panel, hover `delay`/`hideDelay` (ms) on pointer platforms, `onOpenChange`.
  */
 export interface TopNavMegaMenuProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	label: string
@@ -7723,7 +7715,7 @@ export interface TopNavMegaMenuProps {
 /** One `TopNavMegaMenu` entry — `title`, `description`, `icon`, `href`/`onClick` activation, `as` link override (web).
  */
 export interface TopNavMegaMenuItemProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	title: string
@@ -7740,7 +7732,7 @@ export interface TopNavMegaMenuItemProps {
 /** The featured card inside `TopNavMegaMenu` — `title`, `description`, decorative `image`/`imageAlt`, `linkLabel`/`linkHref`, `children`.
  */
 export interface TopNavMegaMenuFeaturedCardProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	title: string
@@ -7814,7 +7806,7 @@ export interface SideNavImperativeCollapseHandle {
  * @see SideNavCollapsibleConfig, SideNavItemProps, SideNavSectionProps.
  */
 export interface SideNavProps extends LayoutChildProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Header area (typically `SideNavHeading`) — sticky at top. */
@@ -7846,7 +7838,7 @@ export interface SideNavProps extends LayoutChildProps {
 /** A titled group inside `SideNav` — `title` (+`subtitle`, `endContent`), `isHeaderHidden` keeps the title accessible but invisible; children are `SideNavItem`s.
  */
 export interface SideNavSectionProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	title: string
@@ -7864,7 +7856,7 @@ export interface SideNavSectionProps {
 /** The brand/heading block inside `SideNav` — `icon`, `heading`/`superheading`/`subheading` (+Href), `headerEndContent`, `menu` heading popover (typically `NavHeadingMenu`), `as` link override on web.
  */
 export interface SideNavHeadingProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Product/app icon (e.g. `NavIcon`). */
@@ -7891,7 +7883,7 @@ export interface SideNavHeadingProps {
  * @see SideNavProps, SideNavSectionProps.
  */
 export interface SideNavItemProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	as?: NavLinkComponentType
@@ -7930,7 +7922,7 @@ export interface SideNavItemProps {
 /** The rail collapse/expand button — reads the enclosing `SideNav`'s collapse state; `collapsible` passes a controlled `SideNavControlledCollapsible` only when the button renders outside its SideNav. `label` switches icon-only → text+chevron.
  */
 export interface SideNavCollapseButtonProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** The same controlled config given to SideNav — needed only when the
@@ -7962,7 +7954,7 @@ export interface SideNavCollapseButtonProps {
  * @see MobileNavConfig, AppShellProps.
  */
 export interface MobileNavProps extends LayoutChildProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Drawer open state — inside `AppShell` it is managed by context. */
@@ -7988,7 +7980,7 @@ export interface MobileNavProps extends LayoutChildProps {
 /** The hamburger button that opens the `MobileNav` drawer — `children` replace the glyph, `label` names it (default 'Open navigation'). Auto-rendered by `AppShell` unless `mobileNav.hasToggle` is false.
  */
 export interface MobileNavToggleProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Custom content replacing the default hamburger glyph. */
@@ -8021,7 +8013,7 @@ export interface NavHeadingCloseContextValue {
 /** Menu popover content for `TopNavHeading`/`SideNavHeading` (`menu` slot) — `NavHeadingMenuItem` children, separators, or custom content; `size`, `minWidth` override (dips).
  */
 export interface NavHeadingMenuProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** `NavHeadingMenuItem` children, separators, or custom content. */
@@ -8038,7 +8030,7 @@ export interface NavHeadingMenuProps {
 /** One `NavHeadingMenu` row — `label` required, `icon`, `description`, `href`/`onClick` activation, `isDisabled`.
  */
 export interface NavHeadingMenuItemProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	icon?: Renderable
@@ -8079,7 +8071,7 @@ export interface OverflowItem {
  * @see OverflowItem.
  */
 export interface OverflowListProps extends LayoutChildProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** One element per item. */
@@ -8258,7 +8250,7 @@ export interface ResizableRegion {
 /** The drag handle between resizable regions — `resizable` takes the `ResizableProps` a `useResizable` region emits (or a component's `resizable` config object); `direction` must match the region's axis.
  */
 export interface ResizeHandleProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Layout direction — determines cursor and indicator orientation
@@ -8339,7 +8331,7 @@ export interface ButtonGroupContextValue {
  * @see ButtonGroupContextValue, ButtonGroupOrientation.
  */
 export interface ButtonGroupProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	children?: Renderable
@@ -8386,7 +8378,7 @@ export interface ToggleButtonProps extends Omit<ButtonProps, 'label' | 'variant'
 }
 
 interface ToggleButtonGroupBaseProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	children?: Renderable
@@ -8446,7 +8438,7 @@ export type ToggleButtonGroupProps = ToggleButtonGroupSingleProps | ToggleButton
  * @see SelectableCardProps, CardProps.
  */
 export interface ClickableCardProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Accessible name for the card's action. */
@@ -8484,7 +8476,7 @@ export interface ClickableCardProps {
  * @see ClickableCardProps.
  */
 export interface SelectableCardProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Accessible name for the selectable card. */
@@ -8536,7 +8528,7 @@ export type MoreMenuPresentation = 'popover' | 'bottom-sheet' | 'adaptive'
  * @see MenuActionData, DropdownMenuProps.
  */
 export interface MoreMenuProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** This compact overflow menu contains action rows only. Use DropdownMenu
@@ -9061,7 +9053,7 @@ export type PowerSearchComponents = Partial<
 export interface PowerSearchProps<
 	C extends PowerSearchConfig = PowerSearchConfig,
 > extends FieldControlProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Status layout: overlaps the field below it or occupies its own row. */
@@ -9285,7 +9277,7 @@ export type Selection = 'all' | ReadonlySet<Key>
 
 /** One class value in a `styled()` definition — a class string, a list of
  *  class strings, or a falsy value that contributes nothing. Unlike
- *  `ClassName`, keyed objects are not allowed: an object map declares an
+ *  `ClassValue`, keyed objects are not allowed: an object map declares an
  *  enumerated variant instead. */
 export type StyledClass = string | readonly string[] | false | null | undefined
 
@@ -9437,7 +9429,7 @@ export type TextWeight = 'normal' | 'medium' | 'semibold' | 'bold'
  * ```
  */
 export interface BlockquoteProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	children?: Renderable
@@ -9467,7 +9459,7 @@ export type CodeSize = 'inherit'
  * @see CodeBlockProps for multi-line display.
  */
 export interface CodeProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	children?: Renderable
@@ -9525,7 +9517,7 @@ export interface SyntaxThemeOverride {
  * @see CodeTokenizer, SyntaxThemeOverride.
  */
 export interface CodeBlockProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** The source code to display. */
@@ -9613,7 +9605,7 @@ export type ProgressBarVariant = keyof ProgressBarVariantMap
  * @see MeterProps for a static gauge, ProgressGroupProps.
  */
 export interface ProgressBarProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Current value. Ignored when `isIndeterminate` is true. @default 0 */
@@ -9671,7 +9663,7 @@ export type StatusDotVariant = keyof StatusDotVariantMap
  * ```
  */
 export interface StatusDotProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Semantic color variant (required). */
@@ -9733,7 +9725,7 @@ export type TimestampValueUnit = 'unix-seconds' | 'unix-milliseconds'
 
 /** Shared display props for the two explicit Timestamp value forms. */
 export interface TimestampBaseProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/**
@@ -9802,7 +9794,7 @@ export type TimerFormat = 'elapsed' | 'clock'
  * @see TimestampProps — `startTimeMs` and generated timestamps use Unix milliseconds.
  */
 export interface TimerProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Unix time in milliseconds when the measured operation began. Omit to
@@ -9848,7 +9840,7 @@ export interface CitationSource {
  * @see CitationSource.
  */
 export interface CitationProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	source: CitationSource
@@ -9886,7 +9878,7 @@ export type MetadataListColumns = 'multi' | 'single' | number
  * @see MetadataListItemProps, MetadataListColumns.
  */
 export interface MetadataListProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** MetadataListItem children. */
@@ -9915,7 +9907,7 @@ export interface MetadataListProps {
  * @see MetadataListProps — render inside it.
  */
 export interface MetadataListItemProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	children?: Renderable
@@ -9938,7 +9930,7 @@ export interface MetadataListItemProps {
  * ```
  */
 export interface ThumbnailProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Image source (any `Image` src grammar). Shows the placeholder when
@@ -10008,7 +10000,7 @@ export interface OutlineFromViewCapabilities {
  *  platform-specific while the resulting data stays portable.
  */
 export interface OutlineProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	/** Ordered heading items to render. */
@@ -10161,7 +10153,7 @@ export type CenterAxis = 'both' | 'horizontal' | 'vertical'
  * @see StackProps.
  */
 export interface CenterProps extends StackPaddingProps, StackSizeProps, AccessibilityProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
 	ios?: PlatformProps
@@ -10194,7 +10186,7 @@ export type SectionDividerSide = 'top' | 'bottom' | 'start' | 'end'
  * @see SectionVariant, SectionDividerSide.
  */
 export interface SectionProps extends StackPaddingProps, StackSizeProps, AccessibilityProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
 	ios?: PlatformProps
@@ -10269,7 +10261,7 @@ export interface FocusScopeProps extends AccessibilityProps {
 	children?: Renderable
 	id?: string
 	ref?: Octane.Ref<HostElement>
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	ios?: PlatformProps
 	android?: PlatformProps
@@ -10305,7 +10297,7 @@ export type AspectRatioFit = 'cover' | 'contain' | 'center'
  * ```
  */
 export interface AspectRatioProps extends AccessibilityProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
 	ios?: PlatformProps
@@ -10352,7 +10344,7 @@ export type FormOptionality = 'optional' | 'required'
  * @see FormLayoutDirection, FormFieldProps (`Field`).
  */
 export interface FormLayoutProps extends AccessibilityProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
 	ios?: PlatformProps
@@ -10386,7 +10378,7 @@ export type InputGroupSize = 'sm' | 'md' | 'lg'
  * @see InputGroupTextProps.
  */
 export interface InputGroupProps extends FieldControlProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
 	ios?: PlatformProps
@@ -10407,7 +10399,7 @@ export interface InputGroupProps extends FieldControlProps {
  * @see InputGroupProps — renders a prefix/suffix segment inside it.
  */
 export interface InputGroupTextProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
 	ios?: PlatformProps
@@ -10446,7 +10438,7 @@ export type ListStyle = ListMarkerStyle
  * @see ListItemProps, VirtualListProps for large data sets.
  */
 export interface ListProps extends AccessibilityProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
 	ios?: PlatformProps
@@ -10481,7 +10473,7 @@ export interface ListProps extends AccessibilityProps {
  * @see ListProps — render inside it.
  */
 export interface ListItemProps extends AccessibilityProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
 	ios?: PlatformProps
@@ -10530,7 +10522,7 @@ export interface ListItemProps extends AccessibilityProps {
  * @see Selection, Key — selection contract; `useGridList` reports `isSupported` for grid keyboard nav.
  */
 export interface GridListProps<T = unknown> extends LayoutChildProps, AccessibilityProps {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
 	ios?: PlatformProps
@@ -10613,7 +10605,7 @@ export type IndicatorPosition = 'start' | 'end'
  * @see IndicatorMap, IndicatorComponent — register replacements with `registerIndicator`/`registerIndicators`.
  */
 export interface IndicatorProps<F extends IndicatorFamily = IndicatorFamily> {
-	className?: ClassName
+	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	ref?: Octane.Ref<HostElement>

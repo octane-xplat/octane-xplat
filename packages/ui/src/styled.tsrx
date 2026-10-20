@@ -1,6 +1,6 @@
 import { defineUniversalComponent, universalComponent } from 'octane/universal/native'
 import type { UniversalComponent } from 'octane/universal';
-import type { ClassName, StyledDef, StyledVariant, StyledVariantSelection } from './props';
+import type { ClassValue, StyledDef, StyledVariant, StyledVariantSelection } from './props';
 import { resolveStyledClasses } from './styled-variants';
 
 /**
@@ -23,7 +23,7 @@ import { resolveStyledClasses } from './styled-variants';
  * universalComponent(...) elements directly. If upstream exposes a blessed
  * factory path, switch to it (driver-level fix candidate).
  */
-export function styled<P extends { className?: ClassName }, V extends Record<string, StyledVariant>>(
+export function styled<P extends { className?: ClassValue }, V extends Record<string, StyledVariant>>(
 	Base: (props: P) => any,
 	def: StyledDef<V>,
 ): (props: P & StyledVariantSelection<V>, context: any) => any {

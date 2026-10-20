@@ -379,6 +379,8 @@ function syncCss(node: ElementNode, style: PropBag | null | undefined) {
 function classList(value: unknown, out: string[] = []): string[] {
 	if (typeof value === 'string') {
 		out.push(...value.split(/\s+/).filter(Boolean))
+	} else if (typeof value === 'number' && value) {
+		out.push(String(value))
 	} else if (Array.isArray(value)) {
 		for (const entry of value) {
 			classList(entry, out)

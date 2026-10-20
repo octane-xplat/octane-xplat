@@ -1,11 +1,11 @@
-import type { ClassName, StyledDef, StyledVariant, StyledVariantSelection } from './props';
+import type { ClassValue, StyledDef, StyledVariant, StyledVariantSelection } from './props';
 import { resolveStyledClasses } from './styled-variants';
 
 /**
  * styled() — decision #7. Web side: DOM codegen lowers JSX in nested
  * functions fine, so the factory is a plain component.
  */
-export function styled<P extends { className?: ClassName }, V extends Record<string, StyledVariant>>(
+export function styled<P extends { className?: ClassValue }, V extends Record<string, StyledVariant>>(
 	Base: (props: P) => any,
 	def: StyledDef<V>,
 ) {

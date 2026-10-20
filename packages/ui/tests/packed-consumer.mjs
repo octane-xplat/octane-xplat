@@ -381,6 +381,18 @@ void [subpathPushRoute, useRoute, hrefFor, useListData, useAsyncList, cachedQuer
 `
 
 	source += `
+import type { ClassValue } from '@octane-xplat/ui'
+import type { ClassValue as OctaneClassValue } from 'octane/jsx-runtime'
+// @ts-expect-error ClassName was removed; use upstream ClassValue
+import type { ClassName } from '@octane-xplat/ui'
+declare const classCount: number
+declare const upstreamClass: OctaneClassValue
+const sharedClass: ClassValue = ['card', classCount && 'active', [42, 0, NaN], upstreamClass] as const
+const classExample = <View className={sharedClass} />
+void classExample
+`
+
+	source += `
 import { Item, Selector, BaseTypeahead, Typeahead, Tokenizer, ComplexSelector, PowerSearch, Table } from '@octane-xplat/ui'
 import type { ComplexSelectorRenderProps, ItemProps, SearchableItem, SearchSource, TableCellRenderProps, TypeaheadInputHandle, PowerSearchConfig } from '@octane-xplat/ui'
 // @ts-expect-error internal presentation is not a supported root export

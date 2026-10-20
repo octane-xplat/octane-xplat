@@ -13,7 +13,7 @@ index 80e30299c44e889e3a066ce2c9a8feb6b7ceaa42..b17dc120c5c00ba4be701233fb95b6d2
  /**
   * A command `parent`: a host node id's node, the root container (`null`), or a
 diff --git a/dist/driver.js b/dist/driver.js
-index 8bc563add4cb675a12651184b63805b10224274d..fd48a63d5e07a4288c22f22e0f8ad7053d05705f 100644
+index 8bc563add4cb675a12651184b63805b10224274d..31106eeff28efbb0c088c8677348962a427bbe99 100644
 --- a/dist/driver.js
 +++ b/dist/driver.js
 @@ -1,8 +1,11 @@
@@ -132,7 +132,16 @@ index 8bc563add4cb675a12651184b63805b10224274d..fd48a63d5e07a4288c22f22e0f8ad705
      }
      finally {
          if (listening)
-@@ -147,16 +186,241 @@ function normalizeClass(value) {
+@@ -137,6 +176,8 @@ function setProp(node, view, name, value) {
+ // `class`/`className` compose clsx-style on the DOM renderer; join arrays
+ // with spaces so NativeScript's class selectors can match each class.
+ function normalizeClass(value) {
++    if (typeof value === 'number')
++        return value ? String(value) : '';
+     if (typeof value === 'string')
+         return value;
+     if (Array.isArray(value))
+@@ -147,16 +188,241 @@ function normalizeClass(value) {
              .join(' ');
      return '';
  }
@@ -379,7 +388,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..fd48a63d5e07a4288c22f22e0f8ad705
  /** Recompute a text host's `text` from its `#text` children. */
  function syncText(parent) {
      if (parent === null || isPortalTarget(parent))
-@@ -190,6 +454,15 @@ function addViewChild(parentView, view, index) {
+@@ -190,6 +456,15 @@ function addViewChild(parentView, view, index) {
          parentView.insertChild(view, Math.min(index, parentView.getChildrenCount()));
          return;
      }
@@ -395,7 +404,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..fd48a63d5e07a4288c22f22e0f8ad705
      if (parentView instanceof ContentView) {
          parentView.content = view;
          return;
-@@ -234,6 +507,13 @@ function removeViewChild(parentView, view) {
+@@ -234,6 +509,13 @@ function removeViewChild(parentView, view) {
              parentView.removeChild(view);
          return;
      }
@@ -409,7 +418,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..fd48a63d5e07a4288c22f22e0f8ad705
      if (parentView instanceof ContentView) {
          if (parentView.content === view)
              parentView.content = CLEARED;
-@@ -370,6 +650,13 @@ function attach(container, node) {
+@@ -370,6 +652,13 @@ function attach(container, node) {
          }
      }
      addViewChild(parentView, node.view, index);
@@ -423,7 +432,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..fd48a63d5e07a4288c22f22e0f8ad705
      markTabView(tabViewOwning(node));
  }
  function insert(container, parent, node, before) {
-@@ -480,6 +767,9 @@ function recreateView(container, node) {
+@@ -480,6 +769,9 @@ function recreateView(container, node) {
      viewOwners.set(view, { container, node });
      node.view = view;
      node.textApplied = false;
@@ -433,7 +442,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..fd48a63d5e07a4288c22f22e0f8ad705
      applyProps(node, node.props);
      for (const [type, handler] of node.listeners)
          view.on(type, handler);
-@@ -548,7 +838,7 @@ function preparePortalTarget(context) {
+@@ -548,7 +840,7 @@ function preparePortalTarget(context) {
      }
      const target = owner?.node.view ?? suppliedTarget;
      if (!(target instanceof LayoutBase)) {
@@ -442,7 +451,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..fd48a63d5e07a4288c22f22e0f8ad705
      }
      let id = portalTargetIds.get(target);
      if (id === undefined) {
-@@ -641,7 +931,7 @@ function applyCommand(container, command) {
+@@ -641,7 +933,7 @@ function applyCommand(container, command) {
  }
  export const nativeScriptDriver = {
      id: NATIVESCRIPT_RENDERER_ID,
@@ -509,7 +518,7 @@ index a13bcea75176146f58f047be1d9c7b0cdda1120a..e9988e174d0b89dcd70220d3014ca6b9
  for (const [tag, element] of BUILTIN_ELEMENTS)
      registerElement(tag, element);
 diff --git a/dist/intrinsics.d.ts b/dist/intrinsics.d.ts
-index 45a47cbbce199df9635852ca4cdb2849e9bbc83d..76b8d7eaa5ff448a03fae07cbf8f0a733b9fc803 100644
+index 45a47cbbce199df9635852ca4cdb2849e9bbc83d..23b81c44b6860e6099e8c1a70f975f6e792aa2b2 100644
 --- a/dist/intrinsics.d.ts
 +++ b/dist/intrinsics.d.ts
 @@ -23,10 +23,11 @@
@@ -526,10 +535,17 @@ index 45a47cbbce199df9635852ca4cdb2849e9bbc83d..76b8d7eaa5ff448a03fae07cbf8f0a73
  /**
   * The driver assigns every non-event prop onto the view instance, so a JSX
   * attribute is a NativeScript view property rather than a DOM attribute.
-@@ -76,12 +77,61 @@ export interface CommonEvents<TInstance> {
- export type ClassValue = string | boolean | null | undefined | readonly ClassValue[] | {
-     readonly [className: string]: unknown;
- };
+@@ -72,16 +73,64 @@ export interface CommonEvents<TInstance> {
+     onFocus?: (event: NSEventData<TInstance>) => void;
+     onBlur?: (event: NSEventData<TInstance>) => void;
+ }
+-/** Values accepted by the driver's `className` and `class` props. */
+-export type ClassValue = string | boolean | null | undefined | readonly ClassValue[] | {
+-    readonly [className: string]: unknown;
+-};
++/** Octane's class composition contract, shared unchanged with the DOM. */
++export type { ClassValue } from 'octane/jsx-runtime';
++import type { ClassValue } from 'octane/jsx-runtime';
 +/** Mason engine style keys accepted through `style`/`className` — under a
 + * masonview parent a child's leaf style consumes them; on a masonview they
 + * are the container's own layout. These are the only way to set raw layout
@@ -589,7 +605,7 @@ index 45a47cbbce199df9635852ca4cdb2849e9bbc83d..76b8d7eaa5ff448a03fae07cbf8f0a73
      /**
       * Name of the property on a slot-hosting parent (e.g. a drawer's
       * `mainContent` / `leftDrawer`) this child should be assigned to instead of
-@@ -89,21 +139,18 @@ export interface CommonAttributes {
+@@ -89,21 +138,18 @@ export interface CommonAttributes {
       */
      hostSlot?: string;
      /**
@@ -622,7 +638,7 @@ index 45a47cbbce199df9635852ca4cdb2849e9bbc83d..76b8d7eaa5ff448a03fae07cbf8f0a73
  }
  export interface ListViewAttributes {
      /**
-@@ -117,25 +164,21 @@ export interface ListViewAttributes {
+@@ -117,25 +163,21 @@ export interface ListViewAttributes {
  }
  export interface OctaneAttributes<TInstance> {
      key?: string | number;
@@ -649,7 +665,7 @@ index 45a47cbbce199df9635852ca4cdb2849e9bbc83d..76b8d7eaa5ff448a03fae07cbf8f0a73
      htmlview: Attributes<typeof NS.HtmlView>;
      image: Attributes<typeof NS.Image>;
      label: Attributes<typeof NS.Label>;
-@@ -153,7 +196,6 @@ export interface NativeScriptElements {
+@@ -153,7 +195,6 @@ export interface NativeScriptElements {
      segmentedbaritem: Attributes<typeof NS.SegmentedBarItem>;
      slider: Attributes<typeof NS.Slider>;
      span: Attributes<typeof NS.Span>;
@@ -657,7 +673,7 @@ index 45a47cbbce199df9635852ca4cdb2849e9bbc83d..76b8d7eaa5ff448a03fae07cbf8f0a73
      switch: Attributes<typeof NS.Switch>;
      tabview: Attributes<typeof NS.TabView>;
      tabviewitem: Attributes<typeof NS.TabViewItem>;
-@@ -161,7 +203,8 @@ export interface NativeScriptElements {
+@@ -161,7 +202,8 @@ export interface NativeScriptElements {
      textview: Attributes<typeof NS.TextView>;
      timepicker: Attributes<typeof NS.TimePicker>;
      webview: Attributes<typeof NS.WebView>;

@@ -15,7 +15,7 @@
  * host platform object are projected through the named `HostObject`-family
  * types below so the dependency stays at one chokepoint.
  */
-import type { CSSProperties } from 'octane/jsx-runtime'
+import type { ClassValue, CSSProperties } from 'octane/jsx-runtime'
 
 /** JSX renderable — what a JSX expression types as and what `children` accepts. */
 export type NativeNode = unknown
@@ -57,14 +57,8 @@ export type HostObject = object
  */
 export type StyleProps = Record<string, unknown>
 
-/** Values accepted by `className` and `class` (clsx-style composition). */
-export type ClassValue =
-	| string
-	| boolean
-	| null
-	| undefined
-	| readonly ClassValue[]
-	| { readonly [className: string]: unknown }
+/** Octane's class composition contract, shared unchanged across renderers. */
+export type { ClassValue } from 'octane/jsx-runtime'
 
 /** Base host-event payload — the driver hands `object` the host element. */
 export interface NativeEvent<TElement> {

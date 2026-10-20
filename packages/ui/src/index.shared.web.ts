@@ -41,7 +41,7 @@ export { FocusScope, getFocusScopeCapabilities } from './FocusScope'
 export { Absolute } from './Absolute'
 export type { PanEvent, PanState, SwipeEvent, SetTranslate } from './props'
 export type {
-	ClassName,
+	ClassValue,
 	StyleProp,
 	Renderable,
 	HostElement,

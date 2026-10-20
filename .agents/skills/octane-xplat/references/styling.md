@@ -22,8 +22,9 @@ component layer; design tokens are CSS custom properties.
    element's `style` on both targets.
 3. `className` arrays compose (`['vx-pressable', props.className]`) —
    `clsx`-style, falsy entries drop. Nested readonly arrays and conditional
-   objects are supported; numeric class values are excluded from the shared
-   `ClassName` contract.
+   objects are supported. Use upstream `ClassValue` (re-exported by UI);
+   `ClassName` has been removed. Numeric conditions such as `count && 'active'`
+   are accepted; truthy numbers stringify, while `0` and `NaN` drop out.
 4. **Utility classes are a shared vocabulary** (`flex-1`, `gap-4`,
    `bg-primary`, `text-onprimary`...) — the curated shared set lives in
    `packages/ui/src/theme/tokens.css`; app-only selectors live in

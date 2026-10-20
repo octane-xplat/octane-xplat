@@ -53,13 +53,21 @@ The title should be larger than ordinary text, with space around it.
   size.
 - Shared styles must use properties supported by both targets.
 
-Both props have public types you can reuse on your own components:
-`className` is a `ClassName` (a string or a clsx-style mix of arrays and
-keyed objects) and `style` is a `StyleProp` (a camelCase CSS property object
-or an inline CSS string). Import them with `import type { ClassName,
-StyleProp } from '@octane-xplat/ui'`. If a screen that compiled before now
-reports a style type error, the value was outside this contract — move
-stable styling to `className` or cast at the boundary.
+Both props have public types you can reuse on your own components.
+`ClassValue` is re-exported from Octane and accepts strings, numbers, nested
+arrays, and conditional objects. Falsy values disappear; truthy numbers become
+strings. `StyleProp` accepts a camelCase CSS property object or an inline CSS
+string. If you previously imported `ClassName`, change that import to
+`ClassValue`; `ClassName` has been removed.
+
+```tsx
+import { View, type ClassValue, type StyleProp } from '@octane-xplat/ui'
+
+const count: number = 0
+const classes: ClassValue = ['card', count && 'has-items', { selected: true }]
+const style: StyleProp = { opacity: 0.8 }
+const card = <View className={classes} style={style} />
+```
 
 ## Required structure and optional chrome
 

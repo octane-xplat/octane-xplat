@@ -32,26 +32,26 @@ import './app.css'
 
 ## Shared class value types
 
-`ClassName` in `packages/ui/src/props.ts` owns the shared recursive contract:
-strings, booleans, nullish values, readonly nested arrays, and conditional
-objects. It deliberately excludes numeric values at every array depth.
+UI and the shared JSX facade re-export Octane's `ClassValue` unchanged.
+The former UI `ClassName` export is removed. Numeric conditions, nested
+readonly arrays, and conditional objects use the upstream contract.
 
 ```tsx
-import { View } from '@octane-xplat/ui'
+import { View, type ClassValue } from '@octane-xplat/ui'
 
-const classes = ['trip-card', [false, { selected: true }]] as const
+const count: number = 0
+const classes: ClassValue = ['trip-card', count && 'has-items', [42]]
 const card = <View className={classes} />
 ```
 
-Source/compiler evidence (2026-10-20): Octane 0.11.0's `ClassValue` includes
-numbers, but `@nativescript-community/octane` 0.2.5's
-[`normalizeClass`](https://github.com/nativescript-community/octane/blob/0.2.5/packages/octane/src/driver.ts)
-returns an empty string for numeric values and its intrinsic types exclude
-them. Aliasing Octane's type therefore breaks native declaration generation
-when a component composes `['vx-view', props.className]`. The local type keeps
-the common supported subset; no upstream runtime patch is applied. Reconsider
-numeric support only when all drivers normalize it consistently. This is
-source and compiler evidence, not device-runtime qualification.
+Source/compiler evidence (2026-10-20): Octane 0.11.0's
+[`normalizeClass`](https://github.com/octanejs/octane/blob/0.11.0/packages/octane/src/class-names.ts)
+stringifies truthy numbers and omits `0` and `NaN`.
+`@nativescript-community/octane` 0.2.5 omits all numbers and declares a narrower
+recursive type. Its local patch re-exports Octane's type and adds numeric
+normalization; remove those changes when upstream provides both. GTK also
+normalizes truthy numbers; macOS already does. Node contract tests cover these
+normalizers without running a native UI.
 
 ## Original shared pipeline
 
