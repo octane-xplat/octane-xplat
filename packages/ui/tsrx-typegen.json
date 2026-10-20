@@ -93,12 +93,12 @@
 				},
 				"./parity": {
 					"source": "src/parity/index.ts",
-					"runtime": ["./src/parity/index.ts"],
+					"runtime": ["./dist/parity/index.js"],
 					"types": "./types/generated/parity/index.d.ts"
 				},
 				"./parity/check-helpers": {
 					"source": "src/parity/check-helpers.ts",
-					"runtime": ["./src/parity/check-helpers.ts"],
+					"runtime": ["./dist/parity/check-helpers.js"],
 					"types": "./types/generated/parity/check-helpers.d.ts"
 				},
 				"./nativescript/keyboard": {

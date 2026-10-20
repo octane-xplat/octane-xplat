@@ -23,6 +23,7 @@
 		"directory": "packages/ui"
 	},
 	"files": [
+		"dist/parity",
 		"types",
 		"src",
 		"platforms",
@@ -155,11 +156,11 @@
 		"./theme/chrome.css": "./src/theme/chrome.css",
 		"./parity": {
 			"types": "./types/generated/parity/index.d.ts",
-			"default": "./src/parity/index.ts"
+			"default": "./dist/parity/index.js"
 		},
 		"./parity/check-helpers": {
 			"types": "./types/generated/parity/check-helpers.d.ts",
-			"default": "./src/parity/check-helpers.ts"
+			"default": "./dist/parity/check-helpers.js"
 		},
 		"./nativescript/keyboard": {
 			"types": "./types/generated/nativescript/keyboard.d.ts",
@@ -167,7 +168,7 @@
 		}
 	},
 	"scripts": {
-		"prepack": "node ../../scripts/sync-ui-barrels.ts --check && pnpm typegen && tsrx-typegen --pack-check",
+		"prepack": "node ../../scripts/sync-ui-barrels.ts --check && pnpm build && pnpm typegen && tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",
 		"test:native": "node --test tests/svg-source.android.test.mjs tests/keyboard-inset.test.mjs tests/liquid-glass.ios.test.mjs tests/animated-value.test.mjs tests/tap-to-blur.ios.test.mjs tests/list-viewability-observer.ios.test.mjs tests/bottom-sheet-service.macos.test.mjs tests/color-scheme.macos.test.mjs tests/query-storage.macos.test.mjs && vitest run --config vitest.native.config.mts",
 		"typegen": "tsrx-typegen --target ui",
@@ -184,7 +185,8 @@
 		"test:overlay-keyboard:web": "node ../../scripts/probe.ts run tests/fixtures/overlay-keyboard.web.tsrx --target web",
 		"test:overlay-keyboard:ios": "node ../../scripts/probe.ts run tests/fixtures/overlay-keyboard.ios.tsrx --target ios",
 		"test:overlay-keyboard:android": "node ../../scripts/probe.ts run tests/fixtures/overlay-keyboard.android.tsrx --target android",
-		"test:overlay-keyboard:macos": "node ../../scripts/probe.ts run tests/fixtures/overlay-keyboard.macos.tsrx --deps @octane-xplat/sheet --target macos"
+		"test:overlay-keyboard:macos": "node ../../scripts/probe.ts run tests/fixtures/overlay-keyboard.macos.tsrx --deps @octane-xplat/sheet --target macos",
+		"build": "tsc -p tsconfig.node.json"
 	},
 	"dependencies": {
 		"@octane-xplat/lib": "workspace:*",

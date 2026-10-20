@@ -253,7 +253,9 @@ implementation. Keep source and declaration targets separate:
 Packages need no per-platform JavaScript build. `prepack` generates and checks
 declarations; embedded editor browser documents retain `build:assets`.
 `nano-icons` builds its Node font CLI, and `workshop` builds its Node-loaded
-configuration helpers. Include every
+configuration helpers. Bamboo builds all its configuration and Vite exports;
+Lingui builds its Node-only extractor while keeping its runtime export as source.
+UI builds only its Node-consumed parity contracts and check helpers. Include every
 source module, imported asset, and NativeScript platform file in the tarball.
 The native preset matches installed Octane sources as well as app and linked
 workspace files, so consumers need no package-specific renderer rules.
@@ -261,6 +263,31 @@ workspace files, so consumers need no package-specific renderer rules.
 ```sh
 pnpm build:packages # declarations, Node tooling, and required assets
 pnpm --filter @octane-xplat/ui pack --pack-destination /tmp/octane-pack-check
+```
+
+Node-loaded exports must resolve to JavaScript, including their local import
+graph. [Node refuses TypeScript stripping under `node_modules`](https://nodejs.org/api/typescript.html#type-stripping-in-dependencies).
+This applies even when the app's own `.mts` config can execute directly.
+NativeScript CLI 9.1.1 invokes Vite with `build --config=<path>` and does not
+select another config loader ([source](https://github.com/NativeScript/nativescript-cli/blob/9.1.1/lib/services/bundler/bundler-compiler-service.ts)).
+Vite's bundled config can still externalize installed dependencies; switching
+loaders is not a substitute for publishing executable Node entry points.
+
+The [Bamboo packed check](../../../packages/bamboo/tests/packed-consumer.mjs)
+installs real tarballs outside the workspace and checks plain Node imports plus
+Vite 8.3.0 config loading with `bundle`, `native`, and `runner`. The
+[Lingui packed check](../../../packages/lingui/tests/packed-consumer.mjs) checks
+a plain Node extractor import and actual catalog extraction with authored TSRX
+origins. The [UI packed check](../../../packages/ui/tests/packed-consumer.mjs)
+loads parity helpers directly with Node from the unpacked tarball under
+`node_modules`. These are host-tooling checks, not iOS packaging or launch evidence.
+The published Bamboo 0.16.0 error was reproduced with Vite 8.3.0 on Node 26.10.0;
+its connection to a previously missing native bundle remains unproven.
+
+```sh
+pnpm --filter @octane-xplat/bamboo test:packed
+pnpm --filter @octane-xplat/lingui test:packed
+pnpm --filter @octane-xplat/ui test:packed
 ```
 
 **Types:** the classic TS 5.9 `tsrx-tsc` path can emit ordinary `.d.ts`

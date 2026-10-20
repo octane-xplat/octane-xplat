@@ -517,6 +517,10 @@ void [iosOwner.element, androidOwner.element, navigation.element]
 }
 
 try {
+	if (macosOnly || overlaysOnly) {
+		run('pnpm', ['build'], packageRoot)
+	}
+
 	// The isolated macOS gate builds first, then packs without running the
 	// all-platform prepack checker. The default gate still runs that checker.
 	if (macosOnly) {
@@ -538,6 +542,29 @@ try {
 	assert.equal(tarballs.length, 1, 'pnpm pack produces one tarball')
 	run('tar', ['-xzf', join(packOutput, tarballs[0]), '-C', extractedRoot], temporary)
 	const packedRoot = join(extractedRoot, 'package')
+	// Node tools consume these exports without the app's source compiler.
+	const nodeConsumer = join(temporary, 'node-consumer')
+	const installed = join(nodeConsumer, 'node_modules/@octane-xplat/ui')
+	mkdirSync(dirname(installed), { recursive: true })
+	cpSync(packedRoot, installed, { recursive: true })
+	writeFileSync(
+		join(nodeConsumer, 'check.mjs'),
+		`
+import assert from 'node:assert/strict'
+import { realpathSync } from 'node:fs'
+for (const specifier of ['@octane-xplat/ui/parity', '@octane-xplat/ui/parity/check-helpers']) {
+  const entry = import.meta.resolve(specifier)
+  assert.match(realpathSync(new URL(entry)), /node_modules/)
+  assert.match(entry, /\\.js$/)
+  await import(specifier)
+}
+const { near, dims } = await import('@octane-xplat/ui/parity/check-helpers')
+assert.equal(near(10, 10.5), true)
+assert.equal(near(10, 11), false)
+assert.equal(dims({ box: { w: 10, h: 20 } }, 10, 20)[1], true)
+`,
+	)
+	run(process.execPath, ['check.mjs'], nodeConsumer)
 	const packedManifest = JSON.parse(readFileSync(join(packedRoot, 'package.json'), 'utf8'))
 	const workspaceManifest = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))
 	assert.deepEqual(

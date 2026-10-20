@@ -17,6 +17,7 @@
 		"directory": "packages/bamboo"
 	},
 	"files": [
+		"dist",
 		"src",
 		"types",
 		"!src/**/*.test.*",
@@ -26,37 +27,38 @@
 	"exports": {
 		".": {
 			"types": "./types/generated/config.d.ts",
-			"default": "./src/config.ts"
+			"default": "./dist/config.js"
 		},
 		"./config": {
 			"types": "./types/generated/config.d.ts",
-			"default": "./src/config.ts"
+			"default": "./dist/config.js"
 		},
 		"./vite": {
 			"types": "./types/generated/vite.d.ts",
-			"default": "./src/vite.ts"
+			"default": "./dist/vite.js"
 		}
 	},
 	"publishConfig": {
 		"access": "public"
 	},
 	"scripts": {
-		"prepack": "pnpm typegen",
+		"prepack": "pnpm build && pnpm typegen",
 		"test:packed": "node tests/packed-consumer.mjs",
 		"typegen": "tsc -p tsconfig.types.json",
-		"test": "node --test tests/platform.test.mjs"
+		"test": "node --test tests/platform.test.mjs",
+		"build": "tsc -p tsconfig.build.json"
 	},
 	"dependencies": {
+		"@ampproject/remapping": "2.3.0",
 		"@bamboocss/preset-base": "1.56.2",
 		"@bamboocss/types": "1.56.2",
 		"@bamboocss/vite": "1.56.2",
-		"magic-string": "0.30.21",
-		"@ampproject/remapping": "2.3.0"
+		"magic-string": "0.30.21"
 	},
 	"devDependencies": {
-		"typescript": "catalog:",
 		"@bamboocss/dev": "1.56.2",
-		"@octane-xplat/cli": "workspace:*"
+		"@octane-xplat/cli": "workspace:*",
+		"typescript": "catalog:"
 	},
 	"peerDependencies": {
 		"vite": ">=5"

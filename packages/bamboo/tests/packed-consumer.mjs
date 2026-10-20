@@ -46,8 +46,7 @@ try {
 	}
 
 	// Typecheck a consumer under bundler and nodenext resolution — the package
-	// sources stay .ts, so the types condition is the only typed surface for
-	// consumers that cannot resolve TypeScript entry points.
+	// declarations stay separate from the executable JavaScript surface.
 	for (const resolution of ['bundler', 'nodenext']) {
 		const app = join(temporary, resolution)
 		const modules = join(app, 'node_modules')
@@ -101,7 +100,74 @@ void plugins; void layers
 		)
 	}
 
-	console.log('bamboo packed declarations: types conditions resolve under bundler and nodenext')
+	// Install tarballs outside the workspace. A symlink back to src/ would
+	// bypass Node's refusal to strip TypeScript below node_modules.
+	const app = join(temporary, 'runtime')
+	mkdirSync(app)
+	const dependencies = {
+		'@octane-xplat/bamboo': `file:${join(temporary, 'pack', tarball)}`,
+		vite: '8.3.0',
+		'@bamboocss/dev': '1.56.2',
+	}
+	const overrides = {}
+	for (const directory of ['cli', 'create', 'lint']) {
+		const pack = join(temporary, directory)
+		mkdirSync(pack)
+		run('pnpm', ['pack', '--pack-destination', pack], join(repo, 'packages', directory))
+		const archive = readdirSync(pack).find((name) => name.endsWith('.tgz'))
+		const name = JSON.parse(readFileSync(join(repo, 'packages', directory, 'package.json'))).name
+		overrides[name] = `file:${join(pack, archive)}`
+	}
+	dependencies['@octane-xplat/cli'] = overrides['@octane-xplat/cli']
+	writeFileSync(
+		join(app, 'package.json'),
+		JSON.stringify({ private: true, dependencies, pnpm: { overrides } }),
+	)
+	run('pnpm', ['install', '--ignore-scripts', '--config.auto-install-peers=false'], app)
+	writeFileSync(
+		join(app, 'vite.config.native.mts'),
+		`
+import { xplatBamboo } from '@octane-xplat/bamboo/vite'
+import { xplatNative } from '@octane-xplat/cli/vite'
+import { xplatBambooConfig } from '@octane-xplat/bamboo'
+import { xplatPortablePreset } from '@octane-xplat/bamboo/config'
+export default {
+  plugins: xplatBamboo({ native: true }),
+  define: {
+    __packedNativePreset__: JSON.stringify(typeof xplatNative),
+    __packedLayer__: JSON.stringify(xplatBambooConfig.layers.utilities),
+    __packedPortable__: JSON.stringify(xplatPortablePreset.name),
+  },
+}
+`,
+	)
+	writeFileSync(
+		join(app, 'check.mjs'),
+		`
+import assert from 'node:assert/strict'
+import { realpathSync } from 'node:fs'
+import { loadConfigFromFile } from 'vite'
+for (const specifier of ['@octane-xplat/bamboo', '@octane-xplat/bamboo/config', '@octane-xplat/bamboo/vite', '@octane-xplat/cli/vite']) {
+  const resolved = import.meta.resolve(specifier)
+  assert.match(realpathSync(new URL(resolved)), /node_modules/)
+  assert.match(resolved, /\\.js$/)
+  await import(specifier)
+}
+for (const loader of ['bundle', 'native', 'runner']) {
+  const loaded = await loadConfigFromFile({ command: 'build', mode: 'production' }, 'vite.config.native.mts', process.cwd(), 'silent', undefined, loader)
+  assert.ok(loaded, loader)
+  assert.equal(loaded.config.define.__packedNativePreset__, JSON.stringify('function'))
+  assert.equal(loaded.config.define.__packedLayer__, JSON.stringify('xplat.utilities'))
+  assert.equal(loaded.config.define.__packedPortable__, JSON.stringify('@octane-xplat/bamboo/portable'))
+  assert.ok(loaded.config.plugins.some(plugin => plugin.name === 'xplat-bamboo:nativescript-entry-graph'))
+}
+`,
+	)
+	run(process.execPath, ['check.mjs'], app)
+
+	console.log(
+		'bamboo packed consumer: declarations, Node imports, and bundle/native/runner Vite config loading passed',
+	)
 } finally {
 	rmSync(temporary, { recursive: true, force: true })
 }

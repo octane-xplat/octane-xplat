@@ -29,8 +29,11 @@ pnpm dlx @octane-xplat/cli@latest upgrade --check
 ## Package validation in the framework repository
 
 UI runtime exports ship authored source with generated declaration entrypoints;
-the app compiler selects platform leaves. Other packages can ship JavaScript
-builds, including CLI tooling. Check each package's export map rather than
+the app compiler selects platform leaves. Node tooling ships JavaScript,
+including CLI tooling, Bamboo configuration/Vite helpers, the Lingui extractor,
+and UI parity helpers. Node-loaded exports and their local imports must ship JavaScript:
+Node does not strip TypeScript inside `node_modules`. Keep runtime source exports
+for the app compiler. Check each package's export map rather than
 assuming one publish format for the repository. Packed-consumer checks establish
 installed-package behavior that workspace source checks cannot.
 
