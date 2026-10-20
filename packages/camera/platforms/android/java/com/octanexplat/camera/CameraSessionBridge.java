@@ -66,6 +66,7 @@ public final class CameraSessionBridge implements LifecycleOwner {
 	private boolean resumeAfterFinalization;
 	private boolean ownsDestination;
 	private boolean ready;
+	private boolean streaming;
 	private boolean started;
 	private boolean finalizing;
 	private final java.util.concurrent.ExecutorService finalizer = java.util.concurrent.Executors.newSingleThreadExecutor();
@@ -89,7 +90,12 @@ public final class CameraSessionBridge implements LifecycleOwner {
 	}
 	@Override public Lifecycle getLifecycle() { return lifecycle; }
 	private void emit(String type, String value) { if (listener != null) listener.event(type, value); }
-	private void ready(boolean value) { ready = value; emit("ready", Boolean.toString(value)); }
+	private void ready(boolean value) { if (ready == value) return; ready = value; emit("ready", Boolean.toString(value)); }
+	/** The "ready" event means the JS `previewReady()` gate is satisfied,
+	 *  not just that the preview view reports streaming — a stream-state
+	 *  event can lead the first measured frame, and a stale STREAMING
+	 *  replayed by LiveData on rebind can precede the new camera's open. */
+	private void updateReady() { ready(streaming && sourceFrameRate > 0); }
 	public boolean isReady() { return ready && sourceFrameRate > 0 && !detached && !released; }
 	public long elapsedMs() { return elapsed; }
 	private void failure(String stage, String kind, String message) {
@@ -129,7 +135,12 @@ public final class CameraSessionBridge implements LifecycleOwner {
 						if (released || epoch != generation) return;
 						Long timestamp = result.get(android.hardware.camera2.CaptureResult.SENSOR_TIMESTAMP);
 						if (timestamp != null && timestamp > lastFrameTime) {
-							if (lastFrameTime > 0) sourceFrameRate = 1_000_000_000.0 / (timestamp - lastFrameTime);
+							if (lastFrameTime > 0) {
+								boolean firstRate = sourceFrameRate == 0;
+								sourceFrameRate = 1_000_000_000.0 / (timestamp - lastFrameTime);
+								// Runs on the camera executor; readiness is emitted on main.
+								if (firstRate) handler.post(() -> updateReady());
+							}
 							lastFrameTime = timestamp;
 						}
 					}
@@ -139,18 +150,34 @@ public final class CameraSessionBridge implements LifecycleOwner {
 				camera = provider.bindToLifecycle(this, selector, preview, video);
 				camera.getCameraInfo().getCameraState().observe(this, state -> {
 					if (released || epoch != generation) return;
-					if (state.getError() != null || state.getType() == CameraState.Type.CLOSED) {
-						ready(false);
+					if (state.getError() != null) {
 						emit("availability", "false");
+						ready(false);
 						if (recording != null) { emit("interruption", "cameraInUse"); stop(); }
+					} else if (state.getType() == CameraState.Type.CLOSED) {
+						// Plain CLOSED is the camera's normal resting state —
+						// every bind starts here and it can be delivered late
+						// relative to stream state — so it must not flip
+						// availability while a live preview keeps streaming.
+						ready(false);
+						if (recording != null) { emit("interruption", "cameraInUse"); stop(); }
+					} else if (state.getType() == CameraState.Type.OPEN) {
+						// An open recovers availability without waiting for a
+						// stream-state cycle, which never re-fires while
+						// STREAMING persists through an internal retry.
+						emit("availability", "true");
+						updateReady();
 					}
 				});
 				observedHost = view;
 				view.getStreamState().observe(this, state -> {
 					if (host != view || detached || released || epoch != generation) return;
-					boolean streaming = state == androidx.camera.view.PreviewView.StreamState.STREAMING;
-					ready(streaming);
+					streaming = state == androidx.camera.view.PreviewView.StreamState.STREAMING;
+					// Availability/recovery must land before "ready": onReady
+					// consumers may admit recording synchronously, and the
+					// session gates on the flags these events update.
 					if (streaming) { emit("availability", "true"); emit("recovered", "unknown"); }
+					updateReady();
 				});
 			} catch (Exception cause) { ready(false); emit("previewError", cause.toString()); unbind(); }
 		}, ContextCompat.getMainExecutor(context));
@@ -167,14 +194,16 @@ public final class CameraSessionBridge implements LifecycleOwner {
 	}
 	public void detach() {
 		detached = true;
+		streaming = false;
 		generation++;
 		host = null;
 		ready(false);
 		if (recording == null) unbind();
 	}
-	public void background() { backgrounded = true; resumeAfterFinalization = false; ready(false); emit("interruption", "background"); if (recording != null) stop(); else unbind(); }
+	public void background() { backgrounded = true; resumeAfterFinalization = false; streaming = false; ready(false); emit("interruption", "background"); if (recording != null) stop(); else unbind(); }
 	public void foreground() { backgrounded = false; emit("recovered", "background"); if (recording != null) { resumeAfterFinalization = true; } else if (host != null && !detached) { unbind(); attach(host, selection); } }
 	private void unbind() {
+		streaming = false;
 		if (camera != null) camera.getCameraInfo().getCameraState().removeObservers(this);
 		if (observedHost != null) { observedHost.getStreamState().removeObservers(this); observedHost = null; }
 		if (provider != null) {
