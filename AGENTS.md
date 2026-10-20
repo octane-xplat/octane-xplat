@@ -31,6 +31,11 @@ working agreements and detail moved out of this entry point.
 
 Standing criteria for judgment calls; the critical rules encode the mechanics.
 
+- **Alpha means hard cutovers.** While the framework is in alpha pre-release,
+  backward compatibility is not a goal. Hard cutovers without advance warning
+  are the norm. Remove replaced APIs and behavior; do not add compatibility
+  aliases, shims, or deprecation periods unless explicitly requested. Mark
+  breaking commits with `!` in the Conventional Commit header.
 - **Parity first.** Strive for identical behavior and pixel parity across
   platforms. Where parity is genuinely unachievable, expose platform entry
   points or an explicitly documented API subset with matching behavior —
