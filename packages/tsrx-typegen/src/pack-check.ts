@@ -352,7 +352,15 @@ function compilerExports(
 			} catch {}
 		}
 
-		if (resolved.flags & ts.SymbolFlags.Value) {
+		// Star barrels retain the originating alias declaration. An unresolved
+		// external type resolves to TypeScript's unknown symbol (which has value
+		// flags), so preserve an explicit type-only edge before using those flags.
+		const typeOnlyAlias = symbol.declarations?.some(
+			(declaration) =>
+				ts.isExportSpecifier(declaration) &&
+				(declaration.isTypeOnly || declaration.parent.parent.isTypeOnly),
+		)
+		if (!typeOnlyAlias && resolved.flags & ts.SymbolFlags.Value) {
 			values.add(symbol.name)
 		}
 	}
