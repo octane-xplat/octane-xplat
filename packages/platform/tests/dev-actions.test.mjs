@@ -30,7 +30,7 @@ async function loadDevActions(globals = {}) {
 
 	const sandbox = {
 		exports: {},
-		console,
+		console: globals.console ?? console,
 		setInterval,
 		clearInterval,
 		setTimeout,
@@ -62,7 +62,7 @@ async function loadDevActions(globals = {}) {
 		throw new Error(`unexpected require ${spec}`)
 	}
 
-	vm.runInNewContext((SOURCES.devActions ??= await compile('dev-actions')), {
+	vm.runInNewContext((SOURCES.devActions ??= await compile('dev-actions-registry')), {
 		...sandbox,
 		require: sandbox.require,
 	})
@@ -464,4 +464,309 @@ test('output that violates the result contract reports a failure, not a silent p
 
 	assert.equal(outcome.status, 'failed')
 	assert.match(outcome.error.message, /result contract/)
+})
+
+const declaration = (over = {}) => {
+	const { run, ...rest } = spec(over)
+	return rest
+}
+
+const stubConsole = () => {
+	const warnings = []
+	return {
+		warnings,
+		console: {
+			...console,
+			warn: (message) => warnings.push(String(message)),
+			error: () => {},
+		},
+	}
+}
+
+const invokeAndAwait = async (bridge, instance, requestId, actionId, input = {}) => {
+	await bridge.call('POST', '/invoke', {
+		requestId,
+		appInstanceId: instance.appInstanceId,
+		actionId,
+		registryRevision: instance.revision,
+		input,
+	})
+
+	return until(async () => (await bridge.call('GET', `/invoke/${requestId}?wait=500`)).outcome)
+}
+
+test('a defined action without a handler announces unavailable; invoke is rejected', async (t) => {
+	const bridge = await makeBridge(t)
+	const { exports: api } = await loadDevActions({ origin: bridge.origin, token: bridge.token })
+	const definition = api.defineDevAction(declaration())
+	t.after(() => definition.dispose())
+	t.after(() => api.startDevActionBridge().stop())
+
+	const instance = await until(async () => (await bridge.call('GET', '/registry')).instances[0])
+	const action = instance.actions.find((a) => a.id === 'auth.login-as-test-admin')
+	assert.equal(action.availability.ready, false)
+	assert.match(action.availability.reason, /no handler attached; its owning component is not mounted/)
+
+	const outcome = await invokeAndAwait(bridge, instance, 'req_nohandler', action.id)
+	assert.equal(outcome.status, 'failed')
+	assert.equal(outcome.error.code, 'unavailable')
+})
+
+test('attaching a handler flips availability and re-announces without bumping the revision', async (t) => {
+	const bridge = await makeBridge(t)
+	const { exports: api } = await loadDevActions({ origin: bridge.origin, token: bridge.token })
+	const definition = api.defineDevAction(declaration())
+	t.after(() => definition.dispose())
+	t.after(() => api.startDevActionBridge().stop())
+
+	const instance = await until(async () => (await bridge.call('GET', '/registry')).instances[0])
+	const revision = api.devActionsRevision()
+	assert.equal(instance.actions[0].availability.ready, false)
+
+	const detach = api.attachDevActionHandler(definition, async () => ({}))
+	assert.equal(api.devActionsRevision(), revision)
+	const ready = await until(async () => {
+		const value = (await bridge.call('GET', '/registry')).instances[0]
+		return value?.actions[0]?.availability.ready === true ? value : null
+	})
+
+	assert.equal(ready.revision, instance.revision)
+
+	detach()
+	detach()
+	const gone = await until(async () => {
+		const value = (await bridge.call('GET', '/registry')).instances[0]
+		return value?.actions[0]?.availability.ready === false ? value : null
+	})
+
+	assert.equal(gone.revision, instance.revision)
+	assert.equal(api.devActionsRevision(), revision)
+})
+
+test('the most recently attached handler wins; detaching it restores the previous one', async (t) => {
+	const bridge = await makeBridge(t)
+	const stub = stubConsole()
+	const { exports: api } = await loadDevActions({
+		origin: bridge.origin,
+		token: bridge.token,
+		console: stub.console,
+	})
+	const definition = api.defineDevAction(declaration({ result: { fields: { who: { type: 'string' } } } }))
+	t.after(() => definition.dispose())
+	t.after(() => api.startDevActionBridge().stop())
+
+	const detachFirst = api.attachDevActionHandler(definition, async () => ({ who: 'first' }))
+	const detachSecond = api.attachDevActionHandler(definition, async () => ({ who: 'second' }))
+	t.after(detachFirst)
+
+	const instance = await until(async () => (await bridge.call('GET', '/registry')).instances[0])
+	const second = await invokeAndAwait(bridge, instance, 'req_newest', definition.id)
+	assert.equal(second.status, 'succeeded')
+	assert.deepEqual(second.result, { who: 'second' })
+	assert.ok(
+		stub.warnings.some((m) =>
+			m.includes('Dev action "auth.login-as-test-admin" has 2 attached handlers'),
+		),
+	)
+
+	detachSecond()
+	const first = await invokeAndAwait(bridge, instance, 'req_restored', definition.id)
+	assert.equal(first.status, 'succeeded')
+	assert.deepEqual(first.result, { who: 'first' })
+})
+
+test('disposing and redefining a declaration keeps component-attached handlers working', async (t) => {
+	const bridge = await makeBridge(t)
+	const { exports: api } = await loadDevActions({ origin: bridge.origin, token: bridge.token })
+	let definition = api.defineDevAction(
+		declaration({ result: { fields: { ok: { type: 'boolean' } } } }),
+	)
+	t.after(() => api.startDevActionBridge().stop())
+
+	const detach = api.attachDevActionHandler(definition, async () => ({ ok: true }))
+	t.after(detach)
+	definition.dispose()
+	definition = api.defineDevAction(
+		declaration({ result: { fields: { ok: { type: 'boolean' } } } }),
+	)
+	t.after(() => definition.dispose())
+
+	const revision = api.devActionsRevision()
+	const instance = await until(async () => {
+		const value = (await bridge.call('GET', '/registry')).instances[0]
+		return value?.revision === revision && value.actions[0]?.availability.ready === true
+			? value
+			: null
+	})
+
+	const outcome = await invokeAndAwait(bridge, instance, 'req_hmr', definition.id)
+	assert.equal(outcome.status, 'succeeded', JSON.stringify(outcome))
+})
+
+test('detaching an owner mid-run aborts the invocation', async (t) => {
+	const bridge = await makeBridge(t)
+	const { exports: api } = await loadDevActions({ origin: bridge.origin, token: bridge.token })
+	let started
+	const startedPromise = new Promise((resolve) => (started = resolve))
+	const definition = api.defineDevAction(declaration({ execution: { cancellable: true } }))
+	t.after(() => definition.dispose())
+	t.after(() => api.startDevActionBridge().stop())
+
+	const detach = api.attachDevActionHandler(
+		definition,
+		(input, context) =>
+			new Promise((resolve, reject) => {
+				started()
+				context.signal.addEventListener('abort', () => reject(new Error('aborted')))
+			}),
+	)
+
+	const instance = await until(async () => {
+		const value = (await bridge.call('GET', '/registry')).instances[0]
+		return value?.actions[0]?.availability.ready === true ? value : null
+	})
+
+	await bridge.call('POST', '/invoke', {
+		requestId: 'req_orphan',
+		appInstanceId: instance.appInstanceId,
+		actionId: definition.id,
+		registryRevision: instance.revision,
+		input: {},
+	})
+
+	await startedPromise
+	detach()
+	const outcome = await until(
+		async () => (await bridge.call('GET', '/invoke/req_orphan?wait=500')).outcome,
+	)
+
+	assert.equal(outcome.status, 'cancelled')
+})
+
+test('registerDevAction disposes its declaration and only its own handler', async (t) => {
+	const bridge = await makeBridge(t)
+	const { exports: api } = await loadDevActions({ origin: bridge.origin, token: bridge.token })
+	t.after(() => api.startDevActionBridge().stop())
+
+	const handle = api.registerDevAction(spec({ run: async () => ({ who: 'module' }) }))
+	assert.throws(() => api.registerDevAction(spec()), /already registered/)
+	const detach = api.attachDevActionHandler('auth.login-as-test-admin', async () => ({
+		who: 'component',
+	}))
+	t.after(detach)
+
+	handle.dispose()
+	assert.equal(api.listDevActions().length, 0)
+
+	// The component handler survives: redefining the declaration revives it.
+	const definition = api.defineDevAction(
+		declaration({ result: { fields: { who: { type: 'string' } } } }),
+	)
+	t.after(() => definition.dispose())
+
+	const revision = api.devActionsRevision()
+	const instance = await until(async () => {
+		const value = (await bridge.call('GET', '/registry')).instances[0]
+		return value?.revision === revision && value.actions[0]?.availability.ready === true
+			? value
+			: null
+	})
+
+	const outcome = await invokeAndAwait(bridge, instance, 'req_ownhandler', definition.id)
+	assert.equal(outcome.status, 'succeeded')
+	assert.deepEqual(outcome.result, { who: 'component' })
+})
+
+test('retained inline declarations share owners, resolve conflicts, and yield to static declarations', async () => {
+	const stub = stubConsole()
+	const { exports: api } = await loadDevActions({ console: stub.console })
+	const decl = declaration({ id: 'inline.thing', title: 'Inline thing' })
+	const key = api.devActionDeclarationKey(decl)
+
+	const release1 = api.retainDevAction(decl, key)
+	const release2 = api.retainDevAction(decl, key)
+	assert.equal(api.devActionsRevision(), 1)
+	assert.equal(api.listDevActions().length, 1)
+
+	release1()
+	assert.equal(api.listDevActions().length, 1)
+	release2()
+	release2()
+	assert.equal(api.listDevActions().length, 0)
+	assert.equal(api.devActionsRevision(), 2)
+
+	// A conflicting inline declaration replaces the spec, warns, and bumps.
+	const other = declaration({ id: 'inline.thing', title: 'Other thing' })
+	const release3 = api.retainDevAction(decl, key)
+	const release4 = api.retainDevAction(other, api.devActionDeclarationKey(other))
+	assert.ok(stub.warnings.some((m) => m.includes('conflicting inline declarations')))
+	assert.equal(api.listDevActions()[0].title, 'Other thing')
+	assert.equal(api.devActionsRevision(), 4)
+	release3()
+	release4()
+
+	// A static declaration of the same id wins; the inline one is ignored.
+	const definition = api.defineDevAction(decl)
+	const release5 = api.retainDevAction(other, api.devActionDeclarationKey(other))
+	assert.ok(stub.warnings.some((m) => m.includes('Inline dev action declaration')))
+	assert.equal(api.listDevActions()[0].title, 'Inline thing')
+	release5()
+	assert.equal(api.listDevActions()[0].title, 'Inline thing')
+	definition.dispose()
+})
+
+test('dev effects run every attached handler and report a handler count', async (t) => {
+	const bridge = await makeBridge(t)
+	const { exports: api } = await loadDevActions({ origin: bridge.origin, token: bridge.token })
+	const effect = api.defineDevEffect(
+		declaration({
+			id: 'fixtures.reset-ui',
+			title: 'Reset UI fixtures',
+			input: { fields: { scope: { type: 'string', default: 'all' } } },
+		}),
+	)
+	t.after(() => effect.dispose())
+	t.after(() => api.startDevActionBridge().stop())
+
+	// Zero attached handlers is a successful no-op broadcast.
+	let instance = await until(async () => (await bridge.call('GET', '/registry')).instances[0])
+	let outcome = await invokeAndAwait(bridge, instance, 'req_fx0', effect.id)
+	assert.equal(outcome.status, 'succeeded')
+	assert.deepEqual(outcome.result, { handlerCount: 0 })
+
+	const calls = []
+	api.attachDevEffectHandler(effect, (input) => calls.push(`a:${input.scope}`))
+	api.attachDevEffectHandler(effect, (input) => calls.push(`b:${input.scope}`))
+	instance = await until(async () => {
+		const value = (await bridge.call('GET', '/registry')).instances[0]
+		return value?.actions[0]?.availability.ready === true ? value : null
+	})
+
+	outcome = await invokeAndAwait(bridge, instance, 'req_fx2', effect.id)
+	assert.equal(outcome.status, 'succeeded')
+	assert.deepEqual(outcome.result, { handlerCount: 2 })
+	assert.deepEqual(calls, ['a:all', 'b:all'])
+})
+
+test('a failing effect handler fails the broadcast without stopping the rest', async (t) => {
+	const bridge = await makeBridge(t)
+	const { exports: api } = await loadDevActions({ origin: bridge.origin, token: bridge.token })
+	const effect = api.defineDevEffect(declaration({ id: 'fixtures.reset-ui' }))
+	t.after(() => effect.dispose())
+	t.after(() => api.startDevActionBridge().stop())
+
+	const calls = []
+	api.attachDevEffectHandler(effect, () => {
+		calls.push('first')
+		throw new Error('first blew up')
+	})
+	api.attachDevEffectHandler(effect, () => calls.push('second'))
+
+	const instance = await until(async () => (await bridge.call('GET', '/registry')).instances[0])
+	const outcome = await invokeAndAwait(bridge, instance, 'req_fxfail', effect.id)
+	assert.equal(outcome.status, 'failed')
+	assert.equal(outcome.error.code, 'execution_failure')
+	assert.match(outcome.error.message, /1 of 2 handlers failed: first blew up/)
+	assert.deepEqual(calls, ['first', 'second'])
+	assert.ok(outcome.partialEffects.includes('1 of 2 handlers completed'))
 })

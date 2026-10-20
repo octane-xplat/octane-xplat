@@ -42,6 +42,33 @@ Keep fixture imports and privileged handlers inside the development-only path
 and check production artifacts for their absence. An absent bridge endpoint
 does not itself remove handlers from a bundle. Never return credentials.
 
+## Choose the ownership model
+
+Use `registerDevAction` when the handler is self-contained in a module (stores,
+fixtures, services). Use the component hooks when the handler reads UI state:
+
+- `defineDevAction` + `useDevActionHandler` — shared contract, screen-owned
+  handler. Declared actions announce `ready: false` until a handler attaches,
+  so absence of the screen is visible to the agent instead of a silent no-op.
+- `useDevAction` — contract and handler inline in one component; multiple
+  mounted instances share one declaration, removed when the last unmounts.
+- `defineDevEffect` + `useDevEffect` — broadcast: every attached handler runs;
+  the result is `{ handlerCount }` and one failing handler fails the outcome
+  while the rest still run.
+
+When several components attach to the same action, only the most recently
+attached handler runs (a console warning reports this at invoke time);
+detaching it restores the previous one. All hooks take `{ enabled }` to detach
+without unmounting — use it for unfocused tabs.
+
+```tsx
+if (import.meta.env.DEV) {
+	useDevActionHandler(saveDraft, async () => ({ note: draft.title }), {
+		enabled: isFocusedTab,
+	})
+}
+```
+
 ## Connect and verify
 
 Registration automatically starts the app-side bridge; a separate startup call

@@ -44,8 +44,10 @@ if (import.meta.env.DEV) {
 The declaration above validates `count` as a nonnegative integer before execution
 and validates the returned count. Setting a known value is safe to repeat, so this
 action declares `retryable: true`. Serialized execution is the default. Register
-once per owner, not during rendering; duplicate IDs throw. Component-owned
-registrations should dispose their handles when their owner is removed.
+once per owner, not during rendering; duplicate IDs throw. When the handler
+needs values that only exist inside a screen, prefer the component hooks in
+[Attach actions from components](#attach-actions-from-components) — they attach
+and detach with the component for you.
 
 Create `src/CounterStatus.tsx` and mount `CounterStatus` in your app's screen.
 Importing the store module also runs its development registration. `useStore`
@@ -59,6 +61,97 @@ import { counterState } from './counter-state'
 export function CounterStatus() {
 	const count = useStore(counterState)
 	return <Text testID="counter.value">{count}</Text>
+}
+```
+
+## Attach actions from components
+
+Module registration covers actions whose handler knows everything it needs at
+import time. When the handler needs values that only exist inside a screen —
+form fields, a draft, the current tab — declare the contract once with
+`defineDevAction` and let the screen attach the handler with
+`useDevActionHandler`. The action is listed while declared, but reports
+unavailable until a component attaches a handler, so the agent learns when its
+screen is not mounted.
+
+```ts
+import { defineDevAction } from '@octane-xplat/platform/dev-actions'
+
+export const saveDraft = defineDevAction({
+	id: 'form.save-draft',
+	title: 'Save form draft',
+	description: 'Persists the checkout form state that only exists in the screen.',
+	effects: { summary: 'Writes the form draft', appState: true },
+})
+```
+
+The hook attaches while the component is mounted and detaches on unmount; the
+handler always runs the latest render's closure, so it reads current state.
+
+```tsx
+import { useDevActionHandler } from '@octane-xplat/platform/dev-actions'
+import { saveDraft } from './dev-actions'
+
+export function CheckoutForm() {
+	const draft = useStore(draftState)
+	if (import.meta.env.DEV) {
+		useDevActionHandler(saveDraft, async () => {
+			await persist(draft)
+			return {}
+		})
+	}
+	return <CheckoutFields />
+}
+```
+
+When several components attach handlers to the same action, the most recently
+attached one runs — the console warns about the extra handlers at invoke time
+— and detaching it restores the previous one.
+
+For an action owned entirely by one component, `useDevAction` declares the
+contract inline and attaches the handler together. Two mounted instances with
+the same declaration share one entry; the declaration disappears when the last
+instance unmounts.
+
+```tsx
+if (import.meta.env.DEV) {
+	useDevAction({
+		id: 'cart.inspect',
+		title: 'Inspect cart',
+		description: 'Returns the cart contents for a quick sanity check.',
+		result: { fields: { items: { type: 'integer' } } },
+		effects: { summary: 'Reads local cart state; changes nothing' },
+		run: async () => ({ items: cart.items.length }),
+	})
+}
+```
+
+Pass `{ enabled: false }` to detach without unmounting — useful for an
+unfocused tab that should stop answering for the action while its screen keeps
+its state.
+
+```tsx
+useDevActionHandler(saveDraft, async () => ({}), { enabled: isFocusedTab })
+```
+
+Dev effects broadcast instead of picking one handler: `defineDevEffect` plus
+`useDevEffect` runs every attached handler and reports how many ran
+(`handlerCount`). Use it for resets that every mounted screen should react to.
+
+```ts
+import { defineDevEffect } from '@octane-xplat/platform/dev-actions'
+
+export const resetUi = defineDevEffect({
+	id: 'fixtures.reset-ui',
+	title: 'Reset UI state',
+	description: 'Every mounted screen returns to its initial state.',
+	effects: { summary: 'Resets local UI state', appState: true },
+})
+```
+
+```tsx
+if (import.meta.env.DEV) {
+	useDevEffect(resetUi, () => setFilters(initialFilters))
 }
 ```
 
