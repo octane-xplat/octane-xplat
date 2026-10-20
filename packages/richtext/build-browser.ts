@@ -1,33 +1,33 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
-import { build } from 'vite'
-import { octane } from '@octanejs/vite-plugin'
+// Bundles each package's webview editor entry into a single self-contained
+// HTML document for WKWebView. The documents are framework-free plain-TS
+// drivers over the editor engines, so a plain esbuild pass replaces the old
+// Vite+octane-plugin pipeline — no .tsrx transforms remain in the graph.
+import { build } from 'esbuild'
 import { mkdir, writeFile } from 'node:fs/promises'
 
 const richtext = process.cwd().endsWith('/richtext')
 const result = await build({
-	configFile: false,
-	plugins: richtext ? [] : [octane()],
+	entryPoints: [richtext ? 'src/BrowserEditor.web.ts' : 'src/browser-entry.web.ts'],
+	bundle: true,
+	write: false,
+	outdir: 'dist/.browser-build',
+	format: 'iife',
+	globalName: 'XplatEditorDocument',
+	platform: 'browser',
+	minify: true,
 	define: { 'process.env.NODE_ENV': JSON.stringify('production') },
-	resolve: { conditions: ['web'], dedupe: ['octane'] },
-	build: {
-		write: false,
-		minify: true,
-		lib: {
-			entry: richtext ? 'src/BrowserEditor.web.ts' : 'src/browser-entry.web.tsx',
-			formats: ['iife'],
-			name: 'XplatEditorDocument',
-		},
-	},
+	conditions: ['web', 'production'],
+	logLevel: 'warning',
 })
 
-const output = Array.isArray(result) ? result[0].output : result.output
-const code = output
-	.find((chunk) => chunk.type === 'chunk')
-	.code.replaceAll('</script', '<\\/script')
+const code = result.outputFiles
+	.find((file) => file.path.endsWith('.js'))
+	.text.replaceAll('</script', '<\\/script')
 
-const css = output
-	.filter((chunk) => chunk.type === 'asset' && chunk.fileName.endsWith('.css'))
-	.map((chunk) => chunk.source)
+const css = result.outputFiles
+	.filter((file) => file.path.endsWith('.css'))
+	.map((file) => file.text)
 	.join('\n')
 
 const html = `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-xplat-editor'; style-src 'unsafe-inline'; img-src data:"><style>html,body{margin:0;height:100%;font:14px system-ui} .ProseMirror,.vx-lexical-input{min-height:100px;padding:8px;outline:none} .ProseMirror:empty:before{content:attr(data-placeholder);opacity:.5} ${css}</style></head><body><div id="root"></div><script nonce="xplat-editor">${code}</script></body></html>`
