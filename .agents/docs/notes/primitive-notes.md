@@ -241,6 +241,37 @@ export function Line() {
 }
 ```
 
+**Android asynchronous completion (issue [#33](https://github.com/octane-xplat/octane-xplat/issues/33)).**
+At Xplat `14952bb0` / vendored `ui-svg` `f7a9663` (derived from
+`@nativescript-community/ui-svg@0.2.24`), a Promise resolving after the
+first measure could leave a parsed SVG at zero height: native `setSvg`
+invalidated drawing without invalidating NativeScript measurement. The vendor
+fix requests layout immediately after native assignment:
+
+```ts
+;(this.nativeViewProtected as unknown as MySVGView).setSvg(getSVG(src))
+this.requestLayout()
+```
+
+Host regression coverage in `packages/ui/tests/svg-source.android.test.mjs`
+executes the real Android handler, native assignment, and measurement methods
+with mocked platform boundaries and a measurement-cache model. It resolves a
+deferred Promise after the first zero-height layout and verifies remeasurement;
+it also covers synchronous assignment and rejected-source clearing. This is
+host lifecycle evidence, not Android runtime qualification.
+
+Opals' device task relayed three physical delayed-Promise trials with patch0009:
+after 700 ms, pending zero-height feed/camera/play leaves became
+101×86 / 176×176 / 140×140 px at 3.25 px/dp, with parsed SVGs. Two record-button
+open/swipe-dismiss cycles also retained nonzero leaves and passed existing
+grid-width assertions. This task used no device or native build resources.
+The feed's 26.46 dp height versus its 36 dp host remains the separate existing
+Android `width * ratio` measurement bug. Promise cancellation, stale-source
+ordering, and completion after native disposal remain outside this fix: the
+existing handler has no disposal guard. Track removal of this local vendor
+correction when the owning upstream implementation requests layout after
+source completion; a fork gitlink update carries it meanwhile.
+
 The two native parsers do not form a full-fidelity contract:
 
 | Feature        | Android (`androidsvg` 1.4)                                                                                            | iOS (`SVGKit` 3.x)                                                                                                    | Framework contract                                                                                    |
