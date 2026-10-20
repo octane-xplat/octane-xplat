@@ -587,7 +587,8 @@ const nativeRules = [
 ]
 
 /**
- * `link:`/`file:`/`portal:` deps realpath outside the app root. Vite gates
+ * Linked dependencies can realpath outside the app root even when install
+ * hooks leave registry specs in package.json. Vite gates
  * `?inline`/`?raw`/`?url`/`?direct` transforms on `server.fs.allow`
  * (`isServerAccessDeniedForTransform`), and the dev server's `/ns/m` css
  * route compiles shared stylesheets through `?inline` — so a linked
@@ -612,7 +613,24 @@ export const linkedDepFsRoots = (projectRoot, searchForWorkspaceRoot) => {
 		'optionalDependencies',
 		'peerDependencies',
 	]) {
-		for (const spec of Object.values(pkg[section] ?? {})) {
+		for (const [name, spec] of Object.entries(pkg[section] ?? {})) {
+			// Inspect the installed package too: pnpm readPackage hooks can link a
+			// checkout without changing the app manifest. Package.json need not
+			// be exported, so resolve the directory directly.
+			try {
+				const depDir = realpathSync(join(projectRoot, 'node_modules', name))
+				const rel = relative(realpathSync(projectRoot), depDir).replaceAll('\\', '/')
+				// Registry installs (including external pnpm stores) are not source
+				// checkouts. Never widen access to their enclosing workspace/store.
+				if (
+					(rel === '..' || rel.startsWith('../')) &&
+					!depDir.replaceAll('\\', '/').includes('/node_modules/') &&
+					statSync(depDir).isDirectory()
+				) {
+					roots.add(searchForWorkspaceRoot(depDir))
+				}
+			} catch {}
+
 			const linkTarget = /^(?:link|file|portal):(.+)$/.exec(spec)?.[1]
 
 			if (!linkTarget) {

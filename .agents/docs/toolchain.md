@@ -71,6 +71,16 @@ build:packages`, `pnpm build:web`, and the package-test half of `pnpm test`
   copy of the community renderer breaks type-level augmentations — e.g.
   `ui/type-support/svg-element.d.ts` only extends the `intrinsics` module it
   resolves.
+- Native dev CSS imports from linked checkouts need their workspace in Vite's
+  `server.fs.allow`. `linkedDepFsRoots` inspects installed external source
+  directories as well as explicit `link:`/`file:`/`portal:` specs: pnpm
+  `readPackage` hooks can link a checkout while the app manifest keeps semver.
+  Registry-store directories and undeclared links do not widen access. Without
+  this discovery, the native CSS route fails with `ERR_DENIED_ID` for `?inline`
+  (observed with Vite 8.3.0 and NativeScript Vite 8.0.17). The native HTTP regression
+  in `packages/cli/test/vite-fs-allow.test.mjs` checks stylesheet registration and
+  rejection of unrelated files. This fixes preset discovery, without disabling
+  Vite's filesystem boundary.
 - `@nativescript/vite` 8.0.17's HMR vendor collector
   (`hmr/shared/vendor/manifest-collect.js` `isUnvendorableLocalSource`)
   treats only `link:`/`workspace:` specs — and `file:` directories with no
