@@ -130,28 +130,58 @@ export function TrackExample() {
 }
 ```
 
-For a native component that returns an intrinsic host directly, keep the
-placement keys in its JSX even when a value is `undefined`. Omitting a key
-from a changing prop spread can retain its previous native value. Put this
-component in a `.mobile.tsx` file.
+A star track keeps its content's minimum width, so long content can make a
+cell wider than the available space. For a panel that must stay inside the
+screen, use a zero-minimum CSS track instead. Omit `columns` on that Grid so
+the CSS class owns its columns; apply this at each nested Grid that must fit.
+The text may still need wrapping or truncation.
+
+```tsx
+import { Grid, Screen, Text, View } from '@octane-xplat/ui'
+import './bounded-grid.css'
+
+export function BoundedPanel() {
+	return (
+		<Screen>
+			<Grid className="bounded-grid" rows="*">
+				<View row={0} col={0}>
+					<Text>A long explanation can wrap inside this cell.</Text>
+				</View>
+			</Grid>
+		</Screen>
+	)
+}
+```
+
+```css
+/* bounded-grid.css — 0 allows the track to shrink below its content minimum. */
+.bounded-grid {
+	flex: 1;
+	grid-template-columns: minmax(0, 1fr);
+}
+```
+
+For a native composite component, forward placement through a shared `View`
+root. It translates the shared placement props into Mason grid lines. Put
+this component in a `.mobile.tsx` file.
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
-import type { LayoutChildProps } from '@octane-xplat/ui'
+import { Text, View, type LayoutChildProps } from '@octane-xplat/ui'
 
 export function NativeCard(props: LayoutChildProps) {
 	return (
-		<gridlayout row={props.row} col={props.col} rowSpan={props.rowSpan} colSpan={props.colSpan}>
-			<label text="Reserved" />
-		</gridlayout>
+		<View row={props.row} col={props.col} rowSpan={props.rowSpan} colSpan={props.colSpan}>
+			<Text>Reserved</Text>
+		</View>
 	)
 }
 ```
 
 Conditional children can be inserted after mounting. Their owning component
 must use reactive state or a subscribed store so the renderer receives the
-change. On NativeScript, Grid batches placement after child mutations;
-checking native coordinates immediately inside the state setter is too early.
+change. On NativeScript, Mason places inserted cells during layout; wait
+for that layout pass before measuring their bounds.
 
 ```tsx
 import { useState } from 'octane'

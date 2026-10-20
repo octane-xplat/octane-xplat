@@ -139,8 +139,10 @@ export function PackingToggle() {
 - **`Grid` places children by forwarded props.** `row`/`col` are
   zero-based; a composite cell must spread its placement props onto its own
   root view or it auto-places. `gap` was removed — space children with
-  margins. Insertion/removal re-places batched on a microtask, so reading
-  coordinates synchronously after a setter is too early.
+  margins. Mason places inserted cells during layout; wait for that layout
+  pass before measuring bounds. For bounded cells, use CSS zero-minimum
+  tracks and omit the corresponding `rows`/`columns` prop so CSS owns that
+  axis; see [Grid placement](../../../../docs/app/primitives.md#grid-placement).
 - **Text controls report the new string.** `TextInput`'s `onChange` gets
   `value: string`, not an event; controlled `value` writes suppress their
   own echo. `useKeyboardInset()` returns the keyboard inset in dips — zero

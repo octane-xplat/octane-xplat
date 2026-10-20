@@ -1,11 +1,20 @@
 import { expect, it, vi } from 'vitest'
 import { createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
+import { LayoutBase } from '@nativescript/core'
+// Load the driver during collection so cold module transforms do not consume
+// individual tests' five-second timeout on CI. vi.mock below is hoisted.
+import {
+	nativeScriptDriver,
+	createNativeScriptContainer,
+	releaseNativeScriptContainer,
+} from '../node_modules/@nativescript-community/octane/dist/driver.js'
 import {
 	PlacementCase,
 	ReactivePlacementCase,
 	SlotCase,
 	UpdatingPlacement,
 	UpdatingComposite,
+	TrackStyleCase,
 } from '../tests/grid-placement.fixture.mobile.tsrx'
 import { masonStyleOf } from '../tests/masonkit-mock'
 
@@ -110,10 +119,6 @@ vi.mock('@nativescript/core', () => {
 })
 
 async function mount(component: any, props: any) {
-	const { nativeScriptDriver, createNativeScriptContainer, releaseNativeScriptContainer } =
-		await import('../node_modules/@nativescript-community/octane/dist/driver.js')
-
-	const { LayoutBase } = await import('@nativescript/core')
 	const host: any = new LayoutBase()
 	const container = createNativeScriptContainer(host)
 	const root = createUniversalRoot(container, nativeScriptDriver)
@@ -220,3 +225,50 @@ it.each([
 		app.dispose()
 	},
 )
+
+it.each([
+	{ columns: undefined, template: undefined, expected: undefined },
+	{ columns: '*', template: undefined, expected: '1fr' },
+	{ columns: undefined, template: 'minmax(0,1fr)', expected: 'minmax(0,1fr)' },
+])('preserves CSS ownership of omitted tracks through nested Mason attach (%j)', async ({ columns, template, expected }) => {
+	const app = await mount(TrackStyleCase, { columns, template })
+	try {
+		const grid = app.host.children[0].children[0]
+		const style = masonStyleOf(grid)!
+		expect(style.gridTemplateRows).toBe('auto 1fr')
+		if (expected === undefined) {
+			// Writing undefined would be replayed after attachment and erase a
+			// class-authored template, even after NS restores its CSS cascade.
+			expect(style.__writes).not.toHaveProperty('gridTemplateColumns')
+		} else {
+			expect(style.gridTemplateColumns).toBe(expected)
+		}
+	} finally {
+		app.dispose()
+	}
+})
+
+it.each([
+	{ columns: '*', template: undefined, expected: '1fr' },
+	{ columns: undefined, template: 'minmax(0,1fr)', expected: 'minmax(0,1fr)' },
+])('keeps removed tracks cleared when a later sibling attaches (%j)', async ({ columns, template, expected }) => {
+	const app = await mount(TrackStyleCase, { columns, template })
+	try {
+		const parent = app.host.children[0]
+		const grid = parent.children[0]
+		expect(masonStyleOf(grid)!.gridTemplateColumns).toBe(expected)
+
+		app.root.render(TrackStyleCase, {})
+		await Promise.resolve()
+		expect(masonStyleOf(grid)!.gridTemplateColumns).toBeUndefined()
+
+		app.root.render(TrackStyleCase, { extra: true })
+		await Promise.resolve()
+		expect(parent.children).toHaveLength(2)
+		expect(parent.children[0]).toBe(grid)
+		expect(masonStyleOf(grid)!.gridTemplateColumns).toBeUndefined()
+		expect(masonStyleOf(grid)!.gridTemplateRows).toBe('auto 1fr')
+	} finally {
+		app.dispose()
+	}
+})

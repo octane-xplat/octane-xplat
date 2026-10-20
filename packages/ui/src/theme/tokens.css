@@ -56,6 +56,13 @@
 
 	/* vocabulary base styles */
 
+	/* RootLayout supplies the native frame, but Mason computes descendants
+	   from its own root size. Keep Screen's inner root at that frame width
+	   instead of letting intrinsic Grid/text content shrink-wrap it. */
+	.vx-screen-content {
+		width: 100%;
+	}
+
 	.vx-view,
 	.vx-row {
 		display: flex;

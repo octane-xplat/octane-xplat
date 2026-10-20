@@ -1,5 +1,5 @@
 diff --git a/dist/driver.js b/dist/driver.js
-index 8bc563a..4cb1f95 100644
+index 8bc563add4cb675a12651184b63805b10224274d..a8ea8974e4ba4f4bcb53f3c3022e3e204d6d9c46 100644
 --- a/dist/driver.js
 +++ b/dist/driver.js
 @@ -3,6 +3,7 @@ import { createUniversalRoot, } from 'octane/universal/native';
@@ -133,7 +133,7 @@ index 8bc563a..4cb1f95 100644
  // `class`/`className` compose clsx-style on the DOM renderer; join arrays
  // with spaces so NativeScript's class selectors can match each class.
  function normalizeClass(value) {
-@@ -147,16 +222,214 @@ function normalizeClass(value) {
+@@ -147,16 +222,223 @@ function normalizeClass(value) {
              .join(' ');
      return '';
  }
@@ -192,6 +192,15 @@ index 8bc563a..4cb1f95 100644
 +        unsetStyleKey(view, key);
 +}
 +function unsetStyleKey(view, name) {
++    // Forget removed authored values before any later sibling attachment can
++    // replay them. Reset the leaf first so the NS cascade can restore CSS.
++    const leafStash = view[MASON_LEAF_STYLE_STASH];
++    if (leafStash !== undefined && Object.hasOwn(leafStash, name)) {
++        delete leafStash[name];
++        const leaf = masonChildStyle(view);
++        if (leaf !== undefined)
++            leaf[name] = undefined;
++    }
 +    const style = view.style;
 +    if (name.startsWith('--')) {
 +        style.setUnscopedCssVariable?.(name, unsetValue);
@@ -337,10 +346,10 @@ index 8bc563a..4cb1f95 100644
 +function applyMasonChildLayout(node, parent) {
 +    const view = node.view;
 +    if (view === null || view === undefined)
-         return;
++        return;
 +    const style = masonChildStyle(view);
 +    if (style === undefined)
-+        return;
+         return;
 +    const leafStash = view[MASON_LEAF_STYLE_STASH];
 +    if (leafStash !== undefined) {
 +        for (const key of Object.keys(leafStash))
@@ -353,7 +362,7 @@ index 8bc563a..4cb1f95 100644
  /** Recompute a text host's `text` from its `#text` children. */
  function syncText(parent) {
      if (parent === null || isPortalTarget(parent))
-@@ -190,6 +463,15 @@ function addViewChild(parentView, view, index) {
+@@ -190,6 +472,15 @@ function addViewChild(parentView, view, index) {
          parentView.insertChild(view, Math.min(index, parentView.getChildrenCount()));
          return;
      }
@@ -369,7 +378,7 @@ index 8bc563a..4cb1f95 100644
      if (parentView instanceof ContentView) {
          parentView.content = view;
          return;
-@@ -234,6 +516,13 @@ function removeViewChild(parentView, view) {
+@@ -234,6 +525,13 @@ function removeViewChild(parentView, view) {
              parentView.removeChild(view);
          return;
      }
@@ -383,7 +392,7 @@ index 8bc563a..4cb1f95 100644
      if (parentView instanceof ContentView) {
          if (parentView.content === view)
              parentView.content = CLEARED;
-@@ -370,6 +659,13 @@ function attach(container, node) {
+@@ -370,6 +668,13 @@ function attach(container, node) {
          }
      }
      addViewChild(parentView, node.view, index);
@@ -397,7 +406,7 @@ index 8bc563a..4cb1f95 100644
      markTabView(tabViewOwning(node));
  }
  function insert(container, parent, node, before) {
-@@ -548,7 +844,7 @@ function preparePortalTarget(context) {
+@@ -548,7 +853,7 @@ function preparePortalTarget(context) {
      }
      const target = owner?.node.view ?? suppliedTarget;
      if (!(target instanceof LayoutBase)) {
@@ -406,7 +415,7 @@ index 8bc563a..4cb1f95 100644
      }
      let id = portalTargetIds.get(target);
      if (id === undefined) {
-@@ -641,7 +937,7 @@ function applyCommand(container, command) {
+@@ -641,7 +946,7 @@ function applyCommand(container, command) {
  }
  export const nativeScriptDriver = {
      id: NATIVESCRIPT_RENDERER_ID,
@@ -416,7 +425,7 @@ index 8bc563a..4cb1f95 100644
          classify(name) {
              if (!EVENT_PROP.test(name))
 diff --git a/dist/elements.js b/dist/elements.js
-index a13bcea..e9988e1 100644
+index a13bcea75176146f58f047be1d9c7b0cdda1120a..e9988e174d0b89dcd70220d3014ca6b9bb1820e5 100644
 --- a/dist/elements.js
 +++ b/dist/elements.js
 @@ -1,4 +1,7 @@
@@ -473,7 +482,7 @@ index a13bcea..e9988e1 100644
  for (const [tag, element] of BUILTIN_ELEMENTS)
      registerElement(tag, element);
 diff --git a/dist/intrinsics.d.ts b/dist/intrinsics.d.ts
-index 45a47cb..668c920 100644
+index 45a47cbbce199df9635852ca4cdb2849e9bbc83d..668c9209192b12be4cafbf126e15df9360fb2fc5 100644
 --- a/dist/intrinsics.d.ts
 +++ b/dist/intrinsics.d.ts
 @@ -24,9 +24,9 @@

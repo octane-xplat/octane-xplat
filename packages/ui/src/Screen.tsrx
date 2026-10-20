@@ -25,7 +25,7 @@ export function Screen(props: ScreenProps) @{
 		onLoaded={(e: any) => registerRootLayout(e.object)}
 		onUnloaded={(e: any) => unregisterRootLayout(e.object)}
 	>
-		<masonview className={cx(props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style as any))} ref={(v: any) => { if (v) attachTapToBlur(v); }}>
+		<masonview className={cx('vx-screen-content', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style as any))} ref={(v: any) => { if (v) attachTapToBlur(v); }}>
 			{props.children}
 		</masonview>
 	</rootlayout>

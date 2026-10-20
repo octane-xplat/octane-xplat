@@ -101,7 +101,9 @@ patchedDependencies:
   # Scroll as the only layout containers, with zero layout props — every former prop name
   # warns-and-drops and all CSS semantics arrive through the style bag; style keys on a
   # mason child route to its leaf (stashed pre-attach, replayed at attach) via
-  # Style.fromView.
+  # Style.fromView. Removing an authored Mason style key also deletes its deferred replay
+  # entry and resets the current leaf before NativeScript restores CSS, preventing later
+  # sibling attachments from resurrecting removed tracks.
   "@nativescript-community/octane@0.2.5": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript-community__octane@0.2.5.patch
   # octaneServerStrategy's SCRIPT_FILE_RE only covers [jt]sx? — .tsrx edits never emit the
   # deferred ns:hmr-delta broadcast, so component HMR silently never reaches the device.
