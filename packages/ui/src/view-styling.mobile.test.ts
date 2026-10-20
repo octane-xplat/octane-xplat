@@ -23,7 +23,7 @@ describe('View styling', () => {
 		try {
 			root.render(View, { className: ['actions', [false, 'extra']] })
 			const view = container.children[0]
-			expect(view.props.className).toBe('vx-view actions extra')
+			expect(view.props.className).toEqual(['vx-view', ['actions', [false, 'extra']]])
 			expect(view.props.style).toEqual({ display: 'flex' })
 		} finally {
 			root.unmount()
@@ -41,7 +41,7 @@ describe('View styling', () => {
 			root.render(View, { className: 'actions', gap: 6 })
 			expect(container.children[0].props.style).toEqual({ display: 'flex', gap: 6 })
 			root.render(View, {})
-			expect(container.children[0].props.className).toBe('vx-view')
+			expect(container.children[0].props.className).toEqual(['vx-view', undefined])
 			expect(container.children[0].props.style).toEqual({ display: 'flex' })
 		} finally {
 			root.unmount()
