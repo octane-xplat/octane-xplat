@@ -25,8 +25,6 @@ import {
 	NSApplication,
 	NSApplicationActivationPolicy,
 	NSFont,
-	NSStackViewGravity,
-	NSUserInterfaceLayoutOrientation,
 	NSWindow,
 	NSWindowStyleMask,
 } from '@octane-xplat/platform/macos'
@@ -71,36 +69,40 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
 				}
 			}
 
+			// masonview hosts are plain NSViews laid out by Mason, so direction,
+			// padding, gap and child order are asserted through child geometry.
 			const rect = (view: any) => view.alignmentRectForFrame(view.frame)
 			const near = (a: number, b: number) => Math.abs(a - b) < 1
-			const views = () => {
-				const group = stack.viewsInGravity(NSStackViewGravity.Top)
-				return Array.from({ length: Number(group.count) }, (_, i) => group.objectAtIndex(i))
-			}
-
-			nativeWindow.contentView.layoutSubtreeIfNeeded()
-			check(stackRefs.length === 1 && stackRefs[0] === stack, 'Stack ref assignment failed')
-			check(childRefs.a.current === a, 'Object ref assignment failed')
-			check(
-				stack.orientation === NSUserInterfaceLayoutOrientation.Vertical,
-				'Default orientation failed',
-			)
-
-			check(stack.spacing === 0 && stack.edgeInsets.left === 8, 'Default gap/padding failed')
-			check(
-				near(stack.frame.size.width, 240) && near(stack.frame.size.height, 80),
-				'Explicit layout size failed',
-			)
-
-			check(views()[0] === a && views()[1] === b && views()[2] === c, 'Initial child order failed')
-			check(near(rect(a).origin.x, 100), 'Centered vertical child failed')
-			check(near(rect(b).origin.x, 8), 'Leading padding failed')
+			const left = (view: any) => Number(rect(view).origin.x)
 			const top = (view: any) =>
 				Number(stack.frame.size.height) -
 				Number(rect(view).origin.y) -
 				Number(rect(view).size.height)
 
-			check(top(a) < top(b) && top(b) < top(c), 'Vertical placement failed')
+			nativeWindow.contentView.layoutSubtreeIfNeeded()
+			check(stackRefs.length === 1 && stackRefs[0] === stack, 'Stack ref assignment failed')
+			check(childRefs.a.current === a, 'Object ref assignment failed')
+			check(
+				Number(stack.subviews.count) === 3 && [a, b, c].every((view) => view.superview === stack),
+				'Children not hosted by the masonview',
+			)
+
+			check(
+				near(left(b), left(c)) && top(a) < top(b) && top(b) < top(c),
+				'Column direction/child order failed',
+			)
+
+			check(
+				near(top(a), 8) && near(top(b), 24) && near(top(c), 40) && near(left(b), 8),
+				'Padding/zero gap failed',
+			)
+
+			check(
+				near(stack.frame.size.width, 240) && near(stack.frame.size.height, 80),
+				'Explicit layout size failed',
+			)
+
+			check(near(left(a), 100), 'Centered column child failed')
 			debug.pressId('increment')
 			setTimeout(() => {
 				try {
@@ -113,38 +115,32 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
 					nativeWindow.contentView.layoutSubtreeIfNeeded()
 					check(
 						debug.findId('layout') === stack && stackRefs.length === 1,
-						'Orientation recreated the host',
+						'Direction change recreated the host',
 					)
 
 					check(
-						stack.orientation === NSUserInterfaceLayoutOrientation.Horizontal,
-						'Reactive orientation failed',
+						near(top(b), top(c)) && left(c) < left(a) && left(a) < left(b),
+						'Reactive row direction/keyed child move failed',
 					)
 
-					check(views()[0] === c && views()[1] === a && views()[2] === b, 'Keyed child move failed')
+					check(
+						near(left(c), 8) && near(left(a), 48) && near(left(b), 88),
+						'Row padding/zero gap failed',
+					)
+
 					check(
 						childRefs.a.current === a && childRefs.b.current === b && childRefs.c.current === c,
 						'Moved refs changed identity',
 					)
 
-					check(
-						rect(c).origin.x < rect(a).origin.x && rect(a).origin.x < rect(b).origin.x,
-						'Horizontal placement failed',
-					)
-
-					check(near(rect(a).origin.y, 32), 'Centered horizontal child failed')
+					check(near(rect(a).origin.y, 32), 'Centered row child failed')
 					debug.pressId('layout')
 					check(tapEvents.join(',') === 'tap:true', 'Reactive shared tap payload failed')
 					debug.pressId('increment')
 					setTimeout(async () => {
 						try {
 							nativeWindow.contentView.layoutSubtreeIfNeeded()
-							check(
-								stack.orientation === NSUserInterfaceLayoutOrientation.Vertical,
-								'Removed orientation did not restore default',
-							)
-
-							check(views().length === 0, 'Removed children remain arranged')
+							check(Number(stack.subviews.count) === 0, 'Removed children remain hosted')
 							debug.pressId('layout')
 							check(tapEvents.length === 1, 'Removed tap handler remained active')
 							check(

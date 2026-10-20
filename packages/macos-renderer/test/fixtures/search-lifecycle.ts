@@ -1,6 +1,6 @@
 import Search, { searchRefs, searchRefEvents, searchEvents } from './Search'
 
-import { NSSearchField, NSStackViewGravity } from '@octane-xplat/platform/macos'
+import { NSSearchField } from '@octane-xplat/platform/macos'
 
 export async function checkSearchLifecycle(root: any, nativeWindow: any) {
 	const debug = root.__macosDebug
@@ -54,15 +54,9 @@ export async function checkSearchLifecycle(root: any, nativeWindow: any) {
 		'Search layout size failed',
 	)
 
-	const ordered = () => {
-		const group = parent.viewsInGravity(NSStackViewGravity.Top)
-		return Array.from({ length: Number(group.count) }, (_, i) => group.objectAtIndex(i))
-	}
-
-	check(
-		ordered()[0] === a && ordered()[1] === b && a.frame.origin.y > b.frame.origin.y,
-		'Search order/layout failed',
-	)
+	// The masonview parent is an unflipped NSView: the earlier column child
+	// sits higher, so it has the larger frame origin y.
+	check(a.frame.origin.y > b.frame.origin.y, 'Search order/layout failed')
 
 	searchEvents.length = 0
 	edit(a, 'Typed')
@@ -126,7 +120,7 @@ export async function checkSearchLifecycle(root: any, nativeWindow: any) {
 
 	await advance()
 	check(
-		ordered()[0] === b && ordered()[1] === a && debug.findId('search-a') === a,
+		b.frame.origin.y > a.frame.origin.y && debug.findId('search-a') === a,
 		'Search keyed move lost order/identity',
 	)
 
