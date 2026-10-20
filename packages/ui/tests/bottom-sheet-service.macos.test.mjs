@@ -6,10 +6,15 @@ import ts from 'typescript'
 const source = readFileSync(
 	new URL('../src/bottom-sheet-service.macos.ts', import.meta.url),
 	'utf8',
-).replace(
-	"import { ImperativeSheetPanel } from './bottom-sheet-panel.macos.tsrx'",
-	'const ImperativeSheetPanel = () => null',
 )
+	.replace(
+		"import { ImperativeSheetPanel } from './bottom-sheet-panel.macos.tsrx'",
+		'const ImperativeSheetPanel = () => null',
+	)
+	.replace(
+		"import { appKitHost } from './host-bridge'",
+		'const appKitHost = () => globalThis.__xplatAppKit',
+	)
 
 const compiled = ts.transpileModule(source, {
 	compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ESNext },
