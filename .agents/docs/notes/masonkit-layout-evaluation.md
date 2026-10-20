@@ -319,3 +319,49 @@ with `scrollview`/`liquidglass` as the chrome-wrapped hosts:
 
 Runtime evidence: `research/mason/mason-cutover.macos.tsrx` — 10/10
 assertions across stack/flex/grid/absolute/dock/wrap/liquidglass/scroll.
+
+## Scroll commands after the cutover
+
+Routing-retention qualification exposed a missing integration in
+`ScrollableArea`: its handle called NativeScript ScrollView methods, but the
+patched driver instantiates Mason `Scroll`. An actual release iOS run reported
+no `scrollToVerticalOffset`, `verticalOffset` or `scrollableHeight` on that
+wrapper. An object-driver test that checked only ref identity passed and did
+not establish this SDK contract.
+
+Exact-version source evidence: installed `@triniwiz/nativescript-masonkit`
+`1.0.0-beta.110`, fetched through opensrc, has `Scroll extends ViewBase` in
+`scroll/index.{ios,android,windows}.ts`; it does not add those NativeScript
+ScrollView methods. The local `@nativescript-community/octane@0.2.5` patch's
+`elements.js` hunk selects that class for `scrollview`.
+
+The local `scrollable-area-offset` leaves adapt `ScrollableAreaHandle` writes:
+iOS uses `MasonUIView.contentOffset` (native clamping, instant writes), Android
+uses `TwoDScrollView.scrollTo`/`smoothScrollTo` with dip-to-pixel conversion, and
+Windows targets the outer `nativeViewProtected` ScrollViewer's `ChangeView`.
+The Windows `windows` property identifies its inner Mason content view, so it
+is not the scroll target. These helpers add no dependency or renderer patch.
+The nullable axes and animation flag follow the
+[WinUI method contract](https://learn.microsoft.com/en-us/windows/windows-app-sdk/api/winrt/microsoft.ui.xaml.controls.scrollviewer.changeview?view=windows-app-sdk-1.8);
+bridge execution still requires a Windows VM.
+
+```ts
+// Shared application code uses the portable handle, not ScrollView methods.
+import type { ScrollableAreaHandle } from '@octane-xplat/ui'
+function revealStart(area: ScrollableAreaHandle) {
+	area.scrollToOffset({ block: 0 })
+}
+```
+
+Source evidence: `src-native/mason-ios/Mason/Mason/MasonUIView.swift` defines
+`contentOffset` and clamps it through bounds; the setter explicitly disables
+implicit animation. Android `TwoDScrollView.kt` accepts physical pixels.
+The maintained adapter tests check units, omitted axes and invalid input;
+[routing qualification](../navigation-checks.md) records actual
+target execution separately. Windows has no VM and remains source/mock evidence.
+
+This command adapter does not provide a NativeScript-shaped event/metric facade.
+Other helpers that still read `verticalOffset`/`scrollableHeight` or subscribe to
+NativeScript `scroll` need a separate Mason integration audit, including
+`useScrollableArea`, chat scrolling and outline reveal. Do not infer their
+behavior from imperative commands or from retained-view routing checks.

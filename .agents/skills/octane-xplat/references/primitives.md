@@ -119,6 +119,17 @@ export function PackingToggle() {
   For bounded cells, use CSS zero-minimum tracks and omit the corresponding
   `rows`/`columns` prop so CSS owns that axis; see
   [Grid placement](../../../../docs/app/primitives.md#grid-placement).
+- **Use `ScrollableAreaHandle` for scroll commands.** Mobile/Windows native
+  hosts are Mason wrappers, not NativeScript ScrollView instances. Use the
+  portable command; iOS currently moves instantly even with `animated: true`.
+
+  ```ts
+  import type { ScrollableAreaHandle } from '@octane-xplat/ui'
+  function showStart(viewport: ScrollableAreaHandle) {
+      viewport.scrollToOffset({ block: 0 })
+  }
+  ```
+
 - **Text controls report the new string.** `TextInput`'s `onChange` gets
   `value: string`, not an event; controlled `value` writes suppress their
   own echo. `useKeyboardInset()` returns the keyboard inset in dips — zero

@@ -223,30 +223,34 @@ for the embedded component and its separate app-shell boundary.
 
 ## Navigation
 
-Fresh Web release navigation checks on 2026-10-08 pass 14/14, including
-retained guard/loader results during history traversal and cold baked-route
-loads. The route error-boundary and scroll-restoration contracts added
-post-0.9.0 carry vitest coverage (jsdom on web, the object driver on the
-universal renderer) but no release-harness rows yet — the web scroll claims
-in particular are emulated-DOM evidence, not browser evidence. Native
-ordering has focused mocked coverage, but the new native release
-suite has no passing runtime report. Shared locks blocked follow-up runs;
-the isolated Android release built with Temurin JDK 21, but its newly
-available emulator is lock-blocked. Both iOS releases built but timed out without a
-report; a direct diagnostic launch was denied by `SBMainWorkspace`
-(`FBSOpenApplicationServiceErrorDomain`, code 1). Historical target evidence does not close these gaps. See
-[navigation checks](../../.agents/docs/navigation-checks.md) for reproduction and scope.
+The canonical client uses typed destinations and structured screen props. The
+hard cutover is in progress; previous legacy-adapter runtime results do not
+qualify the changed implementation. Use the [navigation guide](../app/navigation.md)
+and [maintained checks](navigation-checks.md) for current contracts and commands.
 
-| Seam                                              | Web                                                                                                                                                                                                                                                               | iOS                                                                                                                                                                                                                                                                                        | Android                                                                                                                                                                                              | Kind        | Verified               |
-| ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | ---------------------- |
-| Push into a named stack                           | nested-outlet URL push                                                                                                                                                                                                                                            | `UITabBar` Frame navigates natively — the router re-arms `isLoaded` before push and pop; the [NS#11446](https://github.com/NativeScript/NativeScript/pull/11446) fix (items-churn root cause + `topmost()` ranking) ships in the Xplat core patch. Shared `Tabs` panes use the route store | router-owned swap pane — pushed routes render through `RouteHost` inside the platform tab pane, so named pushes never touch the fragment manager (`BottomNavigationView` behaves like shared `Tabs`) | `different` | 0.6.0·desk             |
-| Hardware back                                     | browser back → `popstate`                                                                                                                                                                                                                                         | — (no hardware back)                                                                                                                                                                                                                                                                       | wired; `useBackInterceptor()` can handle back before route pop; pop-while-pushed not yet verified live                                                                                               | `different` | 0.6.0·desk             |
-| Route params                                      | scalar params form path/query values; low-level objects/arrays JSON-encode with a warning (non-serializable values become empty strings)                                                                                                                          | objects survive                                                                                                                                                                                                                                                                            | objects survive                                                                                                                                                                                      | `degraded`  | 0.5.0                  |
-| `popRoute(stack)`                                 | `history.back()` regardless of `stack`                                                                                                                                                                                                                            | pops that stack                                                                                                                                                                                                                                                                            | pops that stack                                                                                                                                                                                      | `different` | 0.5.0                  |
-| Programmatic routes (`defineRoutes`/`addRoutes`)  | literal `path` strings infer names/params at the callsite (`ManifestRouteParams` registered on `AppRoutes` checks `pushRoute`/`NavLink`); only runtime-computed paths stay outside the typed surface — assert `as TypedRoute` and resolve screens via `screenFor` | same boundary                                                                                                                                                                                                                                                                              | same boundary                                                                                                                                                                                        | `different` | post-0.6.0·desk        |
-| Optional/catch-all segments (`:x?`, `*`/`[...x]`) | absent optional params drop out of the serialized URL; a root-level `*` outranks the named-stack URL fallback, so stack-prefixed deep links resolve on `root` while one is registered                                                                             | same boundary                                                                                                                                                                                                                                                                              | same boundary                                                                                                                                                                                        | `same`      | post-0.6.0·desk        |
-| Route error boundary (`ErrorBoundary` export)     | `RouteBoundary` wraps the layout+screen subtree; `reset` remounts, re-push retries the loader. Loader rejection stays the screen's `error` prop — it never enters the boundary. Vitest-verified on the DOM renderer                                               | same contract — the portable `@try`/`@catch` host wraps pushed pages, modal roots, and stack roots; vitest-verified via the object driver                                                                                                                                                  | same as iOS                                                                                                                                                                                          | `same`      | post-0.9.0·vitest      |
-| Scroll restoration                                | per-entry positions — push → top or `hash` target, pop/forward → saved position; `scrollRestoration='manual'`; vitest/jsdom-verified, no browser run yet                                                                                                          | retained — a pushed entry keeps its page alive beneath, so scroll/list state survives pop. Source-verified; not yet device-verified                                                                                                                                                        | same as iOS — swap-pane and fragment-manager pushes keep subtrees alive; not yet device-verified                                                                                                     | `different` | post-0.9.0·vitest,desk |
+```ts
+import { router } from '@octane-xplat/ui/routing'
+// In an app declaring this route:
+const result = await router.push({ to: '/items/:id', params: { id: 'coat' } })
+if (result.status === 'committed') await result.finished
+```
+
+| Boundary | Current contract and evidence limit |
+| --- | --- |
+| Web history | One linear browser history. Reset returns unsupported; inactive named flows cannot independently edit document history. |
+| Guarded history | Canonical Back prepares retained targets. Cross-stack redirects replace the receiver while preserving source history. Canonical native dismiss prepares its presenter. iOS Frame leading-edge Back prepares after release, without an interactive preview; full-content pop is disabled. Rendered panes have no iOS swipe adapter. Native routed modals disable direct SDK cancellation and close through canonical dismiss or claimed Android Back; forced host closure only reconciles cleanup. |
+| Unsaved edits | [Entry-owned client confirmation](../app/navigation.md#confirm-before-leaving-unsaved-edits) supports proceed/reset. It cannot intercept document unload, raw host closure or process exit; redirects retain the approved attempt's scope. |
+| Native shared Tabs | Retained rendered panes own independent histories and providers. Activity Back follows visible ownership. Canonical iOS/Android release checks passed, including visible-pane Android Back. |
+| Native iOS tab bar | Declared named Frames retain their native history. Its lifecycle churn needs the maintained iOS release checks. |
+| Android bottom navigation | Rendered panes avoid NativeScript's nested TabView Frame bookkeeping limitation. Real OS Back needs the release fixture. |
+| AppKit | Rendered panes and fullscreen in-window routed modals retain history, providers and state. Modal Escape/outside callbacks use guarded dismissal; raw window closure is cleanup. Custom modal/pane effects and native keyboard/pointer input remain unqualified. |
+| Inputs | Path and search are separate. External values are validated; unknown patterns and malformed input do not become invented routes. |
+| Errors | Guard/loader failure returns a structured result and keeps committed content. Render errors use a route boundary. Dedicated loader-error screen policy remains in the refinement plan. |
+| Scroll and head | Browser per-entry scroll, fragments, modal preservation, title and named metadata have current jsdom coverage. Native Page titles are applied; AppKit window metadata remains unfinished. |
+| Motion | Navigation commitment and transition completion are distinct. Browser View Transitions support presets and registered CSS types, with reduced-motion/unsupported skips and separate completion. Registered NativeScript Frame effects execute through native instances and reverse on Back. Custom native modal/pane effects remain unsupported by that adapter. |
+| SSR | The installed renderer has feasibility evidence; Xplat has no qualified HTTP/hydration host. Default client state must never hold request-local accounts. |
+| Windows | No Windows VM is available for this task. Type/build checks cannot establish Windows runtime behavior. |
+| Linux | The actual WebKitGTK host passed 16 handler-driven checks under Xvfb with a production bundle, including unsaved-edit confirmation, refusal and approval. OS input and the separate native GTK renderer remain unqualified. |
 
 macOS AppKit secure storage uses Keychain through the
 [`@octane-xplat/secure-storage` native leaf](../../packages/secure-storage/README.md#macos-appkit).
@@ -329,6 +333,14 @@ if (result === 'unavailable') console.log('Sharing unavailable')
 - **`.tsrx` files reject `async` top-level functions** — the compiler
   treats them as async components, and an `async` function that never
   awaits still breaks `ns build`. Drop the keyword. — 0.5.0.
+- **Module-level objects with JSX render arrows fail native compilation** on
+  installed patched Octane 0.11.0. The iOS release build reports “JSX in an
+  unsupported module declaration requires universal plan lowering.” Use named
+  functions as `render` values in identity-stable module-level tab arrays; these
+  compiled and ran in the maintained iOS/Android and AppKit fixtures. Recheck
+  this compiler restriction when upgrading Octane.
+
+
 - **`Grid` `gap` was removed** — use child margins. The leaves keep a
   one-time console warning as a migration hint for one release. — 0.5.0.
 - **`SafeArea` gained `edges`; `ignoreSafeArea` is deprecated** — `edges`
@@ -393,7 +405,7 @@ if (result === 'unavailable') console.log('Sharing unavailable')
   a raw `Window`; `OpenWindowOptions` also gained `kind`, `title`, `size`, and
   `parent` hints. — post-0.14.0·desk.
 - **Routing, data, Markdown, and chat moved to purpose entrypoints** — the
-  root keeps general UI only. Router APIs (`pushRoute`, `useRoute`,
+  root keeps general UI only. Router APIs (`router`, `useRouter`,
   `defineRoutes`, `useBackInterceptor`, route types like `RouteSpec` and
   `RouteManifest`) moved to `@octane-xplat/ui/routing`; stores and data
   hooks (`createStore`, `useStore`, `useListData`, `useTreeData`,

@@ -21,7 +21,7 @@ The app has top-level navigation, a collapsible side rail, a mobile drawer, and 
 
 ## Documentation
 
-- AC1: [Compose the application frame](../../../docs/app/navigation-ui.md#compose-the-application-frame) and the maintained [component harness](../../../packages/demos/src/ComponentsDemo.tsrx).
+- AC1: [Typed navigation components](../../../docs/app/navigation.md#put-typed-routes-in-navigation-components), [Compose the application frame](../../../docs/app/navigation-ui.md#compose-the-application-frame) and the maintained [component harness](../../../packages/demos/src/ComponentsDemo.tsrx).
 - AC2: [Compose the application frame](../../../docs/app/navigation-ui.md#compose-the-application-frame) documents automatic and custom mobile navigation.
 - AC3: [Choose navigation tabs or page tabs](../../../docs/app/navigation-ui.md#choose-navigation-tabs-or-page-tabs) shows both patterns and panel ownership.
-- AC4: [Portable boundaries](../../../docs/app/navigation-ui.md#portable-boundaries) and the maintained [component harness](../../../packages/demos/src/ComponentsDemo.tsrx) identify web and native behavior.
+- AC4: [Typed navigation components](../../../docs/app/navigation.md#put-typed-routes-in-navigation-components), [Portable boundaries](../../../docs/app/navigation-ui.md#portable-boundaries) and the maintained [component harness](../../../packages/demos/src/ComponentsDemo.tsrx) identify web and native behavior.

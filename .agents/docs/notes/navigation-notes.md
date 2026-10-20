@@ -1,5 +1,11 @@
 # Navigation notes
 
+> **Historical pre-cutover design and lab record.** The examples below include
+> removed routing helpers and unimplemented proposals; they are not current app
+> instructions. Use the [canonical navigation guide](../../../docs/app/navigation.md),
+> [current contract notes](routing-contracts.md) and
+> [maintained platform checks](../navigation-checks.md).
+
 > **Filename update (2026-09-28):** current route variants are unsuffixed for
 > the native default, `.web` for browser routes, and `.mobile` for shared
 > iOS/Android routes; see [module resolution](../../../docs/platform/module-resolution.md). Dated lab

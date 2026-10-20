@@ -16,7 +16,8 @@ on Linux instead of a WebKitGTK webview.
 - Bundle through the `xplatLinuxGtk` Vite preset and package a relocatable
   `gjs -m` app directory plus archive.
 - Understand the artifact boundary: no desktop entry, installer, URI
-  handling, or runtime qualification yet.
+  handling, or broad runtime qualification. Named widget/history checks do not
+  establish packaging, OS input or visual parity.
 
 ## Acceptance criteria
 
@@ -26,8 +27,8 @@ on Linux instead of a WebKitGTK webview.
   single-file ESM bundle, an executable `gjs -m` launcher, `app.json`, and a
   `README.txt`, plus a tar archive; a failed build preserves the prior app.
 - AC3: The reader can tell which pieces are absent (installer, desktop entry,
-  URI handling, device services) and that nothing is verified under a real
-  GJS/GTK session yet.
+  URI handling, device services) and distinguish actual GJS widget/history checks
+  from unqualified packaging, OS input and layout behavior.
 
 ## Documentation
 

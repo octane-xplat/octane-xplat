@@ -262,3 +262,37 @@ unqualified gaps).
   `Gtk.Box` emulation with a once warn. `build.sh` stamps the absolute
   `.so` path into the typelib — fine for in-tree dev, wrong shape for a
   system install.
+
+## Canonical retained-pane routing
+
+The canonical routing barrel now selects GTK platform leaves for its default
+client, stack registry, Back interception and route shells. The default client
+uses the renderer-neutral pane host; it does not import NativeScript Frame,
+Page or modal hosts. `xplatLinuxGtk` resolves both compiler-generated GTK imports
+and retargeted NativeScript-renderer imports to the application's renderer entry.
+UI takes no GTK dependency. The private GTK renderer declares UI as a workspace
+dev dependency for its public-consumer fixture.
+
+The initial barrel probe failed on five missing native-core exports. A second
+runtime check exposed the style-only shell's visible inactive entry under the
+Gtk.Box fallback. `RoutePane.gtk` now sets native `visibility` explicitly and
+avoids the default View's unwired NativeScript pan/swipe adapters. The maintained
+runtime checks actual widget visibility rather than inferring it from local
+state retention.
+
+```sh
+node --test packages/linux-gtk-renderer/test/build.test.mjs
+pnpm --filter @octane-xplat/linux-gtk typecheck
+pnpm --filter @octane-xplat/linux-gtk exec vite build --config test/fixtures/vite.routing.config.mjs
+```
+
+Real GJS 1.82.3 / GTK 4.18.6 on Debian 13 arm64 passes 13 programmatic routing
+assertions: rendering, local state updates, hidden retention, Back with widget
+identity, explicit modal rejection and disposal. No XplatMason typelib is
+installed in that guest; the separate native layout test is skipped. This
+qualifies the explicit programmatic pane subset, not generated GTK startup,
+modal surfaces, OS input, visual parity or the complete UI. The fixture's GTK
+pane code is byte-identical to the public guide's example and has positive and
+negative TypeScript consumer checks. The source/import boundary and runtime
+results are separate evidence in the
+[routing qualification guide](../navigation-checks.md#native-gtk-retained-panes).

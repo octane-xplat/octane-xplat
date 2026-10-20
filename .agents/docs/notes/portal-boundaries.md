@@ -89,7 +89,7 @@ export function Shell() {
 
 For a screen-local provider use the explicitly bound NativeScript navigator.
 Swap-pane tab routes already render in their pane tree and keep that behavior.
-Global `pushRoute` resolves the mounted outlet for the target stack; it cannot
+The default `router.push` resolves the mounted outlet for the target stack; it cannot
 infer a local provider around an arbitrary button.
 
 ```tsx

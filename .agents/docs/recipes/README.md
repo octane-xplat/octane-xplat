@@ -35,6 +35,7 @@ Workflows:
 
 - [Probe one platform case](probe-platform-case.md)
 
+- [Animate route changes](route-transitions.md)
 - [Animate shared components](component-motion.md)
 - [Animate a changing text label](rolling-text.md)
 - [Animate a view through a ref](imperative-animation.md)
@@ -60,6 +61,12 @@ Workflows:
 - [Send a local notification](local-notifications.md)
 - [Receive push notifications](push-notifications.md)
 - [Register routes from runtime data](programmatic-routes.md)
+- [Show loading and recovery during navigation](navigation-feedback.md)
+- [Protect unsaved edits during navigation](navigation-blocking.md)
+- [Give a routed modal its own history](route-modals.md)
+- [Retain native route controls](native-navigation-retention.md)
+- [Keep route contracts current while developing](route-generation.md)
+- [Return after sign-in and replace account-owned screens](authentication-routing.md)
 - [Bake route data into the bundle](baked-routes.md)
 - [Build a responsive navigation shell](navigation-shell.md)
 - [Build a responsive resizable workspace](resizable-workspace.md)

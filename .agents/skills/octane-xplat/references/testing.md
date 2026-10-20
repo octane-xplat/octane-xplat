@@ -77,6 +77,46 @@ emulation. Do not infer their success from green CI. See
 [release validation](../../../docs/releases.md) for nightly/stable coverage and
 [contributor testing](../../../docs/testing.md) for fixture ownership and commands.
 
+## Routing ownership and sign-in
+
+Use the maintained production-browser routing checks for client commits and
+account-owner handoff. The auth command typechecks and runs a shared controlled
+SDK example through cold/warm links, Back/Forward, account expiry/switching,
+modal cancellation/success and return intents. It does not contact an identity
+provider. Keep browser engines out of PR checks.
+
+```sh
+pnpm --filter @xplat/web smoke:routing
+pnpm --filter @xplat/web smoke:routing-auth
+```
+
+For separate native Frame/pane/modal commands and measured target limits, use
+[the routing qualification guide](../../../docs/navigation-checks.md).
+The native release fixtures include a controlled sign-in/owner-replacement
+protocol on actual iOS/Android and AppKit hosts, also covered by the native
+object driver. These checks use explicit URL requests inside running apps;
+real providers and OS authentication dialogs require separate qualification.
+
+```sh
+pnpm --filter @octane-xplat/ui test:native
+```
+
+The native release fixtures also run `route-retention-example.tsrx` on root
+pages and named panes: actual text/scroll controls, Back, refresh, cancelled
+loaders and modal dismissal. Use the public `ScrollableAreaHandle` for offset
+writes; the Mason peer is not a NativeScript ScrollView. Native focus policy and
+OS/assistive input remain separate from these programmatic checks. See
+[native retention qualification](../../../docs/navigation-checks.md#native-control-and-viewport-retention)
+for the measured targets and portable-handle regressions.
+
+```sh
+pnpm --filter @octane-xplat/ui exec vitest run src/scrollable-area-offset.test.ts
+pnpm --filter @octane-xplat/ui exec vitest run --config vitest.native.config.mts src/scrollable-area-handle.mobile.test.tsrx
+```
+
+The general demo-sweep gates below do not describe the canonical router's
+separate native release fixture.
+
 ## Input, lifecycle, and runtime evidence
 
 Calling registered gesture observers or `view.notify` establishes handler

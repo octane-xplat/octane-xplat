@@ -51,8 +51,8 @@ import {
 	topNav={
 		<TopNav
 			heading={<TopNavHeading heading="Workspace" logo={<NavIcon icon="grid" />} />}
-			startContent={<TopNavItem label="Projects" href="/projects" isSelected />}
-			endContent={<TopNavItem label="Help" href="/help" />}
+			startContent={<TopNavItem label="Projects" to="/projects" />}
+			endContent={<TopNavItem label="Help" href="https://example.com/help" />}
 		/>
 	}
 	sideNav={
@@ -61,8 +61,8 @@ import {
 			collapsible={{ defaultIsCollapsed: false, hasButton: true }}
 		>
 			<SideNavSection title="Projects">
-				<SideNavItem label="Overview" icon="home" href="/projects" isSelected />
-				<SideNavItem label="Activity" icon="clock" href="/activity" />
+				<SideNavItem label="Overview" icon="home" to="/projects" />
+				<SideNavItem label="Activity" icon="clock" to="/activity" />
 			</SideNavSection>
 		</SideNav>
 	}
@@ -89,7 +89,7 @@ export function Example() {
 			mobileNav={{ breakpoint: 'md', hasToggle: true }}
 			sideNav={
 				<SideNav>
-					<SideNavItem label="Projects" href="/projects" />
+					<SideNavItem label="Projects" to="/projects" />
 				</SideNav>
 			}
 		>
@@ -130,8 +130,8 @@ export function Example() {
 ## Choose navigation tabs or page tabs
 
 `TabList` defaults to a navigation landmark. Give each `Tab` a stable value;
-`href` renders a real anchor on web and activates the route/link service on
-native. Use `role="tablist"` when the strip switches a controlled panel:
+`to` checks its route inputs and opens the destination in the rendering flow.
+For local panels, use `role="tablist"` instead:
 
 ```tsx
 import { useState } from 'octane'
@@ -162,12 +162,24 @@ export function Panels() {
 
 The caller owns the panels and their `id`/`aria-labelledby` relationship.
 `TabMenu` selects from additional values using the same `TabList` state. In
-`role="tablist"` mode, links are ignored and the caller changes panels from
+`role="tablist"` mode, omit `to`: typed navigation throws because this mode
+controls local panels. Raw `href` is ignored. The caller changes panels from
 `onChange`.
 
+```tsx
+import { TabList, Tab } from '@octane-xplat/ui'
+
+const links = <TabList value="projects" onChange={() => {}}>
+	<Tab value="projects" label="Projects" to="/projects" />
+	<Tab value="activity" label="Activity" to="/activity" />
+</TabList>
+```
+
 `NavigationMenu` remains the compact item-array strip (`items`, `horizontal`);
-use `TopNav` or `SideNav` for composed application navigation. Item `href`s
-are links on web and use the route/link service on native.
+use `TopNav` or `SideNav` for composed application navigation. Item `to`
+fields check route parameters and search inputs; `href` opens a raw URL.
+See [typed navigation components](navigation.md#put-typed-routes-in-navigation-components)
+for breadcrumbs, nested menu links, custom instances, and disabled items.
 
 ```tsx
 import { NavigationMenu } from '@octane-xplat/ui'
@@ -176,7 +188,7 @@ export function Example() {
 	return (
 		<NavigationMenu
 			horizontal
-			items={[{ key: 'projects', label: 'Projects', href: '/projects' }]}
+			items={[{ key: 'projects', label: 'Projects', to: '/projects' }]}
 		/>
 	)
 }
@@ -343,8 +355,8 @@ export function Example() {
 
 The shared props do not accept DOM element types, browser refs, or React event
 objects. Custom link components (`as`) and link-only attributes (`target`,
-`rel`, `download`, `referrerPolicy`) apply to web links; native navigation
-uses `href` and the framework route/link service. `style` remains a portable
+`rel`, `download`) apply to web links. Typed `to` destinations navigate in
+the owning flow on every target; native raw `href` values use the URL service. `style` remains a portable
 style object, and `ios`, `android`, and `web` are the explicit escape hatches
 for target-only settings. Tabs use the portable `isDisabled` prop rather than
 an HTML `aria-disabled` attribute; the leaves map it to native disabled state

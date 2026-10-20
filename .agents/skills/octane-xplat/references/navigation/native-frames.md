@@ -1,7 +1,7 @@
 # NativeScript Frame internals — the traps that cost us days
 
 Niche detail for debugging native nav; not needed for app-level
-`navigate`/`goBack` use.
+`router.push()` / owner-bound `useRouter()` use.
 
 These traps concern native `Frame` stacks inside `TabViewItem`s, such as the
 iOS-authentic `UITabBar` path. The shared `Tabs` component is self-drawn and
@@ -97,16 +97,23 @@ detached from its tab fragment. Transactions then land on a detached child
 the fix ([NativeScript#11446](https://github.com/NativeScript/NativeScript/pull/11446))
 is ported into the Xplat `@nativescript/core` patch.
 
-**Containment:** the framework avoids the structure entirely on Android —
-named-stack pushes always live in the route store and render through
-`RouteHost` inside the active pane (shared `Tabs` and
-`BottomNavigationView` alike), so no fragment transaction runs and the
-raced-push crash can't occur. On iOS the registered `UITabBar` Frames do
-navigate natively; `route` re-arms `isLoaded` before every push and pop
-(both queue on `_processNextNavigationEntry`). Apps that directly host a
-`Frame` in a `TabViewItem` rely on the core patch. The `demosweep.ts`
-catalog sweep remains gated on Android because it asserts native `Page`
-objects; its swap-pane VirtualList check already runs.
+**Containment:** canonical Android tab flows use independent rendered panes
+inside their declaring outlets, so that path starts no nested Frame transaction.
+The removed route store and `RouteHost` are not part of the current implementation.
+The iOS `UITabBar` path uses declared named Frames. The canonical native host
+re-arms an unloaded Frame before SDK navigation and waits for its actual commit;
+public code uses the same typed request for either host.
+
+```ts
+// In an app declaring the catalog stack and this destination:
+import { router } from '@octane-xplat/ui/routing'
+await router.forStack('catalog').push({ to: '/items/:id', params: { id: 'coat' } })
+```
+
+Apps that directly host a `Frame` in a `TabViewItem` rely on the core patch.
+Historical demo sweeps do not qualify the canonical client. Use the current
+[navigation checks](../../../../docs/navigation-checks.md) for the
+release fixture's real Android OS Back and retained-pane coverage.
 
 ## Fragment/page bookkeeping order
 

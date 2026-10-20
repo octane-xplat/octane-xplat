@@ -7,6 +7,22 @@ runtime behavior, and an unsigned simulator build is not a signed release.
 Read the [toolchain guide](../../../../docs/start/toolchain.md) before native
 setup or distribution work.
 
+## Generic syntax in TSRX
+
+If a generic arrow reports JSX parse errors, use a named generic function.
+For an optional generic callback, use a callable type alias. The installed
+TSRX checker and CLI lint parser reject some otherwise valid TSX forms;
+[the toolchain note](../../../../.agents/docs/toolchain.md) records the exact
+observed forms and version. This does not change the callback's public type.
+
+```ts
+function identity<Value>(value: Value): Value { return value }
+type Operation = <Value>(value: Value) => Value
+type Options = { run?: Operation }
+```
+
+## Builds
+
 ```sh
 # From the app directory; use only scripts present in package.json.
 pnpm build

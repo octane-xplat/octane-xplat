@@ -28,7 +28,11 @@ outside this recipe's scope.
 ## Documentation
 
 - AC1: [File variants and resolution order](../../../docs/platform/module-resolution.md#file-variants) and [choosing a variant](../../../docs/platform/module-resolution.md#choosing-a-variant).
-- AC2: [Resolution order](../../../docs/platform/module-resolution.md#file-variants).
+- AC2: [Resolution order](../../../docs/platform/module-resolution.md#file-variants)
+  and [generated route leaves](../../../docs/app/navigation.md#what-the-route-generator-writes).
+  Maintained catalog-build fixture: `packages/cli/test/route-generation.test.mjs`;
+  it checks evaluated module identity on seven target graphs without implying
+  device or Windows host runtime qualification.
 - AC3: [TypeScript, .tsrx shims, and target commands](../../../docs/platform/module-resolution.md#typescript).
 - AC4: [Linux compatibility resolution](../../../docs/platform/module-resolution.md#file-variants) and [experimental Linux target](../../../docs/start/toolchain.md#experimental-linux-target-webkitgtk-webview).
 

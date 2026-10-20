@@ -32,14 +32,23 @@ to render on every target with no runtime fetch.
   screen receives `data`, no navigation-time fetch occurs.
 - AC2: The reader can place a `.md` file in the route dir and navigate to it
   as a rendered document route on each target.
-- AC3: The reader can state the constraints: loader output must be
-  JSON-serializable (non-serializable fails `xplat routes` naming the
-  route), loaders receive `{}` params (param'd content bakes a table the
+- AC3: The reader declares build mode as a locally resolvable const literal,
+  uses explicit named value exports instead of wildcard route exports, and
+  can state the constraints: loader output must contain
+  plain JSON values without silent loss (invalid output fails `xplat routes`
+  naming the route and field), loaders receive `{}` params (param'd content bakes a table the
   screen selects from), baked routes without a `.loader.*` sibling fail
-  codegen, and `xplat typecheck` does not re-bake.
+  codegen, and `xplat typecheck` does not re-bake. Failed or cancelled baking
+  preserves the last successful generated outputs; a watcher discards obsolete
+  publication without claiming to undo a loader's effects.
 - AC4: The reader can find the normalized route list
   (`routes.gen.manifest.json` / `manifestToJson`) for handing routes to an
   external host.
+- AC5: Generated screen props and route accessors infer named/default sibling
+  loader outputs and Markdown `MdDoc` data without executing loaders during
+  typechecking. Programmatic catalogs infer DTOs from their supplied baked map;
+  missing, optional or erased maps remain unknown, and extra map keys do not
+  declare destinations. Build-only modules stay out of runtime catalogs and bundles.
 
 ## Documentation
 
@@ -52,10 +61,15 @@ to render on every target with no runtime fetch.
   — serializability, param-less bake, sibling requirement, typecheck
   behavior.
 - AC4: [Hand the route list to a host](../../../docs/app/navigation.md#hand-the-route-list-to-a-host).
+- AC5: [Bake route data at build time](../../../docs/app/navigation.md#bake-route-data-at-build-time),
+  the typed changelog example, generated-contract negative fixtures and the
+  mobile/AppKit baked-route fixtures exercise inferred props and build boundaries.
 
 ## Verification
 
 The [release navigation checks](../navigation-checks.md) exercise this
-workflow separately from documentation coverage. Web production checks cover
-cold changelog loader data and Markdown rendering. Native baked-route runtime
-checks remain unverified; successful Web execution does not establish them.
+workflow separately from documentation coverage. Web production checks cover cold changelog loader data and Markdown rendering.
+The maintained native and AppKit fixtures generate a typed baked screen and a
+Markdown route, inspect actual rendered data and Back, and check release output
+for the build-only marker. Record executed targets separately in `recipe_audit`;
+a successful web run does not establish native behavior.

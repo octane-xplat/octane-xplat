@@ -1,328 +1,704 @@
 # Navigation
 
-The framework owns the API; each platform provides the mechanism.
-`pushRoute`/`popRoute`/`useRoute` are real on **both** targets — web is a
-URL store over history; native root routes use `Frame`/`Page` stacks. The
-shared `Tabs` is a self-drawn row and one swapped pane. Platform-authentic
-`UITabBar`/`BottomNavigationView` components live in the native subpaths.
+Use the canonical routing client on every target. Generated startup configures
+its catalog, context source, and declared stacks. Mount the root outlet below
+the providers screens should inherit; routed screens then use their own navigator.
+Keep that outlet in the long-lived shell: removing it releases owned Pages,
+modals, and pending loads.
+
+```tsx
+import './routes.gen'
+import { NavLink, RouteOutlet } from '@octane-xplat/ui'
+
+export function App() {
+	return <RouteOutlet><NavLink to="/items/:id" params={{ id: 'coat' }}>Coat</NavLink></RouteOutlet>
+}
+```
+
+## Author routes and infer inputs
+
+Generation parses route syntax without evaluating modules. Use explicit named
+exports/re-exports for callbacks; `export *` is rejected because it hides runtime
+capabilities. Declare `dataMode` as a local const literal (`'baked'` or `'live'`),
+optionally through local const aliases, `as const` or `satisfies`. Imported,
+mutable and computed modes fail instead of silently selecting another pipeline.
+Unchanged generated files retain their timestamps. `xplat dev` watches an app-owned
+route directory; `xplat routes --watch` works with a separate dev server. A shared
+workspace package owns its watcher independently of the platform shells.
+Web CLI and agent discovery recognize `vite.config.{js,mjs,cjs,ts,mts,cts}`;
+do not rename a JavaScript config merely to enable `xplat dev web`.
+Watch configuration/module/source repairs recover without restart, and deleting
+and recreating the conventional route tree clears/restores its contract union.
+Keep `out` fixed while watching; moving it requires stopping, regenerating,
+updating client/type imports and removing obsolete generated entries. Arbitrary
+loader filesystem inputs outside the watched trees still need explicit regeneration.
 
 ```ts
-import { pushRoute, popRoute } from '@octane-xplat/ui/routing'
-pushRoute({ stack: 'root', name: 'demo/:id', params: { id: 'counter' } })
-popRoute('root')
+export const dataMode = 'baked' as const
+export { Changelog as default } from '../screens/changelog'
 ```
-
-- `pushRoute({ stack, name, params })` — `'root'` is a full-screen push
-  covering the tab shell on both targets. Web renders named routes in the
-  tab outlet. iOS uses a named `Frame` only when one is registered (the
-  platform `UITabBar` does this; shared `Tabs` does not). Android named
-  stacks always use the router-owned swap-pane: pushes live in the route
-  store and render through `RouteHost` inside the pane — including inside
-  `BottomNavigationView`, whose Frame panes are kept for chrome only
-  (TabViewItem Frames lose bookkeeping upstream, NativeScript#11444).
-- `popRoute(stack?)` — native pops the selected registered `Frame` or
-  Android route array (quiet no-op at the base). Web is one linear history →
-  `history.back()`; the `stack` arg is accepted for parity and ignored.
-- `useRoute(stack)` — the current route for a stack, `null` at its base.
-  Native reads the registered frame's `currentPage` on iOS and router state on Android;
-  web reads the URL store.
-- Pushed native screens get `_stack` injected into props on named-stack
-  pushes — call `popRoute(props._stack)`
-  to pop the stack that pushed you. Web route params are URL-backed.
-
-Native Pages and route modals preserve the providers around a mounted
-`RouteOutlet` for their stack. Keep that outlet in the long-lived shell;
-removing it releases owned Pages and pending loads. The handler's location
-alone does not capture a screen-local provider. Without an outlet, routing
-uses a standalone root and needs params or a subscribed store.
-
-```tsx
-import { RouteOutlet, Screen, Text } from '@octane-xplat/ui'
-
-export function AppShell() {
-	return (
-		<Screen>
-			<RouteOutlet stack="root">
-				<Text>Home</Text>
-			</RouteOutlet>
-		</Screen>
-	)
-}
-```
-
-Wrap this shell in the app's providers; v0.16.0 provider callables have a
-[shared-facade typing limitation](../../../docs/notes/styled-jsx-contract.md#context-providers).
-For screen-local ownership, use the scoped NativeScript navigator described in
-[the route provider guide](../../../../docs/app/navigation.md#preserve-providers-across-native-pages).
-
-```tsx
-import { Text, Pressable } from '@octane-xplat/ui'
-import { useRoute, popRoute } from '@octane-xplat/ui/routing'
-
-export function PushedScreen({ _stack = 'root' }: { _stack?: string }) {
-	const route = useRoute(_stack)
-	return (
-		<Pressable onPress={() => popRoute(_stack)}>
-			<Text>{route?.name ?? 'Back'}</Text>
-		</Pressable>
-	)
-}
-```
-
-## What must be registered
-
-1. **Screens** — `registerScreens({ name: Component })` once, from the
-   shared screens module (`packages/app/src/screens.ts` does it at module
-   scope). Native `pushRoute` resolves `route.name` through it; web
-   outlets use it when `Tabs` has no `resolveScreen` prop.
-2. **`'root'`** — nothing. When the app boots a `Frame` window root (the
-   standard `Application.run` shape), `getStack('root')` auto-resolves
-   `Application.getRootView()`. `registerStack('root', frame)` remains as
-   an override. A non-Frame root can't host pushes — the push warns and
-   drops.
-3. **Named stacks** — `UITabBar` from `@octane-xplat/ui/ios` registers a
-   `Frame` for each stacked tab. The shared `Tabs` does not register Frames;
-   Android stores named routes in router-owned arrays and the active pane
-   (`Tabs` or `BottomNavigationView`) renders the top entry through
-   `RouteHost`.
-
-```tsx
-import { Text } from '@octane-xplat/ui'
-import { registerScreens } from '@octane-xplat/ui/routing'
-
-function Help() {
-	return <Text>Pack essentials first.</Text>
-}
-registerScreens({ help: Help })
-```
-
-Invalid targets warn loudly (once per key, dev and release): unregistered
-root stack, unknown screen name, or non-Frame root.
-
-## Route shapes — what actually pushes today
-
-| Shape                         | Web                                                                                                                   | iOS                                                        | Android                                                                                            |
-| ----------------------------- | --------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| `{stack:'root'}` push         | ✓ `/<path>?params` covers shell                                                                                       | ✓ verified                                                 | ✓ verified                                                                                         |
-| named stack (`stack:'demos'`) | ✓ `/demos/<path>` in pane                                                                                             | registered `UITabBar` Frame; shared `Tabs` via route store | swap-pane route store, rendered in-pane (shared `Tabs` verified; `BottomNavigationView` desk-only) |
-| params                        | `[param]` segments → real path (`/demo/counter`); extras → query-string scalars — objects degrade (`[object Object]`) | real objects as props                                      | real objects as props                                                                              |
-| `useRoute`/`routeFor`         | ✓                                                                                                                     | ✓ stamped on pushed page                                   | ✓ root; named tabs subscribe to router state                                                       |
-| `popRoute`                    | ✓ (`history.back`)                                                                                                    | ✓                                                          | ✓ root + router-owned named-stack pop                                                              |
-| deep link at boot             | ✓ `currentRoute()` seeds tab                                                                                          | n/a                                                        | n/a                                                                                                |
-
-Keep params to scalars for parity — the web leaf serializes into the URL.
-
-```ts
-import { pushRoute } from '@octane-xplat/ui/routing'
-
-pushRoute({ stack: 'root', name: 'demo/:id', params: { id: 'counter', from: 'home' } })
-```
-
-## Screen registry — the `app/` route dir
-
-`packages/app/src/app/` — every `.tsrx`/`.tsx` file is a route, derived by
-`import.meta.glob` in platform manifests (`routes.gen.web.ts` excludes
-mobile/OS-specific files; `routes.gen.mobile.ts` excludes web/macOS files and
-prefers `.ios` or `.android` before `.mobile` via `Device.os`).
-`deriveRouteManifest(files, prefer)` → `{screens, routes, layouts}`;
-`registerRoutes(manifest)` in `routes.ts` registers both.
-
-```ts
-import { deriveRouteManifest, registerRoutes } from '@octane-xplat/ui/routing'
-
-// routes.web.ts — the glob belongs in a Vite app module.
-const files = import.meta.glob('./app/**/*.tsrx', { eager: true })
-const manifest = deriveRouteManifest(files, ['web'])
-registerRoutes(manifest)
-```
-
-- `app/demo/[id].tsrx` → route `demo/:id`;
-  `[param]` → `:param`. `app/foo/index.tsrx` → `foo`.
-- `app/_layout.tsrx` → `layouts['']` — the shell the entry renders
-  (`export const App = routes.layouts['']` in `index.ts`). Not a route.
-- `app/settings.web.tsrx` → web-only route (skipped by the mobile glob).
-- Component pick: `default` → `screen` → single function export —
-  `ErrorBoundary` is reserved (never the screen).
-- Params arrive as screen props (native objects; browser path/query values).
-  Generated route types register on `AppRoutes`, so names and params are checked
-  at `pushRoute`/`NavLink` callsites once the app schema is registered.
-- A route may export `loader(params)` — pushed commits await it; the screen
-  mounts holding `data` or `error`. Direct-URL/history hydration mounts the
-  screen first with `pending: true`, then lands the result.
-- A route may export `ErrorBoundary` — render error boundary with props
-  `{ error, reset, route }` (`RouteErrorBoundaryProps`). It wraps the
-  layout+screen subtree at every outlet (pushed page, native modal root,
-  named stack root, web root/pane/modal). `reset` remounts the same subtree
-  without rerunning `loader`/`beforeLoad`; re-push to retry route data.
-  Loader rejections never enter it — they stay on the screen's `error` prop.
-
-```tsx
-// app/detail.tsrx — a route file's render boundary.
-import { Text, type RouteErrorBoundaryProps } from '@octane-xplat/ui'
-
-export function ErrorBoundary(props: RouteErrorBoundaryProps) {
-	return <Text>{`Route failed: ${String(props.error)}`}</Text>
-}
-```
-
-Adding a route = adding a file; no table edits.
-
-```tsx
-// app/help.tsrx — code generation derives the help route from this file.
-import { Text } from '@octane-xplat/ui'
-
-export default function Help() {
-	return <Text>Pack essentials first.</Text>
-}
-```
-
-## Generate or define typed routes
-
-For app file routes, regenerate entries and declarations with `xplat routes`.
-The CLI also runs generation during dev, build, and typecheck; do not hand-edit
-its generated files.
 
 ```sh
-pnpm exec xplat routes
+pnpm exec xplat routes --watch
+# Repository harness: one shared watcher alongside platform dev servers.
+pnpm --filter @xplat/app routes:watch
 ```
 
-For a package or programmatic route set, use `defineRoutes` and register its
-inferred params on `AppRoutes`. Without a schema contribution, names remain
-open strings. Keep each route source under its own augmentation member.
+The repository's live browser watcher check covers route edits/additions/renames/
+removals and configured context/manifests without restarting Vite. Document reloads
+occur; retained HMR state and native/device HMR remain separate qualifications.
+The TSX fixture currently emits the documented nonfatal JSX dependency-scan warning.
+
+```sh
+pnpm --filter @xplat/web smoke:routing-watch
+```
+
+
+
+File routes export a screen plus optional `validateSearch`, `beforeLoad`,
+`loader`, `head`, and `ErrorBoundary`. Import generated local `.contracts`
+types inside that route. Path, validated search, guard context, and loader data
+remain separate; no `_stack`, flattened parameter bag, or injected close callback.
+Malformed callback exports are compiler errors in generated `RouteExportChecks`
+and fatal `route/invalid-export` errors at catalog construction. Repair the
+source export; never cast generated checks away. Invalid guards are not ignored.
+Guard callbacks return an added context object or void; parsers return a search
+object, with async equivalents. Returning boolean permission flags or scalar
+search output is a type error in file routes, as it is in programmatic routes.
+Named output interfaces need no index signature, including async parsers and
+Standard Schema. Return plain field objects; non-record JavaScript results fail
+before guards/loaders. Preserve validator return literals with `as const` or an explicit return type;
+a widened `string` output also widens navigation's admitted search values.
+
+```tsx
+// src/app/items/[id].tsrx
+import { Text } from '@octane-xplat/ui'
+import type { RouteLoaderArgs, RouteProps } from '../../routes.gen.contracts'
+
+export function validateSearch(raw: { tab?: unknown }) {
+	const tab = raw.tab ?? 'details'
+	if (tab !== 'details' && tab !== 'activity') throw new TypeError('Invalid tab')
+	return { tab } as const
+}
+export function loader({ params, search }: RouteLoaderArgs<'/items/:id'>) {
+	return { title: params.id, tab: search.tab }
+}
+export function screen(props: RouteProps<'/items/:id'>) {
+	return <Text>{props.data.title}</Text>
+}
+```
+
+Programmatic definitions infer preparation with `defineRoute(options)`, then
+attach a module-level component with `.screen(component)` before `defineRoutes`.
+The flat `screen` option is removed; do not add a compatibility overload or cast
+an unfinished builder into a catalog. Keep inline validators, guards and loaders
+in dependency order; a named parser value preserves its known type across field
+order. Configure manifest
+exports for generated registration; application authors never handwrite an
+augmentation. Generated `.catalog.<target>` and `.contracts` imports stay local;
+`.types` and client imports deliberately contribute application contracts.
+Inline JSX screen callbacks are not lowered by the installed universal compiler;
+use a module-level named function or arrow binding for shared/native views.
+Typechecking such a callback alone does not establish native build support.
 
 ```tsx
 import { Text } from '@octane-xplat/ui'
-import {
-	defineRoutes,
-	registerRoutes,
-	pushRoute,
-	type ManifestRouteParams,
-} from '@octane-xplat/ui/routing'
-
-function Guide(props: { slug: string }) {
-	return <Text>{props.slug}</Text>
-}
-const manifest = defineRoutes({ routes: [{ path: 'docs/:slug', screen: Guide }] })
-declare module '@octane-xplat/ui' {
-	interface AppRoutes {
-		guides: ManifestRouteParams<typeof manifest>
-	}
-}
-registerRoutes(manifest)
-pushRoute({ stack: 'root', name: 'docs/:slug', params: { slug: 'packing' } })
+import { defineRoute, defineRoutes } from '@octane-xplat/ui/routing/core'
+function Guide(props: { data: { title: string; page: number } }) { return <Text>{props.data.title}</Text> }
+export const guideRoutes = defineRoutes([
+	defineRoute({
+		path: '/guides/:slug',
+		validateSearch(raw: { page?: unknown }) {
+			const page = Number(raw.page ?? 1)
+			if (!Number.isInteger(page) || page < 1) throw new TypeError('Invalid page')
+			return { page }
+		},
+		beforeLoad: ({ params }) => ({ section: params.slug }),
+		loader: ({ search, context }) => ({ title: context.section, page: search.page }),
+	}).screen(Guide),
+])
 ```
 
-Read [the navigation guide](../../../../docs/app/navigation.md) for guards,
-loaders, redirects, baked data, deep links, and schema composition. Use its
-current contracts rather than inferring them from a harness route manifest.
-
-## Native model
-
-- Shared `Tabs` renders a fixed tab row and swaps one pane; it does not host
-  a Frame. `UITabBar` from the iOS subpath uses NativeScript `TabView` and
-  registers a `Frame` for each `TabSpec` with a stack.
-- Pushed Pages stay in the mounted route outlet's tree. A Page in the
-  backstack retains local state and receives provider updates; popping it
-  releases its portal. Ownerless navigation retains the standalone-root fallback.
-- **`Frame.topmost()` is unreliable once nested frames exist** (Android:
-  innermost). `getStack('root')` resolves the window root Frame — never
-  `topmost()`.
-- Android hardware back is framework-owned: `route.native` installs the
-  `activityBackPressed` listener when screens or stacks register — no app
-  wiring. Ordered pop: newest modal, then the root stack (a pushed page
-  covers the shell), then the most recently used named stack, then any
-  named stack that can pop. `useBackInterceptor(fn)` /
-  `addBackInterceptor(fn)` run most-recent-first before the default pop;
-  return true to consume. Web twin is a warned no-op (browser back is URL
-  history).
-- Frame lifecycle traps + the nested-stack bug: `navigation/native-frames.md`.
-
-```tsx
-// EditScreen.mobile.tsx — the hook is called unconditionally in a component.
-import { Text } from '@octane-xplat/ui'
-import { useBackInterceptor } from '@octane-xplat/ui/routing'
-
-export function EditScreen({ hasUnsavedChanges }: { hasUnsavedChanges: boolean }) {
-	useBackInterceptor(() => hasUnsavedChanges)
-	return <Text>Save edits before leaving</Text>
+```json
+{
+	"directory": "src/app",
+	"manifests": [{ "module": "./src/guides.tsx", "export": "guideRoutes" }],
+	"stacks": ["library", "settings"]
 }
 ```
 
-## Web model
+## Keep platform contracts truthful
 
-`route.web.ts` — module-scope route store over real history:
+File discovery recognizes `.tsx`, `.tsrx` and `.md`, not plain `.ts`/`.js`
+helpers. Platform variants must preserve compatible params, search input/output,
+context and loader data; generated `.contracts` checks compare both directions.
+The default facade, hook, redirects and links only accept routes available on
+all generated targets. A platform-only destination uses the existing async
+validation proof; do not cast it into the shared destination union.
 
 ```ts
-import { pushRoute, popRoute, currentRoute } from '@octane-xplat/ui/routing'
-
-pushRoute({ stack: 'root', name: 'help', params: {} })
-console.log(currentRoute())
-popRoute()
+import { router } from '@octane-xplat/ui/routing'
+const camera = await router.validateDestination({ to: '/camera' })
+if (camera.status === 'valid') await router.push(camera.destination)
 ```
 
-- `pushRoute` → `pushState` — manifest routes write real paths with
-  `:param` substitution (`/demos/demo/counter`); params not in the path
-  fall back to the query string (`/detail?from=home`). Names outside the
-  manifest keep `/<stack>/<name>?params`.
-- `popRoute` → `history.back()`; `popstate` resyncs the store (the listener
-  is a window-slot singleton — re-imports under HMR/test resets do not
-  duplicate it).
-- `Tabs` is the outlet: `useRoute('root')` covers the shell when a root
-  route is active; `useRoute(activeTab.stack)` renders a pushed screen in
-  the pane via `resolveScreen` prop — or the `registerScreens` table when
-  the prop is absent.
-- Scroll: positions save per history entry — a push starts at top or at
-  `route.hash`'s element, pop/forward restores the saved position, and a
-  modal push leaves the position beneath it alone. `route.hash` writes the
-  `#fragment` into the URL; native ignores the field and retains scroll by
-  keeping pushed subtrees alive.
-- Deep links work: `currentRoute()` seeds the initial tab index at boot
-  (Vite preview SPA-fallbacks unknown paths to index.html).
+Explicit instances infer only their generated target catalog's paths. A missing
+screen retains metadata and reports `not-found/unavailable`, separately from
+unknown patterns and host readiness. `.web` also serves Linux WebKit; `.mobile`
+serves iOS/Android/generic mobile. See the [platform guidance](../../../../docs/app/navigation.md#share-routes-across-targets)
+before choosing a target-specific custom host.
 
-## Hook rules in outlets
+```ts
+import { routes } from './routes.gen.catalog.web'
+import { createRouter } from '@octane-xplat/ui/routing/core'
+import type { RouterHost } from '@octane-xplat/ui/routing/core'
+export function createWebNavigation(host: RouterHost) {
+	return createRouter({ catalog: routes, host })
+}
+```
 
-`useRoute(stack)` calls must be unconditional — subscribe with
-`props.tabs[active]?.stack ?? ''` rather than conditionally (conditional
-hook calls break the compiler's slotting).
+## Navigate from the rendering flow
+
+Use `useRouter()` in a routed tree and the imported `router` for root-level
+imperative actions. `useCanGoBack()` and `useRouterState()` are reactive and
+owner-bound; they take no legacy stack string. A hidden retained entry keeps
+its own match when reading through `getRouteApi`.
+
+```tsx
+import { Pressable, Text } from '@octane-xplat/ui'
+import { useCanGoBack, useRouter } from '@octane-xplat/ui/routing'
+export function Back() {
+	const navigation = useRouter()
+	const available = useCanGoBack()
+	return <Pressable disabled={!available} onPress={() => navigation.back()}><Text>Back</Text></Pressable>
+}
+```
+
+Use `push`, `replace`, `reset`, `back`, `dismiss`, `refresh`, and `retry` for
+their distinct operations. Native modal Back walks the presentation's inner
+history and returns `at-base` at its first screen; dismiss closes the surface.
+Browser reset cannot erase history and returns `unsupported`.
+
+```ts
+import { router } from '@octane-xplat/ui/routing'
+const result = await router.push({ to: '/items/:id', params: { id: 'coat' }, transition: 'none' })
+if (result.status === 'committed') await result.finished
+```
+
+## Confirm unsaved navigation
+
+Use the entry-owned blocker for a draft, including under a custom provider. It
+asks before context/guards/loaders; stale controls cannot approve a newer attempt.
+Refresh bypasses leave confirmation. Clearing the condition or unmounting a
+blocked declaration cancels it; proceed ends with navigation, not animation.
+
+```tsx
+import { Button, View } from '@octane-xplat/ui'
+import { useNavigationBlocker } from '@octane-xplat/ui/routing'
+export function ConfirmLeave(props: { dirty: boolean }) {
+	const blocker = useNavigationBlocker({ when: props.dirty })
+	return blocker.status === 'blocked' ? <View>
+		<Button label="Keep editing" clickAction={blocker.reset} />
+		<Button label="Leave screen" clickAction={blocker.proceed} />
+	</View> : null
+}
+```
+
+Older retained entries in the same flow cannot block its current entry. Several
+active blockers must all approve, newest registration first. Confirmation is
+flow-owned; redirects stay in the approved attempt, and parent-owner teardown
+or raw host closure cannot be vetoed. This does not intercept document unload
+or OS exit. See the [supported boundaries and save ordering](../../../../docs/app/navigation.md#confirm-before-leaving-unsaved-edits)
+before adding app-wide exit protection.
+
+
+
+## Handle inputs and preparation
+
+The browser host prepares Back/Forward destinations with fresh guards, loaders
+and one context snapshot for the restored background/modal entries. Imperative
+Back refuses before moving history; browser-triggered denial keeps the current
+screen and corrects its URL with a bounded wait. Retry preserves the refused
+direction. Saved data is never authorization, including URLs revisited after
+root-owner replacement. Same-flow rendered-pane Back also rechecks guards/loaders while retaining
+local state. Programmatic Frame Back and Android OS Back also prepare retained
+targets; redirected Frame content stages in a separate owned root before adoption.
+A history redirect to another stack replaces its current entry and preserves the
+source history; a modal redirect presents above the admitted source. Native modal
+dismissal prepares and refreshes its presenter before closing; denial retains
+the modal. Explicit `stack: 'root'` escapes a modal even when its logical stack is
+root; an omitted stack inherits the current flow. Redirects reuse prepared data
+within the same attempt. An iOS Frame leading-edge swipe requests canonical Back
+after release; guards run before the pop. Short/cancelled/reversed drags do not
+navigate. It has no finger-tracked preview. Built-in full-content pops are
+disabled on owned Pages; this adapter does not add swipe Back to rendered panes
+or add modal-dismissal gestures. Routed native modals are fullscreen with direct
+SDK cancellation disabled. Close through canonical dismiss or Android OS Back;
+forced host closure reconciles cleanup after closing.
+
+```ts
+const result = await router.back()
+if (result.status === 'forbidden') { /* Show the application's sign-in action. */ }
+// After the application's session changes: await router.retry()
+```
+
+Use typed `redirect` in guards or loaders. Use the route's own callback args
+and root context dependencies instead of reading its own complete inferred
+application registry during inference. A failed attempt returns a structured
+result and leaves the committed screen visible; it does not inject an error
+into otherwise successful screen props.
+
+```tsx
+// In the item route, with generated local inputs:
+import { redirect } from '@octane-xplat/ui/routing'
+import type { RouteGuardArgs } from '../../routes.gen.contracts'
+export function beforeLoad({ params }: RouteGuardArgs<'/items/:id'>) {
+	if (params.id === 'old') redirect({ to: '/items/:id', params: { id: 'coat' } })
+	return { checked: true }
+}
+```
+
+For programmatic baked specs, preserve the inferred `defineRoutes({ routes,
+baked })` return. Accessors infer each DTO from the normalized route-name key
+(`'/guides/:slug'` uses `'guides/:slug'`; root uses `'index'`). Missing or erased
+map values remain unknown. Extra map keys do not widen destination unions, and
+live routes keep their loader output. `defineRoute` is the live-loader helper;
+a baked spec is supplied directly in the catalog's route list.
+
+```ts
+const catalog = defineRoutes({
+	routes: [{ path: '/help', dataMode: 'baked', screen: Help }],
+	baked: { help: { title: 'Packing help' } },
+})
+```
+
+For current-screen filters, bind `getRouteApi(path, instance?).useUpdateSearch()`
+inside the screen. A synchronous pure callback receives validated search output
+and returns the whole navigation search input. Omit fields to remove them;
+preservation is explicit. It replaces by default; `replace:false` pushes.
+Guards/loaders rerun, the fragment is preserved, and ordinary host scroll rules
+apply. A retained inactive entry's stale callback returns `cancelled` without
+invoking the function. Use the returned callback in that screen's handlers.
+
+```tsx
+import { Button } from '@octane-xplat/ui'
+import { getRouteApi } from '@octane-xplat/ui/routing'
+const item = getRouteApi('/items/:id')
+export function ItemFilters() {
+	const updateSearch = item.useUpdateSearch()
+	return <Button label="Activity" clickAction={() => {
+		void updateSearch(previous => ({ ...previous, tab: 'activity' }))
+	}} />
+}
+```
+
+Treat unknown URLs as runtime inputs. `navigateUrl` validates them through the
+same pipeline. Unknown patterns, unavailable screens, malformed input,
+resource-not-found, forbidden, cancellation, and failures remain distinguishable.
+Never recover typing by asserting a computed object to a destination union.
+
+```ts
+import { router } from '@octane-xplat/ui/routing'
+export async function openIncoming(url: string) {
+	return router.navigateUrl(url)
+}
+```
+
+For destination objects from data, await `validateDestination`. It runs path,
+option and search/schema checks without context, guards or loading. Pass the
+original opaque result to navigation/href, or as `<NavLink to={value}>`.
+Choose route options before validation. Do not spread or serialize the opaque
+value or pass it to a different instance. Omitted stacks follow the consuming
+navigator; navigation rechecks the current registry and guards. Removed or
+changed routes cannot use an old proof to bypass preparation. `resolveUrl` is
+only a synchronous syntactic match, not the async schema proof.
+
+```tsx
+import { NavLink } from '@octane-xplat/ui'
+import { router } from '@octane-xplat/ui/routing'
+import type { ValidatedDestination } from '@octane-xplat/ui/routing'
+export async function openFromData(value: unknown) {
+	const checked = await router.validateDestination(value)
+	if (checked.status === 'valid') return router.push(checked.destination)
+	return checked
+}
+export function CheckedLink(props: { destination: ValidatedDestination }) {
+	return <NavLink to={props.destination}>Open</NavLink>
+}
+```
+
+## Show navigation feedback
+
+`useNavigation()` returns one flow's `idle`, `pending`, or `failed` state,
+including the attempted action and readonly URL inputs. It exposes no route
+DTO, so shared status components can inherit custom providers without an
+instance prop. Typed `useRouterState()`, `useRouteMatch()`, `useRouter()` and
+route-specific accessors require that explicit instance under custom providers.
 
 ```tsx
 import { Text } from '@octane-xplat/ui'
-import { useRoute } from '@octane-xplat/ui/routing'
-
-export function Destination({ stack }: { stack?: string }) {
-	const route = useRoute(stack ?? '')
-	return <Text>{route?.name ?? 'Base screen'}</Text>
+import { useNavigation } from '@octane-xplat/ui/routing'
+function LoadingStatus() {
+	return <Text>{useNavigation().status === 'pending' ? 'Opening…' : ''}</Text>
 }
 ```
 
-## Modal routes and modal primitives
-
-Route files may use `+modal` or `pushRoute({ presentation: 'modal', ... })`.
-Native presents a separate host whose content belongs to the mounted route
-outlet, when present. Web overlays the previous history entry. Use params for
-destination data; provider inheritance follows the outlet ownership above.
+Failed preparation retains the committed screen. A flow's retry repeats its
+latest failed request, including missing/forbidden/invalid destinations;
+successful commit or `clearFailure()` clears feedback. A cancelled retry can
+reveal the previous failure again. Keep errors local and distinguish expected
+missing/forbidden outcomes from unexpected loader/render failures.
 
 ```ts
-import { pushRoute } from '@octane-xplat/ui/routing'
-
-pushRoute({ stack: 'root', name: 'help', presentation: 'modal', params: { topic: 'packing' } })
+const state = navigation.getSnapshot().navigation
+if (state.status === 'failed') await navigation.retry()
+navigation.clearFailure()
 ```
 
-The shared `BottomSheet`, `Overlay`, `Popover`, and `openBottomSheet(Component, props)`
-APIs remain separate from route navigation; use them for transient UI without
-a shareable destination. For OS-authentic modal widgets, import
-`UIModal`/`MaterialDialog` from the matching UI subpath. See `overlays.md`.
+## Compose typed navigation
+
+Use `to`/`params`/`search` directly on sidebar, top-bar, heading-menu,
+breadcrumb, menu-link, navigation-strip and navigation-tab items. Their arrays
+accept readonly values; use `as const satisfies readonly BreadcrumbItem[]`
+(or the corresponding item type) when storing them separately. `href` is the
+raw URL alternative; actions omit both. Literal destinations under a custom
+provider require `router={instance}`. An opaque checked destination may inherit
+its issuing instance from that provider; pass the entire value as `to`.
 
 ```tsx
-import { useState } from 'octane'
-import { BottomSheet, Text } from '@octane-xplat/ui'
+import { SideNavItem, DropdownMenu, TabList, Tab } from '@octane-xplat/ui'
 
-export function TemporaryDetails() {
-	const [isOpen, setOpen] = useState(false)
-	return (
-		<BottomSheet label="Bag details" isOpen={isOpen} onOpenChange={setOpen}>
-			<Text>Bag details</Text>
-		</BottomSheet>
-	)
+const item = <SideNavItem label="Coat" to="/items/:id" params={{ id: 'coat' }} />
+const menu = <DropdownMenu trigger="Items" items={[
+	{ type: 'link', key: 'coat', label: 'Coat', to: '/items/:id', params: { id: 'coat' } },
+]} />
+const tabs = <TabList value="coat" onChange={() => {}}>
+	<Tab value="coat" label="Coat" to="/items/:id" params={{ id: 'coat' }} />
+</TabList>
+```
+
+Typed navigation tabs use the navigation pattern. `role="tablist"` controls
+local panels and rejects `to`; `TabMenu` also remains a local selection menu.
+Use a routing `DropdownMenu` for overflow destinations. Web typed items retain
+real hrefs, modifiers and target/download behavior; native activation uses the
+owner's flow. Callback `preventDefault()` cancels activation and menu closing.
+
+```tsx
+import { SideNavItem } from '@octane-xplat/ui'
+
+const paused = <SideNavItem label="Coat" to="/items/:id" params={{ id: 'coat' }}
+	onClick={event => event.preventDefault()} />
+```
+
+## Keep panes and ownership explicit
+
+A named `Tabs` pane owns its route outlet. Stackless tabs are ordinary UI.
+Retain tab render functions and keys; place the outer root outlet explicitly.
+Native activity Back targets the visible flow rather than stealing hidden-tab
+history. Native pane histories are independent; web still has one browser history.
+
+```tsx
+import { RouteOutlet, Tabs, Text } from '@octane-xplat/ui'
+function Library() { return <Text>Library</Text> }
+function Settings() { return <Text>Settings</Text> }
+const tabs = [
+	{ key: 'library', title: 'Library', stack: 'library', render: Library },
+	{ key: 'settings', title: 'Settings', stack: 'settings', render: Settings },
+]
+export function Sections() { return <RouteOutlet><Tabs tabs={tabs} /></RouteOutlet> }
+```
+
+A root outlet owns retained prepared route data. On web, removing it discards
+current/saved matches and owned Back state; a new default root prepares the
+current URL again without adding history. Application stores are separate.
+Key a common component around every outlet that should be discarded together.
+A new native owner waits for old Frame restoration and modal cleanup before
+committing navigation; it starts at its declaring content. A context-source
+update alone does not invalidate retained prepared entries.
+
+```tsx
+import { RouteOutlet, Text } from '@octane-xplat/ui'
+function OwnedScreens() { return <RouteOutlet><Text>Choose a screen.</Text></RouteOutlet> }
+export function App(props: { ownershipVersion: number }) {
+	return <OwnedScreens key={props.ownershipVersion} />
 }
+```
+
+Embedded panes use an explicit instance with `createPaneRouterHost` and
+`RouterPane`. Attach the instance created with that host before rendering;
+cloned bindings, host reuse and attachment to another instance are rejected.
+The creator owns disposal. Keep JSX component declarations at module scope for
+universal compilation; factories create controller/state objects. Pane histories
+retain screens and providers without changing browser URLs, creating native
+Frames or presenting modals. Motion reports skipped. OS Back and window-close
+integration belong to the enclosing host. Typed hooks take the explicit instance.
+The private native GTK renderer supports this explicit pane workflow through
+`xplatLinuxGtk`. Keep its screens in `.gtk` leaves and use the GTK preset's
+renderer resolution. Its modal presentation, OS Back, generated startup and
+full shared-control support are outside this measured subset. See the
+[GTK pane example](../../../../docs/platform/linux-gtk.md#add-retained-route-panes)
+and [executed checks](../../../docs/navigation-checks.md#native-gtk-retained-panes).
+
+Read the [complete pane walkthrough](../../../../docs/app/navigation.md#bind-a-custom-router-to-rendering)
+for toolbars, named flows and lifetime cleanup.
+
+```tsx
+import { Text } from '@octane-xplat/ui'
+import { createPaneRouterHost, createRouter, defineRoute, defineRoutes, RouterPane } from '@octane-xplat/ui/routing'
+export function createPaneNavigation() {
+	const host = createPaneRouterHost()
+	const catalog = defineRoutes([defineRoute({ path: '/help' }).screen(() => null)])
+	const navigation = createRouter({ catalog, host: host.host, stacks: ['library', 'settings'] })
+	host.attach(navigation)
+	return { host, navigation, dispose: () => navigation.dispose() }
+}
+export function Library(props: { workspace: ReturnType<typeof createPaneNavigation> }) {
+	return <RouterPane host={props.workspace.host} router={props.workspace.navigation} stack="library">
+		<Text>Library base</Text>
+	</RouterPane>
+}
+```
+
+Register runtime contributions with stable IDs and disposal handles. They do
+not widen compile-time destinations or replace a declared contract, even with
+`conflict: 'replace'`; compose declared overrides before creating the instance.
+Keep reusable specs literal with `as const satisfies RouteSpec`; a broad
+`: RouteSpec` annotation erases the finite path. Ordinary catalog errors put
+the literal-path repair first. The baked-data signature requires actual data;
+explicit generic arguments cannot provide evidence for an omitted value.
+
+```ts
+import { defineRoutes, type RouteSpec } from '@octane-xplat/ui/routing/core'
+const help = { path: '/help', screen: () => null } as const satisfies RouteSpec
+const helpRoutes = defineRoutes([help])
+```
+
+Use `defineRoutes` for finite patterns and `defineRuntimeRoutes` for computed
+strings/templates. Both preserve root dependencies. Prefer `/guides/:slug` for
+content sharing one screen. Returned catalogs/definitions are immutable;
+author changes through the builders instead of spreading inferred definitions
+or editing metadata.
+
+```ts
+import { defineRoute, defineRuntimeRoutes } from '@octane-xplat/ui/routing/core'
+import type { RouterInstance } from '@octane-xplat/ui/routing'
+export function installContent(navigation: RouterInstance, paths: readonly string[]) {
+	const catalog = defineRuntimeRoutes(paths.map(path => defineRoute({ path }).screen(() => null)))
+	return navigation.addRoutes(catalog, { id: 'content', conflict: 'replace' })
+}
+```
+
+Aggregate state, navigation results, and `useRouteMatch` include a runtime
+branch with unknown data. Check `contract === 'declared'` before narrowing the
+declared route union. Use a named accessor for the
+inferred DTO. Under a custom provider, pass its instance to typed hooks and
+accessors; omitted instances refer to the default client and throw under a
+custom provider. Client behavior belongs in definitions, never router option
+overrides.
+
+```tsx
+import { useRouter } from '@octane-xplat/ui/routing'
+import { Pressable, Text } from '@octane-xplat/ui'
+import type { createPaneNavigation } from './pane-navigation'
+type Navigation = ReturnType<typeof createPaneNavigation>['navigation']
+export function OpenHelp(props: { navigation: Navigation }) {
+	const navigation = useRouter(props.navigation)
+	return <Pressable onPress={() => navigation.push({ to: '/help' })}><Text>Help</Text></Pressable>
+}
+```
+
+
+
+## Return after sign-in and change authority
+
+Use `navigateUrl(returnUrl, { replace: true })` after the application updates its
+session. It applies the origin/scheme policy, search validation and current
+guards/loaders. A resolver match is normalized runtime input, not a typed
+contract proof. Rejected URLs retain the committed screen; inspect the result.
+
+```ts
+import { router } from '@octane-xplat/ui/routing'
+export function returnAfterSignIn(returnUrl: string) {
+	return router.navigateUrl(returnUrl, { replace: true })
+}
+```
+
+Root context is a shallow snapshot per attempt. Synchronous sources are copied
+before yielding; services retain identity, so return immutable/fresh account
+values. Context changes alone do not invalidate retained routes. Replace a
+common owner around all affected outlets when an authority version changes;
+application-owned caches and server authorization remain separate.
+
+```tsx
+import { RouteOutlet } from '@octane-xplat/ui'
+function SessionScreens() { return <RouteOutlet /> }
+export function App(props: { authorityVersion: number }) {
+	return <SessionScreens key={props.authorityVersion} />
+}
+```
+
+If sign-in replaces that owner, pass its return URL to the new tree. A return
+started in the retiring tree can be cancelled. Consume the intent once inside
+the replacement outlet, after startup preparation settles; do not automatically
+retry expired/denied sign-in. The [complete handoff example](../../../../docs/app/navigation.md#return-after-sign-in)
+shows the keyed parent. The app owns SDK cancellation and must ignore late
+results from a cancelled or unmounted login attempt.
+
+```tsx
+import { useEffect, useMemo } from 'octane'
+import { useNavigation, useRouter } from '@octane-xplat/ui/routing'
+function CompleteSignIn(props: { returnUrl?: string }) {
+	const navigation = useRouter()
+	const state = useNavigation()
+	const started = useMemo(() => ({ value: false }), [])
+	useEffect(() => {
+		if (!props.returnUrl || started.value || state.status === 'pending') return
+		started.value = true
+		void navigation.navigateUrl(props.returnUrl, { replace: true })
+	}, [navigation, props.returnUrl, state.status])
+	return null
+}
+```
+
+## Ship build-time route data
+
+For `dataMode: 'baked'`, put Node/content dependencies in the `.loader.ts`
+sibling. Generated `RouteProps` and route accessors infer its awaited output
+through type-only imports. Never import that loader into a screen at runtime.
+Markdown route contracts receive `MdDoc`. Typechecking refreshes contracts
+without executing loaders; routes/dev/build regenerate the actual data.
+
+```tsx
+import { Text } from '@octane-xplat/ui'
+import type { RouteProps } from '../routes.gen.contracts'
+export const dataMode = 'baked'
+export default function Changelog(props: RouteProps<'/changelog'>) {
+	return <Text>{props.data.version}</Text>
+}
+```
+
+Return plain JSON values from the sibling. Generation rejects silent JSON loss
+such as `undefined`, holes, non-finite numbers, class instances, accessors and
+cycles, with route/source/field diagnostics. Convert special values explicitly.
+
+```ts
+export function loader() { return { version: '1', publishedAt: new Date().toISOString() } }
+```
+
+## Boundaries to preserve
+
+Route presentation and motion are separate. Use `transition: 'none'` for
+predictable no-animation navigation. Browser `fade`/`default` wrap the actual
+DOM commit in View Transitions after preparation. Navigation resolves at commit;
+`result.finished` reports animation separately. Reduced motion and missing
+browser support skip the effect. Register custom names with `defineTransitions`
+and browser leaves with `defineWebTransition` from `@octane-xplat/ui/web`; configure
+the export in `xplat.routes.json`. Other target leaves need the same keys and an
+implementation or explicit `{ kind: 'skip' }` fallback. Native Frame leaves use
+`defineNativeTransition` from `@octane-xplat/ui/nativescript` with a synchronous
+`page` factory returning NativeScript navigation options or a new Transition
+instance. The native engine owns Back reversal; do not rerun that factory for
+Back. The same definition's `view` option animates routed NativeScript modals
+and retained rendered panes: the router-owned content wrapper animates from the
+flat `from` values (`opacity`, `translateX/Y`, `scaleX/Y`, `rotate`) to neutral
+via the SDK `Animation` engine after the surface appears (`animated: false` —
+`ShowModalOptions.transition` is unreliable upstream). Built-in `fade` fades
+content for 240 ms; the `view` subset is unsupported on GTK and Windows, which
+report `skipped`/`unsupported`.
+AppKit pane leaves use `defineAppKitTransition` from `@octane-xplat/ui/macos`:
+`from` supplies the same flat numeric starting values, optionally derived from
+direction, and `duration` is a linear tween in milliseconds. The router restores
+its private incoming wrapper to neutral values on completion/interruption/
+disposal; routed AppKit modal content animates the same way after `show`. Back
+uses the departing definition with reverse direction. No outgoing snapshots are
+implied.
+
+```ts
+// src/transitions.macos.ts
+import { defineTransitions } from '@octane-xplat/ui/routing/core'
+import { defineAppKitTransition } from '@octane-xplat/ui/macos'
+export const transitions = defineTransitions({
+	detail: defineAppKitTransition({
+		from: ({ direction }) => ({ opacity: 0, translateX: direction === 'back' ? -24 : 24 }),
+		duration: 240,
+	}),
+})
+```
+
+Explicit router instances infer their own transition keys through hooks and
+NavLink. AppKit routed modals use a deferred fullscreen in-window surface,
+retain their own history/providers, and animate content with a configured
+`defineAppKitTransition` (otherwise `finished` reports `skipped`). Back at
+the first modal screen returns `at-base`; `dismiss` closes the flow.
+Escape/outside callbacks request canonical guarded dismissal; raw window closure
+and owner removal clean up the modal family. Native keyboard/pointer input
+remains unqualified.
+
+```ts
+import { router } from '@octane-xplat/ui/routing'
+await router.push({ to: '/items/:id', params: { id: 'coat' }, presentation: 'modal', transition: 'none' })
+```
+
+Browser routed modal flows use body portals and the shared modal focus manager:
+the presenter is inert, Tab stays inside, and Escape requests canonical guarded
+dismissal. `head.title` names the dialog (fallback: “Dialog”). Focus ownership
+survives screen changes. A stable DOM `id` can restore the opener after presenter
+revalidation replaces its node. A remaining parent modal is the fallback for a
+removed opener; do not claim an absent control is recreated or that screen-reader
+input has been tested.
+
+```tsx
+export const head = () => ({ title: 'Edit item' })
+```
+
+Browser page changes focus an explicit autofocus target, then a visible h1/
+level-one ARIA heading, a main landmark or the document body. Temporary tabindex
+is released on blur/owner teardown. Back/Forward use entry-specific document
+scroll and saved focus, with stable DOM IDs for re-rendered controls. Refresh
+preserves focus/scroll; ordinary push/replace/search updates use page-change
+effects. Cancelled/stale work cannot apply late focus, scroll or head metadata.
+These are document effects; nested scrollers, late layout shifts, native focus
+and assistive-technology input require their own qualification.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx/dom */
+export default function Help() {
+	return <main><h1>Packing help</h1><button id="packing-action">Pack</button></main>
+}
+```
+
+The default client is app/document-local. Server hosts must create request-local
+instances, context and preparation state; a JSON manifest is not an SSR host.
+Do not configure a shared default client for an account on a server request.
+
+```ts
+// Client entry only:
+import './routes.gen'
+// Server rendering needs the separately designed request host and safe transfer.
+```
+
+```ts
+// src/transitions.mobile.ts
+import { defineTransitions } from '@octane-xplat/ui/routing/core'
+import { defineNativeTransition } from '@octane-xplat/ui/nativescript'
+export const transitions = defineTransitions({
+	detail: defineNativeTransition({ page: () => ({ name: 'slideLeft', duration: 240 }) }),
+})
+```
+
+Read [the app navigation guide](../../../../docs/app/navigation.md) for complete
+workflows, [Frame internals](navigation/native-frames.md) only when debugging
+native containment, and [navigation checks](../../../docs/navigation-checks.md)
+for commands and target-specific evidence. Current cutover verification must be
+reported separately from historical pre-cutover runs; Windows has no VM here.
+
+Incoming absolute links require explicit `allowedSchemes` or `allowedOrigins`
+in `xplat.routes.json` (or explicit router configuration). Schemes map their
+authority into the route path; HTTPS origins are allowlisted and removed before
+matching. For example, `pack://items/coat` and an allowed
+`https://app.example/items/coat` both resolve `/items/:id`. Unconfigured URLs
+return `invalid-input`; malformed links never create fallback routes.
+
+```json
+{ "allowedSchemes": ["pack"], "allowedOrigins": ["https://app.example"] }
 ```

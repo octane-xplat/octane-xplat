@@ -100,6 +100,28 @@ build:packages`, `pnpm build:web`, and the package-test half of `pnpm test`
   `NS_VENDOR_EXCLUDE`; the collector then serves them per-module through
   the Vite pipeline. Remove once the upstream collector skips source-only
   packages regardless of spec.
+- **TSRX generic syntax limitation (observed with the installed, locally patched
+  `@tsrx/typescript-plugin@0.4.11`).** The valid TSX generic arrow
+  `const identity = <Value,>(value: Value): Value => value` fails `tsrx-tsc`
+  in a `.tsrx` file with TS17008, while stock TypeScript accepts the equivalent
+  `.tsx` probe. In the native authentication fixture, an optional generic method
+  in an object type (`run?<Value>(value: Value): Value`) also failed the CLI lint
+  parser with `Unexpected token`; this is a separate observed lint limitation,
+  not an isolated checker diagnosis. Use a named generic function and a generic
+  callable type alias for an optional field. The rewritten fixture passes the
+  checker, lint, universal compilation and actual native hosts. This is a
+  source-tooling workaround, not a routing API restriction or runtime feature.
+  No upstream parser patch was added. Recheck both forms when upgrading TSRX.
+
+  ```ts
+  function identity<Value>(value: Value): Value { return value }
+  type Operation = <Value>(value: Value) => Value
+  type Options = { run?: Operation }
+  ```
+
+  Reproduction: `packages/ui/node_modules/.cache/native-auth-syntax/`;
+  captured stock/checker output: `research/routing-cutover/native-auth-syntax-{tsx,tsrx}.log`.
+  The maintained workaround is in `packages/ui/tests/authentication-native-example.tsrx`.
 - App starters include runtime/build dependencies and testing for their selected
   platforms by default. Platform fragments own their test files, scripts, and
   managed development dependencies, including when a platform is added later.
@@ -226,3 +248,49 @@ tcp:5173`. Dev-session mode is activated only by `ns run`'s livesync launch;
   spacing, so `xplat/spacing` is no longer a lint rule — lint and fmt do not
   compete. `xplat fmt` writes atomically per file after the batch transforms;
   `--check` exits 1 without writes, `--stdin-filepath` pipes stdin to stdout.
+
+## Portable source configuration
+
+`packages/ui/src/tsconfig.json` ships with raw source. Its transform options
+must be self-contained; extending the repository's base config breaks installed
+Vite consumers before routing code can execute. Preserve legacy decorator
+emission for vendored native classes, JSX preservation and the ES2020 target.
+The routing platform-contract fixture can build catalogs against an extracted
+UI tarball; a workspace-only check cannot catch this missing-parent failure.
+
+```json
+{
+	"compilerOptions": {
+		"target": "ES2020",
+		"jsx": "preserve",
+		"verbatimModuleSyntax": true,
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"noEmitHelpers": true
+	}
+}
+```
+
+## TSX dependency-scan warning
+
+**Observed, unresolved.** The live routing-watch fixture uses Vite 8.3.0,
+`@octanejs/vite-plugin` 0.1.61, patched Octane 0.11.0 and the workspace JSX facade.
+During dependency scanning, Vite tried to resolve
+`@octane-xplat/jsx/dom/jsx-dev-runtime` with runtime `web`/`import` conditions.
+That facade intentionally exports types; it does not supply a second JSX runtime.
+Vite printed a scan failure and skipped dependency pre-bundling. The ordinary
+Octane transforms still rendered the app, and all seven route edit/add/rename/remove,
+configured-context and manifest DOM assertions passed without browser errors.
+
+```sh
+pnpm --filter @xplat/web smoke:routing-watch
+```
+
+Evidence is the maintained temporary TSX fixture in
+`apps/web/scripts/routing-watch.mjs`, its local run and the public JSX export map
+in `packages/jsx/package.json`. This establishes the narrow warning; it does not
+establish a general failure of web development or attribute a defect to a specific
+upstream implementation. No dependency-discovery disabling, runtime facade shim
+or upstream patch was added. A follow-up should qualify scanner configuration or
+an upstream plugin correction while preserving the facade's type-only contract.
+The routing check must not be described as warning-free until that is resolved.

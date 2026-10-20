@@ -26,6 +26,9 @@ platform example. Platform divergence belongs at file boundaries.
   pragma selects that same facade; browser intrinsic files select
   `@octane-xplat/jsx/dom`. Put a JSX pragma first when present. Types do not select
   the renderer; retain the app's Vite presets.
+  Inside `packages/ui`, follow neighboring renderer pragmas for declaration
+  emission (for example `@octane-xplat/macos-renderer` on AppKit leaves); UI does
+  not depend on the JSX facade package.
 - Use CSS/`className` for static styles and style objects for dynamic styles.
   Native authored layout uses `masonview` with layout in the style channel;
   shared components translate their semantic layout props. See

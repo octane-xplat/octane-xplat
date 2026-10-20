@@ -849,7 +849,7 @@ const name = useStore(store, (s) => s.name)
 **Route `loader` exports run on navigation** and deliver `data` or `error`
 props; they do not provide a reactive query cache or suspense boundary.
 Keep remote state in a screen-owned `query$` when it must react to inputs
-or support refresh; see [route loaders](navigation.md#present-a-route-modally).
+or support refresh; see [route loaders](navigation.md#handle-pending-work-and-failures).
 
 ```tsx
 import { Text } from '@octane-xplat/ui'

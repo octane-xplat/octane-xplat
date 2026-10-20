@@ -12,8 +12,9 @@ JavaScript engine.
 
 The runtime is experimental and early. The renderer package
 (`@octane-xplat/linux-gtk`) is private to this repository — it is not on
-npm — and nothing has been executed under a real GJS/GTK session yet.
-Everything below is verified at build level only. For the qualified webview
+npm. A counter and retained route panes have run in a real GJS/GTK session
+with programmatic event dispatch. Packaging remains build evidence; OS input,
+visual parity and the complete shared UI are not qualified by those checks. For the qualified webview
 target, see [Package a Linux WebKitGTK app](linux-package.md).
 
 ## Configure the app
@@ -80,6 +81,69 @@ export function main(): number {
 main()
 ```
 
+## Add retained route panes
+
+Use an explicit programmatic catalog and pane host for native GTK routing.
+The pane keeps each screen's widgets and local state while it is in history.
+This example opens an item without creating a NativeScript Frame or changing a
+browser URL. Put it in `src/App.gtk.tsx`; the host entry shown above mounts `App`.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { useState } from 'octane'
+import {
+	createPaneRouterHost,
+	createRouter,
+	defineRoute,
+	defineRoutes,
+	RouterPane,
+	type RouteScreenProps,
+} from '@octane-xplat/ui/routing'
+
+const detail = defineRoute({
+	path: '/probe/:id',
+	transition: 'none',
+	loader: ({ params }) => ({ id: params.id }),
+})
+
+function Detail(props: RouteScreenProps<typeof detail>) {
+	const [count, setCount] = useState(0)
+	return (
+		<masonview style={{ display: 'flex', flexDirection: 'column' }}>
+			<label text={`${props.data.id}:${count}`} />
+			<button text={`Increment ${props.data.id}`} onTap={() => setCount(count + 1)} />
+		</masonview>
+	)
+}
+
+const host = createPaneRouterHost()
+const navigation = createRouter({ host: host.host, catalog: defineRoutes([detail.screen(Detail)]) })
+host.attach(navigation)
+export function App() {
+	return (
+		<masonview style={{ display: 'flex', flexDirection: 'column' }}>
+			<button
+				text="Open coat"
+				onTap={() => {
+					void navigation.push({ to: '/probe/:id', params: { id: 'coat' } })
+				}}
+			/>
+			<RouterPane host={host} router={navigation} />
+		</masonview>
+	)
+}
+
+export { navigation }
+```
+
+This experimental subset has explicit limits: pane modals are rejected,
+transitions report skipped, and OS Back and window-close integration belong to
+the enclosing host. Generated GTK startup, incoming links, physical input and
+native Mason geometry need separate qualification. The maintained check passed
+13 assertions in GJS 1.82.3 / GTK 4.18.6 using Gtk.Box emulation; it does not
+establish the optional Mason typelib's layout behavior. See
+[native GTK routing checks](../verify/navigation-checks.md#native-gtk-retained-panes).
+
 ## Check the runtime
 
 On Ubuntu 24.04, install GJS and the GTK4 introspection data:
@@ -138,7 +202,7 @@ it works from any directory without a source checkout, Node, or pnpm.
   features of the WebKitGTK host, and they land with runtime qualification.
 - No device services (clipboard, secure storage, notifications, files) —
   the GTK host mounts widgets only.
-- No verified runtime behavior. Driver dispatch, events, and widget mounting
-  are proven at bundle level, not under GJS. See the [renderer status
-  note](../../.agents/docs/notes/linux-gtk-renderer.md) for the current
-  evidence boundary.
+- OS pointer/keyboard input, Wayland, visual parity and complete shared UI
+  coverage remain unqualified. Counter and retained-pane checks establish only
+  the named widget/event/history behaviors. See the [renderer status
+  note](../../.agents/docs/notes/linux-gtk-renderer.md) for the evidence boundary.

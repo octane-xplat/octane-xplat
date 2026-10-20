@@ -14,6 +14,8 @@ source before relying on them.
 - [CSS support](css-support-notes.md)
 - [Module resolution](module-resolution-notes.md)
 - [Navigation](navigation-notes.md)
+- [Routing transition engines and platform subsets](routing-transitions.md)
+- [Routing contracts](routing-contracts.md) — declared/runtime ownership, immutable evidence, generated setup and typed reads.
 - [Styling](styling-notes.md)
 - [Testing](testing-notes.md)
 - [Toolchain](toolchain-notes.md)

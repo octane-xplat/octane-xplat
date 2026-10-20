@@ -1316,6 +1316,32 @@ the full contract: errors, interruption causes, and ownership rules. Android
 and web session adapters are still pending — they reject with `unsupported`
 until they land; see [known limits](../testing/known-limits.md#primitives).
 
+## Move a scroll viewport
+
+Use the portable `ScrollableAreaHandle` to move content to an absolute offset.
+Offsets use browser pixels or native layout units, independent of screen pixel
+density. Omitted axes keep their position. Request animation when useful;
+Mason's iOS viewport currently moves instantly. On iOS, Android and Windows,
+the `native` escape hatch exposes Mason's wrapper, which does not have
+NativeScript ScrollView's offset methods.
+
+```tsx
+import { useRef } from 'octane'
+import { Button, ScrollableArea, Text, View, type ScrollableAreaHandle } from '@octane-xplat/ui'
+
+export function LongNotes() {
+	const viewport = useRef<ScrollableAreaHandle | null>(null)
+	return <View>
+		<Button clickAction={() => viewport.current?.scrollToOffset({ block: 0 }, { animated: true })}>
+			Back to the start
+		</Button>
+		<ScrollableArea ref={viewport} height={200} label="Trip notes">
+			<Text>{Array.from({ length: 50 }, (_, index) => `Note ${index + 1}`).join('\n')}</Text>
+		</ScrollableArea>
+	</View>
+}
+```
+
 ## macOS scrolling and refresh
 
 Give scrolling content a bounded viewport. `ScrollableArea` scrolls vertically

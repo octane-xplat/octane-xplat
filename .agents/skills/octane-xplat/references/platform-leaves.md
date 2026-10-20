@@ -84,11 +84,11 @@ router operations live on `/routing` and stores on `/data`; `@xplat/app` is
 repository harness code, not a consumer dependency.
 
 ```ts
-import { pushRoute } from '@octane-xplat/ui/routing'
+import { router } from '@octane-xplat/ui/routing'
 import { createStore } from '@octane-xplat/ui/data'
 
 const packed = createStore(0)
-pushRoute({ stack: 'root', name: 'help', params: {} })
+router.push({ to: '/help' })
 ```
 
 ## tsconfigs
