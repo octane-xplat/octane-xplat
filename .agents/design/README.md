@@ -16,6 +16,7 @@ start at the [public docs](../../docs/README.md).
 
 ## Proposals and design research
 
+- [Runtime diagnostics for agents](agent-diagnostics.md) — proposed event history, native transport gaps, and cross-platform acceptance.
 - [Software keyboard ownership](software-keyboard.md) — window state, native tracking, and compatibility boundaries.
 - [UI API design audit](ui-api/README.md) — proposed public surface and approved design directions.
 - [Charts package](charts.md)
