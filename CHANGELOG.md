@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.16.1] - 2026-10-20
+
+### Bug Fixes
+
+- *(ui)* Remeasure Android SVG after async source completion (#34)
+
 ## [0.16.0] - 2026-10-19
 
 ### Breaking Changes
