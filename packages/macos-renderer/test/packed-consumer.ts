@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { execFileSync, spawn, spawnSync } from 'node:child_process'
+import { existsSync } from 'node:fs'
 import { cp, mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
@@ -235,6 +236,16 @@ console.log('[packed renderer] types and production build pass without harness a
 if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 	console.log('[packed renderer] AppKit runtime and HMR require Apple Silicon macOS; not run')
 } else {
+	// The packed app's dylib lookup is cwd-relative and cannot reach this
+	// checkout, so hand it the locally built Mason engine explicitly.
+	const masonLibrary =
+		process.env.XPLAT_MASON_LIB ?? join(packageRoot, 'native/xplatmason/libxplatmason.dylib')
+
+	assert.ok(
+		existsSync(masonLibrary),
+		`Mason engine not found at ${masonLibrary}; build it with native/xplatmason/build.sh or set XPLAT_MASON_LIB`,
+	)
+
 	console.log('[packed renderer] packaging and launching the standalone app')
 	run('pnpm', ['exec', 'xplat', 'build', '--targets', 'macos'])
 	const executable = join(
@@ -246,7 +257,12 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 		cwd: directory,
 		encoding: 'utf8',
 		timeout: 30_000,
-		env: { ...process.env, OCTANE_MACOS_AUTOMATION: '1', XPLAT_RENDERER_CONSUMER_TEST: '1' },
+		env: {
+			...process.env,
+			OCTANE_MACOS_AUTOMATION: '1',
+			XPLAT_RENDERER_CONSUMER_TEST: '1',
+			XPLAT_MASON_LIB: masonLibrary,
+		},
 	})
 
 	const output = result.stdout + result.stderr
@@ -295,7 +311,7 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 	const dev = spawn('pnpm', ['exec', 'xplat', 'dev', '--targets', 'macos'], {
 		cwd: app,
 		stdio: ['ignore', 'pipe', 'pipe'],
-		env: { ...process.env, OCTANE_MACOS_AUTOMATION: '1' },
+		env: { ...process.env, OCTANE_MACOS_AUTOMATION: '1', XPLAT_MASON_LIB: masonLibrary },
 	})
 
 	let devOutput = ''
