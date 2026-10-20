@@ -11,7 +11,7 @@
 > `useColorScheme` + `storage` + `useSafeAreaInsets` working on both targets.
 
 The table mixes original candidate backends with implementation findings.
-Use [device services](../../../docs/platform/platform-services.md) and [known limits](../../../docs/verify/known-limits.md)
+Use [device services](../../../docs/platform/platform-services.md) and [known limits](../../../docs/testing/known-limits.md)
 for current support. In particular, web secure storage is unsupported, web
 notifications are local-only, and there is no shared `Platform.select` API.
 The interface sketches below illustrate the design and are not a substitute

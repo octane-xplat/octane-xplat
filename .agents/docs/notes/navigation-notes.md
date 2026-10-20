@@ -394,7 +394,7 @@ Overlay-to-window promotion for `Sheet`/`Popover` on desktop remains open.
 > by `SBMainWorkspace` (`FBSOpenApplicationServiceErrorDomain`, code 1). No JS
 > startup log was produced; this does not establish a router defect. iOS
 > `UITabBar` item churn/loading and native OS-link delivery remain unverified.
-> See [reproducible checks](../../../docs/verify/navigation-checks.md) and Silo for criterion-level
+> See [reproducible checks](../navigation-checks.md) and Silo for criterion-level
 > evidence. Historical release statements below describe their original runs.
 
 > **Lab (route dir, web, 2026-09-24):** `packages/app/src/app/` holds the

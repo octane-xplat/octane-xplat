@@ -8,7 +8,7 @@ pnpm --filter @xplat/docs dev
 ```
 
 Guides live in `docs/start/`, `docs/app/`, `docs/platform/`, and
-`docs/verify/`. Internal implementation notes, design decisions, and workflow
+`docs/testing/`. Internal implementation notes, design decisions, and workflow
 recipes live under `.agents/` and are not part of the docs-site corpus. Page
 URLs stay independent of guide folders, so moving a guide keeps its existing URL.
 

@@ -11,6 +11,12 @@ framework; the app-building guides for downstream users live in `docs/`.
 - [Source context](source-context.md) — how to trace source and impact.
 - [Toolchain](toolchain.md) — install, build, lint, and package workflows.
 - [Probes and tests](testing.md) — investigation and maintained coverage.
+- [Single-case probing](probing.md) — repository-local runner and platform prerequisites.
+- [Release navigation checks](navigation-checks.md) — isolated router verification.
+- [Maestro smoke runner](maestro.md) — maintained mobile journey and qualification status.
+- [Argent checks](argent.md) — stable-ID regressions and target evidence.
+- [Packed Android starter tests](android-starter-tests.md) — isolated consumer qualification.
+- [AppKit verification](appkit-verification.md) — geometry, overlays, and packed consumers.
 - [Documentation guidance](documentation.md) — audience and coverage rules.
 - [Exploration and Silo](exploration.md) — research and decision workflow.
 - [Upstream limitations](upstream-limitations.md) — record upstream constraints

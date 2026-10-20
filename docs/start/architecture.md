@@ -116,7 +116,7 @@ assuming it adds the same enhancement on every platform.
 Some components have an appearance drawn by Xplat; others keep part or all
 of the platform's own appearance. The docs call these **normalization
 classes**. You mainly need these labels when reading
-[known limits](../verify/known-limits.md).
+[known limits](../testing/known-limits.md).
 
 **Chrome** means a control's visible decoration, such as borders and
 buttons. **Parity** means matching across platforms. The table describes

@@ -187,7 +187,7 @@ try {
 	const outside = await call('xplat_docs_read', {
 		package: '@octane-xplat/ui',
 		version: '0.9.0',
-		path: 'docs/verify/test-identifiers.md',
+		path: 'docs/testing/test-identifiers.md',
 	})
 
 	assert.equal(outside.status, 'unavailable')
@@ -438,7 +438,7 @@ try {
 			name: 'xplat_docs_read',
 			arguments: {
 				package: '@octane-xplat/ui',
-				path: 'docs/verify/test-identifiers.md',
+				path: 'docs/testing/test-identifiers.md',
 				limit: 2000,
 			},
 		})

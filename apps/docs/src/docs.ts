@@ -15,7 +15,7 @@ export interface DocPage {
 	id: string
 	title: string
 	md: string
-	/** Corpus-relative directory, such as 'start', 'app', 'platform', or 'verify'. */
+	/** Corpus-relative directory, such as 'start', 'app', 'platform', or 'testing'. */
 	dir: string
 	/** Sidebar section — the index doc joins 'start'. */
 	section: string

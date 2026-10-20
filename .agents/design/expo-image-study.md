@@ -12,7 +12,7 @@ Context: the feed perf work named the image pipeline as the suspect for
 Android scroll jank (decode-to-target-size and placeholder behavior). That
 suspicion is well-founded — see L1/L2. For the operational version of these
 findings — symptoms, profiling steps, and fixes an app can apply today — see
-[Debug native image performance](../../docs/verify/image-performance.md).
+[Debug native image performance](../../docs/testing/image-performance.md).
 
 ## Ranked lessons
 
@@ -112,7 +112,7 @@ instance — it does not feed `org.nativescript.widgets.image.Cache`, the 5 MB
 store `<image>` reads. Pushing URIs there warms nothing the view will hit, so
 a core `prefetch` would be dishonest; the honest core workaround is mounting
 the real `<image>`s early (see
-[image-performance](../../docs/verify/image-performance.md)).
+[image-performance](../../docs/testing/image-performance.md)).
 
 ## L4 — `recyclingKey`
 

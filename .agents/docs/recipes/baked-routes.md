@@ -55,7 +55,7 @@ to render on every target with no runtime fetch.
 
 ## Verification
 
-The [release navigation checks](../../../docs/verify/navigation-checks.md) exercise this
+The [release navigation checks](../navigation-checks.md) exercise this
 workflow separately from documentation coverage. Web production checks cover
 cold changelog loader data and Markdown rendering. Native baked-route runtime
 checks remain unverified; successful Web execution does not establish them.

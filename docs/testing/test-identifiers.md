@@ -84,7 +84,7 @@ export function EditOverlay(props: { open: boolean; close: () => void }) {
 Other composites, leaf packages, OS subpaths, and desktop renderers are not
 covered by this list merely because their types inherit the optional prop.
 Existing leaf APIs (such as table accessibility props) retain their own
-contracts. This change adds no new UI dependency.
+contracts.
 
 ## Platform mapping and selector precedence
 
@@ -101,12 +101,16 @@ export function NameField() {
 }
 ```
 
-| Target                                            | Mapping                                              | Qualification                                                                                          |
-| ------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| iOS simulator, NativeScript core 9.1.3            | UIKit `accessibilityIdentifier`                      | Actual UIKit hierarchy and Argent 0.27.0 ID replay/input passed                                        |
-| Android emulator, NativeScript core 9.1.3         | Automation identifier in accessibility `resource-id` | Not runtime-qualified in this run: build/device admission unavailable; mapping is source evidence only |
-| Chromium                                          | DOM `data-testid`; existing DOM `id` preserved       | DOM lifecycle regression and Argent 0.27.0 ID replay/input passed                                      |
-| AppKit, other desktop renderers, physical devices | No qualification here                                | Do not assume support                                                                                  |
+| Target | Mapping |
+| --- | --- |
+| iOS | UIKit `accessibilityIdentifier` |
+| Android | Automation identifier in accessibility `resource-id`; runtime replay remains unverified |
+| Web | DOM `data-testid`; existing DOM `id` preserved |
+| Desktop renderers and physical devices | Not qualified; do not assume support |
+
+The bounded journey passed on an iOS simulator and Chromium. See the
+[internal mapping evidence](../../.agents/docs/argent.md#test-identifier-mapping-evidence)
+for tested versions and reproduction details.
 
 Argent 0.27.0's Chromium tree prefers a DOM `id` over `data-testid` on the same
 element. For the example above, its replay selector is `{id: name-field}`;

@@ -126,7 +126,7 @@ export function PackingToggle() {
   it as padding there or you double-avoid.
 - **Hosted surfaces normalize the frame, not the content.** `WebView`,
   `Video`, `CameraView` render engine-owned pixels — identical props,
-  different engine behavior per target. Check `docs/verify/known-limits.md`
+  different engine behavior per target. Check `docs/testing/known-limits.md`
   before promising parity.
 
 ## Conventions

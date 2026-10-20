@@ -10,5 +10,5 @@ explicit clears for every dropped callback prop on every element type.
 
 The iOS/Android lane already removed handlers correctly through the universal
 renderer — see the new event-prop lifecycle entries in
-`docs/verify/known-limits.md` for the contract on both platforms, including the
+`docs/testing/known-limits.md` for the contract on both platforms, including the
 `useEffectEvent` idiom for hand-bound `view.on()` listeners.

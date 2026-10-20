@@ -58,7 +58,7 @@ database, a content directory, or a host framework's own route model.
   harness `resolveRoute` in `packages/app/src/app/_layout.tsrx` shows the
   `screenFor` + `layoutsForRoute` read.
 - AC3: [precedence and the typing boundary](../../../docs/app/navigation.md#register-routes-from-data)
-  and the [Navigation limits row](../../../docs/verify/known-limits.md#navigation).
+  and the [Navigation limits row](../../../docs/testing/known-limits.md#navigation).
 - AC4: [Register routes from data](../../../docs/app/navigation.md#register-routes-from-data);
   web smoke in `apps/web/scripts/smoke.ts` deep-links `/test/guides/deploy`.
 
@@ -69,7 +69,7 @@ database, a content directory, or a host framework's own route model.
 
 ## Verification
 
-The [release navigation checks](../../../docs/verify/navigation-checks.md) exercise this
+The [release navigation checks](../navigation-checks.md) exercise this
 workflow separately from documentation coverage. Web production checks cover
 programmatic named routes, layout wrapping, retained loaded history, and cold
 URL entry. Native `addRoutes` runtime checks remain unverified.

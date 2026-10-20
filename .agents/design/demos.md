@@ -29,7 +29,7 @@ individual framework behaviors. They are not the four product examples above.
 The following mounting instructions and findings are the historical mobile/web
 exploration record, including old component names and limitations. For current
 public APIs use [building screens](../../docs/app/primitives.md), for current support use
-[known limits](../../docs/verify/known-limits.md), and for macOS evidence use the
+[known limits](../../docs/testing/known-limits.md), and for macOS evidence use the
 [AppKit harness notes](../../apps/macos/README.md).
 
 The original iOS simulator sweep reported all 10 then-current demos mounting;

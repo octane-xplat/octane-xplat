@@ -1,7 +1,7 @@
 # Limits and evidence
 
 Before promising behavior, read the relevant entries in the
-[public known limits](../../../../docs/verify/known-limits.md) and the feature's
+[public known limits](../../../../docs/testing/known-limits.md) and the feature's
 guide. That page owns consumer-facing support boundaries; do not treat this
 skill as a duplicate support matrix. Match guidance to the installed package
 version and check each entry's evidence/version stamp.

@@ -24,7 +24,7 @@ Argent dependency is required.
 
 ## Documentation
 
-- AC1: [Semantic names](../../../docs/verify/test-identifiers.md#give-controls-stable-test-names), [starter guidance](../../../packages/create/template/AGENTS.md#stable-automation-targets)
-- AC2: [Host forwarding](../../../docs/verify/test-identifiers.md#which-host-receives-the-name), [platform mapping](../../../docs/verify/test-identifiers.md#platform-mapping-and-selector-precedence)
-- AC3: [Local journey](../../../docs/verify/argent.md#start-with-a-local-journey), [services](../../../docs/verify/argent.md#discovery-and-replay-need-different-services)
-- AC4: [Maintained checks and scope](../../../docs/verify/argent.md#maintained-checks-and-scope), [fixture](../../../packages/ui/tests/fixtures/TestID.tsrx)
+- AC1: [Semantic names](../../../docs/testing/test-identifiers.md#give-controls-stable-test-names), [starter guidance](../../../packages/create/template/AGENTS.md#stable-automation-targets)
+- AC2: [Host forwarding](../../../docs/testing/test-identifiers.md#which-host-receives-the-name), [platform mapping](../../../docs/testing/test-identifiers.md#platform-mapping-and-selector-precedence)
+- AC3: [Local journey](../../../docs/testing/argent.md#start-with-a-local-journey), [services](../../../docs/testing/argent.md#discovery-and-replay-need-different-services)
+- AC4: [Maintained checks and scope](../argent.md#maintained-checks-and-scope), [fixture](../../../packages/ui/tests/fixtures/TestID.tsrx)

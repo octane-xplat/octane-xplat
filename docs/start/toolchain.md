@@ -71,7 +71,7 @@ can give the error to your agent for help. If the browser cannot connect,
 check that the server is still running and open the address it printed.
 
 The starter includes the packages needed to run, build, and test your selected
-platforms. Follow [automated tests](../verify/testing.md#add-automated-tests)
+platforms. Follow [automated tests](../testing/testing.md#add-automated-tests)
 to run the sample checks and adapt them to your screen. Add feature packages
 when your app needs them.
 
@@ -110,7 +110,7 @@ browser or device depends on the tools available to it; you can always try
 these actions yourself.
 
 Then add one feature, such as saving the list or opening a second screen.
-Repeat the checks after the change. The [checking guide](../verify/testing.md)
+Repeat the checks after the change. The [checking guide](../testing/testing.md)
 explains `lint`, `typecheck`, and `build`; they catch code mistakes but do
 not replace trying the app.
 
@@ -283,7 +283,7 @@ these from the app folder for the platforms you have set up:
 
 The starter's lint scripts use `xplat lint`, with Oxlint and the framework
 rules included in the CLI. You can also check just your screen folder; the
-[checking guide](../verify/testing.md#lint-and-format-source) explains fixes,
+[checking guide](../testing/testing.md#lint-and-format-source) explains fixes,
 formatting, and configuration:
 
 ```sh
@@ -340,7 +340,7 @@ for feature-specific release checks.
 Before release, run `pnpm xplat build --release` and try the resulting app.
 Phone signing must be configured for signed builds. Signing identifies your
 app's publisher; app-store uploads and signing credentials stay with your
-project. [Known limits](../verify/known-limits.md#same-edge-on-every-target) lists
+project. [Known limits](../testing/known-limits.md#same-edge-on-every-target) lists
 current release-build issues.
 
 Some native features require a **plugin**, a package that connects to device

@@ -119,7 +119,7 @@ Additional implementation evidence: [editor props](../../packages/tiptap/src/typ
 [native passkey stub](../../packages/platform/src/webauthn.ts),
 [files](../../packages/files/src/files.ts),
 [query storage](../../packages/ui/src/query-storage.ts),
-[known limits](../../docs/verify/known-limits.md),
+[known limits](../../docs/testing/known-limits.md),
 [optional-service qualification](notes/optional-service-qualification.md),
 [DnD evidence](../../packages/dnd-kit/README.md#limits-and-verification).
 

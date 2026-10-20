@@ -294,5 +294,5 @@ the plugin path are the working options.
   leaf-package plan.
 - [Known limits](known-limits.md) — per-platform behavior tables, including
   animated raster (`Image` is single-frame; `AnimatedImage` covers GIF/webp).
-- [Probe one platform case](probing.md) — the repo-local runner for isolating a
+- [Probe one platform case](../../.agents/docs/probing.md) — the repo-local runner for isolating a
   reproduction in the harness.

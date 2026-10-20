@@ -53,7 +53,7 @@ pnpm test:android -- --device DEVICE_SERIAL
 Only commands for enabled platforms are added. Web tests use jsdom; phone
 tests need a selected simulator or device. Report targets actually run and
 distinguish document checks from browser layout or OS input checks. See the
-[testing guide](https://octane-xplat.goddardai.org/verify/testing#add-automated-tests).
+[testing guide](https://octane-xplat.goddardai.org/testing#add-automated-tests).
 
 ## Stable automation targets
 
@@ -73,11 +73,11 @@ than array positions. Preserve `id` values, useful accessibility labels and
 roles. Do not put IDs on every decorative child or expose personal data.
 Inputs target their editable host; overlays target mounted content. Verify
 forwarding when composing another component; inherited types alone do not
-promise platform support. See [qualified hosts and mappings](https://octane-xplat.goddardai.org/verify/test-identifiers).
+promise platform support. See [qualified hosts and mappings](https://octane-xplat.goddardai.org/test-identifiers).
 
 Argent is optional AI-agent device/browser control through MCP, with no app
 runtime dependency. Use [official setup](https://docs.swmansion.com/argent/docs/fundamentals/installation/)
-and the [qualified local recipe](https://octane-xplat.goddardai.org/verify/argent)
+and the [qualified local recipe](https://octane-xplat.goddardai.org/argent)
 (version 0.27.0). Prefer stable IDs for reliable targeting while keeping
 spoken accessibility semantics. Discovery and replay have different native
 prerequisites. Chromium prefers DOM `id` over `data-testid` when both exist.

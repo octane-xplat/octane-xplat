@@ -27,6 +27,6 @@ can verify. Keep unused feature dependencies out of default apps.
 ## Documentation
 
 - AC1: [Starter tests](../../../packages/create/README.md#run-app-tests), [target-specific checks](../../../packages/create/test/scaffold.test.mjs)
-- AC2: [Run web tests](../../../docs/verify/testing.md#add-automated-tests), [sample test](../../../packages/create/template/src/app.web.test.tsx)
+- AC2: [Run web tests](../../../docs/testing/testing.md#add-automated-tests), [sample test](../../../packages/create/template/src/app.web.test.tsx)
 - AC3: [Creation and preservation](../../../packages/cli/README.md#app-testing), [setup checks](../../../packages/create/test/scaffold.test.mjs)
-- AC4: [Later platforms](../../../packages/cli/README.md#app-testing), [phone tests and limits](../../../docs/verify/testing.md#test-components-on-a-device)
+- AC4: [Later platforms](../../../packages/cli/README.md#app-testing), [phone tests and limits](../../../docs/testing/testing.md#test-components-on-a-device)

@@ -10,7 +10,7 @@ each destination can have a URL. On phones, opening a screen adds it to a
 If you're working with an agent, describe the action: “Tap an item to open
 its details, then go back without losing the list.” Try both the browser
 Back button and the phone's back action. Check
-[navigation limits](../verify/known-limits.md#navigation) for the platforms you use.
+[navigation limits](../testing/known-limits.md#navigation) for the platforms you use.
 
 This guide assumes you have [a working app](../start/toolchain.md#create-and-run).
 The early sections cover destinations and links; later sections cover
@@ -812,7 +812,7 @@ screen mounts.
 Native needs no code here: a pushed page keeps the page beneath it alive,
 and dismissing a modal reveals the same view tree — retained lists resume
 where the reader left them (decision #98). That claim is source-verified,
-not device-verified; see [navigation limits](../verify/known-limits.md#navigation).
+not device-verified; see [navigation limits](../testing/known-limits.md#navigation).
 `route.hash` is a web-only field native ignores.
 
 Generated `RouteParams` keeps normal route APIs scalar (`string`) for stable
@@ -952,7 +952,7 @@ if (!pushDeepLink('xplatnav://missing')) {
 }
 ```
 
-The [release navigation checks](../verify/navigation-checks.md) exercise these commands
+The [release navigation checks](../../.agents/docs/navigation-checks.md) exercise these commands
 without images. Coverage in this guide and actual per-target results are
 recorded separately; scheme registration alone is not runtime verification.
 

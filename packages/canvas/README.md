@@ -96,5 +96,5 @@ consumer needs one and the implementation is approved. Native desktop shader
 effects remain unsupported. A DOM webview uses the separate web implementation.
 
 Per-target limits are recorded in
-[known limits](../../docs/verify/known-limits.md). Exercised by
+[known limits](../../docs/testing/known-limits.md). Exercised by
 [`CanvasDemo`](../demos/src/CanvasDemo.tsrx) (including a WGSL path).

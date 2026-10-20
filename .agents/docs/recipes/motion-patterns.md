@@ -32,4 +32,4 @@ before any app-level preview.
 - AC2: [Reveal a bounded group](../../../docs/app/animation-gestures.md#reveal-a-bounded-group) and the showcase's Reveal results focused view.
 - AC3: [Update a total](../../../docs/app/animation-gestures.md#update-a-total) and [reduced-motion lifecycle](../../../docs/app/animation-gestures.md#reduced-motion-and-lifecycle).
 - AC4: [Rotate supporting copy](../../../docs/app/animation-gestures.md#rotate-supporting-copy).
-- AC5: [Reduced motion and lifecycle](../../../docs/app/animation-gestures.md#reduced-motion-and-lifecycle) plus the [motion leaf limits](../../../docs/verify/known-limits.md#motion-leaf).
+- AC5: [Reduced motion and lifecycle](../../../docs/app/animation-gestures.md#reduced-motion-and-lifecycle) plus the [motion leaf limits](../../../docs/testing/known-limits.md#motion-leaf).

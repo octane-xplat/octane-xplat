@@ -30,4 +30,4 @@ raw JSON in `src`, absolute local JSON files, `file://` URLs, and HTTPS JSON.
 
 - AC1: [Lottie setup and props](../../../docs/app/primitives.md#lottie-animations).
 - AC2: [LottieDemo](../../../packages/demos/src/LottieDemo.tsrx) — bounded player with play/pause/stop, loop, seek, and speed controls.
-- AC3: [Lottie limits](../../../docs/verify/known-limits.md#primitives) — plugin-version behavior matrix.
+- AC3: [Lottie limits](../../../docs/testing/known-limits.md#primitives) — plugin-version behavior matrix.

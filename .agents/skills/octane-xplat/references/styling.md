@@ -80,7 +80,7 @@ import '@octane-xplat/ui/theme/tokens.css'
   [CSS variants](../../../../docs/platform/module-resolution.md#css-file-variants)
   before relying on browser-only transforms or import ordering.
 - The experimental macOS AppKit renderer supports a smaller set of named
-  styles — check `docs/verify/known-limits.md` before promising a property.
+  styles — check `docs/testing/known-limits.md` before promising a property.
 
 ## Dark mode
 

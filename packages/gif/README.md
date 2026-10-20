@@ -68,5 +68,5 @@ are reachable where the engine supports them:
 ```
 
 Per-target limits are recorded in
-[known limits](../../docs/verify/known-limits.md). Exercised by
+[known limits](../../docs/testing/known-limits.md). Exercised by
 [`AnimatedImageDemo`](../demos/src/AnimatedImageDemo.tsrx).

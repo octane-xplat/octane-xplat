@@ -74,13 +74,13 @@ Pick a guide when you need it. You don't need to read them all before you start.
 | Update an installed phone app between releases  | [Phone app updates](app/updates.md)                    |
 
 For more pieces to use on your screens, browse the [component index](app/components.md).
-When a feature is ready to try, use [Checking an Xplat app](verify/testing.md) and
-check [known limits](verify/known-limits.md) for the platforms you plan to release for.
+When a feature is ready to try, use [Checking an Xplat app](testing/testing.md) and
+check [known limits](testing/known-limits.md) for the platforms you plan to release for.
 To let a connected agent run named setup actions in a dev build (test logins,
 fixture data, performance scenarios), see
-[Declare development actions](verify/development-actions.md).
+[Declare development actions](testing/development-actions.md).
 If a native screen stutters or eats memory while scrolling images, see
-[Debug native image performance](verify/image-performance.md).
+[Debug native image performance](testing/image-performance.md).
 
 ## When you're ready to go further
 

@@ -28,9 +28,9 @@ do not establish runtime behavior on a browser or device.
 
 ## Documentation
 
-- AC1: [Lint and format source](../../../docs/verify/testing.md#lint-and-format-source), [rule coverage](../../../packages/lint/README.md#what-gets-checked), and the [CLI integration tests](../../../packages/cli/test/lint.test.mjs).
-- AC2: [Lint behavior and exit codes](../../../packages/cli/README.md#lint-and-format), [fixes](../../../docs/verify/testing.md#lint-and-format-source), and the [CLI integration tests](../../../packages/cli/test/lint.test.mjs).
+- AC1: [Lint and format source](../../../docs/testing/testing.md#lint-and-format-source), [rule coverage](../../../packages/lint/README.md#what-gets-checked), and the [CLI integration tests](../../../packages/cli/test/lint.test.mjs).
+- AC2: [Lint behavior and exit codes](../../../packages/cli/README.md#lint-and-format), [fixes](../../../docs/testing/testing.md#lint-and-format-source), and the [CLI integration tests](../../../packages/cli/test/lint.test.mjs).
 - AC3: [Selection and ignores](../../../packages/lint/README.md#what-gets-checked) and the [selection, ignore and boundary tests](../../../packages/cli/test/lint.test.mjs).
 - AC4: [Project configuration](../../../packages/lint/README.md#project-configuration) and the [configuration parity tests](../../../packages/cli/test/lint.test.mjs).
-- AC5: [Separate lint and format commands](../../../docs/verify/testing.md#lint-and-format-source), [app scripts](../../../packages/create/template/package.json), [library scripts](../../../packages/create/library-template/package.json), and the [format command tests](../../../packages/cli/test/fmt.test.mjs).
+- AC5: [Separate lint and format commands](../../../docs/testing/testing.md#lint-and-format-source), [app scripts](../../../packages/create/template/package.json), [library scripts](../../../packages/create/library-template/package.json), and the [format command tests](../../../packages/cli/test/fmt.test.mjs).
 - AC6: [Standalone command and direct Node example](../../../packages/lint/README.md) and the [compatibility integration test](../../../packages/cli/test/lint.test.mjs).

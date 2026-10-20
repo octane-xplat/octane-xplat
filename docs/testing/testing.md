@@ -156,25 +156,6 @@ deliver the touch — that stays in [Maestro's lane](#automate-phone-journeys).
 The lane is qualified on iOS simulators; Android uses the same setup but is
 not verified yet.
 
-### Check the packed Android starter
-
-Framework contributors can run the scaffolded suite against packed packages
-on an already-booted Android test host. This qualification command requires
-`adb` on PATH and ownership of the selected host; it does not boot or select
-someone else's device. Android remains unverified until the device suite passes.
-
-```sh
-VERIFY_ANDROID_DEVICE=AUTHORIZED_DEVICE_SERIAL node scripts/verify-consumer.ts --test-android --keep
-```
-
-Replace `AUTHORIZED_DEVICE_SERIAL` with the explicitly authorized test host’s
-serial. Run from the framework repository root after reserving the native build slot
-and selected device. Package build, packing, install, lint, typecheck, and web
-build must pass before device tests start. The command uses a disposable app
-identity and verifies that its process stops. It preserves ordinary app data.
-The starter includes native bridge, deliberate assertion failure, and repeated
-cleanup checks in addition to its component cases.
-
 ## Automate phone journeys
 
 We recommend [Maestro](maestro.md) for end-to-end testing of Octane Xplat
@@ -225,7 +206,7 @@ For code-level tests, keep calculations such as “how many items remain”
 separate from screen code so a test can call them directly. Use device
 checks for focus, gestures, element size, and permission dialogs.
 
-If you are working on the framework itself, [single-case probing](probing.md)
+If you are working on the framework itself, [single-case probing](../../.agents/docs/probing.md)
 explains how to run one small investigation. The [testing notes](../../.agents/docs/notes/testing-notes.md)
 cover the framework's test tools and automation.
 

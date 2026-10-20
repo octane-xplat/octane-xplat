@@ -30,10 +30,10 @@ unverified targets.
 
 ## Documentation
 
-- AC1: [Starter tests](../../../docs/verify/testing.md#add-automated-tests), [run the lane](../../../docs/verify/testing.md#test-components-on-a-device), [starter spec](../../../packages/create/template/src/app.spec.tsrx)
-- AC2: [Spec example](../../../docs/verify/testing.md#test-components-on-a-device), [helper source](../../../packages/platform/src/testing.mobile.ts)
-- AC3: [Cleanup contract](../../../docs/verify/testing.md#test-components-on-a-device), [framework leak checks](../../../apps/mobile/src/tests/leak-check.spec.tsrx)
+- AC1: [Starter tests](../../../docs/testing/testing.md#add-automated-tests), [run the lane](../../../docs/testing/testing.md#test-components-on-a-device), [starter spec](../../../packages/create/template/src/app.spec.tsrx)
+- AC2: [Spec example](../../../docs/testing/testing.md#test-components-on-a-device), [helper source](../../../packages/platform/src/testing.mobile.ts)
+- AC3: [Cleanup contract](../../../docs/testing/testing.md#test-components-on-a-device), [framework leak checks](../../../apps/mobile/src/tests/leak-check.spec.tsrx)
 - AC4: [Framework suite](../../../apps/mobile/src/tests/counter.spec.ts), [starter spec](../../../packages/create/template/src/app.spec.tsrx), [failure reporting](../../../packages/create/template/src/failure-reporting.spec.ts), [native bridge](../../../packages/create/template/src/native-runtime.spec.ts)
 - AC5: [CI lane](../../../.github/workflows/ci.yml), [qualification notes](../testing.md#on-device-unit-tests-ns-test-vitest)
 
-- AC6: [Android qualification command](../../../docs/verify/testing.md#check-the-packed-android-starter), [current gate](../android-lab.md#consumer-test-qualification-gate-2026-10-13), [gate checks](../../../scripts/verify-android-tests.test.mjs)
+- AC6: [Android qualification command](../android-starter-tests.md#check-the-packed-android-starter), [current gate](../android-lab.md#consumer-test-qualification-gate-2026-10-13), [gate checks](../../../scripts/verify-android-tests.test.mjs)

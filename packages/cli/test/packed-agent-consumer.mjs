@@ -229,7 +229,7 @@ try {
 				'--version',
 				'0.9.0',
 				'--path',
-				'docs/verify/test-identifiers.md',
+				'docs/testing/test-identifiers.md',
 				'--json',
 			]),
 		).data
@@ -247,7 +247,7 @@ try {
 					'--package',
 					'@octane-xplat/ui',
 					'--path',
-					'docs/verify/test-identifiers.md',
+					'docs/testing/test-identifiers.md',
 					'--json',
 				],
 				{

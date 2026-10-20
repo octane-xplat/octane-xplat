@@ -4,7 +4,7 @@
 
 The starter includes managed tests for enabled platforms. Run web tests locally;
 phone tests require a selected simulator/device and the native toolchain. Follow
-[app testing](../../../../docs/verify/testing.md#add-automated-tests) when adapting
+[app testing](../../../../docs/testing/testing.md#add-automated-tests) when adapting
 the samples or adding a target.
 
 ```sh
@@ -16,7 +16,7 @@ pnpm test:android -- --device DEVICE_SERIAL
 Give meaningful controls and asserted state stable semantic `testID` values.
 Use durable item keys, preserve useful spoken labels/roles, and verify forwarding
 through composite components. Supported hosts and mappings are listed in the
-[test identifiers guide](../../../../docs/verify/test-identifiers.md); a prop in
+[test identifiers guide](../../../../docs/testing/test-identifiers.md); a prop in
 an inherited interface alone does not prove target support.
 
 ```tsx
@@ -32,7 +32,7 @@ export function AddItem() {
 Use an isolated probe for a single case. Research probes are temporary;
 promote behavior that must remain correct into maintained tests. The runner
 supports web, iOS, Android, macOS, and Linux, not Windows. Read
-[probing](../../../../docs/verify/probing.md) for target-specific prerequisites.
+[probing](../../../docs/probing.md) for target-specific prerequisites.
 
 ```sh
 pnpm probe doctor
@@ -81,7 +81,7 @@ accessibility from handler dispatch or typechecking.
 
 ## End-to-end journeys
 
-Follow the [Maestro guide](../../../../docs/verify/maestro.md) and its current
+Follow the [framework Maestro runbook](../../../docs/maestro.md) and its current
 qualification limits for iOS/Android journeys. The managed fixture avoids the
 self-driving harness timers. Choose a device explicitly and follow the
 [device ownership guidance](../../../docs/testing.md#mobile-end-to-end-tests-with-maestro).
@@ -92,7 +92,7 @@ pnpm test:maestro --target android --device DEVICE_SERIAL
 ```
 
 For agent-driven browser/device interaction, use the optional
-[Argent recipe](../../../../docs/verify/argent.md) within its qualified scope.
+[Argent checks and qualification record](../../../docs/argent.md) within its qualified scope.
 Neither tool establishes untested targets, physical devices, or arbitrary input
 behavior by implication. Only capture or inspect visual artifacts when the task
 and project instructions authorize that evidence.

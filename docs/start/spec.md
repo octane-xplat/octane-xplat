@@ -45,7 +45,7 @@ releasing it in some environments. The phone setup guides cover the tools;
 you don't need them for your first browser app.
 
 Xplat is at version `0.x`, so names and options can change between releases.
-[Known limits](../verify/known-limits.md) records feature differences and which ones
+[Known limits](../testing/known-limits.md) records feature differences and which ones
 have been checked in running apps.
 
 Web CI typechecks and tests the DOM renderer, builds the production bundle,
@@ -55,7 +55,7 @@ then smoke-tests the built bundle and a packed starter in all three engines.
 This does not set a minimum browser-version
 floor or qualify iOS Safari and screen readers; apps must define those targets
 for their own releases. Browser APIs and device services remain feature-specific
-boundaries in [known limits](../verify/known-limits.md) and
+boundaries in [known limits](../testing/known-limits.md) and
 [optional-service qualification](../../.agents/docs/notes/optional-service-qualification.md).
 The same local run executes the keyboard/focus fixture in Chromium, Firefox,
 and WebKit; Chromium also inspects the accessibility tree through CDP. A
@@ -70,7 +70,7 @@ it watches your files so you can see edits as you save them.
 For a packing list, try adding two items, marking one packed, and removing
 both. Once that works, add one feature, such as remembering the list after
 a reload. If you're working with an agent, ask it to explain what it
-changed and which checks it ran. The [checking guide](../verify/testing.md) explains
+changed and which checks it ran. The [checking guide](../testing/testing.md) explains
 what those checks tell you.
 
 ## Add capabilities that serve the app

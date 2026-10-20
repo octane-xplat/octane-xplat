@@ -145,7 +145,7 @@ package versions: CI builds, aligns lockstep versions, and publishes them.
 
 The docs site deploys to Cloudflare Pages on every checks-green `main` CI
 run (same workflow, `docs` job) — `llms.txt` regeneration is automatic.
-Manual pre-release task that remains: re-verify `docs/verify/known-limits.md`
+Manual pre-release task that remains: re-verify `docs/testing/known-limits.md`
 entries stamped older than the releasing version.
 
 `CHANGELOG.md` is generated — **do not edit it as part of feature/fix work.**

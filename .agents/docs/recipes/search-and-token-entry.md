@@ -30,7 +30,7 @@ Provide local or remote searchable values with a stable identity, present useful
 - AC2: [Choose one result](../../../docs/app/search-selection.md#choose-one-result) and [the parity fixture](../../../packages/ui/src/Typeahead.parity.tsrx).
 - AC3: [Choose many or create values](../../../docs/app/search-selection.md#choose-many-or-create-values) and [the parity fixture](../../../packages/ui/src/Tokenizer.parity.tsrx).
 - AC4: [Build a custom picker](../../../docs/app/search-selection.md#build-a-custom-picker).
-- AC5: [Platform boundaries](../../../docs/app/search-selection.md#platform-boundaries) and [known limits](../../../docs/verify/known-limits.md).
+- AC5: [Platform boundaries](../../../docs/app/search-selection.md#platform-boundaries) and [known limits](../../../docs/testing/known-limits.md).
 
 - AC6: [Choose from a finite list](../../../docs/app/search-selection.md#choose-from-a-finite-list), [UI API migrations](../../../docs/app/ui-api-migrations.md#selection-and-menu-rows), [ComponentsDemo](../../../packages/demos/src/ComponentsDemo.tsrx), and [the Select probe](../../../examples/probes/select.tsrx).
 

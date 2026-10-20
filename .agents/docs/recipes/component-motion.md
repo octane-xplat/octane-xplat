@@ -27,7 +27,7 @@ behavior, and respect reduced motion and component disposal.
 
 - AC1: [Component motion](../../../docs/app/animation-gestures.md#animate-a-component), [maintained example](../../../packages/motion/examples/MotionDemo.tsrx).
 - AC2: [Value lifecycle](../../../docs/app/animation-gestures.md#bind-values-and-gestures).
-- AC3: [Reduced motion](../../../docs/app/animation-gestures.md#reduced-motion-and-lifecycle), [known limits](../../../docs/verify/known-limits.md#motion-leaf).
+- AC3: [Reduced motion](../../../docs/app/animation-gestures.md#reduced-motion-and-lifecycle), [known limits](../../../docs/testing/known-limits.md#motion-leaf).
 
 - AC4: [Retained exit lifecycle](../../../docs/app/animation-gestures.md#retain-content-through-exit), [PresenceDemo](../../../packages/motion/examples/PresenceDemo.tsrx), and [nonvisual input qualification](../notes/input-readiness-notes.md#completed-checks).
 

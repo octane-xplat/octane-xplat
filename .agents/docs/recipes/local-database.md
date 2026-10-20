@@ -46,7 +46,7 @@ ORM layers (e.g. Drizzle over the seam) are outside this recipe's scope.
 - AC3: [Local database](../../../docs/platform/platform-services.md#local-database) —
   `getUserVersion`/`setUserVersion` as the migration hook.
 - AC4: [Local database](../../../docs/platform/platform-services.md#local-database) —
-  `persistent` flag semantics; [known limits](../../../docs/verify/known-limits.md) —
+  `persistent` flag semantics; [known limits](../../../docs/testing/known-limits.md) —
   transient-fallback conditions.
 - AC5: [Local database](../../../docs/platform/platform-services.md#local-database) —
   `deleteDatabase`.

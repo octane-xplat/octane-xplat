@@ -153,7 +153,7 @@ pnpm exec xplat inspect SESSION_ID --testid packing.item-count --json
 `dom-event` input is not proof of OS input. The separately qualified `os-input`
 path has platform, headed-browser, and desktop-input prerequisites; consult
 focused help and the reported capability before selecting it. Follow
-[test identifiers](../../../../docs/verify/test-identifiers.md) for stable targets
+[test identifiers](../../../../docs/testing/test-identifiers.md) for stable targets
 and [testing](testing.md) for evidence boundaries.
 
 For app-declared development actions, first inspect the live registry, the exact

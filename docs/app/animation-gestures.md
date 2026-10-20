@@ -427,7 +427,7 @@ movement, bounded momentum, callbacks, and cancellation. Web uses pointer
 capture plus axis-specific touch-action; native uses PanGestureHandler
 activation/failure thresholds to yield perpendicular input before activation.
 Native handler dispatch does not prove OS touch delivery or scrolling conflicts.
-See [motion limits](../verify/known-limits.md#motion-leaf) before relying on nested control
+See [motion limits](../testing/known-limits.md#motion-leaf) before relying on nested control
 arbitration or full upstream drag behavior.
 
 ## Reduced motion and lifecycle

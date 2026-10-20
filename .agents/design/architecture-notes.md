@@ -30,7 +30,7 @@ Upstream machinery we rely on:
 - **`renderers.*.validation`** — compile-time enforcement of
   `forbiddenGlobals`/`forbiddenImports`/`textHosts`/`textParents`/`hostProps`
   on owned files _and_ on `.ts` helpers matched by a rule (validated, not
-  compiled). First enforcement layer — see [testing](../../docs/verify/testing.md).
+  compiled). First enforcement layer — see [testing](../../docs/testing/testing.md).
 - **No SSR on universal targets** (`server: 'unsupported'` by contract) — SSR
   is DOM-build output; shared files get DOM semantics on web and universal on
   native, each correct for its build.
@@ -292,5 +292,5 @@ using the shared presets (`jsxImportSource`, `lib`, ambient host-globals) in
 | URL routing vs Frame/Page, modals-as-roots | [navigation](../../docs/app/navigation.md)                    |
 | Storage, lifecycle, a11y, icons, safe area | [platform-services](../../docs/platform/platform-services.md) |
 | Build/HMR/CI/version pinning               | [toolchain](../../docs/start/toolchain.md)                    |
-| How we verify each target                  | [testing](../../docs/verify/testing.md)                       |
+| How we verify each target                  | [testing](../../docs/testing/testing.md)                       |
 | Unresolved seams                           | [open-questions](open-questions.md)                           |

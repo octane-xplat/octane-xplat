@@ -24,5 +24,5 @@ to extend the frame beneath system safe areas when that is desired.
 ## Documentation
 
 - AC1: [Building screens: WebView content sizing](../../../docs/app/primitives.md#webview-content-sizing) and maintained [WebViewDemo](../../../packages/demos/src/WebViewDemo.tsrx).
-- AC2: [Building screens: WebView content sizing](../../../docs/app/primitives.md#webview-content-sizing), [known limits](../../../docs/verify/known-limits.md), and maintained [WebViewDemo](../../../packages/demos/src/WebViewDemo.tsrx).
+- AC2: [Building screens: WebView content sizing](../../../docs/app/primitives.md#webview-content-sizing), [known limits](../../../docs/testing/known-limits.md), and maintained [WebViewDemo](../../../packages/demos/src/WebViewDemo.tsrx).
 - AC3: [Building screens: WebView content sizing](../../../docs/app/primitives.md#webview-content-sizing) and maintained [WebViewDemo](../../../packages/demos/src/WebViewDemo.tsrx).

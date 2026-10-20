@@ -120,5 +120,5 @@ cached", not "absent".
   engine there; cache helpers resolve as no-ops.
 
 Per-target limits are recorded in
-[known limits](../../docs/verify/known-limits.md). Exercised by
+[known limits](../../docs/testing/known-limits.md). Exercised by
 [`CachedImageDemo`](../demos/src/CachedImageDemo.tsrx).

@@ -21,4 +21,4 @@ On the NativeScript lane this routes through the native property system's
 `unsetValue` reset; on macOS the renderer injects explicit clears into the
 merged bag. Code that relied on the stale-value behavior — or kept a key
 present to "hold" a previous value — will now see the documented default
-instead. See `docs/verify/known-limits.md`.
+instead. See `docs/testing/known-limits.md`.

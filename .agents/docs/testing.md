@@ -3,7 +3,7 @@
 Paths in code spans refer to the repository root. Read this reference when its
 subject applies to your task; [AGENTS.md](../../AGENTS.md) is the entry point.
 
-Use [single-case probing](../../docs/verify/probing.md) for platform investigations:
+Use [single-case probing](probing.md) for platform investigations:
 `pnpm probe doctor` and `pnpm probe run <case> --target <target> --watch`.
 For Android emulator setup, device isolation, and verified host commands, use the
 [Android lab log](android-lab.md).
@@ -45,7 +45,7 @@ run; handler dispatch does not prove OS input or hit-testing.
 ## Mobile end-to-end tests with Maestro
 
 Recommend Maestro for Android/iOS journeys that must exercise OS input and
-hit-testing. Use the [official guide](../../docs/verify/maestro.md) and maintained
+hit-testing. Use the [official guide](../../docs/testing/maestro.md) and maintained
 `.maestro/counter.yaml` flow. A NativeScript Maestro plugin is not required.
 Keep object-driver unit tests and synthesized probe dispatch for their own
 contracts; they do not establish a Maestro pass.
@@ -62,7 +62,7 @@ pnpm test:maestro --target android --device DEVICE_ID
   The runner's repository target lock complements the host reservation.
 - Use unique visible text first. Do not assume `ViewProps.id` maps to Maestro
   IDs on either OS. Shared `testID` is qualified separately from Maestro in
-  [stable test names](../../docs/verify/test-identifiers.md).
+  [stable test names](../../docs/testing/test-identifiers.md).
   Preserve useful spoken accessibility labels.
 - Arrange deterministic data; assert state before and after each action.
   Use condition waits, not fixed sleeps or optional assertions that hide
@@ -79,7 +79,7 @@ pnpm test:maestro --target android --device DEVICE_ID
 
 ## Optional Argent checks
 
-Use [the pinned nonvisual Argent recipe](../../docs/verify/argent.md) for
+Use [the pinned nonvisual Argent recipe](../../docs/testing/argent.md) for
 optional AI-agent browser/device control through MCP and local CLI replay.
 Preserve spoken labels and roles; use shared `testID` only on documented hosts.
 Discovery is not replay readiness, and Chromium DOM IDs take precedence.
@@ -151,3 +151,11 @@ boot <udid>` first, then pass `--device <udid>`. `ios-sim-portable` 4.5.1
   9.1.3 + @nativescript/vite 8.0.17 + CLI 9.1.1, iOS 27.0 simulator. The
   committed `it.fails` spec pins that failed assertions on device report as
   Vitest failures, not passes.
+
+## Focused verification references
+
+- [Release navigation](navigation-checks.md) — isolated web and native release checks.
+- [Maestro smoke runner](maestro.md) — fixture, artifacts, and qualification limits.
+- [Argent checks](argent.md) — stable-ID lifecycle regressions and dated target evidence.
+- [Packed Android starter](android-starter-tests.md) — selected-host consumer test gate.
+- [AppKit verification](appkit-verification.md) — layout, overlays, and packed-consumer scope.

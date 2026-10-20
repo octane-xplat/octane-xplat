@@ -80,7 +80,7 @@ skipped-file warnings, reconcile custom configuration, and adapt the sample test
 to your app. Web tests match `src/**/*.web.test.{ts,tsx,tsrx}` through
 `vitest.web.config.mts`; phone specs match `src/**/*.spec.{ts,tsx,tsrx}` through
 `vitest.config.mts` and `src/test.ts`. See the
-[testing guide](../../docs/verify/testing.md#add-automated-tests) for what each
+[testing guide](../../docs/testing/testing.md#add-automated-tests) for what each
 test environment can verify.
 
 ## Compatible versions

@@ -102,7 +102,7 @@ snapshot availability, so readiness alone is not a successful retrieval.
 	"name": "xplat_docs_read",
 	"arguments": {
 		"package": "@octane-xplat/ui",
-		"path": "docs/verify/test-identifiers.md",
+		"path": "docs/testing/test-identifiers.md",
 		"limit": 2000
 	}
 }

@@ -99,7 +99,7 @@ your app as you replace the starter screen.
 
 Platforms added later also receive their test setup. The library template
 includes its component tests and publishing checks.
-See [checking an app](../../docs/verify/testing.md#add-automated-tests) for the
+See [checking an app](../../docs/testing/testing.md#add-automated-tests) for the
 commands, file conventions, and checks that still need a browser or phone.
 
 ## Keep compatible versions

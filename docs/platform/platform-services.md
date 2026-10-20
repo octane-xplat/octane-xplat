@@ -35,7 +35,7 @@ that a service adds to your screen automatically.
 
 macOS and Windows are not implied by an iOS/Android implementation:
 consult the [target guide](../start/spec.md#choose-your-targets) and
-[known limits](../verify/known-limits.md). Sharing is available on macOS through the
+[known limits](../testing/known-limits.md). Sharing is available on macOS through the
 AppKit share picker.
 
 ```ts

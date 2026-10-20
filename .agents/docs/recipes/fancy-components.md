@@ -36,7 +36,7 @@ app-level preview.
 - AC2: [Type phrases with a caret](../../../docs/app/animation-gestures.md#type-phrases-with-a-caret).
 - AC3: [Reveal text through a scramble](../../../docs/app/animation-gestures.md#reveal-text-through-a-scramble).
 - AC4: [Count up a value](../../../docs/app/animation-gestures.md#count-up-a-value).
-- AC5: [Reduced motion and lifecycle](../../../docs/app/animation-gestures.md#reduced-motion-and-lifecycle) plus the [motion leaf limits](../../../docs/verify/known-limits.md#motion-leaf).
+- AC5: [Reduced motion and lifecycle](../../../docs/app/animation-gestures.md#reduced-motion-and-lifecycle) plus the [motion leaf limits](../../../docs/testing/known-limits.md#motion-leaf).
 - AC6: [Drift a badge](../../../docs/app/animation-gestures.md#drift-a-badge) and [the shared loop driver](../../../docs/app/animation-gestures.md#drive-continuous-motion-from-a-shared-loop).
 - AC7: [Orbit a ring](../../../docs/app/animation-gestures.md#orbit-a-ring), including the `descriptorChildren` children-enumeration marker.
 - AC8: [Scatter draggable chips](../../../docs/app/animation-gestures.md#scatter-draggable-chips) and [drag a component](../../../docs/app/animation-gestures.md#drag-a-component).

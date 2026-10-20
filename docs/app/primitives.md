@@ -1141,7 +1141,7 @@ Times are milliseconds everywhere, including `onReady`'s duration. Use the
 maintained [VideoDemo](../../packages/demos/src/VideoDemo.tsrx) for a bounded
 player and play/pause controls. Check that playback advances, pause holds the
 position, and resume continues. Native player failures do not emit `onError`;
-see [video limits](../verify/known-limits.md#primitives) before designing error UI.
+see [video limits](../testing/known-limits.md#primitives) before designing error UI.
 
 ```tsx
 import { Video } from '@octane-xplat/video'
@@ -1178,7 +1178,7 @@ plugin reports seconds and the leaf normalizes. Use the maintained
 [LottieDemo](../../packages/demos/src/LottieDemo.tsrx) for bounded playback
 controls. The vendored plugin carries fixes unreleased upstream (load
 events, sync-src, remote URLs, `declare` fields for modern bundlers); see
-[lottie limits](../verify/known-limits.md#primitives) before designing error UI.
+[lottie limits](../testing/known-limits.md#primitives) before designing error UI.
 On web, `lottie-web` evaluates JavaScript expressions embedded in animation
 data. Load only trusted animation data. Expression-bearing files require a
 Content Security Policy that allows `unsafe-eval`; do not weaken a site's CSP
@@ -1209,7 +1209,7 @@ AppKit supports inline `data`, raw JSON in `src`, absolute JSON file paths,
 `file://` URLs, and HTTPS JSON URLs. It rejects relative paths, `~/` and
 `res://` aliases, HTTP URLs, `.lottie`/`.zip` archives, and external image
 assets. `ref.native` is the AppKit `LottieAnimationView`. The WKWebView frontend
-uses the web implementation instead. See [known limits](../verify/known-limits.md#primitives)
+uses the web implementation instead. See [known limits](../testing/known-limits.md#primitives)
 and the [AppKit integration record](../../.agents/docs/notes/lottie-appkit-investigation.md) for the
 source boundary and runtime evidence.
 
@@ -1227,7 +1227,7 @@ preview. Stills deliberately go through `media.capturePhoto` in
 [CameraDemo](../../packages/demos/src/CameraDemo.tsrx) to check start/stop, lens
 changes, and ready/error state. Browser preview needs a secure context
 (HTTPS or localhost). Native `onReady` means the session started or bound,
-not that a frame has appeared; see [camera limits](../verify/known-limits.md#primitives).
+not that a frame has appeared; see [camera limits](../testing/known-limits.md#primitives).
 
 For tap-to-focus, the `onTap` prop reports the tapped point normalized to
 the preview (`0`–`1`, top-left origin) without consuming the gesture, and
@@ -1314,7 +1314,7 @@ or sharing; the package never uploads, persists, or deletes clips. See the
 [camera package README](../../packages/camera/README.md#movie-recording) for
 the full contract: errors, interruption causes, and ownership rules. Android
 and web session adapters are still pending — they reject with `unsupported`
-until they land; see [known limits](../verify/known-limits.md#primitives).
+until they land; see [known limits](../testing/known-limits.md#primitives).
 
 ## macOS scrolling and refresh
 

@@ -7,12 +7,12 @@ connects an AI agent to device/browser controls through MCP (the protocol
 agents use to call tools). It is development tooling; your Xplat app needs
 no Argent runtime dependency or framework package. Follow the
 [official installation guide](https://docs.swmansion.com/argent/docs/fundamentals/installation/)
-for editor setup. The Xplat qualification below uses version **0.27.0**.
+for editor setup. This guide uses version **0.27.0**.
 
 To configure MCP without a global installation, an editor entry can launch
 `pnpm dlx` directly. Adapt the top-level key to your editor using the
 [official MCP guide](https://docs.swmansion.com/argent/docs/fundamentals/mcp-server/).
-This is optional configuration guidance; the runtime evidence below uses the
+This is optional configuration guidance; the qualified runtime checks use the
 CLI, not an editor adapter. The setup wizard defaults to global installation,
 so do not run it when global changes are prohibited.
 
@@ -99,38 +99,13 @@ after actions; CLI qualification does not qualify that adapter behavior.
 The iOS input service internally initializes a framebuffer backend, so this
 is not a claim that the tool processes zero internal pixel buffers.
 
-## Maintained checks and scope
+## Qualification limits
 
-From this repository's root, run the maintained DOM regression or its optional
-pinned Argent journey. The latter launches isolated headless Chromium on CDP
-port 19329, saves text/JSON locally, and closes its browser/server.
+The bounded numeric-input and control journey passed on an iOS simulator and
+Chromium. Android has source mapping coverage only; it has no runtime pass
+in this qualification. Physical devices, desktop renderers, IME composition,
+arbitrary alphabetic typing, navigation, permissions, and visual parity remain
+unverified. MCP editor adapters are not qualified by CLI results.
 
-```sh
-pnpm --filter @xplat/web exec node scripts/test-id.mjs
-pnpm --filter @xplat/web exec node scripts/test-id.mjs --argent
-pnpm --filter @octane-xplat/ui exec vitest run --config vitest.native.config.mts src/test-id.mobile.test.tsrx
-```
-
-The maintained fixture is [TestID.tsrx](../../packages/ui/tests/fixtures/TestID.tsrx);
-platform flows are [iOS](../../examples/automation/test-id-ios.yaml),
-[Android](../../examples/automation/test-id-android.yaml), and
-[Chromium](../../examples/automation/test-id-web.yaml). The mobile flows name
-the isolated qualification app, `org.nativescript.xplat.laurencetestid`;
-render the fixture in a buildable test shell with a NativeScript `RootLayout`
-for overlays, or change the launch ID to your own test shell.
-
-Qualification on 2026-10-08: iOS 27.0 simulator with NativeScript core 9.1.3
-passed **28/28** Argent steps. UIKit inspection confirmed actual identifiers
-and preserved labels. Chromium 153 passed **27/27** steps, including numeric typing and DOM-id
-precedence; Android is not runtime-qualified in this run because build/device resource
-admission was unavailable; NativeScript mapping source alone is not an OS pass. The journey covers
-parent/child names, numeric input, counter and switch actions, retained-control
-ID rebind/removal, and overlay close/reopen. Row, scroll-container and anchor
-forwarding have source coverage; this journey does not exercise every host
-variant. A maintained object-driver regression also checks item-key identity
-and uniqueness through VirtualList recycling; this is renderer evidence, not
-an OS recycling journey.
-
-Physical devices, AppKit, IME composition, arbitrary alphabetic typing,
-navigation journeys, permissions, and visual parity are unverified here.
-Maestro qualification is separate; see [the Maestro guide](maestro.md).
+Framework contributors can reproduce the
+[maintained checks and target evidence](../../.agents/docs/argent.md).

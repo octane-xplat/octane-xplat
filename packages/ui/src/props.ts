@@ -519,7 +519,7 @@ export interface TestIDProps {
 	 * iOS/Android. Inputs target the editable host; Overlay targets its content.
 	 * Other components/platforms are not automatically supported by inheritance.
 	 * Keep IDs unique among mounted targets and stable across localization.
-	 * @see docs/verify/test-identifiers.md for qualified hosts and precedence. */
+	 * @see docs/testing/test-identifiers.md for qualified hosts and precedence. */
 	testID?: string
 }
 
