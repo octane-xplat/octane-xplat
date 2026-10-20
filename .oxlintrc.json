@@ -95,6 +95,10 @@
 		"xplat/hooks-in-plain-ts": "warn",
 		"xplat/native-pragma-first-line": "error",
 		"xplat/no-jsx-text-breakers": "error",
-		"xplat/no-root-logical-render": "error"
+		"xplat/no-root-logical-render": "error",
+		"xplat/no-removed-routing-api": "error",
+		"xplat/no-route-augmentation": "error",
+		"xplat/no-destination-cast": "error",
+		"xplat/no-interpolated-route-path": "error"
 	}
 }

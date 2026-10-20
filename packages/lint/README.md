@@ -50,6 +50,24 @@ command or setup failures. Warning-level findings do not fail the command:
 pnpm exec xplat lint --help
 ```
 
+## Routing migration rules
+
+Four `xplat/*` rules catch pre-cutover routing patterns that types alone
+cannot:
+
+- `xplat/no-removed-routing-api` — imports of removed names such as
+  `pushRoute`, `useRoute`, `registerRoutes`, or `AppRoutes` from
+  `@octane-xplat/ui` or `/routing`; the message names the canonical
+  replacement (`router.push`, `useRouterState`, generated registration).
+- `xplat/no-route-augmentation` — `declare module '@octane-xplat/ui...'` in a
+  non-generated file. Route types come from `xplat routes` output.
+- `xplat/no-destination-cast` — `as`/`<>​` assertions on a `to` value or an
+  object containing `to` (`as const` is allowed). Use a declared pattern or
+  `router.validateDestination(...)` for runtime data.
+- `xplat/no-interpolated-route-path` — template expressions or `+`
+  concatenation as a `to` value or JSX `to` attribute. Use
+  `to: '/items/:id', params: { id }`.
+
 ## Project configuration
 
 The command uses one `.oxlintrc.json` in the directory where you run it.

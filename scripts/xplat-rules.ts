@@ -1276,6 +1276,11 @@ export function checkNoViewOnPress(program, _src, filename, options) {
 		}
 
 		const name = propName(attr.name) ?? ''
+		// NavLink exposes cancellable activation, but no Pressable gesture API.
+		if (tag === 'NavLink' && name === 'onPress') {
+			continue
+		}
+
 		if (NON_PRESSABLE_PRIMITIVES.has(tag) && PRESSABLE_ONLY_PROPS.has(name)) {
 			out.push({
 				node: attr,
@@ -1406,7 +1411,11 @@ export function checkNativePragmaFirstLine(program, source, filename, options) {
 		: file.includes('.macos.')
 			? MACOS_PRAGMA
 			: LEGACY_NATIVE_PRAGMA
-	if (source.startsWith(NATIVE_PRAGMA) || source.startsWith(legacyPragma)) {
+	// UI declarations use their renderer's types without an app-facade dependency.
+	const uiGtkRendererPragma =
+		/(?:^|\/)packages\/ui\/src\/.*\.gtk\.tsrx$/.test(file) &&
+		source.startsWith(LEGACY_NATIVE_PRAGMA)
+	if (source.startsWith(NATIVE_PRAGMA) || source.startsWith(legacyPragma) || uiGtkRendererPragma) {
 		return []
 	}
 
@@ -1514,4 +1523,257 @@ export const XPLAT_CHECKS = {
 	'native-pragma-first-line': checkNativePragmaFirstLine,
 	'no-jsx-text-breakers': checkNoJsxTextBreakers,
 	'no-root-logical-render': checkNoRootLogicalRender,
+	'no-removed-routing-api': checkNoRemovedRoutingApi,
+	'no-route-augmentation': checkNoRouteAugmentation,
+	'no-destination-cast': checkNoDestinationCast,
+	'no-interpolated-route-path': checkNoInterpolatedRoutePath,
+}
+
+// ---------- routing migration rules (canonical routing cutover) ----------
+
+const ROUTING_SOURCES = new Set(['@octane-xplat/ui/routing', '@octane-xplat/ui'])
+const REMOVED_ROUTING_API: Record<string, string> = {
+	pushRoute: 'router.push({ to, params }) from useRouter()',
+	popRoute: 'useRouter().back()',
+	routeStacks: 'useRouteMatch() / useRouterState()',
+	currentRoute: 'useRouteMatch() / useRouterState()',
+	currentModalRoute: 'useRouteMatch() / useRouterState()',
+	useRoute: 'useRouteMatch() / useRouterState() / getRouteApi(path)',
+	useModalRoute: 'useRouteMatch() / useRouterState()',
+	pushDeepLink: 'router.navigateUrl(url)',
+	routeFor: 'router.href(destination)',
+	hrefFor: 'router.href(destination)',
+	canGoBack: 'useCanGoBack()',
+	registerScreens: "generated registration (import './routes.gen')",
+	registerRoutes: "generated registration (import './routes.gen')",
+	addRoutes: 'router.addRoutes(defineRuntimeRoutes(...))',
+	screenFor: "generated registration (import './routes.gen')",
+	layoutsForRoute: "generated registration (import './routes.gen')",
+	errorBoundaryFor: "generated registration (import './routes.gen')",
+	AppRoutes: 'Destination / DestinationFor',
+	AppRouteName: 'Destination / DestinationFor',
+	AppRouteParams: 'Destination / DestinationFor',
+	Route: 'Destination / DestinationFor',
+	RouteFor: 'Destination / DestinationFor',
+	TypedRoute: 'Destination / DestinationFor',
+	BeforeLoad: 'generated RouteGuardArgs',
+	BeforeLoadArgs: 'generated RouteGuardArgs',
+}
+
+export function checkNoRemovedRoutingApi(program, _src, filename, options) {
+	if (fileExcluded(filename, options)) {
+		return []
+	}
+
+	const out: any[] = []
+	for (const [node] of walk(program)) {
+		if (node.type !== 'ImportDeclaration') {
+			continue
+		}
+
+		const source = node.source?.value
+		if (typeof source !== 'string' || !ROUTING_SOURCES.has(source)) {
+			continue
+		}
+
+		for (const spec of node.specifiers ?? []) {
+			const imported = spec.imported?.name
+			if (imported && REMOVED_ROUTING_API[imported]) {
+				out.push({
+					node: spec,
+					message: `'${imported}' was removed in the routing cutover — use ${REMOVED_ROUTING_API[imported]}.`,
+				})
+			}
+		}
+	}
+
+	return out
+}
+
+const ROUTE_AUGMENT_SOURCES = new Set([
+	'@octane-xplat/ui',
+	'@octane-xplat/ui/routing',
+	'@octane-xplat/ui/routing/core',
+])
+
+export function checkNoRouteAugmentation(program, _src, filename, options) {
+	if (
+		fileExcluded(filename, options) ||
+		/(^|\/)[\w.-]*\.gen\.[\w.]+$/.test(norm(filename)) ||
+		norm(filename).endsWith('.gen.ts')
+	) {
+		return []
+	}
+
+	const out: any[] = []
+	for (const [node] of walk(program)) {
+		if (node.type !== 'TSModuleDeclaration') {
+			continue
+		}
+
+		const name =
+			node.id?.type === 'Literal'
+				? node.id.value
+				: node.id?.type === 'Identifier'
+					? node.id.name
+					: undefined
+		if (typeof name === 'string' && ROUTE_AUGMENT_SOURCES.has(name)) {
+			out.push({
+				node,
+				message: `'declare module '${name}'' cannot add route types — route types come from generated registration; run \`xplat routes\`.`,
+			})
+		}
+	}
+
+	return out
+}
+
+// Route paths are absolute patterns — only interpolated strings that start
+// a route-like '/' literal are destinations. `{ from, to }` animation
+// objects, ranges and gradient stops keep their `to` key unflagged.
+const startsWithSlash = (expr) =>
+	(expr?.type === 'Literal' && typeof expr.value === 'string' && expr.value.startsWith('/')) ||
+	(expr?.type === 'TemplateLiteral' && expr.quasis[0]?.value.cooked?.startsWith('/'))
+
+const leftmostOperand = (expr) => {
+	let node = expr
+	while (node?.type === 'BinaryExpression' && node.operator === '+') {
+		node = node.left
+	}
+	return node
+}
+
+const isInterpolatedRoutePath = (expr) =>
+	(expr?.type === 'TemplateLiteral' &&
+		expr.expressions.length > 0 &&
+		expr.quasis[0]?.value.cooked?.startsWith('/')) ||
+	(expr?.type === 'BinaryExpression' &&
+		expr.operator === '+' &&
+		startsWithSlash(leftmostOperand(expr)))
+
+function* toValueNodes(program) {
+	for (const [node] of walk(program)) {
+		if (
+			node.type === 'Property' &&
+			propName(node.key) === 'to' &&
+			node.value &&
+			node.value.type !== 'Literal'
+		) {
+			yield node.value
+		}
+
+		if (node.type === 'JSXAttribute' && propName(node.name) === 'to') {
+			const value = node.value
+			if (value?.type === 'JSXExpressionContainer') {
+				yield value.expression
+			} else if (value && value.type !== 'Literal') {
+				yield value
+			}
+		}
+	}
+}
+
+export function checkNoInterpolatedRoutePath(program, _src, filename, options) {
+	if (fileExcluded(filename, options)) {
+		return []
+	}
+
+	const out: any[] = []
+	for (const value of toValueNodes(program)) {
+		if (isInterpolatedRoutePath(value)) {
+			out.push({
+				node: value,
+				message: `Interpolated route paths are not declared destinations — use \`to: '/items/:id', params: { id }\`.`,
+			})
+		}
+	}
+
+	return out
+}
+
+const objectProp = (expr, name) =>
+	expr?.type === 'ObjectExpression'
+		? (expr.properties ?? []).find(
+				(p) => p.type === 'Property' && propName(p.key) === name,
+			)
+		: undefined
+
+// An asserted `{ to }` object is a destination only when `to` looks like a
+// route path or the object carries routing fields — plain `to` keys in
+// animations, ranges and gradients are left alone.
+const isDestinationLike = (expr) => {
+	const to = objectProp(expr, 'to')
+	if (!to || to.value?.type !== 'Literal' && to.value?.type !== 'TemplateLiteral') {
+		return !!objectProp(expr, 'params') || !!objectProp(expr, 'search')
+	}
+	if (startsWithSlash(to.value)) {
+		return true
+	}
+	return !!objectProp(expr, 'params') || !!objectProp(expr, 'search')
+}
+
+export function checkNoDestinationCast(program, _src, filename, options) {
+	if (fileExcluded(filename, options)) {
+		return []
+	}
+
+	const out: any[] = []
+	const isConstAssertion = (node) =>
+		node.typeAnnotation?.type === 'TSTypeReference' &&
+		node.typeAnnotation.typeName?.type === 'Identifier' &&
+		node.typeAnnotation.typeName.name === 'const'
+
+	for (const [node, parent] of walk(program)) {
+		if (
+			node.type === 'JSXAttribute' &&
+			propName(node.name) === 'to' &&
+			node.value?.type === 'JSXExpressionContainer' &&
+			(node.value.expression?.type === 'TSAsExpression' ||
+				node.value.expression?.type === 'TSTypeAssertion') &&
+			!isConstAssertion(node.value.expression)
+		) {
+			out.push({
+				node: node.value.expression,
+				message: `Casting a 'to' value bypasses declared route contracts — use a declared pattern with params, or router.validateDestination(...) for runtime data.`,
+			})
+			continue
+		}
+
+		if (node.type !== 'TSAsExpression' && node.type !== 'TSTypeAssertion') {
+			continue
+		}
+
+		// `as const` narrows to the literal — the declared contract still checks.
+		// JSX expression containers are handled by the 'to' attribute branch.
+		if (isConstAssertion(node) || parent?.type === 'JSXExpressionContainer') {
+			continue
+		}
+
+		if (isDestinationLike(node.expression)) {
+			out.push({
+				node,
+				message: `Destination casts bypass declared route contracts — use a declared pattern with params, or router.validateDestination(...) for runtime data.`,
+			})
+			continue
+		}
+
+		const castsRouteLiteral =
+			(node.typeAnnotation?.type === 'TSLiteralType' &&
+				typeof node.typeAnnotation.literal?.value === 'string' &&
+				node.typeAnnotation.literal.value.startsWith('/')) ||
+			startsWithSlash(node.expression)
+		if (
+			castsRouteLiteral &&
+			parent?.type === 'Property' &&
+			propName(parent.key) === 'to' &&
+			parent.value === node
+		) {
+			out.push({
+				node,
+				message: `Casting a 'to' value bypasses declared route contracts — use a declared pattern with params, or router.validateDestination(...) for runtime data.`,
+			})
+		}
+	}
+
+	return out
 }
