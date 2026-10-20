@@ -7,7 +7,7 @@
 	const errors = []
 	addEventListener('error', (event) => errors.push(event.message))
 	addEventListener('unhandledrejection', (event) => errors.push(String(event.reason)))
-	const wait = async (predicate) => {
+	const wait = async (predicate, description = 'condition') => {
 		const deadline = Date.now() + 5000
 		while (Date.now() < deadline) {
 			if (predicate()) {
@@ -17,7 +17,7 @@
 			await new Promise((resolve) => setTimeout(resolve, 50))
 		}
 
-		throw new Error('condition did not settle')
+		throw new Error(`${description} did not settle at ${location.pathname}; ${errors.join('; ')}`)
 	}
 
 	const text = () => document.body.textContent
@@ -74,7 +74,7 @@
 		})
 
 		await check('apps-tab', async () => {
-			clickText('Apps', 'button')
+			click('[role="tab"][data-tab-value="apps"]')
 			await wait(() => text().includes('Last opened:'))
 		})
 
@@ -109,7 +109,7 @@
 		})
 
 		await check('sheet-open', async () => {
-			clickText('Test', 'button')
+			click('[role="tab"][data-tab-value="test"]')
 			await wait(() => text().includes('Open sheet'))
 			clickText('Open sheet')
 			await wait(() => document.querySelector('.vx-sheet-layer .sheet-panel'))
@@ -121,7 +121,7 @@
 		})
 
 		await check('overlay-open', async () => {
-			clickText('Home', 'button')
+			click('[role="tab"][data-tab-value="home"]')
 			await wait(() => document.querySelector('#overlay-btn'))
 			click('#overlay-btn')
 			await wait(() => document.querySelector('.vx-overlay .overlay-panel'))
@@ -130,6 +130,62 @@
 		await check('overlay-dismiss', async () => {
 			click('.vx-overlay-shade')
 			await wait(() => !document.querySelector('.vx-overlay'))
+		})
+
+		let editor
+		await check('navigation-confirmation-holds', async () => {
+			click('[role="tab"][data-tab-value="test"]')
+			await wait(() => document.querySelector('#menu-navigation-blocking'), 'confirmation menu')
+			click('#menu-navigation-blocking')
+			await wait(
+				() =>
+					location.pathname === '/test/navigation-blocking' &&
+					document.querySelector('#navigation-blocking'),
+				'confirmation editor',
+			)
+			editor = document.querySelector('#navigation-blocking')
+			click('#navigation-blocking-edit')
+			await wait(
+				() => document.querySelector('#navigation-blocking-dirty')?.textContent === 'Unsaved draft',
+				'dirty draft',
+			)
+			click('#navigation-blocking-back')
+			await wait(
+				() => document.querySelector('#navigation-blocking-status')?.textContent === 'blocked',
+				'blocked confirmation',
+			)
+			if (
+				location.pathname !== '/test/navigation-blocking' ||
+				document.querySelector('#navigation-blocking') !== editor
+			) {
+				throw new Error('confirmation replaced its admitted editor')
+			}
+		})
+
+		await check('navigation-confirmation-refuses', async () => {
+			click('#navigation-blocking-keep')
+			await wait(
+				() => document.querySelector('#navigation-blocking-status')?.textContent === 'idle',
+			)
+			if (
+				location.pathname !== '/test/navigation-blocking' ||
+				document.querySelector('#navigation-blocking') !== editor ||
+				document.querySelector('#navigation-blocking-dirty')?.textContent !== 'Unsaved draft'
+			) {
+				throw new Error('refusal lost editor state')
+			}
+		})
+
+		await check('navigation-confirmation-proceeds', async () => {
+			click('#navigation-blocking-back')
+			await wait(
+				() => document.querySelector('#navigation-blocking-status')?.textContent === 'blocked',
+				'blocked confirmation',
+			)
+			click('#navigation-blocking-leave')
+			await wait(
+				() => location.pathname === '/' && document.querySelector('#menu-navigation-blocking'),
+			)
 		})
 
 		await check('no-unhandled-errors', () => {

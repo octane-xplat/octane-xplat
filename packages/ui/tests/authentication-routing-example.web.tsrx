@@ -1,0 +1,233 @@
+/** @jsxImportSource octane */
+// Controlled SDK promises and real router owners; no authentication provider traffic.
+import { createRoot, flushSync, useEffect, useLayoutEffect, useMemo, useState } from 'octane'
+import { createRouter } from '../src/router-instance'
+import { createBrowserRouterHost } from '../src/browser-router-host.web'
+import { ClientRouteOutlet } from '../src/ClientRouteOutlet.web.tsrx'
+import { defineRoute } from '../src/define-route'
+import { defineRoutes } from '../src/route-table'
+import { DestinationRedirect } from '../src/routing-core'
+import { useNavigation, useRouter } from '../src/router-hooks.tsrx'
+import type { Renderable } from '../src/props'
+
+type Account = { id: string }
+type SignInResult = { kind: 'success'; account: Account } | { kind: 'expired' }
+
+export async function createAuthenticationExample(
+	batch: (update: () => void | Promise<void>) => Promise<void> = async (update) => {
+		let result: void | Promise<void>
+		flushSync(() => {
+			result = update()
+		})
+
+		await result!
+	},
+) {
+	let account: Account | null = null
+	let authority = 0
+	let privateLoads = 0
+	let changeSession!: (next: Account | null, returnTo?: string) => void
+	const completions: ((result: SignInResult) => void)[] = []
+	const outcomes: string[] = []
+	const returned: string[] = []
+	const cancelled: string[] = []
+	const platform = createBrowserRouterHost()
+	const route = defineRoute.withContext<{ account: Account | null }>()
+	function Home(): Renderable {
+		return <p id="public-home">Public home</p>
+	}
+
+	function loginSearch(raw: { returnTo?: unknown }) {
+		return { returnTo: typeof raw.returnTo === 'string' ? raw.returnTo : '/' }
+	}
+
+	function Login(props: { search: { returnTo: string } }): Renderable {
+		const navigation = useRouter(router)
+		const lifetime = useMemo(() => ({ active: true, attempt: 0 }), [])
+		const [message, setMessage] = useState('ready')
+		useLayoutEffect(
+			() => () => {
+				lifetime.active = false
+				lifetime.attempt++
+			},
+			[],
+		)
+
+		const signIn = () => {
+			const attempt = ++lifetime.attempt
+			const version = authority
+			setMessage('pending')
+			const sdk = new Promise<SignInResult>((resolve) => completions.push(resolve))
+			void sdk.then((result) => {
+				if (!lifetime.active || lifetime.attempt !== attempt || authority !== version) {
+					outcomes.push('cancelled')
+					return
+				}
+
+				if (result.kind === 'expired') {
+					setMessage('expired')
+					outcomes.push('expired')
+					return
+				}
+
+				// Changing the keyed owner ends this navigator's lifetime. Hand the
+				// return URL to the replacement owner instead of navigating here.
+				outcomes.push('success')
+				changeSession(result.account, props.search.returnTo)
+			})
+		}
+
+		const cancel = async () => {
+			const result = navigation.getSnapshot().modal
+				? await navigation.dismiss()
+				: await navigation.replace({ to: '/' })
+
+			cancelled.push(result.status)
+		}
+
+		return (
+			<div id="login">
+				<output id="sign-in-status">{message}</output>
+				<button id="sign-in" disabled={message === 'pending'} onClick={signIn}>
+					Sign in
+				</button>
+				<button id="cancel-sign-in" onClick={cancel}>
+					Cancel sign-in
+				</button>
+			</div>
+		)
+	}
+
+	const router = createRouter({
+		catalog: defineRoutes([
+			route({ path: '/' }).screen(Home),
+			route({
+				path: '/login',
+				validateSearch: loginSearch,
+			}).screen(Login),
+			route({
+				path: '/private/:id',
+				beforeLoad({ context, params }) {
+					if (!context.account) {
+						throw new DestinationRedirect({
+							to: '/login',
+							search: { returnTo: '/private/' + encodeURIComponent(params.id) },
+						})
+					}
+
+					return { account: context.account }
+				},
+				loader({ context, params }) {
+					privateLoads++
+					return { account: context.account.id, id: params.id }
+				},
+			}).screen(({ data }) => (
+				<p id="private-item">
+					{data.account}:{data.id}
+				</p>
+			)),
+		]),
+		host: platform.host,
+		context: () => ({ account: account ? { ...account } : null }),
+	})
+
+	platform.attach(router)
+	function CompleteReturn(props: { returnTo?: string }): Renderable {
+		const navigation = useRouter(router)
+		const state = useNavigation(router)
+		const started = useMemo(() => ({ value: false }), [])
+		useEffect(() => {
+			if (!props.returnTo || started.value || state.status === 'pending') {
+				return
+			}
+
+			started.value = true
+			void navigation.navigateUrl(props.returnTo, { replace: true }).then((result) => {
+				returned.push(result.status)
+			})
+		}, [props.returnTo, state.status])
+
+		return <p id="owner-base">New owner</p>
+	}
+
+	function Owner(props: { returnTo?: string }): Renderable {
+		return (
+			<ClientRouteOutlet host={platform}>
+				<CompleteReturn returnTo={props.returnTo} />
+			</ClientRouteOutlet>
+		)
+	}
+
+	function App(): Renderable {
+		const [state, setState] = useState<{ version: number; returnTo?: string }>({ version: 0 })
+		changeSession = (next, returnTo) => {
+			account = next
+			authority++
+			setState({ version: authority, returnTo })
+		}
+
+		return <Owner key={state.version} returnTo={state.returnTo} />
+	}
+
+	const container = document.createElement('div')
+	document.body.append(container)
+	const root = createRoot(container)
+	await batch(() => root.render(App))
+	let disposed = false
+	const dispose = async () => {
+		if (disposed) {
+			return
+		}
+
+		disposed = true
+		try {
+			await batch(() => root.unmount())
+		} finally {
+			router.dispose()
+			for (const resolve of completions) {
+				resolve({ kind: 'expired' })
+			}
+
+			container.remove()
+		}
+	}
+
+	return {
+		dispose,
+		router,
+		container,
+		outcomes,
+		returned,
+		cancelled,
+		loads: () => privateLoads,
+		account: () => account,
+		changeSession: (next: Account | null, returnTo?: string) =>
+			batch(() => changeSession(next, returnTo)),
+		async returnFromRetiringOwner(next: Account, returnTo: string) {
+			let request!: ReturnType<typeof router.navigateUrl>
+			await batch(() => {
+				changeSession(next)
+				request = router.navigateUrl(returnTo, { replace: true })
+			})
+
+			return await request
+		},
+		click: (id: string) =>
+			batch(() => {
+				const button = document.getElementById(id) as HTMLButtonElement | null
+				if (!button) {
+					throw new Error('Missing authentication control: ' + id)
+				}
+
+				button.click()
+			}),
+		complete: (index: number, result: SignInResult) =>
+			batch(async () => {
+				if (!completions[index]) {
+					throw new Error('Missing sign-in attempt: ' + index)
+				}
+
+				completions[index](result)
+			}),
+	}
+}

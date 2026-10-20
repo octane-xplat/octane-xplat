@@ -3,6 +3,7 @@ import type { UniversalRoot } from 'octane/universal/native'
 /** Handle returned by `presentSurface`. `panel` hosts the rendered subtree
  * inside `layer`, the full-window hit-test surface that owns dismissal. */
 export interface PresentationSurface {
+	show(): void
 	update(options: Record<string, any>): void
 	close(reason?: string): void
 	readonly closed: boolean

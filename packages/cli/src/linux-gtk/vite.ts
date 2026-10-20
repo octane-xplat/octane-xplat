@@ -19,6 +19,7 @@ export async function xplatLinuxGtk(env, options = {}) {
 		pathToFileURL(realpathSync(appRequire.resolve('@octanejs/vite-plugin'))).href
 	)
 	const resolveApp = (name) => realpathSync(appRequire.resolve(name))
+	const rendererEntry = resolveApp(renderer)
 	// The universal runtime must be the same module the bundler reaches —
 	// resolve through the app's dependency tree, not ours.
 	const universalNative = realpathSync(appRequire.resolve('octane/universal/native'))
@@ -76,7 +77,10 @@ export async function xplatLinuxGtk(env, options = {}) {
 				{ find: /^octane\/universal\/native$/, replacement: universalNative },
 				// Leaves that touch NativeScript defaults keep working inside a
 				// GTK bundle via the renderer's compat shims.
-				{ find: /^@nativescript-community\/octane$/, replacement: renderer },
+				{ find: /^@nativescript-community\/octane$/, replacement: rendererEntry },
+				// Workspace UI leaves import the selected renderer from their own graph;
+				// resolve it through the app without adding a UI renderer dependency.
+				{ find: /^@octane-xplat\/linux-gtk$/, replacement: rendererEntry },
 				{ find: './escape-props', replacement: resolveApp(`${renderer}/compat/escape-props`) },
 				{
 					find: /^@nativescript\/core$/,

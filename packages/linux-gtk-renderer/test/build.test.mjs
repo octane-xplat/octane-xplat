@@ -56,6 +56,48 @@ test('the gtk boundary rejects a .linux leaf reachable in the bundle', async () 
 	)
 }, 120000)
 
+test('canonical routing selects GTK panes without NativeScript Frame or modal hosts', async () => {
+	const guide = readFileSync(
+		new URL('../../../docs/platform/linux-gtk.md', import.meta.url),
+		'utf8',
+	)
+	const example = guide.split('## Add retained route panes')[1]?.match(/```tsx\n([\s\S]*?)```/)
+	assert.ok(example, 'the public GTK pane example exists')
+	assert.equal(
+		example[1].trim(),
+		readFileSync(join(fixture, 'src/routing.gtk.tsx'), 'utf8').trim(),
+		'the maintained routing fixture executes the public example',
+	)
+	const modules = []
+	await build({
+		configFile: join(fixture, 'vite.routing.config.mjs'),
+		logLevel: 'error',
+		plugins: [
+			{
+				name: 'collect-routing-platform-modules',
+				buildEnd() {
+					modules.push(...this.getModuleIds())
+				},
+			},
+		],
+	})
+	const code = readFileSync(join(outDir, 'routing/app.js'), 'utf8')
+	assert.match(code, /GTK_ROUTING_OK/)
+	assert.match(code, /from\s+['"]gi:\/\/Gtk\?version=4\.0['"]/)
+	assert.ok(modules.some((id) => id.includes('/default-router.gtk.ts')))
+	assert.ok(modules.some((id) => id.includes('/RoutePane.gtk.tsrx')))
+	assert.ok(
+		modules.every(
+			(id) =>
+				!/\/ui\/src\/(?:native-router-host|native-modal-router-host|default-router|stacks|back-interceptors)\.ts$/.test(
+					id,
+				),
+		),
+		'GTK routing must not import the NativeScript client integration',
+	)
+	assert.doesNotMatch(code, /document\.createElement|window\.document/)
+}, 120000)
+
 test.after(() => {
 	rmSync(outDir, { recursive: true, force: true })
 })

@@ -1,3 +1,6 @@
+import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } from './props'
+import type { NavigationItemImplementation } from './nav-link'
+import { useNavigationItem } from './use-navigation-item.shared.tsrx'
 import { useCallback, useContext, useMemo, useRef } from 'octane';
 import { styleRecord } from './style-merge'
 import type { NavHeadingMenuProps, NavHeadingMenuItemProps } from './props';
@@ -95,19 +98,20 @@ export function NavHeadingMenu(props: NavHeadingMenuProps) @{
 /** NavHeadingMenuItem — one row in a NavHeadingMenu: icon + label +
  *  optional description; a link when `href` is set, else a menuitem div
  *  whose activation fires `onClick` and closes the parent menu. */
-export function NavHeadingMenuItem(props: NavHeadingMenuItemProps) @{
+export function NavHeadingMenuItem<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+>(props: NavHeadingMenuItemProps<Contracts, Stacks, Transitions>): any
+
+export function NavHeadingMenuItem(props: NavigationItemImplementation<NavHeadingMenuItemProps>) @{
+	const link = useNavigationItem(props)
 	const ctx = useContext(NavHeadingMenuContext);
 	const closeCtx = useContext(NavHeadingCloseContext);
-	const isDisabled = props.isDisabled ?? false;
+	const isDisabled = link.disabled;
 
-	const handleClick = (e: any) => {
-		if (isDisabled) {
-			e?.preventDefault?.();
-			return;
-		}
-
-		props.onClick?.();
-		(ctx?.closeMenu ?? closeCtx?.closeMenu)?.();
+	const handleClick = (event: any) => {
+		if (link.activateWeb(event)) (ctx?.closeMenu ?? closeCtx?.closeMenu)?.()
 	};
 
 	const cls = ['vx-navmenu-item', 'vx-navmenu-item--' + (ctx?.size ?? 'md'), isDisabled && 'vx-navmenu-item--disabled', props.className];
@@ -128,7 +132,7 @@ export function NavHeadingMenuItem(props: NavHeadingMenuItemProps) @{
 		</>
 	);
 
-	@if (props.href != null && !isDisabled) {
+	@if (link.href != null && !isDisabled) {
 		<a
 			ref={(el: any) => applyEscapeProps(el, props)}
 			id={props.id}
@@ -136,7 +140,8 @@ export function NavHeadingMenuItem(props: NavHeadingMenuItemProps) @{
 			style={props.style}
 			role="menuitem"
 			tabIndex={-1}
-			href={props.href}
+			href={link.href} target={props.target} rel={props.rel} download={props.download}
+			aria-current={link.selected ? 'page' : undefined}
 			onClick={handleClick}
 		>
 			{content}

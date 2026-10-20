@@ -71,7 +71,8 @@ export interface HostedComponentProps<TParams = unknown> {
  *  arguments and `Modal`'s `component` prop. */
 export type HostedComponent<TParams = unknown> = ComponentFunction<HostedComponentProps<TParams>>
 
-/** A route screen component — receives the route's params as props. */
+/** A screen receiving structured params, search, data and context. File screens
+ * use generated RouteProps; programmatic screens attach after preparation inference. */
 export type ScreenComponent = ComponentFunction<Record<string, unknown>>
 
 /** A route layout component — renders the route subtree through `children`. */
@@ -1604,14 +1605,16 @@ export interface ScrollableAreaHandle {
 	 *  from the axis's start edge in viewport units (px on web, dips on
 	 *  iOS/Android, points on macOS), clamped to the scrollable range.
 	 *  Omitted axes keep their position. `animated` (default false) uses the
-	 *  platform's scroll animation where the leaf provides one. */
+	 *  platform's scroll animation where the leaf provides one. Mason iOS
+	 *  currently writes instantly even when animated is true. */
 	scrollToOffset(
 		offset: { inline?: number; block?: number },
 		options?: { animated?: boolean },
 	): void
-	/** The platform scroll viewport (`HTMLElement` / NS `ScrollView` / AppKit
-	 *  `NSScrollView`) — escape hatch for anything the shared contract does
-	 *  not cover. */
+	/** The platform scroll viewport (`HTMLElement`, Mason `Scroll` on
+	 *  iOS/Android/Windows, or AppKit `NSScrollView`). Mason does not expose
+	 *  NativeScript ScrollView's offset methods; prefer scrollToOffset.
+	 *  This escape hatch covers behavior outside the shared contract. */
 	native: HostElement
 }
 
@@ -3625,7 +3628,7 @@ export interface TabSpec {
 	stack?: string
 }
 
-/** Self-drawn tab strip + panes (Astryx `Tabs`). `tabs` supplies `TabSpec`s; selection is controlled by `selectedKey`+`onSelectionChange` or uncontrolled via `defaultSelectedKey`, keyed by `TabSpec.key`. The index spellings (`selectedIndex`, `onSelectedIndexChanged`) are deprecated aliases. `resolveScreen` renders pushed routes inside `stack` panes.
+/** Self-drawn tab strip + panes (Astryx `Tabs`). `tabs` supplies `TabSpec`s; selection is controlled by `selectedKey`+`onSelectionChange` or uncontrolled via `defaultSelectedKey`, keyed by `TabSpec.key`. Named `stack` panes render their routes through the canonical router.
  *
  * @example
  * ```tsx
@@ -3661,9 +3664,6 @@ export interface TabsProps {
 	/** @deprecated Use `onSelectionChange`. Fires alongside it with the
 	 *  selected tab's position. */
 	onSelectedIndexChanged?: (index: number) => void
-	/** Renders a pushed route's screen by name (the app owns the table).
-	 *  Web: route outlet. Native: pushes render inside the pane's Frame. */
-	resolveScreen?: (name: string, params: Record<string, unknown>) => Renderable
 }
 
 /** Platform tab-bar item shape. `icon` may be a registered name or a native
@@ -3687,52 +3687,1233 @@ export type BottomNavigationViewProps = PlatformWidgetProps<PlatformTabsProps>
 
 // ---------- routes ----------
 
-/** A resolved navigation destination — `stack` (the owning stack), `name` (the route id), `params`, optional `presentation` ('push' default, 'modal' own root, 'fade' push-with-fade), `hash` fragment (web), and loader/beforeLoad results (`loaderData`/`loaderError`/`context`). Produced by `routeFor`/`currentRoute`/matchers; consumed by `pushRoute` and `NavLink`.
- */
-export interface Route {
-	stack: string
-	name: string
-	params: Record<string, unknown>
-	/** 'push' (default) pushes onto the stack · 'modal' opens its own root
-	 *  (native: `showModal`; web: overlay pane, URL preserved) · 'fade' is a
-	 *  push with a fade transition. A `+modal`/`+fade` filename suffix in
-	 *  the route dir sets the manifest default; this field overrides it. */
-	presentation?: 'push' | 'modal' | 'fade'
-	/** Optional URL fragment (without '#') — web serializes it into the
-	 *  pushed URL and scrolls to the matching element instead of the top;
-	 *  deep links and direct URLs carry it through `matchUrl`. Ignored on
-	 *  native. */
+/** Runtime destination boundary consumed by host-independent preparation.
+ * Typed application destinations narrow this shape through their route catalog.
+ * Prepared data and context are deliberately not navigation input. */
+export interface RouteDestinationInput {
+	to: string
+	params?: Record<string, string | undefined>
+	search?: Record<string, unknown>
+	stack?: string
 	hash?: string
-	/** Loader result supplied to the route screen as `data`. */
-	loaderData?: unknown
-	/** Loader rejection supplied to the route screen as `error`. */
-	loaderError?: unknown
-	/** Framework-internal: a route whose loader is still in flight at mount
-	 *  — only reachable on web direct-URL/history hydration, where the
-	 *  screen renders before the loader settles. Surfaces as the screen's
-	 *  `pending` prop; pushed routes commit after the loader and never
-	 *  carry it. */
-	loaderPending?: boolean
-	/** Context returned by the route's `beforeLoad` export. It is merged into
-	 * screen props and remains available from `useRoute`. */
-	context?: RouteContext
+	presentation?: 'push' | 'modal'
+	transition?: string
+	replace?: boolean
 }
+
+interface RouteCancellationSignalLike {
+	readonly aborted: boolean
+	addEventListener(type: 'abort', listener: () => void, options?: { once?: boolean }): void
+	removeEventListener(type: 'abort', listener: () => void): void
+}
+
+/** The host's standard AbortSignal when its type exists, including compatibility
+ * with fetch. Hosts without that global use the minimal cancellation contract;
+ * core never imports a DOM API or fabricates a standard signal. */
+export type RouteCancellationSignal = typeof globalThis extends {
+	AbortSignal: { prototype: infer Signal }
+}
+	? Signal & RouteCancellationSignalLike
+	: RouteCancellationSignalLike
+
+/** Host-provided cancellation primitive; creation belongs to the platform adapter. */
+export interface RouteCancellationController {
+	readonly signal: RouteCancellationSignal
+	abort(): void
+}
+
+/** Validated inputs shared by a route's guard and loader in the refined contract. */
+export interface RoutePreparationArgs {
+	params: Record<string, string>
+	search: Record<string, unknown>
+	context: RouteContext
+	signal?: RouteCancellationSignal
+}
+
+/** Executable behavior shared by every route authoring style. File generation
+ * and programmatic inference adapt their declarations to this internal boundary. */
+export interface RoutePreparationBehavior {
+	validateSearch?(
+		raw: Record<string, unknown>,
+	): Record<string, unknown> | Promise<Record<string, unknown>>
+	beforeLoad?(args: RoutePreparationArgs): RouteGuardResult | Promise<RouteGuardResult>
+	loader?(args: RoutePreparationArgs): unknown
+}
+
+/** A host-free prepared match. The context and data here are not automatically
+ * safe to serialize; SSR must project an explicitly declared public payload. */
+export interface PreparedRouteMatch {
+	to: string
+	name: string
+	stack: string
+	params: Record<string, string>
+	search: Record<string, unknown>
+	context: RouteContext
+	data: unknown
+	href: string
+	hash?: string
+	presentation?: 'push' | 'modal'
+	transition?: string
+}
+
+/** Terminal preparation outcomes, before browser/native/HTTP commitment.
+ * Error objects stay local to the host and must not be dumped into hydration JSON. */
+export type RoutePreparationResult =
+	| { status: 'ready'; match: PreparedRouteMatch; redirected: boolean }
+	| { status: 'redirect'; destination: RouteDestinationInput }
+	| { status: 'not-found'; reason: 'pattern' | 'resource' | 'unavailable' }
+	| { status: 'forbidden' }
+	| { status: 'invalid-input'; path: string; error: unknown }
+	| { status: 'failed'; phase: 'context' | 'guard' | 'loader' | 'redirect'; error: unknown }
+	| { status: 'cancelled'; reason: 'superseded' | 'disposed' | 'aborted' | 'registry-changed' }
+
+/** A strict URL/destination match without executing guards or loading data. */
+export type RouteResolution =
+	| { status: 'matched'; destination: RouteDestinationInput; name: string; href: string }
+	| Extract<RoutePreparationResult, { status: 'not-found' | 'invalid-input' }>
+
+declare const validatedDestinationTypes: unique symbol
+/** Opaque, instance-bound destination produced by validateDestination(). Pass
+ * the original value to navigation/href or NavLink's to prop. Choose route
+ * options before validation; copying or serializing this value loses its proof. */
+export interface ValidatedDestination {
+	readonly [validatedDestinationTypes]: true
+}
+
+/** A declared request or an opaque destination checked by this router. */
+export type NavigationDestination<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+> = DestinationFor<Contracts, keyof Contracts & string, Stacks, Transitions> | ValidatedDestination
+
+/** Search/schema validation without guards, context or loading. Success is
+ * a destination snapshot, never permission to skip preparation on navigation. */
+export type DestinationValidationResult<Value = ValidatedDestination> =
+	| { status: 'valid'; destination: Value; href: string }
+	| Extract<RoutePreparationResult, { status: 'not-found' | 'invalid-input' | 'cancelled' }>
+
+/** Instance-local preparation settings. Definitions are snapshotted; context is
+ * read once per attempt. Linear clients supersede all pending navigation, while
+ * independent native flows may prepare concurrently. No host is created here. */
+export interface RoutePreparationOptions {
+	catalog: RouteManifest
+	behaviors?: Readonly<Record<string, RoutePreparationBehavior>>
+	/** @internal Client effect names; server preparation can omit motion policy. */
+	transitionNames?: readonly string[]
+	/** @internal Identity for opaque client destinations; never a request service. */
+	destinationOwner?: object
+	/** Shallow root snapshot per attempt. Synchronous sources are copied before
+	 * yielding; async sources must resolve a consistent record. Services retain
+	 * identity. Changing this source does not invalidate retained entries. */
+	context?: object | (() => object | Promise<object>)
+	base?: string
+	/** Trusted HTTP(S) origins for incoming links. Relative URLs are always accepted. */
+	allowedOrigins?: readonly string[]
+	/** Application schemes whose authority is the first route segment. */
+	allowedSchemes?: readonly string[]
+	stacks?: readonly string[]
+	history?: 'linear' | 'independent'
+	createCancellationController?: () => RouteCancellationController
+}
+
+/** Structural Standard Schema v1 interoperability; validation libraries stay
+ * application-owned. Input/output phantom types preserve coercion/default typing.
+ * @see https://standardschema.dev/ */
+export interface RouteSearchSchema<Input = unknown, Output = unknown> {
+	readonly '~standard': {
+		readonly version: 1
+		readonly vendor: string
+		readonly types?: { readonly input: Input; readonly output: Output }
+		readonly validate: (value: unknown) =>
+			| { readonly value: Output; readonly issues?: undefined }
+			| {
+					readonly issues: readonly {
+						readonly message: string
+						readonly path?: readonly (PropertyKey | { readonly key: PropertyKey })[]
+					}[]
+			  }
+			| Promise<
+					| { readonly value: Output; readonly issues?: undefined }
+					| {
+							readonly issues: readonly {
+								readonly message: string
+								readonly path?: readonly (PropertyKey | { readonly key: PropertyKey })[]
+							}[]
+					  }
+			  >
+	}
+}
+
+/** A validated search field bag. Ordinary interfaces need no string index
+ * signature. Collection/coercion/function protocols cannot establish that bag;
+ * runtime validation also rejects non-record objects from JavaScript callers. */
+export type RouteSearchRecord = object & {
+	readonly [
+		Key in
+			| typeof Symbol.iterator
+			| typeof Symbol.toPrimitive
+			| typeof Symbol.toStringTag
+			| typeof Symbol.hasInstance
+			| typeof Symbol.match
+	]?: never
+}
+
+/** Search validation accepts a plain parser or an application-owned Standard Schema.
+ * Parsers receive untrusted decoded values, including arrays for repeated keys.
+ * A callable Standard Schema uses its v1 protocol, matching its inferred types,
+ * rather than its ordinary function call signature. The protocol must return a
+ * search object; a callable's ordinary return cannot establish that contract. */
+export type RouteSearchValidator =
+	| (((raw: Record<string, unknown>) => RouteSearchRecord | Promise<RouteSearchRecord>) & {
+			readonly '~standard'?: never
+	  })
+	| RouteSearchSchema<unknown, RouteSearchRecord>
+
+type RequiredRouteKeys<Value> = {
+	[Key in keyof Value]-?: {} extends Pick<Value, Key> ? never : Key
+}[keyof Value]
+
+type ParsedSearch<Validator> =
+	Validator extends RouteSearchSchema<unknown, infer Output>
+		? Output extends RouteSearchRecord
+			? Output
+			: never
+		: Validator extends (...args: any[]) => infer Output
+			? Awaited<Output> extends RouteSearchRecord
+				? Awaited<Output>
+				: never
+			: {}
+
+type ParserSearchInput<Input, Output> = {
+	[Key in keyof Output as Key extends RequiredRouteKeys<Input> ? Key : never]: Output[Key]
+} & {
+	[Key in keyof Output as Key extends RequiredRouteKeys<Input> ? never : Key]?: Output[Key]
+}
+
+/** Validated output read by loaders and screens. */
+export type RouteSearchOutput<Validator> = ParsedSearch<Validator>
+
+/** Navigation search input, distinct from output after coercion and defaults.
+ * Plain parsers preserve their declared input optionality and output value types. */
+export type RouteSearchInputOf<Validator> =
+	Validator extends RouteSearchSchema<infer Input, unknown>
+		? Input
+		: Validator extends (raw: infer Input) => unknown
+			? ParserSearchInput<Input, ParsedSearch<Validator>>
+			: Record<string, never>
+
+/** Absolute public path corresponding to a file or programmatic route pattern. */
+export type AbsoluteRoutePath<Path extends string> =
+	RouteNameOfPath<Path> extends infer Name extends string
+		? Name extends 'index'
+			? '/'
+			: `/${Name}`
+		: never
+
+/** Inferred contract for one destination; the values are type metadata, not
+ * objects applications construct. Separate search input from parsed output. */
+export interface RouteContract<
+	Params = Record<string, string>,
+	SearchInput = Record<string, never>,
+	Search = SearchInput extends Record<string, never> ? {} : SearchInput,
+	Data = undefined,
+	Context = RouteContext,
+	RootContext = object,
+> {
+	params: Params
+	searchInput: SearchInput
+	search: Search
+	data: Data
+	context: Context
+	/** Type metadata for dependencies supplied before guards add context. */
+	readonly rootContext?: RootContext
+}
+
+/** Generated contributions of complete route contracts; application authors do
+ * not write augmentation. An empty registry provides no unchecked string destination fallback. */
+export interface AppRouteContracts {}
+
+/** Generated/declared navigation flow names. The root flow always exists. */
+export interface AppRouteStacks {
+	root: unknown
+}
+
+/** Generated custom transition names, supplied by configured transition exports. */
+export interface AppRouteTransitions {}
+
+/** Presets available without registering an application effect. */
+export type BuiltinRouteTransitionName = 'default' | 'none' | 'fade'
+
+/** Built-in presets plus the generated application's custom motion names. */
+export type RouteTransitionName = BuiltinRouteTransitionName | (keyof AppRouteTransitions & string)
+
+declare const defaultRouteContractScope: unique symbol
+/** The current application's inferred contracts. Shared facade destinations
+ * require a screen on every generated target; platform-only routes require
+ * `validateDestination` proof or an explicit target-catalog instance. */
+export type RegisteredRouteContracts = keyof AppRouteContracts extends never
+	? {}
+	: UnionToIntersection<AppRouteContracts[keyof AppRouteContracts]> & {
+			readonly [defaultRouteContractScope]: true
+		}
+
+/** The ambient facade is shared across targets. Explicit instance catalogs
+ * already describe their own platform and retain all of their declared paths. */
+type StaticDestinationScope<
+	Contracts,
+	Name extends keyof Contracts,
+> = typeof defaultRouteContractScope extends keyof Contracts
+	? Contracts[Name] extends { readonly platformOnly: true }
+		? never
+		: unknown
+	: unknown
+
+type ParamsPart<Value> =
+	RequiredRouteKeys<Value> extends never
+		? { params?: keyof Value extends never ? Record<string, never> : Value }
+		: { params: Value }
+
+type SearchPart<Value> =
+	RequiredRouteKeys<Value> extends never
+		? { search?: keyof Value extends never ? Record<string, never> : Value }
+		: { search: Value }
+
+/** One typed navigation request. Its route union preserves correlations between
+ * to/params/search; prepared data/context are excluded. */
+export type DestinationFor<
+	Contracts,
+	Name extends keyof Contracts & string = keyof Contracts & string,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+> = Name extends unknown
+	? Contracts[Name] extends { params: infer Params; searchInput: infer Input }
+		? {
+				to: Name
+				stack?: Stacks
+				presentation?: 'push' | 'modal'
+				transition?: Transitions
+				hash?: string
+				replace?: boolean
+			} & ParamsPart<Params> &
+				SearchPart<Input> &
+				StaticDestinationScope<Contracts, Name>
+		: never
+	: never
+
+/** Typed destination from generated file/programmatic contributions. */
+export type Destination<
+	Name extends keyof RegisteredRouteContracts & string = keyof RegisteredRouteContracts & string,
+> = DestinationFor<RegisteredRouteContracts, Name>
+
+/** Structured props from a route contract, finished definition or preparation
+ * builder. Use a builder for its own named screen to avoid a self-reference.
+ */
+export type RouteScreenProps<Source> =
+	Source extends RouteContract<infer Params, any, infer Search, infer Data, infer Context>
+		? { params: Params; search: Search; data: Data; context: Context }
+		: Source extends { readonly [routeDefinitionTypes]: infer Contract }
+			? RouteScreenProps<Contract>
+			: Source extends {
+						readonly screen: (component: (props: infer Props) => Renderable) => unknown
+				  }
+				? Props
+				: never
+
+/** Generated screen inputs, inferred from route declarations and loader output. */
+export type RouteProps<Name extends keyof RegisteredRouteContracts & string> = RouteScreenProps<
+	RegisteredRouteContracts[Name]
+>
+
+declare const routeDefinitionTypes: unique symbol
+type AddedRouteContext<Value> = Value extends object ? Value : {}
+type MergedRouteContext<Context, Added> = Omit<Context, keyof AddedRouteContext<Added>> &
+	AddedRouteContext<Added>
+
+/** Contextual callback inputs inferred by defineRoute for programmatic routes. */
+export interface RouteDefinitionArgs<Path extends string, Validator, Context> {
+	params: RouteSpecParams<Path>
+	search: RouteSearchOutput<Validator>
+	context: Context
+	signal?: RouteCancellationSignal
+}
+
+/** Resolved beforeLoad output: a plain context object or no additions. Results
+ * are awaited, so a thenable must resolve to context rather than become context.
+ * Ordinary interfaces need no string index signature. Runtime preparation also
+ * rejects arrays and non-plain objects before loading.
+ */
+export type RouteGuardResult = (object & { readonly then?: never }) | void
+
+type InferredRouteCallbackSearch<Validator> = [RouteSearchOutput<Validator>] extends [never]
+	? Record<string, unknown>
+	: RouteSearchOutput<Validator>
+
+type RouteDefinitionCallbackArgs<Path extends string, Validator, Context> = {
+	params: NoInfer<RouteSpecParams<Path>>
+	search: NoInfer<InferredRouteCallbackSearch<Validator>>
+	context: Context
+	signal?: RouteCancellationSignal
+}
+
+/** Programmatic preparation input. Attach a screen to the returned builder
+ * after these contracts have been inferred. Use withContext for root services. */
+export interface RouteDefinitionInput<Path extends string, Validator, Context, Added, Data> {
+	path: Path
+	validateSearch?: Validator
+	beforeLoad?: (
+		args: RouteDefinitionCallbackArgs<Path, Validator, Context>,
+	) => Added | Promise<Added>
+	loader?: (
+		args: RouteDefinitionCallbackArgs<Path, Validator, MergedRouteContext<Context, NoInfer<Added>>>,
+	) => Data
+	presentation?: 'push' | 'modal'
+	transition?: RouteTransitionName
+	head?: RouteHeadExport<RouteSpecParams<Path>>
+	errorBoundary?: (props: RouteErrorBoundaryProps) => Renderable
+	source?: string
+}
+
+/** A preparation contract whose screen has not been attached. An unfinished
+ * builder cannot enter a catalog. Each screen attachment creates a fresh,
+ * immutable definition using the captured preparation options.
+ * @example
+ * import { defineRoute } from '@octane-xplat/ui/routing/core'
+ * const item = defineRoute({ path: '/items/:id', loader: ({ params }) => params.id })
+ *   .screen(({ data }) => data)
+ */
+export interface RouteDefinitionBuilder<Path extends string, Validator, Context, Added, Data> {
+	readonly screen: (
+		component: (props: {
+			params: RouteSpecParams<Path>
+			search: RouteSearchOutput<Validator>
+			data: Awaited<Data>
+			context: MergedRouteContext<Context, Added>
+		}) => Renderable,
+	) => DefinedRoute<Path, Validator, Context, Added, Data>
+}
+
+/** Require an actual loader when inferring loaded data. Loader-free builders
+ * have undefined data and cannot select an unchecked data generic. */
+export type RouteDefinitionWithLoader<
+	Path extends string,
+	Validator,
+	Context,
+	Added,
+	Data,
+> = RouteDefinitionInput<Path, Validator, Context, Added, Data> & {
+	loader: NonNullable<RouteDefinitionInput<Path, Validator, Context, Added, Data>['loader']>
+}
+
+/** A definition ready for manifest assembly, carrying complete inferred metadata. */
+export type DefinedRoute<Path extends string, Validator, Context, Added, Data> = Readonly<
+	Omit<RouteSpec, 'screen' | 'preparation'>
+> & {
+	readonly path: Path
+	readonly preparation?: Readonly<RoutePreparationBehavior>
+	readonly screen: Parameters<
+		RouteDefinitionBuilder<Path, Validator, Context, Added, Data>['screen']
+	>[0]
+	readonly [routeDefinitionTypes]: RouteContract<
+		RouteSpecParams<Path>,
+		RouteSearchInputOf<Validator>,
+		RouteSearchOutput<Validator>,
+		Awaited<Data>,
+		MergedRouteContext<Context, Added>,
+		Context
+	>
+}
+
+type ContractForSpec<Spec, Baked = Record<string, unknown>> = Spec extends {
+	readonly [routeDefinitionTypes]: infer Contract
+}
+	? Contract
+	: Spec extends { path: infer Path extends string }
+		? FileRouteContract<
+				Path,
+				Spec,
+				RouteContext,
+				RouteNameOfPath<Path> extends keyof Baked ? Baked[RouteNameOfPath<Path>] : unknown
+			>
+		: never
+
+/** Finite keys require properties; open string/template indexes accept {}.
+ * Runtime-discovered paths stay available through URL validation. */
+export type FiniteRoutePath<Path extends string> = Path extends unknown
+	? {} extends Record<Path, never>
+		? never
+		: Path
+	: never
+
+/** Deliberately runtime-only catalog: dependencies remain typed, paths do not. */
+export type RuntimeRouteCatalog<Specs extends readonly RouteSpec[]> = RouteCatalog<{
+	readonly [runtimeRouteContractTypes]: ContractForSpec<Specs[number]>
+}>
+
+/** Reject open path indexes in the ordinary declared catalog builder. */
+export type DeclaredRouteSpecs<Specs extends readonly RouteSpec[]> =
+	Exclude<Specs[number]['path'], FiniteRoutePath<Specs[number]['path']>> extends never
+		? unknown
+		: { readonly 'Preserve literal paths with as const, or use defineRuntimeRoutes for computed paths': never }
+
+declare const runtimeRouteContractTypes: unique symbol
+/** Preserve runtime-route dependencies without exposing another string name. */
+type RuntimeRouteContracts<Spec, Path extends string> = [
+	Exclude<Path, FiniteRoutePath<Path>>,
+] extends [never]
+	? {}
+	: { readonly [runtimeRouteContractTypes]: ContractForSpec<Spec> }
+
+type ContractEntry<Spec, Baked = Record<string, unknown>> = Spec extends {
+	path: infer Path extends string
+}
+	? {
+			[Name in AbsoluteRoutePath<FiniteRoutePath<Path>>]: Omit<
+				ContractForSpec<Spec, Baked>,
+				'params'
+			> & {
+				params: RouteSpecParams<Name>
+			}
+		} & RuntimeRouteContracts<Spec, Path>
+	: never
+
+/** Complete contract map inferred from a programmatic route list. */
+export type RouteContractsFromSpecs<
+	Specs extends readonly RouteSpec[],
+	Baked = Record<string, unknown>,
+> = [Specs[number]] extends [never] ? {} : UnionToIntersection<ContractEntry<Specs[number], Baked>>
+
+declare const routeCatalogTypes: unique symbol
+declare const routeContractVariance: unique symbol
+
+/** Reusable definitions with inferred destination metadata. Generated file
+ * catalogs and manifest composition carry this brand only at the type level. */
+export type RouteCatalog<Contracts> = RouteManifest & {
+	readonly [routeCatalogTypes]: Contracts
+	readonly [routeContractVariance]: (contracts: Contracts) => Contracts
+}
+
+/** Executable contract-bearing inputs. Erasing a catalog to RouteManifest also
+ * erases the right to compose it into a declared contract map. */
+export type ContractRouteManifest = RouteManifest & {
+	readonly [routeContractVariance]: (contracts: never) => unknown
+}
+
+/** Reject erased catalog views at boundaries that depend on their contracts. */
+export type KnownRouteCatalog<Catalog> =
+	unknown extends ContractsOf<Catalog>
+		? { readonly 'Preserve the inferred catalog type': never }
+		: unknown
+
+type KeysOfRouteMaps<Maps> = Maps extends unknown ? keyof Maps : never
+type ValueOfRouteMaps<Maps, Key> = Maps extends unknown
+	? Key extends keyof Maps
+		? Maps[Key]
+		: never
+	: never
+
+type MergeRouteContractPair<Left, Right> = Omit<Left, keyof Right> &
+	Right &
+	// Runtime paths cannot be proven to replace one another; both need context.
+	(Left extends { readonly [runtimeRouteContractTypes]: infer Earlier }
+		? Right extends { readonly [runtimeRouteContractTypes]: infer Later }
+			? { readonly [runtimeRouteContractTypes]: Earlier & Later }
+			: {}
+		: {})
+
+/** Merge contract maps in registration order. Later declarations replace the
+ * earlier contract for the same public pattern, matching runtime precedence. */
+export type MergeRouteContracts<
+	Maps extends readonly unknown[],
+	Accumulator = {},
+> = number extends Maps['length']
+	? { [Key in KeysOfRouteMaps<Maps[number]>]: ValueOfRouteMaps<Maps[number], Key> }
+	: Maps extends readonly [infer Head, ...infer Tail]
+		? MergeRouteContracts<Tail, MergeRouteContractPair<Accumulator, Head>>
+		: Accumulator
+
+/** Read inferred contracts from a manifest or individual definition for generated
+ * registration, without evaluating its module. */
+export type ContractsOf<Value> = Value extends {
+	readonly [routeContractVariance]: (contracts: never) => infer Contracts
+}
+	? Contracts
+	: Value extends {
+				readonly [specRouteTypes]: { contracts: infer Contracts }
+		  }
+		? Contracts
+		: Value extends { readonly [routeDefinitionTypes]: unknown; path: string }
+			? ContractEntry<Value>
+			: {}
+
+type FileSearchValidator<Module> = Module extends { validateSearch: infer Validator }
+	? Validator
+	: undefined
+
+type FileGuardContext<Module> = Module extends { beforeLoad: (...args: any[]) => infer Added }
+	? AddedRouteContext<Awaited<Added>>
+	: {}
+
+/** Root context inferred from a configured context factory or object export. */
+export type RouteRootContext<Value> = Value extends (...args: any[]) => infer Context
+	? Awaited<Context>
+	: Value
+
+/** Generated guard inputs depend only on the route's path, search validator and
+ * root context. They deliberately exclude the guard's own return type. */
+export type FileRouteGuardArgs<
+	Path extends string,
+	Module,
+	Context = RouteContext,
+> = RouteDefinitionArgs<Path, FileSearchValidator<Module>, Context>
+
+/** Generated loader inputs add the context returned by this route's guard. */
+export type FileRouteLoaderArgs<
+	Path extends string,
+	Module,
+	Context = RouteContext,
+> = RouteDefinitionArgs<
+	Path,
+	FileSearchValidator<Module>,
+	MergedRouteContext<Context, FileGuardContext<Module>>
+>
+
+/** Build-only sibling output. Generated contracts reference the module through
+ * types only; runtime catalogs never import or execute it. */
+export type RouteBakedLoaderData<Module> = Module extends { loader: (...args: any[]) => infer Data }
+	? Awaited<Data>
+	: Module extends { default: (...args: any[]) => infer Data }
+		? Awaited<Data>
+		: unknown
+
+type RouteLoaderOutput<Loader> = Loader extends (...args: any[]) => infer Data
+	? Awaited<Data>
+	: undefined
+
+type RouteModuleLiveData<Module> = 'loader' extends keyof Module
+	? RouteLoaderOutput<Module['loader']>
+	: undefined
+
+type RouteModuleData<Module, Baked> = Module extends { dataMode: 'baked' }
+	? Baked
+	: 'dataMode' extends keyof Module
+		? 'baked' extends Module['dataMode']
+			? Baked | RouteModuleLiveData<Module>
+			: RouteModuleLiveData<Module>
+		: RouteModuleLiveData<Module>
+
+/** A named-export route contract inferred without depending on its screen or
+ * the application's ambient registry. Generated glue supplies path/module and
+ * the separately inferred baked output when applicable. */
+export type FileRouteContract<
+	Path extends string,
+	Module,
+	Context = RouteContext,
+	BakedData = unknown,
+> = RouteContract<
+	RouteSpecParams<Path>,
+	RouteSearchInputOf<FileSearchValidator<Module>>,
+	RouteSearchOutput<FileSearchValidator<Module>>,
+	RouteModuleData<Module, BakedData>,
+	MergedRouteContext<Context, FileGuardContext<Module>>,
+	Context
+>
+
+type DeclaredRootContext<Contract> =
+	Contract extends RouteContract<any, any, any, any, any, infer Root>
+		? Root extends object
+			? string extends keyof Root
+				? {}
+				: Root
+			: {}
+		: {}
+
+/** Root dependencies required by this catalog, excluding guard additions. */
+export type RouterRootContext<Contracts> =
+	UnionToIntersection<
+		{
+			[Name in keyof Contracts]: DeclaredRootContext<Contracts[Name]>
+		}[keyof Contracts]
+	> extends infer Context extends object
+		? Context
+		: object
+
+type RouterContextOptions<Context extends object> = {} extends Context
+	? { context?: Context | (() => Context | Promise<Context>) }
+	: { context: Context | (() => Context | Promise<Context>) }
+
+/** Inferred match union. A route identity narrows params, search and loader data
+ * together; callers cannot select arbitrary data with a generic assertion. */
+export type RouteMatchFor<
+	Contracts,
+	Name extends keyof Contracts & string = keyof Contracts & string,
+> = Name extends unknown
+	? Contracts[Name] extends RouteContract<
+			infer Params,
+			any,
+			infer Search,
+			infer Data,
+			infer Context
+		>
+		? Omit<PreparedRouteMatch, 'to' | 'params' | 'search' | 'data' | 'context'> & {
+				contract: 'declared'
+				to: Name
+				params: Params
+				search: Search
+				data: Data
+				context: Context
+			}
+		: never
+	: never
+
+/** Aggregate reads include runtime registrations. Declared matches retain their
+ * inferred union; runtime matches keep data unknown. Named accessors check this
+ * boundary automatically for the rendering entry. */
+export type RouterMatch<Contracts = RegisteredRouteContracts> =
+	| ([FiniteRoutePath<keyof Contracts & string>] extends [never]
+			? PreparedRouteMatch & { readonly contract: 'declared' }
+			: RouteMatchFor<Contracts>)
+	| (PreparedRouteMatch & { readonly contract: 'runtime' })
+
+/** Animation settlement is independent from a successful navigation commit. */
+export type RouteTransitionResult =
+	| { status: 'completed' }
+	| { status: 'skipped'; reason: 'disabled' | 'reduced-motion' | 'unsupported' | 'interrupted' }
+	| { status: 'failed'; error: unknown }
+
+/** Motion receives prepared matches; it cannot decide when navigation commits. */
+export interface RouteTransitionContext {
+	direction: 'forward' | 'back'
+	action: RouterHostCommand['action'] | 'forward'
+	from: PreparedRouteMatch | null
+	to: PreparedRouteMatch | null
+}
+
+/** CSS supplies the visual effect selected by these browser transition types. */
+export interface WebTransitionOptions {
+	types?: readonly string[] | ((context: RouteTransitionContext) => readonly string[])
+	reducedMotion?: 'skip' | 'allow'
+	unsupported?: 'skip'
+}
+
+/** Numeric starting values for a router-owned native view. The effect ends at
+ * opacity/scale 1 and translation/rotation 0 without changing screen styles.
+ * Translations use layout units (DIP on NativeScript), rotation uses degrees
+ * and opacity ranges 0–1. */
+export interface NativeViewTransitionValues {
+	opacity?: number
+	translateX?: number
+	translateY?: number
+	scaleX?: number
+	scaleY?: number
+	rotate?: number
+}
+
+/** AppKit shares the flat native view vocabulary. */
+export type AppKitTransitionValues = NativeViewTransitionValues
+
+/** Incoming-view animation on AppKit; NativeScript Frames and browser View
+ * Transitions use their respective platform helpers. */
+export interface AppKitTransitionOptions {
+	from:
+		| Readonly<AppKitTransitionValues>
+		| ((context: RouteTransitionContext) => Readonly<AppKitTransitionValues>)
+	duration?: number
+	reducedMotion?: 'skip' | 'allow'
+}
+
+/** Platform leaves return the same definition contract. A skipped leaf is an
+ * explicit fallback for a target without the application's visual effect. */
+export type TransitionDefinition =
+	| { readonly kind: 'web'; readonly options: Readonly<WebTransitionOptions> }
+	| { readonly kind: 'skip' }
+	| NativeTransitionDefinition
+
+declare const nativeTransitionTypes: unique symbol
+/** Opaque native effect created by a platform integration helper. Portable
+ * routing contracts do not import the platform's view or animation types. */
+export interface NativeTransitionDefinition {
+	readonly kind: 'native'
+	readonly [nativeTransitionTypes]: true
+}
+
+/** Named client effects, resolved by platform leaves and generated registration. */
+export type TransitionRegistry = Readonly<Record<string, TransitionDefinition>>
+
+/** Finite declared names only; runtime maps cannot widen generated motion keys. */
+export type TransitionNames<Definitions> = FiniteRoutePath<keyof Definitions & string>
+
+/** Result of a client navigation. Expected refusals/cancellation settle normally;
+ * local errors are retained for diagnostics and must not be serialized blindly. */
+export type NavigationResult<Contracts = RegisteredRouteContracts> =
+	| {
+			status: 'committed'
+			route: RouterMatch<Contracts> | null
+			redirected: boolean
+			finished: Promise<RouteTransitionResult>
+	  }
+	| Exclude<RoutePreparationResult, { status: 'ready' }>
+	| { status: 'failed'; phase: 'commit'; error: unknown }
+	| { status: 'blocked'; reason?: 'host-not-ready' | 'missing-outlet' | 'at-base' | 'busy' }
+	| { status: 'unsupported'; operation: string }
+	| { status: 'at-base' | 'not-modal' | 'unmatched' }
+
+/** A navigation refusal or failure suitable for local recovery UI. Error
+ * objects remain local; expected missing/forbidden outcomes need no exception. */
+export type NavigationFailure = Extract<
+	NavigationResult,
+	{
+		status: 'failed' | 'not-found' | 'forbidden' | 'invalid-input' | 'blocked' | 'unsupported'
+	}
+>
+
+/** Readonly URL inputs captured for navigation feedback; search is unvalidated
+ * input and never a route's inferred successful output. */
+export type NavigationDestinationSnapshot = Omit<
+	Readonly<RouteDestinationInput>,
+	'params' | 'search'
+> & {
+	readonly params?: Readonly<Record<string, string | undefined>>
+	readonly search?: Readonly<Record<string, unknown>>
+}
+
+/** Reactive work and failure feedback for one rendering flow. A committed
+ * screen stays visible while another destination prepares or fails.
+ * @example
+ * import { useNavigation } from '@octane-xplat/ui/routing'
+ * const navigation = useNavigation()
+ * if (navigation.status === 'failed') console.error(navigation.result.status)
+ */
+export type RouterNavigationState =
+	| { readonly status: 'idle' }
+	| {
+			readonly status: 'pending'
+			readonly action: RouterHostCommand['action']
+			readonly destination: NavigationDestinationSnapshot | null
+	  }
+	| {
+			readonly status: 'failed'
+			readonly action: RouterHostCommand['action']
+			readonly destination: NavigationDestinationSnapshot | null
+			readonly result: Readonly<NavigationFailure>
+	  }
+
+/** Enable confirmation before this visible rendering entry leaves its flow.
+ * Client navigation only: this does not intercept document unload or OS exit.
+ * @example
+ * import { useNavigationBlocker } from '@octane-xplat/ui/routing'
+ * const blocker = useNavigationBlocker({ when: hasUnsavedChanges })
+ */
+export interface NavigationBlockerOptions {
+	/** Ask while true. Changing to false cancels a still-blocked request. */
+	when: boolean
+}
+
+/** Confirmation for one navigation attempt. Obsolete controls become inert;
+ * proceed resumes preparation with current context and reset cancels the attempt.
+ * @example
+ * if (blocker.status === 'blocked') blocker.reset()
+ */
+export type NavigationBlockerState =
+	| { readonly status: 'idle' }
+	| {
+			readonly status: 'blocked'
+			readonly action: RouterHostCommand['action']
+			readonly destination: NavigationDestinationSnapshot | null
+			readonly proceed: () => void
+			readonly reset: () => void
+	  }
+	| {
+			readonly status: 'proceeding'
+			readonly action: RouterHostCommand['action']
+			readonly destination: NavigationDestinationSnapshot | null
+	  }
+
+/** Snapshot of the owning navigation flow. Pending work leaves the current
+ * committed match visible. Snapshots are stable until the instance changes. */
+export interface RouterState<Contracts = RegisteredRouteContracts> {
+	route: RouterMatch<Contracts> | null
+	navigation: RouterNavigationState
+	canGoBack: boolean
+	modal: boolean
+}
+
+/** Familiar, bound navigation operations. Hooks bind this surface to the
+ * rendering flow; the ordinary client facade defaults to the root flow. Explicit
+ * instances carry their configured stack union through every destination. */
+export interface RouterNavigator<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+> {
+	push(
+		destination: NavigationDestination<Contracts, Stacks, Transitions>,
+	): Promise<NavigationResult<Contracts>>
+	replace(
+		destination: NavigationDestination<Contracts, Stacks, Transitions>,
+	): Promise<NavigationResult<Contracts>>
+	navigate(
+		destination: NavigationDestination<Contracts, Stacks, Transitions>,
+	): Promise<NavigationResult<Contracts>>
+	navigateUrl(url: string, options?: { replace?: boolean }): Promise<NavigationResult<Contracts>>
+	reset(
+		destination: NavigationDestination<Contracts, Stacks, Transitions>,
+	): Promise<NavigationResult<Contracts>>
+	back(options?: {
+		fallback?: NavigationDestination<Contracts, Stacks, Transitions>
+	}): Promise<NavigationResult<Contracts>>
+	dismiss(): Promise<NavigationResult<Contracts>>
+	refresh(): Promise<NavigationResult<Contracts>>
+	retry(): Promise<NavigationResult<Contracts>>
+	/** Dismiss this flow's failure and retry target without cancelling work.
+	 * @example
+	 * import { router } from '@octane-xplat/ui/routing'
+	 * router.clearFailure()
+	 */
+	clearFailure(): void
+	href(destination: NavigationDestination<Contracts, Stacks, Transitions>): string
+	resolveUrl(url: string): RouteResolution
+	/** Check raw values and the route's async search schema without loading.
+	 * Successful navigation always rechecks the current catalog and guards.
+	 * @example
+	 * import { router } from '@octane-xplat/ui/routing'
+	 * const checked = await router.validateDestination({ to: '/items/:id', params: { id: 'coat' } })
+	 * if (checked.status === 'valid') await router.push(checked.destination)
+	 */
+	validateDestination(
+		value: unknown,
+		options?: { signal?: RouteCancellationSignal },
+	): Promise<DestinationValidationResult>
+	getSnapshot(): RouterState<Contracts>
+	subscribe(listener: () => void): () => void
+}
+
+/** A provider binds hooks to an instance and an explicitly named flow. It does
+ * not own/dispose the instance or infer the last active tab. */
+export interface RouterProviderProps<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+> {
+	router: RouterInstance<Contracts, Stacks, Transitions>
+	stack?: NoInfer<Stacks>
+	children?: any
+}
+
+declare const paneRouterHostTypes: unique symbol
+
+/** An original retained-pane host. Give host to createRouter, then attach that
+ * same instance before mounting RouterPane. One host belongs to one instance.
+ * Instance disposal releases the host; it cannot be recycled for another owner.
+ */
+export interface PaneRouterHost {
+	readonly host: RouterHost
+	readonly attach: <Contracts, Stacks extends string, Transitions extends string>(
+		router: RouterInstance<Contracts, Stacks, Transitions>,
+	) => void
+	readonly [paneRouterHostTypes]: true
+}
+
+/** A retained pane belonging to an explicit router instance. Stack names come
+ * from that instance; host attachment must name the same instance. The creator
+ * disposes the instance, while pane removal releases its owned rendering flow.
+ * This host keeps independent history without browser URLs or native Frames.
+ * @see createPaneRouterHost in @octane-xplat/ui/routing.
+ */
+export interface RouterPaneProps<Contracts, Stacks extends string, Transitions extends string> {
+	router: RouterInstance<Contracts, Stacks, Transitions>
+	host: PaneRouterHost
+	/** Declared stack to render. @default 'root' */
+	stack?: NoInfer<Stacks>
+	/** Retained content shown when the pane returns to its base entry. */
+	children?: Renderable
+}
+
+/** Replace a route's entire search input, or derive it from validated output.
+ * Omitted fields are removed; preservation is explicit in the callback.
+ * The callback belongs to its rendering entry and refuses stale edits. */
+export type RouteSearchUpdater<Contracts, Name extends keyof Contracts & string> = (
+	search:
+		| (Contracts[Name] extends { searchInput: infer Input } ? Input : never)
+		| ((
+				previous: Readonly<RouteMatchFor<Contracts, Name>['search']>,
+		  ) => Contracts[Name] extends { searchInput: infer Input } ? Input : never),
+	options?: { replace?: boolean },
+) => Promise<NavigationResult<Contracts>>
+
+/** Reads are inferred together from one route identity. A hook throws when
+ * that route is absent from the rendering entry; it never borrows another
+ * retained entry's data. */
+export interface RouteApi<Contracts, Name extends keyof Contracts & string> {
+	useMatch(): RouteMatchFor<Contracts, Name>
+	useParams(): RouteMatchFor<Contracts, Name>['params']
+	useSearch(): RouteMatchFor<Contracts, Name>['search']
+	useLoaderData(): RouteMatchFor<Contracts, Name>['data']
+	useContext(): RouteMatchFor<Contracts, Name>['context']
+	/** Edit this rendering entry's filters. Replaces history by default; loaders
+	 * and guards rerun. Pass replace:false to create a Back destination. */
+	useUpdateSearch(): RouteSearchUpdater<Contracts, Name>
+}
+
+/** An explicitly owned router. Dispose the whole instance at its app/window or
+ * request boundary; individual screen hooks only receive RouterNavigator. The
+ * createRouter factory infers Stacks from its configuration, always including root. */
+export interface RouterInstance<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+> extends RouterNavigator<Contracts, Stacks, Transitions> {
+	forStack(stack: Stacks): RouterNavigator<Contracts, Stacks, Transitions>
+	/** Runtime layers do not widen this instance's compile-time destination union.
+	 * Reusing an id replaces that contribution; an older disposer stays inert. */
+	addRoutes<const Catalog extends ContractRouteManifest>(
+		catalog: Catalog &
+			KnownRouteCatalog<NoInfer<Catalog>> &
+			(RouterRootContext<Contracts> extends RouterRootContext<ContractsOf<Catalog>>
+				? unknown
+				: never),
+		options: RouteRegistrationOptions,
+	): RouteRegistration
+	dispose(): void
+}
+
+export interface RouteRegistrationOptions {
+	id: string
+	/** Collisions fail by default. Replace shadows runtime layers; an instance's
+	 * declared contracts cannot be replaced by runtime registration. */
+	conflict?: 'error' | 'replace'
+}
+
+export interface RouteRegistration {
+	dispose(): void
+}
+
+/** Adapter snapshot: host history is authoritative, including OS/browser Back.
+ * The adapter keeps entry identity and retained screen ownership. */
+export interface RouterHostSnapshot {
+	/** Permanently ended identity; hosts must not reuse it for another flow. */
+	disposed?: boolean
+	route: PreparedRouteMatch | null
+	canGoBack: boolean
+	modal: boolean
+}
+
+/** Accepted browser/OS traversal invalidates pending work. Ordinary commits
+ * publish without external so they do not cancel their own request. */
+export interface RouterHostChange {
+	/** Permanent flow disposal, distinct from hiding/unmounting retained history.
+	 * The host also reports disposed in later snapshots for that identity. */
+	flowDisposed?: boolean
+	/** Owner removal cancels only that flow's unaccepted work. It is not an
+	 * external history traversal: a commit may itself remove source outlets. */
+	ownerDisposed?: boolean
+	external?: boolean
+	flow?: string
+}
+
+/** Executable render selection from the instance's current catalog. This never
+ * crosses URL, browser history state, or server transfer boundaries. */
+export interface RouterHostContent {
+	screen: ScreenComponent
+	layouts: LayoutComponent[]
+	boundary?: RouteMeta['errorBoundary']
+	props: Record<string, unknown>
+	head?: RouteHead
+}
+
+/** @internal Rendering bindings shared by platform hosts and owned outlets. */
+export interface ClientRouterHost {
+	host: RouterHost
+	attach(router: RouterInstance<any, any, any>): void
+	scope(flow: string): import('./router-render-scope').RouterRenderScope
+	mount(flow: string, owner: import('./owned-content').ContentOwner): () => void | Promise<void>
+	getRenderHost?(flow: string): import('./render-router-host').RenderRouterHost | undefined
+	isModalFlow?(flow: string): boolean
+	/** Visibility belongs to the declaring pane and guides native activity Back. */
+	setFlowActive?(flow: string, active: boolean): void
+}
+
+/** @internal Owner-preserving platform outlet; applications use RouteOutlet. */
+export interface ClientRouteOutletProps {
+	host: ClientRouterHost
+	flow?: string
+	children?: any
+}
+
+/** @internal Retained pane outlet, including a base-less modal history. */
+export interface RenderRouteOutletProps {
+	host: import('./render-router-host').RenderRouterHost
+	flow?: string
+	modal?: boolean
+	children?: any
+}
+
+/** @internal Retained routing pane. Inactive content keeps its component state
+ * while the platform removes it from layout and native visibility. */
+export interface RoutePaneProps {
+	active: boolean
+	/** Internal wrapper ref; applications retain their own screen refs. */
+	viewRef?: (view: unknown) => void
+	children?: any
+}
+
+/** Internal host command. Deferred renderer/animation callbacks must check
+ * isCurrent immediately before mutating history or rendering a destination. */
+export interface RouterHostCommand {
+	action: 'push' | 'replace' | 'reset' | 'refresh' | 'back' | 'forward' | 'dismiss'
+	flow: string
+	route?: PreparedRouteMatch
+	content?: RouterHostContent
+	transition?: TransitionDefinition
+	/** A history handoff keeps the receiving flow's existing presentation. Route
+	 * defaults must not reopen an already-owned modal during replace/refresh. */
+	restore?: boolean
+	/** Prepare a retained history target inside this same navigation attempt.
+	 * Call before beginCommit; multiple calls share one root context snapshot.
+	 * Hosts must honor a non-ready result before moving history or showing data. */
+	prepare?(destination: unknown, flow?: string): Promise<RouterHostPreparation>
+	isCurrent(): boolean
+	/** Atomically claim irreversible host work. Check the returned boolean before
+	 * mutating history/Frames. Supersession after this point cannot cancel an
+	 * accepted navigation; disposal and external traversal can still abort it. */
+	beginCommit(): boolean
+	/** Cancels unaccepted readiness/staging waits without fabricating an AbortSignal. */
+	cancellation?: Promise<Extract<RouterHostResult, { status: 'cancelled' }>>
+	/** Adapter composition barrier. After host-specific staging and claiming a
+	 * commit, await this before history/visibility mutation and recheck ownership and
+	 * isCurrent. For example, close a presenter-owned modal only after a candidate
+	 * Page has rendered successfully. Core supplies no barrier by default. */
+	beforeMutation?(): void | Promise<void>
+}
+
+/** Host acceptance means both navigation state and rendering have committed.
+ * finished may settle later; a failed/skipped effect does not undo the commit. */
+export type RouterHostResult =
+	| {
+			/** Return a ready value from this command's prepare callback. Core
+			 * releases the source host queue before committing the new owner. */
+			status: 'handoff'
+			prepared: Extract<RouterHostPreparation, { status: 'ready' }>
+			action: 'push' | 'replace' | 'refresh'
+			beforeMutation?: RouterHostCommand['beforeMutation']
+	  }
+	| {
+			status: 'committed'
+			route: PreparedRouteMatch | null
+			finished?: Promise<RouteTransitionResult>
+	  }
+	| { status: 'blocked'; reason?: 'host-not-ready' | 'missing-outlet' | 'at-base' | 'busy' }
+	| { status: 'unsupported'; operation: string }
+	| { status: 'cancelled'; reason: 'superseded' | 'disposed' | 'aborted' | 'registry-changed' }
+	| Exclude<RoutePreparationResult, { status: 'ready' }>
+	| { status: 'failed'; phase: 'commit'; error: unknown }
+
+/** @internal Prepared retained content; never a URL or serialized host payload. */
+export type RouterHostPreparation =
+	| {
+			status: 'ready'
+			flow: string
+			route: PreparedRouteMatch
+			content: RouterHostContent
+			transition?: TransitionDefinition
+			redirected: boolean
+	  }
+	| Exclude<RoutePreparationResult, { status: 'ready' }>
+	| { status: 'unsupported'; operation: string }
+	| { status: 'failed'; phase: 'commit'; error: unknown }
+
+/** Platform boundary for an isolated instance. Core never reads browser globals,
+ * Frames, or renderer state. Adapters declare history/reset capabilities rather
+ * than silently ignoring an unsupported operation. Each host belongs to one
+ * instance for its lifetime, including after disposal. */
+export interface RouterHost {
+	readonly history: 'linear' | 'independent'
+	readonly canReset: boolean
+	getSnapshot(flow: string): RouterHostSnapshot
+	subscribe(listener: (change?: RouterHostChange) => void): () => void
+	commit(command: RouterHostCommand): RouterHostResult | Promise<RouterHostResult>
+	dispose?(): void
+}
+
+/** Explicit instance construction. Supplying a host avoids an accidental memory
+ * router that reports success without changing the requested target. */
+export type RouterOptions<
+	Catalog extends RouteManifest = RouteManifest,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends TransitionRegistry = TransitionRegistry,
+> = Omit<
+	RoutePreparationOptions,
+	| 'catalog'
+	| 'history'
+	| 'context'
+	| 'stacks'
+	| 'behaviors'
+	| 'transitionNames'
+	| 'destinationOwner'
+> &
+	RouterContextOptions<RouterRootContext<ContractsOf<Catalog>>> & {
+		catalog: Catalog
+		/** Extra flow names inferred by createRouter; root is always available. */
+		stacks?: readonly Stacks[]
+		/** Optional named effects. Built-in default/none/fade need no registration. */
+		transitions?: Transitions
+		host: RouterHost
+		onSubscriberError?(error: unknown): void
+	}
+
+type CompatibleDefaultRoute<Actual, Expected> =
+	Actual extends RouteContract<infer P, infer I, infer S, infer D, infer C>
+		? Expected extends {
+				params: infer EP
+				searchInput: infer EI
+				search: infer ES
+				data: infer ED
+				context: infer EC
+			}
+			? EP extends P
+				? EI extends I
+					? S extends ES
+						? D extends ED
+							? C extends EC
+								? true
+								: false
+							: false
+						: false
+					: false
+				: false
+			: false
+		: false
+
+type IncompatibleDefaultRoutes<Contracts> = {
+	[Name in keyof Contracts & keyof RegisteredRouteContracts & string]: CompatibleDefaultRoute<
+		Contracts[Name],
+		RegisteredRouteContracts[Name]
+	> extends true
+		? never
+		: Name
+}[keyof Contracts & keyof RegisteredRouteContracts & string]
+
+/** @internal Generated default setup must agree with registered contracts.
+ * Raw manifests remain available to host-free preparation, with unknown output. */
+export type DefaultRouterContractCheck<Catalog> = Catalog extends ContractRouteManifest
+	? [IncompatibleDefaultRoutes<ContractsOf<Catalog>>] extends [never]
+		? KnownRouteCatalog<Catalog>
+		: never
+	: never
+
+/** Default client setup. The platform host
+ * belongs to the client and is created lazily when the router is used.
+ * @example
+ * import { configureRouter, defineRoute, defineRoutes } from '@octane-xplat/ui/routing'
+ * configureRouter({ catalog: defineRoutes([defineRoute({ path: '/help' }).screen(() => null)]) })
+ */
+export type RouterConfiguration<
+	Catalog extends RouteManifest = RouteManifest,
+	Stacks extends string = string,
+> = Omit<RouterOptions<Catalog, Stacks>, 'host'>
 
 /** Values shared by a route guard and the screen it admits. */
 export type RouteContext = Record<string, unknown>
-
-/** Arguments to a route's `beforeLoad` export — resolved `params` plus the accumulated `context` from upstream guards.
- */
-export interface BeforeLoadArgs<Params extends Record<string, unknown> = Record<string, unknown>> {
-	params: Params
-	context: RouteContext
-}
-
-/** Route guard signature — runs before a route commits; returns `RouteContext` merged into the screen's props (and `useRoute().context`), or nothing. Async allowed; a thrown/redirect result aborts the navigation.
- */
-export type BeforeLoad<Params extends Record<string, unknown> = Record<string, unknown>> = (
-	args: BeforeLoadArgs<Params>,
-) => RouteContext | void | Promise<RouteContext | void>
 
 /** The deliberately small cross-platform head surface. `meta` keys become
  * web `<meta name="..." content="...">` tags; native consumes `title`.
@@ -3766,7 +4947,7 @@ export type RouteHeadExport<Params extends Record<string, unknown> = Record<stri
 export interface RouteErrorBoundaryProps {
 	error: unknown
 	reset: () => void
-	route: Route
+	route: PreparedRouteMatch
 }
 
 /** Props for `RouteBoundary` — the framework host that wraps a route's
@@ -3779,7 +4960,7 @@ export interface RouteErrorBoundaryProps {
  */
 export interface RouteBoundaryProps {
 	boundary?: (props: RouteErrorBoundaryProps) => Renderable
-	route: Route
+	route: PreparedRouteMatch
 	children?: Renderable
 }
 
@@ -3807,32 +4988,118 @@ export interface LinkProps {
 	children?: Renderable
 }
 
-/** In-app navigation link — `route` is a `TypedRoute` checked against the registered schema (`AppRoutes`); runtime-computed destinations assert via `TypedRoute(...)`. Preserves browser link semantics (real `<a>` on web) while pushing the route natively.
- *
- * @example
- * ```tsx
- * import { NavLink } from '@octane-xplat/ui'
- *
- * <NavLink route={{ name: 'settings', stack: 'root', params: {} }}>Settings</NavLink>
- * ```
- * @see LinkProps, TypedRoute, Route.
- */
-export interface NavLinkProps {
-	/** Destination the link pushes — checked against the registered route
-	 *  schema (see `AppRoutes`/`TypedRoute`). Runtime-computed destinations
-	 *  outside the schema assert to `TypedRoute`. */
-	route: TypedRoute
+/** Cancellable activation shared by browser and native navigation items. */
+export interface NavigationActivationEvent {
+	readonly defaultPrevented: boolean
+	preventDefault(): void
+	readonly button?: number
+	readonly metaKey?: boolean
+	readonly ctrlKey?: boolean
+	readonly shiftKey?: boolean
+	readonly altKey?: boolean
+}
+
+/** Presentation and activation options for typed navigation links. */
+export interface NavLinkOptions {
+	id?: string
 	activeClassName?: string
 	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
+	/** Exact route by default; prefix includes descendant paths. */
+	match?: 'exact' | 'prefix'
+	/** Ignore search by default, or compare all/selected fields. */
+	matchSearch?: boolean | readonly string[]
+	matchHash?: boolean
+	disabled?: boolean
+	/** Runs before routing. preventDefault() cancels activation on every target. */
+	onPress?: (event: NavigationActivationEvent) => void
+	/** Browser browsing context. Native targets navigate within the owning flow. */
+	target?: string
+	/** Browser anchor relationship and download semantics. */
+	rel?: string
+	download?: boolean | string
 }
 
-/** name → screen component table for `registerScreens` — the app owns the
- *  route table; native `pushRoute` resolves `route.name` through it and
- *  web outlets fall back to it via `screenFor`. Values are component
- *  functions (`() => Element` / UniversalComponent shapes both fit). */
+/** In-app link with an inferred declared request or an opaque checked value
+ * supplied through to={checked.destination}. Web retains real anchors and
+ * modified-click behavior.
+ *
+ * @example
+ * ```tsx
+ * <NavLink to="/items/:id" params={{ id: 'coat' }}>Coat</NavLink>
+ * ```
+ */
+export type NavLinkProps<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+> = (
+	| DestinationFor<
+			NoInfer<Contracts>,
+			NoInfer<keyof Contracts & string>,
+			NoInfer<Stacks>,
+			NoInfer<Transitions>
+	  >
+	| { to: ValidatedDestination }
+) &
+	NavLinkOptions & {
+		/** Infer destinations from an explicitly owned instance, when supplied. */
+		router?: RouterInstance<Contracts, Stacks, Transitions>
+	}
+
+/** Shared link destination fields for navigation chrome. Use a typed route
+ * request or a raw URL, never both. A fieldless value remains an action item. */
+export type NavigationTargetProps<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+> = (
+	| ((
+			| DestinationFor<
+					NoInfer<Contracts>,
+					NoInfer<keyof Contracts & string>,
+					NoInfer<Stacks>,
+					NoInfer<Transitions>
+			  >
+			| { to: ValidatedDestination }
+	  ) & {
+			router?: RouterInstance<Contracts, Stacks, Transitions>
+			href?: never
+			match?: NavLinkOptions['match']
+			matchSearch?: NavLinkOptions['matchSearch']
+			matchHash?: boolean
+	  })
+	| {
+			href?: string
+			to?: never
+			params?: never
+			search?: never
+			stack?: never
+			hash?: never
+			presentation?: never
+			transition?: never
+			replace?: never
+			router?: never
+			match?: never
+			matchSearch?: never
+			matchHash?: never
+	  }
+) &
+	Pick<NavLinkOptions, 'target' | 'rel' | 'download'>
+
+/** A navigation item that always represents a URL or typed route link. */
+export type NavigationLinkTargetProps<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+> = NavigationTargetProps<Contracts, Stacks, Transitions> &
+	({ href: string } | { to: string | ValidatedDestination })
+
+/** Route identity to screen component table owned by a canonical catalog. */
 export type ScreenTable = Record<string, ScreenComponent>
+
+type RoutePlatform = 'web' | 'ios' | 'android' | 'mobile' | 'macos' | 'windows' | 'linux'
 
 /** One route file's entry in the derived manifest. `name` is the file
  *  path under the route dir with `[param]` segments normalized to
@@ -3840,28 +5107,27 @@ export type ScreenTable = Record<string, ScreenComponent>
  *  pattern used for web path matching/substitution. */
 export interface RouteMeta {
 	name: string
+	/** Generated file availability; platform readiness and authorization remain runtime checks. */
+	platforms?: readonly RoutePlatform[]
+	/** Host-free refined behavior, attached by inferred route definitions. */
+	preparation?: RoutePreparationBehavior
+	/** Animation is independent of page or modal presentation. */
+	transition?: RouteTransitionName
 	segments: string[]
 	params: string[]
 	/** Source file (glob key) — diagnostics only. */
 	file: string
-	/** Declared default presentation — set by a `+modal`/`+fade` filename
+	/** Declared default presentation — set by a `+modal`/`+push` filename
 	 *  suffix (`app/settings+modal.tsrx` → route 'settings', modal). */
-	presentation?: 'push' | 'modal' | 'fade'
-	/** Optional `loader` named export — awaited before a pushed route
-	 *  commits: the previous screen stays up until it settles, then the
-	 *  result lands on the new screen as `data` and a rejection as
-	 *  `error`. Web direct-URL and re-parsed history entries mount first
-	 *  and run the loader in place — the screen reads `pending` until
-	 *  `data`/`error` arrive. Not a data layer: live server state stays
-	 *  in `query$`. `dataMode: 'baked'` resolves from `manifest.baked`
-	 *  instead of running at navigation. */
+	presentation?: 'push' | 'modal'
+	/** Loader metadata used for discovery and baking. Canonical preparation
+	 * invokes the structured callback attached to `preparation` before commit.
+	 * Runtime failures return a navigation result and retain committed content. */
 	loader?: (params: Record<string, unknown>) => unknown
 	/** Optional `ErrorBoundary` named export — a component receiving
 	 *  `RouteErrorBoundaryProps`, rendered in place of the route's layout
 	 *  chain + screen when that subtree throws during render. Loader
-	 *  rejections still surface as the screen's `error` prop — the
-	 *  boundary covers render failures, including a screen that crashes
-	 *  while handling `error`. Absent a declaration, render errors
+	 *  failures are navigation results; this boundary covers rendering. Absent a declaration, render errors
 	 *  propagate as they always have. */
 	errorBoundary?: (props: RouteErrorBoundaryProps) => Renderable
 	/** Data provenance: 'live' (default) runs `loader` at navigation;
@@ -3871,7 +5137,7 @@ export interface RouteMeta {
 	dataMode?: RouteDataMode
 	/** Optional guard awaited before a push commits. A thrown `redirect(...)`
 	 * short-circuits the attempted route. */
-	beforeLoad?: BeforeLoad
+	beforeLoad?: RoutePreparationBehavior['beforeLoad']
 	/** Optional route title/meta declaration, or a params-only function. */
 	head?: RouteHeadExport
 }
@@ -3880,9 +5146,7 @@ export interface RouteMeta {
  *  `'baked'` freezes loader output into the bundle at build time. */
 export type RouteDataMode = 'live' | 'baked'
 
-/** Output of `deriveRouteManifest` — `screens` feeds `registerScreens`
- *  (native pushRoute + web outlet fallback), `routes` feeds web URL
- *  matching, `layouts` catalogs `_layout` files by directory ('' = root). */
+/** Normalized catalog of screens, preparation metadata, layouts and baked data. */
 export interface RouteManifest {
 	screens: ScreenTable
 	routes: RouteMeta[]
@@ -3913,14 +5177,18 @@ export type RouteSpecParams<Path extends string> = string extends Path
  *  to the default `RouteSpec` the manifest consumes. */
 export interface RouteSpec<Path extends string = string> {
 	path: Path
+	/** @internal Inferred executable behavior assembled by defineRoute. */
+	preparation?: RoutePreparationBehavior
+	/** Independent animation preset; presentation continues to describe the host. */
+	transition?: RouteTransitionName
 	screen: ScreenComponent
-	/** Default presentation, like a `+modal`/`+fade` filename suffix. */
-	presentation?: 'push' | 'modal' | 'fade'
-	loader?(params: RouteSpecParams<Path>): unknown
+	/** Default presentation, like a `+modal`/`+push` filename suffix. */
+	presentation?: 'push' | 'modal'
+	loader?(args: RouteDefinitionArgs<Path, undefined, RouteContext>): unknown
 	dataMode?: RouteDataMode
 	beforeLoad?(
-		args: BeforeLoadArgs<RouteSpecParams<Path>>,
-	): RouteContext | void | Promise<RouteContext | void>
+		args: RouteDefinitionArgs<Path, undefined, RouteContext>,
+	): RouteGuardResult | Promise<RouteGuardResult>
 	head?: RouteHeadExport<RouteSpecParams<Path>>
 	/** Component receiving `RouteErrorBoundaryProps` — the spec form of a
 	 *  route file's `ErrorBoundary` export. */
@@ -3955,14 +5223,17 @@ export interface RouteManifestJson {
 	routes: RouteJson[]
 }
 
-/** Serializable form of a `Route`/`route manifest` entry — used by `manifestToJson`, deep links, and persisted navigation state.
+/** Serializable catalog metadata used by `manifestToJson` and external tooling. Contains no prepared data or executable route behavior.
  */
 export interface RouteJson {
 	name: string
+	/** Optional generated target availability, including missing-screen metadata. */
+	platforms?: readonly RoutePlatform[]
 	/** Colon-syntax path — 'docs/:slug', '' for the root index. */
 	path: string
 	params: string[]
-	presentation?: 'push' | 'modal' | 'fade'
+	presentation?: 'push' | 'modal'
+	transition?: RouteTransitionName
 	dataMode?: RouteDataMode
 	/** Layout dirs applying to this route, root '' first, innermost last. */
 	layouts: string[]
@@ -3993,8 +5264,8 @@ export type RouteDiagnosticCode =
 	/** A route file exports several component-shaped candidates with no
 	 *  default or `screen` export to disambiguate — skipped-file warning. */
 	| 'route/ambiguous-screen'
-	/** A route-file metadata export is present but the wrong shape —
-	 *  warning; the export is ignored. */
+	/** A route-file metadata export has the wrong shape — fatal. Invalid guards
+	 * cannot be discarded while allowing a route's loader to run. */
 	| 'route/invalid-export'
 	/** A `*` segment sits mid-pattern where it reads as a literal —
 	 *  warning. */
@@ -4019,11 +5290,9 @@ export type RouteDiagnosticCode =
 	| 'route/missing-param'
 	/** A param value needed JSON encoding (or failed it) — warning. */
 	| 'route/non-scalar-param'
-	/** `pushRoute` named a route with no registered screen — warning;
-	 *  the push is dropped. */
+	/** A destination has no registered screen. */
 	| 'route/unregistered-screen'
-	/** `pushRoute`/`popRoute` named a stack with no registered Frame —
-	 *  warning; the operation is dropped. */
+	/** A destination names a stack with no mounted host. */
 	| 'route/unregistered-stack'
 	/** A modal push found no live presenter — warning; the push is
 	 *  dropped. */
@@ -4162,26 +5431,38 @@ export type RoutePresentationsFromSpecs<Specs extends readonly RouteSpec[]> = Un
 
 /** The spec-derived typing record `defineRoutes` brands onto its manifest
  *  return — read it with the `ManifestRoute*` helpers, never directly. */
-export interface SpecRouteInfo<Specs extends readonly RouteSpec[]> {
+export interface SpecRouteInfo<
+	Specs extends readonly RouteSpec[],
+	Baked = Record<string, unknown>,
+> {
+	readonly [routeContractVariance]: (
+		contracts: RouteContractsFromSpecs<Specs, Baked>,
+	) => RouteContractsFromSpecs<Specs, Baked>
 	readonly [specRouteTypes]: {
+		contracts: RouteContractsFromSpecs<Specs, Baked>
 		params: RouteParamsFromSpecs<Specs>
 		presentations: RoutePresentationsFromSpecs<Specs>
 	}
 }
 
-/** Pull the `{name: params}` map out of a `defineRoutes` manifest's type —
- *  `RouteParams & ManifestRouteParams<typeof manifest>` merges file and
- *  programmatic routes into one typed navigation surface. A plain
- *  `RouteManifest` (untagged) extracts to `{}`, so `ManifestRouteNames`
- *  is `never` and unions degrade to the file-derived names. */
-export type ManifestRouteParams<M> = M extends {
-	readonly [specRouteTypes]: { params: infer P }
-}
-	? P
-	: {}
+/** Inspect the internal name-to-params map of inferred definitions or a
+ * composed catalog. An untagged RouteManifest extracts to {}. Application
+ * registration is generated; use ContractsOf and DestinationFor for public
+ * destination contracts, which retain absolute patterns and search fields. */
+export type ManifestRouteParams<M> = M extends { readonly [routeCatalogTypes]: infer Contracts }
+	? {
+			[
+				Path in keyof Contracts & string as {} extends Record<Path, never>
+					? never
+					: RouteNameOfPath<Path>
+			]: Contracts[Path] extends { params: infer Params } ? Params : never
+		}
+	: M extends { readonly [specRouteTypes]: { params: infer P } }
+		? P
+		: {}
 
-/** Route names a `defineRoutes` manifest's brand contributes — `never` for an untagged `RouteManifest` (file-route names still flow through `AppRoutes`).
- */
+/** Inspect catalog internal names; never for an untagged RouteManifest.
+ * Public navigation uses inferred absolute patterns through DestinationFor. */
 export type ManifestRouteNames<M> = keyof ManifestRouteParams<M> & string
 
 /** name → presentation map extracted from a `defineRoutes` manifest brand — `{}` for untagged manifests.
@@ -4191,60 +5472,6 @@ export type ManifestRoutePresentations<M> = M extends {
 }
 	? P
 	: {}
-
-// ---------- registered route typing ----------
-
-/** The app's registered route schema — every route source contributes one
- *  member carrying its `{name: params}` map. `xplat routes` emits
- *  `interface AppRoutes { fileRoutes: RouteParams }` into
- *  `routes.gen.types.ts`; a programmatic manifest contributes
- *  `ManifestRouteParams<typeof manifest>` from app code:
- *
- *  ```ts
- *  declare module '@octane-xplat/ui' {
- *  	interface AppRoutes {
- *  		guideRoutes: ManifestRouteParams<typeof guideRoutes>
- *  	}
- *  }
- *  ```
- *
- *  Registered names/params check `pushRoute` and `NavLink`'s `route` (see
- *  `TypedRoute`). Unaugmented (the default) every name takes an open params
- *  record, matching the historical `Route` contract. */
-export interface AppRoutes {}
-
-/** name → params record merged across `AppRoutes` contributions. */
-export type AppRouteParams = keyof AppRoutes extends never
-	? Record<string, Record<string, unknown>>
-	: UnionToIntersection<AppRoutes[keyof AppRoutes]>
-
-/** Registered route names — `string` when no source contributed. */
-export type AppRouteName = keyof AppRouteParams & string
-
-/** A `Route` narrowed by a `{name: params}` map: `name` is a map key and
- *  `params` is that name's record, so invented names and incompatible
- *  params fail at the callsite. Distributes over `Name`, so `RouteFor<P>`
- *  is the union of every destination `P` describes. */
-export type RouteFor<
-	Params,
-	Name extends keyof Params & string = keyof Params & string,
-> = Name extends unknown
-	? Omit<Route, 'name' | 'params'> & {
-			name: Name
-			params: Params[Name]
-		}
-	: never
-
-/** The typed navigation surface — `pushRoute` and `NavLink`'s `route`
- *  take this shape so invented names and incompatible params fail at the
- *  callsite. `redirect` keeps the loose `Route` shape: it is called inside
- *  spec callbacks, and a registry-typed parameter would make a contributed
- *  manifest's type depend on itself. With no `AppRoutes` augmentation it is
- *  assignable to and from `Route`. Destinations only known at runtime
- *  (computed names outside the schema) assert `as TypedRoute`. APIs that
- *  consume an already-committed route — `useRoute`, `currentRoute`,
- *  `matchUrl`, `hrefFor` — keep the realized `Route` shape instead. */
-export type TypedRoute<Name extends AppRouteName = AppRouteName> = RouteFor<AppRouteParams, Name>
 
 /** Options for `openWindow` — `data` handed to the window's content resolver (native/macOS/Linux; ignored on web), `url` for web/Linux, `kind` presentation semantics ('regular' independent, 'dialog' modal-to-parent, 'popup' non-activating panel; unsupported kinds fall back to 'regular'), `title`, `size` (px/dips), and `parent` owner.
  *
@@ -4629,19 +5856,29 @@ export interface MenuActionData extends MenuItemData {
 }
 
 /** A link row that retains normal link navigation. */
-export interface MenuLinkData extends MenuItemData {
+interface MenuLinkDataBase extends Omit<MenuItemData, 'onSelect'> {
+	onSelect?: (event: NavigationActivationEvent) => void
 	type: 'link'
-	href: string
 	target?: string
-	isDisabled?: never
 	items?: never
 }
 
+/** A menu link with required typed destination or raw URL and cancellable selection. */
+export type MenuLinkData<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+> = MenuLinkDataBase & NavigationLinkTargetProps<Contracts, Stacks, Transitions>
+
 /** A non-actionable, accessible group of nested menu rows. */
-export interface MenuSectionData extends MenuItemData {
+export interface MenuSectionData<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+> extends MenuItemData {
 	type: 'section'
 	label: string
-	items: MenuOption[]
+	items: readonly MenuOption<Contracts, Stacks, Transitions>[]
 	icon?: never
 	isDisabled?: never
 	onSelect?: never
@@ -4689,25 +5926,37 @@ export interface MenuRadioGroupData extends MenuItemData {
 }
 
 /** A submenu row that owns a separately rendered menu surface. */
-export interface MenuSubMenuData extends MenuItemData {
+export interface MenuSubMenuData<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+> extends MenuItemData {
 	type: 'submenu'
-	items: MenuOption[]
+	items: readonly MenuOption<Contracts, Stacks, Transitions>[]
 	onSelect?: never
 	href?: never
 }
 
 /** Public menu data union: each row kind has an explicit discriminant. */
-export type MenuOption =
+export type MenuOption<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+> =
 	| MenuActionData
-	| MenuLinkData
-	| MenuSectionData
+	| MenuLinkData<Contracts, Stacks, Transitions>
+	| MenuSectionData<Contracts, Stacks, Transitions>
 	| MenuSeparatorData
 	| MenuCheckboxData
 	| MenuRadioGroupData
-	| MenuSubMenuData
+	| MenuSubMenuData<Contracts, Stacks, Transitions>
 
 /** @deprecated Use `MenuOption`, whose entry kinds have explicit discriminants. */
-export type MenuItem = MenuOption
+export type MenuItem<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+> = MenuOption<Contracts, Stacks, Transitions>
 
 /** One row in a compound menu (`DropdownMenu`/`ContextMenu` children) — `label`, optional `icon`/`description`/`endContent`, `isDisabled`, `onSelect`; `hasCloseOnSelect` keeps the menu open after selection when false.
  */
@@ -4727,11 +5976,17 @@ export interface MenuItemProps {
 }
 
 /** Props for an actionable link inside a menu. */
-export interface MenuLinkProps extends Omit<MenuItemProps, 'onSelect' | 'isDisabled'> {
-	href: string
+interface MenuLinkPropsBase extends Omit<MenuItemProps, 'onSelect'> {
 	target?: string
-	onSelect?: () => void
+	onSelect?: (event: NavigationActivationEvent) => void
 }
+
+/** Compound menu link props; selected routes and activation share the owning flow. */
+export type MenuLinkProps<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+> = MenuLinkPropsBase & NavigationLinkTargetProps<Contracts, Stacks, Transitions>
 
 /** Accessible, non-actionable group inside a menu. */
 export interface MenuSectionProps {
@@ -4780,9 +6035,13 @@ export type MenuDividerProps = MenuSeparatorProps
 
 /** A compound-menu row that opens a nested menu — `children` or `items` supply the submenu; `isOpen`/`defaultOpen`/`onOpenChange` own its visibility.
  */
-export interface MenuSubMenuProps extends MenuItemProps {
+export interface MenuSubMenuProps<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+> extends MenuItemProps {
 	children?: Renderable
-	items?: MenuOption[]
+	items?: readonly MenuOption<Contracts, Stacks, Transitions>[]
 	isOpen?: boolean
 	defaultOpen?: boolean
 	onOpenChange?: (isOpen: boolean) => void
@@ -4797,7 +6056,11 @@ export interface MenuContextValue {
 
 /** Internal surface contract shared by every renderer. */
 export interface MenuSurfaceProps {
-	items?: MenuOption[]
+	className?: ClassValue
+	style?: StyleProp
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 	children?: Renderable
 	closeMenu(): void
 	closeLevel?: () => void
@@ -4827,7 +6090,11 @@ export interface MenuSurfaceProps {
  * ```
  * @see MenuItem, MenuOption, ContextMenuProps.
  */
-export interface DropdownMenuProps {
+export interface DropdownMenuProps<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+> {
 	className?: ClassValue
 	style?: StyleProp
 	id?: string
@@ -4842,7 +6109,7 @@ export interface DropdownMenuProps {
 	size?: FieldControlSize
 	/** Additional class for the inherited Popover surface. */
 	menuClassName?: ClassValue
-	items?: MenuOption[]
+	items?: readonly MenuOption<Contracts, Stacks, Transitions>[]
 	children?: Renderable
 	/** Caller-owned visibility; onOpenChange requests do not replace this value. */
 	isOpen?: boolean
@@ -4868,7 +6135,11 @@ export interface DropdownMenuProps {
  * ```
  * @see DropdownMenuProps.
  */
-export interface ContextMenuProps extends Omit<DropdownMenuProps, 'children'> {
+export interface ContextMenuProps<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+> extends Omit<DropdownMenuProps<Contracts, Stacks, Transitions>, 'children'> {
 	children?: Renderable
 	/** Compound menu content (children remain the context target). */
 	menu?: Renderable
@@ -5800,10 +7071,18 @@ export interface CheckboxGroupProps extends FieldControlProps {
 
 /** One `Breadcrumbs` trail entry — `label` plus `onSelect` to navigate; the last item renders as the current location.
  */
-export interface BreadcrumbItem {
+interface BreadcrumbItemBase {
 	label: string
+	isDisabled?: boolean
 	onSelect?: () => void
 }
+
+/** An ancestor with a typed route, raw URL, local action, or static label. */
+export type BreadcrumbItem<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+> = BreadcrumbItemBase & NavigationTargetProps<Contracts, Stacks, Transitions>
 
 /** Breadcrumb — ancestor trail. Items render as pressable links separated
  *  by `separator` (default /).
@@ -5816,11 +7095,15 @@ export interface BreadcrumbItem {
  * ```
  * @see BreadcrumbItem.
  */
-export interface BreadcrumbProps {
+export interface BreadcrumbProps<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+> {
 	className?: ClassValue
 	style?: StyleProp
 	id?: string
-	items: BreadcrumbItem[]
+	items: readonly BreadcrumbItem<Contracts, Stacks, Transitions>[]
 	/** Maximum visible trail items, at least two; hidden ancestors use a menu. */
 	maxVisibleItems?: number
 	/** Additional overflow actions use the same compound menu parts. */
@@ -5894,18 +7177,22 @@ export interface StepperProps {
 
 /** One `NavigationMenu` entry — `key`, `label`, optional `icon`, `href` link target (real anchor on web; route-table activation on native), `active` marks the current item, `onSelect` handles custom activation.
  */
-export interface NavigationMenuItem {
+interface NavigationMenuItemBase {
 	key: string
 	label?: string
 	/** Registered icon name — see `registerIcon`. */
 	icon?: IconName
-	/** Link target — a real anchor on web; deep-link/route-table activation
-	 *  on native. */
-	href?: string
 	active?: boolean
 	disabled?: boolean
-	onSelect?: () => void
+	onSelect?: (event: NavigationActivationEvent) => void
 }
+
+/** A strip item with an inferred route destination, raw URL, or action. */
+export type NavigationMenuItem<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+> = NavigationMenuItemBase & NavigationTargetProps<Contracts, Stacks, Transitions>
 
 /** NavigationMenu — row (or column) of nav items; mostly a desktop/web
  *  idiom — the mobile equivalent is Tabs/Drawer.
@@ -5918,11 +7205,15 @@ export interface NavigationMenuItem {
  * ```
  * @see NavigationMenuItem.
  */
-export interface NavigationMenuProps {
+export interface NavigationMenuProps<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+> {
 	className?: ClassValue
 	style?: StyleProp
 	id?: string
-	items: NavigationMenuItem[]
+	items: readonly NavigationMenuItem<Contracts, Stacks, Transitions>[]
 	horizontal?: boolean
 	accessibilityLabel?: string
 	ios?: PlatformProps
@@ -7394,7 +8685,7 @@ export interface TabListProps extends LayoutChildProps {
 	 *  bleed clamps to zero (Layout/Section seam, sibling task). */
 	isFullBleed?: boolean
 	/** `'tablist'` selects the WAI-ARIA tabs pattern (role=tab on children,
-	 *  aria-selected, `panelId` → aria-controls, `href` ignored). Unset or
+	 *  aria-selected, `panelId` → aria-controls, `href` ignored, `to` rejected). Unset or
 	 *  any other value leaves the strip a navigation landmark on web. */
 	role?: string
 	/** `auto`/`scroll` scroll the strip when tabs overflow; `visible`
@@ -7407,11 +8698,14 @@ export interface TabListProps extends LayoutChildProps {
 	web?: PlatformProps
 }
 
-/** One `TabList` tab — `value` matches the list's selected value; `label` is required (hide it with `isLabelHidden`). `href` makes it a link (real anchor on web; route-table activation on native — ignored under the `tablist` pattern); `panelId` links it to its panel via `aria-controls`. `icon`/`selectedIcon`/`endContent` fill the slots; `as` swaps the link element on web.
+/** One `TabList` tab. `to` checks route inputs and selects from the current
+ * route; `href` opens a raw URL. `value` remains a stable selection key.
+ * Under `role="tablist"`, use `panelId` and local selection: `to` throws and
+ * `href` is ignored. `as` changes the web link element.
  *
  * @see TabListProps.
  */
-export interface TabProps {
+interface TabPropsBase {
 	className?: ClassValue
 	style?: StyleProp
 	id?: string
@@ -7423,10 +8717,6 @@ export interface TabProps {
 	 *  the aria label only. */
 	label: string
 	isLabelHidden?: boolean
-	/** Link target. Web renders a real anchor; native activates through
-	 *  `followHref` (deep link → route table, else platform URL opener).
-	 *  Ignored under `role="tablist"`. */
-	href?: string
 	/** Id of the panel this tab controls → `aria-controls` under the
 	 *  tablist pattern; no effect (documented) under the nav pattern. */
 	panelId?: string
@@ -7439,11 +8729,18 @@ export interface TabProps {
 	/** Content after the label (badge, status dot). */
 	endContent?: Renderable
 	/** Extra press callback run before selection reports to the list. */
-	onPress?: () => void
+	onPress?: NavLinkOptions['onPress']
 	ios?: PlatformProps
 	android?: PlatformProps
 	web?: PlatformProps
 }
+
+/** A navigation tab with inferred route inputs; panel tabs use local selection. */
+export type TabProps<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+> = TabPropsBase & NavigationTargetProps<Contracts, Stacks, Transitions>
 
 /** One `TabMenu` dropdown option — `value`, `label`, optional leading `icon`.
  */
@@ -7631,11 +8928,10 @@ export interface TopNavHeadingProps {
  *
  * @see TopNavProps.
  */
-export interface TopNavItemProps {
+interface TopNavItemPropsBase {
 	className?: ClassValue
 	style?: StyleProp
 	id?: string
-	href?: string
 	/** Web anchor attributes; no-op on native. */
 	target?: string
 	rel?: string
@@ -7656,33 +8952,51 @@ export interface TopNavItemProps {
 	children?: Renderable
 	/** Size variant — controls drawer-mode height/padding. */
 	size?: NavElementSize
-	onClick?: () => void
+	onClick?: NavLinkOptions['onPress']
 	ios?: PlatformProps
 	android?: PlatformProps
 	web?: PlatformProps
 }
 
+/** A top-bar link or action; typed destinations infer route params and search. */
+export type TopNavItemProps<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+> = TopNavItemPropsBase & NavigationTargetProps<Contracts, Stacks, Transitions>
+
 /** One `TopNavMenu` data row — `title`, `description`, `icon`, `href`, `onClick`.
  */
-export interface TopNavMenuItemData {
+interface TopNavMenuItemDataBase {
 	title: string
+	isDisabled?: boolean
 	description?: string
 	icon?: Renderable
-	href?: string
-	onClick?: () => void
+	onClick?: NavLinkOptions['onPress']
 }
+
+/** A top-bar menu row with typed destination, raw URL, or action. */
+export type TopNavMenuItemData<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+> = TopNavMenuItemDataBase & NavigationTargetProps<Contracts, Stacks, Transitions>
 
 /** Trigger that opens a menu popover on hover (pointer platforms) or
  *  press.
  *
  * @see TopNavMenuItemData — the data form; `TopNavMegaMenu` for a composed panel.
  */
-export interface TopNavMenuProps {
+export interface TopNavMenuProps<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+> {
 	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	label: string
-	items: TopNavMenuItemData[]
+	items: readonly TopNavMenuItemData<Contracts, Stacks, Transitions>[]
 	/** Hover-open delay in ms (pointer platforms). */
 	delay?: number
 	/** Hover-close delay in ms (pointer platforms). */
@@ -7714,20 +9028,28 @@ export interface TopNavMegaMenuProps {
 
 /** One `TopNavMegaMenu` entry — `title`, `description`, `icon`, `href`/`onClick` activation, `as` link override (web).
  */
-export interface TopNavMegaMenuItemProps {
+interface TopNavMegaMenuItemPropsBase {
 	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	title: string
+	isDisabled?: boolean
+	isSelected?: boolean
 	description?: string
 	icon?: Renderable
-	href?: string
-	onClick?: () => void
+	onClick?: NavLinkOptions['onPress']
 	as?: NavLinkComponentType
 	ios?: PlatformProps
 	android?: PlatformProps
 	web?: PlatformProps
 }
+
+/** A composed mega-menu link with inferred route inputs and cancellable activation. */
+export type TopNavMegaMenuItemProps<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+> = TopNavMegaMenuItemPropsBase & NavigationTargetProps<Contracts, Stacks, Transitions>
 
 /** The featured card inside `TopNavMegaMenu` — `title`, `description`, decorative `image`/`imageAlt`, `linkLabel`/`linkHref`, `children`.
  */
@@ -7882,7 +9204,7 @@ export interface SideNavHeadingProps {
  *
  * @see SideNavProps, SideNavSectionProps.
  */
-export interface SideNavItemProps {
+interface SideNavItemPropsBase {
 	className?: ClassValue
 	style?: StyleProp
 	id?: string
@@ -7894,8 +9216,7 @@ export interface SideNavItemProps {
 	selectedIcon?: Renderable
 	isSelected?: boolean
 	isDisabled?: boolean
-	href?: string
-	onClick?: () => void
+	onClick?: NavLinkOptions['onPress']
 	/** Passive trailing content (badges, counts) inside the primary
 	 *  element. */
 	endContent?: Renderable
@@ -7918,6 +9239,13 @@ export interface SideNavItemProps {
 	android?: PlatformProps
 	web?: PlatformProps
 }
+
+/** A sidebar link or action with inferred route inputs and active state. */
+export type SideNavItemProps<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+> = SideNavItemPropsBase & NavigationTargetProps<Contracts, Stacks, Transitions>
 
 /** The rail collapse/expand button — reads the enclosing `SideNav`'s collapse state; `collapsible` passes a controlled `SideNavControlledCollapsible` only when the button renders outside its SideNav. `label` switches icon-only → text+chevron.
  */
@@ -8029,20 +9357,26 @@ export interface NavHeadingMenuProps {
 
 /** One `NavHeadingMenu` row — `label` required, `icon`, `description`, `href`/`onClick` activation, `isDisabled`.
  */
-export interface NavHeadingMenuItemProps {
+interface NavHeadingMenuItemPropsBase {
 	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	icon?: Renderable
 	label: Renderable
 	description?: Renderable
-	href?: string
-	onClick?: () => void
+	onClick?: NavLinkOptions['onPress']
 	isDisabled?: boolean
 	ios?: PlatformProps
 	android?: PlatformProps
 	web?: PlatformProps
 }
+
+/** A heading-menu link or action bound to the rendering navigation flow. */
+export type NavHeadingMenuItemProps<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+> = NavHeadingMenuItemPropsBase & NavigationTargetProps<Contracts, Stacks, Transitions>
 
 // ----- OverflowList -----
 
@@ -9376,7 +10710,12 @@ export type MultiSelectorProps = Omit<SelectMultipleProps, 'selectionMode'> & {
 }
 
 /** Props accepted by `Breadcrumbs`. */
-export type BreadcrumbsProps = BreadcrumbProps
+export type BreadcrumbsProps<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+> = BreadcrumbProps<Contracts, Stacks, Transitions>
+
 /** Props accepted by `TreeList`. */
 export type TreeListProps<T extends TreeListNode = TreeListNode> = TreeProps<T>
 /** Props accepted by `EmptyState`. */
@@ -10663,15 +12002,8 @@ export interface ImperativeBottomSheetReturn {
 	element: Renderable
 }
 
-/** Placement of native route content within the app's provider tree. */
+/** Placement of client route content beneath its owning provider tree. */
 export interface RouteOutletProps {
 	stack?: string
 	children?: Renderable
-}
-
-/** Native Frame navigation whose content is owned by element. Removing the owner returns its stack to the declaring Page. */
-export interface NativeRouteNavigatorReturn {
-	push(route: { [Name in AppRouteName]: Omit<TypedRoute<Name>, 'stack'> }[AppRouteName]): void
-	pop(): void
-	element: Renderable
 }

@@ -1,25 +1,34 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { mergeStyle } from './style-merge'
-import type { NavLinkProps } from './props';
-import { Pressable } from './Pressable.macos.tsrx';
-import { pushRoute, useRoute } from './route.macos';
-import { cx } from '@octane-xplat/lib';
+import type {
+	NavLinkProps,
+	RegisteredRouteContracts,
+	AppRouteStacks,
+	RouteTransitionName,
+} from './props'
 
-export function NavLink(props: NavLinkProps) @{
-	const current = useRoute(props.route.stack);
-	const active = !!current
-		&& current.name === props.route.name
-		&& Object.keys(current.params).length === Object.keys(props.route.params).length
-		&& Object.entries(props.route.params).every(
-			([key, value]) => String(current.params[key]) === String(value),
-		);
+import { Pressable } from './Pressable.macos.tsrx'
+import { useNavigationItem } from './use-navigation-item.shared.tsrx'
+import type { NavLinkInput } from './nav-link'
+import { cx } from '@octane-xplat/lib'
+
+export function NavLink<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+>(props: NavLinkProps<Contracts, Stacks, Transitions>): any
+
+export function NavLink(props: NavLinkInput) @{
+	const link = useNavigationItem(props, 'route')
 
 	<Pressable
-		className={cx(props.className, active ? props.activeClassName : undefined)}
+		id={props.id}
+		className={cx(props.className, link.selected ? props.activeClassName : undefined)}
 		style={props.style}
 		accessibilityRole="link"
-		onPress={() => pushRoute(props.route)}
+		accessibilityState={{ disabled: link.disabled, selected: link.selected }}
+		disabled={link.disabled}
+		onPress={() => link.activateNative()}
 	>
-		<masonview style={mergeStyle({flexDirection: "row"}, {display: "flex"})}>{props.children}</masonview>
+		{props.children}
 	</Pressable>
 }

@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import type { LinkProps } from './props'
 import { Pressable } from './Pressable.macos.tsrx'
-import { pushDeepLink } from './route.macos'
+import { followHref } from './nav-href'
 
 export function Link(props: LinkProps) @{
 	<Pressable
@@ -9,7 +9,7 @@ export function Link(props: LinkProps) @{
 		className={props.className}
 		style={props.style}
 		accessibilityRole={props.accessibilityRole ?? 'link'}
-		onPress={() => { props.onPress?.(); pushDeepLink(props.href) }}
+		onPress={() => { props.onPress?.(); followHref(props.href) }}
 	>
 		{props.children}
 	</Pressable>

@@ -1,4 +1,7 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } from './props'
+import type { NavigationItemImplementation } from './nav-link'
+import { useNavigationItem } from './use-navigation-item.shared.tsrx'
 import { mergeStyle } from './style-merge'
 import { useContext, useEffect, useMemo, useRef, useState } from 'octane';
 import type { TabListProps, TabProps, TabMenuProps } from './props';
@@ -92,25 +95,28 @@ export function TabList(props: TabListProps) @{
 /** Tab — a single stop in a TabList. Native leaf renders a Pressable;
  *  `href` activates through the deep-link/route table (`followHref`) in
  *  addition to reporting selection. */
-export function Tab(props: TabProps) @{
+export function Tab<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+>(props: TabProps<Contracts, Stacks, Transitions>): any
+
+export function Tab(props: NavigationItemImplementation<TabProps>) @{
 	const ctx = useContext(TabListContext);
 	if (ctx == null) {
 		throw new Error('Tab must be used within a TabList.');
 	}
 
-	const isSelected = ctx.value === props.value;
-	const isDisabled = props.isDisabled === true;
+	const isTabs = ctx.pattern === 'tabs';
+	if (isTabs && props.to !== undefined) throw new TypeError('Typed route destinations belong in the navigation TabList pattern, not role="tablist"')
+	const link = useNavigationItem({ ...props, href: isTabs ? undefined : props.href })
+	const isSelected = props.to !== undefined ? link.selected : ctx.value === props.value;
+	const isDisabled = link.disabled;
 	const displayIcon = isSelected && props.selectedIcon != null ? props.selectedIcon : props.icon;
 	const showLabel = !props.isLabelHidden && props.label !== '';
 
 	const select = () => {
-		if (isDisabled) return;
-		props.onPress?.();
-		if (props.href && ctx.pattern === 'nav') {
-			followHref(props.href);
-		}
-
-		ctx.onChange(props.value);
+		if (link.activateNative(isTabs ? undefined : followHref)) ctx.onChange(props.value)
 	};
 
 	<Pressable
@@ -119,7 +125,7 @@ export function Tab(props: TabProps) @{
 		className={cx('vx-tab', isSelected && 'vx-tab--selected', ctx.layout === 'fill' && 'vx-tab--fill', props.className)}
 		style={mergeStyle({height: SIZE_HEIGHT[ctx.size]}, props.style)}
 		disabled={isDisabled}
-		accessibilityRole={isDisabled ? 'none' : (ctx.pattern === 'tabs' ? 'tab' : 'button')}
+		accessibilityRole={isDisabled ? 'none' : (ctx.pattern === 'tabs' ? 'tab' : link.href != null ? 'link' : 'button')}
 		accessibilityLabel={props.isLabelHidden ? props.label : undefined}
 		accessibilityState={{ disabled: isDisabled, selected: isSelected }}
 		onPress={select}

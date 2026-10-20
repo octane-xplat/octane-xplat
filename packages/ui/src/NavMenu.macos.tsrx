@@ -1,4 +1,7 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } from './props'
+import type { NavigationItemImplementation } from './nav-link'
+import { useNavigationItem } from './use-navigation-item.shared.tsrx'
 import { mergeStyle, styleRecord } from './style-merge'
 import { useContext, useMemo } from 'octane';
 import type { NavHeadingMenuProps, NavHeadingMenuItemProps } from './props';
@@ -41,16 +44,20 @@ export function NavHeadingMenu(props: NavHeadingMenuProps) @{
 
 /** NavHeadingMenuItem — one row in a NavHeadingMenu: icon + label +
  *  optional description; `href` activates through the route table. */
-export function NavHeadingMenuItem(props: NavHeadingMenuItemProps) @{
+export function NavHeadingMenuItem<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+>(props: NavHeadingMenuItemProps<Contracts, Stacks, Transitions>): any
+
+export function NavHeadingMenuItem(props: NavigationItemImplementation<NavHeadingMenuItemProps>) @{
+	const link = useNavigationItem(props)
 	const ctx = useContext(NavHeadingMenuContext);
 	const closeCtx = useContext(NavHeadingCloseContext);
-	const isDisabled = props.isDisabled ?? false;
+	const isDisabled = link.disabled;
 
 	const activate = () => {
-		if (isDisabled) return;
-		props.onClick?.();
-		if (props.href) followHref(props.href);
-		(ctx?.closeMenu ?? closeCtx?.closeMenu)?.();
+		if (link.activateNative(followHref)) (ctx?.closeMenu ?? closeCtx?.closeMenu)?.()
 	};
 
 	<Pressable
@@ -59,8 +66,8 @@ export function NavHeadingMenuItem(props: NavHeadingMenuItemProps) @{
 		className={cx('vx-navmenu-item', 'vx-navmenu-item--' + (ctx?.size ?? 'md'), isDisabled && 'vx-navmenu-item--disabled', props.className)}
 		style={props.style}
 		disabled={isDisabled}
-		accessibilityRole="link"
-		accessibilityState={{ disabled: isDisabled }}
+		accessibilityRole={link.href != null ? 'link' : 'menuitem'}
+		accessibilityState={{ disabled: isDisabled, selected: link.selected }}
 		onPress={activate}
 	>
 		<masonview style={mergeStyle({flexDirection: "row", alignItems: "center", gap: 8, flexGrow: 1}, {display: "flex"})}>

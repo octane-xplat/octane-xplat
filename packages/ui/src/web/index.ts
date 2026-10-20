@@ -2,6 +2,8 @@
 // under the `web`/`linux` export conditions. Portable components live on the
 // root barrel (`@octane-xplat/ui`); the HoverCard/Tooltip re-exports below
 // are deprecated compatibility aliases kept for migration.
+export { defineWebTransition } from '../web-route-transition.web'
+export type { WebTransitionOptions } from '../props'
 
 import type {
 	HoverCardProps as SharedHoverCardProps,

@@ -27,11 +27,11 @@ import { bottomSheetHost } from '@xplat/app/platform/sheet'
 import '@xplat/app/platform/filepick.mobile'
 import { getColorScheme, setThemePreference } from '@octane-xplat/ui'
 
-import { registerStack, getStack, routeFor, popRoute } from '@octane-xplat/ui/routing'
+import { registerStack, getStack } from '@octane-xplat/ui/routing'
 
 import { findInRootLayouts } from '@octane-xplat/ui/nativescript'
 
-import { storage, navigate, goBack } from '@xplat/app'
+import { storage, router } from '@xplat/app'
 import 'octane/signals'
 import { android } from '@octane-xplat/platform/android'
 import { CGPointMake, UIBezierPath } from '@octane-xplat/platform/ios'
@@ -116,7 +116,7 @@ function virtualListBenchmarkReport(metrics: Awaited<ReturnType<typeof runVirtua
 }
 
 // Root is a Frame (not a bare Page) so Frame.navigate can push Pages —
-// the seam behind shared `openDetail`/`goBack` (Exp 9). navigate() before
+// the seam behind shared `openDetail`/`goBack` (Exp 9). router.push() before
 // the frame attaches is queued by NS core.
 function createWindowContent(): Frame {
 	const frame = new Frame()
@@ -821,7 +821,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 						JSON.stringify(rootTok),
 				)
 
-				setTimeout(() => f.goBack(), 250)
+				setTimeout(() => f.router.back(), 250)
 			} else if (top === thePage && ++pops === 1) {
 				console.log('[assert] pop to main: OK')
 			}
@@ -1153,7 +1153,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 							(dark === false ? 'OK' : 'FAIL (' + JSON.stringify(dark) + ')'),
 					)
 
-					navigate('detail', { from: 'bar-probe' })
+					router.push({ to: '/detail', search: { from: 'bar-probe' } })
 					setTimeout(() => {
 						const pushed = statusBarLightIcons()
 						console.log(
@@ -1161,7 +1161,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 								(pushed === false ? 'OK' : 'FAIL (' + JSON.stringify(pushed) + ')'),
 						)
 
-						goBack()
+						router.back()
 						setTimeout(() => {
 							const popped = statusBarLightIcons()
 							console.log(
@@ -1197,7 +1197,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 							(collect(tabView()).some((v) => v.id === 'menu-counter') ? 'OK' : 'FAIL'),
 					)
 
-					navigate('demo/:id', { id: 'counter' }, { into: 'demos' })
+					router.push({ to: '/demo/:id', params: { id: 'counter' }, stack: 'demos' })
 					// The store→pane re-render flushes asynchronously (emit →
 
 					// useSyncExternalStore → scheduled render) — poll for the
@@ -1213,7 +1213,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 							)
 
 							// Depth 2 on the same named stack.
-							navigate('demo/:id', { id: 'watch' }, { into: 'demos' })
+							router.push({ to: '/demo/:id', params: { id: 'watch' }, stack: 'demos' })
 							waitFor(
 								() => paneTexts().some((t) => /^\d{2}:\d{2}:\d{2}/.test(t)),
 
@@ -1227,31 +1227,39 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 
 									// A second named stack — bookkeeping only (no
 									// pane renders non-tab stacks on Android).
-									navigate('detail', { from: 'extras' }, { into: 'extras' })
+									let unmountedStatus = 'pending'
+									void router
+										.push({ to: '/detail', search: { from: 'extras' }, stack: 'extras' })
+										.then((result) => {
+											unmountedStatus = result.status
+										})
 
 									setTimeout(() => {
-										const other = routeFor('extras')
+										const other = router.forStack('extras').getSnapshot().route
 										console.log(
-											'[assert] second stack bookkeeping: ' +
-												(other?.name === 'detail' ? 'OK' : 'FAIL (' + JSON.stringify(other) + ')'),
+											'[assert] unmounted stack reports blocked: ' +
+												(unmountedStatus === 'blocked' && other === null
+													? 'OK'
+													: 'FAIL (' + JSON.stringify({ unmountedStatus, other }) + ')'),
 										)
 
-										popRoute('extras')
-										goBack({ into: 'demos' })
+										router.forStack('demos').back()
 										waitFor(
 											() =>
-												routeFor('demos')?.params?.id === 'counter' &&
-												paneTexts().includes('Demo count: 0'),
+												(() => {
+													const route = router.forStack('demos').getSnapshot().route
+													return route?.to === '/demo/:id' && route.params.id === 'counter'
+												})() && paneTexts().includes('Demo count: 0'),
 											() => {
 												const backOk = paneTexts().includes('Demo count: 0')
 												console.log(
 													'[assert] swap-pane pop restores prior: ' + (backOk ? 'OK' : 'FAIL'),
 												)
 
-												goBack({ into: 'demos' })
+												router.forStack('demos').back()
 												waitFor(
 													() =>
-														routeFor('demos') == null &&
+														router.forStack('demos').getSnapshot().route == null &&
 														collect(tabView()).some((v) => v.id === 'menu-counter'),
 
 													() => {
@@ -1263,7 +1271,11 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 
 														// Icon leaf → SVGView glyphs: push Controls
 														// (two <Icon> usages) and count sized svgviews.
-														navigate('demo/:id', { id: 'controls' }, { into: 'demos' })
+														router.push({
+															to: '/demo/:id',
+															params: { id: 'controls' },
+															stack: 'demos',
+														})
 														waitFor(
 															() =>
 																collect(tabView()).some((v) => v?.constructor?.name === 'SVGView'),
@@ -1285,7 +1297,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 																		` (${svgs.length} svgview, ${sized.length} sized)`,
 																)
 
-																goBack({ into: 'demos' })
+																router.forStack('demos').back()
 															},
 														)
 
@@ -1342,19 +1354,19 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 			// The earlier status-bar probe also pushes and pops detail. Wait for
 			// it to return to the base page before measuring this independent run.
 			poll(
-				() => routeFor('root') == null,
+				() => router.forStack('root').getSnapshot().route == null,
 				() => {
-					const startRoute = routeFor('root')?.name ?? 'none'
-					navigate('detail', { from: 'android-route-probe' })
+					const startRoute = router.forStack('root').getSnapshot().route?.name ?? 'none'
+					router.push({ to: '/detail', search: { from: 'android-route-probe' } })
 
 					poll(
 						() =>
-							frame?.currentPage?.id === 'detail-page' &&
+							router.getSnapshot().route?.to === '/detail' &&
 							texts(frame.currentPage).includes('guard: android-route-probe'),
 						() => {
 							const page = frame?.currentPage as any
 							const pageTexts = texts(page)
-							const route = routeFor('root')
+							const route = router.forStack('root').getSnapshot().route
 							const depth = frame?.backStack?.length ?? 0
 							const beforeLoadOk =
 								route?.name === 'detail' && pageTexts.includes('guard saw route: ' + startRoute)
@@ -1384,11 +1396,14 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 							)
 
 							const beforeRedirectDepth = depth
-							navigate('detail', { from: 'redirect' })
+							router.push({ to: '/detail', search: { from: 'redirect' } })
 							poll(
-								() => routeFor('root')?.params?.from === 'redirect-target',
 								() => {
-									const redirected = routeFor('root')
+									const route = router.forStack('root').getSnapshot().route
+									return route?.to === '/detail' && route.search.from === 'redirect-target'
+								},
+								() => {
+									const redirected = router.forStack('root').getSnapshot().route
 									const redirectedDepth = frame?.backStack?.length ?? 0
 									const redirectPage = frame?.currentPage as any
 									const redirectTexts = texts(redirectPage)
@@ -1410,7 +1425,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 											')',
 									)
 
-									navigate('demo/:id', { id: 'scrollbox' })
+									router.push({ to: '/demo/:id', params: { id: 'scrollbox' } })
 									poll(
 										() => frame?.currentPage?.id === 'demo/:id-page',
 										() => {
@@ -1433,7 +1448,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 													')',
 											)
 
-											goBack()
+											router.back()
 											setTimeout(() => {
 												let finished = false
 												const originalWarn = console.warn
@@ -1453,9 +1468,9 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 														)
 
 														setTimeout(() => {
-															goBack()
+															router.back()
 															setTimeout(() => {
-																navigate('demo/:id', { id: 'rich-text' })
+																router.push({ to: '/demo/:id', params: { id: 'rich-text' } })
 																poll(
 																	() => frame?.currentPage?.id === 'demo/:id-page',
 																	() => {
@@ -1520,7 +1535,18 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 													}
 												}
 
-												navigate('list-nested-probe' as any, {})
+												void router
+													.validateDestination({ to: '/list-nested-probe' })
+													.then((checked) => {
+														if (checked.status === 'valid') {
+															return router.push(checked.destination)
+														}
+														console.log(
+															'[assert] Android nested RecyclerView route availability: FAIL (' +
+																checked.status +
+																')',
+														)
+													})
 												setTimeout(() => {
 													if (!finished) {
 														console.warn = originalWarn
@@ -1528,7 +1554,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 															'[assert] Android nested RecyclerView named error: FAIL (warning not observed)',
 														)
 
-														goBack()
+														router.back()
 													}
 												}, 3000)
 											}, 600)

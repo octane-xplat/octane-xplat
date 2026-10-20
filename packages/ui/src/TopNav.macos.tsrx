@@ -1,4 +1,11 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { MenuSurface } from './MenuSurface.macos.tsrx'
+import { useDropdownMenuContext } from './menu-context'
+import type { TopNavMenuItemData } from './props'
+
+import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } from './props'
+import type { NavigationItemImplementation, NavigationItemsImplementation } from './nav-link'
+import { useNavigationItem } from './use-navigation-item.shared.tsrx'
 import { mergeStyle } from './style-merge'
 import { useCallback, useContext, useMemo, useRef, useState } from 'octane';
 import type {
@@ -186,27 +193,29 @@ export function TopNavHeading(props: TopNavHeadingProps) @{
 
 /** TopNavItem — one nav link in the bar. Native leaf: Pressable rows;
  *  `href` routes through `followHref`. */
-export function TopNavItem(props: TopNavItemProps) @{
+export function TopNavItem<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+>(props: TopNavItemProps<Contracts, Stacks, Transitions>): any
+
+export function TopNavItem(props: NavigationItemImplementation<TopNavItemProps>) @{
+	const link = useNavigationItem(props)
 	const renderMode = useTopNavRenderMode();
 	const isDrawer = renderMode === 'drawer';
-	const isDisabled = props.isDisabled ?? false;
+	const isDisabled = link.disabled;
 	const size = props.size ?? 'md';
 
-	const activate = () => {
-		if (isDisabled) return;
-		props.onClick?.();
-		if (props.href) followHref(props.href);
-	};
-
+	const activate = () => link.activateNative(followHref);
 	<Pressable
 
 		id={props.id}
-		className={cx('vx-topnav-item', 'vx-topnav-item--' + size, isDrawer && 'vx-topnav-item--drawer', props.isSelected && 'vx-topnav-item--selected', props.isIconOnly && 'vx-topnav-item--icon', isDisabled && 'vx-topnav-item--disabled', props.className)}
+		className={cx('vx-topnav-item', 'vx-topnav-item--' + size, isDrawer && 'vx-topnav-item--drawer', link.selected && 'vx-topnav-item--selected', props.isIconOnly && 'vx-topnav-item--icon', isDisabled && 'vx-topnav-item--disabled', props.className)}
 		style={props.style}
 		disabled={isDisabled}
-		accessibilityRole="link"
+		accessibilityRole={link.href != null ? 'link' : 'button'}
 		accessibilityLabel={props.isIconOnly ? props.label : undefined}
-		accessibilityState={{ disabled: isDisabled, selected: props.isSelected }}
+		accessibilityState={{ disabled: isDisabled, selected: link.selected }}
 		onPress={activate}
 	>
 		<masonview style={mergeStyle({flexDirection: "row", alignItems: "center", gap: 6}, {display: "flex"})}>
@@ -218,15 +227,31 @@ export function TopNavItem(props: TopNavItemProps) @{
 
 /** TopNavMenu — trigger that opens a list popover on press (hover platforms
  *  get hover intent in the web leaf). */
-export function TopNavMenu(props: TopNavMenuProps) @{
+function TopNavMenuRow(props: { item: NavigationItemImplementation<TopNavMenuItemData>; close(): void }) @{
+	const link = useNavigationItem(props.item)
+	<Pressable className="vx-topnavmenu-item" accessibilityRole="menuitem" disabled={link.disabled}
+		accessibilityState={{ disabled: link.disabled, selected: link.selected }}
+		onPress={() => { if (link.activateNative(followHref)) props.close() }}>
+		<masonview style={mergeStyle({flexDirection: "row", alignItems: "center", gap: 8}, {display: "flex"})}>
+			{props.item.icon != null ? <masonview className="vx-topnavmenu-item-icon" style={{display: "flex"}}>{navIcon(props.item.icon)}</masonview> : null}
+			<masonview style={mergeStyle({flexDirection: "column", flexGrow: 1}, {display: "flex"})}>
+				<Text className="vx-topnavmenu-item-title">{props.item.title}</Text>
+				{props.item.description != null ? <Text className="vx-topnavmenu-item-desc">{props.item.description}</Text> : null}
+			</masonview>
+		</masonview>
+	</Pressable>
+}
+
+export function TopNavMenu<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+>(props: TopNavMenuProps<Contracts, Stacks, Transitions>): any
+
+export function TopNavMenu(props: NavigationItemsImplementation<TopNavMenuProps, TopNavMenuItemData>) @{
 	const anchor = useRef<any>(null);
 	const [open, setOpen] = useState(false);
 
-	const pick = (item: { href?: string; onClick?: () => void }) => {
-		item.onClick?.();
-		if (item.href) followHref(item.href);
-		setOpen(false);
-	};
 
 	<>
 		<Pressable
@@ -242,19 +267,11 @@ export function TopNavMenu(props: TopNavMenuProps) @{
 			</masonview>
 		</Pressable>
 		<Popover anchor={anchor} open={open} placement="bottom" onDismiss={() => setOpen(false)} className="vx-topnavmenu-pop">
-			<masonview className="vx-topnavmenu" style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
+			<MenuSurface label={props.label} closeMenu={() => setOpen(false)} className="vx-topnavmenu" style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 				@for (const item of props.items; key item.title) {
-					<Pressable className="vx-topnavmenu-item" onPress={() => pick(item)}>
-						<masonview style={mergeStyle({flexDirection: "row", alignItems: "center", gap: 8}, {display: "flex"})}>
-							{item.icon != null ? <masonview className="vx-topnavmenu-item-icon" style={{display: "flex"}}>{navIcon(item.icon)}</masonview> : null}
-							<masonview style={mergeStyle({flexDirection: "column", flexGrow: 1}, {display: "flex"})}>
-								<Text className="vx-topnavmenu-item-title">{item.title}</Text>
-								{item.description != null ? <Text className="vx-topnavmenu-item-desc">{item.description}</Text> : null}
-							</masonview>
-						</masonview>
-					</Pressable>
+					<TopNavMenuRow item={item} close={() => setOpen(false)} />
 				}
-			</masonview>
+			</MenuSurface>
 		</Popover>
 	</>
 }
@@ -285,7 +302,7 @@ export function TopNavMegaMenu(props: TopNavMegaMenuProps) @{
 		</Pressable>
 		<Popover anchor={anchor} open={open} placement="bottom" onDismiss={() => setOpenTracked(false)} className="vx-topnavmegamenu-pop">
 			<masonview className="vx-topnavmegamenu" style={mergeStyle({flexDirection: "row"}, {display: "flex"})}>
-				<masonview className="vx-topnavmegamenu-items" style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>{props.items}</masonview>
+				<MenuSurface className="vx-topnavmegamenu-items" label={props.label} closeMenu={() => setOpenTracked(false)} style={{ display: "flex", flexDirection: "column" }}>{props.items}</MenuSurface>
 				{props.featured != null ? <masonview className="vx-topnavmegamenu-featured" style={{display: "flex"}}>{props.featured}</masonview> : null}
 			</masonview>
 		</Popover>
@@ -293,18 +310,24 @@ export function TopNavMegaMenu(props: TopNavMegaMenuProps) @{
 }
 
 /** TopNavMegaMenuItem — one link in the mega menu items grid. */
-export function TopNavMegaMenuItem(props: TopNavMegaMenuItemProps) @{
-	const activate = () => {
-		props.onClick?.();
-		if (props.href) followHref(props.href);
-	};
+export function TopNavMegaMenuItem<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+>(props: TopNavMegaMenuItemProps<Contracts, Stacks, Transitions>): any
 
+export function TopNavMegaMenuItem(props: NavigationItemImplementation<TopNavMegaMenuItemProps>) @{
+	const link = useNavigationItem(props)
+	const menu = useDropdownMenuContext()
+	const activate = () => { if (link.activateNative(followHref)) menu?.closeMenu() };
 	<Pressable
 
 		id={props.id}
 		className={cx('vx-topnavmegamenu-item', props.className)}
 		style={props.style}
-		accessibilityRole="link"
+		accessibilityRole={link.href != null ? 'link' : 'button'}
+		disabled={link.disabled}
+		accessibilityState={{ disabled: link.disabled, selected: link.selected }}
 		onPress={activate}
 	>
 		<masonview style={mergeStyle({flexDirection: "row", alignItems: "center", gap: 8}, {display: "flex"})}>

@@ -44,6 +44,7 @@ for (const k of [
 
 globalThis.requestAnimationFrame = (cb) => setTimeout(cb, 16)
 window.requestAnimationFrame = globalThis.requestAnimationFrame
+window.scrollTo = () => {};
 window.matchMedia ??= () => ({
 	matches: false,
 	addEventListener() {},
@@ -59,8 +60,16 @@ const watchdog = setTimeout(() => {
 
 window.eval(readFileSync(js, 'utf8'))
 clearTimeout(watchdog)
-await new Promise((r) => setTimeout(r, 400))
+async function waitFor(name, predicate) {
+	const deadline = Date.now() + 5000
+	while (!predicate()) {
+		if (Date.now() >= deadline) {throw new Error('Timed out: ' + name)}
+		await new Promise(resolve => setTimeout(resolve, 10))
+	}
+}
+await waitFor('initial document commit', () => window.document.querySelector('.doc-page .agent-prompt') && window.document.querySelector('.constellation svg polygon'))
 
+const navigationTitle = titleOf('navigation', readFileSync('../../docs/app/navigation.md', 'utf8'))
 const root = window.document.getElementById('root')
 const side = window.document.querySelectorAll('.side-item').length
 const numbered = [...window.document.querySelectorAll('.li-marker')].some(
@@ -267,7 +276,7 @@ for (const path of walkDocs('../../docs')) {
 	const slug = slugFor(dir, basename(rel, '.md'))
 	const title = titleOf(slug, readFileSync(path, 'utf8'))
 	sideItem(title)?.click()
-	await settle()
+	await waitFor('page ' + slug, () => window.location.pathname === docPath(slug) && root.querySelector('.doc .h1')?.textContent === title)
 
 	assert(
 		`page ${slug}`,
@@ -296,11 +305,11 @@ assert(
 
 assert('palette layer is a modal dialog', Boolean(window.document.querySelector('.vx-cmdk-layer [role="dialog"][aria-modal="true"]')))
 
-paletteInput.value = 'pushRoute'
+paletteInput.value = 'useRouter'
 paletteInput.dispatchEvent(new window.Event('input', { bubbles: true }))
 await settle()
 const topHit = window.document.querySelector('.vx-cmdk-layer [role="option"]')
-assert('search finds api symbols', topHit?.textContent?.includes('pushRoute'))
+assert('search finds api symbols', topHit?.textContent?.includes('useRouter'))
 
 // Arrow keys highlight via aria-activedescendant; Enter commits.
 paletteInput.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
@@ -312,12 +321,12 @@ assert(
 )
 
 paletteInput.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
-await settle()
+await waitFor('palette route commit', () => !window.document.getElementById('palette-query') && window.location.pathname === docPath('navigation') && root.querySelector('.doc .h1')?.textContent === navigationTitle)
 assert(
 	'palette hit navigates',
 	!window.document.getElementById('palette-query') &&
 		window.location.pathname === docPath('navigation') &&
-		root.querySelector('.doc .h1')?.textContent === 'Moving between screens',
+		root.querySelector('.doc .h1')?.textContent === navigationTitle,
 )
 
 // Reopen from the nav row: the click captures the row as the trigger, so

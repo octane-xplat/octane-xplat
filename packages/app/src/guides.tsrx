@@ -1,9 +1,9 @@
 import { NavLink, Pressable, HStack, Screen, Text, View } from '@octane-xplat/ui';
-import { addRoutes, defineRoutes } from '@octane-xplat/ui/routing';
-import { goBack } from './platform/nav';
+import { defineRoute, defineRoutes } from '@octane-xplat/ui/routing/core';
+import { useRouter } from '@octane-xplat/ui/routing';
 
 /** Programmatic-route probe — a manifest built from a data array at module
- *  scope, layered over the route-dir manifest via `addRoutes` (decision #66).
+ *  scope, included by the configured generated route catalog.
  *  This is the host-framework escape hatch: an app deriving routes from a
  *  content directory (Coreframe-style `readdirSync` + `route()` specs) emits
  *  this same shape. One `guides/:slug` route carries the doc key as a URL
@@ -18,7 +18,7 @@ export interface GuideDoc {
 
 export const GUIDES: GuideDoc[] = [
 	{ slug: 'install', title: 'Install', body: 'Scaffold with the create template, then run the dev server per target.' },
-	{ slug: 'routes', title: 'Routes from data', body: 'defineRoutes turns specs into a manifest; addRoutes layers it over the file routes.' },
+	{ slug: 'routes', title: 'Routes from data', body: 'defineRoutes turns specs into a manifest; generated catalogs combine it with file routes.' },
 	{ slug: 'deploy', title: 'Deploy', body: 'xplat build emits the web bundle and the native app package.' },
 ];
 
@@ -34,12 +34,12 @@ export function GuideShell(props: { children?: any }) @{
 	</View>
 }
 
-export function GuideIndex(props: { _stack?: string }) @{
-	const stack = props._stack ?? 'test';
+export function GuideIndex() @{
+	const navigation = useRouter();
 
 	<Screen className="vx-app flex-1 gap-6">
 		<HStack className="gap-4 items-center">
-			<Pressable id="guides-back" onPress={() => goBack({ into: props._stack })} className="btn btn-secondary">
+			<Pressable id="guides-back" onPress={() => navigation.back()} className="btn btn-secondary">
 				<Text>← Back</Text>
 			</Pressable>
 			<Text className="text-xl font-semibold flex-1">Guides</Text>
@@ -47,7 +47,7 @@ export function GuideIndex(props: { _stack?: string }) @{
 		<Text className="text-sm text-muted">{'Registered from a ' + GUIDES.length + '-record data array.'}</Text>
 		<View className="gap-2">
 			@for (const doc of GUIDES; key doc.slug) {
-				<NavLink route={{ stack, name: 'guides/:slug', params: { slug: doc.slug } }} className="chip">
+				<NavLink to="/guides/:slug" params={{ slug: doc.slug }} className="chip">
 					<Text>{doc.title} →</Text>
 				</NavLink>
 			}
@@ -58,17 +58,18 @@ export function GuideIndex(props: { _stack?: string }) @{
 /** Doc screen — `slug` arrives as a route param (URL-scalar); the doc is
  *  looked up rather than closed over. Unknown slugs render a not-found
  *  note rather than throwing. */
-export function GuideScreen(props: { slug?: string; _stack?: string }) @{
-	const doc = props.slug ? GUIDE_BY_SLUG[props.slug] : undefined;
+export function GuideScreen(props: { params: { slug: string } }) @{
+	const navigation = useRouter();
+	const doc = props.params.slug ? GUIDE_BY_SLUG[props.params.slug] : undefined;
 
 	<Screen className="vx-app flex-1 gap-6">
 		<HStack className="gap-4 items-center">
-			<Pressable id={'guide-back-' + (props.slug ?? 'missing')} onPress={() => goBack({ into: props._stack })} className="btn btn-secondary">
+			<Pressable id={'guide-back-' + (props.params.slug ?? 'missing')} onPress={() => navigation.back()} className="btn btn-secondary">
 				<Text>← Back</Text>
 			</Pressable>
 			<Text className="text-xl font-semibold flex-1">{doc?.title ?? 'Unknown guide'}</Text>
 		</HStack>
-		<Text className="guide-slug text-sm text-muted">{'guides/' + (props.slug ?? '?')}</Text>
+		<Text className="guide-slug text-sm text-muted">{'guides/' + (props.params.slug ?? '?')}</Text>
 		<Text>{doc?.body ?? 'No guide is registered at this path.'}</Text>
 	</Screen>
 }
@@ -77,14 +78,11 @@ export function GuideScreen(props: { slug?: string; _stack?: string }) @{
  *  app's typed navigation surface (ManifestRouteParams et al.). */
 export const guideRoutes = defineRoutes({
 	routes: [
-		{ path: 'guides', screen: GuideIndex, head: { title: 'Guides' } },
-		{
-			path: 'guides/:slug',
-			screen: GuideScreen,
+		defineRoute({ path: '/guides', head: { title: 'Guides' } }).screen(GuideIndex),
+		defineRoute({
+			path: '/guides/:slug',
 			head: (params: Record<string, unknown>) => ({ title: GUIDE_BY_SLUG[params.slug as string]?.title ?? 'Guide' }),
-		},
+		}).screen(GuideScreen),
 	],
 	layouts: { guides: GuideShell },
 });
-
-addRoutes(guideRoutes);

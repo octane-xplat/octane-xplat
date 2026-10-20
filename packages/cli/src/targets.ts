@@ -24,8 +24,17 @@ const readJson = (file) => {
 	}
 }
 
-export const hasWeb = (cwd) =>
-	existsSync(`${cwd}/vite.config.ts`) || existsSync(`${cwd}/vite.config.mts`)
+/** Vite's conventional JavaScript and TypeScript config filenames. */
+const viteConfigFiles = [
+	'vite.config.js',
+	'vite.config.mjs',
+	'vite.config.ts',
+	'vite.config.cjs',
+	'vite.config.mts',
+	'vite.config.cts',
+]
+
+export const hasWeb = (cwd) => viteConfigFiles.some((file) => existsSync(`${cwd}/${file}`))
 
 export const hasNative = (cwd) => existsSync(`${cwd}/nativescript.config.ts`)
 

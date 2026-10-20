@@ -6,6 +6,7 @@ import * as p from '@clack/prompts'
 import { discoverTargets } from '../targets.ts'
 import { spawnTagged } from '../procs.ts'
 import { generateRoutes } from './routes.ts'
+import { createRouteWatcher } from '../route-watch.ts'
 import { discoverMacOSNative } from '../macos/native.ts'
 import { fileURLToPath } from 'node:url'
 import { siblingUrl } from '../env.ts'
@@ -156,10 +157,43 @@ export const dev = command({
 
 		// Route codegen is automatic when a route dir exists — the generated
 		// manifest is committed like a lockfile; a stale one is a silent bug.
-		const routeDir = ['app', 'src/app'].find((d) => existsSync(join(cwd, d)))
-		if (routeDir) {
-			const n = await generateRoutes(cwd, routeDir)
-			p.log.info(`routes.gen regenerated — ${n} route${n === 1 ? '' : 's'}`)
+		const routeWatcher = createRouteWatcher({
+			cwd,
+			generate: (signal, inputs) => generateRoutes(cwd, inputs.directory, inputs.out, { signal }),
+			onGenerated(count) {
+				if (count !== false) {
+					p.log.info(`routes.gen regenerated — ${count} route${count === 1 ? '' : 's'}`)
+				}
+			},
+			onError: (error) => p.log.error(String(error.message ?? error)),
+		})
+		const stopRoutes = () => {
+			void routeWatcher.close()
+		}
+		const interrupt = () => {
+			process.exitCode = 130
+			stopRoutes()
+		}
+		const terminate = () => {
+			process.exitCode = 143
+			stopRoutes()
+		}
+		process.once('SIGINT', interrupt)
+		process.once('SIGTERM', terminate)
+		let n
+		try {
+			n = await routeWatcher.ready
+		} catch (error) {
+			if (error.name === 'AbortError') {
+				return
+			}
+
+			throw error
+		}
+		if (n === false) {
+			await routeWatcher.close()
+			process.off('SIGINT', interrupt)
+			process.off('SIGTERM', terminate)
 		}
 
 		// In a workspace that declares a typegen task (this framework repo),
@@ -177,8 +211,20 @@ export const dev = command({
 			}
 		}
 
-		for (const t of chosen) {
-			spawnFor(t, cwd)
+		let runningTargets = chosen.length
+		try {
+			for (const t of chosen) {
+				spawnFor(t, cwd).once('exit', () => {
+					if (--runningTargets === 0) {
+						stopRoutes()
+						process.off('SIGINT', interrupt)
+						process.off('SIGTERM', terminate)
+					}
+				})
+			}
+		} catch (error) {
+			await routeWatcher.close()
+			throw error
 		}
 
 		p.log.success(`${chosen.length} target(s) running — Ctrl+C stops all`)

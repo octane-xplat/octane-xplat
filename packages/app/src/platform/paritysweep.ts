@@ -1,6 +1,6 @@
 import { Application, knownFolders } from '@nativescript/core'
 
-import { navigate, goBack } from './nav'
+import { router } from '@octane-xplat/ui/routing';
 import { VIRTUAL_LIST_BENCH_MODE } from './virtual-list-benchmark-mode'
 
 // Parity sweep step — pushes the parity route on the root stack, dumps the
@@ -59,7 +59,7 @@ export function runParity() {
 
 	ran = true
 
-	navigate('parity')
+	router.push({ to: '/parity' })
 	waitFor(
 		() => stableDump() != null,
 		() => {
@@ -77,7 +77,7 @@ export function runParity() {
 				}
 			}
 
-			goBack()
+			router.back()
 			resolveParitySweepComplete()
 			console.log('[parity] done')
 		},

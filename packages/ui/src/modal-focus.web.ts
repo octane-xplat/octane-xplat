@@ -1,5 +1,6 @@
 import './layer-keys.web'
 import { isTopLayer, layerContains, registerLayer } from './layer-stack'
+import { focusBrowserTarget } from './focus-target.web'
 type Scope = {
 	layer: HTMLElement
 	panel: HTMLElement
@@ -100,12 +101,15 @@ if (typeof document !== 'undefined') {
 }
 
 /** Own keyboard focus only for a modal body portal. Inert preserves the
- * background's state while hiding it from both focus and the browser AX tree. */
+ * background's state while hiding it from both focus and the browser AX tree.
+ * A routed presenter may re-render during admission; its caller can resolve
+ * the original opener to the replacement control before returning focus. */
 export function isolateModalFocus(
 	layer: HTMLElement,
 	panel: HTMLElement,
 	dismiss: () => void,
 	depth = scopes.length,
+	resolveReturnTarget?: (trigger: HTMLElement | null) => HTMLElement | null,
 ): () => void {
 	const document = layer.ownerDocument
 	captureClickTargets(document)
@@ -211,9 +215,9 @@ export function isolateModalFocus(
 		}
 
 		if (wasTop) {
-			const trigger = scope.trigger
+			const trigger = resolveReturnTarget?.(scope.trigger) ?? scope.trigger
 			if (trigger?.isConnected && !trigger.closest('[inert]')) {
-				trigger.focus({ preventScroll: true })
+				focusBrowserTarget(trigger)
 			} else {
 				const remaining = topScope()
 				if (remaining) {

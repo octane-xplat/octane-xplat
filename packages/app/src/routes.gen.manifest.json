@@ -12,6 +12,7 @@
 		"detail",
 		"list-nested-probe",
 		"motion-probe",
+		"navigation-blocking",
 		"notes",
 		"parity",
 		"private",
@@ -20,6 +21,15 @@
 	"routes": [
 		{
 			"name": "about",
+			"platforms": [
+				"web",
+				"ios",
+				"android",
+				"mobile",
+				"macos",
+				"windows",
+				"linux"
+			],
 			"path": "about",
 			"params": [],
 			"presentation": "modal",
@@ -34,6 +44,15 @@
 		},
 		{
 			"name": "broken",
+			"platforms": [
+				"web",
+				"ios",
+				"android",
+				"mobile",
+				"macos",
+				"windows",
+				"linux"
+			],
 			"path": "broken",
 			"params": [],
 			"layouts": [
@@ -47,6 +66,15 @@
 		},
 		{
 			"name": "changelog",
+			"platforms": [
+				"web",
+				"ios",
+				"android",
+				"mobile",
+				"macos",
+				"windows",
+				"linux"
+			],
 			"path": "changelog",
 			"params": [],
 			"dataMode": "baked",
@@ -61,6 +89,15 @@
 		},
 		{
 			"name": "demo/:id",
+			"platforms": [
+				"web",
+				"ios",
+				"android",
+				"mobile",
+				"macos",
+				"windows",
+				"linux"
+			],
 			"path": "demo/:id",
 			"params": [
 				"id"
@@ -77,6 +114,15 @@
 		},
 		{
 			"name": "detail",
+			"platforms": [
+				"web",
+				"ios",
+				"android",
+				"mobile",
+				"macos",
+				"windows",
+				"linux"
+			],
 			"path": "detail",
 			"params": [],
 			"layouts": [
@@ -90,6 +136,9 @@
 		},
 		{
 			"name": "list-nested-probe",
+			"platforms": [
+				"android"
+			],
 			"path": "list-nested-probe",
 			"params": [],
 			"layouts": [
@@ -103,6 +152,15 @@
 		},
 		{
 			"name": "motion-probe",
+			"platforms": [
+				"web",
+				"ios",
+				"android",
+				"mobile",
+				"macos",
+				"windows",
+				"linux"
+			],
 			"path": "motion-probe",
 			"params": [],
 			"layouts": [
@@ -115,7 +173,38 @@
 			"errorBoundary": false
 		},
 		{
+			"name": "navigation-blocking",
+			"platforms": [
+				"web",
+				"ios",
+				"android",
+				"mobile",
+				"macos",
+				"windows",
+				"linux"
+			],
+			"path": "navigation-blocking",
+			"params": [],
+			"layouts": [
+				""
+			],
+			"source": "src/app/navigation-blocking.tsrx",
+			"loader": false,
+			"guard": false,
+			"head": true,
+			"errorBoundary": false
+		},
+		{
 			"name": "notes",
+			"platforms": [
+				"web",
+				"ios",
+				"android",
+				"mobile",
+				"macos",
+				"windows",
+				"linux"
+			],
 			"path": "notes",
 			"params": [],
 			"dataMode": "baked",
@@ -130,6 +219,15 @@
 		},
 		{
 			"name": "parity",
+			"platforms": [
+				"web",
+				"ios",
+				"android",
+				"mobile",
+				"macos",
+				"windows",
+				"linux"
+			],
 			"path": "parity",
 			"params": [],
 			"layouts": [
@@ -143,6 +241,15 @@
 		},
 		{
 			"name": "private",
+			"platforms": [
+				"web",
+				"ios",
+				"android",
+				"mobile",
+				"macos",
+				"windows",
+				"linux"
+			],
 			"path": "private",
 			"params": [],
 			"layouts": [
@@ -156,6 +263,15 @@
 		},
 		{
 			"name": "qa",
+			"platforms": [
+				"web",
+				"ios",
+				"android",
+				"mobile",
+				"macos",
+				"windows",
+				"linux"
+			],
 			"path": "qa",
 			"params": [],
 			"layouts": [

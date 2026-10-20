@@ -92,6 +92,9 @@ export async function dependencies(target, caseFile, extra) {
 			'@nativescript/core',
 			'@nativescript-community/octane',
 			'@nativescript-community/gesturehandler',
+			// UI primitives import MasonKit at runtime. NativeScript only collects
+			// plugin binaries from dependencies, not the tooling/dev dependency bag.
+			'@triniwiz/nativescript-masonkit',
 			'@valor/nativescript-websockets',
 		]) {
 			names.add(name)

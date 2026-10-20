@@ -13,11 +13,10 @@ export const typecheck = command({
 	args: {},
 	handler: async () => {
 		const cwd = process.cwd()
-		const routeDir = ['app', 'src/app'].find((d) => existsSync(join(cwd, d)))
-		if (routeDir) {
+		{
 			// bake: false — typecheck only needs the emitted types; an existing
 			// routes.gen.data.ts is left as-is rather than re-executed.
-			await generateRoutes(cwd, routeDir, undefined, { bake: false })
+			await generateRoutes(cwd, undefined, undefined, { bake: false })
 		}
 
 		// tsconfig.json is the default program. The tsconfig.envs.json manifest

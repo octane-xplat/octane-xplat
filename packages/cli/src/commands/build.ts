@@ -1,7 +1,5 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 import { command, flag, option, optional, string } from '@alloc/cmd-ts'
-import { existsSync } from 'node:fs'
-import { join } from 'node:path'
 import * as p from '@clack/prompts'
 import { buildTargets } from '../targets.ts'
 import { packageMacOS } from '../macos/package.ts'
@@ -69,9 +67,8 @@ export const build = command({
 
 		// Route codegen is automatic when a route dir exists — the generated
 		// manifest is committed like a lockfile; a stale one is a silent bug.
-		const routeDir = ['app', 'src/app'].find((d) => existsSync(join(cwd, d)))
-		if (routeDir) {
-			const n = await generateRoutes(cwd, routeDir)
+		const n = await generateRoutes(cwd)
+		if (n !== false) {
 			p.log.info(`routes.gen regenerated — ${n} route${n === 1 ? '' : 's'}`)
 		}
 

@@ -14,7 +14,9 @@ function ContentOutlet(props: { owner: ContentOwner }) {
 	useEffect(() => () => props.owner.dispose(), [props.owner])
 	return <>
 		<span ref={(view: any) => { props.owner.host = view }} style={{ display: 'none' }} />
-		{entries.map(entry => <OwnedEntry key={entry.id} entry={entry} />)}
+		@for (const entry of entries; key entry.id) {
+			<OwnedEntry entry={entry} />
+		}
 	</>
 }
 

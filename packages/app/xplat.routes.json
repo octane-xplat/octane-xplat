@@ -1,0 +1,20 @@
+{
+	"stacks": [
+		"demos",
+		"test",
+		"extras"
+	],
+	"manifests": [
+		{
+			"module": "./src/guides.tsrx",
+			"export": "guideRoutes"
+		}
+	],
+	"context": {
+		"module": "./src/route-context.ts",
+		"export": "routeContext"
+	},
+	"allowedSchemes": [
+		"xplat"
+	]
+}

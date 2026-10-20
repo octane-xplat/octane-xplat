@@ -105,6 +105,11 @@
 					"source": "src/nativescript/keyboard.ts",
 					"runtime": ["./src/nativescript/keyboard.ts"],
 					"types": "./types/generated/nativescript/keyboard.d.ts"
+				},
+				"./routing/core": {
+					"source": "src/routing/core.ts",
+					"runtime": ["./src/routing/core.ts"],
+					"types": "./types/generated/routing/core.d.ts"
 				}
 			}
 		}

@@ -1,7 +1,7 @@
 import { Application, Frame } from '@nativescript/core'
 
 /** Named parallel stacks. A shell (Tabs with `stack` on a spec, the app
- *  entry's root frame) registers its Frame here; `pushRoute` resolves the
+ *  entry's root frame) registers its Frame here; `router.push` resolves the
  *  target by name. Native-only concept — on web, parallel stacks map to
  *  nested routes (one linear URL stack). 'root' needs no registration:
  *  unregistered, it resolves to the app's root view when that's a
@@ -11,7 +11,7 @@ const stacks = new Map<string, Frame>()
 const regListeners = new Set<(name: string, frame: Frame) => void>()
 
 /**
- * Register a named navigation stack (its root `Frame`/`Outlet`) so `pushRoute`/`NavLink` can target it.
+ * Register a named navigation stack (its root `Frame`/`Outlet`) so `router.push`/`NavLink` can target it.
  *
  * @see getStack, Route.
  */
@@ -47,8 +47,7 @@ export function stackEntries(): IterableIterator<[string, Frame]> {
 	return stacks.entries()
 }
 
-/** Internal: route.native attaches frame listeners as stacks appear —
- *  named frames can register after a useRoute subscription ran. */
+/** Internal: native hosts can observe Frame registrations after startup. */
 export function onStackRegistered(cb: (name: string, frame: Frame) => void): void {
 	regListeners.add(cb)
 }

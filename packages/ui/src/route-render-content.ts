@@ -1,0 +1,22 @@
+import { layoutChain } from './route-table'
+import type { PreparedRouteMatch, RouteManifest, RouterHostContent } from './props'
+
+/** Resolve against the same instance registry that prepared the match. Hosts
+ * must not consult a process-global screen table after async preparation. */
+export function routeRenderContent(
+	catalog: RouteManifest,
+	match: PreparedRouteMatch,
+): RouterHostContent {
+	const meta = catalog.routes.find((route) => route.name === match.name)
+	const screen = Object.hasOwn(catalog.screens, match.name)
+		? catalog.screens[match.name]
+		: undefined
+	if (!screen) {throw new Error('Prepared route has no registered screen')}
+	return {
+		screen,
+		layouts: layoutChain(catalog.layouts, match.name),
+		boundary: meta?.errorBoundary,
+		head: typeof meta?.head === 'function' ? meta.head(match.params) : meta?.head,
+		props: { params: match.params, search: match.search, context: match.context, data: match.data },
+	}
+}

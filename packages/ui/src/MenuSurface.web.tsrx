@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'octane'
 import type { MenuSurfaceProps } from './props'
 import { MenuProvider } from './menu-context'
+import { applyEscapeProps } from './escape-props'
 
 /** Each portaled submenu is its own keyboard boundary. Escape belongs to Popover. */
 export function MenuSurface(props: MenuSurfaceProps) @{
@@ -47,7 +48,7 @@ export function MenuSurface(props: MenuSurfaceProps) @{
 		}
 	}
 
-	<div ref={panel} role="menu" aria-label={props.labelledBy ? undefined : props.label} aria-labelledby={props.labelledBy} tabIndex={-1} className="vx-menu-list" onKeyDown={keydown}>
+	<div ref={(element: HTMLDivElement | null) => { panel.current = element; applyEscapeProps(element, props) }} role="menu" aria-label={props.labelledBy ? undefined : props.label} aria-labelledby={props.labelledBy} tabIndex={-1} className={['vx-menu-list', props.className]} style={props.style} onKeyDown={keydown}>
 		<MenuProvider value={context}>{props.children}</MenuProvider>
 	</div>
 }

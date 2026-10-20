@@ -1,3 +1,6 @@
+import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } from './props'
+import type { NavigationItemImplementation } from './nav-link'
+import { useNavigationItem } from './use-navigation-item.shared.tsrx'
 import { mergeStyle, styleRecord } from './style-merge'
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'octane';
 import type { TabListProps, TabProps, TabMenuProps, TabMenuOption } from './props';
@@ -172,28 +175,29 @@ export function TabList(props: TabListProps) @{
 
 /** Tab — a single stop in a TabList. Renders as a button, or as an anchor
  *  when `href` is set under the nav pattern. */
-export function Tab(props: TabProps) @{
+export function Tab<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+>(props: TabProps<Contracts, Stacks, Transitions>): any
+
+export function Tab(props: NavigationItemImplementation<TabProps>) @{
 	const ctx = useContext(TabListContext);
 	if (ctx == null) {
 		throw new Error('Tab must be used within a TabList.');
 	}
 
-	const isSelected = ctx.value === props.value;
 	const isTabs = ctx.pattern === 'tabs';
-	const isLink = props.href != null && !isTabs;
-	const isDisabled = props.isDisabled === true;
+	if (isTabs && props.to !== undefined) throw new TypeError('Typed route destinations belong in the navigation TabList pattern, not role="tablist"')
+	const link = useNavigationItem({ ...props, href: isTabs ? undefined : props.href })
+	const isSelected = props.to !== undefined ? link.selected : ctx.value === props.value;
+	const isLink = link.href != null && !isTabs;
+	const isDisabled = link.disabled;
 	const displayIcon = isSelected && props.selectedIcon != null ? props.selectedIcon : props.icon;
 	const showLabel = !props.isLabelHidden && props.label !== '';
 
-	const select = (e: any) => {
-		if (isDisabled) {
-			e?.preventDefault?.();
-			return;
-		}
-
-		props.onPress?.();
-		if (e?.defaultPrevented) return;
-		ctx.onChange(props.value);
+	const select = (event: any) => {
+		if (link.activateWeb(event)) ctx.onChange(props.value)
 	};
 
 	const shared: any = {
@@ -206,7 +210,7 @@ export function Tab(props: TabProps) @{
 		'aria-disabled': isDisabled || undefined,
 		...(isTabs
 			? { role: 'tab', 'aria-selected': isSelected, 'aria-controls': props.panelId }
-			: { 'aria-current': isSelected ? 'true' : undefined }),
+			: { 'aria-current': isSelected ? (props.to !== undefined ? 'page' : 'true') : undefined }),
 	};
 
 	const content = (
@@ -229,7 +233,7 @@ export function Tab(props: TabProps) @{
 	@if (isLink) {
 		<LinkEl
 			{...shared}
-			href={isDisabled ? undefined : props.href}
+			href={isDisabled ? undefined : link.href} target={props.target} rel={props.rel} download={props.download}
 			onClick={select}
 			ref={(el: any) => applyEscapeProps(el, props)}
 		>

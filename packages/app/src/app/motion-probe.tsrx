@@ -9,7 +9,7 @@ import {
 } from '@octane-xplat/motion'
 
 import { Screen, HStack, Text, Pressable, TextInput, type PanEvent } from '@octane-xplat/ui'
-import { goBack } from '../platform/nav'
+import { useRouter } from '@octane-xplat/ui/routing';
 
 function PresenceCounter(props: { onMount: () => void; onUnmount: () => void; onFocus: () => void; onBlur: () => void }) @{
 	const [count, setCount] = useState(0)
@@ -56,6 +56,7 @@ function DisposalProbe(props: { onResult: (result: string) => void }) @{
 }
 
 export function MotionProbe() @{
+	const navigation = useRouter();
 	const [target, setTarget] = useState(0)
 	const [mode, setMode] = useState<'tween' | 'spring'>('tween')
 	const [destinationStatus, setDestinationStatus] = useState('waiting for mount animation')
@@ -110,7 +111,7 @@ export function MotionProbe() @{
 	<MotionConfig reducedMotion="user">
 		<Screen className="vx-app flex-1 gap-3">
 			<HStack className="items-center gap-3">
-				<Pressable id="motion-probe-back" onPress={() => goBack({ into: 'test' })} className="chip">
+				<Pressable id="motion-probe-back" onPress={() => navigation.back()} className="chip">
 					<Text>← Back</Text>
 				</Pressable>
 				<Text className="text-xl font-semibold">Motion v1 checks</Text>

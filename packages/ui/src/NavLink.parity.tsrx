@@ -1,16 +1,31 @@
 // Measured parity fixtures — assertions live in NavLink.parity.check.ts.
 import { NavLink } from './NavLink'
 import { Text } from './Text'
+import { RouterProvider } from './router-hooks.tsrx'
+import { createRouter } from './router-instance'
+import { defineRoute } from './define-route'
+import { defineRoutes } from './route-table'
 import type { ParityFixture } from './parity'
 
+// A local catalog keeps the fixture independent of an application's registry.
+const catalog = defineRoutes([defineRoute({ path: '/parity' }).screen(() => null)])
+const route = { to: '/parity', name: 'parity', params: {}, search: {}, context: {}, data: undefined, stack: 'root', href: '/parity' }
+const navigation = createRouter({ catalog, host: {
+	history: 'independent', canReset: false,
+	getSnapshot: () => ({ route, canGoBack: false, modal: false }),
+	subscribe: () => () => {},
+	commit: () => ({ status: 'unsupported', operation: 'parity-preview' }),
+} })
+
 function NavLinkFixture() @{
-	<NavLink
+	<RouterProvider router={navigation}><NavLink
+		router={navigation}
 		className="parity-navlink-root"
 		activeClassName="parity-navlink-active"
-		route={{ stack: 'root', name: 'parity', params: {} }}
+		to="/parity"
 	>
 		<Text>Parity</Text>
-	</NavLink>
+	</NavLink></RouterProvider>
 }
 
 export const PARITY: ParityFixture[] = [

@@ -1,4 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } from './props'
+import type { NavigationMenuImplementation } from './nav-link'
 import { mergeStyle } from './style-merge'
 import { MenuData } from './MenuParts.macos.tsrx';
 import { MenuSurface } from './MenuSurface.macos.tsrx';
@@ -12,7 +14,13 @@ import { Popover } from './Popover.macos.tsrx';
 /** Self-drawn context menu — long-press opens the same anchored list as
  *  DropdownMenu, positioned over the children. There is no right-click on
  *  touch targets; long-press is the honest equivalent gesture. */
-export function ContextMenu(props: ContextMenuProps) @{
+export function ContextMenu<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+>(props: ContextMenuProps<Contracts, Stacks, Transitions>): any
+
+export function ContextMenu(props: NavigationMenuImplementation<ContextMenuProps>) @{
 	const anchor = useRef<any>(null);
 	const [internal, setInternal] = useState(props.defaultOpen ?? false);
 	const controlled = props.isOpen !== undefined;

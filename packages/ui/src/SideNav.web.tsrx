@@ -1,3 +1,7 @@
+
+import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } from './props'
+import type { NavigationItemImplementation } from './nav-link'
+import { useNavigationItem } from './use-navigation-item.shared.tsrx'
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'octane';
 import type {
 	SideNavCollapseButtonProps,
@@ -273,7 +277,14 @@ export function SideNavHeading(props: SideNavHeadingProps) @{
 /** SideNavItem — one nav row: icon + label + end content + actions +
  *  optional nested children. Renders a link when `href` is set. In a
  *  collapsed rail the icon is the whole item and children open a flyout. */
-export function SideNavItem(props: SideNavItemProps) @{
+export function SideNavItem<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+>(props: SideNavItemProps<Contracts, Stacks, Transitions>): any
+
+export function SideNavItem(props: NavigationItemImplementation<SideNavItemProps>) @{
+	const link = useNavigationItem(props)
 	const renderMode = useSideNavRenderMode();
 	const collapseCtx = useSideNavCollapse();
 	const railCollapsed = collapseCtx?.isCollapsed === true && renderMode === 'default';
@@ -295,21 +306,14 @@ export function SideNavItem(props: SideNavItemProps) @{
 	const anchor = useRef<any>(null);
 	const [flyoutOpen, setFlyoutOpen] = useState(false);
 
-	const displayIcon = props.isSelected && props.selectedIcon != null ? props.selectedIcon : props.icon;
-	const isDisabled = props.isDisabled ?? false;
+	const displayIcon = link.selected && props.selectedIcon != null ? props.selectedIcon : props.icon;
+	const isDisabled = link.disabled;
 
-	const activate = (e: any) => {
-		if (isDisabled) {
-			e?.preventDefault?.();
-			return;
-		}
-
-		props.onClick?.();
-	};
-
+	const activate = (e: any) => link.activateWeb(e);
 	// Collapsed rail: children open a flyout popover instead of expanding.
 	const pressMain = (e: any) => {
-		if (railCollapsed && hasChildren) {
+		if (railCollapsed && hasChildren && !link.preservesBrowserNavigation(e)) {
+			if (isDisabled || e?.defaultPrevented) return;
 			e?.preventDefault?.();
 			setFlyoutOpen(!flyoutOpen);
 			return;
@@ -321,7 +325,7 @@ export function SideNavItem(props: SideNavItemProps) @{
 	const mainCls = [
 		'vx-sidenav-item-main',
 		'vx-sidenav-item--' + size,
-		props.isSelected && 'vx-sidenav-item--selected',
+		link.selected && 'vx-sidenav-item--selected',
 		isDisabled && 'vx-sidenav-item--disabled',
 		railCollapsed && 'vx-sidenav-item--rail',
 	];
@@ -334,12 +338,12 @@ export function SideNavItem(props: SideNavItemProps) @{
 		</>
 	);
 
-	const isLink = props.href != null && !isDisabled;
+	const isLink = link.href != null && !isDisabled;
 	const LinkEl: any = props.as ?? 'a';
 	const shared: any = {
 		className: mainCls,
 		style: { minHeight: ITEM_HEIGHT[size] },
-		'aria-current': props.isSelected ? 'page' : undefined,
+		'aria-current': link.selected ? 'page' : undefined,
 		'aria-disabled': isDisabled || undefined,
 		'aria-label': railCollapsed ? props.label : undefined,
 		onClick: pressMain,
@@ -348,7 +352,7 @@ export function SideNavItem(props: SideNavItemProps) @{
 	<div className={['vx-sidenav-item', props.className]} style={props.style} id={props.id}>
 		<div className="vx-sidenav-item-row" ref={(el: any) => { if (railCollapsed) anchor.current = el; applyEscapeProps(el, props); }}>
 			{isLink ? (
-				<LinkEl {...shared} href={props.href}>
+				<LinkEl {...shared} href={link.href} target={props.target} rel={props.rel} download={props.download}>
 					{content}
 				</LinkEl>
 			) : (

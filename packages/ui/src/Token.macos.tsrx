@@ -4,7 +4,7 @@ import type { TokenProps } from "./props";
 import { cx } from "@octane-xplat/lib";
 import { Pressable } from './Pressable.macos.tsrx';
 import { Icon } from './Icon.macos.tsrx';
-import { pushDeepLink } from './route.macos';
+import { followHref } from './nav-href'
 import { useThemeScheme } from './theme/theme-scheme.macos';
 
 /** Inline chrome — the AppKit host has no CSS layer; values mirror
@@ -24,7 +24,7 @@ const TOKEN_COLORS: Record<string, Record<'light' | 'dark', [string, string]>> =
 };
 
 /** Token — inline entity chip. macOS leaf: `href` routes through
- *  pushDeepLink like Link; chrome is inlined (no CSS layer). */
+ *  router.navigateUrl like Link; chrome is inlined (no CSS layer). */
 export function Token(props: TokenProps) @{
 	const scheme = useThemeScheme();
 	const icon = props.icon == null
@@ -39,7 +39,7 @@ export function Token(props: TokenProps) @{
 	const activate = () => {
 		if (props.isDisabled) return;
 		if (props.href != null) {
-			pushDeepLink(props.href);
+			followHref(props.href);
 		} else {
 			props.onClick?.();
 		}

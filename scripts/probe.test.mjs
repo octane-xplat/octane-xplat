@@ -215,7 +215,7 @@ test('resource edits and additions invalidate the build fingerprint', async () =
 	}
 })
 
-test('native probe resolves gesturehandler and its pnpm runtime dependency', async () => {
+test('native probe collects required layout/gesture plugins and their pnpm runtime dependencies', async () => {
 	const { dependencies, repo } = await import('./probe/project.ts')
 	const { join } = await import('node:path')
 	const deps = await dependencies('ios', join(repo, 'examples/probes/motion.tsrx'), [
@@ -223,6 +223,9 @@ test('native probe resolves gesturehandler and its pnpm runtime dependency', asy
 	])
 
 	assert.equal(deps.names.has('@nativescript-community/gesturehandler'), true)
+	assert.equal(deps.names.has('@triniwiz/nativescript-masonkit'), true)
+	assert.ok(deps.nativeFiles.includes(join(deps.resolved.get('@triniwiz/nativescript-masonkit'), 'package.json')))
+	assert.ok(deps.nativeFiles.some(path => path.startsWith(join(deps.resolved.get('@triniwiz/nativescript-masonkit'), 'platforms') + '/')))
 	assert.ok(deps.resolved.get('@nativescript-community/observable'))
 	assert.ok(
 		deps.nativeFiles.includes(

@@ -1,0 +1,10 @@
+{
+	"directory": "src/app",
+	"out": "src/routes.gen",
+	"manifests": [
+		{
+			"module": "./src/doc-routes.tsrx",
+			"export": "docRoutes"
+		}
+	]
+}

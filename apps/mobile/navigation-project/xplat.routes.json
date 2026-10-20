@@ -1,0 +1,22 @@
+{
+	"directory": "src/default-routes",
+	"out": "src/default-routes.gen",
+	"stacks": [
+		"left",
+		"right"
+	],
+	"context": {
+		"module": "./../src/navigation-refined.mobile.tsrx",
+		"export": "defaultClientContext"
+	},
+	"manifests": [
+		{
+			"module": "./../src/navigation-refined.mobile.tsrx",
+			"export": "defaultClientCatalog"
+		}
+	],
+	"allowedSchemes": [
+		"xplat",
+		"xplatnav"
+	]
+}

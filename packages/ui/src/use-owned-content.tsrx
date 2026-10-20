@@ -16,7 +16,9 @@ function ContentOutlet(props: { owner: ContentOwner }) {
 	useEffect(() => () => props.owner.dispose(), [props.owner])
 	return <>
 		<masonview ref={(view: any) => { props.owner.host = view }} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { width: 0, height: 0 }))}/>
-		{entries.map(entry => <OwnedEntry key={entry.id} entry={entry} />)}
+		@for (const entry of entries; key entry.id) {
+			<OwnedEntry entry={entry} />
+		}
 	</>
 }
 

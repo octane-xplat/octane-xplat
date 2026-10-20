@@ -1,8 +1,8 @@
 import { useState } from 'octane';
 import { View, HStack, Text, Pressable, NavLink, styled, useThemeScheme, Meter, useMeasure, openWindow, HoverCard, Tooltip } from '@octane-xplat/ui';
-import { useModalRoute } from '@octane-xplat/ui/routing';
+import { useRouterState } from '@octane-xplat/ui/routing';
 import { probeSignal$ } from './probe-state';
-import { navigate } from './platform/nav';
+import { router } from '@octane-xplat/ui/routing';
 import 'octane/signals';
 
 // styled() seam (Exp 16): variant prop → class composition, CSS-backed.
@@ -18,7 +18,7 @@ export function Probes() @{
 	// host — it mounts when the effective scheme flips dark.
 	const dark = useThemeScheme() === 'dark';
 	const bounds = useMeasure();
-	const modalRoute = useModalRoute();
+	const state = useRouterState();
 
 	<View className="gap-6">
 		<View className="sink-section">
@@ -88,13 +88,13 @@ export function Probes() @{
 		<View className="sink-section">
 			<Text className="section-label">Routing</Text>
 			<HStack className="gap-3 flex-wrap items-center">
-				<Pressable id="guarded-btn" className="btn btn-secondary" onPress={() => navigate('private')}>
+				<Pressable id="guarded-btn" className="btn btn-secondary" onPress={() => router.push({ to: '/private' })}>
 					<Text>Guarded →</Text>
 				</Pressable>
 				{/* Programmatic routes — 'guides' isn't a file route or a generated
 				    RouteName; it was registered from a data array via addRoutes
 				    (guides.tsrx). NavLink takes the untyped Route shape directly. */}
-				<NavLink route={{ stack: 'test', name: 'guides', params: {} }} className="btn btn-secondary">
+				<NavLink to="/guides" stack="test" className="btn btn-secondary">
 					<Text>Guides →</Text>
 				</NavLink>
 				<Pressable id="window-btn" className="btn btn-secondary" onPress={() => {
@@ -103,7 +103,7 @@ export function Probes() @{
 					<Text>Open window</Text>
 				</Pressable>
 			</HStack>
-			<Text id="modal-route" className="text-sm text-muted">{'modal route: ' + (modalRoute?.name ?? 'none')}</Text>
+			<Text id="modal-route" className="text-sm text-muted">{'modal route: ' + (state.modal ? state.route?.name ?? 'none' : 'none')}</Text>
 		</View>
 	</View>
 }

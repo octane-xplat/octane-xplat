@@ -8,6 +8,10 @@
 		"build": "pnpm -w gen:app && vite build",
 		"preview": "vite preview",
 		"test": "vitest run",
+		"smoke:routing": "node scripts/routing-contract.mjs",
+		"smoke:routing-auth": "node scripts/routing-auth.mjs",
+		"smoke:routing-watch": "node scripts/routing-watch.mjs",
+		"smoke:routing-pane-packed": "node scripts/routing-pane-packed.mjs",
 		"smoke:lexical-editor": "node scripts/lexical-editor-smoke.ts",
 		"bench:vlist": "pnpm -w gen:app && vite build && node scripts/bench-virtual-list.ts",
 		"smoke": "pnpm -w gen:app && vite build && node scripts/smoke.ts",
@@ -25,6 +29,7 @@
 	"devDependencies": {
 		"@octane-xplat/bamboo": "workspace:*",
 		"@octane-xplat/cli": "workspace:*",
+		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/sqlite": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
 		"@tsrx/typescript-plugin": "catalog:",

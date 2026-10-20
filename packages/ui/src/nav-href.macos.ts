@@ -1,9 +1,7 @@
-import { pushDeepLink } from './route.macos'
-import { appKitHost, hostGlobal } from './host-bridge'
+import { hostGlobal } from './host-bridge'
+import { router } from './default-router.macos'
 
-/** AppKit leaf — app-relative hrefs go to the route table (its
- *  `pushDeepLink` reports no match state, so the split is by shape):
- *  scheme-qualified URLs ask the host bridge to open a browser window. */
+/** App-relative paths use canonical routing; external URLs use the host opener. */
 export function followHref(href: string): void {
 	if (!href) {
 		return
@@ -18,5 +16,5 @@ export function followHref(href: string): void {
 		return
 	}
 
-	pushDeepLink(href)
+	void router.navigateUrl(href)
 }

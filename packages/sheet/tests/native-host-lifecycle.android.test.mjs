@@ -22,5 +22,5 @@ test('window attachment scopes native load and unload across repeated dialog hos
   const retired = listener
   stop(); stop(); retired.onViewAttachedToWindow()
   assert.equal(readers, 0); assert.equal(listener, null)
- } finally { if (previous === undefined) delete globalThis.android; else globalThis.android = previous }
+ } finally { if (previous === undefined) {delete globalThis.android} else {globalThis.android = previous} }
 })

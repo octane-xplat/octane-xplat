@@ -1,5 +1,15 @@
 {
 	"extends": "../tsconfig.json",
-	"include": ["src/**/*", "../src/navigation-*.ts", "../src/navigation-*.tsrx"],
-	"files": ["../references.d.ts", "../types/globals.d.ts"]
+	"include": [
+		"src/**/*",
+		"../src/navigation-*.ts",
+		"../src/navigation-*.tsrx",
+		"../../../packages/ui/type-support/*.d.ts"
+	],
+	"files": ["../references.d.ts", "../types/globals.d.ts"],
+	"exclude": ["node_modules", "platforms"],
+	"compilerOptions": {
+		"paths": {},
+		"noEmitOnError": true
+	}
 }

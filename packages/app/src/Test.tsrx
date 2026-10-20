@@ -7,7 +7,7 @@ import { DEMOS } from '@xplat/demos';
 import { Probes } from './probes-host';
 import { Services } from './Services.tsrx';
 import { openBottomSheet } from './platform/sheet';
-import { navigate } from './platform/nav';
+import { router } from '@octane-xplat/ui/routing';
 import { MediaServices } from './media-services';
 
 /** Test tab — everything that isn't the familiar poke surface: probe
@@ -27,7 +27,7 @@ export function Test() @{
 			<HStack className="demo-menu">
 				<Pressable
 					id="menu-human-qa"
-					onPress={() => navigate('qa', {}, { into: 'test' })}
+					onPress={() => router.push({ to: '/qa', stack: 'test' })}
 					className="chip"
 				>
 					<Text>Human checklist →</Text>
@@ -39,15 +39,22 @@ export function Test() @{
 			<Text className="section-label">Navigation seams</Text>
 			<HStack className="demo-menu">
 				<Pressable
+					id="menu-navigation-blocking"
+					onPress={() => router.push({ to: '/navigation-blocking', stack: 'test' })}
+					className="chip"
+				>
+					<Text>Unsaved edits →</Text>
+				</Pressable>
+				<Pressable
 					id="menu-broken-render"
-					onPress={() => navigate('broken', { fail: 'render' }, { into: 'test' })}
+					onPress={() => router.push({ to: '/broken', search: { fail: 'render' }, stack: 'test' })}
 					className="chip"
 				>
 					<Text>Route boundary →</Text>
 				</Pressable>
 				<Pressable
 					id="menu-broken-loader"
-					onPress={() => navigate('broken', { fail: 'loader' }, { into: 'test' })}
+					onPress={() => router.push({ to: '/broken', search: { fail: 'loader' }, stack: 'test' })}
 					className="chip"
 				>
 					<Text>Loader error →</Text>
@@ -66,7 +73,7 @@ export function Test() @{
 			<HStack className="demo-menu">
 				<Pressable
 					id="menu-motion-probe"
-					onPress={() => navigate('motion-probe', {}, { into: 'test' })}
+					onPress={() => router.push({ to: '/motion-probe', stack: 'test' })}
 					className="chip"
 				>
 					<Text>Motion · device checks</Text>
@@ -79,7 +86,7 @@ export function Test() @{
 			<HStack className="demo-menu">
 				<Pressable
 					id="menu-vlist-perf"
-					onPress={() => navigate('demo/:id', { id: 'vlist-perf' }, { into: 'test' })}
+					onPress={() => router.push({ to: '/demo/:id', params: { id: 'vlist-perf' }, stack: 'test' })}
 					className="chip"
 				>
 					<Text>VirtualList · 5,000 rows</Text>
@@ -91,7 +98,7 @@ export function Test() @{
 			<Text className="section-label">Seam proofs</Text>
 			<HStack className="demo-menu">
 				@for (const d of proofs; key d.id) {
-					<Pressable id={'menu-' + d.id} onPress={() => navigate('demo/:id', { id: d.id }, { into: 'test' })} className="chip">
+					<Pressable id={'menu-' + d.id} onPress={() => router.push({ to: '/demo/:id', params: { id: d.id }, stack: 'test' })} className="chip">
 						<Text>{d.title}</Text>
 					</Pressable>
 				}

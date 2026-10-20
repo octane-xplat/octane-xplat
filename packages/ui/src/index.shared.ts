@@ -677,13 +677,14 @@ export type {
 	LinkProps,
 	NavLinkComponentType,
 	NavLinkProps,
-	Route,
+	NavigationActivationEvent,
+	NavigationTargetProps,
+	NavigationLinkTargetProps,
 	RouteBoundaryProps,
 	RouteContext,
 	RouteDiagnostic,
 	RouteDiagnosticCode,
 	RouteErrorBoundaryProps,
-	RouteFor,
 	RouteHead,
 	RouteHeadExport,
 	RouteHeadFn,
@@ -703,7 +704,6 @@ export type {
 	ManifestRouteParams,
 	ManifestRoutePresentations,
 	SpecRouteInfo,
-	TypedRoute,
 	ScreenTable,
 	ModalOpenResult,
 	OpenWindowOptions,
@@ -1011,3 +1011,10 @@ export { useImperativeBottomSheet } from './use-imperative-bottom-sheet'
 export { RouteOutlet } from './RouteOutlet'
 
 export type { ImperativeBottomSheetReturn, RouteOutletProps } from './props'
+
+// Registry interfaces must share the props symbol for generated augmentation.
+export type {
+	AppRouteContracts,
+	AppRouteStacks,
+	AppRouteTransitions,
+} from './props'

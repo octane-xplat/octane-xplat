@@ -1,0 +1,25 @@
+{
+	"directory": "app",
+	"out": "routes.gen",
+	"stacks": [
+		"left",
+		"right"
+	],
+	"context": {
+		"module": "./fixture.web.tsrx",
+		"export": "routingContext"
+	},
+	"manifests": [
+		{
+			"module": "./fixture.web.tsrx",
+			"export": "catalog"
+		}
+	],
+	"allowedSchemes": [
+		"xplat"
+	],
+	"transitions": {
+		"module": "./transitions.web.ts",
+		"export": "transitions"
+	}
+}

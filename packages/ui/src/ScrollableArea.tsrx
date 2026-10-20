@@ -11,6 +11,7 @@ import { ActivityIndicator } from './ActivityIndicator.tsrx';
 import { REFRESH_HEADER_HEIGHT } from './refresh-metrics';
 import { createPullToRefresh } from './refresh';
 import { spacingStep } from './spacing';
+import { scrollableAreaOffset } from './scrollable-area-offset';
 
 /** Native padding — logical start/end map to left/right (NativeScript has
  *  no logical properties; RTL mirroring is the app's escape-hatch job). */
@@ -24,8 +25,8 @@ function contentPadding(props: ScrollableAreaProps) {
 	return style;
 }
 
-/** Portable handle over the native scroll view. `blockScroller` is the
- *  viewport's own ScrollView; `inlineScroller` is the nested horizontal
+/** Portable handle over the Mason scroll viewport. `blockScroller` is the
+ *  outer viewport; `inlineScroller` is the nested horizontal
  *  scroller an `axis: 'both'` area mounts — absent otherwise, in which case
  *  the inline offset targets the viewport itself. */
 function scrollableAreaHandle(
@@ -35,13 +36,12 @@ function scrollableAreaHandle(
 	return {
 		scrollToOffset: (offset, options) => {
 			const animated = options?.animated === true;
-			if (offset.block != null && Number.isFinite(offset.block)) {
-				blockScroller.current?.scrollToVerticalOffset?.(Math.max(0, offset.block), animated);
-			}
-
-			if (offset.inline != null && Number.isFinite(offset.inline)) {
-				const target = inlineScroller?.current ?? blockScroller.current;
-				target?.scrollToHorizontalOffset?.(Math.max(0, offset.inline), animated);
+			const target = inlineScroller?.current;
+			if (target) {
+				scrollableAreaOffset(blockScroller.current, { block: offset.block }, animated);
+				scrollableAreaOffset(target, { inline: offset.inline }, animated);
+			} else {
+				scrollableAreaOffset(blockScroller.current, offset, animated);
 			}
 		},
 		get native() {

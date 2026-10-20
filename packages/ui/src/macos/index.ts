@@ -4,4 +4,6 @@
 // leaves.
 export { CameraView } from '../hosted-unsupported.macos.tsrx'
 export { bottomSheetHost } from '../bottom-sheet-service.macos'
+export { defineAppKitTransition } from '../appkit-route-transition.macos'
+export type { AppKitTransitionOptions, AppKitTransitionValues } from '../props'
 export { useOutlineFromView, getOutlineFromViewCapabilities } from '../outline-view.macos.tsrx'

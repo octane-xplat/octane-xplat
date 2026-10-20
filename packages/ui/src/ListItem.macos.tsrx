@@ -6,7 +6,7 @@ import type { ListItemProps } from './props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from './escape-props'
 import { useListContext } from './list-context'
-import { pushDeepLink } from './route'
+import { followHref } from './nav-href'
 
 interface DelegateTarget { notify?(event?: any): void; click?(): void; focus?(): void }
 
@@ -28,7 +28,7 @@ export function ListItem(props: ListItemProps) @{
 			return
 		}
 
-		if (props.href != null) { pushDeepLink(props.href) }
+		if (props.href != null) { followHref(props.href) }
 	}
 
 	const labelNode = typeof props.label === 'string'

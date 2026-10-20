@@ -17,8 +17,8 @@ import {
 // element so the probe exercises the same copy consumers get.
 import '@octane-xplat/lottie'
 import { ELEMENTS } from '@nativescript-community/octane'
-import { navigate } from '@xplat/app'
-import { getStack, routeFor } from '@octane-xplat/ui/routing'
+import { router } from '@xplat/app'
+import { getStack } from '@octane-xplat/ui/routing'
 import { java } from '@octane-xplat/platform/android'
 
 const DOCS_DIR = knownFolders.documents().path
@@ -288,7 +288,7 @@ async function run() {
 	// read the status Text and check a LottieView landed in the tree.
 	{
 		try {
-			navigate('demo/:id', { id: 'lottie' })
+			router.push({ to: '/demo/:id', params: { id: 'lottie' } })
 			await sleep(3500)
 			const page = getStack('root')?.currentPage as any
 			const texts: string[] = []
@@ -316,7 +316,7 @@ async function run() {
 
 			walk(page)
 			record('leaf-demo', {
-				route: routeFor('root')?.name,
+				route: router.getSnapshot().route?.name,
 				lottieViews: leafViews,
 				status: texts.filter((t) => /loaded|error|ended|stopped|idle|seek/.test(t)),
 			})

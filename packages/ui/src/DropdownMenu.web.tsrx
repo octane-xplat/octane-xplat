@@ -1,3 +1,5 @@
+import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } from './props'
+import type { NavigationMenuImplementation } from './nav-link'
 import { MenuData } from './MenuParts.web.tsrx';
 import { MenuSurface } from './MenuSurface.web.tsrx';
 import { useId, useRef, useState } from 'octane';
@@ -10,7 +12,13 @@ import { useSize } from './size-context';
 /** Self-drawn dropdown menu — `trigger` plus an anchored item list via
  *  Popover. The same anchored listbox renders on every target (decision
  *  #48): bounded, unvirtualized items. */
-export function DropdownMenu(props: DropdownMenuProps) @{
+export function DropdownMenu<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+>(props: DropdownMenuProps<Contracts, Stacks, Transitions>): any
+
+export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuProps>) @{
 	const anchor = useRef<any>(null);
 	const triggerId = useId();
 	const initialFocus = useRef<'first' | 'last' | 'container'>('container');

@@ -31,6 +31,8 @@ packages/motion/types/text-morph/
 apps/mobile/navigation-results/
 apps/mobile/navigation-project/platforms/
 apps/mobile/navigation-project/package-lock.json
+apps/mobile/navigation-project/src/default-routes.gen.*
+apps/macos/test/default-routes.gen.*
 
 # Native Maestro smoke app build outputs.
 apps/maestro/platforms/

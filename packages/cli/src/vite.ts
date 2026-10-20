@@ -354,7 +354,15 @@ function nativePlatform() {
 		const env = JSON.parse(process.env.NATIVESCRIPT_BUNDLER_ENV ?? '{}')
 		platform =
 			env.platform ??
-			(env.android ? 'android' : env.visionos ? 'visionos' : env.ios ? 'ios' : undefined)
+			(env.android
+				? 'android'
+				: env.windows
+					? 'windows'
+					: env.visionos
+						? 'visionos'
+						: env.ios
+							? 'ios'
+							: undefined)
 	} catch {}
 
 	const args = process.argv.slice(2)
@@ -933,7 +941,7 @@ export async function xplatNative(env, opts = {}) {
 				// scope; upstream's vite define set covers __IOS__/__ANDROID__/
 				// __VISIONOS__/__APPLE__ but not __WINDOWS__, so the bare read
 				// throws during bundle eval on iOS/Android.
-				__WINDOWS__: 'false',
+				__WINDOWS__: JSON.stringify(nativePlatform() === 'windows'),
 			},
 			oxc: {
 				// NativeScript modules use TypeScript's legacy decorators. Oxc's

@@ -1,11 +1,14 @@
+import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } from './props'
+import type { NavigationItemImplementation, NavigationMenuImplementation, MenuOptionImplementation } from './nav-link'
+import { useNavigationItem } from './use-navigation-item.shared.tsrx'
 import { useContext, useId, useMemo, useRef, useState } from 'octane'
+import type { Octane } from 'octane/jsx-runtime'
 import type { MenuItemProps, MenuLinkProps, MenuSectionProps, MenuCheckboxItemProps, MenuRadioItemProps, MenuRadioGroupProps, MenuSeparatorProps, MenuSubMenuProps, MenuSurfaceProps } from './props'
 import { MenuRadioContext, MenuRadioProvider, useDropdownMenuContext } from './menu-context'
 import { View } from './View.web.tsrx'
 import { Text } from './Text.web.tsrx'
 import { Pressable } from './Pressable.web.tsrx'
 import { Icon } from './Icon.web.tsrx'
-import { Link } from './Link.web.tsrx'
 import { Separator } from './Separator.web.tsrx'
 import { Popover } from './Popover.web.tsrx'
 import { MenuSurface } from './MenuSurface.web.tsrx'
@@ -102,22 +105,35 @@ export function DropdownMenuSection(props: MenuSectionProps) @{
 	<View id={props.id} accessibilityRole="group" accessibilityLabel={props.label}>{props.children}</View>
 }
 
-export function DropdownMenuLink(props: MenuLinkProps) @{
+export function DropdownMenuLink<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+>(props: MenuLinkProps<Contracts, Stacks, Transitions>): any
+
+export function DropdownMenuLink(props: NavigationItemImplementation<MenuLinkProps>) @{
 	const menu = useDropdownMenuContext()
 	if (!menu) throw new Error('DropdownMenuLink requires a menu — render it inside DropdownMenu or ContextMenu')
-	const select = () => {
-		props.onSelect?.()
-		if (props.hasCloseOnSelect !== false) menu.closeMenu()
-	}
+	const link = useNavigationItem({ ...props, onPress: props.onSelect }, 'link')
 
-	<Link id={props.id} href={props.href} target={props.target} accessibilityRole="menuitem" onPress={select} className={props.className} style={props.style}>
+	<a ref={props.ref as Octane.Ref<HTMLAnchorElement>} id={props.id} href={link.href} target={props.target} rel={props.rel} download={props.download} role="menuitem"
+		aria-disabled={link.disabled || undefined} aria-current={link.selected ? 'page' : undefined}
+		tabIndex={link.disabled ? -1 : undefined}
+		onClick={(event: any) => { if (link.activateWeb(event) && props.hasCloseOnSelect !== false) menu.closeMenu() }}
+		className={['vx-menu-item', link.disabled && 'vx-menu-item--disabled', props.className]} style={props.style}>
 		{props.icon && <Icon name={props.icon} />}
 		<Text className="vx-menu-item-label">{props.label}</Text>
 		{props.description && <Text>{props.description}</Text>}{props.endContent}
-	</Link>
+	</a>
 }
 
-export function DropdownMenuSubMenu(props: MenuSubMenuProps) @{
+export function DropdownMenuSubMenu<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+>(props: MenuSubMenuProps<Contracts, Stacks, Transitions>): any
+
+export function DropdownMenuSubMenu(props: NavigationMenuImplementation<MenuSubMenuProps>) @{
 	const parent = useDropdownMenuContext()
 	if (!parent) throw new Error('DropdownMenuSubMenu requires a menu — render it inside DropdownMenu or ContextMenu')
 	const anchor = useRef<any>(null)
@@ -154,8 +170,13 @@ export function DropdownMenuSubMenu(props: MenuSubMenuProps) @{
 	</>
 }
 
-/** Convert legacy data into the same stateful components as compound content. */
-export function MenuData(props: Pick<MenuSurfaceProps, 'items'>) @{
+// Data already passed the public discriminated contract. These private views
+// carry its erased navigation fields without inventing an application contract.
+const MenuLinkView = DropdownMenuLink as (props: NavigationItemImplementation<MenuLinkProps>) => any
+const MenuSubMenuView = DropdownMenuSubMenu as (props: NavigationMenuImplementation<MenuSubMenuProps>) => any
+
+/** Render data through the same stateful components as compound content. */
+export function MenuData(props: { items?: readonly MenuOptionImplementation[] }) @{
 	<>
 		{props.items?.map((item) => item.type === 'separator' ? <DropdownMenuSeparator id={item.key} />
 			: item.type === 'section' ? <DropdownMenuSection id={item.key} label={item.label}><MenuData items={item.items} /></DropdownMenuSection>
@@ -163,8 +184,8 @@ export function MenuData(props: Pick<MenuSurfaceProps, 'items'>) @{
 				{item.items?.map((option) => <DropdownMenuRadioItem id={option.key} label={option.label} value={typeof option.value === 'string' ? option.value : option.key} isDisabled={option.isDisabled} onSelect={option.onSelect} />)}
 			</DropdownMenuRadioGroup>
 			: item.type === 'checkbox' ? <DropdownMenuCheckboxItem {...item} id={item.key} label={item.label} value={item.value === true} onValueChange={item.onValueChange} isDisabled={item.isDisabled} />
-			: item.type === 'submenu' ? <DropdownMenuSubMenu {...item} id={item.key} label={item.label} isDisabled={item.isDisabled} />
-			: item.type === 'link' ? <DropdownMenuLink {...item} id={item.key} label={item.label ?? item.href} />
+			: item.type === 'submenu' ? <MenuSubMenuView {...item} id={item.key} label={item.label} isDisabled={item.isDisabled} />
+			: item.type === 'link' ? <MenuLinkView {...item} id={item.key} label={item.label ?? item.href ?? (typeof item.to === 'string' ? item.to : 'Open')} />
 			: <DropdownMenuItem {...item} id={item.key} label={item.label ?? item.key} isDisabled={item.isDisabled} />)}
 	</>
 }

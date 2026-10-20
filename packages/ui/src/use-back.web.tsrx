@@ -1,5 +1,5 @@
 import { useEffect } from 'octane';
-import { addBackInterceptor } from './route.web';
+import { addBackInterceptor } from './back-interceptors.web';
 
 /** Component-scoped back interceptor — mounted screens register in
  *  render order, so the topmost screen's handler wins (interceptors run

@@ -4,14 +4,15 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"dev": "vite",
-		"build": "vite build && vite build --config vite.demo.config.ts && node scripts/build-llms.ts",
-		"typecheck": "tsrx-tsc --noEmit",
+		"dev": "pnpm gen && vite",
+		"build": "pnpm gen && vite build && vite build --config vite.demo.config.ts && node scripts/build-llms.ts",
+		"typecheck": "pnpm gen && tsrx-tsc --noEmit",
 		"test": "node --test *.test.mjs",
 		"deploy": "wrangler pages deploy dist --project-name octane-xplat-docs --branch=main",
 		"smoke": "pnpm run build && node smoke.mjs",
 		"smoke:keys": "NODE_ENV=development pnpm run smoke",
-		"test:demos": "node demos.browser.mjs"
+		"test:demos": "node demos.browser.mjs",
+		"gen": "xplat routes"
 	},
 	"dependencies": {
 		"@octane-xplat/ui": "workspace:*",

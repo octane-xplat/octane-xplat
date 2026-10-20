@@ -1,0 +1,21 @@
+{
+	"directory": "app",
+	"out": "../default-routes.gen",
+	"stacks": [
+		"left",
+		"right"
+	],
+	"context": {
+		"module": "./../routing-fixture.macos.tsx",
+		"export": "defaultClientContext"
+	},
+	"manifests": [
+		{
+			"module": "./../routing-fixture.macos.tsx",
+			"export": "defaultClientCatalog"
+		}
+	],
+	"allowedSchemes": [
+		"xplat"
+	]
+}

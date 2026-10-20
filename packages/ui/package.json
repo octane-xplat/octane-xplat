@@ -162,6 +162,10 @@
 			"types": "./types/generated/parity/check-helpers.d.ts",
 			"default": "./dist/parity/check-helpers.js"
 		},
+		"./routing/core": {
+			"types": "./types/generated/routing/core.d.ts",
+			"default": "./src/routing/core.ts"
+		},
 		"./nativescript/keyboard": {
 			"types": "./types/generated/nativescript/keyboard.d.ts",
 			"native": "./src/nativescript/keyboard.ts"

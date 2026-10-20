@@ -1,5 +1,5 @@
 // Hook entry points — called from slotted component code (.ts/.tsrx consumers
-// are slot-forwarded by the app-side octane transform, same as ui's useRoute).
+// are slot-forwarded by the app-side octane transform, same as ui's useRouterState).
 import { i18n, type I18n } from '@lingui/core'
 import { useMemo, useSyncExternalStore } from 'octane'
 

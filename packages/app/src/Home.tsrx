@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'octane';
 import { View, HStack, Text, Pressable, NavLink, TextInput, TextArea, ScrollableArea, Image, BottomSheet, useAnimation, useColorScheme, setThemePreference } from '@octane-xplat/ui';
-import { Link } from './Link';
 import { openOverlay } from './platform/overlay';
 import { SELF_DRIVE } from './platform/selfdrive';
 import { storage } from '@octane-xplat/platform';
@@ -124,12 +123,12 @@ export function Home() @{
 				<View className="sink-section">
 					<Text className="section-label">Navigation and overlays</Text>
 					<HStack className="gap-3 flex-wrap items-center">
-						<NavLink route={{ stack: 'root', name: 'detail', params: { from: 'home' } }} className="btn bg-primary">
+						<NavLink to="/detail" search={{ from: 'home' }} className="btn bg-primary">
 							<Text className="text-onprimary">Detail →</Text>
 						</NavLink>
 						{/* +modal route: manifest-declared presentation — NavLink pushes
 						    it like any route, the leaf presents it modally. */}
-						<NavLink route={{ stack: 'root', name: 'about', params: {} }} className="btn btn-secondary">
+						<NavLink to="/about" className="btn btn-secondary">
 							<Text>About ⤴</Text>
 						</NavLink>
 						<Pressable id="overlay-btn" onPress={openOverlay} className="btn btn-secondary">
@@ -140,9 +139,9 @@ export function Home() @{
 						</Pressable>
 						{/* Link seam: web renders a real anchor; native is a Pressable
 						    over navigate(). */}
-						<Link to="detail" params={{ from: 'link' }} className="chip">
+						<NavLink to="/detail" search={{ from: 'link' }} className="chip">
 							<Text>Link →</Text>
-						</Link>
+						</NavLink>
 					</HStack>
 				</View>
 

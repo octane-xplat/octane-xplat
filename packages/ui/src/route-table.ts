@@ -32,15 +32,36 @@
  *  fallback (rank = prefer.length). Web callers pass ['web']; mobile
  *  callers pass the running OS first. */
 
+import {
+	normalizeRouteSegment as normSegment,
+	routeParamName as segmentParam,
+	routePatternSegments as specSegments,
+} from '@octane-xplat/lib/route-pattern'
+
+import { routeSearchValidation } from './define-route'
+import {
+	declareRouteContract,
+	hasRouteContract,
+	isRouteDefinition,
+	isSealedRouteCatalog,
+	sealRouteCatalog,
+} from './route-contract-scope'
+
 import type {
-	Route,
 	RouteDiagnostic,
 	RouteManifest,
 	RouteManifestJson,
+	RouteCatalog,
+	ContractRouteManifest,
+	ContractsOf,
+	MergeRouteContracts,
 	RouteMeta,
 	RouteSpec,
 	RouteSpecSet,
 	SpecRouteInfo,
+	DeclaredRouteSpecs,
+	RuntimeRouteCatalog,
+	KnownRouteCatalog,
 } from './props'
 
 /** Single-line rendering of a RouteDiagnostic — the text console warnings
@@ -76,42 +97,6 @@ export class RouteManifestError extends Error {
 
 const EXT = /\.(tsrx|tsx|ts|mts|cts|js|mjs|cjs|jsx)$/
 const SUFFIX = /\.(web|mobile|ios|android|macos|windows|linux)$/
-const PARAM = /^\[(.+)\]$/
-
-/** One route-dir/spec path segment → normalized pattern segment:
- *  `[x]`→`:x` · `[[x]]`/`[x?]`→`:x?` (optional param) · `[...x]`→`*x`
- *  (terminal catch-all). Spec paths may write the normalized forms
- *  directly (`:x`, `:x?`, `*`, `*x`); a bare `*` captures into
- *  `params['*']`, a named `*x`/`[...x]` into `params.x`. */
-function normSegment(s: string): string {
-	const b = PARAM.exec(s)
-	if (!b) {
-		return s
-	}
-
-	const inner = b[1]
-	if (inner.startsWith('[') && inner.endsWith(']')) {
-		const core = inner.slice(1, -1)
-		return core.startsWith('...') ? '*' + core.slice(3) : ':' + core + '?'
-	}
-
-	return inner.startsWith('...') ? '*' + inner.slice(3) : ':' + inner
-}
-
-/** Normalized pattern segment → param name: ':x'/':x?' → 'x',
- *  '*'/'*x' → '*'/'x', static segments → undefined. */
-function segmentParam(s: string): string | undefined {
-	if (s.startsWith(':')) {
-		return s.endsWith('?') ? s.slice(1, -1) : s.slice(1)
-	}
-
-	if (s.startsWith('*')) {
-		return s.slice(1) || '*'
-	}
-
-	return undefined
-}
-
 function segmentParams(segments: readonly string[]): string[] {
 	return segments.flatMap((s) => segmentParam(s) ?? [])
 }
@@ -159,16 +144,6 @@ function bakedLookup(manifest: () => RouteManifest | undefined, name: string) {
 	}
 }
 
-/** Internal error carrier used by the public `redirect()` helper. Keeping
- * this in the shared route table gives both platform leaves the same guard
- * behavior without importing a platform runtime. */
-export class RouteRedirect extends Error {
-	constructor(readonly route: Route) {
-		super('route redirect')
-		this.name = 'RouteRedirect'
-	}
-}
-
 /** Component pick rule for route/layout modules: default export, then a
  *  `screen` named export, then a single function export. Route files use
  *  named exports (decision #13) — a lone component is unambiguous.
@@ -185,7 +160,7 @@ function pick(mod: any, file: string): any {
 	const fns = Object.keys(mod ?? {}).filter(
 		(k) =>
 			typeof mod[k] === 'function' &&
-			!['loader', 'beforeLoad', 'head', 'ErrorBoundary'].includes(k),
+			!['loader', 'beforeLoad', 'head', 'ErrorBoundary', 'validateSearch'].includes(k),
 	)
 
 	if (fns.length === 1) {
@@ -207,8 +182,7 @@ function pick(mod: any, file: string): any {
 	return undefined
 }
 
-/** Diagnostic for a route-file export present but the wrong shape —
- *  the contract names the field, the export is ignored until it matches. */
+/** Invalid behavior must stop catalog construction, especially guards. */
 function invalidExport(
 	file: string,
 	field: string,
@@ -220,7 +194,7 @@ function invalidExport(
 		path: `${file}:${field}`,
 		detail: `received ${Array.isArray(value) ? 'array' : typeof value}`,
 		expected,
-		hint: `fix or remove the '${field}' export — it is ignored until it matches`,
+		hint: `fix or remove the '${field}' export before constructing the route catalog`,
 	}
 }
 
@@ -234,13 +208,13 @@ export function deriveRouteManifest(
 	prefer: readonly string[],
 	dir = 'app',
 ): RouteManifest {
-	const prefix = dir.replace(/^\.?\/?/, '').replace(/\/+$/, '') + '/'
+	const prefix = dir.replace(/^\.\//, '').replace(/^\/+|\/+$/g, '') + '/'
 	// name → best candidate so far (lowest rank wins; ties are rejected).
 	const seen = new Map<string, { rank: number; meta: RouteMeta; component: any }>()
 	const layoutRank = new Map<string, number>()
 	const layoutFiles = new Map<string, string>()
-	const layouts: Record<string, any> = {}
-	const loaders: RouteManifest['loaders'] = {}
+	const layouts: Record<string, any> = Object.create(null)
+	const loaders: NonNullable<RouteManifest['loaders']> = Object.create(null)
 	const issues: RouteDiagnostic[] = []
 	const self: { m?: RouteManifest } = {}
 
@@ -269,7 +243,8 @@ export function deriveRouteManifest(
 
 		const rank = suffix ? prefer.indexOf(suffix) : prefer.length
 		const pm = PRESENT.exec(base)
-		const presentation = pm?.[1] as RouteMeta['presentation']
+		const presentation = pm?.[1] === 'fade' ? 'push' : (pm?.[1] as RouteMeta['presentation'])
+		const transition = pm?.[1] === 'fade' ? 'fade' : undefined
 		if (pm) {
 			base = base.slice(0, base.length - pm[0].length)
 		}
@@ -314,6 +289,7 @@ export function deriveRouteManifest(
 			params: segmentParams(segments),
 			file: key,
 			presentation,
+			transition,
 		}
 
 		warnOnStraySplat(segments, key)
@@ -323,12 +299,12 @@ export function deriveRouteManifest(
 		if (dataMode === 'baked' || dataMode === 'live') {
 			meta.dataMode = dataMode
 		} else if (dataMode !== undefined) {
-			warnDiagnostic({
+			issues.push({
 				code: 'route/invalid-export',
 				path: `${key}:dataMode`,
-				detail: `received ${JSON.stringify(dataMode)}`,
+				detail: `received ${typeof dataMode}`,
 				expected: "'live' | 'baked'",
-				hint: "fix or remove the 'dataMode' export — it is ignored until it matches",
+				hint: "declare dataMode as 'live' or 'baked', or remove the export",
 			})
 		}
 
@@ -343,25 +319,58 @@ export function deriveRouteManifest(
 					expected: "build-time data in a '.loader.ts' sibling",
 					hint: 'move the loader to a .loader.ts sibling so its imports stay out of the bundle',
 				})
+			} else if (loader !== undefined) {
+				issues.push(invalidExport(key, 'loader', loader, '(args) => data'))
 			}
 		} else if (typeof loader === 'function') {
 			meta.loader = loader
 		} else if (loader !== undefined) {
-			warnDiagnostic(invalidExport(key, 'loader', loader, '(params) => data'))
+			issues.push(invalidExport(key, 'loader', loader, '(args) => data'))
 		}
 
 		const beforeLoad = mod?.beforeLoad
 		if (typeof beforeLoad === 'function') {
 			meta.beforeLoad = beforeLoad
 		} else if (beforeLoad !== undefined) {
-			warnDiagnostic(invalidExport(key, 'beforeLoad', beforeLoad, '(args) => RouteContext | void'))
+			issues.push(invalidExport(key, 'beforeLoad', beforeLoad, '(args) => RouteContext | void'))
+		}
+
+		const validator = mod?.validateSearch
+		const validValidator =
+			typeof validator === 'function' ||
+			(validator !== null &&
+				typeof validator === 'object' &&
+				validator['~standard']?.version === 1 &&
+				typeof validator['~standard']?.validate === 'function')
+
+		if (validator !== undefined && !validValidator) {
+			issues.push(
+				invalidExport(
+					key,
+					'validateSearch',
+					validator,
+					'a function or Standard Schema v1 validator',
+				),
+			)
+		}
+
+		// File routes and programmatic routes use the same preparation contract.
+		meta.preparation = {
+			validateSearch: validValidator ? routeSearchValidation(validator) : undefined,
+			beforeLoad: typeof beforeLoad === 'function' ? beforeLoad : undefined,
+			loader:
+				meta.dataMode === 'baked'
+					? ({ params }) => meta.loader?.(params)
+					: typeof loader === 'function'
+						? loader
+						: undefined,
 		}
 
 		const errorBoundary = mod?.ErrorBoundary
 		if (typeof errorBoundary === 'function') {
 			meta.errorBoundary = errorBoundary
 		} else if (errorBoundary !== undefined) {
-			warnDiagnostic(
+			issues.push(
 				invalidExport(
 					key,
 					'ErrorBoundary',
@@ -372,12 +381,13 @@ export function deriveRouteManifest(
 		}
 
 		const head = mod?.head
-		if (head && (typeof head === 'object' || typeof head === 'function')) {
+		if (
+			head &&
+			((typeof head === 'object' && !Array.isArray(head)) || typeof head === 'function')
+		) {
 			meta.head = head
 		} else if (head !== undefined) {
-			warnDiagnostic(
-				invalidExport(key, 'head', head, 'a RouteHead object or (params) => RouteHead'),
-			)
+			issues.push(invalidExport(key, 'head', head, 'a RouteHead object or (params) => RouteHead'))
 		}
 
 		const prev = seen.get(name)
@@ -405,7 +415,7 @@ export function deriveRouteManifest(
 		throw new RouteManifestError(issues)
 	}
 
-	const screens: RouteManifest['screens'] = {}
+	const screens: RouteManifest['screens'] = Object.create(null)
 	const routes: RouteMeta[] = []
 	for (const { meta, component } of seen.values()) {
 		screens[meta.name] = component
@@ -460,21 +470,11 @@ function warnOnUnmatchedLayouts(layouts: Record<string, any>, routes: readonly R
  *  pattern, `':slug?'`/`'[slug?]'`/`'[[slug]]'` mark an optional segment,
  *  a terminal `'*'`/`'[...rest]'` is a catch-all, a trailing `index`
  *  drops, `''`/`'index'` name the root route. */
-function specSegments(path: string): string[] {
-	const segs = path.split('/').filter(Boolean).map(normSegment)
-
-	if (segs[segs.length - 1] === 'index') {
-		segs.pop()
-	}
-
-	return segs
-}
-
 const mergeWarned = new Set<string>()
 
-/** Build a manifest from app data rather than the route dir — the
- *  programmatic half of the route contract (host frameworks derive specs
- *  from their own sources, e.g. `readdirSync` over a content dir). Each
+/** Build a typed catalog from declared route definitions rather than files.
+ *  Preserve literal paths with const inference; use defineRuntimeRoutes for
+ *  genuinely computed paths such as directory discovery. Each
  *  spec's `path` uses the route-dir vocabulary; `layouts` keys are path
  *  prefixes playing the `_layout` role. Contract failures are diagnosed
  *  with a stable code, field path, expected shape, and repair hint:
@@ -484,13 +484,62 @@ const mergeWarned = new Set<string>()
  *  override a route from another manifest, use `mergeRouteManifests` —
  *  registration order is precedence there.
  *
- *  The return is branded with the spec-derived route types — read them
- *  with `ManifestRouteParams`/`ManifestRouteNames`/
- *  `ManifestRoutePresentations` to merge programmatic names into the
- *  app's typed navigation surface (`RouteName | …`, `RouteParams & …`). */
+ *  The return carries inferred contracts. Explicit instances consume them
+ *  directly; configured manifest exports receive generated application
+ *  registration. Use `ContractsOf` and `DestinationFor` to inspect a catalog's
+ *  destination types without handwritten registration. Baked
+ *  contracts infer each value from its normalized route-name key in the supplied
+ *  map; missing or erased values remain unknown.
+ *  @example
+ *  import { defineRoute, defineRoutes } from '@octane-xplat/ui/routing/core'
+ *  const routes = defineRoutes([
+ *    defineRoute({ path: '/items/:id', loader: ({ params }) => params.id })
+ *      .screen(({ data }) => data),
+ *  ])
+ */
 export function defineRoutes<const Specs extends readonly RouteSpec[]>(
+	input: (Specs | (Omit<RouteSpecSet, 'routes' | 'baked'> & { routes: Specs; baked?: never })) &
+		DeclaredRouteSpecs<Specs>,
+): RouteManifest & SpecRouteInfo<Specs>
+
+// Keep actual baked data required: explicit generics cannot provide evidence
+// for a value omitted from the input. Ordinary calls get their path repair first.
+export function defineRoutes<
+	const Specs extends readonly RouteSpec[],
+	const Baked extends Record<string, unknown>,
+>(
+	input: Omit<RouteSpecSet, 'routes' | 'baked'> & {
+		routes: Specs
+		baked: Baked
+	} & DeclaredRouteSpecs<Specs>,
+): RouteManifest & SpecRouteInfo<Specs, Baked>
+
+// Optional or erased baked maps remain valid inputs, but cannot prove a DTO.
+export function defineRoutes<const Specs extends readonly RouteSpec[]>(
+	input: (Specs | (Omit<RouteSpecSet, 'routes'> & { routes: Specs })) & DeclaredRouteSpecs<Specs>,
+): RouteManifest & SpecRouteInfo<Specs>
+
+export function defineRoutes(input: readonly RouteSpec[] | RouteSpecSet): RouteManifest {
+	return assembleRoutes(input, true)
+}
+
+/** Use for genuinely computed patterns. Prefer a declared /guides/:slug route
+ * for ordinary content; runtime catalogs keep data unknown to generic readers.
+ * @example
+ * import { defineRoute, defineRuntimeRoutes } from '@octane-xplat/ui/routing/core'
+ * const paths: string[] = ['/help', '/about']
+ * const routes = defineRuntimeRoutes(paths.map(path => defineRoute({ path }).screen(() => null)))
+ */
+export function defineRuntimeRoutes<const Specs extends readonly RouteSpec[]>(
 	input: Specs | (Omit<RouteSpecSet, 'routes'> & { routes: Specs }),
-): RouteManifest & SpecRouteInfo<Specs> {
+): RuntimeRouteCatalog<Specs> {
+	return assembleRoutes(input, false) as RuntimeRouteCatalog<Specs>
+}
+
+function assembleRoutes(
+	input: readonly RouteSpec[] | RouteSpecSet,
+	contracts: boolean,
+): RouteManifest {
 	const raw = Array.isArray(input) ? { routes: input } : input
 	const specs =
 		raw && typeof raw === 'object' && 'routes' in raw ? (raw as RouteSpecSet).routes : undefined
@@ -510,8 +559,8 @@ export function defineRoutes<const Specs extends readonly RouteSpec[]>(
 	const set = raw as RouteSpecSet
 	const extra = set.layouts
 
-	const screens: RouteManifest['screens'] = {}
-	const layouts: RouteManifest['layouts'] = {}
+	const screens: RouteManifest['screens'] = Object.create(null)
+	const layouts: RouteManifest['layouts'] = Object.create(null)
 	const metas = new Map<string, RouteMeta>()
 	const firstSpecAt = new Map<string, number>()
 	const self: { m?: RouteManifest } = {}
@@ -599,6 +648,12 @@ export function defineRoutes<const Specs extends readonly RouteSpec[]>(
 			continue
 		}
 
+		if (contracts && spec.preparation && !isRouteDefinition(spec)) {
+			throw new TypeError(
+				'Use defineRoute to author changed route definitions; copied preparation has no inferred contract',
+			)
+		}
+
 		const segments = specSegments(spec.path)
 		const name = segments.join('/') || 'index'
 
@@ -625,12 +680,12 @@ export function defineRoutes<const Specs extends readonly RouteSpec[]>(
 			})
 		}
 
-		if (spec.presentation !== undefined && !['push', 'modal', 'fade'].includes(spec.presentation)) {
+		if (spec.presentation !== undefined && !['push', 'modal'].includes(spec.presentation)) {
 			issues.push({
 				code: 'route/invalid-spec',
 				path: `${at}.presentation`,
 				detail: `received ${JSON.stringify(spec.presentation)}`,
-				expected: "'push' | 'modal' | 'fade'",
+				expected: "'push' | 'modal'",
 				hint: 'fix the value or remove the field — push is the default',
 			})
 		}
@@ -701,6 +756,11 @@ export function defineRoutes<const Specs extends readonly RouteSpec[]>(
 			params: segmentParams(segments),
 			file: spec.source ?? `programmatic:${spec.path}`,
 			presentation: spec.presentation,
+			transition: spec.transition,
+			preparation: spec.preparation ?? {
+				beforeLoad: spec.beforeLoad,
+				loader: spec.dataMode === 'baked' ? () => bakedLookup(() => self.m, name)() : spec.loader,
+			},
 		}
 
 		warnOnStraySplat(segments, `${at}.path`)
@@ -746,6 +806,12 @@ export function defineRoutes<const Specs extends readonly RouteSpec[]>(
 			meta.head = spec.head
 		}
 
+		// A copied definition may retain a phantom type while changing behavior.
+		// Only original helpers and ordinary unprepared specs establish evidence.
+		if (contracts && (isRouteDefinition(spec) || !spec.preparation)) {
+			declareRouteContract(meta)
+		}
+
 		metas.set(name, meta)
 		screens[name] = spec.screen
 	}
@@ -755,7 +821,7 @@ export function defineRoutes<const Specs extends readonly RouteSpec[]>(
 	}
 
 	const routes = [...metas.values()].sort(bySpecificity)
-	const loaders: RouteManifest['loaders'] = {}
+	const loaders: NonNullable<RouteManifest['loaders']> = Object.create(null)
 	for (const meta of routes) {
 		if (meta.loader) {
 			loaders[meta.name] = meta.loader
@@ -764,21 +830,46 @@ export function defineRoutes<const Specs extends readonly RouteSpec[]>(
 
 	warnOnUnmatchedLayouts(layouts, routes)
 
-	const manifest = { screens, routes, layouts, loaders, baked: set.baked }
+	const manifest = {
+		screens,
+		routes,
+		layouts,
+		loaders,
+		baked: set.baked ? { ...set.baked } : undefined,
+	}
 	self.m = manifest
-	return manifest as RouteManifest & SpecRouteInfo<Specs>
+	return sealRouteCatalog(manifest)
 }
 
 /** Compose manifests into one — file-derived base plus any number of
- *  programmatic sets (`registerRoutes(mergeRouteManifests(fromDir, dynamic))`).
+ *  programmatic sets (`mergeRouteManifests(fromDir, dynamic)`).
  *  Registration order is precedence: on a same-name collision the later
  *  manifest's route wins and the loser's loader/beforeLoad/head go with it —
  *  a warn fires once per colliding name. `layouts` merge key-wise the same
  *  way. `matchRoute` order is rebuilt by specificity after the merge. */
-export function mergeRouteManifests(...manifests: RouteManifest[]): RouteManifest {
-	const screens: RouteManifest['screens'] = {}
-	const layouts: RouteManifest['layouts'] = {}
-	const baked: NonNullable<RouteManifest['baked']> = {}
+export function mergeRouteManifests<const Manifests extends readonly ContractRouteManifest[]>(
+	...manifests: Manifests & { [Key in keyof Manifests]: KnownRouteCatalog<Manifests[Key]> }
+): RouteCatalog<MergeRouteContracts<{ [Key in keyof Manifests]: ContractsOf<Manifests[Key]> }>> {
+	for (const catalog of manifests) {
+		if (!isSealedRouteCatalog(catalog)) {
+			throw new TypeError(
+				'Compose original route catalogs; use defineRoutes or defineRuntimeRoutes to author changed definitions',
+			)
+		}
+	}
+	return composeRouteCatalogs(manifests) as RouteCatalog<
+		MergeRouteContracts<{ [Key in keyof Manifests]: ContractsOf<Manifests[Key]> }>
+	>
+}
+
+/** @internal Registry snapshots have already checked their contribution scope. */
+export function composeRouteCatalogs(
+	manifests: readonly RouteManifest[],
+	protectContracts = true,
+): RouteManifest {
+	const screens: RouteManifest['screens'] = Object.create(null)
+	const layouts: RouteManifest['layouts'] = Object.create(null)
+	const baked: NonNullable<RouteManifest['baked']> = Object.create(null)
 	const winners = new Map<string, RouteMeta>()
 
 	for (const m of manifests) {
@@ -789,6 +880,10 @@ export function mergeRouteManifests(...manifests: RouteManifest[]): RouteManifes
 		Object.assign(screens, m.screens)
 		for (const meta of m.routes) {
 			const prev = winners.get(meta.name)
+			if (protectContracts && prev && hasRouteContract(prev) && !hasRouteContract(meta)) {
+				throw new TypeError(`Runtime route '${meta.name}' cannot replace a declared route contract`)
+			}
+
 			if (prev && !mergeWarned.has(meta.name)) {
 				mergeWarned.add(meta.name)
 				warnDiagnostic({
@@ -805,14 +900,14 @@ export function mergeRouteManifests(...manifests: RouteManifest[]): RouteManifes
 	}
 
 	const routes = [...winners.values()].sort(bySpecificity)
-	const loaders: RouteManifest['loaders'] = {}
+	const loaders: NonNullable<RouteManifest['loaders']> = Object.create(null)
 	for (const meta of routes) {
 		if (meta.loader) {
 			loaders[meta.name] = meta.loader
 		}
 	}
 
-	return { screens, routes, layouts, loaders, baked }
+	return sealRouteCatalog({ screens, routes, layouts, loaders, baked })
 }
 
 /** Serialize a manifest to the normalized `RouteManifestJson` shape — the
@@ -828,16 +923,18 @@ export function manifestToJson(manifest: RouteManifest): RouteManifestJson {
 			const layoutDirs: string[] = manifest.layouts[''] ? [''] : []
 			for (let i = 1; i < segs.length; i++) {
 				const d = segs.slice(0, i).join('/')
-				if (manifest.layouts[d]) {
+				if (Object.hasOwn(manifest.layouts, d) && manifest.layouts[d]) {
 					layoutDirs.push(d)
 				}
 			}
 
 			return {
 				name: meta.name,
+				...(meta.platforms ? { platforms: [...meta.platforms] } : {}),
 				path: meta.name === 'index' ? '' : meta.segments.join('/'),
 				params: [...meta.params],
 				...(meta.presentation ? { presentation: meta.presentation } : {}),
+				...(meta.transition ? { transition: meta.transition } : {}),
 				...(meta.dataMode ? { dataMode: meta.dataMode } : {}),
 				layouts: layoutDirs,
 				source: meta.file,
@@ -847,328 +944,6 @@ export function manifestToJson(manifest: RouteManifest): RouteManifestJson {
 				errorBoundary: !!meta.errorBoundary,
 			}
 		}),
-	}
-}
-
-/** Match URL path segments against a manifest — returns the winning meta
- *  plus extracted params, or null. First hit wins (routes are pre-sorted
- *  by specificity). A `:param?` segment matches zero or one segment —
- *  the matcher consumes greedily and backtracks to the absent case so a
- *  later static can still align; a terminal `*` captures the remaining
- *  segments `/`-joined into `params['*']` (a named `*rest` into 'rest'). */
-export function matchRoute(
-	routes: readonly RouteMeta[],
-	segs: string[],
-): { meta: RouteMeta; params: Record<string, unknown> } | null {
-	for (const meta of routes) {
-		const params = matchSegments(meta.segments, segs)
-		if (params) {
-			return { meta, params }
-		}
-	}
-
-	return null
-}
-
-/** Variable-length pattern match — optional segments try consuming a
- *  segment first and fall back to absent, so the more specific reading
- *  wins; a backtracking miss deletes the tentative param before the
- *  absent retry. */
-function matchSegments(pattern: readonly string[], segs: string[]): Record<string, unknown> | null {
-	const params: Record<string, unknown> = {}
-
-	const walk = (pi: number, si: number): boolean => {
-		if (pi === pattern.length) {
-			return si === segs.length
-		}
-
-		const p = pattern[pi]
-		if (p.startsWith('*')) {
-			// Non-terminal '*' (warned about at manifest build) is a literal.
-			if (pi !== pattern.length - 1) {
-				return p === segs[si] && walk(pi + 1, si + 1)
-			}
-
-			params[segmentParam(p)!] = segs
-				.slice(si)
-				.map((s) => decodeURIComponent(s))
-				.join('/')
-
-			return true
-		}
-
-		if (p.startsWith(':') && p.endsWith('?')) {
-			const name = p.slice(1, -1)
-			if (si < segs.length) {
-				params[name] = decodeRouteParam(decodeURIComponent(segs[si]))
-				if (walk(pi + 1, si + 1)) {
-					return true
-				}
-
-				delete params[name]
-			}
-
-			return walk(pi + 1, si)
-		}
-
-		if (si >= segs.length) {
-			return false
-		}
-
-		if (p.startsWith(':')) {
-			params[p.slice(1)] = decodeRouteParam(decodeURIComponent(segs[si]))
-			return walk(pi + 1, si + 1)
-		}
-
-		return p === segs[si] && walk(pi + 1, si + 1)
-	}
-
-	return walk(0, 0) ? params : null
-}
-
-/** Serialize a Route to a URL path (no origin): manifest routes substitute
- *  `:param` segments from params (leftover params → query string); a
- *  `:param?` segment with no value drops out of the path entirely, and a
- *  terminal `*`/`*rest` splices in its `/`-joined param value.
- *  non-manifest names keep the legacy `/<stack>/<name>?params` shape. */
-export function buildRoutePath(routes: readonly RouteMeta[], r: Route): string {
-	const meta = routes.find((m) => m.name === r.name)
-	let segs: string[]
-	let rest: Record<string, unknown> = r.params
-	if (meta) {
-		segs = meta.segments.flatMap((s, i) => {
-			// A mid-path '*' is a literal segment (manifest build warns).
-			const p = s.startsWith('*') && i !== meta.segments.length - 1 ? undefined : segmentParam(s)
-			if (p === undefined) {
-				return [s]
-			}
-
-			const v = r.params[p]
-			if (s.startsWith('*')) {
-				if (v === undefined || v === null || v === '') {
-					return []
-				}
-
-				const enc = encodeRouteParam(v, r.name, p)
-				// '/' in a splat value is a segment boundary; a JSON-encoded
-				// non-scalar stays one encoded segment instead.
-				return enc.startsWith(JSON_PARAM_PREFIX)
-					? [encodeURIComponent(enc)]
-					: enc.split('/').map(encodeURIComponent)
-			}
-
-			if (s.endsWith('?') && (v === undefined || v === null || v === '')) {
-				return [] // optional segment absent — drop it from the path
-			}
-
-			if (v === undefined) {
-				warnDiagnostic({
-					code: 'route/missing-param',
-					path: `params.${p}`,
-					detail: `route '${r.name}' was pushed without a value for '${s}'`,
-					expected: `a string/number/boolean at params.${p}`,
-					hint: `pass params: { ${p}: ... } — without it the URL keeps the literal '${s}' segment`,
-				})
-			}
-
-			return [encodeURIComponent(encodeRouteParam(v, r.name, p))]
-		})
-
-		rest = Object.fromEntries(Object.entries(r.params).filter(([k]) => !meta.params.includes(k)))
-	} else {
-		segs = [r.name]
-	}
-
-	// No URLSearchParams — shared code carries no DOM globals (invariant 4).
-	const q = Object.entries(rest)
-		.map(
-			([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(encodeRouteParam(v, r.name, k)),
-		)
-		.join('&')
-
-	const path = (r.stack === 'root' ? '' : '/' + r.stack) + '/' + segs.join('/')
-	return (path.replace(/\/+$/, '') || '/') + (q ? '?' + q : '') + (r.hash ? '#' + r.hash : '')
-}
-
-const JSON_PARAM_PREFIX = 'json:'
-
-/** Route codegen exposes string params, but the low-level Route shape remains
- * open for compatibility. Preserve accidental object params on web instead
- * of silently turning them into `[object Object]`; generated APIs still keep
- * callers on scalar strings. */
-function encodeRouteParam(value: unknown, routeName: string, key: string): string {
-	if (
-		value === undefined ||
-		value === null ||
-		['string', 'number', 'boolean'].includes(typeof value)
-	) {
-		return String(value ?? '')
-	}
-
-	warnDiagnostic({
-		code: 'route/non-scalar-param',
-		path: `params.${key}`,
-		detail: `route '${routeName}' param '${key}' is non-scalar; JSON-encoding it for the URL`,
-		expected: 'a string, number, or boolean param value',
-		hint: 'pass a scalar or accept the JSON round-trip — generated route types keep callers on scalars',
-	})
-
-	try {
-		return JSON_PARAM_PREFIX + JSON.stringify(value)
-	} catch {
-		warnDiagnostic({
-			code: 'route/non-scalar-param',
-			path: `params.${key}`,
-			detail: `route '${routeName}' param '${key}' could not be JSON-encoded; using an empty value`,
-			expected: 'a JSON-serializable param value',
-			hint: 'pass a scalar — cyclic or opaque values cannot cross the URL',
-		})
-
-		return ''
-	}
-}
-
-function decodeRouteParam(value: string): unknown {
-	if (!value.startsWith(JSON_PARAM_PREFIX)) {
-		return value
-	}
-
-	try {
-		return JSON.parse(value.slice(JSON_PARAM_PREFIX.length))
-	} catch {
-		return value
-	}
-}
-
-/** `?a=1&b=2` → params — shared code carries no URLSearchParams
- *  (invariant 4: no DOM globals on the native path). */
-export function parseQueryString(qs: string | undefined): Record<string, unknown> {
-	const params: Record<string, unknown> = {}
-	if (!qs) {
-		return params
-	}
-
-	for (const pair of qs.split('&')) {
-		if (!pair) {
-			continue
-		}
-
-		const eq = pair.indexOf('=')
-		const k = eq === -1 ? pair : pair.slice(0, eq)
-		const v = eq === -1 ? '' : pair.slice(eq + 1)
-		params[decodeURIComponent(k)] = decodeRouteParam(decodeURIComponent(v))
-	}
-
-	return params
-}
-
-/** Full URL or path → canonical path for matching. `https://x/a/b?y` →
- *  `/a/b?y`; custom-scheme links keep their host as the first segment —
- *  `textcoral://post/5` → `/post/5` (the common app-scheme convention). */
-export function linkPath(url: string): string {
-	const m = /^[a-z][a-z0-9+.-]*:(\/\/)?/i.exec(url)
-	let rest = m ? url.slice(m[0].length) : url
-	// http(s) URLs carry a real authority to strip; custom app schemes use
-	// the host slot as the first path segment (textcoral://post/5 → /post/5).
-	if (m?.[1] && /^https?:\/\//i.test(m[0])) {
-		rest = rest.replace(/^[^/?#]*/, '')
-	}
-
-	return '/' + rest.replace(/^\/+/, '')
-}
-
-/** Match a URL path+query against the manifest into a Route — the shared
- *  half of web's URL parse and native's deep-link handling. Whole-path
- *  match wins ('/demo/x' → root 'demo/:id'); a non-matching first segment
- *  is the stack prefix ('/demos/demo/x' → stack 'demos'). Whole-path
- *  includes catch-alls: a root `*` claims every URL, including
- *  stack-prefixed ones — apps needing named-stack links scope their
- *  splats under a prefix. Unmatched names fall through as literal
- *  routes for pre-manifest callers. */
-export function matchUrl(routes: readonly RouteMeta[], url: string): Route | null {
-	// The fragment isn't a route param — it rides the Route's `hash` field so
-	// web can restore scroll to the element it names. Split only the first
-	// query delimiter; a later '?' belongs to its value. Reject malformed
-	// percent encoding at this external-input boundary instead of crashing
-	// the mounted app.
-	const hashAt = url.indexOf('#')
-	const hash = hashAt === -1 ? undefined : url.slice(hashAt + 1)
-	url = hashAt === -1 ? url : url.slice(0, hashAt)
-	const at = url.indexOf('?')
-	const p = at === -1 ? url : url.slice(0, at)
-	const qs = at === -1 ? undefined : url.slice(at + 1)
-	const segs = p.split('/').filter(Boolean)
-	let query: Record<string, unknown>
-	try {
-		// Use the decoded value: production optimizers can drop an unused
-		// builtin call even though malformed input makes it throw.
-		if (!decodeURIComponent(p)) {
-			return null
-		}
-
-		query = parseQueryString(qs)
-	} catch (error) {
-		if (error instanceof URIError) {
-			return null
-		}
-
-		throw error
-	}
-
-	if (!segs.length) {
-		return null
-	}
-
-	const finish = (
-		stack: string,
-		m: { meta: RouteMeta; params: Record<string, unknown> } | null,
-		fallbackName: string,
-	): Route => ({
-		stack,
-		name: m ? m.meta.name : fallbackName,
-		params: { ...query, ...m?.params },
-		presentation: m?.meta.presentation,
-		hash,
-	})
-
-	const root = matchRoute(routes, segs)
-	if (root) {
-		return finish('root', root, segs.join('/'))
-	}
-
-	if (segs.length > 1) {
-		const named = matchRoute(routes, segs.slice(1))
-		if (named) {
-			return finish(segs[0], named, segs[1])
-		}
-
-		return finish(segs[0], null, segs[1])
-	}
-
-	return finish('root', null, segs[0])
-}
-
-/** Fire a route's `loader` without committing navigation — the opt-in
- *  prefetch primitive, for warming a `query$` cache ahead of a push an
- *  app expects to make. This is NOT the navigation loader path: a push
- *  awaits the loader itself (`commitRoute`) and hands its result to the
- *  screen as `data`/`error`; the value fired here is discarded. Sync
- *  throws and async rejections warn rather than break navigation. */
-export function runLoader(routes: readonly RouteMeta[], r: Route): void {
-	const loader = routes.find((m) => m.name === r.name)?.loader
-	if (!loader) {
-		return
-	}
-
-	try {
-		const out = loader(r.params)
-		if (out && typeof (out as PromiseLike<unknown>).then === 'function') {
-			;(out as PromiseLike<unknown>).then(undefined, (e) =>
-				console.warn(`[octane-xplat] loader('${r.name}') rejected: ${e}`),
-			)
-		}
-	} catch (e) {
-		console.warn(`[octane-xplat] loader('${r.name}') threw: ${(e as Error)?.message}`)
 	}
 }
 
@@ -1182,7 +957,8 @@ export function layoutChain(layouts: Record<string, any>, name: string): any[] {
 	const segs = name.split('/')
 	const chain: any[] = []
 	for (let i = 1; i < segs.length; i++) {
-		const L = layouts[segs.slice(0, i).join('/')]
+		const prefix = segs.slice(0, i).join('/')
+		const L = Object.hasOwn(layouts, prefix) ? layouts[prefix] : undefined
 		if (L) {
 			chain.push(L)
 		}

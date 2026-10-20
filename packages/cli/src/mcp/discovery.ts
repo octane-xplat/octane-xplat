@@ -8,6 +8,7 @@ import { execFileSync } from 'node:child_process'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, join, relative, resolve, sep } from 'node:path'
 import { parse as parseYaml } from 'yaml'
+import { hasWeb } from '../targets.ts'
 
 const SKIP_DIRS = new Set([
 	'node_modules',
@@ -48,9 +49,7 @@ const allDeps = (manifest) => ({ ...manifest?.dependencies, ...manifest?.devDepe
 
 const hasRunnableConfig = (dir, manifest) =>
 	existsSync(join(dir, 'nativescript.config.ts')) ||
-	['vite.config.ts', 'vite.config.mts', 'vite.config.ts', 'vite.config.js'].some((f) =>
-		existsSync(join(dir, f)),
-	) ||
+	hasWeb(dir) ||
 	manifest?.xplat?.targets !== undefined
 
 const isAppDir = (dir, manifest) => {
@@ -77,11 +76,7 @@ export function detectPlatforms(dir) {
 	const platforms = []
 	const deps = allDeps(manifest)
 
-	if (
-		['vite.config.ts', 'vite.config.mts', 'vite.config.ts', 'vite.config.js'].some((f) =>
-			existsSync(join(dir, f)),
-		)
-	) {
+	if (hasWeb(dir)) {
 		platforms.push('web')
 	}
 

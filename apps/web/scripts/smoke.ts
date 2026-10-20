@@ -360,15 +360,15 @@ try {
 	await page.getByRole('tab', { name: 'Apps' }).click()
 	await page.waitForSelector('text=Last opened:', { timeout: 3000 })
 	ok('tab switch → demos catalog mounts', true)
-	const chipCount = await page.locator('[role="button"]:has-text("Counter")').count()
+	const chipCount = await page.getByRole('button', { name: 'Counter', exact: true }).count()
 	ok('gallery chips render', chipCount >= 1, 'chips=' + chipCount)
 
 	// Chip click → navigate('demo/:id',{id},{into:'demos'}) → real path +
 	// the pushed screen renders inside the Demos pane (tab bar stays).
-	await page.click('[role="button"]:has-text("Counter")')
+	await page.getByRole('button', { name: 'Counter', exact: true }).click()
 	await page.waitForFunction(() => location.pathname.includes('demo'), null, { timeout: 3000 })
 	const path = await page.evaluate(() => location.pathname + location.search)
-	ok('chip → pushRoute writes real path', path === '/demos/demo/counter', path)
+	ok('chip → router.push writes real path', path === '/demos/demo/counter', path)
 	await page.waitForSelector('text=Demo count: 0', { timeout: 3000 })
 	ok('pushed screen renders inside pane', true)
 	const tabbarVisible = await page.locator('.vx-tabbar').isVisible()
@@ -647,7 +647,7 @@ try {
 	await page.goBack()
 	await page.waitForSelector('text=Seam proofs', { timeout: 3000 })
 
-	// Programmatic routes (guides.tsrx — addRoutes over a data array):
+	// Programmatic routes (guides.tsrx — configured generated catalog):
 	// NavLink in the Test pane pushes /test/guides, per-doc routes render
 	// under the programmatic layout, and the URL is real + deep-linkable.
 	await page.click('a:has-text("Guides →")')

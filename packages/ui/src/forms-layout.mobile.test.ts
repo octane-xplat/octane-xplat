@@ -12,7 +12,7 @@ vi.mock('@nativescript/core', () => ({
 }))
 
 vi.mock('./pan.tsrx', () => ({ usePan: () => undefined }))
-vi.mock('./route', () => ({ pushDeepLink: () => false }))
+vi.mock('./default-router', () => ({ router: { navigateUrl: () => Promise.resolve({ status: 'not-found' }) } }))
 
 import { Stack } from './Stack.tsrx'
 import { StackItem } from './StackItem.tsrx'

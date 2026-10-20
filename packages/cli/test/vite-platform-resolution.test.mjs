@@ -54,4 +54,17 @@ describe('nativeRelativeResolution', () => {
 		assert.equal(handler('@scope/dep', join(dir, 'main.ts'), {}), null)
 		assert.equal(handler('/dep', join(dir, 'main.ts'), {}), null)
 	})
+
+	it('recognizes a Windows-only bundler environment flag', () => {
+		const previous = process.env.NATIVESCRIPT_BUNDLER_ENV
+		try {
+			process.env.NATIVESCRIPT_BUNDLER_ENV = JSON.stringify({ windows: true })
+			const dir = makeDir(['screen.ts', 'screen.ios.ts', 'screen.windows.ts'])
+			const resolve = nativeRelativeResolution().resolveId.handler
+			assert.equal(resolve('./screen', join(dir, 'main.ts'), {}), join(dir, 'screen.windows.ts'))
+		} finally {
+			if (previous === undefined) {delete process.env.NATIVESCRIPT_BUNDLER_ENV}
+			else {process.env.NATIVESCRIPT_BUNDLER_ENV = previous}
+		}
+	})
 })

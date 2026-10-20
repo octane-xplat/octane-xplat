@@ -38,6 +38,8 @@ const renderer = await pack(packageRoot)
 const platform = await pack(join(repo, 'packages/platform'))
 const jsx = await pack(join(repo, 'packages/jsx'))
 const cli = await pack(join(repo, 'packages/cli'))
+const lib = await pack(join(repo, 'packages/lib'))
+const lint = await pack(join(repo, 'packages/lint'))
 const create = await pack(join(repo, 'packages/create'))
 // Signal-reading fixtures need the patched compiler and oxc parser; mirror the
 // release compatibility pins (octane must match the cli patch manifest's
@@ -193,7 +195,7 @@ await writeFile(
 
 await writeFile(
 	join(app, 'pnpm-workspace.yaml'),
-	`packages: []\nnodeLinker: isolated\nallowUnusedPatches: true\noverrides:\n  create-octane-xplat: ${JSON.stringify(create)}\n  '@octane-xplat/platform': ${JSON.stringify(platform)}\n`,
+	`packages: []\nnodeLinker: isolated\nallowUnusedPatches: true\noverrides:\n  create-octane-xplat: ${JSON.stringify(create)}\n  '@octane-xplat/lib': ${JSON.stringify(lib)}\n  '@octane-xplat/lint': ${JSON.stringify(lint)}\n  '@octane-xplat/platform': ${JSON.stringify(platform)}\n`,
 )
 
 await writeFile(

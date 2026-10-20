@@ -1,7 +1,10 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { ClientRouteOutlet } from './ClientRouteOutlet.tsrx'
+import { useRouteOutletScope } from './route-outlet-scope.tsrx'
+import { defaultRouterRuntime } from './default-router.macos'
 import type { RouteOutletProps } from './props'
 
-/** Routes on this renderer already share the declaring component tree. */
-export function RouteOutlet(props: RouteOutletProps) {
-	return <>{props.children}</>
+export function RouteOutlet(props: RouteOutletProps): any {
+	const { host, flow } = useRouteOutletScope(props.stack, defaultRouterRuntime)
+	return <ClientRouteOutlet host={host} flow={flow}>{props.children}</ClientRouteOutlet>
 }

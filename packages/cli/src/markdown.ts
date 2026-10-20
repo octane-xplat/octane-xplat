@@ -46,7 +46,7 @@ const block = (tokens) =>
 			case 'paragraph':
 				return { t: 'p', children: inline(tok.tokens) }
 			case 'code':
-				return { t: 'code', lang: tok.lang || undefined, text: tok.text }
+				return { t: 'code', ...(tok.lang ? { lang: tok.lang } : {}), text: tok.text }
 			case 'list':
 				return {
 					t: 'list',

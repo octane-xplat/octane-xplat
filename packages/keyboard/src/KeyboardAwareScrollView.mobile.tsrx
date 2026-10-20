@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { useCallback, useEffect, useRef, useState } from 'octane'
 import { KeyboardAvoiding } from '@octane-xplat/ui'
 import { KeyboardScrollController } from './scroll-controller'

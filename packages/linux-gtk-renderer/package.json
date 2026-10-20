@@ -30,10 +30,11 @@
 	},
 	"scripts": {
 		"test": "node --test test/build.test.mjs test/mason.test.mjs",
-		"typecheck": "tsc --noEmit -p tsconfig.json"
+		"typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p test/fixtures/tsconfig.routing.json"
 	},
 	"devDependencies": {
 		"@octane-xplat/cli": "workspace:*",
+		"@octane-xplat/ui": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
 		"octane": "catalog:",
 		"typescript": "catalog:",

@@ -12,10 +12,11 @@ export function loader() {
 		readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../../package.json'), 'utf8'),
 	)
 
+	const version: string = typeof pkg.version === 'string' ? pkg.version : 'dev'
 	return {
-		version: pkg.version ?? 'dev',
+		version,
 		entries: [
-			{ version: pkg.version ?? 'dev', note: 'Baked loader output — computed at codegen' },
+			{ version, note: 'Baked loader output — computed at codegen' },
 			{ version: '…', note: 'Earlier entries would come from a markdown/content dir' },
 		],
 	}

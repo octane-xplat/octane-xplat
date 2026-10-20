@@ -1,7 +1,8 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { createContext, useContext, useEffect, useState } from 'octane'
-import { RouteOutlet, Screen, defineRoutes, popRoute, pushRoute, registerRoutes, useImperativeBottomSheet } from '@octane-xplat/ui'
-import { useNativeRouteNavigator } from '@octane-xplat/ui/nativescript'
+import { RouteOutlet, Screen, useImperativeBottomSheet } from '@octane-xplat/ui'
+import { configureRouter, defineRoute, defineRoutes, router, useRouter } from '@octane-xplat/ui/routing'
+import type { RouterNavigator } from '@octane-xplat/ui/routing'
 
 const Name = createContext('missing')
 const Provider: any = Name
@@ -12,52 +13,65 @@ let updateName: (name: string) => void
 let updateLocalName: (name: string) => void
 let removeLocal: () => void
 let removeOutlet: () => void
-let navigator: ReturnType<typeof useNativeRouteNavigator>
+let navigator: RouterNavigator
+let enableLocal: () => void
+let restoreOuter: () => void
+const routeNavigators = new Map<string, RouterNavigator>()
 let sheet: ReturnType<typeof useImperativeBottomSheet>
 let completeLoader: (value: string) => void
 let loaderCompleted = false
 
-function RouteScreen(props: { id: string }) {
+function RouteContent(props: { id: string }) {
+	const id = props.id
 	const name = useContext(Name)
 	const [count, setCount] = useState(0)
-	increments.set(props.id, () => setCount(value => value + 1))
-	useEffect(() => { mounted.add(props.id); return () => { mounted.delete(props.id); increments.delete(props.id) } }, [props.id])
-	return <Screen><label id={'route-' + props.id} ref={(view: any) => { if (view) views.set(props.id, view); else views.delete(props.id) }} text={name + ':' + count} /></Screen>
+	increments.set(id, () => setCount(value => value + 1))
+	useEffect(() => { mounted.add(id); return () => { mounted.delete(id); increments.delete(id) } }, [id])
+	return <Screen><label id={'route-' + id} ref={(view: any) => { if (view) views.set(id, view); else views.delete(id) }} text={name + ':' + count} /></Screen>
+}
+
+function RouteScreen(props: { params: { id: string } }) {
+	routeNavigators.set(props.params.id, useRouter())
+	return <RouteContent id={props.params.id} />
 }
 
 function SheetRoute(props: { params: { id: string } }) {
-	return <RouteScreen id={props.params.id} />
+	return <RouteContent id={props.params.id} />
 }
 
 function LocalNavigator() {
-	navigator = useNativeRouteNavigator()
-	return <>{navigator.element}</>
+	navigator = useRouter()
+	return <label id="local-base" text="Local base" />
 }
 
 function LocalScope() {
 	const [name, setName] = useState('Local')
 	updateLocalName = setName
-	return <Provider value={name}><LocalNavigator /></Provider>
+	return <Provider value={name}><RouteOutlet><LocalNavigator /></RouteOutlet></Provider>
 }
 
 export default function Case() {
 	sheet = useImperativeBottomSheet()
 	const [name, setName] = useState('Avery')
-	const [local, setLocal] = useState(true)
-	const [open, setOpen] = useState(true)
+	const [scope, setScope] = useState<'outer' | 'local' | 'none'>('outer')
 	updateName = setName
-	removeLocal = () => setLocal(false)
-	removeOutlet = () => setOpen(false)
-	return <Screen><Provider value={name}>{sheet.element}{open ? <RouteOutlet>{local ? <LocalScope /> : null}</RouteOutlet> : null}</Provider></Screen>
+	enableLocal = () => setScope('local')
+	restoreOuter = () => setScope('outer')
+	removeLocal = () => setScope('none')
+	removeOutlet = () => setScope('none')
+	return <Screen><Provider value={name}>{sheet.element}{scope === 'outer' ? <RouteOutlet><label id="outer-base" text="Outer base" /></RouteOutlet> : scope === 'local' ? <LocalScope /> : null}</Provider></Screen>
 }
 
-export async function run(ctx: any) {
-	registerRoutes(defineRoutes([
-		{ path: 'portal-route', screen: RouteScreen },
-		{ path: 'portal-slow', screen: RouteScreen, loader: () => new Promise<string>(resolve => { completeLoader = value => { loaderCompleted = true; resolve(value) } }) },
-	]))
+// This runtime-discovered fixture exercises navigateUrl validation and ownership.
+// Static application destinations are checked separately by generated consumer tests.
+configureRouter({ allowedSchemes: ['xplat'], catalog: defineRoutes([
+	defineRoute({ path: '/portal-route/:id' }).screen(RouteScreen),
+	defineRoute({ path: '/portal-modal/:id', presentation: 'modal' }).screen(RouteScreen),
+	defineRoute({ path: '/portal-slow/:id', loader: () => new Promise<string>(resolve => { completeLoader = value => { loaderCompleted = true; resolve(value) } }) }).screen(RouteScreen),
+]), stacks: ['portal-tab'] })
 
-	const push = (id: string, presentation?: 'modal') => pushRoute({ stack: 'root', name: 'portal-route', params: { id }, presentation } as any)
+export async function run(ctx: any) {
+	const push = (id: string, presentation?: 'modal') => router.navigateUrl('/' + (presentation === 'modal' ? 'portal-modal' : 'portal-route') + '/' + encodeURIComponent(id))
 	push('first')
 	await ctx.waitFor(() => mounted.has('first') && views.get('first')?.isLoaded)
 	const first = views.get('first')
@@ -75,7 +89,7 @@ export async function run(ctx: any) {
 	updateName('Jordan')
 	await ctx.waitFor(() => views.get('first')?.text === 'Jordan:1' && views.get('second')?.text === 'Jordan:0')
 	ctx.assert('provider update reaches a hidden backstack Page', views.get('first').text, 'Jordan:1')
-	popRoute()
+	await router.back()
 	await ctx.waitFor(() => !mounted.has('second') && views.get('first')?.isLoaded)
 	ctx.assert('pop preserves previous native view and local state', views.get('first') === first && first.text === 'Jordan:1', true)
 	push('modal', 'modal')
@@ -84,27 +98,32 @@ export async function run(ctx: any) {
 	updateName('Riley')
 	await ctx.waitFor(() => views.get('modal')?.text === 'Riley:0')
 	ctx.assert('route modal receives live context updates', views.get('modal').text, 'Riley:0')
-	popRoute()
+	await routeNavigators.get('modal')!.dismiss()
 	await ctx.waitFor(() => !mounted.has('modal'))
-	ctx.assert('route modal pop disposes its portal', views.has('modal'), false)
-	popRoute()
+	ctx.assert('route modal dismissal disposes its portal', views.has('modal'), false)
+	await router.back()
 	await ctx.waitFor(() => !mounted.has('first') && ctx.host.frame.currentPage === ctx.host.page)
-	navigator.push({ name: 'portal-route', params: { id: 'local' } } as any)
+	enableLocal()
+	await ctx.waitFor(() => ctx.find('local-base')?.isLoaded)
+	void navigator.navigateUrl('/portal-route/local')
 	await ctx.waitFor(() => mounted.has('local') && views.get('local')?.isLoaded)
 	ctx.assert('owner-bound navigation inherits the nearest local provider', views.get('local').text, 'Local:0')
 	updateLocalName('Taylor')
 	await ctx.waitFor(() => views.get('local')?.text === 'Taylor:0')
 	ctx.assert('owner-bound route receives live local updates', views.get('local').text, 'Taylor:0')
-	navigator.push({ name: 'portal-slow', params: { id: 'late' } } as any)
+	const late = navigator.navigateUrl('/portal-slow/late')
 	await ctx.waitFor(() => typeof completeLoader === 'function')
 	removeLocal()
 	await ctx.waitFor(() => !mounted.has('local') && ctx.host.frame.currentPage === ctx.host.page)
 	ctx.assert('owner removal returns to its declaring Page', ctx.host.frame.currentPage === ctx.host.page, true)
+	ctx.assert('removed owner cancels pending preparation', (await late).status, 'cancelled')
 	completeLoader('ready')
 	await ctx.waitFor(() => loaderCompleted)
 	await Promise.resolve()
 	ctx.assert('removed owner cannot revive an async route', mounted.has('late'), false)
-	push('last')
+	restoreOuter()
+	await ctx.waitFor(() => ctx.find('outer-base')?.isLoaded)
+	void push('last')
 	await ctx.waitFor(() => mounted.has('last') && views.get('last')?.isLoaded)
 	removeOutlet()
 	await ctx.waitFor(() => mounted.size === 0 && ctx.host.frame.currentPage === ctx.host.page)

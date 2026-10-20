@@ -40,7 +40,7 @@ interface DocIndex {
 	sections: Section[]
 }
 
-// Inline `code` spans that read as API names: pushRoute, router.get(), signal$.
+// Inline `code` spans that read as API names: useRouter, router.get(), signal$.
 const IDENT = /^[A-Za-z_$][\w$]*(?:\.[\w$]+)*\(\)?$/
 // Calls inside fenced code: identifier (optionally dotted) followed by `(`.
 const CALL = /\b[A-Za-z_$][\w$]*(?:\.[\w$]+)*\(/g

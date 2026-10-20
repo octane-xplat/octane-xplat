@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'octane';
+import { useEffect } from 'octane';
 import { Screen, RouteOutlet, Tabs, Text, useThemeScheme } from '@octane-xplat/ui';
-import { currentRoute, layoutsForRoute, screenFor } from '@octane-xplat/ui/routing';
 import { Home } from '../Home.tsrx';
 import { Test } from '../Test.tsrx';
 import { Gallery } from '@xplat/demos';
-import { navigate } from '../platform/nav';
+import { router } from '@octane-xplat/ui/routing';
 import type { TabSpec } from '@octane-xplat/ui';
 // Probe-only module: schedules the demo-gallery sweep on native; no-op on web.
 import '../platform/demosweep';
@@ -22,25 +21,7 @@ const renderHome = () => <Home />;
 const renderTest = () => <Test />;
 // Chips navigate inside the tab's own stack — the Demos pane is a Frame
 // (TabSpec.stack), so demo pushes stay under the tab bar.
-const renderApps = () => <Gallery onOpen={(id) => navigate('demo/:id', { id }, { into: 'demos' })} kind="app" title="Apps" />;
-// Layouts resolve by route-name prefix — the same layoutChain walk the
-// native RouteHost and web fallback outlet use — and screens resolve through
-// the live registry (screenFor), so programmatic routes added via addRoutes
-// reach the outlet the same way file routes do.
-const resolveRoute = (name: string, params: Record<string, unknown>) => {
-	const C = screenFor(name);
-	if (!C) return <Text>404: {name}</Text>;
-	let content = <C {...params} />;
-	const chain = layoutsForRoute(name);
-	for (let i = chain.length - 1; i >= 0; i--) {
-		const Layout = chain[i];
-		const nested = content;
-		content = <Layout>{nested}</Layout>;
-	}
-
-	return content;
-};
-
+const renderApps = () => <Gallery onOpen={(id) => router.push({ to: '/demo/:id', params: { id: id }, stack: 'demos' })} kind="app" title="Apps" />;
 const TABS: TabSpec[] = [
 	{ key: 'home', title: 'Home', icon: 'tab-home', render: renderHome },
 	{ key: 'apps', title: 'Apps', icon: 'tab-demos', render: renderApps, stack: 'demos' },
@@ -56,21 +37,12 @@ console.log('[harness] App module evaluated');
 	*  tab surface: Screen wraps content in the platform root (rootlayout on
 	*  native, div on web). */
 export function RootLayout(props: { children?: any }) @{
-	// Deep link: a URL like /demos/demo/counter boots into the Demos tab
-	// with the pushed screen already on its stack (web leaf; currentRoute is
-	// a no-op null on native).
-	const [tab, setTab] = useState(() => {
-		const r = currentRoute();
-		const i = r ? TABS.findIndex((t) => t.stack === r.stack) : -1;
-		return i >= 0 ? (TABS[i].key ?? String(i)) : 'home';
-	});
-
 	// Effective scheme on the shell root: .dark/.ns-dark here re-themes the
 	// tab bar + every pane (tokens inherit); separate roots (pushed pages,
 	// overlays) get stamped by theme-scheme's host hooks instead.
 	const scheme = useThemeScheme();
 
-	console.log('[harness] App render, tab=' + tab);
+	console.log('[harness] App render');
 
 	useEffect(() => {
 		console.log('[harness] App mounted');
@@ -89,9 +61,8 @@ export function RootLayout(props: { children?: any }) @{
 			id="app-tabs"
 			className="flex-1"
 			tabs={TABS}
-			selectedKey={tab}
-			onSelectionChange={(key) => { console.log('[probe] tab -> ' + key); setTab(key); }}
-			resolveScreen={resolveRoute}
+			defaultSelectedKey="home"
+			onSelectionChange={(key) => { console.log('[probe] tab -> ' + key); }}
 		/>
 		</RouteOutlet>
 	</Screen>

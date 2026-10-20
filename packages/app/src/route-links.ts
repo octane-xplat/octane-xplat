@@ -1,5 +1,5 @@
 import { consumeInitialUrl, onDeepLink } from '@octane-xplat/platform'
-import { pushDeepLink } from '@octane-xplat/ui/routing'
+import { router } from '@octane-xplat/ui/routing'
 
 let wired = false
 
@@ -9,9 +9,9 @@ export function wireRouteLinks(): void {
 	}
 
 	wired = true
-	onDeepLink((url) => pushDeepLink(url))
+	onDeepLink((url) => { void router.navigateUrl(url) })
 	const initial = consumeInitialUrl()
 	if (initial) {
-		pushDeepLink(initial)
+		void router.navigateUrl(initial)
 	}
 }

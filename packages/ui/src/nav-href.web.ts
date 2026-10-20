@@ -1,16 +1,11 @@
-import { pushDeepLink } from './route.web'
+import { router, defaultRouterRuntime } from './default-router.web'
 
-/** Web fallback for programmatic href activation (non-anchor surfaces such
- *  as menu items rendered as buttons). Anchors navigate natively, so this
- *  path is only for elements that asked to handle activation themselves. */
+/** Route app-relative URLs through the canonical client; preserve external URLs. */
 export function followHref(href: string): void {
-	if (!href) {
+	if (!href) {return}
+	if (defaultRouterRuntime.configured.getSnapshot() && router.resolveUrl(href).status === 'matched') {
+		void router.navigateUrl(href)
 		return
 	}
-
-	if (pushDeepLink(href)) {
-		return
-	}
-
 	window.location.href = href
 }

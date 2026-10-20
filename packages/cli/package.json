@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/cli",
 	"version": "0.16.1",
-	"description": "xplat \u2014 dev/build/doctor for octane-xplat apps (web + iOS + Android + experimental macOS)",
+	"description": "xplat — dev/build/doctor for octane-xplat apps (web + iOS + Android + experimental macOS)",
 	"keywords": [
 		"build",
 		"cli",
@@ -74,15 +74,16 @@
 		"@alloc/cmd-ts": "0.17.1",
 		"@clack/prompts": "1.8.1",
 		"@octane-xplat/fmt": "0.1.0",
+		"@octane-xplat/lib": "workspace:*",
 		"@octane-xplat/lint": "workspace:*",
 		"@tsrx/core": "0.2.4",
 		"create-octane-xplat": "workspace:*",
 		"ignore": "7.0.12",
 		"marked": "18.0.14",
-		"wawoff2": "2.0.1",
-		"yaml": "2.9.1",
 		"postcss": "8.5.28",
-		"postcss-load-config": "6.0.1"
+		"postcss-load-config": "6.0.1",
+		"wawoff2": "2.0.1",
+		"yaml": "2.9.1"
 	},
 	"devDependencies": {
 		"@nativescript/vite": "8.0.17",

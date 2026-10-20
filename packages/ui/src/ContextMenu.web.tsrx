@@ -1,3 +1,5 @@
+import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } from './props'
+import type { NavigationMenuImplementation } from './nav-link'
 import { MenuData } from './MenuParts.web.tsrx';
 import { MenuSurface } from './MenuSurface.web.tsrx';
 import { useRef, useState } from 'octane';
@@ -8,7 +10,13 @@ import { Popover } from './Popover.web.tsrx';
 
 /** Self-drawn context menu — right-click (or long-press on touch) opens the
  *  same anchored list as DropdownMenu, positioned over the children. */
-export function ContextMenu(props: ContextMenuProps) @{
+export function ContextMenu<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+>(props: ContextMenuProps<Contracts, Stacks, Transitions>): any
+
+export function ContextMenu(props: NavigationMenuImplementation<ContextMenuProps>) @{
 	const anchor = useRef<any>(null);
 	const [internal, setInternal] = useState(props.defaultOpen ?? false);
 	const controlled = props.isOpen !== undefined;

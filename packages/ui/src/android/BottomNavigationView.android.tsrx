@@ -1,40 +1,22 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { memo, useState } from 'octane';
-import { Frame, GridLayout, Page, TabView, TabViewItem } from '@nativescript/core';
+import { GridLayout, TabViewItem } from '@nativescript/core';
 import { createPortal } from '../native-portal';
-import { registerStack } from '../stacks';
 import { cx } from '@octane-xplat/lib';
 import { getIcon } from '../icons';
 import { Icon } from '../Icon.tsrx';
 import { Pressable } from '../Pressable.tsrx';
 import { Text } from '../Text.tsrx';
-import { errorBoundaryFor, layoutsForRoute, screenFor, useRoute } from '../route';
-import { RouteHost, screenParamsFor } from '../route-host';
+import { RouteOutlet } from '../RouteOutlet';
 import type { BottomNavigationViewProps, PlatformTabSpec } from '../props';
 import { applyEscapeProps } from '../escape-props';
 
 
-// Android named stacks never navigate a Frame (upstream #11444 makes
-// TabViewItem frames unsafe) — pushes live in the route store instead, and a
-// stack pane renders the current route here, same shape as the self-drawn
-// Tabs. The bottom bar's OS chrome stays platform-authentic; only the pane
-// content swaps.
+// The OS tab bar retains a canonical route outlet in each named pane.
 type TabPaneProps = { render: () => any; stack?: string };
 function TabPane(props: TabPaneProps) @{
-	const route = useRoute(props.stack ?? '');
-	const Screen = route ? screenFor(route.name) : undefined;
-
-	@if (route && Screen) {
-		<RouteHost
-			screen={Screen}
-			layouts={layoutsForRoute(route.name)}
-			params={screenParamsFor(route)}
-			boundary={errorBoundaryFor(route.name)}
-			route={route}
-		/>
-	} @else {
-		<>{props.render()}</>
-	}
+	@if (props.stack) { <RouteOutlet stack={props.stack}>{props.render()}</RouteOutlet> }
+	@else { <>{props.render()}</> }
 }
 
 const panesByItem = new WeakMap<TabViewItem, GridLayout>();
@@ -83,24 +65,6 @@ function itemsFor(tabs: readonly PlatformTabSpec[]): TabViewItem[] {
 		if (t.icon) applyIcon(item, t.icon);
 		const pane = new GridLayout();
 		panesByItem.set(item, pane);
-		if (t.stack) {
-			const frame = new Frame();
-			frame.once('loaded', () => {
-				frame.navigate({
-					create: () => {
-						const page = new Page();
-						page.actionBarHidden = true;
-						page.content = pane;
-
-						return page;
-					},
-				});
-			});
-
-			registerStack(t.stack, frame);
-			item.view = frame;
-			return item;
-		}
 
 		item.view = pane;
 		return item;
@@ -147,7 +111,7 @@ const MemoNav = memo(NavInner, (a, b) => a.tabs === b.tabs && a.selectedIndex ==
 
 /** BottomNavigationView — the platform tab bar (Android bottom navigation
  *  via NativeScript TabView). Each `stack` pane hosts a Frame for the tab's
- *  chrome, but pushes stay in the route store and render through RouteHost —
+ *  chrome; canonical route outlets retain the pane history —
  *  TabViewItem-hosted Frames lose navigation bookkeeping upstream
  *  (NativeScript#11444; the #11446 fix ships in the xplat core patch).
  *  `tabs` is identity-stable. */

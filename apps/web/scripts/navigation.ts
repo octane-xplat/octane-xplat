@@ -52,7 +52,7 @@ try {
 	page.on('pageerror', (error) => errors.push(error.stack ?? error.message))
 	await page.goto(base)
 	await page.getByRole('tab', { name: 'Apps', exact: true }).click()
-	await page.locator('[role="button"]:has-text("Counter")').click()
+	await page.getByRole('button', { name: 'Counter', exact: true }).click()
 	await page.getByText('Demo count: 0', { exact: true }).waitFor()
 	check('named push with real path', new URL(page.url()).pathname === '/demos/demo/counter')
 	check('named push keeps tab strip', await page.locator('.vx-tabbar').isVisible())

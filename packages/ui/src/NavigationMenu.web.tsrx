@@ -1,52 +1,75 @@
-import type { NavigationMenuProps } from './props';
-import { applyEscapeProps } from './escape-props';
-import { Icon } from './Icon.web.tsrx';
-import { useListFocus } from './list-focus.web.tsrx';
+import type {
+	NavigationMenuProps,
+	NavigationMenuItem,
+	RegisteredRouteContracts,
+	AppRouteStacks,
+	RouteTransitionName,
+} from './props'
 
-/** NavigationMenu — a simple horizontal (or vertical) strip of nav items.
- *  The local items-array component shares the nav-item anatomy with
- *  TopNavItem; items with `href` render as anchors, others as buttons. */
-export function NavigationMenu(props: NavigationMenuProps) @{
+import type { NavigationItemImplementation, NavigationItemsImplementation } from './nav-link'
+import { useNavigationItem } from './use-navigation-item.shared.tsrx'
+import { applyEscapeProps } from './escape-props'
+import { Icon } from './Icon.web.tsrx'
+import { useListFocus } from './list-focus.web.tsrx'
+
+function NavigationMenuRow(props: {
+	item: NavigationItemImplementation<NavigationMenuItem>
+}) @{
+	const item = props.item
+	const link = useNavigationItem({ ...item, isSelected: item.active, onClick: item.onSelect })
+	const Element: any = link.href != null ? 'a' : 'button'
+
+	<Element
+		className={['vx-navmenu-strip-item', link.selected && 'vx-navmenu-strip-item--active']}
+		type={link.href == null ? 'button' : undefined}
+		href={link.disabled ? undefined : link.href}
+		target={item.target}
+		rel={item.rel}
+		download={item.download}
+		disabled={link.href == null ? link.disabled : undefined}
+		aria-disabled={link.disabled || undefined}
+		tabIndex={link.disabled ? -1 : undefined}
+		aria-current={link.selected ? 'page' : undefined}
+		onClick={link.activateWeb}
+	>
+		{item.icon ? <Icon name={item.icon} size={16} /> : null}
+		{item.label}
+	</Element>
+}
+
+/** A keyboard-operable navigation strip with typed routes, URLs and actions. */
+export function NavigationMenu<
+	C = RegisteredRouteContracts,
+	S extends string = keyof AppRouteStacks & string,
+	T extends string = RouteTransitionName,
+>(props: NavigationMenuProps<C, S, T>): any
+
+export function NavigationMenu(
+	props: NavigationItemsImplementation<NavigationMenuProps, NavigationMenuItem>,
+) @{
 	const { listRef, handleKeyDown, handleFocus } = useListFocus<HTMLElement>({
 		itemSelector: '.vx-navmenu-strip-item',
 		orientation: props.horizontal === false ? 'vertical' : 'horizontal',
-	});
-
-	const isHorizontal = props.horizontal !== false;
+	})
 
 	<nav
-		ref={(el: any) => { listRef.current = el; applyEscapeProps(el, props); }}
+		ref={(element: any) => {
+			listRef.current = element
+			applyEscapeProps(element, props)
+		}}
 		id={props.id}
-		className={['vx-navmenu-strip', !isHorizontal && 'vx-navmenu-strip--vertical', props.className]}
+		className={[
+			'vx-navmenu-strip',
+			props.horizontal === false && 'vx-navmenu-strip--vertical',
+			props.className,
+		]}
 		style={props.style}
 		aria-label={props.accessibilityLabel}
 		onKeyDown={handleKeyDown}
 		onFocus={handleFocus}
 	>
 		@for (const item of props.items; key item.key) {
-			@if (item.href != null && !item.disabled) {
-				<a
-					className={['vx-navmenu-strip-item', item.active && 'vx-navmenu-strip-item--active']}
-					href={item.href}
-					aria-current={item.active ? 'page' : undefined}
-					onClick={() => item.onSelect?.()}
-				>
-					{item.icon ? <Icon name={item.icon} size={16} /> : null}
-					{item.label}
-				</a>
-			} @else {
-				<button
-					type="button"
-					className={['vx-navmenu-strip-item', item.active && 'vx-navmenu-strip-item--active']}
-					disabled={item.disabled}
-					aria-disabled={item.disabled || undefined}
-					aria-current={item.active ? 'page' : undefined}
-					onClick={() => { if (!item.disabled) item.onSelect?.(); }}
-				>
-					{item.icon ? <Icon name={item.icon} size={16} /> : null}
-					{item.label}
-				</button>
-			}
+			<NavigationMenuRow item={item} />
 		}
 	</nav>
 }

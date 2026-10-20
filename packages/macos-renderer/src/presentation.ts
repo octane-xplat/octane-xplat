@@ -30,6 +30,8 @@ export interface SurfaceOptions {
 	kind?: 'dialog' | 'sheet' | 'toast' | 'lightbox' | string
 	modal?: boolean
 	fullscreen?: boolean
+	/** Prepare an owned subtree without showing it or claiming input/focus. */
+	deferPresentation?: boolean
 	component?: any
 	/** Internal source-tree outlet. Omit for a standalone presentation root. */
 	createContentRoot?: (host: NSView) => {
@@ -58,6 +60,7 @@ export interface SurfaceOptions {
 }
 
 export interface SurfaceHandle {
+	show(): void
 	update(options: Partial<SurfaceOptions>): void
 	close(reason?: string): void
 	readonly closed: boolean
@@ -81,6 +84,7 @@ interface SurfaceEntry {
 	layer: NSView
 	window: NSWindow
 	closed: boolean
+	presented: boolean
 	observers: any[]
 	monitor: any
 	closedPromise: Promise<unknown>
@@ -90,6 +94,7 @@ interface SurfaceEntry {
 	drag?: { y: number; height: number } | null
 	layout(): void
 	update(options: Partial<SurfaceOptions>): void
+	show(): void
 	close(reason?: string): void
 	requestDismiss(path: string): void
 }
@@ -190,6 +195,7 @@ export function installPresentationBridge(
 		const layer = PresentationLayer.alloc().initWithFrame(host.bounds)
 		layer.autoresizingMask = 18 // width + height
 		layer.wantsLayer = true
+		layer.hidden = true
 		const panel = NSView.alloc().initWithFrame(host.bounds)
 		panel.wantsLayer = true
 		layer.addSubview(panel)
@@ -198,8 +204,7 @@ export function installPresentationBridge(
 			createRoot(panel, { fontFamily: fontFamilyForView(owner ?? host) })
 
 		let resolveClosed: (reason?: unknown) => void = () => {}
-		const responder = nativeWindow.firstResponder
-		const previousFocus = truth(responder, 'isFieldEditor') ? responder.delegate : responder
+		let previousFocus: any
 		const entry: SurfaceEntry = {
 			options: initial,
 			parent: [...entries]
@@ -213,6 +218,7 @@ export function installPresentationBridge(
 			layer: layer as unknown as NSView,
 			window: nativeWindow,
 			closed: false,
+			presented: false,
 			observers: [],
 			monitor: null,
 			closedPromise: new Promise((resolve) => {
@@ -342,21 +348,22 @@ export function installPresentationBridge(
 				root.render(entry.options.component, entry.options.props ?? {})
 				if ('whenCommitted' in root) {
 					root.whenCommitted?.(() => {
-						if (!entry.closed) {
+						if (!entry.closed && entry.presented) {
 							entry.layout()
-							if (entry.options.modal)
-								{nativeWindow.makeFirstResponder(focusables(panel)[0] ?? layer)}
+							if (entry.options.modal) {
+								nativeWindow.makeFirstResponder(focusables(panel)[0] ?? layer)
+							}
 						}
 					})
 				}
 
 				entry.layout()
 				entry.didRender = true
-				if (hadFocus && entry.options.modal) {
+				if (entry.presented && hadFocus && entry.options.modal) {
 					queueMicrotask(() => {
 						const top = [...entries]
 							.reverse()
-							.find((e) => e.window === nativeWindow && e.options.modal && !e.closed)
+							.find((e) => e.window === nativeWindow && e.options.modal && e.presented && !e.closed)
 
 						if (
 							top === entry &&
@@ -390,6 +397,19 @@ export function installPresentationBridge(
 					}
 
 					visit(panel)
+				}
+			},
+			show() {
+				if (entry.closed || entry.presented) {
+					return
+				}
+				const responder = nativeWindow.firstResponder
+				previousFocus = truth(responder, 'isFieldEditor') ? responder.delegate : responder
+				entry.presented = true
+				layer.hidden = false
+				entry.layout()
+				if (entry.options.modal) {
+					nativeWindow.makeFirstResponder(focusables(panel)[0] ?? layer)
 				}
 			},
 			close(reason) {
@@ -458,6 +478,9 @@ export function installPresentationBridge(
 				}
 			},
 			requestDismiss(path) {
+				if (!entry.presented) {
+					return
+				}
 				const purpose = entry.options.purpose ?? 'info'
 				if (purpose === 'required' || (path === 'outside' && purpose !== 'info')) {
 					return
@@ -490,6 +513,7 @@ export function installPresentationBridge(
 				(event) => {
 					if (
 						entry.closed ||
+						!entry.presented ||
 						!(event.window === nativeWindow || event.window?.isEqual?.(nativeWindow))
 					) {
 						return event
@@ -497,7 +521,7 @@ export function installPresentationBridge(
 
 					const top = [...entries]
 						.reverse()
-						.find((e) => e.window === nativeWindow && e.options.modal && !e.closed)
+						.find((e) => e.window === nativeWindow && e.options.modal && e.presented && !e.closed)
 
 					if (top && top !== entry) {
 						return event
@@ -597,8 +621,8 @@ export function installPresentationBridge(
 				},
 			)
 
-			if (initial.modal) {
-				nativeWindow.makeFirstResponder(focusables(panel)[0] ?? layer)
+			if (!initial.deferPresentation) {
+				entry.show()
 			}
 		} catch (error) {
 			entry.close()
@@ -606,6 +630,7 @@ export function installPresentationBridge(
 		}
 
 		return {
+			show: entry.show,
 			update: entry.update,
 			close: entry.close,
 			get closed() {

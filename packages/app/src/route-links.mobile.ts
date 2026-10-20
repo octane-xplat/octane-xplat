@@ -1,6 +1,6 @@
 import { Application } from '@nativescript/core'
 import { consumeInitialUrl, onDeepLink } from '@octane-xplat/platform'
-import { getStack, pushDeepLink } from '@octane-xplat/ui/routing'
+import { getStack, router } from '@octane-xplat/ui/routing'
 
 let wired = false
 export function wireRouteLinks(): void {
@@ -30,7 +30,7 @@ export function wireRouteLinks(): void {
 		}
 
 		for (const url of pending.splice(0)) {
-			pushDeepLink(url)
+			void router.navigateUrl(url)
 		}
 	}
 

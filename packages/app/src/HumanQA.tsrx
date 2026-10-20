@@ -3,7 +3,7 @@ import { Pressable, HStack, Screen, ScrollableArea, Text, View } from '@octane-x
 import { clipboard, device } from '@octane-xplat/platform';
 import { HUMAN_CHECKS, QA_TRIGGERS } from './human-checks';
 import { releaseQaTrigger, runQaTrigger } from './qa-media';
-import { goBack, navigate } from './platform/nav';
+import { useRouter } from '@octane-xplat/ui/routing';
 
 const SENSES = [
 	{ key: 'ears', label: 'Ears — listen' },
@@ -18,7 +18,8 @@ const SENSES = [
  *  `[review] qa/<id>: pass|fail|skip` into the same stream as [assert]
  *  results; "Copy report" puts the tally on the clipboard for handoff.
  *  Mounted at the /qa file route — a chip on the Test tab pushes it. */
-export function HumanQA(props: { _stack?: string }) @{
+export function HumanQA() @{
+	const navigation = useRouter();
 	const [verdicts, setVerdicts] = useState<Record<string, string>>({});
 	const [echo, setEcho] = useState('');
 	const os = device.os;
@@ -48,7 +49,7 @@ export function HumanQA(props: { _stack?: string }) @{
 
 	<Screen className="vx-app vx-app-flush flex-1">
 		<HStack className="gap-4 items-center" style={{ padding: 16 }}>
-			<Pressable id="qa-back" onPress={() => goBack({ into: props._stack })} className="btn btn-secondary">
+			<Pressable id="qa-back" onPress={() => navigation.back()} className="btn btn-secondary">
 				<Text>← Back</Text>
 			</Pressable>
 			<Text className="text-xl font-semibold flex-1">Human QA</Text>
@@ -101,7 +102,7 @@ export function HumanQA(props: { _stack?: string }) @{
 										<Pressable
 											id={'qa-open-' + c.id}
 											className="chip"
-											onPress={() => navigate('demo/:id', { id: c.demo! }, { into: props._stack })}
+											onPress={() => navigation.push({ to: '/demo/:id', params: { id: c.demo! } })}
 										>
 											<Text>Open demo</Text>
 										</Pressable>

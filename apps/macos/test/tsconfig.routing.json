@@ -1,0 +1,11 @@
+{
+	"extends": "../tsconfig.json",
+	"compilerOptions": {
+		"paths": {},
+		"customConditions": ["macos"],
+		"types": ["vite/client"],
+		"moduleSuffixes": [".macos", ""]
+	},
+	"include": ["routing-fixture.macos.tsx"],
+	"files": ["../../../packages/macos-renderer/src/host-globals.d.ts"]
+}

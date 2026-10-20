@@ -300,7 +300,9 @@ import type { ButtonProps, KeyboardAvoidingProps, ListItemProps, ViewProps } fro
 import type { RouteSpec } from '@octane-xplat/ui/routing'
 import { PlatformIcon, UITabBar, UISwitch, type PlatformTabsProps, type RefreshProps as IOSRefreshProps, type UITableViewProps, type UISwitchProps } from '@octane-xplat/ui/ios'
 import { MaterialSwitch, type MaterialSwitchProps, type RecyclerViewProps, type RefreshProps as AndroidRefreshProps } from '@octane-xplat/ui/android'
-import { layoutsForRoute, useOutlineFromView } from '@octane-xplat/ui/nativescript'
+import { useOutlineFromView } from '@octane-xplat/ui/nativescript'
+// @ts-expect-error legacy catalog lookups are removed; outlets own route composition
+import { layoutsForRoute } from '@octane-xplat/ui/nativescript'
 
 const buttonProps: ButtonProps = { children: 'Save', isLoading: true }
 // @ts-expect-error isLoading is a boolean prop
@@ -314,7 +316,7 @@ void [inset, invalidInset]
 const keyboardProps: KeyboardAvoidingProps = { children: 'Form' }
 const row = <List><ListItem {...itemProps} /></List>
 const screen = () => null
-const routeSpec: RouteSpec = { path: 'people/:id', screen }
+const routeSpec = { path: '/people/:id', screen } as const satisfies RouteSpec
 const manifest = defineRoutes({ routes: [routeSpec], layouts: { people: screen } })
 const countStore = createStore(1)
 const count: number = useStore(countStore)
@@ -361,23 +363,25 @@ void keyboard
 	// and peer configuration — each moved domain resolves through its own
 	// subpath and must no longer resolve at the package root.
 	source += `
-import { pushRoute as subpathPushRoute, useRoute, hrefFor, type Route, type RouteManifest } from '@octane-xplat/ui/routing'
+import { router as subpathRouter, useRouter, getRouteApi, type RouteManifest } from '@octane-xplat/ui/routing'
 import { useListData, useAsyncList, cachedQuery$, type Selection, type CachedQueryOptions } from '@octane-xplat/ui/data'
 import { Markdown, parseMdDoc, tokenize, type MdDoc, type MarkdownProps, type TokenLine } from '@octane-xplat/ui/markdown'
 import { ChatMessage, ChatComposer, useChatComposerContext, type ChatMessageProps } from '@octane-xplat/ui/chat'
 // @ts-expect-error routing APIs live under @octane-xplat/ui/routing
-import { popRoute } from '@octane-xplat/ui'
+import { router as rootRouter } from '@octane-xplat/ui'
 // @ts-expect-error stores live under @octane-xplat/ui/data
 import { useStore as rootUseStore } from '@octane-xplat/ui'
 // @ts-expect-error Markdown lives under @octane-xplat/ui/markdown
 import { MarkdownScreen } from '@octane-xplat/ui'
 // @ts-expect-error chat components live under @octane-xplat/ui/chat
 import { ChatLayout } from '@octane-xplat/ui'
+// @ts-expect-error legacy navigation was removed during the canonical cutover
+import { pushRoute } from '@octane-xplat/ui/routing'
 const mdProps: MarkdownProps = { text: '# hi' }
 const mdDoc: MdDoc = parseMdDoc('# hi')
 const tokens: TokenLine[] = tokenize('let x = 1', 'ts')
 const msgProps: ChatMessageProps = { sender: 'assistant', children: 'hello' }
-void [subpathPushRoute, useRoute, hrefFor, useListData, useAsyncList, cachedQuery$, Markdown, ChatMessage, ChatComposer, useChatComposerContext, popRoute, rootUseStore, MarkdownScreen, ChatLayout, mdProps, mdDoc, tokens, msgProps]
+void [subpathRouter, useRouter, getRouteApi, useListData, useAsyncList, cachedQuery$, Markdown, ChatMessage, ChatComposer, useChatComposerContext, rootRouter, rootUseStore, MarkdownScreen, ChatLayout, mdProps, mdDoc, tokens, msgProps]
 `
 
 	source += `
@@ -446,12 +450,12 @@ void [<RouteOutlet {...outletProps}>{scoped.element}</RouteOutlet>, ownedSheet]
 		source += `
 import { useImperativeModal as iosModal } from '@octane-xplat/ui/ios'
 import { useImperativeModal as androidModal } from '@octane-xplat/ui/android'
+// @ts-expect-error removed owner helper is replaced by RouteOutlet and useRouter
 import { useNativeRouteNavigator } from '@octane-xplat/ui/nativescript'
 const iosOwner = iosModal()
 const androidOwner = androidModal()
-const navigation = useNativeRouteNavigator('root')
-navigation.push({ name: 'settings', params: {} })
-void [iosOwner.element, androidOwner.element, navigation.element]
+const navigation = useRouter()
+void [iosOwner.element, androidOwner.element, navigation, useNativeRouteNavigator]
 `
 	}
 
@@ -468,6 +472,32 @@ void [iosOwner.element, androidOwner.element, navigation.element]
 		writeFileSync(join(consumerRoot, name), match[1])
 		return name
 	})
+	const routingGuide = readFileSync(join(repoRoot, 'docs/app/navigation.md'), 'utf8')
+	const catalogGuide = routingGuide.split('## Register routes from data')[1]?.split('## Own runtime registrations')[0]
+	assert.ok(catalogGuide, 'the inferred catalog authoring section exists')
+	const programmaticExamples = [...catalogGuide.matchAll(/```tsx\n(\/\/ src\/guide-routes\.tsx[\s\S]*?)```/g)]
+	assert.equal(programmaticExamples.length, 2, 'both inferred programmatic guide screens are checked')
+	for (let index = 0; index < programmaticExamples.length; index++) {
+		const name = `programmatic-guide-${index}.tsx`
+		writeFileSync(join(consumerRoot, name), programmaticExamples[index][1])
+		exampleFiles.push(name)
+	}
+	const literalExample = routingGuide.split('### Keep reusable route paths literal')[1]?.match(/```ts\n([\s\S]*?)```/)
+	assert.ok(literalExample, 'the literal-preserving route example exists')
+	writeFileSync(join(consumerRoot, 'literal-route-spec.ts'), literalExample[1])
+	exampleFiles.push('literal-route-spec.ts')
+	const scrollGuide = readFileSync(join(repoRoot, 'docs/app/primitives.md'), 'utf8')
+		.split('## Move a scroll viewport')[1]?.split('## macOS scrolling and refresh')[0]
+	assert.ok(scrollGuide, 'portable scroll command guide exists')
+	const scrollExamples = [...scrollGuide.matchAll(/```tsx\n([\s\S]*?)```/g)]
+	assert.equal(scrollExamples.length, 1, 'portable scroll command example is checked')
+	writeFileSync(join(consumerRoot, 'scroll-command-example.tsx'), scrollExamples[0][1])
+	exampleFiles.push('scroll-command-example.tsx')
+	const nativeControls = readFileSync(join(repoRoot, 'docs/app/navigation.md'), 'utf8')
+		.split('### Retained native controls')[1]?.match(/```tsx\n([\s\S]*?)```/)
+	assert.ok(nativeControls, 'native route controls example exists')
+	writeFileSync(join(consumerRoot, 'native-route-controls.tsx'), nativeControls[1])
+	exampleFiles.push('native-route-controls.tsx')
 
 	const configPath = join(consumerRoot, `tsconfig.${mode.name}.json`)
 	// Mirrors the create template's per-target tsconfig: suffix typing selects

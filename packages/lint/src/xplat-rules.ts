@@ -1276,6 +1276,11 @@ export function checkNoViewOnPress(program, _src, filename, options) {
 		}
 
 		const name = propName(attr.name) ?? ''
+		// NavLink exposes cancellable activation, but no Pressable gesture API.
+		if (tag === 'NavLink' && name === 'onPress') {
+			continue
+		}
+
 		if (NON_PRESSABLE_PRIMITIVES.has(tag) && PRESSABLE_ONLY_PROPS.has(name)) {
 			out.push({
 				node: attr,
@@ -1406,7 +1411,11 @@ export function checkNativePragmaFirstLine(program, source, filename, options) {
 		: file.includes('.macos.')
 			? MACOS_PRAGMA
 			: LEGACY_NATIVE_PRAGMA
-	if (source.startsWith(NATIVE_PRAGMA) || source.startsWith(legacyPragma)) {
+	// UI declarations use their renderer's types without an app-facade dependency.
+	const uiGtkRendererPragma =
+		/(?:^|\/)packages\/ui\/src\/.*\.gtk\.tsrx$/.test(file) &&
+		source.startsWith(LEGACY_NATIVE_PRAGMA)
+	if (source.startsWith(NATIVE_PRAGMA) || source.startsWith(legacyPragma) || uiGtkRendererPragma) {
 		return []
 	}
 

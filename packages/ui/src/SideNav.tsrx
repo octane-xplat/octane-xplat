@@ -1,4 +1,8 @@
 /** @jsxImportSource @nativescript-community/octane */
+
+import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } from './props'
+import type { NavigationItemImplementation } from './nav-link'
+import { useNavigationItem } from './use-navigation-item.shared.tsrx'
 import { mergeStyle } from './style-merge'
 import { useCallback, useContext, useMemo, useRef, useState } from 'octane';
 import type {
@@ -233,7 +237,14 @@ export function SideNavHeading(props: SideNavHeadingProps) @{
 /** SideNavItem — one nav row. Native leaf: Pressable rows; `href` routes
  *  through `followHref`. Collapsed rail shows the icon and a flyout for
  *  children via the shared Popover. */
-export function SideNavItem(props: SideNavItemProps) @{
+export function SideNavItem<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+>(props: SideNavItemProps<Contracts, Stacks, Transitions>): any
+
+export function SideNavItem(props: NavigationItemImplementation<SideNavItemProps>) @{
+	const link = useNavigationItem(props)
 	const renderMode = useSideNavRenderMode();
 	const collapseCtx = useSideNavCollapse();
 	const railCollapsed = collapseCtx?.isCollapsed === true && renderMode === 'default';
@@ -254,15 +265,10 @@ export function SideNavItem(props: SideNavItemProps) @{
 	const anchor = useRef<any>(null);
 	const [flyoutOpen, setFlyoutOpen] = useState(false);
 
-	const displayIcon = props.isSelected && props.selectedIcon != null ? props.selectedIcon : props.icon;
-	const isDisabled = props.isDisabled ?? false;
+	const displayIcon = link.selected && props.selectedIcon != null ? props.selectedIcon : props.icon;
+	const isDisabled = link.disabled;
 
-	const activate = () => {
-		if (isDisabled) return;
-		props.onClick?.();
-		if (props.href) followHref(props.href);
-	};
-
+	const activate = () => link.activateNative(followHref);
 	const pressMain = () => {
 		if (railCollapsed && hasChildren) {
 			setFlyoutOpen(!flyoutOpen);
@@ -275,12 +281,12 @@ export function SideNavItem(props: SideNavItemProps) @{
 	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-sidenav-item', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style))}>
 		<masonview className="vx-sidenav-item-row" ref={(v: any) => { if (railCollapsed) anchor.current = v; }} style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
 			<Pressable
-				className={cx('vx-sidenav-item-main', 'vx-sidenav-item--' + size, props.isSelected && 'vx-sidenav-item--selected', isDisabled && 'vx-sidenav-item--disabled', railCollapsed && 'vx-sidenav-item--rail')}
+				className={cx('vx-sidenav-item-main', 'vx-sidenav-item--' + size, link.selected && 'vx-sidenav-item--selected', isDisabled && 'vx-sidenav-item--disabled', railCollapsed && 'vx-sidenav-item--rail')}
 				style={{ minHeight: ITEM_HEIGHT[size] }}
 				disabled={isDisabled}
-				accessibilityRole="link"
+				accessibilityRole={link.href != null ? 'link' : 'button'}
 				accessibilityLabel={railCollapsed ? props.label : undefined}
-				accessibilityState={{ disabled: isDisabled, selected: props.isSelected }}
+				accessibilityState={{ disabled: isDisabled, selected: link.selected }}
 				onPress={pressMain}
 			>
 				<masonview style={mergeStyle({flexDirection: "row", alignItems: "center", gap: 8, flexGrow: 1}, {display: "flex"})}>

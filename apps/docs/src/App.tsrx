@@ -1,221 +1,221 @@
-import { useState, useEffect, useRef } from 'octane';
-import { View, HStack, Text, Pressable, ScrollableArea, useColorScheme, BottomSheet, CommandPalette, type CommandPaletteItem, type SearchSource } from '@octane-xplat/ui';
-import { useRoute, pushRoute } from '@octane-xplat/ui/routing';
-import { DOCS, routeForDoc, type DocPage } from './docs';
-import { docPath, GROUPS, INDEX_SLUG } from './doc-meta';
-import { MdDoc } from './MdDoc.tsrx';
-import { searchDocs, type SearchHit } from './search';
-import { resetDocScroll } from './scroll';
-import { animateConstellation } from './constellation';
-import logoMark from './assets/logo-mark.svg';
-import wordmark from './assets/wordmark.svg';
-import constellation from './assets/constellation.svg?raw';
-import orbitUser from './assets/orbit-user.webp';
-import orbitSafari from './assets/orbit-safari.webp';
-import orbitFirefox from './assets/orbit-firefox.webp';
-import orbitChrome from './assets/orbit-chrome.webp';
-import orbitLinux from './assets/orbit-linux.webp';
-import orbitApple from './assets/orbit-apple.webp';
-import orbitAndroid from './assets/orbit-android.webp';
-import orbitMicrosoft from './assets/orbit-microsoft.webp';
-import orbitMacos from './assets/orbit-macos.webp';
+import { useState, useEffect, useRef } from 'octane'
+import {
+	View,
+	HStack,
+	Text,
+	Pressable,
+	ScrollableArea,
+	RouteOutlet,
+	useColorScheme,
+	BottomSheet,
+	CommandPalette,
+	type CommandPaletteItem,
+	type SearchSource,
+} from '@octane-xplat/ui'
 
-const ORBIT_BADGES = [
-	orbitSafari,
-	orbitFirefox,
-	orbitChrome,
-	orbitLinux,
-	orbitApple,
-	orbitAndroid,
-	orbitMicrosoft,
-	orbitMacos,
-];
+import { useRouterState, router } from '@octane-xplat/ui/routing'
+import { DOCS, routeForDoc, type DocPage } from './docs'
+import { docPath, GROUPS } from './doc-meta'
+import { DocNavigationProvider } from './DocPage.tsrx'
+import { searchDocs, type SearchHit } from './search'
+import { resetDocScroll } from './scroll'
+import { animateConstellation } from './constellation'
+import logoMark from './assets/logo-mark.svg'
+import wordmark from './assets/wordmark.svg'
+import constellation from './assets/constellation.svg?raw'
 
 const HIT_GROUP: Partial<Record<SearchHit['kind'], string>> = {
 	api: 'API',
 	body: 'Content',
-};
+}
 
 /** The palette reports row ids back through onValueChange; the Map resolves
  *  them to the hit that produced the row. Cleared and repopulated on every
  *  source call. */
-const paletteHits = new Map<string, SearchHit>();
+const paletteHits = new Map<string, SearchHit>()
 
 const paletteItem = (hit: SearchHit, index: number): CommandPaletteItem => {
-	const id = `${hit.kind}-${hit.slug}-${hit.anchor ?? 'doc'}-${index}`;
-	paletteHits.set(id, hit);
+	const id = `${hit.kind}-${hit.slug}-${hit.anchor ?? 'doc'}-${index}`
+	paletteHits.set(id, hit)
 	return {
 		id,
 		label: hit.label,
 		description: hit.snippet,
 		auxiliaryData: { group: HIT_GROUP[hit.kind] ?? 'Guide', hit },
-	};
-};
+	}
+}
 
 const DOC_SEARCH: SearchSource<CommandPaletteItem> = {
 	bootstrap() {
-		paletteHits.clear();
+		paletteHits.clear()
 		return DOCS.slice(0, 8).map((d, index) =>
-			paletteItem({ kind: 'page', slug: d.slug, label: d.title, context: 'Guide', score: 0 }, index),
-		);
+			paletteItem(
+				{ kind: 'page', slug: d.slug, label: d.title, context: 'Guide', score: 0 },
+				index,
+			),
+		)
 	},
 	search(query) {
-		paletteHits.clear();
-		return searchDocs(query).map(paletteItem);
+		paletteHits.clear()
+		return searchDocs(query).map(paletteItem)
 	},
-};
+}
 
-const THEME_PREFERENCE_KEY = 'xplat-docs-theme';
+const THEME_PREFERENCE_KEY = 'xplat-docs-theme'
 
 function readThemePreference(): boolean | null {
 	try {
-		const saved = localStorage.getItem(THEME_PREFERENCE_KEY);
-		return saved === 'dark' ? true : saved === 'light' ? false : null;
+		const saved = localStorage.getItem(THEME_PREFERENCE_KEY)
+		return saved === 'dark' ? true : saved === 'light' ? false : null
 	} catch {
-		return null;
+		return null
 	}
 }
 
 function saveThemePreference(dark: boolean): void {
 	try {
-		localStorage.setItem(THEME_PREFERENCE_KEY, dark ? 'dark' : 'light');
+		localStorage.setItem(THEME_PREFERENCE_KEY, dark ? 'dark' : 'light')
 	} catch {
 		// Keep the toggle usable when browser storage is unavailable.
 	}
 }
 
 export function App() @{
-	const [override, setOverride] = useState<boolean | null>(readThemePreference);
-	const [paletteOpen, setPaletteOpen] = useState(false);
-	const [leaving, setLeaving] = useState(false);
-	const [menuOpen, setMenuOpen] = useState(false);
-	const navigationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-	const menuTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-	const scheme = useColorScheme();
-	const dark = override ?? scheme === 'dark';
+	const [override, setOverride] = useState<boolean | null>(readThemePreference)
+	const [paletteOpen, setPaletteOpen] = useState(false)
+	const [leaving, setLeaving] = useState(false)
+	const [menuOpen, setMenuOpen] = useState(false)
+	const navigationTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+	const menuTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+	const scheme = useColorScheme()
+	const dark = override ?? scheme === 'dark'
 	const openPalette = () => {
 		if (menuOpen) {
-			closeMenu();
+			closeMenu()
 		}
 
-		setPaletteOpen(true);
-	};
+		setPaletteOpen(true)
+	}
 
 	const openMenu = () => {
 		if (menuTimer.current !== null) {
-			clearTimeout(menuTimer.current);
-			menuTimer.current = null;
+			clearTimeout(menuTimer.current)
+			menuTimer.current = null
 
 			// Reopen during the slide-out: the panel is still mounted
 			// holding the close transform — park it back at the detent.
-			const panel = document.querySelector<HTMLElement>('.vx-sheet.docs-menu');
-			const shade = document.querySelector<HTMLElement>('.vx-sheet-backdrop');
+			const panel = document.querySelector<HTMLElement>('.vx-sheet.docs-menu')
+			const shade = document.querySelector<HTMLElement>('.vx-sheet-backdrop')
 			if (panel) {
-				panel.style.transition = 'transform 200ms ease-out';
-				panel.style.transform = 'translateY(0px)';
+				panel.style.transition = 'transform 200ms ease-out'
+				panel.style.transform = 'translateY(0px)'
 			}
 
 			if (shade) {
-				shade.style.transition = 'opacity 200ms ease-out';
-				shade.style.opacity = '0.4'; // BASE_SCRIM
+				shade.style.transition = 'opacity 200ms ease-out'
+				shade.style.opacity = '0.4' // BASE_SCRIM
 			}
 		}
 
-		setMenuOpen(true);
-	};
+		setMenuOpen(true)
+	}
 
 	const closeMenu = () => {
 		if (menuTimer.current !== null) {
-			return;
+			return
 		}
 
-		const panel = document.querySelector<HTMLElement>('.vx-sheet.docs-menu');
+		const panel = document.querySelector<HTMLElement>('.vx-sheet.docs-menu')
 		if (!panel) {
-			setMenuOpen(false);
-			return;
+			setMenuOpen(false)
+			return
 		}
 
 		// open=false unmounts instantly; the detent slide-out only runs on
 		// drag/shade dismiss. Drive the drop here, then unmount.
-		const shade = document.querySelector<HTMLElement>('.vx-sheet-backdrop');
-		panel.style.transition = 'transform 200ms ease-in';
-		panel.style.transform = 'translateY(102%)';
+		const shade = document.querySelector<HTMLElement>('.vx-sheet-backdrop')
+		panel.style.transition = 'transform 200ms ease-in'
+		panel.style.transform = 'translateY(102%)'
 		if (shade) {
-			shade.style.transition = 'opacity 200ms ease-in';
-			shade.style.opacity = '0';
+			shade.style.transition = 'opacity 200ms ease-in'
+			shade.style.opacity = '0'
 		}
 
 		menuTimer.current = setTimeout(() => {
-			menuTimer.current = null;
-			setMenuOpen(false);
-		}, 200);
-	};
+			menuTimer.current = null
+			setMenuOpen(false)
+		}, 200)
+	}
 
-	const route = useRoute('root');
-	const slug = route?.name || INDEX_SLUG;
-	const doc = DOCS.find((d) => d.slug === slug) ?? DOCS[0];
-	const nextDoc = DOCS[DOCS.findIndex((d) => d.slug === doc.slug) + 1];
+	const route = useRouterState().route
+	const doc = route?.contract === 'declared' && route.to === '/:slug?' ? route.data : DOCS[0]
 
 	const open = (s: string, anchor?: string) => {
 		if (menuOpen) {
-			closeMenu();
+			closeMenu()
 		}
 
-		const d = DOCS.find((x) => x.slug === s);
+		const d = DOCS.find((x) => x.slug === s)
 		// The index doc lives at '/', not /README.
-		pushRoute(routeForDoc(d));
-		history.replaceState(history.state, '', docPath(s) + (anchor ? `#${anchor}` : ''));
-		resetDocScroll();
-	};
+		void router.push({ ...routeForDoc(d), hash: anchor }).then((result) => {
+			if (result.status === 'committed') {
+				resetDocScroll()
+			}
+		})
+	}
 
 	const selectDoc = (s: string, anchor?: string) => {
 		// Sheet slide-down runs alongside the doc fade, not after it.
 		if (menuOpen) {
-			closeMenu();
+			closeMenu()
 		}
 
 		if (s === doc.slug) {
-			open(s, anchor);
-			return;
+			open(s, anchor)
+			return
 		}
 
 		if (navigationTimer.current !== null) {
-			clearTimeout(navigationTimer.current);
+			clearTimeout(navigationTimer.current)
 		}
 
-		setLeaving(true);
+		setLeaving(true)
 		navigationTimer.current = setTimeout(() => {
-			navigationTimer.current = null;
-			open(s, anchor);
-		}, 200);
-	};
+			navigationTimer.current = null
+			open(s, anchor)
+		}, 200)
+	}
 
 	// Safety net for navs that flow through octane's commit path.
 	useEffect(() => {
-		setLeaving(false);
-		resetDocScroll();
-		document.title = doc.title === 'Xplat' ? 'Xplat docs' : `${doc.title} — Xplat`;
-	}, [doc.slug]);
+		setLeaving(false)
+		resetDocScroll()
+	}, [doc.slug])
 
-	useEffect(() => () => {
-		if (navigationTimer.current !== null) {
-			clearTimeout(navigationTimer.current);
-		}
+	useEffect(
+		() => () => {
+			if (navigationTimer.current !== null) {
+				clearTimeout(navigationTimer.current)
+			}
 
-		if (menuTimer.current !== null) {
-			clearTimeout(menuTimer.current);
-		}
-	}, []);
+			if (menuTimer.current !== null) {
+				clearTimeout(menuTimer.current)
+			}
+		},
+		[],
+	)
 
 	useEffect(() => {
-		const host = document.querySelector<HTMLElement>('.constellation');
-		const content = document.getElementById('doc-content');
-		if (!host || !content) { return; }
+		const host = document.querySelector<HTMLElement>('.constellation')
+		const content = document.getElementById('doc-content')
+		if (!host || !content) {
+			return
+		}
 
 		// Trusted local asset: inline it so each polygon can animate independently.
-		host.innerHTML = constellation;
-		return animateConstellation(host, content);
-	}, []);
+		host.innerHTML = constellation
+		return animateConstellation(host, content)
+	}, [])
 
 	// ⌘K/Ctrl+K opens the palette (or re-arms its query when already open);
 	// '/' opens it from anywhere outside a text field. The palette owns
@@ -223,42 +223,49 @@ export function App() @{
 	useEffect(() => {
 		const onKey = (e: KeyboardEvent) => {
 			if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-				e.preventDefault();
+				e.preventDefault()
 				if (paletteOpen) {
 					// The palette's own clear action resets the query and refocuses the input.
-					const clear = window.document.querySelector<HTMLButtonElement>('.vx-cmdk-layer .vx-input-clear:not(:disabled)');
+					const clear = window.document.querySelector<HTMLButtonElement>(
+						'.vx-cmdk-layer .vx-input-clear:not(:disabled)',
+					)
+
 					if (clear) {
-						clear.click();
+						clear.click()
 					} else {
-						(window.document.getElementById('palette-query') as HTMLInputElement | null)?.focus();
+						;(window.document.getElementById('palette-query') as HTMLInputElement | null)?.focus()
 					}
 				} else {
-					openPalette();
+					openPalette()
 				}
 
-				return;
+				return
 			}
 
 			if (e.key === '/' && !paletteOpen) {
-				const t = e.target as HTMLElement | null;
+				const t = e.target as HTMLElement | null
 				if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) {
-					return;
+					return
 				}
 
-				e.preventDefault();
-				openPalette();
+				e.preventDefault()
+				openPalette()
 			}
-		};
+		}
 
-		window.addEventListener('keydown', onKey);
-		return () => window.removeEventListener('keydown', onKey);
-	}, [paletteOpen]);
+		window.addEventListener('keydown', onKey)
+		return () => window.removeEventListener('keydown', onKey)
+	}, [paletteOpen])
 
 	const renderDoc = (d: DocPage) => (
-		<Pressable key={d.slug} className={d.slug === doc.slug ? 'side-item active' : 'side-item'} onPress={() => selectDoc(d.slug)}>
+		<Pressable
+			key={d.slug}
+			className={d.slug === doc.slug ? 'side-item active' : 'side-item'}
+			onPress={() => selectDoc(d.slug)}
+		>
 			<Text className="side-text">{d.title}</Text>
 		</Pressable>
-	);
+	)
 
 	// The sidebar and the mobile sheet render the same nav tree.
 	const navTree = () => (
@@ -269,11 +276,15 @@ export function App() @{
 						<img className="logo-mark" src={logoMark} alt="" />
 						<img className="wordmark" src={wordmark} alt="Octane Xplat" />
 					</View>
-					<Pressable className="mode-toggle" onPress={() => {
-						const next = !dark;
-						saveThemePreference(next);
-						setOverride(next);
-					}} accessibilityLabel="Toggle dark mode">
+					<Pressable
+						className="mode-toggle"
+						onPress={() => {
+							const next = !dark
+							saveThemePreference(next)
+							setOverride(next)
+						}}
+						accessibilityLabel="Toggle dark mode"
+					>
 						<View className="mode-icon" />
 					</Pressable>
 				</HStack>
@@ -312,11 +323,15 @@ export function App() @{
 				))}
 			</View>
 		</View>
-	);
+	)
 
 	<View className={['shell', dark ? 'dark' : 'light']}>
 		<HStack className="mobile-header">
-			<Pressable className="logo-cluster mh-brand" accessibilityLabel="Go to the introduction" onPress={() => open(DOCS[0].slug)}>
+			<Pressable
+				className="logo-cluster mh-brand"
+				accessibilityLabel="Go to the introduction"
+				onPress={() => open(DOCS[0].slug)}
+			>
 				<img className="logo-mark" src={logoMark} alt="" />
 				<img className="wordmark" src={wordmark} alt="Octane Xplat" />
 			</Pressable>
@@ -334,30 +349,9 @@ export function App() @{
 			<View className="card">
 				<div className="constellation" aria-hidden="true" />
 				<ScrollableArea id="doc-content" className="content">
-					<View key={doc.slug} className={leaving ? 'doc-page leaving' : 'doc-page'}>
-						{doc.slug === DOCS[0].slug && (
-							<div className="orbit" aria-hidden="true">
-								<div className="orbit-ring">
-									{ORBIT_BADGES.map((src) => (
-										<div key={src} className="orbit-pos"><div className="orbit-spin"><div className="orbit-tilt"><img className="orbit-badge" src={src} alt="" /></div></div></div>
-									))}
-								</div>
-								<img className="orbit-user" src={orbitUser} alt="" />
-							</div>
-						)}
-						<MdDoc demo={doc.slug === 'goal-counter' || doc.slug === 'packing-list' ? doc.slug : undefined} md={doc.md} dir={doc.dir} showPageActions={doc.slug !== 'README'} showHomeActions={doc.slug === 'README'} agentPrompt={doc.slug === 'README'
-							? 'Set up Octane Xplat for me. Fetch https://octane-xplat.goddardai.org/llms-full.txt and follow the “Create and run” guide.'
-							: undefined} />
-						{nextDoc && (
-							<Pressable className="doc-next" onPress={() => selectDoc(nextDoc.slug)}>
-								<View className="doc-next-copy">
-									<Text className="doc-next-label">Next page</Text>
-									<Text className="doc-next-title">{nextDoc.title}</Text>
-								</View>
-								<Text className="doc-next-arrow">→</Text>
-							</Pressable>
-						)}
-					</View>
+					<DocNavigationProvider value={{ leaving, selectDoc }}>
+						<RouteOutlet />
+					</DocNavigationProvider>
 				</ScrollableArea>
 			</View>
 		</HStack>
@@ -366,7 +360,11 @@ export function App() @{
 		<BottomSheet
 			isOpen={menuOpen}
 			label="Documentation menu"
-			onOpenChange={(o) => { if (!o) setMenuOpen(false); }}
+			onOpenChange={(o) => {
+				if (!o) {
+					setMenuOpen(false)
+				}
+			}}
 			snapPoints={[0.85]}
 			className={dark ? 'docs-menu dark' : 'docs-menu'}
 		>
@@ -380,14 +378,14 @@ export function App() @{
 			open={paletteOpen}
 			onOpenChange={(open) => {
 				if (!open) {
-					setPaletteOpen(false);
+					setPaletteOpen(false)
 				}
 			}}
 			searchSource={DOC_SEARCH}
 			onValueChange={(id) => {
-				const hit = paletteHits.get(id);
+				const hit = paletteHits.get(id)
 				if (hit) {
-					selectDoc(hit.slug, hit.anchor);
+					selectDoc(hit.slug, hit.anchor)
 				}
 			}}
 			label="Search docs"
@@ -395,14 +393,16 @@ export function App() @{
 			emptySearchText="No matches"
 			maxHeight={520}
 			renderItem={(item) => {
-				const hit = (item.auxiliaryData as { hit?: SearchHit } | undefined)?.hit;
+				const hit = (item.auxiliaryData as { hit?: SearchHit } | undefined)?.hit
 				return (
 					<>
-						<Text className={hit?.kind === 'api' ? 'hit-label mono' : 'hit-label'}>{item.label}</Text>
+						<Text className={hit?.kind === 'api' ? 'hit-label mono' : 'hit-label'}>
+							{item.label}
+						</Text>
 						{hit?.context ? <Text className="hit-sub">{hit.context}</Text> : null}
 						{hit?.snippet ? <Text className="hit-sub hit-snip">{hit.snippet}</Text> : null}
 					</>
-				);
+				)
 			}}
 		/>
 	</View>

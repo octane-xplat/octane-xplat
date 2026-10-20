@@ -1,4 +1,4 @@
-import { navigate } from './nav'
+import { router } from '@octane-xplat/ui/routing';
 import { setThemePreference } from '@octane-xplat/ui'
 
 let running = false
@@ -71,7 +71,7 @@ export function runParity(): void {
 	// The sweep compares against the web dump's light-theme facets — pin the
 	// stage to light so a dark host scheme doesn't skew the measurements.
 	setThemePreference('light')
-	navigate('parity')
+	router.push({ to: '/parity' })
 	setTimeout(() => waitForDump(), 100)
 }
 

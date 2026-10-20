@@ -203,6 +203,43 @@ test('the shared layer registry can defer dismissal of a native surface', () => 
 	assert.equal(dismissed, 1)
 })
 
+test('a staged surface renders without replacing focus or intercepting the visible modal', async () => {
+	const opener = nativeWindow.firstResponder
+	const visible = present({})
+	const focus = nativeWindow.firstResponder
+	const staged = present({ deferPresentation: true, owner: nativeWindow.contentView })
+	assert.equal(staged.layer.hidden, true)
+	assert.equal(roots.length, 2)
+	assert.equal(nativeWindow.firstResponder, focus)
+	dispatch({ type: 10, keyCode: 53 })
+	assert.equal(visible.closed, true)
+	assert.equal(staged.closed, false)
+	assert.equal(nativeWindow.firstResponder, opener)
+	staged.show()
+	staged.show()
+	assert.equal(staged.layer.hidden, false)
+	assert.notEqual(nativeWindow.firstResponder, opener)
+	assert.equal(roots[1].renders.length, 1, 'presentation does not remount prepared content')
+	staged.close()
+	await staged.closedPromise
+	assert.equal(nativeWindow.firstResponder, opener)
+	assert.equal(monitors.size, 0)
+})
+
+test('cancelling a staged surface leaves focus and its presenter intact', async () => {
+	const visible = present({})
+	const focus = nativeWindow.firstResponder
+	const staged = present({ deferPresentation: true })
+	staged.close()
+	await staged.closedPromise
+	staged.show()
+	assert.equal(staged.layer.hidden, true)
+	assert.equal(nativeWindow.firstResponder, focus)
+	assert.equal(visible.closed, false)
+	assert.equal(roots[1].disposed, 1)
+	visible.close()
+})
+
 test('only the top modal receives dismissal and nested focus restores to its presenter', () => {
 	let firstCalls = 0,
 		secondCalls = 0

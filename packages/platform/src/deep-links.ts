@@ -9,6 +9,10 @@ let wired = false
 let initial: string | null = null
 let launchEchoSuppressed = false
 let lastIntent: any = null
+let sceneConnected = false
+let androidLaunched = false
+const earlyIntents: any[] = []
+const sameIntent = (a: any, b: any) => !!a && !!b && (a === b || a.equals?.(b))
 
 function dispatch(url: string | null | undefined) {
 	if (!url) {
@@ -20,21 +24,65 @@ function dispatch(url: string | null | undefined) {
 	}
 }
 
+// Foundation NSSet.allObjects is an NSArray, rather than necessarily a JS array.
+function iosValues(collection: any): any[] {
+	const values = collection?.allObjects ?? collection
+	if (!values) {return []}
+	if (Array.isArray(values)) {return values}
+	const result: any[] = []
+	for (let index = 0; index < (values.count ?? 0); index++) {
+		result.push(values.objectAtIndex(index))
+	}
+	return result
+}
+
 function wire() {
 	if (wired) {
 		return
 	}
 
 	wired = true
+	androidLaunched = Application.hasLaunched?.() ?? false
 	Application.on(Application.launchEvent, (args: any) => {
 		const androidUrl = args.android?.getDataString?.()
 		const iosUrl = args.ios?.objectForKey?.('UIApplicationLaunchOptionsURLKey')?.absoluteString
 		initial = androidUrl || iosUrl || initial
 		lastIntent = args.android ?? lastIntent
+		androidLaunched = true
+		// Some Android hosts deliver the launch Intent through onNewIntent
+		// before the legacy launch event. Classify it once launch identifies
+		// the cold Intent; distinct early deliveries remain warm actions.
+		for (const intent of earlyIntents.splice(0)) {
+			if (!sameIntent(intent, args.android)) {dispatch(intent.getDataString?.())}
+			lastIntent = intent
+		}
 	})
 
 	if (Application.ios) {
+		Application.ios.on('sceneWillConnect', (args: any) => {
+			const options = args.connectionOptions
+			const urls: string[] = [
+				...iosValues(options?.URLContexts).map((context) => context.URL?.absoluteString),
+				...iosValues(options?.userActivities).map(
+					(activity) => activity.webpageURL?.absoluteString,
+				),
+			].filter((url): url is string => typeof url === 'string' && url.length > 0)
+			if (!sceneConnected) {
+				sceneConnected = true
+				initial = urls.shift() ?? initial
+			}
+			for (const url of urls) {dispatch(url)}
+		})
+		Application.ios.on('sceneOpenURLContexts', (args: any) => {
+			for (const context of iosValues(args.urlContexts)) {dispatch(context.URL?.absoluteString)}
+		})
+		Application.ios.on('sceneContinueUserActivity', (args: any) => {
+			dispatch(args.userActivity?.webpageURL?.absoluteString)
+		})
 		Application.on('openUrl', (args: any) => {
+			// Scene events are authoritative. A delegate/plugin forwarding them to
+			// the legacy bus must not deliver the same OS action twice.
+			if (sceneConnected) {return}
 			const url = args.url?.absoluteString ?? String(args.url ?? '')
 			// UIKit can also report a launch URL through openUrl once. Keep it
 			// queued for consumeInitialUrl while bootstrap is still pending —
@@ -49,26 +97,27 @@ function wire() {
 		})
 
 		Application.on('continueActivity', (args: any) => {
+			if (sceneConnected) {return}
 			dispatch(args.activity?.webpageURL?.absoluteString)
 		})
 	}
 
 	if (Application.android) {
-		Application.android.on('activityNewIntent', (args: any) => {
-			lastIntent = args.intent
-			dispatch(args.intent?.getDataString?.())
-		})
-
-		Application.on(Application.resumeEvent, () => {
-			const intent = Application.android.foregroundActivity?.getIntent?.()
-			// A new intent and its resume are one delivery. A later intent
-			// carrying the same URL is a new user action and must navigate.
-			if (!intent || intent === lastIntent || intent.equals?.(lastIntent)) {
+		const receiveIntent = (intent: any) => {
+			if (!intent) {return}
+			if (!androidLaunched) {
+				if (!earlyIntents.some((queued) => sameIntent(queued, intent))) {earlyIntents.push(intent)}
 				return
 			}
-
+			// New Intent and resume are one delivery. A distinct Intent with
+			// the same URL is still a new user action.
+			if (sameIntent(intent, lastIntent)) {return}
 			lastIntent = intent
 			dispatch(intent.getDataString?.())
+		}
+		Application.android.on('activityNewIntent', (args: any) => receiveIntent(args.intent))
+		Application.on(Application.resumeEvent, () => {
+			receiveIntent(Application.android.foregroundActivity?.getIntent?.())
 		})
 	}
 }

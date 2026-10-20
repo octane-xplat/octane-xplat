@@ -1,28 +1,34 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { mergeStyle } from './style-merge'
-import type { NavLinkProps } from './props';
-import { Pressable } from './Pressable';
-import { pushRoute, useRoute } from './route';
-import { cx } from '@octane-xplat/lib';
+import type {
+	NavLinkProps,
+	RegisteredRouteContracts,
+	AppRouteStacks,
+	RouteTransitionName,
+} from './props'
 
-/**
- * In-app navigation link — destination type-checked against the registered route schema. Import from `@octane-xplat/ui`.
- *
- * @see NavLinkProps, TypedRoute.
- */
-export function NavLink(props: NavLinkProps) @{
-	const current = useRoute(props.route.stack);
-	const active = !!current
-		&& current.name === props.route.name
-		&& Object.keys(current.params).length === Object.keys(props.route.params).length
-		&& Object.entries(props.route.params).every(
-			([key, value]) => String(current.params[key]) === String(value),
-		);
+import { Pressable } from './Pressable'
+import { useNavigationItem } from './use-navigation-item.shared.tsrx'
+import type { NavLinkInput } from './nav-link'
+import { cx } from '@octane-xplat/lib'
+
+export function NavLink<
+	Contracts = RegisteredRouteContracts,
+	Stacks extends string = keyof AppRouteStacks & string,
+	Transitions extends string = RouteTransitionName,
+>(props: NavLinkProps<Contracts, Stacks, Transitions>): any
+
+export function NavLink(props: NavLinkInput) @{
+	const link = useNavigationItem(props, 'route')
 
 	<Pressable
-		className={cx(props.className, active ? props.activeClassName : undefined)}
-		onPress={() => pushRoute(props.route)}
+		id={props.id}
+		className={cx(props.className, link.selected ? props.activeClassName : undefined)}
+		style={props.style}
+		accessibilityRole="link"
+		accessibilityState={{ disabled: link.disabled, selected: link.selected }}
+		disabled={link.disabled}
+		onPress={() => link.activateNative()}
 	>
-		<masonview style={mergeStyle({flexDirection: "row"}, {display: "flex"})}>{props.children}</masonview>
+		{props.children}
 	</Pressable>
 }

@@ -55,6 +55,9 @@
 		"acorn": "8.15.0",
 		"saxes": "6.0.0"
 	},
+	"devDependencies": {
+		"octane": "catalog:"
+	},
 	"peerDependencies": {
 		"octane": ">=0.6.3 <1"
 	}

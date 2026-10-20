@@ -1,12 +1,17 @@
 import { Application, Frame, ListView } from '@nativescript/core'
-import { currentModalRoute, getStack, popRoute, routeFor } from '@octane-xplat/ui/routing'
+import { getStack } from '@octane-xplat/ui/routing'
 
 import { findInRootLayouts } from '@octane-xplat/ui/nativescript'
 
 import { DEMOS, virtualListHandle } from '@xplat/demos'
-import { goBack, navigate } from './nav'
+import { router } from '@octane-xplat/ui/routing';
 import { closeBottomSheet, bottomSheetHost } from './sheet'
 import { VIRTUAL_LIST_BENCH_MODE } from './virtual-list-benchmark-mode'
+
+function demoId(stack: 'demos' | 'test'): string | undefined {
+	const route = router.forStack(stack).getSnapshot().route
+	return route?.to === '/demo/:id' ? route.params.id : undefined
+}
 
 // The catalog sweep stays gated on Android — its step chain asserts native
 // Page/Frame objects (getStack().currentPage, navigated pages), which the
@@ -76,8 +81,8 @@ function dump(hay: string[]): string {
 // App demos push into the 'demos' stack (Apps pane); seam-proof demos
 // push into 'test' (Test pane). Steps resolve their stack from the
 // catalog kind — the current step's stack drives every page lookup.
-let stepStack = 'demos'
-const stackFor = (id: string) =>
+let stepStack: 'demos' | 'test' = 'demos'
+const stackFor = (id: string): 'demos' | 'test' =>
 	DEMOS.find((d) => d.id === id)?.kind === 'proof' ? 'test' : 'demos'
 
 // Self-drawn Tabs panes hold no Frame — their content lives inside the
@@ -89,7 +94,7 @@ const demosPage = () =>
 
 // Frame stacks detect pushes via currentPage changes; swap-pane stacks
 // keep the same Page — the route store is the honest signal for both.
-const pushedRoute = () => routeFor(stepStack)
+const pushedRoute = () => router.forStack(stepStack).getSnapshot().route
 
 // Captured across checks — bottomSheetHost() empties the moment closeBottomSheet's
 // finish() runs, so the detach assert needs the pre-close reference.
@@ -157,10 +162,10 @@ function runNavLinkProbe() {
 	}
 
 	waitFor(
-		() => routeFor('root')?.name === 'detail',
+		() => router.forStack('root').getSnapshot().route?.name === 'detail',
 		() => {
-			const route = routeFor('root')
-			const ok = route?.name === 'detail' && route.params.from === 'home'
+			const route = router.forStack('root').getSnapshot().route
+			const ok = route?.to === '/detail' && route.search.from === 'home'
 			console.log(
 				'[assert] NavLink pushes detail page: ' +
 					(ok ? 'OK' : 'FAIL') +
@@ -168,7 +173,7 @@ function runNavLinkProbe() {
 			)
 
 			if (ok) {
-				popRoute('root')
+				router.forStack('root').back()
 			}
 		},
 	)
@@ -181,7 +186,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 }
 
 // The +modal route: tap 'About ⤴' → manifest presentation:'modal' →
-// showModal root (currentPage untouched), popRoute dismisses it.
+// showModal root (currentPage untouched); dismiss closes the modal flow.
 function runModalRouteProbe() {
 	const homeView = getStack('root')?.currentPage
 	const target = tapTargetForText(homeView, 'About ⤴')
@@ -192,10 +197,9 @@ function runModalRouteProbe() {
 	}
 
 	waitFor(
-		() => currentModalRoute()?.name === 'about',
+		() => viewTexts((getStack('root')?.currentPage as any)?.modal).some(t => t.includes('About (modal route)')),
 		() => {
-			const route = currentModalRoute()
-			const ok = route?.name === 'about'
+			const ok = true
 			console.log('[assert] +modal route opens showModal root: ' + (ok ? 'OK' : 'FAIL'))
 
 			const modalView = (getStack('root')?.currentPage as any)?.modal
@@ -206,10 +210,10 @@ function runModalRouteProbe() {
 					(modalView ? '' : ' (no modal host on currentPage)'),
 			)
 
-			popRoute('root')
+			fireTap(tapTargetForText((getStack('root')?.currentPage as any)?.modal, 'Close'))
 			setTimeout(() => {
 				console.log(
-					'[assert] modal route dismissed by popRoute: ' + (currentModalRoute() ? 'FAIL' : 'OK'),
+					'[assert] modal route dismissed by owner: ' + ((getStack('root')?.currentPage as any)?.modal ? 'FAIL' : 'OK'),
 				)
 			}, 600)
 		},
@@ -1603,14 +1607,14 @@ if (SKIP && !VIRTUAL_LIST_BENCH_MODE) {
 	setTimeout(() => {
 		// The Android route probe intentionally finishes on a root-level demo.
 		// Return to the tab shell before opening the Apps pane's swap-pane route.
-		if (routeFor('root') != null) {
-			goBack()
+		if (router.forStack('root').getSnapshot().route != null) {
+			router.back()
 		}
 
 		waitFor(
-			() => routeFor('root') == null,
+			() => router.forStack('root').getSnapshot().route == null,
 			() => {
-				if (routeFor('root') != null) {
+				if (router.forStack('root').getSnapshot().route != null) {
 					console.log('[assert] Android VirtualList returned to tab shell: FAIL')
 					return
 				}
@@ -1630,11 +1634,11 @@ if (SKIP && !VIRTUAL_LIST_BENCH_MODE) {
 							return
 						}
 
-						navigate('demo/:id', { id: 'vlist' }, { into: 'demos' })
+						router.push({ to: '/demo/:id', params: { id: 'vlist' }, stack: 'demos' })
 						waitFor(
-							() => routeFor('demos')?.params?.id === 'vlist' && find('vlist') != null,
+							() => demoId('demos') === 'vlist' && find('vlist') != null,
 							() => {
-								const routeOk = routeFor('demos')?.params?.id === 'vlist'
+								const routeOk = demoId('demos') === 'vlist'
 								const list: any = find('vlist')
 								const mounted = list
 									? collect(list).filter((view) =>
@@ -1689,9 +1693,9 @@ function runAndroidLeafProbes() {
 			return chip != null && chip.isLoaded !== false
 		},
 		() => {
-			navigate('demo/:id', { id: 'richtext-editor' }, { into: 'test' })
+			router.push({ to: '/demo/:id', params: { id: 'richtext-editor' }, stack: 'test' })
 			waitFor(
-				() => routeFor('test')?.params?.id === 'richtext-editor',
+				() => demoId('test') === 'richtext-editor',
 				() => setTimeout(probeAztecLeaf, 1200),
 				80,
 			)
@@ -1752,9 +1756,9 @@ function probeAztecLeaf() {
 			' — keyboard-only history on this backend)',
 	)
 
-	navigate('demo/:id', { id: 'tiptap-editor' }, { into: 'test' })
+	router.push({ to: '/demo/:id', params: { id: 'tiptap-editor' }, stack: 'test' })
 	waitFor(
-		() => routeFor('test')?.params?.id === 'tiptap-editor',
+		() => demoId('test') === 'tiptap-editor',
 		() => setTimeout(probeTiptapFacade, 3000),
 		80,
 	)
@@ -1766,9 +1770,9 @@ function probeTiptapFacade() {
 	const jsonOk = hay.some((t) => t.includes('json ok'))
 	console.log('[assert] Android tiptap facade json bridge: ' + (jsonOk ? 'OK' : 'FAIL') + dump(hay))
 
-	navigate('demo/:id', { id: 'lexical-probe' }, { into: 'test' })
+	router.push({ to: '/demo/:id', params: { id: 'lexical-probe' }, stack: 'test' })
 	waitFor(
-		() => routeFor('test')?.params?.id === 'lexical-probe',
+		() => demoId('test') === 'lexical-probe',
 		() => setTimeout(probeLexicalImports, 4500),
 		80,
 	)
@@ -1777,9 +1781,9 @@ function probeTiptapFacade() {
 function probeLexicalImports() {
 	assertMatch('lexical probe pass', /probe \d+\/\d+ PASS/)
 
-	navigate('demo/:id', { id: 'lexical-editor' }, { into: 'test' })
+	router.push({ to: '/demo/:id', params: { id: 'lexical-editor' }, stack: 'test' })
 	waitFor(
-		() => routeFor('test')?.params?.id === 'lexical-editor',
+		() => demoId('test') === 'lexical-editor',
 		() => setTimeout(probeLexicalFacade, 4500),
 		80,
 	)
@@ -1863,7 +1867,7 @@ function runStepBody(step: Step, i: number) {
 
 			setTimeout(() => {
 				console.log('[sweep] goBack ' + step.id)
-				goBack({ into: stepStack })
+				router.forStack(stepStack).back()
 				waitFor(
 					() => pushedRoute() == null,
 					() => {

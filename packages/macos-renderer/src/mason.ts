@@ -696,6 +696,7 @@ interface ElementBehavior {
 }
 
 const masonLayoutNodesByView = new WeakMap<object, any>()
+const activeNativeLayouts = new WeakSet<object>()
 let deps: MasonDeps | null = null
 
 // Mason-backed host: the Rust engine computes descendant frames; children
@@ -717,12 +718,22 @@ function createMasonLayoutView() {
 		}
 
 		layout() {
-			super.layout()
-			layoutMasonChildren(
-				masonLayoutNodesByView.get(this),
-				deps!.layoutView,
-				deps!.pinLayoutChild,
-			)
+			// A live AppKit window can reenter this view while its native base
+			// layout is still running. The outer pass owns descendant layout.
+			if (activeNativeLayouts.has(this)) {
+				return
+			}
+			activeNativeLayouts.add(this)
+			try {
+				super.layout()
+				layoutMasonChildren(
+					masonLayoutNodesByView.get(this),
+					deps!.layoutView,
+					deps!.pinLayoutChild,
+				)
+			} finally {
+				activeNativeLayouts.delete(this)
+			}
 		}
 	}
 }

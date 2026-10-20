@@ -1,12 +1,10 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useLayoutEffect } from 'octane'
-import { useOwnedContent } from './use-owned-content'
-import { registerRouteContentOwner } from './route-content-owner'
+import { ClientRouteOutlet } from './ClientRouteOutlet.tsrx'
+import { useRouteOutletScope } from './route-outlet-scope.tsrx'
+import { defaultRouterRuntime } from './default-router'
 import type { RouteOutletProps } from './props'
 
-/** Native route Pages and modals inherit providers around this mounted outlet. */
-export function RouteOutlet(props: RouteOutletProps) {
-	const content = useOwnedContent()
-	useLayoutEffect(() => registerRouteContentOwner(props.stack ?? 'root', content.owner), [props.stack, content.owner])
-	return <>{props.children}{content.element}</>
+export function RouteOutlet(props: RouteOutletProps): any {
+	const { host, flow } = useRouteOutletScope(props.stack, defaultRouterRuntime)
+	return <ClientRouteOutlet host={host} flow={flow}>{props.children}</ClientRouteOutlet>
 }

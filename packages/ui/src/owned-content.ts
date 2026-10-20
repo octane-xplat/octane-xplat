@@ -26,7 +26,7 @@ export function createContentOwner() {
 			return disposed
 		},
 		/** The mounted outlet supplies its host view (NS View on native — the modal/page walkers read `.page`/`.parent`). */
-		host: null as { page?: any; parent?: any } | null,
+		host: null as { page?: any; parent?: any; window?: any } | null,
 		createRoot(target: unknown, onOwnerDispose: () => void = () => {}): ContentRoot {
 			if (disposed) {
 				throw new Error('The content outlet has been removed')

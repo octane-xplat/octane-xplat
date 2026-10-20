@@ -1,4 +1,4 @@
-import { routeFor, screenFor } from '@octane-xplat/ui/routing'
+import { router } from '@octane-xplat/ui/routing'
 
 type MacOSDebug = {
 	snapshot(): { labels: string[]; buttons: string[]; pressables: (string | undefined)[] }
@@ -106,9 +106,9 @@ async function run(): Promise<void> {
 		if (!counterMounted) {
 			console.log(
 				'[sweep] demos route=' +
-					JSON.stringify(routeFor('demos')) +
+					JSON.stringify(router.forStack('demos').getSnapshot().route) +
 					' screen=' +
-					Boolean(screenFor('demo/:id')),
+					router.resolveUrl('/demo/counter').status === 'matched',
 			)
 
 			console.log('[sweep] labels=' + JSON.stringify(debug.snapshot().labels))

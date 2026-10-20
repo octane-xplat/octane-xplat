@@ -215,7 +215,7 @@
 	/* xplat-web-only:end */
 
 	/* xplat-web-only:start */
-	/* Modal ROUTES (pushRoute presentation:'modal') — the URL stays underneath,
+	/* Modal ROUTES (push presentation:'modal') — the URL stays underneath,
    so the overlay is a fixed layer over the shell rather than a dialog. */
 
 	.vx-modalroute-shade {
@@ -904,6 +904,15 @@
 	.vx-breadcrumb-link {
 		color: var(--color-primary);
 	}
+	/* xplat-web-only:start — breadcrumb actions use real buttons */
+	button.vx-breadcrumb-link {
+		appearance: none;
+		background: none;
+		border: 0;
+		padding: 0;
+		font: inherit;
+	}
+	/* xplat-web-only:end */
 
 	/* Pagination — windowed page buttons. */
 	.vx-page-btn {

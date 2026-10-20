@@ -1,38 +1,100 @@
+import { sealGeneratedRouteCatalog } from './route-contract-scope'
+import { createRoutePreparation } from './routing-core'
+import { matchRouteSegments, parseRouteLocation } from '@octane-xplat/lib/route-pattern'
+import type { RouteDestinationInput, RouteMeta } from './props'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import type {
-	AppRouteName,
 	ManifestRouteNames,
 	ManifestRouteParams,
 	ManifestRoutePresentations,
-	Route,
-	RouteFor,
 	RouteManifest,
 	RouteSpec,
 	RouteSpecParams,
-	TypedRoute,
 } from './props'
 
 import {
-	buildRoutePath,
 	defineRoutes,
+	defineRuntimeRoutes,
 	deriveRouteManifest,
 	formatRouteDiagnostic,
 	layoutChain,
-	linkPath,
 	manifestToJson,
-	matchRoute,
-	matchUrl,
 	mergeRouteManifests,
 	RouteManifestError,
 } from './route-table'
 
 const C = (n: string) => Object.assign(() => null, { displayName: n })
+// Inspect the shared matcher without introducing a second production URL codec.
+function matchMeta(routes: readonly RouteMeta[], segments: string[]) {
+	for (const meta of routes) {
+		const params = matchRouteSegments(meta.segments, segments.map(decodeURIComponent))
+		if (params) {
+			return { meta, params }
+		}
+	}
+	return null
+}
+function preparation(routes: readonly RouteMeta[]) {
+	return createRoutePreparation({ catalog: { screens: Object.fromEntries(routes.map(route => [route.name, C(route.name)])), routes: [...routes], layouts: {} }, stacks: ['demos'] })
+}
+function resolveRoute(routes: readonly RouteMeta[], url: string) {
+	const result = preparation(routes).resolveUrl(url)
+	return result.status === 'matched' ? { ...result.destination, name: result.name } : null
+}
+const routeHref = (routes: readonly RouteMeta[], destination: RouteDestinationInput) => preparation(routes).href(destination)
+
+
+it('stores reserved JavaScript names as ordinary route and loader keys', () => {
+	const screen = C('Reserved')
+	const baked = Object.fromEntries([['__proto__', { title: 'Reserved' }]])
+	const routes = defineRoutes({ routes: [{ path: '__proto__', screen, dataMode: 'baked' }], baked })
+	expect(Object.hasOwn(routes.screens, '__proto__')).toBe(true)
+	expect(Object.hasOwn(routes.loaders!, '__proto__')).toBe(true)
+	const combined = mergeRouteManifests(routes)
+	expect(Object.hasOwn(combined.screens, '__proto__')).toBe(true)
+	expect(Object.hasOwn(combined.baked!, '__proto__')).toBe(true)
+	expect(combined.loaders!.__proto__({})).toEqual({ title: 'Reserved' })
+})
+
+it('keeps filename animation separate from presentation in catalog JSON', () => {
+	const catalog = deriveRouteManifest({ './app/help+fade.web.tsrx': { screen: C('Help') } }, ['web'])
+	expect(manifestToJson(catalog).routes[0]).toMatchObject({ name: 'help', presentation: 'push', transition: 'fade' })
+})
+
+it('does not treat inherited properties as directory layouts', () => {
+	expect(layoutChain({}, 'constructor/item')).toEqual([])
+	const routes = defineRoutes([{ path: 'constructor/item', screen: C('Item') }])
+	expect(manifestToJson({ ...routes, layouts: {} }).routes[0].layouts).toEqual([])
+})
+
+it('retains reserved external search keys as string data without changing their prototype', () => {
+	const params = parseRouteLocation('/?__proto__=json:%7B%22injected%22:true%7D&constructor=ordinary').search
+	expect(Object.hasOwn(params, '__proto__')).toBe(true)
+	expect(params.__proto__).toBe('json:{"injected":true}')
+	expect(params.injected).toBeUndefined()
+	expect(params.constructor).toBe('ordinary')
+})
+
+it('matches the declared index at the root URL, without inventing one for an empty catalog', () => {
+	const routes = defineRoutes([{ path: 'index', screen: C('Home') }]).routes
+	expect(resolveRoute(routes, '/')?.name).toBe('index')
+	expect(resolveRoute(routes, '/?from=link')?.search).toEqual({ from: 'link' })
+	expect(resolveRoute([], '/')).toBeNull()
+})
 
 function manifest(files: Record<string, any>, prefer: string[] = ['web']) {
-	return deriveRouteManifest(files, prefer)
+	return sealGeneratedRouteCatalog(deriveRouteManifest(files, prefer))
 }
 
 describe('deriveRouteManifest', () => {
+	it('normalizes configured route roots without stripping parent or hidden-directory prefixes', () => {
+		for (const dir of ['./screens', '../screens', '.screens']) {
+			const routes = deriveRouteManifest({ [dir + '/items/[id].tsx']: { screen: C('Item') } }, ['web'], dir)
+			expect(routes.routes[0].name).toBe('items/:id')
+			expect(resolveRoute(routes.routes, '/items/coat')?.params).toEqual({ id: 'coat' })
+		}
+	})
+
 	it('maps file paths to route names', () => {
 		const m = manifest({
 			'./app/detail.tsrx': { Detail: C('Detail') },
@@ -98,16 +160,42 @@ describe('deriveRouteManifest', () => {
 		}
 	})
 
-	it('warns with a code when a metadata export is the wrong shape', () => {
+	it('rejects malformed metadata instead of silently removing guards', () => {
+		const loader = vi.fn(() => ({ private: true }))
 		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-		const m = manifest({
-			'./app/detail.tsrx': { D: C('A'), beforeLoad: 'yes', dataMode: 'warm' },
-		})
+		try {
+			const invalid = () => manifest({
+				'./app/detail.tsrx': { default: C('Detail'), beforeLoad: 'yes', dataMode: 'warm', loader },
+			})
+			expect(invalid).toThrow(RouteManifestError)
+			try { invalid() } catch (error) {
+				expect((error as RouteManifestError).issues.map((issue) => issue.path)).toEqual([
+					'./app/detail.tsrx:dataMode', './app/detail.tsrx:beforeLoad',
+				])
+			}
+			expect(loader).not.toHaveBeenCalled()
+			expect(warn).not.toHaveBeenCalled()
+		} finally { warn.mockRestore() }
+	})
 
-		expect(warn).toHaveBeenCalledWith(expect.stringContaining('route/invalid-export'))
-		expect(m.routes[0]!.beforeLoad).toBeUndefined()
-		expect(m.routes[0]!.dataMode).toBeUndefined()
-		warn.mockRestore()
+	it.each([
+		['loader', 1],
+		['beforeLoad', 'yes'],
+		['ErrorBoundary', {}],
+		['validateSearch', { '~standard': { version: 2, validate: () => ({ value: {} }) } }],
+		['head', []],
+		['head', null],
+	])('rejects an invalid %s export with a source-aware repair', (field, value) => {
+		try {
+			manifest({ './app/detail.tsrx': { screen: C('Detail'), [field]: value } })
+			expect.unreachable()
+		} catch (error) {
+			expect(error).toBeInstanceOf(RouteManifestError)
+			expect((error as RouteManifestError).issues).toMatchObject([{
+				code: 'route/invalid-export', path: './app/detail.tsrx:' + field,
+				hint: expect.stringContaining('before constructing the route catalog'),
+			}])
+		}
 	})
 
 	it('picks default export, then screen, then single function export', () => {
@@ -121,122 +209,11 @@ describe('deriveRouteManifest', () => {
 		expect(m.screens.b.displayName).toBe('s')
 		expect(m.screens.c.displayName).toBe('only')
 	})
-})
 
-describe('matchRoute + buildRoutePath', () => {
-	const { routes } = manifest({
-		'./app/detail.tsrx': { D: C('D') },
-		'./app/demo/[id].tsrx': { DD: C('DD') },
-		'./app/demo/new.tsrx': { DN: C('DN') },
-	})
-
-	it('static beats param at the same depth', () => {
-		expect(matchRoute(routes, ['demo', 'new'])!.meta.name).toBe('demo/new')
-		expect(matchRoute(routes, ['demo', 'x'])!.meta.name).toBe('demo/:id')
-	})
-
-	it('extracts path params', () => {
-		const hit = matchRoute(routes, ['demo', 'counter'])!
-		expect(hit.params).toEqual({ id: 'counter' })
-	})
-
-	it('builds path with substituted params; leftovers go to query', () => {
-		expect(
-			buildRoutePath(routes, {
-				stack: 'demos',
-				name: 'demo/:id',
-				params: { id: 'counter', tab: '2' },
-			}),
-		).toBe('/demos/demo/counter?tab=2')
-
-		expect(
-			buildRoutePath(routes, { stack: 'root', name: 'detail', params: { from: 'home' } }),
-		).toBe('/detail?from=home')
-	})
-
-	it('non-manifest names keep the legacy shape', () => {
-		expect(buildRoutePath(routes, { stack: 'root', name: 'other', params: { a: '1' } })).toBe(
-			'/other?a=1',
-		)
-	})
-
-	it('JSON-encodes non-scalar params and restores them on match', () => {
-		const path = buildRoutePath(routes, {
-			stack: 'root',
-			name: 'detail',
-			params: { filter: { unread: true } },
-		})
-
-		const matched = matchUrl(routes, path)!
-
-		expect(path).toContain('json%3A%7B%22unread%22%3Atrue%7D')
-		expect(matched.params.filter).toEqual({ unread: true })
-	})
-
-	it('strips a +presentation suffix into meta.presentation', () => {
-		const m = manifest({
-			'./app/settings+modal.tsrx': { S: C('S') },
-			'./app/fade+fade.tsrx': { F: C('F') },
-		})
-
-		expect(m.screens.settings.displayName).toBe('S')
-		expect(m.routes.find((r) => r.name === 'settings')!.presentation).toBe('modal')
-		expect(m.routes.find((r) => r.name === 'fade')!.presentation).toBe('fade')
-	})
-
-	it('presentation suffix composes with platform suffixes', () => {
-		const m = manifest(
-			{
-				'./app/sheet+modal.tsrx': { S: C('shared') },
-				'./app/sheet+modal.mobile.tsrx': { S: C('mobile') },
-			},
-			['ios', 'mobile'],
-		)
-
-		expect(m.screens.sheet.displayName).toBe('mobile')
-		expect(m.routes[0].name).toBe('sheet')
-		expect(m.routes[0].presentation).toBe('modal')
-	})
-
-	it('picks up a loader export; loader-only files have no screen', () => {
-		const loader = (p: Record<string, unknown>) => p
-		const m = manifest({
-			'./app/detail.tsrx': { screen: C('D'), loader },
-			'./app/data.tsrx': { loader },
-		})
-
-		expect(m.routes.find((r) => r.name === 'detail')!.loader).toBe(loader)
-		expect(m.screens.data).toBeUndefined()
-	})
-
-	it('records beforeLoad and head exports without mistaking them for screens', () => {
-		const beforeLoad = () => ({ role: 'member' })
-		const head = (params: Record<string, unknown>) => ({ title: String(params.id) })
-		const m = manifest({
-			'./app/detail.tsrx': { Detail: C('D'), beforeLoad, head },
-		})
-
-		const detail = m.routes[0]
-
-		expect(detail.beforeLoad).toBe(beforeLoad)
-		expect(detail.head).toBe(head)
-		expect(m.screens.detail.displayName).toBe('D')
-	})
-
-	it('picks up an ErrorBoundary export without mistaking it for the screen', () => {
-		const boundary = C('Boundary')
-		const m = manifest({
-			// No default/screen export — the lone component still wins over
-			// the reserved boundary export.
-			'./app/detail.tsrx': { Detail: C('D'), ErrorBoundary: boundary },
-			'./app/bare.tsrx': { screen: C('B'), ErrorBoundary: boundary },
-		})
-
-		const detail = m.routes.find((r) => r.name === 'detail')!
-		expect(detail.errorBoundary).toBe(boundary)
-		expect(m.screens.detail.displayName).toBe('D')
-		expect(m.screens.bare.displayName).toBe('B')
-		expect(m.routes.find((r) => r.name === 'bare')!.errorBoundary).toBe(boundary)
+	it('rejects malformed runtime loader metadata even when a file uses baked data', () => {
+		expect(() => manifest({ './app/detail.tsrx': {
+			default: C('Detail'), dataMode: 'baked', loader: 42,
+		} })).toThrow('route/invalid-export ./app/detail.tsrx:loader')
 	})
 })
 
@@ -253,12 +230,12 @@ describe('optional segments and catch-alls', () => {
 	it('optional param present and absent on one route', () => {
 		const { routes } = coreframe
 
-		expect(matchRoute(routes, ['en', 'guides', 'x'])!).toMatchObject({
+		expect(matchMeta(routes, ['en', 'guides', 'x'])!).toMatchObject({
 			meta: { name: ':locale?/guides/:doc' },
 			params: { locale: 'en', doc: 'x' },
 		})
 
-		const absent = matchRoute(routes, ['guides', 'x'])!
+		const absent = matchMeta(routes, ['guides', 'x'])!
 		expect(absent.meta.name).toBe(':locale?/guides/:doc')
 		expect(absent.params).toEqual({ doc: 'x' })
 		expect('locale' in absent.params).toBe(false)
@@ -268,18 +245,18 @@ describe('optional segments and catch-alls', () => {
 		// 'guides' could fill :locale? greedily — the matcher must release
 		// it so the static 'guides' segment aligns and :doc gets 'x'.
 		const { routes } = coreframe
-		expect(matchRoute(routes, ['guides', 'x'])!.params.doc).toBe('x')
+		expect(matchMeta(routes, ['guides', 'x'])!.params.doc).toBe('x')
 	})
 
 	it('terminal catch-all captures the remaining path, joined', () => {
-		expect(matchRoute(coreframe.routes, ['en', 'guides', 'a', 'b'])!).toMatchObject({
+		expect(matchMeta(coreframe.routes, ['en', 'guides', 'a', 'b'])!).toMatchObject({
 			meta: { name: ':locale?/guides/*' },
 			params: { locale: 'en', '*': 'a/b' },
 		})
 	})
 
 	it('catch-all matches zero remaining segments', () => {
-		expect(matchRoute(coreframe.routes, ['guides'])!).toMatchObject({
+		expect(matchMeta(coreframe.routes, ['guides'])!).toMatchObject({
 			meta: { name: ':locale?/guides/*' },
 			params: { '*': '' },
 		})
@@ -287,7 +264,7 @@ describe('optional segments and catch-alls', () => {
 
 	it('decodes per-segment inside the splat', () => {
 		const m = defineRoutes([{ path: 'docs/*', screen: C('D') }])
-		expect(matchRoute(m.routes, ['docs', 'a%20b', 'c'])!.params['*']).toBe('a b/c')
+		expect(matchMeta(m.routes, ['docs', 'a%20b', 'c'])!.params['*']).toBe('a b/c')
 	})
 
 	it('precedence: static and required params beat optionals and splats', () => {
@@ -301,10 +278,10 @@ describe('optional segments and catch-alls', () => {
 		})
 
 		// static > required > optional > splat, regardless of spec order
-		expect(matchRoute(m.routes, ['docs', 'new'])!.meta.name).toBe('docs/new')
-		expect(matchRoute(m.routes, ['docs', 'x'])!.meta.name).toBe('docs/:id')
-		expect(matchRoute(m.routes, ['docs'])!.meta.name).toBe('docs/:id?')
-		expect(matchRoute(m.routes, ['docs', 'a', 'b'])!).toMatchObject({
+		expect(matchMeta(m.routes, ['docs', 'new'])!.meta.name).toBe('docs/new')
+		expect(matchMeta(m.routes, ['docs', 'x'])!.meta.name).toBe('docs/:id')
+		expect(matchMeta(m.routes, ['docs'])!.meta.name).toBe('docs/:id?')
+		expect(matchMeta(m.routes, ['docs', 'a', 'b'])!).toMatchObject({
 			meta: { name: 'docs/*rest' },
 			params: { rest: 'a/b' },
 		})
@@ -318,9 +295,9 @@ describe('optional segments and catch-alls', () => {
 			],
 		})
 
-		expect(matchRoute(m.routes, ['a', 'b'])!.meta.name).toBe('a/b')
-		expect(matchRoute(m.routes, ['a', 'q'])!.params.x).toBe('q')
-		expect(matchRoute(m.routes, ['a'])!.params).toEqual({})
+		expect(matchMeta(m.routes, ['a', 'b'])!.meta.name).toBe('a/b')
+		expect(matchMeta(m.routes, ['a', 'q'])!.params.x).toBe('q')
+		expect(matchMeta(m.routes, ['a'])!.params).toEqual({})
 	})
 
 	it('file syntax: [[p]] is optional, [...p] is a named catch-all', () => {
@@ -335,12 +312,12 @@ describe('optional segments and catch-alls', () => {
 		const files = m.routes.find((r) => r.name === 'files/*rest')!
 		expect(files.params).toEqual(['rest'])
 
-		expect(matchRoute(m.routes, ['en', 'doc'])!).toMatchObject({
+		expect(matchMeta(m.routes, ['en', 'doc'])!).toMatchObject({
 			meta: { name: ':lang/:locale?/doc' },
 			params: { lang: 'en' },
 		})
 
-		expect(matchRoute(m.routes, ['files', 'a', 'b'])!.params.rest).toBe('a/b')
+		expect(matchMeta(m.routes, ['files', 'a', 'b'])!.params.rest).toBe('a/b')
 	})
 
 	it('a mid-path * warns and matches literally', () => {
@@ -348,70 +325,71 @@ describe('optional segments and catch-alls', () => {
 		const m = defineRoutes([{ path: 'a/*/b', screen: C('Mid') }])
 
 		expect(warn).toHaveBeenCalledWith(expect.stringContaining('mid-path'))
-		expect(matchRoute(m.routes, ['a', 'x', 'b'])).toBeNull()
-		expect(matchRoute(m.routes, ['a', '*', 'b'])!.meta.name).toBe('a/*/b')
+		expect(matchMeta(m.routes, ['a', 'x', 'b'])).toBeNull()
+		expect(matchMeta(m.routes, ['a', '*', 'b'])!.meta.name).toBe('a/*/b')
 		warn.mockRestore()
 	})
 
-	it('buildRoutePath drops an absent optional segment', () => {
+	it('canonical href drops an absent optional segment', () => {
 		expect(
-			buildRoutePath(coreframe.routes, {
+			routeHref(coreframe.routes, {
 				stack: 'root',
-				name: ':locale?/guides/:doc',
+				to: '/:locale?/guides/:doc',
 				params: { doc: 'x' },
 			}),
 		).toBe('/guides/x')
 
 		expect(
-			buildRoutePath(coreframe.routes, {
+			routeHref(coreframe.routes, {
 				stack: 'root',
-				name: ':locale?/guides/:doc',
+				to: '/:locale?/guides/:doc',
 				params: { locale: 'en', doc: 'x' },
 			}),
 		).toBe('/en/guides/x')
 	})
 
-	it('buildRoutePath splices a splat param as segments', () => {
+	it('canonical href splices a splat param as segments', () => {
 		expect(
-			buildRoutePath(coreframe.routes, {
+			routeHref(coreframe.routes, {
 				stack: 'root',
-				name: ':locale?/guides/*',
+				to: '/:locale?/guides/*',
 				params: { '*': 'a/b c' },
 			}),
 		).toBe('/guides/a/b%20c')
 
 		expect(
-			buildRoutePath(coreframe.routes, {
+			routeHref(coreframe.routes, {
 				stack: 'root',
-				name: ':locale?/guides/*',
+				to: '/:locale?/guides/*',
 				params: {},
 			}),
 		).toBe('/guides')
 	})
 
-	it('matchUrl routes a localized doc URL end to end', () => {
-		expect(matchUrl(coreframe.routes, '/en/guides/x?tab=2')!).toMatchObject({
+	it('canonical resolution routes a localized doc URL end to end', () => {
+		expect(resolveRoute(coreframe.routes, '/en/guides/x?tab=2')!).toMatchObject({
 			stack: 'root',
 			name: ':locale?/guides/:doc',
-			params: { locale: 'en', doc: 'x', tab: '2' },
+			params: { locale: 'en', doc: 'x' },
+			search: { tab: '2' },
 		})
 
-		expect(matchUrl(coreframe.routes, '/guides/no/such/doc')!).toMatchObject({
+		expect(resolveRoute(coreframe.routes, '/guides/no/such/doc')!).toMatchObject({
 			stack: 'root',
-			name: ':locale?/guides/*',
+			to: '/:locale?/guides/*',
 			params: { '*': 'no/such/doc' },
 		})
 	})
 
 	it('round-trips optional + splat params through build/match', () => {
-		const path = buildRoutePath(coreframe.routes, {
+		const path = routeHref(coreframe.routes, {
 			stack: 'root',
-			name: ':locale?/guides/*',
+			to: '/:locale?/guides/*',
 			params: { locale: 'fr', '*': 'a/b' },
 		})
 
 		expect(path).toBe('/fr/guides/a/b')
-		expect(matchUrl(coreframe.routes, path)!.params).toEqual({ locale: 'fr', '*': 'a/b' })
+		expect(resolveRoute(coreframe.routes, path)!.params).toEqual({ locale: 'fr', '*': 'a/b' })
 	})
 
 	it('a root catch-all claims stack-prefixed URLs too', () => {
@@ -425,7 +403,7 @@ describe('optional segments and catch-alls', () => {
 			],
 		})
 
-		expect(matchUrl(m.routes, '/demos/demo/x')!).toMatchObject({
+		expect(resolveRoute(m.routes, '/demos/demo/x')!).toMatchObject({
 			stack: 'root',
 			name: '*',
 			params: { '*': 'demos/demo/x' },
@@ -457,57 +435,6 @@ describe('optional segments and catch-alls', () => {
 		expectTypeOf<ManifestRouteNames<typeof m>>().toEqualTypeOf<
 			':locale?/guides/:doc' | 'docs/*rest' | 'files/*'
 		>()
-	})
-})
-
-describe('matchUrl + linkPath', () => {
-	const { routes } = manifest({
-		'./app/detail.tsrx': { D: C('D') },
-		'./app/demo/[id].tsrx': { DD: C('DD') },
-		'./app/settings+modal.tsrx': { S: C('S') },
-	})
-
-	it('root path wins over stack interpretation', () => {
-		expect(matchUrl(routes, '/demo/x')).toMatchObject({ stack: 'root', name: 'demo/:id' })
-	})
-
-	it('first segment is the stack when the whole path misses', () => {
-		const r = matchUrl(routes, '/demos/demo/x?tab=2')!
-		expect(r).toMatchObject({ stack: 'demos', name: 'demo/:id' })
-		expect(r.params).toEqual({ id: 'x', tab: '2' })
-	})
-
-	it('carries meta.presentation into the route', () => {
-		expect(matchUrl(routes, '/settings')!.presentation).toBe('modal')
-	})
-
-	it('normalizes http(s) and app-scheme URLs', () => {
-		expect(linkPath('https://x.com/demo/9?a=1')).toBe('/demo/9?a=1')
-		expect(linkPath('textcoral://demo/9')).toBe('/demo/9')
-		expect(linkPath('/demo/9')).toBe('/demo/9')
-	})
-
-	it.each(['/demo/%', '/demo/%E0%A4%A', '/detail?from=%', '/detail?%=x'])(
-		'rejects malformed encoding without throwing: %s',
-		(url) => expect(matchUrl(routes, url)).toBeNull(),
-	)
-
-	it('ignores fragments for params but carries them into route.hash', () => {
-		expect(matchUrl(routes, linkPath('xplat://demo/counter?from=a?b#ignored'))).toMatchObject({
-			params: { id: 'counter', from: 'a?b' },
-			hash: 'ignored',
-		})
-	})
-
-	it('emits route.hash back into the built path', () => {
-		expect(
-			buildRoutePath(routes, {
-				stack: 'root',
-				name: 'detail',
-				params: { from: 'home' },
-				hash: 'section-2',
-			}),
-		).toBe('/detail?from=home#section-2')
 	})
 })
 
@@ -659,7 +586,7 @@ describe('defineRoutes', () => {
 				'routes[2].path',
 			])
 
-			expect(err.issues[0]!.expected).toBe("'push' | 'modal' | 'fade'")
+			expect(err.issues[0]!.expected).toBe("'push' | 'modal'")
 		}
 	})
 
@@ -722,11 +649,11 @@ describe('defineRoutes', () => {
 		expectTypeOf<ManifestRouteParams<typeof m>['guides']>().toEqualTypeOf<{}>()
 		expectTypeOf<ManifestRoutePresentations<typeof m>['guides/:slug']>().toEqualTypeOf<'modal'>()
 
-		// Still a plain RouteManifest — registerRoutes/matchRoute accept it.
+		// Inferred contracts keep the normalized RouteManifest surface.
 		expectTypeOf(m).toMatchTypeOf<RouteManifest>()
 	})
 
-	it('spec parity — a spec produces the same meta its file would', () => {
+	it('file and programmatic routes expose the same structured preparation', () => {
 		const loader = (p: Record<string, unknown>) => p
 		const beforeLoad = () => ({ ok: true })
 		const head = { title: 'Guide' }
@@ -746,7 +673,13 @@ describe('defineRoutes', () => {
 
 		const fm = file.routes.find((r) => r.name === 'guides/:slug')!
 		const sm = spec.routes.find((r) => r.name === 'guides/:slug')!
-		expect({ ...sm, file: undefined }).toEqual({ ...fm, file: undefined })
+		expect({ ...sm, file: undefined, preparation: undefined }).toEqual({
+			...fm,
+			file: undefined,
+			preparation: undefined,
+		})
+		expect(fm.preparation).toMatchObject({ loader, beforeLoad })
+		expect(sm.preparation).toMatchObject({ loader, beforeLoad })
 		expect(spec.loaders!['guides/:slug']).toBe(loader)
 	})
 
@@ -819,7 +752,7 @@ describe('defineRoutes', () => {
 			},
 		})
 
-		file.baked = { 'guides/:slug': { ok: true } }
+		const fileWithData = { ...file, baked: { 'guides/:slug': { ok: true } } }
 
 		const spec = defineRoutes({
 			routes: [
@@ -838,7 +771,7 @@ describe('defineRoutes', () => {
 			baked: { 'guides/:slug': { ok: true } },
 		})
 
-		const fj = manifestToJson(file).routes[0]
+		const fj = manifestToJson(fileWithData).routes[0]
 		const sj = manifestToJson(spec).routes[0]
 		expect(sj).toEqual(fj)
 		expect(fj).toEqual({
@@ -901,7 +834,7 @@ describe('mergeRouteManifests', () => {
 		expect(merged.layouts.docs.displayName).toBe('DocsShell')
 		// Sort order is rebuilt — 'demo/:id' still loses to nothing, but a
 		// static dynamic route must outrank a file param route.
-		expect(matchRoute(merged.routes, ['demo', 'x'])!.meta.name).toBe('demo/:id')
+		expect(matchMeta(merged.routes, ['demo', 'x'])!.meta.name).toBe('demo/:id')
 	})
 
 	it('later manifests win same-name routes — meta and config together', () => {
@@ -921,7 +854,7 @@ describe('mergeRouteManifests', () => {
 
 	it('file manifest wins when merged after the dynamic one', () => {
 		const dynamic = defineRoutes([{ path: 'detail', screen: C('DynDetail') }])
-		const merged = mergeRouteManifests(dynamic, files)
+		const merged = mergeRouteManifests(dynamic, sealGeneratedRouteCatalog(files))
 
 		expect(merged.screens.detail.displayName).toBe('FileDetail')
 	})
@@ -930,21 +863,11 @@ describe('mergeRouteManifests', () => {
 		const dynamic = defineRoutes([{ path: 'demo/new', screen: C('NewDemo') }])
 		const merged = mergeRouteManifests(files, dynamic)
 
-		expect(matchRoute(merged.routes, ['demo', 'new'])!.meta.name).toBe('demo/new')
+		expect(matchMeta(merged.routes, ['demo', 'new'])!.meta.name).toBe('demo/new')
 	})
 })
 
 describe('schema-inferred routes', () => {
-	it('narrows a destination union to the params map', () => {
-		type Params = { 'docs/:slug': { slug: string }; about: {} }
-
-		expectTypeOf<RouteFor<Params>['name']>().toEqualTypeOf<'docs/:slug' | 'about'>()
-		expectTypeOf<RouteFor<Params, 'docs/:slug'>['params']>().toEqualTypeOf<{
-			slug: string
-		}>()
-
-		expectTypeOf<RouteFor<Params>>().toExtend<Route>()
-	})
 
 	it('derives spec params from the path literal', () => {
 		expectTypeOf<RouteSpecParams<'docs/:slug'>>().toEqualTypeOf<{ slug: string }>()
@@ -960,7 +883,7 @@ describe('schema-inferred routes', () => {
 		const spec = {
 			path: 'guides/:doc',
 			screen: C('Doc'),
-			loader: (params) => params.doc,
+			loader: ({ params }) => params.doc,
 			beforeLoad: (args) => ({ doc: args.params.doc }),
 			head: (params) => ({ title: params.doc }),
 		} satisfies RouteSpec<'guides/:doc'>
@@ -969,10 +892,13 @@ describe('schema-inferred routes', () => {
 		expectTypeOf(spec).toExtend<RouteSpec>()
 		expect(defineRoutes([spec]).screens['guides/:doc'].displayName).toBe('Doc')
 	})
+})
 
-	it('stays loose until the app contributes AppRoutes', () => {
-		expectTypeOf<AppRouteName>().toEqualTypeOf<string>()
-		expectTypeOf<TypedRoute>().toExtend<Route>()
-		expectTypeOf<Route>().toExtend<TypedRoute>()
-	})
+it('rejects runtime catalogs that shadow a declared contract while retaining typed startup overrides', async () => {
+	const first = defineRoutes([{ path: '/known', loader: () => ({ title: 'known' }), screen: C('Known') }])
+	const runtime = defineRuntimeRoutes([{ path: '/known', loader: () => 31, screen: C('Runtime') }])
+	expect(() => mergeRouteManifests(first, runtime)).toThrow("cannot replace a declared route contract")
+	const last = defineRoutes([{ path: '/known', loader: () => 42, screen: C('Last') }])
+	const merged = mergeRouteManifests(first, last)
+	expect(await createRoutePreparation({ catalog: merged }).prepare('/known')).toMatchObject({ status: 'ready', match: { data: 42 } })
 })
