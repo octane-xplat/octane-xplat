@@ -81,6 +81,11 @@ build:packages`, `pnpm build:web`, and the package-test half of `pnpm test`
   in `packages/cli/test/vite-fs-allow.test.mjs` checks stylesheet registration and
   rejection of unrelated files. This fixes preset discovery, without disabling
   Vite's filesystem boundary.
+  The canonical NativeScript Vite patch likewise discovers installed source
+  links for nested `/ns/m/node_modules/` requests. Otherwise hook-linked auth
+  packages lose their private native plugins (verified 404 for Apple sign-in
+  after CSS loaded). The fallback regression covers a semver manifest with an
+  external source symlink and a sibling package's transitive native plugin.
 - `@nativescript/vite` 8.0.17's HMR vendor collector
   (`hmr/shared/vendor/manifest-collect.js` `isUnvendorableLocalSource`)
   treats only `link:`/`workspace:` specs — and `file:` directories with no

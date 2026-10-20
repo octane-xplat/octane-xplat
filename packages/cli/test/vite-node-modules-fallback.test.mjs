@@ -10,7 +10,8 @@ import {
 } from 'node:fs'
 
 import { createServer as createHttpServer } from 'node:http'
-import { createServer } from 'vite'
+import { createServer, searchForWorkspaceRoot } from 'vite'
+import { linkedDepFsRoots } from '../dist/vite.js'
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
@@ -21,12 +22,15 @@ const moduleUrl = new URL(
 	'./hmr/server/websocket-module-specifiers.js',
 	pathToFileURL(createRequire(import.meta.url).resolve('@nativescript/vite')),
 )
+
 const { resolveCandidateFilePath, filterExistingNodeModulesTransformCandidates } = await import(
 	moduleUrl
 )
+
 const { createNsMRequestContext, resolveNsMTransformedModule } = await import(
 	new URL('./websocket-ns-m-request.js', moduleUrl)
 )
+
 const roots = []
 
 const makeProject = (packageJson) => {
@@ -50,7 +54,12 @@ const withNativeHttpServer = async (projectRoot, run) => {
 		root: projectRoot,
 		configFile: false,
 		logLevel: 'silent',
-		server: { middlewareMode: true, watch: null, hmr: false },
+		server: {
+			middlewareMode: true,
+			watch: null,
+			hmr: false,
+			fs: { allow: [projectRoot, ...linkedDepFsRoots(projectRoot, searchForWorkspaceRoot)] },
+		},
 		optimizeDeps: { noDiscovery: true },
 	})
 	// Exercise NativeScript's request/transform helpers over HTTP with real
@@ -123,17 +132,26 @@ describe('patched NativeScript Vite node_modules fallback', () => {
 		})
 	})
 
-	for (const workspaceKind of ['pnpm', 'package-json']) {
+	for (const workspaceKind of ['pnpm', 'package-json', 'hook-linked']) {
 		it(`serves a transitive plugin from a linked ${workspaceKind} workspace package`, async () => {
 			const projectRoot = makeProject({
 				name: 'app',
-				dependencies: { auth: 'link:./octane-xplat/packages/auth' },
+				dependencies: {
+					auth: workspaceKind === 'hook-linked' ? '0.16.0' : 'link:./octane-xplat/packages/auth',
+				},
 			})
-			const workspaceRoot = join(projectRoot, 'octane-xplat')
+			const workspaceRoot = join(
+				workspaceKind === 'hook-linked' ? dirname(projectRoot) : projectRoot,
+				'octane-xplat',
+			)
 			const authRoot = join(workspaceRoot, 'packages/auth')
 			const storageRoot = join(workspaceRoot, 'packages/secure-storage')
 			mkdirSync(authRoot, { recursive: true })
 			mkdirSync(storageRoot, { recursive: true })
+			if (workspaceKind === 'hook-linked') {
+				mkdirSync(join(projectRoot, 'node_modules'), { recursive: true })
+				symlinkSync(authRoot, join(projectRoot, 'node_modules/auth'), 'dir')
+			}
 			writeFileSync(
 				join(workspaceRoot, 'package.json'),
 				JSON.stringify({
@@ -141,7 +159,7 @@ describe('patched NativeScript Vite node_modules fallback', () => {
 					...(workspaceKind === 'package-json' ? { workspaces: ['packages/*'] } : {}),
 				}),
 			)
-			if (workspaceKind === 'pnpm') {
+			if (workspaceKind !== 'package-json') {
 				writeFileSync(join(workspaceRoot, 'pnpm-workspace.yaml'), 'packages:\n  - packages/*\n')
 			}
 			writeFileSync(
