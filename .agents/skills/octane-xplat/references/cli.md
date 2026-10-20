@@ -161,6 +161,9 @@ instance, availability, input contract, declared effects, and revision. Invoke
 only an action within the task's authorization, follow its returned job, and
 assert state independently. Do not invent action IDs or treat an empty registry
 as a broken CLI. Actions supplement UI checks; they do not prove user input.
+To add actions or diagnose missing registration, read
+[authoring development actions](development-actions.md), including bridge setup
+and platform qualification limits.
 
 ```sh
 pnpm exec xplat actions list --json

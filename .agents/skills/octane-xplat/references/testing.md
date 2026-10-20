@@ -27,6 +27,15 @@ export function AddItem() {
 }
 ```
 
+## Prepare deterministic app states
+
+Use [development actions](development-actions.md) when verification needs a known
+login, fixture dataset, or prepared scenario in a running dev app. That reference
+covers app-owned registration, bridge setup, and supported targets; the
+[CLI workflow](cli.md#inspect-and-assert-supported-behavior) covers discovery and
+invocation. Check rendered state separately after setup; action completion alone
+does not establish UI behavior or user input.
+
 ## Framework investigations
 
 Use an isolated probe for a single case. Research probes are temporary;

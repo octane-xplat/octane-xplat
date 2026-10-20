@@ -71,6 +71,7 @@ limitations. Do not load the entire reference tree by default.
 | Task                                               | Start here                                                                                                                                       |
 | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Discover or operate the installed CLI              | [CLI workflow](references/cli.md)                                                                                                                |
+| Add app actions for deterministic verification     | [Development actions](references/development-actions.md)                                                                                        |
 | Create, run, or upgrade an app                     | [Getting started](references/getting-started.md)                                                                                                 |
 | Choose/use a component                             | [Primitives](references/primitives.md)                                                                                                           |
 | Implement/debug a native leaf                      | [Driver semantics](references/primitives/driver-semantics.md)                                                                                    |
