@@ -78,10 +78,11 @@ export function UpdatingComposite(props: { col?: number; span?: number }) @{
 }
 
 // Nested so the real driver's deferred Mason leaf replay is exercised.
-export function TrackStyleCase(props: { columns?: string; template?: string }) @{
+export function TrackStyleCase(props: { columns?: string; template?: string; extra?: boolean }) @{
  <masonview style={{ display: 'flex' }}>
   <Grid className="bounded-grid" rows="auto,*" columns={props.columns} style={props.template ? { gridTemplateColumns: props.template } : undefined}>
    <label text="track content" />
   </Grid>
+  @if (props.extra) { <label text="late sibling" /> }
  </masonview>
 }

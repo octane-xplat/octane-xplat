@@ -165,8 +165,13 @@ entries, matching web. Previously an omitted `columns` emitted
 it into the Mason helper after attachment, potentially clearing a class's
 template. The nested-driver regression failed before this correction and
 passed afterward. Declared stars still emit `1fr`; no global track semantics
-changed. Changing existing declared tracks to stylesheet ownership during a
-live update is outside this regression's coverage.
+changed. Removing a declared track also clears its deferred Mason style
+entry and resets the current leaf before NativeScript reapplies the CSS
+cascade. Without that cleanup, attaching a later sibling replays the old
+track. Host-driver regressions cover removing both a `columns` prop and an
+inline track style, then inserting a sibling; both failed before the cleanup
+and passed afterward. These recording-mock tests do not verify device CSS
+cascade behavior.
 
 The framework correction gives Screen's inner Mason root a low-priority
 `width:100%` CSS default through `vx-screen-content`. This makes its computed

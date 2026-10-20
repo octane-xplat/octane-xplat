@@ -1,5 +1,13 @@
 import { expect, it, vi } from 'vitest'
 import { createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
+import { LayoutBase } from '@nativescript/core'
+// Load the driver during collection so cold module transforms do not consume
+// individual tests' five-second timeout on CI. vi.mock below is hoisted.
+import {
+	nativeScriptDriver,
+	createNativeScriptContainer,
+	releaseNativeScriptContainer,
+} from '../node_modules/@nativescript-community/octane/dist/driver.js'
 import {
 	PlacementCase,
 	ReactivePlacementCase,
@@ -111,10 +119,6 @@ vi.mock('@nativescript/core', () => {
 })
 
 async function mount(component: any, props: any) {
-	const { nativeScriptDriver, createNativeScriptContainer, releaseNativeScriptContainer } =
-		await import('../node_modules/@nativescript-community/octane/dist/driver.js')
-
-	const { LayoutBase } = await import('@nativescript/core')
 	const host: any = new LayoutBase()
 	const container = createNativeScriptContainer(host)
 	const root = createUniversalRoot(container, nativeScriptDriver)
@@ -239,6 +243,31 @@ it.each([
 		} else {
 			expect(style.gridTemplateColumns).toBe(expected)
 		}
+	} finally {
+		app.dispose()
+	}
+})
+
+it.each([
+	{ columns: '*', template: undefined, expected: '1fr' },
+	{ columns: undefined, template: 'minmax(0,1fr)', expected: 'minmax(0,1fr)' },
+])('keeps removed tracks cleared when a later sibling attaches (%j)', async ({ columns, template, expected }) => {
+	const app = await mount(TrackStyleCase, { columns, template })
+	try {
+		const parent = app.host.children[0]
+		const grid = parent.children[0]
+		expect(masonStyleOf(grid)!.gridTemplateColumns).toBe(expected)
+
+		app.root.render(TrackStyleCase, {})
+		await Promise.resolve()
+		expect(masonStyleOf(grid)!.gridTemplateColumns).toBeUndefined()
+
+		app.root.render(TrackStyleCase, { extra: true })
+		await Promise.resolve()
+		expect(parent.children).toHaveLength(2)
+		expect(parent.children[0]).toBe(grid)
+		expect(masonStyleOf(grid)!.gridTemplateColumns).toBeUndefined()
+		expect(masonStyleOf(grid)!.gridTemplateRows).toBe('auto 1fr')
 	} finally {
 		app.dispose()
 	}
