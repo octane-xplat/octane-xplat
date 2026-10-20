@@ -292,7 +292,8 @@ present. pnpm 12 links these bins normally.
 
 Also exports the native vite preset — it absorbs the app-owned native config
 (renderer rules, octane→universal alias, `.ios`/`.android` extension chain,
-HMR watchdog, `px→dip` rewrite):
+HMR watchdog, `px→dip` rewrite, `NS_VENDOR_EXCLUDE` entries for source-only
+deps):
 
 ```ts
 // vite.config.native.mts

@@ -71,6 +71,20 @@ build:packages`, `pnpm build:web`, and the package-test half of `pnpm test`
   copy of the community renderer breaks type-level augmentations — e.g.
   `ui/type-support/svg-element.d.ts` only extends the `intrinsics` module it
   resolves.
+- `@nativescript/vite` 8.0.17's HMR vendor collector
+  (`hmr/shared/vendor/manifest-collect.js` `isUnvendorableLocalSource`)
+  treats only `link:`/`workspace:` specs — and `file:` directories with no
+  compiled JS entry — as local source. Consumer apps declaring
+  `@octane-xplat/*` at semver (or linked at install time by a pnpm hook)
+  get their source vendored into a standalone esbuild build with no .tsrx
+  loader and no platform-suffix chain: the dev server exits with "No
+  loader is configured for .tsrx" / "Could not resolve" errors (evidence:
+  upstream source + repro in an opals-style consumer app). Workaround:
+  `xplatNative` merges the app's source-only root deps
+  (`sourceOnlyDeps`, same rule as upstream's `file:` check) into
+  `NS_VENDOR_EXCLUDE`; the collector then serves them per-module through
+  the Vite pipeline. Remove once the upstream collector skips source-only
+  packages regardless of spec.
 - App starters include runtime/build dependencies and testing for their selected
   platforms by default. Platform fragments own their test files, scripts, and
   managed development dependencies, including when a platform is added later.
