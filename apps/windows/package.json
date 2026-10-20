@@ -5,8 +5,8 @@
 	"main": "src/index.ts",
 	"scripts": {
 		"xplat": "xplat",
-		"windows": "pnpm --filter @xplat/app gen && xplat dev windows",
-		"build:windows": "pnpm --filter @xplat/app gen && ns build windows",
+		"windows": "pnpm -w gen:app && xplat dev windows",
+		"build:windows": "pnpm -w gen:app && ns build windows",
 		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json"
 	},
 	"dependencies": {

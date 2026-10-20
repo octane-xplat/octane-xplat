@@ -45,7 +45,7 @@ From the repository root, the intended checks are:
 ```powershell
 pnpm install
 pnpm --filter @xplat/windows exec xplat doctor
-pnpm --filter @xplat/app gen
+pnpm gen:app
 pnpm --dir apps/windows run build:windows
 ```
 

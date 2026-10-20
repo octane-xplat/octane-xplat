@@ -225,7 +225,7 @@ try {
 			execFileSync('xcrun', ['simctl', 'bootstatus', device, '-b'])
 		}
 
-		await run('pnpm', ['--filter', '@xplat/app', 'gen'], repository)
+		await run('pnpm', ['gen:app'], repository)
 		phase = 'ios-build'
 		// Changing the config's environment-selected ID does not update an already
 		// materialized Xcode project. Limit the override to this generated app target.
