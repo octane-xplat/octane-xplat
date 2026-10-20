@@ -151,7 +151,7 @@ export function BrowserGreeting() { return <p>Hello</p> }
 - `references/components.md` — the component vocabulary plus per-platform
   divergences and name traps.
 - `references/styling.md` — tokens, the portable CSS subset, dark mode.
-- `references/navigation.md` — route table, links, params, stacks.
+- `references/navigation.md` — file routes, links, params, stacks, modals.
 - `references/platform.md` — device services and writing your own leaf.
 - Current limits and platform boundaries:
   https://octane-xplat.goddardai.org/known-limits

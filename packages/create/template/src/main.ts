@@ -8,10 +8,8 @@ import './style.css'
 
 const entry = {
 	create: () => {
-		// Root is a Frame so pushRoute() can push Pages later — a Frame
-		// window root doubles as the 'root' stack with no registration;
-		// named stacks come from TabSpec.stack or registerStack. Route
-		// pushes also need registerScreens({name: Component}) at boot.
+		// A Frame hosts the root Page. RouteOutlet binds canonical routing
+		// to this Frame when the app adds generated routes.
 		const frame = new Frame()
 		const page = new Page()
 		page.actionBarHidden = true

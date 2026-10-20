@@ -1,87 +1,148 @@
 # Navigation
 
-Register screens once during app startup. A route names a screen and a stack;
-web turns it into a URL, while native presents the screen in the app's navigation.
-Put components in `.tsrx` files.
+Routes are files under `src/app`, not registered lists. A `[param]` segment
+becomes a typed `:param`. Write screens in `.tsrx` files and type callbacks
+with the generated `routes.gen.contracts` module:
 
 ```tsrx
+// src/app/items/[id].tsrx
 import { Text } from '@octane-xplat/ui'
-import { defineRoutes, registerRoutes } from '@octane-xplat/ui/routing'
+import type { RouteProps, RouteLoaderArgs } from '../../routes.gen.contracts'
 
-function Home() { return <Text>Home</Text> }
-function Settings() { return <Text>Settings</Text> }
+export function loader({ params }: RouteLoaderArgs<'/items/:id'>) {
+  return { title: 'Item ' + params.id }
+}
 
-registerRoutes(defineRoutes([
-  { path: '/', screen: Home },
-  { path: '/settings', screen: Settings },
-]))
+export function screen(props: RouteProps<'/items/:id'>) {
+  return <Text>{props.data.title}</Text>
+}
 ```
 
-After registering `settings`, use `NavLink` for a screen link or `pushRoute`
-in an event handler. `Link` accepts a URL, including an external website.
+Regenerate the catalog after adding or renaming route files (the dev and
+build commands also run it):
+
+```sh
+pnpm exec xplat routes --dir src/app
+```
+
+Import the generated client once in your entry module and place `RouteOutlet`
+around the content that forms the home screen — the starter's `App` keeps its
+own content and wraps it:
 
 ```tsrx
-import { HStack, Link, NavLink, Pressable, Text } from '@octane-xplat/ui'
-import { pushRoute } from '@octane-xplat/ui/routing'
+// src/App.tsrx
+import './routes.gen'
+import { NavLink, RouteOutlet, Text } from '@octane-xplat/ui'
+
+export function App() {
+  return <RouteOutlet>
+    <Text>My collection</Text>
+    <NavLink to="/items/:id" params={{ id: 'coat' }}><Text>Open coat</Text></NavLink>
+  </RouteOutlet>
+}
+```
+
+Use `NavLink` for a screen link or `useRouter()` in an event handler.
+Destinations are objects: a declared `to` pattern plus `params`. `Link`
+accepts a URL, including an external website.
+
+```tsrx
+// src/SettingsLinks.tsrx
+import { HStack, Link, Pressable, Text } from '@octane-xplat/ui'
+import { useRouter } from '@octane-xplat/ui/routing'
 
 export function SettingsLinks() {
-  const settings = { stack: 'root', name: 'settings', params: {} }
+  const navigation = useRouter()
   return <HStack>
-    <NavLink route={settings}><Text>Settings</Text></NavLink>
-    <Pressable onPress={() => pushRoute(settings)}><Text>Open settings</Text></Pressable>
+    <Pressable onPress={() => navigation.push({ to: '/items/:id', params: { id: '42' } })}>
+      <Text>Open item</Text>
+    </Pressable>
     <Link href="https://octane-xplat.goddardai.org"><Text>Documentation</Text></Link>
   </HStack>
 }
 ```
 
-Use `useRoute` to read the current screen and `useCanGoBack` to decide whether
-to offer a back button. Pass the same stack name to `popRoute`.
+`router.push` returns a result, not void: check `status === 'committed'`,
+then `await result.finished` only when animation settlement matters.
+`router.back()` pops one entry, `router.dismiss()` closes a modal,
+`useCanGoBack` gates a Back control, and `useRouterState()` reads the current
+route's declared `to` pattern. `router.navigateUrl(url)` admits an incoming
+absolute or relative URL.
 
 ```tsrx
+// src/NavigationStatus.tsrx
 import { Pressable, Text } from '@octane-xplat/ui'
-import { useRoute, useCanGoBack, popRoute } from '@octane-xplat/ui/routing'
+import { useCanGoBack, useRouter, useRouterState } from '@octane-xplat/ui/routing'
 
 export function NavigationStatus() {
-  const route = useRoute('root')
-  const canGoBack = useCanGoBack('root')
+  const navigation = useRouter()
+  const route = useRouterState().route
+  const canGoBack = useCanGoBack()
   return <>
-    <Text>{route?.name ?? 'Home'}</Text>
-    <Pressable disabled={!canGoBack} onPress={() => popRoute('root')}>
+    <Text>{route?.to ?? 'Home'}</Text>
+    <Pressable disabled={!canGoBack} onPress={() => navigation.back()}>
       <Text>Back</Text>
     </Pressable>
   </>
 }
 ```
 
-Prefer string IDs in route params: generated route helpers use string params,
-and IDs make URLs shareable. The low-level router JSON-encodes object params
-on web with a warning; do not rely on it to carry application state. With a
-registered `/projects/:id` screen, navigate using the project ID:
-
-```ts
-import { pushRoute } from '@octane-xplat/ui/routing'
-
-pushRoute({ stack: 'root', name: 'projects/:id', params: { id: '42' } })
-```
-
-Named tab stacks keep each tab's navigation separate. `Tabs` renders the tab's
-initial content; pushing a route into that stack opens it inside the tab pane.
-The screen below assumes `settings` is already registered.
+A guard runs in `beforeLoad` before the attempted route commits: return context
+values, `redirect({ to, params, search })`, or throw `RouteForbidden`. Type the
+args with the route's generated `RouteGuardArgs`:
 
 ```tsrx
-import { Tabs, Text, Pressable } from '@octane-xplat/ui'
-import { pushRoute } from '@octane-xplat/ui/routing'
+// src/app/items/[id].tsrx
+import { redirect } from '@octane-xplat/ui/routing'
+import type { RouteGuardArgs } from '../../routes.gen.contracts'
 
-export function AppTabs() {
-  return <Tabs tabs={[
-    { title: 'Home', stack: 'home', render: () => <Text>Home</Text> },
-    { title: 'Account', stack: 'account', render: () =>
-      <Pressable onPress={() => pushRoute({ stack: 'account', name: 'settings', params: {} })}>
-        <Text>Settings</Text>
-      </Pressable> },
-  ]} />
+export function beforeLoad({ params }: RouteGuardArgs<'/items/:id'>) {
+  if (params.id === 'old-coat') redirect({ to: '/items/:id', params: { id: 'coat' } })
+  return { checked: true }
 }
 ```
 
-For loaders, deep links, route config, and generated route types, see the
-[navigation guide](https://octane-xplat.goddardai.org/navigation).
+Prefer string IDs in params: generated contracts type params as strings and
+IDs make URLs shareable. Search is validated per route with `validateSearch`
+(return `as const`); screens update it with `useUpdateSearch()` inside a
+component via the route's `getRouteApi` accessor.
+
+```ts
+// src/app/items/[id].tsrx — search schema for the same route file
+export function validateSearch(raw: { tab?: unknown }) {
+  const tab = raw.tab ?? 'details'
+  if (tab !== 'details' && tab !== 'activity') {
+    throw new Error('Invalid tab')
+  }
+  return { tab } as const
+}
+```
+
+```tsrx
+// src/ActivityFilter.tsrx
+import { Button } from '@octane-xplat/ui'
+import { getRouteApi } from '@octane-xplat/ui/routing'
+
+const item = getRouteApi('/items/:id')
+
+export function ActivityFilter() {
+  const updateSearch = item.useUpdateSearch()
+  return <Button label="Show activity" clickAction={() => {
+    void updateSearch(previous => ({ ...previous, tab: 'activity' }))
+  }} />
+}
+```
+
+Named stacks keep each tab's history separate: declare `"stacks": ["catalog",
+"account"]` in `xplat.routes.json`, render `Tabs`, and address a stack with
+`stack:` in the destination or `router.forStack(name)`:
+
+```ts
+await router.forStack('catalog').push({ to: '/items/:id', params: { id: 'coat' } })
+```
+
+`presentation: 'modal'` on a destination (or a `+modal` route-file suffix)
+opens an owned modal flow the host dismisses as one surface.
+
+For deep links, transitions, file-route details, and generated contracts, see
+the [navigation guide](https://octane-xplat.goddardai.org/navigation).

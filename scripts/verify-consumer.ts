@@ -42,6 +42,7 @@
 import assert from 'node:assert/strict'
 import { spawnSync, spawn } from 'node:child_process'
 import {
+	cpSync,
 	existsSync,
 	mkdirSync,
 	mkdtempSync,
@@ -541,6 +542,69 @@ try {
 		await gate(name, 10 * 60 * 1000, () => {
 			const r = run('pnpm', argv, appDir)
 			assert.equal(r.status, 0, `${name} exited ${r.status}`)
+		})
+	}
+
+	if (quick) {
+		// Starter-skill routing snippets must compile in the scaffolded app.
+		// Fenced blocks whose first line is a `// src/...` path comment are
+		// written to that path; blocks sharing a path are concatenated.
+		await gate('starter skill routing snippets compile in the scaffold', 10 * 60 * 1000, () => {
+			const skillPath = join(
+				repoRoot,
+				'packages/create/template/.agents/skills/xplat/references/navigation.md',
+			)
+			const markdown = readFileSync(skillPath, 'utf8')
+			const files = new Map<string, string[]>()
+			for (const match of markdown.matchAll(/```(?:tsx?|tsrx)\n([\s\S]*?)```/g)) {
+				const block = match[1].replace(/\n$/, '')
+				const first = block.split('\n', 1)[0].trim()
+				const target = /^\/\/ (src\/\S+)/.exec(first)?.[1]
+				if (!target) {
+					continue
+				}
+
+				const list = files.get(target) ?? []
+				list.push(block)
+				files.set(target, list)
+			}
+
+			assert.ok(files.size >= 3, `expected at least 3 snippet files, found ${files.size}`)
+			// Later users of this scaffold (such as the routing evaluation)
+			// need the untouched starter source, so restore it afterwards.
+			const source = join(appDir, 'src')
+			const saved = join(mkdtempSync(join(tmpdir(), 'xplat-starter-src-')), 'src')
+			cpSync(source, saved, { recursive: true, verbatimSymlinks: true })
+			try {
+				const written: string[] = []
+				for (const [rel, blocks] of files) {
+					const path = join(appDir, rel)
+					mkdirSync(dirname(path), { recursive: true })
+					writeFileSync(path, blocks.join('\n\n') + '\n')
+					written.push(rel)
+				}
+
+				// Missing params must fail typecheck before the positive run.
+				const negative = join(appDir, 'src/negative-destination.ts')
+				writeFileSync(
+					negative,
+					`import { router } from '@octane-xplat/ui/routing'\nvoid router.push({ to: '/items/:id' })\n`,
+				)
+				const denied = run('pnpm', ['exec', 'xplat', 'typecheck'], appDir)
+				assert.notEqual(denied.status, 0, 'router.push without params must fail typecheck')
+				rmSync(negative, { force: true })
+
+				const routes = run('pnpm', ['exec', 'xplat', 'routes'], appDir)
+				assert.equal(routes.status, 0, `xplat routes failed for snippets: ${written.join(', ')}`)
+				const typecheck = run('pnpm', ['exec', 'xplat', 'typecheck'], appDir)
+				assert.equal(typecheck.status, 0, 'skill snippets failed typecheck')
+				const lint = run('pnpm', ['exec', 'xplat', 'lint', 'src'], appDir)
+				assert.equal(lint.status, 0, 'skill snippets failed lint')
+			} finally {
+				rmSync(source, { recursive: true, force: true })
+				cpSync(saved, source, { recursive: true, verbatimSymlinks: true })
+				rmSync(dirname(saved), { recursive: true, force: true })
+			}
 		})
 	}
 
