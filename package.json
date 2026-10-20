@@ -65,6 +65,8 @@
 		"smoke:macos": "pnpm --filter @xplat/macos smoke && pnpm --filter @xplat/macos test:animation && pnpm --filter @xplat/macos test:layout-placement && pnpm probe run examples/probes/signals.ts --target macos && pnpm probe run examples/probes/counter.tsrx --target macos && pnpm probe run examples/probes/lottie.macos.tsrx --target macos --deps @octane-xplat/lottie",
 		"test:maestro": "node scripts/maestro.ts",
 		"typecheck:scripts": "tsc -p scripts/tsconfig.json",
+		"bench:routing-types": "node scripts/bench-routing-types.ts",
+		"eval:routing": "node scripts/eval-routing.ts",
 		"sync:compatibility": "node scripts/sync-compatibility.ts",
 		"check:compatibility": "node scripts/sync-compatibility.ts --check"
 	},

@@ -1,0 +1,4 @@
+{
+	"directory": "src/app",
+	"manifests": [{ "module": "./src/guide-routes.tsx", "export": "guideRoutes" }]
+}
