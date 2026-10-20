@@ -170,6 +170,7 @@ export class SharedCameraSession implements CameraSession {
 	private cameraAvailable = true
 	private previewAttached = false
 	private interrupted = false
+	private pendingOnReady: (() => void) | undefined
 	private disposeRequested = false
 	private disposed = false
 	private lastCapabilities: CameraSessionCapabilities | undefined
@@ -195,7 +196,14 @@ export class SharedCameraSession implements CameraSession {
 		backend.setObserver({
 			interruption: (phase, reason) => this.handleInterruption(phase, reason),
 			availability: (available) => this.handleAvailability(available),
-			previewReady: () => {
+			previewReady: (ready) => {
+				// A retracted readiness signal invalidates a pending onReady;
+				// a delivered one retries admission.
+				if (!ready) {
+					this.pendingOnReady = undefined
+				}
+
+				this.flushPendingReady()
 				this.emit({ type: 'stateChanged', snapshot: this.snapshot() })
 			},
 		})
@@ -212,7 +220,12 @@ export class SharedCameraSession implements CameraSession {
 		}
 
 		const detach = this.backend.attachPreview(host, {
-			onReady: listener?.onReady,
+			onReady: listener?.onReady
+				? () => {
+						this.pendingOnReady = listener.onReady
+						this.flushPendingReady()
+					}
+				: undefined,
 			onError: (captureIssue) => {
 				listener?.onError?.(captureIssue)
 			},
@@ -235,6 +248,7 @@ export class SharedCameraSession implements CameraSession {
 		}
 
 		this.previewAttached = false
+		this.pendingOnReady = undefined
 		const attempt = this.attempt
 		if (attempt && (attempt.state === 'starting' || attempt.state === 'recording')) {
 			this.requestStop('previewReleased')
@@ -243,6 +257,22 @@ export class SharedCameraSession implements CameraSession {
 		detach()
 		this.backend.onPreviewDetached?.()
 		this.emit({ type: 'stateChanged', snapshot: this.snapshot() })
+	}
+
+	/** `onReady` means "recording can start": it is delivered only while
+	 *  the session would actually admit `startRecording`. Adapters emit
+	 *  their availability/interruption observations in their own order, so
+	 *  a ready signal that arrives before those updates settles pends
+	 *  until the next lifecycle event makes admission possible — or is
+	 *  dropped if readiness is retracted first. */
+	private flushPendingReady() {
+		const pending = this.pendingOnReady
+		if (!pending || this.interrupted || !this.cameraAvailable || !this.backend.previewReady()) {
+			return
+		}
+
+		this.pendingOnReady = undefined
+		pending()
 	}
 
 	private emit(event: CameraSessionEvent) {
@@ -423,6 +453,7 @@ export class SharedCameraSession implements CameraSession {
 			this.requestStop(cause)
 		}
 
+		this.flushPendingReady()
 		this.emit({ type: 'stateChanged', snapshot: this.snapshot() })
 	}
 
@@ -437,6 +468,7 @@ export class SharedCameraSession implements CameraSession {
 			this.requestStop('cameraUnavailable')
 		}
 
+		this.flushPendingReady()
 		this.emit({ type: 'stateChanged', snapshot: this.snapshot() })
 	}
 
@@ -713,6 +745,7 @@ export class SharedCameraSession implements CameraSession {
 		}
 
 		this.disposed = true
+		this.pendingOnReady = undefined
 		this.backend.setObserver(undefined)
 		try {
 			await this.backend.release()
