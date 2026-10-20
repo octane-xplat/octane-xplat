@@ -1,4 +1,4 @@
-import type { ClassValue, CSSProperties, Octane } from 'octane/jsx-runtime'
+import type { CSSProperties, Octane } from 'octane/jsx-runtime'
 
 /** Shared prop/type contract — the single source of truth for the public
  *  API surface. Platform leaves import these types so prop shapes cannot
@@ -6,9 +6,16 @@ import type { ClassValue, CSSProperties, Octane } from 'octane/jsx-runtime'
  *  declarations from its public entrypoints and component leaves. The Octane
  *  import is type-only; shared contracts stay platform-agnostic. */
 
-/** Space-separated class names or a clsx-style class value (strings, arrays,
- *  keyed objects) applied to the host — Octane's ClassValue contract. */
-export type ClassName = ClassValue
+/** Space-separated class names or a clsx-style class value (strings, nested
+ *  arrays, keyed objects) applied to the host. Booleans and nullish entries
+ *  are ignored. Numeric class values are excluded for cross-platform parity. */
+export type ClassName =
+	| string
+	| boolean
+	| null
+	| undefined
+	| readonly ClassName[]
+	| { readonly [className: string]: unknown }
 
 /** Dynamic inline styles — a camelCase CSS property object (numbers are dips)
  *  or an inline CSS string. Static styles belong in `className`. */

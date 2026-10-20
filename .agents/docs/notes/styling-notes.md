@@ -30,6 +30,29 @@ import '@octane-xplat/ui/theme/tokens.css'
 import './app.css'
 ```
 
+## Shared class value types
+
+`ClassName` in `packages/ui/src/props.ts` owns the shared recursive contract:
+strings, booleans, nullish values, readonly nested arrays, and conditional
+objects. It deliberately excludes numeric values at every array depth.
+
+```tsx
+import { View } from '@octane-xplat/ui'
+
+const classes = ['trip-card', [false, { selected: true }]] as const
+const card = <View className={classes} />
+```
+
+Source/compiler evidence (2026-10-20): Octane 0.11.0's `ClassValue` includes
+numbers, but `@nativescript-community/octane` 0.2.5's
+[`normalizeClass`](https://github.com/nativescript-community/octane/blob/0.2.5/packages/octane/src/driver.ts)
+returns an empty string for numeric values and its intrinsic types exclude
+them. Aliasing Octane's type therefore breaks native declaration generation
+when a component composes `['vx-view', props.className]`. The local type keeps
+the common supported subset; no upstream runtime patch is applied. Reconsider
+numeric support only when all drivers normalize it consistently. This is
+source and compiler evidence, not device-runtime qualification.
+
 ## Original shared pipeline
 
 The original layout sketch follows. Current tokens live under

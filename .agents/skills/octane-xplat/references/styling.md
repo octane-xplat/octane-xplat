@@ -21,7 +21,9 @@ component layer; design tokens are CSS custom properties.
 2. **Dynamic styling = `style` objects** — the leaf forwards them to the
    element's `style` on both targets.
 3. `className` arrays compose (`['vx-pressable', props.className]`) —
-   `clsx`-style, falsy entries drop.
+   `clsx`-style, falsy entries drop. Nested readonly arrays and conditional
+   objects are supported; numeric class values are excluded from the shared
+   `ClassName` contract.
 4. **Utility classes are a shared vocabulary** (`flex-1`, `gap-4`,
    `bg-primary`, `text-onprimary`...) — the curated shared set lives in
    `packages/ui/src/theme/tokens.css`; app-only selectors live in
