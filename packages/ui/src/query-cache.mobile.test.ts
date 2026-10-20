@@ -37,6 +37,8 @@ async function settle() {
 		await Promise.resolve()
 	}
 
+	// Octane 0.14 may publish query results in a cooperative host task.
+	await new Promise<void>((resolve) => setTimeout(resolve, 0))
 	flushUniversalSync(() => {})
 }
 

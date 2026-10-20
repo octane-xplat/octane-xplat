@@ -168,8 +168,33 @@ presentation options remain on their existing native paths.
 Two runtime failures found during this cutover are fixed: Android's inset
 listener uses the actual AndroidX interface and shared decor-view ownership;
 Octane's DOM provider now releases descendants when children become null or
-undefined. AppKit surface layout tolerates an empty panel before a portal
+undefined. Registry source inspection during the Octane 0.14.0 upgrade confirms
+that provider cleanup is now upstream in `dist/runtime/context.js` (and its
+node/CJS variants); the local provider-cleanup patch was removed. The remaining
+Octane workarounds and removal criteria are recorded in
+`packages/cli/patches/manifest.json`; local signal-hook registration now targets
+the split `dist/runtime/hooks.js` modules. This source evidence does not add
+device-runtime qualification for 0.14.0. AppKit surface layout tolerates an empty panel before a portal
 commits. Maintained regressions cover those contracts.
 
 Windows and Linux were not run for this cutover. The reported runtime evidence
 is limited to web, iOS, Android, and macOS.
+
+### Octane 0.14 transaction fragments
+
+Registry `octane@0.14.0` leaves `bagOf`'s generic binding bags without the
+`BINDING_BAG_ARITY` marker used by transaction commit to rehome DOM parent
+references. After a fragment is drained, a large component's bag can retain
+that fragment as a parent. Reusing the fragment then causes recursive namespace
+lookup and invalid DOM insertions. The canonical Octane patch marks generic
+bags with `-1`, selecting the existing generic snapshot path and enabling the
+same parent rehoming as specialized `bag0`–`bag16` helpers. It covers web, node,
+and CJS `runtime/templates` modules. The maintained
+`BaseTypeahead.web.test.tsrx` suite reproduces the failure and passes with the
+marker. Remove this patch when upstream marks generic bags equivalently.
+This is jsdom host-test evidence, not device qualification.
+
+Octane 0.14's `host-budget` scheduler can yield query publication to a host task
+after its five-millisecond budget. The query-cache and universal data-lifecycle
+test settle helpers now cross a host-task boundary rather than assuming that
+microtasks alone complete every query.

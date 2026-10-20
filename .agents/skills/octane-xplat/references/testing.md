@@ -60,6 +60,18 @@ Choose the narrowest maintained layer that can establish the claim:
 | Optional adapters        | `pnpm check:optional-services --types-only`                  | Adapter types; the full command additionally needs browser prerequisites |
 | Native probe/device test | Probe runner or maintained `ns test` suite                   | Only the assertions and target actually executed                         |
 
+When testing asynchronous query updates with Octane 0.14 or newer, allow a host
+task to run before asserting the settled value. Its cooperative scheduler may
+yield after its time budget, so flushing only promises can leave a query pending.
+For universal tests, flush the renderer after that host task.
+
+```ts
+import { flushUniversalSync } from 'octane/universal/native'
+
+await new Promise<void>((resolve) => setTimeout(resolve, 0))
+flushUniversalSync(() => {})
+```
+
 PR `checks` excludes browser engines, browser-driven suites, and device
 emulation. Do not infer their success from green CI. See
 [release validation](../../../docs/releases.md) for nightly/stable coverage and

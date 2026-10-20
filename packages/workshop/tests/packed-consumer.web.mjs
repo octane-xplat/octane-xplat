@@ -62,7 +62,7 @@ try {
 				name: 'workshop-packed-acceptance',
 				private: true,
 				type: 'module',
-				dependencies: { '@octane-xplat/ui': tarballs['@octane-xplat/ui'], octane: '0.11.0' },
+				dependencies: { '@octane-xplat/ui': tarballs['@octane-xplat/ui'], octane: '0.14.0' },
 				devDependencies: {
 					'@octane-xplat/workshop': tarballs['@octane-xplat/workshop'],
 					'@octane-xplat/cli': tarballs['@octane-xplat/cli'],

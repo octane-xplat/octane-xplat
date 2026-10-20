@@ -35,6 +35,9 @@ async function settle(rounds = 12): Promise<void> {
 	for (let i = 0; i < rounds; i++) {
 		await Promise.resolve()
 	}
+
+	// Octane 0.14 may publish query results in a cooperative host task.
+	await new Promise<void>((resolve) => setTimeout(resolve, 0))
 }
 
 function deferred<T>() {

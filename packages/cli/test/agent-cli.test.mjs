@@ -67,7 +67,7 @@ const makeLinkedApp = (root, rel = 'app') => {
 	writeJson(root, `${rel}/package.json`, {
 		name: 'fixture-app',
 		version: '1.0.0',
-		dependencies: { '@octane-xplat/ui': 'link:../vendor/ui', octane: '0.11.0' },
+		dependencies: { '@octane-xplat/ui': 'link:../vendor/ui', octane: '0.14.0' },
 	})
 
 	writeFile(root, `${rel}/vite.config.ts`, 'export default {}\n')

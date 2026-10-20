@@ -48,7 +48,7 @@ write(
 			'@octane-xplat/ui': tarballs['@octane-xplat/ui'],
 			'@nativescript/core': '9.1.3',
 			'@nativescript-community/octane': '0.2.4',
-			octane: '0.11.0',
+			octane: '0.14.0',
 		},
 		devDependencies: {
 			'@octane-xplat/workshop': tarballs['@octane-xplat/workshop'],

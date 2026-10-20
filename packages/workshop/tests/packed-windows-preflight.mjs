@@ -46,7 +46,7 @@ try {
 				'@octane-xplat/cli': tarballs['@octane-xplat/cli'],
 				'@octanejs/vite-plugin': '0.1.61',
 				vite: '8.3.0',
-				octane: '0.11.0',
+				octane: '0.14.0',
 			},
 		}),
 	)

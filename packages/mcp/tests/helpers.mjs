@@ -26,7 +26,7 @@ export function makeConsumerApp(root, rel, options = {}) {
 		name: options.name ?? rel.replaceAll('/', '-'),
 		version: '1.0.0',
 		private: true,
-		dependencies: { '@octane-xplat/ui': options.uiVersion ?? '0.14.0', octane: '0.11.0' },
+		dependencies: { '@octane-xplat/ui': options.uiVersion ?? '0.14.0', octane: '0.14.0' },
 		...options.extraManifest,
 	})
 
