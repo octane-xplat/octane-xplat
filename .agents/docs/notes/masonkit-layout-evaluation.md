@@ -336,9 +336,34 @@ fixtures passed. MasonKit counts descendants that overflow the track in
 
 On an iPhone 18 Pro simulator, the app booted on 1.0.0-beta.120, and
 `virtual-list-seek.mobile.tsrx` (3/3), `scroll-contract.tsrx` (3/3) and
-`carousel-paging.mobile.tsrx` (5/5) passed. The iOS keyboard fixtures are not yet
-qualified: that simulator had a hardware keyboard connected, so the software
-keyboard never opened and every keyboard wait timed out.
+`carousel-paging.mobile.tsrx` (5/5) passed.
+
+### iOS contract differences (iPhone 18 Pro simulator, 2026-10-21)
+
+- **Nested Mason views always report an invalid layout.** Core's iOS
+  `isLayoutValid` clears only in core's own `layout()`. A Mason view inside a
+  Mason parent is framed natively and never runs it, so `isLayoutValid` stayed
+  `false` and the chat keyboard binding never applied. Fork commit `8ec7caa9`
+  (unreleased; 1.0.0-beta.122 lacks it) reads `MasonNode.isLayoutValid` for
+  those views. `VirtualList`'s cell-measurement guard depends on the same flag.
+- **The iOS scroller is not a `UIScrollView`.** `Scroll` is a `MasonUIView` with
+  its own scrolling (`scroll/index.ios.ts`), so `instanceof UIScrollView` and
+  `setContentOffsetAnimated` miss it. The keyboard focus source mirrors
+  MasonKit's vertical-scroll rule (`overflowY`, `isScrollContainer`,
+  `contentSize` vs `bounds`) and moves it with `mason_scrollTo`.
+- **Padding reads back as a float32 `Length`.** `style.paddingBottom` returns
+  `{ value, unit: 'px' }`, so `Number()` read every baseline as 0. Padding
+  leases parse it and treat a readback within 0.01 of their own write as that
+  write.
+
+With the fork commit linked, `scroll.ios.tsrx` (6/6) and
+`overlay-keyboard.ios.tsrx` (14/14) passed. `chat.ios.tsrx` passed 9 of 11,
+then stalled at panel mount. A panel as tall as the keyboard inset (328, which
+includes the 34-point home-indicator area) sits above that area, inside a root
+that ends 34 points above the window bottom, while the keyboard reaches the
+window bottom. The composer therefore rises 34 points. ChatLayout's
+`safeBottom` comes from consumed insets and was 0 there, and an ancestor clips
+its bounds, so translating the dock into that area is not a fix.
 
 ## Native macOS bridge (verified — lab-experiment)
 
