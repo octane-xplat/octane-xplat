@@ -232,6 +232,25 @@ export function renderHuman(command, result, out = []) {
 			break
 
 		case 'logs':
+			if (data.runs) {
+				for (const run of data.runs) {
+					lines(
+						out,
+						`${run.runId}  ${run.platform} (${run.targetId})  ${run.startedAt}  ${run.historical ? 'historical' : 'capturing'}`,
+					)
+				}
+
+				lines(out, data.note)
+				break
+			}
+
+			if (data.run) {
+				lines(
+					out,
+					`${data.run.runId} — ${data.run.platform} (${data.run.targetId}), captured from ${data.capturedFrom}`,
+				)
+			}
+
 			for (const record of data.records ?? []) {
 				lines(out, `[${record.stream}] ${record.line}`)
 			}
@@ -244,8 +263,16 @@ export function renderHuman(command, result, out = []) {
 				lines(out, `(truncated — ${data.dropped} records dropped before this page)`)
 			}
 
+			if (data.incompleteTail) {
+				lines(out, '(incomplete final file record omitted)')
+			}
+
 			if (data.historical) {
-				lines(out, '(historical — the session is stopped or disconnected)')
+				lines(out, '(historical — capture/session is stopped or disconnected)')
+			}
+
+			if (data.coverage) {
+				lines(out, data.coverage)
 			}
 
 			break

@@ -533,12 +533,19 @@ export const AGENT_COMMANDS = [
 		path: ['logs'],
 		mcpTool: 'xplat_logs',
 		summary:
-			'Bounded, ordered log read for a session or job — cursor-paginated; truncated/dropped flags reveal gaps',
+			'List retained dev runs, or read a run/session/job — cursor-paginated; truncation flags reveal gaps',
 		effect: 'read',
 		permissions: [],
 		context: 'workspace',
 		positionals: [],
 		flags: [
+			{
+				flag: 'run',
+				key: 'runId',
+				type: 'string',
+				desc: 'Retained xplat dev run id; omit selectors to list runs',
+			},
+			platform,
 			{ flag: 'session', key: 'sessionId', type: 'string', desc: 'Session id to read (or --job)' },
 			{
 				flag: 'job',
@@ -558,13 +565,27 @@ export const AGENT_COMMANDS = [
 		],
 		output: {
 			kind: 'json',
-			description: 'Ordered records with nextCursor, truncation markers, and session liveness',
+			description:
+				'Retained runs, or ordered records with nextCursor, capture coverage and liveness',
 		},
 		errors: [
-			{ code: 'invalid_selection', exit: 2, when: 'Neither --session nor --job was passed' },
-			{ code: 'not_found', exit: 2, when: 'No such session or job capture' },
+			{
+				code: 'invalid_selection',
+				exit: 2,
+				when: 'Conflicting selectors, invalid run/cursor, or no bound app for retained logs',
+			},
+			{
+				code: 'ambiguous_selection',
+				exit: 2,
+				when: 'Retained logs need an explicit app selection',
+			},
+			{ code: 'not_found', exit: 2, when: 'No such run, session or job capture' },
 		],
-		examples: ['xplat logs --session sess_abc123 --limit 50 --json'],
+		examples: [
+			'xplat logs --platform ios --json',
+			'xplat logs --run RUN_ID --limit 50 --json',
+			'xplat logs --session sess_abc123 --limit 50 --json',
+		],
 	},
 	{
 		name: 'inspect',

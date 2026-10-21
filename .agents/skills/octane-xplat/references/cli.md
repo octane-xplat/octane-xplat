@@ -93,6 +93,23 @@ through their installed help when those tasks apply.
 
 ## Follow jobs and sessions through completion
 
+For output from an ordinary `xplat dev` invocation, list retained runs for the
+bound app, then read an exact returned run ID. No runtime host or agent session
+is needed, and the files remain readable after the dev process exits. Read
+[development log coverage](../../../../docs/testing/development-logs.md) before
+interpreting empty output; browser warning/error forwarding needs the web
+development bridge, and native output includes only what its toolchain forwards.
+
+```sh
+pnpm exec xplat logs --platform ios --json
+pnpm exec xplat logs --run RUN_ID --cursor 0 --limit 50 --json
+pnpm exec xplat logs --run RUN_ID --cursor NEXT_CURSOR --limit 50 --json
+```
+
+Keep cursors with their run ID. Report capture start, truncation/dropped records,
+incomplete tails, and historical status; capture-owner liveness is not app
+readiness. Retained dev runs and host-owned session/job captures are separate.
+
 For an agent-owned build, use `runtime build` and follow its returned job to a
 terminal result. Poll with bounded reads and read job logs when it fails or
 stalls. A successful invocation can mean a job was accepted, not that the build

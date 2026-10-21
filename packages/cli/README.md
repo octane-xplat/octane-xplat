@@ -52,6 +52,16 @@ GJS host; Linux users supply the GTK/WebKit system runtime.
 
 ## App testing
 
+Read output from an earlier `xplat dev` run, even after its process exits:
+
+```sh
+pnpm xplat logs --json                  # list this app's retained runs
+pnpm xplat logs --run RUN_ID --json     # replace RUN_ID with a returned runId
+```
+
+See [development logs](../../docs/testing/development-logs.md) for platform
+coverage, browser forwarding, retention, and cursor-based reads.
+
 New apps include test setup for their enabled platforms, with framework-managed
 runner versions. Run the web tests from your app directory:
 

@@ -12,14 +12,18 @@ import { fileURLToPath } from 'node:url'
 import { siblingUrl } from '../env.ts'
 
 const spawnFor = (t, cwd) => {
+	const run = (tag, cmd, args, cwd) =>
+		spawnTagged(tag, cmd, args, cwd, {
+			capture: { platform: t.kind, targetId: t.id },
+		})
 	if (t.kind === 'web') {
-		return spawnTagged('web', 'pnpm', ['exec', 'vite'], cwd)
+		return run('web', 'pnpm', ['exec', 'vite'], cwd)
 	}
 
 	if (t.kind === 'macos') {
 		const manifest = JSON.parse(readFileSync(join(cwd, 'package.json'), 'utf8'))
 		if (manifest.xplat?.targets?.macos?.dev) {
-			return spawnTagged(
+			return run(
 				'macos',
 				process.execPath,
 				[fileURLToPath(siblingUrl(import.meta.url, '../macos/dev-entry')), cwd],
@@ -33,18 +37,18 @@ const spawnFor = (t, cwd) => {
 			)
 		}
 
-		return spawnTagged('macos', 'pnpm', ['run', 'dev'], cwd)
+		return run('macos', 'pnpm', ['run', 'dev'], cwd)
 	}
 
 	if (t.kind === 'linux') {
-		return spawnTagged('linux', 'pnpm', ['run', 'dev'], cwd)
+		return run('linux', 'pnpm', ['run', 'dev'], cwd)
 	}
 
 	if (t.kind === 'windows') {
-		return spawnTagged('windows', 'pnpm', ['exec', 'ns', 'run', 'windows'], cwd)
+		return run('windows', 'pnpm', ['exec', 'ns', 'run', 'windows'], cwd)
 	}
 
-	return spawnTagged(t.kind, 'pnpm', ['exec', 'ns', 'run', t.kind, '--device', t.device], cwd)
+	return run(t.kind, 'pnpm', ['exec', 'ns', 'run', t.kind, '--device', t.device], cwd)
 }
 
 /** Nearest enclosing Turborepo root that declares a `typegen` task. */
@@ -214,7 +218,7 @@ export const dev = command({
 		let runningTargets = chosen.length
 		try {
 			for (const t of chosen) {
-				spawnFor(t, cwd).once('exit', () => {
+				spawnFor(t, cwd).once('close', () => {
 					if (--runningTargets === 0) {
 						stopRoutes()
 						process.off('SIGINT', interrupt)

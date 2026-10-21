@@ -78,6 +78,41 @@ test('every route requires the dev-bridge token', async (t) => {
 	assert.equal(wrong.status, 401)
 })
 
+test('browser log batches authenticate, validate atomically, and reach process stderr', async (t) => {
+	const { origin, call, plugin } = await makeBridge(t)
+	assert.equal(plugin.apply, 'serve')
+	assert.equal(plugin.transformIndexHtml()[0].injectTo, 'head-prepend')
+	const unauthorized = await fetch(`${origin}/__xplat_dev__/logs`, { method: 'POST', body: '{}' })
+	assert.equal(unauthorized.status, 401)
+	const invalid = await call('POST', '/logs', {
+		records: [{ level: 'error', line: 'x'.repeat(3000) }],
+	})
+	assert.equal(invalid.status, 400)
+	const output = []
+	const original = process.stderr.write
+	process.stderr.write = function (chunk, ...args) {
+		if (String(chunk).startsWith('[browser:')) {
+			output.push(String(chunk))
+			return true
+		}
+		return original.call(this, chunk, ...args)
+	}
+	try {
+		const response = await call('POST', '/logs', {
+			records: [{ level: 'error', line: 'failed\nstack line' }],
+			dropped: 3,
+		})
+
+		assert.equal(response.status, 200)
+		assert.deepEqual(await response.json(), { accepted: 1 })
+	} finally {
+		process.stderr.write = original
+	}
+	assert.ok(output.some((line) => line.includes('3 browser log records lost')))
+	assert.ok(output.includes('[browser:error] failed\n'))
+	assert.ok(output.includes('[browser:error] stack line\n'))
+})
+
 test('the session file lands under the app root with url, token and pid', async (t) => {
 	const { appRoot, token, origin } = await makeBridge(t)
 

@@ -8,6 +8,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import test from 'node:test'
+import { createDevLogCapture } from '../dist/dev-logs.js'
 
 const BIN = fileURLToPath(new URL('../dist/cli.js', import.meta.url))
 
@@ -437,7 +438,7 @@ test('argument validation happens before any host is spawned', () => {
 		['runtime', 'build'],
 		['session', 'start'],
 		['session', 'attach'],
-		['logs'],
+		['logs', '--run', 'run_x', '--session', 'sess_x'],
 		['interact', 'sess_x', '--mechanism', 'dom-event'],
 		['interact', 'sess_x', '--document', 'd', '--mechanism', 'dom-event'],
 		['actions', 'invoke'],
@@ -447,6 +448,58 @@ test('argument validation happens before any host is spawned', () => {
 		assert.equal(json(out).error.code, 'invalid_selection', args.join(' '))
 	}
 
+	assert.equal(existsSync(descriptorPath(root)), false)
+})
+
+test('retained dev logs are app-bound, paginated and readable without an agent host', () => {
+	const root = makeWorkspace('retained-logs')
+	makeLinkedApp(root)
+	const capture = createDevLogCapture(join(root, 'app'), { platform: 'ios', targetId: 'fixture' })
+	capture.append({ stream: 'stderr', line: 'Failure before agent connection' })
+	capture.close()
+	const listed = json(run(['logs', '--platform', 'ios', '--project', root, '--json']))
+	assert.equal(listed.ok, true)
+	assert.equal(listed.data.runs[0].runId, capture.runId)
+	const page = json(
+		run([
+			'logs',
+			'--run',
+			capture.runId,
+			'--cursor',
+			'0',
+			'--limit',
+			'2',
+			'--project',
+			root,
+			'--json',
+		]),
+	)
+	assert.equal(page.ok, true)
+	assert.ok(page.data.records.some((r) => r.line === 'Failure before agent connection'))
+	assert.equal(page.data.historical, true)
+	const continuation = json(
+		run([
+			'logs',
+			'--run',
+			capture.runId,
+			'--cursor',
+			String(page.data.nextCursor),
+			'--project',
+			root,
+			'--json',
+		]),
+	)
+	assert.ok(continuation.data.records.every((r) => r.seq > page.data.nextCursor))
+	assert.equal(
+		json(run(['logs', '--platform', 'android', '--project', root, '--json'])).data.runs.length,
+		0,
+	)
+	assert.equal(
+		json(
+			run(['logs', '--run', capture.runId, '--platform', 'android', '--project', root, '--json']),
+		).error.code,
+		'invalid_selection',
+	)
 	assert.equal(existsSync(descriptorPath(root)), false)
 })
 

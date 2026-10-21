@@ -27,6 +27,7 @@
 import { randomBytes, randomUUID } from 'node:crypto'
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { browserLogScript } from '../dev-log-client.web.ts'
 
 const PREFIX = '/__xplat_dev__'
 const MAX_BODY = 1024 * 1024
@@ -296,6 +297,39 @@ export function xplatDevBridge(options = {}) {
 		}
 
 		try {
+			if (req.method === 'POST' && url.pathname === `${PREFIX}/logs`) {
+				const body = await readBody(req)
+				if (
+					!Array.isArray(body.records) ||
+					body.records.length > 10 ||
+					!Number.isSafeInteger(body.dropped ?? 0) ||
+					(body.dropped ?? 0) < 0 ||
+					body.records.some(
+						(record) =>
+							!record ||
+							!['warn', 'error'].includes(record.level) ||
+							typeof record.line !== 'string' ||
+							record.line.length > 2048,
+					)
+				) {
+					throw new Error('Invalid browser log batch.')
+				}
+
+				if (body.dropped) {
+					process.stderr.write(
+						`[browser:warn] ${body.dropped} browser log records lost before delivery.\n`,
+					)
+				}
+
+				for (const record of body.records) {
+					for (const line of record.line.split(/\r?\n/)) {
+						process.stderr.write(`[browser:${record.level}] ${line}\n`)
+					}
+				}
+
+				return json(res, 200, { accepted: body.records.length })
+			}
+
 			// GET /invoke/<requestId> — the only parametrized route.
 			const outcomeMatch = /^\/invoke\/([^/]+)$/.exec(url.pathname.slice(PREFIX.length))
 			if (req.method === 'GET' && outcomeMatch) {
@@ -337,6 +371,16 @@ export function xplatDevBridge(options = {}) {
 	return {
 		name: 'xplat-dev-bridge',
 		apply: 'serve',
+		transformIndexHtml() {
+			return [
+				{
+					tag: 'script',
+					attrs: { type: 'module' },
+					children: browserLogScript(token, `${PREFIX}/logs`),
+					injectTo: 'head-prepend',
+				},
+			]
+		},
 		config() {
 			return {
 				define: {

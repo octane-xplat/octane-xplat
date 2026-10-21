@@ -1,229 +1,92 @@
 # Runtime diagnostics for agents
 
-Status: proposal, 2026-10-20. Source assessment only; no new diagnostics
-commands, transports, or device qualification have landed in this proposal.
+Status: retained development logs implemented, 2026-10-20. The original
+proposal was narrowed to capture existing output with minimal new machinery.
+Structured framework traces, application snapshots, and OS crash collection
+remain separate future work.
 
-An agent should be able to attach after a failure and retrieve the errors and
-framework events that preceded it on web, iOS, Android, and macOS. The most
-valuable evidence is transient history and framework decisions that cannot be
-reconstructed from source or a current host-tree snapshot.
+## Chosen scope
 
-Recommend one event contract with platform collectors, a bounded history in
-the app, and a second copy in the development host. Reuse development actions
-for app-specific snapshots. Native macOS AppKit needs a transport before it
-can participate; launching or attaching to its process does not provide one.
+An agent can list a selected app's retained development runs and retrieve
+output produced before it connected, including after the capture process exits.
+The [public guide](../../docs/testing/development-logs.md) owns commands,
+configuration, retention limits, and user-facing coverage.
 
-## Existing boundaries
-
-Assessed against source at `e3634e376`. These are implementation findings,
-not evidence of successful browser, simulator, emulator, or device runs.
-
-| Boundary          | Current source evidence                                                                                                                                                                                                              | Consequence                                                                                        |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
-| Session/job logs  | [Runtime log buffer](../../packages/cli/src/mcp/runtime/logs.ts) retains ordered, bounded records with cursors and explicit gaps.                                                                                                    | Reuse these read semantics; do not mistake process output for complete app diagnostics.            |
-| Web               | [Web adapter](../../packages/cli/src/mcp/runtime/adapters/web.ts) captures owned Vite/Chromium process output; [CDP channel](../../packages/cli/src/mcp/inspection/cdp.ts) handles request responses and ignores unsolicited events. | Browser console, exception, and request-event collection needs additional wiring.                  |
-| iOS               | [iOS adapter](../../packages/cli/src/mcp/runtime/adapters/ios.ts) captures NativeScript launch output; attach taps a booted simulator's log stream.                                                                                  | Physical-device collection and crash history are separate qualifications.                          |
-| Android           | [Android adapter](../../packages/cli/src/mcp/runtime/adapters/android.ts) captures NativeScript launch output; attach starts PID-filtered logcat.                                                                                    | This is not a structured trace of framework operations; process replacement needs renewed binding. |
-| macOS process     | [macOS adapter](../../packages/cli/src/mcp/runtime/adapters/macos.ts) captures owned dev-host output; attached output remains in the user's terminal.                                                                                | A warm attach currently supplies lifecycle notes, not the app's output.                            |
-| macOS app channel | [macOS endpoint discovery](../../packages/platform/src/dev-bridge.macos.ts) describes WKWebView endpoint discovery and an unavailable AppKit channel.                                                                                | macOS qualification must name the renderer; WKWebView cannot qualify AppKit.                       |
-| In-app bridge     | [Development actions](../../packages/platform/src/dev-actions.ts) start their bridge when an action is registered; [native endpoint discovery](../../packages/platform/src/dev-bridge.ts) uses the dev token and runtime origin.     | Diagnostics bootstrap must also work when zero actions are registered.                             |
-| Host lifetime     | [Development middleware](../../packages/cli/src/mcp/dev-bridge.ts) runs in the dev server, independently of the CLI runtime host.                                                                                                    | Retain received diagnostics there before any agent connects.                                       |
-
-## First increment
-
-Include JS errors/rejections, framework warnings, app lifecycle, development
-action outcomes, and a focused navigation/presentation failure trail. For
-example, preserve the action, attempted presentation, missing owner, and
-resulting failure as related records. Observe errors without suppressing the
-runtime's existing reporting or termination behavior.
-
-Native service outcomes are the next instrumentation slice: record operation
-names, completion/failure/cancellation, and sanitized error codes at owned
-service boundaries. Do not promise blanket interception of arbitrary plugins.
-Network bodies, arbitrary object/heap inspection, render/signal tracing, and
-continuous performance profiling are outside this first increment.
-
-| Owner                      | Proposed responsibility                                                                                                                                       |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `platform`                 | Renderer-independent event buffer and instance identity; platform files own error/lifecycle hooks. No DOM or SDK globals in shared code.                      |
-| `ui`                       | Emit selected navigation/presentation diagnostics through a dependency-free seam consistent with the existing dependency graph; no new UI dependency or peer. |
-| CLI development middleware | Authenticate batches, deduplicate replay, retain bounded history, and expose reads independent of app responsiveness.                                         |
-| CLI agent and MCP services | Project the same read contract, coverage report, and explicit instance selection through their respective transports.                                         |
-| Native development hosts   | Supply app-channel transport and lifecycle binding where HTTP endpoint discovery is unavailable.                                                              |
-
-Before fixing package ownership, inspect the dependency graph and prove that
-the producer seam does not create a cycle or retain diagnostics machinery in
-production. Share the smallest existing buffer/contract utilities that fit;
-do not create a new package solely to move this dependency-free code.
-
-## Proposed event and read contract
-
-The following JSON is a proposed wire example, not an installed API. Payloads
-contain approved diagnostic fields rather than arbitrary native arguments.
-An operation ID relates records only when instrumentation actually propagated
-it; nearby timestamps alone do not establish causality.
-
-```json
-{
-	"schemaVersion": 1,
-	"appInstanceId": "app_41",
-	"runtimeEpoch": "epoch_3",
-	"buildId": null,
-	"platform": "ios",
-	"renderer": "nativescript",
-	"sourceId": "app-js",
-	"sequence": 82,
-	"occurredAt": "2026-10-20T14:00:00.000Z",
-	"level": "error",
-	"category": "presentation",
-	"name": "presentation.rejected",
-	"operationId": "op_12",
-	"data": {
-		"reason": "owner-unmounted",
-		"ownerId": "owner_7"
-	}
-}
+```sh
+pnpm exec xplat logs --platform ios --json
+pnpm exec xplat logs --run RUN_ID --cursor 0 --limit 50 --json
 ```
 
-| Read                      | Input                                                                                   | Output and failure boundary                                                                                         |
-| ------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| Discover sources          | Selected app; optional explicit instance                                                | Instances, renderer, available collectors, capture start, and source health. Multiple instances require a choice.   |
-| Read events               | Explicit instance, opaque cursor, bounded limit; optional source/category/level filters | Records, next cursor, gaps, and capture coverage. A disconnected app can still have readable host history.          |
-| Inspect current app state | Existing development-action instance, action ID, registry revision, and declared input  | Validated result with freshness supplied by the app. Unresponsive/disconnected apps cannot supply a fresh snapshot. |
+Use the existing development launcher as the collection boundary. All six
+target branches pass their stdout/stderr through the same capture helper;
+macOS AppKit does not need a new app-command transport to expose host output.
+The web development bridge forwards warnings, console errors, uncaught errors,
+and unhandled rejections into that process stream. Default error behavior is
+preserved; ordinary object payloads are omitted.
 
-An example proposed read response makes incomplete evidence explicit:
+## Ownership and persistence
 
-```json
-{
-	"records": [],
-	"nextCursor": "opaque-host-cursor",
-	"coverage": {
-		"capturedFrom": "2026-10-20T13:59:00.000Z",
-		"appConnected": false,
-		"historical": true,
-		"sources": [
-			{ "id": "app-js", "state": "disconnected" },
-			{ "id": "native-crash", "state": "unsupported" }
-		]
-	},
-	"gaps": [{ "sourceId": "app-js", "reason": "buffer-overflow", "dropped": 16 }]
-}
+- `commands/dev.ts` starts one capture per selected target. Ordinary build and
+  type-generation subprocesses do not create retained development runs.
+- `procs.ts` tees output to the terminal and capture, decodes split UTF-8,
+  and bounds incomplete lines without truncating terminal output.
+- `dev-logs.ts` owns private per-run metadata and two rotating JSONL segments
+  under the app's local cache. Rotation and completed-run eviction bound storage;
+  active runs are retained. Writes reach the local filesystem synchronously,
+  without promising survival of power loss or storage failure.
+- CLI logs handlers list/read those files directly with explicit app/run
+  selection. No agent runtime host, running app response, or app inspection
+  channel is required. Session/job logs retain their existing service path.
+- `xplatDevBridge` authenticates browser batches using its existing server
+  token. Its serve-only HTML hook installs the browser collector; production
+  builds receive neither the collector nor endpoint.
+
+Each record carries sequence, timestamp, stream, source, and text. Run metadata
+carries platform, target, capture owner PID, and start/end times. Sequence cursors
+belong to a specific run. Missing retained history, capped lines, and incomplete
+file tails are reported; timestamp proximity does not establish causality.
+
+## Evidence boundaries
+
+Maintained regressions:
+
+| Check                                                               | Evidence                                                                                                                                                                     | Limit                                                                                         |
+| ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| [Subprocess and storage](../../packages/cli/test/dev-logs.test.mjs) | Real Node subprocesses tagged with all six platforms, post-exit reads, bounded rotation, filtered cursors, UTF-8, partial/long lines, run isolation and active-run retention | Platform tags exercise common capture code; they do not qualify device or native-host output. |
+| [CLI selection](../../packages/cli/test/agent-cli.test.mjs)         | CLI command dispatch, app/platform/run selection, pagination and reads without an agent host                                                                                 | Fixture apps; no native device.                                                               |
+| [Browser client](../../packages/cli/test/dev-browser-logs.test.mjs) | Serialized script execution, original console calls, uncaught/rejection listeners, object omission and authenticated delivery                                                | VM execution alone is not browser qualification.                                              |
+| [Development HTTP](../../packages/cli/test/dev-bridge.test.mjs)     | Real HTTP authentication, validation and forwarding to process stderr                                                                                                        | No OS crash collection.                                                                       |
+
+Actual browser smoke and dependent typecheck results are recorded separately
+in Silo's recipe audit for the committed revision. Native simulator, emulator,
+physical-device and AppKit/WKWebView runtime qualification remain unverified in
+this change. Do not infer them from subprocess tags or successful typechecks.
+
+## Deliberate limits
+
+The capture records only what a tool or host forwards. It cannot recover prior
+output from a process launched outside xplat dev, report every OS diagnostic,
+or explain internal state that was never logged. Raw log strings may contain
+sensitive values; local owner-only files and object omission do not guarantee
+redaction. Browser queues/batches are bounded and disclose lost deliveries.
+
+A missing/dead capture owner marks history as historical; apparent PID liveness
+is only a hint and does not prove the app is ready or healthy. Retained runs
+are separate from agent-owned session/job captures. App-specific snapshots can
+use existing development actions where available, but are not part of this slice.
+
+Native crash/ANR/hang reports, symbolication, operation correlation, framework
+state snapshots, and general native-plugin interception remain outside the
+retained-log implementation. The AppKit application-command bridge remains an
+independent gap rather than a prerequisite for reading development output.
+
+The maintained Chromium qualification starts a real xplat dev process, loads
+its page, retrieves warnings/errors/rejections through the CLI after process
+exit, and checks that release HTML excludes forwarding. Run it locally after
+building the CLI; it uses the existing apps/web Playwright installation and
+captures no images. It is outside the ordinary test glob and PR checks:
+
+```sh
+pnpm --filter @octane-xplat/cli... --if-present build
+node packages/cli/test/verify-dev-logs-browser.mjs
 ```
-
-Required invariants:
-
-- Each stream is ordered by instance, runtime epoch, source, and sequence.
-  Epochs change on runtime replacement; build identity is independently
-  reported as unknown until known. Hot reload must not silently mix builds.
-- The host assigns its own receipt order and deduplicates reconnect replay.
-  Cross-source receipt order is not a guarantee of execution order.
-- Cursors bind to the host capture generation and filter selection. A host
-  restart or incompatible cursor produces an explicit reset/stale result.
-- Bound app and host buffers by event count and encoded bytes; bound each
-  record and batch. Expose overflow, rejected oversized records, and missing
-  sequence ranges. Collector failure must not recursively log itself.
-- Event capture starts during development bootstrap, before an agent attaches.
-  Unsynced app-buffer records are lost on process death; already acknowledged
-  host records remain available until host shutdown or eviction. No disk
-  persistence or crash-safe delivery is promised in the first increment.
-- Authenticate with the existing dev trust boundary and bind announcements to
-  the selected app. Associate process sessions with app instances only after
-  a verified handshake; command-line matching alone is insufficient.
-- Use approved fields and bounded serialization. Exclude tokens, input text,
-  request bodies, URL query values, and raw native-call arguments by default.
-  Arbitrary console strings can contain secrets; console forwarding needs an
-  explicit collection/redaction policy and must not claim perfect redaction.
-- Development instrumentation, endpoints, and tokens are absent from release
-  artifacts. Multiple readers share collectors; ending an attached session
-  does not stop a user-owned app or its development host.
-
-## App-specific snapshots
-
-Existing development actions can return declared structured state. For
-example, an app can expose the size of its upload queue without exposing file
-names or content. This is a handler-level read-only promise, not a sandbox.
-The example belongs in a development-only app module, using the existing
-production exclusion pattern from the [development-action guide](../../docs/testing/development-actions.md).
-
-```ts
-import { registerDevAction } from '@octane-xplat/platform/dev-actions'
-
-export function registerUploadDiagnostics(pendingUploads: ReadonlySet<string>) {
-	const action = registerDevAction({
-		id: 'diagnostics.uploads',
-		title: 'Read upload queue status',
-		description: 'Returns the current queue size and capture time without starting uploads.',
-		result: {
-			fields: {
-				pendingCount: { type: 'integer', minimum: 0 },
-				capturedAt: { type: 'string' },
-			},
-		},
-		effects: { summary: 'Reads upload queue size; no application changes.' },
-		execution: { concurrency: 'overlap', retryable: true },
-		run: () => ({ pendingCount: pendingUploads.size, capturedAt: new Date().toISOString() }),
-	})
-
-	return () => action.dispose()
-}
-```
-
-Run the returned cleanup when unloading the development module. Do not invoke
-a mutation action merely to inspect state.
-The agent still follows the returned job to completion and checks the result;
-job acceptance alone does not provide a snapshot.
-
-## Platform work and qualification
-
-| Target          | App-side work                                                                                                                                                          | Independent collector work                                                                            |
-| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| Web             | Early bootstrap and error/rejection collection; qualify bridge connection and reload boundaries.                                                                       | Optional CDP event collection for owned browser sessions, without duplicating bridge records.         |
-| iOS             | NativeScript JS/lifecycle hooks and authenticated dev-server communication.                                                                                            | Qualify simulator logs separately from physical-device logs; crash reports require a later collector. |
-| Android         | NativeScript JS/lifecycle hooks and dev-server reachability on emulator and physical device.                                                                           | Rebind logcat on process replacement; Java/native crashes and ANRs require separate coverage.         |
-| macOS AppKit    | Prove a local authenticated transport for the JavaScriptCore host, including warm attach. Existing host pipes are a feasibility lead, not a completed general channel. | Collect host output even when CLI attaches later; later qualify native crash/hang artifacts.          |
-| macOS WKWebView | Qualify the dev-page bridge and distinguish page instance from native-host instance.                                                                                   | Cover native-host and web-content-process failures separately.                                        |
-
-Linux and Windows retain explicit capability reports. The wire platform field
-must accommodate them; this proposal does not qualify their transports or
-claim that coverage of the four requested platforms closes six-platform work.
-
-A dead or blocked JS runtime cannot provide fresh bridge responses. Native
-crash reports, ANRs, hangs, memory-pressure termination, and symbolication
-belong to a later OS collector increment. Report artifact availability and
-symbolication quality rather than inferring a crash cause from disconnection.
-
-## Delivery and acceptance
-
-First prove the bootstrap, bounded buffering, and transport on web, iOS, then
-macOS AppKit; qualify Android and WKWebView independently before calling this
-increment cross-platform. Use temporary probes for feasibility and promote
-the behavior below into maintained regressions. Runtime qualification is
-separate from source tests and successful builds.
-
-1. In an app with no development actions, emit an error before CLI connection;
-   attach and retrieve it with its original instance/build identity.
-2. Disconnect and reconnect the app; retrieve replayed records once, with
-   explicit gaps for any app/host overflow or runtime replacement.
-3. Acknowledge an event at the host, then terminate the app; retrieve the
-   historical event without requiring the dead app to answer. Do not claim
-   recovery of unsent events or a native crash report.
-4. Run two instances; select one explicitly and verify no cross-instance
-   records. Reject foreign, stale, and unauthenticated bindings.
-5. Preserve uncaught-error behavior, default handlers, and user-owned process
-   lifetimes. Verify idempotent installation/cleanup across hot reload.
-6. Assert byte/count limits, filtered cursor progress, oversized payload
-   handling, and omission of deliberately seeded sensitive fields.
-7. Read a declared app snapshot and follow its job to a validated result;
-   report unresponsive state rather than returning old state as fresh.
-8. Inspect release artifacts for diagnostic bootstrap, hooks, tokens, and
-   handlers; none may remain. Reconcile public docs, examples, CLI/MCP
-   schemas, the Octane skill, and recipe coverage when implementation lands.
-
-Record each actual target, renderer, device kind, capture source, and evidence
-type. Keep browser/device execution local; do not add engines or emulation to
-the lightweight PR checks. The existing [MCP consumer recipe](../docs/recipes/mcp-consumer-workflow.md)
-remains scoped to its documented lane until new acceptance evidence lands.
-
-Unresolved questions tracked in Silo: the AppKit transport for warm attach,
-portable error-hook semantics, and the production-free producer seam. This
-proposal changes no supported public workflow or release API.
