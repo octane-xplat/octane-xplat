@@ -177,6 +177,9 @@ found` — and reinstalls stay "Already up to date" (GH#16). Heal by
   The patch package's `prepack` uses `sync-patches.ts --package-only`: it
   refreshes only its own generated patch files. Root and starter YAML changes
   belong to the explicit `pnpm sync:patches` command.
+- To develop against a local checkout of the `octane-xplat/nativescript-mason`
+  fork, see [links/README.md](../../links/README.md) (`pnpm dev:masonkit`
+  links the built dist package without touching the lockfile).
 - `packages/*/src/vendor/*` dirs are **git submodules** of forks in the
   `octane-xplat` org, each pinned to a `xplat-vendored` branch
   (`octane-xplat/ui-lottie` = `xplat-fixes` + vendoring-compat markers;

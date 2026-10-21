@@ -38,6 +38,7 @@
 		"test:create": "node --test packages/create/test/*.test.mjs",
 		"check:consumer": "node scripts/verify-consumer.ts",
 		"dev:android": "pnpm --filter @xplat/mobile android",
+		"dev:masonkit": "pnpm install --ignore-scripts --lockfile=false --config.pnpmfile=./links/masonkit.cjs",
 		"dev:macos": "pnpm --filter @xplat/macos dev",
 		"dev:linux": "pnpm --filter @xplat/linux dev",
 		"dev:windows": "pnpm --filter @xplat/windows windows",
