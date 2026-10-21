@@ -715,6 +715,48 @@ now defaults to `false`, older iOS uses system material blur, and explicit
 interactive child touch delivery remains unqualified. The experiment below
 records historical behavior, not the current fallback or interaction default.
 
+### Padding measurement workaround (issue #37)
+
+**Upstream limitation:** in `@nativescript/core` 9.1.3 (and `main` as of
+2026-10-20), `LiquidGlass.onMeasure` and `LiquidGlassContainer.onMeasure` set
+effective padding and border to zero while delegating to
+`GridLayout`/`AbsoluteLayout`, then restore them
+([NativeScript#11134](https://github.com/NativeScript/NativeScript/pull/11134),
+[source](https://github.com/NativeScript/NativeScript/blob/45b3b99afd89f19e799da84203aa19d673f7b20a/packages/core/ui/layouts/liquid-glass/index.ios.ts#L51-L87)).
+Its premise is that the parent already removed the child's padding from the
+measure spec. No parent does: MasonKit beta.110's
+`_masonLayoutForeignDescendants`, core's `View.measureChild`, and core's iOS
+`FlexboxLayout` all pass the border-box size. The content therefore measures
+at the full outer width. `onLayout` runs with the padding restored, which
+offsets that content by the leading padding, so it overflows and is clipped.
+#11134's test used glass without padding.
+
+**Local workaround:** `LiquidGlassView` and `LiquidGlassContainerView`
+(`packages/ui/src/ios/`) override `onMeasure` to call
+`GridLayout.prototype.onMeasure`/`AbsoluteLayout.prototype.onMeasure`
+directly. Core's local-coordinate `onLayout` (and the container's transform
+normalisation) stays. Remove both overrides when a core release drops the
+padding-zeroing `onMeasure`.
+
+**Evidence:** host unit tests in `packages/ui/tests/liquid-glass.ios.test.mjs`
+cover the measure path only. Runtime geometry comes from an iPhone 18 Pro
+simulator running iOS 27.0, with the overrides on and then off. It covers
+geometry only, not OS touch delivery:
+
+| Case (pt)                                              | Fix                   | Core path             |
+| ------------------------------------------------------ | --------------------- | --------------------- |
+| 353 glass, padding 19, `*,*,*` grid at 100%            | grid x 19, width 315  | grid x 19, width 353  |
+| Auto-width glass in a row, padding 19, `Text` child    | glass = text + 38     | glass = text (clips)  |
+| Auto-width glass in a row, padding 19, 120 pt `View`   | glass 38, child x −41 | glass 120, child x 19 |
+
+**Remaining gap (not caused by core):** a Mason `View` child inside an
+auto-width glass reports a desired width of 0 in Mason's first max-content
+(UNSPECIFIED) measure. With correct padding, the glass returns a non-zero
+padding-only size and Mason keeps it. Core's zeroed padding returned 0, which
+happened to trigger a re-measure. Neither path yields the correct 158 pt.
+Give such a glass a definite width (stretch or explicit width) until the
+foreign-parent → Mason-child max-content measurement is fixed.
+
 This section records the earlier glass experiment. The shared `glass` prop
 and web approximation were subsequently removed; today only
 `LiquidGlass`/`LiquidGlassContainer` from `@octane-xplat/ui/ios` are public.

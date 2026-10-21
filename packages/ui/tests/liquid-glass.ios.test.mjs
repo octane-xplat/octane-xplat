@@ -14,10 +14,64 @@ const compiled = ts.transpile(source, {
 	target: ts.ScriptTarget.ES2022,
 })
 
+const containerSource = await readFile(
+	new URL('../src/ios/liquid-glass-container-view.ios.ts', import.meta.url),
+	'utf8',
+)
+
+const containerCompiled = ts.transpile(containerSource, {
+	module: ts.ModuleKind.CommonJS,
+	target: ts.ScriptTarget.ES2022,
+})
+
+const PAD_BORDER_FIELDS = [
+	'effectivePaddingLeft',
+	'effectivePaddingTop',
+	'effectivePaddingRight',
+	'effectivePaddingBottom',
+	'effectiveBorderLeftWidth',
+	'effectiveBorderTopWidth',
+	'effectiveBorderRightWidth',
+	'effectiveBorderBottomWidth',
+]
+
+// Records the border-box spec minus the effective padding/border the child
+// sees, like a real layout measuring its content.
+function recordingMeasure(calls) {
+	return function (width, _height) {
+		const left = (this.effectivePaddingLeft ?? 0) + (this.effectiveBorderLeftWidth ?? 0)
+		const right = (this.effectivePaddingRight ?? 0) + (this.effectiveBorderRightWidth ?? 0)
+		calls.push(['measure', { left, right, content: width - left - right }])
+	}
+}
+
+// Mimics core 9.1.3's zero-padding onMeasure (NativeScript#11134): the
+// glass classes save, zero all eight effective padding/border fields, call
+// the real layout's onMeasure, and restore.
+function zeroPadBorder(self, fn) {
+	const saved = {}
+	for (const field of PAD_BORDER_FIELDS) {
+		saved[field] = self[field] ?? 0
+		self[field] = 0
+	}
+	try {
+		return fn()
+	} finally {
+		for (const field of PAD_BORDER_FIELDS) {
+			self[field] = saved[field]
+		}
+	}
+}
+
 function fixture(glassSupported) {
 	const setter = 'setGlassEffect'
 	const calls = []
-	class CoreLiquidGlass {
+	class GridLayout {}
+	GridLayout.prototype.onMeasure = recordingMeasure(calls)
+	class CoreLiquidGlass extends GridLayout {
+		onMeasure(width, height) {
+			return zeroPadBorder(this, () => super.onMeasure(width, height))
+		}
 		createNativeView() {
 			// Model core's root and child host, not UIKit hit testing.
 			const view = {
@@ -45,6 +99,7 @@ function fixture(glassSupported) {
 	}
 
 	const core = {
+		GridLayout,
 		LiquidGlass: CoreLiquidGlass,
 		Utils: { supportsGlass: () => glassSupported },
 	}
@@ -68,7 +123,41 @@ function fixture(glassSupported) {
 	})
 
 	vm.runInContext(compiled, context)
-	return { view: new context.exports.LiquidGlassView(), calls, setter }
+	return { view: new context.exports.LiquidGlassView(), calls, setter, CoreLiquidGlass }
+}
+
+function containerFixture() {
+	const calls = []
+	class AbsoluteLayout {}
+	AbsoluteLayout.prototype.onMeasure = recordingMeasure(calls)
+	class CoreLiquidGlassContainer extends AbsoluteLayout {
+		onMeasure(width, height) {
+			return zeroPadBorder(this, () => super.onMeasure(width, height))
+		}
+	}
+
+	const core = {
+		AbsoluteLayout,
+		LiquidGlassContainer: CoreLiquidGlassContainer,
+	}
+
+	const context = vm.createContext({
+		exports: {},
+		require: (name) => {
+			if (name === '@nativescript/core') {
+				return core
+			}
+
+			throw new Error(`Unexpected import: ${name}`)
+		},
+	})
+
+	vm.runInContext(containerCompiled, context)
+	return {
+		view: new context.exports.LiquidGlassContainerView(),
+		calls,
+		CoreLiquidGlassContainer,
+	}
 }
 
 test('older iOS installs material on the same core root without replacing the child host', () => {
@@ -127,4 +216,43 @@ test('component registers the adapter and defaults interaction off while keeping
 	assert.match(leaf, /applyEscapeProps\(v, props\)/)
 	assert.match(leaf, /layoutChildProps\(props/)
 	assert.match(leaf, /\{props\.children\}/)
+})
+
+test('LiquidGlass measures its content inside effective padding (issue #37)', () => {
+	const { view, calls, CoreLiquidGlass } = fixture(true)
+	view.effectivePaddingLeft = 19
+	view.effectivePaddingRight = 19
+	view.onMeasure(353, 82)
+	assert.deepEqual(calls.at(-1), ['measure', { left: 19, right: 19, content: 315 }])
+	assert.equal(view.effectivePaddingLeft, 19)
+	assert.equal(view.effectivePaddingRight, 19)
+
+	// Fixture sanity: core's zero-padding onMeasure reproduces the bug.
+	calls.length = 0
+	CoreLiquidGlass.prototype.onMeasure.call(view, 353, 82)
+	assert.deepEqual(calls.at(-1), ['measure', { left: 0, right: 0, content: 353 }])
+	assert.equal(view.effectivePaddingLeft, 19)
+})
+
+test('LiquidGlassContainer measures its content inside effective padding (issue #37)', () => {
+	const { view, calls, CoreLiquidGlassContainer } = containerFixture()
+	view.effectivePaddingLeft = 19
+	view.effectivePaddingRight = 19
+	view.onMeasure(353, 82)
+	assert.deepEqual(calls.at(-1), ['measure', { left: 19, right: 19, content: 315 }])
+	assert.equal(view.effectivePaddingLeft, 19)
+	assert.equal(view.effectivePaddingRight, 19)
+
+	calls.length = 0
+	CoreLiquidGlassContainer.prototype.onMeasure.call(view, 353, 82)
+	assert.deepEqual(calls.at(-1), ['measure', { left: 0, right: 0, content: 353 }])
+	assert.equal(view.effectivePaddingLeft, 19)
+})
+
+test('container registers the padding-aware core view', async () => {
+	const leaf = await readFile(
+		new URL('../src/ios/LiquidGlassContainer.ios.tsrx', import.meta.url),
+		'utf8',
+	)
+	assert.match(leaf, /registerElement\('liquidglasscontainer', LiquidGlassContainerView\)/)
 })

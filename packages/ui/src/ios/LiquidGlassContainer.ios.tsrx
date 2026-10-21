@@ -1,5 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { LiquidGlassContainer as NSLiquidGlassContainer } from '@nativescript/core';
+import { LiquidGlassContainerView } from './liquid-glass-container-view.ios';
 import { registerElement } from '@nativescript-community/octane';
 import type { Attributes } from '@nativescript-community/octane/intrinsics';
 import type { LiquidGlassContainerProps } from '../props';
@@ -13,7 +14,8 @@ declare module '@nativescript-community/octane/intrinsics' {
 	}
 }
 
-registerElement('liquidglasscontainer', NSLiquidGlassContainer);
+// The driver needs an intrinsic registration for the padding-aware core view.
+registerElement('liquidglasscontainer', LiquidGlassContainerView);
 
 /** LiquidGlassContainer — merged-glass region (UIGlassContainerEffect):
  *  glass siblings inside morph together across `spacing` dips. The native
