@@ -10,10 +10,10 @@ import { setTimeout as delay } from 'node:timers/promises'
 
 const cli = fileURLToPath(new URL('../dist/cli.js', import.meta.url))
 const require = createRequire(import.meta.url)
-const until = async (predicate) => {
+const until = async (predicate, diagnostic = () => '') => {
 	const deadline = Date.now() + 10000
 	while (!(await predicate())) {
-		assert.ok(Date.now() < deadline, 'CLI watch condition did not settle')
+		assert.ok(Date.now() < deadline, `CLI watch condition did not settle: ${diagnostic()}`)
 		await delay(20)
 	}
 }
@@ -136,7 +136,7 @@ test(
 				runner.assertAlive()
 				url = runner.output().match(/http:\/\/127\.0\.0\.1:\d+\//)?.[0]
 				return !!url
-			})
+			}, runner.output)
 
 			assert.match(await (await fetch(url)).text(), /route watch fixture/)
 			await writeFile(
