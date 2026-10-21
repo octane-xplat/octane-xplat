@@ -126,6 +126,9 @@ export function Image(props: ImageProps) @{
 				// iOS ignores decode dims — a same-src resize reload only
 				// flickers. Android needs it for the re-decode at the new size.
 				reissueOnResize: isAndroid,
+				// Android's Mason re-measures a leaf with a pending request on
+				// its own; an extra one collapses flex-grown auto heights.
+				relayoutOnImageSource: isIOS,
 			}),
 		[],
 	);

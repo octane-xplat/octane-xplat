@@ -223,6 +223,15 @@ describe('sized image decode binding', () => {
 		expect(view.layoutRequests).toBe(1)
 	})
 
+	it('relayoutOnImageSource: false leaves the bitmap re-measure to the layout engine', () => {
+		const view = mockView(214, 0)
+		const binding = createSizedImageBinding({ relayoutOnImageSource: false })
+
+		binding.update(view, 'res://a.jpg')
+		view.emit('imageSourceChange')
+		expect(view.layoutRequests).toBe(0)
+	})
+
 	it('moves the imageSource listener to a recreated view', () => {
 		const first = mockView(214, 0)
 		const second = mockView(214, 0)

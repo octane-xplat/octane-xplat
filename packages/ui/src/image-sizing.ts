@@ -20,10 +20,14 @@
  *  the same first-layout gate but skips the resize reloads
  *  (`reissueOnResize: false`), so one path serves both platforms.
  *
- *  When the bitmap arrives the leaf also requests a fresh layout: NS
- *  core's own post-load `requestLayout` does not re-measure a foreign
- *  `Image` inside a Mason container, so without this an intrinsic-sized
- *  axis stays 0 (see .agents/docs/notes/masonkit-layout-evaluation.md).
+ *  On iOS the leaf also requests a fresh layout when the bitmap arrives
+ *  (`relayoutOnImageSource`): NS core's own post-load `requestLayout`
+ *  does not re-measure a foreign `Image` inside a Mason container, so
+ *  without this an intrinsic-sized axis stays 0. Android's Mason already
+ *  re-measures a foreign leaf with a pending layout request, and an extra
+ *  request there re-measures an auto-height leaf at its content height,
+ *  overriding a flex-grown or stretched height (see
+ *  .agents/docs/notes/masonkit-layout-evaluation.md).
  *
  *  The ref callback re-fires on every render (identity change), so
  *  `update` must be idempotent: same view + same src + same size is a
@@ -37,9 +41,14 @@
  *  already true). The Image placeholder hooks this to re-apply its bitmap
  *  after the write has nulled `imageSource` (L5, decision #103). */
 export function createSizedImageBinding(
-	options: { afterIssue?: (view: any) => void; reissueOnResize?: boolean } = {},
+	options: {
+		afterIssue?: (view: any) => void
+		reissueOnResize?: boolean
+		relayoutOnImageSource?: boolean
+	} = {},
 ) {
 	const reissueOnResize = options.reissueOnResize ?? true
+	const relayoutOnImageSource = options.relayoutOnImageSource ?? true
 	let view: any = null
 	let listening = false
 	let laidOut = false
@@ -132,7 +141,11 @@ export function createSizedImageBinding(
 	// a foreign <image> inside a Mason container — ask again so an
 	// auto/intrinsic axis materializes (unconditional: a same-size rebind
 	// with a different aspect needs it too).
-	const onImageSource = () => view?.requestLayout?.()
+	const onImageSource = () => {
+		if (relayoutOnImageSource) {
+			view?.requestLayout?.()
+		}
+	}
 
 	// Android marks a view layout-valid without emitting layoutChanged when
 	// the bounds never changed (a 0×0 image), and `loaded` usually fires
