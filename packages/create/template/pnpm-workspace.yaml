@@ -157,9 +157,12 @@ patchedDependencies:
   # native Style, preserving unsigned masks and rejecting unsupported high-word fields. The
   # {N}-Android runtime strips `$`-suffixed Kotlin-internal members from JS dispatch, so
   # Style.setStateFromHalves(long, long) is invoked through a cached
-  # java.lang.reflect.Method — version-pinned, failing loudly if the AAR renames it. On iOS,
-  # UIView.mason_syncStyleParts ignores foreign views; mark their native leaf dirty after
-  # live-buffer layout writes so class changes invalidate cached frames.
+  # java.lang.reflect.Method — version-pinned, failing loudly if the AAR renames it.
+  # updateNativeStyle only invalidates Element views, so foreign leaves also mirror
+  # invalidateForeignHost: forceLayout on the leaf, nodeForView().dirty(), then the parent
+  # Element's invalidateLayout() to schedule recompute. On iOS, UIView.mason_syncStyleParts
+  # ignores foreign views; mark their native leaf dirty after live-buffer layout writes so
+  # class changes invalidate cached frames.
   "@triniwiz/nativescript-masonkit@1.0.0-beta.110": node_modules/.pnpm-config/@octane-xplat/patches/patches/@triniwiz__nativescript-masonkit@1.0.0-beta.110.patch
 configDependencies:
   "@octane-xplat/patches": 0.16.1

@@ -434,13 +434,16 @@ document overrides erase it, then measures with `width / ratio` like iOS.
 
 Re-run `3a179de1-542f-46eb-b19a-27fb87b0ec80` (2026-10-20, same probe) then
 passed all 10 size and centering assertions, including width-only at 31×36.
-One residual Android gap: after a class change plus inline width override the
-foreign leaf's Mason style buffer updated (30×43) but its laid-out frame
-stayed 31×36. The cause is not yet established; one candidate is that
-`setStateFromHalves` pushes the buffer without dirtying the node's cached
-layout (the iOS path additionally calls `markDirty()`). The restore
-assertion was not reached; inline override and restore remain unqualified
-on Android.
+The remaining override gap is fixed. `Style.updateNativeStyle` invalidates
+via `Element.invalidateLayout()` only when `node.getView()` is an Element;
+a foreign view got a bare `View.invalidate()` — redraw, no relayout — so the
+dirty words landed but compute never reran (measured: the leaf node stayed
+`isDirty` with a stale 31×36 computed layout). The patch now mirrors
+upstream's `invalidateForeignHost`: after the style write it calls
+`view.forceLayout()`, `Mason.nodeForView(view).dirty()`, then the parent
+Element's `invalidateLayout()` — all public. Run
+`a89bc6da-35d5-4c5a-a6cc-563a16ae65e1` (2026-10-20) passes **12/12**,
+including the inline override to 30×43 and its removal restoring 43×43.
 
 Foreign leaves now receive only the longhands listed in the bridge. Under the
 replaced stash/replay path, inline `inset`, `gridArea` and `display` on a

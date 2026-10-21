@@ -282,9 +282,15 @@ const androidHelper = masonCode.slice(
 	masonCode.indexOf('function androidWritableStyleBuffer'),
 )
 
-test('Android foreign layout sync reaches the dirty setter reflectively and preserves an unsigned dirty word', () => {
-	const view = {}
+test('Android foreign layout sync reaches the dirty setter reflectively and invalidates the parent', () => {
 	const calls = []
+	const effects = []
+	const view = {
+		forceLayout: () => effects.push('forceLayout'),
+		getParent: () => parent,
+	}
+	const parent = { invalidateLayout: () => effects.push('invalidateLayout') }
+	const node = { dirty: () => effects.push('dirty') }
 	const sync = runInNewContext(`${androidHelper}; syncAndroidForeignLayout`, {
 		java: {
 			lang: {
@@ -300,6 +306,7 @@ test('Android foreign layout sync reaches the dirty setter reflectively and pres
 					masonkit: {
 						Mason: {
 							getShared: () => ({
+								nodeForView: () => node,
 								styleForViewOrNode(target) {
 									assert.equal(target, view)
 									return {
@@ -328,6 +335,10 @@ test('Android foreign layout sync reaches the dirty setter reflectively and pres
 	assert.deepEqual(calls.map((args) => [...args]), [[2147483648, 0]])
 	assert.throws(() => sync(view, 0, 1, 0, 0), /layout fields only/)
 	assert.equal(calls.length, 1)
+	// Foreign leaves get no Element invalidateLayout from updateNativeStyle —
+	// the bridge must force the leaf, dirty its node, and invalidate the
+	// Element parent so compute reruns.
+	assert.deepEqual(effects, ['forceLayout', 'dirty', 'invalidateLayout'])
 })
 
 test('iOS foreign style sync invalidates the native leaf layout cache', () => {
