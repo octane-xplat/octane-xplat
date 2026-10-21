@@ -302,7 +302,7 @@ row alone is insufficient.
 
 ### Contract differences from NativeScript views (CPH2551, 2026-10-21)
 
-Three local NativeScript assumptions failed on MasonKit 1.0.0-beta.120. Each was
+Four local NativeScript or browser assumptions failed on MasonKit 1.0.0-beta.120. Each was
 verified with programmatic dispatch on a CPH2551 phone, unfolded; iOS is not
 yet qualified.
 
@@ -320,11 +320,19 @@ yet qualified.
   `TwoDScrollView`, a `FrameLayout` whose children are not wrapped in one
   content view. Scroll-ancestor detection must recognise it and read the range
   from `computeVerticalScrollRange()`; the keyboard focus source does.
+- **A stretched scroller is not a definite percentage basis.** A horizontal
+  `scrollview` is a flex row, so its track sizes to max-content unless it has a
+  definite width. `width: '100%'` on the track resolved only when the scroller
+  itself had a style width; when its width came only from grid stretch, the
+  track stayed 147 wide in a 698 viewport (`research/probes/mason-carousel-track.tsrx`).
+  CSS treats stretched grid items as definite, so this differs from the browser.
+  Native Carousel now sets `width: '100%'` on both, and places its scroller,
+  fades and buttons in grid cell 1/1.
 
-With these corrections the chat (12/12), keyboard scroll (6/6) and overlay
-keyboard (14/14) fixtures passed. Carousel's proportional slides still lay out
-at their text width inside the horizontal scroller (track 147 wide in a 698
-viewport), so the strip has no horizontal range; this is unresolved.
+With these corrections the chat (12/12), keyboard scroll (6/6), overlay
+keyboard (14/14) and `packages/ui/tests/carousel-paging.mobile.tsrx` (5/5)
+fixtures passed. MasonKit counts descendants that overflow the track in
+`scrollWidth`, so Carousel paging needs no fork change.
 
 ## Native macOS bridge (verified — lab-experiment)
 
