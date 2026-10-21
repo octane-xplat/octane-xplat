@@ -6,6 +6,7 @@ import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { stripVTControlCharacters } from 'node:util'
 import { setTimeout as delay } from 'node:timers/promises'
 
 const cli = fileURLToPath(new URL('../dist/cli.js', import.meta.url))
@@ -65,7 +66,7 @@ function launch(root, args) {
 		child.once('exit', (code, signal) => resolve({ code, signal })),
 	)
 	return {
-		output: () => output,
+		output: () => stripVTControlCharacters(output),
 		assertAlive() {
 			assert.equal(child.exitCode, null, output)
 		},

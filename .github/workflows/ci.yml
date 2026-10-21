@@ -69,7 +69,7 @@ jobs:
       # it runs locally via the same `pnpm test` script.
       - name: Test
         run: >-
-          pnpm exec turbo run test test:native --filter='!@xplat/visual' &&
+          pnpm exec turbo run test test:native --concurrency=2 --filter='!@xplat/visual' &&
           pnpm test:cli && pnpm test:create &&
           node --test examples/auth/server-verification.test.mjs && pnpm test:scripts
 
