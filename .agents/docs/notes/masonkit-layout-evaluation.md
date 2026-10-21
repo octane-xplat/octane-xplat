@@ -420,12 +420,27 @@ The same probe ran on CPH2551 / Android (run
 `setStateFromHalves` dispatch fix). Class-authored explicit sizes reach
 foreign leaves: non-square SVG 31×36, square SVG 54×54 (53.85 measured),
 native label 43×43 — 6 of 8 size assertions passed before the case timed
-out. The width-only SVG (class `width: 31`, `height: auto`) measured 31×0;
-the cause is not yet established. Separately, the vendored Android
-`onMeasure` still computes height-from-width as `width * ratio` (the iOS
-side was corrected to `width / ratio`), but that bug alone would give
-roughly 27, not 0. The centering, inline-override and restore assertions
-were never reached and remain unqualified on Android.
+out. The width-only SVG (class `width: 31`, `height: auto`) measured 31×0.
+
+Diagnosis: the vendored Android `onMeasure` read `getDocumentViewBox()` per
+measure, but the fixture SVG has `width`/`height` and no `viewBox`, so the
+call returned null and the ratio-inference branch was skipped — the raw
+UNSPECIFIED height (0) was emitted. It also computed height-from-width as
+`width * ratio` instead of `width / ratio`. The vendored fix (`9ca8f44`,
+branch `fix/android-svg-intrinsic-measure`) captures the intrinsic size in
+`setSvg` — `getDocumentViewBox()`, else `getDocumentWidth/Height()` when both
+are positive (verified on-device: 31×36 for the fixture) — before the `100%`
+document overrides erase it, then measures with `width / ratio` like iOS.
+
+Re-run `3a179de1-542f-46eb-b19a-27fb87b0ec80` (2026-10-20, same probe) then
+passed all 10 size and centering assertions, including width-only at 31×36.
+One residual Android gap: after a class change plus inline width override the
+foreign leaf's Mason style buffer updated (30×43) but its laid-out frame
+stayed 31×36. The cause is not yet established; one candidate is that
+`setStateFromHalves` pushes the buffer without dirtying the node's cached
+layout (the iOS path additionally calls `markDirty()`). The restore
+assertion was not reached; inline override and restore remain unqualified
+on Android.
 
 Foreign leaves now receive only the longhands listed in the bridge. Under the
 replaced stash/replay path, inline `inset`, `gridArea` and `display` on a
