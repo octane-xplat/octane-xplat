@@ -1,5 +1,5 @@
 import { FlexboxLayout, Screen, type View } from '@nativescript/core'
-import { leaseKeyboardProperty } from '@octane-xplat/platform/keyboard-property'
+import { leaseNativePaddingBottom } from './native-padding'
 import {
 	DETENT_FLICK_VELOCITY,
 	detentOffset,
@@ -66,13 +66,7 @@ export function attachSheetDetents(
 	const dismissible = () => options.dismissible !== false
 	// The translated-away part is outside the visible stop. Reserve it inside
 	// the panel so bottom controls stay inside the current detent's viewport.
-	const contentInset = leaseKeyboardProperty(
-		() => Number(host.style?.paddingBottom) || 0,
-		(value) => {
-			host.style ??= {}
-			host.style.paddingBottom = value
-		},
-	)
+	const contentInset = leaseNativePaddingBottom(host)
 	const updateContentInset = (offset: number) => {
 		if (!swipeOnly) {
 			contentInset.set(Math.max(0, offset))

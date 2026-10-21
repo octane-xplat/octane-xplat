@@ -3,6 +3,7 @@ import { leaseKeyboardProperty } from '@octane-xplat/platform/keyboard-property'
 import { observeKeyboardViewport } from '@octane-xplat/platform/keyboard-viewport'
 import type { KeyboardWindowState } from '@octane-xplat/platform/keyboard-state'
 import { unknownKeyboardState } from '@octane-xplat/platform/keyboard-state'
+import { leaseNativePaddingBottom } from './native-padding'
 import { subscribeKeyboardState, keyboardHostDisplacement } from './keyboard-inset'
 import { chatHost } from './chat-scroll-host'
 import { chatAtEnd, chatScrollControl, leaseChatViewportMotion } from './chat-scroll-state'
@@ -24,13 +25,7 @@ export function bindChatKeyboard(
 			dock.translateY = value
 		},
 	)
-	const padding = leaseKeyboardProperty(
-		() => Number(content.style?.paddingBottom) || 0,
-		(value) => {
-			content.style ??= {}
-			content.style.paddingBottom = value
-		},
-	)
+	const padding = leaseNativePaddingBottom(content)
 	const viewportLease = observeKeyboardViewport(root)
 	const motion = leaseChatViewportMotion(viewport)
 	let active = true,

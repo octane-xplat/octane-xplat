@@ -3,7 +3,7 @@ import {
 	keyboardBottomOverlap,
 } from '@octane-xplat/platform/keyboard-geometry'
 
-import { leaseKeyboardProperty } from '@octane-xplat/platform/keyboard-property'
+import { leaseNativePaddingBottom } from './native-padding'
 import { observeKeyboardViewport } from '@octane-xplat/platform/keyboard-viewport'
 import type { KeyboardWindowState } from '@octane-xplat/platform/keyboard-state'
 import { keyboardHostOverlap, subscribeKeyboardState } from './keyboard-inset'
@@ -24,13 +24,7 @@ export function bindKeyboardAvoidance(
 	options: AvoidanceOptions | (() => AvoidanceOptions),
 	claim: (value: { window?: object; bottom: number }) => void,
 ): KeyboardAvoidanceBinding {
-	const padding = leaseKeyboardProperty(
-		() => Number(content.style?.paddingBottom) || 0,
-		(value) => {
-			content.style ??= {}
-			content.style.paddingBottom = value
-		},
-	)
+	const padding = leaseNativePaddingBottom(content)
 	const viewport = observeKeyboardViewport(host)
 	let demand = 0
 	let previousWindow: object | undefined
