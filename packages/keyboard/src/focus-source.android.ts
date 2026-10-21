@@ -93,12 +93,15 @@ export const observeFocusedInput: KeyboardWindowSource<FocusedInputState> = (key
 					height: layout.getLineBottom(line) - layout.getLineTop(line),
 				})
 			}
+			const nested = (globalThis as any).androidx?.core?.widget?.NestedScrollView,
+				mason = (globalThis as any).org?.nativescript?.mason?.masonkit?.TwoDScrollView
 			const owners: FocusedInputScrollOwner[] = []
 			for (let parent: any = input.getParent(); parent?.getParent; parent = parent.getParent()) {
-				const nested = (globalThis as any).androidx?.core?.widget?.NestedScrollView
+				const masonScroll = !!mason && parent instanceof mason
 				if (
 					!(parent instanceof android.widget.ScrollView) &&
-					!(nested && parent instanceof nested)
+					!(nested && parent instanceof nested) &&
+					!masonScroll
 				) {
 					continue
 				}
@@ -116,13 +119,15 @@ export const observeFocusedInput: KeyboardWindowSource<FocusedInputState> = (key
 					offsetY: dip(parent.getScrollY()),
 					minOffsetY: 0,
 					maxOffsetY: dip(
-						Math.max(
-							0,
-							child.getHeight() +
-								parent.getPaddingTop() +
-								parent.getPaddingBottom() -
-								parent.getHeight(),
-						),
+						masonScroll
+							? Math.max(0, parent.computeVerticalScrollRange() - parent.getHeight())
+							: Math.max(
+									0,
+									child.getHeight() +
+										parent.getPaddingTop() +
+										parent.getPaddingBottom() -
+										parent.getHeight(),
+								),
 					),
 				})
 			}
