@@ -254,8 +254,8 @@ importers:
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
       '@octane-xplat/nativescript-masonkit':
-        specifier: 1.0.0-beta.120
-        version: 1.0.0-beta.120
+        specifier: 1.0.0-beta.123
+        version: 1.0.0-beta.123
       '@octane-xplat/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -357,8 +357,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/media
       '@octane-xplat/nativescript-masonkit':
-        specifier: 1.0.0-beta.120
-        version: 1.0.0-beta.120
+        specifier: 1.0.0-beta.123
+        version: 1.0.0-beta.123
       '@octane-xplat/notifications':
         specifier: workspace:*
         version: link:../../packages/notifications
@@ -606,8 +606,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/media
       '@octane-xplat/nativescript-masonkit':
-        specifier: 1.0.0-beta.120
-        version: 1.0.0-beta.120
+        specifier: 1.0.0-beta.123
+        version: 1.0.0-beta.123
       '@octane-xplat/notifications':
         specifier: workspace:*
         version: link:../../packages/notifications
@@ -673,8 +673,8 @@ importers:
   apps/workshop-demo:
     dependencies:
       '@octane-xplat/nativescript-masonkit':
-        specifier: 1.0.0-beta.120
-        version: 1.0.0-beta.120
+        specifier: 1.0.0-beta.123
+        version: 1.0.0-beta.123
       '@octane-xplat/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -1317,8 +1317,8 @@ importers:
         specifier: workspace:*
         version: link:../macos-renderer
       '@octane-xplat/nativescript-masonkit':
-        specifier: 1.0.0-beta.120
-        version: 1.0.0-beta.120
+        specifier: 1.0.0-beta.123
+        version: 1.0.0-beta.123
       octane:
         specifier: 'catalog:'
         version: 0.14.0(patch_hash=a344cdbde34418a8dc7003022e6f49c0f4d7d895c805483e4855a60c1a8c8100)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
@@ -2041,8 +2041,8 @@ importers:
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
       '@octane-xplat/nativescript-masonkit':
-        specifier: 1.0.0-beta.120
-        version: 1.0.0-beta.120
+        specifier: 1.0.0-beta.123
+        version: 1.0.0-beta.123
       octane:
         specifier: 'catalog:'
         version: 0.14.0(patch_hash=a344cdbde34418a8dc7003022e6f49c0f4d7d895c805483e4855a60c1a8c8100)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
@@ -4870,8 +4870,8 @@ packages:
     resolution: {integrity: sha512-qwJgl0ZPHBeZ4evrdiP7j0ohSOJb/NqNThw54d+EgxLiqKUlyEzmcrZRSR2CR6UJvix67GwnbKqVZ82eguYQAQ==}
     engines: {node: '>=18'}
 
-  '@octane-xplat/nativescript-masonkit@1.0.0-beta.120':
-    resolution: {integrity: sha512-J/MjvwW3a4ApVAh7CO55CzCHfDXIMKuLWd/43NIuEC2O9L8ZQedGXHF+PbI1n7C2iUgysZq84GfVWN707xAzaA==}
+  '@octane-xplat/nativescript-masonkit@1.0.0-beta.123':
+    resolution: {integrity: sha512-NgYe3zr7Ygdj+GyYXGMX07Nef3W3H394rs3g6AFNlZ917LFEZNgeEV4cia4cSx7w7CUo9wCaVIrIGRzF3l70AQ==}
     peerDependencies:
       '@angular/core': '>=19.0.0'
       '@nativescript-community/react': '>=19.0.0'
@@ -12582,7 +12582,7 @@ snapshots:
       '@octane-xplat/fmt-win32-arm64': 0.1.0
       '@octane-xplat/fmt-win32-x64': 0.1.0
 
-  '@octane-xplat/nativescript-masonkit@1.0.0-beta.120': {}
+  '@octane-xplat/nativescript-masonkit@1.0.0-beta.123': {}
 
   '@octanejs/app-core@0.0.57(octane@0.14.0(patch_hash=a344cdbde34418a8dc7003022e6f49c0f4d7d895c805483e4855a60c1a8c8100)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))':
     dependencies:

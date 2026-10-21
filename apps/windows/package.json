@@ -31,7 +31,7 @@
 		"@octane-xplat/share": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"@octane-xplat/video": "workspace:*",
-		"@octane-xplat/nativescript-masonkit": "1.0.0-beta.120",
+		"@octane-xplat/nativescript-masonkit": "1.0.0-beta.123",
 		"@valor/nativescript-websockets": "2.0.3",
 		"@xplat/app": "workspace:*",
 		"@xplat/demos": "workspace:*",
