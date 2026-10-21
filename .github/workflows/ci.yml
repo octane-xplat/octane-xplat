@@ -48,7 +48,7 @@ jobs:
       # check:decisions is deliberately absent — it mirrors the ledger against
       # the git-scoped Silo DB, which lives on dev machines, not in the checkout.
       # Package exports point at dist/ — repo-check probes execute the real
-      # app vite configs and every `xplat` bin call loads the dist closure.
+      # app vite configs, which load the cli dist closure.
       # This is the same task as "Prepare packages" below; the second run is
       # a turbo cache hit.
       - name: Prepare packages for repo checks

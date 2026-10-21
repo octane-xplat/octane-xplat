@@ -1,12 +1,7 @@
 #!/usr/bin/env node
-// Prefer the emitted dist/ build (published tarballs); fall back to src/ so
-// in-repo runs work before a build exists (Node ≥22.18 strips types). The
-// fallback never fires inside node_modules — dist ships in the tarball.
-import { existsSync } from 'node:fs'
-
-const dist = new URL('../dist/cli.js', import.meta.url)
-if (existsSync(dist)) {
-	await import(dist.href)
-} else {
-	await import(new URL('../src/cli.ts', import.meta.url).href)
-}
+// Published installs live under node_modules, where Node refuses type
+// stripping — run the emitted dist/. In-repo runs always execute src/ (Node
+// ≥22.18 strips types): a stale, gitignored dist/ would otherwise run old code
+// under turbo cache keys hashed from current source.
+const entry = import.meta.url.includes('/node_modules/') ? '../dist/cli.js' : '../src/cli.ts'
+await import(new URL(entry, import.meta.url).href)

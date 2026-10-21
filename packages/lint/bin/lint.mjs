@@ -1,11 +1,8 @@
 #!/usr/bin/env node
-import { existsSync } from 'node:fs'
-
-// Prefer the emitted dist/ build (published tarballs); fall back to src/ so
-// in-repo runs work before a build exists (Node ≥22.18 strips types).
-const dist = new URL('../dist/runner.js', import.meta.url)
-const { runLint } = await import(
-	existsSync(dist) ? dist.href : new URL('../src/runner.ts', import.meta.url).href
-)
+// Published installs live under node_modules, where Node refuses type
+// stripping — run the emitted dist/. In-repo runs always execute src/ (Node
+// ≥22.18 strips types): a stale, gitignored dist/ would otherwise run old code.
+const entry = import.meta.url.includes('/node_modules/') ? '../dist/runner.js' : '../src/runner.ts'
+const { runLint } = await import(new URL(entry, import.meta.url).href)
 
 process.exitCode = await runLint(process.argv.slice(2))
