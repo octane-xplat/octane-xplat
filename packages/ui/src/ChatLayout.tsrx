@@ -25,12 +25,13 @@ const hasVisibleContent = (children: any): boolean => {
 	return true
 }
 
-/** Page-style chat shell on native: a ScrollView for the message area with
- *  the composer dock overlaid at the bottom (grid overlay — NS has no
- *  sticky positioning), plus the scroll-to-bottom pill. The frosted-glass
+/** Page-style chat shell on native: a scrollview for the message area with
+ *  the composer dock overlaid at the bottom (grid overlay — both children
+ *  share grid cell 1/1 so the dock floats instead of taking a row), plus
+ *  the scroll-to-bottom pill. The frosted-glass
  *  blur strip is a DOM capability; on native the dock is a plain overlay
  *  (style it via .vx-chatlayout-dockpad). `scrollRef` is populated with the
- *  layout's ScrollView — there is no external page scroller on native. */
+ *  layout's scrollview — there is no external page scroller on native. */
 export function ChatLayout(props: ChatLayoutProps) @{
 	const scrollViewRef = useRef<any>(null)
 	const [root, setRoot] = useState<any>(null)
@@ -115,7 +116,7 @@ export function ChatLayout(props: ChatLayoutProps) @{
 			className={cx('vx-chatlayout', `vx-chatlayout--${density}`, props.className)}
 			style={mergeStyle({ display: "grid", flexGrow: 1 }, props.style)}
 		>
-			<scrollview ref={attachViewport} className="vx-chatlayout-scroll" orientation="vertical">
+			<scrollview ref={attachViewport} className="vx-chatlayout-scroll" orientation="vertical" style={{ gridRow: '1', gridColumn: '1' }}>
 				<masonview
 					ref={attachContent}
 					className={cx('vx-chatlayout-messages', `vx-chatlayout-messages--${density}`)}
@@ -136,7 +137,7 @@ export function ChatLayout(props: ChatLayoutProps) @{
 			<masonview
 				ref={attachDock}
 				className="vx-chatlayout-dock"
-				style={{ display: "flex", flexDirection: "column", alignSelf: "end" }}
+				style={{ display: "flex", flexDirection: "column", alignSelf: "end", gridRow: '1', gridColumn: '1' }}
 			>
 				{props.scrollButton === undefined ? (
 					<ChatLayoutScrollButton
