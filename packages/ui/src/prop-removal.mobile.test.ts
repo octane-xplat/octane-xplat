@@ -4,7 +4,7 @@ import { createUniversalRoot, flushUniversalSync } from 'octane/universal/native
 // Native hosts are substituted; the installed driver, compiler output, and
 // update commands are real. Registered accessors consume NativeScript's reset
 // sentinel, while ordinary fields retain their constructor values.
-vi.mock('@nativescript/core/ui/core/properties', async () => import('@nativescript/core'))
+vi.mock('@nativescript/core/ui/core/properties', async () => vi.importMock('@nativescript/core'))
 
 vi.mock('@nativescript/core', () => {
 	const unsetValue = Symbol('unset')

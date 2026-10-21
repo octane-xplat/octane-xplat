@@ -432,6 +432,12 @@ const fake = vi.hoisted(() => {
 })
 
 vi.mock('@nativescript/core', () => ns)
+// These fake views have no registered NativeScript properties. Keep the
+// driver's registry lookup inside the same host-independent boundary.
+vi.mock('@nativescript/core/ui/core/properties', () => ({
+	_getProperties: () => [],
+	_getStyleProperties: () => [],
+}))
 
 import { createNativeScriptRoot } from '@nativescript-community/octane'
 import { RichTextEditor } from './RichTextEditor.android.tsrx'

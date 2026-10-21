@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 /** @jsxImportSource octane */
 import { act, createRoot } from 'octane'
 import { expect, it } from 'vitest'

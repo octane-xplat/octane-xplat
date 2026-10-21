@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { afterEach, expect, it, vi } from 'vitest'
 import { createBrowserRouteTransitions } from './browser-route-transitions.web'
 import { defineWebTransition } from './web-route-transition.web'

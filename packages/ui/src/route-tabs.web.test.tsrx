@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 /** @jsxImportSource octane */
 import { act, createContext, createRoot, useContext, useState } from 'octane'
 import { expect, it, vi } from 'vitest'
