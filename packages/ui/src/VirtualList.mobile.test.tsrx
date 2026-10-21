@@ -61,19 +61,19 @@ async function mount(viewportWidth = 100, itemRenderer = renderItem, extraProps:
 	roots.push(root)
 	root.render(VirtualList, { items, keyExtractor, renderItem: itemRenderer, ...extraProps })
 	const scroll: any = container.children[0]
-	scroll.verticalOffset = 0
+	scroll.scrollTop = 0
 	scroll.getActualSize = () => ({ width: viewportWidth, height: 200 })
-	scroll.scrollToVerticalOffset = vi.fn((offset) => { scroll.verticalOffset = offset })
+	scroll.scrollTo = vi.fn((options) => { if (options?.top != null) scroll.scrollTop = options.top })
 	container.dispatchEvent(scroll, 'loaded', { object: scroll })
 	const content = scroll.children[0]
 	content.getActualSize = () => ({ width: 100, height: 500 * 48 })
 	content.notify({ eventName: 'layoutChanged', object: content })
 	await vi.advanceTimersByTimeAsync(32)
-	scroll.scrollToVerticalOffset.mockClear()
+	scroll.scrollTo.mockClear()
 	commits.length = 0
 	const move = (offset: number) => {
-		scroll.verticalOffset = offset
-		container.dispatchEvent(scroll, 'scroll', { object: scroll })
+		scroll.scrollTop = offset
+		container.dispatchEvent(scroll, 'scroll', { target: scroll })
 	}
 
 	const measure = (id: string, height: number, emit = true) => {
@@ -146,13 +146,13 @@ describe('native VirtualList scroll and measurement scheduling', () => {
 		const { scroll, move, measure } = await mount()
 		move(480)
 		await vi.advanceTimersByTimeAsync(32)
-		scroll.scrollToVerticalOffset.mockClear()
+		scroll.scrollTo.mockClear()
 		measure('row-r16', 60)
 		await Promise.resolve()
 		move(492)
 		await vi.advanceTimersByTimeAsync(32)
-		expect(scroll.verticalOffset).toBe(492)
-		expect(scroll.scrollToVerticalOffset).not.toHaveBeenCalled()
+		expect(scroll.scrollTop).toBe(492)
+		expect(scroll.scrollTo).not.toHaveBeenCalled()
 	})
 
 	it('applies an above-anchor height correction while preserving user movement', async () => {
@@ -162,7 +162,8 @@ describe('native VirtualList scroll and measurement scheduling', () => {
 		measure('row-r5', 60)
 		move(492)
 		await vi.advanceTimersByTimeAsync(32)
-		expect(scroll.verticalOffset).toBe(504)
+		expect(scroll.scrollTop).toBe(504)
+		expect(scroll.scrollTo).toHaveBeenCalledWith({ top: 504, behavior: 'instant' })
 	})
 
 	it('coalesces a scroll burst instead of committing inside each native callback', async () => {
@@ -192,11 +193,11 @@ describe('native VirtualList scroll and measurement scheduling', () => {
 		await vi.advanceTimersByTimeAsync(180)
 		move(200)
 		await vi.advanceTimersByTimeAsync(32)
-		scroll.scrollToVerticalOffset.mockClear()
+		scroll.scrollTo.mockClear()
 		measure('row-r0', 36)
 		await vi.advanceTimersByTimeAsync(180)
-		expect(scroll.verticalOffset).toBe(200)
-		expect(scroll.scrollToVerticalOffset).not.toHaveBeenCalled()
+		expect(scroll.scrollTop).toBe(200)
+		expect(scroll.scrollTo).not.toHaveBeenCalled()
 	})
 
 	it('rejects a queued measurement after the keyed item is replaced', async () => {
@@ -209,7 +210,7 @@ describe('native VirtualList scroll and measurement scheduling', () => {
 		// The replacement has its own current geometry; the queued 120-height result is obsolete.
 		measure('row-r5', 48, false)
 		await vi.advanceTimersByTimeAsync(32)
-		expect(scroll.verticalOffset).toBe(480)
+		expect(scroll.scrollTop).toBe(480)
 	})
 
 	it('commits a burst of row measurements together', async () => {
@@ -273,7 +274,7 @@ describe('native VirtualList scroll and measurement scheduling', () => {
 		const prepended = [{ id: 'prepended' }, ...items]
 		root.render(VirtualList, { items: prepended, keyExtractor, renderItem: renderStatefulItem })
 		await vi.advanceTimersByTimeAsync(32)
-		expect(scroll.verticalOffset).toBe(528)
+		expect(scroll.scrollTop).toBe(528)
 		expect(findRow()).toBe(row)
 		expect(findRow().props.text).toBe('r10:1')
 		move(4000)
@@ -309,7 +310,7 @@ describe('native VirtualList scroll and measurement scheduling', () => {
 		const { scroll, container } = await mount(100, renderItem, { ref: handle })
 		expect(handle.current).not.toBeNull()
 		handle.current!.scrollToOffset(480)
-		expect(scroll.scrollToVerticalOffset).toHaveBeenCalledWith(480, false)
+		expect(scroll.scrollTo).toHaveBeenCalledWith({ top: 480, behavior: 'instant' })
 		await vi.advanceTimersByTimeAsync(32)
 		const rows = collect(container.children).filter((node) => node.props.id?.startsWith('row-'))
 		expect(rows.some((node) => node.props.id === 'row-r10')).toBe(true)
@@ -326,36 +327,32 @@ describe('native VirtualList scroll and measurement scheduling', () => {
 		const { scroll } = await mount(100, renderItem, { ref: handle })
 		// Estimated rows are 48 units tall; index 10 starts at 480.
 		handle.current!.scrollToIndex(10)
-		expect(scroll.scrollToVerticalOffset).toHaveBeenCalledWith(480, false)
+		expect(scroll.scrollTo).toHaveBeenCalledWith({ top: 480, behavior: 'instant' })
 		// Keys seek by identity, not position: 'r20' sits at 20 * 48.
 		handle.current!.scrollToItem('r20')
-		expect(scroll.scrollToVerticalOffset).toHaveBeenCalledWith(960, false)
+		expect(scroll.scrollTo).toHaveBeenCalledWith({ top: 960, behavior: 'instant' })
 		// 'end' lands the row's bottom on the viewport edge (200 units tall).
 		handle.current!.scrollToItem('r20', { align: 'end' })
-		expect(scroll.scrollToVerticalOffset).toHaveBeenCalledWith(960 + 48 - 200, false)
-		const calls = scroll.scrollToVerticalOffset.mock.calls.length
+		expect(scroll.scrollTo).toHaveBeenCalledWith({ top: 960 + 48 - 200, behavior: 'instant' })
+		const calls = scroll.scrollTo.mock.calls.length
 		handle.current!.scrollToItem('missing-key')
 		handle.current!.scrollToIndex(-1)
-		expect(scroll.scrollToVerticalOffset.mock.calls.length).toBe(calls)
+		expect(scroll.scrollTo.mock.calls.length).toBe(calls)
 	})
 
-	it('prefers the platform animated scroll write when the native view offers one', async () => {
+	it('seeks with smooth behavior when the imperative handle requests animation', async () => {
 		const handle = { current: null as null | { scrollToOffset(o: number, o2?: { animated?: boolean }): void } }
 		const { scroll } = await mount(100, renderItem, { ref: handle })
-		const setContentOffsetAnimated = vi.fn()
-		scroll.nativeViewProtected = { contentOffset: { x: 0, y: 0 }, setContentOffsetAnimated }
-		vi.stubGlobal('CGPointMake', (x: number, y: number) => ({ x, y }))
 		handle.current!.scrollToOffset(960, { animated: true })
-		expect(setContentOffsetAnimated).toHaveBeenCalledWith({ x: 0, y: 960 }, true)
-		expect(scroll.scrollToVerticalOffset).not.toHaveBeenCalled()
+		expect(scroll.scrollTo).toHaveBeenCalledWith({ top: 960, behavior: 'smooth' })
 	})
 
 	it('treats scrollToOffset before mount and non-finite offsets as no-ops', async () => {
 		const handle = { current: null as null | { scrollToOffset(o: number, o2?: { animated?: boolean }): void } }
 		const { scroll } = await mount(100, renderItem, { ref: handle })
 		handle.current!.scrollToOffset(Number.NaN)
-		expect(scroll.scrollToVerticalOffset).not.toHaveBeenCalled()
-		expect(scroll.verticalOffset).toBe(0)
+		expect(scroll.scrollTo).not.toHaveBeenCalled()
+		expect(scroll.scrollTop).toBe(0)
 	})
 
 	it('cancels queued work when the list is disposed', async () => {

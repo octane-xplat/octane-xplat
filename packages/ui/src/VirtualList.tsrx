@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { mergeStyle, styleRecord } from './style-merge'
-import { appKitHost, hostGlobal } from './host-bridge'
+import { hostGlobal } from './host-bridge'
 import { useEffect, useImperativeHandle, useMemo, useRef, useState } from 'octane'
 import type { Key, VirtualListProps, VirtualListScrollOptions } from './props'
 import { defaultItemKey } from './list-data'
@@ -250,7 +250,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 	}
 
 	function captureCurrentAnchor() {
-		const nativeOffset = Number(scrollRef.current?.verticalOffset)
+		const nativeOffset = Number(scrollRef.current?.scrollTop)
 		if (Number.isFinite(nativeOffset)) scrollOffsetRef.current = nativeOffset + pendingOffsetDeltaRef.current
 		return captureAnchor()
 	}
@@ -275,18 +275,11 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 			if (disposedRef.current || scrollRef.current !== view) return
 			const correction = pendingOffsetDeltaRef.current
 			pendingOffsetDeltaRef.current = 0
-			const nativeOffset = Number(view.verticalOffset)
+			const nativeOffset = Number(view.scrollTop)
 			const target = Math.max(0, nativeOffset + correction)
 			scrollOffsetRef.current = target
 			if (sameSize(target, nativeOffset)) return
-			const nativeView = view.nativeViewProtected
-			const makePoint = hostGlobal('CGPointMake')
-			if (typeof nativeView?.setContentOffsetAnimated === 'function' && typeof makePoint === 'function') {
-				const current = nativeView.contentOffset
-				nativeView.setContentOffsetAnimated(makePoint(current.x, target), false)
-			} else if (typeof view.scrollToVerticalOffset === 'function') {
-				view.scrollToVerticalOffset(target, false)
-			}
+			view.scrollTo?.({ top: target, behavior: 'instant' })
 		}, 0)
 
 		anchorRestoreTimerRef.current = timer
@@ -305,20 +298,12 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		// A pending anchor correction would otherwise compose into this write.
 		cancelAnchorRestore()
 		const target = Math.max(0, offset)
-		const nativeView = view.nativeViewProtected
-		const makePoint = hostGlobal('CGPointMake')
-		if (typeof nativeView?.setContentOffsetAnimated === 'function' && typeof makePoint === 'function') {
-			const current = nativeView.contentOffset
-			nativeView.setContentOffsetAnimated(makePoint(current.x, target), animated)
-		} else if (typeof view.scrollToVerticalOffset === 'function') {
-			view.scrollToVerticalOffset(target, animated)
-		} else {
-			return
-		}
+		if (typeof view.scrollTo !== 'function') return
+		view.scrollTo({ top: target, behavior: animated ? 'smooth' : 'instant' })
 
 		if (animated) return
-		// Mount the destination window now — some targets do not emit a scroll
-		// event for programmatic writes, and animated seeks stream their own.
+		// Mount the destination window now — MasonKit defers a seek issued
+		// before first layout, so its scroll event would arrive too late.
 		scrollOffsetRef.current = target
 		refreshWindow()
 	}
@@ -440,9 +425,8 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		})
 	}
 
-	function onScroll(event: any) {
-		const view = event.object ?? scrollRef.current
-		const nextOffset = Number(view?.verticalOffset ?? 0)
+	function onScroll() {
+		const nextOffset = Number(scrollRef.current?.scrollTop ?? 0)
 		if (Math.abs(nextOffset + pendingOffsetDeltaRef.current - scrollOffsetRef.current) > viewportHeightRef.current) {
 			cancelAnchorRestore()
 		}

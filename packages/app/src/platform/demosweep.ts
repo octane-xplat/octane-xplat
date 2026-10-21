@@ -266,7 +266,7 @@ function runVirtualListHeightProbe() {
 	const list: any = find('vlist')
 	virtualListHandle.current?.scrollToOffset(960)
 	const heightAnchorReady = () => {
-		const offset = Number(list?.verticalOffset)
+		const offset = Number(list?.scrollTop)
 		const listY = Number(list?.getLocationOnScreen?.()?.y)
 		const row15 = virtualListRowMetrics(list).find((row) => row.id === 'row-r15')
 		const anchor = visibleVirtualListRows(list).find((row) => Number(row.id.slice(5)) > 15)
@@ -506,7 +506,7 @@ function waitForVirtualListDeepRowVisible(
 
 		lastSampleSpread = Math.max(...positionSamples) - Math.min(...positionSamples)
 		lastCandidate = current.candidate
-		lastOffset = Number(list?.verticalOffset ?? 0)
+		lastOffset = Number(list?.scrollTop ?? 0)
 		lastListY = current.listY
 		lastListHeight = current.listHeight
 		lastVisibleSignature = signature
@@ -586,11 +586,11 @@ function runVirtualListStateProbe() {
 				return
 			}
 
-			list?.scrollToVerticalOffset?.(10800, false)
+			list?.scrollTo?.({ top: 10800, behavior: 'instant' })
 			const rowMountedAtTarget = () => {
 				const row: any = find('row-r200')
 				return (
-					Number(list?.verticalOffset ?? 0) >= 9000 &&
+					Number(list?.scrollTop ?? 0) >= 9000 &&
 					row?.isLoaded !== false &&
 					Number(row?.getActualSize?.()?.height ?? 0) > 0 &&
 					tapTargetForText(list, 'Row 200 · 0') != null

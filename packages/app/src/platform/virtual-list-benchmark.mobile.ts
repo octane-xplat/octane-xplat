@@ -102,7 +102,7 @@ function readSnapshot(list: any): VirtualListBenchSnapshot {
 	return {
 		mountedCellIds,
 		coverageBoxes: [...rows, ...slotBoxes],
-		offset: Number(list.verticalOffset ?? 0),
+		offset: Number(list.scrollTop ?? 0),
 		viewportHeight,
 		rows,
 		mountedIndices: rows.map((row) => row.index),
