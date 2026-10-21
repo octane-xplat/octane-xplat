@@ -71,6 +71,12 @@ Standing criteria for judgment calls; the critical rules encode the mechanics.
 - Before merging, run `turbo run typecheck --filter=...@octane-xplat/<package>`
   for every package you touched. The filter includes that package and its
   dependents; do not typecheck unrelated packages.
+- Run builds, tests, and typechecks through `turbo run <task> --filter=<pkg>`
+  rather than raw package scripts (`pnpm --filter <pkg> <script>`,
+  `node --test`, per-package `build`). Turbo task deps are the on-demand
+  ordering mechanism — `//#submodules` initializes vendor checkouts and
+  `^typegen`/`^build` produce generated types and dists first. Raw commands
+  skip all of that and fail on missing vendor sources or dist outputs.
 - Use **pnpm**, not npm. Declare every imported dependency; workspace dependencies
   use `"workspace:*"`. `packages/ui` takes **no new dependencies or peers**;
   plugin-backed features belong in leaf packages. A leaf package is warranted
