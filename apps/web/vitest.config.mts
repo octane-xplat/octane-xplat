@@ -22,6 +22,9 @@ export default defineConfig({
 		],
 	},
 	test: {
+		// Turbo runs this suite alongside package tests and TypeScript fixtures.
+		// Bound workers so those compiler subprocesses can finish within their timeouts.
+		maxWorkers: 2,
 		// Repo-root so package test globs don't traverse pnpm workspace
 		// symlinks (packages/app/node_modules/@xplat/*) and double-run.
 		root: '../..',
