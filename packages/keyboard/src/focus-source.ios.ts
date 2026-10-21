@@ -17,6 +17,26 @@ import { focusRect, focusSelection, emptyFocus } from './focus-geometry'
 import { focusPublisher } from './focus-publish'
 import { keyboardNativeScope } from './native-scope'
 
+/** MasonKit scroll containers are MasonUIView, not UIScrollView; mirror
+ * MasonUIView.swift's vertical scrollability rule. */
+const masonScrollsY = (view: any) => {
+	const Mason = (globalThis as any).MasonUIView
+	if (!Mason || !(view instanceof Mason)) {
+		return false
+	}
+	const range = () => view.contentSize.height > view.bounds.size.height
+	switch (view.overflowY) {
+		case 2:
+			return true
+		case 4:
+			return range()
+		case 0:
+			return !!view.isScrollContainer && range()
+		default:
+			return false
+	}
+}
+
 export const focusRechecks = new Map<object, () => void>()
 let Target: any
 const targetFor = (read: () => void) => {
@@ -90,12 +110,24 @@ export const observeFocusedInput: KeyboardWindowSource<FocusedInputState> = (key
 				: null
 			const owners: FocusedInputScrollOwner[] = []
 			for (let view = input; view; view = view.superview) {
-				if (!(view instanceof UIScrollView)) {
+				const mason = masonScrollsY(view)
+				if (!(view instanceof UIScrollView) && !mason) {
 					continue
 				}
 
 				const rect = focusRect(view.convertRectToView(view.bounds, window))
 				if (!rect) {
+					continue
+				}
+
+				if (mason) {
+					owners.push({
+						id: view,
+						rect,
+						offsetY: view.mason_scrollTop,
+						minOffsetY: 0,
+						maxOffsetY: Math.max(0, view.mason_scrollHeight - view.mason_clientHeight),
+					})
 					continue
 				}
 

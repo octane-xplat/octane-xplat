@@ -4,7 +4,9 @@ const native = (host: any) => host.nativeViewProtected ?? host.ios ?? host.andro
 export const scrollRuntime: FocusScrollRuntime = {
 	owner: (host) => native((host as any).native ?? host) ?? null,
 	read: (owner: any) =>
-		owner.contentOffset?.y ?? Utils.layout.toDeviceIndependentPixels(owner.getScrollY()),
+		owner.setContentOffsetAnimated || typeof owner.mason_scrollTo !== 'function'
+			? (owner.contentOffset?.y ?? Utils.layout.toDeviceIndependentPixels(owner.getScrollY()))
+			: owner.mason_scrollTop,
 	write(owner: any, offset) {
 		if (owner.setContentOffsetAnimated) {
 			owner.setContentOffsetAnimated(
@@ -25,6 +27,8 @@ export const scrollRuntime: FocusScrollRuntime = {
 				},
 				false,
 			)
+		} else if (typeof owner.mason_scrollTo === 'function') {
+			owner.mason_scrollTo(NaN, offset, false)
 		} else {
 			owner.scrollTo(owner.getScrollX(), Utils.layout.toDevicePixels(offset))
 		}
