@@ -7,5 +7,5 @@ export function rowPosition(_row: any, control: any): string {
 }
 
 export function scrollBody(view: any, offset: number): void {
-	view.scrollToVerticalOffset(offset, false)
+	view.scrollTo?.({ top: offset, behavior: 'instant' })
 }

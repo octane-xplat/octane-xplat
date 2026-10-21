@@ -36,6 +36,10 @@ export default function IntersectionProbe() {
 	</Column>
 }
 
+function scrollRange(scroller: any) {
+	return Math.max(0, Number(scroller.scrollHeight ?? 0) - Number(scroller.clientHeight ?? 0))
+}
+
 function macOSScrollToTop(scroller: any, requestedTop: number) {
 	const clip = scroller.contentView
 	const docView = scroller.documentView
@@ -69,11 +73,11 @@ async function scrollTargetIntoView(ctx: ProbeContext, scroller: any, target: an
 		return
 	}
 
-	await ctx.waitFor(() => scroller.scrollableHeight > 0, { timeout: 3000 })
+	await ctx.waitFor(() => scrollRange(scroller) > 0, { timeout: 3000 })
 	const targetY = target.getLocationOnScreen().y
 	const scrollerY = scroller.getLocationOnScreen().y
-	const offset = scroller.verticalOffset + targetY - scrollerY - 20
-	scroller.scrollToVerticalOffset?.(Math.max(0, Math.min(scroller.scrollableHeight, offset)), false)
+	const offset = Number(scroller.scrollTop ?? 0) + targetY - scrollerY - 20
+	scroller.scrollTo?.({ top: Math.max(0, Math.min(scrollRange(scroller), offset)), behavior: 'instant' })
 }
 
 async function scrollTargetPartiallyVisible(ctx: ProbeContext, scroller: any, target: any, visibleHeight: number) {
@@ -90,12 +94,12 @@ async function scrollTargetPartiallyVisible(ctx: ProbeContext, scroller: any, ta
 		return
 	}
 
-	await ctx.waitFor(() => scroller.scrollableHeight > 0, { timeout: 3000 })
+	await ctx.waitFor(() => scrollRange(scroller) > 0, { timeout: 3000 })
 	const targetY = target.getLocationOnScreen().y
 	const scrollerY = scroller.getLocationOnScreen().y
 	const viewportHeight = scroller.getActualSize().height
-	const offset = scroller.verticalOffset + targetY - scrollerY - viewportHeight + visibleHeight
-	scroller.scrollToVerticalOffset?.(Math.max(0, Math.min(scroller.scrollableHeight, offset)), false)
+	const offset = Number(scroller.scrollTop ?? 0) + targetY - scrollerY - viewportHeight + visibleHeight
+	scroller.scrollTo?.({ top: Math.max(0, Math.min(scrollRange(scroller), offset)), behavior: 'instant' })
 }
 
 export async function run(ctx: ProbeContext) {
@@ -150,7 +154,7 @@ export async function run(ctx: ProbeContext) {
 	} else if (ctx.target === 'web') {
 		scroller.scrollTop = 0
 	} else {
-		scroller.scrollToVerticalOffset?.(0, false)
+		scroller.scrollTo?.({ top: 0, behavior: 'instant' })
 	}
 
 	await ctx.waitFor(() => ctx.inspect('probe-visible').text === 'false')
@@ -170,7 +174,7 @@ export async function run(ctx: ProbeContext) {
 	} else if (ctx.target === 'web') {
 		scroller.scrollTop = scroller.scrollHeight
 	} else {
-		scroller.scrollToVerticalOffset?.(scroller.scrollableHeight, false)
+		scroller.scrollTo?.({ top: scrollRange(scroller), behavior: 'instant' })
 	}
 
 	await ctx.waitFor(() => ctx.inspect('probe-visible').text === 'false')

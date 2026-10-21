@@ -223,7 +223,7 @@ export function Home() @{
 						</Pressable>
 					</HStack>
 					{/* ScrollableArea seam: NS <scrollview> hosts one child — the leaf wraps
-					    children in a column layout. Probe reads verticalOffset back.
+					    children in a column layout. Probe reads scrollTop back.
 					    Universal @for keys default to position when omitted (upstream
 					    branch universal-for-optional-key); `key n` kept for clarity. */}
 					<ScrollableArea id="scroll-box" className="scrollbox" style={{ height: 96 }}>

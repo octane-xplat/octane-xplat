@@ -12,12 +12,16 @@ import { findViewById } from './outline-view-tree';
 const DEFAULT_LABEL = 'Table of contents';
 const SPY_EDGE = 8;
 
-/** Find the nearest enclosing scroll container (ScrollView/ListView) walking
- *  up the view tree. */
+/** Find the nearest enclosing scroll container walking up the view tree.
+ *  MasonKit gives every element a scroll surface, so match on the resolved
+ *  overflow style: the renderer's `<scrollview>` sets
+ *  `style.overflowY = 'scroll'` and Mason scroll containers use those
+ *  values. */
 function findScroller(view: any): any {
 	let node = view?.parent
 	while (node) {
-		if (typeof node.scrollToVerticalOffset === 'function' || node.verticalOffset !== undefined) {
+		const overflowY = node.style?.overflowY
+		if (overflowY === 'scroll' || overflowY === 'auto') {
 			return node
 		}
 
@@ -29,9 +33,9 @@ function findScroller(view: any): any {
 
 /** Outline — native leaf. Per-item active bars replace the web's sliding
  *  indicator (no CSS transition on a shared indicator element). Scroll spy
- *  listens to the resolved ScrollView's 'scroll' event and activates the
+ *  listens to the resolved scroller's 'scroll' event and activates the
  *  last heading above the offset edge; activation calls
- *  `scrollToVerticalOffset`. */
+ *  `scrollTo({ top, behavior: 'smooth' })`. */
 export function Outline(props: OutlineProps) @{
 	const items = props.items ?? [];
 	const label = props.label ?? DEFAULT_LABEL;
@@ -58,15 +62,14 @@ export function Outline(props: OutlineProps) @{
 	const containerView = () =>
 		props.scrollContainerRef?.current ?? findScroller(navRef.current);
 
-	// Scroll spy — uncontrolled only. The scroller emits 'scroll' (NS
-	// ScrollView) with scrollOffset; ListView lacks it, so polling-less
-	// listeners only attach when the event exists.
+	// Scroll spy — uncontrolled only. MasonKit elements emit 'scroll'; the
+	// listener only attaches when the event exists on the resolved host.
 	useEffect(() => {
 		if (controlled || items.length === 0) return;
 		const scroller = containerView();
 		if (!scroller?.on) return;
 		const spy = () => {
-			const scrollY = Number(scroller.verticalOffset ?? scroller.scrollOffset?.vertical ?? 0);
+			const scrollY = Number(scroller.scrollTop ?? 0);
 			const edge = scrollY + offset + SPY_EDGE;
 			let current = items[0]?.id;
 			for (const item of items) {
@@ -101,14 +104,10 @@ export function Outline(props: OutlineProps) @{
 		const scroller = containerView();
 		const heading = scroller ? findViewById(scroller, id) : null;
 		if (hasScrollOnClick && scroller && heading) {
-			const scrollY = Number(scroller.verticalOffset ?? 0);
+			const scrollY = Number(scroller.scrollTop ?? 0);
 			const rel = heading.getLocationRelativeTo?.(scroller);
 			const top = rel ? rel.y + scrollY - offset : scrollY;
-			try {
-				scroller.scrollToVerticalOffset?.(Math.max(0, top), true);
-			} catch {
-				scroller.scrollToVerticalOffset?.(Math.max(0, top), false);
-			}
+			scroller.scrollTo?.({ top: Math.max(0, top), behavior: 'smooth' });
 		}
 
 		settle(id);

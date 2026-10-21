@@ -45,8 +45,8 @@ export function Carousel(props: CarouselProps) @{
 	const measure = useCallback(() => {
 		const el = scroller.current;
 		if (!el) return;
-		const x = Number(el.horizontalOffset) || 0;
-		const max = Math.max(0, Number(el.scrollableWidth) || 0);
+		const x = Number(el.scrollLeft) || 0;
+		const max = Math.max(0, (Number(el.scrollWidth) || 0) - (Number(el.clientWidth) || 0));
 		const prev = x > EPS;
 		const next = x < max - EPS;
 		setAtStart(!prev);
@@ -61,7 +61,7 @@ export function Carousel(props: CarouselProps) @{
 			const o = offsets();
 			if (!el || !o.length) return;
 			const clamped = Math.min(Math.max(i, 0), count - 1);
-			el.scrollToHorizontalOffset?.(o[clamped] ?? 0, true);
+			el.scrollTo?.({ left: o[clamped] ?? 0, behavior: 'smooth' });
 		},
 		[count, offsets],
 	);
@@ -69,29 +69,29 @@ export function Carousel(props: CarouselProps) @{
 	const scrollNext = useCallback(() => {
 		const el = scroller.current;
 		if (!el) return;
-		const x = Number(el.horizontalOffset) || 0;
-		const max = Math.max(0, Number(el.scrollableWidth) || 0);
+		const x = Number(el.scrollLeft) || 0;
+		const max = Math.max(0, (Number(el.scrollWidth) || 0) - (Number(el.clientWidth) || 0));
 		const page = el.getActualSize?.().width || 0;
 		if (x >= max - EPS && loop) {
-			el.scrollToHorizontalOffset?.(0, true);
+			el.scrollTo?.({ left: 0, behavior: 'smooth' });
 			return;
 		}
 
-		el.scrollToHorizontalOffset?.(Math.min(x + page, max), true);
+		el.scrollTo?.({ left: Math.min(x + page, max), behavior: 'smooth' });
 	}, [loop]);
 
 	const scrollPrev = useCallback(() => {
 		const el = scroller.current;
 		if (!el) return;
-		const x = Number(el.horizontalOffset) || 0;
-		const max = Math.max(0, Number(el.scrollableWidth) || 0);
+		const x = Number(el.scrollLeft) || 0;
+		const max = Math.max(0, (Number(el.scrollWidth) || 0) - (Number(el.clientWidth) || 0));
 		const page = el.getActualSize?.().width || 0;
 		if (x <= EPS && loop) {
-			el.scrollToHorizontalOffset?.(max, true);
+			el.scrollTo?.({ left: max, behavior: 'smooth' });
 			return;
 		}
 
-		el.scrollToHorizontalOffset?.(Math.max(x - page, 0), true);
+		el.scrollTo?.({ left: Math.max(x - page, 0), behavior: 'smooth' });
 	}, [loop]);
 
 	const handle: CarouselHandle = {
@@ -102,13 +102,13 @@ export function Carousel(props: CarouselProps) @{
 			const el = scroller.current;
 			if (!el) return false;
 			if (loop) return count > 1;
-			return (Number(el.horizontalOffset) || 0) < Math.max(0, Number(el.scrollableWidth) || 0) - EPS;
+			return (Number(el.scrollLeft) || 0) < Math.max(0, (Number(el.scrollWidth) || 0) - (Number(el.clientWidth) || 0)) - EPS;
 		},
 		canScrollPrev: () => {
 			const el = scroller.current;
 			if (!el) return false;
 			if (loop) return count > 1;
-			return (Number(el.horizontalOffset) || 0) > EPS;
+			return (Number(el.scrollLeft) || 0) > EPS;
 		},
 	};
 
@@ -125,13 +125,13 @@ export function Carousel(props: CarouselProps) @{
 					const o = offsets();
 					const elNow = scroller.current;
 					if (!o.length || !elNow) return;
-					const x = Number(elNow.horizontalOffset) || 0;
+					const x = Number(elNow.scrollLeft) || 0;
 					let nearest = o[0];
 					for (const off of o) {
 						if (Math.abs(off - x) < Math.abs(nearest - x)) nearest = off;
 					}
 
-					elNow.scrollToHorizontalOffset?.(nearest, true);
+					elNow.scrollTo?.({ left: nearest, behavior: 'smooth' });
 				}, SNAP_DEBOUNCE_MS);
 			}
 		};

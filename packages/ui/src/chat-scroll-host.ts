@@ -1,8 +1,38 @@
 import { measureKeyboardHost } from './keyboard-host-bounds'
 import type { ChatHostAdapter } from './chat-scroll-host-types'
 
+// MasonKit elements expose browser scrolling (scrollTop/scrollHeight/
+// clientHeight, scrollTo, on/off('scroll')); adapt it to the shared chat port.
+const scrollers = new WeakMap<object, any>()
 export const chatHost: ChatHostAdapter = {
-	scroll: (host) => host,
+	scroll(host) {
+		if (!host) {
+			return null
+		}
+		let port = scrollers.get(host)
+		if (!port) {
+			port = {
+				get verticalOffset() {
+					return host.scrollTop
+				},
+				get scrollableHeight() {
+					return Math.max(0, host.scrollHeight - host.clientHeight)
+				},
+				scrollToVerticalOffset(offset: number, animated = false) {
+					host.scrollTo({ top: offset, behavior: animated ? 'smooth' : 'instant' })
+				},
+				on(_name: string, callback: () => void) {
+					host.on?.('scroll', callback)
+				},
+				off(_name: string, callback: () => void) {
+					host.off?.('scroll', callback)
+				},
+			}
+
+			scrollers.set(host, port)
+		}
+		return port
+	},
 	height: (host) =>
 		measureKeyboardHost(host)?.height ?? Number(host?.getActualSize?.().height ?? 0),
 	children(host) {

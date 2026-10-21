@@ -23,12 +23,11 @@ it('exposes the native scroll viewport through its imperative handle', () => {
 	const ref = { current: null as ScrollableAreaHandle | null }
 	const container = createObjectContainer('nativescript')
 	const driver = createObjectDriver('nativescript')
-	const native = { contentOffset: { x: 0, y: 0 } }
 	const getPublicInstance = driver.getPublicInstance.bind(driver)
 	driver.getPublicInstance = (container, id) => {
 		const host: any = getPublicInstance(container, id)
 		if (host.type === 'scrollview') {
-			host.ios = native
+			host.scrollTo = vi.fn()
 		}
 
 		return host
@@ -40,7 +39,7 @@ it('exposes the native scroll viewport through its imperative handle', () => {
 		expect((ref.current?.native as any)?.type).toBe('scrollview')
 		expect(ref.current?.native).toBe(container.children[0])
 		ref.current!.scrollToOffset({ block: 120 })
-		expect(native.contentOffset.y).toBe(120)
+		expect((ref.current!.native as any).scrollTo).toHaveBeenCalledWith({ top: 120, behavior: 'instant' })
 	} finally {
 		root.unmount()
 	}

@@ -82,7 +82,7 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
 		ctl.current = createPullToRefresh({
 			scroller: scroller.current,
 			indicator: indicator.current,
-			isAtTop: () => scroller.current?.verticalOffset <= 0,
+			isAtTop: () => scroller.current?.scrollTop <= 0,
 			cfg,
 		});
 

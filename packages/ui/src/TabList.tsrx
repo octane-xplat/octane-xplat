@@ -61,13 +61,13 @@ export function TabList(props: TabListProps) @{
 		const view = views.get(props.value);
 		if (!sv || !view) return;
 		const vp = sv.getActualSize?.().width ?? 0;
-		const offset = sv.horizontalOffset ?? 0;
+		const offset = sv.scrollLeft ?? 0;
 		const start = view.originX ?? 0;
 		const end = start + (view.getMeasuredWidth?.() ?? 0);
 		if (start < offset) {
-			sv.scrollToHorizontalOffset(start, true);
+			sv.scrollTo?.({ left: start, behavior: 'smooth' });
 		} else if (vp > 0 && end > offset + vp) {
-			sv.scrollToHorizontalOffset(end - vp, true);
+			sv.scrollTo?.({ left: end - vp, behavior: 'smooth' });
 		}
 	}, [props.value]);
 

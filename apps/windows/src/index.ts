@@ -680,12 +680,12 @@ setTimeout(() => {
 setTimeout(() => {
 	const sv = find('scroll-box')
 	console.log('[probe] scrollview=' + (sv ? sv.constructor.name : 'none'))
-	sv?.scrollToVerticalOffset?.(200, false)
+	sv?.scrollTo?.({ top: 200, behavior: 'instant' })
 	console.log(
 		'[assert] scroll offset: ' +
-			(sv?.verticalOffset > 0 ? 'OK' : 'FAIL') +
+			(sv?.scrollTop > 0 ? 'OK' : 'FAIL') +
 			' (' +
-			sv?.verticalOffset +
+			sv?.scrollTop +
 			')',
 	)
 

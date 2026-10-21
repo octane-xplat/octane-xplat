@@ -107,7 +107,7 @@ export async function run(ctx: ProbeContext) {
 
 	const sample = setInterval(() => {
 		const dock = root.getChildAt(1),
-			content = viewport.content
+			content = viewport.getChildAt?.(0)
 
 		const native = field.ios,
 			rect = native?.convertRectToView(native.bounds, native.window)

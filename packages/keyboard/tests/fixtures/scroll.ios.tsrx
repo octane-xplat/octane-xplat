@@ -87,23 +87,23 @@ export async function run(ctx: ProbeContext) {
 
 	ctx.assert(
 		'extra scroll space contributes native content range',
-		Number(root.content.paddingBottom) >= 39,
+		Number(root.getChildAt?.(0)?.paddingBottom) >= 39,
 		true,
 	)
 
-	const before = root.verticalOffset
+	const before = root.scrollTop
 	binding!.recheck()
 	await ctx.waitFor(visible)
 	ctx.assert(
 		'rechecking a visible field does not add scroll',
-		Math.abs(root.verticalOffset - before) < 2,
+		Math.abs(root.scrollTop - before) < 2,
 		true,
 	)
 
 	ctx.record('final focus', {
 		box: values.at(-1).inputRect,
 		caret: values.at(-1).caretRect,
-		offset: root.verticalOffset,
+		offset: root.scrollTop,
 		keyboard: keys.at(-1).currentFrame ?? keys.at(-1).targetFrame,
 	})
 }

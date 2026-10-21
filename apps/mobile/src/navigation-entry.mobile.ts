@@ -2112,10 +2112,10 @@ async function run(): Promise<void> {
 				const view = scroll.native as any
 				return {
 					type: view?.constructor?.name,
-					scroll: typeof view?.scrollToVerticalOffset,
+					scroll: typeof view?.scrollTo,
 					size: view?.getActualSize?.(),
-					offset: view?.verticalOffset,
-					range: view?.scrollableHeight,
+					offset: view?.scrollTop,
+					range: Math.max(0, Number(view?.scrollHeight ?? 0) - Number(view?.clientHeight ?? 0)),
 					keys: Object.keys(view ?? {}).slice(0, 12),
 				}
 			},

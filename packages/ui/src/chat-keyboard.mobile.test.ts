@@ -74,9 +74,13 @@ const fixture = (policy: 'never' | 'always' | 'when-at-end' = 'when-at-end') => 
 	}
 	const readers = new Set<() => void>()
 	const viewport: any = {
-		verticalOffset: 0,
+		scrollTop: 0,
+		clientHeight: 800,
+		get scrollHeight() {
+			return 1800 + content.paddingBottom
+		},
 		get scrollableHeight() {
-			return 1000 + content.paddingBottom
+			return Math.max(0, this.scrollHeight - this.clientHeight)
 		},
 		getActualSize() {
 			return { height: 800 }
@@ -87,17 +91,19 @@ const fixture = (policy: 'never' | 'always' | 'when-at-end' = 'when-at-end') => 
 		off(_name: string, cb: any) {
 			readers.delete(cb)
 		},
-		scrollToVerticalOffset(offset: number) {
-			this.verticalOffset = offset
-			for (const cb of readers) {
-				cb()
+		scrollTo: vi.fn(function (this: any, options: any) {
+			if (options?.top != null) {
+				this.scrollTop = options.top
+				for (const cb of readers) {
+					cb()
+				}
 			}
-		},
+		}),
 	}
 	let following = true
 	const unregister = registerChatScrollControl(viewport, {
 		isFollowing: () => following,
-		jumpToEnd: () => viewport.scrollToVerticalOffset(viewport.scrollableHeight),
+		jumpToEnd: () => viewport.scrollTo({ top: viewport.scrollableHeight, behavior: 'instant' }),
 	})
 	const options: any = { keyboardFollow: policy, bottomPanelHeight: 0 }
 	const binding = bindChatKeyboard({}, viewport, dock, content, () => options)
@@ -115,7 +121,7 @@ const fixture = (policy: 'never' | 'always' | 'when-at-end' = 'when-at-end') => 
 		},
 		manual(offset: number) {
 			following = false
-			viewport.scrollToVerticalOffset(offset)
+			viewport.scrollTo({ top: offset })
 		},
 		close() {
 			binding()
@@ -136,10 +142,11 @@ it('follows only an existing end position and counts dock/keyboard range once', 
 	f.emit(frame(500))
 	expect(f.dock.translateY).toBe(-300)
 	expect(f.content.paddingBottom).toBe(390)
-	expect(f.viewport.verticalOffset).toBe(1390)
+	expect(f.viewport.scrollTop).toBe(1390)
+	expect(f.viewport.scrollTo).toHaveBeenCalledWith({ top: 1390, behavior: 'instant' })
 	f.manual(400)
 	f.emit(frame(400))
-	expect(f.viewport.verticalOffset).toBe(400)
+	expect(f.viewport.scrollTop).toBe(400)
 	f.close()
 	expect(f.dock.translateY).toBe(0)
 	expect(f.content.paddingBottom).toBe(10)
@@ -147,31 +154,35 @@ it('follows only an existing end position and counts dock/keyboard range once', 
 
 it('never preserves history while always explicitly follows from history', () => {
 	const never = fixture('never')
-	const old = never.viewport.verticalOffset
+	const old = never.viewport.scrollTop
 	never.emit(frame(500))
-	expect(never.viewport.verticalOffset).toBe(old)
+	expect(never.viewport.scrollTop).toBe(old)
 	never.close()
 	const always = fixture('always')
 	always.manual(400)
 	always.emit(frame(500))
-	expect(always.viewport.verticalOffset).toBe(always.viewport.scrollableHeight)
+	expect(always.viewport.scrollTop).toBe(always.viewport.scrollableHeight)
+	expect(always.viewport.scrollTo).toHaveBeenCalledWith({
+		top: always.viewport.scrollableHeight,
+		behavior: 'instant',
+	})
 	always.close()
 })
 
 it('matching custom panel replaces keyboard range without shifting the end', () => {
 	const f = fixture()
 	f.emit(frame(500))
-	const before = f.viewport.verticalOffset
+	const before = f.viewport.scrollTop
 	f.options.bottomPanelHeight = 300
 	f.dock.height = 380
 	f.binding.update()
 	vi.runAllTimers()
 	expect(f.content.paddingBottom).toBe(390)
-	expect(f.viewport.verticalOffset).toBe(before)
+	expect(f.viewport.scrollTop).toBe(before)
 	expect(f.dock.translateY).toBe(0)
 	f.emit(frame(800))
 	expect(f.content.paddingBottom).toBe(390)
-	expect(f.viewport.verticalOffset).toBe(before)
+	expect(f.viewport.scrollTop).toBe(before)
 	f.close()
 })
 
@@ -181,7 +192,7 @@ it('manual movement cancels queued keyboard follow and motion suppresses another
 	expect(chatViewportMoving(f.viewport)).toBe(true)
 	f.manual(400)
 	vi.runAllTimers()
-	expect(f.viewport.verticalOffset).toBe(400)
+	expect(f.viewport.scrollTop).toBe(400)
 	f.emit(frame(500))
 	expect(chatViewportMoving(f.viewport)).toBe(false)
 	f.close()
@@ -189,22 +200,22 @@ it('manual movement cancels queued keyboard follow and motion suppresses another
 
 it('composer growth follows the existing stream lock independently of keyboard policy', () => {
 	const f = fixture('never')
-	const before = f.viewport.verticalOffset
+	const before = f.viewport.scrollTop
 	f.dock.height = 140
 	f.dock.changed()
 	vi.runAllTimers()
-	expect(f.viewport.verticalOffset).toBe(before + 60)
+	expect(f.viewport.scrollTop).toBe(before + 60)
 	f.manual(400)
 	f.dock.height = 180
 	f.dock.changed()
 	vi.runAllTimers()
-	expect(f.viewport.verticalOffset).toBe(400)
+	expect(f.viewport.scrollTop).toBe(400)
 	f.close()
 })
 
 it('measures composer growth after NativeScript completes the child layout pass', () => {
 	const f = fixture('never')
-	const before = f.viewport.verticalOffset
+	const before = f.viewport.scrollTop
 	f.dock.isLayoutValid = false
 	f.dock.height = 140
 	f.dock.changed()
@@ -212,6 +223,6 @@ it('measures composer growth after NativeScript completes the child layout pass'
 	f.dock.isLayoutValid = true
 	vi.runAllTimers()
 	expect(f.content.paddingBottom).toBe(150)
-	expect(f.viewport.verticalOffset).toBe(before + 60)
+	expect(f.viewport.scrollTop).toBe(before + 60)
 	f.close()
 })

@@ -7,8 +7,9 @@ it('retains the same row pixel across prepend, growth above, append and manual m
 	let following = false
 	const readers = new Set<() => void>()
 	const viewport: any = {
-		verticalOffset: 300,
-		scrollableHeight: 2000,
+		scrollTop: 300,
+		scrollHeight: 2400,
+		clientHeight: 400,
 		getActualSize: () => ({ height: 400 }),
 		on(_name: string, read: () => void) {
 			readers.add(read)
@@ -16,10 +17,12 @@ it('retains the same row pixel across prepend, growth above, append and manual m
 		off(_name: string, read: () => void) {
 			readers.delete(read)
 		},
-		scrollToVerticalOffset(value: number) {
-			this.verticalOffset = value
-			readers.forEach((read) => read())
-		},
+		scrollTo: vi.fn(function (this: any, options: any) {
+			if (options?.top != null) {
+				this.scrollTop = options.top
+				readers.forEach((read) => read())
+			}
+		}),
 	}
 	const content: any = {
 		rows: [] as any[],
@@ -35,7 +38,7 @@ it('retains the same row pixel across prepend, growth above, append and manual m
 			parent: content,
 			y,
 			getLocationRelativeTo() {
-				return { y: this.y - viewport.verticalOffset }
+				return { y: this.y - viewport.scrollTop }
 			},
 			getActualSize() {
 				return { height: 64 }
@@ -51,23 +54,24 @@ it('retains the same row pixel across prepend, growth above, append and manual m
 	content.rows.forEach((value: any) => (value.y += 192))
 	content.rows.unshift(row(0), row(64), row(128))
 	binding.update()
-	expect(viewport.verticalOffset).toBe(492)
+	expect(viewport.scrollTop).toBe(492)
+	expect(viewport.scrollTo).toHaveBeenCalledWith({ top: 492, behavior: 'instant' })
 	expect(anchor.getLocationRelativeTo().y).toBe(oldY)
 	content.rows.forEach((value: any) => (value.y += 50))
 	binding.update()
 	expect(anchor.getLocationRelativeTo().y).toBe(oldY)
 	content.rows.push(row(3000))
-	const before = viewport.verticalOffset
+	const before = viewport.scrollTop
 	binding.update()
-	expect(viewport.verticalOffset).toBe(before)
-	viewport.scrollToVerticalOffset(700)
+	expect(viewport.scrollTop).toBe(before)
+	viewport.scrollTo({ top: 700 })
 	content.rows.forEach((value: any) => (value.y += 64))
 	binding.update()
-	expect(viewport.verticalOffset).toBe(764)
+	expect(viewport.scrollTop).toBe(764)
 	following = true
 	content.rows.forEach((value: any) => (value.y += 64))
 	binding.update()
-	expect(viewport.verticalOffset).toBe(764)
+	expect(viewport.scrollTop).toBe(764)
 	binding()
 	expect(readers.size).toBe(0)
 })
@@ -83,8 +87,9 @@ it('waits for descendant positions and ignores same-offset layout scroll notific
 	vi.useFakeTimers()
 	const readers = new Set<() => void>()
 	const viewport: any = {
-		verticalOffset: 100,
-		scrollableHeight: 1000,
+		scrollTop: 100,
+		scrollHeight: 1300,
+		clientHeight: 300,
 		getActualSize: () => ({ height: 300 }),
 		on(_name: string, cb: () => void) {
 			readers.add(cb)
@@ -92,10 +97,12 @@ it('waits for descendant positions and ignores same-offset layout scroll notific
 		off(_name: string, cb: () => void) {
 			readers.delete(cb)
 		},
-		scrollToVerticalOffset(value: number) {
-			this.verticalOffset = value
-			readers.forEach((cb) => cb())
-		},
+		scrollTo: vi.fn(function (this: any, options: any) {
+			if (options?.top != null) {
+				this.scrollTop = options.top
+				readers.forEach((cb) => cb())
+			}
+		}),
 	}
 	let layout = () => {}
 	const content: any = {
@@ -116,7 +123,7 @@ it('waits for descendant positions and ignores same-offset layout scroll notific
 		y: i * 64,
 		getActualSize: () => ({ height: 64 }),
 		getLocationRelativeTo() {
-			return { y: this.y - viewport.verticalOffset }
+			return { y: this.y - viewport.scrollTop }
 		},
 	}))
 	content.rows.forEach(markChatRow)
@@ -130,7 +137,8 @@ it('waits for descendant positions and ignores same-offset layout scroll notific
 
 		readers.forEach((cb) => cb())
 		vi.runAllTimers()
-		expect(viewport.verticalOffset).toBe(228)
+		expect(viewport.scrollTop).toBe(228)
+		expect(viewport.scrollTo).toHaveBeenCalledWith({ top: 228, behavior: 'instant' })
 	} finally {
 		off()
 		binding()
@@ -142,16 +150,19 @@ it('waits for descendant positions and ignores same-offset layout scroll notific
 it('corrects range-driven top-offset drift without treating it as a manual scroll', () => {
 	let offset = 100
 	const viewport: any = {
-		get verticalOffset() {
+		get scrollTop() {
 			return offset
 		},
-		scrollableHeight: 1000,
+		scrollHeight: 1300,
+		clientHeight: 300,
 		getActualSize: () => ({ height: 300 }),
 		on() {},
 		off() {},
-		scrollToVerticalOffset(value: number) {
-			offset = value
-		},
+		scrollTo: vi.fn((options: any) => {
+			if (options?.top != null) {
+				offset = options.top
+			}
+		}),
 	}
 	const content: any = { getChildrenCount: () => 1, getChildAt: () => row }
 	const row: any = {
@@ -166,5 +177,6 @@ it('corrects range-driven top-offset drift without treating it as a manual scrol
 	offset = 196
 	binding.update()
 	expect(offset).toBe(100)
+	expect(viewport.scrollTo).toHaveBeenCalledWith({ top: 100, behavior: 'instant' })
 	binding()
 })

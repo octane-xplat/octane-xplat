@@ -16,9 +16,10 @@ const INITIAL: ScrollableAreaState = { inline: AT_EDGES, block: AT_EDGES };
 
 /**
  * Headless scroll-viewport behavior (Astryx `useScrollableArea`), native
- * leaf. NS ScrollView reports `scrollableWidth/Height` + offsets through
- * its `scroll` event; `layoutChanged` on the viewport covers content
- * resize. The getters merge `ref` (element hook) and `accessibilityLabel`
+ * leaf. MasonKit elements expose the browser scroll surface
+ * (`scrollTop`/`scrollLeft`, `scrollWidth`/`scrollHeight`,
+ * `clientWidth`/`clientHeight`) and report movement through their `scroll`
+ * event; `layoutChanged` on the viewport covers content resize. The getters merge `ref` (element hook) and `accessibilityLabel`
  * — there is no tab stop, role, overscroll-chaining, or sticky
  * containment to own on native, so `keyboardAccess`, `overscroll`, and
  * `stickyContainment` are accepted but inert.
@@ -40,12 +41,12 @@ export function useScrollableArea<TElement = HostElement>(
 
 		const inlineOk = axis === 'inline' || axis === 'both';
 		const blockOk = axis === 'block' || axis === 'both';
-		// scrollableWidth/Height are the max offsets; a positive max means
-		// content overflows on that axis.
-		const maxX = Math.max(0, Number(el.scrollableWidth) || 0);
-		const maxY = Math.max(0, Number(el.scrollableHeight) || 0);
-		const x = Number(el.horizontalOffset) || 0;
-		const y = Number(el.verticalOffset) || 0;
+		// The scrollable range is scroll extent minus viewport extent; a
+		// positive range means content overflows on that axis.
+		const maxX = Math.max(0, (Number(el.scrollWidth) || 0) - (Number(el.clientWidth) || 0));
+		const maxY = Math.max(0, (Number(el.scrollHeight) || 0) - (Number(el.clientHeight) || 0));
+		const x = Number(el.scrollLeft) || 0;
+		const y = Number(el.scrollTop) || 0;
 		const inline: ScrollAxisState = {
 			isScrollable: inlineOk && maxX > EPS,
 			atStart: !inlineOk || x <= EPS,
