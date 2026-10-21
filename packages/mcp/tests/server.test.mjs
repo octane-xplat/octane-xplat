@@ -1,6 +1,7 @@
 // End-to-end: a real MCP client talking to the server over linked transports.
 
 import assert from 'node:assert/strict'
+import { createDevLogCapture } from '../../cli/dist/dev-logs.js'
 import { test } from 'node:test'
 import { join } from 'node:path'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
@@ -185,4 +186,37 @@ test('shutdown releases owned sessions and session-scoped evidence only', async 
 	assert.equal(result.sessions.length, 2)
 	assert.equal(result.evidence.deleted, 1)
 	assert.equal(context.evidence.list().length, 1)
+})
+
+test('diagnostics MCP tool lists retained runs and shares CLI selector and envelope semantics', async () => {
+	const root = makeWorkspace()
+	makeConsumerApp(root, '.', { name: 'diagnostic-app' })
+	const capture = createDevLogCapture(root, { platform: 'web', targetId: 'web' })
+	capture.append({ stream: 'stderr', line: 'before MCP connection' })
+	capture.close()
+	const { client } = await connect(root)
+	try {
+		const tools = await client.listTools()
+		assert.ok(tools.tools.some((tool) => tool.name === 'xplat_diagnostics'))
+		assert.ok(!tools.tools.some((tool) => tool.name === 'xplat_logs'))
+		const listed = await client.callTool({ name: 'xplat_diagnostics', arguments: {} })
+		assert.equal(listed.structuredContent.data.runs[0].runId, capture.runId)
+		const result = await client.callTool({
+			name: 'xplat_diagnostics',
+			arguments: { runId: capture.runId, cursor: 0 },
+		})
+		assert.ok(
+			result.structuredContent.data.logs.records.some(
+				(record) => record.line === 'before MCP connection',
+			),
+		)
+		assert.equal(result.structuredContent.data.coverage.nativeReports.status, 'unsupported')
+		const invalid = await client.callTool({
+			name: 'xplat_diagnostics',
+			arguments: { runId: capture.runId, sessionId: 'sess_x' },
+		})
+		assert.equal(invalid.structuredContent.error.code, 'invalid_selection')
+	} finally {
+		await client.close()
+	}
 })

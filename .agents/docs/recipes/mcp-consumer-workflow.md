@@ -43,7 +43,7 @@ The packed-stdio lane ([prepare](../../../packages/mcp/tests/prepare-packed-cons
 The `xplat` CLI projects the same services through agent commands; the packed
 agent lane ([runner](../../../packages/cli/test/packed-agent-consumer.mjs)) verifies
 the discovery/retrieval subset plus the web session journey — build, launch,
-session/job polling, logs, inspect, dom-event and os-input interaction,
+session/job polling, diagnostics, inspect, dom-event and os-input interaction,
 capture gating, dev-action discovery/invocation, and ownership-safe cleanup —
 through the installed `xplat` bin and its per-workspace runtime host.
 The [agent CLI skill guide](../../skills/octane-xplat/references/cli.md) teaches
@@ -55,3 +55,8 @@ claiming these instructions qualify additional targets.
 Session ACs on the five non-web targets remain MCP-covered; the agent lane
 asserts honest `unsupported_capability`/prerequisite errors rather than a
 full-device qualification.
+
+Read diagnostic log pages from `data.logs` (`logs.nextCursor` for continuation).
+The renamed `xplat_diagnostics` tool and CLI command also expose retained
+run reports; session/job selectors explicitly disclose native lookup as
+unavailable. See [development diagnostics](../../../docs/testing/diagnostics.md).

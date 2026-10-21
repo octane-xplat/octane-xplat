@@ -7,7 +7,7 @@ import { bindApp, buildProjectStatus, resolveSelection } from '../mcp/status.ts'
 import { catalogPayload } from './catalog.ts'
 import { callHost, NO_HOST } from './host-client.ts'
 import { writePreference } from './selection.ts'
-import { listDevRuns, readDevLogs } from '../dev-logs.ts'
+import { retainedDiagnostics, validateDiagnosticsSelection } from '../diagnostics.ts'
 
 const ok = (data) => ({ ok: true, data })
 const fail = (error) => ({ ok: false, error })
@@ -396,68 +396,25 @@ export const handlers = {
 		return hostCall(env, 'jobs.cancel', { jobId: args.jobId })
 	},
 
-	async logs(env, args) {
-		if ([args.sessionId, args.jobId, args.runId].filter(Boolean).length > 1) {
-			return fail(
-				contractError('invalid_selection', 'Pass only one of --run, --session, or --job.'),
-			)
-		}
-		if (!args.sessionId && !args.jobId) {
-			const selection = resolveSelection(env.context)
-			if (selection.state !== 'bound') {
-				return fail(
-					contractError(
-						selection.state === 'ambiguous' ? 'ambiguous_selection' : 'invalid_selection',
-						'Retained development logs require a bound app. Pass --app or run from the app directory.',
-					),
-				)
-			}
-
-			try {
-				if (args.runId) {
-					const page = readDevLogs(selection.app.root, args.runId, args)
-					if (args.platform && page.run.platform !== args.platform) {
-						return fail(
-							contractError('invalid_selection', 'The selected run belongs to another platform.'),
-						)
-					}
-
-					return ok(page)
-				}
-
-				if (args.cursor !== undefined || args.limit !== undefined || args.stream !== undefined) {
+	async diagnostics(env, args) {
+		try {
+			validateDiagnosticsSelection(args)
+			if (!args.sessionId && !args.jobId) {
+				const selection = resolveSelection(env.context)
+				if (selection.state !== 'bound') {
 					return fail(
 						contractError(
-							'invalid_selection',
-							'Select --run, --session, or --job before paging or filtering records.',
+							selection.state === 'ambiguous' ? 'ambiguous_selection' : 'invalid_selection',
+							'Retained diagnostics require a bound app. Pass --app or run from the app directory.',
 						),
 					)
 				}
-
-				return ok({
-					runs: listDevRuns(selection.app.root, args.platform),
-					note: 'Select --run RUN_ID to read captured output. Runs are recorded by xplat dev, independently of agent sessions.',
-				})
-			} catch (error) {
-				return fail(toContractError(error))
+				return ok(await retainedDiagnostics(selection.app.root, args))
 			}
+			return hostCall(env, 'runtime.readDiagnostics', args)
+		} catch (error) {
+			return fail(toContractError(error))
 		}
-		if (args.platform) {
-			return fail(
-				contractError(
-					'invalid_selection',
-					'--platform filters retained dev runs; session/job ids already select their capture.',
-				),
-			)
-		}
-
-		return hostCall(env, 'runtime.readLogs', {
-			sessionId: args.sessionId,
-			jobId: args.jobId,
-			cursor: args.cursor,
-			limit: args.limit,
-			stream: args.stream,
-		})
 	},
 
 	async inspect(env, args) {

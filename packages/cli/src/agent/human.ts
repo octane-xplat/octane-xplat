@@ -9,7 +9,7 @@ const prov = (p) =>
 
 export function renderHuman(command, result, out = []) {
 	const { name } = command
-	const data = result.data
+	let data = result.data
 
 	switch (name) {
 		case 'catalog':
@@ -231,7 +231,7 @@ export function renderHuman(command, result, out = []) {
 			lines(out, JSON.stringify(data.job ?? data, null, 2))
 			break
 
-		case 'logs':
+		case 'diagnostics':
 			if (data.runs) {
 				for (const run of data.runs) {
 					lines(
@@ -244,6 +244,20 @@ export function renderHuman(command, result, out = []) {
 				break
 			}
 
+			if (data.report) {
+				lines(out, `${data.report.id} — ${data.report.kind} (${data.report.association})`)
+				lines(out, data.report.content)
+				break
+			}
+			for (const report of data.reports ?? []) {
+				lines(out, `${report.id} — ${report.kind} (${report.association}): ${report.summary}`)
+			}
+			if (data.coverage?.nativeReports) {
+				lines(
+					out,
+					`Native reports: ${data.coverage.nativeReports.status}. ${data.coverage.nativeReports.detail}`,
+				)
+			}
 			if (data.run) {
 				lines(
 					out,
@@ -251,6 +265,7 @@ export function renderHuman(command, result, out = []) {
 				)
 			}
 
+			data = data.logs
 			for (const record of data.records ?? []) {
 				lines(out, `[${record.stream}] ${record.line}`)
 			}

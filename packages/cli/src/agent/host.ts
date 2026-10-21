@@ -70,7 +70,7 @@ const METHODS = {
 	'runtime.build': (params) => context.runtime.build(params),
 	'runtime.launch': (params) => context.runtime.launch(params),
 	'runtime.attach': (params) => context.runtime.attach(params),
-	'runtime.readLogs': (params) => context.runtime.readLogs(params),
+	'runtime.readDiagnostics': (params) => context.runtime.readDiagnostics(params),
 
 	async 'session.end'(params) {
 		const usable = context.sessions.requireUsable(params.sessionId)

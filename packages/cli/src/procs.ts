@@ -51,6 +51,7 @@ export function spawnTagged(tag, cmd, args, cwd, { capture } = {}) {
 		const line = (text, lineTruncated = false) => {
 			const browser = /^\[browser:(warn|error)\] (.*)$/.exec(text)
 			try {
+				log?.observeNativeOutput(text)
 				log?.append({
 					stream,
 					source: browser ? 'browser' : tag,

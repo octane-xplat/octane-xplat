@@ -96,15 +96,29 @@ through their installed help when those tasks apply.
 For output from an ordinary `xplat dev` invocation, list retained runs for the
 bound app, then read an exact returned run ID. No runtime host or agent session
 is needed, and the files remain readable after the dev process exits. Read
-[development log coverage](../../../../docs/testing/development-logs.md) before
+[diagnostic coverage](../../../../docs/testing/diagnostics.md) before
 interpreting empty output; browser warning/error forwarding needs the web
-development bridge, and native output includes only what its toolchain forwards.
+development bridge. Native log output includes only what the toolchain forwards;
+OS reports have a separate discovery result.
 
 ```sh
-pnpm exec xplat logs --platform ios --json
-pnpm exec xplat logs --run RUN_ID --cursor 0 --limit 50 --json
-pnpm exec xplat logs --run RUN_ID --cursor NEXT_CURSOR --limit 50 --json
+pnpm exec xplat diagnostics --platform ios --json
+pnpm exec xplat diagnostics --run RUN_ID --cursor 0 --limit 50 --json
+pnpm exec xplat diagnostics --run RUN_ID --cursor NEXT_CURSOR --limit 50 --json
 ```
+
+Read log pages from `data.logs` and keep `logs.nextCursor` with its run ID.
+Native summaries are in `data.reports`; their availability is reported by
+`coverage.nativeReports`. A candidate association is not proof that this run
+caused the failure. Discovering reports may write bounded local retained copies;
+it does not start profiling or install a crash handler.
+
+```sh
+pnpm exec xplat diagnostics --run RUN_ID --report REPORT_ID --json
+```
+
+Report IDs belong to the selected run; they are separate from log cursors.
+Session/job selectors return their own logs with native report lookup unavailable.
 
 Keep cursors with their run ID. Report capture start, truncation/dropped records,
 incomplete tails, and historical status; capture-owner liveness is not app
@@ -120,7 +134,7 @@ requests; keys do not deduplicate arbitrary later reruns.
 ```sh
 pnpm exec xplat runtime build --platform web --request-key packing-web-build --json
 pnpm exec xplat job status JOB_ID --json
-pnpm exec xplat logs --job JOB_ID --limit 50 --json
+pnpm exec xplat diagnostics --job JOB_ID --limit 50 --json
 ```
 
 Start a session only when the task needs a running app. Choose a returned target
@@ -136,7 +150,7 @@ pnpm exec xplat job status JOB_ID --json
 pnpm exec xplat session attach --platform web --target TARGET_ID --json
 ```
 
-Use log `nextCursor` to continue bounded reads and disclose truncation or dropped
+Use `logs.nextCursor` to continue bounded reads and disclose truncation or dropped
 records. Empty sessions or an absent host do not establish that an app passed;
 read-only status commands do not create a host. End owned work through the CLI:
 attached user-owned sessions are preserved, while sessions the host started
@@ -145,8 +159,8 @@ belong to separate registries even though the transports share services.
 
 ```sh
 pnpm exec xplat session status SESSION_ID --json
-pnpm exec xplat logs --session SESSION_ID --limit 50 --json
-pnpm exec xplat logs --session SESSION_ID --cursor NEXT_CURSOR --limit 50 --json
+pnpm exec xplat diagnostics --session SESSION_ID --limit 50 --json
+pnpm exec xplat diagnostics --session SESSION_ID --cursor NEXT_CURSOR --limit 50 --json
 # When the task is done, or after requesting cancellation of its pending work:
 pnpm exec xplat job cancel JOB_ID --json
 pnpm exec xplat session end SESSION_ID --json
@@ -199,7 +213,7 @@ job, and logs before retrying with a new request key.
 
 ```sh
 pnpm exec xplat job status JOB_ID --json
-pnpm exec xplat logs --job JOB_ID --limit 50 --json
+pnpm exec xplat diagnostics --job JOB_ID --limit 50 --json
 pnpm exec xplat evidence list --json
 ```
 

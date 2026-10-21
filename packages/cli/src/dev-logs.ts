@@ -13,13 +13,14 @@ import {
 
 import { join } from 'node:path'
 import { contractError } from './mcp/contracts/errors.ts'
+import { macOSDevBundleId } from './native-identity.ts'
 
 const RUN_ID = /^run_[a-f0-9-]{36}$/
 const SEGMENT_BYTES = 512 * 1024
 const LINE_CHARS = 8192
 const RETAINED_RUNS = 20
 
-interface DevRun {
+export interface DevRun {
 	version: 1
 	runId: string
 	platform: string
@@ -27,6 +28,7 @@ interface DevRun {
 	pid: number
 	startedAt: string
 	endedAt: string | null
+	nativeIdentity?: { appId: string; processes: Array<{ pid: number; observedAt: string }> }
 }
 
 export interface DevLogRecord {
@@ -50,7 +52,7 @@ const alive = (pid: number) => {
 
 const historical = (run: DevRun) => run.endedAt !== null || !alive(run.pid)
 
-function readRun(appRoot: string, runId: string): DevRun {
+export function readRun(appRoot: string, runId: string): DevRun {
 	if (!RUN_ID.test(runId)) {
 		throw contractError('invalid_selection', 'Invalid development run id.')
 	}
@@ -128,6 +130,16 @@ export function createDevLogCapture(
 		writeFileSync(join(dir, 'run.tmp'), JSON.stringify(run), { mode: 0o600 })
 		renameSync(join(dir, 'run.tmp'), join(dir, 'run.json'))
 	}
+	if (platform === 'macos') {
+		try {
+			const manifest = JSON.parse(readFileSync(join(appRoot, 'package.json'), 'utf8'))
+			if (manifest.xplat?.targets?.macos?.runtime === 'appkit-node-api') {
+				run.nativeIdentity = { appId: macOSDevBundleId(appRoot, manifest), processes: [] }
+			}
+		} catch {
+			/* Missing identity leaves report coverage unavailable. */
+		}
+	}
 	metadata()
 	// Active runs are never evicted. Only CLI-owned cache directories matching
 	// our run identity are eligible; keep the newest completed runs globally.
@@ -172,6 +184,27 @@ export function createDevLogCapture(
 	return {
 		runId: run.runId,
 		append,
+		observeNativeOutput(line: string) {
+			if (closed) {
+				return
+			}
+			const appId = /Successfully synced application ([A-Za-z][\w]*(?:\.[\w]+)+) on device/.exec(
+				line,
+			)?.[1]
+			const processId =
+				platform === 'macos' ? /\[macos-native\] host started pid=(\d+)/.exec(line)?.[1] : null
+			if (appId && (platform === 'ios' || platform === 'android')) {
+				run.nativeIdentity = { appId, processes: [] }
+				metadata()
+			}
+			if (processId && run.nativeIdentity && run.nativeIdentity.processes.length < 100) {
+				run.nativeIdentity.processes.push({
+					pid: Number(processId),
+					observedAt: new Date().toISOString(),
+				})
+				metadata()
+			}
+		},
 		close(detail = 'Development output capture ended.') {
 			if (closed) {
 				return
@@ -253,6 +286,6 @@ export function readDevLogs(
 		historical: historical(run),
 		capturedFrom: run.startedAt,
 		coverage:
-			'Forwarded tool/host output. Browser warnings and errors require xplatDevBridge in the web Vite config. No OS crash reports or output from before capture.',
+			'Forwarded tool/host output. Browser warnings and errors require xplatDevBridge in the web Vite config. This log stream excludes OS report files and output from before capture; diagnostics discovers native reports separately.',
 	}
 }

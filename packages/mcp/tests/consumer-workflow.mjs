@@ -179,8 +179,8 @@ try {
 		jobId: invoke.job.jobId,
 	})
 
-	const logs = await call('xplat_logs', { sessionId, limit: 20 })
-	assert.ok(logs.records.length)
+	const logs = await call('xplat_diagnostics', { sessionId, limit: 20 })
+	assert.ok(logs.logs.records.length)
 	const ended = await call('xplat_session_end', { sessionId })
 	assert.ok(ended.result.released.some((item) => item.includes('chromium')))
 	assert.ok(ended.result.released.some((item) => item.includes('vite')))

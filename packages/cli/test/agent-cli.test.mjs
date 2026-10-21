@@ -2,6 +2,7 @@
 // the real `xplat` bin over fixture workspaces — envelope purity, stable
 // exits, selection precedence, exact-version docs/code semantics.
 import assert from 'node:assert/strict'
+import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { existsSync, mkdirSync, mkdtempSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -103,7 +104,7 @@ test('catalog emits the machine-readable contract without a project', () => {
 		'session end',
 		'job status',
 		'job cancel',
-		'logs',
+		'diagnostics',
 		'inspect',
 		'interact',
 		'capture',
@@ -413,7 +414,7 @@ test('state commands answer honestly with no runtime host', () => {
 		['job', 'cancel', 'job_nope'],
 		['session', 'status', 'sess_nope'],
 		['session', 'end', 'sess_nope'],
-		['logs', '--session', 'sess_nope'],
+		['diagnostics', '--session', 'sess_nope'],
 		['inspect', 'sess_nope'],
 		['interact', 'sess_nope', '--document', 'd', '--testid', 'x', '--mechanism', 'dom-event'],
 		['capture', 'sess_nope'],
@@ -438,7 +439,7 @@ test('argument validation happens before any host is spawned', () => {
 		['runtime', 'build'],
 		['session', 'start'],
 		['session', 'attach'],
-		['logs', '--run', 'run_x', '--session', 'sess_x'],
+		['diagnostics', '--run', 'run_x', '--session', 'sess_x'],
 		['interact', 'sess_x', '--mechanism', 'dom-event'],
 		['interact', 'sess_x', '--document', 'd', '--mechanism', 'dom-event'],
 		['actions', 'invoke'],
@@ -457,12 +458,12 @@ test('retained dev logs are app-bound, paginated and readable without an agent h
 	const capture = createDevLogCapture(join(root, 'app'), { platform: 'ios', targetId: 'fixture' })
 	capture.append({ stream: 'stderr', line: 'Failure before agent connection' })
 	capture.close()
-	const listed = json(run(['logs', '--platform', 'ios', '--project', root, '--json']))
+	const listed = json(run(['diagnostics', '--platform', 'ios', '--project', root, '--json']))
 	assert.equal(listed.ok, true)
 	assert.equal(listed.data.runs[0].runId, capture.runId)
 	const page = json(
 		run([
-			'logs',
+			'diagnostics',
 			'--run',
 			capture.runId,
 			'--cursor',
@@ -475,28 +476,40 @@ test('retained dev logs are app-bound, paginated and readable without an agent h
 		]),
 	)
 	assert.equal(page.ok, true)
-	assert.ok(page.data.records.some((r) => r.line === 'Failure before agent connection'))
-	assert.equal(page.data.historical, true)
+	assert.ok(page.data.logs.records.some((r) => r.line === 'Failure before agent connection'))
+	assert.equal(page.data.logs.historical, true)
+	assert.equal(page.data.coverage.nativeReports.status, 'unavailable')
+	assert.deepEqual(page.data.reports, [])
 	const continuation = json(
 		run([
-			'logs',
+			'diagnostics',
 			'--run',
 			capture.runId,
 			'--cursor',
-			String(page.data.nextCursor),
+			String(page.data.logs.nextCursor),
 			'--project',
 			root,
 			'--json',
 		]),
 	)
-	assert.ok(continuation.data.records.every((r) => r.seq > page.data.nextCursor))
+	assert.ok(continuation.data.logs.records.every((r) => r.seq > page.data.logs.nextCursor))
 	assert.equal(
-		json(run(['logs', '--platform', 'android', '--project', root, '--json'])).data.runs.length,
+		json(run(['diagnostics', '--platform', 'android', '--project', root, '--json'])).data.runs
+			.length,
 		0,
 	)
 	assert.equal(
 		json(
-			run(['logs', '--run', capture.runId, '--platform', 'android', '--project', root, '--json']),
+			run([
+				'diagnostics',
+				'--run',
+				capture.runId,
+				'--platform',
+				'android',
+				'--project',
+				root,
+				'--json',
+			]),
 		).error.code,
 		'invalid_selection',
 	)
@@ -530,8 +543,8 @@ test('runtime build flows through the host: job, logs, evidence, idle exit', () 
 
 	assert.ok(terminal.finishedAt)
 
-	const logs = json(run(['logs', '--job', jobId, '--project', root, '--json'], { env }))
-	assert.ok(logs.data.records.some((r) => r.stream === 'lifecycle'))
+	const logs = json(run(['diagnostics', '--job', jobId, '--project', root, '--json'], { env }))
+	assert.ok(logs.data.logs.records.some((r) => r.stream === 'lifecycle'))
 
 	const sessions = json(run(['session', 'list', '--project', root, '--json'], { env }))
 	assert.equal(sessions.data.host.state, 'live')
@@ -599,5 +612,46 @@ test('actions list reports the no-bridge state without a dev server', () => {
 	makeLinkedApp(root)
 	const out = json(run(['actions', 'list', '--project', root, '--json']))
 	assert.equal(out.data.state, 'no-bridge')
+	assert.equal(existsSync(descriptorPath(root)), false)
+})
+
+test('diagnostics reads retained originals without a host and rejects old command and conflicting report selectors', () => {
+	const root = makeWorkspace('native-report')
+	makeLinkedApp(root)
+	const capture = createDevLogCapture(join(root, 'app'), { platform: 'web', targetId: 'web' })
+	capture.close()
+	const content = 'Original native report\n'
+	const id = 'report_' + createHash('sha256').update(content).digest('hex')
+	const directory = join(root, 'app/node_modules/.cache/xplat/logs', capture.runId, 'reports')
+	mkdirSync(directory, { recursive: true })
+	writeFileSync(join(directory, id + '.txt'), content)
+	writeFileSync(
+		join(directory, id + '.json'),
+		JSON.stringify({
+			id,
+			kind: 'native-crash',
+			source: 'apple-ips',
+			summary: 'Native crash',
+			association: 'candidate',
+			bytes: Buffer.byteLength(content),
+		}),
+	)
+	const args = ['diagnostics', '--run', capture.runId, '--project', root, '--report', id]
+	const response = json(run([...args, '--json']))
+	assert.equal(response.ok, true)
+	assert.equal(response.data.report.content, content)
+	assert.match(run(args).stdout, /Original native report/)
+	assert.equal(json(run([...args, '--cursor', '0', '--json'])).error.code, 'invalid_selection')
+	assert.equal(
+		json(run(['diagnostics', '--report', id, '--project', root, '--json'])).error.code,
+		'invalid_selection',
+	)
+	assert.match(run(['logs', '--json']).stderr, /Not a valid subcommand name/)
+	const commands = json(run(['catalog', '--json'])).data.commands
+	assert.ok(!commands.some((command) => command.command === 'logs'))
+	assert.equal(
+		commands.find((command) => command.command === 'diagnostics').mcpTool,
+		'xplat_diagnostics',
+	)
 	assert.equal(existsSync(descriptorPath(root)), false)
 })

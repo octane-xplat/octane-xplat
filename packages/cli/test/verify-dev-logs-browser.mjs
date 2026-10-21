@@ -76,7 +76,7 @@ try {
 	})
 
 	const listed = JSON.parse(
-		execFileSync(process.execPath, [cli, 'logs', '--project', root, '--json'], {
+		execFileSync(process.execPath, [cli, 'diagnostics', '--project', root, '--json'], {
 			encoding: 'utf8',
 		}),
 	)
@@ -91,15 +91,15 @@ try {
 	const after = JSON.parse(
 		execFileSync(
 			process.execPath,
-			[cli, 'logs', '--run', run.runId, '--project', root, '--cursor', '0', '--json'],
+			[cli, 'diagnostics', '--run', run.runId, '--project', root, '--cursor', '0', '--json'],
 			{ encoding: 'utf8' },
 		),
 	)
 
 	assert.equal(after.ok, true)
-	assert.equal(after.data.historical, true)
+	assert.equal(after.data.logs.historical, true)
 	assert.ok(
-		after.data.records.some(
+		after.data.logs.records.some(
 			(r) => r.line.includes('uncaught-before-agent') && r.source === 'browser',
 		),
 	)

@@ -1,12 +1,12 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 import { execFile } from 'node:child_process'
-import { createHash } from 'node:crypto'
 import { chmod, cp, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { promisify } from 'node:util'
 import { inspectMacOSPackageConfig } from './config.ts'
 import { macOSExecutable } from './executables.ts'
 import { writeInfoPlist } from './info-plist.ts'
+import { macOSDevBundleId } from '../native-identity.ts'
 
 const execFileAsync = promisify(execFile)
 
@@ -98,9 +98,7 @@ export async function createMacOSDevBundle(appRoot, manifest) {
 	const settings = {
 		productName,
 		executableName,
-		bundleIdentifier:
-			packageSettings.bundleIdentifier ??
-			`org.octane.dev.${createHash('sha256').update(appRoot).digest('hex').slice(0, 16)}`,
+		bundleIdentifier: macOSDevBundleId(appRoot, manifest),
 		version: packageSettings.version ?? '0.0.0',
 		minimumSystemVersion: packageSettings.minimumSystemVersion ?? '13.5',
 		icon: dev.icon ?? packageSettings.icon,

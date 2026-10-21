@@ -80,7 +80,7 @@ To let a connected agent run named setup actions in a dev build (test logins,
 fixture data, performance scenarios), see
 [Declare development actions](testing/development-actions.md).
 
-[Read development logs](testing/development-logs.md), including output captured
+[Read development diagnostics](testing/diagnostics.md), including output captured
 before an agent connects and retained after a development process exits.
 
 If a native screen stutters or eats memory while scrolling images, see

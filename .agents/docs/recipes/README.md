@@ -32,7 +32,7 @@ Workflows:
 
 - [Check stable controls with an optional coding-agent tool](agent-ui-checks.md)
 - [Qualify a consumer app through development MCP](mcp-consumer-workflow.md)
-- [Read retained development output](development-logs.md)
+- [Read development diagnostics](development-logs.md)
 
 - [Probe one platform case](probe-platform-case.md)
 

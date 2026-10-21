@@ -8,7 +8,12 @@
 // toolchain (`pnpm exec vite`, `ns run`, the app's installed CLI), so a
 // session behaves like the app's installed framework version.
 
-import { contractError } from '../contracts/errors.ts'
+import {
+	retainedDiagnostics,
+	diagnosticsFromLogs,
+	validateDiagnosticsSelection,
+} from '../../diagnostics.ts'
+import { contractError, toContractError } from '../contracts/errors.ts'
 import { createAdapters } from './adapters/index.ts'
 import { createLogBuffer } from './logs.ts'
 import { cachedExec, execText } from './process.ts'
@@ -609,7 +614,25 @@ export function createRuntimeService(context, options = {}) {
 			return { session, detail: pick.detail }
 		},
 
-		/** Bounded log read for a session or a build job. */
+		/** Read diagnostic envelopes for retained runs or host-owned captures. */
+		async readDiagnostics(args = {}) {
+			try {
+				validateDiagnosticsSelection(args)
+				if (args.sessionId || args.jobId) {
+					const logs = this.readLogs(args)
+					return logs.error ? logs : diagnosticsFromLogs(logs)
+				}
+				const selected = requireApp()
+				if (selected.error) {
+					return selected
+				}
+				return await retainedDiagnostics(selected.app.root, args)
+			} catch (error) {
+				return { error: toContractError(error) }
+			}
+		},
+
+		/** Internal bounded log read for a session or build job. */
 		readLogs({ sessionId, jobId, cursor, limit, stream } = {}) {
 			if (jobId) {
 				const logs = jobLogs.get(jobId)

@@ -39,7 +39,7 @@ export function registerRuntimeTools(
 		'xplat_build',
 		{
 			description:
-				'Build the bound app for one platform as a background job (the same commands `xplat build` runs). Returns a job id — poll xplat_job_status and read output with xplat_logs. Repeating with the same requestKey returns the live job instead of duplicating it.',
+				'Build the bound app for one platform as a background job (the same commands `xplat build` runs). Returns a job id — poll xplat_job_status and read output with xplat_diagnostics. Repeating with the same requestKey returns the live job instead of duplicating it.',
 			inputSchema: {
 				platform: z.enum(PLATFORMS as Platform[]),
 				requestKey: z.string().optional().describe('Idempotence key for retries'),
@@ -103,31 +103,23 @@ export function registerRuntimeTools(
 	)
 
 	server.registerTool(
-		'xplat_logs',
+		'xplat_diagnostics',
 		{
 			description:
-				'Bounded, ordered log read for a session or build job. Cursor-paginated: pass the previous nextCursor to continue; truncated/dropped flags reveal gaps and reset marks a restarted capture. A stopped or disconnected session reports its capture as historical.',
+				'List retained dev runs or read logs and existing native report summaries. Log cursors do not page reports; reportId with runId reads a retained original. Session/job selectors read their own captures with explicit native-report unavailability.',
 			inputSchema: {
+				runId: z.string().optional(),
+				reportId: z.string().optional(),
+				platform: z.enum(PLATFORMS as Platform[]).optional(),
 				sessionId: z.string().optional(),
 				jobId: z.string().optional(),
-				cursor: z.number().optional().describe('Continue after this record seq'),
+				cursor: z.number().int().nonnegative().optional(),
 				limit: z.number().int().positive().max(5000).optional(),
 				stream: z.enum(['stdout', 'stderr', 'lifecycle']).optional(),
 			},
 		},
-		async ({ sessionId, jobId, cursor, limit, stream }) => {
-			if (!sessionId && !jobId) {
-				return respond({
-					ok: false,
-					error: {
-						code: 'invalid_selection',
-						message: 'Pass a sessionId or a jobId.',
-						recovery: { action: 'Use xplat_sessions or a build/launch job id.' },
-					},
-				})
-			}
-
-			const result = runtime.readLogs({ sessionId, jobId, cursor, limit, stream })
+		async (args) => {
+			const result = await runtime.readDiagnostics(args)
 			return result.error
 				? respond({ ok: false, error: result.error })
 				: respond({ ok: true, data: result })

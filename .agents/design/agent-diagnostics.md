@@ -1,20 +1,20 @@
 # Runtime diagnostics for agents
 
-Status: retained development logs implemented, 2026-10-20. The original
-proposal was narrowed to capture existing output with minimal new machinery.
-Structured framework traces, application snapshots, and OS crash collection
-remain separate future work.
+Status: retained output plus on-demand native diagnostics, 2026-10-21.
+`diagnostics` replaces the alpha `logs` command, and `xplat_diagnostics`
+replaces the MCP tool. Structured traces and application snapshots remain
+outside this feature.
 
 ## Chosen scope
 
 An agent can list a selected app's retained development runs and retrieve
 output produced before it connected, including after the capture process exits.
-The [public guide](../../docs/testing/development-logs.md) owns commands,
+The [public guide](../../docs/testing/diagnostics.md) owns commands,
 configuration, retention limits, and user-facing coverage.
 
 ```sh
-pnpm exec xplat logs --platform ios --json
-pnpm exec xplat logs --run RUN_ID --cursor 0 --limit 50 --json
+pnpm exec xplat diagnostics --platform ios --json
+pnpm exec xplat diagnostics --run RUN_ID --cursor 0 --limit 50 --json
 ```
 
 Use the existing development launcher as the collection boundary. All six
@@ -34,12 +34,23 @@ preserved; ordinary object payloads are omitted.
   under the app's local cache. Rotation and completed-run eviction bound storage;
   active runs are retained. Writes reach the local filesystem synchronously,
   without promising survival of power loss or storage failure.
-- CLI logs handlers list/read those files directly with explicit app/run
+- CLI diagnostics handlers list/read those files directly with explicit app/run
   selection. No agent runtime host, running app response, or app inspection
   channel is required. Session/job logs retain their existing service path.
 - `xplatDevBridge` authenticates browser batches using its existing server
   token. Its serve-only HTML hook installs the browser collector; production
   builds receive neither the collector nor endpoint.
+
+`native-reports.ts` discovers existing Apple .ips crash reports and
+package-scoped Android exit history on demand. Original reports are retained
+separately with bounded byte/count limits. Native identity is captured at
+launch, rather than inferred from the app's configuration at read time.
+Associations need an observed PID and launch time (within five seconds of
+the launcher observation) to be confirmed; conflicting bundle ids are rejected.
+Apple reports without bundle metadata can still be confirmed by process
+ownership; other bundle/device/time matches remain candidates. Android's exit records omit
+full tombstones/ANR traces and always disclose partial coverage. The public
+guide owns source and retention details.
 
 Each record carries sequence, timestamp, stream, source, and text. Run metadata
 carries platform, target, capture owner PID, and start/end times. Sequence cursors
@@ -64,17 +75,17 @@ qualify a native target.
 
 ### Native runtime qualification (2026-10-21)
 
-At revision `33c253a59`, isolated apps emit unique `console.log`,
+At revision `33c253a59` (before the command rename), isolated apps emit unique `console.log`,
 `console.warn`, and `console.error` startup markers through `xplat dev`.
-The first `xplat logs --run RUN_ID --cursor 0 --json` read happens after
+The first `xplat diagnostics --run RUN_ID --cursor 0 --json` read happens after
 all three markers appear. A second CLI read after stopping the development
 process must retain every marker and return `historical: true`.
 
 ```sh
 pnpm exec xplat dev TARGET_ID
 # After the startup markers appear, in another terminal:
-pnpm exec xplat logs --json
-pnpm exec xplat logs --run RUN_ID --cursor 0 --json
+pnpm exec xplat diagnostics --json
+pnpm exec xplat diagnostics --run RUN_ID --cursor 0 --json
 # Stop xplat dev, then repeat the same run read.
 ```
 
@@ -105,9 +116,9 @@ is only a hint and does not prove the app is ready or healthy. Retained runs
 are separate from agent-owned session/job captures. App-specific snapshots can
 use existing development actions where available, but are not part of this slice.
 
-Native crash/ANR/hang reports, symbolication, operation correlation, framework
-state snapshots, and general native-plugin interception remain outside the
-retained-log implementation. The AppKit application-command bridge remains an
+Physical iOS extraction, full Android tombstone/ANR trace retrieval, active
+hang detection, symbolication, operation correlation, framework state snapshots,
+and general native-plugin interception remain outside the implementation. The AppKit application-command bridge remains an
 independent gap rather than a prerequisite for reading development output.
 
 The maintained Chromium qualification starts a real xplat dev process, loads
@@ -120,3 +131,37 @@ captures no images. It is outside the ordinary test glob and PR checks:
 pnpm --filter @octane-xplat/cli... --if-present build
 node packages/cli/test/verify-dev-logs-browser.mjs
 ```
+
+## Native report qualification
+
+A disposable AppKit/JavaScriptCore app calling native `abort()` produced a real
+macOS `.ips` report. The diagnostics CLI discovered it after the launcher exited,
+confirmed the observed PID/launch-time match, and returned its intact original
+through `--report` (32,447 bytes in the first passing run). The initial report
+had no `bundleID` or `bundleInfo`, despite the launch bundle's configured id;
+the bundle had already been cleaned up. That timing may explain the missing
+metadata, but is not proven. Reports therefore admit missing bundle metadata
+only with observed process ownership, never a filename or timestamp alone.
+
+An iPhone 18 Pro simulator running iOS 27.0 also produced a real native
+`abort()` report. The CLI retained all 62,982 bytes and returned the original
+after simulator shutdown. Its association remains a candidate because the
+NativeScript sync output records the app identity without an observed app PID.
+
+A connected Android device also passed native identity capture, package-scoped
+exit-history discovery, and original exit-record retrieval through the renamed
+CLI. The records remain candidates and coverage remains partial because this
+source does not expose the underlying tombstone/ANR trace. This proves exit
+history retrieval, not a deliberately triggered Android native crash.
+
+The optional qualification remains outside the ordinary test glob and PR gate:
+
+```sh
+node packages/cli/test/verify-native-diagnostics.mjs
+```
+
+The maintained collector regression covers missing/conflicting identities,
+foreign device/app exclusion, report retention across log rotation, original
+integrity, unavailable sources, Android exit record parsing, and retention limits.
+Runtime report qualification does not imply full Android tombstone/ANR trace
+access, physical iOS extraction, automatic symbolication, or hang detection.

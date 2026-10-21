@@ -55,11 +55,11 @@ GJS host; Linux users supply the GTK/WebKit system runtime.
 Read output from an earlier `xplat dev` run, even after its process exits:
 
 ```sh
-pnpm xplat logs --json                  # list this app's retained runs
-pnpm xplat logs --run RUN_ID --json     # replace RUN_ID with a returned runId
+pnpm xplat diagnostics --json                  # list this app's retained runs
+pnpm xplat diagnostics --run RUN_ID --json     # replace RUN_ID with a returned runId
 ```
 
-See [development logs](../../docs/testing/development-logs.md) for platform
+See [development diagnostics](../../docs/testing/diagnostics.md) for platform
 coverage, browser forwarding, retention, and cursor-based reads.
 
 New apps include test setup for their enabled platforms, with framework-managed
@@ -117,13 +117,13 @@ pnpm install --no-frozen-lockfile
 pnpm xplat doctor
 ```
 
-| Managed together when declared | Kept under application/library ownership |
-| --- | --- |
-| Lockstep Xplat packages, Octane and NativeScript renderers | App-specific libraries and plugins outside the compatibility manifest |
-| TypeScript, TSRX compiler peer/editor plugin, declaration generator | Library consumer `peerDependencies` ranges |
-| Vite and Octane/NativeScript Vite integrations | `workspace:`, `link:`, `file:` and `portal:` development dependencies |
-| NativeScript CLI, platform runtimes/types, known starter plugins | User catalogs, custom patch files, unrelated overrides and scripts |
-| Vitest, jsdom, and NativeScript's test runner, when enabled | Application tests and platform qualification |
+| Managed together when declared                                      | Kept under application/library ownership                              |
+| ------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Lockstep Xplat packages, Octane and NativeScript renderers          | App-specific libraries and plugins outside the compatibility manifest |
+| TypeScript, TSRX compiler peer/editor plugin, declaration generator | Library consumer `peerDependencies` ranges                            |
+| Vite and Octane/NativeScript Vite integrations                      | `workspace:`, `link:`, `file:` and `portal:` development dependencies |
+| NativeScript CLI, platform runtimes/types, known starter plugins    | User catalogs, custom patch files, unrelated overrides and scripts    |
+| Vitest, jsdom, and NativeScript's test runner, when enabled         | Application tests and platform qualification                          |
 
 Dependencies remain declared in each package. Their exact build/runtime pins
 move to `catalog:xplat` in `pnpm-workspace.yaml`; Windows preview packages use
@@ -250,7 +250,7 @@ xplat session status <sess_…> --json
 xplat session end <sess_…> --json           # ownership-safe cleanup; attached apps keep running
 xplat job status <job_…> --json
 xplat job cancel <job_…> --json             # cooperative — never kills another user's process
-xplat logs --session <sess_…> --json        # cursor-paginated; --job works too
+xplat diagnostics --session <sess_…> --json        # cursor-paginated; --job works too
 xplat inspect <sess_…> --testid <name> --json   # bounded named hosts, redacted private values
 xplat interact <sess_…> --document <id> --testid <name> --mechanism dom-event --json
 xplat capture <sess_…> --json               # needs XPLAT_PERMISSIONS=visual-capture

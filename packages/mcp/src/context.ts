@@ -36,7 +36,10 @@ export interface RuntimeService {
 		browserMode?: 'headless' | 'headed'
 	}): Promise<any>
 	attach(args: { platform: Platform; targetId?: string }): Promise<any>
-	readLogs(args: {
+	readDiagnostics(args: {
+		runId?: string
+		reportId?: string
+		platform?: Platform
 		sessionId?: string
 		jobId?: string
 		cursor?: number

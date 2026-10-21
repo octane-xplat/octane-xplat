@@ -160,7 +160,7 @@ try {
 			'session end',
 			'job status',
 			'job cancel',
-			'logs',
+			'diagnostics',
 			'inspect',
 			'interact',
 			'capture',
@@ -497,8 +497,8 @@ try {
 	})
 
 	// -- logs + owned cleanup -------------------------------------------------------------------
-	const logs = json(run(['logs', '--session', sessionId, '--limit', '20', '--json'])).data
-	assert.ok(logs.records.length)
+	const logs = json(run(['diagnostics', '--session', sessionId, '--limit', '20', '--json'])).data
+	assert.ok(logs.logs.records.length)
 	const ended = json(run(['session', 'end', sessionId, '--json'])).data
 	assert.ok(ended.result.released.some((item) => item.includes('chromium')))
 	assert.ok(ended.result.released.some((item) => item.includes('vite')))

@@ -336,7 +336,7 @@ export const AGENT_COMMANDS = [
 		path: ['runtime', 'build'],
 		mcpTool: 'xplat_build',
 		summary:
-			'Build the bound app for one platform as a host-owned job — poll `xplat job status`, read output with `xplat logs`',
+			'Build the bound app for one platform as a host-owned job — poll `xplat job status`, read output with `xplat diagnostics`',
 		effect: 'orchestrate',
 		permissions: ['runtime-actions'],
 		context: 'app',
@@ -529,11 +529,11 @@ export const AGENT_COMMANDS = [
 		examples: ['xplat job cancel job_abc123 --json'],
 	},
 	{
-		name: 'logs',
-		path: ['logs'],
-		mcpTool: 'xplat_logs',
+		name: 'diagnostics',
+		path: ['diagnostics'],
+		mcpTool: 'xplat_diagnostics',
 		summary:
-			'List retained dev runs, or read a run/session/job — cursor-paginated; truncation flags reveal gaps',
+			'List retained dev runs, or read logs and native report summaries; use --report for a retained original',
 		effect: 'read',
 		permissions: [],
 		context: 'workspace',
@@ -544,6 +544,12 @@ export const AGENT_COMMANDS = [
 				key: 'runId',
 				type: 'string',
 				desc: 'Retained xplat dev run id; omit selectors to list runs',
+			},
+			{
+				flag: 'report',
+				key: 'reportId',
+				type: 'string',
+				desc: 'Read a retained original report; requires --run, excludes log paging/filter flags',
 			},
 			platform,
 			{ flag: 'session', key: 'sessionId', type: 'string', desc: 'Session id to read (or --job)' },
@@ -566,7 +572,7 @@ export const AGENT_COMMANDS = [
 		output: {
 			kind: 'json',
 			description:
-				'Retained runs, or ordered records with nextCursor, capture coverage and liveness',
+				'Retained runs, or {logs, reports, coverage}; --report returns the complete retained report. Log cursors do not page reports.',
 		},
 		errors: [
 			{
@@ -582,9 +588,9 @@ export const AGENT_COMMANDS = [
 			{ code: 'not_found', exit: 2, when: 'No such run, session or job capture' },
 		],
 		examples: [
-			'xplat logs --platform ios --json',
-			'xplat logs --run RUN_ID --limit 50 --json',
-			'xplat logs --session sess_abc123 --limit 50 --json',
+			'xplat diagnostics --platform ios --json',
+			'xplat diagnostics --run RUN_ID --limit 50 --json',
+			'xplat diagnostics --session sess_abc123 --limit 50 --json',
 		],
 	},
 	{

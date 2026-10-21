@@ -336,6 +336,19 @@ test('logs read sessions and build jobs with cursors and honest gaps', async () 
 	await waitForJob(context.jobs, build.job.jobId)
 	const buildLogs = runtime.readLogs({ jobId: build.job.jobId })
 	assert.ok(Array.isArray(buildLogs.records))
+	const diagnostic = await runtime.readDiagnostics({ sessionId: session.sessionId })
+	assert.deepEqual(diagnostic.logs.records, page.records)
+	assert.deepEqual(diagnostic.reports, [])
+	assert.equal(diagnostic.coverage.nativeReports.status, 'unavailable')
+	assert.equal(
+		(await runtime.readDiagnostics({ sessionId: session.sessionId, jobId: build.job.jobId })).error
+			.code,
+		'invalid_selection',
+	)
+	assert.equal(
+		(await runtime.readDiagnostics({ reportId: 'report_x' })).error.code,
+		'invalid_selection',
+	)
 })
 
 test('build dedupe by requestKey and target selection validation', async () => {
