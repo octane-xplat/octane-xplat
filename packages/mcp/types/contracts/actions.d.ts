@@ -163,13 +163,24 @@ export type DevActionInvocationStatus =
 	/** The app may or may not have run the action; reported, never silently retried. */
 	| 'unknown'
 
+/** One handler's failure as structured data — which owner threw, and the error it threw. */
+export interface DevActionFailure {
+	/** 0-based position, in attach order, of the failing handler among the action's handlers at dispatch. */
+	handler: number
+	/** Optional owner label (e.g. component name) supplied at attach time. */
+	label?: string
+	name: string
+	message: string
+	stack?: string
+}
+
 export interface DevActionOutcome {
 	requestId: string
 	status: DevActionInvocationStatus
 	/** Structured result validated against the declared result contract. */
 	result?: Record<string, unknown>
 	/** Machine-readable failure detail; mapped to ContractError codes server-side. */
-	error?: { code: string; message: string }
+	error?: { code: string; message: string; failures?: DevActionFailure[] }
 	/** What the app knows changed before a failure/cancellation; absent = unknown. */
 	partialEffects?: string[]
 	completedAt: string

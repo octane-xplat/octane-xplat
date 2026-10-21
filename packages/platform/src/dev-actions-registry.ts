@@ -113,6 +113,17 @@ export interface DevEffectDefinition extends DevActionHandle {
 	readonly kind: 'effect'
 }
 
+/** One handler's failure as structured data — which owner threw, and the error it threw. */
+export interface DevActionFailure {
+	/** 0-based position, in attach order, of the failing handler among the action's handlers at dispatch. */
+	handler: number
+	/** Optional owner label (e.g. component name) supplied at attach time. */
+	label?: string
+	name: string
+	message: string
+	stack?: string
+}
+
 type AvailabilityProbe = () => { ready: boolean; reason?: string } | boolean
 
 interface DeclarationEntry {
@@ -125,6 +136,7 @@ interface DeclarationEntry {
 
 interface HandlerEntry {
 	run: DevActionRun
+	label?: string
 }
 
 interface RunningInvocation {
@@ -163,7 +175,7 @@ interface DevActionOutcome {
 	requestId: string
 	status: 'succeeded' | 'failed' | 'cancelled' | 'unknown'
 	result?: Record<string, unknown>
-	error?: { code: string; message: string }
+	error?: { code: string; message: string; failures?: DevActionFailure[] }
 	partialEffects?: string[]
 	completedAt: string
 }
@@ -348,7 +360,12 @@ export function defineDevEffect(declaration: DevEffectDeclaration): DevEffectDef
 	return defineDeclaration(declaration, 'effect') as DevEffectDefinition
 }
 
-function attachHandler(id: string, kind: 'action' | 'effect', run: DevActionRun): () => void {
+function attachHandler(
+	id: string,
+	kind: 'action' | 'effect',
+	run: DevActionRun,
+	options?: { label?: string },
+): () => void {
 	if (typeof run !== 'function') {
 		throw new Error(`Invalid dev ${kind} handler for "${id}": a run(input, context) function is required`)
 	}
@@ -359,7 +376,7 @@ function attachHandler(id: string, kind: 'action' | 'effect', run: DevActionRun)
 		throw new Error(`"${id}" is declared as a dev ${entry.kind}; cannot attach a ${kind} handler`)
 	}
 
-	const handler: HandlerEntry = { run }
+	const handler: HandlerEntry = { run, ...(options?.label !== undefined ? { label: options.label } : {}) }
 	const list = state.handlers.get(id)
 	if (list) {
 		list.push(handler)
@@ -411,24 +428,26 @@ function attachHandler(id: string, kind: 'action' | 'effect', run: DevActionRun)
 export function attachDevActionHandler(
 	action: DevActionDefinition | string,
 	run: DevActionRun,
+	options?: { label?: string },
 ): () => void {
 	if (typeof action !== 'string' && action.kind !== 'action') {
 		throw new Error(`"${action.id}" is a dev ${action.kind}; use attachDevEffectHandler`)
 	}
 
-	return attachHandler(typeof action === 'string' ? action : action.id, 'action', run)
+	return attachHandler(typeof action === 'string' ? action : action.id, 'action', run, options)
 }
 
-/** Attach a handler to a dev effect; every attached handler runs per invocation. */
+/** Attach a handler to a dev effect; every attached handler runs per invocation. `options.label` names this owner in failure records. */
 export function attachDevEffectHandler(
 	effect: DevEffectDefinition | string,
 	run: DevActionRun,
+	options?: { label?: string },
 ): () => void {
 	if (typeof effect !== 'string' && effect.kind !== 'effect') {
 		throw new Error(`"${effect.id}" is a dev ${effect.kind}; use attachDevActionHandler`)
 	}
 
-	return attachHandler(typeof effect === 'string' ? effect : effect.id, 'effect', run)
+	return attachHandler(typeof effect === 'string' ? effect : effect.id, 'effect', run, options)
 }
 
 /**
@@ -772,6 +791,40 @@ async function postOutcome(rt: BridgeRuntime, outcome: DevActionOutcome) {
 	}
 }
 
+const FAILURE_MESSAGE_MAX = 1024
+const FAILURE_STACK_MAX = 4096
+const FAILURE_RECORDS_MAX = 20
+const FAILURE_SUMMARY_SHOWN = 3
+
+const capText = (text: string, max: number) =>
+	text.length > max ? `${text.slice(0, max)}…` : text
+
+// Cross-realm safe: duck-typed, never instanceof Error.
+const toFailureRecord = (
+	index: number,
+	label: string | undefined,
+	thrown: unknown,
+): DevActionFailure => {
+	const base = { handler: index, ...(label !== undefined ? { label } : {}) }
+	if (
+		typeof thrown === 'object' &&
+		thrown !== null &&
+		typeof (thrown as { message?: unknown }).message === 'string'
+	) {
+		const error = thrown as { name?: unknown; message: string; stack?: unknown }
+		return {
+			...base,
+			name: typeof error.name === 'string' ? error.name : 'Error',
+			message: capText(error.message, FAILURE_MESSAGE_MAX),
+			...(typeof error.stack === 'string'
+				? { stack: capText(error.stack, FAILURE_STACK_MAX) }
+				: {}),
+		}
+	}
+
+	return { ...base, name: 'ThrownValue', message: capText(String(thrown), FAILURE_MESSAGE_MAX) }
+}
+
 const failOutcome = (requestId: string, code: string, message: string): DevActionOutcome => ({
 	requestId,
 	status: 'failed',
@@ -904,13 +957,15 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
 			reportPartialEffect: (effect) => partialEffects.push(String(effect)),
 		}
 
+		let invocationFailures: DevActionFailure[] | undefined
 		try {
 			let result: Record<string, unknown> | undefined
 			if (entry.kind === 'effect') {
 				// Broadcast: every handler attached at dispatch start runs, in
 				// attach order, and failures don't stop the remaining handlers.
-				const failures: string[] = []
-				for (const handler of handlers) {
+				const failureRecords: DevActionFailure[] = []
+				const failureMessages: string[] = []
+				for (const [index, handler] of handlers.entries()) {
 					running.active.add(handler)
 					try {
 						await handler.run(input.value, context)
@@ -919,19 +974,27 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
 							throw error
 						}
 
-						failures.push((error as Error)?.message ?? String(error))
+						const record = toFailureRecord(index, handler.label, error)
+						if (failureRecords.length < FAILURE_RECORDS_MAX) {
+							failureRecords.push(record)
+						}
+
+						failureMessages.push(record.message)
 					} finally {
 						running.active.delete(handler)
 					}
 				}
 
-				if (failures.length) {
+				if (failureMessages.length) {
 					partialEffects.unshift(
-						`${handlers.length - failures.length} of ${handlers.length} handlers completed`,
+						`${handlers.length - failureMessages.length} of ${handlers.length} handlers completed`,
 					)
 
+					invocationFailures = failureRecords
+					const shown = failureMessages.slice(0, FAILURE_SUMMARY_SHOWN).join('; ')
+					const rest = failureMessages.length - FAILURE_SUMMARY_SHOWN
 					throw new Error(
-						`${failures.length} of ${handlers.length} handlers failed: ${failures.join('; ')}`,
+						`${failureMessages.length} of ${handlers.length} handlers failed: ${shown}${rest > 0 ? ` (+${rest} more)` : ''}`,
 					)
 				}
 
@@ -939,10 +1002,11 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
 			} else {
 				// The most recently attached handler wins; older ones stay
 				// attached and take over again when it detaches.
-				const handler = handlers[handlers.length - 1]
+				const handlerIndex = handlers.length - 1
+				const handler = handlers[handlerIndex]
 				if (handlers.length > 1) {
 					console.warn(
-						`[octane-xplat] Dev action "${spec.id}" has ${handlers.length} attached handlers; using the most recently attached.`,
+						`[octane-xplat] Dev action "${spec.id}" has ${handlers.length} attached handlers; using the most recently attached${handler.label ? ` (${handler.label})` : ''}.`,
 					)
 				}
 
@@ -951,6 +1015,9 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
 					result = (await handler.run(input.value, context)) as
 						| Record<string, unknown>
 						| undefined
+				} catch (thrown) {
+					invocationFailures = [toFailureRecord(handlerIndex, handler.label, thrown)]
+					throw thrown
 				} finally {
 					running.active.delete(handler)
 				}
@@ -995,6 +1062,9 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
 							error: {
 								code: 'execution_failure',
 								message: (error as Error)?.message ?? String(error),
+								...(invocationFailures?.length
+									? { failures: invocationFailures }
+									: {}),
 							},
 							...(partialEffects.length ? { partialEffects } : {}),
 							completedAt: new Date().toISOString(),

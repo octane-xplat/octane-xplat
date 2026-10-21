@@ -155,6 +155,42 @@ if (import.meta.env.DEV) {
 }
 ```
 
+### When a handler fails
+
+A thrown handler fails the invocation, and the outcome carries one structured
+record per failed handler — its position in attach order, name, message, and
+stack — so the agent can see which owner failed and why.
+
+```json
+{
+	"status": "failed",
+	"error": {
+		"code": "execution_failure",
+		"message": "1 of 2 handlers failed: probe failure from FormScreen",
+		"failures": [
+			{
+				"handler": 0,
+				"label": "FormScreen",
+				"name": "TypeError",
+				"message": "probe failure from FormScreen",
+				"stack": "TypeError: probe failure from FormScreen\n    at ..."
+			}
+		]
+	},
+	"partialEffects": ["1 of 2 handlers completed"]
+}
+```
+
+Pass `label` so the record names the owning component instead of an anonymous
+handler.
+
+```tsx
+useDevEffect(resetUi, () => setFilters(initialFilters), { label: 'FilterPanel' })
+```
+
+Messages and stacks are returned as-is over the development-only channel, so
+keep secrets and credentials out of thrown errors.
+
 ## Connect the running app
 
 Web is the qualified action transport today. iOS/Android/Windows dev servers

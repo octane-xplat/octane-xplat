@@ -15,6 +15,7 @@ export {
 	type DevActionDefinition,
 	type DevActionEffects,
 	type DevActionExecution,
+	type DevActionFailure,
 	type DevActionHandle,
 	type DevActionRun,
 	type DevActionSpec,

@@ -65,9 +65,15 @@ without unmounting — use it for unfocused tabs.
 if (import.meta.env.DEV) {
 	useDevActionHandler(saveDraft, async () => ({ note: draft.title }), {
 		enabled: isFocusedTab,
+		label: 'CheckoutForm',
 	})
 }
 ```
+
+Pass `label` so a failed outcome's `context.failures` records identify the
+owning component; each record carries `handler` (attach-order index), `name`,
+`message`, and `stack`. Keep secrets out of thrown errors — they cross the
+dev channel verbatim.
 
 ## Connect and verify
 

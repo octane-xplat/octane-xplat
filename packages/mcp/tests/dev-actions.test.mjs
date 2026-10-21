@@ -803,3 +803,53 @@ test('a vanished bridge marks its instances disconnected, never silently live', 
 
 	assert.equal(invoked.error.code, 'disconnected_runtime')
 })
+
+test('a failed outcome forwards structured handler failures with known fields only', async (t) => {
+	const root = makeWorkspace()
+	makeConsumerApp(root, '.', { name: 'actions-app' })
+	const bridge = await makeBridge(t, root)
+	const app = makeApp(bridge, {
+		instanceId: 'inst_main',
+		actions: [actionDeclaration()],
+		handle: async (request) => ({
+			requestId: request.requestId,
+			status: 'failed',
+			error: {
+				code: 'execution_failure',
+				message: '1 of 2 handlers failed: boom',
+				failures: [
+					{
+						handler: 1,
+						label: 'SettingsScreen',
+						name: 'TypeError',
+						message: 'boom',
+						stack: 'TypeError: boom\n    at run (app.ts:1:1)',
+						internal: 'must not cross',
+					},
+				],
+			},
+			partialEffects: ['1 of 2 handlers completed'],
+			completedAt: new Date().toISOString(),
+		}),
+	})
+
+	await app.start()
+
+	const { client } = await connect(root)
+	const invoked = await callTool(client, 'xplat_dev_action_invoke', {
+		actionId: 'auth.login-as-test-admin',
+	})
+	const job = await jobDone(client, invoked.data.job.jobId)
+	assert.equal(job.state, 'failed')
+	assert.equal(job.error.code, 'execution_failure')
+	assert.deepEqual(job.error.context.failures, [
+		{
+			handler: 1,
+			label: 'SettingsScreen',
+			name: 'TypeError',
+			message: 'boom',
+			stack: 'TypeError: boom\n    at run (app.ts:1:1)',
+		},
+	])
+	assert.deepEqual(job.error.context.partialEffects, ['1 of 2 handlers completed'])
+})

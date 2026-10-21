@@ -16,6 +16,8 @@ type ReadyProbe = Exclude<DevActionAvailability['ready'], boolean | undefined>
 export interface DevActionHookOptions {
 	/** false detaches the handler without unmounting (e.g. an unfocused tab). Default true. */
 	enabled?: boolean
+	/** Owner name reported in failure records (e.g. the component name). */
+	label?: string
 }
 
 /**
@@ -26,6 +28,7 @@ export interface DevActionHookOptions {
  */
 export function useDevAction(spec: DevActionSpec, options?: DevActionHookOptions): void {
 	const enabled = options?.enabled !== false
+	const label = options?.label
 	const runRef = useRef(spec.run)
 	runRef.current = spec.run
 	const probe = spec.availability?.ready
@@ -52,14 +55,16 @@ export function useDevAction(spec: DevActionSpec, options?: DevActionHookOptions
 		}
 
 		const release = retainDevAction(declaration, key)
-		const detach = attachDevActionHandler(spec.id, (input, context) =>
-			runRef.current(input, context),
+		const detach = attachDevActionHandler(
+			spec.id,
+			(input, context) => runRef.current(input, context),
+			{ label },
 		)
 		return () => {
 			detach()
 			release()
 		}
-	}, [spec.id, enabled, key])
+	}, [spec.id, enabled, label, key])
 }
 
 /**
@@ -73,6 +78,7 @@ export function useDevActionHandler(
 	options?: DevActionHookOptions,
 ): void {
 	const enabled = options?.enabled !== false
+	const label = options?.label
 	const runRef = useRef(run)
 	runRef.current = run
 	useEffect(() => {
@@ -80,8 +86,10 @@ export function useDevActionHandler(
 			return
 		}
 
-		return attachDevActionHandler(action, (input, context) => runRef.current(input, context))
-	}, [action, enabled])
+		return attachDevActionHandler(action, (input, context) => runRef.current(input, context), {
+			label,
+		})
+	}, [action, enabled, label])
 }
 
 /** Attach a handler to a dev effect while this component is mounted; every attached handler runs per invocation. */
@@ -91,6 +99,7 @@ export function useDevEffect(
 	options?: DevActionHookOptions,
 ): void {
 	const enabled = options?.enabled !== false
+	const label = options?.label
 	const runRef = useRef(run)
 	runRef.current = run
 	useEffect(() => {
@@ -98,6 +107,8 @@ export function useDevEffect(
 			return
 		}
 
-		return attachDevEffectHandler(effect, (input, context) => runRef.current(input, context))
-	}, [effect, enabled])
+		return attachDevEffectHandler(effect, (input, context) => runRef.current(input, context), {
+			label,
+		})
+	}, [effect, enabled, label])
 }

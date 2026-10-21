@@ -464,6 +464,7 @@ test('output that violates the result contract reports a failure, not a silent p
 
 	assert.equal(outcome.status, 'failed')
 	assert.match(outcome.error.message, /result contract/)
+	assert.equal(outcome.error.failures, undefined)
 })
 
 const declaration = (over = {}) => {
@@ -641,6 +642,7 @@ test('detaching an owner mid-run aborts the invocation', async (t) => {
 	)
 
 	assert.equal(outcome.status, 'cancelled')
+	assert.equal(outcome.error?.failures, undefined)
 })
 
 test('registerDevAction disposes its declaration and only its own handler', async (t) => {
@@ -769,4 +771,100 @@ test('a failing effect handler fails the broadcast without stopping the rest', a
 	assert.match(outcome.error.message, /1 of 2 handlers failed: first blew up/)
 	assert.deepEqual(calls, ['first', 'second'])
 	assert.ok(outcome.partialEffects.includes('1 of 2 handlers completed'))
+})
+
+test('failed outcomes return structured per-handler failure records with labels', async (t) => {
+	const bridge = await makeBridge(t)
+	const { exports: api } = await loadDevActions({ origin: bridge.origin, token: bridge.token })
+	const effect = api.defineDevEffect(declaration({ id: 'fixtures.reset-ui' }))
+	t.after(() => effect.dispose())
+	t.after(() => api.startDevActionBridge().stop())
+
+	api.attachDevEffectHandler(
+		effect,
+		() => {},
+		{ label: 'A' },
+	)
+	api.attachDevEffectHandler(
+		effect,
+		() => {
+			throw new TypeError('boom')
+		},
+		{ label: 'B' },
+	)
+
+	const instance = await until(async () => (await bridge.call('GET', '/registry')).instances[0])
+	const outcome = await invokeAndAwait(bridge, instance, 'req_fxrec', effect.id)
+	assert.equal(outcome.status, 'failed')
+	assert.equal(outcome.error.failures.length, 1)
+	const record = outcome.error.failures[0]
+	assert.equal(record.handler, 1)
+	assert.equal(record.label, 'B')
+	assert.equal(record.name, 'TypeError')
+	assert.equal(record.message, 'boom')
+	assert.equal(typeof record.stack, 'string')
+})
+
+test('a single-handler action reports one failure record; thrown values normalize', async (t) => {
+	const bridge = await makeBridge(t)
+	const { exports: api } = await loadDevActions({ origin: bridge.origin, token: bridge.token })
+	const definition = api.defineDevAction(declaration())
+	t.after(() => definition.dispose())
+	t.after(() => api.startDevActionBridge().stop())
+
+	api.attachDevActionHandler(definition, () => {
+		throw 'kaboom'
+	})
+
+	const instance = await until(async () => (await bridge.call('GET', '/registry')).instances[0])
+	const outcome = await invokeAndAwait(bridge, instance, 'req_thrown', definition.id)
+	assert.equal(outcome.status, 'failed')
+	assert.equal(outcome.error.failures.length, 1)
+	const record = outcome.error.failures[0]
+	assert.equal(record.handler, 0)
+	assert.equal(record.name, 'ThrownValue')
+	assert.equal(record.message, 'kaboom')
+	assert.equal(record.label, undefined)
+	assert.equal(record.stack, undefined)
+})
+
+test('failure records cap at 20 and the summary counts every failure', async (t) => {
+	const bridge = await makeBridge(t)
+	const { exports: api } = await loadDevActions({ origin: bridge.origin, token: bridge.token })
+	const effect = api.defineDevEffect(declaration({ id: 'fixtures.reset-ui' }))
+	t.after(() => effect.dispose())
+	t.after(() => api.startDevActionBridge().stop())
+
+	for (let i = 0; i < 25; i++) {
+		api.attachDevEffectHandler(effect, () => {
+			throw new Error(`f${i}`)
+		})
+	}
+
+	const instance = await until(async () => (await bridge.call('GET', '/registry')).instances[0])
+	const outcome = await invokeAndAwait(bridge, instance, 'req_fxcap', effect.id)
+	assert.equal(outcome.status, 'failed')
+	assert.equal(outcome.error.failures.length, 20)
+	assert.match(outcome.error.message, /25 of 25 handlers failed/)
+	assert.match(outcome.error.message, /\(\+22 more\)/)
+})
+
+test('failure stacks are truncated to their bound', async (t) => {
+	const bridge = await makeBridge(t)
+	const { exports: api } = await loadDevActions({ origin: bridge.origin, token: bridge.token })
+	const effect = api.defineDevEffect(declaration({ id: 'fixtures.reset-ui' }))
+	t.after(() => effect.dispose())
+	t.after(() => api.startDevActionBridge().stop())
+
+	api.attachDevEffectHandler(effect, () => {
+		const error = new TypeError('deep')
+		error.stack = 'S'.repeat(5000)
+		throw error
+	})
+
+	const instance = await until(async () => (await bridge.call('GET', '/registry')).instances[0])
+	const outcome = await invokeAndAwait(bridge, instance, 'req_fxstack', effect.id)
+	assert.equal(outcome.status, 'failed')
+	assert.equal(outcome.error.failures[0].stack.length, 4097)
+	assert.ok(outcome.error.failures[0].stack.endsWith('…'))
 })

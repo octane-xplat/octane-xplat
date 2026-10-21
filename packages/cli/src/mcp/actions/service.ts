@@ -543,8 +543,22 @@ export function createDevActionsService({ jobs, policy, endpoints = scanBridgeEn
 			}
 
 			if (outcome.status === 'failed') {
+				// Structured per-handler failure detail the app reported; only
+				// known fields cross the process boundary.
+				const failures = Array.isArray(outcome.error?.failures)
+					? outcome.error.failures.slice(0, 20).map((entry) => ({
+							handler: entry?.handler,
+							...(typeof entry?.label === 'string' ? { label: entry.label } : {}),
+							name: entry?.name,
+							message: entry?.message,
+							...(typeof entry?.stack === 'string' ? { stack: entry.stack } : {}),
+						}))
+					: undefined
 				throw appError(outcome.error?.code, outcome.error?.message ?? 'action failed', {
-					context: { partialEffects: outcome.partialEffects },
+					context: {
+						partialEffects: outcome.partialEffects,
+						...(failures?.length ? { failures } : {}),
+					},
 				})
 			}
 
