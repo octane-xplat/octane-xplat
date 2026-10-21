@@ -106,6 +106,8 @@ minimumReleaseAgeExclude:
   - '@octane-xplat/fmt-linux-x64-musl@0.1.0'
   - '@octane-xplat/fmt-win32-arm64@0.1.0'
   - '@octane-xplat/fmt-win32-x64@0.1.0'
+  # same-day release of our MasonKit fork
+  - '@octane-xplat/nativescript-masonkit@1.0.0-beta.120'
   - '@nativescript/canvas@3.0.0-alpha.15'
   # Windows spike: prerelease runtime + dev-tag CLI carrying the unreleased
   # windows platform (cli#6065). Exact pins in apps/windows/package.json.
@@ -252,19 +254,3 @@ patchedDependencies:
   # kills `ns build android` before toolchain checks. Resolve catalog specifiers through the
   # installed package's manifest, reusing the existing tgz-branch mechanism.
   "@nativescript/doctor@2.0.18": packages/cli/patches/@nativescript__doctor@2.0.18.patch
-  # list/index.ios.js assigns `ObjCProtocols = [MasonListDelegate]` at module scope.
-  # MasonListDelegate is declared in Mason-Swift.h, which the app's metadata generation does
-  # not surface as a runtime global — importing masonkit on iOS throws `MasonListDelegate is
-  # not defined` during bundle eval and kills the app at boot. Guard the binding; actual
-  # List delegate conformance when the protocol is absent is a separate gap. Foreign Android
-  # widgets lack Element.syncStyleParts; forward the foreign layout dirty word through the
-  # native Style, preserving unsigned masks and rejecting unsupported high-word fields. The
-  # {N}-Android runtime strips `$`-suffixed Kotlin-internal members from JS dispatch, so
-  # Style.setStateFromHalves(long, long) is invoked through a cached
-  # java.lang.reflect.Method — version-pinned, failing loudly if the AAR renames it.
-  # updateNativeStyle only invalidates Element views, so foreign leaves also mirror
-  # invalidateForeignHost: forceLayout on the leaf, nodeForView().dirty(), then the parent
-  # Element's invalidateLayout() to schedule recompute. On iOS, UIView.mason_syncStyleParts
-  # ignores foreign views; mark their native leaf dirty after live-buffer layout writes so
-  # class changes invalidate cached frames.
-  "@triniwiz/nativescript-masonkit@1.0.0-beta.110": packages/cli/patches/@triniwiz__nativescript-masonkit@1.0.0-beta.110.patch

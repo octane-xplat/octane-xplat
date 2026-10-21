@@ -19,7 +19,7 @@ in the view's own transforms, and the prefetch API can't reproduce them.
 
 **Runtime evidence:** a temporary probe
 (`research/probes/prefetch-cache-policy.tsrx`) ran on local `main`
-7d42cb29a with `--deps @octane-xplat/image,@triniwiz/nativescript-masonkit`.
+7d42cb29a with `--deps @octane-xplat/image,@octane-xplat/nativescript-masonkit`.
 Each case used a distinct URL. "Display" is the `onLoad` `source` of the
 next `<Image>` that used the same decode bounds.
 

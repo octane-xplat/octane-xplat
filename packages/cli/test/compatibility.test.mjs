@@ -315,6 +315,60 @@ test('doctor permits omitted optional tools but reports missing required managed
 	assert.ok(inspectCompatibility(root, tools).every((row) => row.ok))
 })
 
+test('upgrade replaces the legacy @triniwiz masonkit pin with the fork', (t) => {
+	const root = project(t, {
+		dependencies: {
+			octane: managedSpecifier('octane'),
+			'@nativescript-community/octane': managedSpecifier('@nativescript-community/octane'),
+		},
+		devDependencies: { '@triniwiz/nativescript-masonkit': '1.0.0-beta.110' },
+	})
+	const plan = planUpgrade(root)
+	assert.ok(
+		plan.updates.some((line) =>
+			line.includes(
+				'replace @triniwiz/nativescript-masonkit with @octane-xplat/nativescript-masonkit',
+			),
+		),
+	)
+	applyUpgrade(plan)
+	const pkg = json(join(root, 'package.json'))
+	assert.equal(pkg.devDependencies['@triniwiz/nativescript-masonkit'], undefined)
+	assert.equal(pkg.dependencies['@octane-xplat/nativescript-masonkit'], 'catalog:xplat')
+	assert.equal(
+		yaml(root).catalogs.xplat['@octane-xplat/nativescript-masonkit'],
+		managedSpecifier('@octane-xplat/nativescript-masonkit'),
+	)
+	assert.equal(planUpgrade(root).files.length, 0, 'upgrade must be idempotent')
+})
+
+test('doctor fails when the legacy @triniwiz masonkit pin is declared', (t) => {
+	const root = project(t, {
+		dependencies: {
+			octane: managedSpecifier('octane'),
+			'@tsrx/oxc': managedSpecifier('@tsrx/oxc'),
+			'@nativescript-community/octane': managedSpecifier('@nativescript-community/octane'),
+			'@octane-xplat/nativescript-masonkit': managedSpecifier(
+				'@octane-xplat/nativescript-masonkit',
+			),
+			'@triniwiz/nativescript-masonkit': '1.0.0-beta.110',
+		},
+	})
+	install(root, 'octane', managedSpecifier('octane'))
+	install(root, '@tsrx/oxc', managedSpecifier('@tsrx/oxc'))
+	install(root, '@nativescript-community/octane', managedSpecifier('@nativescript-community/octane'))
+	install(
+		root,
+		'@octane-xplat/nativescript-masonkit',
+		managedSpecifier('@octane-xplat/nativescript-masonkit'),
+	)
+	const row = inspectCompatibility(root, tools).find(
+		(row) => row.name === 'compatibility mason engine @triniwiz/nativescript-masonkit',
+	)
+	assert.equal(row.ok, false)
+	assert.match(row.detail, /replaced by @octane-xplat\/nativescript-masonkit/)
+})
+
 test('a private nested copy of a managed package is not the app contract', (t) => {
 	const root = project(t, {
 		dependencies: {

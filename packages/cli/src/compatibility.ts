@@ -144,15 +144,31 @@ export function planUpgrade(dir: string): UpgradePlan {
 		// the engine package declared.
 		if (
 			deps['@nativescript-community/octane'] &&
+			!deps['@octane-xplat/nativescript-masonkit'] &&
 			!deps['@triniwiz/nativescript-masonkit'] &&
 			!localSpecifier(deps['@nativescript-community/octane'])
 		) {
 			pkg.dependencies ??= {}
-			pkg.dependencies['@triniwiz/nativescript-masonkit'] = managedSpecifier(
-				'@triniwiz/nativescript-masonkit',
+			pkg.dependencies['@octane-xplat/nativescript-masonkit'] = managedSpecifier(
+				'@octane-xplat/nativescript-masonkit',
 				profile,
 			)
-			plan.updates.push(`${label}: add @triniwiz/nativescript-masonkit mason engine`)
+			plan.updates.push(`${label}: add @octane-xplat/nativescript-masonkit mason engine`)
+		}
+		// The fork renamed the package; both ship the same native Mason framework,
+		// so a leftover @triniwiz pin would collide in native builds.
+		if (deps['@triniwiz/nativescript-masonkit']) {
+			for (const section of dependencySections) {
+				delete pkg[section]?.['@triniwiz/nativescript-masonkit']
+			}
+			pkg.dependencies ??= {}
+			pkg.dependencies['@octane-xplat/nativescript-masonkit'] = managedSpecifier(
+				'@octane-xplat/nativescript-masonkit',
+				profile,
+			)
+			plan.updates.push(
+				`${label}: replace @triniwiz/nativescript-masonkit with @octane-xplat/nativescript-masonkit`,
+			)
 		}
 
 		for (const section of dependencySections) {

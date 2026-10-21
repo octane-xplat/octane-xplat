@@ -25,7 +25,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..ca251841c91abdd8c254fb6307e5af09
  import { NATIVESCRIPT_RENDERER_ID } from './config.js';
  import { ELEMENTS, EVENT_PROP, eventNameFor, onElementReplaced, } from './elements.js';
  import { releaseListView, setRenderItem, } from './list-view.js';
-+import { Style as MasonStyle } from '@triniwiz/nativescript-masonkit/style';
++import { Style as MasonStyle } from '@octane-xplat/nativescript-masonkit/style';
  /** `#text` nodes carry no view; the driver folds them into the parent's `text`. */
  const TEXT = '#text';
  /**
@@ -565,7 +565,7 @@ index a13bcea75176146f58f047be1d9c7b0cdda1120a..e9988e174d0b89dcd70220d3014ca6b9
 +import { ActionBar, ActionItem, ActivityIndicator, Button, LiquidGlass, ContentView, DatePicker, FormattedString, Frame, HtmlView, Image, Label, ListPicker, ListView, NavigationButton, Page, Placeholder, Progress, ProxyViewContainer, RootLayout, SearchBar, SegmentedBar, SegmentedBarItem, Slider, Span, Switch, TabView, TabViewItem, TextField, TextView, TimePicker, WebView, } from '@nativescript/core';
 +// Mason cutover: container intrinsics resolve to MasonKit views; the driver
 +// translates their NativeScript-shaped props into mason style writes.
-+import { View as MasonView, Scroll as MasonScroll } from '@triniwiz/nativescript-masonkit';
++import { View as MasonView, Scroll as MasonScroll } from '@octane-xplat/nativescript-masonkit';
  /**
   * Lowercase tag name -> view constructor. The keys are the JSX tag names of
   * `intrinsics.ts`; an app extends the vocabulary with `registerElement`.

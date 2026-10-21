@@ -64,11 +64,11 @@ export default defineConfig({
 			// recording fake that exposes the _styleHelper + Style.fromView
 			// surfaces the patched driver calls.
 			{
-				find: /^@triniwiz\/nativescript-masonkit\/style$/,
+				find: /^@octane-xplat\/nativescript-masonkit\/style$/,
 				replacement: new URL('./tests/masonkit-mock.ts', import.meta.url).pathname,
 			},
 			{
-				find: /^@triniwiz\/nativescript-masonkit$/,
+				find: /^@octane-xplat\/nativescript-masonkit$/,
 				replacement: new URL('./tests/masonkit-mock.ts', import.meta.url).pathname,
 			},
 		],

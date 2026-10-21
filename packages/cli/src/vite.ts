@@ -856,7 +856,7 @@ export async function xplatNative(env, opts = {}) {
 			// same key.
 			define: {
 				...xplatNodeEnvDefine(process.env.DEBUG ? 'development' : mode),
-				// @triniwiz/nativescript-masonkit reads __WINDOWS__ at module
+				// @octane-xplat/nativescript-masonkit reads __WINDOWS__ at module
 				// scope; upstream's vite define set covers __IOS__/__ANDROID__/
 				// __VISIONOS__/__APPLE__ but not __WINDOWS__, so the bare read
 				// throws during bundle eval on iOS/Android.

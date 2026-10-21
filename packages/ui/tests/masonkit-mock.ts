@@ -1,4 +1,4 @@
-// Vitest alias target for @triniwiz/nativescript-masonkit — a recording fake
+// Vitest alias target for @octane-xplat/nativescript-masonkit — a recording fake
 // for the universal-driver tests. The real package evaluates platform
 // globals (__ANDROID__/__APPLE__) at import and touches native APIs, so it
 // can't load under node. The fake records style writes per view: mason

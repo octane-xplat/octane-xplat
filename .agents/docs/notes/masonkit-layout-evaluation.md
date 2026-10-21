@@ -1,6 +1,6 @@
 # MasonKit layout-engine evaluation
 
-Evaluation of [`@triniwiz/nativescript-masonkit`](https://github.com/triniwiz/nativescript-mason)
+Evaluation of upstream [`@triniwiz/nativescript-masonkit`](https://github.com/triniwiz/nativescript-mason)
 (Osei Fortune; Taffy-family Rust layout engine) as an alternative to
 NativeScript's layout containers on native targets. Source clone:
 `research/nativescript-mason` (gitignored). Evaluation case:
@@ -249,8 +249,13 @@ The local `@nativescript-community/octane@0.2.5` patch imports MasonKit from
 behavior, not an undeclared import in the published upstream renderer. Native
 hosts must declare MasonKit as a runtime dependency so NativeScript includes its
 binaries and metadata; resolving its JavaScript from a devDependency is
-insufficient. The mobile app and isolated probe host now declare beta.110 in
-`dependencies`, and the probe fingerprints the plugin's native artifacts.
+insufficient. The mobile app and isolated probe host now declare
+`@octane-xplat/nativescript-masonkit@1.0.0-beta.120` in `dependencies` — the
+octane-xplat fork carrying the scroll API, the iOS `MasonListDelegate` guard,
+and the package rename — and the probe fingerprints the plugin's native
+artifacts. octane-xplat no longer carries a MasonKit patch; the
+`MasonListDelegate` module-scope guard moved into the fork at
+1.0.0-beta.120.
 
 MasonKit beta.110 also reads `__WINDOWS__`. The standalone case config already
 folded this flag, but the separately built host did not. `xplatNative()` now
@@ -276,13 +281,18 @@ Both variants need a compatible scroll-host contract before native recycling
 benefits can be measured. See the [versioned evidence](../evidence/recycling-list-2026-10-19.json).
 This finding does not qualify gestures, screen readers, or release performance.
 
-Upstream capability request: [triniwiz/nativescript-mason#132](https://github.com/triniwiz/nativescript-mason/issues/132).
-Current main `7acf7b4174ab8b10a3d74f1a76e0292197562e08` still exposes no
+Upstream capability request: [triniwiz/nativescript-mason#132](https://github.com/triniwiz/nativescript-mason/issues/132)
+was closed by upstream PR
+[triniwiz/nativescript-mason#134](https://github.com/triniwiz/nativescript-mason/pull/134),
+which gives every element a browser-shaped scroll surface — `scrollTop`/
+`scrollLeft`/`scrollHeight`/`clientHeight`, `scrollTo({ top, left, behavior })`,
+and non-bubbling `scroll`/`scrollend` events, with pre-layout seeks queued and
+clamped after layout. It shipped in our fork `@octane-xplat/nativescript-masonkit`
+1.0.0-beta.120, and the native `VirtualList` now uses it (commit c07e34dd7);
+runtime/device verification of the seek is still pending. At the time of the
+request, main `7acf7b4174ab8b10a3d74f1a76e0292197562e08` still exposed no
 public offset/seek API in `Scroll`'s JS/type surface (source evidence only).
-The request leaves naming open: Xplat must adapt its legacy ScrollView-shaped
-assumptions to a supported MasonKit port. Required capabilities are logical-unit
-offsets, immediate/animated seeks, and native movement notifications with sound
-teardown. An integration check must seek outside the initial window and verify
+An integration check must seek outside the initial window and verify
 that the destination's actual frame aligns with the viewport; finding a mounted
 row alone is insufficient.
 

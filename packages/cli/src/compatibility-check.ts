@@ -120,14 +120,25 @@ export function inspectCompatibility(
 	// layout — apps using it must declare the package.
 	if (
 		declared['@nativescript-community/octane'] &&
+		!declared['@octane-xplat/nativescript-masonkit'] &&
 		!declared['@triniwiz/nativescript-masonkit'] &&
 		!local.has('@nativescript-community/octane')
 	) {
 		row(
+			'compatibility mason engine @octane-xplat/nativescript-masonkit',
+			false,
+			'the NativeScript driver requires @octane-xplat/nativescript-masonkit for container layout',
+			'run pnpm xplat upgrade (or add the catalog pin)',
+		)
+	}
+	// Both packages ship the same native Mason framework; a leftover legacy pin
+	// would collide with the fork in native builds.
+	if (declared['@triniwiz/nativescript-masonkit']) {
+		row(
 			'compatibility mason engine @triniwiz/nativescript-masonkit',
 			false,
-			'the NativeScript driver requires @triniwiz/nativescript-masonkit for container layout',
-			'run pnpm xplat upgrade (or add the catalog pin)',
+			'@triniwiz/nativescript-masonkit was replaced by @octane-xplat/nativescript-masonkit; both ship the native Mason framework',
+			'run pnpm xplat upgrade',
 		)
 	}
 

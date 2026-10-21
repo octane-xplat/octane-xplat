@@ -9,7 +9,7 @@ import { appFor, dependencies, json, repo } from './project.ts'
 for (const target of ['ios', 'android']) {
 	test(`${target} host declares and fingerprints the renderer's native plugin`, async () => {
 		const deps = await dependencies(target, join(repo, 'examples/probes/hello.tsrx'), [])
-		const name = '@triniwiz/nativescript-masonkit'
+		const name = '@octane-xplat/nativescript-masonkit'
 		assert.ok(deps.names.has(name))
 		assert.ok(deps.nativeFiles.includes(join(deps.resolved.get(name), 'package.json')))
 		assert.ok(
