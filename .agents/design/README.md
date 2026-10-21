@@ -31,6 +31,7 @@ start at the [public docs](../../docs/README.md).
 - [RecyclingList lifecycle and performance investigation](recycling-list.md)
 - [macOS plugin compatibility](macos-plugin-compat.md)
 - [Select implementation plan](select-implementation-plan.md)
+- [Sherpa ONNX leaf package plan](sherpa-onnx.md)
 - [Smooth corners package](smooth-corners.md)
 - [Windows target notes](windows-notes.md)
 
