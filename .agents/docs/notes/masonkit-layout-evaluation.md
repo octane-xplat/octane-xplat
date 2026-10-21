@@ -334,6 +334,12 @@ keyboard (14/14) and `packages/ui/tests/carousel-paging.mobile.tsrx` (5/5)
 fixtures passed. MasonKit counts descendants that overflow the track in
 `scrollWidth`, so Carousel paging needs no fork change.
 
+On an iPhone 18 Pro simulator, the app booted on 1.0.0-beta.120, and
+`virtual-list-seek.mobile.tsrx` (3/3), `scroll-contract.tsrx` (3/3) and
+`carousel-paging.mobile.tsrx` (5/5) passed. The iOS keyboard fixtures are not yet
+qualified: that simulator had a hardware keyboard connected, so the software
+keyboard never opened and every keyboard wait timed out.
+
 ## Native macOS bridge (verified — lab-experiment)
 
 `packages/macos-renderer` is a custom AppKit/JSC host, not NativeScript, so
