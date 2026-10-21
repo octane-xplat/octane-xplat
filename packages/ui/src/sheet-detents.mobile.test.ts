@@ -21,7 +21,7 @@ vi.mock('@nativescript/core', () => ({
 import { attachSheetDetents } from './sheet-detents'
 const fixture = () => {
 	const host: any = {
-		paddingBottom: 12,
+		style: { paddingBottom: 12 },
 		translateY: 0,
 		parent: { getActualSize: () => ({ height: 800 }) },
 		getActualSize: () => ({ height: 640 }),
@@ -47,15 +47,15 @@ it('keeps bottom content inside the current detent while gesture transforms chan
 	const controller = attachSheetDetents(host, [0.5, 0.8], close, { onOffset: changed })
 	controller.enter()
 	expect(host.height).toBe(640)
-	expect(host.paddingBottom).toBeCloseTo(252)
+	expect(host.style.paddingBottom).toBeCloseTo(252)
 	const pan = host.children[0].listeners.get('pan')
 	host.translateY = 240
 	pan({ state: 1, deltaY: 0 })
 	pan({ state: 2, deltaY: -240 })
 	expect(host.translateY).toBe(0)
-	expect(host.paddingBottom).toBe(12)
+	expect(host.style.paddingBottom).toBe(12)
 	controller.detach()
-	expect(host.paddingBottom).toBe(12)
+	expect(host.style.paddingBottom).toBe(12)
 	expect(vi.getTimerCount()).toBe(0)
 	expect(host.children).toHaveLength(0)
 })
@@ -83,5 +83,5 @@ it('ignores native entrance completion or cancellation after presentation teardo
 	await Promise.resolve()
 	second.detach()
 	expect(close).not.toHaveBeenCalled()
-	expect(host.paddingBottom).toBe(12)
+	expect(host.style.paddingBottom).toBe(12)
 })

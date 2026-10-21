@@ -140,7 +140,7 @@ describe('KeyboardAvoiding', () => {
 		flushUniversalSync(() => keyboard.listeners.forEach((listener) => listener(300)))
 		await vi.waitFor(() => {
 			const flex = container.children[0].children[0].children[0]
-			expect(flex.paddingBottom).toBe(274)
+			expect(flex.style?.paddingBottom).toBe(274)
 		})
 
 		root.unmount()
@@ -154,7 +154,7 @@ describe('KeyboardAvoiding', () => {
 		flushUniversalSync(() => keyboard.listeners.forEach((listener) => listener(300)))
 		await vi.waitFor(() => {
 			const flex = container.children[0].children[0]
-			expect(flex.paddingBottom).toBe(308)
+			expect(flex.style?.paddingBottom).toBe(308)
 		})
 
 		root.unmount()
@@ -165,7 +165,7 @@ describe('KeyboardAvoiding', () => {
 		flushUniversalSync(() => {})
 		await Promise.resolve()
 		expect(keyboard.listeners.size).toBe(0)
-		expect(container.children[0].children[0].paddingBottom ?? 0).toBe(0)
+		expect(container.children[0].children[0].style?.paddingBottom ?? 0).toBe(0)
 		root.unmount()
 	})
 })
@@ -186,8 +186,8 @@ it('nested avoidance consumes keyboard space only once in the same window', asyn
 		await vi.waitFor(() => {
 			const outerContent = container.children[0].children[0]
 			const innerContent = outerContent.children[0].children[0]
-			expect(outerContent.paddingBottom).toBe(300)
-			expect(innerContent.paddingBottom ?? 0).toBe(0)
+			expect(outerContent.style?.paddingBottom).toBe(300)
+			expect(innerContent.style?.paddingBottom ?? 0).toBe(0)
 		})
 	} finally {
 		root.unmount()
@@ -207,7 +207,7 @@ it('does not consume avoidance inherited from a different native window', async 
 	try {
 		await vi.waitFor(() => expect(keyboard.listeners.size).toBe(1))
 		flushUniversalSync(() => keyboard.listeners.forEach((listener) => listener(300)))
-		await vi.waitFor(() => expect(container.children[0].children[0].paddingBottom).toBe(300))
+		await vi.waitFor(() => expect(container.children[0].children[0].style?.paddingBottom).toBe(300))
 	} finally {
 		root.unmount()
 	}
@@ -218,13 +218,13 @@ it('releases wrapper observation and padding when disabled with the keyboard ope
 	try {
 		await vi.waitFor(() => expect(keyboard.listeners.size).toBe(1))
 		flushUniversalSync(() => keyboard.listeners.forEach((listener) => listener(300)))
-		await vi.waitFor(() => expect(container.children[0].children[0].paddingBottom).toBe(300))
+		await vi.waitFor(() => expect(container.children[0].children[0].style?.paddingBottom).toBe(300))
 
 		root.render(AvoidingTree as any, { enabled: false })
 		flushUniversalSync(() => {})
 		await vi.waitFor(() => {
 			expect(keyboard.listeners.size).toBe(0)
-			expect(container.children[0].children[0].paddingBottom ?? 0).toBe(0)
+			expect(container.children[0].children[0].style?.paddingBottom ?? 0).toBe(0)
 		})
 	} finally {
 		root.unmount()
@@ -237,7 +237,7 @@ it('uses geometric overlap when the numeric compatibility inset excludes system 
 	try {
 		await vi.waitFor(() => expect(keyboard.listeners.size).toBe(1))
 		flushUniversalSync(() => keyboard.listeners.forEach((listener) => listener(235)))
-		await vi.waitFor(() => expect(container.children[0].children[0].paddingBottom).toBe(259))
+		await vi.waitFor(() => expect(container.children[0].children[0].style?.paddingBottom).toBe(259))
 	} finally {
 		root.unmount()
 		keyboard.geometricInset = undefined

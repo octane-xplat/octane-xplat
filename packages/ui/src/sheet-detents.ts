@@ -67,9 +67,10 @@ export function attachSheetDetents(
 	// The translated-away part is outside the visible stop. Reserve it inside
 	// the panel so bottom controls stay inside the current detent's viewport.
 	const contentInset = leaseKeyboardProperty(
-		() => Number(host.paddingBottom) || 0,
+		() => Number(host.style?.paddingBottom) || 0,
 		(value) => {
-			host.paddingBottom = value
+			host.style ??= {}
+			host.style.paddingBottom = value
 		},
 	)
 	const updateContentInset = (offset: number) => {

@@ -64,7 +64,7 @@ const fixture = (policy: 'never' | 'always' | 'when-at-end' = 'when-at-end') => 
 		},
 	}
 	const content: any = {
-		paddingBottom: 10,
+		style: { paddingBottom: 10 },
 		on(name: string, cb: any) {
 			this.changed = cb
 		},
@@ -77,7 +77,7 @@ const fixture = (policy: 'never' | 'always' | 'when-at-end' = 'when-at-end') => 
 		scrollTop: 0,
 		clientHeight: 800,
 		get scrollHeight() {
-			return 1800 + content.paddingBottom
+			return 1800 + content.style.paddingBottom
 		},
 		get scrollableHeight() {
 			return Math.max(0, this.scrollHeight - this.clientHeight)
@@ -141,7 +141,7 @@ it('follows only an existing end position and counts dock/keyboard range once', 
 	const f = fixture()
 	f.emit(frame(500))
 	expect(f.dock.translateY).toBe(-300)
-	expect(f.content.paddingBottom).toBe(390)
+	expect(f.content.style.paddingBottom).toBe(390)
 	expect(f.viewport.scrollTop).toBe(1390)
 	expect(f.viewport.scrollTo).toHaveBeenCalledWith({ top: 1390, behavior: 'instant' })
 	f.manual(400)
@@ -149,7 +149,7 @@ it('follows only an existing end position and counts dock/keyboard range once', 
 	expect(f.viewport.scrollTop).toBe(400)
 	f.close()
 	expect(f.dock.translateY).toBe(0)
-	expect(f.content.paddingBottom).toBe(10)
+	expect(f.content.style.paddingBottom).toBe(10)
 })
 
 it('never preserves history while always explicitly follows from history', () => {
@@ -177,11 +177,11 @@ it('matching custom panel replaces keyboard range without shifting the end', () 
 	f.dock.height = 380
 	f.binding.update()
 	vi.runAllTimers()
-	expect(f.content.paddingBottom).toBe(390)
+	expect(f.content.style.paddingBottom).toBe(390)
 	expect(f.viewport.scrollTop).toBe(before)
 	expect(f.dock.translateY).toBe(0)
 	f.emit(frame(800))
-	expect(f.content.paddingBottom).toBe(390)
+	expect(f.content.style.paddingBottom).toBe(390)
 	expect(f.viewport.scrollTop).toBe(before)
 	f.close()
 })
@@ -219,10 +219,10 @@ it('measures composer growth after NativeScript completes the child layout pass'
 	f.dock.isLayoutValid = false
 	f.dock.height = 140
 	f.dock.changed()
-	expect(f.content.paddingBottom).toBe(90)
+	expect(f.content.style.paddingBottom).toBe(90)
 	f.dock.isLayoutValid = true
 	vi.runAllTimers()
-	expect(f.content.paddingBottom).toBe(150)
+	expect(f.content.style.paddingBottom).toBe(150)
 	expect(f.viewport.scrollTop).toBe(before + 60)
 	f.close()
 })

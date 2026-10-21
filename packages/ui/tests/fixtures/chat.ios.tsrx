@@ -118,7 +118,7 @@ export async function run(ctx: ProbeContext) {
 			dockY: dock?.translateY,
 			dockHeight: dock?.getActualSize?.().height,
 			dockValid: dock?.isLayoutValid,
-			padding: content?.paddingBottom,
+			padding: content?.style?.paddingBottom,
 			fieldBottom: rect ? rect.origin.y + rect.size.height : null,
 		})
 	}, 50)

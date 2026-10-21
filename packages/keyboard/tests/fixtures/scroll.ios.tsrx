@@ -85,9 +85,15 @@ export async function run(ctx: ProbeContext) {
 		true,
 	)
 
+	ctx.record('extra space layout', {
+		padding: root.getChildAt?.(0)?.style?.paddingBottom,
+		range: (root.scrollHeight ?? 0) - (root.clientHeight ?? 0),
+		scrollHeight: root.scrollHeight,
+		clientHeight: root.clientHeight,
+	})
 	ctx.assert(
 		'extra scroll space contributes native content range',
-		Number(root.getChildAt?.(0)?.paddingBottom) >= 39,
+		Number(root.getChildAt?.(0)?.style?.paddingBottom) >= 39,
 		true,
 	)
 

@@ -25,9 +25,10 @@ export function bindChatKeyboard(
 		},
 	)
 	const padding = leaseKeyboardProperty(
-		() => Number(content.paddingBottom) || 0,
+		() => Number(content.style?.paddingBottom) || 0,
 		(value) => {
-			content.paddingBottom = value
+			content.style ??= {}
+			content.style.paddingBottom = value
 		},
 	)
 	const viewportLease = observeKeyboardViewport(root)
