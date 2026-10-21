@@ -9,15 +9,17 @@
 		// tsrx-typegen is a workspace-linked bin (src/, no build step) — its
 		// sources are real inputs to every package's typegen.
 		"typegen": {
-			"dependsOn": ["^typegen"],
+			"dependsOn": ["^typegen", "//#submodules"],
 			"inputs": ["$TURBO_DEFAULT$", "../tsrx-typegen/src/**"],
 			"outputs": ["types/**"]
 		},
 		// @xplat/app only: xplat routes → tracked src/routes.gen.*, bamboo codegen
 		// → gitignored src/styled-system/. Consumers resolve styled-system via
 		// tsconfig paths, so app-consuming apps order it via @xplat/app#gen.
+		// bamboo codegen loads bamboo.config.ts, whose @octane-xplat/bamboo import
+		// resolves through package exports to dist/ — built on demand here.
 		"gen": {
-			"dependsOn": ["^typegen"],
+			"dependsOn": ["^typegen", "@octane-xplat/bamboo#build"],
 			"outputs": ["src/routes.gen*", "src/styled-system/**"]
 		},
 		// Apps build their bundles; package builds are limited to Node tooling.
@@ -86,6 +88,12 @@
 		// its real input set is the whole repo, which package hashing can't
 		// express for a root script.
 		"//#lint": {
+			"cache": false
+		},
+		// Vendor submodule init on demand — worktrees/clones start with them
+		// uninitialized, and the missing sources only fail deep inside typegen.
+		// Uncached: git checkout state is not a file input turbo can hash.
+		"//#submodules": {
 			"cache": false
 		}
 	}

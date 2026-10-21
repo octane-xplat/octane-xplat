@@ -23,6 +23,7 @@
 		"check:no-dom": "node scripts/check-no-dom.ts",
 		"check:suffix-resolution": "node scripts/check-suffix-resolution.ts",
 		"check:vendored": "node scripts/check-vendored.ts",
+		"submodules": "node scripts/ensure-submodules.ts",
 		"check:css": "node scripts/check-css.ts",
 		"check:metallib": "node scripts/check-metallib.ts",
 		"gen:css-registry": "node scripts/gen-css-registry.ts",
