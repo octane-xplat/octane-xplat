@@ -1,0 +1,10 @@
+allprojects {
+	repositories {
+		google()
+		mavenCentral()
+	}
+}
+
+dependencies {
+	implementation "androidx.core:core:1.13.1"
+}

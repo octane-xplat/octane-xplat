@@ -9,13 +9,15 @@
 		</intent>
 	</queries>
 	<application>
-		<!-- share.file content URIs. Authority `${applicationId}.xplatshare`
-		     stays distinct from @nativescript/social-share's `.provider` so
-		     both merge into one manifest. The androidx class name is correct
-		     post-Jetifier; FILE_PROVIDER_PATHS keeps its legacy support key —
-		     that is the literal androidx.core reads. -->
+		<!-- share.file content URIs. XplatShareFileProvider keeps this
+		     element's android:name unique — a bare androidx.core.content.FileProvider
+		     entry cannot merge with the same-name providers other plugins
+		     (e.g. @nativescript/camera, social-share) declare, and the manifest
+		     merger fails even though their `.provider` authority differs.
+		     Authority `${applicationId}.xplatshare` and FILE_PROVIDER_PATHS
+		     (the literal key androidx.core reads) are unchanged. -->
 		<provider
-			android:name="androidx.core.content.FileProvider"
+			android:name="com.octanexplat.share.XplatShareFileProvider"
 			android:authorities="${applicationId}.xplatshare"
 			android:exported="false"
 			android:grantUriPermissions="true">
