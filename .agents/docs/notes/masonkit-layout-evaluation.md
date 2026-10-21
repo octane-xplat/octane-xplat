@@ -500,3 +500,62 @@ Other helpers that still read `verticalOffset`/`scrollableHeight` or subscribe t
 NativeScript `scroll` need a separate Mason integration audit, including
 `useScrollableArea`, chat scrolling and outline reveal. Do not infer their
 behavior from imperative commands or from retained-view routing checks.
+
+## Foreign `Image` children are not re-measured after the bitmap loads
+
+Upstream: `@nativescript/core` 9.1.3 (`ui/image` `onMeasure` /
+`_imageSourceAffectsLayout`), `@triniwiz/nativescript-masonkit`
+1.0.0-beta.110 (`_masonMeasureForeign` foreign-child measure blocks).
+
+**Condition.** An NS `Image` embedded as a foreign (non-Mason) child of a
+Mason container whose size depends on the bitmap — an unsized image, or
+one with only a width whose height is intrinsic. Runtime evidence: iOS
+simulator (`research/probes/image-intrinsic.tsrx`, GH#36), saved at
+`research/probes/results/gh36-ios-after.json` and
+`research/probes/results/gh36-ios-control.json`.
+
+**Limitation.** When the bitmap arrives the view is not re-measured: the
+intrinsic axis stays 0 and no `layoutChanged` refires, even though the
+image decoded and `imageSource` is set. In the control run (workaround
+disabled) the unsized case `img-a` recorded
+`_imageSourceAffectsLayout: false` and needed a manual `requestLayout` —
+Mason's foreign-child measure spec had passed both axes EXACTLY on the
+last `onMeasure`, so NS `Image._setNativeImage` never called
+`requestLayout` after the load. The other cases recorded
+`_imageSourceAffectsLayout: true` and resolved without a nudge — the
+single manual `requestLayout` on `img-a` climbs to the Page and
+re-measures the whole tree, so per-case isolation is impossible within
+one probe run.
+
+**Workaround.** `packages/ui/src/image-sizing.ts` registers
+`imageSourceChange` on the image view and calls `view.requestLayout()`
+itself — unconditional, since a same-size rebind with a different aspect
+needs the re-measure too. With it, every case in
+`gh36-ios-after.json` resolves its intrinsic axis with no nudge.
+Removal condition: upstream re-measures a foreign child when NS core
+requests layout from an image load.
+
+**Android companion gap** (`gh36-android-after.json`, emulator-5556,
+API 35 @160dpi): Android `isLayoutValid` is
+`!nativeView.isLayoutRequested()` — a 0×0 image's first layout flips it
+true with no `layoutChanged` at all (bounds unchanged) — and `loaded`
+fires before the binding's listener attaches, so nothing re-runs the
+src gate. The same file therefore also retries a held issue on deferred
+ticks (`setTimeout`, capped at 10) while the view is already attached,
+which lands the issue on `img-a` (loads at 400×300, then re-decodes at
+the laid-out size on the real layout). A width-only image (`img-b`) and
+the srcset width-only case (`img-e`) both came out at 214×240 there —
+not the intrinsic 160.5 height iOS produces — a separate, unisolated
+platform divergence recorded alongside the D observation below. 240 is
+the emulator's 320 px width × the bitmap's 0.75 aspect, so the hypothesis
+is that the Android intrinsic measure derives height from the available
+width rather than the authored 214; unverified. The binding only follows
+that measure — decode dims match the laid-out 214×240.
+
+**Separate unresolved observation.** In the same probe, an `Image` with
+`style={{ width: '100%', height: '100%' }}` inside a `flexGrow: 1` child
+of a 107×200 box laid out on iOS at 107×80.5 — the bitmap's aspect —
+and on Android at 400×300, the bitmap's own size (`gh36-*-after.json`,
+`img-d`). Either way the
+percentage height resolved as auto rather than filling the parent.
+Cause unisolated; recorded as evidence for a future issue.
