@@ -42,11 +42,10 @@
 		"access": "public"
 	},
 	"scripts": {
-		"prepack": "pnpm build && pnpm typegen",
+		"prepack": "pnpm typegen",
 		"test:packed": "node tests/packed-consumer.mjs",
-		"typegen": "tsc -p tsconfig.types.json",
-		"test": "node --test tests/platform.test.mjs",
-		"build": "tsc -p tsconfig.build.json"
+		"typegen": "tsc -p tsconfig.build.json",
+		"test": "node --test tests/platform.test.mjs"
 	},
 	"dependencies": {
 		"@ampproject/remapping": "2.3.0",

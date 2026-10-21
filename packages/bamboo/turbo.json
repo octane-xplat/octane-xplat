@@ -1,0 +1,11 @@
+{
+	"$schema": "https://turborepo.dev/schema.json",
+	"extends": ["//"],
+	"tasks": {
+		// App generation loads the compiled config entry during postinstall.
+		// ^typegen must produce and restore JavaScript as well as declarations.
+		"typegen": {
+			"outputs": ["types/**", "dist/**"]
+		}
+	}
+}
