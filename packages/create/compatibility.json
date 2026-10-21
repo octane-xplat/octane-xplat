@@ -161,7 +161,7 @@
 			"group": "plugin"
 		},
 		"@nativescript-community/ui-image": {
-			"version": "5.0.17",
+			"version": "5.0.18",
 			"group": "plugin"
 		},
 		"@valor/nativescript-websockets": {

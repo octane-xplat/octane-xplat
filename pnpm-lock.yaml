@@ -87,7 +87,6 @@ patchedDependencies:
   '@lexical/link@0.51.0': b7acc2eb057e7ce7fce719af708781758cc666a4e618401bed165d973aa5f4a2
   '@nativescript-community/octane@0.2.4': 08c8bb6f79fe9cff7bc2cdfd5accfc02011475a206eb94a45425e1f02ac53961
   '@nativescript-community/octane@0.2.5': e3a27c23ac158d6b147dc250c9dac6f2612c3aa933bab51346702ac7bb462fc7
-  '@nativescript-community/ui-image@5.0.17': 350cd3967da115c16b323b82485548be45e9f005c0d41372632feedce23ad464
   '@nativescript-community/vite-octane@0.2.1': 495e5a4f441c704f2ac5996d80722f6210a7d21d2af5678d56fa843aed611bce
   '@nativescript/core@9.1.3': 5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f
   '@nativescript/core@9.1.3-next.2': 12dccc81d6ac0106e534f20aae0d51361f37e48d975552ad99d868c47983a6b8
@@ -1599,8 +1598,8 @@ importers:
   packages/image:
     dependencies:
       '@nativescript-community/ui-image':
-        specifier: 5.0.17
-        version: 5.0.17(patch_hash=350cd3967da115c16b323b82485548be45e9f005c0d41372632feedce23ad464)
+        specifier: 5.0.18
+        version: 5.0.18
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
@@ -4550,8 +4549,8 @@ packages:
   '@nativescript-community/ui-image@4.6.20':
     resolution: {integrity: sha512-JcT/5tlAaIpZPnAIYFI9MXdsNVyCsId9sDFtJl/8Jj9fntkRGpKrI8c/frrH6k5jbgaYC2rb3MFlaYJWPbO2nw==}
 
-  '@nativescript-community/ui-image@5.0.17':
-    resolution: {integrity: sha512-1xE7p6yp8i+kHhHpCb1rqTOs9Ns8t7iZEuXLvcgL4fruuay6oDLCj5viwbvhVAA71hW7H7t1asw50O6plEZFlw==}
+  '@nativescript-community/ui-image@5.0.18':
+    resolution: {integrity: sha512-GIDsv18G+RR8d6dAfuyYBqeSd9U82aZylaBeEAk1gN09UMmnc77LWIzss3V0LJTdZqM6h5V8VfUivEGBnqKPgw==}
 
   '@nativescript-community/ui-pager@14.1.42':
     resolution: {integrity: sha512-WFSJgdlKNf/VcYn6u2Bt21pScusXoUXXksf2EIKc1cl5BRS3siUKX/tsvItK0lsQNy0CrzgnMKuKxUuI/0GETQ==}
@@ -12155,7 +12154,7 @@ snapshots:
 
   '@nativescript-community/ui-image@4.6.20': {}
 
-  '@nativescript-community/ui-image@5.0.17(patch_hash=350cd3967da115c16b323b82485548be45e9f005c0d41372632feedce23ad464)': {}
+  '@nativescript-community/ui-image@5.0.18': {}
 
   '@nativescript-community/ui-pager@14.1.42': {}
 

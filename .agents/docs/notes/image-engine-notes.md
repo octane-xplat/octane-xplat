@@ -8,9 +8,9 @@ Notes for `@octane-xplat/image`, which wraps
 **Status:** unsupported. `prefetch()` only warms the disk cache. Expo-style
 `cachePolicy: 'memory' | 'memory-disk'` was rejected for GH#6 on 2026-10-20.
 
-**Upstream:** `@nativescript-community/ui-image` 5.0.17, with the framework
-patch that makes iOS prefetch honor its `cacheType` (upstream
-nativescript-community/ui-image#69, merged but unreleased as of 2026-10-20).
+**Upstream:** `@nativescript-community/ui-image` 5.0.18, which shipped
+nativescript-community/ui-image#69 — iOS prefetch honors its `cacheType` and
+forwards `headers` with no framework patch.
 
 **Limitation:** a memory prefetch writes a bitmap entry that a later
 `<Image>` display load never reads. This holds on both engines, with or

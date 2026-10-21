@@ -102,14 +102,6 @@
 			"dropWhen": "upstream builds the URL matcher via new RegExp, or NS runtimes ship ICU"
 		},
 		{
-			"specifier": "@nativescript-community/ui-image@5.0.17",
-			"file": "@nativescript-community__ui-image@5.0.17.patch",
-			"upstreamPR": "https://github.com/nativescript-community/ui-image/pull/69",
-			"scope": "runtime",
-			"why": "ui-image 5.x regressed two iOS prefetch behaviors the 4.x line shipped (still present in 4.6.20): prefetchToCacheType ignores its cacheType argument \u2014 SDWebImagePrefetcher's default context stores to disk+memory either way, so a 'disk' prefetch also decodes and warms memory, diverging from Android's bytes-only Glide downloadOnly \u2014 and getContextFromOptions drops PrefetchOptions.headers because it never sets SDWebImageContextDownloadRequestModifier, so prefetch({headers}) silently sends no headers on iOS while Android's CustomGlideUrl forwards them. Ports upstream's own 4.x implementation \u2014 SDWebImageContextStoreCacheType on the prefetch context plus the request-modifier branch in getContextFromOptions \u2014 and additionally sets SDWebImageContextOriginalStoreCacheType so a memory prefetch does not spill original bytes to disk.",
-			"dropWhen": "a ui-image 5.x release restores the 4.x storeCacheType + prefetch-headers behavior on iOS and the workspace upgrades to it"
-		},
-		{
 			"specifier": "@nativescript/doctor@2.0.18",
 			"file": "@nativescript__doctor@2.0.18.patch",
 			"scope": "dev",

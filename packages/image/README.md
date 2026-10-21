@@ -76,10 +76,9 @@ later `<Image>` only reads the disk copy. On both engines, a memory prefetch
 stores a bitmap that `<Image>` never reuses, so it just costs an extra
 decode.
 
-iOS parity note: `ui-image` 5.x dropped the 4.x wiring that let prefetch honor
-its cache level and forward request `headers`. The framework patch set
-(`@nativescript-community__ui-image@5.0.17.patch`, applied automatically via
-`xplat patches apply` / `@octane-xplat/patches`) restores both — a disk prefetch
+iOS parity note: `ui-image` 5.x releases before 5.0.18 dropped the 4.x wiring
+that let prefetch honor its cache level and forward request `headers`; 5.0.18
+restored both upstream (nativescript-community/ui-image#69) — a disk prefetch
 writes encoded bytes to disk without decoding or warming memory (matching
 Android's Glide `downloadOnly`), a memory prefetch stays off disk, and a
 prefetch carrying `headers` sends them on iOS the same as Android.
