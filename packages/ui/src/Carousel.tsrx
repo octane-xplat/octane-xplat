@@ -35,7 +35,7 @@ export function Carousel(props: CarouselProps) @{
 		if (!t?.eachChildView) return [];
 		const out: number[] = [];
 		t.eachChildView((c: any) => {
-			out.push(c.left ?? c.originX ?? 0);
+			out.push(c.getLocationRelativeTo?.(t)?.x ?? 0);
 			return true;
 		});
 
@@ -154,11 +154,12 @@ export function Carousel(props: CarouselProps) @{
 			}}
 			orientation="horizontal"
 			className="vx-carousel-viewport"
+			style={{ width: '100%', gridRow: '1', gridColumn: '1' }}
 			scrollBarIndicatorVisible={false}
 		>
 			<masonview ref={(v: any) => {
 					track.current = v;
-				}} className="vx-carousel-track" style={mergeStyle({flexDirection: "row"}, mergeStyle({display: "flex"}, { columnGap: gap }))}>
+				}} className="vx-carousel-track" style={mergeStyle({flexDirection: "row"}, mergeStyle({display: "flex"}, { columnGap: gap, width: '100%', flexShrink: 0 }))}>
 				{mapChildren(items, (child: any, i: number) => (
 					<masonview className={cx(
 							'vx-carousel-slide',
@@ -170,15 +171,16 @@ export function Carousel(props: CarouselProps) @{
 			</masonview>
 		</scrollview>
 		{props.hasEdgeFade && !atStart && (
-			<masonview className="vx-carousel-fade vx-carousel-fade-start" isUserInteractionEnabled={false} style={mergeStyle({display: "flex"}, {justifySelf: 'start', alignSelf: 'stretch'})}/>
+			<masonview className="vx-carousel-fade vx-carousel-fade-start" isUserInteractionEnabled={false} style={mergeStyle({display: "flex"}, {gridRow: '1', gridColumn: '1', justifySelf: 'start', alignSelf: 'stretch'})}/>
 		)}
 		{props.hasEdgeFade && !atEnd && (
-			<masonview className="vx-carousel-fade vx-carousel-fade-end" isUserInteractionEnabled={false} style={mergeStyle({display: "flex"}, {justifySelf: 'end', alignSelf: 'stretch'})}/>
+			<masonview className="vx-carousel-fade vx-carousel-fade-end" isUserInteractionEnabled={false} style={mergeStyle({display: "flex"}, {gridRow: '1', gridColumn: '1', justifySelf: 'end', alignSelf: 'stretch'})}/>
 		)}
 		{props.hasButtons && (
 			<>
 				<Pressable
 					className="vx-carousel-btn vx-carousel-prev"
+					style={{ gridRow: '1', gridColumn: '1', justifySelf: 'start', alignSelf: 'center', marginLeft: 8 }}
 					accessibilityLabel="Previous"
 					disabled={!canPrev}
 					onPress={scrollPrev}
@@ -187,6 +189,7 @@ export function Carousel(props: CarouselProps) @{
 				</Pressable>
 				<Pressable
 					className="vx-carousel-btn vx-carousel-next"
+					style={{ gridRow: '1', gridColumn: '1', justifySelf: 'end', alignSelf: 'center', marginRight: 8 }}
 					accessibilityLabel="Next"
 					disabled={!canNext}
 					onPress={scrollNext}
