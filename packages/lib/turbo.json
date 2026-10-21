@@ -1,0 +1,14 @@
+{
+	"$schema": "https://turborepo.dev/schema.json",
+	"extends": ["//"],
+	"tasks": {
+		// `./route-pattern` resolves to emitted dist/ (Node tooling can't strip
+		// types inside node_modules), and in-repo `xplat routes` loads it during
+		// postinstall gen, app typechecks and tests — all ordered by ^typegen. So
+		// typegen emits JavaScript alongside declarations; there is no separate
+		// build task writing the same dir.
+		"typegen": {
+			"outputs": ["types/**", "dist/**"]
+		}
+	}
+}
