@@ -292,7 +292,10 @@ patchedDependencies:
   # not defined` during bundle eval and kills the app at boot. Guard the binding; actual
   # List delegate conformance when the protocol is absent is a separate gap. Foreign Android
   # widgets lack Element.syncStyleParts; forward the foreign layout dirty word through the
-  # native Style, preserving unsigned masks and rejecting unsupported high-word fields. On
-  # iOS, UIView.mason_syncStyleParts ignores foreign views; mark their native leaf dirty
-  # after live-buffer layout writes so class changes invalidate cached frames.
+  # native Style, preserving unsigned masks and rejecting unsupported high-word fields. The
+  # {N}-Android runtime strips `$`-suffixed Kotlin-internal members from JS dispatch, so
+  # Style.setStateFromHalves(long, long) is invoked through a cached
+  # java.lang.reflect.Method — version-pinned, failing loudly if the AAR renames it. On iOS,
+  # UIView.mason_syncStyleParts ignores foreign views; mark their native leaf dirty after
+  # live-buffer layout writes so class changes invalidate cached frames.
   "@triniwiz/nativescript-masonkit@1.0.0-beta.110": packages/cli/patches/@triniwiz__nativescript-masonkit@1.0.0-beta.110.patch

@@ -413,6 +413,20 @@ are correct; that separate observation is recorded in Silo feedback
 `3cb2e7bf-283e-4823-824d-bf09db9f4e1c`. This run does not qualify safe-area
 parity, Android rendering, OS input, or hit-testing.
 
+### Android qualification
+
+The same probe ran on CPH2551 / Android (run
+`e606bdb7-f1e2-4953-881d-61141ca8ad03`, 2026-10-20, after the reflective
+`setStateFromHalves` dispatch fix). Class-authored explicit sizes reach
+foreign leaves: non-square SVG 31×36, square SVG 54×54 (53.85 measured),
+native label 43×43 — 6 of 8 size assertions passed before the case timed
+out. The width-only SVG (class `width: 31`, `height: auto`) measured 31×0;
+the cause is not yet established. Separately, the vendored Android
+`onMeasure` still computes height-from-width as `width * ratio` (the iOS
+side was corrected to `width / ratio`), but that bug alone would give
+roughly 27, not 0. The centering, inline-override and restore assertions
+were never reached and remain unqualified on Android.
+
 Foreign leaves now receive only the longhands listed in the bridge. Under the
 replaced stash/replay path, inline `inset`, `gridArea` and `display` on a
 foreign leaf were also forwarded. No framework component sets them there, but

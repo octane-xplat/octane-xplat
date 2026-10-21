@@ -282,10 +282,18 @@ const androidHelper = masonCode.slice(
 	masonCode.indexOf('function androidWritableStyleBuffer'),
 )
 
-test('Android foreign layout sync uses native Style and preserves an unsigned dirty word', () => {
+test('Android foreign layout sync reaches the dirty setter reflectively and preserves an unsigned dirty word', () => {
 	const view = {}
 	const calls = []
 	const sync = runInNewContext(`${androidHelper}; syncAndroidForeignLayout`, {
+		java: {
+			lang: {
+				Long: {
+					TYPE: 'long',
+					valueOf: (text) => Number(text),
+				},
+			},
+		},
 		org: {
 			nativescript: {
 				mason: {
@@ -294,7 +302,19 @@ test('Android foreign layout sync uses native Style and preserves an unsigned di
 							getShared: () => ({
 								styleForViewOrNode(target) {
 									assert.equal(target, view)
-									return { setStateFromHalves$masonkit_release: (...args) => calls.push(args) }
+									return {
+										getClass: () => ({
+											getMethod(name, signature) {
+												assert.equal(name, 'setStateFromHalves$masonkit_release')
+												assert.deepEqual([...signature], ['long', 'long'])
+												return {
+													invoke(_style, args) {
+														calls.push(args)
+													},
+												}
+											},
+										}),
+									}
 								},
 							}),
 						},
@@ -304,7 +324,8 @@ test('Android foreign layout sync uses native Style and preserves an unsigned di
 		},
 	})
 	sync(view, -2147483648, 0, 0, 0)
-	assert.deepEqual(calls, [[2147483648, 0]])
+	// vm-realm arrays fail reference-equal deep checks — copy them out.
+	assert.deepEqual(calls.map((args) => [...args]), [[2147483648, 0]])
 	assert.throws(() => sync(view, 0, 1, 0, 0), /layout fields only/)
 	assert.equal(calls.length, 1)
 })
