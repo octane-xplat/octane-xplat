@@ -182,10 +182,11 @@ stack — so the agent can see which owner failed and why.
 }
 ```
 
-On web, the dev server adds `sourceStack` — the same stack with frames
-rewritten to original source positions (`stack` stays raw for debugging).
-Native stacks (iOS/Android) currently come back raw: there is no `sourceStack`
-there yet.
+On web and on Android NativeScript dev sessions, the dev server adds
+`sourceStack` — the same stack with frames rewritten to original source
+positions (`stack` stays raw for debugging). NativeScript device modules are
+matched to source by line text (the runtime shifts lines without a map), so an
+occasional frame may stay raw. iOS frames are not yet verified.
 
 Pass `label` so the record names the owning component instead of an anonymous
 handler.
@@ -199,9 +200,10 @@ keep secrets and credentials out of thrown errors.
 
 ## Connect the running app
 
-Web is the qualified action transport today. iOS/Android/Windows dev servers
-share the bridge machinery but are not runtime-qualified; macOS AppKit and Linux
-need their own adapters and report unavailable.
+Web is the qualified action transport, and Android was verified on one physical
+device through `xplat dev` — the dev server is reached via adb reverse. iOS and
+Windows dev servers share the bridge machinery but are not yet runtime-qualified;
+macOS AppKit and Linux need their own adapters and report unavailable.
 
 The web starter already includes `xplatDevBridge()` in its Vite plugins, and the
 `xplatNative` preset includes it for NativeScript. For an existing web config,

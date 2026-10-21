@@ -3,10 +3,10 @@
 // against a real HTTP server wired like vite's configureServer.
 
 import assert from 'node:assert/strict'
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import http from 'node:http'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 import { test } from 'node:test'
 import { xplatDevBridge } from '../dist/mcp/dev-bridge.js'
 
@@ -241,6 +241,183 @@ test('the app-side long poll wakes as soon as work is queued', async (t) => {
 	const work = await pending
 	assert.ok(Date.now() - started < 5_000)
 	assert.equal(work.invocations[0].requestId, 'req_w')
+})
+
+test('NativeScript /ns/m/ frames resolve by line text through device code', async (t) => {
+	// Per-line identity map: generated line N -> source line N.
+	const lines = 15
+	const map = { version: 3, sources: ['index.ts'], names: [], mappings: ['AAAA', ...Array(lines - 1).fill('AACA')].join(';') }
+
+	// Vite transform: tabs, no prelude.
+	const transformed = [
+		'import { a } from "./a";',
+		'export function work() {',
+		'\tconst earlyThrow = () => {',
+		'\t\tthrow new TypeError("spike")',
+		'\t}',
+		'\tconst items = collectThings()',
+		'\tconst more = items.map((i) => i + 1)',
+		'\tfor (const i of more) {',
+		'\t\tuse(i)',
+		'\t\tthrow new TypeError("spike")',
+		'\t}',
+		'\treturn more.length',
+		'}',
+		'work()',
+		'export const tail = true;',
+	]
+
+	// Device code: space-indented, 6-line injected prelude, 3-line injected
+	// block after transformed line 5 — the shift is +6 then +9, not constant.
+	const device = [
+		'import __ns_core_ns_1 from "http://x/ns/core";',
+		'const __nsVendor = {};',
+		'import.meta.env = {};',
+		'import.meta.hot = undefined;',
+		'(() => { requireGuard(); })();',
+		'const __nsm = "http://x";',
+		...transformed.slice(0, 5).map((l) => l.replaceAll('\t', '    ')),
+		'const __ns_hook_1 = () => {};',
+		'}',
+		'globalThis.__NS_REQUIRE_GUARD_INSTALLED__ = true;',
+		...transformed.slice(5).map((l) => l.replaceAll('\t', '    ')),
+	].join('\n')
+
+	// transformed line 10 (`throw`, index 9) -> device line 19 (6 + 5 + 3 + 5)
+	// transformed line 4 (`throw`, index 3) -> device line 10 (6 + 4)
+	const deviceServer = http.createServer((req, res) => {
+		if (req.url === '/ns/m/src/index.ts') {
+			res.end(device)
+			return
+		}
+
+		res.statusCode = 404
+		res.end()
+	})
+	await new Promise((resolve) => deviceServer.listen(0, '127.0.0.1', resolve))
+	t.after(async () => {
+		deviceServer.closeAllConnections?.()
+		await new Promise((resolve) => deviceServer.close(resolve))
+	})
+	const deviceOrigin = `http://127.0.0.1:${deviceServer.address().port}`
+
+	const bridge = await makeBridge(t, {
+		resolvedUrls: { local: [deviceOrigin] },
+		moduleGraph: { getModuleByUrl: async () => undefined },
+		transformRequest: (url) =>
+			url === '/src/index.ts' || url === '/src/missing.ts'
+				? { code: transformed.join('\n'), map }
+				: null,
+	})
+
+	await announce(bridge.call)
+	await bridge.call('POST', '/invoke', {
+		requestId: 'req_ns',
+		appInstanceId: 'inst_a',
+		actionId: 'a.b',
+		input: {},
+	})
+
+	const rawStack = [
+		'TypeError: android spike effect',
+		// duplicate text: greatest transformed index ≤ device line must win
+		`    at work (http://x.test/ns/m/src/index.ts:19:5)`,
+		// earlier copy of the same statement — text matching can't tell the
+		// duplicates apart, so the greatest-≤ rule resolves it to the same
+		// transformed line as `work` (documented ambiguity)
+		`    at early (http://x.test/ns/m/src/index.ts:10:5)`,
+		// trimmed text shorter than 8 chars — never resolved
+		`    at short (http://x.test/ns/m/src/index.ts:13:3)`,
+		// transformable but the device module fetch fails — stays raw
+		`    at other (http://x.test/ns/m/src/missing.ts:19:5)`,
+	].join('\n')
+
+	await bridge.call('POST', '/result', {
+		requestId: 'req_ns',
+		outcome: {
+			requestId: 'req_ns',
+			status: 'failed',
+			error: {
+				code: 'execution_failure',
+				message: 'spike',
+				failures: [{ handler: 0, name: 'TypeError', message: 'spike', stack: rawStack }],
+			},
+			completedAt: new Date().toISOString(),
+		},
+	})
+
+	const got = await bridge.call('GET', '/invoke/req_ns')
+	const { outcome } = await got.json()
+	const failure = outcome.error.failures[0]
+	assert.equal(failure.stack, rawStack)
+	assert.equal(
+		failure.sourceStack,
+		[
+			'TypeError: android spike effect',
+			// device indent 4 -> transformed indent 1, so :5 stays col offset 0 → map col 1
+			'    at work (src/index.ts:10:1)',
+			'    at early (src/index.ts:10:1)',
+			'    at short (http://x.test/ns/m/src/index.ts:13:3)',
+			'    at other (http://x.test/ns/m/src/missing.ts:19:5)',
+		].join('\n'),
+	)
+})
+
+test('NativeScript /ns/m/ paths for workspace packages anchor at the workspace root', async (t) => {
+	// @nativescript/vite serves files outside the app root as
+	// /ns/m/<workspace-relative path>; vite only transforms them as /@fs/<abs>.
+	const workspace = mkdtempSync(join(tmpdir(), 'xplat-bridge-ws-'))
+	t.after(() => rmSync(workspace, { recursive: true, force: true }))
+	const root = join(workspace, 'apps', 'app')
+	const libFile = join(workspace, 'packages', 'lib', 'src', 'x.ts')
+	mkdirSync(root, { recursive: true })
+	mkdirSync(dirname(libFile), { recursive: true })
+	writeFileSync(libFile, '')
+
+	const transformed = ['export function work() {', '\tthrow new TypeError("lib")', '}'].join('\n')
+	const device = ['const __nsPrelude = 1;', transformed.replaceAll('\t', '  ')].join('\n')
+	const map = { version: 3, sources: ['x.ts'], names: [], mappings: 'AAAA;AACA;AACA' }
+
+	const deviceServer = http.createServer((req, res) => {
+		res.statusCode = req.url === '/ns/m/packages/lib/src/x.ts' ? 200 : 404
+		res.end(res.statusCode === 200 ? device : '')
+	})
+	await new Promise((resolve) => deviceServer.listen(0, '127.0.0.1', resolve))
+	t.after(async () => {
+		deviceServer.closeAllConnections?.()
+		await new Promise((resolve) => deviceServer.close(resolve))
+	})
+
+	const fsUrl = `/@fs${libFile}`
+	const bridge = await makeBridge(t, {
+		config: { root, server: {} },
+		resolvedUrls: { local: [`http://127.0.0.1:${deviceServer.address().port}`] },
+		moduleGraph: { getModuleByUrl: async (url) => (url === fsUrl ? { file: libFile } : undefined) },
+		transformRequest: (url) => (url === fsUrl ? { code: transformed, map } : null),
+	})
+
+	await announce(bridge.call)
+	await bridge.call('POST', '/invoke', { requestId: 'req_ws', appInstanceId: 'inst_a', actionId: 'a.b', input: {} })
+	const rawStack = 'TypeError: lib\n    at work (http://x.test/ns/m/packages/lib/src/x.ts:3:3)'
+	await bridge.call('POST', '/result', {
+		requestId: 'req_ws',
+		outcome: {
+			requestId: 'req_ws',
+			status: 'failed',
+			error: {
+				code: 'execution_failure',
+				message: 'lib',
+				failures: [{ handler: 0, name: 'TypeError', message: 'lib', stack: rawStack }],
+			},
+			completedAt: new Date().toISOString(),
+		},
+	})
+
+	const { outcome } = await (await bridge.call('GET', '/invoke/req_ws')).json()
+	assert.equal(
+		outcome.error.failures[0].sourceStack,
+		'TypeError: lib\n    at work (../../packages/lib/src/x.ts:2:1)',
+	)
 })
 
 test('failure stacks resolve http frames to root-relative source positions', async (t) => {

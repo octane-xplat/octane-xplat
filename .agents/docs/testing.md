@@ -152,6 +152,31 @@ boot <udid>` first, then pass `--device <udid>`. `ios-sim-portable` 4.5.1
   committed `it.fails` spec pins that failed assertions on device report as
   Vitest failures, not passes.
 
+## NativeScript dev-server module transform (@nativescript/vite)
+
+In HMR dev sessions the runtime fetches modules from `/ns/m/<vite-url>`,
+rewritten by `hmr/server/process-code-for-device.js` (verified in
+@nativescript/vite 8.0.17): injected preludes (`import.meta.hot`/`env`
+assignments, require guard, vendor import rewrites to absolute device URLs)
+shift device line numbers non-uniformly relative to Vite's transformed output,
+and the served code carries no source map. Two consequences observed on a
+physical Android device (OnePlus CPH2551, `xplat dev`):
+
+- Bundler `define` entries arrive as module-scope `const` bindings, not
+  `globalThis` properties — `globalThis.__XPLAT_DEV_BRIDGE__` is undefined on
+  device even though the define is configured. Local workaround:
+  `packages/platform/src/dev-bridge.ts` reads the bare identifier first.
+- Dev-action failure stacks report `/ns/m/...` positions that no source map
+  can resolve directly. Local workaround: `xplatDevBridge` (cli) fetches the
+  device module, matches the frame line to the transformed code by trimmed
+  line text (device uses spaces, Vite tabs), then applies Vite's map — an
+  occasional ambiguous or short line stays raw. Workspace packages outside the
+  app root arrive as `/ns/m/<workspace-relative path>`, so the resolver
+  re-anchors them at the nearest ancestor holding the file and transforms the
+  `/@fs/<abs>` form.
+
+Revisit if upstream ships device-side source maps or a stable line mapping.
+
 ## Focused verification references
 
 - [Release navigation](navigation-checks.md) — isolated web and native release checks.

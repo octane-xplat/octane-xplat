@@ -73,7 +73,9 @@ if (import.meta.env.DEV) {
 Pass `label` so a failed outcome's `context.failures` records identify the
 owning component; each record carries `handler` (attach-order index), `name`,
 `message`, and `stack`. Prefer `sourceStack` over `stack` when present — the
-dev server resolved it to source positions (web only today). Keep secrets out
+dev server resolved it to source positions (web and Android NativeScript dev
+sessions; NativeScript frames match by line text, so an occasional frame may
+stay raw). Keep secrets out
 of thrown errors — they cross the dev channel verbatim.
 
 ## Connect and verify
@@ -93,8 +95,10 @@ import { xplatDevBridge } from '@octane-xplat/cli/vite'
 export default defineConfig({ plugins: [xplatDevBridge()] })
 ```
 
-Web is the qualified transport. iOS/Android/Windows share bridge machinery but
-are not runtime-qualified; macOS AppKit and Linux adapters are unavailable.
+Web is the qualified transport; Android was verified on one physical device
+through `xplat dev` (dev server reached via adb reverse). iOS/Windows share
+bridge machinery but are not runtime-qualified; macOS AppKit and Linux adapters
+are unavailable.
 Declaring an action's platforms does not establish transport support.
 
 Use the [CLI action workflow](cli.md#inspect-and-assert-supported-behavior) to
