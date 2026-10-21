@@ -27,7 +27,7 @@ export function CheckboxIndicator(props: IndicatorProps<'multiSelection'>) @{
 			props.state !== 'unchecked' && `vx-ind-checkbox--${props.state}`,
 			props.isDisabled && 'vx-ind-checkbox--disabled',
 			props.className,
-		)} style={mergeStyle({alignItems: "center", justifyContent: "center"}, mergeStyle({display: "flex"}, props.style))}>
+		)} style={mergeStyle({display: "flex"}, props.style)}>
 		{content}
 	</masonview>
 }

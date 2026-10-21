@@ -18,7 +18,7 @@ import { layerOffset, nativeLayerRTL, positionPopover, resolveLayerAlignment, re
 const host = () => appKitHost() ?? {};
 
 function LayerPanel(props: { body?: any; className?: any; style?: any; label?: string; layerDepth?: number }) @{
-	<masonview className={cx('vx-popover', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style))} accessibilityLabel={props.label}>
+	<masonview className={cx('vx-popover', props.className)} style={mergeStyle({display: "flex"}, props.style)} accessibilityLabel={props.label}>
 		<LayerDepthProvider value={props.layerDepth ?? 0}>{props.body}</LayerDepthProvider>
 	</masonview>
 }

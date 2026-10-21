@@ -41,7 +41,7 @@ export function Breadcrumb(props: NavigationItemsImplementation<BreadcrumbProps,
 			: { type: 'action', key: 'ancestor-' + index, label: item.label, onSelect: item.onSelect, isDisabled: item.isDisabled || !item.onSelect }
 	))
 
-	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-breadcrumb', props.className)} style={mergeStyle({flexDirection: "row"}, mergeStyle({display: "flex"}, props.style))}>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-breadcrumb', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
 		@for (const item of visible; index index; key index) {
 			<masonview className="vx-breadcrumb-item" style={{ display: 'flex' }}>
 				{index === 1 && (overflow.length > 0 || props.overflowMenu) && <DropdownMenu trigger="…" accessibilityLabel={props.overflowLabel ?? 'More ancestors'}>

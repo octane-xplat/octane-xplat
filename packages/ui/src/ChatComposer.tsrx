@@ -91,7 +91,7 @@ export function ChatComposer(props: ChatComposerProps) @{
 	) : null;
 
 	<ChatComposerProvider value={composerContext}>
-		<masonview id={props.id} className={cx('vx-chatcomposer', `vx-chatcomposer--${density}`, isDisabled && 'vx-chatcomposer--disabled', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style))}>
+		<masonview id={props.id} className={cx('vx-chatcomposer', `vx-chatcomposer--${density}`, isDisabled && 'vx-chatcomposer--disabled', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
 			{statusPosition === 'top' ? statusEl : null}
 			{props.drawer}
 			{/* Tap on empty body space focuses the input (registered control). */}

@@ -34,7 +34,7 @@ export function ChatMessageBubble(props: ChatMessageBubbleProps) @{
 				`vx-chatbubble--${density}`,
 				props.group && `vx-chatbubble--${props.group}-${isUser ? 'user' : 'assistant'}`,
 				props.className,
-			)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { ...(props.width != null ? { width: props.width } : {}), ...styleRecord(props.style) }))}>
+			)} style={mergeStyle({display: "flex"}, { ...(props.width != null ? { width: props.width } : {}), ...styleRecord(props.style) })}>
 			{props.children}
 		</masonview>
 		{hasMetadata ? (

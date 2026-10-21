@@ -65,10 +65,7 @@ export function StatusDot(props: StatusDotProps) @{
 				height: 8,
 				borderRadius: 4,
 				backgroundColor: nativeColor(statusDotColor(props.variant, scheme)),
-				justifyContent: 'center',
-				alignItems: 'center',
-				...styleRecord(props.style),
-			})} accessible={true} accessibilityRole={nativeAccessibilityRole('image')} accessibilityLabel={props.label}>
+				...styleRecord(props.style) })} accessible={true} accessibilityRole={nativeAccessibilityRole('image')} accessibilityLabel={props.label}>
 			{showsIcon ? props.icon : null}
 		</masonview>
 	);

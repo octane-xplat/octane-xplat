@@ -57,7 +57,7 @@ export function TopNav(props: TopNavProps) @{
 	const hasCenter = props.centerContent != null;
 
 	@if (renderMode === 'mobile-bar') {
-		<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-topnav', 'vx-topnav--mobilebar', props.className)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style))} accessibilityLabel={label}>
+		<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-topnav', 'vx-topnav--mobilebar', props.className)} style={mergeStyle({display: "flex"}, props.style)} accessibilityLabel={label}>
 			{props.heading}
 			<masonview className="vx-topnav-mobilebar-end" style={mergeStyle({flexDirection: "row", alignItems: "center", flexGrow: 1, justifyContent: "flex-end"}, {display: "flex"})}>
 				{props.endContent}
@@ -94,7 +94,7 @@ export function TopNav(props: TopNavProps) @{
 					</TopNavSlotProvider>
 				</masonview>
 			} @else {
-				<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-topnav', props.className)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style))} accessibilityLabel={label}>
+				<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-topnav', props.className)} style={mergeStyle({display: "flex"}, props.style)} accessibilityLabel={label}>
 					<TopNavSlotProvider value="start">
 						<masonview className="vx-topnav-start" style={mergeStyle({flexDirection: "row", alignItems: "center", flexGrow: 1}, {display: "flex"})}>
 							{props.heading}
@@ -153,7 +153,7 @@ export function TopNavHeading(props: TopNavHeadingProps) @{
 		</Pressable>
 	) : null;
 
-	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-topnav-heading', props.className)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style))}>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-topnav-heading', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
 		{headerIsTrigger ? (
 			<Pressable
 				ref={(v: any) => { anchor.current = v; }}
@@ -344,7 +344,7 @@ export function TopNavMegaMenuItem(props: NavigationItemImplementation<TopNavMeg
 /** TopNavMegaMenuFeaturedCard — the marketing card inside a mega menu's
  *  featured panel. */
 export function TopNavMegaMenuFeaturedCard(props: TopNavMegaMenuFeaturedCardProps) @{
-	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-topnavmegamenu-card', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style))}>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-topnavmegamenu-card', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
 		{props.image != null ? <Image src={props.image} className="vx-topnavmegamenu-card-image" /> : null}
 		<masonview className="vx-topnavmegamenu-card-body" style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
 			<Text className="vx-topnavmegamenu-card-title">{props.title}</Text>

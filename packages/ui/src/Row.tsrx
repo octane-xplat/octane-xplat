@@ -10,7 +10,7 @@ import { usePan } from './pan';
 export function Row(props: RowProps) @{
 	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
-	<masonview id={props.id} testID={props.testID ?? ''} ref={forwardedRef} className={cx(props.className)} {...layoutChildProps(props, mergeStyle({flexDirection: "row"}, mergeStyle({display: "flex"}, props.style)))} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState)} accessibilityLiveRegion={props.accessibilityLiveRegion} onPan={usePan(props.onPan)} onSwipe={props.onSwipe}>
+	<masonview id={props.id} testID={props.testID ?? ''} ref={forwardedRef} className={cx('vx-row', props.className)} {...layoutChildProps(props, mergeStyle({display: "flex"}, props.style))} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState)} accessibilityLiveRegion={props.accessibilityLiveRegion} onPan={usePan(props.onPan)} onSwipe={props.onSwipe}>
 		{props.children}
 	</masonview>
 }

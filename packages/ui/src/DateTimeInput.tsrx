@@ -232,7 +232,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 				props.size && `vx-datetimeinput--size-${props.size}`,
 				(!isDateValid || !isTimeValid) && 'vx-datetimeinput--invalid',
 				props.className,
-			)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style))}>
+			)} style={mergeStyle({display: "flex"}, props.style)}>
 			{surface === 'sheet' ? (
 				<>
 					<Pressable

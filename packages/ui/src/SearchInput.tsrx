@@ -34,7 +34,7 @@ export function SearchInput(props: SearchInputProps) @{
 
 	useImperativeHandle(props.ref, () => ({ focus: () => el.current.focus(), blur: () => blurText(el.current), native: el.current }), []);
 
-	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-search', props.isDisabled && 'vx-search--disabled', props.isReadOnly && 'vx-search--readonly', props.isLoading && 'vx-search--loading', props.status && `vx-search--status-${props.status.type}`, props.size && `vx-search--size-${props.size}`, props.className)} style={mergeStyle({flexDirection: "row"}, mergeStyle({display: "flex"}, props.style))} accessibilityLabel={props.accessibilityLabel ?? props.label} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled })}>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-search', props.isDisabled && 'vx-search--disabled', props.isReadOnly && 'vx-search--readonly', props.isLoading && 'vx-search--loading', props.status && `vx-search--status-${props.status.type}`, props.size && `vx-search--size-${props.size}`, props.className)} style={mergeStyle({display: "flex"}, props.style)} accessibilityLabel={props.accessibilityLabel ?? props.label} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled })}>
 		{props.icon !== false ? <Icon name={props.icon ?? 'xplat-search'} size={16} className="vx-search-icon" /> : null}
 		<textfield
 			testID={props.testID ?? ''}

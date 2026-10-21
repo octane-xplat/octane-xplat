@@ -24,7 +24,7 @@ export function ChatComposerDrawer(props: ChatComposerDrawerProps) @{
 		props.onCollapsedChange?.(next);
 	};
 
-	<masonview id={props.id} className={cx('vx-chatdrawer', isCollapsed && 'vx-chatdrawer--collapsed', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style))}>
+	<masonview id={props.id} className={cx('vx-chatdrawer', isCollapsed && 'vx-chatdrawer--collapsed', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
 		{canCollapse ? (
 			<masonview className="vx-chatdrawer-toggle" accessibilityRole={nativeAccessibilityRole('button')} accessibilityLabel={isCollapsed ? `Expand ${label}` : `Collapse ${label}`} accessibilityState={nativeAccessibilityState({ expanded: !isCollapsed })} onTap={toggle} style={mergeStyle({flexDirection: "row", alignItems: "center", justifyContent: "center"}, {display: "flex"})}>
 				{isCollapsed ? (

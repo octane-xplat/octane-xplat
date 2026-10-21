@@ -157,6 +157,7 @@
 	}
 	/* xplat-web-only:end */
 
+
 	.vx-spacer {
 		flex-grow: 1;
 	}
@@ -1946,6 +1947,7 @@
 	.vx-chatpaste-preview {
 		overflow: hidden;
 	}
+	/* xplat-web-only:end */
 	/* ---------- dialog / alert dialog ---------- */
 
 	/* The panel: column flex on both renderers; web uses a real <dialog> in
@@ -2495,6 +2497,7 @@
 	.vx-statusdot--pulse {
 		animation: vx-statusdot-pulse 1.5s ease-in-out infinite;
 	}
+	/* xplat-web-only:end */
 
 	/* Streaming Markdown — spans that arrived after the last boundary wrap
 	   newly surfaced text. The class is inert on native (no keyframe
@@ -3984,6 +3987,82 @@
 		touch-action: none;
 	}
 	/* xplat-web-only:end */
+	/* #39 — layout defaults that used to be inline in the native element.
+   Kept as class rules so user classes can override them. Web output is
+   unchanged: these are CSS defaults on web, or apply to elements that are
+   not flex containers there. */
+	.vx-center {
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+	}
+	.vx-chatdrawer {
+		flex-direction: column;
+	}
+	.vx-progressbar {
+		flex-direction: column;
+	}
+	.vx-chatinput {
+		flex-direction: column;
+	}
+	.vx-chatdict {
+		flex-direction: column;
+	}
+	.vx-chatmeta {
+		flex-direction: row;
+	}
+	.vx-ind-check-slot {
+		align-items: center;
+		justify-content: center;
+	}
+	.vx-gridlist {
+		flex-direction: row;
+	}
+	.vx-metadatalist-item {
+		flex-direction: column;
+	}
+	.vx-screen-content {
+		flex-direction: column;
+	}
+	.vx-sidenav {
+		flex-direction: column;
+	}
+	.vx-sidenav--topbar {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-sidenav-section {
+		flex-direction: column;
+	}
+	.vx-sidenav-heading {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-sidenav-item {
+		flex-direction: column;
+	}
+	.vx-toast {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-typeahead-item {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-chattools {
+		flex-direction: column;
+	}
+	.vx-chat-token {
+		flex-direction: row;
+	}
+	.vx-popover {
+		flex-direction: column;
+	}
+	.vx-chatbubble {
+		flex-direction: column;
+	}
+
+
 }
 
 @layer xplat-structure {
