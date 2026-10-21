@@ -208,16 +208,21 @@ export function contentFitToStretch(fit: ImageContentFit): 'aspectFit' | 'aspect
 
 /** L8 — expo `getBestSource`: the source whose declared pixel count
  *  (`width·height·scale²`, dips × density) is closest to the view's pixel
- *  count. Needs a real measured size; one source or no size picks nothing
- *  to decide. Unsized sources score worst and are skipped when any sized
- *  candidate exists. */
+ *  count. A single source or none short-circuits. With both view axes
+ *  measured the full pixel-count rule applies; with exactly one axis
+ *  known (an auto/intrinsic image's second axis only arrives with the
+ *  bitmap) the pick scores along that axis alone — `source[axis]·scale`
+ *  vs `viewAxis·screenScale`. With no measured axis it falls back to the
+ *  web `x`-descriptor model: the source density closest to the screen
+ *  scale. Ties keep the earlier source on every path. Unsized sources
+ *  score worst and are skipped when any sized candidate exists. */
 export function bestImageSource(
 	sources: readonly ImageSourceLike[],
 	viewWidth: number,
 	viewHeight: number,
 	screenScale: number,
 ): ImageSourceLike | null {
-	if (sources.length === 0 || viewWidth <= 0 || viewHeight <= 0) {
+	if (sources.length === 0) {
 		return null
 	}
 
@@ -225,12 +230,41 @@ export function bestImageSource(
 		return sources[0]
 	}
 
-	const target = viewWidth * viewHeight * screenScale * screenScale
+	const hasWidth = viewWidth > 0
+	const hasHeight = viewHeight > 0
 	let best: ImageSourceLike | null = null
 	let bestFit = Infinity
+	if (hasWidth && hasHeight) {
+		const target = viewWidth * viewHeight * screenScale * screenScale
+		for (const source of sources) {
+			const pixelCount = (source.width ?? 0) * (source.height ?? 0) * (source.scale ?? 1) ** 2
+			const fit = Math.abs(1 - pixelCount / target)
+			if (fit < bestFit) {
+				best = source
+				bestFit = fit
+			}
+		}
+
+		return best
+	}
+
+	if (hasWidth || hasHeight) {
+		const axis = hasWidth ? 'width' : 'height'
+		const target = (hasWidth ? viewWidth : viewHeight) * screenScale
+		for (const source of sources) {
+			const px = (source[axis] ?? 0) * (source.scale ?? 1)
+			const fit = Math.abs(1 - px / target)
+			if (fit < bestFit) {
+				best = source
+				bestFit = fit
+			}
+		}
+
+		return best
+	}
+
 	for (const source of sources) {
-		const pixelCount = (source.width ?? 0) * (source.height ?? 0) * (source.scale ?? 1) ** 2
-		const fit = Math.abs(1 - pixelCount / target)
+		const fit = Math.abs(1 - (source.scale ?? 1) / screenScale)
 		if (fit < bestFit) {
 			best = source
 			bestFit = fit

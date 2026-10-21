@@ -98,6 +98,7 @@ export function createImageContentBinding(env: ImageContentEnv) {
 	let appliedY = 0
 	let listening = false
 	let sourceListening = false
+	let sizeLaidOut = false
 
 	const screenScale = () => {
 		try {
@@ -127,7 +128,19 @@ export function createImageContentBinding(env: ImageContentEnv) {
 			const actual = sizeView.getActualSize?.()
 			viewWidth = actual?.width ?? 0
 			viewHeight = actual?.height ?? 0
-			if (viewWidth <= 0 || viewHeight <= 0) {
+			if (update.computed) {
+				if (viewWidth <= 0 || viewHeight <= 0) {
+					return
+				}
+			} else if (
+				// Sources-only path: hold until the size view's first layout
+				// pass, then pick with whatever axes exist — a one-axis pick
+				// beats no image for auto/intrinsic sizes.
+				!sizeLaidOut &&
+				sizeView.isLayoutValid !== true &&
+				viewWidth <= 0 &&
+				viewHeight <= 0
+			) {
 				return
 			}
 		}
@@ -169,7 +182,10 @@ export function createImageContentBinding(env: ImageContentEnv) {
 		}
 	}
 
-	const onLayout = () => evaluate()
+	const onLayout = () => {
+		sizeLaidOut = true
+		evaluate()
+	}
 	const onImageSource = () => evaluate()
 
 	const listen = () => {
@@ -200,6 +216,7 @@ export function createImageContentBinding(env: ImageContentEnv) {
 				sizeView?.off?.('layoutChanged', onLayout)
 				sizeView = nextSizeView
 				listening = false
+				sizeLaidOut = false
 			}
 
 			if (nextImageView && nextImageView !== imageView) {
@@ -219,6 +236,7 @@ export function createImageContentBinding(env: ImageContentEnv) {
 			imageView = null
 			listening = false
 			sourceListening = false
+			sizeLaidOut = false
 		},
 	}
 }

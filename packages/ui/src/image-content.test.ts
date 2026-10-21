@@ -180,9 +180,21 @@ describe('bestImageSource', () => {
 		expect(bestImageSource(dense, 100, 100, 3)?.uri).toBe('b')
 	})
 
-	it('returns the only source, and nothing before a real layout', () => {
-		expect(bestImageSource(sources, 0, 0, 3)).toBeNull()
+	it('returns the only source, and falls back to density before a real layout', () => {
+		// All sources share scale 1 — the tie keeps the first.
+		expect(bestImageSource(sources, 0, 0, 3)?.uri).toBe(sources[0].uri)
 		expect(bestImageSource([sources[0]], 100, 100, 1)?.uri).toBe(sources[0].uri)
+
+		const dense = [
+			{ uri: 'a', scale: 1 },
+			{ uri: 'b', scale: 3 },
+		]
+		expect(bestImageSource(dense, 0, 0, 3)?.uri).toBe('b')
+	})
+
+	it('scores along the one measured axis when the other is unknown', () => {
+		expect(bestImageSource(sources, 200, 0, 3)?.uri).toBe('https://img.example/photo-400.jpg')
+		expect(bestImageSource(sources, 0, 200, 3)?.uri).toBe('https://img.example/photo-400.jpg')
 	})
 
 	it('skips unsized sources when sized candidates exist', () => {

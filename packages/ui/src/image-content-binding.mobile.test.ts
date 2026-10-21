@@ -99,6 +99,19 @@ describe('image content binding — source selection (L8)', () => {
 		expect(view.src).toBe('https://img.example/photo-800.jpg')
 	})
 
+	it('picks along the one measured axis after the first layout — a 0 axis is not a blocker', () => {
+		const view = mockView(0, 0)
+		const binding = create()
+		binding.update(view, view, arrayUpdate)
+
+		expect(view.src).toBeUndefined()
+
+		// 200 dips wide at scale 3 → 600px target; |1-200/600| > |1-800/600|.
+		view.measured = { w: 200, h: 0 }
+		view.emit('layoutChanged')
+		expect(view.src).toBe('https://img.example/photo-800.jpg')
+	})
+
 	it('re-issues the same pick on repeat evaluates — dedup lives in the sized binding', () => {
 		const view = mockView(100, 100)
 		const binding = create()
