@@ -527,9 +527,10 @@ single manual `requestLayout` on `img-a` climbs to the Page and
 re-measures the whole tree, so per-case isolation is impossible within
 one probe run.
 
-**Workaround.** `packages/ui/src/image-sizing.ts` registers
+**Workaround (iOS).** `packages/ui/src/image-sizing.ts` registers
 `imageSourceChange` on the image view and calls `view.requestLayout()`
-itself — unconditional, since a same-size rebind with a different aspect
+itself (`relayoutOnImageSource`, enabled on iOS only — see the Android
+paragraph below) — unconditional, since a same-size rebind with a different aspect
 needs the re-measure too. With it, every case in
 `gh36-ios-after.json` resolves its intrinsic axis with no nudge.
 The #31 foreign-leaf style bridge does not cover this: on top of it
@@ -565,7 +566,22 @@ resolved `width`/`height`, the same probe on main
 214×160.67 / 214×161 and fills 107×200 for percentages both inside a
 `flexGrow` parent (`img-d`) and in a fixed box (`img-f`).
 
-**Open: `flexGrow` + `alignSelf: 'stretch'` on Android.** In a fixed
-107×200 box, `style={{ flexGrow: 1, alignSelf: 'stretch' }}` fills on iOS
-but stays at the bitmap's aspect (107×80) on Android (`img-g`,
-`gh36-*-main.json`). Unisolated.
+**Android: an extra leaf `requestLayout` collapses flex-grown auto
+heights.** In a fixed 107×200 box, an `Image` with
+`style={{ flexGrow: 1, alignSelf: 'stretch' }}` filled on iOS but stayed
+at its bitmap aspect (107×80) on Android while the workaround above also
+ran there (`img-g`, `gh36-android-stretch-diag.json`). Mason's computed
+layout for the leaf was 107×200; the native frame and measured size were
+107×80. MasonKit's Android `applyLayoutFlat` (`Element.kt`, foreign-leaf
+block) re-measures a foreign leaf whose `isLayoutRequested` is set and
+whose style height is `auto` with an `UNSPECIFIED` height, then applies
+that content height in place of Taffy's — 107 × 0.75 = 80 through NS
+`ImageView.onMeasure`. With the workaround disabled on Android
+(`gh36-android-stretch-control.json`) every case passed, including
+`img-g` at 107×200 and the unsized `img-a` without a nudge: Android's
+Mason already re-measures a leaf that has a pending request. The
+workaround is therefore iOS-only (`relayoutOnImageSource: isIOS` in
+`Image.tsrx`). The Mason path itself remains: any auto-height foreign
+leaf that requests layout while flex-grown or stretched can take its
+content height on Android. That broader reach is inferred from source,
+not reproduced beyond this case.
