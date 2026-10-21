@@ -403,7 +403,7 @@ test('state commands answer honestly with no runtime host', () => {
 
 	const sessions = json(run(['session', 'list', '--project', root, '--json']))
 	assert.deepEqual(sessions.data.sessions, [])
-	assert.equal(sessions.data.host.state, 'absent')
+	assert.equal(existsSync(descriptorPath(root)), false)
 
 	const evidence = json(run(['evidence', 'list', '--project', root, '--json']))
 	assert.deepEqual(evidence.data.evidence, [])
@@ -412,12 +412,21 @@ test('state commands answer honestly with no runtime host', () => {
 	for (const args of [
 		['job', 'status', 'job_nope'],
 		['job', 'cancel', 'job_nope'],
-		['session', 'status', 'sess_nope'],
-		['session', 'end', 'sess_nope'],
-		['diagnostics', '--session', 'sess_nope'],
-		['inspect', 'sess_nope'],
-		['interact', 'sess_nope', '--document', 'd', '--testid', 'x', '--mechanism', 'dom-event'],
-		['capture', 'sess_nope'],
+		['session', 'status', 'sess_00000000-0000-0000-0000-000000000000'],
+		['session', 'end', 'sess_00000000-0000-0000-0000-000000000000'],
+		['diagnostics', '--session', 'sess_00000000-0000-0000-0000-000000000000'],
+		['inspect', 'sess_00000000-0000-0000-0000-000000000000'],
+		[
+			'interact',
+			'sess_00000000-0000-0000-0000-000000000000',
+			'--document',
+			'd',
+			'--testid',
+			'x',
+			'--mechanism',
+			'dom-event',
+		],
+		['capture', 'sess_00000000-0000-0000-0000-000000000000'],
 		['evidence', 'retain', 'ev_nope'],
 		['evidence', 'delete', 'ev_nope'],
 		['actions', 'status', 'job_nope'],
@@ -437,9 +446,8 @@ test('argument validation happens before any host is spawned', () => {
 
 	for (const args of [
 		['runtime', 'build'],
-		['session', 'start'],
 		['session', 'attach'],
-		['diagnostics', '--run', 'run_x', '--session', 'sess_x'],
+		['diagnostics', '--session', 'sess_x', '--job', 'job_x'],
 		['interact', 'sess_x', '--mechanism', 'dom-event'],
 		['interact', 'sess_x', '--document', 'd', '--mechanism', 'dom-event'],
 		['actions', 'invoke'],
@@ -460,12 +468,12 @@ test('retained dev logs are app-bound, paginated and readable without an agent h
 	capture.close()
 	const listed = json(run(['diagnostics', '--platform', 'ios', '--project', root, '--json']))
 	assert.equal(listed.ok, true)
-	assert.equal(listed.data.runs[0].runId, capture.runId)
+	assert.equal(listed.data.sessions[0].sessionId, capture.sessionId)
 	const page = json(
 		run([
 			'diagnostics',
-			'--run',
-			capture.runId,
+			'--session',
+			capture.sessionId,
 			'--cursor',
 			'0',
 			'--limit',
@@ -483,8 +491,8 @@ test('retained dev logs are app-bound, paginated and readable without an agent h
 	const continuation = json(
 		run([
 			'diagnostics',
-			'--run',
-			capture.runId,
+			'--session',
+			capture.sessionId,
 			'--cursor',
 			String(page.data.logs.nextCursor),
 			'--project',
@@ -494,7 +502,7 @@ test('retained dev logs are app-bound, paginated and readable without an agent h
 	)
 	assert.ok(continuation.data.logs.records.every((r) => r.seq > page.data.logs.nextCursor))
 	assert.equal(
-		json(run(['diagnostics', '--platform', 'android', '--project', root, '--json'])).data.runs
+		json(run(['diagnostics', '--platform', 'android', '--project', root, '--json'])).data.sessions
 			.length,
 		0,
 	)
@@ -502,8 +510,8 @@ test('retained dev logs are app-bound, paginated and readable without an agent h
 		json(
 			run([
 				'diagnostics',
-				'--run',
-				capture.runId,
+				'--session',
+				capture.sessionId,
 				'--platform',
 				'android',
 				'--project',
@@ -523,7 +531,7 @@ test('runtime build flows through the host: job, logs, evidence, idle exit', () 
 	// but once the job is terminal the logs/session/evidence reads are
 	// sequential process spawns — on a slow CI box that sequence can exceed a
 	// tight idle window and the host exits before the reads land.
-	const env = { XPLAT_AGENT_HOST_IDLE_MS: '3000' }
+	const env = { XPLAT_AGENT_HOST_IDLE_MS: '10000' }
 
 	const started = json(
 		run(['runtime', 'build', '--platform', 'web', '--project', root, '--json'], { env }),
@@ -547,7 +555,6 @@ test('runtime build flows through the host: job, logs, evidence, idle exit', () 
 	assert.ok(logs.data.logs.records.some((r) => r.stream === 'lifecycle'))
 
 	const sessions = json(run(['session', 'list', '--project', root, '--json'], { env }))
-	assert.equal(sessions.data.host.state, 'live')
 	assert.deepEqual(sessions.data.sessions, [])
 
 	const evidence = json(run(['evidence', 'list', '--project', root, '--json'], { env }))
@@ -556,9 +563,10 @@ test('runtime build flows through the host: job, logs, evidence, idle exit', () 
 
 	// Idle exit: once nothing is live the host shuts down on its own timer.
 	// (Polling would reset that timer — wait once, then check.)
-	Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 4000)
+	waitFor(() => !existsSync(descriptorPath(root)), 30000)
 	const after = json(run(['session', 'list', '--project', root, '--json'], { env }))
-	assert.equal(after.data.host.state, 'absent')
+	assert.deepEqual(after.data.sessions, [])
+	assert.equal(existsSync(descriptorPath(root)), false)
 })
 
 test('session start binds an owned session and end releases it', () => {
@@ -566,27 +574,24 @@ test('session start binds an owned session and end releases it', () => {
 	makeLinkedApp(root)
 	const env = { XPLAT_AGENT_HOST_IDLE_MS: '5000' }
 
-	const started = json(
-		run(['session', 'start', '--platform', 'web', '--project', root, '--json'], { env }),
-	)
+	const started = json(run(['session', 'start', 'web', '--project', root, '--json'], { env }))
 
-	const { session, job } = started.data
+	const { session } = started.data
 	assert.match(session.sessionId, /^sess_/)
+	assert.equal(started.data.job, undefined)
 	assert.equal(session.ownership, 'owned')
 	assert.equal(session.platform, 'web')
-	assert.equal(job.sessionId, session.sessionId)
-
-	// The launch job resolves to readiness or an honest failure (fixture has
-	// no vite install); either way the session contract holds.
 	const terminal = waitFor(() => {
-		const { data } = json(run(['job', 'status', job.jobId, '--project', root, '--json'], { env }))
-		return ['succeeded', 'failed', 'cancelled'].includes(data.job.state) ? data.job : null
+		const { data } = json(
+			run(['session', 'status', session.sessionId, '--project', root, '--json'], { env }),
+		)
+		return data.session.state !== 'starting' ? data.session : null
 	}, 90000)
 
 	const listed = json(run(['session', 'list', '--project', root, '--json'], { env }))
 	const bound = listed.data.sessions.find((s) => s.sessionId === session.sessionId)
 	assert.ok(bound)
-	assert.ok(['ready', 'stopped', 'disconnected'].includes(bound.state))
+	assert.ok(['ready', 'failed', 'stopped', 'disconnected'].includes(bound.state))
 
 	const status = json(
 		run(['session', 'status', session.sessionId, '--project', root, '--json'], { env }),
@@ -601,7 +606,7 @@ test('session start binds an owned session and end releases it', () => {
 	assert.equal(ended.data.result.ended, true)
 
 	// A stopped identity is refused — never silently reused.
-	if (terminal.state === 'succeeded') {
+	if (terminal.state === 'ready') {
 		const inspect = run(['inspect', session.sessionId, '--project', root, '--json'], { env })
 		assert.equal(json(inspect).error.code, 'stale_identity')
 	}
@@ -622,7 +627,12 @@ test('diagnostics reads retained originals without a host and rejects old comman
 	capture.close()
 	const content = 'Original native report\n'
 	const id = 'report_' + createHash('sha256').update(content).digest('hex')
-	const directory = join(root, 'app/node_modules/.cache/xplat/logs', capture.runId, 'reports')
+	const directory = join(
+		root,
+		'app/node_modules/.cache/xplat/sessions',
+		capture.sessionId,
+		'reports',
+	)
 	mkdirSync(directory, { recursive: true })
 	writeFileSync(join(directory, id + '.txt'), content)
 	writeFileSync(
@@ -636,7 +646,7 @@ test('diagnostics reads retained originals without a host and rejects old comman
 			bytes: Buffer.byteLength(content),
 		}),
 	)
-	const args = ['diagnostics', '--run', capture.runId, '--project', root, '--report', id]
+	const args = ['diagnostics', '--session', capture.sessionId, '--project', root, '--report', id]
 	const response = json(run([...args, '--json']))
 	assert.equal(response.ok, true)
 	assert.equal(response.data.report.content, content)

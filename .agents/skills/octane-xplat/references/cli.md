@@ -103,8 +103,8 @@ OS reports have a separate discovery result.
 
 ```sh
 pnpm exec xplat diagnostics --platform ios --json
-pnpm exec xplat diagnostics --run RUN_ID --cursor 0 --limit 50 --json
-pnpm exec xplat diagnostics --run RUN_ID --cursor NEXT_CURSOR --limit 50 --json
+pnpm exec xplat diagnostics --session SESSION_ID --cursor 0 --limit 50 --json
+pnpm exec xplat diagnostics --session SESSION_ID --cursor NEXT_CURSOR --limit 50 --json
 ```
 
 Read log pages from `data.logs` and keep `logs.nextCursor` with its run ID.
@@ -114,15 +114,17 @@ caused the failure. Discovering reports may write bounded local retained copies;
 it does not start profiling or install a crash handler.
 
 ```sh
-pnpm exec xplat diagnostics --run RUN_ID --report REPORT_ID --json
+pnpm exec xplat diagnostics --session SESSION_ID --report REPORT_ID --json
 ```
 
 Report IDs belong to the selected run; they are separate from log cursors.
-Session/job selectors return their own logs with native report lookup unavailable.
+Session selectors include retained logs and native reports. Standalone build
+jobs have output captures without native reports.
 
 Keep cursors with their run ID. Report capture start, truncation/dropped records,
 incomplete tails, and historical status; capture-owner liveness is not app
-readiness. Retained dev runs and host-owned session/job captures are separate.
+readiness. Ordinary dev and agent launches share retained session identities; build jobs
+keep separate output captures.
 
 For an agent-owned build, use `runtime build` and follow its returned job to a
 terminal result. Poll with bounded reads and read job logs when it fails or
@@ -138,14 +140,15 @@ pnpm exec xplat diagnostics --job JOB_ID --limit 50 --json
 ```
 
 Start a session only when the task needs a running app. Choose a returned target
-ID when several targets are available. Follow the returned launch job until
-readiness; the session then remains available for logs/actions. Attach when a
+ID when several targets are available. The optional positional also accepts a
+platform name; omitted/platform selection must identify exactly one eligible target.
+Poll the returned session ID for launch progress and readiness; the session then remains available for logs/actions. Attach when a
 compatible user-owned session already exists instead of restarting it.
 
 ```sh
 pnpm exec xplat session list --json
-pnpm exec xplat session start --platform web --target TARGET_ID --json
-pnpm exec xplat job status JOB_ID --json
+pnpm exec xplat session start TARGET_ID --json
+pnpm exec xplat session status SESSION_ID --json
 # Alternative: bind an existing compatible target instead of starting another.
 pnpm exec xplat session attach --platform web --target TARGET_ID --json
 ```
@@ -154,8 +157,9 @@ Use `logs.nextCursor` to continue bounded reads and disclose truncation or dropp
 records. Empty sessions or an absent host do not establish that an app passed;
 read-only status commands do not create a host. End owned work through the CLI:
 attached user-owned sessions are preserved, while sessions the host started
-release their owned resources. A CLI session ID and an MCP server's session ID
-belong to separate registries even though the transports share services.
+release their owned resources. Session status and diagnostics resolve the same retained identity across
+CLI and MCP, even after the owner exits. End requests go to the owner; an
+unreachable owner is reported without signaling a guessed process.
 
 ```sh
 pnpm exec xplat session status SESSION_ID --json

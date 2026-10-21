@@ -6,7 +6,7 @@ import { spawn, execFileSync } from 'node:child_process'
 import { writeFile, readFile } from 'node:fs/promises'
 import { resolve, join } from 'node:path'
 import { prepare } from '../../../scripts/probe/project.ts'
-import { listDevRuns } from '../dist/dev-logs.js'
+import { listRetainedSessions } from '../dist/dev-logs.js'
 const project = await prepare('macos', fileURLToPath(import.meta.url))
 const root = project.root
 const manifest = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'))
@@ -43,13 +43,13 @@ clearTimeout(timeout)
 await writeFile(resolve('research/dev-logs/apple-crash-transcript.log'), output)
 assert.match(output, /CRASH_PROBE_ABORT function/)
 assert.match(output, /CRASH_PROBE_TRIGGER/)
-const run = listDevRuns(root)[0]
+const run = listRetainedSessions(root)[0]
 let result
 for (let i = 0; i < 30; i++) {
 	result = JSON.parse(
 		execFileSync(
 			process.execPath,
-			[cli, 'diagnostics', '--project', root, '--run', run.runId, '--json'],
+			[cli, 'diagnostics', '--project', root, '--session', run.sessionId, '--json'],
 			{ encoding: 'utf8' },
 		),
 	)
@@ -66,7 +66,7 @@ assert.equal(report.association, 'confirmed')
 const original = JSON.parse(
 	execFileSync(
 		process.execPath,
-		[cli, 'diagnostics', '--project', root, '--run', run.runId, '--report', report.id, '--json'],
+		[cli, 'diagnostics', '--project', root, '--session', run.sessionId, '--report', report.id, '--json'],
 		{ encoding: 'utf8', maxBuffer: 8 * 1024 * 1024 },
 	),
 )
@@ -75,14 +75,14 @@ assert.match(original.data.report.content, /SIGABRT/)
 await writeFile(
 	resolve('research/dev-logs/apple-crash-result.json'),
 	JSON.stringify(
-		{ runId: run.runId, root, report, coverage: result.data.coverage, passed: true },
+		{ sessionId: run.sessionId, root, report, coverage: result.data.coverage, passed: true },
 		null,
 		2,
 	),
 )
 console.log(
 	JSON.stringify({
-		runId: run.runId,
+		sessionId: run.sessionId,
 		kind: report.kind,
 		association: report.association,
 		originalBytes: report.bytes,

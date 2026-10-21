@@ -366,19 +366,19 @@ export const AGENT_COMMANDS = [
 		path: ['session', 'start'],
 		mcpTool: 'xplat_launch',
 		summary:
-			'Start an owned development session: bind one app to one target; the launch job completes at readiness and the host keeps it alive',
+			'Start an owned development session: bind one app to one target; launch progress and readiness are available on session status',
 		effect: 'orchestrate',
 		permissions: ['runtime-actions'],
 		context: 'app',
-		positionals: [],
-		flags: [
-			{ ...platform, desc: 'Platform to launch (required)' },
+		positionals: [
 			{
-				flag: 'target',
-				key: 'targetId',
+				name: 'target',
 				type: 'string',
-				desc: 'Target id from `xplat targets` — required when several are available',
+				required: false,
+				desc: 'Exact discovered target id or platform name; omit only when one eligible target exists',
 			},
+		],
+		flags: [
 			{
 				flag: 'request-key',
 				key: 'requestKey',
@@ -396,7 +396,8 @@ export const AGENT_COMMANDS = [
 		],
 		output: {
 			kind: 'json',
-			description: 'The bound session and its launch job — poll `xplat job status` for readiness',
+			description:
+				'The durable session identity — poll `xplat session status` for launch progress and readiness',
 		},
 		errors: [
 			{ code: 'invalid_selection', exit: 2, when: 'Missing/unknown platform or target' },
@@ -405,7 +406,7 @@ export const AGENT_COMMANDS = [
 			{ code: 'prerequisite_missing', exit: 3, when: 'No targets are available' },
 			{ code: 'permission_denied', exit: 4, when: 'runtime-actions is not granted' },
 		],
-		examples: ['xplat session start --platform web --json'],
+		examples: ['xplat session start web --json'],
 	},
 	{
 		name: 'session attach',
@@ -454,7 +455,7 @@ export const AGENT_COMMANDS = [
 		flags: contextFlags,
 		output: {
 			kind: 'json',
-			description: 'Session records; host.state reports whether a runtime host answered',
+			description: 'Active and retained session records; owner loss is disclosed as disconnected',
 		},
 		errors: [],
 		examples: ['xplat session list --json'],
@@ -472,7 +473,7 @@ export const AGENT_COMMANDS = [
 		],
 		flags: contextFlags,
 		output: { kind: 'json', description: 'The session record' },
-		errors: [{ code: 'not_found', exit: 2, when: 'No such session in a live host' }],
+		errors: [{ code: 'not_found', exit: 2, when: 'No such session for the selected app' }],
 		examples: ['xplat session status sess_abc123 --json'],
 	},
 	{
@@ -533,23 +534,17 @@ export const AGENT_COMMANDS = [
 		path: ['diagnostics'],
 		mcpTool: 'xplat_diagnostics',
 		summary:
-			'List retained dev runs, or read logs and native report summaries; use --report for a retained original',
+			'List retained sessions, or read logs and native report summaries; use --report for a retained original',
 		effect: 'read',
 		permissions: [],
 		context: 'workspace',
 		positionals: [],
 		flags: [
 			{
-				flag: 'run',
-				key: 'runId',
-				type: 'string',
-				desc: 'Retained xplat dev run id; omit selectors to list runs',
-			},
-			{
 				flag: 'report',
 				key: 'reportId',
 				type: 'string',
-				desc: 'Read a retained original report; requires --run, excludes log paging/filter flags',
+				desc: 'Read a retained original report; requires --session, excludes log paging/filter flags',
 			},
 			platform,
 			{ flag: 'session', key: 'sessionId', type: 'string', desc: 'Session id to read (or --job)' },
@@ -557,7 +552,7 @@ export const AGENT_COMMANDS = [
 				flag: 'job',
 				key: 'jobId',
 				type: 'string',
-				desc: 'Build/launch job id to read (or --session)',
+				desc: 'Build job id to read (or --session)',
 			},
 			{ flag: 'cursor', type: 'integer', min: 0, desc: 'Continue after this record seq' },
 			{ flag: 'limit', type: 'integer', min: 1, max: 5000, desc: 'Maximum records (default: 500)' },
@@ -572,7 +567,7 @@ export const AGENT_COMMANDS = [
 		output: {
 			kind: 'json',
 			description:
-				'Retained runs, or {logs, reports, coverage}; --report returns the complete retained report. Log cursors do not page reports.',
+				'Retained sessions, or {logs, reports, coverage}; --report returns the complete retained report. Log cursors do not page reports.',
 		},
 		errors: [
 			{
@@ -589,7 +584,7 @@ export const AGENT_COMMANDS = [
 		],
 		examples: [
 			'xplat diagnostics --platform ios --json',
-			'xplat diagnostics --run RUN_ID --limit 50 --json',
+			'xplat diagnostics --session SESSION_ID --limit 50 --json',
 			'xplat diagnostics --session sess_abc123 --limit 50 --json',
 		],
 	},

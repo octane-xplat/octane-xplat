@@ -17,7 +17,7 @@ import {
 import { homedir } from 'node:os'
 import { join } from 'node:path'
 import { promisify } from 'node:util'
-import type { DevRun } from './dev-logs.ts'
+import type { RetainedSession } from './dev-logs.ts'
 import { contractError } from './mcp/contracts/errors.ts'
 
 const execute = promisify(execFile)
@@ -26,8 +26,8 @@ const MAX_TOTAL_BYTES = 16 * 1024 * 1024
 const MAX_REPORTS = 10
 const REPORT_ID = /^report_[a-f0-9]{64}$/
 const digest = (value: string) => createHash('sha256').update(value).digest('hex')
-const rootFor = (appRoot: string, run: DevRun) =>
-	join(appRoot, 'node_modules/.cache/xplat/logs', run.runId, 'reports')
+const rootFor = (appRoot: string, run: RetainedSession) =>
+	join(appRoot, 'node_modules/.cache/xplat/sessions', run.sessionId, 'reports')
 
 export interface NativeReport {
 	id: string
@@ -51,7 +51,7 @@ interface Options {
 	home?: string
 	exec?: (command: string, args: string[]) => Promise<string>
 }
-const inWindow = (run: DevRun, time: number) =>
+const inWindow = (run: RetainedSession, time: number) =>
 	Number.isFinite(time) &&
 	time >= Date.parse(run.startedAt) - 5000 &&
 	time <= Date.parse(run.endedAt ?? new Date().toISOString()) + 5000
@@ -71,7 +71,7 @@ function readBounded(path: string, maxBytes = MAX_REPORT_BYTES) {
 	}
 }
 
-function appleReports(run: DevRun, home: string) {
+function appleReports(run: RetainedSession, home: string) {
 	const directory = join(home, 'Library/Logs/DiagnosticReports')
 	let names: string[]
 	try {
@@ -178,7 +178,7 @@ function appleReports(run: DevRun, home: string) {
 	}
 }
 
-async function androidReports(run: DevRun, exec: NonNullable<Options['exec']>) {
+async function androidReports(run: RetainedSession, exec: NonNullable<Options['exec']>) {
 	const device = run.targetId
 	const appId = run.nativeIdentity!.appId
 	if (!/^[A-Za-z0-9._:-]+$/.test(device) || !/^[A-Za-z]\w*(?:\.\w+)+$/.test(appId)) {
@@ -269,7 +269,7 @@ async function androidReports(run: DevRun, exec: NonNullable<Options['exec']>) {
 	}
 }
 
-function retained(appRoot: string, run: DevRun): NativeReport[] {
+function retained(appRoot: string, run: RetainedSession): NativeReport[] {
 	try {
 		return readdirSync(rootFor(appRoot, run))
 			.filter((name) => /^report_[a-f0-9]{64}\.json$/.test(name))
@@ -285,7 +285,11 @@ function retained(appRoot: string, run: DevRun): NativeReport[] {
 }
 
 /** Discover bounded existing reports, preserving complete originals beside the run. */
-export async function discoverNativeReports(appRoot: string, run: DevRun, options: Options = {}) {
+export async function discoverNativeReports(
+	appRoot: string,
+	run: RetainedSession,
+	options: Options = {},
+) {
 	const reports = retained(appRoot, run)
 	let coverage: Coverage
 	let found: FoundReport[] = []
@@ -423,7 +427,7 @@ export async function discoverNativeReports(appRoot: string, run: DevRun, option
 }
 
 /** Read an already retained original; report ids never act as filesystem paths. */
-export function readNativeReport(appRoot: string, run: DevRun, id: string) {
+export function readNativeReport(appRoot: string, run: RetainedSession, id: string) {
 	if (!REPORT_ID.test(id)) {
 		throw contractError('invalid_selection', 'Invalid native report id.')
 	}

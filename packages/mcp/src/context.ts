@@ -30,14 +30,14 @@ export interface RuntimeService {
 	listTargets(args: { platform?: Platform }): Promise<any>
 	build(args: { platform: Platform; requestKey?: string }): Promise<any>
 	launch(args: {
-		platform: Platform
-		targetId?: string
+		target?: string
 		requestKey?: string
 		browserMode?: 'headless' | 'headed'
 	}): Promise<any>
+	listSessions(): any
+	sessionStatus(sessionId: string): any
 	attach(args: { platform: Platform; targetId?: string }): Promise<any>
 	readDiagnostics(args: {
-		runId?: string
 		reportId?: string
 		platform?: Platform
 		sessionId?: string

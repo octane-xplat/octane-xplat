@@ -324,25 +324,10 @@ export const handlers = {
 	},
 
 	async 'session start'(env, args) {
-		const missing = requireFlag(
-			args.platform,
-			'--platform',
-			'one of web, ios, android, macos, linux, windows',
-		)
-
-		if (missing) {
-			return missing
-		}
-
 		return hostCall(
 			env,
 			'runtime.launch',
-			{
-				platform: args.platform,
-				targetId: args.targetId,
-				requestKey: args.requestKey,
-				browserMode: args.browserMode,
-			},
+			{ target: args.target, requestKey: args.requestKey, browserMode: args.browserMode },
 			{ spawn: true },
 		)
 	},
@@ -369,23 +354,20 @@ export const handlers = {
 		)
 	},
 
-	async 'session list'(env) {
-		return hostCall(
-			env,
-			'sessions.list',
-			{},
-			{
-				absent: () => ok({ sessions: [], host: { state: 'absent' } }),
-			},
-		)
+	async 'session list'({ context }) {
+		return ok(context.runtime.listSessions())
 	},
-
-	async 'session status'(env, args) {
-		return hostCall(env, 'sessions.get', { sessionId: args.sessionId })
+	async 'session status'({ context }, args) {
+		const result = context.runtime.sessionStatus(args.sessionId)
+		return result.error ? fail(result.error) : ok(result)
 	},
-
-	async 'session end'(env, args) {
-		return hostCall(env, 'session.end', { sessionId: args.sessionId })
+	async 'session end'({ context }, args) {
+		try {
+			const result = await context.runtime.endSession(args.sessionId)
+			return result.error ? fail(result.error) : ok({ result })
+		} catch (error) {
+			return fail(toContractError(error))
+		}
 	},
 
 	async 'job status'(env, args) {
@@ -399,7 +381,7 @@ export const handlers = {
 	async diagnostics(env, args) {
 		try {
 			validateDiagnosticsSelection(args)
-			if (!args.sessionId && !args.jobId) {
+			if (!args.jobId) {
 				const selection = resolveSelection(env.context)
 				if (selection.state !== 'bound') {
 					return fail(

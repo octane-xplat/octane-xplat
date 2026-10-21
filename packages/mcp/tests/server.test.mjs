@@ -200,10 +200,10 @@ test('diagnostics MCP tool lists retained runs and shares CLI selector and envel
 		assert.ok(tools.tools.some((tool) => tool.name === 'xplat_diagnostics'))
 		assert.ok(!tools.tools.some((tool) => tool.name === 'xplat_logs'))
 		const listed = await client.callTool({ name: 'xplat_diagnostics', arguments: {} })
-		assert.equal(listed.structuredContent.data.runs[0].runId, capture.runId)
+		assert.equal(listed.structuredContent.data.sessions[0].sessionId, capture.sessionId)
 		const result = await client.callTool({
 			name: 'xplat_diagnostics',
-			arguments: { runId: capture.runId, cursor: 0 },
+			arguments: { sessionId: capture.sessionId, cursor: 0 },
 		})
 		assert.ok(
 			result.structuredContent.data.logs.records.some(
@@ -213,7 +213,7 @@ test('diagnostics MCP tool lists retained runs and shares CLI selector and envel
 		assert.equal(result.structuredContent.data.coverage.nativeReports.status, 'unsupported')
 		const invalid = await client.callTool({
 			name: 'xplat_diagnostics',
-			arguments: { runId: capture.runId, sessionId: 'sess_x' },
+			arguments: { sessionId: capture.sessionId, sessionId: 'sess_x' },
 		})
 		assert.equal(invalid.structuredContent.error.code, 'invalid_selection')
 	} finally {

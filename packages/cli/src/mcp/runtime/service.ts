@@ -8,6 +8,9 @@
 // toolchain (`pnpm exec vite`, `ns run`, the app's installed CLI), so a
 // session behaves like the app's installed framework version.
 
+import { randomUUID } from 'node:crypto'
+import { createDevLogCapture, listRetainedSessions, endRetainedSession } from '../../dev-logs.ts'
+import { PLATFORMS } from '../contracts/identity.ts'
 import {
 	retainedDiagnostics,
 	diagnosticsFromLogs,
@@ -35,7 +38,7 @@ export function createRuntimeService(context, options = {}) {
 	/** sessionId → { logs, disposers, disposed } — logs kept after end as history. */
 	const runtime = new Map()
 	const jobLogs = new Map()
-	/** appId|platform|targetId → jobId for in-flight launch dedupe. */
+	/** appId|platform|targetId → pending session and request key. */
 	const pendingLaunches = new Map()
 	/** requestKey → jobId for build dedupe (job records don't carry platform). */
 	const pendingBuilds = new Map()
@@ -107,45 +110,73 @@ export function createRuntimeService(context, options = {}) {
 			.list()
 			.find(
 				(s) =>
-					s.state !== 'stopped' &&
+					!['stopped', 'failed', 'disconnected'].includes(s.state) &&
 					s.appId === appId &&
 					s.platform === platform &&
 					s.targetId === targetId,
 			)
 
-	const resourcesFor = (sessionId) => {
+	const resourcesFor = (sessionId, app, binding) => {
 		let entry = runtime.get(sessionId)
 		if (!entry) {
-			entry = { logs: createLogBuffer(), disposers: [], disposed: false }
+			const session = binding ?? context.sessions.get(sessionId)
+			const capture = createDevLogCapture(app.root, {
+				platform: session.platform,
+				targetId: session.targetId,
+				sessionId,
+				appId: app.id,
+				origin: 'agent',
+				ownership: session.ownership,
+			})
+			const logs = createLogBuffer()
+			logs.watch((record) => {
+				capture.observeNativeOutput(record.line)
+				capture.append(record)
+			})
+			entry = { logs, capture, disposers: [], lateDisposals: [], disposed: false }
+			capture.update(session)
+			capture.onStop(() => context.runtime.endSession(sessionId))
 			runtime.set(sessionId, entry)
 		}
 
 		return entry
 	}
 
+	context.sessions.watch((session) => runtime.get(session.sessionId)?.capture.update(session))
+
 	/** Dispose owned resources for a session — idempotent; keeps the log buffer. */
 	const disposeResources = async (sessionId) => {
 		const entry = runtime.get(sessionId)
-		if (!entry || entry.disposed) {
+		if (!entry) {
 			return []
 		}
-
-		entry.disposed = true
-		const released = []
-		for (const disposer of [...entry.disposers].reverse()) {
-			try {
-				const out = await disposer.dispose()
-				if (out) {
-					released.push(out)
-				}
-			} catch {
-				released.push(
-					`cleanup of ${disposer.describe?.() ?? 'a resource'} failed — inspect the target`,
-				)
-			}
+		if (entry.disposalPromise) {
+			return entry.disposalPromise
 		}
+		entry.disposed = true
+		entry.controller?.abort()
+		entry.disposalPromise = (async () => {
+			const released = []
+			for (const disposer of [...entry.disposers].reverse()) {
+				try {
+					const out = await disposer.dispose()
+					if (out) {
+						released.push(out)
+					}
+				} catch {
+					released.push(
+						`cleanup of ${disposer.describe?.() ?? 'a resource'} failed — inspect the target`,
+					)
+				}
+			}
+			return released
+		})()
+		return entry.disposalPromise
+	}
 
-		return released
+	const finishCapture = (entry, detail) => {
+		entry.capture.close(detail)
+		options.onWorkChanged?.()
 	}
 
 	const recordJobEvidence = (kind, state, { jobId, session, detail, buildIdentity } = {}) => {
@@ -353,158 +384,187 @@ export function createRuntimeService(context, options = {}) {
 
 		/**
 		 * Owned dev-session launch: binds the session first (a second caller
-		 * sees target_busy immediately), then runs the adapter's launch as a
-		 * job. The job completes at readiness; the process stays owned by the
-		 * session. A failed job ends the session.
+		 * sees target_busy immediately), then reports asynchronous launch progress
+		 * on that session. Failures remain readable after owned resources close.
 		 */
-		async launch({ platform, targetId, requestKey, browserMode = 'headless' } = {}) {
+		async launch(input = {}) {
+			if (
+				Object.keys(input).some((key) => !['target', 'requestKey', 'browserMode'].includes(key))
+			) {
+				return {
+					error: contractError(
+						'invalid_selection',
+						'Unknown launch option. Pass target as a target id or platform name.',
+					),
+				}
+			}
+			const { target: selector, requestKey, browserMode = 'headless' } = input
 			const { app, error } = requireApp()
 			if (error) {
 				return { error }
 			}
-
 			const permission = requireRuntime()
 			if (permission) {
 				return { error: permission }
 			}
-
-			const selection = requirePlatform(app, platform)
-			if (selection) {
-				return { error: selection }
-			}
-
-			const { adapter, error: adapterError } = adapterFor(platform)
-			if (adapterError) {
-				return { error: adapterError }
-			}
-
-			// Pick the target: explicit id, or the only available one.
-			const { targets, reason } = await adapter.discoverTargets(app, deps)
-			let target
-			if (targetId) {
-				target = targets.find((t) => t.targetId === targetId)
-				if (!target) {
-					return {
-						error: contractError('invalid_selection', `No ${platform} target "${targetId}".`, {
-							recovery: {
-								action: 'Pick a targetId from xplat_targets.',
-								detail:
-									reason ?? `Available: ${targets.map((t) => t.targetId).join(', ') || 'none'}`,
-							},
-							context: { targets: targets.map((t) => t.targetId) },
-						}),
+			const wanted = app.platforms
+			const available = []
+			const reasons = []
+			for (const platform of wanted) {
+				if (!app.platforms.includes(platform)) {
+					continue
+				}
+				const adapter = adapters.get(platform)
+				if (!adapter) {
+					continue
+				}
+				const found = await adapter.discoverTargets(app, deps)
+				if (found.reason) {
+					reasons.push(found.reason)
+				}
+				for (const target of found.targets) {
+					if (target.availability === 'unavailable') {
+						continue
 					}
+					if (PLATFORMS.includes(target.targetId) && target.targetId !== platform) {
+						continue
+					}
+					available.push({ platform, adapter, target })
 				}
-			} else if (targets.length === 1) {
-				target = targets[0]
-			} else if (targets.length === 0) {
+			}
+			const candidates = available.filter(
+				(item) =>
+					!selector ||
+					(PLATFORMS.includes(selector)
+						? item.platform === selector
+						: item.target.targetId === selector),
+			)
+			if (candidates.length !== 1) {
 				return {
 					error: contractError(
-						'prerequisite_missing',
-						`No ${platform} targets are available${reason ? ` — ${reason}` : ''}.`,
-						{ recovery: { action: 'Connect a device/emulator or fix the toolchain, then retry.' } },
-					),
-				}
-			} else {
-				return {
-					error: contractError(
-						'ambiguous_selection',
-						`Several ${platform} targets are available — pick one explicitly.`,
+						candidates.length
+							? 'ambiguous_selection'
+							: selector
+								? 'invalid_selection'
+								: 'prerequisite_missing',
+						candidates.length
+							? 'Several eligible targets match; select an exact target id.'
+							: 'No eligible target matches.',
 						{
-							recovery: { action: 'Pass targetId from xplat_targets.' },
-							context: { targets: targets.map((t) => ({ targetId: t.targetId, name: t.name })) },
+							context: {
+								candidates: (candidates.length ? candidates : available).map(
+									({ platform, target }) => ({ platform, ...target }),
+								),
+								reasons,
+							},
+							recovery: {
+								action: 'Use xplat targets to discover an exact target id or platform name.',
+							},
 						},
 					),
 				}
 			}
-
-			// An in-flight launch for the same target IS the same operation —
-			// converge on its job instead of failing busy. A ready/attached
-			// session on the target is a real conflict.
+			const { platform, adapter, target } = candidates[0]
 			const key = `${app.id}|${platform}|${target.targetId}`
-			const pending = liveJobById(pendingLaunches.get(key))
+			const pending = pendingLaunches.get(key)
 			if (pending) {
-				return {
-					session: context.sessions.get(pending.sessionId),
-					job: pending,
-					deduplicated: true,
+				if (requestKey && pending.requestKey && requestKey !== pending.requestKey) {
+					return { error: targetBusyError(context.sessions.get(pending.sessionId)) }
 				}
+				return { session: context.sessions.get(pending.sessionId), deduplicated: true }
 			}
-
 			const busy = liveSessionOn(app.id, platform, target.targetId)
 			if (busy) {
 				return { error: targetBusyError(busy) }
 			}
-
+			const sessionId = `sess_${randomUUID()}`
+			let resources
+			try {
+				resources = resourcesFor(sessionId, app, {
+					sessionId,
+					appId: app.id,
+					platform,
+					targetId: target.targetId,
+					ownership: 'owned',
+					state: 'starting',
+				})
+			} catch (error) {
+				return { error: toContractError(error) }
+			}
 			const session = context.sessions.bindOwned({
+				sessionId,
 				appId: app.id,
 				platform,
 				targetId: target.targetId,
 				detail: `launch on ${target.name}`,
 				cleanup: async () => {
 					pendingLaunches.delete(key)
-					return { released: await disposeResources(session.sessionId) }
+					return { released: await disposeResources(sessionId) }
 				},
 			})
-
-			const resources = resourcesFor(session.sessionId)
-
-			const started = context.jobs.start({
-				kind: 'launch',
-				sessionId: session.sessionId,
-				requestKey,
-				run: async (signal, report) => {
-					try {
-						const outcome = await adapter.launch({
-							app,
-							target,
-							session,
-							logs: resources.logs,
-							signal,
-							report,
-							claim: (disposer) => resources.disposers.push(disposer),
-							browserMode,
-							deps,
-						})
-
-						resources.endpoint = { url: outcome.url, browser: outcome.browser }
-						context.sessions.markReady(session.sessionId, {
-							processKind: outcome.processKind ?? 'fresh',
-							buildIdentity: outcome.buildIdentity,
-						})
-
-						outcome.mainProcess?.exit.then(({ code, signal: sig }) =>
-							context.sessions.markDisconnected(
-								session.sessionId,
-								`launch process exited (code=${code ?? 'null'}${sig ? `, signal=${sig}` : ''})`,
-							),
-						)
-
-						recordJobEvidence('launch', 'succeeded', {
-							jobId: started.job.jobId,
-							session: context.sessions.get(session.sessionId),
-							detail: outcome.detail,
-						})
-
-						return outcome
-					} catch (launchError) {
-						// Failed launch ends the owned session — its resources are
-						// released through the registered cleanup, and the binding
-						// identity stays stale rather than pretending to be usable.
-						recordJobEvidence('launch', 'failed', {
-							jobId: started.job.jobId,
-							session: context.sessions.get(session.sessionId),
-							detail: launchError.message,
-						})
-
-						await context.sessions.end(session.sessionId)
-						throw launchError
+			const controller = new AbortController()
+			resources.controller = controller
+			pendingLaunches.set(key, { sessionId, requestKey })
+			context.sessions.setLaunch(sessionId, { phase: 'starting' })
+			resources.launchPromise = Promise.resolve().then(async () => {
+				try {
+					if (controller.signal.aborted) {
+						return
 					}
-				},
+					const outcome = await adapter.launch({
+						app,
+						target,
+						session,
+						logs: resources.logs,
+						signal: controller.signal,
+						report: (progress) => context.sessions.setLaunch(sessionId, progress),
+						claim: (disposer) => {
+							if (resources.disposed) {
+								resources.lateDisposals.push(Promise.resolve().then(() => disposer.dispose()))
+							} else {
+								resources.disposers.push(disposer)
+							}
+						},
+						browserMode,
+						deps,
+					})
+					if (controller.signal.aborted) {
+						await disposeResources(sessionId)
+						return
+					}
+					resources.endpoint = { url: outcome.url, browser: outcome.browser }
+					context.sessions.setLaunch(sessionId, {
+						phase: 'ready',
+						readiness: outcome.readiness ?? 'confirmed',
+						browser: outcome.browser,
+					})
+					context.sessions.markReady(sessionId, {
+						processKind: outcome.processKind ?? 'fresh',
+						buildIdentity: outcome.buildIdentity,
+					})
+					outcome.mainProcess?.exit.then(({ code, signal }) => {
+						context.sessions.markDisconnected(
+							sessionId,
+							`launch process exited (code=${code}, signal=${signal})`,
+						)
+						if (!resources.disposed) {
+							finishCapture(resources, 'Launch process exited.')
+						}
+					})
+				} catch (error) {
+					if (!controller.signal.aborted) {
+						context.sessions.markFailed(sessionId, toContractError(error))
+					}
+					await context.sessions.end(sessionId)
+				} finally {
+					pendingLaunches.delete(key)
+					if (context.sessions.get(sessionId)?.state === 'failed') {
+						await Promise.allSettled(resources.lateDisposals)
+						finishCapture(resources, 'Session resources released.')
+					}
+				}
 			})
-
-			pendingLaunches.set(key, started.job.jobId)
-			return { session, job: started.job, deduplicated: false }
+			return { session: context.sessions.get(sessionId), deduplicated: false }
 		},
 
 		/** Bind a compatible pre-existing dev session — never restarts it. */
@@ -592,7 +652,7 @@ export function createRuntimeService(context, options = {}) {
 				detail: pick.detail,
 			})
 
-			const resources = resourcesFor(session.sessionId)
+			const resources = resourcesFor(session.sessionId, app)
 			if (typeof adapter.attach === 'function') {
 				try {
 					await adapter.attach({
@@ -614,11 +674,47 @@ export function createRuntimeService(context, options = {}) {
 			return { session, detail: pick.detail }
 		},
 
-		/** Read diagnostic envelopes for retained runs or host-owned captures. */
+		/** Keep the host alive until asynchronous session cleanup finishes. */
+		hasPendingCleanup() {
+			return [...runtime.values()].some((entry) => entry.disposed && !entry.capture.closed)
+		},
+		listSessions() {
+			const selected = resolveSelection(context)
+			const apps = selected.state === 'bound' ? [selected.app] : context.discovery.apps
+			const sessions = new Map(
+				apps
+					.flatMap((app) => listRetainedSessions(app.root))
+					.map((session) => [session.sessionId, session]),
+			)
+			for (const session of context.sessions.list()) {
+				if (apps.some((app) => app.id === session.appId)) {
+					sessions.set(session.sessionId, { ...sessions.get(session.sessionId), ...session })
+				}
+			}
+			return {
+				sessions: [...sessions.values()].sort((a, b) =>
+					(b.startedAt ?? b.createdAt).localeCompare(a.startedAt ?? a.createdAt),
+				),
+			}
+		},
+		sessionStatus(sessionId) {
+			const session = this.listSessions().sessions.find(
+				(session) => session.sessionId === sessionId,
+			)
+			return session
+				? { session }
+				: {
+						error: contractError(
+							'not_found',
+							'No retained session with this id for the selected app.',
+						),
+					}
+		},
+
 		async readDiagnostics(args = {}) {
 			try {
 				validateDiagnosticsSelection(args)
-				if (args.sessionId || args.jobId) {
+				if (args.jobId) {
 					const logs = this.readLogs(args)
 					return logs.error ? logs : diagnosticsFromLogs(logs)
 				}
@@ -676,6 +772,13 @@ export function createRuntimeService(context, options = {}) {
 		/** Ownership-safe end: our taps die on attached sessions too — the user's app never does. */
 		async endSession(sessionId) {
 			const session = context.sessions.get(sessionId)
+			if (!session) {
+				const selected = requireApp()
+				if (selected.error) {
+					return { sessionId, ended: false, error: selected.error }
+				}
+				return endRetainedSession(selected.app.root, sessionId)
+			}
 			let taps = []
 			if (session?.ownership === 'attached') {
 				// The registry deliberately skips cleanup for attached sessions —
@@ -684,6 +787,13 @@ export function createRuntimeService(context, options = {}) {
 			}
 
 			const result = await context.sessions.end(sessionId)
+			await disposeResources(sessionId)
+			const entry = runtime.get(sessionId)
+			await entry?.launchPromise
+			await Promise.allSettled(entry?.lateDisposals ?? [])
+			if (entry) {
+				finishCapture(entry, 'Session resources released.')
+			}
 			return taps.length ? { ...result, released: [...(result.released ?? []), ...taps] } : result
 		},
 
@@ -695,7 +805,11 @@ export function createRuntimeService(context, options = {}) {
 				}
 			}
 
-			return context.sessions.shutdown()
+			const results = []
+			for (const session of context.sessions.list()) {
+				results.push(await this.endSession(session.sessionId))
+			}
+			return results
 		},
 
 		recordJobEvidence,

@@ -4,7 +4,7 @@
 import { randomUUID } from 'node:crypto'
 import { contractError } from './errors.ts'
 
-export const SESSION_STATES = ['starting', 'ready', 'disconnected', 'stopped']
+export const SESSION_STATES = ['starting', 'ready', 'failed', 'disconnected', 'stopped']
 export const JOB_STATES = ['queued', 'running', 'succeeded', 'failed', 'cancelling', 'cancelled']
 export const JOB_TERMINAL_STATES = ['succeeded', 'failed', 'cancelled']
 
@@ -14,11 +14,17 @@ const live = (job) =>
 export function createSessionRegistry() {
 	const sessions = new Map()
 	const cleanups = new Map()
+	const watchers = new Set()
+	const notify = (session) => {
+		for (const fn of watchers) {
+			fn({ ...session })
+		}
+	}
 
 	return {
 		bindOwned(input) {
 			const session = {
-				sessionId: `sess_${randomUUID()}`,
+				sessionId: input.sessionId ?? `sess_${randomUUID()}`,
 				appId: input.appId,
 				platform: input.platform,
 				targetId: input.targetId,
@@ -31,12 +37,13 @@ export function createSessionRegistry() {
 
 			sessions.set(session.sessionId, session)
 			cleanups.set(session.sessionId, input.cleanup ?? null)
+			notify(session)
 			return { ...session }
 		},
 
 		attach(input) {
 			const session = {
-				sessionId: `sess_${randomUUID()}`,
+				sessionId: input.sessionId ?? `sess_${randomUUID()}`,
 				appId: input.appId,
 				platform: input.platform,
 				targetId: input.targetId,
@@ -49,6 +56,7 @@ export function createSessionRegistry() {
 			}
 
 			sessions.set(session.sessionId, session)
+			notify(session)
 			return { ...session }
 		},
 
@@ -79,7 +87,7 @@ export function createSessionRegistry() {
 				}
 			}
 
-			if (session.state === 'stopped') {
+			if (session.state === 'stopped' || session.state === 'failed') {
 				return {
 					usable: false,
 					error: contractError(
@@ -97,7 +105,7 @@ export function createSessionRegistry() {
 
 		markReady(sessionId, meta = {}) {
 			const session = sessions.get(sessionId)
-			if (!session || session.state === 'stopped') {
+			if (!session || ['stopped', 'failed'].includes(session.state)) {
 				return null
 			}
 
@@ -110,18 +118,43 @@ export function createSessionRegistry() {
 				session.buildIdentity = meta.buildIdentity
 			}
 
+			notify(session)
 			return { ...session }
 		},
 
 		markDisconnected(sessionId, detail) {
 			const session = sessions.get(sessionId)
-			if (!session || session.state === 'stopped') {
+			if (!session || ['stopped', 'failed'].includes(session.state)) {
 				return null
 			}
 
 			session.state = 'disconnected'
 			session.detail = detail ?? session.detail
+			notify(session)
 			return { ...session }
+		},
+
+		watch(fn) {
+			watchers.add(fn)
+			return () => watchers.delete(fn)
+		},
+		setLaunch(sessionId, progress) {
+			const session = sessions.get(sessionId)
+			if (!session || ['stopped', 'failed'].includes(session.state)) {
+				return
+			}
+			session.launch = { ...session.launch, ...progress }
+			notify(session)
+		},
+		markFailed(sessionId, error) {
+			const session = sessions.get(sessionId)
+			if (!session || session.state === 'stopped') {
+				return
+			}
+			session.state = 'failed'
+			session.launch = { ...session.launch, phase: 'failed', error }
+			session.detail = error.message
+			notify(session)
 		},
 
 		async end(sessionId) {
@@ -135,7 +168,10 @@ export function createSessionRegistry() {
 				return { sessionId, ended: true }
 			}
 
-			session.state = 'stopped'
+			if (session.state !== 'failed') {
+				session.state = 'stopped'
+			}
+			notify(session)
 
 			if (session.ownership === 'attached') {
 				return {

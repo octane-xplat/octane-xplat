@@ -50,6 +50,7 @@ const startedAt = new Date().toISOString()
 
 const context = createWorkspaceContext({
 	workspaceRoot,
+	runtime: { onWorkChanged: () => armIdle() },
 	serverIdentity: cliServerIdentity(),
 	evidenceRoot: join(agentDir, 'evidence'),
 })
@@ -177,7 +178,8 @@ const bindRequestApp = async (appId) => {
 }
 
 const hasLiveWork = () =>
-	context.sessions.list().some((session) => session.state !== 'stopped') ||
+	context.runtime.hasPendingCleanup() ||
+	context.sessions.list().some((session) => !['stopped', 'failed'].includes(session.state)) ||
 	context.jobs.list().some((job) => ['queued', 'running', 'cancelling'].includes(job.state))
 
 let idleTimer = null

@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import test from 'node:test'
-import { createDevLogCapture, readRun } from '../dist/dev-logs.js'
+import { createDevLogCapture, readRetainedSession } from '../dist/dev-logs.js'
 import { retainedDiagnostics } from '../dist/diagnostics.js'
 import { discoverNativeReports, readNativeReport } from '../dist/native-reports.js'
 
@@ -30,7 +30,7 @@ function fixture(t, platform = 'macos') {
 	if (platform === 'macos') {
 		capture.observeNativeOutput('[macos-native] host started pid=321; 0 leaf libraries')
 	}
-	const run = readRun(root, capture.runId)
+	const run = readRetainedSession(root, capture.sessionId)
 	const home = join(root, 'home')
 	const directory = join(home, 'Library/Logs/DiagnosticReports')
 	mkdirSync(directory, { recursive: true })
@@ -77,7 +77,7 @@ test('Apple crash originals survive source deletion and log rotation, with exact
 	const later = await discoverNativeReports(f.root, f.run, { host: 'darwin', home: f.home })
 	assert.equal(later.reports[0].id, id)
 	assert.throws(
-		() => readNativeReport(f.root, f.run, '../run.json'),
+		() => readNativeReport(f.root, f.run, '../session.json'),
 		(e) => e.code === 'invalid_selection',
 	)
 	const other = fixture(t)
@@ -85,7 +85,7 @@ test('Apple crash originals survive source deletion and log rotation, with exact
 		() => readNativeReport(other.root, other.run, id),
 		(e) => e.code === 'not_found',
 	)
-	const raw = join(f.root, 'node_modules/.cache/xplat/logs', f.run.runId, 'reports', id + '.txt')
+	const raw = join(f.root, 'node_modules/.cache/xplat/sessions', f.run.sessionId, 'reports', id + '.txt')
 	writeFileSync(raw, 'tampered')
 	assert.throws(
 		() => readNativeReport(f.root, f.run, id),
@@ -229,10 +229,10 @@ test('native cache failures leave captured logs readable with explicit unavailab
 	const f = fixture(t)
 	f.capture.append({ stream: 'stderr', line: 'still readable' })
 	writeFileSync(
-		join(f.root, 'node_modules/.cache/xplat/logs', f.run.runId, 'reports'),
+		join(f.root, 'node_modules/.cache/xplat/sessions', f.run.sessionId, 'reports'),
 		'invalid directory',
 	)
-	const result = await retainedDiagnostics(f.root, { runId: f.run.runId, cursor: 0 })
+	const result = await retainedDiagnostics(f.root, { sessionId: f.run.sessionId, cursor: 0 })
 	assert.ok(result.logs.records.some((record) => record.line === 'still readable'))
 	assert.equal(result.coverage.nativeReports.status, 'unavailable')
 	assert.match(result.coverage.nativeReports.detail, /retention failed/)

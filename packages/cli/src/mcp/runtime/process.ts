@@ -5,6 +5,7 @@
 // shutdown can release exactly the resources that session created.
 
 import { execFileSync, spawn } from 'node:child_process'
+import { StringDecoder } from 'node:string_decoder'
 
 const managed = new Set()
 let exitHooked = false
@@ -43,21 +44,33 @@ function killTree(child, signal) {
 	}
 }
 
-const LINEFEED = /\r?\n/
-
 function pipeLines(stream, emit) {
+	const decoder = new StringDecoder('utf8')
 	let pending = ''
-	stream.on('data', (chunk) => {
-		pending += chunk.toString('utf8')
-		const lines = pending.split(LINEFEED)
-		pending = lines.pop()
-		for (const line of lines) {
-			emit(line)
+	let discarding = false
+	const consume = (text) => {
+		for (const part of text.split(/(?<=\n)/)) {
+			if (!discarding) {
+				pending += part
+			}
+			if (pending.length > 8192) {
+				emit(pending.slice(0, 8192), true)
+				pending = ''
+				discarding = true
+			}
+			if (part.endsWith('\n')) {
+				if (!discarding) {
+					emit(pending.replace(/\r?\n$/, ''))
+				}
+				pending = ''
+				discarding = false
+			}
 		}
-	})
-
+	}
+	stream.on('data', (chunk) => consume(decoder.write(chunk)))
 	stream.on('end', () => {
-		if (pending.trim()) {
+		consume(decoder.end())
+		if (pending) {
 			emit(pending)
 		}
 	})
@@ -96,11 +109,23 @@ export function spawnManaged({
 	const note = (line) => logBuffer?.note(line, { source: source ?? `${cmd} ${args.join(' ')}` })
 
 	if (child.stdout) {
-		pipeLines(child.stdout, (line) => logBuffer?.append({ stream: 'stdout', line }))
+		pipeLines(child.stdout, (line, lineTruncated) =>
+			logBuffer?.append({
+				stream: 'stdout',
+				line,
+				...(lineTruncated ? { lineTruncated: true } : {}),
+			}),
+		)
 	}
 
 	if (child.stderr) {
-		pipeLines(child.stderr, (line) => logBuffer?.append({ stream: 'stderr', line }))
+		pipeLines(child.stderr, (line, lineTruncated) =>
+			logBuffer?.append({
+				stream: 'stderr',
+				line,
+				...(lineTruncated ? { lineTruncated: true } : {}),
+			}),
+		)
 	}
 
 	let resolveExit

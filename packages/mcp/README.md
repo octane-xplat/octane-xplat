@@ -61,12 +61,12 @@ Options: `--workspace` / `XPLAT_MCP_WORKSPACE` (default cwd), `--app` /
 | `xplat_select_app`                      | Explicitly bind an app by id/path/name. Ambiguous or unknown selections fail with the candidate list — the server never picks silently.                                                                        |
 | `xplat_capability_matrix`               | Per-platform capability entries: build, launch, logs, inspection, screenshot, interaction, and the rest are separate rows with status, detail, and alternatives.                                               |
 | `xplat_permissions`                     | Grant states per scope plus the action-time check result and recovery path.                                                                                                                                    |
-| `xplat_sessions`                        | Bound sessions: owned vs attached user-owned, state, build identity.                                                                                                                                           |
+| `xplat_sessions`                        | Retained sessions and launch progress; optional `sessionId` selects exact status, including failures and ended sessions.                                                                                                                                           |
 | `xplat_targets`                         | Launchable targets per platform (simulators, devices, host targets) with availability, missing-toolchain reasons, and busy/ownership state.                                                                    |
 | `xplat_build`                           | Build the bound app for one platform as a job — same commands `xplat build` runs. `requestKey` dedupes retries.                                                                                                |
-| `xplat_launch`                          | Owned dev session on one target as a job; completes at confirmed readiness, session owns the processes until `xplat_session_end`.                                                                              |
+| `xplat_launch`                          | Start an owned session and return its durable ID immediately; poll `xplat_sessions` for readiness, end with `xplat_session_end`.                                                                              |
 | `xplat_attach`                          | Bind a compatible already-running dev session (user-owned, preserved).                                                                                                                                         |
-| `xplat_diagnostics`                     | Retained run discovery; log pages under `logs`, native summaries under `reports`, explicit source `coverage`, and original report reads. Session/job selectors read their own log captures.                    |
+| `xplat_diagnostics`                     | Retained session discovery; log pages under `logs`, native summaries under `reports`, explicit source `coverage`, and original report reads. Build/action jobs retain their own logs.                    |
 | `xplat_dev_actions`                     | The bound app's live development-action registry: instance identity, revision, declarations (contracts, effects, availability). Empty vs disconnected vs no-bridge are distinct states.                        |
 | `xplat_dev_action_invoke`               | Invoke an action against an exact app instance + registry revision. Pre-validates input, availability, grants and queue bounds; returns a job (`requestKey` dedupes retries).                                  |
 | `xplat_dev_action_status`               | Invocation status/result — same job data restricted to dev-action jobs, with instance/request identity.                                                                                                        |
@@ -197,8 +197,8 @@ cancel, ownership-safe cleanup, bounded logs, and capability-matrix entries.
 
 Readiness is probe/marker-confirmed (`ready` session state) — HTTP 200 for
 web, the host-start marker for macOS, `Successfully synced application` /
-first `CONSOLE` line for `ns run`. A timeout or pre-ready exit fails the job
-and ends the owned session honestly. Chromium is located via
+first `CONSOLE` line for `ns run`. A timeout or pre-ready exit marks the session `failed`
+and releases its owned resources. Chromium is located via
 `XPLAT_MCP_CHROMIUM`, the Playwright browser cache, or system installs;
 without it the web session still reports the server URL with an explicit
 `browser.launched: false`.
@@ -206,6 +206,21 @@ without it the web session still reports the server URL with an explicit
 Physical iOS devices, Windows attach detection, and non-simulator iOS log
 taps are reported limitations, not silent gaps — the capability matrix
 carries the detail and an alternative.
+
+Launch accepts an optional exact target ID or platform name. Platform or omitted
+selection requires exactly one eligible target; ambiguity returns candidates.
+Use the same session ID for status, diagnostics, and cleanup:
+
+```js
+const launch = await client.callTool({name: "xplat_launch", arguments: {target: "ios"}});
+const {sessionId} = launch.structuredContent.data.session;
+await client.callTool({name: "xplat_sessions", arguments: {sessionId}});
+await client.callTool({name: "xplat_diagnostics", arguments: {sessionId}});
+await client.callTool({name: "xplat_session_end", arguments: {sessionId}});
+```
+
+Ending a session
+also cancels startup when it has not reached readiness.
 
 ## Inspect and interact with Chromium
 

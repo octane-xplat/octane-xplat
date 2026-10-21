@@ -7,7 +7,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { createRequire } from 'node:module'
 import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { listDevRuns, readDevLogs } from '../dist/dev-logs.js'
+import { listRetainedSessions, readDevLogs } from '../dist/dev-logs.js'
 const requireWeb = createRequire(new URL('../../../apps/web/package.json', import.meta.url))
 const { chromium } = requireWeb('playwright')
 const cache = fileURLToPath(new URL('../node_modules/.cache/', import.meta.url))
@@ -65,9 +65,9 @@ try {
 	browser = await chromium.launch({ headless: true })
 	const page = await browser.newPage()
 	await page.goto(url)
-	const run = await wait(() => listDevRuns(root)[0])
+	const run = await wait(() => listRetainedSessions(root)[0])
 	await wait(() => {
-		const lines = readDevLogs(root, run.runId)
+		const lines = readDevLogs(root, run.sessionId)
 			.records.map((r) => r.line)
 			.join('\n')
 		return ['warning-before-agent', 'uncaught-before-agent', 'rejection-before-agent'].every((s) =>
@@ -82,16 +82,42 @@ try {
 	)
 
 	assert.equal(listed.ok, true)
-	assert.equal(listed.data.runs[0].runId, run.runId)
+	assert.equal(listed.data.sessions[0].sessionId, run.sessionId)
 	await browser.close()
 	browser = null
 	const closed = new Promise((resolve) => child.once('close', resolve))
-	child.kill('SIGTERM')
+	assert.ok(output.includes(`session ${run.sessionId}`))
+	const status = JSON.parse(
+		execFileSync(
+			process.execPath,
+			[cli, 'session', 'status', run.sessionId, '--project', root, '--json'],
+			{ encoding: 'utf8' },
+		),
+	)
+	assert.equal(status.data.session.state, 'ready')
+	const ended = JSON.parse(
+		execFileSync(
+			process.execPath,
+			[cli, 'session', 'end', run.sessionId, '--project', root, '--json'],
+			{ encoding: 'utf8' },
+		),
+	)
+	assert.equal(ended.data.result.ended, true)
 	await closed
 	const after = JSON.parse(
 		execFileSync(
 			process.execPath,
-			[cli, 'diagnostics', '--run', run.runId, '--project', root, '--cursor', '0', '--json'],
+			[
+				cli,
+				'diagnostics',
+				'--session',
+				run.sessionId,
+				'--project',
+				root,
+				'--cursor',
+				'0',
+				'--json',
+			],
 			{ encoding: 'utf8' },
 		),
 	)

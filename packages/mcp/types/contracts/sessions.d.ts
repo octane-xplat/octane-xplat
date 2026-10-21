@@ -7,7 +7,7 @@
  * preserves it). Restarting always establishes a new session identity; tools
  * refuse operations against stopped or disconnected sessions.
  *
- * Jobs are bounded units of work (build, launch, dev-action, …) whose status
+ * Jobs are bounded units of work (build, dev-action, …) whose status
  * is queryable without holding a tool call open. Repeating a request with the
  * same `requestKey` returns the live job instead of duplicating it.
  * Cancellation is cooperative: `cancelling` and `cancelled` are distinct
@@ -25,6 +25,8 @@ export const JOB_TERMINAL_STATES: readonly JobState[]
 export type SessionState =
 	/** Bound but not yet ready for observation/interaction. */
 	| 'starting'
+	/** Launch failed; retained diagnostics remain readable. */
+	| 'failed'
 	/** Ready — inspection, logs, and authorized interactions may proceed. */
 	| 'ready'
 	/** Lost contact; last-known data is historical evidence, never current state. */
@@ -57,6 +59,7 @@ export interface SessionBinding {
 	processKind: 'fresh' | 'warm' | null
 	buildIdentity?: BuildIdentity
 	detail?: string
+	launch?: { phase?: string; error?: ContractError; [key: string]: unknown }
 }
 
 export interface EndSessionResult {
@@ -78,7 +81,7 @@ export interface JobProgress {
 
 export interface Job {
 	jobId: string
-	/** e.g. `build`, `launch`, `attach`, `dev-action`. */
+	/** e.g. `build`, `dev-action`. */
 	kind: string
 	sessionId?: string
 	/** Idempotence key supplied by the caller or adapter. */
@@ -113,6 +116,7 @@ export interface StartJobResult {
 export interface SessionRegistry {
 	/** Start a server-owned session in `starting` state. `cleanup` runs on end/shutdown and must only release resources this session created. */
 	bindOwned(input: {
+		sessionId?: string
 		appId: string
 		platform: Platform
 		targetId: string
@@ -133,6 +137,9 @@ export interface SessionRegistry {
 	requireUsable(
 		sessionId: string,
 	): { usable: true; session: SessionBinding } | { usable: false; error: ContractError }
+	watch(fn: (session: SessionBinding) => void): () => void
+	setLaunch(sessionId: string, progress: Record<string, unknown>): void
+	markFailed(sessionId: string, error: ContractError): void
 	markReady(
 		sessionId: string,
 		meta?: { processKind?: 'fresh' | 'warm'; buildIdentity?: BuildIdentity },

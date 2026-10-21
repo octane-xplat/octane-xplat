@@ -1,9 +1,8 @@
-import { listDevRuns, readDevLogs, readRun } from './dev-logs.ts'
+import { listRetainedSessions, readDevLogs, readRetainedSession } from './dev-logs.ts'
 import { discoverNativeReports, readNativeReport } from './native-reports.ts'
 import { contractError } from './mcp/contracts/errors.ts'
 
 export interface DiagnosticsArgs {
-	runId?: string
 	reportId?: string
 	sessionId?: string
 	jobId?: string
@@ -15,36 +14,35 @@ export interface DiagnosticsArgs {
 
 /** Validate selectors identically for CLI and MCP. */
 export function validateDiagnosticsSelection(args: DiagnosticsArgs) {
-	if ([args.runId, args.sessionId, args.jobId].filter(Boolean).length > 1) {
-		throw contractError('invalid_selection', 'Pass only one of --run, --session, or --job.')
+	if ([args.sessionId, args.jobId].filter(Boolean).length > 1) {
+		throw contractError('invalid_selection', 'Pass only one of --session or --job.')
 	}
 	if (
 		args.reportId &&
-		(!args.runId ||
+		(!args.sessionId ||
 			args.cursor !== undefined ||
 			args.limit !== undefined ||
 			args.stream !== undefined)
 	) {
 		throw contractError(
 			'invalid_selection',
-			'--report requires --run and cannot be combined with log pagination or stream filters.',
+			'--report requires --session and cannot be combined with log pagination or stream filters.',
 		)
 	}
-	if ((args.sessionId || args.jobId) && args.platform) {
+	if (args.jobId && args.platform) {
 		throw contractError(
 			'invalid_selection',
-			'--platform filters retained dev runs; session/job ids already select their capture.',
+			'--platform filters sessions; a job id already selects its capture.',
 		)
 	}
 	if (
-		!args.runId &&
 		!args.sessionId &&
 		!args.jobId &&
 		(args.cursor !== undefined || args.limit !== undefined || args.stream !== undefined)
 	) {
 		throw contractError(
 			'invalid_selection',
-			'Select --run, --session, or --job before paging or filtering records.',
+			'Select --session or --job before paging or filtering records.',
 		)
 	}
 }
@@ -59,7 +57,7 @@ export function diagnosticsFromLogs(logs: any) {
 			nativeReports: {
 				status: 'unavailable',
 				detail:
-					'Native report lookup requires a retained --run from xplat dev. Session/job selectors read their own output captures.',
+					'Build jobs have output captures but no development session or native report lookup.',
 			},
 		},
 	}
@@ -68,20 +66,20 @@ export function diagnosticsFromLogs(logs: any) {
 /** Read app-bound retained evidence without creating a runtime host. */
 export async function retainedDiagnostics(appRoot: string, args: DiagnosticsArgs) {
 	validateDiagnosticsSelection(args)
-	if (!args.runId) {
+	if (!args.sessionId) {
 		return {
-			runs: listDevRuns(appRoot, args.platform),
-			note: 'Select --run RUN_ID to read logs and native reports. Runs are recorded by xplat dev, independently of agent sessions.',
+			sessions: listRetainedSessions(appRoot, args.platform),
+			note: 'Select --session SESSION_ID to read logs and native reports. Both xplat dev and agent launches retain sessions.',
 		}
 	}
-	const run = readRun(appRoot, args.runId)
+	const run = readRetainedSession(appRoot, args.sessionId)
 	if (args.platform && run.platform !== args.platform) {
 		throw contractError('invalid_selection', 'The selected run belongs to another platform.')
 	}
 	if (args.reportId) {
-		return { runId: run.runId, report: readNativeReport(appRoot, run, args.reportId) }
+		return { sessionId: run.sessionId, report: readNativeReport(appRoot, run, args.reportId) }
 	}
-	const { run: _run, ...logs } = readDevLogs(appRoot, args.runId, args)
+	const { session: _session, ...logs } = readDevLogs(appRoot, args.sessionId, args)
 	let native: Awaited<ReturnType<typeof discoverNativeReports>>
 	try {
 		native = await discoverNativeReports(appRoot, run)
@@ -96,8 +94,8 @@ export async function retainedDiagnostics(appRoot: string, args: DiagnosticsArgs
 		}
 	}
 	return {
-		runId: run.runId,
-		run,
+		sessionId: run.sessionId,
+		session: run,
 		logs,
 		reports: native.reports,
 		coverage: { logs: 'captured', nativeReports: native.coverage },

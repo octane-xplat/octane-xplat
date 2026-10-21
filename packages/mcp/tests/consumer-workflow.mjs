@@ -96,12 +96,18 @@ try {
 
 	evidence.push({ check: 'consumer web build', jobId: build.job.jobId })
 	const launch = await call('xplat_launch', {
-		platform: 'web',
+		target: 'web',
 		browserMode: osInput ? 'headed' : 'headless',
 	})
 
 	sessionId = launch.session.sessionId
-	const launched = await jobDone(launch.job.jobId)
+	const launched = await until(async () => {
+		const { session } = await call('xplat_sessions', { sessionId })
+		assert.ok(!['failed', 'stopped'].includes(session.state), JSON.stringify(session))
+		return session.state === 'ready'
+			? { result: { ...session.launch, buildIdentity: session.buildIdentity } }
+			: null
+	})
 	evidence.push({ check: 'owned launch/readiness', sessionId, result: launched.result })
 	await until(async () => {
 		const result = await client.callTool({

@@ -324,19 +324,17 @@ try {
 	})
 
 	const launch = json(
-		run([
-			'session',
-			'start',
-			'--platform',
-			'web',
-			'--browser-mode',
-			osInput ? 'headed' : 'headless',
-			'--json',
-		]),
+		run(['session', 'start', 'web', '--browser-mode', osInput ? 'headed' : 'headless', '--json']),
 	).data
 
 	sessionId = launch.session.sessionId
-	const launched = jobDone(launch.job.jobId)
+	const launched = until(() => {
+		const { session } = json(run(['session', 'status', sessionId, '--json'])).data
+		assert.ok(!['failed', 'stopped'].includes(session.state), JSON.stringify(session))
+		return session.state === 'ready'
+			? { result: { ...session.launch, buildIdentity: session.buildIdentity } }
+			: null
+	})
 	assert.equal(launched.result.readiness, 'confirmed')
 	assert.equal(launched.result.browser.launched, true)
 	browserPid = launched.result.browser.pid
@@ -351,7 +349,7 @@ try {
 	const boundSession = listed.sessions.find((s) => s.sessionId === sessionId)
 	assert.equal(boundSession.state, 'ready')
 	assert.equal(boundSession.ownership, 'owned')
-	assert.equal(listed.host.state, 'live')
+	assert.ok(listed.sessions.some((session) => session.sessionId === sessionId))
 	evidence.push({ check: 'session list/status report the live owned session' })
 
 	// -- stable-control assertions + both input mechanisms ------------------------------

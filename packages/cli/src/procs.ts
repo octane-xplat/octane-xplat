@@ -2,7 +2,7 @@
 // Prefixed process plumbing — dev runs several tools side by side, so each
 // gets a short tag on its output lines. SIGINT/SIGTERM fan out to every child;
 // the parent lingers so children can finish their own cleanup first.
-import { spawn } from 'node:child_process'
+import { spawn, execFileSync } from 'node:child_process'
 import { StringDecoder } from 'node:string_decoder'
 import { createDevLogCapture } from './dev-logs.ts'
 
@@ -10,6 +10,19 @@ const children = new Set()
 let stopping = false
 let stopCode = 0
 
+const stopChild = (child, signal) => {
+	try {
+		if (process.platform === 'win32') {
+			execFileSync('taskkill', ['/pid', String(child.pid), '/T', '/F'], { stdio: 'ignore' })
+		} else {
+			process.kill(-child.pid, signal)
+		}
+	} catch {
+		try {
+			child.kill(signal)
+		} catch {}
+	}
+}
 const stop = (signal, code) => {
 	if (stopping) {
 		return
@@ -18,7 +31,7 @@ const stop = (signal, code) => {
 	stopping = true
 	stopCode = code
 	for (const p of children) {
-		p.kill(signal)
+		stopChild(p, signal)
 	}
 
 	// Children that ignore the signal are abandoned after this grace period.
@@ -39,22 +52,36 @@ export function spawnTagged(tag, cmd, args, cwd, { capture } = {}) {
 		try {
 			log = createDevLogCapture(cwd, capture)
 		} catch (error) {
+			if (error.code === 'target_busy') {
+				throw error
+			}
 			captureError(error)
 		}
 	}
-	const p = spawn(cmd, args, { cwd, env: process.env })
+	const p = spawn(cmd, args, { cwd, env: process.env, detached: process.platform !== 'win32' })
+	let requestedStop = false
+	if (log) {
+		process.stdout.write(`[${tag}] session ${log.sessionId}\n`)
+		log.onStop(() => {
+			requestedStop = true
+			stopChild(p, 'SIGTERM')
+			const timer = setTimeout(() => stopChild(p, 'SIGKILL'), 3000)
+			timer.unref()
+			p.once('close', () => clearTimeout(timer))
+		})
+	}
+
 	children.add(p)
 	const output = (stream, input) => {
 		const decoder = new StringDecoder('utf8')
 		let pending = ''
 		let discarding = false
 		const line = (text, lineTruncated = false) => {
-			const browser = /^\[browser:(warn|error)\] (.*)$/.exec(text)
 			try {
 				log?.observeNativeOutput(text)
 				log?.append({
 					stream,
-					source: browser ? 'browser' : tag,
+					source: tag,
 					line: text,
 					...(lineTruncated ? { lineTruncated } : {}),
 				})
@@ -108,6 +135,11 @@ export function spawnTagged(tag, cmd, args, cwd, { capture } = {}) {
 	p.once('error', (error) => {
 		process.stderr.write(`[${tag}] Process launch failed: ${error.message}\n`)
 		try {
+			log?.update({
+				state: 'failed',
+				detail: error.message,
+				launch: { phase: 'failed', error: { code: 'execution_failure', message: error.message } },
+			})
 			log?.close(`Process launch failed: ${error.message}`)
 		} catch (error) {
 			captureError(error)
@@ -115,6 +147,9 @@ export function spawnTagged(tag, cmd, args, cwd, { capture } = {}) {
 	})
 	p.on('close', (code, signal) => {
 		try {
+			if (!requestedStop && !stopping && (code || signal)) {
+				log?.update({ state: 'failed', detail: `Process exited (${code ?? signal}).` })
+			}
 			log?.close(`Process exited (code=${code}, signal=${signal}).`)
 		} catch (error) {
 			captureError(error)

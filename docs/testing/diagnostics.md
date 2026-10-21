@@ -10,8 +10,8 @@ terminal. For example, start just the web target:
 pnpm exec xplat dev web
 ```
 
-In another terminal, list that app's recorded runs. Each run identifies one
-target started by one invocation; a new start creates a new run ID. You can
+In another terminal, list that app's recorded sessions. Each retained session identifies one target execution. A new start creates a
+new session ID, which `xplat dev` also prints in the terminal. You can
 filter the list by platform, including `ios`, `android`, or `macos`:
 
 ```sh
@@ -19,25 +19,67 @@ pnpm exec xplat diagnostics --json
 pnpm exec xplat diagnostics --platform ios --json
 ```
 
-Read a run using its returned `runId`. Replace `RUN_ID` below with that exact
-value. Reads work without an agent session and after the app exits:
+Read a session using its returned `sessionId`. Replace `SESSION_ID` below with that exact
+value. Reads work without an agent connection and after the app exits:
 
 ```sh
-pnpm exec xplat diagnostics --run RUN_ID --limit 50 --json
+pnpm exec xplat diagnostics --session SESSION_ID --limit 50 --json
+```
+
+Agents can launch the same kind of retained session directly. Replace
+`TARGET_ID` with an exact ID from discovery. The start response returns
+`session.sessionId` immediately; poll that identity for launch progress and
+readiness. There is no separate launch job or diagnostic run ID:
+
+```sh
+pnpm exec xplat targets --json
+pnpm exec xplat session start TARGET_ID --json
+pnpm exec xplat session status SESSION_ID --json
+```
+
+The optional positional accepts an exact target ID or a platform name. Platform
+names are reserved; the platform is read from discovery rather than guessed
+from an opaque ID. A platform shorthand or omitted selector launches only
+when exactly one eligible target matches; otherwise the error lists candidates.
+`session start` has no `--platform` or `--target` flags:
+
+```sh
+pnpm exec xplat session start ios --json
+pnpm exec xplat session start --json
+```
+
+Session status distinguishes `starting`, `ready`, `failed`, `stopped`, and
+`disconnected`. During launch, `session.launch.phase` reports progress and a
+failure includes `session.launch.error`. A lost capture owner is disconnected;
+its last-known readiness is not evidence of a healthy running app:
+
+```sh
+pnpm exec xplat session status SESSION_ID --json
+pnpm exec xplat diagnostics --session SESSION_ID --json
+```
+
+End a session to cancel a pending launch or release its owned resources. This
+also works for a session started by `xplat dev` or another local transport:
+the request goes to its owner and stops only that session's target. Attached
+user-owned apps remain running. An unreachable owner reports unconfirmed
+cleanup instead of signaling a possibly reused process ID:
+
+```sh
+pnpm exec xplat session end SESSION_ID --json
 ```
 
 The first read returns the newest matching records. To continue, reuse the
-same run ID and the returned `logs.nextCursor`; replace `NEXT_CURSOR` below with
+same session ID and the returned `logs.nextCursor`; replace `NEXT_CURSOR` below with
 that number. Use cursor `0` to start at the oldest retained record instead:
 
 ```sh
-pnpm exec xplat diagnostics --run RUN_ID --cursor NEXT_CURSOR --limit 50 --json
-pnpm exec xplat diagnostics --run RUN_ID --cursor 0 --stream stderr --json
+pnpm exec xplat diagnostics --session SESSION_ID --cursor NEXT_CURSOR --limit 50 --json
+pnpm exec xplat diagnostics --session SESSION_ID --cursor 0 --stream stderr --json
 ```
 
 If your workspace has several apps, select the intended app explicitly.
-Retained logs belong to that app's directory; a run ID from another app is
-rejected. Existing session and job reads remain available as well:
+Retained diagnostics belong to that app's directory; a session ID from another app is
+rejected. Standalone build jobs keep their own output captures:
 
 ```sh
 pnpm exec xplat diagnostics --app APP_ID --json
@@ -77,13 +119,13 @@ console.warn('Development log check: app started')
 
 ## Native reports
 
-A run read returns `logs`, `reports`, and `coverage`. Logs contain output and
+A session read returns `logs`, `reports`, and `coverage`. Logs contain output and
 its cursor; reports are a separate snapshot of existing OS evidence. Repeat
-the run read to discover reports that arrive later, even when the log cursor
+the session read to discover reports that arrive later, even when the log cursor
 has reached the end:
 
 ```sh
-pnpm exec xplat diagnostics --run RUN_ID --cursor NEXT_CURSOR --json
+pnpm exec xplat diagnostics --session SESSION_ID --cursor NEXT_CURSOR --json
 ```
 
 The response separates these two kinds of evidence. The example below shows
@@ -91,7 +133,7 @@ an empty log page with a candidate native crash report:
 
 ```json
 {
-	"runId": "run_123",
+	"sessionId": "sess_123",
 	"logs": { "records": [], "nextCursor": 42 },
 	"reports": [
 		{
@@ -108,13 +150,13 @@ an empty log page with a candidate native crash report:
 }
 ```
 
-To read an original, use an exact report ID returned for that run. Report reads
+To read an original, use an exact report ID returned for that session. Report reads
 work from the retained copy even after the OS removes its original file or the
 device disconnects. Report selection cannot be combined with log pagination
 or stream filters:
 
 ```sh
-pnpm exec xplat diagnostics --run RUN_ID --report REPORT_ID --json
+pnpm exec xplat diagnostics --session SESSION_ID --report REPORT_ID --json
 ```
 
 | Target        | Report source                                                                                    | Limit                                                                                                                                                     |
@@ -131,7 +173,7 @@ times use the device's current time zone. Review `associationReason` when
 interpreting a report:
 
 ```sh
-pnpm exec xplat diagnostics --run RUN_ID --json
+pnpm exec xplat diagnostics --session SESSION_ID --json
 ```
 
 `coverage.nativeReports.status` distinguishes `available`, `none-found`,
@@ -142,16 +184,16 @@ A missing device, app identity, directory access, or tool never becomes an
 empty successful coverage claim:
 
 ```sh
-pnpm exec xplat diagnostics --run RUN_ID --json
+pnpm exec xplat diagnostics --session SESSION_ID --json
 ```
 
 Native identity is recorded during a new `xplat dev` run. Mobile identity comes
 from NativeScript's successful sync output; macOS identity comes from the
 AppKit launch configuration, with observed host PIDs recorded across restarts.
 An older run or a failure before mobile identity is reported may have logs
-without native report coverage. Session/job selectors return their own log
-captures and explicitly report native lookup as unavailable; use a retained
-development run for native reports:
+without native report coverage. Session selectors include both retained output and native reports, regardless
+of which transport launched them. Standalone build jobs retain their existing
+job IDs and output captures, with native lookup explicitly unavailable:
 
 ```sh
 pnpm exec xplat diagnostics --session SESSION_ID --json
@@ -161,15 +203,15 @@ pnpm exec xplat diagnostics --job JOB_ID --json
 ## Retention and missing evidence
 
 Output is stored locally under the app's
-`node_modules/.cache/xplat/logs/`. Each run retains two rotating segments of
-at most 512 KiB each. At most 20 completed runs are kept, alongside active
-captures. Records include timestamps, stream, source, and sequence; the run
+`node_modules/.cache/xplat/sessions/`. Each session retains two rotating segments of
+at most 512 KiB each. At most 20 completed sessions are kept, alongside active
+captures. Records include timestamps, stream, source, and sequence; the session
 includes platform, target, capture owner PID, and start/end times.
 
 Read the `logs` fields `capturedFrom`, `historical`, `truncated`, `dropped`,
 and `incompleteTail`, plus the top-level `coverage`, before drawing conclusions. `historical: false` only means
 the capture owner process appears present; it does not establish app health.
-`dropped` counts records evicted over this run's lifetime, including on a first
+`dropped` counts records evicted over this session's lifetime, including on a first
 read. Streams refer to the development command's stdout/stderr; a host may
 already have combined the app's original output channels.
 Long retained lines are capped at 8,192 characters and marked
@@ -180,12 +222,12 @@ in their text.
 This command requests all still-retained history so any eviction is explicit:
 
 ```sh
-pnpm exec xplat diagnostics --run RUN_ID --cursor 0 --json
+pnpm exec xplat diagnostics --session SESSION_ID --cursor 0 --json
 ```
 
 Capture does not recover output from before startup or from an app launched
-outside `xplat dev`. Agent-owned session logs and retained development-run
-logs are separate captures. Native reports are discovered separately as described below. Active hang
+outside `xplat dev` or `session start`. Attached sessions disclose their
+post-attach coverage; they do not recover earlier output. Native reports are discovered separately as described above. Active hang
 detection, network payloads, and application state snapshots are outside this feature.
 
 Log strings and native reports can contain private data. Capture stays local and files use
@@ -194,10 +236,10 @@ strings. Avoid logging credentials, user input, or request bodies, and share
 only the records needed to diagnose the problem.
 
 Native originals are retained separately from rotating logs, with at most 10
-reports per run, 4 MiB per report, and 16 MiB total. Oversized or excess
+reports per session, 4 MiB per report, and 16 MiB total. Oversized or excess
 reports are omitted, and coverage reports the limit. Discovery also bounds
 Apple scanning to 100 recent files and 64 MiB of reads; any scan gap is
-reported as partial. Report retention ends when its development run is pruned.
+reported as partial. Report retention ends when its session is pruned.
 No OS reports are deleted, and no custom crash handler, root access, bugreport,
 or profiling session is started.
 
@@ -206,7 +248,8 @@ and [Android's exit-history implementation](https://android.googlesource.com/pla
 
 The alpha command is now `diagnostics`; the former `logs` command and
 `xplat_logs` MCP tool have been removed. MCP exposes `xplat_diagnostics` with
-`runId`, `reportId`, `sessionId`, and `jobId` selectors. Consumers of either
+`sessionId`, `reportId`, and `jobId` selectors. The former `runId` / `--run`
+selector is removed; both launch paths use durable session IDs. Consumers of either
 transport read log pages from `data.logs`, including `data.logs.nextCursor`:
 
 ```sh

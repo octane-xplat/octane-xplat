@@ -7,14 +7,14 @@ outside this feature.
 
 ## Chosen scope
 
-An agent can list a selected app's retained development runs and retrieve
+An agent can list a selected app's retained development sessions and retrieve
 output produced before it connected, including after the capture process exits.
 The [public guide](../../docs/testing/diagnostics.md) owns commands,
 configuration, retention limits, and user-facing coverage.
 
 ```sh
 pnpm exec xplat diagnostics --platform ios --json
-pnpm exec xplat diagnostics --run RUN_ID --cursor 0 --limit 50 --json
+pnpm exec xplat diagnostics --session SESSION_ID --cursor 0 --limit 50 --json
 ```
 
 Use the existing development launcher as the collection boundary. All six
@@ -27,16 +27,17 @@ preserved; ordinary object payloads are omitted.
 ## Ownership and persistence
 
 - `commands/dev.ts` starts one capture per selected target. Ordinary build and
-  type-generation subprocesses do not create retained development runs.
+  type-generation subprocesses do not create retained development sessions.
 - `procs.ts` tees output to the terminal and capture, decodes split UTF-8,
   and bounds incomplete lines without truncating terminal output.
-- `dev-logs.ts` owns private per-run metadata and two rotating JSONL segments
-  under the app's local cache. Rotation and completed-run eviction bound storage;
-  active runs are retained. Writes reach the local filesystem synchronously,
+- `dev-logs.ts` owns private per-session metadata and two rotating JSONL segments
+  under the app's local cache. Rotation and completed-session eviction bound storage;
+  active sessions are retained. Writes reach the local filesystem synchronously,
   without promising survival of power loss or storage failure.
-- CLI diagnostics handlers list/read those files directly with explicit app/run
+- CLI diagnostics handlers list/read those files directly with explicit app/session
   selection. No agent runtime host, running app response, or app inspection
-  channel is required. Session/job logs retain their existing service path.
+  channel is required. Agent launches use the same retained session record; standalone jobs retain
+  their bounded service log path.
 - `xplatDevBridge` authenticates browser batches using its existing server
   token. Its serve-only HTML hook installs the browser collector; production
   builds receive neither the collector nor endpoint.
@@ -52,9 +53,9 @@ ownership; other bundle/device/time matches remain candidates. Android's exit re
 full tombstones/ANR traces and always disclose partial coverage. The public
 guide owns source and retention details.
 
-Each record carries sequence, timestamp, stream, source, and text. Run metadata
+Each record carries sequence, timestamp, stream, source, and text. Session metadata
 carries platform, target, capture owner PID, and start/end times. Sequence cursors
-belong to a specific run. Missing retained history, capped lines, and incomplete
+belong to a specific session. Missing retained history, capped lines, and incomplete
 file tails are reported; timestamp proximity does not establish causality.
 
 ## Evidence boundaries
@@ -77,7 +78,7 @@ qualify a native target.
 
 At revision `33c253a59` (before the command rename), isolated apps emit unique `console.log`,
 `console.warn`, and `console.error` startup markers through `xplat dev`.
-The first `xplat diagnostics --run RUN_ID --cursor 0 --json` read happens after
+The first `xplat diagnostics --session SESSION_ID --cursor 0 --json` read happens after
 all three markers appear. A second CLI read after stopping the development
 process must retain every marker and return `historical: true`.
 
@@ -85,7 +86,7 @@ process must retain every marker and return `historical: true`.
 pnpm exec xplat dev TARGET_ID
 # After the startup markers appear, in another terminal:
 pnpm exec xplat diagnostics --json
-pnpm exec xplat diagnostics --run RUN_ID --cursor 0 --json
+pnpm exec xplat diagnostics --session SESSION_ID --cursor 0 --json
 # Stop xplat dev, then repeat the same run read.
 ```
 
@@ -112,8 +113,8 @@ sensitive values; local owner-only files and object omission do not guarantee
 redaction. Browser queues/batches are bounded and disclose lost deliveries.
 
 A missing/dead capture owner marks history as historical; apparent PID liveness
-is only a hint and does not prove the app is ready or healthy. Retained runs
-are separate from agent-owned session/job captures. App-specific snapshots can
+is only a hint and does not prove the app is ready or healthy. Ordinary dev and agent launches share durable session records. Standalone
+build/action jobs keep their own captures. App-specific snapshots can
 use existing development actions where available, but are not part of this slice.
 
 Physical iOS extraction, full Android tombstone/ANR trace retrieval, active
@@ -128,7 +129,7 @@ building the CLI; it uses the existing apps/web Playwright installation and
 captures no images. It is outside the ordinary test glob and PR checks:
 
 ```sh
-pnpm --filter @octane-xplat/cli... --if-present build
+pnpm exec turbo run build --filter=@octane-xplat/cli
 node packages/cli/test/verify-dev-logs-browser.mjs
 ```
 
@@ -165,3 +166,36 @@ foreign device/app exclusion, report retention across log rotation, original
 integrity, unavailable sources, Android exit record parsing, and retention limits.
 Runtime report qualification does not imply full Android tombstone/ANR trace
 access, physical iOS extraction, automatic symbolication, or hang detection.
+
+## One durable identity per execution
+
+Ordinary dev and agent launches now create the same retained session record.
+The public run id and launch job id are removed. Session start returns its
+session id immediately; status carries launch phase, readiness and failures.
+Build/action operations remain jobs, and report ids remain session-scoped
+attachments. CLI/MCP status and diagnostics can read retained sessions without
+starting a runtime host.
+
+```sh
+xplat session start TARGET_ID --json
+xplat session status SESSION_ID --json
+xplat diagnostics --session SESSION_ID --json
+```
+
+Session start accepts one optional exact target id or reserved platform name.
+Omitted/platform selection requires one eligible target; unknown or ambiguous
+input returns candidates. Platform comes from the discovered record. Owned
+app/target leases prevent independent dev/agent launches from racing. End
+requests reach the capture owner through the private local session directory;
+they never signal an inferred PID. The owner cancels a pending launch and
+releases only its resources; attached apps remain user-owned.
+
+
+The optional agent-launch qualification checks immediate session identity,
+readiness, retained browser diagnostics, owner-control cleanup, host idle exit,
+and reads after owner exit. It launches headless Chromium and captures no images:
+
+```sh
+pnpm exec turbo run build --filter=@octane-xplat/cli
+node packages/cli/test/verify-session-lifecycle.mjs
+```

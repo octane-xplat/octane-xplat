@@ -57,13 +57,14 @@ export function registerRuntimeTools(
 		'xplat_launch',
 		{
 			description:
-				'Start an owned development session: bind one app to one target and run the platform dev command as a job. The job completes when readiness is confirmed — a failed launch after a successful build reports accurately, and the session keeps the app alive until xplat_session_end.',
+				'Start an owned development session: return one durable session id immediately. Read launch progress and readiness through xplat_sessions; diagnostics use the same session id, including after shutdown.',
 			inputSchema: {
-				platform: z.enum(PLATFORMS as Platform[]),
-				targetId: z
+				target: z
 					.string()
 					.optional()
-					.describe('Target from xplat_targets; required when several are available'),
+					.describe(
+						'Exact discovered target id or platform name; omit only when one eligible target exists',
+					),
 				requestKey: z.string().optional().describe('Idempotence key for retries'),
 				browserMode: z
 					.enum(['headless', 'headed'])
@@ -73,8 +74,8 @@ export function registerRuntimeTools(
 					),
 			},
 		},
-		async ({ platform, targetId, requestKey, browserMode }) => {
-			const result = await runtime.launch({ platform, targetId, requestKey, browserMode })
+		async ({ target, requestKey, browserMode }) => {
+			const result = await runtime.launch({ target, requestKey, browserMode })
 			return result.error
 				? respond({ ok: false, error: result.error })
 				: respond({ ok: true, data: result })
@@ -106,9 +107,8 @@ export function registerRuntimeTools(
 		'xplat_diagnostics',
 		{
 			description:
-				'List retained dev runs or read logs and existing native report summaries. Log cursors do not page reports; reportId with runId reads a retained original. Session/job selectors read their own captures with explicit native-report unavailability.',
+				'List retained sessions or read logs and existing native report summaries. Log cursors do not page reports; reportId with sessionId reads a retained original. Session selectors include retained logs and native reports; standalone build jobs have log captures only.',
 			inputSchema: {
-				runId: z.string().optional(),
 				reportId: z.string().optional(),
 				platform: z.enum(PLATFORMS as Platform[]).optional(),
 				sessionId: z.string().optional(),

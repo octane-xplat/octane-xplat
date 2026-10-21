@@ -196,39 +196,33 @@ test('hostBlock gates ios/macos to darwin and windows to win32', () => {
 
 // ---------- service: targets, launch, attach, logs, cleanup ----------
 
-test('launch binds an owned session, runs a job, and marks readiness', async () => {
+test('launch binds an owned session, returns one durable id and marks readiness', async () => {
 	const { context, runtime } = serviceWith()
-	const result = await runtime.launch({ platform: 'web' })
+	const result = await runtime.launch({ target: 'web' })
 	assert.equal(result.deduplicated, false)
 	assert.equal(result.session.ownership, 'owned')
 
-	const job = await waitForJob(context.jobs, result.job.jobId)
-	assert.equal(job.state, 'succeeded')
-	assert.equal(job.result.detail, 'stub ready')
+	await waitForSession(runtime, result.session.sessionId)
+	assert.equal(result.job, undefined)
+	assert.equal(context.jobs.list().length, 0)
 
 	const session = context.sessions.get(result.session.sessionId)
 	assert.equal(session.state, 'ready')
 	assert.equal(session.processKind, 'fresh')
 	assert.equal(session.buildIdentity.revision, 'stub')
-
-	// Job evidence carries the launch provenance.
-	const ev = context.evidence.list({ kind: 'job' })
-	assert.equal(ev.length, 1)
-	assert.equal(ev[0].provenance.sessionId, session.sessionId)
-	assert.equal(ev[0].provenance.platform, 'web')
 })
 
 test('a second launch on the same target is busy while the session lives', async () => {
-	const { context, runtime } = serviceWith()
-	const first = await runtime.launch({ platform: 'web' })
-	await waitForJob(context.jobs, first.job.jobId)
+	const { runtime } = serviceWith()
+	const first = await runtime.launch({ target: 'web' })
+	await waitForSession(runtime, first.session.sessionId)
 
-	const second = await runtime.launch({ platform: 'web' })
+	const second = await runtime.launch({ target: 'web' })
 	assert.equal(second.error.code, 'target_busy')
 	assert.equal(second.error.context.sessionId, first.session.sessionId)
 })
 
-test('launch dedupe: an in-flight launch for the same target returns the live job', async () => {
+test('launch dedupe: an in-flight launch for the same target returns the same session', async () => {
 	let release
 	const gate = new Promise((r) => (release = r))
 	const { runtime } = serviceWith({
@@ -238,10 +232,11 @@ test('launch dedupe: an in-flight launch for the same target returns the live jo
 		},
 	})
 
-	const first = await runtime.launch({ platform: 'web', requestKey: 'k1' })
-	const second = await runtime.launch({ platform: 'web', requestKey: 'k1' })
+	const first = await runtime.launch({ target: 'web', requestKey: 'k1' })
+	const second = await runtime.launch({ target: 'web', requestKey: 'k1' })
 	assert.equal(second.deduplicated, true)
-	assert.equal(second.job.jobId, first.job.jobId)
+	assert.equal(second.session.sessionId, first.session.sessionId)
+	assert.equal(second.job, undefined)
 
 	release()
 })
@@ -253,14 +248,15 @@ test('failed launch ends the session and reports the failure', async () => {
 		},
 	})
 
-	const { session, job } = await runtime.launch({ platform: 'web' })
-	const done = await waitForJob(context.jobs, job.jobId)
+	const { session } = await runtime.launch({ target: 'web' })
+	const done = await waitForSession(runtime, session.sessionId, 'failed')
 	assert.equal(done.state, 'failed')
-	assert.equal(context.sessions.get(session.sessionId).state, 'stopped')
+	assert.match(done.launch.error.message, /boom/)
+	assert.equal(context.sessions.get(session.sessionId).state, 'failed')
 })
 
 test('session end releases owned resources; attached sessions are preserved', async () => {
-	const { context, runtime } = serviceWith({
+	const { runtime } = serviceWith({
 		attachables: async () => [
 			{ targetId: 'web:5200', name: 'dev :5200', processKind: 'warm', detail: 'found' },
 		],
@@ -276,8 +272,8 @@ test('session end releases owned resources; attached sessions are preserved', as
 	})
 
 	// Owned session: cleanup disposes claimed resources through the registry.
-	const owned = await runtime.launch({ platform: 'web' })
-	await waitForJob(context.jobs, owned.job.jobId)
+	const owned = await runtime.launch({ target: 'web' })
+	await waitForSession(runtime, owned.session.sessionId)
 	const ended = await runtime.endSession(owned.session.sessionId)
 	assert.equal(ended.ended, true)
 	assert.deepEqual(ended.released, ['stub process stopped'])
@@ -319,8 +315,8 @@ test('logs read sessions and build jobs with cursors and honest gaps', async () 
 		},
 	})
 
-	const { session, job } = await runtime.launch({ platform: 'web' })
-	await waitForJob(context.jobs, job.jobId)
+	const { session } = await runtime.launch({ target: 'web' })
+	await waitForSession(runtime, session.sessionId)
 
 	const page = runtime.readLogs({ sessionId: session.sessionId })
 	assert.ok(page.records.length >= 3)
@@ -337,9 +333,9 @@ test('logs read sessions and build jobs with cursors and honest gaps', async () 
 	const buildLogs = runtime.readLogs({ jobId: build.job.jobId })
 	assert.ok(Array.isArray(buildLogs.records))
 	const diagnostic = await runtime.readDiagnostics({ sessionId: session.sessionId })
-	assert.deepEqual(diagnostic.logs.records, page.records)
+	assert.ok(diagnostic.logs.records.some((record) => record.line === 'app line 1'))
 	assert.deepEqual(diagnostic.reports, [])
-	assert.equal(diagnostic.coverage.nativeReports.status, 'unavailable')
+	assert.equal(diagnostic.coverage.nativeReports.status, 'unsupported')
 	assert.equal(
 		(await runtime.readDiagnostics({ sessionId: session.sessionId, jobId: build.job.jobId })).error
 			.code,
@@ -368,18 +364,18 @@ test('build dedupe by requestKey and target selection validation', async () => {
 	await waitForJob(context.jobs, first.job.jobId)
 
 	// Multiple targets require an explicit pick.
-	const ambiguous = await runtime.launch({ platform: 'web' })
+	const ambiguous = await runtime.launch({ target: 'web' })
 	assert.equal(ambiguous.error.code, 'ambiguous_selection')
 
-	const bad = await runtime.launch({ platform: 'web', targetId: 'nope' })
+	const bad = await runtime.launch({ target: 'nope' })
 	assert.equal(bad.error.code, 'invalid_selection')
 
-	const undeclared = await runtime.launch({ platform: 'ios' })
+	const undeclared = await runtime.launch({ target: 'ios' })
 	assert.equal(undeclared.error.code, 'invalid_selection')
-	assert.match(undeclared.error.message, /does not declare/)
+	assert.match(undeclared.error.message, /No eligible target/)
 })
 
-test('launch job cancellation stops the session cooperatively', async () => {
+test('ending a starting session stops the session cooperatively', async () => {
 	let disposed = false
 	const { context, runtime } = serviceWith({
 		launch: async ({ claim, signal }) => {
@@ -399,10 +395,9 @@ test('launch job cancellation stops the session cooperatively', async () => {
 		},
 	})
 
-	const { session, job } = await runtime.launch({ platform: 'web' })
-	context.jobs.cancel(job.jobId)
-	const done = await waitForJob(context.jobs, job.jobId)
-	assert.equal(done.state, 'cancelled')
+	const { session } = await runtime.launch({ target: 'web' })
+	await new Promise((r) => setTimeout(r, 0))
+	await runtime.endSession(session.sessionId)
 	assert.equal(disposed, true)
 	assert.equal(context.sessions.get(session.sessionId).state, 'stopped')
 })
@@ -425,4 +420,136 @@ test('project status shows runtime-backed capabilities once adapters register', 
 	assert.ok(!result.isError)
 	assert.equal(result.structuredContent.data.platforms[0].platform, 'web')
 	assert.equal(result.structuredContent.data.platforms[0].targets[0].targetId, 'web')
+})
+
+async function waitForSession(runtime, id, state = 'ready') {
+	for (let i = 0; i < 100; i++) {
+		const session = runtime.sessionStatus(id).session
+		if (session?.state === state) {
+			return session
+		}
+		await new Promise((r) => setTimeout(r, 20))
+	}
+	throw Error(`Session ${id} did not reach ${state}`)
+}
+
+test('exact opaque targets infer their platform; platform and omitted selection never guess', async () => {
+	const context = boundContext()
+	context.discovery.apps[0].platforms = ['web', 'android']
+	const web = stubAdapter()
+	const android = stubAdapter({
+		platform: 'android',
+		discoverTargets: async () => ({ targets: [{ targetId: 'opaque-phone-123', name: 'Phone' }] }),
+	})
+	context.runtime = createRuntimeService(context, {
+		adapters: new Map([
+			['web', web],
+			['android', android],
+		]),
+	})
+	const runtime = context.runtime
+	const ambiguous = await runtime.launch({})
+	assert.equal(ambiguous.error.code, 'ambiguous_selection')
+	const unknown = await runtime.launch({ target: 'typo' })
+	assert.equal(unknown.error.code, 'invalid_selection')
+	assert.equal(unknown.error.context.candidates.length, 2)
+	const exact = await runtime.launch({ target: 'opaque-phone-123' })
+	assert.equal(exact.session.platform, 'android')
+	assert.equal(exact.job, undefined)
+	await waitForSession(runtime, exact.session.sessionId)
+	await runtime.endSession(exact.session.sessionId)
+	const shorthand = await runtime.launch({ target: 'android' })
+	assert.equal(shorthand.session.targetId, 'opaque-phone-123')
+	await waitForSession(runtime, shorthand.session.sessionId)
+	await runtime.endSession(shorthand.session.sessionId)
+	assert.equal((await runtime.launch({ platform: 'web' })).error.code, 'invalid_selection')
+	android.discoverTargets = async () => ({ targets: [{ targetId: 'one' }, { targetId: 'two' }] })
+	assert.equal((await runtime.launch({ target: 'android' })).error.code, 'ambiguous_selection')
+})
+
+test('a fresh transport reads and ends the same durable session; other app targets are preserved', async () => {
+	const { context, runtime } = serviceWith({
+		discoverTargets: async () => ({
+			targets: [
+				{ targetId: 'one', name: 'One' },
+				{ targetId: 'two', name: 'Two' },
+			],
+		}),
+	})
+	const first = await runtime.launch({ target: 'one' })
+	await waitForSession(runtime, first.session.sessionId)
+	const other = await runtime.launch({ target: 'two' })
+	await waitForSession(runtime, other.session.sessionId)
+	const observer = createWorkspaceContext({
+		workspaceRoot: context.workspaceRoot,
+		evidenceRoot: join(context.workspaceRoot, '.observer'),
+	})
+	assert.equal(observer.runtime.sessionStatus(first.session.sessionId).session.state, 'ready')
+	assert.ok(
+		(
+			await observer.runtime.readDiagnostics({ sessionId: first.session.sessionId })
+		).logs.records.some((record) => record.line === 'stub launch ran'),
+	)
+	const ended = await observer.runtime.endSession(first.session.sessionId)
+	assert.equal(ended.ended, true)
+	assert.equal(runtime.sessionStatus(first.session.sessionId).session.state, 'stopped')
+	assert.equal(observer.runtime.sessionStatus(first.session.sessionId).session.state, 'stopped')
+	assert.equal(observer.runtime.sessionStatus(other.session.sessionId).session.state, 'ready')
+	assert.equal(
+		(await observer.runtime.readDiagnostics({ sessionId: other.session.sessionId })).logs
+			.historical,
+		false,
+	)
+	await runtime.endSession(other.session.sessionId)
+	assert.equal(
+		(await observer.runtime.readDiagnostics({ sessionId: first.session.sessionId })).logs
+			.historical,
+		true,
+	)
+})
+
+test('ending a starting session waits for resources claimed after cancellation', async () => {
+	let release
+	let disposed = false
+	const gate = new Promise((resolve) => {
+		release = resolve
+	})
+	const { runtime } = serviceWith({
+		launch: async ({ claim }) => {
+			await gate
+			claim({
+				dispose: async () => {
+					await new Promise((r) => setTimeout(r, 20))
+					disposed = true
+					return 'late resource released'
+				},
+			})
+			return { detail: 'late' }
+		},
+	})
+	const started = await runtime.launch({ target: 'web' })
+	const ending = runtime.endSession(started.session.sessionId)
+	release()
+	await ending
+	assert.equal(disposed, true)
+	assert.equal(runtime.sessionStatus(started.session.sessionId).session.state, 'stopped')
+	assert.ok(runtime.sessionStatus(started.session.sessionId).session.endedAt)
+})
+
+test('managed output preserves split UTF-8 and partial lines while bounding long pending lines', async () => {
+	const logs = createLogBuffer()
+	const child = spawnManaged({
+		cmd: process.execPath,
+		args: [
+			'-e',
+			"process.stdout.write(Buffer.from([0xf0,0x9f]));setTimeout(()=>{process.stdout.write(Buffer.from([0x98,0x80,10]));process.stdout.write('x'.repeat(30000)+'\\nnext\\npartial')},10)",
+		],
+		logBuffer: logs,
+	})
+	await child.exit
+	const records = logs.read().records
+	assert.ok(records.some((r) => r.line === '😀'))
+	assert.ok(records.some((r) => r.lineTruncated && r.line.length === 8192))
+	assert.ok(records.some((r) => r.line === 'next'))
+	assert.ok(records.some((r) => r.line === 'partial'))
 })

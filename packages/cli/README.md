@@ -55,8 +55,8 @@ GJS host; Linux users supply the GTK/WebKit system runtime.
 Read output from an earlier `xplat dev` run, even after its process exits:
 
 ```sh
-pnpm xplat diagnostics --json                  # list this app's retained runs
-pnpm xplat diagnostics --run RUN_ID --json     # replace RUN_ID with a returned runId
+pnpm xplat diagnostics --json                  # list this app's retained sessions
+pnpm xplat diagnostics --session SESSION_ID --json     # replace SESSION_ID with a returned sessionId
 ```
 
 See [development diagnostics](../../docs/testing/diagnostics.md) for platform
@@ -233,19 +233,19 @@ picking one.
 
 The runtime surface runs through a per-workspace agent host the stateful
 commands spawn on demand — it owns the dev servers, browsers, job registry,
-log buffers, and evidence store that one-shot invocations cannot. Commands
-that only read state connect when a host is live and otherwise report
-absence honestly (`not_found`, or an empty list with `host.state: "absent"`);
-a read never leaves a daemon behind. The host exits on its own once no live
+log buffers, and evidence store that one-shot invocations cannot. Session list/status and diagnostics read durable session records even after
+the owner exits. Other reads use the live host and otherwise report absence
+honestly (`not_found`, or an empty list with `host.state: "absent"`); a read
+never leaves a daemon behind. The host exits on its own once no live
 session or job remains, with the same ownership-safe teardown the MCP
 server runs. Extra permission scopes pass per invocation through
 `XPLAT_PERMISSIONS` (e.g. `visual-capture`).
 
 ```sh
 xplat runtime build --platform web --json   # a job — poll job status, read logs
-xplat session start --platform web --json   # owned dev session + browser; readiness is a job
+xplat session start web --json   # owned dev session + browser; poll session status for readiness
 xplat session attach --platform web --json  # bind a dev session you already run — preserved on end
-xplat session list --json                   # host-owned and attached sessions
+xplat session list --json                   # retained owned and attached sessions
 xplat session status <sess_…> --json
 xplat session end <sess_…> --json           # ownership-safe cleanup; attached apps keep running
 xplat job status <job_…> --json

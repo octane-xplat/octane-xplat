@@ -231,12 +231,18 @@ try {
 
 	// -- owned launch + readiness ---------------------------------------------------
 	const launch = await call('xplat_launch', {
-		platform: 'web',
+		target: 'web',
 		browserMode: osInput ? 'headed' : 'headless',
 	})
 
 	sessionId = launch.session.sessionId
-	const launched = await jobDone(launch.job.jobId)
+	const launched = await until(async () => {
+		const { session } = await call('xplat_sessions', { sessionId })
+		assert.ok(!['failed', 'stopped'].includes(session.state), JSON.stringify(session))
+		return session.state === 'ready'
+			? { result: { ...session.launch, buildIdentity: session.buildIdentity } }
+			: null
+	})
 	assert.equal(launched.result.readiness, 'confirmed')
 	assert.equal(launched.result.browser.launched, true)
 	browserPid = launched.result.browser.pid

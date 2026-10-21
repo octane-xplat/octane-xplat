@@ -14,7 +14,7 @@ export function createLogBuffer({ limit = 2000 } = {}) {
 	const base = () => (records.length ? records[0].seq : seq + 1)
 
 	return {
-		append({ stream = 'stdout', line, source, level }) {
+		append({ stream = 'stdout', line, source, level, lineTruncated }) {
 			const record = {
 				seq: ++seq,
 				ts: new Date().toISOString(),
@@ -22,6 +22,7 @@ export function createLogBuffer({ limit = 2000 } = {}) {
 				line,
 				...(source ? { source } : {}),
 				...(level ? { level } : {}),
+				...(lineTruncated ? { lineTruncated: true } : {}),
 			}
 
 			records.push(record)

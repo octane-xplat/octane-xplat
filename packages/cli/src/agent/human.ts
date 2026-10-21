@@ -171,14 +171,8 @@ export function renderHuman(command, result, out = []) {
 		case 'session start':
 			lines(
 				out,
-				`session ${data.session.sessionId} — ${data.session.platform} on ${data.session.targetId} (${data.session.ownership}, ${data.session.state})`,
+				`session ${data.session.sessionId} — ${data.session.state}; poll: xplat session status ${data.session.sessionId}`,
 			)
-
-			lines(
-				out,
-				`launch job ${data.job.jobId} — ${data.job.state}; poll: xplat job status ${data.job.jobId}`,
-			)
-
 			break
 
 		case 'session attach':
@@ -190,10 +184,6 @@ export function renderHuman(command, result, out = []) {
 			break
 
 		case 'session list':
-			if (data.host?.state === 'absent') {
-				lines(out, 'No agent runtime host is running — no sessions exist.')
-			}
-
 			for (const session of data.sessions) {
 				lines(
 					out,
@@ -201,8 +191,8 @@ export function renderHuman(command, result, out = []) {
 				)
 			}
 
-			if (!data.sessions.length && data.host?.state !== 'absent') {
-				lines(out, 'No sessions bound.')
+			if (!data.sessions.length) {
+				lines(out, 'No retained sessions.')
 			}
 
 			break
@@ -232,11 +222,11 @@ export function renderHuman(command, result, out = []) {
 			break
 
 		case 'diagnostics':
-			if (data.runs) {
-				for (const run of data.runs) {
+			if (data.sessions) {
+				for (const run of data.sessions) {
 					lines(
 						out,
-						`${run.runId}  ${run.platform} (${run.targetId})  ${run.startedAt}  ${run.historical ? 'historical' : 'capturing'}`,
+						`${run.sessionId}  ${run.platform} (${run.targetId})  ${run.startedAt}  ${run.historical ? 'historical' : 'capturing'}`,
 					)
 				}
 
@@ -258,10 +248,10 @@ export function renderHuman(command, result, out = []) {
 					`Native reports: ${data.coverage.nativeReports.status}. ${data.coverage.nativeReports.detail}`,
 				)
 			}
-			if (data.run) {
+			if (data.session) {
 				lines(
 					out,
-					`${data.run.runId} — ${data.run.platform} (${data.run.targetId}), captured from ${data.capturedFrom}`,
+					`${data.session.sessionId} — ${data.session.platform} (${data.session.targetId}), captured from ${data.logs.capturedFrom}`,
 				)
 			}
 

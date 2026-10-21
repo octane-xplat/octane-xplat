@@ -31,7 +31,7 @@ const INSTRUCTIONS =
 	'MCP server for Octane Xplat apps. Call xplat_project_status first — it reports detected apps, framework versions, guidance, prerequisites, and capabilities. ' +
 	'If several apps are detected, ask the developer which to use and bind it with xplat_select_app; never guess. ' +
 	'With a dev-mode app running, xplat_dev_actions lists the app-declared action registry and xplat_dev_action_invoke runs one against an exact instance and registry revision. ' +
-	'For runtime work, check xplat_capability_matrix then xplat_targets; xplat_launch starts an owned session as a job and xplat_attach binds a session you already run. ' +
+	'For runtime work, check xplat_capability_matrix then xplat_targets; xplat_launch returns a durable session identity and launch progress and xplat_attach binds a session you already run. ' +
 	'Results always say what was actually checked; a successful build is not proof of behavior.'
 
 const respond: Respond = (outcome) => ({
@@ -216,10 +216,15 @@ export function createXplatMcpServer(context: WorkspaceContext) {
 		'xplat_sessions',
 		{
 			description:
-				'List bound sessions: owned sessions the server started and attached user-owned sessions. Runtime tools bind one app to one target; attached sessions are preserved on end.',
-			inputSchema: {},
+				'List retained sessions or read exact sessionId status, including launch progress, failures and ended sessions. Attached user-owned apps are preserved on end.',
+			inputSchema: { sessionId: z.string().optional() },
 		},
-		async () => ok({ sessions: context.sessions.list() }),
+		async ({ sessionId }) => {
+			const result = sessionId
+				? context.runtime.sessionStatus(sessionId)
+				: context.runtime.listSessions()
+			return result.error ? fail(result.error) : ok(result)
+		},
 	)
 
 	server.registerTool(
@@ -261,12 +266,12 @@ export function createXplatMcpServer(context: WorkspaceContext) {
 			inputSchema: { sessionId: z.string() },
 		},
 		async ({ sessionId }) => {
-			const usable = context.sessions.requireUsable(sessionId)
-			if (!usable.usable && usable.error.code === 'not_found') {
-				return fail(usable.error)
+			try {
+				const result = await context.runtime.endSession(sessionId)
+				return result.error ? fail(result.error) : ok({ result })
+			} catch (error) {
+				return fail(toContractError(error))
 			}
-
-			return ok({ result: await context.runtime.endSession(sessionId) })
 		},
 	)
 
