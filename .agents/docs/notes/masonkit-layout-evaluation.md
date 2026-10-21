@@ -300,6 +300,32 @@ An integration check must seek outside the initial window and verify
 that the destination's actual frame aligns with the viewport; finding a mounted
 row alone is insufficient.
 
+### Contract differences from NativeScript views (CPH2551, 2026-10-21)
+
+Three local NativeScript assumptions failed on MasonKit 1.0.0-beta.120. Each was
+verified with programmatic dispatch on a CPH2551 phone, unfolded; iOS is not
+yet qualified.
+
+- **View-level padding is an expando.** MasonKit views are not core `View`s, so
+  `view.paddingBottom = 200` only adds a JS property and layout ignores it
+  (content stayed 500 tall). `view.style.paddingBottom = 200` and static style
+  both laid out at 700 (`research/probes/mason-scroll-padding.tsrx`). The chat,
+  keyboard-avoidance and sheet-detent padding leases now write `style`.
+- **Grid has no implicit overlay.** NativeScript `GridLayout` stacked unplaced
+  children in cell 0/0; CSS grid auto-places them into separate rows. Native
+  `ChatLayout`'s dock took a row and shrank the scroller by its own height
+  (client height 712 − dock height in every state). Overlays need explicit
+  `gridRow`/`gridColumn`.
+- **The Android scroller is not a `ScrollView`.** `Scroll` extends
+  `TwoDScrollView`, a `FrameLayout` whose children are not wrapped in one
+  content view. Scroll-ancestor detection must recognise it and read the range
+  from `computeVerticalScrollRange()`; the keyboard focus source does.
+
+With these corrections the chat (12/12), keyboard scroll (6/6) and overlay
+keyboard (14/14) fixtures passed. Carousel's proportional slides still lay out
+at their text width inside the horizontal scroller (track 147 wide in a 698
+viewport), so the strip has no horizontal range; this is unresolved.
+
 ## Native macOS bridge (verified — lab-experiment)
 
 `packages/macos-renderer` is a custom AppKit/JSC host, not NativeScript, so
