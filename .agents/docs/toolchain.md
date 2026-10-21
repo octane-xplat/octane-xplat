@@ -8,12 +8,13 @@ experience of agents writing Octane-xplat code effectively.
 
 - **Task orchestration runs through Turborepo** (`turbo` 2.11.4 devDep,
   `turbo.json` at the root). `pnpm typegen`, `pnpm typecheck`, the
-  `typecheck:{web,mobile,macos,linux,windows,docs}` filters, `pnpm
-build:packages`, `pnpm build:web`, and the package-test half of `pnpm test`
+  `typecheck:{web,mobile,macos,linux,windows,docs}` filters,
+  `pnpm build:packages`, `pnpm build:web`, `pnpm build:docs`, `pnpm check:pack`,
+  `pnpm test:packed`, and the package-test half of `pnpm test`
   delegate to `turbo run`. Results cache locally under `.turbo/` (gitignored —
-  shared across worktrees of this clone): a no-op `pnpm typecheck` is ~200ms
-  and touching a leaf package reruns only that package's tasks plus its
-  dependents. Graph shape: every task `dependsOn: ["^typegen"]`, which both
+  shared across worktrees of this clone): unchanged tasks reuse cached results,
+  and touching a leaf package invalidates its tasks and dependents.
+  Common build, typecheck, and test tasks depend on `^typegen`, which both
   orders dependency declaration emit first and folds each dep's file hash into
   the dependent — the edge covers even script-less deps because turbo still
   hashes their files through the no-op task node. `apps/mobile` and
@@ -25,10 +26,10 @@ build:packages`, `pnpm build:web`, and the package-test half of `pnpm test`
   `test:macos-runtime`, and `apps/linux`'s `build` are `cache: false` — their
   side effects land outside declared `outputs`. `lint` stays a single
   repo-wide pass; `turbo run lint` works via the `//#lint` root task but is
-  uncached for the same reason. Package-level `typecheck` scripts (auth,
-  charts, dnd-kit, icons, image-crop, rolling-text, smooth-corners, table,
-  macos-renderer) are reachable via bare `turbo run typecheck` but stay out of
-  `pnpm typecheck`'s scope.
+  uncached for the same reason. `pnpm typecheck` runs every declared workspace
+  `typecheck`, including package-specific checks. `pnpm typecheck:apps` keeps
+  the narrower harness-only scope; `pnpm typecheck:scripts` checks repository
+  tooling separately. Use a touched-package/dependents filter for focused work.
 - **Package typechecks use one `tsconfig.envs.json` per package** — never
   `tsconfig.<platform>.json`. The manifest declares the checked surface once
   (`environments.<env>.files|include|exclude`); `scripts/typecheck.ts`
@@ -175,6 +176,9 @@ found` — and reinstalls stay "Already up to date" (GH#16). Heal by
   to an exact version; remove it when upstream ships its fix. esbuild is
   pinned to 0.27.7 — vite 8's peer range admits 0.28.x and the vendor bundler
   dies on the host/binary mismatch.
+  The patch package's `prepack` uses `sync-patches.ts --package-only`: it
+  refreshes only its own generated patch files. Root and starter YAML changes
+  belong to the explicit `pnpm sync:patches` command.
 - `packages/*/src/vendor/*` dirs are **git submodules** of forks in the
   `octane-xplat` org, each pinned to a `xplat-vendored` branch
   (`octane-xplat/ui-lottie` = `xplat-fixes` + vendoring-compat markers;
@@ -217,20 +221,21 @@ tcp:5173`. Dev-session mode is activated only by `ns run`'s livesync launch;
   retargeting for installed packages. `prepack` prepares declarations;
   Node tooling and embedded browser documents retain asset builds. See the
   [publish model](notes/toolchain-notes.md#shared-packages-publish-model).
-- Lint: `pnpm lint` = oxlint (JS plugin in `scripts/oxlint-plugin.ts`) + a
-  `@tsrx/core` companion pass for `.tsrx` (`scripts/lint-tsrx.ts`) — oxlint
-  can't load custom parsers. Rule checks live once in
-  `scripts/xplat-rules.ts` and run in both passes; severities/options come
-  from `.oxlintrc.json`. The `xplat/*` set enforces the platform-suffix
+- Lint: `pnpm lint [paths...]` and `pnpm lint:fix [paths...]` use the same
+  `@octane-xplat/lint` runner as consumer apps. Oxlint handles regular source;
+  a `@tsrx/core` companion pass handles `.tsrx`. Rule checks live once in
+  `packages/lint/src/xplat-rules.ts`; severities/options come from
+  `.oxlintrc.json`. Paths constrain both passes; unknown flags fail before
+  any fixes. The `xplat/*` set enforces the platform-suffix
   boundaries (DOM globals, web-only octane APIs, element vocabularies,
   `@nativescript` imports, NS-dead `style` props, signal naming/runtime) —
-  the silent-failure half of the invariants. `check:no-dom` is the older
-  standalone regex sweep; `xplat/no-dom-globals` covers it at lint time.
+  the silent-failure half of the invariants. `xplat/no-dom-globals` enforces
+  DOM boundaries; the older standalone regex sweep has been removed.
   tsrx suppressions: `xplat-disable[-line|-next-line]` comments.
-  CI invokes `pnpm lint --code-only` so error-level code rules block releases
-  while warning-level findings remain advisory. CSS is a separate blocking
-  repository check; recipe structure runs only in the PR hygiene job. The
-  default local `pnpm lint` still includes both CSS and recipes.
+  CI invokes `pnpm lint` so error-level code rules block releases while
+  warning-level findings remain advisory. `pnpm check` composes lint with
+  `check:css`, `check:recipes`, and repository integrity checks. CSS stays a
+  separate blocking CI check; recipe structure runs in the PR hygiene job.
   Consumer apps and libraries use `xplat lint [paths...] [--fix]`; the CLI
   depends on `@octane-xplat/lint`, which owns Oxlint and the shared file
   selector for regular source and TSRX. `xplat-lint` is a compatible bin.
@@ -241,13 +246,20 @@ tcp:5173`. Dev-session mode is activated only by `ns run`'s livesync launch;
   selection is rooted at cwd; nested configs and JS/TS/JSONC configs are
   unsupported. TSRX checks only `xplat/*` and has no lint autofixes. See the
   [consumer contract](../../packages/lint/README.md).
-- Format: `pnpm format` = `oxlint --fix` then `xplat fmt`
+- Format: `pnpm format` delegates to `xplat fmt`
   (`packages/cli/src/commands/fmt.ts`, engine `@octane-xplat/fmt` — in-process
   safe lint fixes → Oxfmt → statement spacing over the pinned tsrx-org/oxc
   Rust libraries; JS/TS/JSX/TSX and `.tsrx`). The formatter owns blank-line
   spacing, so `xplat/spacing` is no longer a lint rule — lint and fmt do not
   compete. `xplat fmt` writes atomically per file after the batch transforms;
   `--check` exits 1 without writes, `--stdin-filepath` pipes stdin to stdout.
+
+```sh
+pnpm lint packages/ui
+pnpm lint:fix packages/lint/src
+pnpm check:css
+pnpm check:recipes
+```
 
 ## Portable source configuration
 

@@ -13,7 +13,7 @@
 		"verify:web": "node scripts/verify-web.ts",
 		"capture:ios": "node scripts/capture-ios.ts",
 		"test:parity": "node scripts/parity.ts",
-		"test:comparator": "node --test scripts/parity.test.ts scripts/geometry.test.ts",
+		"test:comparator": "node --test scripts/parity.test.mjs scripts/geometry.test.mjs",
 		"test:ios-regression": "VIS_ROOT=vis/ios vitest run ios-regression.test",
 		"update:ios": "VIS_ROOT=vis/ios vitest run ios-regression.test --update",
 		"promote:common": "node scripts/parity.ts --promote-common",

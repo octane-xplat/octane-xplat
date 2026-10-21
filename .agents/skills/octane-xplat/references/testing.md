@@ -54,10 +54,10 @@ Choose the narrowest maintained layer that can establish the claim:
 | ------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------------------ |
 | Package types            | `pnpm exec turbo run typecheck --filter=...@octane-xplat/ui` | Types for the touched package and dependents; no runtime claim           |
 | Shared/native unit tests | `pnpm --filter @octane-xplat/ui test:native`                 | Node and compiled object-driver regressions; no OS host/input claim      |
-| DOM seam check           | `pnpm check:no-dom`                                          | Forbidden DOM usage in native/shared code                                |
+| DOM seam check           | `pnpm lint`                                                  | Forbidden DOM usage in native/shared code                                |
 | Web harness smoke        | `pnpm smoke:web`                                             | Browser behavior covered by the local smoke script                       |
 | Packed starter           | `pnpm check:consumer --no-build --quick`                     | Prepared tarballs, isolated install, declarations, and compilation       |
-| Optional adapters        | `pnpm check:optional-services --types-only`                  | Adapter types; the full command additionally needs browser prerequisites |
+| Optional adapters        | `pnpm check:optional-services --types-only`                  | Adapter types; `--browser` explicitly adds local browser probes          |
 | Native probe/device test | Probe runner or maintained `ns test` suite                   | Only the assertions and target actually executed                         |
 
 When testing asynchronous query updates with Octane 0.14 or newer, allow a host

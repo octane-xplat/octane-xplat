@@ -108,7 +108,7 @@ suffix:
   `host-globals.d.ts`
 - `packages/cli/src/vite.mjs`: `PLATFORM_TAG` + `boundaryAllowed.gtk =
   {'gtk'}` — `.linux` leaves are foreign in a GTK bundle (tested)
-- `scripts/xplat-rules.mjs`: `.gtk` in the platform suffixes, `isNativeFile`,
+- `packages/lint/src/xplat-rules.ts`: `.gtk` in the platform suffixes, `isNativeFile`,
   and the `.gtk.tsrx` pragma rule expecting
   `/** @jsxImportSource @octane-xplat/linux-gtk */`
 - `packages/cli/src/linux-gtk/vite.mjs` (`@octane-xplat/cli/linux-gtk/vite`):
@@ -116,10 +116,9 @@ suffix:
   `gi://` externals, `octane` → `octane/universal/native` retarget, one
   resolved universal-native instance for app + renderer
 
-`packages/lint/src/xplat-rules.mjs` (the published lint mirror) was NOT
-updated — it is already a generation behind `scripts/xplat-rules.mjs`
-(lacks the platform-subpath check and `.macos` in `isNativeFile`); the sync
-belongs to a deliberate lint release.
+Repository and consumer lint now share `packages/lint/src/xplat-rules.ts`,
+including GTK suffix and pragma rules. There is no separate published mirror
+to synchronize.
 
 ## Evidence
 

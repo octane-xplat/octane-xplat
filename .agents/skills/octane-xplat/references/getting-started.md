@@ -61,7 +61,7 @@ pnpm dev:web
 pnpm typecheck:web
 pnpm typecheck:mobile
 pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
-pnpm check:no-dom
+pnpm lint
 ```
 
 Before building or installing native targets, read the repository

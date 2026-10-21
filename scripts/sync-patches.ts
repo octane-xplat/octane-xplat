@@ -12,6 +12,8 @@
 //
 // `pnpm sync:patches` rewrites these outputs. `pnpm check:patches` diffs and
 // exits 1 on drift.
+// --package-only prepares packages/patches without editing workspace YAML
+// or starter files; the patch package's prepack hook uses this scope.
 //
 // Maintainer flow: `pnpm patch <pkg@version>` → edit → `pnpm patch-commit`
 // writes back to the configured path (packages/cli/patches/), then
@@ -44,6 +46,12 @@ const PATCH_PACKAGE_VERSION = JSON.parse(
 
 const PATCH_CONFIG_PATH = `node_modules/.pnpm-config/${PATCH_PACKAGE_NAME}`
 const CHECK = process.argv.includes('--check')
+const PACKAGE_ONLY = process.argv.includes('--package-only')
+for (const arg of process.argv.slice(2)) {
+	if (arg !== '--check' && arg !== '--package-only') {
+		throw new Error(`sync-patches: unknown option ${arg}`)
+	}
+}
 
 const manifest = JSON.parse(readFileSync(join(CLI_PATCHES, 'manifest.json'), 'utf8')).patches
 
@@ -87,6 +95,7 @@ const renderYaml = (file, pathPrefix, header, withConfigDependency = false) => {
 		if (withConfigDependency && patch.template === false) {
 			continue
 		}
+
 		const at = patch.specifier.indexOf('@', 1)
 		const pin = managedPackage(patch.specifier.slice(0, at))
 		if (withConfigDependency && pin && pin.version !== patch.specifier.slice(at + 1)) {
@@ -177,24 +186,28 @@ const removeTemplatePatchCopies = (failures) => {
 }
 
 const failures = []
-syncYaml(join(repo, 'pnpm-workspace.yaml'), 'packages/cli/patches', ROOT_HEADER, failures)
-syncYaml(
-	join(TEMPLATE, 'pnpm-workspace.yaml'),
-	`${PATCH_CONFIG_PATH}/patches`,
-	TEMPLATE_HEADER,
-	failures,
-	true,
-)
-syncYaml(
-	join(repo, 'packages/create/library-template/pnpm-workspace.yaml'),
-	`${PATCH_CONFIG_PATH}/patches`,
-	TEMPLATE_HEADER,
-	failures,
-	true,
-)
+if (!PACKAGE_ONLY) {
+	syncYaml(join(repo, 'pnpm-workspace.yaml'), 'packages/cli/patches', ROOT_HEADER, failures)
+	syncYaml(
+		join(TEMPLATE, 'pnpm-workspace.yaml'),
+		`${PATCH_CONFIG_PATH}/patches`,
+		TEMPLATE_HEADER,
+		failures,
+		true,
+	)
+
+	syncYaml(
+		join(repo, 'packages/create/library-template/pnpm-workspace.yaml'),
+		`${PATCH_CONFIG_PATH}/patches`,
+		TEMPLATE_HEADER,
+		failures,
+		true,
+	)
+
+	removeTemplatePatchCopies(failures)
+}
 
 syncPatchPackageFiles(failures)
-removeTemplatePatchCopies(failures)
 
 if (failures.length) {
 	console.error(`${CHECK ? 'patch drift' : 'synced'} — ${failures.length} file(s):`)

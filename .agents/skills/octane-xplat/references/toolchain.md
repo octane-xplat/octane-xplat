@@ -57,12 +57,19 @@ installed-package behavior that workspace source checks cannot.
 # Repository root: prepare declared package outputs and check exports.
 pnpm build:packages
 pnpm check:pack
+pnpm exec turbo run test:packed --filter=@octane-xplat/updates
 pnpm check:consumer --no-build --quick
 ```
 
-The quick consumer gate uses isolated tarballs and compilation. Full consumer
-journeys and browser checks have different costs and prerequisites; consult
+`--no-build` skips package builds and packing lifecycle hooks; prepare and
+check packages first, as shown above. The quick consumer gate uses isolated
+tarballs and compilation. Full consumer journeys and browser checks have
+different costs and prerequisites; consult
 [release validation](../../../docs/releases.md) before selecting them.
+
+The generic declaration gate pairs runtime and type exports. Keep separate
+packed-consumer checks for pure type facades or Node tooling with mixed export
+formats; see the [checker boundary](../../../../packages/tsrx-typegen/README.md#publish-checks).
 
 ## CI evidence and publishing
 

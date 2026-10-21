@@ -50,10 +50,11 @@
 		"access": "public"
 	},
 	"scripts": {
+		"pack:check": "tsrx-typegen --pack-check",
 		"test:native": "vitest run --config vitest.native.config.mts",
 		"typegen": "tsc -p tsconfig.types.json",
 		"build:assets": "node ../richtext/build-browser.ts",
-		"prepack": "pnpm build:assets && pnpm typegen"
+		"prepack": "pnpm build:assets && pnpm typegen && tsrx-typegen --pack-check"
 	},
 	"dependencies": {
 		"@lexical/code": "0.51.0",
@@ -70,6 +71,7 @@
 		"zeed-dom": "0.18.0"
 	},
 	"devDependencies": {
+		"tsrx-typegen": "workspace:*",
 		"@lexical/history": "0.51.0",
 		"@nativescript-community/octane": "catalog:",
 		"@nativescript/core": "catalog:",

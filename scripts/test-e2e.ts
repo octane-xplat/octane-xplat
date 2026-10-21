@@ -38,7 +38,7 @@ for (const browser of ['firefox', 'webkit']) {
 	})
 }
 
-run(['check:optional-services'])
+run(['check:optional-services', '--browser'])
 run(['check:consumer', '--smoke', 'web'], {
 	XPLAT_WEB_BROWSERS: browsers.join(','),
 })

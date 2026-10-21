@@ -23,6 +23,6 @@
 		"access": "public"
 	},
 	"scripts": {
-		"prepack": "node ../../scripts/sync-patches.ts"
+		"prepack": "node ../../scripts/sync-patches.ts --package-only"
 	}
 }

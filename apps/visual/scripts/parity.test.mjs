@@ -2,18 +2,23 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { PNG } from 'pngjs'
-import { sourceIdentity } from './capture-manifest.mjs'
-import { assertParity, comparePixels, profile, promoteCommon, validateCapture } from './parity.mjs'
+import { sourceIdentity } from './capture-manifest.ts'
+import { assertParity, comparePixels, profile, promoteCommon, validateCapture } from './parity.ts'
 
-// Unit fixtures borrow a committed real web PNG; they are not native capture evidence.
-const bytes = readFileSync(
-	new URL(
-		'../vis/web/__baselines__/switch/unchecked-light-switch-real-web-capture-real.png',
-		import.meta.url,
-	),
-)
+// Deterministic synthetic pixels test encoding and comparison without a
+// screenshot dependency. These fixtures are not host capture evidence.
+const reference = new PNG({ width: 96, height: 64 })
+for (let y = 0; y < reference.height; y++) {
+	for (let x = 0; x < reference.width; x++) {
+		const offset = (y * reference.width + x) * 4
+		reference.data[offset] = (x * 13) % 256
+		reference.data[offset + 1] = (y * 17) % 256
+		reference.data[offset + 2] = ((x + y) * 7) % 256
+		reference.data[offset + 3] = 255
+	}
+}
 
-const reference = PNG.sync.read(bytes)
+const bytes = PNG.sync.write(reference)
 const expected = { runId: 'unit-fixture', revision: 'fixture', scenarioHash: 'fixture' }
 const capture = (target) => ({
 	...expected,
@@ -155,7 +160,7 @@ test('CLI divergence and two-target success preserve honest coverage and referen
 	const { tmpdir } = await import('node:os')
 	const { join } = await import('node:path')
 	const { spawnSync } = await import('node:child_process')
-	const { runParity } = await import('./parity.mjs')
+	const { runParity } = await import('./parity.ts')
 	const directory = mkdtempSync(join(tmpdir(), 'xplat-parity-unit-'))
 	try {
 		const common = join(directory, 'common')
@@ -208,7 +213,7 @@ test('CLI divergence and two-target success preserve honest coverage and referen
 		const result = spawnSync(
 			process.execPath,
 			[
-				new URL('./parity.mjs', import.meta.url).pathname,
+				new URL('./parity.ts', import.meta.url).pathname,
 				`--captures=${directory}`,
 				'--diagnostic=opaque-pixel',
 			],

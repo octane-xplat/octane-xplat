@@ -1802,6 +1802,9 @@ importers:
       octane:
         specifier: 'catalog:'
         version: 0.14.0(patch_hash=a344cdbde34418a8dc7003022e6f49c0f4d7d895c805483e4855a60c1a8c8100)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
@@ -2377,6 +2380,9 @@ importers:
       octane:
         specifier: 'catalog:'
         version: 0.14.0(patch_hash=a344cdbde34418a8dc7003022e6f49c0f4d7d895c805483e4855a60c1a8c8100)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
@@ -2726,6 +2732,9 @@ importers:
       octane:
         specifier: 'catalog:'
         version: 0.14.0(patch_hash=a344cdbde34418a8dc7003022e6f49c0f4d7d895c805483e4855a60c1a8c8100)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
       typescript:
         specifier: 'catalog:'
         version: 5.9.3

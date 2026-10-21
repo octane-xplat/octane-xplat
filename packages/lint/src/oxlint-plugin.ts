@@ -1,5 +1,5 @@
-// Oxlint JS plugin — xplat rules. Rule logic lives in xplat-rules.mjs so the
-// same checks run on .tsrx through the companion pass (lint-tsrx.mjs);
+// Oxlint JS plugin — xplat rules. Rule logic lives in xplat-rules.ts so the
+// same checks run on .tsrx through the companion pass (tsrx.ts);
 // oxlint can't parse .tsrx on its own.
 import { XPLAT_CHECKS } from './xplat-rules.ts'
 

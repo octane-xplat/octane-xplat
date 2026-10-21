@@ -79,9 +79,18 @@
 			"dependsOn": ["typegen"],
 			"outputs": []
 		},
-		"check-types": {
-			"dependsOn": ["^typegen"],
+		"test:comparator": {
 			"outputs": []
+		},
+		"//#test:scripts": {
+			"dependsOn": ["@octane-xplat/cli#build"],
+			"cache": false
+		},
+		"//#check:optional-services": {
+			"cache": false
+		},
+		"//#typecheck:scripts": {
+			"cache": false
 		},
 		// lint is a single repo-wide pass (oxlint + tsrx rules sweep), not a
 		// per-package boundary — exposed for `turbo run lint` but never cached:

@@ -60,7 +60,7 @@ export function ClassifiedLeaf(props: ViewProps) @{
 - Validation (`forbiddenGlobals`/`forbiddenImports`) is compile-pipeline
   only — `.tsrx`/`.tsx` under a renderer rule. Plain `.ts` helpers are NOT
   checked — a `document` in a helper slips through (that's what
-  `check:no-dom` catches).
+  `xplat/no-dom-globals` catches).
 
 ## Removing props and inline styles
 

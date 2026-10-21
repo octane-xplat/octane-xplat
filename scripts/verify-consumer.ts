@@ -7,7 +7,8 @@
 //
 // Phases (each is a gate — the first failure stops the run):
 //   build    generate declarations and required package assets
-//            (skip with --no-build; CI builds earlier in the same job)
+//            (--no-build reuses prepared packages and skips prepack hooks;
+//            run build:packages and check:pack first)
 //   pack     pnpm pack every publishable package into <work>/pack
 //   scaffold run the PACKED create-octane-xplat bin for app and library,
 //            then rewrite the app's @octane-xplat/* specifiers (dependencies,
@@ -35,7 +36,7 @@
 //   XPLAT_WEB_BROWSERS — comma-separated Playwright engines for --smoke web
 //   PLAYWRIGHT_REQUIRED=0 — downgrade a missing playwright install to a skip
 //
-// Usage: node scripts/verify-consumer.mjs [--no-build] [--smoke web]
+// Usage: node scripts/verify-consumer.ts [--no-build] [--smoke web]
 //        [--native ios,android] [--smoke-ios] [--test-ios] [--test-android] [--keep]
 //        --quick: packed web starter install + plain tsc + dev/prod compilation;
 //                 skips platform enablement and the full app/library checks.
@@ -200,12 +201,17 @@ try {
 	const tarballs = new Map()
 	await gate('pnpm pack — publishable packages produce tarballs', 20 * 60 * 1000, () => {
 		for (const pkg of lockstepPackages(repoRoot)) {
-			// Quick mode consumes the package preparation already performed above
-			// (or by CI with --no-build). CI separately gates every pack:check, so
-			// don't repeat declaration generation and pack validation per tarball.
+			// Quick mode and --no-build consume prepared artifacts. The caller
+			// gates pack:check separately; never rebuild through lifecycle hooks
+			// when the caller explicitly requested --no-build.
 			const r = run(
 				'pnpm',
-				[...(quick ? ['--config.ignore-scripts=true'] : []), 'pack', '--pack-destination', packDir],
+				[
+					...(quick || !doBuild ? ['--config.ignore-scripts=true'] : []),
+					'pack',
+					'--pack-destination',
+					packDir,
+				],
 				join(repoRoot, pkg.dir),
 			)
 
@@ -590,6 +596,7 @@ try {
 					negative,
 					`import { router } from '@octane-xplat/ui/routing'\nvoid router.push({ to: '/items/:id' })\n`,
 				)
+
 				const denied = run('pnpm', ['exec', 'xplat', 'typecheck'], appDir)
 				assert.notEqual(denied.status, 0, 'router.push without params must fail typecheck')
 				rmSync(negative, { force: true })

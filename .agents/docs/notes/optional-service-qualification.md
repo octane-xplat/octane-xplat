@@ -68,15 +68,19 @@ result. The case runner needed two fixes to reach this evidence: platform
 `@nativescript/core/utils` entry in the host module map.
 
 `node scripts/check-optional-services.ts` (also `pnpm check:optional-services`)
-runs focused web/native adapter typechecks, Node regression tests, and browser
-probes in Chromium, Firefox, and WebKit. Firefox checks metadata readiness;
+runs focused web/native adapter typechecks and Node regression tests. Pass
+`--browser` to add probes in Chromium, Firefox, and WebKit. Firefox checks metadata readiness;
 Chromium and WebKit also check playback state. Node tests inject OS/backend APIs
 and do not count as native runtime evidence. The probes use synthetic PCM to
 measure playback state, not audible output. They neither capture screenshots
 nor render selected images. They do not mock a successful provider sign-in or
-push delivery. CI runs this gate with `--no-browser` (adapter typechecks and
-Node tests only); the three-engine browser probes run locally through
-`pnpm test:e2e` or `pnpm check:optional-services` without the flag.
+push delivery. CI uses `--types-only` because its package suites already run
+the Node tests. The three-engine browser probes run locally through
+`pnpm test:e2e` or the explicit command below.
+
+```sh
+pnpm check:optional-services --browser
+```
 
 The broad mobile typecheck (`pnpm typecheck:mobile`) passes after correcting
 audio bridge typings and the handwritten JSX component declarations. Focused

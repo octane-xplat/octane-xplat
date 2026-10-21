@@ -2,7 +2,7 @@
 // Program plus source text and returns {node, message} violations — oxlint
 // produces this AST for .ts/.tsx, and @tsrx/core's parseModule produces the
 // same estree-jsx nodes for .tsrx — so each rule runs in both passes
-// (scripts/oxlint-plugin.ts and scripts/lint-tsrx.ts).
+// (oxlint-plugin.ts and tsrx.ts).
 //
 // Rule scope follows the platform-file convention: `.web.*` and `.linux.*`
 // files own DOM code; `.mobile/.ios/.android.*`, `apps/mobile`, and
@@ -144,7 +144,7 @@ const literalStrings = (expr, out: any[] = []) => {
 	return out
 }
 
-// ---------- no-dom-globals (invariant #4; absorbs check-no-dom.mjs) ----------
+// ---------- no-dom-globals (invariant #4) ----------
 
 const DOM_GLOBALS = new Set([
 	'document',

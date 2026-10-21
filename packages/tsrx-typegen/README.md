@@ -150,6 +150,14 @@ the package and bare package imports are declared dependencies or peers. The com
 TypeScript consumer test for the module-resolution modes and public prop
 contracts your package supports.
 
+The checker requires paired runtime and type exports. Pure type-only export
+maps and mixed Node tooling exports without type entries need separate
+package-specific validation.
+
+```sh
+pnpm exec tsrx-typegen --pack-check
+```
+
 A target with `"emit": false` exists only to drive packed-package
 verification. Packages whose declarations are handwritten or produced by
 another tool declare one so `--pack-check` skips generation and freshness

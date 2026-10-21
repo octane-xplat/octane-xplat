@@ -549,21 +549,40 @@ pnpm exec xplat patches check
 
 ## CI shape
 
-`.github/workflows/ci.yml` gates on push and PR. The `checks` job runs, in
-order: `pnpm typegen`, `pnpm lint` (oxlint + tsrx pass + recipes + css —
-advisory, `continue-on-error`), repo checks (`check:patches` /
-`check:ui-barrels` / `check:css` / `check:recipes` /
-`check:suffix-resolution`; `check:decisions` is absent because it mirrors the
-git-scoped Silo DB that lives on dev machines), `pnpm typecheck:web`,
-`pnpm typecheck:mobile`, `pnpm test`, `pnpm build:web`, the
-publishable-package builds, `pnpm check:pack` + `pnpm test:packed`, the
-optional-service gate without browser probes
-(`pnpm check:optional-services --no-browser`), and
-`pnpm check:consumer --no-build` (packed-starter lint/typecheck/build/doctor).
-Browser coverage — the harness smoke and packed-starter smoke in Chromium,
-Firefox, and WebKit — runs locally via `pnpm test:e2e`; browser downloads
-are too costly in CI. `check:no-dom`
-is the older static sweep; `xplat/no-dom-globals` covers it at lint time.
+### Generic packed declaration checks
+
+The generic checker requires paired runtime and type exports. Type-only
+facades and Node tooling with mixed export formats keep their package-specific
+consumer checks. Updates' consumer test also validates its untyped bootstrap
+hook; fast CI runs that test explicitly instead of hiding it behind
+`pack:check`.
+
+The 2026-10-21 script audit also tried the generic gate on Lottie. It rejected
+`src/native-elements.d.ts` because its vendored Lottie reference resolves to
+implementation source. Lottie retains its existing packed-consumer test;
+its declaration graph needs repair before it can join the generic gate.
+This is packed-source evidence, not native runtime qualification.
+
+```sh
+pnpm check:pack
+pnpm exec turbo run test:packed --filter=@octane-xplat/updates
+```
+
+### Release lanes
+
+`.github/workflows/ci.yml` gates on push and PR. The `checks` job runs
+code lint, repository integrity checks, web/mobile typechecks, Node and
+object-driver tests, package preparation and integrity checks, optional adapter
+typechecks, and the quick packed web starter gate. The CLI tests run once in
+the Turbo package graph. CSS blocks this job; recipe/link hygiene has a separate
+PR-only job. The local Silo decision check stays outside CI.
+
+Browser coverage runs locally through `pnpm test:e2e`; CI excludes the visual
+browser package, browser downloads, and device emulation from the fast gate.
+Stable CI adds non-browser packed consumers and native qualification. The
+[release guide](../releases.md) owns the current gate list. Repository and
+consumer lint share `packages/lint`; `xplat/no-dom-globals` replaces the retired
+standalone DOM regex sweep.
 
 `scripts/verify-consumer.ts` (`check:consumer`) is the release-path
 verification: it `pnpm pack`s every publishable package, scaffolds a starter
@@ -586,13 +605,14 @@ pnpm check:consumer --no-build --smoke web
 
 The nightly `--quick` path installs a packed web starter, consumes its
 declarations with plain TypeScript, and checks Vite dev/prod compilation. It
-skips native enablement and the full app/library journey. Quick packing reuses
-prepared outputs without rerunning prepack; fast CI runs package preparation
-and `check:pack` before it:
+skips native enablement and the full app/library journey. `--no-build` reuses
+prepared package outputs without rerunning prepack in either mode; run package
+preparation and `check:pack` before it:
 
 ```sh
 pnpm build:packages
 pnpm check:pack
+pnpm exec turbo run test:packed --filter=@octane-xplat/updates
 pnpm check:consumer --no-build --quick
 ```
 

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { parseModule } from '@tsrx/core'
-import { checkNoDomGlobals } from './xplat-rules.ts'
+import { checkNoDomGlobals } from '../packages/lint/src/xplat-rules.ts'
 
 function violations(source, filename = 'sample.macos.ts') {
 	return checkNoDomGlobals(parseModule(source, filename), source, filename).map(
@@ -38,10 +38,7 @@ test('a binding in one scope does not hide an unbound reference in another', () 
 	])
 })
 
-for (const [label, module] of [
-	['repository', './xplat-rules.ts'],
-	['published lint', '../packages/lint/src/xplat-rules.ts'],
-]) {
+for (const [label, module] of [['published lint', '../packages/lint/src/xplat-rules.ts']]) {
 	test(`${label} accepts NavLink activation without inventing gesture props`, async () => {
 		const { checkNoViewOnPress } = await import(module)
 		const filename = 'Links.mobile.tsx'
@@ -102,10 +99,7 @@ for (const [label, module] of [
 	})
 }
 
-for (const [label, module] of [
-	['repository', './xplat-rules.ts'],
-	['published lint', '../packages/lint/src/xplat-rules.ts'],
-]) {
+for (const [label, module] of [['published lint', '../packages/lint/src/xplat-rules.ts']]) {
 	test(`${label} rejects removed routing APIs with canonical replacements`, async () => {
 		const { checkNoRemovedRoutingApi } = await import(module)
 		const source = `import { pushRoute, useRoute, registerRoutes } from '@octane-xplat/ui/routing'
@@ -121,8 +115,14 @@ import { router } from '@octane-xplat/ui/routing'`
 	test(`${label} rejects route module augmentation outside generated files`, async () => {
 		const { checkNoRouteAugmentation } = await import(module)
 		const source = `declare module '@octane-xplat/ui/routing' { interface RegisteredRouteContracts {} }`
-		assert.equal(checkNoRouteAugmentation(parseModule(source, 'app.ts'), source, 'app.ts').length, 1)
-		assert.equal(checkNoRouteAugmentation(parseModule(source, 'x.gen.ts'), source, 'x.gen.ts').length, 0)
+		assert.equal(
+			checkNoRouteAugmentation(parseModule(source, 'app.ts'), source, 'app.ts').length,
+			1,
+		)
+		assert.equal(
+			checkNoRouteAugmentation(parseModule(source, 'x.gen.ts'), source, 'x.gen.ts').length,
+			0,
+		)
 	})
 
 	test(`${label} rejects destination casts and interpolated paths`, async () => {
@@ -132,8 +132,14 @@ const e = { to: \`/items/\${id}\`, params: {} }
 const f = { to: '/items/:id', params: { id } } as Destination
 push({ to: raw as '/items/:id' })
 const link = <NavLink to={dest as any} />`
-		assert.equal(checkNoDestinationCast(parseModule(source, 'app.tsx'), source, 'app.tsx').length >= 2, true)
-		assert.equal(checkNoInterpolatedRoutePath(parseModule(source, 'app.tsx'), source, 'app.tsx').length, 2)
+		assert.equal(
+			checkNoDestinationCast(parseModule(source, 'app.tsx'), source, 'app.tsx').length >= 2,
+			true,
+		)
+		assert.equal(
+			checkNoInterpolatedRoutePath(parseModule(source, 'app.tsx'), source, 'app.tsx').length,
+			2,
+		)
 	})
 
 	test(`${label} leaves non-route 'to' keys and assertions alone`, async () => {
@@ -142,6 +148,9 @@ const link = <NavLink to={dest as any} />`
 const range = { to: x as number }
 const style = { to: '100%' } as const`
 		assert.equal(checkNoDestinationCast(parseModule(source, 'app.ts'), source, 'app.ts').length, 0)
-		assert.equal(checkNoInterpolatedRoutePath(parseModule(source, 'app.ts'), source, 'app.ts').length, 0)
+		assert.equal(
+			checkNoInterpolatedRoutePath(parseModule(source, 'app.ts'), source, 'app.ts').length,
+			0,
+		)
 	})
 }

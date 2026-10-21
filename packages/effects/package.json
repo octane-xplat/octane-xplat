@@ -51,7 +51,7 @@
 	},
 	"scripts": {
 		"build:metal": "sh scripts/build-metal.sh",
-		"check-types": "tsc -p tsconfig.types.json",
+		"typecheck": "tsc -p tsconfig.types.json",
 		"prepack": "tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",
 		"pack:check": "tsrx-typegen --pack-check"

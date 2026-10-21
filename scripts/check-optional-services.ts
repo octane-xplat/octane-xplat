@@ -6,6 +6,17 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
+const args = process.argv.slice(2)
+for (const arg of args) {
+	if (arg !== '--types-only' && arg !== '--browser') {
+		throw new Error(`check-optional-services: unknown option ${arg}`)
+	}
+}
+
+if (args.includes('--types-only') && args.includes('--browser')) {
+	throw new Error('--types-only cannot be combined with --browser')
+}
+
 const scratch = await mkdtemp(join(root, 'node_modules/.optional-services-check-'))
 try {
 	for (const target of ['web', 'mobile']) {
@@ -55,15 +66,15 @@ try {
 			process.execPath,
 			[
 				'--test',
-				'packages/platform/tests/auth-session.test.ts',
-				'packages/media/tests/cleanup.test.ts',
-				'examples/auth/server-verification.test.ts',
-				'packages/audio/tests/audio.ios.test.ts',
+				'packages/platform/tests/auth-session.test.mjs',
+				'packages/media/tests/cleanup.test.mjs',
+				'examples/auth/server-verification.test.mjs',
+				'packages/audio/tests/audio.ios.test.mjs',
 			],
 			{ cwd: root, stdio: 'inherit' },
 		)
 
-		if (!process.argv.includes('--no-browser')) {
+		if (args.includes('--browser')) {
 			for (const browser of ['chromium', 'firefox', 'webkit']) {
 				execFileSync(process.execPath, ['apps/web/scripts/optional-services.ts'], {
 					cwd: root,

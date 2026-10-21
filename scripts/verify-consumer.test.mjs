@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { existsSync, mkdtempSync, rmSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { delimiter, join } from 'node:path'
 import { test } from 'node:test'
 
 test('quick consumer mode refuses native qualification before creating or resetting work', () => {
@@ -32,3 +32,53 @@ test('quick consumer mode refuses native qualification before creating or resett
 		rmSync(directory, { recursive: true, force: true })
 	}
 })
+
+test(
+	'--no-build skips both package preparation and packing lifecycle hooks',
+	{ skip: process.platform === 'win32' },
+	() => {
+		const directory = mkdtempSync(join(tmpdir(), 'consumer-prepared-test-'))
+		try {
+			const bin = join(directory, 'bin')
+			const log = join(directory, 'commands.jsonl')
+			mkdirSync(bin)
+			writeFileSync(
+				join(bin, 'pnpm'),
+				`#!/usr/bin/env node
+import { appendFileSync } from 'node:fs'
+appendFileSync(process.env.CONSUMER_COMMAND_LOG, JSON.stringify(process.argv.slice(2)) + '\\n')
+process.exit(1)
+`,
+				{ mode: 0o755 },
+			)
+
+			const result = spawnSync(process.execPath, ['scripts/verify-consumer.ts', '--no-build'], {
+				encoding: 'utf8',
+				env: {
+					...process.env,
+					PATH: bin + delimiter + process.env.PATH,
+					VERIFY_CONSUMER_DIR: join(directory, 'consumer'),
+					CONSUMER_COMMAND_LOG: log,
+				},
+			})
+
+			// Stop at the first pack request: the shim must never execute a real
+			// build or pack, and its arguments establish the lifecycle contract.
+			assert.notEqual(result.status, 0)
+			assert.match(result.stderr, /pnpm pack failed/)
+			const commands = readFileSync(log, 'utf8')
+				.trim()
+				.split('\n')
+				.map((line) => JSON.parse(line))
+
+			assert.equal(commands.length, 1)
+			assert.deepEqual(commands[0].slice(0, 3), [
+				'--config.ignore-scripts=true',
+				'pack',
+				'--pack-destination',
+			])
+		} finally {
+			rmSync(directory, { recursive: true, force: true })
+		}
+	},
+)

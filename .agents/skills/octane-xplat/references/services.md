@@ -132,7 +132,7 @@ twins such as `storage`, connectivity, files, and system bars live under
 2. Export through the package barrel (deep specifiers don't
    extension-resolve).
 3. If it touches a DOM global on web — fine, web leaf is DOM territory;
-   the unsuffixed native implementation must stay DOM-free (check:no-dom).
+   the unsuffixed native implementation must stay DOM-free (xplat/no-dom-globals).
 
 ## Localization — `@octane-xplat/lingui`
 

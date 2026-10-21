@@ -43,7 +43,7 @@ jobs:
       # Error-level correctness rules block releases; warning-level style
       # findings stay advisory. CSS runs once below, recipes in the PR job.
       - name: Lint code (oxlint + tsrx pass)
-        run: pnpm lint --code-only
+        run: pnpm lint
 
       # check:decisions is deliberately absent — it mirrors the ledger against
       # the git-scoped Silo DB, which lives on dev machines, not in the checkout.
@@ -70,7 +70,7 @@ jobs:
       - name: Test
         run: >-
           pnpm exec turbo run test test:native --concurrency=2 --filter='!@xplat/visual' &&
-          pnpm test:cli && pnpm test:create &&
+          pnpm test:create &&
           node --test examples/auth/server-verification.test.mjs && pnpm test:scripts
 
       - name: Build web app
@@ -82,6 +82,11 @@ jobs:
 
       - name: Check packed exports and declaration dependencies
         run: pnpm check:pack
+
+      # Updates also exports a Node bootstrap hook. Its consumer fixture checks
+      # that payload and six target conditions separately from declaration pairs.
+      - name: Check Updates packed consumer
+        run: pnpm exec turbo run test:packed --filter=@octane-xplat/updates
 
       # The Node regression files already run in Test above.
       - name: Check optional service adapter types

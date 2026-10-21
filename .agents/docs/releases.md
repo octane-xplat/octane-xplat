@@ -36,15 +36,21 @@ This credential is separate from npm's OIDC trusted publishing below.
 To reproduce the two consumer gates locally, prepare packages first. The quick
 gate installs real tarballs outside the workspace, checks their declarations
 with plain TypeScript, and compiles the starter through Vite's development and
-production paths. Quick packing reuses prepared outputs without repeating
-prepack hooks; CI runs `check:pack` before this smoke. The full gate also enables
+production paths. `--no-build` reuses prepared package outputs without
+running prepack hooks in either mode; run `check:pack` first. The full gate also enables
 iOS/Android and validates the app and library workflows:
 
 ```sh
 pnpm build:packages
+pnpm check:pack
+pnpm exec turbo run test:packed --filter=@octane-xplat/updates
 pnpm check:consumer --no-build --quick
 pnpm check:consumer --no-build
 ```
+
+The Updates consumer check validates its bootstrap payload and six target
+conditions. Its Node hook is outside the generic checker's paired
+runtime/declaration contract, so fast CI keeps this test explicit.
 
 The release gate verifies `ci-evidence-<track>-<sha>` against GitHub's workflow
 identity and latest job results. Stable evidence also records the originating
