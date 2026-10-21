@@ -288,8 +288,12 @@ which gives every element a browser-shaped scroll surface — `scrollTop`/
 `scrollLeft`/`scrollHeight`/`clientHeight`, `scrollTo({ top, left, behavior })`,
 and non-bubbling `scroll`/`scrollend` events, with pre-layout seeks queued and
 clamped after layout. It shipped in our fork `@octane-xplat/nativescript-masonkit`
-1.0.0-beta.120, and the native `VirtualList` now uses it (commit c07e34dd7);
-runtime/device verification of the seek is still pending. At the time of the
+1.0.0-beta.120, and the native `VirtualList` now uses it (commit c07e34dd7).
+On 2026-10-21 the maintained fixture `packages/ui/tests/virtual-list-seek.mobile.tsrx`
+passed on a CPH2551 Android phone: row 120 was unmounted initially,
+`scrollToIndex(120)` aligned its frame with the list top, and `scrollToOffset(0)`
+realigned row 0. These are programmatic seeks, not touch input; iOS is not yet
+qualified. At the time of the
 request, main `7acf7b4174ab8b10a3d74f1a76e0292197562e08` still exposed no
 public offset/seek API in `Scroll`'s JS/type surface (source evidence only).
 An integration check must seek outside the initial window and verify
