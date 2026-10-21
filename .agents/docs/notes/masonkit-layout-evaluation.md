@@ -581,7 +581,47 @@ that content height in place of Taffy's — 107 × 0.75 = 80 through NS
 `img-g` at 107×200 and the unsized `img-a` without a nudge: Android's
 Mason already re-measures a leaf that has a pending request. The
 workaround is therefore iOS-only (`relayoutOnImageSource: isIOS` in
-`Image.tsrx`). The Mason path itself remains: any auto-height foreign
-leaf that requests layout while flex-grown or stretched can take its
-content height on Android. That broader reach is inferred from source,
-not reproduced beyond this case.
+`Image.tsrx`). The Mason path itself remains and is not specific to images; see the
+next section.
+
+## Android: a foreign leaf with a pending layout request loses its flex height
+
+Upstream: `@triniwiz/nativescript-masonkit` 1.0.0-beta.110,
+`Element.kt` `applyLayoutFlat`, foreign-leaf block:
+`freeHeight = fallbackHeight || (leafChanged && autoHeight)` where
+`leafChanged = view.isLayoutRequested` and `autoHeight` is the leaf's
+style height being `auto`. When true, the leaf is re-measured with an
+`UNSPECIFIED` height and `height = view.measuredHeight` replaces Taffy's
+height for the frame. A height that Taffy derived from `flexGrow` or
+`align-items/align-self: stretch` is therefore replaced by the content
+height whenever the leaf itself has requested layout.
+
+Runtime evidence: `research/probes/leaf-remeasure.mobile.tsrx` on the
+API 35 emulator (`research/probes/results/gh36-android-leaf2.json`), raw NS
+intrinsics in 107×200 `masonview` boxes, no `@octane-xplat/ui` bindings.
+Mason's computed layout was 107×200 for every leaf at every step:
+
+| Leaf | First layout | Parent-only `requestLayout` | Leaf `requestLayout` / text change |
+| --- | --- | --- | --- |
+| `label`, `flexGrow: 1` + `alignSelf: stretch`, column | 107×16 | 107×200 | 107×16 |
+| `label`, `flexGrow: 1`, row (height from stretch only) | 107×16 | 107×200 | 107×16 |
+| `label`, same as first, `text` changed | 107×16 | 107×200 | 107×16 |
+| `image`, `flexGrow: 1` + `alignSelf: stretch`, column | 107×80 | 107×200 | 107×80 |
+| `label`, explicit `width: 107; height: 200` (control) | 107×200 | 107×200 | 107×200 |
+
+A parent-only request heals every leaf; a leaf's own request collapses it
+again. iOS is unaffected: the same probe on an iPhone 18 Pro / iOS 27
+simulator (`gh36-ios-leaf.json`) measured 107×200 for every leaf at every
+step. Tracked as #42. The first layout already collapses, so a new foreign leaf reaches
+its first Mason pass with a pending request; a likely source is the #31
+bridge's Android `syncAndroidForeignLayout`, which calls
+`view.forceLayout()` after each style sync (not isolated). A text change
+or image load raises one naturally.
+Explicit heights are unaffected (`autoHeight` is false), and widths are
+unaffected (only an empty width falls back to the measure).
+
+Expected upstream fix: for `leafChanged` alone, re-measure only to dirty
+the node and recompute — keep Taffy's assigned height instead of
+`view.measuredHeight`; reserve the measured-height fallback for an empty
+axis (`fallbackHeight`). The path lives in the Kotlin AAR, which the JS
+patch set cannot change.
