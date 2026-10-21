@@ -58,9 +58,39 @@ Maintained regressions:
 | [Development HTTP](../../packages/cli/test/dev-bridge.test.mjs)     | Real HTTP authentication, validation and forwarding to process stderr                                                                                                        | No OS crash collection.                                                                       |
 
 Actual browser smoke and dependent typecheck results are recorded separately
-in Silo's recipe audit for the committed revision. Native simulator, emulator,
-physical-device and AppKit/WKWebView runtime qualification remain unverified in
-this change. Do not infer them from subprocess tags or successful typechecks.
+in Silo's recipe audit for the committed revision. The native checks below
+exercise real launchers and runtimes; subprocess platform tags alone do not
+qualify a native target.
+
+### Native runtime qualification (2026-10-21)
+
+At revision `33c253a59`, isolated apps emit unique `console.log`,
+`console.warn`, and `console.error` startup markers through `xplat dev`.
+The first `xplat logs --run RUN_ID --cursor 0 --json` read happens after
+all three markers appear. A second CLI read after stopping the development
+process must retain every marker and return `historical: true`.
+
+```sh
+pnpm exec xplat dev TARGET_ID
+# After the startup markers appear, in another terminal:
+pnpm exec xplat logs --json
+pnpm exec xplat logs --run RUN_ID --cursor 0 --json
+# Stop xplat dev, then repeat the same run read.
+```
+
+| Target  | Runtime evidence                                                  | Result                                                   |
+| ------- | ----------------------------------------------------------------- | -------------------------------------------------------- |
+| iOS     | iPhone 18 Pro simulator, iOS 27.0; NativeScript 9.1.0 launcher    | All three startup markers retrieved live and after exit. |
+| Android | Connected CPH2551 device, Android 16; NativeScript 9.1.1 launcher | All three startup markers retrieved live and after exit. |
+| macOS   | Apple Silicon, macOS 27.0.1; AppKit/JavaScriptCore host           | All three startup markers retrieved live and after exit. |
+
+All three launchers forward these messages on stdout, including warnings and
+errors. The captured stream identifies the launcher's channel, rather than
+JavaScript severity. CLI app/platform discovery and cursor continuation also
+passed against each retained native run. These checks establish startup
+console retention; they do not qualify uncaught exceptions, OS crash reports,
+Android emulators,
+physical iOS devices, WKWebView page forwarding, or OS input.
 
 ## Deliberate limits
 
