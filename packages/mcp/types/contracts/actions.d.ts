@@ -172,6 +172,8 @@ export interface DevActionFailure {
 	name: string
 	message: string
 	stack?: string
+	/** Stack with frames resolved to original source positions by the dev server; present only when at least one frame resolved (web today). */
+	sourceStack?: string
 }
 
 export interface DevActionOutcome {

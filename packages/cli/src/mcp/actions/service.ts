@@ -552,6 +552,9 @@ export function createDevActionsService({ jobs, policy, endpoints = scanBridgeEn
 							name: entry?.name,
 							message: entry?.message,
 							...(typeof entry?.stack === 'string' ? { stack: entry.stack } : {}),
+							...(typeof entry?.sourceStack === 'string'
+								? { sourceStack: entry.sourceStack }
+								: {}),
 						}))
 					: undefined
 				throw appError(outcome.error?.code, outcome.error?.message ?? 'action failed', {

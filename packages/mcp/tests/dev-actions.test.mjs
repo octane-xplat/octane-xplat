@@ -824,6 +824,7 @@ test('a failed outcome forwards structured handler failures with known fields on
 						name: 'TypeError',
 						message: 'boom',
 						stack: 'TypeError: boom\n    at run (app.ts:1:1)',
+						sourceStack: 'TypeError: boom\n    at run (src/app.ts:3:2)',
 						internal: 'must not cross',
 					},
 				],
@@ -849,6 +850,7 @@ test('a failed outcome forwards structured handler failures with known fields on
 			name: 'TypeError',
 			message: 'boom',
 			stack: 'TypeError: boom\n    at run (app.ts:1:1)',
+			sourceStack: 'TypeError: boom\n    at run (src/app.ts:3:2)',
 		},
 	])
 	assert.deepEqual(job.error.context.partialEffects, ['1 of 2 handlers completed'])

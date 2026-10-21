@@ -72,8 +72,9 @@ if (import.meta.env.DEV) {
 
 Pass `label` so a failed outcome's `context.failures` records identify the
 owning component; each record carries `handler` (attach-order index), `name`,
-`message`, and `stack`. Keep secrets out of thrown errors — they cross the
-dev channel verbatim.
+`message`, and `stack`. Prefer `sourceStack` over `stack` when present — the
+dev server resolved it to source positions (web only today). Keep secrets out
+of thrown errors — they cross the dev channel verbatim.
 
 ## Connect and verify
 

@@ -26,7 +26,8 @@
 
 import { randomBytes, randomUUID } from 'node:crypto'
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { SourceMap } from 'node:module'
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { browserLogScript } from '../dev-log-client.web.ts'
 
 const PREFIX = '/__xplat_dev__'
@@ -80,6 +81,115 @@ export function xplatDevBridge(options = {}) {
 	const instances = new Map()
 	// requestId → { request, state: 'pending'|'delivered', cancelRequested, outcome, waiters }
 	const requests = new Map()
+	// Set by configureServer — stack resolution needs the dev server's module graph.
+	let viteServer
+
+	// Matches `<http-url>:<line>:<col>` inside a stack frame — covers V8
+	// `at fn (url:l:c)` / `at url:l:c` and JSC `fn@url:l:c`. Non-http
+	// locations (e.g. `file:///app/bundle.mjs`) are ignored by construction.
+	const HTTP_FRAME = /(https?:\/\/[^\s)"']+?):(\d+):(\d+)/g
+	const FS_PREFIX = '/@fs'
+
+	const transformFor = async (moduleUrl, cache) => {
+		let entry = cache.get(moduleUrl)
+		if (entry === undefined) {
+			try {
+				entry = await viteServer.transformRequest(moduleUrl)
+			} catch {
+				entry = null
+			}
+
+			cache.set(moduleUrl, entry)
+		}
+
+		return entry
+	}
+
+	const resolveFrame = async (url, line, col, cache) => {
+		const { pathname, search } = new URL(url)
+		const moduleUrl = pathname + search
+		const transformed = await transformFor(moduleUrl, cache)
+		const map = transformed?.map
+		if (!map) {
+			return undefined
+		}
+
+		let sourceMap = cache.get(`map:${moduleUrl}`)
+		if (!sourceMap) {
+			sourceMap = new SourceMap(map)
+			cache.set(`map:${moduleUrl}`, sourceMap)
+		}
+
+		const found = sourceMap.findEntry(line - 1, col - 1)
+		if (!found?.originalSource) {
+			return undefined
+		}
+
+		// map.sources entries resolve against the transformed module's own
+		// file — a clean filesystem path, no query. Falls back to the /@fs
+		// path for out-of-root modules, root + pathname for in-root ones.
+		const mod = await viteServer.moduleGraph.getModuleByUrl(moduleUrl)
+		const moduleId =
+			mod?.file ??
+			(pathname.startsWith(FS_PREFIX)
+				? pathname.slice(FS_PREFIX.length)
+				: join(viteServer.config.root, pathname))
+		const original = found.originalSource
+		const sourcePath = isAbsolute(original)
+			? original
+			: resolve(
+					dirname(moduleId),
+					typeof map.sourceRoot === 'string' ? map.sourceRoot : '.',
+					original,
+				)
+		const rootRelative = relative(viteServer.config.root, sourcePath).split(sep).join('/')
+		return `${rootRelative}:${found.originalLine + 1}:${found.originalColumn + 1}`
+	}
+
+	// Rewrite every resolvable http(s) frame location to its original source
+	// position; returns undefined when nothing resolved. Bounded to the
+	// failure record itself — a transform failure leaves frames untouched.
+	const resolveStack = async (stack) => {
+		const cache = new Map()
+		const parts = []
+		let last = 0
+		let changed = false
+		for (const match of stack.matchAll(HTTP_FRAME)) {
+			const resolved = await resolveFrame(match[1], Number(match[2]), Number(match[3]), cache)
+			if (resolved) {
+				parts.push(stack.slice(last, match.index), resolved)
+				last = match.index + match[0].length
+				changed = true
+			}
+		}
+
+		if (!changed) {
+			return undefined
+		}
+
+		parts.push(stack.slice(last))
+		return parts.join('')
+	}
+
+	const resolveOutcomeFailures = async (outcome) => {
+		const failures = outcome?.error?.failures
+		if (!viteServer || !Array.isArray(failures)) {
+			return
+		}
+
+		for (const failure of failures.slice(0, 20)) {
+			if (typeof failure?.stack !== 'string') {
+				continue
+			}
+
+			try {
+				const sourceStack = await resolveStack(failure.stack)
+				if (sourceStack) {
+					failure.sourceStack = sourceStack
+				}
+			} catch {}
+		}
+	}
 
 	const prune = () => {
 		const now = Date.now()
@@ -264,9 +374,14 @@ export function xplatDevBridge(options = {}) {
 			}
 
 			if (!entry.outcome) {
-				entry.outcome = body.outcome
-				entry.completedAt = Date.now()
-				settleOutcome(body.requestId)
+				await resolveOutcomeFailures(body.outcome)
+				// Resolution is async — re-check before storing so a duplicate
+				// post can't overwrite the outcome that landed meanwhile.
+				if (!entry.outcome) {
+					entry.outcome = body.outcome
+					entry.completedAt = Date.now()
+					settleOutcome(body.requestId)
+				}
 			}
 
 			return json(res, 200, { accepted: true })
@@ -391,6 +506,7 @@ export function xplatDevBridge(options = {}) {
 			}
 		},
 		configureServer(server) {
+			viteServer = server
 			server.middlewares.use(middleware)
 
 			const writeSessionFile = () => {

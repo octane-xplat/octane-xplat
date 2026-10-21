@@ -173,13 +173,19 @@ stack — so the agent can see which owner failed and why.
 				"label": "FormScreen",
 				"name": "TypeError",
 				"message": "probe failure from FormScreen",
-				"stack": "TypeError: probe failure from FormScreen\n    at ..."
+				"stack": "TypeError: probe failure from FormScreen\n    at FormScreen... (http://127.0.0.1:50466/@fs/.../FormScreen.tsrx?import:286:11)",
+				"sourceStack": "TypeError: probe failure from FormScreen\n    at FormScreen... (src/FormScreen.tsrx:47:10)"
 			}
 		]
 	},
 	"partialEffects": ["1 of 2 handlers completed"]
 }
 ```
+
+On web, the dev server adds `sourceStack` — the same stack with frames
+rewritten to original source positions (`stack` stays raw for debugging).
+Native stacks (iOS/Android) currently come back raw: there is no `sourceStack`
+there yet.
 
 Pass `label` so the record names the owning component instead of an anonymous
 handler.

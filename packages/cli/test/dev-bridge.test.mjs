@@ -10,7 +10,7 @@ import { join } from 'node:path'
 import { test } from 'node:test'
 import { xplatDevBridge } from '../dist/mcp/dev-bridge.js'
 
-async function makeBridge(t) {
+async function makeBridge(t, serverOverrides = {}) {
 	const appRoot = mkdtempSync(join(tmpdir(), 'xplat-bridge-app-'))
 	t.after(() => rmSync(appRoot, { recursive: true, force: true }))
 
@@ -29,6 +29,7 @@ async function makeBridge(t) {
 		middlewares: { use: (fn) => (middleware = fn) },
 		config: { root: appRoot, server: {} },
 		httpServer: server,
+		...serverOverrides,
 	})
 
 	await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
@@ -240,4 +241,132 @@ test('the app-side long poll wakes as soon as work is queued', async (t) => {
 	const work = await pending
 	assert.ok(Date.now() - started < 5_000)
 	assert.equal(work.invocations[0].requestId, 'req_w')
+})
+
+test('failure stacks resolve http frames to root-relative source positions', async (t) => {
+	// Minimal real map: generated line1/line2 -> same source line/col0.
+	const map = (source) => ({ version: 3, sources: [source], names: [], mappings: 'AAAA;AACA' })
+	const ids = { moduleId: '', appModuleId: '' }
+	const bridge = await makeBridge(t, {
+		moduleGraph: {
+			getModuleByUrl: async (url) =>
+				url === '/@fs/served/mod.ts?import'
+					? { file: ids.moduleId }
+					: url === '/src/App.tsx?t=1'
+						? { file: ids.appModuleId }
+						: undefined,
+		},
+		transformRequest: (url) => {
+			if (url === '/@fs/served/mod.ts?import') {
+				return { code: 'x', map: map('mod.ts') }
+			}
+
+			if (url === '/src/App.tsx?t=1') {
+				return { code: 'x', map: map('App.tsx') }
+			}
+
+			if (url === '/src/Other.tsx') {
+				return { code: 'x', map: map('Other.tsx') }
+			}
+
+			if (url === '/boom.ts') {
+				throw new Error('transform failed')
+			}
+
+			return null
+		},
+	})
+	ids.moduleId = join(bridge.appRoot, 'src', 'mod.ts')
+	ids.appModuleId = join(bridge.appRoot, 'src', 'App.tsx')
+
+	await announce(bridge.call)
+	await bridge.call('POST', '/invoke', {
+		requestId: 'req_stack',
+		appInstanceId: 'inst_a',
+		actionId: 'a.b',
+		input: {},
+	})
+
+	const rawStack = [
+		'TypeError: boom',
+		'    at thrower (http://127.0.0.1:1234/@fs/served/mod.ts?import:1:1)',
+		'    at Module.work@http://127.0.0.1:1234/@fs/served/mod.ts?import:2:5',
+		'    at App (http://127.0.0.1:1234/src/App.tsx?t=1:2:3)',
+		'    at Other (http://127.0.0.1:1234/src/Other.tsx:1:7)',
+		'    at eval (file:///app/bundle.mjs:1:1)',
+		'    at run (http://127.0.0.1:1234/unknown.ts:9:9)',
+		'    at boom (http://127.0.0.1:1234/boom.ts:4:4)',
+	].join('\n')
+
+	const post = await bridge.call('POST', '/result', {
+		requestId: 'req_stack',
+		outcome: {
+			requestId: 'req_stack',
+			status: 'failed',
+			error: {
+				code: 'execution_failure',
+				message: 'boom',
+				failures: [{ handler: 0, name: 'TypeError', message: 'boom', stack: rawStack }],
+			},
+			completedAt: new Date().toISOString(),
+		},
+	})
+	assert.equal(post.status, 200)
+
+	const got = await bridge.call('GET', '/invoke/req_stack')
+	const { outcome } = await got.json()
+	const failure = outcome.error.failures[0]
+	assert.equal(failure.stack, rawStack)
+	assert.equal(
+		failure.sourceStack,
+		[
+			'TypeError: boom',
+			'    at thrower (src/mod.ts:1:1)',
+			'    at Module.work@src/mod.ts:2:1',
+			// in-root module via moduleGraph file
+			'    at App (src/App.tsx:2:1)',
+			// in-root module with no moduleGraph entry — root + pathname fallback
+			'    at Other (src/Other.tsx:1:1)',
+			'    at eval (file:///app/bundle.mjs:1:1)',
+			'    at run (http://127.0.0.1:1234/unknown.ts:9:9)',
+			'    at boom (http://127.0.0.1:1234/boom.ts:4:4)',
+		].join('\n'),
+	)
+})
+
+test('a failure with no resolvable frames keeps no sourceStack; a transform throw still stores', async (t) => {
+	const bridge = await makeBridge(t, {
+		moduleGraph: { getModuleByUrl: () => undefined },
+		transformRequest: () => {
+			throw new Error('no transforms here')
+		},
+	})
+
+	await announce(bridge.call)
+	await bridge.call('POST', '/invoke', {
+		requestId: 'req_nostk',
+		appInstanceId: 'inst_a',
+		actionId: 'a.b',
+		input: {},
+	})
+
+	const rawStack = 'TypeError: boom\n    at eval (file:///app/bundle.mjs:1:1)'
+	const post = await bridge.call('POST', '/result', {
+		requestId: 'req_nostk',
+		outcome: {
+			requestId: 'req_nostk',
+			status: 'failed',
+			error: {
+				code: 'execution_failure',
+				message: 'boom',
+				failures: [{ handler: 0, name: 'TypeError', message: 'boom', stack: rawStack }],
+			},
+			completedAt: new Date().toISOString(),
+		},
+	})
+	assert.equal(post.status, 200)
+
+	const { outcome } = await (await bridge.call('GET', '/invoke/req_nostk')).json()
+	assert.equal(outcome.error.failures[0].stack, rawStack)
+	assert.equal(outcome.error.failures[0].sourceStack, undefined)
 })
