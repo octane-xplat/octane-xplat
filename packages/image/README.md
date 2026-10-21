@@ -71,6 +71,11 @@ honored on Android and iOS with the framework patch —
 and ignored on web, where a plain `<img>` cannot send custom headers.
 `concurrency` caps parallel fetches JS-side (default 5).
 
+`prefetch` always warms the disk cache, and there is no memory option. A
+later `<Image>` only reads the disk copy. On both engines, a memory prefetch
+stores a bitmap that `<Image>` never reuses, so it just costs an extra
+decode.
+
 iOS parity note: `ui-image` 5.x dropped the 4.x wiring that let prefetch honor
 its cache level and forward request `headers`. The framework patch set
 (`@nativescript-community__ui-image@5.0.17.patch`, applied automatically via

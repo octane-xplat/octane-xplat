@@ -26,6 +26,7 @@ source before relying on them.
 - [AppKit native intrinsics](appkit-native-intrinsics.md)
 - [Editor capabilities](editor-capabilities.md)
 - [SVG icons](icon-svg-notes.md)
+- [Image engine](image-engine-notes.md)
 - [Input readiness](input-readiness-notes.md)
 - [Lottie on AppKit](lottie-appkit-investigation.md)
 - [Optional service qualification](optional-service-qualification.md)
