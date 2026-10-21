@@ -160,12 +160,17 @@ The leaf holds `src` until the view's first real layout, writes
 expo-image pattern of decode-to-laid-out-size, built in rather than
 opt-in. An `android={{ decodeWidth: … }}` escape-bag value is overwritten
 by that binding at issue time, so it can't force a different decode size.
-Two paths still decode at full source resolution on Android:
+Three paths still decode at full source resolution on Android:
 
 - `contentFit="none"` srcs — 'none' means source pixels, so the binding
   leaves the decode dims at `0` by contract.
 - Srcs applied through the platform escape bag (`android={{ src: … }}`)
   instead of the `src` prop, which bypass the binding entirely.
+- An image with no laid-out size on one axis — for example only a width,
+  or no size at all — loads after its first layout with that axis's decode
+  dimension at `0`. Android decodes that axis at source resolution, capped
+  at the screen's pixel size, then re-decodes at the laid-out size once
+  the bitmap gives the image its full size.
 
 If you need decode bounds that are _not_ the view size — say a deliberate
 upscale limit — that's the `@octane-xplat/image` leaf's explicit

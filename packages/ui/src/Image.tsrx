@@ -123,6 +123,9 @@ export function Image(props: ImageProps) @{
 		() =>
 			createSizedImageBinding({
 				afterIssue: (v: any) => applyPlaceholder(v, placeholderRef.current),
+				// iOS ignores decode dims — a same-src resize reload only
+				// flickers. Android needs it for the re-decode at the new size.
+				reissueOnResize: isAndroid,
 			}),
 		[],
 	);

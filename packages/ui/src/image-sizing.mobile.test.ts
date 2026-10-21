@@ -1,11 +1,16 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createSizedImageBinding } from './image-sizing'
 
-function mockView(width = 0, height = 0) {
+afterEach(() => {
+	vi.useRealTimers()
+})
+
+function mockView(width = 0, height = 0, isLayoutValid?: boolean) {
 	const handlers = new Map<string, Set<() => void>>()
 	const srcWrites: any[] = []
 	const view: any = {
 		measured: { w: width, h: height },
+		isLayoutValid,
 		stretch: 'aspectFit',
 		decodeWidth: undefined as any,
 		decodeHeight: undefined as any,
@@ -29,6 +34,10 @@ function mockView(width = 0, height = 0) {
 		},
 		handlerCount(event: string) {
 			return handlers.get(event)?.size ?? 0
+		},
+		layoutRequests: 0,
+		requestLayout() {
+			view.layoutRequests++
 		},
 	}
 
@@ -61,6 +70,82 @@ describe('sized image decode binding', () => {
 		expect(view.decodeWidth).toEqual({ value: 300, unit: 'px' })
 		expect(view.decodeHeight).toEqual({ value: 200, unit: 'px' })
 		expect(view.srcWrites).toHaveLength(1)
+	})
+
+	it('issues with the one axis it knows — a 0 axis decodes at source', () => {
+		const view = mockView(214, 0)
+		const binding = createSizedImageBinding()
+
+		binding.update(view, 'res://feed/photo.jpg')
+		expect(view.src).toBe('res://feed/photo.jpg')
+		expect(view.decodeWidth).toEqual({ value: 214, unit: 'px' })
+		expect(view.decodeHeight).toEqual({ value: 0, unit: 'px' })
+
+		view.emit('layoutChanged')
+		expect(view.srcWrites).toHaveLength(1)
+	})
+
+	it('issues at 0x0 after the first layout — both decode dims unknown', () => {
+		const view = mockView(0, 0)
+		const binding = createSizedImageBinding()
+
+		binding.update(view, 'res://feed/photo.jpg')
+		expect(view.src).toBeUndefined()
+
+		view.emit('layoutChanged')
+		expect(view.src).toBe('res://feed/photo.jpg')
+		expect(view.decodeWidth).toEqual({ value: 0, unit: 'px' })
+		expect(view.decodeHeight).toEqual({ value: 0, unit: 'px' })
+		expect(view.srcWrites).toHaveLength(1)
+	})
+
+	it('width-only flow: re-issues once the bitmap gives the view a height, never on a collapse to 0', () => {
+		const view = mockView(214, 0)
+		const binding = createSizedImageBinding()
+
+		binding.update(view, 'res://feed/photo.jpg')
+		view.emit('layoutChanged')
+		expect(view.srcWrites).toHaveLength(1)
+		expect(view.decodeWidth).toEqual({ value: 214, unit: 'px' })
+		expect(view.decodeHeight).toEqual({ value: 0, unit: 'px' })
+
+		// The loaded bitmap produced an intrinsic height — re-decode at the
+		// real size (aspectFit is not in the fill/none exemption).
+		view.measured = { w: 214, h: 160 }
+		view.emit('layoutChanged')
+		expect(view.srcWrites).toHaveLength(2)
+		expect(view.decodeWidth).toEqual({ value: 214, unit: 'px' })
+		expect(view.decodeHeight).toEqual({ value: 160, unit: 'px' })
+
+		// A later measure back to 0 must not reload — reloading nulls
+		// imageSource, which collapses the intrinsic height again (loop).
+		view.measured = { w: 214, h: 0 }
+		view.emit('layoutChanged')
+		expect(view.srcWrites).toHaveLength(2)
+	})
+
+	it('issues on update when the view already reports a valid layout', () => {
+		const view = mockView(0, 0, true)
+		const binding = createSizedImageBinding()
+
+		binding.update(view, 'res://feed/photo.jpg')
+		expect(view.src).toBe('res://feed/photo.jpg')
+		expect(view.srcWrites).toHaveLength(1)
+	})
+
+	it('reissueOnResize: false skips same-src reloads but still issues src changes', () => {
+		const view = mockView(300, 200)
+		const binding = createSizedImageBinding({ reissueOnResize: false })
+
+		binding.update(view, 'res://a.jpg')
+		expect(view.srcWrites).toHaveLength(1)
+
+		view.measured = { w: 600, h: 400 }
+		view.emit('layoutChanged')
+		expect(view.srcWrites).toHaveLength(1)
+
+		binding.update(view, 'res://b.jpg')
+		expect(view.srcWrites).toEqual(['res://a.jpg', 'res://b.jpg'])
 	})
 
 	it('issues immediately when the view is already measured, and repeats are no-ops', () => {
@@ -125,6 +210,66 @@ describe('sized image decode binding', () => {
 		expect(view.src).toBe('res://a.jpg')
 		expect(view.decodeWidth).toEqual({ value: 0, unit: 'px' })
 		expect(view.decodeHeight).toEqual({ value: 0, unit: 'px' })
+	})
+
+	it('requests a layout when the bitmap arrives — intrinsic axes re-measure', () => {
+		const view = mockView(214, 0)
+		const binding = createSizedImageBinding()
+
+		binding.update(view, 'res://a.jpg')
+		expect(view.layoutRequests).toBe(0)
+
+		view.emit('imageSourceChange')
+		expect(view.layoutRequests).toBe(1)
+	})
+
+	it('moves the imageSource listener to a recreated view', () => {
+		const first = mockView(214, 0)
+		const second = mockView(214, 0)
+		const binding = createSizedImageBinding()
+
+		binding.update(first, 'res://a.jpg')
+		binding.update(second, 'res://a.jpg')
+
+		first.emit('imageSourceChange')
+		expect(first.layoutRequests).toBe(0)
+		expect(first.handlerCount('imageSourceChange')).toBe(0)
+
+		second.emit('imageSourceChange')
+		expect(second.layoutRequests).toBe(1)
+	})
+
+	it('re-checks a held issue on deferred ticks once the view is attached', () => {
+		vi.useFakeTimers()
+		// Android flips isLayoutValid without layoutChanged when bounds stay
+		// 0x0 — the deferred retry is what observes it.
+		const view = mockView(0, 0)
+		view.isLoaded = true
+		const binding = createSizedImageBinding()
+
+		binding.update(view, 'res://a.jpg')
+		expect(view.src).toBeUndefined()
+
+		vi.advanceTimersByTime(0)
+		vi.advanceTimersByTime(0)
+		expect(view.src).toBeUndefined()
+
+		view.isLayoutValid = true
+		vi.runAllTimers()
+		expect(view.src).toBe('res://a.jpg')
+		expect(view.decodeWidth).toEqual({ value: 0, unit: 'px' })
+	})
+
+	it('stops requesting layout after dispose', () => {
+		const view = mockView(214, 0)
+		const binding = createSizedImageBinding()
+
+		binding.update(view, 'res://a.jpg')
+		binding.dispose()
+
+		view.emit('imageSourceChange')
+		expect(view.layoutRequests).toBe(0)
+		expect(view.handlerCount('imageSourceChange')).toBe(0)
 	})
 
 	it('moves the listener to a recreated view and re-issues at its size', () => {
