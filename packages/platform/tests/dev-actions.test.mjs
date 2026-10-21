@@ -23,9 +23,16 @@ const compile = async (file) =>
 const SOURCES = {}
 
 async function loadDevActions(globals = {}) {
+	let devBridgeSource = await compile(globals.os ? 'dev-bridge' : 'dev-bridge.web')
+	if (globals.moduleToken) {
+		// The NativeScript device transform injects defines as module-scope
+		// consts, not globalThis properties.
+		devBridgeSource = `const __XPLAT_DEV_BRIDGE__ = { token: ${JSON.stringify(globals.moduleToken)} };\n${devBridgeSource}`
+	}
+
 	const modules = {
 		'./dev-actions-schema': await compile('dev-actions-schema'),
-		'./dev-bridge': await compile(globals.os ? 'dev-bridge' : 'dev-bridge.web'),
+		'./dev-bridge': devBridgeSource,
 	}
 
 	const sandbox = {
@@ -217,6 +224,22 @@ test('native endpoint contract requires both the dev origin and token', async ()
 		const { exports: api } = await loadDevActions({ os: 'iOS', ...globals })
 		assert.equal(api.startDevActionBridge().state, 'unavailable')
 	}
+})
+
+test('native endpoint accepts a module-scope token define without a global', async (t) => {
+	const bridge = await makeBridge(t)
+	const { exports: api } = await loadDevActions({
+		os: 'Android',
+		origin: bridge.origin,
+		moduleToken: bridge.token,
+	})
+
+	t.after(() => api.startDevActionBridge().stop())
+	const action = api.registerDevAction(spec())
+	t.after(() => action.dispose())
+	const instance = await until(async () => (await bridge.call('GET', '/registry')).instances[0])
+	assert.ok(instance, 'module-scope __XPLAT_DEV_BRIDGE__ const must be discovered')
+	assert.equal(instance.platform, 'android')
 })
 
 test('iOS action wire contract announces automatically and rechecks availability before execution', async (t) => {
