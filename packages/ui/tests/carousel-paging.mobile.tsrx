@@ -19,9 +19,9 @@ export async function run(ctx: ProbeContext) {
     await ctx.mount(CarouselPaging)
     await ctx.waitFor(() => handle && (ctx.inspect('paging-page-2').frame?.width ?? 0) > 0)
     const page = (n: number) => ctx.inspect('paging-page-' + n).frame!
-    const start = page(0).x
-    const aligned = (n: number) => Math.abs(page(n).x - start) <= 2
-    ctx.record('initial', { pages: [0, 1, 2].map(page) })
+    const offset = (n: number) => ctx.find('paging-page-' + n).getLocationRelativeTo(ctx.find('paging-carousel')).x
+    const aligned = (n: number) => Math.abs(offset(n)) <= 2
+    ctx.record('initial', { pages: [0, 1, 2].map(page), offsets: [0, 1, 2].map(offset) })
     ctx.assert('proportional slides are one viewport wide', Math.abs(page(0).width - 320) <= 2, true)
     ctx.assert('slides overflow the viewport', handle!.canScrollNext(), true)
     handle!.scrollTo(2)
@@ -32,5 +32,5 @@ export async function run(ctx: ProbeContext) {
     handle!.scrollTo(0)
     await ctx.waitFor(() => aligned(0), { timeout: 5000, interval: 20 })
     ctx.assert('scrollTo returns to the first slide', aligned(0), true)
-    ctx.record('returned', { pages: [0, 1, 2].map(page) })
+    ctx.record('returned', { pages: [0, 1, 2].map(page), offsets: [0, 1, 2].map(offset) })
 }
