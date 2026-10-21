@@ -13,13 +13,14 @@ index 80e30299c44e889e3a066ce2c9a8feb6b7ceaa42..b17dc120c5c00ba4be701233fb95b6d2
  /**
   * A command `parent`: a host node id's node, the root container (`null`), or a
 diff --git a/dist/driver.js b/dist/driver.js
-index 8bc563add4cb675a12651184b63805b10224274d..31106eeff28efbb0c088c8677348962a427bbe99 100644
+index 8bc563add4cb675a12651184b63805b10224274d..ca251841c91abdd8c254fb6307e5af09f0707c0f 100644
 --- a/dist/driver.js
 +++ b/dist/driver.js
 @@ -1,8 +1,11 @@
+-import { ActionBar, ContentView, FormattedString, LayoutBase, ListView, Span, TabView, TabViewItem, TextBase, View, unsetValue, } from '@nativescript/core';
 +import { cssTreeParse } from '@nativescript/core/css/css-tree-parser';
 +import { _getProperties, _getStyleProperties, } from '@nativescript/core/ui/core/properties';
- import { ActionBar, ContentView, FormattedString, LayoutBase, ListView, Span, TabView, TabViewItem, TextBase, View, unsetValue, } from '@nativescript/core';
++import { ActionBar, ContentView, FormattedString, LayoutBase, ListView, Span, TabView, TabViewItem, TextBase, View, Utils, unsetValue, } from '@nativescript/core';
  import { createUniversalRoot, } from 'octane/universal/native';
  import { NATIVESCRIPT_RENDERER_ID } from './config.js';
  import { ELEMENTS, EVENT_PROP, eventNameFor, onElementReplaced, } from './elements.js';
@@ -50,7 +51,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..31106eeff28efbb0c088c8677348962a
  }
  function applyProps(node, props) {
      if (node.view === null) {
-@@ -90,14 +99,14 @@ function applyProps(node, props) {
+@@ -90,14 +99,16 @@ function applyProps(node, props) {
              setProp(node, node.view, name, props[name]);
      }
  }
@@ -68,10 +69,12 @@ index 8bc563add4cb675a12651184b63805b10224274d..31106eeff28efbb0c088c8677348962a
      applyProps(node, next);
 -    node.props = { ...node.props, ...next };
 +    node.props = next;
++    if (node.parent !== null && MASON_CONTAINER_TAGS.has(node.parent.type))
++        applyMasonChildLayout(node, node.parent);
  }
  function setProp(node, view, name, value) {
      if (name === 'children' || name === 'key' || name === 'ref')
-@@ -105,6 +114,15 @@ function setProp(node, view, name, value) {
+@@ -105,6 +116,15 @@ function setProp(node, view, name, value) {
      // Event props arrive as their own `event` commands.
      if (EVENT_PROP.test(name))
          return;
@@ -87,7 +90,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..31106eeff28efbb0c088c8677348962a
      if (name === 'className' || name === 'class') {
          view.className =
              value == null || value === unsetValue
-@@ -113,13 +131,31 @@ function setProp(node, view, name, value) {
+@@ -113,13 +133,31 @@ function setProp(node, view, name, value) {
          return;
      }
      if (name === 'style') {
@@ -120,7 +123,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..31106eeff28efbb0c088c8677348962a
      // Core raises `<name>Change` for a script write exactly as for a user
      // edit; a controlled input must not see its own value come back as one.
      const echo = `${name}Change`;
-@@ -127,7 +163,10 @@ function setProp(node, view, name, value) {
+@@ -127,7 +165,10 @@ function setProp(node, view, name, value) {
      if (listening)
          node.muted.add(echo);
      try {
@@ -132,7 +135,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..31106eeff28efbb0c088c8677348962a
      }
      finally {
          if (listening)
-@@ -137,6 +176,8 @@ function setProp(node, view, name, value) {
+@@ -137,6 +178,8 @@ function setProp(node, view, name, value) {
  // `class`/`className` compose clsx-style on the DOM renderer; join arrays
  // with spaces so NativeScript's class selectors can match each class.
  function normalizeClass(value) {
@@ -141,7 +144,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..31106eeff28efbb0c088c8677348962a
      if (typeof value === 'string')
          return value;
      if (Array.isArray(value))
-@@ -147,16 +188,241 @@ function normalizeClass(value) {
+@@ -147,16 +190,298 @@ function normalizeClass(value) {
              .join(' ');
      return '';
  }
@@ -191,21 +194,8 @@ index 8bc563add4cb675a12651184b63805b10224274d..31106eeff28efbb0c088c8677348962a
 +    else if (value !== null &&
 +        typeof value === 'object' &&
 +        value !== unsetValue) {
-+        // Mason layout keys target the leaf style under a mason parent —
-+        // `view.style` is the NS surface where they land as dead fields. The leaf
-+        // style exists only once the parent attaches the view, so entries are
-+        // stashed and replayed by applyMasonChildLayout.
-+        const parentIsMason = node.parent !== null && MASON_CONTAINER_TAGS.has(node.parent.type);
-+        const masonLeaf = parentIsMason ? masonChildStyle(view) : undefined;
 +        for (const key of next) {
 +            const entry = value[key];
-+            if (MASON_LEAF_STYLE_KEYS.has(key)) {
-+                const leafStash = view[MASON_LEAF_STYLE_STASH] ?? (view[MASON_LEAF_STYLE_STASH] = {});
-+                leafStash[key] = entry == null ? undefined : entry;
-+                if (masonLeaf !== undefined)
-+                    masonLeaf[key] = entry == null ? undefined : entry;
-+            }
-+
 +            if (entry == null || entry === unsetValue)
 +                unsetStyleKey(node, view, key);
 +            else
@@ -215,15 +205,9 @@ index 8bc563add4cb675a12651184b63805b10224274d..31106eeff28efbb0c088c8677348962a
 +    node.styleKeys = next;
 +}
 +function unsetStyleKey(node, view, name) {
-+    // Forget removed authored values before any later sibling attachment can
-+    // replay them. Reset the leaf first so the NS cascade can restore CSS.
-+    const leafStash = view[MASON_LEAF_STYLE_STASH];
-+    if (leafStash !== undefined && Object.hasOwn(leafStash, name)) {
-+        delete leafStash[name];
-+        const leaf = masonChildStyle(view);
-+        if (leaf !== undefined)
-+            leaf[name] = undefined;
-+    }
++    // The foreign-leaf binding observes the resolved style, so removal needs
++    // no leaf write here — the cascade restore raises the longhand's Change
++    // event and the binding re-syncs.
 +    const style = view.style;
 +    if (name.startsWith('--')) {
 +        view.style.removeUnscopedCssVariable(name);
@@ -275,12 +259,16 @@ index 8bc563add4cb675a12651184b63805b10224274d..31106eeff28efbb0c088c8677348962a
 +    'flexWrapBefore', 'stretchLastChild', 'itemWidth', 'itemHeight',
 +    'rows', 'columns',
 +]);
-+// Style-bag keys that mason owns — under a mason parent these are written to
-+// the child's mason leaf style in addition to the NS style surface.
-+const MASON_LEAF_STYLE_KEYS = new Set([
-+    ...MASON_STYLE_ONLY_PROPS, 'left', 'top', 'right', 'bottom',
-+]);
-+const MASON_LEAF_STYLE_STASH = Symbol.for('octane-xplat.mason-leaf-style');
++// Only leaf layout longhands: core expands shorthands before notifying.
++// Read the effective NS style, never copy authored values into another tier.
++const MASON_LEAF_STYLE_KEYS = [
++    'width', 'height', 'minWidth', 'minHeight', 'maxWidth', 'maxHeight',
++    'marginTop', 'marginRight', 'marginBottom', 'marginLeft',
++    'flexGrow', 'flexShrink', 'flexBasis', 'alignSelf', 'justifySelf',
++    'order', 'position', 'left', 'top', 'right', 'bottom', 'aspectRatio',
++    'gridRow', 'gridColumn', 'gridRowStart', 'gridRowEnd', 'gridColumnStart', 'gridColumnEnd',
++];
++const masonLeafBindings = new WeakMap();
 +const warnedStyleOnlyProps = new Set();
 +function warnStyleOnlyProp(node, name) {
 +    const key = node.type + ':' + name;
@@ -338,7 +326,8 @@ index 8bc563add4cb675a12651184b63805b10224274d..31106eeff28efbb0c088c8677348962a
 +        style.overflowY = 'scroll';
 +        style.overflowX = 'hidden';
 +    }
-+    style.alignItems = 'stretch';
++    // Core's alignItems CssProperty already defaults to stretch. A local
++    // write here would outrank every stylesheet rule, including centering.
 +    // Containers establish the containing block for absolute descendants.
 +    style.position = 'relative';
 +}
@@ -364,31 +353,102 @@ index 8bc563add4cb675a12651184b63805b10224274d..31106eeff28efbb0c088c8677348962a
 +    }
 +}
 +
-+/** Replay a child's authored mason style entries onto its leaf — the leaf
-+ *  style only exists once the parent attaches the view, so `applyStyle`
-+ *  stashes leaf-intended keys and every attach replays them. Sibling order is
-+ *  irrelevant to the replay, but the pass runs per sibling anyway so a child
-+ *  inserted later still gets its stash flushed. */
++/** Keep foreign leaves in sync with the effective NativeScript cascade.
++ * MasonKit's property handlers only forward to its own _styleHelper views.
++ * Observe longhand changes so classes, pseudo states, inline removal and
++ * stylesheet refreshes follow the same path. Rebind on loaded because the
++ * native leaf may not exist at insert, or may have been recreated. */
 +function applyMasonChildLayout(node, parent) {
 +    const view = node.view;
-+    if (view === null || view === undefined)
-         return;
-+    const style = masonChildStyle(view);
-+    if (style === undefined)
++    if (!view || view._styleHelper !== undefined)
 +        return;
-+    const leafStash = view[MASON_LEAF_STYLE_STASH];
-+    if (leafStash !== undefined) {
-+        for (const key of Object.keys(leafStash))
-+            style[key] = leafStash[key];
++    if (masonLeafBindings.has(view)) {
++        masonLeafBindings.get(view).sync();
+         return;
      }
 -    if (typeof value === 'object')
 -        Object.assign(view.style, value);
++    let native;
++    let leaf;
++    const applied = new Map();
++    const syncKey = (key) => {
++        if (!leaf)
++            return;
++        let value = view.style[key];
++        if (value === undefined || value === unsetValue) {
++            // Plain/unregistered fields can vanish without a CssProperty
++            // default. Mason requires an explicit grid reset (undefined is
++            // ignored by its setters).
++            if ((key === 'gridRow' || key === 'gridColumn') && applied.has(key))
++                value = 'auto';
++            else
++                return;
++        }
++        // Core's auto self-alignment is Mason's normal (-1 / parent default).
++        if ((key === 'alignSelf' || key === 'justifySelf') && value === 'auto')
++            value = 'normal';
++        if (typeof value === 'number' && !Number.isFinite(value))
++            value = 'auto';
++        // Mason's object px setter treats the number as DIP; core's parsed
++        // px length is physical pixels. Convert once at this boundary.
++        if (value && typeof value === 'object' && value.unit === 'px')
++            value = { value: Utils.layout.toDeviceIndependentPixels(value.value), unit: 'dip' };
++        const previous = applied.get(key);
++        if (Object.is(previous, value) || (value && previous && typeof value === 'object' &&
++            value.unit === previous.unit && value.value === previous.value))
++            return;
++        leaf[key] = value;
++        applied.set(key, value);
++        return true;
++    };
++    const sync = () => {
++        if (native !== view.nativeViewProtected || !leaf) {
++            native = view.nativeViewProtected;
++            leaf = masonChildStyle(view);
++            applied.clear();
++        }
++        let changed = false;
++        const update = () => {
++            for (const key of MASON_LEAF_STYLE_KEYS)
++                changed = syncKey(key) || changed;
++        };
++        // Foreign native style writes normally flush on a microtask, after
++        // core may already have measured the parent. Commit first, then ask
++        // the Mason container to recompute the foreign frame.
++        if (leaf?.batch)
++            leaf.batch(update);
++        else
++            update();
++        if (changed)
++            parent.view?.requestLayout?.();
++    };
++    const handlers = MASON_LEAF_STYLE_KEYS.map(key => {
++        const handler = () => sync();
++        view.style.on?.(key + 'Change', handler);
++        return [key + 'Change', handler];
++    });
++    view.on('loaded', sync);
++    masonLeafBindings.set(view, {
++        sync,
++        dispose() {
++            for (const [event, handler] of handlers)
++                view.style.off?.(event, handler);
++            view.off('loaded', sync);
++        },
++    });
++    sync();
++}
++function releaseMasonChildLayout(view) {
++    if (!view)
++        return;
++    masonLeafBindings.get(view)?.dispose();
++    masonLeafBindings.delete(view);
  }
 +
  /** Recompute a text host's `text` from its `#text` children. */
  function syncText(parent) {
      if (parent === null || isPortalTarget(parent))
-@@ -190,6 +456,15 @@ function addViewChild(parentView, view, index) {
+@@ -190,6 +515,15 @@ function addViewChild(parentView, view, index) {
          parentView.insertChild(view, Math.min(index, parentView.getChildrenCount()));
          return;
      }
@@ -404,7 +464,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..31106eeff28efbb0c088c8677348962a
      if (parentView instanceof ContentView) {
          parentView.content = view;
          return;
-@@ -234,6 +509,13 @@ function removeViewChild(parentView, view) {
+@@ -234,6 +568,13 @@ function removeViewChild(parentView, view) {
              parentView.removeChild(view);
          return;
      }
@@ -418,13 +478,20 @@ index 8bc563add4cb675a12651184b63805b10224274d..31106eeff28efbb0c088c8677348962a
      if (parentView instanceof ContentView) {
          if (parentView.content === view)
              parentView.content = CLEARED;
-@@ -370,6 +652,13 @@ function attach(container, node) {
+@@ -315,6 +656,7 @@ function tabViewOwning(node) {
+     return null;
+ }
+ function detach(container, node) {
++    releaseMasonChildLayout(node.view);
+     const parent = node.parent;
+     const siblings = childrenOf(container, parent);
+     const index = siblings.indexOf(node);
+@@ -370,6 +712,12 @@ function attach(container, node) {
          }
      }
      addViewChild(parentView, node.view, index);
 +    // The child's mason leaf node exists only once the parent has attached it;
-+    // replay placement for every sibling (dock's stretchLastChild depends on
-+    // the full sibling list).
++    // synchronize effective styles after attachment.
 +    if (parent !== null && MASON_CONTAINER_TAGS.has(parent.type)) {
 +        for (const sibling of childrenOf(container, parent))
 +            applyMasonChildLayout(sibling, parent);
@@ -432,7 +499,23 @@ index 8bc563add4cb675a12651184b63805b10224274d..31106eeff28efbb0c088c8677348962a
      markTabView(tabViewOwning(node));
  }
  function insert(container, parent, node, before) {
-@@ -480,6 +769,9 @@ function recreateView(container, node) {
+@@ -429,6 +777,7 @@ function setEvent(container, node, type, listener) {
+     view.on(type, handler);
+ }
+ function disposeListeners(node) {
++    releaseMasonChildLayout(node.view);
+     const view = node.view;
+     if (view !== null) {
+         for (const [type, handler] of node.listeners)
+@@ -460,6 +809,7 @@ function recreateView(container, node) {
+         // no longer host them.
+         throw new Error(`NativeScript driver: re-registered <${node.type}> is a <${view.typeName}>, which cannot host portal children; the registration stays on the previous view.`);
+     }
++    releaseMasonChildLayout(previous);
+     const parentView = hostViewOf(container, node.parent);
+     for (const child of node.children) {
+         if (child.view !== null)
+@@ -480,6 +830,9 @@ function recreateView(container, node) {
      viewOwners.set(view, { container, node });
      node.view = view;
      node.textApplied = false;
@@ -442,7 +525,20 @@ index 8bc563add4cb675a12651184b63805b10224274d..31106eeff28efbb0c088c8677348962a
      applyProps(node, node.props);
      for (const [type, handler] of node.listeners)
          view.on(type, handler);
-@@ -548,7 +840,7 @@ function preparePortalTarget(context) {
+@@ -500,6 +853,12 @@ function recreateView(container, node) {
+                 addViewChild(view, child.view, index++);
+         }
+     }
++    if (MASON_CONTAINER_TAGS.has(node.type)) {
++        for (const child of node.children) {
++            releaseMasonChildLayout(child.view);
++            applyMasonChildLayout(child, node);
++        }
++    }
+     syncText(node);
+     markTabView(node);
+     attach(container, node);
+@@ -548,7 +907,7 @@ function preparePortalTarget(context) {
      }
      const target = owner?.node.view ?? suppliedTarget;
      if (!(target instanceof LayoutBase)) {
@@ -451,7 +547,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..31106eeff28efbb0c088c8677348962a
      }
      let id = portalTargetIds.get(target);
      if (id === undefined) {
-@@ -641,7 +933,7 @@ function applyCommand(container, command) {
+@@ -641,7 +1000,7 @@ function applyCommand(container, command) {
  }
  export const nativeScriptDriver = {
      id: NATIVESCRIPT_RENDERER_ID,

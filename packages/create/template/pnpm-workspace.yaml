@@ -94,12 +94,14 @@ patchedDependencies:
   # subclassing LayoutBase. Additionally, the masonry cutover: masonview resolves to
   # MasonKit View and scrollview to MasonKit Scroll as the only layout containers, with zero
   # layout props — every former prop name warns-and-drops and all CSS semantics arrive
-  # through the style bag; style keys on a mason child route to its leaf (stashed
-  # pre-attach, replayed at attach) via Style.fromView. Removing an authored Mason style key
-  # also deletes its deferred replay entry and resets the current leaf before NativeScript
-  # restores CSS, preventing later sibling attachments from resurrecting removed tracks.
-  # Re-exports Octane's ClassValue unchanged and stringifies truthy numeric class values
-  # while omitting 0 and NaN, matching Octane 0.11.
+  # through the style bag; foreign native leaves mirror resolved class and inline layout
+  # styles through Style.fromView, observe longhand changes and native recreation, and
+  # explicitly clear removed placement — removal restores the CSS cascade, so a later
+  # sibling attachment cannot resurrect removed tracks. Container alignment uses the core
+  # stretch default without a local style override, allowing class-authored centering.
+  # Inline style resets reapply the matching CSS cascade. Re-exports Octane's ClassValue
+  # unchanged and stringifies truthy numeric class values while omitting 0 and NaN, matching
+  # Octane 0.11.
   "@nativescript-community/octane@0.2.5": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript-community__octane@0.2.5.patch
   # octaneServerStrategy's SCRIPT_FILE_RE only covers [jt]sx? — .tsrx edits never emit the
   # deferred ns:hmr-delta broadcast, so component HMR silently never reaches the device.
@@ -150,7 +152,11 @@ patchedDependencies:
   # MasonListDelegate is declared in Mason-Swift.h, which the app's metadata generation does
   # not surface as a runtime global — importing masonkit on iOS throws `MasonListDelegate is
   # not defined` during bundle eval and kills the app at boot. Guard the binding; actual
-  # List delegate conformance when the protocol is absent is a separate gap.
+  # List delegate conformance when the protocol is absent is a separate gap. Foreign Android
+  # widgets lack Element.syncStyleParts; forward the foreign layout dirty word through the
+  # native Style, preserving unsigned masks and rejecting unsupported high-word fields. On
+  # iOS, UIView.mason_syncStyleParts ignores foreign views; mark their native leaf dirty
+  # after live-buffer layout writes so class changes invalidate cached frames.
   "@triniwiz/nativescript-masonkit@1.0.0-beta.110": node_modules/.pnpm-config/@octane-xplat/patches/patches/@triniwiz__nativescript-masonkit@1.0.0-beta.110.patch
 configDependencies:
   "@octane-xplat/patches": 0.16.1

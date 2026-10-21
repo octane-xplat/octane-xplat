@@ -59,6 +59,22 @@ export function Columns() {
 For driver work and the distinction between JSX tags and imperative native
 hosts, read [driver semantics](primitives/driver-semantics.md#leaf-shape).
 
+## Native leaf sizes
+
+On iOS/Android, class-authored dimensions and centering use the same cascade
+as inline overrides, including foreign native hosts such as SVGView. Keep
+static sizes in classes; do not add a Mason wrapper just to carry width and
+height. The renderer patch bridges resolved leaf layout styles. See the
+[implementation and evidence boundary](../../../docs/notes/masonkit-layout-evaluation.md#foreign-leaf-layout-regression-issue-31).
+
+```tsx
+<Image src={svgMarkup} className="profile-icon" alt="Profile" />
+```
+
+```css
+.profile-icon { width: 31px; height: 36px; }
+```
+
 ## Tokens
 
 CSS vars (`--color-primary` etc.) in `packages/ui/src/theme/tokens.css` —

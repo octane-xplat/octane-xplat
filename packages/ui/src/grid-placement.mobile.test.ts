@@ -222,11 +222,13 @@ it.each([
 
 		app.root.render(component, { col: undefined, span: undefined })
 		await Promise.resolve()
-		// Removal clears the leaf write — a stale '1 / span 2' would linger.
+		// Removal resets foreign placement to auto; a stale '1 / span 2' must not linger.
 		// UpdatingPlacement still authors row={0}, so its row line stays '1';
 		// the composite emits no row at all, so its last write is undefined.
 		expect(masonStyleOf(grid.children[0])?.__writes.gridRow).toBe(rowLine)
-		expect(masonStyleOf(grid.children[0])?.__writes.gridColumn).toBeUndefined()
+		expect(masonStyleOf(grid.children[0])?.__writes.gridColumn).toBe(
+			rowLine === '1' ? 'auto' : undefined,
+		)
 
 		app.dispose()
 	},

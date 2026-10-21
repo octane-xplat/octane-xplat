@@ -11,3 +11,58 @@ index d683fa030ea4adb1b442405458055256319e0adc..97f1953ffbc8ca9e809953c2024e17cd
      return ListDelegateImpl;
  }(NSObject));
  const listState_ = Symbol('[[listState]]');
+diff --git a/style.js b/style.js
+index d9892c172..a2913d3f0 100644
+--- a/style.js
++++ b/style.js
+@@ -1,3 +1,4 @@
++import { isMasonView_ } from './symbols';
+ import { layout as coreLayout } from '@nativescript/core/utils';
+ import { cssUnits } from './units';
+ import { pickFontFamily } from './fonts';
+@@ -1245,6 +1246,23 @@ let nodeHelperShared;
+ export function nodeHelper() {
+     return (nodeHelperShared ?? (nodeHelperShared = org.nativescript.mason.masonkit.NodeHelper.getShared()));
+ }
++function syncAndroidForeignLayout(view, d0, d1, d2, d3) {
++    // Foreign widgets are not Mason Elements and have no syncStyleParts.
++    // The renderer bridge forwards layout fields, all in the first 32-bit
++    // word. Reject other fields rather than truncating a 64-bit dirty mask.
++    if (d1 !== 0 || d2 !== 0 || d3 !== 0) {
++        throw new Error('Mason foreign Android styles support layout fields only');
++    }
++    const style = org.nativescript.mason.masonkit.Mason.getShared().styleForViewOrNode(view);
++    // Version-pinned Kotlin method; the unsigned word is exactly representable
++    // as a JS number and cannot sign-extend into unrelated style fields.
++    style['setStateFromHalves$masonkit_release'](d0 >>> 0, 0);
++}
++function syncAppleForeignLayout(view) {
++    // UIView's mason_syncStyleParts is a no-op for non-Mason elements.
++    // Their style buffer is live, but a cached compute needs explicit dirtiness.
++    NSCMason.shared.nodeForView(view, true).markDirty();
++}
+ function androidWritableStyleBuffer(nativeView) {
+     if (typeof nativeView?.getWritableStyleBuffer === 'function') {
+         return nativeView.getWritableStyleBuffer();
+@@ -1750,13 +1768,19 @@ export class Style {
+             //@ts-ignore
+             const view = this.view?.android ?? this.view._view;
+             // @ts-ignore - syncStyleParts is a newer native method; typings regenerate from the AAR separately.
+-            view.syncStyleParts(this._d0, this._d1, this._d2, this._d3);
++            if (typeof view.syncStyleParts === 'function')
++                view.syncStyleParts(this._d0, this._d1, this._d2, this._d3);
++            else
++                syncAndroidForeignLayout(view, this._d0, this._d1, this._d2, this._d3);
+         }
+         else if (__APPLE__) {
+             //@ts-ignore
+             const view = this.view?.ios ?? this.view._view;
+             // @ts-ignore
+-            view.mason_syncStyleParts(this._d0, this._d1, this._d2, this._d3);
++            if (this.view?.[isMasonView_])
++                view.mason_syncStyleParts(this._d0, this._d1, this._d2, this._d3);
++            else
++                syncAppleForeignLayout(this.nativeView);
+         }
+         else if (__WINDOWS__) {
+             // @ts-ignore

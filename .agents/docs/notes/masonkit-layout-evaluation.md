@@ -165,13 +165,15 @@ entries, matching web. Previously an omitted `columns` emitted
 it into the Mason helper after attachment, potentially clearing a class's
 template. The nested-driver regression failed before this correction and
 passed afterward. Declared stars still emit `1fr`; no global track semantics
-changed. Removing a declared track also clears its deferred Mason style
-entry and resets the current leaf before NativeScript reapplies the CSS
-cascade. Without that cleanup, attaching a later sibling replays the old
-track. Host-driver regressions cover removing both a `columns` prop and an
-inline track style, then inserting a sibling; both failed before the cleanup
-and passed afterward. These recording-mock tests do not verify device CSS
-cascade behavior.
+changed. The stash/replay mechanism has since been replaced by the
+resolved-style foreign-leaf binding (see issue #31 below): removal restores
+the NativeScript CSS cascade and the binding re-syncs the effective value —
+or writes an explicit `auto` reset for foreign `gridRow`/`gridColumn`, whose
+Mason setters ignore `undefined` — so attaching a later sibling cannot
+resurrect or clear removed tracks. Host-driver regressions cover removing
+both a `columns` prop and an inline track style, then inserting a sibling;
+both failed before the cleanup and passed afterward. These recording-mock
+tests do not verify device CSS cascade behavior.
 
 The framework correction gives Screen's inner Mason root a low-priority
 `width:100%` CSS default through `vx-screen-content`. This makes its computed
@@ -308,8 +310,8 @@ with `scrollview`/`liquidglass` as the chrome-wrapped hosts:
   in `elements.js`. `driver.js` has no layout-prop channel at all: every
   former prop name (contract props, LayoutChildProps sugar, raw CSS keys)
   warns-and-drops, and all CSS semantics arrive through the `style` bag.
-  Style-bag keys on a mason child route to the child's mason leaf via
-  `Style.fromView`, stashed pre-attach and replayed at `attach` — see
+  Resolved layout longhands on foreign native children route to their Mason
+  leaf via `Style.fromView`, synchronized after attach and on style changes — see
   upstream-limitation rows in `feedback_observations` (no mason style buffer
   on plain views; no view-level CssProperties on mason's ViewBase).
   Component-level sugar (`row`/`col`/`span`, `dock`, edges, alignment, flex
@@ -319,6 +321,107 @@ with `scrollview`/`liquidglass` as the chrome-wrapped hosts:
 
 Runtime evidence: `research/mason/mason-cutover.macos.tsrx` — 10/10
 assertions across stack/flex/grid/absolute/dock/wrap/liquidglass/scroll.
+
+## Foreign-leaf layout regression (issue #31)
+
+MasonKit **1.0.0-beta.110** only forwards property changes to its own views:
+`properties.ts:getViewStyle` reads `_styleHelper`, which plain NativeScript
+views (including the vendored SVGView) do not expose. Its native foreign-leaf
+node therefore misses class-authored layout dimensions. Source evidence:
+[MasonKit properties](https://github.com/triniwiz/nativescript-mason/blob/1.0.0-beta.110/packages/nativescript-masonkit/properties.ts),
+[reported UIKit frames](https://github.com/octane-xplat/octane-xplat/issues/31).
+The issue's runtime measurements establish the original iOS regression;
+they do not qualify this patch.
+
+The canonical Octane **0.2.5** patch bridges the resolved NativeScript style
+to foreign Mason leaves after attachment. It observes dimension, constraint,
+margin, self-alignment, flex and grid placement longhands; `loaded` replays
+them if the native view is created late or replaced. Style writes flush in a
+synchronous Mason batch before requesting the parent layout; otherwise a
+later class change can leave the native frame at its old dimensions.
+Detach, disposal and
+view re-registration release the subscriptions. Parsed physical-pixel lengths
+convert to DIP at this boundary because Mason's object-length setter scales
+`px` as DIP. Removed inline keys trigger CSS re-evaluation so classes become
+effective again. Mason-owned views retain their own property handlers.
+
+```tsx
+<masonview style={{ display: 'flex' }} className="centered-cell">
+  <svgview src={markup} className="tall-icon" />
+</masonview>
+```
+
+```css
+.centered-cell { align-items: center; justify-content: center; }
+.tall-icon { width: 31; height: 36; }
+```
+
+`applyMasonDefaults` no longer writes local `alignItems: stretch`: the core
+CssProperty already defaults to stretch, and a local write defeats class
+centering. The SVG fork separately corrects width-constrained measurement
+from `width * ratio` to `width / ratio`, where ratio is intrinsic width /
+height. Both explicit dimensions and height-only measurement remain exact.
+
+Coverage: `packages/cli/test/mason-layout.test.mjs` exercises resolved style
+changes, override removal, unit conversion, deferred native creation and
+subscription teardown. `packages/ui/tests/svg-measure.ios.test.mjs` invokes
+the vendored iOS measurement with non-square dimensions and 3× density.
+These are host tests; native geometry qualification is reported separately.
+Keep the bridge until upstream forwards effective styles to foreign leaves
+through attachment and native recreation, including resets.
+
+
+On Android, ordinary native widgets have no `Element.syncStyleParts` method.
+The MasonKit **1.0.0-beta.110** JavaScript patch forwards the bridge's layout
+dirty word through `Style.setStateFromHalves$masonkit_release`, the same
+Kotlin operation used by `Element.syncStyle`. All forwarded layout flags fit
+in the first unsigned 32-bit word; other words reject explicitly instead of
+losing precision or marking unrelated fields dirty. Mason-owned Elements
+retain their existing path. The helper is covered with a native-Style stub;
+Android device rendering remains unqualified.
+
+
+The iOS `UIView.mason_syncStyleParts` implementation returns for a view that
+is not a `MasonElement` ([upstream source](https://github.com/triniwiz/nativescript-mason/blob/1.0.0-beta.110/packages/nativescript-masonkit/src-native/mason-ios/Mason/Mason/Extensions.swift)).
+A foreign leaf can therefore use the initial buffer values while retaining
+cached geometry after later class changes. The JavaScript patch explicitly
+calls `NSCMason.shared.nodeForView(view, true).markDirty()` for foreign
+leaves, followed by the driver's parent layout request. It preserves the
+existing sync path for Mason-owned views.
+
+
+### iOS qualification
+
+The nonvisual probe `research/issue-31/layout.mobile.tsrx` passed **12/12**
+assertions on the iPhone 18 Pro / iOS 27 simulator (run
+`88a310be-c222-4b7e-863b-7bb7704bb90a`, 2026-10-20, on the ported patch). It
+measured native host sizes and relative positions in a 330×82 three-column
+grid:
+
+| Host | Measured size (pt) |
+| --- | --- |
+| Class-sized non-square SVG | 31×36 |
+| Class-sized square SVG host | 54×54 |
+| Class-sized native label | 43×43 |
+| Width-only non-square SVG | 31×36 |
+
+Both centering axes passed. Changing the SVG class while applying an inline
+width produced 30×43; removing that override restored the class's 43×43.
+The fixture places the grid 100 pt below the window top. At the top safe
+area, foreign native frames can be clipped even when Mason's style dimensions
+are correct; that separate observation is recorded in Silo feedback
+`3cb2e7bf-283e-4823-824d-bf09db9f4e1c`. This run does not qualify safe-area
+parity, Android rendering, OS input, or hit-testing.
+
+Foreign leaves now receive only the longhands listed in the bridge. Under the
+replaced stash/replay path, inline `inset`, `gridArea` and `display` on a
+foreign leaf were also forwarded. No framework component sets them there, but
+an app's inline value for those keys no longer reaches the leaf.
+
+The change restores existing class/inline layout behavior without changing a
+public API or app-building workflow. No recipe criteria or examples require
+migration; `pnpm check:recipes` remains a structure/link check rather than
+runtime qualification.
 
 ## Scroll commands after the cutover
 
