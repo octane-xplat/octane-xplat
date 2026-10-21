@@ -736,7 +736,10 @@ offsets that content by the leading padding, so it overflows and is clipped.
 `GridLayout.prototype.onMeasure`/`AbsoluteLayout.prototype.onMeasure`
 directly. Core's local-coordinate `onLayout` (and the container's transform
 normalisation) stays. Remove both overrides when a core release drops the
-padding-zeroing `onMeasure`.
+padding-zeroing `onMeasure`. Upstream tracking:
+[NativeScript#11561](https://github.com/NativeScript/NativeScript/issues/11561)
+(issue) and [NativeScript#11562](https://github.com/NativeScript/NativeScript/pull/11562)
+(PR removing both overrides).
 
 **Evidence:** host unit tests in `packages/ui/tests/liquid-glass.ios.test.mjs`
 cover the measure path only. Runtime geometry comes from an iPhone 18 Pro
@@ -755,7 +758,8 @@ auto-width glass reports a desired width of 0 in Mason's first max-content
 padding-only size and Mason keeps it. Core's zeroed padding returned 0, which
 happened to trigger a re-measure. Neither path yields the correct 158 pt.
 Give such a glass a definite width (stretch or explicit width) until the
-foreign-parent → Mason-child max-content measurement is fixed.
+foreign-parent → Mason-child max-content measurement is fixed (tracked in
+octane-xplat #38).
 
 This section records the earlier glass experiment. The shared `glass` prop
 and web approximation were subsequently removed; today only
