@@ -294,7 +294,7 @@ for (const platform of ['ios', 'android']) {
 			expect(bridge.textWrites).toEqual([{ path: '/docs/note.txt', text: 'Saved note' }])
 		})
 
-		it.fails('rejects a storage error instead of returning an unsaved reference (known audit bug)', async () => {
+		it('rejects a storage error instead of returning an unsaved reference', async () => {
 			bridge.textWriteError = new Error('storage is full')
 			await expect(files.writeText('note.txt', 'Unsaved note')).rejects.toThrow('storage is full')
 		})

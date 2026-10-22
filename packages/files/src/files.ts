@@ -416,7 +416,7 @@ export const files: Files = {
 		assertSafeFileName(name)
 		const p = path.join(docs().path, name)
 		const f = File.fromPath(p)
-		f.writeTextSync(text)
+		await f.writeText(text)
 		return { name, uri: p }
 	},
 	async writeBytes(name: string, bytes: Uint8Array): Promise<FileRef> {
