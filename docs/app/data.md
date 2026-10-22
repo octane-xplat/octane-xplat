@@ -605,7 +605,8 @@ export async function refreshUser() {
 `invalidateQueries` marks entries stale and refetches every screen that
 currently owns them — a whole family, or one exact key. Callers keep showing
 their previous data while the new request runs, so a pull-to-refresh or a
-save never blanks the screen.
+save never blanks the screen. If a request was already running when the write
+finished, a follow-up request satisfies the newer invalidation.
 
 ```ts
 import { invalidateQueries } from '@octane-xplat/ui/data'
@@ -619,7 +620,8 @@ invalidateQueries(['user', '42'], { exact: true })
 `clearQueryCache` drops entries — and their persisted records, when the
 query opts into persistence — without refetching. Mounted screens keep
 their current data; the next reader repopulates. Reach for it on sign-out
-or a schema bump, not for ordinary refreshes.
+or a schema bump, not for ordinary refreshes. Clearing also retires pending
+fetches and storage restores, even if the transport ignores cancellation.
 
 ```ts
 import { clearQueryCache } from '@octane-xplat/ui/data'
@@ -675,7 +677,7 @@ restart. It's per-query and off by default. The envelope stored under each
 key is `{ v, t, d }`: your compatibility **version**, the save **t**ime in
 Unix milliseconds, and the **d**ata. `maxAgeMs` expires old records after a
 duration in milliseconds, and `scope` names the boundary the records belong to
-— typically the signed-in account — evaluated on each read and write. Return
+— typically the signed-in account — captured when the cache entry is created. Return
 `null` from `scope` to keep the query memory-only for that boundary, and clear
 the cache before the boundary changes.
 
