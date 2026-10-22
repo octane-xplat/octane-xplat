@@ -15,7 +15,9 @@ export function leaseNativePaddingBottom(view: any): KeyboardPropertyLease {
 			} else {
 				value = Number(raw) || 0
 			}
-			if (lastWrite !== undefined && Math.abs(value - lastWrite) < 0.01) return lastWrite
+			if (lastWrite !== undefined && Math.abs(value - lastWrite) < 0.01) {
+				return lastWrite
+			}
 			return value
 		},
 		(value) => {

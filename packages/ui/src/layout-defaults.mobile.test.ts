@@ -14,6 +14,7 @@ vi.mock('@nativescript/core', () => ({
 	Application: { ios: {}, android: {}, on: vi.fn(), off: vi.fn() },
 	Color: class Color {},
 }))
+
 // Leaves that pull in native plugin internals are stubbed — this test only
 // checks the className root's emitted props.
 vi.mock('./Icon.tsrx', () => ({ Icon: () => null }))
@@ -53,15 +54,25 @@ function renderRoot(component: any, props: any) {
 }
 
 function flatStyle(style: any): Record<string, any> {
-	if (!style) return {}
-	if (Array.isArray(style)) return Object.assign({}, ...style.map(flatStyle))
+	if (!style) {
+		return {}
+	}
+	if (Array.isArray(style)) {
+		return Object.assign({}, ...style.map(flatStyle))
+	}
 	return style
 }
 
 function flatClasses(className: any): string[] {
-	if (!className) return []
-	if (Array.isArray(className)) return className.flatMap(flatClasses)
-	if (typeof className === 'string') return className.split(/\s+/)
+	if (!className) {
+		return []
+	}
+	if (Array.isArray(className)) {
+		return className.flatMap(flatClasses)
+	}
+	if (typeof className === 'string') {
+		return className.split(/\s+/)
+	}
 	return [className].filter(Boolean)
 }
 
@@ -76,24 +87,14 @@ describe('layout defaults are class-based (#39)', () => {
 		['Center', Center, {}, 'vx-center'],
 		['Breadcrumb', Breadcrumb, { items: [{ title: 'A' }, { title: 'B' }] }, 'vx-breadcrumb'],
 		['KeyboardAvoiding', KeyboardAvoiding, {}, 'vx-keyboard-avoiding'],
-		[
-			'Citation',
-			Citation,
-			{ variant: 'name', source: { title: 'Spec' } },
-			'vx-citation',
-		],
+		['Citation', Citation, { variant: 'name', source: { title: 'Spec' } }, 'vx-citation'],
 		[
 			'Citation (link)',
 			Citation,
 			{ variant: 'name', source: { title: 'Spec', url: 'https://x' } },
 			'vx-citation',
 		],
-		[
-			'ChatMessage',
-			ChatMessage,
-			{ message: { role: 'assistant', content: 'hi' } },
-			'vx-chatmsg',
-		],
+		['ChatMessage', ChatMessage, { message: { role: 'assistant', content: 'hi' } }, 'vx-chatmsg'],
 	]
 	for (const [name, component, props, vxClass] of cases) {
 		it(`${name} emits no inline layout defaults on its className root`, () => {
@@ -106,7 +107,10 @@ describe('layout defaults are class-based (#39)', () => {
 			// row that native's manual avatar order depends on (see RETAINED).
 			const allowed = name === 'ChatMessage' ? ['justifyContent', 'flexDirection'] : []
 			for (const key of LAYOUT_KEYS) {
-				if (allowed.includes(key)) continue
+				if (allowed.includes(key)) {
+					continue
+				}
+
 				expect(style[key], `${name} inline ${key}`).toBeUndefined()
 			}
 		})
@@ -146,7 +150,10 @@ function* jsxTags(src: string): Generator<string> {
 	const n = src.length
 	while (i < n) {
 		const m = /<[a-zA-Z][\w.]*/.exec(src.slice(i))
-		if (!m) return
+		if (!m) {
+			return
+		}
+
 		const s = i + m.index
 		let j = i + m.index + m[0].length
 		let depth = 0
@@ -154,14 +161,24 @@ function* jsxTags(src: string): Generator<string> {
 		while (j < n) {
 			const c = src[j]
 			if (q) {
-				if (c === q) q = null
-				else if (c === '\\') j++
-			} else if (c === '"' || c === "'" || c === '`') q = c
-			else if (c === '{') depth++
-			else if (c === '}') depth--
-			else if (c === '>' && depth === 0) break
+				if (c === q) {
+					q = null
+				} else if (c === '\\') {
+					j++
+				}
+			} else if (c === '"' || c === "'" || c === '`') {
+				q = c
+			} else if (c === '{') {
+				depth++
+			} else if (c === '}') {
+				depth--
+			} else if (c === '>' && depth === 0) {
+				break
+			}
+
 			j++
 		}
+
 		yield src.slice(s, j + 1)
 		i = j + 1
 	}
@@ -171,34 +188,39 @@ describe('native className roots carry no literal layout values', () => {
 	const dir = __dirname
 	const files = readdirSync(dir).filter(
 		(f) =>
-			f.endsWith('.tsrx') &&
-			!/\.(web|macos|gtk|linux|windows|test|parity|check)\.tsrx$/.test(f),
+			f.endsWith('.tsrx') && !/\.(web|macos|gtk|linux|windows|test|parity|check)\.tsrx$/.test(f),
 	)
 	const offenders: string[] = []
 	for (const file of files) {
 		const src = readFileSync(join(dir, file), 'utf8')
 		// class locals built from props.className (e.g. Citation's cls)
 		const locals = new Set<string>()
-		for (const m of src.matchAll(
-			/const\s+(\w+)\s*=\s*cx\(([^)]*props\.className[^)]*)\)/gs,
-		)) {
+		for (const m of src.matchAll(/const\s+(\w+)\s*=\s*cx\(([^)]*props\.className[^)]*)\)/gs)) {
 			locals.add(m[1])
 		}
+
 		for (const tag of jsxTags(src)) {
 			const cn = /className\s*=\s*\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}/s.exec(tag)
-			if (!cn) continue
+			if (!cn) {
+				continue
+			}
+
 			const expr = cn[1]
 			const carries =
 				expr.includes('props.className') ||
 				[...locals].some((l) => new RegExp(`\\b${l}\\b`).test(expr))
-			if (!carries) continue
+
+			if (!carries) {
+				continue
+			}
+
 			for (const k of LAYOUT_KEYS) {
-				const lit = new RegExp(
-					`${k}\\s*:\\s*("[^"]*"|'[^']*'|\\d+(?:\\.\\d+)?)`,
-				)
+				const lit = new RegExp(`${k}\\s*:\\s*("[^"]*"|'[^']*'|\\d+(?:\\.\\d+)?)`)
 				if (lit.test(tag)) {
 					const key = RETAINED[`${file}:${k}`] ?? RETAINED[file]
-					if (!key) offenders.push(`${file}: ${k} literal on className root`)
+					if (!key) {
+						offenders.push(`${file}: ${k} literal on className root`)
+					}
 				}
 			}
 		}

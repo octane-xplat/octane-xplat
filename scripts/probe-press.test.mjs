@@ -37,6 +37,7 @@ test('unloaded and handler-free views cannot be pressed', () => {
 	for (const view of [
 		{ isLoaded: false, hasListeners: () => true, notify: () => assert.fail('unloaded dispatch') },
 		{ isLoaded: true, hasListeners: () => false },
-	])
+	]) {
 		assert.throws(() => dispatchPress(view), /no loaded press handler/)
+	}
 })
