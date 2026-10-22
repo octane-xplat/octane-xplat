@@ -1,3 +1,10 @@
+import {
+	QUERY_INSPECTION,
+	type QueryInspectionSource,
+	type QueryInspectionEvent,
+	type QueryEventType,
+	type QueryTrigger,
+} from './query-inspection'
 import { cursorPageLoader, type CursorQueryDefinition, type CursorQueryData } from './cursor-query'
 import { environment as platformEnvironment } from '@octane-xplat/platform/environment'
 /** Shared queries with explicit definition, reader, and client lifetimes. */
@@ -115,7 +122,10 @@ export interface QueryFilter {
 export interface QueryEnvironmentSnapshot {
 	readonly online?: boolean
 	readonly active?: boolean
-	readonly capabilities?: { readonly connectivity: boolean; readonly activity: boolean }
+	readonly capabilities?: {
+		readonly connectivity: boolean
+		readonly activity: boolean
+	}
 }
 
 /** Injectable host boundary. Subscriptions must return their own cleanup. */
@@ -151,7 +161,9 @@ export type QueryPrefetchResult =
 	| { readonly status: 'cancelled' }
 
 /** Native action operation narrowed to this query's confirmed receipt type. */
-export type QueryActionOperation<T> = Omit<ActionOperation, 'adopt'> & { adopt(value: T): void }
+export type QueryActionOperation<T> = Omit<ActionOperation, 'adopt'> & {
+	adopt(value: T): void
+}
 
 /** Cancellation for a shared optimistic action. The server may still accept an aborted write. */
 export interface QueryActionContext {
@@ -160,6 +172,8 @@ export interface QueryActionContext {
 
 /** An app/account/request cache. Dispose it at that boundary's end. */
 export interface QueryClient {
+	/** @internal Used by the opt-in @octane-xplat/ui/data/dev inspector. */
+	readonly [QUERY_INSPECTION]: QueryInspectionSource
 	/** Acquire outside rendering; components use useQuery$ for commit-time ownership. */
 	observe$<A extends QueryKeyPart, T>(
 		definition: QueryDefinition<A, T>,
@@ -347,6 +361,9 @@ interface PersistenceTarget extends StorageTarget {
 
 interface Entry<T = unknown> {
 	id: string
+	queryId: string
+	lastTrigger?: QueryTrigger
+	trace(type: QueryEventType, trigger?: QueryTrigger): void
 	family: string
 	leases: number
 	gcTimer?: ReturnType<typeof setTimeout>
@@ -403,7 +420,9 @@ function storageOperation<T>(target: StorageTarget, run: () => T | PromiseLike<T
 }
 
 function cancellation(): Error {
-	return Object.assign(new Error('Query work was cancelled'), { name: 'AbortError' })
+	return Object.assign(new Error('Query work was cancelled'), {
+		name: 'AbortError',
+	})
 }
 
 function assertEntry(entry: { retired: boolean }): void {
@@ -533,6 +552,7 @@ async function restore<T>(entry: Entry<T>): Promise<void> {
 			}
 
 			publish(entry, record.d, record.t)
+			entry.trace('restore', 'restore')
 		} catch {
 			await storageOperation(target, () => target.storage.remove(target.key))
 		}
@@ -599,7 +619,12 @@ async function attempt<T>(
 		}
 
 		while (policy.networkMode !== 'always' && entry.environment().online === false) {
-			entry.state$.set({ ...entry.state$.get(), fetchStatus: 'paused', failureCount: failures })
+			entry.state$.set({
+				...entry.state$.get(),
+				fetchStatus: 'paused',
+				failureCount: failures,
+			})
+			entry.trace('pause')
 			await wait(entry, signal)
 		}
 
@@ -639,7 +664,11 @@ async function attempt<T>(
 			}
 
 			failures++
-			entry.state$.set({ ...entry.state$.get(), error, failureCount: failures })
+			entry.state$.set({
+				...entry.state$.get(),
+				error,
+				failureCount: failures,
+			})
 			if (failures > (policy.retryCount ?? 2) || policy.shouldRetry?.(failures, error) === false) {
 				throw error
 			}
@@ -653,6 +682,7 @@ async function attempt<T>(
 				throw new TypeError('retryDelayMs must return finite non-negative milliseconds')
 			}
 
+			entry.trace('retry')
 			const deadline = Date.now() + delay
 			while (
 				(kind !== 'refresh' || generation === entry.invalidationVersion) &&
@@ -660,6 +690,7 @@ async function attempt<T>(
 			) {
 				if (policy.networkMode !== 'always' && entry.environment().online === false) {
 					entry.state$.set({ ...entry.state$.get(), fetchStatus: 'paused' })
+					entry.trace('pause')
 					await wait(entry, signal)
 				} else {
 					await wait(entry, signal, deadline - Date.now())
@@ -696,7 +727,7 @@ function armPolling<T>(entry: Entry<T>): void {
 				if (entry.retired || entry.readers === 0) {
 					return
 				}
-				void load(entry, true).then(
+				void load(entry, true, undefined, 'refresh', 'poll').then(
 					() => armPolling(entry),
 					() => armPolling(entry),
 				)
@@ -713,6 +744,7 @@ function load<T>(
 	force = false,
 	loader: QueryDefinition<QueryKeyPart, T>['load'] = entry.definition.load,
 	kind: QueryFetchDirection = 'refresh',
+	trigger: QueryTrigger = force ? 'refresh' : 'observe',
 ): Promise<T> {
 	assertEntry(entry)
 	if (entry.inflight) {
@@ -736,7 +768,7 @@ function load<T>(
 
 							throw cancellation()
 						}
-						return load(entry, true)
+						return load(entry, true, undefined, 'refresh', trigger)
 					})
 
 				entry.queuedRefresh = queued
@@ -753,9 +785,12 @@ function load<T>(
 	const controller = new AbortController()
 	entry.controller = controller
 	entry.requestKind = kind
+	entry.trace('load', trigger)
 	const revision = ++entry.revision
 	const abort = new Promise<never>((_, reject) => {
-		controller.signal.addEventListener('abort', () => reject(cancellation()), { once: true })
+		controller.signal.addEventListener('abort', () => reject(cancellation()), {
+			once: true,
+		})
 	})
 	const work = async (): Promise<T> => {
 		if (!force && !entry.restored) {
@@ -810,6 +845,13 @@ function load<T>(
 			fetchDirection: undefined,
 			...(failed ? { status: 'error' as const, error } : {}),
 		})
+		entry.trace(
+			failed
+				? (error as { name?: string })?.name === 'AbortError'
+					? 'cancel'
+					: 'error'
+				: 'success',
+		)
 	}
 	return request
 }
@@ -837,6 +879,24 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 	const actionControllers = new Set<AbortController>()
 	const definitions = new Map<string, QueryDefinition<QueryKeyPart, unknown>>()
 	const persistence = new Map<QueryStorageAdapter, NamespaceTarget>()
+	const listeners = new Set<(event: QueryInspectionEvent) => void>()
+	const clientId = `query-client-${id}`
+	function emit(type: QueryEventType, queryId?: string): void {
+		if (!listeners.size) return
+		const event = Object.freeze({
+			clientId,
+			...(queryId ? { queryId } : {}),
+			type,
+			atMs: Date.now(),
+		})
+		for (const listener of listeners) {
+			try {
+				listener(event)
+			} catch {
+				/* Diagnostics cannot affect cache behavior. */
+			}
+		}
+	}
 	let disposed = false
 	const hostEnvironment = options.environment ?? platformEnvironment
 	let environment: QueryEnvironmentSnapshot = {}
@@ -884,7 +944,13 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 							environment.online !== false &&
 							stale(entry)
 						) {
-							void load(entry, true).catch(() => {})
+							void load(
+								entry,
+								true,
+								undefined,
+								'refresh',
+								previous.online === false && snapshot.online === true ? 'reconnect' : 'resume',
+							).catch(() => {})
 						}
 					})
 				}
@@ -930,7 +996,8 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 		if (persist && !namespace) {
 			throw new Error('Persistent queries require a non-empty client namespace')
 		}
-		const scope = createScope({ scopeKey: `xplat:query:${id}:${++entrySequence}` })
+		const queryId = `query-${++entrySequence}`
+		const scope = createScope({ scopeKey: `xplat:query:${id}:${queryId}` })
 		const value$ = scope.signal$<T | undefined>('value', undefined)
 		const state$ = scope.signal$<QueryState>('state', {
 			status: 'pending',
@@ -944,7 +1011,9 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 		const view$ = optimistic$(
 			value$,
 			compare
-				? { compareAuthority: (incoming, current) => compare(incoming as T, current as T) }
+				? {
+						compareAuthority: (incoming, current) => compare(incoming as T, current as T),
+					}
 				: undefined,
 		)
 		// Resolve the native manager outside rendering; all readers reuse its view.
@@ -952,6 +1021,11 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 
 		const entry: Entry<T> = {
 			id: key,
+			queryId,
+			trace(type, trigger) {
+				if (trigger) entry.lastTrigger = trigger
+				emit(type, queryId)
+			},
 			family,
 			leases: 0,
 			environment: () => environment,
@@ -1026,6 +1100,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 				updatedAtMs: Date.now(),
 			})
 			writePersisted(entry)
+			entry.trace('write', 'write')
 		})
 
 		definitions.set(family, definition as QueryDefinition<QueryKeyPart, unknown>)
@@ -1076,7 +1151,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 			throw cancellation()
 		}
 		const entry = entryFor$(definition, selection)
-		return withLease(entry, operation, () => load(entry))
+		return withLease(entry, operation, () => load(entry, false, undefined, 'refresh', 'ensure'))
 	}
 	async function fetchPage<A extends QueryKeyPart, T, C extends QueryKeyPart>(
 		definition: CursorQueryDefinition<A, T, C>,
@@ -1116,7 +1191,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 				QueryKeyPart,
 				CursorQueryData<T, C>
 			>['load']
-			return load(entry, true, loader, direction)
+			return load(entry, true, loader, direction, direction)
 		})
 	}
 
@@ -1147,10 +1222,12 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 		entry.invalidated = false
 		publish(entry, value)
 		writePersisted(entry)
+		entry.trace('write', 'write')
 		return value
 	}
 
 	function retire(entry: Entry): void {
+		entry.trace('evict')
 		entry.retired = true
 		clearTimeout(entry.gcTimer)
 		clearTimeout(entry.pollTimer)
@@ -1175,6 +1252,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 			entry.controller = undefined
 			entry.inflight = undefined
 			entry.invalidated = true
+			entry.trace('cancel')
 			const state = entry.state$.get()
 			entry.state$.set({
 				...state,
@@ -1209,6 +1287,41 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 		detachWhenIdle()
 	}
 	return {
+		[QUERY_INSPECTION]: {
+			snapshot(labelFor) {
+				return {
+					clientId,
+					status: disposed ? 'disposed' : 'live',
+					queries: [...entries.values()].map((entry) => {
+						const state = entry.state$.latest()!
+						const label = labelFor(entry.definition)
+						return {
+							queryId: entry.queryId,
+							...(label ? { label } : {}),
+							status: state.status,
+							fetchStatus: state.fetchStatus,
+							...(state.fetchDirection ? { fetchDirection: state.fetchDirection } : {}),
+							stale:
+								entry.invalidated ||
+								!state.hasData ||
+								Date.now() - state.updatedAtMs >= (entry.definition.options.staleTimeMs ?? 0),
+							observers: entry.readers,
+							leases: entry.leases,
+							failureCount: state.failureCount,
+							updatedAtMs: state.updatedAtMs,
+							...(entry.lastTrigger ? { lastTrigger: entry.lastTrigger } : {}),
+						}
+					}),
+				}
+			},
+			subscribe(listener) {
+				if (disposed) return () => {}
+				listeners.add(listener)
+				return () => {
+					listeners.delete(listener)
+				}
+			},
+		},
 		observe$(definition, selection) {
 			const entry = entryFor$(definition, selection)
 			attach()
@@ -1275,7 +1388,9 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 				})
 
 				const execute$ = action$(async (operation) =>
-					run(operation, entry.view$ as Parameters<typeof run>[1], { signal: controller.signal }),
+					run(operation, entry.view$ as Parameters<typeof run>[1], {
+						signal: controller.signal,
+					}),
 				)
 
 				return await Promise.race([runWithSignalOwner(entry.scope, () => execute$()), cancelled])
@@ -1323,9 +1438,10 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 				if (matches(entry, filter)) {
 					entry.invalidated = true
 					entry.invalidationVersion++
+					entry.trace('invalidate', 'invalidate')
 					entry.wake?.()
 					if (entry.readers > 0) {
-						void load(entry, true).catch(() => {})
+						void load(entry, true, undefined, 'refresh', 'invalidate').catch(() => {})
 					}
 				}
 			}
@@ -1367,6 +1483,8 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 				}
 			}
 			definitions.clear()
+			emit('dispose')
+			listeners.clear()
 			const purges = disposal.purgePersisted
 				? [...persistence.values()].map((target) => purgeNamespace(target))
 				: []

@@ -1,6 +1,8 @@
 import { loadSource } from '../../../scripts/load-source.ts'
 import assert from 'node:assert/strict'
 import ts from 'typescript'
+import { build } from 'vite'
+import { octane } from 'octane/compiler/vite'
 import { buildMacOSBarrel } from './macos-barrel.mjs'
 import { spawnSync } from 'node:child_process'
 import {
@@ -366,6 +368,7 @@ void keyboard
 	source += `
 import { router as subpathRouter, useRouter, getRouteApi, type RouteManifest } from '@octane-xplat/ui/routing'
 import { useListData, useAsyncList, defineQuery, defineCursorQuery, createQueryClient, useQuery$, type Selection, type QueryOptions } from '@octane-xplat/ui/data'
+import { inspectQueryClient, registerQueryInspection } from '@octane-xplat/ui/data/dev'
 import { Markdown, parseMdDoc, tokenize, type MdDoc, type MarkdownProps, type TokenLine } from '@octane-xplat/ui/markdown'
 import { ChatMessage, ChatComposer, useChatComposerContext, type ChatMessageProps } from '@octane-xplat/ui/chat'
 // @ts-expect-error routing APIs live under @octane-xplat/ui/routing
@@ -389,6 +392,11 @@ void createQueryClient().ensureData(typedFeed, 'all').then(data => {
   void [firstId, wrongId]
 })
 const typedQueries = createQueryClient()
+const typedInspector = inspectQueryClient(typedQueries, { eventLimit: 10, labels: [{ definition: typedFeed, label: 'feed' }] })
+const clientStatus: 'live' | 'disposed' = typedInspector.snapshot().status
+void registerQueryInspection
+void clientStatus
+typedInspector.dispose()
 const typedUsers = defineQuery(['users'], (id: string) => ({ id, name: 'Ada' }))
 typedQueries.setQueryData(typedUsers, '42', { id: '42', name: 'Grace' })
 typedQueries.setQueriesData(typedUsers, (value, id) => ({ ...value, id }))
@@ -495,6 +503,43 @@ void [iosOwner.element, androidOwner.element, navigation, useNativeRouteNavigato
 	}
 
 	writeFileSync(join(consumerRoot, 'consumer.tsx'), source)
+	if (target === 'web' && mode.name === 'bundler' && peers === 'all') {
+		const entry = join(consumerRoot, 'query-inspection-production.ts')
+		writeFileSync(
+			entry,
+			`
+export { createQueryClient } from '@octane-xplat/ui/data'
+if (import.meta.env.DEV) {
+  import('@octane-xplat/ui/data/dev').then(module => { globalThis.__queryInspection = module })
+}
+`,
+		)
+		for (const development of [true, false]) {
+			const result = await build({
+				root: consumerRoot,
+				configFile: false,
+				plugins: [octane({ ssr: false })],
+				resolve: { conditions: ['web'], extensions: ['.web.ts', '.ts', '.tsx', '.js', '.json'] },
+				define: { 'import.meta.env.DEV': String(development) },
+				build: { write: false, minify: false, lib: { entry, formats: ['es'] } },
+			})
+			const output = (Array.isArray(result) ? result[0] : result).output
+			const code = output
+				.filter((item) => item.type === 'chunk')
+				.map((item) => item.code)
+				.join('\n')
+			assert.equal(
+				code.includes('queries.inspect.'),
+				development,
+				'inspection action is excluded by the production gate',
+			)
+			assert.equal(
+				code.includes('eventLimit must be'),
+				development,
+				'production does not ship the event collector',
+			)
+		}
+	}
 	const keyboardGuide = readFileSync(join(repoRoot, 'docs/app/text-entry.md'), 'utf8').split(
 		'## Read software keyboard space',
 	)[1]
@@ -508,28 +553,40 @@ void [iosOwner.element, androidOwner.element, navigation, useNativeRouteNavigato
 		return name
 	})
 	const routingGuide = readFileSync(join(repoRoot, 'docs/app/navigation.md'), 'utf8')
-	const catalogGuide = routingGuide.split('## Register routes from data')[1]?.split('## Own runtime registrations')[0]
+	const catalogGuide = routingGuide
+		.split('## Register routes from data')[1]
+		?.split('## Own runtime registrations')[0]
 	assert.ok(catalogGuide, 'the inferred catalog authoring section exists')
-	const programmaticExamples = [...catalogGuide.matchAll(/```tsx\n(\/\/ src\/guide-routes\.tsx[\s\S]*?)```/g)]
-	assert.equal(programmaticExamples.length, 2, 'both inferred programmatic guide screens are checked')
+	const programmaticExamples = [
+		...catalogGuide.matchAll(/```tsx\n(\/\/ src\/guide-routes\.tsx[\s\S]*?)```/g),
+	]
+	assert.equal(
+		programmaticExamples.length,
+		2,
+		'both inferred programmatic guide screens are checked',
+	)
 	for (let index = 0; index < programmaticExamples.length; index++) {
 		const name = `programmatic-guide-${index}.tsx`
 		writeFileSync(join(consumerRoot, name), programmaticExamples[index][1])
 		exampleFiles.push(name)
 	}
-	const literalExample = routingGuide.split('### Keep reusable route paths literal')[1]?.match(/```ts\n([\s\S]*?)```/)
+	const literalExample = routingGuide
+		.split('### Keep reusable route paths literal')[1]
+		?.match(/```ts\n([\s\S]*?)```/)
 	assert.ok(literalExample, 'the literal-preserving route example exists')
 	writeFileSync(join(consumerRoot, 'literal-route-spec.ts'), literalExample[1])
 	exampleFiles.push('literal-route-spec.ts')
 	const scrollGuide = readFileSync(join(repoRoot, 'docs/app/primitives.md'), 'utf8')
-		.split('## Move a scroll viewport')[1]?.split('## macOS scrolling and refresh')[0]
+		.split('## Move a scroll viewport')[1]
+		?.split('## macOS scrolling and refresh')[0]
 	assert.ok(scrollGuide, 'portable scroll command guide exists')
 	const scrollExamples = [...scrollGuide.matchAll(/```tsx\n([\s\S]*?)```/g)]
 	assert.equal(scrollExamples.length, 1, 'portable scroll command example is checked')
 	writeFileSync(join(consumerRoot, 'scroll-command-example.tsx'), scrollExamples[0][1])
 	exampleFiles.push('scroll-command-example.tsx')
 	const nativeControls = readFileSync(join(repoRoot, 'docs/app/navigation.md'), 'utf8')
-		.split('### Retained native controls')[1]?.match(/```tsx\n([\s\S]*?)```/)
+		.split('### Retained native controls')[1]
+		?.match(/```tsx\n([\s\S]*?)```/)
 	assert.ok(nativeControls, 'native route controls example exists')
 	writeFileSync(join(consumerRoot, 'native-route-controls.tsx'), nativeControls[1])
 	exampleFiles.push('native-route-controls.tsx')

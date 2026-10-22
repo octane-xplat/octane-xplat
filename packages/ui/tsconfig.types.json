@@ -35,7 +35,8 @@
 		"src/parity/*.ts",
 		"src/nativescript/keyboard.ts",
 		"src/*/index.*.ts",
-		"src/routing/core.ts"
+		"src/routing/core.ts",
+		"src/data/dev.ts"
 	],
 	"exclude": ["**/*.test.*"]
 }

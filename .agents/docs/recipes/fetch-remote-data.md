@@ -29,6 +29,7 @@ Rouzer route tree are outside this recipe's scope.
 - AC6: The reader can choose between a module-level and a screen-owned `query$` for route-param-driven data, and knows the stacked-navigation hazard of copying route params into shared selector signals during render.
 - AC7: The reader can pass cancellation to the transport, rely on unmount retiring component-owned requests and subscriptions, and prevent an obsolete response from replacing a later selection.
 - AC8: The reader can share a query's result across screens through one `QueryClient`, isolate same-key entries and invalidation in another client, reuse definitions without merging independent selectors, and persist records with version, millisecond `maxAgeMs`, and an immutable client namespace. Dispose and replace clients when switching accounts; retired fetches/restores cannot repopulate disposed data, and a newer invalidation survives an older in-flight response. Millisecond stale windows use `staleTimeMs`.
+- AC17: Development inspection reports live state and bounded metadata events without query keys, selections, data, account scopes or error messages. CLI invocation binds the exact app instance and unsupported transports are explicit.
 - AC16: Shared cursor feeds deduplicate page requests, retain earlier rows on page failure, serialize refresh with page loading, bound retained pages, and restore coherent page parameters without replacing independent local collection stores.
 - AC15: Shared optimistic edits compose native Octane operations, keep tentative values out of durable data, hold operation leases, preserve newer confirmed authority across overlapping settlement, and fence late account receipts. Uncertain outcomes remain explicit.
 - AC14: Navigation can prepare shared records without a component owner, distinguish prefetch outcomes, and cancel its own operation without aborting requests another reader still needs.
@@ -63,3 +64,5 @@ Rouzer route tree are outside this recipe's scope.
 - AC15: [Shared optimistic edits](../../../docs/app/data.md#shared-optimistic-edits) and [action regressions](../../../packages/ui/src/query-cache.test.ts).
 
 - AC16: [Shared cursor feeds](../../../docs/app/data.md#shared-cursor-feeds), [pagination regressions](../../../packages/ui/src/query-cache.test.ts), and [native reader fixture](../../../packages/ui/tests/query-cache.fixture.mobile.tsrx).
+
+- AC17: [Inspecting a development cache](../../../docs/app/data.md#inspecting-a-development-cache) and [inspection regressions](../../../packages/ui/src/query-inspection.test.ts).

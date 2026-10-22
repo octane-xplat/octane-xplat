@@ -1,17 +1,19 @@
 # Query cache commit plan
 
 Status: implementation started, 2026-10-22. [Engine decision 121](query-cache-engine.md)
-selects native signal authority. Steps 1–9 are implemented: explicit ownership,
+selects native signal authority. Steps 1–10 are implemented: explicit ownership,
 bounded retention, retry/network scheduling, lifecycle refresh, typed writes,
-prefetch, shared native optimistic actions, and cached cursor pagination. Steps 10–12
-remain: inspection, composed guidance/example, and final qualification.
+prefetch, shared native optimistic actions, cached cursor pagination, and opt-in metadata
+inspection over existing development actions. Steps 11–12 remain: composed
+guidance/example and final qualification.
 
-Current focused evidence: 58 cache tests, nine universal object-driver tests,
+Current focused evidence: 58 cache tests, seven inspection tests, nine universal object-driver tests,
 five environment adapter tests, and 350 CLI tests pass. UI/CLI dependent
 checks pass (55 tasks); the prepared-user route also passed its 54-task
 UI/app check. Packed web/native/macOS consumers check result/selection types
 and reject incorrectly typed writes and receipts in Bundler/NodeNext modes.
-Recipe links and purpose barrels pass their checks.
+Packed checks also prove the development gate removes the inspection collector
+and action from production output. Recipe links and purpose barrels pass their checks.
 
 Real AppKit probes pass three native authority assertions and four replacement
 cache assertions after installing host UUID and abort-event capabilities.

@@ -1013,6 +1013,56 @@ const savedFeed = defineCursorQuery(['feed'], loadFeed, {
 await savedQueries.ensureData(savedFeed, 'news')
 ```
 
+### Inspecting a development cache
+
+When a screen keeps old data or waits for connectivity, inspect its cache
+metadata. Enable this only in development. Supply static labels that are safe
+to share; the inspector never derives labels from query keys or account names.
+Snapshots include state, freshness and reader counts. The event history keeps
+100 events by default (at most 1,000), without values or error messages.
+
+```ts
+// In the module that owns queries and the users definition:
+if (import.meta.env.DEV) {
+	const { inspectQueryClient, registerQueryInspection } =
+		await import('@octane-xplat/ui/data/dev')
+	const inspector = inspectQueryClient(queries, {
+		labels: [{ definition: users, label: 'users.detail' }],
+		eventLimit: 100,
+	})
+	const registration = registerQueryInspection(inspector)
+	console.log(inspector.snapshot())
+	import.meta.hot?.dispose(() => {
+		registration.dispose()
+		inspector.dispose()
+	})
+}
+```
+
+The registration uses the [development-action bridge](../testing/development-actions.md).
+List actions in your bound app, then invoke its `queries.inspect.*` action with
+the exact instance and revision from the listing. Read the completed job's
+`snapshot` result as JSON text. Inspection acquires no reader lease and does
+not fetch or change data. Remove the registration before disposing its inspector.
+
+```sh
+pnpm exec xplat actions list --json
+# Replace these placeholders with the identities from that listing.
+pnpm exec xplat actions invoke --action ACTION_ID --instance INSTANCE_ID --revision REVISION --input '{}' --request-key query-inspect-1 --json
+pnpm exec xplat actions status JOB_ID --json
+```
+
+The bridge is qualified on web and one Android device. iOS transport remains
+unqualified; AppKit macOS and Linux cannot connect through this bridge. Use a
+local snapshot in those hosts; a declaration alone does not establish a live
+connection. A missing app or instance is reported by action discovery instead
+of choosing another running app.
+
+```ts
+// Local diagnostic output on a host without the development-action bridge:
+console.log(inspector.snapshot())
+```
+
 ## Paged collections and tree moves
 
 Use `useAsyncList` for a collection that loads pages. Sort, reload, and

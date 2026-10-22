@@ -47,6 +47,11 @@
 						"./types/generated/data/index.macos.d.ts"
 					]
 				},
+				"./data/dev": {
+					"source": "src/data/dev.ts",
+					"runtime": ["./src/data/dev.ts"],
+					"types": "./types/generated/data/dev.d.ts"
+				},
 				"./markdown": {
 					"source": "src/markdown/index.ts",
 					"runtime": [

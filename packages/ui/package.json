@@ -92,6 +92,10 @@
 			"types": "./types/generated/data/index.d.ts",
 			"default": "./src/data/index.ts"
 		},
+		"./data/dev": {
+			"types": "./types/generated/data/dev.d.ts",
+			"default": "./src/data/dev.ts"
+		},
 		"./markdown": {
 			"web": {
 				"types": "./types/generated/markdown/index.d.ts",
