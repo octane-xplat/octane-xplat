@@ -567,6 +567,37 @@ export const searches = defineQuery(['users', 'search'], async (
 })
 ```
 
+### Keeping inactive data
+
+A query stays in memory while a reader uses it. After the last reader leaves,
+`gcTimeMs` keeps settled data for five minutes by default; remounting before
+that timer expires reuses the entry. `staleTimeMs` separately decides whether
+to refresh it. The last reader leaving cancels any request, and a transport
+that ignores cancellation cannot publish its late result.
+
+```ts
+import { defineQuery } from '@octane-xplat/ui/data'
+
+export const headlines = defineQuery(['headlines'], async (topic: string, { signal }) => {
+	const response = await fetch(`/api/headlines?topic=${encodeURIComponent(topic)}`, { signal })
+	if (!response.ok) throw new Error('Could not load headlines')
+	return response.json() as Promise<string[]>
+}, { staleTimeMs: 30_000, gcTimeMs: 300_000 })
+```
+
+Memory collection keeps durable records available for later restoration. A
+namespaced storage index lets sign-out purge records collected from memory
+and records saved by an earlier client lifetime. Explicit purge completion
+still reports storage failures; collection does not keep a Node process alive.
+
+```ts
+import { createQueryClient } from '@octane-xplat/ui/data'
+
+const accountQueries = createQueryClient({ namespace: 'account:42' })
+// After using persistent definitions, sign-out can remove their namespace records:
+await accountQueries.dispose({ purgePersisted: true })
+```
+
 ### Refresh and writes
 
 `refetch()` returns the loaded value or rejects with the error. Overlapping

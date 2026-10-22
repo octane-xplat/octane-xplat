@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
 	createQueryClient,
 	createMemoryQueryStorage,
@@ -16,6 +16,7 @@ function client(namespace?: string) {
 
 afterEach(async () => {
 	await Promise.all(clients.splice(0).map((value) => value.dispose()))
+	vi.useRealTimers()
 })
 
 function deferred<T>() {
@@ -227,7 +228,7 @@ describe('immutable persistence boundaries', () => {
 		const reader = queries.observe$(users, 'a')
 		await settle()
 		expect(reader.data$.get()).toBe('network')
-		await expect(queries.dispose({ purgePersisted: true })).rejects.toThrow('storage purge')
+		await expect(queries.dispose({ purgePersisted: true })).rejects.toThrow('storage')
 		expect(() => reader.data$.get()).toThrow()
 	})
 	it('does not restore an old account after disposal', async () => {
@@ -246,18 +247,20 @@ describe('immutable persistence boundaries', () => {
 	})
 	it('awaits pending saves before durable sign-out purge', async () => {
 		const saved = deferred<void>()
-		let record: string | null = null
+		const records = new Map<string, string>()
 		const operations: string[] = []
 		const storage: QueryStorageAdapter = {
-			get: () => record,
-			async set(_key, value) {
-				operations.push('set')
-				await saved.promise
-				record = value
+			get: (key) => records.get(key),
+			async set(key, value) {
+				if (!key.startsWith('xplat:query:index:')) {
+					operations.push('set')
+					await saved.promise
+				}
+				records.set(key, value)
 			},
-			remove() {
+			remove(key) {
 				operations.push('remove')
-				record = null
+				records.delete(key)
 			},
 		}
 		const users = defineQuery(['users'], (_id: string) => 'private', {
@@ -270,7 +273,145 @@ describe('immutable persistence boundaries', () => {
 		expect(operations).toEqual(['set'])
 		saved.resolve()
 		await purged
-		expect(operations).toEqual(['set', 'remove'])
-		expect(record).toBeNull()
+		expect(operations).toEqual(['set', 'remove', 'remove'])
+		expect(records.size).toBe(0)
+	})
+})
+
+describe('inactive query collection', () => {
+	it('collects a thousand inactive entries while keeping observed data', async () => {
+		vi.useFakeTimers()
+		let loads = 0
+		const users = defineQuery(
+			['users'],
+			(id: number) => {
+				loads++
+				return id
+			},
+			{ gcTimeMs: 100, staleTimeMs: Infinity },
+		)
+		const queries = client()
+		const readers = Array.from({ length: 1000 }, (_, id) => queries.observe$(users, id))
+		const live = queries.observe$(users, 1001)
+		await vi.advanceTimersByTimeAsync(0)
+		for (const reader of readers) {
+			reader.dispose()
+		}
+		await vi.advanceTimersByTimeAsync(100)
+		for (const reader of readers) {
+			expect(() => reader.data$.get()).toThrow()
+		}
+		expect(live.data$.get()).toBe(1001)
+		const remounted = queries.observe$(users, 0)
+		await vi.advanceTimersByTimeAsync(0)
+		expect(remounted.data$.get()).toBe(0)
+		expect(loads).toBe(1002)
+	})
+	it('reuses data before expiry and restarts retention after the last lease', async () => {
+		vi.useFakeTimers()
+		let loads = 0
+		const users = defineQuery(['users'], (_id: string) => ++loads, {
+			gcTimeMs: 100,
+			staleTimeMs: Infinity,
+		})
+		const queries = client()
+		const first = queries.observe$(users, 'a')
+		await vi.advanceTimersByTimeAsync(0)
+		first.dispose()
+		await vi.advanceTimersByTimeAsync(90)
+		const again = queries.observe$(users, 'a')
+		await vi.advanceTimersByTimeAsync(20)
+		expect(again.data$.get()).toBe(1)
+		expect(loads).toBe(1)
+		again.dispose()
+		await vi.advanceTimersByTimeAsync(99)
+		expect(first.data$.get()).toBe(1)
+		await vi.advanceTimersByTimeAsync(1)
+		expect(() => first.data$.get()).toThrow()
+	})
+	it('cancels only after the final reader and fences a transport ignoring abort', async () => {
+		const calls: Array<{ signal: AbortSignal; gate: ReturnType<typeof deferred<string>> }> = []
+		const users = defineQuery(['users'], (_id: string, { signal }) => {
+			const gate = deferred<string>()
+			calls.push({ signal, gate })
+			return gate.promise
+		})
+		const queries = client()
+		const first = queries.observe$(users, 'a')
+		const other = queries.observe$(users, 'a')
+		const pending = first.refetch()
+		await settle()
+		first.dispose()
+		expect(calls[0]!.signal.aborted).toBe(false)
+		other.dispose()
+		expect(calls[0]!.signal.aborted).toBe(true)
+		await expect(pending).rejects.toMatchObject({ name: 'AbortError' })
+		const next = queries.observe$(users, 'a')
+		await settle()
+		calls[0]!.gate.resolve('obsolete')
+		calls[1]!.gate.resolve('current')
+		await settle()
+		expect(next.data$.get()).toBe('current')
+	})
+	it('refuses to purge a foreign namespace listed in a corrupted index', async () => {
+		const removed: string[] = []
+		const storage: QueryStorageAdapter = {
+			get: (key) =>
+				key.startsWith('xplat:query:index:')
+					? JSON.stringify(['xplat:query:["other-account",[]]'])
+					: null,
+			set() {},
+			remove(key) {
+				removed.push(key)
+			},
+		}
+		const users = defineQuery(['users'], (_id: string) => 'data', {
+			persist: { storage, version: 1 },
+		})
+		const queries = client('account')
+		queries.observe$(users, 'a')
+		await settle()
+		await expect(queries.dispose({ purgePersisted: true })).rejects.toThrow(
+			'Invalid query persistence index',
+		)
+		expect(removed).toEqual([])
+	})
+	it('restores after collection and purges records from earlier client lifetimes', async () => {
+		vi.useFakeTimers()
+		const records = new Map<string, string>()
+		const storage: QueryStorageAdapter = {
+			get: (key) => records.get(key),
+			set: (key, value) => {
+				records.set(key, value)
+			},
+			remove: (key) => {
+				records.delete(key)
+			},
+		}
+		let loads = 0
+		const users = defineQuery(
+			['users'],
+			(id: string) => {
+				loads++
+				return id
+			},
+			{ staleTimeMs: Infinity, gcTimeMs: 10, persist: { storage, version: 1 } },
+		)
+		const old = client('account')
+		const a = old.observe$(users, 'a')
+		const b = old.observe$(users, 'b')
+		await vi.advanceTimersByTimeAsync(0)
+		a.dispose()
+		b.dispose()
+		await vi.advanceTimersByTimeAsync(10)
+		expect(records.size).toBe(3)
+		await old.dispose()
+		const current = client('account')
+		const restored = current.observe$(users, 'a')
+		await vi.advanceTimersByTimeAsync(0)
+		expect(restored.data$.get()).toBe('a')
+		expect(loads).toBe(2)
+		await current.dispose({ purgePersisted: true })
+		expect(records.size).toBe(0)
 	})
 })

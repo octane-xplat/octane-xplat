@@ -39,6 +39,8 @@ export interface QueryLoadContext<T> {
 export interface QueryOptions {
 	/** Freshness in milliseconds. @default 0 */
 	readonly staleTimeMs?: number
+	/** Retain inactive entries for this many milliseconds. @default 300000 */
+	readonly gcTimeMs?: number
 	readonly persist?: QueryPersistence
 }
 
@@ -124,6 +126,7 @@ export function defineQuery<A extends QueryKeyPart, T>(
 		throw new TypeError('A query definition requires a loader')
 	}
 	validateDuration(options.staleTimeMs, 'staleTimeMs')
+	validateDuration(options.gcTimeMs, 'gcTimeMs')
 	validateDuration(options.persist?.maxAgeMs, 'maxAgeMs')
 	return Object.freeze({
 		[DEFINITION]: true as const,
@@ -191,7 +194,17 @@ export function canonicalQueryKey(value: unknown, parents = new Set<object>()): 
 	}
 }
 
-interface PersistenceTarget {
+interface StorageTarget {
+	storage: QueryStorageAdapter
+	key: string
+}
+
+interface NamespaceTarget extends StorageTarget {
+	recordPrefix: string
+}
+
+interface PersistenceTarget extends StorageTarget {
+	namespace: NamespaceTarget
 	storage: QueryStorageAdapter
 	key: string
 	version: string | number
@@ -200,6 +213,9 @@ interface PersistenceTarget {
 
 interface Entry<T = unknown> {
 	id: string
+	family: string
+	leases: number
+	gcTimer?: ReturnType<typeof setTimeout>
 	elements: readonly string[]
 	scope: Scope
 	value$: WritableSignal<T | undefined>
@@ -223,7 +239,7 @@ interface Entry<T = unknown> {
 let clientSequence = 0
 let entrySequence = 0
 const storageTails = new WeakMap<QueryStorageAdapter, Map<string, Promise<void>>>()
-function storageOperation<T>(target: PersistenceTarget, run: () => T | PromiseLike<T>): Promise<T> {
+function storageOperation<T>(target: StorageTarget, run: () => T | PromiseLike<T>): Promise<T> {
 	let tails = storageTails.get(target.storage)
 	if (!tails) {
 		storageTails.set(target.storage, (tails = new Map()))
@@ -264,14 +280,59 @@ function writePersisted<T>(entry: Entry<T>): void {
 			d: entry.value$.get(),
 		})
 
-		void storageOperation(target, () => {
+		void storageOperation(target.namespace, async () => {
+			if (entry.retired) {
+				return
+			}
+			const keys = await persistedKeys(target.namespace)
+			if (!keys.includes(target.key)) {
+				keys.push(target.key)
+				await target.storage.set(target.namespace.key, JSON.stringify(keys))
+			}
 			if (!entry.retired) {
-				return target.storage.set(target.key, record)
+				await storageOperation(target, () => target.storage.set(target.key, record))
 			}
 		}).catch(() => {})
 	} catch {
 		/* Storage is best-effort; a non-JSON value remains usable in memory. */
 	}
+}
+
+async function persistedKeys(target: NamespaceTarget): Promise<string[]> {
+	const raw = await target.storage.get(target.key)
+	if (raw == null) {
+		return []
+	}
+	const keys: unknown = JSON.parse(raw)
+	if (
+		!Array.isArray(keys) ||
+		!keys.every((key) => typeof key === 'string' && key.startsWith(target.recordPrefix))
+	) {
+		throw new Error('Invalid query persistence index')
+	}
+	return keys
+}
+
+function purgeNamespace(target: NamespaceTarget): Promise<void> {
+	return storageOperation(target, async () => {
+		const keys = await persistedKeys(target)
+		await Promise.all(
+			keys.map((key) => storageOperation({ ...target, key }, () => target.storage.remove(key))),
+		)
+		await target.storage.remove(target.key)
+	})
+}
+
+function purgeRecord(target: PersistenceTarget): Promise<void> {
+	return storageOperation(target.namespace, async () => {
+		await storageOperation(target, () => target.storage.remove(target.key))
+		const keys = (await persistedKeys(target.namespace)).filter((key) => key !== target.key)
+		if (keys.length) {
+			await target.storage.set(target.namespace.key, JSON.stringify(keys))
+		} else {
+			await target.storage.remove(target.namespace.key)
+		}
+	})
 }
 
 function publish<T>(entry: Entry<T>, value: T, time = Date.now()): void {
@@ -426,7 +487,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 	const id = ++clientSequence
 	const entries = new Map<string, Entry>()
 	const definitions = new Map<string, QueryDefinition<QueryKeyPart, unknown>>()
-	const persistence = new Map<string, PersistenceTarget>()
+	const persistence = new Map<QueryStorageAdapter, NamespaceTarget>()
 	let disposed = false
 	function assertClient(): void {
 		if (disposed) {
@@ -446,7 +507,6 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 		if (registered && registered !== definition) {
 			throw new TypeError('A different query definition already owns this family')
 		}
-		definitions.set(family, definition as QueryDefinition<QueryKeyPart, unknown>)
 		const elements = [
 			...definition.key.map((part) => canonicalQueryKey(part)),
 			canonicalQueryKey(selection),
@@ -471,6 +531,8 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 		})
 		const entry: Entry<T> = {
 			id: key,
+			family,
+			leases: 0,
 			elements,
 			scope,
 			value$,
@@ -496,27 +558,86 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 			stateView$: scope.derived$('state-view', () => state$.get()),
 		}
 		if (persist) {
+			let boundary = persistence.get(persist.storage)
+			if (!boundary) {
+				boundary = {
+					storage: persist.storage,
+					key: `xplat:query:index:${JSON.stringify(namespace)}`,
+					recordPrefix: `xplat:query:[${JSON.stringify(namespace)},`,
+				}
+
+				persistence.set(persist.storage, boundary)
+			}
+
 			entry.persist = {
+				namespace: boundary,
 				...persist,
 				key: `xplat:query:${JSON.stringify([namespace, elements])}`,
 				maxAgeMs: persist.maxAgeMs ?? Infinity,
 			}
-
-			persistence.set(entry.persist.key, entry.persist)
 		}
+		definitions.set(family, definition as QueryDefinition<QueryKeyPart, unknown>)
 		entries.set(key, entry as unknown as Entry)
 		return entry
 	}
 	function retire(entry: Entry): void {
 		entry.retired = true
+		clearTimeout(entry.gcTimer)
 		entry.controller?.abort()
 		entry.scope.dispose()
 		entries.delete(entry.id)
+		if (![...entries.values()].some((other) => other.family === entry.family)) {
+			definitions.delete(entry.family)
+		}
+	}
+	function release<T>(entry: Entry<T>): void {
+		entry.leases--
+		if (entry.leases > 0 || entry.retired) {
+			return
+		}
+		if (entry.inflight) {
+			entry.revision++
+			entry.controller?.abort()
+			entry.controller = undefined
+			entry.inflight = undefined
+			entry.invalidated = true
+			const state = entry.state$.get()
+			entry.state$.set({
+				...state,
+				status: state.hasData ? 'ready' : 'pending',
+				fetchStatus: 'idle',
+				error: undefined,
+			})
+		}
+		const delay = entry.definition.options.gcTimeMs ?? 300_000
+		if (delay === Infinity) {
+			return
+		}
+		const deadline = Date.now() + delay
+		function arm(): void {
+			entry.gcTimer = setTimeout(
+				() => {
+					if (entry.retired || entry.leases > 0) {
+						return
+					}
+					if (Date.now() < deadline) {
+						arm()
+					} else {
+						retire(entry as unknown as Entry)
+					}
+				},
+				Math.min(Math.max(0, deadline - Date.now()), 2_147_483_647),
+			)
+			;(entry.gcTimer as unknown as { unref?: () => void }).unref?.()
+		}
+		arm()
 	}
 	return {
 		observe$(definition, selection) {
 			const entry = entryFor$(definition, selection)
+			clearTimeout(entry.gcTimer)
 			entry.readers++
+			entry.leases++
 			void load(entry).catch(() => {})
 			let released = false
 			return {
@@ -534,6 +655,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 					}
 					released = true
 					entry.readers--
+					release(entry)
 				},
 			}
 		},
@@ -557,7 +679,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 					retire(entry)
 					if (eviction.purgePersisted && entry.persist) {
 						const target = entry.persist
-						removals.push(storageOperation(target, () => target.storage.remove(target.key)))
+						removals.push(purgeRecord(target))
 					}
 				}
 			}
@@ -571,11 +693,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 			definitions.clear()
 			const targets = [...persistence.values()]
 			return disposal.purgePersisted
-				? Promise.all(
-						targets.map((target) =>
-							storageOperation(target, () => target.storage.remove(target.key)),
-						),
-					).then(() => {})
+				? Promise.all(targets.map((target) => purgeNamespace(target))).then(() => {})
 				: Promise.resolve()
 		},
 	}
