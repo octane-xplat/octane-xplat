@@ -208,7 +208,7 @@ also pass on both simulator/emulator targets.
 | Compiled TSRX component, hooks, class styles, programmatic scroll | arm64 simulator passes | API 35 emulator passes |
 | OS input: button hit testing and touch scrolling | arm64 simulator passes via HID | API 35 emulator passes via adb input; phone pending |
 | Device host artifact | arm64 device framework and unsigned NativeScript app build; runtime unverified | arm64-v8a AAR and debug app build |
-| Full MasonKit native regression baseline | Pending | 72 selected unchanged HTML/text/widget tests pass on API 35 emulator |
+| Full MasonKit native regression baseline | 28 selected tests execute: 27 pass, one existing full-text test fails | 72 selected unchanged HTML/text/widget tests pass on API 35 emulator |
 | Matched release app sizes | Unmeasured | Unmeasured |
 
 Full MasonKit builds the relocated helpers through a generated source overlay
@@ -364,3 +364,12 @@ evidence and exploration state in Silo under the repository's
 [exploration conventions](../docs/exploration.md). Revise this document when
 evidence or upstream feedback changes the design; do not present provisional
 boundaries as shipped behavior.
+
+The full Swift baseline also compiles unchanged source/test bodies. Two existing
+test files are missing from the upstream Xcode target; the temporary baseline
+registers them so all 28 selected tests execute. Twenty-seven pass; the full
+text-node uppercase/whitespace test fails its substring assertion. Preserve this
+nonzero baseline and compare it after native relocation rather than skipping
+the test or editing full text internals. This is an existing full-source test
+failure; core excludes that renderer. See the
+[full iOS baseline finding](../docs/notes/masonkit-layout-evaluation.md#core-extraction-full-ios-baseline-2026-10-22).

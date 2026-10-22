@@ -1077,3 +1077,34 @@ entries are byte-identical and measure 1,146,832 bytes. These are library
 artifact measurements; matching release APK savings remain unmeasured.
 Reproduction and limits live in `tools/mason-core/full-baseline-README.md`
 in the Mason fork.
+
+## Core extraction full iOS baseline (2026-10-22)
+
+The full native sources at the beta.126 extraction baseline
+`623114b070896a21315fcff9a3a6349bdd091cc4` compile in an isolated simulator
+project with byte-identical Swift/test bodies and the qualified unchanged C
+engine archive. The original Xcode target omits `MasonTextNodeTests.swift` and
+`AnonymousContainerRemovalTests.swift`; selecting their classes initially
+executes only 25 tests. The maintained expected-count check rejects that result.
+
+Registering those existing files only in temporary build wiring executes all 28
+on arm64 iOS 27 Simulator: 27 pass and
+`MasonTextNodeTests.test_text_node_processing_uppercase_and_whitespace` fails
+its `HELLO WORLD` substring assertion at line 19. HTML parsing, input appearance,
+author/anonymous child ownership and all 11 foreign-layout tests pass. No native
+source relocation or full implementation change has occurred. This is runtime
+evidence of a failing full-source test, not an established diagnosis of its
+text-processing cause. Core excludes the full text renderer.
+
+The original project, native implementation and test bodies remain unchanged.
+The baseline stays nonzero; no assertion or expected count is weakened. Upstream
+test-target registration and resolution or clarification of that text assertion
+are needed for an entirely green full baseline. Recheck on the next upstream
+update. Evidence: `tools/mason-core/full-baseline-README.md`,
+`tmp/mason-core-baseline/test-ios-full-and-core-final.log` and the corresponding
+`tmp/mason-full-ios-tests` result bundle in the Mason fork. No screenshots or
+image assertions are used.
+
+The complete rerun with verbose diagnostics disabled repeats the same 27/28
+full result and separately passes all 15 core native tests through the updated
+runner. The full result summary preserves one failure and zero skips.
