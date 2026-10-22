@@ -365,6 +365,50 @@ window bottom. The composer therefore rises 34 points. ChatLayout's
 `safeBottom` comes from consumed insets and was 0 there, and an ancestor clips
 its bounds, so translating the dock into that area is not a fix.
 
+## MasonKit beta.126 upgrade (2026-10-22)
+
+The workspace and generated starter compatibility catalog now pin
+`@octane-xplat/nativescript-masonkit@1.0.0-beta.126` explicitly. The
+[release](https://github.com/octane-xplat/nativescript-mason/releases/tag/v1.0.0-beta.126)
+syncs upstream through `2324b8ee`, replaces the JavaScript iOS root-measurement
+path with native root measurement and foreign invalidation, and retains the
+fork's iOS final-frame sizing correction and pending Android foreign-child
+flex/stretch fix (upstream PR #157). No local MasonKit patch is added.
+
+Release-source evidence: a foreign iOS measurement with zero available space
+now follows upstream intrinsic sizing and overflow behavior. Zero available
+space must not be interpreted as a guarantee of zero measured size. This
+supersedes assumptions about the removed JavaScript measurement path; it does
+not by itself qualify Xplat's image-load, keyboard, or scrolling workarounds.
+The earlier version-specific findings above remain historical evidence.
+
+Consumer validation passed: 48 Turbo typecheck tasks (including mobile and
+Windows), 923 UI web tests, 55 Node native-adapter tests, 420 UI native-host
+tests, and 337 CLI tests. Initial parallel runs had timeouts and a watcher
+failure; the complete UI suites and CLI suite passed on rerun. Frozen pnpm
+installation, compatibility generation, patch sync, and recipe structure checks
+passed. No recipe criteria or app-building workflow changed; the Octane skill's
+styling, driver, and evidence guidance remains applicable.
+
+On iOS 27 (iPhone 18 Pro simulator) and Android API 35 arm64, the isolated
+beta.126 host built and ran. Each target passed 14 assertions covering foreign
+label column flex/row stretch heights at first layout, after child layout
+requests and a text change, Carousel paging, and VirtualList seeks to an
+initially unmounted row and back. These are numeric frame and programmatic
+scroll checks, not OS input or visual parity. Windows runtime remains unverified.
+
+The probes each failed an additional intrinsic text-growth assertion. A foreign
+NativeScript label inside a 120-dip Mason column retained its one-line height
+after replacing short text with a long string, despite `textWrap` reading true.
+The beta.125 controls reproduced the same sizes before and after: 120 × 20.33
+dips on iOS and 120 × 16 dips on Android, with the same other 14 assertions
+passing. This limitation predates the upgrade on both targets; no integration
+regression was found in these checks. No workaround is added by this dependency
+change. Local evidence lives in
+`research/mason-beta126/{ios,android}-diagnostic.log` and
+`research/mason-beta126/control-{ios,android}.log`; the original expectation is preserved
+in Silo observation `10857de2-c089-42d4-bad5-0acab5da0eb4`.
+
 ## Native macOS bridge (verified — lab-experiment)
 
 `packages/macos-renderer` is a custom AppKit/JSC host, not NativeScript, so
