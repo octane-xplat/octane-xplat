@@ -191,8 +191,9 @@ The first extraction in the
 private `packages/nativescript-mason-core` helper package. Its source provenance
 and path mapping live in `tools/mason-core/README.md` in that repository. Five
 portable styling helpers and three existing tests moved unchanged, followed by
-27 unchanged layout/style/view/scroll source files. Native view/scroll hosts
-and full host-artifact separation remain unimplemented.
+27 unchanged layout/style/view/scroll source files. A separate core-only iOS
+host now builds and runs on an arm64 simulator. Android host extraction and
+NativeScript plugin packaging remain unimplemented.
 
 Full MasonKit builds the relocated helpers through a generated source overlay
 at `tmp/nativescript-masonkit`. This preserves its relative imports and emitted
@@ -200,6 +201,28 @@ module paths without a core runtime dependency. Tests use the same relocation
 manifest. This is temporary build/test wiring, not the eventual native-library
 integration. Source maps point into the generated overlay; edit the tracked
 source rather than those generated files.
+
+The iOS host proof compiles 39 existing Swift files, with 25 byte-identical
+sources and 14 explicit core adaptations. It excludes the HTML parser,
+rich-text renderer, and widget classes from its native binary and public
+headers. Isolated Swift and Objective-C clients link against the exported
+framework and accompanying dependency headers; all 99 declared C functions
+are exported. Fifteen UIKit simulator tests pass, covering grid placement,
+foreign-label intrinsic invalidation, percentages and reset, nested roots,
+release, and programmatic scroll clamping. These are native UIKit tests, not
+NativeScript bridge or OS-input qualification.
+
+The temporary Swift projection keeps the full native sources and Xcode project
+unchanged. Move unchanged native modules with `git mv` after qualifying their
+full-build references and native regressions. The projection is not the final
+upstream module structure. Core retains FontManager for styling/font metrics
+and SDWebImage for backgrounds/nine-slice painting. A small glyph-provider
+protocol replaces the background painter's direct dependency on MasonKit's text
+renderer; it does not add glyph outlines to ordinary foreign labels. The
+shared Rust engine still includes inline-layout code and convenience node
+constructors. Device slices, plugin resources, bridge metadata/types, touch
+input, and matched release app measurements remain gates. Commands and source
+hashes are documented in `tools/mason-core/ios-host-README.md` in the Mason fork.
 
 The separate `build.runtime` target now tests a container-only TypeScript
 boundary at `dist/prototypes/nativescript-mason-core`; the ordinary package
