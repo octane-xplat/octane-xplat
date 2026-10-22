@@ -51,9 +51,11 @@ patchedDependencies:
   # deps-bundle esbuild passes; add .mobile to tsconfig-paths and generated checker
   # suffixes; scan the app-local pnpm virtual store for served node_modules URLs; ignore
   # per-package turbo.json as workspace markers; resolve # package-imports specifiers in
-  # served-module rewrites; and preserve, compile, and hot-update virtual stylesheets
-  # (NativeScript#11551). Linked-checkout discovery and candidate anchoring shipped in
-  # 8.0.20 (NativeScript#11559), so those local hunks are removed.
+  # served-module rewrites; preserve, compile, and hot-update virtual stylesheets
+  # (NativeScript#11551); and inspect ESM export declarations/specifiers for native
+  # default-import validation instead of matching comments, strings, or a narrow export
+  # syntax (NativeScript#11566). Linked-checkout discovery and candidate anchoring shipped
+  # in 8.0.20 (NativeScript#11559), so those local hunks are removed.
   "@nativescript/vite@8.0.20": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript__vite@8.0.20.patch
   # Retains the workspace's NativeScript driver fixes when upgrading to 0.2.5 for portal
   # support: a prop dropped from an update's complete prop bag — or set to

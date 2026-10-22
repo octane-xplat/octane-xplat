@@ -99,6 +99,22 @@ experience of agents writing Octane-xplat code effectively.
   ```json
   { "exports": { "./feature": "./dist/feature.js" } }
   ```
+- NativeScript Vite 8.0.20's dev link check rejects valid named-to-default
+  exports and can mistake comments or strings for exports
+  ([NativeScript#11566](https://github.com/NativeScript/NativeScript/issues/11566)).
+  The canonical Vite patch now uses its existing Babel parser to inspect
+  default declarations and exported specifier names. It retains missing-default
+  rejection and the existing CJS handling; it does not change app source or
+  disable link checking. Remove this hunk when an adopted upstream release
+  recognizes these exports. The real HTTP regression in
+  `packages/cli/test/vite-default-export.test.mjs` compares the link check with
+  Node's ESM namespace and exercises target edits, including loss of a default.
+  HTTP checks alone do not qualify device startup or HMR.
+
+  ```js
+  const Screen = () => null
+  export { Screen as default }
+  ```
 - **TSRX generic syntax limitation (observed with the installed, locally patched
   `@tsrx/typescript-plugin@0.4.11`).** The valid TSX generic arrow
   `const identity = <Value,>(value: Value): Value => value` fails `tsrx-tsc`
