@@ -18,6 +18,7 @@ start at the [public docs](../../docs/README.md).
 
 - [Runtime diagnostics for agents](agent-diagnostics.md) — retained development logs, capture boundaries, and remaining diagnostic gaps.
 - [Software keyboard ownership](software-keyboard.md) — window state, native tracking, and compatibility boundaries.
+- [Mason core extraction](mason-core-extraction.md) — independent prototype, source preservation, and eventual upstream package boundary.
 - [UI API design audit](ui-api/README.md) — proposed public surface and approved design directions.
 - [Charts package](charts.md)
 - [Command palette plan](command-palette-plan.md)

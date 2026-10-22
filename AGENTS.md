@@ -23,6 +23,7 @@ working agreements and detail moved out of this entry point.
 | Explore a seam, record evidence, or update decisions    | [Exploration and Silo](.agents/docs/exploration.md)                                                                  |
 | Record upstream limitations or local workarounds        | [Upstream limitations](.agents/docs/upstream-limitations.md)                                                         |
 | Plan Coreframe's role on Xplat or an app migration      | [Coreframe role](.agents/docs/coreframe-role.md)                                                                     |
+| Extract Mason core or change MasonKit package boundaries | [Mason core extraction design](.agents/design/mason-core-extraction.md)                                            |
 | Work with Octane signals                                | Read the [upstream signals guide](https://raw.githubusercontent.com/octanejs/octane/refs/heads/main/docs/signals.md) |
 | Add or publish a package                                | [Releases](.agents/docs/releases.md)                                                                                 |
 | Prepare a release, packaging change, or docs deployment | [Releases](.agents/docs/releases.md)                                                                                 |
