@@ -1,0 +1,18 @@
+{
+	"$schema": "https://turborepo.dev/schema.json",
+	"extends": ["//"],
+	"tasks": {
+		"test:android-runtime": {
+			"dependsOn": ["typegen", "@octane-xplat/cli#build", "@octane-xplat/ui#typegen"],
+			"cache": false,
+			"passThroughEnv": [
+				"XPLAT_SQLITE_ANDROID_DEVICE",
+				"ANDROID_HOME",
+				"ANDROID_SDK_ROOT",
+				"ANDROID_ADB_SERVER_PORT",
+				"ADB_SERVER_SOCKET",
+				"JAVA_HOME"
+			]
+		}
+	}
+}

@@ -37,6 +37,7 @@
 	},
 	"scripts": {
 		"test": "node --test tests/*.test.mjs",
+		"test:android-runtime": "node tests/android-runtime.mjs",
 		"test:packed": "node tests/packed-consumer.mjs",
 		"typegen": "tsrx-typegen --project tsconfig.types.json",
 		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
