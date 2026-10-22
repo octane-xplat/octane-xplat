@@ -67,6 +67,7 @@ try {
 	assert.equal(await byID('item.a.open').count(), 0)
 	assert.equal(await original.evaluate((el) => el.dataset.testid), 'item.b.open')
 	await byID('item.b.open').click()
+	await byID('counter.value').filter({ hasText: 'Count: 1' }).waitFor()
 	assert.equal(await byID('counter.value').textContent(), 'Count: 1')
 	await byID('items.rebind').click()
 	assert.equal(await original.evaluate((el) => el.hasAttribute('data-testid')), false)
@@ -109,6 +110,9 @@ try {
 	console.log(
 		`${browserName}: stable host IDs, legacy IDs/labels, retained-host rebind/removal, parent/child and overlay lifecycle passed${argent ? '; Argent describe and replay passed' : ''}`,
 	)
+} catch (error) {
+	process.exitCode = 1
+	throw error
 } finally {
 	await browser?.close()
 	await server.close()

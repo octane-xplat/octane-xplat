@@ -19,7 +19,7 @@ export default function TestID() {
 		<SearchInput testID="message.search" accessibilityLabel="Search messages" icon={false} hasClear={false} />
 		<Switch testID="settings.enabled" label="Enable setting" checked={checked} onCheckedChange={setChecked} />
 		<Text testID="settings.value">{'Enabled: ' + checked}</Text>
-		<Pressable testID={item ? 'item.' + item + '.open' : undefined} accessibilityLabel="Reusable item" accessibilityRole="button" clickAction={() => setCount(count + 1)}><Text>Reusable item</Text></Pressable>
+		<Pressable testID={item ? 'item.' + item + '.open' : undefined} accessibilityLabel="Reusable item" accessibilityRole="button" onPress={() => setCount(count + 1)}><Text>Reusable item</Text></Pressable>
 		<Button testID="items.rebind" label="Rebind item" accessibilityLabel="Rebind item" clickAction={() => setItem(item === 'a' ? 'b' : undefined)} />
 		<Button testID="overlay.open" label="Open overlay" accessibilityLabel="Open overlay" clickAction={() => setOpen(true)} />
 		<Overlay testID="overlay.content" open={open} accessibilityLabel="Message overlay" onDismiss={() => setOpen(false)}>
