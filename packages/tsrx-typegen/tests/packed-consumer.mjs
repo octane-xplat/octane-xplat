@@ -12,12 +12,14 @@ import {
 } from 'node:fs'
 
 import { tmpdir } from 'node:os'
-import { dirname, join, resolve } from 'node:path'
+import { basename, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../typegen-fixture')
-const root = resolve(packageRoot, '../..')
+const fixtureRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../typegen-fixture')
+const root = resolve(fixtureRoot, '../..')
 const temporary = mkdtempSync(join(tmpdir(), 'tsrx-typegen-packed-'))
+const workspaceRoot = join(temporary, 'workspace')
+const packageRoot = join(workspaceRoot, 'packages/typegen-fixture')
 const packageOutput = join(temporary, 'package')
 const consumerRoot = join(temporary, 'consumer')
 const packOutput = join(temporary, 'pack')
@@ -41,6 +43,26 @@ function run(command, args, cwd) {
 }
 
 try {
+	// These probes deliberately mutate sources and generated declarations. Keep
+	// them separate from Turbo's fixture typegen/pack tasks and other test runs.
+	cpSync(fixtureRoot, packageRoot, {
+		recursive: true,
+		filter: (source) => !['node_modules', '.turbo', 'generated'].includes(basename(source)),
+	})
+
+	for (const file of ['tsconfig.base.json', 'pnpm-workspace.yaml']) {
+		cpSync(join(root, file), join(workspaceRoot, file))
+	}
+
+	symlinkSync(
+		join(root, 'packages/tsrx-typegen'),
+		join(workspaceRoot, 'packages/tsrx-typegen'),
+		'dir',
+	)
+
+	symlinkSync(join(root, 'node_modules'), join(workspaceRoot, 'node_modules'), 'dir')
+	symlinkSync(join(fixtureRoot, 'node_modules'), join(packageRoot, 'node_modules'), 'dir')
+
 	run('pnpm', ['pack', '--pack-destination', packOutput], packageRoot)
 	const tarball = readdirSync(packOutput).find((name) => name.endsWith('.tgz'))
 	assert.ok(tarball, 'pnpm pack produced a tarball')
