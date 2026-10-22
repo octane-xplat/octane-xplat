@@ -1,3 +1,4 @@
+import { modalPortalOwner } from './modal-focus.web';
 import { mergeStyle, styleRecord } from './style-merge'
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
 import { SizeProvider } from './size-context';
@@ -22,6 +23,8 @@ import { ownAnchorName } from './layer-position.web';
 const PopoverWithLayerPosition = Popover as unknown as (props: PopoverInternalProps) => unknown;
 
 interface FloatingLayerProps {
+	anchor?: { current: any }
+	finalFocusRef?: { current: any }
 	open?: boolean
 	/** Viewport coordinates; omitted under consumer-authored positioning. */
 	x?: number
@@ -40,44 +43,55 @@ interface FloatingLayerProps {
  *  which can chain off `anchorId` via CSS anchor positioning). */
 function FloatingLayer(props: FloatingLayerProps) @{
 	const dark = useThemeScheme() === 'dark';
-	const dismissal = useLayerDismissal({ get active() { return !!props.open }, dismiss: () => props.onDismiss?.(), get behavior() { return (props.dismissOnEscape ?? props.lightDismiss) ? 'close' : 'block' } });
+	const sourceRef = useRef<HTMLSpanElement | null>(null);
+	const panelRef = useRef<HTMLDivElement | null>(null);
+	const [source, setSource] = useState<HTMLSpanElement | null>(null);
+	// The hidden source marker keeps anchorless layers tied to their actual
+	// DOM owner, including content mounted in a separate service root.
+	useEffect(() => { setSource(sourceRef.current); }, [props.open]);
+	const owner = source ? modalPortalOwner(props.anchor?.current ?? source) : null;
+	const dismissal = useLayerDismissal({ minimumDepth: owner?.depth, contains: (target) => !!panelRef.current?.contains(target), getFocusTarget: () => props.finalFocusRef?.current ?? props.anchor?.current, get active() { return !!props.open && !!owner }, dismiss: () => props.onDismiss?.(), get behavior() { return (props.dismissOnEscape ?? props.lightDismiss) ? 'close' : 'block' } });
 	const stopPointer = (event: PointerEvent) => event.stopPropagation();
 	const dismiss = (event: MouseEvent) => {
 		event.preventDefault();
 		event.stopPropagation();
-		props.onDismiss?.();
+		if (dismissal.shouldClose()) props.onDismiss?.();
 	};
 
-	@if (props.open) {
-		<>{createPortal(
-			<div
-				className={cx('vx-popover-layer', dark && 'dark')}
-				style={{ position: 'fixed', inset: 0, zIndex: 1000, pointerEvents: 'none' }}
-			>
-				{(props.lightDismiss ?? false) && <div
-					className="vx-popover-backdrop"
-					style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'auto' }}
-					onPointerDown={stopPointer}
-					onClick={dismiss}
-				/>}
+	<>
+		<span hidden ref={sourceRef} />
+		@if (props.open && owner) {
+			<>{createPortal(
 				<div
-					className={cx('vx-popover', props.className)}
-					style={{
-						position: 'fixed',
-						...(props.y != null && { top: props.y }),
-						...(props.x != null && { left: props.x }),
-						zIndex: 1,
-						pointerEvents: 'auto',
-						...styleRecord(props.style),
-					}}
-					{...props.web}
+					className={cx('vx-popover-layer', dark && 'dark')}
+					style={{ position: 'fixed', inset: 0, zIndex: 1000, pointerEvents: 'none' }}
 				>
-					<LayerDepthProvider value={dismissal.depth}><SizeProvider value={null}>{props.children}</SizeProvider></LayerDepthProvider>
-				</div>
-			</div>,
-			document.body,
-		)}</>
-	}
+					{(props.lightDismiss ?? false) && <div
+						className="vx-popover-backdrop"
+						style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'auto' }}
+						onPointerDown={stopPointer}
+						onClick={dismiss}
+					/>}
+					<div
+						ref={panelRef}
+						className={cx('vx-popover', props.className)}
+						style={{
+							position: 'fixed',
+							...(props.y != null && { top: props.y }),
+							...(props.x != null && { left: props.x }),
+							zIndex: 1,
+							pointerEvents: 'auto',
+							...styleRecord(props.style),
+						}}
+						{...props.web}
+					>
+						<LayerDepthProvider value={dismissal.depth}><SizeProvider value={null}>{props.children}</SizeProvider></LayerDepthProvider>
+					</div>
+				</div>,
+				owner.target,
+			)}</>
+		}
+	</>
 }
 
 /**
@@ -164,6 +178,8 @@ export function useLayer<O extends LayerOptions>(
 			if (p.positioning === 'custom') {
 				return (
 					<FloatingLayer
+						anchor={anchor.current}
+						finalFocusRef={p.finalFocusRef}
 						open={isOpen}
 						lightDismiss={options.lightDismiss}
 						dismissOnEscape={options.dismissOnEscape}

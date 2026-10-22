@@ -162,8 +162,8 @@ it('derives popover dismissal depth from a separately mounted modal owner', () =
 	}
 })
 
-function CustomLayerContent() @{
-	const layer = useLayer({ mode: 'context', isOpen: true })
+function CustomLayerContent(props: { open: boolean; close: () => void }) @{
+	const layer = useLayer({ mode: 'context', isOpen: props.open, onHide: props.close, dismissOnEscape: true })
 	<>
 		<button ref={layer.ref} id="floating-anchor">Choose</button>
 		{layer.render(<button id="floating-option">Option</button>, {
@@ -172,24 +172,25 @@ function CustomLayerContent() @{
 	</>
 }
 
-function FixedLayerContent() @{
-	const layer = useLayer({ mode: 'fixed', isOpen: true })
-	<>{layer.render(<button id="floating-option">Option</button>, { x: 12, y: 18 })}</>
+function FixedLayerContent(props: { open: boolean; close: () => void }) @{
+	const layer = useLayer({ mode: 'fixed', isOpen: props.open, onHide: props.close, dismissOnEscape: true })
+	<><button id="floating-anchor">Choose</button>{layer.render(<button id="floating-option">Option</button>, { x: 12, y: 18 })}</>
 }
 
-function ModalFloatingLayer(props: { custom: boolean }) @{
-	<Overlay open shadeCover>
-		{props.custom ? <CustomLayerContent /> : <FixedLayerContent />}
+function ModalFloatingLayer(props: { custom: boolean; open?: boolean; close?: () => void; closeModal?: () => void }) @{
+	<Overlay open shadeCover onDismiss={props.closeModal}>
+		{props.custom ? <CustomLayerContent open={props.open ?? true} close={props.close ?? (() => {})} /> : <FixedLayerContent open={props.open ?? true} close={props.close ?? (() => {})} />}
 	</Overlay>
 }
 
 for (const custom of [false, true]) {
-	it.fails(`keeps a ${custom ? 'custom-positioned' : 'fixed'} child layer interactive inside its modal`, async () => {
+	it(`keeps a ${custom ? 'custom-positioned' : 'fixed'} child layer interactive inside its modal`, async () => {
 		const host = document.createElement('div')
 		document.body.append(host)
 		const root = createRoot(host)
+		const close = vi.fn(), closeModal = vi.fn()
 		try {
-			await act(async () => root.render(ModalFloatingLayer, { custom }))
+			await act(async () => root.render(ModalFloatingLayer, { custom, close, closeModal }))
 			// Allow the modal's MutationObserver to isolate newly appended portals.
 			await Promise.resolve()
 			const option = document.querySelector('#floating-option') as HTMLElement
@@ -198,6 +199,16 @@ for (const custom of [false, true]) {
 			expect(option.closest('[inert]')).toBeNull()
 			option.focus()
 			expect(document.activeElement).toBe(option)
+			const panel = option.parentElement as HTMLElement
+			expect(panel.style.position).toBe('fixed')
+			expect(custom ? panel.style.right : panel.style.left).toBe('12px')
+			expect(custom ? panel.style.bottom : panel.style.top).toBe('18px')
+			act(() => option.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })))
+			expect(close).toHaveBeenCalledTimes(1)
+			expect(closeModal).not.toHaveBeenCalled()
+			await act(async () => root.render(ModalFloatingLayer, { custom, open: false, close, closeModal }))
+			expect(document.activeElement?.id).toBe('floating-anchor')
+			expect(host.hasAttribute('inert')).toBe(true)
 		} finally {
 			act(() => root.unmount())
 			host.remove()
