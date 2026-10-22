@@ -48,6 +48,8 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 
 	let credentials: HostedAuthCredentials | null | undefined
 	let generation = 0
+	// Request ownership also changes when a pending sign-in installs its session.
+	let requestGeneration = 0
 	let storageTail: Promise<void> = Promise.resolve()
 	let refreshPromise: Promise<string | null> | null = null
 	let signingIn: Promise<HostedAuthSignInResult> | null = null
@@ -157,6 +159,7 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 		}
 
 		const owner = ++generation
+		requestGeneration++
 		refreshPromise = null
 		const request = runSignIn(owner).catch((error): HostedAuthSignInResult =>
 			owner !== generation ? { status: 'cancelled' } : { status: 'error', message: errorMessage(error) },
@@ -231,6 +234,7 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 				}
 			}
 
+			requestGeneration++
 			await persist(creds)
 			return { status: owner === generation ? 'success' : 'cancelled' }
 		} catch (error) {
@@ -246,15 +250,19 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 		}
 
 		const target = url.startsWith('/') ? `${apiOrigin}${url}` : url
+		const owner = requestGeneration
 		const token = await getAccessToken()
+		if (owner !== requestGeneration) {
+			throw new Error('hostedAuth: request session changed')
+		}
 		const response = await transport(target, token === null ? init : withBearer(init, token))
 
-		if (!isInvalidAccessTokenChallenge(response.status, response.headers)) {
+		if (owner !== requestGeneration || !isInvalidAccessTokenChallenge(response.status, response.headers)) {
 			return response
 		}
 
 		const refreshed = await refreshedAccessToken()
-		if (refreshed === null) {
+		if (owner !== requestGeneration || refreshed === null) {
 			return response
 		}
 
@@ -269,6 +277,7 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 
 	async function signOut() {
 		generation++
+		requestGeneration++
 		signingIn = null
 		refreshPromise = null
 		const previous = credentials === undefined ? readStoredCredentials() : Promise.resolve(credentials)

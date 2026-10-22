@@ -133,7 +133,10 @@ if (result.status === 'success') {
 `auth.fetch` attaches `Authorization: Bearer <access token>` to same-origin
 `/api/*` paths (the `/api/auth` mount is excluded by default — override
 `authorizePath` for other layouts) and replays once after a refresh when the
-server answers an `invalid_token` challenge. The `callbackScheme` your flow
+server answers an `invalid_token` challenge in the same session. Sign-out or a
+new sign-in retires pending requests: an already-dispatched request returns its
+original response without replay, and one still loading credentials rejects.
+The `callbackScheme` your flow
 returns must be registered as an incoming-link scheme in the app (Android: a
 manifest intent-filter) and allowlisted by your backend. On web `supported` is
 `false` — browser apps keep the cookie session flow.

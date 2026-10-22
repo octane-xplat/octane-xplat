@@ -733,9 +733,7 @@ test('a delayed refresh save cannot return or restore a token after sign-out', a
 	assert.equal(await createHostedAuth(config).restore(), 'unauthenticated')
 })
 
-test('a challenged request cannot replay across an account change', {
-	todo: 'Known audit bug: fetch retries a retired request using the new account credentials',
-}, async () => {
+test('a challenged request cannot replay across an account change', async () => {
 	const { createHostedAuth } = loadHosted()
 	const storage = memoryStore()
 	storage.map.set('hosted-auth', storedCreds({ token: 'account-a', sessionToken: 'session-a' }))
@@ -764,4 +762,72 @@ test('a challenged request cannot replay across an account change', {
 	// outcome permits replaying its mutation on behalf of the new account.
 	await request.catch(() => {})
 	assert.equal(requests.length, 1, 'account A mutation must not be replayed after signing in as account B')
+})
+
+
+test('a request retired during credential loading is never dispatched', async () => {
+	const { createHostedAuth } = loadHosted()
+	const entered = deferred()
+	const finish = deferred()
+	const storage = memoryStore()
+	storage.get = async () => { entered.resolve(); await finish.promise; return storedCreds() }
+	const { fetch, requests } = fakeFetch(() => response(200))
+	const auth = createHostedAuth(lifecycleConfig(storage, { fetch }))
+	const request = auth.fetch('/api/orders', { method: 'POST', body: 'old-order' })
+	const rejected = assert.rejects(request, /request session changed/)
+	await entered.promise
+	const signingOut = auth.signOut()
+	finish.resolve()
+	await signingOut
+	await rejected
+	assert.equal(requests.length, 0)
+})
+
+test('a request retired during challenge refresh returns the original response', async () => {
+	const { createHostedAuth } = loadHosted()
+	const storage = memoryStore()
+	storage.map.set('hosted-auth', storedCreds())
+	const entered = deferred()
+	const finish = deferred()
+	const challenge = response(401, {}, { 'www-authenticate': 'Bearer error="invalid_token"' })
+	const { fetch, requests } = fakeFetch(() => challenge)
+	const config = lifecycleConfig(storage, { fetch })
+	config.flow.refresh = async () => { entered.resolve(); return finish.promise }
+	const auth = createHostedAuth(config)
+	const request = auth.fetch('/api/orders', { method: 'POST', body: 'old-order' })
+	await entered.promise
+	await auth.signOut()
+	await auth.signIn()
+	finish.resolve(JSON.parse(storedCreds({ token: 'retired-refresh' })))
+	assert.equal(await request, challenge)
+	assert.equal(requests.length, 1)
+})
+
+test('a request issued during sign-in cannot replay after the new session lands', async () => {
+	const { createHostedAuth } = loadHosted()
+	const storage = memoryStore()
+	storage.map.set('hosted-auth', storedCreds({ token: 'account-a' }))
+	const completing = deferred()
+	const finishLogin = deferred()
+	const issued = deferred()
+	const challenge = deferred()
+	const { fetch, requests } = fakeFetch(() => {
+		issued.resolve()
+		return requests.length === 1 ? challenge.promise : response(200)
+	})
+	const config = lifecycleConfig(storage, { fetch })
+	config.flow.complete = async () => { completing.resolve(); return finishLogin.promise }
+	config.flow.refresh = async (creds) => ({ ...creds, token: 'account-b-refreshed' })
+	const auth = createHostedAuth(config)
+	await auth.restore()
+	const login = auth.signIn()
+	await completing.promise
+	const request = auth.fetch('/api/orders', { method: 'POST', body: 'account-a-order' })
+	await issued.promise
+	assert.equal(requests[0].init.headers.authorization, 'Bearer account-a')
+	finishLogin.resolve(JSON.parse(storedCreds({ token: 'account-b', sessionToken: 'session-b' })))
+	assert.equal((await login).status, 'success')
+	challenge.resolve(response(401, {}, { 'www-authenticate': 'Bearer error="invalid_token"' }))
+	await request
+	assert.equal(requests.length, 1, 'installing a new session retires requests issued during sign-in')
 })

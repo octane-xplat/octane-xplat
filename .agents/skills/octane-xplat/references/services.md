@@ -49,7 +49,9 @@ await db.transaction(async (tx) => {
 Use the [hosted auth client](../../../../packages/auth/README.md#hosted-sign-in-ceremonies)
 for app-owned credential persistence and refresh. Await sign-out before treating
 durable credentials as cleared; it retires pending login/refresh and orders
-removal after earlier saves. A superseded login reports `cancelled`.
+removal after earlier saves. A superseded login reports `cancelled`. Pending
+authenticated requests cannot replay into a later session; a request still
+loading credentials rejects when its session changes.
 
 ```ts
 import { auth } from './auth'
