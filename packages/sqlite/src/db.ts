@@ -39,7 +39,7 @@ class NativeSqliteDb implements SqliteDb {
 	): Promise<number> => this.db.each(sql, params, onRow, onDone)
 	getUserVersion = async () => this.db.getVersion() as number
 	setUserVersion = async (version: number) => {
-		this.db.setVersion(version)
+		await this.db.setVersion(version)
 	}
 	close = async () => {
 		this.db.close()

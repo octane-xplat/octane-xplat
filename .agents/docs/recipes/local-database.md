@@ -31,7 +31,8 @@ ORM layers (e.g. Drizzle over the seam) are outside this recipe's scope.
   writes. Callback handles expire afterward; other calls queue until the
   transaction ends.
 - AC3: `getUserVersion`/`setUserVersion` round-trips `PRAGMA user_version`
-  and supports a shared migration routine.
+  and supports a shared migration routine. Version writes wait for backend
+  completion, reject storage failures, and preserve operation ordering.
 - AC4: `db.persistent` is true on native and on web under OPFS access, and
   the reader knows that without OPFS the web database is transient and must
   be treated as a cache, not a record of truth.
@@ -46,7 +47,9 @@ ORM layers (e.g. Drizzle over the seam) are outside this recipe's scope.
 - AC2: [Local database](../../../docs/platform/platform-services.md#local-database) —
   method surface and transaction semantics.
 - AC3: [Local database](../../../docs/platform/platform-services.md#local-database) —
-  `getUserVersion`/`setUserVersion` as the migration hook.
+  `getUserVersion`/`setUserVersion` as the migration hook; [completion and errors](../../../packages/sqlite/README.md)
+  and [host regressions](../../../packages/sqlite/tests/transactions.test.mjs)
+  cover version writes and queue ordering with modeled native backends.
 - AC4: [Local database](../../../docs/platform/platform-services.md#local-database) —
   `persistent` flag semantics; [known limits](../../../docs/testing/known-limits.md) —
   transient-fallback conditions.

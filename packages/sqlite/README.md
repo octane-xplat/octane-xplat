@@ -21,6 +21,8 @@ await db.close()
 
 The `SqliteDb` surface: `execute`, `selectArray`, `getArray`, `each`
 (row callback), `getUserVersion`/`setUserVersion` for migrations, `close`.
+Await `setUserVersion` to wait for the backend write; storage failures reject
+that promise and later queued operations remain usable.
 Params are `null | number | bigint | string | ArrayBuffer | Uint8Array`.
 `db.isOpen` reports liveness; `db.persistent` reports whether storage
 survives reloads — web only persists through OPFS, which needs a Worker

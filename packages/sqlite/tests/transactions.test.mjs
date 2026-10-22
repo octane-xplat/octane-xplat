@@ -76,9 +76,7 @@ test('native adapter: user_version survives a successful version write', async (
 	}
 })
 
-test('native adapter: version-write failures reject the public operation', {
-	todo: 'Known audit bug: setUserVersion discards the Android plugin promise',
-}, async () => {
+test('native adapter: version-write failures reject the public operation', async () => {
 	const backend = nativeBackend()
 	backend.setVersion = () => {
 		// Android's plugin method is async. Observe its rejected promise here
@@ -95,10 +93,47 @@ test('native adapter: version-write failures reject the public operation', {
 	const db = await api.openDatabase(':memory:')
 	try {
 		await assert.rejects(db.setUserVersion(3), /version write failed/)
+		assert.equal(await db.getUserVersion(), 0, 'the queue remains usable after failure')
 	} finally {
 		await db.close()
 	}
 })
+
+for (const scope of ['main', 'transaction']) {
+	test(`native adapter: ${scope} queue waits for a pending version write`, async () => {
+		const backend = nativeBackend()
+		const original = backend.setVersion
+		let release, enter
+		const waiting = new Promise((resolve) => { release = resolve })
+		const entered = new Promise((resolve) => { enter = resolve })
+		backend.setVersion = async (version) => { enter(); await waiting; original(version) }
+		const api = load('db.ts', {
+			'./operation-queue': ownership,
+			'@nativescript/core': { knownFolders: { documents: () => ({ getFile: (name) => ({ path: name }) }) } },
+			'@nativescript-community/sqlite': { openOrCreate: () => backend },
+		})
+		const db = await api.openDatabase(':memory:')
+		let completed = false
+		const changing = scope === 'main' ? db.setUserVersion(3) : db.transaction(async (tx) => {
+			// The queue drains issued work even if the callback does not await it.
+			void tx.setUserVersion(3)
+		})
+		const reading = db.getUserVersion().then((version) => { completed = true; return version })
+		try {
+			await entered
+			await new Promise(setImmediate)
+			assert.equal(completed, false, 'later operations must wait for the backend write')
+			release()
+			await changing
+			assert.equal(await reading, 3)
+		} finally {
+			release()
+			await changing
+			await reading
+			await db.close()
+		}
+	})
+}
 
 // AppKit's C bridge is modeled with node:sqlite. This checks adapter wiring;
 // actual C interop and device behavior remain separate platform qualification.
