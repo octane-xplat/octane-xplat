@@ -474,11 +474,20 @@ void props
 	// ---- xplat add: enable the platforms skipped at scaffold ---------------
 	if (!quick) {
 		await gate(
-			'xplat add ios android — platform and test setup on packed CLI',
+			'xplat add ios android --no-install, then install — platform and test setup on packed CLI',
 			15 * 60 * 1000,
 			() => {
-				const r = run('pnpm', ['exec', 'xplat', 'add', 'ios', 'android'], appDir)
+				const r = run('pnpm', ['exec', 'xplat', 'add', 'ios', 'android', '--no-install'], appDir)
 				assert.equal(r.status, 0, `xplat add exited ${r.status}`)
+				// add restores the registry configDependency for newly enabled
+				// native patches. Keep using the already materialized packed
+				// payload: this revision's patches are not published yet.
+				const workspaceFile = join(appDir, 'pnpm-workspace.yaml')
+				const workspace = parseDocument(readFileSync(workspaceFile, 'utf8'))
+				workspace.delete('configDependencies')
+				writeFileSync(workspaceFile, String(workspace))
+				const install = run('pnpm', ['install', '--no-frozen-lockfile'], appDir)
+				assert.equal(install.status, 0, 'platform dependencies failed to install')
 				assert.ok(
 					existsSync(join(appDir, 'nativescript.config.ts')),
 					'add produced no nativescript.config.ts',
