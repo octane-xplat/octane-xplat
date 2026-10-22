@@ -1,4 +1,4 @@
-import { prepareFullScreenPage } from './full-screen-page'
+import { prepareFullScreenPage } from './full-screen-page.mobile'
 import { prepareNavigationPage } from './prepare-navigation-page'
 import {
 	attachNativeBackGesture,
