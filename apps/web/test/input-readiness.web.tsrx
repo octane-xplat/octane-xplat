@@ -1,6 +1,19 @@
-import { createRoot, useState } from 'octane';
-import { BottomSheet, CommandPalette, Overlay, Pressable, TextArea, TextInput } from '@octane-xplat/ui';
+import { createRoot, useState, useRef } from 'octane';
+import { BottomSheet, CommandPalette, Overlay, Popover, Pressable, TextArea, TextInput } from '@octane-xplat/ui';
 import { motion, Presence } from '../../../packages/motion/src/index.web';
+
+function ModalPopoverButton(props: { name: string }) @{
+	const anchor = useRef<HTMLButtonElement | null>(null);
+	const [open, setOpen] = useState(false);
+	const [clicks, setClicks] = useState(0);
+	<>
+		<button ref={anchor} id={`${props.name}-popover-trigger`} onClick={() => setOpen(true)}>Choose option</button>
+		<Popover anchor={anchor} open={open} onDismiss={() => setOpen(false)}>
+			<button id={`${props.name}-popover-option`} onClick={() => setClicks(clicks + 1)}>Option</button>
+			<output id={`${props.name}-popover-clicks`}>{clicks}</output>
+		</Popover>
+	</>
+}
 
 function InputReadiness() @{
 	const [count, setCount] = useState(0);
@@ -24,10 +37,10 @@ function InputReadiness() @{
 		<button id="open-overlay" onClick={() => setOverlay(true)}>Open overlay</button>
 		<button id="open-command-palette" onClick={() => setCommandPalette(true)}>Open command palette</button>
 		<BottomSheet isOpen={sheet} onOpenChange={(open) => setSheet(open)} label="Input sheet">
-			<button id="sheet-first">First</button><button id="sheet-nested" onClick={() => setOverlay(true)}>Nested overlay</button><button id="sheet-last" onClick={() => setSheet(false)}>Close</button>
+			<button id="sheet-first">First</button><button id="sheet-nested" onClick={() => setOverlay(true)}>Nested overlay</button><ModalPopoverButton name="sheet" /><button id="sheet-last" onClick={() => setSheet(false)}>Close</button>
 		</BottomSheet>
 		<Overlay open={overlay} shadeCover accessibilityLabel="Input overlay" onDismiss={() => setOverlay(false)}>
-			<button id="overlay-first">First</button><button id="overlay-last" onClick={() => setOverlay(false)}>Close</button>
+			<button id="overlay-first">First</button><ModalPopoverButton name="overlay" /><button id="overlay-last" onClick={() => setOverlay(false)}>Close</button>
 		</Overlay>
 		<CommandPalette open={commandPalette} onOpenChange={setCommandPalette} items={[]} />
 		<button id="exit" onClick={() => setPresent(false)}>Exit</button>

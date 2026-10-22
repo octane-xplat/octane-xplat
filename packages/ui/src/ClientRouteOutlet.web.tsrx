@@ -54,6 +54,7 @@ function BrowserRouteModal(props: {
 	return createPortal(
 		<div
 			ref={layer}
+			data-vx-modal-layer={shown ? '' : undefined}
 			className={dark ? 'vx-modalroute dark' : 'vx-modalroute'}
 			style={{ display: shown ? undefined : 'none' }}
 		>

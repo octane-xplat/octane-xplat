@@ -16,6 +16,7 @@
 		"bench:vlist": "pnpm -w gen:app && vite build && node scripts/bench-virtual-list.ts",
 		"smoke": "pnpm -w gen:app && vite build && node scripts/smoke.ts",
 		"sqlite:readiness": "node scripts/sqlite-readiness.ts",
+		"input:readiness": "node scripts/input-readiness.ts",
 		"parity": "vite build && node scripts/parity.ts",
 		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json",
 		"test:platform-css": "node scripts/platform-css.mjs"

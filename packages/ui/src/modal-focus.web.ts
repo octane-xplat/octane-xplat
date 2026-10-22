@@ -5,6 +5,7 @@ type Scope = {
 	layer: HTMLElement
 	panel: HTMLElement
 	trigger: HTMLElement | null
+	depth: number
 }
 
 const TAB_STOP_SELECTOR = 'a[href],button,input,textarea,select,[tabindex],[contenteditable="true"]'
@@ -19,6 +20,13 @@ let observer: MutationObserver | undefined
 
 function topScope(): Scope | undefined {
 	return scopes[scopes.length - 1]
+}
+
+/** Resolve child portals from their actual anchor, including service roots. */
+export function modalPortalOwner(anchor: HTMLElement): { target: HTMLElement; depth?: number } {
+	const target = anchor.closest<HTMLElement>('dialog[open],[data-vx-modal-layer]') ?? anchor.ownerDocument.body
+	const scope = [...scopes].reverse().find((scope) => scope.layer.contains(anchor))
+	return { target, depth: scope === undefined ? undefined : scope.depth + 1 }
 }
 
 function updateIsolation(): void {
@@ -124,6 +132,7 @@ export function isolateModalFocus(
 		layer,
 		panel,
 		trigger: clickTrigger ?? (document.activeElement as HTMLElement | null),
+		depth,
 	}
 
 	const tabIndex = panel.getAttribute('tabindex')

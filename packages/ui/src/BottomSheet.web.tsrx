@@ -110,7 +110,7 @@ function BottomSheetLayer(props: {
 		return () => ctl.detach()
 	}, [snapKey, purpose])
 
-	<div ref={layer} className={cx('vx-sheet-layer', 'vx-bottom-sheet-layer', dark && 'dark')}>
+	<div ref={layer} data-vx-modal-layer={hasScrim ? '' : undefined} className={cx('vx-sheet-layer', 'vx-bottom-sheet-layer', dark && 'dark')}>
 		{hasScrim && (
 			<div
 				ref={backdrop}

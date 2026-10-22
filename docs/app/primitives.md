@@ -1720,8 +1720,25 @@ closes, rather than when the request is sent. `Dialog.finalFocusRef` can select
 a return target with a `focus()` method. Removing a lower layer does not move
 focus away from a layer that is still open above it.
 
-`Popover.finalFocusRef` chooses where to return focus after its content
-receives focus on web (the anchor is the default).
+On web, keep a child `Popover`'s anchor inside its owning modal. Its portal
+stays in that modal's layer, so the popover remains interactive while background
+content stays inert. `Popover.finalFocusRef` chooses where to return focus after
+its content receives focus (the anchor is the default).
+
+```tsx
+// NestedChoice.web.tsx
+import { useRef } from 'octane'
+import { Overlay, Popover } from '@octane-xplat/ui'
+
+export function NestedChoice() {
+	const anchor = useRef<HTMLButtonElement | null>(null)
+	return <Overlay open shadeCover accessibilityLabel="Choose a bag">
+		<button ref={anchor}>Bag options</button>
+		<Popover anchor={anchor} open><button>Carry-on</button></Popover>
+	</Overlay>
+}
+```
+
 `Popover.dismissOnEscape={false}` blocks Escape while that popover is on top.
 For `useLayer`, Escape follows `lightDismiss` by default. Set
 `dismissOnEscape: true` to allow Escape without an outside-tap backdrop.

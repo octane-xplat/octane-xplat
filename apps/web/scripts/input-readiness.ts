@@ -89,6 +89,17 @@ try {
 			await session.detach()
 		}
 
+		await page.locator(`#${name}-popover-trigger`).click()
+		const option = page.locator(`#${name}-popover-option`)
+		await option.click()
+		assert.equal(await page.locator(`#${name}-popover-clicks`).textContent(), '1')
+		assert.equal(await option.evaluate((node) => node.closest('[inert]') === null), true)
+		assert.equal(await page.locator('#root').evaluate((root) => root.inert), true)
+		await page.keyboard.press('Escape')
+		await option.waitFor({ state: 'detached' })
+		await page.waitForFunction((id) => document.activeElement?.id === id, `${name}-popover-trigger`, { timeout: 10000 })
+		assert.equal(await page.getByRole('dialog', { name: dialogName, exact: true }).count(), 1)
+
 		await page.keyboard.press('Escape')
 		try {
 			await page.waitForFunction((id) => document.activeElement?.id === id, `open-${name}`, {
