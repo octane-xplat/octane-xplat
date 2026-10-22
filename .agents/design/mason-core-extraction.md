@@ -196,15 +196,16 @@ host now builds and runs on an arm64 simulator. A core-only Android AAR and
 isolated Java client also compile. Both isolated NativeScript applications pass
 bridge, geometry and ownership assertions, and core has independent bridge
 declarations. Basic patched-renderer and Octane host-plan component checks also
-pass on both simulator/emulator targets. Compiled app components, hook
-subscriptions and OS input remain gates.
+pass on both simulator/emulator targets. A compiled TSRX component also passes
+class styles, hook-driven updates, scrolling and cleanup. OS input remains a gate.
 
 | Evidence | iOS | Android |
 | --- | --- | --- |
 | Native host regressions | 15 UIKit simulator tests pass | 17 instrumentation tests pass on API 36 phone |
 | Plain NativeScript consumer | arm64 simulator passes | API 36 phone passes; current-SDK control also passes on API 35 emulator |
 | Patched Xplat renderer and Octane host-plan component | arm64 iOS 27 simulator passes | API 35 arm64 emulator passes; phone run pending |
-| Compiled TSRX app, hook subscriptions, OS input | Unverified | Unverified |
+| Compiled TSRX component, hooks, class styles, programmatic scroll | arm64 simulator passes | API 35 emulator passes |
+| OS input | Unverified | Unverified |
 | Device host artifact | Swift device framework unbuilt | arm64-v8a AAR and debug app build |
 | Matched release app sizes | Unmeasured | Unmeasured |
 
@@ -233,7 +234,7 @@ and SDWebImage for backgrounds/nine-slice painting. A small glyph-provider
 protocol replaces the background painter's direct dependency on MasonKit's text
 renderer; it does not add glyph outlines to ordinary foreign labels. The
 shared Rust engine still includes inline-layout code and convenience node
-constructors. Device slices, compiled app components, touch input, and matched
+constructors. Device slices, touch input, and matched
 release app measurements remain gates. Commands and source
 hashes are documented in `tools/mason-core/ios-host-README.md` in the Mason fork.
 
@@ -272,8 +273,12 @@ core metadata without optional HTML/text/widget classes. A separate consumer
 uses the current Xplat catalog pins and canonical patches, retargeting only the
 renderer patch's two Mason imports. Driver geometry updates, reparenting,
 disposal and Octane component mount/update/unmount pass on iOS Simulator and
-the Android emulator. Compiled TSRX components, hook subscriptions, OS input
-and iOS device packaging remain gates.
+the Android emulator. An authored TSRX component compiled with Octane 0.14.0
+also passes class geometry, native button-handler/hook updates, programmatic
+scrolling and effect/ref cleanup in Xplat's Page/Frame hosting pattern. The
+compiler's optional parser is fixture development tooling; core gains no
+dependency. These button notifications are synthetic. OS input and iOS device
+packaging remain gates.
 
 The separate `build.runtime` target now tests a container-only TypeScript
 boundary at `dist/prototypes/nativescript-mason-core`; the ordinary package

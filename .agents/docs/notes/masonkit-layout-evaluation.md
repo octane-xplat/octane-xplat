@@ -1006,5 +1006,22 @@ its label, and unmounting. NativeScript controls with the identical dependency
 graph also pass. Evidence lives in the Mason worktree at
 `tmp/mason-core-baseline/test-renderer-foreign-release-fix-ios.log` and
 `tmp/mason-core-baseline/test-renderer-foreign-release-fix-android.log`.
-Compiled TSRX components, hook subscriptions, actual OS input and a physical
-Android renderer run remain unverified.
+Actual OS input and a physical Android renderer run remain unverified.
+
+### Compiled TSRX, hooks and scroll hosting
+
+Mason fork commit `1c33d454` adds an authored TSRX consumer compiled with Octane
+0.14.0 and its declared optional parser peer, `@tsrx/oxc` 0.20.0. The parser is
+fixture development tooling, with no core dependency change. Generated hooks
+import the native renderer runtime, and the fixture records source/emission
+hashes. Its Page/Frame bootstrap matches Xplat's mobile application.
+
+Both arm64 iOS 27 Simulator and the API 35 Android emulator pass static class
+geometry, a synthesized button handler updating native label text and width
+from 90 to 130 without replacement, one mount effect, one disposal, a native
+90-unit scroll seek, ref clearing and host release. Evidence lives in the
+Mason worktree at `tmp/mason-core-baseline/test-compiled-consumer-ios.log` and
+`tmp/mason-core-baseline/test-compiled-consumer-android.log`. This is compiled
+component and native-runtime evidence; notification dispatch does not establish
+OS hit-testing or touch scrolling. These debug builds do not establish release
+application-size savings.
