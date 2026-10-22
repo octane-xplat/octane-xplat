@@ -300,6 +300,25 @@ UI tarball; a workspace-only check cannot catch this missing-parent failure.
 }
 ```
 
+## Empty build target arguments (`@alloc/cmd-ts` 0.17.1)
+
+The upstream tokenizer emits characters and argument dividers, so an empty
+argv string has no value token. With a defaulted option, `--targets ''` was
+therefore indistinguishable from omission at the build handler and selected
+every target. This is verified by the real CLI subprocess regression and by
+the [v0.17.1 tokenizer](https://github.com/alloc/cmd-ts/blob/v0.17.1/src/newparser/tokenizer.ts)
+and [option parser](https://github.com/alloc/cmd-ts/blob/v0.17.1/src/option.ts).
+
+The build command uses the documented `implicitValue: ''` option to preserve
+explicit presence, then rejects the empty selection before side effects. The
+workaround is limited to `build --targets`; it neither patches the dependency
+nor changes other commands. Recheck it when cmd-ts retains empty argv values
+or distinguishes an option without a value from an absent option.
+
+```sh
+pnpm xplat build --targets '' # exits with an unavailable/empty target error
+```
+
 ## TSX dependency-scan warning
 
 **Observed, unresolved.** The live routing-watch fixture uses Vite 8.3.0,

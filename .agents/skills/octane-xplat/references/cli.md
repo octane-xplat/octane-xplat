@@ -41,6 +41,14 @@ structured output is on stdout and diagnostics on stderr. A permission report
 is not an authorization grant. Honor project/task restrictions, including visual
 approval, rather than changing permission settings to bypass them.
 
+An explicit build selection is all-or-nothing: every kind in `--targets` must
+be available. A mixed valid/unavailable selection fails before code generation
+or process launch. Use the error's available-kind list to correct the command.
+
+```sh
+pnpm exec xplat build --targets web,android
+```
+
 ## Bind the app and retrieve context
 
 A sole app can bind from the working directory. In an ambiguous workspace, use
