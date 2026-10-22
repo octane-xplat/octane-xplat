@@ -15,6 +15,7 @@ export function bindChatKeyboard(
 	root: any,
 	viewport: any,
 	dock: any,
+	dockPad: any,
 	content: any,
 	options: () => ChatKeyboardOptions,
 ): ChatKeyboardBinding {
@@ -26,6 +27,7 @@ export function bindChatKeyboard(
 		},
 	)
 	const padding = leaseNativePaddingBottom(content)
+	const dockPadLease = leaseNativePaddingBottom(dockPad)
 	const viewportLease = observeKeyboardViewport(root)
 	const motion = leaseChatViewportMotion(viewport)
 	let active = true,
@@ -40,7 +42,8 @@ export function bindChatKeyboard(
 		lastOffset = scroll?.verticalOffset ?? 0,
 		lastMax = scroll?.scrollableHeight ?? 0
 	let lastDockHeight = 0,
-		lastPadding = -1
+		lastPadding = -1,
+		lastStrip = -1
 	let timer: ReturnType<typeof setTimeout> | undefined
 	let queuedKeyboard = false,
 		queuedGrowth = false
@@ -123,6 +126,8 @@ export function bindChatKeyboard(
 				Math.max(0, inherited),
 		)
 		const lift = Math.max(0, Math.min(overlap, available) - panel)
+		const k = Math.min(overlap, available)
+		const strip = Math.max(0, (current.homeInset ?? 0) - Math.max(k, panel))
 		const height = chatHost.height(dock)
 		const nextPadding = height + lift
 		const growth = Math.abs(height - lastDockHeight) > 0.5
@@ -130,14 +135,21 @@ export function bindChatKeyboard(
 		try {
 			translation.set(-lift)
 			padding.set(nextPadding)
+			dockPadLease.set(strip)
 		} finally {
 			writing = false
 		}
-		if (keyboard || growth || Math.abs(nextPadding - lastPadding) > 0.5) {
+		if (
+			keyboard ||
+			growth ||
+			Math.abs(nextPadding - lastPadding) > 0.5 ||
+			Math.abs(strip - lastStrip) > 0.5
+		) {
 			queue(keyboard, growth)
 		}
 		lastDockHeight = height
 		lastPadding = nextPadding
+		lastStrip = strip
 	}
 	const onScroll = () => {
 		if (!active || writing) {
@@ -167,6 +179,7 @@ export function bindChatKeyboard(
 			...releases.reverse(),
 			translation.release,
 			padding.release,
+			dockPadLease.release,
 			viewportLease.release,
 			() => motion.release(),
 		]) {

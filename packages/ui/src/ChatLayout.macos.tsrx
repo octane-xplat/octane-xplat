@@ -30,9 +30,11 @@ export function ChatLayout(props: ChatLayoutProps) @{
 	const [root, setRoot] = useState<any>(null)
 	const [viewport, setViewport] = useState<any>(null)
 	const [dock, setDock] = useState<any>(null)
+	const [dockPad, setDockPad] = useState<any>(null)
 	const [content, setContent] = useState<any>(null)
 	const attachRoot = useCallback((view: any) => setRoot(view), [])
 	const attachDock = useCallback((view: any) => setDock(view), [])
+	const attachDockPad = useCallback((view: any) => setDockPad(view), [])
 	const attachContent = useCallback((view: any) => setContent(view), [])
 	const attachViewport = useCallback(
 		(view: any) => {
@@ -59,17 +61,17 @@ export function ChatLayout(props: ChatLayoutProps) @{
 
 	const binding = useRef<ChatKeyboardBinding | null>(null)
 	useEffect(() => {
-		if (!root || !viewport || !dock || !content) {
+		if (!root || !viewport || !dock || !dockPad || !content) {
 			return
 		}
 
-		const own = bindChatKeyboard(root, viewport, dock, content, () => options.current)
+		const own = bindChatKeyboard(root, viewport, dock, dockPad, content, () => options.current)
 		binding.current = own
 		return () => {
 			binding.current = null
 			own()
 		}
-	}, [root, viewport, dock, content])
+	}, [root, viewport, dock, dockPad, content])
 
 	useEffect(() => {
 		binding.current?.update()
@@ -147,6 +149,7 @@ export function ChatLayout(props: ChatLayoutProps) @{
 					props.scrollButton
 				)}
 				<masonview
+					ref={attachDockPad}
 					className={cx('vx-chatlayout-dockpad', `vx-chatlayout-dockpad--${density}`)}
 					style={{ display: 'flex' }}
 				>
