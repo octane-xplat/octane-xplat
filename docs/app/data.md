@@ -743,15 +743,79 @@ export function publishExistingUsers(receipts: readonly User[]) {
 If the server does not return enough data to publish a complete record,
 invalidate the affected family or exact family-plus-selection key. Observed
 entries refresh; unobserved entries wait for their next reader. An invalidation
-during a request starts a follow-up before it settles. Shared optimistic
-helpers are not available yet; [plain signal writes](#writes) support
-owner-local optimistic work.
+during a request starts a follow-up before it settles. For immediate feedback while a save is pending, use the shared optimistic
+action below.
 
 ```ts
 import { queries } from './queries'
 
 export function reloadUser(id: string) {
 	queries.invalidateQueries({ key: ['users', id], exact: true })
+}
+```
+
+### Shared optimistic edits
+
+`runOptimistic` composes Octane's native action operations with one loaded
+shared record. Its tentative view appears in every reader, while
+`getQueryData` and persistence retain confirmed data. Give a definition a
+`compareAuthority` function when the server supplies ordered revisions;
+only a positive result accepts an incoming revision. Use that same definition
+in both screens and save functions.
+
+```ts
+// src/editable-user-data.ts
+import { createQueryClient, defineQuery } from '@octane-xplat/ui/data'
+
+export interface EditableUser { id: string; name: string; revision: number }
+export const userQueries = createQueryClient()
+export const editableUsers = defineQuery(['editable-users'], async (id: string, { signal }) => {
+	const response = await fetch(`/api/users/${encodeURIComponent(id)}`, { signal })
+	if (!response.ok) throw new Error('Could not load user')
+	return response.json() as Promise<EditableUser>
+}, { staleTimeMs: 60_000, compareAuthority: (incoming, current) => incoming.revision - current.revision })
+```
+
+Set an operation's tentative value, then adopt the confirmed server receipt.
+A definitive failure removes only that operation's contribution. The operation
+holds a cache lease even if its screen leaves. Older receipts cannot replace
+newer confirmed authority when a comparator is configured; overlapping pending
+operations retain Octane's own presentation rules. Writes are never retried
+automatically.
+
+```ts
+import { userQueries, editableUsers, type EditableUser } from './editable-user-data'
+
+export async function renameUser(
+	id: string, name: string,
+	save: (input: { id: string; name: string; operationId: string; signal: AbortSignal }) => Promise<EditableUser>,
+) {
+	await userQueries.ensureData(editableUsers, id)
+	return userQueries.runOptimistic(editableUsers, id, async (operation, view$, { signal }) => {
+		operation.set(view$, previous => ({ ...previous, name }))
+		const confirmed = await save({ id, name, operationId: operation.id, signal })
+		operation.adopt(confirmed)
+	})
+}
+```
+
+A transport can report that the server outcome is uncertain rather than
+rejected. Native uncertainty remains explicit: use `isActionUncertain` and
+your API's operation-status contract to reconcile it before retrying. Tentative
+values are not durable writes. Disposing the client aborts the operation's
+signal and prevents a late receipt from reaching that client; it cannot prove
+that the server cancelled a write. Durable offline write replay is outside
+this cache's contract.
+
+```ts
+import { isActionUncertain } from 'octane/signals'
+
+export async function saveMessage(save: () => Promise<void>) {
+	try { await save(); return 'Saved' }
+	catch (error) {
+		if (isActionUncertain(error)) return 'Awaiting server confirmation'
+		throw error
+	}
 }
 ```
 

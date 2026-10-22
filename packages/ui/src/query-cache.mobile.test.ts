@@ -156,4 +156,28 @@ describe('shared query readers on universal roots', () => {
 		expect(screen.text()).toEqual(['prepared:ready:prepared:idle'])
 		expect(calls).toBe(1)
 	})
+	it('shares native optimistic presentation and confirmed receipts across roots', async () => {
+		const f = fixture()
+		const a = mount(InstanceProfile, { ...f, id: 'same' })
+		const b = mount(InstanceProfile, { ...f, id: 'same' })
+		await settle()
+		f.calls[0]!.resolve('before')
+		await settle()
+		let finish!: (value: string) => void
+		const receipt = new Promise<string>((resolve) => {
+			finish = resolve
+		})
+		const save = f.client.runOptimistic(f.definition, 'same', async (operation, view$) => {
+			operation.set(view$, 'tentative')
+			operation.adopt(await receipt)
+		})
+		await settle()
+		expect(a.text()).toEqual(['same:ready:tentative:idle'])
+		expect(b.text()).toEqual(['same:ready:tentative:idle'])
+		finish('confirmed')
+		await save
+		await settle()
+		expect(a.text()).toEqual(['same:ready:confirmed:idle'])
+		expect(b.text()).toEqual(['same:ready:confirmed:idle'])
+	})
 })

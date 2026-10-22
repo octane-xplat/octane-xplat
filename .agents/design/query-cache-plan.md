@@ -1,29 +1,24 @@
 # Query cache commit plan
 
 Status: implementation started, 2026-10-22. [Engine decision 121](query-cache-engine.md)
-selects native signal authority. Remaining steps are not yet shipped; desktop
-qualification has a verified host prerequisite.
+selects native signal authority. Steps 1–8 are implemented: explicit ownership,
+bounded retention, retry/network scheduling, lifecycle refresh, typed writes,
+prefetch, and shared native optimistic actions. Steps 9–12 remain: cached
+pagination, inspection, composed guidance/example, and final qualification.
 
+Current focused evidence: 48 cache tests, eight universal object-driver tests,
+five environment adapter tests, and 350 CLI tests pass. UI/CLI dependent
+checks pass (55 tasks); the prepared-user route also passed its 54-task
+UI/app check. Packed web/native/macOS consumers check result/selection types
+and reject incorrectly typed writes and receipts in Bundler/NodeNext modes.
+Recipe links and purpose barrels pass their checks.
 
-Delivered: steps 1–7 (engine, ownership, retention, scheduling, lifecycle, writes, prefetch). The new
-public surface is `defineQuery`, `useQuery$`, and explicit client `observe$`;
-component acquisition occurs after commit. Forty cache unit regressions and
-seven universal object-driver regressions pass. Collection includes a 1,000-key
-trace, final-lease cancellation, and namespaced durable purge after collection. UI and dependent typechecks
-(53 tasks), docs build, barrel checks, and recipe link checks pass. These are
-host/source checks; composed device qualification remains step 12.
-
-The platform environment adapter tests and the 59-task touched-package/dependents
-typecheck also pass. Platform adapter events are mocked; real lifecycle events
-remain part of final qualification.
-
-Typed write negatives and result inference pass through packed web/native/macOS
-consumers in Bundler and NodeNext resolution.
-
-The maintained prepared-user route and 54-task UI/app dependent typecheck pass.
-
-Steps 8–12 remain in progress; shared optimistic helpers, cached pagination and inspection
-are not yet available at this checkpoint.
+Real AppKit probes pass three native authority assertions and four replacement
+cache assertions after installing host UUID and abort-event capabilities.
+These are headless state/action checks, not OS lifecycle or input evidence.
+Browser/device composed qualification and the final docs build remain in
+steps 11–12. Earlier source, typecheck, and mock results do not qualify those
+remaining runtime workflows.
 
 Make the official cache the easiest reliable choice for an Octane Xplat app
 that loads shared data, edits it, navigates between screens, and recovers from

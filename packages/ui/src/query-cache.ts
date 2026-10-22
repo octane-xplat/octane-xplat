@@ -1,6 +1,16 @@
 import { environment as platformEnvironment } from '@octane-xplat/platform/environment'
 /** Shared queries with explicit definition, reader, and client lifetimes. */
-import { createScope, type DerivedSignal, type Scope, type WritableSignal } from 'octane/signals'
+import {
+	createScope,
+	runWithSignalOwner,
+	optimistic$,
+	action$,
+	type OptimisticSignal,
+	type ActionOperation,
+	type DerivedSignal,
+	type Scope,
+	type WritableSignal,
+} from 'octane/signals'
 
 /** JSON values accepted in query keys and selections. Object field order is ignored. */
 export type QueryKeyPart =
@@ -37,12 +47,14 @@ export interface QueryLoadContext<T> {
 }
 
 /** Definition-wide policies; all readers of an entry use the same policy. */
-export interface QueryOptions {
+export interface QueryOptions<T = unknown> {
 	/** Freshness in milliseconds. @default 0 */
 	readonly staleTimeMs?: number
 	/** Retain inactive entries for this many milliseconds. @default 300000 */
 	readonly gcTimeMs?: number
 	readonly persist?: QueryPersistence
+	/** Positive means a newer confirmed server revision; equal/older receipts are ignored. */
+	readonly compareAuthority?: (incoming: T, current: T) => number
 	/** Retries after the initial attempt. Abort errors are never retried. @default 2 */
 	readonly retryCount?: number
 	/** Milliseconds before retry; failureCount starts at 1. @default exponential 1000–30000 */
@@ -65,7 +77,7 @@ export interface QueryDefinition<A extends QueryKeyPart, T> {
 	readonly [DEFINITION]: true
 	readonly key: QueryKey
 	readonly load: (selection: A, context: QueryLoadContext<T>) => T | PromiseLike<T>
-	readonly options: QueryOptions
+	readonly options: QueryOptions<T>
 }
 
 /** Observable state. A refresh failure can coexist with usable confirmed data. */
@@ -133,6 +145,14 @@ export type QueryPrefetchResult =
 	| { readonly status: 'error'; readonly error: unknown }
 	| { readonly status: 'cancelled' }
 
+/** Native action operation narrowed to this query's confirmed receipt type. */
+export type QueryActionOperation<T> = Omit<ActionOperation, 'adopt'> & { adopt(value: T): void }
+
+/** Cancellation for a shared optimistic action. The server may still accept an aborted write. */
+export interface QueryActionContext {
+	readonly signal: AbortSignal
+}
+
 /** An app/account/request cache. Dispose it at that boundary's end. */
 export interface QueryClient {
 	/** Acquire outside rendering; components use useQuery$ for commit-time ownership. */
@@ -152,6 +172,16 @@ export interface QueryClient {
 		selection: A,
 		options?: QueryOperationOptions,
 	): Promise<QueryPrefetchResult>
+	/** Compose one native Octane action with a loaded shared record and an operation lease. No write retries. */
+	runOptimistic<A extends QueryKeyPart, T, R>(
+		definition: QueryDefinition<A, T>,
+		selection: A,
+		run: (
+			operation: QueryActionOperation<NoInfer<T>>,
+			view$: OptimisticSignal<NoInfer<T>>,
+			context: QueryActionContext,
+		) => R | PromiseLike<R>,
+	): Promise<R>
 	/** Read confirmed authority without creating an entry or fetching. */
 	getQueryData<A extends QueryKeyPart, T>(
 		definition: QueryDefinition<A, T>,
@@ -190,7 +220,7 @@ export interface QueryClient {
 export function defineQuery<A extends QueryKeyPart, T>(
 	key: QueryKey,
 	load: (selection: A, context: QueryLoadContext<T>) => T | PromiseLike<T>,
-	options: QueryOptions = {},
+	options: QueryOptions<NoInfer<T>> = {},
 ): QueryDefinition<A, T> {
 	if (key.length === 0) {
 		throw new TypeError('A query family must have a non-empty key')
@@ -310,6 +340,9 @@ interface Entry<T = unknown> {
 	elements: readonly string[]
 	scope: Scope
 	value$: WritableSignal<T | undefined>
+	view$: OptimisticSignal<T | undefined>
+	lastPublishedValue: T | undefined
+	stopAuthority?: () => void
 	state$: WritableSignal<QueryState>
 	data$: DerivedSignal<T>
 	stateView$: DerivedSignal<QueryState>
@@ -426,10 +459,22 @@ function purgeRecord(target: PersistenceTarget): Promise<void> {
 	})
 }
 
-function publish<T>(entry: Entry<T>, value: T, time = Date.now()): void {
+function publish<T>(entry: Entry<T>, value: T, time = Date.now()): boolean {
 	assertEntry(entry)
+	const compare = entry.definition.options.compareAuthority
+	if (compare && entry.state$.get().hasData) {
+		const order = compare(value, entry.value$.get()!)
+		if (!Number.isFinite(order)) {
+			throw new TypeError('compareAuthority must return a finite number')
+		}
+
+		if (order <= 0) {
+			return false
+		}
+	}
+	entry.lastPublishedValue = value
 	entry.scope.batch(() => {
-		entry.value$.set(value)
+		entry.value$.set(() => value)
 		entry.state$.set({
 			status: 'ready',
 			fetchStatus: 'idle',
@@ -439,6 +484,7 @@ function publish<T>(entry: Entry<T>, value: T, time = Date.now()): void {
 			updatedAtMs: time,
 		})
 	})
+	return true
 }
 
 async function restore<T>(entry: Entry<T>): Promise<void> {
@@ -665,9 +711,10 @@ function load<T>(entry: Entry<T>, force = false): Promise<T> {
 			throw cancellation()
 		}
 		if (entry.revision === revision) {
-			entry.invalidated = false
-			publish(entry, value)
-			writePersisted(entry)
+			if (publish(entry, value)) {
+				entry.invalidated = false
+				writePersisted(entry)
+			}
 		}
 		return entry.value$.get()!
 	}
@@ -714,6 +761,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 	const namespace = options.namespace
 	const id = ++clientSequence
 	const entries = new Map<string, Entry>()
+	const actionControllers = new Set<AbortController>()
 	const definitions = new Map<string, QueryDefinition<QueryKeyPart, unknown>>()
 	const persistence = new Map<QueryStorageAdapter, NamespaceTarget>()
 	let disposed = false
@@ -819,6 +867,16 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 			error: undefined,
 			updatedAtMs: 0,
 		})
+		const compare = definition.options.compareAuthority
+		const view$ = optimistic$(
+			value$,
+			compare
+				? { compareAuthority: (incoming, current) => compare(incoming as T, current as T) }
+				: undefined,
+		)
+		// Resolve the native manager outside rendering; all readers reuse its view.
+		runWithSignalOwner(scope, () => view$.latest())
+
 		const entry: Entry<T> = {
 			id: key,
 			family,
@@ -827,6 +885,8 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 			elements,
 			scope,
 			value$,
+			view$,
+			lastPublishedValue: undefined,
 			state$,
 			definition: definition as unknown as QueryDefinition<QueryKeyPart, T>,
 			selection: freezeJson(JSON.parse(selectionKey)) as QueryKeyPart,
@@ -839,7 +899,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 			data$: scope.derived$<unknown>('data', () => {
 				const state = state$.get()
 				if (state.hasData) {
-					return value$.get() as T
+					return runWithSignalOwner(scope, () => view$.get()) as T
 				}
 				if (state.status === 'error') {
 					throw state.error
@@ -867,6 +927,31 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 				maxAgeMs: persist.maxAgeMs ?? Infinity,
 			}
 		}
+		entry.stopAuthority = value$.subscribe(() => {
+			if (entry.retired) {
+				return
+			}
+			const confirmed = value$.latest()
+			if (Object.is(confirmed, entry.lastPublishedValue)) {
+				return
+			}
+			entry.lastPublishedValue = confirmed
+			entry.revision++
+			entry.controller?.abort()
+			entry.controller = undefined
+			entry.inflight = undefined
+			entry.invalidated = false
+			state$.set({
+				status: 'ready',
+				fetchStatus: 'idle',
+				failureCount: 0,
+				hasData: true,
+				error: undefined,
+				updatedAtMs: Date.now(),
+			})
+			writePersisted(entry)
+		})
+
 		definitions.set(family, definition as QueryDefinition<QueryKeyPart, unknown>)
 		entries.set(key, entry as unknown as Entry)
 		return entry
@@ -940,6 +1025,8 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 		clearTimeout(entry.gcTimer)
 		clearTimeout(entry.pollTimer)
 		entry.controller?.abort()
+		entry.stopAuthority?.()
+		entry.stopAuthority = undefined
 		entry.scope.dispose()
 		entries.delete(entry.id)
 		if (![...entries.values()].some((other) => other.family === entry.family)) {
@@ -1016,6 +1103,9 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 					}
 					released = true
 					entry.readers--
+					if (entry.readers === 0) {
+						clearTimeout(entry.pollTimer)
+					}
 					release(entry)
 				},
 			}
@@ -1029,6 +1119,35 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 				return (error as { name?: unknown } | null)?.name === 'AbortError'
 					? { status: 'cancelled' as const }
 					: { status: 'error' as const, error }
+			}
+		},
+
+		async runOptimistic(definition, selection, run) {
+			const entry = existingFor$(definition, selection)
+			if (!entry || !entry.state$.get().hasData) {
+				throw new Error('Load query data before an optimistic action')
+			}
+			clearTimeout(entry.gcTimer)
+			entry.leases++
+			const controller = new AbortController()
+			actionControllers.add(controller)
+			let removeAbort = () => {}
+			try {
+				const cancelled = new Promise<never>((_, reject) => {
+					const abort = () => reject(cancellation())
+					controller.signal.addEventListener('abort', abort, { once: true })
+					removeAbort = () => controller.signal.removeEventListener('abort', abort)
+				})
+
+				const execute$ = action$(async (operation) =>
+					run(operation, entry.view$ as Parameters<typeof run>[1], { signal: controller.signal }),
+				)
+
+				return await Promise.race([runWithSignalOwner(entry.scope, () => execute$()), cancelled])
+			} finally {
+				removeAbort()
+				actionControllers.delete(controller)
+				release(entry)
 			}
 		},
 
@@ -1093,6 +1212,10 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 		},
 		dispose(disposal = {}) {
 			disposed = true
+			for (const controller of actionControllers) {
+				controller.abort()
+			}
+			actionControllers.clear()
 			environmentGeneration++
 			const failures: unknown[] = []
 			try {

@@ -871,3 +871,169 @@ describe('operations outside component lifetimes', () => {
 		expect(queries.getQueryData(users, 'a')).toBeUndefined()
 	})
 })
+
+describe('shared native optimistic actions', () => {
+	it('shows tentative data in all readers but persists only confirmed authority', async () => {
+		const storage = createMemoryQueryStorage()
+		const users = defineQuery(['users'], (_id: string) => ({ name: 'before', revision: 1 }), {
+			staleTimeMs: Infinity,
+			persist: { storage, version: 1 },
+		})
+		const queries = client('account')
+		const a = queries.observe$(users, 'a')
+		const b = queries.observe$(users, 'a')
+		await settle()
+		const gate = deferred<{ name: string; revision: number }>()
+		const saved = queries.runOptimistic(users, 'a', async (operation, view$) => {
+			operation.set(view$, { name: 'tentative', revision: 2 })
+			const receipt = await gate.promise
+			operation.adopt(receipt)
+		})
+		await settle()
+		expect([a.data$.get().name, b.data$.get().name]).toEqual(['tentative', 'tentative'])
+		expect(queries.getQueryData(users, 'a')?.name).toBe('before')
+		const other = client('account').observe$(users, 'a')
+		await settle()
+		expect(other.data$.get().name).toBe('before')
+		gate.resolve({ name: 'confirmed', revision: 2 })
+		await saved
+		await settle()
+		expect([a.data$.get().name, b.data$.get().name]).toEqual(['confirmed', 'confirmed'])
+		expect(queries.getQueryData(users, 'a')?.name).toBe('confirmed')
+		const restored = client('account').observe$(users, 'a')
+		await settle()
+		expect(restored.data$.get().name).toBe('confirmed')
+	})
+	it('keeps newer authority when overlapping saves settle out of order', async () => {
+		const users = defineQuery(['users'], (_id: string) => ({ revision: 1 }), {
+			compareAuthority: (incoming, current) => incoming.revision - current.revision,
+		})
+		const queries = client()
+		await queries.ensureData(users, 'a')
+		const a = deferred<{ revision: number }>()
+		const b = deferred<{ revision: number }>()
+		const first = queries.runOptimistic(users, 'a', async (op, view$) => {
+			op.set(view$, { revision: 2 })
+			op.adopt(await a.promise)
+		})
+		const second = queries.runOptimistic(users, 'a', async (op, view$) => {
+			op.set(view$, { revision: 3 })
+			op.adopt(await b.promise)
+		})
+		b.resolve({ revision: 3 })
+		await second
+		expect(queries.getQueryData(users, 'a')?.revision).toBe(3)
+		a.resolve({ revision: 2 })
+		await first
+		expect(queries.getQueryData(users, 'a')?.revision).toBe(3)
+	})
+	it('rolls back only the failed operation and retains another operation', async () => {
+		const users = defineQuery(['users'], (_id: string) => 'before')
+		const queries = client()
+		const reader = queries.observe$(users, 'a')
+		await settle()
+		const firstGate = deferred<string>()
+		const secondGate = deferred<string>()
+		const first = queries
+			.runOptimistic(users, 'a', async (op, view$) => {
+				op.set(view$, 'first')
+				op.adopt(await firstGate.promise)
+			})
+			.catch((error) => error)
+		const second = queries.runOptimistic(users, 'a', async (op, view$) => {
+			op.set(view$, 'second')
+			op.adopt(await secondGate.promise)
+		})
+		firstGate.reject(new Error('rejected'))
+		expect(await first).toMatchObject({ message: 'rejected' })
+		expect(reader.data$.get()).toBe('second')
+		secondGate.resolve('confirmed')
+		await second
+		expect(reader.data$.get()).toBe('confirmed')
+	})
+	it('publishes adoption to confirmed reads inside the same native action', async () => {
+		const users = defineQuery(['users'], (_id: string) => ({ revision: 1 }))
+		const queries = client()
+		await queries.ensureData(users, 'a')
+		await queries.runOptimistic(users, 'a', (op, view$) => {
+			op.set(view$, { revision: 2 })
+			op.adopt({ revision: 2 })
+			expect(queries.getQueryData(users, 'a')?.revision).toBe(2)
+		})
+	})
+	it('keeps uncertain outcomes explicit without confirming or retrying a write', async () => {
+		const users = defineQuery(['users'], (_id: string) => 'confirmed')
+		const queries = client()
+		const reader = queries.observe$(users, 'a')
+		await settle()
+		let calls = 0
+		await expect(
+			queries.runOptimistic(users, 'a', (op, view$) => {
+				calls++
+				op.set(view$, 'tentative')
+				throw Object.assign(new Error('outcome unknown'), { code: 'OCTANE_RPC_UNCERTAIN' })
+			}),
+		).rejects.toMatchObject({ code: 'OCTANE_ACTION_UNCERTAIN' })
+		expect(calls).toBe(1)
+		expect(queries.getQueryData(users, 'a')).toBe('confirmed')
+		expect(reader.data$.get()).toBe('tentative')
+	})
+	it('rejects older refetch data and does not resurrect an overlay after failure', async () => {
+		const users = defineQuery(['users'], (_id: string) => ({ revision: 1 }), {
+			compareAuthority: (incoming, current) => incoming.revision - current.revision,
+		})
+		const queries = client()
+		const reader = queries.observe$(users, 'a')
+		await settle()
+		queries.setQueryData(users, 'a', { revision: 3 })
+		await reader.refetch()
+		expect(queries.getQueryData(users, 'a')?.revision).toBe(3)
+		await expect(
+			queries.runOptimistic(users, 'a', (op, view$) => {
+				op.set(view$, { revision: 4 })
+				throw new Error('rejected')
+			}),
+		).rejects.toThrow('rejected')
+		await reader.refetch()
+		expect(reader.data$.get().revision).toBe(3)
+	})
+	it('holds an operation lease after the last screen leaves', async () => {
+		vi.useFakeTimers()
+		const users = defineQuery(['users'], (_id: string) => 'before', { gcTimeMs: 10 })
+		const queries = client()
+		const reader = queries.observe$(users, 'a')
+		await vi.advanceTimersByTimeAsync(0)
+		const gate = deferred<string>()
+		const saved = queries.runOptimistic(users, 'a', async (op, view$) => {
+			op.set(view$, 'tentative')
+			op.adopt(await gate.promise)
+		})
+		reader.dispose()
+		await vi.advanceTimersByTimeAsync(100)
+		expect(queries.getQueryData(users, 'a')).toBe('before')
+		gate.resolve('confirmed')
+		await saved
+		await vi.advanceTimersByTimeAsync(10)
+		expect(queries.getQueryData(users, 'a')).toBeUndefined()
+	})
+	it('cancels disposed actions and fences a late server receipt', async () => {
+		const users = defineQuery(['users'], (_id: string) => 'before')
+		const queries = client()
+		await queries.ensureData(users, 'a')
+		const gate = deferred<string>()
+		let signal!: AbortSignal
+		const saved = queries
+			.runOptimistic(users, 'a', async (op, view$, context) => {
+				signal = context.signal
+				op.set(view$, 'tentative')
+				op.adopt(await gate.promise)
+			})
+			.catch((error) => error)
+		await queries.dispose()
+		expect(signal.aborted).toBe(true)
+		expect(await saved).toMatchObject({ name: 'AbortError' })
+		gate.resolve('old account')
+		await settle()
+		expect(() => queries.getQueryData(users, 'a')).toThrow('disposed')
+	})
+})

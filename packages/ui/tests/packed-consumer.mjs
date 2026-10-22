@@ -390,6 +390,14 @@ typedQueries.setQueryData(typedUsers, '42', value => ({ ...value!, name: 123 }))
 typedQueries.setQueriesData(typedUsers, value => ({ ...value, name: 123 }))
 // @ts-expect-error definition's selection is a string
 typedQueries.setQueryData(typedUsers, 42, { id: '42', name: 'Grace' })
+void typedQueries.runOptimistic(typedUsers, '42', (operation, view$) => {
+  operation.set(view$, previous => ({ ...previous, name: 'Grace' }))
+  // @ts-expect-error tentative values must match the record
+  operation.set(view$, { id: '42', name: 123 })
+  // @ts-expect-error confirmed receipts must match the query result
+  operation.adopt({ id: '42', name: 123 })
+  operation.adopt({ id: '42', name: 'Grace' })
+})
 // @ts-expect-error the global default cache was removed
 import { cachedQuery$ } from '@octane-xplat/ui/data'
 void typedUser
