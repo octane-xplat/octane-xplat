@@ -75,6 +75,8 @@ export default defineConfig({
 		extensions: NATIVE_EXTS,
 	},
 	test: {
+		// Turbo runs package suites together; keep their worker pools bounded.
+		maxWorkers: 2,
 		include: ['src/**/*.mobile.test.{ts,tsx,tsrx}'],
 		environment: 'node',
 	},

@@ -6,6 +6,8 @@ import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import { join, resolve, sep } from 'node:path'
 
+// This integration check starts nine TypeScript compiler processes. Allow the
+// full platform sweep to finish on shared hosts while keeping every assertion.
 it('connects package-root registration to consumer destination types', async () => {
 	const root = fileURLToPath(new URL('../', import.meta.url))
 	const cache = join(root, 'node_modules/.cache')
@@ -859,4 +861,4 @@ navigation.push({ to: '/appkit/:id', params: { id: 'coat' }, transition: 'invent
 	} finally {
 		await rm(fixture, { recursive: true, force: true })
 	}
-}, 30_000)
+}, 120_000)
