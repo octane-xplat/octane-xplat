@@ -1,10 +1,20 @@
+// @vitest-environment jsdom
 import { createRequire } from 'node:module'
-import { resolve } from 'node:path'
+import { existsSync } from 'node:fs'
+import { dirname, join } from 'node:path'
 import { afterEach, beforeAll, expect, it, vi } from 'vitest'
 import { act, createRoot } from 'octane'
 
 // Resolve from the engine-owning package; UI itself does not depend on Lottie.
-const requireLottie = createRequire(resolve('../lottie/package.json'))
+let workspaceRoot = process.cwd()
+while (!existsSync(join(workspaceRoot, 'packages/lottie/package.json'))) {
+	const parent = dirname(workspaceRoot)
+	if (parent === workspaceRoot) {
+		throw new Error('Cannot locate the Lottie package in the framework workspace')
+	}
+	workspaceRoot = parent
+}
+const requireLottie = createRequire(join(workspaceRoot, 'packages/lottie/package.json'))
 const loadAnimation = vi.fn()
 let Lottie: typeof import('../../lottie/src/Lottie.web.tsrx')['Lottie']
 

@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { act, createRoot } from 'octane'
 import { expect, it } from 'vitest'
 import { LexicalEditor } from '../../lexical/src/LexicalEditor.web.tsrx'
