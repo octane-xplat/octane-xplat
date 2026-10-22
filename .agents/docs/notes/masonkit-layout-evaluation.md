@@ -1025,3 +1025,19 @@ Mason worktree at `tmp/mason-core-baseline/test-compiled-consumer-ios.log` and
 component and native-runtime evidence; notification dispatch does not establish
 OS hit-testing or touch scrolling. These debug builds do not establish release
 application-size savings.
+
+## Core extraction OS input qualification (2026-10-22)
+
+The compiled TSRX core consumer passes actual OS taps and touch scrolling on
+arm64 iOS 27 Simulator and an API 35 Android emulator. The iOS runner uses HID
+coordinate input through its own private idb companion socket; Android uses
+adb input after verifying the app has focus. Coordinates come from native view
+geometry. Neither mode synthesizes a handler notification or programmatic seek.
+
+Both targets update the hook-backed count and label width without replacing
+the label, then dispose effects and clear refs on unmount. A native row moves
+by the reported scroll offset: 137.3 points on iOS and 94.9 logical pixels on
+Android. These are OS-input and geometry assertions; no screenshots or visual
+analysis were used. Physical-device input remains unqualified. Reproduction
+targets are `test.consumer.ios.input` and
+`test.consumer.android.input.emulator` in the Mason fork.
