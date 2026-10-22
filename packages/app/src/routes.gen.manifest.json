@@ -7,6 +7,7 @@
 	"screens": [
 		"about",
 		"broken",
+		"cached-user",
 		"changelog",
 		"demo/:id",
 		"detail",
@@ -63,6 +64,28 @@
 			"guard": false,
 			"head": false,
 			"errorBoundary": true
+		},
+		{
+			"name": "cached-user",
+			"platforms": [
+				"web",
+				"ios",
+				"android",
+				"mobile",
+				"macos",
+				"windows",
+				"linux"
+			],
+			"path": "cached-user",
+			"params": [],
+			"layouts": [
+				""
+			],
+			"source": "src/app/cached-user.tsrx",
+			"loader": true,
+			"guard": false,
+			"head": false,
+			"errorBoundary": false
 		},
 		{
 			"name": "changelog",

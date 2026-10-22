@@ -6,6 +6,7 @@ export type RootContext = RouteRootContext<typeof import("./route-context.ts")["
 export interface FileRouteContracts {
 	"/about": FileRouteContract<"/about", typeof import("./app/about+modal.tsrx"), RootContext>
 	"/broken": FileRouteContract<"/broken", typeof import("./app/broken.tsrx"), RootContext>
+	"/cached-user": FileRouteContract<"/cached-user", typeof import("./app/cached-user.tsrx"), RootContext>
 	"/changelog": FileRouteContract<"/changelog", typeof import("./app/changelog.tsrx"), RootContext, RouteBakedLoaderData<typeof import("./app/changelog.loader.ts")>>
 	"/demo/:id": FileRouteContract<"/demo/:id", typeof import("./app/demo/[id].tsrx"), RootContext>
 	"/detail": FileRouteContract<"/detail", typeof import("./app/detail.tsrx"), RootContext>
@@ -20,6 +21,7 @@ export interface FileRouteContracts {
 export interface FileRouteAvailability {
 	"/about": "web" | "ios" | "android" | "mobile" | "macos" | "windows" | "linux"
 	"/broken": "web" | "ios" | "android" | "mobile" | "macos" | "windows" | "linux"
+	"/cached-user": "web" | "ios" | "android" | "mobile" | "macos" | "windows" | "linux"
 	"/changelog": "web" | "ios" | "android" | "mobile" | "macos" | "windows" | "linux"
 	"/demo/:id": "web" | "ios" | "android" | "mobile" | "macos" | "windows" | "linux"
 	"/detail": "web" | "ios" | "android" | "mobile" | "macos" | "windows" | "linux"
@@ -60,6 +62,10 @@ export type RouteExportChecks = [
 	CheckRouteExport<"validateSearch", typeof import("./app/broken.tsrx")["validateSearch"], import('@octane-xplat/ui/routing/core').RouteSearchValidationCheck<typeof import("./app/broken.tsrx")["validateSearch"]>>,
 	// broken.tsrx: ErrorBoundary
 	CheckRouteExport<"ErrorBoundary", typeof import("./app/broken.tsrx")["ErrorBoundary"]>,
+	// cached-user.tsrx: loader
+	CheckRouteExport<"loader", typeof import("./app/cached-user.tsrx")["loader"]>,
+	// cached-user.tsrx: validateSearch
+	CheckRouteExport<"validateSearch", typeof import("./app/cached-user.tsrx")["validateSearch"]>,
 	// detail.tsrx: beforeLoad
 	CheckRouteExport<"beforeLoad", typeof import("./app/detail.tsrx")["beforeLoad"]>,
 	// detail.tsrx: validateSearch
@@ -79,49 +85,53 @@ type Guard_0 = FileRouteGuardArgs<"/about", typeof import("./app/about+modal.tsr
 type Loader_0 = FileRouteLoaderArgs<"/about", typeof import("./app/about+modal.tsrx"), RootContext>
 type Guard_1 = FileRouteGuardArgs<"/broken", typeof import("./app/broken.tsrx"), RootContext>
 type Loader_1 = FileRouteLoaderArgs<"/broken", typeof import("./app/broken.tsrx"), RootContext>
-type Guard_2 = FileRouteGuardArgs<"/changelog", typeof import("./app/changelog.tsrx"), RootContext>
-type Loader_2 = FileRouteLoaderArgs<"/changelog", typeof import("./app/changelog.tsrx"), RootContext>
-type Guard_3 = FileRouteGuardArgs<"/demo/:id", typeof import("./app/demo/[id].tsrx"), RootContext>
-type Loader_3 = FileRouteLoaderArgs<"/demo/:id", typeof import("./app/demo/[id].tsrx"), RootContext>
-type Guard_4 = FileRouteGuardArgs<"/detail", typeof import("./app/detail.tsrx"), RootContext>
-type Loader_4 = FileRouteLoaderArgs<"/detail", typeof import("./app/detail.tsrx"), RootContext>
-type Guard_5 = FileRouteGuardArgs<"/list-nested-probe", typeof import("./app/list-nested-probe.android.tsrx"), RootContext>
-type Loader_5 = FileRouteLoaderArgs<"/list-nested-probe", typeof import("./app/list-nested-probe.android.tsrx"), RootContext>
-type Guard_6 = FileRouteGuardArgs<"/motion-probe", typeof import("./app/motion-probe.macos.tsrx"), RootContext>
-type Loader_6 = FileRouteLoaderArgs<"/motion-probe", typeof import("./app/motion-probe.macos.tsrx"), RootContext>
-type Guard_7 = FileRouteGuardArgs<"/navigation-blocking", typeof import("./app/navigation-blocking.tsrx"), RootContext>
-type Loader_7 = FileRouteLoaderArgs<"/navigation-blocking", typeof import("./app/navigation-blocking.tsrx"), RootContext>
-type Guard_9 = FileRouteGuardArgs<"/parity", typeof import("./app/parity.macos.tsrx"), RootContext>
-type Loader_9 = FileRouteLoaderArgs<"/parity", typeof import("./app/parity.macos.tsrx"), RootContext>
-type Guard_10 = FileRouteGuardArgs<"/private", typeof import("./app/private.tsrx"), RootContext>
-type Loader_10 = FileRouteLoaderArgs<"/private", typeof import("./app/private.tsrx"), RootContext>
-type Guard_11 = FileRouteGuardArgs<"/qa", typeof import("./app/qa.tsrx"), RootContext>
-type Loader_11 = FileRouteLoaderArgs<"/qa", typeof import("./app/qa.tsrx"), RootContext>
+type Guard_2 = FileRouteGuardArgs<"/cached-user", typeof import("./app/cached-user.tsrx"), RootContext>
+type Loader_2 = FileRouteLoaderArgs<"/cached-user", typeof import("./app/cached-user.tsrx"), RootContext>
+type Guard_3 = FileRouteGuardArgs<"/changelog", typeof import("./app/changelog.tsrx"), RootContext>
+type Loader_3 = FileRouteLoaderArgs<"/changelog", typeof import("./app/changelog.tsrx"), RootContext>
+type Guard_4 = FileRouteGuardArgs<"/demo/:id", typeof import("./app/demo/[id].tsrx"), RootContext>
+type Loader_4 = FileRouteLoaderArgs<"/demo/:id", typeof import("./app/demo/[id].tsrx"), RootContext>
+type Guard_5 = FileRouteGuardArgs<"/detail", typeof import("./app/detail.tsrx"), RootContext>
+type Loader_5 = FileRouteLoaderArgs<"/detail", typeof import("./app/detail.tsrx"), RootContext>
+type Guard_6 = FileRouteGuardArgs<"/list-nested-probe", typeof import("./app/list-nested-probe.android.tsrx"), RootContext>
+type Loader_6 = FileRouteLoaderArgs<"/list-nested-probe", typeof import("./app/list-nested-probe.android.tsrx"), RootContext>
+type Guard_7 = FileRouteGuardArgs<"/motion-probe", typeof import("./app/motion-probe.macos.tsrx"), RootContext>
+type Loader_7 = FileRouteLoaderArgs<"/motion-probe", typeof import("./app/motion-probe.macos.tsrx"), RootContext>
+type Guard_8 = FileRouteGuardArgs<"/navigation-blocking", typeof import("./app/navigation-blocking.tsrx"), RootContext>
+type Loader_8 = FileRouteLoaderArgs<"/navigation-blocking", typeof import("./app/navigation-blocking.tsrx"), RootContext>
+type Guard_10 = FileRouteGuardArgs<"/parity", typeof import("./app/parity.macos.tsrx"), RootContext>
+type Loader_10 = FileRouteLoaderArgs<"/parity", typeof import("./app/parity.macos.tsrx"), RootContext>
+type Guard_11 = FileRouteGuardArgs<"/private", typeof import("./app/private.tsrx"), RootContext>
+type Loader_11 = FileRouteLoaderArgs<"/private", typeof import("./app/private.tsrx"), RootContext>
+type Guard_12 = FileRouteGuardArgs<"/qa", typeof import("./app/qa.tsrx"), RootContext>
+type Loader_12 = FileRouteLoaderArgs<"/qa", typeof import("./app/qa.tsrx"), RootContext>
 export interface RouteGuardInputs {
 	"/about": Guard_0
 	"/broken": Guard_1
-	"/changelog": Guard_2
-	"/demo/:id": Guard_3
-	"/detail": Guard_4
-	"/list-nested-probe": Guard_5
-	"/motion-probe": Guard_6
-	"/navigation-blocking": Guard_7
-	"/parity": Guard_9
-	"/private": Guard_10
-	"/qa": Guard_11
+	"/cached-user": Guard_2
+	"/changelog": Guard_3
+	"/demo/:id": Guard_4
+	"/detail": Guard_5
+	"/list-nested-probe": Guard_6
+	"/motion-probe": Guard_7
+	"/navigation-blocking": Guard_8
+	"/parity": Guard_10
+	"/private": Guard_11
+	"/qa": Guard_12
 }
 export interface RouteLoaderInputs {
 	"/about": Loader_0
 	"/broken": Loader_1
-	"/changelog": Loader_2
-	"/demo/:id": Loader_3
-	"/detail": Loader_4
-	"/list-nested-probe": Loader_5
-	"/motion-probe": Loader_6
-	"/navigation-blocking": Loader_7
-	"/parity": Loader_9
-	"/private": Loader_10
-	"/qa": Loader_11
+	"/cached-user": Loader_2
+	"/changelog": Loader_3
+	"/demo/:id": Loader_4
+	"/detail": Loader_5
+	"/list-nested-probe": Loader_6
+	"/motion-probe": Loader_7
+	"/navigation-blocking": Loader_8
+	"/parity": Loader_10
+	"/private": Loader_11
+	"/qa": Loader_12
 }
 
 export type RouteGuardArgs<Path extends keyof RouteGuardInputs> = RouteGuardInputs[Path]
@@ -130,6 +140,7 @@ export type RouteLoaderArgs<Path extends keyof RouteLoaderInputs> = RouteLoaderI
 export type RouteName =
 	| 'about'
 	| 'broken'
+	| 'cached-user'
 	| 'changelog'
 	| 'demo/:id'
 	| 'detail'
@@ -144,6 +155,7 @@ export type RouteName =
 export interface RouteParams {
 	'about': {  }
 	'broken': {  }
+	'cached-user': {  }
 	'changelog': {  }
 	'demo/:id': { id: string }
 	'detail': {  }

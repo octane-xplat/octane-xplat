@@ -122,6 +122,17 @@ export interface QueryDisposeOptions {
 /** A complete confirmed value, or a pure immutable update from the current value. */
 export type QueryUpdater<T> = T | ((previous: T | undefined) => T)
 
+/** Cancellation belongs to the caller's lease, not the shared transport. */
+export interface QueryOperationOptions {
+	readonly signal?: AbortSignal
+}
+
+/** Prefetch always settles with an explicit outcome; ensureData returns data or rejects. */
+export type QueryPrefetchResult =
+	| { readonly status: 'success' }
+	| { readonly status: 'error'; readonly error: unknown }
+	| { readonly status: 'cancelled' }
+
 /** An app/account/request cache. Dispose it at that boundary's end. */
 export interface QueryClient {
 	/** Acquire outside rendering; components use useQuery$ for commit-time ownership. */
@@ -129,6 +140,18 @@ export interface QueryClient {
 		definition: QueryDefinition<A, T>,
 		selection: A,
 	): QueryReader<T>
+	/** Return fresh data through the shared scheduler without a component owner. */
+	ensureData<A extends QueryKeyPart, T>(
+		definition: QueryDefinition<A, T>,
+		selection: A,
+		options?: QueryOperationOptions,
+	): Promise<T>
+	/** Warm the same entry as readers; errors are returned rather than rejected. */
+	prefetch<A extends QueryKeyPart, T>(
+		definition: QueryDefinition<A, T>,
+		selection: A,
+		options?: QueryOperationOptions,
+	): Promise<QueryPrefetchResult>
 	/** Read confirmed authority without creating an entry or fetching. */
 	getQueryData<A extends QueryKeyPart, T>(
 		definition: QueryDefinition<A, T>,
@@ -848,6 +871,42 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 		entries.set(key, entry as unknown as Entry)
 		return entry
 	}
+	async function ensureData<A extends QueryKeyPart, T>(
+		definition: QueryDefinition<A, T>,
+		selection: A,
+		operation: QueryOperationOptions = {},
+	): Promise<T> {
+		if (operation.signal?.aborted) {
+			throw cancellation()
+		}
+		const entry = entryFor$(definition, selection)
+		clearTimeout(entry.gcTimer)
+		entry.leases++
+		let removeAbort = () => {}
+		try {
+			attach()
+			const request = load(entry)
+			if (!operation.signal) {
+				return await request
+			}
+
+			const signal = operation.signal
+			const cancelled = new Promise<never>((_, reject) => {
+				const abort = () => reject(cancellation())
+				signal.addEventListener('abort', abort, { once: true })
+				removeAbort = () => signal.removeEventListener('abort', abort)
+				if (signal.aborted) {
+					abort()
+				}
+			})
+
+			return await Promise.race([request, cancelled])
+		} finally {
+			removeAbort()
+			release(entry)
+		}
+	}
+
 	function existingFor$<A extends QueryKeyPart, T>(
 		definition: QueryDefinition<A, T>,
 		selection: A,
@@ -961,6 +1020,18 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 				},
 			}
 		},
+		ensureData,
+		async prefetch(definition, selection, operation) {
+			try {
+				await ensureData(definition, selection, operation)
+				return { status: 'success' as const }
+			} catch (error) {
+				return (error as { name?: unknown } | null)?.name === 'AbortError'
+					? { status: 'cancelled' as const }
+					: { status: 'error' as const, error }
+			}
+		},
+
 		getQueryData(definition, selection) {
 			const entry = existingFor$(definition, selection)
 			return entry?.value$.latest()

@@ -5,10 +5,10 @@ selects native signal authority. Remaining steps are not yet shipped; desktop
 qualification has a verified host prerequisite.
 
 
-Delivered: steps 1–6 (engine, ownership, retention, scheduling, lifecycle, confirmed writes). The new
+Delivered: steps 1–7 (engine, ownership, retention, scheduling, lifecycle, writes, prefetch). The new
 public surface is `defineQuery`, `useQuery$`, and explicit client `observe$`;
-component acquisition occurs after commit. Thirty-five cache unit regressions and
-six universal object-driver regressions pass. Collection includes a 1,000-key
+component acquisition occurs after commit. Forty cache unit regressions and
+seven universal object-driver regressions pass. Collection includes a 1,000-key
 trace, final-lease cancellation, and namespaced durable purge after collection. UI and dependent typechecks
 (53 tasks), docs build, barrel checks, and recipe link checks pass. These are
 host/source checks; composed device qualification remains step 12.
@@ -20,7 +20,9 @@ remain part of final qualification.
 Typed write negatives and result inference pass through packed web/native/macOS
 consumers in Bundler and NodeNext resolution.
 
-Steps 7–12 remain in progress; prefetch, shared optimistic helpers, cached pagination and inspection
+The maintained prepared-user route and 54-task UI/app dependent typecheck pass.
+
+Steps 8–12 remain in progress; shared optimistic helpers, cached pagination and inspection
 are not yet available at this checkpoint.
 
 Make the official cache the easiest reliable choice for an Octane Xplat app

@@ -755,6 +755,43 @@ export function reloadUser(id: string) {
 }
 ```
 
+### Preparing the next screen
+
+Use `ensureData` in navigation preparation when opening the screen needs the
+record. It returns fresh data or rejects, sharing any request already needed
+by a screen. Choose a freshness window so a screen mounting after preparation
+reuses the result. The maintained [prepared-user route](../../packages/app/src/app/cached-user.tsrx)
+uses the same definition in its loader and screen.
+
+```ts
+// packages/app/src/app/cached-user.tsrx — loader beside the maintained screen.
+import { demoQueries, demoUsers } from '../shared-query-data'
+import type { RouteLoaderArgs } from '../routes.gen.contracts'
+
+export function loader({ search }: RouteLoaderArgs<'/cached-user'>) {
+	return demoQueries.ensureData(demoUsers, search.id)
+}
+```
+
+For an optional navigation hint, `prefetch` warms the entry and returns an
+explicit success, error, or cancellation result. It does not reject on loader
+failure. Pass a caller's abort signal when that navigation intent can end;
+cancelling it leaves another reader's shared request running. Successful
+operations release their temporary leases into normal inactive collection.
+
+```ts
+import { queries, users } from './queries'
+
+export async function prepareUserHint(id: string, signal: AbortSignal) {
+	const result = await queries.prefetch(users, id, { signal })
+	if (result.status === 'error') return 'Could not prepare user'
+	return result.status === 'cancelled' ? 'Preparation cancelled' : 'User ready'
+}
+export async function requireUser(id: string, signal: AbortSignal) {
+	return queries.ensureData(users, id, { signal })
+}
+```
+
 ### Account and request lifetimes
 
 Create a different client for each signed-in account or server request. There

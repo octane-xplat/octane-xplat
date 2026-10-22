@@ -580,6 +580,8 @@ export function loader({ params, search }: RouteLoaderArgs<'/items/:id'>) {
 }
 ```
 
+For shared server records, see [preparing the next screen](data.md#preparing-the-next-screen).
+
 Read one route's inferred contract with `getRouteApi`. These hooks read the
 rendering entry, so a hidden retained screen keeps its own parameters and data.
 An accessor throws if used outside its matching route.

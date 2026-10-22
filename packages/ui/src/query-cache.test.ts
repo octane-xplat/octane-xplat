@@ -776,3 +776,98 @@ describe('typed confirmed cache updates', () => {
 		expect(() => queries.setQueryData(users, 'a', 'private')).toThrow('disposed')
 	})
 })
+
+describe('operations outside component lifetimes', () => {
+	it('prefetch and a mounted reader share one pending request', async () => {
+		const gate = deferred<string>()
+		let calls = 0
+		const users = defineQuery(
+			['users'],
+			(_id: string) => {
+				calls++
+				return gate.promise
+			},
+			{ staleTimeMs: 10000 },
+		)
+		const queries = client()
+		const prefetched = queries.prefetch(users, 'a')
+		const reader = queries.observe$(users, 'a')
+		await settle()
+		expect(calls).toBe(1)
+		gate.resolve('ready')
+		await expect(prefetched).resolves.toEqual({ status: 'success' })
+		await settle()
+		expect(reader.data$.get()).toBe('ready')
+		await expect(queries.ensureData(users, 'a')).resolves.toBe('ready')
+		expect(calls).toBe(1)
+	})
+	it('reports prefetch failure and can recover through ensureData', async () => {
+		let calls = 0
+		const users = defineQuery(
+			['users'],
+			(_id: string) => {
+				if (++calls === 1) {
+					throw new Error('temporary')
+				}
+				return 'recovered'
+			},
+			{ retryCount: 0 },
+		)
+		const queries = client()
+		expect(await queries.prefetch(users, 'a')).toMatchObject({
+			status: 'error',
+			error: { message: 'temporary' },
+		})
+		await expect(queries.ensureData(users, 'a')).resolves.toBe('recovered')
+	})
+	it('cancels one operation without aborting another reader', async () => {
+		const gate = deferred<string>()
+		let sharedSignal!: AbortSignal
+		const users = defineQuery(['users'], (_id: string, { signal }) => {
+			sharedSignal = signal
+			return gate.promise
+		})
+		const queries = client()
+		const controller = new AbortController()
+		const operation = queries
+			.ensureData(users, 'a', { signal: controller.signal })
+			.catch((error) => error)
+		const reader = queries.observe$(users, 'a')
+		await settle()
+		controller.abort()
+		expect(await operation).toMatchObject({ name: 'AbortError' })
+		expect(sharedSignal.aborted).toBe(false)
+		gate.resolve('still needed')
+		await settle()
+		expect(reader.data$.get()).toBe('still needed')
+	})
+	it('aborts the transport after its final operation and ignores its late result', async () => {
+		const gate = deferred<string>()
+		let sharedSignal!: AbortSignal
+		const users = defineQuery(['users'], (_id: string, { signal }) => {
+			sharedSignal = signal
+			return gate.promise
+		})
+		const queries = client()
+		const controller = new AbortController()
+		const operation = queries.prefetch(users, 'a', { signal: controller.signal })
+		await settle()
+		controller.abort()
+		await expect(operation).resolves.toEqual({ status: 'cancelled' })
+		expect(sharedSignal.aborted).toBe(true)
+		gate.resolve('obsolete')
+		await settle()
+		expect(queries.getQueryData(users, 'a')).toBeUndefined()
+	})
+	it('releases successful operations into normal collection', async () => {
+		vi.useFakeTimers()
+		const users = defineQuery(['users'], (id: string) => id, {
+			gcTimeMs: 100,
+			staleTimeMs: Infinity,
+		})
+		const queries = client()
+		await expect(queries.ensureData(users, 'a')).resolves.toBe('a')
+		await vi.advanceTimersByTimeAsync(100)
+		expect(queries.getQueryData(users, 'a')).toBeUndefined()
+	})
+})

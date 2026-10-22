@@ -37,6 +37,8 @@ export { platformQueryStorage } from '../query-storage.web'
 export type {
 	QueryEnvironment,
 	QueryEnvironmentSnapshot,
+	QueryOperationOptions,
+	QueryPrefetchResult,
 	QueryUpdater,
 	QueryDefinition,
 	QueryClient,

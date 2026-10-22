@@ -137,4 +137,23 @@ describe('shared query readers on universal roots', () => {
 		expect(b.text()).toEqual(['same:ready:saved:idle'])
 		expect(f.calls).toHaveLength(1)
 	})
+	it('reuses navigation preparation when its screen mounts', async () => {
+		const client = createQueryClient()
+		clients.push(client)
+		let calls = 0
+		const definition = defineQuery(
+			['profile'],
+			(id: string) => {
+				calls++
+				return id
+			},
+			{ staleTimeMs: 10000 },
+		)
+		// A route loader or navigation-intent handler calls this before mounting.
+		await client.ensureData(definition, 'prepared')
+		const screen = mount(InstanceProfile, { client, definition, id: 'prepared' })
+		await settle()
+		expect(screen.text()).toEqual(['prepared:ready:prepared:idle'])
+		expect(calls).toBe(1)
+	})
 })
