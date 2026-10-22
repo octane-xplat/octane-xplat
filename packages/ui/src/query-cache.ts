@@ -233,7 +233,7 @@ export interface QueryClient {
 	invalidateQueries(filter?: QueryFilter): void
 	/** Retires matching readers. Collection alone does not delete durable data. */
 	evictQueries(filter?: QueryFilter, options?: QueryDisposeOptions): Promise<void>
-	/** Retires signals and aborts work synchronously; returns durable purge completion. */
+	/** Retires signals and aborts work synchronously; drains queued confirmed writes, then optional durable purge. */
 	dispose(options?: QueryDisposeOptions): Promise<void>
 }
 
@@ -457,17 +457,14 @@ function writePersisted<T>(entry: Entry<T>): void {
 		})
 
 		void storageOperation(target.namespace, async () => {
-			if (entry.retired) {
-				return
-			}
+			// This confirmed snapshot was queued before retirement. Namespace ordering
+			// lets ordinary disposal drain it and sign-out purge remove it afterwards.
 			const keys = await persistedKeys(target.namespace)
 			if (!keys.includes(target.key)) {
 				keys.push(target.key)
 				await target.storage.set(target.namespace.key, JSON.stringify(keys))
 			}
-			if (!entry.retired) {
-				await storageOperation(target, () => target.storage.set(target.key, record))
-			}
+			await storageOperation(target, () => target.storage.set(target.key, record))
 		}).catch(() => {})
 	} catch {
 		/* Storage is best-effort; a non-JSON value remains usable in memory. */
@@ -547,6 +544,8 @@ async function restore<T>(entry: Entry<T>): Promise<void> {
 	}
 	const revision = entry.revision
 	try {
+		// A replacement client must not read ahead of confirmed namespace writes.
+		await storageTails.get(target.storage)?.get(target.namespace.key)
 		const raw = await storageOperation(target, () => target.storage.get(target.key))
 		if (entry.retired || entry.revision !== revision || raw == null) {
 			return
@@ -1498,10 +1497,10 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 			definitions.clear()
 			emit('dispose')
 			listeners.clear()
-			const purges = disposal.purgePersisted
-				? [...persistence.values()].map((target) => purgeNamespace(target))
-				: []
-			return Promise.allSettled(purges).then((results) => {
+			const storageCompletions = [...persistence.values()].map((target) =>
+				disposal.purgePersisted ? purgeNamespace(target) : storageOperation(target, () => {}),
+			)
+			return Promise.allSettled(storageCompletions).then((results) => {
 				for (const result of results) {
 					if (result.status === 'rejected') {
 						failures.push(result.reason)

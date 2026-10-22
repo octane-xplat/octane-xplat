@@ -1272,3 +1272,49 @@ describe('cached cursor pagination', () => {
 		expect(queries.getQueryData(feed, 'a')?.pages[0]?.items).toEqual([10])
 	})
 })
+
+describe('confirmed persistence at client replacement', () => {
+	it('drains queued confirmed writes before a replacement client restores either record', async () => {
+		const storage = createMemoryQueryStorage()
+		let loads = 0
+		const detail = defineQuery(['replacement-detail'], (_id: string) => ++loads, {
+			staleTimeMs: Infinity,
+			persist: { storage, version: 1 },
+		})
+		const feed = defineQuery(['replacement-feed'], (_id: string) => ++loads, {
+			staleTimeMs: Infinity,
+			persist: { storage, version: 1 },
+		})
+		const first = client('replacement')
+		await Promise.all([first.ensureData(detail, 'a'), first.ensureData(feed, 'all')])
+		first.setQueryData(detail, 'a', 10)
+		first.setQueriesData(feed, () => 20)
+		const closed = first.dispose()
+		const next = client('replacement')
+		expect(await next.ensureData(detail, 'a')).toBe(10)
+		expect(await next.ensureData(feed, 'all')).toBe(20)
+		await closed
+		expect(loads).toBe(2)
+	})
+	it('purges confirmed writes queued before sign-out without resurrecting their namespace', async () => {
+		const records = new Map<string, string>()
+		const storage: QueryStorageAdapter = {
+			get: (key) => records.get(key),
+			set: (key, value) => {
+				records.set(key, value)
+			},
+			remove: (key) => {
+				records.delete(key)
+			},
+		}
+		const record = defineQuery(['sign-out'], (_id: string) => 'network', {
+			persist: { storage, version: 1 },
+		})
+		const first = client('old-account')
+		first.setQueryData(record, 'a', 'confirmed')
+		first.setQueryData(record, 'b', 'also confirmed')
+		await first.dispose({ purgePersisted: true })
+		expect(records.size).toBe(0)
+		expect(await client('new-account').ensureData(record, 'a')).toBe('network')
+	})
+})
