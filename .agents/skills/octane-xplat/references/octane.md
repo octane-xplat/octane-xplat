@@ -238,6 +238,40 @@ import { useEffect, useState } from 'octane' // Named imports: accepted.
 // import * as Octane from 'octane'          // Rejected on native targets.
 ```
 
+## Native JSX belongs inside components
+
+The universal compiler only lowers JSX inside a component it recognizes: a
+top-level function declaration, or a top-level `const`/`let` with one declarator
+initialized by an arrow, a function expression, or `memo(...)`. Inside such a
+component, JSX may go anywhere, including local values, render-prop callbacks,
+helper functions, and nested component declarations.
+
+JSX anywhere else in the module fails the native build with
+`JSX in an unsupported module declaration requires universal plan lowering and cannot fall back to DOM codegen.`
+The web build accepts the same code, so the error first appears on native. The
+rejected positions include:
+
+- render arrows inside module-level objects or arrays
+- render callbacks passed to module-level calls, such as `register('home', () => <Text />)`
+- module-level JSX values, such as `const empty = <Text />`
+- factories that declare and return a component
+- a component declaration that shares its `const` with other declarators
+
+Upstream rejects unlowered JSX on purpose rather than falling back to DOM code.
+It has not said whether these positions will ever be supported. Declare a named
+component and reference it instead:
+
+```tsrx
+import { Text } from '@octane-xplat/ui'
+
+function HomeTab() {
+  return <Text>Home</Text>
+}
+
+// `render: () => <Text>Home</Text>` here would fail the native build.
+export const tabs = [{ id: 'home', render: HomeTab }] as const
+```
+
 ## Universal roots take compiled components
 
 This matters for host and harness code, not app screens. A universal root, such
