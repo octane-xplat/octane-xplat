@@ -367,7 +367,7 @@ void keyboard
 	// subpath and must no longer resolve at the package root.
 	source += `
 import { router as subpathRouter, useRouter, getRouteApi, type RouteManifest } from '@octane-xplat/ui/routing'
-import { useListData, useAsyncList, defineQuery, defineCursorQuery, createQueryClient, useQuery$, type Selection, type QueryOptions } from '@octane-xplat/ui/data'
+import { useListData, useAsyncList, defineQuery, defineCursorQuery, createQueryClient, useQuery$, type Selection, type QueryOptions, type QueryLoadContext } from '@octane-xplat/ui/data'
 import { inspectQueryClient, registerQueryInspection } from '@octane-xplat/ui/data/dev'
 import { Markdown, parseMdDoc, tokenize, type MdDoc, type MarkdownProps, type TokenLine } from '@octane-xplat/ui/markdown'
 import { ChatMessage, ChatComposer, useChatComposerContext, type ChatMessageProps } from '@octane-xplat/ui/chat'
@@ -391,6 +391,18 @@ void createQueryClient().ensureData(typedFeed, 'all').then(data => {
   const wrongId: number = data.pages[0]!.items[0]!.id
   void [firstId, wrongId]
 })
+const typedWithAuthority = defineQuery(['authority-inference'], async (id: string, { signal }) => {
+  void signal
+  return { id, revision: 1 }
+}, { compareAuthority: (incoming, current) => incoming.revision - current.revision })
+void createQueryClient().ensureData(typedWithAuthority, '1').then(value => {
+  const revision: number = value.revision
+  void revision
+})
+const typedPrevious = defineQuery(['previous-inference'], async (id: string, { previous }: QueryLoadContext<{ id: string; revision: number }>): Promise<{ id: string; revision: number }> => ({
+  id, revision: (previous?.revision ?? 0) + 1,
+}), { compareAuthority: (incoming, current) => incoming.revision - current.revision })
+void typedPrevious
 const typedQueries = createQueryClient()
 const typedInspector = inspectQueryClient(typedQueries, { eventLimit: 10, labels: [{ definition: typedFeed, label: 'feed' }] })
 const clientStatus: 'live' | 'disposed' = typedInspector.snapshot().status

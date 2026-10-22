@@ -238,6 +238,9 @@ export interface QueryClient {
 }
 
 /**
+ * The signal-only overload preserves inference for inline loaders and policies.
+ * When reading previous data, annotate the loader context with QueryLoadContext<T>
+ * so TypeScript does not have to infer a result from its own previous value.
  * Declare one family once, outside rendering. Two different definitions with the
  * same family in one client are rejected instead of silently choosing a loader.
  * @example
@@ -248,6 +251,16 @@ export interface QueryClient {
  *   return response.json() as Promise<{ name: string }>
  * })
  */
+export function defineQuery<A extends QueryKeyPart, T>(
+	key: QueryKey,
+	load: (selection: A, context: Pick<QueryLoadContext<unknown>, 'signal'>) => T | PromiseLike<T>,
+	options?: QueryOptions<NoInfer<T>>,
+): QueryDefinition<A, T>
+export function defineQuery<A extends QueryKeyPart, T>(
+	key: QueryKey,
+	load: (selection: A, context: QueryLoadContext<T>) => T | PromiseLike<T>,
+	options?: QueryOptions<NoInfer<T>>,
+): QueryDefinition<A, T>
 export function defineQuery<A extends QueryKeyPart, T>(
 	key: QueryKey,
 	load: (selection: A, context: QueryLoadContext<T>) => T | PromiseLike<T>,

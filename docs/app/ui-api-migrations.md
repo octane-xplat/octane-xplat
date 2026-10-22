@@ -165,3 +165,20 @@ const sidebar = useResizable({
 	maxSize: percent(50, { max: pixel(480) }),
 })
 ```
+
+## Loader result inference
+
+Inline loaders that use only cancellation now retain result inference when
+policy callbacks, such as `compareAuthority`, also read the result. When the
+loader reads its own previous data, annotate that context to avoid recursive
+TypeScript inference.
+
+```ts
+import { defineQuery, type QueryLoadContext } from '@octane-xplat/ui/data'
+type User = { name: string; revision: number }
+const users = defineQuery(['users'], async (id: string, { signal, previous }: QueryLoadContext<User>) => {
+	const response = await fetch(`https://api.example.com/users/${encodeURIComponent(id)}`, { signal })
+	if (!response.ok) throw new Error('Could not load user')
+	return response.json() as Promise<User>
+}, { compareAuthority: (incoming, current) => incoming.revision - current.revision })
+```
