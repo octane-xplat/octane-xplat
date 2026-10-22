@@ -94,6 +94,17 @@ pnpm exec xplat routes --help
 pnpm exec xplat add --help
 ```
 
+Run platform additions from the intended app directory. In a monorepo, `add`
+fills missing catalogs and patch configuration in the nearest enclosing pnpm
+workspace while preserving existing settings. Review that shared file along
+with the app changes; keep the app in its owning workspace.
+
+```sh
+pnpm exec xplat add ios --no-install
+git diff
+pnpm install
+```
+
 For setup/build/package tasks, follow [getting started](getting-started.md) and
 [toolchain](toolchain.md). For tests, use [testing](testing.md); do not invent an
 `xplat test` command. Workshop, patches, fonts, and updates are discoverable

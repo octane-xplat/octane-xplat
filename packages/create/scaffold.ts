@@ -252,35 +252,6 @@ const PATCH_ENTRY = /^\s+"?(@?[\w./-]+@[\w.-]+)"?:\s+\S+\s*$/
 
 const patchPkg = (key) => key.replace(/@[^@]+$/, '')
 
-// Split a pnpm-workspace.yaml into per-package patch blocks (leading comment
-// lines included) so compose can drop entries and apply can transplant them.
-function parsePatchEntries(lines) {
-	const entries: any[] = []
-	let inPatches = false
-	let pending: string[] = []
-	for (const line of lines) {
-		if (/^\S/.test(line)) {
-			inPatches = line.startsWith('patchedDependencies')
-			pending = []
-			continue
-		}
-
-		if (!inPatches) {
-			continue
-		}
-
-		const m = line.match(PATCH_ENTRY)
-		if (m) {
-			entries.push({ name: patchPkg(m[1]), comments: pending, line })
-			pending = []
-		} else {
-			pending.push(line)
-		}
-	}
-
-	return entries
-}
-
 /** The pnpm-workspace.yaml a given target set produces. */
 export function composeWorkspaceYaml(ids) {
 	const resolved = new Set(resolveTargets(ids))
@@ -341,7 +312,7 @@ export function composeWorkspaceYaml(ids) {
 }
 
 /**
- * Add the patch entries that `enabledIds` owns to the app's
+ * Add the patch entries that `enabledIds` owns to the owning workspace's
  * pnpm-workspace.yaml. Entries already present (by package name, any
  * version) are kept. Returns true if the file changed.
  */
@@ -357,45 +328,57 @@ function ensurePatchEntries(appRoot, enabledIds) {
 		return false
 	}
 
-	const yamlPath = join(appRoot, 'pnpm-workspace.yaml')
-	const appText = existsSync(yamlPath) ? readFileSync(yamlPath, 'utf8') : ''
-	const present = new Set(parsePatchEntries(appText.split('\n')).map((e) => e.name))
-	const missing = [...needed].filter((name) => !present.has(name))
-	if (!missing.length) {
-		return false
+	// Match catalog ownership: adding a target must not split an existing
+	// monorepo into a new, nested workspace.
+	let workspace = resolve(appRoot)
+	while (!existsSync(join(workspace, 'pnpm-workspace.yaml')) && dirname(workspace) !== workspace) {
+		workspace = dirname(workspace)
 	}
-
-	const tplText = readFileSync(join(TEMPLATE_DIR, 'pnpm-workspace.yaml'), 'utf8')
-	const blocks = parsePatchEntries(tplText.split('\n'))
-		.filter((e) => missing.includes(e.name))
-		.map((e) => [...e.comments, e.line].join('\n'))
-
+	if (!existsSync(join(workspace, 'pnpm-workspace.yaml'))) {
+		workspace = appRoot
+	}
+	const yamlPath = join(workspace, 'pnpm-workspace.yaml')
+	const appText = existsSync(yamlPath) ? readFileSync(yamlPath, 'utf8') : ''
 	if (!appText.trim()) {
 		writeFileSync(yamlPath, composeWorkspaceYaml(enabledIds))
 		return true
 	}
 
-	let next = appText
-	const lines = next.split('\n')
-	const sectionStart = lines.findIndex((l) => l.startsWith('patchedDependencies'))
-	if (sectionStart === -1) {
-		next = `${appText.trimEnd()}\npatchedDependencies:\n${blocks.join('\n')}\n`
-	} else {
-		// Insert before the next top-level key (or at EOF).
-		let insertAt = lines.length
-		for (let i = sectionStart + 1; i < lines.length; i++) {
-			if (/^\S/.test(lines[i])) {
-				insertAt = i
-				break
-			}
+	const doc = parseDocument(appText)
+	if (doc.errors.length) {
+		throw new Error(`${yamlPath}: ${doc.errors[0].message}`)
+	}
+	const present = new Set(Object.keys(doc.toJS()?.patchedDependencies ?? {}).map(patchPkg))
+	const template = parseDocument(
+		readFileSync(join(TEMPLATE_DIR, 'pnpm-workspace.yaml'), 'utf8'),
+	).toJS()
+	let changed = false
+	for (const [key, path] of Object.entries(template.patchedDependencies)) {
+		const name = patchPkg(key)
+		if (needed.has(name) && !present.has(name)) {
+			doc.setIn(['patchedDependencies', key], path)
+			changed = true
 		}
-
-		lines.splice(insertAt, 0, ...blocks.join('\n').split('\n'))
-		next = lines.join('\n')
 	}
 
-	writeFileSync(yamlPath, next.endsWith('\n') ? next : next + '\n')
-	return true
+	// Template paths are relative to the owning workspace. pnpm installs the
+	// config package there before resolving its patch files on the first install.
+	for (const [name, spec] of Object.entries(template.configDependencies)) {
+		const prefix = `node_modules/.pnpm-config/${name}/`
+		const usesPackage = Object.values(doc.toJS()?.patchedDependencies ?? {}).some(
+			(path) => typeof path === 'string' && path.startsWith(prefix),
+		)
+
+		if (usesPackage && !doc.hasIn(['configDependencies', name])) {
+			doc.setIn(['configDependencies', name], spec)
+			changed = true
+		}
+	}
+
+	if (changed) {
+		writeFileSync(yamlPath, String(doc))
+	}
+	return changed
 }
 
 /**

@@ -89,10 +89,22 @@ pnpm test:ios -- --device DEVICE_UDID
 pnpm test:android -- --device DEVICE_SERIAL
 ```
 
-Adding a platform later includes its test setup:
+Adding a platform later includes its test setup. Inside a pnpm workspace (several
+packages sharing one install), the command adds missing version pins and patch
+settings to the nearest enclosing `pnpm-workspace.yaml`. Existing settings stay
+intact, and the app stays in that workspace:
 
 ```sh
 pnpm xplat add ios
+```
+
+To review the file and workspace changes before installing dependencies, run
+these commands from the app directory:
+
+```sh
+pnpm xplat add ios --no-install
+git diff
+pnpm install
 ```
 
 Existing files, dependency specifications, and scripts are preserved. Review

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, unlinkSync, writeFileSync } from 'node:fs'
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -144,16 +144,23 @@ test('clean removes generated app platforms and caches while preserving authored
 	assert.equal(readFileSync(join(root, 'platforms/macos/main.swift'), 'utf8'), 'authored source')
 })
 
-test('add ios updates the enclosing workspace catalog and patch configuration', {
-	todo: 'Known audit bug: add creates a nested workspace instead of updating the owning workspace',
-}, (t) => {
+test('add ios updates the enclosing workspace catalog and patch configuration', (t) => {
 	const root = project(t)
 	const app = join(root, 'apps/web')
 	composeTargets(['web'], app)
 	write(root, 'package.json', JSON.stringify({ name: 'workspace-fixture', private: true }))
 	const workspaceFile = join(root, 'pnpm-workspace.yaml')
 	const original = parse(readFileSync(join(app, 'pnpm-workspace.yaml'), 'utf8'))
-	writeFileSync(workspaceFile, stringify({ packages: ['apps/*'], ...original }))
+	original.catalogs.xplat.vite = '8.0.0'
+	original.catalogs.custom = { example: '1.2.3' }
+	original.overrides.example = '2.0.0'
+	original.configDependencies['custom-config'] = '1.0.0'
+	original.patchedDependencies['example@2.0.0'] = 'patches/example.patch'
+	write(root, 'patches/example.patch', 'custom patch')
+	writeFileSync(
+		workspaceFile,
+		'# Keep workspace policy\n' + stringify({ packages: ['apps/*'], ...original }),
+	)
 	unlinkSync(join(app, 'pnpm-workspace.yaml'))
 
 	const result = run(app, ['add', 'ios', '--no-install'])
@@ -169,6 +176,76 @@ test('add ios updates the enclosing workspace catalog and patch configuration', 
 			}
 		}
 	}
-	assert.ok(Object.keys(workspace.patchedDependencies).some((key) => key.startsWith('@nativescript/core@')))
-	assert.equal(existsSync(join(app, 'pnpm-workspace.yaml')), false, 'do not introduce a nested workspace')
+	assert.ok(
+		Object.keys(workspace.patchedDependencies).some((key) => key.startsWith('@nativescript/core@')),
+	)
+	assert.equal(
+		existsSync(join(app, 'pnpm-workspace.yaml')),
+		false,
+		'do not introduce a nested workspace',
+	)
+	assert.deepEqual(workspace.packages, ['apps/*'])
+	assert.equal(workspace.catalogs.xplat.vite, '8.0.0')
+	assert.deepEqual(workspace.catalogs.custom, original.catalogs.custom)
+	assert.deepEqual(workspace.overrides, original.overrides)
+	assert.deepEqual(workspace.configDependencies, original.configDependencies)
+	assert.deepEqual(workspace.allowBuilds, original.allowBuilds)
+	for (const [key, path] of Object.entries(original.patchedDependencies)) {
+		assert.equal(workspace.patchedDependencies[key], path)
+	}
+	assert.match(readFileSync(workspaceFile, 'utf8'), /# Keep workspace policy/)
+	assertPatchFiles(root, workspace)
+	const after = readFileSync(workspaceFile, 'utf8')
+	const repeated = run(app, ['add', 'ios', '--no-install'])
+	assert.ifError(repeated.error)
+	assert.equal(repeated.status, 0, repeated.stdout + repeated.stderr)
+	assert.equal(readFileSync(workspaceFile, 'utf8'), after)
+})
+
+// Materialize the shipped config package where pnpm configDependencies installs
+// it. This verifies workspace-relative paths without installing native SDKs.
+function assertPatchFiles(root, workspace) {
+	const patches = fileURLToPath(new URL('../../patches/', import.meta.url))
+	const pkg = JSON.parse(readFileSync(join(patches, 'package.json'), 'utf8'))
+	assert.equal(workspace.configDependencies[pkg.name], pkg.version)
+	const installed = join(root, 'node_modules/.pnpm-config/@octane-xplat/patches')
+	mkdirSync(dirname(installed), { recursive: true })
+	symlinkSync(patches, installed, 'dir')
+	for (const path of Object.values(workspace.patchedDependencies)) {
+		assert.ok(existsSync(join(root, path)), `patch must resolve from the owning workspace: ${path}`)
+	}
+}
+
+test('add ios merges into a minimal parent workspace and preserves inline custom patches', (t) => {
+	const root = project(t)
+	const app = join(root, 'apps/web')
+	composeTargets(['web'], app)
+	unlinkSync(join(app, 'pnpm-workspace.yaml'))
+	write(root, 'package.json', JSON.stringify({ private: true }))
+	write(root, 'patches/core.patch', 'custom patch')
+	write(
+		root,
+		'pnpm-workspace.yaml',
+		[
+			'packages: [apps/*]',
+			'catalog: { custom: 1.0.0 }',
+			'patchedDependencies: { "@nativescript/core@9.1.2": patches/core.patch } # custom patch',
+			'',
+		].join('\n'),
+	)
+	const result = run(app, ['add', 'ios', '--no-install'])
+	assert.ifError(result.error)
+	assert.equal(result.status, 0, result.stdout + result.stderr)
+	assert.equal(existsSync(join(app, 'pnpm-workspace.yaml')), false)
+	const workspace = parse(readFileSync(join(root, 'pnpm-workspace.yaml'), 'utf8'))
+	assert.deepEqual(workspace.packages, ['apps/*'])
+	assert.deepEqual(workspace.catalog, { custom: '1.0.0' })
+	const corePatches = Object.keys(workspace.patchedDependencies).filter((key) =>
+		key.startsWith('@nativescript/core@'),
+	)
+	assert.deepEqual(corePatches, ['@nativescript/core@9.1.2'])
+	assert.equal(workspace.patchedDependencies[corePatches[0]], 'patches/core.patch')
+	assert.match(readFileSync(join(root, 'pnpm-workspace.yaml'), 'utf8'), /# custom patch/)
+	assert.ok(workspace.catalogs.xplat['@nativescript/ios'])
+	assertPatchFiles(root, workspace)
 })
