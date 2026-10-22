@@ -23,7 +23,8 @@ export function Lottie(props: LottieProps) @{
 	const anim = useRef<AnimationItem | null>(null);
 	const ready = useRef(false);
 
-	const wantPlay = () => props.playing ?? props.autoPlay ?? true;
+	const latest = useRef(props);
+	latest.current = props;
 
 	const build = (host: HTMLDivElement) => {
 		anim.current?.destroy();
@@ -62,11 +63,14 @@ export function Lottie(props: LottieProps) @{
 		setAnimation(a);
 
 		a.addEventListener('DOMLoaded', () => {
+			if (anim.current !== a) return;
 			ready.current = true;
-			if (props.speed !== undefined) a.setSpeed(props.speed);
-			if (props.progress !== undefined) seekTo(props.progress);
-			props.onLoaded?.({ duration: a.getDuration() * 1000 });
-			if (wantPlay()) a.play();
+			const current = latest.current;
+			if (current.speed !== undefined) a.setSpeed(current.speed);
+			if (current.progress !== undefined) seekTo(current.progress);
+			current.onLoaded?.({ duration: a.getDuration() * 1000 });
+			// onLoaded may synchronously change controlled intent or the source.
+			if (anim.current === a && (latest.current.playing ?? latest.current.autoPlay ?? true)) a.play();
 		});
 
 		a.addEventListener('complete', () => props.onEnded?.());
