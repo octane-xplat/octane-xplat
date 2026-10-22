@@ -203,16 +203,119 @@ index 71574c48f655183af0c9601b020fd1febd63ccb3..0061d9c9e9fe9c6034576eae8449831d
      if (!imports.length) {
          return code;
      }
+diff --git a/hmr/server/hmr-module-graph.js b/hmr/server/hmr-module-graph.js
+index 8cff593b8ac8d8eff82ebdd398c1305a8408d308..92f6d194924b288864bcaca4fc42ef805d048e4f 100644
+--- a/hmr/server/hmr-module-graph.js
++++ b/hmr/server/hmr-module-graph.js
+@@ -1,3 +1,4 @@
++import { normalizeHmrModuleId } from './hmr-module-id.js';
+ import { matchesRuntimeGraphModuleId } from './runtime-graph-filter.js';
+ import { classifyGraphUpsert, shouldBroadcastGraphUpsertDelta, shouldBumpGraphVersion } from './websocket-graph-upsert.js';
+ import { getProjectAppVirtualPath } from '../../helpers/utils.js';
+@@ -39,25 +40,9 @@ export class HmrModuleGraph {
+         return ('00000000' + (h >>> 0).toString(16)).slice(-8);
+     }
+     normalizeGraphId(raw) {
+-        if (!raw)
+-            return raw;
+-        let id = raw.split('?')[0].replace(/\\/g, '/');
+-        id = id.replace(/^file:\/\//, '');
+-        const pluginRoot = this.deps.getPluginRoot();
+-        if (pluginRoot) {
+-            const rootNorm = pluginRoot.replace(/\\/g, '/');
+-            if (id.startsWith(rootNorm)) {
+-                id = id.slice(rootNorm.length);
+-            }
+-        }
+-        if (!id.startsWith('/'))
+-            id = '/' + id;
+-        // Collapse nested app root indicators when present (defensive)
+-        const idx = id.indexOf(APP_VIRTUAL_WITH_SLASH);
+-        if (idx !== -1)
+-            id = id.slice(idx);
+-        return id;
++        return normalizeHmrModuleId(raw, this.deps.getPluginRoot());
+     }
++
+     // Dependency-closed, topologically sorted list of modules for a set of
+     // changed ids. Only includes application modules we can serve (under the
+     // app virtual root and known framework/.ts/.js entries already in the graph).
+diff --git a/hmr/server/hmr-module-id.js b/hmr/server/hmr-module-id.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..13a0c29d4b0fad502730062ddba081016514c440
+--- /dev/null
++++ b/hmr/server/hmr-module-id.js
+@@ -0,0 +1,30 @@
++import { existsSync } from 'node:fs';
++import * as path from 'node:path';
++import { getMonorepoWorkspaceRoot } from '../../helpers/project.js';
++import { rewriteFsAbsoluteToNsM } from './websocket-module-specifiers.js';
++
++// Use the same app/workspace/@fs spelling as static device imports. App
++// virtual IDs remain intact; an unrelated /src/ substring is never a root.
++export function normalizeHmrModuleId(raw, projectRoot) {
++    if (!raw) return raw;
++    let id = raw.split(/[?#]/)[0].replace(/\\/g, '/');
++    if (id.startsWith('/ns/m/')) return id.slice('/ns/m'.length);
++    const fileUrl = id.startsWith('file://');
++    if (fileUrl) id = id.slice('file://'.length);
++    const fsUrl = id.startsWith('/@fs/');
++    if (fsUrl) id = id.slice('/@fs'.length);
++    const root = projectRoot?.replace(/\\/g, '/').replace(/\/$/, '');
++    const within = (base) => base && (id === base || id.startsWith(base + '/'));
++    // Preserve ordinary app IDs, including Windows drive paths, without
++    // passing a drive-letter source through POSIX /@fs parsing.
++    if (within(root)) return id.slice(root.length) || '/';
++    const workspace = root ? getMonorepoWorkspaceRoot(root) : null;
++    if (root && id.startsWith('/../')) id = path.resolve(root, '.' + id).replace(/\\/g, '/');
++    if (root && (fileUrl || fsUrl || within(root) || within(workspace) || (path.isAbsolute(id) && existsSync(id)))) {
++        const url = rewriteFsAbsoluteToNsM('/@fs' + id, root, workspace);
++        // The module route serves explicit /@fs paths for linked sources
++        // outside both roots, matching rewriteImports' existing fallback.
++        return url ? url.slice('/ns/m'.length) : '/@fs' + id;
++    }
++    return id.startsWith('/') ? id : '/' + id;
++}
 diff --git a/hmr/server/process-code-for-device.js b/hmr/server/process-code-for-device.js
-index 1f02ba5ebb7e89d40eff58d1c395b5ec838f45fe..4be192cda6ce213c8a9e8f482949ce930aa391e4 100644
+index 1f02ba5ebb7e89d40eff58d1c395b5ec838f45fe..5bbb6e4827da640624624ef80f94a7e5eb5c28ce 100644
 --- a/hmr/server/process-code-for-device.js
 +++ b/hmr/server/process-code-for-device.js
-@@ -1,3 +1,4 @@
+@@ -1,3 +1,5 @@
++import { normalizeHmrModuleId } from './hmr-module-id.js';
 +import { CSS_MODULE_RE } from './css-device-module.js';
  // Device code-transform: cleans Vite/framework noise out of a served module,
  // injects NativeScript build globals + the process.env shim, normalizes
  // imports/helpers for the on-device ESM runtime, and collects an importer's
-@@ -449,13 +450,13 @@ function processCodeForDevice(code, isVitePreBundled, preserveVendorImports = fa
+@@ -125,25 +127,10 @@ export function inlineNsConfigVirtualImports(code) {
+ // `hmr/client/hot-context.ts` so cold-boot evaluation and HMR re-evaluation
+ // resolve the same `hot.data` entry.
+ export function computeHotContextId(sourceId, projectRoot) {
+-    if (!sourceId || typeof sourceId !== 'string')
+-        return null;
+-    let id = sourceId.split('?')[0].split('#')[0].replace(/\\/g, '/');
+-    if (!id)
+-        return null;
+-    id = id.replace(/^\/@fs/, '');
+-    if (projectRoot) {
+-        const rootPosix = projectRoot.replace(/\\/g, '/').replace(/\/$/, '');
+-        if (rootPosix && id.startsWith(rootPosix + '/')) {
+-            id = id.slice(rootPosix.length);
+-        }
+-    }
+-    if (id.startsWith('/ns/m/'))
+-        id = id.slice('/ns/m'.length);
+-    id = id.replace(/\.(ts|tsx|js|jsx|mjs|mts|cts)$/i, '');
+-    if (!id.startsWith('/'))
+-        id = '/' + id;
+-    return id;
++    if (!sourceId || typeof sourceId !== 'string') return null;
++    return normalizeHmrModuleId(sourceId, projectRoot).replace(/\.(ts|tsx|tsrx|js|jsx|mjs|mts|cts)$/i, '');
+ }
++
+ // One-line `import.meta.hot` prelude. Single-statement, no internal `;` or
+ // newline, so that if any later sanitize pass re-applies
+ // `IMPORT_META_HOT_ASSIGNMENT` the whole statement strips cleanly (module
+@@ -449,13 +436,13 @@ function processCodeForDevice(code, isVitePreBundled, preserveVendorImports = fa
      // Unlike other virtual ids these are real, servable dev-server URLs returning
      // self-contained ESM — stripping them leaves `_decorate`/`_decorateMetadata`
      // undefined at runtime. They're origin-prefixed for the device in rewriteImports.
@@ -435,7 +538,7 @@ index 0081819906b9df7480408697b1afadb149e26e31..562bd0f7f982cd90d22c945f369d2581
      // Only packages the app's own install lacks may come from them: each
      // extension/index variant is resolved separately, so a variant missing
 diff --git a/hmr/server/websocket-ns-m-request.js b/hmr/server/websocket-ns-m-request.js
-index 0879633dc5ee172f16de82d5d24bebe2f6f7878f..71f621bd1870fefc16ac95b4c32968d7a7069429 100644
+index 0879633dc5ee172f16de82d5d24bebe2f6f7878f..b489d7f1524eb35ba87206d86cdb9448a95c188e 100644
 --- a/hmr/server/websocket-ns-m-request.js
 +++ b/hmr/server/websocket-ns-m-request.js
 @@ -27,10 +27,15 @@ const MODULE_CANDIDATE_EXTS = ['ts', 'js', 'tsx', 'jsx', 'mjs', 'mts', 'cts', 'v
@@ -456,8 +559,22 @@ index 0879633dc5ee172f16de82d5d24bebe2f6f7878f..71f621bd1870fefc16ac95b4c32968d7
          }
          candidates.push(...MODULE_CANDIDATE_EXTS.map((ext) => `${base}.${ext}`));
      }
+@@ -216,8 +221,11 @@ export async function resolveNsMTransformedModule(options) {
+             }
+         }
+     }
+-    const fsId = resolveFsAnchoredSpec(spec, serverRoot, workspaceRoot);
+-    if (fsId) {
++    // A workspace-relative extensionless URL is not a Vite app URL.
++    // Probe the same extension/platform candidates under both source roots.
++    for (const candidate of new Set([spec, ...transformCandidates])) {
++        const fsId = resolveFsAnchoredSpec(candidate, serverRoot, workspaceRoot);
++        if (!fsId) continue;
+         transformed = await tryTransformRequest(transformRequest, fsId, timeoutMs);
+         if (transformed?.code) {
+             return { transformed, resolvedCandidate: fsId };
 diff --git a/hmr/server/websocket-ns-m.js b/hmr/server/websocket-ns-m.js
-index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..ca29a505a19aafc26397505b88d4fbf19586cda7 100644
+index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..ac33b017b65489472c3573ce45f89bb94859777b 100644
 --- a/hmr/server/websocket-ns-m.js
 +++ b/hmr/server/websocket-ns-m.js
 @@ -98,7 +98,7 @@ export function registerNsModuleServerRoute(server, options) {

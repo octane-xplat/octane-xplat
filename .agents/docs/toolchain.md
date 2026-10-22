@@ -115,6 +115,23 @@ experience of agents writing Octane-xplat code effectively.
   const Screen = () => null
   export { Screen as default }
   ```
+- NativeScript Vite 8.0.20 collapses unrelated paths containing `/src/` in
+  its HMR graph ([NativeScript#11569](https://github.com/NativeScript/NativeScript/issues/11569)).
+  Its extensionless workspace-module fetch also returns 404 although the same
+  `.tsx` URL serves successfully
+  ([NativeScript#11570](https://github.com/NativeScript/NativeScript/issues/11570)).
+  The canonical patch aligns graph and hot-context IDs with existing static
+  device URLs (app-relative, workspace-relative, or explicit `/@fs`), and
+  probes filesystem-anchored extension/platform candidates for shared requests.
+  The Octane strategy patch uses the source file for graph identity, a Vite
+  filesystem URL to retransform external sources, and includes shared scripts
+  in transaction ordering while excluding dependencies, tests and declarations.
+  Remove these hunks when the adopted upstream releases preserve those IDs and
+  serve shared hot reimports. The maintained real-HTTP/Octane-strategy regression
+  is `packages/cli/test/vite-shared-hmr.test.mjs`; it covers native-host,
+  workspace-shared and external-source edits. Host checks do not establish
+  device HMR or qualify route creation/removal watching.
+
 - **TSRX generic syntax limitation (observed with the installed, locally patched
   `@tsrx/typescript-plugin@0.4.11`).** The valid TSX generic arrow
   `const identity = <Value,>(value: Value): Value => value` fails `tsrx-tsc`

@@ -64,8 +64,12 @@ patchedDependencies:
   # served-module rewrites; preserve, compile, and hot-update virtual stylesheets
   # (NativeScript#11551); and inspect ESM export declarations/specifiers for native
   # default-import validation instead of matching comments, strings, or a narrow export
-  # syntax (NativeScript#11566). Linked-checkout discovery and candidate anchoring shipped
-  # in 8.0.20 (NativeScript#11559), so those local hunks are removed.
+  # syntax (NativeScript#11566). Shared-source graph and hot-context IDs now use the same
+  # app/workspace/@fs paths as served imports, preserving distinct roots
+  # (NativeScript#11569); extensionless workspace requests probe filesystem-anchored
+  # extension/platform candidates so hot reimports can fetch shared modules
+  # (NativeScript#11570). Linked-checkout discovery and candidate anchoring shipped in
+  # 8.0.20 (NativeScript#11559), so those local hunks are removed.
   "@nativescript/vite@8.0.20": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript__vite@8.0.20.patch
   # Retains the workspace's NativeScript driver fixes when upgrading to 0.2.5 for portal
   # support: a prop dropped from an update's complete prop bag — or set to
@@ -94,7 +98,10 @@ patchedDependencies:
   # octaneServerStrategy's SCRIPT_FILE_RE only covers [jt]sx? — .tsrx edits never emit the
   # deferred ns:hmr-delta broadcast, so component HMR silently never reaches the device.
   # Also counts open /ns-hmr sockets so the update summary stops reporting recipients=0 for
-  # delivered updates.
+  # delivered updates. Includes shared script sources in transaction ordering while
+  # excluding dependencies, tests and declarations. External-source edits use the absolute
+  # source for graph identity and a Vite /@fs transform URL instead of treating
+  # parent-relative paths as app URLs.
   "@nativescript-community/vite-octane@0.2.1": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript-community__vite-octane@0.2.1.patch
   # Enables `resolveHiddenExtensions` on the language plugin's typescript facet so
   # extensionless specifiers (e.g. './Text') probe `.tsrx` after moduleSuffixes — required

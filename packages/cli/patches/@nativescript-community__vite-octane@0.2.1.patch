@@ -1,8 +1,8 @@
 diff --git a/dist/server/strategy.js b/dist/server/strategy.js
-index 7d84b37e2ed3a026da5b31c8a11027e0580877b2..f6594a913ba64837135e994cb183add13c6a0530 100644
+index 7d84b37e2ed3a026da5b31c8a11027e0580877b2..1943f7c05e47d95950212789f84d5b7725da9ac9 100644
 --- a/dist/server/strategy.js
 +++ b/dist/server/strategy.js
-@@ -14,7 +14,9 @@ import { purgeTransformCachesForHotUpdate, runHotUpdatePrologue, typescriptServe
+@@ -14,17 +14,26 @@ import { purgeTransformCachesForHotUpdate, runHotUpdatePrologue, typescriptServe
   * otherwise the re-fetch can be served from the previous save's transform and
   * the screen ends up one save behind.
   */
@@ -13,7 +13,16 @@ index 7d84b37e2ed3a026da5b31c8a11027e0580877b2..f6594a913ba64837135e994cb183add1
  export const octaneServerStrategy = {
      ...typescriptServerStrategy,
      flavor: 'octane',
-@@ -24,7 +26,7 @@ export const octaneServerStrategy = {
++    matchesFile(id) {
++        // Shared sources have workspace/@fs identities rather than /src IDs.
++        // Source-root gating remains in runHotUpdatePrologue; dependency and
++        // type/test files must not enter executable transaction batches.
++        const clean = id.replace(/[?#].*$/, '');
++        return SCRIPT_FILE_RE.test(clean) && !/(?:^|\/)(?:node_modules|__tests__|__mocks__)(?:\/|$)|\.(?:spec|test)\.[^/]+$|\.d\.(?:ts|mts|cts)$/i.test(clean);
++    },
+     deferDeltaBroadcast: true,
+     async handleHotUpdate(ctx, deps) {
+         const state = await runHotUpdatePrologue(ctx, deps);
          if (!state)
              return;
          const { root, metrics, emitSummary } = state;
@@ -22,7 +31,29 @@ index 7d84b37e2ed3a026da5b31c8a11027e0580877b2..f6594a913ba64837135e994cb183add1
          const { file, server } = ctx;
          if (!SCRIPT_FILE_RE.test(file)) {
              emitSummary();
-@@ -71,6 +73,16 @@ export const octaneServerStrategy = {
+@@ -37,9 +46,9 @@ export const octaneServerStrategy = {
+                     .normalize(path.relative(root, file))
+                     .split(path.sep)
+                     .join('/');
+-            const normalizedId = moduleGraph.normalizeGraphId(rel);
++            const normalizedId = moduleGraph.normalizeGraphId(file);
+             if (!moduleGraph.get(normalizedId)) {
+-                moduleGraph.upsert(rel, `/* octane-hmr ${Date.now()} */`, [], {
++                moduleGraph.upsert(normalizedId, `/* octane-hmr ${Date.now()} */`, [], {
+                     emitDeltaOnInsert: true,
+                 });
+             }
+@@ -51,7 +60,8 @@ export const octaneServerStrategy = {
+                 label: 'octane',
+             });
+             try {
+-                const fresh = await sharedTransformRequest(rel, 30000);
++                const transformId = path.relative(root, file).startsWith('..' + path.sep) ? '/@fs/' + file.replace(/\\/g, '/') : rel;
++                const fresh = await sharedTransformRequest(transformId, 30000);
+                 if (fresh?.code) {
+                     const viteModule = server.moduleGraph.getModuleById(file);
+                     const deps = viteModule
+@@ -71,6 +81,16 @@ export const octaneServerStrategy = {
              const gm = moduleGraph.get(normalizedId);
              if (gm)
                  moduleGraph.emitDelta([gm], []);
