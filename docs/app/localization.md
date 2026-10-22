@@ -311,6 +311,9 @@ unit tests, and both `dist` lanes (web keeps `navigator`, native keeps
 
 Not yet device-verified: `import.meta.glob` catalog loading inside a real
 native bundle (the pattern matches the ui route tables' glob use, so it is
-expected to work), `Device.language` on physical iOS/Android, and
-`Intl.PluralRules` availability on the NS runtimes (JavaScriptCore/V8 — both
-ship Intl; flagged pending a device pass).
+expected to work) and `Device.language` on physical iOS/Android.
+
+`Intl.PluralRules` is unavailable on the NS runtimes: checked on device
+2026-10-21, the NativeScript iOS and Android runtimes embed V8 built without
+ICU and `Intl` is undefined there (`@nativescript/ios` 9.1.0 simulator,
+`@nativescript/android` 9.1.1 device).

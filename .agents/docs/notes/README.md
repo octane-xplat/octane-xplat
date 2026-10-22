@@ -13,6 +13,7 @@ source before relying on them.
 - [Platform notes](platform-notes.md)
 - [CSS support](css-support-notes.md)
 - [Module resolution](module-resolution-notes.md)
+- [NativeScript runtimes: V8 without ICU](nativescript-no-icu.md)
 - [Navigation](navigation-notes.md)
 - [Routing transition engines and platform subsets](routing-transitions.md)
 - [Routing contracts](routing-contracts.md) — declared/runtime ownership, immutable evidence, generated setup and typed reads.

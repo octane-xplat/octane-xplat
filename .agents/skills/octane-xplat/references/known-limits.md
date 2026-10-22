@@ -19,6 +19,9 @@ For a boundary or workaround investigation, read the applicable internal record:
   layout implementation, migration boundaries, and remaining qualification gaps.
 - [Upstream limitations](../../../docs/upstream-limitations.md): how to verify
   and record upstream scope and local workarounds.
+- [NativeScript runtimes: V8 without ICU](../../../docs/notes/nativescript-no-icu.md):
+  NativeScript iOS/Android V8 lacks ICU — no `Intl`, no `\p{…}` regexes (a
+  literal fails its whole module at parse time), no normalization.
 
 Uncharacterized lab flakes belong with their investigation records and Silo,
 not in an undated skill list. A historical failure is not automatically a
