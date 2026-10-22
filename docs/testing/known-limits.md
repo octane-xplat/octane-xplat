@@ -412,7 +412,7 @@ if (result === 'unavailable') console.log('Sharing unavailable')
   `defineRoutes`, `useBackInterceptor`, route types like `RouteSpec` and
   `RouteManifest`) moved to `@octane-xplat/ui/routing`; stores and data
   hooks (`createStore`, `useStore`, `useListData`, `useTreeData`,
-  `useAsyncList`, `cachedQuery$`, `invalidateQueries`, `clearQueryCache`,
+  `useAsyncList`, `defineQuery`, `useQuery$`, `createQueryClient`,
   `createMemoryQueryStorage`, `platformQueryStorage`, and their types like
   `Store`, `Selection`, `QueryKey`) moved to `@octane-xplat/ui/data`;
   Markdown (`Markdown`, `MarkdownScreen`, `parseMdDoc`, the incremental

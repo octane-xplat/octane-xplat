@@ -364,7 +364,7 @@ void keyboard
 	// subpath and must no longer resolve at the package root.
 	source += `
 import { router as subpathRouter, useRouter, getRouteApi, type RouteManifest } from '@octane-xplat/ui/routing'
-import { useListData, useAsyncList, cachedQuery$, type Selection, type CachedQueryOptions } from '@octane-xplat/ui/data'
+import { useListData, useAsyncList, defineQuery, createQueryClient, useQuery$, type Selection, type QueryOptions } from '@octane-xplat/ui/data'
 import { Markdown, parseMdDoc, tokenize, type MdDoc, type MarkdownProps, type TokenLine } from '@octane-xplat/ui/markdown'
 import { ChatMessage, ChatComposer, useChatComposerContext, type ChatMessageProps } from '@octane-xplat/ui/chat'
 // @ts-expect-error routing APIs live under @octane-xplat/ui/routing
@@ -381,7 +381,7 @@ const mdProps: MarkdownProps = { text: '# hi' }
 const mdDoc: MdDoc = parseMdDoc('# hi')
 const tokens: TokenLine[] = tokenize('let x = 1', 'ts')
 const msgProps: ChatMessageProps = { sender: 'assistant', children: 'hello' }
-void [subpathRouter, useRouter, getRouteApi, useListData, useAsyncList, cachedQuery$, Markdown, ChatMessage, ChatComposer, useChatComposerContext, rootRouter, rootUseStore, MarkdownScreen, ChatLayout, mdProps, mdDoc, tokens, msgProps]
+void [subpathRouter, useRouter, getRouteApi, useListData, useAsyncList, defineQuery, createQueryClient, useQuery$, Markdown, ChatMessage, ChatComposer, useChatComposerContext, rootRouter, rootUseStore, MarkdownScreen, ChatLayout, mdProps, mdDoc, tokens, msgProps]
 `
 
 	source += `

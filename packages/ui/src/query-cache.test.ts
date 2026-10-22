@@ -1,645 +1,276 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { createScope, runWithSignalOwner, skip, type Scope } from 'octane/signals'
 import {
-	cachedQuery$,
-	clearQueryCache,
 	createQueryClient,
 	createMemoryQueryStorage,
-	invalidateQueries,
-	type QueryPersistence,
+	defineQuery,
+	type QueryClient,
+	type QueryStorageAdapter,
 } from './query-cache'
 
-// Each renderer instance stands in for one mounted screen and owns its query
-// cells; the module-level cache is shared across screens. Reads enter a new
-// instance to check that a declared query still resolves its original owner.
-// Document scopes live until afterEach so those owners stay live for the test.
-const liveScopes: Scope[] = []
-let scopeSeq = 0
-
-function screen<T>(body: (scope: Scope) => T): T {
-	const scope = createScope({ scopeKey: `test-screen:${scopeSeq++}` })
-	liveScopes.push(scope)
-	return runWithSignalOwner(
-		{ documentOwner: scope, instanceOwner: {}, instanceKey: scope.scopeKey },
-		() => body(scope),
-	)
+const clients: QueryClient[] = []
+function client(namespace?: string) {
+	const value = createQueryClient({ namespace })
+	clients.push(value)
+	return value
 }
 
-afterEach(() => {
-	for (const scope of liveScopes.splice(0)) {
-		scope.dispose()
-	}
+afterEach(async () => {
+	await Promise.all(clients.splice(0).map((value) => value.dispose()))
 })
-
-async function settle(rounds = 12): Promise<void> {
-	for (let i = 0; i < rounds; i++) {
-		await Promise.resolve()
-	}
-
-	// Octane 0.14 may publish query results in a cooperative host task.
-	await new Promise<void>((resolve) => setTimeout(resolve, 0))
-}
 
 function deferred<T>() {
 	let resolve!: (value: T) => void
 	let reject!: (error: unknown) => void
-	const promise = new Promise<T>((res, rej) => {
-		resolve = res
-		reject = rej
+	const promise = new Promise<T>((yes, no) => {
+		resolve = yes
+		reject = no
 	})
-
 	return { promise, resolve, reject }
 }
 
-type LoadContext = { signal: AbortSignal; previous?: unknown }
-type LoadCall = { selection: unknown; signal: AbortSignal; previous: unknown }
-
-function recording() {
-	const calls: LoadCall[] = []
-	const load = (selection: unknown, context: LoadContext) => {
-		calls.push({ selection, signal: context.signal, previous: context.previous })
-		return Promise.resolve(`v${calls.length}`)
+async function settle() {
+	for (let i = 0; i < 20; i++) {
+		await Promise.resolve()
 	}
-
-	return { calls, load }
+	await new Promise<void>((resolve) => setTimeout(resolve, 0))
 }
 
-describe('cachedQuery$', () => {
-	it('dedupes an in-flight request and shares the value across scopes', async () => {
+describe('query definition and client lifetimes', () => {
+	it('deduplicates readers without conflating their selections', async () => {
+		const calls: string[] = []
 		const gate = deferred<string>()
-		const calls: LoadCall[] = []
-		const load = (selection: unknown, context: LoadContext) => {
-			calls.push({ selection, signal: context.signal, previous: undefined })
-			return gate.promise
-		}
-
-		const first = screen(() => cachedQuery$(['dedupe'], () => 'one', load))
-		const second = screen(() => cachedQuery$(['dedupe'], () => 'one', load))
-
-		screen(() => first.latest())
-		screen(() => second.latest())
+		const users = defineQuery(['users'], (id: string) => {
+			calls.push(id)
+			return id === 'a' ? gate.promise : 'B'
+		})
+		const queries = client()
+		const a = queries.observe$(users, 'a')
+		const again = queries.observe$(users, 'a')
+		const b = queries.observe$(users, 'b')
 		await settle()
-		// Two owning cells, one shared request.
-		expect(calls).toHaveLength(1)
-
-		gate.resolve('shared')
+		expect(calls).toEqual(['a', 'b'])
+		gate.resolve('A')
 		await settle()
-		screen(() => expect(first.latest()).toBe('shared'))
-		screen(() => expect(second.latest()).toBe('shared'))
-		expect(calls).toHaveLength(1)
+		expect([a.data$.get(), again.data$.get(), b.data$.get()]).toEqual(['A', 'A', 'B'])
 	})
-
-	it('keeps a separate cache entry per selection', async () => {
-		const { calls, load } = recording()
-		const a = screen(() => cachedQuery$(['per-selection'], () => 'a', load))
-		const b = screen(() => cachedQuery$(['per-selection'], () => 'b', load))
-		screen(() => a.latest())
-		screen(() => b.latest())
+	it('isolates equal keys between clients', async () => {
+		let count = 0
+		const users = defineQuery(['users'], (_id: string) => ++count, { staleTimeMs: Infinity })
+		const a = client().observe$(users, 'a')
+		const b = client().observe$(users, 'a')
 		await settle()
-		expect(calls.map((call) => call.selection)).toEqual(['a', 'b'])
+		expect([a.data$.get(), b.data$.get()]).toEqual([1, 2])
 	})
-
-	it('isolates entries and invalidation between query clients, even in one owner', async () => {
-		const firstClient = createQueryClient()
-		const secondClient = createQueryClient()
-		let firstCalls = 0
-		let secondCalls = 0
-
-		const queries = screen(() => ({
-			first: firstClient.cachedQuery$(
-				['instance-scope'],
-				() => 'same',
-				() => 'first-' + ++firstCalls,
+	it('canonicalizes selections and rejects incompatible family definitions', async () => {
+		let count = 0
+		const users = defineQuery(['users'], (_selection: { a: number; b: number }) => ++count)
+		const queries = client()
+		const a = queries.observe$(users, { a: 1, b: 2 })
+		const b = queries.observe$(users, { b: 2, a: 1 })
+		await settle()
+		expect([a.data$.get(), b.data$.get()]).toEqual([1, 1])
+		expect(() =>
+			queries.observe$(
+				defineQuery(['users'], (_id: string) => 2),
+				'a',
 			),
-			second: secondClient.cachedQuery$(
-				['instance-scope'],
-				() => 'same',
-				() => 'second-' + ++secondCalls,
-			),
-		}))
-
-		screen(() => {
-			queries.first.latest()
-			queries.second.latest()
-		})
-
-		await settle()
-		screen(() => {
-			expect(queries.first.latest()).toBe('first-1')
-			expect(queries.second.latest()).toBe('second-1')
-		})
-
-		firstClient.invalidateQueries(['instance-scope'])
-		await settle()
-
-		screen(() => {
-			expect(queries.first.latest()).toBe('first-2')
-			expect(queries.second.latest()).toBe('second-1')
-		})
-
-		expect(firstCalls).toBe(2)
-		expect(secondCalls).toBe(1)
+		).toThrow('different query definition')
+		expect(() => queries.observe$(users, { a: NaN, b: 2 })).toThrow('JSON')
 	})
-
-	it('refetches live owners on invalidateQueries while prior data stays visible', async () => {
+	it('copies and freezes key and policy inputs', () => {
+		const key = ['users']
+		const policy = { staleTimeMs: 100 }
+		const users = defineQuery(key, (_id: string) => 'data', policy)
+		key[0] = 'changed'
+		policy.staleTimeMs = 0
+		expect(users.key).toEqual(['users'])
+		expect(users.options.staleTimeMs).toBe(100)
+		expect(Object.isFrozen(users.key)).toBe(true)
+	})
+	it('retains usable data during refresh and exposes refresh failure', async () => {
+		let count = 0
 		const gate = deferred<string>()
-		const calls: LoadCall[] = []
-		let fetch = 0
-		const load = (selection: unknown, context: LoadContext) => {
-			calls.push({ selection, signal: context.signal, previous: context.previous })
-			fetch++
-			return fetch === 1 ? Promise.resolve('v1') : gate.promise
-		}
-
-		const query = screen(() => cachedQuery$(['inv'], () => 'x', load))
-		screen(() => query.latest())
+		const users = defineQuery(['users'], (_id: string) => (++count === 1 ? 'first' : gate.promise))
+		const reader = client().observe$(users, 'a')
 		await settle()
-		screen(() => expect(query.latest()).toBe('v1'))
-
-		invalidateQueries(['inv'])
-		// Same-identity retry: the old value is still served while refreshing.
-		screen(() => {
-			expect(query.latest()).toBe('v1')
-			expect(query.snapshot().refreshing).toBe(true)
-		})
-
+		const refresh = reader.refetch()
 		await settle()
-		expect(calls).toHaveLength(2)
-		screen(() => expect(query.latest()).toBe('v1'))
-
-		gate.resolve('v2')
-		await settle()
-		screen(() => expect(query.latest()).toBe('v2'))
-	})
-
-	it('prefix-invalidation reaches all selections; exact matches only one', async () => {
-		const { calls, load } = recording()
-		const options = { staleTimeMs: 60_000 }
-		const one = screen(() => cachedQuery$(['inv-scoped'], () => 'one', load, options))
-		const two = screen(() => cachedQuery$(['inv-scoped'], () => 'two', load, options))
-		screen(() => one.latest())
-		screen(() => two.latest())
-		await settle()
-		expect(calls).toHaveLength(2)
-
-		invalidateQueries(['inv-scoped', 'one'], { exact: true })
-		await settle()
-		expect(calls).toHaveLength(3)
-		expect(calls[2].selection).toBe('one')
-	})
-
-	it('forces a fetch on refetch even inside staleTimeMs', async () => {
-		const { calls, load } = recording()
-		const query = screen(() => cachedQuery$(['forced'], () => 'x', load, { staleTimeMs: 60_000 }))
-		screen(() => query.latest())
-		await settle()
-		screen(() => query.latest())
-		await settle()
-		expect(calls).toHaveLength(1)
-
-		screen(() => query.refetch())
-		await settle()
-		expect(calls).toHaveLength(2)
-	})
-
-	it('serves fresh entries to new scopes within staleTimeMs without fetching', async () => {
-		const { calls, load } = recording()
-		const first = screen(() =>
-			cachedQuery$(['fresh-ttl'], () => 'x', load, { staleTimeMs: 60_000 }),
-		)
-
-		screen(() => first.latest())
-		await settle()
-		expect(calls).toHaveLength(1)
-
-		const second = screen(() =>
-			cachedQuery$(['fresh-ttl'], () => 'x', load, { staleTimeMs: 60_000 }),
-		)
-
-		screen(() => second.latest())
-		await settle()
-		screen(() => expect(second.latest()).toBe('v1'))
-		expect(calls).toHaveLength(1)
-	})
-
-	it('serves a stale value on mount and revalidates in the background', async () => {
-		const gate = deferred<string>()
-		const calls: LoadCall[] = []
-		const load = (selection: unknown, context: LoadContext) => {
-			calls.push({ selection, signal: context.signal, previous: context.previous })
-			return calls.length === 1 ? Promise.resolve('v1') : gate.promise
-		}
-
-		const first = screen(() => cachedQuery$(['swr'], () => 'x', load))
-		screen(() => first.latest())
-		await settle()
-		screen(() => expect(first.latest()).toBe('v1'))
-
-		// Default staleTimeMs 0: a new reader gets the stale value immediately,
-		// then the background revalidation republishes it to both owners.
-		const second = screen(() => cachedQuery$(['swr'], () => 'x', load))
-		screen(() => second.latest())
-		await settle(2)
-		screen(() => expect(second.latest()).toBe('v1'))
-		expect(calls).toHaveLength(2)
-
-		gate.resolve('v2')
-		await settle()
-		screen(() => expect(second.latest()).toBe('v2'))
-		screen(() => expect(first.latest()).toBe('v2'))
-	})
-
-	it('retries after a load error', async () => {
-		const gate = deferred<string>()
-		const calls: LoadCall[] = []
-		const load = (selection: unknown, context: LoadContext) => {
-			calls.push({ selection, signal: context.signal, previous: context.previous })
-			return gate.promise
-		}
-
-		const query = screen(() => cachedQuery$(['errors'], () => 'x', load))
-		screen(() => query.latest())
+		expect(reader.data$.get()).toBe('first')
+		expect(reader.state$.get().fetchStatus).toBe('fetching')
 		gate.reject(new Error('offline'))
+		await expect(refresh).rejects.toThrow('offline')
 		await settle()
-		screen(() => expect(query.snapshot().status).toBe('error'))
-
-		screen(() => query.retry())
-		await settle()
-		expect(calls).toHaveLength(2)
-	})
-
-	it('awaiting refetch resolves once the request lands', async () => {
-		const gate = deferred<string>()
-		const calls: LoadCall[] = []
-		const load = (selection: unknown, context: LoadContext) => {
-			calls.push({ selection, signal: context.signal, previous: context.previous })
-			return calls.length === 1 ? Promise.resolve('v1') : gate.promise
-		}
-
-		const query = screen(() => cachedQuery$(['await-refetch'], () => 'x', load))
-		screen(() => query.latest())
-		await settle()
-		screen(() => expect(query.latest()).toBe('v1'))
-
-		const pending = screen(() => query.refetch())
-		let resolved = false
-		void pending.then(() => {
-			resolved = true
+		expect(reader.data$.get()).toBe('first')
+		expect(reader.state$.get()).toMatchObject({
+			status: 'error',
+			fetchStatus: 'idle',
+			hasData: true,
 		})
-
-		// The loader starts on a microtask; the promise stays pending until it lands.
-		await settle(2)
-		expect(calls).toHaveLength(2)
-		expect(resolved).toBe(false)
-
-		gate.resolve('v2')
-		await expect(pending).resolves.toBeUndefined()
-		screen(() => expect(query.latest()).toBe('v2'))
 	})
-
-	it('awaiting retry resolves — not rejects — when the request fails', async () => {
-		const calls: LoadCall[] = []
-		const load = (selection: unknown, context: LoadContext) => {
-			calls.push({ selection, signal: context.signal, previous: context.previous })
-			return calls.length === 1 ? Promise.resolve('v1') : Promise.reject(new Error('offline'))
-		}
-
-		const query = screen(() => cachedQuery$(['await-fail'], () => 'x', load))
-		screen(() => query.latest())
+	it('coalesces refresh and satisfies invalidation after an older request', async () => {
+		const calls: Array<ReturnType<typeof deferred<string>>> = []
+		const users = defineQuery(['users'], (_id: string) => {
+			const gate = deferred<string>()
+			calls.push(gate)
+			return gate.promise
+		})
+		const queries = client()
+		const reader = queries.observe$(users, 'a')
 		await settle()
-		screen(() => expect(query.latest()).toBe('v1'))
-
-		await expect(screen(() => query.retry())).resolves.toBeUndefined()
+		const a = reader.refetch()
+		const b = reader.refetch()
+		expect(a).toBe(b)
+		queries.invalidateQueries({ key: ['users', 'a'], exact: true })
+		calls[0]!.resolve('old')
+		await settle()
 		expect(calls).toHaveLength(2)
-		screen(() => expect(query.snapshot().status).toBe('error'))
-		screen(() => expect(query.latest()).toBe('v1'))
+		calls[1]!.resolve('new')
+		await expect(a).resolves.toBe('new')
+		await settle()
+		expect(reader.data$.get()).toBe('new')
 	})
-
-	it('awaiting a verb resolves immediately when no request starts', async () => {
-		const { calls, load } = recording()
-		const query = screen(() => cachedQuery$(['await-skip'], () => skip, load))
-
-		await expect(screen(() => query.refetch())).resolves.toBeUndefined()
-		await expect(screen(() => query.retry())).resolves.toBeUndefined()
-		await expect(screen(() => query.reset())).resolves.toBeUndefined()
-		expect(calls).toHaveLength(0)
-	})
-
-	it('a second refetch joins the in-flight request instead of loading again', async () => {
+	it('disposal rejects work even when transport ignores abort and retires old reads', async () => {
 		const gate = deferred<string>()
-		const calls: LoadCall[] = []
-		const load = (selection: unknown, context: LoadContext) => {
-			calls.push({ selection, signal: context.signal, previous: context.previous })
-			return calls.length === 1 ? Promise.resolve('v1') : gate.promise
-		}
-
-		const a = screen(() => cachedQuery$(['await-dedupe'], () => 'x', load))
-		const b = screen(() => cachedQuery$(['await-dedupe'], () => 'x', load))
-		screen(() => a.latest())
-		screen(() => b.latest())
+		let signal!: AbortSignal
+		const users = defineQuery(['users'], (_id: string, context) => {
+			signal = context.signal
+			return gate.promise
+		})
+		const queries = client()
+		const reader = queries.observe$(users, 'a')
+		const request = reader.refetch()
 		await settle()
-		expect(calls).toHaveLength(1)
-
-		const first = screen(() => a.refetch())
-		const second = screen(() => b.refetch())
-		// The loader starts on a microtask; both verbs join the one request.
-		await settle(2)
-		expect(calls).toHaveLength(2)
-
-		gate.resolve('v2')
-		await expect(first).resolves.toBeUndefined()
-		await expect(second).resolves.toBeUndefined()
-		screen(() => expect(b.latest()).toBe('v2'))
+		await queries.dispose()
+		expect(signal.aborted).toBe(true)
+		await expect(request).rejects.toMatchObject({ name: 'AbortError' })
+		gate.resolve('old account')
+		await settle()
+		expect(() => reader.data$.get()).toThrow()
+		expect(() => queries.observe$(users, 'a')).toThrow('disposed')
 	})
-
-	it('evicts entries on clearQueryCache; mounted queries keep showing data', async () => {
-		const { calls, load } = recording()
-		const query = screen(() => cachedQuery$(['cleared'], () => 'x', load))
-		screen(() => query.latest())
+	it('evicts only the matched entry and retires its readers', async () => {
+		const users = defineQuery(['users'], (id: string) => id)
+		const queries = client()
+		const a = queries.observe$(users, 'a')
+		const b = queries.observe$(users, 'b')
 		await settle()
-		screen(() => expect(query.latest()).toBe('v1'))
-
-		clearQueryCache(['cleared'])
-		screen(() => expect(query.latest()).toBe('v1'))
-
-		const next = screen(() => cachedQuery$(['cleared'], () => 'x', load))
-		screen(() => next.latest())
-		await settle()
-		expect(calls).toHaveLength(2)
-	})
-
-	it('does not throw when an owner retired before invalidation', async () => {
-		const scope = createScope({ scopeKey: 'test-screen:retired' })
-		const query = runWithSignalOwner(scope, () =>
-			cachedQuery$(
-				['retired'],
-				() => 'x',
-				async () => 'v',
-			),
-		)
-
-		runWithSignalOwner(scope, () => query.latest())
-		scope.dispose()
-		expect(() => invalidateQueries(['retired'])).not.toThrow()
+		await queries.evictQueries({ key: ['users', 'a'], exact: true })
+		expect(() => a.data$.get()).toThrow()
+		expect(b.data$.get()).toBe('b')
 	})
 })
 
-describe('persistence', () => {
-	// Storage keys are `xplat:query:<scope>:<canonical element>…` joined by
-	// \u0001. Test keys use only string elements, which canonicalize to JSON.
-	const element = (value: unknown) => JSON.stringify(value)
-	const storedKey = (scope: string, key: readonly unknown[]) =>
-		`xplat:query:${scope}:${key.map(element).join('\u0001')}`
-
-	function envelope(version: string | number, data: unknown, savedAt = Date.now()): string {
-		return JSON.stringify({ v: version, t: savedAt, d: data })
-	}
-
-	function persistence(storage: ReturnType<typeof createMemoryQueryStorage>) {
-		return {
-			storage,
-			version: 'v1',
-			scope: () => 'user-1',
-		} satisfies QueryPersistence
-	}
-
-	it('restores a stored snapshot without fetching while fresh', async () => {
+describe('immutable persistence boundaries', () => {
+	it('requires a client namespace and restores compatible confirmed data', async () => {
 		const storage = createMemoryQueryStorage()
-		storage.set(storedKey('user-1', ['persisted', 'x']), envelope('v1', 'restored'))
-		const { calls, load } = recording()
-		const query = screen(() =>
-			cachedQuery$(['persisted'], () => 'x', load, {
-				staleTimeMs: 60_000,
-				persist: persistence(storage),
-			}),
-		)
-
-		screen(() => query.latest())
-		await settle()
-		screen(() => expect(query.latest()).toBe('restored'))
-		expect(calls).toHaveLength(0)
-	})
-
-	it('writes an envelope with version and timestamp after a fetch', async () => {
-		const storage = createMemoryQueryStorage()
-		const { calls, load } = recording()
-		const query = screen(() =>
-			cachedQuery$(['persisted-write'], () => 'x', load, {
-				persist: persistence(storage),
-			}),
-		)
-
-		screen(() => query.latest())
-		await settle()
-		expect(calls).toHaveLength(1)
-
-		const raw = storage.get(storedKey('user-1', ['persisted-write', 'x']))
-		expect(raw).not.toBeNull()
-		const written = JSON.parse(raw!) as { v: string; t: number; d: unknown }
-		expect(written.v).toBe('v1')
-		expect(written.d).toBe('v1')
-		expect(typeof written.t).toBe('number')
-	})
-
-	it('rejects stored snapshots on version mismatch and expiry', async () => {
-		const storage = createMemoryQueryStorage()
-		storage.set(
-			storedKey('user-1', ['persisted-version', 'x']),
-			envelope('v0', 'old', Date.now() - 120_000),
-		)
-
-		const { calls, load } = recording()
-		const query = screen(() =>
-			cachedQuery$(['persisted-version'], () => 'x', load, {
-				persist: { ...persistence(storage), version: 'v2', maxAgeMs: 60_000 },
-			}),
-		)
-
-		screen(() => query.latest())
-		await settle()
-		expect(calls).toHaveLength(1)
-		// The rejected record was removed.
-		expect(storage.get(storedKey('user-1', ['persisted-version', 'x']))).not.toBeNull()
-	})
-
-	it('skips persistence entirely when scope resolves to null', async () => {
-		const storage = createMemoryQueryStorage()
-		const gets: string[] = []
-		const sets: string[] = []
-		const spy: typeof storage = {
-			get: (key) => {
-				gets.push(key)
-				return null
-			},
-			set: (key, value) => {
-				sets.push(key)
-				storage.set(key, value)
-			},
-			remove: storage.remove,
-		}
-
-		const { calls, load } = recording()
-		const query = screen(() =>
-			cachedQuery$(['unscoped'], () => 'x', load, {
-				persist: { storage: spy, version: 'v1', scope: () => null },
-			}),
-		)
-
-		screen(() => query.latest())
-		await settle()
-		expect(calls).toHaveLength(1)
-		expect(gets).toHaveLength(0)
-		expect(sets).toHaveLength(0)
-	})
-
-	it('scopes stored snapshots to the resolved boundary', async () => {
-		const storage = createMemoryQueryStorage()
-		storage.set(storedKey('user-1', ['scoped', 'x']), envelope('v1', 'private'))
-		storage.set(storedKey('user-1', ['scoped-2', 'x']), envelope('v1', 'also-private'))
-		const { calls, load } = recording()
-		let boundary = 'user-1'
-		const persist = {
-			storage,
-			version: 'v1' as const,
-			maxAgeMs: undefined as number | undefined,
-			scope: () => boundary,
-		}
-
-		const options = { staleTimeMs: 60_000, persist }
-
-		// Under user-2 the user-1 record is invisible — a fresh request runs
-		// and persists under user-2's namespace instead.
-		boundary = 'user-2'
-		const hidden = screen(() => cachedQuery$(['scoped'], () => 'x', load, options))
-		screen(() => hidden.latest())
-		await settle()
-		expect(calls).toHaveLength(1)
-		expect(storage.get(storedKey('user-1', ['scoped', 'x']))).not.toBeNull()
-		expect(storage.get(storedKey('user-2', ['scoped', 'x']))).not.toBeNull()
-
-		// Under user-1 the same key's record restores.
-		boundary = 'user-1'
-		const visible = screen(() => cachedQuery$(['scoped-2'], () => 'x', load, options))
-		screen(() => visible.latest())
-		await settle()
-		screen(() => expect(visible.latest()).toBe('also-private'))
-		expect(calls).toHaveLength(1)
-	})
-})
-
-describe('cache operation ownership', () => {
-	const key = (scope: string) => `xplat:query:${scope}:"owned"\u00011`
-
-	it('retires ignored cancellation without publishing or saving into the next account', async () => {
-		const client = createQueryClient()
-		const gate = deferred<string>()
-		const storage = createMemoryQueryStorage()
-		let account = 'alice'
-		const options = { staleTimeMs: Infinity, persist: { storage, version: 1, scope: () => account } }
-		const query = screen(() => client.cachedQuery$(['owned'], () => 1, () => gate.promise, options))
-		screen(() => query.latest())
-		await settle()
-		client.clearQueryCache()
-		account = 'bob'
-		gate.resolve('alice-private')
-		await settle()
-		screen(() => expect(query.latest()).toBeUndefined())
-		expect(storage.get(key('alice'))).toBeNull()
-		expect(storage.get(key('bob'))).toBeNull()
-		const next = screen(() => client.cachedQuery$(['owned'], () => 1, () => 'bob', options))
-		screen(() => next.latest())
-		await settle()
-		screen(() => expect(next.latest()).toBe('bob'))
-		expect(JSON.parse(storage.get(key('bob'))!).d).toBe('bob')
-	})
-
-	it('orders clearing after a pending save and before a replacement entry restores', async () => {
-		const client = createQueryClient()
-		const saved = deferred<void>()
-		const storage = createMemoryQueryStorage()
-		const adapter = { ...storage, set: async (k: string, value: string) => {
-			await saved.promise
-			storage.set(k, value)
-		} }
-		const options = { staleTimeMs: Infinity, persist: { storage: adapter, version: 1, scope: () => 'alice' } }
-		const query = screen(() => client.cachedQuery$(['owned'], () => 1, () => 'old', options))
-		screen(() => query.latest())
-		await settle()
-		client.clearQueryCache()
-		const next = screen(() => client.cachedQuery$(['owned'], () => 1, () => 'new', options))
-		screen(() => next.latest())
-		saved.resolve()
-		await settle()
-		screen(() => expect(next.latest()).toBe('new'))
-		expect(JSON.parse(storage.get(key('alice'))!).d).toBe('new')
-	})
-
-	it.each(['resolve', 'reject'] as const)('follows a newer invalidation after an old request %ss', async (outcome) => {
-		const client = createQueryClient()
-		const gate = deferred<string>()
-		let calls = 0
-		const query = screen(() => client.cachedQuery$(['owned'], () => 1,
-			() => ++calls === 1 ? gate.promise : 'current', { staleTimeMs: Infinity }))
-		screen(() => query.latest())
-		await settle()
-		client.invalidateQueries()
-		client.invalidateQueries()
-		if (outcome === 'resolve') {gate.resolve('outdated')}
-		else {gate.reject(new Error('outdated failure'))}
-		await settle()
-		expect(calls).toBe(2)
-		screen(() => expect(query.latest()).toBe('current'))
-	})
-
-	it('shares a pending restoration among normal readers', async () => {
-		const client = createQueryClient()
-		const restored = deferred<string>()
-		let gets = 0
 		let loads = 0
-		const options = { staleTimeMs: Infinity, persist: { version: 1, scope: () => 'alice',
-			storage: { get: () => { gets++; return restored.promise }, set() {}, remove() {} } } }
-		const make = () => screen(() => client.cachedQuery$(['owned'], () => 1, () => { loads++; return 'network' }, options))
-		const first = make()
-		const second = make()
-		screen(() => { first.latest(); second.latest() })
+		const users = defineQuery(['users'], (_id: string) => ++loads, {
+			staleTimeMs: Infinity,
+			persist: { storage, version: 1 },
+		})
+		expect(() => client().observe$(users, 'a')).toThrow('namespace')
+		const first = client('one')
+		const reader = first.observe$(users, 'a')
 		await settle()
-		expect(gets).toBe(1)
-		expect(loads).toBe(0)
-		restored.resolve(JSON.stringify({ v: 1, t: Date.now(), d: 'disk' }))
+		expect(reader.data$.get()).toBe(1)
+		await first.dispose()
+		const restored = client('one').observe$(users, 'a')
+		const isolated = client('two').observe$(users, 'a')
 		await settle()
-		screen(() => { expect(first.latest()).toBe('disk'); expect(second.latest()).toBe('disk') })
+		expect(restored.data$.get()).toBe(1)
+		expect(isolated.data$.get()).toBe(2)
+		expect(loads).toBe(2)
 	})
+	it('ignores expired, malformed, and incompatible durable records', async () => {
+		for (const record of [
+			'not-json',
+			JSON.stringify({ v: 2, t: Date.now(), d: 'wrong version' }),
+			JSON.stringify({ v: 1, t: Date.now() - 10000, d: 'expired' }),
+		]) {
+			const storage = createMemoryQueryStorage()
+			let storageKey = ''
+			const adapter: QueryStorageAdapter = {
+				get(key) {
+					storageKey = key
+					return record
+				},
+				set: (key, value) => storage.set(key, value),
+				remove: (key) => storage.remove(key),
+			}
 
-	it('does not let a delayed restoration replace an explicit fresh fetch', async () => {
-		const client = createQueryClient()
-		const restored = deferred<string>()
-		const options = { staleTimeMs: Infinity, persist: { version: 1, scope: () => 'alice',
-			storage: { get: () => restored.promise, set() {}, remove() {} } } }
-		const query = screen(() => client.cachedQuery$(['owned'], () => 1, () => 'fresh', options))
-		screen(() => query.latest())
-		await settle()
-		await query.refetch()
-		await settle()
-		screen(() => expect(query.latest()).toBe('fresh'))
-		restored.resolve(JSON.stringify({ v: 1, t: Date.now() - 1000, d: 'old-disk' }))
-		await settle()
-		const next = screen(() => client.cachedQuery$(['owned'], () => 1, () => 'unexpected', options))
-		screen(() => next.latest())
-		await settle()
-		screen(() => expect(next.latest()).toBe('fresh'))
+			const users = defineQuery(['users'], (_id: string) => 'network', {
+				persist: { storage: adapter, version: 1, maxAgeMs: 1000 },
+			})
+
+			const reader = client('account').observe$(users, 'a')
+			await settle()
+			expect(reader.data$.get()).toBe('network')
+			expect(storageKey).toContain('xplat:query:')
+		}
 	})
-
-	it('cannot revive an entry from a restoration that completed after clear', async () => {
-		const client = createQueryClient()
-		const restored = deferred<string>()
-		const query = screen(() => client.cachedQuery$(['owned'], () => 1, () => 'unexpected', {
-			persist: { version: 1, scope: () => 'alice', storage: { get: () => restored.promise, set() {}, remove() {} } },
-		}))
-		screen(() => query.latest())
+	it('keeps memory usable when storage fails and reports a failed explicit purge', async () => {
+		const storage: QueryStorageAdapter = {
+			get() {
+				throw new Error('storage read')
+			},
+			set() {
+				throw new Error('storage write')
+			},
+			remove() {
+				throw new Error('storage purge')
+			},
+		}
+		const users = defineQuery(['users'], (_id: string) => 'network', {
+			persist: { storage, version: 1 },
+		})
+		const queries = client('account')
+		const reader = queries.observe$(users, 'a')
 		await settle()
-		client.clearQueryCache()
-		restored.resolve(JSON.stringify({ v: 1, t: Date.now(), d: 'private' }))
+		expect(reader.data$.get()).toBe('network')
+		await expect(queries.dispose({ purgePersisted: true })).rejects.toThrow('storage purge')
+		expect(() => reader.data$.get()).toThrow()
+	})
+	it('does not restore an old account after disposal', async () => {
+		const gate = deferred<string | null>()
+		const storage: QueryStorageAdapter = { get: () => gate.promise, set() {}, remove() {} }
+		const users = defineQuery(['users'], (_id: string) => 'network', {
+			persist: { storage, version: 1 },
+		})
+		const queries = client('old')
+		const reader = queries.observe$(users, 'a')
 		await settle()
-		screen(() => expect(query.latest()).toBeUndefined())
+		await queries.dispose()
+		gate.resolve(JSON.stringify({ v: 1, t: Date.now(), d: 'private' }))
+		await settle()
+		expect(() => reader.data$.get()).toThrow()
+	})
+	it('awaits pending saves before durable sign-out purge', async () => {
+		const saved = deferred<void>()
+		let record: string | null = null
+		const operations: string[] = []
+		const storage: QueryStorageAdapter = {
+			get: () => record,
+			async set(_key, value) {
+				operations.push('set')
+				await saved.promise
+				record = value
+			},
+			remove() {
+				operations.push('remove')
+				record = null
+			},
+		}
+		const users = defineQuery(['users'], (_id: string) => 'private', {
+			persist: { storage, version: 1 },
+		})
+		const queries = client('old')
+		queries.observe$(users, 'a')
+		await settle()
+		const purged = queries.dispose({ purgePersisted: true })
+		expect(operations).toEqual(['set'])
+		saved.resolve()
+		await purged
+		expect(operations).toEqual(['set', 'remove'])
+		expect(record).toBeNull()
 	})
 })

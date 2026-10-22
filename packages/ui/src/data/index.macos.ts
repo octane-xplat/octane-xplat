@@ -27,25 +27,21 @@ export type {
 	SortDescriptor,
 } from '../async-list'
 
-// Shared keyed query cache over octane/signals query$ — the same portable
-// contract as mobile; AppKit persistence uses the host defaults bridge.
-export {
-	cachedQuery$,
-	invalidateQueries,
-	clearQueryCache,
-	createQueryClient,
-	createMemoryQueryStorage,
-} from '../query-cache'
-
-export { platformQueryStorage } from '../query-storage.macos'
+export { defineQuery, createQueryClient, createMemoryQueryStorage } from '../query-cache'
+export { useQuery$ } from '../use-query'
+export { platformQueryStorage } from '../query-storage'
 export type {
-	CachedQuery,
+	QueryDefinition,
 	QueryClient,
+	QueryClientOptions,
+	QueryReader,
+	QueryState,
 	QueryKey,
 	QueryKeyPart,
 	QueryStorageAdapter,
 	QueryPersistence,
-	CachedQueryOptions,
-	InvalidateQueriesOptions,
-	ClearQueryCacheOptions,
+	QueryOptions,
+	QueryLoadContext,
+	QueryFilter,
+	QueryDisposeOptions,
 } from '../query-cache'

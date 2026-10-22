@@ -119,15 +119,38 @@ milliseconds, and `autoThresholdSeconds` is a duration in seconds.
 <Timer startTimeMs={startedAtMs} />
 ```
 
-Cached-query durations are milliseconds: rename `staleTime` to
-`staleTimeMs` and `maxAge` to `maxAgeMs`. The persisted envelope keeps its
-existing shape; its `t` field stores the save time in Unix milliseconds.
+Shared queries now separate definitions, readers, and clients. Replace
+`cachedQuery$(key, select, load)` with one `defineQuery(key, load, options)`
+and `useQuery$(client, definition, selection)` in each component. Remove global
+cache helpers and per-query `scope` callbacks. A client's immutable namespace
+owns persistence; replace and dispose the client on account changes. Durations
+remain milliseconds (`staleTimeMs`, `maxAgeMs`).
 
 ```ts
-cachedQuery$(['user'], getUserId, fetchUser, {
-	staleTimeMs: 60_000,
-	persist: { storage, version: 'user-v1', maxAgeMs: 86_400_000 },
-})
+import { createQueryClient, defineQuery } from '@octane-xplat/ui/data'
+
+const queries = createQueryClient({ namespace: 'public-users' })
+const users = defineQuery(['users'], async (id: string, { signal }) => {
+	const response = await fetch(`/api/users/${encodeURIComponent(id)}`, { signal })
+	if (!response.ok) throw new Error('Could not load user')
+	return response.json() as Promise<{ name: string }>
+}, { staleTimeMs: 60_000 })
+// Components call useQuery$(queries, users, props.userId).
+queries.invalidateQueries({ key: ['users'] })
+```
+
+Refresh promises now return data or reject; handle failures in events. Inspect
+`reader.state$.get()` for `hasData`, `fetchStatus`, and `error`. Eviction and
+client disposal retire old signals rather than leaving old account records
+visible. Previous persisted keys are intentionally not migrated in this alpha
+cutover; the next read repopulates them.
+
+```ts
+const reader = queries.observe$(users, '42')
+try { await reader.refetch() }
+catch (error) { console.error('Could not refresh', error) }
+finally { reader.dispose() }
+await queries.dispose({ purgePersisted: true })
 ```
 
 Layout numbers also have distinct contracts: `Stack` and related spacing

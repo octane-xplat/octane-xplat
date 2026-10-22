@@ -4,6 +4,18 @@ Status: implementation started, 2026-10-22. [Engine decision 121](query-cache-en
 selects native signal authority. Remaining steps are not yet shipped; desktop
 qualification has a verified host prerequisite.
 
+
+Delivered: step 1 engine decision and step 2 ownership foundation. The new
+public surface is `defineQuery`, `useQuery$`, and explicit client `observe$`;
+component acquisition occurs after commit. Thirteen cache unit regressions and
+five universal object-driver regressions pass. UI and dependent typechecks
+(53 tasks), docs build, barrel checks, and recipe link checks pass. These are
+host/source checks; composed device qualification remains step 12.
+
+Steps 3–12 remain in progress; retries, automatic lifecycle refresh, direct
+writes, prefetch, shared optimistic helpers, cached pagination and inspection
+are not yet available at this checkpoint.
+
 Make the official cache the easiest reliable choice for an Octane Xplat app
 that loads shared data, edits it, navigates between screens, and recovers from
 network interruptions. Success means those workflows need less application

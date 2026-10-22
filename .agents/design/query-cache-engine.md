@@ -75,3 +75,12 @@ No Android, Windows, or Linux runtime qualification has run for this decision.
 Cross-platform composed workflows remain required by step 12. The new public
 contracts must acquire maintained regression tests as they land; temporary
 probe success does not establish a shipped cache feature.
+
+The replacement's maintained ownership tests also establish that raw Scope
+cells must be created outside rendering. The hook acquires its lease in a
+committed effect and returns no reader until then; it releases the old lease
+on selection changes/unmount. Raw Scope signals and derived handles retain
+client-owned identity. A declarative `signal$` factory cannot be substituted
+under `runWithSignalOwner(scope, ...)`: its descriptor still uses the
+renderer/document declaration contract. The replacement does not bypass
+Octane's render write guard or depend on descriptor internals.

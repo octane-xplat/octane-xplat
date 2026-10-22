@@ -8,15 +8,14 @@ import {
 
 import {
 	InstanceProfile,
-	SharedReader,
-	sharedCalls,
-	sharedSelection$,
+	TwoProfiles,
+	SuspenseProfile,
 } from '../tests/query-cache.fixture.mobile.tsrx'
 
-import { clearQueryCache, invalidateQueries } from './query-cache'
-import type { ProbeRequest } from '../tests/query-cache.fixture.mobile.tsrx'
+import { createQueryClient, defineQuery, type QueryClient } from './query-cache'
 
 const roots: ReturnType<typeof createUniversalRoot>[] = []
+const clients: QueryClient[] = []
 function mount(Component: any, props: any) {
 	const container = createObjectContainer('nativescript')
 	const root = createUniversalRoot(container, createObjectDriver('nativescript'))
@@ -24,7 +23,6 @@ function mount(Component: any, props: any) {
 	root.render(Component, props)
 	return {
 		root,
-		container,
 		text: () =>
 			container.children
 				.filter((node: any) => node.type === 'label')
@@ -33,122 +31,93 @@ function mount(Component: any, props: any) {
 }
 
 async function settle() {
-	for (let i = 0; i < 12; i++) {
+	for (let i = 0; i < 20; i++) {
 		await Promise.resolve()
 	}
-
-	// Octane 0.14 may publish query results in a cooperative host task.
 	await new Promise<void>((resolve) => setTimeout(resolve, 0))
 	flushUniversalSync(() => {})
 }
 
-function requests() {
-	const calls: ProbeRequest[] = []
-	const load = (id: string, { signal }: { signal: AbortSignal }) =>
-		new Promise<string>((resolve, reject) => calls.push({ id, signal, resolve, reject }))
-
-	return { calls, load }
+function fixture() {
+	const calls: Array<{ id: string; signal: AbortSignal; resolve: (value: string) => void }> = []
+	const definition = defineQuery(
+		['profile'],
+		(id: string, { signal }) =>
+			new Promise<string>((resolve) => calls.push({ id, signal, resolve })),
+	)
+	const client = createQueryClient()
+	clients.push(client)
+	return { client, definition, calls }
 }
 
-afterEach(() => {
+afterEach(async () => {
 	for (const root of roots.splice(0)) {
 		root.unmount()
 	}
-
-	sharedCalls.splice(0)
-	sharedSelection$.set('a')
-	clearQueryCache()
+	await Promise.all(clients.splice(0).map((client) => client.dispose()))
 })
 
-describe('cachedQuery$ on universal roots', () => {
-	it('shares one request and its value between two instance-scoped screens', async () => {
-		const { calls, load } = requests()
-		const first = mount(InstanceProfile, { id: 'same', load })
-		const second = mount(InstanceProfile, { id: 'same', load })
+describe('shared query readers on universal roots', () => {
+	it('shares requests across independent roots and retains the remaining reader', async () => {
+		const f = fixture()
+		const a = mount(InstanceProfile, { ...f, id: 'same' })
+		const b = mount(InstanceProfile, { ...f, id: 'same' })
 		await settle()
-		// Two owning cells in two roots dedupe to one shared request.
-		expect(calls.map((call) => call.id)).toEqual(['same'])
-		calls[0].resolve('record')
+		expect(f.calls).toHaveLength(1)
+		a.root.unmount()
+		expect(f.calls[0]!.signal.aborted).toBe(false)
+		f.calls[0]!.resolve('shared')
 		await settle()
-		expect(first.text()).toEqual(['same:ready:record:false'])
-		expect(second.text()).toEqual(['same:ready:record:false'])
+		expect(b.text()).toEqual(['same:ready:shared:idle'])
 	})
-
-	it('keeps independent entries for different selections', async () => {
-		const { calls, load } = requests()
-		const first = mount(InstanceProfile, { id: 'a', load })
-		const second = mount(InstanceProfile, { id: 'b', load })
+	it('keeps two same-family selections independent within one component', async () => {
+		const f = fixture()
+		const screen = mount(TwoProfiles, f)
 		await settle()
-		expect(calls.map((call) => call.id)).toEqual(['a', 'b'])
-		calls[0].resolve('one')
-		calls[1].resolve('two')
+		expect(f.calls.map((call) => call.id)).toEqual(['a', 'b'])
+		f.calls[0]!.resolve('A')
+		f.calls[1]!.resolve('B')
 		await settle()
-		expect(first.text()).toEqual(['a:ready:one:false'])
-		expect(second.text()).toEqual(['b:ready:two:false'])
+		expect(screen.text()).toEqual(['A:B'])
 	})
-
-	it('invalidateQueries refetches owners across roots while prior data stays visible', async () => {
-		const { calls, load } = requests()
-		const first = mount(InstanceProfile, { id: 'same', load })
-		const second = mount(InstanceProfile, { id: 'same', load })
+	it('refreshes both roots once while retaining visible data', async () => {
+		const f = fixture()
+		const a = mount(InstanceProfile, { ...f, id: 'same' })
+		const b = mount(InstanceProfile, { ...f, id: 'same' })
 		await settle()
-		expect(calls).toHaveLength(1)
-		calls[0].resolve('v1')
+		f.calls[0]!.resolve('first')
 		await settle()
-		expect(first.text()).toEqual(['same:ready:v1:false'])
-
-		flushUniversalSync(() => invalidateQueries(['profile']))
+		flushUniversalSync(() => f.client.invalidateQueries({ key: ['profile'] }))
 		await settle()
-		// One shared fetch; both screens keep v1 while it runs.
-		expect(calls).toHaveLength(2)
-		expect(first.text()).toEqual(['same:ready:v1:true'])
-		expect(second.text()).toEqual(['same:ready:v1:true'])
-		calls[1].resolve('v2')
+		expect(f.calls).toHaveLength(2)
+		expect(a.text()).toEqual(['same:ready:first:fetching'])
+		expect(b.text()).toEqual(['same:ready:first:fetching'])
+		f.calls[1]!.resolve('next')
 		await settle()
-		expect(first.text()).toEqual(['same:ready:v2:false'])
-		expect(second.text()).toEqual(['same:ready:v2:false'])
+		expect(a.text()).toEqual(['same:ready:next:idle'])
+		expect(b.text()).toEqual(['same:ready:next:idle'])
 	})
-
-	it('invalidateQueries scopes to the key prefix', async () => {
-		const { calls, load } = requests()
-		const profile = mount(InstanceProfile, { id: 'a', load })
-		const shared = mount(SharedReader, {})
+	it('does not let an obsolete selection overwrite a later selection', async () => {
+		const f = fixture()
+		const screen = mount(InstanceProfile, { ...f, id: 'a' })
 		await settle()
-		expect(calls).toHaveLength(1)
-		expect(sharedCalls).toHaveLength(1)
-		calls[0].resolve('profile-one')
-		sharedCalls[0].resolve('shared-one')
+		flushUniversalSync(() => screen.root.render(InstanceProfile, { ...f, id: 'b' }))
 		await settle()
-		expect(profile.text()).toEqual(['a:ready:profile-one:false'])
-		expect(shared.text()).toEqual(['root:a:ready:shared-one:false'])
-
-		flushUniversalSync(() => invalidateQueries(['profile']))
+		f.calls[1]!.resolve('B')
+		f.calls[0]!.resolve('A')
 		await settle()
-		// Only the 'profile' family refetches; 'shared-profile' is untouched.
-		expect(calls).toHaveLength(2)
-		expect(sharedCalls).toHaveLength(1)
-
-		flushUniversalSync(() => invalidateQueries(['shared-profile']))
-		await settle()
-		expect(sharedCalls).toHaveLength(2)
+		expect(screen.text()).toEqual(['b:ready:B:idle'])
 	})
-
-	it('a mounted module-level query shares its root cell across roots', async () => {
-		// Fresh selection so the retained root cell takes a new request.
-		flushUniversalSync(() => sharedSelection$.set('b'))
-		const page = mount(SharedReader, { label: 'page' })
-		const sheet = mount(SharedReader, { label: 'sheet' })
+	it('suspends for first data and removes disposed account data through the boundary', async () => {
+		const f = fixture()
+		const screen = mount(SuspenseProfile, f)
 		await settle()
-		expect(sharedCalls).toHaveLength(1)
-		expect(sharedCalls[0].id).toBe('b')
-		sharedCalls[0].resolve('doc')
+		expect(screen.text()).toEqual(['loading'])
+		f.calls[0]!.resolve('private record')
 		await settle()
-		expect(page.text()).toEqual(['page:b:ready:doc:false'])
-		expect(sheet.text()).toEqual(['sheet:b:ready:doc:false'])
-
-		flushUniversalSync(() => sharedSelection$.set('c'))
+		expect(screen.text()).toEqual(['private record'])
+		await f.client.dispose()
 		await settle()
-		expect(sharedCalls).toHaveLength(2)
-		expect(sharedCalls[1].id).toBe('c')
+		expect(screen.text()).toEqual(['retired'])
 	})
 })

@@ -49,7 +49,7 @@ export async function checkMacOSBarrels(root) {
 	for (const name of [
 		'useBackInterceptor',
 		'manifestToJson',
-		'cachedQuery$',
+		'defineQuery',
 		'Markdown',
 		'ChatComposer',
 	]) {
@@ -81,9 +81,9 @@ export async function checkMacOSBarrels(root) {
 		'useStore',
 		'useListData',
 		'useAsyncList',
-		'cachedQuery$',
-		'invalidateQueries',
-		'clearQueryCache',
+		'defineQuery',
+		'createQueryClient',
+		'useQuery$',
 		'createMemoryQueryStorage',
 		'platformQueryStorage',
 	]) {

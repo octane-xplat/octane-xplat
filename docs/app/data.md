@@ -279,7 +279,7 @@ restart the failed request.
 
 A **mutation** changes data on the server, such as saving a trip. Wait for
 that request to succeed, then call `refetch()` on the query that displays
-it so the screen shows the updated record — or `invalidateQueries` when the
+it so the screen shows the updated record — or the client’s `invalidateQueries` when the
 data lives in the [shared query cache](#the-shared-query-cache).
 
 ```ts
@@ -502,144 +502,99 @@ export function ResumeRefresh() {
 
 ## The shared query cache
 
-`cachedQuery$` from `@octane-xplat/ui/data` is `query$` plus a shared, app-wide
-default result cache. You write the same selector and loader, and add a required
-**family key** — a stable name for the kind of data, such as `'user'` — that
-gives the query a cross-screen identity. Two screens that resolve the same
-key and selection share the request and its record, so the second screen
-shows the cached value immediately instead of fetching again. The exported
-functions use one default client per loaded UI module.
+Use a shared cache when two screens need the same server record. Define the
+loader once, create a client for your app or signed-in account, then observe
+that definition in each screen. Equal selections share data and an in-flight
+request. Two selections in the same screen stay independent.
 
 ```ts
 // src/queries.ts
-import { cachedQuery$ } from '@octane-xplat/ui/data'
-import { api } from './api'
+import { createQueryClient, defineQuery } from '@octane-xplat/ui/data'
 
-export const user$ = cachedQuery$(
-	['user'],
-	() => openUserId$.get(),
-	(id, { signal }) => api.user.get({ id, signal }),
-)
+export interface User { id: string; name: string }
+export const queries = createQueryClient()
+export const users = defineQuery(['users'], async (id: string, { signal }) => {
+	const response = await fetch(`/api/users/${encodeURIComponent(id)}`, { signal })
+	if (!response.ok) throw new Error('Could not load user')
+	return response.json() as Promise<User>
+}, { staleTimeMs: 60_000 })
 ```
 
-Create a `QueryClient` when a second app area must keep same-key records and
-invalidations separate. Queries declared through one client still share data
-across screens that use that client. The client is an ordinary object, so you
-do not need a UI provider; call its methods where you declare and invalidate
-those queries.
+The screen supplies its own user ID. `useQuery$` releases that screen's reader
+when its selection changes or the screen unmounts. It returns `undefined` until
+that reader is acquired after rendering. Read `data$.get()` under a
+pending/error boundary to show the first result; later refreshes keep the
+record visible. Import `octane/signals` in modules that read signals during
+render so native screens subscribe too.
 
-```ts
-// src/account-queries.ts
-import { createQueryClient } from '@octane-xplat/ui/data'
-import { api } from './api'
-import { openUserId$ } from './session'
+```tsrx
+// src/UserCard.tsrx
+import 'octane/signals'
+import { Text } from '@octane-xplat/ui'
+import { useQuery$ } from '@octane-xplat/ui/data'
+import { queries, users } from './queries'
 
-export const accountQueries = createQueryClient()
-export const accountUser$ = accountQueries.cachedQuery$(
-	['user'],
-	() => openUserId$.get(),
-	(id, { signal }) => api.user.get({ id, signal }),
-)
-
-export function refreshAccountUser() {
-	accountQueries.invalidateQueries(['user'])
+export function UserCard(props: { userId: string }) @{
+	const user = useQuery$(queries, users, props.userId)
+	@if (!user) {
+		<Text>Loading user…</Text>
+	} @else {
+		@try {
+			<Text>{user.data$.get().name}</Text>
+		} @pending {
+			<Text>Loading user…</Text>
+		} @catch (error) {
+			<Text>{String(error)}</Text>
+		}
+	}
 }
 ```
 
-The full cache key is the family key plus the selector's current selection,
-so `['user']` with selection `'42'` is a different entry than `'43'` — each
-screen instance keeps its own selection, the same ownership rules as
-`query$`, while the results live in one shared store. Key parts must be
-JSON-serializable values (strings, numbers, booleans, null, arrays, plain
-objects); object field order does not matter.
+A definition owns the loader and options for its family. Declare it outside
+rendering and reuse the same object. Another definition using that family in
+one client throws instead of silently taking the first loader. Keys and
+selections contain JSON values; object field order does not affect identity.
 
 ```ts
-import { cachedQuery$ } from '@octane-xplat/ui/data'
-import { api } from './api'
-
-// ['user', { id: '42', mode: 'full' }] and the same parts in another order
-// resolve to the same cache entry.
-export const userDetail$ = cachedQuery$(
-	['user'],
-	() => ({ id: openUserId$.get(), mode: 'full' }),
-	(selection, { signal }) => api.user.get({ id: selection.id, signal }),
-)
+// Add to src/queries.ts; each selection identifies one search result.
+export const searches = defineQuery(['users', 'search'], async (
+	selection: { text: string; limit: number }, { signal },
+) => {
+	const params = new URLSearchParams({ q: selection.text, limit: String(selection.limit) })
+	const response = await fetch(`/api/users?${params}`, { signal })
+	if (!response.ok) throw new Error('Could not search users')
+	return response.json() as Promise<User[]>
+})
 ```
 
-Everything from `query$` still applies — `.get()` suspends,
-`.latest()`/`.snapshot()` read state, `@try`/`@pending`/`@catch` render the
-same states, `.refetch()`/`.retry()`/`.reset()` force a fresh request. A new
-reader of a stale entry sees the cached value right away while a background
-request refreshes it; `snapshot().refreshing` is `true` during that
-refresh. `staleTimeMs` widens the window, in milliseconds, where a fresh entry
-is served without any request at all.
+### Refresh and writes
+
+`refetch()` returns the loaded value or rejects with the error. Overlapping
+calls share one request. `state$.get()` reports `fetchStatus` separately from
+`hasData`, so a refresh failure can show an error alongside the previous
+record. Handle the promise when calling a verb from an event.
 
 ```ts
-// src/queries.ts — serve the cached record for up to a minute before
-// revalidating on mount.
-export const user$ = cachedQuery$(
-	['user'],
-	() => openUserId$.get(),
-	(id, { signal }) => api.user.get({ id, signal }),
-	{ staleTimeMs: 60_000 },
-)
-```
+import type { QueryReader } from '@octane-xplat/ui/data'
+import type { User } from './queries'
 
-`refetch()`, `retry()`, and `reset()` are awaitable: each returns a promise
-that resolves when the request it started settles — including when it
-fails, so a forgotten `await` never produces an unhandled rejection. Read
-`snapshot()` for the outcome. Calls that overlap on one cache entry share
-the in-flight request rather than loading twice. Cancellation follows
-`query$` — a changed selection, an unmounted owner, or `clearQueryCache`
-aborts the in-flight request's signal; the cell owns request lifetime, so
-there is no per-query `cancel()`.
-
-```ts
-export async function refreshUser() {
-	await user$.refetch()
-	const snapshot = user$.snapshot()
-	if (snapshot.status === 'error') throw snapshot.error
+export async function refreshUser(reader: QueryReader<User>) {
+	try {
+		await reader.refetch()
+	} catch {
+		// Render reader.state$.get().error alongside the retained data.
+	}
 }
 ```
 
-`invalidateQueries` marks entries stale and refetches every screen that
-currently owns them — a whole family, or one exact key. Callers keep showing
-their previous data while the new request runs, so a pull-to-refresh or a
-save never blanks the screen. If a request was already running when the write
-finished, a follow-up request satisfies the newer invalidation.
+After a save, invalidate the affected family or exact family-plus-selection
+key. Observed entries refresh; unobserved entries wait for their next reader.
+An invalidation arriving during a request schedules a follow-up before that
+request settles. This cache does not yet expose optimistic actions; use the
+[plain signal write workflow](#writes) for owner-local optimistic work.
 
 ```ts
-import { invalidateQueries } from '@octane-xplat/ui/data'
-
-// Refetch every 'user' selection on every live screen.
-invalidateQueries(['user'])
-// Refetch only user '42'.
-invalidateQueries(['user', '42'], { exact: true })
-```
-
-`clearQueryCache` drops entries — and their persisted records, when the
-query opts into persistence — without refetching. Mounted screens keep
-their current data; the next reader repopulates. Reach for it on sign-out
-or a schema bump, not for ordinary refreshes. Clearing also retires pending
-fetches and storage restores, even if the transport ignores cancellation.
-
-```ts
-import { clearQueryCache } from '@octane-xplat/ui/data'
-
-export function signOut() {
-	clearQueryCache() // everything
-	// or one family: clearQueryCache(['user'])
-}
-```
-
-### Mutations against the cache
-
-There is no `mutation$`. A mutation stays an ordinary async function:
-await the write, then invalidate the keys it affects. That is the whole
-contract — the query layer owns reads, your code owns writes.
-
-```ts
-import { invalidateQueries } from '@octane-xplat/ui/data'
+import { queries } from './queries'
 
 export async function renameUser(id: string, name: string) {
 	const response = await fetch(`/api/users/${encodeURIComponent(id)}`, {
@@ -647,115 +602,90 @@ export async function renameUser(id: string, name: string) {
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ name }),
 	})
-	if (!response.ok) throw new Error('Could not save the user')
-	invalidateQueries(['user', id], { exact: true })
+	if (!response.ok) throw new Error('Could not save user')
+	queries.invalidateQueries({ key: ['users', id], exact: true })
 }
 ```
 
-Optimistic updates keep working the way they do for plain `query$`: wrap the
-query with `optimistic$` and confirm through `action$`, then invalidate on
-success so the cache also refreshes.
+### Account and request lifetimes
+
+Create a different client for each signed-in account or server request. There
+is no default global client. Disposing the old client retires its signals and
+aborts its work immediately, so an old screen cannot keep reading the old
+account. Even a transport that ignores abort cannot repopulate that client.
+A disposed client cannot be reused.
 
 ```ts
-import { action$, optimistic$ } from 'octane/signals'
-import { invalidateQueries } from '@octane-xplat/ui/data'
-import { user$ } from './queries'
+import { createQueryClient } from '@octane-xplat/ui/data'
 
-const userView$ = optimistic$(user$)
-const rename$ = action$(async (operation, name: string) => {
-	operation.set(userView$, { ...userView$.latest()!, name })
-	await api.user.rename({ name })
-	operation.adopt(name)
-	invalidateQueries(['user'])
-})
+export function createAccountQueries(accountId: string) {
+	return createQueryClient({ namespace: accountId })
+}
+
+export async function signOut(oldQueries: ReturnType<typeof createAccountQueries>) {
+	await oldQueries.dispose({ purgePersisted: true })
+	// Your authentication layer can now replace the session and screen tree.
+}
+```
+
+Outside a component, `observe$` gives an explicit reader. Release it when the
+operation ends. `evictQueries` retires matching entries and their signals;
+it keeps durable records unless `purgePersisted` is requested. Use client
+disposal for sign-out rather than retaining a client with an old namespace.
+
+```ts
+import { queries, users } from './queries'
+
+export async function readUserOnce(id: string) {
+	const reader = queries.observe$(users, id)
+	try { return await reader.refetch() }
+	finally { reader.dispose() }
+}
+
+export function evictUser(id: string) {
+	return queries.evictQueries({ key: ['users', id], exact: true })
+}
 ```
 
 ### Persisting records
 
-`persist` opts a query into durable snapshots — records that survive an app
-restart. It's per-query and off by default. The envelope stored under each
-key is `{ v, t, d }`: your compatibility **version**, the save **t**ime in
-Unix milliseconds, and the **d**ata. `maxAgeMs` expires old records after a
-duration in milliseconds, and `scope` names the boundary the records belong to
-— typically the signed-in account — captured when the cache entry is created. Return
-`null` from `scope` to keep the query memory-only for that boundary, and clear
-the cache before the boundary changes.
+Persistence stores completed JSON data between app launches. Give the client
+an immutable namespace and opt the definition into a storage adapter. The
+version identifies the stored shape; `maxAgeMs` is its maximum age in
+milliseconds. Persistent definitions fail explicitly on a client without a
+namespace. Pending requests, errors, and tentative changes are not saved.
 
 ```ts
-// src/queries.ts
-import { cachedQuery$, platformQueryStorage } from '@octane-xplat/ui/data'
-import { api } from './api'
+import { createQueryClient, defineQuery, platformQueryStorage } from '@octane-xplat/ui/data'
+import type { User } from './queries'
 
-export const user$ = cachedQuery$(
-	['user'],
-	() => openUserId$.get(),
-	(id, { signal }) => api.user.get({ id, signal }),
-	{
-		staleTimeMs: 60_000,
-		persist: {
-			storage: platformQueryStorage,
-			version: 'user-v1', // bump when the record shape changes
-			maxAgeMs: 24 * 60 * 60 * 1000,
-			scope: () => currentAccountId(), // your auth layer answers this
-		},
-	},
-)
+export const accountQueries = createQueryClient({ namespace: 'account:42' })
+export const persistentUsers = defineQuery(['users'], async (id: string, { signal }) => {
+	const response = await fetch(`/api/users/${encodeURIComponent(id)}`, { signal })
+	if (!response.ok) throw new Error('Could not load user')
+	return response.json() as Promise<User>
+}, {
+	staleTimeMs: 60_000,
+	persist: { storage: platformQueryStorage, version: 'user-v1', maxAgeMs: 86_400_000 },
+})
 ```
 
-`platformQueryStorage` is the built-in adapter — `localStorage` on web,
-NativeScript `ApplicationSettings` on iOS/Android, and `NSUserDefaults`
-through the AppKit host bridge on macOS — fine for bounded JSON
-snapshots. Any object with `get`/`set`/`remove` works as a
-`QueryStorageAdapter`, so a web app can swap in an idb-keyval-style async
-store and a native app can use a file-backed or secure store:
+The platform adapter uses browser local storage, NativeScript application
+settings on iOS/Android, and the AppKit preferences bridge on macOS. Use a
+custom asynchronous adapter for larger records or a secure store for sensitive
+data. Storage failures leave the in-memory query usable; an explicit durable
+purge rejects if removal fails, so sign-out code can handle that outcome.
 
 ```ts
 import type { QueryStorageAdapter } from '@octane-xplat/ui/data'
-import { get, set, del } from 'idb-keyval' // example; install it yourself
 
-const idb: QueryStorageAdapter = {
-	get: (key) => get(key),
-	set: (key, value) => set(key, value),
-	remove: (key) => del(key),
+export function storageAdapter(store: {
+	read(key: string): Promise<string | null>
+	write(key: string, value: string): Promise<void>
+	delete(key: string): Promise<void>
+}): QueryStorageAdapter {
+	return { get: key => store.read(key), set: (key, value) => store.write(key, value), remove: key => store.delete(key) }
 }
-```
-
-Persistence restores only completed data — never pending or error state —
-and writes are best-effort: a failing or full store is ignored rather than
-breaking queries. Persisted values must JSON-serialize cleanly, so keep
-records to plain data and small payloads.
-
-Two boundaries worth knowing before you adopt it:
-
-- **The default client is shared.** Its in-memory entries are not partitioned
-  by `QueryPersistence.scope`; clear the default cache before an account
-  boundary changes, or use a separate `QueryClient` for each independent
-  consumer. A client isolates memory only. If clients share a storage adapter,
-  give each persistent account boundary a distinct `scope`.
-- **Same family in one client shares a cell.** Two `cachedQuery$` calls that
-  resolve the same family through one client share a query cell — the first
-  selector and loader bound there wins. Pass `options.key` to keep them
-  distinct, and keep different data in different families.
-
-```ts
-import { createQueryClient } from '@octane-xplat/ui/data'
-import { api } from './api'
-import { openUserId$, pinnedUserId$ } from './session'
-
-export const userQueries = createQueryClient()
-export const user$ = userQueries.cachedQuery$(
-	['user'],
-	() => openUserId$.get(),
-	(id, { signal }) => api.user.get({ id, signal }),
-)
-
-// A distinct cell in the same client and family.
-export const userPinned$ = userQueries.cachedQuery$(
-	['user'],
-	() => pinnedUserId$.get(),
-	(id, { signal }) => api.user.get({ id, signal }),
-	{ key: 'pinned' },
-)
 ```
 
 ## Paged collections and tree moves
@@ -929,12 +859,12 @@ invalidation patterns — but it is not the default: `query$` needs no
 provider and keeps previous data during background reloads.
 
 ```tsx
-import { QueryClient, useQuery } from '@octanejs/tanstack-query'
+import { QueryClient, useQuery$ } from '@octanejs/tanstack-query'
 import { Text } from '@octane-xplat/ui'
 
 const client = new QueryClient()
 export function Greeting() {
-	const query = useQuery(
+	const query = useQuery$(
 		{ queryKey: ['greeting'], queryFn: () => Promise.resolve('Hello') },
 		client,
 	)
@@ -973,12 +903,12 @@ works across those boundaries.
 `useSuspenseQuery` under `universalTry` is unverified on native.
 
 ```tsx
-import { QueryClient, useQuery } from '@octanejs/tanstack-query'
+import { QueryClient, useQuery$ } from '@octanejs/tanstack-query'
 import { Text } from '@octane-xplat/ui'
 
 const client = new QueryClient()
 export function Greeting() {
-	const query = useQuery(
+	const query = useQuery$(
 		{ queryKey: ['greeting'], queryFn: () => Promise.resolve('Hello') },
 		client,
 	)
