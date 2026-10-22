@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { afterEach, expect, it, vi } from 'vitest'
+import { afterAll, afterEach, beforeAll, expect, it, vi } from 'vitest'
 import { act, createRoot } from 'octane'
 import { $getRoot } from 'lexical'
 import { useLexicalComposerContext } from '@octanejs/lexical/LexicalComposerContext'
@@ -8,6 +8,30 @@ import type { LexicalEditorHandle } from './types'
 import { BadgeNode } from '../tests/browser/BadgeNode'
 
 const roots: any[] = []
+
+const rangeGeometry = {
+	getBoundingClientRect: Object.getOwnPropertyDescriptor(Range.prototype, 'getBoundingClientRect'),
+	getClientRects: Object.getOwnPropertyDescriptor(Range.prototype, 'getClientRects'),
+}
+
+beforeAll(() => {
+	// Provide Range geometry for the editor's DOM-selection bookkeeping in jsdom.
+	Object.defineProperties(Range.prototype, {
+		getBoundingClientRect: { configurable: true, value: () => new DOMRect() },
+		getClientRects: { configurable: true, value: () => [] },
+	})
+})
+
+afterAll(() => {
+	for (const [name, descriptor] of Object.entries(rangeGeometry)) {
+		if (descriptor) {
+			Object.defineProperty(Range.prototype, name, descriptor)
+		} else {
+			Reflect.deleteProperty(Range.prototype, name)
+		}
+	}
+})
+
 function UpdatePlugin() {
 	useLexicalComposerContext()
 	return <span data-plugin-mounted="true" />
@@ -116,6 +140,8 @@ it('can replace the default custom-node registry', () => {
 
 it('rejects apply(link) without changing content or focus', () => {
 	const { handle } = mount({ value: '<p>Unchanged</p>' })
+	act(() => handle!.blur())
+	expect(handle!.isFocused()).toBe(false)
 	const before = handle!.getHTML()
 	expect(() => handle!.apply('link')).toThrow(RangeError)
 	expect(handle!.getHTML()).toBe(before)
