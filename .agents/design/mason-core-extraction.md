@@ -195,7 +195,18 @@ portable styling helpers and three existing tests moved unchanged, followed by
 host now builds and runs on an arm64 simulator. A core-only Android AAR and
 isolated Java client also compile. Both isolated NativeScript applications pass
 bridge, geometry and ownership assertions, and core has independent bridge
-declarations. The actual Xplat renderer and OS input remain unqualified.
+declarations. Basic patched-renderer and Octane host-plan component checks also
+pass on both simulator/emulator targets. Compiled app components, hook
+subscriptions and OS input remain gates.
+
+| Evidence | iOS | Android |
+| --- | --- | --- |
+| Native host regressions | 15 UIKit simulator tests pass | 17 instrumentation tests pass on API 36 phone |
+| Plain NativeScript consumer | arm64 simulator passes | API 36 phone passes; current-SDK control also passes on API 35 emulator |
+| Patched Xplat renderer and Octane host-plan component | arm64 iOS 27 simulator passes | API 35 arm64 emulator passes; phone run pending |
+| Compiled TSRX app, hook subscriptions, OS input | Unverified | Unverified |
+| Device host artifact | Swift device framework unbuilt | arm64-v8a AAR and debug app build |
+| Matched release app sizes | Unmeasured | Unmeasured |
 
 Full MasonKit builds the relocated helpers through a generated source overlay
 at `tmp/nativescript-masonkit`. This preserves its relative imports and emitted
@@ -222,7 +233,7 @@ and SDWebImage for backgrounds/nine-slice painting. A small glyph-provider
 protocol replaces the background painter's direct dependency on MasonKit's text
 renderer; it does not add glyph outlines to ordinary foreign labels. The
 shared Rust engine still includes inline-layout code and convenience node
-constructors. Device slices, the actual Xplat renderer, touch input, and matched
+constructors. Device slices, compiled app components, touch input, and matched
 release app measurements remain gates. Commands and source
 hashes are documented in `tools/mason-core/ios-host-README.md` in the Mason fork.
 
@@ -257,8 +268,12 @@ arm64 iOS Simulator and Android arm64-v8a only. Packed files retain their hashes
 including independent bridge declarations tied to the native artifact hashes.
 Both isolated NativeScript apps pass bridge, geometry and ownership assertions
 with only core and NativeScript core as runtime dependencies. They generate
-core metadata without optional HTML/text/widget classes. The actual Xplat
-renderer, OS input and iOS device packaging remain gates.
+core metadata without optional HTML/text/widget classes. A separate consumer
+uses the current Xplat catalog pins and canonical patches, retargeting only the
+renderer patch's two Mason imports. Driver geometry updates, reparenting,
+disposal and Octane component mount/update/unmount pass on iOS Simulator and
+the Android emulator. Compiled TSRX components, hook subscriptions, OS input
+and iOS device packaging remain gates.
 
 The separate `build.runtime` target now tests a container-only TypeScript
 boundary at `dist/prototypes/nativescript-mason-core`; the ordinary package
@@ -274,8 +289,10 @@ constant. The adaptation rules reject unexpected source structure.
 The generated foreign-view helper also cancels pending style work on release.
 A renderer reparent/remove/destroy sequence otherwise leaves a queued sync
 targeting a cleared native label. Its regression fails without cancellation
-and passes with it, including native-view replacement. The adaptation remains
-outside the moved source; full-package runtime reproduction is still separate.
+and passes with it, including native-view replacement. Both native renderer
+consumers pass after the correction (`8eeeafe7` in the Mason fork). The
+adaptation remains outside the moved source; full-package runtime reproduction
+is still separate.
 
 This generated projection is a temporary proof mechanism while upstream
 feedback is pending, not the proposed final upstream module structure. Its

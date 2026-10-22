@@ -995,5 +995,16 @@ prototype, but does not cancel already queued style work. Mason fork commit
 using the real style queue fails without the adaptation, then passes with it;
 it also verifies that a replacement native view still receives its writes.
 The moved module and full package remain unchanged. Reproduce this separately
-in full MasonKit before offering the narrow source fix upstream. Native renderer
-qualification remains separate from this host regression.
+in full MasonKit before offering the narrow source fix upstream.
+
+The corrected renderer scenario passes on arm64 iOS 27 Simulator and the API 35
+arm64 Android emulator. It uses Octane 0.14.0, renderer 0.2.5 and NativeScript
+core 9.1.3 with canonical Xplat patches; only the renderer's two Mason imports
+are retargeted. Assertions cover native geometry, style updates, reparenting,
+disposal and an Octane host-plan component mounting, updating without recreating
+its label, and unmounting. NativeScript controls with the identical dependency
+graph also pass. Evidence lives in the Mason worktree at
+`tmp/mason-core-baseline/test-renderer-foreign-release-fix-ios.log` and
+`tmp/mason-core-baseline/test-renderer-foreign-release-fix-android.log`.
+Compiled TSRX components, hook subscriptions, actual OS input and a physical
+Android renderer run remain unverified.
