@@ -188,7 +188,7 @@ savings. The archive review alone does not quantify extraction savings.
 
 The first extraction in the
 [Mason fork](https://github.com/octane-xplat/nativescript-mason) introduces the
-private `packages/nativescript-mason-core` helper package. Its source provenance
+private `packages/nativescript-mason-core` native package. Its source provenance
 and path mapping live in `tools/mason-core/README.md` in that repository. Five
 portable styling helpers and three existing tests moved unchanged, followed by
 27 unchanged layout/style/view/scroll source files. Another 25 Swift and 86
@@ -273,10 +273,11 @@ savings or transitive dependency download costs. These retained costs need match
 measurements before any size claim. Commands and source hashes live in
 `tools/mason-core/android-host-README.md` in the Mason fork.
 
-The separate `build.plugin.prototype` target assembles the container-only runtime,
+The normal core `build` target now assembles the container-only runtime,
 native host artifacts, dependency headers/licenses, Android Maven declarations,
 and the iOS SDWebImage resource/privacy bundle. It does not change the ordinary
-helper build or make full MasonKit depend on core. Its native artifacts cover
+full MasonKit build or make it depend on core. The helper proof has separate
+`build.helpers` / `verify.helpers` targets. Its native artifacts cover
 arm64 iOS device/Simulator and Android arm64-v8a. The two Apple slices have
 matching projected sources and public headers and are packaged as an
 XCFramework, each with its own platform-specific SDWebImage privacy bundle.
@@ -300,9 +301,9 @@ plus the hook update and cleanup. The simulator also discovers its privacy
 bundle through the core framework at runtime. No screenshots are used.
 Physical-device input remains a gate.
 
-The separate `build.runtime` target now tests a container-only TypeScript
-boundary at `dist/prototypes/nativescript-mason-core`; the ordinary package
-build remains the portable helper slice. The runtime build projects core-only
+The separate `build.runtime` target tests a container-only TypeScript
+intermediate at `dist/prototypes/nativescript-mason-core`; the ordinary package
+build outputs the native plugin at `dist/packages/nativescript-mason-core`. The runtime build projects core-only
 `common.ts`, `tree/`, and root declarations from the preserved full sources.
 It removes HTML/text-run/widget factories and gives containers NativeScript
 view children. The tracked relocated wrappers and styling implementations stay
@@ -333,8 +334,9 @@ this prototype before the native and application gates below are satisfied.
 
 The implementation baseline is fork commit
 `623114b070896a21315fcff9a3a6349bdd091cc4` (beta.126), including merged upstream
-revision `2324b8ee52a1f22cf18dc684aa053e92b64a6451`. The helper-only package is not
-a replacement for MasonKit in Xplat and does not establish native size savings.
+revision `2324b8ee52a1f22cf18dc684aa053e92b64a6451`. The initial helper-only
+proof remains separate; the current normal output is the private native plugin.
+No production Xplat dependency has been switched.
 
 The next native foundation packages the existing shared `mason-c` crate as
 independent static engine archives, with a C consumer exercising callback-based
@@ -342,8 +344,8 @@ measurement and layout outside NativeScript. Its implementation and platform
 qualification boundaries live in
 `packages/nativescript-mason-core/src-native/README.md` in the Mason fork.
 The shared Rust implementation remains unchanged; this step does not require
-moving it or creating a second engine crate. Native artifacts are separate
-from the helper package's tarball and ordinary build target.
+moving it or creating a second engine crate. Raw engine artifacts are separate from the helper proof. The normal core
+build packages the independently built native hosts.
 
 The current C measurement callbacks are excluded on Android, which uses the
 existing JNI binding instead. Do not infer Android foreign-view support from
@@ -382,3 +384,24 @@ with exactly the same one failing test identifier and zero skips; core remains
 15/15 on iOS and 17/17 on Android. Both compiled consumers pass actual OS input.
 The move commit is `6a51ad04` in the Mason fork. See the
 [full iOS baseline finding](../docs/notes/masonkit-layout-evaluation.md#core-extraction-full-ios-baseline-2026-10-22).
+
+The normal build requires explicit native artifact preparation; it does not
+silently compile native projects. Pinned SDK generators install independently
+through `prepare.native.sdk`, so bridge regeneration no longer requires an
+already prepared consumer. The private core project has no `build.all` release
+target; full-package release defaults remain independent. Native output retains
+NativeScript's ES-module auto-detection; the portable helper proof alone uses
+CommonJS metadata. Public installation steps live in the Mason core README.
+The package promotion is `02510b4a` in the Mason fork; all 30 emitted JavaScript
+modules match the previously qualified prototype byte for byte. Normal-package
+Android, iOS Simulator and unsigned iOS device builds pass. iOS OS input passes.
+One Android run timed out after its single OS tap; the diagnostic rerun passes
+the tap, swipe, matching row movement and cleanup. The cause remains unproven;
+failure-state diagnostics are retained in `00e79792`. A retry pass does not
+establish that the intermittent failure is fixed.
+
+A source audit also found Xplat CLI adoption work still required: doctor and
+upgrade currently insist on full MasonKit, and the mobile probe collector
+hardcodes it. They must preserve an explicit core choice and reject conflicting
+native engines before core can be considered ready for Xplat. This does not
+authorize changing the default engine or switching production dependencies.
