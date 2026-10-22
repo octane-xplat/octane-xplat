@@ -2,9 +2,9 @@ import type {
 	KeyboardEvent as NormalizedKeyboardEvent,
 	UseKeyboardOptions,
 	UseKeyboardResult,
-} from './use-keyboard'
+} from './use-keyboard.types'
 
-export type { KeyboardEvent, UseKeyboardOptions, UseKeyboardResult } from './use-keyboard'
+export type { KeyboardEvent, UseKeyboardOptions, UseKeyboardResult } from './use-keyboard.types'
 
 function normalize(event: NormalizedKeyboardEvent): NormalizedKeyboardEvent {
 	return {

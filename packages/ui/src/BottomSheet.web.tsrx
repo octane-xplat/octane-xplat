@@ -2,7 +2,7 @@ import { SheetContent } from './sheet-content'
 import { LayerDepthContext, LayerDepthProvider } from './layer-dismissal.tsrx'
 import { styleRecord } from './style-merge'
 import { SizeProvider } from './size-context'
-import { createPortal, useContext, useEffect, useMemo, useRef, useState } from 'octane'
+import { createPortal, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import type { BottomSheetProps, BottomSheetSwitcherProps } from './props'
 import {
 	BottomSheetSwitcherContext,
@@ -87,7 +87,9 @@ function BottomSheetLayer(props: {
 		)
 	}, [hasScrim, purpose])
 
-	useEffect(() => {
+	// Initialize the controller's offscreen offset before paint. A declarative
+	// parking transform would be retained as the imperative translate's base.
+	useLayoutEffect(() => {
 		const el = panelEl.current
 		if (!el) {
 			return
@@ -136,9 +138,6 @@ function BottomSheetLayer(props: {
 			style={{
 				...styleRecord(sheet.style),
 				...sheetHeightStyle(sheet.height, snapPoints.length),
-				// Parked below the viewport until the gesture controller slides
-				// the panel in (attachSheetDetents owns transform from then on).
-				transform: 'translateY(100%)',
 			}}
 			{...sheet.web}
 		>
