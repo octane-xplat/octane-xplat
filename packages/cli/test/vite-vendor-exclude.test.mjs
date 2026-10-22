@@ -1,9 +1,18 @@
 import assert from 'node:assert/strict'
-import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, it } from 'node:test'
+import { createRequire } from 'node:module'
+import { pathToFileURL } from 'node:url'
 import { sourceOnlyDeps } from '../dist/vite.js'
+
+const { collectVendorModules } = await import(
+	new URL(
+		'./hmr/shared/vendor/manifest-collect.js',
+		pathToFileURL(createRequire(import.meta.url).resolve('@nativescript/vite')),
+	)
+)
 
 const dirs = []
 
@@ -37,8 +46,29 @@ afterEach(() => {
 	}
 })
 
+describe('upstream source-only vendor exclusion', () => {
+	it('excludes semver TypeScript entries while retaining compiled packages', () => {
+		const projectRoot = makeProject({ dependencies: { source: '1.0.0', compiled: '1.0.0' } })
+		makeDep(projectRoot, 'source', { exports: { '.': './src/index.ts' } }, ['src/index.ts'])
+		makeDep(projectRoot, 'compiled', { exports: { '.': './index.js' } }, ['index.js'])
+		const { entries } = collectVendorModules(projectRoot, 'android')
+		assert.ok(!entries.includes('source'))
+		assert.ok(entries.includes('compiled'))
+		assert.deepEqual(sourceOnlyDeps(projectRoot), [])
+	})
+	it('excludes a semver dependency linked to a source checkout', () => {
+		const projectRoot = makeProject({ dependencies: { linked: '1.0.0' } })
+		const checkout = makeProject({ exports: { '.': './entry.tsrx' } })
+		writeFileSync(join(checkout, 'entry.tsrx'), 'export const view = 1')
+		mkdirSync(join(projectRoot, 'node_modules'))
+		symlinkSync(checkout, join(projectRoot, 'node_modules/linked'), 'dir')
+		assert.ok(!collectVendorModules(projectRoot, 'ios').entries.includes('linked'))
+		assert.deepEqual(sourceOnlyDeps(projectRoot), [])
+	})
+})
+
 describe('sourceOnlyDeps', () => {
-	it('lists a dep whose exports conditions map resolves only to .ts/.tsrx', () => {
+	it('leaves source entries to the upstream collector', () => {
 		const projectRoot = makeProject({ dependencies: { '@octane-xplat/ui': '0.16.0' } })
 		// Mirrors @octane-xplat/ui's platform-conditioned source exports.
 		makeDep(projectRoot, '@octane-xplat/ui', {
@@ -57,7 +87,7 @@ describe('sourceOnlyDeps', () => {
 			},
 		})
 
-		assert.deepEqual(sourceOnlyDeps(projectRoot), ['@octane-xplat/ui'])
+		assert.deepEqual(sourceOnlyDeps(projectRoot), [])
 	})
 
 	it('omits a dep whose exports has a compiled .js leaf', () => {
@@ -69,14 +99,14 @@ describe('sourceOnlyDeps', () => {
 		assert.deepEqual(sourceOnlyDeps(projectRoot), [])
 	})
 
-	it('falls back to module/main when exports is absent', () => {
+	it('leaves module/main entries to upstream when exports is absent', () => {
 		const projectRoot = makeProject({
 			dependencies: { 'compiled-main': '1.0.0', 'source-main': '1.0.0' },
 		})
 		makeDep(projectRoot, 'compiled-main', { main: 'index.js' })
 		makeDep(projectRoot, 'source-main', { main: 'src/index.ts' })
 
-		assert.deepEqual(sourceOnlyDeps(projectRoot), ['source-main'])
+		assert.deepEqual(sourceOnlyDeps(projectRoot), [])
 	})
 
 	it('omits a types-only dep (no runtime entry candidates)', () => {
@@ -115,11 +145,11 @@ describe('sourceOnlyDeps', () => {
 		assert.deepEqual(sourceOnlyDeps(projectRoot), [])
 	})
 
-	it('lists an extensionless main with only TypeScript source on disk', () => {
+	it('leaves extensionless source entries to upstream', () => {
 		const projectRoot = makeProject({ dependencies: { 'source-only': '1.0.0' } })
 		makeDep(projectRoot, 'source-only', { main: 'src/index' }, ['src/index.ts'])
 
-		assert.deepEqual(sourceOnlyDeps(projectRoot), ['source-only'])
+		assert.deepEqual(sourceOnlyDeps(projectRoot), [])
 	})
 
 	it('ignores deps missing from node_modules without throwing', () => {
@@ -128,7 +158,7 @@ describe('sourceOnlyDeps', () => {
 		})
 		makeDep(projectRoot, 'present', { main: 'src/index.ts' })
 
-		assert.deepEqual(sourceOnlyDeps(projectRoot), ['present'])
+		assert.deepEqual(sourceOnlyDeps(projectRoot), [])
 	})
 
 	it('covers optionalDependencies and ignores devDependencies', () => {
@@ -136,8 +166,8 @@ describe('sourceOnlyDeps', () => {
 			optionalDependencies: { 'optional-source': '1.0.0' },
 			devDependencies: { 'dev-source': '1.0.0' },
 		})
-		makeDep(projectRoot, 'optional-source', { main: 'src/index.ts' })
-		makeDep(projectRoot, 'dev-source', { main: 'src/index.ts' })
+		makeDep(projectRoot, 'optional-source', { exports: { './feature': './feature.js' } })
+		makeDep(projectRoot, 'dev-source', { exports: { './feature': './feature.js' } })
 
 		assert.deepEqual(sourceOnlyDeps(projectRoot), ['optional-source'])
 	})

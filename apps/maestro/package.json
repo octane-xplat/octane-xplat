@@ -15,7 +15,7 @@
 		"@nativescript/android": "9.1.1",
 		"@nativescript/ios": "9.1.0",
 		"@nativescript/types": "catalog:",
-		"@nativescript/vite": "8.0.17",
+		"@nativescript/vite": "8.0.20",
 		"@octane-xplat/cli": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
 		"typescript": "catalog:",

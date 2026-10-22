@@ -82,25 +82,23 @@ experience of agents writing Octane-xplat code effectively.
   in `packages/cli/test/vite-fs-allow.test.mjs` checks stylesheet registration and
   rejection of unrelated files. This fixes preset discovery, without disabling
   Vite's filesystem boundary.
-  The canonical NativeScript Vite patch likewise discovers installed source
-  links for nested `/ns/m/node_modules/` requests. Otherwise hook-linked auth
-  packages lose their private native plugins (verified 404 for Apple sign-in
-  after CSS loaded). The fallback regression covers a semver manifest with an
-  external source symlink and a sibling package's transitive native plugin.
-- `@nativescript/vite` 8.0.17's HMR vendor collector
-  (`hmr/shared/vendor/manifest-collect.js` `isUnvendorableLocalSource`)
-  treats only `link:`/`workspace:` specs — and `file:` directories with no
-  compiled JS entry — as local source. Consumer apps declaring
-  `@octane-xplat/*` at semver (or linked at install time by a pnpm hook)
-  get their source vendored into a standalone esbuild build with no .tsrx
-  loader and no platform-suffix chain: the dev server exits with "No
-  loader is configured for .tsrx" / "Could not resolve" errors (evidence:
-  upstream source + repro in an opals-style consumer app). Workaround:
-  `xplatNative` merges the app's source-only root deps
-  (`sourceOnlyDeps`, same rule as upstream's `file:` check) into
-  `NS_VENDOR_EXCLUDE`; the collector then serves them per-module through
-  the Vite pipeline. Remove once the upstream collector skips source-only
-  packages regardless of spec.
+  NativeScript Vite 8.0.20 now discovers installed source links for nested
+  `/ns/m/node_modules/` requests and anchors transforms to the file found
+  ([NativeScript#11559](https://github.com/NativeScript/NativeScript/pull/11559)).
+  The local patch retains the separate app-local pnpm virtual-store fallback.
+- NativeScript Vite 8.0.20 excludes source-only packages from its HMR vendor
+  bundle regardless of dependency spec
+  ([NativeScript#11560](https://github.com/NativeScript/NativeScript/pull/11560)).
+  Xplat no longer duplicates that detection. Its `NS_VENDOR_EXCLUDE` merge
+  retains only packages with subpath-only exports and no root entry: upstream
+  can still vendor those, but the generated bare import has no root to load.
+  Evidence: the published 8.0.20 collector and
+  `packages/cli/test/vite-vendor-exclude.test.mjs`; this is host evidence,
+  not device verification.
+
+  ```json
+  { "exports": { "./feature": "./dist/feature.js" } }
+  ```
 - **TSRX generic syntax limitation (observed with the installed, locally patched
   `@tsrx/typescript-plugin@0.4.11`).** The valid TSX generic arrow
   `const identity = <Value,>(value: Value): Value => value` fails `tsrx-tsc`

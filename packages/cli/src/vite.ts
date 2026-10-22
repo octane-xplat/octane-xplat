@@ -6,8 +6,7 @@
 // renderer rules, the octane→universal/native alias, the platform-suffix
 // extension chain, the deps-bundle plugin exclusions, the HMR watchdog, the
 // px→dip CSS rewrite, fs.allow widening for link:/file: dep roots, and
-// NS_VENDOR_EXCLUDE entries for source-only deps the upstream HMR vendor
-// bundle can't compile.
+// NS_VENDOR_EXCLUDE entries for subpath-only deps without a root import.
 // Apps now write:
 //
 //   import { defineConfig } from 'vite'
@@ -19,7 +18,7 @@
 
 import { createRequire } from 'node:module'
 import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs'
-import { dirname, extname, join, relative, resolve } from 'node:path'
+import { dirname, join, relative, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { unwrapCssLayers } from './css-layers.ts'
 import { xplatCss } from './css-platform.ts'
@@ -659,23 +658,9 @@ export const linkedDepFsRoots = (projectRoot, searchForWorkspaceRoot) => {
 	return [...roots]
 }
 
-/** Names of the app's installed deps that ship only non-JS entry sources
- *  (TypeScript/TSRX with no compiled .js/.mjs/.cjs root entry).
- *
- *  Upstream @nativescript/vite's HMR vendor collector
- *  (hmr/shared/vendor/manifest-collect.js `isUnvendorableLocalSource`)
- *  treats only `link:`/`workspace:` specs — and `file:` directories whose
- *  package has no compiled JS entry — as local source. Every other spec
- *  (semver included) gets vendored into a standalone esbuild bundle that
- *  has no .tsrx loader and no .mobile/.tsrx extension chain, and that
- *  bypasses the Octane renderer even when resolution succeeds — so a
- *  published or install-time-linked @octane-xplat dep still dies the
- *  vendor build. Packages whose `exports` carries only subpaths (no `.`
- *  root) are listed too — the vendor bundle's generated entry does a bare
- *  `import "name"` that no root entry exists to resolve (e.g. the
- *  types-only @octane-xplat/jsx). This mirrors upstream's own source-only
- *  rule for `file:` dirs and applies it regardless of how the dep's spec
- *  is spelled; callers feed the result into NS_VENDOR_EXCLUDE. */
+/** Dependencies with subpath-only exports cannot supply the vendor bundle's
+ * bare root import. Source-only entries are handled by @nativescript/vite
+ * 8.0.20 (NativeScript#11560); retain only this separate rootless case. */
 export const sourceOnlyDeps = (projectRoot) => {
 	let pkg
 	try {
@@ -685,87 +670,23 @@ export const sourceOnlyDeps = (projectRoot) => {
 	}
 
 	const names = new Set()
-
 	for (const section of ['dependencies', 'optionalDependencies']) {
 		for (const name of Object.keys(pkg[section] ?? {})) {
-			let manifest
-			let pkgDir
 			try {
-				// realpathSync: under pnpm node_modules/<name> is a symlink —
-				// resolve it so the manifest read hits the real package.
-				// require.resolve(`${name}/package.json`) can't be used here:
-				// packages can omit ./package.json from `exports`.
-				const manifestPath = realpathSync(
-					join(projectRoot, 'node_modules', name, 'package.json'),
+				const manifest = JSON.parse(
+					readFileSync(join(projectRoot, 'node_modules', name, 'package.json'), 'utf8'),
 				)
-				manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
-				pkgDir = dirname(manifestPath)
-			} catch {
-				continue
-			}
 
-			const candidates = []
-			const visit = (node) => {
-				if (typeof node === 'string') {
-					candidates.push(node)
-					return
-				}
-				if (node && typeof node === 'object') {
-					for (const [key, value] of Object.entries(node)) {
-						if (key !== 'types') {
-							visit(value)
-						}
-					}
-				}
-			}
-
-			const exportsField = manifest.exports
-			if (typeof exportsField === 'string') {
-				visit(exportsField)
-			} else if (exportsField && typeof exportsField === 'object') {
-				if ('.' in exportsField) {
-					visit(exportsField['.'])
-				} else if (Object.keys(exportsField).some((key) => key.startsWith('.'))) {
-					// Subpath-only exports: no root entry exists for the vendor
-					// bundle to resolve, so a bare `import "name"` in its
-					// generated entry dies under esbuild (e.g. the types-only
-					// @octane-xplat/jsx).
+				const exportsField = manifest.exports
+				if (
+					exportsField &&
+					typeof exportsField === 'object' &&
+					!('.' in exportsField) &&
+					Object.keys(exportsField).some((key) => key.startsWith('.'))
+				) {
 					names.add(name)
-					continue
-				} else {
-					// A bare conditions map at the root (no subpaths).
-					visit(exportsField)
 				}
-			} else {
-				visit(manifest.module)
-				visit(manifest.main)
-			}
-
-			// A candidate counts as compiled JS when it names a JS file
-			// explicitly or — like the classic NativeScript plugin
-			// `main: "index"` — is extensionless and a JS target exists on
-			// disk: `<c>.js`-style siblings (including platform variants like
-			// `index.ios.js`) or `<c>/index.js`.
-			const hasCompiledJsEntry = (candidate) => {
-				if (/\.[cm]?jsx?$/.test(candidate)) {
-					return true
-				}
-				if (extname(candidate) !== '') {
-					return false
-				}
-				return (
-					['.js', '.mjs', '.cjs', '.ios.js', '.android.js', '.visionos.js'].some(
-						(ext) => existsSync(join(pkgDir, candidate + ext)),
-					) || existsSync(join(pkgDir, candidate, 'index.js'))
-				)
-			}
-
-			// Source-only means at least one runtime entry candidate and no
-			// compiled-JS leaf. No candidates (e.g. a types-only package)
-			// leaves upstream behavior untouched.
-			if (candidates.length > 0 && !candidates.some(hasCompiledJsEntry)) {
-				names.add(name)
-			}
+			} catch {}
 		}
 	}
 
@@ -881,10 +802,8 @@ export const xplatNodeEnvDefine = (mode) => ({
 export async function xplatNative(env, opts = {}) {
 	const mode = typeof env === 'string' ? env : env.mode
 	// NS_VENDOR_EXCLUDE is @nativescript/vite's documented opt-out for its
-	// HMR vendor bundle; the collector reads it at vendor-collection time
-	// later in this same process. Merge the app's source-only root deps
-	// (see sourceOnlyDeps) so their semver/linked-at-install specs aren't
-	// fed to esbuild, keeping any user-provided entries intact.
+	// HMR vendor bundle. Upstream handles source entries; merge only deps
+	// without a root export, keeping user-provided entries intact.
 	const vendorExcludes = [
 		...new Set([
 			...(process.env.NS_VENDOR_EXCLUDE ?? '')

@@ -10,8 +10,7 @@ import {
 } from 'node:fs'
 
 import { createServer as createHttpServer } from 'node:http'
-import { createServer, searchForWorkspaceRoot } from 'vite'
-import { linkedDepFsRoots } from '../dist/vite.js'
+import { createServer } from 'vite'
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
@@ -30,6 +29,8 @@ const { resolveCandidateFilePath, filterExistingNodeModulesTransformCandidates }
 const { createNsMRequestContext, resolveNsMTransformedModule } = await import(
 	new URL('./websocket-ns-m-request.js', moduleUrl)
 )
+
+const { getDevServerFsAllow } = await import(new URL('../../helpers/project.js', moduleUrl))
 
 const roots = []
 
@@ -50,6 +51,7 @@ const writeResolvedFile = (root, relPath) => {
 }
 
 const withNativeHttpServer = async (projectRoot, run) => {
+	const allow = getDevServerFsAllow(projectRoot)
 	const vite = await createServer({
 		root: projectRoot,
 		configFile: false,
@@ -58,7 +60,7 @@ const withNativeHttpServer = async (projectRoot, run) => {
 			middlewareMode: true,
 			watch: null,
 			hmr: false,
-			fs: { allow: [projectRoot, ...linkedDepFsRoots(projectRoot, searchForWorkspaceRoot)] },
+			...(allow.length ? { fs: { allow } } : {}),
 		},
 		optimizeDeps: { noDiscovery: true },
 	})

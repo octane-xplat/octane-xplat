@@ -80,7 +80,7 @@ attempted to transform the nonexistent app-root path:
 → /node_modules/@fixture/sign-in/common.js  (404)
 ```
 
-The canonical patch now retains a candidate only when its path identifies the
+NativeScript Vite 8.0.20 now retains a candidate only when its path identifies the
 file found. Otherwise it emits `/@fs` plus the discovered filesystem path,
 even inside the project root. Query suffixes, platform candidate order,
 hoisted dependencies, and symlink-to-source transforms keep their behavior.
@@ -112,9 +112,10 @@ Read-only consumer evidence at Opals commit `2d61dfec` records the same HTTP
 retested. Relay references: `upstream-xplat-015-android-dev-extensionless-plugin-import`
 and `upstream-xplat-015-android-linked-module-url-fix`.
 
-Keep this patch until upstream anchors every transform candidate to the actual
-resolved file, including nested linked dependencies. No Android build or
-device runtime verification is claimed by this regression.
+Released in [NativeScript#11559](https://github.com/NativeScript/NativeScript/pull/11559)
+with Vite 8.0.20: the local linked-checkout discovery and candidate-anchoring
+hunks are removed. The separate app-local pnpm store scan remains patched.
+No Android build or device runtime verification is claimed by this regression.
 
 ### Dev-loop troubleshooting
 
@@ -643,11 +644,11 @@ pushing.
 
 ## Temporary native virtual stylesheet patch (NativeScript #11551)
 
-The canonical `@nativescript/vite@8.0.17` patch repairs plugin-provided virtual
+The canonical `@nativescript/vite@8.0.20` patch repairs plugin-provided virtual
 stylesheet delivery in HTTP dev, including Bamboo 1.56.2. Upstream
 [NativeScript #11551](https://github.com/NativeScript/NativeScript/issues/11551)
-tracks the limitation. Registry latest was 8.0.19 when checked; its source still
-contained the broad virtual-import removal and virtual-response shortcut.
+tracks the limitation. Published 8.0.20 source still
+contains the broad virtual-import removal and virtual-response shortcut.
 This record describes HTTP and host-executed registration evidence, not device
 layout qualification.
 
