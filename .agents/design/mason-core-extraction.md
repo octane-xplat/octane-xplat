@@ -193,8 +193,9 @@ and path mapping live in `tools/mason-core/README.md` in that repository. Five
 portable styling helpers and three existing tests moved unchanged, followed by
 27 unchanged layout/style/view/scroll source files. A separate core-only iOS
 host now builds and runs on an arm64 simulator. A core-only Android AAR and
-isolated Java client also compile. Private NativeScript plugin assembly exists;
-application execution and independent bridge declarations remain unqualified.
+isolated Java client also compile. Both isolated NativeScript applications pass
+bridge, geometry and ownership assertions, and core has independent bridge
+declarations. The actual Xplat renderer and OS input remain unqualified.
 
 Full MasonKit builds the relocated helpers through a generated source overlay
 at `tmp/nativescript-masonkit`. This preserves its relative imports and emitted
@@ -221,8 +222,8 @@ and SDWebImage for backgrounds/nine-slice painting. A small glyph-provider
 protocol replaces the background painter's direct dependency on MasonKit's text
 renderer; it does not add glyph outlines to ordinary foreign labels. The
 shared Rust engine still includes inline-layout code and convenience node
-constructors. Device slices, NativeScript execution and independent bridge
-types, touch input, and matched release app measurements remain gates. Commands and source
+constructors. Device slices, the actual Xplat renderer, touch input, and matched
+release app measurements remain gates. Commands and source
 hashes are documented in `tools/mason-core/ios-host-README.md` in the Mason fork.
 
 The Android build proof (`70a1fbba` in the Mason fork) compiles 96 source files:
@@ -231,13 +232,14 @@ helper declaration extracted from a text-widget source file. It builds the
 unchanged JNI binding with 16 KB load alignment and verifies an isolated Java
 client against the exported arm64-v8a AAR and its resolved dependencies. The
 artifact excludes HTML parsing, rich-text rendering and widget classes. Its
-17-test instrumentation APK compiles. The first run passed 15 tests, including
-all 12 unchanged foreign-view tests. After correcting standalone grid style
-synchronization in the core projection, both an API 35 emulator and an API 36
-physical phone passed 16 of 17. Percentage width remains unresolved; a revised
-test supplies a definite containing block and explicit engine scale. These
-results do not qualify NativeScript lifecycle, OS input, or the full package's
-native behavior.
+17-test instrumentation APK passes all 17 tests on an API 36 physical phone,
+including all 12 unchanged foreign-view tests. Two narrow core adaptations
+correct standalone grid synchronization and foreign percentage root-cache
+invalidation. The percentage regression uses a definite containing block and
+explicit engine scale; removing only its cache correction fails the same test.
+An API 35 emulator passed 16 of 17 before that final correction and has not
+been rerun. These results do not qualify OS input or the full package's native
+behavior.
 See the [recorded Android findings](../docs/notes/masonkit-layout-evaluation.md#core-extraction-android-style-synchronization-2026-10-22).
 The tracked full Kotlin sources and Gradle project remain unchanged.
 
@@ -251,27 +253,33 @@ The separate `build.plugin.prototype` target assembles the container-only runtim
 native host artifacts, dependency headers/licenses, Android Maven declarations,
 and the iOS SDWebImage resource/privacy bundle. It does not change the ordinary
 helper build or make full MasonKit depend on core. Its current native coverage is
-arm64 iOS Simulator and Android arm64-v8a only. All 162 files survive an isolated
-pack/extract check with their hashes intact. The isolated iOS NativeScript app
-builds and generates metadata for the core classes without optional HTML/text
-widget declarations. It has not passed runtime assertions; independent native
-typings and Android NativeScript qualification remain gates.
+arm64 iOS Simulator and Android arm64-v8a only. Packed files retain their hashes,
+including independent bridge declarations tied to the native artifact hashes.
+Both isolated NativeScript apps pass bridge, geometry and ownership assertions
+with only core and NativeScript core as runtime dependencies. They generate
+core metadata without optional HTML/text/widget classes. The actual Xplat
+renderer, OS input and iOS device packaging remain gates.
 
 The separate `build.runtime` target now tests a container-only TypeScript
 boundary at `dist/prototypes/nativescript-mason-core`; the ordinary package
 build remains the portable helper slice. The runtime build projects core-only
 `common.ts`, `tree/`, and root declarations from the preserved full sources.
 It removes HTML/text-run/widget factories and gives containers NativeScript
-view children. The relocated wrappers and styling implementations stay
-unchanged; one property-module adaptation changes types only, with identical
-emitted JavaScript. The adaptation rules reject unexpected source structure.
+view children. The tracked relocated wrappers and styling implementations stay
+unchanged. A generated property adaptation changes types only; mobile emissions
+resolve the Windows constant to false and omit the Windows-only rich-text copy
+method. All other shared emissions must match the full build under the same
+constant. The adaptation rules reject unexpected source structure.
 
 This generated projection is a temporary proof mechanism while upstream
 feedback is pending, not the proposed final upstream module structure. Its
-tarball contains no native host artifacts or bridge declarations; full-source
-native typings remain a build-only input. The isolated consumer checks use
-NativeScript's bundler resolution and `skipLibCheck`, so they do not establish
-independent native metadata. Implementation and verification commands live in
+runtime-only tarball contains independent bridge declarations but no native
+host artifacts. The compiler rejects full MasonKit native type inputs. Standard
+NativeScript SDK ambient types and `skipLibCheck` remain required. A build-only
+Windows facade checks inactive shared branches and is not shipped. The pinned
+Android declaration-generator adaptation and iOS generation provenance live in
+`tools/mason-core/native-types-README.md` in the Mason fork. These are type/build
+checks, separate from runtime and ABI evidence. Verification commands live in
 `tools/mason-core/runtime-README.md` in the Mason fork. Do not switch Xplat to
 this prototype before the native and application gates below are satisfied.
 

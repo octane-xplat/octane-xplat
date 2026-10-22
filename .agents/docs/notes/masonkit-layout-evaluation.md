@@ -911,11 +911,12 @@ the host projection is in Mason fork commit `70a1fbba`.
   while the root's `computeStale` only checks its own cache and constraints;
   `syncStyleParts` already explicitly invalidates that root cache. Core's
   projection adds the same root-cache invalidation to `setPercent`, retaining
-  the public-API percent/resize/reset regression. That change alone did not
-  resolve the runtime failure; it is a candidate correction, not a qualified
-  fix. The revised test also sets definite parent dimensions and engine scale
-  explicitly. Full-package runtime reproduction remains pending. Xplat's
-  existing consumer is unchanged.
+  the public-API percent/resize/reset regression. The qualified test sets
+  definite parent dimensions and engine scale explicitly: a 200-wide parent
+  gives a 100-wide leaf at 50%; resizing the parent to 300 gives 150; clearing
+  restores intrinsic width. A control build removing only the root-cache
+  correction fails that same test with an intrinsic-width leaf. Full-package
+  runtime reproduction remains pending. Xplat's existing consumer is unchanged.
 
 The run evidence is `tmp/mason-core-android-tests/1792697068284/instrumentation.log`
 in the Mason worktree. Subsequent fixes must pass the same geometry assertions
@@ -930,7 +931,51 @@ density-scaled x=262 on the default emulator.
 
 After the grid correction (`f002b702` in the Mason fork), both an API 35 emulator
 and an API 36 physical phone passed 16 of 17 tests, including every unchanged
-foreign-view regression. The percentage case still returned intrinsic width.
-The physical run is recorded in
+foreign-view regression. The percentage case still returned intrinsic width
+at that stage. That physical run is recorded in
 `tmp/mason-core-android-device-tests/1792698937501/instrumentation.log`. Native
 instrumentation does not qualify NativeScript lifecycle or OS input.
+
+After the percent correction and fixture qualification (`de56b5ca` in the Mason
+fork), all 17 tests pass on the API 36 arm64 phone without skips. The control
+build fails one of 17 with the same test and containing block; restoring the
+correction restores all 17 passes. Evidence lives in the Mason worktree at
+`tmp/mason-core-baseline/android-percent-control-physical.log` and
+`tmp/mason-core-baseline/android-percent-final-verification.log`. The API 35
+emulator has not been rerun after this final correction.
+
+## Core extraction: NativeScript consumers and types (2026-10-22)
+
+The isolated core-only NativeScript apps pass bridge, native geometry and
+ownership assertions on an arm64 iOS 27 simulator and API 36 arm64 Android
+phone. They install only core and NativeScript core as runtime dependencies.
+The Android APK contains only the supported arm64-v8a slice. These checks do
+not qualify the Xplat renderer or OS input. Source and commands live in the
+Mason fork's `tools/mason-core/plugin-README.md`.
+
+Three build boundaries needed explicit treatment:
+
+- NativeScript webpack 5.0.38 does not define MasonKit's `__WINDOWS__` flag;
+  the first mobile app failed with an undefined identifier. Core's generated
+  iOS/Android JavaScript resolves it to `false`, preserving the tracked shared
+  source and full-package emission.
+- The iOS 27 SDK requires the scene lifecycle. The fixture declares the scene
+  manifest and uses NativeScript core 9.1.2's default scene delegate. Without
+  that declaration, UIKit aborts after successful core imports. This is app
+  setup evidence, not a Mason native-host defect.
+- NativeScript Android 9.1.1's declaration generator emits invalid TypeScript
+  for the extracted Kotlin AAR: invalid parameter names, broken ignored
+  generic types and nested namespace braces. The prototype applies a pinned,
+  hash-checked patch to the generator in an ignored staging directory; it does
+  not modify the installed SDK or ship generator code. Provenance and removal
+  conditions live in `tools/mason-core/native-types-README.md` in the Mason fork.
+
+Core generates its bridge declarations directly from its own native artifacts.
+Direct iOS generation matches the working app's core/dependency declarations
+byte for byte. Compilation records its input files and rejects full MasonKit
+native declarations. Packed-consumer checks cover native host factories as
+well as HTML API exclusions; standard SDK ambient types and `skipLibCheck`
+remain required. A Windows-only rich-text copying method is omitted from
+generated mobile style code; the tracked shared module and full package retain
+it. Native compatibility, iOS device packaging and matched release application
+sizes remain separate gates.
