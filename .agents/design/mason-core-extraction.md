@@ -190,8 +190,9 @@ The first extraction in the
 [Mason fork](https://github.com/octane-xplat/nativescript-mason) introduces the
 private `packages/nativescript-mason-core` helper package. Its source provenance
 and path mapping live in `tools/mason-core/README.md` in that repository. Five
-portable styling helpers and three existing tests moved unchanged; native
-hosts, scrolling, and full host-artifact separation remain unimplemented.
+portable styling helpers and three existing tests moved unchanged, followed by
+27 unchanged layout/style/view/scroll source files. Native view/scroll hosts
+and full host-artifact separation remain unimplemented.
 
 Full MasonKit builds the relocated helpers through a generated source overlay
 at `tmp/nativescript-masonkit`. This preserves its relative imports and emitted
@@ -199,6 +200,24 @@ module paths without a core runtime dependency. Tests use the same relocation
 manifest. This is temporary build/test wiring, not the eventual native-library
 integration. Source maps point into the generated overlay; edit the tracked
 source rather than those generated files.
+
+The separate `build.runtime` target now tests a container-only TypeScript
+boundary at `dist/prototypes/nativescript-mason-core`; the ordinary package
+build remains the portable helper slice. The runtime build projects core-only
+`common.ts`, `tree/`, and root declarations from the preserved full sources.
+It removes HTML/text-run/widget factories and gives containers NativeScript
+view children. The relocated wrappers and styling implementations stay
+unchanged; one property-module adaptation changes types only, with identical
+emitted JavaScript. The adaptation rules reject unexpected source structure.
+
+This generated projection is a temporary proof mechanism while upstream
+feedback is pending, not the proposed final upstream module structure. Its
+tarball contains no native host artifacts or bridge declarations; full-source
+native typings remain a build-only input. The isolated consumer checks use
+NativeScript's bundler resolution and `skipLibCheck`, so they do not establish
+independent native metadata. Implementation and verification commands live in
+`tools/mason-core/runtime-README.md` in the Mason fork. Do not switch Xplat to
+this prototype before the native and application gates below are satisfied.
 
 The implementation baseline is fork commit
 `623114b070896a21315fcff9a3a6349bdd091cc4` (beta.126), including merged upstream
