@@ -252,6 +252,11 @@ export function logLocale() {
 
 ## Switching and persisting
 
+When catalog loads overlap, only the latest registered choice activates its
+catalog and saves its locale. A slower earlier load cannot switch the app back. If the
+latest load fails, its promise rejects and the previously active locale stays
+visible.
+
 ```ts
 import { setLocale } from '@octane-xplat/lingui'
 

@@ -35,7 +35,9 @@ The reader knows the platform-services pattern and per-target leaf resolution.
   catalogs; without it the extractor silently misses `.tsrx` messages.
 - AC4: `setLocale` activates another registered locale, notifies
   `useLingui`/`useLocale` subscribers so localized components re-render, and
-  rejects an unregistered locale with a descriptive error.
+  rejects an unregistered locale with a descriptive error. With overlapping
+  catalog loads, only the latest registered choice activates; older completions
+  cannot replace it or save a stale choice.
 - AC5: `detectLocale`/`matchLocale` normalize a raw system locale (`en-US`,
   `pt_BR`) onto the supported set — exact, then base-language, then fallback.
 - AC6: An optional `persist` adapter round-trips the user's choice across
@@ -52,6 +54,9 @@ The reader knows the platform-services pattern and per-target leaf resolution.
   remaining native-bundle check. The [packed extraction check](../../../packages/lingui/tests/packed-consumer.mjs) verifies the installed Node extractor and authored message origins.
 - AC4: [Rendering and switching](../../../docs/app/localization.md#rendering-localized-text)
   and [persistence](../../../docs/app/localization.md#switching-and-persisting).
+  The [real-engine lifecycle regression](../../../packages/lingui/tests/locale-lifecycle.test.mjs)
+  covers overlapping catalog loads on the Node host; it does not qualify native
+  catalog bundling or component rendering.
 - AC5: [Detection](../../../docs/app/localization.md#locale-detection) — per-target
   sources and the matching rule.
 - AC6: [Persistence](../../../docs/app/localization.md#switching-and-persisting).

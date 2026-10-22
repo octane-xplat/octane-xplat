@@ -13,6 +13,7 @@ let catalogs: Record<string, CatalogLoader> = {}
 let fallback = 'en'
 let persist: LinguiPersistence | undefined
 let current = ''
+let activationGeneration = 0
 const listeners = new Set<() => void>()
 
 function notify(): void {
@@ -106,7 +107,10 @@ export function catalogsFromGlob(
 	return out
 }
 
-/** Load + activate a locale, notify subscribers, and persist the choice. */
+/**
+ * Load + activate a locale, notify subscribers, and persist the choice.
+ * A newer registered locale choice supersedes pending catalog loads.
+ */
 export async function setLocale(locale: string): Promise<void> {
 	const loader = catalogs[locale]
 	if (!loader) {
@@ -115,7 +119,11 @@ export async function setLocale(locale: string): Promise<void> {
 		)
 	}
 
+	const owner = ++activationGeneration
 	const loaded = await loader()
+	if (owner !== activationGeneration) {
+		return
+	}
 	// `?lingui`-style modules wrap the catalog as `{ messages }`; compiled ES
 	// catalogs are the messages object itself. A catalog whose own id is
 	// literally `messages` only collides when its value is a plain object.

@@ -168,7 +168,8 @@ twins such as `storage`, connectivity, files, and system bars live under
 `catalogsFromGlob(import.meta.glob('../locales/*/messages', { query: '?lingui' }))`
 builds the loader map. `useLingui()` subscribes a component to locale changes
 (macro output does not re-render on its own); `setLocale(locale)` switches.
-`.tsrx` extraction needs `tsrxExtractor` from `@octane-xplat/lingui/extractor`
+With overlapping catalog loads, the latest registered locale choice wins; a
+superseded load does not activate or save its locale. `.tsrx` extraction needs `tsrxExtractor` from `@octane-xplat/lingui/extractor`
 in the app's `lingui.config.ts` — the default chain skips `.tsrx`. Core macros
 only; no `<Trans>`/`I18nProvider`. Guide: docs/app/localization.md, decision #85.
 
