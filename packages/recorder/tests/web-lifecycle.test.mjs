@@ -14,7 +14,7 @@ const recorderSource = compile('recorder.web')
 
 // This exercises the web adapter's asynchronous ownership and cleanup. It
 // models browser media interfaces; it does not acquire an OS microphone.
-function fixture(getUserMedia) {
+function fixture(getUserMedia, options = {}) {
 	const contexts = []
 	const track = {
 		stopped: false,
@@ -30,11 +30,12 @@ function fixture(getUserMedia) {
 			this.sampleRate = 44100
 			this.destination = {}
 			this.state = 'running'
+			if (options.addModule) { this.audioWorklet = { addModule: options.addModule } }
 		}
 		createMediaStreamSource() { return node() }
 		createScriptProcessor() { return node() }
 		createGain() { return { ...node(), gain: { value: 1 } } }
-		async resume() {}
+		async resume() { await options.resume?.() }
 		async close() { this.state = 'closed' }
 	}
 	const exports = {}
@@ -45,6 +46,8 @@ function fixture(getUserMedia) {
 			return wav
 		},
 		AudioContext,
+		AudioWorkletNode: class { constructor() { throw new Error('worklet must not attach after disposal') } },
+		URL, Blob,
 		navigator: { mediaDevices: { getUserMedia: () => getUserMedia ? getUserMedia(stream) : Promise.resolve(stream) } },
 		setInterval, clearInterval,
 	})
@@ -74,12 +77,10 @@ test('disposing a recording releases its stream and audio context', async () => 
 	}
 })
 
-test('disposing while permission is pending prevents later microphone capture', {
-	todo: 'Known audit bug: a pending microphone grant starts a disposed recorder',
-}, async () => {
+test('disposing while permission is pending prevents later microphone capture', async () => {
 	let grant
 	const permission = new Promise((resolve) => { grant = resolve })
-	const { recorder, track, cleanup } = fixture(async (stream) => {
+	const { recorder, track, contexts, cleanup } = fixture(async (stream) => {
 		await permission
 		return stream
 	})
@@ -87,10 +88,38 @@ test('disposing while permission is pending prevents later microphone capture', 
 		const starting = recorder.start()
 		recorder.dispose()
 		grant()
-		await starting.catch(() => {})
+		await assert.rejects(starting, /disposed/)
 		assert.equal(track.stopped, true, 'the late microphone stream must be stopped after disposal')
-		assert.notEqual(recorder.snapshot().state, 'recording')
+		assert.equal(recorder.snapshot().state, 'idle')
+		assert.equal(contexts.length, 0)
+		await assert.rejects(recorder.start(), /disposed/)
 	} finally {
 		await cleanup()
 	}
 })
+
+
+for (const stage of ['addModule', 'resume']) {
+	test(`disposing during ${stage} keeps startup terminal`, async () => {
+		let release, enter
+		const waiting = new Promise((resolve) => { release = resolve })
+		const entered = new Promise((resolve) => { enter = resolve })
+		const { recorder, track, contexts, cleanup } = fixture(undefined, {
+			[stage]: async () => { enter(); await waiting },
+		})
+		try {
+			const starting = recorder.start()
+			await entered
+			recorder.dispose()
+			release()
+			await assert.rejects(starting, /disposed/)
+			assert.equal(track.stopped, true)
+			assert.equal(contexts.length, 1)
+			assert.equal(contexts[0].state, 'closed')
+			assert.equal(recorder.snapshot().state, 'idle')
+			await assert.rejects(recorder.start(), /disposed/)
+		} finally {
+			await cleanup()
+		}
+	})
+}

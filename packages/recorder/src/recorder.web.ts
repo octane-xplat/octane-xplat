@@ -79,6 +79,12 @@ export const createAudioRecorder = (): AudioRecorder => {
 	let opening = false
 	let disposed = false
 
+	const assertActive = () => {
+		if (disposed) {
+			throw new Error('AudioRecorder is disposed')
+		}
+	}
+
 	if (typeof navigator !== 'undefined' && navigator.permissions?.query) {
 		void navigator.permissions
 			.query({ name: 'microphone' as PermissionName })
@@ -185,6 +191,7 @@ export const createAudioRecorder = (): AudioRecorder => {
 				audio: { channelCount: options.channels },
 			})
 		} catch (cause) {
+			assertActive()
 			permission = mapMediaError(cause)
 			error = new Error(`Microphone permission is ${permission}`)
 			emit()
@@ -193,6 +200,12 @@ export const createAudioRecorder = (): AudioRecorder => {
 	}
 
 	const attachStream = async (nextStream: MediaStream) => {
+		if (disposed) {
+			for (const track of nextStream.getTracks()) {
+				track.stop()
+			}
+			assertActive()
+		}
 		stream = nextStream
 		context ??= createContext(options.sampleRate)
 		source = context.createMediaStreamSource(stream)
@@ -209,6 +222,7 @@ export const createAudioRecorder = (): AudioRecorder => {
 				URL.revokeObjectURL(url)
 			}
 
+			assertActive()
 			const node = new AudioWorkletNode(context, 'xplat-recorder-tap')
 			node.port.onmessage = (event) => appendInput(event.data)
 			tapNode = node
@@ -278,9 +292,7 @@ export const createAudioRecorder = (): AudioRecorder => {
 	}
 
 	const start = async (next?: RecorderOptions) => {
-		if (disposed) {
-			throw new Error('AudioRecorder is disposed')
-		}
+		assertActive()
 
 		if (state !== 'idle' || opening) {
 			throw new Error(`AudioRecorder cannot start while ${opening ? 'starting' : state}`)
@@ -304,10 +316,13 @@ export const createAudioRecorder = (): AudioRecorder => {
 		opening = true
 		try {
 			await attachStream(await acquire())
+			assertActive()
 			permission = 'granted'
 			await context?.resume()
+			assertActive()
 		} catch (cause) {
 			closeTake()
+			assertActive()
 			if (!error) {
 				error = cause instanceof Error ? cause : new Error(String(cause))
 			}
@@ -329,6 +344,7 @@ export const createAudioRecorder = (): AudioRecorder => {
 		}
 
 		await context?.suspend()
+		assertActive()
 		state = 'paused'
 		emit()
 	}
@@ -349,8 +365,11 @@ export const createAudioRecorder = (): AudioRecorder => {
 				await attachStream(await acquire())
 			}
 
+			assertActive()
 			await context?.resume()
+			assertActive()
 		} catch (cause) {
+			assertActive()
 			fail(cause instanceof Error ? cause : new Error(String(cause)))
 			throw error
 		}

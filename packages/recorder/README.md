@@ -42,6 +42,17 @@ if (recorder.capabilities().supported) {
 }
 ```
 
+In a browser, `dispose()` also retires a pending `start()`. The browser may still
+finish its permission prompt, but a late stream is stopped and startup rejects;
+create a new recorder to record again.
+
+```ts
+const pendingRecorder = createAudioRecorder()
+const starting = pendingRecorder.start()
+pendingRecorder.dispose()
+await starting.catch(() => {}) // disposed; no capture starts after the grant
+```
+
 Notes and limits:
 
 - `restart(options)` discards the open take and starts a new one.
