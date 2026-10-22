@@ -8,7 +8,7 @@
  * loaders exist only for stories applicable to the build target, so a
  * platform-specific leaf is never imported into an incompatible bundle.
  */
-import { existsSync, readFileSync, statSync } from 'node:fs'
+import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs'
 import { dirname, join, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { discoverStories, normalizeInclude } from './discover.ts'
@@ -302,16 +302,24 @@ function serveAsset(config, root, url, res, next) {
 	}
 
 	const file = resolve(dir, rest.slice(name.length + 1))
-	if (
-		!(file === dir || file.startsWith(dir + sep)) ||
-		!existsSync(file) ||
-		!statSync(file).isFile()
-	) {
-		res.statusCode = 404
-		res.end('not found')
-		return
+	let content
+	if (file === dir || file.startsWith(dir + sep)) {
+		try {
+			// Resolve both sides so a configured symlink root works, but an
+			// asset alias cannot expose files outside that root.
+			const realDir = realpathSync(dir)
+			const realFile = realpathSync(file)
+			if (
+				(realFile === realDir || realFile.startsWith(realDir + sep)) &&
+				statSync(realFile).isFile()
+			) {
+				content = readFileSync(realFile)
+			}
+		} catch {
+			// Missing/broken links and files removed during a request are 404s.
+		}
 	}
 
-	res.statusCode = 200
-	res.end(readFileSync(file))
+	res.statusCode = content === undefined ? 404 : 200
+	res.end(content ?? 'not found')
 }
