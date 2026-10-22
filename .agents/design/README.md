@@ -35,3 +35,5 @@ start at the [public docs](../../docs/README.md).
 Implementation investigations and evidence are indexed in the
 [implementation notes](../docs/notes/README.md). External systems are in
 [prior-art references](../references/prior-art/README.md).
+
+- [Query cache engine](query-cache-engine.md) — engine decision, ownership contract and qualification limits.

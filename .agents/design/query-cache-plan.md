@@ -1,7 +1,8 @@
 # Query cache commit plan
 
-Status: proposed, 2026-10-22. This document plans implementation; it does not
-claim that the proposed APIs or platform checks already exist.
+Status: implementation started, 2026-10-22. [Engine decision 121](query-cache-engine.md)
+selects native signal authority. Remaining steps are not yet shipped; desktop
+qualification has a verified host prerequisite.
 
 Make the official cache the easiest reliable choice for an Octane Xplat app
 that loads shared data, edits it, navigates between screens, and recovers from

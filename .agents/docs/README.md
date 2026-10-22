@@ -37,3 +37,5 @@ framework; the app-building guides for downstream users live in `docs/`.
 - [Windows test-host runbook](windows-test-host.md) and [lab log](windows-lab.md) — framework harness setup and evidence.
 - [Design notes](../design/README.md) — decisions, proposals, and design research.
 - [External prior art](../references/prior-art/README.md) — source systems used for comparison.
+
+- [Query cache engine evidence](../design/query-cache-engine.md) — Octane wrapper and AppKit action limitations.
