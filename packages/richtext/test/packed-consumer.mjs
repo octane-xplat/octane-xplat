@@ -31,6 +31,7 @@ for (const name of [
 	'platform',
 	'macos-renderer',
 	'cli',
+	'lib',
 	'create',
 ]) {
 	const dir = join(repo, 'packages', name)
@@ -68,7 +69,7 @@ await writeFile(
 
 await writeFile(
 	join(app, 'pnpm-workspace.yaml'),
-	`packages: []\nnodeLinker: isolated\nminimumReleaseAge: 0\noverrides:\n  create-octane-xplat: ${JSON.stringify(dependencies['create-octane-xplat'])}\n  '@octane-xplat/richtext': ${JSON.stringify(dependencies['@octane-xplat/richtext'])}\n  '@octane-xplat/platform': ${JSON.stringify(dependencies['@octane-xplat/platform'])}\n  '@tiptap/core': 3.28.0\n  '@tiptap/pm': 3.28.0\n  '@tiptap/starter-kit': 3.28.0\n`,
+	`packages: []\nnodeLinker: isolated\nminimumReleaseAge: 0\noverrides:\n  create-octane-xplat: ${JSON.stringify(dependencies['create-octane-xplat'])}\n  '@octane-xplat/richtext': ${JSON.stringify(dependencies['@octane-xplat/richtext'])}\n  '@octane-xplat/platform': ${JSON.stringify(dependencies['@octane-xplat/platform'])}\n  '@octane-xplat/lib': ${JSON.stringify(dependencies['@octane-xplat/lib'])}\n  '@tiptap/core': 3.28.0\n  '@tiptap/pm': 3.28.0\n  '@tiptap/starter-kit': 3.28.0\n`,
 )
 
 await writeFile(
@@ -122,11 +123,11 @@ const ready = (name: string, handle: any) => {
  seen.add(name)
  if (seen.size === 3) { console.log('PACKED_EDITORS_READY'); globalThis.__finishEditors() }
 }
-export default function App() { return <flexboxlayout flexDirection="column">
+export default function App() { return <masonview style={{display:"flex",flexDirection:"column"}}>
  <RichTextEditor style={{ height: 120 }} value="<p>Seed rich</p>" ref={(h: any) => { rich = h }} onReady={() => ready('richtext', rich)} />
  <TiptapEditor style={{ height: 120 }} value="<p>Wrong HTML</p>" json={{type:"doc",content:[{type:"paragraph",content:[{type:"text",text:"Seed tiptap JSON"}]}]}} ref={(h: any) => { tiptap = h }} onReady={() => ready('tiptap', tiptap)} />
  <LexicalEditor style={{ height: 120 }} value="<p>Wrong HTML</p>" json={{root:{type:"root",version:1,children:[{type:"paragraph",version:1,children:[{type:"text",version:1,text:"Seed lexical JSON",format:0,detail:0,mode:"normal",style:""}],direction:null,format:"",indent:0,textFormat:0,textStyle:""}],direction:null,format:"",indent:0}}} ref={(h: any) => { lexical = h }} onReady={() => ready('lexical', lexical)} />
- </flexboxlayout> }
+ </masonview> }
 `,
 )
 
