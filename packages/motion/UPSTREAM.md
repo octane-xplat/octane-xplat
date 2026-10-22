@@ -300,11 +300,13 @@ export function RetainedCard() {
 
 Web WAAPI delegation (2026-10-02): unit tests drive a fake `Animation` through
 the real web adapter for keyframe shape, matrix/matrix3d decomposition with
-transform-origin correction, cancel-before-sample ordering, mid-flight
+translation independent of transform-origin, sampling before cancellation, mid-flight
 value/velocity handoff, and bezier-only gating; the retained probe passes on
 headless Chromium with delegation counters engaged (14 starts, 10 finishes, 4
 cancellations, 0 fallbacks). DOM dispatch evidence only — compositor pacing is
-not asserted.
+not asserted. The nonvisual [cancellation geometry regression](../../apps/visual/src/motion-cancellation.test.web.ts)
+verified centered-scale cancellation and restart continuity in real Chromium
+on 2026-10-22; it does not capture images or qualify OS input.
 
 Bounded drag (2026-10-02): the maintained probe passes 14 assertions on web
 Chromium and 14 on the requested iOS simulator, including live writes, bounded

@@ -14,11 +14,10 @@ const TRANSFORM_KEYS: (keyof Target)[] = ['x', 'y', 'scale', 'scaleX', 'scaleY',
 const transform = (values: Target) =>
 	`translateX(${values.x ?? 0}px) translateY(${values.y ?? 0}px) scaleX(${values.scaleX ?? 1}) scaleY(${values.scaleY ?? 1}) rotate(${values.rotate ?? 0}deg)`
 
-// A computed transform resolves to a matrix composed around transform-origin;
-// peel the origin back off so rotation/scale do not leak into x/y. For the
+// Computed transform matrices exclude transform-origin; translation is
+// already in authored channel space. For the
 // T·S·R order: a = sx·cos θ, b = sy·sin θ, c = -sx·sin θ, d = sy·cos θ.
-function decompose(v: number[], origin: string): Target {
-	const [ox, oy] = origin.split(' ').map((part) => Number.parseFloat(part) || 0)
+function decompose(v: number[]): Target {
 	const [a, b, c, d, e, f] = v.length === 16 ? [v[0], v[1], v[4], v[5], v[12], v[13]] : v
 	const scaleX = Math.hypot(a, c)
 	const scaleY = Math.hypot(b, d)
@@ -36,8 +35,8 @@ function decompose(v: number[], origin: string): Target {
 	}
 
 	return {
-		x: e + (a - 1) * ox + c * oy,
-		y: f + b * ox + (d - 1) * oy,
+		x: e,
+		y: f,
 		scaleX,
 		scaleY: flippedY,
 		rotate,
@@ -61,7 +60,7 @@ function readChannels(node: HTMLElement, fallback: Target): Target {
 
 	const values = match[1].split(',').map(Number.parseFloat)
 	return values.every(Number.isFinite)
-		? { ...base, ...decompose(values, computed.transformOrigin) }
+		? { ...base, ...decompose(values) }
 		: base
 }
 

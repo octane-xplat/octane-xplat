@@ -187,7 +187,7 @@ describe('web WAAPI delegation', () => {
 		expect(delegationCounters().cancelled).toBe(1)
 	})
 
-	it.fails('decomposes matrix3d without mixing transform-origin into translation', () => {
+	it('decomposes matrix3d without mixing transform-origin into translation', () => {
 		const { el, animations } = fakeWebElement()
 		el.style.transformOrigin = '10px 20px'
 		const run = delegatedRun(el, request({ rotate: 90 }), () => {})
