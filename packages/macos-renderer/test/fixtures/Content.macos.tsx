@@ -1,5 +1,4 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle } from './style-merge'
 import { useSignal$ } from 'octane/signals/client'
 
 export const contentRefs = { host: { current: null as any }, child: { current: null as any } }
@@ -29,16 +28,26 @@ export default function Content() {
 				style={{ width: phase === 1 ? 260 : 200, height: 80 }}
 			>
 				{phase < 3 ? (
-					<label
+					<masonview
 						key="first"
 						id="content-child"
 						ref={contentChildRef}
-						text={phase === 1 ? 'Updated content' : 'Initial content'}
 						style={{
-							alignSelf: phase === 2 ? undefined : phase === 1 ? 'end' : 'center',
-							...(phase === 2 ? undefined : { width: 60, height: 20 }),
+							display: 'grid',
+							...(phase === 2 ? {} : { width: phase === 1 ? 260 : 200, height: 80 }),
 						}}
-					/>
+					>
+						<label
+							id="content-label"
+							text={phase === 1 ? 'Updated content' : 'Initial content'}
+							style={phase === 2 ? {} : {
+								width: 60,
+								height: 20,
+								justifySelf: phase === 1 ? 'end' : 'center',
+								alignSelf: phase === 1 ? 'start' : 'center',
+							}}
+						/>
+					</masonview>
 				) : phase === 4 ? null : (
 					<masonview
 						key="replacement"

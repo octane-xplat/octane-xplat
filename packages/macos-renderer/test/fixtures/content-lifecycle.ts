@@ -24,6 +24,7 @@ export async function checkContentLifecycle(root: any, nativeWindow: any) {
 	await settle()
 	const host = debug.findId('content')
 	const first = debug.findId('content-child')
+	const firstLabel = debug.findId('content-label')
 	const slot = debug.findId('replacement-slot')
 	const superseded = debug.findId('slot-a')
 	const current = debug.findId('slot-b')
@@ -33,6 +34,13 @@ export async function checkContentLifecycle(root: any, nativeWindow: any) {
 	)
 
 	const rect = (view: any) => view.alignmentRectForFrame(view.frame)
+	const top = (view: any) => {
+		const parent = view.superview
+		const flipped = typeof parent.isFlipped === 'function' ? parent.isFlipped() : parent.isFlipped
+		return flipped
+			? Number(rect(view).origin.y)
+			: Number(parent.bounds.size.height) - Number(rect(view).origin.y) - Number(rect(view).size.height)
+	}
 	const describe = (r: any) => [r.origin.x, r.origin.y, r.size.width, r.size.height].join(',')
 	check(
 		contentRefs.host.current === host && contentRefs.child.current === first,
@@ -50,7 +58,7 @@ export async function checkContentLifecycle(root: any, nativeWindow: any) {
 	)
 
 	check(
-		near(rect(first).origin.x, 70) && near(rect(first).origin.y, 30),
+		near(rect(firstLabel).origin.x, 70) && near(top(firstLabel), 30),
 		'ContentView centered child failed',
 	)
 
@@ -67,19 +75,20 @@ export async function checkContentLifecycle(root: any, nativeWindow: any) {
 	)
 
 	check(
-		debug.findId('content') === host && debug.findId('content-child') === first,
+		debug.findId('content') === host && debug.findId('content-child') === first &&
+			debug.findId('content-label') === firstLabel,
 		'ContentView update changed host or child identity',
 	)
 
-	check(String(first.stringValue) === 'Updated content', 'ContentView reactive child update failed')
+	check(String(firstLabel.stringValue) === 'Updated content', 'ContentView reactive child update failed')
 	check(
 		near(host.frame.size.width, 260) &&
-			near(rect(first).origin.x, 200) &&
-			near(rect(first).origin.y, 0),
+			near(rect(firstLabel).origin.x, 200) &&
+			near(top(firstLabel), 0),
 		'ContentView reactive size/alignment failed: host=' +
 			describe(host.frame) +
 			' child=' +
-			describe(rect(first)) +
+			describe(rect(firstLabel)) +
 			' bounds=' +
 			describe(host.bounds),
 	)
@@ -104,7 +113,7 @@ export async function checkContentLifecycle(root: any, nativeWindow: any) {
 	const replacement = debug.findId('content-child')
 	const descendant = debug.findId('content-descendant')
 	check(
-		replacement !== first && !first.superview,
+		replacement !== first && !first.superview && !firstLabel.superview,
 		'ContentView replacement kept the previous child',
 	)
 
