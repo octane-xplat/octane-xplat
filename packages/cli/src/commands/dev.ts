@@ -2,6 +2,7 @@
 import { command, option, optional, positional, string } from '@alloc/cmd-ts'
 import { existsSync, readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
+import { constants } from 'node:os'
 import * as p from '@clack/prompts'
 import { discoverTargets } from '../targets.ts'
 import { spawnTagged } from '../procs.ts'
@@ -218,7 +219,12 @@ export const dev = command({
 		let runningTargets = chosen.length
 		try {
 			for (const t of chosen) {
-				spawnFor(t, cwd).once('close', () => {
+				spawnFor(t, cwd).once('close', (code, signal) => {
+					// Keep the first failure even if another target later succeeds.
+					// Let captures and route watching finish their existing cleanup.
+					if (code !== 0 && !process.exitCode) {
+						process.exitCode = code > 0 ? code : signal ? 128 + constants.signals[signal] : 1
+					}
 					if (--runningTargets === 0) {
 						stopRoutes()
 						process.off('SIGINT', interrupt)

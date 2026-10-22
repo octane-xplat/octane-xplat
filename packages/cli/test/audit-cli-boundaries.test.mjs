@@ -1,12 +1,13 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, unlinkSync, writeFileSync } from 'node:fs'
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, unlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import test from 'node:test'
 import { parse, stringify } from 'yaml'
 import { composeTargets } from 'create-octane-xplat/scaffold'
+import { listRetainedSessions } from '../dist/dev-logs.js'
 
 const cli = fileURLToPath(new URL('../dist/cli.js', import.meta.url))
 
@@ -31,9 +32,7 @@ function run(root, args, env = {}) {
 	})
 }
 
-test('dev exits unsuccessfully when its web target fails', {
-	todo: 'Known audit bug: the dev target close handler discards its exit status',
-}, (t) => {
+test('dev exits unsuccessfully when its web target fails', (t) => {
 	const root = project(t)
 	write(root, 'package.json', JSON.stringify({ private: true, type: 'module' }))
 	write(root, 'vite.config.ts', 'export default {}')
@@ -44,6 +43,51 @@ test('dev exits unsuccessfully when its web target fails', {
 	assert.ifError(result.error)
 	assert.match(result.stdout + result.stderr, /AUDIT_TARGET_FAILED/)
 	assert.notEqual(result.status, 0, 'a failed development target must fail the CLI')
+	assert.equal(result.status, 42)
+	const sessions = listRetainedSessions(root)
+	assert.equal(sessions.length, 1)
+	assert.equal(sessions[0].historical, true)
+	assert.equal(sessions[0].state, 'failed')
+	assert.deepEqual(readdirSync(join(root, 'node_modules/.cache/xplat/sessions/leases')), [])
+})
+
+test('dev preserves successful and signal exit statuses and closes each capture', (t) => {
+	for (const [body, status] of [
+		['process.exit(0)', 0],
+		["process.kill(process.pid, 'SIGTERM')", 143],
+	]) {
+		const root = project(t)
+		write(root, 'package.json', JSON.stringify({ private: true, type: 'module' }))
+		write(root, 'vite.config.ts', 'export default {}')
+		write(root, 'bin/pnpm', `#!${process.execPath}\n${body}\n`)
+		chmodSync(join(root, 'bin/pnpm'), 0o755)
+		const result = run(root, ['dev', 'web'], { PATH: `${join(root, 'bin')}:${process.env.PATH}` })
+		assert.ifError(result.error)
+		assert.equal(result.status, status, result.stdout + result.stderr)
+		assert.equal(listRetainedSessions(root)[0].historical, true)
+	}
+})
+
+test('dev retains a target failure when another target succeeds', (t) => {
+	const root = project(t)
+	write(root, 'package.json', JSON.stringify({
+		private: true, type: 'module', xplat: { targets: { linux: { runtime: 'gtk' } } },
+	}))
+	write(root, 'vite.config.ts', 'export default {}')
+	// Both targets use a fake pnpm child; no GTK host or native runtime starts.
+	write(root, 'bin/pnpm', `#!${process.execPath}
+console.log(process.argv.includes('vite') ? 'WEB_FAILED' : 'SECOND_TARGET_COMPLETE')
+setTimeout(() => process.exit(process.argv.includes('vite') ? 42 : 0), process.argv.includes('vite') ? 0 : 100)
+`)
+	chmodSync(join(root, 'bin/pnpm'), 0o755)
+	const result = run(root, ['dev', '--targets', 'web,linux'], { PATH: `${join(root, 'bin')}:${process.env.PATH}` })
+	assert.ifError(result.error)
+	assert.match(result.stdout, /WEB_FAILED/)
+	assert.match(result.stdout, /SECOND_TARGET_COMPLETE/)
+	assert.equal(result.status, 42, result.stdout + result.stderr)
+	const sessions = listRetainedSessions(root)
+	assert.equal(sessions.length, 2)
+	assert.ok(sessions.every((session) => session.historical))
 })
 
 test('clean preserves authored native plugin platform sources', (t) => {
