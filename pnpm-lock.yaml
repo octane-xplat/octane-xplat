@@ -98,6 +98,7 @@ patchedDependencies:
   css@3.0.0: f850496626b52d1bf5ca127576a655d5e46c02def5de9905d568490d4b71959b
   linkifyjs@4.3.3: 6b103bc96e531c5a90bc869f12bc9e28023b5e6c686c4205d96734a28526e202
   octane@0.14.0: a344cdbde34418a8dc7003022e6f49c0f4d7d895c805483e4855a60c1a8c8100
+  shaders@4.0.0: 0d42f518e244d121c1445c987c64b33a723043beb956b8fce2557672cc0a254b
 
 importers:
 
@@ -2473,7 +2474,7 @@ importers:
         version: link:../canvas
       shaders:
         specifier: 4.0.0
-        version: 4.0.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        version: 4.0.0(patch_hash=0d42f518e244d121c1445c987c64b33a723043beb956b8fce2557672cc0a254b)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
@@ -16883,7 +16884,7 @@ snapshots:
       safe-buffer: 5.2.1
       to-buffer: 1.2.2
 
-  shaders@4.0.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
+  shaders@4.0.0(patch_hash=0d42f518e244d121c1445c987c64b33a723043beb956b8fce2557672cc0a254b)(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
     dependencies:
       typegpu: 0.12.3
     optionalDependencies:

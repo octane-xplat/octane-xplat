@@ -254,3 +254,15 @@ patchedDependencies:
   # kills `ns build android` before toolchain checks. Resolve catalog specifiers through the
   # installed package's manifest, reusing the existing tgz-branch mechanism.
   "@nativescript/doctor@2.0.18": packages/cli/patches/@nativescript__doctor@2.0.18.patch
+  # shaders@4.0.0 inlines TypeGPU 0.12.3 into dist/core/std-ClftfWpF.js, which declares
+  # /\p{XID_Start}/ and /\p{XID_Continue}/ regex literals at module scope (WGSL identifier
+  # validation, external prop-chain matching, minify separator check). NativeScript's
+  # embedded V8 on iOS (@nativescript/ios 9.1.0) and Android (@nativescript/android 9.1.1,
+  # V8 14.9.207.39) is built without ICU — every \p{…} escape is a SyntaxError, even in a
+  # never-called function, so a literal fails the whole module at parse time and any bundled
+  # app importing `shaders/js` dies on boot. Rewriting to \p{ID_Start}/\p{L} would not help
+  # — all property escapes are rejected. The patch builds the regexes via try/catch new
+  # RegExp with ASCII/non-ASCII-range fallbacks — byte-identical .source where ICU exists.
+  # dist/js/bundle.js, react/bundle.js, and cli.js carry the same escapes but are
+  # unreachable from `shaders/js` and left unpatched.
+  shaders@4.0.0: packages/cli/patches/shaders@4.0.0.patch

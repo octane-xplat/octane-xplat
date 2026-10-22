@@ -107,6 +107,14 @@
 			"scope": "dev",
 			"why": "@nativescript/doctor's Android runtime check reads the app's raw devDependencies specifier and npm dist-tag resolves anything that isn't a semver range \u2014 a pnpm `catalog:` pin throws 'The determined Android runtime version ... is not valid' and kills `ns build android` before toolchain checks. Resolve catalog specifiers through the installed package's manifest, reusing the existing tgz-branch mechanism.",
 			"dropWhen": "@nativescript/doctor resolves non-registry specifiers (catalog:, workspace:, link:) to the installed package version, or nativescript stops gating `ns build` on it."
+		},
+		{
+			"specifier": "shaders@4.0.0",
+			"file": "shaders@4.0.0.patch",
+			"upstreamPR": "https://github.com/software-mansion/TypeGPU/pull/3255",
+			"scope": "runtime",
+			"why": "shaders@4.0.0 inlines TypeGPU 0.12.3 into dist/core/std-ClftfWpF.js, which declares /\\p{XID_Start}/ and /\\p{XID_Continue}/ regex literals at module scope (WGSL identifier validation, external prop-chain matching, minify separator check). NativeScript's embedded V8 on iOS (@nativescript/ios 9.1.0) and Android (@nativescript/android 9.1.1, V8 14.9.207.39) is built without ICU — every \\p{…} escape is a SyntaxError, even in a never-called function, so a literal fails the whole module at parse time and any bundled app importing `shaders/js` dies on boot. Rewriting to \\p{ID_Start}/\\p{L} would not help — all property escapes are rejected. The patch builds the regexes via try/catch new RegExp with ASCII/non-ASCII-range fallbacks — byte-identical .source where ICU exists. dist/js/bundle.js, react/bundle.js, and cli.js carry the same escapes but are unreachable from `shaders/js` and left unpatched.",
+			"dropWhen": "TypeGPU ships ICU-free identifier regexes and a `shaders` release bundles that TypeGPU, or NativeScript runtimes ship ICU"
 		}
 	]
 }
