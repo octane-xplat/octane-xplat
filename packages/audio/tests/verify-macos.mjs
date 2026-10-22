@@ -2,9 +2,10 @@
 // This never establishes audible output, system controls, or interruption recovery.
 import assert from 'node:assert/strict'
 import { spawn, spawnSync } from 'node:child_process'
-import { cp, mkdir, writeFile } from 'node:fs/promises'
+import { cp, mkdir, symlink, writeFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
 import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/native.ts'
 import { hostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
@@ -193,8 +194,12 @@ main().then(() => __xplatStopHost(), error => { console.log('MACOS_AUDIO_ERROR',
 `,
 		)
 
+		await symlink(
+			fileURLToPath(new URL('../../platform', import.meta.url)),
+			join(app, 'node_modules/@octane-xplat/platform'),
+		)
 		const artifact = await buildMacOSNative(app)
-		assert.equal(artifact.leaves.length, 1, 'packed audio leaf is discovered')
+		assert.deepEqual([...artifact.leaves].sort(), ['@octane-xplat/audio', '@octane-xplat/platform'])
 		const bootstrap = join(app, 'bootstrap.js')
 		await writeNativeBootstrap(artifact, bootstrap)
 		const output = await new Promise((resolve, reject) => {

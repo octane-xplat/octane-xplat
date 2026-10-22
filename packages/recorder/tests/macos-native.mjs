@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { mkdir, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises'
+import { cp, mkdir, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -19,7 +19,11 @@ export async function checkMacOSNative(packedRoot) {
 	const app = await mkdtemp(join(tmpdir(), 'xplat-recorder-native-'))
 	try {
 		await mkdir(join(app, 'node_modules/@octane-xplat'), { recursive: true })
-		await symlink(packedRoot, join(app, 'node_modules/@octane-xplat/recorder'))
+		await cp(packedRoot, join(app, 'node_modules/@octane-xplat/recorder'), { recursive: true })
+		await symlink(
+			fileURLToPath(new URL('../../platform', import.meta.url)),
+			join(app, 'node_modules/@octane-xplat/platform'),
+		)
 		await writeFile(
 			join(app, 'package.json'),
 			JSON.stringify({
