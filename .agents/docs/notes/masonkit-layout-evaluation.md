@@ -1057,3 +1057,23 @@ NativeScript device app selects the IOS framework slice, embeds a bundle marked
 `iPhoneOS`, and generates the core bridge classes. No certificates, provisioning
 updates or device installation are used. These are build/metadata checks, not
 physical iOS device runtime qualification or release-size measurements.
+
+## Core extraction full Android baseline (2026-10-22)
+
+All 72 tests in seven selected unchanged full-package instrumentation classes
+pass on the API 35 arm64 emulator with no skips. They cover HTML input parsing,
+input widgets, lists, rich-text line-height/inline layout/defaults, and viewport
+unit parsing. The full main source/resource tree is copied byte-identically into
+isolated staging; build wiring uses core's same unchanged JNI binary and fixed
+FontManager version. The tracked full native sources and project stay unchanged.
+No screenshot/image assertions are run. Full iOS native qualification is pending.
+
+The final core-only native suite also passes all 17 tests on the same emulator,
+including the percentage cache regression previously verified on the phone.
+
+The full/core AARs measure 2,332,626 / 1,780,097 bytes. Their classes.jar entries
+measure 1,886,358 / 1,321,673 bytes with 758 / 600 class files. Both arm64 JNI
+entries are byte-identical and measure 1,146,832 bytes. These are library
+artifact measurements; matching release APK savings remain unmeasured.
+Reproduction and limits live in `tools/mason-core/full-baseline-README.md`
+in the Mason fork.

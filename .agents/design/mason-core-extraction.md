@@ -202,12 +202,13 @@ also pass on both simulator/emulator targets.
 
 | Evidence | iOS | Android |
 | --- | --- | --- |
-| Native host regressions | 15 UIKit simulator tests pass | 17 instrumentation tests pass on API 36 phone |
+| Native host regressions | 15 UIKit simulator tests pass | 17 instrumentation tests pass on API 36 phone and API 35 emulator |
 | Plain NativeScript consumer | arm64 simulator passes | API 36 phone passes; current-SDK control also passes on API 35 emulator |
 | Patched Xplat renderer and Octane host-plan component | arm64 iOS 27 simulator passes | API 35 arm64 emulator passes; phone run pending |
 | Compiled TSRX component, hooks, class styles, programmatic scroll | arm64 simulator passes | API 35 emulator passes |
 | OS input: button hit testing and touch scrolling | arm64 simulator passes via HID | API 35 emulator passes via adb input; phone pending |
 | Device host artifact | arm64 device framework and unsigned NativeScript app build; runtime unverified | arm64-v8a AAR and debug app build |
+| Full MasonKit native regression baseline | Pending | 72 selected unchanged HTML/text/widget tests pass on API 35 emulator |
 | Matched release app sizes | Unmeasured | Unmeasured |
 
 Full MasonKit builds the relocated helpers through a generated source overlay
@@ -250,15 +251,19 @@ including all 12 unchanged foreign-view tests. Two narrow core adaptations
 correct standalone grid synchronization and foreign percentage root-cache
 invalidation. The percentage regression uses a definite containing block and
 explicit engine scale; removing only its cache correction fails the same test.
-An API 35 emulator passed 16 of 17 before that final correction and has not
-been rerun. These results do not qualify OS input or the full package's native
+The final 17-test suite also passes on the API 35 emulator, with no skips. These results do not qualify OS input or the full package's native
 behavior.
 See the [recorded Android findings](../docs/notes/masonkit-layout-evaluation.md#core-extraction-android-style-synchronization-2026-10-22).
 The tracked full Kotlin sources and Gradle project remain unchanged.
 
 Android retains Glide, Gson, FontManager and AndroidX Core; the transitive graph
 still contains AppCompat and Fragment. JNI initialization also requires the
-existing `InlineSegment` data classes. These retained costs need matched app
+existing `InlineSegment` data classes. A matched full-source Android
+baseline passes 72 selected unchanged HTML/text/widget tests. Its AAR is
+2,332,626 bytes versus core’s 1,780,097 bytes; classes.jar is 1,886,358 versus
+1,321,673 bytes (758 versus 600 class files). Both carry an identical 1,146,832-byte
+JNI entry. These library artifact measurements do not establish release APK
+savings or transitive dependency download costs. These retained costs need matched app
 measurements before any size claim. Commands and source hashes live in
 `tools/mason-core/android-host-README.md` in the Mason fork.
 
