@@ -783,7 +783,7 @@ export function ItemPages() {
 	})
 	return <>
 		<Text>{rows.items.map((item) => item.name).join(', ')}</Text>
-		<Button disabled={!rows.hasMore || rows.isLoading} clickAction={() => rows.loadMore()}>
+		<Button isDisabled={!rows.hasMore || rows.isLoading} clickAction={() => rows.loadMore()}>
 			{rows.loadingState === 'error' ? 'Retry page' : 'Load more'}
 		</Button>
 	</>

@@ -50,7 +50,7 @@ function nativeBackend() {
 		},
 		each: async (sql, p, row, done) => {
 			const rows = await api.select(sql, p)
-			for (const value of rows) row(null, value)
+			for (const value of rows) {row(null, value)}
 			done(null, rows.length)
 			return rows.length
 		},

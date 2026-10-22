@@ -371,10 +371,10 @@ function persistenceTarget(
 	elements: readonly string[],
 	persist: QueryPersistence | undefined,
 ): PersistenceTarget | undefined {
-	if (persist === undefined) return
+	if (persist === undefined) {return}
 	try {
 		const scope = persist.scope?.() ?? null
-		if (scope === null) return
+		if (scope === null) {return}
 		return {
 			storage: persist.storage,
 			key: `xplat:query:${scope}:${keyString(elements)}`,
@@ -392,19 +392,19 @@ const storageTails = new WeakMap<QueryStorageAdapter, Map<string, Promise<void>>
 
 function storageOperation<T>(target: PersistenceTarget, run: () => T | PromiseLike<T>): Promise<T> {
 	let tails = storageTails.get(target.storage)
-	if (tails === undefined) storageTails.set(target.storage, (tails = new Map()))
+	if (tails === undefined) {storageTails.set(target.storage, (tails = new Map()))}
 	const result = (tails.get(target.key) ?? Promise.resolve()).then(run)
 	const tail = result.then(() => {}, () => {})
 	tails.set(target.key, tail)
 	void tail.then(() => {
-		if (tails.get(target.key) === tail) tails.delete(target.key)
+		if (tails.get(target.key) === tail) {tails.delete(target.key)}
 	})
 	return result
 }
 
 function persistWrite(entry: CacheEntry): void {
 	const target = entry.persist
-	if (target === undefined || !entry.hasValue || entry.retired) return
+	if (target === undefined || !entry.hasValue || entry.retired) {return}
 	try {
 		const envelope = JSON.stringify({ v: target.version, t: entry.fetchedAtMs, d: entry.value })
 		void storageOperation(target, () => target.storage.set(target.key, envelope)).catch(() => {})
@@ -416,11 +416,11 @@ function persistWrite(entry: CacheEntry): void {
 async function restoreEntry<T>(entry: CacheEntry<T>): Promise<void> {
 	entry.persistChecked = true
 	const target = entry.persist
-	if (target === undefined) return
+	if (target === undefined) {return}
 	const revision = entry.revision
 	try {
 		const raw = await storageOperation(target, () => target.storage.get(target.key))
-		if (entry.retired || entry.revision !== revision || raw == null) return
+		if (entry.retired || entry.revision !== revision || raw == null) {return}
 		try {
 			const envelope = JSON.parse(raw)
 			if (
@@ -492,7 +492,7 @@ function startFetch<A, T>(
 		(value) => followUp() ?? value,
 		(error) => {
 			const next = followUp()
-			if (next !== undefined) return next
+			if (next !== undefined) {return next}
 			throw error
 		},
 	)
@@ -569,7 +569,7 @@ function loadThroughCache<A, T>(
 		return (async () => {
 			await entry.restoring
 			assertActive(entry)
-			if (entry.inflight !== undefined) return entry.inflight
+			if (entry.inflight !== undefined) {return entry.inflight}
 			if (entry.hasValue) {
 				const timeStale =
 					staleTimeMs !== Number.POSITIVE_INFINITY && Date.now() - entry.fetchedAtMs >= staleTimeMs

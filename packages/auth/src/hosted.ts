@@ -65,7 +65,7 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 	async function persist(creds: HostedAuthCredentials | null) {
 		credentials = creds
 		const storage = store()
-		if (!storage) return
+		if (!storage) {return}
 		try {
 			await storageOperation(() => creds
 				? storage.set(storageKey, JSON.stringify(creds))
@@ -77,7 +77,7 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 
 	async function readStoredCredentials(): Promise<HostedAuthCredentials | null> {
 		const storage = store()
-		if (!storage) return null
+		if (!storage) {return null}
 		try {
 			const raw = await storageOperation(() => storage.get(storageKey))
 			const parsed = raw ? parseCredentials(raw) : null
@@ -94,7 +94,7 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 		if (credentials === undefined) {
 			const restored = await readStoredCredentials()
 			// A sign-in or sign-out landing mid-read owns the credential slot.
-			if (credentials === undefined) credentials = restored
+			if (credentials === undefined) {credentials = restored}
 		}
 		return credentials
 	}
@@ -126,7 +126,7 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 	function refreshedAccessToken(): Promise<string | null> {
 		if (refreshPromise === null) {
 			const request = refresh().finally(() => {
-				if (refreshPromise === request) refreshPromise = null
+				if (refreshPromise === request) {refreshPromise = null}
 			})
 			refreshPromise = request
 		}
@@ -161,7 +161,7 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 		const request = runSignIn(owner).catch((error): HostedAuthSignInResult =>
 			owner !== generation ? { status: 'cancelled' } : { status: 'error', message: errorMessage(error) },
 		).finally(() => {
-			if (signingIn === request) signingIn = null
+			if (signingIn === request) {signingIn = null}
 		})
 		signingIn = request
 		return request
@@ -200,7 +200,7 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 			return owner !== generation ? { status: 'cancelled' } : { status: 'error', message: errorMessage(error) }
 		}
 
-		if (owner !== generation) return { status: 'cancelled' }
+		if (owner !== generation) {return { status: 'cancelled' }}
 		const result = await session.open(attempt.url, { callbackScheme: attempt.callbackScheme })
 		if (owner !== generation || result.type === 'cancel') {
 			return { status: 'cancelled' }
@@ -223,7 +223,7 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 				pkce,
 			})
 
-			if (owner !== generation) return { status: 'cancelled' }
+			if (owner !== generation) {return { status: 'cancelled' }}
 			if (!isCredentials(creds)) {
 				return {
 					status: 'error',

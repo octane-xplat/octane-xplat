@@ -309,7 +309,7 @@ describe('atomic async collection updates', () => {
 		const seen: (string | undefined)[] = []
 		const list = createAsyncListData({ load: async ({ cursor }) => {
 			seen.push(cursor)
-			if (seen.length === 2) throw new Error('temporary page failure')
+			if (seen.length === 2) {throw new Error('temporary page failure')}
 			return cursor === undefined ? { items: [{ id: 1 }], cursor: 'page-2' } : { items: [{ id: 2 }] }
 		} })
 		await list.reload()

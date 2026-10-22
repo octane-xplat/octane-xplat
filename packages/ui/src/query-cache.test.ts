@@ -584,8 +584,8 @@ describe('cache operation ownership', () => {
 		await settle()
 		client.invalidateQueries()
 		client.invalidateQueries()
-		if (outcome === 'resolve') gate.resolve('outdated')
-		else gate.reject(new Error('outdated failure'))
+		if (outcome === 'resolve') {gate.resolve('outdated')}
+		else {gate.reject(new Error('outdated failure'))}
 		await settle()
 		expect(calls).toBe(2)
 		screen(() => expect(query.latest()).toBe('current'))
