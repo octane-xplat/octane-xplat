@@ -55,6 +55,25 @@ if (supported) {
 }
 ```
 
+Transactions receive their own handle. Use it for every operation inside the
+callback and await those operations. Calls on the main handle, including other
+transactions and `close`, queue until the callback finishes. Awaiting the main
+handle inside the callback would wait on the transaction itself. The callback
+handle expires afterward; it rejects nested transactions and `close`.
+
+```ts
+const database = await openDatabase('trips.db')
+try {
+	await database.execute('CREATE TABLE IF NOT EXISTS items(name TEXT)')
+	await database.transaction(async (tx) => {
+		await tx.execute('INSERT INTO items VALUES (?)', ['Passport'])
+		// Throw here to roll back this transaction's writes.
+	})
+} finally {
+	await database.close()
+}
+```
+
 Design notes: [`.agents/docs/notes/sqlite-notes.md`](../../.agents/docs/notes/sqlite-notes.md);
 limits: [known limits](../../docs/testing/known-limits.md). Exercised by the
 harness `Services` screen

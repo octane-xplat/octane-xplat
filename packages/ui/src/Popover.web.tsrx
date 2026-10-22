@@ -1,3 +1,4 @@
+import { modalPortalOwner } from './modal-focus.web';
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
 import { styleRecord } from './style-merge'
 import { SizeProvider } from './size-context';
@@ -15,7 +16,8 @@ function PopoverLayer(props: PopoverInternalProps & { anchorElement: any }) @{
 	const dark = useThemeScheme() === 'dark';
 	const panelRef = useRef<any>(null);
 	const focusedInside = useRef(false);
-	const dismissal = useLayerDismissal({ get active() { return !!props.open }, getFocusTarget: () => focusedInside.current ? (props.finalFocusRef?.current ?? props.anchorElement) : undefined, dismiss: () => props.onDismiss?.(), get behavior() { return props.dismissOnEscape === false ? 'block' : 'close' }, contains: (target) => !!panelRef.current?.contains(target) });
+	const owner = modalPortalOwner(props.anchorElement);
+	const dismissal = useLayerDismissal({ minimumDepth: owner.depth, get active() { return !!props.open }, getFocusTarget: () => focusedInside.current ? (props.finalFocusRef?.current ?? props.anchorElement) : undefined, dismiss: () => props.onDismiss?.(), get behavior() { return props.dismissOnEscape === false ? 'block' : 'close' }, contains: (target) => !!panelRef.current?.contains(target) });
 	const [position, setPosition] = useState<Position | null>(null);
 	const update = () => {
 		const anchor = props.anchorElement;
@@ -108,12 +110,12 @@ function PopoverLayer(props: PopoverInternalProps & { anchorElement: any }) @{
 				<LayerDepthProvider value={dismissal.depth}><SizeProvider value={null}>{props.children}</SizeProvider></LayerDepthProvider>
 			</div>
 			</div>,
-			document.body,
+			owner.target,
 		)}</>
 	}
 }
 
-/** Positions a body portal from its anchor and dismisses on outside taps. */
+/** Positions a portal within its anchor's modal owner and dismisses on outside taps. */
 export function Popover(props: PopoverProps) @{
 	const [anchorElement, setAnchorElement] = useState<any>(null);
 	const [internal, setInternal] = useState(props.defaultOpen ?? false);

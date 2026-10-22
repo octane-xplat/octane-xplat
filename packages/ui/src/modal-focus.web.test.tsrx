@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi } from 'vitest';
-import { act, createRoot } from 'octane';
+import { act, createRoot, useRef } from 'octane';
+import { Popover } from './Popover.web.tsrx';
 vi.mock('./theme/theme-scheme', () => ({ useThemeScheme: () => 'light' }));
 import { BottomSheet } from './BottomSheet.web.tsrx';
 import { Overlay } from './Overlay.web.tsrx';
@@ -85,3 +86,77 @@ describe('modal focus isolation', () => {
 		layer.remove();
 	});
 });
+
+function ModalPopover(props: { sheet?: boolean; popover: boolean; closePopover: () => void; closeModal: () => void }) @{
+	const anchor = useRef<HTMLButtonElement | null>(null)
+	const content = <>
+		<button ref={anchor} id="popover-anchor">Choose</button>
+		<Popover anchor={anchor} open={props.popover} onDismiss={props.closePopover}>
+			<button id="popover-option">Option</button>
+		</Popover>
+	</>
+	@if (props.sheet) {
+		<BottomSheet isOpen label="Owner" onOpenChange={props.closeModal}>{content}</BottomSheet>
+	} @else {
+		<Overlay open shadeCover onDismiss={props.closeModal}>{content}</Overlay>
+	}
+}
+
+for (const sheet of [false, true]) {
+	it(`keeps a child popover inside its ${sheet ? 'sheet' : 'overlay'} focus owner`, () => {
+		const host = document.createElement('div')
+		document.body.append(host)
+		const root = createRoot(host)
+		const closePopover = vi.fn(), closeModal = vi.fn()
+		try {
+			act(() => root.render(ModalPopover, { sheet, popover: true, closePopover, closeModal }))
+			const option = document.querySelector('#popover-option') as HTMLElement
+			const anchor = document.querySelector('#popover-anchor') as HTMLElement
+			expect(option).not.toBeNull()
+			expect(option.closest('[data-vx-modal-layer]')).toBe(anchor.closest('[data-vx-modal-layer]'))
+			expect(option.closest('[inert]')).toBeNull()
+			expect(host.hasAttribute('inert')).toBe(true)
+			option.focus()
+			expect(document.activeElement).toBe(option)
+			act(() => option.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })))
+			expect(closePopover).toHaveBeenCalledTimes(1)
+			expect(closeModal).not.toHaveBeenCalled()
+			act(() => root.render(ModalPopover, { sheet, popover: false, closePopover, closeModal }))
+			expect(document.activeElement).toBe(anchor)
+			expect(host.hasAttribute('inert')).toBe(true)
+			act(() => anchor.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })))
+			expect(closeModal).toHaveBeenCalledTimes(1)
+		} finally {
+			act(() => root.unmount())
+			host.remove()
+		}
+	})
+}
+
+it('derives popover dismissal depth from a separately mounted modal owner', () => {
+	const layer = document.createElement('div')
+	layer.setAttribute('data-vx-modal-layer', '')
+	const panel = document.createElement('div')
+	const anchor = document.createElement('button')
+	panel.append(anchor)
+	const host = document.createElement('div')
+	panel.append(host)
+	layer.append(panel)
+	document.body.append(layer)
+	const closeModal = vi.fn(), closePopover = vi.fn()
+	const release = isolateModalFocus(layer, panel, closeModal, 4)
+	const root = createRoot(host)
+	try {
+		act(() => root.render(<Popover anchor={{ current: anchor }} open onDismiss={closePopover}><button id="service-option">Pick</button></Popover>))
+		const option = document.querySelector('#service-option') as HTMLElement
+		expect(option.closest('[data-vx-modal-layer]')).toBe(layer)
+		option.focus()
+		act(() => option.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })))
+		expect(closePopover).toHaveBeenCalledTimes(1)
+		expect(closeModal).not.toHaveBeenCalled()
+	} finally {
+		act(() => root.unmount())
+		release()
+		layer.remove()
+	}
+})

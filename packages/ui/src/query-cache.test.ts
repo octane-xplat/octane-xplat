@@ -526,3 +526,120 @@ describe('persistence', () => {
 		expect(calls).toHaveLength(1)
 	})
 })
+
+describe('cache operation ownership', () => {
+	const key = (scope: string) => `xplat:query:${scope}:"owned"\u00011`
+
+	it('retires ignored cancellation without publishing or saving into the next account', async () => {
+		const client = createQueryClient()
+		const gate = deferred<string>()
+		const storage = createMemoryQueryStorage()
+		let account = 'alice'
+		const options = { staleTimeMs: Infinity, persist: { storage, version: 1, scope: () => account } }
+		const query = screen(() => client.cachedQuery$(['owned'], () => 1, () => gate.promise, options))
+		screen(() => query.latest())
+		await settle()
+		client.clearQueryCache()
+		account = 'bob'
+		gate.resolve('alice-private')
+		await settle()
+		screen(() => expect(query.latest()).toBeUndefined())
+		expect(storage.get(key('alice'))).toBeNull()
+		expect(storage.get(key('bob'))).toBeNull()
+		const next = screen(() => client.cachedQuery$(['owned'], () => 1, () => 'bob', options))
+		screen(() => next.latest())
+		await settle()
+		screen(() => expect(next.latest()).toBe('bob'))
+		expect(JSON.parse(storage.get(key('bob'))!).d).toBe('bob')
+	})
+
+	it('orders clearing after a pending save and before a replacement entry restores', async () => {
+		const client = createQueryClient()
+		const saved = deferred<void>()
+		const storage = createMemoryQueryStorage()
+		const adapter = { ...storage, set: async (k: string, value: string) => {
+			await saved.promise
+			storage.set(k, value)
+		} }
+		const options = { staleTimeMs: Infinity, persist: { storage: adapter, version: 1, scope: () => 'alice' } }
+		const query = screen(() => client.cachedQuery$(['owned'], () => 1, () => 'old', options))
+		screen(() => query.latest())
+		await settle()
+		client.clearQueryCache()
+		const next = screen(() => client.cachedQuery$(['owned'], () => 1, () => 'new', options))
+		screen(() => next.latest())
+		saved.resolve()
+		await settle()
+		screen(() => expect(next.latest()).toBe('new'))
+		expect(JSON.parse(storage.get(key('alice'))!).d).toBe('new')
+	})
+
+	it.each(['resolve', 'reject'] as const)('follows a newer invalidation after an old request %ss', async (outcome) => {
+		const client = createQueryClient()
+		const gate = deferred<string>()
+		let calls = 0
+		const query = screen(() => client.cachedQuery$(['owned'], () => 1,
+			() => ++calls === 1 ? gate.promise : 'current', { staleTimeMs: Infinity }))
+		screen(() => query.latest())
+		await settle()
+		client.invalidateQueries()
+		client.invalidateQueries()
+		if (outcome === 'resolve') {gate.resolve('outdated')}
+		else {gate.reject(new Error('outdated failure'))}
+		await settle()
+		expect(calls).toBe(2)
+		screen(() => expect(query.latest()).toBe('current'))
+	})
+
+	it('shares a pending restoration among normal readers', async () => {
+		const client = createQueryClient()
+		const restored = deferred<string>()
+		let gets = 0
+		let loads = 0
+		const options = { staleTimeMs: Infinity, persist: { version: 1, scope: () => 'alice',
+			storage: { get: () => { gets++; return restored.promise }, set() {}, remove() {} } } }
+		const make = () => screen(() => client.cachedQuery$(['owned'], () => 1, () => { loads++; return 'network' }, options))
+		const first = make()
+		const second = make()
+		screen(() => { first.latest(); second.latest() })
+		await settle()
+		expect(gets).toBe(1)
+		expect(loads).toBe(0)
+		restored.resolve(JSON.stringify({ v: 1, t: Date.now(), d: 'disk' }))
+		await settle()
+		screen(() => { expect(first.latest()).toBe('disk'); expect(second.latest()).toBe('disk') })
+	})
+
+	it('does not let a delayed restoration replace an explicit fresh fetch', async () => {
+		const client = createQueryClient()
+		const restored = deferred<string>()
+		const options = { staleTimeMs: Infinity, persist: { version: 1, scope: () => 'alice',
+			storage: { get: () => restored.promise, set() {}, remove() {} } } }
+		const query = screen(() => client.cachedQuery$(['owned'], () => 1, () => 'fresh', options))
+		screen(() => query.latest())
+		await settle()
+		await query.refetch()
+		await settle()
+		screen(() => expect(query.latest()).toBe('fresh'))
+		restored.resolve(JSON.stringify({ v: 1, t: Date.now() - 1000, d: 'old-disk' }))
+		await settle()
+		const next = screen(() => client.cachedQuery$(['owned'], () => 1, () => 'unexpected', options))
+		screen(() => next.latest())
+		await settle()
+		screen(() => expect(next.latest()).toBe('fresh'))
+	})
+
+	it('cannot revive an entry from a restoration that completed after clear', async () => {
+		const client = createQueryClient()
+		const restored = deferred<string>()
+		const query = screen(() => client.cachedQuery$(['owned'], () => 1, () => 'unexpected', {
+			persist: { version: 1, scope: () => 'alice', storage: { get: () => restored.promise, set() {}, remove() {} } },
+		}))
+		screen(() => query.latest())
+		await settle()
+		client.clearQueryCache()
+		restored.resolve(JSON.stringify({ v: 1, t: Date.now(), d: 'private' }))
+		await settle()
+		screen(() => expect(query.latest()).toBeUndefined())
+	})
+})

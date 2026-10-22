@@ -116,7 +116,7 @@ export function Outline(props: OutlineProps) @{
 	<masonview ref={(v: any) => {
 			navRef.current = v;
 			applyEscapeProps(v, props);
-		}} id={props.id} className={cx('vx-outline', `vx-outline--${density}`, props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { flexDirection: 'column', ...styleRecord(props.style) }))} accessible={true} accessibilityRole={nativeAccessibilityRole('none')} accessibilityLabel={label}>
+		}} id={props.id} className={cx('vx-outline', `vx-outline--${density}`, props.className)} style={mergeStyle({display: "flex"}, { ...styleRecord(props.style) })} accessible={true} accessibilityRole={nativeAccessibilityRole('none')} accessibilityLabel={label}>
 		{items.map((item) => {
 			const isActive = item.id === activeId;
 			return (

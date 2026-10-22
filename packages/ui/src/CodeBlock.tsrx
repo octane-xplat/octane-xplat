@@ -134,7 +134,7 @@ export function CodeBlock(props: CodeBlockProps) @{
 			`vx-codeblock--${size}`,
 			collapsed && 'vx-codeblock--collapsed',
 			props.className,
-		)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { flexDirection: 'column', ...styleRecord(props.style) }))}>
+		)} style={mergeStyle({display: "flex"}, { ...styleRecord(props.style) })}>
 		{hasHeader ? (
 			<masonview className="vx-codeblock-header" style={mergeStyle({flexDirection: "row", justifyContent: "space-between", alignItems: "center"}, mergeStyle({display: "flex"}, { paddingTop: 6, paddingBottom: 6, paddingLeft: 12, paddingRight: 12 }))}>
 				<masonview style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, { gap: 8 }))}>

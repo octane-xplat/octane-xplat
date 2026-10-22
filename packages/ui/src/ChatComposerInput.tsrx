@@ -284,7 +284,7 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 		setTimeout(emitChange, 0);
 	};
 
-	<masonview id={props.id} className={cx('vx-chatinput', isDisabled && 'vx-chatinput--disabled', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style))}>
+	<masonview id={props.id} className={cx('vx-chatinput', isDisabled && 'vx-chatinput--disabled', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
 		<ChatTriggerMenuOverlay
 			state={triggerMenu.state}
 			anchor={triggerMenu.anchor}

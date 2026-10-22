@@ -333,12 +333,15 @@ if (result === 'unavailable') console.log('Sharing unavailable')
 - **`.tsrx` files reject `async` top-level functions** — the compiler
   treats them as async components, and an `async` function that never
   awaits still breaks `ns build`. Drop the keyword. — 0.5.0.
-- **Module-level objects with JSX render arrows fail native compilation** on
-  installed patched Octane 0.11.0. The iOS release build reports “JSX in an
-  unsupported module declaration requires universal plan lowering.” Use named
-  functions as `render` values in identity-stable module-level tab arrays; these
-  compiled and ran in the maintained iOS/Android and AppKit fixtures. Recheck
-  this compiler restriction when upgrading Octane.
+- **Module-level objects with JSX render arrows fail native compilation**,
+  first seen on patched Octane 0.11.0 and still present through Octane 0.14.3.
+  The native build reports “JSX in an unsupported module declaration requires
+  universal plan lowering.” Upstream intentionally rejects JSX outside
+  recognized components rather than falling back to DOM code, and has not said
+  whether module-level callbacks will be supported. Use named functions as
+  `render` values in identity-stable module-level tab arrays; these compiled and
+  ran in the maintained iOS/Android and AppKit fixtures. Recheck this compiler
+  restriction when upgrading Octane.
 
 
 - **`Grid` `gap` was removed** — use child margins. The leaves keep a

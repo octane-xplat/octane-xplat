@@ -54,7 +54,7 @@ export function InputGroup(props: InputGroupProps) @{
 export function InputGroupText(props: InputGroupTextProps) @{
 	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
-	<masonview id={props.id} ref={forwardedRef} className={cx('vx-inputgroup-text', props.className)} style={mergeStyle({justifyContent: "center", alignItems: "center"}, mergeStyle({display: "flex"}, props.style))}>
+	<masonview id={props.id} ref={forwardedRef} className={cx('vx-inputgroup-text', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
 		{typeof props.children === 'string' ? <label text={props.children} /> : props.children}
 	</masonview>
 }

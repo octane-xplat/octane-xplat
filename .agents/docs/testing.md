@@ -13,6 +13,14 @@ to answer one question. Windows is excluded from this runner.
 
 ## Web browser end-to-end tests
 
+The UI's web unit suite uses jsdom and runs in the normal `pnpm test` and PR
+checks. Run it alone through Turbo; the task prepares its declarations first.
+These checks do not launch a browser or establish layout and OS input behavior.
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/ui
+```
+
 Fast CI runs web builds, typechecks, unit tests, package integrity checks, and
 one packed web consumer smoke without launching desktop browsers. Stable CI
 adds the exhaustive non-browser packed consumers and full app/library starter

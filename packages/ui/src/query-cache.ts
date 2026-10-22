@@ -92,7 +92,7 @@ export interface QueryPersistence {
 	readonly version: string | number
 	/** Milliseconds a stored snapshot stays restorable. Default: no expiry. */
 	readonly maxAgeMs?: number
-	/** Resolved at each read/write; `null` skips persistence for this call. */
+	/** Captured for each cache entry; clear entries before changing the boundary. */
 	readonly scope?: () => string | null
 }
 
@@ -135,10 +135,21 @@ interface CacheEntry<T = unknown> {
 	hasValue: boolean
 	fetchedAtMs: number
 	invalidated: boolean
+	invalidationVersion: number
+	revision: number
+	retired: boolean
 	inflight: Promise<T> | undefined
 	controller: AbortController | undefined
 	persistChecked: boolean
-	persist: QueryPersistence | undefined
+	restoring: Promise<void> | undefined
+	persist: PersistenceTarget | undefined
+}
+
+interface PersistenceTarget {
+	readonly storage: QueryStorageAdapter
+	readonly key: string
+	readonly version: string | number
+	readonly maxAgeMs: number | undefined
 }
 
 interface CacheFamily {
@@ -273,15 +284,19 @@ function entryFor<T>(
 			hasValue: false,
 			fetchedAtMs: 0,
 			invalidated: false,
+			invalidationVersion: 0,
+			revision: 0,
+			retired: false,
 			inflight: undefined,
 			controller: undefined,
 			persistChecked: false,
-			persist,
+			restoring: undefined,
+			persist: persistenceTarget(elements, persist),
 		}
 
 		cache.entries.set(id, entry)
-	} else if (persist !== undefined) {
-		entry.persist = persist
+	} else if (persist !== undefined && entry.persist === undefined) {
+		entry.persist = persistenceTarget(elements, persist)
 	}
 
 	return entry
@@ -352,109 +367,95 @@ function republish(
 	}
 }
 
-function storageKey(scope: string, entry: CacheEntry): string {
-	return `xplat:query:${scope}:${keyString(entry.elements)}`
+function persistenceTarget(
+	elements: readonly string[],
+	persist: QueryPersistence | undefined,
+): PersistenceTarget | undefined {
+	if (persist === undefined) {return}
+	try {
+		const scope = persist.scope?.() ?? null
+		if (scope === null) {return}
+		return {
+			storage: persist.storage,
+			key: `xplat:query:${scope}:${keyString(elements)}`,
+			version: persist.version,
+			maxAgeMs: persist.maxAgeMs,
+		}
+	} catch {
+		// Persistence is best-effort, including app-provided scope resolution.
+	}
+}
+
+// Shared across clients using the same adapter: a clear must follow any save
+// already in progress, and a new reader must wait for that removal.
+const storageTails = new WeakMap<QueryStorageAdapter, Map<string, Promise<void>>>()
+
+function storageOperation<T>(target: PersistenceTarget, run: () => T | PromiseLike<T>): Promise<T> {
+	let tails = storageTails.get(target.storage)
+	if (tails === undefined) {storageTails.set(target.storage, (tails = new Map()))}
+	const result = (tails.get(target.key) ?? Promise.resolve()).then(run)
+	const tail = result.then(() => {}, () => {})
+	tails.set(target.key, tail)
+	void tail.then(() => {
+		if (tails.get(target.key) === tail) {tails.delete(target.key)}
+	})
+	return result
 }
 
 function persistWrite(entry: CacheEntry): void {
-	const persist = entry.persist
-	if (persist === undefined || !entry.hasValue) {
-		return
-	}
-
-	let scope: string | null
+	const target = entry.persist
+	if (target === undefined || !entry.hasValue || entry.retired) {return}
 	try {
-		scope = persist.scope?.() ?? null
+		const envelope = JSON.stringify({ v: target.version, t: entry.fetchedAtMs, d: entry.value })
+		void storageOperation(target, () => target.storage.set(target.key, envelope)).catch(() => {})
 	} catch {
-		return
-	}
-
-	if (scope === null) {
-		return
-	}
-
-	const envelope = JSON.stringify({ v: persist.version, t: entry.fetchedAtMs, d: entry.value })
-	try {
-		Promise.resolve(persist.storage.set(storageKey(scope, entry), envelope)).catch(() => {})
-	} catch {
-		// Persistence is best-effort.
+		// Non-serializable data must not break the in-memory query.
 	}
 }
 
 async function restoreEntry<T>(entry: CacheEntry<T>): Promise<void> {
 	entry.persistChecked = true
-	const persist = entry.persist
-	if (persist === undefined) {
-		return
-	}
-
-	let scope: string | null
+	const target = entry.persist
+	if (target === undefined) {return}
+	const revision = entry.revision
 	try {
-		scope = persist.scope?.() ?? null
-	} catch {
-		return
-	}
-
-	if (scope === null) {
-		return
-	}
-
-	let raw: string | null | undefined
-	try {
-		raw = await persist.storage.get(storageKey(scope, entry))
-	} catch {
-		return
-	}
-
-	if (raw == null) {
-		return
-	}
-
-	try {
-		const envelope = JSON.parse(raw)
-		if (
-			envelope === null ||
-			typeof envelope !== 'object' ||
-			envelope.v !== persist.version ||
-			typeof envelope.t !== 'number' ||
-			(persist.maxAgeMs !== undefined && Date.now() - envelope.t > persist.maxAgeMs)
-		) {
-			throw new Error('stale envelope')
-		}
-
-		entry.value = envelope.d as T
-		entry.hasValue = true
-		entry.fetchedAtMs = envelope.t
-	} catch {
+		const raw = await storageOperation(target, () => target.storage.get(target.key))
+		if (entry.retired || entry.revision !== revision || raw == null) {return}
 		try {
-			await persist.storage.remove(storageKey(scope, entry))
+			const envelope = JSON.parse(raw)
+			if (
+				envelope === null ||
+				typeof envelope !== 'object' ||
+				envelope.v !== target.version ||
+				typeof envelope.t !== 'number' ||
+				!Number.isFinite(envelope.t) ||
+				(target.maxAgeMs !== undefined && Date.now() - envelope.t > target.maxAgeMs)
+			) {
+				throw new Error('stale envelope')
+			}
+			entry.value = envelope.d as T
+			entry.hasValue = true
+			entry.fetchedAtMs = envelope.t
 		} catch {
-			// Persistence is best-effort.
+			await storageOperation(target, () => target.storage.remove(target.key))
 		}
+	} catch {
+		// Persistence is best-effort.
 	}
 }
 
 function removePersisted(entry: CacheEntry): void {
-	const persist = entry.persist
-	if (persist === undefined) {
-		return
+	const target = entry.persist
+	if (target !== undefined) {
+		void storageOperation(target, () => target.storage.remove(target.key)).catch(() => {})
 	}
+}
 
-	let scope: string | null
-	try {
-		scope = persist.scope?.() ?? null
-	} catch {
-		return
-	}
-
-	if (scope === null) {
-		return
-	}
-
-	try {
-		Promise.resolve(persist.storage.remove(storageKey(scope, entry))).catch(() => {})
-	} catch {
-		// Persistence is best-effort.
+function assertActive(entry: CacheEntry): void {
+	if (entry.retired) {
+		const error = new Error('Query cache entry was cleared')
+		error.name = 'AbortError'
+		throw error
 	}
 }
 
@@ -465,20 +466,40 @@ function startFetch<A, T>(
 	load: (selection: A, context: QueryContext<T>) => T | PromiseLike<T>,
 	previous: T | undefined,
 ): Promise<T> {
+	assertActive(entry)
 	if (entry.inflight !== undefined) {
 		return entry.inflight
 	}
 
+	const invalidationVersion = entry.invalidationVersion
+	entry.revision++
 	const controller = new AbortController()
 	entry.controller = controller
 	const context: QueryContext<T> =
 		previous === undefined ? { signal: controller.signal } : { signal: controller.signal, previous }
 
-	const request: Promise<T> = Promise.resolve().then(() => load(selection, context))
+	const followUp = (): Promise<T> | undefined => {
+		assertActive(entry)
+		if (entry.invalidationVersion !== invalidationVersion) {
+			entry.inflight = undefined
+			return startFetch(cache, entry, selection, load, previous)
+		}
+	}
+	const request: Promise<T> = Promise.resolve().then(() => {
+		assertActive(entry)
+		return load(selection, context)
+	}).then(
+		(value) => followUp() ?? value,
+		(error) => {
+			const next = followUp()
+			if (next !== undefined) {return next}
+			throw error
+		},
+	)
 	entry.inflight = request
 	request.then(
 		(value) => {
-			if (entry.inflight !== request) {
+			if (entry.retired || entry.inflight !== request) {
 				return
 			}
 
@@ -492,7 +513,7 @@ function startFetch<A, T>(
 			republish(cache, 'serve', (elements) => elementsEqual(elements, entry.elements))
 		},
 		() => {
-			if (entry.inflight !== request) {
+			if (entry.retired || entry.inflight !== request) {
 				return
 			}
 
@@ -543,9 +564,12 @@ function loadThroughCache<A, T>(
 		return entry.value!
 	}
 
-	if (!entry.persistChecked && entry.persist !== undefined) {
+	if (mode !== 'forced' && entry.persist !== undefined && (!entry.persistChecked || entry.restoring !== undefined)) {
+		entry.restoring ??= restoreEntry(entry).finally(() => { entry.restoring = undefined })
 		return (async () => {
-			await restoreEntry(entry)
+			await entry.restoring
+			assertActive(entry)
+			if (entry.inflight !== undefined) {return entry.inflight}
 			if (entry.hasValue) {
 				const timeStale =
 					staleTimeMs !== Number.POSITIVE_INFINITY && Date.now() - entry.fetchedAtMs >= staleTimeMs
@@ -818,6 +842,7 @@ function invalidateQueriesIn(
 	for (const entry of cache.entries.values()) {
 		if (matches(entry.elements)) {
 			entry.invalidated = true
+			entry.invalidationVersion++
 		}
 	}
 
@@ -852,6 +877,7 @@ function clearQueryCacheIn(
 			continue
 		}
 
+		entry.retired = true
 		entry.controller?.abort()
 		removePersisted(entry)
 		cache.entries.delete(keyString(entry.elements))

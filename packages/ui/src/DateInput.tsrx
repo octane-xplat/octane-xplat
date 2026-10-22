@@ -200,7 +200,7 @@ function DateInputControl(inputProps: CoreProps) @{
 				props.size && `vx-dateinput--size-${props.size}`,
 				(!isPendingValid) && 'vx-dateinput--invalid',
 				props.className,
-			)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style))}>
+			)} style={mergeStyle({display: "flex"}, props.style)}>
 			{shellContent}
 		</masonview>
 		{surface === 'popover' ? (

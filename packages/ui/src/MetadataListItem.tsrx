@@ -32,7 +32,7 @@ export function MetadataListItem(props: MetadataListItemProps) @{
 
 	if (isStacked) {
 		return (
-			<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-metadatalist-item', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { flexDirection: 'column', marginBottom: 8, ...styleRecord(props.style) }))}>
+			<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-metadatalist-item', props.className)} style={mergeStyle({display: "flex"}, { marginBottom: 8, ...styleRecord(props.style) })}>
 				{labelRow}
 				{childContent(props.children, 'vx-metadatalist-value')}
 			</masonview>

@@ -140,5 +140,16 @@ manifest intent-filter) and allowlisted by your backend. On web `supported` is
 
 ```ts
 const status = await auth.restore() // 'authenticated' if a session was stored
-await auth.signOut() // revokes the session and clears stored credentials
+await auth.signOut() // clears credentials, then attempts server revocation
+```
+
+Sign-out clears memory immediately and waits for earlier credential saves before
+removing the stored record. It supersedes pending sign-in and refresh work:
+an earlier sign-in resolves as `cancelled`. Storage and server revocation remain
+best-effort. A later explicit sign-in starts a new session.
+
+```ts
+const pending = auth.signIn()
+await auth.signOut()
+const result = await pending // status: 'cancelled' if the ceremony was still pending
 ```

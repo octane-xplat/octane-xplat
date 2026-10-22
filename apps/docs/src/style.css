@@ -849,7 +849,11 @@ body {
 }
 
 .doc-page {
-	max-width: 1095px;
+	/* Auto margins in the scroll area's flex column otherwise size this
+	   item from its contents (including wide tables), clipping the article. */
+	width: 100%;
+	min-width: 0;
+	max-width: 933px;
 	margin: 0 auto;
 	transition: opacity 200ms ease;
 }
@@ -1100,6 +1104,9 @@ body {
 }
 
 .doc-next-copy {
+	flex: 1;
+	min-width: 0;
+	overflow-wrap: anywhere;
 	flex-direction: column;
 	gap: 3px;
 }
@@ -1133,6 +1140,9 @@ body {
 /* ---------- doc typography ---------- */
 
 .doc {
+	width: 100%;
+	min-width: 0;
+	overflow-wrap: anywhere;
 	padding: 40px 81px 72px;
 	max-width: 933px;
 	margin-left: auto;
@@ -1924,6 +1934,12 @@ body {
 	.td {
 		padding: 8px 10px;
 		font-size: 14px;
+	}
+}
+
+@media (max-width: 400px) {
+	.orbit-ring {
+		scale: 0.7;
 	}
 }
 

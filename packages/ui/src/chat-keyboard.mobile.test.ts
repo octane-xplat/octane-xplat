@@ -63,6 +63,9 @@ const fixture = (policy: 'never' | 'always' | 'when-at-end' = 'when-at-end') => 
 			this.changed = null
 		},
 	}
+	const dockPad: any = {
+		style: { paddingBottom: 0 },
+	}
 	const content: any = {
 		style: { paddingBottom: 10 },
 		on(name: string, cb: any) {
@@ -106,10 +109,11 @@ const fixture = (policy: 'never' | 'always' | 'when-at-end' = 'when-at-end') => 
 		jumpToEnd: () => viewport.scrollTo({ top: viewport.scrollableHeight, behavior: 'instant' }),
 	})
 	const options: any = { keyboardFollow: policy, bottomPanelHeight: 0 }
-	const binding = bindChatKeyboard({}, viewport, dock, content, () => options)
+	const binding = bindChatKeyboard({}, viewport, dock, dockPad, content, () => options)
 	vi.runAllTimers()
 	return {
 		dock,
+		dockPad,
 		content,
 		viewport,
 		options,
@@ -224,5 +228,38 @@ it('measures composer growth after NativeScript completes the child layout pass'
 	vi.runAllTimers()
 	expect(f.content.style.paddingBottom).toBe(150)
 	expect(f.viewport.scrollTop).toBe(before + 60)
+	f.close()
+})
+
+it('pads the dock over the home indicator only while neither keyboard nor panel covers it', () => {
+	const f = fixture()
+	f.options.homeInset = 34
+	f.binding.update()
+	vi.runAllTimers()
+	expect(f.dockPad.style.paddingBottom).toBe(34)
+	expect(f.dock.translateY).toBe(0)
+	f.emit(frame(790))
+	expect(f.dockPad.style.paddingBottom).toBe(24)
+	expect(f.dock.translateY).toBe(-10)
+	f.emit(frame(472))
+	expect(f.dockPad.style.paddingBottom).toBe(0)
+	expect(f.dock.translateY).toBe(-328)
+	f.emit(frame(800))
+	f.options.bottomPanelHeight = 328
+	f.dock.height = 408
+	f.binding.update()
+	vi.runAllTimers()
+	expect(f.dockPad.style.paddingBottom).toBe(0)
+	expect(f.dock.translateY).toBe(0)
+	f.close()
+	expect(f.dockPad.style.paddingBottom).toBe(0)
+})
+
+it('leaves the dock un-padded when an ancestor already consumed the home inset', () => {
+	const f = fixture()
+	f.options.homeInset = 0
+	f.binding.update()
+	vi.runAllTimers()
+	expect(f.dockPad.style.paddingBottom).toBe(0)
 	f.close()
 })

@@ -69,7 +69,7 @@ export function Toast(props: ToastProps) @{
 	<masonview ref={(v: any) => {
 			el.current = v;
 			applyEscapeProps(v, props);
-		}} id={props.id} className={cx('vx-toast', `vx-toast--${type}`, props.isExiting && 'vx-toast--exiting', props.className)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style))} accessibilityLiveRegion={(type === 'error' ? 'assertive' : 'polite')}>
+		}} id={props.id} className={cx('vx-toast', `vx-toast--${type}`, props.isExiting && 'vx-toast--exiting', props.className)} style={mergeStyle({display: "flex"}, props.style)} accessibilityLiveRegion={(type === 'error' ? 'assertive' : 'polite')}>
 		{props.renderContent ? (
 			props.renderContent({
 				body: props.body,

@@ -1,6 +1,7 @@
 import { install as installGestureHandler } from '@nativescript-community/gesturehandler'
 import { Application, Color, Frame, GridLayout, ListView, Page, Trace } from '@nativescript/core'
 import { renderNativeScriptApp } from '@nativescript-community/octane'
+import { prepareFullScreenPage } from '@octane-xplat/ui/nativescript'
 import { App } from '@xplat/app'
 import { VirtualList as VirtualListDemo } from '@xplat/demos'
 import { installParityDump } from '@xplat/app/parity/measure'
@@ -120,7 +121,7 @@ function virtualListBenchmarkReport(metrics: Awaited<ReturnType<typeof runVirtua
 // the frame attaches is queued by NS core.
 function createWindowContent(): Frame {
 	const frame = new Frame()
-	const page = new Page()
+	const page = prepareFullScreenPage(new Page())
 	page.actionBarHidden = true
 	console.log('[harness] createWindowContent')
 	try {

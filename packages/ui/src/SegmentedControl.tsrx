@@ -22,7 +22,7 @@ export function SegmentedControl(inputProps: SegmentedControlProps) @{
 		props.onValueChange?.(value);
 	};
 
-	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-segmented', props.isDisabled && 'vx-segmented--disabled', props.isReadOnly && 'vx-segmented--readonly', props.isLoading && 'vx-segmented--loading', props.status && `vx-segmented--status-${props.status.type}`, props.size && `vx-segmented--size-${props.size}`, props.className)} style={mergeStyle({flexDirection: "row"}, mergeStyle({display: "flex"}, props.style))} accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label} accessibilityHint={props.accessibilityHint} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled })}>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-segmented', props.isDisabled && 'vx-segmented--disabled', props.isReadOnly && 'vx-segmented--readonly', props.isLoading && 'vx-segmented--loading', props.status && `vx-segmented--status-${props.status.type}`, props.size && `vx-segmented--size-${props.size}`, props.className)} style={mergeStyle({display: "flex"}, props.style)} accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label} accessibilityHint={props.accessibilityHint} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled })}>
 		{props.options.map((opt: any) => {
 			const selected = current === opt.value;
 			const disabled = props.isDisabled || opt.isDisabled;

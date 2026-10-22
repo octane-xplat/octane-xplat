@@ -92,6 +92,11 @@ function pruneSelection(selection: Selection, removed: ReadonlySet<Key>): Select
 }
 
 export function createListData<T>(options: ListDataOptions<T> = {}): ListData<T> {
+	return createListDataController(options).list
+}
+
+/** @internal Atomic collection replacement for the async-list owner. */
+export function createListDataController<T>(options: ListDataOptions<T> = {}) {
 	const getKey = options.getKey ?? defaultItemKey
 	let snapshot: ListSnapshot<T> = {
 		items: [...(options.initialItems ?? [])],
@@ -141,7 +146,7 @@ export function createListData<T>(options: ListDataOptions<T> = {}): ListData<T>
 		commit({ ...snapshot, items: remaining })
 	}
 
-	return {
+	const list: ListData<T> = {
 		getSnapshot: () => snapshot,
 		subscribe(notify) {
 			listeners.add(notify)
@@ -223,6 +228,20 @@ export function createListData<T>(options: ListDataOptions<T> = {}): ListData<T>
 			const items = [...snapshot.items]
 			items[index] = value
 			commit({ ...snapshot, items })
+		},
+	}
+	return {
+		list,
+		replace(items: readonly T[], selectedKeys?: Selection | Iterable<Key>) {
+			const present = new Set(items.map(getKey))
+			const removed = new Set(snapshot.items.map(getKey).filter((key) => !present.has(key)))
+			commit({
+				...snapshot,
+				items: [...items],
+				selectedKeys: selectedKeys === undefined
+					? pruneSelection(snapshot.selectedKeys, removed)
+					: normalizeSelection(selectedKeys),
+			})
 		},
 	}
 }

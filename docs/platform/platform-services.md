@@ -1027,14 +1027,21 @@ Install `@octane-xplat/sqlite` separately. It provides the same asynchronous
 API on web and native: calls use `await` because they can take time to finish.
 The following fragment creates a table and reads its rows:
 
+Inside a transaction, use and await the callback's `tx` handle. Other calls on
+the main `db` handle wait until the transaction ends, so awaiting `db` inside
+the callback would wait on itself. The `tx` handle expires when the callback
+finishes and rejects nested transactions and close calls. A thrown callback
+rolls back its own writes; queued outside writes run afterward.
+
+
 ```ts
 import { openDatabase, supported } from '@octane-xplat/sqlite'
 
 const db = await openDatabase('app.db')
 await db.execute('CREATE TABLE IF NOT EXISTS items(id INTEGER PRIMARY KEY, name TEXT)')
 const rows = await db.select<{ id: number; name: string }>('SELECT * FROM items')
-await db.transaction(async (db) => {
-	await db.execute('INSERT INTO items(name) VALUES (?)', ['Passport'])
+await db.transaction(async (tx) => {
+	await tx.execute('INSERT INTO items(name) VALUES (?)', ['Passport'])
 	// A throw here rolls back the insert.
 })
 await db.close()

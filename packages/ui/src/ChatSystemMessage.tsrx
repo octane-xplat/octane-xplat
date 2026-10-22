@@ -9,7 +9,7 @@ import { Separator } from './Separator';
 export function ChatSystemMessage(props: ChatSystemMessageProps) @{
 	if (props.variant === 'divider') {
 		return (
-		<masonview id={props.id} className={cx('vx-chatsys', 'vx-chatsys--divider', props.className)} style={mergeStyle({flexDirection: "row", alignItems: "center", justifyContent: "center"}, mergeStyle({display: "flex"}, props.style))}>
+		<masonview id={props.id} className={cx('vx-chatsys', 'vx-chatsys--divider', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
 			<Separator className="vx-chatsys-rule" />
 			<masonview className="vx-chatsys-content" style={{display: "flex"}}>{props.children}</masonview>
 			<Separator className="vx-chatsys-rule" />
@@ -18,7 +18,7 @@ export function ChatSystemMessage(props: ChatSystemMessageProps) @{
 	}
 
 	return (
-		<masonview id={props.id} className={cx('vx-chatsys', props.className)} style={mergeStyle({flexDirection: "row", alignItems: "center", justifyContent: "center"}, mergeStyle({display: "flex"}, props.style))}>
+		<masonview id={props.id} className={cx('vx-chatsys', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
 			<masonview className="vx-chatsys-content" style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
 				{props.icon != null ? <masonview className="vx-chatsys-icon" style={{display: "flex"}}>{props.icon}</masonview> : null}
 				{props.children}

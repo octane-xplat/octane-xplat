@@ -71,6 +71,7 @@ export function openBottomSheetWithOwner(
 		const entry: ActiveSheet = { layer, finish }
 		let backdrop: HTMLDivElement | null = null
 		if (hasScrim) {
+			layer.setAttribute('data-vx-modal-layer', '')
 			backdrop = document.createElement('div')
 			backdrop.className = 'vx-sheet-backdrop'
 			backdrop.style.opacity = String(BASE_SCRIM)

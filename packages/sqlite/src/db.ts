@@ -1,3 +1,4 @@
+import { isolateDatabase } from './operation-queue'
 import { knownFolders } from '@nativescript/core'
 import {
 	deleteDatabase as deleteNativeDatabase,
@@ -49,6 +50,6 @@ export const openDatabase = async (
 	name: string,
 	options?: OpenDatabaseOptions,
 ): Promise<SqliteDb> =>
-	new NativeSqliteDb(openOrCreate(resolvePath(name), { threading: options?.threading ?? true }))
+	isolateDatabase(new NativeSqliteDb(openOrCreate(resolvePath(name), { threading: options?.threading ?? true })))
 
 export const deleteDatabase = async (name: string) => deleteNativeDatabase(resolvePath(name))

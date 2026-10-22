@@ -181,7 +181,7 @@ export function Calendar(props: CalendarProps) @{
 		)
 	}
 
-	<masonview id={props.id} className={cx('vx-calendar', mode === 'range' && 'vx-calendar--range', numberOfMonths === 2 && 'vx-calendar--two-months', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style))}>
+	<masonview id={props.id} className={cx('vx-calendar', mode === 'range' && 'vx-calendar--range', numberOfMonths === 2 && 'vx-calendar--two-months', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
 		<masonview className="vx-calendar-header" style={mergeStyle({flexDirection: props.direction === 'rtl' ? 'row-reverse' : 'row', alignItems: "center"}, {display: "flex"})}>
 			<Pressable
 				className="vx-calendar-nav vx-calendar-nav--prev"

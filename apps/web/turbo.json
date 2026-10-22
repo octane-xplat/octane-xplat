@@ -2,6 +2,16 @@
 	"$schema": "https://turborepo.dev/schema.json",
 	"extends": ["//"],
 	"tasks": {
+		"input:readiness": {
+			"dependsOn": ["^typegen", "@xplat/app#gen"],
+			"env": ["XPLAT_WEB_BROWSER"],
+			"cache": false
+		},
+		"sqlite:readiness": {
+			"dependsOn": ["^typegen", "@xplat/app#gen"],
+			"env": ["XPLAT_WEB_BROWSER"],
+			"cache": false
+		},
 		// styled-system/* resolves into packages/app's generated sources — the
 		// files must exist before these tasks run.
 		"typecheck": {

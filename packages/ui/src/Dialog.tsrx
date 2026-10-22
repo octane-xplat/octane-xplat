@@ -33,7 +33,7 @@ function DialogPanel(props: DialogProps & { layerDepth: number }) @{
 				'vx-dialog',
 				isFullscreen && 'vx-dialog--fullscreen',
 				props.className,
-			)} width={isFullscreen ? '100%' : undefined} height={isFullscreen ? '100%' : undefined} accessible={true} accessibilityLabel={props.accessibilityLabel} accessibilityRole={purpose === 'required' ? 'alert' : undefined} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, [{
+			)} width={isFullscreen ? '100%' : undefined} height={isFullscreen ? '100%' : undefined} accessible={true} accessibilityLabel={props.accessibilityLabel} accessibilityRole={purpose === 'required' ? 'alert' : undefined} style={mergeStyle({display: "flex"}, [{
 				padding,
 				width: typeof props.width === 'number' ? props.width : isFullscreen ? '100%' : undefined,
 				height: isFullscreen ? '100%' : undefined,
@@ -42,8 +42,7 @@ function DialogPanel(props: DialogProps & { layerDepth: number }) @{
 				marginRight: typeof pos?.end === 'number' ? pos.end : undefined,
 				marginTop: typeof pos?.top === 'number' ? pos.top : undefined,
 				marginBottom: typeof pos?.bottom === 'number' ? pos.bottom : undefined,
-				...styleRecord(props.style),
-			}, {justifySelf: 
+				...styleRecord(props.style) }, {justifySelf: 
 				isFullscreen
 					? 'stretch'
 					: pos?.start != null
@@ -59,7 +58,7 @@ function DialogPanel(props: DialogProps & { layerDepth: number }) @{
 						: pos?.bottom != null
 							? 'bottom'
 						: 'middle'
-			}]))}>
+			}])}>
 			<DialogProvider value={{ titleId, isModal: true, requestClose: props.onOpenChange }}>
 				<LayerDepthProvider value={props.layerDepth}>
 					<SizeProvider value={null}>{props.children}</SizeProvider>
@@ -74,7 +73,7 @@ function DialogInline(props: DialogProps) @{
 	const titleId = useId()
 	const padding = spacingStep(props.padding ?? 5) ?? 20
 
-	<masonview className={cx('vx-dialog', 'vx-dialog--inline', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { padding, width: typeof props.width === 'number' ? props.width : undefined, ...styleRecord(props.style) }))} accessibilityLabel={props.accessibilityLabel}>
+	<masonview className={cx('vx-dialog', 'vx-dialog--inline', props.className)} style={mergeStyle({display: "flex"}, { padding, width: typeof props.width === 'number' ? props.width : undefined, ...styleRecord(props.style) })} accessibilityLabel={props.accessibilityLabel}>
 		<DialogProvider value={{ titleId, isModal: false, requestClose: props.onOpenChange }}>
 			{props.children}
 		</DialogProvider>

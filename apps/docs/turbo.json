@@ -6,6 +6,10 @@
 		// cli/dist — build dependencies first so a fresh checkout works.
 		"build": {
 			"dependsOn": ["^typegen", "^build"]
+		},
+		"test:responsive": {
+			"dependsOn": ["^typegen", "^build"],
+			"cache": false
 		}
 	}
 }

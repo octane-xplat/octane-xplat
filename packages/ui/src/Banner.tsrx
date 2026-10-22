@@ -7,7 +7,7 @@ import { Icon } from './Icon';
 
 /** Banner — inline notice strip with optional dismiss affordance. */
 export function Banner(props: BannerProps) @{
-	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-banner', props.className)} style={mergeStyle({flexDirection: "row"}, mergeStyle({display: "flex"}, props.style))}>
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-banner', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
 		{props.icon ? <Icon name={props.icon} className="vx-banner-icon" /> : null}
 		<masonview className="vx-banner-body" style={{display: "flex"}}>{props.children}</masonview>
 		{props.onDismiss ? <label className="vx-banner-dismiss" text="✕" onTap={props.onDismiss} /> : null}

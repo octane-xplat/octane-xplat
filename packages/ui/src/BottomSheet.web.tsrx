@@ -93,6 +93,9 @@ function BottomSheetLayer(props: {
 			return
 		}
 
+		// The parked entrance transform is temporary, not a base transform
+		// for the gesture controller's composed translations.
+		el.style.transform = ''
 		const ctl = attachSheetDetents(el, snapPoints, () => dismiss.current(), {
 			dismissible: purpose !== 'required',
 			swipeOnly: !snapPoints.length,
@@ -107,7 +110,7 @@ function BottomSheetLayer(props: {
 		return () => ctl.detach()
 	}, [snapKey, purpose])
 
-	<div ref={layer} className={cx('vx-sheet-layer', 'vx-bottom-sheet-layer', dark && 'dark')}>
+	<div ref={layer} data-vx-modal-layer={hasScrim ? '' : undefined} className={cx('vx-sheet-layer', 'vx-bottom-sheet-layer', dark && 'dark')}>
 		{hasScrim && (
 			<div
 				ref={backdrop}

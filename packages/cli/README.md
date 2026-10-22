@@ -46,6 +46,16 @@ pnpm build
 pnpm dev:ios
 ```
 
+With `xplat build --targets`, every requested kind must be available for that
+app. A mixed selection such as `web,android` fails before route generation or
+any build starts if Android is unavailable. The error lists the available kinds.
+Without `--targets`, the interactive picker or noninteractive all-target
+selection still applies.
+
+```sh
+pnpm xplat build --targets web,android
+```
+
 Linux packaging and its required manifest settings are documented in
 [Package a Linux app](../../docs/platform/linux-package.md). The CLI ships the
 GJS host; Linux users supply the GTK/WebKit system runtime.

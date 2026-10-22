@@ -2,6 +2,7 @@ export interface ChatKeyboardOptions {
 	keyboardFollow?: 'never' | 'always' | 'when-at-end'
 	bottomPanelHeight?: number
 	safeBottom?: number
+	homeInset?: number
 	ancestorWindow?: object
 	ancestorBottom?: number
 	external?: boolean
