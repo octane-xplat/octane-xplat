@@ -186,6 +186,25 @@ savings. The archive review alone does not quantify extraction savings.
 
 ## Evidence and remaining decisions
 
+The first extraction in the
+[Mason fork](https://github.com/octane-xplat/nativescript-mason) introduces the
+private `packages/nativescript-mason-core` helper package. Its source provenance
+and path mapping live in `tools/mason-core/README.md` in that repository. Five
+portable styling helpers and three existing tests moved unchanged; native
+hosts, scrolling, and native artifact separation remain unimplemented.
+
+Full MasonKit builds the relocated helpers through a generated source overlay
+at `tmp/nativescript-masonkit`. This preserves its relative imports and emitted
+module paths without a core runtime dependency. Tests use the same relocation
+manifest. This is temporary build/test wiring, not the eventual native-library
+integration. Source maps point into the generated overlay; edit the tracked
+source rather than those generated files.
+
+The implementation baseline is fork commit
+`623114b070896a21315fcff9a3a6349bdd091cc4` (beta.126), including merged upstream
+revision `2324b8ee52a1f22cf18dc684aa053e92b64a6451`. The helper-only package is not
+a replacement for MasonKit in Xplat and does not establish native size savings.
+
 The initial review examined the fork pinned at `1.0.0-beta.125` and the local
 [renderer patch](../../packages/cli/patches/@nativescript-community__octane@0.2.5.patch).
 Xplat's renderer imports MasonKit's layout/scroll hosts and style surface while
