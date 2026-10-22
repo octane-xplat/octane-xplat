@@ -104,8 +104,9 @@ adapter — the low-level shape stays compatible with that.
   **persistence semantics** (sandboxed OPFS vs real app files), not the SQL
   surface — it is the same sqlite engine on both sides.
 - Mobile bridge cost: each call crosses JS↔native synchronously (FMDB /
-  `com.akylas.sqlite`). `threading` exists but is opt-in; measure before
-  recommending it for hot paths.
+  `com.akylas.sqlite`). Xplat defaults `threading` to `true`; callers can
+  explicitly disable it. Android transaction threading remains unqualified
+  as described below.
 - No persistence parity for migrations: plugin exposes `getVersion`/
   `setVersion`; the wasm side has no built-in `PRAGMA user_version` helper —
   seam should expose `userVersion` get/set mapped to that pragma so upgrade
@@ -149,3 +150,32 @@ interop.Pointer` isn't re-entrant as a destructor arg (share the
   `select`/`selectArray` — same contract, working code.
 - `threading: true` on-device behavior (workers survive HMR? cost per call?)
   on the mobile harness.
+
+## Android transaction threading gate (2026-10-22)
+
+This remains **unverified**, not a confirmed device bug. The retained audit's
+source evidence for `@nativescript-community/sqlite` 3.5.9 places transaction
+begin/end on the JS caller thread and execute/select on its worker when
+threading is enabled. That suggests a transaction deadlock, but host mocks and
+an APK build cannot establish the runtime result. No speculative workaround or
+change to Xplat's `threading: true` default has been made.
+
+The maintained [Android fixture](../../../packages/sqlite/tests/fixtures/transactions.android.ts)
+warms the worker, runs `threading: false` commit/rollback controls, and watches
+the whole default-threading transaction. The [launcher](../../../packages/sqlite/tests/android-runtime.mjs)
+requires an explicitly owned, booted host. Do not await a queued close after a
+stalled transaction; the isolated process owns teardown.
+
+Runtime execution is blocked by the [standing emulator/simulator restriction](../android-lab.md#consumer-test-qualification-gate-2026-10-13)
+and the absence of an authorized physical host. After explicit authorization,
+reserve the host and native-build capacity, set `XPLAT_SQLITE_ANDROID_DEVICE` to
+its ID, and run the existing task (which retains the case/target locks):
+
+```sh
+pnpm exec turbo run test:android-runtime --filter=@octane-xplat/sqlite
+```
+
+The supplied audit recorded an APK build with core 9.1.2/plugin 3.5.9. This fix
+checkout installed core 9.1.3/plugin 3.5.9 and ran host tests only; no Android
+build or runtime verification was repeated. Requalify on the chosen host before
+changing the threading policy or claiming Android transaction support.
