@@ -33,6 +33,7 @@ export { platformQueryStorage } from '../query-storage'
 export type {
 	QueryEnvironment,
 	QueryEnvironmentSnapshot,
+	QueryFetchDirection,
 	QueryActionOperation,
 	QueryActionContext,
 	QueryOperationOptions,
@@ -52,3 +53,12 @@ export type {
 	QueryFilter,
 	QueryDisposeOptions,
 } from '../query-cache'
+
+export { defineCursorQuery } from '../cursor-query'
+export type {
+	CursorPage,
+	CursorQueryData,
+	CursorPageContext,
+	CursorQueryOptions,
+	CursorQueryDefinition,
+} from '../cursor-query'

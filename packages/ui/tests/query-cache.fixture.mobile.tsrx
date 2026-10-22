@@ -2,6 +2,7 @@
 import 'octane/signals'
 import { useQuery$ } from '../src/use-query'
 import type { QueryClient, QueryDefinition } from '../src/query-cache'
+import type { CursorQueryDefinition } from '../src/cursor-query'
 
 export function InstanceProfile(props: {
 	id: string
@@ -46,4 +47,15 @@ export function SuspenseProfile(props: {
 			<label text="retired" />
 		}
 	}
+}
+
+export function CursorFeed(props: {
+	client: QueryClient
+	definition: CursorQueryDefinition<string, number, number>
+}) @{
+	const reader = useQuery$(props.client, props.definition, 'all')
+	const state = reader?.state$.get()
+	const data = state?.hasData ? reader!.data$.get() : undefined
+
+	<label text={data ? data.pages.flatMap((page) => page.items).join(',') : 'loading'} />
 }

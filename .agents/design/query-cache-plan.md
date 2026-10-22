@@ -1,12 +1,12 @@
 # Query cache commit plan
 
 Status: implementation started, 2026-10-22. [Engine decision 121](query-cache-engine.md)
-selects native signal authority. Steps 1–8 are implemented: explicit ownership,
+selects native signal authority. Steps 1–9 are implemented: explicit ownership,
 bounded retention, retry/network scheduling, lifecycle refresh, typed writes,
-prefetch, and shared native optimistic actions. Steps 9–12 remain: cached
-pagination, inspection, composed guidance/example, and final qualification.
+prefetch, shared native optimistic actions, and cached cursor pagination. Steps 10–12
+remain: inspection, composed guidance/example, and final qualification.
 
-Current focused evidence: 48 cache tests, eight universal object-driver tests,
+Current focused evidence: 58 cache tests, nine universal object-driver tests,
 five environment adapter tests, and 350 CLI tests pass. UI/CLI dependent
 checks pass (55 tasks); the prepared-user route also passed its 54-task
 UI/app check. Packed web/native/macOS consumers check result/selection types

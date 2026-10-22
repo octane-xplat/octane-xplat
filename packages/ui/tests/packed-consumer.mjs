@@ -13,6 +13,7 @@ import {
 	rmSync,
 	symlinkSync,
 	writeFileSync,
+	writeSync,
 } from 'node:fs'
 
 import { tmpdir } from 'node:os'
@@ -32,11 +33,11 @@ mkdirSync(extractedRoot)
 function run(command, args, cwd) {
 	const result = spawnSync(command, args, { cwd, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
 	if (result.stdout) {
-		process.stdout.write(result.stdout)
+		writeSync(1, result.stdout)
 	}
 
 	if (result.stderr) {
-		process.stderr.write(result.stderr)
+		writeSync(2, result.stderr)
 	}
 
 	if (result.error) {
@@ -364,7 +365,7 @@ void keyboard
 	// subpath and must no longer resolve at the package root.
 	source += `
 import { router as subpathRouter, useRouter, getRouteApi, type RouteManifest } from '@octane-xplat/ui/routing'
-import { useListData, useAsyncList, defineQuery, createQueryClient, useQuery$, type Selection, type QueryOptions } from '@octane-xplat/ui/data'
+import { useListData, useAsyncList, defineQuery, defineCursorQuery, createQueryClient, useQuery$, type Selection, type QueryOptions } from '@octane-xplat/ui/data'
 import { Markdown, parseMdDoc, tokenize, type MdDoc, type MarkdownProps, type TokenLine } from '@octane-xplat/ui/markdown'
 import { ChatMessage, ChatComposer, useChatComposerContext, type ChatMessageProps } from '@octane-xplat/ui/chat'
 // @ts-expect-error routing APIs live under @octane-xplat/ui/routing
@@ -377,6 +378,16 @@ import { MarkdownScreen } from '@octane-xplat/ui'
 import { ChatLayout } from '@octane-xplat/ui'
 // @ts-expect-error legacy navigation was removed during the canonical cutover
 import { pushRoute } from '@octane-xplat/ui/routing'
+const typedFeed = defineCursorQuery(['feed'], async (tag: string, { cursor }) => {
+  const response = await fetch('/api/feed?tag=' + encodeURIComponent(tag) + '&cursor=' + encodeURIComponent(cursor))
+  return response.json() as Promise<{ items: { id: string }[]; nextCursor?: string }>
+}, { initialCursor: '', maxPages: 3 })
+void createQueryClient().ensureData(typedFeed, 'all').then(data => {
+  const firstId: string | undefined = data.pages[0]?.items[0]?.id
+  // @ts-expect-error pages retain the item type inferred from the loader
+  const wrongId: number = data.pages[0]!.items[0]!.id
+  void [firstId, wrongId]
+})
 const typedQueries = createQueryClient()
 const typedUsers = defineQuery(['users'], (id: string) => ({ id, name: 'Ada' }))
 typedQueries.setQueryData(typedUsers, '42', { id: '42', name: 'Grace' })

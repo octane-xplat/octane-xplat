@@ -1,3 +1,4 @@
+import { defineCursorQuery } from './cursor-query'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
 	createObjectContainer,
@@ -10,6 +11,7 @@ import {
 	InstanceProfile,
 	TwoProfiles,
 	SuspenseProfile,
+	CursorFeed,
 } from '../tests/query-cache.fixture.mobile.tsrx'
 
 import { createQueryClient, defineQuery, type QueryClient } from './query-cache'
@@ -179,5 +181,27 @@ describe('shared query readers on universal roots', () => {
 		await settle()
 		expect(a.text()).toEqual(['same:ready:confirmed:idle'])
 		expect(b.text()).toEqual(['same:ready:confirmed:idle'])
+	})
+	it('shares cached pages between native roots', async () => {
+		const client = createQueryClient()
+		clients.push(client)
+		const calls: number[] = []
+		const definition = defineCursorQuery(
+			['feed'],
+			(_filter: string, { cursor }: { cursor: number }) => {
+				calls.push(cursor)
+				return { items: [cursor], nextCursor: cursor + 1 }
+			},
+			{ initialCursor: 0, staleTimeMs: Infinity },
+		)
+		const a = mount(CursorFeed, { client, definition })
+		const b = mount(CursorFeed, { client, definition })
+		await settle()
+		expect(calls).toEqual([0])
+		await client.fetchNextPage(definition, 'all')
+		await settle()
+		expect(calls).toEqual([0, 1])
+		expect(a.text()).toEqual(['0,1'])
+		expect(b.text()).toEqual(['0,1'])
 	})
 })

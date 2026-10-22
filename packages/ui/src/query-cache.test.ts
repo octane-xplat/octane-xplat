@@ -1,3 +1,4 @@
+import { defineCursorQuery } from './cursor-query'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
 	createQueryClient,
@@ -1035,5 +1036,239 @@ describe('shared native optimistic actions', () => {
 		gate.resolve('old account')
 		await settle()
 		expect(() => queries.getQueryData(users, 'a')).toThrow('disposed')
+	})
+})
+
+describe('cached cursor pagination', () => {
+	it('shares pages and one next-page request between readers', async () => {
+		const gate = deferred<{ items: number[]; nextCursor?: number }>()
+		const calls: number[] = []
+		const feed = defineCursorQuery(
+			['feed'],
+			(_filter: string, { cursor }: { cursor: number }) => {
+				calls.push(cursor)
+				return cursor === 0 ? { items: [0], nextCursor: 1 } : gate.promise
+			},
+			{ initialCursor: 0, staleTimeMs: Infinity },
+		)
+		const queries = client()
+		const a = queries.observe$(feed, 'all')
+		const b = queries.observe$(feed, 'all')
+		await settle()
+		const first = queries.fetchNextPage(feed, 'all')
+		const second = queries.fetchNextPage(feed, 'all')
+		await settle()
+		expect(calls).toEqual([0, 1])
+		expect(a.state$.get().fetchDirection).toBe('next')
+		gate.resolve({ items: [1] })
+		await Promise.all([first, second])
+		await settle()
+		expect(a.data$.get().pages.flatMap((page) => page.items)).toEqual([0, 1])
+		expect(b.data$.get().pageParams).toEqual([0, 1])
+		await queries.fetchNextPage(feed, 'all')
+		expect(calls).toEqual([0, 1])
+	})
+	it('keeps earlier rows on failure and retries the same cursor', async () => {
+		const calls: number[] = []
+		let fail = true
+		const feed = defineCursorQuery(
+			['feed'],
+			(_filter: string, { cursor }: { cursor: number }) => {
+				calls.push(cursor)
+				if (cursor === 1 && fail) {
+					throw new Error('page failed')
+				}
+				return { items: [cursor], nextCursor: cursor + 1 }
+			},
+			{ initialCursor: 0, retryCount: 0 },
+		)
+		const queries = client()
+		const reader = queries.observe$(feed, 'all')
+		await settle()
+		await expect(queries.fetchNextPage(feed, 'all')).rejects.toThrow('page failed')
+		expect(reader.data$.get().pages.flatMap((page) => page.items)).toEqual([0])
+		expect(reader.state$.get()).toMatchObject({ status: 'error', hasData: true })
+		fail = false
+		await queries.fetchNextPage(feed, 'all')
+		expect(calls).toEqual([0, 1, 1])
+		expect(reader.data$.get().pageParams).toEqual([0, 1])
+	})
+	it('serializes full refresh after load-more and refreshes sequentially', async () => {
+		const gate = deferred<{ items: number[]; nextCursor: number }>()
+		const calls: number[] = []
+		let pending = true
+		const feed = defineCursorQuery(
+			['feed'],
+			(_filter: string, { cursor }: { cursor: number }) => {
+				calls.push(cursor)
+				if (cursor === 1 && pending) {
+					return gate.promise
+				}
+				return { items: [cursor], nextCursor: cursor + 1 }
+			},
+			{ initialCursor: 0, staleTimeMs: Infinity },
+		)
+		const queries = client()
+		const reader = queries.observe$(feed, 'all')
+		await settle()
+		const more = queries.fetchNextPage(feed, 'all')
+		await settle()
+		const refreshed = reader.refetch()
+		pending = false
+		gate.resolve({ items: [1], nextCursor: 2 })
+		await Promise.all([more, refreshed])
+		expect(calls).toEqual([0, 1, 0, 1])
+		expect(reader.data$.get().pageParams).toEqual([0, 1])
+	})
+	it('waits for refresh before choosing a new next cursor', async () => {
+		const gate = deferred<{ items: number[]; nextCursor: number }>()
+		const calls: number[] = []
+		let refresh = false
+		const feed = defineCursorQuery(
+			['feed'],
+			(_filter: string, { cursor }: { cursor: number }) => {
+				calls.push(cursor)
+				if (cursor === 0 && refresh) {
+					return gate.promise
+				}
+				return { items: [cursor], nextCursor: 1 }
+			},
+			{ initialCursor: 0 },
+		)
+		const queries = client()
+		const reader = queries.observe$(feed, 'all')
+		await settle()
+		refresh = true
+		const refreshed = reader.refetch()
+		await settle()
+		const more = queries.fetchNextPage(feed, 'all')
+		gate.resolve({ items: [0], nextCursor: 10 })
+		await Promise.all([refreshed, more])
+		expect(calls).toEqual([0, 0, 10])
+		expect(reader.data$.get().pageParams).toEqual([0, 10])
+	})
+	it('invalidation during a page load queues one full refresh', async () => {
+		const gate = deferred<{ items: number[]; nextCursor: number }>()
+		const calls: number[] = []
+		let pending = true
+		const feed = defineCursorQuery(
+			['feed'],
+			(_filter: string, { cursor }: { cursor: number }) => {
+				calls.push(cursor)
+				return cursor === 1 && pending ? gate.promise : { items: [cursor], nextCursor: cursor + 1 }
+			},
+			{ initialCursor: 0 },
+		)
+		const queries = client()
+		const reader = queries.observe$(feed, 'all')
+		await settle()
+		const more = queries.fetchNextPage(feed, 'all')
+		await settle()
+		queries.invalidateQueries({ key: ['feed'] })
+		pending = false
+		gate.resolve({ items: [1], nextCursor: 2 })
+		await more
+		await settle()
+		expect(calls).toEqual([0, 1, 0, 1])
+		expect(reader.data$.get().pageParams).toEqual([0, 1])
+	})
+	it('refreshes a bounded window from its first retained cursor using fresh successors', async () => {
+		const calls: number[] = []
+		let changed = false
+		const feed = defineCursorQuery(
+			['feed'],
+			(_filter: string, { cursor }: { cursor: number }) => {
+				calls.push(cursor)
+				return { items: [cursor], nextCursor: changed && cursor === 1 ? 10 : cursor + 1 }
+			},
+			{ initialCursor: 0, maxPages: 2, staleTimeMs: Infinity },
+		)
+		const queries = client()
+		const reader = queries.observe$(feed, 'all')
+		await settle()
+		await queries.fetchNextPage(feed, 'all')
+		await queries.fetchNextPage(feed, 'all')
+		changed = true
+		await reader.refetch()
+		expect(calls).toEqual([0, 1, 2, 1, 10])
+		expect(reader.data$.get().pageParams).toEqual([1, 10])
+	})
+	it('bounds pages and supports loading backwards from the retained window', async () => {
+		const feed = defineCursorQuery(
+			['feed'],
+			(_filter: string, { cursor }: { cursor: number }) => ({
+				items: [cursor],
+				nextCursor: cursor + 1,
+				previousCursor: cursor > 0 ? cursor - 1 : undefined,
+			}),
+			{ initialCursor: 0, maxPages: 2 },
+		)
+		const queries = client()
+		await queries.ensureData(feed, 'all')
+		await queries.fetchNextPage(feed, 'all')
+		await queries.fetchNextPage(feed, 'all')
+		expect(queries.getQueryData(feed, 'all')?.pageParams).toEqual([1, 2])
+		await queries.fetchPreviousPage(feed, 'all')
+		expect(queries.getQueryData(feed, 'all')?.pageParams).toEqual([0, 1])
+	})
+	it('preserves null as a valid cursor when refreshing a retained window', async () => {
+		const calls: Array<string | null> = []
+		const feed = defineCursorQuery(
+			['feed'],
+			(_filter: string, { cursor }: { cursor: string | null }) => {
+				calls.push(cursor)
+				return { items: [String(cursor)], nextCursor: cursor === 'start' ? null : undefined }
+			},
+			{ initialCursor: 'start', maxPages: 1 },
+		)
+		const queries = client()
+		const reader = queries.observe$(feed, 'all')
+		await settle()
+		await queries.fetchNextPage(feed, 'all')
+		expect(reader.data$.get().pageParams).toEqual([null])
+		await reader.refetch()
+		expect(calls).toEqual(['start', null, null])
+	})
+	it('keeps page parameters coherent through persistence', async () => {
+		const storage = createMemoryQueryStorage()
+		let calls = 0
+		const feed = defineCursorQuery(
+			['feed'],
+			(_filter: string, { cursor }: { cursor: number }) => {
+				calls++
+				return { items: [cursor], nextCursor: cursor + 1 }
+			},
+			{ initialCursor: 0, staleTimeMs: Infinity, persist: { storage, version: 1 } },
+		)
+		const queries = client('feed-account')
+		await queries.ensureData(feed, 'all')
+		await queries.fetchNextPage(feed, 'all')
+		await settle()
+		await queries.dispose()
+		const restored = client('feed-account')
+		const data = await restored.ensureData(feed, 'all')
+		expect(data.pageParams).toEqual([0, 1])
+		expect(data.pages.flatMap((page) => page.items)).toEqual([0, 1])
+		expect(calls).toBe(2)
+	})
+	it('isolates filters and fences an obsolete page after a confirmed write', async () => {
+		const gate = deferred<{ items: number[]; nextCursor: number }>()
+		const feed = defineCursorQuery(
+			['feed'],
+			(filter: string, { cursor }: { cursor: number }) =>
+				cursor === 1 ? gate.promise : { items: [filter === 'a' ? 0 : 10], nextCursor: 1 },
+			{ initialCursor: 0 },
+		)
+		const queries = client()
+		await queries.ensureData(feed, 'a')
+		await queries.ensureData(feed, 'b')
+		const more = queries.fetchNextPage(feed, 'a').catch((error) => error)
+		await settle()
+		const replacement = queries.getQueryData(feed, 'b')!
+		queries.setQueryData(feed, 'a', replacement)
+		expect(await more).toMatchObject({ name: 'AbortError' })
+		gate.resolve({ items: [1], nextCursor: 2 })
+		await settle()
+		expect(queries.getQueryData(feed, 'a')?.pages[0]?.items).toEqual([10])
 	})
 })

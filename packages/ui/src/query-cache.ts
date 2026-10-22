@@ -1,3 +1,4 @@
+import { cursorPageLoader, type CursorQueryDefinition, type CursorQueryData } from './cursor-query'
 import { environment as platformEnvironment } from '@octane-xplat/platform/environment'
 /** Shared queries with explicit definition, reader, and client lifetimes. */
 import {
@@ -80,11 +81,15 @@ export interface QueryDefinition<A extends QueryKeyPart, T> {
 	readonly options: QueryOptions<T>
 }
 
+/** The current shared request's purpose; page operations serialize with full refreshes. */
+export type QueryFetchDirection = 'refresh' | 'next' | 'previous'
+
 /** Observable state. A refresh failure can coexist with usable confirmed data. */
 export interface QueryState {
 	readonly status: 'pending' | 'ready' | 'error'
 	readonly fetchStatus: 'idle' | 'fetching' | 'paused'
 	readonly failureCount: number
+	readonly fetchDirection?: QueryFetchDirection
 	readonly hasData: boolean
 	readonly error: unknown
 	readonly updatedAtMs: number
@@ -172,6 +177,18 @@ export interface QueryClient {
 		selection: A,
 		options?: QueryOperationOptions,
 	): Promise<QueryPrefetchResult>
+	/** Append one shared cursor page; repeated calls share the same operation. */
+	fetchNextPage<A extends QueryKeyPart, T, C extends QueryKeyPart>(
+		definition: CursorQueryDefinition<A, T, C>,
+		selection: A,
+		options?: QueryOperationOptions,
+	): Promise<CursorQueryData<T, C>>
+	/** Prepend a page when the first retained page supplies a previous cursor. */
+	fetchPreviousPage<A extends QueryKeyPart, T, C extends QueryKeyPart>(
+		definition: CursorQueryDefinition<A, T, C>,
+		selection: A,
+		options?: QueryOperationOptions,
+	): Promise<CursorQueryData<T, C>>
 	/** Compose one native Octane action with a loaded shared record and an operation lease. No write retries. */
 	runOptimistic<A extends QueryKeyPart, T, R>(
 		definition: QueryDefinition<A, T>,
@@ -355,6 +372,9 @@ interface Entry<T = unknown> {
 	revision: number
 	controller?: AbortController
 	inflight?: Promise<T>
+	requestKind?: QueryFetchDirection
+	queuedRefresh?: Promise<T>
+	writeEpoch: number
 	restoring?: Promise<void>
 	restored: boolean
 	persist?: PersistenceTarget
@@ -558,7 +578,12 @@ function wait<T>(entry: Entry<T>, signal: AbortSignal, delayMs?: number): Promis
 	})
 }
 
-async function attempt<T>(entry: Entry<T>, signal: AbortSignal): Promise<T> {
+async function attempt<T>(
+	entry: Entry<T>,
+	signal: AbortSignal,
+	loader: QueryDefinition<QueryKeyPart, T>['load'],
+	kind: QueryFetchDirection,
+): Promise<{ value: T; version: number }> {
 	const policy = entry.definition.options
 	let failures = 0
 	let generation = entry.invalidationVersion
@@ -568,7 +593,7 @@ async function attempt<T>(entry: Entry<T>, signal: AbortSignal): Promise<T> {
 			throw cancellation()
 		}
 
-		if (generation !== entry.invalidationVersion) {
+		if (kind === 'refresh' && generation !== entry.invalidationVersion) {
 			generation = entry.invalidationVersion
 			failures = 0
 		}
@@ -578,7 +603,7 @@ async function attempt<T>(entry: Entry<T>, signal: AbortSignal): Promise<T> {
 			await wait(entry, signal)
 		}
 
-		if (generation !== entry.invalidationVersion) {
+		if (kind === 'refresh' && generation !== entry.invalidationVersion) {
 			generation = entry.invalidationVersion
 			failures = 0
 		}
@@ -590,25 +615,26 @@ async function attempt<T>(entry: Entry<T>, signal: AbortSignal): Promise<T> {
 			fetchStatus: 'fetching',
 			error: undefined,
 			failureCount: failures,
+			fetchDirection: kind,
 		})
 
 		try {
-			const value = await entry.definition.load(entry.selection, {
+			const value = await loader(entry.selection, {
 				signal,
 				previous: entry.value$.get(),
 			})
 
-			if (generation !== entry.invalidationVersion) {
+			if (kind === 'refresh' && generation !== entry.invalidationVersion) {
 				continue
 			}
 
-			return value
+			return { value, version: generation }
 		} catch (error) {
 			if (signal.aborted || (error as { name?: unknown } | null)?.name === 'AbortError') {
 				throw error
 			}
 
-			if (generation !== entry.invalidationVersion) {
+			if (kind === 'refresh' && generation !== entry.invalidationVersion) {
 				continue
 			}
 
@@ -628,7 +654,10 @@ async function attempt<T>(entry: Entry<T>, signal: AbortSignal): Promise<T> {
 			}
 
 			const deadline = Date.now() + delay
-			while (generation === entry.invalidationVersion && Date.now() < deadline) {
+			while (
+				(kind !== 'refresh' || generation === entry.invalidationVersion) &&
+				Date.now() < deadline
+			) {
 				if (policy.networkMode !== 'always' && entry.environment().online === false) {
 					entry.state$.set({ ...entry.state$.get(), fetchStatus: 'paused' })
 					await wait(entry, signal)
@@ -679,9 +708,43 @@ function armPolling<T>(entry: Entry<T>): void {
 	arm()
 }
 
-function load<T>(entry: Entry<T>, force = false): Promise<T> {
+function load<T>(
+	entry: Entry<T>,
+	force = false,
+	loader: QueryDefinition<QueryKeyPart, T>['load'] = entry.definition.load,
+	kind: QueryFetchDirection = 'refresh',
+): Promise<T> {
 	assertEntry(entry)
 	if (entry.inflight) {
+		if (force && kind === 'refresh' && entry.requestKind !== 'refresh') {
+			if (!entry.queuedRefresh) {
+				const writeEpoch = entry.writeEpoch
+				const queued: Promise<T> = entry.inflight
+					.catch(() => {})
+					.then(() => {
+						if (entry.queuedRefresh === queued) {
+							entry.queuedRefresh = undefined
+						}
+						assertEntry(entry)
+						if (entry.readers === 0) {
+							throw cancellation()
+						}
+						if (entry.writeEpoch !== writeEpoch) {
+							if (entry.state$.get().hasData) {
+								return entry.value$.get()!
+							}
+
+							throw cancellation()
+						}
+						return load(entry, true)
+					})
+
+				entry.queuedRefresh = queued
+			}
+
+			return entry.queuedRefresh
+		}
+
 		return entry.inflight
 	}
 	if (!force && !stale(entry)) {
@@ -689,6 +752,7 @@ function load<T>(entry: Entry<T>, force = false): Promise<T> {
 	}
 	const controller = new AbortController()
 	entry.controller = controller
+	entry.requestKind = kind
 	const revision = ++entry.revision
 	const abort = new Promise<never>((_, reject) => {
 		controller.signal.addEventListener('abort', () => reject(cancellation()), { once: true })
@@ -705,14 +769,21 @@ function load<T>(entry: Entry<T>, force = false): Promise<T> {
 				return entry.value$.get()!
 			}
 		}
-		const value = await attempt(entry, controller.signal)
+		const invalidated = entry.invalidated
+		let result = await attempt(entry, controller.signal, loader, kind)
+		while (kind === 'refresh' && result.version !== entry.invalidationVersion) {
+			result = await attempt(entry, controller.signal, loader, kind)
+		}
+		const value = result.value
 		assertEntry(entry)
 		if (controller.signal.aborted) {
 			throw cancellation()
 		}
 		if (entry.revision === revision) {
 			if (publish(entry, value)) {
-				entry.invalidated = false
+				entry.invalidated =
+					kind !== 'refresh' && (invalidated || result.version !== entry.invalidationVersion)
+
 				writePersisted(entry)
 			}
 		}
@@ -731,10 +802,12 @@ function load<T>(entry: Entry<T>, force = false): Promise<T> {
 		}
 		entry.inflight = undefined
 		entry.controller = undefined
+		entry.requestKind = undefined
 		const state = entry.state$.get()
 		entry.state$.set({
 			...state,
 			fetchStatus: 'idle',
+			fetchDirection: undefined,
 			...(failed ? { status: 'error' as const, error } : {}),
 		})
 	}
@@ -895,6 +968,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 			invalidated: false,
 			invalidationVersion: 0,
 			revision: 0,
+			writeEpoch: 0,
 			restored: false,
 			data$: scope.derived$<unknown>('data', () => {
 				const state = state$.get()
@@ -937,6 +1011,8 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 			}
 			entry.lastPublishedValue = confirmed
 			entry.revision++
+			entry.writeEpoch++
+			entry.queuedRefresh = undefined
 			entry.controller?.abort()
 			entry.controller = undefined
 			entry.inflight = undefined
@@ -956,21 +1032,21 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 		entries.set(key, entry as unknown as Entry)
 		return entry
 	}
-	async function ensureData<A extends QueryKeyPart, T>(
-		definition: QueryDefinition<A, T>,
-		selection: A,
-		operation: QueryOperationOptions = {},
-	): Promise<T> {
-		if (operation.signal?.aborted) {
-			throw cancellation()
-		}
-		const entry = entryFor$(definition, selection)
+	async function withLease<T, R>(
+		entry: Entry<T>,
+		operation: QueryOperationOptions,
+		work: () => Promise<R>,
+	): Promise<R> {
 		clearTimeout(entry.gcTimer)
 		entry.leases++
 		let removeAbort = () => {}
 		try {
+			if (operation.signal?.aborted) {
+				throw cancellation()
+			}
+
 			attach()
-			const request = load(entry)
+			const request = work()
 			if (!operation.signal) {
 				return await request
 			}
@@ -990,6 +1066,58 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 			removeAbort()
 			release(entry)
 		}
+	}
+	async function ensureData<A extends QueryKeyPart, T>(
+		definition: QueryDefinition<A, T>,
+		selection: A,
+		operation: QueryOperationOptions = {},
+	): Promise<T> {
+		if (operation.signal?.aborted) {
+			throw cancellation()
+		}
+		const entry = entryFor$(definition, selection)
+		return withLease(entry, operation, () => load(entry))
+	}
+	async function fetchPage<A extends QueryKeyPart, T, C extends QueryKeyPart>(
+		definition: CursorQueryDefinition<A, T, C>,
+		selection: A,
+		direction: 'next' | 'previous',
+		operation: QueryOperationOptions = {},
+	): Promise<CursorQueryData<T, C>> {
+		if (operation.signal?.aborted) {
+			throw cancellation()
+		}
+		const entry = entryFor$(definition, selection)
+		return withLease(entry, operation, async () => {
+			if (!entry.state$.get().hasData) {
+				await load(entry)
+			}
+			for (;;) {
+				assertEntry(entry)
+				if (operation.signal?.aborted) {
+					throw cancellation()
+				}
+
+				if (!entry.inflight) {
+					break
+				}
+
+				if (entry.requestKind === direction) {
+					return entry.inflight
+				}
+
+				await entry.inflight
+			}
+			const data = entry.value$.get()!
+			if ((direction === 'next' ? data.nextCursor : data.previousCursor) === undefined) {
+				return data
+			}
+			const loader = cursorPageLoader(definition, direction) as unknown as QueryDefinition<
+				QueryKeyPart,
+				CursorQueryData<T, C>
+			>['load']
+			return load(entry, true, loader, direction)
+		})
 	}
 
 	function existingFor$<A extends QueryKeyPart, T>(
@@ -1011,6 +1139,8 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 	function write<T>(entry: Entry<T>, value: T): T {
 		assertEntry(entry)
 		entry.revision++
+		entry.writeEpoch++
+		entry.queuedRefresh = undefined
 		entry.controller?.abort()
 		entry.controller = undefined
 		entry.inflight = undefined
@@ -1121,6 +1251,11 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 					: { status: 'error' as const, error }
 			}
 		},
+
+		fetchNextPage: (definition, selection, operation) =>
+			fetchPage(definition, selection, 'next', operation),
+		fetchPreviousPage: (definition, selection, operation) =>
+			fetchPage(definition, selection, 'previous', operation),
 
 		async runOptimistic(definition, selection, run) {
 			const entry = existingFor$(definition, selection)

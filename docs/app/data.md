@@ -937,6 +937,82 @@ export function storageAdapter(store: {
 }
 ```
 
+### Shared cursor feeds
+
+Use `defineCursorQuery` when several screens need the same paged feed. A cursor
+is the server's marker for where a page begins. One selection identifies the
+feed/filter/sort combination; its shared record contains pages and their exact
+parameters. `undefined` means a direction has ended; a `null` cursor is valid.
+
+```ts
+// src/feed.ts
+import { defineCursorQuery, type CursorPage, type CursorPageContext } from '@octane-xplat/ui/data'
+
+export interface FeedItem { id: string; title: string }
+export async function loadFeed(tag: string, { cursor, signal }: CursorPageContext<string>): Promise<CursorPage<FeedItem, string>> {
+	const params = new URLSearchParams({ tag, cursor })
+	const response = await fetch(`/api/feed?${params}`, { signal })
+	if (!response.ok) throw new Error('Could not load feed')
+	return response.json()
+}
+export const feed = defineCursorQuery(['feed'], loadFeed, { initialCursor: '', maxPages: 3, staleTimeMs: 30_000 })
+```
+
+Read it through the same hook and client as other shared queries. Next-page
+calls share one request. A failed page leaves earlier rows visible and retrying
+uses the same cursor. `fetchPreviousPage` prepends when `hasPreviousPage` is
+true. Page loading and full refresh run in order; refresh follows fresh server
+cursors from the first retained page and publishes the window together.
+
+```tsrx
+import 'octane/signals'
+import { Text, Pressable } from '@octane-xplat/ui'
+import { useQuery$ } from '@octane-xplat/ui/data'
+import { queries } from './queries'
+import { feed } from './feed'
+
+export function Feed() @{
+	const reader = useQuery$(queries, feed, 'news')
+	@if (!reader) {
+		<Text>Opening feed…</Text>
+	} @else {
+		@try {
+			const data = reader.data$.get()
+			<>
+				@for (const item of data.pages.flatMap(page => page.items); key item.id) {
+					<Text>{item.title}</Text>
+				}
+				@if (reader.state$.get().status === 'error') { <Text>Could not load more. Try again.</Text> }
+				<Pressable disabled={!data.hasNextPage || reader.state$.get().fetchStatus !== 'idle'} onPress={() => {
+					void queries.fetchNextPage(feed, 'news').catch(() => {})
+				}}><Text>Load more</Text></Pressable>
+			</>
+		} @pending {
+			<Text>Loading feed…</Text>
+		} @catch (error) {
+			<Pressable onPress={() => { void reader.refetch().catch(() => {}) }}><Text>Retry feed</Text></Pressable>
+		}
+	}
+}
+```
+
+`maxPages` bounds the retained window, dropping the opposite end when a page
+is added. Persistence saves that window and its parameters as one confirmed
+record. Set a client namespace and an explicit record version as for any
+persistent query; increment the version if the stored page shape changes.
+
+```ts
+import { createQueryClient, defineCursorQuery, platformQueryStorage } from '@octane-xplat/ui/data'
+import { loadFeed } from './feed'
+
+const savedQueries = createQueryClient({ namespace: 'public-feed' })
+const savedFeed = defineCursorQuery(['feed'], loadFeed, {
+	initialCursor: '', maxPages: 3,
+	persist: { storage: platformQueryStorage, version: 'feed-window-v1', maxAgeMs: 86_400_000 },
+})
+await savedQueries.ensureData(savedFeed, 'news')
+```
+
 ## Paged collections and tree moves
 
 Use `useAsyncList` for a collection that loads pages. Sort, reload, and
