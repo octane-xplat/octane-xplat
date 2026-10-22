@@ -2,6 +2,14 @@
 	"$schema": "https://turborepo.dev/schema.json",
 	"extends": ["//"],
 	"tasks": {
+		"test:ios": {
+			"dependsOn": ["^typegen", "@octane-xplat/cli#build", "@xplat/app#gen"],
+			"cache": false
+		},
+		"test:android": {
+			"dependsOn": ["^typegen", "@octane-xplat/cli#build", "@xplat/app#gen"],
+			"cache": false
+		},
 		// The mobile program's tsconfig `include` covers ../../packages/**/* —
 		// every package's sources are real inputs, including packages that are
 		// not declared dependencies, so hash them explicitly. Explicit input
