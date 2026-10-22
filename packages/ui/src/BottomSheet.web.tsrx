@@ -93,6 +93,9 @@ function BottomSheetLayer(props: {
 			return
 		}
 
+		// The parked entrance transform is temporary, not a base transform
+		// for the gesture controller's composed translations.
+		el.style.transform = ''
 		const ctl = attachSheetDetents(el, snapPoints, () => dismiss.current(), {
 			dismissible: purpose !== 'required',
 			swipeOnly: !snapPoints.length,
