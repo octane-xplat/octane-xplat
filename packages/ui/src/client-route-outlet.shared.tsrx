@@ -1,4 +1,5 @@
 // Renderer-neutral owned outlets for explicit panes and native platform hosts.
+import { routeAuthorityKey, RouteOutletResume } from './route-outlet-authority.tsrx'
 import { RouterOutletBoundary } from './router-outlet-boundary.tsrx'
 // Renderer-neutral provider/portal composition; useOwnedContent selects the host.
 import { useContext, useLayoutEffect, useMemo } from 'octane'
@@ -37,6 +38,7 @@ function OwnedClientRouteOutlet(props: ClientRouteOutletProps): any {
 	const renderHost = host.getRenderHost?.(flow)
 	return (
 		<RouterRenderScopeProvider scope={scope}>
+			<RouteOutletResume resumeUrl={props.resumeUrl} onResume={props.onResume} />
 			{renderHost ? (
 				<RenderRouteOutlet host={renderHost} flow={flow} modal={host.isModalFlow?.(flow)}>
 					{props.children}
@@ -51,7 +53,7 @@ function OwnedClientRouteOutlet(props: ClientRouteOutletProps): any {
 
 export function ClientRouteOutlet(props: ClientRouteOutletProps): any {
 	return (
-		<RouterOutletBoundary host={props.host} flow={props.flow ?? 'root'} base={props.children}>
+		<RouterOutletBoundary key={routeAuthorityKey(props.authority)} host={props.host} flow={props.flow ?? 'root'} base={props.children}>
 			<OwnedClientRouteOutlet {...props} />
 		</RouterOutletBoundary>
 	)

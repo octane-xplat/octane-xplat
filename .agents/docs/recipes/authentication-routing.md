@@ -2,7 +2,7 @@
 
 ID: authentication-routing
 Targets: web, ios, android, macos
-Related APIs: router.navigateUrl, router.replace, routingContext, beforeLoad, redirect, RouteOutlet
+Related APIs: RouteOutlet.authority, RouteOutlet.resumeUrl, RouteOutlet.onResume, router.navigateUrl, router.replace, routingContext, beforeLoad, redirect, RouteOutlet
 
 ## Starting point
 
@@ -23,7 +23,7 @@ guards remain separate from server authorization and application cache cleanup.
 - AC2: The reader supplies a per-attempt context snapshot, understands shallow
   service identity and asynchronous sources, and does not mutate nested account
   values underneath pending work.
-- AC3: Account or permission changes replace a common keyed owner around all
+- AC3: Account or permission changes update RouteOutlet authority around all
   affected outlets and modals, cancel obsolete work and discard retained router
   data without implying deletion of application stores or browser URL history.
 - AC4: Protected cold/warm links and browser history use guards before protected
@@ -40,8 +40,8 @@ guards remain separate from server authorization and application cache cleanup.
   top-level snapshots from application-owned mutable services.
 - AC3: [Preserve providers](../../../docs/app/navigation.md#preserve-providers-across-native-pages)
   and [return after sign-in](../../../docs/app/navigation.md#return-after-sign-in)
-  explain common-owner keys and a one-shot return intent consumed by the replacement
-  owner. Work started by the retiring owner can be cancelled. Maintained browser,
+  explain the authority token and resumeUrl/onResume handoff consumed once by
+  the replacement owner. Work started by the retiring owner can be cancelled. Maintained browser,
   NativeScript and AppKit fixtures exercise owned-data release and remounts.
 - AC4: [Guard and redirect requirements](../notes/routing-contracts.md) and
   [the routing plan](../../plans/routing-api.md#17-guards-and-redirects) describe guarded browser restoration, bounded correction and direction-preserving
@@ -51,16 +51,17 @@ guards remain separate from server authorization and application cache cleanup.
   Native routed modals disable direct SDK cancellation and use canonical dismissal
   or claimed Android Back. Interactive dismissal is outside that supported subset.
   The shared [controlled sign-in example](../../../packages/ui/tests/authentication-routing-example.web.tsrx)
-  has four Octane DOM/jsdom tests and [20 production Chromium checks](../navigation-checks.md#account-changes-and-sign-in-returns).
+  has six Octane DOM/jsdom tests and historical [20 production Chromium checks](../navigation-checks.md#account-changes-and-sign-in-returns).
   They cover cold/warm links, Back/Forward after account change/expiry, late SDK
   results after modal cancellation, modal success, return handoff, malformed
   returns and private-data release/revalidation. The browser command mounts an
-  explicit instance and controls its SDK promises. The renderer-neutral
+  explicit instance and controls its SDK promises. Current authority-API changes require refreshed browser/device runtime
+  qualification; historical counts below are not current passes. The renderer-neutral
   [native example](../../../packages/ui/tests/authentication-native-example.tsrx)
   runs the same owner policy on actual iOS/Android Frame/modal hosts and AppKit
   retained views/panels: 18 auth assertions, including an uncancellable old-owner
-  loader, modal cancellation/success and private-view release. The full fixtures
-  pass 267 iOS, 264 Android and 243 AppKit checks; 79 native object-driver tests
+  loader, modal cancellation/success and private-view release. Historical pre-authority-API fixtures
+  passed 267 iOS, 264 Android and 243 AppKit checks; 79 native object-driver tests
   include this protocol. Native auth URL requests occur inside running apps.
   Generated client cold startup and OS URL delivery have separate evidence;
   their combination with real providers, OS auth dialogs, physical input and

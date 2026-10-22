@@ -28,21 +28,28 @@ export function configureRouter<
  * from starting after that owner has ended. */
 export function startDefaultBrowserRouter(): () => void {
 	let active = true
-	void Promise.resolve()
-		.then(async () => {
-			if (!active) {
-				return
-			}
+	let started = false
+	let stop = () => {}
+	const check = () => {
+		if (!active || started) { return }
+		void Promise.resolve().then(async () => {
+			if (!active || started) { return }
 			const state = router.getSnapshot()
-			if (state.route || state.navigation.status === 'pending') {
-				return
-			}
+			if (state.navigation.status === 'pending') { return }
+			started = true
+			stop()
+			if (state.route) { return }
 			await router.navigateUrl(location.pathname + location.search + location.hash, {
 				replace: true,
 			})
-		})
-		.catch(() => console.warn('[octane-xplat] Initial client navigation failed'))
+		}).catch(() => console.warn('[octane-xplat] Initial client navigation failed'))
+	}
+	// Owner replacement can cancel an old request asynchronously. Observe its
+	// settlement so the new lifetime cannot miss its one startup preparation.
+	stop = router.subscribe(check)
+	check()
 	return () => {
 		active = false
+		stop()
 	}
 }

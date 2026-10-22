@@ -456,6 +456,11 @@ const namedSearchRouter = createRouter({ catalog: defineRoutes([namedSearchRoute
 namedSearchRouter.push({ to: '/named-search', search: { tab: 'activity', page: 2 } })
 // @ts-expect-error Named interfaces retain their finite field values.
 namedSearchRouter.push({ to: '/named-search', search: { tab: 'invented' } })
+const authorityProps: import('@octane-xplat/ui').RouteOutletProps = {
+ authority: 'account-a:2', resumeUrl: '/items/coat', onResume(result) { const status: string = result.status },
+}
+// @ts-expect-error Authority tokens must be stable scalar versions.
+const invalidAuthorityProps: import('@octane-xplat/ui').RouteOutletProps = { authority: {} }
 const publicGroup = defineRouteGroup({ id: 'library', loader: () => ({ title: 'Guides' }) })
 publicGroup.group({ id: 'book', loader: ({ context }) => context.library.title })
 const accountGroup = defineRouteGroup.withContext<{ session: { id: string } }>()({

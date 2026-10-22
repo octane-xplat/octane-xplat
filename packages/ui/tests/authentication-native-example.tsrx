@@ -1,5 +1,5 @@
 // Renderer-neutral qualification on actual Frame/modal and retained AppKit hosts.
-import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useState } from 'octane'
+import { createContext, useContext, useLayoutEffect, useMemo, useState } from 'octane'
 import { Text } from '../src/Text'
 import { View } from '../src/View'
 import { ClientRouteOutlet } from '../src/ClientRouteOutlet.tsrx'
@@ -7,7 +7,7 @@ import { createRouter } from '../src/router-instance'
 import { defineRoute } from '../src/define-route'
 import { defineRoutes } from '../src/route-table'
 import { DestinationRedirect } from '../src/routing-core'
-import { useNavigation, useRouter } from '../src/router-hooks.tsrx'
+import { useRouter } from '../src/router-hooks.tsrx'
 import type {
 	ClientRouterHost,
 	ContractsOf,
@@ -187,34 +187,13 @@ const catalog = defineRoutes([
 	privateItem.screen(Private),
 ])
 
-function CompleteReturn(props: { returnTo?: string }): any {
+function Owner(props: { authority: number; returnTo?: string }): any {
 	const fixture = useFixture()
-	const navigation = useRouter(fixture.navigation)
-	const pending = useNavigation(fixture.navigation)
-	const started = useMemo(() => ({ value: false }), [])
-	useLayoutEffect(() => {
-		fixture.ownerReady = fixture.authority()
-	}, [])
-
-	useEffect(() => {
-		if (!props.returnTo || started.value || pending.status === 'pending') {
-			return
-		}
-
-		started.value = true
-		void navigation.navigateUrl(props.returnTo, { replace: true }).then((result) => {
-			fixture.returned.push(result.status)
-		})
-	}, [props.returnTo, pending.status])
-
-	return <Text id="native-auth-base">Account owner</Text>
-}
-
-function Owner(props: { returnTo?: string }): any {
-	const fixture = useFixture()
+	useLayoutEffect(() => { fixture.ownerReady = props.authority }, [props.authority])
 	return (
-		<ClientRouteOutlet host={fixture.host}>
-			<CompleteReturn returnTo={props.returnTo} />
+		<ClientRouteOutlet host={fixture.host} authority={props.authority} resumeUrl={props.returnTo}
+			onResume={result => fixture.returned.push(result.status)}>
+			<Text id="native-auth-base">Account owner</Text>
 		</ClientRouteOutlet>
 	)
 }
@@ -224,7 +203,7 @@ export function NativeAuthenticationExample(props: { fixture: FixtureState }): a
 	props.fixture.bindOwner((version, returnTo) => setState({ version, returnTo }))
 	return (
 		<Provider value={props.fixture}>
-			<Owner key={state.version} returnTo={state.returnTo} />
+			<Owner authority={state.version} returnTo={state.returnTo} />
 		</Provider>
 	)
 }

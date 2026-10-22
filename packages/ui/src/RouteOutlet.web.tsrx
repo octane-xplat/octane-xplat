@@ -12,18 +12,18 @@ export function RouteOutlet(props: RouteOutletProps): any {
 		if (defaultClient && flow === 'root') {
 			return startDefaultBrowserRouter()
 		}
-	}, [defaultClient, flow])
+	}, [defaultClient, flow, props.authority])
 
 	if (host.getRenderHost) {
 		return (
-			<RetainedRouteOutlet host={host} flow={flow}>
+			<RetainedRouteOutlet host={host} flow={flow} authority={props.authority} resumeUrl={props.resumeUrl} onResume={props.onResume}>
 				{props.children}
 			</RetainedRouteOutlet>
 		)
 	}
 
 	return (
-		<ClientRouteOutlet host={host as BrowserRouterHost} flow={flow}>
+		<ClientRouteOutlet host={host as BrowserRouterHost} flow={flow} authority={props.authority} resumeUrl={props.resumeUrl} onResume={props.onResume}>
 			{props.children}
 		</ClientRouteOutlet>
 	)

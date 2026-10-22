@@ -7,7 +7,7 @@ import type { RouteOutletProps } from './props'
 export function RouteOutlet(props: RouteOutletProps): any {
 	const { host, flow } = useRouteOutletScope(props.stack, defaultRouterRuntime)
 	return (
-		<ClientRouteOutlet host={host} flow={flow}>
+		<ClientRouteOutlet host={host} flow={flow} authority={props.authority} resumeUrl={props.resumeUrl} onResume={props.onResume}>
 			{props.children}
 		</ClientRouteOutlet>
 	)

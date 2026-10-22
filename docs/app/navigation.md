@@ -764,8 +764,8 @@ requested URL to `navigateUrl` with `replace: true`. It checks the URL policy,
 search schema and current guards before loading. Replacing keeps the login
 entry out of the return path. A matched URL from `resolveUrl` is still runtime
 input, so it does not need a cast into the typed destination union.
-When an account change replaces the outlet owner, perform this return from the
-new owner using the handoff below. Work started by the retiring owner can be
+When an account change replaces the outlet owner, pass the URL through
+`resumeUrl` using the handoff below. Work started by the retiring owner can be
 cancelled as that tree is removed.
 
 ```ts
@@ -807,54 +807,42 @@ export function routingContext() {
 }
 ```
 
-Changing the context source does not erase retained screens. When the account
-or its permissions change, end their shared outlet owner, including named
-panes and modals. Keep an application-owned version that changes whenever that
-authority changes; a component key gives the owned tree a new lifetime. Server
-endpoints still authorize every data request, and application stores need their
-own deliberate cleanup.
+Pass an `authority` token to the common root outlet when account identity or
+permissions change. A new token retires that outlet's retained screens, nested
+panes, modals and pending work. Keep the outlet below the providers screens
+need. Your session store owns the token; update it together with the account.
+Application services and caches keep their own cleanup policy.
 
 ```tsx
 import { RouteOutlet, Text } from '@octane-xplat/ui'
-function SessionScreens() {
-	return <RouteOutlet><Text>Choose a screen.</Text></RouteOutlet>
-}
 export function SessionApp(props: { authorityVersion: number }) {
-	return <SessionScreens key={props.authorityVersion} />
+	return <RouteOutlet authority={props.authorityVersion}>
+		<Text>Choose a screen.</Text>
+	</RouteOutlet>
 }
 ```
 
-If sign-in also changes that authority version, pass its return URL into the
-replacement tree. This component starts one return after its outlet is mounted
-and any startup preparation has settled. It consumes the intent once; an
-invalid URL or another guard denial cannot create an automatic retry loop.
-Your app still owns its sign-in provider, credentials and service cleanup.
-Replace the small `SessionApp` above with this version.
+When sign-in also changes authority, pass the requested URL as `resumeUrl` in the
+same update. The replacement owner consumes one return after startup settles,
+using URL policy, schemas and guards with replacement navigation. A failed
+return is consumed too, so it cannot cause a retry loop. Handle the result with
+`onResume`; a retired owner cannot deliver a late completion callback. Replace
+the small component above with this version.
 
 ```tsx
-// src/session-app.tsx
-import { useEffect, useMemo } from 'octane'
+import { useState } from 'octane'
 import { RouteOutlet, Text } from '@octane-xplat/ui'
-import { useNavigation, useRouter } from '@octane-xplat/ui/routing'
 
-function CompleteSignIn(props: { returnUrl?: string }) {
-	const navigation = useRouter()
-	const state = useNavigation()
-	const started = useMemo(() => ({ value: false }), [])
-	useEffect(() => {
-		if (!props.returnUrl || started.value || state.status === 'pending') {
-			return
-		}
-		started.value = true
-		void navigation.navigateUrl(props.returnUrl, { replace: true })
-	}, [navigation, props.returnUrl, state.status])
-	return <Text>{state.status === 'failed' ? 'Could not open that screen.' : 'Choose a screen.'}</Text>
-}
-function SessionScreens(props: { returnUrl?: string }) {
-	return <RouteOutlet><CompleteSignIn returnUrl={props.returnUrl} /></RouteOutlet>
-}
 export function SessionApp(props: { authorityVersion: number; returnUrl?: string }) {
-	return <SessionScreens key={props.authorityVersion} returnUrl={props.returnUrl} />
+	const [message, setMessage] = useState('Choose a screen.')
+	return <RouteOutlet
+		authority={props.authorityVersion}
+		resumeUrl={props.returnUrl}
+		onResume={result => setMessage(result.status === 'committed'
+			? 'Choose a screen.' : 'Could not open that screen.')}
+	>
+		<Text>{message}</Text>
+	</RouteOutlet>
 }
 ```
 

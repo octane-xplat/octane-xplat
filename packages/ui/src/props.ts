@@ -4797,7 +4797,7 @@ export interface ClientRouterHost {
 }
 
 /** @internal Owner-preserving platform outlet; applications use RouteOutlet. */
-export interface ClientRouteOutletProps {
+export interface ClientRouteOutletProps extends Pick<RouteOutletProps, 'authority' | 'resumeUrl' | 'onResume'> {
 	host: ClientRouterHost
 	flow?: string
 	children?: any
@@ -12067,6 +12067,13 @@ export interface ImperativeBottomSheetReturn {
 
 /** Placement of client route content beneath its owning provider tree. */
 export interface RouteOutletProps {
+	/** Change this token when account identity or permissions change. Retires this
+	 * outlet's owned screens, nested panes, modals and pending preparation. */
+	authority?: string | number
+	/** One URL handoff per authority lifetime, after startup settles. */
+	resumeUrl?: string
+	/** Reports the handoff result only while its owner is still mounted. */
+	onResume?: (result: NavigationResult<unknown>) => void
 	stack?: string
 	children?: Renderable
 }

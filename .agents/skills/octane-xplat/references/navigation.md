@@ -569,38 +569,29 @@ export function returnAfterSignIn(returnUrl: string) {
 
 Root context is a shallow snapshot per attempt. Synchronous sources are copied
 before yielding; services retain identity, so return immutable/fresh account
-values. Context changes alone do not invalidate retained routes. Replace a
-common owner around all affected outlets when an authority version changes;
-application-owned caches and server authorization remain separate.
+values. Set the common root outlet's `authority` token when account identity or
+permissions change. It retires owned screens, nested panes, modals and pending
+work. Application-owned caches and server authorization remain separate.
 
 ```tsx
 import { RouteOutlet } from '@octane-xplat/ui'
-function SessionScreens() { return <RouteOutlet /> }
 export function App(props: { authorityVersion: number }) {
-	return <SessionScreens key={props.authorityVersion} />
+	return <RouteOutlet authority={props.authorityVersion} />
 }
 ```
 
-If sign-in replaces that owner, pass its return URL to the new tree. A return
-started in the retiring tree can be cancelled. Consume the intent once inside
-the replacement outlet, after startup preparation settles; do not automatically
-retry expired/denied sign-in. The [complete handoff example](../../../../docs/app/navigation.md#return-after-sign-in)
-shows the keyed parent. The app owns SDK cancellation and must ignore late
-results from a cancelled or unmounted login attempt.
+If sign-in changes authority, supply `resumeUrl` in the same update. The new
+owner consumes one validated replacement navigation after startup settles.
+`onResume` receives its result while the owner is alive. Failures consume the
+intent too; changing only resumeUrl cannot create a retry loop in the same
+lifetime. The app owns SDK cancellation and must ignore late results from a
+cancelled or unmounted login attempt. See the [handoff guide](../../../../docs/app/navigation.md#return-after-sign-in).
 
 ```tsx
-import { useEffect, useMemo } from 'octane'
-import { useNavigation, useRouter } from '@octane-xplat/ui/routing'
-function CompleteSignIn(props: { returnUrl?: string }) {
-	const navigation = useRouter()
-	const state = useNavigation()
-	const started = useMemo(() => ({ value: false }), [])
-	useEffect(() => {
-		if (!props.returnUrl || started.value || state.status === 'pending') return
-		started.value = true
-		void navigation.navigateUrl(props.returnUrl, { replace: true })
-	}, [navigation, props.returnUrl, state.status])
-	return null
+import { RouteOutlet } from '@octane-xplat/ui'
+export function SessionApp(props: { authorityVersion: number; returnUrl?: string }) {
+	return <RouteOutlet authority={props.authorityVersion} resumeUrl={props.returnUrl}
+		onResume={result => { if (result.status !== 'committed') console.info('Return failed') }} />
 }
 ```
 

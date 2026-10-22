@@ -1,4 +1,6 @@
 /** @jsxImportSource octane */
+import { routeAuthorityKey, RouteOutletResume } from './route-outlet-authority.tsrx'
+import type { ClientRouteOutletProps } from './props'
 import { RouterOutletBoundary } from './router-outlet-boundary.tsrx'
 import { createPortal, useLayoutEffect, useMemo, useRef, useSyncExternalStore } from 'octane'
 import { ClientRouteView } from './ClientRouteView.tsrx'
@@ -78,11 +80,9 @@ function BrowserRouteModal(props: {
 
 /** Internal browser outlet. Public RouteOutlet wiring follows after adapters
  * expose the same instance/owner behavior on native targets. */
-function OwnedClientRouteOutlet(props: {
-	host: BrowserRouterHost
-	flow?: string
-	children?: any
-}): any {
+type BrowserOutletProps = Omit<ClientRouteOutletProps, 'host'> & { host: BrowserRouterHost }
+
+function OwnedClientRouteOutlet(props: BrowserOutletProps): any {
 	const flow = props.flow ?? 'root'
 	const host = props.host
 	const scope = useMemo(() => ({ ...host.scope(flow), host }), [host, flow])
@@ -125,6 +125,7 @@ function OwnedClientRouteOutlet(props: {
 
 	return (
 		<RouterRenderScopeProvider scope={scope}>
+			<RouteOutletResume resumeUrl={props.resumeUrl} onResume={props.onResume} />
 			<div
 				ref={(element: HTMLDivElement | null) => host.entryElement('base:' + flow, element)}
 				style={{ display: entry ? 'none' : 'contents' }}
@@ -146,13 +147,9 @@ function OwnedClientRouteOutlet(props: {
 	)
 }
 
-export function ClientRouteOutlet(props: {
-	host: BrowserRouterHost
-	flow?: string
-	children?: any
-}): any {
+export function ClientRouteOutlet(props: BrowserOutletProps): any {
 	return (
-		<RouterOutletBoundary host={props.host} flow={props.flow ?? 'root'} base={props.children}>
+		<RouterOutletBoundary key={routeAuthorityKey(props.authority)} host={props.host} flow={props.flow ?? 'root'} base={props.children}>
 			<OwnedClientRouteOutlet {...props} />
 		</RouterOutletBoundary>
 	)

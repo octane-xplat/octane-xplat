@@ -1,13 +1,13 @@
 /** @jsxImportSource octane */
 // Controlled SDK promises and real router owners; no authentication provider traffic.
-import { createRoot, flushSync, useEffect, useLayoutEffect, useMemo, useState } from 'octane'
+import { createRoot, flushSync, useLayoutEffect, useMemo, useState } from 'octane'
 import { createRouter } from '../src/router-instance'
 import { createBrowserRouterHost } from '../src/browser-router-host.web'
 import { ClientRouteOutlet } from '../src/ClientRouteOutlet.web.tsrx'
 import { defineRoute } from '../src/define-route'
 import { defineRoutes } from '../src/route-table'
 import { DestinationRedirect } from '../src/routing-core'
-import { useNavigation, useRouter } from '../src/router-hooks.tsrx'
+import { useRouter } from '../src/router-hooks.tsrx'
 import type { Renderable } from '../src/props'
 
 type Account = { id: string }
@@ -70,7 +70,7 @@ export async function createAuthenticationExample(
 					return
 				}
 
-				// Changing the keyed owner ends this navigator's lifetime. Hand the
+				// Changing the outlet authority ends this navigator's lifetime. Hand the
 				// return URL to the replacement owner instead of navigating here.
 				outcomes.push('success')
 				changeSession(result.account, props.search.returnTo)
@@ -132,31 +132,6 @@ export async function createAuthenticationExample(
 	})
 
 	platform.attach(router)
-	function CompleteReturn(props: { returnTo?: string }): Renderable {
-		const navigation = useRouter(router)
-		const state = useNavigation(router)
-		const started = useMemo(() => ({ value: false }), [])
-		useEffect(() => {
-			if (!props.returnTo || started.value || state.status === 'pending') {
-				return
-			}
-
-			started.value = true
-			void navigation.navigateUrl(props.returnTo, { replace: true }).then((result) => {
-				returned.push(result.status)
-			})
-		}, [props.returnTo, state.status])
-
-		return <p id="owner-base">New owner</p>
-	}
-
-	function Owner(props: { returnTo?: string }): Renderable {
-		return (
-			<ClientRouteOutlet host={platform}>
-				<CompleteReturn returnTo={props.returnTo} />
-			</ClientRouteOutlet>
-		)
-	}
 
 	function App(): Renderable {
 		const [state, setState] = useState<{ version: number; returnTo?: string }>({ version: 0 })
@@ -166,7 +141,8 @@ export async function createAuthenticationExample(
 			setState({ version: authority, returnTo })
 		}
 
-		return <Owner key={state.version} returnTo={state.returnTo} />
+		return <ClientRouteOutlet host={platform} authority={state.version} resumeUrl={state.returnTo}
+			onResume={result => returned.push(result.status)}><p id="owner-base">New owner</p></ClientRouteOutlet>
 	}
 
 	const container = document.createElement('div')
