@@ -4,12 +4,14 @@ import {
 	createMemoryQueryStorage,
 	defineQuery,
 	type QueryClient,
+	type QueryEnvironment,
+	type QueryEnvironmentSnapshot,
 	type QueryStorageAdapter,
 } from './query-cache'
 
 const clients: QueryClient[] = []
-function client(namespace?: string) {
-	const value = createQueryClient({ namespace })
+function client(namespace?: string, environment?: QueryEnvironment) {
+	const value = createQueryClient({ namespace, environment })
 	clients.push(value)
 	return value
 }
@@ -91,7 +93,11 @@ describe('query definition and client lifetimes', () => {
 	it('retains usable data during refresh and exposes refresh failure', async () => {
 		let count = 0
 		const gate = deferred<string>()
-		const users = defineQuery(['users'], (_id: string) => (++count === 1 ? 'first' : gate.promise))
+		const users = defineQuery(
+			['users'],
+			(_id: string) => (++count === 1 ? 'first' : gate.promise),
+			{ retryCount: 0 },
+		)
 		const reader = client().observe$(users, 'a')
 		await settle()
 		const refresh = reader.refetch()
@@ -413,5 +419,174 @@ describe('inactive query collection', () => {
 		expect(loads).toBe(2)
 		await current.dispose({ purgePersisted: true })
 		expect(records.size).toBe(0)
+	})
+})
+
+function environment(initial: QueryEnvironmentSnapshot) {
+	let snapshot = initial
+	const listeners = new Set<(state: QueryEnvironmentSnapshot) => void>()
+	return {
+		getSnapshot: () => snapshot,
+		subscribe(listener: (state: QueryEnvironmentSnapshot) => void) {
+			listeners.add(listener)
+			return () => {
+				listeners.delete(listener)
+			}
+		},
+		set(next: QueryEnvironmentSnapshot) {
+			snapshot = next
+			for (const listener of [...listeners]) {
+				listener(next)
+			}
+		},
+		listeners,
+	}
+}
+
+describe('shared request scheduler', () => {
+	it('shares a bounded exponential retry sequence', async () => {
+		vi.useFakeTimers()
+		let calls = 0
+		const users = defineQuery(['users'], (_id: string) => {
+			calls++
+			throw new Error('unavailable')
+		})
+		const queries = client()
+		const reader = queries.observe$(users, 'a')
+		queries.observe$(users, 'a')
+		const failed = reader.refetch().catch((error) => error)
+		await vi.advanceTimersByTimeAsync(0)
+		expect(calls).toBe(1)
+		expect(reader.state$.get().failureCount).toBe(1)
+		await vi.advanceTimersByTimeAsync(999)
+		expect(calls).toBe(1)
+		await vi.advanceTimersByTimeAsync(1)
+		expect(calls).toBe(2)
+		await vi.advanceTimersByTimeAsync(2000)
+		expect(calls).toBe(3)
+		expect(await failed).toMatchObject({ message: 'unavailable' })
+		expect(reader.state$.get()).toMatchObject({
+			status: 'error',
+			fetchStatus: 'idle',
+			failureCount: 3,
+		})
+	})
+	it('does not retry abort errors or errors rejected by application policy', async () => {
+		for (const abort of [true, false]) {
+			let calls = 0
+			const users = defineQuery(
+				['users'],
+				(_id: string) => {
+					calls++
+					throw Object.assign(new Error('stop'), {
+						name: abort ? 'AbortError' : 'ApplicationError',
+					})
+				},
+				{ shouldRetry: () => false },
+			)
+
+			const reader = client().observe$(users, 'a')
+			await expect(reader.refetch()).rejects.toThrow('stop')
+			expect(calls).toBe(1)
+		}
+	})
+	it('pauses one shared request offline and resumes it once connectivity returns', async () => {
+		const host = environment({ online: false })
+		let calls = 0
+		const users = defineQuery(['users'], (_id: string) => ++calls)
+		const queries = client(undefined, host)
+		const a = queries.observe$(users, 'a')
+		const b = queries.observe$(users, 'a')
+		await settle()
+		expect(calls).toBe(0)
+		expect(a.state$.get()).toMatchObject({ fetchStatus: 'paused', hasData: false })
+		host.set({ online: true })
+		await settle()
+		expect(calls).toBe(1)
+		expect([a.data$.get(), b.data$.get()]).toEqual([1, 1])
+		await queries.dispose()
+		expect(host.listeners.size).toBe(0)
+	})
+	it('runs local loaders offline and remote loaders when connectivity is unknown', async () => {
+		for (const networkMode of ['always', 'online'] as const) {
+			const host = environment(networkMode === 'always' ? { online: false } : {})
+			const users = defineQuery(['users'], (_id: string) => 'ready', { networkMode })
+			const reader = client(undefined, host).observe$(users, 'a')
+			await expect(reader.refetch()).resolves.toBe('ready')
+		}
+	})
+	it('invalidation interrupts backoff without leaving a duplicate attempt', async () => {
+		vi.useFakeTimers()
+		let calls = 0
+		const users = defineQuery(['users'], (_id: string) => {
+			if (++calls === 1) {
+				throw new Error('temporary')
+			}
+			return calls
+		})
+		const queries = client()
+		const reader = queries.observe$(users, 'a')
+		const result = reader.refetch()
+		await vi.advanceTimersByTimeAsync(0)
+		queries.invalidateQueries({ key: ['users'] })
+		await vi.advanceTimersByTimeAsync(0)
+		await expect(result).resolves.toBe(2)
+		await vi.advanceTimersByTimeAsync(30000)
+		expect(calls).toBe(2)
+	})
+	it('host events do not shorten the configured retry delay', async () => {
+		vi.useFakeTimers()
+		const host = environment({ online: true, active: true })
+		let calls = 0
+		const users = defineQuery(['users'], (_id: string) => {
+			if (++calls === 1) {
+				throw new Error('temporary')
+			}
+			return calls
+		})
+		const reader = client(undefined, host).observe$(users, 'a')
+		await vi.advanceTimersByTimeAsync(500)
+		host.set({ online: true, active: false })
+		await vi.advanceTimersByTimeAsync(499)
+		expect(calls).toBe(1)
+		await vi.advanceTimersByTimeAsync(1)
+		expect(calls).toBe(2)
+		expect(reader.data$.get()).toBe(2)
+	})
+	it('retires account signals even if environment teardown throws', async () => {
+		const queries = createQueryClient({
+			environment: {
+				getSnapshot: () => ({}),
+				subscribe: () => () => {
+					throw new Error('host cleanup')
+				},
+			},
+		})
+		const users = defineQuery(['users'], (_id: string) => 'private')
+		const reader = queries.observe$(users, 'a')
+		await expect(reader.refetch()).resolves.toBe('private')
+		await expect(queries.dispose()).rejects.toThrow('host cleanup')
+		expect(() => reader.data$.get()).toThrow()
+	})
+	it('disposal cancels retry delay and paused work', async () => {
+		vi.useFakeTimers()
+		for (const offline of [true, false]) {
+			let calls = 0
+			const host = environment({ online: !offline })
+			const users = defineQuery(['users'], (_id: string) => {
+				calls++
+				throw new Error('temporary')
+			})
+
+			const queries = client(undefined, host)
+			const reader = queries.observe$(users, 'a')
+			const result = reader.refetch().catch((error) => error)
+			await vi.advanceTimersByTimeAsync(0)
+			await queries.dispose()
+			expect(await result).toMatchObject({ name: 'AbortError' })
+			host.set({ online: true })
+			await vi.advanceTimersByTimeAsync(30000)
+			expect(calls).toBe(offline ? 0 : 1)
+		}
 	})
 })

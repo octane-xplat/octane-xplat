@@ -35,6 +35,8 @@ export { defineQuery, createQueryClient, createMemoryQueryStorage } from '../que
 export { useQuery$ } from '../use-query'
 export { platformQueryStorage } from '../query-storage.web'
 export type {
+	QueryEnvironment,
+	QueryEnvironmentSnapshot,
 	QueryDefinition,
 	QueryClient,
 	QueryClientOptions,

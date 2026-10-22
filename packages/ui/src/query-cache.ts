@@ -42,6 +42,14 @@ export interface QueryOptions {
 	/** Retain inactive entries for this many milliseconds. @default 300000 */
 	readonly gcTimeMs?: number
 	readonly persist?: QueryPersistence
+	/** Retries after the initial attempt. Abort errors are never retried. @default 2 */
+	readonly retryCount?: number
+	/** Milliseconds before retry; failureCount starts at 1. @default exponential 1000–30000 */
+	readonly retryDelayMs?: number | ((failureCount: number, error: unknown) => number)
+	/** Additional application decision within retryCount's maximum. */
+	readonly shouldRetry?: (failureCount: number, error: unknown) => boolean
+	/** Remote queries wait when the host is known offline. @default 'online' */
+	readonly networkMode?: 'online' | 'always'
 }
 
 const DEFINITION = Symbol('query-definition')
@@ -56,7 +64,8 @@ export interface QueryDefinition<A extends QueryKeyPart, T> {
 /** Observable state. A refresh failure can coexist with usable confirmed data. */
 export interface QueryState {
 	readonly status: 'pending' | 'ready' | 'error'
-	readonly fetchStatus: 'idle' | 'fetching'
+	readonly fetchStatus: 'idle' | 'fetching' | 'paused'
+	readonly failureCount: number
 	readonly hasData: boolean
 	readonly error: unknown
 	readonly updatedAtMs: number
@@ -78,10 +87,23 @@ export interface QueryFilter {
 	readonly exact?: boolean
 }
 
+/** Host state: missing connectivity/activity is unknown and does not block requests. */
+export interface QueryEnvironmentSnapshot {
+	readonly online?: boolean
+	readonly active?: boolean
+}
+
+/** Injectable host boundary. Subscriptions must return their own cleanup. */
+export interface QueryEnvironment {
+	getSnapshot(): QueryEnvironmentSnapshot
+	subscribe(listener: (snapshot: QueryEnvironmentSnapshot) => void): () => void
+}
+
 /** Memory and persistence share this immutable boundary. No global client is created. */
 export interface QueryClientOptions {
 	/** Required for persistent definitions. Use a new client when an account changes. */
 	readonly namespace?: string
+	readonly environment?: QueryEnvironment
 }
 
 /** Explicit disposal options. Durable purge waits behind outstanding storage operations. */
@@ -127,6 +149,15 @@ export function defineQuery<A extends QueryKeyPart, T>(
 	}
 	validateDuration(options.staleTimeMs, 'staleTimeMs')
 	validateDuration(options.gcTimeMs, 'gcTimeMs')
+	if (
+		options.retryCount !== undefined &&
+		(!Number.isSafeInteger(options.retryCount) || options.retryCount < 0)
+	) {
+		throw new TypeError('retryCount must be a non-negative integer')
+	}
+	if (typeof options.retryDelayMs === 'number') {
+		validateDuration(options.retryDelayMs, 'retryDelayMs')
+	}
 	validateDuration(options.persist?.maxAgeMs, 'maxAgeMs')
 	return Object.freeze({
 		[DEFINITION]: true as const,
@@ -216,6 +247,8 @@ interface Entry<T = unknown> {
 	family: string
 	leases: number
 	gcTimer?: ReturnType<typeof setTimeout>
+	environment(): QueryEnvironmentSnapshot
+	wake?: () => void
 	elements: readonly string[]
 	scope: Scope
 	value$: WritableSignal<T | undefined>
@@ -342,6 +375,7 @@ function publish<T>(entry: Entry<T>, value: T, time = Date.now()): void {
 		entry.state$.set({
 			status: 'ready',
 			fetchStatus: 'idle',
+			failureCount: 0,
 			hasData: true,
 			error: undefined,
 			updatedAtMs: time,
@@ -391,6 +425,117 @@ function stale<T>(entry: Entry<T>): boolean {
 	)
 }
 
+function wait<T>(entry: Entry<T>, signal: AbortSignal, delayMs?: number): Promise<void> {
+	if (signal.aborted) {
+		return Promise.reject(cancellation())
+	}
+	return new Promise((resolve, reject) => {
+		let timer: ReturnType<typeof setTimeout> | undefined
+		const cleanup = () => {
+			clearTimeout(timer)
+			signal.removeEventListener('abort', abort)
+			if (entry.wake === wake) {
+				entry.wake = undefined
+			}
+		}
+		const wake = () => {
+			cleanup()
+			resolve()
+		}
+		const abort = () => {
+			cleanup()
+			reject(cancellation())
+		}
+		entry.wake = wake
+		signal.addEventListener('abort', abort, { once: true })
+		if (delayMs !== undefined) {
+			timer = setTimeout(wake, Math.min(delayMs, 2_147_483_647))
+		}
+	})
+}
+
+async function attempt<T>(entry: Entry<T>, signal: AbortSignal): Promise<T> {
+	const policy = entry.definition.options
+	let failures = 0
+	let generation = entry.invalidationVersion
+	for (;;) {
+		assertEntry(entry)
+		if (signal.aborted) {
+			throw cancellation()
+		}
+
+		if (generation !== entry.invalidationVersion) {
+			generation = entry.invalidationVersion
+			failures = 0
+		}
+
+		while (policy.networkMode !== 'always' && entry.environment().online === false) {
+			entry.state$.set({ ...entry.state$.get(), fetchStatus: 'paused', failureCount: failures })
+			await wait(entry, signal)
+		}
+
+		if (generation !== entry.invalidationVersion) {
+			generation = entry.invalidationVersion
+			failures = 0
+		}
+
+		const state = entry.state$.get()
+		entry.state$.set({
+			...state,
+			status: state.hasData ? 'ready' : 'pending',
+			fetchStatus: 'fetching',
+			error: undefined,
+			failureCount: failures,
+		})
+
+		try {
+			const value = await entry.definition.load(entry.selection, {
+				signal,
+				previous: entry.value$.get(),
+			})
+
+			if (generation !== entry.invalidationVersion) {
+				continue
+			}
+
+			return value
+		} catch (error) {
+			if (signal.aborted || (error as { name?: unknown } | null)?.name === 'AbortError') {
+				throw error
+			}
+
+			if (generation !== entry.invalidationVersion) {
+				continue
+			}
+
+			failures++
+			entry.state$.set({ ...entry.state$.get(), error, failureCount: failures })
+			if (failures > (policy.retryCount ?? 2) || policy.shouldRetry?.(failures, error) === false) {
+				throw error
+			}
+
+			const delay =
+				typeof policy.retryDelayMs === 'function'
+					? policy.retryDelayMs(failures, error)
+					: (policy.retryDelayMs ?? Math.min(1000 * 2 ** (failures - 1), 30000))
+
+			if (!Number.isFinite(delay) || delay < 0) {
+				throw new TypeError('retryDelayMs must return finite non-negative milliseconds')
+			}
+
+			const deadline = Date.now() + delay
+			while (generation === entry.invalidationVersion && Date.now() < deadline) {
+				if (policy.networkMode !== 'always' && entry.environment().online === false) {
+					entry.state$.set({ ...entry.state$.get(), fetchStatus: 'paused' })
+					await wait(entry, signal)
+				} else {
+					await wait(entry, signal, deadline - Date.now())
+				}
+			}
+		}
+	}
+}
+
 function load<T>(entry: Entry<T>, force = false): Promise<T> {
 	assertEntry(entry)
 	if (entry.inflight) {
@@ -417,21 +562,7 @@ function load<T>(entry: Entry<T>, force = false): Promise<T> {
 				return entry.value$.get()!
 			}
 		}
-		let value: T
-		let version: number
-		do {
-			assertEntry(entry)
-			if (controller.signal.aborted) {
-				throw cancellation()
-			}
-
-			version = entry.invalidationVersion
-			entry.state$.set({ ...entry.state$.get(), fetchStatus: 'fetching', error: undefined })
-			value = await entry.definition.load(entry.selection, {
-				signal: controller.signal,
-				previous: entry.value$.get(),
-			})
-		} while (entry.invalidationVersion !== version)
+		const value = await attempt(entry, controller.signal)
 		assertEntry(entry)
 		if (controller.signal.aborted) {
 			throw cancellation()
@@ -489,6 +620,18 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 	const definitions = new Map<string, QueryDefinition<QueryKeyPart, unknown>>()
 	const persistence = new Map<QueryStorageAdapter, NamespaceTarget>()
 	let disposed = false
+	let environment = options.environment?.getSnapshot() ?? {}
+	let unsubscribe: (() => void) | undefined
+	function attach(): void {
+		if (!unsubscribe && options.environment) {
+			unsubscribe = options.environment.subscribe((snapshot) => {
+				environment = snapshot
+				for (const entry of entries.values()) {
+					entry.wake?.()
+				}
+			})
+		}
+	}
 	function assertClient(): void {
 		if (disposed) {
 			throw new Error('Query client is disposed')
@@ -525,6 +668,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 		const state$ = scope.signal$<QueryState>('state', {
 			status: 'pending',
 			fetchStatus: 'idle',
+			failureCount: 0,
 			hasData: false,
 			error: undefined,
 			updatedAtMs: 0,
@@ -533,6 +677,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 			id: key,
 			family,
 			leases: 0,
+			environment: () => environment,
 			elements,
 			scope,
 			value$,
@@ -634,6 +779,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 	}
 	return {
 		observe$(definition, selection) {
+			attach()
 			const entry = entryFor$(definition, selection)
 			clearTimeout(entry.gcTimer)
 			entry.readers++
@@ -665,6 +811,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 				if (matches(entry, filter)) {
 					entry.invalidated = true
 					entry.invalidationVersion++
+					entry.wake?.()
 					if (entry.readers > 0) {
 						void load(entry, true).catch(() => {})
 					}
@@ -687,14 +834,37 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 		},
 		dispose(disposal = {}) {
 			disposed = true
+			const failures: unknown[] = []
+			try {
+				unsubscribe?.()
+			} catch (error) {
+				failures.push(error)
+			}
+			unsubscribe = undefined
 			for (const entry of [...entries.values()]) {
-				retire(entry)
+				try {
+					retire(entry)
+				} catch (error) {
+					failures.push(error)
+				}
 			}
 			definitions.clear()
-			const targets = [...persistence.values()]
-			return disposal.purgePersisted
-				? Promise.all(targets.map((target) => purgeNamespace(target))).then(() => {})
-				: Promise.resolve()
+			const purges = disposal.purgePersisted
+				? [...persistence.values()].map((target) => purgeNamespace(target))
+				: []
+			return Promise.allSettled(purges).then((results) => {
+				for (const result of results) {
+					if (result.status === 'rejected') {
+						failures.push(result.reason)
+					}
+				}
+				if (failures.length === 1) {
+					throw failures[0]
+				}
+				if (failures.length) {
+					throw new AggregateError(failures, 'Query client disposal failed')
+				}
+			})
 		},
 	}
 }

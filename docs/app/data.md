@@ -598,6 +598,59 @@ const accountQueries = createQueryClient({ namespace: 'account:42' })
 await accountQueries.dispose({ purgePersisted: true })
 ```
 
+### Recovering failed reads
+
+Shared reads retry twice after the first attempt, waiting one second and then
+two seconds. Longer retry sequences use exponential delays capped at 30 seconds.
+Set `retryCount: 0` to report the first failure immediately, or choose a delay
+in milliseconds. All readers share one retry sequence. Aborts, client disposal,
+and final-reader cancellation never start another retry.
+
+```ts
+import { defineQuery } from '@octane-xplat/ui/data'
+
+export const weather = defineQuery(['weather'], async (city: string, { signal }) => {
+	const response = await fetch(`/api/weather?city=${encodeURIComponent(city)}`, { signal })
+	if (!response.ok) throw new Error('Could not load weather')
+	return response.json() as Promise<{ temperature: number }>
+}, { retryCount: 2, retryDelayMs: failureCount => Math.min(1000 * 2 ** (failureCount - 1), 30_000) })
+```
+
+Custom hosts can provide connectivity through an environment. Known offline
+work reports `fetchStatus: 'paused'`; missing connectivity information allows
+work to run. Use `networkMode: 'always'` for a local database or another loader
+that does not require the network. `failureCount` reports attempts that failed
+in the current sequence, separately from whether the reader has usable data.
+
+```ts
+import { createQueryClient, defineQuery, type QueryEnvironment } from '@octane-xplat/ui/data'
+
+export function queriesForHost(environment: QueryEnvironment) {
+	return createQueryClient({ environment })
+}
+export const localNotes = defineQuery(['local-notes'], (folder: string) => [folder], {
+	networkMode: 'always', retryCount: 0,
+})
+```
+
+For APIs that classify failures, `shouldRetry` can narrow the allowed retries.
+The count still caps the sequence. The cache does not guess HTTP status from
+an arbitrary error; the loader gives your policy the information it needs.
+
+```ts
+import { defineQuery } from '@octane-xplat/ui/data'
+
+class ApiReadError extends Error {
+	retryable: boolean
+	constructor(retryable: boolean) { super('Could not load record'); this.retryable = retryable }
+}
+export const records = defineQuery(['records'], async (id: string, { signal }) => {
+	const response = await fetch(`/api/records/${encodeURIComponent(id)}`, { signal })
+	if (!response.ok) throw new ApiReadError(response.status >= 500)
+	return response.json() as Promise<{ title: string }>
+}, { shouldRetry: (_failureCount, error) => !(error instanceof ApiReadError) || error.retryable })
+```
+
 ### Refresh and writes
 
 `refetch()` returns the loaded value or rejects with the error. Overlapping

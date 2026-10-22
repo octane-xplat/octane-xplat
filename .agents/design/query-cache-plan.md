@@ -5,15 +5,15 @@ selects native signal authority. Remaining steps are not yet shipped; desktop
 qualification has a verified host prerequisite.
 
 
-Delivered: steps 1–3 (engine, ownership foundation, inactive collection). The new
+Delivered: steps 1–4 (engine, ownership, collection, retry/network scheduling). The new
 public surface is `defineQuery`, `useQuery$`, and explicit client `observe$`;
-component acquisition occurs after commit. Eighteen cache unit regressions and
+component acquisition occurs after commit. Twenty-six cache unit regressions and
 five universal object-driver regressions pass. Collection includes a 1,000-key
 trace, final-lease cancellation, and namespaced durable purge after collection. UI and dependent typechecks
 (53 tasks), docs build, barrel checks, and recipe link checks pass. These are
 host/source checks; composed device qualification remains step 12.
 
-Steps 4–12 remain in progress; retries, automatic lifecycle refresh, direct
+Steps 5–12 remain in progress; automatic lifecycle refresh, direct
 writes, prefetch, shared optimistic helpers, cached pagination and inspection
 are not yet available at this checkpoint.
 
