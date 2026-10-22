@@ -28,7 +28,10 @@ export declare function defineCatalogs(next: Record<string, CatalogLoader>): voi
  * `locales/<locale>/<name>` (the layout the localization recipe scaffolds).
  */
 export declare function catalogsFromGlob(record: Record<string, CatalogLoader>): Record<string, CatalogLoader>;
-/** Load + activate a locale, notify subscribers, and persist the choice. */
+/**
+ * Load + activate a locale, notify subscribers, and persist the choice.
+ * A newer registered locale choice supersedes pending catalog loads.
+ */
 export declare function setLocale(locale: string): Promise<void>;
 /**
  * One-call startup: registers catalogs, resolves the initial locale
