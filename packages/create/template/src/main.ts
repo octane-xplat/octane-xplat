@@ -2,6 +2,7 @@
 // different shell: a Frame hosting a Page that renders the universal root.
 import { Application, Frame, Page } from '@nativescript/core'
 import { renderNativeScriptApp } from '@nativescript-community/octane'
+import { prepareFullScreenPage } from '@octane-xplat/ui/nativescript'
 import { App } from './App.tsrx'
 import '@octane-xplat/ui/theme/tokens.css'
 import './style.css'
@@ -11,7 +12,8 @@ const entry = {
 		// A Frame hosts the root Page. RouteOutlet binds canonical routing
 		// to this Frame when the app adds generated routes.
 		const frame = new Frame()
-		const page = new Page()
+		// Full-screen page: SafeArea owns safe-area padding.
+		const page = prepareFullScreenPage(new Page())
 		page.actionBarHidden = true
 		renderNativeScriptApp(page, App)
 		frame.navigate({ create: () => page })

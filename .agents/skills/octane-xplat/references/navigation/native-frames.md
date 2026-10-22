@@ -15,6 +15,22 @@ export function Sections() {
 }
 ```
 
+## Full-screen pages
+
+- Route pages and app-entry pages start full-screen, so `SafeArea` is the
+  only source of safe-area padding. Pass a new page through
+  `prepareFullScreenPage` before its content renders. A plain `new Page()`
+  keeps its Mason root inside the safe area on iOS and inside the system bars
+  on Android, and a `SafeArea` inside it then pads those edges a second time.
+  Modal content and `UITabBar` tab pages have not been converted yet.
+
+```ts
+import { Page } from '@nativescript/core'
+import { prepareFullScreenPage } from '@octane-xplat/ui/nativescript'
+
+const page = prepareFullScreenPage(new Page())
+```
+
 ## Lifecycle ordering (iOS — solved, still load-bearing)
 
 - A `frame.navigate()` issued **before the frame is `loaded`** leaves

@@ -338,6 +338,23 @@ The older `ignoreSafeArea` prop still works as `edges={[]}` and is
 deprecated; `edges` wins when both are set. macOS windows have no
 safe-area insets, so `SafeArea` stays a neutral wrapper there.
 
+Native pages Xplat creates start full-screen: content outside a `SafeArea`
+extends under the status bar and home indicator, and `SafeArea` is the only
+source of safe-area padding. A custom NativeScript page opts into the same
+contract with `prepareFullScreenPage(page)` from
+`@octane-xplat/ui/nativescript`, called before the page's content renders.
+
+```ts
+import { Page } from '@nativescript/core'
+import { renderNativeScriptApp } from '@nativescript-community/octane'
+import { prepareFullScreenPage } from '@octane-xplat/ui/nativescript'
+import { App } from './App.tsrx'
+
+const page = prepareFullScreenPage(new Page())
+page.actionBarHidden = true
+renderNativeScriptApp(page, App)
+```
+
 ### Text and keyboard actions
 
 `TextArea` keeps Return as a newline. On web, Cmd/Ctrl+Enter submits it.

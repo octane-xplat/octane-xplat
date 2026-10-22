@@ -1,3 +1,4 @@
+import { prepareFullScreenPage } from './full-screen-page'
 import { prepareNavigationPage } from './prepare-navigation-page'
 import {
 	attachNativeBackGesture,
@@ -651,7 +652,7 @@ export function createNativeRouterHost(options: {
 					throw error
 				}
 			}
-			const page = new Page()
+			const page = prepareFullScreenPage(new Page())
 			page.actionBarHidden = true
 			prepareNativeBackGesture(page)
 			if (command.content.head?.title !== undefined) {
