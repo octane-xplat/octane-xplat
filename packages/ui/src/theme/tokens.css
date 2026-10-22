@@ -160,6 +160,7 @@
 
 	.vx-spacer {
 		flex-grow: 1;
+		flex-direction: column;
 	}
 
 	.vx-pressable {
@@ -4060,6 +4061,23 @@
 	}
 	.vx-chatbubble {
 		flex-direction: column;
+	}
+	/* Web renders these roots as block, list-item or inline boxes, where
+	   these flex values are inert; native roots are flex containers. */
+	.vx-list {
+		flex-direction: column;
+	}
+	.vx-listitem {
+		align-items: center;
+	}
+	.vx-inputgroup-text {
+		justify-content: center;
+		align-items: center;
+	}
+	.vx-formlayout--vertical,
+	.vx-formlayout--horizontal-labels {
+		flex-direction: column;
+		gap: 16px;
 	}
 
 

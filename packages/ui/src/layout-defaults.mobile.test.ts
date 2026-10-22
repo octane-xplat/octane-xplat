@@ -135,21 +135,8 @@ const RETAINED: Record<string, string> = {
 		'vx-dialog-header rule is flex-direction:row; the column element keeps its inline value',
 	'FormField.tsrx:flexDirection':
 		'vx-field--hl needs row but web computes column via .vx-field; a new rule would change web',
-	'FormLayout.tsrx:flexDirection':
-		'web FormLayout root is display:grid/block; a column rule would change web layout',
-	'FormLayout.tsrx:gap': 'same — gap:16 is layout-relevant on web',
-	'List.tsrx:flexDirection':
-		'web List root is block; adding flex-direction:column changes computed style on web',
-	'ListItem.tsrx:alignItems':
-		'web ListItem is list-item; align-items:center changes computed style on web',
-	'Spacer.tsrx:flexDirection':
-		'web Spacer is block; column would change computed style (flex-grow already ruled)',
-	'InputGroup.tsrx:justifyContent':
-		'vx-inputgroup-text is not flex on web; centering via class would change web',
-	'InputGroup.tsrx:alignItems': 'same',
 	'ChatTokenizedText.tsrx:flexWrap':
-		'vx-chattext is block on web; flex-wrap:wrap changes computed style',
-	'ListItem.tsrx:flexDirection': 'same as ListItem alignItems',
+		'the plain and tokenized roots share vx-chattext; a class rule would also wrap the tokenized root on native',
 	'ChatMessage.tsrx:flexDirection':
 		'native orders the user avatar manually; .vx-chatmsg--user row-reverse would double-reverse',
 }
