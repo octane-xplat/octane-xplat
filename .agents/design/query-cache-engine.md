@@ -21,7 +21,7 @@ those adapters, not every possible integration with TanStack.
 | Core observers deduplicate and retain another reader's request | Pass | Pass | Not established |
 | Core clear fences transport ignoring cancellation | Pass | Pass | Not established |
 | Signal mirror and core agree inside Octane adoption | Fail: native revision 2, core revision 1 until batch exit | Same | Not established |
-| Native signal authority accepts adoption, rejects older receipt, retires on dispose | Pass | Interrupted before assertions; unverified | Fails before action: missing `crypto.randomUUID()` |
+| Native signal authority accepts adoption, rejects older receipt, retires on dispose | Pass | Interrupted before assertions; unverified | Initially missing UUID; passes after host fix below |
 
 The existing cached wrapper is not an Octane source accepted by
 `optimistic$`: it throws `optimistic$ requires an Octane signal source.` Its
@@ -65,11 +65,22 @@ exceeds this tradeoff. Do not advertise TanStack API compatibility.
 ## Qualification limits and upstream follow-up
 
 Octane 0.14.0's action operation identity requires `crypto.randomUUID()`.
-The current experimental AppKit host does not provide it, verified by the
-isolated native-authority probe. This is a host prerequisite, not a cache
-fallback: do not invent operation IDs or claim macOS optimistic parity. The
+The decision-time AppKit host did not provide it, verified by the isolated
+native-authority probe. The host now supplies UUIDs through Foundation; the
+repeated authority probe passes three assertions. This is a host capability,
+not a cache-specific operation-ID fallback. The
 combined macOS trace timed out in the existing cache before the core adapter
 ran, so it provides no comparative core result.
+
+The first full-cache AppKit probe also exposed a missing global
+`AbortController`. The host now embeds the same `abort-controller` 3.0.0
+engine already used by the DnD leaf, preserving existing providers and bundling
+both MIT notices. The supported host subset is `aborted`, abort events, and
+controller abort; newer AbortSignal static helpers/reasons are not promised.
+It adds a separate host payload, with no new UI dependency. The repeated
+full-cache probe passes four assertions: shared tentative values, confirmed
+value isolation, receipt publication, and disposal. Real OS lifecycle/network
+qualification remains separate.
 
 No Android, Windows, or Linux runtime qualification has run for this decision.
 Cross-platform composed workflows remain required by step 12. The new public

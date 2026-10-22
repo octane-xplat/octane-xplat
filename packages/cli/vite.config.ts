@@ -1,6 +1,7 @@
-import { globSync, readdirSync, statSync, writeFileSync } from 'node:fs'
-import { join } from 'node:path'
-import { defineConfig } from 'vite'
+import { globSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { createRequire } from 'node:module'
+import { build, defineConfig } from 'vite'
 
 // The CLI runs under plain Node — emit per-module ESM mirroring src/ so bins,
 // spawned entries, and subpath exports resolve inside the published tarball.
@@ -46,6 +47,36 @@ export default defineConfig({
 					}
 				}
 				restore('dist')
+			},
+		},
+		{
+			name: 'jsc-abort-globals',
+			apply: 'build',
+			async closeBundle() {
+				const hostRequire = createRequire(new URL('./package.json', import.meta.url))
+				const controller = hostRequire.resolve('abort-controller/package.json')
+				const events = createRequire(controller).resolve('event-target-shim/package.json')
+				const licenses = [controller, events]
+					.map((path) => readFileSync(join(dirname(path), 'LICENSE'), 'utf8'))
+					.join('\n\n')
+				await build({
+					configFile: false,
+					build: {
+						outDir: 'dist',
+						emptyOutDir: false,
+						lib: {
+							entry: 'src/macos/jsc-host/abort-globals.mjs',
+							formats: ['iife'],
+							name: 'XplatAbortGlobals',
+							fileName: () => 'macos/jsc-host/abort-globals.cjs',
+						},
+						minify: true,
+					},
+				})
+				// Preserve complete MIT notices in the embedded host payload, including
+				// after Vite's minifier removes comments from the generated IIFE.
+				const asset = 'dist/macos/jsc-host/abort-globals.cjs'
+				writeFileSync(asset, `/*!\n${licenses}\n*/\n${readFileSync(asset, 'utf8')}`)
 			},
 		},
 	],

@@ -10,3 +10,7 @@ export const siblingUrl = (metaUrl: string, name: string) =>
 // src/ whether the caller itself runs from src/ or dist/.
 export const srcUrl = (metaUrl: string, name: string) =>
 	new URL(`./${name}`, metaUrl.replace('/dist/', '/src/'))
+
+// Built host assets are needed even when repository tooling runs source .ts.
+export const distUrl = (metaUrl: string, name: string) =>
+	new URL(`./${name}`, metaUrl.replace('/src/', '/dist/'))

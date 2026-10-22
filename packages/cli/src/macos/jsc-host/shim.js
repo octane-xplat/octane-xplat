@@ -38,6 +38,13 @@ Object.defineProperty(globalThis, 'Buffer', {
 	},
 })
 
+// Octane action operation identities use the standard host UUID capability.
+// Foundation owns secure UUID generation; preserve a future native provider.
+globalThis.crypto ??= {}
+if (typeof globalThis.crypto.randomUUID !== 'function') {
+	globalThis.crypto.randomUUID = () => String(NSUUID.UUID().UUIDString).toLowerCase()
+}
+
 const fileManager = NSFileManager.defaultManager
 const nodeModules = {
 	'node:crypto': {

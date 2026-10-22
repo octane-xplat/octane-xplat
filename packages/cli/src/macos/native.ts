@@ -8,6 +8,7 @@ import { basename, dirname, extname, isAbsolute, join, relative, resolve, sep } 
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 import { macOSExecutable } from './executables.ts'
+import { distUrl } from '../env.ts'
 import {
 	hostBundle,
 	hostRoot,
@@ -889,6 +890,9 @@ export function nativeLoader(artifact, { packaged = false } = {}) {
 export async function writeNativeBootstrap(artifact, path, options) {
 	await writeFile(
 		path,
-		nativeLoader(artifact, options) + (await readFile(join(hostRoot, 'shim.js'), 'utf8')),
+		nativeLoader(artifact, options) +
+			(await readFile(distUrl(import.meta.url, 'jsc-host/abort-globals.cjs'), 'utf8')) +
+			'\n' +
+			(await readFile(join(hostRoot, 'shim.js'), 'utf8')),
 	)
 }

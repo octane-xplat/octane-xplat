@@ -90,6 +90,7 @@
 		"@nativescript/core": "catalog:",
 		"@nativescript/vite": "8.0.20",
 		"@types/node": "24.10.1",
+		"abort-controller": "3.0.0",
 		"vite": "catalog:"
 	}
 }
