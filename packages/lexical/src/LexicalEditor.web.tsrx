@@ -15,7 +15,7 @@ import {
 	RichTextPlugin,
 } from '@octanejs/lexical'
 
-import { $getRoot, $getSelection, $isRangeSelection } from 'lexical'
+import { $getRoot, $getSelection, $insertNodes, $isRangeSelection } from 'lexical'
 
 import { $generateHtmlFromNodes, $generateNodesFromDOM } from '@lexical/html'
 import { SHARED_NODES, activeFormats, bindEditorHandle, flatOffset } from './editor-core.web'
@@ -54,7 +54,8 @@ export function LexicalEditor(props: LexicalEditorProps) @{
 				? (editor: any) => {
 						const dom = new DOMParser().parseFromString(props.value!, 'text/html')
 						const nodes = $generateNodesFromDOM(editor, dom)
-						$getRoot().append(...nodes)
+						$getRoot().select()
+						$insertNodes(nodes)
 					}
 				: undefined,
 		onError: (e: Error) => {

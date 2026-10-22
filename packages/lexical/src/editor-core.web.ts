@@ -4,6 +4,7 @@ import {
 	$findMatchingParent,
 	$getRoot,
 	$getSelection,
+	$insertNodes,
 	$isNodeSelection,
 	$isRangeSelection,
 	FORMAT_ELEMENT_COMMAND,
@@ -292,9 +293,8 @@ export function bindEditorHandle(editor: any): LexicalEditorHandle {
 			editor.update(() => {
 				const dom = new DOMParser().parseFromString(html, 'text/html')
 				const nodes = $generateNodesFromDOM(editor, dom)
-				$getRoot()
-					.clear()
-					.append(...nodes)
+				$getRoot().clear().select()
+				$insertNodes(nodes)
 			}),
 		getJSON: () => editor.getEditorState().toJSON(),
 		setJSON: (doc) => editor.setEditorState(editor.parseEditorState(JSON.stringify(doc))),
