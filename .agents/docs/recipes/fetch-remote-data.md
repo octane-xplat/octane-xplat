@@ -29,6 +29,7 @@ Rouzer route tree are outside this recipe's scope.
 - AC6: The reader can choose between a module-level and a screen-owned `query$` for route-param-driven data, and knows the stacked-navigation hazard of copying route params into shared selector signals during render.
 - AC7: The reader can pass cancellation to the transport, rely on unmount retiring component-owned requests and subscriptions, and prevent an obsolete response from replacing a later selection.
 - AC8: The reader can share a query's result across screens through one `QueryClient`, isolate same-key entries and invalidation in another client, use the app-wide default helpers when sharing is intended, and persist records with version, millisecond `maxAgeMs`, and an explicit storage scope. Clear before switching accounts; retired fetches/restores cannot repopulate cleared data, and a newer invalidation survives an older in-flight response. Millisecond stale windows use `staleTimeMs`.
+- AC9: A paged collection preserves surviving selection through sort, reload, and pagination; a failed next page can retry its cursor while retaining earlier rows. Completion promises resolve and errors remain observable in state.
 
 ## Documentation
 
@@ -40,3 +41,4 @@ Rouzer route tree are outside this recipe's scope.
 - AC6: [Module scope vs screen scope](../../../docs/app/data.md#module-scope-vs-screen-scope).
 - AC7: [Module scope vs screen scope](../../../docs/app/data.md#module-scope-vs-screen-scope), [maintained data probe](../../../packages/app/src/data-probe.tsrx), and [lifecycle regression trace](../../../packages/app/src/data-trace.ts).
 - AC8: [The shared query cache](../../../docs/app/data.md#the-shared-query-cache) and [UI API migrations](../../../docs/app/ui-api-migrations.md#explicit-units).
+- AC9: [Paged collections](../../../docs/app/data.md#paged-collections-and-tree-moves) and [maintained lifecycle regressions](../../../packages/ui/src/async-list.test.ts).

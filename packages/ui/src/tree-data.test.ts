@@ -80,3 +80,30 @@ describe('createTreeData', () => {
 		expect(outline(tree.items)).toEqual(['a(x(),y())'])
 	})
 })
+
+describe('tree move integrity', () => {
+	it.each(['a', 'a1', 'missing'])('leaves the snapshot intact for destination %s', (parent) => {
+		const tree = data([{ name: 'a', items: [{ name: 'a1' }] }, { name: 'b' }], { initialSelectedKeys: ['a1'] })
+		const before = tree.getSnapshot()
+		let calls = 0
+		tree.subscribe(() => calls++)
+		tree.move('a', parent, 0)
+		expect(tree.getSnapshot()).toBe(before)
+		expect(tree.getItem('a1')?.parentKey).toBe('a')
+		expect(calls).toBe(0)
+	})
+
+	it('publishes one complete moved subtree and retains descendant selection', () => {
+		const tree = data([{ name: 'a', items: [{ name: 'a1' }] }, { name: 'b' }], { initialSelectedKeys: ['a1'] })
+		const seen: string[][] = []
+		tree.subscribe(() => seen.push(outline(tree.items)))
+		tree.move('a', 'b', 0)
+		expect(seen).toEqual([['b(a(a1()))']])
+		expect(tree.getItem('a')?.parentKey).toBe('b')
+		expect(tree.getItem('a1')?.parentKey).toBe('a')
+		expect([...tree.selectedKeys]).toEqual(['a1'])
+		tree.move('a', null, 0)
+		expect(outline(tree.items)).toEqual(['a(a1())', 'b()'])
+		expect(tree.getItem('a')?.parentKey).toBeNull()
+	})
+})

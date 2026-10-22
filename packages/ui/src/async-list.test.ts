@@ -267,3 +267,70 @@ describe('createAsyncListData', () => {
 		expect(names(list.items)).toEqual(['z', 'b'])
 	})
 })
+
+describe('atomic async collection updates', () => {
+	it('preserves surviving selection through sort, pagination and reload', async () => {
+		let initial = [{ id: 'a' }, { id: 'b' }]
+		const list = createAsyncListData({
+			load: async ({ cursor }) => cursor === undefined
+				? { items: initial, cursor: 'next' }
+				: { items: [{ id: 'c' }] },
+			sort: ({ items }) => ({ items: [...items].reverse() }),
+		})
+		await list.reload()
+		list.setSelectedKeys(['a', 'b'])
+		const seen: string[][] = []
+		list.subscribe(() => seen.push(list.items.map((item) => item.id)))
+		await list.sort({ column: 'id', direction: 'descending' })
+		expect([...list.selectedKeys]).toEqual(['a', 'b'])
+		await list.loadMore()
+		expect([...list.selectedKeys]).toEqual(['a', 'b'])
+		expect(list.items.map((item) => item.id)).toEqual(['b', 'a', 'c'])
+		initial = [{ id: 'b' }, { id: 'd' }]
+		await list.reload()
+		expect([...list.selectedKeys]).toEqual(['b'])
+		expect(seen.every((items) => items.length > 0)).toBe(true)
+	})
+
+	it('publishes loader selection, cursor and idle state with the final items', async () => {
+		const list = createAsyncListData({ load: async () => ({ items: [{ id: 1 }], selectedKeys: [1], cursor: 'next' }) })
+		const seen: ReturnType<typeof list.getSnapshot>[] = []
+		list.subscribe(() => seen.push(list.getSnapshot()))
+		await list.reload()
+		expect(seen).toHaveLength(2)
+		expect(seen[0].loadingState).toBe('loading')
+		expect(seen[1].loadingState).toBe('idle')
+		expect(seen[1].hasMore).toBe(true)
+		expect([...seen[1].selectedKeys]).toEqual([1])
+		expect(seen[1].items).toEqual([{ id: 1 }])
+	})
+
+	it('retries a failed page with its retained cursor and keeps earlier pages', async () => {
+		const seen: (string | undefined)[] = []
+		const list = createAsyncListData({ load: async ({ cursor }) => {
+			seen.push(cursor)
+			if (seen.length === 2) throw new Error('temporary page failure')
+			return cursor === undefined ? { items: [{ id: 1 }], cursor: 'page-2' } : { items: [{ id: 2 }] }
+		} })
+		await list.reload()
+		list.setSelectedKeys([1])
+		await expect(list.loadMore()).resolves.toBeUndefined()
+		expect(list.loadingState).toBe('error')
+		expect(list.error?.message).toBe('temporary page failure')
+		expect(list.hasMore).toBe(true)
+		expect(list.items).toEqual([{ id: 1 }])
+		await expect(list.loadMore()).resolves.toBeUndefined()
+		expect(seen).toEqual([undefined, 'page-2', 'page-2'])
+		expect(list.items).toEqual([{ id: 1 }, { id: 2 }])
+		expect([...list.selectedKeys]).toEqual([1])
+		expect(list.loadingState).toBe('idle')
+		expect(list.error).toBeUndefined()
+	})
+
+	it('preserves all selection through complete replacement', async () => {
+		const list = createAsyncListData({ initialSelectedKeys: 'all', load: async () => ({ items: [{ id: 1 }] }) })
+		await list.reload()
+		await list.reload()
+		expect(list.selectedKeys).toBe('all')
+	})
+})

@@ -758,6 +758,54 @@ export const userPinned$ = userQueries.cachedQuery$(
 )
 ```
 
+## Paged collections and tree moves
+
+Use `useAsyncList` for a collection that loads pages. Sort, reload, and
+pagination preserve selection for keys still present; a reload prunes keys it
+removes. Subscribers receive complete replacements. A failed page keeps its
+cursor and earlier rows, so another `loadMore()` retries it. Completion promises
+resolve on errors; inspect `loadingState` and `error` for the result.
+
+```tsx
+import { Button, Text } from '@octane-xplat/ui'
+import { useAsyncList } from '@octane-xplat/ui/data'
+
+export function ItemPages() {
+	const rows = useAsyncList<{ id: string; name: string }>({
+		async load({ cursor, signal }) {
+			const response = await fetch(
+				`https://api.example.com/items?cursor=${encodeURIComponent(cursor ?? '')}`,
+				{ signal },
+			)
+			if (!response.ok) throw new Error('Could not load items')
+			return response.json() as Promise<{ items: { id: string; name: string }[]; cursor?: string }>
+		},
+	})
+	return <>
+		<Text>{rows.items.map((item) => item.name).join(', ')}</Text>
+		<Button disabled={!rows.hasMore || rows.isLoading} clickAction={() => rows.loadMore()}>
+			{rows.loadingState === 'error' ? 'Retry page' : 'Load more'}
+		</Button>
+	</>
+}
+```
+
+`useTreeData().move` publishes the complete moved subtree in one update and
+keeps its selection. Moving into the same node, one of its descendants, or a
+missing parent leaves the tree unchanged. Use `null` as the root destination.
+
+```tsx
+import { Button } from '@octane-xplat/ui'
+import { useTreeData } from '@octane-xplat/ui/data'
+
+export function ArchiveDrafts() {
+	const folders = useTreeData({
+		initialItems: [{ id: 'archive' }, { id: 'drafts', children: [{ id: 'note' }] }],
+	})
+	return <Button clickAction={() => folders.move('drafts', 'archive', 0)}>Archive drafts</Button>
+}
+```
+
 ## Rules that bite on native
 
 These rules prevent cases where a value changes but a phone screen does not

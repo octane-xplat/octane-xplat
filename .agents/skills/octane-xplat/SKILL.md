@@ -86,6 +86,7 @@ limitations. Do not load the entire reference tree by default.
 | CSS, tokens, themes                                | [Styling](references/styling.md); [token definitions](references/styling/tokens.md); [theme across hosts](references/styling/root-boundaries.md) |
 | Routes, stacks, loaders                            | [Navigation](references/navigation.md); [Frame internals](references/navigation/native-frames.md) only for native stack debugging                |
 | Cached server data and account changes             | [Shared query cache](../../../docs/app/data.md#the-shared-query-cache); clear before changing the persistence scope to retire pending fetches and restores |
+| Paged collection state and tree moves              | [Collection updates](../../../docs/app/data.md#paged-collections-and-tree-moves); retain selection by key, retry failed pages with `loadMore`, and validate tree destinations |
 | Dialogs, sheets, overlays                          | [Overlays and ownership](references/overlays.md)                                                                                                 |
 | Device services, animation, gestures, localization | [Services](references/services.md)                                                                                                               |
 | App tests or framework probes                      | [Testing](references/testing.md)                                                                                                                 |

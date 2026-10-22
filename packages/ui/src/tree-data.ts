@@ -58,6 +58,7 @@ export interface TreeData<T> extends ReadableStore<TreeSnapshot<T>> {
 	prepend(parentKey: Key | null, ...values: T[]): void
 	remove(...keys: Key[]): void
 	removeSelectedItems(): void
+	/** Move a subtree atomically. Self, descendant, or missing parents are no-ops. */
 	move(key: Key, toParentKey: Key | null, toIndex: number): void
 	update(key: Key, value: T): void
 }
@@ -282,24 +283,29 @@ export function createTreeData<T>(options: TreeDataOptions<T> = {}): TreeData<T>
 		},
 		move(key, toParentKey, toIndex) {
 			const found = find(key)
-			if (!found) {
-				return
-			}
+			if (!found || (toParentKey !== null &&
+				(!find(toParentKey) || locate([found.node], toParentKey)))) return
 
-			// Detach first so the target index lands in the remaining siblings.
-			const node = found.node
-			editSiblingsOf(key, (siblings, index) => {
-				const next = [...siblings]
-				next.splice(index, 1)
-				return next
-			})
-
-			const moved = { ...node, parentKey: toParentKey }
-			editChildrenOf(toParentKey, (children) => {
+			// Validate first, then detach and insert in one published snapshot.
+			const detached = rebuild(snapshot.items, (siblings) => {
+				const index = siblings.findIndex((node) => node.key === key)
+				if (index < 0) return null
+				return siblings.filter((_, i) => i !== index)
+			})!
+			const moved = { ...found.node, parentKey: toParentKey }
+			const insert = (children: readonly TreeNode<T>[]) => {
 				const next = [...children]
 				next.splice(toIndex, 0, moved)
 				return next
-			})
+			}
+			const items = toParentKey === null ? insert(detached) : rebuild(detached, (siblings) => {
+				const index = siblings.findIndex((node) => node.key === toParentKey)
+				if (index < 0) return null
+				const next = [...siblings]
+				next[index] = { ...siblings[index], children: insert(siblings[index].children) }
+				return next
+			})!
+			commit({ ...snapshot, items })
 		},
 		update(key, value) {
 			const found = find(key)
