@@ -979,3 +979,21 @@ remain required. A Windows-only rich-text copying method is omitted from
 generated mobile style code; the tracked shared module and full package retain
 it. Native compatibility, iOS device packaging and matched release application
 sizes remain separate gates.
+
+### Queued foreign-style release
+
+The first renderer runs exposed a separate lifetime problem: reparenting and
+destroying a foreign label in one turn can leave adoption-time style work in
+the shared queue after NativeScript clears its native view. iOS then calls a
+missing native target; Android can enter JNI with a pending null-view exception.
+Phase/native-target diagnostics identify the released label. Plain consumers
+using the same current SDK pins and dependency graph pass on both platforms.
+
+The shared release helper removes its binding and restores the original style
+prototype, but does not cancel already queued style work. Mason fork commit
+`8eeeafe7` adds cancellation only to the generated core projection. A regression
+using the real style queue fails without the adaptation, then passes with it;
+it also verifies that a replacement native view still receives its writes.
+The moved module and full package remain unchanged. Reproduce this separately
+in full MasonKit before offering the narrow source fix upstream. Native renderer
+qualification remains separate from this host regression.

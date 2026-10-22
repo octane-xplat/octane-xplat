@@ -271,6 +271,12 @@ resolve the Windows constant to false and omit the Windows-only rich-text copy
 method. All other shared emissions must match the full build under the same
 constant. The adaptation rules reject unexpected source structure.
 
+The generated foreign-view helper also cancels pending style work on release.
+A renderer reparent/remove/destroy sequence otherwise leaves a queued sync
+targeting a cleared native label. Its regression fails without cancellation
+and passes with it, including native-view replacement. The adaptation remains
+outside the moved source; full-package runtime reproduction is still separate.
+
 This generated projection is a temporary proof mechanism while upstream
 feedback is pending, not the proposed final upstream module structure. Its
 runtime-only tarball contains independent bridge declarations but no native
