@@ -143,6 +143,7 @@ function routeSourceMetadata(source, file) {
 	for (const [name, flag] of [
 		['loader', 'loader'],
 		['beforeLoad', 'guard'],
+		['group', 'group'],
 		['validateSearch', 'validateSearch'],
 		['head', 'head'],
 		['ErrorBoundary', 'errorBoundary'],
@@ -580,6 +581,7 @@ export async function generateRoutes(cwd, dir, out, opts = {}) {
 			[
 				['loader', 'loader'],
 				['beforeLoad', 'guard'],
+				['group', 'group'],
 				['validateSearch', 'validateSearch'],
 				['head', 'head'],
 				['ErrorBoundary', 'errorBoundary'],
@@ -614,6 +616,7 @@ ${variantChecks.join('\n')}
 ${
 	exportChecks.length
 		? `type RouteExportShapes = {
+ group: import('@octane-xplat/ui/routing/core').RouteGroup<any, any> | undefined
  loader: ((...args: never[]) => unknown) | undefined
  beforeLoad: ((...args: never[]) => import('@octane-xplat/ui/routing/core').RouteGuardResult | Promise<import('@octane-xplat/ui/routing/core').RouteGuardResult>) | undefined
  validateSearch: (((...args: never[]) => import('@octane-xplat/ui/routing/core').RouteSearchRecord | Promise<import('@octane-xplat/ui/routing/core').RouteSearchRecord>) & { readonly '~standard'?: never }) | import('@octane-xplat/ui/routing/core').RouteSearchSchema<unknown, import('@octane-xplat/ui/routing/core').RouteSearchRecord> | undefined
@@ -746,8 +749,8 @@ export const bakedRouteData: Record<string, unknown> = JSON.parse(${JSON.stringi
 			...(r.dataMode ? { dataMode: r.dataMode } : {}),
 			layouts: chainDirs(r.name),
 			source: `${dir}/${r.file}`,
-			loader: !!(r.loader || r.md || loaderFiles.has(r.name)),
-			guard: !!r.guard,
+			loader: !!(r.loader || r.group || r.md || loaderFiles.has(r.name)),
+			guard: !!(r.guard || r.group),
 			head: !!r.head,
 			errorBoundary: !!r.errorBoundary,
 		})),

@@ -1,7 +1,7 @@
 // @vitest-environment node
-import { expect, it } from 'vitest'
-import { defineRoute, withSearchDecoder, RouteSearchValidationError } from './define-route'
-import { defineRoutes, deriveRouteManifest } from './route-table'
+import { expect, it, vi } from 'vitest'
+import { defineRoute, defineRouteGroup, withSearchDecoder, RouteSearchValidationError } from './define-route'
+import { defineRoutes, deriveRouteManifest, manifestToJson } from './route-table'
 import { createRoutePreparation, RouteForbidden } from './routing-core'
 import { routeRenderContent } from './route-render-content'
 import type { RouteSearchSchema } from './props'
@@ -337,4 +337,62 @@ it('rejects flat screen options, unfinished builders and non-component attachmen
 	const builder = defineRoute({ path: '/unfinished' })
 	expect(() => Reflect.apply(defineRoutes, undefined, [[builder]])).toThrow()
 	expect(() => Reflect.apply(builder.screen, builder, [null])).toThrow('route screen component')
+})
+
+
+it('prepares parent groups before child guards and loaders for objects and direct URLs', async () => {
+	const calls: string[] = []
+	const parent = defineRouteGroup.withContext<{ session: string }>()({
+		id: 'account',
+		beforeLoad: ({ context }) => { calls.push('account guard'); return { user: context.session } },
+		loader: ({ context }) => { calls.push('account loader'); return { name: context.user } },
+	})
+	const child = parent.group({
+		id: 'project',
+		loader: ({ context }) => { calls.push('project loader'); return { owner: context.account.name } },
+	})
+	const beforeLoad = ({ context }: { context: { project: { owner: string } } }) => {
+		calls.push('child guard')
+		return { owner: context.project.owner }
+	}
+	const loader = ({ context }: { context: { owner: string } }) => { calls.push('child loader'); return context.owner }
+	for (const catalog of [
+		defineRoutes([child.route({ path: '/projects/:id/edit', beforeLoad, loader }).screen(() => null)]),
+		deriveRouteManifest({ './app/projects/[id]/edit.tsx': { group: child, beforeLoad, loader, screen: () => null } }, ['web']),
+	]) {
+		const engine = createRoutePreparation({ catalog, context: { session: 'Alex' } })
+		for (const destination of ['/projects/coat/edit', { to: '/projects/:id/edit', params: { id: 'coat' } }]) {
+			calls.length = 0
+			expect(await engine.prepare(destination)).toMatchObject({ status: 'ready', match: {
+				data: 'Alex', context: { user: 'Alex', account: { name: 'Alex' }, project: { owner: 'Alex' } },
+			} })
+			expect(calls).toEqual(['account guard', 'account loader', 'project loader', 'child guard', 'child loader'])
+		}
+		engine.dispose()
+	}
+})
+
+it('stops child preparation on parent denial or cancellation', async () => {
+	const deniedLoader = vi.fn()
+	const denied = defineRouteGroup({ id: 'account', beforeLoad: () => { throw new RouteForbidden() } })
+	const deniedCatalog = defineRoutes([denied.route({ path: '/private', loader: deniedLoader }).screen(() => null)])
+	expect(manifestToJson(deniedCatalog).routes[0]).toMatchObject({ guard: true, loader: true })
+	const deniedEngine = createRoutePreparation({ catalog: deniedCatalog })
+	expect(await deniedEngine.prepare('/private')).toMatchObject({ status: 'forbidden' })
+	expect(deniedLoader).not.toHaveBeenCalled()
+	deniedEngine.dispose()
+	let resume!: () => void
+	const loader = vi.fn()
+	const parent = defineRouteGroup({ id: 'account', beforeLoad: () => new Promise<void>(resolve => { resume = resolve }) })
+	const engine = createRoutePreparation({ catalog: defineRoutes([
+		parent.route({ path: '/private', loader }).screen(() => null),
+	]) })
+	const pending = engine.prepare('/private')
+	await vi.waitFor(() => expect(resume).toBeTypeOf('function'))
+	engine.cancel()
+	expect(await pending).toMatchObject({ status: 'cancelled' })
+	resume()
+	await Promise.resolve()
+	expect(loader).not.toHaveBeenCalled()
+	engine.dispose()
 })

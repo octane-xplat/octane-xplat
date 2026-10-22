@@ -3732,7 +3732,14 @@ export interface RoutePreparationArgs {
 
 /** Executable behavior shared by every route authoring style. File generation
  * and programmatic inference adapt their declarations to this internal boundary. */
+export interface RoutePreparationGroup {
+	readonly id: string
+	readonly beforeLoad?: RoutePreparationBehavior['beforeLoad']
+	readonly loader?: RoutePreparationBehavior['loader']
+}
+
 export interface RoutePreparationBehavior {
+	readonly groups?: readonly RoutePreparationGroup[]
 	validateSearch?(
 		raw: Record<string, unknown>,
 	): Record<string, unknown> | Promise<Record<string, unknown>>
@@ -4063,8 +4070,15 @@ export type RouteProps<Name extends keyof RegisteredRouteContracts & string> = R
 
 declare const routeDefinitionTypes: unique symbol
 type AddedRouteContext<Value> = Value extends object ? Value : {}
-type MergedRouteContext<Context, Added> = Omit<Context, keyof AddedRouteContext<Added>> &
-	AddedRouteContext<Added>
+type ContextFields<Context> = {
+	[Key in keyof Context as string extends Key ? never : number extends Key ? never : symbol extends Key ? never : Key]: Context[Key]
+}
+type ContextIndexes<Context> = {
+	[Key in keyof Context as string extends Key ? Key : number extends Key ? Key : symbol extends Key ? Key : never]: Context[Key]
+}
+/** Preserve named parent fields when a root context also has an index signature. */
+export type MergedRouteContext<Context, Added> = Omit<ContextFields<Context>, keyof AddedRouteContext<Added>> &
+	ContextIndexes<Context> & AddedRouteContext<Added>
 
 /** Contextual callback inputs inferred by defineRoute for programmatic routes. */
 export interface RouteDefinitionArgs<Path extends string, Validator, Context> {
@@ -4118,7 +4132,7 @@ export interface RouteDefinitionInput<Path extends string, Validator, Context, A
  * const item = defineRoute({ path: '/items/:id', loader: ({ params }) => params.id })
  *   .screen(({ data }) => data)
  */
-export interface RouteDefinitionBuilder<Path extends string, Validator, Context, Added, Data> {
+export interface RouteDefinitionBuilder<Path extends string, Validator, Context, Added, Data, Root = Context> {
 	readonly screen: (
 		component: (props: {
 			params: RouteSpecParams<Path>
@@ -4126,7 +4140,7 @@ export interface RouteDefinitionBuilder<Path extends string, Validator, Context,
 			data: Awaited<Data>
 			context: MergedRouteContext<Context, Added>
 		}) => Renderable,
-	) => DefinedRoute<Path, Validator, Context, Added, Data>
+	) => DefinedRoute<Path, Validator, Context, Added, Data, Root>
 }
 
 /** Require an actual loader when inferring loaded data. Loader-free builders
@@ -4142,13 +4156,13 @@ export type RouteDefinitionWithLoader<
 }
 
 /** A definition ready for manifest assembly, carrying complete inferred metadata. */
-export type DefinedRoute<Path extends string, Validator, Context, Added, Data> = Readonly<
+export type DefinedRoute<Path extends string, Validator, Context, Added, Data, Root = Context> = Readonly<
 	Omit<RouteSpec, 'screen' | 'preparation'>
 > & {
 	readonly path: Path
 	readonly preparation?: Readonly<RoutePreparationBehavior>
 	readonly screen: Parameters<
-		RouteDefinitionBuilder<Path, Validator, Context, Added, Data>['screen']
+		RouteDefinitionBuilder<Path, Validator, Context, Added, Data, Root>['screen']
 	>[0]
 	readonly [routeDefinitionTypes]: RouteContract<
 		RouteSpecParams<Path>,
@@ -4156,7 +4170,7 @@ export type DefinedRoute<Path extends string, Validator, Context, Added, Data> =
 		RouteSearchOutput<Validator>,
 		Awaited<Data>,
 		MergedRouteContext<Context, Added>,
-		Context
+		Root
 	>
 }
 
@@ -4295,13 +4309,26 @@ export type RouteRootContext<Value> = Value extends (...args: any[]) => infer Co
 	? Awaited<Context>
 	: Value
 
+declare const routeGroupTypes: unique symbol
+/** Parent lifecycle metadata. Create groups with defineRouteGroup. */
+export interface RouteGroup<Context = RouteContext, Root = Context> {
+	readonly [routeGroupTypes]: { readonly context: Context; readonly rootContext: Root }
+}
+
+type FileGroupContext<Module> = Module extends { group: RouteGroup<infer Context, any> }
+	? Context : {}
+type FileGroupRoot<Module> = Module extends { group: RouteGroup<any, infer Root> }
+	? Root : {}
+type FileRootContext<Module, Context> = string extends keyof Context
+	? FileGroupRoot<Module> : Context & FileGroupRoot<Module>
+
 /** Generated guard inputs depend only on the route's path, search validator and
  * root context. They deliberately exclude the guard's own return type. */
 export type FileRouteGuardArgs<
 	Path extends string,
 	Module,
 	Context = RouteContext,
-> = RouteDefinitionArgs<Path, FileSearchValidator<Module>, Context>
+> = RouteDefinitionArgs<Path, FileSearchValidator<Module>, MergedRouteContext<Context, FileGroupContext<Module>>>
 
 /** Generated loader inputs add the context returned by this route's guard. */
 export type FileRouteLoaderArgs<
@@ -4311,7 +4338,7 @@ export type FileRouteLoaderArgs<
 > = RouteDefinitionArgs<
 	Path,
 	FileSearchValidator<Module>,
-	MergedRouteContext<Context, FileGuardContext<Module>>
+	MergedRouteContext<MergedRouteContext<Context, FileGroupContext<Module>>, FileGuardContext<Module>>
 >
 
 /** Build-only sibling output. Generated contracts reference the module through
@@ -4351,8 +4378,8 @@ export type FileRouteContract<
 	RouteSearchInputOf<FileSearchValidator<Module>>,
 	RouteSearchOutput<FileSearchValidator<Module>>,
 	RouteModuleData<Module, BakedData>,
-	MergedRouteContext<Context, FileGuardContext<Module>>,
-	Context
+	MergedRouteContext<MergedRouteContext<Context, FileGroupContext<Module>>, FileGuardContext<Module>>,
+	FileRootContext<Module, Context>
 >
 
 type DeclaredRootContext<Contract> =

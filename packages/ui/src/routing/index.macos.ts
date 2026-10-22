@@ -44,7 +44,7 @@ export type {
 	ScreenTable,
 } from '../props'
 
-export { defineRoute, withSearchDecoder, RouteSearchValidationError } from '../define-route'
+export { defineRoute, defineRouteGroup, withSearchDecoder, RouteSearchValidationError } from '../define-route'
 export { defineTransitions } from '../route-transitions'
 export { createPaneRouterHost } from '../pane-router-client'
 export { RouterPane } from '../RouterPane.tsrx'
@@ -105,6 +105,7 @@ export type {
 	RouteDefinitionArgs,
 	RouteDefinitionInput,
 	RouteDefinitionBuilder,
+	RouteGroup,
 	RouteGuardResult,
 	RouteProps,
 	RouteScreenProps,
@@ -146,3 +147,5 @@ export {
 	RouteForbidden,
 	RouteResourceNotFound,
 } from '../routing-core'
+
+export type { RouteGroupBuilder } from '../define-route'

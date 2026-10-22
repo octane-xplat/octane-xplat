@@ -30,7 +30,7 @@ it('connects package-root registration to consumer destination types', async () 
 			`
 import type {} from '@octane-xplat/ui'
 import { router, configureRouter, redirect, useRouter, useNavigation, useNavigationBlocker, getRouteApi, RouterProvider, RouterPane, createPaneRouterHost } from '@octane-xplat/ui/routing'
-import { createRouter, defineRoute, withSearchDecoder, defineRoutes, defineRuntimeRoutes, mergeRouteManifests } from '@octane-xplat/ui/routing/core'
+import { createRouter, defineRoute, defineRouteGroup, withSearchDecoder, defineRoutes, defineRuntimeRoutes, mergeRouteManifests } from '@octane-xplat/ui/routing/core'
 import type { Destination, DestinationFor, ContractsOf, RouterHost, RouteCatalog, RouteContract } from '@octane-xplat/ui/routing/core'
 import { NavLink } from '@octane-xplat/ui'
 import { NavigationMenu, SideNavItem, TopNavItem, TopNavMenu, TopNavMegaMenuItem, NavHeadingMenuItem, Tab, Breadcrumbs, DropdownMenuLink, DropdownMenu, ContextMenu } from '@octane-xplat/ui'
@@ -456,6 +456,21 @@ const namedSearchRouter = createRouter({ catalog: defineRoutes([namedSearchRoute
 namedSearchRouter.push({ to: '/named-search', search: { tab: 'activity', page: 2 } })
 // @ts-expect-error Named interfaces retain their finite field values.
 namedSearchRouter.push({ to: '/named-search', search: { tab: 'invented' } })
+const publicGroup = defineRouteGroup({ id: 'library', loader: () => ({ title: 'Guides' }) })
+publicGroup.group({ id: 'book', loader: ({ context }) => context.library.title })
+const accountGroup = defineRouteGroup.withContext<{ session: { id: string } }>()({
+ id: 'account', beforeLoad: ({ context }) => ({ owner: context.session.id }),
+ loader: ({ context }) => ({ name: context.owner }),
+})
+const projectGroup = accountGroup.group({ id: 'project', loader: ({ context }) => ({ owner: context.account.name }) })
+const grouped = projectGroup.route({ path: '/grouped', loader: ({ context }) => context.project.owner })
+grouped.screen(({ context, data }) => { const name: string = context.account.name; const owner: string = data; return null })
+const groupHost = undefined as unknown as RouterHost
+createRouter({ catalog: defineRoutes([grouped.screen(() => null)]), host: groupHost, context: { session: { id: 'a' } } })
+// @ts-expect-error Group additions must not replace the required root context.
+createRouter({ catalog: defineRoutes([grouped.screen(() => null)]), host: groupHost })
+// @ts-expect-error Child callbacks inherit precise parent data.
+projectGroup.route({ path: '/bad-group', loader: ({ context }) => context.account.invented })
 const namedSchema: import('@octane-xplat/ui/routing/core').RouteSearchSchema<{ tab?: 'details' | 'activity'; page?: number }, NamedSearch> = {
   '~standard': { version: 1, vendor: 'named', validate: () => ({ value: { tab: 'details', page: 1 } }) },
 }

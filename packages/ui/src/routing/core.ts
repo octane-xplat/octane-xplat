@@ -1,6 +1,6 @@
 // Renderer/host-free route definitions, contracts, and preparation. Server builds
 // can import this entry without evaluating the default client/native registry.
-export { defineRoute, withSearchDecoder, RouteSearchValidationError } from '../define-route'
+export { defineRoute, defineRouteGroup, withSearchDecoder, RouteSearchValidationError } from '../define-route'
 export { defineTransitions } from '../route-transitions'
 export {
 	defineRoutes,
@@ -83,6 +83,7 @@ export type {
 	RouteDefinitionArgs,
 	RouteDefinitionInput,
 	RouteDefinitionBuilder,
+	RouteGroup,
 	RouteGuardResult,
 	RouteDestinationInput,
 	RoutePreparationArgs,
@@ -111,3 +112,5 @@ export { RouteRegistrationError } from '../route-registry'
 
 /** @internal Generated contract boundary; application routes use defineRoute. */
 export { sealGeneratedRouteCatalog } from '../route-contract-scope'
+
+export type { RouteGroupBuilder } from '../define-route'

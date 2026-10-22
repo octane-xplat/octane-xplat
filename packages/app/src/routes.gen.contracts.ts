@@ -45,6 +45,7 @@ export type RouteVariantChecks = [
 	CheckRouteVariant<FileRouteContract<"/parity", typeof import("./app/parity.tsrx"), RootContext>, FileRouteContracts["/parity"]>,
 ]
 type RouteExportShapes = {
+ group: import('@octane-xplat/ui/routing/core').RouteGroup<any, any> | undefined
  loader: ((...args: never[]) => unknown) | undefined
  beforeLoad: ((...args: never[]) => import('@octane-xplat/ui/routing/core').RouteGuardResult | Promise<import('@octane-xplat/ui/routing/core').RouteGuardResult>) | undefined
  validateSearch: (((...args: never[]) => import('@octane-xplat/ui/routing/core').RouteSearchRecord | Promise<import('@octane-xplat/ui/routing/core').RouteSearchRecord>) & { readonly '~standard'?: never }) | import('@octane-xplat/ui/routing/core').RouteSearchSchema<unknown, import('@octane-xplat/ui/routing/core').RouteSearchRecord> | undefined

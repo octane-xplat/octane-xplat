@@ -1,5 +1,5 @@
 import { NavLink, Pressable, HStack, Screen, Text, View } from '@octane-xplat/ui';
-import { defineRoute, defineRoutes } from '@octane-xplat/ui/routing/core';
+import { defineRouteGroup, defineRoutes } from '@octane-xplat/ui/routing/core';
 import { useRouter } from '@octane-xplat/ui/routing';
 
 /** Programmatic-route probe — a manifest built from a data array at module
@@ -58,9 +58,9 @@ export function GuideIndex() @{
 /** Doc screen — `slug` arrives as a route param (URL-scalar); the doc is
  *  looked up rather than closed over. Unknown slugs render a not-found
  *  note rather than throwing. */
-export function GuideScreen(props: { params: { slug: string } }) @{
+export function GuideScreen(props: { params: { slug: string }; data: GuideDoc | undefined }) @{
 	const navigation = useRouter();
-	const doc = props.params.slug ? GUIDE_BY_SLUG[props.params.slug] : undefined;
+	const doc = props.data;
 
 	<Screen className="vx-app flex-1 gap-6">
 		<HStack className="gap-4 items-center">
@@ -76,11 +76,14 @@ export function GuideScreen(props: { params: { slug: string } }) @{
 
 /** Exported so `routes.ts` can merge the spec-derived route types into the
  *  app's typed navigation surface (ManifestRouteParams et al.). */
+const guideLibrary = defineRouteGroup({ id: 'guideLibrary', loader: () => ({ docs: GUIDE_BY_SLUG }) });
+
 export const guideRoutes = defineRoutes({
 	routes: [
-		defineRoute({ path: '/guides', head: { title: 'Guides' } }).screen(GuideIndex),
-		defineRoute({
+		guideLibrary.route({ path: '/guides', head: { title: 'Guides' } }).screen(GuideIndex),
+		guideLibrary.route({
 			path: '/guides/:slug',
+			loader: ({ params, context }) => context.guideLibrary.docs[params.slug],
 			head: (params: Record<string, unknown>) => ({ title: GUIDE_BY_SLUG[params.slug as string]?.title ?? 'Guide' }),
 		}).screen(GuideScreen),
 	],

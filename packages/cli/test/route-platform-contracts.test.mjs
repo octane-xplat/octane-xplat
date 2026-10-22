@@ -76,6 +76,7 @@ defineRoute({ path: '/bad-search', validateSearch: () => 42 }).screen(() => null
 		)
 
 		for (const [field, value] of [
+			['group', '{}'],
 			['beforeLoad', '"deny"'],
 			['beforeLoad', '() => false'],
 			['beforeLoad', 'async () => false'],
@@ -553,6 +554,40 @@ navigation.push({ to: '/programmatic', search: { tab: 'invented' } })
 `,
 		)
 
+		for (const condition of ['web', 'native', 'macos', 'linux', 'windows']) {
+			assert.deepEqual(check(root, condition), [], condition)
+		}
+	} finally {
+		await rm(root, { recursive: true, force: true })
+	}
+})
+
+test('generated file routes inherit parent group data without requiring it as root context', async () => {
+	const root = await fixture()
+	try {
+		await put(root, 'scopes.ts', `import { defineRouteGroup } from '@octane-xplat/ui/routing/core'
+export const account = defineRouteGroup({ id: 'account', loader: () => ({ name: 'Alex' }) })
+export const project = account.group({ id: 'project', loader: ({ context }) => ({ owner: context.account.name }) })`)
+		await put(root, 'app/item.tsx', `export { project as group } from '../scopes'
+import type { RouteGuardArgs, RouteLoaderArgs, RouteProps } from '../routes.gen.contracts'
+export function beforeLoad({ context }: RouteGuardArgs<'/item'>) {
+ const owner: string = context.project.owner
+ return { owner }
+}
+export function loader({ context }: RouteLoaderArgs<'/item'>) { return context.account.name + context.owner }
+export default function Screen(props: RouteProps<'/item'>) {
+ const owner: string = props.context.project.owner
+ const title: string = props.data
+ // @ts-expect-error Parent data is inferred.
+ props.context.account.invented
+ return null
+}`)
+		await generateRoutes(root, 'app', undefined, { bake: false })
+		await put(root, 'consumer.tsx', `import './routes.gen.types'
+import { createRouter } from '@octane-xplat/ui/routing/core'
+import type { RouterHost } from '@octane-xplat/ui/routing/core'
+import { routes } from './routes.gen.catalog.web'
+createRouter({ catalog: routes, host: undefined as unknown as RouterHost })`)
 		for (const condition of ['web', 'native', 'macos', 'linux', 'windows']) {
 			assert.deepEqual(check(root, condition), [], condition)
 		}

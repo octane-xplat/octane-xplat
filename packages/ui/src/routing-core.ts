@@ -507,12 +507,30 @@ export function createRoutePreparation(options: RoutePreparationOptions) {
 				let phase: 'guard' | 'loader' = 'guard'
 				let data: unknown
 				try {
+					for (const group of behavior?.groups ?? []) {
+						phase = 'guard'
+						const additional = await group.beforeLoad?.(args)
+						if (additional !== undefined && !dependencyRecord(additional)) {
+							throw new TypeError('Guard context must be a plain dependency object')
+						}
+						args.context = { ...args.context, ...additional }
+						if (cancelled) {
+							return { status: 'cancelled', reason: cancelled }
+						}
+						phase = 'loader'
+						const parentData = await group.loader?.(args)
+						if (cancelled) {
+							return { status: 'cancelled', reason: cancelled }
+						}
+						args.context = { ...args.context, [group.id]: parentData }
+					}
+					phase = 'guard'
 					const additional = await behavior?.beforeLoad?.(args)
 					if (additional !== undefined && !dependencyRecord(additional)) {
 						throw new TypeError('Guard context must be a plain dependency object')
 					}
 
-					args.context = { ...context, ...additional }
+					args.context = { ...args.context, ...additional }
 					if (cancelled) {
 						return { status: 'cancelled', reason: cancelled }
 					}

@@ -683,6 +683,80 @@ export function loader({ params, context }: RouteLoaderArgs<'/items/:id'>) {
 ```
 
 
+## Prepare a group of routes
+
+Create a group when several routes share a guard or loaded dependency. A group's
+guard runs first; its loader result is available to descendants under
+`context[group.id]`. The root context still comes from your configured context
+factory. This example uses the account dependency configured above.
+
+```ts
+// src/route-groups.ts
+import { defineRouteGroup, RouteForbidden } from '@octane-xplat/ui/routing/core'
+
+export const account = defineRouteGroup.withContext<{ account: { id: string } | null }>()({
+	id: 'profile',
+	beforeLoad({ context }) {
+		if (!context.account) throw new RouteForbidden()
+		return { user: context.account }
+	},
+	loader: ({ context }) => ({ id: context.user.id }),
+})
+export const project = account.group({
+	id: 'project',
+	loader: ({ context }) => ({ owner: context.profile.id }),
+})
+```
+
+A file route joins the group with a named `group` export. Its generated callback
+and screen types include parent context and data. File names and layout wrappers
+alone do not add lifecycle behavior; membership is explicit.
+
+```tsx
+// src/app/projects/[id].tsrx
+import { Text } from '@octane-xplat/ui'
+import type { RouteLoaderArgs, RouteProps } from '../../routes.gen.contracts'
+export { project as group } from '../../route-groups'
+
+export function loader({ params, context }: RouteLoaderArgs<'/projects/:id'>) {
+	return { title: params.id, owner: context.project.owner }
+}
+export default function Project(props: RouteProps<'/projects/:id'>) {
+	return <Text>{props.data.title}: {props.context.profile.id}</Text>
+}
+```
+
+For programmatic routes, call the group's `route` method and attach a named
+screen as usual. The catalog requires only root dependencies; parent loader
+results are prepared by routing. The maintained guide routes use this pattern.
+
+```tsx
+import { Text } from '@octane-xplat/ui'
+import { defineRoutes } from '@octane-xplat/ui/routing/core'
+import { project } from './route-groups'
+
+function ProjectSettings(props: { data: { owner: string } }) {
+	return <Text>{props.data.owner}</Text>
+}
+export const projectRoutes = defineRoutes([
+	project.route({
+		path: '/project-settings',
+		loader: ({ context }) => ({ owner: context.project.owner }),
+	}).screen(ProjectSettings),
+])
+```
+
+Each preparation runs the outer group's guard and loader, then inner groups,
+then the route's own guard and loader. Parent failure, redirect or cancellation
+stops child work. Direct URLs, Back and refresh use the same chain; group data
+is prepared again rather than cached across navigations.
+
+```ts
+import { router } from '@octane-xplat/ui/routing'
+await router.navigateUrl('/projects/coat') // Prepares account, project, then the route.
+await router.refresh() // Checks those dependencies again.
+```
+
 ## Return after sign-in
 
 After your sign-in code updates the session used by `routingContext`, pass the

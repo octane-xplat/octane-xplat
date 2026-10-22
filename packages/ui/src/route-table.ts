@@ -38,7 +38,7 @@ import {
 	routePatternSegments as specSegments,
 } from '@octane-xplat/lib/route-pattern'
 
-import { routeSearchValidation } from './define-route'
+import { routeGroupPreparation, routeSearchValidation } from './define-route'
 import {
 	declareRouteContract,
 	hasRouteContract,
@@ -160,7 +160,7 @@ function pick(mod: any, file: string): any {
 	const fns = Object.keys(mod ?? {}).filter(
 		(k) =>
 			typeof mod[k] === 'function' &&
-			!['loader', 'beforeLoad', 'head', 'ErrorBoundary', 'validateSearch'].includes(k),
+			!['loader', 'beforeLoad', 'head', 'ErrorBoundary', 'validateSearch', 'group'].includes(k),
 	)
 
 	if (fns.length === 1) {
@@ -354,8 +354,14 @@ export function deriveRouteManifest(
 			)
 		}
 
+		const groups = routeGroupPreparation(mod?.group)
+		if (mod?.group !== undefined && !groups) {
+			issues.push(invalidExport(key, 'group', mod.group, 'a group created by defineRouteGroup'))
+		}
+
 		// File routes and programmatic routes use the same preparation contract.
 		meta.preparation = {
+			groups,
 			validateSearch: validValidator ? routeSearchValidation(validator) : undefined,
 			beforeLoad: typeof beforeLoad === 'function' ? beforeLoad : undefined,
 			loader:
@@ -938,8 +944,8 @@ export function manifestToJson(manifest: RouteManifest): RouteManifestJson {
 				...(meta.dataMode ? { dataMode: meta.dataMode } : {}),
 				layouts: layoutDirs,
 				source: meta.file,
-				loader: !!meta.loader,
-				guard: !!meta.beforeLoad,
+				loader: !!(meta.loader || meta.preparation?.loader || meta.preparation?.groups?.some(group => group.loader)),
+				guard: !!(meta.beforeLoad || meta.preparation?.beforeLoad || meta.preparation?.groups?.some(group => group.beforeLoad)),
 				head: !!meta.head,
 				errorBoundary: !!meta.errorBoundary,
 			}

@@ -1,6 +1,9 @@
 import { rememberRouteDefinition } from './route-contract-scope'
 import type {
 	RouteContext,
+	RouteGroup,
+	RoutePreparationGroup,
+	MergedRouteContext,
 	RouteGuardResult,
 	RouteDefinitionBuilder,
 	RouteDefinitionInput,
@@ -77,7 +80,9 @@ type RequiredGuard<Input extends { beforeLoad?: unknown }, Added> = [Added] exte
 	? unknown
 	: { beforeLoad: NonNullable<Input['beforeLoad']> }
 
-function definitionsWithContext<Context extends Exclude<RouteGuardResult, void>>() {
+function definitionsWithContext<Context extends object, Root = Context>(
+	groups: readonly RoutePreparationGroup[] = [],
+) {
 	function define<
 		const Path extends string,
 		Validator extends RouteSearchValidator,
@@ -87,11 +92,11 @@ function definitionsWithContext<Context extends Exclude<RouteGuardResult, void>>
 		definition: RouteDefinitionWithLoader<Path, Validator, Context, Added, Data> & {
 			validateSearch: Validator
 		} & RequiredGuard<RouteDefinitionInput<Path, Validator, Context, Added, Data>, Added>,
-	): RouteDefinitionBuilder<Path, Validator, Context, Added, Data>
+	): RouteDefinitionBuilder<Path, Validator, Context, Added, Data, Root>
 	function define<const Path extends string, Added extends RouteGuardResult = void, Data = unknown>(
 		definition: RouteDefinitionWithLoader<Path, undefined, Context, Added, Data> &
 			RequiredGuard<RouteDefinitionInput<Path, undefined, Context, Added, Data>, Added>,
-	): RouteDefinitionBuilder<Path, undefined, Context, Added, Data>
+	): RouteDefinitionBuilder<Path, undefined, Context, Added, Data, Root>
 	function define<
 		const Path extends string,
 		Validator extends RouteSearchValidator,
@@ -101,12 +106,12 @@ function definitionsWithContext<Context extends Exclude<RouteGuardResult, void>>
 			validateSearch: Validator
 			loader?: undefined
 		} & RequiredGuard<RouteDefinitionInput<Path, Validator, Context, Added, undefined>, Added>,
-	): RouteDefinitionBuilder<Path, Validator, Context, Added, undefined>
+	): RouteDefinitionBuilder<Path, Validator, Context, Added, undefined, Root>
 	function define<const Path extends string, Added extends RouteGuardResult = void>(
 		definition: RouteDefinitionInput<Path, undefined, Context, Added, undefined> & {
 			loader?: undefined
 		} & RequiredGuard<RouteDefinitionInput<Path, undefined, Context, Added, undefined>, Added>,
-	): RouteDefinitionBuilder<Path, undefined, Context, Added, undefined>
+	): RouteDefinitionBuilder<Path, undefined, Context, Added, undefined, Root>
 	function define(input: unknown): unknown {
 		if (!input || typeof input !== 'object' || Array.isArray(input)) {
 			throw new TypeError('Expected route preparation options')
@@ -122,6 +127,7 @@ function definitionsWithContext<Context extends Exclude<RouteGuardResult, void>>
 			unknown
 		>
 		const preparation: RoutePreparationBehavior = Object.freeze({
+			groups,
 			validateSearch: routeSearchValidation(definition.validateSearch),
 			beforeLoad: definition.beforeLoad as RoutePreparationBehavior['beforeLoad'],
 			loader: definition.loader as ((args: RoutePreparationArgs) => unknown) | undefined,
@@ -160,5 +166,85 @@ function definitionsWithContext<Context extends Exclude<RouteGuardResult, void>>
  *   .screen(({ data }) => data.title)
  */
 export const defineRoute = Object.assign(definitionsWithContext<RouteContext>(), {
-	withContext: definitionsWithContext,
+	withContext: function withContext<Context extends Exclude<RouteGuardResult, void>>() {
+		return definitionsWithContext<Context>()
+	},
+})
+
+
+type GroupArgs<Context> = Omit<RoutePreparationArgs, 'context' | 'params'> & {
+	context: Context
+	params: Readonly<Record<string, string | undefined>>
+}
+type GroupInput<Id extends string, Context, Added, Data> = {
+	id: Id
+	beforeLoad?: (args: GroupArgs<Context>) => Added | Promise<Added>
+	loader?: (args: GroupArgs<MergedRouteContext<Context, NoInfer<Added>>>) => Data
+}
+type GroupContext<Id extends string, Context, Added, Data> = MergedRouteContext<
+	MergedRouteContext<Context, Added>, { [Key in Id]: Awaited<Data> }
+>
+export type RouteGroupBuilder<Context extends object, Root> = RouteGroup<Context, Root> & {
+	readonly route: ReturnType<typeof definitionsWithContext<Context, Root>>
+	readonly group: ReturnType<typeof groupsWithContext<Context, Root>>
+}
+const routeGroups = new WeakMap<object, readonly RoutePreparationGroup[]>()
+
+/** Internal identity check shared with file-derived catalogs. */
+export function routeGroupPreparation(value: unknown): readonly RoutePreparationGroup[] | undefined {
+	return value !== null && typeof value === 'object' ? routeGroups.get(value) : undefined
+}
+
+function groupsWithContext<Context extends object, Root = Context>(
+	parents: readonly RoutePreparationGroup[] = [],
+) {
+	function group<const Id extends string, Added extends RouteGuardResult = void, Data = unknown>(
+		input: GroupInput<Id, Context, Added, Data> & {
+			loader: NonNullable<GroupInput<Id, Context, Added, Data>['loader']>
+		} & RequiredGuard<GroupInput<Id, Context, Added, Data>, Added>,
+	): RouteGroupBuilder<GroupContext<Id, Context, Added, Data>, Root>
+	function group<const Id extends string, Added extends RouteGuardResult = void>(
+		input: GroupInput<Id, Context, Added, undefined> & { loader?: undefined } &
+			RequiredGuard<GroupInput<Id, Context, Added, undefined>, Added>,
+	): RouteGroupBuilder<GroupContext<Id, Context, Added, undefined>, Root>
+	function group(input: unknown): unknown {
+		if (!input || typeof input !== 'object' || Array.isArray(input)) {
+			throw new TypeError('Expected route group options')
+		}
+		const options = input as GroupInput<string, Context, RouteGuardResult, unknown>
+		if (typeof options.id !== 'string' || !options.id.trim()) {
+			throw new TypeError('Expected a non-empty route group id')
+		}
+		for (const field of ['beforeLoad', 'loader'] as const) {
+			if (options[field] !== undefined && typeof options[field] !== 'function') {
+				throw new TypeError('Expected a route group ' + field + ' callback')
+			}
+		}
+		const groups = Object.freeze([...parents, Object.freeze({
+			id: options.id,
+			beforeLoad: options.beforeLoad as RoutePreparationBehavior['beforeLoad'],
+			loader: options.loader as RoutePreparationBehavior['loader'],
+		})])
+		const result = Object.freeze({
+			route: definitionsWithContext<Context, Root>(groups),
+			group: groupsWithContext<Context, Root>(groups),
+		})
+		routeGroups.set(result, groups)
+		return result
+	}
+	return group
+}
+
+/** Prepare reusable parent scopes before a route. Each group's loader result
+ * is available to descendants at context[group.id]. Groups rerun for every
+ * preparation, including direct URLs, history and refresh.
+ * @example
+ * import { defineRouteGroup } from '@octane-xplat/ui/routing/core'
+ * const account = defineRouteGroup({ id: 'account', loader: () => ({ name: 'Alex' }) })
+ * const settings = account.route({ path: '/settings', loader: ({ context }) => context.account.name })
+ */
+export const defineRouteGroup = Object.assign(groupsWithContext<RouteContext>(), {
+	withContext: function withContext<Context extends Exclude<RouteGuardResult, void>>() {
+		return groupsWithContext<Context>()
+	},
 })

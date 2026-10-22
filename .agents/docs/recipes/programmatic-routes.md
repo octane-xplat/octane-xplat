@@ -2,7 +2,7 @@
 
 ID: programmatic-routes
 Targets: web, ios, android, macos
-Related APIs: withSearchDecoder, defineRoute, defineRoutes, defineRuntimeRoutes, configureRouter, router.addRoutes, router, RouteOutlet, createRouter, RouterProvider, useRouter, getRouteApi, RouteRegistration, mergeRouteManifests,
+Related APIs: defineRouteGroup, withSearchDecoder, defineRoute, defineRoutes, defineRuntimeRoutes, configureRouter, router.addRoutes, router, RouteOutlet, createRouter, RouterProvider, useRouter, getRouteApi, RouteRegistration, mergeRouteManifests,
 RouteSpec, RouteSpecSet, RouteManifest, xplat.routes.json, Destination,
 NavLink, validateDestination, ValidatedDestination, DestinationValidationResult,
 getRouteApi.useUpdateSearch, RouteSearchUpdater, useNavigation, RouterNavigationState, clearFailure
@@ -58,6 +58,9 @@ database, a content directory, or a host framework's own route model.
   Refined guard and loader redirects share target validation, one attempt's
   context snapshot, bounded following, and stale target-flow protection; only
   the final destination commits.
+  Explicit parent groups run outer guard/loader pairs before child preparation,
+  inherit typed context and group data, and stop children on denial, redirect
+  or cancellation. File exports and programmatic group.route share this lifecycle.
 - AC6: The reader distinguishes the shared default client registry from
   explicit router instances used by custom hosts. Instance registration handles
   replace their own stable ID, reject accidental collisions and remove only
@@ -116,7 +119,7 @@ database, a content directory, or a host framework's own route model.
 - AC4: [Register routes from data](../../../docs/app/navigation.md#register-routes-from-data);
   web smoke in `apps/web/scripts/smoke.ts` deep-links `/@test/guides/deploy`.
 
-- AC5: [Flow-owned loading and recovery](../../../docs/app/navigation.md#handle-pending-work-and-failures), [Loader and presentation behavior](../../../docs/app/navigation.md#present-a-route-modally)
+- AC5: [Parent group preparation](../../../docs/app/navigation.md#prepare-a-group-of-routes), [Flow-owned loading and recovery](../../../docs/app/navigation.md#handle-pending-work-and-failures), [Loader and presentation behavior](../../../docs/app/navigation.md#present-a-route-modally)
   and [guard behavior](../../../docs/app/navigation.md#guard-a-route-and-supply-context).
   Regression example: `packages/ui/src/router-instance.test.ts` and `browser-router-host.web.test.tsrx`.
 - AC6: [Default client scope](../../../docs/app/navigation.md#what-the-route-generator-writes)

@@ -142,6 +142,24 @@ export const guideRoutes = defineRoutes([
 }
 ```
 
+## Share parent preparation
+
+Use `defineRouteGroup` for reusable parent lifecycles. Attach programmatic
+children with `group.route(options).screen(Component)`; file routes explicitly
+export the group as `group`. Nest with `group.group(options)`. Layout components
+remain rendering wrappers. Each group's guard then loader runs before its
+children, and loader output is inherited at `context[group.id]`. Root dependencies
+remain separate from those additions. Groups rerun on every preparation, including
+URL entry, Back and refresh; failures, redirects and cancellation stop children.
+Group callbacks see general params/search because a group can serve several paths.
+
+```ts
+import { defineRouteGroup } from '@octane-xplat/ui/routing/core'
+export const account = defineRouteGroup({ id: 'profile', loader: () => ({ name: 'Alex' }) })
+export const project = account.group({ id: 'project', loader: ({ context }) => context.profile.name })
+// In a file route: export { project as group } from '../route-groups'
+```
+
 ## Keep platform contracts truthful
 
 File discovery recognizes `.tsx`, `.tsrx` and `.md`, not plain `.ts`/`.js`
