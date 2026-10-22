@@ -672,3 +672,107 @@ describe('lifecycle refresh and polling', () => {
 		expect(host.listeners.size).toBe(1)
 	})
 })
+
+describe('typed confirmed cache updates', () => {
+	it('publishes one write to all readers and uses the configured freshness window', async () => {
+		let calls = 0
+		const users = defineQuery(['users'], (_id: string) => ({ name: `server-${++calls}` }), {
+			staleTimeMs: Infinity,
+		})
+		const queries = client()
+		const a = queries.observe$(users, 'a')
+		const b = queries.observe$(users, 'a')
+		await settle()
+		queries.setQueryData(users, 'a', (previous) => ({ ...previous!, name: 'saved' }))
+		expect(a.data$.get()).toEqual({ name: 'saved' })
+		expect(b.data$.get()).toEqual({ name: 'saved' })
+		queries.observe$(users, 'a')
+		await settle()
+		expect(calls).toBe(1)
+		expect(queries.getQueryData(users, 'a')).toEqual({ name: 'saved' })
+	})
+	it('fences older fetches and allows an explicitly newer refetch', async () => {
+		const gate = deferred<string>()
+		let calls = 0
+		const users = defineQuery(['users'], (_id: string) =>
+			++calls === 1 ? gate.promise : 'reconciled',
+		)
+		const queries = client()
+		const reader = queries.observe$(users, 'a')
+		const old = reader.refetch().catch((error) => error)
+		await settle()
+		queries.setQueryData(users, 'a', 'saved')
+		expect(await old).toMatchObject({ name: 'AbortError' })
+		gate.resolve('obsolete')
+		await settle()
+		expect(reader.data$.get()).toBe('saved')
+		await reader.refetch()
+		expect(reader.data$.get()).toBe('reconciled')
+	})
+	it('fences an older restore and saves the confirmed replacement', async () => {
+		const gate = deferred<string | null>()
+		const records = new Map<string, string>()
+		let first = true
+		const storage: QueryStorageAdapter = {
+			get(key) {
+				if (first && !key.startsWith('xplat:query:index:')) {
+					first = false
+					return gate.promise
+				}
+				return records.get(key)
+			},
+			set: (key, value) => {
+				records.set(key, value)
+			},
+			remove: (key) => {
+				records.delete(key)
+			},
+		}
+		const users = defineQuery(['users'], (_id: string) => 'network', {
+			staleTimeMs: Infinity,
+			persist: { storage, version: 1 },
+		})
+		const queries = client('account')
+		const reader = queries.observe$(users, 'a')
+		await settle()
+		queries.setQueryData(users, 'a', 'saved')
+		gate.resolve(JSON.stringify({ v: 1, t: Date.now(), d: 'obsolete' }))
+		await settle()
+		expect(reader.data$.get()).toBe('saved')
+		await queries.dispose()
+		const restored = client('account').observe$(users, 'a')
+		await settle()
+		expect(restored.data$.get()).toBe('saved')
+	})
+	it('updates only matching existing selections and does not create entries during reads', async () => {
+		const users = defineQuery(['users'], (id: string) => ({ id, name: 'before' }), {
+			staleTimeMs: Infinity,
+		})
+		const queries = client()
+		expect(queries.getQueryData(users, 'missing')).toBeUndefined()
+		expect(queries.setQueriesData(users, (value) => value)).toBe(0)
+		queries.setQueryData(users, 'a', { id: 'a', name: 'first' })
+		queries.setQueryData(users, 'b', { id: 'b', name: 'second' })
+		expect(
+			queries.setQueriesData(users, (value, selection) => ({ ...value, name: selection }), {
+				key: ['users', 'a'],
+				exact: true,
+			}),
+		).toBe(1)
+		expect(queries.getQueryData(users, 'a')?.name).toBe('a')
+		expect(queries.getQueryData(users, 'b')?.name).toBe('second')
+	})
+	it('rejects writes after disposal and leaves data intact if an updater throws', async () => {
+		const users = defineQuery(['users'], (_id: string) => 'server')
+		const queries = client()
+		queries.setQueryData(users, 'a', 'saved')
+		expect(() =>
+			queries.setQueryData(users, 'a', () => {
+				throw new Error('update failed')
+			}),
+		).toThrow('update failed')
+		expect(queries.getQueryData(users, 'a')).toBe('saved')
+		await queries.dispose()
+		expect(() => queries.setQueryData(users, 'a', 'private')).toThrow('disposed')
+	})
+})

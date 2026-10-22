@@ -29,6 +29,7 @@ Rouzer route tree are outside this recipe's scope.
 - AC6: The reader can choose between a module-level and a screen-owned `query$` for route-param-driven data, and knows the stacked-navigation hazard of copying route params into shared selector signals during render.
 - AC7: The reader can pass cancellation to the transport, rely on unmount retiring component-owned requests and subscriptions, and prevent an obsolete response from replacing a later selection.
 - AC8: The reader can share a query's result across screens through one `QueryClient`, isolate same-key entries and invalidation in another client, reuse definitions without merging independent selectors, and persist records with version, millisecond `maxAgeMs`, and an immutable client namespace. Dispose and replace clients when switching accounts; retired fetches/restores cannot repopulate disposed data, and a newer invalidation survives an older in-flight response. Millisecond stale windows use `staleTimeMs`.
+- AC13: Typed confirmed writes update all readers and durable data, reject obsolete fetch/restore results, preserve the definition's result type, and limit bulk updates to explicitly matched existing entries.
 - AC12: Stale observed queries refresh on resume/reconnect, optional polling pauses offline/background without catch-up bursts, and hosts expose unavailable lifecycle/connectivity capabilities explicitly.
 - AC11: Shared reads recover through one bounded retry sequence, expose offline pause separately from usable data, support application retry policies and non-network loaders, and cancel pending delays on disposal.
 - AC10: The reader can set freshness separately from inactive retention, knows when the final reader cancels work, and can restore durable records after memory collection without leaking a previous account.
@@ -51,3 +52,5 @@ Rouzer route tree are outside this recipe's scope.
 - AC11: [Recovering failed reads](../../../docs/app/data.md#recovering-failed-reads) and [scheduler regressions](../../../packages/ui/src/query-cache.test.ts).
 
 - AC12: [Recovering failed reads](../../../docs/app/data.md#recovering-failed-reads), [scheduler regressions](../../../packages/ui/src/query-cache.test.ts), and [platform environment leaves](../../../packages/platform/src/environment.ts).
+
+- AC13: [Refresh and writes](../../../docs/app/data.md#refresh-and-writes), [cache update regressions](../../../packages/ui/src/query-cache.test.ts), and [packed type contracts](../../../packages/ui/tests/packed-consumer.mjs).

@@ -551,8 +551,8 @@ export function UserCard(props: { userId: string }) @{
 ```
 
 A definition owns the loader and options for its family. Declare it outside
-rendering and reuse the same object. Another definition using that family in
-one client throws instead of silently taking the first loader. Keys and
+rendering and reuse the same object. Another definition using a family that the client
+already holds throws instead of silently taking the first loader. Keys and
 selections contain JSON values; object field order does not affect identity.
 
 ```ts
@@ -701,14 +701,14 @@ export async function refreshUser(reader: QueryReader<User>) {
 }
 ```
 
-After a save, invalidate the affected family or exact family-plus-selection
-key. Observed entries refresh; unobserved entries wait for their next reader.
-An invalidation arriving during a request schedules a follow-up before that
-request settles. This cache does not yet expose optimistic actions; use the
-[plain signal write workflow](#writes) for owner-local optimistic work.
+When a save returns the confirmed record, publish it with `setQueryData`.
+Every reader sees that value immediately, and it becomes eligible for
+persistence. A write starts a new freshness window and cancels an older fetch;
+a late fetch or restore cannot overwrite it. A later explicit refetch can
+reconcile with the server again.
 
 ```ts
-import { queries } from './queries'
+import { queries, users, type User } from './queries'
 
 export async function renameUser(id: string, name: string) {
 	const response = await fetch(`/api/users/${encodeURIComponent(id)}`, {
@@ -717,6 +717,40 @@ export async function renameUser(id: string, name: string) {
 		body: JSON.stringify({ name }),
 	})
 	if (!response.ok) throw new Error('Could not save user')
+	const saved = await response.json() as User
+	queries.setQueryData(users, id, saved)
+}
+```
+
+Use `getQueryData` for a confirmed snapshot outside rendering. For a bulk
+response, `setQueriesData` updates only matching entries that already exist.
+It does not create missing entries or guess relationships between list and
+detail queries. Both operations infer their value types from the definition.
+
+```ts
+import { queries, users, type User } from './queries'
+
+export function hasCachedUser(id: string) {
+	return queries.getQueryData(users, id) !== undefined
+}
+export function publishExistingUsers(receipts: readonly User[]) {
+	for (const saved of receipts) {
+		queries.setQueriesData(users, () => saved, { key: ['users', saved.id], exact: true })
+	}
+}
+```
+
+If the server does not return enough data to publish a complete record,
+invalidate the affected family or exact family-plus-selection key. Observed
+entries refresh; unobserved entries wait for their next reader. An invalidation
+during a request starts a follow-up before it settles. Shared optimistic
+helpers are not available yet; [plain signal writes](#writes) support
+owner-local optimistic work.
+
+```ts
+import { queries } from './queries'
+
+export function reloadUser(id: string) {
 	queries.invalidateQueries({ key: ['users', id], exact: true })
 }
 ```

@@ -377,6 +377,22 @@ import { MarkdownScreen } from '@octane-xplat/ui'
 import { ChatLayout } from '@octane-xplat/ui'
 // @ts-expect-error legacy navigation was removed during the canonical cutover
 import { pushRoute } from '@octane-xplat/ui/routing'
+const typedQueries = createQueryClient()
+const typedUsers = defineQuery(['users'], (id: string) => ({ id, name: 'Ada' }))
+typedQueries.setQueryData(typedUsers, '42', { id: '42', name: 'Grace' })
+typedQueries.setQueriesData(typedUsers, (value, id) => ({ ...value, id }))
+const typedUser: { id: string; name: string } | undefined = typedQueries.getQueryData(typedUsers, '42')
+// @ts-expect-error result type is inferred from the definition, not widened by the update
+typedQueries.setQueryData(typedUsers, '42', { id: '42', name: 123 })
+// @ts-expect-error updater must return the definition's result type
+typedQueries.setQueryData(typedUsers, '42', value => ({ ...value!, name: 123 }))
+// @ts-expect-error matching updates have the same result contract
+typedQueries.setQueriesData(typedUsers, value => ({ ...value, name: 123 }))
+// @ts-expect-error definition's selection is a string
+typedQueries.setQueryData(typedUsers, 42, { id: '42', name: 'Grace' })
+// @ts-expect-error the global default cache was removed
+import { cachedQuery$ } from '@octane-xplat/ui/data'
+void typedUser
 const mdProps: MarkdownProps = { text: '# hi' }
 const mdDoc: MdDoc = parseMdDoc('# hi')
 const tokens: TokenLine[] = tokenize('let x = 1', 'ts')

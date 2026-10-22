@@ -119,6 +119,9 @@ export interface QueryDisposeOptions {
 	readonly purgePersisted?: boolean
 }
 
+/** A complete confirmed value, or a pure immutable update from the current value. */
+export type QueryUpdater<T> = T | ((previous: T | undefined) => T)
+
 /** An app/account/request cache. Dispose it at that boundary's end. */
 export interface QueryClient {
 	/** Acquire outside rendering; components use useQuery$ for commit-time ownership. */
@@ -126,6 +129,23 @@ export interface QueryClient {
 		definition: QueryDefinition<A, T>,
 		selection: A,
 	): QueryReader<T>
+	/** Read confirmed authority without creating an entry or fetching. */
+	getQueryData<A extends QueryKeyPart, T>(
+		definition: QueryDefinition<A, T>,
+		selection: A,
+	): T | undefined
+	/** Publish confirmed data, fence older reads/restores, and reset its freshness time. */
+	setQueryData<A extends QueryKeyPart, T>(
+		definition: QueryDefinition<A, T>,
+		selection: A,
+		update: QueryUpdater<NoInfer<T>>,
+	): void
+	/** Update matching existing, settled entries of this definition; never invent entries. */
+	setQueriesData<A extends QueryKeyPart, T>(
+		definition: QueryDefinition<A, T>,
+		update: (previous: NoInfer<T>, selection: NoInfer<A>) => NoInfer<T>,
+		filter?: QueryFilter,
+	): number
 	invalidateQueries(filter?: QueryFilter): void
 	/** Retires matching readers. Collection alone does not delete durable data. */
 	evictQueries(filter?: QueryFilter, options?: QueryDisposeOptions): Promise<void>
@@ -232,6 +252,10 @@ export function canonicalQueryKey(value: unknown, parents = new Set<object>()): 
 	} finally {
 		parents.delete(value)
 	}
+}
+
+function applyUpdate<T>(update: QueryUpdater<T>, previous: T | undefined): T {
+	return typeof update === 'function' ? (update as (current: T | undefined) => T)(previous) : update
 }
 
 interface StorageTarget {
@@ -751,10 +775,8 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 		if (registered && registered !== definition) {
 			throw new TypeError('A different query definition already owns this family')
 		}
-		const elements = [
-			...definition.key.map((part) => canonicalQueryKey(part)),
-			canonicalQueryKey(selection),
-		]
+		const selectionKey = canonicalQueryKey(selection)
+		const elements = [...definition.key.map((part) => canonicalQueryKey(part)), selectionKey]
 		const key = JSON.stringify(elements)
 		const existing = entries.get(key)
 		if (existing) {
@@ -784,7 +806,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 			value$,
 			state$,
 			definition: definition as unknown as QueryDefinition<QueryKeyPart, T>,
-			selection: freezeJson(JSON.parse(canonicalQueryKey(selection))) as QueryKeyPart,
+			selection: freezeJson(JSON.parse(selectionKey)) as QueryKeyPart,
 			readers: 0,
 			retired: false,
 			invalidated: false,
@@ -826,6 +848,34 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 		entries.set(key, entry as unknown as Entry)
 		return entry
 	}
+	function existingFor$<A extends QueryKeyPart, T>(
+		definition: QueryDefinition<A, T>,
+		selection: A,
+	): Entry<T> | undefined {
+		assertClient()
+		const family = canonicalQueryKey(definition.key)
+		const registered = definitions.get(family)
+		if (registered && registered !== definition) {
+			throw new TypeError('A different query definition already owns this family')
+		}
+		const elements = [
+			...definition.key.map((part) => canonicalQueryKey(part)),
+			canonicalQueryKey(selection),
+		]
+		return entries.get(JSON.stringify(elements)) as unknown as Entry<T> | undefined
+	}
+	function write<T>(entry: Entry<T>, value: T): T {
+		assertEntry(entry)
+		entry.revision++
+		entry.controller?.abort()
+		entry.controller = undefined
+		entry.inflight = undefined
+		entry.invalidated = false
+		publish(entry, value)
+		writePersisted(entry)
+		return value
+	}
+
 	function retire(entry: Entry): void {
 		entry.retired = true
 		clearTimeout(entry.gcTimer)
@@ -911,6 +961,37 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 				},
 			}
 		},
+		getQueryData(definition, selection) {
+			const entry = existingFor$(definition, selection)
+			return entry?.value$.latest()
+		},
+		setQueryData(definition, selection, update) {
+			const entry = entryFor$(definition, selection)
+			clearTimeout(entry.gcTimer)
+			entry.leases++
+			try {
+				const previous = entry.state$.get().hasData ? entry.value$.get() : undefined
+				const value = applyUpdate(update, previous)
+				write(entry, value)
+			} finally {
+				release(entry)
+			}
+		},
+		setQueriesData(definition, update, filter = {}) {
+			assertClient()
+			let count = 0
+			for (const raw of [...entries.values()]) {
+				if (raw.definition !== definition || !matches(raw, filter) || !raw.state$.get().hasData) {
+					continue
+				}
+
+				const entry = raw as unknown as Entry<ReturnType<typeof update>>
+				write(entry, update(entry.value$.get()!, entry.selection as Parameters<typeof update>[1]))
+				count++
+			}
+			return count
+		},
+
 		invalidateQueries(filter = {}) {
 			assertClient()
 			for (const entry of entries.values()) {
