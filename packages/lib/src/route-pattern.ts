@@ -62,7 +62,7 @@ export function matchRouteSegments(
 			}
 			return segment.endsWith('?') && walk(pi + 1, si)
 		}
-		return segment === segments[si] && walk(pi + 1, si + 1)
+		return si < segments.length && segment === decodeURIComponent(segments[si]) && walk(pi + 1, si + 1)
 	}
 	return walk(0, 0) ? params : null
 }

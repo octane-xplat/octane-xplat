@@ -681,3 +681,16 @@ it('accepts plain and null-prototype validated search field bags', async () => {
     expect(await engine.prepare('/items/coat')).toMatchObject({ status: 'ready', match: { search: { page: 2 }, data: 2 } })
   }
 })
+
+it('resolves its own generated href for a Unicode static route', async () => {
+	const engine = createRoutePreparation({
+		base: '/app',
+		catalog: defineRoutes([{ path: '/café/:id', screen: Screen }]),
+		behaviors: { '/café/:id': { validateSearch: (search) => search } },
+	})
+	const destination = { to: '/café/:id', params: { id: 'a/b' }, search: { q: 'x+y' }, hash: 'section' }
+	const href = engine.href(destination)
+	expect(href).toBe('/app/caf%C3%A9/a%2Fb?q=x%2By#section')
+	expect(engine.resolveUrl(href)).toMatchObject({ status: 'matched', destination: { params: { id: 'a/b' } } })
+	expect(await engine.prepare(href)).toMatchObject({ status: 'ready', match: { params: { id: 'a/b' } } })
+})
