@@ -590,3 +590,85 @@ describe('shared request scheduler', () => {
 		}
 	})
 })
+
+describe('lifecycle refresh and polling', () => {
+	it('coalesces resume and reconnect for stale observed entries', async () => {
+		const host = environment({ online: true, active: true })
+		let calls = 0
+		const users = defineQuery(['users'], (_id: string) => ++calls)
+		const queries = client(undefined, host)
+		const reader = queries.observe$(users, 'a')
+		queries.observe$(users, 'a')
+		await settle()
+		host.set({ online: false, active: false })
+		host.set({ online: false, active: true })
+		host.set({ online: true, active: true })
+		await settle()
+		expect(calls).toBe(2)
+		expect(reader.data$.get()).toBe(2)
+	})
+	it('does not refresh fresh entries or entries whose policy disables lifecycle refresh', async () => {
+		for (const fresh of [true, false]) {
+			const host = environment({ online: true, active: true })
+			let calls = 0
+			const users = defineQuery(
+				['users'],
+				(_id: string) => ++calls,
+				fresh ? { staleTimeMs: Infinity } : { refetchOnResume: false, refetchOnReconnect: false },
+			)
+
+			const reader = client(undefined, host).observe$(users, 'a')
+			await settle()
+			host.set({ online: false, active: false })
+			host.set({ online: true, active: true })
+			await settle()
+			expect(calls).toBe(1)
+			expect(reader.data$.get()).toBe(1)
+		}
+	})
+	it('polls without background/offline catch-up bursts and stops after the final lease', async () => {
+		vi.useFakeTimers()
+		const host = environment({ online: true, active: true })
+		let calls = 0
+		const users = defineQuery(['users'], (_id: string) => ++calls, { refetchIntervalMs: 100 })
+		const reader = client(undefined, host).observe$(users, 'a')
+		await vi.advanceTimersByTimeAsync(0)
+		await vi.advanceTimersByTimeAsync(100)
+		expect(calls).toBe(2)
+		host.set({ online: true, active: false })
+		await vi.advanceTimersByTimeAsync(1000)
+		expect(calls).toBe(2)
+		host.set({ online: true, active: true })
+		await vi.advanceTimersByTimeAsync(0)
+		expect(calls).toBe(3)
+		await vi.advanceTimersByTimeAsync(100)
+		expect(calls).toBe(4)
+		host.set({ online: false, active: true })
+		await vi.advanceTimersByTimeAsync(1000)
+		expect(calls).toBe(4)
+		host.set({ online: true, active: true })
+		await vi.advanceTimersByTimeAsync(0)
+		expect(calls).toBe(5)
+		reader.dispose()
+		expect(host.listeners.size).toBe(0)
+		await vi.advanceTimersByTimeAsync(1000)
+		expect(calls).toBe(5)
+	})
+	it('shares a lazy subscription and reattaches after becoming idle', async () => {
+		const host = environment({ online: true })
+		const queries = client(undefined, host)
+		const users = defineQuery(['users'], (_id: string) => 'value')
+		expect(host.listeners.size).toBe(0)
+		const first = queries.observe$(users, 'a')
+		const second = queries.observe$(users, 'b')
+		await settle()
+		expect(host.listeners.size).toBe(1)
+		first.dispose()
+		expect(host.listeners.size).toBe(1)
+		second.dispose()
+		expect(host.listeners.size).toBe(0)
+		queries.observe$(users, 'a')
+		await settle()
+		expect(host.listeners.size).toBe(1)
+	})
+})

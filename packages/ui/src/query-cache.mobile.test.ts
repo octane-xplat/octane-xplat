@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
 	createObjectContainer,
 	createObjectDriver,
@@ -13,6 +13,10 @@ import {
 } from '../tests/query-cache.fixture.mobile.tsrx'
 
 import { createQueryClient, defineQuery, type QueryClient } from './query-cache'
+
+vi.mock('@octane-xplat/platform/environment', () => ({
+	environment: { getSnapshot: () => ({}), subscribe: () => () => {} },
+}))
 
 const roots: ReturnType<typeof createUniversalRoot>[] = []
 const clients: QueryClient[] = []

@@ -616,6 +616,36 @@ export const weather = defineQuery(['weather'], async (city: string, { signal })
 }, { retryCount: 2, retryDelayMs: failureCount => Math.min(1000 * 2 ** (failureCount - 1), 30_000) })
 ```
 
+Stale observed queries refresh when the app resumes or connectivity returns.
+Fresh and unobserved entries do not refresh for those events. Polling is
+optional; it pauses while the app is inactive or the network is offline and
+resumes without replaying missed intervals. Set either lifecycle policy to
+`false` to disable that trigger; paused work still resumes when it can run.
+
+```ts
+import { defineQuery } from '@octane-xplat/ui/data'
+
+export const liveScores = defineQuery(['scores'], async (league: string, { signal }) => {
+	const response = await fetch(`/api/scores?league=${encodeURIComponent(league)}`, { signal })
+	if (!response.ok) throw new Error('Could not load scores')
+	return response.json() as Promise<number[]>
+}, { refetchIntervalMs: 15_000, refetchOnResume: true, refetchOnReconnect: true })
+```
+
+Clients use the platform environment automatically and release its listeners
+when their last lease ends. The browser adapter uses visibility/network events;
+NativeScript uses app suspend/resume and connectivity; AppKit uses its host
+activity and Network framework bridge. Hosts without a capability report it
+explicitly. Experimental desktop hosts without browser or AppKit services
+need a custom environment for lifecycle refresh.
+
+```ts
+import { environment } from '@octane-xplat/platform/environment'
+
+const capabilities = environment.getSnapshot().capabilities
+console.log('Activity events available:', capabilities?.activity ?? false)
+```
+
 Custom hosts can provide connectivity through an environment. Known offline
 work reports `fetchStatus: 'paused'`; missing connectivity information allows
 work to run. Use `networkMode: 'always'` for a local database or another loader

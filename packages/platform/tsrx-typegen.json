@@ -39,6 +39,11 @@
 					"runtime": ["./src/dev-actions.ts"],
 					"types": ["./types/generated/dev-actions.d.ts"]
 				},
+				"./environment": {
+					"source": "src/environment.macos.ts",
+					"runtime": ["./src/environment.ts", "./src/environment.web.ts", "./src/environment.macos.ts"],
+					"types": ["./types/generated/environment.d.ts", "./types/generated/environment.web.d.ts", "./types/generated/environment.macos.d.ts"]
+				},
 				"./*": {
 					"source": "src/index.ts",
 					"runtime": ["./src/*"],

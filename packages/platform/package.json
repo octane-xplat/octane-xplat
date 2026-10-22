@@ -140,13 +140,33 @@
 		"./windows": {
 			"types": "./types/generated/types/windows.d.ts",
 			"default": "./src/types/windows.ts"
+		},
+		"./environment": {
+			"macos": {
+				"types": "./types/generated/environment.macos.d.ts",
+				"default": "./src/environment.macos.ts"
+			},
+			"linux": {
+				"types": "./types/generated/environment.web.d.ts",
+				"default": "./src/environment.web.ts"
+			},
+			"windows": {
+				"types": "./types/generated/environment.web.d.ts",
+				"default": "./src/environment.web.ts"
+			},
+			"web": {
+				"types": "./types/generated/environment.web.d.ts",
+				"default": "./src/environment.web.ts"
+			},
+			"types": "./types/generated/environment.d.ts",
+			"default": "./src/environment.ts"
 		}
 	},
 	"publishConfig": {
 		"access": "public"
 	},
 	"scripts": {
-		"test": "node --test tests/*.test.mjs",
+		"test": "node --test tests/*.test.mjs && vitest run --config vitest.environment.config.mts",
 		"test:connectivity:macos": "node tests/verify-connectivity-macos.mjs",
 		"typegen": "tsrx-typegen --project tsconfig.types.json",
 		"prepack": "pnpm typegen && tsrx-typegen --pack-check",

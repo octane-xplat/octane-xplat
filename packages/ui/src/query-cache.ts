@@ -1,3 +1,4 @@
+import { environment as platformEnvironment } from '@octane-xplat/platform/environment'
 /** Shared queries with explicit definition, reader, and client lifetimes. */
 import { createScope, type DerivedSignal, type Scope, type WritableSignal } from 'octane/signals'
 
@@ -50,6 +51,12 @@ export interface QueryOptions {
 	readonly shouldRetry?: (failureCount: number, error: unknown) => boolean
 	/** Remote queries wait when the host is known offline. @default 'online' */
 	readonly networkMode?: 'online' | 'always'
+	/** Refresh stale observed entries when the app resumes. @default true */
+	readonly refetchOnResume?: boolean
+	/** Refresh stale observed entries after reconnecting. @default true */
+	readonly refetchOnReconnect?: boolean
+	/** Poll observed entries in milliseconds; 0 disables. Pauses offline/background. @default 0 */
+	readonly refetchIntervalMs?: number
 }
 
 const DEFINITION = Symbol('query-definition')
@@ -91,6 +98,7 @@ export interface QueryFilter {
 export interface QueryEnvironmentSnapshot {
 	readonly online?: boolean
 	readonly active?: boolean
+	readonly capabilities?: { readonly connectivity: boolean; readonly activity: boolean }
 }
 
 /** Injectable host boundary. Subscriptions must return their own cleanup. */
@@ -149,6 +157,7 @@ export function defineQuery<A extends QueryKeyPart, T>(
 	}
 	validateDuration(options.staleTimeMs, 'staleTimeMs')
 	validateDuration(options.gcTimeMs, 'gcTimeMs')
+	validateDuration(options.refetchIntervalMs, 'refetchIntervalMs')
 	if (
 		options.retryCount !== undefined &&
 		(!Number.isSafeInteger(options.retryCount) || options.retryCount < 0)
@@ -247,6 +256,8 @@ interface Entry<T = unknown> {
 	family: string
 	leases: number
 	gcTimer?: ReturnType<typeof setTimeout>
+	pollTimer?: ReturnType<typeof setTimeout>
+	environmentRefreshPending?: boolean
 	environment(): QueryEnvironmentSnapshot
 	wake?: () => void
 	elements: readonly string[]
@@ -536,6 +547,45 @@ async function attempt<T>(entry: Entry<T>, signal: AbortSignal): Promise<T> {
 	}
 }
 
+function armPolling<T>(entry: Entry<T>): void {
+	clearTimeout(entry.pollTimer)
+	entry.pollTimer = undefined
+	if (entry.retired || entry.readers === 0) {
+		return
+	}
+	const interval = entry.definition.options.refetchIntervalMs ?? 0
+	const host = entry.environment()
+	if (
+		interval === 0 ||
+		interval === Infinity ||
+		host.active === false ||
+		(host.online === false && entry.definition.options.networkMode !== 'always')
+	) {
+		return
+	}
+	const deadline = Date.now() + interval
+	function arm(): void {
+		entry.pollTimer = setTimeout(
+			() => {
+				if (Date.now() < deadline) {
+					arm()
+					return
+				}
+				if (entry.retired || entry.readers === 0) {
+					return
+				}
+				void load(entry, true).then(
+					() => armPolling(entry),
+					() => armPolling(entry),
+				)
+			},
+			Math.min(Math.max(0, deadline - Date.now()), 2_147_483_647),
+		)
+		;(entry.pollTimer as unknown as { unref?: () => void }).unref?.()
+	}
+	arm()
+}
+
 function load<T>(entry: Entry<T>, force = false): Promise<T> {
 	assertEntry(entry)
 	if (entry.inflight) {
@@ -620,18 +670,69 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 	const definitions = new Map<string, QueryDefinition<QueryKeyPart, unknown>>()
 	const persistence = new Map<QueryStorageAdapter, NamespaceTarget>()
 	let disposed = false
-	let environment = options.environment?.getSnapshot() ?? {}
+	const hostEnvironment = options.environment ?? platformEnvironment
+	let environment: QueryEnvironmentSnapshot = {}
 	let unsubscribe: (() => void) | undefined
+	let environmentGeneration = 0
 	function attach(): void {
-		if (!unsubscribe && options.environment) {
-			unsubscribe = options.environment.subscribe((snapshot) => {
-				environment = snapshot
-				for (const entry of entries.values()) {
-					entry.wake?.()
-				}
-			})
+		assertClient()
+		if (unsubscribe) {
+			return
 		}
+		environment = hostEnvironment.getSnapshot()
+		const generation = ++environmentGeneration
+		unsubscribe = hostEnvironment.subscribe((snapshot) => {
+			if (disposed || generation !== environmentGeneration) {
+				return
+			}
+			const previous = environment
+			environment = snapshot
+			for (const entry of entries.values()) {
+				entry.wake?.()
+				armPolling(entry)
+				const policy = entry.definition.options
+				const refresh =
+					(previous.active === false &&
+						snapshot.active === true &&
+						policy.refetchOnResume !== false) ||
+					(previous.online === false &&
+						snapshot.online === true &&
+						policy.refetchOnReconnect !== false)
+
+				if (
+					refresh &&
+					!entry.environmentRefreshPending &&
+					entry.readers > 0 &&
+					snapshot.active !== false &&
+					stale(entry)
+				) {
+					entry.environmentRefreshPending = true
+					void Promise.resolve().then(() => {
+						entry.environmentRefreshPending = false
+						if (
+							!entry.retired &&
+							entry.readers > 0 &&
+							environment.active !== false &&
+							environment.online !== false &&
+							stale(entry)
+						) {
+							void load(entry, true).catch(() => {})
+						}
+					})
+				}
+			}
+		})
 	}
+	function detachWhenIdle(): void {
+		if ([...entries.values()].some((entry) => entry.leases > 0)) {
+			return
+		}
+		environmentGeneration++
+		const stop = unsubscribe
+		unsubscribe = undefined
+		stop?.()
+	}
+
 	function assertClient(): void {
 		if (disposed) {
 			throw new Error('Query client is disposed')
@@ -728,6 +829,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 	function retire(entry: Entry): void {
 		entry.retired = true
 		clearTimeout(entry.gcTimer)
+		clearTimeout(entry.pollTimer)
 		entry.controller?.abort()
 		entry.scope.dispose()
 		entries.delete(entry.id)
@@ -740,6 +842,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 		if (entry.leases > 0 || entry.retired) {
 			return
 		}
+		clearTimeout(entry.pollTimer)
 		if (entry.inflight) {
 			entry.revision++
 			entry.controller?.abort()
@@ -756,6 +859,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 		}
 		const delay = entry.definition.options.gcTimeMs ?? 300_000
 		if (delay === Infinity) {
+			detachWhenIdle()
 			return
 		}
 		const deadline = Date.now() + delay
@@ -776,14 +880,16 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 			;(entry.gcTimer as unknown as { unref?: () => void }).unref?.()
 		}
 		arm()
+		detachWhenIdle()
 	}
 	return {
 		observe$(definition, selection) {
-			attach()
 			const entry = entryFor$(definition, selection)
+			attach()
 			clearTimeout(entry.gcTimer)
 			entry.readers++
 			entry.leases++
+			armPolling(entry)
 			void load(entry).catch(() => {})
 			let released = false
 			return {
@@ -830,10 +936,12 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 					}
 				}
 			}
+			detachWhenIdle()
 			return Promise.all(removals).then(() => {})
 		},
 		dispose(disposal = {}) {
 			disposed = true
+			environmentGeneration++
 			const failures: unknown[] = []
 			try {
 				unsubscribe?.()
