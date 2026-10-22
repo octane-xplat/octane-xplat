@@ -883,3 +883,54 @@ Evidence is source inspection and the prototype's isolated engine checks,
 not NativeScript application or OS-input qualification. The extraction design
 and its remaining host/artifact gates are in
 [Mason core extraction](../../design/mason-core-extraction.md).
+
+## Core extraction: Android style synchronization (2026-10-22)
+
+The first core-only Android instrumentation run executed 17 tests: 15 passed,
+including all 12 unchanged foreign-view regressions. Two new cases failed.
+The source baseline is fork beta.126 (`623114b070896a21315fcff9a3a6349bdd091cc4`);
+the host projection is in Mason fork commit `70a1fbba`.
+
+- **A standalone grid-template write can miss native synchronization.** In
+  `Style.kt`, `isSlowDirty` invokes `updateNativeStyle()` before assigning its
+  backing field. The sync therefore reads the old flag; assigning it afterward
+  can also undo `resetState()`. A two-column grid put its second child at x=0
+  instead of x=100. The full native source contains the same setter, and
+  `NodeHelper.setGridTemplateColumns` delegates directly to it; full-package
+  runtime reproduction remains pending. Core's temporary projection moves the
+  field assignment before the sync. The direct-setter regression remains in
+  the suite; batching the test would conceal the affected path. Offer this
+  narrow fix upstream separately from extraction and remove the projection
+  adaptation when the shared source is fixed.
+- **The foreign-view percent helper omits root-cache invalidation.** Directly
+  writing `mason.nodeForView(label).style` left the label at intrinsic width
+  rather than the requested percentage. Mason already provides
+  `setPercentWidth(view, fraction)` (NaN clears) and `syncStyleParts(view, ...)`
+  for this purpose. A second run using `setPercentWidth` still left the label at
+  intrinsic width. Source inspection found that this helper dirties the leaf,
+  while the root's `computeStale` only checks its own cache and constraints;
+  `syncStyleParts` already explicitly invalidates that root cache. Core's
+  projection adds the same root-cache invalidation to `setPercent`, retaining
+  the public-API percent/resize/reset regression. That change alone did not
+  resolve the runtime failure; it is a candidate correction, not a qualified
+  fix. The revised test also sets definite parent dimensions and engine scale
+  explicitly. Full-package runtime reproduction remains pending. Xplat's
+  existing consumer is unchanged.
+
+The run evidence is `tmp/mason-core-android-tests/1792697068284/instrumentation.log`
+in the Mason worktree. Subsequent fixes must pass the same geometry assertions
+before Android core runtime qualification is claimed.
+
+The second run also exposed a fixture unit mismatch: `100px` grid tracks scale
+with Android density, while native point dimensions and frame assertions use
+physical pixels. The grid test now explicitly sets engine device scale to 1;
+its direct-setter x=100 assertion remains. The first run's x=0 was still a
+synchronization failure; after the flag-order fix it became the correctly
+density-scaled x=262 on the default emulator.
+
+After the grid correction (`f002b702` in the Mason fork), both an API 35 emulator
+and an API 36 physical phone passed 16 of 17 tests, including every unchanged
+foreign-view regression. The percentage case still returned intrinsic width.
+The physical run is recorded in
+`tmp/mason-core-android-device-tests/1792698937501/instrumentation.log`. Native
+instrumentation does not qualify NativeScript lifecycle or OS input.

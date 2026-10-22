@@ -192,8 +192,9 @@ private `packages/nativescript-mason-core` helper package. Its source provenance
 and path mapping live in `tools/mason-core/README.md` in that repository. Five
 portable styling helpers and three existing tests moved unchanged, followed by
 27 unchanged layout/style/view/scroll source files. A separate core-only iOS
-host now builds and runs on an arm64 simulator. Android host extraction and
-NativeScript plugin packaging remain unimplemented.
+host now builds and runs on an arm64 simulator. A core-only Android AAR and
+isolated Java client also compile. Private NativeScript plugin assembly exists;
+application execution and independent bridge declarations remain unqualified.
 
 Full MasonKit builds the relocated helpers through a generated source overlay
 at `tmp/nativescript-masonkit`. This preserves its relative imports and emitted
@@ -220,9 +221,41 @@ and SDWebImage for backgrounds/nine-slice painting. A small glyph-provider
 protocol replaces the background painter's direct dependency on MasonKit's text
 renderer; it does not add glyph outlines to ordinary foreign labels. The
 shared Rust engine still includes inline-layout code and convenience node
-constructors. Device slices, plugin resources, bridge metadata/types, touch
-input, and matched release app measurements remain gates. Commands and source
+constructors. Device slices, NativeScript execution and independent bridge
+types, touch input, and matched release app measurements remain gates. Commands and source
 hashes are documented in `tools/mason-core/ios-host-README.md` in the Mason fork.
+
+The Android build proof (`70a1fbba` in the Mason fork) compiles 96 source files:
+86 byte-identical files, nine explicitly adapted files, and an unchanged context
+helper declaration extracted from a text-widget source file. It builds the
+unchanged JNI binding with 16 KB load alignment and verifies an isolated Java
+client against the exported arm64-v8a AAR and its resolved dependencies. The
+artifact excludes HTML parsing, rich-text rendering and widget classes. Its
+17-test instrumentation APK compiles. The first run passed 15 tests, including
+all 12 unchanged foreign-view tests. After correcting standalone grid style
+synchronization in the core projection, both an API 35 emulator and an API 36
+physical phone passed 16 of 17. Percentage width remains unresolved; a revised
+test supplies a definite containing block and explicit engine scale. These
+results do not qualify NativeScript lifecycle, OS input, or the full package's
+native behavior.
+See the [recorded Android findings](../docs/notes/masonkit-layout-evaluation.md#core-extraction-android-style-synchronization-2026-10-22).
+The tracked full Kotlin sources and Gradle project remain unchanged.
+
+Android retains Glide, Gson, FontManager and AndroidX Core; the transitive graph
+still contains AppCompat and Fragment. JNI initialization also requires the
+existing `InlineSegment` data classes. These retained costs need matched app
+measurements before any size claim. Commands and source hashes live in
+`tools/mason-core/android-host-README.md` in the Mason fork.
+
+The separate `build.plugin.prototype` target assembles the container-only runtime,
+native host artifacts, dependency headers/licenses, Android Maven declarations,
+and the iOS SDWebImage resource/privacy bundle. It does not change the ordinary
+helper build or make full MasonKit depend on core. Its current native coverage is
+arm64 iOS Simulator and Android arm64-v8a only. All 162 files survive an isolated
+pack/extract check with their hashes intact. The isolated iOS NativeScript app
+builds and generates metadata for the core classes without optional HTML/text
+widget declarations. It has not passed runtime assertions; independent native
+typings and Android NativeScript qualification remain gates.
 
 The separate `build.runtime` target now tests a container-only TypeScript
 boundary at `dist/prototypes/nativescript-mason-core`; the ordinary package
